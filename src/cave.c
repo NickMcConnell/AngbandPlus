@@ -549,15 +549,21 @@ void modify_grid_adjacent_view(byte *a, char *c, int y, int x, byte adj_char[16]
  */
 byte get_color(byte a, int attr, int n)
 {
+#ifdef USE_ISOV
+    int high = a & 0xE0;
+    a &= 0x1F;
+#endif
+    
 	/* Accept any graphical attr (high bit set) */
 	if (a & (0x80)) return (a);
-
+    
+    // printf("attr=%d n=%d a=%d -> ", attr, n, a);
+    
 	/* TODO: Honour the attribute for the term (full color, mono, 16 color) */
 	if (!attr)
 	{
 		return(a);
 	}
-
 	/* Note: attempt at efficiency hack by unrolling loop. Whether this sort of thing works anymore
 	 * is pretty questionable. However, we never call this function with n > 2 at the moment. */
 	else
@@ -576,7 +582,10 @@ loop_hack:
 		}
 	}
 
-	/* Return the modified color */
+#ifdef USE_ISOV
+    a |= high;
+#endif
+    
 	return (a);
 }
 
@@ -595,6 +604,9 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 		/* Lit by "torch" lite */
 		if (view_yellow_lite && !(cinfo & (CAVE_GLOW | CAVE_HALO | CAVE_DLIT)))
 		{
+#ifdef USE_ISOV
+			*a = get_color(*a, ATTR_LITE, 1);
+#else			
 			/* Mega-hack */
 			if (*a & 0x80)
 			{
@@ -609,12 +621,16 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 				/* Use "yellow" */
 				*a = get_color(*a, ATTR_LITE, 1);
 			}
+#endif		
 		}
 	}
 
 	/* Handle "blind" or "asleep" */
 	else if ((p_ptr->timed[TMD_BLIND]) || (p_ptr->timed[TMD_PSLEEP] >= PY_SLEEP_ASLEEP))
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_BLIND, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -629,11 +645,15 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 			/* Use "dark gray" */
 			*a = get_color(*a, ATTR_BLIND, 1);
 		}
+#endif
 	}
 
 	/* Handle "dark" grids */
 	else if (!(cinfo & (CAVE_LITE)))
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -648,11 +668,15 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 			/* Use "dark gray" */
 			*a = get_color(*a, ATTR_DARK, 2);
 		}
+#endif
 	}
 
 	/* Handle "view_bright_lite" */
 	else if (view_bright_lite)
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -667,6 +691,7 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 			/* Use "gray" */
 			*a = get_color(*a, ATTR_DARK, 1);
 		}
+#endif
 	}
 }
 
@@ -680,6 +705,9 @@ void modify_grid_unseen_view(byte *a, char *c)
 		|| p_ptr->timed[TMD_PSLEEP] >= PY_SLEEP_ASLEEP
 		|| !(level_flag & (LF1_DAYLIGHT)))
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 2);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -694,11 +722,15 @@ void modify_grid_unseen_view(byte *a, char *c)
 			/* Use "dark gray" */
 			*a = get_color(*a, ATTR_DARK, 2);
 		}
+#endif
 	}
 
 	/* Handle "dark" grids */
 	else if (view_bright_lite)
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -713,6 +745,7 @@ void modify_grid_unseen_view(byte *a, char *c)
 			/* Use "gray" */
 			*a = get_color(*a, ATTR_DARK, 1);
 		}
+#endif
 	}
 }
 
@@ -742,6 +775,9 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 	/* Handle "blind" or "asleep" */
 	else if ((p_ptr->timed[TMD_BLIND]) || (p_ptr->timed[TMD_PSLEEP] >= PY_SLEEP_ASLEEP))
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 2);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -756,11 +792,15 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 			/* Use "dark gray" */
 			*a = get_color(*a, ATTR_DARK, 2);
 		}
+#endif
 	}
 
 	/* Handle "dark" grids */
 	else if (!(cinfo & (CAVE_LITE)))
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 2);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -775,11 +815,15 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 			/* Use "dark gray" */
 			*a = get_color(*a, ATTR_DARK, 2);
 		}
+#endif
 	}
 
 	/* Handle "view_bright_lite" */
 	else if (view_bright_lite)
 	{
+#ifdef USE_ISOV
+		*a = get_color(*a, ATTR_DARK, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -794,9 +838,13 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 			/* Use "gray" */
 			*a = get_color(*a, ATTR_DARK, 1);
 		}
+#endif
 	}
 	else
 	{
+#ifdef USE_ISOV
+        // *a = get_color(*a, ATTR_LITE, 1);
+#else			
 		/* Mega-hack */
 		if (*a & 0x80)
 		{
@@ -810,6 +858,7 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 		{
 			/* Use "white" */
 		}
+#endif
 	}
 }
 
@@ -1571,7 +1620,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Normal attr */
 				a = da;
 			}
-		}
+			printf("Monster 0x%x:0x%x  (desired: 0x%x:0x%x)\n", a, c, da, dc);
+		}		
 	}
 
 	/* Handle "player" */
@@ -1622,8 +1672,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
 				{
 				case 10:
-				case  9:	a = TERM_WHITE  ;	break;
-				case  8:
+				case  9:	a = TERM_BLUE  ;	break;
+				case  8:   a = TERM_GREEN ;   break; 
 				case  7:	a = TERM_YELLOW ;	break;
 				case  6:
 				case  5:	a = TERM_ORANGE ;	break;
@@ -1634,6 +1684,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				case  0:	a = TERM_RED    ;	break;
 				default:	a = TERM_WHITE  ;	break;
 				}
+#ifdef USE_ISOV                
+            a |= 0x80;
+#endif
 		}
 
 		else a = r_ptr->x_attr;
@@ -2084,6 +2137,11 @@ void lite_spot(int y, int x)
 	unsigned ky, kx;
 	unsigned vy, vx;
 
+#ifdef USE_ISOV	
+	p_ptr->redraw |= (PR_MAP);
+	return;
+#endif
+	
 	/* Hack -- complete redraw */
 	if (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
 	{
@@ -2157,15 +2215,37 @@ void prt_map(void)
 	/* Assume screen */
 	ty = p_ptr->wy + SCREEN_HGT;
 	tx = p_ptr->wx + SCREEN_WID;
-
+#ifdef USE_ISOV
+	for (y = p_ptr->wy, vy = ROW_MAP; y < ty; vy++, y++)
+	{
+		for (x = p_ptr->wx, vx = COL_MAP; x < tx; vx++, x++)
+		{
+			/* Check bounds */
+			if (in_bounds(y, x)) {
+                /* Determine what is there */
+                map_info(y, x, &a, &c, &ta, &tc);
+            } else {
+                /* Black space */
+                a = ta = 0x80;
+                c = tc = 0x80 + 0x20;
+            }
+            
+            /* Hack -- Queue it */
+            Term_queue_char(vx, vy, a, c, ta, tc);
+        }
+    }
+    
+#else
 	/* Dump the map */
 	for (y = p_ptr->wy, vy = ROW_MAP; y < ty; vy++, y++)
 	{
 		for (x = p_ptr->wx, vx = COL_MAP; x < tx; vx++, x++)
 		{
 			/* Check bounds */
-			if (!in_bounds(y, x)) continue;
-
+			if (!in_bounds(y, x)) {
+                continue;
+            }
+            
 			/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
 
@@ -2191,6 +2271,7 @@ void prt_map(void)
 		if (use_dbltile || use_trptile)
 			vy++;
 	}
+#endif
 }
 
 

@@ -3844,7 +3844,7 @@ void play_game(bool new_game)
 	}
 
 	/* Init RNG */
-	if (Rand_quick)
+	if (1 /*Rand_quick*/)
 	{
 		u32b seed;
 
@@ -3904,10 +3904,10 @@ void play_game(bool new_game)
 			n_ptr->not_flags3 = 0x0L;
 			n_ptr->not_flags4 = 0x0L;
 		}
-
+        
 		/* Roll up a new character */
 		player_birth();
-
+        
 		/* Generate random artifacts */
 		/* Needs to be done even with no adult_reseed_artifacts,
 		   because the state of adult_randarts may have changed either way */

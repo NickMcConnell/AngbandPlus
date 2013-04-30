@@ -1,0 +1,19 @@
+Iso-UnAngband WIP v1
+====================
+
+Isometric View Addon by Hj. Malthaner
+
+Email: hansjoerg.malthaner@gmx.de
+Web: http://www.funkelwerk.de
+
+Iso-UnAngband is work in progress. This release is just a demo
+to display the current state of development. There are a whole
+lot of images missing and/or not properly assigned. Missing images
+will be replaced by colored ASCII letters, wrong assigned images
+will shop us as whatever they accidentally were assigned to,
+including invisible tiles in the worst case.
+
+Focus of WIP 1 was to have the display code integrated with
+UnAngband 0.6.4a, and as much of the terrain done so that one
+can walk around hobbtion, the east road, bree and a bit of the
+first level of bree sewers.

@@ -44,6 +44,9 @@ F:63:0x10/0x23
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
 %:font-x11.prf
 
+# ?:[EQU $SYS isd]
+# %:font-x11.prf
+
 ?:[EQU $SYS gcu]
 %:font-gcu.prf
 
@@ -67,6 +70,12 @@ F:63:0x10/0x23
 
 ?:[EQU $SYS acn]
 %:font-acn.prf
+
+?:[EQU $SYS sdl]
+%:font-sdl-iso.prf
+
+# ?:[EQU $SYS sdl]
+# %:font-sdl-iso_monster.prf
 
 ?:1
 

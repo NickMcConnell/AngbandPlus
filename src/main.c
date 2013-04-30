@@ -17,7 +17,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS)
+#if !defined(MACINTOSH) && !defined(RISCOS)
 
 #include "main.h"
 
@@ -82,6 +82,10 @@ static const struct module modules[] =
 #ifdef USE_VCS
 	{ "vcs", help_vcs, init_vcs },
 #endif /* USE_VCS */
+    
+#ifdef USE_ISOV_SDL
+	{ "sdl", help_sdl, init_sdl },
+#endif
 };
 
 
@@ -312,7 +316,7 @@ static void change_path(cptr info)
  * standard options.  All non-standard options (if any) are passed
  * directly to the "init_xxx()" function.
  */
-int main(int argc, char *argv[])
+static int old(int argc, char *argv[])
 {
 	int i;
 
@@ -326,6 +330,7 @@ int main(int argc, char *argv[])
 
 	bool args = TRUE;
 
+    printf("main() was called.\n");
 
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
@@ -624,3 +629,17 @@ int main(int argc, char *argv[])
 }
 
 #endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS) */
+
+#ifdef WINDOWS
+
+/*
+ * Hajo: SDL/Windows wants a main in a file that #includes SDL
+ * that main will call this hook, and this hook then can call main
+ * of Angband main()
+ */
+extern int sdl_main_hook(int argc, char *argv[])
+{
+  return old(argc, argv);
+}
+
+#endif

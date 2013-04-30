@@ -1,0 +1,1996 @@
+
+# Feature attr/char definitions
+
+# nothing
+F:0:0x81:0xA0:0:A
+
+# open floor (rc)
+# F:1:0x81:0xAE:0:A
+F:1:0x81:0x84:0:A
+
+# invisible trap
+# F:2:0x88:0xF8:0:A
+F:2:0x88:0xA0:0:A
+
+# glyph of warding
+F:3:0x8B:0xBB:0:A
+
+# open door
+F:4:0x8F:0xA7:0:A
+
+# broken door
+F:5:0x87:0xA7:0:A
+
+# up staircase
+# F:6:0x81:0xBC:0:A
+F:6:0xA1:0x85:0:A
+
+# down staircase
+# F:7:0x81:0xBE:0:A
+F:7:0xA1:0x84:0:A
+
+# General Store (rc)
+F:8:0xAF:0xE0:0:A
+
+# Armoury (rc)
+F:9:0xA2:0xE1:0:A
+
+# Weapon Smiths (rc)
+F:10:0xA1:0xE2:0:A
+
+# Temple (rc)
+F:11:0xA5:0xE3:0:A
+
+# Alchemy Shop (rc)
+F:12:0xA6:0xE4:0:A
+
+# Magic Shop (rc)
+F:13:0xA4:0xE5:0:A
+
+# Black Market (rc)
+F:14:0xA8:0xE6:0:A
+
+# Home (rc)
+F:15:0xAB:0xE7:0:A
+
+# trap door
+F:16:0x81:0xDE:0:A
+
+# pit
+F:17:0x88:0xDE:0:A
+
+# strange rune
+F:20:0x83:0xDE:0:A
+
+# shimmering portal
+F:21:0x9B:0xDE:0:A
+
+# discolored spot
+F:22:0x87:0xDE:0:A
+
+# spring-loaded trap
+F:24:0x84:0xDE:0:A
+
+# gas trap
+F:28:0x85:0xDE:0:A
+
+# door
+F:32:0x8F:0xAB:0:A
+
+# jammed door
+F:41:0x87:0xAB:0:A
+
+# pile of rubble
+F:49:0x81:0xBA:0:A
+
+# magma vein
+F:50:0x82:0xA5:0:A
+
+# quartz vein
+F:51:0x81:0xA5:0:A
+
+# magma vein with treasure
+F:54:0x8A:0xAA:0:A
+
+# quartz vein with treasure
+F:55:0x8A:0xAA:0:A
+
+# granite wall
+# F:56:0x81:0xA3:0:A
+F:56:0xC1:0x8B:0:A
+
+# permanent wall (rc) (shops)
+# F:60:0x9A:0xA3:0:A
+F:60:0xA1:0x87:0:A
+
+# deep pit
+F:64:0x88:0xDE:0:A
+
+# silent watcher
+F:70:0x82:0xDE:0:A
+
+# tripwire
+F:77:0x8B:0xDE:0:A
+
+# ever burning eye
+F:79:0x91:0xDE:0:A
+
+# magic symbol
+F:81:0x8E:0xDE:0:A
+
+# shaft of light
+F:87:0x94:0xDE:0:A
+
+# ancient hex
+F:88:0x8D:0xDE:0:A
+
+# murder hole
+F:91:0x8C:0xDE:0:A
+
+# loose rock
+F:95:0x8A:0xDE:0:A
+
+# a pile of rubble containing something
+F:97:0x81:0xA6:0:A
+
+# trapped door (trap door)
+F:99:0x81:0xAB:0:A
+
+# trapped door (pit)
+F:100:0x82:0xAB:0:A
+
+# trapped door (strange rune)
+F:101:0x83:0xAB:0:A
+
+# trapped door (stone visage)
+F:102:0x89:0xAB:0:A
+
+# trapped door (tripwire)
+F:103:0x8B:0xAB:0:A
+
+# trapped door (magic symbol)
+F:104:0x8E:0xAB:0:A
+
+# trapped door (ancient hex)
+F:105:0x8D:0xAB:0:A
+
+# trapped door (murder hole)
+F:106:0x8C:0xAB:0:A
+
+# trapped door (loose rock)
+F:107:0x8A:0xAB:0:A
+
+# trapped door (silent watcher)
+F:108:0x88:0xAB:0:A
+
+# trapped door (spring-loaded trap)
+F:109:0x84:0xAB:0:A
+
+# trapped door (gas trap)
+F:110:0x85:0xAB:0:A
+
+# limestone features
+F:111:0x89:0xA5:0:A
+
+# sandstone
+F:112:0x8B:0xA5:0:A
+
+# cracked granite wall
+F:113:0x81:0xA5:0:A
+
+# earth wall
+F:114:0x87:0xA3:0:A
+
+# cracked ice wall
+F:115:0x8E:0xA5:0:A
+
+# cracked ice wall over a geothermal floor
+F:117:0x8E:0xA5:0:A
+
+# water under a cracked ice wall
+F:119:0x86:0xA5:0:A
+
+# underwater
+F:121:0x86:0xA3:0:A
+
+# oil shale
+F:122:0x82:0xA5:0:A
+
+# coal
+F:123:0x88:0xA5:0:A
+
+# burning coal
+F:124:0x84:0xA5:0:A
+
+# unstable ice wall
+F:125:0x8E:0xA5:0:A
+
+# falling water
+F:126:0x86:0xBC:0:A
+
+# falling acid
+F:127:0x85:0xBC:0:A
+
+# deep water under ice
+F:133:0x8E:0xBB:0:A
+
+# earth floor (rc)
+# F:135:0x87:0xAE:0:A
+F:135:0x87:0x84:0:A
+
+# broken floor
+F:136:0x81:0xBB:0:A
+
+# dusty trail (rc)
+# F:137:0x94:0xAE:0:A
+F:137:0x94:0x84:0:A
+
+# stone bridge (rc)
+# F:140:0x81:0xF8:0:A
+F:140:0xC1:0xBB:0:A
+
+# chasm
+F:141:0x88:0xA0:0:A
+
+# chasm
+F:142:0x88:0xBE:0:A
+
+# ice chasm
+F:144:0x8E:0xBE:0:A
+
+# ice (rc)
+# F:145:0x8E:0xAE:0:A
+F:145:0x8E:0x84:0:A
+
+# ice wall (rc)
+# F:148:0x8E:0xA3:0:A
+F:148:0x8E:0x84:0:A
+
+# geothermal floor under an ice wall
+F:149:0x8E:0xA3:0:A
+
+# deep water under an ice wall
+F:150:0x86:0xA5:0:A
+
+# waterfall
+F:151:0x86:0xBE:0:A
+
+# water (rc)
+#F:153:0x86:0xBB:0:A
+F:153:0xC6:0xBA:0:A
+
+# deep water (rc)
+# F:155:0x86:0xBA:0:A
+F:155:0xC6:0xBA:0:A
+
+# acid
+F:157:0x85:0xBB:0:A
+
+# deep acid
+F:159:0x85:0xBA:0:A
+
+# falling boiling water
+F:160:0x8A:0xBC:0:A
+
+# falling lava
+F:161:0x84:0xBC:0:A
+
+# smoke
+F:162:0x88:0xA7:0:A
+
+# smoke over a broken floor
+F:163:0x88:0xA7:0:A
+
+# poisonous waterfall
+F:164:0x90:0xBE:0:A
+
+# acidic vapour
+F:165:0x8D:0xA7:0:A
+
+# acidic vapour over a broken floor
+F:166:0x8D:0xA7:0:A
+
+# fine net over a shallow pit
+F:167:0x8F:0xDE:0:A
+
+# acidic vapour around a stone bridge
+F:168:0x85:0xF8:0:A
+
+# acidic vapour over acid
+F:171:0x8D:0xA7:0:A
+
+# acidic vapour over deep acid
+F:172:0x8D:0xA7:0:A
+
+# steam
+F:173:0x89:0xA7:0:A
+
+# steam over a broken floor
+F:174:0x89:0xA7:0:A
+
+# stone well
+F:175:0x96:0xB0:0:A
+
+# steam around a stone bridge
+F:176:0x8A:0xF8:0:A
+
+# steam over geothermal floor
+F:177:0x89:0xA7:0:A
+
+# broken magma crust
+F:178:0x83:0xBA:0:A
+
+# steam over boiling water
+F:180:0x89:0xA7:0:A
+
+# poison gas
+F:181:0x96:0xA7:0:A
+
+# burning oil
+F:184:0x83:0xBA:0:A
+
+# burning coal dust
+F:185:0x83:0xBA:0:A
+
+# burning oil fall
+F:186:0x83:0xBE:0:A
+
+# deep burning oil
+F:189:0x83:0xBA:0:A
+
+# falling oil
+F:190:0x88:0xBC:0:A
+
+# falling burning oil
+F:191:0x83:0xBC:0:A
+
+# sand (rc)
+# F:192:0x8B:0xAE:0:A
+F:192:0x8B:0x84:0:A
+
+# sandy trail (rc)
+# F:194:0x94:0xAE:0:A
+F:194:0x94:0x84:0:A
+
+# quicksand
+F:197:0x87:0xBA:0:A
+
+# mud
+F:199:0x93:0xBB:0:A
+
+# deep mud
+F:201:0x93:0xBA:0:A
+
+# muddy trail (rc)
+# F:202:0x94:0xAE:0:A
+F:202:0x94:0x84:0:A
+
+# boiling mud
+F:205:0x99:0xBA:0:A
+
+# steam-filled vent which erupts boiling water
+F:206:0x89:0xA5:0:A
+
+# boiling water
+F:208:0x8A:0xBA:0:A
+
+# geothermal floor (rc)
+# F:209:0x8A:0xAE:0:A
+F:209:0x8A:0x84:0:A
+
+# deep lava under a magma crust
+F:210:0x82:0xBB:0:A
+
+# gas-filled vent
+F:211:0x96:0xA5:0:A
+
+# steam-filled vent
+F:212:0x89:0xA5:0:A
+
+# fiery vent
+F:213:0x84:0xA5:0:A
+
+# lava fall
+F:214:0x84:0xBE:0:A
+
+# lava
+F:216:0x84:0xBB:0:A
+
+# deep lava
+F:218:0x84:0xBA:0:A
+
+# oil
+F:219:0x88:0xBB:0:A
+
+# oil fall
+F:220:0x88:0xBE:0:A
+
+# coal dust
+F:221:0x88:0xBB:0:A
+
+# coal dust trail (rc)
+# F:222:0x94:0xAE:0:A
+F:222:0x94:0x84:0:A
+
+# deep oil
+F:225:0x88:0xBA:0:A
+
+# acid fall
+F:226:0x85:0xBE:0:A
+
+# boiling waterfall
+F:227:0x8A:0xBE:0:A
+
+# wall of fire
+F:228:0x83:0xBA:0:A
+
+# storm cloud
+F:229:0x8B:0xA7:0:A
+
+# storm cloud over broken floor
+F:230:0x8B:0xA7:0:A
+
+# storm cloud over chasm
+F:232:0x8B:0xA7:0:A
+
+# storm cloud
+F:233:0x89:0xA7:0:A
+
+# storm cloud over broken floor
+F:234:0x89:0xA7:0:A
+
+# storm cloud over chasm
+F:236:0x89:0xA7:0:A
+
+# Farmer Maggot's Mushroom Store
+F:264:0x84:0xB5:0:A
+
+# Mill
+F:265:0x8F:0xB7:0:A
+
+# 'Bag End'
+F:266:0x8D:0xB8:0:A
+
+# House of Elrond
+F:267:0x8F:0xAB:0:A
+
+# Marketplace
+F:268:0x87:0xB7:0:A
+
+# House of Beorn
+F:269:0x8F:0xAB:0:A
+
+# Festhall
+F:270:0x83:0xB1:0:A
+
+# Music hall
+F:271:0x8B:0xB1:0:A
+
+# stone visage
+F:272:0x89:0xDE:0:A
+
+# surreal painting
+F:280:0x90:0xDE:0:A
+
+# mark of a white hand
+F:284:0x9A:0xDE:0:A
+
+# Radagast's snare
+F:289:0x97:0xDE:0:A
+
+# glowing glyph
+F:295:0x99:0xDE:0:A
+
+# glowing glyph
+F:303:0x8D:0xDE:0:A
+
+# blood-stained floor (rc)
+# F:305:0x84:0xAE:0:A
+F:305:0x84:0x84:0:A
+
+# slimy trail (rc)
+# F:306:0x99:0xAE:0:A
+F:306:0x99:0x84:0:A
+
+# wet floor
+F:307:0x86:0xAE:0:A
+
+# burnt floor
+F:308:0x83:0xAE:0:A
+
+# melted floor
+F:309:0x83:0xAE:0:A
+
+# stagnant water
+F:310:0x86:0xBB:0:A
+
+# clear water
+F:311:0x86:0xBB:0:A
+
+# broken wood
+F:312:0x87:0xA7:0:A
+
+# wooden cage
+F:313:0x8F:0xAB:0:A
+
+# iron cage
+F:314:0x88:0xAB:0:A
+
+# broken chest
+F:315:0x87:0xA7:0:A
+
+# small wooden chest
+F:316:0x87:0xA6:0:A
+
+# small wooden chest (locked)
+F:318:0x87:0xA6:0:A
+
+# small wooden chest (open)
+F:319:0x88:0xA6:0:A
+
+# small wooden chest (multiple traps)
+F:320:0x8A:0xA6:0:A
+
+# small wooden chest (murder hole)
+F:321:0x8C:0xA6:0:A
+
+# small wooden chest (spring-loaded trap)
+F:322:0x84:0xA6:0:A
+
+# small wooden chest (gas trap)
+F:323:0x85:0xA6:0:A
+
+# small wooden chest (explosive trap)
+F:324:0x86:0xA6:0:A
+
+# trapped door (explosive trap)
+F:325:0x86:0xAB:0:A
+
+# explosive trap
+F:326:0x86:0xDE:0:A
+
+# large wooden chest
+F:327:0x8F:0xA6:0:A
+
+# large wooden chest (locked)
+F:329:0x8F:0xA6:0:A
+
+# large wooden chest (open)
+F:330:0x88:0xA6:0:A
+
+# large wooden chest (multiple traps)
+F:331:0x8A:0xA6:0:A
+
+# large wooden chest (murder hole)
+F:332:0x8C:0xA6:0:A
+
+# large wooden chest (spring-loaded trap)
+F:333:0x84:0xA6:0:A
+
+# large wooden chest (gas trap)
+F:334:0x85:0xA6:0:A
+
+# large wooden chest (explosive trap)
+F:335:0x86:0xA6:0:A
+
+# small iron chest
+F:336:0x82:0xA6:0:A
+
+# small iron chest (locked)
+F:338:0x82:0xA6:0:A
+
+# small iron chest (open)
+F:339:0x88:0xA6:0:A
+
+# small iron chest (multiple traps)
+F:340:0x8A:0xA6:0:A
+
+# small iron chest (magic symbol)
+F:341:0x8E:0xA6:0:A
+
+# small iron chest (tripwire)
+F:342:0x8B:0xA6:0:A
+
+# small iron chest (ancient hex)
+F:343:0x8D:0xA6:0:A
+
+# small iron chest (deadfall)
+F:344:0x93:0xA6:0:A
+
+# large iron chest
+F:345:0x89:0xA6:0:A
+
+# large iron chest (locked)
+F:347:0x89:0xA6:0:A
+
+# large iron chest (open)
+F:348:0x88:0xA6:0:A
+
+# large iron chest (multiple traps)
+F:349:0x8A:0xA6:0:A
+
+# large iron chest (magic symbol)
+F:350:0x8E:0xA6:0:A
+
+# large iron chest (tripwire)
+F:351:0x8B:0xA6:0:A
+
+# large iron chest (ancient hex)
+F:352:0x8D:0xA6:0:A
+
+# large iron chest (deadfall)
+F:353:0x93:0xA6:0:A
+
+# small steel chest
+F:354:0x82:0xA6:0:A
+
+# small steel chest (locked)
+F:356:0x82:0xA6:0:A
+
+# small steel chest (open)
+F:357:0x88:0xA6:0:A
+
+# small steel chest (multiple traps)
+F:358:0x8A:0xA6:0:A
+
+# small steel chest (demonic sign)
+F:359:0x96:0xA6:0:A
+
+# small steel chest (ever burning eye)
+F:360:0x91:0xA6:0:A
+
+# small steel chest (glowing glyph)
+F:361:0x99:0xA6:0:A
+
+# small steel chest (strange rune)
+F:362:0x83:0xA6:0:A
+
+# large steel chest
+F:363:0x89:0xA6:0:A
+
+# large steel chest (locked)
+F:365:0x89:0xA6:0:A
+
+# large steel chest (open)
+F:366:0x88:0xA6:0:A
+
+# large steel chest (multiple traps)
+F:367:0x8A:0xA6:0:A
+
+# large steel chest (demonic sign)
+F:368:0x96:0xA6:0:A
+
+# large steel chest (ever burning eye)
+F:369:0x91:0xA6:0:A
+
+# large steel chest (glowing glyph)
+F:370:0x99:0xA6:0:A
+
+# large steel chest (strange rune)
+F:371:0x83:0xA6:0:A
+
+# broken altar
+F:372:0x8E:0xB0:0:A
+
+# wooden altar
+F:373:0x8E:0xB0:0:A
+
+# stone altar
+F:374:0x8E:0xB0:0:A
+
+# blood-stained altar
+F:375:0x8E:0xB0:0:A
+
+# dusty altar
+F:376:0x8E:0xB0:0:A
+
+# corroded altar
+F:377:0x8E:0xB0:0:A
+
+# ashen altar
+F:378:0x8E:0xB0:0:A
+
+# golden altar
+F:379:0x8E:0xB0:0:A
+
+# iron altar
+F:380:0x8E:0xB0:0:A
+
+# bone altar
+F:381:0x8E:0xB0:0:A
+
+# glass altar
+F:382:0x8E:0xB0:0:A
+
+# broken fountain
+F:383:0x87:0xA7:0:A
+
+# empty fountain
+F:384:0x88:0xB0:0:A
+
+# clear fountain
+F:385:0x86:0xB0:0:A
+
+# cloudy fountain
+F:386:0x86:0xB0:0:A
+
+# bubbling fountain
+F:387:0x86:0xB0:0:A
+
+# misty fountain
+F:388:0x86:0xB0:0:A
+
+# smoky fountain
+F:389:0x86:0xB0:0:A
+
+# muddy floor
+F:390:0x93:0xAE:0:A
+
+# stone well
+F:391:0x96:0xB0:0:A
+
+# under poisonous water
+F:393:0x91:0xA3:0:A
+
+# poisonous water
+F:395:0x90:0xBB:0:A
+
+# hidden deep poisonous water
+F:396:0x90:0xBB:0:A
+
+# deep poisonous water
+F:397:0x90:0xBA:0:A
+
+# undersea
+F:399:0x92:0xA3:0:A
+
+# salt water
+F:401:0x92:0xBB:0:A
+
+# deep salt water
+F:403:0x92:0xBA:0:A
+
+# brazier
+F:404:0x84:0xB0:0:A
+
+# unlit brazier
+F:405:0x99:0xB0:0:A
+
+# brazier containing something
+F:406:0x84:0xA6:0:A
+
+# earth
+# F:407:0x87:0xAE:0:A
+F:407:0xC7:0xB9:0:A
+
+# dirt trail
+# F:408:0x94:0xAE:0:A
+F:408:0xD4:0xB9:0:A
+
+# rock
+F:409:0x81:0xBB:0:A
+
+# pebbles
+F:410:0x82:0xAE:0:A
+
+# grass (rc)
+# F:411:0x8D:0xAE:0:A
+F:411:0xCD:0xB8:0:A
+
+# open trail through grass (rc)
+# F:412:0x94:0xAE:0:A
+F:412:0xCF:0xB9:0:A
+
+# fire
+F:413:0x83:0xA7:0:A
+
+# open ground
+F:414:0x8F:0xAE:0:A
+
+# open trail
+F:415:0x94:0xAE:0:A
+
+# smoke over burnt ground
+F:417:0x88:0xA7:0:A
+
+# burnt ground
+F:418:0x88:0xAE:0:A
+
+# thicket
+# F:419:0x8D:0xBA:0:A
+F:419:0xCD:0xB5:0:A
+
+# tree trunk
+F:420:0x8F:0xBA:0:A
+
+# tree
+# F:421:0x8D:0xB0:0:A
+F:421:0xCD:0xB6:0:A
+
+# herbs
+F:422:0x98:0xAE:0:A
+
+# burning tree
+F:423:0x83:0xA7:0:A
+
+# wall of fire
+F:424:0x83:0xA7:0:A
+
+# burnt tree
+F:425:0x88:0xA7:0:A
+
+# apple tree
+F:426:0x98:0xBA:0:A
+
+# tree trunk
+F:427:0x8F:0xBA:0:A
+
+# snow
+F:428:0x9A:0xBB:0:A
+
+# snowy trail
+F:429:0x9B:0xAE:0:A
+
+# deep snowy trail
+F:430:0x9B:0xBB:0:A
+
+# geothermal ground
+F:431:0x91:0xAE:0:A
+
+# magma crust
+F:432:0x82:0xBB:0:A
+
+# steam over geothermal ground
+F:433:0x89:0xA7:0:A
+
+# impassable poisonous thorns
+F:434:0x96:0xA3:0:A
+
+# bush
+# F:435:0x8D:0xBB:0:A
+F:435:0xCD:0xB4:0:A
+
+# bush fire
+F:437:0x83:0xA7:0:A
+
+# wooden deck
+F:438:0x8F:0xAE:0:A
+
+# tiled floor
+F:439:0x98:0xAE:0:A
+
+# brambles
+F:440:0x8C:0xBB:0:A
+
+# poisonous thorns
+F:442:0x96:0xBB:0:A
+
+# curtain
+F:443:0x8C:0xA7:0:A
+
+# open curtain
+F:444:0x84:0xA7:0:A
+
+# wooden deck over chasm
+F:445:0x8F:0xAE:0:A
+
+# giant spider web
+F:446:0x9B:0xBA:0:A
+
+# dusty cobwebs
+F:447:0x89:0xBA:0:A
+
+# thorns
+F:448:0x8F:0xBB:0:A
+
+# cupboard
+F:449:0x8F:0xAA:0:A
+
+# deep snow
+F:452:0x9A:0xBA:0:A
+
+# impassable tree trunk
+F:454:0x8F:0xA3:0:A
+
+# tree trunk over a chasm
+F:455:0x8F:0xBA:0:A
+
+# vines
+F:456:0x85:0xA7:0:A
+
+# shallow pit
+F:457:0x8F:0xDE:0:A
+
+# giant spider web over a chasm
+F:459:0x89:0xF8:0:A
+
+# impassable thicket
+F:461:0x8D:0xA3:0:A
+
+# loose rock
+F:462:0x8A:0xDE:0:A
+
+# loose rock
+F:463:0x8A:0xDE:0:A
+
+# pile of ice rubble
+F:464:0x8E:0xBA:0:A
+
+# dungeon entrance
+# F:471:0x81:0xBE:0:A
+F:471:0xA1:0x84:0:A
+
+# a wave breaking over sand
+F:472:0x86:0xA7:0:A
+
+# the crest of a wave over salt water
+F:473:0x81:0xA7:0:A
+
+# the crest of a wave over deep salt water
+F:475:0x81:0xA7:0:A
+
+# a wave over salt water
+F:476:0x92:0xA7:0:A
+
+# a wave over deep salt water
+F:478:0x92:0xA7:0:A
+
+# a wave breaking over a stone bridge
+F:482:0x86:0xF8:0:A
+
+# the crest of a wave over water
+F:483:0x81:0xA7:0:A
+
+# the crest of a wave over deep water
+F:485:0x81:0xA7:0:A
+
+# a wave over water
+F:486:0x86:0xA7:0:A
+
+# a wave over deep water
+F:488:0x86:0xA7:0:A
+
+# rough water
+F:489:0x86:0xBB:0:A
+
+# deep rough water
+F:491:0x86:0xBA:0:A
+
+# a poisonous wave breaking over a stone bridge
+F:492:0x90:0xF8:0:A
+
+# the crest of a wave over poisonous water
+F:493:0x8A:0xA7:0:A
+
+# the crest of a wave over deep poisonous water
+F:494:0x8A:0xA7:0:A
+
+# the crest of a wave over deep poisonous water
+F:495:0x8A:0xA7:0:A
+
+# poisonous rough water
+F:499:0x90:0xBB:0:A
+
+# deep poisonous rough water
+F:501:0x90:0xBA:0:A
+
+# fire
+F:502:0x83:0xA7:0:A
+
+# Fletcher
+F:503:0x8F:0xB3:0:A
+
+# Jewelers
+F:504:0x8B:0xB6:0:A
+
+# Library
+F:505:0x8C:0xB6:0:A
+
+# newly erected statue in your honor
+F:506:0x81:0xB9:0:A
+
+# Farmhouse
+F:507:0x8F:0xAB:0:A
+
+# Inn
+F:508:0x8F:0xB8:0:A
+
+# Barracks
+F:509:0x88:0xB1:0:A
+
+# Mirror of Galadriel
+F:510:0x8E:0xB0:0:A
+
+# Shrine
+F:511:0x8D:0xB4:0:A
+
+# Storeroom
+F:512:0x8F:0xAB:0:A
+
+# Bilbo's House
+F:513:0x85:0xB8:0:A
+
+# House of Tom Bombadil
+F:514:0x8F:0xAB:0:A
+
+# Small Goods Store
+# F:515:0x8F:0xB2:0:A
+F:515:0xAF:0xE0:0:A
+
+# Heavy Armoury
+# F:516:0x88:0xB2:0:A
+F:516:0x92:0xE1:0:A
+
+# Heavy Weapon Smith
+F:517:0x89:0xB3:0:A
+
+# Runesmith
+F:518:0x85:0xB6:0:A
+
+# Chemist
+F:519:0x8C:0xB5:0:A
+
+# Storeroom
+F:520:0x8F:0xAB:0:A
+
+# Storeroom
+F:521:0x8F:0xAB:0:A
+
+# Storeroom
+F:522:0x8F:0xAB:0:A
+
+# a wave breaking over sand
+F:523:0x86:0xA7:0:A
+
+# sand dune
+F:525:0x8B:0xBC:0:A
+
+# steep sandy trail
+F:526:0x94:0xBB:0:A
+
+# earth mound
+F:527:0x87:0xBC:0:A
+
+# steep dirt trail
+F:528:0x94:0xBC:0:A
+
+# steep trail
+F:529:0x94:0xBC:0:A
+
+# grassy hill
+F:530:0x8D:0xBC:0:A
+
+# steep trail through grass
+F:531:0x94:0xBC:0:A
+
+# burning hillside
+F:532:0x83:0xBC:0:A
+
+# open hill
+F:533:0x8F:0xBC:0:A
+
+# smoke over burnt hillside
+F:534:0x88:0xA7:0:A
+
+# burnt hillside
+F:535:0x88:0xBC:0:A
+
+# shaded earth
+F:536:0x87:0xAE:0:A
+
+# shady dirt trail
+F:537:0x94:0xAE:0:A
+
+# rock in the shade
+F:538:0x81:0xBB:0:A
+
+# shaded grass
+# F:539:0x8D:0xAE:0:A
+F:539:0xCD:0xBA:0:A
+
+# shady trail through grass
+F:540:0x94:0xAE:0:A
+
+# shady ground
+F:541:0x8F:0xAE:0:A
+
+# shady trail
+F:542:0x94:0xBC:0:A
+
+# herbs in the shade
+F:543:0x98:0xAE:0:A
+
+# snow in the shade
+F:544:0x9A:0xBB:0:A
+
+# shady snowy trail
+F:545:0x9B:0xAE:0:A
+
+# shady deep snowy trail
+F:546:0x9B:0xBB:0:A
+
+# open vent
+F:547:0x93:0xB0:0:A
+
+# deep snow in the shade
+F:548:0x9A:0xBA:0:A
+
+# deep snow in the shade
+F:549:0x9A:0xBA:0:A
+
+# shaded sand dune
+F:550:0x8B:0xBC:0:A
+
+# shaded earth mound
+F:552:0x87:0xBC:0:A
+
+# steep dirt trail in the shade
+F:553:0x94:0xBC:0:A
+
+# shady grassy hill
+F:555:0x8D:0xBC:0:A
+
+# shadowy hill
+F:557:0x8F:0xBC:0:A
+
+# salt
+F:559:0x89:0xAE:0:A
+
+# salty trail
+F:560:0x94:0xAE:0:A
+
+# pebbles in the shade
+F:561:0x82:0xAE:0:A
+
+# weak granite wall
+F:563:0x88:0xA5:0:A
+
+# acid-filled vent
+F:564:0x85:0xA5:0:A
+
+# water-filled vent
+F:565:0x86:0xA5:0:A
+
+# gas-filled vent
+F:566:0x96:0xA5:0:A
+
+# steam-filled vent
+F:567:0x89:0xA5:0:A
+
+# fiery vent
+F:568:0x84:0xA5:0:A
+
+# acid-filled vent
+F:569:0x85:0xA5:0:A
+
+# water-filled vent
+F:570:0x86:0xA5:0:A
+
+# open valve
+F:571:0x93:0xA7:0:A
+
+# closed valve
+F:572:0x8F:0xAB:0:A
+
+# jammed valve
+F:573:0x87:0xAB:0:A
+
+# ice-filled vent
+F:574:0x8E:0xA5:0:A
+
+# cracked ice wall
+F:575:0x8E:0xA5:0:A
+
+# weak ice wall
+F:576:0x86:0xA5:0:A
+
+# water-filled cracked granite wall
+F:577:0x81:0xA5:0:A
+
+# water-filled cracked granite wall
+F:578:0x81:0xA5:0:A
+
+# water-filled cracked granite wall
+F:579:0x81:0xA5:0:A
+
+# water-filled cracked granite wall
+F:580:0x81:0xA5:0:A
+
+# gas-filled vent
+F:581:0x96:0xA5:0:A
+
+# steam-filled vent
+F:582:0x89:0xA5:0:A
+
+# fiery vent
+F:583:0x84:0xA5:0:A
+
+# acid-filled vent
+F:584:0x85:0xA5:0:A
+
+# water-filled vent
+F:585:0x86:0xA5:0:A
+
+# gas-filled valve
+F:586:0x96:0xA5:0:A
+
+# steam-filled valve
+F:587:0x89:0xA5:0:A
+
+# fiery valve
+F:588:0x84:0xA5:0:A
+
+# acid-filled valve
+F:589:0x85:0xA5:0:A
+
+# water-filled valve
+F:590:0x86:0xA5:0:A
+
+# gas-filled valve
+F:591:0x96:0xA5:0:A
+
+# steam-filled valve
+F:592:0x89:0xA5:0:A
+
+# fiery valve
+F:593:0x84:0xA5:0:A
+
+# acid-filled valve
+F:594:0x85:0xA5:0:A
+
+# water-filled valve
+F:595:0x86:0xA5:0:A
+
+# gas-filled valve
+F:596:0x96:0xA5:0:A
+
+# steam-filled valve
+F:597:0x89:0xA5:0:A
+
+# fiery valve
+F:598:0x84:0xA5:0:A
+
+# acid-filled valve
+F:599:0x85:0xA5:0:A
+
+# water-filled valve
+F:600:0x86:0xA5:0:A
+
+# falling water
+F:601:0x86:0xBC:0:A
+
+# falling acid
+F:602:0x85:0xBC:0:A
+
+# falling boiling water
+F:603:0x8A:0xBC:0:A
+
+# falling lava
+F:604:0x84:0xBC:0:A
+
+# falling oil
+F:605:0x88:0xBC:0:A
+
+# falling burning oil
+F:606:0x83:0xBC:0:A
+
+# clear deep water
+F:607:0x86:0xBA:0:A
+
+# water over open floor
+F:608:0x86:0xBB:0:A
+
+# a wave breaking over open floor
+F:609:0x86:0xA7:0:A
+
+# water over open floor
+F:610:0x86:0xBB:0:A
+
+# the crest of a wave over open floor
+F:611:0x81:0xA7:0:A
+
+# a wave over open floor
+F:612:0x86:0xA7:0:A
+
+# water over open floor
+F:613:0x86:0xBB:0:A
+
+# the crest of a wave over sand
+F:616:0x81:0xA7:0:A
+
+# a wave over sand
+F:617:0x86:0xA7:0:A
+
+# a wave breaking through an open door
+F:620:0x86:0xA7:0:A
+
+# the crest of a wave through an open door
+F:622:0x81:0xA7:0:A
+
+# a wave through an open door
+F:623:0x86:0xA7:0:A
+
+# a wave breaking over a pile of rubble
+F:625:0x86:0xA7:0:A
+
+# a wave breaking over rock
+F:626:0x86:0xA7:0:A
+
+# a wave breaking over pebbles
+F:627:0x86:0xA7:0:A
+
+# a wave breaking over a tree trunk
+F:628:0x86:0xA7:0:A
+
+# a wave breaking over open ground
+F:629:0x86:0xA7:0:A
+
+# a wave breaking over shady ground
+F:630:0x86:0xA7:0:A
+
+# wet ground
+F:633:0x86:0xAE:0:A
+
+# shady wet ground
+F:634:0x86:0xAE:0:A
+
+# magic circle
+F:637:0x8C:0xB0:0:A
+
+# magic triangle
+F:638:0x8C:0xB0:0:A
+
+# magic square
+F:639:0x8C:0xB0:0:A
+
+# magic pentagram
+F:640:0x8C:0xB0:0:A
+
+# magic hexagram
+F:641:0x8C:0xB0:0:A
+
+# harpsichord
+F:659:0x8B:0xB0:0:A
+
+# grand harp
+F:660:0x8B:0xB0:0:A
+
+# iron bell
+F:661:0x8B:0xB0:0:A
+
+# snake basket
+F:662:0x8B:0xB0:0:A
+
+# great horn
+F:663:0x8B:0xB0:0:A
+
+# pipe organ
+F:664:0x8B:0xB0:0:A
+
+# giant war drum
+F:665:0x8B:0xB0:0:A
+
+# brass gong
+F:666:0x8B:0xB0:0:A
+
+# grand piano
+F:667:0x8B:0xB0:0:A
+
+# open cage (wooden)
+F:695:0x8F:0xA7:0:A
+
+# open cage (iron)
+F:696:0x8F:0xA7:0:A
+
+# impassable pile of rubble
+F:698:0x81:0xA3:0:A
+
+# impassable tree trunk
+F:701:0x8D:0xA3:0:A
+
+# impassable pile of ice rubble
+F:703:0x8E:0xA3:0:A
+
+# impassable tree trunk
+F:705:0x8F:0xA3:0:A
+
+# gas-filled vent which erupts gas
+F:706:0x96:0xA5:0:A
+
+# fiery vent which erupts fire
+F:707:0x84:0xA5:0:A
+
+# acid-filled vent which erupts acid
+F:708:0x85:0xA5:0:A
+
+# water-filled vent which erupts water
+F:709:0x86:0xA5:0:A
+
+# erupting gas-filled vent
+F:710:0x96:0xBC:0:A
+
+# erupting boiling geyser
+F:711:0x8A:0xBC:0:A
+
+# erupting fiery vent
+F:712:0x83:0xBC:0:A
+
+# erupting acid vent
+F:713:0x85:0xBC:0:A
+
+# erupting water spout
+F:714:0x86:0xBC:0:A
+
+# open vent which erupts poison
+F:715:0x93:0xB0:0:A
+
+# open vent which erupts boiling water
+F:716:0x93:0xB0:0:A
+
+# open vent which erupts fire
+F:717:0x93:0xB0:0:A
+
+# open vent which erupts acid
+F:718:0x93:0xB0:0:A
+
+# open vent which erupts water
+F:719:0x93:0xB0:0:A
+
+# deep lava which erupts lava
+F:721:0x84:0xA5:0:A
+
+# erupting lava
+F:722:0x84:0xBC:0:A
+
+# window
+F:723:0x9B:0xAA:0:A
+
+# open window
+F:724:0x9B:0xA7:0:A
+
+# broken window
+F:725:0x88:0xB0:0:A
+
+# locked gate
+F:726:0x88:0xAA:0:A
+
+# broken bars
+F:727:0x82:0xA7:0:A
+
+# acid-marked granite wall
+F:728:0x83:0xA5:0:A
+
+# burnt granite wall
+# F:729:0x83:0xA5:0:A
+F:729:0xA3:0xF0:0:A
+
+# shelf
+F:730:0x87:0xAA:0:A
+
+# painting on a granite wall
+F:732:0x98:0xAA:0:A
+
+# lit fireplace
+F:734:0x83:0xAA:0:A
+
+# burning torch on a granite wall
+F:736:0x8B:0xAA:0:A
+
+# burning torch on a granite wall
+F:737:0x8B:0xAA:0:A
+
+# open lever on a granite wall
+F:738:0x88:0xAB:0:A
+
+# closed lever on a granite wall
+F:739:0x8F:0xAB:0:A
+
+# weapon rack
+F:740:0x82:0xAA:0:A
+
+# vine-covered granite wall
+F:742:0x8D:0xAA:0:A
+
+# basin
+F:744:0x8E:0xAA:0:A
+
+# midden
+F:746:0x92:0xAA:0:A
+
+# coffers
+F:748:0x81:0xAA:0:A
+
+# writing on a granite wall
+F:750:0x89:0xAA:0:A
+
+# closing lever on a granite wall
+F:752:0x87:0xAB:0:A
+
+# opening lever on a granite wall
+F:753:0x87:0xAB:0:A
+
+# blood-stained wall
+F:754:0x84:0xA3:0:A
+
+# slime-covered wall
+F:756:0x99:0xA3:0:A
+
+# a lit fireplace containing something
+F:758:0x8C:0xAA:0:A
+
+# trapped wall (multiple traps)
+F:760:0x8A:0xA3:0:A
+
+# empty shelf
+F:761:0x87:0xA5:0:A
+
+# empty fireplace
+F:762:0x87:0xA5:0:A
+
+# empty weapon rack
+F:763:0x87:0xA5:0:A
+
+# empty basin
+F:764:0x88:0xA5:0:A
+
+# empty midden
+F:765:0x88:0xA5:0:A
+
+# pile of wood
+F:766:0x8F:0xBA:0:A
+
+# a pile of wood containing something
+F:767:0x8F:0xA6:0:A
+
+# empty coffers
+F:769:0x88:0xA5:0:A
+
+# pile of wood
+F:771:0x8F:0xBA:0:A
+
+# Gandalf's Firework Shop (rc)
+# F:772:0x8A:0xB6:0:A
+F:772:0xA4:0xE5:0:A
+
+# Inn of the Green Dragon
+F:773:0x85:0xB1:0:A
+
+# tree with a banner 'Happy Eleventy-One'
+F:774:0x8D:0xB0:0:A
+
+# Inn of the Prancing Pony
+F:775:0x81:0xB8:0:A
+
+# Goldberry's Pool
+F:776:0x86:0xB0:0:A
+
+# White Tree
+F:777:0x81:0xB0:0:A
+
+# Frodo's House
+F:778:0x8E:0xB8:0:A
+
+# rope bridge
+F:779:0x8B:0xF8:0:A
+
+# chain bridge
+F:780:0x82:0xF8:0:A
+
+# wooden bridge
+F:781:0x8F:0xF8:0:A
+
+# weak wooden bridge over a chasm
+F:783:0x87:0xF8:0:A
+
+# burning wooden bridge over a chasm
+F:784:0x83:0xF8:0:A
+
+# giant spider web hanging over a chasm
+F:785:0x89:0xBE:0:A
+
+# rope hanging over a chasm
+F:786:0x8B:0xBE:0:A
+
+# chain hanging over a chasm
+F:787:0x82:0xBE:0:A
+
+# broken wooden bridge over a chasm
+F:789:0x87:0xBE:0:A
+
+# burning wooden bridge over a chasm
+F:790:0x83:0xBE:0:A
+
+# falling giant spider web
+F:791:0x89:0xBE:0:A
+
+# falling rope
+F:792:0x8B:0xBE:0:A
+
+# falling chain
+F:793:0x82:0xBE:0:A
+
+# falling wooden bridge
+F:794:0x87:0xBE:0:A
+
+# falling burning wood
+F:795:0x83:0xBE:0:A
+
+# ice bridge
+F:796:0x8E:0xF8:0:A
+
+# broken ice bridge over a chasm
+F:797:0x8E:0xBE:0:A
+
+# falling ice
+F:798:0x8E:0xBE:0:A
+
+# vine bridge
+F:799:0x8D:0xF8:0:A
+
+# vine hanging over a chasm
+F:800:0x8D:0xBE:0:A
+
+# falling vine
+F:801:0x8D:0xBE:0:A
+
+# rope swinging over a chasm
+F:802:0x8B:0xF8:0:A
+
+# chain swinging over a chasm
+F:803:0x82:0xF8:0:A
+
+# vine swinging over a chasm
+F:804:0x8D:0xF8:0:A
+
+# tomb of Balin
+F:805:0x8F:0xAB:0:A
+
+# grey slab of stone
+F:806:0x82:0xB0:0:A
+
+# stone furnishings
+F:807:0x81:0xB0:0:A
+
+# empty stone furnishings
+F:809:0x88:0xB0:0:A
+
+# wooden furniture
+F:810:0x8F:0xB0:0:A
+
+# empty wooden furniture
+F:812:0x88:0xB0:0:A
+
+# water-filled well
+F:814:0x92:0xB0:0:A
+
+# stone well
+F:815:0x96:0xB0:0:A
+
+# empty well
+F:816:0x96:0xBE:0:A
+
+# writing-covered floor
+F:817:0x83:0xAE:0:A
+
+# shrine
+F:818:0x85:0xB0:0:A
+
+# empty shrine
+F:820:0x88:0xB0:0:A
+
+# empty cupboard
+F:827:0x8F:0xA7:0:A
+
+# web-covered granite wall
+# F:829:0x83:0xA5:0:A
+F:829:0xC3:0x8B:0:A
+
+# mossy granite wall
+# F:831:0x83:0xA5:0:A
+F:831:0xA3:0xF0:0:A
+
+# scratched granite wall
+F:833:0x83:0xA5:0:A
+
+# roughly-hewn granite wall
+F:835:0x83:0xA5:0:A
+
+# roughly-hewn granite wall
+F:836:0x83:0xA5:0:A
+
+# wet granite wall
+F:837:0x83:0xA5:0:A
+
+# icy granite wall
+F:839:0x83:0xA5:0:A
+
+# wooden wall
+F:841:0x8F:0xA3:0:A
+
+# wooden wall
+F:842:0x8F:0xA3:0:A
+
+# boiling acid
+F:843:0x85:0xBB:0:A
+
+# deep boiling acid
+F:845:0x85:0xBA:0:A
+
+# acidic vapour over boiling acid
+F:848:0x8D:0xA7:0:A
+
+# acidic vapour over deep boiling acid
+F:849:0x8D:0xA7:0:A
+
+# open gate
+F:850:0x8F:0xA7:0:A
+
+# opening gate
+F:851:0x82:0xA7:0:A
+
+# closing gate
+F:852:0x87:0xAB:0:A
+
+# linked chain
+F:853:0x88:0xFE:0:A
+
+# opening chain
+F:855:0x99:0xFE:0:A
+
+# closing chain
+F:856:0x99:0xFE:0:A
+
+# loose chain
+F:857:0x93:0xFE:0:A
+
+# opening valve
+F:858:0x99:0xA7:0:A
+
+# closing valve
+F:859:0x87:0xAB:0:A
+
+# painting on a granite wall
+F:860:0x98:0xAA:0:A
+
+# burning torch on a granite wall
+F:861:0x8B:0xAA:0:A
+
+# wooden wall
+F:864:0x8F:0xA3:0:A
+
+# opening mechanism in a granite wall
+F:866:0x82:0xAA:0:A
+
+# closing mechanism in a granite wall
+F:867:0x81:0xAA:0:A
+
+# opening sliding wall
+F:870:0x9B:0xB0:0:A
+
+# closing sliding wall
+F:871:0x82:0xA3:0:A
+
+# locked cupboard containing something
+F:872:0x8F:0xAA:0:A
+
+# crumbling floor
+F:873:0x81:0xBB:0:A
+
+# trembling pile of rubble
+F:874:0x81:0xBA:0:A
+
+# pulsing pile of rubble
+F:875:0x81:0xBA:0:A
+
+# cracked floor
+F:876:0x81:0xDE:0:A
+
+# winding chain
+F:877:0x82:0xFE:0:A
+
+# linked chain
+F:879:0x88:0xFE:0:A
+
+# opening chain bridge
+F:893:0x8B:0xF8:0:A
+
+# closing chain bridge
+F:894:0x8B:0xF8:0:A
+
+# rapidly growing shoot
+F:895:0x8D:0xAE:0:A
+
+# quivering sapling
+F:896:0x87:0xA7:0:A
+
+# vault of the dwarven city of Erebor
+F:897:0x8F:0xAB:0:A
+
+# vault of the dwarven city of Erebor
+F:898:0x8F:0xAB:0:A
+
+# vault of the dwarven city of Erebor
+F:899:0x8F:0xAB:0:A
+
+# vault of the dwarven city of Erebor
+F:900:0x8F:0xAB:0:A
+
+# vault of the dwarven city of Erebor
+F:901:0x8F:0xAB:0:A
+
+# vault of the dwarven city of Erebor
+F:902:0x8F:0xAB:0:A
+
+# the Brandywine Barge House
+F:903:0x86:0xB1:0:A
+
+# an Inn on the East Road
+F:904:0x8B:0xB1:0:A
+
+# a weak granite wall containing something
+F:915:0x8C:0xAA:0:A
+
+# vine-covered weak granite wall
+F:919:0x8D:0xA5:0:A
+
+# vine-covered granite wall
+F:920:0x83:0xA5:0:A
+
+# metal framework
+F:921:0x82:0xB0:0:A
+
+# empty metal framework
+F:923:0x88:0xB0:0:A
+
+# coffers
+F:924:0x81:0xAA:0:A
+
+# empty coffers
+F:926:0x88:0xA5:0:A
+
+# pile of metal
+F:927:0x82:0xBA:0:A
+
+# a pile of metal containing something
+F:928:0x82:0xA6:0:A
+
+# pile of metal
+F:929:0x82:0xBA:0:A
+
+# broken metal
+F:930:0x82:0xA7:0:A
+
+# deep icy water
+F:931:0x86:0xBA:0:A
+
+# deep water under unstable ice
+F:932:0x8E:0xBB:0:A
+
+# unstable pile of ice rubble
+F:933:0x8E:0xBA:0:A
+
+# rising ice wall
+F:934:0x8E:0xBC:0:A
+
+# the crest of a wave over deep icy water
+F:935:0x81:0xA7:0:A
+
+# a wave over deep icy water
+F:936:0x86:0xA7:0:A
+
+# deep rough icy water
+F:937:0x86:0xBA:0:A
+
+# acidic vapour over acid
+F:940:0x8D:0xA7:0:A
+
+# broken magma crust
+F:943:0x83:0xBA:0:A
+
+# deep lava which erupts lava
+F:944:0x84:0xA5:0:A
+
+# erupting lava
+F:945:0x84:0xBC:0:A
+
+# lava
+F:946:0x84:0xBB:0:A
+
+# magma crust
+F:947:0x82:0xBB:0:A
+
+# broken magma crust
+F:948:0x83:0xBA:0:A
+
+# mossy ent at the Ent Moot
+F:949:0x85:0xB0:0:A
+
+# leafy ent at the Ent Moot
+F:950:0x8D:0xB0:0:A
+
+# twiggy ent at the Ent Moot
+F:951:0x8F:0xB0:0:A
+
+# stumpy ent at the Ent Moot
+F:952:0x87:0xB0:0:A
+
+# lichen-covered ent at the Ent Moot
+F:953:0x81:0xB0:0:A
+
+# Ranger's cache
+F:954:0x8F:0xAB:0:A
+
+# Chart Scribe
+F:955:0x8C:0xB6:0:A
+
+# the hut of Radagast the Brown
+F:956:0x87:0xB8:0:A
+
+# upwards draft
+F:958:0x92:0xDE:0:A
+
+# demonic sign
+F:959:0x96:0xDE:0:A
+
+# deadfall
+F:961:0x93:0xDE:0:A
+
+# siege engine
+F:966:0x98:0xDE:0:A
+
+# clockwork mechanism
+F:971:0x95:0xDE:0:A
+
+# trapped door (surreal painting)
+F:978:0x90:0xAB:0:A
+
+# trapped door (ever burning eye)
+F:979:0x91:0xAB:0:A
+
+# trapped door (upwards draft)
+F:980:0x92:0xAB:0:A
+
+# trapped door (deadfall)
+F:981:0x93:0xAB:0:A
+
+# trapped door (shaft of light)
+F:982:0x94:0xAB:0:A
+
+# trapped door (glowing glyph)
+F:983:0x99:0xAB:0:A
+
+# trapped door (demonic sign)
+F:984:0x96:0xAB:0:A
+
+# trapped door (Radagast's snare)
+F:985:0x97:0xAB:0:A
+
+# trapped door (siege engine)
+F:986:0x98:0xAB:0:A
+
+# trapped door (clockwork mechanism)
+F:987:0x95:0xAB:0:A
+
+# trapped door (mark of a white hand)
+F:988:0x9A:0xAB:0:A
+
+# trapped door (shimmering portal)
+F:989:0x9B:0xAB:0:A
+
+# falling poisonous water
+F:990:0x90:0xBC:0:A
+
+# falling poisonous water
+F:991:0x91:0xBC:0:A
+
+# pavilion of the Army of the West
+F:992:0x8F:0xAB:0:A
+
+# pavilion of the Army of the West
+F:993:0x8F:0xAB:0:A
+
+# pavilion of the Army of the West
+F:994:0x8F:0xAB:0:A
+
+# pavilion of the Army of the West
+F:995:0x8F:0xAB:0:A

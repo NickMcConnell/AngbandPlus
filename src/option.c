@@ -218,7 +218,7 @@ static option_entry options[OPT_MAX] =
 { "easy_alter",          "Open/Disarm doors/traps on movement",         FALSE }, /* 65 */
 { NULL,                  NULL,                                          FALSE }, /* 66 */
 { "show_piles",          "Show stacks using special attr/char",         FALSE }, /* 67 */
-{ "center_player",       "Center map continuously",                     FALSE }, /* 68 */
+{ "center_player",       "Center map continuously",                     TRUE }, /* 68 */
 { NULL,                  NULL,                                          FALSE }, /* 69 */
 { NULL,                  NULL,                                          FALSE }, /* 70 */
 { "auto_more",           "Automatically clear '-more-' prompts",        FALSE }, /* 71 */
@@ -246,7 +246,7 @@ static option_entry options[OPT_MAX] =
 { "easy_autos",          "Automatically inscribe all objects",          FALSE }, /* 93 */
 { "easy_search",         "Start searching if not disturbed",            FALSE }, /* 94 */
 { "view_glowing_lite",   "Use special colours for glowing lite",        TRUE }, /* 95 */
-{ "show_sidebar",        "Display stats in main window",                FALSE }, /* 96 */
+{ "show_sidebar",        "Display stats in main window",                TRUE }, /* 96 */
 { "show_itemlist",       "Display all items on the bottom line",        FALSE }, /* 97 */
 { "depth_in_feet",       "Show dungeon level in feet",                  FALSE }, /* 98 */
 { "view_flavors",        "Show flavors in object graphics",             TRUE }, /* 99 */

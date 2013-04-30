@@ -1,0 +1,184 @@
+====================================
+Image credits list - mostly complete
+====================================
+
+Nr. Description         Author
+--- ------------------- ------
+
+000 Quartz vein         (Hajo)
+001 Open floor (unused) (Hajo)
+002 Magma vein          (Hajo)
+003 Brick wall (unused) (Hajo)
+004 Clean floor         (Hajo)
+005 Clean wall          (Hajo)
+006 Crackle wall        (Hajo)
+007 Line trap           (Hajo)
+008-025 unused
+026 Line ring           (Hajo)
+027 Line amulet         (Hajo)
+028 Line mushroom       (Hajo)
+029 Line rodent         (Hajo)
+030 Line snake          (Mitsuhiro/Hajo)
+031 Line centipede      (Hajo)
+032 Empty tile          (Hajo)
+033-126 ASCII chars     (Hajo)
+127 Line torch          (Hajo)
+128 Line scroll         (Hajo)
+129 Line potion         (Hajo)
+130 unused
+131 unused
+132 stairs down         (Hajo)
+133 stairs up           (Hajo)
+134 mushrooms           (Hajo)
+135 shop wall           (Hajo)
+136-139 doors           (David/Hajo)
+140 teleport            (Hajo)
+141 fountain            (Maarten)
+142 Line ball and chain (Hajo)
+143 book                (Hajo)
+144 skull               (Hajo)
+145 iron spikes         (Hajo)
+146 line ration food    (Hajo)
+147 shots               (Hajo)
+148-151 spell effects   (Hajo)
+152 full grid border    (Hajo)
+153 shadowed spot       (Hajo)
+154 (unused)
+155 half grid border    (Hajo)
+156 Fine sand           (Hajo)
+157 mountain (unused)   (Maarten)
+158 spell effect        (Hajo)
+159 looking cursor      (Hajo)
+160 large white snake   (Mitsuhiro/Hajo)
+161 large brown snake   (Mitsuhiro/Hajo)
+162 cobra               (Mitsuhiro)
+163 Line floating eye   (Hajo)
+164 Line icky thing     (Hajo)
+165 Line spider         (Hajo)
+166 Line ooze           (Hajo)
+167 Line jelly          (Hajo)
+168 insect swarm        (Hajo)
+169 grid bug            (Hajo)
+170 soldier ant         (Hajo)
+171 Line lizard         (Hajo)
+172 Mushroom (unused)   (Hajo)
+173 Line naga           (Hajo)
+174 added by M. Woxberg
+175 Line big canine     (Hajo)
+176 Line small lizard   (Hajo)
+177 Line jackal         (Hajo)
+178 Line mold           (Hajo)
+179 Line bat            (Maarten/Hajo)
+180 Line kobold skel.   (Maarten/Hajo)
+181 Line skeleton       (Hajo)
+182 Line warrior        (Maarten/Hajo)
+183 Line whip           (Hajo)
+184 added by M. Woxberg
+185 Line happy drunk    (Maarten/Hajo) 
+186 Line merchant       (Maarten/Hajo)
+187 Line village idiot  (Maarten/Hajo)
+188 Line mercenary      (Maarten/Hajo) 
+189-190 added by M. Woxberg
+191 Line mean mercenary (Maarten/Hajo)
+192 Line archer/ranger  (Maarten/Hajo)
+193-197 added by M. Woxberg
+198 Line mage           (Maarten/Hajo)
+199 Line priest         (Maarten/Hajo)
+200 Coin pile 3         (Hajo)
+201 Coin pile 2         (Hajo)
+202 Coin pile 1         (Hajo)
+203 Gem pile            (Hajo)
+204 Line cap            (Hajo)
+205 Line gloves         (Hajo)
+206 Line shoes          (Hajo)
+207 Line vest           (Hajo)
+208 Line boots          (Hajo)
+209 Line dagger         (Hajo)
+210 Line sword          (Hajo)
+211 Line double axe     (Hajo)
+212 Line club           (Hajo)
+213 Line shovel         (Hajo)
+214 Line pickaxe        (Hajo)
+215 Line mace           (Hajo)
+216 Line bow            (Hajo)
+217 Line arrow          (Hajo)
+218 Line armor          (Hajo)
+219 Line hammer         (Hajo)
+220 Line pike           (Hajo)
+221 Line wand           (Hajo)
+222 Line rod            (Hajo)
+223 Line cloak          (Hajo)
+224-231 Shop entrances  (Hajo)
+232 Line broken bone    (Hajo)
+233 Line bolts          (Hajo)
+234 Line staff          (Hajo)
+235 Line shield         (Hajo)
+236 Line scimitar       (Hajo)
+237 Line long sword     (Hajo)
+238 Line crossbow       (Hajo)
+239 Line sling          (Hajo)
+240-257 9 part walls    (Hajo)
+258 Line frog           (Hajo)
+259 Line yeek           (Hajo)
+260 Line kobold         (Hajo)
+261 Line salamander     (Hajo)
+262 Line worm mass      (Hajo)
+263 Line harpy          (Hajo)
+264 Humanoid skeleton   (Hajo)
+265 Canine skeleton     (Hajo)
+266 Rodent skeleton     (Hajo)
+267-279 9 part walls    (Hajo)
+280-285 9 part walls    (Hajo)
+286 Line lantern        (Hajo)
+287 Line cat            (Hajo)
+288 Line ghost          (Hajo)
+289 Line hobbit         (Hajo)
+290 Line louse          (Hajo)
+291 Blubbering idiot    (Hajo)
+292 Pitiful beggar      (Hajo)
+293 Line killer beetle  (Hajo)
+294 Line vortex         (Hajo)
+295 Line dragon fly     (Hajo)
+296 Line orc            (Maarten/Hajo)
+297 Line street urchin  (Hajo)
+298-307 9 part walls    (Hajo)
+308 Line bush           (Hajo)
+309 Line thicket        (Hajo)
+310 Line tree           (Hajo)
+311 unused
+312 Line grass          (Hajo)
+313 Dirt/rough sand     (Hajo)
+314 Line water          (Hajo)
+315 Line bridge         (Hajo)
+316 Old tiled floor 1   (Hajo)
+317 Old tiled floor 2   (Hajo)
+318 Old tiled floor 3   (Hajo)
+319 Town outside tile   (Hajo)
+
+David:     David E. Gervais
+Hajo:      Hansjörg Malthaner
+Maarten:   Maarten Woxberg
+Mitsuhiro: Mitsuhiro Itakura
+
+-----------------------------------------------------------------
+
+Started by Hj. Malthaner, March 2001
+Stuff added by M. Woxberg, 27-Mar-2001
+Last update by Hj. Malthaner, 21-Aug-2010
+
+-----------------------------------------------------------------
+
+I hereby want to make my images available under the 
+creative commons "Attribution - Share alike" license.
+
+http://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+If you use the images, I'd like an attribution like this:
+Artwork by Hj. Malthaner <hansjoerg.malthaner@gmx.de>
+
+If you modify the images, please put it this way:
+Based on artwork by Hj. Malthaner <hansjoerg.malthaner@gmx.de>
+
+If in doubt, please contact me: hansjoerg.malthaner@gmx.de
+
+-----------------------------------------------------------------

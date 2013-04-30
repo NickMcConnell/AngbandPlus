@@ -1,0 +1,4062 @@
+
+
+# Monster attr/char definitions
+
+# <player>
+R:0:0x86:0xC0
+
+# Filthy street urchin (rc)
+R:1:0xC8:0xA9
+
+# Scrawny cat (rc)
+R:2:0xCF:0x9F
+
+# Scruffy little dog  (rc)
+R:3:0xA7:0xB1
+
+# Farmer Maggot (rc)
+R:4:0xA1:0x21
+
+# Blubbering idiot (rc)
+R:5:0xC9:0xA3
+
+# the Boil-covered wretch
+R:6:0xA3:0xF4
+
+# Village idiot (rc)
+R:7:0xAE:0xBB
+
+# Pitiful looking beggar (rc)
+R:8:0xCF:0xA4
+
+# the Mangy-looking leper
+R:9:0x85:0xF4
+
+# the Squint-eyed rogue
+R:10:0x8C:0xF4
+
+# the Singing, happy drunk (rc)
+R:11:0xA6:0xB9
+
+# the Aimless-looking merchant (rc)
+R:12:0xBE:0xBA
+
+# the Mean-looking mercenary (rc)
+R:13:0xBF:0xBF
+
+# the Battle-scarred veteran (rc)
+R:14:0xA3:0xBC
+
+# the Grey mold (rc)
+R:15:0xA2:0xB2
+
+# the Grey mushroom patch (rc)
+R:16:0xA2:0x86
+
+# the Giant yellow centipede (rc)
+R:17:0x8B:0x9F
+
+# the Giant white centipede (rc)
+R:18:0x81:0x9F
+
+# the White icky thing (rc)
+R:19:0xA1:0xA4
+
+# the Clear icky thing (rc)
+R:20:0xA1:0xA4
+
+# the Giant white mouse (rc)
+R:21:0x89:0x9D
+
+# the Brown snake (rc)
+R:22:0x87:0x9E
+
+# the White snake (rc)
+R:23:0x81:0x9E
+
+# the Small goblin
+R:24:0x8B:0xEB
+
+# the Goblin
+R:25:0x99:0xEB
+
+# the White worm mass (rc)
+R:26:0xC1:0x06
+
+# the Floating eye (rc)
+R:27:0xA3:0xA3
+
+# the Rock lizard (rc)
+R:28:0xAF:0xB0
+
+# the Jackal (rc)
+R:29:0xA3:0xB1
+
+# the Worker ant
+R:30:0x89:0xE1
+
+# the Fruit bat (rc)
+R:31:0xA3:0xB3
+
+# the Shrieker mushroom patch (rc)
+R:32:0xAC:0x86
+
+# the Blubbering icky thing (rc)
+R:33:0xA9:0xA4
+
+# the Metallic green centipede (rc)
+# R:34:0x85:0xE3
+R:34:0x85:0x9F
+
+# the Apprentice warrior (rc)
+R:35:0xB3:0xB6
+
+# the Apprentice rogue
+R:36:0x92:0xF4
+
+# the Apprentice priest (rc)
+R:37:0xB2:0xC7
+
+# the Apprentice mage (rc)
+R:38:0xB5:0xc6
+
+# the Yellow mushroom patch
+R:39:0xAB:0x86
+
+# the White jelly
+R:40:0x81:0xEA
+
+# the Giant green frog
+R:41:0x85:0xC6
+
+# the Giant black ant
+R:42:0x88:0xE1
+
+# the Salamander
+R:43:0x83:0xD2
+
+# the Blade naga
+R:44:0x9A:0xEE
+
+# the Blue faerie
+R:45:0x8E:0xC8
+
+# Grip, Farmer Maggot's dog
+R:46:0x89:0xC3
+
+# Fang, Farmer Maggot's dog
+R:47:0x89:0xC3
+
+# the Green worm mass
+R:48:0x85:0xF7
+
+# the Clear snake
+R:49:0x81:0xCA
+
+# the Cave spider
+R:50:0x88:0xD3
+
+# the Wild cat
+R:51:0x8F:0xE6
+
+# Smeagol
+R:52:0x98:0xE8
+
+# the Green ooze
+R:53:0x85:0xEA
+
+# the Poltergeist
+R:54:0x89:0xC7
+
+# the Metallic blue centipede
+R:55:0x86:0xE3
+
+# the Giant white louse
+R:56:0x89:0xC9
+
+# the Black naga
+R:57:0x88:0xEE
+
+# the Spotted mushroom patch
+R:58:0x9A:0xAC
+
+# the Silver jelly
+R:59:0x89:0xEA
+
+# the Yellow jelly
+R:60:0x8B:0xEA
+
+# the Scruffy looking hobbit
+R:61:0x93:0xE8
+
+# the Giant white ant
+R:62:0x81:0xE1
+
+# the Yellow mold
+R:63:0x8B:0xED
+
+# the Metallic red centipede
+R:64:0x84:0xE3
+
+# the Yellow worm mass
+R:65:0x8B:0xF7
+
+# the Clear worm mass
+R:66:0x81:0xF7
+
+# the Radiation eye
+R:67:0x95:0xE5
+
+# the Cave lizard
+R:68:0x9A:0xD2
+
+# the Apprentice ranger
+R:69:0x94:0xF1
+
+# the Apprentice paladin
+R:70:0x9A:0xF0
+
+# the Blue jelly
+R:71:0x86:0xEA
+
+# the Creeping copper coins
+R:72:0x87:0xA4
+
+# the Giant white rat
+R:73:0x81:0xF2
+
+# the Blue worm mass
+R:74:0x86:0xF7
+
+# the Grey snake
+R:75:0x82:0xCA
+
+# Bullroarer the Hobbit
+R:76:0x8F:0xE8
+
+# the Novice mage
+R:77:0x84:0xF1
+
+# the Green naga
+R:78:0x85:0xEE
+
+# the Blue ooze
+R:79:0x86:0xEA
+
+# the Green glutton ghost
+R:80:0x85:0xC7
+
+# the Green jelly
+R:81:0x85:0xEA
+
+# the Large goblin
+R:82:0x86:0xEB
+
+# the Skeleton goblin
+R:83:0x93:0xF3
+
+# the Grey icky thing
+R:84:0x82:0xE9
+
+# the Disenchanter eye
+R:85:0x8A:0xE5
+
+# the Red worm mass
+R:86:0x84:0xF7
+
+# the Copperhead snake
+R:87:0x83:0xCA
+
+# the Purple mushroom patch
+R:88:0x90:0xAC
+
+# the Novice priest
+R:89:0x86:0xF0
+
+# the Novice warrior
+R:90:0x87:0xF4
+
+# the Novice rogue
+R:91:0x86:0xF4
+
+# the Brown mold
+R:92:0x87:0xED
+
+# the Giant brown bat
+R:93:0x87:0xE2
+
+# the Goblin archer
+R:94:0x89:0xEB
+
+# the Creeping silver coins
+R:95:0x82:0xA4
+
+# the Snaga
+R:96:0x8F:0xEB
+
+# the Rattlesnake
+R:97:0x8A:0xCA
+
+# the Cave orc
+R:98:0x9A:0xEF
+
+# the Wood spider
+R:99:0x8F:0xD3
+
+# the Manes
+R:100:0x94:0xF5
+
+# the Bloodshot eye
+R:101:0x98:0xE5
+
+# the Pink naga
+R:102:0x95:0xEE
+
+# the Pink jelly
+R:103:0x95:0xEA
+
+# the Giant pink frog
+R:104:0x95:0xC6
+
+# the Green icky thing
+R:105:0x85:0xE9
+
+# the Zombified goblin
+R:106:0x93:0xFA
+
+# the Lost soul
+R:107:0x8E:0xC7
+
+# the Wood elf
+R:108:0x85:0xEC
+
+# the Night lizard
+R:109:0x9B:0xD2
+
+# Radbug, the Goblin
+R:110:0x96:0xEB
+
+# the Dunlending Agent of the Nazgul
+R:111:0x8E:0xF4
+
+# Lagduf, the Snaga of Cirith Ungol
+R:112:0x94:0xEB
+
+# the Brown faerie
+R:113:0x8F:0xC8
+
+# the Novice ranger
+R:114:0x89:0xF1
+
+# the Giant salamander
+R:115:0x8B:0xD2
+
+# the Green mold
+R:116:0x85:0xED
+
+# the Skeleton orc
+R:117:0x99:0xF3
+
+# the Novice paladin
+R:118:0x81:0xF0
+
+# the Lemure
+R:119:0x8F:0xF5
+
+# the Hill orc
+R:120:0x87:0xEF
+
+# the Bandit
+R:121:0x84:0xF4
+
+# the Yeti
+R:122:0x81:0xD9
+
+# the Bloodshot icky thing
+R:123:0x98:0xE9
+
+# the Giant grey rat
+R:124:0x93:0xF2
+
+# the Goblin shaman
+R:125:0x90:0xEB
+
+# the Spikey mushroom patch
+R:126:0x9B:0xAC
+
+# the Baby blue dragon
+R:127:0x8E:0xE4
+
+# the Baby white dragon
+R:128:0x89:0xE4
+
+# the Baby green dragon
+R:129:0x8D:0xE4
+
+# the Baby black dragon
+R:130:0x88:0xE4
+
+# the Baby red dragon
+R:131:0x8C:0xE4
+
+# the Giant pink ant
+R:132:0x95:0xE1
+
+# Brodda, the Easterling
+R:133:0x98:0xF4
+
+# the King cobra
+R:134:0x90:0xCA
+
+# the Giant spider
+R:135:0x90:0xD3
+
+# the Wood elf mage
+R:136:0x84:0xEC
+
+# Golfimbul, the Goblin King of Mount Gram
+R:137:0x8E:0xEB
+
+# the Wood elf warrior
+R:138:0x87:0xEC
+
+# the Clear mushroom patch
+R:139:0x81:0xAC
+
+# Gorgol the Butcher
+R:140:0x8C:0xEF
+
+# the Giant white tick
+R:141:0x81:0xD3
+
+# the Hairy mold
+R:142:0x83:0xED
+
+# the Disenchanter mold
+R:143:0x8A:0xED
+
+# the Pseudo-dragon
+R:144:0x83:0xE4
+
+# the Tengu
+R:145:0x98:0xF5
+
+# the Creeping gold coins
+R:146:0x8B:0xA4
+
+# the Wolf
+R:147:0x87:0xC3
+
+# the Giant fruit fly
+R:148:0x83:0xC9
+
+# the Panther
+R:149:0x87:0xE6
+
+# the Brigand
+R:150:0x8C:0xF4
+
+# the Baby multi-hued dragon
+R:151:0x91:0xE4
+
+# the Hippogriff
+R:152:0x8F:0xC8
+
+# the Zombified orc
+R:153:0x99:0xFA
+
+# the Gnome mage
+R:154:0x8C:0xE8
+
+# the Black mamba
+R:155:0x88:0xCA
+
+# the White wolf
+R:156:0x81:0xC3
+
+# the Grape jelly
+R:157:0x8A:0xEA
+
+# the Nether worm mass
+R:158:0x8D:0xF7
+
+# Boldog, the Orc Captain
+R:159:0x8B:0xEF
+
+# the Goblin wizard
+R:160:0x8C:0xEB
+
+# the Priest
+R:161:0x8E:0xF0
+
+# the Dark elven cultist
+R:162:0x92:0xEC
+
+# the Air spirit
+R:163:0x92:0xC5
+
+# the Skeleton human
+R:164:0x81:0xF3
+
+# the Zombified human
+R:165:0x81:0xFA
+
+# the Tiger
+R:166:0x83:0xE6
+
+# the Moaning spirit
+R:167:0x87:0xC7
+
+# the Swordsman
+R:168:0x8F:0xF4
+
+# the Stegocentipede
+R:169:0x97:0xE3
+
+# the Spotted jelly
+R:170:0x9A:0xEA
+
+# the Drider
+R:171:0x86:0xD3
+
+# the Killer brown beetle
+R:172:0x87:0xCB
+
+# the Great Goblin of the Misty Mountains
+R:173:0x91:0xEB
+
+# the Ogre
+R:174:0x89:0xCF
+
+# the Creeping mithril coins
+R:175:0x8E:0xA4
+
+# the Illusionist
+R:176:0x86:0xF1
+
+# the Shaman
+R:177:0x97:0xF0
+
+# the Black orc
+R:178:0x88:0xEF
+
+# the Ochre jelly
+R:179:0x8F:0xEA
+
+# the Giant flea
+R:180:0x9A:0xC9
+
+# Ufthak of Cirith Ungol
+R:181:0x99:0xEF
+
+# the Giant white dragonfly
+R:182:0x81:0xC9
+
+# the Bright blue icky thing
+R:183:0x8E:0xE9
+
+# the Hill giant
+R:184:0x8F:0xD0
+
+# the Flesh golem
+R:185:0x8C:0xE7
+
+# the Warg
+R:186:0x92:0xC3
+
+# the Giant black louse
+R:187:0x82:0xC9
+
+# the Lurker
+R:188:0x81:0xDE
+
+# the Wererat
+R:189:0x9B:0xF2
+
+# the Black ogre
+R:190:0x88:0xCF
+
+# the Magic mushroom patch
+R:191:0x8E:0xAC
+
+# the Guardian naga
+R:192:0x97:0xEE
+
+# the Light hound
+R:193:0x94:0xDA
+
+# the Dark hound
+R:194:0x88:0xDA
+
+# the Half-orc
+R:195:0x8F:0xEF
+
+# the Giant tarantula
+R:196:0x83:0xD3
+
+# the Giant clear centipede
+R:197:0x81:0xE3
+
+# the Mirkwood spider
+R:198:0x96:0xD3
+
+# the Frost giant
+R:199:0x81:0xD0
+
+# the Griffon
+R:200:0x87:0xC8
+
+# the Homunculus
+R:201:0x8B:0xF5
+
+# the Gnome academic
+R:202:0x95:0xE8
+
+# the Clear hound
+R:203:0x81:0xDA
+
+# the Clay golem
+R:204:0x93:0xE7
+
+# the Umber hulk
+R:205:0x8F:0xD8
+
+# the Orc captain
+R:206:0x94:0xEF
+
+# the Gelatinous cube
+R:207:0x96:0xEA
+
+# the Giant green dragonfly
+R:208:0x85:0xC9
+
+# the Fire giant
+R:209:0x84:0xD0
+
+# the Hummerhorn
+R:210:0x94:0xC9
+
+# Ulfast, Son of Ulfang
+R:211:0x95:0xF4
+
+# the Quasit
+R:212:0x83:0xF5
+
+# the Imp
+R:213:0x85:0xF5
+
+# the Forest troll
+R:214:0x85:0xD4
+
+# Nar, the Dwarf
+R:215:0x8B:0xE8
+
+# the 2-headed hydra
+R:216:0x87:0xF9
+
+# the Water spirit
+R:217:0x91:0xC5
+
+# the Giant pink scorpion
+R:218:0x95:0xD3
+
+# the Earth spirit
+R:219:0x93:0xC5
+
+# the Fire spirit
+R:220:0x95:0xC5
+
+# the Fire hound
+R:221:0x84:0xDA
+
+# the Cold hound
+R:222:0x81:0xDA
+
+# the Energy hound
+R:223:0x86:0xDA
+
+# the Potion mimic
+R:224:0x81:0xA1
+
+# the Blink dog
+R:225:0x8E:0xC3
+
+# the Uruk
+R:226:0x8E:0xEF
+
+# Shagrat, the Orc Captain
+R:227:0x94:0xEF
+
+# Gorbag, the Orc Captain
+R:228:0x94:0xEF
+
+# the Shambling mound
+R:229:0x85:0xBB
+
+# the Stone giant
+R:230:0x89:0xD0
+
+# the Giant black dragonfly
+R:231:0x88:0xC9
+
+# the Stone golem
+R:232:0x89:0xE7
+
+# the Red mold
+R:233:0x84:0xED
+
+# the Giant gold dragonfly
+R:234:0x8B:0xC9
+
+# Bolg, Son of Azog
+R:235:0x91:0xEF
+
+# the Blink spider
+R:236:0x8E:0xD3
+
+# the 3-headed hydra
+R:237:0x83:0xF9
+
+# the Earth hound
+R:238:0x87:0xDA
+
+# the Air hound
+R:239:0x85:0xDA
+
+# the Sabre-tooth tiger
+R:240:0x8B:0xE6
+
+# the Acid hound
+R:241:0x82:0xDA
+
+# the Chimaera
+R:242:0x84:0xC8
+
+# the Busy-looking merchant
+R:243:0x8A:0xF4
+
+# the Sasquatch
+R:244:0x85:0xD9
+
+# the Werewolf
+R:245:0x9B:0xC3
+
+# the Wood elf lord
+R:246:0x95:0xEC
+
+# the Cloud giant
+R:247:0x86:0xD0
+
+# Lugdush, the Uruk
+R:248:0x86:0xEF
+
+# Ugluk, Half-Orc Captain of the White Hand
+R:249:0x8F:0xEF
+
+# the Blue dragon bat
+R:250:0x86:0xE2
+
+# the Scroll mimic
+R:251:0x81:0xBF
+
+# the Fire vortex
+R:252:0x84:0xF6
+
+# the Water vortex
+R:253:0x96:0xF6
+
+# the Cold vortex
+R:254:0x81:0xF6
+
+# the Energy vortex
+R:255:0x86:0xF6
+
+# the Mummified orc
+R:256:0x94:0xFA
+
+# the Killer stag beetle
+R:257:0x92:0xCB
+
+# the Iron golem
+R:258:0x82:0xE7
+
+# the Giant yellow scorpion
+R:259:0x8B:0xD3
+
+# the Black ooze
+R:260:0x88:0xEA
+
+# the Man-at-arms
+R:261:0x9A:0xF4
+
+# Azog, Orc King of Moria
+R:262:0x97:0xEF
+
+# the Footpad
+R:263:0x96:0xF4
+
+# the Red dragon bat
+R:264:0x84:0xE2
+
+# the Killer white beetle
+R:265:0x81:0xCB
+
+# the Giant bronze dragonfly
+R:266:0x8F:0xC9
+
+# the Forest wight
+R:267:0x85:0xD7
+
+# Ibun, Son of Mim
+R:268:0x83:0xE8
+
+# Khim, Son of Mim
+R:269:0x83:0xE8
+
+# the 4-headed hydra
+R:270:0x8B:0xF9
+
+# the Mummified human
+R:271:0x89:0xFA
+
+# the Vampire bat
+R:272:0x97:0xE2
+
+# Sangahyando of Umbar
+R:273:0x82:0xF1
+
+# Angamaite of Umbar
+R:274:0x82:0xF1
+
+# the Banshee
+R:275:0x86:0xC7
+
+# the Pukelman
+R:276:0x88:0xE7
+
+# the Wood elf shaman
+R:277:0x90:0xEC
+
+# the Stone troll
+R:278:0x82:0xD4
+
+# the Troll priest
+R:279:0x8E:0xD4
+
+# the Wereworm
+R:280:0x9B:0xF7
+
+# the Carrion crawler
+R:281:0x83:0xE3
+
+# the Killer pink beetle
+R:282:0x95:0xCB
+
+# the Giant grey termite
+R:283:0x82:0xE1
+
+# Ulwarth, Son of Ulfang
+R:284:0x95:0xF4
+
+# the Displacer beast
+R:285:0x9A:0xE6
+
+# the Giant fire tick
+R:286:0x8C:0xD3
+
+# the Cave ogre
+R:287:0x9A:0xCF
+
+# the White wraith
+R:288:0x81:0xD7
+
+# the Forgotten
+R:289:0x83:0xCD
+
+# Mim, Betrayer of Turin
+R:290:0x83:0xE8
+
+# the Killer fire beetle
+R:291:0x8C:0xCB
+
+# the Creeping adamantite coins
+R:292:0x8D:0xA4
+
+# the Algroth
+R:293:0x83:0xD4
+
+# the Vibration hound
+R:294:0x8B:0xDA
+
+# the Nexus hound
+R:295:0x9A:0xDA
+
+# the Ogre mage
+R:296:0x84:0xCF
+
+# Ulbandi, the Ogre Chieftain
+R:297:0x91:0xCF
+
+# the Vampire
+R:298:0x89:0xD6
+
+# the Gorgimaera
+R:299:0x83:0xC8
+
+# the Colbran
+R:300:0x8B:0xE7
+
+# the Spirit naga
+R:301:0x9B:0xEE
+
+# the 5-headed hydra
+R:302:0x85:0xF9
+
+# the Black knight
+R:303:0x82:0xF4
+
+# Uldor the Accursed
+R:304:0x83:0xF4
+
+# the Mage
+R:305:0x8C:0xF1
+
+# the Mind flayer
+R:306:0x90:0xD8
+
+# Tom Bombadil
+R:307:0x95:0xF5
+
+# the Basilisk
+R:308:0x90:0xD2
+
+# the Ice troll
+R:309:0x81:0xD4
+
+# the Giant purple worm
+R:310:0x90:0xF7
+
+# the Lost
+R:311:0x9A:0xCD
+
+# the Catoblepas
+R:312:0x85:0xD1
+
+# the Ring mimic
+R:313:0x81:0xBD
+
+# the Young blue dragon
+R:314:0x86:0xE4
+
+# the Young white dragon
+R:315:0x81:0xE4
+
+# the Young green dragon
+R:316:0x85:0xE4
+
+# the Young bronze dragon
+R:317:0x8F:0xE4
+
+# the Mithril golem
+R:318:0x8E:0xE7
+
+# the Shadow drake
+R:319:0x9A:0xC4
+
+# the Skeleton ogre
+R:320:0x89:0xF3
+
+# the Manticore
+R:321:0x8B:0xC8
+
+# the Giant blue termite
+R:322:0x86:0xE1
+
+# the Giant army ant
+R:323:0x9B:0xE1
+
+# the Grave wight
+R:324:0x86:0xD7
+
+# the Killer slicer beetle
+R:325:0x9A:0xCB
+
+# the Ghost
+R:326:0x81:0xC7
+
+# the Death watch beetle
+R:327:0x9B:0xCB
+
+# the Ogre shaman
+R:328:0x90:0xCF
+
+# Your Familiar
+R:329:0x91:0xC0
+
+# Your Familiar
+R:330:0x91:0xC0
+
+# the Ninja
+R:331:0x8B:0xF4
+
+# the Memory moss
+R:332:0x8D:0xBB
+
+# the Storm giant
+R:333:0x8B:0xD0
+
+# the Cave troll
+R:334:0x9A:0xD4
+
+# the Half-troll
+R:335:0x8F:0xD4
+
+# the Dervish
+R:336:0x87:0xF0
+
+# the Barrow wight
+R:337:0x8A:0xD7
+
+# the Skeleton troll
+R:338:0x96:0xF3
+
+# the Chaos drake
+R:339:0x8A:0xC4
+
+# the Law drake
+R:340:0x8E:0xC4
+
+# the Balance drake
+R:341:0x91:0xC4
+
+# the Ethereal drake
+R:342:0x97:0xC4
+
+# Bert, the Stone Troll
+R:343:0x82:0xD4
+
+# Bill, the Stone Troll
+R:344:0x82:0xD4
+
+# Tom, the Stone Troll
+R:345:0x82:0xD4
+
+# the Shade
+R:346:0x9B:0xC7
+
+# the Spectre
+R:347:0x8F:0xC7
+
+# the Water troll
+R:348:0x96:0xD4
+
+# the Fire elemental
+R:349:0x84:0xC5
+
+# the Bewitched
+R:350:0x8D:0xCD
+
+# the Water elemental
+R:351:0x86:0xC5
+
+# the Invisible stalker
+R:352:0x94:0xC5
+
+# the Stone jelly
+R:353:0x89:0xEA
+
+# the Thief
+R:354:0x91:0xF4
+
+# Ulfang the Black
+R:355:0x88:0xF4
+
+# the Lich
+R:356:0x83:0xCC
+
+# the Elven vampire
+R:357:0x85:0xD6
+
+# the Giant grey scorpion
+R:358:0x82:0xD3
+
+# the Earth elemental
+R:359:0x87:0xC5
+
+# the Air elemental
+R:360:0x8D:0xC5
+
+# the Hell hound
+R:361:0x84:0xC3
+
+# the Eog golem
+R:362:0x87:0xE7
+
+# the Olog
+R:363:0x8B:0xD4
+
+# the Variag raider
+R:364:0x83:0xF4
+
+# the Gravity hound
+R:365:0x89:0xDA
+
+# the Acidic cytoplasm
+R:366:0x90:0xEA
+
+# the Inertia hound
+R:367:0x93:0xDA
+
+# the Impact hound
+R:368:0x8F:0xDA
+
+# the Angst
+R:369:0x97:0xC7
+
+# the Ooze elemental
+R:370:0x85:0xC5
+
+# the Smoke elemental
+R:371:0x82:0xC5
+
+# the Young black dragon
+R:372:0x88:0xE4
+
+# the Wild mumak
+R:373:0x82:0xD1
+
+# the Giant fire termite
+R:374:0x84:0xE1
+
+# the Mature white dragon
+R:375:0x81:0xC4
+
+# the Xorn
+R:376:0x87:0xD8
+
+# the Shadow
+R:377:0x9A:0xC7
+
+# the Phantom
+R:378:0x8A:0xC7
+
+# the Grey wraith
+R:379:0x82:0xD7
+
+# the Young multi-hued dragon
+R:380:0x91:0xE4
+
+# the Colossus
+R:381:0x8D:0xE7
+
+# the Young gold dragon
+R:382:0x8B:0xE4
+
+# Rogrog the Black Troll
+R:383:0x88:0xD4
+
+# the Mature blue dragon
+R:384:0x86:0xC4
+
+# the Mature green dragon
+R:385:0x85:0xC4
+
+# the Mature bronze dragon
+R:386:0x8F:0xC4
+
+# the Young red dragon
+R:387:0x84:0xE4
+
+# the Trapper
+R:388:0x81:0xDE
+
+# the Bodak
+R:389:0x84:0xF5
+
+# the Ice elemental
+R:390:0x81:0xC5
+
+# the Necromancer
+R:391:0x90:0xF1
+
+# Lorgan, Chief of the Easterlings
+R:392:0x95:0xF1
+
+# the Demonologist
+R:393:0x97:0xF1
+
+# the Mummified ogre
+R:394:0x90:0xFA
+
+# the Scarecrow
+R:395:0x94:0xE7
+
+# the Will o' the wisp
+R:396:0x89:0xC5
+
+# the Magma elemental
+R:397:0x83:0xC5
+
+# the Black pudding
+R:398:0x91:0xEA
+
+# the Killer iridescent beetle
+R:399:0x91:0xCB
+
+# the Nexus vortex
+R:400:0x9A:0xF6
+
+# the Plasma vortex
+R:401:0x8C:0xF6
+
+# the Mature red dragon
+R:402:0x84:0xC4
+
+# the Mature gold dragon
+R:403:0x8B:0xC4
+
+# the Crystal drake
+R:404:0x98:0xC4
+
+# the Mature black dragon
+R:405:0x88:0xC4
+
+# the Mature multi-hued dragon
+R:406:0x91:0xC4
+
+# the Death knight
+R:407:0x88:0xF4
+
+# Castamir the Usurper
+R:408:0x8C:0xF1
+
+# the Time vortex
+R:409:0x8E:0xF6
+
+# the Shimmering vortex
+R:410:0x94:0xF6
+
+# the Ancient blue dragon
+R:411:0x86:0xC1
+
+# the Ancient bronze dragon
+R:412:0x8F:0xC1
+
+# the Beholder
+R:413:0x8F:0xE5
+
+# the Emperor wight
+R:414:0x84:0xD7
+
+# the Betrayed
+R:415:0x84:0xCD
+
+# the Tyrant of Fire
+R:416:0x84:0xC5
+
+# the Black wraith
+R:417:0x88:0xD7
+
+# the Erinyes
+R:418:0x87:0xD5
+
+# the Nether wraith
+R:419:0x8D:0xD7
+
+# the Eldrak
+R:420:0x84:0xD4
+
+# the Ettin
+R:421:0x8C:0xD4
+
+# the King of Water
+R:422:0x86:0xC5
+
+# the Rock python
+R:423:0x8F:0xCA
+
+# the Ancient white dragon
+R:424:0x81:0xC1
+
+# the Ancient green dragon
+R:425:0x85:0xC1
+
+# the 7-headed hydra
+R:426:0x84:0xF9
+
+# the Night mare
+R:427:0x91:0xD1
+
+# the Vampire lord
+R:428:0x86:0xD6
+
+# the Ancient black dragon
+R:429:0x88:0xC1
+
+# the Disenchanter worm mass
+R:430:0x8A:0xF7
+
+# the Barrow-wight of Cardolan
+R:431:0x8A:0xD7
+
+# the Spirit troll
+R:432:0x9B:0xD4
+
+# the Lesser titan
+R:433:0x95:0xD0
+
+# the 9-headed hydra
+R:434:0x86:0xF9
+
+# the Enchanter
+R:435:0x8E:0xF1
+
+# the Knight Templar
+R:436:0x90:0xF4
+
+# the Conjurer
+R:437:0x91:0xF1
+
+# the Xaren
+R:438:0x82:0xD8
+
+# the Roc
+R:439:0x99:0xC2
+
+# the Black Rider at Bree
+R:440:0x88:0xD7
+
+# the Minotaur
+R:441:0x82:0xC8
+
+# the Elf-king of Dagorlad
+R:442:0x96:0xEC
+
+# the Great Wyrm of Shadow
+R:443:0x9A:0xC1
+
+# the Ancient red dragon
+R:444:0x84:0xC1
+
+# the Ancient gold dragon
+R:445:0x8B:0xC1
+
+# the Crystal dragon
+R:446:0x98:0xC4
+
+# the Vrock
+R:447:0x90:0xD5
+
+# the Death quasit
+R:448:0x88:0xF5
+
+# the Black Rider at Weathertop
+R:449:0x92:0xD7
+
+# the Dark elven sorcerer
+R:450:0x8A:0xEC
+
+# the Dread lich
+R:451:0x84:0xCC
+
+# the Hezrou
+R:452:0x85:0xD5
+
+# the Black Rider at the Ford to Rivendell
+R:453:0x86:0xD7
+
+# Gorlim, Betrayer of Barahir
+R:454:0x85:0xF1
+
+# the Fallen
+R:455:0x99:0xCD
+
+# the Glabrezu
+R:456:0x8F:0xD5
+
+# One of the Nine
+R:457:0x99:0xD7
+
+# the Nalfeshnee
+R:458:0x84:0xD5
+
+# the Undead beholder
+R:459:0x87:0xE5
+
+# the Dread
+R:460:0x83:0xC7
+
+# the Horde mumak
+R:461:0x89:0xD1
+
+# the Ancient multi-hued dragon
+R:462:0x91:0xC1
+
+# the Ethereal dragon
+R:463:0x97:0xC4
+
+# One of the Nine
+R:464:0x91:0xD7
+
+# the Marilith
+R:465:0x8B:0xD5
+
+# the Master of Earth
+R:466:0x87:0xC5
+
+# the Hellion
+R:467:0x8C:0xD5
+
+# the Queen of Air
+R:468:0x8D:0xC5
+
+# the 11-headed hydra
+R:469:0x8E:0xF9
+
+# the Archpriest
+R:470:0x8B:0xF0
+
+# the Dreadmaster
+R:471:0x8B:0xC7
+
+# the Drolem
+R:472:0x85:0xE7
+
+# Scatha the Worm
+R:473:0x9B:0xC1
+
+# the Messenger of Khamul
+R:474:0x93:0xD7
+
+# Smaug the Golden
+R:475:0x99:0xC1
+
+# the Dracolich
+R:476:0x8D:0xC1
+
+# the Greater titan
+R:477:0x98:0xD0
+
+# the Dracolisk
+R:478:0x8C:0xC4
+
+# the Death mold
+R:479:0x97:0xED
+
+# Itangast, the Fire Drake
+R:480:0x95:0xC1
+
+# Glaurung, Father of the Dragons
+R:481:0x8C:0xC1
+
+# the Mystic
+R:482:0x8F:0xF0
+
+# Durin's Bane, the Balrog of Khazad-dum
+R:483:0x91:0xD5
+
+# the Nightwing
+R:484:0x9A:0xCE
+
+# the Nether hound
+R:485:0x8D:0xDA
+
+# the Time hound
+R:486:0x8E:0xDA
+
+# the Plasma hound
+R:487:0x8C:0xDA
+
+# the Lead golem
+R:488:0x9A:0xE7
+
+# the Great Storm Wyrm
+R:489:0x8E:0xC1
+
+# the Corpse-candle
+R:490:0x94:0xC7
+
+# Harowen the Black Hand
+R:491:0x91:0xF4
+
+# Gothmog, the Lieutenant of Morgul
+R:492:0x85:0xD7
+
+# the Grand Master mystic
+R:493:0x83:0xF0
+
+# Khamul the Shadow of the East
+R:494:0x82:0xD7
+
+# the Ethereal hound
+R:495:0x97:0xDA
+
+# the Great Ice Wyrm
+R:496:0x9B:0xC1
+
+# the Wooden figurine
+R:497:0x99:0xE7
+
+# the Nightcrawler
+R:498:0x9B:0xCE
+
+# the Hand druj
+R:499:0x8B:0xF3
+
+# the Eye druj
+R:500:0x98:0xF3
+
+# the Skull druj
+R:501:0x83:0xF3
+
+# the Chaos vortex
+R:502:0x8A:0xF6
+
+# the Aether vortex
+R:503:0x97:0xF6
+
+# the Wooden golem
+R:504:0x8F:0xE7
+
+# Thuringwethil, the Vampire Messenger
+R:505:0x91:0xD6
+
+# the Great Hell Wyrm
+R:506:0x95:0xC1
+
+# Palando the Blue
+R:509:0x86:0xCD
+
+# Alatar the Blue
+R:510:0x8E:0xCD
+
+# Ancalagon the Black
+R:511:0x88:0xC1
+
+# the Nightwalker
+R:512:0x88:0xCE
+
+# Gandalf the White
+R:513:0x81:0xCD
+
+# Grima Wormtongue, Agent of Saruman
+R:514:0x8B:0xF1
+
+# the Dreadlord
+R:515:0x84:0xC7
+
+# Tevildo, Prince of Cats
+R:516:0x91:0xE6
+
+# the Jabberwock
+R:517:0x90:0xCA
+
+# the Chaos hound
+R:518:0x8A:0xDA
+
+# the Great Wyrm of Chaos
+R:519:0x8A:0xC1
+
+# the Great Wyrm of Law
+R:520:0x87:0xC1
+
+# the Great Wyrm of Balance
+R:521:0x91:0xC1
+
+# the Lord of the Paths of the Dead
+R:522:0x8A:0xC7
+
+# the Great Wyrm of Many Colours
+R:523:0x91:0xC1
+
+# the Black reaver
+R:524:0x88:0xCC
+
+# the Penitent
+R:525:0x82:0xF3
+
+# the Castigant
+R:526:0x8F:0xF3
+
+# the Revenant
+R:527:0x91:0xF3
+
+# Baldor the Hapless
+R:528:0x8B:0xCC
+
+# Shelob, Spider of Darkness
+R:530:0x90:0xD3
+
+# the Aether hound
+R:531:0x97:0xDA
+
+# Saruman of Many Colours
+R:532:0x91:0xCD
+
+# the Witch-King of Angmar, Lord of the Nazgul
+R:535:0x97:0xD7
+
+# the Magma hound
+R:537:0x83:0xDA
+
+# the Mouth of Sauron
+R:538:0x90:0xF1
+
+# Lungorthin, the Balrog of White Fire
+R:540:0x94:0xD5
+
+# Draugluin, Sire of All Werewolves
+R:541:0x9B:0xC3
+
+# Ungoliant, the Unlight
+R:542:0x91:0xD3
+
+# Huan, Wolfhound of the Valar
+R:543:0x89:0xC3
+
+# Carcharoth, the Jaws of Thirst
+R:544:0x84:0xC3
+
+# Gothmog, the High Captain of Balrogs
+R:545:0x97:0xD5
+
+# Sauron, the Sorcerer
+R:546:0x8A:0xF1
+
+# Morgoth, Lord of Darkness
+R:547:0x88:0xCD
+
+# the Giant silver mouse
+R:548:0x89:0xF2
+
+# the Rot jelly
+R:549:0x99:0xEA
+
+# the Giant tan bat
+R:550:0x93:0xE2
+
+# the Giant silver ant
+R:551:0x89:0xE1
+
+# the Giant brown tick
+R:552:0x87:0xD3
+
+# the Disenchanter bat
+R:553:0x8A:0xE2
+
+# the Shimmering mold
+R:554:0x94:0xED
+
+# the Wyvern
+R:555:0x9B:0xE4
+
+# the Chest mimic
+R:556:0x8F:0xA6
+
+# the Demilich
+R:557:0x93:0xCC
+
+# the Archlich
+R:558:0x8E:0xCC
+
+# the Crow
+R:559:0x82:0xC2
+
+# the Raven
+R:560:0x88:0xC2
+
+# the Crebain
+R:561:0x91:0xC2
+
+# the Winged Horror
+R:562:0x8F:0xC2
+
+# the Cave bear
+R:563:0x9A:0xD1
+
+# the Grizzly bear
+R:564:0x8F:0xD1
+
+# the Werebear
+R:565:0x9B:0xD1
+
+# Beorn, the Shape-Changer
+R:566:0x88:0xD1
+
+# the Barbazu
+R:567:0x8D:0xD5
+
+# the Bile Demon
+R:568:0x82:0xD5
+
+# the Osyluth
+R:569:0x89:0xD5
+
+# the Gelugon
+R:570:0x81:0xD5
+
+# the Horned Reaper
+R:571:0x8E:0xD5
+
+# the Pit Fiend
+R:572:0x83:0xD5
+
+# the Balrog
+R:573:0x91:0xD5
+
+# the Baby bronze dragon
+R:574:0x8F:0xE4
+
+# the Baby gold dragon
+R:575:0x99:0xE4
+
+# the Great Swamp Wyrm
+R:576:0x96:0xC1
+
+# the Great Wyrm of Perplexity
+R:577:0x8F:0xC1
+
+# the Great Bile Wyrm
+R:578:0x92:0xC1
+
+# the Great Wyrm of Thunder
+R:579:0x99:0xC1
+
+# the Ranger
+R:580:0x85:0xF1
+
+# the Paladin
+R:581:0x82:0xF0
+
+# the Ranger Chieftain
+R:582:0x8D:0xF1
+
+# the Haradrim berserker
+R:583:0x97:0xF4
+
+# the Cyclops
+R:584:0x87:0xD0
+
+# Fluithuin the Ogress, Consort of Morgoth
+R:585:0x91:0xCF
+
+# Caradhras, the Mountain
+R:586:0x91:0xD0
+
+# Kronos, Lord of the Titans
+R:587:0x98:0xD0
+
+# the Black eye
+R:588:0x88:0xE5
+
+# the Spectator
+R:589:0x9B:0xE5
+
+# the Gauth
+R:590:0x8C:0xE5
+
+# the Beholder hive-mother
+R:591:0x86:0xE5
+
+# the Neekerbreeker
+R:592:0x96:0xC9
+
+# the Giant firefly
+R:593:0x8C:0xC9
+
+# Eol, the Dark Elf
+R:594:0x88:0xEC
+
+# Maeglin, the Traitor of Gondolin
+R:595:0x88:0xEC
+
+# the Elder vampire
+R:596:0x84:0xD6
+
+# the Silent watcher
+R:597:0x84:0xE7
+
+# the Nighthawk
+R:598:0x9B:0xC2
+
+# the Ghoul
+R:599:0x95:0xFA
+
+# the Ghast
+R:600:0x98:0xFA
+
+# the Greater basilisk
+R:601:0x8A:0xD2
+
+# the Aranea
+R:602:0x98:0xD3
+
+# the Elder aranea
+R:603:0x84:0xD3
+
+# the Death knight from the Mountains
+R:604:0x88:0xF4
+
+# the Bat of Gorgoroth
+R:605:0x8D:0xE2
+
+# the Doombat
+R:606:0x9A:0xE2
+
+# the Wolf chieftain
+R:607:0x97:0xC3
+
+# the Bone golem
+R:608:0x81:0xE7
+
+# the Bronze golem
+R:609:0x83:0xE7
+
+# the Ogre chieftain
+R:610:0x97:0xCF
+
+# Ar-Pharazon the Golden
+R:611:0x8B:0xF4
+
+# the Troll chieftain
+R:612:0x91:0xD4
+
+# the Shardstorm
+R:613:0x87:0xF6
+
+# the Storm of Unmagic
+R:614:0x91:0xF6
+
+# the Greater mummy
+R:615:0x96:0xFA
+
+# the Multi-hued hound
+R:616:0x91:0xDA
+
+# Harry Goatleaf, Gatekeeper of Bree
+R:617:0x99:0xF4
+
+# Wolf, Farmer Maggot's dog
+R:618:0x89:0xC3
+
+# Ted Sandyman the Miller
+R:619:0x82:0xE8
+
+# Bill Ferny, Agent of Saruman
+R:620:0x86:0xF4
+
+# Lotho Sackville-Baggins, Betrayer of the Shire
+R:621:0x90:0xE8
+
+# Old Man Willow
+R:622:0x82:0xBA
+
+# Muzgash, the Snaga of Cirith Ungol
+R:623:0x88:0xEB
+
+# the First Black Cat of Queen Beruthiel
+R:624:0x88:0xE6
+
+# the Second Black Cat of Queen Beruthiel
+R:625:0x88:0xE6
+
+# the Third Black Cat of Queen Beruthiel
+R:626:0x88:0xE6
+
+# the Fourth Black Cat of Queen Beruthiel
+R:627:0x88:0xE6
+
+# the Fifth Black Cat of Queen Beruthiel
+R:628:0x88:0xE6
+
+# the Sixth Black Cat of Queen Beruthiel
+R:629:0x88:0xE6
+
+# the Seventh Black Cat of Queen Beruthiel
+R:630:0x88:0xE6
+
+# the Eighth Black Cat of Queen Beruthiel
+R:631:0x88:0xE6
+
+# the Ninth Black Cat of Queen Beruthiel
+R:632:0x88:0xE6
+
+# Mauhur, Half-Orc Captain of the White Hand
+R:633:0x8F:0xEF
+
+# Grishnakh, the Half Orc Captain of Barad-dur
+R:634:0x87:0xEF
+
+# Orgof the Elf
+R:635:0x83:0xEC
+
+# Blodrin the Traitor
+R:636:0x83:0xEC
+
+# the Great Spider of Mirkwood
+R:637:0x96:0xD3
+
+# Eilinel the Entrapped
+R:638:0x97:0xC7
+
+# the Watcher in the Water
+R:639:0x96:0xC6
+
+# Gilim, the Giant of Eruman
+R:640:0x87:0xD0
+
+# the Watcher of Cirith Ungol
+R:641:0x95:0xE7
+
+# Oikeroi, Bodyguard of Tevildo
+R:642:0x91:0xE6
+
+# Umuiyan, Doorkeeper of Tevildo
+R:643:0x91:0xE6
+
+# Lurtz, Uruk Captain of the White Hand
+R:644:0x8E:0xEF
+
+# the Sorcerer of Dol Goldur
+R:645:0x8A:0xF1
+
+# the Pink mushroom patch
+R:646:0x95:0xAC
+
+# the Brown mushroom patch
+R:647:0x87:0xAC
+
+# the Green mushroom patch
+R:648:0x85:0xAC
+
+# the Black mushroom patch
+R:649:0x88:0xAC
+
+# the White mushroom patch
+R:650:0x81:0xAC
+
+# the Blue mushroom patch
+R:651:0x86:0xAC
+
+# the Red mushroom patch
+R:652:0x84:0xAC
+
+# the Explodestool
+R:653:0x8A:0xAC
+
+# the Copper mushroom patch
+R:654:0x87:0xAC
+
+# the Silver mushroom patch
+R:655:0x89:0xAC
+
+# the Wrinkled mushroom patch
+R:656:0x89:0xAC
+
+# the Rotting mushroom patch
+R:657:0x83:0xAC
+
+# the Slimy mushroom patch
+R:658:0x99:0xAC
+
+# the White slime
+R:659:0x81:0xAC
+
+# the Green slime
+R:660:0x85:0xAC
+
+# the Yellow slime
+R:661:0x8B:0xAC
+
+# the Silver slime
+R:662:0x89:0xAC
+
+# the Clear slime
+R:663:0x81:0xAC
+
+# the Purple slime
+R:664:0x90:0xAC
+
+# the Pink slime
+R:665:0x95:0xAC
+
+# the Blue slime
+R:666:0x86:0xAC
+
+# the Black slime
+R:667:0x88:0xAC
+
+# the Many-eyed moss
+R:668:0x83:0xBB
+
+# the Moross moss
+R:669:0x8B:0xBB
+
+# the Mischievous moss
+R:670:0x8E:0xBB
+
+# the Machievallian moss
+R:671:0x87:0xBB
+
+# the Maggoty moss
+R:672:0x93:0xBB
+
+# the Night willow
+R:673:0x9A:0xBA
+
+# the Thorn tree
+R:674:0x8F:0xBA
+
+# the Mandrake
+R:675:0x87:0xBA
+
+# the Wormwood
+R:676:0x91:0xBA
+
+# the Black oak
+R:677:0x88:0xBA
+
+# the Kudzu
+R:678:0x85:0xBA
+
+# the Soldier ant
+R:679:0x9A:0xE1
+
+# the Guardian ant
+R:680:0x97:0xE1
+
+# the Giant green ant
+R:681:0x85:0xE1
+
+# the Giant copper ant
+R:682:0x87:0xE1
+
+# the Giant gold ant
+R:684:0x8B:0xE1
+
+# the Giant bronze ant
+R:685:0x8F:0xE1
+
+# the Giant brass ant
+R:686:0x83:0xE1
+
+# the Giant driver ant
+R:687:0x8E:0xE1
+
+# the Giant hunter ant
+R:688:0x8F:0xE1
+
+# the Giant shimmering ant
+R:689:0x94:0xE1
+
+# the Giant ebony ant
+R:690:0x88:0xE1
+
+# the Giant clear ant
+R:691:0x81:0xE1
+
+# the Giant mottled termite
+R:692:0x83:0xE1
+
+# the Ancient copper dragon
+R:693:0x87:0xC1
+
+# the Ancient silver dragon
+R:694:0x89:0xC1
+
+# the Ancient brass dragon
+R:695:0x83:0xC1
+
+# the Ancient amethyst dragon
+R:696:0x91:0xC1
+
+# the Ancient diamond dragon
+R:697:0x81:0xC1
+
+# the Ancient emerald dragon
+R:698:0x85:0xC1
+
+# the Ancient sapphire dragon
+R:699:0x82:0xC1
+
+# the Ancient ruby dragon
+R:700:0x84:0xC1
+
+# the Sun dragon
+R:701:0x94:0xC1
+
+# the Star dragon
+R:702:0x94:0xC1
+
+# the Great Wyrm of the Nexus
+R:703:0x9A:0xC1
+
+# the Great Terror Wyrm
+R:704:0x96:0xC1
+
+# the Great Brass Wyrm
+R:705:0x93:0xC1
+
+# the Great Wyrm of Time and Space
+R:706:0x97:0xC1
+
+# the Great Wyrm of Magic
+R:707:0x90:0xC1
+
+# the Great Wyrm of Elements
+R:708:0x8D:0xC1
+
+# the Great Wyrm of the Galaxy
+R:709:0x86:0xC1
+
+# the Great Wyrm of Stastis
+R:710:0x8A:0xC1
+
+# the Giant lightning bat
+R:711:0x8E:0xE2
+
+# the Giant fire bat
+R:712:0x8C:0xE2
+
+# the Green dragon bat
+R:714:0x85:0xE2
+
+# Morgoth, Lord of Darkness
+R:715:0x88:0xCD
+
+# Melkor, Song of Ruin
+R:716:0x91:0xCD
+
+# Morgoth, Despair of Arda
+R:717:0x88:0xCD
+
+# the Giant long-eared bat
+R:718:0x99:0xE2
+
+# the Huge brown bat
+R:720:0x8F:0xE2
+
+# the Huge white bat
+R:721:0x89:0xE2
+
+# the Huge grey bat
+R:722:0x82:0xE2
+
+# the Giant ebony bat
+R:723:0x88:0xE2
+
+# the White dragon bat
+R:724:0x81:0xE2
+
+# the Black dragon bat
+R:725:0x88:0xE2
+
+# the Copper dragon bat
+R:726:0x87:0xE2
+
+# the Brass dragon bat
+R:727:0x83:0xE2
+
+# the Silver dragon bat
+R:728:0x81:0xE2
+
+# the Gold dragon bat
+R:729:0x8B:0xE2
+
+# the Bronze dragon bat
+R:730:0x8F:0xE2
+
+# the Giant vampire bat
+R:731:0x91:0xE2
+
+# the Werebat
+R:732:0x9B:0xE2
+
+# the Space bat
+R:733:0x81:0xE2
+
+# the Hell bat
+R:734:0x84:0xE2
+
+# the Giant green centipede
+R:735:0x85:0xE3
+
+# the Giant grey centipede
+R:736:0x82:0xE3
+
+# the Giant black centipede
+R:737:0x88:0xE3
+
+# the Giant brown centipede
+R:738:0x87:0xE3
+
+# the Metallic yellow centipede
+R:739:0x8B:0xE3
+
+# the Giant pink centipede
+R:740:0x95:0xE3
+
+# the Giant red centipede
+R:741:0x84:0xE3
+
+# the Giant blue centipede
+R:742:0x86:0xE3
+
+# the Metallic black centipede
+R:743:0x88:0xE3
+
+# the Cave crawler
+R:744:0x9A:0xE3
+
+# the Dungeon crawler
+R:745:0x89:0xE3
+
+# the Muck crawler
+R:746:0x93:0xE3
+
+# the Hell crawler
+R:747:0x8C:0xE3
+
+# the Wild dog
+R:748:0x8C:0xC3
+
+# the Guard dog
+R:749:0x8F:0xC3
+
+# the Hyena
+R:750:0x99:0xC3
+
+# the Grey wolf
+R:751:0x82:0xC3
+
+# the Black wolf
+R:752:0x88:0xC3
+
+# the Dire wolf
+R:753:0x83:0xC3
+
+# the Mirkwood wolf
+R:754:0x96:0xC3
+
+# the Baby copper dragon
+R:755:0x93:0xE4
+
+# the Baby silver dragon
+R:756:0x94:0xE4
+
+# the Baby brass dragon
+R:757:0x87:0xE4
+
+# the Baby amethyst dragon
+R:758:0x97:0xE4
+
+# the Baby diamond dragon
+R:759:0x9A:0xE4
+
+# the Baby emerald dragon
+R:760:0x8D:0xE4
+
+# the Baby sapphire dragon
+R:761:0x8E:0xE4
+
+# the Baby ruby dragon
+R:762:0x90:0xE4
+
+# the Young copper dragon
+R:763:0x87:0xE4
+
+# the Young silver dragon
+R:764:0x89:0xE4
+
+# the Young brass dragon
+R:765:0x83:0xE4
+
+# the Young amethyst dragon
+R:766:0x91:0xE4
+
+# the Young diamond dragon
+R:767:0x81:0xE4
+
+# the Young emerald dragon
+R:768:0x85:0xE4
+
+# the Young sapphire dragon
+R:769:0x86:0xE4
+
+# the Young ruby dragon
+R:770:0x84:0xE4
+
+# the Guard drake
+R:771:0x83:0xC4
+
+# the Star drake
+R:772:0x94:0xC4
+
+# the Sun drake
+R:773:0x94:0xC4
+
+# the Land drake
+R:774:0x93:0xC4
+
+# the Sea drake
+R:775:0x92:0xC4
+
+# the War drake
+R:776:0x8F:0xC4
+
+# the Mature copper dragon
+R:777:0x87:0xC4
+
+# the Mature silver dragon
+R:778:0x89:0xC4
+
+# the Mature brass dragon
+R:779:0x83:0xC4
+
+# the Mature amethyst dragon
+R:780:0x91:0xC4
+
+# the Mature diamond dragon
+R:781:0x81:0xC4
+
+# the Mature emerald dragon
+R:782:0x85:0xC4
+
+# the Mature sapphire dragon
+R:783:0x86:0xC4
+
+# the Mature ruby dragon
+R:784:0x84:0xC4
+
+# the Watch dragon
+R:785:0x8D:0xC4
+
+# the Crawling eye
+R:786:0x93:0xE5
+
+# the Rolling eye
+R:787:0x99:0xE5
+
+# the Blinking eye
+R:788:0x94:0xE5
+
+# the Blind eye
+R:789:0x81:0xE5
+
+# the Discharger eye
+R:790:0x90:0xE5
+
+# the Eye sore
+R:791:0x92:0xE5
+
+# the Nexus eye
+R:792:0x9A:0xE5
+
+# the Nether eye
+R:794:0x8D:0xE5
+
+# the Eye of the hurricane
+R:795:0x89:0xE5
+
+# the Evil eye
+R:796:0x85:0xE5
+
+# the Magic eye
+R:797:0x8E:0xE5
+
+# the Undead eye
+R:798:0x96:0xE5
+
+# the Eye of chaos
+R:799:0x8A:0xE5
+
+# the Faerie light
+R:800:0x94:0xFE
+
+# the Camouflaged watcher
+R:801:0x8B:0xC5
+
+# the Hidden tracker
+R:802:0x8B:0xC5
+
+# the Silent killer
+R:803:0x94:0xC5
+
+# the Magma spirit
+R:804:0x83:0xC5
+
+# the Smoke spirit
+R:805:0x8C:0xC5
+
+# the Ooze spirit
+R:806:0x96:0xC5
+
+# the Ice spirit
+R:807:0x9B:0xC5
+
+# the Djinn
+R:808:0x85:0xC5
+
+# the Phase cat
+R:809:0x8D:0xE6
+
+# the Giant emerald frog
+R:810:0x85:0xC6
+
+# the Giant garnet frog
+R:811:0x95:0xC6
+
+# the Giant red frog
+R:812:0x84:0xC6
+
+# the Giant ebony frog
+R:813:0x88:0xC6
+
+# the Giant black frog
+R:814:0x88:0xC6
+
+# the Giant ruby frog
+R:815:0x84:0xC6
+
+# the Giant blue frog
+R:816:0x8E:0xC6
+
+# the Giant sapphire frog
+R:817:0x8E:0xC6
+
+# the Giant orange frog
+R:818:0x83:0xC6
+
+# the Giant brass frog
+R:819:0x83:0xC6
+
+# the Giant yellow frog
+R:820:0x8B:0xC6
+
+# the Giant gold frog
+R:821:0x8B:0xC6
+
+# the Giant tree frog
+R:822:0x8D:0xC6
+
+# the Giant speckled tree frog
+R:823:0x8D:0xC6
+
+# the Giant teal toad
+R:824:0x92:0xC6
+
+# the Giant brown toad
+R:825:0x87:0xC6
+
+# the Giant horned toad
+R:826:0x8F:0xC6
+
+# the Steel golem
+R:827:0x81:0xE7
+
+# the Copper golem
+R:828:0x8F:0xE7
+
+# the Brass golem
+R:829:0x83:0xE7
+
+# the Silver golem
+R:830:0x89:0xE7
+
+# the Gold golem
+R:831:0x8B:0xE7
+
+# the Coal golem
+R:832:0x88:0xE7
+
+# the Brass monkey
+R:833:0x83:0xD9
+
+# the Ice golem
+R:834:0x8E:0xE7
+
+# the Shiver
+R:835:0x81:0xC7
+
+# the Chill
+R:836:0x8E:0xC7
+
+# the Spook
+R:837:0x8D:0xC7
+
+# the Haunt
+R:838:0x82:0xC7
+
+# the Fright
+R:839:0x98:0xC7
+
+# the Idolan
+R:840:0x94:0xC7
+
+# the Reflection
+R:841:0x99:0xC7
+
+# the Apparition
+R:842:0x96:0xC7
+
+# the Premonition
+R:843:0x87:0xC7
+
+# the Phantasm
+R:844:0x90:0xC7
+
+# the Vision
+R:845:0x95:0xC7
+
+# the Delerium
+R:846:0x91:0xC7
+
+# the Minor Death
+R:847:0x88:0xC7
+
+# the Forgotten soul
+R:848:0x93:0xC7
+
+# the Hungry soul
+R:849:0x8C:0xC7
+
+# the Bitter soul
+R:850:0x86:0xC7
+
+# the Bloodthirsty soul
+R:851:0x84:0xC7
+
+# the Ghoulish soul
+R:852:0x85:0xC7
+
+# the Unborn soul
+R:853:0x95:0xC7
+
+# the Ghastly soul
+R:854:0x8D:0xC7
+
+# the Gaunt soul
+R:855:0x8B:0xC7
+
+# the Hateful soul
+R:856:0x88:0xC7
+
+# the Dreadful soul
+R:857:0x83:0xC7
+
+# the Crying spirit
+R:858:0x91:0xC7
+
+# the Wailing spirit
+R:859:0x9B:0xC7
+
+# the Cackling spirit
+R:860:0x90:0xC7
+
+# the Cursing spirit
+R:861:0x8F:0xC7
+
+# the Shrieking spirit
+R:862:0x81:0xC7
+
+# the Mumbling spirit
+R:863:0x99:0xC7
+
+# the Commanding spirit
+R:864:0x89:0xC7
+
+# the Chanting spirit
+R:865:0x9A:0xC7
+
+# the Incanting spirit
+R:866:0x96:0xC7
+
+# the Screaming spirit
+R:867:0x98:0xC7
+
+# the Howling spirit
+R:868:0x92:0xC7
+
+# the Whispering spirit
+R:869:0x82:0xC7
+
+# the Greedy looking gnome
+R:870:0x8B:0xE8
+
+# the Hobbit reveller
+R:871:0x86:0xE8
+
+# the Hobbit merchant
+R:872:0x8E:0xE8
+
+# the Hobbit veteran
+R:873:0x8F:0xE8
+
+# the Surly looking dwarf
+R:874:0x99:0xE8
+
+# the Haughty looking elf
+R:875:0x89:0xEC
+
+# the Gnome warrior
+R:876:0x87:0xE8
+
+# the Gnome rogue
+R:877:0x86:0xE8
+
+# the Gnome priest
+R:878:0x96:0xE8
+
+# the Gnome illusionist
+R:879:0x94:0xE8
+
+# the Gnome wizard
+R:880:0x91:0xE8
+
+# the Dwarven warrior
+R:881:0x8F:0xE8
+
+# the Dwarven ranger
+R:882:0x89:0xE8
+
+# the Dwarven priest
+R:883:0x8E:0xE8
+
+# the Dwarven lord
+R:884:0x8A:0xE8
+
+# the Brain ooze
+R:885:0x98:0xEA
+
+# the Harpy
+R:886:0x88:0xC8
+
+# the Hairy horror
+R:887:0x93:0xC8
+
+# the Scaly horror
+R:888:0x8D:0xC8
+
+# the Clear horror
+R:889:0x81:0xC8
+
+# the Hooked horror
+R:890:0x90:0xC8
+
+# the Tentacled horror
+R:891:0x94:0xC8
+
+# the Fanged horror
+R:892:0x8C:0xC8
+
+# the Clawed horror
+R:893:0x98:0xC8
+
+# the Hunting horror
+R:894:0x89:0xC8
+
+# the Yellow icky thing
+R:895:0x8B:0xE9
+
+# the Pink icky thing
+R:896:0x95:0xE9
+
+# the Brown icky thing
+R:897:0x87:0xE9
+
+# the Orange icky thing
+R:898:0x83:0xE9
+
+# the Red icky thing
+R:899:0x84:0xE9
+
+# the Blue icky thing
+R:900:0x86:0xE9
+
+# the Large cockroach
+R:901:0x88:0xC9
+
+# the Giant brown locust
+R:902:0x87:0xC9
+
+# the Giant green locust
+R:903:0x8D:0xC9
+
+# the Giant yellow locust
+R:904:0x8B:0xC9
+
+# the Giant grub
+R:905:0x8A:0xC9
+
+# the Giant maggot
+R:906:0x93:0xC9
+
+# the Giant red dragonfly
+R:907:0x84:0xC9
+
+# the Giant blue dragonfly
+R:908:0x86:0xC9
+
+# the Giant copper dragonfly
+R:909:0x87:0xC9
+
+# the Giant silver dragonfly
+R:910:0x89:0xC9
+
+# the Giant brass dragonfly
+R:911:0x83:0xC9
+
+# the Giant amethyst dragonfly
+R:912:0x91:0xC9
+
+# the Giant diamond dragonfly
+R:913:0x81:0xC9
+
+# the Giant emerald dragonfly
+R:914:0x85:0xC9
+
+# the Giant sapphire dragonfly
+R:915:0x86:0xC9
+
+# the Giant ruby dragonfly
+R:916:0x84:0xC9
+
+# the Giant mayfly
+R:917:0x97:0xC9
+
+# the Giant house fly
+R:918:0x9B:0xC9
+
+# the Clear jelly
+R:919:0x81:0xEA
+
+# the Brown jelly
+R:920:0x87:0xEA
+
+# the Red jelly
+R:921:0x84:0xEA
+
+# the Bright blue jelly
+R:922:0x8E:0xEA
+
+# the Bright green jelly
+R:923:0x8D:0xEA
+
+# the Black jelly
+R:924:0x88:0xEA
+
+# the Red ooze
+R:925:0x84:0xEA
+
+# the Pink ooze
+R:926:0x95:0xEA
+
+# the Purple ooze
+R:927:0x90:0xEA
+
+# the Brown ooze
+R:928:0x87:0xEA
+
+# the Dull grey ooze
+R:929:0x82:0xEA
+
+# the Crystal ooze
+R:930:0x98:0xEA
+
+# the Clear ooze
+R:931:0x81:0xEA
+
+# the Disenchanter ooze
+R:932:0x8A:0xEA
+
+# the Grey ooze
+R:933:0x89:0xEA
+
+# the Green snake
+R:934:0x8D:0xCA
+
+# the Blue snake
+R:935:0x86:0xCA
+
+# the Black snake
+R:936:0x88:0xCA
+
+# the Copper snake
+R:937:0x87:0xCA
+
+# the Red snake
+R:938:0x84:0xCA
+
+# the Boa constrictor
+R:939:0x8C:0xCA
+
+# the Sea snake
+R:940:0x96:0xCA
+
+# the Sea serpent
+R:941:0x92:0xCA
+
+# the Green goblin
+R:942:0x85:0xEB
+
+# the Night goblin
+R:943:0x9B:0xEB
+
+# the Mirkwood goblin
+R:944:0x96:0xEB
+
+# the Forest goblin
+R:945:0x8D:0xEB
+
+# the River goblin
+R:946:0x8E:0xEB
+
+# the Killer dung beetle
+R:947:0x93:0xCB
+
+# the Killer grey beetle
+R:948:0x82:0xCB
+
+# the Killer yellow beetle
+R:949:0x8B:0xCB
+
+# the Killer brass beetle
+R:950:0x83:0xCB
+
+# the Killer bronze beetle
+R:951:0x8F:0xCB
+
+# the Killer gold beetle
+R:952:0x8B:0xCB
+
+# the Killer scarab beetle
+R:953:0x8E:0xCB
+
+# the Killer borer beetle
+R:954:0x89:0xCB
+
+# the Killer blue beetle
+R:955:0x86:0xCB
+
+# the Killer black beetle
+R:956:0x88:0xCB
+
+# the Killer green beetle
+R:957:0x85:0xCB
+
+# the Wood elf hunter
+R:958:0x94:0xEC
+
+# the Wood elf assassin
+R:959:0x91:0xEC
+
+# the Elven shade
+R:960:0x92:0xC7
+
+# the Grave lich
+R:961:0x87:0xCC
+
+# the Crypt lich
+R:962:0x8F:0xCC
+
+# the Pit lich
+R:963:0x99:0xCC
+
+# the Spirit lich
+R:964:0x89:0xCC
+
+# the Guardian lich
+R:965:0x97:0xCC
+
+# the Black lich
+R:966:0x88:0xCC
+
+# the Night lich
+R:967:0x9A:0xCC
+
+# the Death lich
+R:968:0x81:0xCC
+
+# the Nether lich
+R:969:0x8D:0xCC
+
+# the Emperor lich
+R:970:0x91:0xCC
+
+# the Grey reaver
+R:971:0x82:0xCC
+
+# the Night reaver
+R:972:0x9B:0xCC
+
+# the Gaunt reaver
+R:973:0x85:0xCC
+
+# the Silver mold
+R:974:0x89:0xED
+
+# the White mold
+R:975:0x81:0xED
+
+# the Blue mold
+R:976:0x86:0xED
+
+# the Wrinkled mold
+R:977:0x89:0xED
+
+# the Slimy mold
+R:978:0x99:0xED
+
+# the Warty mold
+R:979:0x96:0xED
+
+# the Wooden mold
+R:980:0x8F:0xED
+
+# the Crimson mold
+R:981:0x8C:0xED
+
+# the Black mold
+R:982:0x88:0xED
+
+# the Violet mold
+R:983:0x91:0xED
+
+# the White naga
+R:984:0x81:0xEE
+
+# the Grey naga
+R:985:0x82:0xEE
+
+# the Yellow naga
+R:986:0x8B:0xEE
+
+# the Blue naga
+R:987:0x86:0xEE
+
+# the Water naga
+R:988:0x96:0xEE
+
+# the Sea naga
+R:989:0x92:0xEE
+
+# the Empress naga
+R:990:0x8F:0xEE
+
+# the Nightworm
+R:991:0x85:0xCE
+
+# the Nightcreeper
+R:992:0x81:0xCE
+
+# the Nightrunner
+R:993:0x87:0xCE
+
+# the Nighthunter
+R:994:0x8F:0xCE
+
+# the Orc sergeant
+R:995:0x8B:0xEF
+
+# the Orc chieftain
+R:996:0x98:0xEF
+
+# the Orc king
+R:997:0x95:0xEF
+
+# the Orc priest
+R:998:0x86:0xEF
+
+# the Orc mage
+R:999:0x84:0xEF
+
+# the Green orc
+R:1000:0x85:0xEF
+
+# the Night orc
+R:1001:0x9B:0xEF
+
+# the Mirkwood orc
+R:1002:0x96:0xEF
+
+# the Mountain orc
+R:1003:0x91:0xEF
+
+# the Forest orc
+R:1004:0x8D:0xEF
+
+# the River orc
+R:1005:0x92:0xEF
+
+# the Grey orc
+R:1006:0x82:0xEF
+
+# the Green ogre
+R:1007:0x85:0xCF
+
+# the Night ogre
+R:1008:0x9B:0xCF
+
+# the Mirkwood ogre
+R:1009:0x96:0xCF
+
+# the Grey ogre
+R:1010:0x82:0xCF
+
+# the Mountain ogre
+R:1011:0x91:0xCF
+
+# the Forest ogre
+R:1012:0x8D:0xCF
+
+# the Half-ogre
+R:1013:0x8F:0xCF
+
+# the Ogre sergeant
+R:1014:0x83:0xCF
+
+# the Ogre leader
+R:1015:0x98:0xCF
+
+# the Ogre captain
+R:1016:0x95:0xCF
+
+# the Ogre priest
+R:1017:0x86:0xCF
+
+# the Bumbling priest
+R:1018:0x86:0xF0
+
+# the Apprentice shaman
+R:1019:0x8A:0xF0
+
+# the Novice shaman
+R:1020:0x90:0xF0
+
+# the Black bishop
+R:1021:0x88:0xF0
+
+# the Green giant
+R:1022:0x8D:0xD0
+
+# the Forest giant
+R:1023:0x85:0xD0
+
+# the River giant
+R:1024:0x96:0xD0
+
+# the Swamp giant
+R:1025:0x93:0xD0
+
+# the Grey giant
+R:1026:0x82:0xD0
+
+# the Mountain giant
+R:1027:0x91:0xD0
+
+# the Two-headed giant
+R:1028:0x8C:0xD0
+
+# the Night giant
+R:1029:0x9B:0xD0
+
+# the Sea giant
+R:1030:0x92:0xD0
+
+# the Cave giant
+R:1031:0x9A:0xD0
+
+# the Swamp ogre
+R:1032:0x8E:0xCF
+
+# the Cross-eyed mage
+R:1033:0x84:0xF1
+
+# the Sorcerer
+R:1034:0x8A:0xF1
+
+# the Giant field mouse
+R:1035:0x99:0xF2
+
+# the Giant brown mouse
+R:1036:0x87:0xF2
+
+# the Giant black mouse
+R:1037:0x82:0xF2
+
+# the Giant pink mouse
+R:1038:0x95:0xF2
+
+# the Giant yellow mouse
+R:1039:0x8B:0xF2
+
+# the Giant pack rat
+R:1040:0x98:0xF2
+
+# the Giant brown rat
+R:1041:0x8F:0xF2
+
+# the Giant ship rat
+R:1042:0x86:0xF2
+
+# the Giant glowing rat
+R:1043:0x83:0xF2
+
+# the Giant spotted rat
+R:1044:0x9A:0xF2
+
+# the Giant black rat
+R:1045:0x88:0xF2
+
+# the Dark naga
+R:1046:0x91:0xEE
+
+# the Black lizard
+R:1047:0x88:0xD2
+
+# the Errand boy
+R:1048:0x8D:0xF4
+
+# the Hobbit gentleman
+R:1049:0x8D:0xE8
+
+# the Phase spider
+R:1050:0x8A:0xD3
+
+# the Giant ebony scorpion
+R:1052:0x88:0xD3
+
+# the Wide-eyed tourist
+R:1055:0x8B:0xF4
+
+# the Grand Master thief
+R:1057:0x9A:0xF4
+
+# the Easterling
+R:1058:0x95:0xF4
+
+# the Troll Clan Chief
+R:1061:0x8A:0xD4
+
+# the Troll King
+R:1062:0x97:0xD4
+
+# the Troll High Priest
+R:1063:0x86:0xD4
+
+# the War troll
+R:1064:0x89:0xD4
+
+# the Black troll
+R:1065:0x88:0xD4
+
+# the Incubus
+R:1066:0x88:0xD5
+
+# the Bilge rat
+R:1068:0x8E:0xF2
+
+# the 6-headed hydra
+R:1069:0x90:0xF9
+
+# the 8-headed hydra
+R:1070:0x8C:0xF9
+
+# the 10-headed hydra
+R:1071:0x88:0xF9
+
+# the 12-headed hydra
+R:1072:0x8D:0xF9
+
+# the 13-headed hydra
+R:1073:0x89:0xF9
+
+# the 14-headed hydra
+R:1074:0x91:0xF9
+
+# the Baboon
+R:1075:0x95:0xD9
+
+# the Chimpanzee
+R:1076:0x93:0xD9
+
+# the Gorilla
+R:1077:0x82:0xD9
+
+# the Orangutan
+R:1078:0x83:0xD9
+
+# the Crystal hound
+R:1079:0x98:0xDA
+
+# the Water hound
+R:1080:0x96:0xDA
+
+# the Emperor Wight of Carn Dum
+R:1081:0x84:0xD7
+
+# the King of the Wood Elves
+R:1082:0x96:0xEC
+
+# Boromir, son of Denethor
+R:1083:0x85:0xF4
+
+# Faramir, son of Denethor
+R:1084:0x8D:0xF4
+
+# Denethor, Steward of Gondor
+R:1085:0x96:0xF4
+
+# the Maggot mass
+R:1086:0x93:0xF7
+
+# the Noxious mushroom patch
+R:1087:0x92:0xAC
+
+# the Rabid jackal
+R:1088:0x8D:0xC3
+
+# the Noxious mold
+R:1089:0x92:0xED
+
+# the Plague mouse
+R:1090:0x92:0xF2
+
+# the Noxious jelly
+R:1091:0x92:0xEA
+
+# the Huge cockroach
+R:1092:0x92:0xC9
+
+# the Rabid goblin
+R:1093:0x92:0xEB
+
+# the Giant cockroach
+R:1094:0x98:0xC9
+
+# the Giant tse-tse fly
+R:1095:0x90:0xC9
+
+# the Rabid wolf
+R:1096:0x85:0xC3
+
+# the Mummified servant
+R:1097:0x92:0xFA
+
+# the Giant wolf tick
+R:1098:0x93:0xD3
+
+# the Dzoo-noo-qua
+R:1099:0x92:0xD4
+
+# the Cadaver
+R:1100:0x83:0xFA
+
+# the Mummified soldier
+R:1101:0x8F:0xFA
+
+# the Mummified guard
+R:1102:0x87:0xFA
+
+# the Corruption Vortex
+R:1103:0x8D:0xF6
+
+# the Mummified priest
+R:1104:0x8E:0xFA
+
+# the Mummified noble
+R:1105:0x91:0xFA
+
+# the Mummified king
+R:1106:0x97:0xFA
+
+# the Diseased mass
+R:1107:0x92:0xF7
+
+# the Floating skull
+R:1108:0x8E:0xF3
+
+# the Flaming skull
+R:1109:0x84:0xF3
+
+# the Screaming skull
+R:1110:0x8D:0xF3
+
+# the Creeping opal gems
+R:1112:0x89:0xA4
+
+# the Creeping sapphire gems
+R:1113:0x86:0xA4
+
+# the Creeping ruby gems
+R:1114:0x84:0xA4
+
+# the Creeping diamond gems
+R:1115:0x81:0xA4
+
+# the Ghostly bat
+R:1116:0x94:0xE2
+
+# the Baby chromatic dragon
+R:1117:0x91:0xE4
+
+# the Young chromatic dragon
+R:1118:0x87:0xE4
+
+# the Mature chromatic dragon
+R:1119:0x87:0xC4
+
+# the Ancient chromatic dragon
+R:1120:0x91:0xC1
+
+# the Baby grey dragon
+R:1121:0x9A:0xE4
+
+# the Young grey dragon
+R:1122:0x82:0xE4
+
+# the Mature grey dragon
+R:1123:0x82:0xC4
+
+# the Ancient grey dragon
+R:1124:0x82:0xC1
+
+# the Chromatic hound
+R:1125:0x91:0xDA
+
+# the Baby yellow dragon
+R:1126:0x94:0xE4
+
+# the Young yellow dragon
+R:1127:0x8B:0xE4
+
+# the Mature yellow dragon
+R:1128:0x8B:0xC4
+
+# the Ancient yellow dragon
+R:1129:0x8B:0xC1
+
+# the Baby cyan dragon
+R:1130:0x96:0xE4
+
+# the Young cyan dragon
+R:1131:0x92:0xE4
+
+# the Mature cyan dragon
+R:1132:0x92:0xC4
+
+# the Ancient cyan dragon
+R:1133:0x92:0xC1
+
+# the Baby purple dragon
+R:1134:0x8A:0xE4
+
+# the Young purple dragon
+R:1135:0x90:0xE4
+
+# the Mature purple dragon
+R:1136:0x90:0xC4
+
+# the Ancient purple dragon
+R:1137:0x90:0xC1
+
+# the Lightningjaw
+R:1138:0x8E:0xCA
+
+# the Skeleton serpent
+R:1139:0x99:0xCA
+
+# the Land dragon
+R:1140:0x87:0xC4
+
+# the Sea dragon
+R:1141:0x96:0xC4
+
+# the War dragon
+R:1142:0x93:0xC4
+
+# the Inertia drake
+R:1143:0x89:0xC4
+
+# Maglor, Son of Feanor
+R:1144:0x95:0xEC
+
+# the Queen Ant
+R:1145:0x91:0xE1
+
+# the Staff mimic
+R:1146:0x81:0xDF
+
+# the Thunder drake
+R:1147:0x8E:0xC4
+
+# Maedhros, Son of Feanor
+R:1148:0x98:0xEC
+
+# the Wand mimic
+R:1149:0x81:0xAD
+
+# the Power drake
+R:1150:0x95:0xC4
+
+# the Rod mimic
+R:1151:0x81:0xAD
+
+# the Maia
+R:1152:0x87:0xCD
+
+# the Greater Maia
+R:1153:0x8E:0xCD
+
+# the Blue Wizard
+R:1154:0x86:0xCD
+
+# the Istar
+R:1155:0x8B:0xCD
+
+# the Phoenix
+R:1156:0x84:0xC2
+
+# the Minotaur lord
+R:1157:0x95:0xC8
+
+# Evil Iggy
+R:1158:0x97:0xF0
+
+# the Great Crystal Wyrm
+R:1159:0x98:0xC1
+
+# the Great Inertia Wyrm
+R:1160:0x93:0xC1
+
+# the Great Aether Wyrm
+R:1161:0x97:0xC1
+
+# the Great Ethereal Wyrm
+R:1162:0x83:0xC1
+
+# the Eye Tyrant
+R:1163:0x91:0xE5
+
+# the Diamond golem
+R:1164:0x81:0xE7
+
+# 15-headed Hydra
+R:1165:0x97:0xF9
+
+# the Great Power Serpent
+R:1166:0x91:0xCA
+
+# the Tarrasque
+R:1167:0x91:0xD2
+
+# the Crypt creep
+R:1168:0x88:0xF3
+
+# the Whirling hatchet
+R:1169:0x88:0xAF
+
+# the Giant marksman ant
+R:1170:0x92:0xE1
+
+# the Zombified lion
+R:1171:0x8B:0xFA
+
+# the Gazing eye
+R:1172:0x82:0xE5
+
+# the Imperial cobra
+R:1173:0x85:0xCA
+
+# the Wood elf priest
+R:1174:0x81:0xEC
+
+# the Hashishin
+R:1175:0x98:0xF4
+
+# the Nruling
+R:1179:0x8C:0xF5
+
+# the Innkeeper
+R:1180:0x89:0xF4
+
+# the Dwarf python
+R:1181:0x94:0xCA
+
+# the Whirlwind
+R:1182:0x87:0xFE
+
+# the Slime mold
+R:1183:0x93:0xAC
+
+# the Animated torch
+R:1184:0x8F:0xFE
+
+# the Animated dagger
+R:1185:0x82:0xFC
+
+# the Yellow faerie
+R:1186:0x8B:0xC8
+
+# the Goblin dart-thrower
+R:1187:0x97:0xEB
+
+# the Apprentice archer
+R:1188:0x89:0xF4
+
+# the Novice archer
+R:1189:0x81:0xF4
+
+# the Knobble-stick
+R:1190:0x95:0xFE
+
+# the Rock worm mass
+R:1191:0x82:0xF7
+
+# the Stormcrow
+R:1192:0x94:0xC2
+
+# the Haradrim warrior
+R:1193:0x97:0xF4
+
+# the Dwarf high priest
+R:1194:0x81:0xE8
+
+# the Slinger
+R:1195:0x9B:0xF4
+
+# the Spectral hunter
+R:1196:0x8C:0xC7
+
+# the Forge giant
+R:1197:0x94:0xD0
+
+# the Mana fly
+R:1198:0x8A:0xC9
+
+# the Haunted helmet
+R:1199:0x82:0xDD
+
+# the Spectral anaconda
+R:1200:0x9A:0xCA
+
+# the Sharpshooter
+R:1201:0x99:0xF4
+
+# the Abyss spider
+R:1202:0x8D:0xD3
+
+# the Lamia
+R:1203:0x82:0xF5
+
+# the Night-drake
+R:1204:0x9B:0xC4
+
+# the Venom mold
+R:1205:0x8D:0xED
+
+# the Gnomish wizard
+R:1207:0x84:0xE8
+
+# the Crystal mold
+R:1208:0x98:0xED
+
+# the Plague rat
+R:1209:0x8D:0xF2
+
+# the Blade of slaughter
+R:1210:0x84:0xFC
+
+# the Giant chieftain
+R:1211:0x97:0xD0
+
+# the Witch
+R:1212:0x99:0xF0
+
+# the Unmagic worm mass
+R:1213:0x88:0xF7
+
+# the Spectral killer
+R:1214:0x91:0xC7
+
+# the Assassin
+R:1215:0x91:0xF0
+
+# the Living tornado
+R:1216:0x87:0xFE
+
+# the Mana vortex
+R:1217:0x91:0xF6
+
+# the Blizzard giant
+R:1218:0x8E:0xD0
+
+# the Stone serpent
+R:1219:0x89:0xCA
+
+# the Patriarch
+R:1220:0x86:0xF0
+
+# the Legendary hobbit rogue
+R:1221:0x88:0xE8
+
+# the Shadow breeder
+R:1222:0x9A:0xD3
+
+# the Hammer of the Underworld
+R:1223:0x88:0xDC
+
+# the Elder elementalist
+R:1224:0x91:0xEC
+
+# the Wizard of the High Council
+R:1225:0x97:0xE8
+
+# the Tyrant of Hell
+R:1226:0x8A:0xD5
+
+# the Aetheroi
+R:1227:0x91:0xE6
+
+# the Great wyrm of Power
+R:1229:0x8E:0xC1
+
+# the Baby garnet dragon
+R:1230:0x95:0xE4
+
+# the Young garnet dragon
+R:1231:0x8C:0xE4
+
+# the Mature garnet dragon
+R:1232:0x8C:0xC4
+
+# the Ancient garnet dragon
+R:1233:0x8C:0xC1
+
+# the Great Wyrm of Corruption
+R:1234:0x98:0xC1
+
+# the Giant garnet dragonfly
+R:1235:0x8C:0xC9
+
+# the Creeping garnet gems
+R:1236:0x8C:0xA4
+
+# the Marid
+R:1237:0x8E:0xC5
+
+# the Efreet
+R:1238:0x8C:0xC5
+
+# the Dao
+R:1239:0x8F:0xC5
+
+# the Sylph
+R:1240:0x92:0xC5
+
+# the Kobold
+R:1241:0x93:0xC5
+
+# the Sprite
+R:1242:0x90:0xC5
+
+# the Naiad
+R:1243:0x91:0xC5
+
+# the Shantak
+R:1244:0x8B:0xC2
+
+# the Chicken
+R:1245:0x81:0xC2
+
+# the Cow
+R:1246:0x83:0xD1
+
+# the Goat
+R:1247:0x81:0xD1
+
+# the Zombified dwarf
+R:1248:0x84:0xFA
+
+# the Drowned dead
+R:1249:0x86:0xFA
+
+# the Goblin grenadier
+R:1250:0x84:0xEB
+
+# the Demolitions expert
+R:1251:0x8A:0xF4
+
+# the Smoke hound
+R:1252:0x9B:0xDA
+
+# the Crystal vortex
+R:1253:0x98:0xF6
+
+# the Inquisitor
+R:1254:0x84:0xF0
+
+# the Giant white jellyfish
+R:1255:0x81:0xEA
+
+# the Giant silver jellyfish
+R:1256:0x89:0xEA
+
+# the Giant yellow jellyfish
+R:1257:0x8B:0xEA
+
+# the Giant blue jellyfish
+R:1258:0x86:0xEA
+
+# the Giant green jellyfish
+R:1259:0x85:0xEA
+
+# the Giant pink jellyfish
+R:1260:0x8C:0xEA
+
+# the Giant purple jellyfish
+R:1261:0x90:0xEA
+
+# the Giant spotted jellyfish
+R:1262:0x9A:0xEA
+
+# the Giant ochre jellyfish
+R:1263:0x8F:0xEA
+
+# the Giant rotting jellyfish
+R:1264:0x99:0xEA
+
+# the Giant clear jellyfish
+R:1265:0x81:0xEA
+
+# the Giant brown jellyfish
+R:1266:0x87:0xEA
+
+# the Giant red jellyfish
+R:1267:0x84:0xEA
+
+# the Giant bright blue jellyfish
+R:1268:0x8E:0xEA
+
+# the Giant bright green jellyfish
+R:1269:0x8D:0xEA
+
+# the Giant black jellyfish
+R:1270:0x88:0xEA
+
+# the Pink Parasite
+R:1271:0x95:0xC9
+
+# the Shadow of Caradhras, the Mountain
+R:1272:0x9A:0xD0
+
+# the Kraken
+R:1273:0x9B:0xC6
+
+# the Wood elf ranger
+R:1274:0x8D:0xEC
+
+# the Wood elf enchanter
+R:1275:0x86:0xEC
+
+# the Wood elf tracker
+R:1276:0x82:0xEC
+
+# the Cave troll at Balin's Tomb
+R:1277:0x9A:0xD4
+
+# the Blade of Chaos
+R:1278:0x8A:0xFC
+
+# the Ent
+R:1279:0x8D:0xBA
+
+# the Animator
+R:1280:0x9A:0xF1
+
+# the Zombified dog
+R:1281:0x8B:0xC3
+
+# the Mummified cat
+R:1282:0x89:0xE6
+
+# the Rotting horror
+R:1283:0x81:0xC8
+
+# the Ghostly wolf
+R:1284:0x81:0xC3
+
+# the Skeletal dragon
+R:1285:0x99:0xE4
+
+# the Zombified drake
+R:1286:0x99:0xC4
+
+# the Giant rotting toad
+R:1287:0x8C:0xC6
+
+# the Dead fly
+R:1288:0x99:0xC9
+
+# the Skeleton naga
+R:1289:0x85:0xF3
+
+# the Skeletal mount
+R:1290:0x94:0xD1
+
+# the Skeletal rat
+R:1291:0x94:0xF2
+
+# the Skeletal lizard
+R:1292:0x94:0xD2
+
+# the Skeletal spider
+R:1293:0x94:0xD3
+
+# the Zombified ape
+R:1294:0x99:0xD9
+
+# the Flying monkey
+R:1295:0x8A:0xD9
+
+# the Dead ant
+R:1296:0x8C:0xE1
+
+# the Magic book mimic
+R:1297:0x84:0xBF
+
+# the Skeleton giant
+R:1298:0x8A:0xF3
+
+# the Zombified giant
+R:1299:0x8A:0xFA
+
+# the Prayer book mimic
+R:1300:0x86:0xBF
+
+# the Song book mimic
+R:1301:0x8B:0xBF
+
+# the Map mimic
+R:1302:0x8F:0xBF
+
+# the Runestone mimic
+R:1303:0x85:0xBF
+
+# the Animated limb
+R:1304:0x84:0xFE
+
+# the Faerie ring
+R:1305:0x98:0xAC
+
+# the Ant nest
+R:1306:0x8F:0xBC
+
+# the Termite mound
+R:1307:0x87:0xBC
+
+# the Shadow faerie
+R:1308:0x9A:0xC8
+
+# the Uruk berserker
+R:1309:0x83:0xEF
+
+# Hama, Doorwarden of the Golden Hall
+R:1310:0x94:0xF4
+
+# King Theoden, possessed by Saruman
+R:1311:0x94:0xF4
+
+# the Rotten icky thing
+R:1312:0x8A:0xE9
+
+# Radagast the Brown
+R:1313:0x87:0xCD
+
+# the Eagle
+R:1314:0x87:0xC2
+
+# the Agent of the black market
+R:1315:0x8E:0xF4
+
+# the Grid bug
+R:1316:0x91:0xC9
+
+# the Insect swarm
+R:1317:0x8E:0xC9
+
+# the Swordfish
+R:1318:0x89:0xC6
+
+# the Cave fish
+R:1319:0x9A:0xC6
+
+# the Leech
+R:1320:0x98:0xF7
+
+# the Barracuda
+R:1321:0x86:0xC6
+
+# the Death sword
+R:1322:0x89:0xFC
+
+# the Nibelung
+R:1323:0x9B:0xE8
+
+# the Rat-thing
+R:1324:0x8C:0xF2
+
+# the Giant slug
+R:1325:0x8F:0xF7
+
+# the Rotting corpse
+R:1326:0x8C:0xFA
+
+# the Carnivorous flying monkey
+R:1327:0x8C:0xD9
+
+# the Hunting hawk
+R:1328:0x93:0xC2
+
+# the Spectral warrior
+R:1329:0x93:0xC7
+
+# the Gremlin
+R:1330:0x87:0xF5
+
+# the Rock mole
+R:1331:0x8A:0xF2
+
+# the Mindcrafter
+R:1332:0x8B:0xF1
+
+# the War bear
+R:1333:0x87:0xD1
+
+# the Killer bee
+R:1334:0x94:0xC9
+
+# the Kamikaze faerie
+R:1335:0x8A:0xC8
+
+# the Owlbear
+R:1336:0x9A:0xC8
+
+# the Undead mass
+R:1337:0x99:0xF7
+
+# the Hippocampus
+R:1338:0x92:0xC8
+
+# the Mine-dog
+R:1339:0x8A:0xC3
+
+# the Hellcat
+R:1340:0x8C:0xE6
+
+# the Faerie master
+R:1341:0x85:0xC8
+
+# the Devil-bat
+R:1342:0x8A:0xE2
+
+# the Cloak mimic
+R:1343:0x85:0xA8
+
+# the Tangleweed
+R:1344:0x85:0xBB
+
+# the Magpie
+R:1345:0x89:0xC2
+
+# the Goblin sapper
+R:1346:0x8A:0xEB
+
+# the Gibbering mouther
+R:1347:0x83:0xEA
+
+# the Wolfhound
+R:1348:0x9A:0xC3
+
+# the Cheerful leprechaun
+R:1349:0x8D:0xE8
+
+# the Dweller on the threshold
+R:1350:0x97:0xF5
+
+# the Poison ivy
+R:1351:0x91:0xBB
+
+# the Flayed skull
+R:1352:0x8C:0xF3
+
+# the Lizard man
+R:1353:0x8D:0xD2
+
+# the Sphinx
+R:1354:0x99:0xC8
+
+# the Swamp thing
+R:1355:0x96:0xC8
+
+# the Door mimic
+R:1356:0x8F:0xAB
+
+# the Venus flytrap
+R:1357:0x81:0xBB
+
+# the Chaos beastman
+R:1358:0x8A:0xC8
+
+# the Huorn
+R:1359:0x92:0xBA
+
+# the Lizard king
+R:1360:0x85:0xD2
+
+# the Great eagle
+R:1361:0x97:0xC2
+
+# the Weir
+R:1362:0x94:0xC3
+
+# the Globefish
+R:1363:0x91:0xC6
+
+# the Auto-roller
+R:1364:0x82:0xE7
+
+# Meneldor the Swift
+R:1365:0x87:0xC2
+
+# the Great Grey Wolf
+R:1366:0x82:0xC3
+
+# Wolf-Sauron
+R:1367:0x8A:0xC3
+
+# Serpent-Sauron
+R:1368:0x8A:0xCA
+
+# Vampire-Sauron
+R:1369:0x8A:0xD6
+
+# Giant-Sauron
+R:1370:0x8A:0xD0
+
+# Eye-Sauron
+R:1371:0x8A:0xE5
+
+# the Udun-spawn
+R:1372:0x96:0xD5
+
+# the Wizard eye
+R:1373:0x97:0xE5
+
+# the Unseen servant
+R:1374:0x99:0xC5
+
+
+
+
+

@@ -3295,6 +3295,12 @@ bool modify_panel(int wy, int wx)
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
+    /* Hajo: iso view needs center_player to work always */ 
+    
+#ifdef USE_ISOV
+    // everything ok already?
+    
+#else    
 	/* Verify wy, adjust if needed */
 	if ((level_flag & (LF1_TOWN)) != 0)
 	{
@@ -3314,7 +3320,8 @@ bool modify_panel(int wy, int wx)
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
 
 	if (wx < 0) wx = 0;
-
+#endif
+    
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
 	{
@@ -3924,10 +3931,11 @@ void verify_panel(void)
 	int wy = p_ptr->wy;
 	int wx = p_ptr->wx;
 
+    /* Hajo: Iso view needs real center on player */
 
 	/* Scroll screen vertically when off-center */
-	if (center_player &&
-	    (py != wy + SCREEN_HGT / 2))
+	if (center_player /* &&
+	    (py != wy + SCREEN_HGT / 2) */)
 	{
 		wy = py - SCREEN_HGT / 2;
 	}
@@ -3940,8 +3948,8 @@ void verify_panel(void)
 
 
 	/* Scroll screen horizontally when off-center */
-	if (center_player &&
-	    (px != wx + SCREEN_WID / 2))
+	if (center_player /* &&
+	    (px != wx + SCREEN_WID / 2) */)
 	{
 		wx = px - SCREEN_WID / 2;
 	}

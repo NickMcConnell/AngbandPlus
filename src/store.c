@@ -2664,18 +2664,20 @@ static void store_purchase(int store_index)
 					/* Describe the bag */
 					object_desc(j_name, sizeof(j_name), j_ptr, FALSE, 3);
 					
-					/* Hack -- temporarily change the number to describe it */
-					int old_number = o_ptr->number;
-					o_ptr->number = amt;
-					
-					/* Describe the object */
-					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-					
-					/* Then restore the number */
-					o_ptr->number = old_number;
-					
-					/* Message */
-					msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+                    {
+                        /* Hack -- temporarily change the number to describe it */
+                        int old_number = o_ptr->number;
+                        o_ptr->number = amt;
+                        
+                        /* Describe the object */
+                        object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+                        
+                        /* Then restore the number */
+                        o_ptr->number = old_number;
+                        
+                        /* Message */
+                        msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+                    }
 				}
 				else
 				{
@@ -2795,19 +2797,20 @@ static void store_purchase(int store_index)
 		{
 			/* Describe the bag */
 			object_desc(j_name, sizeof(j_name), j_ptr, FALSE, 3);
-			
-			/* Hack -- temporarily change the number to describe it */
-			int old_number = o_ptr->number;
-			o_ptr->number = amt;
-			
-			/* Describe the object */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-			
-			/* Then restore the number */
-			o_ptr->number = old_number;
-			
-			/* Message */
-			msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+			{
+                /* Hack -- temporarily change the number to describe it */
+                int old_number = o_ptr->number;
+                o_ptr->number = amt;
+                
+                /* Describe the object */
+                object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+                
+                /* Then restore the number */
+                o_ptr->number = old_number;
+                
+                /* Message */
+                msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+            }
 		}
 		else
 		{

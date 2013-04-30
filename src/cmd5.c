@@ -417,18 +417,22 @@ bool inven_study_okay(const object_type *o_ptr)
 	/* Book */
 	else
 	{
-		if (disdain_book(o_ptr)) return FALSE;
+		if (disdain_book(o_ptr)) {
+            return FALSE;
+        }
+        
+        {
+            s16b book[26];
+            int num;
+            int i;
 
-		s16b book[26];
-		int num;
-		int i;
+            fill_book(o_ptr, book, &num);
 
-		fill_book(o_ptr, book, &num);
-
-		for (i=0; i < num; i++)
-		{
-			if (spell_okay(book[i], FALSE)) return (TRUE);
-		}
+            for (i=0; i < num; i++)
+            {
+                if (spell_okay(book[i], FALSE)) return (TRUE);
+            }
+        }
 	}
 
 	return (FALSE);

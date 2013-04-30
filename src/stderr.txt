@@ -1,0 +1,2 @@
+Calling sdl_main_hook.
+angband.exe: Unable to prepare any 'display module'!

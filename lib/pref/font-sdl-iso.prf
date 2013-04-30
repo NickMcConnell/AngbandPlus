@@ -1,0 +1,10 @@
+#
+# Iso-pref files are split for each type of config,
+# to keep the size of the files somewhat manageable
+#
+
+%:font-sdl-iso_flavors.prf
+
+%:font-sdl-iso_monster.prf
+%:font-sdl-iso_features.prf
+%:font-sdl-iso_objects.prf
