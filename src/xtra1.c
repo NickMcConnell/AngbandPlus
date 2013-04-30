@@ -223,20 +223,42 @@ static void prt_level(void)
 static void prt_exp(void)
 {
 	char out_val[32];
+	s32b exp_display;
+	byte attr;
 
-	sprintf(out_val, "%8ld", (long)p_ptr->exp);
-
+	/*use different color if player's experience is drained*/
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str("EXP ", ROW_EXP, COL_EXP);
-		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_L_GREEN;
 	}
 	else
-
 	{
-		put_str("Exp ", ROW_EXP, COL_EXP);
-		c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_YELLOW;
 	}
+
+	/*some players want to see how much they need to gain to get to the next level*/
+	if ((toggle_xp) && (p_ptr->lev < PY_MAX_LEVEL))
+	{
+		exp_display = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) -
+									p_ptr->exp);
+
+		/*Print experience label*/
+		put_str("NEXT ", ROW_EXP, COL_EXP);
+	}
+
+	else
+	{
+
+		exp_display = p_ptr->exp;
+
+		/*Print experience label*/
+		put_str("EXP ", ROW_EXP, COL_EXP);
+	}
+
+	sprintf(out_val, "%8ld", exp_display);
+
+	c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
+
 }
 
 
@@ -277,15 +299,15 @@ static void prt_hp(void)
 	byte color;
 
 
-	put_str((show_sidebar ? "Max HP " : "/ "), ROW_MAXHP, COL_MAXHP);
+	put_str((show_sidebar ? "Max HP " : "/"), ROW_MAXHP, COL_MAXHP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->mhp);
 	color = TERM_L_GREEN;
 
-	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + (show_sidebar ? 7 : 2));
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur HP " : "HP: "), ROW_CURHP, COL_CURHP);
+	put_str((show_sidebar ? "Cur HP " : "HP:"), ROW_CURHP, COL_CURHP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->chp);
 
@@ -319,15 +341,15 @@ static void prt_sp(void)
 	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
 
 
-	put_str((show_sidebar ? "Max SP " : "/ "), ROW_MAXSP, COL_MAXSP);
+	put_str((show_sidebar ? "Max SP " : "/"), ROW_MAXSP, COL_MAXSP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->msp);
 	color = TERM_L_GREEN;
 
-	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + (show_sidebar ? 7 : 2));
+	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur SP " : "SP "), ROW_CURSP, COL_CURSP);
+	put_str((show_sidebar ? "Cur SP " : "SP:"), ROW_CURSP, COL_CURSP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->csp);
 
@@ -374,17 +396,25 @@ static void prt_depth(void)
 	{
 		strcpy(depths, "Wilds");
 	}
+	else if ((depth_in_feet) && !(COL_DEPTH))
+	{
+		sprintf(depths, "%d'", (p_ptr->depth-min_depth(p_ptr->dungeon)) * 50);
+	}
 	else if (depth_in_feet)
 	{
 		sprintf(depths, "%d ft", (p_ptr->depth-min_depth(p_ptr->dungeon)) * 50);
 	}
+	else if (COL_DEPTH)
+	{
+		sprintf(depths, "Lev %d", p_ptr->depth);
+	}
 	else
 	{
-		sprintf(depths, "Lev %d", (p_ptr->depth-min_depth(p_ptr->dungeon)));
+		sprintf(depths, "%d", p_ptr->depth);
 	}
 
-	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
+	if (COL_DEPTH == 0) put_str("DEPTH ", ROW_DEPTH, COL_DEPTH);
+	c_put_str(TERM_L_GREEN, format("%7s", depths), ROW_DEPTH, COL_DEPTH ? COL_DEPTH : COL_DEPTH + 5);
 }
 
 
@@ -491,6 +521,79 @@ static void prt_poisoned(void)
 	else
 	{
                 put_str((show_sidebar ? "        " : "    "), ROW_POISONED, COL_POISONED);
+	}
+}
+
+
+/*
+ * Prints Cursed status
+ */
+static void prt_disease(void)
+{
+	byte attr = TERM_GREEN;
+
+	if (p_ptr->disease & (1 << DISEASE_SPECIAL)) attr = TERM_L_DARK;
+	else if (p_ptr->disease & (DISEASE_HEAVY)) attr = TERM_VIOLET;
+	else if (p_ptr->disease & (DISEASE_QUICK)) attr = TERM_L_RED;
+	else if (p_ptr->disease & (DISEASE_POWER)) attr = TERM_RED;
+	else if (p_ptr->disease & (DISEASE_DISEASE)) attr = TERM_ORANGE;
+	else if (p_ptr->disease & (DISEASE_LIGHT)) attr = TERM_YELLOW;
+
+	if (p_ptr->disease)
+	{
+		c_put_str(attr, (show_sidebar ? "Disease" : "Dise"), ROW_DISEASE, COL_DISEASE);
+	}
+	else
+	{
+		put_str((show_sidebar ? "       " : "    "), ROW_DISEASE, COL_DISEASE);
+	}
+}
+
+
+/*
+ * Prints Cursed status
+ */
+static void prt_cursed(void)
+{
+	if (p_ptr->cursed)
+	{
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Cursed" : "Curs"), ROW_CURSED, COL_CURSED);
+	}
+	else
+	{
+		put_str((show_sidebar ? "      " : "    "), ROW_CURSED, COL_CURSED);
+	}
+}
+
+
+/*
+ * Prints Amnesia status
+ */
+static void prt_amnesia(void)
+{
+	if (p_ptr->amnesia)
+	{
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Amnesia" : "Forg"), ROW_AMNESIA, COL_AMNESIA);
+	}
+	else
+	{
+		put_str((show_sidebar ? "       " : "    "), ROW_AMNESIA, COL_AMNESIA);
+	}
+}
+
+
+/*
+ * Prints Petrified status
+ */
+static void prt_petrify(void)
+{
+	if (p_ptr->petrify)
+	{
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Petrified" : "Petr"), ROW_PETRIFY, COL_PETRIFY);
+	}
+	else
+	{
+		put_str((show_sidebar ? "         " : "    "), ROW_PETRIFY, COL_PETRIFY);
 	}
 }
 
@@ -616,8 +719,24 @@ static void prt_state(void)
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
 	if (p_ptr->searching) strcpy(text, "Searching ");
 	if (p_ptr->held_song) strcpy(text, "Singing   ");
-	if (p_ptr->blocking) strcpy(text,  "Blocking  ");
-	if (p_ptr->dodging) strcpy(text,   "Dodging   ");
+	if (p_ptr->msleep)    strcpy(text, "Sleepy    ");
+	if (p_ptr->psleep)    strcpy(text, "Drowsy    ");
+
+	/* Asleep - attr and text always overrides */
+	if (p_ptr->psleep >= PY_SLEEP_ASLEEP)
+	{
+		attr = TERM_L_BLUE;
+
+		strcpy(text, "Asleep    ");
+	}
+
+	/* Asleep - attr and text always overrides */
+	if (p_ptr->stastis)
+	{
+		attr = TERM_BLUE;
+
+		strcpy(text, "Timewarp! ");
+	}
 
 	/* Paralysis - attr and text always overrides */
 	if (p_ptr->paralyzed)
@@ -649,18 +768,18 @@ static void prt_speed(void)
 	if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, "Fast (+%d)", (i - 110));
+		sprintf(buf, (show_sidebar ? "Fast (+%d)" : "Spd+%d"), (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, "Slow (-%d)", (110 - i));
+		sprintf(buf, (show_sidebar ? "Slow (-%d)" : "Spd+%d"), (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format((show_sidebar ? "%-10s" : "%-6s"), buf), ROW_SPEED, COL_SPEED);
 }
 
 
@@ -756,8 +875,16 @@ static void health_redraw(void)
 	/* Not tracking */
 	if (!p_ptr->health_who)
 	{
-		/* Erase the health bar */
-		Term_erase(COL_INFO, ROW_INFO, 12);
+		if (show_sidebar)
+		{
+			/* Erase the health bar */
+			Term_erase(COL_INFO, ROW_INFO, 12);
+		}
+		else
+		{
+			/* Show gold instead */
+			prt_gold();
+		}
 	}
 
 	/* Tracking an unseen monster */
@@ -1016,6 +1143,25 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			{
 				strcpy(temp,"Exorcist");
 			}
+			if (style == WS_INSTRUMENT) strcpy(temp,"Monk");
+			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
+			{
+
+				object_kind *k_ptr=&k_info[0];
+				int i;
+			
+				/* Analyse books */
+				for (i = 0;i<z_info->k_max;i++)
+				{
+					k_ptr = &k_info[i];
+
+					if ((k_ptr->tval == TV_PRAYER_BOOK) && (k_ptr->sval == sval)) break;
+				}
+
+				if (short_name) strcpy(temp,"Acolyte");
+				else sprintf(temp,"%s",k_name+k_ptr->name);
+				if (long_name) sprintf(temp,"Acolyte of the Order %s",k_name+k_ptr->name);
+			}
 			break;
 
 		case 3:
@@ -1045,6 +1191,11 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				strcpy(temp,"Defender");
 			}
 			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonslayer");
+			if (style == WS_INSTRUMENT)
+			{
+				 if (long_name) strcpy(temp,"Standard-bearer"); 
+				else strcpy(temp,"Standard");
+			}
 			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
 			{
 
@@ -1202,7 +1353,7 @@ static void prt_frame_basic(void)
 	prt_depth();
 
 	/* Special */
-	if (show_sidebar) health_redraw();
+	health_redraw();
 }
 
 
@@ -1223,6 +1374,10 @@ static void prt_frame_extra(void)
 	prt_confused();
 	prt_afraid();
 	prt_poisoned();
+	prt_disease();
+	prt_cursed();
+	prt_amnesia();
+	prt_petrify();
 
 	/* State */
 	prt_state();
@@ -1826,8 +1981,6 @@ static void calc_spells(void)
 {
 	int i, ii, j, k, levels;
 	int num_allowed, num_known;
-	bool spells_done = FALSE;
-	bool spells_bad = FALSE;
 
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
@@ -1835,14 +1988,18 @@ static void calc_spells(void)
 	cptr p;
 
 	/* Hack --- We don't know which book it comes from */
-	switch (c_info[p_ptr->pclass].spell_stat)
+	switch (c_info[p_ptr->pclass].spell_book)
 	{
-		case A_WIS:
+		case TV_PRAYER_BOOK:
 			p="prayer";
 		break;
 
-		case A_CHR:
+		case TV_SONG_BOOK:
 			p = "song";
+		break;
+
+		case TV_RUNESTONE:
+			p = "ritual";
 		break;
 
 		default:
@@ -1866,8 +2023,8 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat]] *
-		       levels / 2);
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_study]] *
+		       levels / 50) + 1;
 
 	/* Hack --- adjust num_allowed */
 	if (num_allowed >  PY_MAX_SPELLS) num_allowed = PY_MAX_SPELLS;
@@ -1907,34 +2064,7 @@ static void calc_spells(void)
 			num_known++;
 
 		}
-		else if (p_ptr->spell_order[j] == 99)
-		{
-
-			if (spells_done) spells_bad = TRUE;
-			spells_done = TRUE;
-		}
 	}
-	/* Fix spells, spell order and so forth for old characters. */
-	if (spells_bad)
-	{
-                /* Hack -- forget all spells */
-                p_ptr->spell_learned1 = 0;
-                p_ptr->spell_learned2 = 0;
-                p_ptr->spell_learned3 = 0;
-                p_ptr->spell_learned4 = 0;
-
-                /* Hack -- unlearn all spells */
-                p_ptr->spell_forgotten1 = 0;
-                p_ptr->spell_forgotten2 = 0;
-                p_ptr->spell_forgotten3 = 0;
-                p_ptr->spell_forgotten4 = 0;
-
-                /* Hack -- unlearn all spells */
-                for (j = 0; j < PY_MAX_SPELLS; j++) p_ptr->spell_order[j] = 0;
-
-                /* Hack -- unlearn all spells */
-                num_known = 0;
-        }
 
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;
@@ -2219,10 +2349,10 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[pc_ptr->spell_stat]] * levels / 2;
+	msp = adj_mag_mana[p_ptr->stat_ind[pc_ptr->spell_stat_mana]] * levels / 50;
 
-	/* Hack -- usually add 1 mana */
-	if (msp) msp++;
+	/* Hack -- increase mana */
+	if (levels > 0) msp++;
 
 	/* Assume player is not encumbered by gloves */
 	p_ptr->cumber_glove = FALSE;
@@ -2258,7 +2388,7 @@ static void calc_mana(void)
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
 		    !(f3 & (TR3_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+		    !((f1 & (TR1_INT | TR1_WIS | TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -2294,7 +2424,7 @@ static void calc_mana(void)
 	}
 
 	/* Hack -- mage types start with higher mana */
-	if ((msp) && (icky_hands)) msp += 4;
+	if ((levels > 0) && (icky_hands)) msp += 4;
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
@@ -2368,7 +2498,7 @@ static void calc_mana(void)
  */
 static void calc_runes(void)
 {
-        int i;
+        int i, ii;
         int this_o_idx,next_o_idx;
 
 	/* Clear runes */
@@ -2377,9 +2507,30 @@ static void calc_runes(void)
 	/* Check inventory */
 	for (i = 0;i<INVEN_WIELD;i++)
 	{
-		if (inventory[i].k_idx)
+		/* Skip empty slots */
+		if (!inventory[i].k_idx) continue;
+
+		/* Check for runes */
+		if (inventory[i].tval == TV_RUNESTONE)
 		{
-			if (inventory[i].tval == TV_RUNESTONE) p_ptr->cur_runes |= (2 << (inventory[i].sval-1));
+			/* Add to available runes */
+			p_ptr->cur_runes |= (2 << (inventory[i].sval-1));
+		}
+
+		/* Check for bags for runes */
+		else if (inventory[i].tval == TV_BAG)
+		{
+			/* Scan the bag */
+			for (ii = 0; ii < INVEN_BAG_TOTAL; ii++)
+			{
+				/* Slot holds a map */
+				if ((bag_holds[inventory[i].sval][ii][0] == TV_RUNESTONE) && (bag_contents[inventory[i].sval][ii]))
+				{
+					int sval = bag_holds[inventory[i].sval][ii][1];
+
+					p_ptr->cur_runes |= (2 << (sval - 1));
+				}
+			}
 		}
 	}
 
@@ -2464,15 +2615,15 @@ static void calc_torch(void)
 	/* Examine actual lites */
 	if (o_ptr->tval == TV_LITE)
 	{
-		/* Torches (with fuel) provide some lite */
-		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
+		/* Burning torches provide some lite */
+		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
 		{
-			if (o_ptr->pval < FUEL_LOW) p_ptr->cur_lite = 1;
+			if (o_ptr->timeout < FUEL_LOW) p_ptr->cur_lite = 1;
 			else p_ptr->cur_lite = 2;
 		}
 
 		/* Lanterns (with fuel) provide more lite */
-		if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
+		if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
 		{
 			p_ptr->cur_lite = 2;
 		}
@@ -2822,11 +2973,18 @@ static void calc_bonuses(void)
 		/* Extract modifier */
 		add = p_ptr->stat_add[i];
 
-		/* Maximize mode */
-		if (adult_maximize)
+		/* Maximize mode - race */
+		if (adult_maximize_race)
 		{
-			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+			/* Modify the stats for race */
+			add += rp_ptr->r_adj[i];
+		}
+
+		/* Maximize mode - class */
+		if (adult_maximize_class)
+		{
+			/* Modify the stats for class */
+			add += cp_ptr->c_adj[i];
 		}
 
 		/* Extract timed increase */
@@ -2956,7 +3114,6 @@ static void calc_bonuses(void)
 		p_ptr->skill_sav /= 2;
 	}
 
-
 	/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
@@ -2987,9 +3144,8 @@ static void calc_bonuses(void)
 
 		if (f_ptr->flags2 & (FF2_FILLED))
 		{
-
 			/* ANDY - Need to check for swimming skill XXX */
-			if (f_ptr->flags2 & (FF2_CAN_SWIM))
+			if ((f_ptr->flags2 & (FF2_CAN_SWIM)) && (can_swim))
 			{
 				j = j * 3;
 				k = k * 3;
@@ -3003,7 +3159,7 @@ static void calc_bonuses(void)
 		else if (f_ptr->flags2 & (FF2_DEEP))
 		{
 			/* ANDY - Need to check for swimming skill XXX */
-			if (f_ptr->flags2 & (FF2_CAN_SWIM))
+			if ((f_ptr->flags2 & (FF2_CAN_SWIM)) && (can_swim))
 			{
 				j = j * 2;
 				k = k * 2;
@@ -3024,6 +3180,9 @@ static void calc_bonuses(void)
 	/* Set the rate of tiring */
 	if (k > 10) p_ptr->tiring = k - 10;
 	else p_ptr->tiring = 0;
+
+	/* Hack -- temporary speed tires the player out quickly */
+	if (p_ptr->fast) p_ptr->tiring += PY_REST_RATE;
 
 	/* Apply "encumbrance" from weight */
 	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
@@ -3512,10 +3671,16 @@ static void calc_bonuses(void)
 				p_ptr->update |= (PU_HP);
 			}
 
-			/* Change in INT may affect Mana/Spells */
-			else if ((i == c_info[p_ptr->pclass].spell_stat) && (c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL))
+			/* Change in spell stat may affect Mana */
+			if ((i == c_info[p_ptr->pclass].spell_stat_mana) && (c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL))
 			{
-				p_ptr->update |= (PU_MANA | PU_SPELLS);
+				p_ptr->update |= (PU_MANA);
+			}
+
+			/* Change in spell stat may affect Mana */
+			if ((i == c_info[p_ptr->pclass].spell_stat_study) && (c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL))
+			{
+				p_ptr->update |= (PU_SPELLS);
 			}
 		}
 	}
@@ -3775,7 +3940,7 @@ void redraw_stuff(void)
 	/* HACK - Redraw window "Display player (status)" if necessary */
 	if (p_ptr->redraw & (PR_HUNGER | PR_BLIND | PR_CONFUSED | PR_AFRAID |
 	                     PR_POISONED | PR_STATE | PR_SPEED | PR_STUDY |
-	                     PR_DEPTH))
+	                     PR_DEPTH | PR_DISEASE | PR_CURSED | PR_AMNESIA | PR_PETRIFY))
 	{
 		p_ptr->window |= (PW_PLAYER_3);
 	}
@@ -3908,7 +4073,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_HEALTH))
 	{
 		p_ptr->redraw &= ~(PR_HEALTH);
-		if (show_sidebar) health_redraw();
+		health_redraw();
 	}
 
 	if (p_ptr->redraw & (PR_EXTRA))
@@ -3918,6 +4083,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_HUNGER);
 		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
+		p_ptr->redraw &= ~(PR_DISEASE | PR_CURSED | PR_AMNESIA | PR_PETRIFY);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
 		prt_frame_extra();
 	}
@@ -3962,6 +4128,30 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_POISONED);
 		prt_poisoned();
+	}
+
+	if (p_ptr->redraw & (PR_DISEASE))
+	{
+		p_ptr->redraw &= ~(PR_DISEASE);
+		prt_disease();
+	}
+
+	if (p_ptr->redraw & (PR_CURSED))
+	{
+		p_ptr->redraw &= ~(PR_CURSED);
+		prt_cursed();
+	}
+
+	if (p_ptr->redraw & (PR_AMNESIA))
+	{
+		p_ptr->redraw &= ~(PR_AMNESIA);
+		prt_amnesia();
+	}
+
+	if (p_ptr->redraw & (PR_PETRIFY))
+	{
+		p_ptr->redraw &= ~(PR_PETRIFY);
+		prt_petrify();
 	}
 
 	if (p_ptr->redraw & (PR_STATE))

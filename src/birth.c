@@ -162,7 +162,7 @@ static void load_prev_data(void)
 /*
  * Adjust a stat by an amount.
  *
- * This just uses "modify_stat_value()" unless "maximize" mode is false,
+ * This just uses "modify_stat_value()"
  * and a positive bonus is being applied, in which case, a special hack
  * is used, with the "auto_roll" flag affecting the result.
  *
@@ -173,8 +173,8 @@ static void load_prev_data(void)
  */
 static int adjust_stat(int value, int amount, int auto_roll)
 {
-	/* Negative amounts or maximize mode */
-	if ((amount < 0) || adult_maximize)
+	/* Negative amounts */
+	if (amount < 0)
 	{
 		return (modify_stat_value(value, amount));
 	}
@@ -222,7 +222,7 @@ static void get_stats(void)
 {
 	int i, j;
 
-	int bonus;
+	int bonus_max, bonus_add;
 
 	int dice[18];
 
@@ -250,30 +250,30 @@ static void get_stats(void)
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-		/* Variable stat maxes */
-		if (adult_maximize)
-		{
-			/* Start fully healed */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
-
-			/* Efficiency -- Apply the racial/class bonuses */
-			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
-		}
+		bonus_max = (adult_maximize_race ? rp_ptr->r_adj[i] : 0) + (adult_maximize_class ? cp_ptr->c_adj[i] : 0);
+		bonus_add = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
 
 		/* Fixed stat maxes */
-		else
+		if (bonus_add)
 		{
 			/* Apply the bonus to the stat (somewhat randomly) */
-			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
+			stat_use[i] = adjust_stat(j, bonus_add, FALSE);
 
-			/* Save the resulting stat maximum */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+		}
+		else
+		{
+			stat_use[i] = j;
+		}
+
+		/* Save the resulting stat maximum */
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+
+		/* Variable stat maxes */
+		if (bonus_max)
+		{
+			/* Efficiency -- Apply the racial/class bonuses */
+			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus_max);
 		}
 	}
 }
@@ -440,23 +440,36 @@ static void get_money(void)
 }
 
 
-
 /*
  * Clear all the global "character" data
  */
 static void player_wipe(void)
 {
-	int i;
+	int i, j;
 
 
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
 
-
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL + 1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		object_wipe(&inventory[i]);
+	}
+
+	/* Clear the bags */
+	for (i = 0; i < SV_BAG_MAX_BAGS; i++)
+	{
+		for (j = 0; j < INVEN_BAG_TOTAL; j++)
+		{
+			bag_contents[i][j] = 0;
+		}
+	}
+
+	/* Clear the maximum depths */
+	for (i = 0; i < z_info->t_max; i++)
+	{
+		t_info[i].max_depth = 0;
 	}
 
 	/* Start with no artifacts made yet */
@@ -659,8 +672,8 @@ static void player_outfit(void)
 			object_prep(i_ptr, k_idx);
 			i_ptr->number = (byte)rand_range(e_ptr->number_min, e_ptr->number_max);
 
-			/* Modify the pval */
-			if ((e_ptr->pval_min) && (e_ptr->pval_max)) i_ptr->pval = rand_range(e_ptr->pval_min, e_ptr->pval_max);
+			/* Modify the charges */
+			if ((e_ptr->charge_min) && (e_ptr->charge_max)) i_ptr->charges = rand_range(e_ptr->charge_min, e_ptr->charge_max);
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
@@ -710,45 +723,6 @@ static void player_outfit(void)
 	}
 }
 
-/*
- * Names of various styles
- */
-
-static cptr w_name_style[] =
-{
-	"None",
-	"Unarmed",
-	"One-handed",
-	"Two-handed",
-	"Weapon & shield",
-	"Two-weapon",
-	"Hafted weapons",
-	"Swords",
-	"Polearms",
-	"Thrown weapons",
-	"Slings",
-	"Bows",
-	"Cross-bows",
-	"Backstab",
-	"Magic books",
-	"Prayer books",
-	"Song books",
-	"Instruments",
-	"Potions",
-	"Scrolls",
-	"Amulets",
-	"Rings",
-	"Wands/Rods",
-	"Staves",
-	"Slay Orcs",
-	"Slay Trolls",
-	"Slay Giants",
-	"Slay Dragons",
-	"Slay Evil",
-	"Slay Undead",
-	"Slay Animals",
-	"Slay Demons"
-};
 
 
 /* Locations of the tables on the screen */
@@ -1498,7 +1472,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 3, 6, 9, 13, 16, 23};
 
 
 /*
@@ -1557,23 +1531,18 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* Variable stat maxes */
-			if (adult_maximize)
-			{
-				/* Reset stats */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+			/* Obtain a "bonus" for "race" and "class" */
+			int bonus_add = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
 
-			}
+			/* Reset stats */
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
 
 			/* Fixed stat maxes */
-			else
+			if (bonus_add)
 			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
 				/* Apply the racial/class bonuses */
 				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
+					modify_stat_value(stats[i], bonus_add);
 			}
 
 			/* Total cost */
@@ -1738,10 +1707,16 @@ static bool player_birth_aux_3(void)
 			stat_match[i] = 0;
 
 			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+			j = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
 
 			/* Obtain the "maximal" stat */
 			m = adjust_stat(17, j, TRUE);
+
+			/* Modify for race if maximised */
+			if (adult_maximize_race) m = modify_stat_value(m, rp_ptr->r_adj[i]);
+
+			/* Modify for class if maximised */
+			if (adult_maximize_class) m = modify_stat_value(m, cp_ptr->c_adj[i]);
 
 			/* Save the maximum */
 			mval[i] = m;

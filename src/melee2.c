@@ -28,44 +28,6 @@
 #define TURN_RANGE      3
 
 
-
-/*
- * Given a central direction at position [dir #][0], return a series 
- * of directions radiating out on both sides from the central direction 
- * all the way back to its rear.
- * 
- * Side directions come in pairs; for example, directions '1' and '3' 
- * flank direction '2'.  The code should know which side to consider 
- * first.  If the left, it must add 10 to the central direction to 
- * access the second part of the table.
- */ 
-static byte side_dirs[20][8] = 
-{
-	{ 0, 0, 0, 0, 0, 0, 0, 0 },	/* bias right */
-	{ 1, 4, 2, 7, 3, 8, 6, 9 },
-	{ 2, 1, 3, 4, 6, 7, 9, 8 },
-	{ 3, 2, 6, 1, 9, 4, 8, 7 },
-	{ 4, 7, 1, 8, 2, 9, 3, 6 },
-	{ 5, 5, 5, 5, 5, 5, 5, 5 },
-	{ 6, 3, 9, 2, 8, 1, 7, 4 },
-	{ 7, 8, 4, 9, 1, 6, 2, 3 },
-	{ 8, 9, 7, 6, 4, 3, 1, 2 },
-	{ 9, 6, 8, 3, 7, 2, 4, 1 },
-
-	{ 0, 0, 0, 0, 0, 0, 0, 0 },	/* bias left */
-	{ 1, 2, 4, 3, 7, 6, 8, 9 },
-	{ 2, 3, 1, 6, 4, 9, 7, 8 },
-	{ 3, 6, 2, 9, 1, 8, 4, 7 },
-	{ 4, 1, 7, 2, 8, 3, 9, 6 },
-	{ 5, 5, 5, 5, 5, 5, 5, 5 },
-	{ 6, 9, 3, 8, 2, 7, 1, 4 },
-	{ 7, 4, 8, 1, 9, 2, 6, 3 },
-	{ 8, 7, 9, 4, 6, 1, 3, 2 },
-	{ 9, 8, 6, 7, 3, 4, 2, 1 } 
-};
-
-
-
 /*
  * Calculate minimum and desired combat ranges.  -BR-
  */
@@ -144,7 +106,8 @@ static void find_range(monster_type *m_ptr)
 	/* Now find prefered range */
 	m_ptr->best_range = m_ptr->min_range;
 
-	if (r_ptr->freq_spell > 24)
+	/* Frequent spell casters / breathers / archers */
+	if ((r_ptr->freq_spell > 24) || (r_ptr->freq_innate > 24))
 	{
 		/* Heavy spell casters will sit back and cast */
 		if (m_ptr->mana > r_ptr->mana / 5) m_ptr->best_range = 6;
@@ -623,6 +586,7 @@ static int find_resist(u32b smart, int effect)
 
 		/* Spells that attack player mana */
 		case GF_LOSE_MANA:
+		case GF_GAIN_MANA:
 		{
 			if (smart & (SM_IMM_MANA)) return (100);
 			else return (0);
@@ -705,9 +669,10 @@ static int find_resist(u32b smart, int effect)
 		/* Spells that probe the player */
 		case GF_PROBE:
 		{
-			if (smart) return(50);
+			/* Hack -- do we still have abilities to learn */
+			if (((player_smart_flags(p_ptr->cur_flags1, p_ptr->cur_flags2, p_ptr->cur_flags3, p_ptr->cur_flags4)) & ~(smart)) != 0) return (0);
 
-			return(0);
+			return(100);
 		}
 
 		/* Anything else */
@@ -806,7 +771,7 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u3
 	if (m_ptr->mana >= r_ptr->mana) f6 &= ~(RF6_ADD_MANA);
 
 	/* Don't regain ammo if has some */
-	if (find_monster_ammo(m_idx, -1, FALSE)) f6 &= ~(RF6_ADD_AMMO);
+	if ((f4 & RF4_ADD_AMMO) && find_monster_ammo(m_idx, -1, FALSE)) f4 &= ~(RF4_ADD_AMMO);
 
 	/* Don't heal if full */
 	if (m_ptr->hp >= m_ptr->maxhp) f6 &= ~(RF6_HEAL);
@@ -838,12 +803,13 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u3
 
 	/* Don't jump in already close, or don't want to be close */
 	if (!(m_ptr->cdis > m_ptr->best_range) && require_los)
-		f6 &= ~(RF6_TELE_SELF_TO);
+		f6 &= ~(RF6_TELE_TO | RF6_TELE_SELF_TO);
 
-	if (m_ptr->min_range > 5) f6 &= ~(RF6_TELE_SELF_TO);
+	/* Don't teleport to or teleport self to if want to stay away */
+	if (m_ptr->min_range > 5) f6 &= ~(RF6_TELE_TO | RF6_TELE_SELF_TO);
 
-	/* Rarely teleport to if too far or close */
-	if ((m_ptr->cdis == 1) && (rand_int(3))) f6 &= ~(RF6_TELE_TO);
+	/* Do not teleport to or teleport self to if too close - either adjacent or 1 step away */
+	if (m_ptr->cdis < 3) f6 &= ~(RF6_TELE_TO | RF6_TELE_SELF_TO);
 
 	/* Modify the spell list. */
 	(*f4p) = f4;
@@ -1077,16 +1043,21 @@ static void init_ranged_attack(monster_race *r_ptr)
 			case RBM_TRAP:  mana = 0; range = 1; break;
 			case RBM_BOULDER: mana = 0; range = 8; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_AURA:	mana = 4; range = 2; hack = 7; break;
+			case RBM_AURA_MINOR:	mana = 3; range = 1; hack = 7; break;
 			case RBM_SELF:	mana = 3; range = 0; rf4_no_player_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_ADJACENT: mana = 3; range = 1; break;
-			case RBM_HANDS: mana = 4; range = 3; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_HANDS: mana = 2; range = 3; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_MISSILE: mana = 2; range = MAX_SIGHT; rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_BOLT_10: mana = 5; range = MAX_SIGHT; rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_BOLT: mana = 4; range = MAX_SIGHT; rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_BOLT_MINOR: mana = 2; range = 4; rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_BEAM: mana = 6; range = 10; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
-			case RBM_BLAST: mana = 3; range = 5; break;
+			case RBM_BLAST: mana = 3; range = 1; break;
 			case RBM_WALL: mana = 6; range = MAX_SIGHT; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_BALL_MINOR: mana = 3; range = MAX_SIGHT; rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt);break;
 			case RBM_BALL: mana = 4; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_BALL_II: mana = 5; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_BALL_III: mana = 6; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_CLOUD: mana = 5; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_STORM: mana = 6; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_BREATH: mana = 0; range = 6; break;
@@ -1109,8 +1080,14 @@ static void init_ranged_attack(monster_race *r_ptr)
 			case RBM_SHOT: mana = 0; range = 8; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_ARC_20: mana = 6; range = 8; break;
 			case RBM_ARC_30: mana = 5; range = 6; break;
+			case RBM_ARC_40: mana = 5; range = 6; break;
+			case RBM_ARC_50: mana = 6; range = 6; break;
 			case RBM_ARC_60: mana = 6; range = 6; break;
-			case RBM_FLASK: mana = 0; range = 6; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_FLASK: mana = 0; range = 6; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); rf4_bolt_mask |= (RF4_BLOW_1 << ap_cnt); rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_8WAY: mana = 4; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_8WAY_II: mana = 5; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_8WAY_III: mana = 6; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_SWARM: mana = 6; range = MAX_SIGHT; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			default: mana = 0; range = 2; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break; /* For all hurt huge attacks */
 		}
 
@@ -1191,9 +1168,27 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	}
 
 	/* Eliminate innate spells if not set */
-	if (!(choose & 0x01) && !(m_ptr->mflag & (MFLAG_SHOT | MFLAG_BREATH)))
+	if (!(choose & 0x01))
 	{
-		f4 &= ~(RF4_INNATE_MASK);
+		/* Remove ranged blows */
+		if (!(m_ptr->mflag & (MFLAG_SHOT)) && !(r_ptr->flags3 & (RF3_HUGE)))
+		{
+			f4 &= ~(0x0FL);
+		}
+
+		/* Remove other shot options */
+		if (!(m_ptr->mflag & (MFLAG_SHOT)))
+		{
+			f4 &= ~(0xF0L);
+		}
+
+		/* Remove breaths */
+		if (!(m_ptr->mflag & (MFLAG_BREATH)))
+		{
+			f4 &= ~(RF4_BREATH_MASK);
+		}
+
+		/* Remove other spells */
 		f5 &= ~(RF5_INNATE_MASK);
 		f6 &= ~(RF6_INNATE_MASK);
 		f7 &= ~(RF7_INNATE_MASK);
@@ -1203,11 +1198,12 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	}
 
 	/* Eliminate other spells if not set */
-	if (!(choose & 0x02) && !(m_ptr->mflag & (MFLAG_CAST)))
+	/* Hack -- if caster is blind, only spell they can cast is cure */
+	if ((m_ptr->blind) || (!(choose & 0x02) && !(m_ptr->mflag & (MFLAG_CAST))))
 	{
 		f4 &= (RF4_INNATE_MASK);
 		f5 &= (RF5_INNATE_MASK);
-		f6 &= (RF6_INNATE_MASK);
+		f6 &= (RF6_INNATE_MASK) | (m_ptr->blind ? (RF6_CURE) : 0x0L);
 		f7 &= (RF7_INNATE_MASK);
 
 		/* No spells left */
@@ -1601,16 +1597,8 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		monster_type *n_ptr = &m_list[cave_m_idx[y][x]];
 		monster_race *nr_ptr = &r_info[n_ptr->r_idx];
 
-		/* Kill weaker monsters */
-		if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
-		    (!(nr_ptr->flags1 & (RF1_UNIQUE))) &&
-		    (r_ptr->mexp > nr_ptr->mexp))
-		{
-			move_chance = 100;
-		}
-
 		/* Pushed already */
-		else if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
+		if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
 		{
 
 			/* Cannot push away the other monster */
@@ -1653,7 +1641,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	}
 
 	/* Hack -- avoid less interesting squares if collecting items */
-	else if ((cave_o_idx[y][x] == 0) && (r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)))
+	else if ((cave_o_idx[y][x] == 0) && (r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_EAT_BODY)))
 	{
 		move_chance = 99;
 	}
@@ -3110,6 +3098,7 @@ static bool push_aside(monster_type *m_ptr, monster_type *n_ptr)
 	return (FALSE);
 }
 
+
 /*
  *  Determine the language a monster speaks.
  */
@@ -3123,7 +3112,7 @@ int monster_language(int r_idx)
 		/* Hack -- language depends on graphic */
 		int language = LANG_NATURAL;
 
-		if (r_ptr->d_char == ':') language = LANG_FOREST;
+		if ((r_ptr->d_char == ':') || (r_ptr->d_char == ';')) language = LANG_FOREST;
 		else if (r_ptr->d_char == ',') language = LANG_MUSHROOM;
 		else if ((r_ptr->d_char >= 'A') && (r_ptr->d_char <= 'Z')) language += r_ptr->d_char - 'A' + 1;
 		else if ((r_ptr->d_char >= 'a') && (r_ptr->d_char <= 'z')) language += r_ptr->d_char - 'a' + 26 + 1;
@@ -3142,6 +3131,7 @@ int monster_language(int r_idx)
 	return (LANG_COMMON);
 }
 
+
 /*
  *  Monsters speak to each other in various situations.
  */
@@ -3155,8 +3145,13 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 
 	char m_name[80];
 
-	/* Monster never speaks */
-	if (r_ptr->flags3 & (RF3_NONVOCAL)) return;
+	/* Monster never speaks aloud */
+	if (r_ptr->flags3 & (RF3_NONVOCAL))
+	{
+		if (!(p_ptr->cur_flags3 & (TR3_TELEPATHY))) return;
+
+		speech = LANG_ESP;
+	}
 
 	/* Check if player understands language */
 	if (language == LANG_COMMON) understand = TRUE;
@@ -3251,12 +3246,12 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 /*
  * Alert others around the monster that the player has a resistance, and wake them up.
  */
-void tell_allies_player_can(int y, int x, u32b flag)
+bool tell_allies_player_can(int y, int x, u32b flag)
 {
 	int i,language;
 	bool vocal = FALSE;
 
-	cptr saying = NULL;
+	cptr saying = "& resists nothing.";
 
 	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
 
@@ -3275,8 +3270,8 @@ void tell_allies_player_can(int y, int x, u32b flag)
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
-		/* Ignore monsters not in LOF */
-		if (!generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
+		/* Ignore monsters that are too far away */
+		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
 
 		/* Vocalise? */
 		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ ((n_ptr->smart & (flag)) != 0)) continue;
@@ -3289,7 +3284,7 @@ void tell_allies_player_can(int y, int x, u32b flag)
 	}
 
 	/* Nothing to say? */
-	if (!vocal) return;
+	if (!vocal) return (FALSE);
 
 	/* Define saying */
 	if ((flag & (SM_OPP_ACID)) || (flag & (SM_RES_ACID))) saying = "& resists acid.";
@@ -3322,18 +3317,21 @@ void tell_allies_player_can(int y, int x, u32b flag)
 
 	/* Speak */
 	monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
 }
 
 
 /*
  * Alert others around the monster that the player does not have a resistance, and wake them up.
  */
-void tell_allies_player_not(int y, int x, u32b flag)
+bool tell_allies_player_not(int y, int x, u32b flag)
 {
 	int i, language;
 	bool vocal = FALSE;
 
-	cptr saying = NULL;
+	cptr saying = "& no longer resists nothing.";
 
 	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
 
@@ -3352,8 +3350,8 @@ void tell_allies_player_not(int y, int x, u32b flag)
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
-		/* Ignore monsters not in LOF */
-		if (!generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
+		/* Ignore monsters that are too far away */
+		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
 
 		/* Vocalise? */
 		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ ((n_ptr->smart & (flag)) == 0)) continue;
@@ -3366,7 +3364,7 @@ void tell_allies_player_not(int y, int x, u32b flag)
 	}
 
 	/* Nothing to say? */
-	if (!vocal) return;
+	if (!vocal) return (FALSE);
 
 	/* Define saying */
 	if ((flag & (SM_OPP_ACID)) || (flag & (SM_RES_ACID))) saying = "& no longer resists acid.";
@@ -3399,13 +3397,16 @@ void tell_allies_player_not(int y, int x, u32b flag)
 
 	/* Speak */
 	monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
 }
 
 
 /*
  * Alert others around the monster about something using the m_flag, and wake them up
  */
-void tell_allies_mflag(int y, int x, u32b flag, cptr saying)
+bool tell_allies_mflag(int y, int x, u32b flag, cptr saying)
 {
 	int i, language;
 	bool vocal = FALSE;
@@ -3427,8 +3428,8 @@ void tell_allies_mflag(int y, int x, u32b flag, cptr saying)
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
-		/* Ignore monsters not in LOF */
-		if (!generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
+		/* Ignore monsters that are too far away */
+		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
 
 		/* Vocalise? */
 		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ (n_ptr->mflag & (flag))) continue;
@@ -3440,10 +3441,112 @@ void tell_allies_mflag(int y, int x, u32b flag, cptr saying)
 	}
 
 	/* Nothing to say? */
-	if (!vocal) return;
+	if (!vocal) return (FALSE);
 
 	/* Speak */
 	monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
+}
+
+
+/*
+ * Alert others around the monster about something, set their minimum range and wake them up
+ */
+bool tell_allies_best_range(int y, int x, int range, cptr saying)
+{
+	int i, language;
+	bool vocal = FALSE;
+
+	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
+
+	/* Scan all other monsters */
+	for (i = 1; i < z_info->m_max; i++)
+	{
+		/* Access the monster */
+		monster_type *n_ptr = &m_list[i];
+
+		/* Ignore dead monsters */
+		if (!n_ptr->r_idx) continue;
+
+		/* Ignore itself */
+		if (i == cave_m_idx[y][x]) continue;
+
+		/* Ignore monsters who speak different language */
+		if (monster_language(n_ptr->r_idx) != language) continue;
+
+		/* Ignore monsters that are too far away */
+		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
+
+		/* Activate all other monsters and communicate to them */
+		n_ptr->csleep = 0;
+		n_ptr->mflag |= (MFLAG_ACTV);
+		n_ptr->best_range = range;
+		vocal = TRUE;
+	}
+
+	/* Nothing to say? */
+	if (!vocal) return (FALSE);
+
+	/* Speak */
+	monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
+}
+
+
+/*
+ * Alert others around the monster about something, set their minimum range and wake them up
+ */
+bool tell_allies_target(int y, int x, int ty, int tx, bool scent, cptr saying)
+{
+	int i, language;
+	bool vocal = FALSE;
+
+	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
+
+	/* Scan all other monsters */
+	for (i = 1; i < z_info->m_max; i++)
+	{
+		/* Access the monster */
+		monster_type *n_ptr = &m_list[i];
+
+		/* Ignore dead monsters */
+		if (!n_ptr->r_idx) continue;
+
+		/* Ignore itself */
+		if (i == cave_m_idx[y][x]) continue;
+
+		/* Ignore monsters who speak different language */
+		if (monster_language(n_ptr->r_idx) != language) continue;
+
+		/* Ignore monsters that are too far away */
+		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
+
+		/* Ignore monsters who have orders */
+		if ((n_ptr->ty) || (n_ptr->tx)) continue;
+
+		/* Ignore monsters picking up a good scent */
+		if ((scent) && (get_scent(n_ptr->fy, n_ptr->fx) < SMELL_STRENGTH - 10)) continue;
+		
+		/* Activate all other monsters and communicate to them */
+		n_ptr->csleep = 0;
+		n_ptr->mflag |= (MFLAG_ACTV);
+		n_ptr->ty = ty;
+		n_ptr->tx = tx;
+		vocal = TRUE;
+	}
+
+	/* Nothing to say? */
+	if (!vocal) return (FALSE);
+
+	/* Speak */
+	monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
 }
 
 
@@ -4101,8 +4204,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	bool did_open_door = FALSE;
 	bool did_bash_door = FALSE;
 	bool did_take_item = FALSE;
-	bool did_kill_item = FALSE;
-	bool did_kill_body = FALSE;
 	bool did_pass_wall = FALSE;
 	bool did_kill_wall = FALSE;
 	bool did_smart = FALSE;
@@ -4540,27 +4641,10 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		else if (cave_m_idx[ny][nx] > 0)
 		{
 			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
-			monster_race *nr_ptr = &r_info[n_ptr->r_idx];
-
-			/* XXX - Kill weaker monsters */
-			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
-			    (!(nr_ptr->flags1 & (RF1_UNIQUE))) &&
-			    (r_ptr->mexp > nr_ptr->mexp))
-			{
-				/* Monster ate another monster */
-				did_kill_body = TRUE;
-
-				/* Generate treasure, etc */
-				monster_death(cave_m_idx[ny][nx]);
-
-				/* Delete the monster */
-				delete_monster_idx(cave_m_idx[ny][nx]);
-
-			}
 
 			/* Attack if confused and not fleeing */
 			/* XXX XXX Should use seperate routine */
-			else if (m_ptr->confused)
+			if (m_ptr->confused)
 			{
 				int ap_cnt;
 
@@ -4589,7 +4673,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						damage = damroll(d_dice, d_side);
 
 						/* New result routine */
-						project_p(m_idx,0,ny,nx,damage,effect);
+						project_p(m_idx,ny,nx,damage,effect);
+
+						/* Apply teleport and other effects */
+						project_t(m_idx,ny,nx,damage,effect);
+
 					}
 				}
 			}
@@ -4711,62 +4799,22 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				cave_set_feat(oy, ox, FEAT_FLOOR_SLIME_T);
 			else if (r_ptr->flags8 & (RF8_HAS_SLIME))
 				cave_set_feat(oy, ox, FEAT_FLOOR_SLIME_T);
-			else if (r_ptr->flags2 & (RF2_HAS_WEB))
-				cave_set_feat(oy, ox, FEAT_FLOOR_WEB);
-		}
-                else if (f_info[cave_feat[oy][ox]].flags2 & (FF2_CHASM))
-		{
-			if (r_ptr->flags2 & (RF2_HAS_WEB))
-				cave_set_feat(oy, ox, FEAT_CHASM_WEB);
 		}
 
 		/* Reget the feature */
 		feat = cave_feat[ny][nx];
 
 		/*
-		 * If a member of a monster group capable of smelling hits a 
+		 * If a monster capable of smelling hits a 
 		 * scent trail while out of LOS of the character, it will 
 		 * communicate this to similar monsters.
 		 */
-		if ((!player_has_los_bold(ny, nx)) && (r_ptr->flags1 & (RF1_FRIENDS)) && 
+		if ((!player_has_los_bold(ny, nx)) &&
 		    (monster_can_smell(m_ptr)) && (get_scent(oy, ox) == -1) && 
 		    (!m_ptr->ty) && (!m_ptr->tx))
 		{
-			int i;
-			monster_type *n_ptr;
-			monster_race *nr_ptr;
-
-			/* Scan all other monsters */
-			for (i = m_max - 1; i >= 1; i--)
-			{
-				/* Access the monster */
-				n_ptr = &m_list[i];
-				nr_ptr = &r_info[n_ptr->r_idx];
-
-				/* Ignore dead monsters */
-				if (!n_ptr->r_idx) continue;
-
-				/* Ignore monsters with the wrong symbol */
-				if (r_ptr->d_char != nr_ptr->d_char) continue;
-
-				/* Ignore monsters with specific orders */
-				if ((n_ptr->ty) || (n_ptr->ty)) continue;
-
-				/* Ignore monsters picking up a good scent */
-				if (get_scent(n_ptr->fy, n_ptr->fx) < SMELL_STRENGTH - 10)
-					continue;
-
-				/* Ignore monsters not in LOS */
-				if (!generic_los(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx, CAVE_XLOS))
-					continue;
-
-				/* Activate all other monsters and give directions */
-				n_ptr->csleep = 0;
-				n_ptr->mflag |= (MFLAG_ACTV);
-				n_ptr->ty = ny;   n_ptr->tx = nx;
-			}
+			tell_allies_target(m_ptr->fy, m_ptr->fx, ny, nx, TRUE, "I have found a scent.");
 		}
-
 
 		/* Player will always be disturbed if a monster is adjacent */
 		if (m_ptr->cdis == 1)
@@ -4823,9 +4871,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					did_sneak = TRUE;
 				}
 	
-				/* Take or kill objects on the floor */
-				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
-				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
+				/* Take objects on the floor */
+				if (r_ptr->flags2 & (RF2_TAKE_ITEM))
 				{
 					u32b f1, f2, f3, f4;
 	
@@ -4852,7 +4899,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_NATURAL)) flg3 |= (RF3_ANIMAL | RF3_PLANT | RF3_INSECT);
 					if (f1 & (TR1_BRAND_HOLY)) flg3 |= (RF3_EVIL);
-	
+
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
 					{
@@ -4865,18 +4912,21 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 							/* Describe observable situations */
 							if (m_ptr->ml && player_has_los_bold(ny, nx))
 							{
-								/* Dump a message */
-								msg_format("%^s tries to pick up %s, but fails.",
-									   m_name, o_name);
+								if (!auto_pickup_ignore(o_ptr))
+								{
+									/* Dump a message */
+									msg_format("%^s tries to pick up %s, but fails.",
+										   m_name, o_name);
+								}
 
 								/* Mark object as ungettable? */
-								if ((o_ptr->discount == 0) &&
+								if (!(o_ptr->feeling) &&
 									!(o_ptr->ident & (IDENT_SENSE))
-									&& !(object_known_p(o_ptr)))
+									&& !(object_named_p(o_ptr)))
 								{
 	
 									/* Sense the object */
-									o_ptr->discount = INSCRIP_UNGETTABLE;
+									o_ptr->feeling = INSCRIP_UNGETTABLE;
 	
 									/* The object has been "sensed" */
 									o_ptr->ident |= (IDENT_SENSE);
@@ -4884,8 +4934,17 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 							}
 						}
 					}
+
+					/* Hack -- do not pick up bodies unless going to eat them */
+					else if ((o_ptr->tval == TV_BODY) && !(r_ptr->flags2 & (RF2_EAT_BODY)))
+					{
+						/* Do nothing */
+					}
+
 					/* Pick up the item */
-					else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+					/* Hack -- eat body monsters can carry one body */
+					else if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) || ((r_ptr->flags2 & (RF2_EAT_BODY))
+						&& !(m_ptr->hold_o_idx) && (o_ptr->tval == TV_BODY)))
 					{
 						object_type *i_ptr;
 						object_type object_type_body;
@@ -4894,12 +4953,12 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						did_take_item = TRUE;
 	
 						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
+						if (player_has_los_bold(ny, nx) && !auto_pickup_ignore(o_ptr))
+ 						{
 							/* Dump a message */
 							msg_format("%^s picks up %s.", m_name, o_name);
 						}
-	
+
 						/* Get local object */
 						i_ptr = &object_type_body;
 	
@@ -4911,23 +4970,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	
 						/* Carry the object */
 						(void)monster_carry(cave_m_idx[m_ptr->fy][m_ptr->fx], i_ptr);
-					}
-	
-					/* Destroy the item */
-					else
-					{
-						/* Take note */
-						did_kill_item = TRUE;
-	
-						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
-							/* Dump a message */
-							msg_format("%^s crushes %s.", m_name, o_name);
-						}
-	
-						/* Delete the object */
-						delete_object_idx(this_o_idx);
 					}
 				}
 			}
@@ -4952,12 +4994,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 		/* Monster tried to pick something up */
 		if (did_take_item) l_ptr->flags2 |= (RF2_TAKE_ITEM);
-
-		/* Monster tried to crush something */
-		if (did_kill_item) l_ptr->flags2 |= (RF2_KILL_ITEM);
-
-		/* Monster ate another monster */
-		if (did_kill_body) l_ptr->flags2 |= (RF2_KILL_BODY);
 
 		/* Monster passed through a wall */
 		/* XXX Temporary spell to pass wall so need to check */
@@ -4999,6 +5035,68 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 		/* Monster is passing */
 		if ((mmove == MM_PASS)  && !(m_ptr->tim_passw)) l_ptr->flags2 |= (RF2_PASS_WALL);
+	}
+}
+
+
+/*
+ * Monster gets fed
+ */
+void feed_monster(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	int hp;
+
+	/* Recover stat */
+	/* Note that we use a hack to make hungry attacks make monsters weak. The ordering here
+	   makes monsters that are weak the least likely to recover this. Therefore hungry monsters
+	   will eat more than other monsters. */
+	switch(rand_int(5))
+	{
+		case 0: if ((m_ptr->mflag & (MFLAG_WEAK)) != 0) {  m_ptr->mflag &= ~(MFLAG_WEAK); break; }
+		case 1: if ((m_ptr->mflag & (MFLAG_SICK)) != 0)
+			{
+				m_ptr->mflag &= ~(MFLAG_SICK);
+				hp = calc_monster_hp(m_ptr);
+				if (m_ptr->maxhp < hp) { m_ptr->maxhp = hp; break; }
+			}
+		case 2: if ((m_ptr->mflag & (MFLAG_CLUMSY)) != 0) {  m_ptr->mflag &= ~(MFLAG_CLUMSY); break; }
+		case 3: if ((m_ptr->mflag & (MFLAG_STUPID)) != 0) {  m_ptr->mflag &= ~(MFLAG_STUPID); break; }
+		case 4: if ((m_ptr->mflag & (MFLAG_NAIVE)) != 0) {  m_ptr->mflag &= ~(MFLAG_NAIVE); break; }
+	}
+
+	/* All monsters recover hit points */
+	if (m_ptr->hp < m_ptr->maxhp)
+	{
+		/* Base regeneration */
+		int frac = m_ptr->maxhp / 100;
+
+		/* Minimal regeneration rate */
+		if (!frac) frac = 1;
+
+		/* Some monsters regenerate quickly */
+		if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+
+		/* Regenerate */
+		m_ptr->hp += frac;
+
+		/* Do not over-regenerate */
+		if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+		/* Fully healed -> flag minimum range for recalculation */
+		if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
+	}
+
+	/* Hack -- trolls recover more hit points */
+	if (r_ptr->flags3 & (RF3_TROLL))
+	{
+		m_ptr->hp += m_ptr->maxhp / 30;
+		if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+		/* Fully healed -> flag minimum range for recalculation */
+		if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
 	}
 }
 
@@ -5081,14 +5179,26 @@ static void process_monster(int m_idx)
 	 */
 	if (m_ptr->mflag & (MFLAG_HIT_RANGE))
 	{
-		/* Monster will be very upset if it can't see the player
+		/* Monster will be very upset if it can't shoot the player
 		   or wasn't expecting player attack. */
-		if ((!player_has_los_bold(m_ptr->fy, m_ptr->fx)) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE | MFLAG_ALLY)))
+		if ((!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE | MFLAG_ALLY)))
 		{
 			m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
 
-			/* Tell allies */
-			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+			/* Tell allies to close */
+			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, "& has attacked me!"))
+			{
+				/* Close oneself */
+				if (m_ptr->min_range > 1) m_ptr->min_range--;
+				m_ptr->best_range = 1;
+			}
+			/* No allies to tell -- try to close */
+			else
+			{
+				/* Close oneself */
+				if (m_ptr->min_range > 1) m_ptr->min_range--;
+				m_ptr->best_range = 1;
+			}
 
 			/*Tweak the monster speed*/
 			if (!player_has_los_bold(m_ptr->fy, m_ptr->fx))
@@ -5119,8 +5229,26 @@ static void process_monster(int m_idx)
 		{
 			m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
 
-			/* Tell allies */
-			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+			/* Tell allies to close */
+			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, "& has attacked me!"))
+			{
+				/* Close oneself if only option is melee */
+				if (!r_ptr->freq_spell && !r_ptr->freq_innate) m_ptr->min_range = m_ptr->best_range = 1;
+			}
+			/* No allies to tell -- try to back off / flee */
+			else
+			{
+				/* Don't keep closing if we can use range attacks */
+				if ((m_ptr->hp >= m_ptr->maxhp / 3) && (r_ptr->freq_spell || r_ptr->freq_innate))
+				{
+					if (m_ptr->best_range < m_ptr->cdis) m_ptr->best_range = m_ptr->cdis;
+				}
+				/* Flee if getting hurt */
+				else
+				{
+					m_ptr->min_range = m_ptr->best_range = MAX_SIGHT;
+				}
+			}
 
 			/*Tweak the monster speed*/
 			if (m_ptr->cdis > 1)
@@ -5138,6 +5266,7 @@ static void process_monster(int m_idx)
 		/* Clear the flag unless player is murderer or traitor */
 		if (!(m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE | MFLAG_ALLY))) m_ptr->mflag &= ~(MFLAG_HIT_BLOW);
 	}
+
 
 	/* A monster in passive mode will end its turn at this point. */
 	if (!(m_ptr->mflag & (MFLAG_ACTV))) return;
@@ -5192,25 +5321,31 @@ static void process_monster(int m_idx)
 	if ((chance_innate) && (m_ptr->cdis > MAX_RANGE)) chance_innate = 0;
 	if ((chance_spell) && (m_ptr->cdis > MAX_RANGE)) chance_spell = 0;
 
-	/* Cannot use spell attacks when blind, confused or not aware. */
-	if ((chance_spell) && ((m_ptr->blind) || (m_ptr->confused) || (!aware))) chance_spell = 0;
+	/* Cannot use spell attacks when enraged or not aware. */
+	/* Hack -- when blind, monster can only cast CURE spell. */
+	if ((chance_spell) && ((m_ptr->berserk) || (!aware)
+		|| ((m_ptr->blind) && !(r_ptr->flags6 & (RF6_CURE))) )) chance_spell = 0;
 
 	/* Cannot use innate attacks when not aware. */
 	if ((chance_innate) && (!aware)) chance_innate = 0;
 
-	/* Stunned monsters use spell attacks half as often. */
-	if ((chance_spell) && (m_ptr->stunned)) chance_spell /= 2;
+	/* Stunned and confused monsters use spell attacks half as often. */
+	if ((chance_spell) && (m_ptr->stunned) && (m_ptr->confused)) chance_spell /= 2;
 
 	/* Blind, confused or stunned monsters use innate attacks half as often. */
 	if ((chance_innate) && ((m_ptr->blind) || (m_ptr->confused) || (m_ptr->stunned))) chance_innate /= 2;
 
 	/* Monster can use ranged attacks */
-	if ((chance_innate) || (chance_spell) || (r_ptr->flags3 & (RF3_HUGE)) || (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
+	if ((chance_innate) || (chance_spell)
+		|| ((r_ptr->flags3 & (RF3_HUGE)) && (m_ptr->cdis == 2))
+		|| (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
 	{
 		int roll = rand_int(100);
 
 		/* Pick a ranged attack */
-		if ((roll < chance_innate) || (roll < chance_spell) || (r_ptr->flags3 & (RF3_HUGE)) || (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
+		if ((roll < chance_innate) || (roll < chance_spell)
+			|| ((r_ptr->flags3 & (RF3_HUGE)) && (roll < 50) && (m_ptr->cdis == 2))
+			|| (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
 		{
 			/* Set up ranged melee attacks */
 			init_ranged_attack(r_ptr);
@@ -5248,6 +5383,14 @@ static void process_monster(int m_idx)
 					/* Disturb */
 					disturb(0, 0);
 				}
+
+				/* Set attack */
+				if (choice < 96 + 8) m_ptr->mflag |= (MFLAG_SHOT);
+				else if (choice < 128) m_ptr->mflag |= (MFLAG_BREATH);
+				else m_ptr->mflag |= (MFLAG_CAST);
+
+				/* Hack -- unhiding monsters end turn */
+				return;
 			}
 
 			/* Execute said attack */
@@ -5257,6 +5400,193 @@ static void process_monster(int m_idx)
 			return;
 		}
 	}
+
+	/*** Monster hungry? ***/
+	/*** This is a bit unnecessarily complicated */
+	if ((((m_ptr->mflag & (MFLAG_WEAK | MFLAG_STUPID | MFLAG_NAIVE | MFLAG_CLUMSY | MFLAG_SICK)) != 0)
+		|| (m_ptr->hp < m_ptr->maxhp) || (m_ptr->blind))
+		&& (((m_ptr->mflag & (MFLAG_AGGR)) == 0) || !(player_has_los_bold(m_ptr->fy, m_ptr->fx)) ||
+			(m_ptr->hp < m_ptr->maxhp / 10) || ((m_ptr->blind) && (r_ptr->freq_spell >= 25)))
+		&& (!(r_ptr->flags3 & (RF3_NONLIVING)) || (r_ptr->flags2 & (RF2_EAT_BODY))))
+	{
+		int this_o_idx, next_o_idx, item = 0;
+
+		/* MegaHack -- use cost as an indication of potion quality */
+		int min_cost = 1;
+
+		object_type *o_ptr;
+
+		/* Scan the pile of objects */
+		for (this_o_idx = cave_o_idx[m_ptr->fy][m_ptr->fx]; this_o_idx; this_o_idx = next_o_idx)
+		{
+			/* Get the object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Get the next object */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Edible? */
+			switch (o_ptr->tval)
+			{
+				case TV_BODY:
+				case TV_BONE:
+					if (min_cost > 1) continue;
+					if (r_ptr->flags2 & (RF2_EAT_BODY)) item = this_o_idx;
+					if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_EGG:
+					if (min_cost > 1) continue;
+					if (!(r_ptr->flags2 & (RF2_EAT_BODY)) & (r_ptr->flags3 & (RF3_ANIMAL))) item = this_o_idx;
+					if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_FOOD:
+					if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags3 & (RF3_UNDEAD)) && (k_info[o_ptr->k_idx].cost > min_cost)) { item = this_o_idx; min_cost = k_info[o_ptr->k_idx].cost; }
+					else if (!(r_ptr->flags2 & (RF2_EAT_BODY)) & (r_ptr->flags3 & (RF3_ANIMAL))) item = this_o_idx;
+					else if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_POTION:
+					if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags3 & (RF3_UNDEAD)) && (k_info[o_ptr->k_idx].cost > min_cost)) { item = this_o_idx; min_cost = k_info[o_ptr->k_idx].cost; }
+					break;
+			}
+		}
+
+		/* Scan the carried objects */
+		for (this_o_idx = cave_o_idx[m_ptr->fy][m_ptr->fx]; this_o_idx; this_o_idx = next_o_idx)
+		{
+			/* Get the object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Get the next object */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Edible? */
+			switch (o_ptr->tval)
+			{
+				case TV_BODY:
+				case TV_BONE:
+					if (min_cost > 1) continue;
+					if (r_ptr->flags2 & (RF2_EAT_BODY)) item = this_o_idx;
+					if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_EGG:
+					if (min_cost > 1) continue;
+					if (!(r_ptr->flags2 & (RF2_EAT_BODY)) & (r_ptr->flags3 & (RF3_ANIMAL))) item = this_o_idx;
+					if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_FOOD:
+					if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags3 & (RF3_UNDEAD)) && (k_info[o_ptr->k_idx].cost > min_cost)) { item = this_o_idx; min_cost = k_info[o_ptr->k_idx].cost; }
+					else if (!(r_ptr->flags2 & (RF2_EAT_BODY)) & (r_ptr->flags3 & (RF3_ANIMAL))) item = this_o_idx;
+					else if (r_ptr->flags3 & (RF3_INSECT)) item = this_o_idx;
+					break;
+				case TV_POTION:
+					if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags3 & (RF3_UNDEAD)) && (k_info[o_ptr->k_idx].cost > min_cost)) { item = this_o_idx; min_cost = k_info[o_ptr->k_idx].cost; }
+					break;
+			}
+		}
+
+		/* Something edible found? */
+		if (item)
+		{
+			int part;
+
+			int amount = r_ptr->level + 5;
+
+			object_type object_type_body;
+
+			/* Get temporary object */
+			o_ptr = &object_type_body;
+
+			/* Get a copy of the object */
+			object_copy(o_ptr, &o_list[item]);
+
+			/* Reduce item */
+			floor_item_increase(item, -1);
+			floor_item_optimize(item);
+
+			/* Set object number */
+			o_ptr->number = 1;
+
+			/* Describe observable situations */
+			if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
+			{
+				char m_name[80];
+				char o_name[80];
+
+				/* Describe monster */
+				monster_desc(m_name, m_ptr, 0);
+
+				/* Describe */
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+
+				/* Dump a message */
+				if ((o_ptr->tval == TV_BONE) || ((o_ptr->tval == TV_BODY) && (o_ptr->weight > r_ptr->level))) msg_format("%^s chews on %s.", m_name, o_name);
+
+				/* Dump a message */
+				else msg_format("%^s swallows %s.", m_name, o_name);
+
+				/* Apply good potion / mushroom effect */
+				/* We assume anything that will eat bad mushrooms is immune to their effects */
+				if (((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_POTION)) && (k_info[o_ptr->k_idx].cost))
+				{
+					/* Hack -- use item blow routine */
+					process_item_blow(o_ptr, m_ptr->fy, m_ptr->fx);
+				}
+			}
+
+			/* Break up skeletons */
+			if ((o_ptr->tval == TV_BONE) && (o_ptr->sval == SV_BONE_SKELETON))
+			{
+				part = rand_int(5) + 3;
+				o_ptr->sval = SV_BONE_BONE;
+				o_ptr->weight /= part + 1;
+
+				for (i = 0; i < part; i++)
+				{
+					floor_carry(m_ptr->fy + rand_int(3) - 2, m_ptr->fx + rand_int(3) - 2, o_ptr);
+				}
+			}
+
+			/* Partially eat bodies */
+			else if ((o_ptr->tval == TV_BODY) && (o_ptr->weight > amount))
+			{
+				part = (o_ptr->weight - amount) * 100 / o_ptr->weight;
+				o_ptr->weight -= amount;
+
+				switch (o_ptr->sval)
+				{
+					case SV_BODY_CORPSE:
+					{
+						if (part < 90) o_ptr->sval = SV_BODY_HEADLESS;
+					}
+					case SV_BODY_HEADLESS:
+					{
+						if (part < 80) o_ptr->sval = SV_BODY_BUTCHERED;
+					}
+					case SV_BODY_BUTCHERED:
+					{
+						if ((part < 70) && ((rand_int(100) < 50) || !(make_part(o_ptr, o_ptr->name3)))) o_ptr->sval = SV_BODY_MEAT;
+					}
+				}
+
+				if ((part < 30) && (r_info[o_ptr->name3].flags8 & (RF8_HAS_SKELETON))) 
+				{
+					o_ptr->tval = TV_BONE;
+					if (part > 10) o_ptr->sval = SV_BONE_SKELETON;
+					else if (part > 5) o_ptr->sval = SV_BONE_BONE;
+					else if (r_info[o_ptr->name3].flags8 & (RF8_HAS_TEETH)) o_ptr->sval = SV_BONE_TEETH;
+					else (void)make_skin(o_ptr, o_ptr->name3);
+				}
+
+				floor_carry(m_ptr->fy, m_ptr->fx, o_ptr);
+			}
+
+			/* Monster benefits */
+			feed_monster(m_idx);
+
+			return;
+		}
+	}
+
 
 	/*** Movement ***/
 
@@ -5356,7 +5686,7 @@ static void process_monster(int m_idx)
 	/*** Find a target to move to ***/
 
 	/* Monster is genuinely confused */
-	if (m_ptr->confused)
+	if ((m_ptr->confused) && (m_ptr->confused > rand_int(100)))
 	{
 		/* Choose any direction except five and zero */
 		dir = rand_int(8);
@@ -5366,8 +5696,8 @@ static void process_monster(int m_idx)
 		tx = m_ptr->fx + ddx_ddd[dir];
 	}
 
-	/* Monster isn't confused, just moving semi-randomly */
-	else if (random)
+	/* Monster isn't confused, just moving semi-randomly, or monster is partially confused */
+	else if ((random) || ((m_ptr->confused) && (m_ptr->confused > rand_int(50))))
 	{
 		int start = rand_int(8);
 		bool dummy;
@@ -5441,6 +5771,23 @@ static void recover_monster(int m_idx, bool regen)
 	char m_poss[80];
 
 
+	/* Hack -- Bug tracking */
+	if (m_ptr->hp > m_ptr->maxhp)
+	{
+		msg_print("BUG: Monster hit points too high! Please report.");
+
+		m_ptr->hp = m_ptr->maxhp;
+	}
+
+	/* Hack -- Bug tracking */
+	if (m_ptr->maxhp > (r_ptr->hdice * r_ptr->hside) * 11 / 10)
+	{
+		msg_print("BUG: Monster hit points *way* too high! Please report.");
+
+		m_ptr->maxhp = calc_monster_hp(m_ptr);
+	}
+
+
 	/* Handle "summoned" */
 	if (m_ptr->summoned)
 	{
@@ -5469,7 +5816,10 @@ static void recover_monster(int m_idx, bool regen)
 		if (surface && daytime && hurt_lite && outside)
 		{
 			/* Burn the monster */
-			project_m(0, 0, y, x, damroll(4,6), GF_LITE);
+			project_m(0, y, x, damroll(4,6), GF_LITE);
+
+			/* Burn the monster */
+			project_t(0, y, x, damroll(4,6), GF_LITE);
 		}
 		else if ((f_info[cave_feat[y][x]].blow.method) && !(f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)))
 		{
@@ -5480,7 +5830,10 @@ static void recover_monster(int m_idx, bool regen)
 		else
 		{
 			/* Burn the monster */
-			project_m(0, 0, y, x, damroll(4,6), GF_SUFFOCATE);
+			project_m(0, y, x, damroll(4,6), GF_SUFFOCATE);
+
+			/* Burn the monster */
+			project_t(0, y, x, damroll(4,6), GF_SUFFOCATE);
 		}
 
 		/* Is the monster hidden?*/
@@ -5508,6 +5861,32 @@ static void recover_monster(int m_idx, bool regen)
 	/* Every 100 game turns, regenerate monsters */
 	else if ((regen) && !(m_ptr->cut) && !(m_ptr->poisoned))
 	{
+		/* Regenerate mana, if needed */
+		if (m_ptr->mana < r_ptr->mana)
+		{
+			/* Monster regeneration depends on maximum mana */
+			frac = r_ptr->mana / 30;
+
+			/* Minimal regeneration rate */
+			if (!frac) frac = 1;
+
+			/* Regenerate */
+			m_ptr->mana += frac;
+
+			/* Some monsters regenerate quickly */
+			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+
+			/* Inactive monsters rest */
+			if (!(m_ptr->mflag & (MFLAG_ACTV))) frac *= 2;
+
+			/* Do not over-regenerate */
+			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
+
+			/* Fully recovered mana -> flag minimum range for recalculation */
+			if (m_ptr->mana >= r_ptr->mana / 2) m_ptr->min_range = 0;
+		}
+
+		/* Regenerate hit points, if needed */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
 			/* Base regeneration */
@@ -5518,6 +5897,9 @@ static void recover_monster(int m_idx, bool regen)
 
 			/* Some monsters regenerate quickly */
 			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+
+			/* Inactive monsters rest */
+			if (!(m_ptr->mflag & (MFLAG_ACTV))) frac *= 2;
 
 			/* Regenerate */
 			m_ptr->hp += frac;
@@ -5540,7 +5922,9 @@ static void recover_monster(int m_idx, bool regen)
 		notice = rand_int(1024);
 
 		/* Aggravated by the player */
-		if ((p_ptr->cur_flags3 & (TR3_AGGRAVATE)) != 0)
+		/* Now only when in LOS or LOF */
+		if (((p_ptr->cur_flags3 & (TR3_AGGRAVATE)) != 0)
+			&& (play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE | PLAY_VIEW)))
 		{
 			/* Reset sleep counter */
 			m_ptr->csleep = 0;
@@ -6012,24 +6396,24 @@ static void recover_monster(int m_idx, bool regen)
 
 
 	/*
-	 * Handle beserk counter
+	 * Handle berserk counter
 	 */
-	if (m_ptr->beserk)
+	if (m_ptr->berserk)
 	{
 		int d = 1;
 
 		/* Still invisible */
-		if (m_ptr->beserk > d)
+		if (m_ptr->berserk > d)
 		{
 			/* Reduce the confusion */
-			m_ptr->beserk -= d;
+			m_ptr->berserk -= d;
 		}
 
 		/* Expired */
 		else
 		{
 			/* No longer invisible */
-			m_ptr->beserk = 0;
+			m_ptr->berserk = 0;
 
 			/* Message if visible */
 			if (m_ptr->ml)
@@ -6038,7 +6422,7 @@ static void recover_monster(int m_idx, bool regen)
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
-				msg_format("%^s is no longer beserk.", m_name);
+				msg_format("%^s is no longer berserk.", m_name);
 			}
 		}
 	}

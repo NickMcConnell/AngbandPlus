@@ -460,15 +460,15 @@
  * OPTION: Create and use a hidden directory in the users home directory
  * for storing pref-files and character-dumps.
  */
-#ifdef SET_UID
+#if defined(SET_UID) && ! defined(PRIVATE_USER_PATH)
 #define PRIVATE_USER_PATH "~/.angband"
 #endif /* SET_UID */
 
 
 /*
- * On multiuser systems, add the "uid" to savefile names
+ * On multiuser installations, add the "uid" to savefile names
  */
-#ifdef SET_UID
+#if defined(SET_UID) && !defined(USE_PRIVATE_PATHS)
 # define SAVEFILE_USE_UID
 #endif /* SET_UID */
 

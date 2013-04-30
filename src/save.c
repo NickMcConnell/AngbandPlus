@@ -172,6 +172,8 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->show_idx);
 	wr_byte(o_ptr->discount);
+	wr_byte(o_ptr->feeling);
+	wr_byte(o_ptr->spare);
 
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
@@ -180,6 +182,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
+	wr_s16b(o_ptr->charges);
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -188,9 +191,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->ident);
-
-	wr_byte(o_ptr->marked);
+	wr_u16b(o_ptr->ident);
 
 	/* Old flags */
 	wr_u32b(0L);
@@ -264,7 +265,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->tim_invis);
 	wr_byte(m_ptr->tim_passw);
 	wr_byte(m_ptr->bless);
-	wr_byte(m_ptr->beserk);
+	wr_byte(m_ptr->berserk);
 	wr_byte(m_ptr->shield);
 	wr_byte(m_ptr->oppose_elem);
 	wr_byte(m_ptr->summoned);
@@ -621,19 +622,19 @@ static void wr_extra(void)
 	/* Hack --- save held_song here. Was wr_16b(0)  Oops */
 	wr_byte(p_ptr->held_song);
 
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
+	/* Write the timers */
+	wr_s16b(p_ptr->msleep);
+	wr_s16b(p_ptr->petrify);
+	wr_s16b(p_ptr->stastis);
 	wr_s16b(p_ptr->sc);
-	wr_s16b(0);	/* oops */
-
-	wr_s16b(0);		/* old "rest" */
+	wr_s16b(p_ptr->cursed);
+	wr_s16b(p_ptr->amnesia);
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
-	wr_s16b(p_ptr->rest);     /* old "food_digested" */
-	wr_s16b(0);	/* old "protection" */
+	wr_s16b(p_ptr->rest);
+	wr_s16b(p_ptr->psleep);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -657,14 +658,13 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->free_act);
 
-	wr_byte(0);
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->charging);
 	wr_byte(p_ptr->climbing);
 	wr_byte(p_ptr->searching);
-	wr_byte(p_ptr->dodging);
-	wr_byte(p_ptr->blocking);
+	wr_byte(0);
+	wr_byte(0);
 	wr_byte(0);
 
 	wr_u32b(p_ptr->disease);
@@ -1012,7 +1012,7 @@ static void wr_dungeon(void)
  */
 static bool wr_savefile_new(void)
 {
-	int i;
+	int i, j;
 
 	u32b now;
 
@@ -1106,8 +1106,6 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		int j;
-
 		wr_byte(MAX_QUEST_EVENTS);
 
 		for (j = 0; j < MAX_QUEST_EVENTS; j++)
@@ -1205,6 +1203,29 @@ static bool wr_savefile_new(void)
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
+
+	/* Write the number of bag types */
+	wr_u16b((u16b)SV_BAG_MAX_BAGS);
+
+	/* Write the bag contents */
+	for (i = 0; i < SV_BAG_MAX_BAGS; i++)
+	{
+		wr_byte(INVEN_BAG_TOTAL);
+
+		for (j = 0; j < INVEN_BAG_TOTAL; j++)
+		{
+			wr_u16b((u16b)bag_contents[i][j]);
+		}
+	} 
+
+	/* Write the number of dungeon types */
+	wr_u16b((u16b)z_info->t_max);
+
+	/* Write the dungeon max depths */
+	for (i = 0; i < z_info->t_max; i++)
+	{
+		wr_byte(t_info[i].max_depth);
+	} 
 
 	/* Note the stores */
 	tmp16u = MAX_STORES;

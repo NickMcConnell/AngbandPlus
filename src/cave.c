@@ -549,8 +549,8 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 		}
 	}
 
-	/* Handle "blind" */
-	else if (p_ptr->blind)
+	/* Handle "blind" or "asleep" */
+	else if ((p_ptr->blind) || (p_ptr->psleep >= PY_SLEEP_ASLEEP))
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -612,8 +612,8 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
  */
 void modify_grid_unseen_view(byte *a, char *c)
 {
-	/* Handle "blind" and night time*/
-	if (p_ptr->blind  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+	/* Handle "blind", "asleep" and night time*/
+	if ((p_ptr->blind) || (p_ptr->psleep >= PY_SLEEP_ASLEEP)  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -673,8 +673,8 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 		}
 	}
 
-	/* Handle "blind" */
-	else if (p_ptr->blind)
+	/* Handle "blind" or "asleep" */
+	else if ((p_ptr->blind) || (p_ptr->psleep >= PY_SLEEP_ASLEEP))
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -1226,7 +1226,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorized objects */
-		if (o_ptr->marked)
+		if (o_ptr->ident & (IDENT_MARKED))
 		{
 			/* Hack -- object hallucination */
 			if (image)
@@ -1818,7 +1818,7 @@ void note_spot(int y, int x)
 			if (o_ptr->ident & (IDENT_STORE)) continue;
 
 			/* Memorize objects */
-			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
 
 			/* Hack -- have seen object */
 			if (!(k_ptr->flavor)) k_ptr->aware = TRUE;
@@ -2132,7 +2132,7 @@ void display_map(int *cy, int *cx)
 
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
-	dungeon_zone *zone=&t_ptr->zone[0];;
+	dungeon_zone *zone=&t_ptr->zone[0];
 
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
@@ -4010,7 +4010,7 @@ void update_view(void)
 	/*** Step 3 -- Complete the algorithm ***/
 
 	/* Handle blindness */
-	if (p_ptr->blind)
+	if ((p_ptr->blind) || (p_ptr->psleep >= PY_SLEEP_ASLEEP))
 	{
 		/* Process "new" grids */
 		for (i = 0; i < fast_view_n; i++)
@@ -4880,7 +4880,7 @@ void wiz_lite(void)
 		if (o_ptr->held_m_idx) continue;
 
 		/* Memorize */
-		o_ptr->marked = TRUE;
+		o_ptr->ident |= (IDENT_MARKED);
 	}
 
 	/* Scan all normal grids */
@@ -4960,7 +4960,7 @@ void wiz_dark(void)
 		if (o_ptr->held_m_idx) continue;
 
 		/* Forget the object */
-		o_ptr->marked = FALSE;
+		o_ptr->ident &= ~(IDENT_MARKED);
 	}
 
 	/* Fully update the visuals */
@@ -5234,13 +5234,14 @@ static void cave_set_feat_aux(int y, int x, int feat)
 		if ((!hide_item) && (f_ptr->flags2 & (FF2_HIDE_ITEM)))
 		{
 			/* Hide it */
-			o_ptr->marked = FALSE;
+			o_ptr->ident &= ~(IDENT_MARKED);
 		}
 
 		/* Destroy stored items */
 		if (o_ptr->ident & (IDENT_STORE))
 		{
 			delete_object_idx(this_o_idx);
+			continue;
 		}
 	}
 
@@ -5287,6 +5288,24 @@ static void cave_set_feat_aux(int y, int x, int feat)
 		lite_spot(y, x);
 	}
 
+	/* XXX XXX Disabled the following because it still causes infinite loops */
+#if 0
+
+	/* Apply terrain damage to all objects and player in the grid */
+	/* XXX Don't call project as we may be getting called from there. */
+	/* XXX Don't apply damage to monsters as we may lose out on getting experience */
+	/* XXX XXX Be aware, that project_o can cause subsequent changes in terrain type,
+	   resulting in recursion back here. However, we shouldn't have any dangerous
+	   dangling pointers because project_o just marks objects for subsequent destruction,
+	   and careful terrain design should hopefully pick up any infinite loops. */
+	if (f_ptr->blow.effect)
+	{
+		project_o(0, y, x, damroll(f_ptr->blow.d_dice,f_ptr->blow.d_side), f_ptr->blow.effect);
+		project_p(0, y, x, damroll(f_ptr->blow.d_dice,f_ptr->blow.d_side), f_ptr->blow.effect);
+		project_t(0, y, x, damroll(f_ptr->blow.d_dice,f_ptr->blow.d_side), f_ptr->blow.effect);
+	}
+
+#endif
 }
 
 
@@ -5577,8 +5596,8 @@ void cave_set_feat(int y, int x, int feat)
 		bool good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
 		bool great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
 
-		bool do_gold = (!(f_ptr->flags1 & (FF1_HAS_ITEM)));
-		bool do_item = (!(f_ptr->flags1 & (FF1_HAS_GOLD)));
+		bool do_item = ((f_ptr->flags1 & FF1_HAS_ITEM) && !(f_ptr->flags2 & (FF1_HAS_ITEM)));
+		bool do_gold = ((f_ptr->flags1 & FF1_HAS_GOLD) && !(f_ptr->flags2 & (FF1_HAS_GOLD)));
 
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -5588,6 +5607,9 @@ void cave_set_feat(int y, int x, int feat)
 
 		/* Always drop something */
 		if (!number) number = 1;
+
+		/* Opening a chest -- this forces tval_drop_idx to be set after first item selected */
+		opening_chest = TRUE;
 
 		/* Drop some objects */
 		for (j = 0; j < number; j++)
@@ -5602,7 +5624,7 @@ void cave_set_feat(int y, int x, int feat)
 			if (do_gold && (!do_item || (rand_int(100) < 50)))
 			{
 				/* Make some gold */
-				if (!make_gold(i_ptr)) continue;
+				if (!make_gold(i_ptr, good, great)) continue;
 			}
 
 			/* Make Object */
@@ -5612,9 +5634,15 @@ void cave_set_feat(int y, int x, int feat)
 				if (!make_object(i_ptr, good, great)) continue;
 			}
 
+			/* No longer opening a chest */
+			opening_chest = FALSE;
+
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, y, x);
 		}
+
+		/* Clear drop restriction */
+		tval_drop_idx = 0;
 
 	}
 }
@@ -6311,12 +6339,13 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
 	int nx, ny;
 
+	int tries;
 
 	/* Unused parameter */
 	(void)m;
 
 	/* Pick a location */
-	while (TRUE)
+	for (tries = 0; tries < 100; tries++)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
@@ -6330,6 +6359,13 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 
 		/* Require "line of fire" */
 		if (generic_los(y, x, ny, nx, CAVE_XLOF)) break;
+	}
+
+	/* Failed? */
+	if (tries >= 100)
+	{
+		ny = y;
+		nx = x;
 	}
 
 	/* Save the location */
@@ -6374,15 +6410,12 @@ void monster_race_track(int r_idx)
  *
  * The first arg indicates a major disturbance, which affects search.
  *
- * The second arg is currently unused, but could induce output flush.
+ * The second arg indicates a major disturbance, which wakes the player.
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_search, int unused_flag)
+void disturb(int stop_search, int wake_up)
 {
-	/* Unused parameter */
-	(void)unused_flag;
-
 	/* Cancel auto-commands */
 	/* p_ptr->command_new = 0; */
 
@@ -6437,6 +6470,16 @@ void disturb(int stop_search, int unused_flag)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/* Wake the player if requested */
+	if (wake_up && p_ptr->psleep)
+	{
+		/* Cancel */
+		set_psleep(0);
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);

@@ -315,7 +315,6 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					{
 						object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L);
 					}
-					else object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L);
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
@@ -336,7 +335,6 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					{
 						object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L);
 					}
-					else object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L);
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
@@ -357,7 +355,6 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					{
 						object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L);
 					}
-					else object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L);
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
@@ -611,7 +608,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 				if (mult < 4) mult = 4;
 			}
-			else if (m_ptr->ml)
+			else if ((l_ptr->flags9 & (RF9_MAN)) && (m_ptr->ml))
 			{
 				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_MAN);
 			}
@@ -628,7 +625,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 				if (mult < 4) mult = 4;
 			}
-			else if (m_ptr->ml)
+			else if ((l_ptr->flags9 & (RF9_ELF)) && (m_ptr->ml))
 			{
 				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_ELF);
 			}
@@ -645,7 +642,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 				if (mult < 4) mult = 4;
 			}
-			else if (m_ptr->ml)
+			else if ((l_ptr->flags9 & (RF9_ELF)) && (m_ptr->ml))
 			{
 				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_DWARF);
 			}
@@ -655,6 +652,11 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		}
 	}
 
+	/* Hack -- if dice roll less than three, treat as three for adding multiplier only */
+	if (tdam < 3)
+	{
+		return (tdam + 3 * (mult - 1));
+	}
 
 	/* Return the total damage */
 	return (tdam * mult);
@@ -974,6 +976,11 @@ bool auto_pickup_ignore(const object_type *o_ptr)
 }
 
 
+/*
+ * Helper routine for py_pickup() and py_pickup_floor().
+ *
+ * Destroy objects on the ground.
+ */
 static void py_destroy_aux(int o_idx)
 {
 	char o_name[80];
@@ -987,7 +994,7 @@ static void py_destroy_aux(int o_idx)
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Verify destruction */
-	if (verify_destroy)
+	if (verify_destroy && !auto_pickup_ignore(o_ptr))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -1015,9 +1022,9 @@ static void py_destroy_aux(int o_idx)
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Sense the object if allowed, don't sense ID'ed stuff */
-		if ((o_ptr->discount == 0)
+		if (!(o_ptr->feeling)
 			&& !(o_ptr->ident & (IDENT_SENSE))
-			 && !(object_known_p(o_ptr)))
+			 && !(object_named_p(o_ptr)))
 		{
 			o_ptr->discount = INSCRIP_UNBREAKABLE;
 
@@ -1037,7 +1044,11 @@ static void py_destroy_aux(int o_idx)
 	}
 
 	/* Message */
-	msg_format("You destroy %s.", o_name);
+	if (!auto_pickup_ignore(o_ptr))
+	{
+		/* Message */
+		msg_format("You destroy %s.", o_name);
+	}
 
 	/* Delete the object directly */
 	delete_object_idx(o_idx);
@@ -1123,7 +1134,7 @@ void py_pickup(int pickup)
 		/* Mark the object */
 		if (!auto_pickup_ignore(o_ptr))
 		{
-			o_ptr->marked = TRUE;
+			o_ptr->ident |= (IDENT_MARKED);
 
 			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 			if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
@@ -1137,12 +1148,12 @@ void py_pickup(int pickup)
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Hack -- disturb */
-		disturb(0, 0);
+		if (!auto_pickup_never(o_ptr)) disturb(0, 0);
 
 		/* Pick up gold */
 		if (o_ptr->tval >= TV_GOLD)
 		{
-			long value = o_ptr->number * o_ptr->pval - o_ptr->stackc;
+			long value = o_ptr->number * o_ptr->charges - o_ptr->stackc;
 
 			/* Message */
 			if (o_ptr->tval == TV_GOLD) msg_format("You have found %ld gold pieces worth of %s.",
@@ -1165,10 +1176,10 @@ void py_pickup(int pickup)
 			continue;
 		}
 
-		/* Test for auto-pickup */
+		/* Test for auto-destroy */
 		if (auto_destroy_okay(o_ptr))
 		{
-			/* Pick up the object */
+			/* Destroy the object */
 			py_destroy_aux(this_o_idx);
 
 			/* Check the next object */
@@ -1494,6 +1505,16 @@ void hit_trap(int y, int x)
 						/* Modify quantity */
 						i_ptr->number = 1;
 
+						/* Apply additional effect from coating or sometimes activate */
+						if ((coated_p(i_ptr)) || (auto_activate(i_ptr)))
+						{
+							/* Make item strike */
+							process_item_blow(i_ptr, y, x);
+
+							/* Hack -- Remove coating on original */
+							if ((!coated_p(i_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
+						}
+
 						/* Drop nearby - some chance of breakage */
 						drop_near(i_ptr,y,x,breakage_chance(i_ptr));
 
@@ -1542,7 +1563,6 @@ void hit_trap(int y, int x)
 
 					/* Damage, check for fear and death */
 					take_hit(k, "a player trap");
-
 				}
 				else
 				{
@@ -1558,6 +1578,16 @@ void hit_trap(int y, int x)
 
 				/* Modify quantity */
 				i_ptr->number = 1;
+
+				/* Apply additional effect from coating or sometimes activate */
+				if ((coated_p(i_ptr)) || (auto_activate(i_ptr)))
+				{
+					/* Make item strike */
+					process_item_blow(i_ptr, y, x);
+
+					/* Hack -- Remove coating on original */
+					if ((!coated_p(i_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
+				}
 
 				/* Drop nearby - some chance of breakage */
 				drop_near(i_ptr,y,x,breakage_chance(i_ptr));
@@ -1575,7 +1605,7 @@ void hit_trap(int y, int x)
 			case TV_WAND:
 			case TV_STAFF:
 			{
-				if (o_ptr->pval > 0)
+				if (o_ptr->charges > 0)
 				{
 					/* Get item effect */
 					get_spell(&power, "use", o_ptr, FALSE);
@@ -1587,7 +1617,7 @@ void hit_trap(int y, int x)
 					if (o_ptr->stackc >= o_ptr->number)
 					{
 						/* Use a charge off the stack */
-						o_ptr->pval--;
+						o_ptr->charges--;
 
 						/* Reset the stack count */
 						o_ptr->stackc = 0;
@@ -1595,9 +1625,9 @@ void hit_trap(int y, int x)
 
 					/* XXX Hack -- unstack if necessary */
 					if ((o_ptr->number > 1) &&					 
-					((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
-					  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
-					  (o_ptr->stackc != 1) && (o_ptr->pval > 2))))
+					((!object_charges_p(o_ptr) && (o_ptr->charges == 2) && (o_ptr->stackc > 1)) ||
+					  (!object_charges_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+					  (o_ptr->stackc != 1) && (o_ptr->charges > 2))))
 					{
 						object_type *i_ptr;
 						object_type object_type_body;
@@ -1620,13 +1650,13 @@ void hit_trap(int y, int x)
 						/* Reduce the charges on the new item */
 						if (o_ptr->stackc > 1)
 						{
-							i_ptr->pval-=2;
+							i_ptr->charges-=2;
 							o_ptr->stackc--;
 						}
 						else if (!o_ptr->stackc)
 						{
-							i_ptr->pval--;
-							o_ptr->pval++;
+							i_ptr->charges--;
+							o_ptr->charges++;
 							o_ptr->stackc = o_ptr->number-1;
 						}
 
@@ -1653,7 +1683,7 @@ void hit_trap(int y, int x)
 					tmpval = o_ptr->timeout;
 
 					/* Time rod out */
-					o_ptr->timeout = o_ptr->pval;
+					o_ptr->timeout = o_ptr->charges;
 
 					/* Get item effect */
 					get_spell(&power, "use", o_ptr, FALSE);
@@ -1709,6 +1739,7 @@ void hit_trap(int y, int x)
 			case TV_POTION:
 			case TV_SCROLL:
 			case TV_FLASK:
+			case TV_LITE:
 			case TV_FOOD:
 			{
 				/* Hack -- boring food */
@@ -1819,8 +1850,9 @@ void hit_trap(int y, int x)
 					damage = d_plus;
 				}
 
-				(void)project_p(0,0,y,x,damage, effect);
-				(void)project_f(0,0,y,x,damage, effect);
+				(void)project_p(0,y,x,damage, effect);
+				(void)project_f(0,y,x,damage, effect);
+				(void)project_t(0,y,x,damage, effect);
 			}
 		}
 	}
@@ -1843,7 +1875,8 @@ void hit_trap(int y, int x)
 			dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice);
    
 			/* Apply the blow */
-			project_p(0, 0, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+			project_p(0, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+			project_t(0, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
 		}
 
 		/* Get feature */
@@ -1863,13 +1896,167 @@ void hit_trap(int y, int x)
 }
 
 
+/*
+ *   Get style benefits against a monster, using permitted styles.
+ */
+void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int *to_dam, int *to_crit)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int i;
+
+	/* Reset style benefits */
+	*to_hit = 0;
+	*to_dam = 0;
+	*to_crit = 0;
+
+	/* Check backstab if monster sleeping or fleeing */
+	if (((m_ptr->csleep) || (m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
+		  (p_ptr->pstyle == WS_BACKSTAB) && (inventory[INVEN_WIELD].weight < 100)) style |= (1L <<WS_BACKSTAB);
+
+	/* Check slay orc if monster is an orc */
+	if (r_ptr->flags3 & (RF3_ORC)) style |= (1L <<WS_SLAY_ORC);
+
+	/* Check slay troll if monster is a troll */
+	if (r_ptr->flags3 & (RF3_TROLL)) style |= (1L <<WS_SLAY_TROLL);
+
+	/* Check slay giant if monster is a giant */
+	if (r_ptr->flags3 & (RF3_GIANT)) style |= (1L <<WS_SLAY_GIANT);
+
+	/* Check slay dragon if monster is a dragon */
+	if (r_ptr->flags3 & (RF3_DRAGON)) style |= (1L <<WS_SLAY_DRAGON);
+
+	/* Check slay evil if monster is evil */
+	if (r_ptr->flags3 & (RF3_EVIL)) style |= (1L <<WS_SLAY_EVIL);
+
+	/* Check slay giant if monster is undead */
+	if (r_ptr->flags3 & (RF3_UNDEAD)) style |= (1L <<WS_SLAY_UNDEAD);
+
+	/* Check slay giant if monster is an animal */
+	if (r_ptr->flags3 & (RF3_ANIMAL)) style |= (1L <<WS_SLAY_ANIMAL);
+
+	/* Check slay giant if monster is a demon */
+	if (r_ptr->flags3 & (RF3_DEMON)) style |= (1L <<WS_SLAY_DEMON);
+
+	/*** Handle styles ***/
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+		/* Check for styles */
+		if ((w_info[i].styles==0) || (w_info[i].styles & (style & (1L << p_ptr->pstyle))))
+		{
+			switch (w_info[i].benefit)
+			{
+				case WB_HIT:
+					*to_hit += (p_ptr->lev - w_info[i].level) /2;
+					break;
+
+				case WB_DAM:
+					*to_dam += (p_ptr->lev - w_info[i].level) /2;
+					break;
+
+				case WB_CRITICAL:
+					*to_crit++;
+					break;
+			}
+		}
+	}
+
+	/* Only allow criticals against living opponents */
+	if ((r_ptr->flags3 & (RF3_NONLIVING)) || (r_ptr->flags2 & (RF2_STUPID)))
+	{
+		*to_crit = 0;
+	}
+
+	/* Only allow criticals against visible opponents */
+	if (!(m_ptr->ml)) *to_crit = 0;
+}
+
+
+/*
+ * Get the weapon slot based on the melee style and number of blows so far.
+ */
+static int weapon_slot(u32b melee_style, int blows, bool charging)
+{
+	int slot = INVEN_WIELD;
+
+	/* Get secondary weapon instead */
+	if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) slot = INVEN_ARM;
+
+	/* Get the unarmed weapon */
+	if (melee_style & (1L << WS_UNARMED))
+	{
+		/* Use feet while charging */
+		if (charging) slot = INVEN_FEET;
+
+		/* Alternate hands and feet */
+		else if (!(blows %2)) slot = INVEN_FEET;
+
+		/* Use hands */
+		else slot = INVEN_HANDS;
+	}
+
+	return(slot);
+}
+
+
+
+
+
+/*
+ * Determine if the object has a "=A" in its inscription.
+ *
+ * This is used to automatically activate the object when attacking, throwing or firing it.
+ */
+bool auto_activate(const object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+
+	cptr s;
+
+	/* Check timeout */
+	if (o_ptr->timeout) return (FALSE);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	/* Check if can activate */
+	if ((f3 & (TR3_ACTIVATE)) == 0) return (FALSE);
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Automatically activate on "=A" */
+		if (s[1] == 'A')
+		{
+			/* Can activate */
+			return (TRUE);
+		}
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Can activate */
+	return (FALSE);
+}
+
+
 
 /*
  * Attack the monster at the given location
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-void py_attack(int y, int x)
+void py_attack(int y, int x, bool charging)
 {
 	int num = 0, k, bonus, chance;
 
@@ -1880,8 +2067,10 @@ void py_attack(int y, int x)
 	u32b melee_style;
 
 	int blows = 0; /* Number of blows actually delivered */
+	int slot;
 
 	int i;
+	int num_blows = 0;
 	int do_cuts = 0;
 	int do_stun = 0;
 	
@@ -1899,6 +2088,13 @@ void py_attack(int y, int x)
 
 	bool was_asleep;
 
+	cptr p;
+
+	u32b k1[3], k2[3], k3[3], k4[3];
+
+	u32b n1[3], n2[3], n3[3], n4[3];
+
+
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
@@ -1907,12 +2103,6 @@ void py_attack(int y, int x)
 
 	/* Disturb the player */
 	disturb(0, 0);
-
-	/* Check if monster asleep */
-	was_asleep = (m_ptr->csleep == 0);
-
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -1939,118 +2129,59 @@ void py_attack(int y, int x)
 		return;
 	}
 
-
 	/* Check melee styles only */
 	melee_style = p_ptr->cur_style & (WS_WIELD_FLAGS);
 
-	/* Check backstab if monster sleeping or fleeing */
-	if (((was_asleep) || (m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
-		  (p_ptr->pstyle ==WS_BACKSTAB) && (inventory[INVEN_WIELD].weight < 100)) melee_style |= (1L <<WS_BACKSTAB);
+	/* Get style benefits */
+	mon_style_benefits(m_ptr, melee_style, &style_hit, &style_dam, &style_crit);
 
-	/* Check slay orc if monster is an orc */
-	if (r_ptr->flags3 & (RF3_ORC)) melee_style |= (1L <<WS_SLAY_ORC);
+	/* Check if monster asleep */
+	was_asleep = (m_ptr->csleep == 0);
 
-	/* Check slay troll if monster is a troll */
-	if (r_ptr->flags3 & (RF3_TROLL)) melee_style |= (1L <<WS_SLAY_TROLL);
-
-	/* Check slay giant if monster is a giant */
-	if (r_ptr->flags3 & (RF3_GIANT)) melee_style |= (1L <<WS_SLAY_GIANT);
-
-	/* Check slay dragon if monster is a dragon */
-	if (r_ptr->flags3 & (RF3_DRAGON)) melee_style |= (1L <<WS_SLAY_DRAGON);
-
-	/* Check slay evil if monster is evil */
-	if (r_ptr->flags3 & (RF3_EVIL)) melee_style |= (1L <<WS_SLAY_EVIL);
-
-	/* Check slay giant if monster is undead */
-	if (r_ptr->flags3 & (RF3_UNDEAD)) melee_style |= (1L <<WS_SLAY_UNDEAD);
-
-	/* Check slay giant if monster is an animal */
-	if (r_ptr->flags3 & (RF3_ANIMAL)) melee_style |= (1L <<WS_SLAY_ANIMAL);
-
-	/* Check slay giant if monster is a demon */
-	if (r_ptr->flags3 & (RF3_DEMON)) melee_style |= (1L <<WS_SLAY_DEMON);
-
-	/*** Handle styles ***/
-	if (!p_ptr->heavy_wield) for (i = 0;i< z_info->w_max;i++)
-	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		/* Check for styles */
-		if ((w_info[i].styles==0) || (w_info[i].styles & (melee_style & (1L << p_ptr->pstyle))))
-		{
-			switch (w_info[i].benefit)
-			{
-
-				case WB_HIT:
-					style_hit += (p_ptr->lev - w_info[i].level) /2;
-					break;
-
-				case WB_DAM:
-					style_dam += (p_ptr->lev - w_info[i].level) /2;
-					break;
-
-				case WB_CRITICAL:
-					style_crit++;
-					break;
-			}
-		}
-	}
-
-	/* Only allow criticals against living opponents */
-	if ((r_ptr->flags3 & (RF3_NONLIVING)) || (r_ptr->flags2 & (RF2_STUPID)))
-	{
-		style_crit = 0;
-	}
-
-	/* Only allow criticals against visible opponents */
-	if (!(m_ptr->ml)) style_crit = 0;
+	/* Disturb the monster */
+	m_ptr->csleep = 0;
 
 	/* Mark the monster as attacked by melee */
 	m_ptr->mflag |= (MFLAG_HIT_BLOW);
 
-	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
-	{
-		int slot = INVEN_WIELD;
+	/* Get number of blows */
+	num_blows = p_ptr->num_blow;
 
+	/* Restrict blows if charging */
+	if (charging)
+	{
+		if (melee_style & (1L << WS_TWO_WEAPON)) num_blows = 2;
+		else num_blows = 1;
+	}
+
+	/* Attack once for each legal blow */
+	while (num++ < num_blows)
+	{
 		/* Deliver a blow */
 		blows++;
 
-		/* Some monsters are great at dodging  -EZ- */
-		if (((r_ptr->flags9 & (RF9_EVASIVE)) != 0) && (!was_asleep)
-			&& (!m_ptr->confused) && (!m_ptr->blind) && (!m_ptr->monfear)
-			&& (rand_int(m_ptr->stunned ? 2 : 4)))
-		{
-			message_format(MSG_MISS, 0, "%^s evades your blow!",
-				m_name);
+		/* Get weapon slot */
+		slot = weapon_slot(melee_style,blows,charging);
 
-			/* Learn that monster can dodge */
-			l_ptr->flags9 |= (RF9_EVASIVE);
-
-			continue;
-		}
-
-		/* Get secondary weapon instead */
-		if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) slot = INVEN_ARM;
-
-		/* Get the weapon */
+		/* Weapon slot */
 		o_ptr = &inventory[slot];
 
-		/* Get the unarmed weapon */
-		if (melee_style & (1L << WS_UNARMED))
+		/* Record the item flags */
+		if (o_ptr->k_idx)
 		{
-			/* Use feet because hands are full */
-			if (o_ptr->k_idx) o_ptr = &inventory[INVEN_FEET];
-
-			/* Alternate hands and feet */
-			else if (!(blows %2)) o_ptr = &inventory[INVEN_FEET];
-
-			/* Use hands */
-			else o_ptr = &inventory[INVEN_HANDS];
+			/* Get item first time it is used */
+			if ((blows <= 2) && ((blows <= 1)
+				|| (melee_style & ((1L << WS_UNARMED) | (1L << WS_TWO_WEAPON))) ))
+			{
+				k1[blows] = o_ptr->can_flags1;
+				k2[blows] = o_ptr->can_flags2;
+				k3[blows] = o_ptr->can_flags3;
+				k4[blows] = o_ptr->can_flags4;
+			}
 		}
+
+		/* Some monsters are great at dodging  -EZ- */
+		if (mon_evade(m_ptr, m_ptr->stunned || m_ptr->confused? 50 : 80, 100, "your blow")) continue;
 
 		/* Calculate the "attack quality" */
 		if (o_ptr->k_idx) bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
@@ -2064,10 +2195,18 @@ void py_attack(int y, int x)
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
+		/* Test for resistance */
 		else if (mon_resist_object(m_ptr, o_ptr))
 		{
 			/* No need for message */
-			continue;
+		}
+		/* Test for huge monsters -- they resist non-charging attacks */
+		else if ((r_ptr->flags3 & (RF3_HUGE)) && (!charging) && (rand_int(100) < 60))
+		{
+			/* Message */
+			message_format(MSG_MISS, m_ptr->r_idx, "You cannot reach %s.", m_name);
+
+			/* Miss */
 		}
 		/* Player hits */
 		else
@@ -2075,13 +2214,6 @@ void py_attack(int y, int x)
 			/* Handle normal weapon/gauntlets/boots */
 			if (o_ptr->k_idx)
 			{
-				u32b k1 = o_ptr->can_flags1;
-				u32b k2 = o_ptr->can_flags2;
-				u32b k3 = o_ptr->can_flags3;
-				u32b k4 = o_ptr->can_flags4;
-
-				u32b n1, n2, n3, n4;
-
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 
@@ -2091,12 +2223,15 @@ void py_attack(int y, int x)
 					{
 						int j = rand_int(100);
 
-						if (j < 33)
-							do_cuts = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
-						else if (j < 66)
+						/* Hack -- spears do damaging criticals, axes stun or cut */ 
+						if (!(strstr(k_name + k_info[o_ptr->k_idx].name, "Axe"))
+							&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Halberd"))
+							&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe")))
+							k += critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+						else if ((j < 50) && !(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe")))
 							do_stun = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
 						else
-							k += critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+							do_cuts = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
 						break;
 					}
 					case TV_SWORD:
@@ -2111,15 +2246,8 @@ void py_attack(int y, int x)
 					}
 				}
 
+				/* Add damage bonus */
 				k += o_ptr->to_d;
-
-				/* Check for new flags */
-				n1 = o_ptr->can_flags1 & ~(k1);
-				n2 = o_ptr->can_flags2 & ~(k2);
-				n3 = o_ptr->can_flags3 & ~(k3);
-				n4 = o_ptr->can_flags4 & ~(k4);
-
-				if (n1 || n2 || n3 || n4) update_slot_flags(slot, n1, n2, n3, n4);
 
 				/* Check usage */
 				object_usage(slot);
@@ -2149,6 +2277,13 @@ void py_attack(int y, int x)
 			/* Adjust for style */
 			k += p_ptr->to_d + style_dam;
 
+			/* Adjust for charging */
+			if (charging)
+			{
+				if ((melee_style & (1L << WS_UNARMED)) && (p_ptr->wt > 33)) k *= p_ptr->wt / cp_ptr->chg_weight;
+				else if (o_ptr->weight >= 2 * cp_ptr->chg_weight) k *= o_ptr->weight / cp_ptr->chg_weight;
+			}
+
 			/* Monster armor reduces total damage */
 			k -= (k * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
 
@@ -2165,23 +2300,41 @@ void py_attack(int y, int x)
 			if (melee_style & (1L << WS_BACKSTAB))
 			{
 				/* Message */
-				message_format(MSG_HIT, m_ptr->r_idx, "You backstab %s.", m_name);
+				p = "You backstab %s!";
 			}
 			else if (do_stun)
 			{
 				/* Message */
-				message_format(MSG_HIT, m_ptr->r_idx, "You batter %s.", m_name);
+				p = "You batter %s!";
 			}
 			else if (do_cuts)
 			{
 				/* Message */
-				message_format(MSG_HIT, m_ptr->r_idx, "You wound %s.", m_name);
+				p = "You wound %s!";
+			}
+			else if (charging)
+			{
+				/* Unarmed */
+				if (melee_style & (1L << WS_UNARMED)) p = "You flying kick %s!";
+
+				/* Message */
+				else p = "You charge %s!";
 			}
 			else
 			{
+				/* Unarmed punch */
+				if (melee_style & (1L << WS_UNARMED))
+				{
+					if (blows % 2) p = "You punch %s.";
+					else p = "You kick %s.";
+				}
+
 				/* Message */
-				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+				else p = "You hit %s.";
 			}
+
+			/* Message */
+			message_format(MSG_HIT, m_ptr->r_idx, p, m_name);
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -2267,6 +2420,13 @@ void py_attack(int y, int x)
 
 				break;
 			}
+
+			/* Apply additional effect from coating or sometimes activate */
+			else if ((coated_p(o_ptr)) || (auto_activate(o_ptr)))
+			{
+				/* Make item strike */
+				process_item_blow(o_ptr, y, x);
+			}
 		}
 	}
 
@@ -2292,8 +2452,27 @@ void py_attack(int y, int x)
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
 
+	/* Charging uses full turn */
+	if (charging) p_ptr->energy_use = 100;
+
 	/* Only use required energy to kill monster */
-	p_ptr->energy_use = 100 * blows / p_ptr->num_blow;
+	else p_ptr->energy_use = 100 * blows / p_ptr->num_blow;
+
+	/* Check and display any changed weapon flags */
+	for (i = 1; (i <= blows) && (i <= ((melee_style & ((1L << WS_UNARMED) | (1L << WS_TWO_WEAPON))) ? 2 : 1)); i++)
+	{
+		slot = weapon_slot(melee_style, i, charging);
+
+		o_ptr = &inventory[slot];
+
+		/* Check for new flags */
+		n1[i] = (o_ptr->can_flags1 & ~(k1[i])) & (TR1_WEAPON_FLAGS);
+		n2[i] = (o_ptr->can_flags2 & ~(k2[i])) & (TR2_WEAPON_FLAGS);
+		n3[i] = (o_ptr->can_flags3 & ~(k3[i])) & (TR3_WEAPON_FLAGS);
+		n4[i] = (o_ptr->can_flags4 & ~(k4[i])) & (TR4_WEAPON_FLAGS);
+
+		if (n1[i] || n2[i] || n3[i] || n4[i]) update_slot_flags(slot, n1[i], n2[i], n3[i], n4[i]);
+	}
 }
 
 /*
@@ -2324,7 +2503,7 @@ bool stuck_player(int *dir)
 		{
 
 			/* Get hit by terrain/traps */
-			if ((f_ptr->flags1 & (FF1_HIT_TRAP)) ||
+			if (((f_ptr->flags1 & (FF1_HIT_TRAP)) && !(f_ptr->flags3 & (FF3_CHEST))) ||
 				(f_ptr->spell) || (f_ptr->blow.method))
 			{
 
@@ -2388,8 +2567,14 @@ void move_player(int dir, int jumping)
 	/* Hack -- attack monsters --- except hidden ones */
 	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)))
 	{
+		bool charging = FALSE;
+
+		/* If moving, you can charge in the direction */
+		if ((p_ptr->charging == dir) || (side_dirs[dir][1] == p_ptr->charging)
+			|| (side_dirs[dir][2] == p_ptr->charging)) charging = TRUE;
+
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, charging);
 	}
 
 	else if (stuck_player(&dir))
@@ -2448,10 +2633,9 @@ void move_player(int dir, int jumping)
 		/* Notice unknown obstacles */
 		if (!(play_info[y][x] & (PLAY_MARK)))
 		{
-
 			/* Get hit by terrain/traps */
-			if ((f_ptr->flags1 & (FF1_HIT_TRAP)) ||
-			(f_ptr->spell) || (f_ptr->blow.method))
+			if (((f_ptr->flags1 & (FF1_HIT_TRAP)) && !(f_ptr->flags3 & (FF3_CHEST))) ||
+				(f_ptr->spell) || (f_ptr->blow.method))
 			{
 				/* Hit the trap */
 				hit_trap(y, x);
@@ -2489,6 +2673,16 @@ void move_player(int dir, int jumping)
 				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
 				(is_a_vowel(name[0]) ? "an " : "a ")),name);
 		}
+	}
+
+	/* Petrified */
+	else if (p_ptr->petrify)
+	{
+		/* Disturb the player */
+		disturb(0, 0);
+
+		msg_print("You are too petrified to move.");
+		return;
 	}
 
 	/* Partial movement */
@@ -2571,14 +2765,14 @@ void move_player(int dir, int jumping)
 		/* Dodging */
 		else
 		{
-			/* Dodging */
-			p_ptr->dodging = ddd_180[dir];
+			/* Dodging -- reverse direction 180 degrees */
+			p_ptr->dodging = 10 - dir;
 
 			/* Hack -- not blocking */
 			p_ptr->blocking = 0;
 
-			/* Redraw */
-			p_ptr->redraw |= (PR_STATE);
+			/* Hack -- update straight away */
+			update_stuff();
 
 			/* Hack -- redraw straight away */
 			redraw_stuff();
@@ -2602,7 +2796,8 @@ void move_player(int dir, int jumping)
 
 
 		/* Get hit by terrain/traps */
-		if ((f_ptr->flags1 & (FF1_HIT_TRAP)) ||
+		/* Except for chests which must be opened to hit */
+		if (((f_ptr->flags1 & (FF1_HIT_TRAP)) && !(f_ptr->flags3 & (FF3_CHEST))) ||
 			(f_ptr->spell) || (f_ptr->blow.method))
 		{
 			/* Disturb */
@@ -2613,7 +2808,9 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Discover secrets */
-		else if (f_ptr->flags1 & (FF1_SECRET))
+		/* Except for hidden objects/gold which must be found by searching */
+		else if ((f_ptr->flags1 & (FF1_SECRET))
+			&& !(f_ptr->flags1 & (FF1_HAS_ITEM | FF1_HAS_GOLD)))
 		{
 			/* Find the secret */
 			find_secret(y,x);
@@ -3071,7 +3268,7 @@ static bool run_test(void)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
-			if (o_ptr->marked) return (TRUE);
+			if ((o_ptr->ident & (IDENT_MARKED)) && !(auto_pickup_never(o_ptr))) return (TRUE);
 		}
 
 
@@ -3094,7 +3291,6 @@ static bool run_test(void)
 
 			if ((notice) && (f_info[feat].flags1 & (FF1_MOVE)))
 			{
-
 				if ((run_ignore_doors) && (f_info[feat].flags1 & (FF1_DOOR)) &&
 					(f_info[feat].flags1 & (FF1_CLOSE)))
 				{
@@ -3108,6 +3304,14 @@ static bool run_test(void)
 					/* Option -- ignore */
 					notice = FALSE;
 				}
+
+				/* Unusual floors */
+				if ((run_ignore_floors) && (f_info[feat].flags1 & (FF1_FLOOR)))
+				{
+					/* Option -- ignore */
+					notice = FALSE;
+				}
+
 			}
 
 			/* Interesting feature */

@@ -33,8 +33,8 @@
 #XTRA_SHOT: Additional shot.
 #XTRA_MIGHT: Additional multiple on damage when fired/thrown.
 #CRITICAL: Additional critical damage against normal size humanoid opponents only.
-#POWER: Gets bonus of (level-level requried to get this ability) to effective
-#spell level
+#POWER: Gets bonus of 10 levels to effective spell level when computing damage, radius
+# etc and learn spells at 80% of the listed level requirement.
 #ICKY_HANDS: Gets spell casting penalty when wearing non-free action gloves.
 #ICKY_WIELD: Gets spell casting penalty when wielding non-blessed weapon.
 #BLESSED: Does not get spell casting penalty from icky wield.
@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:0.6.1
 
 W:0:1
 S:RING
@@ -169,6 +169,10 @@ W:2:1
 S:HAFTED
 B:BLESSED
 
+W:2:3
+S:PRAYER_BOOK | INSTRUMENT
+B:POWER
+
 W:2:5
 S:UNARMED
 B:HIT
@@ -211,10 +215,6 @@ B:XTRA_BLOW
 
 W:2:30
 S:UNARMED
-B:CRITICAL
-
-W:2:20
-S:SLAY_EVIL
 B:CRITICAL
 
 W:2:40

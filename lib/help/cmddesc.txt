@@ -544,7 +544,7 @@ Zap a rod (z) or Activate a rod (a)
 
 --- Throwing and Missile Weapons ---
 
-Fire an item (f) or Fire an item (t)
+Fire or throw an item (f) or Fire or throw an item (t)
         You may throw any object carried by your character.  Depending on
         the weight, it may travel across the room or drop down beside you.
         Only one object from a pile will be thrown at a time.  Note that
@@ -570,32 +570,6 @@ Fire an item (f) or Fire an item (t)
         the ground underneath.  Slings may now be used to lob potions
         for a much greater distance, as well as improving the damage and
         damage of throwing weapons, such as javelins or spears.
-
-        Important note: In order to take advantage of throwing weapons such
-        as daggers, batons, darts, javelins and spears, and the additional
-        benefits of throwing styles, you need to 'fire' rather than throw
-        these weapons. This restricts the list of items you may choose to
-        those balanced for throwing, but gives you the additional damage
-        multiplier and shots of your style, and counts the to-hit and damage
-        bonus of the weapon twice.  You cannot be wielding a bow, sling or
-        crossbow in order to do this.
-
-Throw an item (v)
-        You may throw any object carried by your character.  The lighter
-        the object, the farther you can throw it.  Only one object from a
-        stack may be thrown at a time.  Throwing an object may break it.
-        If you throw something at a monster, your chances of hitting it
-        are determined by your pluses to hit, your ability at throwing,
-        and the object's pluses to hit.  If the object hits the monster,
-        it may or may not do damage.  Some objects, such as weapons, or
-        flasks of oil, can do a substantial amount of damage.  This
-        command requires a direction, and can take a target.  This command
-        takes some energy.
-        In many instances, you may be able to throw part of the terrain you
-        are on. Some items will also apply the appropriate damage type to
-        the monster they are thrown against and the ground underneath;
-        others may be consumed by unintelligent monsters or animals if
-        thrown to them.
 
         Important note: In order to take advantage of throwing weapons such
         as daggers, batons, darts, javelins and spears, and the additional

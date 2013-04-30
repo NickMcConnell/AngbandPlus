@@ -69,6 +69,11 @@ typedef byte byte_wid[DUNGEON_WID];
 typedef s16b s16b_wid[DUNGEON_WID];
 
 
+/**** Available Function Definitions ****/
+
+typedef void (*print_list_func)(const s16b *sn, int num, int y, int x);
+
+
 
 /**** Available Structs ****/
 
@@ -201,6 +206,9 @@ struct town_type
 	u16b store[MAX_STORES];
 	dungeon_zone zone[MAX_DUNGEON_ZONES];
 
+	byte max_depth;
+	byte unused;
+	s16b unused2;
 };
 
 
@@ -365,12 +373,13 @@ struct object_kind
 	byte sval;      /* Object sub type */
 
 	s16b pval;      /* Object extra info */
+	s16b charges;   /* Object charges info */
 
 	s16b to_h;      /* Bonus to hit */
 	s16b to_d;      /* Bonus to damage */
 	s16b to_a;      /* Bonus to armor */
 
-	s16b ac;/* Base armor */
+	s16b ac;	/* Base armor */
 
 	byte dd, ds;    /* Damage dice/sides */
 
@@ -398,9 +407,6 @@ struct object_kind
 
 
 	s16b flavor;    /* Special object flavor (or zero) */
-
-	bool easy_know; /* This object is always known (if aware) */
-
 
 	bool aware;     /* The player is "aware" of the item's effects */
 
@@ -751,8 +757,10 @@ struct object_type
 	s16b pval;      /* Item extra-parameter */
 
 	byte discount;  /* Discount (if any) */
+	byte feeling;   /* Feeling (if any) */
 
 	byte number;    /* Number of items */
+	byte spare;	/* Spare */
 
 	s16b weight;    /* Item weight */
 
@@ -770,12 +778,10 @@ struct object_type
 
 	byte dd, ds;    /* Damage dice/sides */
 
+	s16b charges;	/* Item charges */
 	s16b timeout;   /* Timeout Counter */
 
-	byte ident;     /* Special flags  */
-
-	byte marked;    /* Object is marked */
-
+	u16b ident;     /* Identify flags  */
 	u16b note;      /* Inscription index */
 
 	byte stackc;    /* Stack count */
@@ -845,7 +851,7 @@ struct monster_type
 	byte tim_invis;	/* Monster is temporarily invisible */
 	byte tim_passw;	/* Monster is temporarily passwall */
 	byte bless;	/* Monster is temporarily blessed */
-	byte beserk;	/* Monster is temporarily beserk */
+	byte berserk;	/* Monster is temporarily beserk */
 
 	byte shield;	/* Monster is temporarily shielded */
 	byte oppose_elem; /* Monster is temporarily resistant to elements */
@@ -1068,8 +1074,8 @@ struct start_item
 	byte sval;	/* Item's sval */
 	byte number_min;/* Minimum starting amount */
 	byte number_max;/* Maximum starting amount */
-	s16b pval_min;	/* Minimum pval */
-	s16b pval_max;	/* Maximum pval */
+	s16b charge_min;/* Minimum charges */
+	s16b charge_max;/* Maximum charges */
 	byte social_min;/* Minimum social class to be given this */
 	byte social_max;/* Maximum social class to be given this */};
 
@@ -1107,15 +1113,20 @@ struct player_class
 	u16b max_attacks;	/* Maximum possible attacks */
 	u16b min_weight;	/* Minimum weapon weight for calculations */
 	u16b att_multiply;	/* Multiplier for attack calculations */
+	u16b chg_weight;	/* Divisor for charging damage calculations */
 
 	byte spell_book;	/* Tval of spell books (if any) */
-	u16b spell_stat;	/* Stat for spells (if any) */
+	byte spell_stat_study;	/* Stat for number of spells */
+	byte spell_stat_mana;	/* Stat for determining mana */
+	byte spell_stat_fail;	/* Stat for determine minimum and decrease in failure rate */
+
 	u16b spell_first;	/* Level of first spell */
 	u16b spell_weight;	/* Weight that hurts spells */
+
 	bool spell_power;       /* Can cast 'powerful' spells */
 
 	bool sense_squared;	/* Pseudo-id squared */
-	bool sense_heavy;	/* Pseudo-id heavy */
+	byte sense_type;	/* Pseudo-id type */
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor */
 
@@ -1200,6 +1211,8 @@ struct spell_type
 	spell_appears appears[MAX_SPELL_APPEARS];
 	spell_cast cast[MAX_SPELL_CASTERS];
 	spell_blow blow[4];
+
+	s16b preq[MAX_SPELL_PREREQUISITES];
 };
 
 /*
@@ -1327,9 +1340,15 @@ struct player_type
 	s16b stun;      /* Timed -- Stun */
 	s16b cursed;    /* Timed -- Curse */
 	s16b amnesia;	/* Timed -- Amnesia */
+	s16b petrify;	/* Timed -- Petrification */
+	s16b stastis;	/* Timed -- Stastis */
+
+	s16b msleep;	/* Timed -- monster induced sleep */
+	s16b psleep;	/* Timed -- player induced sleep */
 
 	s16b protevil;  /* Timed -- Protection */
 	s16b invuln;    /* Timed -- Invulnerable */
+	s16b free_act;  /* Timed -- Free action */
 	s16b hero;      /* Timed -- Heroism */
 	s16b shero;     /* Timed -- Super Heroism */
 	s16b shield;    /* Timed -- Shield Spell */
@@ -1354,9 +1373,10 @@ struct player_type
 
 	byte climbing; /* Currently climbing */
 	byte searching; /* Currently searching */
+	byte charging;	/* Currently charging */
+	byte unused;
 
-	byte dodging;   /* Currently dodging */
-	byte blocking;   /* Currently blocking */
+	u32b disease;	/* Disease types */
 
 	u32b spell_learned1;    /* Spell flags */
 	u32b spell_learned2;    /* Spell flags */
@@ -1386,7 +1406,6 @@ struct player_type
 	bool is_dead;   /* Player is dead */
 
 	bool wizard;    /* Player is in wizard mode */
-
 
 	/*** Temporary fields ***/
 
@@ -1470,6 +1489,9 @@ struct player_type
 	s16b stat_use[A_MAX];   /* Current modified stats */
 	s16b stat_top[A_MAX];   /* Maximal modified stats */
 
+	byte dodging;   	/* Currently dodging */
+	byte blocking;   	/* Currently blocking */
+
 	/*** Extracted fields ***/
 
 	s16b stat_add[A_MAX];   /* Equipment stat bonuses */
@@ -1479,8 +1501,6 @@ struct player_type
 	u32b cur_flags2;
 	u32b cur_flags3;
 	u32b cur_flags4;
-
-	u32b disease;	/* Disease types */
 
 	s16b dis_to_h;  /* Known bonus to hit */
 	s16b dis_to_d;  /* Known bonus to dam */

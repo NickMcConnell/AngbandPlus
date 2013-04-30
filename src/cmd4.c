@@ -160,7 +160,7 @@ void do_cmd_change_name(void)
 		/* Toggle mode */
 		else if ((ke.key == 'h') || (ke.key == '\xff'))
 		{
-			mode = !mode;
+			mode = (mode + 1) % 6;
 		}
 
 		/* Oops */
@@ -1996,8 +1996,8 @@ void do_cmd_visuals(void)
 				/* Skip non-entries */
 				if (!f_ptr->name) continue;
 
-				/* Skip mimic entries */
-				if (f_ptr->mimic != i) continue;
+				/* Skip mimic entries -- except invisible trap */
+				if ((f_ptr->mimic != i) && (i != FEAT_INVIS)) continue;
 
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
@@ -2848,6 +2848,32 @@ void do_cmd_timeofday()
 	msg_format("This is %s of the %s year of the third age.",
 	           get_month_name(day, cheat_xtra, FALSE), buf2);
 
+	/* Display location */
+	if (p_ptr->depth == min_depth(p_ptr->dungeon))
+	{
+		msg_format("You are in %s.", t_name + t_info[p_ptr->dungeon].name);
+	}
+	/* Display depth in feet */
+	else if (depth_in_feet)
+	{
+		dungeon_zone *zone=&t_info[0].zone[0];
+
+		/* Get the zone */
+		get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
+		msg_format("You are %d ft %s %s.",
+			(p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
+				zone->tower ? "high above" : "deep in",
+					t_name + t_info[p_ptr->dungeon].name);
+	}
+	/* Display depth */
+	else
+	{
+		msg_format("You are on level %d of %s.",
+			p_ptr->depth - min_depth(p_ptr->dungeon),
+				t_name + t_info[p_ptr->dungeon].name);
+	}
+
 	/* Message */
 	if (cheat_xtra)
 	{
@@ -2872,7 +2898,7 @@ void do_cmd_timeofday()
 		else if (hour == MIDNIGHT - 1)
 			msg_print("It is almost midnight.");
 		else if (hour < MIDNIGHT)
-			msg_format("There are %d hours until midnight.", MIDDAY - hour);
+			msg_format("There are %d hours until midnight.", MIDNIGHT - hour);
 	}
 }
 
@@ -3895,6 +3921,8 @@ void do_cmd_save_screen(void)
 
 	char buf[1024];
 
+	/* Click! */
+	sound(MSG_SCREENDUMP);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
@@ -4108,8 +4136,10 @@ void do_cmd_save_screen_html(void)
 
 
 #ifdef ALLOW_BORG_GRAPHICS
+#if 0
 	/* Initialize the translation table for the borg */
 	init_translate_visuals();
+#endif
 #endif /* ALLOW_BORG_GRAPHICS */
 
 	/* Message */
@@ -5759,7 +5789,7 @@ static void do_cmd_knowledge_ego_items(void)
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
 	int *object_idx;
-	int delay;
+	int delay = 0;
 
 	int column = 0;
 	bool flag;
@@ -5949,7 +5979,7 @@ static void do_cmd_knowledge_ego_items(void)
 					if (i_ptr->note) continue;
 		
 					/* Auto-inscribe */
-					if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = e_ptr->note;
+					if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = e_ptr->note;
 
 				}
 				break;
@@ -5973,7 +6003,7 @@ static void do_cmd_knowledge_ego_items(void)
 					if (i_ptr->name2 != object_idx[object_cur]) continue;
 		
 					/* Auto-inscribe */
-					if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = 0;
+					if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
 
 				}
 				break;
@@ -6002,7 +6032,7 @@ static void do_cmd_knowledge_ego_items(void)
 						if (i_ptr->note) continue;
 			
 						/* Auto-inscribe */
-						if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = note_idx;
+						if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = note_idx;
 	
 					}
 				}
@@ -6416,7 +6446,7 @@ static void do_cmd_knowledge_objects(void)
 						if (i_ptr->note) continue;
 		
 						/* Auto-inscribe */
-						if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = k_ptr->note;
+						if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = k_ptr->note;
 					}
 				}
 				break;
@@ -6471,7 +6501,7 @@ static void do_cmd_knowledge_objects(void)
 						if (i_ptr->note) continue;
 			
 						/* Auto-inscribe */
-						if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = note_idx;
+						if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = note_idx;
 					}
 		
 				}
@@ -7001,6 +7031,7 @@ static void do_cmd_knowledge_features(void)
  * Display contents of the Home. Code taken from the player death interface 
  * and the show known objects function. -LM-
  */
+
 static void do_cmd_knowledge_home(void)
 {
 	int k;

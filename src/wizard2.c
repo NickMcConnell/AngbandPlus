@@ -325,10 +325,10 @@ static int wiz_create_itemtype(void)
 	cptr tval_desc;
 	char ch;
 
-	int choice[60];
-	static const char choice_name[] = "abcdefghijklmnopqrst"
-	                                  "ABCDEFGHIJKLMNOPQRST"
-	                                  "0123456789:;<=>?@%&*";
+	int choice[78];
+	static const char choice_name[] = "abcdefghijklmnopqrstuvwxyz"
+	                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	                                  "0123456789:;<=>?@%&*(){}[]";
 	const char *cp;
 
 	char buf[160];
@@ -338,10 +338,10 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-        for (num = 0; (num < 60) && object_group_tval[num]; num++)
+        for (num = 0; (num < 78) && object_group_tval[num]; num++)
 	{
-		row = 2 + (num % 20);
-		col = 30 * (num / 20);
+		row = 2 + (num % 26);
+		col = 30 * (num / 26);
 		ch  = choice_name[num];
                 prt(format("[%c] %s", ch, object_group_text[num]), row, col);
 	}
@@ -371,7 +371,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole item list. */
-	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 78) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -382,8 +382,8 @@ static int wiz_create_itemtype(void)
 			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
+			row = 2 + (num % 26);
+			col = 30 * (num / 26);
 			ch  = choice_name[num];
 
 			/* Get the "name" of object "i" */
@@ -525,7 +525,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		i_ptr->iy = o_ptr->iy;
 		i_ptr->ix = o_ptr->ix;
 		i_ptr->next_o_idx = o_ptr->next_o_idx;
-		i_ptr->marked = o_ptr->marked;
+		i_ptr->ident = o_ptr->ident;
 
 		/* Apply changes */
 		object_copy(o_ptr, i_ptr);
@@ -795,6 +795,15 @@ static void do_cmd_wiz_play(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
 
 	/* Save screen */
 	screen_save();
@@ -917,6 +926,9 @@ static void wiz_create_item(void)
 
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+
+	/* Hack -- use repeat count to specify quantity */
+	if (p_ptr->command_arg) i_ptr->number = p_ptr->command_arg;
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1487,7 +1499,10 @@ void do_cmd_debug(void)
 		/* Detect everything */
 		case 'd':
 		{
-			detect_all();
+			bool cancel = FALSE;
+			bool known = TRUE;
+
+			process_spell_flags(92, 100, &cancel, &known);
 			break;
 		}
 

@@ -189,6 +189,7 @@
 #define IDM_OPTIONS_GRAPHICS_ADAM   402
 #define IDM_OPTIONS_GRAPHICS_DAVID  403
 #define IDM_OPTIONS_GRAPHICS_DAVID_ISO  404
+#define IDM_OPTIONS_GRAPHICS_NICE   405
 #define IDM_OPTIONS_TRPTILE         407
 #define IDM_OPTIONS_DBLTILE         408
 #define IDM_OPTIONS_BIGTILE         409
@@ -543,7 +544,7 @@ static bool can_use_sound = FALSE;
 /*
  * An array of sound file names
  */
-static cptr sound_file[SOUND_MAX][SAMPLE_MAX];
+static cptr sound_file[MSG_MAX][SAMPLE_MAX];
 
 #endif /* USE_SOUND */
 
@@ -922,6 +923,79 @@ static void term_getsize(term_data *td)
 	if (td->cols < 1) td->cols = 1;
 	if (td->rows < 1) td->rows = 1;
 
+	if (use_graphics_nice)
+	{
+		switch (use_graphics)
+		{
+			case GRAPHICS_DAVID_GERVAIS_ISO:
+			{
+				/* Reset the tile info */
+				td->tile_wid = 54;
+				td->tile_hgt = 54;
+				break;
+			}
+
+			case GRAPHICS_DAVID_GERVAIS:
+			{
+				/* Reset the tile info */
+				td->tile_wid = 32;
+				td->tile_hgt = 32;
+				break;
+			}
+
+			case GRAPHICS_ADAM_BOLT:
+			{
+				/* Reset the tile info */
+				td->tile_wid = 16;
+				td->tile_hgt = 16;
+				break;
+			}
+
+			case GRAPHICS_ORIGINAL:
+			{
+				/* Reset the tile info */
+				td->tile_wid = 8;
+				td->tile_hgt = 8;
+				break;
+			}
+
+			case GRAPHICS_NONE:
+			{
+				/* Reset the tile info */
+				td->tile_wid = td->font_wid;
+				td->tile_hgt = td->font_hgt;
+				break;
+			}
+
+		}
+
+		use_trptile = FALSE;
+		use_dbltile = FALSE;
+		use_bigtile = FALSE;
+
+		if ((td->tile_hgt >= td->font_hgt * 3) && (td->tile_wid >= td->font_wid * 3))
+		{
+			use_trptile = TRUE;
+			td->tile_wid /= 3;
+			td->tile_hgt /= 3;
+		}
+		else if ((td->tile_hgt >= td->font_hgt * 2) && (td->tile_wid >= td->font_wid * 2))
+		{
+			use_dbltile = TRUE;
+			td->tile_wid /= 2;
+			td->tile_hgt /= 2;
+		}
+
+		if (td->tile_wid >= td->font_wid * 2)
+		{
+			use_bigtile = TRUE;
+			td->tile_wid /= 2;
+		}
+
+		if (td->tile_wid < td->font_wid) td->tile_wid = td->font_wid;
+		if (td->tile_hgt < td->font_hgt) td->tile_hgt = td->font_hgt;
+	}
+
 	/* Window sizes */
 	wid = td->cols * td->tile_wid + td->size_ow1 + td->size_ow2;
 	hgt = td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2;
@@ -1039,6 +1113,10 @@ static void save_prefs(void)
 	sprintf(buf, "%d", arg_graphics);
 	WritePrivateProfileString("Angband", "Graphics", buf, ini_file);
 
+	/* Save the "use_graphics_nice" flag */
+	strcpy(buf, arg_graphics_nice ? "1" : "0");
+	WritePrivateProfileString("Angband", "Graphics_Nice", buf, ini_file);
+
 	/* Save the "use_trptile" flag */
 	strcpy(buf, use_trptile ? "1" : "0");
 	WritePrivateProfileString("Angband", "Trptile", buf, ini_file);
@@ -1131,6 +1209,9 @@ static void load_prefs(void)
 
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
+
+	/* Extract the "arg_graphics" flag */
+	arg_graphics_nice = GetPrivateProfileInt("Angband", "Graphics_Nice", TRUE, ini_file);
 
 	/* Extract the "use_trptile" flag */
 	use_trptile = GetPrivateProfileInt("Angband", "Trptile", FALSE, ini_file);
@@ -1252,7 +1333,7 @@ static void load_sound_prefs(void)
 	/* Access the sound.cfg */
 	path_build(ini_path, sizeof(ini_path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
 
-	for (i = 0; i < SOUND_MAX; i++)
+	for (i = 0; i < MSG_MAX; i++)
 	{
 		/* Ignore empty sound strings */
 		if (!angband_sound_name[i][0]) continue;
@@ -1844,6 +1925,8 @@ static errr Term_xtra_win_react(void)
 {
 	int i;
 
+	/* Get the main window */
+	term_data *td = &data[0];
 
 	/* Simple color */
 	if (colors16)
@@ -1940,6 +2023,22 @@ static errr Term_xtra_win_react(void)
 
 #ifdef USE_GRAPHICS
 
+	/* Handle "arg_graphics_nice" */
+	if (use_graphics_nice != arg_graphics_nice)
+	{
+		/* Change setting */
+		use_graphics_nice = arg_graphics_nice;
+
+		/* HACK - Assume bizarre */
+		td->bizarre = TRUE;
+
+		/* Analyze the font */
+		term_getsize(td);
+
+		/* Resize the window */
+		term_window_resize(td);
+	}
+
 	/* Handle "arg_graphics" */
 	if (use_graphics != arg_graphics)
 	{
@@ -1971,6 +2070,18 @@ static errr Term_xtra_win_react(void)
 		else
 		{
 			Term->always_draw = FALSE;
+		}
+
+		if (use_graphics_nice)
+		{
+			/* HACK - Assume bizarre */
+			td->bizarre = TRUE;
+
+			/* Analyze the font */
+			term_getsize(td);
+
+			/* Resize the window */
+			term_window_resize(td);
 		}
 
 		/* Reset visuals */
@@ -2121,7 +2232,7 @@ static errr Term_xtra_win_sound(int v)
 	if (!use_sound) return (1);
 
 	/* Illegal sound */
-	if ((v < 0) || (v >= SOUND_MAX)) return (1);
+	if ((v < 0) || (v >= MSG_MAX)) return (1);
 
 #ifdef USE_SOUND
 
@@ -3326,6 +3437,8 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_NICE,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_TRPTILE,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_DBLTILE,
@@ -3362,6 +3475,8 @@ static void setup_menus(void)
 	CheckMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO,
 	              (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO ? MF_CHECKED : MF_UNCHECKED));
 
+	CheckMenuItem(hm, IDM_OPTIONS_GRAPHICS_NICE,
+	              (arg_graphics_nice ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_TRPTILE,
 	              (use_trptile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_DBLTILE,
@@ -3391,6 +3506,7 @@ static void setup_menus(void)
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_ADAM, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO, MF_ENABLED);
+		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_NICE, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_TRPTILE, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_DBLTILE, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_BIGTILE, MF_ENABLED);
@@ -3878,6 +3994,12 @@ static void process_menus(WORD wCmd)
 		case IDM_WINDOW_FONT_6:
 		case IDM_WINDOW_FONT_7:
 		{
+			if ((use_graphics_nice) && (!inkey_flag || !initialized))
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
 			i = wCmd - IDM_WINDOW_FONT_0;
 
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
@@ -3885,6 +4007,12 @@ static void process_menus(WORD wCmd)
 			td = &data[i];
 
 			term_change_font(td);
+
+			if (use_graphics_nice)
+			{
+				/* Hack -- Force redraw */
+				Term_key_push(KTRL('R'));
+			}
 
 			break;
 		}
@@ -4130,6 +4258,27 @@ static void process_menus(WORD wCmd)
 				/* Hack -- Force redraw */
 				Term_key_push(KTRL('R'));
 			}
+
+			break;
+		}
+
+		case IDM_OPTIONS_GRAPHICS_NICE:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "arg_graphics_nice" */
+			arg_graphics_nice = !arg_graphics_nice;
+
+			/* React to changes */
+			Term_xtra_win_react();
+
+			/* Mega-Hack : Redraw screen */
+			Term_key_push(KTRL('R'));
 
 			break;
 		}
@@ -5288,7 +5437,7 @@ static void hook_quit(cptr str)
 
 #ifdef USE_SOUND
 	/* Free the sound names */
-	for (i = 0; i < SOUND_MAX; i++)
+	for (i = 0; i < MSG_MAX; i++)
 	{
 		for (j = 0; j < SAMPLE_MAX; j++)
 		{

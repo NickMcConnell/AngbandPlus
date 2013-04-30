@@ -101,6 +101,7 @@ ANGBAND MENU
 			MENUITEM "Term-6 window", 276
 			MENUITEM "Term-7 window", 277
 		}
+
 	}
 
 	POPUP "&Options"
@@ -112,6 +113,8 @@ ANGBAND MENU
 			MENUITEM "&Adam Bolt's tiles", 402
 			MENUITEM "&David Gervais' tiles", 403
 			MENUITEM "David Gervais' &iso-tiles (experimental)", 404
+			MENUITEM SEPARATOR
+			MENUITEM "Enable nice &graphics", 405
 			MENUITEM SEPARATOR
 			MENUITEM "&Triple tile mode", 407
 			MENUITEM "Do&uble tile mode", 408

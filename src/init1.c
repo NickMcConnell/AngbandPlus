@@ -174,8 +174,21 @@ static cptr r_info_blow_method[] =
 	"SHOT",
 	"ARC_20",
 	"ARC_30",
+	"ARC_40",
+	"ARC_50",
 	"ARC_60",
 	"FLASK",
+	"TRAIL",
+	"SHRIEK",
+	"BOLT_MINOR",
+	"BALL_MINOR",
+	"BALL_II",
+	"BALL_III",
+	"AURA_MINOR",
+	"8WAY",
+	"8WAY_II",
+	"8WAY_III",
+	"SWARM",
 	NULL
 };
 
@@ -292,6 +305,15 @@ static cptr r_info_blow_effect[] =
 	"BATTER",
 	"BLIND_WEAK",
 	"RAISE_DEAD",
+	"GAIN_MANA",
+	"FORGET",
+	"CURSE",
+	"DISPEL",
+	"STASTIS",
+	"PETRIFY",
+	"WEB",
+	"BLOOD",
+	"SLIME",
 	NULL
 };
 
@@ -476,9 +498,9 @@ static cptr r_info_flags2[] =
 	"PASS_WALL",
 	"KILL_WALL",
 	"ARCHER",
-	"KILL_BODY",
+	"EAT_BODY",
 	"TAKE_ITEM",
-	"KILL_ITEM",
+	"TRAIL",
 	"SNEAKY",
 	"WARRIOR",
 	"PRIEST",
@@ -537,7 +559,7 @@ static cptr r_info_flags4[] =
 	"BLOW_2",
 	"BLOW_3",
 	"BLOW_4",
-	"SHRIEK",
+	"ADD_AMMO",
 	"QUAKE",
 	"EXPLODE",
 	"AURA",
@@ -1140,12 +1162,10 @@ static cptr s_info_flags1[] =
 	"DETECT_OBJECT",
 	"DETECT_MAGIC",
 	"DETECT_CURSE",
+	"DETECT_POWER",
 	"DETECT_MONSTER",
 	"DETECT_EVIL",
-	"DETECT_INVIS",
-	"DETECT_ANIMAL",
-	"DETECT_UNDEAD",
-	"DETECT_DEMON",
+	"DETECT_LIFE",
 	"MAP_AREA",
 	"WIZ_LITE",
 	"LITE_ROOM",
@@ -1153,9 +1173,11 @@ static cptr s_info_flags1[] =
 	"FORGET",
 	"SELF_KNOW",
 	"IDENT",
-	"IDENT_PACK",
+	"IDENT_MAGIC",
 	"IDENT_SENSE",
 	"IDENT_BONUS",
+	"IDENT_RUNES",
+	"IDENT_VALUE",
 	"IDENT_RUMOR",
 	"IDENT_FULLY",
 	"ACQUIREMENT",
@@ -1224,15 +1246,15 @@ static cptr s_info_flags3[] =
 	"CURE_CHR",
 	"INC_EXP",
 	"CURE_EXP",
-	"SLOW_MANA",
-	"CURE_MANA",
+	"FREE_ACT",
+	"CURE_MEM",
 	"SLOW_CURSE",
 	"CURE_CURSE",
-	"SLOW_POIS",
-	"CURE_POIS",
 	"SLOW_CUTS",
 	"CURE_CUTS",
+	"SLOW_STUN",
 	"CURE_STUN",
+	"CURE_POIS",
 	"CURE_CONF",
 	"CURE_FOOD",
 	"CURE_FEAR",
@@ -1266,9 +1288,9 @@ static cptr s_info_types[] =
 	"EARTHQUAKE",
 	"DESTRUCTION",
 	"CURE_DISEASE",
-	"XXX2",
-	"XXX3",
-	"XXX4",
+	"SLOW_CONF",
+	"SLOW_POIS",
+	"IDENT_PACK",
 	"XXX5",
 	"XXX6",
 	"XXX7",
@@ -2706,7 +2728,7 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, extra, wgt;
+		int level, charges, wgt;
 		long cost;
 
 		/* There better be a current k_ptr */
@@ -2714,11 +2736,11 @@ errr parse_k_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			    &level, &extra, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
+			    &level, &charges, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		k_ptr->level = level;
-		k_ptr->extra = extra;
+		k_ptr->charges = charges;
 		k_ptr->weight = wgt;
 		k_ptr->cost = cost;
 	}
@@ -3663,9 +3685,15 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Hack -- nonliving monsters */
 		/* Death by Physical attack -- non-living monster */
-		if (strchr("Evg", r_ptr->d_char))
+		if (strchr("EvgWLzsN\\/~[]{}", r_ptr->d_char))
 		{
 			r_ptr->flags3 |= RF3_NONLIVING;
+		}
+
+		/* Hack -- nonvocal monsters */
+		if (strchr("ejmv\\/~[]{}", r_ptr->d_char))
+		{
+			r_ptr->flags3 |= RF3_NONVOCAL;
 		}
 
 		/* Canines and hounds and ring wraiths have super scent */
@@ -3855,6 +3883,13 @@ errr parse_r_info(char *buf, header *head)
 
 			/* Start the next entry */
 			s = t;
+		}
+
+		/* Hack -- nonliving monsters */
+		/* Death by Physical attack -- non-living monster */
+		if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON))
+		{
+			r_ptr->flags3 |= RF3_NONLIVING;
 		}
 	}
 
@@ -4355,7 +4390,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div, sense_heavy, sense_squared;
+		int mhp, exp, sense_div, sense_type, sense_squared;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
@@ -4363,7 +4398,7 @@ errr parse_c_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (6 != sscanf(buf+2, "%d:%d:%ld:%d:%d:%d",
-			    &mhp, &exp, &sense_base, &sense_div, &sense_heavy, &sense_squared))
+			    &mhp, &exp, &sense_base, &sense_div, &sense_type, &sense_squared))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4371,46 +4406,49 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		pc_ptr->sense_div = sense_div;
-		pc_ptr->sense_heavy = sense_heavy;
+		pc_ptr->sense_type = sense_type;
 		pc_ptr->sense_squared = sense_squared;
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
 	else if (buf[0] == 'A')
 	{
-		int max_attacks, min_weight, att_multiply;
+		int max_attacks, min_weight, att_multiply, chg_weight;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &max_attacks, &min_weight, &att_multiply))
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			    &max_attacks, &min_weight, &att_multiply, &chg_weight))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->max_attacks = max_attacks;
 		pc_ptr->min_weight = min_weight;
 		pc_ptr->att_multiply = att_multiply;
+		pc_ptr->chg_weight = chg_weight;
 	}
 
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_book, spell_stat, spell_first, spell_weight, spell_power;
+		int spell_book, spell_stat_study, spell_stat_mana, spell_stat_fail, spell_first, spell_weight, spell_power;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-		&spell_book, &spell_stat,
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+		&spell_book, &spell_stat_study, &spell_stat_mana, &spell_stat_fail,
 		&spell_first, &spell_weight, &spell_power))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->spell_book = spell_book;
-		pc_ptr->spell_stat = spell_stat;
+		pc_ptr->spell_stat_study = spell_stat_study;
+		pc_ptr->spell_stat_mana = spell_stat_mana;
+		pc_ptr->spell_stat_fail = spell_stat_fail;
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
 		pc_ptr->spell_power = spell_power;
@@ -4440,7 +4478,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'E' for "Starting Equipment" */
 	else if (buf[0] == 'E')
 	{
-		int tval, sval, number_min, number_max, pval_min, pval_max, social_min, social_max;
+		int tval, sval, number_min, number_max, charge_min, charge_max, social_min, social_max;
 
 		start_item *e_ptr;
 
@@ -4452,7 +4490,7 @@ errr parse_c_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			    &tval, &sval, &number_min, &number_max, &pval_min, &pval_max, &social_min, &social_max)) return (PARSE_ERROR_GENERIC);
+			    &tval, &sval, &number_min, &number_max, &charge_min, &charge_max, &social_min, &social_max)) return (PARSE_ERROR_GENERIC);
 
 		if ((number_min < 0) || (number_max < 0) || (number_min > 99) || (number_max > 99))
 			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
@@ -4462,8 +4500,8 @@ errr parse_c_info(char *buf, header *head)
 		e_ptr->sval = sval;
 		e_ptr->number_min = number_min;
 		e_ptr->number_max = number_max;
-		e_ptr->pval_min = pval_min;
-		e_ptr->pval_max = pval_max;
+		e_ptr->charge_min = charge_min;
+		e_ptr->charge_max = charge_max;
 		e_ptr->social_min = social_min;
 		e_ptr->social_max = social_max;
 
@@ -4826,6 +4864,22 @@ errr parse_s_info(char *buf, header *head)
 		s_ptr->cast[i].fail = fail;
 		s_ptr->cast[i].min = min;
 
+	}
+
+	/* Process 'P' for "Pre-requisites" */
+	else if (buf[0] == 'P')
+	{
+		int p0, p1;
+
+		/* There better be a current s_ptr */
+		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%d:%d", &p0, &p1)) return (PARSE_ERROR_GENERIC);
+
+		/* Extract the prerequisites */
+		s_ptr->preq[0] = p0;
+		s_ptr->preq[1] = p1;
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -6319,7 +6373,6 @@ static long eval_max_dam(monster_race *r_ptr)
 					/*Misc flag4 flags*/
 					case 0:
 					{
-						if (flag_counter == RF4_SHRIEK) this_dam = rlev / 2;
 						break;
 					}
 
@@ -6339,9 +6392,11 @@ static long eval_max_dam(monster_race *r_ptr)
 						else if (flag_counter == RF6_DARKNESS) this_dam = rlev;
 						else if (flag_counter == RF6_TRAPS) this_dam = rlev;
 						else if (flag_counter == RF6_FORGET) this_dam = rlev / 3;
+						else if (flag_counter == RF6_DISPEL) this_dam = rlev;
 						else if (flag_counter == RF6_ILLUSION) this_dam = rlev;
 						else if (flag_counter == RF6_DRAIN_MANA) this_dam = rlev * 2;
 						else if (flag_counter == RF6_HUNGER) this_dam = rlev;
+						else if (flag_counter == RF6_PROBE) this_dam = rlev / 3;
 						else if (flag_counter == RF6_SCARE) this_dam = rlev;
 						else if (flag_counter == RF6_BLIND) this_dam = rlev;
 						else if (flag_counter == RF6_CONF) this_dam = rlev;
@@ -6639,6 +6694,8 @@ static long eval_max_dam(monster_race *r_ptr)
 					case RBM_BLAST: mana = 3; range = 5; break;
 					case RBM_WALL: mana = 6; range = MAX_SIGHT; break;
 					case RBM_BALL: mana = 4; range = MAX_SIGHT; break;
+					case RBM_BALL_II: mana = 5; range = MAX_SIGHT; break;
+					case RBM_BALL_III: mana = 6; range = MAX_SIGHT; break;
 					case RBM_CLOUD: mana = 5; range = MAX_SIGHT; break;
 					case RBM_STORM: mana = 6; range = MAX_SIGHT; break;
 					case RBM_BREATH: mana = 0; range = 6; break;
@@ -6801,7 +6858,6 @@ static long eval_hp_adjust(monster_race *r_ptr)
 
 	/* Miscellaneous improvements */
 	if (r_ptr->flags2 & RF2_REGENERATE) {hp *= 10; hp /= 9;}
-	if (r_ptr->flags9 & RF9_EVASIVE) 	{hp *= 3; hp /= 2;}
 	if (r_ptr->flags2 & RF2_PASS_WALL) 	{hp *= 3; hp /= 2;}
 	else if (r_ptr->flags6 & RF6_WRAITHFORM) {hp *= 6; hp /= 5;}
 
@@ -6849,6 +6905,12 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (r_ptr->flags9 & RF9_IM_BLUNT) 	resists += 5;
 	else if (r_ptr->flags9 & RF9_RES_BLUNT) resists += 2;
 
+	/* Hack -- Huge = tough */
+	if (r_ptr->flags3 & RF3_HUGE) resists += 3;
+
+	/* Hack -- Evasive = tough */
+	if (r_ptr->flags9 & RF9_EVASIVE) resists += 2;
+ 
 	/* Bonus for multiple basic resists and weapon resists */
 	if (resists >= 10) resists *= 6;
 	else if (resists >= 10) resists *= 4;

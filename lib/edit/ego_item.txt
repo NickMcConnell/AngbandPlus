@@ -92,7 +92,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:0.6.1
 
 ### Racial Equipment ###
 
@@ -135,7 +135,7 @@ F:ELF
 
 N:8:of Resistance
 X:30:20:0
-W:10:2:0:12500
+W:0:2:0:12500
 C:0:0:10:0
 T:34:0:99
 T:36:0:99
@@ -148,7 +148,7 @@ Y:8:3
 
 N:9:of the Quendi
 X:30:25:2
-W:20:4:0:15000
+W:0:4:0:15000
 C:0:0:10:3
 T:35:0:99
 T:36:0:99
@@ -172,13 +172,13 @@ Y:2:3
 
 N:11:of Permanence
 X:30:30:2
-W:40:4:0:30000
+W:0:4:0:30000
 C:0:0:20:0
 T:36:2:2
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-Y:17:3
+Y:17:5
 
 ### Heavy metal armor only, not rusty & heavy shields ###
 
@@ -197,7 +197,7 @@ Y:9:4
 
 N:13:of Preservation
 X:32:25:2
-W:40:4:0:20000
+W:60:4:0:20000
 C:0:0:20:0
 T:34:0:99
 T:35:0:99
@@ -214,7 +214,7 @@ Y:20:3
 
 N:16:of Purity
 X:33:6:0
-W:10:2:0:2000
+W:0:2:0:2000
 C:0:0:0:4
 T:33:0:99
 F:RES_POIS | CHR
@@ -222,7 +222,7 @@ Y:4:3
 
 N:17:of Brilliance
 X:33:11:0
-W:10:2:0:1000
+W:0:2:0:1000
 C:0:0:0:5
 T:32:0:99
 T:33:0:99
@@ -272,7 +272,7 @@ Y:19:3
 
 N:27:of the Magi
 X:33:15:3
-W:20:4:0:7500
+W:0:4:0:7500
 C:0:0:0:3
 T:33:0:99
 T:36:2:2
@@ -285,7 +285,7 @@ Y:17:3
 
 N:28:of Might
 X:33:19:3
-W:20:4:0:7500
+W:0:4:0:7500
 C:0:0:0:3
 T:24:0:99
 T:31:2:99
@@ -298,7 +298,7 @@ Y:23:3
 
 N:29:of Lordliness
 X:33:17:3
-W:10:2:0:7500
+W:0:2:0:7500
 C:0:0:0:3
 T:24:0:99
 T:33:0:99
@@ -310,7 +310,7 @@ Y:5:3
 
 N:30:of Seeing
 X:33:8:0
-W:10:2:0:2000
+W:0:2:0:2000
 C:0:0:0:5
 T:32:0:99
 T:33:0:99
@@ -321,7 +321,7 @@ Y:12:3
 
 N:36:of Serenity
 X:33:20:0
-W:20:6:0:4000
+W:0:6:0:4000
 T:24:0:99
 T:33:0:99
 F:RES_SOUND | RES_CONFU | RES_FEAR
@@ -356,7 +356,7 @@ Y:1:3
 
 N:40:(Spiderthread)
 X:31:15:0
-W:20:2:0:1500
+W:0:2:0:1500
 C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD | ANIMAL
@@ -364,7 +364,7 @@ Y:25:2
 
 N:42:of Aman
 X:31:20:2
-W:20:6:0:4000
+W:0:6:0:4000
 C:0:0:20:3
 T:35:0:99
 F:STEALTH | 
@@ -373,7 +373,7 @@ Y:23:3
 
 N:43:of Shadows
 X:31:15:0
-W:20:4:0:1500
+W:0:4:0:1500
 C:0:0:0:5
 T:35:0:99
 F:STEALTH | RES_DARK | HIDE_TYPE
@@ -424,6 +424,13 @@ Y:15:3
 
 ### Gloves/Boots ###
 
+N:51:of Power
+X:22:0:0
+W:0:6:0:2500
+C:5:5:0:5
+T:31:0:99
+F:STR | SHOW_MODS | HIDE_TYPE
+
 N:52:of Thievery
 X:34:22:0
 W:40:12:0:5000
@@ -457,7 +464,7 @@ Y:15:3
 
 N:60:of Stability
 X:35:20:0
-W:20:10:0:5000
+W:0:10:0:5000
 T:30:0:99
 T:35:0:99
 F:RES_NEXUS | FEATHER | ANCHOR
@@ -568,7 +575,7 @@ Y:3:4
 
 N:72:of Corrosion
 X:24:20:0
-W:10:10:0:5000
+W:0:10:0:5000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -578,7 +585,7 @@ Y:1:3
 
 N:73:of Lightning
 X:24:20:0
-W:10:10:0:4500
+W:0:10:0:4500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -588,7 +595,7 @@ Y:22:3
 
 N:74:of Flame
 X:24:15:0
-W:5:8:0:3500
+W:0:8:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -598,7 +605,7 @@ Y:13:3
 
 N:75:of Frost
 X:24:15:0
-W:5:8:0:3000
+W:0:8:0:3000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -636,11 +643,67 @@ T:23:0:99
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | CHR
 Y:13:5
 
+N:80:'Sunspike'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:22:0:99
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE |
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC |
+F:STATIC
+
+N:81:'Starhammer'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:21:0:99
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE |
+F:BRAND_COLD | RES_COLD | IGNORE_COLD |
+F:SILENT
+
+N:82:'Skyblade'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:23:0:99
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC |
+F:BRAND_COLD | RES_COLD | IGNORE_COLD |
+F:WINDY
+
+N:83:'Earthsblood'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:23:0:99
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC |
+F:BRAND_ACID | RES_ACID | IGNORE_ACID |
+F:ANCHOR
+
+N:84:'Seaspire'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:21:0:99
+F:BRAND_ACID | RES_ACID | IGNORE_ACID |
+F:BRAND_COLD | RES_COLD | IGNORE_COLD |
+F:HURT_ELEC
+
+N:85:'Forgehammer'
+X:24:25:2
+W:50:20:0:12000
+C:6:6:0:3
+T:22:0:99
+F:BRAND_ACID | RES_ACID | IGNORE_ACID |
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE |
+F:HURT_WATER
+
+### 86 - 87 Unused ###
+
 # The *Slay* weapons (8)
 
 N:88:of Smite Nature
 X:24:20:0
-W:20:20:0:6000
+W:0:20:0:6000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -651,7 +714,7 @@ Y:3:3
 
 N:89:of Holy Light
 X:24:20:3
-W:20:20:0:5000
+W:0:20:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -662,7 +725,7 @@ Y:21:4
 
 N:90:of Smite Undead
 X:24:24:0
-W:20:20:0:8000
+W:0:20:0:8000
 C:0:0:0:2
 T:21:0:18
 T:22:0:99
@@ -673,7 +736,7 @@ Y:18:3
 
 N:91:of Smite Demon
 X:24:16:0
-W:20:20:0:8000
+W:0:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -684,7 +747,7 @@ Y:6:3
 
 N:92:of Orcslaying
 X:24:14:0
-W:20:20:0:4000
+W:0:20:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -695,7 +758,7 @@ Y:10:3
 
 N:93:of Trollslaying
 X:24:14:0
-W:20:20:0:4000
+W:0:20:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -706,7 +769,7 @@ Y:24:3
 
 N:94:of Giantslaying
 X:24:16:0
-W:20:25:0:4000
+W:0:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -717,7 +780,7 @@ Y:9:3
 
 N:95:of Dragonslaying
 X:24:24:0
-W:20:20:0:8000
+W:0:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -770,7 +833,7 @@ Y:21:3
 
 N:100:of Digging
 X:24:4:0
-W:20:1:0:500
+W:0:1:0:500
 C:0:0:0:4
 T:20:0:99
 O:TUNNEL | BRAND_ACID
@@ -853,6 +916,33 @@ T:18:2:99
 F:BRAND_HOLY | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
 F:IGNORE_FIRE | IGNORE_ACID
 Y:5:3
+
+### Lanterns ###
+
+N:121:of Eldamar
+W:20:8:8:6000
+X:29:10:0
+T:39:1:1
+F:LITE | RES_BLIND | SEE_INVIS | RES_LITE | ELF
+Y:10:3
+
+N:122:of Dimness
+W:0:1:0:0
+X:29:0:0
+T:39:1:1
+C:0:0:0:-9
+F:LITE | INT
+F:AGGRAVATE | LIGHT_CURSE
+Y:16:3
+
+N:123:of Unlight
+W:0:1:0:0
+X:29:0:0
+T:39:1:1
+#C:0:0:0:-9
+#F:LITE
+F:RES_DARK | LIGHT_CURSE
+Y:18:3
 
 ### Special Broken Items ###
 

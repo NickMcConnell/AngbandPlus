@@ -97,6 +97,16 @@ void do_cmd_eat_food(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Use feat */
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
@@ -141,7 +151,7 @@ void do_cmd_eat_food(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
+	(void)set_food(p_ptr->food + o_ptr->charges);
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -202,6 +212,16 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
 	/* Sound */
@@ -245,7 +265,7 @@ void do_cmd_quaff_potion(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Potions can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
+	(void)set_food(p_ptr->food + o_ptr->charges);
 
 	/* Destroy a potion in the pack */
 	if (item >= 0)
@@ -280,6 +300,7 @@ void do_cmd_read_scroll(void)
 
 	/* Must be true to let us cancel */
 	bool cancel = TRUE;
+	bool known = FALSE;
 
 	object_type *o_ptr;
 
@@ -298,9 +319,9 @@ void do_cmd_read_scroll(void)
 		msg_print("You have no light to read by.");
 		return;
 	}
-	if (p_ptr->confused)
+	if (p_ptr->shero)
 	{
-		msg_print("You are too confused!");
+		msg_print("You are too enraged!");
 		return;
 	}
 
@@ -325,6 +346,16 @@ void do_cmd_read_scroll(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Use feat */
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
@@ -340,11 +371,14 @@ void do_cmd_read_scroll(void)
 	/* Set style */
 	p_ptr->cur_style |= (1L << WS_SCROLL);
 
+	/* Set if known */
+	if (object_aware_p(o_ptr)) known = TRUE;
+
 	/* Get scroll effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply scroll effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
 	else return;
 
 	/* Clear styles */
@@ -406,6 +440,7 @@ void do_cmd_use_staff(void)
 
 	/* Must be true to let us cancel */
 	bool cancel = TRUE;
+	bool known = FALSE;
 
 	object_type *o_ptr;
 
@@ -413,13 +448,20 @@ void do_cmd_use_staff(void)
 
 	int i;
 
+	/* Berserk */
+	if (p_ptr->shero)
+	{
+		msg_print("You are too enraged!");
+		return;
+	}
+
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -433,7 +475,17 @@ void do_cmd_use_staff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+#if 0
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
 
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+#endif
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -511,12 +563,11 @@ void do_cmd_use_staff(void)
 	}
 
 	/* Notice empty staffs */
-	if (o_ptr->pval <= 0)
+	if (o_ptr->charges <= 0)
 	{
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
-		o_ptr->ident |= (IDENT_SENSE);
-		o_ptr->discount = (INSCRIP_EMPTY);
+		o_ptr->ident |= (IDENT_CHARGES);
 		return;
 	}
 
@@ -526,11 +577,15 @@ void do_cmd_use_staff(void)
 	/* Set styles */
 	p_ptr->cur_style |= (1L << WS_STAFF);
 
+	/* Set if known */
+	if (object_aware_p(o_ptr)) known = TRUE;
+
 	/* Get rod effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply staff effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	else return;
 
 	/* Clear styles */
 	p_ptr->cur_style &= ~(1L << WS_STAFF);
@@ -563,7 +618,7 @@ void do_cmd_use_staff(void)
 	if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
-		o_ptr->pval--;
+		o_ptr->charges--;
 
 		/* Reset the stack count */
 		o_ptr->stackc = 0;
@@ -571,9 +626,9 @@ void do_cmd_use_staff(void)
 
 	/* XXX Hack -- unstack if necessary */
 	if ((o_ptr->number > 1) && 
-	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
-	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
-	  (o_ptr->stackc != 1) && (o_ptr->pval > 2))))
+	((!object_charges_p(o_ptr) && (o_ptr->charges == 2) && (o_ptr->stackc > 1)) ||
+	  (!object_charges_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+	  (o_ptr->stackc != 1) && (o_ptr->charges > 2))))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -596,13 +651,13 @@ void do_cmd_use_staff(void)
 		/* Reduce the charges on the new item */
 		if (o_ptr->stackc > 1)
 		{
-			i_ptr->pval-=2;
+			i_ptr->charges-=2;
 			o_ptr->stackc--;
 		}
 		else if (!o_ptr->stackc)
 		{
-			i_ptr->pval--;
-			o_ptr->pval++;
+			i_ptr->charges--;
+			o_ptr->charges++;
 			o_ptr->stackc = o_ptr->number-1;
 		}
 
@@ -663,12 +718,20 @@ void do_cmd_aim_wand(void)
 
 	/* Must be true to let us cancel */
 	bool cancel = TRUE;
+	bool known = FALSE;
 
 	object_type *o_ptr;
 
 	cptr q, s;
 
 	int i;
+
+	/* Berserk */
+	if (p_ptr->shero)
+	{
+		msg_print("You are too enraged!");
+		return;
+	}
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
@@ -690,6 +753,15 @@ void do_cmd_aim_wand(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
 
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
@@ -769,12 +841,12 @@ void do_cmd_aim_wand(void)
 	}
 
 	/* The wand is already empty! */
-	if (o_ptr->pval <= 0)
+	if (o_ptr->charges <= 0)
 	{
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
-		o_ptr->ident |= (IDENT_SENSE);
-		o_ptr->discount = (INSCRIP_EMPTY);
+		o_ptr->ident |= (IDENT_CHARGES);
+		if (object_aware_p(o_ptr)) object_known(o_ptr);
 		return;
 	}
 
@@ -787,8 +859,11 @@ void do_cmd_aim_wand(void)
 	/* Get wand effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
+	/* Set if known */
+	if (object_aware_p(o_ptr)) known = TRUE;
+
 	/* Apply wand effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
 	else return;
 
 	/* Clear styles */
@@ -822,7 +897,7 @@ void do_cmd_aim_wand(void)
 	if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
-		o_ptr->pval--;
+		o_ptr->charges--;
 
 		/* Reset the stack count */
 		o_ptr->stackc = 0;
@@ -830,9 +905,9 @@ void do_cmd_aim_wand(void)
 
 	/* XXX Hack -- unstack if necessary */
 	if ((o_ptr->number > 1) && 
-	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
-	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
-	  (o_ptr->stackc != 1) && (o_ptr->pval > 2))))
+	((!object_charges_p(o_ptr) && (o_ptr->charges == 2) && (o_ptr->stackc > 1)) ||
+	  (!object_charges_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+	  (o_ptr->stackc != 1) && (o_ptr->charges > 2))))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -855,13 +930,13 @@ void do_cmd_aim_wand(void)
 		/* Reduce the charges on the new item */
 		if (o_ptr->stackc > 1)
 		{
-			i_ptr->pval-=2;
+			i_ptr->charges-=2;
 			o_ptr->stackc--;
 		}
 		else if (!o_ptr->stackc)
 		{
-			i_ptr->pval--;
-			o_ptr->pval++;
+			i_ptr->charges--;
+			o_ptr->charges++;
 			o_ptr->stackc = o_ptr->number-1;
 		}
 
@@ -898,10 +973,13 @@ void do_cmd_aim_wand(void)
 /*
  * Hook to determine if an object is activatable and charged
  */
-static bool item_tester_hook_charged(const object_type *o_ptr)
+static bool item_tester_hook_rod_charged(const object_type *o_ptr)
 {
+	/* Confirm this is a rod */
+	if (o_ptr->tval != TV_ROD) return(FALSE);
+
 	/* Check the recharge */
-      if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
+      	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
 
 	/* Assume charged */
 	return (TRUE);
@@ -923,6 +1001,7 @@ void do_cmd_zap_rod(void)
 
 	/* Must be true to let us cancel */
 	bool cancel = TRUE;
+	bool known = FALSE;
 
 	object_type *o_ptr;
 
@@ -930,11 +1009,15 @@ void do_cmd_zap_rod(void)
 
 	int tmpval, dir;
 
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
+	/* Berserk */
+	if (p_ptr->shero)
+	{
+		msg_print("You are too enraged!");
+		return;
+	}
 
 	/* Restrict choices to charged items */
-	item_tester_hook = item_tester_hook_charged;
+	item_tester_hook = item_tester_hook_rod_charged;
 
 	/* Get an item */
 	q = "Zap which rod? ";
@@ -952,8 +1035,17 @@ void do_cmd_zap_rod(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#if 0
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
 
-
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+#endif
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -1023,7 +1115,7 @@ void do_cmd_zap_rod(void)
 	}
 #endif
 
-	/* Store pval */
+	/* Store charges */
 	tmpval = o_ptr->timeout;
 
 	/* Sound */
@@ -1032,17 +1124,18 @@ void do_cmd_zap_rod(void)
 	/* Hack -- get fake direction */
 	if (!object_aware_p(o_ptr) && (o_ptr->sval < SV_ROD_MIN_DIRECTION)) get_aim_dir(&dir);
 
+	/* Set if known */
+	if (object_aware_p(o_ptr)) known = TRUE;
+
 	/* Get rod effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
-	/* Paranoia */
-	if (power < 0) return;
-
 	/* Apply rod effect */
-	ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	else return;
 
 	/* Time rod out */
-	o_ptr->timeout = o_ptr->pval;
+	o_ptr->timeout = o_ptr->charges;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1295,7 +1388,17 @@ void do_cmd_assemble(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#if 0
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
 
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+#endif
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -1351,6 +1454,17 @@ void do_cmd_assemble(void)
 	{
 		j_ptr = &o_list[0 - item2];
 	}
+#if 0
+	/* In a bag? */
+	if (j_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, j_ptr)) return;
+
+		/* Refer to the item */
+		j_ptr = &inventory[item2];
+	}
+#endif
 
 	/* Initialise svals */
 	src_sval = o_ptr->sval;
@@ -1426,7 +1540,7 @@ void do_cmd_assemble(void)
 		i_ptr->sval = tgt_sval;
 		if (src_sval != k_ptr->sval) i_ptr->weight += k_ptr->weight /2;
 		else i_ptr->weight += k_ptr->weight;
-		if (k_info[i_ptr->k_idx].pval) i_ptr->timeout = randint(k_info[i_ptr->k_idx].pval) + k_info[i_ptr->k_idx].pval;
+		if (k_info[i_ptr->k_idx].charges) i_ptr->timeout = randint(k_info[i_ptr->k_idx].charges) + k_info[i_ptr->k_idx].charges;
 
 		/* Adjust the weight and carry */
 		if (item2 >= 0)
@@ -1509,6 +1623,7 @@ void do_cmd_activate(void)
 
 	/* Must be true to let us cancel */
 	bool cancel= TRUE;
+	bool known = TRUE;
 
 	object_type *o_ptr;
 
@@ -1517,6 +1632,13 @@ void do_cmd_activate(void)
 	int tmpval;
 
 	int i;
+
+	/* Berserk */
+	if (p_ptr->shero)
+	{
+		msg_print("You are too enraged!");
+		return;
+	}
 
 	/* Amnesia */
 	if (p_ptr->amnesia)
@@ -1544,7 +1666,17 @@ void do_cmd_activate(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#if 0
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
 
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+#endif
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -1571,7 +1703,8 @@ void do_cmd_activate(void)
 			break;
 		case TV_STAFF:
 			p_ptr->cur_style |= 1L << WS_STAFF;
-			break; */
+			break;
+*/
 		case TV_AMULET:
 			p_ptr->cur_style |= 1L << WS_AMULET;
 			break;
@@ -1593,7 +1726,8 @@ void do_cmd_activate(void)
 		switch (p_ptr->pstyle)
 		{
 /*			case WS_WAND:
-			case WS_STAFF: */
+			case WS_STAFF:
+*/
 			case WS_AMULET:
 			case WS_RING:
 				chance *= 2;
@@ -1629,7 +1763,7 @@ void do_cmd_activate(void)
 #endif
 
 
-	/* Store pval */
+	/* Store charges */
 	tmpval = o_ptr->timeout;
 
 	/* Activate the artifact */
@@ -1643,7 +1777,7 @@ void do_cmd_activate(void)
 		if (a_ptr->activation)
 		{
 			/* Apply artifact effect */
-			(void)process_spell(a_ptr->activation, 0, &cancel);
+			(void)process_spell(a_ptr->activation, 0, &cancel, &known);
 		}
 		else
 		{
@@ -1654,7 +1788,7 @@ void do_cmd_activate(void)
 			if (power < 0) return;
 
 			/* Apply object effect */
-			(void)process_spell(power, 0, &cancel);
+			(void)process_spell(power, 0, &cancel, &known);
 		}
 
 		/* Set the recharge time */
@@ -1690,12 +1824,12 @@ void do_cmd_activate(void)
 		if (power < 0) return;
 
 		/* Apply object effect */
-		(void)process_spell(power, 0, &cancel);
+		(void)process_spell(power, 0, &cancel, &known);
 
 		if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
 
 		/* Time object out */
-		o_ptr->timeout = rand_int(o_ptr->pval)+o_ptr->pval;
+		o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1769,11 +1903,58 @@ void do_cmd_activate(void)
 
 }
 
+
+
+/*
+ * Hook to determine if an object can be 'applied' to another object.
+ */
+static bool item_tester_hook_apply(const object_type *o_ptr)
+{
+	switch(o_ptr->tval)
+	{
+		case TV_FOOD:
+			if (o_ptr->sval < SV_FOOD_MIN_FOOD) return (TRUE);
+			break;
+		case TV_POTION:
+		case TV_FLASK:
+		case TV_RUNESTONE:
+			return (TRUE);
+	}
+
+	/* Assume not */
+	return (FALSE);
+}
+
+
+/*
+ * Hook to determine if an object can be coated with a potion, mushroom or flask.
+ */
+static bool item_tester_hook_coating(const object_type *o_ptr)
+{
+	switch(o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_ARROW:
+		case TV_BOLT:
+			if (o_ptr->weight < 1000) return (TRUE);
+	}
+
+	/* Assume not */
+	return (FALSE);
+}
+
+
+
 /*
  * Apply rune to an object. Destroys the selected runestone and (maybe)
  * give object powers or name2 or transform into another object of its kind.
+ *
+ * We now also allow potions, mushrooms and flasks to be applied to swords,
+ * polearms, bolts and arrows for various damaging effects. Note that for
+ * balance, these only do 1/5 of the damage that throwing them would apply.
  */
-void do_cmd_apply_rune(void)
+void do_cmd_apply_rune_or_coating(void)
 {
 	int item, item2;
 
@@ -1787,15 +1968,19 @@ void do_cmd_apply_rune(void)
 	int i,ii;
 
 	int rune;
+	int tval, sval;
 
+	bool aware = FALSE;
 	bool use_feat = FALSE;
+	bool brand_ammo = FALSE;
+	bool split = FALSE;
 
 	/* Restrict the choices */
-	item_tester_tval = TV_RUNESTONE;
+	item_tester_hook = item_tester_hook_apply;
 
 	/* Get an item */
-	q = "Apply which runestone? ";
-	s = "You have no runestones.";
+	q = "Apply which runestone, potion, mushroom or flask? ";
+	s = "You have no runestones, potions, mushrooms or flasks.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
 	/* Get the item (in the pack) */
@@ -1810,15 +1995,35 @@ void do_cmd_apply_rune(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Use feat */
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
-	rune = o_ptr->sval;
+	if (o_ptr->tval == TV_RUNESTONE)
+	{
+		/* Get an item to rune */
+		q = "Apply rune to which item? ";
+		s = "You have nothing to apply it to.";
+	}
+	else
+	{
+		/* Get an item to coat */
+		q = "Apply coating to which item? ";
+		s = "You have nothing to apply it to.";
 
-	/* Get an item to fill */
-	q = "Apply rune to which item? ";
-	s = "You have nothing to apply it to.";
+		item_tester_hook = item_tester_hook_coating;
+	}
 
+	/* Get item */
 	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1833,18 +2038,66 @@ void do_cmd_apply_rune(void)
 		j_ptr = &o_list[0 - item2];
 	}
 
+	/* In a bag? */
+	if (j_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item2, q, s, j_ptr)) return;
+
+		/* Refer to the item */
+		j_ptr = &inventory[item2];
+	}
+
+	/* Remove coating */
+	if ((coated_p(j_ptr)) && ((j_ptr->xtra1 != o_ptr->tval) || (j_ptr->xtra2 != o_ptr->sval)))
+	{
+		msg_format("It is %scoated with something.", o_ptr->tval == TV_RUNESTONE ? "" : "already ");
+
+		/* Verify */
+		if (!get_check("Remove the coating? "))
+		{
+			return;
+		}
+
+		/* Clear feeling */
+		if (o_ptr->feeling == INSCRIP_COATED) o_ptr->feeling = 0;
+
+		/* Clear charges */
+		o_ptr->charges = 0;
+		o_ptr->stackc = 0;
+	}
+
+	/* Can't apply if artifact */
 	if ((artifact_p(j_ptr)) || ((j_ptr->xtra1) && (j_ptr->xtra1 < OBJECT_XTRA_MIN_RUNES)))
 	{
 		msg_print("It has hidden powers that prevent this.");
 
-		/* Sense the item */
+		/* Sense the item? */
 		return;
 	}
 
-	if ((j_ptr->xtra1 > OBJECT_XTRA_MIN_RUNES) && (j_ptr->xtra1 != OBJECT_XTRA_MIN_RUNES + rune))
+	/* Get rune */
+	if (o_ptr->tval == TV_RUNESTONE)
+	{
+		rune = o_ptr->sval;
+		tval = -1;
+		sval = -1;
+	}
+	else
+	{
+		rune = -1;
+		tval = o_ptr->tval;
+		sval = o_ptr->sval;
+		aware = k_info[o_ptr->k_idx].aware;
+	}
+
+	/* Overwrite runes */
+	if ((j_ptr->xtra1 >= OBJECT_XTRA_MIN_RUNES)
+		&& (j_ptr->xtra1 < OBJECT_XTRA_MIN_COATS)
+		&& (j_ptr->xtra1 != OBJECT_XTRA_MIN_RUNES + rune))
 	{
 		/* Warning */
-		msg_print("It has other runes applied to it.");
+		msg_format("It has %srunes applied to it.", o_ptr->tval == TV_RUNESTONE ? "other " : "");
 
 		/* Verify */
 		if (!get_check("Overwrite them? "))
@@ -1853,20 +2106,15 @@ void do_cmd_apply_rune(void)
 		}
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain a local object */
-	object_copy(i_ptr, j_ptr);
-
-	/* Modify quantity */
-	i_ptr->number = 1;
-
-	/* Reset stack counter */
-	i_ptr->stackc = 0;
+	/* Hack -- check ammo */
+	switch (j_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+			brand_ammo = TRUE;
+		break;
+	}
 
 	/* Decrease the item (in the pack) */
 	if (item >= 0)
@@ -1879,7 +2127,22 @@ void do_cmd_apply_rune(void)
 		/* Hack -- handle deletion of item slot */
 		if ((inventory[item].number == 0)
 		   && (item < item2)
-			&& (item2 < INVEN_WIELD)) item2--;
+			&& (item2 < INVEN_WIELD) && (item2 >= 0))
+		{
+			item2--;
+
+			/* Get the item (in the pack) */
+			if (item2 >= 0)
+			{
+				j_ptr = &inventory[item2];
+			}
+
+			/* Get the item (on the floor) */
+			else
+			{
+				j_ptr = &o_list[0 - item2];
+			}
+		}
 
 		inven_item_optimize(item);
 	}
@@ -1892,20 +2155,49 @@ void do_cmd_apply_rune(void)
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 
-	/* Decrease the item (in the pack) */
-	if (item2 >= 0)
-	{
-                /* Forget guessed information */
-                if (j_ptr->number == 1) inven_drop_flags(j_ptr);
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
-		inven_item_increase(item2, -1);
-		inven_item_optimize(item2);
-	}
-	/* Decrease the item (from the floor) */
-	else
+	/* Hack -- split stack only if required. This is dangerous otherwise as we may
+	   be calling from a routine where we delete items later. XXX XXX */
+	/* Mega-hack -- we allow 20 arrows/bolts to be coated per application */
+	if ((j_ptr->number > 1) && ((!brand_ammo) || (j_ptr->number > 5)))
 	{
-		floor_item_increase(0 - item2, -1);
-		floor_item_optimize(item2);
+		int qty = (brand_ammo) ? 5 : 1;
+		split = TRUE;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, j_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = qty;
+
+		/* Reset stack counter */
+		i_ptr->stackc = 0;
+
+		/* Decrease the item (in the pack) */
+		if (item2 >= 0)
+		{
+			/* Forget about item */
+			if (j_ptr->number == qty) inven_drop_flags(j_ptr);
+
+			inven_item_increase(item2, -qty);
+			inven_item_describe(item2);
+			inven_item_optimize(item2);
+		}
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item2, -qty);
+			floor_item_describe(0 - item2);
+			floor_item_optimize(0 - item2);
+		}
+
+		/* Hack -- use new temporary item */
+		j_ptr = i_ptr;
 	}
 
         /*
@@ -1913,178 +2205,193 @@ void do_cmd_apply_rune(void)
          * Previously 'not' flags may be added.
          * Previously 'can'/'may' flags may have been removed.
          */
-	i_ptr->ident &= ~(IDENT_MENTAL);
-        drop_all_flags(i_ptr);
+	j_ptr->ident &= ~(IDENT_MENTAL);
+        drop_all_flags(j_ptr);
 
-	if (i_ptr->xtra1 == OBJECT_XTRA_MIN_RUNES + rune)
+	/* Apply runestone */
+	if (rune >= 0)
 	{
-		i_ptr->xtra2++;
-	}
-	else if ((i_ptr->name2) && (e_info[i_ptr->name2].runest == rune))
-	{
-		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-		i_ptr->xtra2 = e_info[i_ptr->name2].runesc + 1;
-	}
-	else if (k_info[i_ptr->k_idx].runest == rune)
-	{
-		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-		i_ptr->xtra2 = k_info[i_ptr->k_idx].runesc + 1;
-	}
-	else
-	{
-		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-		i_ptr->xtra2 = 1;
-	}
-
-	/* Update bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-	for (i = 0; i<z_info->k_max; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		if ((k_ptr->tval == i_ptr->tval) && (k_ptr->runest == rune) && (k_ptr->runesc == i_ptr->xtra2))
+		/* Apply runes */
+		if (j_ptr->xtra1 == OBJECT_XTRA_MIN_RUNES + rune)
 		{
-			msg_print("It glows brightly.");
-
-			/* Polymorph the item */
-			/* XXX We assume weight is the same ? */
-			object_prep(i_ptr, i);
-
-			/* Apply magic (allow artifacts) */
-			apply_magic(i_ptr, object_level, TRUE, FALSE, FALSE);
-
-			/* Add runes */
-			i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-			i_ptr->xtra2 = k_ptr->runesc;
-
-			/* Remove special inscription, if any */
-			if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
-
-			/* Hack -- Clear the "felt" flag */
-			i_ptr->ident &= ~(IDENT_SENSE);
-
-			/* Hack -- Clear the "bonus" flag */
-			i_ptr->ident &= ~(IDENT_BONUS);
-
-			/* Hack -- Clear the "store" flag */
-			i_ptr->ident &= ~(IDENT_STORE);
-
-			/* Hack -- Clear the "known" flag */
-			i_ptr->ident &= ~(IDENT_KNOWN);
-
-			break;
+			j_ptr->xtra2++;
 		}
-	}
-
-	for (i= 0; i<z_info->e_max; i++)
-	{
-		ego_item_type *e_ptr = &e_info[i];
-
-		if ((e_ptr->runest == rune) && (e_ptr->runesc == i_ptr->xtra2))
+		else if ((j_ptr->name2) && (e_info[j_ptr->name2].runest == rune))
 		{
-			for (ii = 0;ii < 3; ii++)
+			j_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+			j_ptr->xtra2 = e_info[j_ptr->name2].runesc + 1;
+		}
+		else if (k_info[j_ptr->k_idx].runest == rune)
+		{
+			j_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+			j_ptr->xtra2 = k_info[j_ptr->k_idx].runesc + 1;
+		}
+		else
+		{
+			j_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+			j_ptr->xtra2 = 1;
+		}
+
+		/* Update bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		for (i = 0; i<z_info->k_max; i++)
+		{
+			object_kind *k_ptr = &k_info[i];
+
+			if ((k_ptr->tval == j_ptr->tval) && (k_ptr->runest == rune) && (k_ptr->runesc == j_ptr->xtra2))
 			{
-				if ((e_ptr->tval[ii] == i_ptr->tval)
-				 && (e_ptr->min_sval[ii]<= i_ptr->sval)
-				  && (e_ptr->max_sval[ii] >= i_ptr->sval))
+				msg_print("It glows brightly.");
+
+				/* Polymorph the item */
+				/* XXX We assume weight is the same ? */
+				object_prep(j_ptr, i);
+
+				/* Apply magic (allow artifacts) */
+				apply_magic(j_ptr, object_level, TRUE, FALSE, FALSE);
+
+				/* Hack -- Set the "runes" flag */
+				j_ptr->ident |= (IDENT_RUNES);
+
+				break;
+			}
+		}
+
+		for (i= 0; i<z_info->e_max; i++)
+		{
+			ego_item_type *e_ptr = &e_info[i];
+
+			if ((e_ptr->runest == rune) && (e_ptr->runesc == j_ptr->xtra2))
+			{
+				for (ii = 0;ii < 3; ii++)
 				{
-					msg_print("It glows brightly.");
-
-					/* Ego-ize the item */
-					i_ptr->name2 = i;
-
-					/* Extra powers */
-					if (e_ptr->xtra)
+					if ((e_ptr->tval[ii] == j_ptr->tval)
+					 && (e_ptr->min_sval[ii]<= j_ptr->sval)
+					  && (e_ptr->max_sval[ii] >= j_ptr->sval))
 					{
-						i_ptr->xtra1 = e_ptr->xtra;
-						i_ptr->xtra2 = (byte)rand_int(object_xtra_size[e_ptr->xtra]);
+						msg_print("It glows brightly.");
+
+						/* Ego-ize the item */
+						j_ptr->name2 = i;
+
+						/* Hack -- Set the "runes" flag */
+						j_ptr->ident |= (IDENT_RUNES);
+
+						/* Extra powers */
+						if (e_ptr->xtra)
+						{
+							j_ptr->xtra1 = e_ptr->xtra;
+							j_ptr->xtra2 = (byte)rand_int(object_xtra_size[e_ptr->xtra]);
+						}
+						else
+						{
+							/* Hack -- Clear the 'real' runes */
+							j_ptr->xtra1 = 0;
+							j_ptr->xtra2 = 0;
+						}
+
+						/* Forget about it */
+						drop_all_flags(j_ptr);
+
+						/* Hack -- acquire "broken" flag */
+						if (!e_ptr->cost) j_ptr->ident |= (IDENT_BROKEN);
+
+						/* Hack -- acquire "cursed" flag */
+						if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) j_ptr->ident |= (IDENT_CURSED);
+
+						/* Hack -- apply extra penalties if needed */
+						if (cursed_p(j_ptr) || broken_p(j_ptr))
+						{
+							/* Hack -- obtain bonuses */
+							if (e_ptr->max_to_h > 0) j_ptr->to_h = MIN(j_ptr->to_h,-randint(e_ptr->max_to_h));
+							else j_ptr->to_h = MIN(j_ptr->to_h,0);
+
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(j_ptr->to_d,-randint(e_ptr->max_to_d));
+							else j_ptr->to_d = MIN(j_ptr->to_d,0);
+
+							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(j_ptr->to_a,-randint(e_ptr->max_to_a));
+							else j_ptr->to_a = MIN(j_ptr->to_a,0);
+
+							/* Hack -- obtain charges */
+							if (e_ptr->max_pval > 0) j_ptr->pval = MIN(j_ptr->pval,-randint(e_ptr->max_pval));
+						}
+
+						/* Hack -- apply extra bonuses if needed */
+						else
+						{
+							/* Hack -- obtain bonuses */
+							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h,randint(e_ptr->max_to_h));
+							else j_ptr->to_h = MIN(j_ptr->to_h,0);
+
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MAX(j_ptr->to_d,randint(e_ptr->max_to_d));
+							else j_ptr->to_d = MIN(j_ptr->to_d,0);
+
+							if (e_ptr->max_to_a > 0) j_ptr->to_a = MAX(j_ptr->to_a,randint(e_ptr->max_to_a));
+							else j_ptr->to_a = MIN(j_ptr->to_a,0);
+
+							/* Hack -- obtain pval */
+							if (e_ptr->max_pval > 0) j_ptr->pval = MAX(1,MIN(j_ptr->pval,randint(e_ptr->max_pval)));
+							else j_ptr->pval = MIN(j_ptr->pval,0);
+						}
+
+						/* Remove special inscription, if any */
+						j_ptr->feeling = 0;
+
+						/* Hack -- Clear the "felt" flag */
+						j_ptr->ident &= ~(IDENT_SENSE);
+
+						/* Hack -- Clear the "bonus" flag */
+						j_ptr->ident &= ~(IDENT_BONUS);
+
+						/* Hack -- Clear the "known" flag */
+						j_ptr->ident &= ~(IDENT_KNOWN);
+
+						/* Hack -- Clear the "store" flag */
+						j_ptr->ident &= ~(IDENT_STORE);
+
+						break;
 					}
-
-					/* Forget about it */
-					drop_all_flags(o_ptr);
-
-					/* Hack -- acquire "broken" flag */
-					if (!e_ptr->cost) i_ptr->ident |= (IDENT_BROKEN);
-
-					/* Hack -- acquire "cursed" flag */
-					if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) i_ptr->ident |= (IDENT_CURSED);
-
-					/* Hack -- apply extra penalties if needed */
-					if (cursed_p(i_ptr) || broken_p(i_ptr))
-					{
-						/* Hack -- obtain bonuses */
-						if (e_ptr->max_to_h > 0) i_ptr->to_h = MIN(i_ptr->to_h,-randint(e_ptr->max_to_h));
-						else i_ptr->to_h = MIN(i_ptr->to_h,0);
-
-						if (e_ptr->max_to_d > 0) i_ptr->to_d = MIN(i_ptr->to_d,-randint(e_ptr->max_to_d));
-						else i_ptr->to_d = MIN(i_ptr->to_d,0);
-
-						if (e_ptr->max_to_a > 0) i_ptr->to_a = MIN(i_ptr->to_a,-randint(e_ptr->max_to_a));
-						else i_ptr->to_a = MIN(i_ptr->to_a,0);
-
-						/* Hack -- obtain pval */
-						if (e_ptr->max_pval > 0) i_ptr->pval = MIN(i_ptr->pval,-randint(e_ptr->max_pval));
-					}
-
-					/* Hack -- apply extra bonuses if needed */
-					else
-					{
-						/* Hack -- obtain bonuses */
-						if (e_ptr->max_to_h > 0) i_ptr->to_h = MAX(i_ptr->to_h,randint(e_ptr->max_to_h));
-						else i_ptr->to_h = MIN(i_ptr->to_h,0);
-
-						if (e_ptr->max_to_d > 0) i_ptr->to_d = MAX(i_ptr->to_d,randint(e_ptr->max_to_d));
-						else i_ptr->to_d = MIN(i_ptr->to_d,0);
-
-						if (e_ptr->max_to_a > 0) i_ptr->to_a = MAX(i_ptr->to_a,randint(e_ptr->max_to_a));
-						else i_ptr->to_a = MIN(i_ptr->to_a,0);
-
-						/* Hack -- obtain pval */
-						if (e_ptr->max_pval > 0) i_ptr->pval = MAX(1,MIN(i_ptr->pval,randint(e_ptr->max_pval)));
-						else i_ptr->pval = MIN(i_ptr->pval,0);
-					}
-
-					/* Remove special inscription, if any */
-					if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
-
-					/* Hack -- Clear the "felt" flag */
-					i_ptr->ident &= ~(IDENT_SENSE);
-
-					/* Hack -- Clear the "bonus" flag */
-					i_ptr->ident &= ~(IDENT_BONUS);
-
-					/* Hack -- Clear the "known" flag */
-					i_ptr->ident &= ~(IDENT_KNOWN);
-
-					/* Hack -- Clear the "store" flag */
-					i_ptr->ident &= ~(IDENT_STORE);
-
-					/* Hack -- Clear the "known" flag */
-					i_ptr->ident &= ~(IDENT_KNOWN);
-
-					break;
 				}
 			}
 		}
 	}
-
-	/* Carry the new item */
-	if (item2 >= 0)
-	{
-		item = inven_carry(i_ptr);
-		inven_item_describe(item);
-	}
+	/* Coat weapon */
 	else
 	{
-		item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
-		floor_item_describe(item);
+		int charges = j_ptr->charges * j_ptr->number + j_ptr->stackc;
+
+		/* This is a lot simpler */
+		j_ptr->xtra1 = tval;
+		j_ptr->xtra2 = sval;
+
+		if (!aware) j_ptr->feeling = INSCRIP_COATED;
+
+		/* Based on the weight, determine charges */
+		j_ptr->charges = (charges + 1000 / j_ptr->weight) / j_ptr->number;
+		j_ptr->stackc = (charges + 1000 / j_ptr->weight) % j_ptr->number;
+
+		if (j_ptr->stackc) j_ptr->charges++;
 	}
 
+	/* Need to carry the new object? */
+	if (split)
+	{
+		/* Carry the new item */
+		if (item2 >= 0)
+		{
+			item = inven_carry(j_ptr);
+			inven_item_describe(item);
+		}
+		else
+		{
+			item = floor_carry(p_ptr->py,p_ptr->px,j_ptr);
+			floor_item_describe(item);
+		}
+	}
 }

@@ -55,7 +55,7 @@
 
 #Version information
 
-V:0.6.0
+V:0.6.1
 
 # Default starting dungeon.
 
@@ -78,10 +78,10 @@ D:Tip: Press '<' to travel elsewhere.
 
 #The following quests are from the hobbit.
 
-N:2:Rivendell
+N:2:Rivendell, in late summer
 X:39:3
 L:0:0:420:155:0:0
-S:267:9:10:11:12:13:268:513
+S:267:9:10:11:519:13:268:513
 
 # Misty Mountains are quite wet (Underground rivers etc).
 
@@ -174,7 +174,7 @@ X:56:13
 G:s
 R:ANIMAL
 L:20:420:56:49:449:31
-L:24:56:0:0:449:31
+L:31:56:0:0:449:31
 
 N:13:the Ford to Rivendell
 X:12:14
@@ -182,25 +182,27 @@ L:14:420:154:126:453:0
 
 #Duplicate to allow acces to Moria.
 
-N:14:Rivendell
+N:14:Rivendell, in autumn
 X:15:17
 L:0:0:420:155:0:0
-S:267:516:503:11:12:505:268:513
+S:267:516:503:11:519:505:268:513
 
 N:15:Caradhras
 X:16:19
 R:GIANT
 G:C
-L:20:451:56:148:586:0
+L:20:451:56:148:473:0
 L:21:56:144:145:0:0
-L:32:56:144:145:586:0
+L:50:56:144:145:1272:0
+D:The storms of the mountain echo around you.  Turn back, while you can!
 
-N:16:Moria
+N:16:the gates of Moria
 X:17:18
 L:21:49:397:56:639:0
-L:22:56:0:0:0:0
-L:45:56:1:0:0:0
-L:50:56:141:0:483:0
+L:22:56:393:0:0:0
+L:50:56:393:393:639:0
+D:The door to Moria is almost impossible to find.  You need a map to
+D: guide you.  While you search, something deadly stirs in the water.
 
 N:17:Isengard
 X:14:20
@@ -299,9 +301,15 @@ N:29:the Paths of the Dead
 X:28:30
 G:W
 R:UNDEAD
-L:56:436:56:56:522:0
+L:56:0:420:0:528:0
 L:57:56:0:0:0:0
-L:85:56:0:0:528:0
+L:85:56:0:0:522:0
+S:806:0:0:0:0:0:0:0
+D:A single slab of grey stone covered with bones sits here, deep in the Dimholt woods.
+D:  Beyond, you can see the pale, flickering torches that light the Dark Door of the
+D: Dead - the entrance to the Paths of the Dead.  You can leave supplies here on the
+D: stone while you search this lifeless place, but once you leave the Paths of the Dead,
+D: anything left behind will be lost.
 
 N:30:the Battle of Pelennor Fields
 X:28:31
@@ -319,7 +327,7 @@ L:55:56:0:0:0:46
 S:505:516:517:503:519:518:777:508
 D:A white tree has found root in Minas Tirith.  Claim your reward
 D: there.  This is your last chance to rest before the final
-D: confrontation with Mordor.
+D: confrontation with Sauron.
 
 N:32:the Plains of Gorgoroth
 X:51:33
@@ -332,7 +340,7 @@ X:32:34
 R:BRTH_FIRE
 L:79:432:218:218:0:0
 L:80:56:218:218:0:0
-L:98:56:218:218:546:0
+L:99:56:218:218:546:0
 
 N:34:Barad-dur
 X:33:35
@@ -504,7 +512,7 @@ L:12:56:1:420:307:0
 S:514:776:0:0:0:0:0:0
 D:Goldberry's gifts can be found at her pool.
 
-N:56:the Midge Marshes
+N:56:the Midgewater Marshes
 X:11:12
 G:R
 R:INSECT
@@ -538,9 +546,36 @@ D: Brandywine to Buckland, it may be a while before you return to
 D: Hobbiton, and in some ways you can never come back.  The East
 D: Road from Hobbiton looks a fairer route, and safer too.
 
+# Break Moria up into several sections to be more like what I originally intended.
+
+N:59:the door to Moria
+X:16:60
+G:E
+L:0:0:1:56:0:0
+S:0:0:0:0:0:0:0:0
+D:Starlight leads the way.  'Speak friend, and enter'.
+
+N:60:the mines of Moria
+X:60:61
+L:22:56:0:0:0:0
+L:29:56:0:0:0:0
+L:30:0:1:56:1277:0
+S:805:0:0:0:0:0:0:0
+D:There is a thunderous roar and rocks tumble about you.  You are plunged into darkness.
+D:  Your heart shudders; the dust finally settles. Something has closed the door to
+D: Moria, from the outside.  Your only choice is to press onwards.  And downwards...
+
+N:61:Khazad-Dum
+X:60:18
+L:31:1:141:0:483:0
+L:32:56:141:0:0:0
+L:49:56:141:0:0:0
+L:50:5656:393:393:483:0
+D:Drums. Drums. Drums in the deep.
+
 # Must always be last position
 
-N:59:the West
+N:62:the West
 G:M
 L:0:0:420:0:0:0
 S:777:0:0:0:0:0:0:0

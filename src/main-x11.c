@@ -1479,6 +1479,33 @@ struct term_data
  */
 static term_data data[MAX_TERM_DATA];
 
+/* Describe a set of co-ordinates. */
+typedef struct co_ord co_ord;
+struct co_ord
+{
+	int x;
+	int y;
+};
+
+
+/*
+ * A special structure to store information about the text currently
+ * selected.
+ */
+typedef struct x11_selection_type x11_selection_type;
+struct x11_selection_type
+{
+	bool select; /* The selection is currently in use. */
+	bool drawn; /* The selection is currently displayed. */
+	term *t; /* The window where the selection is found. */
+	co_ord init; /* The starting co-ordinates. */
+	co_ord cur; /* The end co-ordinates (the current ones if still copying). */
+	co_ord old; /* The previous end co-ordinates. */
+	Time time; /* The time at which the selection was finalised. */
+};
+
+static x11_selection_type x11_selection[1];
+
 
 
 /*
@@ -1594,6 +1621,173 @@ static void react_keypress(XKeyEvent *ev)
 
 
 /*
+ * Find the square a particular pixel is part of.
+ */
+static void pixel_to_square(int * const x, int * const y,
+	const int ox, const int oy)
+{
+	(*x) = (ox - Infowin->ox) / Infofnt->wid;
+	(*y) = (oy - Infowin->oy) / Infofnt->hgt;
+}
+
+/*
+ * Find the pixel at the top-left corner of a square.
+ */
+static void square_to_pixel(int * const x, int * const y,
+                            const int ox, const int oy)
+{
+	(*x) = ox * Infofnt->wid + Infowin->ox;
+	(*y) = oy * Infofnt->hgt + Infowin->oy;
+}
+
+
+/*
+ * Convert co-ordinates from starting corner/opposite corner to minimum/maximum.
+ */
+static void sort_co_ord(co_ord *min, co_ord *max,
+                        const co_ord *b, const co_ord *a)
+{
+	min->x = MIN(a->x, b->x);
+	min->y = MIN(a->y, b->y);
+	max->x = MAX(a->x, b->x);
+	max->y = MAX(a->y, b->y);
+}
+
+
+/*
+ * Remove the selection by redrawing it.
+ */
+static void mark_selection_clear(int x1, int y1, int x2, int y2)
+{
+	Term_redraw_section(x1, y1, x2, y2);
+}
+
+
+/*
+ * Select an area by drawing a grey box around it.
+ * NB. These two functions can cause flicker as the selection is modified,
+ * as the game redraws the entire marked section.
+ */
+static void mark_selection_mark(int x1, int y1, int x2, int y2)
+{
+	square_to_pixel(&x1, &y1, x1, y1);
+	square_to_pixel(&x2, &y2, x2, y2);
+	XDrawRectangle(Metadpy->dpy, Infowin->win, clr[2]->gc, x1, y1,
+		x2-x1+Infofnt->wid - 1, y2-y1+Infofnt->hgt - 1);
+}
+
+
+/*
+ * Mark a selection by drawing boxes around it (for now).
+ */
+static void mark_selection(void)
+{
+	co_ord min, max;
+	term *old = Term;
+	bool draw = x11_selection->select;
+	bool clear = x11_selection->drawn;
+
+	/* Open the correct term if necessary. */
+	if (x11_selection->t != old) Term_activate(x11_selection->t);
+
+	if (clear)
+	{
+		sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->old);
+		mark_selection_clear(min.x, min.y, max.x, max.y);
+	}
+
+	if (draw)
+	{
+		sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->cur);
+		mark_selection_mark(min.x, min.y, max.x, max.y);
+	}
+
+	/* Finish on the current term. */
+	if (x11_selection->t != old) Term_activate(old);
+
+	x11_selection->old.x = x11_selection->cur.x;
+	x11_selection->old.y = x11_selection->cur.y;
+	x11_selection->drawn = x11_selection->select;
+}
+
+
+/*
+ * Forget a selection for one reason or another.
+ */
+static void copy_x11_release(void)
+{
+	/* Deselect the current selection. */
+	x11_selection->select = FALSE;
+
+	/* Remove its graphical represesntation. */
+	mark_selection();
+}
+
+
+/*
+ * Start to select some text on the screen.
+ */
+static void copy_x11_start(int x, int y)
+{
+	if (x11_selection->select) copy_x11_release();
+
+	/* Remember where the selection started. */
+	x11_selection->t = Term;
+	x11_selection->init.x = x11_selection->cur.x = x11_selection->old.x = x;
+	x11_selection->init.y = x11_selection->cur.y = x11_selection->old.y = y;
+}
+
+
+/*
+ * Respond to movement of the mouse when selecting text.
+ */
+static void copy_x11_cont(int x, int y, unsigned int buttons)
+{
+	/* Use the nearest square within bounds if the mouse is outside. */
+	x = MIN(MAX(x, 0), Term->wid-1);
+	y = MIN(MAX(y, 0), Term->hgt-1);
+
+	/* The left mouse button isn't pressed. */
+	if (~buttons & Button1Mask) return;
+
+	/* Not a selection in this window. */
+	if (x11_selection->t != Term) return;
+
+	/* Not enough movement. */
+	if ((x == x11_selection->old.x) && (y == x11_selection->old.y) && x11_selection->select) return;
+
+	/* Something is being selected. */
+	x11_selection->select = TRUE;
+
+	/* Track the selection. */
+	x11_selection->cur.x = x;
+	x11_selection->cur.y = y;
+
+	/* Hack - display it inefficiently. */
+	mark_selection();
+}
+
+
+
+
+/*
+ * Handle various events conditional on presses of a mouse button.
+ */
+static void handle_button(Time time, int x, int y, int button, bool press)
+{
+	/* The co-ordinates are only used in Angband format. */
+	pixel_to_square(&x, &y, x, y);
+
+#if 0
+ 	if (press && button == 1) copy_x11_start(x, y);
+ 	if (!press && button == 1) copy_x11_end(time);
+#endif
+	
+	if (press) Term_mousepress(x, y, button);
+}
+
+
+/*
  * Process events
  */
 static errr CheckEvent(bool wait)
@@ -1650,11 +1844,16 @@ static errr CheckEvent(bool wait)
 	switch (xev->type)
 	{
 
-#if 0
 
 		case ButtonPress:
 		case ButtonRelease:
 		{
+			bool press = (xev->type == ButtonPress);
+
+			/* Where is the mouse */
+			int x = xev->xbutton.x;
+			int y = xev->xbutton.y;
+
 			int z = 0;
 
 			/* Which button is involved */
@@ -1669,6 +1868,7 @@ static errr CheckEvent(bool wait)
 			y = xev->xbutton.y;
 
 			/* XXX Handle */
+			handle_button(xev->xbutton.time, x, y, z, press);
 
 			break;
 		}
@@ -1690,8 +1890,14 @@ static errr CheckEvent(bool wait)
 			/* Where is the mouse */
 			x = xev->xmotion.x;
 			y = xev->xmotion.y;
+			unsigned int z = xev->xmotion.state;
 
-			/* XXX Handle */
+			/* Convert to co-ordinates Angband understands. */
+			pixel_to_square(&x, &y, x, y);
+
+			/* Alter the selection if appropriate. */
+			copy_x11_cont(x, y, z);
+
 
 			break;
 		}
@@ -1702,7 +1908,6 @@ static errr CheckEvent(bool wait)
 			break;
 		}
 
-#endif
 
 		case KeyPress:
 		{
@@ -2192,7 +2397,8 @@ static errr term_data_init(term_data *td, int i)
 	                 Metadpy->fg, Metadpy->bg);
 
 	/* Ask for certain events */
-	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask);
+	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask 
+			 | ButtonPressMask);
 
 	/* Set the window name */
 	Infowin_set_name(name);

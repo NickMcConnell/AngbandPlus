@@ -212,8 +212,15 @@ bool set_afraid(int v)
 		}
 	}
 
+	/* Hack -- petrify the player if over 100 */
+	if (v > 100)
+	{
+		p_ptr->afraid = 100;
+		set_petrify(p_ptr->afraid - 100 / 10);
+	}
+
 	/* Use the value */
-	p_ptr->afraid = v;
+	else p_ptr->afraid = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -255,7 +262,7 @@ bool set_paralyzed(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->paralyzed)
+		if ((p_ptr->paralyzed) && !(p_ptr->stastis) && !(p_ptr->petrify))
 		{
 			msg_print("You can move again.");
 			notice = TRUE;
@@ -339,7 +346,7 @@ bool set_image(int v)
 
 
 /*
- * Set "p_ptr->confused", notice observable changes
+ * Set "p_ptr->amnesia", notice observable changes
  */
 bool set_amnesia(int v)
 {
@@ -361,7 +368,7 @@ bool set_amnesia(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->confused)
+		if (p_ptr->amnesia)
 		{
 			msg_print("You feel less forgetful now.");
 			notice = TRUE;
@@ -376,6 +383,12 @@ bool set_amnesia(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the "amnesia" */
+	p_ptr->redraw |= (PR_AMNESIA);
+
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Result */
 	return (TRUE);
@@ -397,7 +410,7 @@ bool set_cursed(int v)
 	{
 		if (!p_ptr->cursed)
 		{
-			msg_print("You feel cursed!");
+			msg_print("You feel unlucky!");
 			notice = TRUE;
 		}
 	}
@@ -421,8 +434,263 @@ bool set_cursed(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the "cursed" */
+	p_ptr->redraw |= (PR_CURSED);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->msleep", notice observable changes
+ */
+bool set_msleep(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->msleep)
+		{
+			msg_print("Your eyelids feel heavy.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if ((p_ptr->msleep) && !(p_ptr->psleep))
+		{
+			msg_print("You no longer feel sleepy.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->msleep = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->psleep", notice observable changes
+ */
+bool set_psleep(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Hack -- Wake player when finished sleeping */
+	if (v >= PY_SLEEP_MAX) v = 0;
+
+	/* Recover stats */
+	if (p_ptr->psleep >= PY_SLEEP_RECOVER)
+	{
+		int i;
+
+		for (i = 0; i < A_MAX; i++)
+		{
+			if (p_ptr->stat_cur[i]<p_ptr->stat_max[i])
+			{
+				if (p_ptr->stat_cur[i] < 18) p_ptr->stat_cur[i]++;
+				else p_ptr->stat_cur[i] += 10;
+
+				if (p_ptr->stat_cur[i] > p_ptr->stat_max[i]) p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+
+				p_ptr->redraw |= (PR_STATS);
+
+				v = 0;
+
+				notice = TRUE;
+			}
+		}
+
+		if (notice) msg_print("You recover somewhat.");
+	}
+
+	/* Open */
+	if (v)
+	{
+		if ((p_ptr->psleep < PY_SLEEP_ASLEEP) && (v >= PY_SLEEP_ASLEEP))
+		{
+			msg_print("You fall asleep.");
+			notice = TRUE;
+		}
+		else if ((p_ptr->psleep < PY_SLEEP_DROWSY) && (v >= PY_SLEEP_DROWSY))
+		{
+			msg_print("You feel drowsy.");
+			/* notice = TRUE; */
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->psleep)
+		{
+			msg_print("You wake up.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->psleep = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Redraw state */
+	p_ptr->redraw |= (PR_STATE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->petrify", notice observable changes
+ */
+bool set_petrify(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->petrify)
+		{
+			msg_print("You are petrified to the spot!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if ((p_ptr->petrify) && !(p_ptr->stastis) && !(p_ptr->paralyzed))
+		{
+			msg_print("You can move again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Hack -- paralyze the player if over 100 */
+	if (v > 100)
+	{
+		p_ptr->petrify = 100;
+		set_paralyzed(p_ptr->petrify - 100 / 10);
+	}
+
+	/* Use the value */
+	else p_ptr->petrify = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the "petrify" */
+	p_ptr->redraw |= (PR_PETRIFY);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->stastis", notice observable changes
+ */
+bool set_stastis(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* MegaHack -- alter reality if too high */
+	if (v > 100)
+	{
+		msg_print("You are thrown into an alternate reality!");
+		p_ptr->leaving = TRUE;
+		notice = TRUE;
+		v = 0;
+	}
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->stastis)
+		{
+			msg_print("You are stuck in a time-loop!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if ((p_ptr->stastis) && !(p_ptr->paralyzed) && !(p_ptr->petrify))
+		{
+			msg_print("You can move again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->stastis = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -967,6 +1235,56 @@ bool set_invuln(int v)
 
 	/* Use the value */
 	p_ptr->invuln = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->free_act", notice observable changes
+ */
+bool set_free_act(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->free_act)
+		{
+			msg_print("You feel you may act freely!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->invuln)
+		{
+			msg_print("You feel less free in your actions.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->free_act = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1881,8 +2199,8 @@ bool set_food(int v)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	/* Disturb - wake player if hungry */
+	if (disturb_state) disturb(0, new_aux <= 2 ? TRUE : FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1982,13 +2300,15 @@ bool set_rest(int v)
 			case 3:
 			{
 				msg_print("You are no longer tired.");
+
+				/* Change */
+				notice = TRUE;
+
 				break;
 			}
 
 		}
 
-		/* Change */
-		notice = TRUE;
 	}
 
 	/* Food decrease */
@@ -2155,65 +2475,116 @@ void improve_aware(void)
 	}
 }
 
+
+
+/*
+ * Print a list of stats (for improvement).
+ */
+void print_stats(const s16b *sn, int num, int y, int x)
+{
+	int i;
+
+	byte attr;
+
+	/* Display title */
+	/* prt("", y, x); */
+
+	/* Add labels */
+	for (i = 0; i < num; i++)
+	{
+		attr = TERM_WHITE;
+
+		if (p_ptr->stat_cur[sn[i]] == 18 + 100) attr = TERM_L_DARK;
+		if (p_ptr->stat_cur[sn[i]]<p_ptr->stat_max[sn[i]]) attr = TERM_YELLOW;
+
+		/* Hack -- Dump the stat - hack from magic_name table */
+		c_prt(attr, format("  %c) ", I2A(i)), y + i + 1, x);
+	}
+
+	/* Display drop-shadow */
+	prt("", y + i + 1, x);
+
+	/* Display the stats */
+	display_player_stat_info(y + 1, x + 5);
+}
+
+
 /*
  * Improve one stat, preferring lowest stats
  * Note hack to always improve the maximal value of a stat.
  */
 static void improve_stat(void)
 {
-	int k, stat, i;
-
 	int tmp = 0;
+	int i, selection;
 
-	int table[7];
+	s16b table[A_CHR+1];
 
-	cptr p="";
+	cptr p = "";
 
-	/* Start table */
-	table[0]=0;
+	bool okay = FALSE;
 
-	/* Build probability table */
-	for (i = 0;i <=A_CHR;i++)
+#ifdef ALLOW_BORG
+	if (count_stop) return;
+#endif
+
+	/* Check which stats can still be improved */
+	for (i = 0; i <= A_CHR; i++)
 	{
-		k = (18 + 100) - p_ptr->stat_cur[i];
-
-		if (k> 0) table[i+1] = table[i]+k;
-		else table[i+1]=table[i];
+		table[i] = i;
+		if (p_ptr->stat_cur[i] < 18 + 100) okay = TRUE;
 	}
 
-	/* Choice */
-	if (table[6]) k = rand_int(table[6]);
+	/* No stats left to improve */
+	if (!okay) return;
 
-	/* Nothing to improve */
-	else return;
-
-	/* Pick entry from table */
-	for (stat = 0;stat <=A_CHR;stat++)
+	/* Should be paranoid here */
+	while (TRUE)
 	{
-		if (k< table[stat+1]) break;
+		/* Select stat to improve */
+		if (get_list(print_stats, table, 6, "Attribute", "Improve which attribute", 1, 37, &selection))
+		{
+			/* Check if stat at maximum */
+			if (p_ptr->stat_cur[selection] >= 18 + 100)
+			{
+				msg_format("You cannot get any %s",desc_stat_imp[selection]);
+			}
+
+			/* Always verify */
+			else if (!(get_check(format("Are you sure you want to be %s? ", desc_stat_imp[selection]))))
+			{
+				/* Nothing */
+			}
+
+			/* Good selection */
+			else
+			{
+				break;
+			}
+		}
 	}
 
 	/* Display */
-	if (p_ptr->stat_cur[stat]<p_ptr->stat_max[stat])
+	if (p_ptr->stat_cur[selection]<p_ptr->stat_max[selection])
 	{
 		/* Set description */
 		p = "you could be ";
 
 		/* Hack --- store stat */
-		tmp = p_ptr->stat_cur[stat];
-		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+		tmp = p_ptr->stat_cur[selection];
+		p_ptr->stat_cur[selection] = p_ptr->stat_max[selection];
 	}
 
 	/* Attempt to increase */
-	if (inc_stat(stat))
+	if (inc_stat(selection))
 	{
 		/* Message */
-		msg_format("You feel %s%s.",p,desc_stat_imp[stat]);
+		msg_format("You feel %s%s.",p,desc_stat_imp[selection]);
 
 	}
 
 	/* Hack --- restore stat */
-	if (tmp) p_ptr->stat_cur[stat] = tmp;
+	if (tmp) p_ptr->stat_cur[selection] = tmp;
 
 }
 
@@ -2292,7 +2663,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_EXP | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -2400,11 +2771,11 @@ int get_coin_type(const monster_race *r_ptr)
 	cptr name = (r_name + r_ptr->name);
 
 	/* Analyze "coin" monsters */
-	if (strchr("$gdDA", r_ptr->d_char))
+	if (strchr("$gdDAaI", r_ptr->d_char))
 	{
-		for (i = OBJ_GOLD_LIST; i < OBJ_GOLD_LIST + MAX_GOLD; i++)
+		for (i = 0; i < MAX_GOLD; i++)
 		{
-			object_kind *k_ptr = &k_info[i];
+			object_kind *k_ptr = &k_info[i + OBJ_GOLD_LIST];
 
 			/* Look for textual clues */
 			if (strstr(name, format(" %s ",k_name + k_ptr->name))) return (i);
@@ -2619,6 +2990,19 @@ void monster_death(int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
+
+		/* Hack -- this is temporary */
+		/* Total winner */
+		p_ptr->total_winner = TRUE;
+
+		/* Redraw the "title" */
+		p_ptr->redraw |= (PR_TITLE);
+
+		/* Congratulations */
+		msg_print("*** CONGRATULATIONS ***");
+		msg_print("You have won the game!");
+		msg_print("You may retire (commit suicide) when you are ready.");
+
 	}
 
 
@@ -2668,7 +3052,9 @@ void monster_death(int m_idx)
 		if (do_gold && (!do_item || (rand_int(100) < 50)))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if (!make_gold(i_ptr, good, great)) continue;
+
+			if (coin_type) l_ptr->flags9 |= (RF9_DROP_MINERAL);
 
 			/* Assume seen XXX XXX XXX */
 			dump_gold++;
@@ -2680,8 +3066,10 @@ void monster_death(int m_idx)
 			/* Make an object */
 			if (!make_object(i_ptr, good, great)) continue;
 
+			if (food_type) l_ptr->flags9 |= (RF9_DROP_MUSHROOM);
+
 			/* Hack -- ignore bodies */
-			switch (i_ptr->tval)
+			else switch (i_ptr->tval)
 			{
 				case TV_JUNK:
 				{
@@ -3338,17 +3726,82 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		dungeon_zone *zone=&t_ptr->zone[0];
 
 		/* Get the zone */ 
-		get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+		get_zone(&zone,p_ptr->dungeon,max_depth(p_ptr->dungeon));
 
-		if (p_ptr->depth == min_depth(p_ptr->dungeon))
+		if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || (!zone->fill))
 		{
-			strcpy(name, t_name + t_info[p_ptr->dungeon].name);
-			strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
-		}
-		else if (!zone->fill)
-		{
-			strcpy(name, t_name + t_info[p_ptr->dungeon].name);
-			strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+			strcpy(name, t_name + t_ptr->name);
+
+			/* If defeated guardian, tell the player */
+			if ((zone->guard) && (!r_info[zone->guard].max_num))
+			{
+				/* Tell player guardian is defeated */
+				strcpy(text_always, format("You have defeated %s, guardian of %s",
+						r_name + r_info[zone->guard].name,
+						t_name + t_ptr->name));
+
+				/* Tell player where they can travel to */
+				if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
+				{
+					strcat(text_always, format(", which allows you to travel to %s",
+						t_name + t_info[t_ptr->distant].name));
+
+					/* Tell player if they may have difficulty getting back */
+					if (t_info[t_ptr->distant].nearby != p_ptr->dungeon)
+					{
+						strcat(text_always, ".  Collect anything you require from this location before you travel.  You may have difficulty returning here");
+					}
+				}
+
+				/* End sentence */
+				strcat(text_always, ".");
+			}
+			else
+			{
+				/* Describe location */
+				strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+
+				/* Describe the guardian */
+				if (zone->guard)
+				{
+					if (strlen(text_always)) strcat(text_always,"  ");
+
+					/* Path to be opened */
+					if ((t_info[p_ptr->dungeon].distant != p_ptr->dungeon) && (adult_campaign))
+					{
+						strcat(text_always, format("The path to %s is guarded by %s, who you must defeat ",
+							t_name + t_info[t_info[p_ptr->dungeon].distant].name,
+							r_name + r_info[zone->guard].name));
+					}
+					/* Dungeon guardian */
+					else
+					{
+						strcat(text_always, format("%^s is guarded by %s, who you must defeat ",
+							t_name + t_info[p_ptr->dungeon].name,
+							r_name + r_info[zone->guard].name));
+					}
+
+					/* Guards surface */
+					if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, "here");
+
+					/* Guards top of tower */					
+					if (t_info[p_ptr->dungeon].zone[0].tower)
+					{
+						if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, " or ");
+						strcat(text_always, "at the top of the tower");
+					}
+
+					/* Guards bottom of dugeon */
+					else if (min_depth(p_ptr->dungeon) != max_depth(p_ptr->dungeon))
+					{
+						if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, " or ");
+						strcat(text_always, "at the bottom of the dungeon");
+					}
+
+					/* End sentence */
+					strcat(text_always, ".");
+				}
+			}
 		}
 		else
 		{
@@ -3567,8 +4020,8 @@ static void room_info_top(int room)
 {
 	char first[2];
 	char name[40];
-	char text_visible[240];
-	char text_always[240];
+	char text_visible[1024];
+	char text_always[1024];
 
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
@@ -3583,7 +4036,8 @@ static void room_info_top(int room)
 	Term_gotoxy(0, 0);
 
 	/* Hack - set first character to upper */
-	first[0] = name[0]-32;
+	if (first[0] >= 'a') first[0] = name[0]-32;
+	else first[0] = name[0];
 	first[1] = '\0';
 
 	/* Dump the name */
@@ -3600,8 +4054,8 @@ static void room_info_top(int room)
 static void screen_room_info(int room)
 {
 	char name[32];
-	char text_visible[240];
-	char text_always[240];
+	char text_visible[1024];
+	char text_always[1024];
 
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
@@ -3652,8 +4106,8 @@ void display_room_info(int room)
 {
 	int y;
 	char name[32];
-	char text_visible[240];
-	char text_always[240];
+	char text_visible[1024];
+	char text_always[1024];
 
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
@@ -3709,8 +4163,14 @@ void describe_room(void)
 	int bx = p_ptr->px / BLOCK_WID;
 	int room = dun_room[by][bx];
 	char name[32];
-	char text_visible[240];
-	char text_always[240];
+	char text_visible[1024];
+	char text_always[1024];
+
+
+#ifdef ALLOW_BORG
+	/* Hack -- No descriptions for the borg */
+	if (count_stop) return;
+#endif
 
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
@@ -4372,7 +4832,7 @@ static bool target_set_interactive_accept(int y, int x)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+		if (o_ptr->ident & (IDENT_MARKED)) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -4782,7 +5242,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 			if (floored) continue;
 
 			/* Describe it */
-			if (o_ptr->marked)
+			if (o_ptr->ident & (IDENT_MARKED))
 			{
 				bool recall = FALSE;
 
@@ -6136,7 +6596,7 @@ bool confuse_dir(int *dp)
 	dir = (*dp);
 
 	/* Apply "confusion" */
-	if (p_ptr->confused)
+	if ((p_ptr->confused) && (p_ptr->confused > rand_int(33)))
 	{
 		/* Apply confusion XXX XXX XXX */
 		if ((dir == 5) || (rand_int(100) < 75))

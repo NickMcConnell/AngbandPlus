@@ -1,0 +1,145 @@
+# This is a makefile for the Cygwin tools which may
+# be downloaded by following the links from the URL:
+# http://sources.redhat.com/cygwin/
+
+#
+# Standard defines
+#
+
+TOOLDIR = /Developer/Tools
+SETFILE = $(TOOLDIR)/SetFile
+REZ = $(TOOLDIR)/Rez
+
+CC = gcc
+
+LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
+CFLAGS = -Wall -g -fpascal-strings -DMACH_O_CARBON \
+	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" -DUSE_PRIVATE_PATHS
+
+default: all
+
+OBJEXT=.o
+include commondefs.inc
+
+
+OBJS = $(COMMONOBJS) \
+	main-crb.o
+
+# 
+# Additional dependencies
+#
+
+#
+# Targets
+#
+
+all: install
+
+install: unangband $(RESSRCS) $(ICONFILES) $(PLIST) $(LIBFILES)
+
+clean:
+	rm *.o unangband
+
+
+#
+# Dependency rules
+#
+
+#
+# Executable
+#
+
+unangband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@  $(OBJS) $(LIBS)
+
+#
+# Compiling objects
+#
+
+%.o: %.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+
+
+# Installation
+# Application bundle -- a directory looking like an ordinary application
+
+# Name of the game
+APPNAME = UnAngband.app
+# Bundle of the game (it must be a directory whose name ends in ".app")
+APPBNDL = ../$(APPNAME)
+
+# A bundle must have these subdirectories
+APPCONT = $(APPBNDL)/Contents
+APPBIN = $(APPCONT)/MacOS
+APPRES = $(APPCONT)/Resources
+
+# Auxiliary files. Please note that it still uses resouce fork based
+# resources for menus, dialogues and sounds, so that it isn't safe to use
+# utilities that doesn't understand them (virtually all Un*x commands) to
+# copy or archive the application.
+#
+# The graphics tiles have been moved out of the resource fork, but, again,
+# it isn't generally safe just to convert GIF or BMP files to PNG, because
+# the Mac OS takes dpi values stored in various images quite seriously.
+# Almost all tilesets for *band requires adjustment, with the sole exception
+# of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
+# the actual size of image.  When you have them ready, put them in the src
+# directory and "make install-tiles".
+#
+# The graphics tiles have been moved out of the resource fork, but, again,
+# it isn't generally safe just to convert GIF or BMP files to PNG, because
+# the Mac OS takes dpi values stored in various images quite seriously.
+# Almost all tilesets for *band requires adjustment, with the sole exception
+# of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
+# the actual size of image.  When you have them ready, put them in the src
+# directory and "make install-tiles".
+ICONFILES = Angband.icns Save.icns Edit.icns Data.icns
+TILES = 8x8.png 16x16.png 32x32.png
+PLIST = Angband.xml
+RESSRCS = Angband.r
+SOUNDSRCS = Sound.r
+RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
+
+LIBFILES = \
+  ../lib/edit/*.txt \
+  ../lib/file/*.txt \
+  ../lib/help/*.txt \
+  ../lib/help/*.hlp \
+  ../lib/pref/*.prf
+
+install: unangband $(RESSRCS) $(ICONFILES) $(PLIST) $(LIBFILES)
+	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
+	[ -d $(APPCONT) ] || mkdir $(APPCONT)
+	[ -d $(APPBIN) ] || mkdir $(APPBIN)
+	[ -d $(APPRES) ] || mkdir $(APPRES)
+
+	[ -d $(APPRES)/lib ] || mkdir $(APPRES)/lib
+	[ -d $(APPRES)/lib/edit ] || mkdir $(APPRES)/lib/edit
+	[ -d $(APPRES)/lib/file ] || mkdir $(APPRES)/lib/file
+	[ -d $(APPRES)/lib/help ] || mkdir $(APPRES)/lib/help
+	[ -d $(APPRES)/lib/pref ] || mkdir $(APPRES)/lib/pref
+	[ -d $(APPRES)/lib/script ] || mkdir $(APPRES)/lib/script
+	[ -d $(APPRES)/lib/apex ] || mkdir $(APPRES)/lib/apex
+	[ -d $(APPRES)/lib/data ] || mkdir $(APPRES)/lib/data
+
+	cp ../lib/edit/*.txt $(APPRES)/lib/edit
+	cp ../lib/file/*.txt $(APPRES)/lib/file
+	cp ../lib/help/*.txt $(APPRES)/lib/help
+	cp ../lib/help/*.hlp $(APPRES)/lib/help
+	cp ../lib/pref/*.prf $(APPRES)/lib/pref
+
+	install -m 755 unangband $(APPBIN)
+	install -m 644 $(ICONFILES) $(APPRES)
+
+	$(REZ) $(RFLAGS) -o $(APPRES)/unangband.rsrc $(RESSRCS)
+	install -m 644 $(PLIST) $(APPCONT)/Info.plist
+	$(SETFILE) -a B $(APPBNDL)
+
+
+install-tiles: $(TILES)
+	install -m 644 $(TILES) $(APPRES)
+
+install-sound: $(SOUNDSRCS)
+	$(REZ) $(RFLAGS) -append -o $(APPRES)/unangband.rsrc $(SOUNDSRCS)
+

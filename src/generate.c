@@ -385,86 +385,6 @@ static void place_rubble(int y, int x)
 }
 
 
-
-/*
- * Convert existing terrain type to "up stairs"
- */
-static void place_up_stairs(int y, int x)
-{
-	/* Create up stairs */
-	cave_set_feat(y, x, FEAT_LESS);
-}
-
-
-/*
- * Convert existing terrain type to "down stairs"
- */
-static void place_down_stairs(int y, int x)
-{
-	/* Create down stairs */
-	cave_set_feat(y, x, FEAT_MORE);
-}
-
-
-
-/*
- * Place an up/down staircase at given location
- */
-static void place_random_stairs(int y, int x, int feat)
-{
-	/* Paranoia */
-	if (!cave_clean_bold(y, x)) return;
-
-	/* No dungeon, no stairs */
-	if (min_depth(p_ptr->dungeon) == max_depth(p_ptr->dungeon))
-	{
-		return;
-	}
-
-	/* Top of tower -- must go down */
-	else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-	{
-		place_down_stairs(y, x);
-	}
-
-	/* Bottom of tower dungeon -- must go up */
-	else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth <= min_depth(p_ptr->dungeon)))
-	{
-		place_up_stairs(y, x);
-	}
-
-	/* Surface -- must go down */
-	else if (p_ptr->depth == min_depth(p_ptr->dungeon))
-	{
-		cave_set_feat(y, x, FEAT_ENTRANCE);
-	}
-
-	/* Quest or bottom of dungeon -- must go up */
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-	{
-		place_up_stairs(y, x);
-	}
-
-	/* Fixed stairs */
-	else if (feat)
-	{
-		cave_set_feat(y, x, feat);
-	}
-
-	/* Random stairs -- bias towards direction player is heading */
-	else if (rand_int(100) < ((p_ptr->create_up_stair) ? 75 : ((p_ptr->create_down_stair) ? 25 : 50)) )
-	{
-		place_down_stairs(y, x);
-	}
-
-	/* Random stairs */
-	else
-	{
-		place_up_stairs(y, x);
-	}
-}
-
-
 /*
  * Places some staircases near walls
  */
@@ -4203,7 +4123,8 @@ static void cave_gen(void)
 	/* Create ground */
 	else if (surface)
 	{
-		base = FEAT_GROUND;
+		if (f_info[zone->fill].flags1 & (FF1_FLOOR)) base = zone->fill;
+		else base = FEAT_GROUND;
 	}
 	/* Create granite wall */
 	else
@@ -4416,7 +4337,7 @@ static void cave_gen(void)
 	
 		/* Initialise room description */
 		room_info[dun->cent_n+1].type = ROOM_TOWER;
-		room_info[dun->cent_n+1].flags = 0;
+		room_info[dun->cent_n+1].flags = 0; /* Will be set to ROOM_ICKY at end of generation */
 		dun->cent[dun->cent_n].y = y;
 		dun->cent[dun->cent_n].x = x;
 		dun->cent_n++;
@@ -4778,12 +4699,13 @@ static void cave_gen(void)
 				}
 
 				/* Place the questor */
-				place_monster_aux(y, x, i, TRUE, TRUE);
+				place_monster_aux(y, x, i, FALSE, TRUE);
 			}
 		}
 	}
+
 	/* Ensure guardian monsters */
-	else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
 	{
 		int y, x;
 
@@ -4797,7 +4719,14 @@ static void cave_gen(void)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+		place_monster_aux(y, x, zone->guard, FALSE, TRUE);
+	}
+
+	/* Hack -- restrict teleporation in towers */
+	/* XXX Important that this occurs after placing the player */
+	if ((zone->tower) && (p_ptr->depth >= min_depth(p_ptr->dungeon)))
+	{
+		room_info[1].flags = (ROOM_ICKY);
 	}
 }
 
@@ -5140,7 +5069,7 @@ static void town_gen(void)
 		for (x = 1; x < TOWN_WID-1; x++)
 		{
 			/* Create empty ground */
-			cave_set_feat(y, x, FEAT_GROUND);
+			cave_set_feat(y, x, f_info[zone->big].flags1 & (FF1_FLOOR) ? zone->big : FEAT_GROUND);
 		}
 	}
 
@@ -5164,27 +5093,28 @@ static void town_gen(void)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+		place_monster_aux(y, x, zone->guard, FALSE, TRUE);
 	}
-
-	/* Ensure wandering monsters suit the dungeon level */
-	get_mon_num_hook = dun_level_mon;
-	
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
-	/* Make some residents */
-	for (i = 0; i < residents; i++)
+	else
 	{
-		/* Make a resident */
-		(void)alloc_monster(3, TRUE);
+		/* Ensure wandering monsters suit the dungeon level */
+		get_mon_num_hook = dun_level_mon;
+	
+		/* Prepare allocation table */
+		get_mon_num_prep();
+
+		/* Make some residents */
+		for (i = 0; i < residents; i++)
+		{
+			/* Make a resident */
+			(void)alloc_monster(3, TRUE);
+		}
+
+		get_mon_num_hook = NULL;
+
+		/* Prepare allocation table */
+		get_mon_num_prep();
 	}
-
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
 }
 
 
@@ -5202,6 +5132,8 @@ void generate_cave(void)
 	int i, y, x, num;
 
 	dungeon_zone *zone=&t_info[0].zone[0];
+
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
@@ -5531,8 +5463,8 @@ void generate_cave(void)
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
 
-	/* Remember when this level was "created", except in town */
-	if (zone->fill) old_turn = turn;
+	/* Remember when this level was "created", except in town or surface locations */
+	if ((zone->fill) && !(surface)) old_turn = turn;
 
 	/* Hack -- always get a feeling leaving town */
 	else old_turn = 0;
@@ -5542,4 +5474,10 @@ void generate_cave(void)
 
 	/* Redraw state */
 	p_ptr->redraw |= (PR_STATE);
+
+	/* Set maximum depth for this dungeon */
+	if (t_info[p_ptr->dungeon].max_depth < p_ptr->depth - min_depth(p_ptr->dungeon))
+	{
+		t_info[p_ptr->dungeon].max_depth = p_ptr->depth - min_depth(p_ptr->dungeon);
+	}
 }

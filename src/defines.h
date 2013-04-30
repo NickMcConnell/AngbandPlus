@@ -47,13 +47,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "UnAngband"
+#define VERSION_NAME "Unangband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.6.0"
+#define VERSION_STRING	"0.6.1"
 
 /*
  * Hack -- note use of new version name/string but old version
@@ -66,7 +66,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -179,6 +179,11 @@
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES	8
+
+/*
+ * Total number of items in home (see "store.c", etc)
+ */
+#define MAX_INVENTORY_HOME	24
 
 
 /*
@@ -397,9 +402,9 @@
 
 
 /*
- * There is a 1/160 chance per round of creating a new monster
+ * There is a 1/200 chance per round base chance of creating a new monster
  */
-#define MAX_M_ALLOC_CHANCE	160
+#define MAX_M_ALLOC_CHANCE	200
 
 /*
  * Normal levels get at least 14 monsters
@@ -470,6 +475,15 @@
 #define PY_REST_RATE    30
 
 /*
+ * Player "sleep" crucial values
+ */
+#define PY_SLEEP_MAX    	4800   /* Rest value (Maximum) */
+#define PY_SLEEP_RECOVER    	2400   /* Rest value (Recover) */
+#define PY_SLEEP_ASLEEP    	10    /* Rest value (Asleep) */
+#define PY_SLEEP_DROWSY   	5     /* Rest value (Drowsy) */
+
+
+/*
  * Player regeneration constants
  */
 #define PY_REGEN_NORMAL		197		/* Regen factor*2^16 when full */
@@ -495,6 +509,14 @@
  */
 #define INVEN_PACK		23
 
+
+/*
+ * Maximum number of "bag" slots. This is limited by the fact the screen can
+ * only show 23 items plus a one-line prompt.
+ */
+#define INVEN_BAG_TOTAL		23
+
+
 /*
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
  */
@@ -510,6 +532,12 @@
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
+
+/*
+ * Total number of equipment slots before quiver (old INVEN_TOTAL)
+ */
+#define END_EQUIPMENT	36
+
 
 /*
  * Total number of inventory slots (hard-coded).
@@ -563,6 +591,12 @@
 
 /*** Screen Locations ***/
 
+
+#define BOTTOM_LINE  Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1)
+#define SECOND_FROM_BOTTOM  Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2)
+
+
+
 /*
  * Some screen locations for various display routines
  * Currently, row 8 and 15 are the only "blank" rows.
@@ -578,87 +612,83 @@
 #define ROW_TITLE		3
 #define COL_TITLE		0	/* <title> or <mode> */
 
-#define ROW_LEVEL		(show_sidebar ? 4 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)) : 1))
+#define ROW_LEVEL		(show_sidebar ? 4 : (BOTTOM_LINE))
 #define COL_LEVEL		0	/* "LEVEL xxxxxx" */
 
-#define ROW_EXP		(show_sidebar ? 5 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)) : 1))
-#define COL_EXP		(show_sidebar ? 0 : 7)	/* "EXP xxxxxxxx" */
+#define ROW_EXP			(show_sidebar ? 5 : (BOTTOM_LINE))
+#define COL_EXP			(show_sidebar ? 0 : 7)	/* "EXP xxxxxxxx" */
 
-#define ROW_GOLD		(show_sidebar ? 6 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
+#define ROW_GOLD		(show_sidebar ? 6 : (BOTTOM_LINE))
 #define COL_GOLD		(show_sidebar ? 0 : 20)	/* "AU xxxxxxxxx" */
 
-#define ROW_STAT		(show_sidebar ? 8 : Term->hgt - (show_itemlist ? (use_trptile ? 5 \
-					: (use_dbltile ? 4 : 3)): 2))
+#define ROW_STAT		(show_sidebar ? 8 : (SECOND_FROM_BOTTOM))
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_AC		(show_sidebar ? 15 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
-#define COL_AC		(show_sidebar ? 0 : 33)	/* "Cur AC xxxxx" */
+#define ROW_AC			(show_sidebar ? 15 : (BOTTOM_LINE))
+#define COL_AC			(show_sidebar ? 0 : 33)	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		(show_sidebar ? 16 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
-#define COL_MAXHP		(show_sidebar ? 0 : 48)	/* "Max HP xxxxx" */
+#define ROW_MAXHP		(show_sidebar ? 16 : (BOTTOM_LINE))
+#define COL_MAXHP		(show_sidebar ? 0 : 47)	/* "Max HP xxxxx" */
 
-#define ROW_CURHP		(show_sidebar ? 17 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
+#define ROW_CURHP		(show_sidebar ? 17 : (BOTTOM_LINE))
 #define COL_CURHP		(show_sidebar ? 0 : 40)	/* "Cur HP xxxxx" */
 
-#define ROW_MAXSP		(show_sidebar ? 18 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
-#define COL_MAXSP		(show_sidebar ? 0 : 63)	/* "Max SP xxxxx" */
+#define ROW_MAXSP		(show_sidebar ? 18 : (BOTTOM_LINE))
+#define COL_MAXSP		(show_sidebar ? 0 : 60)	/* "Max SP xxxxx" */
 
-#define ROW_CURSP		(show_sidebar ? 19 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 3 : 2)): 1))
-#define COL_CURSP		(show_sidebar ? 0 : 55)	/* "Cur SP xxxxx" */
+#define ROW_CURSP		(show_sidebar ? 19 : (BOTTOM_LINE))
+#define COL_CURSP		(show_sidebar ? 0 : 53)	/* "Cur SP xxxxx" */
 
-#define ROW_INFO		20
-#define COL_INFO		0	/* "xxxxxxxxxxxx" */
+#define ROW_INFO		(show_sidebar ? 20 : (BOTTOM_LINE))
+#define COL_INFO		(show_sidebar ? 0 : 20)	/* "xxxxxxxxxxxx" */
 
-#define ROW_CUT		(show_sidebar ? 21 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 4 : 3)): 2))
-#define COL_CUT		(show_sidebar ? 0 : 18)	/* <cut> */
+#define ROW_CUT			(show_sidebar ? 21 : (SECOND_FROM_BOTTOM))
+#define COL_CUT			(show_sidebar ? 0 : 18)	/* <cut> */
 
-#define ROW_STUN	(show_sidebar ? 22 : Term->hgt - (show_itemlist ? (use_trptile ? 4 \
-					: (use_dbltile ? 4 : 3)): 2))
+#define ROW_STUN		(show_sidebar ? 22 : (SECOND_FROM_BOTTOM))
 #define COL_STUN		(show_sidebar ? 0 : 22)	/* <stun> */
 
-#define ROW_HUNGRY	(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)): 2))
-#define COL_HUNGRY	(show_sidebar ? 0 : 26)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
+#define ROW_HUNGRY		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_HUNGRY		(show_sidebar ? 0 : 26)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND		(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)): 2))
-#define COL_BLIND		(show_sidebar ? 7 : 30)	/* "Blind" */
+#define ROW_BLIND		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_BLIND		(show_sidebar ? (Term->wid >= 90  ? 7 : 6)  : 30)	/* "Blind" */
 
-#define ROW_CONFUSED	(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_CONFUSED	(show_sidebar ? 13 : 34)	/* "Confused" */
+#define ROW_CONFUSED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_CONFUSED		(show_sidebar ? (Term->wid >= 90  ? 13 : 11) : 34)	/* "Confused" */
 
-#define ROW_AFRAID	(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_AFRAID	(show_sidebar ? 22 : 38)	/* "Afraid" */
+#define ROW_AFRAID		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_AFRAID		(show_sidebar ? (Term->wid >= 90  ? 22 : 19) : 38)	/* "Afraid" */
 
-#define ROW_POISONED	(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_POISONED	(show_sidebar ? 29 : 42)	/* "Poisoned" */
+#define ROW_POISONED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_POISONED		(show_sidebar ? (Term->wid >= 90  ? 29 : 25) : 42)	/* "Poisoned" */
 
-#define ROW_STATE		(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_STATE		(show_sidebar ? 38 : 67)	/* <state> */
+#define ROW_DISEASE		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_DISEASE	(show_sidebar ? (Term->wid >= 90  ? 38 : 33) : 46)	/* "Disease" / "Dise" */
 
-#define ROW_SPEED		(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_SPEED		(show_sidebar ? 49 : 52)	/* "Slow (-NN)" or "Fast (+NN)" */
+#define ROW_CURSED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_CURSED	(show_sidebar ? (Term->wid >= 90  ? 46 : 40) : 50)	/* "Cursed" / "Curs" */
 
-#define ROW_STUDY		(show_sidebar ? Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1) \
-					: Term->hgt - (show_itemlist ? (use_trptile ? 5 : (use_dbltile ? 4 : 3)) : 2))
-#define COL_STUDY		(show_sidebar ? 64 : 46)	/* "Study" */
+#define ROW_AMNESIA	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_AMNESIA	(show_sidebar ? (Term->wid >= 90  ? 53 : 46) : 54)	/* "Amnesia" / "Forg" */
 
-#define ROW_DEPTH		Term->hgt - (show_itemlist ? (use_trptile ? 4 : (use_dbltile ? 3 : 2)) : 1)
-#define COL_DEPTH		(show_sidebar ? 70 : 72)	/* "Lev NNN" / "NNNN ft" */
+#define ROW_PETRIFY	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_PETRIFY	(show_sidebar ? (Term->wid >= 90  ? 61 : 53) : 58)	/* "Petrify" / "Petr" */
+
+#define ROW_STATE	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_STATE		(show_sidebar ? (Term->wid >= 90  ? 69 : 60) : 62)	/* <state> */
+
+#define ROW_SPEED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_SPEED		(show_sidebar ? (Term->wid >= 90  ? 80 : 70) : 72)	/* "Slow (-NN)" or "Fast (+NN)" */
+
+#define ROW_STUDY		(show_sidebar ? (Term->wid >= 96 ? (BOTTOM_LINE) : 14) \
+					: (BOTTOM_LINE))
+#define COL_STUDY		(show_sidebar ? (Term->wid >= 96 ? 91 : 0) : 67)	/* "Study" */
+
+#define ROW_DEPTH		(show_sidebar ? (Term->wid >= 105 ? (BOTTOM_LINE) : 7) \
+					: (BOTTOM_LINE))
+#define COL_DEPTH		(show_sidebar ? (Term->wid >= 105 ? 97 : 0) : 72)	/* "Lev NNN" / "NNNN ft" */
+
 
 
 /*** General index values ***/
@@ -811,6 +841,16 @@
 #define GF_BATTER	104
 #define GF_BLIND_WEAK	105
 #define GF_RAISE_DEAD	106
+#define GF_GAIN_MANA	107
+#define GF_FORGET	108
+#define GF_CURSE	109
+#define GF_DISPEL	110
+#define GF_STASTIS	111
+#define GF_PETRIFY	112
+#define GF_WEB		113
+#define GF_BLOOD	114
+#define GF_SLIME	115
+
 
 /*
  * Columns for the spell cost or damage flags
@@ -853,11 +893,11 @@
 #define MAX_FEAT_STATES	 8
 
 /*
- * Maximum number of 
+ * Maximum number of spell constants
  */
 #define MAX_SPELL_APPEARS	10
 #define MAX_SPELL_CASTERS	5
-
+#define MAX_SPELL_PREREQUISITES	2
 
 
 /*** Feature Indexes (see "lib/edit/feature.txt") ***/
@@ -1067,38 +1107,38 @@
 /*Feature flags - should be used instead of feature indexes unless generating.*/
 
 
-#define FF1_LOS  	0x00000001
-#define FF1_PROJECT     0x00000002
-#define FF1_MOVE 	0x00000004
-#define FF1_PLACE       0x00000008
-#define FF1_DROP 	0x00000010
-#define FF1_SECRET      0x00000020
-#define FF1_NOTICE      0x00000040
-#define FF1_REMEMBER    0x00000080
-#define FF1_OPEN 	0x00000100
-#define FF1_CLOSE       0x00000200
-#define FF1_BASH 	0x00000400
-#define FF1_SPIKE       0x00000800
-#define FF1_DISARM      0x00001000
-#define FF1_ENTER       0x00002000
-#define FF1_TUNNEL      0x00004000
-#define FF1_STREAMER    0x00008000
-#define FF1_HAS_GOLD    0x00010000
-#define FF1_HAS_ITEM    0x00020000
-#define FF1_DOOR 	0x00040000
-#define FF1_TRAP 	0x00080000
-#define FF1_STAIRS      0x00100000
-#define FF1_GLYPH       0x00200000
-#define FF1_LESS 	0x00400000
-#define FF1_MORE 	0x00800000
-#define FF1_RUN  	0x01000000
-#define FF1_FLOOR       0x02000000
-#define FF1_WALL 	0x04000000
-#define FF1_PERMANENT   0x08000000
-#define FF1_INNER       0x10000000
-#define FF1_OUTER       0x20000000
-#define FF1_SOLID       0x40000000
-#define FF1_HIT_TRAP    0x80000000
+#define FF1_LOS  	0x00000001L
+#define FF1_PROJECT     0x00000002L
+#define FF1_MOVE 	0x00000004L
+#define FF1_PLACE       0x00000008L
+#define FF1_DROP 	0x00000010L
+#define FF1_SECRET      0x00000020L
+#define FF1_NOTICE      0x00000040L
+#define FF1_REMEMBER    0x00000080L
+#define FF1_OPEN 	0x00000100L
+#define FF1_CLOSE       0x00000200L
+#define FF1_BASH 	0x00000400L
+#define FF1_SPIKE       0x00000800L
+#define FF1_DISARM      0x00001000L
+#define FF1_ENTER       0x00002000L
+#define FF1_TUNNEL      0x00004000L
+#define FF1_STREAMER    0x00008000L
+#define FF1_HAS_GOLD    0x00010000L
+#define FF1_HAS_ITEM    0x00020000L
+#define FF1_DOOR 	0x00040000L
+#define FF1_TRAP 	0x00080000L
+#define FF1_STAIRS      0x00100000L
+#define FF1_GLYPH       0x00200000L
+#define FF1_LESS 	0x00400000L
+#define FF1_MORE 	0x00800000L
+#define FF1_RUN  	0x01000000L
+#define FF1_FLOOR       0x02000000L
+#define FF1_WALL 	0x04000000L
+#define FF1_PERMANENT   0x08000000L
+#define FF1_INNER       0x10000000L
+#define FF1_OUTER       0x20000000L
+#define FF1_SOLID       0x40000000L
+#define FF1_HIT_TRAP    0x80000000L
 
 #define FF2_BRIDGE      0x00000001
 #define FF2_RIVER       0x00000002
@@ -1235,38 +1275,38 @@
 
 /* SF1 - informational and prompted equipment */
 
-#define SF1_DETECT_DOORS 0x00000001
-#define SF1_DETECT_TRAPS 0x00000002
+#define SF1_DETECT_DOORS 	0x00000001
+#define SF1_DETECT_TRAPS 	0x00000002
 #define SF1_DETECT_STAIRS       0x00000004
-#define SF1_DETECT_WATER 0x00000008
-#define SF1_DETECT_GOLD  0x00000010
+#define SF1_DETECT_WATER 	0x00000008
+#define SF1_DETECT_GOLD  	0x00000010
 #define SF1_DETECT_OBJECT       0x00000020
-#define SF1_DETECT_MAGIC 0x00000040
-#define SF1_DETECT_CURSE 0x00000080
-#define SF1_DETECT_MONSTER      0x00000100
-#define SF1_DETECT_EVIL  0x00000200
-#define SF1_DETECT_INVIS 0x00000400
-#define SF1_DETECT_ANIMAL       0x00000800
-#define SF1_DETECT_UNDEAD       0x00001000
-#define SF1_DETECT_DEMON 0x00002000
-#define SF1_MAP_AREA     0x00004000
-#define SF1_WIZ_LITE     0x00008000
-#define SF1_LITE_ROOM    0x00010000
-#define SF1_DARK_ROOM    0x00020000
-#define SF1_FORGET       0x00040000
-#define SF1_SELF_KNOW    0x00080000
-#define SF1_IDENT 0x00100000
-#define SF1_IDENT_PACK   0x00200000
-#define SF1_IDENT_SENSE  0x00400000
-#define SF1_IDENT_BONUS  0x00800000
-#define SF1_IDENT_RUMOR  0x01000000
-#define SF1_IDENT_FULLY  0x02000000
-#define SF1_ACQUIREMENT   0x04000000
-#define SF1_STAR_ACQUIREMENT     0x08000000
-#define SF1_ENCHANT_TOH  0x10000000
-#define SF1_ENCHANT_TOD  0x20000000
-#define SF1_ENCHANT_TOA  0x40000000
-#define SF1_ENCHANT_HIGH 0x80000000
+#define SF1_DETECT_MAGIC 	0x00000040
+#define SF1_DETECT_CURSE 	0x00000080
+#define SF1_DETECT_POWER	0x00000100
+#define SF1_DETECT_MONSTER      0x00000200
+#define SF1_DETECT_EVIL  	0x00000400
+#define SF1_DETECT_LIFE 	0x00000800
+#define SF1_MAP_AREA     	0x00001000
+#define SF1_WIZ_LITE     	0x00002000
+#define SF1_LITE_ROOM    	0x00004000
+#define SF1_DARK_ROOM    	0x00008000
+#define SF1_FORGET       	0x00010000
+#define SF1_SELF_KNOW    	0x00020000
+#define SF1_IDENT 		0x00040000
+#define SF1_IDENT_MAGIC   	0x00080000
+#define SF1_IDENT_SENSE  	0x00100000
+#define SF1_IDENT_BONUS  	0x00200000
+#define SF1_IDENT_RUNES  	0x00400000
+#define SF1_IDENT_VALUE  	0x00800000
+#define SF1_IDENT_RUMOR  	0x01000000
+#define SF1_IDENT_FULLY  	0x02000000
+#define SF1_ACQUIREMENT   	0x04000000
+#define SF1_STAR_ACQUIREMENT    0x08000000
+#define SF1_ENCHANT_TOH  	0x10000000
+#define SF1_ENCHANT_TOD  	0x20000000
+#define SF1_ENCHANT_TOA  	0x40000000
+#define SF1_ENCHANT_HIGH 	0x80000000
 
 /* SF2 - timed abilities and modifying level */
 
@@ -1319,15 +1359,15 @@
 #define SF3_CURE_CHR     0x00000800
 #define SF3_INC_EXP      0x00001000
 #define SF3_CURE_EXP     0x00002000
-#define SF3_SLOW_MANA    0x00004000
-#define SF3_CURE_MANA    0x00008000
+#define SF3_FREE_ACT     0x00004000
+#define SF3_CURE_MEM     0x00008000
 #define SF3_SLOW_CURSE   0x00010000
 #define SF3_CURE_CURSE   0x00020000
-#define SF3_SLOW_POIS    0x00040000
-#define SF3_CURE_POIS    0x00080000
-#define SF3_SLOW_CUTS    0x00100000
-#define SF3_CURE_CUTS    0x00200000
-#define SF3_CURE_STUN    0x00400000
+#define SF3_SLOW_CUTS    0x00040000
+#define SF3_CURE_CUTS    0x00080000
+#define SF3_SLOW_STUN    0x00100000
+#define SF3_CURE_STUN    0x00200000
+#define SF3_CURE_POIS    0x00400000
 #define SF3_CURE_CONF    0x00800000
 #define SF3_CURE_FOOD    0x01000000
 #define SF3_CURE_FEAR    0x02000000
@@ -1339,43 +1379,44 @@
 #define SF3_EVIL  0x80000000
 
 
-#define DISEASE_LOSE_STR    0x00000001
-#define DISEASE_LOSE_INT 0x00000002
-#define DISEASE_LOSE_WIS  0x00000004
-#define DISEASE_LOSE_DEX 0x00000008
-#define DISEASE_LOSE_CON   0x00000010
-#define DISEASE_LOSE_CHR  0x00000020
-#define DISEASE_HUNGER     0x00000040
-#define DISEASE_THIRST       0x00000080
-#define DISEASE_CUT   0x00000100
-#define DISEASE_STUN  0x00000200
-#define DISEASE_POISON       0x00000400
-#define DISEASE_HALLUC       0x00000800
-#define DISEASE_SLOW  0x00001000
-#define DISEASE_BLIND 0x00002000
-#define DISEASE_CONFUSE      0x00004000
-#define DISEASE_FEAR  0x00008000
-#define DISEASE_PARALYZE     0x00010000
-#define DISEASE_DRAIN_HP 0x00020000
-#define DISEASE_DRAIN_MANA 0x00040000
-#define DISEASE_DRAIN_EXP  0x00080000
-#define DISEASE_XXX2 0x00100000
-#define DISEASE_XXX3 0x00200000
-#define DISEASE_XXX4       0x00400000
-#define DISEASE_XXX5       0x00800000
-#define DISEASE_XXX6    0x01000000
-#define DISEASE_XXX7    0x02000000
-#define DISEASE_DISEASE       0x04000000
-#define DISEASE_QUICK     0x08000000
-#define DISEASE_POWER     0x10000000
-#define DISEASE_LIGHT     0x20000000
-#define DISEASE_HEAVY     0x40000000
-#define DISEASE_PERMANENT    0x80000000
+#define DISEASE_LOSE_STR    	0x00000001
+#define DISEASE_LOSE_INT 	0x00000002
+#define DISEASE_LOSE_WIS  	0x00000004
+#define DISEASE_LOSE_DEX 	0x00000008
+#define DISEASE_LOSE_CON   	0x00000010
+#define DISEASE_LOSE_CHR  	0x00000020
+#define DISEASE_HUNGER     	0x00000040
+#define DISEASE_THIRST       	0x00000080
+#define DISEASE_CUT   		0x00000100
+#define DISEASE_STUN  		0x00000200
+#define DISEASE_POISON       	0x00000400
+#define DISEASE_HALLUC       	0x00000800
+#define DISEASE_SLOW  		0x00001000
+#define DISEASE_BLIND 		0x00002000
+#define DISEASE_CONFUSE      	0x00004000
+#define DISEASE_FEAR  		0x00008000
+#define DISEASE_AMNESIA		0x00010000
+#define DISEASE_CURSE		0x00020000
+#define DISEASE_DISPEL    	0x00040000
+#define DISEASE_SLEEP		0x00080000
+#define DISEASE_PETRIFY		0x00100000
+#define DISEASE_PARALYZE     	0x00200000
+#define DISEASE_STASTIS		0x00400000
+#define DISEASE_DRAIN_HP 	0x00800000
+#define DISEASE_DRAIN_MANA	0x01000000
+#define DISEASE_DRAIN_EXP	0x02000000
+#define DISEASE_DISEASE       	0x04000000
+#define DISEASE_QUICK     	0x08000000
+#define DISEASE_POWER     	0x10000000
+#define DISEASE_LIGHT     	0x20000000
+#define DISEASE_HEAVY     	0x40000000
+#define DISEASE_PERMANENT    	0x80000000
 
 /* Maximum number of disease flags that can randomly affect the player */
-#define DISEASE_BLOWS 0x0001FFFF
-#define DISEASE_TYPES_HEAVY 20
-#define DISEASE_TYPES 16
+#define DISEASE_TYPES 18
+#define DISEASE_BLOWS 23
+#define DISEASE_SPECIAL 25
+#define DISEASE_TYPES_HEAVY 26
 
 #define SPELL_RECHARGE   1
 #define SPELL_IDENT_TVAL 2
@@ -1393,6 +1434,9 @@
 #define SPELL_EARTHQUAKE      14
 #define SPELL_DESTRUCTION     15
 #define SPELL_CURE_DISEASE	16
+#define SPELL_SLOW_CONF		17
+#define SPELL_SLOW_POIS		18
+#define SPELL_IDENT_PACK	19
 #define SPELL_INVEN_WIELD      24
 #define SPELL_INVEN_BOW       25
 #define SPELL_INVEN_LEFT      26
@@ -1619,6 +1663,7 @@
 #define TV_SPELL 10      /* Magic spells (varies) */
 #define TV_STATUE       11      /* Statues ('~') */
 #define TV_ASSEMBLY	12	/* Assemblys ('~') */
+#define TV_ROPE		14	/* Ropes, vines or chains ('~') */
 #define TV_SHOT   16      /* Ammo for slings */
 #define TV_ARROW 17      /* Ammo for bows */
 #define TV_BOLT  18      /* Ammo for x-bows */
@@ -1648,10 +1693,12 @@
 #define TV_POTION       75
 #define TV_FLASK 77
 #define TV_FOOD  80
+#define TV_STUDY	85
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_SONG_BOOK    92
 #define TV_RUNESTONE    93
+#define TV_BAG		98	/* Containers for other items */
 #define TV_SERVICE	99	/* Services have special meanings in stores */
 #define TV_GOLD  100     /* Gold or higher tvals can only be picked up by players */
 #define TV_GEMS  101
@@ -1720,6 +1767,11 @@
 #define SV_ASSEMBLY_LEGS	 22
 #define SV_ASSEMBLY_PART_LEG_R	 23
 
+/* The "sval" codes for TV_ROPE */
+#define SV_ROPE_ROPE	1
+#define SV_ROPE_CHAIN	2
+#define SV_ROPE_ELVEN	4
+
 /* The "sval" codes for TV_SKIN */
 #define SV_SKIN_SKIN  1
 #define SV_SKIN_SCALE 2
@@ -1755,11 +1807,13 @@
 #define SV_AMMO_HEAVY		2	/* seeker arrows and bolts */
 #define SV_AMMO_SPECIAL		3	/* special arrows and bolts */
 #define SV_AMMO_STEEL		5	/* steel arrows and bolts */
+#define SV_AMMO_GRAPPLE		6	/* grapple arrows and bolts */
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING			2	/* (x2) */
 #define SV_SHORT_BOW		12	/* (x2) */
 #define SV_LONG_BOW			13	/* (x3) */
+#define SV_HAND_XBOW		22	/* (x3) */
 #define SV_LIGHT_XBOW		23	/* (x3) */
 #define SV_HEAVY_XBOW		24	/* (x4) */
 
@@ -1793,6 +1847,7 @@
 #define SV_JAVELIN				2	/* 1d6 */
 #define SV_AWL_PIKE				4	/* 1d8 */
 #define SV_SPEAR  				5	/* 1d8 */
+#define SV_HARPOON				6	/* 1d8 */
 #define SV_PIKE					8	/* 2d5 */
 #define SV_BEAKED_AXE			10	/* 2d6 */
 #define SV_BROAD_AXE			11	/* 2d6 */
@@ -2194,6 +2249,11 @@
 #define SV_FLASK_OIL      0
 #define SV_FLASK_EMPTY    1
 #define SV_FLASK_ACID     2
+#define SV_FLASK_BLOOD	  3
+#define SV_FLASK_SLIME	  3
+#define SV_FLASK_BILE	  5
+#define SV_FLASK_WEB	  15
+
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON			0
@@ -2252,6 +2312,13 @@
  * Special "sval" limit -- first "good" magic/prayer book
  */
 #define SV_BOOK_MIN_GOOD	4
+
+
+/*
+ * Special "sval" limit -- maximum number of bags
+ */
+#define SV_BAG_MAX_BAGS		24
+
 
 /*
  * Special "sval" value -- unknown "sval"
@@ -2324,8 +2391,21 @@
 #define RBM_SHOT 	57
 #define RBM_ARC_20	58
 #define RBM_ARC_30	59
-#define RBM_ARC_60	60
-#define RBM_FLASK	61
+#define RBM_ARC_40	60
+#define RBM_ARC_50	61
+#define RBM_ARC_60	62
+#define RBM_FLASK	63
+#define RBM_TRAIL	64
+#define RBM_SHRIEK	65
+#define RBM_BOLT_MINOR	66
+#define RBM_BALL_MINOR	67
+#define RBM_BALL_II	68
+#define RBM_BALL_III	69
+#define RBM_AURA_MINOR	70
+#define RBM_8WAY	71
+#define RBM_8WAY_II	72
+#define RBM_8WAY_III	73
+#define RBM_SWARM	74
 
 #define RBM_MAX_NORMAL  23
 #define RBM_MIN_RANGED  15
@@ -2367,7 +2447,7 @@
 #define PROJECT_BEAM         0x00000001
 #define PROJECT_ARC          0x00000002
 #define PROJECT_STAR         0x00000004
-#define PROJECT_XXX1         0x00000008
+#define PROJECT_8WAY         0x00000008
 #define PROJECT_XXX2         0x00000010
 #define PROJECT_XXX3         0x00000020
 
@@ -2376,7 +2456,7 @@
 #define PROJECT_WALL         0x00000080
 #define PROJECT_PASS         0x00000100  /*Ignore walls*/
 #define PROJECT_MISS         0x00000200  /*Misses the first target*/
-#define PROJECT_XXX5         0x00000400
+#define PROJECT_AREA         0x00000400  /* Applies damage evenly at all ranges */
 
 /* What projections affect */
 #define PROJECT_GRID         0x00000800
@@ -2484,7 +2564,7 @@
 #define PU_HP			0x00000010L	/* Calculate chp and mhp */
 #define PU_MANA			0x00000020L	/* Calculate csp and msp */
 #define PU_SPELLS		0x00000040L	/* Calculate spells */
-#define PU_RUNES		0x00000080L /* Calculate runes */
+#define PU_RUNES		0x00000080L 	/* Calculate runes */
 /* xxx (many) */
 #define PU_FORGET_VIEW	0x00010000L	/* Forget field of view */
 #define PU_UPDATE_VIEW	0x00020000L	/* Update field of view */
@@ -2524,13 +2604,14 @@
 #define PR_STATE		0x00100000L	/* Display Extra (State) */
 #define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
 #define PR_STUDY		0x00400000L	/* Display Extra (Study) */
-/* xxx */
 #define PR_EXTRA		0x01000000L	/* Display Extra Info */
 #define PR_BASIC		0x02000000L	/* Display Basic Info */
-/* xxx */
 #define PR_ITEM_LIST		0x04000000L     /* Display Item List */
 #define PR_MAP			0x08000000L	/* Display Map */
-/* xxx (many) */
+#define PR_DISEASE		0x10000000L	/* Display Extra (Disease) */
+#define PR_AMNESIA		0x20000000L	/* Display Extra (Cursed) */
+#define PR_CURSED		0x40000000L	/* Display Extra (Amnesia) */
+#define PR_PETRIFY		0x80000000L	/* Display Extra (Petrify) */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
@@ -2696,41 +2777,60 @@
 /*
  * Special Object Flags
  */
-#define IDENT_SENSE		0x01	/* Item has been "sensed" */
-#define IDENT_FIXED		0x02	/* Item has been "haggled" */
-#define IDENT_BONUS		0x04	/* Item bonuses are known */
-#define IDENT_KNOWN		0x08	/* Item abilities are known */
-#define IDENT_STORE	0x10	/* Item is in a store */
-#define IDENT_MENTAL	0x20	/* Item information is known */
-#define IDENT_CURSED	0x40	/* Item is temporarily cursed */
-#define IDENT_BROKEN	0x80	/* Item is permanently worthless */
-/* Space for implementation of multiple pvals */
+#define IDENT_SENSE	0x0001	/* Item has been "sensed" */
+#define IDENT_FIXED	0x0002	/* Item has been "haggled" */
+#define IDENT_BONUS	0x0004	/* Item bonuses are known */
+#define IDENT_KNOWN	0x0008	/* Item abilities are known */
+#define IDENT_STORE	0x0010	/* Item is in a store / item is 'stored' in terrain */
+#define IDENT_MENTAL	0x0020	/* Item information is known */
+#define IDENT_CURSED	0x0040	/* Item is temporarily cursed */
+#define IDENT_BROKEN	0x0080	/* Item is permanently worthless */
+#define IDENT_BREAKS	0x0100	/* Item will break next round */
+#define IDENT_CHARGES	0x0200	/* Item charges are known */
+#define IDENT_VALUE	0x0400	/* Item value is known */
+#define IDENT_RUNES	0x0800	/* Item runes are known */
+#define IDENT_NAME	0x1000	/* Item name is known */
+#define IDENT_PVAL	0x2000	/* Item pval is known */
+#define IDENT_MARKED	0x4000	/* Item is visible */
+#define IDENT_FORGED	0x8000	/* Item has been forged by player */
 
 /*
  * The special inscriptions.
  */
-#define INSCRIP_NULL	    100
-#define INSCRIP_TERRIBLE	100+1
-#define INSCRIP_WORTHLESS       100+2
-#define INSCRIP_CURSED	  100+3
-#define INSCRIP_BROKEN	  100+4
-#define INSCRIP_EMPTY	 100+5
-#define INSCRIP_GOOD	    100+6
-#define INSCRIP_EXCELLENT       100+7
-#define INSCRIP_SPECIAL	 100+8
-#define INSCRIP_UNCURSED	100+9
-#define INSCRIP_VERY_GOOD       100+10
-#define INSCRIP_GREAT    100+11
-#define INSCRIP_SUPERB   100+12
-#define INSCRIP_UNBREAKABLE	100+13 /* Artifact */
-#define INSCRIP_UNGETTABLE	100+14 /* Has flag preventing player / monster getting it */
-#define INSCRIP_MIN_HIDDEN      100+15 /* Minimum inscription for hidden */
+#define INSCRIP_NULL	    	0
+#define INSCRIP_TERRIBLE	1
+#define INSCRIP_WORTHLESS       2
+#define INSCRIP_CURSED	  	3
+#define INSCRIP_BROKEN	  	4
+#define INSCRIP_EMPTY	 	5
+#define INSCRIP_GOOD	    	6
+#define INSCRIP_EXCELLENT       7
+#define INSCRIP_SPECIAL	 	8
+#define INSCRIP_UNCURSED	9  /* Uncursed, or has been detected to be average or better */
+#define INSCRIP_VERY_GOOD       10
+#define INSCRIP_GREAT    	11
+#define INSCRIP_SUPERB   	12
+#define INSCRIP_UNBREAKABLE	13 /* Artifact */
+#define INSCRIP_UNGETTABLE	14 /* Has flag preventing player / monster getting it */
+#define INSCRIP_NONMAGICAL	15 /* Has been detected to be average or cursed */
+#define INSCRIP_MAGICAL		16 /* Has been detected to be better than average */
+#define INSCRIP_POWERFUL	17 /* XXX Not currently used. */
+#define INSCRIP_EGO_ITEM	18 /* Has been detected to be ego item */
+#define INSCRIP_HIGH_EGO_ITEM	19 /* Has been detected to be high ego item */
+#define INSCRIP_ARTIFACT	20 /* Has been detected to be artifact */
+#define INSCRIP_UNRUNED		21 /* Does not have any runes */
+#define INSCRIP_RUNED		22 /* Does have runes */
+#define INSCRIP_AVERAGE		23 /* Has been detected to be average */
+#define INSCRIP_VALUABLE	24 /* Has been detected to be valuable */
+#define INSCRIP_UNUSUAL		25 /* Has been detected to be not average */
+#define INSCRIP_COATED		26 /* Has been coated with something */
+#define INSCRIP_MIN_HIDDEN      27 /* Minimum inscription for hidden */
 
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP			30
+#define MAX_INSCRIP			42
 
 
 /*
@@ -2950,12 +3050,51 @@
 	 TR3_ESP_GIANT | TR3_ESP_ORC | TR3_ESP_TROLL | \
 	 TR3_ESP_UNDEAD | TR3_ESP_NATURE | TR3_SEE_INVIS)
 
+
+
+/*
+ *  Hack -- exclude the following flags from equipment self-knowledge except weapons.
+ */
+#define TR1_WEAPON_FLAGS (TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT |\
+			TR1_SLAY_DRAGON | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON |\
+			TR1_SLAY_NATURAL | TR1_BRAND_HOLY | TR1_KILL_DRAGON |\
+			TR1_KILL_UNDEAD | TR1_KILL_DEMON | TR1_BRAND_ACID |\
+			TR1_BRAND_FIRE | TR1_BRAND_POIS | TR1_BRAND_ELEC |\
+			TR1_BRAND_COLD)
+
+#define TR2_WEAPON_FLAGS 0x0L
+
+#define TR3_WEAPON_FLAGS (TR3_IMPACT | TR3_BLESSED | TR3_THROWING)
+
+#define TR4_WEAPON_FLAGS (TR4_VAMP_HP | TR4_VAMP_MANA |\
+			  TR4_BRAND_LITE | TR4_BRAND_DARK | TR4_SLAY_MAN | TR4_SLAY_ELF |\
+			  TR4_SLAY_DWARF)
+/*
+ *  Hack -- exclude the following flags from equipment self-knowledge as they never apply
+ *  directly to the player.
+ */
+#define TR1_IGNORE_FLAGS (TR1_WEAPON_FLAGS)
+
+#define TR2_IGNORE_FLAGS (TR2_WEAPON_FLAGS | TR2_IGNORE_MASK)
+
+#define TR3_IGNORE_FLAGS (TR3_WEAPON_FLAGS | TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART |\
+			  TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS)
+
+#define TR4_IGNORE_FLAGS (TR4_WEAPON_FLAGS)
+
+
+
+
+
+
+
 /*
  * Hack -- special "xtra" object flag info (type)
  */
-#define OBJECT_XTRA_MAX_HIDDEN 22
+#define OBJECT_XTRA_MAX_HIDDEN 20
 
 #define OBJECT_XTRA_MIN_RUNES    36
+#define OBJECT_XTRA_MIN_COATS    70
 #define MAX_RUNE_FLAGS    4
 
 /* Total number of different slay types used */
@@ -3085,17 +3224,17 @@
 #define RF2_BASH_DOOR	0x00020000      /* Monster can bash doors */
 #define RF2_PASS_WALL	0x00040000      /* Monster can pass walls */
 #define RF2_KILL_WALL	0x00080000      /* Monster can destroy walls */
-#define RF2_ARCHER	0x00100000      /* Monster can move monsters */
-#define RF2_KILL_BODY	0x00200000      /* Monster can kill monsters */
+#define RF2_ARCHER	0x00100000      /* Monster has extra ammo */
+#define RF2_EAT_BODY	0x00200000      /* Monster can eat body parts */
 #define RF2_TAKE_ITEM	0x00400000      /* Monster can pick up items */
-#define RF2_KILL_ITEM	0x00800000      /* Monster can crush items */
-#define RF2_SNEAKY 	0x01000000 /* Monster hides a lot of actions */
-#define RF2_ARMOR	0x02000000 /* Monster is fully armoured (Reduces acid damage/stops some arrows) */
-#define RF2_PRIEST 	0x04000000 /* Monster has access to priest spells ? */
-#define RF2_MAGE   	0x08000000 /* Monster has access to mage spells ? */
-#define RF2_HAS_AURA  	0x10000000 /* Monster radiates an aura attack */
-#define RF2_HAS_WEB	0x20000000 /* Monster leaves a trail of webs */
-#define RF2_NEED_LITE	0x40000000 /* Monster cannot see the player if player is not visible */
+#define RF2_TRAIL	0x00800000      /* Monster leavs a trail behind it */
+#define RF2_SNEAKY 	0x01000000 	/* Monster hides a lot of actions */
+#define RF2_ARMOR	0x02000000 	/* Monster is fully armoured (Reduces acid damage/stops some arrows) */
+#define RF2_PRIEST 	0x04000000 	/* Monster has access to priest spells ? */
+#define RF2_MAGE   	0x08000000 	/* Monster has access to mage spells ? */
+#define RF2_HAS_AURA  	0x10000000 	/* Monster radiates an aura attack */
+#define RF2_HAS_WEB	0x20000000 	/* Monster created in a web */
+#define RF2_NEED_LITE	0x40000000 	/* Monster cannot see the player if player is not visible */
 #define RF2_LOW_MANA_RUN	0x80000000	/* Monster will run if low on mana */
 
 /*
@@ -3145,7 +3284,7 @@
 #define RF4_BLOW_2         0x00000002  /* 2nd blow is ranged attack */
 #define RF4_BLOW_3         0x00000004  /* 3rd blow is ranged attack */
 #define RF4_BLOW_4         0x00000008  /* 4th blow is ranged attack */
-#define RF4_SHRIEK         0x00000010  /* Shriek for help */
+#define RF4_ADD_AMMO       0x00000010  /* Add ammunition */
 #define RF4_QUAKE          0x00000020  /* Earthquake */
 #define RF4_EXPLODE        0x00000040  /* Explode with radius 3 */
 #define RF4_AURA           0x00000080  /* Radiate aura with radius 2 */
@@ -3232,7 +3371,7 @@
 #define RF6_FORGET         0x00004000  /* Cause amnesia */
 #define RF6_DRAIN_MANA     0x00008000  /* Drain Mana */
 #define RF6_CURSE          0x00010000  /* Curse player */
-#define RF6_ADD_AMMO       0x00020000  /* Dispel player */
+#define RF6_DISPEL         0x00020000  /* Dispel player */
 #define RF6_MIND_BLAST     0x00040000  /* Blast Mind  */
 #define RF6_ILLUSION       0x00080000  /* Hallucinate player */
 #define RF6_WOUND          0x00100000  /* Cause Wounds */
@@ -3376,7 +3515,7 @@
  */
 #define RF3_RACE_MASK \
 	(RF3_ORC | RF3_TROLL | RF3_GIANT | RF3_DRAGON | \
-	 RF3_DEMON | RF3_UNDEAD | RF3_EVIL | RF3_ANIMAL | \
+	 RF3_DEMON | RF3_UNDEAD | RF3_ANIMAL | \
 	 RF3_INSECT | RF3_PLANT)
 
 #define RF9_RACE_MASK \
@@ -3424,10 +3563,11 @@
 #define LANG_DRAGON	6
 #define LANG_DEMON	7
 #define LANG_UNDEAD	8
-#define LANG_FOREST	9
-#define LANG_MUSHROOM	10
-#define LANG_NATURAL	11
-#define MAX_LANGUAGES	65
+#define LANG_ESP	9
+#define LANG_FOREST	10
+#define LANG_MUSHROOM	11
+#define LANG_NATURAL	12
+#define MAX_LANGUAGES	66
 
 
 /*
@@ -3798,6 +3938,10 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
+#define OPT_USER_INTERFACE			0
+#define OPT_DISTURBANCE			    16
+#define OPT_GAME_PLAY			    32
+#define OPT_EFFICIENCY			    48
 #define OPT_VARIANT				     96
 #define OPT_BIRTH				       128
 #define OPT_CHEAT					160
@@ -3848,8 +3992,7 @@
 #define OPT_verify_special 29
 #define OPT_allow_quantity 30
 #define OPT_easy_corpses 31
-#define OPT_auto_haggle    32
-#define OPT_auto_scum      33
+/* xxx */
 #define OPT_expand_look    36
 #define OPT_expand_list    37
 #define OPT_view_perma_grids     38
@@ -3858,7 +4001,7 @@
 #define OPT_dungeon_stair  41
 #define OPT_view_unsafe_grids 42
 #define OPT_view_detect_grids 43
-/* xxx track_follow */
+#define OPT_run_ignore_floors     44
 /* xxx track_target */
 /* xxx smart_learn */
 #define OPT_smart_cheat    47
@@ -3886,9 +4029,9 @@
 #define OPT_run_avoid_center     69
 #define OPT_scroll_target  70
 #define OPT_auto_more      71
-#define OPT_smart_monsters 72
-#define OPT_smart_packs    73
-#define OPT_stack_force_pvals			74
+#define OPT_auto_display_lists	72
+#define OPT_toggle_xp	   73
+#define OPT_stack_force_charges			74
 #define OPT_stack_force_times		75
 /* xxx */
 #define OPT_room_descriptions			77
@@ -3906,7 +4049,7 @@
 /* xxx xxx */
 #define OPT_birth_point_based    (OPT_BIRTH+0)
 #define OPT_birth_auto_roller    (OPT_BIRTH+1)
-#define OPT_birth_maximize (OPT_BIRTH+2)
+#define OPT_birth_maximize_race (OPT_BIRTH+2)
 #define OPT_birth_preserve (OPT_BIRTH+3)
 #define OPT_birth_ironman  (OPT_BIRTH+4)
 #define OPT_birth_no_stores       (OPT_BIRTH+5)
@@ -3914,6 +4057,9 @@
 #define OPT_birth_rand_artifacts (OPT_BIRTH+7)
 #define OPT_birth_campaign  (OPT_BIRTH+8)
 #define OPT_birth_no_stacking       (OPT_BIRTH+9)
+#define OPT_birth_haggle (OPT_BIRTH+10)
+#define OPT_birth_scum (OPT_BIRTH+11)
+#define OPT_birth_maximize_class (OPT_BIRTH+12)
 /* xxx xxx */
 #define OPT_cheat_peek     (OPT_CHEAT+0)
 #define OPT_cheat_hear     (OPT_CHEAT+1)
@@ -3925,7 +4071,7 @@
 #define OPT_cheat_auto     (OPT_CHEAT+7)
 #define OPT_adult_point_based    (OPT_ADULT+0)
 #define OPT_adult_auto_roller    (OPT_ADULT+1)
-#define OPT_adult_maximize (OPT_ADULT+2)
+#define OPT_adult_maximize_race (OPT_ADULT+2)
 #define OPT_adult_preserve (OPT_ADULT+3)
 #define OPT_adult_ironman  (OPT_ADULT+4)
 #define OPT_adult_no_stores       (OPT_ADULT+5)
@@ -3933,6 +4079,9 @@
 #define OPT_adult_rand_artifacts (OPT_ADULT+7)
 #define OPT_adult_campaign  (OPT_ADULT+8)
 #define OPT_adult_no_stacking       (OPT_ADULT+9)
+#define OPT_adult_haggle (OPT_ADULT+10)
+#define OPT_adult_scum (OPT_ADULT+11)
+#define OPT_adult_maximize_class (OPT_ADULT+12)
 /* xxx xxx */
 #define OPT_score_peek     (OPT_SCORE+0)
 #define OPT_score_hear     (OPT_SCORE+1)
@@ -3964,6 +4113,7 @@
 #define show_flavors      op_ptr->opt[OPT_show_flavors]
 #define run_ignore_stairs op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors  op_ptr->opt[OPT_run_ignore_doors]
+#define run_ignore_floors op_ptr->opt[OPT_run_ignore_floors]
 #define run_cut_corners   op_ptr->opt[OPT_run_cut_corners]
 #define run_use_corners   op_ptr->opt[OPT_run_use_corners]
 #define disturb_move      op_ptr->opt[OPT_disturb_move]
@@ -3978,8 +4128,6 @@
 #define verify_special    op_ptr->opt[OPT_verify_special]
 #define allow_quantity    op_ptr->opt[OPT_allow_quantity]
 #define easy_corpses      op_ptr->opt[OPT_easy_corpses]
-#define auto_haggle op_ptr->opt[OPT_auto_haggle]
-#define auto_scum   op_ptr->opt[OPT_auto_scum]
 /* xxx testing_stack */
 /* xxx testing_carry */
 #define expand_look op_ptr->opt[OPT_expand_look]
@@ -4018,9 +4166,9 @@
 #define run_avoid_center  op_ptr->opt[OPT_run_avoid_center]
 #define scroll_target     op_ptr->opt[OPT_scroll_target]
 #define auto_more   op_ptr->opt[OPT_auto_more]
-#define smart_monsters    op_ptr->opt[OPT_smart_monsters]
-#define smart_packs op_ptr->opt[OPT_smart_packs]
-#define stack_force_pvals  op_ptr->opt[OPT_stack_force_pvals]
+#define auto_display_lists    op_ptr->opt[OPT_auto_display_lists]
+#define toggle_xp op_ptr->opt[OPT_toggle_xp]
+#define stack_force_charges  op_ptr->opt[OPT_stack_force_charges]
 #define stack_force_times  op_ptr->opt[OPT_stack_force_times]
 /* xxx */
 #define verify_mana      op_ptr->opt[OPT_verify_mana]
@@ -4035,13 +4183,17 @@
 /* xxx xxx */
 #define birth_point_based op_ptr->opt[OPT_birth_point_based]
 #define birth_auto_roller op_ptr->opt[OPT_birth_auto_roller]
-#define birth_maximize    op_ptr->opt[OPT_birth_maximize]
+#define birth_maximize_race    op_ptr->opt[OPT_birth_maximize_race]
 #define birth_preserve    op_ptr->opt[OPT_birth_preserve]
 #define birth_ironman     op_ptr->opt[OPT_birth_ironman]
 #define birth_no_stores   op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts       op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts    op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_campaign       op_ptr->opt[OPT_birth_campaign]
+#define birth_haggle       op_ptr->opt[OPT_birth_haggle]
+#define birth_scum       op_ptr->opt[OPT_birth_scum]
+#define birth_maximize_class    op_ptr->opt[OPT_birth_maximize_class]
+
 /* xxx xxx */
 #define cheat_peek  op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear  op_ptr->opt[OPT_cheat_hear]
@@ -4054,7 +4206,7 @@
 /* xxx xxx */
 #define adult_point_based op_ptr->opt[OPT_adult_point_based]
 #define adult_auto_roller op_ptr->opt[OPT_adult_auto_roller]
-#define adult_maximize    op_ptr->opt[OPT_adult_maximize]
+#define adult_maximize_race    op_ptr->opt[OPT_adult_maximize_race]
 #define adult_preserve    op_ptr->opt[OPT_adult_preserve]
 #define adult_ironman     op_ptr->opt[OPT_adult_ironman]
 #define adult_no_stores   op_ptr->opt[OPT_adult_no_stores]
@@ -4062,6 +4214,9 @@
 #define adult_rand_artifacts    op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_campaign       op_ptr->opt[OPT_adult_campaign]
 #define adult_no_stacking   op_ptr->opt[OPT_adult_no_stacking]
+#define adult_haggle       op_ptr->opt[OPT_adult_haggle]
+#define adult_scum       op_ptr->opt[OPT_adult_scum]
+#define adult_maximize_class    op_ptr->opt[OPT_adult_maximize_class]
 /* xxx xxx */
 #define score_peek  op_ptr->opt[OPT_score_peek]
 #define score_hear  op_ptr->opt[OPT_score_hear]
@@ -4118,15 +4273,42 @@
 	  k_info[(T)->k_idx].aware))
 
 /*
- * Determine if a given inventory item has known bonuses
- * Test One -- Check for special "known" tag
+ * Determine if a given inventory item is "named"
+ * Test One -- Check for special "known" or "named" tags
+ * Test Two -- Check for "Flavor" + "Aware"
+ */
+#define object_named_p(T) \
+	(((T)->ident & (IDENT_KNOWN | IDENT_NAME)) || \
+	 (k_info[(T)->k_idx].flavor && \
+	  k_info[(T)->k_idx].aware))
+
+
+/*
+ * Determine if a given inventory item charges are known
+ * Test One -- Check for special "known" or "named" tags
  * Test Two -- Check for "Easy Know" + "Aware"
- * Test Three -- Check for special "bonus" tag
+ */
+#define object_charges_p(T) \
+	(((T)->ident & (IDENT_KNOWN | IDENT_CHARGES)))
+
+
+/*
+ * Determine if a given inventory item charges are known
+ * Test One -- Check for special "known" or "named" tags
+ */
+#define object_pval_p(T) \
+	(((T)->ident & (IDENT_KNOWN | IDENT_PVAL)))
+
+
+/*
+ * Determine if a given inventory item has known bonuses
+ * Test One -- Check for special "known" or "bonus" tags
+ * Test Two -- Check for "Easy Know" + "Aware"
  */
 #define object_bonus_p(T) \
-	(((T)->ident & (IDENT_KNOWN)) || \
-	 (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware) || \
-	 ((T)->ident & (IDENT_BONUS)))
+	(((T)->ident & (IDENT_KNOWN | IDENT_BONUS)) || \
+	 ((k_info[(T)->k_idx].flags3 & (TR3_EASY_KNOW)) && \
+	  k_info[(T)->k_idx].aware))
 
 
 
@@ -4177,6 +4359,12 @@
  */
 #define cursed_p(T) \
 	((T)->ident & (IDENT_CURSED))
+
+/*
+ * Coated items.
+ */
+#define coated_p(T) \
+	((T)->xtra1 >= OBJECT_XTRA_MIN_COATS)
 
 
 /*
@@ -4590,8 +4778,9 @@ extern int PlayerUID;
 #define MSG_KILL_KING       147
 #define MSG_DRAIN_STAT      148
 #define MSG_MULTIPLY        149
+#define MSG_SCREENDUMP	    150
 
-#define MSG_MAX             150
+#define MSG_MAX             151
 
 
 /*** Sound constants ***/

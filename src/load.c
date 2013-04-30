@@ -248,15 +248,11 @@ static void strip_bytes(int n)
  */
 static errr rd_item(object_type *o_ptr)
 {
-	byte old_dd;
-	byte old_ds;
-
 	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr;
 
 	char buf[128];
-
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
@@ -282,6 +278,25 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->show_idx);
 	rd_byte(&o_ptr->discount);
 
+	if (!(older_than(0, 6, 1)))
+	{
+		rd_byte(&o_ptr->feeling);
+		rd_byte(&o_ptr->spare);
+	}
+	else
+	{
+		if (o_ptr->discount >= 115)
+		{
+			o_ptr->feeling = o_ptr->discount - 115 + INSCRIP_MIN_HIDDEN;
+		}
+		else if (o_ptr->discount >= 100)
+		{
+			o_ptr->feeling = o_ptr->discount - 100;
+		}
+
+		o_ptr->discount = 0;
+	}
+
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
 
@@ -290,25 +305,54 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->timeout);
 
+	/* Get charges */
+	if (!(older_than(0, 6, 1)))
+	{
+		rd_s16b(&o_ptr->charges);
+
+		/* Hack -- fix missing charges from flasks of oil */
+		if (((o_ptr->tval == TV_FLASK) || (o_ptr->tval == TV_FOOD)) && !(o_ptr->charges)) o_ptr->charges = k_info[o_ptr->k_idx].charges;
+	}
+
+	/* Fix charges / timeout */
+	else
+	{
+		/* Hack -- fix rod/ring/dragon armor charge so that timeout set correctly in future */
+		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_FLASK) || ((o_ptr->tval == TV_RING) &&
+			((o_ptr->sval == SV_RING_FLAMES) || (o_ptr->sval == SV_RING_ACID) || (o_ptr->sval == SV_RING_ICE) ||
+				(o_ptr->sval == SV_RING_LIGHTNING))))
+		{
+			o_ptr->charges = k_info[o_ptr->k_idx].pval;
+		}
+		/* Hack -- change old wand / staff / food pvals to use charge */
+		else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_POTION)
+			 || (o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_GOLD)  || (o_ptr->tval == TV_GEMS)
+			 || ((o_ptr->tval == TV_LITE) && !(artifact_p(o_ptr))))
+		{
+			o_ptr->charges = o_ptr->pval;
+			o_ptr->pval = 0;
+		}
+	}
+
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
 	rd_s16b(&o_ptr->to_a);
 
 	rd_s16b(&o_ptr->ac);
 
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	rd_byte(&o_ptr->dd);
+	rd_byte(&o_ptr->ds);
 
-	rd_byte(&o_ptr->ident);
+	rd_u16b(&o_ptr->ident);
 
-	rd_byte(&o_ptr->marked);
-
-	/* Hack -- fix rod/ring/dragon armor pval so that timeout set correctly in future */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_DRAG_ARMOR) || ((o_ptr->tval == TV_RING) &&
-		((o_ptr->sval == SV_RING_FLAMES) || (o_ptr->sval == SV_RING_ACID) || (o_ptr->sval == SV_RING_ICE) ||
-			(o_ptr->sval == SV_RING_LIGHTNING))))
+	/* Fix marked byte */
+	if (older_than(0, 6, 1))
 	{
-		o_ptr->pval = k_info[o_ptr->k_idx].pval;
+		if (o_ptr->ident & (0xFF00))
+		{
+			o_ptr->ident &= (0xFF);
+			o_ptr->ident |= (IDENT_MARKED);
+		}
 	}
 
 	/* Hack -- remove chests */
@@ -323,6 +367,19 @@ static errr rd_item(object_type *o_ptr)
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
+
+	/* Hack -- fix old burning arrows */
+	if (o_ptr->k_idx == 707)
+	{
+		o_ptr->k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
+		o_ptr->tval = TV_ARROW;
+		o_ptr->sval = SV_AMMO_NORMAL;
+		if (!o_ptr->xtra1)
+		{
+			o_ptr->xtra1 = TV_FLASK;
+			o_ptr->xtra2 = SV_FLASK_OIL;
+		}
+	}
 
 	/* Flags we have learnt about an item */
 	rd_u32b(&o_ptr->can_flags1);
@@ -423,12 +480,6 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
-	/* Get the standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
-
 	/* Get the standard weight */
 	o_ptr->weight = k_ptr->weight;
 
@@ -467,13 +518,6 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
 
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
-
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -494,6 +538,9 @@ static errr rd_item(object_type *o_ptr)
 			o_ptr->ds = 0;
 		}
 	}
+
+	/* Hack -- clear empty slots */
+	if (!o_ptr->k_idx) object_wipe(o_ptr);
 
 	/* Success */
 	return (0);
@@ -529,7 +576,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->tim_invis);
 	rd_byte(&m_ptr->tim_passw);
 	rd_byte(&m_ptr->bless);
-	rd_byte(&m_ptr->beserk);
+	rd_byte(&m_ptr->berserk);
 	rd_byte(&m_ptr->shield);
 	rd_byte(&m_ptr->oppose_elem);
 	rd_byte(&m_ptr->summoned);
@@ -612,6 +659,7 @@ static void rd_lore(int r_idx)
 	l_ptr->flags4 &= r_ptr->flags4;
 	l_ptr->flags5 &= r_ptr->flags5;
 	l_ptr->flags6 &= r_ptr->flags6;
+	l_ptr->flags7 &= r_ptr->flags7;
 }
 
 
@@ -1022,20 +1070,19 @@ static errr rd_extra(void)
 	/* Ignore old redundant info */
 	p_ptr->held_song=tmp8u;
 
-	strip_bytes(6); /* Was strip bytes(8) */
+	/* Read the timers */
+	rd_s16b(&p_ptr->msleep);
+	rd_s16b(&p_ptr->petrify);
+	rd_s16b(&p_ptr->stastis);
 	rd_s16b(&p_ptr->sc);
-	strip_bytes(2);
-
-	/* Read the flags */
-	strip_bytes(2);	/* Old "rest" */
+	rd_s16b(&p_ptr->cursed);
+	rd_s16b(&p_ptr->amnesia);
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
 	rd_s16b(&p_ptr->rest);
-	strip_bytes(2); /* Old "protection" */
-
-	/* Read more flags */
+	rd_s16b(&p_ptr->psleep);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -1059,14 +1106,13 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->free_act);
 
-	rd_byte(&tmp8u);  /* Was p_ptr->confusing */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
+	rd_byte(&p_ptr->charging);
 	rd_byte(&p_ptr->climbing);
 	rd_byte(&p_ptr->searching);
-	rd_byte(&p_ptr->dodging);
-	rd_byte(&p_ptr->blocking);
+	rd_byte(&tmp8u);	/* oops */
+	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 
 	rd_u32b(&p_ptr->disease);
@@ -1093,7 +1139,6 @@ static errr rd_extra(void)
 	rd_u16b(&p_ptr->panic_save);
 	rd_u16b(&p_ptr->total_winner);
 	rd_u16b(&p_ptr->noscore);
-
 
 	/* Read "death" */
 	rd_byte(&tmp8u);
@@ -1744,7 +1789,7 @@ u16b limit;
  */
 static errr rd_savefile_new_aux(void)
 {
-	int i;
+	int i, j;
 
 	byte tmp8u;
 	u16b tmp16u;
@@ -1948,7 +1993,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->e_max)
 	{
 		note(format("Too many (%u) ego items!", tmp16u));
-		return (24);
+		return (-1);
 	}
 
 	/* Read the ego item flags */
@@ -2007,6 +2052,63 @@ static errr rd_savefile_new_aux(void)
 		return (-1);
 	}
 
+	/* Read the bags */
+	if (!older_than(0, 6, 1))
+	{
+		/* Load the Bags */
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if (tmp16u > SV_BAG_MAX_BAGS)
+		{
+			note(format("Too many (%u) bag types!", tmp16u));
+			return (-1);
+		}
+
+		/* Load the bag contents */
+		for (i = 0; i < tmp16u; i++)
+		{
+			/* Load the Bags */
+			rd_byte(&tmp8u);
+
+			/* Incompatible save files */
+			if (tmp8u > INVEN_BAG_TOTAL)
+			{
+				note(format("Too many (%u) bag slots!", tmp8u));
+				return (-1);
+			}
+
+			for (j = 0; j < tmp8u; j++)
+			{
+				rd_s16b(&bag_contents[i][j]);
+			}
+		}
+	}
+
+	/* Read the dungeons */
+	if (!older_than(0, 6, 1))
+	{
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if (tmp16u > z_info->t_max)
+		{
+			note(format("Too many (%u) dungeon types!", tmp16u));
+			return (-1);
+		}
+
+		for (i = 0; i < tmp16u; i++)
+		{
+			/* Load the maximum depth */
+			rd_byte(&tmp8u);
+
+			/* Silently reduce depth */
+			if (tmp8u > max_depth(i) - min_depth(i)) tmp8u = max_depth(i) - min_depth(i);
+
+			/* Set the max_depth */
+			t_info[i].max_depth = tmp8u;
+		}
+	}
 
 	/* Read the stores */
 	rd_u16b(&tmp16u);

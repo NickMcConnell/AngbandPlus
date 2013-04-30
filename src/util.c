@@ -18,7 +18,8 @@
 
 
 
-#ifdef SET_UID
+/* Hack for detecting unix stuff. */
+#ifdef PRIVATE_USER_PATH
 
 # ifndef HAVE_USLEEP
 
@@ -143,7 +144,7 @@ void user_name(char *buf, size_t len, int id)
 #else /* ACORN */
 
 
-#ifdef SET_UID
+#ifdef PRIVATE_USER_PATH
 
 /*
  * Extract a "parsed" path from an initial filename
@@ -214,7 +215,7 @@ errr path_parse(char *buf, int max, cptr file)
 }
 
 
-#else /* SET_UID */
+#else /* PRIVATE_USER_PATH */
 
 
 /*
@@ -317,12 +318,21 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
+	FILE *fff;
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
 
 	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
+	fff = (fopen(buf, mode));
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+    /* Set file creator and type */
+    if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	return fff;
 }
 
 
@@ -552,22 +562,28 @@ errr fd_copy(cptr file, cptr what)
 int fd_make(cptr file, int mode)
 {
 	char buf[1024];
+	int fd;
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
-#if defined(MACINTOSH)
-
+#ifdef MACINTOSH
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
+	fd = (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
 
 #else
-
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+	fd = (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
 
 #endif
 
+#ifdef MACH_O_CARBON
+    /* Set file creator and type */
+    if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	return fd;
 }
 
 
@@ -1544,8 +1560,6 @@ char (*inkey_hack)(int flush_first) = NULL;
  */
 key_event inkey_ex(void)
 {
-	bool cursor_state;
-
 	key_event kk;
 
 	key_event ke;
@@ -1554,6 +1568,9 @@ key_event inkey_ex(void)
 
 	term *old = Term;
 
+	bool cursor_state[ANGBAND_TERM_MAX];
+
+	int j;
 
 	/* Initialise keypress */
 	ke.key = 0;
@@ -1578,7 +1595,7 @@ key_event inkey_ex(void)
 #ifdef ALLOW_BORG
 
 	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
+	if (inkey_hack && ((ke.key = (*inkey_hack)(inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
@@ -1604,14 +1621,37 @@ key_event inkey_ex(void)
 	}
 
 
-	/* Get the cursor state */
-	(void)Term_get_cursor(&cursor_state);
-
 	/* Show the cursor if waiting, except sometimes in "command" mode */
 	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
 	{
-		/* Show the cursor */
-		(void)Term_set_cursor(TRUE);
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		{
+			term *t = angband_term[j];
+
+			/* No window */
+			if (!t) continue;
+
+			/* No relevant flags */
+			if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP)))
+				continue;
+
+			/* Activate the map term */
+			Term_activate(t);
+
+			/* Get the cursor state */
+			(void)Term_get_cursor(&cursor_state[j]);
+
+			/* Show the cursor */
+			(void)Term_set_cursor(TRUE);
+
+			/* Refresh the term to draw the cursor */
+			/*
+			 * The main screen is ignored because of some screen
+			 * flickering when "auto_display_lists" is on. -DG-
+			 */
+			if ((j > 0) && !cursor_state[j]) (void)Term_fresh();
+		}
 	}
 
 
@@ -1711,6 +1751,9 @@ key_event inkey_ex(void)
 			/* Strip this key */
 			ke.key = 0;
 
+			/* Hack -- always do an html dump */
+			dump_html();
+
 			/* Continue */
 			continue;
 		}
@@ -1757,13 +1800,39 @@ key_event inkey_ex(void)
 	}
 
 
+	/* Hide the cursor again */
+	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	{
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		{
+			term *t = angband_term[j];
+
+			/* No window */
+			if (!t) continue;
+
+			/* No relevant flags */
+			if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+			/* Activate the term */
+			Term_activate(t);
+
+			/* Restore the cursor */
+			(void)Term_set_cursor(cursor_state[j]);
+
+			/* Refresh to erase the cursor
+			 * The main screen is ignored because of some screen
+			 * flickering when "auto_display_lists" is on. -DG-
+			 */
+			if ((j > 0) && !cursor_state[j])
+ 			{
+ 				(void)Term_fresh();
+ 			}
+		}
+	}
+
 	/* Hack -- restore the term */
 	Term_activate(old);
-
-
-	/* Restore the cursor */
-	Term_set_cursor(cursor_state);
-
 
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
@@ -2502,6 +2571,10 @@ static void msg_print_aux(u16b type, cptr msg)
 	byte color;
 	int w, h;
 
+#ifdef ALLOW_BORG
+	/* Hack -- No messages for the borg */
+	if ((count_stop) && !(auto_more)) return;
+#endif
 
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
@@ -4619,4 +4692,120 @@ cptr get_month_name(int day, bool full, bool compact)
 	}
 
 	return (buf);
+}
+
+
+/*
+ * Generic display a list and pick a choice function. Returns TRUE selection or -1 if not selection made.
+ */
+bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr q, int y, int x, int *selection)
+{
+	int i;
+
+	bool flag, redraw;
+	key_event ke;
+
+	char out_val[160];
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Show the list */
+	if (auto_display_lists)
+	{
+		/* Show list */
+		redraw = TRUE;
+
+		/* Save screen */
+		screen_save();
+
+		/* Display the list */
+		print_list(sn, num, y, x);
+	}
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(%s %c-%c, *=List, ESC=exit) %s? ",
+	p, I2A(0), I2A(num - 1), q);
+
+	/* Get a spell from the user */
+	while (!flag && get_com_ex(out_val, &ke))
+	{
+		char choice;
+
+		if (ke.key == '\xff')
+		{
+			if (ke.mousebutton)
+			{
+				if (redraw) ke.key = 'a' + ke.mousey - 2;
+				else ke.key = ' ';
+			}
+			else continue;
+		}
+
+		/* Request redraw */
+		if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
+		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_list(sn, num, y, x);
+			}
+
+			/* Ask again */
+			continue;
+
+		}
+
+		/* Lowercase 1+*/
+		choice = tolower(ke.key);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell("Illegal choice!");
+			continue;
+		}
+
+		/* Get selection */
+		*selection = sn[i];
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw)
+	{
+		/* Load screen */
+		screen_load();
+
+		/* Hack -- forget redraw */
+		/* redraw = FALSE; */
+	}
+
+	/* Return success / failure */
+	return (flag);
 }

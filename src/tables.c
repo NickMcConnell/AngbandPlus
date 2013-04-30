@@ -43,12 +43,41 @@ const s16b ddx_ddd[9] =
 const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
-/*
- * Global array for reversing "keypad directions" 180 degrees
- */
-const s16b ddd_180[9] =
-{ 8, 2, 4, 6, 7, 9, 1, 3, 5 };
 
+/*
+ * Given a central direction at position [dir #][0], return a series 
+ * of directions radiating out on both sides from the central direction 
+ * all the way back to its rear.
+ * 
+ * Side directions come in pairs; for example, directions '1' and '3' 
+ * flank direction '2'.  The code should know which side to consider 
+ * first.  If the left, it must add 10 to the central direction to 
+ * access the second part of the table.
+ */ 
+const byte side_dirs[20][8] = 
+{
+	{ 0, 0, 0, 0, 0, 0, 0, 0 },	/* bias right */
+	{ 1, 4, 2, 7, 3, 8, 6, 9 },
+	{ 2, 1, 3, 4, 6, 7, 9, 8 },
+	{ 3, 2, 6, 1, 9, 4, 8, 7 },
+	{ 4, 7, 1, 8, 2, 9, 3, 6 },
+	{ 5, 5, 5, 5, 5, 5, 5, 5 },
+	{ 6, 3, 9, 2, 8, 1, 7, 4 },
+	{ 7, 8, 4, 9, 1, 6, 2, 3 },
+	{ 8, 9, 7, 6, 4, 3, 1, 2 },
+	{ 9, 6, 8, 3, 7, 2, 4, 1 },
+
+	{ 0, 0, 0, 0, 0, 0, 0, 0 },	/* bias left */
+	{ 1, 2, 4, 3, 7, 6, 8, 9 },
+	{ 2, 3, 1, 6, 4, 9, 7, 8 },
+	{ 3, 6, 2, 9, 1, 8, 4, 7 },
+	{ 4, 1, 7, 2, 8, 3, 9, 6 },
+	{ 5, 5, 5, 5, 5, 5, 5, 5 },
+	{ 6, 9, 3, 8, 2, 7, 1, 4 },
+	{ 7, 4, 8, 1, 9, 2, 6, 3 },
+	{ 8, 7, 9, 4, 6, 1, 3, 2 },
+	{ 9, 8, 6, 7, 3, 4, 2, 1 } 
+};
 
 
 /*
@@ -63,101 +92,101 @@ const char hexsym[16] =
 
 
 /*
- * Stat Table (INT/WIS) -- Number of half-spells per level
+ * Stat Table -- One less than number of spells at level 50
  */
 const byte adj_mag_study[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	4	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	4	/* 18/120-18/129 */,
-	5	/* 18/130-18/139 */,
-	5	/* 18/140-18/149 */,
-	5	/* 18/150-18/159 */,
-	5	/* 18/160-18/169 */,
-	5	/* 18/170-18/179 */,
-	5	/* 18/180-18/189 */,
-	5	/* 18/190-18/199 */,
-	5	/* 18/200-18/209 */,
-	5	/* 18/210-18/219 */,
-	5	/* 18/220+ */
+	6	/* 3 */,
+	8	/* 4 */,
+	10	/* 5 */,
+	12	/* 6 */,
+	14	/* 7 */,
+	16	/* 8 */,
+	18	/* 9 */,
+	20	/* 10 */,
+	24	/* 11 */,
+	28	/* 12 */,
+	32	/* 13 */,
+	36	/* 14 */,
+	40	/* 15 */,
+	44	/* 16 */,
+	48	/* 17 */,
+	52	/* 18/00-18/09 */,
+	56	/* 18/10-18/19 */,
+	60	/* 18/20-18/29 */,
+	64	/* 18/30-18/39 */,
+	68	/* 18/40-18/49 */,
+	72	/* 18/50-18/59 */,
+	76	/* 18/60-18/69 */,
+	80	/* 18/70-18/79 */,
+	84	/* 18/80-18/89 */,
+	88	/* 18/90-18/99 */,
+	91	/* 18/100-18/109 */,
+	94	/* 18/110-18/119 */,
+	97	/* 18/120-18/129 */,
+	100	/* 18/130-18/139 */,
+	103	/* 18/140-18/149 */,
+	106	/* 18/150-18/159 */,
+	109	/* 18/160-18/169 */,
+	112	/* 18/170-18/179 */,
+	113	/* 18/180-18/189 */,
+	116	/* 18/190-18/199 */,
+	119	/* 18/200-18/209 */,
+	122	/* 18/210-18/219 */,
+	125	/* 18/220+ */
 };
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table -- one (or 4 for mages) less than the amount of mana at level 50
  */
-const byte adj_mag_mana[] =
+const s16b adj_mag_mana[] =
 {
 	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	4	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	5	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	6	/* 18/90-18/99 */,
-	7	/* 18/100-18/109 */,
-	7	/* 18/110-18/119 */,
-	8	/* 18/120-18/129 */,
-	8	/* 18/130-18/139 */,
-	9	/* 18/140-18/149 */,
-	9	/* 18/150-18/159 */,
-	10	/* 18/160-18/169 */,
-	11	/* 18/170-18/179 */,
-	12	/* 18/180-18/189 */,
-	13	/* 18/190-18/199 */,
-	14	/* 18/200-18/209 */,
-	15	/* 18/210-18/219 */,
-	16	/* 18/220+ */
+	5	/* 4 */,
+	10	/* 5 */,
+	15	/* 6 */,
+	20	/* 7 */,
+	25	/* 8 */,
+	30	/* 9 */,
+	35	/* 10 */,
+	40	/* 11 */,
+	45	/* 12 */,
+	50	/* 13 */,
+	55	/* 14 */,
+	60	/* 15 */,
+	65	/* 16 */,
+	70	/* 17 */,
+	75	/* 18/00-18/09 */,
+	80	/* 18/10-18/19 */,
+	85	/* 18/20-18/29 */,
+	90	/* 18/30-18/39 */,
+	95	/* 18/40-18/49 */,
+	100	/* 18/50-18/59 */,
+	110	/* 18/60-18/69 */,
+	120	/* 18/70-18/79 */,
+	130	/* 18/80-18/89 */,
+	140	/* 18/90-18/99 */,
+	160	/* 18/100-18/109 */,
+	180	/* 18/110-18/119 */,
+	200	/* 18/120-18/129 */,
+	220	/* 18/130-18/139 */,
+	240	/* 18/140-18/149 */,
+	260	/* 18/150-18/159 */,
+	280	/* 18/160-18/169 */,
+	300	/* 18/170-18/179 */,
+	320	/* 18/180-18/189 */,
+	340	/* 18/190-18/199 */,
+	360	/* 18/200-18/209 */,
+	380	/* 18/210-18/219 */,
+	400	/* 18/220+ */
 };
 
 
 /*
- * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
+ * Stat Table (spell stat) -- Minimum failure rate (percentage)
  */
-const byte adj_mag_fail[] =
+const byte adj_mag_fail_min[] =
 {
 	99	/* 3 */,
 	99	/* 4 */,
@@ -201,9 +230,9 @@ const byte adj_mag_fail[] =
 
 
 /*
- * Stat Table (INT/WIS) -- Various things
+ * Stat Table (spell stat) -- Rate fail
  */
-const byte adj_mag_stat[] =
+const byte adj_mag_fail_rate[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -1463,8 +1492,8 @@ const cptr option_text[OPT_MAX] =
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
 	"easy_corpses",			/* OPT_easy_corpses */
-	"auto_haggle",				/* OPT_auto_haggle */
-	"auto_scum",				/* OPT_auto_scum */
+	NULL,				/* xxx */
+	NULL,				/* xxx */
 	NULL,						/* xxx testing_stack */
 	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
@@ -1475,7 +1504,7 @@ const cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"view_unsafe_grids",			/* OPT_view_unsafe_grids */
 	"view_detect_grids",			/* OPT_view_detect_grids */
-	NULL,					/* xxx track_follow */
+	"run_ignore_floors",			/* OPT_run_ignore_floors */
 	NULL,					/* xxx track_target */
 	NULL,					/* xxx smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
@@ -1503,9 +1532,9 @@ const cptr option_text[OPT_MAX] =
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	"scroll_target",			/* OPT_scroll_target */
 	"auto_more",				/* OPT_auto_more */
-	"smart_monsters",			/* OPT_smart_monsters */
-	"smart_packs",				/* OPT_smart_packs */
-	"stack_force_pvals",						/* xxx */
+	"auto_display_lists",			/* OPT_auto_display_lists */
+	"toggle_xp",				/* OPT_toggle_xp */
+	"stack_force_charges",						/* xxx */
 	"stack_force_times",						/* xxx */
 	NULL,						/* xxx */
 	"room_descriptions",						/* xxx */
@@ -1561,7 +1590,7 @@ const cptr option_text[OPT_MAX] =
 	NULL,					   /* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
-	"birth_maximize",			/* OPT_birth_maximize */
+	"birth_maximize_race",			/* OPT_birth_maximize_race */
 	"birth_preserve",			/* OPT_birth_preserve */
 	"birth_ironman",			/* OPT_birth_ironman */
 	"birth_no_stores",			/* OPT_birth_no_stores */
@@ -1569,9 +1598,9 @@ const cptr option_text[OPT_MAX] =
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_campaign",			       /* xxx */
 	"birth_no_stacking",			/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"birth_haggle",						/* OPT_birth_haggle */
+	"birth_scum",						/* OPT_birth_scum */
+	"birth_maximize_class",			/* OPT_birth_maximize_class */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1625,7 +1654,7 @@ const cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"adult_point_based",		/* OPT_adult_point_based */
 	"adult_auto_roller",		/* OPT_adult_auto_roller */
-	"adult_maximize",			/* OPT_adult_maximize */
+	"adult_maximize_race",			/* OPT_adult_maximize */
 	"adult_preserve",			/* OPT_adult_preserve */
 	"adult_ironman",			/* OPT_adult_ironman */
 	"adult_no_stores",			/* OPT_adult_no_stores */
@@ -1633,9 +1662,9 @@ const cptr option_text[OPT_MAX] =
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_campaign",				/* xxx */
 	"adult_no_stacking",			/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"adult_haggle",						/* OPT_adult_haggle */
+	"adult_scum",						/* OPT_adult_scum */
+	"adult_maximize_class",			/* OPT_adult_maximize_class */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1727,8 +1756,8 @@ const cptr option_desc[OPT_MAX] =
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
 	"Ignore corpses by default",				/* OPT_easy_corpses */
-	"Auto-haggle in stores",				/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
+	NULL,				/* xxx */
+	NULL,				/* xxx */
 	NULL,										/* xxx testing_stack */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
@@ -1739,7 +1768,7 @@ const cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Mark where you have detected traps",		/* OPT_view_unsafe_grids */
 	"Mark where you have detected monsters",	/* OPT_view_unsafe_grids */
-	NULL,								/* xxx */
+	"When running, ignore interesting floors",				/* OPT_run_ignore_stairs */
 	NULL,								/* xxx */
 	NULL,								/* xxx */
 	NULL,								/* xxx*/
@@ -1767,9 +1796,9 @@ const cptr option_desc[OPT_MAX] =
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	"Scroll map while targetting",			/* OPT_scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	"Monsters behave more intelligently",		/* OPT_smart_monsters */
-	NULL,								/* xxx */
-	"Merge pvals when stacking",				/* OPT_stack_force_pvals */
+	"Automatically display drop-down lists",	/* OPT_auto_display_lists */
+	"Reverse experience display",				/* OPT_toggle_xp */
+	"Merge charges when stacking",				/* OPT_stack_force_charges */
 	"Merge timeouts when stacking",			/* OPT_stack_force_timeouts */
 	NULL,							/* xxx */
 	"Display room descriptions",				/* OPT_room_descriptions */
@@ -1825,7 +1854,7 @@ const cptr option_desc[OPT_MAX] =
 	NULL,									   /* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
-	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
+	"Birth: Maximize effect of race bonuses",	/* OPT_birth_maximize_race */
 	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
@@ -1833,9 +1862,9 @@ const cptr option_desc[OPT_MAX] =
 	"Birth: Randomize all of the artifacts",       /* OPT_birth_rand_artifacts */
 	"Birth: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
 	"Birth: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Birth: Haggle in stores",			/* OPT_birth_haggle */									/* xxx */
+	"Birth: Scum for good levels",			/* OPT_birth_scum */
+	"Birth: Maximize effect of class bonuses",	/* OPT_birth_maximize_class */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1889,17 +1918,17 @@ const cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
 	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
-	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
+	"Adult: Maximize effect of race bonuses",	/* OPT_adult_maximize */
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize all of the artifacts",       /* OPT_adult_rand_artifacts */
-	"Adult: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
-	"Adult: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Adult: Play in Lord of the Rings campaign",   /* OPT_adult_campaign */
+	"Adult: Don't stack objects on the floor",	/* OPT_adult_no_stacking */
+	"Adult: Haggle in stores",			/* OPT_adult_haggle */									/* xxx */
+	"Adult: Scum for good levels",			/* OPT_adult_scum */
+	"Adult: Maximize effect of class bonuses",	/* OPT_adult_maximize_class */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1991,8 +2020,8 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
 	TRUE,		/* OPT_easy_corpses */
-	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
@@ -2003,7 +2032,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	TRUE,		/* OPT_view_unsafe_grids */
 	TRUE,		/* OPT_view_detect_grids */
-	FALSE,		/* xxx track_follow */
+	TRUE,		/* OPT_run_ignore_floors */
 	FALSE,		/* xxx track_target */
 	FALSE,		/* xxx smart_learn */
 	FALSE,		/* OPT_smart_cheat */
@@ -2031,9 +2060,9 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* OPT_smart_monsters */
-	FALSE,		/* OPT_smart_packs */
-	FALSE,	  /* OPT_stack_force_pvals */
+	TRUE,		/* OPT_auto_display_lists */
+	TRUE,		/* OPT_toggle_xp */
+	FALSE,	  /* OPT_stack_force_charges */
 	FALSE,	  /* OPT_stack_force_times */
 	FALSE,	   /* xxx */
 	FALSE,	   /* OPT_room_descriptions */
@@ -2046,7 +2075,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_glowing_lite */
 	FALSE,		/* OPT_view_surface_lite */
 	FALSE,	  /* xxx */
-	TRUE,		/* OPT_show_sidebar */
+	FALSE,		/* OPT_show_sidebar */
 	FALSE,		/* OPT_show_itemlist */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2063,7 +2092,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,	   /* OPT_variant_fast_kills */
 	FALSE,	   /* OPT_variant_scale_damage */
 	FALSE,	   /* OPT_variant_scale_hp */
-	FALSE,	  /* OPT_variant_pval_stacks */
+	FALSE,	  /* OPT_variant_charge_stacks */
 	FALSE,	   /* OPT_variant_oos_summons */
 	FALSE,	   /* OPT_variant_oos_teleports */
 	FALSE,	   /* OPT_variant_oos_heals */
@@ -2089,16 +2118,16 @@ const bool option_norm[OPT_MAX] =
 	FALSE,	  /* OPT_variant_drop_body */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
-	TRUE,		/* OPT_birth_maximize */
+	TRUE,		/* OPT_birth_maximize_race */
 	TRUE,		/* OPT_birth_preserve */
 	FALSE,		/* OPT_birth_ironman */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
 	TRUE,	  /* OPT_birth_campaign */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_haggle */
+	FALSE,		/* OPT_birth_scum */
+	TRUE,		/* OPT_birth_maximise_class */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2153,17 +2182,17 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_adult_point_based */
 	FALSE,		/* OPT_adult_auto_roller */
-	TRUE,		/* OPT_adult_maximize */
+	TRUE,		/* OPT_adult_maximize_race */
 	TRUE,		/* OPT_adult_preserve */
 	FALSE,		/* OPT_adult_ironman */
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,	  /* OPT_adult_campaign */
+	FALSE,	  	/* OPT_adult_campaign */
 	FALSE,		/* OPT_adult_no_stacking */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_haggle */
+	FALSE,		/* OPT_adult_scum */
+	TRUE,		/* OPT_adult_maximize_class */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2240,7 +2269,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_scroll_target,
-		OPT_stack_force_pvals,
+		OPT_stack_force_charges,
 		OPT_stack_force_times,
 		OPT_easy_autos,
 		OPT_easy_search,
@@ -2276,19 +2305,19 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Game-Play ***/
 
 	{
-		OPT_auto_haggle,
-		OPT_auto_scum,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
-		OPT_view_detect_grids,
 		OPT_dungeon_align,
 		OPT_dungeon_stair,
-		OPT_smart_monsters,
 		OPT_view_unsafe_grids,
 		OPT_view_detect_grids,
 		OPT_reseed_artifacts,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255,
 		255,
@@ -2312,14 +2341,14 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_fresh_before,
 		OPT_fresh_after,
 		OPT_compress_savefile,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
+		OPT_hilite_player,
+		OPT_view_player_lite,
+		OPT_view_yellow_lite,
+		OPT_view_bright_lite,
+		OPT_view_granite_lite,
+		OPT_view_special_lite,
+		OPT_view_glowing_lite,
+		OPT_view_surface_lite,
 		255
 	},
 
@@ -2335,17 +2364,17 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_view_flavors,
-		OPT_hilite_player,
-		OPT_view_player_lite,
-		OPT_view_yellow_lite,
-		OPT_view_bright_lite,
-		OPT_view_granite_lite,
-		OPT_view_special_lite,
-		OPT_view_glowing_lite,
-		OPT_view_surface_lite,
 		OPT_show_piles,
 		OPT_room_names,
 		OPT_room_descriptions,
+		OPT_auto_display_lists,
+		OPT_toggle_xp,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Birth ***/
@@ -2353,7 +2382,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based,
 		OPT_birth_auto_roller,
-		OPT_birth_maximize,
+		OPT_birth_maximize_race,
+		OPT_birth_maximize_class,
 		OPT_birth_preserve,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
@@ -2361,9 +2391,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_rand_artifacts,
 		OPT_birth_campaign,
 		OPT_birth_no_stacking,
-		255,
-		255,
-		255,
+		OPT_birth_haggle,
+		OPT_birth_scum,
 		255,
 		255,
 		255,
@@ -2416,6 +2445,18 @@ const cptr inscrip_text[MAX_INSCRIP] =
 	"superb",
 	"unbreakable",
 	"ungettable",
+	"nonmagical",
+	"magical",
+	"powerful",
+	"ego item",
+	"high ego item",
+	"artifact",
+	"unruned",
+	"runed",
+	"average",
+	"valuable",
+	"unusual",
+	"coated",
 	"sustain",
 	"high resist",
 	"enchanted",
@@ -2467,7 +2508,7 @@ const u32b object_xtra_base[OBJECT_XTRA_MAX_HIDDEN] =
 	TR2_IGNORE_ACID,
 	TR3_BLESSED,
 	TR1_SLAY_NATURAL,
-	TR1_BRAND_COLD,
+	TR1_BRAND_ACID,
 	TR1_BRAND_POIS,
 	TR3_LITE,
 	TR2_IGNORE_ACID,
@@ -2492,7 +2533,7 @@ const int object_xtra_size[OBJECT_XTRA_MAX_HIDDEN] =
 	5,
 	1,
 	8,
-	3,
+	4,
 	1,
 	1,
 	1,
@@ -2543,9 +2584,12 @@ const cptr object_group_text[] =
 	"Runestone"	,
 	"Map"		,
 	"Spike"	,
+	"Rope" ,
 	"Digger"	 ,
 	"Food"	,
 	"Flask"	,
+	"Service", 
+	"Bag"	,
 	"Container"	,
 	"Statue"	 ,
 	"Assembly"	 ,
@@ -2553,8 +2597,7 @@ const cptr object_group_text[] =
 	"Corpse"	 ,
 	"Egg"		 ,
 	"Skin"		 ,
-	"Junk"	,
-	"Service", 
+	"Junk",
 	NULL
 };
 
@@ -2594,11 +2637,14 @@ const byte object_group_tval[] =
 	TV_INSTRUMENT,
 	TV_RUNESTONE,
 	TV_MAP,	 
-	TV_SPIKE,	 
+	TV_SPIKE,
+	TV_ROPE,
 	TV_DIGGING,	 
 	TV_FOOD,	 
 	TV_FLASK,	 
-	TV_HOLD,	 
+	TV_SERVICE,
+	TV_BAG,
+	TV_HOLD,
 	TV_STATUE,
 	TV_ASSEMBLY,	
 	TV_BONE,	
@@ -2606,7 +2652,6 @@ const byte object_group_tval[] =
 	TV_EGG,	
 	TV_SKIN,	
 	TV_JUNK,
-	TV_SERVICE,
 	0
 };
 
@@ -2757,7 +2802,7 @@ const cptr magic_name[4][32] =
 	}
 };
 
-const cptr disease_name[32] =
+const cptr disease_name[33] =
 {
 	"pink rot",
 	"black brain",
@@ -2770,27 +2815,28 @@ const cptr disease_name[32] =
 	"shards",
 	"ringing in ears",
 	"green rot",
-	"magic eye",
+	"magic mushrooms",
 	"slow stumble",
 	"black eye",
 	"a hangover",
 	"paranoia",
+	"dementia",
+	"bad luck",
+	"narcolepsy",
+	"being stoned",
 	"palsy",
+	"time loss",
+	"static",
 	"leeches",
 	"mana mites",
 	"black breath",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
 	"the plague",
-	"fast-acting viruses",
-	"magical parasites",
-	"minor ailments",
+	"unnatural parasites",
 	"Morgoth's curse",
-	"incurable illnesses"
+	"minor ailments",
+	"hard to treat viruses",
+	"incurable illnesses",
+	"magical maladies"
 };
 
 /*
@@ -2815,7 +2861,7 @@ byte spell_info_RF4[32][5]=
 	{0,     0,     0,     0,     0},        /* RF4_BLOW_2 */
 	{0,     0,     0,     0,     0},        /* RF4_BLOW_3 */
 	{0,     0,     0,     0,     0},        /* RF4_BLOW_4 */
-	{1,     0,     0,     0,     MAX_SIGHT},/* RF4_SHRIEK */
+	{0,     0,     0,     0,     MAX_SIGHT},/* RF4_ADD_AMMO */
 	{0,     0,     0,     0,     8},        /* RF4_QUAKE */
 	{0,     0,     0,     0,     1},        /* RF4_EXPLODE */
 	{0,     0,     0,     0,     1},        /* RF4_AURA */  /* Last spell with fixed maximum range */
@@ -2901,8 +2947,8 @@ const byte spell_info_RF6[32][5]=
 	{2,     0,     0,     0,     0},        /* RF6_TRAPS */
 	{6,     0,     0,     0,     0},        /* RF6_FORGET */
 	{2,     0,     0,     0,     0},        /* RF6_DRAIN_MANA */
-	{4,     0,     0,     0,     0},        /* RF6_CURSE */
-	{4,     0,     0,     0,     0},        /* RF6_ADD_AMMO */
+	{4,     3,     2,     6,     6},        /* RF6_CURSE */
+	{4,     0,     0,     0,     0},        /* RF6_DISPEL */
 	{3,     3,     2,     6,     6},        /* RF6_MIND_BLAST */
 	{4,     0,     0,     0,     0},        /* RF6_ILLUSION */
 	{4,     5,     2,     6,     6},        /* RF6_WOUND */
@@ -2982,7 +3028,7 @@ byte spell_desire_RF4[32][8] =
 	{ 40,  0,   0,   5,	0,   0,	   0	  ,  100}, /* RF4_BLOW_2    */
 	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_BLOW_3    */
 	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_BLOW_4    */
-	{ 30,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_SHRIEK    */
+	{ 60,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_SHRIEK    */
 	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_QUAKE	    */
 	{ 20,  0,   0,   5,	0,   0, GF_EXPLODE  ,  100}, /* RF4_EXPLODE   */
 	{ 40,  0,   0,   0,	0,   0,    0      ,  100}, /* RF4_AURA      */
@@ -3072,7 +3118,7 @@ const byte spell_desire_RF6[32][8] =
 	{ 25,  0,   0,   0,	5,   0, 0  ,  100}, /* RF6_FORGET    */
 	{ 25,  0,   0,   15,	0,   0, GF_LOSE_MANA,  100}, /* RF6_DRAIN_MANA*/
 	{ 45,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURSE	    */
-	{ 40,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_ADD_AMMO    */
+	{ 45,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_DISPEL   */
 	{ 30,  0,   0,   0,	0,   0, 0  ,  100}, /* RF6_MIND_BLAST*/
 	{ 30,  0,   0,   0,	0,   0, GF_HALLU,  100}, /* RF6_ILLUSION*/
 	{ 40,  0,   0,   0,	0,   0, GF_HURT,  100}, /* RF6_WOUND	    */
@@ -3194,6 +3240,7 @@ const cptr vocalize[MAX_LANGUAGES] =
 	"roars",	/* LANG_DRAGON */
 	"utters",	/* LANG_DEMON */
 	"whispers",	/* LANG_UNDEAD */
+	"thinks",	/* LANG_ESP */
 	"creaks",	/* LANG_FOREST */
 	"releases",	/* LANG_MUSHROOM */
 	"says",		/* LANG_NATURAL */
@@ -3292,4 +3339,283 @@ const cptr month_name[9] =
 	"Coire",
 
 	"Mettare",
+};
+
+
+/*
+ * Bag definitions
+ *
+ * A bag is a collection of items uniquely identified by their tval and sval.
+ *
+ * A bag can hold either one or (hack) two further distinguishing attributes:
+ * the number of such items in the bag, and (possibly) the total number of
+ * charges. The total number of charges is a hack -- because we either use
+ * a second 'fake' bag entry to track the charges (for wands), or abstract
+ * the total number of items out and just track charges (for torches).
+ *
+ * This means we can have bags for potions, food, spikes, etc. but not rods
+ * (because they can have a timeout), bodies (because they are also distinguished
+ * by the monster type), weapons and armour (because they have many other
+ * variables tracked), lanterns (because we don't want to apply the hack to
+ * lanterns).
+ *
+ * XXX XXX We accomadate a small information loss: if a player notices
+ * something about a kind of item, such as the fact a wand of fire ignores
+ * fire, this information will be lost when the item put in a bag. The
+ * alternative is to only let the player put identified items in the bag, but
+ * this makes bags a lot less useful.
+ *
+ * XXX XXX To provide some kind of balance, we do not create bags for spellbooks.
+ *
+ * XXX XXX We restrict bags to holding 22 different kinds of items because this
+ * is the maximum number we can display in a list on an 80x24 screen.
+ *
+ * We treat these bags as 'magic' and track the contents once - every bag of
+ * the same type has 'magical' access to the same contents as every other
+ * bag.
+ */
+const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
+{
+	/* Bag of Poisons - holds dangerous potions */
+	{ {75, 4}, {75, 5}, {75, 7}, {75, 9},
+	  {75, 11}, {75, 13}, {75, 15}, {75, 16},
+	  {75, 17}, {75, 18}, {75, 19}, {75, 20},
+	  {75, 21}, {75, 22}, {75, 23}, {75, 73},
+	  {75, 74}, {75, 76}, {75, 77}, {75, 78},
+	  {75, 79}, {75, 80}, {75, 81} },
+	/* Bag of Harmful Mushrooms - holds harmful mushrooms */
+	{ {80, 0}, {80, 1}, {80, 2}, {80, 3},
+	  {80, 4}, {80, 5}, {80, 6}, {80, 7},
+	  {80, 8}, {80, 9}, {80, 10}, {80, 11},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Black Magics -- holds cursed scrolls */
+	{ {70, 0}, {70, 1}, {70, 2}, {70, 3},
+	  {70, 4}, {70, 7}, {70, 5}, {70, 69},
+	  {70, 74}, {70, 75}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of supplies -- torches, oil, spikes etc. Torches are handed specially. */
+	{ {77, 0}, {77, 1}, {77, 2}, {39, 0},
+	  {5, 0}, {2, 1}, {2, 3}, {2, 4},
+	  {14, 1}, {14, 2}, {14, 4}, {77, 7},
+	  {77, 8}, {77, 9}, {77, 10}, {77, 11},
+	  {77, 12}, {77, 13}, {77, 14}, {77, 15},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of provisions -- foods of various types */
+	{ {80, 32}, {80, 33}, {80, 35}, {80, 36},
+	  {80, 37}, {80, 38}, {80, 39}, {80, 40},
+	  {80, 41}, {80, 42}, {75, 1}, {75, 2},
+	  {75, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Antidotes – holds low powered curing potions (e.g. restore strength) */
+	{ {75, 26}, {75, 27}, {75, 28}, {75, 31},
+	  {75, 30}, {75, 34}, {75, 35}, {75, 41},
+	  {75, 42}, {75, 43}, {75, 44}, {75, 45},
+	  {75, 46}, {75, 47}, {75, 60}, {75, 61},
+	  {75, 62}, {75, 64}, {75, 68}, {75, 71},
+	  {75, 81}, {0, 0}, {0, 0} },
+	/* Bag of Philtres - holds medium power potions */
+	{ {75, 24}, {75, 25}, {75, 32}, {75, 33},
+	  {75, 35}, {75, 36}, {75, 48}, {75, 49},
+	  {75, 50}, {75, 51}, {75, 52}, {75, 53},
+	  {75, 55}, {75, 68}, {75, 69}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Elixirs - holds high power potions */
+	{ {75, 29}, {75, 37}, {75, 38}, {75, 39},
+	  {75, 40}, {75, 54}, {75, 56}, {75, 57},
+	  {75, 58}, {75, 59}, {75, 63}, {75, 65},
+	  {75, 66}, {75, 67}, {75, 72}, {75, 75},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Helpful Mushrooms - holds helpful mushrooms */
+	{ {80, 12}, {80, 13}, {80, 14}, {80, 15},
+	  {80, 16}, {80, 17}, {80, 18}, {80, 19},
+	  {80, 20}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Scrying - holds identify / detect scrolls */
+	{ {70, 12}, {70, 19}, {70, 23}, {70, 25},
+	  {70, 26}, {70, 27}, {70, 28}, {70, 29},
+	  {70, 30}, {70, 31}, {70, 40}, {70, 43},
+	  {70, 48}, {70, 61}, {70, 65}, {70, 66},
+	  {70, 73}, {70, 77}, {70, 78}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Hedge Magics – holds less useful scrolls */
+	{ {70, 8}, {70, 9}, {70, 10}, {70, 11},
+	  {70, 22}, {70, 24}, {70, 32}, {70, 33},
+	  {70, 34}, {70, 35}, {70, 37}, {70, 39},
+	  {70, 59}, {70, 60}, {70, 62}, {70, 64},
+	  {70, 76}, {70, 79}, {70, 80}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Enchantments – holds enchantment scrolls */
+	{ {70, 14}, {70, 16}, {70, 17}, {70, 18},
+	  {70, 20}, {70, 21}, {70, 49}, {70, 50},
+	  {70, 51}, {70, 53}, {70, 54}, {70, 55},
+	  {70, 56}, {70, 57}, {70, 58}, {70, 67},
+	  {70, 68}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Eldritch Magics – holds powerful scrolls */
+	{ {70, 13}, {70, 15}, {70, 38}, {70, 41},
+	  {70, 42}, {70, 44}, {70, 45}, {70, 46},
+	  {70, 47}, {70, 63}, {70, 70}, {70, 71},
+	  {70, 72}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Lesser Runes – holds weaker runes */
+	{ {93, 1}, {93, 3}, {93, 5}, {93, 7},
+	  {93, 11}, {93, 12}, {93, 13}, {93, 14},
+	  {93, 15}, {93, 16}, {93, 19}, {93, 21},
+	  {93, 22}, {93, 25}, {93, 26}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Greater Runes – holds more powerful runes */
+	{ {93, 2}, {93, 4}, {93, 6}, {93, 8},
+	  {93, 9}, {93, 10}, {93, 17}, {93, 18},
+	  {93, 20}, {93, 23}, {93, 24}, {93, 27},
+	  {93, 28}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Maps – holds maps */
+	{ {72, 15}, {72, 16}, {72, 17}, {72, 27},
+	  {72, 33}, {72, 42}, {72, 43}, {72, 44},
+	  {72, 45}, {72, 46}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of bewitchments -- low power non-elemental wands */
+	{ {65, 0}, {65, 1}, {65, 2}, {65, 4},
+	  {65, 7}, {65, 8}, {65, 9}, {65, 10},
+	  {65, 11}, {65, 12}, {65, 13}, {65, 24},
+	  {65, 32}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of elements -- low power elemental wands */
+	{ {65, 5}, {65, 6}, {65, 14}, {65, 15},
+	  {65, 16}, {65, 17}, {65, 18}, {65, 19},
+	  {65, 20}, {65, 21}, {65, 22}, {65, 23},
+	  {65, 33}, {65, 34}, {65, 36}, {65, 38},
+	  {65, 39}, {65, 40}, {65, 42}, {65, 43},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of four winds -- medium power wands */
+	{ {65, 3}, {65, 26}, {65, 27}, {65, 28},
+	  {65, 29}, {65, 30}, {65, 34}, {65, 35},
+	  {65, 37}, {65, 41}, {65, 45}, {65, 46},
+	  {65, 47}, {65, 48}, {65, 49}, {65, 50},
+	  {65, 53}, {65, 54}, {65, 55}, {65, 69},
+	  {65, 70}, {65, 71}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of six demons -- high power wands */
+	{ {65, 25}, {65, 27}, {65, 28}, {65, 31},
+	  {65, 44}, {65, 51}, {65, 52}, {65, 56},
+	  {65, 57}, {65, 58}, {65, 59}, {65, 60},
+	  {65, 61}, {65, 62}, {65, 63}, {65, 64},
+	  {65, 65}, {65, 66}, {65, 67}, {65, 68},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} }
+};
+
+
+
+/*
+ * Names of various styles
+ */
+const cptr w_name_style[32] =
+{
+	"None",
+	"Unarmed",
+	"One-handed",
+	"Two-handed",
+	"Shield & weapon",
+	"Two-weapon",
+	"Hafted weapons",
+	"Swords",
+	"Polearms",
+	"Thrown weapons",
+	"Slings",
+	"Bows",
+	"Cross-bows",
+	"Backstab",
+	"Magic books",
+	"Prayer books",
+	"Song books",
+	"Instruments",
+	"Potions",
+	"Scrolls",
+	"Amulets",
+	"Rings",
+	"Wands/Rods",
+	"Staves",
+	"Slay Orcs",
+	"Slay Trolls",
+	"Slay Giants",
+	"Slay Dragons",
+	"Slay Evil",
+	"Slay Undead",
+	"Slay Animals",
+	"Slay Demons"
+};
+
+
+/*
+ * Race of parasites
+ *
+ * This is a temporary hack.
+ */
+const s16b parasite_hack[DISEASE_BLOWS] =
+{
+	646,	/* Pink mushroom patch */
+	885,	/* Brain ooze */
+	107,	/* Lost soul */
+	65,	/* Yellow worm mass */
+	664,	/* Purple slime */
+	92,	/* Brown mold */
+	897,	/* Brown icky thing -- nothing like scatalogical in-jokes */
+	895,	/* Yellow icky thing */
+	219,	/* Earth spirit */
+	234,	/* Giant gold dragonfly */
+	648,	/* Green mushroom patch */
+	191,	/* Magic mushroom patch */
+	141,	/* Giant white tick */
+	588,	/* Black eye */
+	32,	/* Shrieker mushroom patch */
+	835,	/* Shiver */
+	119,	/* Lemure */
+	858,	/* Crying spirit */
+	1247,	/* Sheep -- narcolepsy */
+	219,	/* Earth spirit */
+	659,	/* White slime */
+	656,	/* Wrinkled mushroom */
+	85	/* Disenchanter eye */
 };

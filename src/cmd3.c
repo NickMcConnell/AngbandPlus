@@ -182,6 +182,16 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Got from feature */
 	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
@@ -249,32 +259,45 @@ void do_cmd_wield(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		{
+			if (o_ptr->weight >= 200) p_ptr->energy_use = 100;
+			else p_ptr->energy_use = 50;
+			break;
+		}
+		case TV_BOW:
+		{
+			if (o_ptr->sval >= SV_HAND_XBOW) p_ptr->energy_use = 100;
+			else p_ptr->energy_use = 50;
+			break;
+		}
+		default:
+		{
+			p_ptr->energy_use = 100;
+			break;
+		}
+	}
 
 	/* Get object flags */
 	object_flags(o_ptr,&f1,&f2,&f3,&f4);
 
 	/* Check for racial conflicts */
 	burn |= (f1 & (TR1_SLAY_NATURAL)) & (p_ptr->cur_flags4 & (TR4_ANIMAL));
-	burn |= (f1 & (TR1_SLAY_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
-	burn |= (f1 & (TR1_SLAY_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
 	burn |= (f1 & (TR1_SLAY_ORC)) & (p_ptr->cur_flags4 & (TR4_ORC));
 	burn |= (f1 & (TR1_SLAY_TROLL)) & (p_ptr->cur_flags4 & (TR4_TROLL));
 	burn |= (f1 & (TR1_SLAY_GIANT)) & (p_ptr->cur_flags4 & (TR4_GIANT));
-	burn |= (f1 & (TR1_SLAY_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
-	burn |= (f1 & (TR1_KILL_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
-	burn |= (f1 & (TR1_KILL_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
-	burn |= (f1 & (TR1_KILL_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
 	burn |= (f4 & (TR4_SLAY_MAN)) & (p_ptr->cur_flags4 & (TR4_MAN));
 	burn |= (f4 & (TR4_SLAY_ELF)) & (p_ptr->cur_flags4 & (TR4_ELF));
 	burn |= (f4 & (TR4_SLAY_DWARF)) & (p_ptr->cur_flags4 & (TR4_DWARF));
 	burn |= (f4 & (TR4_ANIMAL)) & (p_ptr->cur_flags1 & (TR1_SLAY_NATURAL));
-	burn |= (f4 & (TR4_UNDEAD)) & (p_ptr->cur_flags1 & (TR1_SLAY_UNDEAD));
-	burn |= (f4 & (TR4_DEMON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DEMON));
 	burn |= (f4 & (TR4_ORC)) & (p_ptr->cur_flags1 & (TR1_SLAY_ORC));
 	burn |= (f4 & (TR4_TROLL)) & (p_ptr->cur_flags1 & (TR1_SLAY_TROLL));
 	burn |= (f4 & (TR4_GIANT)) & (p_ptr->cur_flags1 & (TR1_SLAY_GIANT));
-	burn |= (f4 & (TR4_DRAGON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DRAGON));
 	burn |= (f4 & (TR4_MAN)) & (p_ptr->cur_flags4 & (TR4_SLAY_MAN));
 	burn |= (f4 & (TR4_DWARF)) & (p_ptr->cur_flags4 & (TR4_SLAY_DWARF));
 	burn |= (f4 & (TR4_ELF)) & (p_ptr->cur_flags4 & (TR4_SLAY_ELF));
@@ -286,7 +309,13 @@ void do_cmd_wield(void)
 		burn = FALSE;
 	}
 
-	/* Check for elemental conflicts */
+	/* Check for elemental conflicts and high slays */
+	burn |= (f1 & (TR1_SLAY_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
+	burn |= (f1 & (TR1_SLAY_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
+	burn |= (f1 & (TR1_SLAY_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
+	burn |= (f1 & (TR1_KILL_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
+	burn |= (f1 & (TR1_KILL_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
+	burn |= (f1 & (TR1_KILL_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
 	burn |= (f1 & (TR1_BRAND_HOLY)) & (p_ptr->cur_flags4 & (TR4_EVIL));
 	burn |= (f1 & (TR1_BRAND_POIS)) & (p_ptr->cur_flags4 & (TR4_HURT_POIS));
 	burn |= (f1 & (TR1_BRAND_ACID)) & (p_ptr->cur_flags4 & (TR4_HURT_ACID));
@@ -296,6 +325,12 @@ void do_cmd_wield(void)
 	burn |= (f4 & (TR4_BRAND_LITE)) & (p_ptr->cur_flags4 & (TR4_HURT_LITE));
 
 	burn |= (f4 & (TR4_EVIL)) & (p_ptr->cur_flags1 & (TR1_BRAND_HOLY));
+	burn |= (f4 & (TR4_DRAGON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DRAGON));
+	burn |= (f4 & (TR4_UNDEAD)) & (p_ptr->cur_flags1 & (TR1_SLAY_UNDEAD));
+	burn |= (f4 & (TR4_DEMON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DEMON));
+	burn |= (f4 & (TR4_DRAGON)) & (p_ptr->cur_flags1 & (TR1_KILL_DRAGON));
+	burn |= (f4 & (TR4_UNDEAD)) & (p_ptr->cur_flags1 & (TR1_KILL_UNDEAD));
+	burn |= (f4 & (TR4_DEMON)) & (p_ptr->cur_flags1 & (TR1_KILL_DEMON));
 	burn |= (f4 & (TR4_HURT_POIS)) & (p_ptr->cur_flags1 & (TR1_BRAND_POIS));
 	burn |= (f4 & (TR4_HURT_ACID)) & (p_ptr->cur_flags1 & (TR1_BRAND_ACID));
 	burn |= (f4 & (TR4_HURT_COLD)) & (p_ptr->cur_flags1 & (TR1_BRAND_COLD));
@@ -309,9 +344,9 @@ void do_cmd_wield(void)
 		msg_print("Aiee! It feels burning hot!");
 
 		/* Mark object as ungettable? */
-		if ((o_ptr->discount == 0) &&
+		if (!(o_ptr->feeling) &&
 			!(o_ptr->ident & (IDENT_SENSE))
-			&& !(object_known_p(o_ptr)))
+			&& !(object_named_p(o_ptr)))
 		{
 	
 			/* Sense the object */
@@ -366,7 +401,7 @@ void do_cmd_wield(void)
 	i_ptr->stackc = 0;
 
 	/* Sometimes use lower stack object */
-	if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+	if (!object_charges_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
 	{
 		if (amt >= o_ptr->stackc)
 		{
@@ -376,7 +411,7 @@ void do_cmd_wield(void)
 		}
 		else
 		{
-			if (i_ptr->pval) i_ptr->pval--;
+			if (i_ptr->charges) i_ptr->charges--;
 			if (i_ptr->timeout) i_ptr->timeout = 0;
 
 			o_ptr->stackc -= amt;
@@ -457,6 +492,13 @@ void do_cmd_wield(void)
 	else if (slot == INVEN_LITE)
 	{
 		act = "Your light source is";
+
+		/* Light torch if not lit already */
+		if (!(artifact_p(o_ptr)) && !(o_ptr->timeout))
+		{
+			o_ptr->timeout = o_ptr->charges;
+			o_ptr->charges = 0;
+		}
 	}
 	else
 	{
@@ -475,15 +517,29 @@ void do_cmd_wield(void)
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+		switch (o_ptr->feeling)
+		{
+			case INSCRIP_ARTIFACT: o_ptr->feeling = INSCRIP_TERRIBLE; break;
+			case INSCRIP_HIGH_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
+			case INSCRIP_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
+			default: o_ptr->feeling = INSCRIP_CURSED;
+		}
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+	}
+	/* Not cursed */
+	else
+	{
+		switch (o_ptr->feeling)
+		{
+			case INSCRIP_NONMAGICAL: o_ptr->feeling = INSCRIP_AVERAGE; break;
+			case INSCRIP_ARTIFACT: o_ptr->feeling = INSCRIP_SPECIAL; break;
+			case INSCRIP_HIGH_EGO_ITEM: o_ptr->feeling = INSCRIP_SUPERB; break;
+			case INSCRIP_EGO_ITEM: o_ptr->feeling = INSCRIP_EXCELLENT; break;
+			case INSCRIP_UNUSUAL: o_ptr->feeling = INSCRIP_MAGICAL; break;
+		}
 	}
 
 	/* Get known flags */
@@ -494,6 +550,10 @@ void do_cmd_wield(void)
 
 	/* Some flags are instantly known */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Hack -- identify pval */
+	if (f1 & (TR1_BLOWS | TR1_SHOTS | TR1_SPEED | TR1_STR |
+		TR1_INT | TR1_DEX | TR1_CON | TR1_CHR)) o_ptr->ident |= (IDENT_PVAL);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
 	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
@@ -669,6 +729,13 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag -- hack: cancel to pick the bag itself */
+		if (get_item_from_bag(&item, q, s, o_ptr)) o_ptr = &inventory[item];
+	}
+
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
 
@@ -729,6 +796,16 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Get feat */
 	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
@@ -745,7 +822,7 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy)
+	if (verify_destroy && !auto_pickup_ignore(o_ptr))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -775,7 +852,7 @@ void do_cmd_destroy(void)
 		/* Sense the object if allowed, don't sense ID'ed stuff */
 		if ((o_ptr->discount == 0)
 		&& !(o_ptr->ident & (IDENT_SENSE))
-		 && !(object_known_p(o_ptr)))
+		 && !(object_named_p(o_ptr)))
 		{
 			o_ptr->discount = INSCRIP_UNBREAKABLE;
 
@@ -810,7 +887,7 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 
 	/* Sometimes use lower stack object */
-	if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+	if (!object_charges_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
 	{
 		if (amt >= o_ptr->stackc)
 		{
@@ -875,10 +952,17 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag -- hack: cancel to pick the bag itself */
+		if (get_item_from_bag(&item, q, s, o_ptr)) o_ptr = &inventory[item];
+	}
+
 	/* Hack - obviously interested enough in item */
 	if (o_ptr->ident & (IDENT_STORE))
 	{
-		o_ptr->marked = TRUE;
+		o_ptr->ident |= (IDENT_MARKED);
 
 		/* No longer 'stored' */
 		o_ptr->ident &= ~(IDENT_STORE);
@@ -942,6 +1026,16 @@ void do_cmd_uninscribe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Nothing to remove */
 	if (!o_ptr->note)
 	{
@@ -965,7 +1059,7 @@ void do_cmd_uninscribe(void)
 	if (!easy_autos) return;
 
 	/* Do we inscribe all these ego items? */
-	if (object_known_p(o_ptr) && (o_ptr->name2) && (e_info[o_ptr->name2].note))
+	if (object_named_p(o_ptr) && (o_ptr->name2) && (e_info[o_ptr->name2].note))
 	{
 		e_info[o_ptr->name2].note = 0;
 
@@ -982,7 +1076,7 @@ void do_cmd_uninscribe(void)
 			if (i_ptr->name2 != o_ptr->name2) continue;
 
 			/* Auto-inscribe */
-			if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = 0;
+			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
 
 		}
 
@@ -1005,7 +1099,7 @@ void do_cmd_uninscribe(void)
 			if (i_ptr->k_idx != o_ptr->k_idx) continue;
 
 			/* Auto-inscribe */
-			if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = 0;
+			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
 
 		}
 	}
@@ -1046,6 +1140,16 @@ void do_cmd_inscribe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	/* Describe the activity */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
@@ -1077,13 +1181,13 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Inscribe */
-	if ((item < 0) && (auto_pickup_ignore(o_ptr))) o_ptr->marked = FALSE;
+	if ((item < 0) && (auto_pickup_ignore(o_ptr))) o_ptr->ident &= ~(IDENT_MARKED);
 
 	/* Prompt to always inscribe? */
 	if (!easy_autos) return;
 
 	/* Do we inscribe all these ego items? */
-	if (object_known_p(o_ptr) && (o_ptr->name2))
+	if (object_named_p(o_ptr) && (o_ptr->name2))
 	{
 		e_info[o_ptr->name2].note = o_ptr->note;
 
@@ -1103,10 +1207,10 @@ void do_cmd_inscribe(void)
 			if (i_ptr->note) continue;
 
 			/* Auto-inscribe */
-			if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = e_info[o_ptr->name2].note;
+			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = e_info[o_ptr->name2].note;
 
 			/* Ignore */
-			if (auto_pickup_ignore(o_ptr)) o_ptr->marked = FALSE;
+			if (auto_pickup_ignore(o_ptr)) o_ptr->ident &= ~(IDENT_MARKED);
 
 		}
 
@@ -1132,10 +1236,10 @@ void do_cmd_inscribe(void)
 			if (i_ptr->note) continue;
 
 			/* Auto-inscribe */
-			if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = o_ptr->note;
+			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = o_ptr->note;
 
 			/* Ignore */
-			if (auto_pickup_ignore(o_ptr)) o_ptr->marked = FALSE;
+			if (auto_pickup_ignore(o_ptr)) o_ptr->ident &= ~(IDENT_MARKED);
 
 		}
 
@@ -1153,7 +1257,7 @@ static bool item_tester_refill_lantern(const object_type *o_ptr)
 	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
 	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0))
+	    (o_ptr->charges > 0))
 	{
 		return (TRUE);
 	}
@@ -1240,9 +1344,13 @@ void do_cmd_refill(void)
 	bool unstack = FALSE;
 	bool use_feat = FALSE;
 	bool get_feat = FALSE;
+	bool relite = FALSE;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_empty_flask_or_lite;
+
+	/* Hack -- prefer equipment */
+	p_ptr->command_wrk = (USE_EQUIP);
 
 	/* Get an item */
 	q = "Fill/fuel which item? ";
@@ -1261,6 +1369,16 @@ void do_cmd_refill(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 	{
 		/* Restrict the choices */
@@ -1271,6 +1389,7 @@ void do_cmd_refill(void)
 		s = "You have no sources of oil.";
 
 		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+
 	}
 	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
 	{
@@ -1296,9 +1415,6 @@ void do_cmd_refill(void)
 		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 	}
 
-	/* Can't fuel self */
-	if (item == item2) return;
-
 	/* Get the item (in the pack) */
 	if (item2 >= 0)
 	{
@@ -1311,8 +1427,29 @@ void do_cmd_refill(void)
 		j_ptr = &o_list[0 - item2];
 	}
 
+	/* In a bag? */
+	if (j_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item2, q, s, j_ptr)) return;
+
+		/* Refer to the item */
+		j_ptr = &inventory[item2];
+	}
+
+	/* Can't fuel self */
+	if (item == item2) return;
+
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
+
+	/* Switch off light source */
+	if (o_ptr->timeout)
+	{
+		o_ptr->charges = o_ptr->timeout;
+		o_ptr->timeout = 0;
+		relite = TRUE;
+	}
 
 	if (o_ptr->number > 1)
 	{
@@ -1346,15 +1483,15 @@ void do_cmd_refill(void)
 		if (unstack) msg_print("You unstack your lantern.");
 
 		/* Refuel */
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->charges += j_ptr->charges;
 
 		/* Message */
 		msg_print("You fuel the lamp.");
 
 		/* Comment */
-		if (o_ptr->pval >= FUEL_LAMP)
+		if (o_ptr->charges >= FUEL_LAMP)
 		{
-			o_ptr->pval = FUEL_LAMP;
+			o_ptr->charges = FUEL_LAMP;
 			msg_print("The lamp is full.");
 		}
 
@@ -1368,15 +1505,15 @@ void do_cmd_refill(void)
 		if (unstack) msg_print("You unstack your torch.");
 
 		/* Refuel */
-		o_ptr->pval += j_ptr->pval + 5;
+		o_ptr->charges += j_ptr->charges + 5;
 
 		/* Message */
 		msg_print("You combine the torches.");
 
 		/* Over-fuel message */
-		if (o_ptr->pval >= FUEL_TORCH)
+		if (o_ptr->charges >= FUEL_TORCH)
 		{
-			o_ptr->pval = FUEL_TORCH;
+			o_ptr->charges = FUEL_TORCH;
 			msg_print("Your torch is fully fueled.");
 		}
 
@@ -1414,6 +1551,9 @@ void do_cmd_refill(void)
 	{
 		/* Carry */
 		item = inven_carry(o_ptr);
+
+		/* Don't relite */
+		relite = FALSE;
 	}
 
 	/* Use fuel from a lantern */
@@ -1433,8 +1573,8 @@ void do_cmd_refill(void)
 			/* Reset stack counter */
 			i_ptr->stackc = 0;
 
-			/* Reset the pval */
-			i_ptr->pval = 0;
+			/* Reset the charges */
+			i_ptr->charges = 0;
 
 			/* No longer 'stored' */
 			i_ptr->ident &= ~(IDENT_STORE);
@@ -1452,13 +1592,13 @@ void do_cmd_refill(void)
 		else
 		{
 			/* Use up last of fuel */
-			j_ptr->pval = 0;
+			j_ptr->charges = 0;
 		}
 	}
 	/* Decrease the item (in the pack) */
 	else if (item2 >= 0)
 	{
-		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+		if (j_ptr->number == 1) inven_drop_flags(j_ptr);
 
 		inven_item_increase(item2, -1);
 		inven_item_describe(item2);
@@ -1474,6 +1614,13 @@ void do_cmd_refill(void)
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 
+	/* Relite if necessary */
+	if (relite)
+	{
+		o_ptr->timeout = o_ptr->charges;
+		o_ptr->charges = 0;
+	}
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1484,6 +1631,98 @@ void do_cmd_refill(void)
 	if ((item == INVEN_LITE) || (item2 == INVEN_LITE)) p_ptr->update |= (PU_TORCH);
 
 }
+
+
+/*
+ * An "item_tester_hook" for light sources
+ */
+static bool item_tester_light_source(const object_type *o_ptr)
+{
+	/* Return "is a non-artifact light source" */
+	return ((o_ptr->tval == TV_LITE) && !(artifact_p(o_ptr)));
+}
+
+/*
+ * Light or douse a light source.
+ */
+void do_cmd_light_and_douse(void)
+{
+	int item;
+
+	object_type *o_ptr;
+	char o_name[80];
+
+	cptr own_str = "";
+
+	cptr q, s;
+
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_light_source;
+
+	/* Get an item (not in the backpack) */
+	q = "Light or douse which light source?";
+	s = "You have no light sources.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
+	/* Get an object description */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+	/* Get an ownership string */
+	if (item >= 0) own_str = "your";
+	else if (o_ptr->number != 1) own_str = "some";
+	else own_str = "the";
+
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+
+	/* Light the light source */
+	if (!(o_ptr->timeout))
+	{
+		msg_format("You light %s %s.", own_str, o_name);
+		o_ptr->timeout = o_ptr->charges;
+		o_ptr->charges = 0;
+	}
+
+	/* Douse the light source */
+	else
+	{
+		msg_format("You douse %s %s.", own_str, o_name);
+		o_ptr->charges = o_ptr->timeout;
+		o_ptr->timeout = 0;
+	}
+
+	/* Update torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+}
+
 
 
 

@@ -67,6 +67,7 @@ bool arg_sound;			 /* Command arg -- Request special sounds */
 bool arg_mouse;			 /* Command arg -- Request mouse */
 bool arg_trackmouse;			 /* Command arg -- Request constant mouse tracking */
 bool arg_graphics;		      /* Command arg -- Request graphics mode */
+bool arg_graphics_nice;		      /* Command arg -- Request 'nice' graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;       /* Command arg -- Request roguelike keyset */
 
@@ -108,6 +109,7 @@ bool use_sound;		 /* The "sound" mode is enabled */
 bool use_mouse;		 /* The "mouse" mode is enabled */
 bool use_trackmouse;	 /* The "trackmouse" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
+bool use_graphics_nice;	      /* The 'nice' "graphics" mode is enabled */
 bool use_trptile = FALSE;
 bool use_dbltile = FALSE;
 bool use_bigtile = FALSE;
@@ -125,9 +127,10 @@ s16b coin_type;		 /* Hack -- force coin type */
 
 s16b food_type;		 /* Hack -- force food type */
 
-s16b race_drop_idx;	     /* Hack -- force race drop */
+s16b race_drop_idx = 0;	     /* Hack -- force race drop */
+s16b tval_drop_idx = 0;	     /* Hack -- force race drop */
 
-bool opening_chest;	     /* Hack -- prevent chest generation */
+bool opening_chest = FALSE;	     /* Hack -- theme chest generation */
 
 bool shimmer_monsters;  /* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;   /* Hack -- optimize multi-hued objects */
@@ -333,7 +336,7 @@ byte angband_color_table[256][4] =
 /*
  * Standard sound (and message) names
  */
-const cptr angband_sound_name[SOUND_MAX] =
+const cptr angband_sound_name[MSG_MAX] =
 {
 	"",
 	"hit",
@@ -347,7 +350,7 @@ const cptr angband_sound_name[SOUND_MAX] =
 	"teleport",
 	"shoot",
 	"quaff",
-	"zap",
+	"zap_rod",
 	"walk",
 	"tpother",
 	"hitwall",
@@ -363,8 +366,129 @@ const cptr angband_sound_name[SOUND_MAX] =
 	"bell",
 	"nothing_to_open",
 	"lockpick_fail",
-	"stairs",
+	"stairs_down", 
 	"hitpoint_warn",
+	"act_artifact", 
+	"use_staff", 
+	"destroy", 
+	"mon_hit", 
+	"mon_touch", 
+	"mon_punch", 
+	"mon_kick", 
+	"mon_claw", 
+	"mon_bite", 
+	"mon_sting", 
+	"mon_butt", 
+	"mon_crush", 
+	"mon_engulf", 
+	"mon_crawl", 
+	"mon_drool", 
+	"mon_spit", 
+	"mon_gaze", 
+	"mon_wail", 
+	"mon_spore", 
+	"mon_beg", 
+	"mon_insult", 
+	"mon_moan", 
+	"recover", 
+	"blind", 
+	"confused", 
+	"poisoned", 
+	"afraid", 
+	"paralyzed", 
+	"drugged", 
+	"speed", 
+	"slow", 
+	"shield", 
+	"blessed", 
+	"hero", 
+	"berserk", 
+	"prot_evil", 
+	"invuln", 
+	"see_invis", 
+	"infrared", 
+	"res_acid", 
+	"res_elec", 
+	"res_fire", 
+	"res_cold", 
+	"res_pois", 
+	"stun", 
+	"cut", 
+	"stairs_up", 
+	"store_enter", 
+	"store_leave", 
+	"store_home", 
+	"money1", 
+	"money2", 
+	"money3", 
+	"shoot_hit", 
+	"store5", 
+	"lockpick", 
+	"disarm", 
+	"identify_bad", 
+	"identify_ego", 
+	"identify_art", 
+	"breathe_elements", 
+	"breathe_frost", 
+	"breathe_elec", 
+	"breathe_acid", 
+	"breathe_gas", 
+	"breathe_fire", 
+	"breathe_confusion", 
+	"breathe_disenchant", 
+	"breathe_chaos", 
+	"breathe_shards", 
+	"breathe_sound", 
+	"breathe_light", 
+	"breathe_dark", 
+	"breathe_nether", 
+	"breathe_nexus", 
+	"breathe_time", 
+	"breathe_inertia", 
+	"breathe_gravity", 
+	"breathe_plasma", 
+	"breathe_force", 
+	"summon_monster", 
+	"summon_angel", 
+	"summon_undead", 
+	"summon_animal", 
+	"summon_spider", 
+	"summon_hound", 
+	"summon_hydra", 
+	"summon_demon", 
+	"summon_dragon", 
+	"summon_gr_undead", 
+	"summon_gr_dragon", 
+	"summon_gr_demon", 
+	"summon_ringwraith", 
+	"summon_unique", 
+	"wield", 
+	"cursed", 
+	"pseudo_id", 
+	"hungry", 
+	"notice", 
+	"ambient_day", 
+	"ambient_nite", 
+	"ambient_dng1", 
+	"ambient_dng2", 
+	"ambient_dng3", 
+	"ambient_dng4", 
+	"ambient_dng5", 
+	"mon_create_trap", 
+	"mon_shriek", 
+	"mon_cast_fear", 
+	"hit_good", 
+	"hit_great", 
+	"hit_superb", 
+	"hit_hi_great", 
+	"hit_hi_superb", 
+	"cast_spell", 
+	"pray_prayer",
+	"kill_unique",
+	"kill_king",
+	"drain_stat",
+	"multiply",
+	"screendump"
 };
 
 
@@ -561,6 +685,12 @@ store_type *store;
  * Array[INVEN_TOTAL] of objects in the player's inventory
  */
 object_type *inventory;
+
+
+/*
+ * Array[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL] of numbers in magical bags
+ */
+s16b bag_contents[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL];
 
 
 /*

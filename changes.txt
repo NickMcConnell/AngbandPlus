@@ -1,3 +1,855 @@
+Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down
+Sinners"
+
+### Game Play ###
+
+- Improved metric for when monsters should cast probe spell (Reported by
+Bandobras).
+
+- Changed object value calculation to be based on object power.
+
+- A race and class-based pseudo-identify on creation of an item. This will
+distinguish whether an item is {average} or not and provide some 'additional'
+information, depending on the race and class of the character.
+
+- You can now coat your sharp weapons, arrows and bolts with potions,
+mushrooms or flasks of oil in order to do additional damage from the effects
+of these items. This does 20% of the damager per blow or shot that throwing
+the equivalent potion, flask or mushroom does.
+
+- Added higher level dangerous potions and flasks to allow improved weapon
+coatings.
+
+- Magic items start being generated earlier in the game but are less powerful
+deeper in the dungeon.
+
+- You can now switch your torch or lantern on and off using the | key.
+
+- Added a variety of magical bags which can hold large numbers of objects at
+a constant weight. Each magical bag can only fit certain types of objects inside
+it.
+
+- You can inscribe an artifact weapon with '=A' to automatically activate it
+against the creature you are attacking or throwing the weapon against.  This
+causes the activation to affect the target creature only, and discharges the
+artifact as per normal.
+
+- Added spells and scrolls of various kinds of mana recovery.
+
+- Added ego and magic lanterns.
+
+- Monsters now eat bodies around the dungeon if they are hungry and not under
+attack.
+
+- Improved utility of low powered detection spells. Added Sense Magic scrolls.
+(From Sangband).
+
+- Added additional effects: Petrify which prevents you from moving and event-
+ually paralyzes you, which requires resist shards to resist; Stastis which
+prevents you from acting, but protects you from any attacks; Dispel which
+removes all enchantments from you and monsters; Sleep which causes you to
+become drowsy and then fall asleep, preventing you from acting and making you
+blind, but removed if you take any damage.
+
+- You can now sleep to recover damaged stats. This takes quite a while.
+
+- Instead of trailing webs around the dungeon, spiders now are generated in
+spider webs. Acidic monsters and other monster types now generate trails around
+the dungeon.
+
+- Chasms can now be bridged by destructable bridges; you can now use rope and
+chain with spikes in order to build bridges across chasms.
+
+- Water and other terrain and suffocation/drowning effects no longer confuse
+to allow player and monsters to have a better chance to find their way out of
+such terrain.
+
+- Added potions of free action, more high-level wands, ropes and grappling
+ammunition to shoot ropes across chasms.
+
+- Added a number of new attack spells using winds, blood, webs and other new
+effects, as well as nexus, ice and darkness.
+
+- Added saleable paintings.
+
+- Improve low level great drops in particular drops from the Dunlending agent
+(Reported by Mikon).
+
+- Object detection now detects mimic monsters. Treasure detection now detects
+monsters made of coins or gems, or coin or gem-like monsters.
+
+- Burning arrows replaced by oil-coated regular arrows.
+
+- Some new weapons and armour re-balancing from Sangband.
+
+- Made cumulative effects of confusion and stun on monsters dependent on their
+level.
+
+- Made monster saving throws again slow, blindness, confusion etc more variable.
+
+- Potions, flasks and spores will always explode when thrown as if hitting a 
+monster. They will also explode when on the floor and destroyed by an attack. 
+This allows much more tactical diversity when using them (Requested by mikon).
+
+- Haggling and auto-scum are now birth rather than game-play options.
+
+- Separated out maximise modes for race and class. Class now defaults to off
+(Half-maximise mode).
+
+- Allow staffs to be used while wielding them (Requested by ekolis).
+
+- Detect magic now detects magical monsters. Detect water now detects watery monsters.
+Detect life now detects living terrain.
+
+- Cure fear effects from potions of boldness, heroism and beserk strength now cure
+petrification as well (Requested by Pete Mac).
+
+- Store services no longer count towards total store stock levels.
+
+- Added HURT_LITE to Black Rider at Weathertop (Suggested by Pete Mack).
+
+- Added extra spells to Smaug (From Oangband).
+
+- Added ranged attack to Bert, Bill, Tom (Suggested by Pete Mack).
+
+- Store selling oil and lanterns is now available from Rivendell (Suggested by
+Pete Mack).
+
+- A number of spells now have prerequisite spells that you must learn first before
+studying them.
+
+- Rebalance and expand the mage spell list considerably.
+
+- Damage from cloud, storm and area spells do not decrease with distance from the
+centre of effect.
+
+- Removed the ability of low level spell caster monsters to bash doors; particularly
+those short of stature (Suggested by Pete Mac).
+
+- Removed the ability of skeletons, zombies, dragons and hydras to open doors: they may
+still bash them however. Some other monsters may bash but not open doors now; or open
+but not bash doors.
+
+- Changed what attributes govern number of spells learnt, mana and fail rates: for
+mages, rangers, rogues and shamans, intelligence now controls number of spells learnt,
+wisdom now controls amount of mana and dexterity now controls spell failure rates.
+This is the same for priests and paladins, except they use charisma to determine
+spell failure rates. Bards use dexterity to determine number of spells learnt, charisma
+to determine mana and constitution to determine spell failure rates.
+This is configurable in p_class.txt for those who want to revert to the old system.
+
+- Changed stat progression so that 'about' one spell is learnt per level except for
+very high spell stats. Made individual stat increases have more impact on total spells
+known, especially at higher stat levels. Very low stats are better at remembering a few
+spells.
+
+- Whenever you learn a new spell, you now get a study item created in your inventory,
+depending on the type of spell book. This study item can be used to study spells not
+available in your current spell book; as well as allowing you to cast the spell you
+have just studied. This makes learning spells from features in the dungeon now useful.
+Be careful not to lose this study item however, as it is (currently) irreplaceable.
+
+- Chests are now themed and drop more useful and powerful items or valuable gold. Low
+level chests are less frequently trapped, high-level ones more so (Suggested by Adam
+Horowitz).
+
+- Monsters with good or great drops now drop more valuable gold or gems if they have
+a gold drop.
+
+- Some monsters are now telepathic and will not say anything out loud about the player.
+
+- You now choose which stat you increase every level.
+
+- Smoother progression gaining spells and mana.
+
+- For computing slays and brands, if the value on the damage dice roll is less than
+3, treat it as 3 for determining the damage added by the slay or brand only. e.g. for
+x3 multiplier weapons, add at least 6 damage, x4 multiplier weapons, add at least 9
+damage, and x5 multiplier weapons, add at least 12 damage. We deliberately ignore
+this when computing weapon or artifact power for the moment to keep thing simplier (it
+will only add a point or two to power in most instances anyway).
+
+- Tweaked monster AI for situations involving pillar dancing, hack'n'back and splash
+damage exploits. Also ensure teleport to and teleport self to are used more sensibly.
+
+- Monsters now talk to allies who are out of sight but nearby. Also monsters now
+verbally as opposed to telepathically communicate when they find a scent.
+
+- Made parasites hatch.
+
+- Added some more cure disease items and magic.
+
+- Increased stone troll boulder damage. Modified lemures.
+
+- Gloves of intelligence and wisdom no longer affect mage type casters (Suggested by
+Adam Horowitz).
+
+- To encourage the use of swap weapons and armour, these types of items will just be
+damaged, as opposed to destroyed, whilst in the backpack and affected by an inventory
+damaging elemental attack. Diggers are now vulnerible to damage whilst in the backpack.
+
+- Adjusted bag rarities and depths to try to make early bags more useful and interesting
+and deeper bags not necessarily encountered every game (Suggested by Matthias Rudolf).
+
+- Adjusted diseases to make heavy and powerful diseases more distinct, and to improve
+'correctness' of disease life-cycle in instances where a disease was draining hitpoints
+mana or experience or preventing them from healing only.
+
+- Study items are now only created when you study at a feature.
+
+- Scaled down the costs of high stats when using point based character generation due
+to stat gain at every level (Suggested by mikon).
+
+- Priests can now specialise in priest books or instruments (Suggested by mikon).
+
+- Magic items are half as common as before, but great non-magical items are now
+much more frequent.
+
+- Allow diggers to be branded (Requested by ekolis).
+
+- Changed how inventory damage from elemental attacks works. Each vulnerible item in
+your inventory now has a 1% chance plus 1% per 15 hit points of elemental damage
+suffered of being destroyed when you are hit by an elemental attack. Resistance
+granted by an item (but not a spell) halves this chance, rounded down. This means
+you become immune to inventory damage from blows causing less than 15 hit points
+damage if you wear an item that grants elemental resistance. However the percentage
+increase from high damage attacks is not limited - any attack causing 30 or more
+damage (or 60 damage resisted) is now more likely to destroy items in your inventory
+than previously.
+
+- Some nasty acidic monsters have had their blows modified so they are more likely
+to cause high hit point damage attacks, but have reduced blows to compensate. 
+
+- Acid can now reduce ac multiple levels in a single hit (equivalent to inventory
+damage) and destroy worn items that do not have additional magical properties.
+
+- Reduce size of deep object piles (Suggested by Matthias Rudolf).
+
+- Change progression of healing potions so that Healing and *Healing* and Life do
+not appear as early, as Cure Mortal Wounds is available.
+
+- Reduced level at which many objects qualify as good drops so that e.g. *Identify*
+is now considered a good drop.
+
+- It is now possible to improve an object with runes, and subsequently brand
+it, provided there are no 'left-over' runes. If there is, these runes are lost
+when the item is branded. However, an object cannot be branded, then subsequently
+improved with runes.
+
+- Confusion no longer prevents you from casting spells. It also only takes effect
+sometimes at 'low' levels of confusion. Similar effects apply for monsters affected
+by confusion.
+
+- Being berserk prevents you from casting spells, using wands, staffs or rods, or
+archery or thrown weapons. Berserk monsters lose the ability to make ranged attacks.
+
+- You can now douse your lights to walk through water (Requested by darkDrone).
+
+- Stop dungeons flooding with deep water.
+
+- Monsters that are hiding and wish to use a ranged attack or spell now take a turn
+to unhide and will use the ability the following turn (Requested by Matthias Rudolf).
+
+- You can now sell statues to temples. Stores will not stock statues once sold as they
+are only good for making money for the player through sale.
+
+- Reduced the power of the King of the Wood Elves to about 80% of his former strength
+(Requested by Pete Mac). Also modified the depth of some of his more powerful escorts
+so that they won't usually appear with him.
+
+- Upgraded and added more staffs of Cure x Wounds, and potions of Cure Moderate Wounds.
+Cure Serious Wounds effect from priest spell or potion or staff now only partially cures
+confusion and stun. Increased depth of Cure Serious Wounds and Cure Critical Wounds
+potions and made Cure Moderate Wounds potions appear at the old Cure Serious Wounds depth
+and frequency in stores. Since Cure Moderate Wounds in Unangband is equivalent to old
+Cure Serious Wounds from Angband, this shouldn't have too much of an impact, except for
+curing confusion (which is now less dangerous to the player initially).
+
+- Changed pricing formula for objects so that more powerful objects become progressively
+worth more.
+
+- Added double-brand ego weapons with drawbacks.
+
+- Wielding a weapon or digger less than 20 lbs, or a bow or sling, but not crossbow,
+only take half a turn.
+
+- Added scrolls, spells and services of test magic. These identify magic items and
+detect one ability of ego items or artifacts (Suggested by Matthias Rudolf).
+
+- Added Legend Lore as a store service and spell.
+
+- Improved semantics of becoming 'aware' of objects, particularly with reference to
+the bard's sense magic ability.
+
+- Prevent objects dropping on terrain that would destroy them.
+
+- Spear-type polearms only every cause additional critical damage. Axe-type polearms
+including halberds will either stun or cut an opponent. Scythes only cut an opponent.
+
+- Added charging. If you move and then immediately attack in the same direction, or
+to a 45 degree adjacent direction, you will charge instead of conduct a normal attack.
+Charging results in you making a single attack (or two attacks, if you are wielding two
+weapons), instead of your usual number of blows. However, if the weapon weighs 6.6 or
+more pounds, all damage you would normally do is multiplied by the weight in lbs of
+the weapon divided by 3.3 lbs. e.g. 6.6 lbs does double damage, 9.9 does triple, etc.
+  Be aware that you always charge now, so that weapons with high blows and low weight
+are less effective when you close to attack an opponent, unless they end up more than
+45 degrees away from the direction of your move.  In general, if you get more blows
+than the weapon charge multiplier, it is probably worth waiting for the monsters to
+come to you.
+  If you are fighting unarmed, you use your weight divided by 33 lbs instead for the
+damage multiplier to deliver a flying kick.  Charging also doubles the 'power' of your
+bashes against terrain, so a door that you cannot force might be defeatable with a run
+up. Note that spear-type polearms are the most effective at charging as their critical
+damage will also be increased by charging.
+  A new combat tactic might be to select a heavy weapon, use it to charge an opponent,
+and then switch to a lighter weapon (taking a half-move to do so), and take advantage
+of the additional attacks the lighter weapon affords.
+  Note the figure of 3.3 lbs is class dependent - it is this value for warriors and
+paladins, 4.4 lbs for priests, archers and thieves, 5.5 lbs for bards and rangers and
+6.6 lbs for mages and shamans.
+
+- Massively reduce the power of the guardian of Caradhras. Rebalance unique depths.
+Swap stats of Baldor the Hapless and Lord of the Paths of the Dead.
+
+- Huge monsters are hard to melee except from charging attacks, attacks against them
+missing approximately 60% of the time.  In order to effectively melee a huge monster,
+you need to step back after every attack and charge it again.  Made more monsters huge.
+
+- Complete rebalancing of monsters from level 5 to level 35.
+
+- Added additional wood elves to try to make Mirkwood more interesting.  Made Brass
+Monkeys less common.
+
+- Evasive monsters can now dodge bolt and beam spells (From Eyangband).
+
+- Monsters spawn more frequently deeper in the dungeon. Stealth now affects spawning
+rate, and can result in monsters being spawned asleep (From SAngband).
+
+- Made disease effects against monsters a lot more interesting.
+
+- Enabled throwing again. Throwing now includes damage from specialisation if the
+object you are throwing has the THROWING flag.  Such objects also get twice the
+benefit of their to-hit and damage bonuses when thrown.  If you have an instrument or
+no bow equipped, you are still capable of throwing using the fire command, and this
+command will only list items with the THROWING flag enabled.
+
+- Player traps now do additional damage from coated weapons and ammunition.
+
+- You can now damage monster inventories. This is primarily intended for destroying
+monster ammunition with fire or acid based spells, but stolen objects will equally 
+be at risk of destruction.
+
+- Moria has been broken into several parts with multiple paths and guardians.
+
+- Monsters will now use healing potions if they carry them, particularly to cure
+blindness. Monsters that are blinded are able to use cure spells (only) to heal
+themselves.
+
+- You only trigger traps on chests when you attempt to open them now, as opposed
+to just stepping on them (Requested by Matthias Rudolf).
+
+- You can now travel to any accessible location that you could travel to, not just
+'nearby' locations, however distant trips will take longer and leave you hungrier.
+
+- Temporary speed causes you to tire out quickly (Requested by mikon).
+
+- There is now a place to store valuables while you are exploring the Paths of the
+Dead (Requested by Matthias Rudolf).
+
+- Slimy floors and wet floors and walls as well as ice provide no purchase for
+climbing monsters.
+
+- Aggravation now only wakes monsters in line of sight or line of fire of the player
+(Requested by Matthias Rudolf).
+
+- Added scrolls of Door Creation and Stair Creation and rings of Sustain Body and
+Sustain Mind. Stair Creation is biased to create stairs in the direction you last
+took.
+
+### User Interface ###
+
+- Created a nice graphics mode on windows that attempts to automagically fit
+the tiled graphics and fonts together on the screen without forcing the tiled
+graphics to scale.
+
+- Identifying an object now tells you whether you can apply runes to it or
+enchant it with brands or resists.
+
+- Improvements to object display code to describe many more uses for objects.
+
+- Disabled the throw command. Thrown items are thrown using the fire command.
+
+- Updated character dump code (From NPPAngband).
+
+- Display list of dungeons visited.
+
+- Display amnesia, petrification, cursed status if there is room.
+
+- Time of day command also displays your current location.
+
+- Updated character display and dumps to include all object flags.
+
+- Corpses and other objects which are never picked up do not disturb the player
+when moving across them (Requested by will_asher).
+
+- Added new object run_ignore_floors which defaults to on, which means the
+player ignores unusual floor types such as slime, blood and dust whilst running
+(Requested by will_asher).
+
+- Added auto_display_lists and toggle_xp options from Hengband.
+
+- Display stats at bottom rather than side of screen by default.
+
+- List spells learnt in character dump.
+
+- Change ordering in character dump slightly.
+
+- Separate message for when a monster intensifies its aura as an attack spell.
+
+- Decreased total text output for detection spells.
+
+- When travelling, display the levels of your destination. Also display the
+levels and origin when examining any map (Suggested by Adam Horowitz).
+
+- Merged the 'powerful' feeling with the 'unusual' feeling (Suggested by
+Adam Horowitz).
+
+- Distinguished the two Rivendells as this was causing confusion when using
+maps.
+
+- Fixed bug when describing sense item effect (Reported by Pav Lucistnik).
+
+- Show monster health bar over gold when not showing the side bar (Many thanks
+to Pav Lucistnik for the patch).
+
+- If you ignore objects (including auto-ignoring of corpses), you are no longer
+prompted to verify destruction even if you have the verify_destroy option selected.
+In addition, you ignore objects under more circumstances (if they roll under you
+or disappear from view). (Thanks to Pav Lucistnik for the patch).
+
+- Study items now tell you that they can be researched when you inspect them. You
+can also now browse the spells that you can research, if you are studying a magic
+book or runestone only (Requestd by Matthias Rudolf).
+
+- When Inspecting an object, the basic object functions are listed first, before
+flags or damage (Following discussion with Pav Lucistnik).
+
+- Confirm selected stat increase at level gain (Requested by Matthias Rudolf).
+
+- Implented big screen in stores (Requested by Pav Lucistnik).
+
+- Hid information about whether a character dodged or blocked last turn (After 
+discussion with Pav Lucistnik).
+
+- Distinguish when using hands or feet when attacking with unarmed combat.
+
+- Display the damage multiplier from slays and brands when examining a weapon.
+
+- Display bow multiplier in character screen.
+
+- Changed name of terrain containing something (Requested by darkDrone).
+
+- Print messages and display a status flag when you are cured or afflicted with
+a disease (Requested by Pav Lucistnik).
+
+- Reorganise main screen to group all status flags together, and ensure that
+important information is always fitted onto the screen.
+
+- Flags you learn on weapons are now reported after all your melee attacks have
+finished.
+
+- If you kill a dungeon guardian, you will be notified when you are on the surface
+of that dungeon that you have done so and where you can travel to.
+
+- You will always choose your wielded light source to refuel, light or douse if
+it can have the action applied to it (Requested by mikon). Unwield the light source
+to pick an arbitary light, or to use the fill command.
+
+### Bug fixes ###
+
+- Fix weapon branding.
+
+- Mushrooms should now drop spores of their type now.
+
+- Fixed duplicate and erroneous entries in spell.txt and style.txt (Reported by
+Mikolaj Konarski).
+
+- Fixed bug where monsters with shots were being generated with no ammunition
+ (Reported by Bandobras).
+
+- Separation out of charges from pvals to fix many 'pval-stacking problems'.
+Pval stacking is now replaced by charge stacking.
+
+- Separation of feelings from discounts.
+
+- You can now do html screendumps again any time the game is waiting for input
+using the ^] key.
+
+- Coin monsters were dropping the wrong types of coins (Reported by Adam Horowitz).
+
+- Smoke, acidic vapour and other terrain clouds were getting generated on floors
+not as intended. Fire now only generates smoke if wood or burnable objects are
+destroyed, acidic vapour if metal or objects vulnerable to acid are destroyed
+(Reported by Adam Horowitz).
+
+- Fixed bug that could result in another item incorrectly reporting item abilities
+after you identify these abilities on the first item (Reported by Adam Horowitz).
+
+- Fixed bug causing amnesia effect only to be removed by saving the game (Reported
+by Adam Horowitz).
+
+- Fixed lockup bug when hit by wind spells (Reported by Adam Horowitz).
+
+- Monsters now regenerate mana.
+
+- Potions of poison now poison again (Reported by mikon).
+
+- Fixed bug preventing teleport and phase door from working (Reported by mikon and
+redelmansidi).
+
+- Fixed bug causing throwing artifacts to be generated in stacks.
+
+- Fixed infinite loop during store item creation (Reported by Will Asher).
+
+- Fixed display of hours before midnight (Report by Mikon and others).
+
+- Fixed item boost code to ensure improving to-hit, to-dam, to-ac actually improves
+overall item power.
+
+- Fix bug with torches always stacking.
+
+- Fix sense magic to allow sensing on all objects (Reported by mikon).
+
+- Fix value magic to use real values (Reported by mikon).
+
+- Fix view_detect_grids option appearing twice (Reported by ekolis).
+
+- Ammunition carried by monsters is now sensed (Reported by mikon).
+
+- Fixed bug causing repeated reporting of unknown flags on equipment in self-knowledge
+(In character dump by Bandobras).
+
+- Fixed bug causing infinite sleeping (Reported by mikon).
+
+- Improved loading of 0.6.0 save-files (Reported by darkDrone).
+
+- Fixed crash when initialising sounds (Reported by ekolis).
+
+- Wands of Wonder II are now random.
+
+- Clear dungeons explored with each new character (From various character dumps on
+angband.oook.cz).
+
+- Weak shaman rune sensing should notice the presence of runes on object kinds
+(Reported by Bandobras).
+
+- Blindness, paralysation, sleep effects from potins and mushrooms and coatings
+should now take effect against monsters (Reported by Bandobras).
+
+- Fix item boost code so that to-hit, to-dam, to-ac bonuses only appear on appropriate
+items (Reported by Bandobras and ekolis).
+
+- Services no longer say they can be enchanted when examined (Reported by Mikon).
+
+- Fixed bug where a fountain would contain amulets of ESP as opposed to a potion
+(Reported by Mikon).
+
+- Fix bugs in new lite charge code when wielding and taking off lite sources (Reported
+by will_asher and others).
+
+- Fixed bug preventing Sauron from appearing in Orodruin (Reported by Ewan McNay).
+
+- Fixed bug causes quest location items to occasionally appear in resupply buildings
+(Reported by mikon and others).
+
+- Fixed string formatting bug that caused crash when computing power of hand crossbow.
+
+- Fixed new project_t function that was causing teleport other not to work and teleport/
+phase door not to work on Macintosh platform (Reported by redelmansidi and pete mack).
+
+- Fixed bugs with new separation of maximize race and maximize class options (Reported
+by mikon).
+
+- Fixed bug causing area effect spell damage to taper off at the square of range as 
+opposed to a ratio of range from the centre of effect.
+
+- Fixed crash bug when monster has nothing to say.
+
+- Fixed crash bug when player hit by gravity.
+
+- Temporary free action should now time out (Reported by Pete Mac).
+
+- More monsters should be marked as not living (Reported by Pete Mac).
+
+- Detect traps scrolls now correctly mark the map and are identified if and only if
+they detect a trap (Reported by ekolis).
+
+- Can now use flasks and torches from bags (Reported by darkDrone).
+
+- Fix crash bug when stepping on a food-stealing trap (Reported by Pete Mac).
+
+- Fix infinite loop while maintaining a store when there are too many store services
+(Reported by Pete Mac).
+
+- Significantly out of depth terrain should no longer be generated (Reported by mikon,
+from NPPAngband).
+
+- Fake objects used in the terrain code should no longer be detected (Reported by
+mikon).
+
+- Fixed bug where some high-bonus items were worth much less than they should have
+been (Reported by will_asher, ekolis).
+
+- Allow runes to be cast from the first turn after loading / starting the game.
+
+- Ensure that all objects that can fit into a bag do so the first time it is picked
+up.
+
+- Prevent infinite looping in scatter algorithm (Reported by Pete Mac).
+
+- Increased space available for room and dungeon descriptions to prevent
+crashing on some platforms (Reported by Pete Mac).
+
+- Prevent infinite looping when the player hit by wind attacks (Reported by Pete Mac).
+
+- Fix infinite loop when teleporting in Edoras.
+
+- Fixed crash caused when selling or dropping an item that has been valued and has
+charges (Reported by jevansau1).
+
+- Objects sold to stores no longer display a separate value.
+
+- Identifying or sensing an object clears more "sensed" inscriptions (Reported by
+ekolis).
+
+- Flasks of bile and blood now display the monster they are from (Reported by Pete
+mac).
+
+- You know learn about monster innate attacks as distinct from monster spells
+(Reported by ekolis).
+
+- Range monster attacks should now be properly described (Reported by Adam Horowtiz
+and others).
+
+- Objects exist to cure all diseases (Reported by darkDrone).
+
+- Its now possible to refuel using or wield torches, etc from magical bags (Reported 
+by darkDrone).
+
+- Fix scrolls of summon undead (Reported by darkDrone).
+
+- You can now study runes (Reported by Adam Horowitz).
+
+- Nonliving monsters should not pass through walls anymore (Reported by Adam Horowitz).
+
+- Less monsters are understood by the player (Reported by Adam Horowitz).
+
+- Fix display of exp when gaining a level (Patch supplied by Pav Lucistnik).
+
+- Fixed effects of slow attack not being recalled in monster memory (Reported by Pete
+Mac).
+
+- Fixed auto-roller when using partial or full maximised mode (Reported by mikon).
+
+- Fixed meteor swarm and related swarm spells (Reported by mikon).
+
+- Fix initialisation bug that was causing weird flags to be detected on objects
+or (nothing) slots (Thanks to Andrew Sidwell for assistance with Valgrind).
+
+- Spell casters will always have a minimal amount of mana even with low stats
+(Reported by Andrew Sidwell).
+
+- Fixed somewhat stupid pricing bug affecting +10 and higher AC armour and similar
+high bonus weapons (Reported by a number of people).
+
+- Fixed minor ailments not appearing to be cureable (Reported by Matthias Rudolf).
+
+- Fixed potions of *Enlightenment* so they no longer increase intelligence and
+wisdom permanently (Reported by Matthias Rudolf).
+
+- Fixed crash caused by monster suffering no damage whilst having no hit points
+(Thanks to Pav Lucistnik for locating this).
+
+- Fixed bug causing bags to weigh too much when picked up or when objects used from
+them (Reported by a number of people).
+
+- Eating and quaffing items can now cure diseases (Thanks to Matthias Rudolf for
+providing some good test cases).
+
+- Fixed disease of stunning so that it actually stuns the player.
+
+- Fixed freeze bug caused by unintialised variable in ego item knowledge screen
+(Reported by Matthias Rudolf).
+
+- Allow running over various floor types (Reported by Pav Lucistnik).
+
+- Fixed bug preventing display of magic bags in inventory or equipment screens when
+choosing an item, even though the slot could, in fact, be chosen (Reported by jevansau1).
+
+- Fixed bug preventing some items being created in wizard mode (Reported by Matthias
+Rudolf).
+
+- Fixed bug where object pvals would still attempt to stack in many circumstances
+(Reported by Matthias Rudolf).
+
+- Fixed bug where you had to have resist chaos before chaos attacks would cause you to
+hallucinate, as opposed to protecting you from the effect (Reported by Matthias Rudolf).
+
+- Fixed bug where certain high-level amulets would have a pval of zero (Reported by
+Matthias Rudolf).
+
+- Fixed bug where player initiated arc spells, wands and other items ignored the
+selected target and fired to the top left corner (Reported by Matthias Rudolf).
+
+- Fixed bug where travelling downstairs from the top of a tower would take you to the
+next location to travel to (Reported by Matthias Rudolf).
+
+- Fixed bug preventing you from dropping or selling bags (Reported by jevansau1).
+
+- Fixed bug preventing artifact daggers from being thrown.
+
+- Fixed bug permitting store keepers to buy items for more than their maximum purse
+(Reported by Matthias Rudolf).
+
+- Fixed bug preventing stores from buying items which they could sell (Reported by
+Matthias Rudolf).
+
+- Fixed bug causing high dice weapons to revert to normal damage dice after reloading
+the game (Reported by mikon and Matthias Rudolf).
+
+- Fixed highly annoying title display bug.
+
+- If you are wielding a torch and hit by water damage, the torch will be destroyed
+(Reported by Matthias Rudolf).
+
+- Windy rooms and items now correctly stop archery and throwing items.
+
+- Prevent player finding out some potion flavours through terrain knowledge window.
+
+- Fixed gold display bug introduced by big screen store code (Reported by darkDrone).
+
+- Fixed being able to sell worthless items to shops that would sell items of the same
+type (Reported by Adam Horowitz).
+
+- Fixed some issues with display of terrain knowledge.
+
+- Improve correctness of code displaying object bonuses in character screen (Reported
+by Matthias Rudolf).
+
+- Fixed bug with player not getting marked as a winner after killing Morgoth (Reported
+by Matthias Rudolf).
+
+- Fixed bug causing crash when examining a potion of cure disease (Reported by
+jevansau1).
+
+- Fixed bug causing blessed weapons to display status twice (Reported by ekolis).
+
+- Fixed bug causing objects to drop in shop doors and walls.
+
+- Fixed bug preventing dodging working in correct direction.
+
+- Fixed bug preventing Lance of Eorlingas being a lance.
+
+- Fixed description of Detect Power spell.
+
+- Fixed description of unique statues.
+
+- Fixed blow listing bugs in monster recall.
+
+- Fixed bug allowing involuntary teleportation whilst you are anchored (Reported by
+jevansau1).
+
+- Fixed bug allowing incorrect items to be selected from within a bag where only
+some items from the bag should be selectable.
+
+- Fixed bug where zapping a rod would cause the magical bag of supplies to be shown
+as a choice (Reported by darkDrone).
+
+- Fixed math in computing charges of objects in bags that resulted in an infinite loop
+(Reported by Matthias Rudolf).
+
+- Fixed objects in bags so that if they are known, you learn the 'deep knowledge'
+regarding their activation effects (Reported by Matthias Rudolf).
+
+- Fixed ranger and rogue sensing (Reported by Pav Lucistnik).
+
+- Fixed bugs with some chest drops (Reported by Matthias Rudolf).
+
+- Fixed bugs with unidentified rods not stacking (Reported by Pete Mac).
+
+- Fixed bug with various elemental wands not being recognisable unless they affect
+a monster (Reported by Pete Mac).
+
+- Fixed bug where weapons of slay man, elf and dwarf would lose knowledge about
+their abilities (Reported by Reported by Pav Lucistnik).
+
+- Fixed bug preventing torches from doing fire damage when thrown (Reported by ekolis).
+
+- Prevent players and monsters from teleporting in and out of towers (Reported by
+Matthias Rudolf).
+
+- Fixed summoning for various monster summon spells which were inadvertantly allowing
+too many different monster types to be summoned.
+
+- Fixed bug where huge monsters were only using their attacks at the frequency of their
+innate abilities. They now use their huge attacks 50% of the time.
+
+- Fixed bug where many monsters were firing magical bolts instead of crossbow bolts.
+
+- Fixed bug where you guessed an object was magical e.g. (of Throwing?) when you learnt
+a flag that was a normal property of the object.
+
+- Fixed bug where an item that decreased your experience could make you think your
+equipment had hold life while you were blessed.
+
+- Fixed some incorrect dragon colours.
+
+- Fixed bug where you would have to open a chest twice.
+
+- Fixed bug where time didn't pass while travelling (Reported by ekolis).
+
+- Fixed bug where surface 'dungeon' locations would count towards level feelings
+in dungeon (Reported by will_asher).
+
+- Fixed bugs where monsters could not fly through various terrain.
+
+- Fixed bugs with creation of some runic items (Reported by Matthias Rudolf).
+
+- Fixed bugs with stair creation, door creation and trap destruction (Reported by
+Matthias Rudolf).
+
+### Build / Platform ###
+
+- Fixed some missing files not updated on CVS (Reported by Mikon).
+
+- Added Oangband's dumb borg for additional crash and performance testing.
+
+- Added mouse support to main-x11 builds (Thanks to Nick McConnell for this).
+
+- Fixed typo preventing main-xaw from building (Thanks to Nick McConnell for this).
+
+- Added Os/X support (Thanks to Pete Mac for this).
+
+- Added support for automake on Linux / Unix systems (Thanks to Nick McConnell for this).
+
+- Add batch files to build windows executeable and source archives (Modelled on angband
+equivalent files).
+
+- Fix to makefile.cyg dependencies and unterminated comment (Reported by Pete mac).
+
+- Fix to makefile.cyg to allow it to generate executeable.
+
+- Change built executeable name in windows to unangband.exe.
+
+- Fix typo in comments (Reported by Pav Lucistnik). 	
+
+- Fix to allow borg to ignore stat increase on level gain.
+
+- Fixed spelling of berserk.
+
+- Added some bug reporting metrics to try and spot remaining known bugs.
+
 Unangband 0.6.0 "Where's the Tequila? Did Tara Reid steal all the drinks?" (The Ari
 Gold Release)
 
@@ -156,7 +1008,7 @@ away in enough circumstances already and there is more than enough need for it t
 present to store additional useful equipment.
 
 - Added some additional stock such as darts and daggers to Hobbiton to make start
-easier for some classes (Suggested by mikon).
+easier for some classes (Suggested by Mikolaj Konarski).
 
 - Added a charisma dependent check for every time a store stocks an item, the shop
 keeper will attempt to replace any item out of stock. This makes stores much more

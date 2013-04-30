@@ -1206,7 +1206,6 @@ void update_mon(int m_idx, bool full)
 			/* Weird mind, occasional telepathy */
 			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 			{
-
 				/* One in ten individuals are detectable */
 				if ((m_idx % 10) == 5)
 				{
@@ -1220,19 +1219,21 @@ void update_mon(int m_idx, bool full)
 					/* Hack -- Memorize mental flags */
 					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
 					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+					if (r_ptr->flags3 & (RF3_NONVOCAL)) l_ptr->flags2 |= (RF3_NONVOCAL);
 				}
 			}
 
 			/* Normal mind, allow telepathy */
 			else
 			{
-
 				/* Detectable */
 				flag = TRUE;
 
 				/* Hack -- Memorize mental flags */
 				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
 				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
+				if (r_ptr->flags3 & (RF3_NONVOCAL)) l_ptr->flags2 |= (RF3_NONVOCAL);
+
 			}
 
 #ifdef ALLOW_OBJECT_INFO_MORE
@@ -1683,7 +1684,7 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 		object_copy(o_ptr, j_ptr);
 
 		/* Forget mark */
-		o_ptr->marked = FALSE;
+		o_ptr->ident &= ~(IDENT_MARKED);
 
 		/* Forget location */
 		o_ptr->iy = o_ptr->ix = 0;
@@ -1825,7 +1826,21 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Some monsters radiate damage when moving */
 		if (r_ptr->flags2 & (RF2_HAS_AURA))
 		{
-			(void)make_attack_ranged(m1,96+7,y2,x2);
+			int flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY |
+			PROJECT_HIDE | PROJECT_WALL);
+
+			/* The target is attacked by a ball attack */
+			(void)mon_blow_ranged(m1, y2, x2, RBM_AURA, 2, flg, NULL);
+		}
+
+		/* Some monsters trail damage when moving */
+		else if (r_ptr->flags2 & (RF2_TRAIL))
+		{
+			int flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY |
+			PROJECT_HIDE | PROJECT_WALL);
+
+			/* The target is attacked by a ball attack */
+			(void)mon_blow_ranged(m1, y2, x2, RBM_TRAIL, 0, flg, NULL);
 		}
 
 		/* Update monster */
@@ -1859,8 +1874,21 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Some monsters radiate damage when moving */
 		if (r_ptr->flags2 & (RF2_HAS_AURA))
 		{
-			(void)make_attack_ranged(m2,96+7,y1,x1);
+			int flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY |
+			PROJECT_HIDE | PROJECT_WALL);
 
+			/* The target is attacked by a ball attack */
+			(void)mon_blow_ranged(m2, y1, x1, RBM_AURA, 2, flg, NULL);
+		}
+
+		/* Some monsters trail damage when moving */
+		else if (r_ptr->flags2 & (RF2_TRAIL))
+		{
+			int flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY |
+			PROJECT_HIDE | PROJECT_WALL);
+
+			/* The target is attacked by a ball attack */
+			(void)mon_blow_ranged(m2, y1, x1, RBM_TRAIL, 0, flg, NULL);
 		}
 
 		/* Update monster */
@@ -2177,7 +2205,7 @@ int place_monster_here(int y, int x, int r_idx)
 
 	/* Check for swimming */
 	if (resist &&
-		(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
+		(r_ptr->flags2 & (RF2_CAN_SWIM | RF2_MUST_SWIM)) &&
 		(f_ptr->flags2 & (FF2_CAN_SWIM)))
 	{
 		return(MM_SWIM);
@@ -2195,9 +2223,10 @@ int place_monster_here(int y, int x, int r_idx)
 		return(MM_DIG);
 	}
 
-	/* Check if we don't need to breath */
+	/* Check if we don't need to breath -- note move check because we now mark walls as 'filled' */
 	if (resist &&
 		(r_ptr->flags3 & (RF3_NONLIVING)) &&
+		(f_ptr->flags1 & (FF1_MOVE)) &&
                 (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
 	{
 		return (MM_UNDER);
@@ -2213,7 +2242,7 @@ int place_monster_here(int y, int x, int r_idx)
 
 
 	/* Hack -- check for flying. */
-	if ((r_ptr->flags2 & (RF2_CAN_FLY)) &&
+	if ((r_ptr->flags2 & (RF2_CAN_FLY | RF2_MUST_FLY)) &&
 		(f_ptr->flags2 & (FF2_CAN_FLY)))
 	{
 		return(MM_FLY);
@@ -2474,7 +2503,7 @@ int calc_monster_ac(const monster_type *m_ptr, bool ranged)
 	else if (m_ptr->shield) ac += 50;
 
 	/* Modify by temporary conditions */
-	if (m_ptr->beserk) ac -= 10;
+	if (m_ptr->berserk) ac -= 10;
 	if (m_ptr->bless) ac += 5;
 	if (m_ptr->stunned) ac -= 10;
 	if (m_ptr->blind) ac -= 10;
@@ -2510,7 +2539,7 @@ int calc_monster_hp(const monster_type *m_ptr)
 	if (m_ptr->mflag & (MFLAG_SICK)) hp = hp * 9 / 10;
 	else if (m_ptr->mflag & (MFLAG_HEALTHY)) hp = hp * 11 / 10;
 
-	if (hp <= 0) hp = 1;
+	if (hp < 1) hp = 1;
 
 	return(hp);
 }
@@ -2748,9 +2777,9 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 			case RBM_SHOT:
 			{
 				ammo_tval = TV_SHOT;
-				if (d_dice < 2)  ammo_sval = SV_AMMO_NORMAL;
-				else if (d_dice < 8) ammo_sval = SV_AMMO_STEEL;
-				else if (d_dice < 18) ammo_sval = SV_AMMO_SPECIAL;
+				if (d_dice < 2)  ammo_sval = SV_AMMO_LIGHT;
+				else if (d_dice < 8) ammo_sval = SV_AMMO_NORMAL;
+				else if (d_dice < 18) ammo_sval = SV_AMMO_STEEL;
 				else ammo_sval = SV_AMMO_HEAVY;
 				break;
 			}
@@ -2807,14 +2836,22 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		/* Give the monster some shots */
 		o_ptr->number = (byte)rand_range(1, r_ptr->level);
 
+		/* Flavour spores */
+		if (o_ptr->tval == TV_EGG) o_ptr->name3 = m_ptr->r_idx;
+
 		/* Archers get more shots */
 		if (r_ptr->flags2 & (RF2_ARCHER)) o_ptr->number += (byte)rand_range(1, r_ptr->level);
 
 		/* Boulder / flask throwers get less shots */
 		if ((ammo_tval == TV_JUNK) || (ammo_tval == TV_FLASK) || (ammo_tval == TV_POTION)) o_ptr->number = (o_ptr->number + 1) / 2;
 
+		/* Sense magic */
+		o_ptr->feeling = sense_magic(o_ptr,cp_ptr->sense_type,TRUE);
+
 		/* Monster carries the object */
 		ammo = monster_carry(m_idx, o_ptr);
+
+		return (ammo);
 	}
 
 	/* Monster has no ammo and needs it */
@@ -3024,6 +3061,14 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Give the monster some ammunition */
 	(void)find_monster_ammo(cave_m_idx[y][x], -1, TRUE);
+
+	/* Certain monsters created in giant spider webs */
+	if (r_ptr->flags2 & (RF2_HAS_WEB))
+	{
+		int flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_HIDE;
+							
+		(void)project(0, 0, y, x, y, x, 0, GF_WEB, flg, 0, 0);
+	}
 
 	/* Success */
 	return (TRUE);
@@ -3582,28 +3627,28 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_ORC:
 		{
-			okay = ((r_ptr->flags3 & (RF3_ORC)) &&
+			okay = ((r_ptr->flags3 & (RF3_ORC)) && !(r_ptr->flags3 & ((RF3_RACE_MASK) & ~(RF3_ORC))) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_TROLL:
 		{
-			okay = ((r_ptr->flags3 & (RF3_TROLL)) &&
+			okay = ((r_ptr->flags3 & (RF3_TROLL)) && !(r_ptr->flags3 & ((RF3_RACE_MASK) & ~(RF3_TROLL))) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_GIANT:
 		{
-			okay = ((r_ptr->flags3 & (RF3_TROLL)) &&
+			okay = ((r_ptr->flags3 & (RF3_GIANT)) && !(r_ptr->flags3 & ((RF3_RACE_MASK) & ~(RF3_GIANT))) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_DEMON:
 		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
+			okay = ((r_ptr->flags3 & (RF3_DEMON)) && !(r_ptr->flags3 & ((RF3_RACE_MASK) & ~(RF3_DEMON))) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -3618,7 +3663,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_DRAGON:
 		{
-			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
+			okay = ((r_ptr->flags3 & (RF3_DRAGON)) && !(r_ptr->flags3 & ((RF3_RACE_MASK) & ~(RF3_DRAGON))) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -3640,7 +3685,8 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HI_DRAGON:
 		{
-			okay = (r_ptr->d_char == 'D');
+			okay = ((r_ptr->d_char == 'D') ||
+			        (r_ptr->d_char == 'A'));
 			break;
 		}
 
@@ -3756,6 +3802,17 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags1 & (RF1_ESCORTS)))
 	{
 		place_monster_escort(y, x, r_idx, slp);
+	}
+
+	/* Certain monsters created in giant spider webs */
+	if (r_ptr->flags2 & (RF2_HAS_WEB))
+	{
+		int k;
+
+		int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_THRU | PROJECT_HIDE;
+							
+		/* Shoot web out in 8 directions when placed */
+		for (k = 0; k < 8; k++) (void)project(0, 10, y, x, y + 99 * ddy_ddd[k], x + 99 * ddx_ddd[k], 0, GF_WEB, flg, 0, 0);
 	}
 
 	/* Success */
@@ -4192,7 +4249,7 @@ bool animate_object(int item)
 	else
 	{
 		/* Message if object known */
-		if (o_ptr->marked) msg_format("The %s %s %s", o_name,
+		if (o_ptr->ident & (IDENT_MARKED)) msg_format("The %s %s %s", o_name,
 		   ((o_ptr->stackc == 1) ? "has" :
 		   ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
 		   "has" : "have")), p);
@@ -4281,8 +4338,6 @@ bool multiply_monster(int m_idx)
 
 /*
  * Dump a message describing a monster's reaction to damage
- *
- * Technically should attempt to treat "Beholder"'s as jelly's
  */
 void message_pain(int m_idx, int dam)
 {
@@ -4298,19 +4353,19 @@ void message_pain(int m_idx, int dam)
 	/* Get the monster name */
 	monster_desc(m_name, m_ptr, 0);
 
-#if 0
 	/* Notice non-damage */
 	if (dam == 0)
 	{
+#if 0
 		msg_format("%^s is unharmed.", m_name);
+#endif
 		return;
 	}
-#endif
 
 	/* Note -- subtle fix -CFT */
 	newhp = (long)(m_ptr->hp);
 	oldhp = newhp + (long)(dam);
-	tmp = (newhp * 100L) / oldhp;
+	tmp = (newhp * 100L) / (oldhp);
 	percentage = (int)(tmp);
 
 
@@ -4342,8 +4397,8 @@ void message_pain(int m_idx, int dam)
 		return;
 	}
 #endif
-	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
+	/* Nonvocal monsters */
+	if (r_ptr->flags3 & (RF3_NONVOCAL))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);
@@ -4381,7 +4436,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
+	else if (strchr("FIKRSXabclrs", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s ignores the attack.", m_name);

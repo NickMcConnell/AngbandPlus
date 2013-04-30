@@ -227,7 +227,7 @@ Zap a rod (z) or Activate a rod (a)
         if timeout stacking is enabled, or will always stack with uncharged
         rods if force timeout stacking is enabled.
 
-Fire an item (f) or fire an item (t)
+Fire or throw an item (f) or fire or throw an item (t)
         Items that can be fired apply the appropriate damage type to the
         monster they are thrown against, such as burning arrows, and to
         the ground underneath.  Slings may now be used to lob potions
@@ -244,20 +244,8 @@ Fire an item (f) or fire an item (t)
         crossbow in order to do this.
 
 Throw an item (v)
-        In many instances, you may be able to throw part of the terrain you
-        are on. Some items will also apply the appropriate damage type to
-        the monster they are thrown against and the ground underneath;
-        others may be consumed by unintelligent monsters or animals if
-        thrown to them.
-
-        Important note: In order to take advantage of throwing weapons such
-        as daggers, batons, darts, javelins and spears, and the additional
-        benefits of throwing styles, you need to 'fire' rather than throw
-        these weapons. This restricts the list of items you may choose to
-        those balanced for throwing, but gives you the additional damage
-        multiplier and shots of your style, and counts the to-hit and damage
-        bonus of the weapon twice.  You cannot be wielding a bow, sling or
-        crossbow in order to do this.
+        This command is not used in Unangband. Use the fire or throw an item
+        command above.
 
 --- Looking Commands ---
 

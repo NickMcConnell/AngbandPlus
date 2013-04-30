@@ -61,7 +61,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:0.6.1
 
 # 20% of rooms have at least one kind of visible feature
 

@@ -59,7 +59,7 @@
 /*
  * Include some helpful X11 code.
  */
-#include "maid-x11.h"
+#include "maid-x11.c"
 
 
 
@@ -552,8 +552,8 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	                                angband_color_table[1][2],
 	                                angband_color_table[1][3]);
 
-	/* Ignore this parameter */
-	(void) request;
+	/* Ignore this parameter
+	(void) request; */
 
 	/* Fix the background color */
 	wnew->core.background_pixel = bg;

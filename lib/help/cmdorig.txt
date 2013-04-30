@@ -5,7 +5,7 @@
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap
  e  Equipment list                       E  Eat some food
- f  Fire an item                         F  Fuel your lantern/torch
+ f  Fire or throw an item                F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
@@ -21,7 +21,7 @@
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  (unused)
- v  Throw an item                        V  Version info
+ v  (unused)                             V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
  y  Apply a run                          Y  Assemble a part
@@ -52,8 +52,8 @@
  <  Go up staircase                     ^X  Save and quit
  .  Run                                 ^Y  (unused)
  >  Go down staircase                   ^Z  (special - borg command)
- \  (special - bypass keymap)            |  (unused)
+ \  (special - bypass keymap)            |  Light or douse a light source
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
 
-
+You can also use ^] to get an html screen dump at any time.
