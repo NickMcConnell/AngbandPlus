@@ -45,7 +45,8 @@ static int test_hit(int skill, int ac, int vis)
 
 	/* Calculate to-hit percentage */
 	if (skill <= 0) chance = 0;
-	else chance = 100 - ((ac * 100)/skill);
+	else chance = 101 - ((ac * 100)/skill);
+	if (chance > 100) chance = 100;
 
 	/* Calculate the minimum chance */ 
 	if ((p_ptr->command_cmd == 'v') && (chance < 10))
@@ -78,17 +79,24 @@ static int test_hit(int skill, int ac, int vis)
  * Critical hits (from objects fired by player)
  * Factor in item weight, total plusses, and player level.
  */
-static int critical_shot(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance)
+static int critical_shot(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance, bool deadly_crit)
 {
 	int i, k;
+	object_type *j_ptr;
 
 	if (ambush)
 	{
+		/* Get the "bow" (if any) */
+		j_ptr = &inventory[INVEN_BOW];
+
 		/* Extract "shot" power */
-		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
+		i = ((p_ptr->to_h_shooting + object_to_h(o_ptr) + object_to_h(j_ptr)) * 2) +10;
 
 		/* Improved ambush chance for some classes */
 		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+		/* Improved ambush chance from item bonuses */
+		i += p_ptr->ambush_bonus * 2;
 	}
 	else i = 0;
 
@@ -118,6 +126,8 @@ static int critical_shot(const object_type *o_ptr, byte *special, int dam, bool 
 			message(MSG_CRITICAL_HIT, 0,"It was a superb hit!");
 			dam = ((5 * dam) / 2) + 10;
 		}
+
+		if (deadly_crit) dam = dam * 3;
 	
 		(*special) |= SPEC_CUT;
 	}
@@ -129,17 +139,20 @@ static int critical_shot(const object_type *o_ptr, byte *special, int dam, bool 
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-static int critical_throw(const object_type *o_ptr, int dam, bool ambush, int critical_hit_chance)
+static int critical_throw(const object_type *o_ptr, int dam, bool ambush, int critical_hit_chance, bool deadly_crit)
 {
 	int i, k;
 
 	if (ambush)
 	{
 		/* Extract "shot" power */
-		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
+		i = ((p_ptr->to_h_throwing + object_to_h(o_ptr)) * 2) +10;
 
 		/* Improved ambush chance for some classes */
 		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+		/* Improved ambush chance from item bonuses */
+		i += p_ptr->ambush_bonus * 2;
 	}
 	else i = 0;
 
@@ -169,6 +182,8 @@ static int critical_throw(const object_type *o_ptr, int dam, bool ambush, int cr
 			message(MSG_CRITICAL_HIT, 0,"It was a superb hit!");
 			dam = 3 * dam + 10;
 		}
+
+		if (deadly_crit) dam = 3 * dam;
 	}
 
 	return (dam);
@@ -184,10 +199,13 @@ static int critical_powder(bool ambush, int critical_hit_chance)
 	if (ambush)
 	{
 		/* Extract "shot" power */
-		i = (p_ptr->to_h * 2) +10;
+		i = (p_ptr->to_h_throwing * 2) +10;
 
 		/* Improved ambush chance for some classes */
 		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+		/* Improved ambush chance from item bonuses */
+		i += p_ptr->ambush_bonus * 2;
 	}
 	else i = 0;
 
@@ -212,11 +230,87 @@ static int critical_powder(bool ambush, int critical_hit_chance)
 }
 
 /*
+ * Critical hits (unarmed)
+ */
+static int critical_unarmed(int dam, byte *special, bool ambush, int critical_hit_chance)
+{
+	int i, k;
+
+	if (ambush)
+	{
+		/* Extract "blow" power */
+		i = (p_ptr->to_h_melee * 2) +10;
+
+		/* Improved ambush chance for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+		/* Improved ambush chance from item bonuses */
+		i += p_ptr->ambush_bonus;
+	}
+	else i = 0;
+
+	i += critical_hit_chance * 2;
+
+	/* Chance */
+	if (rand_int(200) < i)
+	{
+		k = (p_ptr->to_h_melee * 4) + (p_ptr->lev * 2) + randint(600);
+
+		/* Improved critical hits for some classes */
+		if (cp_ptr->flags & CF_BETTER_CRITICAL) k *= 2;
+		else if (cp_ptr->flags & CF_AMBUSH) k = (k*3)/2;
+
+		if (k < 400)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
+			if (p_ptr->shape == SHAPE_HARPY) dam = ((6 * dam) / 5) + 5;
+		}
+		else if (k < 700)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a great hit!");
+			if (p_ptr->shape == SHAPE_HARPY) dam = ((3 * dam) / 2) + 5;
+			else dam = dam + 5;
+		}
+		else if (k < 900)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a superb hit!");
+			if (p_ptr->shape == SHAPE_HARPY) dam = ((8 * dam) / 5) + 8;
+			else dam = ((3 * dam) / 2) + 8;
+		}
+		else if (k < 1300)
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a *GREAT* hit!");
+			if (p_ptr->shape == SHAPE_HARPY) dam = 2 * dam + 13;
+			else
+			{
+				dam = ((8 * dam) / 5) + 13;
+				if (rand_int(100) < 10) (*special) |= SPEC_CONF;
+			}
+		}
+		else
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a *SUPERB* hit!");
+			if (p_ptr->shape == SHAPE_HARPY) dam = ((12 * dam) / 5) + 16;
+			else
+			{
+				dam = 2 * dam + 16;
+				if (rand_int(100) < 25) (*special) |= SPEC_CONF;
+			}
+		}
+
+		if (p_ptr->shape == SHAPE_HARPY) (*special) |= SPEC_CUT;
+		else (*special) |= SPEC_STUN;
+	}
+
+	return (dam);
+}
+
+/*
  * Critical hits (by player)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance)
+static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance, bool deadly_crit)
 {
 	int i, k;
 
@@ -226,10 +320,13 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool 
 	if (ambush)
 	{
 		/* Extract "blow" power */
-		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
+		i = ((p_ptr->to_h_melee + object_to_h(o_ptr)) * 2) +10;
 
 		/* Improved ambush chance for some classes */
 		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+		/* Improved ambush chance from item bonuses */
+		i += p_ptr->ambush_bonus;
 	}
 	else i = 0;
 
@@ -238,15 +335,12 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool 
 	/* Chance */
 	if (rand_int(200) < i)
 	{
-		k = ((p_ptr->to_h + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2) + randint(600);
+		k = ((p_ptr->to_h_melee + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2) + randint(600);
 
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_BETTER_CRITICAL) k *= 2;
 		else if (cp_ptr->flags & CF_AMBUSH) k = (k*3)/2;
 
-		/* Improved critical hits for blessed blades */
-		if (p_ptr->bless_blade) k += 100;
-		
 		if (k < 400)
 		{
 			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
@@ -285,6 +379,8 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool 
 
 			if ((o_ptr->tval == TV_BLUNT) && (rand_int(100) < 25)) (*special) |= SPEC_CONF;
 		}
+
+		if (deadly_crit) dam = 3 * dam;
 	
 		if (o_ptr->tval == TV_SWORD) (*special) |= SPEC_CUT;
 		if (o_ptr->tval == TV_BLUNT) (*special) |= SPEC_STUN;
@@ -484,10 +580,31 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 				if (mult < slays[SL_ANTI_EVIL]) mult = slays[SL_ANTI_EVIL];
 			}
 
-			/* Slay Chaotic */
-			if ((slays[SL_ANTI_CHAOS] > 10) && (r_ptr->flags4 & (RF4_CHAOTIC)))
+			/* Slay Mythos */
+			if ((slays[SL_ANTI_AETHER] > 10) && (r_ptr->flags4 & (RF4_AETHER)))
 			{
-				lore_learn(m_ptr, LRN_FLAG4, RF4_CHAOTIC, FALSE);
+				lore_learn(m_ptr, LRN_FLAG4, RF4_AETHER, FALSE);
+				if (mult < slays[SL_ANTI_AETHER]) mult = slays[SL_ANTI_AETHER];
+			}
+
+			/* Slay Skultgard */
+			if ((slays[SL_ANTI_SKULTGARD] > 10) && (r_ptr->flags4 & (RF4_SKULTGARD)))
+			{
+				lore_learn(m_ptr, LRN_FLAG4, RF4_SKULTGARD, FALSE);
+				if (mult < slays[SL_ANTI_SKULTGARD]) mult = slays[SL_ANTI_SKULTGARD];
+			}
+
+			/* Slay Thornwild */
+			if ((slays[SL_ANTI_THORNWILD] > 10) && (r_ptr->flags4 & (RF4_THORNWILD)))
+			{
+				lore_learn(m_ptr, LRN_FLAG4, RF4_THORNWILD, FALSE);
+				if (mult < slays[SL_ANTI_THORNWILD]) mult = slays[SL_ANTI_THORNWILD];
+			}
+
+			/* Slay Chaos */
+			if ((slays[SL_ANTI_CHAOS] > 10) && (r_ptr->flags4 & (RF4_CHAOS)))
+			{
+				lore_learn(m_ptr, LRN_FLAG4, RF4_CHAOS, FALSE);
 				if (mult < slays[SL_ANTI_CHAOS]) mult = slays[SL_ANTI_CHAOS];
 			}
 
@@ -531,6 +648,13 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 			{
 				lore_learn(m_ptr, LRN_FLAG4, RF4_DRAGON, FALSE);
 				if (mult < slays[SL_ANTI_DRAGON]) mult = slays[SL_ANTI_DRAGON];
+			}
+
+			/* Slay Lycanthrope */
+			if ((slays[SL_ANTI_LYCANTHROPE] > 10) && (r_ptr->flags4 & (RF4_LYCANTHROPE)))
+			{
+				lore_learn(m_ptr, LRN_FLAG4, RF4_LYCANTHROPE, FALSE);
+				if (mult < slays[SL_ANTI_LYCANTHROPE]) mult = slays[SL_ANTI_LYCANTHROPE];
 			}
 
 			/* Brand (Acid) */
@@ -693,25 +817,163 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 	return ((tdam * mult) + 9) / 10;
 }
 
+
+/* Create item from a bookshelf, rack, or closet */
+void create_shelf_item(int y, int x, int theme)
+{
+	bool object_created = FALSE;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	byte tval = 0;
+
+	while (object_created == FALSE)
+	{
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(i_ptr);
+
+		/* Get the actual item from the theme */
+		switch (theme)
+		{
+			/* Rack: warrior theme */
+			case 1:
+			{
+				if (p_ptr->depth >= 37) switch(rand_int(19))
+				{
+					case 0: case 1: tval = TV_SWORD; break;
+					case 2: case 3: tval = TV_POLEARM; break;
+					case 4: case 5: tval = TV_BLUNT; break;
+					case 6: case 7: tval = TV_BODY_ARMOR; break;
+					case 8: case 9: tval = TV_BOW; break;	
+					case 10: case 11: tval = TV_HEADGEAR; break;
+					case 12: case 13: tval = TV_SHIELD; break;
+					case 14: case 15: tval = TV_GLOVES; break;
+					case 16: case 17: tval = TV_BOOTS; break;
+					case 18: tval = TV_DRAG_ARMOR; break;
+				}
+				else switch(rand_int(18))
+				{
+					case 0: case 1: tval = TV_SWORD; break;
+					case 2: case 3: tval = TV_POLEARM; break;
+					case 4: case 5: tval = TV_BLUNT; break;
+					case 6: case 7: tval = TV_BODY_ARMOR; break;
+					case 8: case 9: tval = TV_BOW; break;	
+					case 10: case 11: tval = TV_HEADGEAR; break;
+					case 12: case 13: tval = TV_SHIELD; break;
+					case 14: case 15: tval = TV_GLOVES; break;
+					case 16: case 17: tval = TV_BOOTS; break;
+				}
+				break;
+			}
+			/* Bookshelf: spellcaster theme */
+			case 2:
+			{
+				if (p_ptr->depth >= 20) switch(rand_int(16))
+				{
+					case 0: case 1: case 2: tval = TV_SCROLL; break;
+					case 3: case 4: tval = TV_POTION; break;
+					case 5: case 6: tval = TV_WAND; break;
+					case 7: case 8: tval = TV_TALISMAN; break;
+					case 9: case 10: tval = TV_POWDER; break;
+					case 11: case 12: case 13: tval = TV_MAGIC_BOOK; break;
+					case 14: tval = TV_ROD; break;	
+					case 15: tval = TV_RING; break;	
+				}
+				else if (p_ptr->depth >= 12) switch(rand_int(14))
+				{
+					case 0: case 1: case 2: tval = TV_SCROLL; break;
+					case 3: case 4: tval = TV_POTION; break;
+					case 5: case 6: tval = TV_WAND; break;
+					case 7: case 8: tval = TV_POWDER; break;
+					case 9: case 10: case 11: tval = TV_MAGIC_BOOK; break;
+					case 12: tval = TV_ROD; break;	
+					case 13: tval = TV_RING; break;	
+				}
+				else switch(rand_int(12))
+				{
+					case 0: case 1: case 2: tval = TV_SCROLL; break;
+					case 3: case 4: tval = TV_POTION; break;
+					case 5: case 6: tval = TV_WAND; break;
+					case 7: case 8: tval = TV_POWDER; break;
+					case 9: case 10: tval = TV_MAGIC_BOOK; break;
+					case 11: tval = TV_RING; break;	
+				}
+				break;
+			}
+			/* Closet: misc theme */
+			case 3:
+			{
+				if (p_ptr->depth >= 12) switch(rand_int(15))
+				{
+					case 0: case 1: tval = TV_POTION; break;
+					case 2: case 3: tval = TV_AMULET; break;
+					case 4: case 5: tval = TV_CLOAK; break;
+					case 6: case 7: tval = TV_STAFF; break;
+					case 8: case 9: case 10: tval = TV_ARROW; break;
+					case 11: tval = TV_ROD; break;
+					case 12: tval = TV_RING; break;	
+					case 13: tval = TV_POWDER; break;
+					case 14: tval = TV_WAND; break;
+				}
+				else switch (rand_int(11))
+				{
+					case 0: case 1: tval = TV_POTION; break;
+					case 2: case 3: tval = TV_CLOAK; break;
+					case 4: case 5: tval = TV_STAFF; break;
+					case 6: case 7: tval = TV_ARROW; break;
+					case 8: tval = TV_AMULET; break;
+					case 9: tval = TV_POWDER; break;
+					case 10: tval = TV_WAND; break;
+				}
+				break;
+			}
+			/* Interesting vegetation */
+			case 4:
+			{
+				switch(rand_int(2))
+				{
+					case 0: tval = TV_FOOD; message(MSG_GENERIC, 0, "You find some mushrooms."); break;
+					case 1: tval = TV_LITE; message(MSG_GENERIC, 0, "You find some dry branches of enchanted wood."); break;
+				}
+				break;
+			}
+			
+		}
+
+		/* Make a themed object (if possible) */
+		if (make_typed(i_ptr, tval, FALSE, FALSE, TRUE))
+		{
+			/* Mark history */
+			object_history(i_ptr, ORIGIN_CHEST + theme, 0, 0, 0);
+
+			/* Drop the object */
+			drop_near(i_ptr, -1, y, x, TRUE);
+
+			/* Done */
+			object_created = TRUE;
+		}
+	}
+}
+
 /*
  * Search for hidden things
  */
 static void search(void)
 {
-	int y, x, chance;
-
-	/* Start with base search ability */
-	chance = p_ptr->skill[SK_PER];
-
-	/* Penalize various conditions */
-	if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) chance = chance / 10;
-	if (p_ptr->confused || p_ptr->image) chance = chance / 10;
+	int x, y;
+	int skill;
 
 	/* Search the nearby grids, which are always in bounds */
 	for (y = (p_ptr->py - 1); y <= (p_ptr->py + 1); y++)
 	{
 		for (x = (p_ptr->px - 1); x <= (p_ptr->px + 1); x++)
 		{
+			skill = p_ptr->skill[SK_PER];
+
 			/* Sometimes, notice traps */
 			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
 			{
@@ -724,9 +986,11 @@ static void search(void)
 			else if (trap_detectable(y, x))
 			{
 				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-				if ((!t_ptr->visible) && (t_ptr->spot_factor) && (trap_detectable(y, x)))
+
+				if ((!t_ptr->visible) && (t_ptr->spot_factor == 1) && (trap_detectable(y, x)))
 				{
-					if ((rand_int(t_ptr->spot_factor) < chance) || (rand_int(t_ptr->spot_factor) < chance))
+					/* Alertness helps when detecting traps and runes */
+					if (rand_int(100) < skill + (p_ptr->alertness * 25))
 					{
 						/* Discover invisible traps */
 
@@ -737,39 +1001,316 @@ static void search(void)
 						/* Show trap */
 						lite_spot(y, x);
 
-						/* Trap can be searched for only once */
-						t_ptr->spot_factor = 0;
+						/* Disturb */
+						disturb(0);
+					}
+
+					/* Trap can be searched for only once */
+					t_ptr->spot_factor += 1;
+				}
+			}
+
+			/* Find warding runes */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if (t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE_HIDDEN)
+			{
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+
+				if (t_ptr->spot_factor == 1)
+				{
+					/* Alertness helps when detecting traps and runes */
+					if (rand_int(100) < skill + (p_ptr->alertness * 25))
+					{
+						place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx - 30);
+
+						lite_spot(y,x);
+
+						message(MSG_GENERIC, 0, "You notice a warding rune!");
 
 						/* Disturb */
 						disturb(0);
 					}
-					else
+				}
+			}
+
+			/* Identify fountains */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if ((t_list[cave_t_idx[y][x]].w_idx >= WG_FOUNTAIN_HARPY) && (t_list[cave_t_idx[y][x]].w_idx <= WG_FOUNTAIN_REMOVE_CURSE))
+			{
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+
+				if (t_ptr->spot_factor == 1)
+				{
+					if (rand_int(100) < skill)
 					{
-						/* Trap can be searched for only once */
-						t_ptr->spot_factor = 0;
+						switch (t_list[cave_t_idx[y][x]].w_idx)
+						{
+							case WG_FOUNTAIN_HARPY:
+							{
+								message(MSG_GENERIC, 0, "You smell harpy droppings.");
+								break;
+							}
+							case WG_FOUNTAIN_ANGEL:
+							{
+								message(MSG_GENERIC, 0, "You find an angel's feather.");
+								break;
+							}
+							case WG_FOUNTAIN_APE:
+							{
+								message(MSG_GENERIC, 0, "You notice ape hair.");
+								break;
+							}
+							case WG_FOUNTAIN_NAGA:
+							{
+								message(MSG_GENERIC, 0, "You find a piece of shed cobra skin.");
+								break;
+							}
+							case WG_FOUNTAIN_STATUE:
+							{
+								message(MSG_GENERIC, 0, "You see heavy footprints of a living statue.");
+								break;
+							}
+							case WG_FOUNTAIN_RUINATION:
+							{
+								message(MSG_GENERIC, 0, "You notice a broken bone and some white hair.");
+								break;
+							}
+							case WG_FOUNTAIN_MONSTERS:
+							{
+								message(MSG_GENERIC, 0, "You see suspicious faery tracks around the fountain.");
+								break;
+							}
+							case WG_FOUNTAIN_DISEASE:
+							{
+								message(MSG_GENERIC, 0, "You smell disease.");
+								break;
+							}
+							case WG_FOUNTAIN_CURE_WOUND:
+							{
+								message(MSG_GENERIC, 0, "You smell healing herbs.");
+								break;
+							}
+							case WG_FOUNTAIN_STAT:
+							{
+								message(MSG_GENERIC, 0, "You feel energized near the fountain.");
+								break;
+							}
+							case WG_FOUNTAIN_REMOVE_CURSE:
+							{
+								message(MSG_GENERIC, 0, "You sense a purifying power.");
+								break;
+							}
+						}
+
+						place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx + 11);
+						lite_spot(y,x);
+
+						/* Disturb */
+						disturb(0);
 					}
 				}
 			}
 
-
 			/* Sometimes, notice secret doors */
-			if ((cave_feat[y][x] == FEAT_SECRET) && (rand_int(107) < chance))
+			if (cave_feat[y][x] == FEAT_SECRET)
 			{
-
 				/* Message */
 				message(MSG_FIND, 0, "You have found a secret door.");
 
 				/* Create closed door */
-				cave_set_feat(y, x, FEAT_CLOSED);
+				if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_SECRET_DOOR)
+				{
+					place_decoration(y, x, WG_SHELF_CLOSED_DOOR);
+					lite_spot(y,x);
+				}
+
+				else if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_SECRET_DOOR)
+				{
+					place_decoration(y, x, WG_PAINTING_CLOSED_DOOR);
+					lite_spot(y,x);
+				}
+
+				else if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_SECRET_DOOR)
+				{
+					place_decoration(y, x, WG_CLOSET_CLOSED_DOOR);
+					lite_spot(y,x);
+				}
+
+				else if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_SECRET_DOOR)
+				{
+					place_decoration(y, x, WG_RACK_CLOSED_DOOR);
+					lite_spot(y,x);
+				}
+
+				else cave_set_feat(y, x, FEAT_CLOSED);
 
 				if (trap_lock(y, x)) t_list[cave_t_idx[y][x]].visible = TRUE;
 
 				/* Disturb */
 				disturb(0);
-	
+			}
+
+			/* Find stuff in racks (can only be searched if you are inside the room) */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_RACK) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
+			{
+				/* The rack is now empty */
+				place_decoration(y, x, WG_RACK_EMPTY);
+				lite_spot(y,x);
+
+				/* Create a themed item */
+				if (rand_int(5) < 1) create_shelf_item(y, x, 1);
+				else if (rand_int(9) < 1)
+				{
+					if (rand_int(100) < skill)
+					{
+						message(MSG_GENERIC, 0, "Your sharp eyes spot hidden item.");
+						create_shelf_item(y, x, 1);
+					}
+					else
+					{
+						message(MSG_GENERIC, 0, "(You miss something.)");
+					}
+				}
+
+				/* Disturb */
+				disturb(0);
+			}
+
+			/* Find stuff in bookshelves (can only be searched if you are inside the room) */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_SHELF) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
+			{
+				/* The bookshelf is now empty */
+				place_decoration(y, x, WG_SHELF_EMPTY);
+				lite_spot(y,x);
+
+				/* Create a themed item */
+				if (rand_int(11) < 2) create_shelf_item(y, x, 2);
+				else if (rand_int(9) < 1)
+				{
+					if (rand_int(100) < skill)
+					{
+						message(MSG_GENERIC, 0, "Your sharp eyes spot hidden item.");
+						create_shelf_item(y, x, 2);
+					}
+					else
+					{
+						message(MSG_GENERIC, 0, "(You miss something.)");
+					}
+				}
+
+				/* Disturb */
+				disturb(0);
+			}
+
+			/* Find stuff in closets (can only be searched if you are inside the room) */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
+			{
+				/* The closet is now empty */
+				place_decoration(y, x, WG_CLOSET_EMPTY);
+				lite_spot(y,x);
+
+				/* Create a themed item */
+				if (rand_int(5) < 1) create_shelf_item(y, x, 3);
+				else if (rand_int(9) < 1)
+				{
+					if (rand_int(100) < skill)
+					{
+						message(MSG_GENERIC, 0, "Your sharp eyes spot hidden item.");
+						create_shelf_item(y, x, 3);
+					}
+					else
+					{
+						message(MSG_GENERIC, 0, "(You miss something.)");
+					}
+				}
+
+				/* Disturb */
+				disturb(0);
+			}
+
+			/* Find stuff in interesting vegetation squares */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
+			{
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if (t_list[cave_t_idx[y][x]].w_idx == WG_INTERESTING_VEGETATION)
+			{
+				/* Good searchers may find mushrooms, torches or a faery portal */
+				if (rand_int(2) < 1)
+				{
+					if (rand_int(100) < skill)
+					{
+						if (rand_int(3) < 1)
+						{
+							place_decoration(y, x, WG_FAERY_PORTAL);
+							message(MSG_GENERIC, 0, "You find a hidden faery portal.");
+						}
+						else
+						{
+							create_shelf_item(y, x, 4);
+							place_decoration(y, x, WG_VEGETATION);
+						}
+					}
+					else
+					{
+						message(MSG_GENERIC, 0, "(You miss something.)");
+						place_decoration(y, x, WG_VEGETATION);
+					}
+				}
+				else 
+				{
+					place_decoration(y, x, WG_VEGETATION);
+					message(MSG_GENERIC, 0, "You see some beautiful flowers.");
+				}
+
+				lite_spot(y,x);
+
+				/* Disturb */
+				disturb(0);
 			}
 		}
-
 	}
 }
 
@@ -878,12 +1419,24 @@ static void py_pickup(int pickup)
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
 		{
-			/* Message */
-			message_format(MSG_PICKUP, 0, "You have found %ld gold pieces worth of %s.",
-			           (long)o_ptr->pval, o_name);
+			if (cp_ptr->flags & CF_POVERTY)
+			{
+				/* Message */
+				message_format(MSG_PICKUP, 0, "You find %ld gold pieces worth of %s. (You keep %ld gold.)",
+			           	(long)o_ptr->pval, o_name, o_ptr->pval / 3);
 
-			/* Collect the gold */
-			p_ptr->au += o_ptr->pval;
+				/* Collect the gold */
+				p_ptr->au += o_ptr->pval / 3;
+			}
+			else
+			{
+				/* Message */
+				message_format(MSG_PICKUP, 0, "You have found %ld gold pieces worth of %s.",
+			           	(long)o_ptr->pval, o_name);
+
+				/* Collect the gold */
+				p_ptr->au += o_ptr->pval;
+			}
 
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
@@ -1162,7 +1715,7 @@ static void py_pickup(int pickup)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-void py_attack(int y, int x)
+void py_attack(int y, int x, bool show_monster_name)
 {
 	int num = 0;
 	int k, chance;
@@ -1179,6 +1732,7 @@ void py_attack(int y, int x)
 
 	bool fear = FALSE;
 	bool do_quake = FALSE;
+	bool deadly_crit = FALSE;
 	bool ambush = FALSE;
 
 	/* Disturb the player */
@@ -1213,14 +1767,50 @@ void py_attack(int y, int x)
 		return;
 	}
 
+	/* Burning Hands */
+	if (p_ptr->flaming_hands)
+	{
+		message_format(MSG_HIT, m_ptr->r_idx, "You burn %s.", m_name);
+		(void)strike(GF_FIRE, y, x, damroll(12 , apply_sp_mod(3 + p_ptr->lev / 10, p_ptr->sp_dam)), 0);
+
+		/* Attacking ends the spell next turn, even if its duration is made permanent */
+		(void)set_flaming_hands(1);
+		p_ptr->flaming_hands_perm = 0;
+
+		return;
+	}
+
+	/* Claws of Winter */
+	if (p_ptr->icy_hands)
+	{
+		message_format(MSG_HIT, m_ptr->r_idx, "You freeze %s.", m_name);
+		(void)strike(GF_COLD, y, x, damroll(12 , apply_sp_mod(3 + p_ptr->lev / 10, p_ptr->sp_dam)), 0);
+		(void)set_icy_hands(1);
+
+		/* Attacking ends the spell next turn, even if its duration is made permanent */
+		p_ptr->icy_hands_perm = 0;
+
+		return;
+	}
+
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Calculate the "attack quality" */
-	chance = p_ptr->skill[SK_THN] + p_ptr->to_h + object_to_h(o_ptr);
+	chance = p_ptr->skill[SK_THN] + p_ptr->to_h_melee + object_to_h(o_ptr);
+
+	/* Number of blows */
+	int blows = p_ptr->num_blow;
+
+	/* Fencing proficiency gives an extra blows against visible person or humanoid */
+	if ((m_ptr->ml) && (o_ptr->tval == TV_SWORD))
+	{
+		if (r_ptr->flags4 & (RF4_PERSON)) blows += p_ptr->fencing;
+		if (r_ptr->flags4 & (RF4_HUMANOID)) blows += p_ptr->fencing;
+	}
 
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	while (num++ < blows)
 	{
 		/* Check for evasion */
 		if ((r_ptr->flags2 & RF2_EVASIVE) && (rand_int(3) == 0))
@@ -1239,12 +1829,27 @@ void py_attack(int y, int x)
 		}
 
 		/* Test for hit */
-		critical_hit_chance = (test_hit(chance, r_ptr->ac, m_ptr->ml));
+		critical_hit_chance = (test_hit(chance, r_ptr->ac / (m_ptr->cursed + 1), m_ptr->ml));
 
 		if (critical_hit_chance >= 0)
 		{
-			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			/* Long message for invisible monsters */
+			if (!m_ptr->ml)
+			{
+				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			}
+			/* Short message if this is the first attacked monster this round, or not a first blow */
+			else if (!show_monster_name)
+			{
+				message_format(MSG_HIT, m_ptr->r_idx, "Hit.", m_name);
+			}
+			else
+			{
+				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			}
+
+			/* Don't repeat the monster name */
+			show_monster_name = FALSE;
 
 			/* Roll damage */
 			k = damroll(p_ptr->dd, p_ptr->ds);
@@ -1261,6 +1866,9 @@ void py_attack(int y, int x)
 				k = tot_dam_aux(o_ptr, k, m_ptr, &special);
 				if ((f2 & TR2_IMPACT) && (k > 50)) do_quake = TRUE;
 
+				/* Tripled critical damage? */
+				if (f2 & TR2_DEADLY_CRIT) deadly_crit = TRUE;
+
 				/* Critical hits only against visible monsters */
 				if (m_ptr->ml)
 				{
@@ -1270,7 +1878,22 @@ void py_attack(int y, int x)
 						ambush = TRUE;
 					}
 
-					k = critical_norm(o_ptr, &special, k, ambush, critical_hit_chance);
+					k = critical_norm(o_ptr, &special, k, ambush, critical_hit_chance, FALSE);
+				}
+			}
+			/* Handle unarmed */
+			else
+			{
+				/* Critical hits only against visible monsters */
+				if (m_ptr->ml)
+				{
+					/* You get ambush criticals only against distracted monsters */
+					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
+					{
+						ambush = TRUE;
+					}
+
+					k = critical_unarmed(k, &special, ambush, critical_hit_chance);
 				}
 			}
 
@@ -1300,8 +1923,11 @@ void py_attack(int y, int x)
 		/* Player misses */
 		else
 		{
-			/* Message */
-			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			/* Message only if the monster is unseen */
+			if (!m_ptr->ml)
+			{
+				message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			}
 		}
 	}
 
@@ -1330,16 +1956,199 @@ void py_attack(int y, int x)
 static void move_player(int dir, int jumping)
 {
 	int y, x;
+	int wild_melee = 0;
+
+	bool high_ground = FALSE;
+	bool movement_stopped_by_terrain = FALSE;
 
 	/* Find the result of moving */
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
 
-	/* Hack -- attack monsters */
+	/* Is the player standing on a table, a platform, or an altar? */
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_TABLE) high_ground = TRUE;
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_PLATFORM) high_ground = TRUE;
+	if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) &&
+		(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT)) high_ground = TRUE;
+
+	/* Difficult terrain has a chance of blocking movement or hindering melee attacks */
+	switch (t_list[cave_t_idx[y][x]].w_idx)
+	{
+		case WG_VEGETATION:
+		case WG_INTERESTING_VEGETATION:
+		{
+			/* Vegetation doesn't hinder attacking */
+			if (cave_m_idx[y][x] > 0)
+			{
+			}
+			/* Flying over */
+			else if (p_ptr->flying)
+			{
+			}
+			else if (rand_int(100) >= p_ptr->skill[SK_MOB])
+			{
+				movement_stopped_by_terrain = TRUE;
+				message(MSG_HITWALL, 0, "You couldn't find a way through the thick vegetation.");
+			}
+			else
+			{
+				message(MSG_GENERIC, 0, "You hop over some bushes.");
+			}
+
+			break;
+		}
+		case WG_SPIKES:
+		{
+			/* Spikes do not hinder attacking */
+			if (cave_m_idx[y][x] > 0)
+			{
+			}
+			/* Flying over */
+			if (p_ptr->flying)
+			{
+			}
+			else if (rand_int(100) >= p_ptr->skill[SK_MOB])
+			{
+				if (rand_int(100) < 85)
+				{
+					message(MSG_HITWALL, 0, "Ouch! You step on a spike.");
+				}
+				else
+				{
+					message(MSG_HITWALL, 0, "Ouch! You step on spikes, destroying them.");
+					delete_trap(y, x);
+				}
+
+				if (!p_ptr->no_poison && !resist_effect(RS_PSN))
+				{
+					damage_player(damroll(1, 10), "spikes");
+					set_poisoned(p_ptr->poisoned + rand_int(30) + 10);
+				}
+			}
+			else
+			{
+				message(MSG_GENERIC, 0, "You hop over spikes.");
+			}
+
+			break;
+		}
+		case WG_TABLE:
+		case WG_PLATFORM:
+		{
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_TABLE) break;
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_PLATFORM) break;
+			if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) &&
+				(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT)) break;
+
+			/* Skip testing if attacking */
+			if (cave_m_idx[y][x] > 0)
+			{
+			}
+			/* Flying over */
+			else if (p_ptr->flying)
+			{
+			}
+			/* Climbing steps never fails */
+			else if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_STEPS) break;
+
+			/* Check whether movement is stopped */
+			else if (rand_int(100) >= p_ptr->skill[SK_MOB])
+			{
+				movement_stopped_by_terrain = TRUE;
+				message(MSG_HITWALL, 0, "Your jump didn't succeed.");
+			}
+			else if (t_list[cave_t_idx[y][x]].w_idx == WG_TABLE)
+			{
+				message(MSG_GENERIC, 0, "You hop on the table.");
+			}
+			else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
+			{
+				message(MSG_GENERIC, 0, "You hop on the platform.");
+			}
+
+			break;
+		}
+	}
+
+	/* If we are behind a cover or on a higher ground, don't remind the player of moving to a good firing position */
+	int xx;
+	int yy;
+	bool remind = TRUE;
+	for (xx = p_ptr->px - 1; xx <= p_ptr->px + 1; xx++)
+	{
+		for (yy = p_ptr->py - 1; yy <= p_ptr->py + 1; yy++)
+		{
+			if ((t_list[cave_t_idx[yy][xx]].w_idx == WG_TABLE) || (t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM))
+			{
+				remind = FALSE;
+			}
+		}
+	}
+
+	/* Attack two monsters next to you. */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Attack */
-		py_attack(y, x);
+		/* Are we in a wild melee with multiple monsters? */
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py][p_ptr->px + 1] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py][p_ptr->px - 1] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px + 1] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px - 1] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px - 1] > 0) wild_melee ++;
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px + 1] > 0) wild_melee ++;
+
+		/* Attack the main enemy. First check whether lower ground hinders attacking */
+		if (((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE)
+			|| (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)) && (!high_ground))
+		{
+			if (rand_int(5) < 2)
+			{
+				message(MSG_HITWALL, 0, "You could not attack because of your bad position.");
+			}
+			else py_attack(y, x, FALSE);
+		}
+		else py_attack(y, x, FALSE);
+
+		bool extra_enemy = FALSE;
+		int extra_y = 0;
+		int extra_x = 0;
+
+		if (wild_melee > 1)
+		{
+			/* message(MSG_GENERIC, 0, "You switch your opponent!"); */
+			extra_enemy = TRUE;
+		}
+
+		while (extra_enemy)
+		{
+			extra_y = p_ptr->py + rand_int(3) - 1;
+			extra_x = p_ptr->px + rand_int(3) - 1;
+
+			if ((y == extra_y) && (x == extra_x)) continue;
+
+			if (cave_m_idx[extra_y][extra_x] > 0)
+			{
+				/* First check whether lower ground hinders attacking */
+				if (((t_list[cave_t_idx[extra_y][extra_x]].w_idx == WG_TABLE)
+					|| (t_list[cave_t_idx[extra_y][extra_x]].w_idx == WG_PLATFORM)) && (!high_ground))
+				{
+					if (rand_int(5) < 2)
+					{
+						message(MSG_HITWALL, 0, "You could not attack because of your bad position.");
+					}
+					else py_attack(extra_y, extra_x, TRUE);
+				}
+				else py_attack(extra_y, extra_x, TRUE);
+
+				extra_enemy = FALSE;
+			}
+		}
+
+	}
+
+	else if (movement_stopped_by_terrain)
+	{
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
@@ -1378,9 +2187,18 @@ static void move_player(int dir, int jumping)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
+
+				if (t_list[cave_t_idx[y][x]].w_idx == WG_TREE)
+				{
+					message(MSG_HITWALL, 0, "You feel a tree blocking you way.");
+				}
+
+				else
+				{
+					message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
+				}
 			}
 
 			/* Closed door */
@@ -1407,7 +2225,16 @@ static void move_player(int dir, int jumping)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
+				if decoration(y, x)
+				{
+					message(MSG_HITWALL, 0, "There is a tree blocking you way.");
+
+				}
+
+				else
+				{
+					message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
+				}
 			}
 
 			/* Closed door */
@@ -1486,7 +2313,7 @@ static void move_player(int dir, int jumping)
 				else
 				{
 					/* Message */
-					message(MSG_FIND, 0, "You found a trap!");
+					message(MSG_FIND, 0, "You stumble on a trap!");
 
 					/* Hit the trap */
 					hit_trap(y, x);
@@ -1506,6 +2333,267 @@ static void move_player(int dir, int jumping)
 				}
 			}
 		}
+
+		/* Get hit by Warding Runes? Check all four cardinal directions */
+		int i = 0;
+		int x_add = 0;
+		int y_add = 0;
+		int distance = 0;
+
+		for (i = 1; i < 5; i++)
+		{
+			switch (i)
+			{
+				case 1: y_add = 1; x_add = 0; break;
+				case 2: y_add = -1; x_add = 0; break;
+				case 3: x_add = 1; y_add = 0; break;
+				case 4: x_add = -1; y_add = 0; break;
+			}
+
+			for (distance = 1; distance <= MAX_SIGHT; distance++)
+			{
+				/* Don't continue outside rooms */
+				if (!(cave_info[y][x] & (CAVE_ROOM))) break;
+
+				switch (t_list[cave_t_idx[y+(y_add * distance)][x+x_add * distance]].w_idx)
+				{
+					case WG_WARD_SLUMBER_ACTIVE_HIDDEN:
+					{
+						place_decoration(y+(y_add * distance), x+(x_add * distance), WG_WARD_SLUMBER_ACTIVE);
+						/* Fall through */
+					}
+					case WG_WARD_SLUMBER_ACTIVE:
+					case WG_WARD_SLUMBER_ACTIVE_MASTERED:
+					case WG_WARD_SLUMBER_ACTIVE_INCOMPREHENSIBLE:
+					{
+						if (p_ptr->safety)
+						{
+							/* Message */
+							message(MSG_FIND, 0, "A Rune of Slumber flashes, but you are safe!");
+						}
+						else
+						{
+							message(MSG_FIND, 0, "A Rune of Slumber strikes you!");
+
+							if ((rand_int(100) < p_ptr->skill[SK_SAV]) || (p_ptr->free_act))
+							{
+								message(MSG_RESIST, 0, "You resist the effects!");
+							}
+							else
+							{
+								(set_paralyzed(p_ptr->paralyzed + rand_int(8) + 6));
+							}
+						}
+						break;
+					}
+					case WG_WARD_TERROR_ACTIVE_HIDDEN:
+					{
+						place_decoration(y+(y_add * distance), x+(x_add * distance), WG_WARD_TERROR_ACTIVE);
+						/* Fall through */
+					}
+					case WG_WARD_TERROR_ACTIVE:
+					case WG_WARD_TERROR_ACTIVE_MASTERED:
+					case WG_WARD_TERROR_ACTIVE_INCOMPREHENSIBLE:
+					{
+						if (p_ptr->safety)
+						{
+							/* Message */
+							message(MSG_FIND, 0, "A Rune of Terror flashes, but you are safe!");
+						}
+						else
+						{
+							message(MSG_FIND, 0, "A Rune of Terror strikes you!");
+
+							if ((rand_int(100) < p_ptr->skill[SK_SAV]) || (p_ptr->bravery))
+							{
+								message(MSG_RESIST, 0, "You resist the effects!");
+							}
+							else
+							{
+								set_afraid(p_ptr->afraid + rand_int(10) + 20);
+
+								/* Sometimes lose INT & WIS */
+								if (rand_int(3) < 1)
+								{
+									message(MSG_EFFECT, 0, "Paranoia creeps in...");
+									do_dec_stat(A_INT, 1, FALSE, TRUE);
+									do_dec_stat(A_WIS, 1, FALSE, TRUE);
+								}
+							}
+						}
+
+						break;
+					}
+					case WG_WARD_CHANGE_ACTIVE_HIDDEN:
+					{
+						place_decoration(y+(y_add * distance), x+(x_add * distance), WG_WARD_CHANGE_ACTIVE);
+						/* Fall through */
+					}
+					case WG_WARD_CHANGE_ACTIVE:
+					case WG_WARD_CHANGE_ACTIVE_MASTERED:
+					case WG_WARD_CHANGE_ACTIVE_INCOMPREHENSIBLE:
+					{
+						if (p_ptr->safety)
+						{
+							/* Message */
+							message(MSG_FIND, 0, "A Rune of Change flashes, but you are safe!");
+						}
+						else
+						{
+							message(MSG_FIND, 0, "A Rune of Change strikes you!");
+							if (!(p_ptr->shape == SHAPE_PERSON))
+							{
+								message(MSG_RESIST, 0, "You are already in a different form, no effect.");
+							}
+							else if (rand_int(100) < p_ptr->skill[SK_SAV])
+							{
+								message(MSG_RESIST, 0, "You resist the effects!");
+							}
+							else
+							{
+								/* Shapeshift into a random form */
+								bool ignore_me;
+								do_power(POW_HARPY_FORM + rand_int(8), 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+							}
+						}
+
+						break;
+					}
+					case WG_WARD_DEATH_ACTIVE_HIDDEN:
+					{
+						place_decoration(y+(y_add * distance), x+(x_add * distance), WG_WARD_DEATH_ACTIVE);
+						/* Fall through */
+					}
+					case WG_WARD_DEATH_ACTIVE:
+					case WG_WARD_DEATH_ACTIVE_MASTERED:
+					case WG_WARD_DEATH_ACTIVE_INCOMPREHENSIBLE:
+					{
+						if (p_ptr->safety)
+						{
+							/* Message */
+							message(MSG_FIND, 0, "A Rune of Blood flashes, but you are safe!");
+						}
+						else
+						{
+							message(MSG_FIND, 0, "A Rune of Blood strikes you!");
+
+							if ((rand_int(100) < p_ptr->skill[SK_SAV]) || (p_ptr->no_cut))
+							{
+								message(MSG_RESIST, 0, "You resist the effects!");
+							}
+							else
+							{
+								int cut = rand_int(100 + (3 * p_ptr->depth));
+								if (rand_int(150) < p_ptr->depth + 5) cut = 2000;
+								(void)set_cut(p_ptr->cut + cut);
+							}
+						}
+
+						break;
+					}
+					case WG_WARD_CURSING_ACTIVE_HIDDEN:
+					{
+						place_decoration(y+(y_add * distance), x+(x_add * distance), WG_WARD_CURSING_ACTIVE);
+						/* Fall through */
+					}
+					case WG_WARD_CURSING_ACTIVE:
+					case WG_WARD_CURSING_ACTIVE_MASTERED:
+					case WG_WARD_CURSING_ACTIVE_INCOMPREHENSIBLE:
+					{
+						if (p_ptr->safety)
+						{
+							/* Message */
+							message(MSG_FIND, 0, "A Rune of Evil Eye flashes, but you are safe!");
+						}
+						else
+						{
+							message(MSG_FIND, 0, "A Rune of Evil Eye strikes you!");
+
+							if (rand_int(100) < p_ptr->skill[SK_SAV])
+							{
+								message(MSG_RESIST, 0, "You resist the effects!");
+							}
+							else
+							{
+								if (rand_int(100) < 50)
+								{
+									/* 50% chance to curse equipment */
+									int curse = rand_int(8);
+									if (curse == 0) curse_armor();
+									if (curse == 1) curse_weapon();
+									else curse_minor();
+								}
+								else
+								{
+									/* 50% chance to drain experience */
+									if (p_ptr->hold_life && (rand_int(100) < 75))
+									{
+										message(MSG_RESIST, 0, "You keep hold of your life force!");
+									}
+									else if (p_ptr->hold_life)
+									{
+										message(MSG_EFFECT, 0, "You feel your life slipping away!");
+										lose_exp(200 + (p_ptr->exp / 250));
+									}
+									else
+									{
+										message(MSG_EFFECT, 0, "You feel your life draining away!");
+										lose_exp(200 + (p_ptr->exp / 25));
+									}
+								}
+							}
+						}
+
+						break;
+					}
+				}
+
+				/* Don't continue through walls */
+				if (!cave_floor_bold((y + (y_add * distance)), (x + (x_add * distance)))) break;
+			}
+		}
+
+		/* If walking on a Circle of Lifeforce, cure disease, restore life energies and physical stats */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_LIFEFORCE)
+		{
+			set_diseased(0);
+			restore_exp();
+			do_res_stat(A_STR);
+			do_res_stat(A_DEX);
+			do_res_stat(A_CON);
+		}
+
+		/* If walking on a Circle of Nexus, restore mental stats */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_NEXUS)
+		{
+			do_res_stat(A_INT);
+			do_res_stat(A_WIS);
+			do_res_stat(A_CHR);
+		}
+
+		/* Remind the player of a good firing position */
+		if (!(((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) || (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)) ||
+			((t_list[cave_t_idx[y][x]].w_idx >= WG_ALTAR_OBSESSION) && (t_list[cave_t_idx[y][x]].w_idx <= WG_ALTAR_DECEIT))))
+		{
+			for (xx = x - 1; xx <= x + 1; xx++)
+			{
+				for (yy = y - 1; yy <= y + 1; yy++)
+				{
+					if ((t_list[cave_t_idx[yy][xx]].w_idx == WG_TABLE) || (t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM))
+					{
+						if (remind)
+						{
+							message(MSG_GENERIC, 0, "This is a good firing position behind a cover.");
+							xx = x+1;
+							yy = y+1;
+						}
+					}
+				}
+			}
+		}
+
+		/* Update stuff so that terrain special bonuses have effect */
+		p_ptr->update |= (PU_BONUS | PR_MANA);
 	}
 }
 
@@ -2210,7 +3298,17 @@ void run_step(int dir)
 void do_cmd_go_up(void)
 {
 	char out_val[160];
+	int use_charge;
+	bool ignore_me;
 	byte quest;
+
+	/* Faery portal? */
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_FAERY_PORTAL)
+	{
+		use_charge = do_power(332, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->energy_use = 100;
+		return;
+	}
 
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
@@ -2237,6 +3335,43 @@ void do_cmd_go_up(void)
 
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
+
+	/* Reset coordinates to Circle of Recall and Circle of Nexus */
+	p_ptr->recall_y = 0;
+	p_ptr->recall_x = 0;
+	p_ptr->nexus_y = 0;
+	p_ptr->nexus_x = 0;
+
+	/* Reset alertness, fencing, and archery */
+	p_ptr->alertness = 0;
+	p_ptr->fencing = 0;
+	p_ptr->archery = 0;
+
+	/* Reset monster summon power */
+	p_ptr->monster_summon_power = 0;
+
+	/* Reset permanent spells */
+	p_ptr->tim_see_invis_perm = 0;
+	p_ptr->tim_invis_perm = 0;
+	p_ptr->tim_infra_perm = 0;
+	p_ptr->tim_stealth_perm = 0;
+	p_ptr->fast_perm = 0;
+	p_ptr->absorb_perm = 0;
+	p_ptr->protevil_perm = 0;
+	p_ptr->protchaos_perm = 0;
+	p_ptr->flaming_hands_perm = 0;
+	p_ptr->icy_hands_perm = 0;
+	p_ptr->resilient_perm = 0;
+	p_ptr->hero_perm = 0;
+	p_ptr->rage_perm = 0;
+	p_ptr->blessed_perm = 0;
+	p_ptr->safety_perm = 0;
+	p_ptr->shield_perm = 0;
+	p_ptr->stability_perm = 0;
+	p_ptr->tim_bravery_perm = 0;
+	p_ptr->sp_dur_perm = 0;
+	p_ptr->tim_sp_dam_perm = 0;
+	p_ptr->tim_sp_inf_perm = 0;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -2278,6 +3413,15 @@ void do_cmd_go_down(void)
 			if (!get_check(out_val)) return;
 		}
 
+		/* Verify entering Halls of Mist without a torch */
+		object_type *o_ptr;
+		o_ptr = &inventory[INVEN_LITE];
+		if ((!(o_ptr->tval == TV_LITE)) && !(p_ptr->depth))
+		{
+			sprintf(out_val, "Are you sure you want to enter the Halls of Mist without a torch? ");
+			if (!get_check(out_val)) return;
+		}
+
 		/* Ask the player where she wants to navigate. Choose the right question depending on circumstances. */
 
 		/* First set of questions: Max Depth is quest depth */
@@ -2316,6 +3460,11 @@ void do_cmd_go_down(void)
 			{
 				p_ptr->depth = p_ptr->max_depth;
 				if (p_ptr->min_depth < p_ptr->max_depth) p_ptr->min_depth++;
+			}
+			else if ((ch == 's') && (p_ptr->max_depth == 48))
+			{
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
 			}
 			else if ((ch == 'l') && (p_ptr->depth))
 			{
@@ -2368,7 +3517,6 @@ void do_cmd_go_down(void)
 				p_ptr->min_depth++;
 			}
 			else if ((ch == 's') && (p_ptr->max_depth > p_ptr->min_depth) && !(p_ptr->depth))
-
 			{
 				p_ptr->depth = p_ptr->max_depth;
 				p_ptr->min_depth++;
@@ -2447,9 +3595,121 @@ void do_cmd_go_down(void)
 		p_ptr->reserves_uses = 0;
 		p_ptr->escapes_uses = 0;
 
-		/* If you make a Mapping check, you start standing on a stair. You get two tries. */
-		if ((rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]) ||
-			(rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]))
+		/* Reset coordinates to Circle of Recall and Circle of Nexus */
+		p_ptr->recall_y = 0;
+		p_ptr->recall_x = 0;
+		p_ptr->nexus_y = 0;
+		p_ptr->nexus_x = 0;
+
+		/* Reset alertness, fencing, and archery */
+		p_ptr->alertness = 0;
+		p_ptr->fencing = 0;
+		p_ptr->archery = 0;
+
+		/* Reset monster summon power */
+		p_ptr->monster_summon_power = 0;
+
+		/* Reset permanent spells */
+		p_ptr->tim_see_invis_perm = 0;
+		p_ptr->tim_invis_perm = 0;
+		p_ptr->tim_infra_perm = 0;
+		p_ptr->tim_stealth_perm = 0;
+		p_ptr->fast_perm = 0;
+		p_ptr->absorb_perm = 0;
+		p_ptr->protevil_perm = 0;
+		p_ptr->protchaos_perm = 0;
+		p_ptr->flaming_hands_perm = 0;
+		p_ptr->icy_hands_perm = 0;
+		p_ptr->resilient_perm = 0;
+		p_ptr->hero_perm = 0;
+		p_ptr->rage_perm = 0;
+		p_ptr->blessed_perm = 0;
+		p_ptr->safety_perm = 0;
+		p_ptr->shield_perm = 0;
+		p_ptr->stability_perm = 0;
+		p_ptr->tim_bravery_perm = 0;
+		p_ptr->sp_dur_perm = 0;
+		p_ptr->tim_sp_dam_perm = 0;
+		p_ptr->tim_sp_inf_perm = 0;
+
+		/* Handle temporary, non-recent blessings, and shapeshifting back to original form */
+		if ((p_ptr->shape_timer == 0) && (p_ptr->shape > 0) && (rand_int(100) < 50))
+		{
+			p_ptr->shape = 0;
+			message(MSG_GENERIC, 0, "You return to your original form.");
+		}
+		if ((p_ptr->obsession_status == 3) && (rand_int(100) < 50))
+		{
+			p_ptr->obsession_status = 1;
+			message(MSG_GENERIC, 0, "Beleth withdraws her blessings.");
+		}
+		if ((p_ptr->conflict_status == 3) && (rand_int(100) < 50))
+		{
+			p_ptr->conflict_status = 1;
+			message(MSG_GENERIC, 0, "Discordia withdraws her blessings.");
+		}
+		if ((p_ptr->purity_status == 3) && (rand_int(100) < 50))
+		{
+			p_ptr->purity_status = 1;
+			message(MSG_GENERIC, 0, "Eostre withdraws her blessings.");
+		}
+		if ((p_ptr->transformation_status == 3) && (rand_int(100) < 50))
+		{
+			p_ptr->transformation_status = 1;
+			message(MSG_GENERIC, 0, "Cyrridven withdraws her blessings.");
+		}
+		if ((p_ptr->deceit_status == 3) && (rand_int(100) < 50))
+		{
+			p_ptr->deceit_status = 1;
+			message(MSG_GENERIC, 0, "Laverna withdraws her blessings.");
+		}
+
+		/* Recent blessing are not so recent anymore */
+		if (p_ptr->obsession_status == 2) p_ptr->obsession_status = 3;
+		if (p_ptr->conflict_status == 2) p_ptr->conflict_status = 3;
+		if (p_ptr->purity_status == 2) p_ptr->purity_status = 3;
+		if (p_ptr->transformation_status == 2) p_ptr->transformation_status = 3;
+		if (p_ptr->deceit_status == 2) p_ptr->deceit_status = 3;
+
+		/* Handle temporary, non-recent curses */
+		if ((p_ptr->obsession_status == 8) && (rand_int(100) < 50))
+		{
+			p_ptr->obsession_status = 4;
+			message(MSG_GENERIC, 0, "Beleth is not so angry anymore.");
+		}
+		if ((p_ptr->conflict_status == 8) && (rand_int(100) < 50))
+		{
+			p_ptr->conflict_status = 4;
+			message(MSG_GENERIC, 0, "Discordia is not so angry anymore.");
+		}
+		if ((p_ptr->purity_status == 8) && (rand_int(100) < 50))
+		{
+			p_ptr->purity_status = 4;
+			message(MSG_GENERIC, 0, "Eostre is not so angry anymore.");
+		}
+		if ((p_ptr->transformation_status == 8) && (rand_int(100) < 50))
+		{
+			p_ptr->transformation_status = 4;
+			message(MSG_GENERIC, 0, "Cyrridven is not so angry anymore.");
+		}
+		if ((p_ptr->deceit_status == 8) && (rand_int(100) < 50))
+		{
+			p_ptr->deceit_status = 4;
+			message(MSG_GENERIC, 0, "Laverna is not so angry anymore.");
+		}
+
+		/* Recent curses are not so recent anymore */
+		if (p_ptr->obsession_status == 7) p_ptr->obsession_status = 8;
+		if (p_ptr->conflict_status == 7) p_ptr->conflict_status = 8;
+		if (p_ptr->purity_status == 7) p_ptr->purity_status = 8;
+		if (p_ptr->transformation_status == 7) p_ptr->transformation_status = 8;
+		if (p_ptr->deceit_status == 7) p_ptr->deceit_status = 8;
+
+		/* Count down shape timer */
+		if (p_ptr->shape_timer > 0) p_ptr->shape_timer -= 1;
+
+		/* If you make a Mapping check, you start standing on a stair */
+		if (rand_int(100) < p_ptr->skill[SK_MAP])
 		{
 			p_ptr->create_up_stair = TRUE;
 		}
@@ -2551,7 +3811,15 @@ static bool do_cmd_walk_test(int y, int x)
 		if (cave_feat[y][x] == FEAT_RUBBLE)
 		{
 			/* Message */
-			message(MSG_HITWALL, 0, "There is a pile of rubble in the way!");
+			if decoration(y, x)
+			{
+				message(MSG_HITWALL, 0, "There is a tree blocking you way.");
+			}
+
+			else
+			{
+				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
+			}
 		}
 
 		/* Door */
@@ -2624,7 +3892,9 @@ static void do_cmd_walk_or_jump(int jumping)
 		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 		/* Confirm stepping on a known trap */
-		if (t_ptr->visible)
+		/* Easy-disarm not on */
+		/* Protection from traps not on */
+		if ((t_ptr->visible) && (cave_m_idx[y][x] <= 0) && (!p_ptr->confused) && (!easy_alter) && (!p_ptr->safety))
 		{
 			if (!get_check("Do you really want to step on a trap? "))
 			{
@@ -2886,6 +4156,7 @@ void do_cmd_fire(void)
 
 	bool hit_body = FALSE;
 	bool ambush = FALSE;
+	bool deadly_crit = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -2948,6 +4219,12 @@ void do_cmd_fire(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Tripled critical damage? */
+	if (f2 & TR2_DEADLY_CRIT) deadly_crit = TRUE;
+
 	/* Single object */
 	i_ptr->number = 1;
 
@@ -2955,18 +4232,21 @@ void do_cmd_fire(void)
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, (display_insc_msg ? 3 : 2));
 
 	/* Calculate hit-bonus */
-	chance = p_ptr->skill[SK_THB] + p_ptr->to_h + object_to_h(i_ptr) + object_to_h(j_ptr);
+	chance = p_ptr->skill[SK_THB] + p_ptr->to_h_shooting + object_to_h(i_ptr) + object_to_h(j_ptr);
 
 	/* Extract the "base range" */
 	tdis = bow_range(j_ptr);
+
+	/* Apply divine range bonus */
+	tdis += p_ptr->range_bonus;
 
 	/* Hack - Arrow pval is always a range bonus/penalty */
 	tdis += i_ptr->pval;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir, chance, object_to_h(i_ptr), tdis)) return;
+	if (!get_aim_dir(&dir, chance, object_to_h(i_ptr) + object_to_h(j_ptr), tdis)) return;
 
-	/* Nullify invisiblity */
+	/* Nullify invisibility */
 	if (p_ptr->invis) nullify_invis();
 
 	/* Reduce and describe inventory */
@@ -3024,11 +4304,84 @@ void do_cmd_fire(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+	/* Starting point: 0 = low. stops at any high ground. 1 = high. flies over the first cover. */
+	/* Note that standing just next to the cover is the optimal shooting position */
+
+	int starting_point = 0;
+	int end_point = 0;
+	int xx, yy;
+
+	/* Is the target standing on a table or a platform? */	
+	if ((t_list[cave_t_idx[ty][tx]].w_idx == WG_TABLE) ||
+		(t_list[cave_t_idx[ty][tx]].w_idx == WG_PLATFORM))
+	{
+		end_point = 1;
+	}
+
+	/* Is the target standing on an altar, next to a platform? */	
+	if ((t_list[cave_t_idx[ty][tx]].w_idx >= WG_ALTAR_OBSESSION) &&
+		(t_list[cave_t_idx[ty][tx]].w_idx <= WG_ALTAR_DECEIT))
+	{
+		for (xx = tx - 1; xx <= tx + 1; xx++)
+		{
+			for (yy = ty - 1; yy <= ty + 1; yy++)
+			{
+				if (t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM) end_point = 1;
+			}
+		}
+	}
+
+	/* Is the player standing on or next to a table or a platform? */
+	for (xx = p_ptr->px - 1; xx <= p_ptr->px + 1; xx++)
+	{
+		for (yy = p_ptr->py - 1; yy <= p_ptr->py + 1; yy++)
+		{
+			if ((t_list[cave_t_idx[yy][xx]].w_idx == WG_TABLE) ||
+				(t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM))
+			{
+				starting_point = 1;
+			}
+		}
+	}
+
 	/* Project along the path */
 	for (i = 0; i < path_n; ++i)
 	{
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
+
+		/* Sometimes stop before hitting cover */
+		if (end_point == 0)
+		{
+			if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE) ||
+				(t_list[cave_t_idx[ny][nx]].w_idx == WG_PLATFORM))
+			{
+				if ((starting_point == 0) && (rand_int(5) < 2))
+				{
+					if (t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE)
+					{
+						message_format(MSG_SHOOT, o_ptr->k_idx, "The %s hits the table.", o_name);
+					}
+					else message_format(MSG_SHOOT, o_ptr->k_idx, "The %s hits the platform.", o_name);
+	
+					break;
+				}
+
+				/* Only one chance to hit any table or platform */
+				else starting_point = 1;
+			}
+
+			/* Ignore altars (they may be either high or low) */
+			else if ((t_list[cave_t_idx[ny][nx]].w_idx >= WG_ALTAR_OBSESSION) &&
+				(t_list[cave_t_idx[ny][nx]].w_idx <= WG_ALTAR_DECEIT))
+				{}
+
+			/* Any missile only gets to ignore the first cover */
+			else if (distance(p_ptr->py, p_ptr->px, ny, nx) > 7)
+			{
+				starting_point = 0;
+			}
+		}
 
 		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
@@ -3059,10 +4412,27 @@ void do_cmd_fire(void)
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
 		{
+
+			/* If the target was higher, fly over */
+			if (end_point > starting_point)
+			{
+				if (!((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) ||
+					(t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)))
+				{
+					continue;
+				}
+			}
+
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = get_monster_real(m_ptr);
 
-			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
+			/* Range penalty is the square root of range, minus one */
+			int range = distance(p_ptr->py, p_ptr->px, y, x);
+			int chance2 = chance;
+			if (range >= 25) chance2 -= 4;
+			else if (range >= 16) chance2 -= 3;
+			else if (range >= 9) chance2 -= 2;
+			else if (range >= 4) chance2 -= 1;
 
 			int visible = m_ptr->ml;
 
@@ -3094,7 +4464,7 @@ void do_cmd_fire(void)
 			}
 
 			/* Did we hit it (penalize distance travelled) */
-			critical_hit_chance = test_hit(chance2, r_ptr->ac, m_ptr->ml);
+			critical_hit_chance = (test_hit(chance2, r_ptr->ac / (m_ptr->cursed + 1), m_ptr->ml));
 
 			if (critical_hit_chance >= 0)
 			{
@@ -3143,7 +4513,7 @@ void do_cmd_fire(void)
 						ambush = TRUE;
 					}
 
-					tdam = critical_shot(i_ptr, &special, tdam, ambush, critical_hit_chance);
+					tdam = critical_shot(i_ptr, &special, tdam, ambush, critical_hit_chance, deadly_crit);
 				}
 
 				/* No negative damage */
@@ -3201,7 +4571,7 @@ void do_cmd_fire(void)
 	j = (hit_body ? k_info[i_ptr->k_idx].breakage : 0);
 
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(i_ptr, j, y, x, FALSE);
 }
 
 /*
@@ -3232,6 +4602,7 @@ void do_cmd_throw(void)
 	bool hit_body = FALSE;
 	bool aware;
 	bool ambush = FALSE;
+	bool deadly_crit = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -3265,11 +4636,14 @@ void do_cmd_throw(void)
 	/* Get local object */
 	i_ptr = &object_type_body;
 
+	/* Obtain a local object */
+	object_copy(i_ptr, o_ptr);
+
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
+	/* Tripled critical damage? */
+	if (f2 & TR2_DEADLY_CRIT) deadly_crit = TRUE;
 
 	/* Distribute the charges of rods between the stacks */
 	distribute_charges(o_ptr, i_ptr, 1);
@@ -3285,31 +4659,47 @@ void do_cmd_throw(void)
 	missile_char = object_char(i_ptr);
 
 	/* Chance of hitting */
-	chance = p_ptr->skill[SK_THT] + p_ptr->to_h + object_to_h(i_ptr);
+	chance = p_ptr->skill[SK_THT] + p_ptr->to_h_throwing + object_to_h(i_ptr);
 
 	/* Extract a "distance multiplier" */
-	mul = 6;
+	mul = 7;
 
 	/* Enforce a minimum "weight" of 3.5 pounds */
 	div = ((object_weight(i_ptr) > 35) ? object_weight(i_ptr) : 35);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
-	tdis = (adj_str_blow[p_stat(A_STR)] + 20) * mul / div;
+	tdis = (adj_str_blow[p_stat(A_STR)] + 23) * mul / div;
 
-	/* Max distance of 8 */
-	if (tdis > 8) tdis = 8;
+	/* Max distance of 8 without divine range bonus */
+	if (tdis > 7) tdis = 7;
+
+	/* Apply divine range bonus */
+	tdis += p_ptr->range_bonus;
+
+	/* Apply Mighty Throw */
+	if (p_ptr->mighty_throw) tdis *= 2;
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir, chance, object_to_h(i_ptr), tdis)) return;
 
 	/* Hack -- Base damage from thrown object */
-	if (!(i_ptr->tval == TV_BOW) && (object_weight(i_ptr) < 100) && (object_weight(i_ptr) <= (10 * p_stat(A_STR))))
-		{
-			tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
+	if (!(i_ptr->tval == TV_BOW) && !(i_ptr->tval == TV_ARROW) && (object_weight(i_ptr) <= 100) && (object_weight(i_ptr) <= (10 * p_stat(A_STR))))
+	{
+		tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
 
-			if (p_stat(A_STR) >= 25) tdam = tdam *3;
-			else if (p_stat(A_STR) >= 17) tdam = tdam *2;
-		}
+		/* High strength gives damage multipliers */
+		if (p_stat(A_STR) >= 29) tdam = tdam * 6;
+		else if (p_stat(A_STR) >= 25) tdam = tdam * 5;
+		else if (p_stat(A_STR) >= 21) tdam = tdam * 4;
+		else if (p_stat(A_STR) >= 17) tdam = tdam * 3;
+		else if (p_stat(A_STR) >= 13) tdam = tdam * 2;
+
+		/* Berserk strength doubles damage */
+		if (p_ptr->rage) tdam = tdam * 2;
+
+		/* Mighty Throw doubles damage */
+		if (p_ptr->mighty_throw) tdam *= 2;
+	}
 
 	else tdam = damroll(0, 0);
 
@@ -3337,11 +4727,81 @@ void do_cmd_throw(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+	/* Starting point: 0 = low. stops at any high ground. 1 = high. flies over the first cover. */
+	/* Note that standing just next to the cover is the optimal shooting position. */
+
+	int starting_point = 0;
+	int end_point = 0;
+	int xx, yy;
+
+	/* Is the target standing on a table or a platform? */	
+	if ((t_list[cave_t_idx[ty][tx]].w_idx == WG_TABLE) ||
+		(t_list[cave_t_idx[ty][tx]].w_idx == WG_PLATFORM))
+	{
+		end_point = 1;
+	}
+
+	/* Is the target standing on an altar, next to a platform? */	
+	if ((t_list[cave_t_idx[ty][tx]].w_idx >= WG_ALTAR_OBSESSION) &&
+		(t_list[cave_t_idx[ty][tx]].w_idx <= WG_ALTAR_DECEIT))
+	{
+		for (xx = tx - 1; xx <= tx + 1; xx++)
+		{
+			for (yy = ty - 1; yy <= ty + 1; yy++)
+			{
+				if (t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM) end_point = 1;
+			}
+		}
+	}
+
+	/* Or is the player standing on or next to a table or platform? */
+	for (xx = p_ptr->px - 1; xx <= p_ptr->px + 1; xx++)
+	{
+		for (yy = p_ptr->py - 1; yy <= p_ptr->py + 1; yy++)
+		{
+			if ((t_list[cave_t_idx[yy][xx]].w_idx == WG_TABLE) ||
+				(t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM))
+			{
+				starting_point = 1;
+			}
+		}
+	}
+
 	/* Project along the path */
 	for (i = 0; i < path_n; ++i)
 	{
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
+
+		/* Sometimes stop before hitting cover */
+		if (end_point == 0)
+		{
+			if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE) ||
+				(t_list[cave_t_idx[ny][nx]].w_idx == WG_PLATFORM))
+			{
+				if ((starting_point == 0) && (rand_int(5) < 2))
+				{
+					if (t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE)
+					{
+						message_format(MSG_SHOOT, o_ptr->k_idx, "The %s hits the table.", o_name);
+					}
+					else message_format(MSG_SHOOT, o_ptr->k_idx, "The %s hits the platform.", o_name);
+
+					break;
+				}
+
+				/* Only one chance to hit any table or platform */
+				else starting_point = 1;
+			}
+
+			/* Ignore altars (they may be either high or low) */
+			else if ((t_list[cave_t_idx[ny][nx]].w_idx >= WG_ALTAR_OBSESSION) &&
+				(t_list[cave_t_idx[ny][nx]].w_idx <= WG_ALTAR_DECEIT))
+				{}
+
+			/* Any missile only gets to ignore the first cover */
+			else starting_point = 0;
+		}
 
 		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
@@ -3372,16 +4832,32 @@ void do_cmd_throw(void)
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
 		{
+			/* If the target was higher, fly over */
+			if (end_point > starting_point)
+			{
+				if (!((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) ||
+					(t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)))
+				{
+					continue;
+				}
+			}
+
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = get_monster_real(m_ptr);
 
-			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
+			/* Range penalty is the square root of range, minus one */
+			int range = distance(p_ptr->py, p_ptr->px, y, x);
+			int chance2 = chance;
+			if (range >= 25) chance2 -= 4;
+			else if (range >= 16) chance2 -= 3;
+			else if (range >= 9) chance2 -= 2;
+			else if (range >= 4) chance2 -= 1;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			critical_hit_chance = test_hit(chance2, r_ptr->ac, m_ptr->ml);
+			critical_hit_chance = (test_hit(chance2, r_ptr->ac / (m_ptr->cursed + 1), m_ptr->ml));
 
 			if (critical_hit_chance >= 0)
 			{
@@ -3461,16 +4937,16 @@ void do_cmd_throw(void)
 							message(MSG_EFFECT, 0, "The powder bursts in a bright flash of light.");
 							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_BLIND_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
-							(void)strike(GF_LITE_WEAK, y, x, damroll(5 , 7), spread);
+							(void)strike(GF_LITE_WEAK, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_DARKNESS:
 						{
-							message(MSG_EFFECT, 0, "The powder bursts into a cloud of darkness.");
+							message(MSG_EFFECT, 0, "The powder bursts into a sinister cloud of darkness.");
 							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
-							(void)strike(GF_BLIND_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
-							(void)strike(GF_DARK_WEAK, y, x, damroll(5 , 7), spread);
+							(void)strike(GF_SCARE_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
+							(void)strike(GF_DARK_WEAK, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
@@ -3616,7 +5092,7 @@ void do_cmd_throw(void)
 							ambush = TRUE;
 						}
 
-						tdam = critical_throw(i_ptr, tdam, ambush, critical_hit_chance);
+						tdam = critical_throw(i_ptr, tdam, ambush, critical_hit_chance, deadly_crit);
 					}
 
 					/* No negative damage */
@@ -3701,5 +5177,5 @@ void do_cmd_throw(void)
 	j = (hit_body ? k_info[i_ptr->k_idx].breakage : 0);
 
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(i_ptr, j, y, x, FALSE);
 }

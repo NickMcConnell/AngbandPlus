@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.2.0
 
 # General Store
 N:0:0:Squeek the Sly
@@ -33,8 +33,8 @@ N:1:1:Darg-Low the Grim
 I:0:7500:111
 N:1:2:Kranan the Large
 I:8:12500:112
-N:1:3:Hephesto the Horrible
-I:12:12500:115
+N:1:3:Black Francis
+I:7:12500:115
 N:1:4:Mauglin the Grumpy
 I:2:15000:112
 
@@ -53,12 +53,12 @@ I:2:15000:112
 # Temple
 N:3:0:Ludwig the Humble
 I:0:2500:109
-N:3:1:Gunnar the Paladin
+N:3:1:Gunnar the Templar
 I:0:5000:110
 N:3:2:Delilah the Pure
 I:1:12500:107
-N:3:3:Raphael the Divine
-I:11:12500:110
+N:3:3:Asanga the Divine
+I:10:12500:110
 N:3:4:Bosk the Wise
 I:2:15000:109
 
@@ -91,8 +91,8 @@ N:6:0:Fliplip the Annoying
 I:4:10000:150
 N:6:1:Kabal the Dishonest
 I:9:10000:150
-N:6:2:Bazor the Damned
-I:12:12500:150
+N:6:2:Igh of the Desert
+I:5:12500:150
 N:6:3:Durwin the Shifty
 I:0:15000:150
 N:6:4:Liklik the Quick
@@ -113,8 +113,8 @@ I:99:0:100
 # Bookstore
 N:8:0:Nastra the Dusty
 I:0:5000:105
-N:8:1:Aziraphale the Caretaker
-I:11:7500:105
+N:8:1:Madam Fu-Fu
+I:6:7500:105
 N:8:2:Gabberam the Sage
 I:1:10000:115
 N:8:3:Nobbin the Joyous

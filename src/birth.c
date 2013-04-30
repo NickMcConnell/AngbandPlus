@@ -374,6 +374,172 @@ static void get_money(void)
 	p_ptr->au_birth = p_ptr->au = gold;
 }
 
+/* Roll random bonuses for goddesses */
+static void get_religion_bonuses(void)
+{
+	bool bonuses_ok = FALSE;
+	int i;
+	int stat;
+
+	while(bonuses_ok == FALSE)
+	{
+		switch (randint(8))
+		{
+			case 1: case 2: p_ptr->obsession_bonus_a = DEITY_STR; break;
+			case 3: case 4: p_ptr->obsession_bonus_a = DEITY_INT; break;
+			case 5: case 6: p_ptr->obsession_bonus_a = DEITY_CHR; break;
+			case 7: case 8: p_ptr->obsession_bonus_a = DEITY_BERSERK; break;
+			/* Alchemy */
+		}
+
+		switch (randint(8))
+		{
+			case 1: case 2: p_ptr->conflict_bonus_a = DEITY_STR; break;
+			case 3: case 4: p_ptr->conflict_bonus_a = DEITY_DEX; break;
+			case 5: p_ptr->conflict_bonus_a = DEITY_WIS; break;
+			case 6: p_ptr->conflict_bonus_a = DEITY_BERSERK; break;
+			case 7: p_ptr->conflict_bonus_a = DEITY_AC; break;
+			case 8: p_ptr->conflict_bonus_a = DEITY_RANGE; break;
+			/* Jumping */
+		}
+
+		switch (randint(8))
+		{
+			case 1: case 2: p_ptr->purity_bonus_a = DEITY_CON; break;
+			case 3: case 4: p_ptr->purity_bonus_a = DEITY_CHR; break;
+			case 5: p_ptr->purity_bonus_a = DEITY_INT; break;
+			case 6: p_ptr->purity_bonus_a = DEITY_DEX; break;
+			case 7: p_ptr->purity_bonus_a = DEITY_ESCAPE; break;
+			case 8: p_ptr->purity_bonus_a = DEITY_RANGE; break;
+			/* Perception or Jumping */
+		}
+
+		switch (randint(8))
+		{
+			case 1: case 2: p_ptr->transformation_bonus_a = DEITY_WIS; break;
+			case 3: case 4: p_ptr->transformation_bonus_a = DEITY_ESCAPE; break;
+			case 5: p_ptr->transformation_bonus_a = DEITY_STR; break;
+			case 6: p_ptr->transformation_bonus_a = DEITY_CON; break;
+			case 7: p_ptr->transformation_bonus_a = DEITY_AC; break;
+			case 8: p_ptr->transformation_bonus_a = DEITY_STEALTH; break;
+			/* Perception */
+		}
+
+		switch (randint(8))
+		{
+			case 1: case 2: p_ptr->deceit_bonus_a = DEITY_INT; break;
+			case 3: case 4: p_ptr->deceit_bonus_a = DEITY_WIS; break;
+			case 5: case 6: p_ptr->deceit_bonus_a = DEITY_DEX; break;
+			case 7: p_ptr->deceit_bonus_a = DEITY_ESCAPE; break;
+			case 8: p_ptr->deceit_bonus_a = DEITY_STEALTH; break;
+			/* Mapping */
+		}
+
+		if (rand_int(5) < 1)
+		{
+			p_ptr->obsession_bonus_b = p_ptr->obsession_bonus_a;
+		}
+		else
+		{
+			switch (randint(8))
+			{
+				case 1: case 2: p_ptr->obsession_bonus_b = DEITY_STR; break;
+				case 3: case 4: p_ptr->obsession_bonus_b = DEITY_INT; break;
+				case 5: case 6: p_ptr->obsession_bonus_b = DEITY_CHR; break;
+				case 7: case 8: p_ptr->obsession_bonus_b = DEITY_BERSERK; break;
+			}
+		}
+
+		if (rand_int(5) < 1)
+		{
+			p_ptr->conflict_bonus_b = p_ptr->conflict_bonus_a;
+		}
+		else
+		{
+			switch (randint(8))
+			{
+				case 1: case 2: p_ptr->conflict_bonus_b = DEITY_STR; break;
+				case 3: case 4: p_ptr->conflict_bonus_b = DEITY_DEX; break;
+				case 5: p_ptr->conflict_bonus_b = DEITY_WIS; break;
+				case 6: p_ptr->conflict_bonus_b = DEITY_BERSERK; break;
+				case 7: p_ptr->conflict_bonus_b = DEITY_AC; break;
+				case 8: p_ptr->conflict_bonus_b = DEITY_RANGE; break;
+			}
+		}
+
+		if (rand_int(5) < 1)
+		{
+			p_ptr->purity_bonus_b = p_ptr->purity_bonus_a;
+		}
+		else
+		{
+			switch (randint(8))
+			{
+				case 1: case 2: p_ptr->purity_bonus_b = DEITY_CON; break;
+				case 3: case 4: p_ptr->purity_bonus_b = DEITY_CHR; break;
+				case 5: p_ptr->purity_bonus_b = DEITY_INT; break;
+				case 6: p_ptr->purity_bonus_b = DEITY_DEX; break;
+				case 7: p_ptr->purity_bonus_b = DEITY_ESCAPE; break;
+				case 8: p_ptr->purity_bonus_b = DEITY_RANGE; break;
+			}
+		}
+
+		if (rand_int(5) < 1)
+		{
+			p_ptr->transformation_bonus_b = p_ptr->transformation_bonus_a;
+		}
+		else
+		{
+			switch (randint(8))
+			{
+				case 1: case 2: p_ptr->transformation_bonus_b = DEITY_WIS; break;
+				case 3: case 4: p_ptr->transformation_bonus_b = DEITY_ESCAPE; break;
+				case 5: p_ptr->transformation_bonus_b = DEITY_STR; break;
+				case 6: p_ptr->transformation_bonus_b = DEITY_CON; break;
+				case 7: p_ptr->transformation_bonus_b = DEITY_AC; break;
+				case 8: p_ptr->transformation_bonus_b = DEITY_STEALTH; break;
+			}
+		}
+
+		if (rand_int(5) < 1)
+		{
+			p_ptr->deceit_bonus_b = p_ptr->deceit_bonus_a;
+		}
+		else
+		{
+			switch (randint(8))
+			{
+				case 1: case 2: p_ptr->deceit_bonus_b = DEITY_INT; break;
+				case 3: case 4: p_ptr->deceit_bonus_b = DEITY_WIS; break;
+				case 5: case 6: p_ptr->deceit_bonus_b = DEITY_DEX; break;
+				case 7: p_ptr->deceit_bonus_b = DEITY_ESCAPE; break;
+				case 8: p_ptr->deceit_bonus_b = DEITY_STEALTH; break;
+			}
+		}
+
+		bonuses_ok = TRUE;
+
+		/* All stats are limited to +3 total bonuses. */
+		for (i = 0; i <= 10; i++)
+		{
+			stat = 0;
+
+			if (p_ptr->obsession_bonus_a == i) stat = stat +2;
+			if (p_ptr->conflict_bonus_a == i) stat = stat +2;
+			if (p_ptr->purity_bonus_a == i) stat = stat +2;
+			if (p_ptr->transformation_bonus_a == i) stat = stat +2;
+			if (p_ptr->deceit_bonus_a == i) stat = stat +2;
+			if (p_ptr->obsession_bonus_b == i) stat++;
+			if (p_ptr->conflict_bonus_b == i) stat++;
+			if (p_ptr->purity_bonus_b == i) stat++;
+			if (p_ptr->transformation_bonus_b == i) stat++;
+			if (p_ptr->deceit_bonus_b == i) stat++;
+
+			if (stat > 3) bonuses_ok = FALSE;
+		}
+	}
+}
+
 /*
  * Clear all the global "character" data
  */
@@ -384,10 +550,23 @@ static void player_wipe(void)
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
 
-	/* You can't use proficiencies until the first dungeon level */
-	p_ptr->lore_uses = 1;
-	p_ptr->reserves_uses = 1;
-	p_ptr->escapes_uses = 1;
+	/* Roll for random religion bonuses */
+	get_religion_bonuses();
+
+	/* Reset proficiency uses */
+	p_ptr->lore_uses = 0;
+	p_ptr->reserves_uses = 0;
+	p_ptr->escapes_uses = 0;
+
+	/* Reset religion status */
+	p_ptr->obsession_status = 0;
+	p_ptr->conflict_status = 0;
+	p_ptr->purity_status = 0;
+	p_ptr->transformation_status = 0;
+	p_ptr->deceit_status = 0;
+
+	/* Reset shape */
+	p_ptr->shape = SHAPE_PERSON;
 
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_MAX; i++)
@@ -478,8 +657,8 @@ static void player_wipe(void)
 		lu_ptr->r_pkills = 0;
 	}
 
-	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
+	/* Reset monster summon power */
+	p_ptr->monster_summon_power = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0;i < (SV_BOOK_MAX * MAX_BOOK_SPELLS); i++)
@@ -500,16 +679,6 @@ static void player_outfit(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 	const start_item *e_ptr;
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 6);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -546,8 +715,22 @@ static void player_outfit(void)
 	{	
 		/* Hack -- Give the player some torches */
 		object_prep(i_ptr, lookup_kind(TV_LITE, SV_TORCH));
-		i_ptr->number = (byte)rand_range(4, 7);
-		i_ptr->timeout = rand_range(4, 6) * 500;
+		i_ptr->number = (byte)rand_range(2, 4);
+		i_ptr->timeout = FUEL_TORCH;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+
+		/* Give the player a healing potion */
+		object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_CURE_SERIOUS));
+		i_ptr->number = (byte)rand_range(1, 1);
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+
+		/* Give the player a Scroll of Phase Door */
+		object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_PHASE_DOOR));
+		i_ptr->number = (byte)rand_range(1, 1);
 		object_aware(i_ptr);
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);
@@ -576,6 +759,13 @@ static void player_outfit(void)
 			{
 				/* default */
 				if (w_choice[i][0] != TV_BLUNT) continue;
+			}
+
+			/* Hack - only swords for templars */
+			if (cp_ptr->flags & CF_FENCING)
+			{
+				/* default */
+				if (w_choice[i][0] != TV_SWORD) continue;
 			}
 
 			object_prep(i_ptr, lookup_kind(w_choice[i][0], w_choice[i][1]));
@@ -1032,12 +1222,12 @@ static bool get_player_class(void)
 
 	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
 	{
-		if ((rp_ptr->choice & (1L << 14)) && (50 > rand_int(100))) p_ptr->pclass = p_ptr->pclass +5;
+		if ((rp_ptr->choice & (1L << 14)) && (50 > rand_int(100))) p_ptr->pclass = p_ptr->pclass +4;
 	}
 
 	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
 	{
-		if (rp_ptr->choice & (1L << 15)) p_ptr->pclass = p_ptr->pclass +5;
+		if (rp_ptr->choice & (1L << 15)) p_ptr->pclass = p_ptr->pclass +4;
 	}
 
 	/* Set class */
@@ -1235,6 +1425,8 @@ static bool player_birth_aux_2(void)
 		p_ptr->wound_vigor = 0;
 		p_ptr->wound_wit = 0;
 		p_ptr->wound_grace = 0;
+		p_ptr->fortification = 0;
+		p_ptr->nightsight = 0;
 
 		/* Display the player */
 		display_player(CSCREEN_BIRTH);

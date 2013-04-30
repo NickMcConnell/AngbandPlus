@@ -341,6 +341,46 @@ void do_cmd_note(void)
 }
 
 /*
+ * Display the main-screen monster list.
+ */
+void do_cmd_monster_list(void)
+{
+	char ch;
+
+	/* Save the screen and display the list */
+	screen_save();
+	display_visible();
+
+	/* Wait */
+	ch = inkey();
+
+	/* Load screen */
+	screen_load();
+}
+
+/*
+ * Display the main-screen room description.
+ */
+void do_cmd_room_description(void)
+{
+	int by = p_ptr->py / BLOCK_HGT;
+	int bx = p_ptr->px / BLOCK_WID;
+	int room = dun_room[by][bx];
+
+	char ch;
+
+	/* Save the screen and display the list */
+	screen_save();
+	display_room_info(room);
+
+	/* Wait */
+	ch = inkey();
+
+	/* Load screen */
+	screen_load();
+}
+
+/*
  * Mention the current version
  */
 void do_cmd_version(void)
@@ -1545,10 +1585,14 @@ static void do_cmd_knowledge_alchemy(void)
 	char file_name[1024];
 
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, 1024);
+	fff = my_fopen_temp(file_name, sizeof(file_name));
  
 	/* Failure */
-	if (!fff) return;
+	if (!fff)
+	{
+		msg_print("Could not open a temporary file to show the contents of your home.");
+		return;
+	}
 
 	/* Scan the alchemy info */
 	for (i = 0; i < SV_POTION_MAX; i++)
@@ -1563,13 +1607,13 @@ static void do_cmd_knowledge_alchemy(void)
 	}
 
 	/* Close the file */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Known Alchemical Combinations", 0, 0);
+	show_file(file_name, "Known Alchemical Combinations", 0, 2);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 /*
@@ -1580,6 +1624,8 @@ static void do_cmd_knowledge_home(void)
 {
 	int k;
 
+	store_type *st_ptr = &store[STORE_HOME];
+
 	FILE *fff;
 
 	object_type *o_ptr;
@@ -1587,13 +1633,15 @@ static void do_cmd_knowledge_home(void)
 
 	char file_name[1024];
 
-	store_type *st_ptr = &store[STORE_HOME];
-
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, 1024);
+	fff = my_fopen_temp(file_name, sizeof(file_name));
  
 	/* Failure */
-	if (!fff) return;
+	if (!fff)
+	{
+		msg_print("Could not open a temporary file to show the contents of your home.");
+		return;
+	}
 
 	/* Home -- if anything there */
 	if (st_ptr->stock_num)
@@ -1604,7 +1652,7 @@ static void do_cmd_knowledge_home(void)
 			/* Acquire item */
 			o_ptr = &st_ptr->stock[k];
 
-			/* Acquire object description */
+			/* Get object description */
 			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Print a message */
@@ -1613,13 +1661,13 @@ static void do_cmd_knowledge_home(void)
 	}
 
 	/* Close the file */
-	my_fclose(fff);
+	(void)my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Contents of Your Home", 0, 0);
+	show_file(file_name, "Contents of Your Home", 0, 2);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 /*

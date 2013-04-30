@@ -231,6 +231,14 @@ void monster_death(int m_idx)
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
+	/* Hordes of non-unique Skultgard monsters often drop just gold */
+	if ((r_ptr->flags1 & (RF4_SKULTGARD)) && (r_ptr->flags1 & (RF1_UNIQUE)) && (do_gold) && (do_item) && (rand_int(100) < 50))
+	{
+		if ((r_ptr->flags1 & (RF1_GRP_27)) && (rand_int(100) < 50)) do_item = FALSE;
+		if ((r_ptr->flags1 & (RF1_GRP_18)) && (rand_int(100) < 50)) do_item = FALSE;
+		if ((r_ptr->flags1 & (RF1_GRP_9)) && (rand_int(100) < 25)) do_item = FALSE;
+	}
+
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -265,7 +273,7 @@ void monster_death(int m_idx)
 		delete_object_idx(this_o_idx);
 
 		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, FALSE);
 	}
 
 	/* Forget objects */
@@ -290,7 +298,7 @@ void monster_death(int m_idx)
 		i_ptr->origin_nature = ORIGIN_MORGOTH;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, FALSE);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -308,16 +316,16 @@ void monster_death(int m_idx)
 		i_ptr->origin_nature = ORIGIN_MORGOTH;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, FALSE);
 	}
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 30)) number++;
+	if ((r_ptr->flags1 & (RF1_DROP_70)) && (rand_int(100) < 70)) number++;
+	if (r_ptr->flags1 & (RF1_DROP_1)) number += 1;
+	if (r_ptr->flags1 & (RF1_DROP_2)) number += 2;
+	if (r_ptr->flags1 & (RF1_DROP_3)) number += 3;
+	if (r_ptr->flags1 & (RF1_DROP_4)) number += 4;
 
 	/* Hack - clones never drop stuff */
    	if (m_ptr->mflag & (MFLAG_CLON)) number = 0;
@@ -348,7 +356,7 @@ void monster_death(int m_idx)
 			else object_history(i_ptr, ORIGIN_DROP_UNKNOWN, 0, 0, 0);
 
 			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, y, x);
+			drop_near(i_ptr, -1, y, x, FALSE);
 
 			/* Don't drop other stuff */
 			continue;
@@ -383,7 +391,7 @@ void monster_death(int m_idx)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, FALSE);
 	}
 
 	/* Reset the object level */
@@ -618,29 +626,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
-	/* Mega-Hack -- Pain cancels fear */
-	if (m_ptr->monfear && (dam > 0))
-	{
-		int tmp = randint(dam);
-
-		/* Cure a little fear */
-		if (tmp < m_ptr->monfear)
-		{
-			/* Reduce fear */
-			m_ptr->monfear -= tmp;
-		}
-
-		/* Cure all the fear */
-		else
-		{
-			/* Cure fear */
-			m_ptr->monfear = 0;
-
-			/* No more fear */
-			(*fear) = FALSE;
-		}
-	}
-
 	/* Sometimes a monster gets scared by damage */
 	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
@@ -658,7 +643,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if ((dam >= m_ptr->hp) && (chance < 80)) chance = 80;
 		if (*fear) chance = 100;
 
-		if (rand_int(100) < chance)
+		if (rand_int(250-(6*(p_stat(A_CHR)))) < chance)
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
@@ -1001,10 +986,22 @@ void display_room_info(int room)
 	if (!character_dungeon) return;
 
 	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
+	if (!(Term == angband_term[0]))
 	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
+		for (y = 0; y < Term->hgt; y++)
+		{
+			/* Erase the line */
+			Term_erase(0, y, 255);
+		}
+	}
+	/* Only erase the top five lines in the main term */
+	else
+	{
+		for (y = 0; y < 5; y++)
+		{
+			/* Erase the line */
+			Term_erase(0, y, 255);
+		}
 	}
 
 	/* Begin recall */
@@ -1051,10 +1048,10 @@ void display_room_info(int room)
 	first[1] = '\0';
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_L_BLUE, first);
+	Term_addstr(-1, TERM_ORANGE, first);
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_L_BLUE, (name + 1));
+	Term_addstr(-1, TERM_ORANGE, (name + 1));
 }
 
 /*
@@ -1229,29 +1226,38 @@ static void look_mon_desc(char *buf, size_t max, int m_idx, int skill, int range
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
 	if (m_ptr->calmed) my_strcat(buf, ", calmed", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
+	if (m_ptr->cursed) my_strcat(buf, ", cursed", max);
+	if (m_ptr->earthbound) my_strcat(buf, ", earthbound", max);
 
 	/*
 	 * Show to-hit chance. Show melee to-hit by default. Show archery
 	 * or throwing hit chance if the player is shooting or throwing.
 	 */
 	int dist = distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx);
+	int range_penalty = 0;
 
 	if ((p_ptr->command_cmd == 'v') || (p_ptr->command_cmd == 'f'))
 	{
+		/* Range penalty is the square root of range, minus one */
+		if (dist >= 25) range_penalty = 4;
+		else if (dist >= 16) range_penalty = 3;
+		else if (dist >= 9) range_penalty = 2;
+		else if (dist >= 4) range_penalty = 1;
+
 		/* We already know the base skill for archery and throwing. */
-		skill = skill - dist;
+		skill = skill - range_penalty;
 	}
 	else
 	{
 		/* We have to calculate melee skill and object to-hit here. */
 		object_type *o_ptr;
 		o_ptr = &inventory[INVEN_WIELD];
-		skill = p_ptr->skill[SK_THN] + p_ptr->to_h + object_to_h(o_ptr);
+		skill = p_ptr->skill[SK_THN] + p_ptr->to_h_melee + object_to_h(o_ptr);
 		object_to_hit = object_to_h(o_ptr);
 	}
 
 	monster_race *r_ptr = get_monster_real(m_ptr);
-	int ac = r_ptr->ac;
+	int ac = r_ptr->ac / (m_ptr->cursed + 1);
 	int chance;
 	int critical_hit_chance = 0;
 	int ambush_chance = 0;
@@ -1268,7 +1274,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx, int skill, int range
 
 	/* Calculate to-hit percentage */
 	if (skill <= 0) chance = 0;
-	else chance = 100 - ((ac * 100)/skill);
+	else chance = 101 - ((ac * 100)/skill);
+	if (chance > 100) chance = 100;
 
 	/* Calculate the minimum chance */ 
 	if ((p_ptr->command_cmd == 'v') && (chance < 10))
@@ -1294,17 +1301,27 @@ static void look_mon_desc(char *buf, size_t max, int m_idx, int skill, int range
 	/* Calculate ambush chance */
 	if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
 	{
-		/* Extract "shot" power */
-		ambush_chance = ((p_ptr->to_h + object_to_hit) * 2) +10;
+		if (p_ptr->command_cmd == 'v')
+		{
+			ambush_chance = ((p_ptr->to_h_throwing + object_to_hit) * 2) +10;
+		}
+		else if (p_ptr->command_cmd == 'f')
+		{
+			ambush_chance = ((p_ptr->to_h_shooting + object_to_hit) * 2) +10;
+		}
+		else
+		{
+			ambush_chance = ((p_ptr->to_h_melee + object_to_hit) * 2) +10;
+		}
 
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_AMBUSH) ambush_chance += p_ptr->lev +10;
 
-		/* Potion of Sneakiness increases critical chance */
-		if (p_ptr->tim_stealth) ambush_chance += +20;
-
 		if (cp_ptr->flags & CF_AMBUSH) ambush_remainder = 5 * (ambush_chance % 2);
 		ambush_chance = ambush_chance / 2;
+
+		/* Item bonuses */
+		ambush_chance += p_ptr->ambush_bonus;
 	}
 
 	critical_hit_chance += ambush_chance;
@@ -1976,7 +1993,7 @@ static bool target_set_interactive_accept(int y, int x)
 		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 		/* Visible traps */
-		if (t_ptr->visible && !trap_lock(y,x)) return (TRUE);
+		if (t_ptr->visible && !trap_boring(y,x)) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -2000,7 +2017,7 @@ static bool target_set_interactive_accept(int y, int x)
 		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
 
 		/* Notice rubble */
-		if (cave_feat[y][x] == FEAT_RUBBLE) return (TRUE);
+		if ((cave_feat[y][x] == FEAT_RUBBLE) && !trap_boring(y,x)) return (TRUE);
 
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
@@ -2170,9 +2187,9 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 			if (dist > 0)
 			{
 				if (cheat_wizard) strnfmt(out_val, sizeof(out_val), 
-					"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, name, dist * 10, info, y, x);
+					"%s%s%s%s at %d [%s] (%d:%d)", s1, s2, s3, name, dist, info, y, x);
 				else strnfmt(out_val, sizeof(out_val), 
-					"%s%s%s%s at %d ft [%s]", s1, s2, s3, name, dist * 10, info);
+					"%s%s%s%s at %d [%s]", s1, s2, s3, name, dist, info);
 			}
 			else
 			{
@@ -2256,14 +2273,14 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 							if (cheat_wizard)
 							{
 								strnfmt(out_val, sizeof(out_val),
-									"%s%s%s%s at %d ft (%s) [r,%s] (%d:%d)",
-									s1, s2, s3, m_name, dist * 10, buf, info, y, x);
+									"%s%s%s%s at %d (%s) [r,%s] (%d:%d)",
+									s1, s2, s3, m_name, dist, buf, info, y, x);
 							}
 							else
 							{
 								strnfmt(out_val, sizeof(out_val),
-									"%s%s%s%s at %d ft (%s) [r,%s]",
-									s1, s2, s3, m_name, dist * 10, buf, info);
+									"%s%s%s%s at %d (%s) [r,%s]",
+									s1, s2, s3, m_name, dist, buf, info);
 							}
 						}
 						else
@@ -2384,14 +2401,14 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 						if (cheat_wizard)
 						{
 							strnfmt(out_val, sizeof(out_val),
-								"%s%s%sa pile of %d objects at %d ft [r,%s] (%d:%d)", 
-								s1, s2, s3, floor_num, dist * 10, info, y, x);
+								"%s%s%sa pile of %d objects at %d [r,%s] (%d:%d)", 
+								s1, s2, s3, floor_num, dist, info, y, x);
 						}
 						else
 						{
 							strnfmt(out_val, sizeof(out_val),
-								"%s%s%sa pile of %d objects at %d ft [r,%s]",
-								s1, s2, s3, floor_num, dist * 10, info);
+								"%s%s%sa pile of %d objects at %d [r,%s]",
+								s1, s2, s3, floor_num, dist, info);
 						}
 					}
 					else
@@ -2482,12 +2499,12 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 					if (cheat_wizard)
 					{
 						strnfmt(out_val, sizeof(out_val),
-							"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, o_name, dist * 10, info, y, x);
+							"%s%s%s%s at %d [%s] (%d:%d)", s1, s2, s3, o_name, dist, info, y, x);
 					}
 					else
 					{
 						strnfmt(out_val, sizeof(out_val),
-							"%s%s%s%s at %d ft [%s]", s1, s2, s3, o_name, dist * 10, info);
+							"%s%s%s%s at %d [%s]", s1, s2, s3, o_name, dist, info);
 					}
 				}
 				else
@@ -2538,9 +2555,10 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 			 * Visible trap 
 			 * Note that simple locks (LOCK flag) don't appear here
 			 */
-			if (t_ptr->visible && !trap_lock(y, x) && !trap_chest(y, x))
+			if (t_ptr->visible && !decoration(y, x) && !trap_lock(y, x) && !trap_chest(y, x))
 			{
 				cptr t_name = trap_name(t_ptr->w_idx, 1);
+				cptr idea = "";
 
 				if (!(cp_ptr->flags & CF_TRAP_KNOW))
 				{
@@ -2555,18 +2573,23 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 						case WGF_ROCKS:		t_name = "loose rocks"; break;
 					}
 				}
+
+				if (t_ptr->spot_factor == 100)
+				{
+					idea = " (complicated)";
+				}
 				
 				if (dist > 0)
 				{
 					if (cheat_wizard)
 					{
 						strnfmt(out_val, sizeof(out_val), 
-							"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, t_name, dist * 10, info, y, x);
+							"%s%s%s%s%s at %d [%s] (%d:%d)", s1, s2, s3, t_name, idea, dist, info, y, x);
 					}
 					else
 					{
 						strnfmt(out_val, sizeof(out_val),
-							"%s%s%s%s at %d ft [%s]", s1, s2, s3, t_name, dist * 10, info);
+							"%s%s%s%s%s at %d [%s]", s1, s2, s3, t_name, idea, dist, info);
 					}
 				}
 				else
@@ -2628,9 +2651,20 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 			}
 
 			/* Hack - locks */
-			if (cave_t_idx[y][x] && trap_lock(y, x) && (feat == FEAT_CLOSED))
+			if (cave_t_idx[y][x] && trap_lock(y, x))
 			{
-				lock = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+
+				if (feat == FEAT_CLOSED)
+				{
+					if (t_ptr->spot_factor == 99) lock = " (locked, mastered)";
+					else if (t_ptr->spot_factor == 100) lock = " (locked, too complicated)";
+					else lock = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
+				}
+				else
+				{
+					lock = " (lock mastered)";
+				}
 			}
 
 			/* Hack - chests */
@@ -2640,18 +2674,25 @@ static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int ob
 				lock = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
 			}
 
+			/* Hack - decoration */
+			if ((cave_info[y][x] & (CAVE_MARK)) && (cave_t_idx[y][x] && decoration(y, x)))
+			{
+				name = trap_name(t_list[cave_t_idx[y][x]].w_idx, 0);
+				s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+			}
+
 			/* Display a message */
 			if (dist > 0)
 			{
 				if (cheat_wizard)
 				{
 					strnfmt(out_val, sizeof(out_val),
-						"%s%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, name, lock, dist * 10, info, y, x);
+						"%s%s%s%s%s at %d [%s] (%d:%d)", s1, s2, s3, name, lock, dist, info, y, x);
 				}
 				else
 				{
 					strnfmt(out_val, sizeof(out_val),
-						"%s%s%s%s%s at %d ft [%s]", s1, s2, s3, name, lock, dist * 10, info);
+						"%s%s%s%s%s at %d [%s]", s1, s2, s3, name, lock, dist, info);
 				}
 			}
 			else
@@ -3281,7 +3322,7 @@ bool get_proficiency_dir(int *dp, int mapping)
 	dir = p_ptr->command_dir;
 
 	/* Choose a prompt */
-	if (mapping) p = "You study your maps. Direction (Escape to cancel)? ";
+	if (mapping) p = "You study an enchanted map. Direction? ";
 	else p = "Direction (Escape to cancel)? ";
 
 	/* Get a command (or Cancel) */
@@ -3309,7 +3350,7 @@ bool get_proficiency_dir(int *dp, int mapping)
 	}
 
 	/* Aborted */
-	if (!dir) return (FALSE);
+	if ((!dir) && (!mapping)) return (FALSE);
 
 	/* Save desired direction */
 	p_ptr->command_dir = dir;

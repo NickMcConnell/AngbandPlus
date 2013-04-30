@@ -195,7 +195,7 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 {
 	int i, j, k, l;
 
-	int home, lev1, lev2, chance1, chance2;
+	int home = 0, lev1, lev2, chance1 = 0, chance2 = 0;
 
 	u32b maxd = 1, maxr = 1, maxt = 1;
 
@@ -1285,7 +1285,7 @@ static void wiz_create_item(void)
 	i_ptr->origin_nature = ORIGIN_CHEAT;
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, FALSE);
 
 	/* All done */
 	message(MSG_CHEAT, 0, "Allocated.");
@@ -1333,7 +1333,7 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->origin_nature = ORIGIN_CHEAT;
 
 	/* Drop the artifact from heaven */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, FALSE);
 
 	/* All done */
 	message(MSG_CHEAT, 0, "Allocated.");
@@ -1377,9 +1377,6 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_stun(0);
 	(void)set_cut(0);
 	(void)set_slow(0);
-
-	/* No longer hungry */
-	(void)set_food(PY_FOOD_MAX - 1);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_CONDITION);
@@ -2922,6 +2919,7 @@ void do_cmd_debug(void)
 		/* Detect everything */
 		case 'd':
 		{
+			detect_traps(0,0,0);
 			detect_all(1);
 			break;
 		}

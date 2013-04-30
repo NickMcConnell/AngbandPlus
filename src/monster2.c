@@ -1500,6 +1500,49 @@ static bool	place_escort_same = FALSE;
 static int escort_r_idx = 0;
 
 /*
+ * Place a trap with a given displacement of point
+ */
+static void rogue_trap_aux(int y, int x, int yd, int xd)
+{
+	int count, y1, x1;
+
+	/* Place traps */
+	for (count = 0; count <= 5; count++)
+	{
+		/* Get a location */
+		while (TRUE)
+		{
+			y1 = rand_spread(y, yd);
+			x1 = rand_spread(x, xd);
+			if (!in_bounds(y1, x1)) continue;
+			break;
+		}
+
+		/* Require "naked" floor grids */
+		if (!cave_naked_bold(y1, x1)) continue;
+
+		/* Place the trap */
+		place_trap_dungeon(y1, x1);
+
+		/* Done */
+		break;
+	}
+}
+
+/*
+ * Place some traps with a given displacement of given location
+ */
+static void rogue_traps(int y, int x, int yd, int xd, int num)
+{
+	int i;
+
+	for (i = 0; i < num; i++)
+	{
+		rogue_trap_aux(y, x, yd, xd);
+	}
+}
+
+/*
  * Attempt to place a monster of the given race at the given location.
  *
  * This is the only function which may place a monster in the dungeon,
@@ -1534,7 +1577,7 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	if (!cave_empty_bold(y, x)) return FALSE;
 
 	/* no creation on glyph of warding */
-	if (trap_monster(y, x) && trap_glyph(y, x)) return FALSE;
+	if (trap_monster(y, x) && trap_glyph(y, x) && !decoration(y, x)) return FALSE;
 
 	/* Paranoia */
 	if (!r_idx) return FALSE;
@@ -1769,6 +1812,12 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	last_r_idx = n_ptr->r_idx;
 	last_u_idx = n_ptr->u_idx;
 	last_s_idx = n_ptr->s_idx;
+
+	/* Hack: monsters with SET_TRAPS that have stayed for a while have trapped the nearby dungeon! */
+	if ((!character_dungeon) && (r_ptr->flags4 & RF4_SET_TRAPS))
+	{
+		rogue_traps(y, x, 5, 5, randint(4));
+	}
 
 	/* Success */
 	return TRUE;
@@ -2422,7 +2471,13 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		 * Since we don't know which monster this is yet, all anti-monster glyphs
 		 * necessarily stop summoning of all monster types.
 		 */
-		if (trap_monster(y, x) && trap_glyph(y, x)) continue;
+		if (trap_monster(y, x) && trap_glyph(y, x) && !decoration(y, x)) continue;
+
+		/* If summoned to a Circle of Summoning, require a circle grid */
+		if (t_list[cave_t_idx[y1][x1]].w_idx == WG_CIRCLE_OF_SUMMONING)
+		{
+			if (!(t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_SUMMONING)) continue;
+		}
 
 		/* Okay */
 		break;
@@ -2789,7 +2844,9 @@ void mon_exp(int r_idx, int s_idx, int u_idx, u32b *exint, u32b *exfrac)
 	monster_special *s_ptr = &s_info[s_idx];
 
 	u32b exp = r_ptr->mexp;
-	int div = p_ptr->lev;
+
+	/* No longer divided by player level */
+	int div = 1;
 
 	if (!(u_idx) && 
 		(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags4 & (RF4_EVIL))) div *=2;

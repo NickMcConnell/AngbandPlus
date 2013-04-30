@@ -802,12 +802,17 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		/* Get the "pile" feature */
 		k_ptr = &k_info[0];
 
-		/* Normal attr */
-		a = TERM_L_RED;
+		/* Only show marked objects */
+		o_ptr = get_first_object(y, x);
+		if (o_ptr->marked)
+		{
+			/* Object on a trap is red, object on a decoration is green */
+			if decoration(y, x) a = TERM_GREEN;
+			else a = TERM_L_RED;
 
-		/* Normal char */
-		c = k_ptr->x_char;
-
+			/* Normal char */
+			c = k_ptr->x_char;
+		}
 	}
 	else
 	{
@@ -3746,6 +3751,44 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	/* Slope */
 	int m;
 
+	/* End point and starting point */ 
+	int end_point = 0;
+	int starting_point = 0;
+	int xx, yy;
+
+	/* Is the target standing on a table or a platform? */	
+	if ((t_list[cave_t_idx[y2][x2]].w_idx == WG_TABLE) ||
+		(t_list[cave_t_idx[y2][x2]].w_idx == WG_PLATFORM))
+	{
+		end_point = 1;
+	}
+
+	/* Is the target standing on an altar, next to a platform? */	
+	if ((t_list[cave_t_idx[y2][x2]].w_idx >= WG_ALTAR_OBSESSION) &&
+		(t_list[cave_t_idx[y2][x2]].w_idx <= WG_ALTAR_DECEIT))
+	{
+		for (xx = x2 - 1; xx <= x2 + 1; xx++)
+		{
+			for (yy = y2 - 1; yy <= y2 + 1; yy++)
+			{
+				if (t_list[cave_t_idx[y2][x2]].w_idx == WG_PLATFORM) end_point = 1;
+			}
+		}
+	}
+
+	/* Is the shooter standing on or next to a table or platform? */
+	for (xx = x1 - 1; xx <= x1 + 1; xx++)
+	{
+		for (yy = y1 - 1; yy <= y1 + 1; yy++)
+		{
+			if ((t_list[cave_t_idx[yy][xx]].w_idx == WG_TABLE) ||
+				(t_list[cave_t_idx[yy][xx]].w_idx == WG_PLATFORM))
+			{
+				starting_point = 1;
+			}
+		}
+	}
+
 	/* No path necessary (or allowed) */
 	if ((x1 == x2) && (y1 == y2)) return (0);
 
@@ -3823,7 +3866,16 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
-				if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+				/* If the target was higher, fly over */
+				if (end_point > 0)
+				{
+					if ((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) ||
+						(t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM))
+					{
+						if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+					}
+				}
+				else if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
 			}
 
 			/* Slant */
@@ -3895,7 +3947,16 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
-				if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+				/* If the target was higher, fly over */
+				if (end_point > 0)
+				{
+					if ((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) ||
+						(t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM))
+					{
+						if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+					}
+				}
+				else if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
 			}
 
 			/* Slant */
@@ -3951,7 +4012,16 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
-				if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+				/* If the target was higher, fly over */
+				if (end_point > 0)
+				{
+					if ((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE) ||
+						(t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM))
+					{
+						if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
+					}
+				}
+				else if ((n > 0) && (cave_m_idx[y][x] != 0)) break;
 			}
 
 			/* Advance (Y) */

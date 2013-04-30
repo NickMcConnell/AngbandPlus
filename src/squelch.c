@@ -577,7 +577,7 @@ void do_cmd_squelch(void)
 bool squelch_itemp(object_type *o_ptr)
 {
 	int i, num, result;
-	bool heavy_pseudo_id = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
+	bool heavy_pseudo_id = TRUE;
 
 	/* default */
 	result = FALSE;

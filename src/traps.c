@@ -320,6 +320,40 @@ static s16b t_pop(void)
 }
 
 /*
+ * Make a "decorated" terrain feature
+ */
+void place_decoration(int y, int x, int decoration)
+{
+	int feature = 0;
+
+	trap_type trap_type_body;
+	trap_type *t_ptr = &trap_type_body;
+	t_ptr->visible = TRUE;
+	t_ptr->charges = 0;
+	t_ptr->w_idx = decoration;
+
+	/* Spot difficulty */
+	t_ptr->spot_factor = 1;
+
+	/* Choose the right underlying feature based on trap flags */
+	if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_FLOOR) feature = FEAT_FLOOR;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_RUBBLE) feature = FEAT_RUBBLE;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_SECRET_DOOR) feature = FEAT_SECRET;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_STAIRS_UP) feature = FEAT_LESS;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_WALL_OUTER) feature = FEAT_WALL_OUTER;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_WALL_INNER) feature = FEAT_WALL_INNER;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_OPEN_DOOR) feature = FEAT_OPEN;
+	else if (w_info[t_ptr->w_idx].flags & WGF_DECORATE_CLOSED_DOOR) feature = FEAT_CLOSED;
+	else return;
+
+	/* Place the underlying feature + decoration */
+	delete_trap(y, x);
+	trap_place(y, x, t_ptr);
+	cave_set_feat (y, x, feature);
+}
+
+
+/*
  * Place a copy of a trap in the dungeon XXX XXX
  */
 s16b trap_place(int y, int x, const trap_type *x_ptr)
@@ -404,6 +438,9 @@ bool place_trap_dungeon(int y, int x)
 	t_ptr->w_idx = w_idx;
 	t_ptr->visible = FALSE;
 
+	/* Spot difficulty */
+	t_ptr->spot_factor = w_ptr->spot_factor;
+
 	/* Add charges to some trap types */
 	if (w_ptr->max_charges)
 	{
@@ -463,7 +500,10 @@ bool place_trap_monster(u32b typ, int y, int x)
 	}
 
 	t_ptr->w_idx = w_idx;
-	t_ptr->visible = FALSE;
+	t_ptr->visible = TRUE;
+
+	/* Spot difficulty */
+	t_ptr->spot_factor = w_ptr->spot_factor;
 
 	/* Add charges to some trap types */
 	if (w_ptr->max_charges)
@@ -474,6 +514,8 @@ bool place_trap_monster(u32b typ, int y, int x)
 	else t_ptr->charges = 0;
 
 	if (!trap_place(y, x, t_ptr)) return (FALSE);
+
+	lite_spot(y, x);
 
 	/* Result */
 	return (TRUE);
@@ -608,31 +650,6 @@ bool place_lock(int y, int x, bool visible, byte type)
 }
 
 /*
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-static int check_hit(int power)
-{
-	int k, ac;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- 5% hit, 5% miss */
-	if (k < 10) return (k < 5);
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-
-	/* Power competes against Armor */
-	if ((power > 0) && (randint(power) >= (ac * 3 / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
-/*
  * Handle player hitting a real trap
  */
 void hit_trap(int y, int x)
@@ -669,7 +686,11 @@ void hit_trap(int y, int x)
 		case WG_PIT_OPEN:
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You fall into a pit!");
-			if (p_ptr->ffall)
+			if (p_ptr->flying)
+			{
+				message(MSG_FFALL, 0, "You hover over the pit.");
+			}
+			else if (p_ptr->ffall)
 			{
 				message(MSG_FFALL, 0, "You float gently to the bottom of the pit.");
 			}
@@ -685,7 +706,11 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->flying)
+			{
+				message(MSG_FFALL, 0, "You hover over the spiked pit.");
+			}
+			else if (p_ptr->ffall)
 			{
 				message(MSG_FFALL, 0, "You float gently to the floor of the pit.");
 				message(MSG_FFALL, 0, "You carefully avoid touching the spikes.");
@@ -715,7 +740,11 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You fall into a pit of daggers!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->flying)
+			{
+				message(MSG_FFALL, 0, "You hover over the pit of daggers.");
+			}
+			else if (p_ptr->ffall)
 			{
 				message(MSG_FFALL, 0, "You float gently to the floor of the pit.");
 				message(MSG_FFALL, 0, "You carefully avoid setting off the daggers.");
@@ -748,7 +777,11 @@ void hit_trap(int y, int x)
 		{
 			message(MSG_TRAP, t_ptr->w_idx, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->flying)
+			{
+				message(MSG_FFALL, 0, "You hover over the spiked pit.");
+			}
+			else if (p_ptr->ffall)
 			{
 				message(MSG_FFALL, 0, "You float gently to the floor of the pit.");
 				message(MSG_FFALL, 0, "You carefully avoid touching the spikes.");
@@ -893,7 +926,7 @@ void hit_trap(int y, int x)
 
 		case WG_DART_SLOW:
 		{
-			if (check_hit(125))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
@@ -902,7 +935,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "A small dart barely misses you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You nimbly jump aside and avoid a small dart.");
 			}
 			break;
 		}
@@ -910,7 +943,7 @@ void hit_trap(int y, int x)
 		case WG_CHEST_LOSE_STR:
 		case WG_DART_LOSE_STR:
 		{
-			if (check_hit(125))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
@@ -919,7 +952,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "A small dart barely misses you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You nimbly jump aside and avoid a small dart.");
 			}
 			break;
 		}
@@ -927,7 +960,7 @@ void hit_trap(int y, int x)
 		case WG_CHEST_LOSE_DEX:
 		case WG_DART_LOSE_DEX:
 		{
-			if (check_hit(125))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
@@ -936,7 +969,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "A small dart barely misses you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You nimbly jump aside and avoid a small dart.");
 			}
 			break;
 		}
@@ -944,7 +977,7 @@ void hit_trap(int y, int x)
 		case WG_CHEST_LOSE_CON:
 		case WG_DART_LOSE_CON:
 		{
-			if (check_hit(125))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "A small dart hits you!");
 				dam = damroll(1, 4);
@@ -953,7 +986,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "A small dart barely misses you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You nimbly jump aside and avoid a small dart.");
 			}
 			break;
 		}
@@ -1014,7 +1047,7 @@ void hit_trap(int y, int x)
 
 		case WG_BLADES:
 		{
-			if (check_hit(175))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "Large blades emerge from the wall and hit you!");
 				dam = damroll (1 + p_ptr->depth / 5, 6);
@@ -1022,14 +1055,14 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "Large blades emerge from the wall, but miss you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You nimbly dodge large blades emerging from the wall.");
 			}
 			break;
 		}
 
 		case WG_BLADES_SPIN:
 		{
-			if (check_hit(200))
+			if (!(rand_int(100) < p_ptr->skill[SK_MOB]))
 			{
 				message(MSG_TRAP, t_ptr->w_idx, "Spinning discs shoot out from the wall and hit you!");
 				dam = damroll (1 + p_ptr->depth / 8, 6);
@@ -1041,7 +1074,7 @@ void hit_trap(int y, int x)
 			}
 			else
 			{
-				message(MSG_TRAP, t_ptr->w_idx, "Spinning discs shoot out from the wall, but miss you.");
+				message(MSG_TRAP, t_ptr->w_idx, "You jump aside and avoid spinning discs shooting from the wall.");
 			}
 			break;
 		}
@@ -1085,8 +1118,7 @@ void hit_trap(int y, int x)
  */
 bool do_disarm_trap(int y, int x)
 {
-	int i, j;
-	int diff;
+	int i;
 	cptr name = "trap";
 	bool more = FALSE;
 
@@ -1097,66 +1129,128 @@ bool do_disarm_trap(int y, int x)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* No visible trap */
-	if (!trap_disarmable(y, x))	return (FALSE);
+	if (!trap_disarmable(y, x)) return (FALSE);
 
-	/* Get the "disarm" factor */
-	i = p_ptr->skill[SK_DIS];
+	/* Use Alchemy to disarm runes, Perception to disarm everything else */
+	switch (w_ptr->flags & WGF_TYPE_MASK)
+	{
+		case WGF_RUNE:
+		{
+			i = p_ptr->skill[SK_ALC];
+			message(MSG_GENERIC, 0, "Using Alchemy skill...");
+			break;
+		}
+		default:
+		{
+			if (t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE)
+			{
+				i = p_ptr->skill[SK_ALC];
+				message(MSG_GENERIC, 0, "Using Alchemy skill...");
+			}
+			else
+			{
+				i = p_ptr->skill[SK_PER];
+				message(MSG_GENERIC, 0, "Using Perception skill...");
+			}
+			break;
+		}
+	}
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
-	/* Extract the difficulty */
-	diff = 1 + (w_ptr->disarm_factor * p_ptr->depth) / 100;
+	if ((t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE_MASTERED) && (t_list[cave_t_idx[y][x]].w_idx <= WG_WARD_CURSING_ACTIVE_MASTERED))
+	{
+		/* Message */
+		message_format(MSG_DISARM_SUCCEED, 0, "You switch off the rune.", name);
 
-	/* Actual chance of success */
-	j = i - diff;
+		place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx + 5);
+	}
+	else if ((t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_INACTIVE_MASTERED) && (t_list[cave_t_idx[y][x]].w_idx <= WG_WARD_CURSING_INACTIVE_MASTERED))
+	{
+		/* Message */
+		message_format(MSG_DISARM_SUCCEED, 0, "You switch on the rune.", name);
 
-	/* Always have a small chance of success */
-	if (j < 2) j = 2;
+		place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx - 5);
+	}
+	else if(t_ptr->spot_factor == 100)
+	{
+		message_format(MSG_DISARM_FAIL, 0, "You have no idea how to disarm the trap.", name);
+	}
 
 	/* Success */
-	if ((rand_int(100) < j) || !(trap_player(y,x)))
+	else if ((rand_int(100) < i) || !(trap_player(y,x)))
 	{
 		if (trap_player(y, x))
 		{
-			int exp = 1 + (p_ptr->depth / 2) + (diff * 2);
+			int exp = p_ptr->depth * 1.5;
 
-			/* Message */
-			message_format(MSG_DISARM_SUCCEED, 0, "You have disarmed the %s.", name);
+			if ((t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE) && (t_list[cave_t_idx[y][x]].w_idx <= WG_WARD_CURSING_INACTIVE))
+			{
+				/* Message */
+				message(MSG_DISARM_SUCCEED, 0, "You have mastered the rune.");
 
-			/* Bonus exp for charges */
-			if (t_ptr->charges > 1) exp *= (t_ptr->charges / 2);
+				place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx + 10);
 
-			/* Reward */
-			gain_exp(exp);
+				/* Reward */
+				gain_exp(exp);
+			}
+			else
+			{
+				/* Message */
+				message_format(MSG_DISARM_SUCCEED, 0, "You have disarmed the %s.", name);
+
+				/* Forget the trap */
+				delete_trap(y, x);
+
+				/* Reward */
+				gain_exp(exp);
+			}
 		}
-
-		/* Forget the trap */
-		delete_trap(y, x);
 	}
 
-	/* Failure -- Keep trying */
-	else if ((i > diff) && (randint(i) > diff))
+	/* Failure -- warding rune is incomprehensible */
+	else if ((t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE) && (t_list[cave_t_idx[y][x]].w_idx <= WG_WARD_CURSING_INACTIVE))
 	{
-		/* Failure */
-		if (flush_failure) flush();
-
 		/* Message */
-		message_format(MSG_DISARM_FAIL, 0, "You failed to disarm the %s.", name);
+		message(MSG_DISARM_FAIL, 0, "The rune is too complicated for you to understand.");
 
-		/* We may keep trying */
-		more = TRUE;
+		place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx + 20);
 	}
-
 	/* Failure -- Set off the trap */
 	else
 	{
-		/* Message */
-		message_format(MSG_DISARM_FAIL, 0, "You set off the %s!", name);
+		if (w_ptr->flags & WGF_CHEST)
+		{
+			/* Message */
+			message(MSG_DISARM_FAIL, 0, "You failed to disarm the trap.");
+		}
+		if (!(w_ptr->flags & WGF_CHEST))
+		{
+			t_ptr->spot_factor = 100;
 
-		/* Hit the trap */
-		hit_trap(y, x);
+			/* Message */
+			message(MSG_DISARM_FAIL, 0, "The trap is too tricky for you to disarm.");
+		}
+
+
+		if (!(rand_int(100) < i))
+		{
+			/* Protection from traps */
+			if (p_ptr->safety)
+			{
+				message_format(MSG_RESIST, 0, "Through divine influence, %s fails to trigger!", trap_name(t_ptr->w_idx, 2));
+			}
+			else 
+			{
+				/* Message */
+				message_format(MSG_DISARM_FAIL, 0, "You set off the %s!", name);
+
+				/* Hit the trap */
+				hit_trap(y, x);
+			}
+		}
 	}
 
 	/* Return more */
@@ -1199,7 +1293,7 @@ bool mon_glyph_check(int m_idx, int y, int x)
 	trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 	/* Paranoia */
-	if (!w_info[t_ptr->w_idx].flags & WGF_GLYPH) return FALSE;
+	if (!(w_info[t_ptr->w_idx].flags & WGF_GLYPH)) return FALSE;
 
 	switch (t_ptr->w_idx)
 	{
@@ -1210,12 +1304,26 @@ bool mon_glyph_check(int m_idx, int y, int x)
 			return TRUE;
 		}
 		case WG_GLYPH_HOLY:
+		case WG_CIRCLE_OF_LIFEFORCE:
+		case WG_CIRCLE_LIFE_EDGE_A:
+		case WG_CIRCLE_LIFE_EDGE_B:
 		{
 			/* Affects undead */
 			if (r_ptr->flags4 & RF4_UNDEAD) return TRUE;
 			
 			/* Affects demons */
 			if (r_ptr->flags4 & RF4_DEMON) return TRUE;
+
+			return FALSE;
+		}
+		case WG_CIRCLE_OF_ILLUSIONS:
+		case WG_CIRCLE_ILLU_EDGE_A:
+		case WG_CIRCLE_ILLU_EDGE_B:
+		{
+			/* Affects animals, persons, and humanoids */
+			if (r_ptr->flags4 & RF4_ANIMAL) return TRUE;
+			if (r_ptr->flags4 & RF4_PERSON) return TRUE;
+			if (r_ptr->flags4 & RF4_HUMANOID) return TRUE;
 
 			return FALSE;
 		}

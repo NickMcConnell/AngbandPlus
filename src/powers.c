@@ -30,28 +30,28 @@ info_entry power_info[POW_MAX] =
 	{POW_HEAL_CURE_4,		"heals you a very large amount, cures negative effects"},	
 	{POW_LIFE,			"restores you to perfect health and condition"},	
 	{POW_RESTORE_MANA,		"restores mana to full level"},
-	{POW_RESTORE_MANA_INT,		"restores mana to full level, and also restores intelligence"},
+	{POW_RESTORE_MANA_INT,		"restores mana to full level, and also restores memory"},
 	{POW_RESTORE_STR,		"restores your strength"},
-	{POW_RESTORE_INT,		"restores your intelligence"},
+	{POW_RESTORE_INT,		"restores your memory"},
 	{POW_RESTORE_WIS,		"restores your wisdom"},		
 	{POW_RESTORE_DEX,		"restores your dexterity"},		
 	{POW_RESTORE_CON,		"restores your constitution"},		
-	{POW_RESTORE_CHR,		"restores your charisma"},		
+	{POW_RESTORE_CHR,		"restores your presence"},		
 	{POW_RESTORE_STATS,		"restores all stats"},
 	{POW_RESTORE_LEVEL,		"restores experience level"},
 	{POW_RESTORE_ALL,		"restores experience level and all stats"},
 	{POW_GAIN_STR,			"permanently raises your strength"},
-	{POW_GAIN_INT,			"permanently raises your intelligence"},
+	{POW_GAIN_INT,			"permanently raises your memory"},
 	{POW_GAIN_WIS,			"permanently raises your wisdom"},		
 	{POW_GAIN_DEX,			"permanently raises your dexterity"},		
 	{POW_GAIN_CON,			"permanently raises your constitution"},		
-	{POW_GAIN_CHR,			"permanently raises your charisma"},		
-	{POW_BRAWN,				"raises your strength at the expense of your intelligence"},
-	{POW_INTELLECT,			"raises your intelligence at the expense of your constitution"},
+	{POW_GAIN_CHR,			"permanently raises your presence"},		
+	{POW_BRAWN,				"raises your strength at the expense of your memory"},
+	{POW_INTELLECT,			"raises your memory at the expense of your constitution"},
 	{POW_CONTEMPLATION,		"raises your wisdom at the expense of your dexterity"},
-	{POW_TOUGHNESS,			"raises your constitution at the expense of your charisma"},
+	{POW_TOUGHNESS,			"raises your constitution at the expense of your presence"},
 	{POW_NIMBLENESS,		"raises your dexterity at the expense of your strength"},
-	{POW_PLEASING,			"raises your charisma at the expense of your wisdom"},
+	{POW_PLEASING,			"raises your presence at the expense of your wisdom"},
 	{POW_GAIN_ALL,			"permanently raises all stats"},
 	{POW_GAIN_EXP,			"permanently raises your experience level"},
 	{POW_CURE_CONFUSION,		"removes any confusion you currently feel"},
@@ -65,7 +65,7 @@ info_entry power_info[POW_MAX] =
 	{POW_CLEAR_MIND,		"rids your mind of confusion and fear, cures blindness"},
 	{POW_TELE_10,			"displaces you a short distance away"}, 
 	{POW_TELE_MINOR,		"displaces you a medium distance away"},
-	{POW_TELE_MAJOR,		"displaces you a major distance away"},
+	{POW_TELE_MAJOR,		"displaces you to a random place on the level"},
 	{POW_TELE_OTHER,		"teleports an opponent away"},
 	{POW_TELE_OTHER_BEAM,		"teleports a line of opponents away"},
 	{POW_TELE_LEVEL,		"immediately takes you to the next level up or down"},
@@ -123,7 +123,7 @@ info_entry power_info[POW_MAX] =
 	{POW_BALL_MANA,			"fires a very powerful mana ball"},
 	{POW_BALL_HOLY_1,		"fires a ball of holy force"},
 	{POW_BALL_HOLY_2,		"fires a ball of holy force"},
-	{POW_STAR_BEAM_W_LITE,		"fires beams of light in all directions"},
+	{POW_STAR_BEAM_W_LITE,		"fires beams of blinding light in all directions, damaging light-hating monsters"},
 	{POW_STAR_BALL_ELEC,		"fires electricity in all directions"},
 	{POW_BANISH,			"teleports away all evil monsters in line of sight"},
 	{POW_BLIGHT,			"damages all animals and plants in line of sight"},
@@ -161,13 +161,13 @@ info_entry power_info[POW_MAX] =
 	{POW_ABSORB_HIT,		"temporarily reverses the effect of damage"},
 	{POW_BLESS_1,			"provides a short-term bonus to hit and ac, immunity to taint"},
 	{POW_BLESS_2,			"provides a medium-term bonus to hit and ac, immunity to taint"},
-	{POW_BLESS_3,			"provides a long-term bonus to hit and ac, immunity to taint"},
+	{POW_BLESS_3,			"provides a bonus to hit and ac, immunity to taint, for this dungeon level"},
 	{POW_HEROISM,			"temporarily raises fighting skill and makes you immune to fear"},
 	{POW_BOLDNESS,			"temporarily makes you immune to fear"},
 	{POW_STABILITY,			"temporarily makes you immune to confusion and stunning"},
 	{POW_SAFETY,			"temporarily protects you from dungeon traps"},
-	{POW_RAGE_1,			"causes temporary berserk rage"},
-	{POW_RAGE_2,			"causes temporary berserk rage"},
+	{POW_RAGE_1,			"causes temporary berserk rage (better fighting and throwing, worse defense)"},
+	{POW_RAGE_2,			"causes temporary berserk rage (better fighting and throwing, worse defense)"},
 	{POW_RAGE_BLESS_RESIST,		"causes temporary berserk rage, blessing, and resistance"},
 	{POW_SHIELD,			"temporarily increases your armour class"},
 	{POW_INVIS_1,			"temporarily turns you invisible"},
@@ -181,10 +181,10 @@ info_entry power_info[POW_MAX] =
 	{POW_HASTE_SELF_1,		"temporarily hastes you"},
 	{POW_HASTE_SELF_2,		"hastes you for a long duration"},
 	{POW_HASTE_SELF_3,		"hastes you for a very long duration"},
-	{POW_DISARM,			"disarms a trap"},
-	{POW_DEST_TRAP_DOOR_1,		"destroys a line of traps and doors"},
+	{POW_DISARM,			"removes a trap, a rune or a lock"},
+	{POW_DEST_TRAP_DOOR_1,		"destroys a line of traps, runes and doors"},
 	{POW_DEST_TRAP_DOOR_2,		"destroys all doors and traps next to you"},
-	{POW_STONE_TO_MUD,		"melts a wall square to floor"},
+	{POW_STONE_TO_MUD,		"bursts a line of rock monsters and/or a granite wall into deadly shards"},
 	{POW_CREATE_DOOR,		"creates a barrier of doors around you"},
 	{POW_CREATE_WALL,		"creates a barrier of walls around you"},
 	{POW_CREATE_STAIR,		"creates a staircase going down nearby"},
@@ -204,12 +204,12 @@ info_entry power_info[POW_MAX] =
 	{POW_CALM_MONSTER,		"attempts to calm a monster (if at full hp it needs two saves)"},
 	{POW_CALM_ANIMALS,		"tries to calm all animals in sight (nonwounded need two saves)"},
 	{POW_CALM_NON_EVIL,		"tries to calm all non-evils in sight (nonwounded need two saves)"},
-	{POW_CALM_NON_CHAOS,		"tries to calm non-chaotics in sight (nonwounded need two saves)"},
+	{POW_CALM_NON_CHAOS,		"tries to calm non-primordials in sight (nonwounded need two saves)"},
 	{POW_CALM_ALL,			"tries to calm all creatures in sight (nonwounded need two saves)"},
 	{POW_BLIND_MONSTER,		"attempts to blind a monster"},
 	{POW_SCARE_MONSTER,		"attempts to frighten one monster"},
 	{POW_SCARE_ALL,			"attempts to make all monsters in line of sight flee"},
-	{POW_CALL_MONSTER,		"attempts to teleport a monster closer to you"},
+	{POW_HARPOON,			"strikes the monster with a force harpoon and calls it forth"},
 	{POW_POLY_MONSTER,		"attempts to change a monster"},
 	{POW_HEAL_MONSTER,		"attempts to heal a monster"},
 	{POW_HASTE_MONSTER,		"attempts to haste a monster"},
@@ -275,11 +275,11 @@ info_entry power_info[POW_MAX] =
 	{POW_TAINT,			"places an evil taint on your soul"},
 	{POW_AMNESIA,			"makes you forget things"},
 	{POW_LOSE_STR,			"lowers your strength"},
-	{POW_LOSE_INT,			"lowers your intelligence"},
+	{POW_LOSE_INT,			"lowers your memory"},
 	{POW_LOSE_WIS,			"lowers your wisdom"},		
 	{POW_LOSE_DEX,			"lowers your dexterity"},		
 	{POW_LOSE_CON,			"lowers your constitution"},		
-	{POW_LOSE_CHR,			"lowers your charisma"},		
+	{POW_LOSE_CHR,			"lowers your presence"},		
 	{POW_LOSE_EXP,			"lowers your experience"},
 	{POW_RUINATION,			"lowers your stats permanently and damages you"},
 	{POW_DETONATE,			"damages you"},
@@ -316,7 +316,7 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRHALLUCINATE,		"causes you to hallucinate"},
 	{POW_SHRPARALYZE,		"paralyzes you"},
 	{POW_SHRNAIVITY,		"lowers your wisdom"},
-	{POW_SHRSTUPIDITY,		"lowers your intelligence"},
+	{POW_SHRSTUPIDITY,		"lowers your memory"},
 	{POW_SHRAMNESIA,		"makes you forget things"},
 	{POW_SHRDISEASE,		"infects you with a disease"},
 	{POW_SHRCURE_POISON,		"removes all poison from your body"},
@@ -330,18 +330,18 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRRESTORE_CON,		"restores your constitution"},
 	{POW_SHRRESTORE_DEX,		"restores your dexterity"},
 	{POW_SHRRESTORE_STATS,		"restores all stats"},
-	{POW_PHLOGISTON,		"refuels your light source"},
+	{POW_PHLOGISTON,		"makes your torch burn faster and brighter"},
 	{POW_RESTORE_VIGOR,		"restores your strength and constitution"},
-	{POW_RESTORE_WIT,		"restores your intelligence and wisdom"},
-	{POW_RESTORE_GRACE,		"restores your dexterity and charisma"},
+	{POW_RESTORE_WIT,		"restores your memory and wisdom"},
+	{POW_RESTORE_GRACE,		"restores your dexterity and presence"},
 	{POW_POWDER_HASTE,		"makes the monster faster"},
 	{POW_POWDER_HEAL,		"heals the monster"},
 	{POW_POWDER_CONFUSING,		"attempts to confuse the monster"},
 	{POW_POWDER_SLEEPING,		"attempts to put the monster to sleep"},
-	{POW_POWDER_CALMING,		"attempts to calm the monster"},
+	{POW_POWDER_CALMING,		"attempts to calm the monster (if at full hp it needs two saves)"},
 	{POW_POWDER_TRANSFORMING,	"attempts to change the monster"},
 	{POW_POWDER_FLASH,		"attempts to blind the monster and hurts light-hating monsters"},
-	{POW_POWDER_DARKNESS,		"attempts to blind the monster and hurts dark-hating monsters"},
+	{POW_POWDER_DARKNESS,		"attempts to scare the monster and hurts dark-hating monsters"},
 	{POW_POWDER_POISONING,		"hurts the monster with poison"},
 	{POW_POWDER_BURNING,		"burns the monster"},
 	{POW_POWDER_FREEZING,		"hurts the monster with cold"},
@@ -351,10 +351,64 @@ info_entry power_info[POW_MAX] =
 	{POW_OIL_LANTERN,		"restores 5000 light units"},
 	{POW_OIL_BURNING,		"restores 15000 light units"},
 	{POW_SHIFT,			"teleports you a short distance a way to the chosen direction"},
-	{POW_CAVE_LORE,			"detects doors, stairs, and minerals in the direction of your choice"},
-	{POW_DUNGEON_LORE,		"detects dungeon features in the direction of your choice"},
+	{POW_ALERTNESS,			"boosts your armour class, saving throw, and trap detection"},
+	{POW_CAVE_LORE,			"detects traps in the direction of your choice"},
+	{POW_DUNGEON_LORE,		"detects all nearby dungeon features and helps your next Mapping attempt"},
 	{POW_ANALYSE_ITEM,		"if you succeed, reveals all information about a specific object"},
+	{POW_RITUAL_STR,		"of Strength"},
+	{POW_RITUAL_INT,		"of Memory"},
+	{POW_RITUAL_WIS,		"of Wisdom"},
+	{POW_RITUAL_DEX,		"of Dexterity"},
+	{POW_RITUAL_CON,		"of Constitution"},
+	{POW_RITUAL_CHR,		"of Presence"},
+	{POW_RITUAL_AUGMENT_BODY,	"of Augment Body"},
+	{POW_RITUAL_MIND_OVER_BODY,	"of Mind over Body"},
+	{POW_RITUAL_FORTIFICATION,	"of Fortification"},
+	{POW_RITUAL_NIGHT_SIGHT,	"of Night Sight"},
+	{POW_RITUAL_ACQUIRE_ARMOR,	"of Acquire Armor"},
+	{POW_RITUAL_CREATE_POWDER,	"of Create Powder"},
+	{POW_RITUAL_CURE_WOUND,		"of Cure Wound"},
+	{POW_RITUAL_ACQUIRE_WEAPON,	"of Acquire Weapon"},
+	{POW_RITUAL_FORBIDDEN_LORE,	"of Forbidden Lore"},
+	{POW_EDEN,			"temporarily blesses you and protects from evil, fire and cold"},
+	{POW_STORM_SHIELD,		"increases armour class and protects from water, dark, light, electricity, sound"},
+	{POW_DETECT_FORCE,		"detects nearby magic circles, faery portals, runes, altars, and magical traps"},
+	{POW_DETECT_LIFE,		"detects nearby living creatures, trees, and vegetation"},
+	{POW_GROWTH,			"turns an open terrain into vegetation, or vegetation into a tree"},
+	{POW_DRYAD,			"turns vegetation into spikes, or a tree into a faery portal"},
+	{POW_CURSE_MONSTER,		"attempts to permanently curse the monster, reducing to-hit and armour class"},
+	{POW_SWAP_PLACES,		"makes you swap places with the monster"},
+	{POW_BALL_STUN,			"fires a ball of force that stuns monsters"},
+	{POW_HARPY_FORM,		"turns you into a harpy"},
+	{POW_ANGEL_FORM,		"turns you into an angel"},
+	{POW_APE_FORM,			"turns you into an ape"},
+	{POW_NAGA_FORM,			"turns you into a naga"},
+	{POW_STATUE_FORM,		"turns you into a living statue"},
+	{POW_FAUN_FORM,			"turns you into a faun"},
+	{POW_GOBLIN_FORM,		"turns you into a goblin"},
+	{POW_GHOUL_FORM,		"turns you into a ghoul"},
+	{POW_FENCING,			"gives an extra sword blow against persons and humanoids"},
+	{POW_ARCHERY,			"increases bow might multiplier by two"},
+	{POW_FLAMING_HANDS,		"allows you to burn one or two monsters by touching them"},
+	{POW_ICY_HANDS,			"allows you to freeze one or two monsters by touching them"},
+	{POW_RAY_MANA,			"fires a beam of pure mana with half your normal spell range"},
+	{POW_EARTHBIND,			"tries to remove the ability to jump or fly, which damages fliers"},
+	{POW_DRAGONSLAYER,		"Turns a polearm into a dragon-killer"},
+	{POW_CURSE_ALL,			"Uses up a cursed item and tries to curse all monsters in sight"},
+	{POW_TURN_UNLIFE,		"tries to scare all undead and demons, even if they resist fear"},
+	{POW_PROT_CHAOS_2,		"provides temporary protection from lesser creatures of Chaos"},
+	{POW_RAT_THING,			"drains your CON and PRE, and turns you temporarily invisible"},
 };
+
+/* Helper function for the power CURSE_ALL */
+static bool item_tester_cursed(const object_type *o_ptr)
+{
+	if (!(o_ptr->ident & IDENT_KNOWN)) return FALSE;
+
+	if (o_ptr->ident & IDENT_CURSED) return TRUE;
+	if (o_ptr->ident & IDENT_BROKEN) return TRUE;
+	return FALSE;
+}
 
 /*
  * Calculate a spell's duration
@@ -452,6 +506,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 	int x_adjust = 0;
 	int y_adjust = 0;
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
+
+	object_type *o_ptr;
 
 	if (p_ptr->taint) holy = FALSE;
 
@@ -732,7 +788,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
+				if (ee > 1000000L) ee = 1000000L;
 				message(MSG_EFFECT, 0, "You feel more experienced.");
 				gain_exp(ee);
 				*obvious = TRUE;
@@ -789,7 +845,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_CURE_BODY:
 		{
 			if (set_poisoned(0)) *obvious = TRUE;
-			if (set_food(PY_FOOD_MAX - 1)) *obvious = TRUE;
 			if (do_res_stat(A_STR)) *obvious = TRUE;
 			if (do_res_stat(A_INT)) *obvious = TRUE;
 			if (do_res_stat(A_WIS)) *obvious = TRUE;
@@ -814,13 +869,13 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_TELE_MINOR:
 		{
-			teleport_player(dlev * 3);
+			teleport_player(25);
 			*obvious = TRUE;
 			break;
 		}
 		case POW_TELE_MAJOR:
 		{
-			teleport_player(dlev * 5);
+			teleport_player(1000);
 			*obvious = TRUE;
 			break;
 		}
@@ -872,6 +927,38 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				p_ptr->lore_uses = 0;
 				p_ptr->reserves_uses = 0;
 				p_ptr->escapes_uses = 0;
+
+				/* Reset coordinates to Circle of Recall and Circle of Nexus */
+				p_ptr->recall_y = 0;
+				p_ptr->recall_x = 0;
+				p_ptr->nexus_y = 0;
+				p_ptr->nexus_x = 0;
+
+				/* Reset alertness */
+				p_ptr->alertness = 0;
+
+				/* Reset monster summon power */
+				p_ptr->monster_summon_power = 0;
+
+				/* Reset permanent spells */
+				p_ptr->tim_see_invis_perm = 0;
+				p_ptr->tim_invis_perm = 0;
+				p_ptr->tim_infra_perm = 0;
+				p_ptr->tim_stealth_perm = 0;
+				p_ptr->fast_perm = 0;
+				p_ptr->absorb_perm = 0;
+				p_ptr->protevil_perm = 0;
+				p_ptr->resilient_perm = 0;
+				p_ptr->hero_perm = 0;
+				p_ptr->rage_perm = 0;
+				p_ptr->blessed_perm = 0;
+				p_ptr->safety_perm = 0;
+				p_ptr->shield_perm = 0;
+				p_ptr->stability_perm = 0;
+				p_ptr->tim_bravery_perm = 0;
+				p_ptr->sp_dur_perm = 0;
+				p_ptr->tim_sp_dam_perm = 0;
+				p_ptr->tim_sp_inf_perm = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1303,7 +1390,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "Light bursts out in all directions...");
 				*obvious = TRUE;
 			}
-			for (i = 0; i < 8; i++) lite_line(ddd[i], calc_damage(6, 8, 0));
+			for (i = 0; i < 8; i++) starlite_line(ddd[i], calc_damage(9, 8, 0));
 			break;
 		}
 		case POW_STAR_BALL_ELEC:
@@ -1548,21 +1635,36 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(12, mdur)) + apply_sp_mod(12, mdur);
 
-			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
+			if (durat > p_ptr->blessed)
+			{
+				if (set_blessed(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_BLESS_2:
 		{
 			durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30, mdur);
 
-			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
+			if (durat > p_ptr->blessed)
+			{
+				if (set_blessed(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_BLESS_3:
 		{
 			durat = randint(apply_sp_mod(75, mdur)) + apply_sp_mod(75, mdur);
 
-			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
+			if (durat > p_ptr->blessed)
+			{
+				if (set_blessed(durat)) *obvious = TRUE;
+			}
+
+			/* Lasts until you leave this dungeon level */
+			p_ptr->blessed_perm = 1;
+
 			break;
 		}
 		case POW_HEROISM:
@@ -1571,8 +1673,17 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			if (hp_player(10)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_hero(p_ptr->hero + durat)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->hero)
+			{
+				if (set_hero(durat)) *obvious = TRUE;
+			}
+
+			if (durat > p_ptr->tim_bravery)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_BOLDNESS:
@@ -1580,7 +1691,12 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
 
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->tim_bravery)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_STABILITY:
@@ -1589,24 +1705,24 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
-			if (set_stability(p_ptr->stability + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->stability)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_SAFETY:
 		{
-			if (p_ptr->safety <= 0)
-			{
-				durat = randint(apply_sp_mod(5, mdur)) + 
-					apply_sp_mod(((llev > 20) ? (llev + (llev / 5)) : (llev + 4)), mdur);
+			durat = randint(apply_sp_mod(5, mdur)) + 
+				apply_sp_mod(((llev > 20) ? (llev + (llev / 5)) : (llev + 4)), mdur);
 
+			if (durat > p_ptr->safety)
+			{
 				if (set_safety(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(5, mdur));
 
-				if (set_safety(p_ptr->safety + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_RAGE_1:
@@ -1615,8 +1731,17 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			if (hp_player(20)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->rage)
+			{
+				if (set_rage(durat)) *obvious = TRUE;
+			}
+
+			if (durat > p_ptr->tim_bravery)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RAGE_2:
@@ -1625,8 +1750,17 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			if (hp_player(20)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->rage)
+			{
+				if (set_rage(durat)) *obvious = TRUE;
+			}
+
+			if (durat > p_ptr->tim_bravery)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RAGE_BLESS_RESIST:
@@ -1635,153 +1769,176 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			if (hp_player(30)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
-			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
-			if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
-			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->rage)
+			{
+				if (set_rage(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_bravery)
+			{
+				if (set_tim_bravery(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->blessed)
+			{
+				if (set_blessed(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ACD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_PSN])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_DIS])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_SHIELD:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(30, mdur);
 
-			if (set_shield(p_ptr->shield + durat)) *obvious = TRUE;
+			if (durat > p_ptr->shield)
+			{
+				if (set_shield(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_INVIS_1:
 		{
-			if (p_ptr->tim_invis <= 0)
-			{
-				durat = randint(apply_sp_mod(15, mdur)) + apply_sp_mod(llev, mdur);
+			durat = randint(apply_sp_mod(15, mdur)) + apply_sp_mod(llev, mdur);
 
+			if (durat > p_ptr->tim_invis)
+			{
 				if (set_tim_invis(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(10, mdur));
 
-				if (set_tim_invis(p_ptr->tim_invis + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_INVIS_2:
 		{
-			if (p_ptr->tim_invis <= 0)
-			{
-				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25 + llev, mdur);
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25 + llev, mdur);
 
+			if (durat > p_ptr->tim_invis)
+			{
 				if (set_tim_invis(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(10, mdur));
 
-				if (set_tim_invis(p_ptr->tim_invis + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_RESILIENCE:
 		{
 			durat = randint(apply_sp_mod(8, mdur)) + apply_sp_mod(8, mdur);
 
-			if (set_resilient(p_ptr->resilient + durat)) *obvious = TRUE;
+			if (durat > p_ptr->resilient)
+			{
+				if (set_resilient(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_INFRAVISION:
 		{
 			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
 
-			if (set_tim_infra(p_ptr->tim_infra + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_infra)
+			{
+				if (set_tim_infra(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_STEALTH:
 		{
-			if (p_ptr->tim_stealth <= 0)
-			{
-				durat = randint(apply_sp_mod(150, mdur)) + apply_sp_mod(150 + llev, mdur);
+			durat = randint(apply_sp_mod(150, mdur)) + apply_sp_mod(150 + llev, mdur);
 
+			if (durat > p_ptr->tim_stealth)
+			{
 				if (set_tim_stealth(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(60, mdur));
-				
-				if (set_tim_stealth(p_ptr->tim_stealth + durat)) *obvious = TRUE;
-			}
+
 			break;
 		}
 		case POW_SEE_INVIS:
 		{
 			durat = randint(apply_sp_mod(24, mdur)) + apply_sp_mod(24, mdur);
 
-			if (set_tim_see_invis(p_ptr->tim_see_invis + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_see_invis)
+			{
+				if (set_tim_see_invis(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_PROT_EVIL_1:
 		{
 			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(30, mdur);
 
-			if (set_protevil(p_ptr->protevil + durat)) *obvious = TRUE;
+			if (durat > p_ptr->protevil)
+			{
+				if (set_protevil(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_PROT_EVIL_2:
 		{
 			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(3 * llev, mdur);
 
-			if (set_protevil(p_ptr->protevil + durat)) *obvious = TRUE;
+			if (durat > p_ptr->protevil)
+			{
+				if (set_protevil(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_HASTE_SELF_1:
 		{
-			if (p_ptr->fast <= 0)
-			{
-				durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(llev, mdur);
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(llev, mdur);
 
+			if (durat > p_ptr->fast)
+			{
 				if (set_fast(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(5, mdur));
 
-				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_HASTE_SELF_2:
 		{
-			if (p_ptr->fast <= 0)
-			{
-				durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30 + llev, mdur);
+			durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30 + llev, mdur);
 
+			if (durat > p_ptr->fast)
+			{
 				if (set_fast(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = randint(apply_sp_mod(10, mdur));
 
-				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_HASTE_SELF_3:
 		{
-			if (p_ptr->fast <= 0)
-			{
-				durat = randint(apply_sp_mod(75, mdur)) + apply_sp_mod(75, mdur);
+			durat = randint(apply_sp_mod(75, mdur)) + apply_sp_mod(75, mdur);
 
+			if (durat > p_ptr->fast)
+			{
 				if (set_fast(durat)) *obvious = TRUE;
 			}
-			else
-			{
-				durat = apply_sp_mod(5, mdur);
 
-				if (set_fast(p_ptr->fast + durat)) *obvious = TRUE;
-			}
 			break;
 		}
 		case POW_DISARM:
@@ -1940,10 +2097,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (project_los(GF_SCARE_ALL, ilev)) *obvious = TRUE;
 			break;
 		}
-		case POW_CALL_MONSTER:
+		case POW_HARPOON:
 		{
 			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
-			if (fire_bolt(GF_CALL_ALL, dir, 0)) *obvious = TRUE;
+			if(fire_bolt(GF_HARPOON, dir, calc_damage(1 + (dlev / 4), 6, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_POLY_MONSTER:
@@ -1974,7 +2131,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SATISFY_HUNGER:
 		{
-			if (set_food(PY_FOOD_MAX - 1)) *obvious = TRUE;
 			break;
 		}
 		case POW_RECHARGE_1:
@@ -2023,118 +2179,234 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_ACD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_ELEC:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ELC, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_FIRE:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_FIR, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_COLD:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_CLD, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_FIRE_COLD:
 		{
-			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_FIR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_CLD, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_ACID_ELEC:
 		{
-			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_ACD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ELC, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_LITE_DARK:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_DRK, p_ptr->tim_res[RS_DRK] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_LIT])
+			{
+				if (set_tim_res(RS_LIT, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_DRK])
+			{
+				if (set_tim_res(RS_DRK, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_CHAOS_NEXUS:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_CHS, p_ptr->tim_res[RS_CHS] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_NEX, p_ptr->tim_res[RS_NEX] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_CHS])
+			{
+				if (set_tim_res(RS_CHS, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_NEX])
+			{
+				if (set_tim_res(RS_NEX, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_POISON:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_PSN])
+			{
+				if (set_tim_res(RS_PSN, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_DISEASE:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_DIS])
+			{
+				if (set_tim_res(RS_DIS, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_SOUND:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_SND])
+			{
+				if (set_tim_res(RS_SND, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_ELEMENTS:
 		{
 			durat = randint(apply_sp_mod(llev / 2, mdur)) + apply_sp_mod(llev / 2, mdur);
 
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_ACD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ELC, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_FIR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_CLD, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RES_GREATER:
 		{
 			durat = randint(apply_sp_mod(llev / 3, mdur)) + apply_sp_mod(llev / 3, mdur);
 
-			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_DRK, p_ptr->tim_res[RS_DRK] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_SHR, p_ptr->tim_res[RS_SHR] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_NEX, p_ptr->tim_res[RS_NEX] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_NTH, p_ptr->tim_res[RS_NTH] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_CHS, p_ptr->tim_res[RS_CHS] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_WTR, p_ptr->tim_res[RS_WTR] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_PSN])
+			{
+				if (set_tim_res(RS_PSN, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_DIS])
+			{
+				if (set_tim_res(RS_DIS, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_LIT])
+			{
+				if (set_tim_res(RS_LIT, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_DRK])
+			{
+				if (set_tim_res(RS_DRK, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_SND])
+			{
+				if (set_tim_res(RS_SND, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_SHR])
+			{
+				if (set_tim_res(RS_SHR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_NEX])
+			{
+				if (set_tim_res(RS_NEX, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_NTH])
+			{
+				if (set_tim_res(RS_NTH, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CHS])
+			{
+				if (set_tim_res(RS_CHS, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_WTR])
+			{
+				if (set_tim_res(RS_WTR, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_RESISTANCE:
 		{
 			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(20, mdur);
 
-			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
-			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
+			if (durat > p_ptr->tim_res[RS_ACD])
+			{
+				if (set_tim_res(RS_ACD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ELC, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_FIR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_CLD, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_PSN])
+			{
+				if (set_tim_res(RS_PSN, durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 		case POW_GLYPH_WARDING:
@@ -2373,7 +2645,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_NAUSEA:
 		{
 			message(MSG_EFFECT, 0, "You feel you must vomit!");
-			(void)set_food(PY_FOOD_STARVE - 1);
 			(void)set_poisoned(0);
 			(void)set_paralyzed(p_ptr->paralyzed + 4);
 			*obvious = TRUE;
@@ -2383,7 +2654,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (!p_ptr->no_poison && !resist_effect(RS_PSN))
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
+				if (set_poisoned(p_ptr->poisoned + rand_int(30) + 10))
 				{
 					*obvious = TRUE;
 				}
@@ -2585,8 +2856,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_DRAGON_TIME:		
 		case POW_DRAGON_POWER:
 		{
-			cptr breath;
-			int typ, power, chance;
+			cptr breath = 0;
+			int typ = 0, power, chance;
 
 			/* Get a direction for breathing (or abort) */
 			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
@@ -2717,7 +2988,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 						case 0:	breath = "time";			typ = GF_TIME; break;
 						case 1:	breath = "inertia";			typ = GF_INERTIA; break;
 						case 2:	breath = "plasma";			typ = GF_NEXUS; break;
-						case 3:	breath = "nether";			typ = GF_NETHER; break;
+						case 3:	breath = "NETHER";			typ = GF_NETHER; break;
 					}
 					power = 350;
 					break;
@@ -2798,7 +3069,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
 
 				cptr breath;
-				int typ, power, chance;
+				int typ, power;
 
 				/* Get a direction for breathing (or abort) */
 				if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
@@ -2893,7 +3164,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			{
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
 				durat = randint(apply_sp_mod(24, mdur)) + apply_sp_mod(24, mdur);
-				if (set_tim_see_invis(p_ptr->tim_see_invis + durat)) *obvious = TRUE;
+				if (durat > p_ptr->tim_see_invis)
+				{
+					if (set_tim_see_invis(durat)) *obvious = TRUE;
+				}
 			}
 			else
 			{
@@ -2957,8 +3231,15 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 				if (hp_player(20)) *obvious = TRUE;
 				if (set_afraid(0)) *obvious = TRUE;
-				if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
-				if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+
+				if (durat > p_ptr->rage)
+				{
+					if (set_rage(durat)) *obvious = TRUE;
+				}
+				if (durat > p_ptr->tim_bravery)
+				{
+					if (set_tim_bravery(durat)) *obvious = TRUE;
+				}
 			}
 			else
 			{
@@ -2976,7 +3257,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				{
 					durat = randint(apply_sp_mod(15, mdur)) + apply_sp_mod(llev, mdur);
 
-					if (set_tim_invis(durat)) *obvious = TRUE;
+					if (durat > p_ptr->tim_invis)
+					{
+						if (set_tim_invis(durat)) *obvious = TRUE;
+					}
 				}
 				else
 				{
@@ -3002,7 +3286,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
 
 				cptr breath;
-				int typ, power, chance;
+				int typ, power;
 
 				/* Get a direction for breathing (or abort) */
 				if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
@@ -3100,7 +3384,11 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			{
 				durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(30, mdur);
 			}
-			if (set_shield(p_ptr->shield + durat)) *obvious = TRUE;
+
+			if (durat > p_ptr->shield)
+			{
+				if (set_shield(durat)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_SHRCLEAR_MIND:
@@ -3318,7 +3606,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			/* Get a direction (or abort) */
 			else
 			{
-				if (!get_proficiency_dir(&dir, 0)) return;
+				if (!get_proficiency_dir(&dir, 0)) return (FALSE);
 
 				/* Calculate adjustments */
 				x_adjust = ddx[dir];
@@ -3327,31 +3615,63 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			shift_player(x_adjust, y_adjust);
 			*obvious = TRUE;
-			message(MSG_EFFECT, 0, "You shift to the Faery Realm and back again.");
+
+			/* Show an appropriate message */
+			if ((!(p_ptr->faery)) && (p_ptr->command_cmd == 'p'))
+			{
+				message(MSG_EFFECT, 0, "A benevolent spirit carries you away.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "A twisty path leads you to the Faery Realm and back again.");
+			}
+
+			break;
+		}
+		case POW_ALERTNESS:
+		{
+			if (p_ptr->alertness)
+			{
+				message(MSG_EFFECT, 0, "You are even more alert.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "You feel wide awake, ready for any trouble.");
+			}
+
+			p_ptr->alertness ++;
+
+			/* Disturb */
+			if (disturb_state) disturb(0);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_CONDITION);
+
+			/* Handle stuff */
+			handle_stuff();
+
 			break;
 		}
 		case POW_CAVE_LORE:
 		{
 			/* Get a direction (or abort) */
-			if (!get_proficiency_dir(&dir, 1)) return;
+			if (!get_proficiency_dir(&dir, 1)) return (FALSE);
 
 			/* Calculate adjustments to detection area */
 			x_adjust = ddx[dir] * 33;
 			y_adjust = ddy[dir] * 11;
 
-			if (detect_doors(2, x_adjust, y_adjust)) *obvious = TRUE;
-			if (detect_stairs(0, x_adjust, y_adjust)) *obvious = TRUE;
-			if (detect_treasure(0, x_adjust, y_adjust)) *obvious = TRUE;
-
-			p_ptr->mapping_bonus += 4;
-			message(MSG_EFFECT, 0, "You gain a bonus to your next mapping attempt.");
+			if (detect_traps(2, x_adjust, y_adjust)) *obvious = TRUE;
 
 			break;
 		}
 		case POW_DUNGEON_LORE:
 		{
 			/* Get a direction (or abort) */
-			if (!get_proficiency_dir(&dir, 1)) return;
+			get_proficiency_dir(&dir, 1);
 
 			/* Calculate adjustments to detection area */
 			x_adjust = ddx[dir] * 33;
@@ -3359,10 +3679,11 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 			*obvious = TRUE;
 			(map_area(x_adjust, y_adjust));
-			detect_treasure(0, x_adjust, y_adjust);
 			detect_traps(0, x_adjust, y_adjust);
+			detect_furniture(0, x_adjust, y_adjust);
+			detect_force(0, x_adjust, y_adjust);
 
-			p_ptr->mapping_bonus += 4;
+			p_ptr->mapping_bonus += 15;
 			message(MSG_EFFECT, 0, "You gain a bonus to your next mapping attempt.");
 
 			break;
@@ -3371,6 +3692,530 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			*obvious = TRUE;
 			if (!analyse_item()) return (FALSE);
+			break;
+		}
+		case POW_RITUAL_STR:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_INT:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_WIS:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_DEX:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_CON:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_CHR:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_AUGMENT_BODY:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_MIND_OVER_BODY:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_FORTIFICATION:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_NIGHT_SIGHT:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_ACQUIRE_ARMOR:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_CREATE_POWDER:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_CURE_WOUND:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_ACQUIRE_WEAPON:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_RITUAL_FORBIDDEN_LORE:
+		{
+			/* 
+			 * Does nothing at the moment, powers are hardcoded.
+			 * The power only exists for the message when 'I'nspected
+			 */
+			break;
+		}
+		case POW_EDEN:
+		{
+			durat = randint(apply_sp_mod(12, mdur)) + apply_sp_mod(12, mdur);
+
+			if (durat > p_ptr->blessed)
+			{
+				if (set_blessed(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->protevil)
+			{
+				if (set_protevil(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_FIR])
+			{
+				if (set_tim_res(RS_FIR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_CLD])
+			{
+				if (set_tim_res(RS_CLD, durat)) *obvious = TRUE;
+			}
+
+			break;
+		}
+		case POW_STORM_SHIELD:
+		{
+			durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(30, mdur);
+
+			if (durat > p_ptr->shield)
+			{
+				if (set_shield(durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_WTR])
+			{
+				if (set_tim_res(RS_WTR, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_DRK])
+			{
+				if (set_tim_res(RS_DRK, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_LIT])
+			{
+				if (set_tim_res(RS_LIT, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_ELC])
+			{
+				if (set_tim_res(RS_ELC, durat)) *obvious = TRUE;
+			}
+			if (durat > p_ptr->tim_res[RS_SND])
+			{
+				if (set_tim_res(RS_SND, durat)) *obvious = TRUE;
+			}
+
+			break;
+		}
+		case POW_DETECT_FORCE:
+		{
+			if (detect_force(1, 0, 0)) *obvious = TRUE;
+			break;
+		}
+		case POW_DETECT_LIFE:
+		{
+			if (detect_life(1)) *obvious = TRUE;
+			break;
+		}
+		case POW_GROWTH:
+		{
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			(void)fire_ball(GF_GROWTH, dir, 0, 0);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_DRYAD:
+		{
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			(void)fire_ball(GF_DRYAD, dir, 0, 0);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_CURSE_MONSTER:
+		{
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			if (fire_bolt(GF_CURSE_ALL, dir, ilev)) *obvious = TRUE;
+			break;
+		}
+		case POW_SWAP_PLACES:
+		{
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			if (fire_ball(GF_SWAP_PLACES, dir, 0, 0)) *obvious = TRUE;
+			break;
+		}
+		case POW_BALL_STUN:
+		{
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			(void)fire_ball(GF_STUN_ALL, dir, randint(6), 2);
+			*obvious = TRUE;
+			break;
+		}
+		case POW_HARPY_FORM:
+		{
+			message(MSG_EFFECT, 0, "Your arms turn into wings!");
+
+			/* Take off lots of equipment */
+			o_ptr = &inventory[INVEN_WIELD];
+			if (o_ptr->tval) (void)inven_drop(INVEN_WIELD, 255);
+
+			o_ptr = &inventory[INVEN_BOW];
+			if (o_ptr->tval) (void)inven_drop(INVEN_BOW, 255);
+
+			o_ptr = &inventory[INVEN_LEFT];
+			if (o_ptr->tval) (void)inven_drop(INVEN_LEFT, 255);
+
+			o_ptr = &inventory[INVEN_RIGHT];
+			if (o_ptr->tval) (void)inven_drop(INVEN_RIGHT, 255);
+
+			o_ptr = &inventory[INVEN_BODY];
+			if (o_ptr->tval) (void)inven_drop(INVEN_BODY, 255);
+
+			o_ptr = &inventory[INVEN_OUTER];
+			if (o_ptr->tval) (void)inven_drop(INVEN_OUTER, 255);
+
+			o_ptr = &inventory[INVEN_ARM];
+			if (o_ptr->tval) (void)inven_drop(INVEN_ARM, 255);
+
+			o_ptr = &inventory[INVEN_HANDS];
+			if (o_ptr->tval) (void)inven_drop(INVEN_HANDS, 255);
+
+			o_ptr = &inventory[INVEN_FEET];
+			if (o_ptr->tval) (void)inven_drop(INVEN_FEET, 255);
+
+			p_ptr->shape = SHAPE_HARPY;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_ANGEL_FORM:
+		{
+			message(MSG_EFFECT, 0, "You grow wings!");
+
+			/* Take off body armour */
+			o_ptr = &inventory[INVEN_BODY];
+			if (o_ptr->tval) (void)inven_drop(INVEN_BODY, 255);
+
+			/* Take off cloak */
+			o_ptr = &inventory[INVEN_OUTER];
+			if (o_ptr->tval) (void)inven_drop(INVEN_OUTER, 255);
+
+			p_ptr->shape = SHAPE_ANGEL;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_APE_FORM:
+		{
+			message(MSG_EFFECT, 0, "You grow lots of hair!");
+
+			p_ptr->shape = SHAPE_APE;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_NAGA_FORM:
+		{
+			message(MSG_EFFECT, 0, "You feel slithery!");
+
+			/* Take off boots */
+			o_ptr = &inventory[INVEN_FEET];
+			if (o_ptr->tval) (void)inven_drop(INVEN_FEET, 255);
+
+			p_ptr->shape = SHAPE_NAGA;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_STATUE_FORM:
+		{
+			message(MSG_EFFECT, 0, "Your skin turns into shining marble!");
+
+			p_ptr->shape = SHAPE_STATUE;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_FAUN_FORM:
+		{
+			message(MSG_EFFECT, 0, "You grow hooves and horns.");
+
+			/* Take off boots */
+			o_ptr = &inventory[INVEN_FEET];
+			if (o_ptr->tval) (void)inven_drop(INVEN_FEET, 255);
+
+			/* Take off helmet */
+			o_ptr = &inventory[INVEN_HEAD];
+			if (o_ptr->tval) (void)inven_drop(INVEN_HEAD, 255);
+
+			p_ptr->shape = SHAPE_FAUN;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_GOBLIN_FORM:
+		{
+			message(MSG_EFFECT, 0, "You become green, stupid and mischievous!");
+
+			p_ptr->shape = SHAPE_GOBLIN;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_GHOUL_FORM:
+		{
+			message(MSG_EFFECT, 0, "Your skin starts to rot away!");
+
+			p_ptr->shape = SHAPE_GHOUL;
+			p_ptr->shape_timer = 1;
+
+			p_ptr->redraw |= (PR_BASIC);
+			update_stuff();
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_FENCING:
+		{
+			if (p_ptr->fencing == 0)
+			{
+				message(MSG_EFFECT, 0, "You focus your attention on swordplay.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "You recall advanced fencing techniques.");
+			}
+
+			p_ptr->fencing += 1;
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_ARCHERY:
+		{
+			if (p_ptr->archery == 0)
+			{
+				message(MSG_EFFECT, 0, "You focus your attention on archery.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "You recall advanced archery techniques.");
+			}
+
+			p_ptr->archery += 2;
+
+			*obvious = TRUE;
+			break;
+		}
+		case POW_FLAMING_HANDS:
+		{
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(3 * llev, mdur);
+
+			if (durat > p_ptr->flaming_hands)
+			{
+				if (set_flaming_hands(durat)) *obvious = TRUE;
+			}
+
+			break;
+		}
+		case POW_ICY_HANDS:
+		{
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(3 * llev, mdur);
+
+			if (durat > p_ptr->icy_hands)
+			{
+				if (set_icy_hands(durat)) *obvious = TRUE;
+			}
+
+			break;
+		}
+		case POW_RAY_MANA:
+		{
+			/* Spell range is only half of normal */
+			int spell_range_old = p_ptr->spell_range;
+			p_ptr->spell_range = p_ptr->spell_range / 2;
+
+			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
+			(void)fire_beam(GF_MANA, dir, calc_damage(7, 3 + p_ptr->lev, 0));
+			*obvious = TRUE;
+
+			p_ptr->spell_range = spell_range_old;
+
+			break;
+		}
+		case POW_EARTHBIND:
+		{
+			if (project_los(GF_EARTHBIND_ALL, ilev)) *obvious = TRUE;
+			break;
+		}
+		case POW_DRAGONSLAYER:
+		{
+			*obvious = TRUE;
+			if (!brand_weapon(TV_POLEARM, EGO_HURT_DRAGON, FALSE)) return (FALSE);
+			break;
+		}
+		case POW_CURSE_ALL:
+		{
+			int	item;
+			cptr	q, s;
+
+			/* Restrict choices to cursed items */
+			item_tester_hook = item_tester_cursed;
+
+			/* Get an item */
+			q = "Consume which cursed item? ";
+			s = "You have no known cursed items in your inventory.";
+			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
+
+			/* Get the item (in the pack) */
+			if (item >= 0)
+			{
+				o_ptr = &inventory[item];
+			}
+
+			/* Get the item (on the floor) */
+			else
+			{
+				o_ptr = &o_list[0 - item];
+			}
+
+			/* Destroy a cursed item in the pack */
+			if (item >= 0)
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
+
+			/* Destroy a cursed item on the floor */
+			else
+			{
+				floor_item_increase(0 - item, -1);
+				floor_item_describe(0 - item);
+				floor_item_optimize(0 - item);
+			}
+
+			if (project_los(GF_CURSE_ALL, ilev)) *obvious = TRUE;
+			break;
+		}
+		case POW_TURN_UNLIFE:
+		{
+			if (project_los(GF_SCARE_UNLIFE, ilev)) *obvious = TRUE;
+			break;
+		}
+		case POW_PROT_CHAOS_2:
+		{
+			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(3 * llev, mdur);
+
+			if (durat > p_ptr->protchaos)
+			{
+				if (set_protchaos(durat)) *obvious = TRUE;
+			}
+
+			break;
+		}
+		case POW_RAT_THING:
+		{
+			*obvious = TRUE;
+
+			do_dec_stat(A_CHR, 1, FALSE, TRUE);
+			do_dec_stat(A_CON, 1, FALSE, TRUE);
+
+			durat = randint(apply_sp_mod(40, mdur)) + apply_sp_mod(25 + llev, mdur);
+
+			if (durat > p_ptr->tim_invis)
+			{
+				if (set_tim_invis(durat)) *obvious = TRUE;
+			}
+
 			break;
 		}
 	}

@@ -158,7 +158,7 @@ byte adj_str_hold[A_RANGE] =
 	35		/* 27 */,
 	40		/* 28 */,
 	45		/* 29 */,
-	50		/* 30 */
+	90		/* 30 */
 };
 
 /*
@@ -242,37 +242,37 @@ byte adj_str_blow[A_RANGE] =
  */
 byte adj_str_armor[A_RANGE] =
 {
-	2	/* 0 */,
-	2	/* 1 */,
+	0	/* 0 */,
+	1	/* 1 */,
 	2	/* 2 */,
 	3	/* 3 */,
-	3	/* 4 */,
-	4	/* 5 */,
+	4	/* 4 */,
+	5	/* 5 */,
 	6	/* 6 */,
-	8	/* 7 */,
-	10	/* 8 */,
-	13	/* 9 */,
-	16	/* 10 */,
-	19  /* 11 */,
-	22	/* 12 */,
-	23	/* 13 */,
-	24	/* 14 */,
-	25	/* 15 */,
+	7	/* 7 */,
+	9	/* 8 */,
+	11	/* 9 */,
+	13	/* 10 */,
+	16  	/* 11 */,
+	18	/* 12 */,
+	20	/* 13 */,
+	22	/* 14 */,
+	24	/* 15 */,
 	26	/* 16 */,
 	27	/* 17 */,
 	28	/* 18 */,
 	29	/* 19 */,
 	30	/* 20 */,
-	32	/* 21 */,
-	34	/* 22 */,
-	36	/* 23 */,
-	38	/* 24 */,
-	40	/* 25 */,
-	50	/* 26 */,
-	60	/* 27 */,
-	70	/* 28 */,
-	80	/* 29 */,
-	90	/* 30 */
+	31	/* 21 */,
+	32	/* 22 */,
+	34	/* 23 */,
+	36	/* 24 */,
+	38	/* 25 */,
+	40	/* 26 */,
+	45	/* 27 */,
+	50	/* 28 */,
+	55	/* 29 */,
+	60	/* 30 */
 };
 
 /*
@@ -319,36 +319,36 @@ byte adj_str_unarmed[A_RANGE] =
 byte adj_int_dis[A_RANGE] =
 {
 	0	/* 0 */,
-	0	/* 1 */,
-	1	/* 2 */,
-	1	/* 3 */,
-	1	/* 4 */,
-	2	/* 5 */,
-	2	/* 6 */,
-	2	/* 7 */,
-	3	/* 8 */,
-	3	/* 9 */,
-	3	/* 10 */,
-	3	/* 11 */,
-	4	/* 12 */,
-	4	/* 13 */,
-	5	/* 14 */,
-	5	/* 15 */,
-	6	/* 16 */,
-	7	/* 17 */,
-	8	/* 18 */,
-	9	/* 19 */,
-	10	/* 20 */,
-	11	/* 21 */,
-	12	/* 22 */,
-	14	/* 23 */,
-	15	/* 24 */,
-	16	/* 25 */,
-	17	/* 26 */,
-	18	/* 27 */,
-	20	/* 28 */,
-	21	/* 29 */,
-	22	/* 30 */
+	1	/* 1 */,
+	2	/* 2 */,
+	3	/* 3 */,
+	4	/* 4 */,
+	5	/* 5 */,
+	6	/* 6 */,
+	7	/* 7 */,
+	8	/* 8 */,
+	9	/* 9 */,
+	10	/* 10 */,
+	11	/* 11 */,
+	12	/* 12 */,
+	13	/* 13 */,
+	14	/* 14 */,
+	15	/* 15 */,
+	16	/* 16 */,
+	17	/* 17 */,
+	18	/* 18 */,
+	19	/* 19 */,
+	20	/* 20 */,
+	21	/* 21 */,
+	22	/* 22 */,
+	23	/* 23 */,
+	24	/* 24 */,
+	25	/* 25 */,
+	26	/* 26 */,
+	27	/* 27 */,
+	28	/* 28 */,
+	29	/* 29 */,
+	30	/* 30 */
 };
 
 /*
@@ -357,36 +357,36 @@ byte adj_int_dis[A_RANGE] =
 byte adj_int_alc[A_RANGE] =
 {
 	0	/* 0 */,
-	1	/* 1 */,
-	1	/* 2 */,
-	2	/* 3 */,
-	2	/* 4 */,
-	3	/* 5 */,
-	3	/* 6 */,
-	4	/* 7 */,
-	4	/* 8 */,
-	5	/* 9 */,
-	5	/* 10 */,
-	6	/* 11 */,
-	6	/* 12 */,
-	7	/* 13 */,
-	7	/* 14 */,
-	8	/* 15 */,
-	9	/* 16 */,
-	10	/* 17 */,
-	11	/* 18 */,
-	12	/* 19 */,
-	13	/* 20 */,
-	15	/* 21 */,
-	17	/* 22 */,
-	19	/* 23 */,
-	21	/* 24 */,
-	23	/* 25 */,
-	25	/* 26 */,
-	27	/* 27 */,
-	29	/* 28 */,
-	31	/* 29 */,
-	33	/* 30 */
+	2	/* 1 */,
+	4	/* 2 */,
+	6	/* 3 */,
+	8	/* 4 */,
+	10	/* 5 */,
+	12	/* 6 */,
+	14	/* 7 */,
+	16	/* 8 */,
+	18	/* 9 */,
+	20	/* 10 */,
+	21	/* 11 */,
+	22	/* 12 */,
+	24	/* 13 */,
+	27	/* 14 */,
+	28	/* 15 */,
+	31	/* 16 */,
+	34	/* 17 */,
+	37	/* 18 */,
+	40	/* 19 */,
+	43	/* 20 */,
+	46	/* 21 */,
+	49	/* 22 */,
+	52	/* 23 */,
+	55	/* 24 */,
+	58	/* 25 */,
+	61	/* 26 */,
+	64	/* 27 */,
+	67	/* 28 */,
+	70	/* 29 */,
+	73	/* 30 */
 };
 
 /*
@@ -394,37 +394,37 @@ byte adj_int_alc[A_RANGE] =
  */
 byte adj_int_map[A_RANGE] =
 {
-	0	/* 0 */,
-	0	/* 1 */,
-	0	/* 2 */,
-	0	/* 3 */,
-	0	/* 4 */,
-	1	/* 5 */,
-	1	/* 6 */,
-	2	/* 7 */,
-	3	/* 8 */,
-	4	/* 9 */,
-	6	/* 10 */,
-	8	/* 11 */,
-	10	/* 12 */,
-	12	/* 13 */,
-	14	/* 14 */,
-	16	/* 15 */,
-	18	/* 16 */,
-	20	/* 17 */,
-	22	/* 18 */,
-	24	/* 19 */,
-	26	/* 20 */,
-	27	/* 21 */,
-	28	/* 22 */,
-	28	/* 23 */,
-	29	/* 24 */,
-	30	/* 25 */,
-	31	/* 26 */,
-	32	/* 27 */,
-	32	/* 28 */,
-	33	/* 29 */,
-	34	/* 30 */
+	0		/* 0 */,
+	2		/* 1 */,
+	4		/* 2 */,
+	6		/* 3 */,
+	8		/* 4 */,
+	10		/* 5 */,
+	12		/* 6 */,
+	14		/* 7 */,
+	16		/* 8 */,
+	19		/* 9 */,
+	22		/* 10 */,
+	25		/* 11 */,
+	29		/* 12 */,
+	33		/* 13 */,
+	37		/* 14 */,
+	39		/* 15 */,
+	41		/* 16 */,
+	43		/* 17 */,
+	45		/* 18 */,
+	47		/* 19 */,
+	49		/* 20 */,
+	51		/* 21 */,
+	52		/* 22 */,
+	53		/* 23 */,
+	54		/* 24 */,
+	55		/* 25 */,
+	56		/* 26 */,
+	57		/* 27 */,
+	58		/* 28 */,
+	59		/* 29 */,
+	60		/* 30 */
 };
 
 /*
@@ -438,31 +438,31 @@ byte adj_wis_sav[A_RANGE] =
 	0	/* 3 */,
 	1	/* 4 */,
 	1	/* 5 */,
-	1	/* 6 */,
-	1	/* 7 */,
-	2	/* 8 */,
-	2	/* 9 */,
-	3	/* 10 */,
-	3	/* 11 */,
-	4	/* 12 */,
-	4	/* 13 */,
-	5	/* 14 */,
-	5	/* 15 */,
-	6	/* 16 */,
-	7	/* 17 */,
-	7	/* 18 */,
-	8	/* 19 */,
-	9	/* 20 */,
-	10	/* 21 */,
-	12	/* 22 */,
-	13	/* 23 */,
-	14	/* 24 */,
-	16	/* 25 */,
-	17	/* 26 */,
-	18	/* 27 */,
-	20	/* 28 */,
-	21	/* 29 */,
-	22	/* 30 */
+	2	/* 6 */,
+	2	/* 7 */,
+	3	/* 8 */,
+	3	/* 9 */,
+	4	/* 10 */,
+	4	/* 11 */,
+	5	/* 12 */,
+	6	/* 13 */,
+	7	/* 14 */,
+	8	/* 15 */,
+	9	/* 16 */,
+	10	/* 17 */,
+	12	/* 18 */,
+	13	/* 19 */,
+	14	/* 20 */,
+	16	/* 21 */,
+	17	/* 22 */,
+	18	/* 23 */,
+	20	/* 24 */,
+	21	/* 25 */,
+	22	/* 26 */,
+	24	/* 27 */,
+	25	/* 28 */,
+	26	/* 29 */,
+	28	/* 30 */
 };
 
 /*
@@ -470,37 +470,37 @@ byte adj_wis_sav[A_RANGE] =
  */
 byte adj_wis_per[A_RANGE] =
 {
-	0	/* 0 */,
-	0	/* 1 */,
-	0	/* 2 */,
-	1	/* 3 */,
-	1	/* 4 */,
-	2	/* 5 */,
-	3	/* 6 */,
-	4	/* 7 */,
-	5	/* 8 */,
-	6	/* 9 */,
-	6	/* 10 */,
-	6	/* 11 */,
-	7	/* 12 */,
-	8	/* 13 */,
-	9	/* 14 */,
-	10	/* 15 */,
-	10	/* 16 */,
-	11	/* 17 */,
-	12	/* 18 */,
-	12	/* 19 */,
-	12	/* 20 */,
-	13	/* 21 */,
-	13	/* 22 */,
-	14	/* 23 */,
-	14	/* 24 */,
-	15	/* 25 */,
-	15	/* 26 */,
-	16	/* 27 */,
-	16	/* 28 */,
-	17	/* 29 */,
-	17	/* 30 */
+	0		/* 0 */,
+	2		/* 1 */,
+	4		/* 2 */,
+	6		/* 3 */,
+	8		/* 4 */,
+	10		/* 5 */,
+	12		/* 6 */,
+	14		/* 7 */,
+	16		/* 8 */,
+	19		/* 9 */,
+	22		/* 10 */,
+	25		/* 11 */,
+	29		/* 12 */,
+	33		/* 13 */,
+	37		/* 14 */,
+	39		/* 15 */,
+	41		/* 16 */,
+	43		/* 17 */,
+	45		/* 18 */,
+	47		/* 19 */,
+	49		/* 20 */,
+	51		/* 21 */,
+	52		/* 22 */,
+	53		/* 23 */,
+	54		/* 24 */,
+	55		/* 25 */,
+	56		/* 26 */,
+	57		/* 27 */,
+	58		/* 28 */,
+	59		/* 29 */,
+	60		/* 30 */
 };
 
 /*
@@ -510,35 +510,35 @@ byte adj_dex_dis[A_RANGE] =
 {
 	0	/* 0 */,
 	0	/* 1 */,
-	0	/* 2 */,
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	4	/* 15 */,
-	4	/* 16 */,
-	5	/* 17 */,
-	5	/* 18 */,
-	6	/* 19 */,
-	8	/* 20 */,
-	8	/* 21 */,
-	8	/* 22 */,
-	9	/* 23 */,
-	9	/* 24 */,
-	9	/* 25 */,
-	9	/* 26 */,
-	9	/* 27 */,
-	10	/* 28 */,
-	10	/* 29 */,
-	10	/* 30 */
+	1	/* 2 */,
+	1	/* 3 */,
+	2	/* 4 */,
+	2	/* 5 */,
+	3	/* 6 */,
+	3	/* 7 */,
+	4	/* 8 */,
+	4	/* 9 */,
+	5	/* 10 */,
+	5	/* 11 */,
+	6	/* 12 */,
+	6	/* 13 */,
+	7	/* 14 */,
+	7	/* 15 */,
+	8	/* 16 */,
+	8	/* 17 */,
+	9	/* 18 */,
+	9	/* 19 */,
+	10	/* 20 */,
+	10	/* 21 */,
+	11	/* 22 */,
+	11	/* 23 */,
+	12	/* 24 */,
+	12	/* 25 */,
+	13	/* 26 */,
+	13	/* 27 */,
+	14	/* 28 */,
+	14	/* 29 */,
+	15	/* 30 */
 };
 
 /*
@@ -617,6 +617,45 @@ byte adj_dex_th[A_RANGE] =
 	128 + 8		/* 30 */
 };
 
+
+/*
+ * Stat Table (DEX) -- jumping
+ */
+byte adj_dex_mob[A_RANGE] =
+{
+	0		/* 0 */,
+	2		/* 1 */,
+	4		/* 2 */,
+	6		/* 3 */,
+	8		/* 4 */,
+	10		/* 5 */,
+	12		/* 6 */,
+	14		/* 7 */,
+	16		/* 8 */,
+	18		/* 9 */,
+	20		/* 10 */,
+	22		/* 11 */,
+	25		/* 12 */,
+	27		/* 13 */,
+	30		/* 14 */,
+	32		/* 15 */,
+	35		/* 16 */,
+	37		/* 17 */,
+	40		/* 18 */,
+	42		/* 19 */,
+	45		/* 20 */,
+	47		/* 21 */,
+	50		/* 22 */,
+	52		/* 23 */,
+	55		/* 24 */,
+	57		/* 25 */,
+	60		/* 26 */,
+	62		/* 27 */,
+	65		/* 28 */,
+	67		/* 29 */,
+	70		/* 30 */
+};
+
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
@@ -678,18 +717,18 @@ byte adj_dex_blows[A_RANGE] =
 	3	/* 15 */,
 	3	/* 16 */,
 	3	/* 17 */,
-	3	/* 18 */,
+	4	/* 18 */,
 	4	/* 19 */,
 	4	/* 20 */,
-	4	/* 21 */,
-	4	/* 22 */,
-	4	/* 23 */,
-	5	/* 24 */,
-	5	/* 25 */,
-	5	/* 26 */,
-	6	/* 27 */,
-	6	/* 28 */,
-	6	/* 29 */,
+	5	/* 21 */,
+	5	/* 22 */,
+	5	/* 23 */,
+	6	/* 24 */,
+	6	/* 25 */,
+	6	/* 26 */,
+	7	/* 27 */,
+	7	/* 28 */,
+	7	/* 29 */,
 	7	/* 30 */
 };
 
@@ -813,37 +852,37 @@ byte adj_chr_dev[A_RANGE] =
  */
 byte adj_chr_range[A_RANGE] =
 {
-	1	/* 0 */,
+	0	/* 0 */,
 	1	/* 1 */,
 	2	/* 2 */,
-	2	/* 3 */,
-	3	/* 4 */,
-	4	/* 5 */,
+	3	/* 3 */,
+	4	/* 4 */,
+	5	/* 5 */,
 	5	/* 6 */,
 	6	/* 7 */,
-	7	/* 8 */,
-	8	/* 9 */,
-	8	/* 10 */,
-	9	/* 11 */,
-	9	/* 12 */,
-	10	/* 13 */,
-	10	/* 14 */,
-	11	/* 15 */,
-	11	/* 16 */,
-	12	/* 17 */,
-	12	/* 18 */,
-	13	/* 19 */,
-	13	/* 20 */,
+	6	/* 8 */,
+	7	/* 9 */,
+	7	/* 10 */,
+	8	/* 11 */,
+	8	/* 12 */,
+	9	/* 13 */,
+	9	/* 14 */,
+	10	/* 15 */,
+	10	/* 16 */,
+	11	/* 17 */,
+	11	/* 18 */,
+	12	/* 19 */,
+	12	/* 20 */,
 	13	/* 21 */,
-	14	/* 22 */,
+	13	/* 22 */,
 	14	/* 23 */,
 	14	/* 24 */,
 	15	/* 25 */,
 	15	/* 26 */,
-	15	/* 27 */,
+	16	/* 27 */,
 	16	/* 28 */,
-	16	/* 29 */,
-	16	/* 30 */	
+	17	/* 29 */,
+	17	/* 30 */	
 };
 
 /*
@@ -851,37 +890,37 @@ byte adj_chr_range[A_RANGE] =
  */
 byte adj_chr_gold[A_RANGE] =
 {
-	140	/* 0 */,
-	135	/* 1 */,
-	132	/* 2 */,
-	130	/* 3 */,
-	128	/* 4 */,
-	126	/* 5 */,
-	124	/* 6 */,
-	122	/* 7 */,
-	120	/* 8 */,
-	118	/* 9 */,
+	150	/* 0 */,
+	144	/* 1 */,
+	140	/* 2 */,
+	137	/* 3 */,
+	134	/* 4 */,
+	131	/* 5 */,
+	128	/* 6 */,
+	125	/* 7 */,
+	122	/* 8 */,
+	119	/* 9 */,
 	116	/* 10 */,
-	114	/* 11 */,
-	113	/* 12 */,
-	112	/* 13 */,
-	111	/* 14 */,
-	110	/* 15 */,
-	108	/* 16 */,
-	106	/* 17 */,
-	104	/* 18 */,
-	102	/* 19 */,
-	100	/* 20 */,
-	98	/* 21 */,
-	96	/* 22 */,
-	95	/* 23 */,
-	93	/* 24 */,
-	91	/* 25 */,
-	89	/* 26 */,
-	87	/* 27 */,
-	83	/* 28 */,
-	80	/* 29 */,
-	80	/* 30 */
+	113	/* 11 */,
+	110	/* 12 */,
+	107	/* 13 */,
+	104	/* 14 */,
+	101	/* 15 */,
+	98	/* 16 */,
+	95	/* 17 */,
+	92	/* 18 */,
+	89	/* 19 */,
+	85	/* 20 */,
+	82	/* 21 */,
+	79	/* 22 */,
+	76	/* 23 */,
+	73	/* 24 */,
+	70	/* 25 */,
+	67	/* 26 */,
+	64	/* 27 */,
+	61	/* 28 */,
+	58	/* 29 */,
+	55	/* 30 */
 };
 
 /*
@@ -932,32 +971,32 @@ byte adj_mag_study[A_RANGE] =
 	0		/* 2 */,
 	0		/* 3 */,
 	0		/* 4 */,
-	9		/* 5 */,
-	19		/* 6 */,
-	29		/* 7 */,
-	39		/* 8 */,
-	44		/* 9 */,
-	46		/* 10 */,
-	48		/* 11 */,
-	50		/* 12 */,
-	52		/* 13 */,
-	54		/* 14 */,
-	56		/* 15 */,
-	58		/* 16 */,
-	61		/* 17 */,
-	65		/* 18 */,
-	80		/* 19 */,
-	90		/* 20 */,
-	100		/* 21 */,
-	110		/* 22 */,
-	115		/* 23 */,
-	117		/* 24 */,
-	119		/* 25 */,
-	121		/* 26 */,
-	123		/* 27 */,
-	125		/* 28 */,
-	127		/* 29 */,
-	129		/* 30 */
+	8		/* 5 */,
+	16		/* 6 */,
+	26		/* 7 */,
+	36		/* 8 */,
+	41		/* 9 */,
+	43		/* 10 */,
+	45		/* 11 */,
+	47		/* 12 */,
+	48		/* 13 */,
+	50		/* 14 */,
+	52		/* 15 */,
+	54		/* 16 */,
+	56		/* 17 */,
+	58		/* 18 */,
+	72		/* 19 */,
+	76		/* 20 */,
+	86		/* 21 */,
+	96		/* 22 */,
+	100		/* 23 */,
+	105		/* 24 */,
+	109		/* 25 */,
+	115		/* 26 */,
+	118		/* 27 */,
+	120		/* 28 */,
+	122		/* 29 */,
+	124		/* 30 */
 };
 
 /*
@@ -1207,56 +1246,56 @@ byte invis_chance[31] =
  */
 s32b player_exp[PY_MAX_LEVEL] =
 {
-	11,
-	28,
-	50,
-	77,
-	110,
-	154,
-	220,
-	308,
-	418,
-	550,
-	715,
-	935,
-	1210,
-	1540,
-	1980,
-	2540,
-	3190,
-	3980,
-	4840,
-	5940,
-	7480,
-	9240,
-	11220,
-	13750,
-	19250,
-	27500,
-	38500L,
-	55000L,
-	82500L,
-	110000L,
-	165000L,
-	220000L,
-	302500L,
-	385000L,
-	495000L,
-	605000L,
-	770000L,
-	935000L,
-	1100000L,
-	1375000L,
-	1650000L,
-	1980000L,
-	2310000L,
-	2640000L,
-	2970000L,
-	3300000L,
-	3850000L,
-	4500000L,
-	4950000L,
-	5500000L
+	2,	/* 1 */
+	8,	/* 2 */
+	20,	/* 3 */
+	46,	/* 4 */
+	77,	/* 5 */
+	123,	/* 6 */
+	198,	/* 7 */
+	308,	/* 8 */
+	502,	/* 9 */
+	715,	/* 10 */
+	1001,	/* 11 */
+	1403,	/* 12 */
+	1936,	/* 13 */
+	2618,	/* 14 */
+	3564,	/* 15 */
+	5080,	/* 16 */
+	6699,	/* 17 */
+	8756,	/* 18 */
+	11132,	/* 19 */
+	14256,	/* 20 */
+	19448,	/* 21 */
+	24948,	/* 22 */
+	31416,	/* 23 */
+	39875,	/* 24 */
+	57750,	/* 25 */
+	85250,	/* 26 */
+	123200L,	/* 27 */
+	181500L,	/* 28 */
+	280500L,	/* 29 */
+	385000L,	/* 30 */
+	594000L,	/* 31 */
+	814000L,	/* 32 */
+	1149500L,	/* 33 */
+	1501500L,	/* 34 */
+	1980000L,	/* 35 */
+	2480500L,	/* 36 */
+	3234000L,	/* 37 */
+	4020500L,	/* 38 */
+	4840000L,	/* 39 */
+	6187500L,	/* 40 */
+	7590000L,	/* 41 */
+	9306000L,	/* 42 */
+	11088000L,	/* 43 */
+	12936000L,	/* 44 */
+	14850000L,	/* 45 */
+	16830000L,	/* 46 */
+	20020000L,	/* 47 */
+	23850000L,	/* 48 */
+	26730000L,	/* 49 */
+	30250000L	/* 50 */
 };
 
 /*
@@ -1411,7 +1450,7 @@ spell_book instruments[SV_MUSIC_MAX] =
 		0,
 		{
 			{ POW_CALM_MONSTER,		"Song of Calmness",				 1,  3, 20 },
-			{ POW_CALL_MONSTER,		"Song of Attraction",			 4,  6, 20 },
+			{ POW_HARPOON,		"Song of Attraction",			 4,  6, 20 },
 			{ POW_CALM_ANIMALS,		"Song of Soothing the Beast",	 8, 15, 60 },
 			{ POW_CALM_NON_EVIL,	"Song of Peace",				15, 25, 80 },
 			{ POW_CALM_ALL,			"Song of Great Peace",			25, 45, 90 },
@@ -1501,11 +1540,10 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
 			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
 			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
+			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 26 },
 			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 2, -1, 29 },
 			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
-			{ POW_BOLT_ACID_X,		"Acid Bolt",				 3, -1, 36 },
-			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1516,39 +1554,40 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
 			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
 			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
+			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 26 },
 			{ POW_BOLT_ACID_X,		"Acid Bolt",				 2, -1, 29 },
 			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
-			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 3, -1, 36 },
-			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Sorcerous Adjurations (sval 2) */
 		SBF_MAGIC,
 		{
-			{ POW_CONFUSE_MONSTER,	"Confuse Monster",			 4,  3, 26 },
-			{ POW_SLEEP_MONSTER,	"Sleep Monster",			 4,  5, 26 },
-			{ POW_BOLT_MISSILE_X,	"Magic Missile",			 5, -2, 25 },
-			{ POW_SHIELD,		"Shield",					 5,  7, 60 },
-			{ POW_TELE_MAJOR,	"Teleport Self",			 7,  6, 35 },
-			{ POW_BEAM_WEAK_LITE,	"Spear of Light",			 7,  7, 35 },
-			{ POW_STONE_TO_MUD,	"Turn Stone to Mud",		 9,  7, 44 },
-			{ POW_PHLOGISTON,	"Phlogiston",			 9,  8, 45 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ POW_INFRAVISION,		"Infravision",				4,  2, 35 },
+			{ POW_CONFUSE_MONSTER,		"Confuse Monster",			4,  3, 26 },
+			{ POW_SHIELD,			"Shield",				5,  7, 60 },
+			{ POW_TELE_MAJOR,		"Teleport Self",			7,  6, 35 },
+			{ POW_BEAM_WEAK_LITE,		"Spear of Light",			7,  7, 35 },
+			{ POW_SLEEP_ALL,		"Sleep All",				8,  7, 45 },
+			{ POW_PHLOGISTON,		"Phlogiston",				9,  8, 45 },
+			/* { POW_BOLT_MISSILE_X,	"Magic Missile",			5, -2, 25 }, */
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+
 		}
 	},
 	{
 		/* Blaze of Thaumaturgy (sval 3) */
 		SBF_MAGIC,
 		{
-			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
-			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
-			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
-			{ POW_BALL_FIRE_X,		"Fire Ball",				12, -3, 31 },
+			{ POW_FLAMING_HANDS,		"Burning Hands",			10, 3, 36 },
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				10, -1, 36 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50 },
+			{ POW_BALL_FIRE_X,		"Fire Ball",				11, -3, 31 },
+			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 31 },
+			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 90 },
 			{ POW_BALL_ELEC_X,		"Lightning Ball",			13, -3, 36 },
-			{ POW_BALL_ACID_X,		"Acid Ball",				14, -3, 41 },
-			{ POW_DETECT_ENCHANT,		"Detect Enchantment",			15, 10, 40 },
+			/* { POW_CREATE_DOOR,		"Create Doors",				11, 12, 35 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1556,13 +1595,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* Magick of the Rimewind (sval 4) */
 		SBF_MAGIC,
 		{
-			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
-			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
-			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
-			{ POW_BALL_COLD_X,		"Frost Ball",				12, -3, 31 },
+			{ POW_ICY_HANDS,		"Claws of Winter",			10, 3, 36 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			10, -1, 36 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50 },
+			{ POW_BALL_COLD_X,		"Frost Ball",				11, -3, 31 },
+			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 31 },
+			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 90 },
 			{ POW_BALL_ACID_X,		"Acid Ball",				13, -3, 36 },
-			{ POW_BALL_ELEC_X,		"Lightning Ball",			14, -3, 41 },
-			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
+			/* { POW_CREATE_DOOR,		"Create Doors",				11, 12, 35 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1570,15 +1610,17 @@ spell_book books[SV_BOOK_MAX] =
 		/* Evocations of Power (sval 5) */
 		SBF_MAGIC,
 		{
-			{ POW_GLYPH_LESSER,		"Barrier",					17, 35, 90 },
+			{ POW_EARTHBIND,		"Earthbind All",			16, 12, 45 },
 			{ POW_RECHARGE_1,		"Recharge Item",			17, 12, 75 },
-			{ POW_BLIND_MONSTER,	"Blind Monster",			19, 12, 60 },
-			{ POW_SLOW_ALL,			"Slow All",					19, 20, 33 },
-			{ POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 },
+			{ POW_BLIND_MONSTER,		"Blind Monster",			19, 12, 60 },
+			{ POW_CURSE_ALL,		"Curse All",				21, 25, 50 },
 			{ POW_TELE_OTHER,		"Teleport Other",			23,  8, 60 },
-			{ POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 },
+			{ POW_DRAGONSLAYER,		"Dragonslayer",				25, 12, 75 },
 			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			/* { POW_SLOW_ALL,		"Slow All",			19, 20, 33 }, */
+			/* { POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 }, */
+			/* { POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 }, */
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1674,61 +1716,60 @@ spell_book books[SV_BOOK_MAX] =
 		/* Novice's Handbook (sval 12) */
 		SBF_PRAYER,
 		{
-			{ POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10 },
+			{ POW_BLESS_1,			"Bless",			 1,  2, 20 },
 			{ POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15 },
-			{ POW_BLESS_1,			"Bless",					 1,  2, 20 },
-			{ POW_BOLDNESS,			"Boldness",					 1,  2, 25 },
-			{ POW_LIGHT_AREA_2,		"Call Light",				 3,  2, 25 },
-			{ POW_SAFETY,			"Protection from Traps",	 3,  3, 27 },
-			{ POW_CURE_TAINT,		"Cleanse Taint",			 3,  3, 28 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }
+			{ POW_DETECT_EVIL,		"Detect Evil",			 2,  1, 10 },
+			{ POW_LIGHT_AREA_2,		"Call Light",			 3,  2, 25 },
+			{ POW_CALM_MONSTER,		"Calm Monster",			 3,  3, 27 },
+			{ POW_CURE_TAINT,		"Cleanse Taint",		 3,  1, 28 },
+			{ POW_TURN_UNLIFE,		"Turn Unlife",			 3,  1, 28 },
+			/* { POW_PHLOGISTON,		"Divine Flame",			 4,  4, 31 }, */
+			/* { POW_BOLDNESS,			"Boldness",			 2,  2, 25 }, */
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Words of Wisdom (sval 13) */
 		SBF_PRAYER,
 		{
-			{ POW_SCARE_MONSTER,	"Scare Monster",			 5,  4, 29 },
-			{ POW_TELE_MINOR,		"Portal",					 5,  4, 30 },
+			{ POW_CURE_POISON,		"Neutralize Poison",		 4,  3, 38 },
+			{ POW_SCARE_MONSTER,		"Scare Monster",		 5,  4, 29 },
+			{ POW_TELE_MINOR,		"Portal",			 5,  4, 30 },
 			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32 },
-			{ POW_SLEEP_ADJACENT,	"Sanctuary",				 6,  5, 36 },
-			{ POW_BLESS_2,			"Chant",					 6,  5, 34 },
-			{ POW_PHLOGISTON,	"Phlogiston",			 7,  5, 38 },
-			{ POW_REMOVE_CURSE_1,	"Remove Curse",				 7,  6, 38 },
-			{ POW_RES_FIRE_COLD,	"Resist Heat and Cold",		 7,  7, 38 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ POW_BLESS_2,			"Chant",			 6,  5, 34 },
+			{ POW_RES_FIRE_COLD,		"Resist Heat and Cold",		 7,  5, 38 },
+			{ POW_REMOVE_CURSE_1,		"Remove Curse",			 7,  6, 38 },
+			/* { POW_SLEEP_ADJACENT,	"Sanctuary",			 6,  5, 36 }, */
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
 		/* Chants and Blessings (sval 14) */
 		SBF_PRAYER,
 		{
-			{ POW_CURE_POISON,		"Neutralize Poison",		 9,  6, 38 },
-			{ POW_BALL_HOLY_2,		"Orb of Draining",			 9,  7, 38 },
+			{ POW_BALL_HOLY_2,		"Orb of Draining",		 9,  8, 38 },
 			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40 },
-			{ POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40 },
-			{ POW_GLYPH_HOLY,		"Holy Sigil",				10, 15, 50 },
-			{ POW_SEE_INVIS,		"Sense Invisible",			11,  8, 42 },
+			{ POW_CURE_DISEASE,		"Cure Disease",			10,  7, 40 },
+			{ POW_GLYPH_HOLY,		"Holy Sigil",			10, 15, 50 },
+			{ POW_SEE_INVIS,		"Sense Invisible",		11,  8, 42 },
 			{ POW_PROT_EVIL_2,		"Protection from Evil",		11,  8, 42 },
-			{ POW_EARTHQUAKE,		"Earthquake",				13,  9, 55 },
-			{ POW_MAP_1,			"Sense Surroundings",		13, 10, 45 },
-			{ 0, NULL, 99,  0, 0 }
+			{ POW_EARTHQUAKE,		"Earthquake",			13,  9, 55 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
  		/* Exorcism and Dispelling (sval 15) */
 		SBF_PRAYER,
 		{
-			{ POW_BLESS_3,			"Prayer",					15, 14, 50 },
-			{ POW_CALM_NON_EVIL,	"Soothing Words",			16, 30, 80 },
-			{ POW_DISPEL_UNDEAD_1,	"Dispel Undead",			16, 14, 50 },
-			{ POW_DISPEL_DEMON,		"Dispel Demons",			17, 16, 55 },
-			{ POW_DISPEL_EVIL_3,	"Dispel Evil",				25, 20, 70 },
-			{ POW_GLYPH_WARDING,	"Glyph of Warding",			33, 55, 90 },
-			{ POW_HOLY_2,			"Holy Word",				39, 32, 95 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }
+			{ POW_CALM_NON_EVIL,		"Soothing Words",		16, 8, 80 },
+			{ POW_DISPEL_UNDEAD_1,		"Dispel Undead",		16, 10, 50 },
+			{ POW_DISPEL_DEMON,		"Dispel Demons",		17, 12, 55 },
+			{ POW_PROT_CHAOS_2,		"Protection from Chaos",	20,  8, 42 },
+			{ POW_DISPEL_EVIL_3,		"Dispel Evil",			25, 17, 70 },
+			{ POW_GLYPH_WARDING,		"Glyph of Warding",		33, 55, 90 },
+			{ POW_HOLY_2,			"Holy Word",			39, 32, 95 },
+			/* { POW_BLESS_3,		"Prayer",					15, 14, 50 }, */
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1808,9 +1849,9 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 10 },
 			{ POW_TELE_CONTROL,		"Mastery of Space",			10, 25, 60 },
 			{ POW_RES_ELEMENTS,		"Power over Elements",		15, 30, 70 },
-			{ POW_DETECT_ALL,		"Purity of vision",			20, 35, 80 },
+			{ POW_DETECT_ALL,		"Purity of Vision",			20, 35, 80 },
 			{ POW_CURE_BODY,		"Control of the Body",		30, 40, 90 },
-			{ POW_RES_GREATER,		"One with the world",		40, 45,100 },
+			{ POW_RES_GREATER,		"One with the World",		40, 45,100 },
 			{ POW_RESILIENCE,		"Mind over Matter",			50, 50,110 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1974,7 +2015,7 @@ cptr color_names[16] =
  */
 cptr stat_names[A_MAX] =
 {
-	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
+	"STR: ", "MEM: ", "WIS: ", "DEX: ", "CON: ", "PRE: "
 };
 
 /*
@@ -1982,7 +2023,7 @@ cptr stat_names[A_MAX] =
  */
 cptr stat_names_reduced[A_MAX] =
 {
-	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+	"STR: ", "MEM: ", "WIS: ", "DEX: ", "CON: ", "PRE: "
 };
 
 /*

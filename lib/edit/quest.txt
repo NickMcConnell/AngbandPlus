@@ -15,16 +15,19 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.2.0
 
 N:0:Fake quest
 W:0:0:0:0
 
-N:1:Sauron
-W:99:0:112:1
+N:1:The Thin White Duke
+W:48:0:68:1
 
-N:2:Morgoth
-W:100:0:113:1
+#N:1:Sauron
+#W:99:0:112:1
+
+#N:2:Morgoth
+#W:100:0:113:1
 
 # "Fake" slot for the random quests
 # N:3:Random

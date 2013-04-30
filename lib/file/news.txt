@@ -1,21 +1,22 @@
+ Everyone has heard stories about the Halls of Mist. In the stories people
+ usually see horrible visions in the blue mist and lose their mind. (They say
+ carrying a bright torch would help.) The exquisitely decorated walls, the
+ deserted shrines of foreign goddesses... It's a scary, haunted place.
 
+ Your archenemy, The Thin White Duke, is down there, gathering power. He is an
+ immortal human occultist from the Realm of Skultgard ("skull garden").
 
-                             ************************
-                             **  FayAngband 1.1.0  **
-                             ************************
-                                 By Mikko Lehtinen
+ You have only recently learned that the vast dungeon complex actually extends
+ far beyond the borders of Thornwild, your world, to all other realms of
+ existence. You believe the Duke is now negotiating pacts with both the demons
+ of Aether and the dragons of Chaos. Unless you stop him, the combined army of
+ darkness will soon smash Thornwild.
 
-            Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
-                    Umoria:  Copyright (c) 1989 James E. Wilson
-       Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
-                             Geoff Hill, Charles Teague, Charles Swiger
-     Angband 2.7.0 - 2.8.5:  Ben Harrison
-     Angband 2.9.0 - 2.9.3:  Robert Ruehlmann
-     EyAngband   0 - 0.5.2:  Eytan Zweig
-
-        Send comments and bug reports to "miihkali.lehtinen@gmail.com"
-
-        EyAngband Home Page at "http://eyangband.sourceforge.net"
-        Angband Home Page at "http://rephial.org/"
-        Browse the Angband forums at "http://angband.oook.cz/"
-
+        Aether (spirit, myths, dreams)     *----------------------*
+        /                                  | The Chain of Realms. |
+       /                  (wilderness,     | Normally the travel  |
+ Skultgard ---- Thornwild  predation,      | between realms is    |
+ (hierarchy,        /      diversity)      | slow and difficult.  |
+  law, human       /                       | Halls of Mist links  |
+  supremacy)     Chaos (material, force,   | them all directly!   |
+                        pandemonium)       *----------------------*

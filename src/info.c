@@ -82,82 +82,6 @@ static cptr likert(int x, int y)
 }
 
 /*
- * Player's Racial Powers - Big Hack.
- */
-static void display_player_race_power(int y, int x)
-{
-	int line = 0;
-
-	/* No power */
-	if (!rp_ptr->special || !(rsp_ptr[p_ptr->max_lev / 5]->activation))
-	{
-		Term_putstr(x, y, -1, TERM_L_BLUE, "None");
-		return;
-	}
-
-	switch (rsp_ptr[(p_ptr->max_lev) / 5]->activation)
-	{
-		case POW_DETECT_EVIL:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Detect Evil");
-			break;
-		}
-		case POW_LIGHT_AREA_1:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Call Light");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 2d2)");
-			break;
-		}
-		case POW_BEAM_WEAK_LITE:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Spear of Light");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 9d8)");
-			break;
-		}
-		case POW_BALL_HOLY_1:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Orb of Draining");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 3d6+40)");
-			break;
-		}
-		case POW_PROT_EVIL_1:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Prot. from Evil");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dur. d25+30)");
-			break;
-		}
-		case POW_TELE_10:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Blink");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(radius 10)");
-			break;
-		}
-		case POW_BOLT_FIRE_1:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Bolt");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 10d6)");
-			break;
-		}
-		case POW_BALL_FIRE_1:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Fire Ball");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 80 rad 2)");
-			break;
-		}
-		case POW_BALL_PLASMA:
-		{
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "Plasma Ball");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, "(dam. 4d10+140");
-			Term_putstr(x , y + line++, -1, TERM_L_BLUE, " rad 3)");
-			break;
-		}
-	}
-
-	if (line) Term_putstr(x, y + line , -1, TERM_L_BLUE,
-		format("Every %d Turns", rsp_ptr[p_ptr->max_lev / 5]->turns));
-}
-
-/*
  * Prints some "extra" information on the screen.
  *
  * Space includes rows 3-9 cols 24-79
@@ -167,10 +91,8 @@ static void display_player_race_power(int y, int x)
 static void display_player_xtra_info(void)
 {
 	int col;
-	int hit, base, plus;
+	int base, plus;
 	byte attr;
-
-	object_type *o_ptr;
 
 	char buf[160];
 
@@ -178,39 +100,39 @@ static void display_player_xtra_info(void)
 	col = 1;
 
 	/* Wounds */
-	Term_putstr(col, 11, -1, TERM_WHITE, "Wounds");
+	Term_putstr(col, 8, -1, TERM_WHITE, "Wounds");
 
 	if ((p_ptr->wound_vigor) && (p_ptr->wound_wit) && (p_ptr->wound_grace))
 	{
-		Term_putstr(col+15, 11, -1, TERM_VIOLET, ("All"));
+		Term_putstr(col+15, 8, -1, TERM_VIOLET, ("All"));
 	}
 	else if ((p_ptr->wound_vigor) && (p_ptr->wound_wit))
 	{
-		Term_putstr(col+7, 11, -1, TERM_RED, ("Vigor & Wit"));
+		Term_putstr(col+7, 8, -1, TERM_RED, ("Vigor & Wit"));
 	}
 	else if ((p_ptr->wound_vigor) && (p_ptr->wound_grace))
 	{
-		Term_putstr(col+7, 11, -1, TERM_RED, ("Vigor&Grace"));
+		Term_putstr(col+7, 8, -1, TERM_RED, ("Vigor&Grace"));
 	}
 	else if ((p_ptr->wound_wit) && (p_ptr->wound_grace))
 	{
-		Term_putstr(col+7, 11, -1, TERM_RED, ("Wit & Grace"));
+		Term_putstr(col+7, 8, -1, TERM_RED, ("Wit & Grace"));
 	}
 	else if (p_ptr->wound_vigor)
 	{
-		Term_putstr(col+13, 11, -1, TERM_YELLOW, ("Vigor"));
+		Term_putstr(col+13, 8, -1, TERM_YELLOW, ("Vigor"));
 	}
 	else if (p_ptr->wound_wit)
 	{
-		Term_putstr(col+15, 11, -1, TERM_YELLOW, ("Wit"));
+		Term_putstr(col+15, 8, -1, TERM_YELLOW, ("Wit"));
 	}
 	else if (p_ptr->wound_grace)
 	{
-		Term_putstr(col+13, 11, -1, TERM_YELLOW, ("Grace"));
+		Term_putstr(col+13, 8, -1, TERM_YELLOW, ("Grace"));
 	}
 	else
 	{
-		Term_putstr(col+14, 11, -1, TERM_L_GREEN, ("None"));
+		Term_putstr(col+14, 8, -1, TERM_L_GREEN, ("None"));
 	}
 
 	int current_lore = p_ptr->lore - p_ptr->lore_uses;
@@ -223,61 +145,101 @@ static void display_player_xtra_info(void)
 	if (current_escapes < 0) current_escapes = 0;
 
 	/* Hit Points */
-	Term_putstr(col, 12, -1, TERM_WHITE, "HP");
+	Term_putstr(col, 9, -1, TERM_WHITE, "Hits");
 	if (p_ptr->chp >= p_ptr->mhp) attr = TERM_L_GREEN;
 	else if (p_ptr->chp == 0) attr = TERM_RED;
 	else attr = TERM_YELLOW;
-	Term_putstr(col+8, 12, -1, attr, format("%4d /%4d", (int)p_ptr->chp, (int)p_ptr->mhp));
+	Term_putstr(col+8, 9, -1, attr, format("%4d /%4d", (int)p_ptr->chp, (int)p_ptr->mhp));
 
 	/* Spell Points */
 	if (p_ptr->msp > 0)
 	{
-		Term_putstr(col, 13, -1, TERM_WHITE, "SP");
+		Term_putstr(col, 10, -1, TERM_WHITE, "Mana");
 		if (p_ptr->chp >= p_ptr->msp) attr = TERM_L_GREEN;
 		else if (p_ptr->csp == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
-		Term_putstr(col+8, 13, -1, attr, format("%4d /%4d", (int)p_ptr->csp, (int)p_ptr->msp));
+		Term_putstr(col+8, 10, -1, attr, format("%4d /%4d", (int)p_ptr->csp, (int)p_ptr->msp));
 	}
 
 	/* Lore */
+	int temp_lore_bonus = 0;
+
+	/* Temp Lore bonus when near a bookshelf & inside a room */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	{
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+	}
+
+	/* Temp Lore bonus when on a Circle of Knowledge */
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
+
 	if (p_ptr->lore > 0)
 	{
-		if (p_stat(A_INT) + p_stat(A_WIS) >= 33)
+		if (p_stat(A_INT) + p_stat(A_WIS) + temp_lore_bonus >= 30)
 		{
-			Term_putstr(col, 14, -1, TERM_WHITE, "*Lore*");
+			Term_putstr(col, 11, -1, TERM_WHITE, "*Lore*");
 		}
 		else
 		{
-			Term_putstr(col, 14, -1, TERM_WHITE, "Lore");
+			Term_putstr(col, 11, -1, TERM_WHITE, "Lore");
 		}
 		if (current_lore >= p_ptr->lore) attr = TERM_L_GREEN;
 		else if (current_lore == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
-		Term_putstr(col+8, 14, -1, attr, format("%4d /%4d", (int)current_lore, (int)p_ptr->lore));
+		Term_putstr(col+8, 11, -1, attr, format("%4d /%4d", (int)current_lore, (int)p_ptr->lore));
 	}
 
 	/* Reserves */
 	if (p_ptr->reserves > 0)
 	{
-		Term_putstr(col, 15, -1, TERM_WHITE, "Reserves");
+		Term_putstr(col, 12, -1, TERM_WHITE, "Reserves");
 		if (current_reserves >= p_ptr->reserves) attr = TERM_L_GREEN;
 		else if (current_reserves == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
-		Term_putstr(col+8, 15, -1, attr, format("%4d /%4d", (int)current_reserves, (int)p_ptr->reserves));
+		Term_putstr(col+8, 12, -1, attr, format("%4d /%4d", (int)current_reserves, (int)p_ptr->reserves));
 	}
 
 	/* Escapes */
 	if (p_ptr->escapes > 0)
 	{
-		Term_putstr(col, 16, -1, TERM_WHITE, "Escapes");
+		Term_putstr(col, 13, -1, TERM_WHITE, "Escapes");
 		if (current_escapes >= p_ptr->escapes) attr = TERM_L_GREEN;
 		else if (current_escapes == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
-		Term_putstr(col+8, 16, -1, attr, format("%4d /%4d", (int)current_escapes, (int)p_ptr->escapes));
+		Term_putstr(col+8, 13, -1, attr, format("%4d /%4d", (int)current_escapes, (int)p_ptr->escapes));
 	}
 
 	/* Left Middle */
-	col = 21;
+	col = 22;
+
+	/* Infra */
+	sprintf(buf, "%d squares", p_ptr->see_infra);
+	Term_putstr(col, 8, -1, TERM_WHITE, "Infra");
+	Term_putstr(col + 9, 8, -1, TERM_L_BLUE, format("%9s", buf));
+
+	/* Spell and Device Range */
+	sprintf(buf, "%d squares", p_ptr->spell_range);
+	Term_putstr(col, 9, -1, TERM_WHITE, "Spells");
+	Term_putstr(col + 9, 9, -1, TERM_L_BLUE, format("%8s", buf));
 
 	/* Armor */
 	base = p_ptr->dis_ac;
@@ -285,41 +247,41 @@ static void display_player_xtra_info(void)
 
 	/* Total Armor */
 	sprintf(buf, "[%d,%+d]", base, plus);
-	Term_putstr(col, 11, -1, TERM_WHITE, "Armor");
-	Term_putstr(col + 5, 11, -1, TERM_L_BLUE, format("%13s", buf));
-
-	/* Melee weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr);
-
-	/* Melee attacks */
-	sprintf(buf, "(%+d, %dd%d)", hit, p_ptr->dd, p_ptr->ds);
-	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
+	Term_putstr(col, 12, -1, TERM_WHITE, "Armor");
 	Term_putstr(col + 5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+
+	/* Melee weapon
+	o_ptr = &inventory[INVEN_WIELD]; */
+
+	/* Base skill
+	hit = p_ptr->dis_to_h; */
+
+	/* Apply weapon bonuses
+	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr); */
 
 	/* Blows */
 	sprintf(buf, "%d/turn", p_ptr->num_blow);
 	Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
 	Term_putstr(col + 5, 13, -1, TERM_L_BLUE, format("%13s", buf));
 
-	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
+	/* Melee damage */
+	sprintf(buf, "%dd%d", p_ptr->dd, p_ptr->ds);
+	Term_putstr(col, 14, -1, TERM_WHITE, "Melee Damage");
+	Term_putstr(col + 12, 14, -1, TERM_L_BLUE, format("%6s", buf));
 
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
+	/* Range weapon
+	o_ptr = &inventory[INVEN_BOW]; */
 
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr);
+	/* Base skill
+	hit = p_ptr->dis_to_h; */
 
-	/* Range attacks */
+	/* Apply weapon bonuses
+	if (object_known_p(o_ptr)) hit += object_to_h(o_ptr); */
+
+	/* Range attacks
 	sprintf(buf, "(%+d)", hit);
-	Term_putstr(col, 14, -1, TERM_WHITE, "Shoot");
-	Term_putstr(col + 5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 12, -1, TERM_WHITE, "Shoot");
+	Term_putstr(col + 5, 12, -1, TERM_L_BLUE, format("%13s", buf)); */
 
 	/* Shots */
 	sprintf(buf, "%d/turn", p_ptr->num_fire);
@@ -329,31 +291,49 @@ static void display_player_xtra_info(void)
 	/* Thrown Damage */
 	sprintf(buf, "%d*", p_ptr->num_fire);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Thrown Damage");
-	if (p_stat(A_STR) >= 25) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("3*"));
-	else if (p_stat(A_STR) >= 17) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("2*"));
-	else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("1*"));
-
-	/* Shots */
-	sprintf(buf, "%d/turn", p_ptr->num_fire);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
-	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	if (p_stat(A_STR) >= 29)
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("24*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("12*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("6*"));
+	}
+	else if (p_stat(A_STR) >= 25)	
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("20*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("10*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("5*"));
+	}
+	else if (p_stat(A_STR) >= 21)	
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("16*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("8*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("4*"));
+	}
+	else if (p_stat(A_STR) >= 17)	
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("12*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("6*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("3*"));
+	}
+	else if (p_stat(A_STR) >= 13)	
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("8*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("4*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("2*"));
+	}
+	else
+	{
+		if ((p_ptr->rage) && (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("4*"));
+		else if ((p_ptr->rage) || (p_ptr->mighty_throw)) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("2*"));
+		else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("1*"));
+	}
 
 	/* Right Middle */
 	col=41;
 
-	/* Racial Ability */
+	/* Racial Ability
 	put_str("Racial Ability", 11, col);
-	display_player_race_power(12, col);
-
-	/* Infra */
-	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Infra");
-	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%9s", buf));
-
-	/* Spell and Device Range */
-	sprintf(buf, "%d ft", p_ptr->spell_range * 10);
-	Term_putstr(col, 16, -1, TERM_WHITE, "Spells");
-	Term_putstr(col + 6, 16, -1, TERM_L_BLUE, format("%8s", buf));
+	display_player_race_power(12, col); */
 
 	/* Bottom */
 	col = 1;
@@ -371,6 +351,91 @@ static void display_player_xtra_info(void)
 	text_out_indent = 0;
 }
 
+static void print_deity_bonuses(int row, int bonus1, int bonus2, int multiplier, int color)
+{
+	if (multiplier == 1)
+	{
+		if (bonus1 == DEITY_STR) Term_putstr(43, row, -1, color, "STR++");
+		else if (bonus1 == DEITY_INT) Term_putstr(43, row, -1, color, "MEM++");
+		else if (bonus1 == DEITY_WIS) Term_putstr(43, row, -1, color, "WIS++");
+		else if (bonus1 == DEITY_DEX) Term_putstr(43, row, -1, color, "DEX++");
+		else if (bonus1 == DEITY_CON) Term_putstr(43, row, -1, color, "CON++");
+		else if (bonus1 == DEITY_CHR) Term_putstr(43, row, -1, color, "PRE++");
+		else if (bonus1 == DEITY_BERSERK) Term_putstr(43, row, -1, color, "Ber++");
+		else if (bonus1 == DEITY_ESCAPE) Term_putstr(43, row, -1, color, "Esc++");
+		else if (bonus1 == DEITY_AC) Term_putstr(43, row, -1, color, "Arm++");
+		else if (bonus1 == DEITY_RANGE) Term_putstr(43, row, -1, color, "Rng++");
+		else if (bonus1 == DEITY_STEALTH) Term_putstr(43, row, -1, color, "Ste++");
+
+		if (bonus1 == bonus2) Term_putstr(48, row, -1, color, "+");
+		else if (bonus2 == DEITY_STR) Term_putstr(49, row, -1, color, "STR+");
+		else if (bonus2 == DEITY_INT) Term_putstr(49, row, -1, color, "MEM+");
+		else if (bonus2 == DEITY_WIS) Term_putstr(49, row, -1, color, "WIS+");
+		else if (bonus2 == DEITY_DEX) Term_putstr(49, row, -1, color, "DEX+");
+		else if (bonus2 == DEITY_CON) Term_putstr(49, row, -1, color, "CON+");
+		else if (bonus2 == DEITY_CHR) Term_putstr(49, row, -1, color, "PRE+");
+		else if (bonus2 == DEITY_BERSERK) Term_putstr(49, row, -1, color, "Ber+");
+		else if (bonus2 == DEITY_ESCAPE) Term_putstr(49, row, -1, color, "Esc+");
+		else if (bonus2 == DEITY_AC) Term_putstr(49, row, -1, color, "Arm+");
+		else if (bonus2 == DEITY_RANGE) Term_putstr(49, row, -1, color, "Rng+");
+		else if (bonus2 == DEITY_STEALTH) Term_putstr(49, row, -1, color, "Ste+");
+	}
+	else if (multiplier == 2)
+	{
+		if (bonus1 == DEITY_STR) Term_putstr(43, row, -1, color, "STR+++");
+		else if (bonus1 == DEITY_INT) Term_putstr(43, row, -1, color, "MEM+++");
+		else if (bonus1 == DEITY_WIS) Term_putstr(43, row, -1, color, "WIS+++");
+		else if (bonus1 == DEITY_DEX) Term_putstr(43, row, -1, color, "DEX+++");
+		else if (bonus1 == DEITY_CON) Term_putstr(43, row, -1, color, "CON+++");
+		else if (bonus1 == DEITY_CHR) Term_putstr(43, row, -1, color, "PRE+++");
+		else if (bonus1 == DEITY_BERSERK) Term_putstr(43, row, -1, color, "Ber+++");
+		else if (bonus1 == DEITY_ESCAPE) Term_putstr(43, row, -1, color, "Esc+++");
+		else if (bonus1 == DEITY_AC) Term_putstr(43, row, -1, color, "Arm+++");
+		else if (bonus1 == DEITY_RANGE) Term_putstr(43, row, -1, color, "Rng+++");
+		else if (bonus1 == DEITY_STEALTH) Term_putstr(43, row, -1, color, "Ste+++");
+
+		if (bonus1 == bonus2) Term_putstr(49, row, -1, color, "+++");
+		else if (bonus2 == DEITY_STR) Term_putstr(49, row, -1, color, "STR+++");
+		else if (bonus2 == DEITY_INT) Term_putstr(49, row, -1, color, "MEM+++");
+		else if (bonus2 == DEITY_WIS) Term_putstr(49, row, -1, color, "WIS+++");
+		else if (bonus2 == DEITY_DEX) Term_putstr(49, row, -1, color, "DEX+++");
+		else if (bonus2 == DEITY_CON) Term_putstr(49, row, -1, color, "CON+++");
+		else if (bonus2 == DEITY_CHR) Term_putstr(49, row, -1, color, "PRE+++");
+		else if (bonus2 == DEITY_BERSERK) Term_putstr(49, row, -1, color, "Ber+++");
+		else if (bonus2 == DEITY_ESCAPE) Term_putstr(49, row, -1, color, "Esc+++");
+		else if (bonus2 == DEITY_AC) Term_putstr(49, row, -1, color, "Arm+++");
+		else if (bonus2 == DEITY_RANGE) Term_putstr(49, row, -1, color, "Rng+++");
+		else if (bonus2 == DEITY_STEALTH) Term_putstr(49, row, -1, color, "Ste+++");
+	}
+	else if (multiplier == -1)
+	{
+		if (bonus1 == DEITY_STR) Term_putstr(43, row, -1, color, "STR--");
+		else if (bonus1 == DEITY_INT) Term_putstr(43, row, -1, color, "MEM--");
+		else if (bonus1 == DEITY_WIS) Term_putstr(43, row, -1, color, "WIS--");
+		else if (bonus1 == DEITY_DEX) Term_putstr(43, row, -1, color, "DEX--");
+		else if (bonus1 == DEITY_CON) Term_putstr(43, row, -1, color, "CON--");
+		else if (bonus1 == DEITY_CHR) Term_putstr(43, row, -1, color, "PRE--");
+		else if (bonus1 == DEITY_BERSERK) Term_putstr(43, row, -1, color, "Ber--");
+		else if (bonus1 == DEITY_ESCAPE) Term_putstr(43, row, -1, color, "Esc--");
+		else if (bonus1 == DEITY_AC) Term_putstr(43, row, -1, color, "Arm--");
+		else if (bonus1 == DEITY_RANGE) Term_putstr(43, row, -1, color, "Rng--");
+		else if (bonus1 == DEITY_STEALTH) Term_putstr(43, row, -1, color, "Ste--");
+
+		if (bonus1 == bonus2) Term_putstr(48, row, -1, color, "-");
+		else if (bonus2 == DEITY_STR) Term_putstr(49, row, -1, color, "STR-");
+		else if (bonus2 == DEITY_INT) Term_putstr(49, row, -1, color, "MEM-");
+		else if (bonus2 == DEITY_WIS) Term_putstr(49, row, -1, color, "WIS-");
+		else if (bonus2 == DEITY_DEX) Term_putstr(49, row, -1, color, "DEX-");
+		else if (bonus2 == DEITY_CON) Term_putstr(49, row, -1, color, "CON-");
+		else if (bonus2 == DEITY_CHR) Term_putstr(49, row, -1, color, "PRE-");
+		else if (bonus2 == DEITY_BERSERK) Term_putstr(49, row, -1, color, "Ber-");
+		else if (bonus2 == DEITY_ESCAPE) Term_putstr(49, row, -1, color, "Esc-");
+		else if (bonus2 == DEITY_AC) Term_putstr(49, row, -1, color, "Arm-");
+		else if (bonus2 == DEITY_RANGE) Term_putstr(49, row, -1, color, "Rng-");
+		else if (bonus2 == DEITY_STEALTH) Term_putstr(49, row, -1, color, "Ste-");
+	}
+}
+
 /*
  * Prints some skill information on the screen.
  */
@@ -378,24 +443,52 @@ static void display_player_skill_info(void)
 {
 	int col;
 	int xskill[SK_MAX];
+	int melee_hit = 0;
+	int shooting_hit = 0;
+	int thrown_hit = 0;
 
 	cptr desc;
 
 	object_type *o_ptr;
 
 	/* Right */
-	col = 57;
+	col = 56;
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
-	xskill[SK_THN] = p_ptr->skill[SK_THN] + p_ptr->to_h + object_to_h(o_ptr);
+	xskill[SK_THN] = p_ptr->skill[SK_THN] + p_ptr->to_h_melee + object_to_h(o_ptr);
+
+	/* Base skill */
+	melee_hit = p_ptr->dis_to_h_melee;
+
+	/* Apply weapon bonuses */
+	if (object_known_p(o_ptr)) melee_hit += object_to_h(o_ptr);
+
+	/* Melee attacks
+	sprintf(buf, "(%+d, %dd%d)", hit, p_ptr->dd, p_ptr->ds);
+	Term_putstr(col, 10, -1, TERM_WHITE, "Melee");
+	Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%13s", buf)); */
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
-	xskill[SK_THB] = p_ptr->skill[SK_THB] + p_ptr->to_h + object_to_h(o_ptr);;
+	xskill[SK_THB] = p_ptr->skill[SK_THB] + p_ptr->to_h_shooting + object_to_h(o_ptr);
+
+	/* Base skill */
+	shooting_hit = p_ptr->dis_to_h_shooting;
+
+	/* Apply weapon bonuses */
+	if (object_known_p(o_ptr)) shooting_hit += object_to_h(o_ptr);
+
+	/* Range attacks
+	sprintf(buf, "(%+d)", hit);
+	Term_putstr(col, 12, -1, TERM_WHITE, "Shoot");
+	Term_putstr(col + 5, 12, -1, TERM_L_BLUE, format("%13s", buf)); */
 
 	/* Throwing Skill */
-	xskill[SK_THT] = p_ptr->skill[SK_THT] + p_ptr->to_h;
+	xskill[SK_THT] = p_ptr->skill[SK_THT] + p_ptr->to_h_throwing;
+
+	/* Base skill */
+	thrown_hit = p_ptr->dis_to_h_throwing;
 
 	/* Basic abilities */
 	xskill[SK_DIS] = p_ptr->skill[SK_DIS];
@@ -403,64 +496,79 @@ static void display_player_skill_info(void)
 	xskill[SK_SAV] = p_ptr->skill[SK_SAV];
 	xskill[SK_STL] = p_ptr->skill[SK_STL];
 	xskill[SK_PER] = p_ptr->skill[SK_PER];
-	xskill[SK_DIG] = p_ptr->skill[SK_DIG];
+	xskill[SK_MOB] = p_ptr->skill[SK_MOB];
 	xskill[SK_ALC] = p_ptr->skill[SK_ALC];
 	xskill[SK_MAP] = p_ptr->skill[SK_MAP];
 
-	put_str("Saving Throw", 11, col);
-	desc = likert(xskill[SK_SAV] - 11, 5);  
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 11, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 11, col+13);
-
-	put_str("Stealth", 12, col);
-	desc = likert(xskill[SK_STL], 1);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 12, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 12, col+13);
-
-	put_str("Fighting", 13, col);
+	put_str("Fighting", 11, col);
 	desc = likert(xskill[SK_THN], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THN]), 13, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 13, col+13);
+	c_put_str(likert_color, format("%4d (%+2d)", xskill[SK_THN], melee_hit), 11, col+13);
+	/* if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THN]), 11, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 11, col+13); */
 
-	put_str("Shooting", 14, col);
+	put_str("Shooting", 12, col);
 	desc = likert(xskill[SK_THB], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THB]), 14, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 14, col+13);
+	c_put_str(likert_color, format("%4d (%+2d)", xskill[SK_THB], shooting_hit), 12, col+13);
+	/* if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THB]), 12, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 12, col+13); */
 
-	put_str("Throwing", 15, col);
+	put_str("Throwing", 13, col);
 	desc = likert(xskill[SK_THT], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THT]), 15, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 15, col+13);
+	c_put_str(likert_color, format("%4d (%+2d)", xskill[SK_THT], thrown_hit), 13, col+13);
+	/* if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THT]), 13, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 13, col+13); */
 
-	put_str("Disarming", 16, col);
-	desc = likert(xskill[SK_DIS], 8);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIS]), 16, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 16, col+13);
-
-	put_str("Magic Device", 17, col);
+	put_str("Magic Device", 14, col);
 	desc = likert(xskill[SK_DEV], 5);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DEV]), 17, col+13);
+	c_put_str(likert_color, format("%9d%%", xskill[SK_DEV]), 14, col+12);
+
+	put_str("Saving Throw", 15, col);
+	desc = likert(xskill[SK_SAV], 5);  
+	c_put_str(likert_color, format("%9d%%", xskill[SK_SAV]), 15, col+12);
+	/* if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 21, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 21, col+13); */
+
+	/* desc = likert(xskill[SK_DEV], 5);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DEV]), 19, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 19, col+13); */
+
+	/* put_str("Jumping", 14, col);
+	desc = likert(xskill[SK_MOB], 10);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_MOB]), 14, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 14, col+13); */
+
+	put_str("Stealth", 17, col);
+	desc = likert(xskill[SK_STL], 1);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 17, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 17, col+13);
 
 	put_str("Perception", 18, col);
-	desc = likert(xskill[SK_PER], 5);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_PER]), 18, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 18, col+13);
+	if (p_ptr->alertness)
+	{
+		int perception = xskill[SK_PER];
+		if (perception > 100) perception = 100;
+		int alert = xskill[SK_PER] + (p_ptr->alertness * 25);
+		if (alert > 100) alert = 100;
+		desc = likert(perception, 5);
+		c_put_str(likert_color, format("%3d%% (%2d%%)", perception, alert), 18, col+12);
+	}
+	else
+	{
+		desc = likert(xskill[SK_PER], 5);
+		c_put_str(likert_color, format("%9d%%", xskill[SK_PER]), 18, col+12);
+	}
 
-	put_str("Digging", 19, col);
-	desc = likert(xskill[SK_DIG], 10);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIG]), 19, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 19, col+13);
+	put_str("Jumping", 19, col);
+	desc = likert(xskill[SK_MOB], 5);
+	c_put_str(likert_color, format("%9d%%", xskill[SK_MOB]), 19, col+12);
 
 	put_str("Alchemy", 20, col);
-	desc = likert(xskill[SK_ALC], 7);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_ALC]), 20, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 20, col+13);
+	desc = likert(xskill[SK_ALC], 5);
+	c_put_str(likert_color, format("%9d%%", xskill[SK_ALC]), 20, col+12);
 
-	put_str("Mapping", 21, col);
+	put_str("Navigation", 21, col);
 	desc = likert(xskill[SK_MAP], 5);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_MAP]), 21, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 21, col+13);
+	c_put_str(likert_color, format("%9d%%", xskill[SK_MAP]), 21, col+12);
 }
 
 /*
@@ -543,28 +651,28 @@ static const c_flag_desc flag_list[3][13] =
 		{2, TR2_HOLD_LIFE,			 0, "Hold Life:"},
 		{2, TR2_BRAVERY,			 0, "  Bravery:"},
 		{2, TR2_NO_DISEASE,			 0, "No Dsease:"},
-		{2, TR2_NO_STUN,			 0, "No   Stun:"},
-		{2, TR2_NO_POISON,		     0, "No Poison:"},
-		{2, TR2_NO_CUT,				 0, "No    Cut:"},
-		{2, TR2_NO_CONF,			 0, "No   Conf:"},
-		{3, TR3_SLOW_DIGEST,		 0, "S. Digest:"},
+		{2, TR2_NO_STUN,			 0, "  No Stun:"},
+		{2, TR2_NO_POISON,		    	 0, "No Poison:"},
+		{2, TR2_NO_CUT,				 0, "   No Cut:"},
+		{2, TR2_NO_CONF,			 0, "  No Conf:"},
+		{3, TR3_REGEN,				 0, "    Regen:"},
 		{3, TR3_FEATHER,			 0, "Fthr Fall:"},
-		{3, TR3_GLOW,	 TR3_LITE_MASK, "    Light:"},
+		{3, TR3_GLOW,	 TR3_LITE_MASK,	 "    Light:"},
 		{99,0, 0,						"          "}
 	},
 	{
-		{3, TR3_REGEN,				 0, "    Regen:"},
 		{3, TR3_TELEPATHY,			 0, "Telepathy:"},
 		{3, TR3_SEE_INVIS,			 0, "See Invis:"},
 		{3, TR3_INVIS,				 0, "Invisible:"},
-		{3, TR3_LUCK,				 0,	"     Luck:"},
+		{3, TR3_LUCK,				 0, "     Luck:"},
 		{1, TR1_STEALTH,			 0, "  Stealth:"},
+		{1, TR1_JUMPING,			 0, "  Jumping:"},
 		{1, TR1_PERCEPTION,			 0, " Percptn.:"},
 		{1, TR1_INFRA,				 0, "Infra-vsn:"},
-		{1, TR1_TUNNEL,				 0, "Tunneling:"},
+		{1, TR1_AMBUSH,				 0, "   Ambush:"},
 		{1, TR1_BLOWS,				 0, "    Blows:"},
-		{1, TR1_SHOTS,				 0, "    Shots:"},
-		{1, TR1_MIGHT,				 0, "    Might:"},
+		{1, TR1_MYSTIC_RANGE,			 0, "    Range:"},
+		{3, TR3_MIGHTY_THROW,			 0, "Mgt Throw:"},
 		{99,0, 0,						"          "}
 	},
 	{
@@ -577,7 +685,7 @@ static const c_flag_desc flag_list[3][13] =
 		{3, TR3_TAINT,				 0, "    Taint:"},
 		{3,	TR3_DISRUPT,			 0, "  Disrupt:"},
 		{3, TR3_DRAIN_ITEM,			 0, "Drn Items:"},
-		{3, TR3_DRAIN_EXP,			 0, "Drn   Exp:"},
+		{3, TR3_DRAIN_EXP,			 0, "  Drn Exp:"},
 		{3, TR3_TELEPORT,			 0, " Teleport:"},
 		{3, TR3_AGGRAVATE,			 0, "Aggravate:"},
 		{99,0, 0,						"          "}
@@ -798,9 +906,7 @@ static void display_player_resists_info(void)
 	for (i = 0; i < 3; i++)
 	{
 		/* Footer */
-		if (cp_ptr->flags & CF_MUSIC) 
-			c_put_str(TERM_WHITE, "abcdefghijklm@*", 20, 12 + (26 * i));
-		else c_put_str(TERM_WHITE, "abcdefghijkl@*", 20, 12 + (26 * i));
+		c_put_str(TERM_WHITE, "abcdefghijkl@*", 20, 12 + (26 * i));
 
 		/* Equippy */
 		display_player_equippy(21, 12 + (26 * i));
@@ -812,7 +918,7 @@ static void display_player_resists_info(void)
  */
 static void display_player_misc_info(void)
 {
-	int col;
+	int col = 0;
 	cptr p;
 
 	char buf[80];
@@ -827,8 +933,16 @@ static void display_player_misc_info(void)
 
 	/* Race */
 	put_str("Race", 3, 1);
-	if (!rp_ptr->special) p=p_name + rp_ptr->name;
-		else p=rsp_ptr[(p_ptr->max_lev)/5]->name;
+	if (p_ptr->shape == SHAPE_HARPY) p="Harpy";
+	else if (p_ptr->shape == SHAPE_ANGEL) p="Angel";
+	else if (p_ptr->shape == SHAPE_APE) p="Ape";
+	else if (p_ptr->shape == SHAPE_NAGA) p="Naga";
+	else if (p_ptr->shape == SHAPE_STATUE) p="Statue";
+	else if (p_ptr->shape == SHAPE_FAUN) p="Faun";
+	else if (p_ptr->shape == SHAPE_GOBLIN) p="Goblin";
+	else if (p_ptr->shape == SHAPE_GHOUL) p="Ghoul";
+	else if (!rp_ptr->special) p=p_name + rp_ptr->name;
+	else p=rsp_ptr[(p_ptr->max_lev)/5]->name;
 	c_put_str(TERM_L_BLUE, p, 3, 8);
 
 	/* Class */
@@ -857,27 +971,17 @@ static void display_player_misc_info(void)
 	/* Dump it */
 	c_put_str(TERM_L_BLUE, p, 5, 8);
 
-	/* Age */
-	put_str("Age", 6, 1);
-	sprintf(buf, "%d", (int)p_ptr->age);
-	c_put_str(TERM_L_BLUE, buf, 6, 8);
+	/* Deity */
+	put_str("Deity", 6, 1);
 
-	/* Height */
-	put_str("Height", 7, 1);
-	sprintf(buf, "%d", (int)p_ptr->ht);
-	c_put_str(TERM_L_BLUE, buf, 7, 8);
+	if (p_ptr->obsession_status >= 4) Term_putstr(col+8, 6, -1, TERM_RED, ("Beleth"));
+	else if (p_ptr->conflict_status >= 4) Term_putstr(col+8, 6, -1, TERM_YELLOW, ("Discordia"));
+	else if (p_ptr->purity_status >= 4) Term_putstr(col+8, 6, -1, TERM_L_GREEN, ("Eostre"));
+	else if (p_ptr->transformation_status >= 4) Term_putstr(col+8, 6, -1, TERM_GREEN, ("Cyrridven"));
+	else if (p_ptr->deceit_status >= 4) Term_putstr(col+8, 6, -1, TERM_VIOLET, ("Laverna"));
+	else Term_putstr(col+8, 6, -1, TERM_L_BLUE, ("None"));
 
-	/* Weight */
-	put_str("Weight", 8, 1);
-	sprintf(buf, "%d", (int)p_ptr->wt);
-	c_put_str(TERM_L_BLUE, buf, 8, 8);
-
-	/* Status */
-	put_str("Status", 9, 1);
-	sprintf(buf, "%d", (int)p_ptr->sc);
-	c_put_str(TERM_L_BLUE, buf, 9, 8);
-
-	col = 21;
+	col = 22;
 
 	/* Level */
 	int attr;
@@ -903,40 +1007,40 @@ static void display_player_misc_info(void)
 	Term_putstr(col, 3, -1, TERM_WHITE, "Max Exp");
 	Term_putstr(col+8, 3, -1, TERM_L_BLUE, format("%10d", (int)p_ptr->max_exp));
 
-	/* Advance Experience */
+	/* Advance Experience
 	Term_putstr(col, 4, -1, TERM_WHITE, "Adv Exp");
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
 		s32b advance = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L);
 		Term_putstr(col + 8, 4, -1, TERM_L_BLUE, format("%10ld", advance));
 	}
-	else Term_putstr(col+8, 4, -1, TERM_L_BLUE, format("%10s", "********"));
+	else Term_putstr(col+8, 4, -1, TERM_L_BLUE, format("%10s", "********")); */
 
    	/* Deepest recall level */
-   	Term_putstr(col, 5, -1, TERM_WHITE, "Current Depth");
+   	Term_putstr(col, 4, -1, TERM_WHITE, "Cur Depth");
    	if (!depth_in_feet) 
 	{
-		Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
+		Term_putstr(col+14, 4, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
 	}
 	else 
 	{
-		Term_putstr(col+11, 5, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
+		Term_putstr(col+11, 4, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
 	}
 
    	/* Minimum depth */
-   	Term_putstr(col, 6, -1, TERM_WHITE, "Min Depth");
+   	Term_putstr(col, 5, -1, TERM_WHITE, "Min Depth");
    	if (!depth_in_feet) 
 	{
-		Term_putstr(col+14, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->min_depth));
+		Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->min_depth));
 	}
 	else 
 	{
-		Term_putstr(col+11, 6, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->min_depth * 50));
+		Term_putstr(col+11, 5, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->min_depth * 50));
 	}
 
 	/* Gold */
-	Term_putstr(col, 8, -1, TERM_WHITE, "Gold");
-	Term_putstr(col + 8, 8, -1, TERM_L_BLUE,format("%10ld", p_ptr->au));
+	Term_putstr(col, 6, -1, TERM_WHITE, "Gold");
+	Term_putstr(col + 8, 6, -1, TERM_L_BLUE,format("%10ld", p_ptr->au));
 
 	/* Burden */
 	if (p_ptr->total_weight % 10)
@@ -944,9 +1048,72 @@ static void display_player_misc_info(void)
 		adj_str_wgt[p_stat(A_STR)] * 6L);
 	else 
 		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6L);
-	Term_putstr(col, 9, -1, TERM_WHITE, "Burden");
-	Term_putstr(col + 8, 9, -1, TERM_L_BLUE, format("%10s", buf));
+	Term_putstr(col, 11, -1, TERM_WHITE, "Burden");
+	Term_putstr(col + 8, 11, -1, TERM_L_BLUE, format("%10s", buf));
+
+	col = 43;
+
+	/* Deity bonuses */
+	int multi = 0;
+	int roww = 11;
+
+	if ((p_ptr->obsession_status > 1) && (!(p_ptr->taint)))
+	{
+		if ((p_ptr->obsession_status == 5) || (p_ptr->obsession_status == 6)) multi = 2;
+		else if ((p_ptr->obsession_status == 7) || (p_ptr->obsession_status == 8)) multi = -1;
+		else multi = 1;
+
+		Term_putstr(col, roww, -1, TERM_RED, "Beleth");
+		roww++;
+		print_deity_bonuses(roww, p_ptr->obsession_bonus_a, p_ptr->obsession_bonus_b, multi, TERM_RED);
+		roww++;
+	}
+	if ((p_ptr->conflict_status > 1) && (!(p_ptr->taint)))
+	{
+		if ((p_ptr->conflict_status == 5) || (p_ptr->conflict_status == 6)) multi = 2;
+		else if ((p_ptr->conflict_status == 7) || (p_ptr->conflict_status == 8)) multi = -1;
+		else multi = 1;
+
+		Term_putstr(col, roww, -1, TERM_YELLOW, "Discordia");
+		roww++;
+		print_deity_bonuses(roww, p_ptr->conflict_bonus_a, p_ptr->conflict_bonus_b, multi, TERM_YELLOW);
+		roww++;
+	}
+	if ((p_ptr->purity_status > 1) && (!(p_ptr->taint)))
+	{
+		if ((p_ptr->purity_status == 5) || (p_ptr->purity_status == 6)) multi = 2;
+		else if ((p_ptr->purity_status == 7) || (p_ptr->purity_status == 8)) multi = -1;
+		else multi = 1;
+
+		Term_putstr(col, roww, -1, TERM_L_GREEN, "Eostre");
+		roww++;
+		print_deity_bonuses(roww, p_ptr->purity_bonus_a, p_ptr->purity_bonus_b, multi, TERM_L_GREEN);
+		roww++;
+	}
+	if ((p_ptr->transformation_status > 1) && (!(p_ptr->taint)))
+	{
+		if ((p_ptr->transformation_status == 5) || (p_ptr->transformation_status == 6)) multi = 2;
+		else if ((p_ptr->transformation_status == 7) || (p_ptr->transformation_status == 8)) multi = -1;
+		else multi = 1;
+
+		Term_putstr(col, roww, -1, TERM_GREEN, "Cyrridven");
+		roww++;
+		print_deity_bonuses(roww, p_ptr->transformation_bonus_a, p_ptr->transformation_bonus_b, multi, TERM_GREEN);
+		roww++;
+	}
+	if ((p_ptr->deceit_status > 1) && (!(p_ptr->taint)))
+	{
+		if ((p_ptr->deceit_status == 5) || (p_ptr->deceit_status == 6)) multi = 2;
+		else if ((p_ptr->deceit_status == 7) || (p_ptr->deceit_status == 8)) multi = -1;
+		else multi = 1;
+
+		Term_putstr(col, roww, -1, TERM_VIOLET, "Laverna");
+		roww++;
+		print_deity_bonuses(roww, p_ptr->deceit_bonus_a, p_ptr->deceit_bonus_b, multi, TERM_VIOLET);
+		roww++;
+	}
 }
+
 
 /*
  * Special display used for autorollers, part 2a
@@ -1005,7 +1172,7 @@ static void display_player_stat_birth(void)
 	row = 2;
 
 	/* Column */
-	col = 41;
+	col = 55;
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "CB", row-1, col + 6);
@@ -1051,6 +1218,7 @@ static void display_player_stat_birth(void)
 static void display_player_stat_dump(void)
 {
 	int i, row, col, n;
+	int special_bonus = 0;
 
 	char buf[80];
 
@@ -1058,7 +1226,7 @@ static void display_player_stat_dump(void)
 	row = 2;
 
 	/* Column */
-	col = 41;
+	col = 45;
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "CB", row-1, col + 6);
@@ -1090,11 +1258,178 @@ static void display_player_stat_dump(void)
 		/* Race Bonus */
 		if (!rp_ptr->special) n=rp_ptr->r_adj[i];
 		else n=rsp_ptr[(p_ptr->max_lev)/5]->r_adj[i]+rp_ptr->r_adj[i];
-		sprintf(buf, "%+2d", n);
+
+		/*** Hack: wounds and shapes affect race bonus ***/
+		special_bonus = 0;
+
+		if (i == 0)
+		{
+			if (p_ptr->wound_vigor == 2) special_bonus += -1;
+			if (p_ptr->wound_vigor == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_APE) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_NAGA) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+		else if (i == 1)
+		{
+			if (p_ptr->wound_wit == 2) special_bonus += -1;
+			if (p_ptr->wound_wit == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_APE) special_bonus -= 5;
+			if (p_ptr->shape == SHAPE_NAGA) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_FAUN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+		else if (i == 2)
+		{
+			if (p_ptr->wound_wit == 3) special_bonus += -1;
+			if (p_ptr->wound_wit == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) special_bonus -= 5;
+			if (p_ptr->shape == SHAPE_ANGEL) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_FAUN) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+		else if (i == 3)
+		{
+			if (p_ptr->wound_grace == 2) special_bonus += -1;
+			if (p_ptr->wound_grace == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_ANGEL) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+		else if (i == 4)
+		{
+			if (p_ptr->wound_vigor == 3) special_bonus += -1;
+			if (p_ptr->wound_vigor == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_APE) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_STATUE) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_FAUN) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+		else if (i == 5)
+		{
+			if (p_ptr->wound_grace == 3) special_bonus += -1;
+			if (p_ptr->wound_grace == 4) special_bonus += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) special_bonus -= 5;
+			if (p_ptr->shape == SHAPE_ANGEL) special_bonus += 5;
+			if (p_ptr->shape == SHAPE_APE) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_STATUE) special_bonus += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) special_bonus -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) special_bonus -= 1;
+		}
+
+		/*** Hack: goddesses give bonuses or penalties ***/
+		/* Blessed by or a follower of Beleth */
+		if ((p_ptr->obsession_status >= 2) && (p_ptr->obsession_status <= 4))
+		{
+			if (p_ptr->obsession_bonus_a == i) special_bonus+= 2;
+			if (p_ptr->obsession_bonus_b == i) special_bonus+= 1;
+		}
+		/* Beleth is happy or very happy */
+		if ((p_ptr->obsession_status >= 5) && (p_ptr->obsession_status <= 6))
+		{
+			if (p_ptr->obsession_bonus_a == i) special_bonus+= 3;
+			if (p_ptr->obsession_bonus_b == i) special_bonus+= 3;
+		}
+		/* Beleth is angry or very angry */
+		if (p_ptr->obsession_status >= 7)
+		{
+			if (p_ptr->obsession_bonus_a == i) special_bonus+= -2;
+			if (p_ptr->obsession_bonus_b == i) special_bonus+= -1;
+		}
+
+		/* Blessed by or a follower of Discordia */
+		if ((p_ptr->conflict_status >= 2) && (p_ptr->conflict_status <= 4))
+		{
+			if (p_ptr->conflict_bonus_a == i) special_bonus+= 2;
+			if (p_ptr->conflict_bonus_b == i) special_bonus+= 1;
+		}
+		/* Discordia is happy or very happy */
+		if ((p_ptr->conflict_status >= 5) && (p_ptr->conflict_status <= 6))
+		{
+			if (p_ptr->conflict_bonus_a == i) special_bonus+= 3;
+			if (p_ptr->conflict_bonus_b == i) special_bonus+= 3;
+		}
+		/* Discordia is angry or very angry */
+		if (p_ptr->conflict_status >= 7)
+		{
+			if (p_ptr->conflict_bonus_a == i) special_bonus+= -2;
+			if (p_ptr->conflict_bonus_b == i) special_bonus+= -1;
+		}
+
+		/* Blessed by or a follower of Eostre */
+		if ((p_ptr->purity_status >= 2) && (p_ptr->purity_status <= 4))
+		{
+			if (p_ptr->purity_bonus_a == i) special_bonus+= 2;
+			if (p_ptr->purity_bonus_b == i) special_bonus+= 1;
+		}
+		/* Eostre is happy or very happy */
+		if ((p_ptr->purity_status >= 5) && (p_ptr->purity_status <= 6))
+		{
+			if (p_ptr->purity_bonus_a == i) special_bonus+= 3;
+			if (p_ptr->purity_bonus_b == i) special_bonus+= 3;
+		}
+		/* Eostre is angry or very angry */
+		if (p_ptr->purity_status >= 7)
+		{
+			if (p_ptr->purity_bonus_a == i) special_bonus+= -2;
+			if (p_ptr->purity_bonus_b == i) special_bonus+= -1;
+		}
+
+		/* Blessed by or a follower of Cyrridven */
+		if ((p_ptr->transformation_status >= 2) && (p_ptr->transformation_status <= 4))
+		{
+			if (p_ptr->transformation_bonus_a == i) special_bonus+= 2;
+			if (p_ptr->transformation_bonus_b == i) special_bonus+= 1;
+		}
+		/* Cyrridven is happy or very happy */
+		if ((p_ptr->transformation_status >= 5) && (p_ptr->transformation_status <= 6))
+		{
+			if (p_ptr->transformation_bonus_a == i) special_bonus+= 3;
+			if (p_ptr->transformation_bonus_b == i) special_bonus+= 3;
+		}
+		/* Cyrridven is angry or very angry */
+		if (p_ptr->transformation_status >= 7)
+		{
+			if (p_ptr->transformation_bonus_a == i) special_bonus+= -2;
+			if (p_ptr->transformation_bonus_b == i) special_bonus+= -1;
+		}
+
+		/* Blessed by or a follower of Laverna */
+		if ((p_ptr->deceit_status >= 2) && (p_ptr->deceit_status <= 4))
+		{
+			if (p_ptr->deceit_bonus_a == i) special_bonus+= 2;
+			if (p_ptr->deceit_bonus_b == i) special_bonus+= 1;
+		}
+		/* Laverna is happy or very happy */
+		if ((p_ptr->deceit_status >= 5) && (p_ptr->deceit_status <= 6))
+		{
+			if (p_ptr->deceit_bonus_a == i) special_bonus+= 3;
+			if (p_ptr->deceit_bonus_b == i) special_bonus+= 3;
+		}
+		/* Laverna is angry or very angry */
+		if (p_ptr->deceit_status >= 7)
+		{
+			if (p_ptr->deceit_bonus_a == i) special_bonus+= -2;
+			if (p_ptr->deceit_bonus_b == i) special_bonus+= -1;
+		}
+
+		/* Finally print the race bonus */
+		sprintf(buf, "%+2d", n + special_bonus);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+16);
 
 		/* Equipment Bonus */
-		sprintf(buf, "%+3d", p_ptr->stat_add[i]);
+		sprintf(buf, "%+3d", p_ptr->stat_add[i] - special_bonus);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+19);
 
 		/* Resulting "modified" maximum value */
@@ -1132,11 +1467,10 @@ static void display_player_stat_info(void)
 	row = 2;
 
 	/* Column */
-	col = 41;
+	col = 45;
 
 	/* Header */
-	if (cp_ptr->flags & CF_MUSIC) c_put_str(TERM_WHITE, "abcdefghijklm@", row-1, col+11);
-	else c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+11);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+11);
 	c_put_str(TERM_WHITE, " Base", row-1, col+5);
 	c_put_str(TERM_WHITE, " Stat", row-1, col+26);
 
@@ -1265,36 +1599,152 @@ static void display_player_stat_info(void)
 		if (!rp_ptr->special) n = rp_ptr->r_adj[stat];
 		else n = rsp_ptr[(p_ptr->max_lev) / 5]->r_adj[stat] + rp_ptr->r_adj[stat];
 
-		/*** Hack: wounds affect race bonus ***/
+		/*** Hack: wounds and shapes affect race bonus ***/
 		if (stat == 0)
 		{
 			if (p_ptr->wound_vigor == 2) n += -1;
 			if (p_ptr->wound_vigor == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_APE) n += 5;
+			if (p_ptr->shape == SHAPE_NAGA) n += 2;
 		}
 		else if (stat == 1)
 		{
 			if (p_ptr->wound_wit == 2) n += -1;
 			if (p_ptr->wound_wit == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_APE) n -= 5;
+			if (p_ptr->shape == SHAPE_NAGA) n += 5;
 		}
 		else if (stat == 2)
 		{
 			if (p_ptr->wound_wit == 3) n += -1;
 			if (p_ptr->wound_wit == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) n -= 5;
+			if (p_ptr->shape == SHAPE_ANGEL) n += 5;
 		}
 		else if (stat == 3)
 		{
 			if (p_ptr->wound_grace == 2) n += -1;
 			if (p_ptr->wound_grace == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) n += 5;
+			if (p_ptr->shape == SHAPE_ANGEL) n += 2;
 		}
 		else if (stat == 4)
 		{
 			if (p_ptr->wound_vigor == 3) n += -1;
 			if (p_ptr->wound_vigor == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_APE) n += 2;
+			if (p_ptr->shape == SHAPE_STATUE) n += 5;
 		}
 		else if (stat == 5)
 		{
 			if (p_ptr->wound_grace == 3) n += -1;
 			if (p_ptr->wound_grace == 4) n += -1;
+
+			if (p_ptr->shape == SHAPE_HARPY) n -= 5;
+			if (p_ptr->shape == SHAPE_ANGEL) n += 5;
+			if (p_ptr->shape == SHAPE_APE) n -= 2;
+			if (p_ptr->shape == SHAPE_STATUE) n += 2;
+		}
+
+		/*** Hack: goddesses give bonuses or penalties ***/
+		/* Blessed by or a follower of Beleth */
+		if ((p_ptr->obsession_status >= 2) && (p_ptr->obsession_status <= 4))
+		{
+			if (p_ptr->obsession_bonus_a == stat) n+= 2;
+			if (p_ptr->obsession_bonus_b == stat) n+= 1;
+		}
+		/* Beleth is happy or very happy */
+		if ((p_ptr->obsession_status >= 5) && (p_ptr->obsession_status <= 6))
+		{
+			if (p_ptr->obsession_bonus_a == stat) n+= 3;
+			if (p_ptr->obsession_bonus_b == stat) n+= 3;
+		}
+		/* Beleth is angry or very angry */
+		if (p_ptr->obsession_status >= 7)
+		{
+			if (p_ptr->obsession_bonus_a == stat) n+= -2;
+			if (p_ptr->obsession_bonus_b == stat) n+= -1;
+		}
+
+		/* Blessed by or a follower of Discordia */
+		if ((p_ptr->conflict_status >= 2) && (p_ptr->conflict_status <= 4))
+		{
+			if (p_ptr->conflict_bonus_a == stat) n+= 2;
+			if (p_ptr->conflict_bonus_b == stat) n+= 1;
+		}
+		/* Discordia is happy or very happy */
+		if ((p_ptr->conflict_status >= 5) && (p_ptr->conflict_status <= 6))
+		{
+			if (p_ptr->conflict_bonus_a == stat) n+= 3;
+			if (p_ptr->conflict_bonus_b == stat) n+= 3;
+		}
+		/* Discordia is angry or very angry */
+		if (p_ptr->conflict_status >= 7)
+		{
+			if (p_ptr->conflict_bonus_a == stat) n+= -2;
+			if (p_ptr->conflict_bonus_b == stat) n+= -1;
+		}
+
+		/* Blessed by or a follower of Eostre */
+		if ((p_ptr->purity_status >= 2) && (p_ptr->purity_status <= 4))
+		{
+			if (p_ptr->purity_bonus_a == stat) n+= 2;
+			if (p_ptr->purity_bonus_b == stat) n+= 1;
+		}
+		/* Eostre is happy or very happy */
+		if ((p_ptr->purity_status >= 5) && (p_ptr->purity_status <= 6))
+		{
+			if (p_ptr->purity_bonus_a == stat) n+= 3;
+			if (p_ptr->purity_bonus_b == stat) n+= 3;
+		}
+		/* Eostre is angry or very angry */
+		if (p_ptr->purity_status >= 7)
+		{
+			if (p_ptr->purity_bonus_a == stat) n+= -2;
+			if (p_ptr->purity_bonus_b == stat) n+= -1;
+		}
+
+		/* Blessed by or a follower of Cyrridven */
+		if ((p_ptr->transformation_status >= 2) && (p_ptr->transformation_status <= 4))
+		{
+			if (p_ptr->transformation_bonus_a == stat) n+= 2;
+			if (p_ptr->transformation_bonus_b == stat) n+= 1;
+		}
+		/* Cyrridven is happy or very happy */
+		if ((p_ptr->transformation_status >= 5) && (p_ptr->transformation_status <= 6))
+		{
+			if (p_ptr->transformation_bonus_a == stat) n+= 3;
+			if (p_ptr->transformation_bonus_b == stat) n+= 3;
+		}
+		/* Cyrridven is angry or very angry */
+		if (p_ptr->transformation_status >= 7)
+		{
+			if (p_ptr->transformation_bonus_a == stat) n+= -2;
+			if (p_ptr->transformation_bonus_b == stat) n+= -1;
+		}
+
+		/* Blessed by or a follower of Laverna */
+		if ((p_ptr->deceit_status >= 2) && (p_ptr->deceit_status <= 4))
+		{
+			if (p_ptr->deceit_bonus_a == stat) n+= 2;
+			if (p_ptr->deceit_bonus_b == stat) n+= 1;
+		}
+		/* Laverna is happy or very happy */
+		if ((p_ptr->deceit_status >= 5) && (p_ptr->deceit_status <= 6))
+		{
+			if (p_ptr->deceit_bonus_a == stat) n+= 3;
+			if (p_ptr->deceit_bonus_b == stat) n+= 3;
+		}
+		/* Laverna is angry or very angry */
+		if (p_ptr->deceit_status >= 7)
+		{
+			if (p_ptr->deceit_bonus_a == stat) n+= -2;
+			if (p_ptr->deceit_bonus_b == stat) n+= -1;
 		}
 
 		/* Good */
@@ -1334,11 +1784,10 @@ static void display_player_stat_info(void)
 	}
 
 	/* Column */
-	col = 41;
+	col = 45;
 
 	/* Footer */
-	if (cp_ptr->flags & CF_MUSIC) c_put_str(TERM_WHITE, "abcdefghijklm@", row+6, col+11);
-	else c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col+11);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col+11);
 
 	/* Equippy */
 	display_player_equippy(row+7, col+11);
@@ -1407,11 +1856,11 @@ typedef struct o_flag_desc
 static const o_flag_desc stat_flags_desc[A_MAX] =
 {
 	{ TR1_STR,        "strength" },
-	{ TR1_INT,        "intelligence" },
+	{ TR1_INT,        "memory" },
 	{ TR1_WIS,        "wisdom" },
 	{ TR1_DEX,        "dexterity" },
 	{ TR1_CON,        "constitution" },
-	{ TR1_CHR,        "charisma" }
+	{ TR1_CHR,        "presence" }
 };
 
 /*
@@ -1423,7 +1872,6 @@ static const o_flag_desc pval_flags1_desc[] =
 	{ TR1_STEALTH,    "stealth" },
 	{ TR1_PERCEPTION, "perception" },
 	{ TR1_INFRA,      "infravision" },
-	{ TR1_TUNNEL,     "tunneling" },
 	{ TR1_SPEED,      "speed" },
 	{ TR1_BLOWS,      "attacks" },
 	{ TR1_SHOTS,      "shots" },
@@ -1432,7 +1880,14 @@ static const o_flag_desc pval_flags1_desc[] =
 	{ TR1_SP_DUR,     "spell duration" },
 	{ TR1_SP_DAM,     "spell damage" },
 	{ TR1_SP_INF,     "spell influence" },
-	{ TR1_HEALTH,     "health" }
+	{ TR1_HEALTH,     "health" },
+	{ TR1_MELEE,     "melee" },
+	{ TR1_ARCHERY,     "archery skill" },
+	{ TR1_ESCAPES,     "escapes" },
+	{ TR1_THROW_SKILL,     "throwing" },
+	{ TR1_JUMPING,     "jumping" },
+	{ TR1_MYSTIC_RANGE,     "range with spells and weapons" },
+	{ TR1_AMBUSH,     "ambush chance" }
 };
 
 /*
@@ -1440,9 +1895,10 @@ static const o_flag_desc pval_flags1_desc[] =
  */
 static const o_flag_desc weapon_flags_desc[] =
 {
-	{ TR2_WOUNDING,		"cause bleeding" },
-	{ TR2_TERROR,		"terrify the enemy" },
-	{ TR2_IMPACT,		"cause an earthquake" }
+	{ TR2_WOUNDING,		"hit from this weapon can cause bleeding" },
+	{ TR2_TERROR,		"hit from this weapon can terrify the enemy" },
+	{ TR2_IMPACT,		"hit from this weapon can cause an earthquake" },
+	{ TR2_DEADLY_CRIT,	"critical hit from this weapon does triple damage" }
 };
 
 /*
@@ -1451,7 +1907,10 @@ static const o_flag_desc weapon_flags_desc[] =
 cptr slay_names[SL_MAX] =
 {
 	"vs. evil",
-	"vs. chaotic",
+	"vs. creatures of Aether",
+	"vs. creatures of Skultgard",
+	"vs. creatures of Thornwild",
+	"vs. creatures of Chaos",
 	"vs. animals",
 	"vs. plants",
 	"vs. undead",
@@ -1477,11 +1936,11 @@ cptr slay_names[SL_MAX] =
 static const o_flag_desc sustain_flags_desc[] =
 {
 	{ TR1_SUST_STR,   "strength" },
-	{ TR1_SUST_INT,   "intelligence" },
+	{ TR1_SUST_INT,   "memory" },
 	{ TR1_SUST_WIS,   "wisdom" },
 	{ TR1_SUST_DEX,   "dexterity" },
 	{ TR1_SUST_CON,   "constitution" },
-	{ TR1_SUST_CHR,   "charisma" }
+	{ TR1_SUST_CHR,   "presence" }
 };
 
 
@@ -1503,14 +1962,18 @@ static const o_flag_desc imm_flags2_desc[] =
  */
 static const o_flag_desc misc_flags3_desc[] =
 {
-	{ TR3_SLOW_DIGEST,	"slow digestion" },
+	{ TR3_PRO_CHAOS,	"protection from lesser creatures of Chaos" },
+	{ TR3_PRO_THORNWILD,	"protection from lesser creatures of Thornwild" },
+	{ TR3_PRO_SKULTGARD,	"protection from lesser creatures of Skultgard" },
+	{ TR3_PRO_AETHER,	"protection from lesser creatures of Aether" },
 	{ TR3_FEATHER,		"feather falling" },
 	{ TR3_GLOW,			"brighter light" },
 	{ TR3_REGEN,		"regeneration" },
 	{ TR3_TELEPATHY,	"telepathy" },
 	{ TR3_SEE_INVIS,	"see invisible" },
 	{ TR3_INVIS,		"invisibility" },
-	{ TR3_LUCK,			"luck finding items" },
+	{ TR3_LUCK,		"luck finding items" },
+	{ TR3_MIGHTY_THROW,	"double thrown range and thrown weapon damage" },
 };
 
 /*
@@ -1659,6 +2122,7 @@ void screen_object(const object_type *o_ptr, bool real)
 	{
 		/* Weapon Analysis */
 		if (weapon_p(o_ptr) || (o_ptr->tval == TV_DIGGING)) analyze_weapon(o_ptr);
+		if ((o_ptr->tval == TV_BODY_ARMOR) || (o_ptr->tval == TV_DRAG_ARMOR)) analyze_armor(o_ptr);
 		if (o_ptr->tval == TV_ARROW) analyze_ammo(o_ptr);
 
 		/* Display object history */
@@ -1761,7 +2225,7 @@ void analyze_weapon(const object_type *o_ptr)
 	int i;
 	int dam = 0;
 	int penalty = 0;
-	int str_needed, dex_needed, max_blows;
+	int str_needed = 0, dex_needed = 0, max_blows;
 
 	byte ds = object_ds(o_ptr);
 	byte dd = object_dd(o_ptr);
@@ -1782,12 +2246,25 @@ void analyze_weapon(const object_type *o_ptr)
 		}
 	}
 
+	/* Blessed weapon? */
+	bool blessed_weapon = TRUE;
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) blessed_weapon = FALSE;
+	if (o_ptr->e_idx == EGO_BLESS_BLADE) blessed_weapon = TRUE;
+	if (o_ptr->e_idx == EGO_SLAY_EVIL) blessed_weapon = TRUE;
+	if (o_ptr->e_idx == EGO_HA) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_AEGLOS) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_OROME) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_EONWE) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_LAWGIVER) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_WRATH) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_ULMO) blessed_weapon = TRUE;
+	if (o_ptr->a_idx == ART_POSEIDON) blessed_weapon = TRUE;
+
 	/* Find out the effective weapon weight */
 	int wgt_val = (object_weight(o_ptr) / 10);
 	if (wgt_val > 29) wgt_val = 29;
 
-	if (!((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
-		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))))
+	if (!((cp_ptr->flags & CF_BLESS_WEAPON) && (!blessed_weapon)))
 	{
 		if ((cp_ptr->flags & CF_BETTER_BLOWS) && (wgt_val > 12)) wgt_val--;
 		if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
@@ -1849,7 +2326,23 @@ void analyze_weapon(const object_type *o_ptr)
 
 	text_out("Using this weapon, you are, in your current condition, able to score ");
 	text_out_c(TERM_L_GREEN, format("%d ", blows));
-	if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
+	if ((blows > 1) && (p_ptr->fencing) && (o_ptr->tval == TV_SWORD))
+	{
+		text_out("blows per round, and ");
+		text_out_c(TERM_L_GREEN, format("%d ", p_ptr->fencing));
+		if (p_ptr->fencing == 1) text_out("extra blow ");
+		else text_out("extra blows ");
+		text_out("against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
+	}
+	else if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
+	else if ((p_ptr->fencing) && (o_ptr->tval == TV_SWORD))
+	{
+		text_out("blow per round, and ");
+		text_out_c(TERM_L_GREEN, format("%d ", p_ptr->fencing));
+		if (p_ptr->fencing == 1) text_out("extra blow ");
+		else text_out("extra blows ");
+		text_out("against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
+	}
 	else text_out("blow per round, averaging a damage of ");
 
 	/* First, the slays */
@@ -1878,21 +2371,54 @@ void analyze_weapon(const object_type *o_ptr)
 	if (any_slay) text_out(" vs. unaffected monsters.\n"); 
 	else text_out(" vs. any monster.\n"); 
 
+	text_out("\nIf you have more than one enemy in melee range, you will attack one extra monster at random.\n");
+
 	/* Ambush chance */
 	int ambush_remainder = 0;
-	int ambush = (p_ptr->to_h + object_to_h(o_ptr)) +5;
+	int ambush = (p_ptr->to_h_melee + object_to_h(o_ptr)) +5;
 	if (cp_ptr->flags & CF_AMBUSH)
 	{
 		ambush += (p_ptr->lev +10)/2;
 		ambush_remainder = 5 * ((p_ptr->lev +10) % 2);
 	}
-	if (p_ptr->tim_stealth) ambush += 10;
+
+	ambush += p_ptr->ambush_bonus;
 
 	text_out("\nWith this weapon, you have a ");
 	text_out_c(TERM_L_GREEN, format("%d", ambush));
 	if (ambush_remainder) text_out_c(TERM_L_GREEN, format (".%d", ambush_remainder));
 	text_out_c(TERM_L_GREEN, "%");
 	text_out(" bonus to your critical hit chance against sleeping, scared, confused, or blind monsters.\n");
+}
+
+/*
+ * Display information about body armor
+ */
+void analyze_armor(const object_type *o_ptr)
+{
+	int i;
+	int str_needed = 0;
+
+	/* How much STR you need */
+	for (i = 0; i < 31; i++)
+	{
+		if (adj_str_armor[i] >= object_weight(o_ptr) / 10)
+		{
+			str_needed = i;
+			break;
+		}
+	}
+
+	if (str_needed > p_stat(A_STR))
+	{
+		text_out_c(TERM_L_RED, "\nYou would need ");
+		text_out_c(TERM_L_RED, format("%d ", str_needed));
+		text_out_c(TERM_L_RED, "STR to get DEX bonuses to Jumping in this armor!\n\n");
+	}
+	else
+	{
+		text_out(format("\nYou get full DEX bonuses to Jumping in this armour. (STR %d+ required.)\n\n", str_needed));
+	}
 }
 
 /*
@@ -1916,8 +2442,8 @@ void analyze_ammo(const object_type *o_ptr)
 	if ((j_ptr->k_idx) && object_known_p(j_ptr))
 	{
 		text_out("\nFired from you current bow, this arrow will hit targets up to ");
-		text_out_c(TERM_L_GREEN, format("%d", (bow_range(j_ptr) + o_ptr->pval) * 10));
-		text_out(" feet away, inflicting an average damage of ");
+		text_out_c(TERM_L_GREEN, format("%d", (bow_range(j_ptr) + o_ptr->pval)));
+		text_out(" squares away, inflicting an average damage of ");
 
 		dam = ((ds + 1) * 5 * dd) * bow_might(j_ptr);
 
@@ -1962,19 +2488,21 @@ void analyze_ammo(const object_type *o_ptr)
 
 	/* Ambush chance */
 	int ambush_remainder = 0;
-	int ambush = (p_ptr->to_h + object_to_h(o_ptr)) +5;
+	int ambush = (p_ptr->to_h_shooting + object_to_h(o_ptr) + object_to_h(j_ptr)) +5;
+
 	if (cp_ptr->flags & CF_AMBUSH)
 	{
 		ambush += (p_ptr->lev +10)/2;
 		ambush_remainder = 5 * ((p_ptr->lev +10) % 2);
 	}
-	if (p_ptr->tim_stealth) ambush += 10;
 
-	text_out("\nWith this arrow, either thrown or fired from any bow, you have a ");
+	ambush += p_ptr->ambush_bonus;
+
+	text_out("\nWith this arrow, fired from your current bow, you have a ");
 	text_out_c(TERM_L_GREEN, format("%d", ambush));
 	if (ambush_remainder) text_out_c(TERM_L_GREEN, format (".%d", ambush_remainder));
 	text_out_c(TERM_L_GREEN, "%");
-	text_out(" bonus to you critical hit chance against sleeping, scared, confused, or blind monsters.\n");
+	text_out(" bonus to your critical hit chance against sleeping, scared, confused, or blind monsters.\n");
 }
 
 /* 
@@ -2027,13 +2555,22 @@ void list_object(const object_type *o_ptr, int mode)
 		if (f3 & TR3_LITE3) rad = 3;
 		if (f3 & TR3_LITE4) rad = 4;
 
-		if (rad) 
+		/* if ((rad) && (o_ptr->ident & IDENT_KNOWN)) */
+
+		if (object_known_p(o_ptr) || object_aware_p(o_ptr))
 		{
 			if (o_ptr->tval == TV_LITE_SPECIAL) text_out("Permanent light-source (");
-			else text_out("Refuelable light-source (");
+			else text_out("Light-source (");
 
-			text_out_c(TERM_YELLOW, format("radius %d", rad));
-			text_out(").  ");
+			text_out_c(TERM_YELLOW, format("radius %d", rad + p_ptr->phlogiston));
+			text_out(").  Its light protects you from seeing illusions in the Halls of Mist.  ");
+			anything = TRUE;
+		}
+		else if (rad)
+		{
+			if (o_ptr->tval == TV_LITE_SPECIAL) text_out("Permanent light-source.  Its light protects you from seeing illusions in the Halls of Mist.  ");
+			else text_out("Light-source.  Its light protects you from seeing illusions in the Halls of Mist.  ");
+
 			anything = TRUE;
 		}
 	}
@@ -2173,7 +2710,7 @@ void list_object(const object_type *o_ptr, int mode)
 		*list_ptr = NULL;
 		
 		/* Weapon flags */
-		anything |= outlist("A hit from this weapon can", list);
+		anything |= outlist("A", list);
 
 		/* Note that blessed weapons have special treatment */
 		if (f2 & TR2_BLESSED) 
@@ -2382,6 +2919,11 @@ void list_object(const object_type *o_ptr, int mode)
 						text_out("When wielded and activated, it ");
 						break;
 					}
+					case TV_MAGIC_BOOK:
+					{
+						text_out("\n\nThis tome contains the Ritual ");
+						break;
+					}
 					default: text_out("When worn and activated, it "); break;
 				}
 			}
@@ -2398,7 +2940,8 @@ void list_object(const object_type *o_ptr, int mode)
 					case TV_WAND:			text_out("When aimed, it "); break;
 					case TV_POWDER:			text_out("When you throw it at a monster and it hits, it "); break;
 					case TV_FLASK:			text_out("When you refuel a lantern with it, it "); break;
-					case TV_STAFF: default: text_out("When used, it "); break;
+					case TV_MAGIC_BOOK:		text_out("\n\nThis tome contains the Ritual "); break;
+					case TV_STAFF: default:		text_out("When used, it "); break;
 				}
 			}
 
@@ -2406,7 +2949,7 @@ void list_object(const object_type *o_ptr, int mode)
 
 			/* Show fail rate */
 			if ((o_ptr->tval == TV_TALISMAN) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)
-				|| (o_ptr->tval == TV_STAFF) || (o_ptr->tval ==  TV_DRAG_ARMOR) || (o_ptr->a_idx))
+				|| (o_ptr->tval == TV_STAFF) || (o_ptr->tval ==  TV_DRAG_ARMOR) || ((o_ptr->a_idx) && (!(o_ptr->tval == TV_MAGIC_BOOK))))
 			{
 				int lev = k_info[o_ptr->k_idx].level;
 
@@ -2434,11 +2977,12 @@ void list_object(const object_type *o_ptr, int mode)
 				else chance -= ((lev > 51) ? 30 + (lev/3) : lev - ((lev-10)/10));
 
 				/* Calculate fail rate */
-				if (chance < 2) fail_rate = 100;
-				else if (chance == 2) fail_rate = 80;
+				if (chance < 2) fail_rate = 85;
+				else if (chance == 2) fail_rate = 70;
+				else if (chance == 3) fail_rate = 60;
 				else fail_rate = (200/chance);
 
-				if (fail_rate > 100) fail_rate = 100;
+				if (fail_rate > 85) fail_rate = 85;
 
 				/* Print fail rate */
 				text_out(", with a ");
@@ -2487,40 +3031,86 @@ void list_object(const object_type *o_ptr, int mode)
 
 			switch (object_activation(o_ptr))
 			{
-				case POW_POWDER_HASTE:
 				case POW_POWDER_HEAL:
+					text_out("On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Lifeforce.  ");
+					text_out("\n\nCircle of Lifeforce restores and sustains STR, DEX, CON, and experience points.  It also cures and protects from the effects of disease.  Undead and demons have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Lifeforce.  ");
+					break;
 				case POW_POWDER_CONFUSING:
+					text_out("On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Illusions or Nexus, chosen at random.  ");
+					text_out("\n\nCircle of Illusions increases spell range by 7 squares and makes your influence spells (not devices) harder to resist.  Animals, persons, and humanoids have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Illusions.  ");
+					text_out("\n\nCircle of Nexus restores and sustains MEM, WIS, and PRE.  All teleportation effects other than Phase Door will take you to the Circle of Nexus.  Any teleporting monster (for whatever reason) will also end up there.  ");
+					break;
 				case POW_POWDER_SLEEPING:
+					text_out("On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Illusions.  ");
+					text_out("\n\nCircle of Illusions increases spell range by 7 squares and makes your influence spells (not devices) harder to resist.  Animals, persons, and humanoids have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Illusions.  ");
+					break;
 				case POW_POWDER_CALMING:
+					text_out("On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Lifeforce or Illusions, chosen at random.  ");
+					text_out("\n\nCircle of Lifeforce restores and sustains STR, DEX, CON, and experience points.  It also cures and protects from the effects of disease.  Undead and demons have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Lifeforce.  ");
+					text_out("\n\nCircle of Illusions increases spell range by 7 squares and makes your influence spells (not devices) harder to resist.  Animals, persons, and humanoids have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Illusions.  ");
+					break;
 				case POW_POWDER_TRANSFORMING:
-					text_out("On a critical hit, the powder cloud will spread.  "); break;
+					text_out("On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Recall or Summoning, chosen at random.  ");
+					text_out("\n\nCircle of Recall will call you back when your hitpoints are at 20% of maximum or lower.  ");
+					text_out("\n\nCircle of Summoning summons a group of monsters when completed.  ");
+					break;
 				case POW_POWDER_FLASH:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "3d16");
+					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Lifeforce or Knowledge, chosen at random.  ");
+					text_out("\n\nCircle of Lifeforce restores and sustains STR, DEX, CON, and experience points.  It also cures and protects from the effects of disease.  Undead and demons have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Lifeforce.  ");
+					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					break;
 				case POW_POWDER_DARKNESS:
 					text_out("Damage ");
-					text_out_c(TERM_L_GREEN, "5d7");
-					text_out(". On a critical hit, the powder cloud will spread.  "); break;
+					text_out_c(TERM_L_GREEN, "3d16");
+					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Summoning or Nexus, chosen at random.  ");
+					text_out("\n\nCircle of Summoning summons a group of monsters when completed.  ");
+					text_out("\n\nCircle of Nexus restores and sustains MEM, WIS, and PRE.  All teleportation effects other than Phase Door will take you to the Circle of Nexus.  Any teleporting monster (for whatever reason) will also end up there.  ");
+					break;
 				case POW_POWDER_POISONING:
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "3d14");
-					text_out(".  On a critical hit, the powder cloud will spread.  "); break;
+					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Summoning.  ");
+					text_out("\n\nCircle of Summoning summons a group of monsters when completed.  ");
+					break;
 				case POW_POWDER_BURNING:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "3d16");
+					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Knowledge.  ");
+					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					break;
 				case POW_POWDER_FREEZING:
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "3d16");
-					text_out(".  On a critical hit, the powder cloud will spread.  "); break;
+					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Nexus.  ");
+					text_out("\n\nCircle of Nexus restores and sustains MEM, WIS, and PRE.  All teleportation effects other than Phase Door will take you to the Circle of Nexus.  Any teleporting monster (for whatever reason) will also end up there.  ");
+					break;
 				case POW_POWDER_INCINERATION:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "8d30");
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  On a critical hit, the powder cloud will spread further.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Knowledge or Permanence, chosen at random.  ");
+					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, or 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					text_out("\n\nCircle of Permanence will make any positive temporary status effects started inside the circle last until you leave the dungeon level.  ");
+					break;
 				case POW_POWDER_ICE_BLAST:
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "8d30");
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("2"));
-					text_out(".  On a critical hit, the powder cloud will spread further.  "); break;
+					text_out(".  On a critical hit, the powder cloud will spread further.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Permanence.  ");
+					text_out("\n\nCircle of Permanence will make any positive temporary status effects started inside the circle last until you leave the dungeon level.  ");
+					break;
 				case POW_POWDER_ENERGY:
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "10d60");
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("2"));
-					text_out(".  On a critical hit, the powder cloud will spread further.  "); break;
+					text_out(".  On a critical hit, the powder cloud will spread further.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Recall.  ");
+					text_out("\n\nCircle of Recall will call you back when your hitpoints are at 20% of maximum or lower.  ");
+					break;
 				case POW_OIL_LANTERN:
 					text_out("When you throw it at a monster and it hits, it burns the monster.  ");
 					text_out("Damage ");
@@ -2617,6 +3207,16 @@ void list_object(const object_type *o_ptr, int mode)
 						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
 					}
 					text_out(".  "); break;
+				case POW_HARPOON:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 1 + (dlev/4)));
+					text_out(".  "); break;
+				case POW_BALL_STUN:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, ("1d6"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  "); break;
 				case POW_BOLT_LITE:
 				case POW_BOLT_DARK:
 					text_out("Damage ");
@@ -2695,11 +3295,11 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(".  "); break;
 				case POW_STAR_BEAM_W_LITE:
 					text_out("Damage ");
-					text_out_c(TERM_L_GREEN, format ("6d8"));
+					text_out_c(TERM_L_GREEN, format ("9d8"));
 					text_out(".  "); break;
 				case POW_STAR_BALL_ELEC:
 					text_out("Damage ");
-					text_out_c(TERM_L_GREEN, format ("40"));
+					text_out_c(TERM_L_GREEN, format ("140"));
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("3"));
 					text_out(".  "); break;
@@ -2738,6 +3338,20 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("%d", (dlev/10) + 1));
 					text_out(".  "); break;
+				case POW_STONE_TO_MUD:
+					text_out("Damage is ");
+					text_out_c(TERM_L_GREEN, format ("100"));
+					text_out(" against rock monsters, or against a ghost inside the exploding wall square.  ");
+					text_out("Burst radius is ");
+					text_out_c(TERM_L_GREEN, format ("3"));
+					text_out(" and damage ");
+					text_out_c(TERM_L_GREEN, format ("50"));
+					text_out(", ");
+					text_out_c(TERM_L_GREEN, format ("33"));
+					text_out(", or ");
+					text_out_c(TERM_L_GREEN, format ("25"));
+					text_out(", depending on the distance from the center of explosion. The explosion damages both you and monsters.");
+					break;
 				case POW_SHRPOISON:
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
@@ -2860,6 +3474,66 @@ void list_object(const object_type *o_ptr, int mode)
 						text_out(", radius ");
 						text_out_c(TERM_L_GREEN, format ("2"));
 						text_out(".  "); break;
+				case POW_RITUAL_STR:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Permanence.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Strength.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Permanence.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Strength.  ");
+					break;
+				case POW_RITUAL_INT:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Recall.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Memory.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Recall.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Memory.  ");
+					break;
+				case POW_RITUAL_WIS:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Recall.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Wisdom.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Recall.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Wisdom.  ");
+					break;
+				case POW_RITUAL_DEX:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Nexus.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Dexterity.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Nexus.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Dexterity.  ");
+					break;
+				case POW_RITUAL_CON:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Constitution.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Constitution.  ");
+					break;
+				case POW_RITUAL_CHR:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Illusions.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a point of Presence.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Illusions.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point of Presence.  ");
+					break;
+				case POW_RITUAL_AUGMENT_BODY:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Permanence.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, increase your physical stats by one.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Permanence.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, increase your physical stats by one.  ");
+					break;
+				case POW_RITUAL_MIND_OVER_BODY:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Knowledge.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, increase your mental stats by 2, and decrease your physical stats by 2.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Knowledge.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, increase your mental stats by 2, and decrease your physical stats by 2.  ");
+					break;
+				case POW_RITUAL_FORTIFICATION:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a +3 bonus to all resistances, and increase resistance caps by the same amount.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a +3 bonus to all resistances, and increase resistance caps by the same amount.  ");
+					break;
+				case POW_RITUAL_NIGHT_SIGHT:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Illusions.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, gain a permanent one square increase to your infravision range.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Illusions.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a permanent one square increase to your infravision range.  ");
+					break;
+				case POW_RITUAL_ACQUIRE_ARMOR:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Summoning.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, summon a powerful armour.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Summoning.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, summon a powerful armour.  ");
+					break;
+				case POW_RITUAL_CREATE_POWDER:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Nexus.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, create 10 piles of powder vials.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Nexus.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, create 10 piles of powder vials.  ");
+					break;
+				case POW_RITUAL_CURE_WOUND:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, cure a Wound in this order: Vigor, Wit, Grace.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Lifeforce.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, cure a Wound in this order: Vigor, Wit, Grace.  ");
+					break;
+				case POW_RITUAL_ACQUIRE_WEAPON:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Summoning.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, summon a powerful weapon.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Summoning.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, summon a powerful weapon.  ");
+					break;
+				case POW_RITUAL_FORBIDDEN_LORE:
+					if (cp_ptr->flags & CF_RITUAL_EXPERT) text_out("You may use the ritual by dropping the book on a Circle of Knowledge.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 5 power points, you gain at least one experience level.  ");
+					else text_out("You may use the ritual by dropping the book on a Circle of Knowledge.  The book is consumed in the process.  The ritual's power is MEM+WIS-1d20. For each full 10 power points, you gain at least one experience level.  ");
+					break;
 			}
 		}
 	}
@@ -2890,16 +3564,14 @@ void list_object(const object_type *o_ptr, int mode)
 	{
 		i = object_value(o_ptr);
 
-		if (i >= 10)
+		if ((i >= p_ptr->min_depth * 500) && (i > 0))
 		{
-			text_out("You think it values at around ");
+			text_out("\n\nYou may sell it in the town. You think it values at around ");
 			text_out_c(TERM_ORANGE, format("%d", i / 10));
 			text_out(" gp.  ");
-		}
-		else if (i) text_out("It appears to be of little value.  ");
-		else text_out("It appears to be totally worthless.  ");
 
-		anything = TRUE;
+			anything = TRUE;
+		}
 	}
 	
 	/* New line: show alchemy combination if known */
@@ -2953,15 +3625,15 @@ static void history_depth(s16b depth)
 {
 	if (depth == 0)
 	{
-		text_out_c(TERM_YELLOW, "in the town\n");
+		text_out_c(TERM_YELLOW, "in the town.\n");
 	}
 	else if (depth_in_feet)
 	{
-		text_out_c(TERM_YELLOW, format("at a depth of %d ft\n", depth * 50));
+		text_out_c(TERM_YELLOW, format("at a depth of %d ft.\n", depth * 50));
 	}
 	else 
 	{
-		text_out_c(TERM_YELLOW, format("on dungeon level %d\n", depth));
+		text_out_c(TERM_YELLOW, format("on dungeon level %d.\n", depth));
 	}
 }
 
@@ -3022,6 +3694,34 @@ void display_object_history(const object_type *o_ptr)
 		{
 			text_out_c(TERM_YELLOW, format("%s ", intro));
 			text_out_c(TERM_YELLOW, "found in a chest ");
+			history_depth(o_ptr->origin_dlvl);
+ 			break;
+		}
+		case ORIGIN_RACK:
+		{
+			text_out_c(TERM_YELLOW, format("%s ", intro));
+			text_out_c(TERM_YELLOW, "found in a rack ");
+			history_depth(o_ptr->origin_dlvl);
+ 			break;
+		}
+		case ORIGIN_SHELF:
+		{
+			text_out_c(TERM_YELLOW, format("%s ", intro));
+			text_out_c(TERM_YELLOW, "found in a bookshelf ");
+			history_depth(o_ptr->origin_dlvl);
+ 			break;
+		}
+		case ORIGIN_CLOSET:
+		{
+			text_out_c(TERM_YELLOW, format("%s ", intro));
+			text_out_c(TERM_YELLOW, "found in a closet ");
+			history_depth(o_ptr->origin_dlvl);
+ 			break;
+		}
+		case ORIGIN_FOREST:
+		{
+			text_out_c(TERM_YELLOW, format("%s ", intro));
+			text_out_c(TERM_YELLOW, "found in a forest ");
 			history_depth(o_ptr->origin_dlvl);
  			break;
 		}
@@ -3117,14 +3817,6 @@ void display_koff(const object_type *o_ptr)
 	if (x < 0) x = 0;
 
 	/* Display spells in readable books */
-	if (o_ptr->tval == TV_MUSIC)
-	{
-		if (cp_ptr->flags & CF_MUSIC)
-		{
-			print_spells(o_ptr->sval, TRUE, o_ptr->pval, 1, x);
-			return;
-		}
-	}
 	if (o_ptr->tval == TV_MAGIC_BOOK)
 	{
 		if (cp_ptr->spell_book[o_ptr->sval])

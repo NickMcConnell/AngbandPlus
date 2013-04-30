@@ -18,22 +18,41 @@ bool wearable_p(const object_type *o_ptr)
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
 	{
+		case TV_CLOAK:
+		case TV_BODY_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+			if (p_ptr->shape == SHAPE_HARPY) return FALSE;
+			else if (p_ptr->shape == SHAPE_ANGEL) return FALSE;
+			else return TRUE;
+		}
 		case TV_BOW:
 		case TV_DIGGING:
 		case TV_BLUNT:
 		case TV_POLEARM:
 		case TV_SWORD:
-		case TV_BOOTS:
+		case TV_RING:
 		case TV_GLOVES:
-		case TV_HEADGEAR:
 		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_BODY_ARMOR:
-		case TV_DRAG_ARMOR:
+		{
+			if (p_ptr->shape == SHAPE_HARPY) return FALSE;
+			else return TRUE;
+		}
+		case TV_BOOTS:
+		{
+			if (p_ptr->shape == SHAPE_HARPY) return FALSE;
+			else if (p_ptr->shape == SHAPE_NAGA) return FALSE;
+			else if (p_ptr->shape == SHAPE_FAUN) return FALSE;
+			else return TRUE;
+		}
+		case TV_HEADGEAR:
+		{
+			if (p_ptr->shape == SHAPE_FAUN) return FALSE;
+			else return TRUE;
+		}
 		case TV_LITE:
 		case TV_LITE_SPECIAL:
 		case TV_AMULET:
-		case TV_RING:
 		case TV_MUSIC:
 		{
 			return TRUE;
@@ -203,11 +222,6 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_BOOTS:
 		{
 			return INVEN_FEET;
-		}
-
-		case TV_MUSIC:
-		{
-			if (cp_ptr->flags & CF_MUSIC) return INVEN_MUSIC;
 		}
 	}
 
@@ -791,6 +805,9 @@ byte bow_might(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	if (f1 & TR1_MIGHT) might += (o_ptr->pval);
+
+	/* Archery proficiency gives bonuses to might */
+	might += p_ptr->archery;
 
 	/* Boundary check */
 	if (might < 1) might = 1;

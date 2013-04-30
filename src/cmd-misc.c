@@ -257,37 +257,42 @@ static bool do_cmd_open_aux(int y, int x)
 	if (!do_cmd_open_test(y, x)) return (FALSE);
 
 	/* Locked door */
-	if (trap_lock(y, x) && trap_player(y, x)) 
+	if (trap_lock(y, x))
 	{
 		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 		/* Disarm factor */
-		i = p_ptr->skill[SK_DIS];
+		i = p_ptr->skill[SK_PER];
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) i = i / 10;
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
-		/* Extract the lock power */
-		j = t_ptr->charges;
-
-		/* Extract the difficulty XXX XXX XXX */
-		j = i - (j * 4);
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
+		/* Already mastered */
+		if (t_ptr->spot_factor == 99)
+		{
+		}
+		/* Only one try */
+		else if (t_ptr->spot_factor == 100)
+		{
+			message(MSG_DISARM_FAIL, 0, "You have no idea how to open the lock.");
+			return (FALSE);
+		}
 
 		/* Success */
-		if (rand_int(100) < j)
+		else if (rand_int(100) < i)
 		{
 			/* Message */
-			message(MSG_OPENDOOR, 0, "You have picked the lock.");
+			message(MSG_OPENDOOR, 0, "Using Perception...");
+			message(MSG_OPENDOOR, 0, "You have mastered the lock.");
 
-			/* Delete the lock */
-			delete_trap(y, x);
+			t_ptr->spot_factor = 99;
+
+			/* Delete the lock
+			delete_trap(y, x); */
 
 			/* Experience */
-			gain_exp(1);
+			gain_exp(p_ptr->depth * 1.5);
 		}
 
 		/* Failure */
@@ -297,21 +302,44 @@ static bool do_cmd_open_aux(int y, int x)
 			if (flush_failure) flush();
 
 			/* Message */
+			message(MSG_OPENDOOR, 0, "Using Perception...");
 			message(MSG_DISARM_FAIL, 0, "You failed to pick the lock.");
 
+			t_ptr->spot_factor = 100;
+
 			/* Can keep trying */
-			return (TRUE);
+			return (FALSE);
 		}
-	}
-	/* Non-player locks */
-	else if (trap_lock(y, x))
-	{
-		/* Delete the lock */
-		delete_trap(y, x);
 	}
 
 	/* Open the door */
-	if (cave_feat[y][x] == FEAT_CLOSED) cave_set_feat(y, x, FEAT_OPEN);
+	if (cave_feat[y][x] == FEAT_CLOSED)
+	{
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_CLOSED_DOOR)
+		{
+			place_decoration(y, x, WG_SHELF_OPEN_DOOR);
+			lite_spot(y,x);
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_CLOSED_DOOR)
+		{
+			place_decoration(y, x, WG_PAINTING_OPEN_DOOR);
+			lite_spot(y,x);
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_CLOSED_DOOR)
+		{
+			place_decoration(y, x, WG_RACK_OPEN_DOOR);
+			lite_spot(y,x);
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_CLOSED_DOOR)
+		{
+			place_decoration(y, x, WG_CLOSET_OPEN_DOOR);
+			lite_spot(y,x);
+		}
+		else
+		{
+			cave_set_feat(y, x, FEAT_OPEN);
+		}
+	}
 
 	/* Open a chest */
 	else
@@ -341,7 +369,7 @@ static bool do_cmd_open_aux(int y, int x)
 			object_type *i_ptr;
 			object_type object_type_body;
 
-			byte tval;
+			byte tval = 0;
 			int theme;
 			bool placed = FALSE;
 
@@ -412,7 +440,7 @@ static bool do_cmd_open_aux(int y, int x)
 					/* Misc theme */
 					case 2:
 					{
-						switch(rand_int(17))
+						switch(rand_int(14))
 						{
 							case 0: case 1: tval = TV_SCROLL; break;
 							case 2: case 3: tval = TV_POTION; break;
@@ -420,10 +448,9 @@ static bool do_cmd_open_aux(int y, int x)
 							case 6: case 7: tval = TV_AMULET; break;
 							case 8: case 9: tval = TV_RING; break;	
 							case 10: tval = TV_MUSIC; break;
-							case 13: tval = TV_FLASK; break;
-							case 14: tval = TV_CLOAK; break;
-							case 15: tval = TV_POWDER; break;	
-							case 16: tval = TV_ARROW; break;
+							case 11: tval = TV_CLOAK; break;
+							case 12: tval = TV_POWDER; break;	
+							case 13: tval = TV_ARROW; break;
 						}
 						break;
 					}
@@ -439,7 +466,7 @@ static bool do_cmd_open_aux(int y, int x)
 					object_history(i_ptr, ORIGIN_CHEST, 0, 0, 0);
 
 					/* Drop the object */
-					drop_near(i_ptr, -1, y, x);
+					drop_near(i_ptr, -1, y, x, FALSE);
 
 					placed = TRUE;
 				}
@@ -527,7 +554,7 @@ void do_cmd_open(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, FALSE);
 	}
 
 	/* Door */
@@ -592,11 +619,36 @@ static bool do_cmd_close_aux(int y, int x)
 		message(MSG_FAIL, 0, "The door appears to be broken.");
 	}
 
-	/* Open door */
+	/* Close door */
 	else
 	{
 		/* Close the door */
-		cave_set_feat(y, x, FEAT_CLOSED);
+
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_OPEN_DOOR)
+		{
+			place_decoration(y, x, WG_SHELF_CLOSED_DOOR);
+			lite_spot(y,x);
+		}
+
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_OPEN_DOOR)
+		{
+			place_decoration(y, x, WG_PAINTING_CLOSED_DOOR);
+			lite_spot(y,x);
+		}
+
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_OPEN_DOOR)
+		{
+			place_decoration(y, x, WG_CLOSET_CLOSED_DOOR);
+			lite_spot(y,x);
+		}
+
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_OPEN_DOOR)
+		{
+			place_decoration(y, x, WG_RACK_CLOSED_DOOR);
+			lite_spot(y,x);
+		}
+
+		else cave_set_feat(y, x, FEAT_CLOSED);
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -669,7 +721,7 @@ void do_cmd_close(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, FALSE);
 	}
 
 	/* Door */
@@ -698,7 +750,17 @@ static bool do_cmd_tunnel_test(int y, int x)
 		return (FALSE);
 	}
 
-	/* Hacl - Can't tunnel into a chest */
+	/* Hack - Can only tunnel in rubble */
+	if (!(cave_feat[y][x] == FEAT_RUBBLE))
+	{
+		/* Message */
+		message(MSG_FAIL, 0, "You can only tunnel through rubble or trees.");
+
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Hack - Can't tunnel into a chest */
 	if ((cave_feat[y][x] == FEAT_CHEST) || (cave_feat[y][x] == FEAT_QST_CHEST))
 	{
 		/* Message */
@@ -785,7 +847,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
 		/* Tunnel */
-		if ((p_ptr->skill[SK_DIG] > 40 + rand_int(1600)) && twall(y, x))
+		if ((p_ptr->digging > 40 + rand_int(1600)) && twall(y, x))
 		{
 			message(MSG_DIG, 0, "You have finished the tunnel.");
 		}
@@ -821,13 +883,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Quartz */
 		if (hard)
 		{
-			okay = (p_ptr->skill[SK_DIG] > 20 + rand_int(800));
+			okay = (p_ptr->digging > 20 + rand_int(800));
 		}
 
 		/* Magma */
 		else
 		{
-			okay = (p_ptr->skill[SK_DIG] > 10 + rand_int(400));
+			okay = (p_ptr->digging > 10 + rand_int(400));
 		}
 
 		/* Success */
@@ -877,13 +939,21 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
 		/* Remove the rubble */
-		if ((p_ptr->skill[SK_DIG] > rand_int(200)) && twall(y, x))
+		if ((p_ptr->digging > rand_int(200)) && twall(y, x))
 		{
 			/* Message */
-			message(MSG_DIG, 0, "You have removed the rubble.");
+			
+			if decoration(y, x)
+			{
+				message(MSG_DIG, 0, "Timber!");
+			}
+			else
+			{
+				message(MSG_DIG, 0, "You have removed the rubble.");
+			}
 
 			/* Hack -- place an object */
-			if (rand_int(100) < 10)
+			if ((rand_int(100) < 10) && (!(decoration(y,x))))
 			{
 				/* Create a simple object */
 				place_object(y, x, FALSE, FALSE);
@@ -894,12 +964,36 @@ static bool do_cmd_tunnel_aux(int y, int x)
 					message(MSG_DIG, 0, "You have found something!");
 				}
 			}
+
+			if decoration(y, x)
+			{
+				delete_trap(y , x);
+
+				trap_type trap_type_body;
+				trap_type *t_ptr = &trap_type_body;
+
+				t_ptr->visible = TRUE;
+				t_ptr->charges = 0;
+				t_ptr->w_idx = WG_STUMP;
+				trap_place(y, x, t_ptr);
+
+				lite_spot(y,x);
+			}
+
 		}
 
 		else
 		{
 			/* Message, keep digging */
-			message(MSG_DIG, 0, "You dig in the rubble.");
+			if decoration(y, x)
+			{
+				message(MSG_DIG, 0, "You chop the tree.");
+			}
+			else
+			{
+				message(MSG_DIG, 0, "You dig in the rubble.");
+			}
+
 			more = TRUE;
 		}
 	}
@@ -908,7 +1002,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (cave_feat[y][x] == FEAT_SECRET)
 	{
 		/* Tunnel */
-		if ((p_ptr->skill[SK_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		if ((p_ptr->digging > 30 + rand_int(1200)) && twall(y, x))
 		{
 			message(MSG_DIG, 0, "You have finished the tunnel.");
 		}
@@ -944,7 +1038,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else
 	{
 		/* Tunnel */
-		if ((p_ptr->skill[SK_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		if ((p_ptr->digging > 30 + rand_int(1200)) && twall(y, x))
 		{
 			message(MSG_DIG, 0, "You have finished the tunnel.");
 		}
@@ -1009,14 +1103,12 @@ void do_cmd_tunnel(void)
 	}
 
 	/* Monster */
-	if (cave_m_idx[y][x] > 0)
+	/* if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
-	}
+		py_attack(y, x, FALSE);
+	} */
 
 	/* Walls */
 	else
@@ -1090,7 +1182,7 @@ static int count_traps(int *y, int *x)
  */
 void do_cmd_disarm(void)
 {
-	int y, x, dir;
+	int y = 0, x = 0, dir;
 
 	bool more = FALSE;
 
@@ -1150,7 +1242,7 @@ void do_cmd_disarm(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, FALSE);
 	}
 
 	/* Disarm trap */
@@ -1231,7 +1323,7 @@ static bool do_cmd_bash_aux(int y, int x)
 		/* Break down the door */
 		if (rand_int(100) < 50)
 		{
-			cave_set_feat(y, x, FEAT_BROKEN);
+			cave_set_feat(y, x, FEAT_FLOOR);
 		}
 
 		/* Open the door */
@@ -1333,7 +1425,7 @@ void do_cmd_bash(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, FALSE);
 	}
 
 	/* Door */
@@ -1404,18 +1496,18 @@ void do_cmd_alter(void)
 		p_ptr->command_arg = 0;
 	}
 
-	/* Attack monsters */
-	if (cave_m_idx[y][x] > 0)
-	{
-		/* Attack */
-		py_attack(y, x);
-	}
-
 	/* Tunnel through walls */
-	else if ((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID))
+	if ((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID))
 	{
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
+	}
+
+	/* Attack monsters */
+	else if (cave_m_idx[y][x] > 0)
+	{
+		/* Attack */
+		py_attack(y, x, FALSE);
 	}
 
 	/* Open closed doors */
@@ -1533,45 +1625,177 @@ void do_cmd_proficiency(void)
 	int lore, reserves, escapes, superlore;
 	bool ignore_me;
 	int use_charge = 0;
+	int temp_lore_bonus = 0;
+	bool berserk = 0;
+
+	/* Temp Lore bonus when near a bookshelf & inside a room */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	{
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
+	}
+
+	/* Temp Lore bonus when on a Circle of Knowledge */
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
+
+	/* Does any goddess grant Berserk power? */
+	if (p_ptr->obsession_status >= 2)
+	{
+		if (p_ptr->obsession_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->obsession_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->conflict_status >= 2)
+	{
+		if (p_ptr->conflict_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->conflict_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->purity_status >= 2)
+	{
+		if (p_ptr->purity_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->purity_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->transformation_status >= 2)
+	{
+		if (p_ptr->transformation_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->transformation_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->deceit_status >= 2)
+	{
+		if (p_ptr->deceit_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->deceit_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
 
 	lore = p_ptr->lore - p_ptr->lore_uses;
 	reserves = p_ptr->reserves - p_ptr->reserves_uses;
 	escapes = p_ptr->escapes - p_ptr->escapes_uses;
 	superlore = 0;
-	if (p_stat(A_INT) + p_stat(A_WIS) >= 33) superlore = 1;
+	if (p_stat(A_INT) + p_stat(A_WIS) + temp_lore_bonus >= 30) superlore = 1;
 
-	if ((lore > 0) && (superlore))
+	/* Templars have different Lore proficiencies */
+	if (cp_ptr->flags & CF_FENCING)
 	{
-		if (reserves > 0)
+		if ((lore > 0) && (superlore))
 		{
-			if (escapes > 0) prt ("Which one: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (r)ecover, (s)hift?", 0 , 0);
-			else prt ("Which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (r)ecover?", 0 , 0);
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Pick: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Pick: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (e)scape?", 0, 0);
+			else prt ("Use which proficiency: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item?", 0, 0);
 		}
-		else if (escapes > 0) prt ("Which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (s)hift?", 0, 0);
-		else prt ("Use which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item?", 0, 0);
-	}
-	else if (lore > 0)
-	{
-		if (reserves > 0)
+		else if (lore > 0)
 		{
-			if (escapes > 0) prt ("Use which proficiency: (i)dentify, (c)ave lore, (r)ecover, (s)hift?", 0 , 0);
-			else prt ("Use which proficiency: (i)dentify, (c)ave lore, (r)ecover?", 0 , 0);
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (f)encing, (i)dentify, (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (f)encing, (i)dentify, (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (e)scape?", 0, 0);
+			else prt ("Use which proficiency: (f)encing, (i)dentify?", 0, 0);
 		}
-		else if (escapes > 0) prt ("Use which proficiency: (i)dentify, (c)ave lore, (s)hift?", 0, 0);
-		else prt ("Use which proficiency: (i)dentify, (c)ave lore?", 0, 0);
-	}
-	else
-	{
-		if (reserves > 0)
-		{
-			if (escapes > 0) prt ("Use which proficiency: (r)ecover, (s)hift?", 0 , 0);
-			else prt ("Use which proficiency: (r)ecover?", 0 , 0);
-		}
-		else if (escapes > 0) prt ("Use which proficiency: (s)hift?", 0, 0);
 		else
 		{
-			prt ("You can't use any proficiencies right now.", 0, 0);
-			return;
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Use which proficiency: (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Use which proficiency: (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Use which proficiency: (e)scape?", 0, 0);
+			else
+			{
+				prt ("You can't use any proficiencies right now.", 0, 0);
+				return;
+			}
+		}
+
+
+	}
+
+	/* Non-Templars */
+	else
+	{
+		if ((lore > 0) && (superlore))
+		{
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Which one: (a)lertness, (i)dentify pack, (s)tudy item, (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Which one: (a)lertness, (i)dentify pack, (s)tudy item, (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (e)scape?", 0, 0);
+			else prt ("Use which proficiency: (a)lertness, (i)dentify pack, (s)tudy item?", 0, 0);
+		}
+		else if (lore > 0)
+		{
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (a)lertness, (i)dentify, (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (a)lertness, (i)dentify, (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (e)scape?", 0, 0);
+			else prt ("Use which proficiency: (a)lertness, (i)dentify?", 0, 0);
+		}
+		else
+		{
+			if ((reserves > 0) && (berserk))
+			{
+				if (escapes > 0) prt ("Use which proficiency: (b)erserk, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (b)erserk?", 0 , 0);
+			}
+			else if (reserves > 0)
+			{
+				if (escapes > 0) prt ("Use which proficiency: (r)ecover, (e)scape?", 0 , 0);
+				else prt ("Use which proficiency: (r)ecover?", 0 , 0);
+			}
+			else if (escapes > 0) prt ("Use which proficiency: (e)scape?", 0, 0);
+			else
+			{
+				prt ("You can't use any proficiencies right now.", 0, 0);
+				return;
+			}
 		}
 	}
 
@@ -1582,27 +1806,30 @@ void do_cmd_proficiency(void)
 
 	/* Analyse the answer */
 
-	/* Dungeon lore */
-	if ((ch == 'd') && (lore > 0) && (superlore))
+	/* Archery */
+	if ((ch == 'a') && (lore > 0) && (superlore) && (cp_ptr->flags & CF_FENCING))
 	{
-		/* Check some conditions */
-		if (p_ptr->blind)
-		{
-			message(MSG_FAIL, 0, "You can't see anything.");
-			return;
-		}
-		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
-		{
-			message(MSG_FAIL, 0, "You need some light.");
-			return;
-		}
-		if (p_ptr->confused)
-		{
-			message(MSG_FAIL, 0, "You are too confused!");
-			return;
-		}
+		use_charge = do_power(POW_ARCHERY, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
 
-		use_charge = do_power(334, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Alertness */
+	else if ((ch == 'a') && (lore > 0))
+	{
+		use_charge = do_power(POW_ALERTNESS, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Fencing */
+	if ((ch == 'f') && (lore > 0) && (cp_ptr->flags & CF_FENCING))
+	{
+		use_charge = do_power(POW_FENCING, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */
@@ -1629,15 +1856,15 @@ void do_cmd_proficiency(void)
 			return;
 		}
 
-		use_charge = do_power(196, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_IDENTIFY_PACK, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */
 		if (use_charge) p_ptr->energy_use = 100;
 	}
 
-	/* Analyse Item */
-	else if ((ch == 'a') && (lore > 0) && (superlore))
+	/* Study Item */
+	else if ((ch == 's') && (lore > 0) && (superlore))
 	{
 		/* Check some conditions */
 		if (p_ptr->blind)
@@ -1656,7 +1883,7 @@ void do_cmd_proficiency(void)
 			return;
 		}
 
-		use_charge = do_power(335, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_ANALYSE_ITEM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */
@@ -1683,34 +1910,7 @@ void do_cmd_proficiency(void)
 			return;
 		}
 
-		use_charge = do_power(195, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
-		if (use_charge) p_ptr->lore_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
-	}
-
-	/* Cave Lore */
-	else if ((ch == 'c') && (lore > 0))
-	{
-		/* Check some conditions */
-		if (p_ptr->blind)
-		{
-			message(MSG_FAIL, 0, "You can't see anything.");
-			return;
-		}
-		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
-		{
-			message(MSG_FAIL, 0, "You need some light.");
-			return;
-		}
-		if (p_ptr->confused)
-		{
-			message(MSG_FAIL, 0, "You are too confused!");
-			return;
-		}
-
-		use_charge = do_power(333, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_IDENTIFY, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */
@@ -1718,19 +1918,29 @@ void do_cmd_proficiency(void)
 	}
 
 	/* Recover */
-	else if ((ch == 'r') && (reserves > 0))
+	else if ((ch == 'r') && (reserves > 0) && (!(berserk)))
 	{
-		use_charge = do_power(7, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_HEAL_CURE_2, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->reserves_uses++;
 
 		/* Take a turn */
 		if (use_charge) p_ptr->energy_use = 100;
 	}
 
-	/* Shift */
-	else if ((ch == 's') && (escapes > 0))
+	/* Berserk */
+	else if ((ch == 'b') && (reserves > 0) && (berserk))
 	{
-		use_charge = do_power(332, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_RAGE_1, 0, 0, 0, 0, 15, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->reserves_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Escape */
+	else if ((ch == 'e') && (escapes > 0))
+	{
+		use_charge = do_power(POW_SHIFT, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->escapes_uses++;
 
 		/* Take a turn */

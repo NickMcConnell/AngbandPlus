@@ -112,7 +112,7 @@ Felpurr
 
 ***** <Ursa>
 Ursa
-    Large, lumbering, bear-people, they ursa are incredibly strong, and have 
+    Large, lumbering, bear-people, the ursa are incredibly strong, and have 
     more hit points than any other character race. They are also quite stupid
     and slow. Living in cold, wooded regions, the ursa have a complex system 
     of inter-related hunter-gathering tribes. They make great warriors, and 

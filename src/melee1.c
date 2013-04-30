@@ -179,51 +179,122 @@ bool make_attack_normal(int m_idx)
 		{
 			case RBE_HURT:		power = 30; break;
 			case RBE_SHATTER:	power = 30; break;
-			case RBE_TAINT: 	power = 20; break;
-			case RBE_UN_BONUS:	power = 15; break;
-			case RBE_UN_POWER:	power = 12; break;
-			case RBE_ACID:		power = 10; break;
-			case RBE_ELEC:		power = 10; break;
-			case RBE_FIRE:		power = 10; break;
-			case RBE_COLD:		power = 10; break;
-			case RBE_RUST:		power = 10; break;
-			case RBE_ROT:		power = 10; break;
-			case RBE_CONFUSE:	power = 10; break;
-			case RBE_TERRIFY:	power = 10; break;
-			case RBE_HALLU: 	power = 10; break;
-			case RBE_EAT_GOLD:	power =  5; break;
-			case RBE_EAT_ITEM:	power =  5; break;
-			case RBE_EAT_FOOD:	power =  5; break;
-			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_POISON:	power =  5; break;
-			case RBE_EXP_1:		power =  5; break;
-			case RBE_EXP_2:		power =  5; break;
-			case RBE_EXP_3:		power =  5; break;
-			case RBE_EXP_4:		power =  5; break;
-			case RBE_DISEASE:	power =  2; break;
-			case RBE_BLIND:		power =  2; break;
-			case RBE_PARALYZE:	power =  2; break;
-			case RBE_LOSE_ALL:	power =  2; break;
-			case RBE_LOSE_STR:	power =  0; break;
-			case RBE_LOSE_DEX:	power =  0; break;
-			case RBE_LOSE_CON:	power =  0; break;
-			case RBE_LOSE_INT:	power =  0; break;
-			case RBE_LOSE_WIS:	power =  0; break;
-			case RBE_LOSE_CHR:	power =  0; break;
+			case RBE_TAINT: 	power = 22; break;
+			case RBE_UN_BONUS:	power = 16; break;
+			case RBE_UN_POWER:	power = 14; break;
+			case RBE_ACID:		power = 12; break;
+			case RBE_ELEC:		power = 12; break;
+			case RBE_FIRE:		power = 12; break;
+			case RBE_COLD:		power = 12; break;
+			case RBE_RUST:		power = 12; break;
+			case RBE_ROT:		power = 12; break;
+			case RBE_CONFUSE:	power = 12; break;
+			case RBE_TERRIFY:	power = 12; break;
+			case RBE_HALLU: 	power = 12; break;
+			case RBE_CUT:	 	power =  8; break;
+			case RBE_EAT_GOLD:	power =  8; break;
+			case RBE_EAT_ITEM:	power =  8; break;
+			case RBE_EAT_FOOD:	power =  8; break;
+			case RBE_EAT_LITE:	power =  8; break;
+			case RBE_POISON:	power =  8; break;
+			case RBE_EXP_1:		power =  8; break;
+			case RBE_EXP_2:		power =  8; break;
+			case RBE_EXP_3:		power =  8; break;
+			case RBE_EXP_4:		power =  8; break;
+			case RBE_DISEASE:	power =  5; break;
+			case RBE_BLIND:		power =  5; break;
+			case RBE_PARALYZE:	power =  5; break;
+			case RBE_LOSE_ALL:	power =  5; break;
+			case RBE_LOSE_STR:	power =  3; break;
+			case RBE_LOSE_DEX:	power =  3; break;
+			case RBE_LOSE_CON:	power =  3; break;
+			case RBE_LOSE_INT:	power =  3; break;
+			case RBE_LOSE_WIS:	power =  3; break;
+			case RBE_LOSE_CHR:	power =  3; break;
 		}
 
 		/* Monster hits player */
-		if (!effect || check_m_hit(power, rlev))
+		if (!effect || check_m_hit(power / (m_ptr->cursed + 1), rlev / (m_ptr->cursed + 1)))
 		{
 			/* Always disturbing */
 			disturb(1);
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) && (r_ptr->flags4 & (RF4_EVIL)) &&
-			    (p_ptr->lev >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
 				lore_learn(m_ptr, LRN_FLAG4, RF4_EVIL, FALSE);
+
+				/* Message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply temporary "protection from Chaos" */
+			if ((p_ptr->protchaos > 0) && (r_ptr->flags4 & (RF4_CHAOS)) &&
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Chaos-ness */
+				lore_learn(m_ptr, LRN_FLAG4, RF4_CHAOS, FALSE);
+
+				/* Message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply permanent "protection from Chaos" */
+			if ((p_ptr->pro_chaos) && (r_ptr->flags4 & (RF4_CHAOS)) &&
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Chaos-ness */
+				lore_learn(m_ptr, LRN_FLAG4, RF4_CHAOS, FALSE);
+
+				/* Message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply "protection from Thornwild" */
+			if ((p_ptr->pro_thornwild) && (r_ptr->flags4 & (RF4_THORNWILD)) &&
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Thornwild-ness */
+				lore_learn(m_ptr, LRN_FLAG4, RF4_THORNWILD, FALSE);
+
+				/* Message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply "protection from Skultgard" */
+			if ((p_ptr->pro_skultgard) && (r_ptr->flags4 & (RF4_SKULTGARD)) &&
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Skultgard-ness */
+				lore_learn(m_ptr, LRN_FLAG4, RF4_SKULTGARD, FALSE);
+
+				/* Message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply "protection from Aether" */
+			if ((p_ptr->pro_aether) && (r_ptr->flags4 & (RF4_AETHER)) &&
+			    (p_ptr->lev + rand_int(5) >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Aether-ness */
+				lore_learn(m_ptr, LRN_FLAG4, RF4_AETHER, FALSE);
 
 				/* Message */
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
@@ -374,8 +445,12 @@ bool make_attack_normal(int m_idx)
 
 			}
 
-			/* Message */
-			if (act) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s %s", m_name, act);
+			/* Long message if the monster is invisible. */
+			if ((act) && !m_ptr->ml) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s %s", m_name, act);
+			/* Short message for basic "hurt" */
+			else if ((act) && (effect == RBE_HURT)) message_format(MSG_MONSTER, m_ptr->r_idx, "Ouch.", m_name, act);
+			/* Long message for attacks with special effects */
+			else if (act) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s %s", m_name, act);
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
@@ -529,12 +604,12 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Saving throw (unless paralyzed) based on dex and level */
+					/* Saving throw (unless paralyzed) based on Jumping */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_stat(A_DEX)] + p_ptr->lev)))
+					    (rand_int(100) < p_ptr->skill[SK_MOB]))
 					{
 						/* Saving throw message */
-						message(MSG_RESIST, 0, "You quickly protect your money pouch!");
+						message(MSG_RESIST, 0, "You nimbly jump aside!");
 
 						/* Occasional blink anyway */
 						if (rand_int(3)) blinked = TRUE;
@@ -581,12 +656,12 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Saving throw (unless paralyzed) based on dex and level */
+					/* Saving throw (unless paralyzed) based on Jumping */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_stat(A_DEX)] + p_ptr->lev)))
+					    (rand_int(100) < p_ptr->skill[SK_MOB]))
 					{
 						/* Saving throw message */
-						message(MSG_RESIST, 0, "You grab hold of your backpack!");
+						message(MSG_RESIST, 0, "You nimbly jump aside!");
 
 						/* Occasional "blink" anyway */
 						blinked = TRUE;
@@ -843,6 +918,23 @@ bool make_attack_normal(int m_idx)
 					if (!p_ptr->blessed)
 					{
 						if(set_taint(p_ptr->taint + randint(5) + randint((rlev / 3) + 1))) 
+						{
+							obvious = TRUE;
+						}
+					}
+
+					break;
+				}
+
+				case RBE_CUT:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Cut player */
+					if (!p_ptr->no_cut)
+					{
+						if(set_cut(p_ptr->cut + randint(22) + 10) + 1) 
 						{
 							obvious = TRUE;
 						}
@@ -1259,7 +1351,7 @@ bool make_attack_normal(int m_idx)
 					disturb(1);
 
 					/* Message */
-					message_format(MSG_MON_FAIL, m_ptr->r_idx, "%^s misses you.", m_name);
+					/* message_format(MSG_MON_FAIL, m_ptr->r_idx, "%^s misses you.", m_name); */
 				}
 
 				break;

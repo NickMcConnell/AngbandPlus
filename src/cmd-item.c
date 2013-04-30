@@ -138,9 +138,6 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(const object_type *o_ptr)
 {
-	/* Hack - Deal with music items */
-	if ((o_ptr->tval == TV_MUSIC) && !(cp_ptr->flags & CF_MUSIC)) return (FALSE);
-
 	/* return true if wearable */
 	return (wearable_p(o_ptr));
 }
@@ -162,6 +159,16 @@ void do_cmd_wield(void)
 	cptr q, s;
 
 	char o_name[80];
+	char out_val[160];
+
+	bool old_torch = FALSE;
+
+	/* Check for torch being wielded */
+	o_ptr = &inventory[INVEN_LITE];
+	if (o_ptr->tval == TV_LITE)
+	{
+		if (o_ptr->timeout > 99) old_torch = TRUE;
+	}
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -195,6 +202,13 @@ void do_cmd_wield(void)
 
 		/* Cancel the command */
 		return;
+	}
+
+	/* Ask confirmation for discarding old torch */
+	if ((old_torch) && (slot == INVEN_LITE))
+	{
+		sprintf(out_val, "Are you sure you want to discard your current torch? ");
+		if (!get_check(out_val)) return;
 	}
 
 	/* Take a turn */
@@ -241,6 +255,30 @@ void do_cmd_wield(void)
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
+
+	/* Identify rings, amulets, light items, instruments */
+	switch (o_ptr->tval)
+	{
+		case TV_RING:
+		case TV_AMULET:
+		case TV_LITE:
+		case TV_LITE_SPECIAL:
+		{
+			/* Fully learn the item's abilities */
+			if ((!o_ptr->a_idx) && !(object_known_p(o_ptr)))
+			{
+				/* Identify it */
+				object_aware(o_ptr);
+				object_known(o_ptr);
+							
+				/* Recalculate bonuses */
+				p_ptr->update |= (PU_BONUS);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+			}
+		}
+	}
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD) act = "You are wielding";
@@ -295,6 +333,8 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
+	char out_val[160];
+
 	cptr q, s;
 
 	/* Get an item */
@@ -307,6 +347,16 @@ void do_cmd_takeoff(void)
 
 	/* Get the item (on the floor) */
 	else o_ptr = &o_list[0 - item];
+
+	/* Ask confirmation for discarding a torch with > 99 fuel */
+	if (o_ptr->tval == TV_LITE)
+	{
+		if (o_ptr->timeout > 99)
+		{
+			sprintf(out_val, "Are you sure you want to discard your current torch? ");
+			if (!get_check(out_val)) return;
+		}
+	}
 
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
@@ -339,6 +389,8 @@ void do_cmd_drop(void)
 
 	cptr q, s;
 
+	char out_val[160];
+
 	/* Get an item */
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
@@ -356,8 +408,40 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Dropping a burning torch? */
+	if (item == INVEN_LITE)
+	{
+		/* Ask confirmation if there's enough fuel left */
+		if (o_ptr->timeout > 99)
+		{
+			sprintf(out_val, "Are you sure you want to discard your current torch? ");
+			if (!get_check(out_val)) return;
+		}
+
+		/* Just taking it off destroys the torch */
+		item = inven_takeoff(item, 1);
+
+		return;
+	}
+
+	/* Are we trying to complete a magic circle? */
+	if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_MISSING_EDGE_A) && (o_ptr->tval == TV_POWDER))
+	{
+		amt = 1;
+	}
+	else if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_MISSING_EDGE_B) && (o_ptr->tval == TV_POWDER))
+	{
+		amt = 1;
+	}
+
+	/* Is a religion specialist dropping a torch on an altar? */
+	else if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT) && ((o_ptr->sval == SV_TORCH) || (o_ptr->sval == SV_LANTERN)) && (cp_ptr->flags & CF_RELIGION_EXPERT))
+	{
+		amt = 1;
+	}
+
 	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	else amt = get_quantity(NULL, o_ptr->number);
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -623,265 +707,6 @@ void do_cmd_inscribe(void)
 }
 
 /*
- * An "item_tester_hook" for refilling lanterns
- */
-static bool item_tester_refill_lantern(const object_type *o_ptr)
-{
-	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return TRUE;
-
-	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_LANTERN) && (o_ptr->timeout > 0))
-		return TRUE;
-
-	/* Assume not okay */
-	return FALSE;
-}
-
-/*
- * Refill the players lamp (from the pack or floor)
- */
-static void do_cmd_refill_lamp(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_lantern;
-
-	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel - use pval for flask, timeout for other light sources*/
-	if (o_ptr->tval == TV_FLASK) j_ptr->timeout += o_ptr->pval;
-	else j_ptr->timeout += o_ptr->timeout;
-
-	/* Message */
-	message(MSG_FUEL, j_ptr->k_idx, "You fuel your lamp.");
-
-	/* Comment */
-	if (j_ptr->timeout >= FUEL_LAMP)
-	{
-		j_ptr->timeout = FUEL_LAMP;
-		message(MSG_FUEL, -1, "Your lamp is full.");
-	}
-
-	/* Use fuel from a lantern */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_LANTERN))
-	{
-		/* XXX Hack -- unstack if necessary */
-		if ((item >= 0) && (o_ptr->number > 1))
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Obtain a local object */
-			object_copy(i_ptr, o_ptr);
-
-			/* Modify quantity */
-			i_ptr->number = 1;
-
-			/* No more fuel */
-			i_ptr->timeout = 0;
-
-			/* Unstack the used item */
-			o_ptr->number--;
-			p_ptr->total_weight -= object_weight(i_ptr);
-			item = inven_carry(i_ptr);
-
-			/* Message */
-			message(MSG_GENERIC, 0, "You unstack your lantern.");
-		}
-
-		else
-		{
-			/* No more fuel */
-			o_ptr->timeout = 0;
-		}
- 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Decrease the item (from the pack) */
-	else if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Reclaculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-/*
- * An "item_tester_hook" for refilling torches
- */
-static bool item_tester_refill_torch(const object_type *o_ptr)
-{
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_TORCH)) return TRUE;
-
-	/* Assume not okay */
-	return FALSE;
-}
-
-/*
- * Refuel the players torch (from the pack or floor)
- */
-static void do_cmd_refill_torch(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
-
-	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Get the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->timeout += o_ptr->timeout + 5;
-
-	/* Message */
-	message(MSG_FUEL, j_ptr->k_idx, "You combine the torches.");
-
-	/* Over-fuel message */
-	if (j_ptr->timeout >= FUEL_TORCH)
-	{
-		j_ptr->timeout = FUEL_TORCH;
-		message(MSG_FUEL, -1, "Your torch is fully fueled.");
-	}
-
-	/* Refuel message */
-	else
-	{
-		message(MSG_FUEL, -1, "Your torch glows more brightly.");
-	}
-
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-/*
- * Refill the players lamp, or restock his torches
- */
-void do_cmd_refill(void)
-{
-	object_type *o_ptr;
-
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
-
-	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
-	{
-		message(MSG_FAIL, 0, "You are not wielding a refuelable light.");
-	}
-
-	/* It's a lamp */
-	else if (o_ptr->sval >= SV_LANTERN)
-	{
-		do_cmd_refill_lamp();
-	}
-
-	/* It's a torch */
-	else 
-	{
-		do_cmd_refill_torch();
-	}
-
-}
-
-/*
  * Eat some food (from the pack or floor)
  */
 static void do_cmd_eat_food_aux(int item)
@@ -986,9 +811,6 @@ static void do_cmd_eat_food_aux(int item)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
-
 	/* Destroy a food in the pack */
 	if (item >= 0)
 	{
@@ -1055,9 +877,6 @@ static void do_cmd_quaff_potion_aux(int item)
 
 	/* Not identified yet */
 	ident = FALSE;
-
-	/* Potions feed the player */
-	(void)set_food(p_ptr->food + 75);
 
 	/* Analyze the potion */
 	switch (o_ptr->sval)
@@ -1137,9 +956,9 @@ static void do_cmd_quaff_potion_aux(int item)
 		if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
 	}
 		
-	/* Check if the alchemicl formula is learnt */
+	/* Check if the alchemical formula is learnt */
 	if (!((potion_alch[o_ptr->sval].known1) && (potion_alch[o_ptr->sval].known2)) &&
-		(rand_int(100) <= p_ptr->skill[SK_ALC] - 30))
+		(rand_int(100) < p_ptr->skill[SK_ALC]))
 	{
 		object_kind *k_ptr;
 
@@ -1210,6 +1029,126 @@ void do_cmd_quaff_potion(void)
 {
 	int  item;
 	cptr q, s;
+	char out_val[160];
+	bool ignore_me;
+
+	/* Fountain */
+	if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_FOUNTAIN_HARPY) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_FOUNTAIN_REMOVE_CURSE_ID))
+	{
+		sprintf(out_val, "Drink from the fountain? ");
+		if (get_check(out_val))
+		{
+			switch(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx)
+			{
+				case WG_FOUNTAIN_HARPY:
+				case WG_FOUNTAIN_HARPY_ID:
+				{
+					do_power(POW_HARPY_FORM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_ANGEL:
+				case WG_FOUNTAIN_ANGEL_ID:
+				{
+					do_power(POW_ANGEL_FORM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_APE:
+				case WG_FOUNTAIN_APE_ID:
+				{
+					do_power(POW_APE_FORM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_NAGA:
+				case WG_FOUNTAIN_NAGA_ID:
+				{
+					do_power(POW_NAGA_FORM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_STATUE:
+				case WG_FOUNTAIN_STATUE_ID:
+				{
+					do_power(POW_STATUE_FORM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_RUINATION:
+				case WG_FOUNTAIN_RUINATION_ID:
+				{
+					message(MSG_EFFECT, 0, "Your nerves and muscles feel weak and lifeless!");
+					damage_player(damroll(10, 10), "ruination");
+					(void)do_dec_stat(A_STR, 3, FALSE, TRUE);
+					(void)do_dec_stat(A_WIS, 3, FALSE, TRUE);
+					(void)do_dec_stat(A_INT, 3, FALSE, TRUE);
+					(void)do_dec_stat(A_DEX, 3, FALSE, TRUE);
+					(void)do_dec_stat(A_CON, 3, FALSE, TRUE);
+					(void)do_dec_stat(A_CHR, 3, FALSE, TRUE);
+					break;
+				}
+				case WG_FOUNTAIN_MONSTERS:
+				case WG_FOUNTAIN_MONSTERS_ID:
+				{
+					int i;
+
+					message(MSG_EFFECT, 0, "Faeries rush in to protect their sacred fountain!");
+
+					for (i = 0; i < randint(3) + randint(3); i++)
+					{
+						summon_specific(p_ptr->py + 1 + rand_int(2), p_ptr->px + 2 + rand_int(2), p_ptr->depth + randint(3), SUMMON_FAERY);
+					}
+					break;
+				}
+				case WG_FOUNTAIN_DISEASE:
+				case WG_FOUNTAIN_DISEASE_ID:
+				{
+					do_power(POW_DISEASE, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_CURE_WOUND:
+				case WG_FOUNTAIN_CURE_WOUND_ID:
+				{
+					if (p_ptr->wound_vigor)
+					{
+						p_ptr->wound_vigor = 0;
+						message(MSG_EFFECT, 0, "Your internal wound is cured!");
+					}
+					else if (p_ptr->wound_wit)
+					{
+						p_ptr->wound_wit = 0;
+						message(MSG_EFFECT, 0, "Your brain damage is cured!");
+					}
+					else if (p_ptr->wound_grace)
+					{
+						p_ptr->wound_grace = 0;
+						message(MSG_EFFECT, 0, "You are able to straighten up once again!");
+					}
+					else
+					{
+						message(MSG_EFFECT, 0, "Nothing happens.");
+					}
+
+					break;
+				}
+				case WG_FOUNTAIN_STAT:
+				case WG_FOUNTAIN_STAT_ID:
+				{
+					do_power(POW_GAIN_STR + rand_int(6), 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+				case WG_FOUNTAIN_REMOVE_CURSE:
+				case WG_FOUNTAIN_REMOVE_CURSE_ID:
+				{
+					do_power(POW_REMOVE_CURSE_2, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+					break;
+				}
+			}
+
+			/* Change it to dead fountain */
+			place_decoration(p_ptr->py, p_ptr->px, WG_DEAD_FOUNTAIN);
+
+			message(MSG_GENERIC, 0, "The fountain dries up.");
+
+			return;
+		}
+	}
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -1356,11 +1295,12 @@ static int check_item_success(int lev)
 	else chance -= ((lev > 51) ? 30 + (lev/3) : lev - ((lev-10)/10));
 
 	/* Calculate fail rate */
-	if (chance < 2) fail_rate = 100;
-	else if (chance == 2) fail_rate = 80;
+	if (chance < 2) fail_rate = 85;
+	else if (chance == 2) fail_rate = 70;
+	else if (chance == 3) fail_rate = 60;
 	else fail_rate = (200/chance);
 
-	if (fail_rate > 100) fail_rate = 100;
+	if (fail_rate > 85) fail_rate = 85;
 
 	/* Check for success */
 	if (fail_rate > rand_int(100)) return 0;
@@ -1406,14 +1346,6 @@ static void do_cmd_use_staff_aux(int item)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Roll for usage */
-	if (!check_item_success(k_info[o_ptr->k_idx].level))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "You failed to use the staff properly.");
-		return;
-	}
-
 	/* Notice empty staffs */
 	if (o_ptr->pval <= 0)
 	{
@@ -1423,6 +1355,23 @@ static void do_cmd_use_staff_aux(int item)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+		return;
+	}
+
+	/* Roll for usage */
+	if (!check_item_success(k_info[o_ptr->k_idx].level))
+	{
+		if (rand_int(100) < p_ptr->skill[SK_DEV])
+		{
+			message(MSG_FAIL, 0, "You failed to use the staff properly.");
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "You wasted a charge.");
+			o_ptr->pval--;
+		}
+
+		if (flush_failure) flush();
 		return;
 	}
 
@@ -1572,14 +1521,6 @@ static void do_cmd_aim_wand_aux(int item)
 
 	check = check_item_success(k_info[o_ptr->k_idx].level);
 
-	/* Roll for usage */
-	if (!check)
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "You failed to use the wand properly.");
-		return;
-	}
-
 	/* The wand is already empty! */
 	if (o_ptr->pval <= 0)
 	{
@@ -1589,6 +1530,23 @@ static void do_cmd_aim_wand_aux(int item)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	
+		return;
+	}
+
+	/* Roll for usage */
+	if (!check)
+	{
+		if (rand_int(100) < p_ptr->skill[SK_DEV])
+		{
+			message(MSG_FAIL, 0, "You failed to use the wand properly.");
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "You wasted a charge.");
+			o_ptr->pval--;
+		}
+
+		if (flush_failure) flush();
 		return;
 	}
 
@@ -1751,8 +1709,17 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Roll for usage */
 	if (!check_item_success(k_info[o_ptr->k_idx].level))
 	{
+		if (rand_int(100) < p_ptr->skill[SK_DEV])
+		{
+			message(MSG_FAIL, 0, "You failed to use the rod properly.");
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "You wasted a charge.");
+			o_ptr->timeout += o_ptr->pval;
+		}
+
 		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "You failed to use the rod properly.");
 		return;
 	}
 
@@ -1855,8 +1822,17 @@ static void do_cmd_invoke_talisman_aux(int item)
 	/* Roll for usage */
 	if (!check)
 	{
+		if (rand_int(100) < p_ptr->skill[SK_DEV])
+		{
+			message(MSG_FAIL, 0, "You failed to use the talisman properly.");
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "You wasted a charge.");
+			o_ptr->timeout += o_ptr->pval;
+		}
+
 		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "You failed to use the talisman properly.");
 		return;
 	}
 
@@ -1943,6 +1919,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 static void do_cmd_activate_aux(int item)
 {
 	int lev;
+	int j = 200;
 
 	object_type *o_ptr;
 
@@ -1967,18 +1944,61 @@ static void do_cmd_activate_aux(int item)
 	/* Hack -- use artifact level instead */
 	if (o_ptr->a_idx) lev = a_info[o_ptr->a_idx].level;
 
-	/* Roll for usage */
-	if (!check_item_success(k_info[o_ptr->k_idx].level))
-	{
-		if (flush_failure) flush();
-		message(MSG_FAIL, 0, "You failed to activate it properly.");
-		return;
-	}
-
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
 		message(MSG_FAIL, 0, "It whines, glows and fades...");
+		return;
+	}
+
+	/* Roll for usage */
+	if (!check_item_success(k_info[o_ptr->k_idx].level))
+	{
+		if (rand_int(100) < p_ptr->skill[SK_DEV])
+		{
+			message(MSG_FAIL, 0, "You failed to activate it properly.");
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "You wasted a charge.");
+
+			if (o_ptr->a_idx)
+			{
+				artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
+				/* Set the recharge time */
+				if (a_ptr->randtime) o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
+				else o_ptr->timeout = a_ptr->time;
+			}
+
+			/* Hack -- Dragon Scale Mail can be activated as well */
+			if (o_ptr->tval == TV_DRAG_ARMOR)
+			{
+				/* XXX XXX XXX DSM recharge times */
+				switch (o_ptr->sval)
+				{
+					case (SV_DRAGON_BLACK):		j = 131; break;
+					case (SV_DRAGON_BLUE):		j = 131; break;
+					case (SV_DRAGON_WHITE):		j = 131; break;
+					case (SV_DRAGON_RED):		j = 131; break;
+					case (SV_DRAGON_GREEN):		j = 137; break;
+					case (SV_DRAGON_GOLD):		j = 125; break;
+					case (SV_DRAGON_SILVER):	j = 125; break;
+					case (SV_DRAGON_MULTIHUED): j = 162; break;
+					case (SV_DRAGON_ETHEREAL):	j = 162; break;
+					case (SV_DRAGON_SPIRIT):	j = 162; break;
+					case (SV_DRAGON_SHADOW):	j = 162; break;
+					case (SV_DRAGON_CHAOS):		j = 187; break;
+					case (SV_DRAGON_TIME):		j = 187; break;
+					case (SV_DRAGON_POWER):		j = 200; break;
+				}
+
+				/* Recharging */
+				o_ptr->timeout = rand_int(j) + j;
+			}
+		}
+
+		if (flush_failure) flush();
 		return;
 	}
 
@@ -1988,10 +2008,11 @@ static void do_cmd_activate_aux(int item)
 	/* Artifacts */
 	if (o_ptr->a_idx)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 		char o_name[80];
 		bool ident = FALSE;
 		int plev = p_ptr->lev;
+
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
 		/* Get the basic name of the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -2023,7 +2044,6 @@ static void do_cmd_activate_aux(int item)
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
-		int j = 200;
 		bool ignore_me;
 
 		/* Actually use the power */
@@ -2235,7 +2255,7 @@ void do_cmd_use(void)
  */
 void do_cmd_mix(void)
 {
-	int item1, item2, k_idx;
+	int item1, item2, k_idx = 0;
 	int i1, i2, sv;
 	int chance = 0;
 	int penalty = 0;
@@ -2313,12 +2333,7 @@ void do_cmd_mix(void)
 		/* If there's no potion, always fail */
 		if (k_idx != z_info->k_max) 
 		{
-			chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->pval * k_ptr->pval * 3)/2);
-			penalty = ((k_ptr->pval * k_ptr->pval) / 2);
-
-			/* Always 5% chance of success or failure*/
-			if (chance < 5) chance = 5;
-			if (chance > 95) chance = 95;
+			chance = p_ptr->skill[SK_ALC];
 		}
 	}
 
@@ -2338,7 +2353,7 @@ void do_cmd_mix(void)
 		/* Prepare the ojbect */
 		object_prep(to_ptr, k_idx);
 
-		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px); /* drop the object */
+		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px, FALSE); /* drop the object */
 		potion_alch[sv].known1 = TRUE;
 		potion_alch[sv].known2 = TRUE;
 	}

@@ -241,7 +241,7 @@ static void grant_reward(int reward_level, byte type)
 			if (!make_gold(i_ptr, coin_type)) continue;
 
 			/* Drop the object */
-			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, FALSE);
 		}
 
 		return;
@@ -320,71 +320,6 @@ static void grant_reward(int reward_level, byte type)
 			}
 		}
 
-		/* Or maybe we want to give a music intrument to a musician */
-		if (!got_item && (cp_ptr->flags & CF_MUSIC) && (rand_int(100) < 25))
-		{
-			/* 1000 attempts to find a useful book */
-			for (i = 0; i < 1000; i++)
-			{
-				bool already_own = FALSE;
-
-				/* Valid item exists? */
-				if (!make_typed(i_ptr, TV_MUSIC, TRUE, FALSE, FALSE)) break;
-
-				/* Hack -- in case of artifact, mark it as not created yet */
-				if (i_ptr->a_idx) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
-
-				/* Ensure correct tval */
-				if (i_ptr->tval != TV_MUSIC) continue;
-
-				/* A dungeon instrument */
-				if (i_ptr->pval < 2) continue;
-
-				/* Look for item in the music slot */
-				j_ptr = &inventory[INVEN_MUSIC];
-
-				if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval) &&
-					(j_ptr->pval >= i_ptr->pval)) 
-					already_own = TRUE;
-
-				/* Look for item in the pack */
-				for (j = 0; j < INVEN_PACK; j++)
-				{
-					/* Get the item */
-					j_ptr = &inventory[j];
-
-					/* Nothing here */
-					if (!j_ptr->k_idx) continue;
-
-					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval) &&
-						(j_ptr->pval >= i_ptr->pval)) 
-						already_own = TRUE;
-				}
-
-				/* Look for item in home */
-				if (st_ptr->stock_num)
-				{
-					for (j = 0; j < st_ptr->stock_num; j++)
-					{
-						j_ptr = &st_ptr->stock[j];
-						
-						/* Nothing here */
-						if (!j_ptr->k_idx) continue;
-
-						if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval) &&
-							(j_ptr->pval >= i_ptr->pval)) 
-							already_own = TRUE;
-					}
- 				}
-
-				if (already_own) continue;
-
-				got_item = TRUE;
-
-				break;
-			}
-		}
-
 		/* Maybe we want to give a potion of stat */
 		if (!got_item && (rand_int(100) < 10))
 		{
@@ -452,7 +387,7 @@ static void grant_reward(int reward_level, byte type)
 			object_type selection[INVEN_MUSIC];
 			s32b price[INVEN_MUSIC];
 			s32b val[INVEN_MUSIC];
-			byte tval;
+			byte tval = 0;
 			s32b diff = 1;
 
 			/* First, figure out the best price for each slot */
@@ -719,9 +654,6 @@ static void grant_reward(int reward_level, byte type)
 		 */
 		a_ptr->status |= A_STATUS_CREATED;
  
-		/* Mark the item as fully known */
-		if (cp_ptr->flags & CF_LORE) artifact_known(&a_info[i_ptr->a_idx]);
-
 		/* Mark the artifact as "aware" */
 		artifact_aware(&a_info[i_ptr->a_idx]);
 
@@ -739,7 +671,7 @@ static void grant_reward(int reward_level, byte type)
 	}
 
 	/* Drop the object */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, FALSE);
 }
 
 /*

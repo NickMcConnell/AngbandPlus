@@ -595,10 +595,18 @@ s16b get_obj_num(int level)
 	bool quick = FALSE;
 
 	/* Sometimes boost object level */
-	if ((level > 0) && (rand_int(GREAT_OBJ) == 0))
+	int inflate_chance = GREAT_OBJ;
+	int boost = 0;
+	if (p_ptr->luck) inflate_chance = LUCK_GREAT_OBJ;
+
+	if ((level > 0) && (rand_int(inflate_chance) == 0))
 	{
-		/* Boost on 20th level can (rarely) be 16 + 4 * 20 / 3, or 42 */
-		int boost = ABS(Rand_normal(0, 4 + level / 3));
+		/* Roll twice, and take the lowest roll */
+		int boost_a = randint(20);
+		int boost_b = randint(20);
+
+		if (boost_a > boost_b) boost = boost_b;
+		else boost = boost_a;
 
 		/* Boost the depth */
 		level += boost;
@@ -606,17 +614,6 @@ s16b get_obj_num(int level)
 
 	/* Restrict level */
 	if (level > MAX_DEPTH) level = MAX_DEPTH;
-
-	/* We are using the same generation level as last time */
-	if (level == old_object_level) 
-	{
-		/* We are using the same generation restrictions as last time */
-		if (get_obj_num_hook == old_get_obj_num_hook)
-		{
-			/* There is no need to rebuild the generation table */
-			if (alloc_kind_total) quick = TRUE;
-		}
-	}
 
 	/* We are not using quick generation */
 	if (!quick)
@@ -1010,8 +1007,6 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_CLOAK:
 		case TV_BODY_ARMOR:
 		case TV_DRAG_ARMOR:
-		case TV_LITE:
-		case TV_LITE_SPECIAL:
 		case TV_AMULET:
 		case TV_RING:
 		{
@@ -1037,19 +1032,76 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (f1 & (TR1_SP_DUR)) value += (o_ptr->pval * 2000L);
 			if (f1 & (TR1_SP_DAM)) value += (o_ptr->pval * 4000L);
 
-			/* Give credit for stealth and searching */
+			/* Give credit for stealth and perception */
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 750L);
 			if (f1 & (TR1_PERCEPTION)) value += (o_ptr->pval * 500L);
 
 			/* Give credit for infra-vision and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 250L);
-			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 250L);
+
+			/* Give credit for weird things */
+			if (f1 & (TR1_MELEE)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_ARCHERY)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_ESCAPES)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_THROW_SKILL)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_JUMPING)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_MYSTIC_RANGE)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_AMBUSH)) value += (o_ptr->pval * 1000L);
 
 			/* Give credit for extra attacks */
 			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 10000L);
 
 			/* Give credit for speed bonus */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 150000L);
+
+			break;
+		}
+		case TV_LITE:
+		case TV_LITE_SPECIAL:
+		{
+			/* Hack -- Negative "pval" is always bad */
+			if (o_ptr->pval < 0) return (0L);
+
+			/* No pval */
+			if (!o_ptr->pval) break;
+
+			/* Give credit for stat bonuses */
+			if (f1 & (TR1_STR)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_INT)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_CON)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 400L);
+
+			/* Give credit for health and mana bonusees */
+			if (f1 & (TR1_HEALTH)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_MANA)) value += (o_ptr->pval * 400L);
+
+			/* Give credit for duration bonuses */
+			if (f1 & (TR1_SP_DUR)) value += (o_ptr->pval * 500L);
+			if (f1 & (TR1_SP_DAM)) value += (o_ptr->pval * 1000L);
+
+			/* Give credit for stealth and perception */
+			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 50L);
+			if (f1 & (TR1_PERCEPTION)) value += (o_ptr->pval * 50L);
+
+			/* Give credit for infra-vision and tunneling */
+			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
+
+			/* Give credit for weird things */
+			if (f1 & (TR1_MELEE)) value += (o_ptr->pval * 500L);
+			if (f1 & (TR1_ARCHERY)) value += (o_ptr->pval * 500L);
+			if (f1 & (TR1_ESCAPES)) value += (o_ptr->pval * 500L);
+			if (f1 & (TR1_THROW_SKILL)) value += (o_ptr->pval * 300L);
+			if (f1 & (TR1_JUMPING)) value += (o_ptr->pval * 300L);
+			if (f1 & (TR1_MYSTIC_RANGE)) value += (o_ptr->pval * 300L);
+			if (f1 & (TR1_AMBUSH)) value += (o_ptr->pval * 300L);
+
+			/* Give credit for extra attacks */
+			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 5000L);
+
+			/* Give credit for speed bonus */
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 25000L);
 
 			break;
 		}
@@ -1339,10 +1391,10 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	switch (o_ptr->tval)
 	{
 		/* Food and Potions and Scrolls */
-		case TV_FOOD:
 		case TV_POTION:
 		case TV_POWDER:
 		case TV_SCROLL:
+		case TV_FOOD:
 		{
 			/* Assume okay */
 			break;
@@ -1352,13 +1404,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (FALSE);
-
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (FALSE);
-
-			break;
+			return (FALSE);
 		}
 
 		/* Rods */
@@ -1384,6 +1430,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 		case TV_LITE: /* Lites */
 		{
+			/* Okay if not too many */
+			if (total >= MAX_STACK_LITE) return FALSE;
+
 			/* Require identical fuel*/
 			if (o_ptr->timeout != j_ptr->timeout) return (FALSE);
 		}
@@ -1771,15 +1820,22 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 
 	level = object_level;
 
-	/* Boost level (like with object base types) */
-	if (level > 0)
+	/* Sometimes boost object level (just like with object base types) */
+	int inflate_chance = GREAT_OBJ;
+	int boost = 0;
+	if (p_ptr->luck) inflate_chance = LUCK_GREAT_OBJ;
+
+	if ((level > 0) && (rand_int(inflate_chance) == 0))
 	{
-		/* Occasional "boost" */
-		if (rand_int(GREAT_EGO) == 0)
-		{
-			/* The bizarre calculation again */
-			level = 1 + ((level * MAX_DEPTH) / randint(MAX_DEPTH));
-		}
+		/* Roll twice, and take the lowest roll */
+		int boost_a = randint(20);
+		int boost_b = randint(20);
+
+		if (boost_a > boost_b) boost = boost_b;
+		else boost = boost_a;
+
+		/* Boost the depth */
+		level += boost;
 	}
 
 	/* Reset total */
@@ -1956,6 +2012,23 @@ static bool make_artifact(object_type *o_ptr, bool real_depth)
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
 
+	/* Sometimes boost object level (just like with object base types) */
+	int inflate_chance = GREAT_OBJ;
+	int boost = 0;
+	if (p_ptr->luck) inflate_chance = LUCK_GREAT_OBJ;
+
+	if ((depth_check > 0) && (rand_int(inflate_chance) == 0))
+	{
+		/* Roll twice, and take the lowest roll */
+		int boost_a = randint(MAX_DEPTH - depth_check);
+		int boost_b = randint(MAX_DEPTH - depth_check);
+
+		if (boost_a > boost_b) boost = boost_b;
+		else boost = boost_a;
+	}
+
+	depth_check += boost;
+
 	/* Check the artifact list (skip the "specials") */
 	for (i = z_info->a_min_normal; i < z_info->a_max; i++)
 	{
@@ -1971,15 +2044,8 @@ static bool make_artifact(object_type *o_ptr, bool real_depth)
 		if (a_ptr->tval != o_ptr->tval) continue;
 		if (a_ptr->sval != o_ptr->sval) continue;
 
-		/* XXX XXX Enforce minimum "depth" (loosely) */
-		if (a_ptr->level > depth_check)
-		{
-			/* Get the "out-of-depth factor" */
-			int d = (a_ptr->level - depth_check) * 2;
-
-			/* Roll for out-of-depth creation */
-			if (rand_int(d) != 0) continue;
-		}
+		/* Enforce minimum "depth" */
+		if (a_ptr->level > depth_check) continue;
 
 		/* We must make the "rarity roll" */
 		if (rand_int(a_ptr->rarity) != 0) continue;
@@ -2002,23 +2068,23 @@ static void charge_wand(object_type *o_ptr)
 {
 	switch (o_ptr->sval)
 	{
-		case SV_WAND_HEAL_MONSTER:		o_ptr->pval = randint(20) + 8; break;
+		case SV_WAND_GROWTH:			o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_HASTE_MONSTER:		o_ptr->pval = randint(20) + 8; break;
 		case SV_WAND_CLONE_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
 		case SV_WAND_TELEPORT_AWAY:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_WAND_CALL_MONSTER:		o_ptr->pval = randint(10) + 4; break;
-		case SV_WAND_TRAP_DOOR_DEST:	o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STONE_TO_MUD:		o_ptr->pval = randint(4)  + 3; break;
+		case SV_WAND_HARPOON:			o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_TRAP_DOOR_DEST:		o_ptr->pval = randint(8)  + 6; break;
+		case SV_WAND_STONE_TO_MUD:		o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_LITE:				o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_SLEEP_MONSTER:		o_ptr->pval = randint(15) + 8; break;
+		case SV_WAND_DRYAD:			o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_SLOW_MONSTER:		o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_CALM_MONSTER:		o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_CONFUSE_MONSTER:	o_ptr->pval = randint(12) + 6; break;
-		case SV_WAND_BLIND_MONSTER:		o_ptr->pval = randint(11) + 6; break;
-		case SV_WAND_FEAR_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
+		case SV_WAND_CURSE_MONSTER:		o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_STUN_BURST:		o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_SWAP_PLACES:		o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_DRAIN_LIFE:		o_ptr->pval = randint(3)  + 3; break;
 		case SV_WAND_POLYMORPH:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STINKING_CLOUD:	o_ptr->pval = randint(8)  + 6; break;
+		case SV_WAND_STINKING_CLOUD:		o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_MAGIC_MISSILE:		o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_ACID_BOLT:			o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_ELEC_BOLT:			o_ptr->pval = randint(8)  + 6; break;
@@ -2039,16 +2105,16 @@ static void charge_staff(object_type *o_ptr)
 {
 	switch (o_ptr->sval)
 	{
-		case SV_STAFF_DARKNESS:			o_ptr->pval = randint(8)  + 8; break;
+		case SV_STAFF_EDEN:			o_ptr->pval = randint(8)  + 8; break;
 		case SV_STAFF_SLOWNESS:			o_ptr->pval = randint(8)  + 8; break;
 		case SV_STAFF_HASTE_MONSTERS:	o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_SUMMONING:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_STAFF_STORM_SHIELD:		o_ptr->pval = randint(8)  + 8; break;
 		case SV_STAFF_TELEPORTATION:	o_ptr->pval = randint(4)  + 5; break;
-		case SV_STAFF_IDENTIFY:			o_ptr->pval = randint(15) + 5; break;
+		case SV_STAFF_DETECT_LIFE:			o_ptr->pval = randint(15) + 8; break;
 		case SV_STAFF_REMOVE_CURSE:		o_ptr->pval = randint(3)  + 4; break;
 		case SV_STAFF_STARLITE:			o_ptr->pval = randint(5)  + 6; break;
 		case SV_STAFF_LITE:				o_ptr->pval = randint(20) + 8; break;
-		case SV_STAFF_MAPPING:			o_ptr->pval = randint(5)  + 5; break;
+		case SV_STAFF_DETECT_FORCE:			o_ptr->pval = randint(15)  + 8; break;
 		case SV_STAFF_DETECT_GOLD:		o_ptr->pval = randint(20) + 8; break;
 		case SV_STAFF_DETECT_ITEM:		o_ptr->pval = randint(15) + 6; break;
 		case SV_STAFF_DETECT_TRAP:		o_ptr->pval = randint(5)  + 6; break;
@@ -2310,6 +2376,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				/* Searching */
 				case SV_RING_SEARCHING:
+				case SV_RING_AMBUSH:
+				case SV_RING_RANGE:
 				{
 					/* Bonus to searching */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2341,22 +2409,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
-
-					break;
-				}
-
-				/* WOE */
-				case SV_RING_WOE:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
-					o_ptr->pval = 0 - (1 + m_bonus(5, level));
 
 					break;
 				}
@@ -2438,9 +2490,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				}
 
 				/* Amulet of searching */
-				case SV_AMULET_SEARCHING:
+				case SV_AMULET_MARKSMAN:
 				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+					o_ptr->pval = randint(5) + m_bonus(3, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2505,22 +2557,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
-					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
-
-					break;
-				}
-
 				/* Amulet of Unmagic -- always cursed */
 				case SV_AMULET_UNMAGIC:
 				{
@@ -2552,58 +2588,41 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	{
 		case TV_LITE:
 		{
-			/* Hack -- Torches -- random fuel */
+			/* Torches */
 			if (o_ptr->sval == SV_TORCH)
 			{
-				if (!o_ptr->timeout) o_ptr->timeout = randint(FUEL_TORCH);
+				if (!o_ptr->timeout) o_ptr->timeout = FUEL_TORCH;
 			}
 
-			/* Hack -- Lanterns -- random fuel */
-			if (o_ptr->sval >= SV_LANTERN)
+			/* Ego Torches */
+			if (o_ptr->sval == SV_LANTERN)
 			{
-				if (!o_ptr->timeout) o_ptr->timeout = randint(FUEL_LAMP/2);
+				if (!o_ptr->timeout) o_ptr->timeout = FUEL_ENCHANTED;
+			}
+
+			/* Ego Torches */
+			if (o_ptr->sval > SV_LANTERN)
+			{
+				if (!o_ptr->timeout) o_ptr->timeout = FUEL_EGO;
 			}
 
 			switch (o_ptr->sval)
 			{
-				/* Lanterns of int/wis */
+				/* Lanterns of int/wis/thievery */
 				case SV_LANTERN_INT:
 				case SV_LANTERN_WIS:
+				case SV_LANTERN_INFRAVISION:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
 
-					/* Cursed */
+					/* Note that torches may not be cursed, even with negative pval */
 					if (power < 0)
 					{
 						/* Broken */
 						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
 
 						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				/* Lantern of Infravision */
-				case SV_LANTERN_INFRAVISION:
-				{
-					o_ptr->pval = 1 + m_bonus(3, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonuses */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
 
@@ -2703,16 +2722,16 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+	f1 = lev + 12;
 
 	/* Maximal chance of being "good" */
 	if (f1 > 75) f1 = 75;
 
 	/* Base chance of being "great" */
-	f2 = f1 / 2;
+	f2 = ((f1 * 3) / 4) + 3;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	if (f2 > 44) f2 = 44;
 
 	/* Assume normal */
 	power = 0;
@@ -2727,8 +2746,18 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (great || (rand_int(100) < f2)) power = 2;
 	}
 
+	/* Lucky characters get a second try for a "good" item with a reduced possibility */
+	else if (p_ptr->luck && (rand_int(140) < f1))
+	{
+		/* Assume "good" */
+		power = 1;
+
+		/* Roll for "great" */
+		if (great || (rand_int(100) < f2)) power = 2;
+	}
+
 	/* Roll for "cursed" */
-	else if (rand_int(100) < f1)
+	else if (rand_int(100) < f1 / 2)
 	{
 		/* Assume "cursed" */
 		power = -1;
@@ -2803,14 +2832,32 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		{
 			/* Try applying a prefix */
 			int k, l;
+			int depth_check = ((real_depth) ? p_ptr->depth : object_level);
 
-			/* Ten tries */
-			for (k = 1; k < 10; k++)
+			/* Sometimes boost object level (just like with object base types) */
+			int inflate_chance = GREAT_OBJ;
+			int boost = 0;
+			if (p_ptr->luck) inflate_chance = LUCK_GREAT_OBJ;
+
+			if ((depth_check > 0) && (rand_int(inflate_chance) == 0))
+			{
+				/* Roll twice, and take the lowest roll */
+				int boost_a = randint(20);
+				int boost_b = randint(20);
+
+				if (boost_a > boost_b) boost = boost_b;
+				else boost = boost_a;
+			}
+
+			depth_check += boost;
+
+			/* 13 tries */
+			for (k = 1; k < 13; k++)
 			{
 				int base = k_info[o_ptr->k_idx].level;
-				int depth_check = ((real_depth) ? p_ptr->depth : object_level);
 
 				weapon_prefix_type *wpx_ptr;
+
 				/* Try to apply a random prefix */
 				l = randint(z_info->wpx_max - 1);
 				wpx_ptr = &wpx_info[l];
@@ -2835,15 +2882,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 					break;
 				}
 
-				/* Roll for depth */
-				if ((base + wpx_ptr->depth) > depth_check)
-				{
-					/* Get the "out-of-depth factor" */
-					int d = ((base + wpx_ptr->depth) - depth_check) * 2;
-
-					/* Roll for out-of-depth creation */
-					if (rand_int(d) != 0) continue;
-				}
+				/* Discard if out of depth */
+				if ((base + wpx_ptr->depth) > depth_check) continue;
 			}
 
 			/* Fall through */
@@ -2871,12 +2911,29 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		{
 			/* Try applying a prefix */
 			int k, l;
+			int depth_check = ((real_depth) ? p_ptr->depth : object_level);
 
-			/* Ten tries */
-			for (k = 1; k < 10; k++)
+			/* Sometimes boost object level (just like with object base types) */
+			int inflate_chance = GREAT_OBJ;
+			int boost = 0;
+			if (p_ptr->luck) inflate_chance = LUCK_GREAT_OBJ;
+
+			if ((depth_check > 0) && (rand_int(inflate_chance) == 0))
+			{
+				/* Roll twice, and take the lowest roll */
+				int boost_a = randint(20);
+				int boost_b = randint(20);
+
+				if (boost_a > boost_b) boost = boost_b;
+				else boost = boost_a;
+			}
+
+			depth_check += boost;
+
+			/* 13 tries */
+			for (k = 1; k < 13; k++)
 			{
 				int base = k_info[o_ptr->k_idx].level;
-				int depth_check = ((real_depth) ? p_ptr->depth : object_level);
 
 				armor_prefix_type *apx_ptr;
 
@@ -2904,15 +2961,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 					break;
 				}
 
-				/* Roll for depth */
-				if ((base + apx_ptr->depth) > depth_check)
-				{
-					/* Get the "out-of-depth factor" */
-					int d = ((base + apx_ptr->depth) - depth_check) * 2;
-
-					/* Roll for out-of-depth creation */
-					if (rand_int(d) != 0) continue;
-				}
+				/* Discard if out of depth */
+				if ((base + apx_ptr->depth) > depth_check) continue;
 			}
 
 			/* Fall through */
@@ -3227,29 +3277,6 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 	
 	object_kind *k_ptr;
 
-	/* Easy mode - chance of inflating item */
-	if (adult_easy_mode)
-	{
-		/* Increase depth */
-		if (rand_int(1000) < EASY_INFLATE) object_level += 5;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
-	}
-
-	/* Luck - chance of inflating item */
-	if (p_ptr->luck)
-	{
-		/* Increase depth (up to four times) */
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 1;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 2;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 3;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 4;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
-	}
-
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
 
@@ -3333,29 +3360,6 @@ bool make_typed(object_type *j_ptr, byte tval, bool good, bool great, bool real_
 	
 	object_kind *k_ptr;
 
-	/* Easy mode - chance of inflating item */
-	if (adult_easy_mode)
-	{
-		/* Increase depth */
-		if (rand_int(1000) < EASY_INFLATE) object_level += 5;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
-	}
-
-	/* Luck - chance of inflating item */
-	if (p_ptr->luck)
-	{
-		/* Increase depth (up to four times) */
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 1;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 2;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 3;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 4;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
-	}
-
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
 
@@ -3429,29 +3433,6 @@ bool make_mimic(object_type *j_ptr, byte a, char c)
 	object_kind *k_ptr;
 	bool good = FALSE;
 	bool great = FALSE;
-
-	/* Easy mode - chance of inflating item */
-	if (adult_easy_mode)
-	{
-		/* Increase depth */
-		if (rand_int(1000) < EASY_INFLATE) object_level += 5;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
-	}
-
-	/* Luck - chance of inflating item */
-	if (p_ptr->luck)
-	{
-		/* Increase depth (up to four times) */
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 1;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 2;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 3;
-		if (rand_int(1000) < LUCK_INFLATE) object_level += 4;
-		/* Chance of improving object "quality" */
-		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
-		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
-	}
 
 	/* Hack - gold mimics */
    	if (c == '$') 
@@ -3582,6 +3563,8 @@ void object_history(object_type *o_ptr, byte origin, s16b r_idx, s16b s_idx, s16
 		}
 		case ORIGIN_ACQUIRE: case ORIGIN_DROP_UNKNOWN: 
 		case ORIGIN_FLOOR:	 case ORIGIN_CHEST:
+		case ORIGIN_RACK:	case ORIGIN_SHELF:
+		case ORIGIN_CLOSET:	case ORIGIN_FOREST:
 		{
 			o_ptr->origin_dlvl = p_ptr->depth;
 			break;
@@ -3762,7 +3745,7 @@ s16b floor_carry(int y, int x, const object_type *j_ptr)
  * the object can combine, stack, or be placed.  Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
  */
-void drop_near(const object_type *j_ptr, int chance, int y, int x)
+void drop_near(const object_type *j_ptr, int chance, int y, int x, bool room_only)
 {
 	int i, k, d, s;
 
@@ -3830,6 +3813,9 @@ void drop_near(const object_type *j_ptr, int chance, int y, int x)
 
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
+
+			/* If searching desks, skip grids outside the room */
+			if ((room_only) && (!(cave_info[ty][tx] & (CAVE_ROOM)))) continue;
 
 			/* Require line of sight */
 			if (!los(y, x, ty, tx)) continue;
@@ -3914,6 +3900,9 @@ void drop_near(const object_type *j_ptr, int chance, int y, int x)
 		/* Require floor space */
 		if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
 
+		/* If searching desks, skip grids outside the room */
+		if ((room_only) && (!(cave_info[ty][tx] & (CAVE_ROOM)))) continue;
+
 		/* Bounce to that location */
 		by = ty;
 		bx = tx;
@@ -3977,7 +3966,7 @@ void acquirement(int y1, int x1, int num, bool great, bool real_depth)
 		object_history(i_ptr, ORIGIN_ACQUIRE, 0, 0, 0);
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, y1, x1);
+		drop_near(i_ptr, -1, y1, x1, FALSE);
 	}
 }
 
@@ -4049,11 +4038,12 @@ void place_gold(int y, int x)
  */
 void place_secret_door(int y, int x)
 {
+
 	/* Create secret door */
 	cave_set_feat(y, x, FEAT_SECRET);
 
-	/* Create a locked door, 1 in 4 */
-	if (!rand_int(4)) place_lock(y, x, FALSE, WG_DOOR_LOCK);
+	/* Create a locked door, 1 in 4
+	if (!rand_int(4)) place_lock(y, x, FALSE, WG_DOOR_LOCK); */
 }
 
 /*
@@ -4064,8 +4054,8 @@ void place_closed_door(int y, int x)
 	/* Create closed door */
 	cave_set_feat(y, x, FEAT_CLOSED);
 
-	/* Create a locked door, 1 in 4 */
-	if (!rand_int(4)) place_lock(y, x, TRUE, WG_DOOR_LOCK);
+	/* Create a locked door, 1 in 4
+	if (!rand_int(4)) place_lock(y, x, TRUE, WG_DOOR_LOCK); */
 }
 
 /*
@@ -4082,24 +4072,10 @@ void place_random_door(int y, int x)
 	tmp = rand_int(1000);
 
 	/* Open doors (300/1000) */
-	if (tmp < 300)
+	if (tmp < 400)
 	{
 		/* Create open door */
 		cave_set_feat(y, x, FEAT_OPEN);
-	}
-
-	/* Broken doors (100/1000) */
-	else if (tmp < 400)
-	{
-		/* Create broken door */
-		cave_set_feat(y, x, FEAT_BROKEN);
-	}
-
-	/* Secret doors (200/1000) */
-	else if (tmp < 600)
-	{
-		/* Create secret door */
-		place_secret_door(y, x);
 	}
 
 	/* Closed, locked, or stuck doors (400/1000) */
@@ -4141,10 +4117,9 @@ void alchemy_describe(char *buf, size_t max, int sval)
 	char o_name2[80];
 	char o_name3[80];
 
-	object_kind *k_ptr;
+	object_kind *k_ptr = &k_info[0];
 	object_type *i_ptr;
 	object_type object_type_body;
-
 
 	/* Look for it */
 	for (k = 1; k < z_info->k_max; k++)
@@ -4654,7 +4629,8 @@ s16b inven_carry(const object_type *o_ptr)
  * Note that taking off an item when "full" may cause that item
  * to fall to the ground.
  *
- * Return the inventory slot into which the item is placed.
+ * Return the inventory slot into which the item is placed,
+ * unless it's a light item.
  */
 s16b inven_takeoff(int item, int amt)
 {
@@ -4697,7 +4673,13 @@ s16b inven_takeoff(int item, int amt)
 	else if (item == INVEN_BOW) act = "You were holding";
 
 	/* Took off light */
-	else if (item == INVEN_LITE) act = "You were holding";
+	else if (item == INVEN_LITE)
+	{
+		act = "You throw away";
+
+		/* Reset phlogiston */
+		p_ptr->phlogiston = 0;
+	}
 
 	/* Took off something */
 	else act = "You were wearing";
@@ -4706,14 +4688,102 @@ s16b inven_takeoff(int item, int amt)
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
 
-	/* Carry the object */
-	slot = inven_carry(i_ptr);
+	/* Carry the object unless it's a light item */
+	if (!(item == INVEN_LITE)) slot = inven_carry(i_ptr);
+	else slot = 0;
 
 	/* Message */
 	message_format(MSG_DESCRIBE, 0, "%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Return slot */
 	return (slot);
+}
+
+/*
+ * Draw a magical circle
+ */
+void draw_circle(int y, int x, int type)
+{
+	int feature = 0;
+	int i;
+
+	/* Draw the Edges */
+	switch(type)
+	{
+		case 1: feature = WG_CIRCLE_LIFE_EDGE_A; break;
+		case 2: feature = WG_CIRCLE_ILLU_EDGE_A; break;
+		case 3: feature = WG_CIRCLE_KNOW_EDGE_A; break;
+		case 4: feature = WG_CIRCLE_PERM_EDGE_A; break;
+		case 5: feature = WG_CIRCLE_RECALL_EDGE_A; break;
+		case 6: feature = WG_CIRCLE_SUMMON_EDGE_A; break;
+		case 7: feature = WG_CIRCLE_NEXUS_EDGE_A; break;
+	}
+	if (feature) place_decoration(y+1, x, feature);
+	if (feature) place_decoration(y, x+1, feature);
+	if (feature) place_decoration(y+2, x+5, feature);
+	if (feature) place_decoration(y+3, x+4, feature);
+
+	switch(type)
+	{
+		case 1: feature = WG_CIRCLE_LIFE_EDGE_B; break;
+		case 2: feature = WG_CIRCLE_ILLU_EDGE_B; break;
+		case 3: feature = WG_CIRCLE_KNOW_EDGE_B; break;
+		case 4: feature = WG_CIRCLE_PERM_EDGE_B; break;
+		case 5: feature = WG_CIRCLE_RECALL_EDGE_B; break;
+		case 6: feature = WG_CIRCLE_SUMMON_EDGE_B; break;
+		case 7: feature = WG_CIRCLE_NEXUS_EDGE_B; break;
+	}
+	if (feature) place_decoration(y+2, x, feature);
+	if (feature) place_decoration(y+3, x+1, feature);
+	if (feature) place_decoration(y+1, x+5, feature);
+	if (feature) place_decoration(y, x+4, feature);
+
+	/* Draw the inside */
+	switch(type)
+	{
+		case 1: feature = WG_CIRCLE_OF_LIFEFORCE; break;
+		case 2: feature = WG_CIRCLE_OF_ILLUSIONS; break;
+		case 3: feature = WG_CIRCLE_OF_KNOWLEDGE; break;
+		case 4: feature = WG_CIRCLE_OF_PERMANENCE; break;
+		case 5: feature = WG_CIRCLE_OF_RECALL; break;
+		case 6: feature = WG_CIRCLE_OF_SUMMONING; break;
+		case 7: feature = WG_CIRCLE_OF_NEXUS; break;
+	}
+	if (feature) place_decoration(y, x+2, feature);
+	if (feature) place_decoration(y, x+3, feature);
+	if (feature) place_decoration(y+1, x+1, feature);
+	if (feature) place_decoration(y+1, x+2, feature);
+	if (feature) place_decoration(y+1, x+3, feature);
+	if (feature) place_decoration(y+1, x+4, feature);
+	if (feature) place_decoration(y+2, x+1, feature);
+	if (feature) place_decoration(y+2, x+2, feature);
+	if (feature) place_decoration(y+2, x+3, feature);
+	if (feature) place_decoration(y+2, x+4, feature);
+	if (feature) place_decoration(y+3, x+2, feature);
+	if (feature) place_decoration(y+3, x+3, feature);
+
+	/* Record the return coordinates to Circle of Recall */
+	if (type == 5)
+	{
+		p_ptr->recall_y = y + 1;
+		p_ptr->recall_x = x + 2;
+	}
+
+	/* Place monsters to Circle of Summoning */
+	if (type == 6)
+	{
+		for (i = 0; i < randint(3) + randint(3); i++)
+		{
+			summon_specific(y + 1 + rand_int(2), x + 2 + rand_int(2), p_ptr->depth + randint(3), 0);
+		}
+	}
+
+	/* Record the coordinates to Circle of Nexus */
+	if (type == 7)
+	{
+		p_ptr->nexus_y = y + 1;
+		p_ptr->nexus_x = x + 2;
+	}
 }
 
 /*
@@ -4729,6 +4799,14 @@ void inven_drop(int item, int amt)
 	object_type object_type_body;
 
 	char o_name[80];
+
+	int sacrifice_worthy = 0;
+	int altar = 0;
+	int blessings = 0;
+
+	int inc = 0;
+	int res = 0;
+	int i;
 
 	/* Get the original object */
 	o_ptr = &inventory[item];
@@ -4764,11 +4842,1261 @@ void inven_drop(int item, int amt)
 	/* Describe local object */
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
-	/* Message */
-	message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
+	/* For possible future use, roll ritual power points */
+	int power = (p_stat(A_INT) + p_stat(A_WIS) - randint(20));
+	if (power < 0) power = 0;
+	if (cp_ptr->flags & CF_RITUAL_EXPERT) power = power / 5;
+	else power = power / 10;
 
-	/* Drop it near the player */
-	drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+	/* Are we on an altar? */
+	if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) &&
+		(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT))
+	{
+		altar = t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx;
+
+		/* Find out whether the item is sacrifice-worthy */
+		if (cp_ptr->flags & CF_RELIGION_EXPERT)
+		{
+			if (o_ptr->tval == TV_LITE) sacrifice_worthy = 1;
+			if ((o_ptr->e_idx) && (!(o_ptr->tval == TV_ARROW))) sacrifice_worthy = 2;
+			if (o_ptr->a_idx) sacrifice_worthy = 2;
+			if ((o_ptr->tval == TV_MUSIC) && (o_ptr->pval >= 2)) sacrifice_worthy = 2;
+		}
+		else if ((o_ptr->e_idx) && (!(o_ptr->tval == TV_ARROW))) sacrifice_worthy = 1;
+		else if (o_ptr->a_idx) sacrifice_worthy = 2;
+
+		if (p_ptr->obsession_status >= 2) blessings ++;
+		if (p_ptr->conflict_status >= 2) blessings ++;
+		if (p_ptr->purity_status >= 2) blessings ++;
+		if (p_ptr->transformation_status >= 2) blessings ++;
+		if (p_ptr->deceit_status >= 2) blessings ++;
+	}
+
+	int circle_type = 0;
+
+	/* Are we dropping a powder vial? It's type determines possible Magic Circle types */
+	if (o_ptr->tval == TV_POWDER)
+	{
+		switch (o_ptr->sval)
+		{
+			case SV_POWDER_SLEEP:
+			{
+				circle_type = 2;
+				break;
+			}
+			case SV_POWDER_CONFUSE:
+			{
+				switch(randint(2))
+				{
+					case 1: circle_type = 2;
+					case 2: circle_type = 7;
+				}
+				break;
+			}
+			case SV_POWDER_FLASH:
+			{
+				switch(randint(2))
+				{
+					case 1: circle_type = 1;
+					case 2: circle_type = 3;
+				}
+				break;
+			}
+			case SV_POWDER_DARKNESS:
+			{
+				circle_type = 6;
+				break;
+			}
+			case SV_POWDER_FIRE1:
+			{
+				circle_type = 3;
+				break;
+			}
+			case SV_POWDER_FIRE2:
+			{
+				switch(randint(2))
+				{
+					case 1: circle_type = 3;
+					case 2: circle_type = 4;
+				}
+				break;
+			}
+			case SV_POWDER_COLD1:
+			{
+				circle_type = 7;
+				break;
+			}
+			case SV_POWDER_COLD2:
+			{
+				circle_type = 4;
+				break;
+			}
+			case SV_POWDER_ENERGY:
+			{
+				circle_type = 5;
+				break;
+			}
+			case SV_POWDER_POISON:
+			{
+				circle_type = 6;
+				break;
+			}
+			case SV_POWDER_HEAL:
+			{
+				circle_type = 1;
+				break;
+			}
+			case SV_POWDER_CALM:
+			{
+				switch(randint(2))
+				{
+					case 1: circle_type = 1;
+					case 2: circle_type = 2;
+				}
+				break;
+			}
+			case SV_POWDER_POLYMORPH:
+			{
+				switch(randint(2))
+				{
+					case 1: circle_type = 5;
+					case 2: circle_type = 6;
+				}
+				break;
+			}
+		}
+	}
+
+	/* Are we on a missing border of a magic circle, dropping a Powder Vial? */
+	if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_MISSING_EDGE_A) && (o_ptr->tval == TV_POWDER))
+	{
+		/* Calculate success chance */
+		if (rand_int(100) < p_ptr->skill[SK_ALC])
+		{
+			message(MSG_GENERIC, 0, "You artfully complete the pattern. The circle starts to hum with power.");
+
+			/* Find out the top left corner of the circle */
+			/* Is the square on the right inside the circle? */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_CIRCLE_BROKEN)
+			{
+				/* Is the square below this one inside the circle? */
+				if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_CIRCLE_BROKEN)
+				{
+					draw_circle(p_ptr->py, p_ptr->px - 1, circle_type);
+				}
+				else
+				{
+					draw_circle(p_ptr->py - 1, p_ptr->px, circle_type);
+				}
+			}
+			else
+			{
+				/* Is the square on top inside the circle? */
+				if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_CIRCLE_BROKEN)
+				{
+					draw_circle(p_ptr->py - 3, p_ptr->px - 4, circle_type);
+				}
+				else
+				{
+					draw_circle(p_ptr->py - 2, p_ptr->px - 5, circle_type);
+				}
+			}
+
+			/* An identification was made */
+			if (!object_aware_p(o_ptr))
+			{
+				gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+				object_aware(o_ptr);
+
+				/* Squelch */
+				if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
+			}
+		}
+		else
+		{
+			message(MSG_GENERIC, 0, "You could not comprehend the alchemical pattern. The powder was wasted.");
+		}
+	}
+
+	else if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_MISSING_EDGE_B) && (o_ptr->tval == TV_POWDER))
+	{
+		/* Calculate success chance */
+		if (rand_int(100) < p_ptr->skill[SK_ALC])
+		{
+			message(MSG_GENERIC, 0, "You artfully complete the pattern. The circle starts to hum with power.");
+
+			/* Find out the top left corner of the circle */
+			/* Is the square on the right inside the circle? */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_CIRCLE_BROKEN)
+			{
+				/* Is the square on top of this one inside the circle? */
+				if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_CIRCLE_BROKEN)
+				{
+					draw_circle(p_ptr->py - 3, p_ptr->px - 1, circle_type);
+				}
+				else
+				{
+					draw_circle(p_ptr->py - 2, p_ptr->px, circle_type);
+				}
+			}
+			else
+			{
+				/* Is the square below this one inside the circle? */
+				if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_CIRCLE_BROKEN)
+				{
+					draw_circle(p_ptr->py, p_ptr->px - 4, circle_type);
+				}
+				else
+				{
+					draw_circle(p_ptr->py - 1, p_ptr->px - 5, circle_type);
+				}
+			}
+
+			/* An identification was made */
+			if (!object_aware_p(o_ptr))
+			{
+				gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+				object_aware(o_ptr);
+
+				/* Squelch */
+				if (squelch_itemp(o_ptr)) do_squelch_item(o_ptr);
+			}
+		}
+		else
+		{
+			message(MSG_GENERIC, 0, "You could not comprehend the alchemical pattern. The powder was wasted.");
+		}
+	}
+
+	/* Is the item sacrifice-worthy and dropped on an altar? */
+	else if ((altar > 0) && (sacrifice_worthy >= 1))
+	{
+		message_format(MSG_DROP, 0, "A brilliant light consumes %s (%c).", o_name, index_to_label(item));
+
+		/* Dropped a non-arrow ego item (or a food item if the player is a Priest) */
+		if (sacrifice_worthy == 1)
+		{
+			if (altar == WG_ALTAR_OBSESSION)
+			{
+				if (p_ptr->transformation_status >= 4)
+				{
+					p_ptr->transformation_status = 7;
+					message(MSG_GENERIC, 0, "Cyrridven gets angry!");
+				}
+				else if (p_ptr->purity_status >= 4)
+				{
+					p_ptr->purity_status = 7;
+					message(MSG_GENERIC, 0, "Eostre gets angry!");
+				}
+
+				if (p_ptr->obsession_status >= 4)
+				{
+					p_ptr->obsession_status = 5;
+					message(MSG_GENERIC, 0, "Beleth, the Queen of Hell, is very pleased with you.");
+				}
+				else if (p_ptr->obsession_status <= 3)
+				{
+					p_ptr->obsession_status = 2;
+					message(MSG_GENERIC, 0, "Beleth, the Queen of Hell, blesses you.");
+
+					/* More than three blessings? One enemy goddess draws away her blessings */
+					if (blessings >= 3)
+					{
+						if ((p_ptr->purity_status > 1) && (p_ptr->transformation_status > 1))
+						{
+							if (rand_int(100) < 50)
+							{
+								message(MSG_GENERIC, 0, "Eostre draws away her blessing.");
+								p_ptr->purity_status = 1;
+							}
+							else
+							{
+								message(MSG_GENERIC, 0, "Cyrridven draws away her blessing.");
+								p_ptr->transformation_status = 1;
+							}
+						}
+						else if (p_ptr->purity_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Eostre draws away her blessing.");
+							p_ptr->purity_status = 1;
+						}
+						else if (p_ptr->transformation_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Cyrridven draws away her blessing.");
+							p_ptr->transformation_status = 1;
+						}
+					}
+				}
+			}
+			else if (altar == WG_ALTAR_CONFLICT)
+			{
+				if (p_ptr->deceit_status >= 4)
+				{
+					p_ptr->deceit_status = 7;
+					message(MSG_GENERIC, 0, "Laverna gets angry!");
+				}
+				else if (p_ptr->transformation_status >= 4)
+				{
+					p_ptr->transformation_status = 7;
+					message(MSG_GENERIC, 0, "Cyrridven gets angry!");
+				}
+
+				if (p_ptr->conflict_status >= 4)
+				{
+					p_ptr->conflict_status = 5;
+					message(MSG_GENERIC, 0, "Discordia, the Warrior, is very pleased with you.");
+				}
+				else if (p_ptr->conflict_status <= 3)
+				{
+					p_ptr->conflict_status = 2;
+					message(MSG_GENERIC, 0, "Discordia, the Warrior, blesses you.");
+
+					/* More than three blessings? One enemy goddess draws away her blessings */
+					if (blessings >= 3)
+					{
+						if ((p_ptr->transformation_status > 1) && (p_ptr->deceit_status > 1))
+						{
+							if (rand_int(100) < 50)
+							{
+								message(MSG_GENERIC, 0, "Cyrridven draws away her blessing.");
+								p_ptr->transformation_status = 1;
+							}
+							else
+							{
+								message(MSG_GENERIC, 0, "Laverna draws away her blessing.");
+								p_ptr->deceit_status = 1;
+							}
+						}
+						else if (p_ptr->transformation_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Cyrridven draws away her blessing.");
+							p_ptr->transformation_status = 1;
+						}
+						else if (p_ptr->deceit_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Laverna draws away her blessing.");
+							p_ptr->deceit_status = 1;
+						}
+					}
+				}
+			}
+			else if (altar == WG_ALTAR_PURITY)
+			{
+				if (p_ptr->deceit_status >= 4)
+				{
+					p_ptr->deceit_status = 7;
+					message(MSG_GENERIC, 0, "Laverna gets angry!");
+				}
+				else if (p_ptr->obsession_status >= 4)
+				{
+					p_ptr->obsession_status = 7;
+					message(MSG_GENERIC, 0, "Beleth gets angry!");
+				}
+
+				if (p_ptr->purity_status >= 4)
+				{
+					p_ptr->purity_status = 5;
+					message(MSG_GENERIC, 0, "Eostre, the Maiden of Spring, is very pleased with you.");
+				}
+				else if (p_ptr->purity_status <= 3)
+				{
+					p_ptr->purity_status = 2;
+					message(MSG_GENERIC, 0, "Eostre, the Maiden of Spring, blesses you.");
+
+					/* More than three blessings? One enemy goddess draws away her blessings */
+					if (blessings >= 3)
+					{
+						if ((p_ptr->obsession_status > 1) && (p_ptr->deceit_status > 1))
+						{
+							if (rand_int(100) < 50)
+							{
+								message(MSG_GENERIC, 0, "Beleth draws away her blessing.");
+								p_ptr->obsession_status = 1;
+							}
+							else
+							{
+								message(MSG_GENERIC, 0, "Laverna draws away her blessing.");
+								p_ptr->deceit_status = 1;
+							}
+						}
+						else if (p_ptr->obsession_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Beleth draws away her blessing.");
+							p_ptr->obsession_status = 1;
+						}
+						else if (p_ptr->deceit_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Laverna draws away her blessing.");
+							p_ptr->deceit_status = 1;
+						}
+					}
+				}
+			}
+			else if (altar == WG_ALTAR_TRANSFORMATION)
+			{
+				if (p_ptr->obsession_status >= 4)
+				{
+					p_ptr->obsession_status = 7;
+					message(MSG_GENERIC, 0, "Beleth gets angry!");
+				}
+				else if (p_ptr->conflict_status >= 4)
+				{
+					p_ptr->conflict_status = 7;
+					message(MSG_GENERIC, 0, "Discordia gets angry!");
+				}
+
+				if (p_ptr->transformation_status >= 4)
+				{
+					p_ptr->transformation_status = 5;
+					message(MSG_GENERIC, 0, "Cyrridven, the Crone, is very pleased with you.");
+				}
+				else if (p_ptr->transformation_status <= 3)
+				{
+					p_ptr->transformation_status = 2;
+					message(MSG_GENERIC, 0, "Cyrridven, the Crone, blesses you.");
+
+					/* More than three blessings? One enemy goddess draws away her blessings */
+					if (blessings >= 3)
+					{
+						if ((p_ptr->obsession_status > 1) && (p_ptr->conflict_status > 1))
+						{
+							if (rand_int(100) < 50)
+							{
+								message(MSG_GENERIC, 0, "Beleth draws away her blessing.");
+								p_ptr->obsession_status = 1;
+							}
+							else
+							{
+								message(MSG_GENERIC, 0, "Discordia draws away her blessing.");
+								p_ptr->conflict_status = 1;
+							}
+						}
+						else if (p_ptr->obsession_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Beleth draws away her blessing.");
+							p_ptr->obsession_status = 1;
+						}
+						else if (p_ptr->conflict_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Discordia draws away her blessing.");
+							p_ptr->conflict_status = 1;
+						}
+					}
+				}
+			}
+			else if (altar == WG_ALTAR_DECEIT)
+			{
+				if (p_ptr->conflict_status >= 4)
+				{
+					p_ptr->conflict_status = 7;
+					message(MSG_GENERIC, 0, "Discordia gets angry!");
+				}
+				else if (p_ptr->purity_status >= 4)
+				{
+					p_ptr->purity_status = 7;
+					message(MSG_GENERIC, 0, "Eostre gets angry!");
+				}
+
+				if (p_ptr->deceit_status >= 4)
+				{
+					p_ptr->deceit_status = 5;
+					message(MSG_GENERIC, 0, "Laverna, the Mistress of the Underworld, is very pleased with you.");
+				}
+				else if (p_ptr->deceit_status <= 3)
+				{
+					p_ptr->deceit_status = 2;
+					message(MSG_GENERIC, 0, "Laverna, the Mistress of the Underworld, blesses you.");
+
+					/* More than three blessings? One enemy goddess draws away her blessings */
+					if (blessings >= 3)
+					{
+						if ((p_ptr->conflict_status > 1) && (p_ptr->purity_status > 1))
+						{
+							if (rand_int(100) < 50)
+							{
+								message(MSG_GENERIC, 0, "Discordia draws away her blessing.");
+								p_ptr->conflict_status = 1;
+							}
+							else
+							{
+								message(MSG_GENERIC, 0, "Eostre draws away her blessing.");
+								p_ptr->purity_status = 1;
+							}
+						}
+						else if (p_ptr->conflict_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Discordia draws away her blessing.");
+							p_ptr->conflict_status = 1;
+						}
+						else if (p_ptr->purity_status > 1)
+						{
+							message(MSG_GENERIC, 0, "Eostre draws away her blessing.");
+							p_ptr->purity_status = 1;
+						}
+					}
+				}
+			}
+		}
+		else if (sacrifice_worthy == 2)
+		/* Dropped an artifact (or an ego item if the player is a Priest) */
+		{
+			if (altar == WG_ALTAR_OBSESSION)
+			{
+				if (p_ptr->obsession_status >= 7)
+				{
+					p_ptr->obsession_status = 4;
+					message(MSG_GENERIC, 0, "Beleth, the Queen of Hell, is no longer angry with you.");
+				}
+				else if (p_ptr->obsession_status == 4)
+				{
+					p_ptr->obsession_status = 5;
+					message(MSG_GENERIC, 0, "Beleth, the Queen of Hell, is very pleased with you!");
+				}
+				else if (p_ptr->obsession_status < 4)
+				{
+					p_ptr->obsession_status = 4;
+					message(MSG_GENERIC, 0, "You are now a follower of Beleth, the Queen of Hell.");
+
+					if ((p_ptr->conflict_status >= 4) && (p_ptr->conflict_status <= 6))
+					{
+						p_ptr->conflict_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Discordia, the Warrior.");
+					}
+					if ((p_ptr->deceit_status >= 4) && (p_ptr->deceit_status <= 6))
+					{
+						p_ptr->deceit_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Laverna, the Mistress of the Underworld.");
+					}
+					if (p_ptr->conflict_status >= 7)
+					{
+						p_ptr->conflict_status = 1;
+						message(MSG_GENERIC, 0, "Discordia is happy to get rid of you.");
+					}
+					if (p_ptr->deceit_status >= 7)
+					{
+						p_ptr->deceit_status = 1;
+						message(MSG_GENERIC, 0, "Laverna is happy to get rid of you.");
+					}
+					if (p_ptr->purity_status > 3) 
+					{
+						p_ptr->purity_status = 1;
+						p_ptr->obsession_status = 7;
+						message(MSG_GENERIC, 0, "Beleth doesn't like an ex-follower of Eostre at all.");
+					}
+					if (p_ptr->transformation_status > 3) 
+					{
+						p_ptr->transformation_status = 1;
+						p_ptr->obsession_status = 7;
+						message(MSG_GENERIC, 0, "Beleth doesn't like an ex-follower of Cyrridven at all.");
+					}
+					if (p_ptr->purity_status > 1) 
+					{
+						p_ptr->purity_status = 1;
+						message(MSG_GENERIC, 0, "Eostre withdraws her blessings.");
+					}
+					if (p_ptr->transformation_status > 1) 
+					{
+						p_ptr->transformation_status = 1;
+						message(MSG_GENERIC, 0, "Cyrridven withdraws her blessings.");
+					}
+				}
+			}
+
+			else if (altar == WG_ALTAR_CONFLICT)
+			{
+				if (p_ptr->conflict_status >= 7)
+				{
+					p_ptr->conflict_status = 4;
+					message(MSG_GENERIC, 0, "Discordia, the Warrior, is no longer angry with you.");
+				}
+				else if (p_ptr->conflict_status == 4)
+				{
+					p_ptr->conflict_status = 5;
+					message(MSG_GENERIC, 0, "Discordia, the Warrior, is very pleased with you!");
+				}
+				else if (p_ptr->conflict_status < 4)
+				{
+					p_ptr->conflict_status = 4;
+					message(MSG_GENERIC, 0, "You are now a follower of Discordia, the Warrior.");
+
+					if ((p_ptr->obsession_status >= 4) && (p_ptr->obsession_status <= 6))
+					{
+						p_ptr->obsession_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Beleth, the Queen of Hell.");
+					}
+					if ((p_ptr->purity_status >= 4) && (p_ptr->purity_status <= 6))
+					{
+						p_ptr->purity_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Eostre, the Maiden of Spring.");
+					}
+					if (p_ptr->obsession_status >= 7)
+					{
+						p_ptr->obsession_status = 1;
+						message(MSG_GENERIC, 0, "Beleth is happy to get rid of you.");
+					}
+					if (p_ptr->purity_status >= 7)
+					{
+						p_ptr->purity_status = 1;
+						message(MSG_GENERIC, 0, "Eostre is happy to get rid of you.");
+					}
+					if (p_ptr->deceit_status > 3) 
+					{
+						p_ptr->deceit_status = 1;
+						p_ptr->conflict_status = 7;
+						message(MSG_GENERIC, 0, "Discordia doesn't like an ex-follower of Laverna at all.");
+					}
+					if (p_ptr->transformation_status > 3) 
+					{
+						p_ptr->transformation_status = 1;
+						p_ptr->conflict_status = 7;
+						message(MSG_GENERIC, 0, "Discordia doesn't like an ex-follower of Cyrridven at all.");
+					}
+					if (p_ptr->deceit_status > 1) 
+					{
+						p_ptr->deceit_status = 1;
+						message(MSG_GENERIC, 0, "Laverna withdraws her blessings.");
+					}
+					if (p_ptr->transformation_status > 1) 
+					{
+						p_ptr->transformation_status = 1;
+						message(MSG_GENERIC, 0, "Cyrridven withdraws her blessings.");
+					}
+				}
+
+			}
+			else if (altar == WG_ALTAR_PURITY)
+			{
+				if (p_ptr->purity_status >= 7)
+				{
+					p_ptr->purity_status = 4;
+					message(MSG_GENERIC, 0, "Eostre, the Maiden of Spring, is no longer angry with you.");
+				}
+				else if (p_ptr->purity_status == 4)
+				{
+					p_ptr->purity_status = 5;
+					message(MSG_GENERIC, 0, "Eostre, the Maiden of Spring, is very pleased with you!");
+				}
+				else if (p_ptr->purity_status < 4)
+				{
+					p_ptr->purity_status = 4;
+					message(MSG_GENERIC, 0, "You are now a follower of Eostre, the Maiden of Spring.");
+
+					if ((p_ptr->conflict_status >= 4) && (p_ptr->conflict_status <= 6))
+					{
+						p_ptr->conflict_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Discordia, the Warrior.");
+					}
+					if ((p_ptr->transformation_status >= 4) && (p_ptr->transformation_status <= 6))
+					{
+						p_ptr->transformation_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Cyrridven, the Crone.");
+					}
+					if (p_ptr->conflict_status >= 7)
+					{
+						p_ptr->conflict_status = 1;
+						message(MSG_GENERIC, 0, "Discordia is happy to get rid of you.");
+					}
+					if (p_ptr->transformation_status >= 7)
+					{
+						p_ptr->transformation_status = 1;
+						message(MSG_GENERIC, 0, "Cyrridven is happy to get rid of you.");
+					}
+					if (p_ptr->deceit_status > 3) 
+					{
+						p_ptr->deceit_status = 1;
+						p_ptr->purity_status = 7;
+						message(MSG_GENERIC, 0, "Eostre doesn't like an ex-follower of Laverna at all.");
+					}
+					if (p_ptr->obsession_status > 3) 
+					{
+						p_ptr->obsession_status = 1;
+						p_ptr->purity_status = 7;
+						message(MSG_GENERIC, 0, "Eostre doesn't like an ex-follower of Beleth at all.");
+					}
+					if (p_ptr->deceit_status > 1) 
+					{
+						p_ptr->deceit_status = 1;
+						message(MSG_GENERIC, 0, "Laverna withdraws her blessings.");
+					}
+					if (p_ptr->obsession_status > 1) 
+					{
+						p_ptr->obsession_status = 1;
+						message(MSG_GENERIC, 0, "Beleth withdraws her blessings.");
+					}
+				}
+			}
+			else if (altar == WG_ALTAR_TRANSFORMATION)
+			{
+				if (p_ptr->transformation_status >= 7)
+				{
+					p_ptr->transformation_status = 4;
+					message(MSG_GENERIC, 0, "Cyrridven, the Crone, is no longer angry with you.");
+				}
+				else if (p_ptr->transformation_status == 4)
+				{
+					p_ptr->transformation_status = 5;
+					message(MSG_GENERIC, 0, "Cyrridven, the Crone, is very pleased with you!");
+				}
+				else if (p_ptr->transformation_status < 4)
+				{
+					p_ptr->transformation_status = 4;
+					message(MSG_GENERIC, 0, "You are now a follower of Cyrridven, the Crone.");
+
+					if ((p_ptr->purity_status >= 4) && (p_ptr->purity_status <= 6))
+					{
+						p_ptr->purity_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Eostre, the Maiden of Spring.");
+					}
+					if ((p_ptr->deceit_status >= 4) && (p_ptr->deceit_status <= 6))
+					{
+						p_ptr->deceit_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Laverna, the Mistress of the Underworld.");
+					}
+					if (p_ptr->purity_status >= 7)
+					{
+						p_ptr->purity_status = 1;
+						message(MSG_GENERIC, 0, "Eostre is happy to get rid of you.");
+					}
+					if (p_ptr->deceit_status >= 7)
+					{
+						p_ptr->deceit_status = 1;
+						message(MSG_GENERIC, 0, "Laverna is happy to get rid of you.");
+					}
+					if (p_ptr->obsession_status > 3) 
+					{
+						p_ptr->obsession_status = 1;
+						p_ptr->transformation_status = 7;
+						message(MSG_GENERIC, 0, "Cyrridven doesn't like an ex-follower of Beleth at all.");
+					}
+					if (p_ptr->conflict_status > 3) 
+					{
+						p_ptr->conflict_status = 1;
+						p_ptr->transformation_status = 7;
+						message(MSG_GENERIC, 0, "Cyrridven doesn't like an ex-follower of Discordia at all.");
+					}
+					if (p_ptr->obsession_status > 1) 
+					{
+						p_ptr->obsession_status = 1;
+						message(MSG_GENERIC, 0, "Beleth withdraws her blessings.");
+					}
+					if (p_ptr->conflict_status > 1) 
+					{
+						p_ptr->conflict_status = 1;
+						message(MSG_GENERIC, 0, "Discordia withdraws her blessings.");
+					}
+				}
+
+			}
+			else if (altar == WG_ALTAR_DECEIT)
+			{
+				if (p_ptr->deceit_status >= 7)
+				{
+					p_ptr->deceit_status = 4;
+					message(MSG_GENERIC, 0, "Laverna, the Mistress of the Underworld, is no longer angry with you.");
+				}
+				else if (p_ptr->deceit_status == 4)
+				{
+					p_ptr->deceit_status = 5;
+					message(MSG_GENERIC, 0, "Laverna, the Mistress of the Underworld, is very pleased with you!");
+				}
+				else if (p_ptr->deceit_status < 4)
+				{
+					p_ptr->deceit_status = 4;
+					message(MSG_GENERIC, 0, "You are now a follower of Laverna, the Mistress of the Underworld.");
+
+					if ((p_ptr->obsession_status >= 4) && (p_ptr->obsession_status <= 6))
+					{
+						p_ptr->obsession_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Beleth, the Queen of Hell.");
+					}
+					if ((p_ptr->transformation_status >= 3) && (p_ptr->transformation_status <= 6))
+					{
+						p_ptr->transformation_status = 2;
+						message(MSG_GENERIC, 0, "You are still blessed by Cyrridven, the Crone.");
+					}
+					if (p_ptr->obsession_status >= 7)
+					{
+						p_ptr->obsession_status = 1;
+						message(MSG_GENERIC, 0, "Beleth is happy to get rid of you.");
+					}
+					if (p_ptr->transformation_status >= 7)
+					{
+						p_ptr->transformation_status = 1;
+						message(MSG_GENERIC, 0, "Cyrridven is happy to get rid of you.");
+					}
+					if (p_ptr->purity_status > 3) 
+					{
+						p_ptr->purity_status = 1;
+						p_ptr->deceit_status = 7;
+						message(MSG_GENERIC, 0, "Laverna doesn't like an ex-follower of Eostre at all.");
+					}
+					if (p_ptr->conflict_status > 3) 
+					{
+						p_ptr->conflict_status = 1;
+						p_ptr->deceit_status = 7;
+						message(MSG_GENERIC, 0, "Laverna doesn't like an ex-follower of Discordia at all.");
+					}
+					if (p_ptr->purity_status > 1) 
+					{
+						p_ptr->purity_status = 1;
+						message(MSG_GENERIC, 0, "Eostre withdraws her blessings.");
+					}
+					if (p_ptr->conflict_status > 1) 
+					{
+						p_ptr->conflict_status = 1;
+						message(MSG_GENERIC, 0, "Discordia withdraws her blessings.");
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	 * Are we dropping a dungeon book on a circle of the right type to cast a ritual, and have at least one point of *Lore*?
+	 */
+
+	/* Resistance of Scarabtarices: Fortification */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MAGE7) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_LIFEFORCE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			message(MSG_EFFECT, 0, "Your skin tingles. You feel more secure against hostile forces.");
+
+			p_ptr->fortification += power * 3;
+		}
+	}
+	/* Mordenkainen's Escapes: Dexterity */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MAGE8) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_NEXUS))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_DEX);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_DEX);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very dextrous!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less clumsy.");
+		}
+	}
+	/* Kelek's Grimoire of Power: Strength */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MAGE9) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_STR);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_STR);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very strong!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less weak.");
+		}
+	}
+	/* Raal's Tome of Destruction: Create Powder */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MAGE10) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_NEXUS))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+			bool object_created = FALSE;
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+
+			object_level = 50;
+
+			for (i = 0; i < power * 10; i++)
+			{
+				object_created = FALSE;
+
+				while (object_created == FALSE)
+				{
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Wipe the object */
+					object_wipe(i_ptr);
+
+					/* Make a themed object (if possible) */
+					if (make_typed(i_ptr, TV_POWDER, FALSE, FALSE, FALSE))
+					{
+						/* Mark history */
+						object_history(i_ptr, ORIGIN_ACQUIRE, 0, 0, 0);
+
+						/* Drop the object */
+						drop_near(i_ptr, -1, p_ptr->py + rand_int(5) - 2, p_ptr->px + rand_int(5) - 2, FALSE);
+
+						/* Done */
+						object_created = TRUE;
+					}
+				}
+			}
+
+			object_level = p_ptr->depth;
+		}
+	}
+	/* Tenser's Transformations: Augment Body */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MAGE11) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			for (i = 0; i < power; i++)
+			{
+				res_stat(A_STR);
+				inc_stat(A_STR);
+				res_stat(A_DEX);
+				inc_stat(A_DEX);
+				res_stat(A_CON);
+				inc_stat(A_CON);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			message(MSG_EFFECT, 0, "Your feel stronger, quicker, tougher.");
+		}
+	}
+	/* The Lore of the Hunter: Wisdom */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_RANGER) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_RECALL))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_WIS);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_WIS);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very wise!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less naive.");
+		}
+	}
+	/* Ethereal Openings: Charisma */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_PRIEST5) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_ILLUSIONS))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_CHR);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_CHR);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very cute!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less ugly.");
+		}
+	}
+	/* Godly Insights: Night Sight */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_PRIEST6) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_ILLUSIONS))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			message(MSG_EFFECT, 0, "Your eyes begin to tingle!");
+
+			p_ptr->nightsight += power;
+		}
+	}
+	/* Purifications and Healing: Cure Wound */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_PRIEST7) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_LIFEFORCE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+
+			for (i = 0; i < power; i++)
+			{
+				if (p_ptr->wound_vigor)
+				{
+					p_ptr->wound_vigor = 0;
+					message(MSG_EFFECT, 0, "Your internal wound is cured!");
+					continue;
+				}
+				else if (p_ptr->wound_wit)
+				{
+					p_ptr->wound_wit = 0;
+					message(MSG_EFFECT, 0, "Your brain damage is cured!");
+					continue;
+				}
+				else if (p_ptr->wound_grace)
+				{
+					p_ptr->wound_grace = 0;
+					message(MSG_EFFECT, 0, "You are able to straighten up once again!");
+					continue;
+				}
+				else if (i == 0)
+				{
+					message(MSG_EFFECT, 0, "Nothing happens.");
+				}
+			}
+		}
+	}
+	/* Holy Infusions: Acquire a Divine Armour */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_PRIEST8) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_SUMMONING))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+			bool object_created = FALSE;
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (power > 1) message(MSG_EFFECT, 0, "Objects materialize!");
+			else message(MSG_EFFECT, 0, "An object materializes!");
+
+			object_level = p_ptr->depth + 15;
+
+			for (i = 0; i < power; i++)
+			{
+				object_created = FALSE;
+
+				while (object_created == FALSE)
+				{
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Wipe the object */
+					object_wipe(i_ptr);
+
+					/* Make a themed object (if possible) */
+					if (make_typed(i_ptr, TV_BOOTS + (rand_int(7)), TRUE, TRUE, FALSE))
+					{
+						/* Mark history */
+						object_history(i_ptr, ORIGIN_ACQUIRE, 0, 0, 0);
+
+						/* Drop the object */
+						drop_near(i_ptr, -1, p_ptr->py + rand_int(3) - 1, p_ptr->px + rand_int(3) - 1, FALSE);
+
+						/* Done */
+						object_created = TRUE;
+					}
+				}
+			}
+
+			object_level = p_ptr->depth;
+		}
+	}
+	/* Wrath of God: Acquire a Divine Weapon */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_PRIEST9) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_SUMMONING))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+			bool object_created = FALSE;
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (power > 1) message(MSG_EFFECT, 0, "Objects materialize!");
+			else message(MSG_EFFECT, 0, "An object materializes!");
+
+			object_level = p_ptr->depth + 15;
+
+			for (i = 0; i < power; i++)
+			{
+				object_created = FALSE;
+
+				while (object_created == FALSE)
+				{
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Wipe the object */
+					object_wipe(i_ptr);
+
+					/* Make a themed object (if possible) */
+					if (make_typed(i_ptr, TV_BOW + (rand_int(4)), TRUE, TRUE, FALSE))
+					{
+						/* Mark history */
+						object_history(i_ptr, ORIGIN_ACQUIRE, 0, 0, 0);
+
+						/* Drop the object */
+						drop_near(i_ptr, -1, p_ptr->py + rand_int(3) - 1, p_ptr->px + rand_int(3) - 1, FALSE);
+
+						/* Done */
+						object_created = TRUE;
+					}
+				}
+			}
+
+			object_level = p_ptr->depth;
+		}
+	}
+	/* The Seven Steps to Transcendence: Constitution */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MYSTIC1) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_LIFEFORCE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_CON);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_CON);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very healthy!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less sickly.");
+		}
+	}
+	/* Teachings of the Ninth Master: Intelligence */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MYSTIC2) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_RECALL))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			res = res_stat(A_INT);
+
+			for (i = 0; i < power; i++)
+			{
+				inc = inc_stat(A_INT);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			if (inc) message(MSG_EFFECT, 0, "You feel very smart!");
+			else if (res) message(MSG_EFFECT, 0, "You feel less stupid.");
+		}
+	}
+	/* Necronomicon: Forbidden Lore */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_NECRONOMICON) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			message(MSG_EFFECT, 0, "You feel more experienced.");
+
+			for (i = 0; i < power; i++)
+			{
+				if (p_ptr->exp < PY_MAX_EXP)
+				{
+					s32b ee = ((p_ptr->exp / 2) + 10);
+					if (ee > 1000000L) ee = 1000000L;
+					gain_exp(ee);
+				}
+			}
+		}
+	}
+	/* Mathemagical Calculations: Mind over Body */
+	else if ((o_ptr->tval == TV_MAGIC_BOOK) && (o_ptr->sval == SV_BOOK_MATHEMAGIC) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE))
+	{
+		if (power == 0)
+		{
+			message(MSG_EFFECT, 0, "You perform the ritual without fully understanding it. Nothing happens.");
+
+		}
+		else
+		{
+			for (i = 0; i < power; i++)
+			{
+				res_stat(A_INT);
+				inc_stat(A_INT);
+				inc_stat(A_INT);
+				res_stat(A_WIS);
+				inc_stat(A_WIS);
+				inc_stat(A_WIS);
+				res_stat(A_CHR);
+				inc_stat(A_CHR);
+				inc_stat(A_CHR);
+
+				dec_stat(A_STR, 2, TRUE);
+				dec_stat(A_DEX, 2, TRUE);
+				dec_stat(A_CON, 2, TRUE);
+			}
+
+			message(MSG_EFFECT, 0, "With a ceremonial voice, you read aloud the ritual.");
+			message(MSG_EFFECT, 0, "Your brain grows new connections. You feel your body wither.");
+		}
+	}
+
+	/* Nothing special, drop normally */
+	else
+	{
+		/* Message */
+		message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
+
+		/* Drop it near the player */
+		drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, FALSE);
+	}
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
@@ -5039,5 +6367,5 @@ void create_quest_item(int ny, int nx)
 	object_history(i_ptr, ORIGIN_CHEST, 0, 0, 0);
 		
 	/* Drop the artifact from heaven */
-	drop_near(i_ptr, -1, ny, nx);
+	drop_near(i_ptr, -1, ny, nx, FALSE);
 }

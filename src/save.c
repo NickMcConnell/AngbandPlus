@@ -180,6 +180,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->blinded);
 	wr_byte(m_ptr->calmed);
+	wr_byte(m_ptr->cursed);
+	wr_byte(m_ptr->earthbound);
 
 	wr_u16b(m_ptr->sleep);
 	wr_u16b(m_ptr->bleeding);
@@ -503,6 +505,27 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->reserves_uses);
 	wr_s16b(p_ptr->escapes_uses);
 
+	wr_s16b(p_ptr->obsession_bonus_a);
+	wr_s16b(p_ptr->conflict_bonus_a);
+	wr_s16b(p_ptr->purity_bonus_a);
+	wr_s16b(p_ptr->transformation_bonus_a);
+	wr_s16b(p_ptr->deceit_bonus_a);
+
+	wr_s16b(p_ptr->obsession_bonus_b);
+	wr_s16b(p_ptr->conflict_bonus_b);
+	wr_s16b(p_ptr->purity_bonus_b);
+	wr_s16b(p_ptr->transformation_bonus_b);
+	wr_s16b(p_ptr->deceit_bonus_b);
+
+	wr_s16b(p_ptr->obsession_status);
+	wr_s16b(p_ptr->conflict_status);
+	wr_s16b(p_ptr->purity_status);
+	wr_s16b(p_ptr->transformation_status);
+	wr_s16b(p_ptr->deceit_status);
+
+	wr_s16b(p_ptr->shape);
+	wr_s16b(p_ptr->shape_timer);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
@@ -514,7 +537,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
-	wr_s16b(p_ptr->food);
+	wr_s16b(p_ptr->monster_summon_power);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -526,6 +549,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->taint);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
+	wr_s16b(p_ptr->protchaos);
+	wr_s16b(p_ptr->flaming_hands);
+	wr_s16b(p_ptr->icy_hands);
 	wr_s16b(p_ptr->resilient);
 	wr_s16b(p_ptr->absorb);
 	wr_s16b(p_ptr->hero);
@@ -545,6 +571,38 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->stability);
 	wr_s16b(p_ptr->racial_power);
 	wr_s16b(p_ptr->mapping_bonus);
+	wr_s16b(p_ptr->phlogiston);
+	wr_s16b(p_ptr->fortification);
+	wr_s16b(p_ptr->nightsight);
+	wr_s16b(p_ptr->fencing);
+	wr_s16b(p_ptr->archery);
+	wr_s16b(p_ptr->alertness);
+	wr_s16b(p_ptr->recall_y);
+	wr_s16b(p_ptr->recall_x);
+	wr_s16b(p_ptr->nexus_y);
+	wr_s16b(p_ptr->nexus_x);
+
+	wr_s16b(p_ptr->tim_see_invis_perm);
+	wr_s16b(p_ptr->tim_invis_perm);
+	wr_s16b(p_ptr->tim_infra_perm);
+	wr_s16b(p_ptr->tim_stealth_perm);
+	wr_s16b(p_ptr->fast_perm);
+	wr_s16b(p_ptr->absorb_perm);
+	wr_s16b(p_ptr->protevil_perm);
+	wr_s16b(p_ptr->protchaos_perm);
+	wr_s16b(p_ptr->flaming_hands_perm);
+	wr_s16b(p_ptr->icy_hands_perm);
+	wr_s16b(p_ptr->resilient_perm);
+	wr_s16b(p_ptr->hero_perm);
+	wr_s16b(p_ptr->rage_perm);
+	wr_s16b(p_ptr->blessed_perm);
+	wr_s16b(p_ptr->safety_perm);
+	wr_s16b(p_ptr->shield_perm);
+	wr_s16b(p_ptr->stability_perm);
+	wr_s16b(p_ptr->tim_bravery_perm);
+	wr_s16b(p_ptr->sp_dur_perm);
+	wr_s16b(p_ptr->tim_sp_dam_perm);
+	wr_s16b(p_ptr->tim_sp_inf_perm);
 
 	/* Write resistances */
 	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);

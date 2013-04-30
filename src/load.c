@@ -352,6 +352,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->monfear);
 	rd_byte(&m_ptr->blinded);
 	rd_byte(&m_ptr->calmed);
+	rd_byte(&m_ptr->cursed);
+	rd_byte(&m_ptr->earthbound);
 
 	rd_u16b(&m_ptr->sleep);
 	rd_u16b(&m_ptr->bleeding);
@@ -742,13 +744,34 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 	
-	rd_u16b(&p_ptr->wound_vigor);
-	rd_u16b(&p_ptr->wound_wit);
-	rd_u16b(&p_ptr->wound_grace);
+	rd_s16b(&p_ptr->wound_vigor);
+	rd_s16b(&p_ptr->wound_wit);
+	rd_s16b(&p_ptr->wound_grace);
 
-	rd_u16b(&p_ptr->lore_uses);
-	rd_u16b(&p_ptr->reserves_uses);
-	rd_u16b(&p_ptr->escapes_uses);
+	rd_s16b(&p_ptr->lore_uses);
+	rd_s16b(&p_ptr->reserves_uses);
+	rd_s16b(&p_ptr->escapes_uses);
+
+	rd_s16b(&p_ptr->obsession_bonus_a);
+	rd_s16b(&p_ptr->conflict_bonus_a);
+	rd_s16b(&p_ptr->purity_bonus_a);
+	rd_s16b(&p_ptr->transformation_bonus_a);
+	rd_s16b(&p_ptr->deceit_bonus_a);
+
+	rd_s16b(&p_ptr->obsession_bonus_b);
+	rd_s16b(&p_ptr->conflict_bonus_b);
+	rd_s16b(&p_ptr->purity_bonus_b);
+	rd_s16b(&p_ptr->transformation_bonus_b);
+	rd_s16b(&p_ptr->deceit_bonus_b);
+
+	rd_s16b(&p_ptr->obsession_status);
+	rd_s16b(&p_ptr->conflict_status);
+	rd_s16b(&p_ptr->purity_status);
+	rd_s16b(&p_ptr->transformation_status);
+	rd_s16b(&p_ptr->deceit_status);
+
+	rd_s16b(&p_ptr->shape);
+	rd_s16b(&p_ptr->shape_timer);
 
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
@@ -767,7 +790,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
-	rd_s16b(&p_ptr->food);
+	rd_s16b(&p_ptr->monster_summon_power);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -779,6 +802,9 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->taint);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
+	rd_s16b(&p_ptr->protchaos);
+	rd_s16b(&p_ptr->flaming_hands);
+	rd_s16b(&p_ptr->icy_hands);
 	rd_s16b(&p_ptr->resilient);
 	rd_s16b(&p_ptr->absorb);
 	rd_s16b(&p_ptr->hero);
@@ -798,6 +824,38 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
 	rd_s16b(&p_ptr->mapping_bonus);
+	rd_s16b(&p_ptr->phlogiston);
+	rd_s16b(&p_ptr->fortification);
+	rd_s16b(&p_ptr->nightsight);
+	rd_s16b(&p_ptr->fencing);
+	rd_s16b(&p_ptr->archery);
+	rd_s16b(&p_ptr->alertness);
+	rd_s16b(&p_ptr->recall_y);
+	rd_s16b(&p_ptr->recall_x);
+	rd_s16b(&p_ptr->nexus_y);
+	rd_s16b(&p_ptr->nexus_x);
+
+	rd_s16b(&p_ptr->tim_see_invis_perm);
+	rd_s16b(&p_ptr->tim_invis_perm);
+	rd_s16b(&p_ptr->tim_infra_perm);
+	rd_s16b(&p_ptr->tim_stealth_perm);
+	rd_s16b(&p_ptr->fast_perm);
+	rd_s16b(&p_ptr->absorb_perm);
+	rd_s16b(&p_ptr->protevil_perm);
+	rd_s16b(&p_ptr->protchaos_perm);
+	rd_s16b(&p_ptr->flaming_hands_perm);
+	rd_s16b(&p_ptr->icy_hands_perm);
+	rd_s16b(&p_ptr->resilient_perm);
+	rd_s16b(&p_ptr->hero_perm);
+	rd_s16b(&p_ptr->rage_perm);
+	rd_s16b(&p_ptr->blessed_perm);
+	rd_s16b(&p_ptr->safety_perm);
+	rd_s16b(&p_ptr->shield_perm);
+	rd_s16b(&p_ptr->stability_perm);
+	rd_s16b(&p_ptr->tim_bravery_perm);
+	rd_s16b(&p_ptr->sp_dur_perm);
+	rd_s16b(&p_ptr->tim_sp_dam_perm);
+	rd_s16b(&p_ptr->tim_sp_inf_perm);
 
 	/* Read resistances */
 	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);

@@ -99,7 +99,9 @@ static int collect_mon_special(u32b flags2, cptr vp[64])
 	if (flags2 & (RF2_OPEN_DOOR)) vp[n++] = "open doors";
 	if (flags2 & (RF2_BASH_DOOR)) vp[n++] = "bash down doors";
 	if (flags2 & (RF2_PICK_LOCK)) vp[n++] = "pick locks";
+	if (flags2 & (RF2_PASS_VEGETATION)) vp[n++] = "pass easily through vegetation";
 	if (flags2 & (RF2_PASS_WALL)) vp[n++] = "pass through walls";
+	if (flags2 & (RF2_FLYING)) vp[n++] = "fly over obstacles";
 	if (flags2 & (RF2_KILL_WALL)) vp[n++] = "bore through walls";
 	if (flags2 & (RF2_MOVE_BODY)) vp[n++] = "push past weaker monsters";
 	if (flags2 & (RF2_KILL_BODY)) vp[n++] = "destroy weaker monsters";
@@ -120,6 +122,9 @@ static int collect_mon_innate(u32b s_flags1, cptr vp[64])
 	/* Collect innate */
 	n = 0;
 	if (s_flags1 & (SRF1_SHRIEK))		vp[n++] = "shriek for help";
+	if (s_flags1 & (SRF1_JAVELIN_1))	vp[n++] = "throw a dart";
+	if (s_flags1 & (SRF1_JAVELIN_2))	vp[n++] = "throw a javelin";
+	if (s_flags1 & (SRF1_JAVELIN_3))	vp[n++] = "throw a heavy spear";
 	if (s_flags1 & (SRF1_ARROW_1))		vp[n++] = "fire an arrow";
 	if (s_flags1 & (SRF1_ARROW_2))		vp[n++] = "fire arrows";
 	if (s_flags1 & (SRF1_ARROW_3))		vp[n++] = "fire a missile";
@@ -251,7 +256,7 @@ static int collect_mon_immunes(u32b flags3, cptr vp[64])
 /*
  * Collect the spell names - seperate function so it can also be used in spoiler creation
  */ 
-static int collect_mon_spells(u32b s_flags2, u32b s_flags3, cptr vp[64])
+int collect_mon_spells(u32b s_flags2, u32b s_flags3, cptr vp[64])
 {
 	int n;
 
@@ -359,6 +364,7 @@ static void describe_mon_attacks(int method, int effect, cptr method_text[1], cp
 		case RBE_POISON:	effect_text[0] = "poison"; break;
 		case RBE_DISEASE:	effect_text[0] = "spread disease"; break;
 		case RBE_UN_BONUS:	effect_text[0] = "disenchant"; break;
+		case RBE_CUT:		effect_text[0] = "cut"; break;
 		case RBE_UN_POWER:	effect_text[0] = "drain charges"; break;
 		case RBE_EAT_GOLD:	effect_text[0] = "steal gold"; break;
 		case RBE_EAT_ITEM:	effect_text[0] = "steal items"; break;
@@ -381,7 +387,7 @@ static void describe_mon_attacks(int method, int effect, cptr method_text[1], cp
 		case RBE_LOSE_WIS:	effect_text[0] = "reduce wisdom"; break;
 		case RBE_LOSE_DEX:	effect_text[0] = "reduce dexterity"; break;
 		case RBE_LOSE_CON:	effect_text[0] = "reduce constitution"; break;
-		case RBE_LOSE_CHR:	effect_text[0] = "reduce charisma"; break;
+		case RBE_LOSE_CHR:	effect_text[0] = "reduce presence"; break;
 		case RBE_LOSE_ALL:	effect_text[0] = "reduce all stats"; break;
 		case RBE_SHATTER:	effect_text[0] = "shatter"; break;
 		case RBE_EXP_1:		effect_text[0] = "lower experience (by 1%)"; break;
@@ -490,12 +496,12 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 
 		/* Hack -- maximal drops */
 		l_ptr->r_drop_gold = l_ptr->r_drop_item =
-		(((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_1D2)) ? 2 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_90))  ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
+		(((r_ptr->flags1 & (RF1_DROP_4)) ? 4 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_3)) ? 3 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_2)) ? 2 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_1)) ? 1 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_70))  ? 1 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_30))  ? 1 : 0));
 
 		/* Hack -- but only "valid" drops */
 		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) l_ptr->r_drop_item = 0;
@@ -553,7 +559,11 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		if (r_ptr->flags4 & RF4_EVIL)		flags4 |= RF4_EVIL;
 		if (r_ptr->flags4 & RF4_ANIMAL)		flags4 |= RF4_ANIMAL;
 		if (r_ptr->flags4 & RF4_PLANT)		flags4 |= RF4_PLANT;
-		if (r_ptr->flags4 & RF4_CHAOTIC)	flags4 |= RF4_CHAOTIC;
+		if (r_ptr->flags4 & RF4_CHAOS)		flags4 |= RF4_CHAOS;
+		if (r_ptr->flags4 & RF4_AETHER)		flags4 |= RF4_AETHER;
+		if (r_ptr->flags4 & RF4_THORNWILD)	flags4 |= RF4_THORNWILD;
+		if (r_ptr->flags4 & RF4_SKULTGARD)	flags4 |= RF4_SKULTGARD;
+		if (r_ptr->flags4 & RF4_SET_TRAPS)	flags4 |= RF4_SET_TRAPS;
 	}
 
 	/* Ancestor info */
@@ -764,6 +774,24 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		text_out("does not deign to chase intruders");
 	}
 
+	/* Jumping */
+	if (flags2 & (RF2_BAD_JUMPER))
+	{
+		/* Introduce */
+		if (old)
+		{
+			text_out(", but ");
+		}
+		else
+		{
+			text_out(format("%^s ", wd_he[msex]));
+			old = TRUE;
+		}
+
+		/* Describe */
+		text_out("is a bad jumper");
+	}
+
 	/* End this sentence */
 	if (old)
 	{
@@ -783,7 +811,6 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		if (flags1 & (RF1_STUPID))	text_out(" unintelligent");
 
 		/* Describe the "quality" */
-		if (flags4 & (RF4_CHAOTIC))	text_out(" chaotic");
 		if (flags4 & (RF4_EVIL))	text_out(" evil");
 		if (flags4 & (RF4_UNDEAD))	text_out(" undead");
 		if (flags4 & (RF4_FAERY))	text_out(" faery");
@@ -796,6 +823,12 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		else if (flags4 & (RF4_PLANT))		text_out(" plant");
 		else if (flags4 & (RF4_ANIMAL))		text_out(" animal");
 		else text_out(" creature");
+
+		/* Describe the "origin" */
+		if (flags4 & (RF4_CHAOS))	text_out(" from Chaos");
+		if (flags4 & (RF4_AETHER))	text_out(" from Aether");
+		if (flags4 & (RF4_THORNWILD))	text_out(" from Thornwild");
+		if (flags4 & (RF4_SKULTGARD))	text_out(" from Skultgard");
 
 		/* Mention the experience */
 		mon_exp(r_idx, 0, u_idx, &i, &j);
@@ -819,8 +852,14 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		i = p_ptr->lev;
 		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
-		/* Mention the dependance on the player's level */
-		text_out(format(" for a%s %lu%s level character.  ", q, (long)i, p));
+		text_out(".  ");
+
+		/* Note the ability to set traps */
+		if (flags4 & (RF4_SET_TRAPS))
+		{
+			text_out(format("%^s", wd_he[msex]));
+			text_out(" may have set traps in the nearby dungeon.  ");
+		}
 	}
 
 	/* Collect monster associates */
@@ -836,7 +875,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" usually appears with ");
+			if (n == 0) text_out(" often appears with ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" and ");
 
@@ -1104,7 +1143,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	if (l_ptr->r_tkills)
 	{
 
-		if (u_idx) resist = 5;
+		if (u_idx) resist = 4;
 		else resist = 1;
 
 		dam = 10 + plev/2;
@@ -1257,8 +1296,8 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		}
 
 		text_out(format("%^s %s intruders, which %s may notice from ",wd_he[msex], act, wd_he[msex]));
-		text_out_c(TERM_L_GREEN,format("%d",10 * r_ptr->aaf));
-	    text_out(" feet.  ");
+		text_out_c(TERM_L_GREEN,format("%d", r_ptr->aaf));
+	    text_out(" squares.  ");
 	}
 
 	if (l_ptr->flags1 & RF1_DROP_MIMIC)
@@ -1559,10 +1598,11 @@ void display_visible(void)
 	int c = 0;
 	int items = 0;
 
-	monster_list_entry *who;
+	/* If printing the monster list by command '[', indent the text */
+	int indent = 0;
+	if (Term == angband_term[0]) indent = 13;
 
-	/* Clear */
-	Term_clear();
+	monster_list_entry *who;
 
 	/* XXX Hallucination - no monster list */
 	if (p_ptr->image)
@@ -1659,19 +1699,19 @@ void display_visible(void)
 			else
 			{
 				if (!who[i].u_idx) attr = TERM_SLATE;
-			}			
-			
+			}
+
 			/* Dump the monster symbol and name */
-			c_prt(r_ptr->x_attr, format("%c ",r_ptr->x_char), (num % (h - 1)) + 1, (num / (h - 1) * 26));
+			c_prt(r_ptr->x_attr, format("%c ",r_ptr->x_char), (num % (h - 1)) + 1, (num / (h - 1) * 26) + indent);
 			if (who[i].amount == 1)
 			{
 				c_prt(attr, monster_name_idx(who[i].r_idx, 0, who[i].u_idx), (num % (h - 1)) + 1, 
-					(num / (h - 1) * 26) + 2);
+					(num / (h - 1) * 26) + 2 + indent);
 			}
 			else
 			{
 				c_prt(attr, format("%s (x%d)", monster_name_idx(who[i].r_idx, 0, who[i].u_idx),
-					who[i].amount), (num % (h - 1)) + 1, ((num / (h - 1)) * 26) + 2);
+					who[i].amount), (num % (h - 1)) + 1, ((num / (h - 1)) * 26) + 2 + indent);
 			}
 
 			num++;

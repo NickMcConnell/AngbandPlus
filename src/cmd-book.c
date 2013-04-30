@@ -34,7 +34,7 @@ bool literate(void)
  */
 bool spellcaster(void)
 {
-	if ((cp_ptr->flags & CF_MUSIC) || literate()) return TRUE;
+	if (literate()) return TRUE;
 
 	return FALSE;
 }
@@ -236,6 +236,9 @@ static void spell_info(char *p, int spell_index)
 	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((p_ptr->lev - 10) * 2) : (p_ptr->lev - 10));
 	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? ((p_ptr->lev > 10) ? p_ptr->lev + (p_ptr->lev/2) : 10 + p_ptr->lev/2) :
+			((cp_ptr->flags & CF_POWER) ? ((p_ptr->lev>11) ? p_ptr->lev + (p_ptr->lev/4) : 8 + p_ptr->lev/2) :
+			((p_ptr->lev > 12) ? p_ptr->lev : 6 + p_ptr->lev/2)));
 	bool holy = (!(cp_ptr->flags & CF_CHOOSE_SPELLS) ? TRUE : FALSE);
 	int beam_low = (beam > 10 ? beam - 10 : 0);
 
@@ -264,11 +267,11 @@ static void spell_info(char *p, int spell_index)
 		case POW_TELE_10: 
 			strcpy(p, " range 10"); break;
 		case POW_TELE_MINOR:
-			sprintf(p, " range %d", 3 * damlev); break;
+			strcpy(p, " range 25"); break;
 		case POW_TELE_CONTROL: 
 			strcpy(p, " range 20"); break;
 		case POW_TELE_MAJOR: 
-			sprintf(p, " range %d", damlev * 5); break;
+			strcpy(p, " at least 26 squares"); break;
 		case POW_BOLT_ACID_X: 
 		case POW_BOLT_ELEC_X: 
 		case POW_BOLT_FIRE_X: 
@@ -298,6 +301,8 @@ static void spell_info(char *p, int spell_index)
 			sprintf(p, " dam %d, rad 3", apply_sp_mod(270 + (damlev * 2), p_ptr->sp_dam)); break;
 		case POW_BALL_ANNIHILATION: 
 			sprintf(p, " dam %d, rad 1", apply_sp_mod(800, p_ptr->sp_dam)); break;
+		case POW_EARTHBIND: 
+			sprintf(p, " dam %d", inflev); break;
 		case POW_BALL_HOLY_2:
 			{
 				int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 3 : 5)));
@@ -327,6 +332,15 @@ static void spell_info(char *p, int spell_index)
 			sprintf(p, " dam d%d", apply_sp_mod(4 * damlev, p_ptr->sp_dam)); break;
 		case POW_HOLY_2:
 			sprintf(p, " dam d%d, heal 1000", apply_sp_mod(4 * damlev, p_ptr->sp_dam)); break;
+		case POW_FLAMING_HANDS: 
+			sprintf(p, " dam %dd%d", 
+				12, apply_sp_mod(3 + p_ptr->lev / 10, p_ptr->sp_dam)); break;
+		case POW_ICY_HANDS: 
+			sprintf(p, " dam %dd%d", 
+				12, apply_sp_mod(3 + p_ptr->lev / 10, p_ptr->sp_dam)); break;
+		case POW_RAY_MANA: 
+			sprintf(p, " dam %dd%d", 
+				7, apply_sp_mod(3 + p_ptr->lev / 10, p_ptr->sp_dam)); break;
 		case POW_GENOCIDE: 
 			strcpy(p, " hurt 1d4 per kill"); break;
 		case POW_MASS_GENOCIDE: 
@@ -386,7 +400,7 @@ static void spell_info(char *p, int spell_index)
 			dur1 = 20; dur2 = 20; break;
 		case POW_RES_FIRE_COLD:
 		case POW_RES_ACID_ELEC: 
-			dur1 = 10; dur2 = 10; break;
+			dur1 = 20; dur2 = 20; break;
 		case POW_RES_SOUND: 
 			dur1 = 40; dur2 = 40; break;
 		case POW_RES_ELEMENTS:
@@ -441,15 +455,8 @@ void print_spells(int book, bool music, int lev, int y, int x)
 	object_kind *k_ptr;
 	cptr basenm;
 
-	if (!music)
-	{
-		k_ptr = &k_info[lookup_kind(TV_MAGIC_BOOK, book)];
-		basenm = k_name + k_ptr->name;
-	}
-	else
-	{
-		k_ptr = &k_info[lookup_kind(TV_MUSIC, book)];
-	}
+	k_ptr = &k_info[lookup_kind(TV_MAGIC_BOOK, book)];
+	basenm = k_name + k_ptr->name;
 
 	/* Choose appropriate spellbook color. */
 	attr_book = k_ptr->d_attr;
@@ -1186,21 +1193,9 @@ void do_cmd_browse(void)
 	/* Get an item */
 
 	/* Can read books, can't use instruments */
-	if (literate() && (!(cp_ptr->flags & CF_MUSIC))) 
+	if (literate()) 
 		if (!get_item(&item, "Browse which book? ", "You have no books that you can browse.", 
 		(USE_INVEN | USE_FLOOR))) return;
-
-	/* Can use both instruments and books */
-	if (literate() && ((cp_ptr->flags & CF_MUSIC))) 
-		if (!get_item(&item, "Browse which book or musical instrument? ", 
-			"You have no books or musical instruments that you can browse.", 
-			(USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
-
-	/* Can use instruments, can't use books */
-	if (!literate() && ((cp_ptr->flags & CF_MUSIC))) 
-		if (!get_item(&item, "Browse which musical instrument? ", 
-			"You have no musical instruments that you can browse.", 
-			(USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1922,7 +1917,7 @@ void do_cmd_magic(void)
 
 	if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
 	{
-		if ((!(cp_ptr->flags & CF_MYSTIC_CAST)) && (!(cp_ptr->flags & CF_MUSIC)))
+		if (!(cp_ptr->flags & CF_MYSTIC_CAST))
 		{
 			message(MSG_FAIL, 0, "You cannot see!");
 			return;
@@ -1942,51 +1937,29 @@ void do_cmd_magic(void)
 	/* Get an item */
 	item_tester_hook = item_tester_hook_bookmusic;
 
-	/* Can use instruments, can't use books */
-	if (!literate() && ((cp_ptr->flags & CF_MUSIC))) 
+	int flg;
+
+	if (literate()) flg = (USE_INVEN | USE_FLOOR);
+
+	if (spellbook_menu && (cp_ptr->flags & CF_SUB_SPELLS)) flg |= CAPITAL_HACK;
+
+	/* Can read books, can't use instruments */
+	if (literate())
+		if (!get_item(&item, "Use which book? ", "You have no books that you can use.", 
+		flg)) return;
+
+	/* Hack - capital letters */
+	if (spellbook_menu && (item >= 100))
 	{
-		o_ptr = &inventory[INVEN_MUSIC];
-		if (!o_ptr->tval)
-		{
-			message(MSG_FAIL, 0, "You have nothing to play tunes with.");
-			return;
-		}
-
-		/* Forget the item_tester_hook restriction */
-		item_tester_hook = NULL;
+		item -= 100;
+		force_menu = TRUE;
 	}
-	else
-	{
-		int flg;
 
-		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) flg = (USE_INVEN | USE_FLOOR);
-		if (literate() && (cp_ptr->flags & CF_MUSIC)) flg = (USE_INVEN | USE_FLOOR | USE_EQUIP); 
+	/* Get the item (in the pack) */
+	if (item >= 0) o_ptr = &inventory[item];
 
-		if (spellbook_menu && (cp_ptr->flags & CF_SUB_SPELLS)) flg |= CAPITAL_HACK;
-
-		/* Can read books, can't use instruments */
-		if (literate() && (!(cp_ptr->flags & CF_MUSIC))) 
-			if (!get_item(&item, "Use which book? ", "You have no books that you can use.", 
-			flg)) return;
-
-		/* Can use both instruments and books */
-		if (literate() && ((cp_ptr->flags & CF_MUSIC))) 
-			if (!get_item(&item, "Use which book or musical instrument? ", 
-				"You have no books or musical instruments that you can use.", flg)) return;
-
-		/* Hack - capital letters */
-		if (spellbook_menu && (item >= 100))
-		{
-			item -= 100;
-			force_menu = TRUE;
-		}
-
-		/* Get the item (in the pack) */
-		if (item >= 0) o_ptr = &inventory[item];
-
-		/* Get the item (on the floor) */
-		else o_ptr = &o_list[0 - item];
-	}
+	/* Get the item (on the floor) */
+	else o_ptr = &o_list[0 - item];
 
 	/* Track the object kind */
 	object_actual_track(o_ptr);

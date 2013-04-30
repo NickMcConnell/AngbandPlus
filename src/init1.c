@@ -84,6 +84,7 @@ static cptr r_info_blow_effect[RBE_MAX] =
 	"HURT",
 	"POISON",
 	"UN_BONUS",
+	"CUT",
 	"UN_POWER",
 	"EAT_GOLD",
 	"EAT_ITEM",
@@ -144,12 +145,12 @@ static cptr r_info_flags1[32] =
 	"RAND_50",		
 	"ONLY_GOLD",	
 	"ONLY_ITEM",
-	"DROP_60",	
-	"DROP_90",		
-	"DROP_1D2",	
-	"DROP_2D2",	
-	"DROP_3D2",	
-	"DROP_4D2",	
+	"DROP_30",	
+	"DROP_70",		
+	"DROP_1",	
+	"DROP_2",	
+	"DROP_3",	
+	"DROP_4",	
 	"DROP_GOOD",
 	"DROP_GREAT",
 	"DROP_MIMIC",
@@ -176,10 +177,10 @@ static cptr r_info_flags2[32] =
 	"SEE_INVIS",
 	"REGENERATE",
 	"WIDE_BREATH",
-	"XXX1",	
+	"FLYING",	
 	"INVISIBLE",
 	"COLD_BLOOD",
-	"XXX2",
+	"PASS_VEGETATION",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"EVASIVE",
@@ -191,7 +192,7 @@ static cptr r_info_flags2[32] =
 	"HURT_ELEC",
 	"HURT_FIRE",
 	"HURT_COLD",
-	"XXX3",
+	"BAD_JUMPER",
 	"NO_TRAP"
 };
 
@@ -240,8 +241,8 @@ static cptr r_info_flags3[32] =
 static cptr r_info_flags4[32] =
 {
 	"EVIL",
-	"CHAOTIC",
-	"XXX1",
+	"CHAOS",
+	"LIVING",
 	"PERSON",
 	"HUMANOID",
 	"FAERY",
@@ -251,14 +252,14 @@ static cptr r_info_flags4[32] =
 	"ANIMAL",
 	"PLANT",
 	"LYCANTHROPE",
-	"XXX2",
+	"AETHER",
 	"PRIEST",
 	"WARRIOR",
 	"ROGUE",
 	"MAGE",
-	"XXX3",
-	"XXX4",
-	"XXX5",
+	"THORNWILD",
+	"SKULTGARD",
+	"SET_TRAPS",
 	"XXX6",
 	"XXX7",
 	"XXX8",
@@ -279,9 +280,9 @@ static cptr r_info_flags4[32] =
 static cptr r_info_s_flags1[32] =
 {
 	"SHRIEK",
-	"XXX1",
-	"XXX2",
-	"XXX3",
+	"JAVELIN_1",
+	"JAVELIN_2",
+	"JAVELIN_3",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -405,10 +406,10 @@ static cptr c_info_flags[32] =
 	"BEAM",
 	"MYSTIC_CAST",
 	"EXTRA_SPELL",
-	"PSEUDO_ID_HEAVY",
+	"FENCING",
 	"CHOOSE_SPELLS",
 	"SUB_SPELLS",
-	"LORE",
+	"RITUAL_EXPERT",
 	"BETTER_CRITICAL",
 	"BETTER_SHOT",
 	"BETTER_THROW",
@@ -416,17 +417,17 @@ static cptr c_info_flags[32] =
 	"TRAP_KNOW",
 	"TRAP_PLACE",
 	"APPRAISE",
-	"MUSIC",
+	"POVERTY",
 	"BETTER_BLOWS",
 	"WORSE_BLOWS",
 	"WEAPON_GOOD",
 	"WEAPON_NONE",
 	"SHROOM_MAGIC",
 	"AMBUSH",
-	"PSEUDO_ID1",
-	"PSEUDO_ID2",
-	"PSEUDO_ID3",
-	"PSEUDO_ID4"
+	"RELIGION_EXPERT",
+	"BREAK_2",
+	"BREAK_3",
+	"BREAK_4"
 };
 
 /*
@@ -436,14 +437,14 @@ static cptr w_info_flags[32] =
 {
 	"PLAYER",
 	"MONSTER",
-	"XXX1",	
-	"XXX2",
+	"DECORATE_FLOOR",	
+	"DECORATE_RUBBLE",
 	"FLOOR",	
 	"GLYPH",
 	"CHEST",	
 	"LOCK",
-	"XXX3",	
-	"XXX4",
+	"DECORATION",	
+	"BORING",
 	"TRAP_DOOR",
 	"PIT",			
 	"RUNE",	
@@ -452,18 +453,18 @@ static cptr w_info_flags[32] =
 	"GAS",			
 	"SLOTS",	
 	"ROCKS",	
-	"XXX5",
-	"XXX6",	
+	"DECORATE_SECRET_DOOR",
+	"NO_HACK",	
 	"TRAPS1",	
 	"TRAPS2",
 	"TRAPS3",
-	"XXX7",
-	"XXX8",	
-	"XXX9",	
-	"XXX10",	
+	"DECORATE_STAIRS_UP",
+	"DECORATED_WALL",	
+	"DECORATE_WALL_OUTER",	
+	"DECORATE_WALL_INNER",	
 	"ATTR_CLEAR",
-	"XXX11",
-	"XXX12",
+	"DECORATE_OPEN_DOOR",
+	"DECORATE_CLOSED_DOOR",
 	"DETECT",
 	"DISARM"
 };
@@ -494,26 +495,26 @@ static cptr k_info_flags1[32] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
-	"XXX2",
+	"MELEE",
+	"ARCHERY",
 	"STEALTH",
 	"PERCEPTION",
 	"INFRA",
-	"TUNNEL",
+	"ESCAPES",
 	"SPEED",
 	"BLOWS",
 	"SHOTS",
 	"MANA",
 	"HEALTH",
-	"XXX3",
+	"THROW_SKILL",
 	"SP_DUR",
 	"SP_DAM",
 	"SP_INF",
-	"XXX4",
-	"XXX5",
+	"JUMPING",
+	"MYSTIC_RANGE",
 	"MIGHT",
 	"RANGE",
-	"XXX6",
+	"AMBUSH",
 	"SUST_STR",
 	"SUST_INT",
 	"SUST_WIS",
@@ -554,7 +555,7 @@ static cptr k_info_flags2[32] =
 	"XXX15",
 	"XXX16",
 	"XXX17",
-	"XXX18",
+	"DEADLY_CRIT",
 	"BLESSED",
 	"WOUNDING",
 	"TERROR",
@@ -566,7 +567,7 @@ static cptr k_info_flags2[32] =
  */
 static cptr k_info_flags3[32] =
 {
-	"SLOW_DIGEST",
+	"PRO_CHAOS",
 	"FEATHER",
 	"REGEN",
 	"TELEPATHY",
@@ -582,13 +583,13 @@ static cptr k_info_flags3[32] =
 	"IGNORE_NON_ELEM",
 	"IGNORE_DISEN",
 	"FAERY",
-	"XXX2",
+	"PRO_THORNWILD",
 	"EASY_KNOW",
 	"HIDE_TYPE",
-	"XXX3",
-	"XXX4",
-	"TOUGH",
-	"SMALL",
+	"PRO_SKULTGARD",
+	"PRO_AETHER",
+	"XXX1",
+	"MIGHTY_THROW",
 	"TAINT",
 	"DRAIN_ITEM",
 	"DISRUPT",
@@ -746,7 +747,7 @@ static cptr k_info_act[POW_MAX] =
 	"HEROISM",
 	"BOLDNESS",
 	"STABILITY",
-	"SAFTEY",
+	"SAFETY",
 	"RAGE_1",
 	"RAGE_2",
 	"RAGE_BLESS_RESIST",
@@ -790,7 +791,7 @@ static cptr k_info_act[POW_MAX] =
 	"BLIND_MONSTER",
 	"SCARE_MONSTER",
 	"SCARE_ALL",
-	"CALL_MONSTER",
+	"HARPOON",
 	"POLY_MONSTER",
 	"HEAL_MONSTER",
 	"HASTE_MONSTER",
@@ -937,6 +938,51 @@ static cptr k_info_act[POW_MAX] =
 	"POWDER_ENERGY",
 	"OIL_LANTERN",
 	"OIL_BURNING",
+	"SHIFT",
+	"ALERTNESS",
+	"CAVE_LORE",
+	"DUNGEON_LORE",
+	"ANALYSE_ITEM",
+	"RITUAL_STR",
+	"RITUAL_INT",
+	"RITUAL_WIS",
+	"RITUAL_DEX",
+	"RITUAL_CON",
+	"RITUAL_CHR",
+	"RITUAL_AUGMENT_BODY",
+	"RITUAL_MIND_OVER_BODY",
+	"RITUAL_FORTIFICATION",
+	"RITUAL_NIGHT_SIGHT",
+	"RITUAL_ACQUIRE_ARMOR",
+	"RITUAL_CREATE_POWDER",
+	"RITUAL_CURE_WOUND",
+	"RITUAL_ACQUIRE_WEAPON",
+	"RITUAL_FORBIDDEN_LORE",
+	"EDEN",
+	"STORM_SHIELD",
+	"DETECT_FORCE",
+	"DETECT_LIFE",
+	"GROWTH",
+	"DRYAD",
+	"CURSE_MONSTER",
+	"SWAP_PLACES",
+	"BALL_STUN",
+	"HARPY_FORM",
+	"ANGEL_FORM",
+	"APE_FORM",
+	"NAGA_FORM",
+	"STATUE_FORM",
+	"FENCING",
+	"ARCHERY",
+	"FLAMING_HANDS",
+	"ICY_HANDS",
+	"RAY_MANA",
+	"EARTHBIND",
+	"DRAGONSLAYER",
+	"CURSE_ALL",
+	"TURN_UNLIFE",
+	"PROT_CHAOS_2",
+	"RAT_THING",
 };
 
 /*** Initialize from ascii template files ***/
@@ -2138,20 +2184,23 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'K' for "Kill bonuses" (one line only) */
 	else if (buf[0] == 'K')
 	{
-		int evl, chs, anl, plt, udd, dmn, hmn, ppl, fry;
+		int evl, myt, sku, tho, chs, anl, plt, udd, dmn, hmn, ppl, fry;
 		int drg, lyc, acd, elc, fir, cld, psn, lit, drk;
 
 		/* There better be a current pr_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &evl, &chs, &anl, &plt, &udd, &dmn,
+		if (21 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &evl, &myt, &sku, &tho, &chs, &anl, &plt, &udd, &dmn,
 						&hmn, &ppl, &fry, &drg, &lyc, &acd, 
 						&elc, &fir, &cld, &psn, &lit, &drk)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		k_ptr->slays[SL_ANTI_EVIL] = evl;
+		k_ptr->slays[SL_ANTI_AETHER] = myt;
+		k_ptr->slays[SL_ANTI_SKULTGARD] = sku;
+		k_ptr->slays[SL_ANTI_THORNWILD] = tho;
 		k_ptr->slays[SL_ANTI_CHAOS] = chs;
 		k_ptr->slays[SL_ANTI_ANIMAL] = anl;
 		k_ptr->slays[SL_ANTI_PLANT] = plt;
@@ -2376,20 +2425,23 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'K' for "Kill bonuses" (one line only) */
 	else if (buf[0] == 'K')
 	{
-		int evl, chs, anl, plt, udd, dmn, hmn, ppl, fry;
+		int evl, myt, sku, tho, chs, anl, plt, udd, dmn, hmn, ppl, fry;
 		int drg, lyc, acd, elc, fir, cld, psn, lit, drk;
 
 		/* There better be a current pr_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &evl, &chs, &anl, &plt, &udd, &dmn,
+		if (21 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &evl, &myt, &sku, &tho, &chs, &anl, &plt, &udd, &dmn,
 						&hmn, &ppl, &fry, &drg, &lyc, &acd, 
 						&elc, &fir, &cld, &psn, &lit, &drk)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->slays[SL_ANTI_EVIL] = evl;
+		a_ptr->slays[SL_ANTI_AETHER] = myt;
+		a_ptr->slays[SL_ANTI_SKULTGARD] = sku;
+		a_ptr->slays[SL_ANTI_THORNWILD] = tho;
 		a_ptr->slays[SL_ANTI_CHAOS] = chs;
 		a_ptr->slays[SL_ANTI_ANIMAL] = anl;
 		a_ptr->slays[SL_ANTI_PLANT] = plt;
@@ -2687,20 +2739,23 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'K' for "Kill bonuses" (one line only) */
 	else if (buf[0] == 'K')
 	{
-		int evl, chs, anl, plt, udd, dmn, hmn, ppl, fry;
+		int evl, myt, sku, tho, chs, anl, plt, udd, dmn, hmn, ppl, fry;
 		int drg, lyc, acd, elc, fir, cld, psn, lit, drk;
 
 		/* There better be a current pr_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &evl, &chs, &anl, &plt, &udd, &dmn,
+		if (21 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &evl, &myt, &sku, &tho, &chs, &anl, &plt, &udd, &dmn,
 						&hmn, &ppl, &fry, &drg, &lyc, &acd, 
 						&elc, &fir, &cld, &psn, &lit, &drk)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		e_ptr->slays[SL_ANTI_EVIL] = evl;
+		e_ptr->slays[SL_ANTI_AETHER] = myt;
+		e_ptr->slays[SL_ANTI_SKULTGARD] = sku;
+		e_ptr->slays[SL_ANTI_THORNWILD] = tho;
 		e_ptr->slays[SL_ANTI_CHAOS] = chs;
 		e_ptr->slays[SL_ANTI_ANIMAL] = anl;
 		e_ptr->slays[SL_ANTI_PLANT] = plt;
@@ -2936,20 +2991,23 @@ errr parse_wpx_info(char *buf, header *head)
 	/* Process 'K' for "Kill bonuses" (one line only) */
 	else if (buf[0] == 'K')
 	{
-		int evl, chs, anl, plt, udd, dmn, hmn, ppl, fry;
+		int evl, myt, sku, tho, chs, anl, plt, udd, dmn, hmn, ppl, fry;
 		int drg, lyc, acd, elc, fir, cld, psn, lit, drk;
 
 		/* There better be a current pr_ptr */
 		if (!wpx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (18 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &evl, &chs, &anl, &plt, &udd, &dmn,
+		if (21 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &evl, &myt, &sku, &tho, &chs, &anl, &plt, &udd, &dmn,
 						&hmn, &ppl, &fry, &drg, &lyc, &acd, 
 						&elc, &fir, &cld, &psn, &lit, &drk)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		wpx_ptr->slays[SL_ANTI_EVIL] = evl;
+		wpx_ptr->slays[SL_ANTI_AETHER] = myt;
+		wpx_ptr->slays[SL_ANTI_SKULTGARD] = sku;
+		wpx_ptr->slays[SL_ANTI_THORNWILD] = tho;
 		wpx_ptr->slays[SL_ANTI_CHAOS] = chs;
 		wpx_ptr->slays[SL_ANTI_ANIMAL] = anl;
 		wpx_ptr->slays[SL_ANTI_PLANT] = plt;
@@ -4244,7 +4302,7 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, mob, alc, map;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4252,7 +4310,7 @@ errr parse_p_info(char *buf, header *head)
 		/* Scan for the values */
 		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc, &map)) 
+						&thn, &thb, &tht, &mob, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4264,7 +4322,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_skill[SK_THN] = thn;
 		pr_ptr->r_skill[SK_THB] = thb;
 		pr_ptr->r_skill[SK_THT] = tht;
-		pr_ptr->r_skill[SK_DIG] = dig;
+		pr_ptr->r_skill[SK_MOB] = mob;
 		pr_ptr->r_skill[SK_ALC] = alc;
 		pr_ptr->r_skill[SK_MAP] = map;
 	}
@@ -4575,7 +4633,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, mob, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4583,7 +4641,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Scan for the values */
 		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc, &map)) 
+						&thn, &thb, &tht, &mob, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4595,7 +4653,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_skill[SK_THN] = thn;
 		pc_ptr->c_skill[SK_THB] = thb;
 		pc_ptr->c_skill[SK_THT] = tht;
-		pc_ptr->c_skill[SK_DIG] = dig;
+		pc_ptr->c_skill[SK_MOB] = mob;
 		pc_ptr->c_skill[SK_ALC] = alc;
 		pc_ptr->c_skill[SK_MAP] = map;
 	}
@@ -4603,7 +4661,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'X' for "Xtra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, mob, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4611,7 +4669,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Scan for the values */
 		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc, &map)) 
+						&thn, &thb, &tht, &mob, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4623,7 +4681,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_skill[SK_THN] = thn;
 		pc_ptr->x_skill[SK_THB] = thb;
 		pc_ptr->x_skill[SK_THT] = tht;
-		pc_ptr->x_skill[SK_DIG] = dig;
+		pc_ptr->x_skill[SK_MOB] = mob;
 		pc_ptr->x_skill[SK_ALC] = alc;
 		pc_ptr->x_skill[SK_MAP] = map;
 	}

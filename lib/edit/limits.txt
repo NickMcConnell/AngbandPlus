@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.2.0
 
 # Maximum number of feature types
 M:F:42
@@ -29,7 +29,7 @@ S:A:31
 M:C:13
 
 # Maximum number of ego-item types
-M:E:151
+M:E:152
 
 # Maximum number of weapon prefix types
 M:X:37
@@ -38,13 +38,13 @@ M:X:37
 M:Y:9
 
 # Maximum number of trap widgets
-M:W:46
+M:W:172
 
 # Maximum number of monster races
 M:R:667
 
 # Maximum number of special (ego) monsters
-M:S:24
+M:S:33
 
 # Maximum number of monster uniques
 M:U:114
@@ -53,7 +53,7 @@ M:U:114
 M:V:51
 
 # Maximum number of player races
-M:P:13
+M:P:11
 
 # Maximum number of player history lines
 M:H:227
@@ -62,7 +62,7 @@ M:H:227
 M:B:5
 
 # Maximum number of quests (including a slot for random quests)
-M:Q:4
+M:Q:2
 
 # Maximum number of objects on a level
 M:O:512
@@ -75,7 +75,7 @@ M:M:1024
 # M:M:512
 
 # Maximum number of traps on a level
-M:T:256
+M:T:1024
 # Lower value for older computers
 # M:T:128
 

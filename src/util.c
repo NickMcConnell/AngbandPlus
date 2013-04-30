@@ -227,6 +227,20 @@ static errr path_temp(char *buf, size_t max)
 
 	/* Success */
 	return (0);
+
+	/* Better version, works with Linux make but not with mingw. Remember to #include "stdlib.h"
+
+	int s;
+
+	char x[] = "testiXXXXXX";
+
+	s = mkstemp(x);
+
+	if (!s) return (-1);
+
+	strnfmt(buf, max, "%s", s);
+
+	return (0); */
 }
 
 #endif /* HAVE_MKSTEMP */

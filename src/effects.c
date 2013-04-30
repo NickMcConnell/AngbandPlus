@@ -83,7 +83,6 @@ bool heal_player(int perc, int min)
 void damage_player(int dam, cptr kb_str)
 {
 	int old_chp = p_ptr->chp;
-
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 
 	/* Paranoia */
@@ -106,39 +105,46 @@ void damage_player(int dam, cptr kb_str)
 
 	/* Wounded or dead player */
 	if (p_ptr->chp < 0)
-	{	
+	{
+		int easy_wound;
 		int chance = rand_int(3);
 
-		int death = 0;
-		if (rp_ptr->special == RACE_SPECIAL_ANGEL) if (1 > rand_int(4)) death = 1;
-		if (rp_ptr->special == RACE_SPECIAL_DEMON) if (1 > rand_int(4)) death = 2;
-		if (p_ptr->faery) if (1 > rand_int(2)) death = 3;
+		/* At shallow depths, wounds cause none or less permanent ability damage */
+		if (p_ptr->depth <= 24) easy_wound = 3; /* Both stats secure */
+		else if (p_ptr->depth <= 36) easy_wound = randint(2); /* One of the stats secure */
+		else easy_wound = 0;
 
 		if (chance == 0)
 		{
 			/* Wound against Vigor */
-			bell ("You suffer a nasty internal wound!");
-			message(MSG_HITPOINT_WARN, TRUE, "*** YOU SUFFER A NASTY INTERNAL WOUND! ***");
-			if (p_ptr->wound_vigor) death = 0;
+			if (p_ptr->depth)
+			{
+				bell ("You suffer a nasty internal wound!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** YOU SUFFER A NASTY INTERNAL WOUND! ***");
+			}
+			else
+			{
+				bell ("You get an ugly scar to your chest!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** YOU GET AN UGLY SCAR TO YOUR CHEST! ***");
+			}
 
-			if ((p_ptr->wound_vigor == 0) && (death == 0))
+			if (p_ptr->wound_vigor == 0)
 			{				
-				if ((p_ptr->sustain_str) && (p_ptr->sustain_con))
+				if (((p_ptr->sustain_str) && (p_ptr->sustain_con)) || (easy_wound == 3))
 				{
 					p_ptr->wound_vigor = 1;
-					message(MSG_EFFECT, 0, "Your strength and constitution were protected from permanent damage.");
 				}
 
-				else if (p_ptr->sustain_con)
+				else if ((p_ptr->sustain_con) || (easy_wound == 1))
 				{
 					p_ptr->wound_vigor = 2;
-					message(MSG_EFFECT, 0, "Your strength was permanently damaged. Your constitution was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your strength was permanently damaged.");
 				}
 
-				else if (p_ptr->sustain_str)
+				else if ((p_ptr->sustain_str) || (easy_wound == 2))
 				{
 					p_ptr->wound_vigor = 3;
-					message(MSG_EFFECT, 0, "Your constitution was permanently damaged. Your strength was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your constitution was permanently damaged.");
 				}
 								
 				else
@@ -147,8 +153,22 @@ void damage_player(int dam, cptr kb_str)
 					message(MSG_EFFECT, 0, "Your strength and constitution were permanently damaged.");
 				}
 				
-				(void)do_dec_stat(A_STR, randint(4), FALSE, FALSE);
-				(void)do_dec_stat(A_CON, randint(4), FALSE, FALSE);
+				if (p_ptr->depth >= 13)
+				{
+					(void)do_dec_stat(A_STR, randint(4) + 1, FALSE, FALSE);
+					(void)do_dec_stat(A_CON, randint(4) + 1, FALSE, FALSE);
+				}
+				else if (p_ptr->depth)
+				{
+					if (rand_int(100) < 50)
+					{
+						(void)do_dec_stat(A_STR, randint(4) + 1, FALSE, FALSE);
+					}
+					else
+					{	
+						(void)do_dec_stat(A_CON, randint(4) + 1, FALSE, FALSE);
+					}
+				}
 				
 				p_ptr->chp = ((p_ptr->mhp)/2);
 				(void)set_poisoned(0);
@@ -166,38 +186,58 @@ void damage_player(int dam, cptr kb_str)
 		else if (chance == 1)
 		{
 			/* Wound against Wit */
-			bell ("Your brain is damaged!");
-			message(MSG_HITPOINT_WARN, TRUE, "*** YOUR BRAIN IS DAMAGED! ***");
-			if (p_ptr->wound_wit) death = 0;
-
-			if ((p_ptr->wound_wit == 0) && (death == 0))
+			if (p_ptr->depth)
 			{
-				if ((p_ptr->sustain_int) && (p_ptr->sustain_wis))
+				bell ("Your brain is damaged!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** YOUR BRAIN IS DAMAGED! ***");
+			}
+			else
+			{
+				bell ("You get an ugly scar to your head!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** YOU GET AN UGLY SCAR TO YOUR HEAD! ***");
+			}
+
+			if (p_ptr->wound_wit == 0)
+			{
+				if (((p_ptr->sustain_int) && (p_ptr->sustain_wis)) || (easy_wound == 3))
 				{
 					p_ptr->wound_wit = 1;
-					message(MSG_EFFECT, 0, "Your intelligence and wisdom were protected from permanent damage.");
 				}
 								
-				else if (p_ptr->sustain_wis)
+				else if ((p_ptr->sustain_wis) || (easy_wound == 1))
 				{
 					p_ptr->wound_wit = 2;
-					message(MSG_EFFECT, 0, "Your intelligence was permanently damaged. Your wisdom was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your memory was permanently damaged.");
 				}
 				
-				else if (p_ptr->sustain_int)
+				else if ((p_ptr->sustain_int) || (easy_wound == 2))
 				{
 					p_ptr->wound_wit = 3;
-					message(MSG_EFFECT, 0, "Your wisdom was permanently damaged. Your intelligence was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your wisdom was permanently damaged.");
 				}
 
 				else
 				{
 					p_ptr->wound_wit = 4;
-					message(MSG_EFFECT, 0, "Your intelligence and wisdom were permanently damaged.");
+					message(MSG_EFFECT, 0, "Your memory and wisdom were permanently damaged.");
 				}
 
-				(void)do_dec_stat(A_INT, randint(4), FALSE, FALSE);
-				(void)do_dec_stat(A_WIS, randint(4), FALSE, FALSE);
+				if (p_ptr->depth >= 13)
+				{
+					(void)do_dec_stat(A_INT, randint(4) + 1, FALSE, TRUE);
+					(void)do_dec_stat(A_WIS, randint(4) + 1, FALSE, TRUE);
+				}
+				else if (p_ptr->depth)
+				{
+					if (rand_int(100) < 50)
+					{
+						(void)do_dec_stat(A_INT, randint(4) + 1, FALSE, TRUE);
+					}
+					else
+					{	
+						(void)do_dec_stat(A_WIS, randint(4) + 1, FALSE, TRUE);
+					}
+				}
 
 				p_ptr->chp = ((p_ptr->mhp)/2);
 				(void)set_poisoned(0);
@@ -215,38 +255,58 @@ void damage_player(int dam, cptr kb_str)
 		else
 		{
 			/* Wound against Grace */
-			bell ("A broken back renders you graceless!");
-			message(MSG_HITPOINT_WARN, TRUE, "*** A BROKEN BACK RENDERS YOU GRACELESS! ***");
-			if (p_ptr->wound_grace) death = 0;
+			if (p_ptr->depth)
+			{
+				bell ("A broken back renders you graceless!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** A BROKEN BACK RENDERS YOU GRACELESS! ***");
+			}
+			else
+			{
+				bell ("You get an ugly scar to your back!");
+				message(MSG_HITPOINT_WARN, TRUE, "*** YOU GET AN UGLY SCAR TO YOUR BACK! ***");
+			}
 
-			if ((p_ptr->wound_grace == 0) && (death == 0))
+			if (p_ptr->wound_grace == 0)
 			{				
-				if ((p_ptr->sustain_dex) && (p_ptr->sustain_chr))
+				if (((p_ptr->sustain_dex) && (p_ptr->sustain_chr)) || (easy_wound == 3))
 				{
 					p_ptr->wound_grace = 1;
-					message(MSG_EFFECT, 0, "Your dexterity and charisma were protected from permanent damage.");
 				}
 				
-				else if (p_ptr->sustain_chr)
+				else if ((p_ptr->sustain_chr) || (easy_wound == 1))
 				{
 					p_ptr->wound_grace = 2;
-					message(MSG_EFFECT, 0, "Your dexterity was permanently damaged. Your charisma was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your dexterity was permanently damaged.");
 				}
 
-				else if (p_ptr->sustain_dex)
+				else if ((p_ptr->sustain_dex) || (easy_wound == 2))
 				{
 					p_ptr->wound_grace = 3;
-					message(MSG_EFFECT, 0, "Your charisma was permanently damaged. Your dexterity was protected from permanent damage.");
+					message(MSG_EFFECT, 0, "Your presence was permanently damaged.");
 				}
 								
 				else
 				{
 					p_ptr->wound_grace = 4;
-					message(MSG_EFFECT, 0, "Your dexterity and charisma were permanently damaged.");
+					message(MSG_EFFECT, 0, "Your dexterity and presence were permanently damaged.");
 				}
 				
-				(void)do_dec_stat(A_DEX, randint(4), FALSE, FALSE);
-				(void)do_dec_stat(A_CHR, randint(4), FALSE, FALSE);
+				if (p_ptr->depth >= 13)
+				{
+					(void)do_dec_stat(A_DEX, randint(4) + 1, FALSE, FALSE);
+					(void)do_dec_stat(A_CHR, randint(4) + 1, FALSE, FALSE);
+				}
+				else if (p_ptr->depth)
+				{
+					if (rand_int(100) < 50)
+					{
+						(void)do_dec_stat(A_DEX, randint(4) + 1, FALSE, FALSE);
+					}
+					else
+					{	
+						(void)do_dec_stat(A_CHR, randint(4) + 1, FALSE, FALSE);
+					}
+				}
 
 				p_ptr->chp = ((p_ptr->mhp)/2);
 				(void)set_poisoned(0);
@@ -262,10 +322,7 @@ void damage_player(int dam, cptr kb_str)
 		}
 
 		/* Hack -- Note death */
-		if (death == 0) message(MSG_DEATH, TRUE, "You die.");
-		else if (death == 1) message(MSG_DEATH, TRUE, "Your spirit abandons this dying body. You return to Heaven.");
-		else if (death == 2) message(MSG_DEATH, TRUE, "Your spirit abandons this dying body. You return to Hell.");
-		else if (death == 3) message(MSG_DEATH, TRUE, "Your half-faery constitution can't handle the system shock. You die.");
+		message(MSG_DEATH, TRUE, "You die.");
 		message_flush();
 
 		/* Note cause of death */
@@ -284,7 +341,7 @@ void damage_player(int dam, cptr kb_str)
 		return;
 	}
 
-	/* Hitpoint warning */
+	/* Hitpoint warning  */
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
@@ -297,6 +354,25 @@ void damage_player(int dam, cptr kb_str)
 		message(MSG_HITPOINT_WARN, TRUE, "*** LOW HITPOINT WARNING! ***");
 
 		message_flush();
+	}
+
+	/* Teleport to Circle of Recall? */
+	if (p_ptr->chp < p_ptr->mhp / 5)
+	{
+		if ((p_ptr->recall_y > 0) && (!(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_RECALL)))
+		{
+			/* Sound */
+			sound(MSG_TELEPORT);
+
+			/* Message */
+			message(MSG_EFFECT, 0, "The Circle of Recall summons you back.");
+
+			/* Move player */
+			teleport_player_to(p_ptr->recall_y + rand_int(2), p_ptr->recall_x + rand_int(2));
+
+			/* Handle stuff XXX XXX XXX */
+			handle_stuff();
+		}
 	}
 }
 
@@ -378,7 +454,7 @@ static cptr desc_stat_pos[] =
 	"wise",
 	"dextrous",
 	"healthy",
-	"cute"
+	"charismatic"
 };
 
 
@@ -392,7 +468,7 @@ static cptr desc_stat_neg[] =
 	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"unconfident"
 };
 
 /*
@@ -403,7 +479,7 @@ void scramble_stats(void)
 	int ii, jj;
 	byte max1, cur1, max2, cur2;
 
-    /* Pick a pair of stats */
+	/* Pick a pair of stats */
 	ii = rand_int(A_MAX);
 	for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
 
@@ -432,7 +508,7 @@ void scramble_stats(void)
  * in particular, stat potions will always restore the stat and
  * then increase the fully restored value.
  */
-static bool inc_stat(int stat)
+bool inc_stat(int stat)
 {
 	int gain;
 	byte value;
@@ -495,7 +571,7 @@ static bool inc_stat(int stat)
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
  */
-static bool dec_stat(int stat, int amount, bool permanent)
+bool dec_stat(int stat, int amount, bool permanent)
 {
 	byte cur, max;
 	int same, res = FALSE;
@@ -554,7 +630,7 @@ static bool dec_stat(int stat, int amount, bool permanent)
 /*
  * Restore a stat.  Return TRUE only if this actually makes a difference.
  */
-static bool res_stat(int stat)
+bool res_stat(int stat)
 {
 	/* Restore if needed */
 	if (p_ptr->stat_cur[stat] != p_ptr->stat_max[stat])
@@ -1039,6 +1115,9 @@ bool set_taint(int v)
 	/* Window stuff */
 	p_ptr->window |= (PW_CONDITION);
 
+	/* Update bonuses because Taint shuts down deity bonuses */
+	p_ptr->update |= (PU_BONUS | PR_MANA);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1330,6 +1409,9 @@ bool set_fast(int v)
 			message(MSG_EFFECT, 0, "You feel yourself moving faster!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->fast_perm = 1;
 	}
 
 	/* Shut */
@@ -1340,6 +1422,8 @@ bool set_fast(int v)
 			message(MSG_EFFECT, 0, "You feel yourself slow down.");
 			notice = TRUE;
 		}
+
+		p_ptr->fast_perm = 0;
 	}
 
 	/* Use the value */
@@ -1434,6 +1518,9 @@ bool set_shield(int v)
 			message(MSG_EFFECT, 0, "You feel your skin harden!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->shield_perm = 1;
 	}
 
 	/* Shut */
@@ -1492,6 +1579,9 @@ bool set_blessed(int v)
 			{
 				message(MSG_EFFECT, 0, "You feel righteous!");
 				notice = TRUE;
+
+				/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+				if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->blessed_perm = 1;
 			}
 		}
 	}
@@ -1504,6 +1594,8 @@ bool set_blessed(int v)
 			message(MSG_EFFECT, 0, "The prayer has expired.");
 			notice = TRUE;
 		}
+
+		p_ptr->blessed_perm = 0;
 	}
 
 	/* Use the value */
@@ -1546,6 +1638,9 @@ bool set_hero(int v)
 			message(MSG_EFFECT, 0, "You feel heroic!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->hero_perm = 1;
 	}
 
 	/* Shut */
@@ -1598,6 +1693,9 @@ bool set_rage(int v)
 			message(MSG_EFFECT, 0, "You feel like a killing machine!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->rage_perm = 1;
 	}
 
 	/* Shut */
@@ -1657,6 +1755,9 @@ bool set_protevil(int v)
 				message(MSG_EFFECT, 0, "You feel safe from evil!");
 				notice = TRUE;
 			}
+
+			/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->protevil_perm = 1;
 		}
 	}
 
@@ -1668,10 +1769,174 @@ bool set_protevil(int v)
 			message(MSG_EFFECT, 0, "You no longer feel safe from evil.");
 			notice = TRUE;
 		}
+
+		p_ptr->protevil_perm = 0;
 	}
 
 	/* Use the value */
 	p_ptr->protevil = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->protchaos", notice observable changes
+ */
+bool set_protchaos(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->protchaos)
+		{
+			message(MSG_EFFECT, 0, "You feel safe from the forces of Chaos!");
+			notice = TRUE;
+
+			/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->protchaos_perm = 1;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->protchaos)
+		{
+			message(MSG_EFFECT, 0, "You no longer feel safe from Chaos.");
+			notice = TRUE;
+		}
+
+		p_ptr->protchaos_perm = 0;
+	}
+
+	/* Use the value */
+	p_ptr->protchaos = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->flaming_hands", notice observable changes
+ */
+bool set_flaming_hands(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->flaming_hands)
+		{
+			message(MSG_EFFECT, 0, "Your hands are on fire!");
+			notice = TRUE;
+
+			/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->flaming_hands_perm = 1;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->flaming_hands)
+		{
+			message(MSG_EFFECT, 0, "Your hands are no longer on fire.");
+			notice = TRUE;
+		}
+
+		p_ptr->flaming_hands_perm = 0;
+	}
+
+	/* Use the value */
+	p_ptr->flaming_hands = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->icy_hands", notice observable changes
+ */
+bool set_icy_hands(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->icy_hands)
+		{
+			message(MSG_EFFECT, 0, "Your fingertips are freezing!");
+			notice = TRUE;
+
+			/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+			if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->icy_hands_perm = 1;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->icy_hands)
+		{
+			message(MSG_EFFECT, 0, "Your fingers feel warmer.");
+			notice = TRUE;
+		}
+
+		p_ptr->icy_hands_perm = 0;
+	}
+
+	/* Use the value */
+	p_ptr->icy_hands = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1707,6 +1972,9 @@ bool set_resilient(int v)
 			message(MSG_EFFECT, 0, "You feel resilient!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->resilient_perm = 1;
 	}
 
 	/* Shut */
@@ -1763,6 +2031,9 @@ bool set_absorb(int v)
 		{
 			message(MSG_EFFECT, 0, "Your aura of magical light reaches full intensity!");
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->absorb_perm = 1;
 	}
 
 	/* Shut */
@@ -1773,6 +2044,8 @@ bool set_absorb(int v)
 			message(MSG_EFFECT, 0, "Your aura has abated.");
 			notice = TRUE;
 		}
+
+		p_ptr->absorb_perm = 0;
 	}
 
 	/* Use the value. HACK - Note that it caps at 490. */
@@ -1812,6 +2085,9 @@ bool set_safety(int v)
 			message(MSG_EFFECT, 0, "You feel secure from traps!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->safety_perm = 1;
 	}
 
 	/* Shut */
@@ -1867,6 +2143,9 @@ bool set_tim_see_invis(int v)
 			message(MSG_EFFECT, 0, "Your eyes feel very sensitive!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_see_invis_perm = 1;
 	}
 
 	/* Shut */
@@ -1922,6 +2201,9 @@ bool set_tim_invis(int v)
 		{
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_invis_perm = 1;
 	}
 
 	/* Shut */
@@ -1931,6 +2213,8 @@ bool set_tim_invis(int v)
 		{
 			notice = TRUE;
 		}
+
+		p_ptr->tim_invis_perm = 0;
 	}
 
 	/* Use the value */
@@ -1975,6 +2259,9 @@ bool set_stability(int v)
 			message(MSG_EFFECT, 0, "You feel a strong sense of stability");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->stability_perm = 1;
 	}
 
 	/* Shut */
@@ -2027,6 +2314,9 @@ bool set_tim_sp_dur(int v)
 			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->sp_dur_perm = 1;
 	}
 
 	/* Shut */
@@ -2079,6 +2369,9 @@ bool set_tim_sp_dam(int v)
 			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_sp_dam_perm = 1;
 	}
 
 	/* Shut */
@@ -2131,6 +2424,9 @@ bool set_tim_sp_inf(int v)
 			message(MSG_EFFECT, 0, "You have gained understanding of the nature of magic!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_sp_inf_perm = 1;
 	}
 
 	/* Shut */
@@ -2183,6 +2479,9 @@ bool set_tim_bravery(int v)
 			message(MSG_EFFECT, 0, "You forget the meaning of fear!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_bravery_perm = 1;
 	}
 
 	/* Shut */
@@ -2193,6 +2492,8 @@ bool set_tim_bravery(int v)
 			message(MSG_EFFECT, 0, "You no longer feel as fearless.");
 			notice = TRUE;
 		}
+
+		p_ptr->tim_bravery_perm = 0;
 	}
 
 	/* Use the value */
@@ -2252,6 +2553,9 @@ bool set_tim_infra(int v)
 			message(MSG_EFFECT, 0, "Your eyes begin to tingle!");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_infra_perm = 1;
 	}
 
 	/* Shut */
@@ -2307,6 +2611,9 @@ bool set_tim_stealth(int v)
 			message(MSG_EFFECT, 0, "Your movements grow more silent.");
 			notice = TRUE;
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_stealth_perm = 1;
 	}
 
 	/* Shut */
@@ -2757,223 +3064,6 @@ bool set_cut(int v)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_CONDITION);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->food", notice observable changes
- *
- * The "p_ptr->food" variable can get as large as 20000, allowing the
- * addition of the most "filling" item, Elvish Waybread, which adds
- * 7500 food units, without overflowing the 32767 maximum limit.
- *
- * Perhaps we should disturb the player with various messages,
- * especially messages about hunger status changes.  XXX XXX XXX
- *
- * Digestion of food is handled in "dungeon.c", in which, normally,
- * the player digests about 20 food units per 100 game turns, more
- * when "fast", more when "regenerating", less with "slow digestion",
- * but when the player is "gorged", he digests 100 food units per 10
- * game turns, or a full 1000 food units per 100 game turns.
- *
- * Note that the player's speed is reduced by 10 units while gorged,
- * so if the player eats a single food ration (5000 food units) when
- * full (15000 food units), he will be gorged for (5000/100)*10 = 500
- * game turns, or 500/(100/5) = 25 player turns (if nothing else is
- * affecting the player speed).
- */
-bool set_food(int v)
-{
-	int old_aux, new_aux;
-
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
-
-	/* Fainting / Starving */
-	if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		old_aux = 0;
-	}
-
-	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		old_aux = 1;
-	}
-
-	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		old_aux = 2;
-	}
-
-	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		old_aux = 3;
-	}
-
-	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		old_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		old_aux = 5;
-	}
-
-	/* Fainting / Starving */
-	if (v < PY_FOOD_FAINT)
-	{
-		new_aux = 0;
-	}
-
-	/* Weak */
-	else if (v < PY_FOOD_WEAK)
-	{
-		new_aux = 1;
-	}
-
-	/* Hungry */
-	else if (v < PY_FOOD_ALERT)
-	{
-		new_aux = 2;
-	}
-
-	/* Normal */
-	else if (v < PY_FOOD_FULL)
-	{
-		new_aux = 3;
-	}
-
-	/* Full */
-	else if (v < PY_FOOD_MAX)
-	{
-		new_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		new_aux = 5;
-	}
-
-	/* Food increase */
-	if (new_aux > old_aux)
-	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Weak */
-			case 1:
-			{
-				message(MSG_EFFECT, 0, "You are still weak.");
-				break;
-			}
-
-			/* Hungry */
-			case 2:
-			{
-				message(MSG_EFFECT, 0, "You are still hungry.");
-				break;
-			}
-
-			/* Normal */
-			case 3:
-			{
-				message(MSG_EFFECT, 0, "You are no longer hungry.");
-				break;
-			}
-
-			/* Full */
-			case 4:
-			{
-				message(MSG_EFFECT, 0, "You are full!");
-				break;
-			}
-
-			/* Bloated */
-			case 5:
-			{
-				message(MSG_EFFECT, 0, "You have gorged yourself!");
-				break;
-			}
-		}
-
-		/* Change */
-		notice = TRUE;
-	}
-
-	/* Food decrease */
-	else if (new_aux < old_aux)
-	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Fainting / Starving */
-			case 0:
-			{
-				message(MSG_EFFECT, 0, "You are getting faint from hunger!");
-				break;
-			}
-
-			/* Weak */
-			case 1:
-			{
-				message(MSG_EFFECT, 0, "You are getting weak from hunger!");
-				break;
-			}
-
-			/* Hungry */
-			case 2:
-			{
-				message(MSG_EFFECT, 0, "You are getting hungry.");
-				break;
-			}
-
-			/* Normal */
-			case 3:
-			{
-				message(MSG_EFFECT, 0, "You are no longer full.");
-				break;
-			}
-
-			/* Full */
-			case 4:
-			{
-				message(MSG_EFFECT, 0, "You are no longer gorged.");
-				break;
-			}
-		}
-
-		/* Change */
-		notice = TRUE;
-	}
-
-	/* Use the value */
-	p_ptr->food = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw hunger */
-	p_ptr->redraw |= (PR_HUNGER);
 
 	/* Handle stuff */
 	handle_stuff();

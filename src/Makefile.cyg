@@ -12,10 +12,10 @@
 CC = gcc
 WRES = windres
 # pern
-LIBS = -s -mwindows -e _mainCRTStartup -lwinmm -mno-cygwin
-CFLAGS = -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS -mno-cygwin
+LIBS = -s -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS = -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 # ey
-# LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+# LIBS = -s -mwindows -e _mainCRTStartup -lwinmm
 # CFLAGS = -Wall -pedantic -O2 -fno-strength-reduce
 
 

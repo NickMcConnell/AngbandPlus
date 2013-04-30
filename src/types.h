@@ -742,6 +742,8 @@ struct monster_type
 	byte monfear;		/* Monster is afraid */
 	byte blinded;		/* Monster is blinded */ 
 	byte calmed;		/* Monster is calmed */  
+	byte cursed;		/* Monster is cursed */  
+	byte earthbound;	/* Monster is earthbound */  
 
 	u16b sleep;			/* Monster is asleep */
 	u16b bleeding;		/* Monster is bleeding */ 
@@ -1134,6 +1136,27 @@ struct player_type
 	s16b reserves_uses;	/* How many Reserves points the player has used */
 	s16b escapes_uses;	/* How many Escapes points the player has used */
 
+	s16b obsession_bonus_a;	/* Goddessess' bonuses A. 0 = STR, 1 = INT, 2 = WIS, */
+	s16b conflict_bonus_a;	/* 3 = WIS, 4 = DEX, 5 = CHR, 6 = Reserves, 7 = Escapes */
+	s16b purity_bonus_a;
+	s16b transformation_bonus_a;
+	s16b deceit_bonus_a;
+
+	s16b obsession_bonus_b;	/* Goddessess' bonuses B. 0 = STR, 1 = INT, 2 = WIS, */
+	s16b conflict_bonus_b;	/* 3 = WIS, 4 = DEX, 5 = CHR, 6 = Reserves, 7 = Escapes */
+	s16b purity_bonus_b;
+	s16b transformation_bonus_b;
+	s16b deceit_bonus_b;
+
+	s16b obsession_status;		/* Religion status: */
+	s16b conflict_status;		/* 0 = bonus_unknown, 1 = bonus_known */
+	s16b purity_status;		/* 2 = recently blessed, 3 = blessed, 4 = follower */
+	s16b transformation_status;	/* 5 = very_happy, 6 = happy */
+	s16b deceit_status;		/* 7 = very_angry, 8 = angry */
+
+	s16b shape;		/* 0 = person, 1 = harpy, 2 = angel, 3 = ape, 4 = naga 5 = statue */
+	s16b shape_timer;	/* if 1, current shape will last for the next dungeon level. if 0, 50% of returning to original form */
+
 	byte stat_max[A_MAX];	/* Current "maximal" stat values */
 	byte stat_cur[A_MAX];	/* Current "natural" stat values */
 
@@ -1151,6 +1174,9 @@ struct player_type
 	s16b taint;			/* Timed -- Taint */
 
 	s16b protevil;		/* Timed -- Protection */
+	s16b protchaos;		/* Timed -- Protection */
+	s16b flaming_hands;	/* Timed -- Burning Hands */
+	s16b icy_hands;		/* Timed -- Icy Hands */
 	s16b resilient;		/* Timed -- Resilience */
 	s16b absorb;		/* Timed -- Absorb next hit */
 	s16b hero;			/* Timed -- Heroism */
@@ -1177,9 +1203,43 @@ struct player_type
 
 	s16b energy;		/* Current energy */
 
-	s16b food;			/* Current nutrition */
+	s16b monster_summon_power;	/* A percentage chance that monster summoners get to boost summoned monster levels by the same number */
 
 	s16b mapping_bonus;	/* Bonus to the next mapping attempt */
+	s16b phlogiston;	/* Torch is burning brighter than normal */
+	s16b fortification;	/* Ritual bonus to all resistances */
+	s16b nightsight;	/* Ritual bonus to infravision */
+	s16b fencing;		/* Ritual bonus to infravision */
+	s16b archery;		/* Ritual bonus to infravision */
+
+	s16b alertness;		/* Bonuses to AC, Saving Throw, and Perception when detecting traps and runes */
+
+	s16b recall_y;		/* Recall coordinates to Circle of Recall */
+	s16b recall_x;
+	s16b nexus_y;		/* Coordinates to Circle of Nexus */
+	s16b nexus_x;
+
+	s16b tim_see_invis_perm; /* These flags make effects permanent until leaving the level */
+	s16b tim_invis_perm;
+	s16b tim_infra_perm;
+	s16b tim_stealth_perm;
+	s16b fast_perm;
+	s16b absorb_perm;
+	s16b protevil_perm;
+	s16b protchaos_perm;
+	s16b flaming_hands_perm;
+	s16b icy_hands_perm;
+	s16b resilient_perm;
+	s16b hero_perm;
+	s16b rage_perm;
+	s16b blessed_perm;
+	s16b safety_perm;
+	s16b shield_perm;
+	s16b stability_perm;
+	s16b tim_bravery_perm;
+	s16b sp_dur_perm;
+	s16b tim_sp_dam_perm;
+	s16b tim_sp_inf_perm;
 
 	bool searching;		/* Currently searching */
 	bool hear_invis;	/* Currently hearing inivisible creatures */
@@ -1312,8 +1372,14 @@ struct player_type
 	bool sustain_con;	/* Keep constitution */
 	bool sustain_chr;	/* Keep charisma */
 
-	bool slow_digest;	/* Slower digestion */
+	bool pro_chaos;		/* Protection from creatures from Chaos */
+	bool pro_thornwild;	/* Protection from creatures from Thornwild */
+	bool pro_skultgard;	/* Protection from creatures from Skultgard */
+	bool pro_aether;	/* Protection from creatures from Aether */
+
+	bool mighty_throw;	/* Double thrown range and thrown weapon damage */
 	bool ffall;			/* Feather falling */
+	bool flying;			/* Flying */
 	bool lite;			/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
@@ -1332,12 +1398,16 @@ struct player_type
 
 	bool faery;		/* Faery race */
 
-	s16b dis_to_h;		/* Known bonus to hit */
+	s16b dis_to_h_melee;		/* Known bonus to hit */
+	s16b dis_to_h_shooting;		/* Known bonus to hit */
+	s16b dis_to_h_throwing;		/* Known bonus to hit */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
-	s16b to_h;			/* Bonus to hit */
+	s16b to_h_melee;			/* Bonus to hit */
+	s16b to_h_shooting;			/* Bonus to hit */
+	s16b to_h_throwing;			/* Bonus to hit */
 	s16b to_a;			/* Bonus to ac */
 
 	byte dd;			/* Current weapon damage dice */
@@ -1359,6 +1429,8 @@ struct player_type
 	s16b num_fire;		/* Number of shots */
 
 	s16b spell_range;	/* Range for spells and devices */
+	s16b range_bonus;	/* Range bonus to archery, throwing, spells, and devices */
+	s16b ambush_bonus;	/* Bonus to ambush */
 
 	s16b pspeed;		/* Current speed */
 
@@ -1367,6 +1439,8 @@ struct player_type
 	s16b lore;		/* How many Lore points the player has used */
 	s16b reserves;		/* How many Reserves points the player has used */
 	s16b escapes;		/* How many Escapes points the player has used */
+
+	s16b digging;		/* Digging bonus (skill removed) */
 
 	/* Generation fields (for quick start) */
 	s32b au_birth;			/* Birth gold */

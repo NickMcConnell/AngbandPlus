@@ -24,16 +24,16 @@
  */
 static cptr lantern_adj[SV_LANTERN_MAX] =
 {
-	"xxx_torch", "xxx_Brass", "Aluminum", "Lead", "Copper", 
-	"Gold", "Silver", "Tin", "Nickel", "Mithril", 
-	"Bronze", "Zinc"
+	"xxx_torch", "xxx_Brass", "Willow", "Teak", "Maple", 
+	"Mahogany", "Arctic Pine", "Eucalyptus", "Yew", "Spruce", 
+	"Cedar", "Cypress"
 };
 
 static byte lantern_col[SV_LANTERN_MAX] =
 {
-	TERM_UMBER, TERM_L_UMBER, TERM_L_BLUE, TERM_SLATE, TERM_L_UMBER, 
-	TERM_YELLOW, TERM_L_WHITE,  TERM_L_WHITE, TERM_L_UMBER, TERM_L_BLUE,
-	TERM_L_UMBER, TERM_L_WHITE
+	TERM_UMBER, TERM_L_UMBER, TERM_YELLOW, TERM_YELLOW, TERM_YELLOW, 
+	TERM_YELLOW, TERM_YELLOW,  TERM_YELLOW, TERM_YELLOW, TERM_YELLOW,
+	TERM_YELLOW, TERM_YELLOW
 };
 
 /*
@@ -1064,7 +1064,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			/* Color the object */
 			modstr = lantern_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Lantern~" : "& Lantern~");
+			basenm = (flavor ? "& # Torch~" : "& Torch~");
 
 		}
 
@@ -1590,11 +1590,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				switch (pvflag)
 				{
 					case TR1_STR:		object_desc_str_macro(t, " str"); break;
-					case TR1_INT:		object_desc_str_macro(t, " int"); break;
+					case TR1_INT:		object_desc_str_macro(t, " mem"); break;
 					case TR1_WIS:		object_desc_str_macro(t, " wis"); break;
 					case TR1_CON:		object_desc_str_macro(t, " con"); break;
 					case TR1_DEX:		object_desc_str_macro(t, " dex"); break;
-					case TR1_CHR:		object_desc_str_macro(t, " chr"); break;
+					case TR1_CHR:		object_desc_str_macro(t, " pre"); break;
 					case TR1_STEALTH:	object_desc_str_macro(t, " stealth"); break;
 					case TR1_SP_DUR:	object_desc_str_macro(t, " spell dur."); break;
 					case TR1_SP_DAM:	object_desc_str_macro(t, " spell dam."); break;
@@ -1602,9 +1602,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 					case TR1_PERCEPTION:object_desc_str_macro(t, " perception"); break;
 					case TR1_HEALTH:	object_desc_str_macro(t, " health"); break;
 					case TR1_MANA:		object_desc_str_macro(t, " mana"); break;
-					case TR1_TUNNEL:	object_desc_str_macro(t, " tunneling"); break;
 					case TR1_INFRA:		object_desc_str_macro(t, " infravision"); break;
 					case TR1_SPEED:		object_desc_str_macro(t, " speed"); break;
+					case TR1_MELEE:		object_desc_str_macro(t, " melee"); break;
+					case TR1_ARCHERY:	object_desc_str_macro(t, " archery"); break;
+					case TR1_ESCAPES:	object_desc_str_macro(t, " escapes"); break;
+					case TR1_THROW_SKILL:	object_desc_str_macro(t, " throwing"); break;
+					case TR1_JUMPING:	object_desc_str_macro(t, " jumping"); break;
+					case TR1_MYSTIC_RANGE:	object_desc_str_macro(t, " range"); break;
+					case TR1_AMBUSH:	object_desc_str_macro(t, " ambush"); break;
 					case TR1_BLOWS:
 					{
 						/* Add " attack(s)" */
@@ -2401,14 +2407,45 @@ void show_equip(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		/* Clear the line */
+		prt("", j + 1, col ? col - 2 : col);
+
+		/* Some shapes do not have every slot */
+		if (!(p_ptr->command_cmd == 't'))
+		{
+			if (p_ptr->shape == SHAPE_HARPY)
+			{
+				if (j == 0) continue;
+				if (j == 1) continue;
+				if (j == 2) continue;
+				if (j == 3) continue;
+				if (j == 6) continue;
+				if (j == 7) continue;
+				if (j == 8) continue;
+				if (j == 10) continue;
+				if (j == 11) continue;
+			}
+			if (p_ptr->shape == SHAPE_ANGEL)
+			{
+				if (j == 6) continue;
+				if (j == 7) continue;
+			}
+			if (p_ptr->shape == SHAPE_NAGA)
+			{
+				if (j == 11) continue;
+			}
+			if (p_ptr->shape == SHAPE_FAUN)
+			{
+				if (j == 9) continue;
+				if (j == 11) continue;
+			}
+		}
+
 		/* Get the index */
 		i = out_index[j];
 
 		/* Get the item */
 		o_ptr = &inventory[i];
-
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));

@@ -1,0 +1,21 @@
+
+
+                             ***************************
+                             **  Halls of Mist 1.2.0  **
+                             ***************************
+                                 By Mikko Lehtinen
+
+            Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
+                    Umoria:  Copyright (c) 1989 James E. Wilson
+       Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
+                             Geoff Hill, Charles Teague, Charles Swiger
+     Angband 2.7.0 - 2.8.5:  Ben Harrison
+     Angband 2.9.0 - 2.9.3:  Robert Ruehlmann
+     EyAngband   0 - 0.5.2:  Eytan Zweig
+
+        Send comments and bug reports to "miihkali.lehtinen@gmail.com"
+
+        EyAngband Home Page at "http://eyangband.sourceforge.net"
+        Angband Home Page at "http://rephial.org/"
+        Browse the Angband forums at "http://angband.oook.cz/"
+

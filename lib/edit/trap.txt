@@ -18,180 +18,195 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.2.0
 
 N:0:<None>
 G:^:D
 W:0:0
-X:0:0:0
+X:1:0:0
 
 #N:1:trap door
 #G:^:w
 #W:1:1
-#X:45:50:0
+#X:1:50:0
 #F:PLAYER | TRAP_DOOR | FLOOR | DISARM | TRAPS2 | TRAPS3 | DETECT
 
+# Avoidable with Feather Falling
 N:2:pit
 G:^:s
 W:1:1
-X:45:65:0
+X:1:80:0
 F:PLAYER | PIT | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
 
+# Avoidable with Feather Falling
 N:3:spiked pit
 G:^:s
 W:1:1
-X:45:65:0
+X:1:80:0
 F:PLAYER | PIT | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
 
+# Avoidable with Feather Falling
 N:4:poison spike pit
 G:^:s
-W:5:1
-X:45:65:0
+W:2:1
+X:1:80:0
 F:PLAYER | PIT | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Avoidable with Feather Falling
 N:5:dagger pit
 G:^:s
-W:20:2
-X:45:65:0
+W:17:2
+X:1:80:0
 F:PLAYER | PIT | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Staff of Detect Power finds this; Alchemy skill to disarm
 N:6:summoning rune
 G:^:o
-W:5:2
-X:45:50:10
+W:1:2
+X:1:65:10
 F:PLAYER | RUNE | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Staff of Detect Power finds this; Alchemy skill to disarm
 N:7:teleport rune
 G:^:o
 W:1:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Staff of Detect Power finds this; Alchemy skill to disarm
 N:8:amnesia rune
 G:^:o
-W:20:3
-X:45:50:1
+W:17:3
+X:1:65:1
 F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
-N:9:curse rune
-G:^:o
-W:15:3
-X:45:50:1
-F:PLAYER | RUNE | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+#N:9:curse rune
+#G:^:o
+#W:12:3
+#X:1:65:1
+#F:PLAYER | RUNE | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Staff of Detect Power finds this; Alchemy skill to disarm
 N:10:powerful curse rune
 G:^:o
-W:65:5
-X:45:50:1
+W:45:5
+X:1:65:1
 F:PLAYER | RUNE | FLOOR | DISARM | DETECT
 
+# Staff of Detect Power finds this; Alchemy skill to disarm
 N:11:aggravation rune
 G:^:o
-W:10:2
-X:45:50:5
+W:1:2
+X:1:65:5
 F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
 N:12:fire trap
 G:^:u
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
 N:13:acid trap
 G:^:u
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
 N:14:lightning trap
 G:^:u
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
 N:15:disenchantment trap
 G:^:u
-W:50:3
-X:45:50:5
+W:20:3
+X:1:65:5
 F:PLAYER | SPOT | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Jumping to avoid
 N:16:slowness dart trap
 G:^:r
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
 
+# Jumping to avoid
 N:17:weakness dart trap
 G:^:r
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
 
+# Jumping to avoid
 N:18:clumsiness dart trap
 G:^:r
 W:0:1:5
-X:45:50:0
+X:1:65:0
 F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
 
+# Jumping to avoid
 N:19:sickliness dart trap
 G:^:r
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
 
 N:20:blinding gas trap
 G:^:g
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
 
 N:21:confusing gas trap
 G:^:g
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
 
 N:22:poison gas trap
 G:^:g
 W:0:1
-X:45:50:0
+X:1:65:0
 F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
 
-N:23:sleep gas trap
-G:^:g
-W:3:1
-X:45:50:0
-F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+#N:23:sleep gas trap
+#G:^:g
+#W:1:1
+#X:1:65:0
+#F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
 
 N:24:hallucination gas trap
 G:^:g
-W:5:2
-X:45:50:0
+W:2:2
+X:1:65:0
 F:PLAYER | GAS | TRAPS2 | FLOOR | DISARM | DETECT 
 
+# Jumping to avoid
 N:25:blade trap
 G:^:y
-W:5:2
-X:45:60:0
+W:2:2
+X:1:75:0
 F:PLAYER | SLOTS | TRAPS3 | FLOOR | DISARM | DETECT
 
+# Jumping to avoid
 N:26:spinning disc trap
 G:^:y
-W:5:2
-X:45:60:3
+W:2:2
+X:1:75:3
 F:PLAYER | SLOTS | TRAPS3 | FLOOR | DISARM | DETECT
 
-N:27:earthquake trap
-G:^:U
-W:20:3
-X:45:50:1
-F:PLAYER | ROCKS | TRAPS3 | FLOOR | DISARM | DETECT
+#N:27:earthquake trap
+#G:^:U
+#W:15:3
+#X:1:65:1
+#F:PLAYER | ROCKS | TRAPS3 | FLOOR | DISARM | DETECT
 
-N:28:falling rock trap
-G:^:U
-W:1:1
-X:45:50:3
-F:PLAYER | ROCKS | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+#N:28:falling rock trap
+#G:^:U
+#W:1:1
+#X:1:65:3
+#F:PLAYER | ROCKS | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
 
 ## Here begin the glyphs 
 
@@ -210,20 +225,20 @@ F:MONSTER | GLYPH
 ## Here begin the locks (charges = lock power)
 
 N:32: (locked)
-G:+:U
-X:45:0:8
-F:MONSTER | PLAYER | LOCK 
+G:+:v
+X:1:80:130
+F:MONSTER | PLAYER | LOCK
 
 N:33: (magic-locked)
 G:+:G
-X:45:0:30
+X:1:0:30
 F:MONSTER | LOCK 
 
 ## Player trap ##
 
 N:34:anti-monster trap
 G:^:v
-X:45:0:0
+X:1:0:0
 F:MONSTER | FLOOR | DISARM 
 
 ## Chest traps ##
@@ -231,65 +246,702 @@ F:MONSTER | FLOOR | DISARM
 N:35: (poison trap)
 G:~:s
 W:0:1
-X:45:65:0
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:36: (guardian)
 G:~:s
-W:5:1
-X:45:65:0
+W:2:1
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:37: (alarm)
 G:~:s
-W:5:1
-X:45:65:0
+W:2:1
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:38: (curse)
 G:~:s
-W:15:1
-X:45:65:0
+W:12:1
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:39: (disenchantment)
 G:~:s
-W:50:3
-X:45:65:0
+W:40:3
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:40: (weakness dart)
 G:~:s
 W:0:1
-X:45:65:0
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:41: (clumsiness dart)
 G:~:s
 W:0:1
-X:45:65:0
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:42: (sickliness dart)
 G:~:s
 W:0:1
-X:45:65:0
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:43: (confusion)
 G:~:s
 W:0:2
-X:45:65:0
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:44: (paralyze)
 G:~:s
-W:3:2
-X:45:65:0
+W:1:2
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
 
 N:45: (hallucination)
 G:~:s
-W:5:1
-X:45:65:0
+W:2:1
+X:1:75:0
 F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR 
+
+# Terrain features
+
+N:46:vegetation
+G:%:G
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | BORING
+
+N:47:tree
+G:%:g
+X:1:0:0
+F:DECORATION | DECORATE_RUBBLE | BORING
+
+N:48:table
+G:#:u
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | BORING | NO_HACK
+
+N:49:platform
+G:#:D
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR |NO_HACK
+
+N:50:bookshelf
+G:#:y
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:51:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:52:statue
+G:+:w
+X:1:0:0
+F:DECORATION | DECORATE_WALL_INNER | NO_HACK
+
+N:53:stump
+G:_:g
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | BORING
+
+N:54:closed secret door in a bookshelf
+G:+:y
+X:1:0:0
+F:DECORATION | DECORATE_CLOSED_DOOR
+
+N:55:open secret door in a bookshelf
+G:':y
+X:1:0:0
+F:DECORATION | DECORATE_OPEN_DOOR
+
+N:56:bookshelf
+G:#:y
+X:1:0:0
+F:DECORATION | DECORATE_SECRET_DOOR
+
+N:57:closed secret door in a cave painting
+G:+:r
+X:1:0:0
+F:DECORATION | DECORATE_CLOSED_DOOR
+
+N:58:open secret door in a cave painting
+G:':r
+X:1:0:0
+F:DECORATION | DECORATE_OPEN_DOOR
+
+N:59:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_SECRET_DOOR
+
+N:60:interesting vegetation
+G:%:v
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:61:dead fountain
+G:0:b
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:62:Circle of Lifeforce
+G:.:G
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | GLYPH
+
+N:63:edge of the Circle of Lifeforce
+G:/:G
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | GLYPH
+
+N:64:edge of the Circle of Lifeforce
+G:\:G
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | GLYPH
+
+N:65:locked closet
+G:?:g
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER
+
+N:66:Circle of Permanence
+G:.:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:67:edge of the Circle of Permanence
+G:/:B
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:68:edge of the Circle of Permanence
+G:\:B
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:69:Circle of Recall
+G:.:y
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:70:edge of the Circle of Recall
+G:/:y
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:71:edge of the Circle of Recall
+G:\:y
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:72:Circle of Summoning
+G:.:R
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:73:edge of the Circle of Summoning
+G:/:R
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:74:edge of the Circle of Summoning
+G:\:R
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:75:steps
+G:=:D
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:76:faery portal
+G:<:G
+X:1:0:0
+F:DECORATION | DECORATE_STAIRS_UP
+
+N:77:armoury rack
+G:#:b
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:78:closed secret door in an armoury rack
+G:+:b
+X:1:0:0
+F:DECORATION | DECORATE_CLOSED_DOOR
+
+N:79:open secret door in an armoury rack
+G:':b
+X:1:0:0
+F:DECORATION | DECORATE_OPEN_DOOR
+
+N:80:armoury rack
+G:#:b
+X:1:0:0
+F:DECORATION | DECORATE_SECRET_DOOR
+
+N:81:closet
+G:#:g
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:82:closed secret door in a closet
+G:+:g
+X:1:0:0
+F:DECORATION | DECORATE_CLOSED_DOOR
+
+N:83:open secret door in a closet
+G:':g
+X:1:0:0
+F:DECORATION | DECORATE_OPEN_DOOR
+
+N:84:closet
+G:#:g
+X:1:0:0
+F:DECORATION | DECORATE_SECRET_DOOR
+
+N:85:Circle of Knowledge
+G:.:U
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:86:edge of the Circle of Knowledge
+G:/:U
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:87:edge of the Circle of Knowledge
+G:\:U
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+# Beleth, the Queen of Hell
+N:88:altar of obsession
+G:0:r
+X:1:0:0
+F:DECORATION | NO_HACK | DECORATE_FLOOR
+
+# Discordia, the Warrior
+N:89:altar of conflict
+G:0:y
+X:1:0:0
+F:DECORATION | NO_HACK | DECORATE_FLOOR
+
+# Eostre, the Maiden of Spring
+N:90:altar of purity
+G:0:G
+X:1:0:0
+F:DECORATION | NO_HACK | DECORATE_FLOOR
+
+# Cyrridven, the Crone
+N:91:altar of transformation
+G:0:g
+X:1:0:0
+F:DECORATION | NO_HACK | DECORATE_FLOOR
+
+# Laverna, the Mistress of the Underworld
+N:92:altar of secrets
+G:0:v
+X:1:0:0
+F:DECORATION | NO_HACK | DECORATE_FLOOR
+
+N:93:empty bookshelf
+G:=:y
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:94:empty armoury rack
+G:=:b
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:95:empty closet
+G:=:g
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:96:broken magic circle
+G:.:w
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | BORING
+
+N:97:edge of a broken magic circle
+G:/:b
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:98:edge of a broken magic circle
+G:\:b
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:99:missing edge
+G:.:w
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:100:missing edge
+G:.:w
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:101:interesting vegetation on the edge of a faery ring
+G:%:v
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | GLYPH
+
+N:102:vegetation on the edge of a faery ring
+G:%:G
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | GLYPH | BORING
+
+N:103:Circle of Illusions
+G:.:o
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:104:edge of the Circle of Illusions
+G:/:o
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:105:edge of the Circle of Illusions
+G:\:o
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR | MONSTER | GLYPH
+
+N:106:Circle of Nexus
+G:.:v
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:107:edge of the Circle of Nexus
+G:/:v
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:108:edge of the Circle of Nexus
+G:\:v
+X:1:0:0
+F:DECORATION | BORING | DECORATE_FLOOR
+
+N:109:spikes
+G:%:r
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:110:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:111:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:112:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:113:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:114:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:115:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:116:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:117:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:118:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:119:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:120:fountain
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:121:Fountain of Harpy Shape
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:122:Fountain of Angel Shape
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:123:Fountain of Ape Shape
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:124:Fountain of Naga Shape
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:125:Fountain of Statue Shape
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:126:Fountain of Ruination
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:127:Fountain of Summon Faeries
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:128:Fountain of Disease
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:129:Fountain of Cure Wound
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:130:Fountain of Increase Ability
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:131:Fountain of *Remove Curse*
+G:0:B
+X:1:0:0
+F:DECORATION | DECORATE_FLOOR
+
+N:132:Rune of Slumber (active)
+G:!:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:133:Rune of Terror (active)
+G:!:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:134:Rune of Change (active)
+G:!:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:135:Rune of Blood (active)
+G:!:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:136:Rune of Evil Eye (active)
+G:!:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:137:Rune of Slumber (inactive)
+G:?:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:138:Rune of Terror (inactive)
+G:?:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:139:Rune of Change (inactive)
+G:?:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:140:Rune of Blood (inactive)
+G:?:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:141:Rune of Evil Eye (inactive)
+G:?:r
+X:1:85:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:142:Rune of Slumber (active, mastered)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:143:Rune of Terror (active, mastered)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:144:Rune of Change (active, mastered)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:145:Rune of Blood (active, mastered)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:146:Rune of Evil Eye (active, mastered)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:147:Rune of Slumber (inactive, mastered)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:148:Rune of Terror (inactive, mastered)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:149:Rune of Change (inactive, mastered)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:150:Rune of Blood (inactive, mastered)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:151:Rune of Evil Eye (inactive, mastered)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
+
+N:152:Rune of Slumber (active, incomprehensible)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:153:Rune of Terror (active, incomprehensible)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:154:Rune of Change (active, incomprehensible)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:155:Rune of Blood (active, incomprehensible)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:156:Rune of Evil Eye (active, incomprehensible)
+G:!:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:157:Rune of Slumber (inactive, incomprehensible)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:158:Rune of Terror (inactive, incomprehensible)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:159:Rune of Change (inactive, incomprehensible)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:160:Rune of Blood (inactive, incomprehensible)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:161:Rune of Evil Eye (inactive, incomprehensible)
+G:?:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:162:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:163:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER | DETECT
+
+N:164:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:165:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:166:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:167:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:168:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:169:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:170:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER
+
+N:171:cave painting
+G:#:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_OUTER

@@ -85,264 +85,6 @@ int value_check_aux2(const object_type *o_ptr)
 }
 
 /*
- * Sense the inventory
- */
-static void sense_inventory(void)
-{
-	int i, feel;
-	bool heavy;
-	object_type *o_ptr;
-	char o_name[80];
-	u32b delay1, delay2;
-
-	bool okay = FALSE;
-	bool squelch = FALSE;
-
-	bool notice = FALSE;
-
-	/*** Check for "sensing" ***/
-
-	/* No sensing while asleep */
-	if (p_ptr->resting) return;
-
-	/* No sensing when confused */
-	if (p_ptr->confused) return;
-
-	/* Analyze the class */
-	switch (cp_ptr->flags & CF_PSEUDO_ID_MASK)
-	{
-		case CF_PSEUDO_ID1: delay1 = 150000L / (p_ptr->lev + 5); break;
-		case CF_PSEUDO_ID2: delay1 = 80000L / (p_ptr->lev + 5); break;
-		case CF_PSEUDO_ID3: delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
-		case CF_PSEUDO_ID4: delay1 = 15000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
-		/* No pseudo-ID */
-		default: return;
-	}
-
-	delay2 = delay1 / 25;
-
-	if (delay1 < 5) delay1 = 5;
-	if (delay2 < 1) delay2 = 1;
-
-	heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
-
-	/* Check to see if detected anything worn */
-	if (rand_int(delay2)) return;
-	{
-		/*** Sense your wielded slots ***/
-
-		/* Check everything */
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-		{
-			o_ptr = &inventory[i];
-
-			/* Skip empty slots */
-			if (!o_ptr->k_idx) continue;
-
-			okay = FALSE;
-
-			/* Valid "tval" codes */
-			switch (o_ptr->tval)
-			{
-				case TV_BOW:
-				case TV_DIGGING:
-				case TV_BLUNT:
-				case TV_POLEARM:
-				case TV_SWORD:
-				case TV_BOOTS:
-				case TV_GLOVES:
-				case TV_HEADGEAR:
-				case TV_SHIELD:
-				case TV_CLOAK:
-				case TV_BODY_ARMOR:
-				case TV_DRAG_ARMOR:
-				{
-					okay = TRUE;
-					break;
-				}
-				case TV_RING:
-				case TV_AMULET:
-				case TV_LITE:
-				case TV_LITE_SPECIAL:
-				case TV_MUSIC:
-				{
-					/* It has already been sensed, do not sense it again */
-					if (o_ptr->ident & (IDENT_SENSE))
-					{
-						/* Small chance of fully learning the item's abilities */
-						if ((!o_ptr->a_idx) && !(object_known_p(o_ptr)))
-						{
-							if(!rand_int(1000)) 
-							{
-								ident_aux(i);
-							
-								/* Recalculate bonuses */
-								p_ptr->update |= (PU_BONUS);
-
-								/* Window stuff */
-								p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-							}
-						}
-					}
-					else (o_ptr->ident |= (IDENT_SENSE));
-				
-					continue;
-				}
-			}
-
-			/* Skip irrelevant items */
-			if (!okay) continue;
-
-			/* It has already been sensed, do not sense it again */
-			if (o_ptr->ident & (IDENT_SENSE))
-			{
-				/* Small chance of fully learning the item's abilities */
-				if ((!o_ptr->a_idx) && !(object_known_p(o_ptr)))
-				{
-					if(!rand_int(1000)) 
-					{
-						ident_aux(i);
-					
-						/* Recalculate bonuses */
-						p_ptr->update |= (PU_BONUS);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-					}
-				}
-				continue;
-			}
-
-			/* It already has a discount or special inscription, except "indestructible" */
-			if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
-
-			/* It is fully known, no information needed */
-			if (object_known_p(o_ptr)) continue;
-
-			/* Check for a feeling */
-			feel = ((heavy || (o_ptr->discount == INSCRIP_INDESTRUCT)) ? value_check_aux1(o_ptr) 
-				: value_check_aux2(o_ptr));
-
-			/* Skip non-feelings */
-			if (!feel) continue;
-
-			/* Get an object description */
-			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-			/* The object has been "sensed" */
-			o_ptr->ident |= (IDENT_SENSE);
-			
-			/* Sense the object */
-			o_ptr->discount = feel;
-
-			squelch = squelch_itemp(o_ptr);
-			
-			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) you are %s %s %s...",
-						o_name, index_to_label(i), describe_use(i),
-						((o_ptr->number == 1) ? "is" : "are"),
-						inscrip_text[feel - INSCRIP_NULL]);
-
-			/* Squelch it if necessary */
-			if (squelch) do_squelch_item(o_ptr);
-
-			notice = TRUE;
-		}
-	}
-
-	/* Check to see if detected anything in the pack */
-	if (rand_int(delay1)) return;
-
-	/*** Sense your pack ***/
-
-	/* Check everything */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
-
-		okay = FALSE;
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_ARROW:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_BLUNT:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HEADGEAR:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_BODY_ARMOR:
-			case TV_DRAG_ARMOR:
-			{
-				okay = TRUE;
-				break;
-			}
-		}
-
-		/* Skip irrelevant items */
-		if (!okay) continue;
-
-		/* It already has a discount or special inscription, except "indestructible" */
-		if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
-
-		/* It has already been sensed, do not sense it again */
-		if (o_ptr->ident & (IDENT_SENSE)) continue;
-
-		/* It is fully known, no information needed */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Occasional failure on inventory items */
-		if (!rand_int(5)) continue;
-
-		/* Check for a feeling */
-		feel = ((heavy || (o_ptr->discount == INSCRIP_INDESTRUCT)) ? value_check_aux1(o_ptr) 
-			: value_check_aux2(o_ptr));
-
-		/* Skip non-feelings */
-		if (!feel) continue;
-
-		/* Get an object description */
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-		
-		/* Sense the object */
-		o_ptr->discount = feel;
-		
-		squelch = squelch_itemp(o_ptr);
-		
-		message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...",
-					o_name, index_to_label(i),
-					((o_ptr->number == 1) ? "is" : "are"),
-					inscrip_text[feel - INSCRIP_NULL]);
-
-		/* Squelch it if necessary */
-		if (squelch) do_squelch_item(o_ptr);
-
-		notice = TRUE;
-	}
-
-	if (!notice) return;
-
-	/* Stop everything */
-	if (disturb_minor) disturb(0);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-}
-
-/*
  * Regenerate hit points
  */
 static void regenhp(int percent)
@@ -507,23 +249,6 @@ static void process_world(void)
 	/* While in town */
 	if (!p_ptr->depth)
 	{
-		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((10L * TOWN_DAWN) / 2)))
-		{
-			bool dawn;
-
-			/* Check for dawn */
-			dawn = (!(turn % (10L * TOWN_DAWN)));
-
-			/* Day breaks */
-			if (dawn) message(MSG_GENERIC, 0, "The sun has risen.");
-
-			/* Night falls */
-			else message(MSG_GENERIC, 0, "The sun has fallen.");
-
-			/* Illuminate */
-			town_illuminate(dawn);
-		}
 	}
 
 	/* While in the dungeon */
@@ -645,83 +370,10 @@ static void process_world(void)
 		}
 	}
 
-	/*** Check the Food, and Regenerate ***/
-
-	/* Digest normally */
-	if (p_ptr->food < PY_FOOD_MAX)
-	{
-		/* Every 100 game turns */
-		if (!(turn % 100))
-		{
-			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->pspeed] * 2;
-
-			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
-
-			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
-
-			/* Minimal digestion */
-			if (i < 1) i = 1;
-
-			/* Digest some food */
-			(void)set_food(p_ptr->food - i);
-		}
-	}
-
-	/* Digest quickly when gorged */
-	else
-	{
-		/* Digest a lot of food */
-		(void)set_food(p_ptr->food - 100);
-	}
-
-	/* Starve to death (slowly) */
-	if (p_ptr->food < PY_FOOD_STARVE)
-	{
-		/* Calculate damage */
-		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-		/* Take damage */
-		damage_player(i, "starvation");
-	}
+	/*** Regenerate ***/
 
 	/* Default regeneration */
 	regen_amount = PY_REGEN_NORMAL;
-
-	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
-		{
-			regen_amount = 0;
-		}
-		else if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			regen_amount = PY_REGEN_FAINT;
-		}
-		else
-		{
-			regen_amount = PY_REGEN_WEAK;
-		}
-
-		/* Getting Faint */
-		if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (rand_int(100) < 10))
-			{
-				/* Message */
-				message(MSG_EFFECT, 0, "You faint from the lack of food.");
-				disturb(1);
-
-				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
-			}
-		}
-	}
 
 	/* Regeneration ability */
 	if (p_ptr->regenerate) regen_amount = regen_amount * 2;
@@ -762,9 +414,9 @@ static void process_world(void)
 		p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 	}
 
-	if (!p_ptr->resting && (p_ptr->skill[SK_PER] > 15))
+	if (!p_ptr->resting)
 	{
-		if (rand_int(45) < (p_ptr->skill[SK_PER] - 15))
+		if (rand_int(100) < (p_ptr->skill[SK_PER] + (p_ptr->alertness * 25)))
 		{
  			for (i = p_ptr->px - 1; i < p_ptr->px + 2; i++)
 			{
@@ -798,30 +450,32 @@ static void process_world(void)
 	}
 
 	/* Various player conditions */
-	if (p_ptr->image)			(void)set_image(p_ptr->image - 1);
-	if (p_ptr->blind)			(void)set_blind(p_ptr->blind - 1);
-	if (p_ptr->tim_see_invis)	(void)set_tim_see_invis(p_ptr->tim_see_invis - 1);
-	if (p_ptr->tim_invis > 0)	(void)set_tim_invis(p_ptr->tim_invis - 1);
-	if (p_ptr->tim_invis < 0)	(void)set_tim_invis(p_ptr->tim_invis + 1);
-	if (p_ptr->tim_infra)		(void)set_tim_infra(p_ptr->tim_infra - 1);
-	if (p_ptr->tim_stealth)		(void)set_tim_stealth(p_ptr->tim_stealth - 1);
-	if (p_ptr->paralyzed)		(void)set_paralyzed(p_ptr->paralyzed - 1);
-	if (p_ptr->afraid)			(void)set_afraid(p_ptr->afraid - 1);
-	if (p_ptr->fast)			(void)set_fast(p_ptr->fast - 1);
-	if (p_ptr->slow)			(void)set_slow(p_ptr->slow - 1);
-	if (p_ptr->absorb)			(void)set_absorb(p_ptr->absorb - 1);
-	if (p_ptr->protevil)		(void)set_protevil(p_ptr->protevil - 1);
-	if (p_ptr->resilient)		(void)set_resilient(p_ptr->resilient - 1);
-	if (p_ptr->hero)			(void)set_hero(p_ptr->hero - 1);
-	if (p_ptr->rage)			(void)set_rage(p_ptr->rage - 1);
-	if (p_ptr->blessed)			(void)set_blessed(p_ptr->blessed - 1);
-	if (p_ptr->safety)			(void)set_safety(p_ptr->safety - 1);
-	if (p_ptr->shield)			(void)set_shield(p_ptr->shield - 1);
-	if (p_ptr->stability)		(void)set_stability(p_ptr->stability - 1);
-	if (p_ptr->tim_bravery)		(void)set_tim_bravery(p_ptr->tim_bravery - 1);
-	if (p_ptr->tim_sp_dur)		(void)set_tim_sp_dur(p_ptr->tim_sp_dur - 1);
-	if (p_ptr->tim_sp_dam)		(void)set_tim_sp_dam(p_ptr->tim_sp_dam - 1);
-	if (p_ptr->tim_sp_inf)		(void)set_tim_sp_inf(p_ptr->tim_sp_inf - 1);
+	if (p_ptr->image)						(void)set_image(p_ptr->image - 1);
+	if (p_ptr->blind)						(void)set_blind(p_ptr->blind - 1);
+	if ((p_ptr->tim_see_invis) && (!(p_ptr->tim_see_invis_perm)))	(void)set_tim_see_invis(p_ptr->tim_see_invis - 1);
+	if ((p_ptr->tim_invis > 0) && (!(p_ptr->tim_invis_perm)))	(void)set_tim_invis(p_ptr->tim_invis - 1);
+	if (p_ptr->tim_invis < 0)					(void)set_tim_invis(p_ptr->tim_invis + 1);
+	if ((p_ptr->tim_infra) && (!(p_ptr->tim_infra_perm)))		(void)set_tim_infra(p_ptr->tim_infra - 1);
+	if ((p_ptr->tim_stealth) && (!(p_ptr->tim_stealth_perm)))	(void)set_tim_stealth(p_ptr->tim_stealth - 1);
+	if (p_ptr->paralyzed)						(void)set_paralyzed(p_ptr->paralyzed - 1);
+	if (p_ptr->afraid)						(void)set_afraid(p_ptr->afraid - 1);
+	if ((p_ptr->fast) && (!(p_ptr->fast_perm)))			(void)set_fast(p_ptr->fast - 1);
+	if (p_ptr->slow)						(void)set_slow(p_ptr->slow - 1);
+	if ((p_ptr->absorb) && (!(p_ptr->absorb_perm)))			(void)set_absorb(p_ptr->absorb - 1);
+	if ((p_ptr->protevil) && (!(p_ptr->protevil_perm)))		(void)set_protevil(p_ptr->protevil - 1);
+	if ((p_ptr->flaming_hands) && (!(p_ptr->flaming_hands_perm)))	(void)set_flaming_hands(p_ptr->flaming_hands - 1);
+	if ((p_ptr->icy_hands) && (!(p_ptr->icy_hands_perm)))		(void)set_icy_hands(p_ptr->icy_hands - 1);
+	if ((p_ptr->resilient) && (!(p_ptr->resilient_perm)))		(void)set_resilient(p_ptr->resilient - 1);
+	if ((p_ptr->hero) && (!(p_ptr->hero_perm)))			(void)set_hero(p_ptr->hero - 1);
+	if ((p_ptr->rage) && (!(p_ptr->rage_perm)))			(void)set_rage(p_ptr->rage - 1);
+	if ((p_ptr->blessed) && (!(p_ptr->blessed_perm)))		(void)set_blessed(p_ptr->blessed - 1);
+	if ((p_ptr->safety) && (!(p_ptr->safety_perm)))			(void)set_safety(p_ptr->safety - 1);
+	if ((p_ptr->shield) && (!(p_ptr->shield_perm)))			(void)set_shield(p_ptr->shield - 1);
+	if ((p_ptr->stability) && (!(p_ptr->stability_perm)))		(void)set_stability(p_ptr->stability - 1);
+	if ((p_ptr->tim_bravery) && (!(p_ptr->tim_bravery_perm)))	(void)set_tim_bravery(p_ptr->tim_bravery - 1);
+	if ((p_ptr->tim_sp_dur) && (!(p_ptr->sp_dur_perm)))		(void)set_tim_sp_dur(p_ptr->tim_sp_dur - 1);
+	if ((p_ptr->tim_sp_dam) && (!(p_ptr->tim_sp_dam_perm)))		(void)set_tim_sp_dam(p_ptr->tim_sp_dam - 1);
+	if ((p_ptr->tim_sp_inf) && (!(p_ptr->tim_sp_inf_perm)))		(void)set_tim_sp_inf(p_ptr->tim_sp_inf - 1);
 
 	/* Taint */
 	if (p_ptr->taint_inv)
@@ -899,6 +553,12 @@ static void process_world(void)
 				disturb(0);
 				message(MSG_EFFECT, 0, "Your light has gone out!");
 
+				/* Reset phlogiston */
+				p_ptr->phlogiston = 0;
+
+				/* Delete the torch */
+				object_wipe(o_ptr);
+
 				/* Hack - update bonuses */
 				p_ptr->update |= (PU_BONUS);
 			}
@@ -910,6 +570,24 @@ static void process_world(void)
 				message(MSG_EFFECT, 0, "Your light is growing faint.");
 			}
 		}
+		else if (p_ptr->depth)
+		{
+			if (!p_ptr->confused)
+			{
+				message(MSG_EFFECT, 0, "The ambient light is twisting your perceptions. Is this just a dream?");
+			}
+			if (p_ptr->confused < 10) set_confused(10);
+			if (p_ptr->image < 10) set_image(10);
+		}
+	}
+	else if (p_ptr->depth)
+	{
+		if (!p_ptr->confused)
+		{
+			message(MSG_EFFECT, 0, "The ambient light is twisting your perceptions. Is this just a dream?");
+		}
+		if (p_ptr->confused < 10) set_confused(10);
+		if (p_ptr->image < 10) set_image(10);
 	}
 
 	/* Calculate torch radius */
@@ -1040,9 +718,6 @@ static void process_world(void)
 		p_ptr->window |= (PW_INVEN);
 	}
 
-	/* Feel the inventory */
-	sense_inventory();
-
 	/*** Involuntary Movement ***/
 
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
@@ -1171,7 +846,7 @@ static void process_command(void)
 		case '>': do_cmd_go_down();	break;				/* Go down staircase / force trap */
 		case 'o': do_cmd_open(); break;					/* Open a door or chest */
 		case 'c': do_cmd_close(); break;				/* Close a door */
-		case 'B': do_cmd_bash(); break;					/* Bash a door */
+		/* case 'B': do_cmd_bash(); break;				Bash a door */
 		case 'D': do_cmd_disarm();break;				/* Disarm a trap or chest */
 
 		/*** Magic and Special Abilities ***/
@@ -1186,7 +861,6 @@ static void process_command(void)
 		
 		case 'A': do_cmd_activate(); break;				/* Activate an artifact */
 		case 'E': do_cmd_eat_food(); break;				/* Eat some food */
-		case 'F': do_cmd_refill(); break;				/* Fuel your lantern/torch */
 		case 'f': do_cmd_fire(); break;					/* Fire an item */
 		case 'v': do_cmd_throw(); break;				/* Throw an item */
 		case 'a': do_cmd_aim_wand(); break;				/* Aim a wand */
@@ -1217,6 +891,8 @@ static void process_command(void)
 		case '?': do_cmd_help(); break;					/* Help */
 		case '/': do_cmd_query_symbol(); break;			/* Identify symbol */
 		case 'C': do_cmd_display_character(); break;	/* Character description */
+		case '[': do_cmd_monster_list(); break;		/* Show visible monsters in main-screen */
+		case ']': do_cmd_room_description(); break;	/* Show room description in main-screen */
 
 		/*** System Commands ***/
 		
@@ -1410,19 +1086,30 @@ static void process_player(void)
 		{
 			bool cut = FALSE;
 			bool confused = FALSE; 
+			bool hallu = FALSE;
 
 			/*
 			 * Hack - cuts and confusions might not heal if too high 
-		     * in which case, they should be ignored for the purposes of resting.
+		     	 * in which case, they should be ignored for the purposes of resting.
 			 */
 			if (p_ptr->confused && (p_ptr->confused <= PY_CONF_INSANE)) confused = TRUE;
 			if (p_ptr->cut && (p_ptr->cut <= PY_CUT_MORTAL)) cut = TRUE;
+
+			/* Check if we are wielding a torch */
+			object_type *o_ptr;
+			o_ptr = &inventory[INVEN_LITE];
+			if (p_ptr->image) hallu = TRUE;
+			if (!(o_ptr->tval == TV_LITE))
+			{
+				hallu = FALSE;
+				confused = FALSE;
+			}
 
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp) &&
 			    !p_ptr->blind && !confused && !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !cut && !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall)
+			    !hallu && !p_ptr->word_recall)
 			{
 				disturb(0);
 			}
@@ -1519,7 +1206,7 @@ static void process_player(void)
 			message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
 
 			/* Drop it (carefully) near the player */
-			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px, FALSE);
 
 			/* Modify, Describe, Optimize */
 			inven_item_increase(item, -255);
@@ -1925,10 +1612,30 @@ static void dungeon(void)
 		}
 	}
 
+	/* If min depth > 48, you lose the game */
+	if (p_ptr->min_depth > 48)
+	{
+		message(MSG_GENERIC, 0, "The Thin White Duke takes over Thornwild! You have lost the game.");
+
+		/* Commit suicide */
+		p_ptr->is_dead = TRUE;
+
+		/* Stop playing */
+		p_ptr->playing = FALSE;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+
+		/* Cause of death */
+		strcpy(p_ptr->died_from, "The Duke's world domination");
+	}
+
 	/* Mapping effects? */
 	if (p_ptr->create_up_stair == TRUE)
 	{
-		if (rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP])
+		p_ptr->create_up_stair = FALSE;
+
+		if (rand_int(100) < p_ptr->skill[SK_MAP])
 		{
 			int random_map;
 			random_map = rand_int(4);
@@ -1937,14 +1644,17 @@ static void dungeon(void)
 			{
 				message(MSG_GENERIC, 0, "Some Gnomish adventurers gave you a map leading to this level.");
 				map_area(0, 0);
+				detect_furniture(0, 0, 0);
+				detect_force(0, 0, 0);
 				detect_traps(0, 0, 0);
-				detect_treasure(0, 0, 0);
 			}
 
 			else if (random_map == 1)
 			{
 				message(MSG_GENERIC, 0, "You unfold an old Rattikin map of this area.");
 				map_area(0, 0);
+				detect_furniture(0, 0, 0);
+				detect_force(0, 0, 0);
 				detect_traps(0, 0, 0);
 			}
 
@@ -1952,20 +1662,24 @@ static void dungeon(void)
 			{
 				message(MSG_GENERIC, 0, "You have followed an ancient Dwarven map to this level.");
 				map_area(0, 0);
-				detect_treasure(0, 0, 0);
+				detect_furniture(0, 0, 0);
+				detect_force(0, 0, 0);
+				detect_traps(0, 0, 0);
 			}
 
 			else
 			{
 				message(MSG_GENERIC, 0, "You have a sketchy Orcish map of this place.");
 				detect_traps(0, 0, 0);
+				detect_furniture(0, 0, 0);
+				detect_force(0, 0, 0);
 				detect_doors(0, 0, 0);
 				detect_stairs(0, 0, 0);
 			}
 		}
 		else
 		{
-			message(MSG_GENERIC, 0, "You've mapped a safe path back to surface.");
+			message(MSG_GENERIC, 0, "You remember a safe path back to surface.");
 		}
 
 		/* Reset the mapping bonus */
@@ -2438,9 +2152,6 @@ void play_game(bool new_game)
 				(void)set_image(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
-
-				/* Hack -- Prevent starvation */
-				(void)set_food(PY_FOOD_MAX - 1);
 
 				/* Hack -- cancel recall */
 				if (p_ptr->word_recall)

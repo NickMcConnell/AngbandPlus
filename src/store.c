@@ -140,7 +140,7 @@ static owner_type *ot_ptr = NULL;
  * The "greed" value should exceed 100 when the player is "buying" the
  * object, and should be less than 100 when the player is "selling" it.
  *
- * Hack -- the black market always charges twice as much as it should.
+ * Hack -- the black market always charges 50% more than it should.
  *
  * Charisma adjustment runs from 80 to 130
  * Racial adjustment runs from 95 to 130
@@ -179,7 +179,7 @@ static s32b price_item(const object_type *o_ptr, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == STORE_B_MARKET) price = price / 2;
+		if (store_num == STORE_B_MARKET) price = price / 1.5;
 	}
 
 	/* Shop is selling */
@@ -192,7 +192,7 @@ static s32b price_item(const object_type *o_ptr, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == STORE_B_MARKET) price = price * 2;
+		if (store_num == STORE_B_MARKET) price = price * 1.5;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -236,17 +236,6 @@ static void mass_produce(object_type *o_ptr)
 	/* Analyze the type */
 	switch (o_ptr->tval)
 	{
-		/* Food, Flasks, and Lites */
-		case TV_FOOD:
-		case TV_FLASK:
-		case TV_LITE:
-		case TV_LITE_SPECIAL:
-		{
-			if (cost <= 5L) size += mass_roll(3, 5);
-			if (cost <= 20L) size += mass_roll(3, 5);
-			break;
-		}
-
 		case TV_POTION:
 		case TV_POWDER:
 		case TV_SCROLL:
@@ -404,6 +393,13 @@ static void store_object_absorb(object_type *o_ptr, const object_type *j_ptr, bo
 	{
 		/* Find appropriate stack size */
 		max_num = ((o_ptr->tval == TV_ROD) ? MAX_STACK_ROD : MAX_STACK_TALIS);
+	}
+
+	/* Calculate light items */
+	if (o_ptr->tval == TV_LITE)
+	{
+		/* Find appropriate stack size */
+		max_num = MAX_STACK_LITE;
 	}
 
 	/* Combine quantity, lose excess items */
@@ -1007,8 +1003,9 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
 		{
-			if (i_ptr->sval == SV_TORCH) i_ptr->timeout = FUEL_TORCH / 2;
-			if (i_ptr->sval >= SV_LANTERN) i_ptr->timeout = FUEL_LAMP / 2;
+			if (i_ptr->sval == SV_TORCH) i_ptr->timeout = FUEL_TORCH;
+			if (i_ptr->sval == SV_LANTERN) i_ptr->timeout = FUEL_ENCHANTED;
+			if (i_ptr->sval > SV_LANTERN) i_ptr->timeout = FUEL_EGO;
 		}
 
 		/* The object is fully "known" */
@@ -1037,12 +1034,6 @@ static void store_create(void)
 			/* No "worthless" items */
 			if (object_value(i_ptr) <= 0) continue;
 		}
-
-
-
-
-
-
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(i_ptr);
@@ -1983,6 +1974,7 @@ static void store_examine(void)
 	/* Analyze the weapon */
 	if (weapon_p(o_ptr) || (o_ptr->tval == TV_DIGGING)) analyze_weapon(o_ptr);
 	if (o_ptr->tval == TV_ARROW) analyze_ammo(o_ptr);
+	if ((o_ptr->tval == TV_BODY_ARMOR) || (o_ptr->tval == TV_DRAG_ARMOR)) analyze_armor(o_ptr);
 
 	/* History and description */
 	if (store_num == STORE_HOME)

@@ -62,7 +62,7 @@ static bool int_outof(monster_race *r_ptr, int prob)
 }
 
 /*
- * Check player invisibilty - Returns true if the player is not seen
+ * Check player invisibility - Returns true if the player is not seen
  * Might also mark monster memory
  */
 static bool check_player_visibility(int m_idx)
@@ -518,7 +518,7 @@ static int choose_attack_spell(int m_idx)
 	}
 
 	/* Limit spell choice if outside random monster spell range */
-	if (m_ptr->cdis > (randint(6) + randint(6) + 5))
+	if (m_ptr->cdis > (randint(6) + randint(6) + 4))
 	{
 		/* No spells that require being in range */
 		sf1 &= ~(SRF1_SIGHT_MASK);
@@ -891,18 +891,30 @@ static bool make_attack_spell(int m_idx)
 		/* SRF1_XXX2X4 */
 		case SRF1_OFFSET + 1:
 		{
+			disturb(1);
+			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s throws a dart.", m_name);
+			bolt(m_idx, GF_ARROW, damroll(2, 10));
 			break;
 		}
 
 		/* SRF1_XXX3X4 */
 		case SRF1_OFFSET + 2:
 		{
+			disturb(1);
+			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s throws a javelin.", m_name);
+			bolt(m_idx, GF_ARROW, damroll(4, 10));
 			break;
 		}
 
 		/* SRF1_XXX4X4 */
 		case SRF1_OFFSET + 3:
 		{
+			disturb(1);
+			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s throws a heavy spear.", m_name);
+			bolt(m_idx, GF_ARROW, damroll(8, 10));
 			break;
 		}
 
@@ -912,7 +924,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fires an arrow.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(1, 6));
+			bolt(m_idx, GF_ARROW, damroll(1, 10));
 			break;
 		}
 
@@ -922,7 +934,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fires an arrow!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(3, 6));
+			bolt(m_idx, GF_ARROW, damroll(3, 10));
 			break;
 		}
 
@@ -932,7 +944,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fires a missile.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(5, 6));
+			bolt(m_idx, GF_ARROW, damroll(5, 10));
 			break;
 		}
 
@@ -942,7 +954,7 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s makes a strange noise.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fires a missile!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(7, 6));
+			bolt(m_idx, GF_ARROW, damroll(7, 10));
 			break;
 		}
 
@@ -1881,7 +1893,12 @@ static bool make_attack_spell(int m_idx)
 		{
 			if (!direct) break;
 			disturb(1);
-			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s appears beside you.", m_name);
+
+			if (p_ptr->nexus_y == 0)
+			{
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s appears beside you.", m_name);
+			}
+
 			teleport_monster_to(m_idx, p_ptr->py, p_ptr->px);
 			break;
 		}
@@ -2005,15 +2022,19 @@ static bool make_attack_spell(int m_idx)
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons %s %s.", m_name, m_poss,
 			                (m_ptr->u_idx ? "minions" : "kin"));
 
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			/* Hack -- Set the letter of the monsters to summon */
 			summon_kin_type = r_ptr->d_char;
-			for (k = 0; k < 6; k++)
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_KIN);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_KIN, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_KIN, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2024,7 +2045,12 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons greater demons!", m_name);
-			for (k = 0; k < 8; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 4; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON);
 			}
@@ -2041,6 +2067,11 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons help!", m_name);
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, 0);
@@ -2058,13 +2089,18 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons monsters!", m_name);
-			for (k = 0; k < 8; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, 0);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, 0, "You hear many things appear nearby.");
+				message(MSG_SUMMON, 0, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2075,13 +2111,18 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons natural creatures.", m_name);
-			for (k = 0; k < 5; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANIMALS);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_ANIMALS, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_ANIMALS, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2092,13 +2133,18 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons spiders.", m_name);
-			for (k = 0; k < 6; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_SPIDER, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_SPIDER, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2109,30 +2155,40 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons hounds.", m_name);
-			for (k = 0; k < 6; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HOUND);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_HOUND, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_HOUND, "You hear monsters appear nearby.");
 			}
 			break;
 		}
 
-		/* SRF3_S_HYDRA */
+		/* SRF3_S_FAERY */
 		case SRF3_OFFSET + 23:
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons faeries.", m_name);
-			for (k = 0; k < 6; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_FAERY);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_FAERY, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_FAERY, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2143,13 +2199,18 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons hydras.", m_name);
-			for (k = 0; k < 6; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 3; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			}
 			if (blind && count)
 			{
-				message(MSG_SUMMON, SUMMON_HYDRA, "You hear many things appear nearby.");
+				message(MSG_SUMMON, SUMMON_HYDRA, "You hear monsters appear nearby.");
 			}
 			break;
 		}
@@ -2160,6 +2221,11 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a nameless horror!", m_name);
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HORROR);
@@ -2177,6 +2243,11 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a hellish adversary!", m_name);
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DEMON);
@@ -2194,6 +2265,11 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons an undead adversary!", m_name);
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
@@ -2212,6 +2288,11 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a dragon!", m_name);
 			for (k = 0; k < 1; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 			}
@@ -2228,7 +2309,12 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons greater undead!", m_name);
-			for (k = 0; k < 8; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 5; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 			}
@@ -2245,7 +2331,12 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons ancient dragons!", m_name);
-			for (k = 0; k < 8; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 5; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
 			}
@@ -2262,11 +2353,16 @@ static bool make_attack_spell(int m_idx)
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons special opponents!", m_name);
-			for (k = 0; k < 8; k++)
+
+			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
+			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
+			p_ptr->monster_summon_power++;
+
+			for (k = 0; k < 5; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
 			}
-			for (k = 0; k < 8; k++)
+			for (k = 0; k < 5; k++)
 			{
 				/* Hack - summon hi demons, undead, or dragons */
 				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON + rand_int(3));
@@ -3254,6 +3350,13 @@ static void monster_action(int m_idx)
 	bool did_pass_wall;
 	bool did_kill_wall;
 
+	bool attack_stopped_by_cover;
+
+	char m_name[80];
+
+	/* Get the monster name */
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
 	/* Check if monster saw player this round */
 	mon_not_see_player = check_player_visibility(m_idx);
 
@@ -3273,11 +3376,6 @@ static void monster_action(int m_idx)
 			/* Notice the "waking up" */
 			if (m_ptr->ml)
 			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
 				/* Dump a message */
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s wakes up.", m_name);
 
@@ -3319,11 +3417,6 @@ static void monster_action(int m_idx)
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
 				{
-					char m_name[80];
-
-					/* Get the monster name */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
 					/* Dump a message */
 					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s wakes up.", m_name);
 
@@ -3468,6 +3561,7 @@ static void monster_action(int m_idx)
 	did_kill_body = FALSE;
 	did_pass_wall = FALSE;
 	did_kill_wall = FALSE;
+	attack_stopped_by_cover = FALSE;
 
 	/* Process moves */
 	for (i = 0; i < 5; i++)
@@ -3524,6 +3618,12 @@ static void monster_action(int m_idx)
 
 				/* Notice */
 				cave_set_feat(ny, nx, FEAT_FLOOR);
+
+				/* Check for decorations */
+				if (decoration(ny, nx))
+				{
+					delete_trap(ny, nx);
+				}
 
 				/* Check for traps */
 				if (trap_lock(ny, nx))
@@ -3585,7 +3685,6 @@ static void monster_action(int m_idx)
 			/* Stuck doors -- attempt to bash them down if allowed */
 			if (may_bash && (r_ptr->flags2 & (RF2_BASH_DOOR)))
 			{
-				int k = 2;
  				int mon_power = r_ptr->level;
 
 				/* Reduce monster power depending on health */
@@ -3605,7 +3704,7 @@ static void monster_action(int m_idx)
 				}
 
 				/* Attempt to Bash XXX XXX XXX */
-				if (rand_int(mon_power) > k)
+				if (rand_int(mon_power) > 5 + rand_int(1000))
 				{
 					/* Message */
 					message(MSG_GENERIC, 0, "You hear a door burst open!");
@@ -3627,24 +3726,298 @@ static void monster_action(int m_idx)
 				/* Break down the door */
 				if (did_bash_door && (rand_int(100) < 50))
 				{
-					cave_set_feat(ny, nx, FEAT_BROKEN);
+					cave_set_feat(ny, nx, FEAT_FLOOR);
+
+					/* Remove the lock */
+					delete_trap(ny, nx);
+				}
+
+				/* Handle decorated doors properly */
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_SHELF_CLOSED_DOOR) ||
+					(t_list[cave_t_idx[ny][nx]].w_idx == WG_SHELF_SECRET_DOOR))
+				{
+					place_decoration(ny, nx, WG_SHELF_OPEN_DOOR);
+				}
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_PAINTING_CLOSED_DOOR) ||
+					(t_list[cave_t_idx[ny][nx]].w_idx == WG_PAINTING_SECRET_DOOR))
+				{
+					place_decoration(ny, nx, WG_PAINTING_OPEN_DOOR);
+				}
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_RACK_CLOSED_DOOR) ||
+					(t_list[cave_t_idx[ny][nx]].w_idx == WG_RACK_SECRET_DOOR))
+				{
+					place_decoration(ny, nx, WG_RACK_OPEN_DOOR);
+				}
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_CLOSET_CLOSED_DOOR) ||
+					(t_list[cave_t_idx[ny][nx]].w_idx == WG_CLOSET_SECRET_DOOR))
+				{
+					place_decoration(ny, nx, WG_CLOSET_OPEN_DOOR);
 				}
 
 				/* Open the door */
 				else
 				{
 					cave_set_feat(ny, nx, FEAT_OPEN);
-				}
 
-				/* Remove the lock */
-				delete_trap(ny, nx);
+					/* Remove the lock */
+					delete_trap(ny, nx);
+				}
 
 				/* Handle viewable doors */
 				if (player_has_los_bold(ny, nx)) do_view = TRUE;
 			}
 		}
 
-		/* Check for Glyph of Warding (and traps) */
+		/* Check for terrain that is difficult to move over */
+		/* Also check melee attack penalties due to cover at this time */
+		switch (t_list[cave_t_idx[ny][nx]].w_idx)
+		{
+			case WG_VEGETATION:
+			case WG_INTERESTING_VEGETATION:
+			{
+				if (r_ptr->flags2 & (RF2_NEVER_MOVE)) break;
+
+				/* Vegetation doesn't hinder attacking */
+				if (cave_m_idx[ny][nx] < 0)
+				{
+				}
+				/* Earthbound monsters can't jump */
+				else if (m_ptr->earthbound)
+				{
+					do_move = FALSE;
+				}
+				/* Some monsters pass through vegetation easily */
+				else if (r_ptr->flags2 & (RF2_PASS_VEGETATION))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_PASS_VEGETATION, TRUE);
+				 	break;
+				}
+				/* Some monsters fly over obstacles */
+				else if (r_ptr->flags2 & (RF2_FLYING))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_FLYING, TRUE);
+				 	break;
+				}
+				/* Some monsters are bad at jumping*/
+				else if ((r_ptr->flags2 & (RF2_BAD_JUMPER)) && (rand_int(100) < 80))
+				{
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+				else if ((rand_int(100) < 60) && (do_move))
+				{
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+				else if (do_move)
+				{
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over some bushes.", m_name);
+				}
+				break;
+			}
+			case WG_SPIKES:
+			{
+				if (r_ptr->flags2 & (RF2_NEVER_MOVE)) break;
+
+				/* Spikes do not hinder attacking */
+				if (cave_m_idx[ny][nx] < 0)
+				{
+				}
+				/* Earthbound monsters can't jump */
+				else if (m_ptr->earthbound)
+				{
+					cptr note_dies = " dies.";
+
+					if (rand_int(100) < 85)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on a spike.", m_name);
+					}
+					else
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on spikes, destroying them.", m_name);
+						delete_trap(ny, nx);
+					}
+
+					if (mon_take_hit(m_idx, (randint(10)), &xxx, note_dies))
+					{
+						break;
+					}
+
+					/* Poison */
+					if (!(r_ptr->flags3 & RF3_RES_POIS))
+					{
+						/* Already partially poisoned */
+						if (m_ptr->poisoned)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is more poisoned.", m_name);
+						}
+						/* Was not poisoned */
+						else
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is poisoned.", m_name);
+						}
+
+						m_ptr->poisoned += randint(30) + 10;
+					}
+				}
+				/* Some monsters pass through vegetation easily */
+				else if (r_ptr->flags2 & (RF2_PASS_VEGETATION))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_PASS_VEGETATION, TRUE);
+				 	break;
+				}
+				/* Some monsters fly over obstacles */
+				else if (r_ptr->flags2 & (RF2_FLYING))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_FLYING, TRUE);
+				 	break;
+				}
+				/* Some monsters are bad at jumping*/
+				else if ((r_ptr->flags2 & (RF2_BAD_JUMPER)) && (rand_int(100) < 80))
+				{
+					cptr note_dies = " dies.";
+
+					if (rand_int(100) < 85)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on a spike.", m_name);
+					}
+					else
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on spikes, destroying them.", m_name);
+						delete_trap(ny, nx);
+					}
+
+					if (mon_take_hit(m_idx, (randint(10)), &xxx, note_dies))
+					{
+						break;
+					}
+
+					/* Poison */
+					if (!(r_ptr->flags3 & RF3_RES_POIS))
+					{
+						/* Already partially poisoned */
+						if (m_ptr->poisoned)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is more poisoned.", m_name);
+						}
+						/* Was not poisoned */
+						else
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is poisoned.", m_name);
+						}
+
+						m_ptr->poisoned += randint(30) + 10;
+					}
+				}
+				else if ((rand_int(100) < 60) && (do_move))
+				{
+					cptr note_dies = " dies.";
+
+					if (rand_int(100) < 85)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on a spike.", m_name);
+					}
+					else
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s steps on spikes, destroying them.", m_name);
+						delete_trap(ny, nx);
+					}
+
+					if (mon_take_hit(m_idx, (randint(10)), &xxx, note_dies))
+					{
+						break;
+					}
+
+					/* Poison */
+					if (!(r_ptr->flags3 & RF3_RES_POIS))
+					{
+						/* Already partially poisoned */
+						if (m_ptr->poisoned)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is more poisoned.", m_name);
+						}
+						/* Was not poisoned */
+						else
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is poisoned.", m_name);
+						}
+
+						m_ptr->poisoned += randint(30) + 10;
+					}
+				}
+				else if (do_move)
+				{
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over spikes.", m_name);
+				}
+				break;
+			}
+			case WG_TABLE:
+			case WG_PLATFORM:
+			{
+				/* Some monsters fly over obstacles. Mark the monster memory. */
+				if ((r_ptr->flags2 & (RF2_FLYING)) && (!(m_ptr->earthbound)))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_FLYING, TRUE);
+				 	break;
+				}
+				if (t_list[cave_t_idx[oy][ox]].w_idx == WG_TABLE) break;
+				if (t_list[cave_t_idx[oy][ox]].w_idx == WG_PLATFORM) break;
+				if ((t_list[cave_t_idx[oy][ox]].w_idx >= WG_ALTAR_OBSESSION) &&
+					(t_list[cave_t_idx[oy][ox]].w_idx <= WG_ALTAR_DECEIT)) break;
+
+				/* First check whether lower ground hinders attacking */
+				if (cave_m_idx[ny][nx] < 0)
+				{
+					if (rand_int(5) < 2)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s tries to attack but you easily dodge it.", m_name);
+						attack_stopped_by_cover = TRUE;
+					}
+				}
+				/* Monster cannot move */
+				else if (r_ptr->flags2 & (RF2_NEVER_MOVE)) break;
+				/* Climbing steps never fails */
+				else if (t_list[cave_t_idx[oy][ox]].w_idx == WG_STEPS) break;
+				/* Earthbound monsters can't jump */
+				else if (m_ptr->earthbound)
+				{
+					do_move = FALSE;
+				}
+				/* Some monsters are bad at jumping */
+				else if ((r_ptr->flags2 & (RF2_BAD_JUMPER)) && (rand_int(100) < 80))
+				{
+					lore_learn(m_ptr, LRN_FLAG2, RF2_BAD_JUMPER, TRUE);
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+				/* Check whether movement is stopped */
+				else if ((rand_int(100) < 60) && (do_move))
+				{
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE) && (do_move))
+				{
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the table.", m_name);
+				}
+				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_PLATFORM) && (do_move))
+				{
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the platform.", m_name);
+				}
+
+				break;
+			}
+		}
+
+		/* Check for protection circles and Glyph of Warding (and traps) */
 		if (do_move && (trap_glyph(ny, nx)))
 		{
 			int glyph_power;
@@ -3652,7 +4025,41 @@ static void monster_action(int m_idx)
 			/* Check if a relevant glyph type */
 			if (mon_glyph_check(m_idx, ny, nx))
 			{
-				do_move = FALSE;
+				/* Monsters can often attack player on the edge of protection circles, but not on glyphs */
+				if (!((cave_m_idx[ny][nx] < 0) && (decoration(ny, nx))))
+				{
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+				else
+				{
+					if (rand_int(100) < 50)
+					{
+						do_move = FALSE;
+						do_turn = FALSE;
+
+						/* Message */
+						if (r_ptr->flags4 & RF4_ANIMAL)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fights with an illusionary image of you.", m_name);
+						}
+						if (r_ptr->flags4 & RF4_PERSON)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fights with an illusionary image of you.", m_name);
+						}
+						if (r_ptr->flags4 & RF4_DEMON)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s suddenly feels very weak.", m_name);
+						}
+						if (r_ptr->flags4 & RF4_UNDEAD)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s suddenly feels very weak.", m_name);
+						}
+					}
+				}
+
 				if (t_list[cave_t_idx[ny][nx]].w_idx == WG_GLYPH_LESSER) glyph_power = 150;
 					else glyph_power = 550;
 			}
@@ -3661,8 +4068,8 @@ static void monster_action(int m_idx)
 
 			if (adult_nightmare_mode) glyph_power /= 2;
 
-			/* Break the ward */
-			if (randint(glyph_power) < r_ptr->level)
+			/* Break the ward. Protection circles never break. */
+			if ((randint(glyph_power) < r_ptr->level) && (!(decoration(ny, nx))))
 			{
 				/* Describe observable breakage */
 				if (cave_info[ny][nx] & (CAVE_MARK))
@@ -3677,6 +4084,12 @@ static void monster_action(int m_idx)
 				delete_trap(ny, nx);
 
 				/* Allow movement */
+				do_move = TRUE;
+			}
+
+			/* Small chance of moving on a protection circle */
+			if ((decoration(ny, nx)) && (rand_int(100) < 20))
+			{
 				do_move = TRUE;
 			}
 		}
@@ -3701,8 +4114,12 @@ static void monster_action(int m_idx)
 		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))
 		{
-			/* Do the attack */
-			(void)make_attack_normal(m_idx);
+			/* Don't attack if the attack was stopped by cover */
+			if (!attack_stopped_by_cover)
+			{
+				/* Do the attack */
+				(void)make_attack_normal(m_idx);
+			}
 
 			/* Do not move */
 			do_move = FALSE;
@@ -3793,6 +4210,202 @@ static void monster_action(int m_idx)
 			if ((view_monster_lite) && (r_ptr->flags2 & (RF2_HAS_LITE))) do_view = TRUE;
 
 			/*
+			 * Get hit by Warding Runes? Check all four cardinal directions
+			 **/
+			int i = 0;
+			int x_add = 0;
+			int y_add = 0;
+			int distance = 0;
+
+			/* Obtain monster info */
+			int resist = 1;
+			if (m_ptr->u_idx) resist = 4;
+
+			/* Calculate success chance */
+			int plev = p_ptr->lev;
+			int dam = ((plev > 12) ? plev : 6 + plev/2);
+			int success_chance = 100 - (100*(r_ptr->level + resist + 1)) / ((dam > 5) ? dam * 2 : 10);
+
+			for (i = 1; i < 5; i++)
+			{
+				switch (i)
+				{
+					case 1: y_add = 1; x_add = 0; break;
+					case 2: y_add = -1; x_add = 0; break;
+					case 3: x_add = 1; y_add = 0; break;
+					case 4: x_add = -1; y_add = 0; break;
+				}
+
+				for (distance = 1; distance <= MAX_SIGHT; distance++)
+				{
+					/* Don't continue outside rooms */
+					if (!(cave_info[ny][nx] & (CAVE_ROOM))) break;
+
+					switch (t_list[cave_t_idx[ny+(y_add * distance)][nx+x_add * distance]].w_idx)
+					{
+						case WG_WARD_SLUMBER_ACTIVE_HIDDEN:
+						{
+							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_SLUMBER_ACTIVE);
+							/* Fall through */
+						}
+						case WG_WARD_SLUMBER_ACTIVE:
+						case WG_WARD_SLUMBER_ACTIVE_MASTERED:
+						case WG_WARD_SLUMBER_ACTIVE_INCOMPREHENSIBLE:
+						{
+							if ((r_ptr->flags3 & (RF3_NO_SLEEP)) || (!(success_chance > rand_int(100))))
+							{
+								/* Memorize a flag */
+								if (r_ptr->flags3 & (RF3_NO_SLEEP))
+								{
+									lore_learn(m_ptr, LRN_FLAG3, RF3_NO_SLEEP, FALSE);
+								}
+
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes, but %s resists!", m_name);
+							}
+							else 
+							{
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes. %^s falls asleep!", m_name);
+								m_ptr->sleep = 500;
+							}
+
+							break;
+						}
+						case WG_WARD_TERROR_ACTIVE_HIDDEN:
+						{
+							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_TERROR_ACTIVE);
+							/* Fall through */
+						}
+						case WG_WARD_TERROR_ACTIVE:
+						case WG_WARD_TERROR_ACTIVE_MASTERED:
+						case WG_WARD_TERROR_ACTIVE_INCOMPREHENSIBLE:
+						{
+							if ((r_ptr->flags3 & (RF3_NO_FEAR)) || (!(success_chance > rand_int(100))))
+							{
+								/* Memorize a flag */
+								if (r_ptr->flags3 & (RF3_NO_FEAR))
+								{
+									lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
+								}
+
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes, but %s resists!", m_name);
+							}
+							else 
+							{
+								int do_fear = damroll(3, (dam / 2)) + 1;
+
+								/* Increase fear */
+								int tmp = m_ptr->monfear + do_fear;
+
+								/* Set fear */
+								m_ptr->monfear = (tmp < 200) ? tmp : 200;
+
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes. %^s flees in terror!", m_name);
+							}
+
+							break;
+						}
+						case WG_WARD_CHANGE_ACTIVE_HIDDEN:
+						{
+							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CHANGE_ACTIVE);
+							/* Fall through */
+						}
+						case WG_WARD_CHANGE_ACTIVE:
+						case WG_WARD_CHANGE_ACTIVE_MASTERED:
+						case WG_WARD_CHANGE_ACTIVE_INCOMPREHENSIBLE:
+						{
+							if ((!(success_chance > rand_int(100))) || (m_ptr->u_idx))
+							{
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes, but %s resists!", m_name);
+							}
+							else
+							{
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes. %^s changes!", m_name);
+
+								/* Pick a "new" monster race */
+								int tmp = poly_r_idx(m_ptr->r_idx, dam);
+
+								/* "Kill" the "old" monster */
+								delete_monster_idx(cave_m_idx[ny][nx]);
+
+								/* Create a new monster (no groups) */
+								(void)place_monster_aux(ny, nx+0, tmp, 0, FALSE, FALSE, PLACE_NO_UNIQUE);
+
+								/* Hack -- Assume success XXX XXX XXX */
+
+								/* Hack -- Get new monster */
+								m_ptr = &mon_list[cave_m_idx[ny][nx]];
+
+								/* Hack -- Get new race */
+								r_ptr = &r_info[m_ptr->r_idx];
+							}
+
+							break;
+						}
+						case WG_WARD_DEATH_ACTIVE_HIDDEN:
+						{
+							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_DEATH_ACTIVE);
+							/* Fall through */
+						}
+						case WG_WARD_DEATH_ACTIVE:
+						case WG_WARD_DEATH_ACTIVE_MASTERED:
+						case WG_WARD_DEATH_ACTIVE_INCOMPREHENSIBLE:
+						{
+							if (r_ptr->flags4 & (RF3_NO_CUT))
+							{
+								message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is immune!", m_name);
+								lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
+							}
+							else
+							{
+								/* Already bleeding */
+								if (m_ptr->bleeding)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding more strongly.", m_name);
+								}
+								/* Was not bleeding */
+								else
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding.", m_name);
+								}
+
+								int cut = rand_int(50) + (1.5 * p_ptr->depth);
+								cut = rand_int(50) + 30;
+								m_ptr->bleeding += cut;
+							}
+
+							break;
+						}
+						case WG_WARD_CURSING_ACTIVE_HIDDEN:
+						{
+							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CURSING_ACTIVE);
+							/* Fall through */
+						}
+						case WG_WARD_CURSING_ACTIVE:
+						case WG_WARD_CURSING_ACTIVE_MASTERED:
+						case WG_WARD_CURSING_ACTIVE_INCOMPREHENSIBLE:
+						{
+							if ((!(success_chance > rand_int(100))) || (m_ptr->cursed))
+							{
+								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Evil Eye flashes but %s resists!", m_name);
+							}
+							else 
+							{
+								/* Set fear */
+								m_ptr->cursed = 1;
+
+								message_format(MSG_FLEE, m_ptr->r_idx, "A Rune of Evil Eye flashes. %^s is cursed!", m_name);
+							}
+
+							break;
+						}
+					}
+
+					/* Don't continue through walls */
+					if (!cave_floor_bold((ny + (y_add * distance)), (nx + (x_add * distance)))) break;
+				}
+			}
+
+			/*
 			 * Monster traps, taken from Oangband for now.
 			 */
 			if ((trap_monster(ny, nx)) && !(trap_lock(ny, nx)) && !(trap_glyph(ny, nx)))
@@ -3806,7 +4419,7 @@ static void monster_action(int m_idx)
 						/* Acquire the monster name */
 						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-						message_format(MSG_MISS, m_ptr->r_idx, "%s finds your trap and disarms it.", m_name);
+						message_format(MSG_MISS, m_ptr->r_idx, "%^s finds your trap and disarms it.", m_name);
 					}
 
 					/* Kill the trap */
@@ -3823,7 +4436,7 @@ static void monster_action(int m_idx)
 						/* Acquire the monster name/poss */
 						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-						message_format(MSG_MISS, m_ptr->r_idx, "%s passes through your trap.", m_name);
+						message_format(MSG_MISS, m_ptr->r_idx, "%^s passes through your trap.", m_name);
 					}
 				}
 
@@ -3847,7 +4460,7 @@ static void monster_action(int m_idx)
 						/* Default name */
 						else strcpy(m_name, "Something");
 
-						message_format(MSG_HIT, m_ptr->r_idx, "%s sets off your cunning trap!", m_name);
+						message_format(MSG_HIT, m_ptr->r_idx, "%^s sets off your cunning trap!", m_name);
 
 						t_list[cave_t_idx[ny][nx]].visible = TRUE;
 					}
@@ -3920,7 +4533,7 @@ static void monster_action(int m_idx)
 					if (slays[SL_ANTI_PLANT])		flg4 |= (RF4_PLANT);
 					if (slays[SL_ANTI_FAERY])		flg4 |= (RF4_FAERY);
 					if (slays[SL_ANTI_DEMON])		flg4 |= (RF4_DEMON);
-					if (slays[SL_ANTI_CHAOS])		flg4 |= (RF4_CHAOTIC);
+					if (slays[SL_ANTI_CHAOS])		flg4 |= (RF4_CHAOS);
 					if (slays[SL_ANTI_EVIL])		flg4 |= (RF4_EVIL);
 					if (slays[SL_BRAND_ELEC])		flg2 |= (RF2_HURT_ELEC);
 					if (slays[SL_BRAND_ACID])		flg2 |= (RF2_HURT_ACID);
@@ -4055,19 +4668,39 @@ static void monster_action(int m_idx)
 	/* Hack -- get "bold" if out of options */
 	if (!do_turn && !do_move && m_ptr->monfear)
 	{
-		/* No longer afraid */
-		m_ptr->monfear = 0;
-
-		/* Message if seen */
-		if (m_ptr->ml)
+		if (rand_int(6) < 1)
 		{
-			char m_name[80];
+			/* No longer afraid */
+			m_ptr->monfear = 0;
 
-			/* Get the monster name */
-			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+			/* Message if seen */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
 
-			/* Dump a message */
-			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s turns to fight!", m_name);
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s turns to fight!", m_name);
+			}
+		}
+		else
+		{
+			/* Spend the turn doing nothing */
+			do_turn = TRUE;
+
+			/* Message if seen */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+				/* Dump a message */
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s trembles in fear.", m_name);
+			}
 		}
 	}
 }
@@ -4372,6 +5005,34 @@ void process_monsters_status(void)
 			}
 		}
 
+		/* Handle earthbind */
+		if (m_ptr->earthbound)
+		{
+			d = randint(r_ptr->level / 10 + 1);
+
+			/* Still confused */
+			if (m_ptr->earthbound > d) m_ptr->earthbound -= d;
+
+			/* Recovered */
+			else
+			{
+				/* No longer confused */
+				m_ptr->earthbound = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer earthbound.", m_name);
+				}
+			}
+		}
+
 		/* Handle blindness */
 		if (m_ptr->blinded)
 		{
@@ -4447,7 +5108,10 @@ void process_monsters_status(void)
 			if (p_ptr->aggravate) d = m_ptr->calmed;
 
 			/* Still calmed */
-			if (m_ptr->calmed > d) m_ptr->calmed -= d;
+			if (m_ptr->calmed > d)
+			{
+				if (rand_int(100) < 25) m_ptr->calmed -= d;
+			}
 
 			/* Recover from passivity, take note if seen */
 			else

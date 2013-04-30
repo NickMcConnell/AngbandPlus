@@ -2421,12 +2421,12 @@ static long total_points(void)
 	float multiplier;
 	if (p_ptr->total_winner)
 	{
-		multiplier = ((120-p_ptr->min_depth)*(120-p_ptr->min_depth));
+		multiplier = ((60-p_ptr->min_depth)*(60-p_ptr->min_depth));
 	}
-	else multiplier = 400;
+	else multiplier = 100;
 
 	/* A little hack to get around the integers. */
-	p = (p*multiplier)/400;
+	p = (p*multiplier)/100;
 	return p;
 }
 

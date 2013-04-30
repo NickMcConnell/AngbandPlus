@@ -282,94 +282,11 @@ bool curse_minor(void)
 bool lose_all_info(void)
 {
 	int i;
-	object_type *o_ptr;
-
-	/* Forget info about objects in the inventory/equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & (IDENT_MENTAL)) continue;
-
-		/* Allow saving throw */
-		if (rand_int(50) < p_stat(A_INT)) continue;
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~(IDENT_SENSE);
-
-		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~(IDENT_KNOWN);
-
-		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
-	}
-
-	/* Check all the objects at home*/
-	for (i = 0; i < store[STORE_HOME].stock_num; i++)
-	{
-		/* Get the existing object */
-		o_ptr = &(store[STORE_HOME].stock[i]);
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & (IDENT_MENTAL)) continue;
-
-		/* Allow saving throw */
-		if (rand_int(50) < p_stat(A_INT)) continue;
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~(IDENT_SENSE);
-
-		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~(IDENT_KNOWN);
-
-		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
-	}
-
-	/* Forget info about objects in the dungeon */
-	for (i = 0; i < o_max; i++)
-	{
-		o_ptr = &o_list[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & (IDENT_MENTAL)) continue;
-
-		/* Allow saving throw */
-		if (rand_int(50) < p_stat(A_INT)) continue;
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~(IDENT_SENSE);
-
-		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~(IDENT_KNOWN);
-
-		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
-	}
 
 	/* Forget all traps */
 	for (i = 0; i < t_max; i++)
 	{
-		if (!w_info[t_list[i].w_idx].flags & WGF_GLYPH) 
+		if ((!(w_info[t_list[i].w_idx].flags & WGF_GLYPH)) && (!(w_info[t_list[i].w_idx].flags & WGF_DECORATION)))
 			t_list[i].visible = FALSE;
 	}
 
@@ -425,58 +342,27 @@ void set_recall(void)
  */
 void phlogiston(void)
 {
-/*	int max_flog;
-	object_type *o_ptr = &p_ptr->equipment[EQUIP_LITE];
-	cptr lite_item = NULL;		*/
-
-	int max_flog;
 	object_type *o_ptr = &inventory[INVEN_LITE];
-	cptr lite_item = NULL;
-
-
-	/* It's a lamp */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LANTERN | SV_LANTERN_SHADOWS | SV_LANTERN_INFRAVISION | SV_LANTERN_BRIGHTNESS | SV_LANTERN_SIGHT | SV_LANTERN_FEARLESS | SV_LANTERN_INT | SV_LANTERN_WIS | SV_LANTERN_TELEPATHY | SV_LANTERN_TIME | SV_LANTERN_CHERADENINE))
-	{
-		max_flog = FUEL_LAMP;
-
-		/* Remember what the item is */
-		lite_item = "lantern";
-	}
-
-	/* It's a torch */
-	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_TORCH))
-	{
-		max_flog = FUEL_TORCH;
-
-		/* Remember what the item is */
-		lite_item = "torch";
-	}
 
 	/* No torch to refill */
-	else
+	if (!(o_ptr->tval == TV_LITE))
 	{
-		message(MSG_EFFECT, 0, "You are not wielding anything which uses phlogiston.");
+		message(MSG_EFFECT, 0, "You are not wielding a torch.");
 		return;
 	}
 
-	if (o_ptr->timeout >= max_flog)
+	if (p_ptr->cur_lite > 3)
 	{
-		message(MSG_EFFECT, 0, "No more phlogiston can be put in this light.");
+		message(MSG_EFFECT, 0, "Your torch is already burning at maximum brightness.");
 		return;
 	}
 
-	/* Refuel */
-	o_ptr->timeout += (max_flog / 2);
+	/* Phlogiston makes the torch brighter but consumes fuel */
+	o_ptr->timeout = (o_ptr->timeout * 3)/5;
+	p_ptr->phlogiston ++;
 
 	/* Message */
-	message(MSG_EFFECT, 0, "You add phlogiston to your light.");
-
-	/* Comment */
-	if (o_ptr->timeout >= max_flog)
-	{
-		o_ptr->timeout = max_flog;
-		message(MSG_EFFECT, 0, "Your light is full.");
-	}
+	message(MSG_EFFECT, 0, "Your torch starts to burn with greater intensity!");
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
@@ -647,6 +533,12 @@ bool detect_traps(int animate, int x_adjust, int y_adjust)
 
 		/* Only detect nearby traps */
 		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Convert invisible Warding Runes to visible */
+		if (t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE_HIDDEN)
+		{
+			place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx -30);
+		}
 
 		/* Set to visible */
 		t_list[i].visible = TRUE;
@@ -1489,6 +1381,551 @@ bool detect_monsters_evil(int animate)
 }
 
 /*
+ * Detect all altars, magic circles, warding runes, and magical traps nearby
+ */
+bool detect_force(int animate, int x_adjust, int y_adjust)
+{
+	int i, y, x;
+	int x1, x2, y1, y2;
+
+	bool flag = FALSE;
+
+	if (animate) animate_detect(0, y_adjust, x_adjust);
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 11 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 33 + x_adjust;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Scan traps */
+	for (i = 1; i < t_max; i++)
+	{
+		trap_type *t_ptr = &t_list[i];
+
+		/* Skip dead traps */
+		if (!t_ptr->w_idx) continue;
+
+		/* Location */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
+
+		/* Only detect nearby traps */
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Convert invisible Warding Runes to visible */
+		if (t_list[cave_t_idx[y][x]].w_idx >= WG_WARD_SLUMBER_ACTIVE_HIDDEN)
+		{
+			place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx -30);
+		}
+
+		/* Only detect some decorations */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_SUMMON)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_TELE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_FORGET)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_CURSE1)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_CURSE2)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RUNE_SHRIEK)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_GLYPH)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_GLYPH_LESSER)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_GLYPH_HOLY)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_MAGIC_LOCK)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ANTI_MONSTER)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_LIFEFORCE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_LIFE_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_LIFE_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_PERMANENCE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_PERM_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_PERM_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_RECALL)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_RECALL_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_RECALL_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_SUMMONING)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_SUMMON_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_SUMMON_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_FAERY_PORTAL)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_KNOWLEDGE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_KNOW_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_KNOW_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_OBSESSION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_CONFLICT)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_PURITY)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_TRANSFORMATION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_DECEIT)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_ILLUSIONS)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_ILLU_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_ILLU_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_NEXUS)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_NEXUS_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_NEXUS_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx >= WG_FOUNTAIN_HARPY)
+		{
+			/* All fountains and warding runes */
+		}
+		else continue;
+
+		/* Set to visible */
+		t_list[i].visible = TRUE;
+
+		flag = TRUE;
+
+		/* Hack -- Memorize */
+		cave_info[y][x] |= (CAVE_MARK);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		message(MSG_DETECT, 0, "You sense the presence of force!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all altars, magic circles, tables, faery portals, vegetation, and trees nearby
+ */
+bool detect_furniture(int animate, int x_adjust, int y_adjust)
+{
+	int i, y, x;
+	int x1, x2, y1, y2;
+
+	bool flag = FALSE;
+
+	if (animate) animate_detect(0, y_adjust, x_adjust);
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 11 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 33 + x_adjust;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Scan traps */
+	for (i = 1; i < t_max; i++)
+	{
+		trap_type *t_ptr = &t_list[i];
+
+		/* Skip dead traps */
+		if (!t_ptr->w_idx) continue;
+
+		/* Location */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
+
+		/* Only detect some decorations */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_LIFEFORCE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_LIFE_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_LIFE_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_PERMANENCE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_PERM_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_PERM_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_RECALL)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_RECALL_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_RECALL_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_SUMMONING)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_SUMMON_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_SUMMON_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_FAERY_PORTAL)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_KNOWLEDGE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_KNOW_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_KNOW_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_OBSESSION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_CONFLICT)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_PURITY)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_TRANSFORMATION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_ALTAR_DECEIT)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_BROKEN_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_ILLUSIONS)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_ILLU_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_ILLU_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_OF_NEXUS)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_NEXUS_EDGE_A)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CIRCLE_NEXUS_EDGE_B)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_TABLE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_TREE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_VEGETATION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_INTERESTING_VEGETATION)
+		{
+		}
+		else continue;
+
+		/* Only detect nearby traps */
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Set to visible */
+		t_list[i].visible = TRUE;
+
+		flag = TRUE;
+
+		/* Hack -- Memorize */
+		cave_info[y][x] |= (CAVE_MARK);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		message(MSG_DETECT, 0, "You sense some dungeon features!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
+ * Detect all "living" monsters, vegetation, and trees nearby
+ */
+bool detect_life(int animate)
+{
+	int i, y, x;
+	int x1, x2, y1, y2;
+
+	bool flag = FALSE;
+
+	if (animate) animate_detect(0, 0, 0);
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		r_ptr = get_monster_real(m_ptr);
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Detect living monsters */
+		if (r_ptr->flags4 & (RF4_LIVING))
+		{
+			/* Update monster recall window */
+			if (term_mon_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Take note */
+			lore_learn(m_ptr, LRN_FLAG2, RF2_INVISIBLE, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Scan traps */
+	for (i = 1; i < t_max; i++)
+	{
+		trap_type *t_ptr = &t_list[i];
+
+		/* Skip dead traps */
+		if (!t_ptr->w_idx) continue;
+
+		/* Location */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
+
+		/* Only detect nearby traps */
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Only detect some decorations */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_TREE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_VEGETATION)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_INTERESTING_VEGETATION)
+		{
+		}
+		else continue;
+
+		/* Set to visible */
+		t_list[i].visible = TRUE;
+
+		flag = TRUE;
+
+		/* Hack -- Memorize */
+		cave_info[y][x] |= (CAVE_MARK);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+		
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		message(MSG_DETECT, 0, "You sense the presence of life!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
  * Detect everything but traps
  */
 bool detect_all(int animate)
@@ -1601,14 +2038,12 @@ bool item_tester_hook_bookmusic(const object_type *o_ptr)
 	}
 	else if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
 	{
-		return (((o_ptr->tval == TV_MUSIC) && (cp_ptr->flags & CF_MUSIC)) ||
-			((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval]) &&
+		return (((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval]) &&
 			(books[o_ptr->sval].flags & SBF_MYSTIC)));
 	}
 	else
 	{
-		return (((o_ptr->tval == TV_MUSIC) && (cp_ptr->flags & CF_MUSIC)) ||
-			((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval])));
+		return ((o_ptr->tval == TV_MAGIC_BOOK) && (cp_ptr->spell_book[o_ptr->sval]));
 	}
 }
 
@@ -1987,6 +2422,22 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			else (act = "is covered in a holy aura!"); 
 			break;
 		}
+		case EGO_HURT_DRAGON:
+		case EGO_SLAY_DRAGON:
+		{
+			/* Make sure you don't give an inappropriate brand */
+			if (o_ptr->tval == TV_ARROW) brand_type = EGO_HURT_DRAGON;
+			else
+			{
+				brand_type = EGO_SLAY_DRAGON;
+
+				/* Give it a CON bonus. */
+				o_ptr->pval = randint(4);
+			}
+			if (o_ptr->number > 1) act = "are covered in midnight black poison!";
+			else (act = "is covered in midnight black poison!"); 
+			break;
+		}
 		default:
 		{
 			/* Paranoia */
@@ -2044,9 +2495,6 @@ void ident_aux(int item)
 	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
-
-	/* Mark the item as fully known */
-	if ((cp_ptr->flags & CF_LORE) && o_ptr->a_idx) artifact_known(&a_info[o_ptr->a_idx]);
 
 	/* Mark the artifact as "aware" */
 	if (o_ptr->a_idx) artifact_aware(&a_info[o_ptr->a_idx]);
@@ -3362,7 +3810,7 @@ static void cave_temp_room_lite(void)
  *
  * This routine is used (only) by "unlite_room()"
  */
-static void cave_temp_room_unlite(void)
+void cave_temp_room_unlite(void)
 {
 	int i;
 
@@ -3432,7 +3880,7 @@ static void cave_temp_room_aux(int y, int x)
 /*
  * Illuminate any room containing the given location.
  */
-static void lite_room(int y1, int x1)
+void lite_room(int y1, int x1)
 {
 	int i, x, y;
 
@@ -3689,10 +4137,16 @@ bool lite_line(int dir, int dam)
 	return (project_hook(GF_LITE_WEAK, dir, dam, flg));
 }
 
+bool starlite_line(int dir, int dam)
+{
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+	return (project_hook(GF_STARLITE, dir, dam, flg));
+}
+
 bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
+	return (project_hook(GF_KILL_WALL, dir, 100, flg));
 }
 
 bool destroy_door(int dir)
