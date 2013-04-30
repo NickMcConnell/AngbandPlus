@@ -297,7 +297,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 					(*f3) |= TR3_HEAVY_CURSE;
 					/* Fall through */
 				case TR3_HUNGER:
-				case TR3_TELEPORT:
+				case TR3_UNCONTROLLED:
 				case TR3_DRAIN_MANA:
 				case TR3_DRAIN_HP:
 				case TR3_DRAIN_EXP:
@@ -376,6 +376,8 @@ void object_obvious_flags(object_type *o_ptr)
                 object_can_flags(o_ptr, f1, f2, f3, f4);
 
                 object_not_flags(o_ptr, ~(f1), ~(f2), ~(f3), ~(f4));
+
+		return;
         }
 
 	/* Abilities of base item are always known if aware */
@@ -458,7 +460,6 @@ void object_obvious_flags(object_type *o_ptr)
 		}
 	}
 
-	/* Hack: if it stays that way, please remove the code from do_cmd_wield */
 	/* Throwing is always obvious */
 	if (f3 & TR3_THROWING)
 	{
@@ -1073,7 +1074,36 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags2 & (SF2_CURSE_WEAPON)) vp[vn++] = "curses your weapon";
 	if (s_ptr->flags2 & (SF2_CURSE_ARMOR)) vp[vn++] = "curses your armor";
 	if (s_ptr->flags2 & (SF2_AGGRAVATE)) vp[vn++] = "wakes up nearby monsters and hastes those in line of sight";
-	if (s_ptr->type == SPELL_SUMMON) vp[vn++] = "summons monsters";
+	if (s_ptr->type == SPELL_SUMMON)
+	{
+		switch(s_ptr->param)
+		{
+			case SUMMON_KIN: vp[vn++] = "summons kindred monsters"; break;
+			case SUMMON_PLANT: vp[vn++] = "summons plants"; break;
+			case SUMMON_INSECT: vp[vn++] = "summons insects"; break;
+			case SUMMON_ANIMAL: vp[vn++] = "summons animals"; break;
+			case SUMMON_HOUND: vp[vn++] = "summons hounds"; break;
+			case SUMMON_SPIDER: vp[vn++] = "summons spiders"; break;
+			case SUMMON_CLASS: vp[vn++] = "summons related classes"; break;
+			case SUMMON_RACE: vp[vn++] = "summons related races"; break;
+			case SUMMON_GROUP: vp[vn++] = "summons related monsters"; break;
+			case SUMMON_FRIEND: vp[vn++] = "summons related monsters"; break;
+			case SUMMON_UNIQUE_FRIEND : vp[vn++] = "summons related uniques"; break;
+			case SUMMON_ORC: vp[vn++] = "summons orcs"; break;
+			case SUMMON_TROLL: vp[vn++] = "summons trolls"; break;
+			case SUMMON_GIANT: vp[vn++] = "summons giants"; break;
+			case SUMMON_DRAGON: vp[vn++] = "summons dragons"; break;
+			case SUMMON_HI_DRAGON: vp[vn++] = "summons high dragons"; break;
+			case SUMMON_DEMON: vp[vn++] = "summons demons"; break;
+			case SUMMON_HI_DEMON: vp[vn++] = "summons high demons"; break;
+			case SUMMON_UNIQUE: vp[vn++] = "summons uniques"; break;
+			case SUMMON_HI_UNIQUE: vp[vn++] = "summons high uniques"; break;
+			case SUMMON_UNDEAD: vp[vn++] = "summons undead"; break;
+			case SUMMON_HI_UNDEAD: vp[vn++] = "summons high undead"; break;
+			case SUMMON_WRAITH: vp[vn++] = "summons wraiths"; break;
+			default: vp[vn++] = "summons monsters"; break;
+		}
+	}
 	if (s_ptr->type == SPELL_SUMMON_RACE) vp[vn++] = format("summons %s%s",
 		is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
 		r_name+r_info[s_ptr->param].name);
@@ -1106,11 +1136,13 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->type == SPELL_CONCENTRATE_LIFE) vp[vn++] = "concentrates life around you";
 	if (s_ptr->type == SPELL_CONCENTRATE_WATER) vp[vn++] = "concentrates water around you";
 	if (s_ptr->type == SPELL_RELEASE_CURSE) vp[vn++] = "releases a curse from an item";
-	if (s_ptr->type == SPELL_WONDER) vp[vn++] = "creates random magics";
 	if (s_ptr->type == SPELL_SET_RETURN) vp[vn++] = "marks this grid as a destination for later return";
 	if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN) vp[vn++] = "marks this grid as a destination for later return or returns you to a marked grid";
 	if (s_ptr->type == SPELL_BLOOD_BOND) vp[vn++] = "bonds you with a living creature to share damage and healing";
 	if (s_ptr->type == SPELL_MINDS_EYE) vp[vn++] = "bonds you with a mind to allow you to see through its eyes";
+	if (s_ptr->type == SPELL_CHANGE_SHAPE) vp[vn++] = format("changes you into a %s",p_name + p_info[s_ptr->param].name);
+	if (s_ptr->type == SPELL_REVERT_SHAPE) vp[vn++] = "returns you to your normal form";
+	if (s_ptr->type == SPELL_REFUEL) vp[vn++] = "fuels a torch";
 
 	/* Describe miscellaneous effects */
 	if (vn)
@@ -1346,7 +1378,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_ANIM_OBJECT: q = "animate objects"; break;
 			case GF_CLONE: q = "clone";break;
 			case GF_POLY: q = "polymorph";break;
-			case GF_HEAL: q = "heal";break;
+			case GF_HEAL: case GF_HEAL_PERC: q = "heal";break;
 			case GF_HASTE: q = "hasten";break;
 			case GF_SLOW_WEAK: q = "slow";break;
 			case GF_CONF_WEAK: q = "confuse";break;
@@ -1398,7 +1430,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_BATTER:		q = "batter"; break;
 			case GF_BLIND_WEAK:		q = "blind"; break;
 			case GF_RAISE_DEAD: q = "raise dead"; break;
-			case GF_GAIN_MANA:	q = "add"; s= "mana to"; break;
+			case GF_GAIN_MANA: case GF_GAIN_MANA_PERC:	q = "add"; s= "mana to"; break;
 			case GF_FORGET:		q = "forget"; break;
 			case GF_CURSE:		q = "curse"; break;
 			case GF_DISPEL:		q = "remove"; s = "enchantments from"; break;
@@ -1603,16 +1635,19 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_BIND_UNDEAD:
 			case GF_BIND_FAMILIAR:
 			case GF_RAGE:
+			case GF_DARK_WEAK:
 								text_out("power"); break;
 			case GF_SNUFF: text_out("maximum ");
+			case GF_HEAL_PERC: text_out("percentage ");
 			case GF_HEAL: text_out("hit points"); break;
 			case GF_AWAY_ALL:
+			case GF_AWAY_EVIL:
+			case GF_AWAY_UNDEAD:
+							text_out("distance on average"); break;
 			case GF_AWAY_JUMP:
 			case GF_AWAY_DARK:
 			case GF_AWAY_NATURE:
 			case GF_AWAY_FIRE:
-			case GF_AWAY_EVIL:
-			case GF_AWAY_UNDEAD:
 			{
 				text_out("distance on average");
 
@@ -1629,6 +1664,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 				}
 				break;
 			}
+			case GF_GAIN_MANA_PERC: text_out("percentage ");
 			case GF_LOSE_MANA:
 			case GF_MANA_DRAIN:
 			case GF_GAIN_MANA: text_out("spell points"); break;
@@ -1798,9 +1834,11 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 			case GF_BIND_UNDEAD:
 			case GF_BIND_FAMILIAR:
 			case GF_RAGE:
+			case GF_DARK_WEAK:
 								q = "pow"; break;
 			case GF_SNUFF: q = "max hp"; break;
 			case GF_HEAL: q = "heal"; break;
+			case GF_HEAL_PERC: q = "heal %"; break;			
 			case GF_AWAY_ALL:
 			case GF_AWAY_JUMP:
 			case GF_AWAY_DARK:
@@ -1812,6 +1850,7 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 			case GF_LOSE_MANA:
 			case GF_MANA_DRAIN:
 			case GF_GAIN_MANA: q = "mana"; break;
+			case GF_GAIN_MANA_PERC: q = "mana %"; break;
 			default: q="dam"; break;
 		}
 
@@ -2179,7 +2218,7 @@ static const o_flag_desc ignore_flags2_desc[] =
 static const o_flag_desc bad_flags3_desc[] =
 {
 	{ TR3_HUNGER,		"hunger" },
-	{ TR3_TELEPORT,		"random teleportation" },
+	{ TR3_UNCONTROLLED,		"random and uncontrolled activation" },
 	{ TR3_AGGRAVATE,	"aggravation" },
 	{ TR3_DRAIN_HP,		"health drain" },
 	{ TR3_DRAIN_MANA,       "mana drain" },
@@ -2265,7 +2304,7 @@ void screen_object(object_type *o_ptr)
         else list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display monster attributes */
-	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(o_ptr->name3);
+	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(&r_info[o_ptr->name3],&l_list[o_ptr->name3]);
 
 	/* Display item name */
 	obj_top(o_ptr);
@@ -3152,9 +3191,6 @@ void list_object(const object_type *o_ptr, int mode)
 				text_out(t_name + t_info[o_ptr->sval].name);
 				text_out(format(" (levels %d", min_depth(o_ptr->sval)));
 				if (max_depth(o_ptr->sval) > min_depth(o_ptr->sval)) text_out(format("-%d",max_depth(o_ptr->sval)));
-				text_out(") from ");
-				if (adult_campaign) text_out(t_name + t_info[t_info[o_ptr->sval].nearby].name);
-				else text_out(t_name + t_info[0].name);
 				text_out(" with this.  ");
 				anything = TRUE;
 				break;
@@ -3505,6 +3541,7 @@ void list_object(const object_type *o_ptr, int mode)
 				/* Display powers */
 				for (i = 0; i < num; i++)
 				{
+					/* List powers */
 					powers |= spell_desc(&s_info[book[i]],(i==0) ? (vd[n] ? " and ": vp[n]) : ", or ",0,detail, vt[n]);
 				}
 
@@ -3956,7 +3993,7 @@ void display_koff(const object_type *o_ptr)
 	list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display monster attributes */
-	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(o_ptr->name3);
+	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(&r_info[o_ptr->name3], &l_list[o_ptr->name3]);
 
 	/* Display item name */
 	obj_top(o_ptr);
@@ -5027,7 +5064,6 @@ void drop_all_flags(object_type *o_ptr)
 	o_ptr->not_flags4 = 0L;
 
 	return;	
-
 }
 
 /*
@@ -6375,7 +6411,7 @@ s32b object_power(const object_type *o_ptr)
 	/* Add bonus for sustains getting 'high_resists-lock' */
 	if (high_resists > 1) p += high_resists * high_resists / 2;
 
-	ADD_POWER("teleportation",	 -40, TR3_TELEPORT, 3,);
+	ADD_POWER("random and uncontrolled activation",	 -40, TR3_UNCONTROLLED, 3,);
 	ADD_POWER("drain experience",	 -20, TR3_DRAIN_EXP, 3,);
 
 	ADD_POWER("drain health",	 -20, TR3_DRAIN_HP, 3,);

@@ -2378,23 +2378,16 @@ bool set_rest(int v)
 }
 
 
-
 /*
  * Mark items as aware as a result of gaining a level.
  */
 void improve_aware(void)
 {
 	int i;
-
-	int aware_amulet=-1;
-	int aware_ring=-1;
-	int aware_wand=-1;
-	int aware_staff=-1;
-	int aware_potion=-1;
-	int aware_scroll=-1;
-
-	u32b aware_style;
-
+	int awareness = -1;
+	int tip_count_start = 0;
+	int tip_count = 0;
+	
 	/* Hack -- Check for id'ed */
 	for (i=1;i<z_info->w_max;i++)
 	{
@@ -2404,85 +2397,49 @@ void improve_aware(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-		aware_style = (w_info[i].styles & (1L << p_ptr->pstyle));
-								   
-		if (aware_style & (1L << WS_WAND)) aware_wand = 2*(p_ptr->lev - w_info[i].level)+1;
+		if ((w_info[i].styles & (1L << p_ptr->pstyle)) == 0) continue;
+		
+		awareness = 2*(p_ptr->lev - w_info[i].level)+1;
+	}
 
-		if (aware_style & (1L << WS_STAFF)) aware_staff = 2*(p_ptr->lev - w_info[i].level)+1;
-
-		if (aware_style & (1L << WS_POTION)) aware_potion = 2*(p_ptr->lev - w_info[i].level)+1;
-
-		if (aware_style & (1L << WS_SCROLL)) aware_scroll = 2*(p_ptr->lev - w_info[i].level)+1;
-
-		if (aware_style & (1L << WS_RING)) aware_ring = 2*(p_ptr->lev - w_info[i].level)+1;
-
-		if (aware_style & (1L << WS_AMULET)) aware_amulet = 2*(p_ptr->lev - w_info[i].level)+1;
-
-	 }
-
+	/* Hack -- efficiency for tips */
+	for (i=1;i<z_info->k_max;i++)
+	{
+		/*Already aware */
+		if (k_info[i].aware) continue;
+		
+		/* Check awareness */
+		if (k_info[i].tval == style2tval[p_ptr->pstyle])
+		{
+			tip_count_start++;
+		}
+	}
+	
 	/* Hack -- Check for id'ed */
 	for (i=1;i<z_info->k_max;i++)
 	{
 		/*Already aware */
 		if (k_info[i].aware) continue;
 
-		switch (k_info[i].tval)
+		/* Check for awareness */
+		if (k_info[i].level > awareness) continue;
+		
+		/* Check awareness */
+		if (k_info[i].tval == style2tval[p_ptr->pstyle])
 		{
-			case TV_WAND:
-			{
-				if (k_info[i].level <= aware_wand)
-				{
-					k_info[i].aware=TRUE;
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
-			case TV_STAFF:
-			{
-				if (k_info[i].level <= aware_staff) 
-				{
-					k_info[i].aware=TRUE;					
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
-			case TV_POTION:
-			{
-				if (k_info[i].level <= aware_potion) 
-				{
-					k_info[i].aware=TRUE;
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
-			case TV_SCROLL:
-			{
-				if (k_info[i].level <= aware_scroll) 
-				{
-					k_info[i].aware=TRUE;
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
-			case TV_RING:
-			{
-				if (k_info[i].level <= aware_ring) 
-				{
-					k_info[i].aware=TRUE;
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
-			case TV_AMULET:
-			{
-				if (k_info[i].level <= aware_amulet) 
-				{
-					k_info[i].aware=TRUE;
-					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-				}
-				break;
-			}
+			queue_tip(format("kind%d.txt", i));
+			k_info[i].aware=TRUE;
+			p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+			
+			tip_count++;
 		}
+	}
+	
+	/* Show all tval tips */
+	for(i = tip_count_start; i < tip_count_start + tip_count; i++)
+	{
+		/* Show tips */
+		queue_tip(format("tval%d-%d.txt", style2tval[p_ptr->pstyle], i));
 	}
 }
 
@@ -2740,12 +2697,13 @@ void check_experience(void)
 		handle_stuff();
 	}
 
-
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
 			       p_ptr->expfact / 100L)))
 	{
+		int i;
+
 		/* Gain a level */
 		p_ptr->lev++;
 
@@ -2755,11 +2713,27 @@ void check_experience(void)
 		/* Improve awareness */
 		if (p_ptr->lev > p_ptr->max_lev) improve_aware();
 
-		/* Save the highest level */
-		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
-
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
+
+		/* Show all tips for intermediate levels */
+		for (i = p_ptr->max_lev; i <= p_ptr->lev; i++)
+		{
+			/* Level tips */
+			queue_tip(format("level%d.txt", p_ptr->prace, i));
+
+			/* Race tips */
+			queue_tip(format("race%d-%d.txt", p_ptr->prace, i));
+
+			/* Class tips */
+			queue_tip(format("class%d-%d.txt", p_ptr->pclass, i));
+
+			/* Style tips */
+			queue_tip(format("ws%d-%d-%d.txt", p_ptr->pclass, p_ptr->pstyle, i));
+		}
+
+		/* Save the highest level */
+		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -3016,6 +2990,36 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+	/* Incur summoning debt */
+	if ((m_ptr->mflag & (MFLAG_ALLY)) && (m_ptr->summoned))
+	{
+		/* Summoning debt requires blood */
+		if (r_ptr->level > p_ptr->csp)
+		{
+			/* Incur blood debt */
+			take_hit(damroll(r_ptr->level - p_ptr->csp, 3),"blood debt for a slain minion");
+			
+			/* No mana left */
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+		}
+		
+		/* Debt can be met by mana */
+		else
+		{
+			p_ptr->csp -= r_ptr->level;		
+		}
+
+		/* Update mana */
+		p_ptr->update |= (PU_MANA);
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2 | PW_PLAYER_3);
+
+		/* Player death */
+		if (p_ptr->is_dead) return;
+	}
+
+	
 	/* Extinguish lite */
 	delete_monster_lite(m_idx);
 
@@ -3155,6 +3159,9 @@ void monster_death(int m_idx)
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
+	/* Clear monster equipment */
+	hack_monster_equip = 0L;
+	
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
@@ -3174,11 +3181,27 @@ void monster_death(int m_idx)
 
 			l_ptr->flags8 |= (RF8_DROP_CHEST);
 
+			hack_monster_equip |= (RF8_DROP_CHEST);
+			
 			continue;
 		}
 
+		/* Hack - Have applied all items in monster equipment. We force gold, then clear. */
+		if ((r_ptr->flags8 & (RF8_DROP_MASK)) &&
+				((r_ptr->flags8 & (RF8_DROP_MASK)) == (hack_monster_equip & (RF8_DROP_MASK))))
+		{
+			if (do_gold && do_item)
+			{
+				do_item = FALSE;
+			}
+			else
+			{
+				hack_monster_equip = 0L;
+			}
+		}
+		
 		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!do_item || (rand_int(100) < 50) ))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr, good, great)) continue;
@@ -3209,14 +3232,18 @@ void monster_death(int m_idx)
 			{
 				case TV_JUNK:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_JUNK);
 					l_ptr->flags8 |= (RF8_DROP_JUNK);
 					break;
 				}
 
+				case TV_BOW:
+				{
+					hack_monster_equip |= (RF8_DROP_MISSILE);
+				}
 				case TV_SHOT:
 				case TV_ARROW:
 				case TV_BOLT:
-				case TV_BOW:
 				{
 					l_ptr->flags8 |= (RF8_DROP_MISSILE);
 					break;
@@ -3226,6 +3253,7 @@ void monster_death(int m_idx)
 				case TV_SPIKE:
 				case TV_FLASK:
 				{
+					hack_monster_equip |= (RF8_DROP_TOOL);
 					l_ptr->flags8 |= (RF8_DROP_TOOL);
 					break;
 				}
@@ -3234,52 +3262,102 @@ void monster_death(int m_idx)
 				case TV_POLEARM:
 				case TV_SWORD:
 				{
+					hack_monster_equip |= (RF8_DROP_WEAPON);
 					l_ptr->flags8 |= (RF8_DROP_WEAPON);
 					break;
 				}
 
-				case TV_INSTRUMENT:
 				case TV_SONG_BOOK:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_MUSIC);
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_WRITING);					
+				}
+				case TV_INSTRUMENT:
+				{
+					hack_monster_equip |= (RF8_DROP_MUSIC);
 					l_ptr->flags8 |= (RF8_DROP_MUSIC);
 					break;
 				}
 
 				case TV_BOOTS:
+				{
+					hack_monster_equip |= (RF8_HAS_LEG);
+					l_ptr->flags8 |= (RF8_DROP_CLOTHES);
+					break;
+				}
 				case TV_GLOVES:
+				{
+					hack_monster_equip |= (RF8_HAS_HAND);
+					l_ptr->flags8 |= (RF8_DROP_CLOTHES);
+					break;
+				}
 				case TV_CLOAK:
 				{
+					hack_monster_equip |= (RF8_HAS_CORPSE);
+					l_ptr->flags8 |= (RF8_DROP_CLOTHES);
+					break;
+				}
+				case TV_SOFT_ARMOR:
+				{
+					hack_monster_equip |= (RF8_DROP_ARMOR);
 					l_ptr->flags8 |= (RF8_DROP_CLOTHES);
 					break;
 				}
 
 				case TV_HELM:
+				{
+					hack_monster_equip |= (RF8_HAS_HEAD);
+					l_ptr->flags8 |= (RF8_DROP_ARMOR);
+					break;
+				}
 				case TV_SHIELD:
-				case TV_SOFT_ARMOR:
+				{
+					hack_monster_equip |= (RF8_HAS_ARM);
+					l_ptr->flags8 |= (RF8_DROP_ARMOR);
+					break;
+				}
+				case TV_DRAG_ARMOR:
 				case TV_HARD_ARMOR:
 				{
+					hack_monster_equip |= (RF8_DROP_ARMOR);
 					l_ptr->flags8 |= (RF8_DROP_ARMOR);
 					break;
 				}
 
 				case TV_CROWN:
+				{
+					hack_monster_equip |= (RF8_HAS_HEAD);
+					l_ptr->flags8 |= (RF8_DROP_JEWELRY);
+					break;
+				}
 				case TV_AMULET:
+				{
+					hack_monster_equip |= (RF8_HAS_SKULL);
+					l_ptr->flags8 |= (RF8_DROP_JEWELRY);
+					break;
+				}
 				case TV_RING:
 				{
+					hack_monster_equip |= (RF8_HAS_HAND);
 					l_ptr->flags8 |= (RF8_DROP_JEWELRY);
 					break;
 				}
 
 				case TV_LITE:
 				{
+					hack_monster_equip |= (RF8_DROP_LITE);
 					l_ptr->flags8 |= (RF8_DROP_LITE);
 					break;
 				}
 
-				case TV_ROD:
 				case TV_STAFF:
+				{
+					hack_monster_equip |= (RF8_DROP_WEAPON);
+				}
+				case TV_ROD:
 				case TV_WAND:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_RSW);
 					l_ptr->flags8 |= (RF8_DROP_RSW);
 					break;
 				}
@@ -3290,18 +3368,21 @@ void monster_death(int m_idx)
 				case TV_PRAYER_BOOK:
 				case TV_RUNESTONE:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_WRITING);
 					l_ptr->flags8 |= (RF8_DROP_WRITING);
 					break;
 				}
 
 				case TV_POTION:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_POTION);
 					l_ptr->flags8 |= (RF8_DROP_POTION);
 					break;
 				}
 
 				case TV_FOOD:
 				{
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_FOOD);
 					l_ptr->flags8 |= (RF8_DROP_FOOD);
 					break;
 				}
@@ -3315,6 +3396,9 @@ void monster_death(int m_idx)
 		drop_near(i_ptr, -1, y, x);
 	}
 
+	/* Reset monster equipment */
+	hack_monster_equip = 0L;
+	
 	/* Reset the object level */
 	object_level = p_ptr->depth;
 
@@ -3616,7 +3700,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (note)
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
-
 		}
 
 		/* Death by physical attack -- invisible monster */
@@ -3630,14 +3713,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			 (r_ptr->flags2 & (RF2_STUPID)))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
-
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
-
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -3653,35 +3734,36 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has killed one of us!");
 		}
 
-
-		/* Maximum player level */
-		div = p_ptr->max_lev;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Base adjustment */
-		new_level = -1;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-				* 0x10000L / div) + p_ptr->exp_frac;
-
-		
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
+		/* Allies don't provide experience */
+		if ((m_ptr->mflag & (MFLAG_ALLY)) == 0)
 		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
+			/* Maximum player level */
+			div = p_ptr->max_lev;
 
-		/* Gain experience */
-		gain_exp(new_exp);
+			/* Give some experience for the kill */
+			new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+
+			/* Base adjustment */
+			new_level = -1;
+
+			/* Handle fractional experience */
+			new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+					* 0x10000L / div) + p_ptr->exp_frac;
+
+			/* Keep track of experience */
+			if (new_exp_frac >= 0x10000L)
+			{
+				new_exp++;
+				p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+			}
+			else
+			{
+				p_ptr->exp_frac = (u16b)new_exp_frac;
+			}
+
+			/* Gain experience */
+			gain_exp(new_exp);
+		}
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -3695,6 +3777,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* Count kills this life */
 			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
+			/* Show killer tips */
+			if (!l_ptr->tkills) queue_tip(format("kill%d.txt", m_ptr->r_idx));
+			
 			/* Count kills in all lives */
 			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
@@ -3912,76 +3997,8 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 
 			if (!text_always) return;
 
-			/* If defeated guardian, tell the player */
-			if ((zone->guard) && (!r_info[zone->guard].max_num))
-			{
-				/* Tell player guardian is defeated */
-				my_strcpy(text_always, format("You have defeated %s, guardian of %s",
-						r_name + r_info[zone->guard].name,
-						t_name + t_ptr->name), text_always_s);
-
-				/* Tell player where they can travel to */
-				if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
-				{
-					my_strcat(text_always, format(", which allows you to travel to %s",
-						t_name + t_info[t_ptr->distant].name), text_always_s);
-
-					/* Tell player if they may have difficulty getting back */
-					if (t_info[t_ptr->distant].nearby != p_ptr->dungeon)
-					{
-						my_strcat(text_always, ".  Collect anything you require from this location before you travel.  You may have difficulty returning here", text_always_s);
-					}
-				}
-
-				/* End sentence */
-				my_strcat(text_always, ".", text_always_s);
-			}
-			else
-			{
-				/* Describe location */
-				my_strcpy(text_always, t_text + t_ptr->text, text_always_s);
-
-				/* Describe the guardian */
-				if (zone->guard)
-				{
-					if (strlen(text_always)) my_strcat(text_always,"  ", text_always_s);
-
-					/* Path to be opened */
-					if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
-					{
-						my_strcat(text_always, format("The path to %s is guarded by %s, who you must defeat ",
-							t_name + t_info[t_ptr->distant].name,
-							r_name + r_info[zone->guard].name), text_always_s);
-					}
-					/* Dungeon guardian */
-					else
-					{
-						my_strcat(text_always, format("%^s is guarded by %s, who you must defeat ",
-							t_name + t_ptr->name,
-							r_name + r_info[zone->guard].name), text_always_s);
-					}
-
-					/* Guards surface */
-					if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, "here", text_always_s);
-
-					/* Guards top of tower */					
-					if (t_ptr->zone[0].tower)
-					{
-						if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, " or ", text_always_s);
-						my_strcat(text_always, "at the top of the tower", text_always_s);
-					}
-
-					/* Guards bottom of dungeon */
-					else if (min_depth(p_ptr->dungeon) != max_depth(p_ptr->dungeon))
-					{
-						if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, " or ", text_always_s);
-						my_strcat(text_always, "at the bottom of the dungeon", text_always_s);
-					}
-
-					/* End sentence */
-					my_strcat(text_always, ".", text_always_s);
-				}
-			}
+			/* Describe location */
+			my_strcpy(text_always, t_text + t_ptr->text, text_always_s);
 		}
 		else
 		{
@@ -4814,6 +4831,47 @@ bool target_okay(void)
 
 
 /*
+ * Get allies to adopt the player's target.
+ * 
+ * If order is true, we order allies to this.
+ * If order is false, only allies without targets will go here.
+ */
+static void player_tell_allies_target(int y, int x, bool order)
+{
+	int i;
+	
+	/* Get allies to target this location */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+		
+		/* Skip non-allies, or allies who ignore the player */
+		if ( ((m_ptr->mflag & (MFLAG_ALLY)) == 0) || ((m_ptr->mflag & (MFLAG_IGNORE)) != 0) ) continue;
+		
+		/* Skip unseen monsters that the player cannot speak to or telepathically communicate with */
+		if (!m_ptr->ml && ((r_info[m_ptr->r_idx].flags3 & (RF3_NONVOCAL)) == 0))
+		{
+			/* Cannot hear the player */
+			if ((m_ptr->cdis > 3) && ((play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE)) == 0)) continue;
+			
+			/* Cannot understand the player */
+			if (!player_understands(monster_language(m_ptr->r_idx))) continue;
+		}
+
+		/* Skip monsters with targets already */
+		if ((!order) && (m_ptr->ty || m_ptr->tx)) continue;
+		
+		/* Set the monster target */
+		m_ptr->ty = y;
+		m_ptr->tx = x;
+	}
+}
+
+
+/*
  * Set the target to a monster (or nobody)
  */
 void target_set_monster(int m_idx)
@@ -4828,6 +4886,9 @@ void target_set_monster(int m_idx)
 		p_ptr->target_who = m_idx;
 		p_ptr->target_row = m_ptr->fy;
 		p_ptr->target_col = m_ptr->fx;
+		
+		/* Get allies to target this */
+		player_tell_allies_target(m_ptr->fy, m_ptr->fx, FALSE);
 	}
 
 	/* Clear target */
@@ -4855,6 +4916,9 @@ void target_set_location(int y, int x)
 		p_ptr->target_who = 0;
 		p_ptr->target_row = y;
 		p_ptr->target_col = x;
+		
+		/* Get allies to target this */
+		player_tell_allies_target(y,x, FALSE);
 	}
 
 	/* Clear target */
@@ -5003,8 +5067,8 @@ static bool target_set_interactive_accept(int y, int x)
 	{
 		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
-		/* Visible monsters */
-		if (m_ptr->ml) return (TRUE);
+		/* Visible monsters, except for allies */
+		if ((m_ptr->ml) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0) ) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -5203,7 +5267,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 						screen_save();
 
 						/* Recall on screen */
-						screen_roff(m_ptr->r_idx);
+						screen_monster_look(cave_m_idx[y][x]);
 
 						/* Hack -- Complete the prompt (again) */
 						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
@@ -6157,35 +6221,39 @@ bool target_set_interactive(int mode)
 				case '!':
 				case '\xff':
 				{
-					ty = y = KEY_GRID_Y(query);
-					tx = x = KEY_GRID_X(query);
-
-					/* Set target if clicked */
-					if ((query.mousebutton) || (query.key == '!'))
-					{
-						target_set_location(y, x);
-						done = TRUE;
-					}
-					else
-					{
-						flag = FALSE;
-
-						/* Calculate the path */
-						if (mode == TARGET_KILL)
+					/* Bounds check */
+					if (in_bounds(KEY_GRID_Y(query), KEY_GRID_X(query)))
+					{	
+						ty = y = KEY_GRID_Y(query);
+						tx = x = KEY_GRID_X(query);
+	
+						/* Set target if clicked */
+						if ((query.mousebutton) || (query.key == '!'))
 						{
-							target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
-
-							/* Redraw map */
-							p_ptr->redraw |= (PR_MAP);
-
-							/* Hack -- Window stuff */
-							p_ptr->window |= (PW_OVERHEAD);
-
-							/* Handle stuff */
-							handle_stuff();	
-
-							/* Force an update */
-							Term_fresh();
+							target_set_location(y, x);
+							done = TRUE;
+						}
+						else
+						{
+							flag = FALSE;
+	
+							/* Calculate the path */
+							if (mode == TARGET_KILL)
+							{
+								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+	
+								/* Redraw map */
+								p_ptr->redraw |= (PR_MAP);
+	
+								/* Hack -- Window stuff */
+								p_ptr->window |= (PW_OVERHEAD);
+	
+								/* Handle stuff */
+								handle_stuff();	
+	
+								/* Force an update */
+								Term_fresh();
+							}
 						}
 					}
 					break;
@@ -6369,33 +6437,37 @@ bool target_set_interactive(int mode)
 				case '!':
 				case '\xff':
 				{
-					ty = y = KEY_GRID_Y(query);
-					tx = x = KEY_GRID_X(query);
+					/* Bounds check */
+					if (in_bounds(KEY_GRID_Y(query), KEY_GRID_X(query)))
+					{	
+						ty = y = KEY_GRID_Y(query);
+						tx = x = KEY_GRID_X(query);
 
-					/* Set target if clicked */
-					if ((query.mousebutton) || (query.key == '!'))
-					{
-						target_set_location(y, x);
-						done = TRUE;
-					}
-					else
-					{
-						/* Calculate the path */
-						if (mode == TARGET_KILL)
+						/* Set target if clicked */
+						if ((query.mousebutton) || (query.key == '!'))
 						{
-							target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+							target_set_location(y, x);
+							done = TRUE;
+						}
+						else
+						{
+							/* Calculate the path */
+							if (mode == TARGET_KILL)
+							{
+								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
-							/* Redraw map */
-							p_ptr->redraw |= (PR_MAP);
+								/* Redraw map */
+								p_ptr->redraw |= (PR_MAP);
 
-							/* Hack -- Window stuff */
-							p_ptr->window |= (PW_OVERHEAD);
+								/* Hack -- Window stuff */
+								p_ptr->window |= (PW_OVERHEAD);
 
-							/* Handle stuff */
-							handle_stuff();
+								/* Handle stuff */
+								handle_stuff();
 
-							/* Force an update */
-							Term_fresh();			
+								/* Force an update */
+								Term_fresh();			
+							}
 						}
 					}
 					break;

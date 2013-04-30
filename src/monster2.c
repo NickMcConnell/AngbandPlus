@@ -22,8 +22,11 @@
  *
  * Perform a modified version of "get_mon_num()", with exact minimum and
  * maximum depths and preferred monster types.
+ * 
+ * We know have to ensure that target race can survive on the intended
+ * terrain.
  */
-s16b poly_r_idx(int base_idx)
+s16b poly_r_idx(int y, int x, int base_idx)
 {
 	monster_race *r_ptr = &r_info[base_idx];
 
@@ -82,6 +85,9 @@ s16b poly_r_idx(int base_idx)
 		/* Hack -- No uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
+		/* Hack -- Ensure monster can survive on intended terrain */
+		if (place_monster_here(y, x, r_idx) <= MM_FAIL) continue;
+		
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -723,7 +729,7 @@ s16b get_mon_num(int level)
 		for (i = 0; i < cave_ecology.num_races; i++)
 		{
 			/* Get the actual race */
-			r_ptr = &r_info[cave_ecology.race[choice]];
+			r_ptr = &r_info[cave_ecology.race[i]];
 
 			/* Hack -- "unique" monsters must be "unique" */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
@@ -1127,6 +1133,9 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 
 	bool seen, pron;
 
+	int state = 0;
+	int match = 1;
+	char *s, *t;
 
 	/* Can we "see" it (forced, or not hidden + visible) */
 	seen = ((mode & (0x80)) || (!(mode & (0x40)) && m_ptr->ml));
@@ -1134,11 +1143,13 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 	/* Sexed Pronouns (seen and forced, or unseen and allowed) */
 	pron = ((seen && (mode & (0x20))) || (!seen && (mode & (0x10))));
 
+	/* Extract the gender if female */
+	if ((r_ptr->flags1 & (RF1_FEMALE)) && (!(r_ptr->flags1 & (RF1_MALE)) || (m_idx % 2))) match = 2;
 
 	/* First, try using pronouns, or describing hidden monsters */
 	if (!seen || pron)
 	{
-		/* an encoding of the monster "sex" */
+		/* Two encodings of the monster "sex" */
 		int kind = 0x00;
 
 		/* Extract the gender (if applicable) */
@@ -1190,7 +1201,6 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		my_strcpy(desc, res, max);
 	}
 
-
 	/* Handle visible monsters, "reflexive" request */
 	else if ((mode & 0x02) && (mode & 0x01))
 	{
@@ -1200,7 +1210,6 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		else my_strcpy(desc, "itself", max);
 	}
 
-
 	/* Handle all other visible monster requests */
 	else
 	{
@@ -1209,14 +1218,24 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		int level = r_ptr->level;
 		u32b class = r_ptr->flags2 & (RF2_CLASS_MASK);
 
+		/* Hack - scale up a leader */
+		if (m_ptr->mflag & (MFLAG_LEADER)) level -= 5;
+		
 		/* Scale a monster */
-		if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+		if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER | RF9_LEVEL_AGE)) != 0) &&
 			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 		{
 			r_ptr = &monster_race_scaled;
 		}
 
 		/* Add prefixes to levelled monsters */
+		if (r_ptr->flags9 & (RF9_LEVEL_AGE))
+		{
+			if (p_ptr->depth >= level + 15) prefix = "Ancient ";
+			else if (p_ptr->depth >= level + 10) prefix = "Old ";
+			else if (p_ptr->depth >= level + 5) prefix = "Mature ";
+			else prefix = "Young ";
+		}
 		if (r_ptr->flags9 & (RF9_LEVEL_SIZE))
 		{
 			if (p_ptr->depth >= level + 15) prefix = "Giant ";
@@ -1249,8 +1268,8 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
 					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
 					else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
-					else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "knight";
-					else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest";
+					else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "|knight|princess|";
+					else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest||ess|";
 					else if ((r_ptr->flags2 & (RF2_ARCHER)) != 0) suffix = "archer";
 					else if ((r_ptr->flags2 & (RF2_SNEAKY)) != 0) suffix = "scout";
 					else if ((r_ptr->flags2 & (RF2_ARMOR)) != 0) suffix = "warrior";
@@ -1355,6 +1374,23 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			/* Append special notation */
 			my_strcat(desc, " (offscreen)", max);
 		}
+		
+		/* Remove gender sensitivity */
+		for (t = s = desc; *s; s++)
+		{
+			if (*s == '|')
+			{
+				state++;
+				if (state == 3) state = 0;
+			}
+			else if (!state || (state == match))
+			{
+				*t++ = *s;
+			}
+		}
+
+		/* Terminate buffer */
+		*t = '\0';
 	}
 }
 
@@ -3475,6 +3511,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* Apply flags from caller */
 	n_ptr->mflag |= flg;
+	
+	/* Created allies do not carry treasure */
+	if (flg & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_MADE);
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
@@ -3512,6 +3551,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 	/* And start out with full mana */
 	n_ptr->mana = r_ptr->mana;
 
+	/* Monster must wait a while until summoning anything */
+	n_ptr->summoned = 100;
+	
 	/* Calculate the monster_speed*/
 	n_ptr->mspeed = calc_monster_speed(cave_m_idx[y][x]);
 
@@ -3628,8 +3670,14 @@ static bool place_monster_okay(int r_idx)
 
 	monster_race *z_ptr = &r_info[r_idx];
 
+	/* Group monsters require similar "group" */
+	if (r_ptr->grp_idx)
+	{
+		if (z_ptr->grp_idx != z_ptr->grp_idx) return (FALSE);
+	}
+
 	/* Require similar "race" */
-	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
+	else if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
 
 	/* Skip more advanced monsters */
 	if (z_ptr->level > r_ptr->level) return (FALSE);
@@ -3643,6 +3691,7 @@ static bool place_monster_okay(int r_idx)
 	/* Okay */
 	return (TRUE);
 }
+
 
 /*
  * Attempt to place an escort of monsters around the given location
@@ -3824,21 +3873,6 @@ static bool summon_specific_okay(int r_idx)
 					(strstr(r_name + r_ptr->name, "skull")) ));
 
 			}
-			/* Hack -- animate hands */
-			else if ((summon_char_type == '~') && (summon_attr_type == TERM_RED))
-			{
-				okay = (!(r_ptr->flags1 & (RF1_UNIQUE)) &&
-
-					/* Match on undead */
-					(r_ptr->flags3 & (RF3_UNDEAD)) &&
-
-					/* Match on name */
-					((strstr(r_name + r_ptr->name, "Hand")) ||
-
-					/* Match on name */
-					(strstr(r_name + r_ptr->name, "hand")) ));
-
-			}
 			else if (summon_char_type && summon_flag_type)
 			{
 				u32b summon_flag3_type = summon_flag_type & (0x0000FFFFL);
@@ -3879,6 +3913,17 @@ static bool summon_specific_okay(int r_idx)
 					/* Also can match some high level undead without restriction */
 					(strchr("LN", r_ptr->d_char)) ));
 			}
+			else if (summon_char_type && summon_attr_type)
+			{
+				/* Match char */
+				okay = (!(r_ptr->flags1 & (RF1_UNIQUE)) &&
+
+					/* Match attr */
+					(r_ptr->d_attr == summon_attr_type) &&
+						
+					/* Match char */
+					(r_ptr->d_char == summon_char_type));				
+			}
 			else if (summon_char_type)
 			{
 				/* Match char */
@@ -3917,7 +3962,14 @@ static bool summon_specific_okay(int r_idx)
 		/* Hack -- try to summon birds, beasts or reptiles based on summoner */
 		case SUMMON_ANIMAL:
 		{
-			if (summon_flag_type)
+			/* Hack for undead summoners */
+			if (summon_flag_type & (RF8_HAS_SKELETON))
+			{
+				okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+					!(r_ptr->flags1 & (RF1_UNIQUE)) &&
+					(r_ptr->flags3 & (RF3_UNDEAD)));
+			}
+			else if (summon_flag_type)
 			{
 				okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)) &&
@@ -4213,7 +4265,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp, flg)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, r_ptr->flags1 & (RF1_FRIENDS) ? flg | MFLAG_LEADER : flg)) return (FALSE);
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -4480,7 +4532,7 @@ bool alloc_monster(int dis, bool slp)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type, u32b flg)
+bool summon_specific(int y1, int x1, int lev, int type, bool grp, u32b flg)
 {
 	int i, x, y, r_idx;
 
@@ -4550,8 +4602,8 @@ bool summon_specific(int y1, int x1, int lev, int type, u32b flg)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
-	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE, flg)) return (FALSE);
+	/* Attempt to place the monster (awake, groups dependent on caller) */
+	if (!place_monster_aux(y, x, r_idx, FALSE, grp, flg)) return (FALSE);
 
 	/* Hack -- Set specific summoning parameters if not currently set */
 	switch (summon_specific_type)
@@ -4578,7 +4630,9 @@ bool summon_specific(int y1, int x1, int lev, int type, u32b flg)
 		{
 			if (!summon_flag_type)
 			{
-				summon_flag_type |= r_info[r_idx].flags8 & (RF8_SKIN_MASK);
+				/* Undead animals */
+				if (r_info[r_idx].flags3 & (RF3_UNDEAD)) summon_flag_type |= (RF8_HAS_SKELETON);
+				else summon_flag_type |= r_info[r_idx].flags8 & (RF8_SKIN_MASK);
 
 				if (!summon_flag_type) summon_flag_type = RF8_HAS_SCALE;
 			}
@@ -5195,8 +5249,11 @@ void get_monster_ecology(int r_idx)
 		{
 			summon_specific_type = SUMMON_ANIMAL;
 
-			/* Hack -- Set the class flags to summon */
-			summon_flag_type = (r_ptr->flags8 & (RF8_SKIN_MASK));
+			/* Hack -- This lets vampires summon animals while not letting undead live with non-undead animals in general */
+			if ((r_ptr->flags3 & (RF3_UNDEAD)) && ((r_ptr->flags7 & (RF7_S_ANIMAL)) == 0)) summon_flag_type = (RF8_HAS_SKELETON);
+			
+			/* Else - base skin on summoner's skin if set */
+			else summon_flag_type = (r_ptr->flags8 & (RF8_SKIN_MASK));
 
 			/* Mega Hack -- Other racial preferences for animals */
 			if (!summon_flag_type)

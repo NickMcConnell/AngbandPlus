@@ -56,7 +56,7 @@ static void find_range(monster_type *m_ptr)
 		/* Don't crowd the player */
 		else m_ptr->min_range = TURN_RANGE;
 		
-		/* Best range */
+		/* Set the best range */
 		m_ptr->best_range = m_ptr->min_range;
 		
 		return;
@@ -141,7 +141,7 @@ static void find_range(monster_type *m_ptr)
 		else if (r_ptr->flags1 & (RF1_NEVER_BLOW)) m_ptr->best_range = 8;
 
 		/*Monsters who have had dangerous attacks happen to them are more extreme*/
-		else if (m_ptr->mflag & (MFLAG_SNEAKED))
+		else if (m_ptr->mflag & (MFLAG_AGGR))
 		{
 			/*spellcasters want to sit back*/
 			if (r_ptr->freq_spell) m_ptr->best_range = 8;
@@ -1177,7 +1177,8 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 
 	bool require_los = TRUE;
 	
-	int target_m_idx = 0;
+	/* Target the player by default unless an ally */
+	int target_m_idx = m_ptr->mflag & (MFLAG_ALLY) ? 0 : -1;
 	
 	bool is_breath = FALSE;
 
@@ -1267,26 +1268,141 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		/* No spells left */
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
+	
+	/* Eliminate all summoning spells if monster has recently summoned or been summoned */
+	if (m_ptr->summoned)
+	{
+		f4 &= (RF4_SUMMON_MASK);
+		f5 &= (RF4_SUMMON_MASK);
+		f6 &= (RF6_SUMMON_MASK);
+		f7 &= (RF7_SUMMON_MASK);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
+	
+	/* Allies do not summon (or teleport unless afraid) */
+	if (m_ptr->mflag & (MFLAG_ALLY))
+	{
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
+		f7 &= ~(RF7_SUMMON_MASK);
+		
+		/* Prevent teleporting unless afraid */
+		if (!m_ptr->monfear) f6 &= ~(RF6_BLINK | RF6_TPORT);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
 
 	/*default: target the player*/
 	*tar_y = p_ptr->py;
 	*tar_x = p_ptr->px;
 	
-	/* Is monster an ally, or fighting an ally of the player? */
-	if (m_ptr->mflag & (MFLAG_IGNORE | MFLAG_ALLY))
+	/*
+	 * Is monster an ally, or fighting an ally of the player?
+	 * 
+	 * XXX Blind monsters can only cast spells at enemies if aggravated.
+	 */
+	if (((m_ptr->mflag & (MFLAG_IGNORE | MFLAG_ALLY)) != 0) &&
+		(!(m_ptr->blind) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
 	{
 		int k = 0;
 		
+		/* Attempt at efficiency */
+		bool ally = ((m_ptr->mflag & (MFLAG_ALLY)) != 0);
+		bool aggressive = ((m_ptr->mflag & (MFLAG_AGGR)) != 0) ;
+		bool need_lite = ((r_ptr->flags2 & (RF2_NEED_LITE)) == 0);
+		bool sneaking = p_ptr->sneaking || m_ptr->cdis > MAX_RANGE;
+		
+		/* Check all other monsters */
 		for (i = m_max - 1; i >= 1; i--)
 		{
 			/* Access the monster */
 			monster_type *n_ptr = &m_list[i];
 
+			/* Skip itself */
+			if (i == m_idx) continue;
+			
+			/* Skip hidden targets */
+			if (n_ptr->mflag & (MFLAG_HIDE)) continue;
+			
 			/* Monster has an enemy */
-			if ((m_ptr->mflag & (MFLAG_ALLY)) != (n_ptr->mflag & (MFLAG_ALLY)))
+			if (ally != ((n_ptr->mflag & (MFLAG_ALLY)) != 0))
 			{
-				/* Pick a random target in line of sight */
-				if ((generic_los(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx, CAVE_XLOS)) && (!rand_int(++k)))
+				bool see_target = aggressive;
+				int d = distance(n_ptr->fy, n_ptr->fx, m_ptr->fy, m_ptr->fx);
+				
+				/* Ignore targets out of range */
+				if (d > MAX_RANGE) continue;
+				
+				/*
+				 * Check if monster can see the target. We make various assumptions about what
+				 * monsters have a yet to be implemented SEE_INVIS flag, if the target is
+				 * invisible. We check if the target is in light, if the monster needs light to
+				 * see by.
+				 */
+				if (!see_target)
+				{
+					/* Monster is invisible */
+					if ((r_info[n_ptr->r_idx].flags2 & (RF2_INVISIBLE)) || (n_ptr->tim_invis))
+					{
+						/* Cannot see invisible, or use infravision to detect the monster */
+						if ((r_ptr->d_char != 'e') && ((r_ptr->flags9 & (RF9_RES_BLIND)) == 0)
+								&& ((r_ptr->aaf < d) || ((r_info[n_ptr->r_idx].flags2 & (RF2_COLD_BLOOD)) != 0))) continue;
+					}
+					
+					/* Monster needs light to see */
+					if (need_lite)
+					{
+						/* Check for light */
+						if (((cave_info[n_ptr->fy][n_ptr->fx] & (CAVE_LITE)) == 0)
+							&& ((play_info[n_ptr->fy][n_ptr->fx] & (PLAY_LITE)) == 0))
+						{
+							continue;
+						}
+					}
+					
+					/* Needs line of sight, and (hack) sometimes line of fire. */
+					see_target = generic_los(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx, CAVE_XLOS |
+							(m_idx + turn) % 2 ? CAVE_XLOF : 0);
+				}
+				
+				/* Ignore certain targets if sneaking */
+				if (sneaking)
+				{
+					/* Target is asleep - ignore */
+					if (m_ptr->csleep) continue;
+					
+					/* Target not aggressive */
+					if ((n_ptr->mflag & (MFLAG_AGGR)) == 0)
+					{
+						monster_race *s_ptr = &r_info[n_ptr->r_idx];
+					
+						/* I'm invisible and target can't see me - ignore */
+						if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tim_invis))
+						{
+							/* Cannot see invisible, or use infravision to detect the monster */
+							if ((s_ptr->d_char != 'e') && ((s_ptr->flags2 & (RF2_INVISIBLE)) == 0)
+								&& ((s_ptr->aaf < d) || ((r_ptr->flags2 & (RF2_COLD_BLOOD)) != 0))) continue;
+						}
+					
+						/* I'm in darkness and target can't see in darkness - ignore */
+						if (s_ptr->flags2 & (RF2_NEED_LITE))
+						{
+							/* Check for light */
+							if (((cave_info[n_ptr->fy][n_ptr->fx] & (CAVE_LITE)) == 0)
+									&& ((play_info[n_ptr->fy][n_ptr->fx] & (PLAY_LITE)) == 0))
+							{
+								continue;
+							}
+						}
+					}
+				}
+				
+				/* If target is valid, have a chance to pick it */ 
+				if ((see_target) && (!rand_int(++k)))
 				{
 					*tar_y = n_ptr->fy;
 					*tar_x = n_ptr->fx;
@@ -1297,122 +1413,136 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		}
 	}
 
-	/* Check what kinds of spells can hit target */
-	path = projectable(m_ptr->fy, m_ptr->fx, *tar_y, *tar_x, PROJECT_CHCK);
-
-	/* do we have the target in sight at all? */
-	if (path == PROJECT_NO)
+	/* No valid target */
+	if (!target_m_idx)
 	{
-		bool clear_ball_spell = TRUE;
+		f4 &= (rf4_no_player_mask | RF4_SUMMON_MASK);
+		f5 &= (RF5_NO_PLAYER_MASK | RF4_SUMMON_MASK);
+		f6 &= (RF6_NO_PLAYER_MASK | RF6_SUMMON_MASK);
+		f7 &= (RF7_NO_PLAYER_MASK | RF7_SUMMON_MASK);
 
-		/* Are we in range smart or annoyed (and not stupid), and have access to ball spells
-		  or summon spells? */
-		if ((m_ptr->cdis < MAX_RANGE) && ((r_ptr->flags2 & (RF2_SMART)) ||
-			 ((m_ptr->mflag & (MFLAG_AGGR)) && (!(r_ptr->flags2 & (RF2_STUPID))))) &&
-			 ((r_ptr->flags4 & (rf4_ball_mask | RF4_SUMMON_MASK)) ||
-			  (r_ptr->flags5 & (RF5_BALL_MASK | RF5_SUMMON_MASK)) ||
-			  (r_ptr->flags6 & (RF6_BALL_MASK | RF6_SUMMON_MASK)) ||
-			  (r_ptr->flags7 & (RF7_BALL_MASK | RF7_SUMMON_MASK))))
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);		
+	}
+	else
+	{	
+		/* Check what kinds of spells can hit target */
+		path = projectable(m_ptr->fy, m_ptr->fx, *tar_y, *tar_x, PROJECT_CHCK);
+
+		/* do we have the target in sight at all? */
+		if (path == PROJECT_NO)
 		{
-			int alt_y, alt_x, alt_path, best_y, best_x, best_path;
+			bool clear_ball_spell = TRUE;
 
-			/*start with no alternate shot*/
-			best_y =  best_x = best_path  = 0;
-
-			/* Check for impassable terrain */
-			for (i = 0; i < 8; i++)
+			/* Are we in range smart or annoyed (and not stupid), and have access to ball spells
+			  or summon spells? */
+			if ((m_ptr->cdis < MAX_RANGE) && ((r_ptr->flags2 & (RF2_SMART)) ||
+				 ((m_ptr->mflag & (MFLAG_AGGR)) && (!(r_ptr->flags2 & (RF2_STUPID))))) &&
+				 ((r_ptr->flags4 & (rf4_ball_mask | RF4_SUMMON_MASK)) ||
+				  (r_ptr->flags5 & (RF5_BALL_MASK | RF5_SUMMON_MASK)) ||
+				  (r_ptr->flags6 & (RF6_BALL_MASK | RF6_SUMMON_MASK)) ||
+				  (r_ptr->flags7 & (RF7_BALL_MASK | RF7_SUMMON_MASK))))
 			{
-				alt_y = p_ptr->py + ddy_ddd[i];
-				alt_x = p_ptr->px + ddx_ddd[i];
+				int alt_y, alt_x, alt_path, best_y, best_x, best_path;
 
-				alt_path = projectable(m_ptr->fy, m_ptr->fx, alt_y, alt_x, PROJECT_CHCK);
+				/*start with no alternate shot*/
+				best_y =  best_x = best_path  = 0;
 
-				if (alt_path == PROJECT_NO) continue;
-
-				if (alt_path == PROJECT_NOT_CLEAR)
+				/* Check for impassable terrain */
+				for (i = 0; i < 8; i++)
 				{
-					if (!similar_monsters(m_ptr->fy, m_ptr->fx, alt_y, alt_x)) continue;
+					alt_y = p_ptr->py + ddy_ddd[i];
+					alt_x = p_ptr->px + ddx_ddd[i];
 
-					/*we already have a NOT_CLEAR path*/
-					if ((best_path == PROJECT_NOT_CLEAR) && (rand_int(2))) continue;
+					alt_path = projectable(m_ptr->fy, m_ptr->fx, alt_y, alt_x, PROJECT_CHCK);
+
+					if (alt_path == PROJECT_NO) continue;
+
+					if (alt_path == PROJECT_NOT_CLEAR)
+					{
+						if (!similar_monsters(m_ptr->fy, m_ptr->fx, alt_y, alt_x)) continue;
+
+						/*we already have a NOT_CLEAR path*/
+						if ((best_path == PROJECT_NOT_CLEAR) && (rand_int(2))) continue;
+					}
+
+					/*
+				 	 * PROJECT_CLEAR, or monster has an
+				 	 * empty square to lob a ball spell at player
+				  	 */
+					best_y = alt_y;
+					best_x = alt_x;
+					best_path = alt_path;
+					/*we want to keep ball spells*/
+					clear_ball_spell = FALSE;
+
+					if (best_path == PROJECT_CLEAR) break;
 				}
 
-				/*
-			 	 * PROJECT_CLEAR, or monster has an
-			 	 * empty square to lob a ball spell at player
-			  	 */
-				best_y = alt_y;
-				best_x = alt_x;
-				best_path = alt_path;
-				/*we want to keep ball spells*/
-				clear_ball_spell = FALSE;
-
-				if (best_path == PROJECT_CLEAR) break;
-			}
-
-			if (best_y + best_x > 0)
-			{
-				/* Set to best target */
-				*tar_y = best_y;
-				*tar_x = best_x;
-			}
+				if (best_y + best_x > 0)
+				{
+					/* Set to best target */
+					*tar_y = best_y;
+					*tar_x = best_x;
+				}
 
 			
-			/*We don't have a reason to try a ball spell*/
-			if (clear_ball_spell)
-			{
-				f4 &= ~(rf4_ball_mask);
-				f5 &= ~(RF5_BALL_MASK);
-				f6 &= ~(RF6_BALL_MASK);
-				f7 &= ~(RF7_BALL_MASK);
+				/*We don't have a reason to try a ball spell*/
+				if (clear_ball_spell)
+				{
+					f4 &= ~(rf4_ball_mask);
+					f5 &= ~(RF5_BALL_MASK);
+					f6 &= ~(RF6_BALL_MASK);
+					f7 &= ~(RF7_BALL_MASK);
+				}
 			}
+
+			/* Flat out 75% chance of not casting if the player is not in sight */
+			/* In addition, most spells don't work without a player around */
+			if (rand_int(4)) return (0);
+		
+			require_los = FALSE;
 		}
 
-		/* Flat out 75% chance of not casting if the player is not in sight */
-		/* In addition, most spells don't work without a player around */
-		if (rand_int(4)) return (0);
-		
-		require_los = FALSE;
-	}
+		/* Melee attacks and some others have a hard maximum range */
+		for (i = 0; i < 8; i++)
+		{
+			/* XXX Fire a ball spell just short of player */
 
-	/* Melee attacks and some others have a hard maximum range */
-	for (i = 0; i < 8; i++)
-	{
-		/* XXX Fire a ball spell just short of player */
-
-		/* Out of range - eliminate spell */
-		if ((target_m_idx ? distance(m_ptr->fy, m_ptr->fx, *tar_y, *tar_x) : m_ptr->cdis) > spell_info_RF4[i][COL_SPELL_BEST_RANGE]) f4 &= ~(RF4_BLOW_1 << i);
-	}
+			/* Out of range - eliminate spell */
+			if ((target_m_idx > 0 ? distance(m_ptr->fy, m_ptr->fx, *tar_y, *tar_x) : m_ptr->cdis) > spell_info_RF4[i][COL_SPELL_BEST_RANGE]) f4 &= ~(RF4_BLOW_1 << i);
+		}
 	
-	/* No spells left */
-	if (!f4 && !f5 && !f6 && !f7) return (0);
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
 
-	/* Remove spells the 'no-brainers'*/
-	/* Spells that require LOS */
-	if ((!require_los) || (m_ptr->cdis > MAX_RANGE))
-	{
-		/* Ball spells and summon spells would have been filtered out above if not usable */
-		f4 &= (rf4_no_player_mask | rf4_ball_mask | RF4_SUMMON_MASK);
-		f5 &= (RF5_NO_PLAYER_MASK | RF5_BALL_MASK | RF5_SUMMON_MASK);
-		f6 &= (RF6_NO_PLAYER_MASK | RF6_BALL_MASK | RF6_SUMMON_MASK);
-		f7 &= (RF7_NO_PLAYER_MASK | RF7_BALL_MASK | RF7_SUMMON_MASK);
+		/* Remove spells the 'no-brainers'*/
+		/* Spells that require LOS */
+		if ((!require_los) || (m_ptr->cdis > MAX_RANGE))
+		{
+			/* Ball spells and summon spells would have been filtered out above if not usable */
+			f4 &= (rf4_no_player_mask | rf4_ball_mask | RF4_SUMMON_MASK);
+			f5 &= (RF5_NO_PLAYER_MASK | RF5_BALL_MASK | RF5_SUMMON_MASK);
+			f6 &= (RF6_NO_PLAYER_MASK | RF6_BALL_MASK | RF6_SUMMON_MASK);
+			f7 &= (RF7_NO_PLAYER_MASK | RF7_BALL_MASK | RF7_SUMMON_MASK);
+		}
+
+		/*remove bolts and archery shots*/
+		else if (path == PROJECT_NOT_CLEAR)
+		{
+			f4 &= ~(rf4_bolt_mask);
+			f4 &= ~(rf4_archery_mask);
+			f5 &= ~(RF5_BOLT_MASK);
+			f5 &= ~(RF5_ARCHERY_MASK);
+			f6 &= ~(RF6_BOLT_MASK);
+			f6 &= ~(RF6_ARCHERY_MASK);
+			f7 &= ~(RF7_BOLT_MASK);
+			f7 &= ~(RF7_ARCHERY_MASK);
+		}
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
-
-	/*remove bolts and archery shots*/
-	else if (path == PROJECT_NOT_CLEAR)
-	{
-		f4 &= ~(rf4_bolt_mask);
-		f4 &= ~(rf4_archery_mask);
-		f5 &= ~(RF5_BOLT_MASK);
-		f5 &= ~(RF5_ARCHERY_MASK);
-		f6 &= ~(RF6_BOLT_MASK);
-		f6 &= ~(RF6_ARCHERY_MASK);
-		f7 &= ~(RF7_BOLT_MASK);
-		f7 &= ~(RF7_ARCHERY_MASK);
-	}
-
-	/* No spells left */
-	if (!f4 && !f5 && !f6 && !f7) return (0);
 
 	/* Spells we can not afford */
 	remove_expensive_spells(m_idx, &f4, &f5, &f6, &f7);
@@ -1469,7 +1599,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	if (want_tactic > 3) want_tactic=3;
 
 	/* Check terrain for purposes of summoning spells */
-	spaces = summon_possible(*tar_y, *tar_x);
+	spaces = summon_possible(m_ptr->fy, m_ptr->fx);
 
 	if (spaces > 10) want_summon=3;
 	else if (spaces > 3) want_summon=2;
@@ -1681,13 +1811,18 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		monster_type *n_ptr = &m_list[cave_m_idx[y][x]];
 		monster_race *nr_ptr = &r_info[n_ptr->r_idx];
 
-		/* Pushed already */
-		if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
+		/* Enemies can always attack */
+		if ((m_ptr->mflag & (MFLAG_ALLY)) != (n_ptr->mflag & (MFLAG_ALLY)))
 		{
+			/* Can always attack */
+			return (100);	
+		}
 
+		/* Pushed already */
+		else if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
+		{
 			/* Cannot push away the other monster */
 			return (0);
-
 		}
 
 		/* Push past weaker or similar monsters */
@@ -2621,9 +2756,14 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 	/*
 	 * Monsters that cannot move will attack the character if he is 
 	 * adjacent.
+	 * 
+	 * Now also attack allies.
 	 */
 	if (r_ptr->flags1 & (RF1_NEVER_MOVE))
 	{
+		int i;
+		int d = 9;
+
 		/* Hack -- memorize lack of moves after a while. */
 		if (!(l_ptr->flags1 & (RF1_NEVER_MOVE)))
 		{
@@ -2631,8 +2771,21 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 				l_ptr->flags1 |= (RF1_NEVER_MOVE);
 		}
 
+		/* Look for adjacent enemies */
+		for (i = 0; i < 8; i++)
+		{
+			int y1 = m_ptr->fy + ddy_ddd[i];
+			int x1 = m_ptr->fx + ddx_ddd[i];
+			
+			if (!in_bounds_fully(y1, x1)) continue;
+			
+			if (cave_m_idx[y1][x1] <= 0) continue;
+
+			if ((m_list[cave_m_idx[y1][x1]].mflag & (MFLAG_ALLY)) != (m_ptr->mflag & (MFLAG_ALLY))) d = i;			
+		}
+
 		/* Is character in range? */
-		if (m_ptr->cdis <= 1)
+		if ((m_ptr->cdis <= 1) || (d < 9))
 		{
 			/* Monster can't melee either (pathetic little creature) */
 			if (r_ptr->flags1 & (RF1_NEVER_BLOW))
@@ -2645,11 +2798,23 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 				}
 				return (FALSE);
 			}
-
-			/* Kill. */
+			
+			/* Not afraid */
 			*fear = FALSE;
-			*ty = py;
-			*tx = px;
+
+			/* Prefer player */
+			if (m_ptr->cdis <= 1)
+			{
+				/* Kill. */
+				*ty = py;
+				*tx = px;
+			}
+			else
+			{
+				/* Kill. */
+				*ty = m_ptr->fy + ddy_ddd[i];
+				*tx = m_ptr->fx + ddx_ddd[i];
+			}
 			return (TRUE);
 		}
 
@@ -2759,7 +2924,7 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 					x = px + ddx_ddd[i];
 
 					/* Check Bounds */
-					if (!in_bounds(y, x)) continue;
+					if (!in_bounds_fully(y, x)) continue;
 
 					/* Count floor grids (generic passable) */
 					if (cave_floor_bold(y, x))
@@ -3363,6 +3528,9 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 		/* Ignore if monster knows already */
 		if ((flag & ~(n_ptr->smart)) == 0) continue;
 
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3452,6 +3620,9 @@ bool tell_allies_player_not(int y, int x, u32b flag)
 		/* Ignore if monster doesn't know already */
 		if ((n_ptr->smart & (flag)) == 0) continue;
 
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3536,6 +3707,9 @@ bool tell_allies_mflag(int y, int x, u32b flag, cptr saying)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3593,6 +3767,9 @@ bool tell_allies_death(int y, int x, cptr saying)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3622,6 +3799,9 @@ bool tell_allies_death(int y, int x, cptr saying)
 
 			/* Ignore the monster that died */
 			if ((n2_ptr->fy == y) && (n2_ptr->fx == x)) continue;
+
+			/* Ignore allies or vice versa */
+			if ((n2_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
 
 			/* Ignore monsters who speak different language */
 			if (monster_language(n2_ptr->r_idx) != language) continue;
@@ -3690,6 +3870,9 @@ bool tell_allies_best_range(int y, int x, int range, cptr saying)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3741,6 +3924,9 @@ bool tell_allies_target(int y, int x, int ty, int tx, bool scent, cptr saying)
 
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
+
+		/* Ignore allies or vice versa */
+		if ((n_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY))) continue;
 
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
@@ -4847,8 +5033,60 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	/* Monster is allowed to move */
 	if (do_move)
 	{
+		/* Attack adjacent monsters, if confused or enemies */
+		if ((cave_m_idx[ny][nx] > 0) && ((m_ptr->confused) ||
+			((m_ptr->mflag & (MFLAG_ALLY)) != (m_list[cave_m_idx[ny][nx]].mflag & (MFLAG_ALLY)))))
+		{
+			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
+
+			int ap_cnt;
+
+			do_move = FALSE;
+
+			/* Target ignores player and retaliates */
+			if (m_ptr->mflag & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_IGNORE);
+
+			/* Attack if not afraid */
+			if (!(m_ptr->monfear))
+			{
+				/* Scan through all four blows */
+				for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+				{
+					int damage = 0;
+						
+					bool do_cut, do_stun;
+
+					/* Extract the attack infomation */
+					int effect = r_ptr->blow[ap_cnt].effect;
+					int method = r_ptr->blow[ap_cnt].method;
+					int d_dice = r_ptr->blow[ap_cnt].d_dice;
+					int d_side = r_ptr->blow[ap_cnt].d_side;
+						
+					int who = m_ptr->mflag & (MFLAG_ALLY) ? SOURCE_PLAYER_ALLY : m_idx;
+					int what = m_ptr->mflag & (MFLAG_ALLY) ? m_idx : ap_cnt;
+
+					/* Hack -- no more attacks */
+					if (!method) break;
+
+					/* Hack --- always hit, never display message XXX XXX XXX */
+
+					/* Roll out the damage */
+					damage = damroll(d_dice, d_side);
+
+					/* Debugging - display attacks */
+					attack_desc(who, what, cave_m_idx[ny][nx], method, damage, &do_cut, &do_stun);
+
+					/* New result routine */
+					project_m(who, what, ny, nx, damage, effect);
+
+					/* Apply teleport and other effects */
+					project_t(who, what, ny, nx, damage, effect);
+				}
+			}
+		}		
+		
 		/* Monster has to climb the grid slowly */
-		if ((mmove == MM_CLIMB) && !(r_ptr->flags2 & (RF2_CAN_CLIMB)) && !(m_ptr->mflag & (MFLAG_OVER))
+		else if ((mmove == MM_CLIMB) && !(r_ptr->flags2 & (RF2_CAN_CLIMB)) && !(m_ptr->mflag & (MFLAG_OVER))
 			&& !(m_ptr->mflag & (MFLAG_HIDE)))
 		{
 			/* Climb */
@@ -4873,71 +5111,25 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		{
 			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
 
-			/* Attack if confused and not fleeing */
-			/* XXX XXX Should use seperate routine */
-			/* TODO: join with other (monster?) attack routines */
-			if ((m_ptr->confused) || ((m_ptr->mflag & (MFLAG_ALLY)) != (n_ptr->mflag & (MFLAG_ALLY))))
+			/* The other monster cannot switch places */
+			if (!cave_exist_mon(n_ptr->r_idx, m_ptr->fy, m_ptr->fx, TRUE))
 			{
-				int ap_cnt;
-
-				do_move = FALSE;
-
-				/* Target ignores player and retaliates */
-				if (m_ptr->mflag & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_IGNORE);
-
-				if (!(m_ptr->monfear))
-				{					
-					/* Scan through all four blows */
-					for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
-					{
-						int damage = 0;
-
-						/* Extract the attack infomation */
-						int effect = r_ptr->blow[ap_cnt].effect;
-						int method = r_ptr->blow[ap_cnt].method;
-						int d_dice = r_ptr->blow[ap_cnt].d_dice;
-						int d_side = r_ptr->blow[ap_cnt].d_side;
-
-						/* Hack -- no more attacks */
-						if (!method) break;
-
-						/* Hack --- always hit, never display message XXX XXX XXX */
-
-						/* Roll out the damage */
-						damage = damroll(d_dice, d_side);
-
-						/* New result routine */
-						project_m(m_idx, ap_cnt, ny, nx, damage, effect);
-
-						/* Apply teleport and other effects */
-						project_t(m_idx, ap_cnt, ny, nx, damage, effect);
-					}
+				/* Try to push it aside */
+				if (!push_aside(m_ptr->fy, m_ptr->fx, n_ptr))
+				{
+					/* Cancel move on failure */
+					do_move = FALSE;
 				}
 			}
 
-			/* Swap with or push aside the other monster */
-			else
+			/* Mark monsters as pushed */
+			if (do_move)
 			{
-				/* The other monster cannot switch places */
-				if (!cave_exist_mon(n_ptr->r_idx, m_ptr->fy, m_ptr->fx, TRUE))
-				{
-					/* Try to push it aside */
-					if (!push_aside(m_ptr->fy, m_ptr->fx, n_ptr))
-					{
-						/* Cancel move on failure */
-						do_move = FALSE;
-					}
-				}
+				/* Monster has pushed */
+				m_ptr->mflag |= (MFLAG_PUSH);
 
-				/* Mark monsters as pushed */
-				if (do_move)
-				{
-					/* Monster has pushed */
-					m_ptr->mflag |= (MFLAG_PUSH);
-
-					/* Monster has been pushed aside */
-					n_ptr->mflag |= (MFLAG_PUSH);
-				}
+				/* Monster has been pushed aside */
+				n_ptr->mflag |= (MFLAG_PUSH);
 			}
 		}
 	}
@@ -5459,7 +5651,7 @@ static void process_monster(int m_idx)
 		   or wasn't expecting player attack. */
 		if ((!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE)))
 		{
-			m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+			m_ptr->mflag |= (MFLAG_AGGR);
 
 			/* Tell allies to close */
 			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, (aware) ? "& has attacked me!" : "Something has attacked me!"))
@@ -5506,7 +5698,7 @@ static void process_monster(int m_idx)
 		 */
 		if ((m_ptr->cdis > 1) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE)))
 		{
-			m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+			m_ptr->mflag |= (MFLAG_AGGR);
 
 			/* Tell allies to close */
 			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, (aware) ? "& has attacked me!" : "Something has attacked me!"))
@@ -5607,9 +5799,6 @@ static void process_monster(int m_idx)
 	if ((chance_spell) && ((m_ptr->berserk) || (!aware)
 		|| ((m_ptr->blind) && !(r_ptr->flags6 & (RF6_CURE))) )) chance_spell = 0;
 
-	/* Cannot use innate attacks when fleeing. */
-	if ((chance_innate) && (!m_ptr->monfear)) chance_innate = 0;
-
 	/* Cannot use innate attacks when not aware. */
 	if ((chance_innate) && (!aware)) chance_innate = 0;
 
@@ -5625,7 +5814,20 @@ static void process_monster(int m_idx)
 		|| ((r_ptr->flags3 & (RF3_HUGE)) && (m_ptr->cdis == 2))
 		|| (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
 	{
-		int roll = rand_int(adj_chr_taunt[p_ptr->stat_ind[A_CHR]]);
+		int roll;
+
+		/* Aggressive monsters use ranged attacks more frequently */
+		if (m_ptr->mflag & (MFLAG_AGGR))
+		{
+			roll = rand_int(200);
+			if (chance_innate) chance_innate += 100;
+			if (chance_spell) chance_spell += 100;
+		}
+		/* Normal chance based on charisma */
+		else
+		{
+			roll = rand_int(adj_chr_taunt[p_ptr->stat_ind[A_CHR]]);
+		}
 
 		/* Pick a ranged attack */
 		if ((roll < chance_innate) || (roll < chance_spell)
@@ -5886,6 +6088,8 @@ static void process_monster(int m_idx)
 	if ((r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25)) && (m_ptr->cdis > 1))
 	{
 		int chance = 0;
+		
+		int i;
 
 		/* RAND_25 and RAND_50 are cumulative */
 		if (r_ptr->flags1 & (RF1_RAND_25))
@@ -5897,6 +6101,19 @@ static void process_monster(int m_idx)
 		{
 			chance += 50;
 			if (m_ptr->ml) l_ptr->flags1 |= (RF1_RAND_50);
+		}
+
+		/* Look for adjacent enemies */
+		for (i = 0; i < 8; i++)
+		{
+			int y1 = m_ptr->fy + ddy_ddd[i];
+			int x1 = m_ptr->fx + ddx_ddd[i];
+			
+			if (!in_bounds_fully(y1, x1)) continue;
+			
+			if (!cave_m_idx[y1][x1]) continue;
+
+			if ((m_list[cave_m_idx[y1][x1]].mflag & (MFLAG_ALLY)) != (m_ptr->mflag & (MFLAG_ALLY))) chance = 0;
 		}
 
 		/* Chance of moving randomly */
@@ -5967,22 +6184,163 @@ static void process_monster(int m_idx)
 	}
 
 	/* Is monster an ally, or fighting an ally of the player? */
-	if (m_ptr->mflag & (MFLAG_IGNORE | MFLAG_ALLY)) 
+	if ((m_ptr->mflag & (MFLAG_IGNORE | MFLAG_ALLY)) != 0)
 	{
-		int k = (m_ptr->mflag & (MFLAG_ALLY)) ? MAX_SIGHT : m_ptr->cdis;
+		/* Attempt at efficiency */
+		bool ally = ((m_ptr->mflag & (MFLAG_ALLY)) != 0);
+		bool aggressive = ((m_ptr->mflag & (MFLAG_AGGR)) != 0) ;
+		bool need_lite = ((r_ptr->flags2 & (RF2_NEED_LITE)) == 0);
+		bool sneaking = p_ptr->sneaking || m_ptr->cdis > MAX_RANGE;
 		
-		for (i = m_max - 1; i >= 1; i--)
+		/* Note: We have to prevent never move monsters from acquiring targets or they will move */
+		bool can_target = ((r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_NEVER_BLOW)) != 0)
+			&& (aggressive || !(m_ptr->monfear));
+		
+		/* This allows smart monsters to report enemy positions to the player */
+		bool spying = ally && ((r_ptr->flags2 & (RF2_SMART)) != 0);
+		
+		/* This prevents player monsters from being too effective whilst the player is not around */
+		bool restrict_targets = ally && !aggressive;
+		
+		/* Note we scale this up, and use a pseudo-random hack to try to get multiple monsters
+		 * to favour different equi-distant enemies */
+		int k = (ally ? MAX_SIGHT : m_ptr->cdis) * 16 + 15;
+
+		/* Need to understand spies, and be able to hear them.
+		 * Smart, nonvocal monsters are telepathic. */
+		if (spying && ((r_ptr->flags3 & (RF3_NONVOCAL)) == 0))
+		{
+			/* Too far away to hear */
+			if (m_ptr->cdis > 3 && !player_can_fire_bold(m_ptr->fy, m_ptr->fx)) spying = FALSE;
+			
+			/* Cannot understand language */
+			if (spying && !player_understands(monster_language(m_ptr->r_idx))) spying = FALSE;
+		}
+		
+		/* We check monsters either if we are spying on them or can move to attack them */
+		if (can_target || spying)
+			for (i = m_max - 1; i >= 1; i--)
 		{
 			/* Access the monster */
 			monster_type *n_ptr = &m_list[i];
 
-			/* Allies only find targets visible to player */
-			if ((m_ptr->mflag & (MFLAG_ALLY)) && !(n_ptr->ml)) continue;
+			/* Skip itself */
+			if (m_idx == i) continue;
 
+			/* Allies only find targets visible to player, unless aggressive */
+			if (restrict_targets && !(n_ptr->ml)) continue;
+			
 			/* Monster has an enemy */
-			if ((m_ptr->mflag & (MFLAG_ALLY)) != (n_ptr->mflag & (MFLAG_ALLY)))
+			if (ally != ((n_ptr->mflag & (MFLAG_ALLY)) != 0))
 			{
-				int d = distance(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx);
+				bool see_target = FALSE;
+				int d = distance(n_ptr->fy, n_ptr->fx, m_ptr->fy, m_ptr->fx) * 16 + (m_idx + i) % 16;
+				
+				/* Ignore targets out of range */
+				if (d > MAX_RANGE * 16) continue;
+				
+				/*
+				 * Check if monster can see the target. We make various assumptions about what
+				 * monsters have a yet to be implemented SEE_INVIS flag, if the target is
+				 * invisible. We check if the target is in light, if the monster needs light to
+				 * see by.
+				 */
+				if (!see_target)
+				{
+					/* Monster is hidden */
+					if (n_ptr->mflag & (MFLAG_HIDE))
+					{
+						if ((r_ptr->flags3 & (RF3_NONVOCAL)) == 0) continue;
+					}
+					
+					/* Monster is invisible */
+					if ((r_info[n_ptr->r_idx].flags2 & (RF2_INVISIBLE)) || (n_ptr->tim_invis))
+					{
+						/* Cannot see invisible, or use infravision to detect the monster */
+						if ((r_ptr->d_char != 'e') && ((r_ptr->flags9 & (RF9_RES_BLIND)) == 0)
+								&& ((r_ptr->aaf < d) || ((r_info[n_ptr->r_idx].flags2 & (RF2_COLD_BLOOD)) != 0))) continue;
+					}
+					
+					/* Monster needs light to see */
+					if (need_lite)
+					{
+						/* Check for light */
+						if (((cave_info[n_ptr->fy][n_ptr->fx] & (CAVE_LITE)) == 0)
+							&& ((play_info[n_ptr->fy][n_ptr->fx] & (PLAY_LITE)) == 0))
+						{
+							continue;
+						}
+					}
+					
+					/* Needs line of sight. */
+					see_target = generic_los(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx, CAVE_XLOS);
+				}
+				
+				/* Can't see the target */
+				if (!see_target) continue;
+
+				/* Allies report to player if spying on the enemy */
+				/* We need to ensure that the monster can tell the player what they are
+				 * seeing, either by using speech or telepathically from anywhere on
+				 * the map. */
+				if (spying && see_target)
+				{
+					/* Optimize -- Repair flags */
+					repair_mflag_mark = repair_mflag_show = TRUE;
+
+					/* Hack -- Detect the monster */
+					m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+					/* Update the monster */
+					update_mon(i, FALSE);
+				}
+				
+				/* Ignore certain targets if sneaking */
+				if (sneaking)
+				{
+					/* Target is asleep - ignore */
+					if (m_ptr->csleep) continue;
+					
+					/* Target not aggressive */
+					if ((n_ptr->mflag & (MFLAG_AGGR)) == 0)
+					{
+						monster_race *s_ptr = &r_info[n_ptr->r_idx];
+					
+						/* I'm invisible and target can't see me - ignore */
+						if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tim_invis))
+						{
+							/* Cannot see invisible, or use infravision to detect the monster */
+							if ((s_ptr->d_char != 'e') && ((s_ptr->flags2 & (RF2_INVISIBLE)) == 0)
+								&& ((s_ptr->aaf < d) || ((r_ptr->flags2 & (RF2_COLD_BLOOD)) != 0))) continue;
+						}
+					
+						/* I'm in darkness and target can't see in darkness - ignore */
+						if (s_ptr->flags2 & (RF2_NEED_LITE))
+						{
+							/* Check for light */
+							if (((cave_info[n_ptr->fy][n_ptr->fx] & (CAVE_LITE)) == 0)
+									&& ((play_info[n_ptr->fy][n_ptr->fx] & (PLAY_LITE)) == 0))
+							{
+								continue;
+							}
+						}
+					}
+				}
+
+				/* Can't attack the target */
+				if (!can_target)
+				{
+					/* Run back to the player with tails between its legs */
+					if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) == 0)
+					{
+						m_ptr->ty = p_ptr->py;
+						m_ptr->tx = p_ptr->px;
+						
+						must_use_target = TRUE;
+					}
+					
+					continue;
+				}
 				
 				/* Pick a random target in line of sight */
 				if ((d < k) && (generic_los(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx, CAVE_XLOS)))
@@ -5991,8 +6349,34 @@ static void process_monster(int m_idx)
 					m_ptr->tx = n_ptr->fx;
 					k = d;
 					
-					if (m_ptr->mflag & (MFLAG_ALLY)) must_use_target = TRUE;
+					must_use_target = TRUE;
 				}
+			}
+		}
+		
+		/* Allies use 'old' targets if the monster unable to find a target
+		 * We hackily use best range to interact with
+		 * monster targetting code for allies. The best range for an
+		 * ally is given as its distance from the player when a
+		 * target is set, and increases by one per monster turn.
+		 * If the player is moving away from the monster, the distance
+		 * will exceed the best range and the target will be aborted.
+		 */
+		if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_IGNORE)) == 0) && (!must_use_target))
+		{		
+			/* Still no target - get monster target*/
+			if ((p_ptr->target_set) && (p_ptr->target_who))
+			{
+				m_ptr->ty = p_ptr->target_row;
+				m_ptr->tx = p_ptr->target_col;
+
+				must_use_target = TRUE;
+			}
+
+			/* Use the 'old' target */
+			else if (m_ptr->ty || m_ptr->tx)
+			{
+				must_use_target = TRUE;
 			}
 		}
 	}
@@ -6102,6 +6486,23 @@ static void recover_monster(int m_idx, bool regen)
 		if (!m_ptr->summoned)
 		{
 			/* Delete monster summoned by player */
+			if (m_ptr->mflag & (MFLAG_ALLY))
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_idx, 0);
+
+				/* "Kill" the monster */
+				delete_monster_idx(m_idx);
+
+				/* Give detailed messages if destroyed */
+				msg_format("%^s leaves your service.", m_name);
+
+				/* Redraw the monster grid */
+				lite_spot(y, x);
+				
+				/* Paranoia */
+				return;
+			}
 		}
 	}
 

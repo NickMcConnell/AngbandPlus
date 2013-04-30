@@ -96,7 +96,7 @@ CC = gcc
 # attempt to "guess" at many of these flags based on your system.
 #
 NORMAL_CFLAGS = -Wall -pipe -O2 -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
-LIBS = -lX11 -lncurses -ltermcap -L/usr/X11R6/lib
+LIBS = -lX11 -lncurses -L/usr/X11R6/lib
 
 DEBUG_CFLAGS=$(NORMAL_CFLAGS) -D"ALLOW_BORG" -ggdb -O0 -fno-inline
 

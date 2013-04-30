@@ -120,6 +120,7 @@ typedef struct spell_type spell_type;
 typedef struct rune_type rune_type;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
+typedef struct quickstart_type quickstart_type;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct tval_desc tval_desc;
@@ -205,20 +206,30 @@ struct town_type
 	u32b name;     /* Name (offset) */
 	u32b text;      /* Text (offset) */
 
-	u16b nearby;
-	u16b distant;
+	u16b nearby[MAX_NEARBY];
+	
+	u16b quest_opens;
+	u16b quest_monster;
+	
+	u16b replace_with;
+	u16b replace_ifvisited;
 
+	u16b replace_guardian;
+	u16b guardian_ifvisited;
+	
+	u16b town_lockup_monster;
+	u16b town_lockup_ifvisited;
+	
 	byte r_char;    /* Add races of this char */
 	byte r_flag;    /* Add races with this flag */
-
+	byte max_depth;
+	byte visited;
+	
 	u16b store[MAX_STORES];
 	u16b store_index[MAX_STORES];
 
 	dungeon_zone zone[MAX_DUNGEON_ZONES];
 
-	byte max_depth;
-	byte unused;
-	s16b unused2;
 };
 
 
@@ -1298,6 +1309,25 @@ struct player_other
 
 
 /*
+ * Information about the player used for quick starts
+ */
+struct quickstart_type
+{
+	byte psex;      /* Sex index */
+	byte prace;     /* Race index */
+	byte pclass;    /* Class index */
+	byte pstyle;    /* Style specialization */
+
+	byte psval;		/* Style sub-specialization*/
+	byte pschool;	/* Current magic 'school' */
+
+	s16b stat_birth[A_MAX];	/* Birth "maximal" stat values */
+	
+	s32b birth_au;	/* Birth gold */
+};
+
+
+/*
  * Most of the "player" information goes here.
  *
  * This stucture gives us a large collection of player variables.
@@ -1334,7 +1364,8 @@ struct player_type
 	s16b wt;/* Weight */
 	s16b sc;/* Social Class */
 
-	s32b au;/* Current Gold */
+	s32b au;		/* Current Gold */
+	s32b birth_au;	/* Gold at birth */
 
 	s16b max_depth; /* Max depth */
 	s16b depth;     /* Cur depth */
@@ -1356,7 +1387,8 @@ struct player_type
 
 	s16b stat_max[A_MAX];   /* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];   /* Current "natural" stat values */
-
+	s16b stat_birth[A_MAX];	/* Birth "maximal" stat values */
+	
 	s16b stat_inc_tim[A_MAX];      /* Timed -- Stat increase */
 	s16b stat_dec_tim[A_MAX];      /* Timed -- Stat decrease */
 
@@ -1398,6 +1430,9 @@ struct player_type
 	s16b oppose_lava;       /* Timed -- oppose lava */
 
 	s16b word_recall;       /* Word of recall counter */
+	s16b word_return;		/* Word of return counter */
+	s16b return_y;			/* Player return location */
+	s16b return_x;			/* Player return location */
 
 	s16b energy;    /* Current energy */
 
@@ -1407,12 +1442,15 @@ struct player_type
 	s16b water;     /* Current water */
 
 	s16b held_song;     /* Currently held song */
+	byte sneaking; 		/* Currently sneaking */
+	byte u1;
 
 	byte climbing; /* Currently climbing */
 	byte searching; /* Currently searching */
 	byte charging;	/* Currently charging */
 	byte reserves;	/* Currently on reserve mana */
 
+	
 	u32b disease;	/* Disease types */
 
 	u32b spell_learned1;    /* Spell flags */
@@ -1517,7 +1555,8 @@ struct player_type
 	bool heavy_wield;       /* Heavy weapon */
 	bool heavy_shoot;       /* Heavy shooter */
 	bool icky_wield;/* Icky weapon */
-
+	bool uncontrolled;		/* Uncontrolled activation */
+	
 	s16b cur_lite;  /* Radius of lite (if any) */
 
 	u32b notice;    /* Special Updates (bit flags) */

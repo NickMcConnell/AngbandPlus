@@ -1493,13 +1493,32 @@ static void display_entry(int item, int store_index)
 		c_put_str(attr, o_name, y, 3);
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+		if (!k_info[o_ptr->k_idx].flavor)
+		{
+			/* Object not known */
+			if (!object_aware_p(o_ptr))
+			{
+				/* Display tips */
+				object_aware_tips(o_ptr);
+			}
+			
+			/* Make object aware - short routine */
+			k_info[o_ptr->k_idx].aware = TRUE;
+		}
 
 		/* XXX XXX - Mark monster objects as "seen" */
 		if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
+		if (o_ptr->name2)
+		{
+			if (!e_info[o_ptr->name2].aware)
+			{
+				queue_tip(format("ego%d.txt", o_ptr->name2));
+			}
+			
+			e_info[o_ptr->name2].aware = TRUE;
+		}
 
 		/* Show weights */
 		if (show_weights)
@@ -1542,10 +1561,20 @@ static void display_entry(int item, int store_index)
 		}
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+		if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
+		{
+			object_aware_tips(o_ptr);
 
+			k_info[o_ptr->k_idx].aware = TRUE;
+		}
+		
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
+		if (o_ptr->name2)
+		{			
+			e_info[o_ptr->name2].aware = TRUE;
+			
+			queue_tip(format("ego%d.txt", o_ptr->name2));
+		}
 
 		/* Display a "fixed" cost */
 		if (o_ptr->ident & (IDENT_FIXED))
@@ -2542,10 +2571,10 @@ static void store_purchase(int store_index)
 				say_comment_1();
 
 				/* Get service effect */
-				get_spell(&power, "use", o_ptr, FALSE);
+				get_spell(&power, "use", o_ptr, TRUE);
 
 				/* Paranoia */
-				if (power < 0) return;
+				if (power <= 0) return;
 
 				/* Apply service effect */
 				(void)process_spell(SOURCE_PLAYER_SERVICE, o_ptr->k_idx, power, 0, &cancel, &known);

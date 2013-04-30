@@ -17,13 +17,17 @@
 
 # Format:
 # N: dungeon number: dungeon name
-# X: nearby dungeon : distant dungeon
+# X: easily connected to these dungeons (up to 4 - unused connections should point back to itself)
 # L: level : fill with terrain (0=town) : big terrain : small terrain : quest monster : vault
+# Q: dungeon connected to once quest monster defeated : quest monster
+# Y: lock all shops until this monster is defeated : if player has visited this dungeon
+# Z: substitute this dungeon instead : if player has visited this dungeon
+# W: substitute this guardian monster instead: if player has visited this dungeon
 # G: generate monsters with this character
 # R: generate monsters with this flag
 # S: store1 : store2 : store3 : store4 : store5 : store6 : store7 : store8
 # D: description
-# F: flags (not currently implemented)
+# F: flags
 
 # Note store 1 - 8 are now the index of the feature in terrain.txt not the store in store.txt.
 # The 'power' of the feature determines which store to reference. So you can theoretically
@@ -57,10 +61,11 @@
 
 V:0.6.2
 
-# Default starting dungeon.
+# The non-existent dungeon. This used to be Angband, so we keep it here for compatibility.
+# The non-campaign start is instead the second to last dungeon.
 
 N:0:Angband
-X:43:0
+X:43:0:0:0
 L:0:0:407:0:0:0
 L:1:56:0:0:0:0
 L:100:56:0:0:547:0
@@ -70,38 +75,38 @@ D:It feels like home...
 # Alternate starting dungeon.
 
 N:1:Hobbiton
-X:57:10
+X:10:53:57:58
 G:h
 L:0:0:411:153:0:0
 S:264:515:265:266:772:773:0:0
-D:Here your adventure begins. Press '<' to travel elsewhere (but beware Farmer Maggot's farm).
+D:Here your adventure begins.
 
-#The following quests are from the hobbit.
-
-N:2:Rivendell, in late summer
-X:39:3
+N:2:Rivendell
+X:3:13:14:17
 L:0:0:420:155:0:0
 S:267:9:10:11:519:13:268:513
 
 # Misty Mountains are quite wet (Underground rivers etc).
 
 N:3:the Misty Mountains
-X:2:4
+X:2:0:0:0
 G:k
 R:HURT_LITE
+Q:4:173
+Z:15:42
 L:5:420:56:56:0:0
 L:6:56:0:153:52:0
 L:7:56:0:153:0:0
 L:13:56:0:154:173:0
 
 N:4:the house of Beorn
-X:3:5
+X:3:5:0:0
 R:ANIMAL
-L:10:0:435:0:566:0
+L:14:0:435:0:566:0
 S:269:0:0:0:0:0:0:0
 
 N:5:Mirkwood
-X:4:6
+X:4:6:0:0
 G:l
 R:CAN_CLIMB
 L:14:420:56:153:637:0
@@ -111,39 +116,44 @@ L:26:56:155:0:1082:0
 S:270:271:503:11:12:504:505:0
 
 N:6:Lake-town
-X:5:7
+X:5:7:52:0
 L:0:0:155:152:0:0
 S:8:9:10:11:12:13:14:508
+Z:8:7
+D:The locals eye you suspiciously, afraid of treasure-hunters 
+D:who would disturb the Lonely Mountain at great risk to all.
 
 # We disturb Smaug while entering his lair...
 # Note Smaug is out of depth by 10 levels at bottom.
 
 N:7:the Lonely Mountain
-X:8:9
+X:8:52:0:0
 R:DRAGON
 G:B
+Q:9:475
 L:20:435:56:154:0:0
 L:21:56:0:0:0:0
 L:38:56:0:0:475:0
 D:There is a sudden flash of gold and flame in the 
-D:air... Smaug has taken flight. You desperately 
-D:cower for cover on the open mountainside... he 
-D:wheels once, twice over you and departs. In the 
-D:distance, you see smoke start to rise as Lake-
-D:town burns.
+D: air... Smaug has taken flight. You desperately
+D: cower for cover on the open mountainside... he
+D: wheels once, twice over you and departs. In the
+D: distance, you see smoke start to rise as Lake-
+D: town burns.
 
 # With disasterous consequences.
 
 N:8:the ruins of Lake-town
-X:7:9
+X:5:7:52:0:0
 R:CAN_SWIM
 G:t
+Z:9:9
 L:22:155:407:49:475:0
 D:Smaug has laid waste to Lake-town. The townsfolk 
 D:gather, angry at you for disturbing his lair...
 
 N:9:Lake-town, rebuilt
-X:42:14
+X:5:7:52:0
 L:0:0:155:152:0:0
 S:509:516:517:11:12:13:506:508
 D:Visit the statue to collect a reward from the 
@@ -152,7 +162,7 @@ D:grateful townsfolk.
 #The following levels are from the Fellowship of the Ring.
 
 N:10:Farmer Maggot's farm
-X:1:58
+X:1:58:0:0
 G:,
 R:ANIMAL
 L:2:0:435:0:4:0
@@ -161,108 +171,126 @@ L:6:114:0:0:111:0
 S:507:0:0:0:0:0:0:0
 
 N:11:Bree
-X:41:56
-G:t
-R:ANIMAL
-L:0:0:407:408:440:0
+X:57:38:39:56
+W:440:48
+Y:440:48
+L:0:0:407:408:0:0
 L:1:56:0:0:0:0
-L:3:56:0:0:620:0
+L:6:56:0:0:620:0
 S:8:9:10:11:12:13:268:775
 
 N:12:Weathertop
-X:56:13
-G:s
-R:ANIMAL
-L:20:420:56:49:449:31
-L:31:56:0:0:449:31
+X:56:13:0:0
+W:449:48
+L:20:420:56:49:0:31
+L:31:56:0:0:0:31
 
 N:13:the Ford to Rivendell
-X:12:14
-L:14:420:154:126:453:0
+X:2:12:39:0
+W:453:48
+L:5:420:154:126:0:0
 
-#Duplicate to allow acces to Moria.
+# This set of mines is shallower and easy access from Isengard.
+# It gets replaced by a gate after the Battle of Five Armies
 
-N:14:Rivendell, in autumn
-X:15:17
-L:0:0:420:155:0:0
-S:267:516:503:11:519:505:268:513
+N:14:the mines of Moria
+X:2:0:0:0
+Z:16:42
+L:6:49:397:56:0:0
+L:7:56:0:0:0:0
+L:24:56:0:0:262:0
+D:In older days, the gates to Moria were always open, and a meeting point for dwarves, men and
+D: elves.  The doors now stand ajar, but the mines behind them are home to only fouler things.
 
 N:15:Caradhras
-X:16:19
+X:14:16:17:0
 R:GIANT
 G:C
+Q:19:1272
 L:20:451:56:148:473:0
 L:21:56:144:145:0:0
 L:50:56:144:145:1272:0
-D:The storms of the mountain echo around you.  Turn back, while you can!
+D:Since Gandalf close the path created by the Goblins through the Misty Mountains,
+D: this has been the only route through.  In summer, it is passable.  Now, however,
+D: the storms of the mountain echo around you.  Turn back, while you can!
 
 N:16:the gates of Moria
-X:17:18
-L:21:49:397:56:639:0
+X:15:17:0:0
+L:21:49:397:56:0:0
 L:22:56:393:0:0:0
 L:50:56:393:393:639:0
 D:The door to Moria is almost impossible to find.  You need a map to
 D: guide you.  While you search, something deadly stirs in the water.
 
 N:17:Isengard
-X:14:20
-L:21:420:141:141:249:31
-L:22:50:0:0:0:31
-L:50:56:0:0:532:31
+X:14:16:20:21
+R:MAGE
+Z:23:48
+L:6:420:141:141:0:31
+L:7:50:0:0:0:31
+L:35:56:0:0:0:31
+D:The tower of Isengard is home to the wise counciller Saruman
+D: the White, head of the order of Istari.  However, you are not
+D: yet a member...
 
 N:18:Lothlorien
-X:19:20
+X:19:20:61:0
 G:l
 L:0:0:420:420:0:0
 S:270:503:11:12:13:504:510:0
-D:Galadriel's gifts can be found at her mirror.
+D:The enchanted woods which can only be found by true heroes.
+D:  Galadriel's gifts can be found at her mirror.
 
 N:19:Parth Galen
-X:20:24
-G:o
-R:WARRIOR
-L:30:420:155:56:644:0
+X:20:24:0:0
+Q:18:483
+L:20:420:155:56:0:0
+L:31:56:0:0:0:0
+L:50:56:0:0:0:0
+D:The ruins of a more ancient race lies here: the glens and
+D: hillocks strewn with the toppled statues of kings and
+D: conquerors.
 
 N:20:Fangorn
-X:21:23
+X:17:18:21:47
 G:o
 R:PLANT
 L:20:420:420:420:634:0
 
 N:21:Edoras
-X:22:29
+X:20:29:0:0
 G:p
 R:WARRIOR
-L:51:0:533:529:0:49
-L:52:56:0:0:514:49
+W:514:23
+Z:22:23
+L:0:0:533:529:0:0
 S:271:516:517:519:504:511:509:508
-D:In the distance you see the watch-towers burning a signal to Minas Tirith.
-D:  The shortest path there lies on the Paths of the Dead; if you take it
-D: you may not return here.
+D:The slumbering city of Edoras.  King Theoden has gathered
+D: many warriors around him, but seeks less than wise council... 
 
-N:22:Hornburg
-X:21:23
-G:o
+N:22:the siege of Hornburg
+X:17:21:0:0
 R:ESCORT
-L:53:420:56:155:249:49
+L:21:420:56:155:249:49
+L:50:420:56:155:249:49
 
-N:23:Isengard
-X:20:28
+N:23:Isengard, darkened by the clouds of Saruman's machinations
+X:20:0:0:0
+Q:28:532
 L:21:420:141:141:514:31
 L:22:56:0:0:0:31
 L:50:56:0:0:532:31
-D:If you conquer Isengard, you open the easier path to Minas Tirith.  If you
-D: take it, you may not return here.
+D:If you conquer Isengard, you open the easier path to Minas Tirith.
 
 N:24:the Marshes of the Dead
-X:19:25
+X:19:25:0:0
 R:UNDEAD
 L:52:199:200:201:505:0
 
 #Should be guarded by Faramir
 
 N:25:Ithilien
-X:26:49
+X:26:49:0:0
 G:T
 R:WARRIOR
 L:20:420:155:199:0:0
@@ -270,7 +298,7 @@ L:21:0:1:155:1084:0
 S:512:520:521:522:0:0:0:0
 
 N:26:Minas Morgul
-X:25:31
+X:25:31:0:0
 R:UNDEAD
 L:53:407:56:397:492:46
 L:54:56:0:397:0:46
@@ -279,26 +307,23 @@ L:85:56:0:0:535:46
 #Note that we need a map to travel from Minas Morgol to Cirith Ungol now.
 
 N:27:Cirith Ungol
-X:26:31
+X:26:31:0:0
 L:53:56:141:141:530:11
 L:54:56:1:0:0:11
 L:65:56:1:0:597:11
 
-#King Denethor should guard Minas Tirith
-
 N:28:Minas Tirith
-X:30:25
+X:22:25:30:0
 G:t
 R:MAGE
+Q:31:1085
 L:0:0:410:56:0:46
 L:1:56:0:0:0:46
 L:55:56:0:0:1085:46
 S:505:516:517:503:519:518:509:508
-D:Should you defeat Denethor, you will open the path to Ithilien.  If you
-D: take it, you may not return here for some time.
 
 N:29:the Paths of the Dead
-X:28:30
+X:28:0:0:0
 G:W
 R:UNDEAD
 L:56:0:420:0:528:0
@@ -308,42 +333,37 @@ S:806:0:0:0:0:0:0:0
 D:A single slab of grey stone covered with bones sits here, deep in the Dimholt woods.
 D:  Beyond, you can see the pale, flickering torches that light the Dark Door of the
 D: Dead - the entrance to the Paths of the Dead.  You can leave supplies here on the
-D: stone while you search this lifeless place, but once you leave the Paths of the Dead,
-D: anything left behind will be lost.
+D: stone while you search this lifeless place.
 
 N:30:the Battle of Pelennor Fields
-X:28:31
+X:28:31:0:0
 G:W
 R:ESCORT
 L:56:435:411:420:535:0
 
-N:31:Minas Tirith
-X:25:26
-G:t
-R:MAGE
+N:31:the white tree of Minas Tirith
+X:28:0:0:0
+R:ANIMAL
 L:0:0:410:56:0:46
-L:1:56:0:0:0:46
-L:55:56:0:0:0:46
-S:505:516:517:503:519:518:777:508
-D:A white tree has found root in Minas Tirith.  Claim your reward
-D: there.  This is your last chance to rest before the final
-D: confrontation with Sauron.
+S:777:0:0:0:0:0:0:0
+D:A white tree has found root here.  Claim your reward which
+D:lies beneath the tree.
 
 N:32:the Plains of Gorgoroth
-X:51:33
+X:51:33:0:0
 G:o
 L:65:441:201:431:0:0
 L:79:56:209:0:595:0
 
 N:33:Orodruin
-X:32:34
+X:32:34:0:0
 R:BRTH_FIRE
 L:79:432:218:218:0:0
 L:80:56:218:218:0:0
 L:99:56:218:218:546:0
 
 N:34:Barad-dur
-X:33:35
+X:33:35:0:0
 G:M
 R:EVIL
 L:65:409:218:216:541:20
@@ -351,13 +371,13 @@ L:66:56:218:216:0:20
 L:99:56:218:216:546:20
 
 N:35:Hobbiton
-X:0:36
+X:36:0:0:0
 G:h
 L:60:0:407:159:532:0
 S:516:517:14:266:509:0:0:0
 
 N:36:Hobbiton, rebuilt
-X:36:0
+X:36:0:0:0
 G:h
 L:0:0:407:153:0:0
 S:264:515:265:266:772:773:774:0
@@ -365,56 +385,54 @@ S:264:515:265:266:772:773:774:0
 # The following are accessible from the first Hobbiton for consistency
 
 N:37:Bree
-X:38:39
-G:t
-R:ANIMAL
-L:0:0:407:408:617:0
+X:38:39:56:57
+W:440:48
+Y:440:48
+L:0:0:407:408:0:0
 L:1:56:0:0:0:0
-L:3:56:0:0:620:0
+L:6:56:0:0:620:0
 S:8:9:10:11:12:13:268:775
 
 N:38:Barrow-downs
-X:37:40
-L:1:407:407:56:0:0
-L:2:56:0:0:0:0
+X:11:12:11:40
+L:7:420:420:56:0:0
+L:8:56:0:0:0:0
 L:20:56:0:0:1081:0
 
 N:39:Trollshaw Forest
-X:37:2
+X:13:11:0:0
 L:4:420:420:155:343:0
 L:5:56:0:0:344:0
 L:6:56:0:0:345:0
 
 N:40:the Old Forest
-X:53:54
+X:38:53:54:0
+Q:55:307
 R:ANIMAL
 L:6:420:420:153:0:0
 
 # And the same dungeon accessible from the LOtR quest.
 
 N:41:Barrow-downs
-X:11:12
+X:11:12:40:0
 L:7:420:420:56:0:0
 L:8:56:0:0:0:0
 L:20:56:0:0:1081:0
 
-# Alternate Lonely Mountain for 'There and Back again' map
-
-# We disturb Smaug while entering his lair...
-# Note Smaug is out of depth by 10 levels at bottom.
-
-N:42:the Lonely Mountain
-X:14:52
-R:DRAGON
-G:B
-L:20:435:56:154:475:0
-L:21:56:0:0:0:0
-L:38:56:0:0:475:0
+N:42:the vaults of Erebor
+X:52:48:14:0
+L:21:0:56:1:0:0
+L:40:0:56:0:0:0
+D:The innermost vaults of the dwarven city of Erebor,
+D: ripped open by the casting down of the mountainside
+D: by Thorin, crushing many thousands of orcs and turning
+D: the tide of the Battle of Five Armies.  Treasures
+D: spill from the vaults long hidden inside.
 
 # Alternate to bypass Moria etc. and reach Angband...
 
 N:43:the ruins of Angmar
-X:14:0
+X:14:62:0:0
 R:UNDEAD
 L:21:425:141:141:0:0
 L:22:56:141:0:0:0
@@ -424,7 +442,7 @@ L:81:56:0:0:0:0
 # Sunken dungeon.
 
 N:44:the sunken city of Numenor
-X:14:44
+X:14:44:0:0
 G:G
 R:CAN_SWIM
 L:21:403:400:49:0:0
@@ -432,7 +450,7 @@ L:22:399:56:0:0:0
 L:60:399:56:0:0:0
 
 N:45:the temple of Elemental Evil
-X:14:45
+X:14:45:0:0
 G:E
 R:PRIEST
 L:21:425:141:141:0:0
@@ -440,7 +458,7 @@ L:22:56:0:0:0:0
 L:60:56:0:0:0:0
 
 N:46:the Crystal Castle
-X:14:45
+X:14:45:0:0
 G:g
 R:MAGE
 L:21:56:144:145:0:0
@@ -448,13 +466,16 @@ L:22:148:145:0:0:0
 L:60:148:145:0:0:0
 
 N:47:the Battle of Five Armies
-X:52:48
+X:52:48:14:0
+Z:42:235
 G:C
 R:ESCORT
+Q:42:235
+Z:42:42
 L:20:420:56:153:235:0
 
 N:48:Dol Guldur
-X:20:23
+X:20:17:0:0
 G:q
 R:EVIL
 L:40:420:56:420:474:44
@@ -462,7 +483,7 @@ L:41:56:0:0:0:44
 L:65:56:0:0:645:44
 
 N:49:Morannon
-X:25:50
+X:25:50:0:0
 G:q
 R:EVIL
 L:50:407:56:397:538:43
@@ -470,19 +491,21 @@ L:51:56:0:397:0:43
 L:75:56:0:0:538:43
 
 N:50:Udun
-X:49:51
+X:49:51:0:0
 R:DEMON
 L:79:407:218:218:0:0
 L:80:56:218:218:0:0
 L:98:56:218:218:545:0
 
 N:51:Isenmouthe
-X:32:50
+X:32:50:0:0
 R:EVIL
 L:80:407:218:208:511:0
 
 N:52:the Dale
-X:47:42
+X:47:0:0:0
+Y:475:7
+Q:42:475
 L:0:0:530:153:0:0
 S:509:516:517:11:12:13:268:508
 
@@ -490,14 +513,14 @@ S:509:516:517:11:12:13:268:508
 # 'breathing space'.
 
 N:53:Buckland
-X:40:54
+X:40:54:58:0
 G:h
 R:ANIMAL
 L:0:0:420:408:0:0
 S:8:9:10:11:12:13:268:778
 
 N:54:a clearing in the Old Forest
-X:40:55
+X:38:40:53:55
 R:PLANT
 L:6:0:420:153:622:0
 L:7:56:420:420:0:0
@@ -505,7 +528,7 @@ L:10:56:420:420:622:0
 S:0:0:0:0:0:0:0:0
 
 N:55:the House of Tom Bombadil
-X:41:41
+X:54:0:0:0
 G:H
 L:11:0:420:153:307:0
 L:12:56:1:420:307:0
@@ -513,7 +536,7 @@ S:514:776:0:0:0:0:0:0
 D:Goldberry's gifts can be found at her pool.
 
 N:56:the Midgewater Marshes
-X:11:12
+X:11:12:0:0
 G:R
 R:INSECT
 L:11:435:153:199:0:0
@@ -523,11 +546,11 @@ L:19:56:0:153:215:0
 # Make it clear that there is no easy way back to Hobbiton.
 
 N:57:the East Road
-X:1:37
+X:1:11:0:0
 G:h
 R:ANIMAL
 L:0:0:435:420:0:0
-S:0:0:0:0:0:0:0:0
+S:904:0:0:0:0:0:0:0
 D:The road ahead is long but straight; it takes you to beyond the
 D: edge of the Shire to Bree.  Choose your path carefully!  Once
 D: your feet take you further, it may be a while before you return
@@ -535,11 +558,11 @@ D: to Hobbiton, older, wiser and wearier.  Elsewhere, dark clouds
 D: gather. At least the way ahead seems fair and true.
 
 N:58:the Brandywine Bridge
-X:1:53
+X:1:10:53:0
 G:h
 R:ANIMAL
 L:0:0:435:155:0:0
-S:0:0:0:0:0:0:0:0
+S:903:0:0:0:0:0:0:0
 D:This is the farthest you've been from the Shire - ahead, dark
 D: clouds gather.  Choose your path carefully! Once you cross the
 D: Brandywine to Buckland, it may be a while before you return to
@@ -549,14 +572,15 @@ D: Road from Hobbiton looks a fairer route, and safer too.
 # Break Moria up into several sections to be more like what I originally intended.
 
 N:59:the door to Moria
-X:16:60
+X:16:60:0:0
 G:E
 L:0:0:1:56:0:0
 S:0:0:0:0:0:0:0:0
 D:Starlight leads the way.  'Speak friend, and enter'.
 
 N:60:the mines of Moria
-X:60:61
+X:0:0:0:0
+Q:61:1277
 L:22:56:0:0:0:0
 L:29:56:0:0:0:0
 L:30:0:1:56:1277:0
@@ -566,16 +590,27 @@ D:  Your heart shudders; the dust finally settles. Something has closed the door
 D: Moria, from the outside.  Your only choice is to press onwards.  And downwards...
 
 N:61:Khazad-Dum
-X:60:18
+X:60:0:0:0
+Q:483:18
 L:31:1:141:0:483:0
 L:32:56:141:0:0:0
 L:49:56:141:0:0:0
 L:50:56:393:393:483:0
 D:Drums. Drums. Drums in the deep.
 
+# Must always be second to last position
+
+N:62:Angband
+X:43:0:0:0
+L:0:0:407:0:0:0
+L:1:56:0:0:0:0
+L:100:56:0:0:547:0
+S:8:9:10:11:12:13:14:15
+D:It feels like home...
+
 # Must always be last position
 
-N:62:the West
+N:63:the West
 G:M
 L:0:0:420:0:0:0
 S:777:0:0:0:0:0:0:0

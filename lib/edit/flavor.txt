@@ -1939,3 +1939,24 @@ N:486:75
 G:!:u
 D:Umber
 
+### More Rods ###
+
+N:487:66
+G:-:w
+D:Ceremonial
+
+N:488:66
+G:-:w
+D:Fishing
+
+N:489:66
+G:-:w
+D:Lightning
+
+N:490:66
+G:-:w
+D:Switch
+
+N:491:66
+G:-:w
+D:Birch

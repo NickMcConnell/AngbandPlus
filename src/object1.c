@@ -574,6 +574,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	char discount_buf[80];
 
 	char tmp_buf[128];
+	char mon_buf[80];
 
 	u32b f1, f2, f3, f4;
 
@@ -643,6 +644,33 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Assume no "modifier" string */
 	modstr = "";
 
+	
+	/* Prep the monster name if required */
+	if (o_ptr->name3)
+	{
+		char *s, *t;
+		int state = 0;
+	
+		/* Save the monster name */
+		my_strcpy(mon_buf, r_name + r_info[o_ptr->name3].name, sizeof(mon_buf));
+
+		/* Fix up genderised descriptions manually */
+		for (t = s = mon_buf; *s; s++)
+		{
+			if (*s == '|')
+			{
+				state++;
+				if (state == 3) state = 0;
+			}
+			else if (!state || (state == 1 /* Male */))
+			{
+				*t++ = *s;
+			}
+		}
+		
+		/* Terminate */
+		*t = '\0';
+	}
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -791,7 +819,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			/* Racially mark the object */
 			if (o_ptr->name3)
 			{
-				modstr = (r_name + r_info[o_ptr->name3].name);
+				modstr = mon_buf;
 				append_modstr = TRUE;
 			}
 
@@ -941,18 +969,17 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			}
 			else if (r_info[o_ptr->name3].flags1 & (RF1_UNIQUE))
 			{
-				char tmp_buf[160];
-
-				my_strcpy(tmp_buf, r_name + r_info[o_ptr->name3].name, sizeof(tmp_buf));
-				if (o_ptr->tval != TV_STATUE) my_strcat(tmp_buf, "'s", sizeof(tmp_buf));
-				modstr = tmp_buf;
+				if (o_ptr->tval != TV_STATUE) my_strcat(mon_buf, "'s", sizeof(mon_buf));
+				
+				/* Use the mod string */
+				modstr = mon_buf;
 
 				/* Skip a/an */
 				if (basenm[2] == '#') basenm = &basenm[2];
 			}
 			else
 			{
-				modstr = (r_name + r_info[o_ptr->name3].name);
+				modstr = mon_buf;
 			}
 			break;
 		}
@@ -1339,13 +1366,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	
 			if (!(r_info[o_ptr->name3].flags1 & (RF1_UNIQUE)))
 			{
-				cptr name= r_name + r_info[o_ptr->name3].name;
+				cptr name = mon_buf;
 	
 				if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
 				else object_desc_str_macro(t, "a ");
 			}
 	
-			object_desc_str_macro(t, r_name + r_info[o_ptr->name3].name);
+			object_desc_str_macro(t, mon_buf);
 		}
 		else
 		{
@@ -2030,6 +2057,13 @@ s16b wield_slot(const object_type *o_ptr)
     case TV_SHOT:
       {
 	return INVEN_QUIVER;
+      }
+    case TV_EGG:
+      {
+	if (o_ptr->sval == SV_EGG_SPORE)
+	  return INVEN_QUIVER;
+	else
+	  return -1;
       }
 
     default:
@@ -3423,7 +3457,7 @@ static int get_tag(int *cp, char tag)
 				default:	group = QUIVER_GROUP_SHOTS;	break;
 			}
 		}
-		/* Hack - Everything else is a throwing weapon */
+		/* Hack - shots are not a throwing weapon here */
 		else
 		{
 		 	group = QUIVER_GROUP_THROWING_WEAPONS;
@@ -3437,7 +3471,7 @@ static int get_tag(int *cp, char tag)
 			/* (Paranoia) Ignore empty slots */
 			if (!o_ptr->k_idx) continue;
 
-			/* Groups must be equal */
+			 /* Groups must be equal */
 			if (quiver_get_group(o_ptr) != group) continue;
 
 			/* Allow pseudo-tag override */

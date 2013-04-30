@@ -257,6 +257,38 @@ Note that a few spells are not currently implemented, and some higher level book
 empty of spells. Priest schools will also be developed, possibly to reflect the different Middle
 Earth deities, plus a paladin school.
 
+- The unique elementals now get escorts of their ilk.
+
+- Spores can now be stored in the quiver (Thanks to Mikolaj Konarski for the suggestion and
+code for this).
+
+- Reworked campaign mode so that you can almost always travel back and forward between two
+locations.  Added some additional locations.  This is very much a work in progress and will need
+balancing to ensure there are dungeons that can be accessed easily to cover all depths.
+
+- Monsters in groups are now lead by a higher level leader. Add ability for monsters to vary by
+age.
+
+- Undead now live with undead animals. Animal summoners summon undead animals if they are undead.
+
+- Added low level wands of Spark and re-organised wand depths and prices slightly.
+
+- Blessing is now the first paladin spell to help low level paladins with combat.
+
+- Made men of Bree observant and Haradrim warriors fearless.
+
+- If a summoned minion of yours dies, you incure a mana debt equal to the monster level. If you
+cannnot pay the debt from available mana, you'll pay it in blood instead.
+
+- Monsters you summon now have a time limit to their existence.
+
+- If the deepest monster on a level is powerful, litter the level with the remains of its victims.
+
+- Morgoth is now an equal oppotunity employer.
+
+- Try to ensure monster drops 1 weapon, 1 body armour, 1 helmet etc. when calculating monster
+drops to provide a better as well as more realistic set of drops.
+
 
 ### User Interface ###
 
@@ -287,6 +319,24 @@ and pete mac).
 (Requested by pebepe).
 
 - Commit patch from Andrew Sidwell that improves main-win.c startup.
+
+- Added tips interface to allow context sensitive tips to be placed in the game.  Have
+created a few tips but there are many more to do.  See info\readme.txt for what tips can be
+put in the game.
+
+- Added skill display for each class and race during character birth mode.
+
+- Updates to documentation covering character creation.
+
+- Added a 'difficulty' level at character birth mode.  Be honest with your choices and you'll
+get the best in-game experience.
+
+- Display character height in feet.
+
+- Reduce sensitivity in birth menus to mouse input.
+
+
+
 
 ### Bug fixes ###
 
@@ -438,6 +488,30 @@ by matthiasrudolf).
 doesn't solve the original bug, and will cause some stores to be reset (Reported by Matthias Rudolf).
 
 - Fixed alchemy bugs and improve messages (Mikolaj).
+
+- Fixed major bug with mouse interaction with looking on Windows platform.
+
+- Fixed problem with strange wand effects when repeating wand activations (Reported
+by redelsmansidi).
+
+- Fixed bug where monsters would only breath when afraid (Reported by Matthias
+Rudolf).
+
+- Fixed numerous bugs with animate objects and summoned monsters (Reported by Matthias
+Rudolf).
+
+- Fixed bug where monsters would stop being generated on a level (Reported by Matthias
+Rudolf).
+
+- Fixed bug with repeat and shop services.
+
+- Fixed bug with Throwing flag no longer being obvious (Thanks to Mikolaj Konarski for
+the fix).
+
+- Fix darkness so its useful as a spell.
+
+- Fix logic problem with polymorphing a monster on terrain.
+
 
 ### Build / Platform ###
 

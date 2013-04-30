@@ -1875,7 +1875,7 @@ static void fix_monster(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (p_ptr->monster_race_idx) display_roff(p_ptr->monster_race_idx);
+		if (p_ptr->monster_race_idx) display_roff(&r_info[p_ptr->monster_race_idx], &l_list[p_ptr->monster_race_idx]);
 
 		/* Fresh */
 		Term_fresh();
@@ -3048,6 +3048,9 @@ static void calc_bonuses(void)
 		p_ptr->incr_resist[i] = 1;
 	}
 
+	/* Clear uncontrolled status */
+	p_ptr->uncontrolled = FALSE;
+	
 	/*** Extract race/class info ***/
 
 	/* Base infravision (purely racial) */
@@ -3230,6 +3233,9 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_FIRE)) p_ptr->incr_resist[INCR_RES_FIRE]++;
 		if (f2 & (TR2_RES_POIS)) p_ptr->incr_resist[INCR_RES_POIS]++;
 		if (f4 & (TR4_RES_WATER)) p_ptr->incr_resist[INCR_RES_WATER]++;
+
+		/* Affect uncontrolled status */
+		if ((f3 & (TR3_UNCONTROLLED)) && (cursed_p(o_ptr))) p_ptr->uncontrolled = TRUE;
 
 		/* Affect flags */
 		p_ptr->cur_flags1 |= f1;

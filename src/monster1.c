@@ -41,10 +41,8 @@ static cptr wd_his[3] =
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx, const monster_lore *l_ptr)
+static bool know_armour(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	s32b level = r_ptr->level;
 
 	s32b kills = l_ptr->tkills;
@@ -68,10 +66,8 @@ static bool know_armour(int r_idx, const monster_lore *l_ptr)
  * the higher the level of the monster, the fewer the attacks you need,
  * the more damage an attack does, the more attacks you need
  */
-static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
+static bool know_damage(const monster_race *r_ptr, const monster_lore *l_ptr, int i)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	s32b level = r_ptr->level;
 
 	s32b a = l_ptr->blows[i];
@@ -95,11 +91,16 @@ static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
 }
 
 
-static void describe_monster_desc(int r_idx)
+static void describe_monster_desc(const monster_race *r_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
 	char buf[2048];
 
+	char *s, *t;
+	
+	int match = (r_ptr->flags1 & (RF1_FEMALE)) ? 2 : 1;
+	
+	int state = 0;
+	
 #ifdef DELAY_LOAD_R_TEXT
 
 	int fd;
@@ -160,10 +161,27 @@ static void describe_monster_desc(int r_idx)
 #else
 
 	/* Simple method */
-	strcpy(buf, r_text + r_ptr->text);
+	my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
 
 #endif
 
+	/* Remove gender sensitivity */
+	for (t = s = buf; *s; s++)
+	{
+		if (*s == '|')
+		{
+			state++;
+			if (state == 3) state = 0;
+		}
+		else if (!state || (state == match))
+		{
+			*t++ = *s;
+		}
+	}
+
+	/* Terminate buffer */
+	*t = '\0';
+	
 	/* Dump it */
 	text_out(buf);
 
@@ -171,9 +189,8 @@ static void describe_monster_desc(int r_idx)
 }
 
 
-static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_spells(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
 	int m, n;
 	int msex = 0;
 	bool ranged = ((l_ptr->flags4 & (RF4_BLOW_1 | RF4_BLOW_2 | RF4_BLOW_3 | RF4_BLOW_4)) ? TRUE : FALSE);
@@ -467,10 +484,8 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_drop(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	bool sin = FALSE;
 	bool plu = TRUE;
 
@@ -614,9 +629,8 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool ranged)
+static void describe_monster_attack(const monster_race *r_ptr, const monster_lore *l_ptr, bool ranged)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
 	int m, n, r;
 	cptr p, q;
 
@@ -934,7 +948,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 			text_out(q);
 
 			/* Describe damage (if known) */
-			if (d1 && d2 && know_damage(r_idx, l_ptr, m))
+			if (d1 && d2 && know_damage(r_ptr, l_ptr, m))
 			{
 				/* Display the damage */
 				text_out(" with damage");
@@ -972,10 +986,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 }
 
 
-static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_abilities(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int n;
 
 	int vn;
@@ -1328,10 +1340,8 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_kills(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_kills(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int msex = 0;
 
 
@@ -1433,10 +1443,8 @@ static void describe_monster_kills(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_toughness(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int msex = 0;
 
 
@@ -1445,7 +1453,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
 	
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, l_ptr))
+	if (know_armour(r_ptr, l_ptr))
 	{
 		/* Armor */
 		text_out(format("%^s has an armor rating of %d",
@@ -1468,10 +1476,8 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_exp(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	cptr p, q;
 
 	long i, j;
@@ -1525,10 +1531,8 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_power(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_power(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int msex = 0;
 
 	/* Extract a gender (if applicable) */
@@ -1552,10 +1556,8 @@ static void describe_monster_power(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_movement(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int vn;
 	cptr vp[64];
 	int n;
@@ -1764,12 +1766,9 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 /*
  * Learn everything about a monster (by cheating)
  */
-static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
+static void cheat_monster_lore(const monster_race *r_ptr, monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
 	int i;
-
 
 	/* Hack -- Maximal kills */
 	l_ptr->tkills = MAX_SHORT;
@@ -1830,13 +1829,9 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
  */
-void describe_monster(int r_idx, bool spoilers)
+void describe_monster_race(const monster_race *r_ptr, const monster_lore *l_ptr, bool spoilers)
 {
 	monster_lore lore;
-
-	/* Get the race and lore */
-	const monster_race *r_ptr = &r_info[r_idx];
-	monster_lore *l_ptr = &l_list[r_idx];
 
 	/* Hack -- create a copy of the monster-memory */
 	COPY(&lore, l_ptr, monster_lore);
@@ -1855,51 +1850,51 @@ void describe_monster(int r_idx, bool spoilers)
 	}
 
 	/* Cheat -- know everything */
-	if (cheat_know || spoilers) cheat_monster_lore(r_idx, &lore);
+	if (cheat_know || spoilers) cheat_monster_lore(r_ptr, &lore);
 
 	/* Show kills of monster vs. player(s) */
 	if (!spoilers && show_details)
-		describe_monster_kills(r_idx, &lore);
+		describe_monster_kills(r_ptr, &lore);
 
 	/* Monster description */
 	if (spoilers || show_details)
-		describe_monster_desc(r_idx);
+		describe_monster_desc(r_ptr);
 
 	/* Describe the movement and level of the monster */
-	describe_monster_movement(r_idx, &lore);
+	describe_monster_movement(r_ptr, &lore);
 
 	/* Describe experience */
-	describe_monster_exp(r_idx, &lore);
+	describe_monster_exp(r_ptr, &lore);
 
 	/* Describe power */
-	describe_monster_power(r_idx, &lore);
+	describe_monster_power(r_ptr, &lore);
 
 	/* Describe the known ranged attacks */
-	describe_monster_attack(r_idx, &lore, TRUE);
+	describe_monster_attack(r_ptr, &lore, TRUE);
 
 	/* Describe spells and innate attacks */
-	describe_monster_spells(r_idx, &lore);
+	describe_monster_spells(r_ptr, &lore);
 
 	/* Describe monster "toughness" */
-	if (!spoilers) describe_monster_toughness(r_idx, &lore);
+	if (!spoilers) describe_monster_toughness(r_ptr, &lore);
 
 	/* Describe the abilities of the monster */
-	describe_monster_abilities(r_idx, &lore);
+	describe_monster_abilities(r_ptr, &lore);
 
 	/* Describe the monster drop */
-	describe_monster_drop(r_idx, &lore);
+	describe_monster_drop(r_ptr, &lore);
 
 	/* Describe the known attacks */
-	describe_monster_attack(r_idx, &lore, FALSE);
+	describe_monster_attack(r_ptr, &lore, FALSE);
 
 	/* Notice "Quest" monsters */
-	if (lore.flags1 & RF1_QUESTOR)
+	if (lore.flags1 & (RF1_QUESTOR))
 	{
 		text_out("You feel an intense desire to kill this monster...  ");
 	}
 
 	/* Notice "Guardian" monsters */
-	if (lore.flags1 & RF1_GUARDIAN)
+	if (lore.flags1 & (RF1_GUARDIAN))
 	{
 		text_out("It is a dungeon guardian, impeding your progress further.  ");
 	}
@@ -1909,20 +1904,62 @@ void describe_monster(int r_idx, bool spoilers)
 }
 
 
-
-
-
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void roff_top(int r_idx)
+static void roff_top(const monster_race *r_ptr, int m_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
-
 	byte a1, a2;
 	char c1, c2;
 
+	char desc[80];
+	
+	/* Describe the monster */
+	if (m_idx)
+	{
+		/* Describe the monster */
+		monster_desc(desc, sizeof(desc), m_idx, 0x80);
+		
+		/* Capitalise the first letter */
+		if (islower(desc[0])) desc[0] = toupper(desc[0]);
+	}
+	/* Not describing a specific monster, so hack a description */
+	else
+	{
+		int state = 0;
+		char *s, *t;
 
+		/* It could be a Unique - no prefix */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			my_strcpy(desc, "", sizeof(desc));
+		}
+		else
+		{
+			my_strcpy(desc, "The ", sizeof(desc));
+		}
+		
+		/* Start with the name (thus nominative and objective) */
+		my_strcat(desc, r_name + r_ptr->name, sizeof(desc));
+		
+		/* Fix up genderised descriptions manually */
+		for (t = s = desc; *s; s++)
+		{
+			if (*s == '|')
+			{
+				state++;
+				if (state == 3) state = 0;
+			}
+			else if (!state || (state == 2 /* Female */))
+			{
+				*t++ = *s;
+			}
+		}
+		
+		/* Terminate */
+		*t = '\0';
+	}
+	
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -1938,14 +1975,8 @@ static void roff_top(int r_idx)
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
-	/* A title (use "The" for non-uniques) */
-	if (!(r_ptr->flags1 & RF1_UNIQUE))
-	{
-		Term_addstr(-1, TERM_WHITE, "The ");
-	}
-
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	Term_addstr(-1, TERM_WHITE, desc);
 
 	if (!use_dbltile && !use_trptile)
 	{
@@ -1967,7 +1998,7 @@ static void roff_top(int r_idx)
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
-void screen_roff(int r_idx)
+void screen_roff(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
 	/* Flush messages */
 	message_flush();
@@ -1979,10 +2010,10 @@ void screen_roff(int r_idx)
 	text_out_hook = text_out_to_screen;
 
 	/* Recall monster */
-	describe_monster(r_idx, FALSE);
+	describe_monster_race(r_ptr, l_ptr, FALSE);
 
 	/* Describe monster */
-	roff_top(r_idx);
+	roff_top(r_ptr, 0);
 }
 
 
@@ -1991,7 +2022,7 @@ void screen_roff(int r_idx)
 /*
  * Hack -- describe the given monster race in the current "term" window
  */
-void display_roff(int r_idx)
+void display_roff(const monster_race *r_ptr, const monster_lore *l_ptr)
 {
 	int y;
 
@@ -2009,8 +2040,52 @@ void display_roff(int r_idx)
 	text_out_hook = text_out_to_screen;
 
 	/* Recall monster */
-	describe_monster(r_idx, FALSE);
+	describe_monster_race(r_ptr, l_ptr, FALSE);
 
 	/* Describe monster */
-	roff_top(r_idx);
+	roff_top(r_ptr, 0);
 }
+
+
+/*
+ * Hack -- describe the given monster race at the top of the screen
+ */
+void screen_monster_look(const int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race race;
+		
+	/* Scale monster */
+	if (((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER | RF9_LEVEL_AGE)) == 0)
+			&& monster_scale(&race, m_idx, p_ptr->depth))
+	{
+		/* Scaled the monster successfully */
+	}
+	/* Make copy in order to genderise monster, if required */
+	else
+	{
+		COPY(&race, r_ptr, monster_race);
+	}
+	
+	/* Remove genders */
+	if ((race.flags1 & (RF1_FEMALE)) && (m_idx % 2)) race.flags1 &= ~(RF1_MALE);
+	else if (race.flags1 & (RF1_MALE)) race.flags1 &= ~(RF1_FEMALE);
+
+	/* Flush messages */
+	message_flush();
+
+	/* Begin recall */
+	Term_erase(0, 1, 255);
+
+	/* Output to the screen */
+	text_out_hook = text_out_to_screen;
+
+	/* Recall monster */
+	describe_monster_race(&race, &l_list[m_ptr->r_idx], FALSE);
+
+	/* Describe monster */
+	roff_top(r_ptr, m_idx);
+}
+
+

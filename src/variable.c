@@ -75,6 +75,9 @@ bool arg_force_roguelike;       /* Command arg -- Request roguelike keyset */
  * Various things
  */
 
+bool character_quickstart = FALSE;       /* The character has been loaded and a quickstart profile exists */
+quickstart_type normal_quickstart;		/* The quick save profile */
+
 bool character_generated;       /* The character exists */
 bool character_dungeon;	 /* The character has a dungeon */
 bool character_loaded;	  /* The character was loaded from a savefile */
@@ -229,6 +232,15 @@ s16b quark__num = 1;
  */
 cptr *quark__str;
 
+/*
+ * The array [TIPS_MAX] of tips. These are held as quarks.
+ */
+s16b tips[TIPS_MAX];
+
+/*
+ * Start and end of tips.
+ */
+s16b tips_start = 0, tips_end = 0;
 
 /*
  * The next "free" index to use
@@ -1211,3 +1223,10 @@ s16b bag_kinds_cache[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL];
  * We now use a 'dungeon ecology' system to generate monsters on a level.
  */
 ecology_type cave_ecology;
+
+
+/*
+ * We now try to force monsters to have 'one of each item slot'.
+ */
+u32b hack_monster_equip;
+

@@ -1337,7 +1337,7 @@ errr check_load_init(void)
  * Returns a "rating" of x depending on y, and sets "attr" to the
  * corresponding "attribute".
  */
-static cptr likert(int x, int y, byte *attr)
+cptr likert(int x, int y, byte *attr)
 {
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -1476,11 +1476,14 @@ static void display_player_xtra_info(void)
 
 	/* Age */
 	Term_putstr(col, row, -1, TERM_WHITE, "Age");
-	Term_putstr(col+8, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age + p_ptr->max_lev / 10));
+	Term_putstr(col+7, row, -1, TERM_L_BLUE, format("%5d", (int)p_ptr->age + p_ptr->max_lev / 10));
 
+	/* Pre-calculate height */
+	i = (int)p_ptr->ht + p_ptr->stat_use[A_SIZ]/20;
+	
 	/* Height */
 	Term_putstr(col, row + 1, -1, TERM_WHITE, "Height");
-	Term_putstr(col+8, row + 1, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht + p_ptr->stat_use[A_SIZ]/20));
+	Term_putstr(col+7, row + 1, -1, TERM_L_BLUE, format("%2d'%2d", i / 12, i % 12));
 
 	/* Status */
 	Term_putstr(col, row + 2, -1, TERM_WHITE, "Status");
@@ -2298,6 +2301,13 @@ static void put_flag_char(u32b f[4], int set, u32b flag, int y, int x, int row, 
 
 		/* MegaHack -- Check activation */
 		else if ((y == 8) &&
+			(f[3] & (TR3_UNCONTROLLED)))
+		{
+			c_put_str(TERM_RED, "x", row, col);
+		}
+
+		/* MegaHack -- Check activation */
+		else if ((y == 8) &&
 			(f[3] & (TR3_ACTIVATE)))
 		{
 			c_put_str(TERM_WHITE, "+", row, col);
@@ -2530,7 +2540,6 @@ static void put_flag_char(u32b f[4], int set, u32b flag, int y, int x, int row, 
 		if (y == 4)
 		{
 			if (f[4] & (TR4_ANCHOR)) c_put_str(TERM_RED, "x", row, col);
-			else if (f[3] & (TR3_TELEPORT)) c_put_str(TERM_WHITE, "+", row, col);
 			else c_put_str(TERM_SLATE, ".", row, col);
 		}
 
@@ -3791,13 +3800,13 @@ errr file_character(cptr name, bool full)
 	}
 
 	/* Display current date in the Elvish calendar */
-	text_out(format(" This is %s of the %s year of the third age.  ",
+	text_out(format(" This is %s of the %s year of the third age.\n",
 	           get_month_name(day, cheat_xtra, FALSE), buf2));
 
 	/* Display location */
 	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
-		text_out(format("You are in %s.", t_name + t_info[p_ptr->dungeon].name));
+		text_out(format(" You are in %s.", t_name + t_info[p_ptr->dungeon].name));
 	}
 	/* Display depth in feet */
 	else if (depth_in_feet)
@@ -3807,7 +3816,7 @@ errr file_character(cptr name, bool full)
 		/* Get the zone */
 		get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-		text_out(format("You are %d ft %s %s.",
+		text_out(format(" You are %d ft %s %s.",
 			(p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
 				zone->tower ? "high above" : "deep in",
 					t_name + t_info[p_ptr->dungeon].name));
@@ -3815,7 +3824,7 @@ errr file_character(cptr name, bool full)
 	/* Display depth */
 	else
 	{
-		text_out(format("You are on level %d of %s.",
+		text_out(format(" You are on level %d of %s.",
 			p_ptr->depth - min_depth(p_ptr->dungeon),
 				t_name + t_info[p_ptr->dungeon].name));
 	}
@@ -3823,18 +3832,15 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	text_out("\n\n");
 
-	/* If dead, dump last messages -- Prfnoff */
-	if (p_ptr->is_dead)
-	{
-		i = message_num();
-		if (i > 15) i = 15;
-		text_out("  [Last Messages]\n\n");
-		while (i-- > 0)
-		{
-			text_out(format("> %s\n", message_str((s16b)i)));
-		}
-		text_out("\n");
-	}
+	/* Dump last messages */
+	i = message_num();
+	if (i > 15) i = 15;
+	text_out("  [Last Messages]\n\n");
+	while (i-- > 0)
+	  {
+	    text_out(format("> %s\n", message_str((s16b)i)));
+	  }
+	text_out("\n");
 
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
@@ -3852,7 +3858,7 @@ errr file_character(cptr name, bool full)
 			identify_random_gen(&inventory[i]);
 		}
 
-		text_out("\n\n");
+		text_out("\n");
 	}
 
 	/* Dump the quiver */
@@ -3874,7 +3880,7 @@ errr file_character(cptr name, bool full)
 			identify_random_gen(&inventory[i]);
 		}
 
-		text_out("\n\n");
+		text_out("\n");
 	}
 
 	/* Dump the inventory */
@@ -4647,6 +4653,88 @@ void do_cmd_help(void)
 }
 
 
+/*
+ * Queue up tips to be shown.
+ * 
+ * Tips are bits of context sensitive help that
+ * we want to interrupt the game with (because they are
+ * useful) but only want to interrupt the game in certain
+ * 'safe' locations. Currently, we use show a tip every
+ * 1000 turns while searching, every 100 turns while in town,
+ * and when we first enter a level.
+ * 
+ * Tips go into the info directly (currently unused).
+ * 
+ * We don't show tips while repeating a command.
+ * 
+ * But because these are context sensitive, we need them
+ * to approximately appear at the time we find them. So
+ * we queue them up in a currently statically sized
+ * queue and clear the queue when they are shown.
+ * 
+ * Currently we check if the tip exists before queuing it.
+ * If we call tips frequently, we probably will want to
+ * move this check to when we show the tip.
+ */
+bool queue_tip(cptr tip)
+{
+	/* Current help file */
+	FILE *fff = NULL;
+
+	/* Path buffer */
+	char path[1024];
+
+	/* Have no space for tips */
+	if (tips_end == tips_start - 1) return (FALSE);
+	
+	/* Build the filename */
+	path_build(path, 1024, ANGBAND_DIR_INFO, tip);
+
+	/* Open the file */
+	fff = my_fopen(path, "r");
+
+	/* File doesn't exist */
+	if (!fff) return (FALSE);
+
+	/* Close the file */
+	my_fclose(fff);		
+	
+	/* Add the tip, using quarks */
+	tips[tips_end++] = quark_add(tip);
+
+	/* Wrap the queue around if required */
+	if (tips_end >= TIPS_MAX) tips_end = 0;
+	
+	return (TRUE);
+}
+
+
+/*
+ * Show a tip.
+ */
+void show_tip(void)
+{
+	/* Have tips to show */
+	if (tips_start != tips_end)
+	{
+		cptr tip = quark_str(tips[tips_start++]);
+		
+		msg_print("You find a note.");
+		
+		/* Save screen */
+		screen_save();
+
+		/* Peruse the main help file */
+		(void)show_file(tip, NULL, 0, 0);
+
+		/* Load screen */
+		screen_load();
+		
+		/* Wrap the queue around if required */
+		if (tips_start >= TIPS_MAX) tips_start = 0;
+	}
+}
+
 
 /*
  * Process the player name and extract a clean "base name".
@@ -4811,7 +4899,7 @@ startover:
  */
 void get_name(void)
 {
-	char tmp[16];
+	char tmp[12];
 
 	/* Save the player name */
 	my_strcpy(tmp, op_ptr->full_name, sizeof(tmp));
@@ -4819,7 +4907,7 @@ void get_name(void)
 	/* Offer a random name */
 	if (!strlen(tmp))
 	{
-		my_strcpy(tmp, make_word(7, 15), sizeof(tmp));
+		my_strcpy(tmp, make_word(6, 10), sizeof(tmp));
 	}
 
 	/* Prompt for a new name */

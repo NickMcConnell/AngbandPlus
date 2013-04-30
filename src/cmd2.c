@@ -316,9 +316,9 @@ static bool check_travel_quest(int dungeon, int level, bool confirm)
  */
 void print_routes(const s16b *route, int num, int y, int x)
 {
-	int i, town;
+	int i, ii, town;
 
-	cptr distance;
+	cptr distance = "via map";
 
 	char out_val[160];
 
@@ -341,34 +341,12 @@ void print_routes(const s16b *route, int num, int y, int x)
 		/* Get the town index */
 		town = route[i];
 
-		/* Skip inaccessible towns */
-		if (town < 0)
+		/* Get route */
+		for (ii = 0; ii < MAX_NEARBY; ii++)
 		{
-			t_ptr = &t_info[(-1) - town];
-
-			line_attr = TERM_SLATE;
-
-			sprintf(out_val, "  %c) %-30s near to %-16s",
-				I2A(i), t_name + t_ptr->name, t_name + t_info[t_ptr->nearby].name);
-			c_prt(line_attr, out_val, y + i + 1, x);
-
-			continue;
+			if (t_info[p_ptr->dungeon].nearby[ii] == town) distance = "nearby";
 		}
-
-		/* Get the distance */
-		if (t_info[p_ptr->dungeon].nearby == town)
-		{
-			distance = "nearby";
-		}
-		else if (t_info[p_ptr->dungeon].distant == town)
-		{
-			distance = "yonder";
-		}
-		else
-		{
-			distance = "remote";
-		}
-
+		
 		/* Get the destination info */
 		t_ptr = &t_info[town];
 
@@ -400,7 +378,7 @@ int set_routes(s16b *routes, int max_num, int from)
 	dungeon_zone *zone1 = &t_ptr->zone[0];
 	dungeon_zone *zone2 = &t_ptr->zone[0];
 
-	int i, ii, num = 0;
+	int i, ii, iii, num = 0;
 
 	/* Get the top of the dungeon */
 	get_zone(&zone1,from,min_depth(from));
@@ -408,98 +386,135 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* Get the bottom of the dungeon */
 	get_zone(&zone2,from,max_depth(from));
 
-	/* Add nearby route */
-	if (t_ptr->nearby != from) routes[num++] = t_ptr->nearby;
-
-	/* Add far route if possible */
-	if (t_ptr->distant != from)
+	/* Campaign mode gets standard routes */
+	if (adult_campaign)
 	{
-		if (!(zone2->guard) || (!r_info[zone2->guard].max_num))
+		/* Add nearby route */
+		for (i = 0; i < MAX_NEARBY; i++)
 		{
-			routes[num++] = t_ptr->distant;
+			if (t_ptr->nearby[i]) routes[num++] = t_ptr->nearby[i];
+		}
+		
+		/* Add quest route if possible */
+		if ((t_ptr->quest_monster) && (!r_info[t_ptr->quest_monster].max_num) && (t_ptr->quest_opens))
+		{
+				routes[num++] = t_ptr->quest_opens;
 		}
 	}
 
-	/* Add maps */
-	for (i = 0; i < INVEN_WIELD; i++)
+	/* Add maps if not in Moria */
+	if (t_ptr->nearby[0])
 	{
-		/* Skip non-objects */
-		if (!inventory[i].k_idx) continue;
-
-		/* Check for maps */
-		if (inventory[i].tval == TV_MAP)
+		for (i = 0; (i < INVEN_WIELD) && (num < max_num); i++)
 		{
-			if (t_info[inventory[i].sval].nearby == from)
+			/* Check for maps */
+			if ((inventory[i].k_idx) && (inventory[i].tval == TV_MAP))
 			{
+				/* Add map routes */
 				routes[num++] = inventory[i].sval;
 			}
-			else
-			{
-				routes[num++] = -inventory[i].sval - 1;
-			}
-		}
 
-		/* Check for bags for maps */
-		else if (inventory[i].tval == TV_BAG)
-		{
-			/* Scan the bag */
-			for (ii = 0; ii < INVEN_BAG_TOTAL; ii++)
+			/* Check for bags for maps */
+			else if (inventory[i].tval == TV_BAG)
 			{
-				/* Slot holds a map */
-				if ((bag_holds[inventory[i].sval][ii][0] == TV_MAP) && (bag_contents[inventory[i].sval][ii]))
+				/* Scan the bag */
+				for (ii = 0; ii < INVEN_BAG_TOTAL; ii++)
 				{
-					int sval = bag_holds[inventory[i].sval][ii][1];
-
-					if (t_info[sval].nearby == from)
+					/* Slot holds a map */
+					if ((bag_holds[inventory[i].sval][ii][0] == TV_MAP) && (bag_contents[inventory[i].sval][ii]))
 					{
-						routes[num++] = sval;
-					}
-					else
-					{
-						routes[num++] = -sval - 1;
+						/* Add route */
+						routes[num++] = bag_holds[inventory[i].sval][ii][1];
 					}
 				}
 			}
 		}
 	}
-
-	/* Add additional locations from any of the above */
-	for (i = 0; (i < num) && (num < max_num); i++)
+	
+	/* Always can travel back to Angband if not in campaign mode */
+	if (!adult_campaign)
 	{
-		bool add_nearby, add_distant;
+		/* Add route to Angband */
+		if (num < max_num) routes[num++] = z_info->t_max - 2;
+		
+		/* Paranoia - add a route back, even if out of space */
+		else if (p_ptr->dungeon != z_info->t_max - 2)
+			routes[0] = z_info->t_max - 2;
+	}
 
-		/* Cannot choose inaccessible map locations */
-		if (routes[i] < 0) continue;
-
-		add_nearby =  (t_info[routes[i]].nearby != from);
-		add_distant =  (t_info[routes[i]].distant != from) && (t_info[routes[i]].distant != t_info[routes[i]].nearby);
-
-		/* Get the bottom of the dungeon */
-		get_zone(&zone2, routes[i], max_depth(routes[i]));
-
-		/* Can't travel to distant location */
-		if ((zone2->guard) && (r_info[zone2->guard].max_num)) add_distant = FALSE;
-
-		for (ii = 0; (ii < num) && (add_nearby || add_distant); ii++)
+	/* Add routes further away if visited, while in campaign mode */
+	if (adult_campaign) for (i = 0; i < num; i++)
+	{
+		/* Scan and repace routes that are 'overrun' */
+		for (ii = i; ii < num; ii++)
 		{
-			if (t_info[routes[i]].nearby == routes[ii]) add_nearby = FALSE;
-			if (t_info[routes[i]].distant == routes[ii]) add_distant = FALSE;
+			/* Check if this route is not replaced */
+			if (!(t_info[routes[ii]].replace_with)) continue;
+
+			/* Replace route */
+			if (t_info[t_info[routes[ii]].ifvisited].visited)
+			{
+				routes[ii] = t_info[routes[ii]].replace_with;
+				
+				/* Check new route as well */
+				ii--;
+			}
+		}
+		
+		/* Only add routes from visited locations */
+		if (!t_info[routes[i]].visited) continue;
+		
+		/* Add nearby routes */
+		for (ii = 0; (ii < MAX_NEARBY) && (num < max_num); ii++)
+		{
+			/* Skip non-existent routes or circular roots */
+			if (!(t_info[routes[i]].nearby[ii]) || (t_info[routes[i]].nearby[ii] == p_ptr->dungeon)) continue;
+			
+			/* Add the route */
+			routes[num++] = t_info[routes[i]].nearby[ii];
+		}
+		
+		/* Add quest route if possible */
+		if ((num < max_num) &&
+				(t_info[routes[i]].quest_monster) && (!r_info[t_info[routes[i]].quest_monster].max_num) && (t_info[routes[i]].quest_opens))
+		{
+				routes[num++] = t_info[routes[i]].quest_opens;
 		}
 
-		if (add_nearby)
+		/* Scan and remove duplicate routes and routes looping back to start */
+		for (ii = i + 1; ii < num; ii++)
 		{
-			routes[num++] = t_info[routes[i]].nearby;
+			if (routes[ii] == p_ptr->dungeon) routes[ii] = routes[--num];
+			
+			for (iii = ii; iii < num; iii++)
+			{
+				if (routes[iii] == routes[ii])
+				{
+					routes[iii] = routes[--num];
+				}
+			}
 		}
+	}
 
-		if (add_distant)
+	/* One final scan and remove duplicate routes and routes looping back to start */
+	for (i = 0; i < num; i++)
+	{
+		if (routes[i] == p_ptr->dungeon) routes[i] = routes[--num];
+		
+		for (ii = i + 1; ii < num; ii++)
 		{
-			routes[num++] = t_info[routes[i]].distant;
+			if (routes[ii] == routes[i])
+			{
+				routes[ii] = routes[--num];
+			}
 		}
 	}
 
 	/* Return number of routes */
 	return(num);
 }
+
+
 
 /*
  * Travel to a different dungeon.
@@ -549,7 +564,7 @@ static void do_cmd_travel(void)
 		}
 		else if (p_ptr->image)
 		{
-			msg_print("The pink mice don't want you to leave.");
+			msg_print("The mice don't want you to leave.");
 		}
 		else if ((p_ptr->poisoned) || (p_ptr->cut) || (p_ptr->stun))
 		{
@@ -563,194 +578,135 @@ static void do_cmd_travel(void)
 		{
 			int selection = p_ptr->dungeon;
 
-			if (adult_campaign)
+			s16b routes[24];
+			char out_val[160];
+
+			bool flag, redraw;
+			key_event ke;
+
+			/* Routes */
+			num = set_routes(routes, 24, p_ptr->dungeon);
+
+			/* Build a prompt (accept all spells) */
+			strnfmt(out_val, 78, "(Travel %c-%c, *=List, ESC=exit) Travel where? ",
+			I2A(0), I2A(num - 1) );
+
+			/* Nothing chosen yet */
+			flag = FALSE;
+
+			/* No redraw yet */
+			redraw = FALSE;
+
+			/* Show the list */
+			if (auto_display_lists)
 			{
-				s16b routes[24];
-				char out_val[160];
+				/* Show list */
+				redraw = TRUE;
 
-				bool flag, redraw;
-				key_event ke;
+				/* Save screen */
+				screen_save();
 
-				/* Routes */
-				num = set_routes(routes, 24, p_ptr->dungeon);
-
-				/* Build a prompt (accept all spells) */
-				strnfmt(out_val, 78, "(Travel %c-%c, *=List, ESC=exit) Travel where? ",
-				I2A(0), I2A(num - 1) );
-
-				/* Nothing chosen yet */
-				flag = FALSE;
-
-				/* No redraw yet */
-				redraw = FALSE;
-
-				/* Show the list */
-				if (auto_display_lists)
-				{
-					/* Show list */
-					redraw = TRUE;
-
-					/* Save screen */
-					screen_save();
-
-					/* Display a list of spells */
-					print_routes(routes, num, 1, 20);
-				}
-
-				/* Get a spell from the user */
-				while (!flag && get_com_ex(out_val, &ke))
-				{
-					char choice;
-
-					if (ke.key == '\xff')
-					{
-						if (ke.mousebutton)
-						{
-							if (redraw) ke.key = 'a' + ke.mousey - 2;
-							else ke.key = ' ';
-						}
-						else continue;
-					}
-
-					/* Request redraw */
-					if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
-					{
-						/* Hide the list */
-						if (redraw)
-						{
-							/* Load screen */
-							screen_load();
-
-							/* Hide list */
-							redraw = FALSE;
-						}
-
-						/* Show the list */
-						else
-						{
-							/* Show list */
-							redraw = TRUE;
-
-							/* Save screen */
-							screen_save();
-
-							/* Display a list of spells */
-							print_routes(routes, num, 1, 20);
-						}
-
-						/* Ask again */
-						continue;
-
-					}
-
-					/* Lowercase 1+ */
-					choice = tolower(ke.key);
-
-					/* Extract request */
-					i = (islower(choice) ? A2I(choice) : -1);
-
-					/* Totally Illegal */
-					if ((i < 0) || (i >= num))
-					{
-						bell("Illegal destination choice!");
-						continue;
-					}
-
-					/* Get selection */
-					selection = routes[i];
-
-					/* Require "okay" spells */
-					if (selection < 0)
-					{
-						bell("Illegal destination choice!");
-						msg_print("You may not travel there from here.");
-						continue;
-					}
-
-					/* Stop the loop */
-					flag = TRUE;
-				}
-
-				/* Restore the screen */
-				if (redraw)
-				{
-					/* Load screen */
-					screen_load();
-
-					/* Hack -- forget redraw */
-					/* redraw = FALSE; */
-				}
-
-
-				/* Abort if needed */
-				if (!flag) return;
-
-				/* Set journey time; takes longer at night */
-				if (selection == t_ptr->nearby)
-				{
-					journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
-				}
-				else if (selection == t_ptr->distant)
-				{
-					journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
-				}
-				else
-				{
-					journey = damroll(4 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
-				}
-			}
-			else
-			{
-				cptr q, s;
-
-				int item;
-				object_type *o_ptr;
-
-				/* Return to Angband? */
-				if (p_ptr->dungeon != 0) selection = 0;
-
-				/* Restrict choices to scrolls */
-				item_tester_tval = TV_MAP;
-
-				/* Get an item */
-				q = "Follow which map? ";
-				s = "You have no maps to guide you.";
-				if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-				/* Get the item (in the pack) */
-				if (item >= 0)
-			        {
-					o_ptr = &inventory[item];
-				}
-
-				/* Get the item (on the floor) */
-				else
-				{
-					o_ptr = &o_list[0 - item];
-				}
-
-				/* In a bag? */
-				if (o_ptr->tval == TV_BAG)
-				{
-					/* Get item from bag */
-					if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-					/* Refer to the item */
-					o_ptr = &inventory[item];
-				}
-
-				selection = o_ptr->sval;
-
-				/* Did not make selection */
-				if (!selection) return;
-
-				/* Returning to Angband */
-				if (selection == p_ptr->dungeon) selection = 0;
-
-				/* Journey time */
-				journey = damroll(2,4);
+				/* Display a list of spells */
+				print_routes(routes, num, 1, 20);
 			}
 
+			/* Get a spell from the user */
+			while (!flag && get_com_ex(out_val, &ke))
+			{
+				char choice;
+
+				if (ke.key == '\xff')
+				{
+					if (ke.mousebutton)
+					{
+						if (redraw) ke.key = 'a' + ke.mousey - 2;
+						else ke.key = ' ';
+					}
+					else continue;
+				}
+
+				/* Request redraw */
+				if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
+				{
+					/* Hide the list */
+					if (redraw)
+					{
+						/* Load screen */
+						screen_load();
+
+						/* Hide list */
+						redraw = FALSE;
+					}
+
+					/* Show the list */
+					else
+					{
+						/* Show list */
+						redraw = TRUE;
+
+						/* Save screen */
+						screen_save();
+
+						/* Display a list of spells */
+						print_routes(routes, num, 1, 20);
+					}
+
+					/* Ask again */
+					continue;
+
+				}
+
+				/* Lowercase 1+ */
+				choice = tolower(ke.key);
+
+				/* Extract request */
+				i = (islower(choice) ? A2I(choice) : -1);
+
+				/* Totally Illegal */
+				if ((i < 0) || (i >= num))
+				{
+					bell("Illegal destination choice!");
+					continue;
+				}
+
+				/* Get selection */
+				selection = routes[i];
+
+				/* Require "okay" spells */
+				if (selection < 0)
+				{
+					bell("Illegal destination choice!");
+					msg_print("You may not travel there from here.");
+					continue;
+				}
+
+				/* Stop the loop */
+				flag = TRUE;
+			}
+
+			/* Restore the screen */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hack -- forget redraw */
+				/* redraw = FALSE; */
+			}
+
+
+			/* Abort if needed */
+			if (!flag) return;
+			
+			/* Longer and more random journeys via map */
+			journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
+
+			/* Shorter and more predictable distance if nearby */
+			for (i = 0; i < MAX_NEARBY; i++)
+			{
+				if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
+			}
+			
 			if (journey < 4)
 			{
 				msg_print("You have a mild and pleasant journey.");
@@ -801,6 +757,8 @@ static void do_cmd_travel(void)
 }
 
 
+
+
 /*
  * Go up one level, or choose a different dungeon.
  */
@@ -810,6 +768,8 @@ void do_cmd_go_up(void)
 	int px = p_ptr->px;
 
 	feature_type *f_ptr= &f_info[cave_feat[py][px]];
+	
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
 	/* Verify stairs */
 	if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_LESS)))
@@ -833,16 +793,17 @@ void do_cmd_go_up(void)
 	}
 
 	/* Hack -- travel through wilderness */
-	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && (t_info[p_ptr->dungeon].zone[0].tower))
+	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && (t_ptr->zone[0].tower)
+			&& (t_ptr->quest_opens))
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (!check_travel_quest(t_info[p_ptr->dungeon].distant, min_depth(p_ptr->dungeon), TRUE)) return;
+		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
 
 		/* Success */
-		message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_info[p_ptr->dungeon].name));
+		message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_ptr->name));
 
 		/* Change the dungeon */
-		p_ptr->dungeon = t_info[p_ptr->dungeon].distant;
+		p_ptr->dungeon = t_ptr->quest_opens;
 
 		/* Set the new depth */
 		p_ptr->depth = min_depth(p_ptr->dungeon);
@@ -853,7 +814,7 @@ void do_cmd_go_up(void)
 	else
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
+		if (t_ptr->zone[0].tower)
 		{
 			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
 		}
@@ -872,7 +833,7 @@ void do_cmd_go_up(void)
 		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_LESS);
 
 		/* Hack -- tower level increases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
+		if (t_ptr->zone[0].tower)
 		{
 			/* New depth */
 			p_ptr->depth++;
@@ -899,6 +860,8 @@ void do_cmd_go_down(void)
 
 	feature_type *f_ptr= &f_info[cave_feat[py][px]];
 
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+
 	/* Verify stairs */
 	if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_MORE)))
 	{
@@ -910,16 +873,17 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Hack -- travel through wilderness */
-	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && !(t_info[p_ptr->dungeon].zone[0].tower))
+	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && !(t_ptr->zone[0].tower)
+			&& (t_ptr->quest_opens))
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (!check_travel_quest(t_info[p_ptr->dungeon].distant, min_depth(p_ptr->dungeon), TRUE)) return;
+		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
 
 		/* Success */
-		message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_info[p_ptr->dungeon].name));
+		message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_ptr->name));
 
 		/* Change the dungeon */
-		p_ptr->dungeon = t_info[p_ptr->dungeon].distant;
+		p_ptr->dungeon = t_ptr->quest_opens;
 
 		/* Set the new depth */
 		p_ptr->depth = min_depth(p_ptr->dungeon);
@@ -928,7 +892,7 @@ void do_cmd_go_down(void)
 	else
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
+		if (t_ptr->zone[0].tower)
 		{
 			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
 		}
@@ -944,7 +908,7 @@ void do_cmd_go_down(void)
 		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_MORE);
 
 		/* Hack -- tower level decreases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
+		if (t_ptr->zone[0].tower)
 		{
 			/* New depth */
 			p_ptr->depth--;
@@ -3711,7 +3675,8 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 					m_ptr->csleep = 0;
 
 					/* Mark the monster as attacked by the player */
-					m_ptr->mflag |= MFLAG_HIT_RANGE;
+					if (m_ptr->cdis > 1) m_ptr->mflag |= MFLAG_HIT_RANGE;
+					else m_ptr->mflag |= MFLAG_HIT_BLOW;
 
 					/* Some monsters get "destroyed" */
 					if (r_ptr->flags3 & RF3_NONLIVING || r_ptr->flags2 & RF2_STUPID)
@@ -3817,7 +3782,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 						/* Alert fellows */
 						if (was_asleep)
 						{
-							m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+							m_ptr->mflag |= (MFLAG_AGGR);
 
 							/* Let allies know */
 							tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, 
@@ -3825,7 +3790,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 						}
 						else if (fear)
 						{
-							tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, 
+							tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_ACTV, 
 									"& has hurt me badly!");
 						}
 

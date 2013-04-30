@@ -1193,7 +1193,7 @@ static char *m_xchar(int oid)
 static byte *m_xattr(int oid)
 	{ return &r_info[default_join[oid].oid].x_attr; }
 static const char *race_name(int gid) { return monster_group_text[gid]; }
-static void mon_lore(int oid) { screen_roff(default_join[oid].oid); anykey(); }
+static void mon_lore(int oid) { screen_roff(&r_info[default_join[oid].oid], &l_list[default_join[oid].oid]); anykey(); }
 
 /*
  * Display known monsters.

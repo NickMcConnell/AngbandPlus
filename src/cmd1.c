@@ -748,11 +748,8 @@ void search(void)
 /*
  * Objects that combine with items already in the quiver get picked
  * up, placed in the quiver, and combined automatically.
- *
- * FIXME: make a function with this name that will behave 
- * similarly as inven_carry; then use it in do_cmd_apply_rune_or_coating
  */
-bool quiver_carry(object_type *o_ptr, int o_idx)
+bool quiver_combine(object_type *o_ptr, int o_idx)
 {
 	int i;
 
@@ -763,7 +760,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 	/* Must be ammo. */
 	if (!ammo_p(o_ptr) 
 	    && !(is_known_throwing_item(o_ptr)
-		 && wield_slot(o_ptr) >= INVEN_WIELD)) 
+		 && wield_slot(o_ptr) >= INVEN_WIELD))
 	  return (FALSE);
 
 	/* Known or sensed cursed ammo is avoided */
@@ -831,6 +828,120 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 			/* Keep looking */
 			s = strchr(s + 1, '=');
 		}
+	}
+
+	/*
+	 * Increase carried weight.
+	 * Note that o_ptr has the right number of missiles to add.
+	 */
+	p_ptr->total_weight += o_ptr->weight * o_ptr->number;
+
+	/* Reorder the quiver, track the index */
+	i = reorder_quiver(j_ptr - inventory);
+
+	/* Get the final slot */
+	j_ptr = &inventory[i];
+
+	/* Cursed! */
+	if (cursed_p(j_ptr))
+	{
+		/* Warn the player */
+		sound(MSG_CURSED);
+		msg_print("Oops! It feels deathly cold!");
+
+		mark_cursed_feeling(o_ptr);
+	}
+
+	/* Describe the object */
+	object_desc(name, sizeof(name), j_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("You have %s (%c).", name, index_to_label(i));
+
+	/* Delete the object */
+	if (o_idx >= 0)
+	  delete_object_idx(o_idx);
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+
+	return (TRUE);
+}
+
+
+/*
+ * Objects get picked
+ * up, placed in the quiver, and combined automatically.
+ *
+ * FIXME: make a function with this name that will behave 
+ * similarly as inven_carry; then use it in do_cmd_apply_rune_or_coating
+ * Now, this is just a very ugly copy of the code above,
+ * with slight hackish changes.
+ */
+bool quiver_carry(object_type *o_ptr, int o_idx)
+{
+	int i;
+
+	object_type *i_ptr, *j_ptr = NULL;
+
+	char name[80];
+
+	/* Must be ammo. */
+	if (!ammo_p(o_ptr) 
+	    && !(is_known_throwing_item(o_ptr)
+		 && wield_slot(o_ptr) >= INVEN_WIELD))
+	  return (FALSE);
+
+	/* Known or sensed cursed ammo is avoided */
+	if (cursed_p(o_ptr) && ((o_ptr->ident & (IDENT_SENSE)) || object_known_p(o_ptr))) return (FALSE);
+
+	/* Check quiver space */
+	if (!quiver_carry_okay(o_ptr, o_ptr->number, -1)) return (FALSE);
+
+	/* Check quiver for similar objects. */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get object in that slot. */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx)
+		{
+			/* But save first empty slot, see later */
+			if (!j_ptr) j_ptr = i_ptr;
+
+			continue;
+		}
+
+		/* Look for similar. */
+		if (object_similar(i_ptr, o_ptr))
+		{
+
+			/* Absorb floor object. */
+			object_absorb(i_ptr, o_ptr);
+
+			/* Remember this slot */
+			j_ptr = i_ptr;
+
+			/* Done */
+			break;
+		}
+	}
+
+	/* Can't combine the ammo. Force it */
+	if (i >= END_QUIVER)
+	{
+		/* Full quiver or no inscription at all */
+		if (!j_ptr) return (FALSE);
+
+		/* Put the ammo in the empty slot */
+		object_copy(j_ptr, o_ptr);
 	}
 
 	/*
@@ -1269,11 +1380,20 @@ void py_pickup(int py, int px, int pickup)
 			o_ptr->ident |= (IDENT_MARKED);
 
 			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-			if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+			if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
+			{
+				object_aware_tips(o_ptr);
+
+				k_info[o_ptr->k_idx].aware = TRUE;
+			}
 
 			/* XXX XXX - Mark monster objects as "seen" */
-			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
-
+			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights))
+			{
+				l_list[o_ptr->name3].sights++;
+				
+				queue_tip(format("look%d.txt", o_ptr->name3));
+			}
 		}
 
 		/* Describe the object */
@@ -1319,7 +1439,7 @@ void py_pickup(int py, int px, int pickup)
 		}
 
 		/* Test for quiver auto-pickup */
-		if (quiver_carry(o_ptr, this_o_idx)) continue;
+		if (quiver_combine(o_ptr, this_o_idx)) continue;
 
 		/* Test for auto-pickup */
 		if (auto_pickup_okay(o_ptr))
@@ -2027,7 +2147,7 @@ void hit_trap(int y, int x)
 
 		if (f_ptr->spell)
 		{
-      			make_attack_ranged(0,f_ptr->spell,y,x);
+      			make_attack_ranged(SOURCE_FEATURE,f_ptr->spell,y,x);
 		}
 		else if (f_ptr->blow.method)
 		{
@@ -2686,9 +2806,10 @@ void py_attack(int dir)
 	/* Hack -- wake up nearby allies */
 	if (was_asleep)
 	{
-		m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+		m_ptr->mflag |= (MFLAG_AGGR);
 
-		tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+		/* Cutting or stunning a monster shuts them up */
+		if ((m_ptr->cut < 20) && (m_ptr->stunned < 20)) tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
 	}
 
 	/* Hack -- delay fear messages */
@@ -2985,6 +3106,67 @@ void move_player(int dir, int jumping)
 		/* Sound XXX XXX XXX */
 		/* sound(MSG_WALK); */
 
+		/* Players can push aside allies */
+		/* This would normally be the only situation where the target grid still
+		 * contains a monster */
+		if (cave_m_idx[y][x] > 0)
+		{
+			monster_type *n_ptr = &m_list[cave_m_idx[y][x]];
+
+			/* Push monster if it doesn't have a target and hasn't been pushed.
+			 * This allows the player to move into a corridor with a monster in
+			 * front of him, and have the monster move ahead, if it is faster. If its
+			 * not faster, the player will push over it on the second move, as the push
+			 * flag below will have been set. */
+			if (((n_ptr->mflag & (MFLAG_PUSH)) == 0)  && !(n_ptr->ty) && !(n_ptr->tx)
+					&& push_aside(p_ptr->py, p_ptr->px, n_ptr))
+			{
+				int dy = n_ptr->fy - y;
+				int dx = n_ptr->fx - x;
+				
+				n_ptr->ty = n_ptr->fy;
+				n_ptr->tx = n_ptr->fx;
+				
+				/* Hack -- get new target as far as the monster can move in the direction
+				 * pushed. We do this with a walking stick approach to prevent us getting
+				 * invalid target locations like (0,0) */
+				while (in_bounds_fully(n_ptr->ty + dy, n_ptr->tx + dx)
+						&& cave_exist_mon(n_ptr->r_idx, n_ptr->ty + dy, n_ptr->tx + dx, TRUE))
+				{
+					n_ptr->ty = n_ptr->ty + dy;
+					n_ptr->tx = n_ptr->tx + dx;
+				}
+				
+				/* Clear target if none available */
+				if ((n_ptr->ty == n_ptr->fy) && (n_ptr->tx == n_ptr->fx))
+				{
+					n_ptr->ty = 0;
+					n_ptr->tx = 0;
+				}
+			}
+			
+			/* The other monster cannot switch places */
+			else if (!cave_exist_mon(n_ptr->r_idx, p_ptr->py, p_ptr->px, TRUE))
+			{
+				/* Try to push it aside. Allow aborting of move if an ally */
+				if ((!push_aside(p_ptr->py, p_ptr->px, n_ptr)) && (n_ptr->mflag & (MFLAG_ALLY)))
+				{
+					/* Don't provide more warning */
+					if (!get_check("Are you sure?")) return;
+				}
+			}
+			
+			/* Hack -- we clear the target if we move over a monster */
+			else
+			{
+				n_ptr->ty = 0;
+				n_ptr->tx = 0;				
+			}
+
+			/* Mark monsters as pushed */
+			n_ptr->mflag |= (MFLAG_PUSH);
+		}
+		
 		/* Move player */
 		monster_swap(py, px, y, x);
 

@@ -577,41 +577,41 @@ const byte adj_int_dev[] =
 	0 	/* 6 */,
 	0 	/* 7 */,
 	1 	/* 8 */,
-	1 	/* 9 */,
-	1 	/* 10 */,
-	1 	/* 11 */,
-	1 	/* 12 */,
-	2 	/* 13 */,
-	2 	/* 14 */,
-	2 	/* 15 */,
-	2 	/* 16 */,
-	2 	/* 17 */,
-	3 	/* 18/00-18/09 */,
-	3 	/* 18/10-18/19 */,
-	3 	/* 18/20-18/29 */,
-	3 	/* 18/30-18/39 */,
-	3 	/* 18/40-18/49 */,
-	4 	/* 18/50-18/59 */,
-	4 	/* 18/60-18/69 */,
-	5 	/* 18/70-18/79 */,
-	6 	/* 18/80-18/89 */,
-	7 	/* 18/90-18/99 */,
-	8 	/* 18/100-18/109 */,
-	9 	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	17	/* 18/190-18/199 */,
-	18	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	20	/* 18/220-18/229 */,
-	21	/* 18/230-18/239 */,
-	21	/* 18/240-18/249 */,
-	22	/* 18/250+ */
+	2 	/* 9 */,
+	3 	/* 10 */,
+	4 	/* 11 */,
+	5 	/* 12 */,
+	6 	/* 13 */,
+	7 	/* 14 */,
+	8 	/* 15 */,
+	9 	/* 16 */,
+	10 	/* 17 */,
+	11 	/* 18/00-18/09 */,
+	12 	/* 18/10-18/19 */,
+	13 	/* 18/20-18/29 */,
+	14 	/* 18/30-18/39 */,
+	15 	/* 18/40-18/49 */,
+	16 	/* 18/50-18/59 */,
+	17 	/* 18/60-18/69 */,
+	18 	/* 18/70-18/79 */,
+	19	/* 18/80-18/89 */,
+	20	/* 18/90-18/99 */,
+	21 	/* 18/100-18/109 */,
+	22 	/* 18/110-18/119 */,
+	23	/* 18/120-18/129 */,
+	24	/* 18/130-18/139 */,
+	25	/* 18/140-18/149 */,
+	26	/* 18/150-18/159 */,
+	27	/* 18/160-18/169 */,
+	28	/* 18/170-18/179 */,
+	29	/* 18/180-18/189 */,
+	30	/* 18/190-18/199 */,
+	31	/* 18/200-18/209 */,
+	32	/* 18/210-18/219 */,
+	33	/* 18/220-18/229 */,
+	35	/* 18/230-18/239 */,
+	37	/* 18/240-18/249 */,
+	40	/* 18/250+ */
 };
 
 
@@ -1999,7 +1999,7 @@ const cptr option_text[OPT_MAX] =
 	"view_unsafe_grids",			/* OPT_view_unsafe_grids */
 	"view_detect_grids",			/* OPT_view_detect_grids */
 	"run_ignore_floors",			/* OPT_run_ignore_floors */
-	NULL,					/* xxx track_target */
+	"show_tips",					/* OPT_show_tips */
 	NULL,					/* xxx smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2094,11 +2094,11 @@ const cptr option_text[OPT_MAX] =
 	"birth_no_stacking",		/* xxx */
 	"birth_haggle",				/* OPT_birth_haggle */
 	"birth_scum",				/* OPT_birth_scum */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"birth_beginner",			/* OPT_birth_beginner */
+	"birth_intermediate",		/* OPT_birth_intermediate */
+	"birth_small_levels",		/* OPT_birth_small_levels */
+	"birth_first_time",			/* OPT_birth_first_time */
+	"birth_quickstart",			/* OPT_birth_quickstart */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2158,11 +2158,11 @@ const cptr option_text[OPT_MAX] =
 	"adult_no_stacking",		/* xxx */
 	"adult_haggle",				/* OPT_adult_haggle */
 	"adult_scum",				/* OPT_adult_scum */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"adult_beginner",			/* OPT_adult_beginner */
+	"adult_intermediate",		/* OPT_adult_intermediate */
+	"adult_small_levels",		/* OPT_adult_small_levels */
+	"adult_first_time",			/* OPT_adult_first_time */
+	"adult_quickstart",			/* OPT_adult_quickstart */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2250,8 +2250,8 @@ const cptr option_desc[OPT_MAX] =
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
 	"Ignore corpses by default",				/* OPT_easy_corpses */
-	NULL,				/* xxx */
-	NULL,				/* xxx */
+	NULL,
+	NULL,
 	NULL,										/* xxx testing_stack */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
@@ -2262,8 +2262,8 @@ const cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Mark where you have detected traps",		/* OPT_view_unsafe_grids */
 	"Mark where you have detected monsters",	/* OPT_view_unsafe_grids */
-	"When running, ignore interesting floors",				/* OPT_run_ignore_stairs */
-	NULL,								/* xxx */
+	"When running, ignore interesting floors",	/* OPT_run_ignore_floors */
+	"Show tips as you explore the dungeon",		/* OPT_show_tips */
 	NULL,								/* xxx */
 	NULL,								/* xxx*/
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2358,11 +2358,11 @@ const cptr option_desc[OPT_MAX] =
 	"Birth: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
 	"Birth: Haggle in stores",			/* OPT_birth_haggle */									/* xxx */
 	"Birth: Scum for good levels",			/* OPT_birth_scum */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Birth: Start the game with simplest options",	/* xxx */
+	"Birth: Reduce the number of birth options",/* xxx */
+	"Birth: Always generate small levels",		/* xxx */
+	"Birth: Show all birth menus at start",		/* xxx */
+	"Birth: Start the game with same choices",/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2422,11 +2422,11 @@ const cptr option_desc[OPT_MAX] =
 	"Adult: Don't stack objects on the floor",	/* OPT_adult_no_stacking */
 	"Adult: Haggle in stores",			/* OPT_adult_haggle */									/* xxx */
 	"Adult: Scum for good levels",			/* OPT_adult_scum */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Adult: Start the game with simplest options",	/* xxx */
+	"Adult: Reduce the number of birth options",/* xxx */
+	"Adult: Always generate small levels",		/* xxx */
+	"Adult: Show all birth menus at start",		/* xxx */
+	"Adult: Start the game with same choices",/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2527,7 +2527,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_view_unsafe_grids */
 	TRUE,		/* OPT_view_detect_grids */
 	TRUE,		/* OPT_run_ignore_floors */
-	FALSE,		/* xxx track_target */
+	TRUE,		/* OPT_show_tips */
 	FALSE,		/* xxx smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2619,13 +2619,14 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
 	TRUE,	  /* OPT_birth_campaign */
+	FALSE,		/* OPT_birth_no_stacking */
 	FALSE,		/* OPT_birth_haggle */
 	FALSE,		/* OPT_birth_scum */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_beginner */
+	FALSE,		/* OPT_birth_intermediate */
+	FALSE,		/* OPT_birth_small_levels */
+	TRUE,		/* OPT_birth_first_time */
+	FALSE,		/* OPT_birth_quickstart */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2686,11 +2687,11 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_stacking */
 	FALSE,		/* OPT_adult_haggle */
 	FALSE,		/* OPT_adult_scum */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_beginner */
+	FALSE,		/* OPT_adult_intermdiate */
+	FALSE,		/* OPT_adult_small_levels */
+	FALSE,		/* OPT_adult_first_time */
+	FALSE,		/* OPT_adult_quickstart */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2808,7 +2809,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_unsafe_grids,
 		OPT_view_detect_grids,
 		OPT_reseed_artifacts,
-		255,
+		OPT_show_tips,
 		255,
 		255,
 		255,
@@ -2874,21 +2875,21 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Birth ***/
 
 	{
+		OPT_birth_beginner,
+		OPT_birth_intermediate,
+		OPT_birth_first_time,
+		OPT_birth_quickstart,
+		OPT_birth_campaign,
 		OPT_birth_point_based,
 		OPT_birth_auto_roller,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
-		OPT_birth_campaign,
 		OPT_birth_no_stacking,
 		OPT_birth_haggle,
 		OPT_birth_scum,
-		255,
-		255,
-		255,
-		255,
-		255,
+		OPT_birth_small_levels,
 		255,
 		255,
 		255,
@@ -4003,7 +4004,7 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {65, 20}, {65, 21}, {65, 22}, {65, 23},
 	  {65, 33}, {65, 34}, {65, 36}, {65, 38},
 	  {65, 39}, {65, 40}, {65, 42}, {65, 43},
-	  {0, 0}, {0, 0}, {0, 0} },
+	  {65, 67}, {0, 0}, {0, 0} },
 	/* XXX XXX Hack -- Wand bags need two slots */
 	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
@@ -4084,6 +4085,45 @@ const cptr w_name_style[32] =
 
 
 /*
+ * Tval associated with each style
+ */
+const s16b style2tval[32] =
+{
+	0,
+	0,
+	0,
+	0,
+	TV_SHIELD,
+	0,
+	TV_HAFTED,
+	TV_SWORD,
+	TV_POLEARM,
+	0,
+	TV_SHOT,
+	TV_ARROW,
+	TV_BOLT,
+	0,
+	TV_MAGIC_BOOK,
+	TV_PRAYER_BOOK,
+	TV_SONG_BOOK,
+	TV_INSTRUMENT,
+	TV_POTION,
+	TV_SCROLL,
+	TV_AMULET,
+	TV_RING,
+	TV_WAND,
+	TV_STAFF,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
+/*
  * Race of parasites
  *
  * This is a temporary hack.
@@ -4125,6 +4165,7 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"", "", "", ""}, /* SOURCE_DISEASE */
 	{"daylight", "the sun rising", "no UV protection", "your unholy flesh searing in the radiance of day"}, /* SOURCE_DAYLIGHT */
 	{" being born", " being born", " being born", " being born"},	/* SOURCE_BIRTH */
+	{"misjudging ", "treachery of ", "a knife in the back from ", "walking in front of the line of fire of "}, /* SOURCE_PLAYER_ALLY */
 	{"a swing, and a miss", "overenthusiasm", "a hellavu shaving cut", "you're not quite sure how you hit that part of you"}, /* SOURCE_PLAYER_ATTACK */
 	{"a misfire","an unintended discharge","shooting your own foot","you're not quite sure how you shot that part of you"}, /* SOURCE_PLAYER_SHOT */
 	{"a misthrow", "a fumble","juggling a dangerous object","you're not quite sure how you threw that there"}, /* SOURCE_PLAYER_THROW */
@@ -4141,7 +4182,7 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"reading ", "misreading ", "glancing at ", "reciting "}, /* SOURCE_PLAYER_READ */ 
 	{"using ", "misusing ", "abusing ", "badly using "}, /* SOURCE_PLAYER_USE */ 
 	{"activating ", "relying too heavily on ", "mistrusting the power of ", "chancing the gods with "}, /* SOURCE_PLAYER_ACT_ARTIFACT */ 
-	{"activating ", "calling on ", "discharing ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */ 
+	{"activating ", "calling on ", "discharging ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */ 
 	{"buying ", "acquiring ", "purchasing ", "the ill-judged purchase of "}, /* SOURCE_PLAYER_SERVICE */ 
 	{"bad luck casting ", "badly casting ", "slurring a syllable casting ", "magical feedback whilst casting "} /* SOURCE_PLAYER_CAST */
 };

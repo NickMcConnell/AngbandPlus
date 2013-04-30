@@ -1158,7 +1158,7 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Describe */
-		describe_monster(r_idx, TRUE);
+		describe_monster_race(&r_info[r_idx], &l_list[r_idx], TRUE);
 
 		/* Terminate the entry */
 		text_out("\n");

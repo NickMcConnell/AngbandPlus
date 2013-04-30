@@ -476,7 +476,7 @@ static void remove_contradictory(artifact_type *a_ptr)
 
 	if (a_ptr->flags4 & TR4_BRAND_LITE) a_ptr->flags4 &= ~(TR4_HURT_LITE);
 
-	if (a_ptr->flags3 & TR3_TELEPORT) a_ptr->flags4 &= ~(TR4_ANCHOR);
+	if (a_ptr->flags3 & TR3_UNCONTROLLED) a_ptr->flags4 &= ~(TR4_ANCHOR);
 
 }
 
@@ -1141,7 +1141,7 @@ static s32b artifact_power(int a_idx)
 		LOG_PRINT1("Adding power for multiple high resists, total is %d\n", p); \
 	}
 
-	ADD_POWER("teleportation",	 -40, TR3_TELEPORT, 3,);
+	ADD_POWER("uncontrolled activation",	 -40, TR3_UNCONTROLLED, 3,);
 	ADD_POWER("drain experience",	 -20, TR3_DRAIN_EXP, 3,);
 
 	ADD_POWER("drain health",	 -20, TR3_DRAIN_HP, 3,);
@@ -4467,7 +4467,7 @@ static void do_curse(artifact_type *a_ptr)
 	else if (r == 1) a_ptr->flags3 |= TR3_DRAIN_EXP;
 	else if (r == 2) a_ptr->flags3 |= TR3_DRAIN_HP;
 	else if (r == 3) a_ptr->flags3 |= TR3_DRAIN_MANA;
-	else if (r == 4) a_ptr->flags3 |= TR3_TELEPORT;
+	else if (r == 4) a_ptr->flags3 |= TR3_UNCONTROLLED;
 	else if (r == 5) a_ptr->flags4 |= TR4_HURT_LITE;
 	else if (r == 6) a_ptr->flags4 |= TR4_HURT_WATER;
 	else if (r == 7) a_ptr->flags3 |= TR3_HUNGER;

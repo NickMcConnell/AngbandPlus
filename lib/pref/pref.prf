@@ -228,6 +228,8 @@ C:1:'
 # Message colors
 %:message.prf
 
+# First game choices
+%:startup.prf
 
 ##### System Specific Subfiles #####
 

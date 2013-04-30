@@ -805,7 +805,39 @@ void object_bonus(object_type *o_ptr)
 	}
 }
 
+/*
+ * Ensure tips are displayed as objects become either weakly or strongly aware
+ */
+void object_aware_tips(object_type *o_ptr)
+{
+	int i, count = 0;
 
+	/* Check all objects */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		/* Skip non-matching tvals */
+		if (k_info[i].tval != o_ptr->tval) continue;
+		
+		/* Count number of objects aware */
+		if (k_info[i].aware) count++;
+	}
+
+	/* Show tval tips if no objects of this type known */
+	if (!count)
+	{
+		/* Show tval based tip */
+		queue_tip(format("tval%d.txt", o_ptr->tval));
+	}
+	/* Show tval tips if no objects of this type known */
+	else
+	{
+		/* Show tval based tip */
+		queue_tip(format("tval%d-%d.txt", o_ptr->tval, count));
+	}
+
+	/* Show tip for kind of object */
+	queue_tip(format("kind%d.txt", o_ptr->k_idx));
+}
 
 /*
  * The player is now aware of the effects of the given object.
@@ -818,6 +850,12 @@ void object_aware(object_type *o_ptr)
 
 	u32b f1, f2, f3, f4;
 
+	/* Add a tip if we're not aware */
+	if (!object_aware_p(o_ptr))
+	{
+		object_aware_tips(o_ptr);
+	}
+	
 	/* Get the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
@@ -929,6 +967,12 @@ void object_aware(object_type *o_ptr)
 	/* Know about ego-type */
 	if ((o_ptr->name2) && !(o_ptr->ident & (IDENT_STORE)))
 	{
+		/* Show tips if required */
+		if (!e_info[o_ptr->name2].aware)
+		{
+			queue_tip(format("ego%d.txt", o_ptr->name2));
+		}
+		
 		e_info[o_ptr->name2].aware = TRUE;
 	}
 }
@@ -4861,13 +4905,9 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		case TV_STAFF:
-		{
-			if (k_ptr->level < 50) return (FALSE);
-		/* Fall through */
-		}
 		/* Weapons -- Good unless damaged */
 		case TV_BOW:
+		case TV_STAFF:
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -4887,6 +4927,12 @@ static bool kind_is_good(int k_idx)
 
 		/* Books -- high level books are good if not seen previously */
 		case TV_MAGIC_BOOK:
+		{
+			if ((k_ptr->sval < SV_BOOK_MAX_GOOD) && !(k_ptr->aware)) return (TRUE);
+			return (FALSE);	
+		}
+		
+		/* Books -- high level books are good if not seen previously */
 		case TV_PRAYER_BOOK:
 		case TV_SONG_BOOK:
 		{
@@ -4928,7 +4974,6 @@ static bool kind_is_good(int k_idx)
 	return (FALSE);
 }
 
-
 /*
  * Hack -- determine if a template is dropped by a race.
  */
@@ -4941,7 +4986,6 @@ static bool kind_is_tval(int k_idx)
 	return (FALSE);
 }
 
-
 /*
  * Hack -- determine if a template is dropped by a race.
  */
@@ -4950,6 +4994,7 @@ static bool kind_is_race(int k_idx)
 	monster_race *r_ptr = &r_info[race_drop_idx];
 	object_kind *k_ptr = &k_info[k_idx];
 
+	/* Handle good items */
 	if ((r_ptr->flags1 & (RF1_DROP_GOOD)) && (!kind_is_good(k_idx))) return (FALSE);
 
 	/* Handle mimics differently */
@@ -4977,22 +5022,66 @@ static bool kind_is_race(int k_idx)
 		/* Hard Armor/Dragon Armor/Shield/Helm */
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		{
+			/* Hack -- monster equipment only has one armour */
+			if (hack_monster_equip & (RF8_DROP_ARMOR)) return (FALSE);
+
+			if (r_ptr->flags8 & (RF8_DROP_ARMOR)) return (TRUE);
+			return (FALSE);		
+		}
 		case TV_SHIELD:
+		{
+			/* Hack -- monster equipment only has one shield */
+			if (hack_monster_equip & (RF8_HAS_ARM)) return (FALSE);
+
+			/* Shield is heavy armour */
+			if (r_ptr->flags8 & (RF8_DROP_ARMOR)) return (TRUE);
+			return (FALSE);		
+		}
 		case TV_HELM:
 		{
+			/* Hack -- monster equipment only has one gloves */
+			if ((k_ptr->tval == TV_HELM) && (hack_monster_equip & (RF8_HAS_HEAD))) return (FALSE);
+
+			/* Helms are heavy armour */
 			if (r_ptr->flags8 & (RF8_DROP_ARMOR)) return (TRUE);
-			return (FALSE);
+			return (FALSE);		
 		}
 		/* Soft armor/boots/cloaks/gloves */
 		case TV_SOFT_ARMOR:
 		{
+			/* Hack -- monster equipment only has one armour */
+			if (hack_monster_equip & (RF8_DROP_ARMOR)) return (FALSE);
+
 			/* Hack -- armored monsters don't carry soft armor */
 			if (r_ptr->flags2 & (RF2_ARMOR)) return (FALSE);
+
+			/* Clothes are soft armour */
+			if (r_ptr->flags8 & (RF8_DROP_CLOTHES)) return (TRUE);
+			return (FALSE);
 		}
+
 		case TV_GLOVES:
+		{
+			/* Hack -- monster equipment only has one gloves */
+			if (hack_monster_equip & (RF8_HAS_HAND)) return (FALSE);
+
+			if (r_ptr->flags8 & (RF8_DROP_CLOTHES)) return (TRUE);
+			return (FALSE);
+		}
 		case TV_CLOAK:
+		{
+			/* Hack -- monster equipment only has one cloak */
+			if (hack_monster_equip & (RF8_HAS_CORPSE)) return (FALSE);
+
+			if (r_ptr->flags8 & (RF8_DROP_CLOTHES)) return (TRUE);
+			return (FALSE);
+		}
 		case TV_BOOTS:
 		{
+			/* Hack -- monster equipment only has one armour */
+			if (hack_monster_equip & (RF8_HAS_LEG)) return (FALSE);
+
 			if (r_ptr->flags8 & (RF8_DROP_CLOTHES)) return (TRUE);
 			return (FALSE);
 		}
@@ -5013,12 +5102,21 @@ static bool kind_is_race(int k_idx)
 			/* Hack -- warriors only carry weapons >= 7 lbs */
 			if ((r_ptr->flags2 & (RF2_ARMOR)) && (k_ptr->weight < 70)) return (FALSE);
 
+			/* Hack -- monster equipment only has one weapon */
+			if (hack_monster_equip & (RF8_DROP_WEAPON)) return (FALSE);
+
 			if (r_ptr->flags8 & (RF8_DROP_WEAPON)) return (TRUE);
 			return (FALSE);
 		}
 
 		/* Bows/Ammo */
 		case TV_BOW:
+		{	
+			/* Hack -- monster equipment only has one bow */
+			if (hack_monster_equip & (RF8_DROP_MISSILE)) return (FALSE);
+			
+			/* Fall through */
+		}
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
@@ -5036,6 +5134,9 @@ static bool kind_is_race(int k_idx)
 			/* Mega hack -- priests and paladins other than shamans do not carry magic books */
 			if ((r_ptr->d_char == 'p') && !(r_ptr->flags2 & (RF2_MAGE))) return (FALSE);                            
 
+			/* Hack -- monster equipment only has limited writings */
+			if (hack_monster_equip & (RF8_DROP_WRITING)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_WRITING)) return (TRUE);
 			return (FALSE);
 		}
@@ -5047,6 +5148,9 @@ static bool kind_is_race(int k_idx)
 			/* Mega hack -- mages and rangers other than shamans do not carry priest books */
 			if ((r_ptr->d_char == 'q') && !(r_ptr->flags2 & (RF2_PRIEST))) return (FALSE);                          
 
+			/* Hack -- monster equipment only has limited writings */
+			if (hack_monster_equip & (RF8_DROP_WRITING)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_WRITING)) return (TRUE);
 			return (FALSE);
 		}
@@ -5054,15 +5158,35 @@ static bool kind_is_race(int k_idx)
 		case TV_RUNESTONE:
 		case TV_MAP:
 		{
+			/* Hack -- monster equipment only has limited writings */
+			if (hack_monster_equip & (RF8_DROP_WRITING)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_WRITING)) return (TRUE);
 			return (FALSE);
 		}
 
 		/* Rings/Amulets/Crowns */
 		case TV_RING:
+		{
+			/* Hack -- monster equipment only has limited rings */
+			if (hack_monster_equip & (RF8_DROP_JEWELRY)) return (FALSE);
+
+			if (r_ptr->flags8 & (RF8_DROP_JEWELRY)) return (TRUE);
+			return (FALSE);		
+		}	
 		case TV_AMULET:
+		{
+			/* Hack -- monster equipment only has one amulet */
+			if (hack_monster_equip & (RF8_HAS_SKULL)) return (FALSE);
+			
+			if (r_ptr->flags8 & (RF8_DROP_JEWELRY)) return (TRUE);
+			return (FALSE);
+		}
 		case TV_CROWN:
 		{
+			/* Hack -- monster equipment only has one crown/amulet */
+			if (hack_monster_equip & (RF8_HAS_HEAD)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_JEWELRY)) return (TRUE);
 			return (FALSE);
 		}
@@ -5070,6 +5194,9 @@ static bool kind_is_race(int k_idx)
 		/* Potions */
 		case TV_POTION:
 		{
+			/* Hack -- monster equipment only has limited potions */
+			if (hack_monster_equip & (RF8_DROP_POTION)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_POTION)) return (TRUE);
 			return (FALSE);
 		}
@@ -5077,6 +5204,9 @@ static bool kind_is_race(int k_idx)
 		/* Food */
 		case TV_FOOD:
 		{
+			/* Hack -- monster equipment only has limited food */
+			if (hack_monster_equip & (RF8_DROP_FOOD)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_FOOD)) return (TRUE);
 			return (FALSE);
 		}
@@ -5084,6 +5214,9 @@ static bool kind_is_race(int k_idx)
 		/* Lite/Fuel */
 		case TV_LITE:
 		{
+			/* Hack -- monster equipment only has one lite */
+			if (hack_monster_equip & (RF8_DROP_LITE)) return (FALSE);
+			
 			if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE)) return (TRUE);
 			if (r_ptr->flags8 & (RF8_DROP_LITE)) return (TRUE);
 			return (FALSE);
@@ -5093,6 +5226,9 @@ static bool kind_is_race(int k_idx)
 		case TV_HOLD:
 		case TV_BAG:
 		{
+			/* Hack -- monster equipment only has one bag */
+			if (hack_monster_equip & (RF8_DROP_CHEST)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_CHEST)) return (TRUE);
 			return (FALSE);
 		}
@@ -5102,6 +5238,9 @@ static bool kind_is_race(int k_idx)
 		case TV_JUNK:
 		case TV_SKIN:
 		{
+			/* Hack -- monster equipment only has limited potions */
+			if (hack_monster_equip & (RF8_DROP_JUNK)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_JUNK)) return (TRUE);
 			return (FALSE);
 
@@ -5113,6 +5252,9 @@ static bool kind_is_race(int k_idx)
 		case TV_FLASK:
 		case TV_ROPE:
 		{
+			/* Hack -- monster equipment only has one tool */
+			if (hack_monster_equip & (RF8_DROP_TOOL)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_TOOL)) return (TRUE);
 			return (FALSE);
 
@@ -5122,20 +5264,27 @@ static bool kind_is_race(int k_idx)
 		case TV_SONG_BOOK:
 		case TV_INSTRUMENT:
 		{
+			/* Hack -- monster equipment only has limited song books / one instrument */
+			if (hack_monster_equip & (RF8_DROP_MUSIC)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_MUSIC)) return (TRUE);
 			return (FALSE);
 		}
 
 		/* Rod/staff/wand */
 		case TV_STAFF:
+		{
+			if (hack_monster_equip & (RF8_DROP_WEAPON)) return (FALSE);
+		}
 		case TV_ROD:
 		case TV_WAND:
 		{
+			/* Hack -- monster equipment only has limited rods/staffs/wands */
+			if (hack_monster_equip & (RF8_DROP_RSW)) return (FALSE);
+			
 			if (r_ptr->flags8 & (RF8_DROP_RSW)) return (TRUE);
 			return (FALSE);
 		}
-
-
 	}
 
 	/* Assume not allowed */
@@ -5850,8 +5999,8 @@ void race_near(int r_idx, int y1, int x1)
  * u switch PROJECT_AREA flag on (if 1) or off (if 0).
  * w change to 8-way blast if number is 8
  * 
- * Return FALSE if formula not applied, or if applied successfully.
- * Return TRUE if formula fails. We set power = 0 in calling routine to create a 'dud' effect.
+ * Return FALSE if formula fails. We set power = 0 in calling routine to create a 'dud' effect.
+ * Return TRUE if formula not applied, or applied successfully.
  */
 bool apply_alchemical_formula(object_type *o_ptr, int *dam, int *rad, int *rng, u32b *flg, int *num, int *deg, int *dia)
 {
@@ -5859,7 +6008,7 @@ bool apply_alchemical_formula(object_type *o_ptr, int *dam, int *rad, int *rng, 
 	int pow = 1;
 
 	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
+	if (!o_ptr->note) return (TRUE);
 
 	/* Find a '=' */
 	s = strchr(quark_str(o_ptr->note), '=');
@@ -5985,10 +6134,10 @@ bool apply_alchemical_formula(object_type *o_ptr, int *dam, int *rad, int *rng, 
 	if (*flg & (PROJECT_AREA)) pow *= (*rng + 1);
 	
 	/* Test against player level. 'Dud' potion if this is true. */
-	if ((pow) && (rand_int(pow) > 5 + (p_ptr->lev / 5))) return (TRUE);
+	if ((pow) && (rand_int(pow) > 5 + (p_ptr->lev / 5))) return (FALSE);
 
 	/* Don't auto pickup */
-	return (FALSE);
+	return (TRUE);
 }
 
 
@@ -6098,7 +6247,7 @@ bool break_near(object_type *j_ptr, int y, int x)
 		/* Non-artifact lites explode with radius 0 */
 		case TV_LITE:
 		{
-			int power;
+			int power = 0;
 			
 			/* The following may all be modifiedy by alchemy */
 			int rad = j_ptr->tval == TV_LITE ? 0 : 1;
@@ -6110,17 +6259,20 @@ bool break_near(object_type *j_ptr, int y, int x)
 			int dia = 10;
 			
 			/* Hack -- use power 0 for fake potion effects */
-			spell_type *s_ptr = &s_info[power];
-
+			spell_type *s_ptr;
+			
 			/* Initialise flags (may be modified by alchemy) */
 			flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
 
 			/* Get item effect */
 			get_spell(&power, "use", j_ptr, FALSE);
 
-			/* Apply alchemy */
-			if ((p_ptr->pstyle == WS_POTION) && (apply_alchemical_formula(j_ptr, &dam, &rad, &rng, &flg, &num, &deg, &dia))) power = 0;
+			/* Apply alchemy - if failed, use 'nothing' power */
+			if ((p_ptr->pstyle == WS_POTION) && (j_ptr->tval == TV_POTION) && !(apply_alchemical_formula(j_ptr, &dam, &rad, &rng, &flg, &num, &deg, &dia))) power = 0;
 
+			/* Allow power to be 0 if required -- this is used for fake potion effects */
+			s_ptr = &s_info[power > 0 ? power : 0];
+			
 			/* Applly num times */
 			for (j = 0; j < num; j++)
 			{
@@ -8704,7 +8856,7 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 	}
 
 	/* Fill book with spells */
-	for (i=0;i<z_info->s_max;i++)
+	for (i=0;(i<z_info->s_max) && (*num < 26);i++)
 	{
 		s_ptr=&s_info[i];
 
@@ -8733,7 +8885,7 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 						/* Collision -- minimise impact by going from end of table */
 						else
 						{
-                                                        for (slot = INVEN_PACK - 2; (slot >=0) && book[slot]; slot--) ;
+							for (slot = INVEN_PACK - 2; (slot >=0) && book[slot]; slot--) ;
 
 							if ((slot >= 0) && (!book[slot])) book[slot] = i;
 						}
@@ -9584,7 +9736,9 @@ bool is_known_throwing_item(const object_type *o_ptr)
  */
 int quiver_space_per_unit(const object_type *o_ptr)
 {
-	return (ammo_p(o_ptr) ? 1: 5);
+	return (ammo_p(o_ptr) 
+		|| (o_ptr->tval == TV_EGG && o_ptr->sval == SV_EGG_SPORE)
+		? 1 : 5);
 }
 
 /*

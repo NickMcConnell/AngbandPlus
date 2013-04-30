@@ -274,6 +274,15 @@
 #define QUARK_MAX	512
 
 /*
+ * OPTION: Maximum number of "tips" (see "files.c")
+ * Default: assume at most 32 different tips queued
+ * 
+ * We drop excess tips.
+ */
+#define TIPS_MAX	32
+
+
+/*
  * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
@@ -337,7 +346,7 @@
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
-#define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
+#define USE_DEVICE      10		/* x> Harder devices x< Easier devices */
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -635,6 +644,11 @@
  */
 #define SEX_FEMALE		0
 #define SEX_MALE		1
+
+/*
+ * Player class constants - only one hard coded.
+ */
+#define CLASS_ISTARI	11
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
@@ -960,6 +974,10 @@
 #define GF_MENTAL		135
 #define GF_SNUFF		136
 #define GF_RAGE			137
+#define GF_HEAL_PERC	138
+#define GF_GAIN_MANA_PERC	139
+
+
 
 /*
  * Columns for the spell cost or damage flags
@@ -985,6 +1003,14 @@
  */
 #define KEYMAP_MODE_ROGUE	1
 
+
+/*
+ * Maximum number of dungeons next to this one. Used in t_info.txt.
+ */
+
+#define MAX_NEARBY		 4
+
+
 /*
  * Maximum number of zones in a dungeon. Used in t_info.txt.
  */
@@ -1005,7 +1031,7 @@
  * Maximum number of spell constants
  */
 #define MAX_SPELL_APPEARS	10
-#define MAX_SPELL_CASTERS	6
+#define MAX_SPELL_CASTERS	8
 #define MAX_SPELL_PREREQUISITES	2
 
 
@@ -1556,7 +1582,7 @@
 #define SPELL_INVEN_HEAD      33
 #define SPELL_INVEN_HANDS     34
 #define SPELL_INVEN_FEET      35
-#define	SPELL_WONDER		  36
+#define	SPELL_USE_OBJECT	  36
 #define SPELL_IDENT_NAME		37
 #define SPELL_RELEASE_CURSE		38
 #define SPELL_CONCENTRATE_LITE	39
@@ -2161,36 +2187,24 @@
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0
-#define SV_STAFF_SLOWNESS		1
-#define SV_STAFF_HASTE_MONSTERS	2
 #define SV_STAFF_SUMMONING		3
 #define SV_STAFF_TELEPORTATION	4
-#define SV_STAFF_DETECT_CURSE		5
-#define SV_STAFF_REMOVE_CURSE	6
 #define SV_STAFF_STARLITE		7
 #define SV_STAFF_LITE			8
 #define SV_STAFF_MAPPING		9
-#define SV_STAFF_DETECT_GOLD	10
-#define SV_STAFF_DETECT_ITEM	11
-#define SV_STAFF_DETECT_TRAP	12
-#define SV_STAFF_DETECT_DOOR	13
-#define SV_STAFF_DETECT_INVIS	14
-#define SV_STAFF_DETECT_EVIL	15
-#define SV_STAFF_CURE_LIGHT		16
 #define SV_STAFF_CURING			17
 #define SV_STAFF_HEALING		18
 #define SV_STAFF_THE_MAGI		19
-#define SV_STAFF_SLEEP_MONSTERS	20
-#define SV_STAFF_SLOW_MONSTERS	21
 #define SV_STAFF_SPEED			22
-#define SV_STAFF_PROBING		23
 #define SV_STAFF_DISPEL_EVIL	24
 #define SV_STAFF_POWER			25
 #define SV_STAFF_HOLINESS		26
 #define SV_STAFF_BANISHMENT		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
-
+#define SV_STAFF_CURE_SERIOUS	31
+#define SV_STAFF_CURE_MORTAL	32
+#define SV_STAFF_PERILOUS_SUMMONING 33
 
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER	0
@@ -2224,35 +2238,45 @@
 #define SV_WAND_DRAGON_BREATH	28
 
 /* The "sval" codes for TV_ROD */
-#define SV_ROD_DETECT_TRAP		0
-#define SV_ROD_DETECT_DOOR		1
-#define SV_ROD_DETECT_MAGIC		2
-#define SV_ROD_RECALL			3
-#define SV_ROD_ILLUMINATION		4
-#define SV_ROD_MAPPING			5
-#define SV_ROD_DETECTION		6
-#define SV_ROD_GAUGE_MAGIC    		7 /* Was probing */
-#define SV_ROD_CURING			8
-#define SV_ROD_HEALING			9
-#define SV_ROD_RESTORATION		10
-#define SV_ROD_SPEED			11
-#define SV_ROD_DOWSING			12
-#define SV_ROD_FEEDBACK			13
-#define SV_ROD_DISARMING		14
-#define SV_ROD_LITE			15
-#define SV_ROD_SLEEP_MONSTER		16
-#define SV_ROD_SLOW_MONSTER		17
-#define SV_ROD_DRAIN_LIFE		18
-#define SV_ROD_POLYMORPH		19
-#define SV_ROD_ACID_BOLT		20
-#define SV_ROD_ELEC_BOLT		21
-#define SV_ROD_FIRE_BOLT		22
-#define SV_ROD_COLD_BOLT		23
-#define SV_ROD_ACID_BALL		24
-#define SV_ROD_ELEC_BALL		25
-#define SV_ROD_FIRE_BALL		26
-#define SV_ROD_COLD_BALL		27
-#define SV_ROD_TELEPORT_AWAY		28
+#define SV_ROD_HASTE_MONSTERS	0
+#define SV_ROD_DETECT_CURSE		1
+#define SV_ROD_DETECT_GOLD		2
+#define SV_ROD_DETECT_ITEM		3
+#define SV_ROD_SLOW_MONSTERS	4
+#define SV_ROD_SLEEP_MONSTERS	5
+#define SV_ROD_CURE_MODERATE_WOUNDS	6
+#define SV_ROD_DETECT_LIFE		7
+#define SV_ROD_REMOVE_CURSE		8
+#define SV_ROD_DETECT_EVIL		9
+#define SV_ROD_DETECT_TRAP		10
+#define SV_ROD_DETECT_DOOR		11
+#define SV_ROD_DETECT_MAGIC		12
+#define SV_ROD_RECALL			13
+#define SV_ROD_ILLUMINATION		14
+#define SV_ROD_MAPPING			15
+#define SV_ROD_DETECTION		16
+#define SV_ROD_GAUGE_MAGIC    	17 /* Was probing */
+#define SV_ROD_CURING			18
+#define SV_ROD_HEALING			19
+#define SV_ROD_RESTORATION		20
+#define SV_ROD_SPEED			21
+#define SV_ROD_DOWSING			22
+#define SV_ROD_FEEDBACK			23
+#define SV_ROD_DISARMING		24
+#define SV_ROD_LITE			25
+#define SV_ROD_SLEEP_MONSTER		26
+#define SV_ROD_SLOW_MONSTER		27
+#define SV_ROD_DRAIN_LIFE		28
+#define SV_ROD_POLYMORPH		29
+#define SV_ROD_ACID_BOLT		30
+#define SV_ROD_ELEC_BOLT		31
+#define SV_ROD_FIRE_BOLT		32
+#define SV_ROD_COLD_BOLT		33
+#define SV_ROD_ACID_BALL		34
+#define SV_ROD_ELEC_BALL		35
+#define SV_ROD_FIRE_BALL		36
+#define SV_ROD_COLD_BALL		37
+#define SV_ROD_TELEPORT_AWAY		38
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -2433,7 +2457,7 @@
 /*
  * Special "sval" limit -- first "aimed" rod
  */
-#define SV_ROD_MIN_DIRECTION	14
+#define SV_ROD_MIN_DIRECTION	24
 
 /*
  * Special "sval" limit -- first "large" chest
@@ -2624,35 +2648,36 @@
 #define SOURCE_MONSTER_START	0 /*Greater than 0 monster is the source*/
 
 #define SOURCE_SELF				0	/* Monster comitting suicide */
-#define SOURCE_OBJECT			-1	/* Source is an object */
+#define SOURCE_OBJECT			-1	/* Source is an object on floor/monster inventory */
 #define SOURCE_FEATURE			-2	/* Source is a feature */
 #define SOURCE_SPELL			-3	/* Source is a spell */
 #define SOURCE_DISEASE			-4	/* Source is a disease */
 #define SOURCE_DAYLIGHT			-5	/* Source is the sun */
 #define SOURCE_BIRTH			-6	/* Source is birth of monster race */
-#define SOURCE_PLAYER_ATTACK	-7
-#define SOURCE_PLAYER_SHOT		-8
-#define SOURCE_PLAYER_THROW		-9
-#define SOURCE_PLAYER_TRAP		-10
-#define SOURCE_PLAYER_BREAK		-11
-#define SOURCE_PLAYER_SPORE		-12
-#define SOURCE_PLAYER_COATING	-13
-#define SOURCE_PLAYER_EAT_MONSTER	-14
-#define SOURCE_PLAYER_EAT		-15
-#define SOURCE_PLAYER_QUAFF		-16
-#define SOURCE_PLAYER_AIM		-17	/* Wands */
-#define SOURCE_PLAYER_ZAP		-18	/* Rods - with target specified */
-#define SOURCE_PLAYER_ZAP_NO_TARGET		-19	/* Rods - with no target specified */
-#define SOURCE_PLAYER_READ		-20
-#define SOURCE_PLAYER_USE		-21	/* Staffs*/
-#define SOURCE_PLAYER_ACT_ARTIFACT	-22
-#define SOURCE_PLAYER_ACTIVATE	-23
-#define SOURCE_PLAYER_SERVICE	-24
-#define SOURCE_PLAYER_CAST		-25
-#define SOURCE_PLAYER_END		-26
+#define SOURCE_PLAYER_ALLY		-7
+#define SOURCE_PLAYER_ATTACK	-8
+#define SOURCE_PLAYER_SHOT		-9
+#define SOURCE_PLAYER_THROW		-10
+#define SOURCE_PLAYER_TRAP		-11
+#define SOURCE_PLAYER_BREAK		-12
+#define SOURCE_PLAYER_SPORE		-13
+#define SOURCE_PLAYER_COATING	-14
+#define SOURCE_PLAYER_EAT_MONSTER	-15
+#define SOURCE_PLAYER_EAT		-16
+#define SOURCE_PLAYER_QUAFF		-17
+#define SOURCE_PLAYER_AIM		-18	/* Wands */
+#define SOURCE_PLAYER_ZAP		-19	/* Rods - with target specified */
+#define SOURCE_PLAYER_ZAP_NO_TARGET		-20	/* Rods - with no target specified */
+#define SOURCE_PLAYER_READ		-21
+#define SOURCE_PLAYER_USE		-22	/* Staffs*/
+#define SOURCE_PLAYER_ACT_ARTIFACT	-23
+#define SOURCE_PLAYER_ACTIVATE	-24
+#define SOURCE_PLAYER_SERVICE	-25
+#define SOURCE_PLAYER_CAST		-26
+#define SOURCE_PLAYER_END		-27
 
 #define SOURCE_PLAYER_START		-7	/* Less than here or equal to here, player is the source, and gets experience */
-#define SOURCE_PLAYER_NO_TARGET	-19	/* Less than here or equal to here, no target is specified and some messages are suppressed.
+#define SOURCE_PLAYER_NO_TARGET	-20	/* Less than here or equal to here, no target is specified and some messages are suppressed.
 									 * Note that all items less than here that could specify a target always have a 'known' effect. */
 
 #define SOURCE_MESSAGES	4
@@ -3252,7 +3277,7 @@
 #define TR3_DRAIN_MANA   0x00020000L     /* Mana drain */
 #define TR3_DRAIN_EXP    0x00040000L     /* Experience drain */
 #define TR3_AGGRAVATE    0x00080000L     /* Aggravate monsters */
-#define TR3_TELEPORT     0x00100000L     /* Item activates spontaneously */
+#define TR3_UNCONTROLLED 0x00100000L     /* Item activates spontaneously if cursed */
 #define TR3_RANDOM       0x00200000L 	/* Item has random activation */
 #define TR3_ACTIVATE     0x00400000L     /* Item can be activated */
 #define TR3_BLESSED      0x00800000L     /* Item has been blessed */
@@ -3470,17 +3495,17 @@
 #define MFLAG_HIDE      0x00000002    /* Monster is hiding in terrain */
 #define MFLAG_OVER      0x00000004    /* Monster is flying over terrain*/
 #define MFLAG_MADE      0x00000008    /* Monster is not carrying treasure */
-#define MFLAG_MOVE	0x00000010    /* Monster has moved */
-#define MFLAG_TOWN	0X00000020    /* Monster is using "townsman" AI */
+#define MFLAG_MOVE		0x00000010    /* Monster has moved */
+#define MFLAG_TOWN		0X00000020    /* Monster is using "townsman" AI */
 #define MFLAG_SHOW      0x00000040    /* Monster is recently memorized */
 #define MFLAG_MARK      0x00000080    /* Monster is currently memorized */
 
 #define MFLAG_ACTV      0x00000100    /* Monster is currently active */
 #define MFLAG_LITE      0x00000200    /* Monster is using a lite */
 #define MFLAG_PUSH      0x00000400    /* Monster has pushed/been pushed aside */
-#define MFLAG_CAST	0x00000800    	/* Monster will cast spell at first opportunity */
-#define MFLAG_SNEAKED	0x00001000    /* Monster has been sneak attacked */
-#define MFLAG_AGGR	0x00002000    	/* Monster will act in aggressive manner */
+#define MFLAG_CAST		0x00000800    /* Monster will cast spell at first opportunity */
+#define MFLAG_LEADER	0x00001000    /* Monster is a 'leader-type' */
+#define MFLAG_AGGR		0x00002000    /* Monster will act in aggressive manner */
 #define MFLAG_HIT_RANGE	0x00004000    /* Monster has just been hit by ranged attack */
 #define MFLAG_HIT_BLOW	0x00008000    /* Monster has just been hit by melee attack */
 
@@ -3840,7 +3865,7 @@
 #define RF9_NO_SLOW        0x00020000      /* Cannot be slowed / paralyzed */
 #define RF9_RES_MAGIC      0x00040000      /* Resists magic */
 #define RF9_GOOD           0x00080000      /* Good - never summon evil / never summoned by evil */
-#define RF9_NEUTRAL        0x00100000      /* Neutral - don't interact with player unless attacked */
+#define RF9_LEVEL_AGE      0x00100000      /* Levels up size deeper in the dungeon */
 #define RF9_DWARF          0x00200000      /* Hurt by slay dwarf */
 #define RF9_ELF            0x00400000      /* Hurt by slay elf */
 #define RF9_MAN            0x00800000      /* Hurt by slay man */
@@ -3888,6 +3913,16 @@
 #define RF8_SKIN_MASK \
 	(RF8_HAS_FUR | RF8_HAS_FEATHER | RF8_HAS_SCALE)
 
+
+/*
+ * Drop mask - used for hack_monster_equip. Note does not include DROP_CHEST or DROP_CLOTHES.
+ * 
+ * This ensures that a monster drops a maximum of one of each 'slot' of item.
+ */
+#define RF8_DROP_MASK \
+	(RF8_DROP_MISSILE | RF8_DROP_TOOL | RF8_DROP_WEAPON | RF8_DROP_MUSIC | \
+		 RF8_DROP_ARMOR | RF8_DROP_LITE | RF8_DROP_JEWELRY | RF8_DROP_RSW |  \
+		 RF8_DROP_WRITING | RF8_DROP_POTION | RF8_DROP_FOOD | RF8_DROP_JUNK)
 
 /*
  * Elements - used for summon elemental
@@ -4352,6 +4387,7 @@
 #define OPT_verify_special 29
 #define OPT_allow_quantity 30
 #define OPT_easy_corpses 31
+
 /* xxx */
 #define OPT_expand_look    36
 #define OPT_expand_list    37
@@ -4362,6 +4398,8 @@
 #define OPT_view_unsafe_grids 42
 #define OPT_view_detect_grids 43
 #define OPT_run_ignore_floors     44
+#define OPT_show_tips     45
+
 /* xxx track_target */
 /* xxx smart_learn */
 #define OPT_smart_cheat    47
@@ -4417,6 +4455,12 @@
 #define OPT_birth_no_stacking       (OPT_BIRTH+9)
 #define OPT_birth_haggle (OPT_BIRTH+10)
 #define OPT_birth_scum (OPT_BIRTH+11)
+#define OPT_birth_beginner (OPT_BIRTH+12)
+#define OPT_birth_intermediate (OPT_BIRTH+13)
+#define OPT_birth_small_levels (OPT_BIRTH+14)
+#define OPT_birth_first_time (OPT_BIRTH+15)
+#define OPT_birth_quickstart (OPT_BIRTH+16)
+
 /* xxx xxx */
 #define OPT_cheat_peek     (OPT_CHEAT+0)
 #define OPT_cheat_hear     (OPT_CHEAT+1)
@@ -4436,6 +4480,11 @@
 #define OPT_adult_no_stacking       (OPT_ADULT+9)
 #define OPT_adult_haggle (OPT_ADULT+10)
 #define OPT_adult_scum (OPT_ADULT+11)
+#define OPT_adult_beginner (OPT_ADULT+12)
+#define OPT_adult_intermediate (OPT_ADULT+13)
+#define OPT_adult_small_levels (OPT_ADULT+14)
+#define OPT_adult_first_time (OPT_ADULT+15)
+#define OPT_adult_quickstart (OPT_ADULT+16)
 /* xxx xxx */
 #define OPT_score_peek     (OPT_SCORE+0)
 #define OPT_score_hear     (OPT_SCORE+1)
@@ -4495,6 +4544,7 @@
 /* xxx track_follow */
 /* xxx track_target */
 /* xxx smart_learn */
+#define show_tips op_ptr->opt[OPT_show_tips]
 #define smart_cheat op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite  op_ptr->opt[OPT_view_reduce_lite]
 #define hidden_player     op_ptr->opt[OPT_hidden_player]
@@ -4544,6 +4594,12 @@
 #define birth_campaign       op_ptr->opt[OPT_birth_campaign]
 #define birth_haggle       op_ptr->opt[OPT_birth_haggle]
 #define birth_scum       op_ptr->opt[OPT_birth_scum]
+#define birth_beginner       op_ptr->opt[OPT_birth_beginner]
+#define birth_intermediate       op_ptr->opt[OPT_birth_intermediate]
+#define birth_small_levels       op_ptr->opt[OPT_birth_small_levels]
+#define birth_first_time      op_ptr->opt[OPT_birth_first_time]
+#define birth_quickstart      op_ptr->opt[OPT_birth_quickstart]
+
 
 /* xxx xxx */
 #define cheat_peek  op_ptr->opt[OPT_cheat_peek]
@@ -4565,6 +4621,11 @@
 #define adult_no_stacking   op_ptr->opt[OPT_adult_no_stacking]
 #define adult_haggle       op_ptr->opt[OPT_adult_haggle]
 #define adult_scum       op_ptr->opt[OPT_adult_scum]
+#define adult_beginner       op_ptr->opt[OPT_adult_beginner]
+#define adult_intermediate       op_ptr->opt[OPT_adult_intermediate]
+#define adult_small_levels       op_ptr->opt[OPT_adult_small_levels]
+#define adult_first_time      op_ptr->opt[OPT_adult_first_time]
+#define adult_quickstart      op_ptr->opt[OPT_adult_quickstart]
 /* xxx xxx */
 #define score_peek  op_ptr->opt[OPT_score_peek]
 #define score_hear  op_ptr->opt[OPT_score_hear]

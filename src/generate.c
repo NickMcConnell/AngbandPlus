@@ -156,10 +156,11 @@
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE	1       /* Rubble */
-#define ALLOC_TYP_TRAP	  3       /* Trap */
-#define ALLOC_TYP_GOLD	  4       /* Gold */
+#define ALLOC_TYP_TRAP		3       /* Trap */
+#define ALLOC_TYP_GOLD		4       /* Gold */
 #define ALLOC_TYP_OBJECT	5       /* Object */
-#define ALLOC_TYP_FEATURE	6	/* Feature eg fountain */
+#define ALLOC_TYP_FEATURE	6		/* Feature eg fountain */
+#define ALLOC_TYP_BODY		7		/* Body parts. Placed if most powerful monster is out of depth. */
 
 
 /*
@@ -9341,6 +9342,28 @@ static int alloc_object(int set, int typ, int num)
 				place_feature(y, x);
 				break;
 			}
+			
+			case ALLOC_TYP_BODY:
+			{
+				/* Hack -- pick body type */
+				switch (rand_int(3))
+				{
+					case 0:
+						tval_drop_idx = TV_BODY;
+						break;
+					case 1:
+						tval_drop_idx = TV_SKIN;
+						break;
+					case 2:
+						tval_drop_idx = TV_BONE;
+						break;
+				}
+				
+				place_object(y, x, FALSE, FALSE);
+				
+				tval_drop_idx = 0;
+				break;
+			}
 		}
 	}
 	
@@ -9387,6 +9410,13 @@ static bool place_contents()
 	
 		/* Place some features in rooms */
 		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, 1);
+		
+		/* If deepest monster is powerful, place lots of bodies around */
+		if (r_info[cave_ecology.deepest_race].level > p_ptr->depth * 5 / 4)
+		{
+			/* Place some bodies in the dungeon */
+			alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_BODY, randint(k * (((level_flag & (LF1_STRONGHOLD | LF1_WILD)) != 0) ? 3 : 1)));
+		}
 	}
 	/* FIXME - Check what assumptions we make here. */	
 	else if (!dun->entrance)
@@ -9408,6 +9438,9 @@ static bool place_contents()
 	/* Generating */
 	if (cheat_room) msg_print("Placing monsters.");
 
+	/* If deepest monster is powerful, reduce total number of monsters */
+	if (r_info[cave_ecology.deepest_race].level > p_ptr->depth * 5 / 4) i = (i + 2) / 3;
+	
 	/* Put some monsters in the dungeon */
 	for (i = i + k; i > 0; i--)
 	{
@@ -10461,9 +10494,19 @@ void generate_cave(void)
 	/* Redraw state */
 	p_ptr->redraw |= (PR_STATE);
 
+	/* Set this dungeon as visited */
+	t_info[p_ptr->dungeon].visited = TRUE;
+	
 	/* Set maximum depth for this dungeon */
 	if (t_info[p_ptr->dungeon].max_depth < p_ptr->depth - min_depth(p_ptr->dungeon))
 	{
+		for (i = t_info[p_ptr->dungeon].max_depth; i < p_ptr->depth - min_depth(p_ptr->dungeon); i++)
+		{
+			/* Style tips */
+			queue_tip(format("depth%d-%d.txt", p_ptr->dungeon, i));
+		}
+
+		/* Set new maximum depth */
 		t_info[p_ptr->dungeon].max_depth = p_ptr->depth - min_depth(p_ptr->dungeon);
 	}
 }

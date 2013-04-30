@@ -126,6 +126,8 @@ void player_can_flags(int who, u32b f1, u32b f2, u32b f3, u32b f4)
 		/* Get the flags */
 		smart = player_smart_flags(f1, f2, f3, f4);
 
+		msg_format("Debug: %ld", smart);
+		
 		/* Learn the flags */
 		m_ptr->smart |= smart;
 
@@ -3715,7 +3717,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (f_info[feat].flags2 & (FF2_CAN_SWIM))
 			{
-				cave_set_feat(y,x,FEAT_GROUND);
+				cave_set_feat(y,x,FEAT_EARTH);
 
 				/* Notice any changes */
 				obvious = TRUE;
@@ -3801,15 +3803,12 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 		/* Animate trees */
 		case GF_ANIM_TREE:
 		{
-			bool change = FALSE;
+			if (f_ptr->flags2 & (FF3_TREE)) break;
+
+			summoner = 0;
 
 			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_TREE,
-					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
-
-			if (change)
-			{
-				cave_set_feat(y,x,FEAT_GROUND);
-			}
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_EARTH);
 
 			break;
 		}
@@ -3819,8 +3818,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 		{
 			int i;
 
-			bool change = FALSE;
-
+			summoner = 0;
 			summon_group_type = 0;
 
 			for (i = 0; i < MAX_ELEMENTS; i++)
@@ -3835,12 +3833,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (summon_group_type)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
-					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
-			}
-
-			if (change)
-			{
-				cave_set_feat(y,x,FEAT_GROUND);
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_EARTH);
 			}
 
 			break;
@@ -3851,6 +3844,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 		{
 			bool change = FALSE;
 
+			summoner = 0;
 			summon_attr_type = 0;
 			summon_char_type = 0;
 
@@ -3858,18 +3852,6 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (f_ptr->flags3 & (FF3_CHEST))
 			{
 				summon_char_type = '&';
-			}
-
-			/* Animate trees */
-			else if (f_ptr->flags3 & (FF3_TREE))
-			{
-				summon_char_type = ':';
-			}
-
-			/* Animate plants */
-			else if (f_ptr->flags3 & (FF3_LIVING))
-			{
-				summon_char_type = ';';
 			}
 
 			/* Animate embedded objects */
@@ -3897,13 +3879,13 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (summon_attr_type || summon_char_type)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT,
-					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) change = TRUE;
 			}
 
 			if (change)
 			{
 				if (f_ptr->flags3 & (FF3_GET_FEAT)) cave_alter_feat(y, x, FS_GET_FEAT);
-				else if (f_ptr->flags3 & (FF3_OUTSIDE)) cave_set_feat(y,x, FEAT_GROUND);
+				else if (f_ptr->flags3 & (FF3_OUTSIDE)) cave_set_feat(y,x, FEAT_EARTH);
 				else cave_set_feat(y,x,FEAT_FLOOR);
 
 				/* Notice any changes */
@@ -4066,6 +4048,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 		bool ignore = FALSE;
 		bool plural = FALSE;
 		bool do_kill = FALSE;
+		bool do_break = TRUE;
 		cptr note_kill = NULL;
 		bool do_move = FALSE;
 
@@ -4378,22 +4361,57 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			{
 				if (!is_art)
 				{
-					summon_attr_type = k_info[o_ptr->k_idx].d_attr;
-					summon_char_type = k_info[o_ptr->k_idx].d_char;
+					bool summons = FALSE;
+					int i;
+					
+					summoner = 0;
+					
+					if (k_info[o_ptr->k_idx].flavor)
+					{
+						summon_attr_type = x_info[k_info[o_ptr->k_idx].flavor].d_attr;
+						summon_char_type = x_info[k_info[o_ptr->k_idx].flavor].d_char;
+					}
+					else
+					{
+						summon_attr_type = k_info[o_ptr->k_idx].d_attr;
+						summon_char_type = k_info[o_ptr->k_idx].d_char;						
+					}
 
 					/* Hack -- animate statues */
 					if (k_info[o_ptr->k_idx].tval == TV_STATUE) summon_char_type = 'g';
+
+					/* Hack -- animate food */
+					if ((k_info[o_ptr->k_idx].tval == TV_FOOD) && (k_info[o_ptr->k_idx].sval >= SV_FOOD_MIN_FOOD)) summon_char_type = '!';
+
+					/* Hack -- animate spikes */
+					if (k_info[o_ptr->k_idx].tval == TV_SPIKE) summon_char_type = '|';
 
 					/* Hack -- animate assemblies */
 					if ((k_info[o_ptr->k_idx].tval == TV_ASSEMBLY) && (o_ptr->name3))
 					{
 						summon_race_type = o_ptr->name3;
-						if (summon_specific(y, x, 99, SUMMON_FRIEND, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
+						for (i = 0; i < o_ptr->number; i++)
+							summons |= (summon_specific(y, x, 99, SUMMON_FRIEND, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
+							
+						if (summons)
+						{
+							do_kill = TRUE;
+							do_break = FALSE;
+							note_kill = (plural ? " animate!" : " animates!");
+						}
 					}
 					else
 					{
-						if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
-							who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
+						for (i = 0; i < o_ptr->number; i++)
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
+							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+							
+						if (summons)
+						{
+							do_kill = TRUE;
+							do_break = FALSE;
+							note_kill = (plural ? " animate!" : " animates!");
+						}
 					}
 				}
 				else
@@ -4407,14 +4425,19 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			/* Animate dead */
 			case GF_ANIM_DEAD:
 			{
+				summoner = 0;
 				summon_char_type = 0;
 				summon_attr_type = 0;
+				summon_flag_type = 0L;
 
 				switch (k_info[o_ptr->k_idx].tval)
 				{
 					case TV_BONE:
 					{
-						if (k_info[o_ptr->k_idx].sval == SV_BONE_SKELETON) summon_char_type = 's';
+						if (k_info[o_ptr->k_idx].sval == SV_BONE_SKELETON)
+						{
+							summon_char_type = 's';
+						}
 						else
 						{
 							summon_char_type = k_info[o_ptr->k_idx].d_char;
@@ -4427,19 +4450,20 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 						if ((k_info[o_ptr->k_idx].sval == SV_BODY_CORPSE) || 
 							(k_info[o_ptr->k_idx].sval == SV_BODY_HEADLESS) ||
 							(k_info[o_ptr->k_idx].sval == SV_BODY_BUTCHERED))
-							 summon_char_type = 'z';
-						/* Hack -- animate hands and claws */
-						else if ((k_info[o_ptr->k_idx].sval == SV_BODY_HAND) ||
-							(k_info[o_ptr->k_idx].sval == SV_BODY_CLAW))
 						{
-							summon_char_type = k_info[o_ptr->k_idx].d_char;
-							summon_attr_type = k_info[o_ptr->k_idx].d_attr;
+							 summon_char_type = 'z';
 						}
 						/* MegaHack -- animate heads */
 						else if (k_info[o_ptr->k_idx].sval == SV_BODY_HEAD)
 						{
 							summon_char_type = '~';
 							summon_attr_type = TERM_WHITE;
+						}
+						/* Hack -- other body parts */
+						else
+						{
+							summon_char_type = k_info[o_ptr->k_idx].d_char;
+							summon_attr_type = k_info[o_ptr->k_idx].d_attr;							
 						}
 						break;
 					}
@@ -4451,8 +4475,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					summon_flag_type |= r_info[o_ptr->name3].flags3 & (RF3_RACE_MASK);
 					summon_flag_type |= r_info[o_ptr->name3].flags9 & (RF9_RACE_MASK);
 
-					/* Hack -- non-humanoids animate to undead of their own graphic */
-					if ((summon_flag_type & ~(RF3_ANIMAL | RF3_PLANT | RF3_INSECT | RF3_DRAGON)) == 0)
+					/* Hack -- non-humanoids animate to undead of their own graphic. Added eyes as a hack. */
+					if (((summon_flag_type & (RF3_ANIMAL | RF3_INSECT | RF3_PLANT | RF3_DRAGON)) != 0) || (r_info[o_ptr->name3].d_char == 'e'))
 					{
 						summon_flag_type = (RF3_UNDEAD);
 						summon_attr_type = 0;
@@ -4463,8 +4487,19 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 				if (summon_char_type || summon_attr_type || summon_flag_type)
 				{
-					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD,
-						who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
+					bool summons = FALSE;
+					int i;
+					
+					for (i = 0; i < o_ptr->number; i++)
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD,
+						FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+					
+					if (summons)
+					{
+						do_kill = TRUE;
+						do_break = FALSE;
+						note_kill = (plural ? " animate!" : " animates!");
+					}
 				}
 				break;
 			}
@@ -4473,6 +4508,10 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			case GF_RAISE_DEAD:
 			{
 				bool raise = FALSE;
+				bool summons = FALSE;
+				int i;
+				
+				summoner = 0;
 
 				switch (k_info[o_ptr->k_idx].tval)
 				{
@@ -4495,15 +4534,34 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 				{
 					summon_race_type = o_ptr->name3;
 
-					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD,
-						who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
+					for (i = 0; i < o_ptr->number; i++)
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD,
+						FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
+					
+					if (summons)
+					{
+						do_kill = TRUE;
+						do_break = FALSE;
+						note_kill = (plural ? " come back to life!" : " comes back to life!");
+					}
+						
 
 					summon_race_type = 0;
 				}
 				else if ((raise) && (o_ptr->name3 == summon_race_type))
 				{
-					if (summon_specific(y, x, 99, RAISE_DEAD, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
+					for (i = 0; i < o_ptr->number; i++)
+							summons |= (summon_specific(y, x, 99, RAISE_DEAD, FALSE, (MFLAG_MADE) | (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+					
+					if (summons)
+					{
+						do_kill = TRUE;
+						do_break = FALSE;
+						note_kill = (plural ? " come back to life!" : " comes back to life!");
+					}
 				}
+				
+				break;
 			}
 			
 			/* Wood warping -- wooden objects */
@@ -4604,14 +4662,22 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					}
 				}
 
-				/* Delete the object later -- needs to happen before project_f below */
-				o_ptr->ident |= (IDENT_BREAKS);
+				if (do_break)
+				{
+					/* Delete the object later -- needs to happen before project_f below */
+					o_ptr->ident |= (IDENT_BREAKS);
 
-				/* Splash damage on terrain */
-				(void)project_f(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
+					/* Splash damage on terrain */
+					(void)project_f(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
 
-				/* And apply effects */
-				(void)project_t(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
+					/* And apply effects */
+					(void)project_t(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
+				}
+				else
+				{
+					/* Delete the object */
+					delete_object_idx(this_o_idx);
+				}
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -5260,15 +5326,31 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* Never affect projector */
 	if (cave_m_idx[y][x] == who) return (FALSE);
 
-	/* Don't affect hidden monsters */
-	if (m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)) return (FALSE);
-
 	/* Obtain monster info */
 	m_ptr = &m_list[cave_m_idx[y][x]];
+
+	/* Don't affect hidden monsters */
+	if (m_ptr->mflag & (MFLAG_HIDE)) return (FALSE);
+
+	/* Obtain remaining monster info */
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
+
+	/* Check if player attacking -- note skip attacks from allies */
+	if (who < SOURCE_PLAYER_START)
+	{
+		if (m_ptr->cdis > 1) m_ptr->mflag |= (MFLAG_HIT_RANGE);
+		else m_ptr->mflag |= (MFLAG_HIT_BLOW);
+	}
+	/* Check if monsters are fighting out of player LOS.*/
+	else if ((who > SOURCE_MONSTER_START) && !(player_has_los_bold(y, x))
+			&& ((m_list[who].mflag & (MFLAG_ALLY)) != (m_ptr->mflag & (MFLAG_ALLY))))
+	{
+		/* If so, make them aggressive. */
+		m_ptr->mflag |= (MFLAG_AGGR);
+	}
 
 	/* Check if monster asleep */
 	was_asleep = (m_ptr->csleep == 0);
@@ -6477,9 +6559,10 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
-
+		
 		/* Heal Monster (use "dam" as amount of healing, except on undead) */
 		case GF_HEAL:
+		case GF_HEAL_PERC:
 		{
 			if (seen) obvious = TRUE;
 
@@ -7532,6 +7615,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 		/* Melee attack - gain mana */
 		case GF_GAIN_MANA:
+		case GF_GAIN_MANA_PERC:
 		{
 			/* Monster may have mana */
 			if (r_ptr->mana)
@@ -7938,6 +8022,9 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 					note = " falls under your influence!";
 					m_ptr->mflag |= (MFLAG_ALLY);
 					m_ptr->mflag &= ~(MFLAG_IGNORE);
+					
+					/* Clear 'summoned' counter */
+					m_ptr->summoned = 0;
 				}
 			}
 			else
@@ -8024,10 +8111,10 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	{
 		/* Turn off the damage */
 		dam = 0;
-
+	
 		/* "Kill" the monster */
 		delete_monster_idx(cave_m_idx[y][x]);
-
+	
 		/* Paranoia --- Handle rest of monster routine here */
 
 		/* Give detailed messages if destroyed */
@@ -8047,7 +8134,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		note = " is unaffected!";
 
 		/* Pick a "new" monster race */
-		tmp = poly_r_idx(m_ptr->r_idx);
+		tmp = poly_r_idx(m_ptr->r_idx, y, x);
 
 		/* Handle polymorh */
 		if (tmp != m_ptr->r_idx)
@@ -8265,7 +8352,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	}
 
 	/* If another non-allied monster or trap did the damage, hurt the monster by hand */
-	if ((who > SOURCE_PLAYER_START) && ((who <= 0) || ((m_list[who].mflag & (MFLAG_ALLY)) == 0)))
+	if (who > SOURCE_PLAYER_START)
 	{
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
@@ -8344,13 +8431,13 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		/* Hack -- wake up nearby allies */
 		if (was_asleep)
 		{
-			m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+			m_ptr->mflag |= (MFLAG_AGGR);
 
 			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
 		}
 		else if (fear)
 		{
-			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has hurt me badly!");
+			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_ACTV, "& has hurt me badly!");
 		}
 	}
 
@@ -8444,6 +8531,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
+	/* Get the killer */
 	if (who > SOURCE_MONSTER_START)
 	{
 		/* Get the source monster */
@@ -8472,6 +8560,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Cause of death routine */
 		switch(who)
 		{
+			case SOURCE_PLAYER_ALLY:
 			case SOURCE_SELF:
 			{
 				/* Get the source monster */
@@ -11006,6 +11095,12 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Heal the player a percentage of hitpoints */
+		case GF_HEAL_PERC:
+		{
+			if (p_ptr->mhp > 100) dam = p_ptr->mhp * dam / 100;
+		}
+		
 		/* Heal the player, except if undead */
 		case GF_HEAL:
 		{
@@ -11161,6 +11256,12 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				update_smart_learn(who, SM_IMM_MANA);
 			}
 			break;
+		}
+
+		/* Gain a percentage of total mana */
+		case GF_GAIN_MANA_PERC:
+		{
+			if (p_ptr->msp > 100) dam = p_ptr->msp * dam / 100;
 		}
 
 		/* Melee attack - gain mana */

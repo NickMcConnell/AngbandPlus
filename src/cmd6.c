@@ -640,7 +640,8 @@ void do_cmd_use_staff(void)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (chance < USE_DEVICE
+	    || randint(chance) + chance/USE_DEVICE < USE_DEVICE)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
@@ -918,7 +919,8 @@ void do_cmd_aim_wand(void)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (chance < USE_DEVICE
+	    || randint(chance) + chance/USE_DEVICE < USE_DEVICE)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
@@ -1184,7 +1186,8 @@ void do_cmd_zap_rod(void)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (chance < USE_DEVICE
+	    || randint(chance) + chance/USE_DEVICE < USE_DEVICE)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");
@@ -1510,7 +1513,8 @@ void do_cmd_assemble(void)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (chance < USE_DEVICE
+	    || randint(chance) + chance/USE_DEVICE < USE_DEVICE)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to understand it properly.");
@@ -1688,6 +1692,9 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
 
+	/* Check uncontrolled flag and not cursed */
+	if ((f3 & (TR3_UNCONTROLLED)) && !(cursed_p(o_ptr))) return (TRUE);
+
 	/* Assume not */
 	return (FALSE);
 }
@@ -1842,7 +1849,8 @@ void do_cmd_activate(void)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (chance < USE_DEVICE
+	    || randint(chance) + chance/USE_DEVICE < USE_DEVICE)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to activate it properly.");
@@ -2279,7 +2287,7 @@ void do_cmd_apply_rune_or_coating(void)
 
 	/* Hack -- split stack only if required. This is dangerous otherwise as we may
 	   be calling from a routine where we delete items later. XXX XXX */
-	/* Mega-hack -- we allow 20 arrows/bolts to be coated per application */
+	/* Mega-hack -- we allow 5 arrows/bolts to be coated per application */
 	if ((j_ptr->number > 1) && ((!brand_ammo) || (j_ptr->number > 5)))
 	{
 		int qty = (brand_ammo) ? 5 : 1;
@@ -2499,6 +2507,9 @@ void do_cmd_apply_rune_or_coating(void)
 
 		if (j_ptr->stackc) j_ptr->charges++;
 	}
+
+	/* Notice obvious flags again */
+	object_obvious_flags(j_ptr);
 
 	/* Need to carry the new object? */
 	if (split)
