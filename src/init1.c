@@ -6300,10 +6300,9 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		}
 		/*other bad effects - elements / sustains*/
 		case GF_TERRIFY:
-		case GF_ACID:
 		case GF_ELEC:
-		case GF_FIRE:
 		case GF_COLD:
+		case GF_FIRE:
 		case GF_HUNGER:
 		case GF_LOSE_MANA:
 		case GF_LITE:
@@ -6313,8 +6312,9 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 			atk_dam += 10;
 			break;
 		}
-		/*other bad effects - major*/
+		/*other bad effects - elements / major*/
 		case GF_PLASMA:
+		case GF_ACID:
 		case GF_WATER:
 		case GF_SOUND:
 		case GF_NEXUS:
@@ -6335,7 +6335,6 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case GF_INERTIA:
 		case GF_FORCE:
 		case GF_NETHER:
-		case GF_DISENCHANT:
 		case GF_UN_BONUS:
 		case GF_UN_POWER:
 		case GF_LOSE_CON:
@@ -6348,6 +6347,12 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case GF_LOSE_ALL:
 		{
 			atk_dam += 40;
+			break;
+		}
+		/*other bad effects - major*/
+		case GF_DISENCHANT:
+		{
+			atk_dam += 50;
 			break;
 		}
 		/* Experience draining attacks */

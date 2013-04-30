@@ -2027,7 +2027,8 @@ bool place_random_stairs(int y, int x, int feat)
 	}
 
 	/* Random stairs -- bias towards direction player is heading */
-	else if (rand_int(100) < ((p_ptr->create_up_stair) ? 75 : ((p_ptr->create_down_stair) ? 25 : 50)) )
+	else if (rand_int(100) < (((f_info[p_ptr->create_stair].flags1 & (FF1_MORE)) != 0) ? 75
+			: (((f_info[p_ptr->create_stair].flags1 & (FF1_LESS)) != 0) ? 25 : 50)) )
 	{
 		place_down_stairs(y, x);
 	}

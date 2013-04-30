@@ -1752,7 +1752,7 @@ static void display_player_xtra_info(void)
 		if (object_bonus_p(o_ptr)) hit += o_ptr->to_h;
 		if (object_bonus_p(o_ptr)) dam += o_ptr->to_d;
 
-		Term_putstr(col, 12, -1, TERM_WHITE, "Off-H");
+		Term_putstr(col, 12, -1, TERM_WHITE, "Off");
 		strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 		Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%12s", buf));
 	}
@@ -3887,7 +3887,7 @@ errr file_character(cptr name, bool full)
 	if ((c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL)
 		|| (p_ptr->pstyle == WS_MAGIC_BOOK) || (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK))
 	{
-		/* Dump quests */
+		/* Dump spells */
 		text_out("  [Spells Learnt]\n\n");
 
 		/* Iterate through learnt spells */
@@ -3905,6 +3905,7 @@ errr file_character(cptr name, bool full)
 		text_out("\n\n");
 	}
 
+#if 0
 	/* Dump quests */
 	text_out("  [Quests]\n\n");
 
@@ -3919,6 +3920,7 @@ errr file_character(cptr name, bool full)
 	if (no_quests) text_out("You currently have no quests.\n");
 
 	text_out("\n");
+#endif
 
 	text_out("  [Character Equipment Stat Modifiers, Sustains and Flags]\n\n");
 

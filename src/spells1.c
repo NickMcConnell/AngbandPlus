@@ -1148,9 +1148,9 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
-		{
-			return (TRUE);
-		}
+
+		/* Wands are metallic */
+		case TV_WAND:
 
 		/* Staffs/Scrolls are wood/paper */
 		case TV_STAFF:
@@ -1158,10 +1158,6 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_MAP:
 		case TV_ROPE:
 		case TV_STATUE:
-		{
-			return (TRUE);
-		}
-
 
 		/* Junk is useless */
 		case TV_BONE:
@@ -1170,25 +1166,6 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_EGG:
 		case TV_HOLD:
 		case TV_JUNK:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-/*
- * Does a given object (usually) hate electricity?
- */
-static bool hates_elec(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_RING:
-		case TV_WAND:
-		case TV_BOOTS:
 		{
 			return (TRUE);
 		}
@@ -1219,18 +1196,12 @@ static bool hates_fire(object_type *o_ptr)
 		case TV_GLOVES:
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
-		{
-			return (TRUE);
-		}
 
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_SONG_BOOK:
 		case TV_INSTRUMENT:
-		{
-			return (TRUE);
-		}
 
 		/* Staffs/Scrolls burn */
 		case TV_STAFF:
@@ -1238,9 +1209,6 @@ static bool hates_fire(object_type *o_ptr)
 		case TV_MAP:
 		case TV_ROPE:
 		case TV_STATUE:
-		{
-			return (TRUE);
-		}
 
 		/* Flasks burn */
 		case TV_FLASK:
@@ -1322,14 +1290,9 @@ bool hates_terrain(object_type *o_ptr, int f_idx)
 
 		case GF_STORM:
 			if (hates_water(o_ptr)) return(TRUE);
-			/* Fall through */
-		case GF_ELEC:
-			if (hates_elec(o_ptr)) return(TRUE);
 			break;
 
 		case GF_PLASMA:
-			if (hates_elec(o_ptr)) return(TRUE);
-			/* Fall through */
 		case GF_FIRE:
 		case GF_SMOKE:
 		case GF_HELLFIRE:
@@ -1376,23 +1339,6 @@ static int set_acid_destroy(object_type *o_ptr)
 
 
 /*
- * Electrical damage
- */
-static int set_elec_destroy(object_type *o_ptr)
-{
-	u32b f1, f2, f3, f4;
-	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	if (f2 & (TR2_IGNORE_ELEC))
-	{
-		object_can_flags(o_ptr,0x0L,TR2_IGNORE_ELEC,0x0L,0x0L);
-		return (FALSE);
-	}
-	return (TRUE);
-}
-
-
-/*
  * Burn something
  */
 static int set_fire_destroy(object_type *o_ptr)
@@ -1424,6 +1370,48 @@ static int set_cold_destroy(object_type *o_ptr)
 	}
 	return (TRUE);
 }
+
+
+/*
+ * Electrify things.
+ *
+ * Instead of destroying electrified things, we drain them of charges.
+ */
+static int set_elec_destroy(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Only affect rods, staffs and wands */
+	if ((o_ptr->tval != TV_ROD) && (o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return (FALSE);
+
+	if (f2 & (TR2_IGNORE_ELEC))
+	{
+		object_can_flags(o_ptr,0x0L,TR2_IGNORE_ELEC,0x0L,0x0L);
+		return (FALSE);
+	}
+
+	/* Only drain charges, don't destroy */
+	if ((o_ptr->tval == TV_STAFF) ||
+	     (o_ptr->tval == TV_WAND))
+	{
+		/* Uncharge */
+		o_ptr->charges = 0;
+		o_ptr->stackc = 0;
+	}
+
+	/* Quietly drain charged wands/staffs */
+	else if (o_ptr->tval == TV_ROD)
+	{
+		int t = randint(999);
+
+		/* Discharge */
+		if (o_ptr->timeout < t) o_ptr->timeout = t;
+	}
+
+	return (FALSE);
+}
+
 
 
 /*
@@ -1653,7 +1641,7 @@ static int mon_inven_damage(int m_idx, inven_func typ, int perc)
 				monster_desc(m_name, m_idx, 0x22);
 
 				/* Message */
-				msg_format("%^s%s %s destroyed!",
+				msg_format("%^s%s %s %s destroyed!",
 					   ((o_ptr->number > 1) ?
 					    ((amt == o_ptr->number) ? "All of " :
 					     (amt > 1 ? "Some of " : "One of ")) : m_name),
@@ -3816,7 +3804,6 @@ bool project_o(int who, int y, int x, int dam, int typ)
 			/* Acid -- Lots of things */
 			case GF_ACID:
 			{
-
 				/* Hack -- halve acid damage in water */
 				if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
 
@@ -3830,27 +3817,47 @@ bool project_o(int who, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Elec -- Rings and Wands */
+			/* Elec -- Nothing now */
+			/* However, electricity will drain charges completely from wands and staffs on the floor
+			   and massively increase the timeout of rods. */
 			case GF_ELEC:
 			{
-
 				/* Hack -- double electricy damage in water */
 				if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
-			
-				if (hates_elec(o_ptr))
+
+				/* Quietly drain charged wands/staffs */
+				if (((o_ptr->tval == TV_STAFF) ||
+				     (o_ptr->tval == TV_WAND)) &&
+				    (o_ptr->charges))
 				{
-					do_kill = TRUE;
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f2 & (TR2_IGNORE_ELEC)) ignore = TRUE;
-					if2 |= TR2_IGNORE_ELEC;
+					/* Ignore electricity protects */
+					if ((f2 & (TR2_IGNORE_ELEC)) == 0)
+					{
+						/* Uncharge */
+						o_ptr->charges = 0;
+						o_ptr->stackc = 0;
+					}
 				}
+
+				/* Quietly drain charged wands/staffs */
+				else if (o_ptr->tval == TV_ROD)
+				{
+					/* Ignore electricity protects */
+					if ((f2 & (TR2_IGNORE_ELEC)) == 0)
+					{
+						int t = randint(999);
+
+						/* Uncharge */
+						if (o_ptr->timeout < t) o_ptr->timeout = t;
+					}
+				}
+
 				break;
 			}
 
 			/* Fire -- Flammable objects */
 			case GF_FIRE:
 			{
-
 				/* Hack -- halve fire damage in water */
 				if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
 			
@@ -3867,7 +3874,6 @@ bool project_o(int who, int y, int x, int dam, int typ)
 			/* Cold -- potions and flasks */
 			case GF_COLD:
 			{
-
 				/* Hack -- double cold damage in water */
 				if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
 
@@ -3906,14 +3912,6 @@ bool project_o(int who, int y, int x, int dam, int typ)
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f2 & (TR2_IGNORE_FIRE)) ignore = TRUE;
 					if2 |= TR2_IGNORE_FIRE;
-				}
-				if (hates_elec(o_ptr))
-				{
-					ignore = FALSE;
-					do_kill = TRUE;
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f2 & (TR2_IGNORE_ELEC)) ignore = TRUE;
-					if2 |= TR2_IGNORE_ELEC;
 				}
 				break;
 			}
@@ -6696,7 +6694,7 @@ bool project_m(int who, int y, int x, int dam, int typ)
 
 			if (obvious) note = " appears sicklier.";
 
-			new_maxhp = calc_monster_hp(m_ptr);
+			new_maxhp = calc_monster_hp(cave_m_idx[y][x]);
 
 			if (new_maxhp < m_ptr->maxhp)
 			{
@@ -8551,6 +8549,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 
 					/* Uncharge */
 					o_ptr->charges = 0;
+					o_ptr->stackc = 0;
 
 					/* Combine / Reorder the pack */
 					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -9686,33 +9685,8 @@ bool project_p(int who, int y, int x, int dam, int typ)
 			/* Hack -- no chasm/trap doors/down stairs on quest levels */
 			else if (is_quest(p_ptr->depth) || (p_ptr->depth == max_depth(p_ptr->dungeon)))
 			{
-
 				/* Mark grid for later processing. */
 				cave_temp_mark(y, x, FALSE);
-#if 0
-				int i = rand_int(8);
-
-				int k = 0;
-
-				/* Scan all neighbors */
-				while (cave_feat[y][x] != FEAT_CHASM)
-				{
-					int yy = y + ddy_ddd[i];
-					int xx = x + ddx_ddd[i];
-
-					/* Hack -- bounds check */
-					if (++k>30) break;
-
-					i = rand_int(8);
-
-					if (cave_feat[yy][xx] != FEAT_CHASM) continue;
-
-					/* Hack -- fall back into the chasm */
-					monster_swap(p_ptr->py,p_ptr->px,yy,xx);
-
-					break;
-				}
-#endif
 			}
 			else
 			{
@@ -9722,6 +9696,9 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
+
+			/* Clear stairs */
+			p_ptr->create_stair = 0;
 
 			break;
 		}

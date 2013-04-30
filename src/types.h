@@ -1439,8 +1439,7 @@ struct player_type
 
 	bool leaving;   /* True if player is leaving */
 
-	bool create_up_stair;   /* Create up stair on next level */
-	bool create_down_stair; /* Create down stair on next level */
+	s16b create_stair;   /* Create what type of stair on next level */
 
 	s16b wy;/* Dungeon panel */
 	s16b wx;/* Dungeon panel */
@@ -1448,7 +1447,7 @@ struct player_type
 	s16b total_weight;      /* Total weight being carried */
 
 	s16b inven_cnt; /* Number of items in inventory */
-	s16b equip_cnt; /* Number of items in equipment */
+	s16b equip_cnt; /* Number of items in equipment (except quiver) */
 	s16b pack_size_reduce;		/* Number of inventory slots used by
 					   the quiver */
 

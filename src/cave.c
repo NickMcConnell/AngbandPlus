@@ -5666,7 +5666,8 @@ int feat_state(int feat, int action)
 	int i;
 
 	/* Permanent stuff never gets changed */
-	if (f_info[feat].flags1 & FF1_PERMANENT) return (feat);
+	/* Hack -- ignore for less and more. This is required to reverse stair directions. */
+	if ((f_info[feat].flags1 & FF1_PERMANENT) && (action != FS_LESS) && (action != FS_MORE)) return (feat);
 
 	/* Set default feat */
 	newfeat = f_info[feat].defaults;
@@ -5853,6 +5854,10 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 	{
 		/* Require strict LOF */
 		require_strict_lof = TRUE;
+
+		/* Hack in a hack for trick throws */
+		if (range == 256)
+		require_strict_lof = FALSE;
 	}
 
 	/* Get position change (signed) */

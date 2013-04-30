@@ -3436,26 +3436,51 @@ void monster_death(int m_idx)
 	/* Dungeon guardian defeated - need some stairs except on surface */
 	if ((r_ptr->flags1 & (RF1_GUARDIAN)) && (p_ptr->depth != min_depth(p_ptr->dungeon)))
 	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
-		{
-			int d = 1;
+	  /* Stagger around */
+	  while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
+	    {
+	      int d = 1;
 
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+	      /* Pick a location */
+	      scatter(&ny, &nx, y, x, d, 0);
 
-			/* Stagger */
-			y = ny; x = nx;
-		}
+	      /* Stagger */
+	      y = ny; x = nx;
+	    }
 
-		/* Destroy any objects */
-		delete_object(y, x);
+	  /* Explain the staircase */
+	  msg_print("A magical staircase appears...");
 
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
+	  /* Create stairs down */
+	  cave_set_feat(y, x, FEAT_MORE);
 
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
+	  /* Scatter any objects */
+	  {
+	    s16b this_o_idx, next_o_idx = 0;
+
+	    assert (in_bounds(y, x));
+
+	    /* Scan all objects in the grid */
+	    for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	      {
+		object_type *o_ptr;
+		
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Drop the object */
+		drop_near(o_ptr, -1, y, x);
+	      }
+
+	    /* Objects are gone */
+	    cave_o_idx[y][x] = 0;
+
+	    /* Visual update */
+	    lite_spot(y, x);
+	  }
 	}
 
 
@@ -3713,7 +3738,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Note -- subtle fix -CFT */
 		newhp = (long)(m_ptr->hp);
 		oldhp = newhp + (long)(dam);
-		tmp = (newhp * 100L) / (oldhp);
+		tmp = (100L * dam) / (oldhp);
 		percentage = (int)(tmp);
 
 		/* Percentage of fully healthy. Note maxhp can be zero. */

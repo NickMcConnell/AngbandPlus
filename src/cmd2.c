@@ -356,13 +356,17 @@ void print_routes(const s16b *route, int num, int y, int x)
 		}
 
 		/* Get the distance */
-		if (t_ptr->nearby == p_ptr->dungeon)
+		if (t_info[p_ptr->dungeon].nearby == town)
 		{
 			distance = "nearby";
 		}
+		else if (t_info[p_ptr->dungeon].distant == town)
+		{
+			distance = "yonder";
+		}
 		else
 		{
-			distance = "distant";
+			distance = "remote";
 		}
 
 		/* Get the destination info */
@@ -462,8 +466,13 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* Add additional locations from any of the above */
 	for (i = 0; (i < num) && (num < max_num); i++)
 	{
-		bool add_nearby =  (t_info[routes[i]].nearby != from);
-		bool add_distant =  (t_info[routes[i]].distant != from) && (t_info[routes[i]].distant != t_info[routes[i]].nearby);
+		bool add_nearby, add_distant;
+
+		/* Cannot choose inaccessible map locations */
+		if (routes[i] < 0) continue;
+
+		add_nearby =  (t_info[routes[i]].nearby != from);
+		add_distant =  (t_info[routes[i]].distant != from) && (t_info[routes[i]].distant != t_info[routes[i]].nearby);
 
 		/* Get the bottom of the dungeon */
 		get_zone(&zone2, routes[i], max_depth(routes[i]));
@@ -634,7 +643,7 @@ static void do_cmd_travel(void)
 
 					}
 
-					/* Lowercase 1+*/
+					/* Lowercase 1+ */
 					choice = tolower(ke.key);
 
 					/* Extract request */
@@ -676,20 +685,18 @@ static void do_cmd_travel(void)
 				/* Abort if needed */
 				if (!flag) return;
 
-				/* Set journey time */
+				/* Set journey time; takes longer at night */
 				if (selection == t_ptr->nearby)
 				{
-					journey = damroll(2, 4);
+					journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
 				}
-				/* Set journey time */
 				else if (selection == t_ptr->distant)
 				{
-					journey = damroll(3, 4);
+					journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
 				}
-				/* Set journey time */
 				else
 				{
-					journey = damroll(4, 4);
+					journey = damroll(4 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
 				}
 			}
 			else
@@ -763,7 +770,7 @@ static void do_cmd_travel(void)
 			}
 
 			/* Hack -- Get hungry/tired/sore */
-			set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
+			set_food(MAX(500, p_ptr->food-(PY_FOOD_FULL/10*journey)));
 
 			/* Hack -- Time passes (at 4* food use rate) */
 			turn += PY_FOOD_FULL/10*journey*4;
@@ -861,7 +868,7 @@ void do_cmd_go_up(void)
 		message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
 
 		/* Create a way back */
-		p_ptr->create_down_stair = TRUE;
+		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_LESS);
 
 		/* Hack -- tower level increases depth */
 		if (t_info[p_ptr->dungeon].zone[0].tower)
@@ -933,7 +940,7 @@ void do_cmd_go_down(void)
 		message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
 		/* Create a way back */
-		p_ptr->create_up_stair = TRUE;
+		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_MORE);
 
 		/* Hack -- tower level decreases depth */
 		if (t_info[p_ptr->dungeon].zone[0].tower)
@@ -1600,6 +1607,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Give the message */  
 			msg_print("You have finished the tunnel.");
 			
+			/* FIXME: how to mark the grid is altered by the player so that he cannot scum for XP by disarming pits? Perhaps add some rounded pebbles to that location? */
 			cave_alter_feat(y,x,FS_TUNNEL);
 
 			/* Update the visuals */
@@ -1609,7 +1617,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Keep trying */
 		else
 		{
-
 			/* Get mimiced feature */
 			feat = f_info[feat].mimic;
 
@@ -1781,8 +1788,10 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 		/* Message */
 		msg_format("You have %sed the %s.", act, name);
 
-		/* Reward */
-		gain_exp(power);
+		/* Reward, unless player trap */
+		/* TODO: ensure no player-made traps give exp, unless very dangerous or consume heavy/expensive objects */
+		if (disarm && !cave_o_idx[y][x])
+		  gain_exp(power);
 
 		/* Remove the trap */
 		if (disarm)
@@ -3200,12 +3209,12 @@ int breakage_chance(object_type *o_ptr)
 		case TV_JUNK:
 		case TV_SKIN:
 		case TV_EGG:
+		case TV_LITE:
 		{
 			return (100);
 		}
 
 		/* Often break */
-		case TV_LITE:
 		case TV_SCROLL:
 		case TV_BONE:
 		{
@@ -3284,7 +3293,8 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
   object_type *i_ptr;
   object_type object_type_body;
 
-  bool hit_body;
+  bool ammo_can_break = TRUE;
+  bool trick_failure = FALSE;
   bool chasm = FALSE;
   int feat;
 
@@ -3420,9 +3430,6 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
   y = p_ptr->py;
   x = p_ptr->px;
 
-  /* No misses yet */
-  hit_body = TRUE;
-
   /* Iterate through trick throw targets;
      the last pass if for returning to player;
      if no tricks, just one iteration */
@@ -3432,72 +3439,74 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
       int old_y, old_x; /* Previous weapon location */
       int ty, tx; /* Current target coordinates */
 
-      /* If a complete miss, stop trick shot */
-      if (!hit_body)
+      /* If trick throw failure, stop trick throws */
+      if (trick_failure)
 	break;
 
-      /* Reset hit_body */
-      if (o_ptr->tval == TV_FLASK 
-	  || o_ptr->tval == TV_POTION 
-	  || o_ptr->tval == TV_EGG) 
-	/* Hack -- flasks, potions, spores break as if striking a monster */
-	hit_body = TRUE;
-      else
-	/* Otherwise hitting is not that easy */
-	hit_body = FALSE;
-
-      /* If all trick shots used, return to player, do not query target */
-      if (trick_throw && tricks == num_tricks - 1)
+      /* If too far or all tricks used, return to player; no target query */
+      if (trick_throw
+	  && (!ammo_can_break 
+	      || tricks == num_tricks - 1))
 	{
 	  tx = p_ptr->px;
 	  ty = p_ptr->py;
 	}
       else
 	{
-	  /* Reset the chosen direction */
-	  p_ptr->command_dir = 0;
 
 	  /* Get a direction (or cancel) */
-	  if (!get_aim_dir(&dir))
-	    /* Canceled */
-	    if (tricks > 0)
-	      /* If canceled mid-trick-throw, try to return weapon */
-	      {
-		tx = p_ptr->px;
-		ty = p_ptr->py;
-	      }
-	    else
-	      /* If canceled before first throw, cancel whole player move */
-	      {
-		return;
-	      }
-	  else
-	    /* No cancel */
+	  tx = x;
+	  ty = y;
+	  while (tx == x && ty == y)
 	    {
-	      /* Check for "target request" */
-	      if (dir == 5 && target_okay())
+	      /* Reset the chosen direction */
+	      p_ptr->command_dir = 0;
+
+	      if (!get_aim_dir(&dir))
 		{
-		  tx = p_ptr->target_col;
-		  ty = p_ptr->target_row;
+		  /* Canceled */
+		  if (tricks > 0)
+		    /* If canceled mid-trick-throw, try to return weapon */
+		    {
+		      tx = p_ptr->px;
+		      ty = p_ptr->py;
+		      break;
+		    }
+		  else
+		    /* If canceled before first throw, cancel whole move */
+		    {
+		      return;
+		    }
 		}
 	      else
 		{
-		  /* Predict the "target" location */
-		  ty = y + 99 * ddy[dir];
-		  tx = x + 99 * ddx[dir];
-		}
+		  /* No cancel */
+		  
+		  /* Check for "target request" */
+		  if (dir == 5 && target_okay())
+		    {
+		      tx = p_ptr->target_col;
+		      ty = p_ptr->target_row;
+		    }
+		  else
+		    {
+		      /* Predict the "target" location */
+		      ty = y + 99 * ddy[dir];
+		      tx = x + 99 * ddx[dir];
+		    }
 
-	      /* If target repeated, drop weapon */
-	      if (tx == x && ty == y)
-		break;
-
-	      /* Disable auto-target for the rest of trick shots */
-	      use_old_target = FALSE;
-
-	      /* Sound */
-	      sound(MSG_SHOOT);
+		  /* Disable auto-target for the rest of trick shots */
+		  use_old_target = FALSE;
+		}	  
 	    }
+
+	  /* Sound */
+	  sound(MSG_SHOOT);
 	}
+
+      /* If the weapon returns, don't limit the distance */
+      if (tx == p_ptr->px && ty == p_ptr->py)
+	tdis = 256;
 
       /* Calculate the path */
       path_n = project_path(path_g, tdis, y, x, &ty, &tx, 0);
@@ -3509,6 +3518,16 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
       old_y = y;
       old_x = x;
 
+      /* Reset ammo_can_break */
+      if (o_ptr->tval == TV_FLASK 
+	  || o_ptr->tval == TV_POTION 
+	  || o_ptr->tval == TV_EGG) 
+	/* Hack -- flasks, potions, spores break as if striking a monster */
+	ammo_can_break = TRUE;
+      else
+	/* Otherwise not breaking by default */
+	ammo_can_break = FALSE;
+
       /* Project along the path */
       for (i = 0; i < path_n; ++i)
 	{
@@ -3519,7 +3538,12 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 
 	  /* Hack -- Stop before hitting walls */
 	  if (!cave_project_bold(ny, nx)) 
-	    break;
+	    {
+	      /* 1st cause of failure: returning weapon hits a wall */
+	      trick_failure = tdis == 256;
+
+	      break;
+	    }
 
 	  /* Advance */
 	  x = nx;
@@ -3617,9 +3641,9 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 	      if (m_ptr->mflag & (MFLAG_HIDE)) 
 		continue;
 
-	      /* If the weapon returns, monster blocks it; drop near monster */
-	      if (tx == p_ptr->px && ty == p_ptr->py)
-		break;
+	      /* If the weapon returns, ignore monsters */
+	      if (tdis == 256)
+		continue;
 
 	      /* Base damage from the object */
 	      tdam = damroll(i_ptr->dd, i_ptr->ds);
@@ -3674,12 +3698,12 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 
 	      /* Test hit fire */
 	      hit_or_near_miss = test_hit_fire(chance2, 
-					       calc_monster_ac(m_ptr, FALSE), 
+					       calc_monster_ac(cave_m_idx[y][x], FALSE), 
 					       m_ptr->ml);
 
 	      /* Genuine hit */
 	      genuine_hit = test_hit_fire(chance2, 
-					  calc_monster_ac(m_ptr, TRUE), 
+					  calc_monster_ac(cave_m_idx[y][x], TRUE), 
 					  m_ptr->ml);
 
 	      /* Missiles bounce off resistant monsters */
@@ -3700,7 +3724,10 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 		  cptr note_dies = " dies.";
 
 		  /* Note the collision */
-		  hit_body = TRUE;
+		  ammo_can_break = TRUE;
+
+		  /* 2nd and last cause of failure: bounce off monster */
+		  trick_failure = !genuine_hit;
 
 		  /* Disturb the monster */
 		  m_ptr->csleep = 0;
@@ -3861,8 +3888,8 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
   /* Reenable auto-target */
   use_old_target = use_old_target_backup;
 
-  /* Chance of breakage (during attacks) */
-  j = (hit_body ? breakage_chance(i_ptr) : 0);
+  /* Chance of breakage; trick throws always risky */
+  j = ((ammo_can_break || trick_throw) ? breakage_chance(i_ptr) : 0);
 
   /* The fourth and last piece of code dependent on fire/throw */
   if (fire)
@@ -3888,7 +3915,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
     }
 
   /* Is this a trick throw and has the weapon returned? */
-  if (trick_throw && x == p_ptr->px && y == p_ptr->py)
+  if (trick_throw && !trick_failure)
     {
       /* Keep it sane */
       catch_chance = MAX(0, MAX(catch_chance, ranged_skill/5));
@@ -3896,7 +3923,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
       /* Randomize */
       catch_chance = randint(catch_chance);
 
-      if (catch_chance <= 3 + catch_chance / 30)
+      if (catch_chance <= 2 + catch_chance / 20)
 	/* You don't catch the returning weapon; it hits you */
 	{
 	  /* TODO: this code is taken from hit_trap in cmd1.c --- factor it out */
@@ -3930,7 +3957,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 
 	  /* Weapon caught */
 	}
-      else if (catch_chance <= 6 + catch_chance / 20)
+      else if (catch_chance <= 10 + catch_chance / 10)
 	/* You don't catch the returning weapon; it almost hits you */
 	{
 	  /* Describe */
@@ -3939,13 +3966,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 	  msg_format("The returning %^s narrowly misses you.", o_name);
 
 	  /* Weapon not caught */
-	  trick_throw = FALSE;
-	}
-      else if (catch_chance <= 9 + catch_chance / 10)
-	/* You don't catch the returning weapon; it drops nearby */
-	{
-	  /* Weapon not caught */
-	  trick_throw = FALSE;
+	  trick_failure = TRUE;
 	}
       else
 	{
@@ -3953,15 +3974,18 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 	}
     }
 
-  /* Is this a trick throw and have the weapon returned? */
-  if (trick_throw && x == p_ptr->px && y == p_ptr->py)
+  /* Is this a trick throw and has the weapon returned? */
+  if (trick_throw && !trick_failure)
     /* Try to return the weapon to the player */
     {
       /* Perhaps harm the weapon */
       if (rand_int(100) < j && break_near(i_ptr, y, x))
 	/* The returned weapon turned out to be totally broken */
 	{
-	  /* Nothing more to do */
+	  /* Reduce and describe inventory */
+	  inven_item_increase(item, -1);
+	  inven_item_describe(item);
+	  inven_item_optimize(item);
 	}
       else
 	/* Either intact or only mildly harmed */
@@ -3980,7 +4004,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 	}
     }
   else
-    /* Not a successful trick shot; just drop near the last monster */
+    /* Not a successful trick shot; just drop near the last monster/wall */
     {
       /* Sometimes use lower stack object --- FIXME: clarify comment, search and replace similar comments */
       if (!object_charges_p(o_ptr) && rand_int(o_ptr->number) < o_ptr->stackc)

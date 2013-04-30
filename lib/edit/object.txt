@@ -288,7 +288,6 @@ W:10:0:130:250
 A:10/3
 P:0:2d5:0:0:0
 
-
 N:33:& Sacrificial Dagger~
 G:|:s
 I:23:15:0
@@ -352,14 +351,12 @@ W:40:0:260:850
 A:40/3
 P:0:4d5:0:0:0
 
-
 N:41:& Katana~
 G:|:W
 I:23:20:0
 W:20:0:120:400
 A:20/4
 P:0:3d4:0:0:0
-
 
 N:42:& Long Sword~
 G:|:W
@@ -368,11 +365,10 @@ W:10:0:130:300
 A:20/2
 P:0:2d5:0:0:0
 
-
 N:43:& Dagger~
 G:|:s
 I:23:4:0
-W:0:0:12:10
+W:0:0:12:15
 A:0/2:5/2:10/2:20/2
 P:0:1d4:0:0:0
 F:THROWING
@@ -552,9 +548,9 @@ F:THROWING
 N:65:& Spear~
 G:/:y
 I:22:5:0
-W:5:0:70:120
-A:5/1
-P:0:1d8:0:0:0
+W:10:0:70:120
+A:10/1
+P:0:1d7:0:0:0
 F:THROWING
 
 N:66:& Two-Handed Spear~
@@ -2806,7 +2802,7 @@ P:0:1d1:0:0:0
 N:347:& Brass Lantern~
 G:~:o
 I:39:1:0
-W:3:7500:50:35
+W:3:7500:70:55
 A:3/1
 P:0:1d3:0:0:0
 F:IGNORE_FIRE
@@ -3539,7 +3535,7 @@ F:THROWING
 N:434:& Dart~
 G:/:r
 I:22:1:0
-W:0:0:12:10
+W:0:0:10:10
 A:0/2
 P:0:1d4:0:0:0
 F:THROWING
@@ -3558,7 +3554,7 @@ F:THROWING
 N:438:& Golden Arrow~
 G:{:y
 I:17:3:0
-W:55:0:2:35
+W:50:0:2:35
 A:50/4:90/3
 P:0:3d6:0:0:0
 F:IGNORE_ACID | IGNORE_FIRE
@@ -5791,7 +5787,7 @@ P:0:2d7:0:0:0
 N:795:& Steel Shot~
 G:{:s
 I:16:5:0
-W:14:0:5:2
+W:14:0:4:7
 A:14/1:24/1:34/1
 P:0:1d5:0:0:0
 F:THROWING
@@ -6296,8 +6292,8 @@ Y:3:4
 N:864:& Harpoon~
 G:/:y
 I:22:6:0
-W:5:0:70:120
-A:5/1
+W:15:0:60:120
+A:15/1
 P:0:1d8:0:0:0
 F:THROWING
 
@@ -6683,3 +6679,9 @@ P:10:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:RES_FEAR | RES_SOUND | SEARCH | ACTIVATE
 
+N:916:& Hatchet~
+G:/:s
+I:22:3:0
+W:5:0:40:40
+A:5/2
+P:0:1d5:0:0:0

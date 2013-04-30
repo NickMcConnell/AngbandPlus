@@ -735,9 +735,22 @@ void do_cmd_browse(void)
 				text_out_hook = text_out_to_screen;
 
 				/* Recall spell */
-				spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE, 1);
+				if (spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE, 1))
+				{
+					int y, x;
 
-				text_out(".\n");
+					/* End the sentence */
+					text_out(".  ");
+
+					/* Clear until the end of the line */
+					/* XXX XXX Not sure why we have to do this.*/ 
+
+					/* Obtain the cursor */
+					(void)Term_locate(&x, &y);
+
+					/* Clear line, move cursor */
+					Term_erase(x, y, 255);
+				}
 
 				/* Display pre-requisites */
 				for (i = 0; i < MAX_SPELL_PREREQUISITES; i++)

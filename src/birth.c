@@ -585,6 +585,7 @@ static void player_outfit(void)
 						  {
 						    switch (p_ptr->prace)
 						      {
+						      case RACE_HOBBIT:
 						      case RACE_HALF_TROLL:
 							{
 							  k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);

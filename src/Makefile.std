@@ -98,7 +98,7 @@ CC = gcc
 NORMAL_CFLAGS = -Wall -pipe -O2 -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
 LIBS = -lX11 -lncurses -ltermcap -L/usr/X11R6/lib
 
-DEBUG_CFLAGS=$(NORMAL_CFLAGS) -ggdb -O0 -fno-inline
+DEBUG_CFLAGS=$(NORMAL_CFLAGS) -D"ALLOW_BORG" -ggdb -O0 -fno-inline
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")

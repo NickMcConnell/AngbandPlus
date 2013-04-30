@@ -23,7 +23,7 @@
                 class and at higher levels, attack with multiple blows and
                 additional critical damage.
 
-        One-Handed (Swashbuckler)
+        One-handed (Swashbuckler)
 
                 The Swashbuckler is a flashy fighter, capable of targetting
                 their attacks with precision. When not using a shield,
@@ -31,14 +31,14 @@
                 natural armour class and can cause additional critical damage
                 at higher levels.
 
-        Two-Handed (Samurai)
+        Two-handed (Samurai)
 
                 The Samurai is a honorable and deadly warrior, with a strict
                 Bushido code. When not using a shield, a Samurai gets
                 additional to hit and damage with their weapon, and gains
                 additional blows in melee at higher levels.
 
-        Two-Weapon (Gladiator)
+        Dual-wield (Gladiator)
 
                 The Gladiator is a savage and brutal warrior, capable of
                 using a large number of weapons for the entertainment of
@@ -47,7 +47,7 @@
                 and at higher levels, attack with it in addition to their
                 primary weapon.
 
-        Weapon and Shield (Knight)
+        Shield & weapon (Knight)
 
                 The Knight is a valiant defender of the weak and vigilant
                 upholder of chivalry and smiter of evil. The Knight prefers
@@ -219,14 +219,14 @@
 
         Ranger Styles
 
-        One-Handed (Outlaw)
+        One-handed (Outlaw)
 
                 The Outlaw is a deft and cunning fighter, capable of
                 targetting their attacks with precision. When not using a
                 shield, a Outlaw can cause additional critical damage at
                 higher levels.
 
-        Two-Weapon (Bounty Hunter)
+        Dual-wield (Bounty Hunter)
 
                 The Bounty Hunter is an unorthodox and cunning fighter,
                 skilled in using a large number of weapons for their own
@@ -256,7 +256,7 @@
 
 	Paladin Styles
 
-        One-Handed (Cavaliers)
+        One-handed (Cavaliers)
 
                Cavaliers hold honour and worthiness above all other values.
                They prize appearance and social status, but will always
@@ -265,7 +265,7 @@
                When not using a shield, a Cavalier gains bonuses to hit and
                can cause additional critical damage at higher levels.
 
-        Weapon & Shield (Knight Defender)
+        Shield & weapon (Knight Defender)
 
                Knight Defenders have sworn to protect the weak and defense-
                less and uphold the code of chivalry. Knight Defenders have
@@ -299,7 +299,7 @@
                 class and at higher levels, attack with multiple blows and
                 additional critical damage.
 
-        One-Handed (Highwayman)
+        One-handed (Highwayman)
 
                 The Highwayman is a flashy fighter, capable of targetting
                 their attacks with precision. When not using a shield,
@@ -307,14 +307,14 @@
                 natural armour class and can cause additional critical damage
                 at higher levels.
 
-        Two-Handed (Ninja)
+        Two-handed (Ninja)
 
                 The Ninja is a mysterious and deadly assassin, with a strict
                 family code. When not using a shield, a Ninja gets
                 additional to hit and damage with their weapon, and gains
                 additional blows in melee at higher levels.
 
-        Two-Weapon (Enforcer)
+        Dual-wield (Enforcer)
 
                 The Enforcer is a savage and brutal warrior, capable of
                 using a large number of weapons for the entertainment of

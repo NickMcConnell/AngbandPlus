@@ -155,6 +155,25 @@ shuffled normally.
 - Added a number of additional spells wielded as weapons, armour and amulets.  These are
 mostly available in Animal Magic and Transformation magic books.
 
+- Use Sangband stair placement algorithm.
+
+- Disabled ecologies on very early levels as this made them too boring. Increased the 
+minimum size of an ecology.
+
+- In order to provide a greater range of monsters, scale up the power of some low level
+monsters as they appear deeper in the dungeon.
+
+- In order to make different level types more interesting, boosted various types of
+things placed, depending on the level: strongholds and sewers have more monsters, crypts
+and strongholds have more traps, mines have more treasures, caves, crypts and mines have
+more rubble, crypts have more objects appearing in corridors and strongholds have more
+objects appearing in rooms. Also made the tunnel types more interesting for each level
+type.
+
+- Electricity no longer destroys items. Instead it will affect rods, staffs and wands with
+the same percentage chances, however draining them instead of destroying them. Rods will
+be set to a high timeout value instead.
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -167,6 +186,11 @@ pepebe).
 - Fixed bug in big term display of shop inventories (Reported by Pav Lucistnik).
 
 - Major overhaul of the Character Screen (Mikolaj Konarski).
+
+- Marked granite walls now don't disappear when searched (Suggested by Mikolaj Konarski).
+
+- If you see a monster passing a wall that can (merely) cast temporary passwall, you will
+learn about the spell, even if you didn't see them cast it.
 
 ### Bug fixes ###
 
@@ -217,6 +241,12 @@ fix by RDE).
 
 - The experience from killing a monster that increases you by several levels is scaled down
 correctly.
+
+- Fixed bug resulting in weird combinations of body parts being generated. 
+
+- Fixed bug with player gold not being displayed in stores.
+
+- Fixed bug causing crashes when attempting to travel with maps in the inventory.
 
 ### Build / Platform ###
 

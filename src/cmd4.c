@@ -165,9 +165,9 @@ void do_cmd_change_name(void)
 
 		/* Oops */
 		else
-		{
-			bell("Illegal command for change name!");
-		}
+		  {
+		    bell(NULL);
+		  }
 
 		/* Flush messages */
 		message_flush();
@@ -4188,6 +4188,7 @@ static cptr monster_group_text[] =
 	"Mimics",
 	"Molds",
 	"Mushroom Patches",
+	"Mosses",
 	"Nagas",
 	"Nightsbane",
 	"Ogres",
@@ -4247,6 +4248,7 @@ static cptr monster_group_char[] =
 	"$!?=.|~[]",
 	"m",
 	",",
+	";",
 	"n",
 	"N",
 	"O",

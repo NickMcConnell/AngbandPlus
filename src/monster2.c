@@ -534,7 +534,7 @@ s16b get_mon_num(int level)
 	 */
 	if ((cave_ecology.ready) && (cave_ecology.num_races > 0))
 	{
-		int choice = 0;
+		int choice = -1;
 
 		/* Count of choices */
 		j = 0;
@@ -542,17 +542,25 @@ s16b get_mon_num(int level)
 		/* Get monster */
 		for (i = 0; i < cave_ecology.num_races; i++)
 		{
+			/* Get the actual race */
+			r_ptr = &r_info[cave_ecology.race[choice]];
+
+			/* Hack -- "unique" monsters must be "unique" */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+			    (r_ptr->cur_num >= r_ptr->max_num))
+			{
+				continue;
+			}
+
+			/* Can choose this monster? */
 			if ((!(get_mon_num_hook) || (*get_mon_num_hook)(i)) && !(rand_int(++j))) choice = i;
 		}
 
-		/* Hack -- Only 1 opportunity to encounter a unique */
-		if (r_info[cave_ecology.race[choice]].flags1 & (RF1_UNIQUE))
-		{
-			/* Replace entry in table */
-			cave_ecology.race[choice] = cave_ecology.race[--cave_ecology.num_races];
-		}
-
-		return (cave_ecology.race[choice]);
+		/* Made a choice */
+		if (choice > 0)
+			return (cave_ecology.race[choice]);
+		else
+			return (0);
 	}
 
 	/* Boost the level */
@@ -592,9 +600,6 @@ s16b get_mon_num(int level)
 		/* Default */
 		table[i].prob3 = 0;
 
-		/* Ensure minimum depth */
-		if (table[i].level < MIN(p_ptr->depth - 3, level - 2)) continue;
-
 		/* No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
 
@@ -610,6 +615,13 @@ s16b get_mon_num(int level)
 		{
 			continue;
 		}
+
+		/* Ensure minimum depth for monsters, except those that level up */
+		if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
+			&& ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) == 0)) continue;
+
+		/* Ensure hard minimum depth for monsters */
+		if (table[i].level < MIN(p_ptr->depth - 19, level - 18)) continue;
 
 		/* Hack -- "questor" monsters and guardians must be placed specifically */
 		if ((r_ptr->flags1 & (RF1_QUESTOR)) || (r_ptr->flags1 & (RF1_GUARDIAN))) continue;
@@ -657,6 +669,11 @@ s16b get_mon_num(int level)
 					!(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=4;
 			}
 		}
+
+		/* Prefer monsters closer to the actual level */
+		if (table[i].level < level - 4) table[i].prob3 /= 2;
+		if (table[i].level < level - 9) table[i].prob3 /= 2;
+		if (table[i].level < level - 14) table[i].prob3 /= 2;
 
 		/* Total */
 		total += table[i].prob3;
@@ -1001,14 +1018,13 @@ void monster_desc(char *desc, int m_idx, int mode)
 		int level = r_ptr->level;
 		u32b class = r_ptr->flags2 & (RF2_CLASS_MASK);
 
-#if 0
 		/* Scale a monster */
-		if ((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0)
+		if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 		{
-			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth);
 			r_ptr = &monster_race_scaled;
 		}
-#endif
+
 		/* Add prefixes to levelled monsters */
 		if (r_ptr->flags9 & (RF9_LEVEL_SIZE))
 		{
@@ -2327,72 +2343,72 @@ int place_monster_here(int y, int x, int r_idx)
 	resist = mon_resist_feat(feat,r_idx);
 
 	/* Hack -- Player traps */
-	if ((cave_o_idx[y][x]) && (f_info[feat].flags1 & (FF1_HIT_TRAP))) resist = TRUE;
+	if ((cave_o_idx[y][x]) && ((f_info[feat].flags1 & (FF1_HIT_TRAP)) != 0)) resist = TRUE;
 
 	/* Check for pass wall */
 	if (resist &&
-		(r_ptr->flags2 & (RF2_PASS_WALL))) return (MM_PASS);
+		((r_ptr->flags2 & (RF2_PASS_WALL)) != 0)) return (MM_PASS);
 
 	/* Check for swimming */
 	if (resist &&
-		(r_ptr->flags2 & (RF2_CAN_SWIM | RF2_MUST_SWIM)) &&
-		(f_ptr->flags2 & (FF2_CAN_SWIM)))
+		((r_ptr->flags2 & (RF2_CAN_SWIM | RF2_MUST_SWIM)) != 0) &&
+		((f_ptr->flags2 & (FF2_CAN_SWIM)) != 0))
 	{
 		return(MM_SWIM);
 	}
-	else if (r_ptr->flags2 & (RF2_MUST_SWIM))
+	else if ((r_ptr->flags2 & (RF2_MUST_SWIM)) != 0)
 	{
 		return(MM_DROWN);
 	}
 
 	/* Check for digging */
 	if (resist &&
-		(r_ptr->flags2 & (RF2_CAN_DIG)) &&
-		(f_ptr->flags2 & (FF2_CAN_DIG)))
+		((r_ptr->flags2 & (RF2_CAN_DIG)) != 0) &&
+		((f_ptr->flags2 & (FF2_CAN_DIG)) != 0))
 	{
 		return(MM_DIG);
 	}
 
 	/* Check if we don't need to breath -- note move check because we now mark walls as 'filled' */
 	if (resist &&
-		(r_ptr->flags3 & (RF3_NONLIVING)) &&
-		(f_ptr->flags1 & (FF1_MOVE)) &&
-                (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
+		((r_ptr->flags3 & (RF3_NONLIVING)) != 0) &&
+		((f_ptr->flags1 & (FF1_MOVE)) != 0) &&
+                ((f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)) != 0))
 	{
 		return (MM_UNDER);
 	}
 
 	/* Hack -- check for oozing */
 	if (resist &&
-		(r_ptr->flags3 & (RF3_OOZE)) &&
-		(f_ptr->flags2 & (FF2_CAN_OOZE)))
+		((r_ptr->flags3 & (RF3_OOZE)) != 0) &&
+		((f_ptr->flags2 & (FF2_CAN_OOZE)) != 0))
 	{
 		return(MM_OOZE);
 	}
 
 
 	/* Hack -- check for flying. */
-	if ((r_ptr->flags2 & (RF2_CAN_FLY | RF2_MUST_FLY)) &&
-		(f_ptr->flags2 & (FF2_CAN_FLY)))
+	if (((r_ptr->flags2 & (RF2_CAN_FLY | RF2_MUST_FLY)) != 0) &&
+		((f_ptr->flags2 & (FF2_CAN_FLY)) != 0))
 	{
 		return(MM_FLY);
 	}
 
-	else if (r_ptr->flags2 & (RF2_MUST_FLY))
+	else if ((r_ptr->flags2 & (RF2_MUST_FLY)) != 0)
 	{
 		return(MM_DROWN);
 	}
 
 	/* Hack -- check for climbing */
-	if ((r_ptr->flags2 & (RF2_CAN_CLIMB)) && 
-		(f_ptr->flags3 & (FF3_EASY_CLIMB)))
+	if (((r_ptr->flags2 & (RF2_CAN_CLIMB)) != 0) && 
+		((f_ptr->flags3 & (FF3_EASY_CLIMB)) != 0))
 	{
 		return(MM_CLIMB);
 	}
 
 	/* Hack -- check for climbing. */
-	if ((r_ptr->flags2 & (RF2_CAN_CLIMB)) && 
-		(f_ptr->flags2 & (FF2_CAN_FLY)))
+	if (((r_ptr->flags2 & (RF2_CAN_CLIMB)) != 0) && 
+		((f_ptr->flags2 & (FF2_CAN_FLY)) != 0))
 	{
 		int i;
 
@@ -2404,20 +2420,20 @@ int place_monster_here(int y, int x, int r_idx)
 			yi = ddy[d];
 			xi = ddx[d];
 
-			if (f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) return(MM_CLIMB);
+			if ((f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) != 0) return(MM_CLIMB);
 		}
 
 	}
 
 	/* Get mimiced feat if covered/bridged */
-	if ((f_ptr->flags2 & (FF2_COVERED)) || (f_ptr->flags2 & (FF2_BRIDGED)))
+	if ((f_ptr->flags2 & (FF2_COVERED | FF2_BRIDGED)) != 0)
 	{
 		feat = f_ptr->mimic;
 		resist = mon_resist_feat(feat,r_idx);
 	}
 
 	/* Regular move/climb/drown */
-	if ((f_ptr->flags1 & (FF1_MOVE)) || (f_ptr->flags3 & (FF3_EASY_CLIMB)))
+	if (((f_ptr->flags1 & (FF1_MOVE)) != 0) || ((f_ptr->flags3 & (FF3_EASY_CLIMB)) != 0))
 	{
 		if (!resist) return (MM_DROWN);
 		if (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)) return (MM_DROWN);
@@ -2454,13 +2470,13 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 
 	/* Update flags */
 	if (((m_ptr->mflag & (MFLAG_OVER))==0)
-	       && !(f_ptr->flags1 & (FF1_MOVE))
-		   && !(f_ptr->flags3 & (FF3_EASY_CLIMB))
+	       && ((f_ptr->flags1 & (FF1_MOVE)) == 0)
+		   && ((f_ptr->flags3 & (FF3_EASY_CLIMB)) == 0)
 	       && (mmove != MM_PASS))
 	{
 		/* Nothing -- we are stuck inside a terrain feature */
 	}
-	else if ((f_ptr->flags3 & (FF3_EASY_CLIMB)))
+	else if ((f_ptr->flags3 & (FF3_EASY_CLIMB)) != 0)
 	{
 		m_ptr->mflag |= (MFLAG_OVER);
 	}
@@ -2468,13 +2484,13 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 	{
 		m_ptr->mflag |= (MFLAG_OVER);
 	}
-	else if (!(surface) || (f_ptr->flags3 & (FF3_OUTSIDE)))
+	else if (!(surface) || ((f_ptr->flags3 & (FF3_OUTSIDE)) != 0))
 	{
 		m_ptr->mflag &= ~(MFLAG_OVER);
 	}
 
 	/* Never hide if over terrain, except on surface, and outside */
-	if (m_ptr->mflag & (MFLAG_OVER))
+	if ((m_ptr->mflag & (MFLAG_OVER)) != 0)
 	{
 		m_ptr->mflag &= ~(MFLAG_HIDE);
 	}
@@ -2503,27 +2519,27 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 	}
 
 	/* Set hide flag if HIDE_SNEAK and monster is sneaky */
-	else if ((f_ptr->flags2 & (FF2_HIDE_SNEAK))
-		&& (r_ptr->flags2 & (RF2_SNEAKY))
-		&& !(m_ptr->mflag & (MFLAG_OVER)) )
+	else if (((f_ptr->flags2 & (FF2_HIDE_SNEAK)) != 0)
+		&& ((r_ptr->flags2 & (RF2_SNEAKY)) != 0)
+		&& ((m_ptr->mflag & (MFLAG_OVER)) == 0))
 	{
 		m_ptr->mflag |= (MFLAG_HIDE);
 	}
 	/* Set hide flag if digging and HIDE_DIG */
-	else if ((f_ptr->flags2 & (FF2_HIDE_DIG)) && (mmove == MM_DIG))
+	else if (((f_ptr->flags2 & (FF2_HIDE_DIG)) != 0) && (mmove == MM_DIG))
 	{
 		m_ptr->mflag |= (MFLAG_HIDE);
 	}
 	/* Set hide flag if swimming and HIDE_SWIM */
-	else if ((f_ptr->flags2 & (FF2_HIDE_SWIM)) && (mmove == MM_SWIM))
+	else if (((f_ptr->flags2 & (FF2_HIDE_SWIM)) != 0) && (mmove == MM_SWIM))
 	{
 		m_ptr->mflag |=(MFLAG_HIDE);
 	}
 	/* Set hide flag if EASY_HIDE, with conditions */
-	else if (f_ptr->flags3 & (FF3_EASY_HIDE))
+	else if ((f_ptr->flags3 & (FF3_EASY_HIDE)) != 0)
 	{
 		/* Covered/bridged features are special */
-                if (f_ptr->flags2 & (FF2_BRIDGED))
+                if ((f_ptr->flags2 & (FF2_BRIDGED)) != 0)
 		{
 			/* Nothing */
 		}
@@ -2604,12 +2620,22 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  *  We return two different values, depending on ranged or melee ac. Temporary
  *  shield spells and monsters with shields have twice as much effect at range.
  */
-int calc_monster_ac(const monster_type *m_ptr, bool ranged)
+int calc_monster_ac(int m_idx, bool ranged)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int ac;
+
+	monster_race monster_race_scaled;
+
+	/* Scale a monster */
+	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
+	{
+		r_ptr = &monster_race_scaled;
+	}
 
 	/* Get the base ac */
 	ac = r_ptr->ac;
@@ -2647,10 +2673,19 @@ int calc_monster_ac(const monster_type *m_ptr, bool ranged)
 /*
  *  Calculate monster maximum hit points.
  */
-int calc_monster_hp(const monster_type *m_ptr)
+int calc_monster_hp(int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	int hp;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race monster_race_scaled;
+
+	/* Scale the monster */
+	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
+	{
+		r_ptr = &monster_race_scaled;
+	}
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -2676,12 +2711,22 @@ int calc_monster_hp(const monster_type *m_ptr)
 
 
 /* Calculate the monster_speed of a monster */
-byte calc_monster_speed(const monster_type *m_ptr)
+byte calc_monster_speed(int m_idx)
 {
 	int speed, i;
+	monster_type *m_ptr = &m_list[m_idx];
 
 	/* Get the monster race */
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	monster_race monster_race_scaled;
+
+	/* Scale the monster */
+	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
+	{
+		r_ptr = &monster_race_scaled;
+	}
 
 	/* Get the monster base speed */
 	speed = r_ptr->speed;
@@ -2707,6 +2752,8 @@ byte calc_monster_speed(const monster_type *m_ptr)
 	return (speed);
 }
 
+
+/* Set the monster faster */
 void set_monster_haste(s16b m_idx, s16b counter, bool message)
 {
 	/*get the monster at the given location*/
@@ -2747,11 +2794,12 @@ void set_monster_haste(s16b m_idx, s16b counter, bool message)
 	m_ptr->hasted = counter;
 
 	/*re-calculate speed if necessary*/
-	if (recalc) m_ptr->mspeed = calc_monster_speed(m_ptr);
+	if (recalc) m_ptr->mspeed = calc_monster_speed(m_idx);
 
 	return;
 }
 
+/* Set the monster slower */
 void set_monster_slow(s16b m_idx, s16b counter, bool message)
 {
 	/*get the monster at the given location*/
@@ -2792,7 +2840,7 @@ void set_monster_slow(s16b m_idx, s16b counter, bool message)
 	m_ptr->slowed = counter;
 
 	/*re-calculate speed if necessary*/
-	if (recalc) m_ptr->mspeed = calc_monster_speed(m_ptr);
+	if (recalc) m_ptr->mspeed = calc_monster_speed(m_idx);
 
 	return;
 }
@@ -3160,18 +3208,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		if ((n_ptr->mflag & (MFLAG_SICK))  && (variety & 0x20)) n_ptr->mflag &= ~(MFLAG_SICK | MFLAG_HEALTHY);
 	}
 
-	/* Calculate the monster hp */
-	n_ptr->maxhp = calc_monster_hp(n_ptr);
-
-	/* And start out fully healthy */
-	n_ptr->hp = n_ptr->maxhp;
-
-	/* And start out with full mana */
-	n_ptr->mana = r_ptr->mana;
-
-	/* Calculate the monster_speed*/
-	n_ptr->mspeed = calc_monster_speed(n_ptr);
-
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
 	{
@@ -3195,6 +3231,21 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
+
+	/* Important - reget the n_ptr once placed */
+	n_ptr = &m_list[cave_m_idx[y][x]];
+
+	/* Calculate the monster hp */
+	n_ptr->maxhp = calc_monster_hp(cave_m_idx[y][x]);
+
+	/* And start out fully healthy */
+	n_ptr->hp = n_ptr->maxhp;
+
+	/* And start out with full mana */
+	n_ptr->mana = r_ptr->mana;
+
+	/* Calculate the monster_speed*/
+	n_ptr->mspeed = calc_monster_speed(cave_m_idx[y][x]);
 
 	/* Give the monster some ammunition */
 	(void)find_monster_ammo(cave_m_idx[y][x], -1, TRUE);
@@ -3233,8 +3284,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];
 
-	/* Hack -- don't adjust if one monster */
-	if (group_size > 1)
+	/* Hack -- don't adjust if two monsters in group */
+	if (group_size > 2)
 	{
 		/* Hard monsters, smaller groups */
 		if (r_ptr->level > p_ptr->depth)
@@ -3882,7 +3933,20 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	/* Friends for uniques - we have to reallocate separately to avoid recursion */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->flags1 & (RF1_FRIEND | RF1_FRIENDS)))
 	{
-		int i, s_idx;
+		int i, n;
+
+		int group_size = (r_ptr->flags1 & (RF1_FRIENDS) ? rand_range(3, 5) : 2);
+		int hack_n;
+
+		byte hack_x[6];
+		byte hack_y[6];
+		s16b hack_r_idx[6];
+
+		/* Start on the monster */
+		hack_n = 1;
+		hack_x[0] = x;
+		hack_y[0] = y;
+		hack_r_idx[0] = r_idx;
 
 		/* Save the unique attr and char */
 		summon_attr_type = r_ptr->d_attr;
@@ -3891,34 +3955,58 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 		/* Save the "summon" type */
 		summon_specific_type = SUMMON_UNIQUE_FRIEND;
 
-		/* Place friend or friends */
-		for (i = 0; i < (r_ptr->flags1 & (RF1_FRIENDS) ? 4 : 1); i++)
+		/* Puddle monsters, breadth first, up to group_size */
+		for (n = 0; (n < hack_n) && (hack_n < group_size); n++)
 		{
+			/* Grab the location */
+			int hx = hack_x[n];
+			int hy = hack_y[n];
+
+			/* Random direction */
+			int start = rand_int(8);
+
 			/* Require "okay" monsters */
 			get_mon_num_hook = summon_specific_okay;
 
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-			/* Pick a monster, using the monster race level */
-			s_idx = get_mon_num(r_ptr->level);
-
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-			/* Handle failure */
-			if (!s_idx) continue;
-
-			/* Place one monster, or fail */
-			if (!place_monster_one(y, x, s_idx, slp)) return (FALSE);
-
-			/* Escorts for certain monsters */
-			if ((r_info[s_idx].flags1 & (RF1_ESCORT)) || (r_info[s_idx].flags1 & (RF1_ESCORTS)))
+			/* Check each direction, up to group_size */
+			for (i = start; (i < 8 + start) && (hack_n < group_size); i++)
 			{
-				place_monster_escort(y, x, s_idx, slp);
+				int mx = hx + ddx_ddd[i % 8];
+				int my = hy + ddy_ddd[i % 8];
+
+				/* Pick a monster, using the monster race level */
+				hack_r_idx[hack_n] = get_mon_num(r_ptr->level);
+
+				/* Nothing picked */
+				if (!hack_r_idx[hack_n]) break;
+
+				/* Attempt to place another monster */
+				if (place_monster_one(my, mx, hack_r_idx[hack_n], slp))
+				{
+					/* Add it to the "hack" set */
+					hack_y[hack_n] = my;
+					hack_x[hack_n] = mx;
+					hack_n++;
+				}
+			}
+		}
+
+		/* Remove restriction */
+		get_mon_num_hook = NULL;
+
+		/* Prepare allocation table */
+		get_mon_num_prep();
+
+		/* Place escorts after placing unique friends */
+		for (n = 0; (n < hack_n) && (hack_n < group_size); n++)
+		{
+			/* Escorts for certain monsters */
+			if ((r_info[hack_r_idx[n]].flags1 & (RF1_ESCORT)) || (r_info[hack_r_idx[n]].flags1 & (RF1_ESCORTS)))
+			{
+				place_monster_escort(hack_y[n], hack_x[n], hack_r_idx[n], slp);
 			}
 		}
 	}
@@ -3926,7 +4014,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	else if (r_ptr->flags1 & (RF1_FRIEND))
 	{
 		/* Attempt to place a second monster */
-		(void)place_monster_group(y, x, r_idx, slp, 1);
+		(void)place_monster_group(y, x, r_idx, slp, 2);
 	}
 	/* Friends for certain monsters */
 	else if (r_ptr->flags1 & (RF1_FRIENDS))

@@ -3063,9 +3063,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
 	p_ptr->wx = DUNGEON_WID;
@@ -3113,50 +3110,6 @@ static void dungeon(void)
 	if (p_ptr->max_depth < p_ptr->depth)
 	{
 		p_ptr->max_depth = p_ptr->depth;
-	}
-
-
-	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
-	{
-		p_ptr->create_down_stair = FALSE;
-	}
-
-	/* No stairs down from deepest level */
-	if (p_ptr->depth==max_depth(p_ptr->dungeon))
-	{
-		p_ptr->create_down_stair = FALSE;
-	}
-
-
-	/* No stairs from town or if not allowed */
-	if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || !dungeon_stair)
-	{
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
-	}
-
-	/* Make a staircase */
-	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
-	{
-		/* Place a staircase */
-		if (cave_valid_bold(py, px))
-		{
-			/* XXX XXX XXX */
-			delete_object(py, px);
-
-			/* Make stairs */
-			if (p_ptr->create_down_stair)
-			{
-				cave_set_feat(py, px, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(py, px, FEAT_LESS);
-			}
-		}
-
-		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
 

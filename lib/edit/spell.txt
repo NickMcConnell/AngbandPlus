@@ -3866,7 +3866,6 @@ C:8:2:2:30:1
 B:BOLT_MINOR:FIRE:3d6+0
 
 N:388:Fire Blast
-A:39:1:1
 A:77:0:1
 A:90:0:6
 A:90:9:3
@@ -3875,7 +3874,7 @@ A:93:28:13
 C:1:3:3:27:3
 C:10:7:5:40:3
 C:8:7:5:40:3
-B:BLAST:FIRE:2d6+0
+B:BLAST:FIRE:2d3+0
 
 N:389:Acid Splash
 A:77:2:1
@@ -4402,6 +4401,7 @@ B:ARC_20:WIND:4d10+0
 #                                                                                 --> Arc of Hellfire
 
 N:434:Minor Fire Ball
+A:39:1:1
 A:90:2:8
 A:90:9:7
 P:388:0

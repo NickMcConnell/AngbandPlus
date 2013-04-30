@@ -5183,7 +5183,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		if (mmove == MM_OOZE) l_ptr->flags3 |= (RF3_OOZE);
 
 		/* Monster is passing */
-		if ((mmove == MM_PASS)  && !(m_ptr->tim_passw)) l_ptr->flags2 |= (RF2_PASS_WALL);
+		if (mmove == MM_PASS)
+		{
+			if (m_ptr->tim_passw) l_ptr->flags6 |= (RF6_WRAITHFORM);
+			else l_ptr->flags2 |= (RF2_PASS_WALL);
+		}
 	}
 }
 
@@ -5208,7 +5212,7 @@ void feed_monster(int m_idx)
 		case 1: if ((m_ptr->mflag & (MFLAG_SICK)) != 0)
 			{
 				m_ptr->mflag &= ~(MFLAG_SICK);
-				hp = calc_monster_hp(m_ptr);
+				hp = calc_monster_hp(m_idx);
 				if (m_ptr->maxhp < hp) { m_ptr->maxhp = hp; break; }
 			}
 		case 2: if ((m_ptr->mflag & (MFLAG_CLUMSY)) != 0) {  m_ptr->mflag &= ~(MFLAG_CLUMSY); break; }
@@ -5358,7 +5362,7 @@ static void process_monster(int m_idx)
 				m_ptr->mflag &= ~(MFLAG_SLOW | MFLAG_FAST);
 				if (!rand_int(3))	m_ptr->mflag |= (MFLAG_SLOW);
 				else if (rand_int(2)) m_ptr->mflag |= (MFLAG_FAST);
-				m_ptr->mspeed = calc_monster_speed(m_ptr);
+				m_ptr->mspeed = calc_monster_speed(m_idx);
 			}
 		}
 
@@ -5408,7 +5412,7 @@ static void process_monster(int m_idx)
 				m_ptr->mflag &= ~(MFLAG_SLOW | MFLAG_FAST);
 				if (!rand_int(3))	m_ptr->mflag |= (MFLAG_SLOW);
 				else if (rand_int(2)) m_ptr->mflag |= (MFLAG_FAST);
-				m_ptr->mspeed = calc_monster_speed(m_ptr);
+				m_ptr->mspeed = calc_monster_speed(m_idx);
 			}
 		}
 
@@ -5928,15 +5932,6 @@ static void recover_monster(int m_idx, bool regen)
 
 		m_ptr->hp = m_ptr->maxhp;
 	}
-
-	/* Hack -- Bug tracking */
-	if (m_ptr->maxhp > (r_ptr->hdice * r_ptr->hside) * 11 / 10)
-	{
-		msg_print("BUG: Monster hit points *way* too high! Please report.");
-
-		m_ptr->maxhp = calc_monster_hp(m_ptr);
-	}
-
 
 	/* Handle "summoned" */
 	if (m_ptr->summoned)

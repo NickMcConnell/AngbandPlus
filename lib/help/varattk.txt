@@ -58,7 +58,7 @@ the same specific type and of less than 15 lbs , or when the secondary weapon is
 sword of less than 10 lbs and the primary weapon is less than 20 lbs in weight.
 The second weapon will be treated as twice as heavy, and the sum of weapon weights
 combined for the purpose of determining multiple blows, and the secondary weapon
-will be used to attack on every even numbered strike. Two-weapon combat provides
+will be used to attack on every even numbered strike. Dual-wield combat provides
 only the advantages that the second weapon provides in the instance where
 no further style benefits are given. 
 

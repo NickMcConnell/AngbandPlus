@@ -4657,6 +4657,7 @@ static void name_drop(object_type *j_ptr)
 	if (j_ptr->name2) return;
 	if (j_ptr->xtra1) return;
 
+#if 0
 	/* Mark weapons and armour with racial flags */
 	switch (j_ptr->tval)
 	{
@@ -4703,7 +4704,7 @@ static void name_drop(object_type *j_ptr)
 			if ((r_info[r_idx].flags9 & (RF9_ELF)) && !(rand_int(count++))) { j_ptr->xtra1 = 19; j_ptr->xtra2 = 26;}
 		}
 	}
-
+#endif
 	/* Are we done? */
 	if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG) && (j_ptr->tval != TV_STATUE)
 		&& (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
@@ -4716,6 +4717,8 @@ static void name_drop(object_type *j_ptr)
 	/* Flavor the drop with a monster type */
 	if ((rand_int(100) < (30+ (p_ptr->depth * 2))) || (race_drop_idx))
 	{
+		bool old_ecology = cave_ecology.ready;
+
 		/* Store the old hook */
 		get_mon_old_hook = get_mon_num_hook;
 
@@ -4724,6 +4727,9 @@ static void name_drop(object_type *j_ptr)
 
 		/* Store the item kind */
 		name_drop_k_idx = j_ptr->k_idx;
+
+		/* Sometimes ignore the ecology */
+		if (rand_int(100) < 50) cave_ecology.ready = FALSE;
 
 		/* Prep the list */
 		get_mon_num_prep();
@@ -4736,6 +4742,9 @@ static void name_drop(object_type *j_ptr)
 
 		/* Prep the list */
 		get_mon_num_prep();
+
+		/* Reset the ecology */
+		cave_ecology.ready = old_ecology;
 
 		/* Failure? */
 		if (!r_idx) return;
@@ -5782,6 +5791,9 @@ bool break_near(object_type *j_ptr, int y, int x)
 
 	bool obvious = FALSE;
 
+	/* Describe object */
+	object_desc(o_name, sizeof(o_name), j_ptr, FALSE, 0);   
+
 	/* These lose bonuses before breaking */
 	switch (j_ptr->tval)
 	  {
@@ -5799,11 +5811,19 @@ bool break_near(object_type *j_ptr, int y, int x)
 	      else if (j_ptr->to_h > 0 && j_ptr->to_h >= j_ptr->to_d)
 		{
 		  j_ptr->to_h--;
+
+		  /* Message */
+		  msg_format("Your %s bends!", o_name);
+
 		  return (FALSE);
 		}
 	      else if (j_ptr->to_d > 0)
 		{
 		  j_ptr->to_d--;
+
+		  /* Message */
+		  msg_format("Your %s chips!", o_name);
+
 		  return (FALSE);
 		}
 	    }
@@ -5815,9 +5835,6 @@ bool break_near(object_type *j_ptr, int y, int x)
 
 	/* Extract plural */
 	if (j_ptr->number != 1) plural = TRUE;
-
-	/* Describe object */
-	object_desc(o_name, sizeof(o_name), j_ptr, FALSE, 0);   
 
 	/* Special case breakages */
 	switch (j_ptr->tval)
@@ -5872,9 +5889,10 @@ bool break_near(object_type *j_ptr, int y, int x)
 					if (!method) break;
 
 					/* Message */
-					if ((!i) && (rad)) msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
+					if (!i && rad) msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
+					if (!i && !rad) msg_format("The %s burst%s into flames.",o_name, (plural ? "" : "s"));
 
-					/* Mega hack -- dispel evil/undead objects */
+					/* Mega hack --- spells in objects */
 					if (!d_side)
 					{
 						d_plus += 25 * d_dice;
@@ -7362,10 +7380,11 @@ void inven_item_optimize(int item)
 	else
 	{
 		/* Reorder the quiver if necessary */
-		if (IS_QUIVER_SLOT(item)) p_ptr->notice |= (PN_REORDER);
-
-		/* One less item */
-		p_ptr->equip_cnt--;
+		if (IS_QUIVER_SLOT(item)) 
+		  p_ptr->notice |= (PN_REORDER);
+		else
+		  /* One less item */
+		  p_ptr->equip_cnt--;
 
 		/* Erase the empty slot */
 		object_wipe(&inventory[item]);

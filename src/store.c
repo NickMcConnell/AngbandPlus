@@ -1608,7 +1608,7 @@ static void display_inventory(int store_index)
 	}
 
 	/* Erase the extra lines and the "more" prompt */
-	for (i = k; i < Term->hgt - 9; i++) prt("", i + 6, 0);
+	for (i = k; i < Term->hgt - 11; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
 	put_str("        ", 5, 20);
@@ -2836,6 +2836,8 @@ static void store_sell(int store_index)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
+
+		mark_cursed_feeling(o_ptr);
 
 		/* Nope */
 		return;

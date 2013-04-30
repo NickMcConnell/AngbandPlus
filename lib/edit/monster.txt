@@ -321,7 +321,7 @@ I:110:2d6:8:12:30
 W:1:1:0:2
 B:BITE:HURT:1d3
 B:STING:HURT:1d3
-F:WEIRD_MIND
+F:WEIRD_MIND | FRIEND
 F:INSECT
 D:It is about four feet long and carnivorous.
 
@@ -332,7 +332,7 @@ W:1:1:0:2
 B:BITE:HURT:1d2
 B:STING:HURT:1d2
 F:RAND_50
-F:WEIRD_MIND | BASH_DOOR
+F:WEIRD_MIND | BASH_DOOR | FRIEND
 F:INSECT
 D:It is about four feet long and carnivorous.
 
@@ -496,59 +496,59 @@ W:2:1:0:3
 B:CRAWL:HURT:1d1
 B:STING:HURT:1d1
 F:RAND_50
-F:WEIRD_MIND | BASH_DOOR
+F:WEIRD_MIND | BASH_DOOR | FRIEND
 F:INSECT | ATTR_METAL | EAT_BODY
 D:It is about four feet long and carnivorous.
 
 N:35:Apprentice warrior
 G:t:u
-I:110:9d4:20:16:5
+I:110:7d4:20:14:5
 W:3:1:1:6
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
 F:MALE
 F:DROP_60
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | FRIEND
 F:WARRIOR | HAS_LITE | NEED_LITE
 D:He looks inexperienced but tough.
 
 N:36:Apprentice rogue
 G:t:b
-I:110:8d4:20:12:5
+I:110:6d4:20:12:5
 W:3:1:1:6
-B:HIT:HURT:1d6
+B:HIT:HURT:1d4
 B:TOUCH:EAT_GOLD
 F:MALE
 F:DROP_60
 F:TAKE_ITEM | OPEN_DOOR
-F:EVIL |
+F:EVIL | FRIEND
 F:SNEAKY
 D:A rather shifty individual.
 
 N:37:Apprentice priest
 G:p:b
-I:110:7d4:20:10:10
+I:110:5d4:20:10:10
 W:3:1:1:6
 M:0:8:2:23
 B:HIT:HURT:1d5
 F:MALE
 F:FORCE_SLEEP
 F:DROP_60
-F:OPEN_DOOR
+F:OPEN_DOOR | FRIEND
 F:PRIEST | HAS_LITE | NEED_LITE | LOW_MANA_RUN
 S:HEAL | SCARE | HOLY_ORB | WOUND | BLESS
 D:He is tripping over his priestly robes.
 
 N:38:Apprentice mage
 G:q:r
-I:110:6d4:20:6:5
+I:110:4d4:20:6:5
 M:0:8:2:23
 W:3:1:1:6
 B:HIT:HURT:1d4
 F:MALE
 F:FORCE_SLEEP
 F:DROP_60
-F:OPEN_DOOR
+F:OPEN_DOOR | FRIEND
 F:MAGE | HAS_LITE | NEED_LITE | LOW_MANA_RUN
 S:BLINK | BOLT_MANA | ADD_MANA | BLIND | CONF
 D:He is leaving behind a trail of dropped spell components.
@@ -738,7 +738,7 @@ W:3:1:0:7
 B:CRAWL:HURT:1d3
 B:STING:HURT:1d3
 F:RAND_50
-F:WEIRD_MIND | BASH_DOOR
+F:WEIRD_MIND | BASH_DOOR | FRIEND
 F:INSECT | ATTR_METAL
 D:It is about four feet long and carnivorous.
 
@@ -851,7 +851,7 @@ W:5:1:0:12
 B:BITE:HURT:1d5
 B:STING:HURT:1d5
 F:RAND_25
-F:WEIRD_MIND | BASH_DOOR
+F:WEIRD_MIND | BASH_DOOR | FRIEND
 F:INSECT | ATTR_METAL
 D:It is about six feet long and carnivorous.
 
@@ -900,15 +900,15 @@ D:It is an armoured lizard with a powerful bite.
 
 N:69:Apprentice ranger
 G:q:W
-I:110:6d8:20:8:5
+I:110:6d6:20:8:5
 W:4:1:1:18
-M:12:12:2:23
+M:8:8:2:23
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 B:ARROW:HURT:1d6
 F:MALE
 F:FORCE_SLEEP
-F:DROP_60
+F:DROP_60 | FRIEND
 F:OPEN_DOOR | BASH_DOOR
 F:WARRIOR | MAGE | HAS_LITE | NEED_LITE
 S:CURE | BLINK
@@ -916,13 +916,13 @@ D:An agile hunter, ready and relaxed.
 
 N:70:Apprentice paladin
 G:p:w
-I:110:6d8:20:16:5
+I:110:6d6:20:13:5
 W:5:1:1:18
-M:0:12:1:23
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
+M:0:10:1:23
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
 F:MALE | FORCE_SLEEP | DROP_60
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | FRIEND
 F:WARRIOR | PRIEST | HAS_LITE | NEED_LITE
 S:SCARE | HEAL | BLESS
 D:An adventurer both devoutly religious and skillful in combat.
@@ -997,10 +997,10 @@ D: vigour.  He can prove a troublesome opponent.
 
 N:77:Novice mage
 G:q:r
-I:110:6d4:20:6:10
+I:110:6d6:20:12:10
 W:6:3:2:6
-M:0:8:2:23
-B:HIT:HURT:1d4
+M:0:12:2:23
+B:HIT:HURT:1d6
 F:MALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
@@ -1143,10 +1143,10 @@ D:Yum!  It looks quite tasty.
 
 N:89:Novice priest
 G:p:b
-I:110:7d4:20:10:5
+I:110:7d6:20:15:5
 W:7:3:2:6
-M:0:8:2:23
-B:HIT:HURT:1d5
+M:0:12:2:23
+B:HIT:HURT:1d7
 F:MALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
@@ -1157,7 +1157,7 @@ D:He is tripping over his priestly robes.
 
 N:90:Novice warrior
 G:t:u
-I:110:9d4:20:16:5
+I:110:9d6:20:16:5
 W:6:3:2:6
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
@@ -1169,10 +1169,12 @@ D:He looks inexperienced but tough.
 
 N:91:Novice rogue
 G:t:b
-I:110:8d4:20:12:5
+I:110:8d6:20:12:5
 W:6:3:2:6
+M:8:0:0:0
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
+B:SHOT:HURT:2d4
 F:MALE
 F:FRIENDS | DROP_60
 F:TAKE_ITEM | OPEN_DOOR
@@ -1468,8 +1470,8 @@ G:q:W
 I:110:6d8:20:8:5
 W:8:3:2:18
 M:12:12:2:17
-B:HIT:HURT:1d5
-B:HIT:HURT:1d5
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
 B:ARROW:HURT:1d6
 F:MALE
 F:FORCE_SLEEP | FRIENDS | DROP_60
@@ -1517,8 +1519,8 @@ G:p:w
 I:110:6d8:20:16:5
 W:9:3:2:18
 M:0:12:1:17
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
 F:MALE
 F:FORCE_SLEEP
 F:FRIENDS | DROP_60
@@ -2209,7 +2211,7 @@ I:120:13d8:12:30:30
 W:13:2:0:40
 B:BITE:HURT:2d5
 B:STING:HURT:2d5
-F:WEIRD_MIND | BASH_DOOR
+F:WEIRD_MIND | BASH_DOOR | FRIEND
 F:INSECT | RAND_25 | LEVEL_SIZE
 D:It is a vast armoured centipede with massive mandibles and a spiked tail.
 
@@ -2593,7 +2595,7 @@ B:BITE:HURT:2d4
 B:STING:HURT:2d4
 F:ATTR_CLEAR
 F:INVISIBLE | WEIRD_MIND | BASH_DOOR
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:198:Mirkwood spider
@@ -11008,7 +11010,7 @@ B:BITE:HURT:1d2
 B:STING:HURT:1d2
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:736:Giant grey centipede
@@ -11019,7 +11021,7 @@ B:BITE:HURT:1d3
 B:STING:HURT:1d3
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:737:Giant black centipede
@@ -11030,7 +11032,7 @@ B:BITE:HURT:1d3
 B:STING:POISON:1d4
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:738:Giant brown centipede
@@ -11041,7 +11043,7 @@ B:BITE:HURT:2d3
 B:STING:HURT:1d4
 F:RAND_25 | FRIENDS |
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:739:Metallic yellow centipede
@@ -11052,7 +11054,7 @@ B:BITE:HURT:2d4
 B:STING:LOSE_DEX:1d4
 F:RAND_25 | ATTR_METAL
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:740:Giant pink centipede
@@ -11063,7 +11065,7 @@ B:BITE:HURT:2d3
 B:STING:LOSE_STR:2d4
 F:RAND_25 | FRIENDS |
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about four feet long and carnivorous.
 
 N:741:Giant red centipede
@@ -11073,7 +11075,7 @@ W:9:1:0:2
 B:BITE:HURT:1d2
 B:STING:POISON:1d2
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about six feet long and carnivorous.
 
 N:742:Giant blue centipede
@@ -11083,18 +11085,18 @@ W:4:1:0:2
 B:BITE:HURT:1d3
 B:STING:HURT:1d4
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about five feet long and carnivorous.
 
 N:743:Giant black centipede
-G:c:w
+G:c:D
 I:110:5d8:8:10:40
 W:4:1:0:2
 B:BITE:HURT:1d2
 B:STING:HURT:1d2
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:INSECT |
+F:INSECT | FRIEND
 D:It is about five feet long and carnivorous.
 
 N:744:Cave crawler
@@ -11527,7 +11529,7 @@ B:CLAW:HURT:2d4
 B:BITE:DARK:3d6
 B:AURA:DARK_WEAK
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
-F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:ONLY_ITEM | DROP_2D2 |
 F:BASH_DOOR | HAS_LITE | HAS_AURA
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP | RES_DARK | LEVEL_SIZE | LEVEL_POWER
 F:IM_COLD | IM_ELEC | RES_DARK | POWERFUL | SMART
@@ -11545,7 +11547,7 @@ B:CLAW:HURT:2d4
 B:BITE:PLASMA:3d6
 B:AURA:FIRE:2d4
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | HAS_AURA | HAS_LITE  |
-F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:ONLY_ITEM | DROP_2D2 |
 F:BASH_DOOR | LEVEL_SIZE | LEVEL_POWER
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
 F:IM_FIRE | IM_ELEC | POWERFUL | SMART
@@ -11580,7 +11582,7 @@ B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:POISON:3d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:ONLY_ITEM | DROP_2D2 |
 F:BASH_DOOR | RES_WATER | LEVEL_SIZE | LEVEL_POWER
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
 F:IM_ACID | IM_POIS | CAN_SWIM | POWERFUL | SMART
@@ -11597,7 +11599,7 @@ B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:ELEC:3d6
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
-F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:ONLY_ITEM | DROP_2D2 |
 F:BASH_DOOR | LEVEL_SIZE | LEVEL_POWER
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
 F:IM_ACID | IM_ELEC | POWERFUL | SMART
@@ -12884,7 +12886,7 @@ B:HIT:HURT:1d10
 F:MALE | RAND_25
 F:DROP_90 | HAS_LITE | NEED_LITE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART
-F:EVIL | FORCE_DEPTH | TOWNSFOLK
+F:FORCE_DEPTH | TOWNSFOLK
 D:A stalwart defender of the town.
 
 N:874:Surly looking dwarf
@@ -14797,23 +14799,23 @@ D:He is bumbling and ineffectual at the best of times.
 
 N:1019:Apprentice shaman
 G:p:W
-I:110:6d4:20:6:5
+I:110:4d4:20:6:5
 W:3:1:1:8
 M:0:8:2:23
 B:HIT:HURT:1d4
 F:MALE | 
 F:FORCE_SLEEP | 
-F:DROP_60 | HAS_LITE | NEED_LITE |
+F:DROP_60 | HAS_LITE | NEED_LITE | FRIEND
 F:OPEN_DOOR | PRIEST | MAGE | LOW_MANA_RUN
 S:BLINK | BOLT_MANA | HEAL | S_ANIMAL | SCARE | BLESS
 D:He waves a magical talisman at you.
 
 N:1020:Novice shaman
 G:p:W
-I:110:6d4:20:6:10
+I:110:6d6:20:6:10
 W:6:2:2:8
-M:0:8:2:23
-B:HIT:HURT:1d4
+M:0:15:2:23
+B:HIT:BATTER:1d6
 F:MALE | 
 F:FORCE_SLEEP | 
 F:FRIENDS | DROP_60 | HAS_LITE | NEED_LITE | PRIEST | MAGE
@@ -15242,7 +15244,7 @@ I:110:3d3:10:5:10
 W:0:3:0:0
 M:5:0:0:0
 B:BEG
-F:MALE | RAND_25 | TOWNSFOLK
+F:MALE | RAND_25 | TOWNSFOLK | FORCE_DEPTH
 F:ONLY_GOLD | DROP_60 | DROP_90 | HAS_LITE | NEED_LITE |
 F:TAKE_ITEM | OPEN_DOOR
 D:This shill seems a little out of place and down on his luck.
@@ -17176,13 +17178,12 @@ D:found in small groups.
 
 N:1188:Apprentice archer
 G:t:w
-I:110:9d5:20:8:20
+I:110:5d5:20:8:20
 W:6:2:30:25
 M:40:0:0:0
 B:HIT:HURT:1d5
-B:HIT:HURT:1d5
-B:ARROW:HURT:3d6
-F:MALE | FORCE_SLEEP | OPEN_DOOR
+B:ARROW:HURT:2d6
+F:MALE | FORCE_SLEEP | OPEN_DOOR | FRIEND
 F:ONLY_GOLD | DROP_90 | SMART | ARCHER
 D:A nasty little fellow with a bow and arrow.
 
@@ -17289,7 +17290,6 @@ G:E:R
 I:110:30d10:30:20:0
 W:32:5:15:270
 B:HIT:HURT:4d6
-F:FORCE_DEPTH | 
 F:NEVER_MISS | COLD_BLOOD | 
 F:OPEN_DOOR | PASS_WALL | CAN_FLY | 
 F:DROP_60 | DROP_1D2
@@ -17528,7 +17528,6 @@ W:55:5:0:1400
 M:0:25:24:40
 B:HIT:HURT:6d7
 B:HIT:HURT:6d7
-F:FORCE_DEPTH | 
 F:NEVER_MISS | COLD_BLOOD | 
 F:OPEN_DOOR | PASS_WALL | CAN_FLY | 
 F:DROP_1D2 | DROP_2D2 | NO_CUTS | NO_STUN
@@ -18000,7 +17999,7 @@ I:115:1d2:30:1:10
 W:0:3:0:0
 B:PECK:HURT
 F:RAND_25
-F:ANIMAL | CAN_FLY | RAND_50 | LEVEL_SIZE | MUST_FLY
+F:ANIMAL | FRIEND | CAN_FLY | RAND_50 | MUST_FLY | FORCE_DEPTH
 D:A barnyard chicken.
 
 N:1246:Cow
@@ -18008,7 +18007,7 @@ G:Q:o
 I:105:2d6:30:1:10
 W:0:3:0:0
 B:BUTT:HURT
-F:ANIMAL | FRIEND | RAND_25
+F:ANIMAL | FRIEND | RAND_25 | FORCE_DEPTH
 D:A peacefully grazing bovine.
 
 N:1247:Sheep
@@ -18016,7 +18015,7 @@ G:Q:w
 I:110:2d3:30:1:10
 W:0:3:0:0
 B:BUTT:HURT
-F:ANIMAL | FRIENDS | RAND_50
+F:ANIMAL | FRIENDS | RAND_50 | FORCE_DEPTH
 D:A bleating but harmless animal.
 
 N:1248:Zombified dwarf
@@ -18320,7 +18319,7 @@ S:BESERK | INVIS | TELE_SELF_TO
 D:A spined and ferocious insect: its proboscis tastes the air and its head unerringly turns to you;
 D: leaping off walls and ceilings, it runs at you to implant its children in your still warm flesh.
 
-N:1272:Shadow of Caradhras, the Mountain
+N:1272:the Shadow of Caradhras, the Mountain
 G:P:D
 I:115:30d100:30:120:15
 W:66:3:0:7000

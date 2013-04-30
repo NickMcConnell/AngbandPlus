@@ -621,6 +621,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (id_flags & (SF1_IDENT_RUMOR | SF1_IDENT_FULLY | SF1_FORGET | SF1_IDENT_MAGIC)) vp[vn++]="known item";
 	if (id_flags & (SF1_DETECT_CURSE)) vp[vn++]="cursed item";
 	if (id_flags & (SF1_DETECT_MAGIC)) vp[vn++]="magic item";
+	if (id_flags & (SF1_IDENT_VALUE | SF1_IDENT_RUNES)) vp[vn++]="item";
 
 	if (s_ptr->type == SPELL_IDENT_TVAL)
 	{

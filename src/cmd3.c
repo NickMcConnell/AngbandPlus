@@ -126,94 +126,68 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 }
 
 
-static int quiver_wield(int item, object_type *o_ptr)
+static int quiver_wield(int item, object_type *i_ptr)
 {
-	int slot = 0;
-	bool use_new_slot = FALSE;
-	int num;
-	int i;
+  int slot = 0;
+  bool use_new_slot = FALSE;
+  int num;
+  int i;
 
-	object_type object_type_body;
-	object_type *i_ptr;
+  /* was: num = get_quantity(NULL, i_ptr->number);*/
+  num = i_ptr->number;
 
-	/* was: num = get_quantity(NULL, o_ptr->number);*/
-	num = o_ptr->number;
+  /* Cancel */
+  if (num <= 0) return 0;
 
-	/* Cancel */
-	if (num <= 0) return 0;
+  /* Check free space */
+  if (!quiver_carry_okay(i_ptr, num, item))
+    {
+      msg_print("Your quiver needs more backpack space.");
+      return 0;
+    }
 
-	/* Check free space */
-	if (!quiver_carry_okay(o_ptr, num, item))
+  /* Search for available slots. */
+  for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+    {
+      object_type *o_ptr;
+
+      /* Get the item */
+      o_ptr = &inventory[i];
+
+      /* Accept empty slot, but keep searching for combining */
+      if (!o_ptr->k_idx)
 	{
-		msg_print("Your quiver needs more backpack space.");
-		return 0;
- 	}
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Copy to the local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Modify quantity */
-	i_ptr->number = num;
-
-	/* Search for available slots. */
-	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
-	{
-		/* Get the item */
-		o_ptr = &inventory[i];
-
-		/* Accept empty slot, but keep searching for combining */
-		if (!o_ptr->k_idx)
-		{
-			slot = i;
-			use_new_slot = TRUE;
-			continue;
-		}
-
-		/* Accept slot that has space to absorb more */
-		if (object_similar(o_ptr, i_ptr))
-		{
-			slot = i;
-			use_new_slot = FALSE;
-			object_absorb(o_ptr, i_ptr);
-			break;
-		}
+	  slot = i;
+	  use_new_slot = TRUE;
+	  continue;
 	}
 
-	/* Use a new slot if needed */
-	if (use_new_slot) object_copy(&inventory[slot], i_ptr);
-
-	if (!slot)
+      /* Accept slot that has space to absorb more */
+      if (object_similar(o_ptr, i_ptr))
 	{
-		/* No space. */
-		msg_print("Your quiver is full.");
-		return 0;
+	  slot = i;
+	  use_new_slot = FALSE;
+	  object_absorb(o_ptr, i_ptr);
+	  break;
 	}
+    }
 
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight * num;
+  if (!slot)
+    {
+      /* No space. */
+      msg_print("Your quiver is full.");
+      return 0;
+    }
 
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -num);
-		inven_item_optimize(item);
-	}
+  /* Use a new slot if needed */
+  if (use_new_slot) 
+    object_copy(&inventory[slot], i_ptr);
 
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -num);
-		floor_item_optimize(0 - item);
-	}
+  /* Update "p_ptr->pack_size_reduce" */
+  find_quiver_size();
 
-	/* Update "p_ptr->pack_size_reduce" */
-	find_quiver_size();
-
-	/* Reorder the quiver and return the perhaps modified slot */
-	return reorder_quiver(slot);
+  /* Reorder the quiver and return the perhaps modified slot */
+  return reorder_quiver(slot);
 }
 
 /*
@@ -243,7 +217,7 @@ void do_cmd_wield(void)
 	int item, slot;
 
 	object_type *o_ptr;
-
+	object_type *j_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -257,9 +231,6 @@ void do_cmd_wield(void)
 	u32b n1, n2, n3, n4;
 	u32b k1, k2, k3, k4;
 
-	/* Hack -- Allow items to be swapped in/out of belt */
-	bool swap = FALSE;
-
 	bool get_feat = FALSE;
 
 	/* Hack -- Prevent player from wielding conflicting items */
@@ -267,7 +238,7 @@ void do_cmd_wield(void)
 	bool curse = FALSE;
 
 	/* Hack -- Allow multiple rings to be wielded */
-	int amt=1;
+	int amt = 1;
 	int rings = 0;
 
 	/* Restrict the choices */
@@ -384,7 +355,7 @@ void do_cmd_wield(void)
 		return;
 	}
 
-	/* Take a turn */
+	/* Take a turn here so that racial object sensing is not free */
 	switch (o_ptr->tval)
 	{
 		case TV_SWORD:
@@ -482,7 +453,7 @@ void do_cmd_wield(void)
 			o_ptr->ident |= (IDENT_SENSE);
 		}
 
-		return;
+		return; /* The turn already taken for racial sensing */
 	}
 
 	/* Get local object */
@@ -495,7 +466,7 @@ void do_cmd_wield(void)
 	i_ptr->number = amt;
 
 	/* Get a new show index */
-	if ((!swap) && (o_ptr->number > amt))
+	if (o_ptr->number > amt)
 	{
 		int j, k;
 
@@ -520,31 +491,41 @@ void do_cmd_wield(void)
 
 		/* Redraw stuff */
 		p_ptr->redraw |= (PR_ITEM_LIST);
-
 	}
 
-	/* Reset stackc */
+	/* Ammo goes in quiver slots, which have special rules. */
+	if (IS_QUIVER_SLOT(slot))
+	  {
+	    /* Put the ammo in the quiver */
+	    slot = quiver_wield(item, i_ptr);
+
+	    /* Can't do it; note the turn already wasted for racial sensing */
+	    if (!slot) return;
+	  }
+
+	/* Reset stackc; assume no wands in quiver */
 	i_ptr->stackc = 0;
 
 	/* Sometimes use lower stack object */
-	if (!object_charges_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
-	{
-		if (amt >= o_ptr->stackc)
-		{
-			i_ptr->stackc = o_ptr->stackc;
+	if (!object_charges_p(o_ptr) 
+	    && (rand_int(o_ptr->number) < o_ptr->stackc))
+	  {
+	    if (amt >= o_ptr->stackc)
+	      {
+		i_ptr->stackc = o_ptr->stackc;
 
-			o_ptr->stackc = 0;
-		}
-		else
-		{
-			if (i_ptr->charges) i_ptr->charges--;
-			if (i_ptr->timeout) i_ptr->timeout = 0;
+		o_ptr->stackc = 0;
+	      }
+	    else
+	      {
+		if (i_ptr->charges) i_ptr->charges--;
+		if (i_ptr->timeout) i_ptr->timeout = 0;
 
-			o_ptr->stackc -= amt;
-		}
-	}
+		o_ptr->stackc -= amt;
+	      }
+	  }
 
-	/* Decrease the item (from the pack) */
+	/* Decrease the item (from the pack); cancelling no longer possible */
 	if (item >= 0)
 	{
 		/* Hack -- Forget what original stack may do */
@@ -563,52 +544,32 @@ void do_cmd_wield(void)
 		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 
-	/* Ammo goes in quiver slots, which have special rules. */
-	if (IS_QUIVER_SLOT(slot))
-	{
-		/* Put the ammo in the quiver */
-		slot = quiver_wield(item, i_ptr);
+	/* Get the wield slot */
+	j_ptr = &inventory[slot];
 
-		/* Can't do it */
-		if (!slot) return;
 
-		/* Get the object again */
-		o_ptr = &inventory[slot];
-	}
-	else
-	{
-		/* Get the wield slot */
-		o_ptr = &inventory[slot];
+	/* Special rules for similar rings */
+	if (rings) 
+	  {
+	    /* Wear the new rings */
+	    object_absorb(j_ptr, i_ptr);
+	  }
+	else if (!IS_QUIVER_SLOT(slot))
+	/* Normal rules for non-ammo */
+	  {
+	    /* Take off existing item */
+	    if (j_ptr->k_idx)
+	      (void)inven_takeoff(slot, 255);
 
-		/* Swap existing item. Note paranoia check (item >= INVEN_WIELD). */
-		if ((o_ptr->k_idx) && (swap) && (item >= INVEN_WIELD))
-		{
-			/* Get the old slot */
-			object_type *j_ptr = &inventory[item];
+	    /* Wear the new stuff */
+	    object_copy(j_ptr, i_ptr);
 
-			/* Swap the items */
-			object_copy(j_ptr, o_ptr);
-		}
+	    /* Increment the equip counter by hand */
+	    p_ptr->equip_cnt++;
+	  }
 
-		/* Take off existing item */
-		else if ((o_ptr->k_idx) && (!rings))
-		{
-			/* Take off existing item */
-			(void)inven_takeoff(slot, 255);
-		}
-
-		/* Wear the new rings */
-		if (rings) object_absorb(o_ptr, i_ptr);
-
-		/* Wear the new stuxff */
-		else object_copy(o_ptr, i_ptr);
-
-		/* Increase the weight */
-		p_ptr->total_weight += i_ptr->weight * amt;
-
-		/* Increment the equip counter by hand */
-		p_ptr->equip_cnt++;
-	}
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight * amt;
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -617,10 +578,10 @@ void do_cmd_wield(void)
 	}
 	else if (slot == INVEN_ARM)
 	{
-		if (o_ptr->tval == TV_SHIELD) act = "You are wearing";
+		if (j_ptr->tval == TV_SHIELD) act = "You are wearing";
 		else act = "You are off-hand wielding";
 	}
-	else if (o_ptr->tval == TV_INSTRUMENT)
+	else if (j_ptr->tval == TV_INSTRUMENT)
 	{
 		act = "You are playing music with";
 	}
@@ -633,10 +594,10 @@ void do_cmd_wield(void)
 		act = "Your light source is";
 
 		/* Light torch if not lit already */
-		if (!(artifact_p(o_ptr)) && !(o_ptr->timeout))
+		if (!(artifact_p(j_ptr)) && !(j_ptr->timeout))
 		{
-			o_ptr->timeout = o_ptr->charges;
-			o_ptr->charges = 0;
+			j_ptr->timeout = j_ptr->charges;
+			j_ptr->charges = 0;
 		}
 	}
 	else if (!IS_QUIVER_SLOT(slot))
@@ -649,29 +610,29 @@ void do_cmd_wield(void)
 	}
 
 	/* Describe the result */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), j_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
-	if (curse || cursed_p(o_ptr))
+	if (curse || cursed_p(j_ptr))
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		mark_cursed_feeling(o_ptr);
+		mark_cursed_feeling(j_ptr);
 	}
 	/* Not cursed */
 	else
 	{
-		switch (o_ptr->feeling)
+		switch (j_ptr->feeling)
 		{
-			case INSCRIP_NONMAGICAL: o_ptr->feeling = INSCRIP_AVERAGE; break;
-			case INSCRIP_ARTIFACT: o_ptr->feeling = INSCRIP_SPECIAL; break;
-			case INSCRIP_HIGH_EGO_ITEM: o_ptr->feeling = INSCRIP_SUPERB; break;
-			case INSCRIP_EGO_ITEM: o_ptr->feeling = INSCRIP_EXCELLENT; break;
-			case INSCRIP_UNUSUAL: o_ptr->feeling = INSCRIP_MAGICAL; break;
+			case INSCRIP_NONMAGICAL: j_ptr->feeling = INSCRIP_AVERAGE; break;
+			case INSCRIP_ARTIFACT: j_ptr->feeling = INSCRIP_SPECIAL; break;
+			case INSCRIP_HIGH_EGO_ITEM: j_ptr->feeling = INSCRIP_SUPERB; break;
+			case INSCRIP_EGO_ITEM: j_ptr->feeling = INSCRIP_EXCELLENT; break;
+			case INSCRIP_UNUSUAL: j_ptr->feeling = INSCRIP_MAGICAL; break;
 		}
 	}
 
@@ -694,93 +655,93 @@ void do_cmd_wield(void)
 	if (IS_QUIVER_SLOT(slot)) return;
 
 	/* Get known flags */
-	k1 = o_ptr->can_flags1;
-	k2 = o_ptr->can_flags2;
-	k3 = o_ptr->can_flags3;
-	k4 = o_ptr->can_flags4;
+	k1 = j_ptr->can_flags1;
+	k2 = j_ptr->can_flags2;
+	k3 = j_ptr->can_flags3;
+	k4 = j_ptr->can_flags4;
 
 	/* Some flags are instantly known */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(j_ptr, &f1, &f2, &f3, &f4);
 
 	/* Hack -- identify pval */
 	if (f1 & (TR1_BLOWS | TR1_SHOTS | TR1_SPEED | TR1_STR |
-		TR1_INT | TR1_DEX | TR1_CON | TR1_CHR)) o_ptr->ident |= (IDENT_PVAL);
+		TR1_INT | TR1_DEX | TR1_CON | TR1_CHR)) j_ptr->ident |= (IDENT_PVAL);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
-	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_BLOWS)) object_can_flags(j_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_SHOTS)) object_can_flags(j_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
-	if (f1 & (TR1_SPEED)) object_can_flags(o_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_SPEED)) object_can_flags(j_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
 
 	/* Hack -- the following are obvious from the displayed stats */
-	if (f1 & (TR1_STR)) object_can_flags(o_ptr,TR1_STR,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_STR,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_STR)) object_can_flags(j_ptr,TR1_STR,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_STR,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_INT)) object_can_flags(o_ptr,TR1_INT,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_INT,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_INT)) object_can_flags(j_ptr,TR1_INT,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_INT,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_WIS)) object_can_flags(o_ptr,TR1_WIS,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_WIS,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_WIS)) object_can_flags(j_ptr,TR1_WIS,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_WIS,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_DEX)) object_can_flags(o_ptr,TR1_DEX,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_DEX,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_DEX)) object_can_flags(j_ptr,TR1_DEX,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_DEX,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_CON)) object_can_flags(o_ptr,TR1_CON,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_CON,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_CON)) object_can_flags(j_ptr,TR1_CON,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_CON,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_CHR)) object_can_flags(o_ptr,TR1_CHR,0x0L,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_CHR,0x0L,0x0L,0x0L);
+	if (f1 & (TR1_CHR)) object_can_flags(j_ptr,TR1_CHR,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_CHR,0x0L,0x0L,0x0L);
 
 #ifndef ALLOW_OBJECT_INFO_MORE
 	/* Hack --- we do these here, because they are too computationally expensive in the 'right' place */
 	if (f1 & (TR1_INFRA))
 	{
-		object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
+		object_can_flags(j_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
 	}
-	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
+	else object_not_flags(j_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
 
 	if (f3 & (TR3_LITE))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L);
+		object_can_flags(j_ptr,0x0L,0x0L,TR3_LITE,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_LITE,0x0L);
 
 	/* Hack --- also computationally expensive. But note we notice these only if we don't already */
 	/* have these abilities */
-	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
+	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(j_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
 
-	if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
+	if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(j_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
 #endif
 
 	/* Hack --- the following are either obvious or (relatively) unimportant */
 	if (f3 & (TR3_BLESSED))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
+		object_can_flags(j_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
 
 	/* Hack --- the following are either obvious or (relatively) unimportant */
 	if (f3 & (TR3_THROWING))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
+		object_can_flags(j_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 
-	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
+	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(j_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
+	else object_not_flags(j_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
 
 	/* Check for new flags */
-	n1 = o_ptr->can_flags1 & ~(k1);
-	n2 = o_ptr->can_flags2 & ~(k2);
-	n3 = o_ptr->can_flags3 & ~(k3);
-	n4 = o_ptr->can_flags4 & ~(k4);
+	n1 = j_ptr->can_flags1 & ~(k1);
+	n2 = j_ptr->can_flags2 & ~(k2);
+	n3 = j_ptr->can_flags3 & ~(k3);
+	n4 = j_ptr->can_flags4 & ~(k4);
 
 	if (n1 || n2 || n3 || n4) update_slot_flags(slot, n1, n2, n3, n4);
 }
@@ -2032,14 +1993,14 @@ static cptr ident_info[] =
 	" :A dark grid",
 	"!:A potion",
 	"\":An amulet (or necklace)",
-	"#:A wall (or secret door)",
+	"#:A wall, secret door or impassable terrain",
 	"$:Treasure (gold or gems)",
-	"%:A vein (or crack)",
-	/* "&:unused", */
-	"':An open door (or bridge)",
+	"%:A mineral vein, crack or vent",
+	"&:A chest",
+	"':An open door or cloud",
 	"(:Soft armor",
 	"):A shield",
-	"*:A vein with treasure",
+	"*:A vein with treasure or interesting wall",
 	"+:A closed/trapped door",
 	",:Food (or mushroom patch)",
 	"-:A wand (or rod)",
@@ -2055,11 +2016,11 @@ static cptr ident_info[] =
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
 	"9:Statue",
-	"::Rubble (or deep water/lava/acid etc)",
-	";:A glyph (or shallow lava/acid/mud)",
-	"<:An up staircase (or falls/trees)",
+	"::Trees, rubble or deep water/lava/acid etc",
+	";:Plants, broken floor or shallow lava/acid/mud etc",
+	"<:An up staircase or falls",
 	"=:A ring",
-	">:A down staircase (or chasm)",
+	">:A down staircase or chasm",
 	"?:A scroll",
 	"@:You",
 	"A:Ancient Dragon/Wyrm",
@@ -2084,7 +2045,7 @@ static cptr ident_info[] =
 	"T:Troll",
 	"U:Major Demon",
 	"V:Vampire",
-	"W:Wight/Wraith/etc",
+	"W:Wight/Wraith",
 	"X:Xorn/Xaren/etc",
 	"Y:apes/Yeti",
 	"Z:Zephyr Hound",
@@ -2117,13 +2078,13 @@ static cptr ident_info[] =
 	"u:Minor Demon",
 	"v:Vortex",
 	"w:Worm/Worm-Mass",
-	/* "x:unused", */
+	"x:A bridge or unknown grid",
 	"y:Hydra",
 	"z:Zombie/Mummy",
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
-	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
+	"}:A missle launcher (bow/crossbow/sling)",
+	"~:A tool or miscellaneous item",
 	NULL
 };
 

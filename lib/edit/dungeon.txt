@@ -70,11 +70,11 @@ D:It feels like home...
 # Alternate starting dungeon.
 
 N:1:Hobbiton
-X:10:57
+X:57:10
 G:h
 L:0:0:411:153:0:0
 S:264:515:265:266:772:773:0:0
-D:Tip: Press '<' to travel elsewhere.
+D:Here your adventure begins. Press '<' to travel elsewhere (but beware Farmer Maggot's farm).
 
 #The following quests are from the hobbit.
 
@@ -155,9 +155,9 @@ N:10:Farmer Maggot's farm
 X:1:58
 G:,
 R:ANIMAL
-L:0:0:435:0:4:0
-L:1:114:0:0:0:0
-L:5:114:0:0:111:0
+L:2:0:435:0:4:0
+L:3:114:0:0:0:0
+L:6:114:0:0:111:0
 S:507:0:0:0:0:0:0:0
 
 N:11:Bree
