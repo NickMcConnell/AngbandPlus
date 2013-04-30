@@ -2654,6 +2654,9 @@ bool set_tim_stealth(int v)
 bool set_tim_res(int type, int v)
 {
 	bool notice = FALSE;
+	int statue_resist = 0;
+
+	if (p_ptr->shape == SHAPE_STATUE) statue_resist = 25;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2664,7 +2667,7 @@ bool set_tim_res(int type, int v)
 		if (!p_ptr->tim_res[type])
 		{
 			/* Only notice if it makes some difference */
-			if (p_ptr->dis_res[type] < resist_caps[type].temp)
+			if (p_ptr->dis_res[type] < resist_caps[type].temp + p_ptr->fortification + statue_resist)
 			{
 				if (p_ptr->dis_res[type])
 					message_format(MSG_EFFECT, 0, 
@@ -2684,7 +2687,7 @@ bool set_tim_res(int type, int v)
 		if (p_ptr->tim_res[type])
 		{
 			/* Only notice if it makes some difference */
-			if (p_ptr->dis_res[type] <= resist_caps[type].temp)
+			if (p_ptr->dis_res[type] <= resist_caps[type].temp + p_ptr->fortification + statue_resist)
 			{
 				if (p_ptr->dis_res[type] <= TEMP_RES_BONUS)
 					message_format(MSG_EFFECT, 0, 

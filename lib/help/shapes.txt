@@ -36,7 +36,7 @@ Naga
    Unarmed damage Xd4 (crush) instead of the normal Xd2.
 
 Statue
-   Speed -5, CON +5, PRE +2, Jumping -25, Armor +25, all resists +25.
+   Speed -5, CON +5, PRE +2, Jumping -25, Armor +25, resists & caps +25.
 
 Faun
    MEM -2, WIS +2, CON +2. May not wear a helmet or boots.

@@ -2401,8 +2401,11 @@ static void calc_bonuses(void)
 	for (i = 0 ; i < RS_MAX ; i++)
 	{
 		/* Innate resistances (class + race + fortification + statue bonus) can increase caps */
-		cur_cap = ((rp_ptr->res[i] + cp_ptr->res[i] + p_ptr->fortification + statue_resist) > resist_caps[i].normal) ? 
+		cur_cap = ((rp_ptr->res[i] + cp_ptr->res[i]) > resist_caps[i].normal) ? 
 			(rp_ptr->res[i] + cp_ptr->res[i]) : resist_caps[i].normal;
+		cur_cap += p_ptr->fortification + statue_resist;
+		if (cur_cap > 100) cur_cap = 100;
+		if (cur_cap > 100) cur_cap = 100;
 
 		/* Base resistance = class + race + fortification + statue bonus */
 		p_ptr->res[i] = ((rp_ptr->res[i] + cp_ptr->res[i]) * p_ptr->lev) / 50;
@@ -2787,6 +2790,11 @@ static void calc_bonuses(void)
 			dis_cap = (p_ptr->dis_res[j] > resist_caps[j].normal) ?
 				p_ptr->dis_res[j] : resist_caps[j].normal;
 
+			cur_cap += p_ptr->fortification + statue_resist;
+			if (cur_cap > 100) cur_cap = 100;
+			dis_cap += p_ptr->fortification + statue_resist;
+			if (dis_cap > 100) dis_cap = 100;
+
 			/* Base resistance = class + race */
 			p_ptr->res[j] += res;
 
@@ -2849,25 +2857,26 @@ static void calc_bonuses(void)
 	/*** Temporary flags ***/
 
 	/* Temporary resistances */
+	int current_cap = 0;
 	for (i = 0 ; i < RS_MAX ; i++)
 	{
 		/* Temporary resistance or standing in a Circle of Protection, add 33% */
 		if (p_ptr->tim_res[i])
 		{
+			current_cap = resist_caps[i].temp + p_ptr->fortification + statue_resist;
+			if (current_cap > 100) current_cap = 100;
 			/* If already higher or equal to cap, ignore */
-			if (p_ptr->res[i] < resist_caps[i].temp)
+			if (p_ptr->res[i] < current_cap)
 			{
 				p_ptr->res[i] += TEMP_RES_BONUS;
-				if (p_ptr->res[i] > resist_caps[i].temp) 
-					p_ptr->res[i] = resist_caps[i].temp;
+				if (p_ptr->res[i] > current_cap) p_ptr->res[i] = current_cap;
 			}
 
 			/* If already higher or equal to cap, ignore */
-			if (p_ptr->dis_res[i] < resist_caps[i].temp)
+			if (p_ptr->dis_res[i] < current_cap)
 			{
 				p_ptr->dis_res[i] += TEMP_RES_BONUS;
-				if (p_ptr->dis_res[i] > resist_caps[i].temp) 
-					p_ptr->dis_res[i] = resist_caps[i].temp;
+				if (p_ptr->dis_res[i] > current_cap) p_ptr->dis_res[i] = current_cap;
 			}
 		}
 	}
