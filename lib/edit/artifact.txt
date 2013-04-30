@@ -1,22 +1,20 @@
-# File: a_info.txt
+# File: artifact.txt
 
 
-# This file is used to initialize the "lib/raw/a_info.raw" file, which is
-# used to initialize the "artifact" information for the Angband game.
+# This file is used to initialize the "lib/data/artifact.raw" file, which
+# is used to initialize the "artifact" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/a_info.raw" file.
+# After modifying this file, delete the "lib/data/artifact.raw" file.
 
 # The artifact indexes are defined in "defines.h", and must not be changed.
-
-# Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
 
 # Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
 # artifacts, are never created "accidentally".
 
-# === Understanding a_info.txt ===
+# === Understanding artifact.txt ===
 
 # N: serial number : item name
 # I: tval : sval : pval
@@ -49,68 +47,61 @@
 # If an activation is given then the artifact must also have the
 # ACTIVATE flag.
 
-# New artifacts have been added: 
+### IMPORTANT NOTES ###
+# (1.) Any changes or additions to the file will have influence on randarts 
+# and may break savefile compatibility for old savegames with randarts.  If 
+# using random artifacts, finish your existing game before making any changes
+# to the artifact.txt file at all.
+# (2.) Removing any artifact, or changing its "base" type (as defined by 
+# the tval and sval entries in the "I:" line), will break savefile compatibility
+# for ALL savefiles.
+# (3.) Adding a new artifact, or changing the powers of existing ones, will NOT 
+# affect savefile compatibility for games with the standard artifact set: it is 
+# perfectly safe to do this. (If your new artifact is a new kind of object, or a 
+# new one at the end of the file, you must also amend object.txt or limits.txt.)
 
-# The Beaked Axe of Hurin, from KAngband and the Silmarillion, but altered: 
-# it now slays Trolls, as Hurin slew 70 of them single-handed, and his battle 
-# cry of "Aure entuluva! Day shall come again!" means I've chosen to give it
-# dark resistance. Needs a BERSERKER activation to be coded.
+### A further note: This altered version of the "artifact.txt" file REQUIRES the 
+### "object.txt" file from the same patch by JLE, as it uses one new base object 
+### (i.e. a Mattock) which is not present in the original vanilla file.
 
-# The Spear of Melkor, used by him to destroy the Two Trees. Again, ported from 
-# KAngband, but a little altered - it is a lot heavier, and has the permanent
-# drawback of draining experience as well as its Heavy Curse. It will have 
-# poison brand if poison brand ever is added to the game. 
+# New artifacts (22) are as follows:
+# 7: The Palantir of Westernesse (original creation by JLE)
+# 18: The Balance Dragon Scale Mail 'Mediator' (original JLE creation)
+# 26: The Hard Leather Armor of Himring (adapted from OAngband)
+# 29: The Shield of Deflection of Gil-galad (adapted from OAngband)
+# 33: The Metal Cap of Celebrimbor (suggested by Matthias Kurzke)
+# 43: The Jewel-Encrusted Crown of Numenor (adapted from OAngband)
+# 51: The Gauntlets of Eol (adapted from OAngband)
+# 63: The Soft Leather Boots of Wormtongue (original JLE creation)
+# 92: The Spear of Melkor (adapted from KAngband)
+# 110: The Beaked Axe of Hurin (adapted from KAngband)
+# 123: The Whip of Gothmog (original JLE creation)
+# 127: The Heavy Crossbow of Umbar (adapted from OAngband)
+# 128, 129: The Short Bows of Amrod and Amras (original JLE creations)
+# 130: The Mattock of Nain (original JLE creation)
+# 131: The Dwarven Pick of Erebor (adapted from SAngband)
+# 132: The Ball-and-Chain of Fundin Bluecloak (suggested by Skylar Thompson)
+# 133: The Main Gauche of Azaghal (adapted from KAngband)
+# 134: The Large Leather Shield of the Haradrim (suggested by Skylar Thompson)
+# 135: The Broken Sword 'Narsil' (original JLE creation)
 
-# The Hard Leather Armor of Himring. Has a lovely collection of high resists, but 
-# no low ones and a lousy AC by comparison with some of the nicer armor. No stat 
-# bonuses either. This was ported straight over from OAngband.
+# Two new artifacts have been added but are commented out, and cannot be 
+# added properly until there is an increase in the number of amulet flavours 
+# in the source file "object1.c". They are:
+# 14: The Elfstone 'Elessar'
+# 15: The Jewel 'Evenstar'
+# If you want to see these artifacts in gameplay, play a variant containing 
+# them, such as Psiband or PernAngband.
 
-# The Deflection Shield of Gil-galad, from OAngband. Again, a little bit altered - 
-# resistances changed, including disenchantment. It requires an activation, but as 
-# the particular power it has in OAngband does not exist in Angband I've chosen to 
-# replace it with STARLIGHT - "hard" light (as breathed by Ethereal Dragons), 
-# beam of 100 hp in each direction, double to light-sensitive creatures. Still 
-# not coded in, and thus commented out.
-
-# The Heavy Crossbow of Umbar - was "of Harad" in OAngband. Have had to lose the 
-# penalty to wis and stealth, as extra might and shots are part of the pval. Also
-# had to change the activation - now a magical arrow.
-
-# The Metal Cap of Celebrimbor. Resist fire, acid, disenchantment, bonus to int,
-# wis and dex. Original creation by JLE. Activation (commented out as it is not
-# yet coded) should be for temporary telepathy, called AWARENESS: the power
-# comes from Psiband.
-
-# The Short Bows of Amrod and Amras: Feanor's last two twin sons. Like the 
-# twins, the bows are alike and yet unlike: for one emphasises brute strength,
-# the other subtlety. Both provide protection from nature, which is ideal for 
-# Amrod and Amras who were both hunters by nature.
-
-# The Mattock of Nain. Wielded by him at the Battle of Azanulbizar: a weapon 
-# which can also be used as a digging tool, ideal for Dwarves. Unfortunately
-# it failed to save his life from Azog, but Nain had done great deeds with it 
-# beforehand, and it was his warriors that turned the tide of the battle in 
-# favour of the Dwarves.
-
-# The Whip of Gothmog. A powerful but *cursed* item. It provides fire immunity, 
-# but has penalties to the spellcasters' stats, so that the class which would 
-# benefit most from it must make great sacrifices to use it. It can shoot large
-# fireballs more frequently than any other fiery artifact.
-
-# The Palantir of Westernesse. Provides telepathy, activates for clairvoyance
-# (which the Arkenstone of Thrain no longer does) and protects from all forms
-# of hallucination (resist chaos). Has every sight-related power in the book. 
-# But if you can detect them, they can detect you, for Sauron has mastered a 
-# Palantir of his own: so it aggravates.
-
-# The Broken Sword 'Narsil'. Slays orcs and trolls, resists fire. A useful 
-# early artifact, if anybody finds it...
 
 # Version stamp (required)
 
-V:2.9.2
+V:2.9.3
 
-### Special Artifacts - Lites, Amulets, Rings ###
+
+### Here is the list of "Special" artifacts - Amulets, Light Sources, Rings. ###
+### Only the FIRST 15 artifacts may be of these types currently: artifacts   ###
+### from index number 16 onwards must be Armor or Weapons.                   ###
 
 # The Phial of Galadriel
 
@@ -140,10 +131,10 @@ N:3:of Thrain
 I:39:6:0
 W:50:50:5:50000
 P:0:1d1:0:0:0
-F:SEE_INVIS | HOLD_LIFE | 
-F:RES_LITE | RES_DARK | 
-F:INSTA_ART | ACTIVATE
+F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_LITE | RES_DARK | 
+F:INSTA_ART
 A:DETECT:30:30
+
 
 # The Amulet of Carlammas
 
@@ -186,7 +177,7 @@ W:75:60:200:100000
 P:0:10d10:0:0:0
 F:ACTIVATE | 
 F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | 
-F:RES_CHAOS | RES_BLIND | AGGRAVATE | 
+F:RES_CHAOS | RES_BLIND | AGGRAVATE | DRAIN_EXP | 
 F:INSTA_ART | HIDE_TYPE
 A:CLAIRVOYANCE:50:50
 
@@ -197,7 +188,7 @@ N:8:of Barahir
 I:45:32:1
 W:50:25:2:65000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:RES_POIS | RES_DARK | 
+F:RES_POIS | RES_DARK
 F:INSTA_ART
 
 
@@ -206,7 +197,7 @@ F:INSTA_ART
 N:9:of Tulkas
 I:45:33:4
 W:70:50:2:150000
-F:STR | DEX | CON | HIDE_TYPE | 
+F:STR | DEX | CON | HIDE_TYPE | RES_FEAR | 
 F:ACTIVATE | 
 F:INSTA_ART
 A:HASTE2:150:150
@@ -216,13 +207,13 @@ A:HASTE2:150:150
 
 N:10:of Power 'Narya'
 I:45:34:1
-W:70:30:2:100000
+W:70:60:2:100000
 P:0:0d0:6:6:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | SEE_INVIS | 
 F:SLOW_DIGEST | REGEN | 
 F:SUST_STR | SUST_CON | SUST_WIS | SUST_CHR | 
-F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR | 
+F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR |
 F:INSTA_ART
 A:FIRE3:20:20
 
@@ -231,13 +222,13 @@ A:FIRE3:20:20
 
 N:11:of Power 'Nenya'
 I:45:35:2
-W:80:40:2:200000
+W:80:70:2:200000
 P:0:0d0:8:8:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:IM_COLD | RES_COLD | RES_BLIND | RES_CONFU | 
+F:IM_COLD | RES_COLD | RES_BLIND | TELEPATHY | 
 F:INSTA_ART
 A:FROST5:20:20
 
@@ -246,13 +237,13 @@ A:FROST5:20:20
 
 N:12:of Power 'Vilya'
 I:45:36:3
-W:90:50:2:300000
+W:90:80:2:300000
 P:0:0d0:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
 F:SUST_STR | SUST_DEX | SUST_CON | 
-F:IM_ELEC | RES_ELEC | RES_POIS | RES_DISEN
+F:IM_ELEC | RES_ELEC | RES_POIS | RES_DISEN | 
 F:INSTA_ART
 A:ELEC2:20:20
 
@@ -266,20 +257,41 @@ P:0:0d0:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | 
-F:RES_NETHR | RES_CONFU | RES_BLIND | RES_DISEN | RES_FEAR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | RES_POIS | 
+F:RES_NETHR | TELEPATHY | RES_BLIND | RES_DISEN | RES_FEAR | 
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
 A:BIZZARE:30:30
 
-# Artifact 14 is unused
 
-# Artifact 15 is unused
+# New Artifact (14): The Elfstone 'Elessar'
 
+#+N:14:'Elessar'
+#+I:40:16:2
+#+W:60:60:3:40000
+#+P:0:0d0:7:7:10
+#+F:STR | WIS | CHR | SPEED | 
+#+F:RES_FEAR | RES_FIRE | RES_POIS | HIDE_TYPE | 
+#+F:ACTIVATE
+#+A:HEAL1:200:0
+
+
+# New Artifact (15): The Jewel 'Evenstar'
+
+#+N:15:'Evenstar'
+#+I:40:17:0
+#+W:40:40:3:25000
+#+F:HOLD_LIFE | SUST_CON | SUST_WIS | SUST_INT | 
+#+F:RES_DARK | RES_COLD | 
+#+F:ACTIVATE
+#+A:RESTORE_LIFE:150:0
+
+
+### Here follow the Armor artifacts ###
 
 ### Dragon Scale Mails ###
+
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
 
@@ -309,7 +321,17 @@ F:ACTIVATE
 A:RAGE_BLESS_RESIST:400:0
 
 
-# Artifact 18 is unused
+# New Artifact (18): The Balance Dragon Scale Mail 'Mediator'
+
+N:18:'Mediator'
+I:38:20:0
+W:95:12:500:400000
+P:30:2d4:-4:0:25
+F:RES_CHAOS | RES_DISEN | RES_SHARD | RES_SOUND | 
+F:RES_CONFU | RES_NEXUS | AGGRAVATE | 
+F:FREE_ACT | SLOW_DIGEST | REGEN | 
+F:ACTIVATE
+A:STAR_BALL:50:0
 
 
 ### Heavy Armor ###
@@ -392,9 +414,10 @@ F:INT | WIS | CON | HIDE_TYPE |
 F:RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
 A:TRAP_DOOR_DEST:10:0
 
+
 ### Light Armor ###
 
-# New Artifact (26), from OAngband: The Hard Leather Armour of Himring
+# New Artifact (26): The Hard Leather Armour of Himring
 
 N:26:of Himring
 I:36:6:0
@@ -402,6 +425,7 @@ W:50:20:100:35000
 P:6:0d0:0:0:15
 F:RES_CHAOS | RES_NETHR | RES_POIS | ACTIVATE
 A:PROT_EVIL:100:100
+
 
 # The Soft Leather Armour 'Hithlomir'
 
@@ -425,17 +449,21 @@ F:RES_ACID | RES_SHARD
 
 ### Shields ###
 
-# New Artifact (33), from OAngband: The Shield of Deflection of Gil-galad
+# New Artifact (29): The Shield of Deflection of Gil-galad.
+# Note that this should have an activation of "hard" starlight - beams in all 
+# eight directions affecting all monsters, double damage to light-sensitive
+# monsters.  This activation is not present in vanilla - play the variants
+# OAngband, Psiband or PernAngband to get it.
 
 N:29:of Gil-galad
 I:34:10:5
 W:70:4:80:65000
 P:10:1d3:0:0:20
-# F:ACTIVATE | 
+#+F:ACTIVATE | 
 F:LITE | WIS | CHR | 
 F:RES_ELEC | RES_ACID | RES_DISEN | RES_DARK | HIDE_TYPE | 
 F:SUST_WIS | SUST_DEX | SUST_CHR
-# A:STARLIGHT:100:0
+#+A:STARLIGHT:100:0
 
 
 # The Small Metal Shield of Thorin
@@ -444,8 +472,8 @@ N:30:of Thorin
 I:34:3:4
 W:40:6:65:60000
 P:3:1d2:0:0:25
-F:STR | CON | HIDE_TYPE | RES_FEAR | 
-F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
+F:STR | CON | HIDE_TYPE | RES_FEAR | AGGRAVATE | 
+F:FREE_ACT | IM_ACID | RES_SOUND | RES_CHAOS
 
 
 # The Large Leather Shield of Celegorm
@@ -470,6 +498,8 @@ F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 ### Helmets and Crowns ###
 
 # New Artifact (33): The Metal Cap of Celebrimbor
+# This item should have the activation of temporary telepathy (not present
+# in vanilla.)
 
 N:33:of Celebrimbor
 I:32:3:3
@@ -477,8 +507,9 @@ W:55:12:20:45000
 P:3:1d1:0:0:18
 F:INT | DEX | CHR | SEARCH | 
 F:RES_FIRE | RES_ACID | RES_DISEN | RES_SHARD | 
-# F:ACTIVATE | 
-# A:AWARENESS:60:0
+#+F:ACTIVATE | 
+#+A:AWARENESS:60:0
+
 
 # The Massive Iron Crown of Morgoth
 
@@ -490,14 +521,14 @@ F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | 
 F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | 
-F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE | 
 F:INSTA_ART
 
 
 # The Iron Crown of Beruthiel
 
 N:35:of Beruthiel
-I:33:10:-4
+I:33:10:-5
 W:40:12:20:1
 P:0:1d1:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
@@ -527,20 +558,21 @@ F:WIS | CHR | RES_CONFU | HIDE_TYPE
 
 N:38:of Hammerhand
 I:32:6:3
-W:20:2:60:45000
+W:20:8:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_NEXUS
+F:SUST_STR | SUST_DEX | SUST_CON | AGGRAVATE | 
+F:RES_ACID | RES_NEXUS | RES_COLD | RES_DARK
 
 
 # The Iron Helm of Dor-Lomin
 
 N:39:of Dor-Lomin
 I:32:5:4
-W:40:12:75:300000
+W:40:20:75:300000
 P:5:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | RES_FEAR | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:LITE | SEE_INVIS | TELEPATHY
 
 
@@ -578,16 +610,20 @@ F:LITE | SEE_INVIS | REGEN | ACTIVATE
 A:HEAL1:250:0
 
 
-# New Artifact (43), from OAngband: The Jewel Encrusted Crown of Numenor
+# New Artifact (43): The Jewel Encrusted Crown of Numenor
+# In some other variants (Psiband and PernAngband) it has the activation of 
+# Analyze Monster.
 
 N:43:of Numenor
 I:33:12:3
-W:60:15:40:50000
+W:60:30:40:50000
 P:0:1d1:0:0:18
 F:INT | DEX | CHR | SEARCH | SPEED | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT |  
 F:RES_SHARD | RES_SOUND | RES_COLD | 
 F:RES_LITE | RES_DARK | RES_BLIND | LITE
+#+F:ACTIVATE
+#+A:ANALYZE:50:0
 
 
 ### Cloaks and Shadow Cloaks ###
@@ -596,7 +632,7 @@ F:RES_LITE | RES_DARK | RES_BLIND | LITE
 
 N:44:'Colluin'
 I:35:1:0
-W:5:45:10:10000
+W:5:45:10:50000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:RESIST:111:0
@@ -606,7 +642,7 @@ A:RESIST:111:0
 
 N:45:'Holcolleth'
 I:35:1:2
-W:5:45:10:13000
+W:5:25:10:18000
 P:1:0d0:0:0:4
 F:INT | WIS | SPEED | STEALTH | HIDE_TYPE | 
 F:RES_ACID | ACTIVATE
@@ -617,7 +653,7 @@ A:SLEEP:55:0
 
 N:46:of Thingol
 I:35:1:3
-W:10:90:10:35000
+W:5:50:10:35000
 P:1:0d0:0:0:18
 F:DEX | CHR | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
@@ -628,16 +664,16 @@ A:RECHARGE1:70:0
 
 N:47:of Thorongil
 I:35:1:0
-W:5:20:10:8000
+W:5:10:10:8000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_ACID | SEE_INVIS | RES_FEAR
+F:FREE_ACT | RES_ACID | RES_FEAR | SEE_INVIS
 
 
 # The Cloak 'Colannon'
 
 N:48:'Colannon'
 I:35:1:3
-W:3:10:10:11000
+W:5:20:10:20000
 P:1:0d0:0:0:15
 F:STEALTH | SPEED | HIDE_TYPE | 
 F:RES_NEXUS | ACTIVATE
@@ -665,10 +701,25 @@ F:STEALTH | DEX | HIDE_TYPE |
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
 
 
-# Artifact 51 is unused
-
-
 ### Gloves and Gauntlets ###
+
+# New Artifact (51): The Gauntlets of Eol 
+# They should activate for Mana Bolt. In OAngband, the damage is 9d8:
+# to reflect higher monster hit points in vanilla, the damage should 
+# be higher, something like 12d8. I have also given it some disadvantages
+# to counter its really desirable resistances, and made it deeper and rarer
+# than it is in OAngband (justified also by the fact that it was made by an 
+# evil person - Eol: so it should have disadvantages for non-evils, which 
+# include the player.) They are also RARE.
+
+N:51:of Eol
+I:31:2:3
+W:55:35:25:40000
+P:3:1d1:-5:-5:15
+F:INT | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_POIS | AGGRAVATE
+#+F:ACTIVATE
+#+A:MANA_BOLT:30:30
+
 
 # The Set of Leather Gloves 'Cambeleg'
 
@@ -735,7 +786,7 @@ A:ACID1:5:5
 N:58:'Camlost'
 I:31:2:-3
 W:10:20:25:0
-P:2:1d1:-5:-5:15
+P:2:1d1:-12:-12:0
 F:STR | DEX | HIDE_TYPE | 
 F:RES_FIRE | RES_DISEN | FREE_ACT | DRAIN_EXP | 
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
@@ -747,7 +798,7 @@ N:59:of Fingolfin
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
-F:DEX | HIDE_TYPE | RES_FEAR | 
+F:DEX | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 A:ARROW:30:30
 
@@ -760,7 +811,7 @@ N:60:of Feanor
 I:30:3:15
 W:40:120:40:300000
 P:3:1d1:0:0:20
-F:SPEED | HIDE_TYPE |  
+F:SPEED | HIDE_TYPE | 
 F:RES_NEXUS | ACTIVATE
 A:HASTE1:200:0
 
@@ -786,19 +837,20 @@ P:6:1d1:0:0:20
 F:STR | CON | SPEED | HIDE_TYPE | RES_FEAR
 
 
-### Weapon Artifacts ###
+# New Artifact (63): The Pair of Soft Leather Boots of Wormtongue
 
-### Swords ###
+N:63:of Wormtongue
+I:30:2:3
+W:10:15:20:17000
+P:2:1d1:-8:-8:0
+F:INT | DEX | STEALTH | SPEED | FEATHER | LIGHT_CURSE | 
+F:ACTIVATE
+A:PHASE:20:0
 
-# New Artifact (63): The Broken Sword 'Narsil'
 
-N:63:'Narsil'
-I:23:2:2
-W:10:4:30:2000
-P:0:3d2:6:10:0
-F:STR | DEX | BLOWS | HIDE_TYPE | 
-F:SLAY_ORC | SLAY_TROLL | RES_FIRE
+### Weapons ###
 
+### Swords and Daggers ###
 
 # The Main Gauche of Maedhros
 
@@ -835,7 +887,7 @@ A:FIRE1:8:8
 
 N:67:'Nimthanc'
 I:23:4:0
-W:3:5:12:11000
+W:4:5:12:11000
 P:0:1d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
 A:FROST1:7:7
@@ -845,7 +897,7 @@ A:FROST1:7:7
 
 N:68:'Dethanc'
 I:23:4:0
-W:5:5:12:13000
+W:4:5:12:13000
 P:0:1d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 A:LIGHTNING_BOLT:6:6
@@ -902,8 +954,8 @@ N:73:'Glamdring'
 I:23:16:1
 W:20:20:150:40000
 P:0:2d5:10:15:0
-F:SEARCH | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | SLAY_DEMON | RES_FIRE | RES_LITE | LITE | 
+F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | SLAY_DEMON | RES_FIRE | RES_LITE | 
 F:SLOW_DIGEST | SHOW_MODS
 
 
@@ -911,10 +963,11 @@ F:SLOW_DIGEST | SHOW_MODS
 
 N:74:'Aeglin'
 I:23:16:1
-W:20:90:150:45000
+W:20:30:150:45000
 P:0:2d5:12:16:0
-F:SEARCH | HIDE_TYPE | SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
-F:BRAND_ELEC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
+F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | BRAND_ELEC | RES_ELEC | RES_BLIND | 
+F:SLOW_DIGEST | SHOW_MODS
 
 
 # The Broad Sword 'Orcrist'
@@ -923,8 +976,8 @@ N:75:'Orcrist'
 I:23:16:3
 W:20:20:150:40000
 P:0:2d5:10:15:0
-F:STEALTH | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE | RES_DARK | 
+F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | SLAY_DRAGON | RES_COLD | RES_DARK | 
 F:SLOW_DIGEST | SHOW_MODS
 
 
@@ -943,7 +996,7 @@ F:KILL_DRAGON | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 
 N:77:'Zarcuthra'
 I:23:25:4
-W:30:80:200:200000
+W:30:180:250:200000
 P:0:4d6:19:21:0
 F:STR | CHR | INFRA | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | 
@@ -954,9 +1007,9 @@ F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
 # The Two-Handed Sword 'Mormegil'
 
 N:78:'Mormegil'
-I:23:25:-5
-W:30:15:200:10000
-P:0:3d6:-15:-15:0
+I:23:25:-10
+W:30:15:250:10000
+P:0:3d6:-15:-15:-20
 F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | 
 F:SPEED | HIDE_TYPE | SEE_INVIS | HOLD_LIFE | SHOW_MODS | 
 F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE
@@ -977,9 +1030,8 @@ F:SEE_INVIS | REGEN | SHOW_MODS
 
 N:80:'Crisdurian'
 I:23:28:0
-W:40:15:260:100000
+W:40:25:260:100000
 P:0:4d5:18:19:0
-F:HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
 F:SLAY_ORC | SEE_INVIS | SHOW_MODS
 
@@ -987,7 +1039,7 @@ F:SLAY_ORC | SEE_INVIS | SHOW_MODS
 # The Katana 'Aglarang'
 
 N:81:'Aglarang'
-I:23:20:3
+I:23:20:5
 W:30:25:50:40000
 P:0:8d4:0:0:0
 F:DEX | SPEED | HIDE_TYPE | 
@@ -1000,8 +1052,8 @@ N:82:'Ringil'
 I:23:17:10
 W:20:120:130:300000
 P:0:4d5:22:25:0
-# F:KILL_DEMON | 
-F:SPEED | HIDE_TYPE | RES_FEAR | 
+#+F:KILL_DEMON | 
+F:SPEED | HIDE_TYPE | RES_FEAR | BLESSED | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS
@@ -1013,9 +1065,9 @@ A:FROST3:40:0
 N:83:'Anduril'
 I:23:17:4
 W:20:40:130:80000
-P:0:4d5:10:15:10
-F:STR | DEX | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+P:0:3d5:10:15:10
+F:STR | DEX | HIDE_TYPE | RES_FEAR | FREE_ACT | BLESSED | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | SLAY_UNDEAD | 
 F:RES_FIRE | RES_DISEN | 
 F:SUST_STR | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:FIRE2:40:0
@@ -1026,7 +1078,7 @@ A:FIRE2:40:0
 N:84:'Anguirel'
 I:23:17:2
 W:20:30:130:40000
-P:0:2d5:8:12:0 
+P:0:2d5:8:12:0
 F:STR | CON | SPEED | HIDE_TYPE | AGGRAVATE | 
 F:SLAY_EVIL | BRAND_POIS | SLAY_DEMON | FREE_ACT | RES_ELEC | 
 F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS
@@ -1037,7 +1089,7 @@ F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS
 N:85:'Elvagil'
 I:23:17:2
 W:20:8:130:30000
-P:0:2d5:5:7:0
+P:0:2d5:2:7:0
 F:DEX | CHR | STEALTH | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_ORC | FEATHER | SEE_INVIS | SHOW_MODS
 
@@ -1069,7 +1121,7 @@ I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
 F:STR | DEX | CON | BLOWS | SPEED | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_ANIMAL | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 
 
@@ -1077,7 +1129,7 @@ F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 
 N:89:'Haradekket'
 I:23:18:2
-W:20:8:130:30000
+W:20:15:130:30000
 P:0:2d5:9:11:0
 F:DEX | BLOWS | HIDE_TYPE | 
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS | 
@@ -1099,7 +1151,7 @@ F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
 N:91:'Doomcaller'
 I:23:30:0
 W:70:25:180:200000
-P:0:6d5:18:28:-20
+P:0:6d5:18:28:-50
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
@@ -1107,15 +1159,15 @@ F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
 
 ### Polearms ###
 
-# New Artifact (92), from KAngband: The Spear of Melkor
+# New Artifact (92): The Spear of Melkor
 
 N:92:of Melkor
 I:22:2:-4
 W:65:45:200:100000
-P:0:4d6:12:20:0
-F:BRAND_POIS | 
-F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | 
-F:RES_DARK | RES_BLIND | RES_LITE | RES_NETHR 
+P:0:4d6:-12:20:0 
+F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | AGGRAVATE | 
+F:BRAND_POIS | RES_DARK | RES_BLIND | RES_LITE | RES_NETHR
+
 
 # The Beaked Axe of Theoden
 
@@ -1165,11 +1217,11 @@ N:97:'Aeglos'
 I:22:2:4
 W:15:45:50:140000
 P:0:3d6:15:25:5
-# F:KILL_UNDEAD | 
+#+F:KILL_UNDEAD | 
 F:WIS | DEX | HIDE_TYPE | RES_FEAR | 
-F:BRAND_COLD | RES_COLD | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_ORC | 
+F:BRAND_COLD | RES_COLD | SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SLAY_UNDEAD | 
 F:FREE_ACT | SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
-A:FROST3:350:0
+A:FROST3:35:0
 
 
 # The Spear of Orome
@@ -1177,11 +1229,11 @@ A:FROST3:350:0
 N:98:of Orome
 I:22:2:4
 W:15:45:50:60000
-P:0:1d6:15:15:0
-F:INT | SPEED | INFRA | HIDE_TYPE | RES_FEAR | 
+P:0:4d6:15:15:0
+F:INT | SPEED | INFRA | HIDE_TYPE | 
 F:BRAND_FIRE | SLAY_GIANT | SLAY_ANIMAL | RES_FIRE | RES_LITE | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
-A:ELEC2:50:0
+A:STONE_TO_MUD:5:0
 
 
 # The Spear 'Nimloth'
@@ -1190,7 +1242,7 @@ N:99:'Nimloth'
 I:22:2:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
-F:STEALTH | HIDE_TYPE | 
+F:STEALTH | SPEED | HIDE_TYPE | BLESSED | 
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
 
 
@@ -1200,7 +1252,7 @@ N:100:of Eorlingas
 I:22:20:2
 W:20:23:360:55000
 P:0:3d8:13:21:0
-F:STR | DEX | HIDE_TYPE | RES_FEAR |  
+F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 
@@ -1221,14 +1273,14 @@ F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
 N:102:of Eonwe
 I:22:25:2
 W:30:120:230:200000
-P:0:4d4:15:18:8
-# F:KILL_DEMON | 
+P:0:5d4:15:18:8
+#+F:KILL_DEMON | 
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
-F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | RES_CONFU | 
+F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
 F:SEE_INVIS | ACTIVATE | 
 F:BLESSED | SHOW_MODS
-A:MASS_GENOCIDE:500:0
+A:MASS_GENOCIDE:1000:0
 
 
 # The Battle Axe of Balli Stonehand
@@ -1260,7 +1312,8 @@ N:105:'Mundwine'
 I:22:28:0
 W:30:8:250:30000
 P:0:3d8:12:17:0
-F:SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
+F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
 
 
 # The Broad Axe 'Barukkheled'
@@ -1277,10 +1330,10 @@ F:SEE_INVIS | SHOW_MODS
 # The Trident of Wrath
 
 N:107:of Wrath
-I:22:5:4
+I:22:5:2
 W:15:35:300:90000
 P:0:3d8:16:18:0
-# F:KILL_UNDEAD | 
+#+F:KILL_UNDEAD | 
 F:STR | DEX | HIDE_TYPE | BRAND_POIS | 
 F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
 F:BLESSED | SHOW_MODS
@@ -1312,17 +1365,19 @@ F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:WOR:200:0
 
 
-### New Artifact (110), from KAngband: The Beaked Axe of Hurin
+### New Artifact (110): The Beaked Axe of Hurin
+# It should have the activation for berserk rage.
 
 N:110:of Hurin
-I:22:10:3
+I:22:10:2
 W:20:15:180:90000
 P:0:4d6:12:15:0
-# F:KILL_DEMON | ACTIVATE | 
-F:STR | CON | HIDE_TYPE | 
+#+F:ACTIVATE | KILL_DEMON | 
+F:STR | CON | BLOWS | HIDE_TYPE | 
 F:BRAND_ACID | RES_ACID | RES_DARK | RES_FIRE | LITE | 
 F:SLAY_DRAGON | SLAY_DEMON | SLAY_TROLL | SHOW_MODS
-# A:BERSERKER:80:80
+#+A:BERSERKER:80:80
+
 
 ### Blunt Weapons ###
 
@@ -1331,12 +1386,12 @@ F:SLAY_DRAGON | SLAY_DEMON | SLAY_TROLL | SHOW_MODS
 N:111:'Grond'
 I:21:50:0
 W:100:1:1000:500000
-P:0:9d9:25:25:10
-F:HIDE_TYPE | 
-# F:KILL_DEMON | KILL_UNDEAD | 
+P:0:9d9:5:25:10
+#+F:KILL_DEMON | KILL_UNDEAD | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | 
 F:SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+
 
 # The Flail 'Totila'
 
@@ -1355,7 +1410,7 @@ A:CONFUSE:15:0
 N:113:'Thunderfist'
 I:21:18:4
 W:45:38:300:160000
-P:0:3d6:5:18:0
+P:0:4d6:5:18:0
 F:STR | CON | HIDE_TYPE | RES_FEAR | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
@@ -1366,7 +1421,7 @@ F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
 N:114:'Bloodspike'
 I:21:12:4
 W:20:30:150:30000
-P:0:2d6:8:22:0 
+P:0:2d6:8:22:0
 F:STR | HIDE_TYPE | BRAND_POIS | 
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
 F:SHOW_MODS
@@ -1399,7 +1454,6 @@ N:117:of Aule
 I:21:8:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
-# F:KILL_UNDEAD | 
 F:WIS | TUNNEL | HIDE_TYPE | RES_FEAR | 
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ACID | SLAY_UNDEAD | SLAY_DEMON | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS | 
@@ -1433,8 +1487,7 @@ N:120:of Olorin
 I:21:3:4
 W:30:105:150:130000
 P:0:2d9:10:13:0
-#F: KILL_DEMON | 
-F:INT | WIS | CHR | HIDE_TYPE | RES_FEAR | 
+F:INT | WIS | CHR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:PROBE:20:0
@@ -1446,7 +1499,7 @@ N:121:'Deathwreaker'
 I:21:20:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
-# F:KILL_UNDEAD | 
+#+F:KILL_UNDEAD | 
 F:STR | TUNNEL | HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | BRAND_FIRE | 
 F:IM_FIRE | RES_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
@@ -1468,11 +1521,11 @@ A:DRAIN_LIFE1:40:0
 # New Artifact (123): The Whip of Gothmog
 
 N:123:of Gothmog
-I:21:2:-2
-W:60:35:90:25000
-P:0:3d6:13:15:0
-F:INT | WIS | DEX | HIDE_TYPE | 
-F:HEAVY_CURSE | LIGHT_CURSE | AGGRAVATE | 
+I:21:2:-3
+W:60:25:90:25000
+P:0:6d3:13:15:0
+F:INT | DEX | WIS | HIDE_TYPE | 
+F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE |  
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | LITE
 F:SLAY_ANIMAL | KILL_DRAGON | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS
@@ -1509,10 +1562,11 @@ W:50:25:110:50000
 P:0:0d0:10:14:0
 F:SPEED | HIDE_TYPE | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
-A:FIREBRAND:333:0
+A:FIREBRAND:999:0
 
 
-# New Artifact (127), from OAngband: The Heavy Crossbow of Umbar (formerly 'of Harad')
+# New Artifact (127): The Heavy Crossbow of Umbar 
+# (formerly known as the Heavy Crossbow of Harad)
 
 N:127:of Umbar
 I:19:24:2
@@ -1550,7 +1604,7 @@ F:RES_FIRE | RES_ELEC | RES_COLD | SLOW_DIGEST
 
 N:130:of Nain
 I:20:7:6
-W:60:5:250:30000
+W:60:8:250:30000
 P:0:3d8:12:18:0
 F:TUNNEL | INFRA | SEARCH | STR | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | 
@@ -1558,3 +1612,58 @@ F:BRAND_ACID | RES_ACID | RES_DARK | RES_DISEN |
 F:ACTIVATE | 
 A:STONE_TO_MUD:2:0
 
+# New Artifact (131): The Dwarven Pick of Erebor
+
+N:131:of Erebor
+I:20:6:5
+W:55:5:200:30000
+P:0:3d4:5:20:0
+F:STR | CON | TUNNEL | SUST_STR | HIDE_TYPE | LITE | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
+F:RES_CHAOS | RES_LITE | RES_DARK
+
+### Miscellaneous new stuff ###
+
+# New Artifact (132): The Ball-and-Chain of Fundin Bluecloak 
+# (originally contributed by Skylar Thompson)
+
+N:132:of Fundin Bluecloak
+I:21:6:4
+W:65:100:130:60000
+P:0:4d4:13:17:10
+F:STR | WIS | SPEED | LITE | HIDE_TYPE | 
+F:SLAY_EVIL | SLAY_UNDEAD | 
+F:RES_FIRE | RES_ELEC | RES_NETHR | HOLD_LIFE | 
+F:ACTIVATE
+A:DISP_EVIL:100:100
+
+# New Artifact (133): The Main Gauche of Azaghal
+
+N:133:of Azaghal
+I:23:5:0
+W:18:30:30:50000
+P:0:2d5:12:14:0
+F:KILL_DRAGON | IM_FIRE | RES_ACID | RES_FEAR | 
+
+# New Artifact (134): The Large Leather Shield of the Haradrim
+# (originally created by Skylar Thompson)
+# (should activate for berserker rage)
+
+N:134:of the Haradrim
+I:34:5:2
+W:35:12:120:25000
+P:4:1d2:0:0:15
+#+F:ACTIVATE | 
+F:STR | CON | SUST_STR | SUST_CON | HIDE_TYPE | 
+F:RES_FEAR | RES_BLIND | RES_POIS | AGGRAVATE
+#+A:BERSERKER:50:0
+
+
+# New Artifact (135): The Broken Sword 'Narsil'
+
+N:135:'Narsil'
+I:23:2:2
+W:10:4:30:2000
+P:0:3d2:6:10:0
+F:STR | DEX | BLOWS | HIDE_TYPE | BLESSED | 
+F:SLAY_ORC | SLAY_TROLL | RES_FIRE

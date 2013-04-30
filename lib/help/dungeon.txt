@@ -109,7 +109,7 @@ urchins, young children who will mob an adventurer for money, and seem to
 come out of the woodwork when excited.  Blubbering idiots are a constant
 annoyance, but not harmful.  Public drunks wander about the town singing,
 and are of no threat to anyone.  Sneaky rogues hang about watching for a
-likely victim to mug.  And finally, what town would be complete without a
+likely victim to mug.  And finally, no town would be complete without a
 swarm of half drunk warriors, who take offense or become annoyed just for
 the fun of it. (There are assumed to be other people in the town, but they 
 are not represented on the screen as they do not interact with the player
@@ -162,7 +162,7 @@ the store owner to clear out his stock and acquire new items.  If you have
 a lot of spare gold, you can purchase every item in a store, which will
 induce the store owner to bring out new stock, and perhaps even retire.
 
-Store owners will not buy harmful or useless items.  If an object is
+Store owners will not buy known harmful or useless items.  If an object is
 unidentified, they will pay you some base price for it.  Once they have
 bought it they will immediately identify the object.  If it is a good object,
 they will add it to their inventory.  If it was a bad bargain, they simply
@@ -199,12 +199,12 @@ The Magic User's Shop ("6")
      staves, as well as magic user books.
 
 The Black Market ("7")
-     The Black Market will sell and buy anything - at extortionate prices.
+     The Black Market will sell and buy anything at extortionate prices.
      However it occasionally has VERY good items in it. The shopkeepers are
      not known for their tolerance...
 
 Your Home ("8")
-     This is your house where  you  can  store  objects  that you 
+     This is your house where you can store objects that you 
      cannot carry on your travels, or will need at a later date.
 
 
@@ -252,8 +252,9 @@ The mines are full of objects just waiting to be picked up and used.  How
 did they get there?  Well, the main source for useful items are all the
 foolish adventurers that proceeded into the dungeon before you.  They get
 killed, and the helpful creatures scatter the various treasure throughout
-the dungeon.  Many cursed items are placed there by evil sorcerers, who 
-enjoy a good joke. Especially when it gets the player killed.
+the dungeon.  Many cursed items present in the dungeon - either left behind 
+as the result of a failed attempt to create a magic items, or deliberately
+placed by evil sorcerers who enjoy a good joke when it gets you killed...
 
 Only one object may occupy a given floor location, which may or may not also
 contain one creature.  Doors, rubble, traps, and staircases are considered
@@ -394,18 +395,14 @@ these rooms are guarded by incredibly powerful monsters, so beware!
 Staircases are the manner in which you get deeper or climb out of the
 dungeon.  The symbols for the up and down staircases are the same as the
 commands to use them.  A "<" represents an up staircase and a ">" represents
-a down staircase.  You must move your character on to the staircase before
+a down staircase.  You must move your character over the staircase before
 you can use it.
 
 Each level has at least one up staircase and at least two down staircases.
-There are no exceptions to this rule, except levels with a living "quest"
-monster (i.e. Sauron or Morgoth), where no stairs down will be created 
-until the monster is dead, nor will any traps be trapdoors, and any form of 
-magical teleport-level will take you up and not down.  You may have trouble 
-finding some well hidden secret doors, or you may have to dig through 
-obstructions to get to them, but you can always find the stairs if you look 
-hard enough.  Stairs, like titanium walls, and shop entrances, cannot be 
-destroyed by any means.
+There are no exceptions to this rule.  You may have trouble finding some well
+hidden secret doors, or you may have to dig through obstructions to get to
+them, but you can always find the stairs if you look hard enough.  Stairs,
+like titanium walls, and shop entrances, cannot be destroyed by any means.
 
 Many secret doors are used within the dungeon to confuse and demoralize
 adventurers foolish enough to enter.  But with some luck, and lots of
@@ -413,8 +410,7 @@ concentration, you can find these secret doors.  Secret doors will sometimes
 hide rooms or corridors, or even entire sections of that level of the
 dungeon.  Sometimes they simply hide small empty closets or even dead ends.
 Secret doors always look like granite walls, just like traps always look
-like normal floors. (So you know a wall which looks like a magma or 
-quartz vein isn't a secret door.)
+like normal floors.
 
 Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass
@@ -440,7 +436,7 @@ destruction is upon him.  Morgoth, like some other monsters, cannot be
 polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
 and Orb of Draining are effective against him, as are some of the more
 powerful weapons, but he is difficult to kill and if allowed to escape for
-a time he will heal himself rapidly. 
+a time he will heal himself rapidly.
 
 If you should actually survive the attempt of killing Morgoth, you will
 receive the status of WINNER.  You may continue to explore, and may even
@@ -473,6 +469,5 @@ There are a variety of ways to "cheat" death (including using a special
 your character, returning him to the town, and marking him in various
 ways as a character which has cheated death.  Cheating death, like using
 any of the "cheating options", will prevent your character from appearing
-on the high score list. Of course, if you use a backup copy of a savefile
-made before the character died, the savefile cannot be marked: but this 
-is still nevertheless cheating. Death is meant to be permanent in Angband.
+on the high score list.
+

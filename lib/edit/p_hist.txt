@@ -1,12 +1,12 @@
-# File: h_info.txt
+# File: p_hist.txt
 
 
-# This file is used to initialize the "lib/data/h_info.raw" file, which is
+# This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/h_info.raw" file.
+# After modifying this file, delete the "lib/data/p_hist.raw" file.
 
 # Background information (see below)
 
@@ -29,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.9.2
+V:2.9.3
 
 
 N:1:2:10:25
@@ -63,17 +63,21 @@ D:You are a credit to the family.
 N:3:50:100:60
 D:You are a well liked child.  
 
-N:4:1:40:50
-D:Your mother was a Wood-elf.  
-N:4:1:75:55
-D:Your father was a Wood-elf.  
-N:4:1:90:55
+N:4:1:15:40
+D:Your mother was of the Avari. 
+N:4:1:30:45
+D:Your father was of the Avari. 
+N:4:1:50:50
+D:Your mother was of the Nandor. 
+N:4:1:70:55
+D:Your father was of the Nandor.  
+N:4:1:85:60
 D:Your mother was of the Sindar.  
-N:4:1:95:60
+N:4:1:95:65
 D:Your father was of the Sindar.  
-N:4:1:98:65
+N:4:1:98:70
 D:Your mother was of the Noldor.  
-N:4:1:100:70
+N:4:1:100:75
 D:Your father was of the Noldor.  
 
 N:5:6:60:50
@@ -81,8 +85,10 @@ D:You are one of several children
 N:5:6:100:55
 D:You are the only child 
 
-N:6:9:60:50
-D:of a Wood-elven 
+N:6:9:40:40
+D:of an Avarin 
+N:6:9:70:50
+D:of a Nandorin 
 N:6:9:100:60
 D:of a Sindarin 
 
@@ -175,12 +181,14 @@ N:18:57:100:55
 D:You are a well liked child.  
 
 N:19:20:25:25
-D:Your mother was an Orc, but it is unacknowledged.  
+D:Your mother was an Orc, 
 N:19:20:100:25
-D:Your father was an Orc, but it is unacknowledged.  
+D:Your father was an Orc, 
 
+N:20:2:20:30
+D:and it is acknowledged. You are the adopted child 
 N:20:2:100:50
-D:You are the adopted child 
+D:but it is unacknowledged. You are the adopted child 
 
 N:21:22:30:20
 D:Your mother was a Stone-Troll 
@@ -307,7 +315,7 @@ D:silver hair, and a fair complexion.
 
 N:57:58:99:50
 D:You have dark brown eyes, 
-N:57:58:100:60
+N:57:58:100:50
 D:You have glowing red eyes, 
 
 N:58:59:90:50
@@ -320,13 +328,13 @@ D:black hair,
 N:59:60:100:50
 D:brown hair, 
 
-N:60:61:25:50
+N:60:61:25:47
 D:a one foot beard, 
-N:60:61:60:51
+N:60:61:60:49
 D:a two foot beard, 
-N:60:61:90:53
+N:60:61:90:51
 D:a three foot beard, 
-N:60:61:100:55
+N:60:61:100:53
 D:a four foot beard, 
 
 N:61:0:100:50
@@ -379,7 +387,7 @@ N:67:68:80:50
 D:You have brown eyes, 
 N:67:68:99:50
 D:You have light brown eyes, 
-N:67:68:100:55
+N:67:68:100:50
 D:You have glowing red eyes, 
 
 N:68:69:40:50
@@ -388,12 +396,13 @@ N:68:69:60:50
 D:a reddish-brown hide, 
 N:68:69:95:50
 D:an olive green hide, 
-N:68:69:100:55
+N:68:69:100:50
 D:a deep blue hide, 
 
-N:69:0:10:45
+N:69:0:10:50
 D:and large, flat teeth.
 N:69:0:90:50
 D:and small, sharp teeth.
-N:69:0:100:55
+N:69:0:100:50
 D:and large, sharp teeth.
+
