@@ -10,20 +10,16 @@
 
 # Note that the "spacing" in the "description" lines is very important!
 
-# Slight changes: all lesser vaults have now at least four guaranteed "good" 
+# Slight changes: all lesser vaults have now at least two guaranteed "good" 
 # items but each is guarded by a monster up to 9 levels out of depth (a few 
 # "&" symbols have been changed to "9".) Similarly, a few more "8" symbols
-# have been added to Greater Vaults. Again, the choice is the player's: go for 
-# the great objects and meet a monster up to 40 levels out of depth, or 
-# alternatively cut and run. (I thought vaults should have at least a 
-# couple of guaranteed "good" objects (lesser) or "great" (greater), I don't 
-# like the concept of a vault with no good objects or nasty monsters at all.
-# Vaults are *special*...)
+# have been added to Greater Vaults: there are now at least four guaranteed 
+# "great" objects in each Greater Vault. These objects are, however, guarded
+# by monsters up to 40 (!) levels out of depth...
 
 # Version stamp (required)
 
-V:2.8.3
-
+V:2.9.0
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
 
@@ -35,8 +31,8 @@ D:    %%%..##..%%%
 D:  %%....####....%%  
 D: %......#**#......% 
 D:%...,.##+##+##.,...%
-D:%.,.,.#*#99#*#.,.,.%
-D:%.,.,.#*#99#*#.,.,.%
+D:%.,.,.#*#9&#*#.,.,.%
+D:%.,.,.#*#&9#*#.,.,.%
 D:%...,.##+##+##.,...%
 D: %......#**#......% 
 D:  %%....####....%%  
@@ -52,8 +48,8 @@ D: %%..#..,,,,..#..%%
 D:%%,..#.,####,.#..,%%
 D:%....#.,#**#,.#....%
 D:%.###+,##&&##,+###.%
-D:%.#..,,#*99*#,,..#.%
-D:%.#..,,#*99*#,,..#.%
+D:%.#..,,#*9**#,,..#.%
+D:%.#..,,#**9*#,,..#.%
 D:%.###+,##&&##,+###.%
 D:%....#.,#**#,.#....%
 D:%%,..#.,####,.#..,%%
@@ -69,8 +65,8 @@ D: %%%%..........%%%%
 D: %...###+##+###...% 
 D:%%...#,,#,,#,,#...%%
 D:%.###+##+##+##+###.%
-D:%.#,,#&&#99#&&#,,#.%
-D:%.#,,#&&#99#&&#,,#.%
+D:%.#,,#&&#9*#&&#,,#.%
+D:%.#,,#&&#*9#&&#,,#.%
 D:%.###+##+##+##+###.%
 D:%%...#,,#,,#,,#...%%
 D: %...###+##+###...% 
@@ -85,8 +81,8 @@ D:%*.......&........*%
 D:%.################.%
 D:%.#,.,.,.,.,.,.,.#.%
 D:%.#.############,#.%
-D:%.#,+,&&+99#&*,#.#&%
-D:%&#.#,*&#99+&&,+,#.%
+D:%.#,+,&&+*9#&*,#.#&%
+D:%&#.#,*&#9*+&&,+,#.%
 D:%.#,############.#.%
 D:%.#.,.,.,.,.,.,.,#.%
 D:%.################.%
@@ -101,8 +97,8 @@ D:%,,,##,,,,##....%%
 D:%,,,,##,,,,##....%% 
 D:%#,,,,##,,,,##....%%
 D:%##,,,,##,,,,##....%
-D:%.##,,,,99,,,,#+...%
-D:%..#+,,,,99,,,,##..%
+D:%.##,,,,,9,,,,#+...%
+D:%..#+,,,,9,,,,,##..%
 D:%...##,,,,##,,,,##.%
 D:%%...##,,,,##,,,,##%
 D: %%...##,,,,##,,,,#%
@@ -117,8 +113,8 @@ D:  %%....##,,,,##,,,%
 D: %%....##,,,,##,,,,%
 D:%%....##,,,,##,,,,#%
 D:%....##,,,,##,,,,##%
-D:%...+#,,,,99,,,,##.%
-D:%..##,,,,99,,,,+#..%
+D:%...+#,,,,9,,,,,##.%
+D:%..##,,,,,9,,,,+#..%
 D:%.##,,,,##,,,,##...%
 D:%##,,,,##,,,,##...%%
 D:%#,,,,##,,,,##...%% 
@@ -130,14 +126,14 @@ N:7:Lesser vault (square)
 X:7:5:12:20
 D:%%%%%%%%%%%%%%%%%%%%
 D:%,################,%
-D:%^#.*9..&..,..9.,#^%
+D:%^#.*...&..,..9.,#^%
 D:%^#...,......&...#^%
 D:%^#######++#######^%
 D:%^+.,..&+,*+*....+^%
 D:%^+..*.,+.&+.,.&.+^%
 D:%^#######++#######^%
 D:%^#....,.,.....,.#^%
-D:%^#..9......*.9..#^%
+D:%^#..9......*....#^%
 D:%,################,%
 D:%%%%%%%%%%%%%%%%%%%%
 
@@ -146,7 +142,7 @@ D:%%%%%%%%%%%%%%%%%%%%
 ### Greater vaults (type 8) -- maximum size 66x44 ###
 
 
-N:10:Greater vault (huge)
+N:10:Greater vault ("checkerboard")
 X:8:45:17:39
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -173,7 +169,7 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%X,#,#,#,#,#,#,#,#*@@*#,#,#,#,#,#,#,#,X%
 D:%X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X%
-D:%X.,..,.X&.&.,8XX******XX8,.&.&X.,...,#%
+D:%X.,..,.X8.&.,*XX******XX*,.&.9X.,...,#%
 D:%X..,.^^X....,XX***@@***XX,....X^^..,.#%
 D:%XXXXXX+X^&.&XX***@##@***XX&.&^X+XXXXXX%
 D:%X,.&.^^X+XXXX***@#XX#@***XXXX+X^^.,..X%
@@ -182,36 +178,36 @@ D:%X.,....X^^^@#**@#X88X#@**X@^^^X.&.,..X%
 D:%X...,^^X+XXXX***@#XX#@***XXXX+X^^..,.X%
 D:%XXXXXX+X^&.&XX***@##@***XX&.&^X+XXXXXX%
 D:%#.,..^^X.....XX***@@***XX,....X^^.,..X%
-D:%#...,..X&.&.,8XX******XX8,.&.&X..,..,X%
+D:%#...,..X9.&.,*XX******XX*,.&.8X..,..,X%
 D:%X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X%
 D:%X,#,#,#,#,#,#,#,#*@@*#,#,#,#,#,#,#,#,X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-N:12:Greater vault (butterfly)
+N:12:Greater vault (traps, "butterfly")
 X:8:25:18:40
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X89..&XX***++^^^^^^^^^^^^++***XX&..98X%
+D:%X99..&XX***++^^^^^^^^^^^^++***XX&..99X%
 D:%X9..&XX,,,,,XX^^^^^^^^^^XX,,,,,#X&..9X%
 D:%X..&#X.....,.XX^^^^^^^^XX..&....XX&..X%
 D:%X.&XX..,.&....XX^^^^^^XX..,...&..XX&.X%
 D:%X&XX..*...&.^..XX^^^^XX..*....,..,XX&X%
 D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
-D:%+....,.,.X&&&&***+88+***&&&&X,.,.,...+%
-D:%+...,.,.,X&&&&***+88+***&&&&X.,.,....+%
+D:%+....,.,.X8&&&***+99+***&&&8X,.,.,...+%
+D:%+...,.,.,X8&&&***+99+***&&&8X.,.,....+%
 D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
 D:%X&XX..*....&...XX^^^^XX...*...&,..#X&X%
 D:%X.&XX..&.^....XX^^^^^^XX....&....XX&.X%
 D:%X..&XX....&..XX^^^^^^^^XX..,..*.XX&..X%
 D:%X9..&#X,,,,,XX^^^^^^^^^^XX,,,,,XX&..9X%
-D:%X89..&XX***++^^^^^^^^^^^^++***XX&..98X%
+D:%X99..&XX***++^^^^^^^^^^^^++***XX&..99X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-N:13:Greater vault (chambers)
+N:13:Greater vault ("chambers")
 X:8:25:15:40
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%&+.^..^..^..^..^..^..^..^..^..^..^..+&%
@@ -228,4 +224,5 @@ D:%.X^*X.,..,X,*&^*^X*.^*.,..&&&^X,..,.X.%
 D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
 D:%&+..^..^..^..^..^..^..^..^..^..^..^.+&%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 

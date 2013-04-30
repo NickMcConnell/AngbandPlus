@@ -19,27 +19,39 @@
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+#   Changes made by Jonathan Ellis...
+
 #   Elemental brands have been renamed to simply Fire, Frost, Lightning and 
-# Acid. Armor of Elvenkind and Robes of Permanence resist poison in addition
-# to the one random high resist: both are rare enough that this shouldn't be
-# too unbalancing to the game.
-
-#   Bow of "Velocity" renamed to "Power": Velocity means Speed where I come
-# from, and I don't see any speed bonuses on that particular ego-bow. 
-
+# Acid. 
+#   Bow of "Velocity" renamed to "Power": Velocity means "speed" where I come
+# from, and I don't see any speed bonuses on that particular ego-bow, nor should
+# there be.
 #   Ammo slays are now "Slay" instead of "Hurt": the same flag was used, not 
 # much point in the different name... 
-
 #   From OAngband: Helmets of Serenity (resist confusion and sound.) Helmets
 # of Infravision have gone to make room (Helmets of Seeing now give 
-# infravision in addition to their original powers.
-
+# infravision in addition to their original powers.) The order of the ego-items 
+# has been changed to make way for this: as a result, Regeneration helmets will 
+# be as likely as helms of Infravision used to be, and Serenity helms will be as
+# rare as Regeneration helmets used to be.
 #   Cloaks of Protection now give shard resistance. Took this idea from 
 # OAngband where there are Cloaks of Shard Protection.
+#   Ammo of Slay Orc and Slay Troll removed to make room for Acid and Lightning
+# brands: the first two would be entirely useless, the replacements at least
+# have a chance of being useful.
+#    Weapons of Morgul are now usable by players, if you are willing to live
+# with the penalties... A weapon of Morgul will prevent most other monsters
+# from draining your life, and indeed is the only non-artifact that can do so
+# (hence, resist nether and hold life.) And this weapon, a weapon of the 
+# undead, also grants power over the undead (slay undead.) However, to use it
+# puts the wielder in danger of his very soul (it drains experience) and alerts
+# the netherworld to the presence of the wielder (aggravate monster.) Add to
+# this the fact that it may have penalties to-hit and to-dam...
+#    Holy Avengers, helms of Might and Serenity resist fear.
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.0
 
 
 ### Body Armor ###
@@ -75,10 +87,10 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:9:of Elvenkind
 X:30:25
-W:0:0:0:18000
+W:0:0:0:15000
 C:0:0:10:3
 F:STEALTH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 10 (unused)
@@ -90,7 +102,7 @@ X:30:30
 W:0:0:0:30000
 C:0:0:10:0
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
-F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 12 (unused)
@@ -172,7 +184,7 @@ N:28:of Might
 X:33:19
 W:0:0:0:2000
 C:0:0:0:3
-F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
+F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT | RES_FEAR
 
 N:29:of Lordliness
 X:33:17
@@ -192,20 +204,20 @@ W:0:0:0:500
 C:0:0:0:5
 F:LITE | RES_LITE
 
-N:32:of Serenity
-X:33:20
-W:0:0:0:8000
-F:RES_CONFU | RES_SOUND
+N:32:of Regeneration
+X:33:6
+W:0:0:0:500
+F:REGEN
 
 N:33:of Telepathy
 X:33:20
 W:0:0:0:50000
 F:TELEPATHY
 
-N:34:of Regeneration
+N:34:of Serenity
 X:33:10
-W:0:0:0:1500
-F:REGEN
+W:0:0:0:4000
+F:RES_SOUND | RES_CONFU | RES_FEAR
 
 N:35:of Teleportation
 X:33:0
@@ -241,7 +253,7 @@ F:STR | DEX | CON | LIGHT_CURSE
 
 N:40:of Protection
 X:31:10
-W:0:0:0:2500
+W:0:0:0:500
 C:0:0:10:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
 
@@ -318,7 +330,7 @@ W:0:0:0:0
 C:0:0:0:10
 F:STR | LIGHT_CURSE
 
-N:55:of Fumbling
+N:55:of Clumsiness
 X:34:0
 W:0:0:0:0
 C:0:0:0:10
@@ -379,7 +391,7 @@ W:0:0:0:20000
 C:6:6:4:4
 F:WIS | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
-F:SEE_INVIS | BLESSED
+F:SEE_INVIS | BLESSED | RES_FEAR
 
 # OneSustain
 
@@ -517,7 +529,7 @@ N:91:of *Slay Demon*
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
-F:INT | SLAY_DEMON
+F:INT | SLAY_DEMON | RES_FIRE
 
 N:92:of *Slay Orc*
 X:24:14
@@ -563,8 +575,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:102:of Morgul
 X:24:0
 W:0:0:0:0
-C:20:20:10:0
-F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE
+C:0:0:0:0
+F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE | 
+F:RES_NETHR | HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD
 
 # 103 (unused)
 
@@ -624,15 +637,15 @@ X:23:10
 W:0:0:0:15
 F:SLAY_DEMON
 
-N:116:of Slay Orc
+N:116:of Acid
 X:23:10
-W:0:0:0:15
-F:SLAY_ORC
+W:0:0:0:40
+F:BRAND_ACID | IGNORE_ACID
 
-N:117:of Slay Troll
+N:117:of Lightning
 X:23:10
-W:0:0:0:15
-F:SLAY_TROLL
+W:0:0:0:35
+F:BRAND_ELEC | IGNORE_ELEC
 
 N:118:of Slay Giant
 X:23:10
@@ -658,10 +671,10 @@ X:23:10
 F:BRAND_COLD | IGNORE_COLD
 W:0:0:0:25
 
-N:124:of Slaying
+N:124:of Wounding
 X:23:5
-W:0:0:0:30
-C:10:10:0:0
+W:0:0:0:20
+C:5:5:0:0
 
 N:125:of Backbiting
 X:23:0
@@ -683,5 +696,4 @@ N:127:(Blasted)
 X:30:0
 W:0:0:0:0
 C:0:0:10:0
-
 

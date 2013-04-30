@@ -1,6 +1,6 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
+Attacking is simple in Angband.  If you move into a creature, you attack it.
 You can attack from a distance by firing a missile or by magical means (such
 as aiming a wand).  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
@@ -24,12 +24,12 @@ get the "full" power out of the missile.  You may of course throw an arrow at
 a monster without shooting it, but you will find the effects may not be what
 you had hoped.
 
-Hits and misses are determined by ability to hit versus armor class.  A hit
-is a strike that does some damage; a miss may in fact reach a target, but
-fails to do any  damage.  Higher armor classes make it harder to do damage,
-and so lead to more misses; they also reduce the damage from a strike that
-actually occurs.
- 
+Hits and misses are determined by ability to hit versus armor class.  A "hit"
+is a strike that does some damage: a "miss" may either have missed the target 
+completely, or simply hit it but failed to do any damage, such as your sword
+being deflected of a goblin's armor or your arrow rattling uselessly against
+a dragon's hide. Higher armor classes make it harder to do damage, and so lead 
+to more such "misses": they also reduce the damage from a successful "hit". 
 
 === Monster Memories ===
 
@@ -39,16 +39,20 @@ of a creature can be discovered by looking at it.  It is also very difficult
 to keep track of the capabilities of various creatures.  Luckily, Angband
 automatically keeps track of your experiences with a particular creature.
 This feature is called the monster memory.  You monster memory recalls the
-particular attacks of each creature (whether or not technically a monster)
-which you have suffered, as well as recalling if you have observed them to
-multiply or move erratically, or drop treasure, etc.  Otherwise you would
-simply have to take notes, which is an unnecessary bother.
+particular attacks of each creature which you have faced, as well as recalling 
+if you have observed them to multiply or move erratically, or drop treasure, 
+etc.  Otherwise you would simply have to take notes, which is an unnecessary 
+bother. (It should be noted that the items known as a Staff or Rod of Probing
+will tell you the hit points of a monster, and what it resists - and therefore
+what attacks it does *not* resist, so you may use such an item on a dragon 
+breathes fire and be told - if you did not already guess - that it resists
+fire, but does not resist frost attacks, so you know to use a cold attack.)
 
 If you have killed enough of a particular creature, or suffered enough
 attacks, recalling the monster memory may also provide you with information
 not otherwise available, such as a armor class or hit dice.  These are not
 explained, but may be useful to give the relative danger of each creature.
-This memory can be passed on to a new character even after you die by means
+This memory can be passed on to a new character even after you die, by means
 of a reduced save file.
  
 
@@ -75,13 +79,22 @@ how many dice to roll, and the second indicates how many sides they have.  A
 "2d6" weapon will give damage from 2 to 12, plus any damage bonus.  The
 weight of a weapon is also a consideration.  Heavy weapons may hit harder,
 but they are also harder to use.  Depending on your strength, dexterity,
-character class, and weapon weight, you may get several attacks per turn.
+character class, and weapon weight, you may get several attacks per turn: 
+warriors may get 6, mages are limited to 4, other classes are allowed up to
+5, and having a weapon that provides extra attacks increases this limit.
 
 Missile booster weapons, such as bows, have their characteristics added to
-those of the missile used, if the proper weapon/missile combination is used,
-and the the launcher multiplier is applied to the total damage, making
-missile weapons very powerful given the proper missiles, especially if they
-are enchanted.
+those of the missile used, if the proper weapon/missile combination is used, 
+i.e. rounded pebbles or iron shots from a Sling, arrows or seeker arrows from
+a Short or Long Bow, bolts or seeker bolts from a Light or Heavy Crossbow. If 
+you are wielding the wrong launcher or no launcher, you will find that throwing
+arrows simply doesn't work very well. Rangers may get more than one shot per
+turn with Bows, but not Slings or Crossbows: any class may also get extra shots
+with a missile launcher of Extra Shots. (You do not fire two arrows at once
+in this manner: what happens is that the shot takes half the time that it 
+would normally take, so if you are firing arrows with 1 extra shot per turn,
+against a monster which moves at twice your speed, it will move *one* space in 
+between each arrow fired.)
 
 Although you receive any magical bonuses an unidentified weapon may possess
 when you wield it, those bonuses will not be added in to the displayed
@@ -111,15 +124,18 @@ Ego weapons are denoted by the following "names":
      extra damage when used against evil, demonic and undead creatures, and
      will also give you the ability to see invisible creatures.  These
      weapons are basically extremely powerful versions of Blessed Blades
-     and can be wielded by priests with no penalty. These weapons, like 
-     (Defender) weapons, also will sustain one random stat.
+     and can be wielded by priests with no penalty. These weapons will make
+     the character fearless and also sustain one random stat.
 
 (Blessed Blade)
      A blessed blade will increase your wisdom.  If you are a priest,
      wielding a non-blessed sword or polearm causes a small penalty while
      attacking and may infuriate your god, decreasing the chances that he
-     will accept your prayers.  It is rumored that these blades may also
-     possess other properties.
+     will accept your prayers: but a priest may wield a blessed weapon 
+     without penalty. Blessed blades also have one other random power, which
+     may be telepathy, see invisible, free action, slow digestion, hold 
+     life, regeneration, or in general anything that is not a resistance,
+     elemental brand or a power of slaying certain types of creature.
 
 Weapon of Westernesse
      A Weapon of Westernesse is one of the more powerful weapons.  It slays
@@ -133,64 +149,60 @@ Weapon of Extra Attacks.
      attacks during each round.
 
 Elemental Branded Weapons.
-     Each of the four elemental attacks has a corresponding weapon which 
-     will do treble damage against creatures not resistant to that element.
-     These weapons are labelled "of Melting", "of Shocking", "of Burning",
-     and "of Freezing", corresponding to acid, lightning, fire, and cold.
+     Each of the four "elemental" attacks of acid, lightning, fire and cold
+     has a corresponding weapon which will do treble damage against creatures 
+     not resistant to that element. These weapons are labelled as being of 
+     "Acid", "Flame", "Frost" and "Lightning". 
+     
+     It should be noted that only the base weapon damage is multiplied 
+     against non-resistant creatures, not the magical damage bonus. 
+     So a Long Sword of Flame (2d5) (+6,+7) does 2d5+7 points of damage to 
+     fire-resistant creatures, and 6d5+7 points to creatures which do not 
+     resist fire: NOT 6d5+21.
 
-Weapon of Slay Dragon.
-     A Slay Dragon weapon is a special purpose weapon whose sole intent is
-     to destroy dragon-kind.  Therefore, when used against a dragon, the
-     amount of damage done is three times the normal amount.  Some powerful
-     weapons of this type will do _five_ times the normal damage as well as
-     boosting the wielder's constitution.
+Weapons of Slaying.
+     There are eight types of this: Slay Orc, Slay Dragon, Slay Undead, 
+     Slay Demon, Slay Giant, Slay Dragon, Slay Evil and Slay Animal.
+     "Slay Evil" and "Slay Animal" affect more creatures than the rest do,
+     but these only do double damage: the other "slaying" weapons do 
+     triple damage to the right kind of monster. As with elemental 
+     brands, only the base weapon damage is doubled, not the magical
+     damage bonus.
 
-Weapon of Slay Evil.
-     A Slay Evil weapon is a special purpose weapon whose sole intent is to
-     destroy all forms of evil.  When used against an evil creature, either
-     alive or undead, the damage done is twice the normal amount.  Some of
-     these weapons are also Blessed Blades and will boost your wisdom.
-
-Weapon of Slay Animal.
-     A Slay Animal weapon is a special purpose weapon whose sole intent is
-     to destroy all the dangerous animals in the world.  An animal is any
-     creature natural to the world.  Therefore an orc would not be an
-     animal, but a giant snake would be.  This will inflict twice the
-     normal amount of damage when used against an animal.  Some very 
-     powerful weapons of this type will also provide regeneration and 
-     an intelligence boost.
-
-Weapon of Slay Undead.
-     A Slay Undead weapon is a special purpose weapon whose sole intent is
-     to destroy all forms of undead.  These weapons are hated and feared by
-     the intelligent undead, for a single blow from this weapon will inflict
-     three times the normal amount of damage.  Some extra powerful weapons 
-     of this type will boost the wielder's wisdom and allow the wielder to
-     see invisible creatures, all the better to track down the undead!
-
-Weapon of Slay Orc.
-     A Slay Orc weapon does treble damage against anything of orcish-kind.
-     Often these are elvish blades.  Some powerful weapons of this type will
-     boost the wielder's dexterity.
-
-Weapon of Slay Troll.
-     A Slay Troll weapon does treble damage against anything of troll-kind.
-     Often these are elvish blades.  Some powerful weapons of this type will
-     boost the wielder's strength.
-
-Weapon of Slay Giant.
-     A Slay Giant weapon does treble damage against anything of
-     giant-humanoidal form.  Some powerful weapons of this type will
-     boost the wielder's strength.
-
-Weapon of Slay Demon.
-     A Slay Demon weapon does treble damage against anything of Hellish
-     nature such as the Minor and Major Demons.  Some powerful weapons of 
-     this type will boost the wielder's intelligence.
-
+     Another important fact is that only the highest modifier applies, 
+     in the case of a weapon with more than one slay or elemental brand:
+     a weapon that has frost brand (x3 against creatures that do not resist
+     cold) and slay evil (x2 against evil creatures) will do x3 damage 
+     against an evil creature that does not resist cold, not x6 damage.
+     Likewise, a Holy Avenger weapon used against an evil demon will only 
+     get the x3 bonus for slay demon, not the x2 bonus for slay evil as well.
+     
+Weapons of *Slaying*
+     These provide the standard slaying bonuses, plus something extra, 
+     as follows:
+     *Slay Dragon* - does FIVE times base damage against dragonkind, and
+        boosts constitution.
+     *Slay Evil* - boosts your wisdom, and is blessed, so priests may use it.
+     *Slay Animal* - boosts intelligence, and allows faster regeneration.
+     *Slay Undead* - boosts your wisdom and allows you to see invisible 
+        monsters: because many undead are invisible.
+     *Slay Orc* - will boost the wielder's dexterity.
+     *Slay Troll* - will boost your strength.
+     *Slay Giant* - will boost your strength.
+     *Slay Demon* - will boost your intelligence and give you resistance to
+        fire, which is the main weapon of many demons.
+ 
 Weapon of Morgul.
-     These blades are so foully cursed with evil, it is rumored that it is
-     impossible to remove them.  BEWARE!
+     This blade is made with the sorcery of the undead. It is foully 
+     cursed with evil, with a greater curse than standard scrolls of 
+     Remove Curse can dispel. It has power over the undead, to the extent
+     of permitting you to see invisible (which many undead creatures are), 
+     slaying undead, and protecting you against most forms of having your
+     experience drained: there is no other non-artifact source that gives
+     resistance to nether forces. However, there is a terrible price: the 
+     weapon itself will drain your very soul and experience - slowly, but
+     permanently. And as if that were not enough, use of one will alert 
+     the denizens of the netherworld to your presence.
 
 Shovels of Digging.
      These powerful diggers are branded with acid, all the better for 
@@ -202,35 +214,65 @@ Launchers of Accuracy.
     These launchers have an unnaturally high to-hit number, making them 
     extremely accurate.
 
-Launchers of Velocity.
+Launchers of Power.
     These launchers do an unnaturally high amount of damage due to their 
-    high to-hit number.
+    high to-damage number.
 
 Launchers of Extra Shots.
     These launchers allow the wielder to shoot more times per round than 
     normal.
 
 Launchers of Extra Might.
-    These launchers have a higher base damage than normally made launchers 
-    of their type.
+    These launchers have a higher damage multiplier than normally made 
+    launchers of their type: the bonus in brackets (+1 or +2) is added 
+    to the multiplier of the weapon. So a Heavy Crossbow of Extra Might
+    (x4)(+1) is actually a Heavy Crossbow (x5). 
+    
+    It should be noted here that the damage multiplier for the bow, unlike 
+    any slaying or elemental brand bonuses or any to-dam bonus, is applied 
+    after all the damage has been added together. To clarify, consider this:
 
-Ammo of Hurt Animal.
-    This ammo does double damage against natural denizens of the dungeon.
+       Seeker arrows of Flame (4d4) (+9,+8) fired from a Long Bow of
+       Extra Might (x3)(+11,+12) (+2)...
 
-Ammo of Hurt Evil.
-    This ammo does double damage against evil creatures in the dungeon.
+       Each arrow does 4d4=4-16 points of damage normally, average 10.
+       If fired against a non-fire-resistant monster, triple damage: 
+         12d4=12-48, average 30.
 
-Ammo of Hurt Dragon.
-    This ammo does treble damage against dragons.
+       You have a to-hit bonus adjusted by both the launcher and the
+         missile, to give both +9 and +11 = +20 to-hit, plus any bonus
+         you have from your dexterity. All in all, that's a pretty good
+         chance of hitting...
 
-Ammo of Flame.
-    This ammo does treble damage against creature not resistant to fire.
+       Add the damage bonus of the weapon, and the damage bonus of the 
+         bow - +8 and +12, to give a total of +20. 
+            Running total: 24-36 against fire-resistant, 32-68 against
+            other monsters, average 30 and 50 respectively.
+       Multiply by the bow multiplier: this is (x5) as the normal (x3)
+         has a (+2) bonus,
+            Final total: 120-180 against fire-resistant monsters, 
+            160-340 otherwise, average 150 and 250 respectively, 
+            considering a successful hit.
 
-Ammo of Frost.
-    This ammo does treble damage against creature not resistant to cold.
+    It can be seen that missile weapons can be pretty powerful. But arrows
+    may break, whether they miss or hit their target, so not every arrow can 
+    be recovered. You also need a clear line of sight to the creature you are
+    shooting, and many monsters are not considerate enough to provide this, 
+    preferring to summon their minions to surround the player.
+
+Ammo of Slay Animal, Undead, Dragon, Giant, Demon, Evil.
+    This ammo has the same bonuses as a melee weapon - double base damage for 
+    Slay Animal against animals or Slay Evil against evil monsters, treble
+    damage otherwise against the specified type of monster. Unlike melee
+    weapons, there is no more powerful *slaying* ammo.
+
+Ammo of Flame, Frost, Acid, Lightning
+    This ammo, as with melee weapons, trebles the damage against monsters
+    not resistant to the attack.
 
 Ammo of Wounding.
-    This ammo boosts the to-hit and to-dam numbers of the shooter.
+    This ammo has an unnaturally good chance to hit, and does extra damage
+    even compared to normal magical ammo.
 
 Apart from these there are some very rare and well made blades in the
 dungeon with not necessarily any special abilities. These include Blades
@@ -239,7 +281,7 @@ ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
 
 There are rumors of incredibly rare "artifact" weapons which are even
-more powerful than ego weapons.
+more powerful than ego weapons. Some are, of course, bound to be overrated...
 
 
 === Your Armor Class ===
@@ -288,7 +330,7 @@ of Resist Lightning.
  
 of Resist Fire.
      A character using a resist fire object will take only one third damage
-     from heat and fire.
+     from heat and fire. 
  
 of Resist Cold.
      A character using a resist cold object will take only one third damage
@@ -297,18 +339,36 @@ of Resist Cold.
 of Resistance.
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
+
+     *A note on Resistances*
+        The character may get resistance to a number of different attacks.
+     However, having more than one permanent source of resistance is no
+     better than having one source: a character with both Armor and Shield 
+     of Resist Fire is no better off than if only one of these items provided
+     the resistance.
+        However, having a temporary source of resistance to fire, cold, 
+     lightning, acid or poison *is* useful (this may be obtained by a potion
+     or spell, or the activation of certain rare items.) A character who has 
+     both permanent and temporary resistance to an attack form will take only
+     1/9 of the damage he would take normally. Of course, temporary resistance 
+     will run out eventually, so beware of relying on it...
  
 of Elvenkind.
      This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess extra 
-     resistances beyond the four basic elemental ones.
+     It will make you more stealthy.  This armor also possesses one extra 
+     resistance beyond the four basic elemental ones found on armor of 
+     Resistance (i.e. fire, acid, lightning, cold), and a more certain means
+     of identification than the standard scroll of Identify will be needed to
+     find out which resistance it is. It will come from the following list:
+     poison, light, dark, blindness, confusion, nexus, fear, nether, chaos,
+     disenchantment, shards, sound.
  
 Robes of Permanence.
      These robes are designed especially for wizards.  Just like Elvenkind
      armor, they provide resistance to fire, cold, acid, and electricity and
      cannot be damaged by acid.  They sustain all of your stats and protect
      you from a good deal of all experience draining.  Also like Elvenkind
-     armor, they can have additional special resistances.  These robes are
+     armor, they have an additional special resistances  These robes are
      so good that their owners are rarely killed, perhaps explaining the
      incredible rarity.
 
@@ -336,8 +396,8 @@ Helm of the Magi.
 Helm of Might.
      This is the great helm of the warriors.  The wearer will have an
      increased and sustained strength, dexterity, and constitution, 
-     and will also be immune to any foe's attempt to slow or paralyze 
-     him or her.
+     and will also be immune to any foe's attempt to slow, paralyze or 
+     scare them.
 
 Helm of Lordliness.
      This is the great helm of the priests.  The wearer will have an
@@ -347,10 +407,14 @@ Helm of Seeing.
      This is the great helm of the rogues.  The wearer will be able to see
      even invisible creatures, and will have an increased ability to locate
      traps and secret doors.  It is also rumored that the wearer of such a
-     helm will not be able to be blinded.
+     helm will not be able to be blinded, and can see in the dark by seeing
+     the heat given off by enemies - infravision.
 
-Helm of Infravision.
-     This helm grants the wearer increased infravision, as the name implies.
+Helm of Serenity.
+     This helm grants the wearer the chance to keep his mind clear of all 
+     distractions, noises and confusions of life, whether natural or 
+     magical. In practical terms, this translates into resistance to sound,
+     fear and confusion.
 
 Helm of Light.
      In addition to providing a permanent light source for the wearer, this 
@@ -369,16 +433,16 @@ Ego Cloaks:
 -----------
 Cloak of Protection.
      This finely made cloak will come with an unnaturally high enchantment
-     and is not affected by elemental based attacks.
+     and is not affected by elemental based attacks. It is also fairly well
+     woven and will protect the wearer from blasts of crystal shards.
 
 Cloak of Stealth.
      This cloak will increase the wearer's stealth, making the wearer less
      likely to wake up sleeping monsters.
 
 Cloak of Aman.
-     These exceptionally rare cloaks combine the properties of Cloaks of
-     Protection and Cloaks of Stealth, and are rumored to have properties
-     beyond even those!
+     These exceptionally rare cloaks have an extremely high armor bonus, 
+     a bonus to stealth and provide an extra random resistance!
 
 Ego Gloves:
 -----------
@@ -423,6 +487,7 @@ and Shadow Cloaks.  The first four cannot be damaged by acid because of the
 quality metals they contain.
 
 There are rumors of incredibly rare "artifact" armor which are even
-more powerful than ego armor.
-
+more powerful than ego armor. Again, some of these are great: others may be 
+less powerful and somewhat overrated, but are still made well enough that it 
+is beyond mortal efforts to actually destroy them.
 
