@@ -185,6 +185,8 @@ struct maxima
  */
 struct dungeon_zone
 {
+	u32b name;     /* Text (offset) */
+
 	s16b level;
 	s16b fill;
 
@@ -204,7 +206,7 @@ struct dungeon_zone
 struct town_type
 {
 	u32b name;     /* Name (offset) */
-	u32b text;      /* Text (offset) */
+	u32b text;     /* Text (offset) */
 
 	u16b nearby[MAX_NEARBY];
 	
@@ -1055,6 +1057,8 @@ struct store_type
 	byte tval[STORE_CHOICES];
 	byte sval[STORE_CHOICES];
 	s16b count[STORE_CHOICES];
+	
+	byte tvals_will_buy[STORE_WILL_BUY]; /* Tvals that the store will buy */
 
 	byte stock_num; /* Stock -- Number of entries */
 	s16b stock_size;/* Stock -- Total Size of Array */
@@ -1590,6 +1594,9 @@ struct player_type
 	byte dodging;   	/* Currently dodging */
 	byte blocking;   	/* Currently blocking */
 
+	byte branded_blows;	/* Current blow is branded with */
+	byte unused2;
+	
 	/*** Extracted fields ***/
 
 	s16b stat_add[A_MAX];   /* Equipment stat bonuses */

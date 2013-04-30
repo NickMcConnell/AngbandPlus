@@ -1140,6 +1140,7 @@ static void init_ranged_attack(monster_race *r_ptr)
 			case RBM_SPIT:	mana = 0; range = 3; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_GAZE:	mana = 3; range = MIN(MAX_SIGHT, r_ptr->aaf); break;
 			case RBM_WAIL:  mana = 5; range = 4; break;
+			case RBM_HOWL:  mana = 2; range = 2; break;
 			case RBM_SPORE:	mana = 0; range = 3; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_LASH:  mana = 0; range = 3; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_BEG:	mana = 0; range = 4; break;

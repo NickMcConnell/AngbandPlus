@@ -1236,6 +1236,19 @@ void take_hit(int dam, cptr kb_str)
 	/* Hurt the player */
 	p_ptr->chp -= dam;
 
+	/* Make test-id and traps less deadly */
+	if (p_ptr->chp < 1
+	    && (cause_of_damage == SOURCE_FEATURE
+		|| cause_of_damage == SOURCE_PLAYER_COATING
+		|| cause_of_damage == SOURCE_PLAYER_EAT_MONSTER
+		|| cause_of_damage == SOURCE_PLAYER_EAT
+		|| cause_of_damage == SOURCE_PLAYER_QUAFF
+		|| cause_of_damage == SOURCE_PLAYER_READ
+		|| cause_of_damage == SOURCE_PLAYER_ZAP_NO_TARGET
+		|| cause_of_damage == SOURCE_OBJECT)
+	    && dam > p_ptr->mhp / 2)
+	  p_ptr->chp = 1;
+
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
 
@@ -3824,7 +3837,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			summoner = 0;
 
-			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_TREE,
+			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? m_list[who].r_idx : 0,
+					who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_TREE,
 					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND);
 
 			break;
@@ -3850,7 +3864,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (summon_group_type)
 			{
-				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
+					who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
 					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND_EMPTY);
 			}
 
@@ -3896,7 +3911,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (summon_attr_type || summon_char_type)
 			{
-				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT,
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
+						who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level-1 : p_ptr->depth, ANIMATE_OBJECT,
 					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) change = TRUE;
 			}
 
@@ -4422,7 +4438,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					{
 						summon_race_type = o_ptr->name3;
 						for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, 99, SUMMON_FRIEND, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
+							summons |= (summon_specific(y, x, 0, 99, SUMMON_FRIEND, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
 							
 						if (summons)
 						{
@@ -4434,7 +4450,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					else
 					{
 						for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
+									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
 							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 							
 						if (summons)
@@ -4522,7 +4539,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					int i;
 					
 					for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD,
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
+									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_DEAD,
 						FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 					
 					if (summons)
@@ -4566,7 +4584,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					summon_race_type = o_ptr->name3;
 
 					for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD,
+							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
+									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, RAISE_DEAD,
 						FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
 					
 					if (summons)
@@ -4582,7 +4601,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 				else if ((raise) && (o_ptr->name3 == summon_race_type))
 				{
 					for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, 99, RAISE_DEAD, FALSE, (MFLAG_MADE) | (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+							summons |= (summon_specific(y, x, 0, 99, RAISE_DEAD, FALSE, (MFLAG_MADE) | (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 					
 					if (summons)
 					{
@@ -8730,6 +8749,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	}
 	else
 	{
+	  /* to make traps and test-id less deadly */
+	  cause_of_damage = who;
+
 		/* Start with empty string */
 		killer[0] = '\0';
 		

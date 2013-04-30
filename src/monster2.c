@@ -776,9 +776,9 @@ s16b get_mon_num(int level)
 		/* Made a choice */
 		if (choice >= 0)
 			return (cave_ecology.race[choice]);
-		else
-		/* Invalid choice only if our already only choice was an already created unique */
-			return (0);
+		
+		/* Warn that we are not selecting from ecology */
+		if (cheat_hear) msg_print("Unable to find a valid monster in the ecology");
 	}
 
 	/* Boost the level */
@@ -788,7 +788,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 5 + 1;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -798,7 +798,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 3;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -846,13 +846,8 @@ s16b get_mon_num(int level)
 		/* Check monster against level flags */
 		if (!check_level_flags_race(r_idx)) continue;
 
-		/* Ensure minimum depth for monsters, except those that have friends or level up */
-		if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
-			&& ((r_ptr->flags1 & (RF1_FRIENDS)) == 0) 
-			&& ((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)) continue;
-
-		/* Ensure hard minimum depth for monsters */
-		if (table[i].level < MIN(p_ptr->depth - 19, level - 18))
+		/* Allow monsters to be generated 'nearly' in-depth */
+		if (table[i].level < MIN(p_ptr->depth - 4, level - 3))
 		{
 			int miss_level = table[i].level;
 			int count = 0;
@@ -868,7 +863,13 @@ s16b get_mon_num(int level)
 				if (closest_miss_level < miss_level) closest_miss_level = miss_level;
 			}
 			
-			continue;
+			/* Ensure minimum depth for monsters, except those that have friends or level up */
+			if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
+				&& ((r_ptr->flags1 & (RF1_FRIENDS)) == 0) 
+				&& ((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)) continue;
+			
+			/* Ensure hard minimum depth for monsters */
+			if (table[i].level < MIN(p_ptr->depth - 19, level - 18)) continue;
 		}
 
 		/* Accept */
@@ -894,9 +895,16 @@ s16b get_mon_num(int level)
 			return (closest_miss_r_idx);
 		}
 		else
+		{
+			if (cheat_hear) msg_print("No legal monsters.");
+			
 			return (0);
+		}
 	}
 
+	/* Report range of level monsters */
+	if (cheat_hear) msg_format("Picking from probably range of %d.", total);
+	
 	/* Pick a monster */
 	value = rand_int(total);
 
@@ -961,7 +969,7 @@ s16b get_mon_num(int level)
 	}
 
 	/* Oops */
-	if ((cave_ecology.ready) && (cheat_xtra)) msg_format("Picking non-ecology monster (%s).", r_name + r_info[table[i].index].name);
+	if ((cave_ecology.ready) && (cheat_hear)) msg_format("Picking non-ecology monster (%s).", r_name + r_info[table[i].index].name);
 
 	/* Result */
 	return (table[i].index);
@@ -3581,7 +3589,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 		if (r_ptr->flags9 & (RF9_TOWNSFOLK)) n_ptr->mflag |= (MFLAG_TOWN);
 
 		/* Mega-hack -- no nasty town dwellers when starting out */
-		else if (!p_ptr->max_exp) return (FALSE);
+		else if (turn < 1000) return (FALSE);
 	}
 
 	/* Enforce sleeping if needed */
@@ -3993,8 +4001,12 @@ static bool summon_specific_okay(int r_idx)
 		/* Hack -- do we strictly enforce lower level summons?
 		 * 
 		 * This prevents 'circular' chain summoning
+		 * 
+		 * Note that we relax this if the monster is capable of getting larger/more powerful etc.
 		 */	
-		if ((summon_strict) && (r_info[summoner].level <= r_info[r_idx].level)) return (FALSE);
+		if ((summon_strict) && (r_info[summoner].level <= r_info[r_idx].level)
+				&& (((r_info[summoner].flags9 & (RF9_LEVEL_MASK)) == 0) ||
+				(r_info[summoner].level + 15 <= r_info[r_idx].level))) return (FALSE);
 	}
 
 	/* Check our requirements */
@@ -5047,7 +5059,7 @@ bool alloc_monster(int dis, bool slp)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type, bool grp, u32b flg)
+bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool grp, u32b flg)
 {
 	int i, x, y, r_idx;
 
@@ -5082,17 +5094,17 @@ bool summon_specific(int y1, int x1, int lev, int type, bool grp, u32b flg)
 	summon_strict = FALSE;
 
 	/* Hack -- prevent 'chain summoning' */
-	if (summoner)
+	if (restrict_race)
 	{
-		int hack_summoner = summoner;
-		
+		/* XXX Needed to allow the following test to be true */
 		summoner = 0;
 		
-		if (summon_specific_okay(hack_summoner)) summon_strict = TRUE;
-		
-		summoner = hack_summoner;
+		if (summon_specific_okay(restrict_race)) summon_strict = TRUE;
 	}
 
+	/* Restrict race as appropriate */
+	summoner = restrict_race;
+	
 	/* Require "okay" monsters */
 	get_mon_num_hook = summon_specific_okay;
 
@@ -5543,15 +5555,17 @@ static bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int num
 	if (cave_ecology.num_races >= MAX_ECOLOGY_RACES) return (FALSE);
 
 	/* Reduce races required by existing races in ecology */
-	if (cave_ecology.num_races > MIN_ECOLOGY_RACES) for (i = 0; i < cave_ecology.num_races; i++)
-	{
-		if (tmp_mon_num_hook(cave_ecology.race[i])) races--;
-		if (cave_ecology.num_races < 2 * MIN_ECOLOGY_RACES) break;
-	}
+	if (cave_ecology.num_races > MIN_ECOLOGY_RACES)
+		for (i = 0; i < cave_ecology.num_races; i++)
+		{
+			if (cave_ecology.race[i] == summoner) continue;
+			if (tmp_mon_num_hook(cave_ecology.race[i])) races--;
+			if (cave_ecology.num_races < 2 * MIN_ECOLOGY_RACES) break;
+		}
 
 	/* Limit races */
 	if (races >= MAX_ECOLOGY_RACES) races = MAX_ECOLOGY_RACES;
-
+	
 	/* Use supplied hook */
 	get_mon_num_hook = tmp_mon_num_hook;
 
@@ -5694,7 +5708,7 @@ void get_monster_ecology(int r_idx)
 		r_ptr = &r_info[r_idx];
 
 		/* Try slightly lower monster level */
-		monster_level = MIN(p_ptr->depth, r_ptr->level > 1 ? r_ptr->level - 1 : r_ptr->level);
+		monster_level = MIN(monster_level - 3, (monster_level + r_ptr->level) / 2 - 1);
 
 		/* Set summoner */
 		summoner = r_idx;

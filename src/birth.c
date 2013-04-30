@@ -1262,6 +1262,7 @@ static bool get_player_race()
 
 	/* Save the starting town */
 	p_ptr->town = rp_ptr->home;
+	p_ptr->dungeon = 7;
 
 	FREE(races);
 
@@ -2127,6 +2128,7 @@ static void player_birth_quickstart(quickstart_type *q_ptr)
 	
 	/* Set up secondary stats */
 	p_ptr->town = rp_ptr->home;
+	p_ptr->dungeon = 7;
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + (p_ptr->pstyle ? 10 : 0);
 
 	/* Display the player */

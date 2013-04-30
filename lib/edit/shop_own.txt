@@ -89,11 +89,11 @@ N:6:3:Drago the Fair
 I:1:30000:250:150:10:5
 
 # Home
-N:7:0:Your home
+N:7:0:your home
 I:99:0:100:100:0:99
-N:7:1:Your home
+N:7:1:your home
 I:99:0:100:100:0:99
-N:7:2:Your home
+N:7:2:your home
 I:99:0:100:100:0:99
-N:7:3:Your home
+N:7:3:your home
 I:99:0:100:100:0:99

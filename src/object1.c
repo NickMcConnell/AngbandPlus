@@ -422,7 +422,7 @@ void reset_visuals(bool unused)
 	uint p; \
  \
 	/* Find "size" of "n" */ \
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
+	for (p = 1; n >= p * 10 && p < 1000000000; p = p * 10) /* loop */; \
  \
 	/* Dump each digit */ \
 	while (p >= 1) \
@@ -644,7 +644,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Assume no "modifier" string */
 	modstr = "";
 
-	
 	/* Prep the monster name if required */
 	if (o_ptr->name3)
 	{
@@ -2480,40 +2479,27 @@ sint scan_feat(int y, int x)
 	return (item);
 }
 
-
 /*
  * Choice window "shadow" of the "show_inven()" function
  */
 void display_inven(void)
 {
-	register int i, n, z = 0;
-
+  register int i, k, n = 0;
 	object_type *o_ptr;
-
 	byte attr;
 
 	char tmp_val[80];
 
 	char o_name[80];
 
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
+	/* Display the pack */
+	for (k = 0, i = 0; i < INVEN_PACK; i++)
 	{
+		/* Examine the item */
 		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
-	/* Display the pack */
-	for (i = 0; i < z; i++)
-	{
-		/* Examine the item */
-		o_ptr = &inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -2522,14 +2508,14 @@ void display_inven(void)
 		if (item_tester_okay(o_ptr))
 		{
 			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i);
+			tmp_val[0] = index_to_label(k);
 
 			/* Bracket the "index" --(-- */
 			tmp_val[1] = ')';
 		}
 
 		/* Display the index (or blank space) */
-		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
+		Term_putstr(0, k, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -2541,22 +2527,24 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Display the entry itself */
-		Term_putstr(3, i, n, attr, o_name);
+		Term_putstr(3, k, n, attr, o_name);
 
 		/* Erase the rest of the line */
-		Term_erase(3+n, i, 255);
+		Term_erase(3+n, k, 255);
 
 		/* Display the weight if needed */
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
+			Term_putstr(71, k, -1, TERM_WHITE, tmp_val);
 		}
+
+		k++;
 	}
 
 	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
+	for (i = k; i < Term->hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
@@ -2564,13 +2552,12 @@ void display_inven(void)
 }
 
 
-
 /*
  * Choice window "shadow" of the "show_equip()" function
  */
 void display_equip(void)
 {
-	register int i, n;
+  register int i, n;
 	object_type *o_ptr;
 	byte attr;
 
@@ -2637,7 +2624,7 @@ void display_equip(void)
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
 		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
+		if (o_ptr->k_idx && item_tester_okay(o_ptr))
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
@@ -2650,13 +2637,19 @@ void display_equip(void)
 		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		if (o_ptr->k_idx)
+		  object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		else
+		  o_name[0] = 0;
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->k_idx)
+		  attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		  attr = 0;
 
 		/* Regular slots don't have a pseudo-tag */
 		ptag_space = 0;
@@ -2694,7 +2687,7 @@ void display_equip(void)
 		}
 
 		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		if (o_ptr->k_idx && show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			int col = (show_labels ? 52 : 71);
@@ -4559,6 +4552,9 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	s16b number = 0;
 	s16b charges = 0;
 
+	/* Paranoia, probably done in object_prep */
+	(void)WIPE(i_ptr, object_type);
+
 	/* Initially no item */
 	i_ptr->k_idx = 0;
 
@@ -4727,13 +4723,29 @@ bool get_item_from_bag(int *cp, cptr pmt, cptr str, object_type *o_ptr)
 	inventory = inventory_old;
 
 	/* Cancelled? */
-	if (cancel) return (FALSE);
+	if (cancel) {
+	  /* Window stuff */
+	  p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	  /* Redraw stuff */
+	  p_ptr->redraw |= (PR_ITEM_LIST);
+
+	  return (FALSE);
+	}
 
 	/* Get the item */
 	i_ptr = &inventory_fake[item];
 
 	/* Paranoia */
-	if (p_ptr->inven_cnt > INVEN_PACK) return (FALSE);
+	if (p_ptr->inven_cnt > INVEN_PACK) {
+	  /* Window stuff */
+	  p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	  /* Redraw stuff */
+	  p_ptr->redraw |= (PR_ITEM_LIST);
+
+	  return (FALSE);
+	}
 
 	/* Reduce bag contents - wands hack */
 	if (i_ptr->tval == TV_WAND)
@@ -4799,7 +4811,7 @@ bool get_item_from_bag(int *cp, cptr pmt, cptr str, object_type *o_ptr)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_ITEM_LIST);

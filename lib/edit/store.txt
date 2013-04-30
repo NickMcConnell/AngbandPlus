@@ -10,8 +10,10 @@
 # Format:
 # N:store:store name (interior)
 # O:tval:sval:count - must offer at least 15 item types
+# B:tval - tvals that the store will purchase
 
 # Maximum number of O: entries is currently 32 lines.
+# Maximum number of B: entries is currently 16 lines.
 
 # Version stamp (required)
 
@@ -195,7 +197,7 @@ O:90:35:1
 N:7:Black Market
 X:9
 
-N:8:Your home
+N:8:your home
 X:0
 
 N:9:Farmer Maggot's Mushroom Store
@@ -357,10 +359,10 @@ O:90:20:1
 O:90:21:1
 O:90:22:1
 O:90:24:1
-O:72:15:1
-O:72:16:1
-O:72:17:1
-O:72:42:1
+O:72:52:1
+O:72:59:1
+O:72:40:1
+O:72:46:1
 O:72:43:1
 O:72:44:1
 O:72:45:1
@@ -661,7 +663,6 @@ O:80:38:3
 O:80:38:3
 O:75:34:2
 O:75:35:1
-O:75:42:1
 O:75:28:2
 O:77:0:1
 O:5:0:1
@@ -699,7 +700,6 @@ O:80:33:1
 O:80:40:1
 O:75:34:1
 O:75:35:1
-O:75:42:1
 O:5:0:1
 O:20:1:1
 O:20:4:2
@@ -724,3 +724,19 @@ O:39:0:3
 
 N:46:the branches of an Ent
 X:2
+
+N:47:Ranger's cache
+X:2
+
+N:48:Chart Scribe
+X:8
+O:72:52:10
+O:72:59:10
+O:72:40:10
+O:72:46:10
+O:72:43:10
+O:72:44:10
+O:72:45:10
+
+N:49:the hut of Radagast the Brown
+X:0

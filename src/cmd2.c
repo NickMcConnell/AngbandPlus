@@ -318,35 +318,30 @@ void print_routes(const s16b *route, int num, int y, int x)
 {
 	int i, town;
 
-	char out_val[160];
+	char out_val[60];
 
 	byte line_attr;
-
-	town_type *t_ptr = &t_info[p_ptr->dungeon];
-	dungeon_zone *zone = &t_ptr->zone[0];
 
 	/* Title the list */
 	prt("", y, x);
 	put_str("Location", y, x + 5);
-	put_str(" Level", y, x + 45);
+	put_str(" Level", y, x + 50);
 
 	/* Dump the routes */
 	for (i = 0; i < num; i++)
 	{
-		line_attr = TERM_WHITE;
+		char str[46];
 
 		/* Get the town index */
 		town = route[i];
+
+		long_level_name(str, town, 0);
+
+		line_attr = TERM_WHITE;
 		
-		/* Get the destination info */
-		t_ptr = &t_info[town];
-
-		/* Get the top of the dungeon */
-		zone = &(t_ptr->zone[0]);
-
-		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s %-10s%2d%3s ",
-			I2A(i), t_name + t_ptr->name,"",zone->level,max_depth(town) > min_depth(town) ? format("-%-2d",max_depth(town)) : "");
+		/* Dump the route --(-- */
+		sprintf(out_val, "  %c) %-45s %2d%3s ",
+			I2A(i), str, min_depth(town), max_depth(town) > min_depth(town) ? format("-%-2d", max_depth(town)) : "");
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
@@ -357,16 +352,16 @@ void print_routes(const s16b *route, int num, int y, int x)
 
 
 /*
- * This gives either the route, or a replacement route if one is defined.
+ * This gives either the dungeon, or a replacement one if it is defined.
  */
-int actual_route(int town)
+int actual_route(int dun)
 {
-	while(t_info[t_info[town].replace_ifvisited].visited)
+	while(t_info[dun].replace_ifvisited && t_info[t_info[dun].replace_ifvisited].visited)
 	{
-		town = t_info[town].replace_with;
+		dun = t_info[dun].replace_with;
 	}
 	
-	return (town);
+	return (dun);
 }
 
 
@@ -379,7 +374,7 @@ int actual_route(int town)
  */
 int set_routes(s16b *routes, int max_num, int from)
 {
-	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	town_type *t_ptr = &t_info[from];
 	dungeon_zone *zone1 = &t_ptr->zone[0];
 	dungeon_zone *zone2 = &t_ptr->zone[0];
 
@@ -410,8 +405,9 @@ int set_routes(s16b *routes, int max_num, int from)
 		}
 	}
 
-	/* Add maps if not in Moria */
-	if (t_ptr->nearby[0])
+	/* Add maps if not in Moria or other level with no exits */
+	if (num)
+	/* or only Moria --- if (t_ptr->store_index[0] != 805) */
 	{
 		for (i = 0; (i < INVEN_WIELD) && (num < max_num); i++)
 		{
@@ -495,7 +491,7 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* One final scan and remove duplicate routes and routes looping back to start */
 	for (i = 0; i < num; i++)
 	{
-		if (routes[i] == p_ptr->dungeon) routes[i] = routes[--num];
+		if (routes[i] == from) routes[i] = routes[--num];
 		
 		for (ii = i + 1; ii < num; ii++)
 		{
@@ -530,6 +526,10 @@ static void do_cmd_travel(void)
 
 	bool edge_y = ((by < 2) || (by > ((DUNGEON_HGT/BLOCK_HGT)-3)));
 	bool edge_x = ((bx < 2) || (bx > ((DUNGEON_WID/BLOCK_WID)-3)));
+
+	char str[46];
+
+	current_long_level_name(str);
 
 	/* Get the top of the dungeon */
 	get_zone(&zone,p_ptr->dungeon,min_depth(p_ptr->dungeon));
@@ -572,7 +572,7 @@ static void do_cmd_travel(void)
 		}
 		else if (!edge_y && !edge_x && zone->fill)
 		{
-			msg_format("You need to be close to the edge of %s.",t_name + t_ptr->name);
+			msg_format("You need to be close to the edge of %s.", str);
 		}
 		else
 		{
@@ -588,7 +588,7 @@ static void do_cmd_travel(void)
 			num = set_routes(routes, 24, p_ptr->dungeon);
 
 			/* Build a prompt (accept all spells) */
-			strnfmt(out_val, 78, "(Travel %c-%c, *=List, ESC=exit) Travel where? ",
+			strnfmt(out_val, 78, "(Travel %c-%c, L=locations, M=map, ESC=exit) Travel where? ",
 			I2A(0), I2A(num - 1) );
 
 			/* Nothing chosen yet */
@@ -606,8 +606,8 @@ static void do_cmd_travel(void)
 				/* Save screen */
 				screen_save();
 
-				/* Display a list of spells */
-				print_routes(routes, num, 1, 20);
+				/* Display a list of routes */
+				print_routes(routes, num, 1, 22);
 			}
 
 			/* Get a spell from the user */
@@ -648,12 +648,85 @@ static void do_cmd_travel(void)
 						screen_save();
 
 						/* Display a list of spells */
-						print_routes(routes, num, 1, 20);
+						print_routes(routes, num, 1, 22);
 					}
 
 					/* Ask again */
 					continue;
+				}
 
+				/* Request recall */
+				if (ke.key == 'L')
+				{
+				  if (redraw) {
+				    do_knowledge_dungeons();
+
+				    /* Load screen */
+				    screen_load();
+
+				    /* Save screen */
+				    screen_save();
+
+				    /* Display a list of spells */
+				    print_routes(routes, num, 1, 22);
+				  }
+				  else {
+				    redraw = TRUE;
+				    
+				    /* Save screen */
+				    screen_save();
+
+				    do_knowledge_dungeons();
+
+				    /* Load screen */
+				    screen_load();
+
+				    /* Save screen */
+				    screen_save();
+
+				    /* Display a list of spells */
+				    print_routes(routes, num, 1, 22);
+				  }
+
+				  /* Ask again */
+				  continue;
+				}
+
+				/* Request map */
+				if (ke.key == 'M')
+				{
+				  if (redraw) {
+				    (void)show_file("memap.txt", NULL, 0, 0);
+
+				    /* Load screen */
+				    screen_load();
+
+				    /* Save screen */
+				    screen_save();
+
+				    /* Display a list of spells */
+				    print_routes(routes, num, 1, 22);
+				  }
+				  else {
+				    redraw = TRUE;
+				    
+				    /* Save screen */
+				    screen_save();
+
+				    (void)show_file("memap.txt", NULL, 0, 0);
+
+				    /* Load screen */
+				    screen_load();
+
+				    /* Save screen */
+				    screen_save();
+
+				    /* Display a list of spells */
+				    print_routes(routes, num, 1, 22);
+				  }
+
+				  /* Ask again */
+				  continue;
 				}
 
 				/* Lowercase 1+ */
@@ -726,7 +799,7 @@ static void do_cmd_travel(void)
 			}
 
 			/* Hack -- Get hungry/tired/sore */
-			set_food(MAX(500, p_ptr->food-(PY_FOOD_FULL/10*journey)));
+			set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
 
 			/* Hack -- Time passes (at 4* food use rate) */
 			turn += PY_FOOD_FULL/10*journey*4;
@@ -774,6 +847,10 @@ void do_cmd_go_up(void)
 	
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
+	char str[46];
+
+	current_long_level_name(str);
+
 	/* Verify stairs */
 	if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_LESS)))
 	{
@@ -798,22 +875,30 @@ void do_cmd_go_up(void)
 	/* Hack -- travel through wilderness */
 	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && (t_ptr->zone[0].tower))
 	{
+	  int guard;
+	  dungeon_zone *zone;
+
+	  /* Get the zone */
+	  get_zone(&zone, p_ptr->dungeon, p_ptr->depth);
+
+	  guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
+
 		/* Check quests due to travelling - cancel if requested */
 		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
 
-		/* Check that quest opens monster is dead */
-		if ((t_ptr->quest_opens) && (r_info[t_ptr->quest_monster].max_num == 0))
-		{
+		/* Check that travel opening monster is dead and of this zone */
+		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
+		{			
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_ptr->name));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian of %s, opening the way through.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
 		}
 		else
 		{
-			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("Congratulations. You have defeated the guardian of %s.",t_name + t_ptr->name));
+		        /* Success */
+			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.", str));
 		}
 
 		/* Set the new depth */
@@ -870,6 +955,10 @@ void do_cmd_go_down(void)
 
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
+	char str[46];
+
+	current_long_level_name(str);
+
 	/* Verify stairs */
 	if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_MORE)))
 	{
@@ -883,14 +972,22 @@ void do_cmd_go_down(void)
 	/* Hack -- travel through wilderness */
 	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && !(t_ptr->zone[0].tower))
 	{
-		/* Check quests due to travelling - cancel if requested */
+	  int guard;
+	  dungeon_zone *zone;
+
+	  /* Get the zone */
+	  get_zone(&zone, p_ptr->dungeon, p_ptr->depth);
+
+	  guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
+
+	        /* Check quests due to travelling - cancel if requested */
 		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
 
-		/* Check that quest opens monster is dead */
-		if ((t_ptr->quest_opens) && (r_info[t_ptr->quest_monster].max_num == 0))
+		/* Check that quest opens monster is dead and of this zone */
+		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_ptr->name));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian of %s opening the way through.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
@@ -898,7 +995,7 @@ void do_cmd_go_down(void)
 		else
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("Congratulations. You have defeated the guardian of %s.",t_name + t_ptr->name));
+			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.", str));
 		}
 		
 		/* Set the new depth */
@@ -3678,7 +3775,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 				}
 
 				/* Actually "fire" the object */
-				bonus = (p_ptr->to_h + i_ptr->to_h + bow_to_h + style_hit);
+				bonus = (p_ptr->to_h + i_ptr->to_h + bow_to_h + style_hit + (p_ptr->blocking ? 15 : 0));
 				chance = ranged_skill + bonus * BTH_PLUS_ADJ;
 				chance2 = chance - distance(old_y, old_x, y, x);
 
@@ -3733,7 +3830,17 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 					}
 
 					/* Apply special damage XXX XXX XXX */
-					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, item < 0);
+					/* Hack -- get brands/slays from artifact/ego item/magic item type */
+					if ((i_ptr->name1) || (i_ptr->name2) || (i_ptr->xtra1) || (i_ptr->ident & (IDENT_FORGED)))
+					{
+						tdam = tot_dam_aux(i_ptr, tdam, m_ptr, item < 0);
+					}
+					/* Hack -- use left-hand ring brand */
+					else if (inventory[INVEN_LEFT].k_idx)
+					{
+						tdam = tot_dam_aux(&inventory[INVEN_LEFT], tdam, m_ptr, item < 0);
+					}
+
 
 					/* The third piece of fire/throw dependent code */
 					if (fire)

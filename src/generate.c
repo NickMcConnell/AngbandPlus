@@ -1069,9 +1069,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	
 	int offset = ((flag & (MAZE_CRYPT | MAZE_CAVE)) != 0) && (rand_int(100) < 50) ? 1 : 0;
 	
-	/* For some reason, allocating this on the heap causes problems. Thus we allocate on the stack
-	 * and worry about debugging memory errors another day. */
-	s16b saved[DUNGEON_HGT * DUNGEON_WID];
+	s16b *saved = NULL; 
 
 	int solid = ((f_info[feat_wall].flags1 & (FF1_OUTER)) != 0) ? feat_state(feat_wall, FS_SOLID) : 0;	
 	int inner = ((f_info[feat_wall].flags1 & (FF1_OUTER)) != 0) ? feat_state(feat_wall, FS_INNER) : feat_wall;
@@ -1098,14 +1096,17 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	/* Save the existing terrain to overwrite the maze later */
 	if ((flag & (MAZE_SAVE)) != 0)
 	{
-		/*saved = C_ZNEW((3 + y2 - y1) * (3 + x2 - x1), s16b);*/
+		int const dx =  1 + x2 - x1;
+		int const dy =  1 + y2 - y1;
+		
+		saved = C_ZNEW(dx*dy,s16b);
 	
 		/* Save grids */
-		for (y = 0; y <= y2 - y1; y++)
+		for (y = 0; y < dy; y++)
 		{
-			for (x = 0; x <= x2 - x1; x++)
+			for (x = 0; x < dx; x++)
 			{
-				saved[y * (2 + y2 - y1) + x] = cave_feat[y + y1][x + x1];
+				saved[y * dx + x] = cave_feat[y + y1][x + x1];
 			}
 		}
 	}
@@ -1698,35 +1699,38 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	/* Restore grids */
 	if ((flag & (MAZE_SAVE)) != 0)
 	{
-		for (y = 0; y <= y2 - y1; y++)
+		int const dx =  1 + x2 - x1;
+		int const dy =  1 + y2 - y1;
+		
+		for (y = 0; y < dy; y++)
 		{
-			for (x = 0; x <= x2 - x1; x++)
+			for (x = 0; x < dx; x++)
 			{
 				/* Hack -- always overwrite if room flag set and room flag is clear */
 				if (((flag & (MAZE_ROOM)) != 0) && ((cave_info[y + y1][x + x1] & (CAVE_ROOM)) == 0))
 				{
-					cave_set_feat(y + y1, x + x1, saved[y * (2 + y2 - y1) + x]);
+					cave_set_feat(y + y1, x + x1, saved[y * dx + x]);
 	
 					continue;
 				}
 				
 				/* Hack -- skip floor quickly */
-				if (saved[y * (2 + y2 - y1) + x] == FEAT_FLOOR) continue;
+				if (saved[y * dx + x] == FEAT_FLOOR) continue;
 				
 				/* Hack -- skip 'extra' walls quickly */
-				if (saved[y * (2 + y2 - y1) + x] == FEAT_WALL_EXTRA) continue;
+				if (saved[y * dx + x] == FEAT_WALL_EXTRA) continue;
 
 				/* Hack -- skip 'outer' and 'solid' terrain quickly */
-				if (f_info[saved[y * (2 + y2 - y1) + x] == FEAT_WALL_EXTRA].flags1 & (FF1_OUTER | FF1_SOLID)) continue;
+				if (f_info[saved[y * dx + x] == FEAT_WALL_EXTRA].flags1 & (FF1_OUTER | FF1_SOLID)) continue;
 				
 				/* Passable terrain - overwrite floor */
-				if (((f_info[saved[y * (2 + y2 - y1) + x]].flags1 & (FF1_MOVE)) != 0) ||
-					((f_info[saved[y * (2 + y2 - y1) + x]].flags3 & (FF3_EASY_CLIMB)) != 0))
+				if (((f_info[saved[y * dx + x]].flags1 & (FF1_MOVE)) != 0) ||
+					((f_info[saved[y * dx + x]].flags3 & (FF3_EASY_CLIMB)) != 0))
 				{
 					/* Must be placed on floor grid */
 					if (cave_feat[y + y1][x + x1] == feat_path)
 					{
-						cave_set_feat(y + y1, x + x1, saved[y * (2 + y2 - y1) + x]);
+						cave_set_feat(y + y1, x + x1, saved[y * dx + x]);
 					}
 					
 					/* Try adjacent saved */
@@ -1740,7 +1744,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 						
 						if (cave_feat[yy][xx] == feat_path)
 						{
-							cave_set_feat(yy, xx, saved[y * (2 + y2 - y1) + x]);
+							cave_set_feat(yy, xx, saved[y * dx + x]);
 							break;
 						}
 					}
@@ -1753,7 +1757,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 							((cave_feat[y + y1][x + x1] == feat_wall) ||
 							(((f_info[feat_wall].flags1 & (FF1_OUTER)) != 0) && cave_feat[y + y1][x + x1] == feat_state(feat_wall, FS_INNER))))
 					{
-						cave_set_feat(y + y1, x + x1, saved[y * (2 + y2 - y1) + x]);
+						cave_set_feat(y + y1, x + x1, saved[y * dx + x]);
 					}
 					/* Try adjacent saved */
 					else for (i = 0; i < 8; i++)
@@ -1768,7 +1772,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 							((cave_feat[yy][xx] == feat_wall) ||
 							(((f_info[feat_wall].flags1 & (FF1_OUTER)) != 0) && cave_feat[yy][xx] == feat_state(feat_wall, FS_INNER))))
 						{
-							cave_set_feat(yy, xx, saved[y * (2 + y2 - y1) + x]);
+							cave_set_feat(yy, xx, saved[y * dx + x]);
 							break;
 						}
 					}
@@ -1777,7 +1781,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 		}
 	
 		/* Free the grids */
-		/*FREE(saved);*/
+		FREE(saved);
 	}
 	
 	/* Successful */
@@ -9713,6 +9717,10 @@ static void init_ecology(int r_idx)
 
 	/* Count of different non-unique monsters in ecology */
 	k = (MIN_ECOLOGY_RACES / 2) + rand_int((MIN_ECOLOGY_RACES + 1) / 2);
+
+	/* Ecology is not yet valid */
+	cave_ecology.ready = FALSE;
+	cave_ecology.valid_hook = FALSE;
 	
 	/* Initialise ecology based on seed race */
 	if (r_idx)
@@ -10852,7 +10860,7 @@ static bool cave_gen(void)
 		/* Place guardian if permitted */
 		if ((level_flag & (LF1_GUARDIAN)) != 0)
 		{
-			init_ecology(actual_guardian(zone->guard, p_ptr->dungeon));
+			init_ecology(actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone));
 		}
 		/* Place any monster */
 		else
@@ -10952,7 +10960,7 @@ static bool cave_gen(void)
 		int y, x, guard;
 		int count = 0;
 		
-		guard = actual_guardian(zone->guard, p_ptr->dungeon);
+		guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
 
 		/* Generating */
 		if (cheat_room) msg_format("Placing guardian (%s).", r_name + r_info[guard].name);
@@ -11234,9 +11242,11 @@ static void town_gen_hack(void)
 	player_place(y, x, TRUE);
 
 	/* Sometimes we have to place upstairs as well */
-	if (((t_info[p_ptr->dungeon].zone[0].tower) &&
-		(p_ptr->depth < max_depth(p_ptr->dungeon)) && (p_ptr->depth > min_depth(p_ptr->dungeon)))
-		|| (p_ptr->depth > min_depth(p_ptr->dungeon)))
+	if ((t_info[p_ptr->dungeon].zone[0].tower 
+	     && p_ptr->depth < max_depth(p_ptr->dungeon) 
+	     && p_ptr->depth > min_depth(p_ptr->dungeon))
+	    || (!t_info[p_ptr->dungeon].zone[0].tower
+		&& p_ptr->depth > min_depth(p_ptr->dungeon)))
 	{
 		/* Place the up stairs */
 		while (TRUE)
@@ -11255,7 +11265,6 @@ static void town_gen_hack(void)
 
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
-
 }
 
 
@@ -11353,7 +11362,7 @@ static bool town_gen(void)
 	{
 		int y, x, guard;
 		
-		guard = actual_guardian(zone->guard, p_ptr->dungeon);
+		guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
 
 		/* Generating */
 		if (cheat_room) msg_format("Placing guardian (%s).", r_name + r_info[guard].name);
@@ -11809,20 +11818,35 @@ void generate_cave(void)
 		/* This breaks for Angband */
 		if (p_ptr->dungeon) for (i = 0; i < z_info->t_max; i++)
 		{
+		  char str[46];
+
 			if (t_info[i].replace_ifvisited == p_ptr->dungeon)
 			{
-				msg_format("%^s has fallen.", t_name + t_info[i].name);
-				msg_format("%^s now stands in its place.", t_name + t_info[t_info[i].replace_with].name);
+			  long_level_name(str, i, 0);
+			  msg_format("%^s has fallen.", str);
+
+			  long_level_name(str, t_info[i].replace_with, 0);
+			  msg_format("%^s now stands in its place.", str);
 			}
 
 			if ((t_info[i].town_lockup_ifvisited == p_ptr->dungeon) && (r_info[t_info[i].town_lockup_monster].max_num > 0))
 			{
-				msg_format("%^s now terrorizes %s.", r_name + r_info[t_info[i].town_lockup_monster].name, t_name + t_info[i].name);
+			  long_level_name(str, i, 0);
+			  msg_format("%^s now terrorizes %s.", r_name + r_info[t_info[i].town_lockup_monster].name, str);
 			}
 			
-			if ((t_info[i].guardian_ifvisited == p_ptr->dungeon) && (r_info[t_info[i].replace_guardian].max_num > 0))
-			{
-				msg_format("%^s now guards %s.", r_name + r_info[t_info[i].replace_guardian].name, t_name + t_info[i].name);
+			if (t_info[i].guardian_ifvisited == p_ptr->dungeon) {
+			  if (r_info[t_info[i].replace_guardian].max_num > 0)
+			    {
+			      long_level_name(str, i, 0);
+			      msg_format("%^s now guards %s.", r_name + r_info[t_info[i].replace_guardian].name, str);
+			    }
+			  else {
+			    /* remove the guardian to avoid fake victories */
+			    /* TODO: save these for each dungeon */
+			    t_info[i].guardian_ifvisited = 0;
+			    t_info[i].replace_guardian = 0;
+			  }
 			}
 		}
 		

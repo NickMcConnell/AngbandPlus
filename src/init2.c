@@ -794,6 +794,12 @@ static errr init_d_info(void)
 	/* Save a pointer to the parsing function */
 	d_head.parse_info_txt = parse_d_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	d_head.emit_info_txt_always = emit_d_info_always;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("room", &d_head);
@@ -857,6 +863,12 @@ static errr init_k_info(void)
 	/* Save a pointer to the parsing function */
 	k_head.parse_info_txt = parse_k_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	k_head.emit_info_txt_index = emit_k_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("object", &k_head);
@@ -886,6 +898,12 @@ static errr init_a_info(void)
 	/* Save a pointer to the parsing function */
 	a_head.parse_info_txt = parse_a_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	a_head.emit_info_txt_index = emit_a_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("artifact", &a_head);
@@ -943,6 +961,12 @@ static errr init_e_info(void)
 	/* Save a pointer to the evaluate power function*/
 	e_head.eval_info_power = eval_e_power;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	e_head.emit_info_txt_index = emit_e_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("ego_item", &e_head);
@@ -971,6 +995,12 @@ static errr init_x_info(void)
 	/* Save a pointer to the parsing function */
 	x_head.parse_info_txt = parse_x_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	x_head.emit_info_txt_index = emit_x_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("flavor", &x_head);
@@ -1065,6 +1095,12 @@ static errr init_p_info(void)
 	/* Save a pointer to the parsing function */
 	p_head.parse_info_txt = parse_p_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	p_head.emit_info_txt_index = emit_p_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+	
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("p_race", &p_head);
@@ -1093,6 +1129,11 @@ static errr init_c_info(void)
 	/* Save a pointer to the parsing function */
 	c_head.parse_info_txt = parse_c_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	c_head.emit_info_txt_index = emit_c_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("p_class", &c_head);
@@ -1146,6 +1187,12 @@ static errr init_s_info(void)
 
 	/* Save a pointer to the parsing function */
 	s_head.parse_info_txt = parse_s_info;
+
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	s_head.emit_info_txt_index = emit_s_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
 
 #endif /* ALLOW_TEMPLATES */
 

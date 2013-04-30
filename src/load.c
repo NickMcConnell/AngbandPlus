@@ -429,7 +429,7 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+	/*if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);*/
 
 
 	/* Repair non "wearable" items */
@@ -494,7 +494,7 @@ static errr rd_item(object_type *o_ptr)
 	o_ptr->weight = k_ptr->weight;
 
 	/* Hack -- extract the "broken" flag */
-	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	/*if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);*/
 
 
 	/* Artifacts */

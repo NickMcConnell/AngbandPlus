@@ -377,15 +377,15 @@ static void display_group_list(int col, int row, int wid, int per_page,
 	/* Display lines until done */
 	for (i = 0, pos = start; i < per_page && pos < max; i++, pos++)
 	{
-		char buffer[21];
+		char buffer[20];
 		byte attr = curs_attrs[CURS_KNOWN][cursor == pos];
 
 		/* Erase the line */
 		Term_erase(col, row + i, wid);
 
-		/* Display it (width should not exceed 20) */
-		strncpy(buffer, group_text[pos], 20);
-		buffer[20] = 0;
+		/* Display it (width should not exceed 19) */
+		strncpy(buffer, group_text[pos], 19);
+		buffer[19] = 0;
 		c_put_str(attr, buffer, row + i, col);
 	}
 	/* Wipe the rest? */
@@ -509,7 +509,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 		len = strlen(g_names[i]);
 		if(len > g_name_len) g_name_len = len;
 	}
-	if(g_name_len >= 20) g_name_len = 20;
+	if(g_name_len >= 19) g_name_len = 19;
 
 	while ((!flag) && (grp_cnt))
 	{
@@ -599,12 +599,12 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			const char *pnote1 = (!o_funcs.note || !o_funcs.note(oid)) ? "" : 
 								", '{', '}', 'k', 'g', ...";
 
-			const char *pvs = (!o_funcs.xattr) ? "" : ", 'v' for visuals";
+			const char *pvs = (!o_funcs.xattr) ? ", " : ", 'v' for visuals, ";
 
 			if(visual_list)
-				prt(format("<dir>, 'r' to recall, ENTER to accept%s, ESC", pedit), hgt-1, 0);
+				prt(format("<dir>, 'r' to recall, ENTER to accept%s, ESC to exit", pedit), hgt-1, 0);
 			else 
-				prt(format("<dir>, 'r' to recall%s ESC%s%s%s",
+				prt(format("<dir>, 'r' to recall%sESC%s%s%s",
 											pvs, pedit, pnote, pnote1), hgt-1, 0);
 		}
 
@@ -1410,13 +1410,13 @@ static void desc_ego_fake(int oid)
 
 	/* List can flags */
 	if(cheat_lore) list_object_flags(e_ptr->flags1, e_ptr->flags2, e_ptr->flags3,
-									e_ptr->flags4, 1);
+									e_ptr->flags4, 0, 1);
 
 	else {
 		list_object_flags(n_ptr->can_flags1, n_ptr->can_flags2, n_ptr->can_flags3,
-							n_ptr->can_flags4, 1);
+							n_ptr->can_flags4, 0, 1);
 		/* List may flags */
-		list_object_flags(n_ptr->may_flags1,n_ptr->may_flags2,n_ptr->may_flags3,n_ptr->may_flags4,2);
+		list_object_flags(n_ptr->may_flags1,n_ptr->may_flags2,n_ptr->may_flags3,n_ptr->may_flags4,0, 2);
 	}
 
 	for(i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++) {
@@ -1850,20 +1850,110 @@ static void do_cmd_knowledge_home(void)
 
 /* =================== TOWNS AND DUNGEONS ================================ */
 
+int count_routes(int from, int to)
+{
+  s16b routes[24];
+  int i, num;
+
+  num = set_routes(routes, 24, from);
+
+  for (i = 0; i < num; i++)
+    if (to == routes[i]) return num;
+
+    /* no route */
+    return -num;
+}
+
+static void describe_surface_dungeon(int dun) 
+{
+  int myd = p_ptr->dungeon;;
+  int num;
+
+  if (dun == rp_ptr->home) {
+    text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+
+    if (dun == myd)
+      text_out_c(TERM_SLATE, "  You were born right here.");
+    else
+      text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago");
+  } 
+  else if (t_info[dun].visited)
+    text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+  else
+    text_out_c(TERM_SLATE, "You've heard about this place and you can already spot it far away ahead.");
+
+  /* routes from descibed dungeon to current dungeon */
+  num = count_routes(dun, myd);
+
+  if (num <= 0 && dun != myd)
+    /* no road back to current */
+    if (count_routes(myd, dun) > 0)
+      /* road forth, hence one way */
+      text_out_c(TERM_RED, format("  You know of no way back from %s to %s!", 
+				  t_info[dun].name + t_name, 
+				  t_info[myd].name + t_name));
+	  
+  if (!num)
+    text_out_c(TERM_SLATE, format("  You feel your old maps will not avail you %s.", dun == myd ? "here" : "there"));	  
+}
+
+static void describe_zone_guardian(int dun, int zone) 
+{
+  int guard = actual_guardian(t_info[dun].zone[zone].guard, dun, zone);
+
+  if (guard) {
+    bool bars = (r_info[guard].max_num 
+		 && t_info[dun].quest_monster == guard);
+    char str[46];
+
+    if (bars)
+      long_level_name(str, actual_route(t_info[dun].quest_opens), 0);
+
+    text_out_c(TERM_SLATE, format("  It %s guarded by %s%s%s.",
+				  r_info[guard].max_num ? "is" : "was", 
+				  r_info[guard].name + r_name,
+				  bars ? ", who bars the way to " : "",
+				  bars ? str : ""));
+  }
+}
+
 static void dungeon_lore(int oid) {
 	int dun = oid / MAX_DUNGEON_ZONES;
 	int zone = oid % MAX_DUNGEON_ZONES;
-	int guard = t_info[dun].zone[zone].guard;
+	char str[46];
+
+	long_level_name(str, dun, t_info[dun].zone[zone].level);
 
 	screen_save();
-	c_prt(TERM_L_BLUE, format("Level %d of %s", t_info[dun].zone[zone].level, t_info[dun].name+t_name), 0, 0);
+
+	if (zone == MAX_DUNGEON_ZONES - 1
+	    || t_info[dun].zone[zone+1].level == 0
+	    || t_info[dun].zone[zone+1].level - 1 == t_info[dun].zone[zone].level) {
+	  /* one-level zone */ 
+	  c_prt(TERM_L_BLUE, format("Level %d of %s", t_info[dun].zone[zone].level, str), 0, 0);
+	}
+	else {
+	  c_prt(TERM_L_BLUE, format("Levels %d-%d of %s", 
+				    t_info[dun].zone[zone].level,
+				    t_info[dun].zone[zone+1].level - 1, 
+				    str), 0, 0);
+	}
+
 	Term_gotoxy(0, 1);
 
-	text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+	if (!zone) 
+	  describe_surface_dungeon(dun);
 
-	if(t_info[dun].zone[zone].guard) {
-		text_out_c(TERM_WHITE, format(" It %s guarded by %s.",
-			r_info[guard].max_num ? "is" : "was", r_info[guard].name + r_name));
+	describe_zone_guardian(dun, zone);
+
+	if (dun == p_ptr->dungeon && (zone || dun != rp_ptr->home)) {
+	  dungeon_zone *my_zone;
+
+	  /* Get the zone */
+	  get_zone(&my_zone, dun, p_ptr->depth);
+
+	  if (my_zone == &t_info[dun].zone[zone])
+	    text_out_c(TERM_SLATE, "  This is where you stand right now.");
 	}
 	
 	/* Load the screen */
@@ -1873,31 +1963,75 @@ static void dungeon_lore(int oid) {
 
 static void display_dungeon_zone(int col, int row, bool cursor, int oid)
 {
-	int zone = oid % MAX_DUNGEON_ZONES;
-	int dun = oid / MAX_DUNGEON_ZONES;
+        int dun = oid / MAX_DUNGEON_ZONES;
+        int zone = oid % MAX_DUNGEON_ZONES;
+	int depth = t_info[dun].max_depth + t_info[dun].zone[0].level;
+	int guard = actual_guardian(t_info[dun].zone[zone].guard, dun, zone);
 
-	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
-	
-	if(zone == 0) {
-		if(t_info[dun].zone[0].level == 0) {
-			c_prt(attr, format("Town of %s", t_info[dun].name + t_name), row, col);
-		}
-		else {
-			c_prt(attr, t_info[dun].name + t_name, row, col);
-		}
-		c_prt(attr, format("Lev %3d",
-					t_info[dun].max_depth + t_info[dun].zone[0].level), row, 65);
+        byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
+
+	char str[46];
+
+	long_level_name(str, dun, t_info[dun].zone[zone].level);
+
+        if(!t_info[dun].zone[zone].name) {
+	  if(zone == 0) {
+	    c_prt(attr, t_info[dun].name + t_name, row, col);
+	  }
+	  else {
+	    c_prt(attr, format("Level %d of %s", t_info[dun].zone[zone].level,
+			       t_info[dun].name + t_name),  row, col);
+	  }
 	}
 	else {
-		c_prt(attr, format("Level %d of %s", t_info[dun].zone[zone].level,
-										t_info[dun].name + t_name),  row, col);
+	  c_prt(attr, format("%s", str), row, col);
 	}
+
+	if (depth >= t_info[dun].zone[zone].level) {
+	  if (zone == MAX_DUNGEON_ZONES - 1 || t_info[dun].zone[zone+1].level == 0) {
+	    /* last zone */ 
+	    c_prt(attr, format(" Lev %3d", depth), row, 67);
+	  }
+	  else if (depth < t_info[dun].zone[zone+1].level) {
+	    /* depth in that dungeon is less than start of the next zone */
+	    c_prt(attr, format(" Lev %3d", depth), row, 67);
+	  }
+	  else {
+	    if (guard && r_info[guard].max_num)
+	      /* we've reached the guardian and escaped (or he did) */
+	      c_prt(attr, " !!!", row, 67);
+	    else
+	      /* we are already past the zone */
+	      c_prt(attr, " ***", row, 67);
+	  }
+	}
+
+	if (guard && !r_info[guard].max_num)
+	  /* we've killed the guardian, regardless if we've been there */
+	  c_prt(attr, " victory", row, 67);
 }
 
 static int oiddiv4 (int oid) { return oid/MAX_DUNGEON_ZONES; }
 static const char* town_name(int gid) { return t_info[gid].name+t_name; }
 
+void long_level_name(char* str, int town, int depth) 
+{
+  dungeon_zone *zone;
 
+  /* Get the zone */
+  get_zone(&zone, town, depth);
+  
+  if (zone->name)
+    sprintf(str, "%s %s", zone->name + t_name, t_info[town].name + t_name);
+  else
+    sprintf(str, "%s", t_info[town].name + t_name);
+}
+
+void current_long_level_name(char* str) 
+{
+  long_level_name(str, p_ptr->dungeon, p_ptr->depth);
+}
+	       
 static void do_cmd_knowledge_dungeons(void)
 {
 	int i, j;
@@ -1905,26 +2039,66 @@ static void do_cmd_knowledge_dungeons(void)
 	int *zones;
 	member_funcs zone_f = {display_dungeon_zone, dungeon_lore, 0, 0, 0, 0};
 	group_funcs dun_f = {z_info->t_max, FALSE, town_name, 0, oiddiv4, 0};
+	int myd = p_ptr->dungeon;
 
 	zones = C_ZNEW(z_info->t_max*MAX_DUNGEON_ZONES, int);
 
-	for(i = 0; i < z_info->t_max; i++) {
-		/* HACK: there should be a better way to determine visitation */
-		int guard0 = t_info[i].zone[0].guard;
-		if(t_info[i].max_depth == 0 && i != p_ptr->dungeon &&
-			(!guard0 || r_info[guard0].max_num)) continue;
+	for(i = 1; i < z_info->t_max; i++) {
 
-		for(j = 0; (j < 1 || t_info[i].zone[j].level != 0 )
-											 && j < MAX_DUNGEON_ZONES; j++)
-		{
-			if(j == 0 || t_info[i].zone[j].guard)
-				zones[z_count++] = MAX_DUNGEON_ZONES*i + j;
+	  if (!t_info[i].visited 
+	      && !(i == rp_ptr->home)
+	      && !(count_routes(myd, i) > 0))
+	    continue;
+
+	  if (t_info[i].replace_ifvisited 
+	      && t_info[t_info[i].replace_ifvisited].visited)
+	    continue;
+
+	  for(j = 0; (j < 1 || t_info[i].zone[j].level != 0 )
+		&& j < MAX_DUNGEON_ZONES; j++)
+	    {
+	      zones[z_count++] = MAX_DUNGEON_ZONES*i + j;
+	    }
+	}
+
+	display_knowledge("locations", zones, z_count, dun_f, zone_f, "   Reached");
+	FREE(zones);
+}
+
+/* Keep macro counts happy. */
+static void cleanup_cmds () {
+	FREE(obj_group_order);
+}
+
+/* The stand-alone version, e.g. for travel menu help */
+/* TODO: this is blindly copied from do_cmd_menu, please simplify */
+void do_knowledge_dungeons(void)
+{
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
+	/* initialize static variables */
+	if(!obj_group_order) {
+		int i, n = 0;
+		for(n = 0; object_group_tval[n]; n++)
+		obj_group_order = C_ZNEW(TV_GEMS+1, int);
+		ang_atexit(cleanup_cmds);
+		for(i = 0; i <= TV_GEMS; i++) /* allow for missing values */
+			obj_group_order[i] = -1;
+		for(i = 0; i < n; i++) {
+			obj_group_order[object_group_tval[i]] = i;
 		}
 	}
 
-	display_knowledge("locations", zones, z_count, dun_f, zone_f, "Reached");
-	FREE(zones);
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	do_cmd_knowledge_dungeons();
+
+	/* Flush messages */
+	message_flush();
 }
+
 
 /* =================== END JOIN DEFINITIONS ================================ */
 
@@ -4620,12 +4794,19 @@ void do_cmd_timeofday()
 	/* Display location */
 	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
-		msg_format("You are in %s.", t_name + t_info[p_ptr->dungeon].name);
+		char str[46];
+
+		current_long_level_name(str);
+
+		msg_format("You are in %s.", str);
 	}
 	/* Display depth in feet */
 	else if (depth_in_feet)
 	{
 		dungeon_zone *zone=&t_info[0].zone[0];
+		char str[46];
+
+		current_long_level_name(str);
 
 		/* Get the zone */
 		get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
@@ -4633,14 +4814,15 @@ void do_cmd_timeofday()
 		msg_format("You are %d ft %s %s.",
 			(p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
 				zone->tower ? "high above" : "deep in",
-					t_name + t_info[p_ptr->dungeon].name);
+					str);
 	}
 	/* Display depth */
 	else
 	{
-		msg_format("You are on level %d of %s.",
-			p_ptr->depth - min_depth(p_ptr->dungeon),
-				t_name + t_info[p_ptr->dungeon].name);
+	  char str[46];
+	  current_long_level_name(str);
+	  msg_format("You are on level %d of %s.",
+		     p_ptr->depth - min_depth(p_ptr->dungeon), str);
 	}
 
 	/* Message */
@@ -4812,6 +4994,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		else if ((intro) && (!vn)) text_out(" in ");
 		else if (!vn) text_out("In ");
 
+		/* TODO: full level 0 name? level n name? */
 		text_out(t_name + t_info[event->dungeon].name);
 
 		if ((event->owner) || (event->store) || ((event->feat) && (event->action)) ||
@@ -6124,10 +6307,6 @@ static command_menu knowledge_actions[] = {
 	{'V', "Interact with visuals", (action_f) do_cmd_visuals, 0},
 };
 
-/* Keep macro counts happy. */
-static void cleanup_cmds () {
-	FREE(obj_group_order);
-}
 /*
  * Set or unset various options.
  *

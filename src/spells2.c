@@ -786,7 +786,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("Your race affects you.  ");
 
-		list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags4,1);
+		list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags4, 1, 1);
 
 		text_out("\n");
 	}
@@ -813,7 +813,7 @@ void self_knowledge_aux(bool spoil, bool random)
 
 			intro = TRUE;
 
-			list_object_flags(shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags4,1);
+			list_object_flags(shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags4, 1, 1);
 		}
 
 		/* Intro? */
@@ -831,7 +831,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("Your training affects you.  ");
 
-		list_object_flags(t1,t2,t3,t4,1);
+		list_object_flags(t1,t2,t3,t4,1, 1);
 
 		text_out("\n");
 	}
@@ -865,7 +865,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("Your equipment affects you.  ");
 
-		list_object_flags(f1,f2,f3,f4,1);
+		list_object_flags(f1,f2,f3,f4,0, 1);
 
 		if (spoil)
 		{
@@ -899,7 +899,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		{
 			text_out("Your weapon has special powers.  ");
 	
-			list_object_flags(t1,t2,t3,t4,1);
+			list_object_flags(t1,t2,t3,t4,o_ptr->pval, 1);
 
 			if (spoil)
 			{	
@@ -933,7 +933,7 @@ remainder:
 	{
 		text_out("You are carrying equipment that you have not fully identified.  ");
 
-		list_object_flags(t1,t2,t3,t4,1);
+		list_object_flags(t1,t2,t3,t4,0, 1);
 
 		text_out("\n");
 	}
@@ -1292,9 +1292,17 @@ int value_check_aux3(const object_type *o_ptr)
 	}
 
 	/* Cursed or broken items */
-	if ((cursed_p(o_ptr)) || (broken_p(o_ptr)))
+	if (cursed_p(o_ptr))
 	{
 		if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_CURSED);
+
+		return (INSCRIP_NONMAGICAL);
+	}
+
+	/* Cursed or broken items */
+	if (broken_p(o_ptr))
+	{
+		if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_BROKEN);
 
 		return (INSCRIP_NONMAGICAL);
 	}
@@ -1393,7 +1401,7 @@ int value_check_aux4(const object_type *o_ptr)
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
 	/* Broken items */
-	/* if (broken_p(o_ptr)) return (INSCRIP_BROKEN); */
+	if (broken_p(o_ptr)) return (INSCRIP_UNCURSED);
 
 	/* Known to be unusual */
 	if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_MAGICAL);
@@ -1446,7 +1454,7 @@ int value_check_aux5(const object_type *o_ptr)
 	}
 
 	/* Broken items */
-	/*if (broken_p(o_ptr)) return (INSCRIP_NONMAGICAL);*/
+	if (broken_p(o_ptr)) return (INSCRIP_NONMAGICAL);
 
 	/* Coated item */
 	if (coated_p(o_ptr)) return (INSCRIP_COATED);
@@ -3637,7 +3645,7 @@ bool ident_spell_rumor(void)
 		Term_gotoxy(0, 1);
 
 		/* Actually display the item */
-		list_object_flags(f1, f2, f3, f4, 1);
+		list_object_flags(f1, f2, f3, f4, o_ptr->ident & (IDENT_PVAL | IDENT_MENTAL | IDENT_KNOWN) ? o_ptr->pval : 0, 1);
 
 		(void)anykey();
 	
@@ -7322,8 +7330,65 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 }
 
 
+#define SPELL_BLOW_HACK	0
+#define SPELL_SHOT_HACK	1
+#define SPELL_HURL_HACK	2
+
+/*
+ * This helper function allows the player to ensorcle a single
+ * round of attacks, round of shots or round of shooting with
+ * various effects.
+ * 
+ * Returns FALSE if cancelled
+ */
+bool process_spell_blow_shot_hurl(int type)
+{
+	switch (type)
+	{
+		case SPELL_BLOW_HACK:
+		{
+			int dir;
+			
+			/* Allow direction to be cancelled for free */
+			if (!get_rep_dir(&dir)) return (FALSE);
+			
+			/* Attack */
+			py_attack(dir);
+			
+			break;
+		}
+		case SPELL_SHOT_HACK:
+		{
+			/* Fire */
+			do_cmd_fire();
+			
+			/* Cancelled */
+			if (!p_ptr->energy_use) return (FALSE);
+			
+			break;
+		}
+		case SPELL_HURL_HACK:
+		{
+			/* Fire */
+			do_cmd_throw();
+			
+			/* Cancelled */
+			if (!p_ptr->energy_use) return (FALSE);
+			
+			break;
+		}
+	}
+	
+	return (TRUE);
+}
 
 
+
+/*
+ * Process the spell types.
+ * 
+ * Basically a collection of hacks
+ */
 bool process_spell_types(int who, int spell, int level, bool *cancel)
 {
 
@@ -7426,7 +7491,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			}
 			case SPELL_SUMMON:
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+				if (summon_specific(p_ptr->py, p_ptr->px, 0, p_ptr->depth+5, s_ptr->param, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
 			}
@@ -7440,7 +7505,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			{
 				summon_group_type = s_ptr->param;
 				
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, SUMMON_GROUP, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+				if (summon_specific(p_ptr->py, p_ptr->px, 0, p_ptr->depth+5, SUMMON_GROUP, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
 			}
@@ -7853,6 +7918,129 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Hack -- regenerate level */
 				p_ptr->leaving = TRUE;
 				
+				break;
+			}
+			
+			case SPELL_MAGIC_BLOW:
+			case SPELL_MAGIC_SHOT:
+			case SPELL_MAGIC_HURL:
+			{
+				bool result;
+				
+				/* Magical blow */
+				p_ptr->branded_blows = s_ptr->param;
+				
+				/* Hack - try to assist a couple of things.
+				 * Note that a lot of flags don't actually work
+				 * such as e.g. stat bonuses. We hackily adjust
+				 * blows, shots, might and a 'fake' hurls here,
+				 * and use 'melee might' to increase charge bonus.
+				 */
+				switch (s_ptr->param)
+				{
+					case 14: case 15:
+					{
+						p_ptr->num_blow += (p_ptr->lev + 19) / 20;
+						p_ptr->num_fire += (p_ptr->lev + 19) / 20;
+						p_ptr->num_throw += (p_ptr->lev + 19) / 20;
+						break;
+					}
+					case 16:
+					{
+						p_ptr->num_charge += (p_ptr->lev + 19) / 20;
+						p_ptr->ammo_mult += (p_ptr->lev + 19) / 20;
+						break;
+					}
+					/* Hack -- upgrade slays to executions, where possible */
+					case 19:
+					{
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 28;
+						break;
+					}
+					case 20:
+					{
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 27;
+						break;
+					}
+					case 25:
+					{
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 26;
+						break;
+					}
+				}
+				
+				/* Allow direction to be cancelled for free */
+				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_MAGIC_BLOW);
+
+				/* End branding */
+				p_ptr->branded_blows = 0;
+
+				/* Undo above hacks */
+				switch (s_ptr->param)
+				{
+					case 14: case 15:
+					{
+						p_ptr->num_blow -= (p_ptr->lev + 19) / 20;
+						p_ptr->num_fire -= (p_ptr->lev + 19) / 20;
+						p_ptr->num_throw -= (p_ptr->lev + 19) / 20;
+						break;
+					}
+					case 16:
+					{
+						p_ptr->num_charge -= (p_ptr->lev + 19) / 20;
+						p_ptr->ammo_mult -= (p_ptr->lev + 19) / 20;
+						break;
+					}
+				}
+				
+				if (!result) return (!(*cancel));
+
+				*cancel = FALSE;
+				obvious = TRUE;				
+				break;
+			}
+			
+			case SPELL_ACCURATE_BLOW:
+			case SPELL_ACCURATE_SHOT:
+			case SPELL_ACCURATE_HURL:
+			{
+				bool result;
+				
+				/* Accurate blow */
+				p_ptr->to_h = s_ptr->param;
+				
+				/* Allow direction to be cancelled for free */
+				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_ACCURATE_BLOW);
+
+				/* End branding */
+				p_ptr->to_h -= s_ptr->param;
+
+				if (!result) return (!(*cancel));
+
+				*cancel = FALSE;
+				obvious = TRUE;
+				break;
+			}
+
+			case SPELL_DAMAGING_BLOW:
+			case SPELL_DAMAGING_SHOT:
+			case SPELL_DAMAGING_HURL:
+			{
+				bool result;
+				
+				/* Damaging blow */
+				p_ptr->to_d += s_ptr->param;
+				
+				/* Allow direction to be cancelled for free */
+				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_DAMAGING_BLOW);
+
+				/* End branding */
+				p_ptr->to_d -= s_ptr->param;
+
+				if (!result) return (!(*cancel));
+
+				*cancel = FALSE;
+				obvious = TRUE;				
 				break;
 			}
 			

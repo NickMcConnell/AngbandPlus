@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
 			case 's':
 			{
 				show_score = atoi(arg);
-				if (show_score <= 0) show_score = 10;
+				if (show_score <= 0) show_score = 8;
 				continue;
 			}
 

@@ -102,6 +102,7 @@
  * Number of grids in each panel (vertically)
  * Must be a multiple of BLOCK_HGT
  */
+
 #define PANEL_HGT	(use_trptile ? 3 : (use_dbltile ? 5 : 11))
 
 /*
@@ -129,14 +130,14 @@
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	(((Term->hgt - ROW_MAP - 1 - (show_sidebar ? 0 : 1)) / \
-				(use_trptile ? 3 : (use_dbltile ? 2 : 1)) - (show_itemlist ? 1 : 0)))
+#define SCREEN_HGT	(((Term->hgt - ROW_MAP - 2)) / \
+				(use_trptile ? 3 : (use_dbltile ? 2 : 1)) - (show_itemlist ? 1 : 0))
 
 /*
  * Number of grids in each screen (horizontally)
  * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define SCREEN_WID	((Term->wid - COL_MAP - 1) / ((use_trptile && use_bigtile) ?  6 : (use_trptile ? 3 : \
+#define SCREEN_WID	((Term->wid - COL_MAP - (show_sidebar ? 1 : 0)) / ((use_trptile && use_bigtile) ?  6 : (use_trptile ? 3 : \
 			((use_dbltile && use_bigtile) ? 4 :((use_dbltile || use_bigtile) ? 2 : 1)))))
 
 
@@ -161,7 +162,7 @@
 #define DUNGEON_WID		198
 
 #define TOWN_WID 66
-#define TOWN_HGT 22
+#define TOWN_HGT 21
 
 /*
  * Maximum numbers of rooms along each axis (currently 6x18)
@@ -319,6 +320,7 @@
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
+#define STORE_WILL_BUY	16		/* Number of different tvals the store will buy */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
@@ -719,82 +721,85 @@
 #define COL_TITLE		0	/* <title> or <mode> */
 
 #define ROW_LEVEL		(show_sidebar ? 4 : (BOTTOM_LINE))
-#define COL_LEVEL		0	/* "LEVEL xxxxxx" */
+#define COL_LEVEL		(show_sidebar ? 0 : 74)	/* "LEVEL xxxxxx" */
 
 #define ROW_EXP			(show_sidebar ? 5 : (BOTTOM_LINE))
-#define COL_EXP			(show_sidebar ? 0 : 7)	/* "EXP xxxxxxxx" */
+#define COL_EXP			(show_sidebar ? 0 : 64)	/* "EXP xxxxxxxx" */
 
 #define ROW_GOLD		(show_sidebar ? 6 : (BOTTOM_LINE))
-#define COL_GOLD		(show_sidebar ? 0 : 20)	/* "AU xxxxxxxxx" */
+#define COL_GOLD		(show_sidebar ? 0 : 26)	/* "AU xxxxxxxxx" */
 
 #define ROW_STAT		(show_sidebar ? 8 : (SECOND_FROM_BOTTOM))
-#define COL_STAT		0	/* "xxx   xxxxxx" */
+#define COL_STAT	       0	/* "xxx   xxxxxx" */
 
 #define ROW_AC			(show_sidebar ? 17 : (BOTTOM_LINE))
-#define COL_AC			(show_sidebar ? 0 : 33)	/* "Cur AC xxxxx" */
+#define COL_AC			(show_sidebar ? 0 : 13)	/* "Cur AC xxxxx" */
 
 #define ROW_MAXHP		(show_sidebar ? 18 : (BOTTOM_LINE))
-#define COL_MAXHP		(show_sidebar ? 0 : 47)	/* "Max HP xxxxx" */
+#define COL_MAXHP		(show_sidebar ? 0 : 7)	/* "Max HP xxxxx" */
 
 #define ROW_CURHP		(show_sidebar ? 19 : (BOTTOM_LINE))
-#define COL_CURHP		(show_sidebar ? 0 : 40)	/* "Cur HP xxxxx" */
+#define COL_CURHP		(show_sidebar ? 0 : 0)	/* "Cur HP xxxxx" */
 
 #define ROW_MAXSP		(show_sidebar ? 20 : (BOTTOM_LINE))
-#define COL_MAXSP		(show_sidebar ? 0 : 60)	/* "Max SP xxxxx" */
+#define COL_MAXSP		(show_sidebar ? 0 : 20)	/* "Max SP xxxxx" */
 
 #define ROW_CURSP		(show_sidebar ? 21 : (BOTTOM_LINE))
-#define COL_CURSP		(show_sidebar ? 0 : 53)	/* "Cur SP xxxxx" */
+#define COL_CURSP		(show_sidebar ? 0 : 13)	/* "Cur SP xxxxx" */
 
 #define ROW_INFO		(show_sidebar ? 22 : (BOTTOM_LINE))
-#define COL_INFO		(show_sidebar ? 0 : 20)	/* "xxxxxxxxxxxx" */
+#define COL_INFO		(show_sidebar ? 0 : 26)	/* "xxxxxxxxxxxx" */
 
-#define ROW_CUT			(show_sidebar ? 23 : (SECOND_FROM_BOTTOM))
-#define COL_CUT			(show_sidebar ? 0 : 24)	/* <cut> */
+#define ROW_HUNGRY		(show_sidebar ? (BOTTOM_LINE) : (BOTTOM_LINE))
+#define COL_HUNGRY		(show_sidebar ? 0 : 59)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_STUN		(show_sidebar ? 24 : (SECOND_FROM_BOTTOM))
-#define COL_STUN		(show_sidebar ? 0 : 28)	/* <stun> */
+#define ROW_STATE	(show_sidebar ? (BOTTOM_LINE) : (BOTTOM_LINE))
+#define COL_STATE		(show_sidebar ? (Term->wid >= 90  ? 69 : 60) : 39)	/* <state> */
 
-#define ROW_HUNGRY		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_HUNGRY		(show_sidebar ? 0 : 32)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
+#define ROW_SPEED	(show_sidebar ? (BOTTOM_LINE) : (BOTTOM_LINE))
+#define COL_SPEED		(show_sidebar ? (Term->wid >= 90  ? 80 : 70) : 39)	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_BLIND		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_BLIND		(show_sidebar ? (Term->wid >= 90  ? 7 : 6)  : 36)	/* "Blind" */
-
-#define ROW_CONFUSED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_CONFUSED		(show_sidebar ? (Term->wid >= 90  ? 13 : 11) : 40)	/* "Confused" */
-
-#define ROW_AFRAID		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_AFRAID		(show_sidebar ? (Term->wid >= 90  ? 22 : 19) : 44)	/* "Afraid" */
-
-#define ROW_POISONED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_POISONED		(show_sidebar ? (Term->wid >= 90  ? 29 : 25) : 48)	/* "Poisoned" */
-
-#define ROW_DISEASE		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_DISEASE	(show_sidebar ? (Term->wid >= 90  ? 38 : 33) : 52)	/* "Disease" / "Dise" */
-
-#define ROW_CURSED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_CURSED	(show_sidebar ? (Term->wid >= 90  ? 46 : 40) : 56)	/* "Cursed" / "Curs" */
-
-#define ROW_AMNESIA	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_AMNESIA	(show_sidebar ? (Term->wid >= 90  ? 53 : 46) : 60)	/* "Amnesia" / "Forg" */
-
-#define ROW_PETRIFY	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_PETRIFY	(show_sidebar ? (Term->wid >= 90  ? 61 : 53) : 64)	/* "Petrify" / "Petr" */
-
-#define ROW_STATE	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_STATE		(show_sidebar ? (Term->wid >= 90  ? 69 : 60) : 69)	/* <state> */
-
-#define ROW_SPEED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_SPEED		(show_sidebar ? (Term->wid >= 90  ? 80 : 70) : 69)	/* "Slow (-NN)" or "Fast (+NN)" */
-
-#define ROW_STUDY		(show_sidebar ? (Term->wid >= 96 ? (BOTTOM_LINE) : 14) \
+#define ROW_STUDY		(show_sidebar ? (Term->wid >= 96 ? (BOTTOM_LINE) : 16) \
 					: (BOTTOM_LINE))
-#define COL_STUDY		(show_sidebar ? (Term->wid >= 96 ? 91 : 0) : 67)	/* "Study" */
+#define COL_STUDY		(show_sidebar ? (Term->wid >= 96 ? 91 : 0) : 53)	/* "Study" */
 
 #define ROW_DEPTH		(show_sidebar ? (Term->wid >= 105 ? (BOTTOM_LINE) : 7) \
-					: (BOTTOM_LINE))
-#define COL_DEPTH		(show_sidebar ? (Term->wid >= 105 ? 97 : 0) : 72)	/* "Lev NNN" / "NNNN ft" */
+					: (SECOND_FROM_BOTTOM))
+#define COL_DEPTH		(show_sidebar ? (Term->wid >= 105 ? 97 : 0) : 73)	/* "Lev NNN" / "NNNN ft" */
 
+/*
+ * From most likely to last long to least likely; SECOND_FROM_BOTTOM in !sidebar
+ */
+
+#define ROW_DISEASE		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_DISEASE	(show_sidebar ? (Term->wid >= 90  ? 38 : 33) : 24)	/* "Disease" / "Dise" */
+
+#define ROW_CURSED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_CURSED	(show_sidebar ? (Term->wid >= 90  ? 46 : 40) : 28)	/* "Cursed" / "Curs" */
+
+#define ROW_AFRAID		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_AFRAID		(show_sidebar ? (Term->wid >= 90  ? 22 : 19) : 32)	/* "Afraid" */
+
+#define ROW_CUT			(show_sidebar ? 23 : (SECOND_FROM_BOTTOM))
+#define COL_CUT			(show_sidebar ? 0 : 36)	/* <cut> */
+
+#define ROW_STUN		(show_sidebar ? 24 : (SECOND_FROM_BOTTOM))
+#define COL_STUN		(show_sidebar ? 0 : 40)	/* <stun> */
+
+#define ROW_POISONED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_POISONED		(show_sidebar ? (Term->wid >= 90  ? 29 : 25) : 44)	/* "Poisoned" */
+
+#define ROW_AMNESIA	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_AMNESIA	(show_sidebar ? (Term->wid >= 90  ? 53 : 46) : 48)	/* "Amnesia" / "Forg" */
+
+#define ROW_PETRIFY	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_PETRIFY	(show_sidebar ? (Term->wid >= 90  ? 61 : 53) : 52)	/* "Petrify" / "Petr" */
+
+#define ROW_CONFUSED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_CONFUSED		(show_sidebar ? (Term->wid >= 90  ? 13 : 11) : 56)	/* "Confused" */
+
+#define ROW_BLIND		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
+#define COL_BLIND		(show_sidebar ? (Term->wid >= 90  ? 7 : 6)  : 60)	/* "Blind" */
 
 
 /*** General index values ***/
@@ -1028,11 +1033,6 @@
  */
 
 #define MAX_DUNGEON_ZONES	 4
-
-/*
- * Maximum surface level before we become ruins, rather than wilderness.
- */
-#define MAX_ZONE_WILDS		15
 
 /*
  * Number of feats we change to (Excluding default). Used in f_info.txt.
@@ -1316,7 +1316,7 @@
 #define FF3_ALLOC       0x00000004
 #define FF3_CHEST       0x00000008
 #define FF3_DROP_1D2    0x00000010
-#define FF3_DROP_2D2    0x00000020
+#define FF3_DROP_1D3    0x00000020
 #define FF3_DROP_GOOD   0x00000040
 #define FF3_DROP_GREAT  0x00000080
 #define FF3_HURT_POIS   0x00000100
@@ -1608,6 +1608,15 @@
 #define SPELL_LIGHT_CHAMBERS	46
 #define SPELL_REST_UNTIL_DUSK	47
 #define SPELL_REST_UNTIL_DAWN	48
+#define SPELL_MAGIC_BLOW	49
+#define SPELL_MAGIC_SHOT	50
+#define SPELL_MAGIC_HURL	51
+#define SPELL_ACCURATE_BLOW	52
+#define SPELL_ACCURATE_SHOT	53
+#define SPELL_ACCURATE_HURL	54
+#define SPELL_DAMAGING_BLOW	55
+#define SPELL_DAMAGING_SHOT	56
+#define SPELL_DAMAGING_HURL	57
 
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
@@ -2587,6 +2596,7 @@
 #define RBM_SPIKE	75
 #define RBM_AIM_AREA	76
 #define RBM_SCATTER		77
+#define RBM_HOWL 		78
 
 #define RBM_MAX_NORMAL  23
 #define RBM_MIN_RANGED  15
@@ -3594,12 +3604,12 @@
 #define RF1_RAND_50       0x00080000      /* Moves randomly (50%) */
 #define RF1_ONLY_GOLD    0x00100000      /* Drop only gold */
 #define RF1_ONLY_ITEM    0x00200000      /* Drop only items */
-#define RF1_DROP_60       0x00400000      /* Drop an item/gold (60%) */
-#define RF1_DROP_90       0x00800000      /* Drop an item/gold (90%) */
-#define RF1_DROP_1D2     0x01000000      /* Drop 1d2 items/gold */
-#define RF1_DROP_2D2     0x02000000      /* Drop 2d2 items/gold */
-#define RF1_DROP_3D2     0x04000000      /* Drop 3d2 items/gold */
-#define RF1_DROP_4D2     0x08000000      /* Drop 4d2 items/gold */
+#define RF1_DROP_30       0x00400000     /* Drop an item/gold (30%) */
+#define RF1_DROP_60       0x00800000     /* Drop an item/gold (60%) */
+#define RF1_DROP_90     0x01000000       /* Drop an item/gold (90%) */
+#define RF1_DROP_1D2     0x02000000      /* Drop 1d2 items/gold */
+#define RF1_DROP_1D3     0x04000000      /* Drop 1d3 items/gold */
+#define RF1_DROP_1D4     0x08000000      /* Drop 1d4 items/gold */
 #define RF1_DROP_GOOD    0x10000000      /* Drop good items */
 #define RF1_DROP_GREAT   0x20000000      /* Drop great items */
 #define RF1_DROP_USEFUL  0x40000000      /* Drop "useful" items */
@@ -5096,10 +5106,10 @@
 /*
  * This gives either the zone guard, or a replacement guardian, if one is defined.
  */
-#define actual_guardian(ZONE_GUARD, DUNGEON) \
-	((t_info[(DUNGEON)].replace_guardian) && \
+#define actual_guardian(ZONE_GUARD, DUNGEON, ZONE)	 \
+  (ZONE ? ZONE_GUARD : ((t_info[(DUNGEON)].replace_guardian) &&		\
 		(t_info[t_info[(DUNGEON)].guardian_ifvisited].visited) ? \
-				t_info[(DUNGEON)].replace_guardian : (ZONE_GUARD))
+			t_info[(DUNGEON)].replace_guardian : (ZONE_GUARD)))
 
 
 /*

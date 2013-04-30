@@ -145,7 +145,7 @@ A:15/1
 N:11:Restore Constitution and Charisma
 G:,:w
 I:80:18:0
-W:10:500:1:150
+W:10:500:1:50
 A:20/1
 
 N:12:Restoring
@@ -187,7 +187,7 @@ A:20/1
 N:18:Restore Strength and Size
 G:,:w
 I:80:17:0
-W:10:500:1:150
+W:10:500:1:50
 A:20/1
 
 N:19:Disease
@@ -258,7 +258,7 @@ A:15/1
 N:29:& Apple~
 G:,:g
 I:80:39:0
-W:1:700:4:2
+W:1:700:3:2
 A:1/1
 P:0:1d1:0:0:0
 
@@ -1123,7 +1123,7 @@ G:=:w
 I:45:4:0
 W:5:20:2:0
 A:5/1
-F:LIGHT_CURSE | UNCONTROLLED
+F:UNCONTROLLED
 
 N:139:Sustaining
 G:=:w
@@ -1186,7 +1186,7 @@ I:45:18:50
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:0
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+F:RES_FIRE | IGNORE_FIRE | ACTIVATE | BRAND_FIRE
 Y:13:3
 
 N:147:Acid
@@ -1195,7 +1195,7 @@ I:45:17:50
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:0
-F:RES_ACID | IGNORE_ACID | ACTIVATE
+F:RES_ACID | IGNORE_ACID | ACTIVATE | BRAND_ACID
 Y:1:3
 
 N:148:Ice
@@ -1204,7 +1204,7 @@ I:45:19:50
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:0
-F:RES_COLD | IGNORE_COLD | ACTIVATE
+F:RES_COLD | IGNORE_COLD | ACTIVATE | BRAND_COLD
 Y:14:3
 
 N:149:Woe
@@ -1351,7 +1351,7 @@ G:":w
 I:40:1:0
 W:15:20:3:0
 A:15/1
-F:LIGHT_CURSE | UNCONTROLLED
+F:UNCONTROLLED
 Y:7:1
 
 N:167:Slow Digestion
@@ -1766,8 +1766,8 @@ F:THROWING
 N:225:Strength and Size
 G:!:w
 I:75:48:0
-W:20:0:4:400
-A:2/1:50/1
+W:1:0:4:50
+A:1/4:50/4
 P:0:1d1:0:0:0
 F:THROWING
 
@@ -1779,20 +1779,20 @@ A:3/1
 P:0:1d1:0:0:0
 F:THROWING
 
-#junk, remove before a major revision
-N:227:Restore Strength and Size
-G:!:d
-I:75:42:0
-W:15:0:4:200
-A:15/1
-P:0:1d1:0:0:0
-F:THROWING
+#unused
+#N:227:Restore Strength and Size
+#G:!:d
+#I:75:42:0
+#W:15:0:4:200
+#A:15/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
 N:228:Intelligence and Wisdom
 G:!:w
 I:75:49:0
-W:25:0:4:400
-A:2/1:50/1
+W:1:0:4:50
+A:1/4:50/4
 P:0:1d1:0:0:0
 Y:17:2
 F:THROWING
@@ -1805,14 +1805,14 @@ A:20/1
 P:0:1d1:0:0:0
 F:THROWING
 
-#junk, remove before a major revision
-N:230:Restore Intelligence and Wisdom
-G:!:d
-I:75:43:0
-W:15:0:4:200
-A:15/1
-P:0:1d1:0:0:0
-F:THROWING
+#unused
+#N:230:Restore Intelligence and Wisdom
+#G:!:d
+#I:75:43:0
+#W:15:0:4:200
+#A:15/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
 #Unused
 #N:231:Wisdom
@@ -1925,8 +1925,8 @@ F:THROWING
 N:243:Constitution and Charisma
 G:!:w
 I:75:52:0
-W:20:0:4:400
-A:2/1:50/1
+W:1:0:4:50
+A:1/4:50/4
 P:0:1d1:0:0:0
 Y:24:2
 F:THROWING
@@ -1994,29 +1994,29 @@ F:THROWING
 N:251:Dexterity and Agility
 G:!:w
 I:75:51:0
-W:20:0:4:400
-A:2/1:50/1
+W:1:0:4:50
+A:1/4:50/4
 P:0:1d1:0:0:0
 Y:26:2
 F:THROWING
 
-#junk, remove before a major revision
-N:252:Restore Dexterity and Agility
-G:!:d
-I:75:45:0
-W:15:0:4:200
-A:15/1
-P:0:1d1:0:0:0
-F:THROWING
+#unused
+#N:252:Restore Dexterity and Agility
+#G:!:d
+#I:75:45:0
+#W:15:0:4:200
+#A:15/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
-#junk, remove before a major revision
-N:253:Restore Constitution and Charisma
-G:!:d
-I:75:46:0
-W:15:0:4:200
-A:15/1
-P:0:1d1:0:0:0
-F:THROWING
+#unused
+#N:253:Restore Constitution and Charisma
+#G:!:d
+#I:75:46:0
+#W:15:0:4:200
+#A:15/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
 N:254:Lose Memories
 G:!:w
@@ -2257,7 +2257,7 @@ Y:11:2
 N:282:Magic Missile
 G:-:w
 I:65:15:0
-W:3:0:10:100
+W:3:0:10:70
 A:3/2
 P:0:1d1:0:0:0
 Y:2:2
@@ -2463,7 +2463,7 @@ F:REGEN_MANA | AGGRAVATE
 N:306:Light
 G:_:w
 I:55:8:1
-W:10:0:50:250
+W:10:0:50:150
 A:10/1
 P:0:1d6:0:0:0
 F:LITE
@@ -3378,15 +3378,15 @@ G:!:w
 I:75:22:0
 W:60:0:4:0
 A:60/8
-P:0:25d25:0:0:0
+P:0:1d1:0:0:0
 Y:11:1
 F:THROWING
 
 N:418:Augmentation
 G:!:w
 I:75:55:0
-W:40:0:4:60000
-A:40/16
+W:20:0:4:6000
+A:20/16
 P:0:1d1:0:0:0
 F:THROWING
 
@@ -3449,7 +3449,6 @@ Y:8:3
 # four resists, without having to find Colluin or Dor-Lomin first. To have this 
 # power too early in the game would make it too easy.
 
-
 N:425:Regeneration
 G:":w
 I:40:15:0
@@ -3509,7 +3508,7 @@ G:=:w
 I:45:38:0
 W:50:0:2:5000
 A:50/2
-F:RES_ELEC | IGNORE_ELEC | ACTIVATE
+F:RES_ELEC | IGNORE_ELEC | ACTIVATE | BRAND_ELEC
 Y:22:3
 
 # Another potion
@@ -3517,7 +3516,7 @@ Y:22:3
 N:432:Restore Body
 G:!:w
 I:75:54:0
-W:40:0:1:1000
+W:40:0:1:500
 A:40/1:60/1
 P:0:1d1:0:0:0
 F:THROWING
@@ -4424,7 +4423,7 @@ P:0:1d7:0:0:0
 N:599:& handful~ of Berries
 G:,:g
 I:80:38:3000
-W:1:0:4:2
+W:1:300:2:2
 A:1/1
 
 # Runestones
@@ -5121,19 +5120,19 @@ P:0:1d1:0:0:0
 
 N:692:& map~ to the mountain Caradhras
 G:?:U
-I:72:15:0
+I:72:52:0
 W:20:0:5:250
 A:20/2
 
-N:693:& map~ to Khazad-Dum
+N:693:& map~ to the Paths of the Dead
 G:?:U
-I:72:61:0
+I:72:29:0
 W:30:0:5:250
 A:30/2
 
 N:694:& map~ to the citadel of Isengard
 G:?:U
-I:72:17:0
+I:72:40:0
 W:20:0:5:250
 A:20/2
 
@@ -5591,7 +5590,7 @@ W:25:0:0:180
 N:759:Restoration
 G:?:v
 I:99:10:0
-W:25:0:0:1500
+W:25:0:0:1000
 
 N:760:Remembrance
 G:?:v
@@ -5656,12 +5655,12 @@ W:25:0:0:40
 N:772:Restore Strength and Size
 G:?:v
 I:99:23:0
-W:20:0:0:250
+W:20:0:0:150
 
 N:773:Restore Intelligence and Wisdom
 G:?:v
 I:99:24:0
-W:20:0:0:250
+W:20:0:0:150
 
 N:774:Healing
 G:?:v
@@ -5955,7 +5954,7 @@ F:THROWING
 N:822:Restore Mind
 G:!:w
 I:75:75:0
-W:40:0:1:1000
+W:40:0:1:500
 A:40/1:60/1
 P:0:1d1:0:0:0
 F:THROWING
@@ -6219,7 +6218,7 @@ F:IGNORE_ELEC
 N:855:Spark
 G:-:w
 I:65:67:28
-W:0:0:10:25
+W:0:0:10:35
 A:1/1
 P:0:1d1:0:0:0
 Y:22:1
@@ -6436,12 +6435,12 @@ A:10/1
 N:884:Restore Dexterity and Agility
 G:?:v
 I:99:46:0
-W:20:0:0:250
+W:20:0:0:150
 
 N:885:Restore Constitution and Charisma
 G:?:v
 I:99:47:0
-W:20:0:0:250
+W:20:0:0:150
 
 N:886:Cure Plague
 G:?:v
@@ -6747,29 +6746,32 @@ W:30:0:30:800
 A:30/7
 P:0:1d1:0:0:0
 
-N:924:of Negation
-G:?:r
-I:90:23:0
-W:60:0:30:10000
-A:60/3
-P:0:1d7:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:924:of Negation
+#G:?:r
+#I:90:23:0
+#W:60:0:30:10000
+#A:60/3
+#P:0:1d7:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:925:of Nature
-G:?:r
-I:90:24:0
-W:70:0:30:15000
-A:70/2
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:925:of Nature
+#G:?:r
+#I:90:24:0
+#W:70:0:30:15000
+#A:70/2
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:926:of Space
-G:?:r
-I:90:25:0
-W:80:0:30:30000
-A:80/7
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:926:of Space
+#G:?:r
+#I:90:25:0
+#W:80:0:30:30000
+#A:80/7
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 #### Mastery School -- corresponds to Sangband Oath of Blood Magic ####
 
@@ -6801,13 +6803,14 @@ W:30:0:30:800
 A:30/7
 P:0:1d1:0:0:0
 
-N:932:of Annihilation
-G:?:r
-I:90:27:0
-W:60:0:30:10000
-A:60/3
-P:0:1d7:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:932:of Annihilation
+#G:?:r
+#I:90:27:0
+#W:60:0:30:10000
+#A:60/3
+#P:0:1d7:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:933:of Demonology
 G:?:r
@@ -6817,13 +6820,14 @@ A:70/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:934:of the Void
-G:?:r
-I:90:28:0
-W:80:0:30:30000
-A:80/7
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:934:of the Void
+#G:?:r
+#I:90:28:0
+#W:80:0:30:30000
+#A:80/7
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 #### Sorcery School -- no Sangband correspondence ####
 
@@ -6855,29 +6859,32 @@ W:30:0:30:800
 A:30/7
 P:0:1d1:0:0:0
 
-N:939:of Immoliation
-G:?:r
-I:90:29:0
-W:60:0:30:10000
-A:60/3
-P:0:1d7:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:939:of Immolation
+#G:?:r
+#I:90:29:0
+#W:60:0:30:10000
+#A:60/3
+#P:0:1d7:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:940:of Gambits
-G:?:r
-I:90:30:0
-W:70:0:30:15000
-A:70/2
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:940:of Gambits
+#G:?:r
+#I:90:30:0
+#W:70:0:30:15000
+#A:70/2
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:941:of Balance
-G:?:r
-I:90:31:0
-W:80:0:30:30000
-A:80/7
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#FIXME!!!
+#N:941:of Balance
+#G:?:r
+#I:90:31:0
+#W:80:0:30:30000
+#A:80/7
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:942:of Shapechanging
 G:?:r

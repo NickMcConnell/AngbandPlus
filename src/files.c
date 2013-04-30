@@ -1456,10 +1456,19 @@ static void display_player_xtra_info(void)
 	/* Current Home Town */
 	put_str("Home", 7, 1);
 
-	/* Has a home defined*/
+	/* Has a home defined? */
 	if (total_store_count)
 	{
-		c_put_str(TERM_L_BLUE, format("%^s in %s", u_name + u_info[store[STORE_HOME]->index].name, t_name + t_info[p_ptr->town].name), 7, 8);
+	  char str[160];
+
+	  sprintf(str, "%s in %s", u_name + u_info[store[STORE_HOME]->index].name, t_name + t_info[p_ptr->town].name);
+
+	  /* short dungeon name here for lack of space
+	     even though it sometimes lacks 'the' or something else */
+	  if (strlen(str) > 32)
+		c_put_str(TERM_L_BLUE, u_name + u_info[store[STORE_HOME]->index].name, 7, 8);
+	  else
+		c_put_str(TERM_L_BLUE, str, 7, 8);
 	}
 	else
 	{
@@ -1467,8 +1476,17 @@ static void display_player_xtra_info(void)
 	}
 
 	/* Current Dungeon */
-	put_str("Target", 8, 1);
-	c_put_str(TERM_L_BLUE, t_name + t_info[p_ptr->dungeon].name, 8, 8);
+	{
+	  char str[46];
+
+	  current_long_level_name(str);
+
+	  put_str("Target", 8, 1);
+	  if (strlen(str) > 32)
+	    c_put_str(TERM_L_BLUE, t_name + t_info[p_ptr->dungeon].name, 8, 8);
+	  else
+	    c_put_str(TERM_L_BLUE, str, 8, 8);
+	}
 
 	/* Upper middle */
 	col = 27;
@@ -1947,8 +1965,8 @@ static void display_player_xtra_info(void)
 	desc = likert(xdig, 6, &likert_attr);
 	c_put_str(likert_attr, format("%9s", desc), 18, col+11);
 
-	/* Indent output by 1 character, and wrap at column 76 */
-	text_out_wrap = 76;
+	/* Indent output by 1 character, and wrap at column 80 */
+	text_out_wrap = 80;
 	text_out_indent = 1;
 
 	/* History */
@@ -3806,10 +3824,15 @@ errr file_character(cptr name, bool full)
 	text_out(format(" This is %s of the %s year of the third age.\n",
 	           get_month_name(day, cheat_xtra, FALSE), buf2));
 
+	{
+	  char str[46];
+
+	  current_long_level_name(str);
+
 	/* Display location */
 	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
-		text_out(format(" You are in %s.", t_name + t_info[p_ptr->dungeon].name));
+		text_out(format(" You are in %s.", str));
 	}
 	/* Display depth in feet */
 	else if (depth_in_feet)
@@ -3822,14 +3845,14 @@ errr file_character(cptr name, bool full)
 		text_out(format(" You are %d ft %s %s.",
 			(p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
 				zone->tower ? "high above" : "deep in",
-					t_name + t_info[p_ptr->dungeon].name));
+					str));
 	}
 	/* Display depth */
 	else
 	{
 		text_out(format(" You are on level %d of %s.",
-			p_ptr->depth - min_depth(p_ptr->dungeon),
-				t_name + t_info[p_ptr->dungeon].name));
+			p_ptr->depth - min_depth(p_ptr->dungeon), str));
+	}
 	}
 
 	/* Skip some lines */
@@ -3925,26 +3948,92 @@ errr file_character(cptr name, bool full)
 	/* Dump dungeons */
 	text_out("  [Dungeons Explored]\n\n");
 
+	/* Two passes: interesting and boring dungeons */
+	for (x = 0; x < 2; x++)
+	{
 	for (i = 0; i < z_info->t_max; i++)
 	{
-		if (t_info[i].max_depth)
-		{
-			text_out("You have reached ");
+	  char str[46];
+	  int j;
+	  bool victory = FALSE;
+	  int depth = t_info[i].max_depth + t_info[i].zone[0].level;
+	  bool please_print_depths = TRUE;
 
-			/* Express in feet or level*/
-			if (depth_in_feet) text_out(format("%d foot depth in ", t_info[i].max_depth * 50));
-			else text_out(format("level %d of ",t_info[i].max_depth));
+	  long_level_name(str, i, depth);
 
-			text_out(t_name + t_info[i].name);
-			text_out(".\n");
+	  for (j = 0; j < MAX_DUNGEON_ZONES; j++)
+	    {
+	      int guard = actual_guardian(t_info[i].zone[j].guard, i, j);
+	      if (guard) {
+		if (r_info[guard].max_num > 0) {
+		  victory = FALSE;
+		  break;
 		}
-		else if (t_info[i].visited)
-		{
-			text_out("You have visited ");
-
-			text_out(t_name + t_info[i].name);
-			text_out(".\n");
+		else {
+		  victory = TRUE;
+		  /* and now check the other guardians */
 		}
+	      }
+	    }
+
+	  if (victory) {
+	    /* guardians present and all killed */
+
+	    /* too interesting */
+	    if (x) 
+	      continue;
+
+	    if (t_info[i].max_depth)
+	      /* descended to the dungeon and conquered */
+	      text_out("You have emerged victorious from ");
+	    else
+	      /* won, even if not visited, e.g. guardian killed elsewhere */
+	      text_out("You've cleared the passage through ");
+	  }
+	  else {
+	    /* no guardians or not all killed */
+	    if (t_info[i].max_depth) {
+
+	      /* too interesting */
+	      if (x) 
+		continue;
+
+	      if (depth == max_depth(i))
+		text_out("You've fought through to the other side of ");
+	      else {
+		text_out("You have reached ");
+		
+		/* Express in feet or level*/
+		if (depth_in_feet) text_out(format("%d foot depth in ", depth));
+		else text_out(format("level %d in ", depth));
+	      }
+	    }
+	    else if (t_info[i].visited) {
+
+	      /* not interesting enough */
+	      if (!x) 
+		continue;
+
+	      please_print_depths = FALSE;
+
+	      text_out("You have visited ");		
+	    }
+	    else 
+	      /* no impact whatsoever on this dungeon; not printing */
+	      continue;
+	  }
+
+	  text_out(str);
+
+	  if (please_print_depths) {
+	    if (min_depth(i) == max_depth(i))
+	      text_out(format(" (%d).\n",  min_depth(i)));
+	    else
+	      text_out(format(" (%d-%d).\n",  min_depth(i), max_depth(i)));
+	  }
+	  else
+	    text_out(".\n");
+	}
 	}
 
 	text_out("\n");
@@ -4123,7 +4212,7 @@ errr file_character(cptr name, bool full)
 	/* Dump options */
 	for (i = 0; i < OPT_MAX; i++)
 	{
-		/*hack - use game play options*/
+		/* hack - use game play options */
 		if (i < OPT_GAME_PLAY) continue;
 		if ((i >= OPT_EFFICIENCY) && (i < OPT_ADULT)) continue;
 
@@ -5617,9 +5706,9 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	if (highscore_fd < 0) return;
 
 
-	/* Assume we will show the first 10 */
+	/* Assume we will show the first 8 */
 	if (from < 0) from = 0;
-	if (to < 0) to = 10;
+	if (to < 0) to = 8;
 	if (to > MAX_HISCORES) to = MAX_HISCORES;
 
 
@@ -5639,8 +5728,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	if (count > to) count = to;
 
 
-	/* Show 5 per page, until "done" */
-	for (k = from, j = from, place = k+1; k < count; k += 5)
+	/* Show 4 per page, until "done" */
+	for (k = from, j = from, place = k+1; k < count; k += 4)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -5656,8 +5745,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			put_str(tmp_val, 0, 40);
 		}
 
-		/* Dump 5 entries */
-		for (n = 0; j < count && n < 5; place++, j++, n++)
+		/* Dump 4 entries */
+		for (n = 0; j < count && n < 4; place++, j++, n++)
 		{
 			int pr, pc, ps, pp, clev, mlev, cdep, mdep, cdun;
 
@@ -5731,25 +5820,42 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			if (mlev > clev) my_strcat(out_val, format(" (Max %d)", mlev), sizeof(out_val));
 
 			/* Dump the first line */
-			c_put_str(attr, out_val, n*4 + 2, 0);
+			c_put_str(attr, out_val, n*5 + 2, 0);
 
 			/* Another line of info */
-			sprintf(out_val, "               Killed by %s %s %s",
-			        the_score.how, ( (cdep == min_depth(cdun)) && (cdep == max_depth(cdun)) ? "in" : 
-				( cdep == min_depth(cdun) ? "on the surface of":
-				format("on Dungeon Level %d in", cdep) ) ), t_name + t_info[cdun].name);
+			sprintf(out_val, "               Killed by %s",
+			        the_score.how);
 
-			/* Append a "maximum level" */
+			/* Dump the info */
+			c_put_str(attr, out_val, n*5 + 3, 0);
+
+			{
+			  char str[46];
+
+			  long_level_name(str, cdun, cdep);
+
+			/* Another line of info */
+			sprintf(out_val, "               %s %s",
+			        (cdep == min_depth(cdun) 
+				 && cdep == max_depth(cdun))
+				? "in"
+				: (cdep == min_depth(cdun) 
+				   ? "on the surface of"
+				   : format("on level %d in", cdep)), 
+				str);
+			}
+
+			/* Append a "maximum depth" */
 			if (mdep > cdep) my_strcat(out_val, format(" (Max %d)", mdep), sizeof(out_val));
 
 			/* Dump the info */
-			c_put_str(attr, out_val, n*4 + 3, 0);
+			c_put_str(attr, out_val, n*5 + 4, 0);
 
 			/* And still another line of info */
 			sprintf(out_val,
 			        "               (User %s, Date %s, Gold %s, Turn %s).",
 			        user, when, gold, aged);
-			c_put_str(attr, out_val, n*4 + 4, 0);
+			c_put_str(attr, out_val, n*5 + 5, 0);
 		}
 
 
@@ -6004,21 +6110,21 @@ static void top_twenty(void)
 	/* Player's score unavailable */
 	if (score_idx == -1)
 	{
-		display_scores_aux(0, 10, -1, NULL);
+		display_scores_aux(0, 8, -1, NULL);
 		return;
 	}
 
-	/* Hack -- Display the top fifteen scores */
+	/* Hack -- Display the top 12 scores */
 	else if (score_idx < 10)
 	{
-		display_scores_aux(0, 15, score_idx, NULL);
+		display_scores_aux(0, 12, score_idx, NULL);
 	}
 
 	/* Display the scores surrounding the player */
 	else
 	{
-		display_scores_aux(0, 5, score_idx, NULL);
-		display_scores_aux(score_idx - 2, score_idx + 7, score_idx, NULL);
+		display_scores_aux(0, 4, score_idx, NULL);
+		display_scores_aux(score_idx - 2, score_idx + 5, score_idx, NULL);
 	}
 
 
@@ -6088,17 +6194,17 @@ errr predict_score(void)
 	j = highscore_where(&the_score);
 
 
-	/* Hack -- Display the top fifteen scores */
+	/* Hack -- Display the top 12 scores */
 	if (j < 10)
 	{
-		display_scores_aux(0, 15, j, &the_score);
+		display_scores_aux(0, 12, j, &the_score);
 	}
 
 	/* Display some "useful" scores */
 	else
 	{
-		display_scores_aux(0, 5, -1, NULL);
-		display_scores_aux(j - 2, j + 7, j, &the_score);
+		display_scores_aux(0, 4, -1, NULL);
+		display_scores_aux(j - 2, j + 5, j, &the_score);
 	}
 
 

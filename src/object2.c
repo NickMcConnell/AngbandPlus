@@ -1768,7 +1768,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	/* Hack -- Require identical "xtra2" status */
 	if (o_ptr->name3 != j_ptr->name3)
 	{
-		if (cheat_xtra) msg_format("name3 %d does not match name3 %d", o_ptr->name3, j_ptr->name3);
+	  if (cheat_xtra) msg_format("name3 %d does not match name3 %d for tval=%d sval=%d, tval=%d sval=%d", o_ptr->name3, j_ptr->name3, o_ptr->tval, o_ptr->sval, j_ptr->tval, j_ptr->sval);
 		return (0);
 	}
 
@@ -2132,6 +2132,9 @@ void object_prep(object_type *o_ptr, int k_idx)
 		else if (rand_int(100) < 30) o_ptr->ident |= (IDENT_CURSED);
 		else o_ptr->ident |= (IDENT_BROKEN);
 	}
+	else if (k_ptr->flags3 & (TR3_UNCONTROLLED))
+	  /* always start cursed so that uncontrolled effects can occur */
+	  o_ptr->ident |= (IDENT_CURSED);
 	
 	o_ptr->can_flags1 = 0x0L;
 	o_ptr->can_flags2 = 0x0L;
@@ -3938,7 +3941,7 @@ int value_check_aux11(object_type *o_ptr)
 	if (cursed_p(o_ptr)) return (INSCRIP_UNUSUAL);
 
 	/* Broken items */
-	/* if (broken_p(o_ptr)) return (INSCRIP_UNUSUAL); */
+	if (broken_p(o_ptr)) return (INSCRIP_UNUSUAL);
 
 	/* Magic item */
 	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_UNUSUAL);
@@ -5442,6 +5445,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
+		
+		/* Hack -- good / great objects are never cursed */
+		if (good || great) j_ptr->ident &= ~(IDENT_CURSED);
 
 		/* Auto-inscribe if necessary */
 		if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
@@ -7195,7 +7201,7 @@ static bool vault_trap_chest(int f_idx)
 {
 	feature_type *f_ptr = &f_info[f_idx];
 
-	int test_drops =  ((f_ptr->flags3 & (FF3_DROP_2D2)) ? 4 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
+	int test_drops =  ((f_ptr->flags3 & (FF3_DROP_1D3)) ? 3 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
 	bool test_drop_good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
 	bool test_drop_great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
 	bool test_has_item = (f_ptr->flags1 & (FF1_HAS_ITEM)) ? TRUE : FALSE;
@@ -7299,7 +7305,7 @@ void pick_trap(int y, int x)
 		{
 			feature_type *f_ptr = &f_info[feat];
 
-			chest_drops =  ((f_ptr->flags3 & (FF3_DROP_2D2)) ? 4 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
+			chest_drops =  ((f_ptr->flags3 & (FF3_DROP_1D3)) ? 3 : 0) + ((f_ptr->flags3 & (FF3_DROP_1D2)) ? 2 : 0);
 			chest_drop_good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
 			chest_drop_great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
 			chest_has_item = (f_ptr->flags1 & (FF1_HAS_ITEM)) ? TRUE : FALSE;

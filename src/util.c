@@ -2502,7 +2502,7 @@ void messages_easy(bool command)
 		
 		bool long_line = FALSE;
 		
-		if ((x) && (x + n) > (w - 8))
+		if ((x) && (x + n) > (w))
 		{
 			/* Go to next row if required */
 			x = 0;
@@ -2510,7 +2510,7 @@ void messages_easy(bool command)
 		}
 		
 		/* Improve legibility of long entries */		
-		if (n > (w - 2)) long_line = TRUE;
+		if (n > (w - 8)) long_line = TRUE;
 		
 		/* Copy it */
 		strncpy(buf, msg, sizeof(buf));
@@ -2520,17 +2520,17 @@ void messages_easy(bool command)
 		t = buf;
 
 		/* Split message */
-		while (n > (w - 2))
+		while (n > (w - 1))
 		{
 			char oops;
 
 			int check, split;
 
 			/* Default split */
-			split = (w - 2);
+			split = (w - 1);
 
 			/* Find the "best" split point */
-			for (check = (w / 2); check < (w - 2); check++)
+			for (check = (w / 2); check < (w - 1); check++)
 			{
 				/* Found a valid split point */
 				if (t[check] == ' ') split = check;
@@ -2849,10 +2849,10 @@ static void msg_print_aux(u16b type, cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if ((message_column || easy_more) && (!msg || ((message_column + n) > (w - 8))))
+	if ((message_column || easy_more) && (!msg || ((message_column + n) > (w))))
 	{
-		bool hack_use_first_line = (easy_more && !must_more && !message_column && msg && !use_trackmouse) ? TRUE : FALSE;
-		bool hack_flush = (easy_more && message_column && !use_trackmouse && ((message_column + n) <= (w - 8)) && !must_more && !msg) ? TRUE : FALSE;
+		bool hack_use_first_line = (easy_more && !must_more && !message_column && msg && !use_trackmouse);
+		bool hack_flush = (easy_more && message_column && !use_trackmouse && ((message_column + n) <= (w)) && !must_more && !msg);
 		
 		/* Handle easy_more */
 		if (easy_more && msg && !must_more)
@@ -2917,17 +2917,17 @@ static void msg_print_aux(u16b type, cptr msg)
 	color = message_type_color(type);
 
 	/* Split message */
-	while (n > (w - 8))
+	while (n > (w))
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = (w - 8);
+		split = (w);
 
 		/* Find the "best" split point */
-		for (check = (w / 2); check < (w - 8); check++)
+		for (check = (w / 2); check < (w); check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -3286,7 +3286,7 @@ void text_out_to_screen(byte a, cptr str)
  * Hook function for text_out(). Make sure that text_out_file points
  * to an open text-file.
  *
- * Long lines will be wrapped at text_out_wrap, or at column 75 if that
+ * Long lines will be wrapped at text_out_wrap, or at column 80 if that
  * is not set; or at a newline character.
  *
  * You must be careful to end all file output with a newline character
@@ -3298,7 +3298,7 @@ void text_out_to_file(byte a, cptr str)
 	static int pos = 0;
 
 	/* Wrap width */
-	int wrap = (text_out_wrap ? text_out_wrap : 75);
+	int wrap = (text_out_wrap ? text_out_wrap : 80);
 
 	/* Current location within "str" */
 	cptr s = str;

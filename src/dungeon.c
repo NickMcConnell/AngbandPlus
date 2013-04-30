@@ -639,7 +639,7 @@ void suffer_disease(void)
 			summon_race_type = parasite_hack[effect];
 
 			/* Drop lots of parasites */
-			for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 99, SUMMON_FRIEND, FALSE, 0L);
+			for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 0, 99, SUMMON_FRIEND, FALSE, 0L);
 
 			/* Aggravate if not light */
 			if (!(p_ptr->disease & (DISEASE_LIGHT))) aggravate_monsters(-1);
@@ -3279,7 +3279,6 @@ static void dungeon(void)
 	/* Refresh */
 	Term_fresh();
 
-
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;
 
@@ -3301,13 +3300,12 @@ static void dungeon(void)
 	while (TRUE)
 	{
 		int i;
-		
+
 		/* Hack -- Compact the monster list occasionally */
 		if (m_cnt + 32 > z_info->m_max) compact_monsters(64);
 
 		/* Hack -- Compress the monster list occasionally */
 		if (m_cnt + 32 < m_max) compact_monsters(0);
-
 
 		/* Hack -- Compact the object list occasionally */
 		if (o_cnt + 32 > z_info->o_max) compact_objects(64);
@@ -3409,8 +3407,6 @@ static void dungeon(void)
 		/* Process the world */
 		process_world();
 
-
-
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
@@ -3431,7 +3427,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Count game turns */
 		turn++;
@@ -3680,6 +3675,16 @@ void play_game(bool new_game)
 				if (r_info[guard].max_num > 1) r_info[guard].max_num = 1;
 			}
 			
+			/*
+			 * The same for replacement guardians
+			 */
+			guard = t_info[i].replace_guardian;
+			if (guard)
+			{
+				r_info[guard].flags1 |= (RF1_GUARDIAN | RF1_UNIQUE);
+				if (r_info[guard].max_num > 1) r_info[guard].max_num = 1;
+			}
+
 			/* However, we must ensure that town lockup monsters are
 			 * unique to allow the town to be unlocked later.
 			 */
@@ -3701,15 +3706,6 @@ void play_game(bool new_game)
 				{
 					r_info[guard].flags1 |= (RF1_GUARDIAN);
 				}
-			}
-
-			/*
-			 * And this includes 'replacement' mini-bosses.
-			 */
-			guard = t_info[i].replace_guardian;
-			if (guard)
-			{
-				r_info[guard].flags1 |= (RF1_GUARDIAN);
 			}
 		}
 	}

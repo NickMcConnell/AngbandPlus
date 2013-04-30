@@ -137,8 +137,19 @@ extern errr eval_r_power(header *head);
 extern errr eval_e_power(header *head);
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
+extern errr emit_d_info_always(FILE *fp, header *head);
+
 extern errr emit_r_info_index(FILE *fp, header *head, int i);
 extern errr emit_f_info_index(FILE *fp, header *head, int i);
+extern errr emit_k_info_index(FILE *fp, header *head, int i);
+extern errr emit_a_info_index(FILE *fp, header *head, int i);
+extern errr emit_e_info_index(FILE *fp, header *head, int i);
+extern errr emit_x_info_index(FILE *fp, header *head, int i);
+extern errr emit_r_info_index(FILE *fp, header *head, int i);
+extern errr emit_p_info_index(FILE *fp, header *head, int i);
+extern errr emit_c_info_index(FILE *fp, header *head, int i);
+extern errr emit_s_info_index(FILE *fp, header *head, int i);
+
 #endif
 
 

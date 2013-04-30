@@ -18,37 +18,38 @@ about wilderness and dungeons, see "dungeon.txt".
 
                                          
                                                    ##            Lonely Mountain
-                  Trollshaw Forest (5-6)            ###              (21-38)
-                   /                 |               ##                 | 
-                  /   Midgewater     |                #                 |
-Hobbiton*        /   / Marshes |     |          Misty Mountains      Lake-town*
- |    \         /   /  (12-19) |     |            path ##             /  |
- |     \       Bree*           |     |           (6-13)<---Beorn's   /   |
- | East Road-->(1-4)   Weathertop    |          /      #    House   /    |
- |                  \    (21-31) \   |  Rivendell*     ##   /   \  /     |
- |  Brandywine       \      |     \  | /      \        ##  /   Mirkwood  |
- |  | Ferry  |        \     |      Ford        \      ##  /     (15-26)  |
- |  |        V     ?   \    |                   \   ###  |     /   |     |
- |  V   Buckland*  |    \   |                   Redhorn  V    /    |     |
-Farmer    |        V     \  |                  /Pass (8-37)  /     |     |
-Maggot's  Old Forest-->Barrow Downs           /     ##      /      |     |
- Farm       (7-10)        (5-20)             /     ###     /       |     |
- (3-6)                                   West gates ##    /        |     |
-                                          of Moria<----East gates  |     |
-                                           (7-24)  ###  of Moria   |     |
-                                             |    ####             |     |
-                                             |     ##            Dol Guldur
-                                             |    ##Lorien*     /  (41-65)
-                                             |   ##            /  
-                                             |  ##            /
-                                             | ###    Fangorn/
-                                             |  ##   /
-                                             Isengard
-                                              (7-35)             Parth Galen
-                                                   \              
-                                               ##   \                  Marshes
-                                  #################  Edoras*        of the Dead
-                        ##############            ## (1-22)             
+                                                    ###              (27-42)
+               Trollshaws Forest (5-6)               ##                 | 
+                |                  |                  #                 |
+                |   Midgewater     |            Misty Mountains     Lake-town*
+Hobbiton*       |  / Marshes |     |              path ##              /|
+ | \            | /  (11-17) |     |             (6-13)<---Beorn's    / |
+ |  \          Bree*         |     |            /      #    House    /  |
+ | East Road-->(1-4)    Weathertop |  Rivendell*       ##     \     /   |
+ |                  \     (18-31)  |  /|     \         ##      \   /    |
+ |  Brandywine       \       |  \  | / |      \       ##     Mirkwood   |
+ |  | Ferry  |        \      |   Ford  |       \     ##    Road (14-26) |
+ |  |        V     ?   \     |         |        \    ###         |      |
+ |  V   Buckland*  |    \    |         |         \    ##         |      |
+Farmer    |        V     \   |         |       Redhorn #     Woodmen*   |
+Maggot's  Old Forest-->Barrow Downs    |       Pass (8-37)<--Village    |
+ Farm       (7-10)        (5-23)       |         /  ###      (11-13)    |
+ (3-6)                                 |        /  ####        /        |
+                                       | West Moria ##        /         |
+                                       |  entrance ## East Moria        |
+                                       |   (7-24) #### entrance         |
+                                       |    /    ####   (14-24)         |
+                                       |   /     ##                 Dol Guldur
+                                     Dunland    ##Lorien*          / (43-65)
+                                           \  ###                 /
+                                            \ ####  Fangorn Forest
+                                             \ ##  /
+                                            Isengard
+                                             (4-35)               Parth Galen
+                                                   \             
+                                               ##   \               Dead Marshes
+                                  #################  Edoras*        
+                        ##############            ## (9-27)             
                                              Paths #####
                                           of the Dead ######
                                                           ############## Minas

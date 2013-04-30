@@ -5005,7 +5005,7 @@ void town_illuminate(bool daytime)
 	 */
 	
 	/* Megahack --- darkness brings out the bad guys */
-	if ((character_loaded) && (!daytime) && actual_guardian(zone->guard, p_ptr->dungeon) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num <= 0))
+	if ((character_loaded) && (!daytime) && actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num <= 0))
 	{
 		int y, x, count = 0;
 
@@ -5019,7 +5019,7 @@ void town_illuminate(bool daytime)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, actual_guardian(zone->guard, p_ptr->dungeon), TRUE, TRUE, 0L);
+		place_monster_aux(y, x, actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone), TRUE, TRUE, 0L);
 	}
 
 	/* Fully update the visuals */
@@ -5727,7 +5727,7 @@ void cave_set_feat(int y, int x, int feat)
 		object_type object_type_body;
 
 		if (f_ptr->flags3 & (FF3_DROP_1D2)) number += damroll(1, 2);
-		if (f_ptr->flags3 & (FF3_DROP_2D2)) number += damroll(2, 2);
+		if (f_ptr->flags3 & (FF3_DROP_1D3)) number += damroll(1, 3);
 
 		/* Always drop something */
 		if (!number) number = 1;
@@ -6665,7 +6665,7 @@ void init_level_flags(void)
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Get the guardian */
-	guard = actual_guardian(zone->guard, p_ptr->dungeon);
+	guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
 
 	/* Set night and day level flag */
 	level_flag =  (p_ptr->depth == min_depth(p_ptr->dungeon)) ?

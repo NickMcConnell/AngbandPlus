@@ -255,6 +255,7 @@ static cptr r_info_blow_method[] =
 	"SPIKE",
 	"AIM_AREA",
 	"SCATTER",
+	"HOWL",
 	NULL
 };
 
@@ -496,7 +497,7 @@ static cptr f_info_flags3[] =
 	"ALLOC",
 	"CHEST",
 	"DROP_1D2",
-	"DROP_2D2",
+	"DROP_1D3",
 	"DROP_GOOD",
 	"DROP_GREAT",
 	"HURT_POIS",
@@ -552,12 +553,12 @@ static cptr r_info_flags1[] =
 	"RAND_50",
 	"ONLY_GOLD",
 	"ONLY_ITEM",
+	"DROP_30",
 	"DROP_60",
 	"DROP_90",
 	"DROP_1D2",
-	"DROP_2D2",
-	"DROP_3D2",
-	"DROP_4D2",
+	"DROP_1D3",
+	"DROP_1D4",
 	"DROP_GOOD",
 	"DROP_GREAT",
 	"DROP_USEFUL",
@@ -1449,7 +1450,16 @@ static cptr s_info_types[] =
 	"MINDS_EYE",
 	"LIGHT_CHAMBERS",
 	"REST_UNTIL_DUSK",
-	"REST_UNTIL_DAWN",	
+	"REST_UNTIL_DAWN",
+	"MAGIC_BLOW",
+	"MAGIC_SHOT",
+	"MAGIC_HURL",
+	"ACCURATE_BLOW",
+	"ACCURATE_SHOT",
+	"ACCURATE_HURL",
+	"DAMAGING_BLOW",
+	"DAMAGING_SHOT",
+	"DAMAGING_HURL",
 	NULL
 };
 
@@ -5210,7 +5220,7 @@ errr parse_s_info(char *buf, header *head)
 		for (i = 0; i < MAX_SPELL_CASTERS; i++) if (!s_ptr->cast[i].class) break;
 
 		/* Check bounds */
-		if (i==MAX_SPELL_APPEARS) return (PARSE_ERROR_GENERIC);
+		if (i==MAX_SPELL_CASTERS) return (PARSE_ERROR_GENERIC);
 
 		/* Scan for the values */
 		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
@@ -5695,6 +5705,10 @@ errr parse_t_info(char *buf, header *head)
 		/* Point at the "info" */
 		t_ptr = (town_type*)head->info_ptr + i;
 
+		/* Take care it displays properly */
+		if (strlen(s) > 19)
+		  return (PARSE_ERROR_GENERIC);
+
 		/* Store the name */
 		if (!(t_ptr->name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
@@ -5816,20 +5830,43 @@ errr parse_t_info(char *buf, header *head)
 	/* Process 'L' for "Levels" (up to four lines) */
 	else if (buf[0] == 'L')
 	{
-		int level,fill,big,small,guard,tower;
+		int name,level,fill,big,small,guard,tower;
 
 		/* There better be a current t_ptr */
 		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Oops, no more slots */
-		if (zone == 4) return (PARSE_ERROR_GENERIC);
+		if (zone == MAX_DUNGEON_ZONES) return (PARSE_ERROR_GENERIC);
 
 		/* Scan for the values */
 		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
 			&level, &fill, &big, &small, &guard, &tower)) return (PARSE_ERROR_GENERIC);
 
+		/* Find the 7th colon, the one before text (if any) */
+		s = strchr(buf, ':');
+		s = strchr(s+1, ':');
+		s = strchr(s+1, ':');
+		s = strchr(s+1, ':');
+		s = strchr(s+1, ':');
+		s = strchr(s+1, ':');
+		s = strchr(s+1, ':');
+
+		/* Verify that colon */
+		if (!s) {
+		  name = 0;
+		}
+		else {
+		  /* Take care it displays properly */
+		  if (strlen(s+1) > 25)
+		    return (PARSE_ERROR_GENERIC);
+		  /* Store the level name */
+		  if (!(name = add_name(head, s+1)))
+		    return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+		
 		/* Save the values */
-		t_ptr->zone[zone].level=level;
+		t_ptr->zone[zone].name = name;
+		t_ptr->zone[zone].level = level;
 		t_ptr->zone[zone].fill = fill;
 		t_ptr->zone[zone].big = big;
 		t_ptr->zone[zone].small = small;
@@ -5838,7 +5875,6 @@ errr parse_t_info(char *buf, header *head)
 
 		/* Find the next empty zone slot (if any) */
 		zone++;
-
 	}
 
 	/* Process 'S' for "Stores" */
@@ -5903,6 +5939,7 @@ errr parse_u_info(char *buf, header *head)
 	static store_type *u_ptr = NULL;
 
 	static int cur_t = 0;
+	static int cur_w = 0;
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
@@ -5942,6 +5979,7 @@ errr parse_u_info(char *buf, header *head)
 		
 		/* Reset the store */
 		cur_t = 0;
+		cur_w = 0;
 	}
 
 	/* Process 'X' for "Extra" */
@@ -5953,6 +5991,97 @@ errr parse_u_info(char *buf, header *head)
 		if (1 != sscanf(buf+2, "%d", &base)) return (PARSE_ERROR_GENERIC);
 
 		u_ptr->base = base;
+		
+		/* Switch on the store */
+		switch (u_ptr->base)
+		{
+			/* General Store */
+			case STORE_GENERAL:
+			{
+				u_ptr->tvals_will_buy[0] = TV_FOOD;
+				u_ptr->tvals_will_buy[1] = TV_LITE;
+				u_ptr->tvals_will_buy[2] = TV_FLASK;
+				u_ptr->tvals_will_buy[3] = TV_SPIKE;
+				u_ptr->tvals_will_buy[4] = TV_SHOT;
+				u_ptr->tvals_will_buy[5] = TV_ARROW;
+				u_ptr->tvals_will_buy[6] = TV_BOLT;
+				u_ptr->tvals_will_buy[7] = TV_DIGGING;
+				u_ptr->tvals_will_buy[8] = TV_CLOAK;
+				u_ptr->tvals_will_buy[9] = TV_INSTRUMENT;
+				u_ptr->tvals_will_buy[10] = TV_MAP;
+				u_ptr->tvals_will_buy[11] = TV_BAG;
+				u_ptr->tvals_will_buy[12] = TV_ROPE;
+				break;
+			}
+
+			/* Armoury */
+			case STORE_ARMOR:
+			{
+				u_ptr->tvals_will_buy[0] = TV_BOOTS;
+				u_ptr->tvals_will_buy[1] = TV_GLOVES;
+				u_ptr->tvals_will_buy[2] = TV_CROWN;
+				u_ptr->tvals_will_buy[3] = TV_HELM;
+				u_ptr->tvals_will_buy[4] = TV_SHIELD;
+				u_ptr->tvals_will_buy[5] = TV_CLOAK;
+				u_ptr->tvals_will_buy[6] = TV_SOFT_ARMOR;
+				u_ptr->tvals_will_buy[7] = TV_HARD_ARMOR;
+				u_ptr->tvals_will_buy[8] = TV_DRAG_ARMOR;
+				break;
+			}
+
+			/* Weapon Shop */
+			case STORE_WEAPON:
+			{
+				u_ptr->tvals_will_buy[0] = TV_SHOT;
+				u_ptr->tvals_will_buy[1] = TV_BOLT;
+				u_ptr->tvals_will_buy[2] = TV_ARROW;
+				u_ptr->tvals_will_buy[3] = TV_BOW;
+				u_ptr->tvals_will_buy[4] = TV_DIGGING;
+				u_ptr->tvals_will_buy[5] = TV_HAFTED;
+				u_ptr->tvals_will_buy[6] = TV_POLEARM;
+				u_ptr->tvals_will_buy[7] = TV_SWORD;
+				break;
+			}
+
+			/* Temple */
+			case STORE_TEMPLE:
+			{
+				u_ptr->tvals_will_buy[0] = TV_PRAYER_BOOK;
+				u_ptr->tvals_will_buy[1] = TV_SCROLL;
+				u_ptr->tvals_will_buy[2] = TV_POTION;
+				u_ptr->tvals_will_buy[3] = TV_HAFTED;
+				u_ptr->tvals_will_buy[4] = TV_STATUE;
+				u_ptr->tvals_will_buy[5] = TV_SHOT;				
+				/*u_ptr->tvals_will_buy[6] = TV_POLEARM; Was blessed only */
+				/*u_ptr->tvals_will_buy[7] = TV_SWORD; Was blessed only */
+				break;
+			}
+
+			/* Alchemist */
+			case STORE_ALCHEMY:
+			{
+				u_ptr->tvals_will_buy[0] = TV_FOOD; /* Was mushrooms only */
+				u_ptr->tvals_will_buy[1] = TV_SCROLL;
+				u_ptr->tvals_will_buy[2] = TV_POTION;
+				u_ptr->tvals_will_buy[3] = TV_RUNESTONE;
+				break;
+			}
+
+			/* Magic Shop */
+			case STORE_MAGIC:
+			{
+				u_ptr->tvals_will_buy[0] = TV_MAGIC_BOOK;
+				u_ptr->tvals_will_buy[1] = TV_AMULET;
+				u_ptr->tvals_will_buy[2] = TV_RING;
+				u_ptr->tvals_will_buy[3] = TV_STAFF;
+				u_ptr->tvals_will_buy[4] = TV_WAND;
+				u_ptr->tvals_will_buy[5] = TV_ROD;
+				u_ptr->tvals_will_buy[6] = TV_SCROLL;
+				u_ptr->tvals_will_buy[7] = TV_POTION;
+				u_ptr->tvals_will_buy[8] = TV_RUNESTONE;
+				break;
+			}
+		}
 	}
 
 	/* Process 'O' for "Offered" (up to thirty two lines) */
@@ -5974,6 +6103,25 @@ errr parse_u_info(char *buf, header *head)
 		/* increase counter for 'possible tval' index */
 		cur_t++;
 	}
+	
+	/* Process 'B' for "Buy" (up to sixteen lines) */
+	else if (buf[0] == 'B')
+	{
+		int tval;
+
+		/* Scan for the values */
+		if (1 != sscanf(buf+2, "%d", &tval)) return (PARSE_ERROR_GENERIC);
+
+		/* only thirty two O: lines allowed */
+		if (cur_w >= STORE_CHOICES) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		u_ptr->tvals_will_buy[cur_w] = (byte)tval;
+
+		/* increase counter for 'possible tval' index */
+		cur_w++;
+	}
+	
 	else
 	{
 		/* Oops */
@@ -7550,9 +7698,9 @@ static long eval_hp_adjust(monster_race *r_ptr)
 		 (r_ptr->flags6 & RF6_TELE_LEVEL)) hp = (hp * 6) / 5;
 
 	/*
- 	 * Monsters that multiply are tougher to kill
+ 	 * Monsters that multiply are tougher to kill and each takes a blow
 	 */
-	if (r_ptr->flags2 & (RF2_MULTIPLY)) hp *= 2;
+	if (r_ptr->flags2 & (RF2_MULTIPLY)) hp = 10 + hp * 7;
 
 
 	/* Get the monster ac */
@@ -7721,7 +7869,7 @@ errr eval_r_power(header *head)
 		/* Point at the "info" */
 		r_ptr = (monster_race*)head->info_ptr + i;
 		
-		if ((r_ptr->flags1 & (RF1_DROP_60 | RF1_DROP_90 | RF1_DROP_1D2 | RF1_DROP_2D2 | RF1_DROP_3D2 | RF1_DROP_4D2)) == 0)
+		if ((r_ptr->flags1 & (RF1_DROP_30 | RF1_DROP_60 | RF1_DROP_90 | RF1_DROP_1D2 | RF1_DROP_1D3 | RF1_DROP_1D4)) == 0)
 		{
 			r_ptr->flags1 &= ~(RF1_ONLY_GOLD | RF1_ONLY_ITEM | RF1_DROP_GOOD | RF1_DROP_GREAT | RF1_DROP_USEFUL);
 			r_ptr->flags8 &= ~(RF8_DROP_CHEST | RF8_DROP_MISSILE | RF8_DROP_TOOL | RF8_DROP_WEAPON | RF8_DROP_MUSIC |
@@ -8354,7 +8502,106 @@ static char color_attr_to_char[] =
 		'B',
 		'U'
 };
+
+
+
+/*
+ * Emit the "d_info" array into an ascii "template" file
+ */
+errr emit_d_info_always(FILE *fp, header *head)
+{
+	int i, n;
+	
+	for (i = 0; i < z_info->d_max; i++)
+	{
+		/* Current entry */
+		desc_type *d_ptr = (desc_type*)head->info_ptr + i;
 		
+		bool introduced = FALSE;		
+		
+		/* Output 'N' for "New/Number/Name" */
+		fprintf(fp, "N:%d:%d:%d:%d:%d:%d:%d:%d\n", d_ptr->chart, d_ptr->next,
+				d_ptr->branch_on, d_ptr->branch, d_ptr->chance, d_ptr->not_chance,
+				d_ptr->level_min, d_ptr->level_max);
+	
+		/* Output 'A' for "Name (adjective)" */
+		if (strlen(head->name_ptr + d_ptr->name1)) fprintf(fp, "A:%s\n", head->name_ptr + d_ptr->name1);
+	
+		/* Output 'B' for "Name (noun)" */
+		if (strlen(head->name_ptr + d_ptr->name2)) fprintf(fp, "B:%s\n", head->name_ptr + d_ptr->name2);
+		
+		/* Output 'D' for "Description" */
+		if (strlen(head->text_ptr + d_ptr->text)) fprintf(fp, "D:%s\n", head->text_ptr + d_ptr->text);
+	
+		/* Output 'P' for "Placement Flags" */
+		emit_flags_32(fp, "P:", d_ptr->p_flag, d_info_pflags);
+	
+		/* Output 'S' for "Special Flags" */
+		emit_flags_32(fp, "S:", d_ptr->flags, d_info_sflags);
+	
+		/* Output 'P' for "Level Flags" */
+		emit_flags_32(fp, "L:", d_ptr->l_flag, d_info_lflags);
+	
+		/* Output feature */
+		if (d_ptr->feat)
+		{
+			fprintf(fp, "F:%d", d_ptr->feat);
+			introduced = TRUE;
+		}
+	
+		/* Not introduced yet */
+		if (!introduced)
+		{
+			for (n = 0; n < 4; n++)
+			{
+				if (!d_ptr->theme[n]) continue;
+				introduced = TRUE;
+			}
+			
+			if (introduced) fprintf(fp, "F:0");
+		}
+		
+		/* Output theme features */
+		if (introduced)
+		{
+			for (n = 0; n < 4; n++)
+			{
+				if (!introduced) fprintf(fp, "F");
+				fprintf(fp, ":%d", d_ptr->theme[n]);
+				introduced = TRUE;
+			}
+		
+			/* Terminate */
+			fprintf(fp,"\n");
+		}
+	
+		/* Output 'K' for "Kind" */
+		if (d_ptr->tval) fprintf(fp, "K:%d:%d:%d\n", d_ptr->tval, d_ptr->min_sval, d_ptr->max_sval);
+		
+		/* Output 'G' for "Graphics" */
+		if (d_ptr->r_char) fprintf(fp, "G:%c\n", d_ptr->r_char);
+	
+		/* Output 'R' for "Race flag" */
+		if ((d_ptr->r_flag > 0) && (d_ptr->r_flag <= 32)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-1]);
+		else if ((d_ptr->r_flag > 32) && (d_ptr->r_flag <= 64)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-33]);
+		else if ((d_ptr->r_flag > 64) && (d_ptr->r_flag <= 96)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-65]);
+		else if ((d_ptr->r_flag > 96) && (d_ptr->r_flag <= 128)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-97]);
+		else if ((d_ptr->r_flag > 128) && (d_ptr->r_flag <= 160)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-129]);
+		else if ((d_ptr->r_flag > 160) && (d_ptr->r_flag <= 192)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-161]);
+		else if ((d_ptr->r_flag > 192) && (d_ptr->r_flag <= 224)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-193]);
+		else if ((d_ptr->r_flag > 224) && (d_ptr->r_flag <= 256)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-225]);
+		else if ((d_ptr->r_flag > 256) && (d_ptr->r_flag <= 288)) fprintf(fp, "R:%s\n", r_info_flags1[d_ptr->r_flag-257]);
+	
+		fprintf(fp,"\n");
+
+	}
+	
+	/* Success */
+	return (0);	
+}
+
+
+
 /*
  * Emit the "r_info" array into an ascii "template" file
  */
@@ -8504,7 +8751,7 @@ errr emit_f_info_index(FILE *fp, header *head, int i)
 	/* Output 'K' for "Transitions" (up to 8 lines, plus default) */
 	if (f_ptr->defaults)
 	{
-		fprintf(fp,"K:DEFAULT:%d\n",f_ptr->defaults);
+		fprintf(fp,"K:DEFAULT:%d:%d\n",f_ptr->defaults, f_ptr->power);
 		f2_ptr = (feature_type*)head->info_ptr + f_ptr->mimic;
 		if (f_ptr->defaults != i) fprintf(fp, "#$# %s\n",head->name_ptr + f2_ptr->name);
 	}
@@ -8514,10 +8761,10 @@ errr emit_f_info_index(FILE *fp, header *head, int i)
  		if (f_ptr->state[n].action == FS_FLAGS_END) break;
  		if (f_ptr->state[n].result == i) continue;
 
-		fprintf(fp,"K:%s:%d\n", f_ptr->state[n].action < 32 ? f_info_flags1[f_ptr->state[n].action] :
+		fprintf(fp,"K:%s:%d:%d\n", f_ptr->state[n].action < 32 ? f_info_flags1[f_ptr->state[n].action] :
 							 (f_ptr->state[n].action < 64 ? f_info_flags2[f_ptr->state[n].action - 32] :
 							 (f_ptr->state[n].action < 128 ? f_info_flags3[f_ptr->state[n].action - 64] : "Error"))
-							 ,f_ptr->state[n].result);
+							 ,f_ptr->state[n].result, f_ptr->power);
 		f2_ptr = (feature_type*)head->info_ptr + f_ptr->state[n].result;
 		fprintf(fp, "#$# %s\n",head->name_ptr + f2_ptr->name);
 	}
@@ -8529,6 +8776,450 @@ errr emit_f_info_index(FILE *fp, header *head, int i)
 
 	/* Output 'D' for "Description" */
 	emit_desc(fp, "D:", head->text_ptr + f_ptr->text);
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+/*
+ * Emit the "k_info" array into an ascii "template" file
+ */
+errr emit_k_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+	bool introduced = FALSE;
+
+	/* Current entry */
+	object_kind *k_ptr = (object_kind*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + k_ptr->name);
+
+	/* Output 'G' for "Graphics" (one line only) */
+	fprintf(fp, "G:%c:%c\n",k_ptr->d_char,color_attr_to_char[k_ptr->d_attr]);
+
+	/* Output 'I' for "Info" (one line only) */
+	fprintf(fp, "I:%d:%d:%d\n",k_ptr->tval,k_ptr->sval,k_ptr->pval);
+
+	/* Output 'W' for "More Info" (one line only) */
+	fprintf(fp,"W:%d:%d:%d:%ld\n",k_ptr->level, k_ptr->charges, k_ptr->weight, k_ptr->cost);
+
+	/* Output allocation */
+	for (n = 0; n < 4; n++)
+	{
+		if (!k_ptr->chance[n]) continue;
+		
+		if (!introduced) fprintf(fp, "A");
+		fprintf(fp, ":%d/%d", k_ptr->locale[n], k_ptr->chance[n]);
+		introduced = TRUE;
+	}
+	
+	/* Terminate */
+	if (introduced) fprintf(fp,"\n");
+	
+	/* Output 'P' for "Power" (one line only) */
+	fprintf(fp,"P:%d:%dd%d:%d:%d:%d\n",k_ptr->ac, k_ptr->dd, k_ptr->ds, k_ptr->to_h, k_ptr->to_d, k_ptr->to_a);
+
+	/* Output 'Y' for "Runes" (up to one line only) */
+	if (k_ptr->runest) fprintf(fp, "Y:%d:%d\n",k_ptr->runest, k_ptr->runesc);
+	else if (k_ptr->flavor) fprintf(fp, "# Runes needed\n");
+
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", k_ptr->flags1, k_info_flags1);
+	emit_flags_32(fp, "F:", k_ptr->flags2, k_info_flags2);
+	emit_flags_32(fp, "F:", k_ptr->flags3, k_info_flags3);
+	emit_flags_32(fp, "F:", k_ptr->flags4, k_info_flags4);
+
+	/* Output 'D' for "Description" */
+	emit_desc(fp, "D:", head->text_ptr + k_ptr->text);
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+/*
+ * Emit the "a_info" array into an ascii "template" file
+ */
+errr emit_a_info_index(FILE *fp, header *head, int i)
+{
+	/* Current entry */
+	artifact_type *a_ptr = (artifact_type*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + a_ptr->name);
+
+	/* Output 'I' for "Info" (one line only) */
+	fprintf(fp, "I:%d:%d:%d\n",a_ptr->tval,a_ptr->sval,a_ptr->pval);
+
+	/* Output 'W' for "More Info" (one line only) */
+	fprintf(fp,"W:%d:%d:%d:%ld\n",a_ptr->level, a_ptr->rarity, a_ptr->weight, a_ptr->cost);
+	
+	/* Output 'P' for "Power" (one line only) */
+	fprintf(fp,"P:%d:%dd%d:%d:%d:%d\n",a_ptr->ac, a_ptr->dd, a_ptr->ds, a_ptr->to_h, a_ptr->to_d, a_ptr->to_a);
+
+	/* Output 'I' for "Info" (one line only) */
+	if (a_ptr->activation) fprintf(fp, "A:%d:%d:%d\n",a_ptr->activation,a_ptr->time,a_ptr->randtime);
+
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", a_ptr->flags1, k_info_flags1);
+	emit_flags_32(fp, "F:", a_ptr->flags2, k_info_flags2);
+	emit_flags_32(fp, "F:", a_ptr->flags3, k_info_flags3);
+	emit_flags_32(fp, "F:", a_ptr->flags4, k_info_flags4);
+
+	/* Output 'D' for "Description" */
+	emit_desc(fp, "D:", head->text_ptr + a_ptr->text);
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+/*
+ * Emit the "e_info" array into an ascii "template" file
+ */
+errr emit_e_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+	/* Current entry */
+	ego_item_type *e_ptr = (ego_item_type*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + e_ptr->name);
+
+	/* Output 'W' for "More Info" (one line only) */
+	fprintf(fp,"W:%d:%d:0:%ld\n",e_ptr->level, e_ptr->rarity, e_ptr->cost);
+
+	/* Output 'X' for "Extra Info" (one line only) */
+	fprintf(fp,"X:%d:%d:%d\n",e_ptr->slot, e_ptr->rating, e_ptr->xtra);
+
+	/* Output allocation */
+	for (n = 0; n < 3; n++)
+	{
+		if (!e_ptr->tval[n]) continue;
+
+		fprintf(fp, "T:%d:%d:%d\n", e_ptr->tval[n], e_ptr->min_sval[n], e_ptr->max_sval[n]);
+	}
+	
+	/* Output 'C' for "Creation" (one line only) */
+	fprintf(fp,"C:%d:%d:%d:%d\n",e_ptr->max_to_h, e_ptr->max_to_d, e_ptr->max_to_a, e_ptr->max_pval);
+
+	/* Output 'Y' for "Runes" (up to one line only) */
+	if (e_ptr->runest) fprintf(fp, "Y:%d:%d\n",e_ptr->runest, e_ptr->runesc);
+	else fprintf(fp, "# Runes needed\n");
+
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", e_ptr->flags1, k_info_flags1);
+	emit_flags_32(fp, "F:", e_ptr->flags2, k_info_flags2);
+	emit_flags_32(fp, "F:", e_ptr->flags3, k_info_flags3);
+	emit_flags_32(fp, "F:", e_ptr->flags4, k_info_flags4);
+
+	/* Output 'O' for "Obvious Flags" */
+	emit_flags_32(fp, "O:", e_ptr->obv_flags1, k_info_flags1);
+	emit_flags_32(fp, "O:", e_ptr->obv_flags2, k_info_flags2);
+	emit_flags_32(fp, "O:", e_ptr->obv_flags3, k_info_flags3);
+	emit_flags_32(fp, "O:", e_ptr->obv_flags4, k_info_flags4);
+	
+	/* Output 'D' for "Description" */
+	/*emit_desc(fp, "D:", head->text_ptr + e_ptr->text);*/
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+/*
+ * Emit the "x_info" array into an ascii "template" file
+ */
+errr emit_x_info_index(FILE *fp, header *head, int i)
+{
+	/* Current entry */
+	flavor_type *x_ptr = (flavor_type*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%d:%d", i,x_ptr->tval, x_ptr->sval);
+
+	/* Output 'G' for "Graphics" (one line only) */
+	fprintf(fp, "G:%c:%c\n",x_ptr->d_char,color_attr_to_char[x_ptr->d_attr]);
+
+	/* Output 'D' for "Description" */
+	emit_desc(fp, "D:", head->text_ptr + x_ptr->text);
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+/*
+ * Emit the "p_info" array into an ascii "template" file
+ */
+errr emit_p_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+	bool introduced = FALSE;
+
+	/* Current entry */
+	player_race *pr_ptr = (player_race*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + pr_ptr->name);
+
+	/* Output 'D' for "Description" */
+	emit_desc(fp, "D:", head->text_ptr + pr_ptr->text);
+
+	/* Start stats output */
+	fprintf(fp, "S");
+	
+	/* Output stats */
+	for (n = 0; n < A_MAX; n++)
+	{
+		fprintf(fp, ":%d", pr_ptr->r_adj[n]);
+	}
+	
+	/* Finish stats output */
+	fprintf(fp, "\n");
+	
+	/* Output 'R' for "Racial Skills" (one line only) */
+	fprintf(fp, "R:%d:%d:%d:%d:%d:%d:%d:%d:%d\n",
+		    pr_ptr->r_dis, pr_ptr->r_dev, pr_ptr->r_sav, pr_ptr->r_stl,
+		    pr_ptr->r_srh, pr_ptr->r_dig, pr_ptr->r_tht, pr_ptr->r_thn, pr_ptr->r_thb);
+	
+	/* Output 'X' for "Extra Info" (one line only) */
+	fprintf(fp, "X:%d:%d:%d\n", pr_ptr->r_exp, pr_ptr->infra, pr_ptr->r_idx);
+
+	/* Output 'I' for "Info" (one line only) */
+	fprintf(fp, "I:%d:%d:%d:%d\n", pr_ptr->hist, pr_ptr->b_age, pr_ptr->m_age, pr_ptr->home);
+
+	/* Output 'H' for "Height" (one line only) */
+	fprintf(fp, "H:%d:%d:%d:%d\n", pr_ptr->m_b_ht, pr_ptr->m_m_ht, pr_ptr->f_b_ht, pr_ptr->f_m_ht);
+
+	/* Output 'H' for "Height" (one line only) */
+	fprintf(fp, "W:%d:%d\n", pr_ptr->m_b_wt, pr_ptr->f_b_wt);
+
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", pr_ptr->flags1, k_info_flags1);
+	emit_flags_32(fp, "F:", pr_ptr->flags2, k_info_flags2);
+	emit_flags_32(fp, "F:", pr_ptr->flags3, k_info_flags3);
+	emit_flags_32(fp, "F:", pr_ptr->flags4, k_info_flags4);
+
+	/* Start object slots output */
+	fprintf(fp, "O");
+	
+	/* Output stats */
+	for (n = 0; n < END_EQUIPMENT - INVEN_WIELD + 1; n++)
+	{
+		fprintf(fp, ":%d", pr_ptr->slots[n]);
+	}
+	
+	/* Finish object slots output */
+	fprintf(fp, "\n");
+	
+	/* Start class choices output */
+	fprintf(fp, "C:");
+	
+	/* Output class choices */
+	for (n = 0; n < 32; n++)
+	{
+		if (introduced) fprintf(fp, " | ");
+		if (pr_ptr->choice & (1 << n)) fprintf(fp, "%d", n);
+		introduced = TRUE;
+	}
+	
+	/* Finish class choices output */
+	fprintf(fp, "\n");
+
+	/* Success */
+	return (0);	
+}
+
+
+
+/*
+ * Emit the "c_info" array into an ascii "template" file
+ */
+errr emit_c_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+
+	/* Current entry */
+	player_class *pc_ptr = (player_class*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + pc_ptr->name);
+
+	/* Start stats output */
+	fprintf(fp, "S");
+	
+	/* Output stats */
+	for (n = 0; n < A_MAX; n++)
+	{
+		fprintf(fp, ":%d", pc_ptr->c_adj[n]);
+	}
+	
+	/* Finish stats output */
+	fprintf(fp, "\n");
+	
+	/* Output 'C' for "Class Skills" (one line only) */
+	fprintf(fp, "C:%d:%d:%d:%d:%d:%d:%d:%d:%d\n",
+		    pc_ptr->c_dis, pc_ptr->c_dev, pc_ptr->c_sav, pc_ptr->c_stl,
+		    pc_ptr->c_srh, pc_ptr->c_dig, pc_ptr->c_tht, pc_ptr->c_thn, pc_ptr->c_thb);
+
+	/* Output 'X' for "eXtra Skills" (one line only) */
+	fprintf(fp, "X:%d:%d:%d:%d:%d:%d:%d:%d:%d\n",
+		    pc_ptr->x_dis, pc_ptr->x_dev, pc_ptr->x_sav, pc_ptr->x_stl,
+		    pc_ptr->x_srh, pc_ptr->x_dig, pc_ptr->x_tht, pc_ptr->x_thn, pc_ptr->x_thb);
+	
+	/* Output 'I' for "Info" (one line only) */
+	fprintf(fp, "I:%d:%ld:%d:%d:%d", pc_ptr->c_exp, pc_ptr->sense_base, pc_ptr->sense_div, pc_ptr->sense_type, pc_ptr->sense_squared);
+
+	/* Output 'A' for "Attack Info" (one line only) */
+	fprintf(fp, "A:%d:%d:%d:%d\n", pc_ptr->max_attacks, pc_ptr->min_weight, pc_ptr->att_multiply, pc_ptr->chg_weight);
+
+	/* Output 'M' for "Magic Info" (one line only) */
+	fprintf(fp, "M:%d:%d:%d:%d:%d:%d:%d\n",
+		pc_ptr->spell_book, pc_ptr->spell_stat_study, pc_ptr->spell_stat_mana, pc_ptr->spell_stat_fail,
+		pc_ptr->spell_first, pc_ptr->spell_weight, pc_ptr->spell_power);
+
+	/* Output titles */
+	for (n = 0; n < PY_MAX_LEVEL / 5; n++)
+	{
+		fprintf(fp, "T:%s\n", head->text_ptr + pc_ptr->title[n]);
+	}
+	
+	/* Output starting equipment */
+	for (n = 0; n < MAX_CLASS_ITEMS; n++)
+	{
+		if (!pc_ptr->start_items[n].tval) continue;
+		
+		fprintf(fp, "E:%d:%d:%d:%d:%d:%d:%d:%d\n",
+			    pc_ptr->start_items[n].tval, pc_ptr->start_items[n].sval,
+			    pc_ptr->start_items[n].number_min, pc_ptr->start_items[n].number_max,
+			    pc_ptr->start_items[n].charge_min, pc_ptr->start_items[n].charge_max,
+			    pc_ptr->start_items[n].social_min, pc_ptr->start_items[n].social_max);
+	}
+
+	fprintf(fp,"\n");
+	
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Emit the "s_info" array into an ascii "template" file
+ */
+errr emit_s_info_index(FILE *fp, header *head, int i)
+{
+	int n, l;
+	bool mage_spell = FALSE;
+	bool priest_spell = FALSE;
+
+	/* Current entry */
+	spell_type *s_ptr = (spell_type*)head->info_ptr + i;
+	
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + s_ptr->name);
+
+	/* Output appears in */
+	for (n = 0; n < MAX_SPELL_APPEARS; n++)
+	{
+		if (!s_ptr->appears[n].tval) continue;
+
+		fprintf(fp, "A:%d:%d:%d\n", s_ptr->appears[n].tval, s_ptr->appears[n].sval,
+				s_ptr->appears[n].slot);
+	}
+
+	/* Reorder spells in class order */
+	for (l = 0; l < z_info->c_max; l++)
+	{
+		bool class_spell, note_spell;
+		
+		class_spell = FALSE;
+		note_spell = FALSE;
+		
+		/* Output casters */
+		for (n = 0; n < MAX_SPELL_CASTERS; n++)
+		{
+			if (!s_ptr->cast[n].class) continue;
+			
+			if (s_ptr->cast[n].class != l) continue;
+	
+			fprintf(fp, "C:%d:%d:%d:%d:%d\n",
+					s_ptr->cast[n].class,s_ptr->cast[n].level,s_ptr->cast[n].mana,s_ptr->cast[n].fail,s_ptr->cast[n].min);
+			
+			class_spell = TRUE;
+			
+			if (s_ptr->cast[n].class == 1) mage_spell = TRUE;
+			if (s_ptr->cast[n].class == 2) priest_spell = TRUE;
+		}
+		
+		/* Hack -- note when sub-classes cannot cast spell */
+		if (!class_spell)
+		{
+			switch (l)
+			{
+				case 3: case 4: case 10: note_spell = mage_spell; break;
+				case 5: note_spell = priest_spell; break;
+				case 8: case 9: case 11: note_spell = (s_ptr->cast[0].class != 0); break;
+			}
+			
+			if (note_spell)
+			{
+				fprintf(fp, "#$# %s cannot cast this spell.\n", c_name + c_info[l].name);
+			}
+		}
+	}
+	
+	/* Output 'P' for "Pre-requisites" (one line only) */
+	fprintf(fp,"P:%d:%d\n",s_ptr->preq[0], s_ptr->preq[1]);
+
+	/* Output blows */
+	for (n = 0; n < 4; n++)
+	{
+		if (!s_ptr->blow[n].method) continue;
+
+		fprintf(fp, "B:%s", r_info_blow_method[s_ptr->blow[n].method]);
+		
+		if (s_ptr->blow[n].effect)
+		{
+			fprintf(fp, ":%s:%dd%d+%d", r_info_blow_effect[s_ptr->blow[n].effect],
+					s_ptr->blow[n].d_dice, s_ptr->blow[n].d_side, s_ptr->blow[n].d_plus);
+		}
+		
+		fprintf(fp, "\n");
+	}
+
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", s_ptr->flags1, s_info_flags1);
+	emit_flags_32(fp, "F:", s_ptr->flags2, s_info_flags2);
+	emit_flags_32(fp, "F:", s_ptr->flags3, s_info_flags3);
+
+	/* Output 'S' for 'Spell types' */
+	if (s_ptr->type)
+	{
+		fprintf(fp, "S:%s:%d\n", s_info_types[s_ptr->type], s_ptr->param);
+	}
+	
+	/* Output 'L' for lasts */
+	if (s_ptr->l_dice || s_ptr->l_side || s_ptr->l_plus)
+	{
+		fprintf(fp, "L:%dd%d+%d\n", 
+				s_ptr->l_dice, s_ptr->l_side, s_ptr->l_plus);
+	}
+	
+	/* Output 'D' for "Description" */
+	emit_desc(fp, "D:", head->text_ptr + s_ptr->text);
 
 	fprintf(fp,"\n");
 

@@ -164,7 +164,10 @@ static void prt_stat(int stat)
 	  else
 	    if (p_ptr->stat_inc_tim[stat])
 	      {
-		c_put_str(TERM_L_BLUE, stat_names[stat], 
+		char stat_name[4];
+		sprintf(stat_name, "%.3s", stat_names[stat]);
+
+		c_put_str(TERM_L_BLUE, stat_name, 
 			  ROW_STAT, COL_STAT + 3 * stat);
 	      }
 	    else
@@ -223,12 +226,12 @@ static void prt_level(void)
 
 	if (p_ptr->lev >= p_ptr->max_lev)
 	{
-		put_str((show_sidebar ? "LEVEL " : "LVL "), ROW_LEVEL, COL_LEVEL);
+		put_str((show_sidebar ? "LEVEL " : " CL "), ROW_LEVEL, COL_LEVEL);
 		c_put_str(TERM_L_GREEN, tmp, ROW_LEVEL, COL_LEVEL + (show_sidebar ? 6 : 4));
 	}
 	else
 	{
-		put_str((show_sidebar ? "Level " : "Lvl "), ROW_LEVEL, COL_LEVEL);
+		put_str((show_sidebar ? "Level " : " CL "), ROW_LEVEL, COL_LEVEL);
 		c_put_str(TERM_YELLOW, tmp, ROW_LEVEL, COL_LEVEL + (show_sidebar ? 6 : 4));
 	}
 }
@@ -242,6 +245,7 @@ static void prt_exp(void)
 	char out_val[32];
 	s32b exp_display;
 	byte attr;
+	int max_number;
 
 	/*use different color if player's experience is drained*/
 	if (p_ptr->exp >= p_ptr->max_exp)
@@ -256,26 +260,38 @@ static void prt_exp(void)
 	/*some players want to see how much they need to gain to get to the next level*/
 	if ((toggle_xp) && (p_ptr->lev < PY_MAX_LEVEL))
 	{
-		exp_display = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) -
-									p_ptr->exp);
-
+		exp_display = ((player_exp[p_ptr->lev - 1] 
+				* p_ptr->expfact / 100L) -
+			       p_ptr->exp);
 		/*Print experience label*/
 		put_str("NEXT ", ROW_EXP, COL_EXP);
-	}
 
+		max_number = 99999;
+	}
 	else
 	{
-
 		exp_display = p_ptr->exp;
 
 		/*Print experience label*/
 		put_str("EXP ", ROW_EXP, COL_EXP);
+
+		max_number = 999999;
 	}
 
-	sprintf(out_val, "%8ld", exp_display);
+	if (show_sidebar) {
+	  sprintf(out_val, "%8ld", exp_display);
+	}
+	else {
+	  if (exp_display > max_number) {
+	    exp_display = exp_display / 1000;
+	    sprintf(out_val, "%5ldK", exp_display);
+	  }
+	  else {
+	    sprintf(out_val, "%6ld", exp_display);
+	  }
+	}
 
 	c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
-
 }
 
 
@@ -316,17 +332,17 @@ static void prt_hp(void)
 	byte color;
 
 
-	put_str((show_sidebar ? "Max HP " : "/"), ROW_MAXHP, COL_MAXHP);
+	put_str((show_sidebar ? "Max HP " : "/    "), ROW_MAXHP, COL_MAXHP);
 
-	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->mhp);
+	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->mhp);
 	color = TERM_L_GREEN;
 
 	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur HP " : "HP:"), ROW_CURHP, COL_CURHP);
+	put_str((show_sidebar ? "Cur HP " : "HP:    "), ROW_CURHP, COL_CURHP);
 
-	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->chp);
+	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->chp);
 
 	if (p_ptr->chp >= p_ptr->mhp)
 	{
@@ -341,7 +357,7 @@ static void prt_hp(void)
 		color = TERM_RED;
 	}
 
-	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + (show_sidebar ? 7 : 3));
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + (show_sidebar ? 7 : 7 - strlen(tmp)));
 }
 
 
@@ -356,22 +372,25 @@ static void prt_sp(void)
 
 	/* Do not show mana unless it matters */
 	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL
-		&& p_ptr->pstyle != WS_MAGIC_BOOK
-		&& p_ptr->pstyle != WS_PRAYER_BOOK
-		&& p_ptr->pstyle != WS_SONG_BOOK)
-		return;
+	    && p_ptr->pstyle != WS_MAGIC_BOOK
+	    && p_ptr->pstyle != WS_PRAYER_BOOK
+	    && p_ptr->pstyle != WS_SONG_BOOK) {
+	  if (!show_sidebar)
+	    prt_ac();
+	  return;
+	}
 
-	put_str((show_sidebar ? "Max SP " : "/"), ROW_MAXSP, COL_MAXSP);
+	put_str((show_sidebar ? "Max SP " : "/    "), ROW_MAXSP, COL_MAXSP);
 
-	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->msp);
+	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->msp);
 	color = TERM_L_GREEN;
 
 	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur SP " : "SP:"), ROW_CURSP, COL_CURSP);
+	put_str((show_sidebar ? "Cur SP " : "SP:    "), ROW_CURSP, COL_CURSP);
 
-	sprintf(tmp, (show_sidebar ? "%5d" : "%4d"), p_ptr->csp);
+	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->csp);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
@@ -391,7 +410,7 @@ static void prt_sp(void)
 	}
 
 	/* Show mana */
-	c_put_str(color, tmp, ROW_CURSP, COL_CURSP + (show_sidebar ? 7 : 3));
+	c_put_str(color, tmp, ROW_CURSP, COL_CURSP + (show_sidebar ? 7 : 7 - strlen(tmp)));
 }
 
 
@@ -400,25 +419,18 @@ static void prt_sp(void)
  */
 static void prt_depth(void)
 {
-	char depths[32];
+  if (!adult_campaign) {
 
+	char depths[8];
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 	dungeon_zone *zone = &t_ptr->zone[0];
 
 	/* Get the zone */	
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-	if (!zone->fill)
+	if (!zone->fill && zone->level <= 10 && t_ptr->store[3])
 	{
 		my_strcpy(depths, "Town", sizeof(depths));
-	}
-	else if ((p_ptr->depth == min_depth(p_ptr->dungeon)) && (zone->level < MAX_ZONE_WILDS))
-	{
-		my_strcpy(depths, "Ruins", sizeof(depths));
-	}
-	else if (p_ptr->depth == min_depth(p_ptr->dungeon))
-	{
-		my_strcpy(depths, "Wilds", sizeof(depths));
 	}
 	else if ((depth_in_feet) && !(COL_DEPTH))
 	{
@@ -437,8 +449,11 @@ static void prt_depth(void)
 		sprintf(depths, "%d", p_ptr->depth);
 	}
 
-	if (COL_DEPTH == 0) put_str("DEPTH ", ROW_DEPTH, COL_DEPTH);
+	if (COL_DEPTH == 0) 
+	  put_str("DEPTH ", ROW_DEPTH, COL_DEPTH);
 	c_put_str(TERM_L_GREEN, format("%7s", depths), ROW_DEPTH, COL_DEPTH ? COL_DEPTH : COL_DEPTH + 5);
+
+  }
 }
 
 
@@ -483,144 +498,6 @@ static void prt_hunger(void)
 		c_put_str(TERM_GREEN, (show_sidebar ? "Gorged" : "Gorg"), ROW_HUNGRY, COL_HUNGRY);
 	}
 }
-
-
-/*
- * Prints Blind status
- */
-static void prt_blind(void)
-{
-	if (p_ptr->blind)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Blind" : "Blnd"), ROW_BLIND, COL_BLIND);
-	}
-	else
-	{
-		put_str((show_sidebar ? "     " : "    "), ROW_BLIND, COL_BLIND);
-	}
-}
-
-
-/*
- * Prints Confusion status
- */
-static void prt_confused(void)
-{
-	if (p_ptr->confused)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Confused" : "Conf"), ROW_CONFUSED, COL_CONFUSED);
-	}
-	else
-	{
-                put_str((show_sidebar ? "        " : "    "), ROW_CONFUSED, COL_CONFUSED);
-	}
-}
-
-
-/*
- * Prints Fear status
- */
-static void prt_afraid(void)
-{
-	if (p_ptr->afraid)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Afraid" : "Fear"), ROW_AFRAID, COL_AFRAID);
-	}
-	else
-	{
-		put_str((show_sidebar ? "      " : "    "), ROW_AFRAID, COL_AFRAID);
-	}
-}
-
-
-/*
- * Prints Poisoned status
- */
-static void prt_poisoned(void)
-{
-	if (p_ptr->poisoned)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Poisoned" : "Pois"), ROW_POISONED, COL_POISONED);
-	}
-	else
-	{
-                put_str((show_sidebar ? "        " : "    "), ROW_POISONED, COL_POISONED);
-	}
-}
-
-
-/*
- * Prints Cursed status
- */
-static void prt_disease(void)
-{
-	byte attr = TERM_GREEN;
-
-	if (p_ptr->disease & (1 << DISEASE_SPECIAL)) attr = TERM_L_DARK;
-	else if (p_ptr->disease & (DISEASE_HEAVY)) attr = TERM_VIOLET;
-	else if (p_ptr->disease & (DISEASE_QUICK)) attr = TERM_L_RED;
-	else if (p_ptr->disease & (DISEASE_POWER)) attr = TERM_RED;
-	else if (p_ptr->disease & (DISEASE_DISEASE)) attr = TERM_ORANGE;
-	else if (p_ptr->disease & (DISEASE_LIGHT)) attr = TERM_YELLOW;
-
-	if (p_ptr->disease)
-	{
-		c_put_str(attr, (show_sidebar ? "Disease" : "Dise"), ROW_DISEASE, COL_DISEASE);
-	}
-	else
-	{
-		put_str((show_sidebar ? "       " : "    "), ROW_DISEASE, COL_DISEASE);
-	}
-}
-
-
-/*
- * Prints Cursed status
- */
-static void prt_cursed(void)
-{
-	if (p_ptr->cursed)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Cursed" : "Curs"), ROW_CURSED, COL_CURSED);
-	}
-	else
-	{
-		put_str((show_sidebar ? "      " : "    "), ROW_CURSED, COL_CURSED);
-	}
-}
-
-
-/*
- * Prints Amnesia status
- */
-static void prt_amnesia(void)
-{
-	if (p_ptr->amnesia)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Amnesia" : "Forg"), ROW_AMNESIA, COL_AMNESIA);
-	}
-	else
-	{
-		put_str((show_sidebar ? "       " : "    "), ROW_AMNESIA, COL_AMNESIA);
-	}
-}
-
-
-/*
- * Prints Petrified status
- */
-static void prt_petrify(void)
-{
-	if (p_ptr->petrify)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Petrified" : "Petr"), ROW_PETRIFY, COL_PETRIFY);
-	}
-	else
-	{
-		put_str((show_sidebar ? "         " : "    "), ROW_PETRIFY, COL_PETRIFY);
-	}
-}
-
 
 /*
  * Prints Searching, Resting, Paralysis, or 'count' status
@@ -780,7 +657,6 @@ static void prt_state(void)
 	  c_put_str(attr, text, ROW_STATE, COL_STATE);
 }
 
-
 /*
  * Prints the speed of a character.		     -CJS-
  */
@@ -798,20 +674,19 @@ static void prt_speed(void)
 	if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, (1/*show_sidebar*/ ? "Fast (+%d)" : "Spd+%d"), (i - 110));
+		sprintf(buf, (show_sidebar ? "Fast (+%d)" : (p_ptr->slow || p_ptr->fast || p_ptr->food >= PY_FOOD_MAX ? "Temp Fast +%-2d" : "Fast +%-2d")), (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, (1/*show_sidebar*/ ? "Slow (-%d)" : "Spd-%d"), (110 - i));
+		sprintf(buf, (show_sidebar ? "Slow (-%d)" : (p_ptr->slow || p_ptr->fast || p_ptr->food >= PY_FOOD_MAX ?  "Temp Slow -%-2d" : "Slow -%-2d")), (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format((1/*show_sidebar*/ ? "%-10s" : "%-6s"), buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format(show_sidebar ? "%-10s" : "%13s", buf), ROW_SPEED, COL_SPEED);
 }
-
 
 static void prt_study(void)
 {
@@ -826,45 +701,200 @@ static void prt_study(void)
 }
 
 
+/*
+ * Prints Diseased status
+ */
+static void prt_disease(void)
+{
+	byte attr = TERM_GREEN;
+
+	if (p_ptr->disease & (1 << DISEASE_SPECIAL)) attr = TERM_L_DARK;
+	else if (p_ptr->disease & (DISEASE_HEAVY)) attr = TERM_VIOLET;
+	else if (p_ptr->disease & (DISEASE_QUICK)) attr = TERM_L_RED;
+	else if (p_ptr->disease & (DISEASE_POWER)) attr = TERM_RED;
+	else if (p_ptr->disease & (DISEASE_DISEASE)) attr = TERM_ORANGE;
+	else if (p_ptr->disease & (DISEASE_LIGHT)) attr = TERM_YELLOW;
+
+	if (p_ptr->disease)
+	{
+		c_put_str(attr, (show_sidebar ? "Disease" : "Dise"), ROW_DISEASE, COL_DISEASE);
+	}
+	else
+	{
+		put_str((show_sidebar ? "       " : "    "), ROW_DISEASE, COL_DISEASE);
+	}
+}
+
+static bool visible;
+static int level_name_start;
+static char level_name_str[46];
+static int level_depth_start;
+static char level_depth_str[5];
+
+static void print_level_depth(void)
+{
+  Term_putstr(level_depth_start, 
+	      SECOND_FROM_BOTTOM, -1, TERM_SLATE, 
+	      level_depth_str);
+}
+
+static void print_level_name(void)
+{
+  Term_putstr(level_name_start, 
+	      SECOND_FROM_BOTTOM, -1, TERM_L_DARK, 
+	      level_name_str);
+
+  if (p_ptr->depth > 0)
+    print_level_depth();
+}
+
+static void wipe_level_name(void)
+{
+  Term_erase(level_name_start, SECOND_FROM_BOTTOM, 255);
+
+  if (p_ptr->depth > 0) {
+    print_level_depth();
+    Term_putstr(level_depth_start - 3, 
+		SECOND_FROM_BOTTOM, -1, TERM_L_DARK, 
+		"Lev");
+  }
+}
+
+static void init_level_name(void)
+{
+  if (adult_campaign) {
+    int wid, h;
+
+    visible = TRUE;
+
+    current_long_level_name(level_name_str);
+ 
+    if (p_ptr->depth > 0)
+      sprintf(level_depth_str, " %2d", p_ptr->depth);
+    else
+      level_depth_str[0] = 0;
+
+    /* Obtain the size */
+    (void)Term_get_size(&wid, &h);
+
+    level_depth_start = wid - strlen(level_depth_str) - (show_sidebar ? 1 : 0);
+
+    level_name_start = level_depth_start - strlen(level_name_str);
+  }
+}
+
+void pre_prt(int column)
+{
+  if (adult_campaign && !show_sidebar)
+    if (column + 5 > level_name_start)
+      /* this collides with level name */
+      if (visible) {
+	/* no collision till now */
+	wipe_level_name();
+	visible = FALSE;
+      }
+}
+
+void post_prt(int column)
+{
+  if (adult_campaign && !show_sidebar)
+    if (column + 5 > level_name_start)
+      /* this frees (some of!) the space we need for level name */
+      if ((!p_ptr->cursed || COL_CURSED + 4 < level_name_start)
+	  && (!p_ptr->afraid || COL_AFRAID + 4 < level_name_start)
+	  && (!p_ptr->cut || COL_CUT + 4 < level_name_start)
+	  && (!p_ptr->stun || COL_STUN + 4 < level_name_start)
+	  && (!p_ptr->poisoned || COL_POISONED + 4 < level_name_start)
+	  && (!p_ptr->amnesia || COL_AMNESIA + 4 < level_name_start)
+	  && (!p_ptr->petrify || COL_PETRIFY + 4 < level_name_start)
+	  && (!p_ptr->confused || COL_CONFUSED + 4 < level_name_start)
+	  && (!p_ptr->blind || COL_BLIND + 4 < level_name_start))
+	/* all space freed, redraw */ {
+	print_level_name();
+	visible = TRUE;
+      }
+}
+
+
+/*
+ * Prints Cursed status
+ */
+static void prt_cursed(void)
+{
+	if (p_ptr->cursed)
+	{
+		pre_prt(COL_CURSED);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Cursed" : "Curs"), ROW_CURSED, COL_CURSED);
+	}
+	else
+	{
+		put_str((show_sidebar ? "      " : "    "), ROW_CURSED, COL_CURSED);
+		post_prt(COL_CURSED);
+	}
+}
+
+/*
+ * Prints Fear status
+ */
+static void prt_afraid(void)
+{
+	if (p_ptr->afraid)
+	{
+		pre_prt(COL_AFRAID);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Afraid" : "Fear"), ROW_AFRAID, COL_AFRAID);
+	}
+	else
+	{
+		put_str((show_sidebar ? "      " : "    "), ROW_AFRAID, COL_AFRAID);
+		post_prt(COL_AFRAID);
+	}
+}
+
 static void prt_cut(void)
 {
 	int c = p_ptr->cut;
 
 	if (c > 1000)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_L_RED, (show_sidebar ? "Mortal wound" : "Mort"), ROW_CUT, COL_CUT);
 	}
 	else if (c > 200)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_RED, (show_sidebar ? "Deep gash   " : "Cut5"), ROW_CUT, COL_CUT);
 	}
 	else if (c > 100)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_RED, (show_sidebar ? "Severe cut  " : "Cut4"), ROW_CUT, COL_CUT);
 	}
 	else if (c > 50)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_ORANGE, (show_sidebar ? "Nasty cut   " : "Cut3"), ROW_CUT, COL_CUT);
 	}
 	else if (c > 25)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_ORANGE, (show_sidebar ? "Bad cut     " : "Cut2"), ROW_CUT, COL_CUT);
 	}
 	else if (c > 10)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_YELLOW, (show_sidebar ? "Light cut   " : "Cut1"), ROW_CUT, COL_CUT);
 	}
 	else if (c)
 	{
+		pre_prt(COL_CUT);
 		c_put_str(TERM_YELLOW, (show_sidebar ? "Graze       " : "Graz"), ROW_CUT, COL_CUT);
 	}
 	else
 	{
                 put_str((show_sidebar ? "            " : "    "), ROW_CUT, COL_CUT);
+		post_prt(COL_CUT);
         }
 }
-
-
 
 static void prt_stun(void)
 {
@@ -872,22 +902,123 @@ static void prt_stun(void)
 
 	if (s > 100)
 	{
+		pre_prt(COL_STUN);
 		c_put_str(TERM_RED, (show_sidebar ? "Knocked out " : "KOed"), ROW_STUN, COL_STUN);
 	}
 	else if (s > 50)
 	{
+		pre_prt(COL_STUN);
 		c_put_str(TERM_ORANGE, (show_sidebar ? "Heavy stun  " : "STUN"), ROW_STUN, COL_STUN);
 	}
 	else if (s)
 	{
+		pre_prt(COL_STUN);
 		c_put_str(TERM_ORANGE, (show_sidebar ? "Stun        " : "Stun"), ROW_STUN, COL_STUN);
 	}
 	else
 	{
                 put_str((show_sidebar ? "            " : "    "), ROW_STUN, COL_STUN);
+		post_prt(COL_STUN);
 	}
 }
 
+/*
+ * Prints Poisoned status
+ */
+static void prt_poisoned(void)
+{
+	if (p_ptr->poisoned)
+	{
+		pre_prt(COL_POISONED);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Poisoned" : "Pois"), ROW_POISONED, COL_POISONED);
+	}
+	else
+	{
+                put_str((show_sidebar ? "        " : "    "), ROW_POISONED, COL_POISONED);
+		post_prt(COL_POISONED);
+	}
+}
+
+/*
+ * Prints Amnesia status
+ */
+static void prt_amnesia(void)
+{
+	if (p_ptr->amnesia)
+	{
+		pre_prt(COL_AMNESIA);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Amnesia" : "Forg"), ROW_AMNESIA, COL_AMNESIA);
+	}
+	else
+	{
+		put_str((show_sidebar ? "       " : "    "), ROW_AMNESIA, COL_AMNESIA);
+		post_prt(COL_AMNESIA);
+	}
+}
+
+/*
+ * Prints Petrified status
+ */
+static void prt_petrify(void)
+{
+	if (p_ptr->petrify)
+	{
+		pre_prt(COL_PETRIFY);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Petrified" : "Petr"), ROW_PETRIFY, COL_PETRIFY);
+	}
+	else
+	{
+		put_str((show_sidebar ? "         " : "    "), ROW_PETRIFY, COL_PETRIFY);
+		post_prt(COL_PETRIFY);
+	}
+}
+
+/*
+ * Prints Confusion status
+ */
+static void prt_confused(void)
+{
+	if (p_ptr->confused)
+	{
+		pre_prt(COL_CONFUSED);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Confused" : "Conf"), ROW_CONFUSED, COL_CONFUSED);
+	}
+	else
+	{
+                put_str((show_sidebar ? "        " : "    "), ROW_CONFUSED, COL_CONFUSED);
+		post_prt(COL_CONFUSED);
+	}
+}
+
+/*
+ * Prints Blind status
+ */
+static void prt_blind(void)
+{
+	if (p_ptr->blind)
+	{
+		pre_prt(COL_BLIND);
+		c_put_str(TERM_ORANGE, (show_sidebar ? "Blind" : "Blnd"), ROW_BLIND, COL_BLIND);
+	}
+	else
+	{
+		put_str((show_sidebar ? "     " : "    "), ROW_BLIND, COL_BLIND);
+		post_prt(COL_BLIND);
+	}
+}
+
+static void prt_various(void)
+{
+	prt_cursed();
+	prt_afraid();
+	prt_cut();
+	prt_stun();
+	prt_poisoned();
+	prt_amnesia();
+	prt_petrify();
+	prt_confused();
+	prt_blind();
+}
 
 
 /*
@@ -903,7 +1034,7 @@ static void prt_stun(void)
 static void health_redraw(void)
 {
 	/* Not tracking */
-	if (!p_ptr->health_who)
+	if (!p_ptr->health_who && !p_ptr->image)
 	{
 		if (show_sidebar)
 		{
@@ -917,15 +1048,15 @@ static void health_redraw(void)
 		}
 	}
 
-	/* Tracking an unseen monster */
-	else if (!m_list[p_ptr->health_who].ml)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
 	/* Tracking a hallucinatory monster */
 	else if (p_ptr->image)
+	{
+		/* Indicate that the monster health is "unknown" */
+		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_VIOLET, "[*&#@$(#&@*]");
+	}
+
+	/* Tracking an unseen monster */
+	else if (!m_list[p_ptr->health_who].ml)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -1458,7 +1589,7 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 
 
 /*
- * Display basic info (mostly left of map, unless show_sidebar is on)
+ * Display basic info (mostly left of map, unless show_sidebar is off)
  */
 static void prt_frame_basic(void)
 {
@@ -1493,7 +1624,8 @@ static void prt_frame_basic(void)
 	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
-	prt_ac();
+	if (show_sidebar) 
+	  prt_ac();
 
 	/* Hitpoints */
 	prt_hp();
@@ -1517,22 +1649,8 @@ static void prt_frame_basic(void)
  */
 static void prt_frame_extra(void)
 {
-	/* Cut/Stun */
-	prt_cut();
-	prt_stun();
-
-	/* Food */
-	prt_hunger();
-
-	/* Various */
-	prt_blind();
-	prt_confused();
-	prt_afraid();
-	prt_poisoned();
-	prt_disease();
-	prt_cursed();
-	prt_amnesia();
-	prt_petrify();
+	/* Study spells */
+	prt_study();
 
 	/* Speed */
 	prt_speed();
@@ -1540,8 +1658,19 @@ static void prt_frame_extra(void)
 	/* State */
 	prt_state();
 
-	/* Study spells */
-	prt_study();
+	/* Food */
+	prt_hunger();
+
+	/* Disease */
+	prt_disease();
+
+	/* Below things overwritten by level description in no-sidebar mode */
+	init_level_name();
+	if (adult_campaign)
+	  print_level_name();
+
+	/* Various */
+	prt_various();
 }
 
 
@@ -4451,7 +4580,8 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_ARMOR))
 	{
 		p_ptr->redraw &= ~(PR_ARMOR);
-		prt_ac();
+		if (show_sidebar) 
+		  prt_ac();
 	}
 
 	if (p_ptr->redraw & (PR_HP))

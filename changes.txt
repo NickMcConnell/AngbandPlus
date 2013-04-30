@@ -413,6 +413,46 @@ of work into this).
 
 - Allies drop the objects they are carrying when they leave your service.
 
+- If the player is blocking, he gets a +20 to hit in melee and +15 to hit with bows/throwing. This allows bad melee practitioners to increase their odds of hitting by blocking.
+
+- If the weapon you are attacking with or the ammo you are firing / item you are throwing is not an ego item, artifact, coated weapon or magic item, it will inherit brands/slays from your equipment as follows:
+
+* In melee, your gloves/gauntlets are checked first.
+* If you have no gauntlets, instead, your right hand ring.
+* Except for blows with your secondary weapon, which use your left-hand ring.
+* For throws and ammunition, only your left hand ring is checked.
+
+- Rings of ice/acid/fire/electricity now have the appropriate brand. This makes them highly useful for archers/throwing specialists as well as mage-type spell casters which do not use gloves/gauntlets.
+
+- Modified low-level bard spells, replacing Holy Water with a more bard specific spell.
+
+- Added spells that modify a single round of blows, shooting or throwing.
+
+- Scale down upper end of monster drop sizes.
+
+- Minimise number of townsfolk who drop gold.
+
+- various changes and additions to the wilderness map, guardians, depths; in particular, added the Great Grey Wolf and a slight upgrade to Boldog, the Orc Captain, to have missile attack.
+
+- substituted guardians (e.g. Black Riders) now guard only the first zone and are described as such
+
+- recycled some guardians so that changes to the world, as the game progresses, do not make uniques undefeatable, except a few plot-motivated cases
+
+- ad hoc tweaks to pseudo-id (until this is rethought and rewritten more systematically), in particular, broken items are no longer reported {average} for mages;
+
+- on shallow levels, OOD monster rarer and not so OOD
+
+- moved multiplying monsters (especially shallow but high HP ones) much deeper by increasing their hp rating in the power calculations; giant black louse is thus level 6, not 3 as before (is 7 in monster.txt)
+
+- removed restore potions, made stat potions much more common and cheaper, tweaked prices of starting magic devices
+
+- made traps, potions, etc. that do more than p_ptr->mph/2 damage leave player at 1HP instead of killing him; please revert if this is too munchkinish, but note that it only affects early game, when detect traps and ID are scarce; with this also later in the game test-id and no-trap-detection become viable; tentative
+
+- made apple and berries a bit lighter and berries somewhat nourishing
+
+- you can now die from starvation second turn after travel, beware
+
+- other minor tweaks and additions
 
 
 
@@ -494,6 +534,28 @@ ensure restocking of shops occurs.
 - Fix for problems with windows XP glyphs not displayed experienced by some people. Choose a font ending with an 'x' to resolve this (A better fix will be included in 0.6.3).
 
 - Don't require second menu selection when buying a service in order to use the power.
+
+- Pval modifier is now included in the description of an item.
+
+- added dungeon level names (only about half of dungeons, please contribute)
+
+- more information in the dungeon knowledge menu; the location blocked by a guardian revealed
+
+- some info about dungeons reachable via one step of travel, in particular, warning if no way back or if no escape via maps
+
+- overhauled and sorted visited dungeons listing in the character dump; tentative
+
+- added link to map and to dungeon knowledge from the travel menu
+
+- overhaul of the main screen UI, especially of the no-sideboard mode; the town level is now one line lower, I hope this does not break anything; tentative
+
+- corrected layout of the top line inside shops
+
+- warn about starvation, especially after travel
+
+- changed default wrap column to 80 now that we have long texts to print, e.g. dungeon descriptions; some are still 75 column, e.g. ego powers, because they are subordinate to their main item descriptions; tentative
+
+
 
 ### Bug fixes ###
 
@@ -846,7 +908,35 @@ of time.
 - Fix problems with acid bolt II etc. causing remaining bolts to hit the player if target is killed.
 
 - Fix for Bug #12334 Can't kill Farmer Maggot with wand of Acid Bolts II.
+Fix for Bug #12538 Chain-summoning Termite Mounds.
 
+- This also modifies the 'power curve' of monster ecologies so may have far-reaching effects.
+
+- Fix for Bug #12570 bards "Find Hidden Traps/Doors" =|= "Find Traps".
+
+- Fix bug Bug #12569 browsing spellbooks "prerequsite" => "prerequisite"
+
+- Fixed by Bug #12568 Priest Cure Moderate Wounds required mage Cure Light Wounds as a pre-requisite.
+
+- Fix for Bug #12457 Rings of tele not activable when identified via ring spec
+
+- rings of teleportations should now be always found cursed
+
+- Fix for Bug #12567 Potion of Detonations .. broken ?
+
+- Prevent loading a character from marking worthless items as broken.
+
+- corrected the destinations of maps (the ones bought, sold, etc.)
+
+- fixed a bug that made all MFLAG_STRONG monsters twice as strong as intended (I think); these included (some?) low level uniques
+
+- as a temporary fix to the problem of empty Nature book and others, I've removed the books of Negations, Nature, Space, Annihilation, the Void, Immolation and Gambits; please report if any of the books worked for you in earlier versions
+
+- some code cleanups, minor fixes and changes to the engine under the hood
+
+- crashes when inspecting bags, etc. fixed, I hope
+
+- fixed another crash with bags and lack of equip term refresh when canceling item selection from a bag
 
 
 ### Build / Platform ###
@@ -873,6 +963,10 @@ Windows compile.
 - Add missing .xib file to source build.
 
 - Fix various compiler warnings.
+
+- gmake from Vanilla that allows both native- and cross-compiling using mingw
+
+- Windows build packaging script for use on Unix, to complement build_win.bat
 
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down

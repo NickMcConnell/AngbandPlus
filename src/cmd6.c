@@ -1678,7 +1678,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	u32b f1, f2, f3, f4;
 
 	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
+	if (!object_known_p(o_ptr) && !object_named_p(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -1861,6 +1861,15 @@ void do_cmd_activate(void)
 		/* Clear racial activation */
 		if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)) object_wipe(&inventory[INVEN_SELF]);
 
+		return;
+	}
+	
+	/* Item is broken */
+	if (o_ptr->ident & (IDENT_BROKEN))
+	{
+		if (flush_failure) flush();
+		msg_print("It whines, glows and fades...");
+		o_ptr->feeling = INSCRIP_BROKEN;
 		return;
 	}
 

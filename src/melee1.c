@@ -932,6 +932,13 @@ void attack_desc(int who, int what, int target, int method, int damage, bool *do
 			break;
 		}
 
+		case RBM_HOWL:
+		{
+			prefix = "howls";
+			my_strcpy(t_name, "", sizeof(t_name));
+			break;
+		}
+
 		case RBM_SHRIEK:
 		{
 			prefix = "shrieks horribly";
@@ -1277,6 +1284,8 @@ bool make_attack_normal(int m_idx)
 		int method = r_ptr->blow[ap_cnt].method;
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
+	
+		if (cheat_xtra) msg_format("base dice in this blow: dice %d, sides %d", d_dice, d_side);
 
 		/* Hack -- no more attacks */
 		if (!method) break;
@@ -1295,15 +1304,19 @@ bool make_attack_normal(int m_idx)
 		do_stun = FALSE;
 		touched = FALSE;
 
+		if (cheat_xtra) msg_format("dice (2) in this blow: dice %d, sides %d", d_dice, d_side);
+
 		/* Apply monster stats */
 		if (d_side > 1)
 		{
 			/* Apply monster stats */
 			if (m_ptr->mflag & (MFLAG_WEAK)) d_side = MIN(d_side - 2, d_side * 9 / 10);
-			else if (m_ptr->mflag & (MFLAG_STRONG)) d_side += MAX(d_side + 2, d_side * 11 / 10);
+			else if (m_ptr->mflag & (MFLAG_STRONG)) d_side = MAX(d_side + 2, d_side * 11 / 10);
 
 			if (d_side <= 0) d_side = 1;
 		}
+
+		if (cheat_xtra) msg_format("dice (3) in this blow: dice %d, sides %d", d_dice, d_side);
 
 		/* Roll out the damage */
 		damage = damroll(d_dice, d_side);
@@ -1387,6 +1400,8 @@ bool make_attack_normal(int m_idx)
 
 			/* Player armor reduces total damage */
 			damage -= (damage * ((p_ptr->ac + p_ptr->to_a < 150) ? p_ptr->ac + p_ptr->to_a: 150) / 250);
+
+			if (cheat_xtra) msg_format("base damage dealt by monster in this blow: %d, dice %d, sides %d", damage, d_dice, d_side);
 
 			if (effect)
 			{
@@ -2286,10 +2301,13 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 	int target = cave_m_idx[y][x];
 
+	/* Summoner */
+	int summoner = 0;
+	
 	/* Summon count */
 	int count = 0;
 
-	/* Summon count */
+	/* Summon level */
 	int summon_lev = 0;
 
 	/* Is the player blind */
@@ -2453,6 +2471,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Fake the powerfulness */
 		powerful = (p_ptr->depth > 50 ? TRUE : FALSE);
 
+		/* No summoner */
+		summoner = 0;
+		
 		/* Fake the summoning level */
 		summon_lev = p_ptr->depth + 3;
 	}
@@ -2482,9 +2503,12 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 		/* Extract the powerfulness */
 		powerful = (r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE);
+		
+		/* Extract the summoner */
+		summoner = m_list[who].r_idx;
 
 		/* Extract the summoning level.  Must be at least 1. */
-		summon_lev = MAX(1 ,(r_ptr->level + p_ptr->depth) / 2 - 1);
+		summon_lev = MAX(1, (r_ptr->level + p_ptr->depth) / 2 - 1);
 
 		/* Determine mana cost */
 		if (attack >= 224) return (FALSE);
@@ -2664,6 +2688,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_SPIT:	mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_GAZE:	msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_WAIL: msg_print(result);(void)project(who, what, 4, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
+				case RBM_HOWL: msg_print(result);(void)project(who, what, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
 				case RBM_SHRIEK: msg_print(result); (void)project(who, what, 6, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_ARC | PROJECT_HIDE, 20, 20); aggravate_monsters(who); break;
 				case RBM_SPORE:	mon_ball_minor_shot(who, what, y, x, effect, dam, 1, hit, result); break;
 				case RBM_LASH:  mon_beam(who, what, y, x, effect, dam, 2, result); break;
@@ -5590,8 +5615,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s cries out for help.", m_name);
 				else if (known) msg_format("%^s magically summons %s %s.", m_name, m_poss,
 						((r_ptr->flags1) & RF1_UNIQUE ?
@@ -5613,7 +5636,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_KIN, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_KIN, TRUE, allies);
 			}
 
 			break;
@@ -5629,8 +5652,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if (((blind) && (known)) && (target < 0)) result = format("%^s whispers.", m_name);
 				else if (known) result = format("%^s magically reanimates %s %s from %s.", m_name, m_poss,
 						((r_ptr->flags1) & RF1_UNIQUE ? "minions" : "kin"),
@@ -5680,8 +5701,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons help!", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5693,7 +5712,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, 0, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, 0, TRUE, allies);
 			}
 			break;
 		}
@@ -5705,8 +5724,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons monsters.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5718,7 +5735,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, 0, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, 0, TRUE, allies);
 			}
 			break;
 		}
@@ -5733,8 +5750,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) result = format("%^s chants.", m_name);
 				else if (known) result = format("%^s magically reanimates a monster!", m_name);
 				else result = "You hear distant chanting.";
@@ -5758,8 +5773,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically reanimates monsters.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5780,8 +5793,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a rustling tongue.", m_name);
 				else if (known) msg_format("%^s magically summons plants.", m_name);
 				else msg_print("You hear distant rustling.");
@@ -5793,7 +5804,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_PLANT, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_PLANT, TRUE, allies);
 			}
 			break;
 		}
@@ -5805,8 +5816,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a chittering tongue.", m_name);
 				else if (known) msg_format("%^s magically summons insects.", m_name);
 				else msg_print("You hear distant chittering.");
@@ -5818,7 +5827,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_INSECT, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_INSECT, TRUE, allies);
 			}
 			break;
 		}
@@ -5830,8 +5839,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons animals.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5868,7 +5875,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_ANIMAL, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_ANIMAL, TRUE, allies);
 			}
 			break;
 		}
@@ -5880,8 +5887,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s howls.", m_name);
 				else if (known) msg_format("%^s magically summons hounds.", m_name);
 				else msg_print("You hear distant howling.");
@@ -5893,7 +5898,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 2; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HOUND, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HOUND, TRUE, allies);
 			}
 			break;
 		}
@@ -5905,8 +5910,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a chittering tongue.", m_name);
 				else if (known) msg_format("%^s magically summons spiders.", m_name);
 				else msg_print("You hear distant chittering.");
@@ -5918,7 +5921,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_SPIDER, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_SPIDER, TRUE, allies);
 			}
 			break;
 		}
@@ -5930,8 +5933,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons allies.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5951,7 +5952,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_CLASS, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_CLASS, TRUE, allies);
 			}
 			break;
 		}
@@ -5963,8 +5964,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons allies.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -5987,7 +5986,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_RACE, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_RACE, TRUE, allies);
 			}
 			break;
 		}
@@ -6002,8 +6001,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
 				else if (known) msg_format("%^s magically summons allies.", m_name);
 				else msg_print("You hear distant chanting.");
@@ -6017,7 +6014,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_GROUP, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_GROUP, TRUE, allies);
 			}
 			break;
 		}
@@ -6032,8 +6029,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s calls out for help.", m_name);
 				else if (known) msg_format("%^s magically summons a friend.", m_name);
 				else msg_print("You hear distant cries for help.");
@@ -6062,7 +6057,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, summon_type, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev, summon_type, TRUE, allies);
 			}
 
 			break;
@@ -6078,8 +6073,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s calls out for help.", m_name);
 				else if (known) msg_format("%^s magically summons friends.", m_name);
 				else msg_print("You hear distant cries for help.");
@@ -6108,7 +6101,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev, summon_type, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev, summon_type, TRUE, allies);
 			}
 
 			break;
@@ -6121,8 +6114,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s beats on a drum.", m_name);
 				else if (known) msg_format("%^s magically summons orcs.", m_name);
 				else msg_print("You hear distant drums.");
@@ -6134,7 +6125,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_ORC, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_ORC, TRUE, allies);
 			}
 			break;
 		}
@@ -6146,8 +6137,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s beats on a drum.", m_name);
 				else if (known) msg_format("%^s magically summons trolls.", m_name);
 				else msg_print("You hear distant drums.");
@@ -6159,7 +6148,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_TROLL, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_TROLL, TRUE, allies);
 			}
 			break;
 		}
@@ -6171,8 +6160,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a thundering voice.", m_name);
 				else if (known) msg_format("%^s magically summons giants.", m_name);
 				else msg_print("You hear distant thunder.");
@@ -6184,7 +6171,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_GIANT, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_GIANT, TRUE, allies);
 			}
 			break;
 		}
@@ -6196,8 +6183,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_DRAGON);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a roaring voice.", m_name);
 				else if (known) msg_format("%^s magically summons a dragon.", m_name);
 				else msg_print("You hear distant roars.");
@@ -6208,7 +6193,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx,
+				count += summon_specific(m_ptr->fy, m_ptr->fx, summoner,
 					rlev - 1, SUMMON_DRAGON, TRUE, allies);
 			}
 
@@ -6223,8 +6208,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_HI_DRAGON);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a cacophonous voice.", m_name);
 				else if (known) msg_format("%^s magically summons ancient dragons!", m_name);
 				else msg_print("You hear cacophonous roars.");
@@ -6235,7 +6218,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DRAGON, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HI_DRAGON, TRUE, allies);
 			}
 			break;
 		}
@@ -6290,8 +6273,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_DEMON);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in an infernal voice.", m_name);
 				else if (known) msg_format("%^s magically summons a hellish adversary!", m_name);
 				else msg_print("You hear infernal chanting.");
@@ -6302,7 +6283,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_DEMON, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_DEMON, TRUE, allies);
 			}
 			break;
 		}
@@ -6316,8 +6297,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in an infernal voice.", m_name);
 				else if (known) msg_format("%^s magically summons greater demons!", m_name);
 				else msg_print("You hear an infernal chorus.");
@@ -6328,7 +6307,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DEMON, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HI_DEMON, TRUE, allies);
 			}
 			break;
 		}
@@ -6343,8 +6322,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_UNIQUE);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a powerful voice.", m_name);
 				else if (known) msg_format("%^s magically raises one of your former opponents!", m_name);
 				else msg_print("You hear powerful, invocative chanting.");
@@ -6357,7 +6334,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, summon_type, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, summon_type, TRUE, allies);
 			}
 			break;
 		}
@@ -6370,8 +6347,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_UNIQUE);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a powerful voice.", m_name);
 				else if (known) msg_format("%^s magically summons special opponents!", m_name);
 				else msg_print("You hear powerful, invocative chanting.");
@@ -6382,7 +6357,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_UNIQUE, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_UNIQUE, TRUE, allies);
 			}
 			break;
 		}
@@ -6395,8 +6370,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			sound(MSG_SUM_UNIQUE);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s chants in a powerful voice.", m_name);
 				else if (known) msg_format("%^s magically summons legendary opponents!", m_name);
 				else msg_print("You hear powerful, invocative chanting.");
@@ -6407,7 +6380,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNIQUE, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HI_UNIQUE, TRUE, allies);
 			}
 			break;
 		}
@@ -6421,8 +6394,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s whispers.", m_name);
 				else if (known) msg_format("%^s magically summons an undead adversary!", m_name);
 				else msg_print("You hear distant whispering.");
@@ -6430,7 +6401,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_UNDEAD, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_UNDEAD, TRUE, allies);
 			}
 			break;
 		}
@@ -6444,7 +6415,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
+				summoner = m_list[who > SOURCE_MONSTER_START ? who : what].r_idx;
 
 				if ((blind) && (known)) msg_format("%^s whispers.", m_name);
 				else if (known) msg_format("%^s magically summons greater undead!", m_name);
@@ -6456,7 +6427,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HI_UNDEAD, TRUE, allies);
 			}
 
 			break;
@@ -6471,8 +6442,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
-				summoner = who > SOURCE_MONSTER_START ? who : what;
-
 				if ((blind) && (known)) msg_format("%^s whispers.", m_name);
 				else if (known) msg_format("%^s magically summons mighty undead opponents!", m_name);
 				else msg_print("You hear thunderous, echoing whispers.");
@@ -6483,12 +6452,12 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_WRAITH, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_WRAITH, TRUE, allies);
 			}
 
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD, TRUE, allies);
+				count += summon_specific(y, x, summoner, rlev - 1, SUMMON_HI_UNDEAD, TRUE, allies);
 			}
 
 			break;

@@ -709,147 +709,15 @@ static bool store_will_buy(const object_type *o_ptr)
 	{
 		if (st_ptr->tval[i] == o_ptr->tval) return (TRUE);
 	}
-
-	/* Switch on the store */
-	switch (st_ptr->base)
+	
+	/* Buy tvals that the store will buy */
+	for (i = 0; i < STORE_WILL_BUY; i++)
 	{
-		/* General Store */
-		case STORE_GENERAL:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_FOOD:
-				case TV_LITE:
-				case TV_FLASK:
-				case TV_SPIKE:
-				case TV_SHOT:
-				case TV_ARROW:
-				case TV_BOLT:
-				case TV_DIGGING:
-				case TV_CLOAK:
-				case TV_INSTRUMENT:
-				case TV_MAP:
-				case TV_BAG:
-				case TV_ROPE:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Armoury */
-		case STORE_ARMOR:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_BOOTS:
-				case TV_GLOVES:
-				case TV_CROWN:
-				case TV_HELM:
-				case TV_SHIELD:
-				case TV_CLOAK:
-				case TV_SOFT_ARMOR:
-				case TV_HARD_ARMOR:
-				case TV_DRAG_ARMOR:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Weapon Shop */
-		case STORE_WEAPON:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_SHOT:
-				case TV_BOLT:
-				case TV_ARROW:
-				case TV_BOW:
-				case TV_DIGGING:
-				case TV_HAFTED:
-				case TV_POLEARM:
-				case TV_SWORD:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Temple */
-		case STORE_TEMPLE:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_PRAYER_BOOK:
-				case TV_SCROLL:
-				case TV_POTION:
-				case TV_HAFTED:
-				case TV_STATUE:
-				break;
-				case TV_POLEARM:
-				case TV_SWORD:
-				{
-					/* Known blessed blades are accepted too */
-					if (o_ptr->can_flags3 & (TR3_BLESSED)) break;
-				}
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Alchemist */
-		case STORE_ALCHEMY:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_FOOD:
-				if (o_ptr->sval >= SV_FOOD_MIN_FOOD) return (FALSE);
-				
-				case TV_SCROLL:
-				case TV_POTION:
-				case TV_RUNESTONE:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
-
-		/* Magic Shop */
-		case STORE_MAGIC:
-		{
-			/* Analyze the type */
-			switch (o_ptr->tval)
-			{
-				case TV_MAGIC_BOOK:
-				case TV_AMULET:
-				case TV_RING:
-				case TV_STAFF:
-				case TV_WAND:
-				case TV_ROD:
-				case TV_SCROLL:
-				case TV_POTION:
-				case TV_RUNESTONE:
-				break;
-				default:
-				return (FALSE);
-			}
-			break;
-		}
+		if (st_ptr->tvals_will_buy[i] == o_ptr->tval) return (TRUE);
 	}
 
-	/* Assume okay */
-	return (TRUE);
+	/* Assume not okay */
+	return (FALSE);
 }
 
 
@@ -1706,14 +1574,18 @@ static void display_store(int store_index)
 		cptr store_name = (u_name + u_info[st_ptr->index].name);
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
 		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+		int pos_store = 77 - strlen(store_name) - 8;
+		int pos_owner = 10;
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
-		put_str(buf, 3, 10);
+		if (pos_owner + strlen(buf) + 2 > pos_store)
+		  pos_owner = 1;
+		put_str(buf, 3, pos_owner);
 
 		/* Show the max price in the store (above prices) */
 		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
-		prt(buf, 3, 50);
+		prt(buf, 3, pos_store);
 
 		/* Label the object descriptions */
 		put_str("Item Description", 5, 3);
@@ -3638,7 +3510,7 @@ void do_cmd_store(void)
 	}
 
 	/* Doors locked if guardian about */
-	if ((actual_guardian(zone->guard, p_ptr->dungeon)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num > 0))
+	if ((actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num > 0))
 	{
 		cptr closed_reason = 0; /* to silence a warning */
 		
@@ -3658,7 +3530,7 @@ void do_cmd_store(void)
 				break;
 		}
 		
-		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon)].name);
+		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].name);
 		return;
 	}
 	

@@ -188,6 +188,7 @@ extern s16b m_max;
 extern s16b m_cnt;
 extern s16b q_max;
 extern s16b q_cnt;
+extern int cause_of_damage;
 extern object_type term_object;
 extern bool term_obj_real;
 extern byte feeling;
@@ -474,6 +475,8 @@ extern void do_cmd_rest(void);
 extern int breakage_chance(object_type *o_ptr);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
+extern int set_routes(s16b *routes, int max_num, int from);
+extern int actual_route(int dun);
 
 /* cmd3.c */
 extern void mark_cursed_feeling(object_type *o_ptr);
@@ -518,6 +521,7 @@ extern void do_cmd_save_screen(void);
 extern void do_cmd_save_screen_html(void);
 extern const cptr feature_group_text[];
 extern int feat_order(int feat);
+extern void do_knowledge_dungeons(void);
 
 /* cmd5.c */
 extern int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known);
@@ -591,7 +595,7 @@ extern void generate_cave(void);
 /* info.c */
 extern bool spell_desc(spell_type *s_ptr, const cptr intro, int level, bool detail, int target);
 extern void spell_info(char *p, int p_s, int spell, bool use_level);
-extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode);
+extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int pval, int mode);
 extern void list_object(const object_type *o_ptr, int mode);
 extern void screen_object(object_type *o_ptr);
 extern void screen_self_object(object_type *o_ptr, int slot);
@@ -702,7 +706,7 @@ extern int place_monster_here(int y, int x, int r_idx);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
-extern bool summon_specific(int y1, int x1, int lev, int type, bool grp, u32b flg);
+extern bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool grp, u32b flg);
 extern bool summon_specific_one(int y1, int x1, int r_idx, bool slp, u32b flg);
 extern bool animate_object(int item);
 extern void set_monster_fear(monster_type *m_ptr, int v, bool panic);
@@ -1106,6 +1110,8 @@ extern int min_depth(int dungeon);
 extern int max_depth(int dungeon);
 extern int town_depth(int dungeon);
 extern void get_zone(dungeon_zone **zone_handle, int dungeon, int depth);
+extern void long_level_name(char* str, int town, int depth);
+extern void current_long_level_name(char* str);
 
 
 /*

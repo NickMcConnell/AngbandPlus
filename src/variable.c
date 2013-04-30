@@ -151,6 +151,8 @@ s16b m_cnt = 0;		 /* Number of live monsters */
 s16b q_max = 1;		 /* Number of allocated quests */
 s16b q_cnt = 0;		 /* Number of live quests */
 
+int cause_of_damage; /* to make traps and test-id less deadly */
+
 /*
  * Hack - Trackees for term windows
  */
