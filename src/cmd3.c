@@ -1159,8 +1159,11 @@ void do_cmd_observe(void)
 	/* Save the screen */
 	screen_save();
 
+	/* Describe part of the player */
+	if ((item >= 0) && (stored)) screen_self_object(o_ptr, item);
+
 	/* Describe */
-	screen_object(o_ptr);
+	else screen_object(o_ptr);
 
 	(void)anykey();
 

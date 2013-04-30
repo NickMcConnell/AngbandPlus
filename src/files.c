@@ -1570,7 +1570,7 @@ static void display_player_xtra_info(void)
 	Term_putstr(col+9, 17, -1, TERM_L_GREEN,
 		            format("%9ld", p_ptr->player_turn));
 
-	/* Non-Resting Player Game Turn */
+	/* Active Player Game Turn */
 	Term_putstr(col, 18, -1, TERM_WHITE, "Act Turn");
 	Term_putstr(col+9, 18, -1, TERM_L_GREEN,
 		            format("%9ld", p_ptr->player_turn - p_ptr->resting_turn));

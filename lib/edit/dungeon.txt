@@ -500,8 +500,8 @@ N:54:a clearing in the Old Forest
 X:40:55
 R:PLANT
 L:6:0:420:153:622:0
-L:7:56:1:420:0:0
-L:10:56:1:420:0:0
+L:7:56:420:420:0:0
+L:10:56:420:420:0:0
 S:0:0:0:0:0:0:0:0
 
 N:55:the House of Tom Bombadil

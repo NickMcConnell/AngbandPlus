@@ -2878,7 +2878,7 @@
 #define ROOM_LITE	0x00000010L	   /* room is lit */
 #define ROOM_DARK	0x00000020L	   /* room is dark */
 #define ROOM_LANGUAGE	0x00000040L	   /* room has language inscriptions */
-#define ROOM_XXXX	0x00000080L	   /* room has  */
+#define ROOM_BRIDGE	0x00000080L	   /* room has bridges running through it */
 #define ROOM_DAYLITE	0x00000100L	   /* room is lit during daytime */ 
 #define ROOM_ICKY 	0x00000200L    /* room cannot be teleport target */
 #define ROOM_BLOODY	0x00000400L    /* room causes wounds/poison to become worse */

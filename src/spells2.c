@@ -5346,6 +5346,7 @@ static void wield_spell(int item, int k_idx, int time, int level, int r_idx)
 	i_ptr->timeout = time;
 	object_aware(i_ptr);
 	object_known(i_ptr);
+	i_ptr->weight = 0;
 
 	/* Scale the item based on the player's level */
 

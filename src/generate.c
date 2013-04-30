@@ -109,7 +109,6 @@
  */
 /* DUN_ROOMS now defined in defines.h */
 #define DUN_UNUSUAL     200     /* Level/chance of unusual room */
-#define DUN_DEST	30      /* 1/chance of having a destroyed level */
 #define DUN_FEAT	60	/* Chance in 100 of having features */
 #define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
@@ -224,6 +223,10 @@ struct dun_data
 	int cent_n;
 	coord cent[CENT_MAX];
 
+	/* Array of partitions of rooms */
+	int part_n;
+	int part[CENT_MAX];
+
 	/* Array of possible door locations */
 	int door_n;
 	coord door[DOOR_MAX];
@@ -250,10 +253,6 @@ struct dun_data
 	/* Array of good potential stair grids */
 	s16b stair_n;
 	coord stair[STAIR_MAX];
-
-	/* Array of partitions of rooms */
-	int part_n;
-	int part[CENT_MAX];
 
 	/* Number of blocks along each axis */
 	int row_rooms;
@@ -299,7 +298,7 @@ static room_data_type room_data[ROOM_MAX] =
 {
    /* Depth:         0   10   20   30   40   50   60   70   80   90  100  min max_num count, theme*/
 
-   /* Nothing */  {{100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100},  0,DUN_ROOMS * 3,	1, 0, LF1_THEME},
+   /* Nothing */  {{100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100},  0,DUN_ROOMS * 3,	1, 0, LF1_MINE},
    /* 'Empty' */  {{100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100},  0,DUN_ROOMS * 3,	1, 0, LF1_THEME & ~(LF1_STRONGHOLD | LF1_CAVE | LF1_WILD)},
    /* Walls   */  {{180,240, 300, 300, 300, 300, 300, 300, 300, 300, 300},  1,DUN_ROOMS,	1, 0, LF1_THEME & ~(LF1_STRONGHOLD | LF1_CAVE | LF1_DESTROYED | LF1_TOWER | LF1_WILD)},
    /* Centre */   {{60, 100, 120, 140, 160, 180, 200, 200, 200, 200, 200},  1,DUN_ROOMS,	1, 0, LF1_THEME & ~(LF1_STRONGHOLD | LF1_CAVE | LF1_DESTROYED | LF1_TOWER | LF1_WILD)},
@@ -324,7 +323,7 @@ static room_data_type room_data[ROOM_MAX] =
 static byte room_build_order[ROOM_MAX] = {ROOM_LAIR, ROOM_GREATER_VAULT, ROOM_HUGE_FRACTAL, ROOM_HUGE_STAR_BURST,
 						ROOM_CHAMBERS, ROOM_HUGE_CENTRE, ROOM_LARGE_FRACTAL, ROOM_LESSER_VAULT,
 						ROOM_INTERESTING, ROOM_STAR_BURST, ROOM_FRACTAL, ROOM_LARGE_CENTRE,
-						ROOM_LARGE_WALLS, ROOM_NORMAL_CENTRE, ROOM_NORMAL_WALLS, ROOM_NORMAL};
+						ROOM_LARGE_WALLS, ROOM_NORMAL_CENTRE, ROOM_NORMAL_WALLS, ROOM_NORMAL, 0};
 
 /*
  * Count the number of walls adjacent to the given grid.
@@ -1576,7 +1575,8 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 				int dummy = feat;
 
 				/* Hack -- make variable terrain surrounded by floors */
-				if (variable_terrain(&dummy,feat)) cave_set_feat(y,x,FEAT_FLOOR);
+				if (((f_info[cave_feat[y][x]].flags1 & (FF1_WALL)) != 0) &&
+					(variable_terrain(&dummy,feat))) cave_set_feat(y,x,FEAT_FLOOR);
 
 				build_terrain(y, x, feat);
 			}
@@ -5399,7 +5399,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		}
 
 		/* Hack -- if we are not starting in a room, include starting grid. Also add as a possible stair location. */
-		if ((dun->tunn_n == 0) && ((cave_info[row1][col1] & (CAVE_ROOM)) == 0))
+		if ((dun->tunn_n == 0) && ((cave_info[row1][col1] & (CAVE_ROOM)) == 0) && (dun->stair_n < STAIR_MAX))
 		{
 			row1 = row1 - row_dir;
 			col1 = col1 - col_dir;
@@ -5634,7 +5634,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 							cave_alter_feat(y, x, FS_SOLID);
 
 							/* Decorate next to the start and/or end of the tunnel with the starting room decorations */
-							if ((dun_room[by1][bx1] < DUN_ROOMS) && (room_info[dun_room[by1][bx1]].solid) && (dun->next_n < NEXT_MAX))
+							if ((dun_room[by1][bx1]) && (dun_room[by1][bx1] < DUN_ROOMS) && (room_info[dun_room[by1][bx1]].solid) && (dun->next_n < NEXT_MAX))
 							{
 								/* Overwrite with alternate terrain from starting room later */
 								dun->next[dun->next_n].y = y;
@@ -5644,7 +5644,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 							}
 
 							/* If the ending room has decorations, overwrite the start */
-							if ((dun_room[by2][bx2] < DUN_ROOMS) && (room_info[dun_room[by2][bx2]].solid) && (dun->next_n < NEXT_MAX))
+							if ((dun_room[by2][bx2]) && (dun_room[by2][bx2] < DUN_ROOMS) && (room_info[dun_room[by2][bx2]].solid) && (dun->next_n < NEXT_MAX))
 							{
 								int j;
 
@@ -5660,15 +5660,16 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			}
 		}
 
-		/* Travel quickly through rooms */
-		else if (cave_info[tmp_row][tmp_col] & (CAVE_ROOM))
+		/* Travel quickly through rooms -- unless we bridge this room */
+		else if ((cave_info[tmp_row][tmp_col] & (CAVE_ROOM)) && ((room_has_flag(tmp_row, tmp_col, ROOM_BRIDGE) == 0)))
 		{
 			/* Room */
 			int by2 = tmp_row/BLOCK_HGT;
 			int bx2 = tmp_col/BLOCK_WID;
 
 			/* Different room */
-			if ((dun_room[by1][bx1]) && (dun_room[by2][bx2]) && (dun_room[by1][bx1] != dun_room[by2][bx2]))
+			if ((dun_room[by1][bx1]) && (dun_room[by2][bx2]) && (dun_room[by1][bx1] < DUN_ROOMS)
+				&& (dun_room[by2][bx2] < DUN_ROOMS) && (dun_room[by1][bx1] != dun_room[by2][bx2]))
 			{
 				/* Different room in same partition */
 				if (dun->part[dun_room[by1][bx1]-1] == dun->part[dun_room[by2][bx2]-1])
@@ -5680,6 +5681,9 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				{
 					int part1 = dun->part[dun_room[by1][bx1]-1];
 					int part2 = dun->part[dun_room[by2][bx2]-1];
+
+					/* Merging successfully */
+					if (cheat_xtra) msg_format("Merging partition %d (room %d) with endpoint %d (room %d).", part1, dun_room[by1][bx1], part2, dun_room[by2][bx2]);
 
 					/* Merge partitions */
 					for (i = 0; i < dun->cent_n; i++)
@@ -5959,7 +5963,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			int bx2 = col1/BLOCK_WID;
 
 			/* Both ends are rooms */
-			if ((dun_room[by1][bx1]) && (dun_room[by2][bx2]))
+			if ((dun_room[by1][bx1]) && (dun_room[by2][bx2]) &&
+				(dun_room[by1][bx1] < DUN_ROOMS) && (dun_room[by2][bx2] < DUN_ROOMS))
 			{
 				/* Different room in same partition */
 				if (dun->part[dun_room[by1][bx1]-1] == dun->part[dun_room[by2][bx2]-1])
@@ -5972,16 +5977,35 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 					int part1 = dun->part[dun_room[by1][bx1]-1];
 					int part2 = dun->part[dun_room[by2][bx2]-1];
 
+					/* Merging successfully */
+					if (cheat_xtra) msg_format("Merging partition %d (room %d) with endpoint %d (room %d).", part1, dun_room[by1][bx1], part2, dun_room[by2][bx2]);
+
 					/* Merge partitions */
 					for (i = 0; i < dun->cent_n; i++)
 					{
 						if (dun->part[i] == part2) dun->part[i] = part1;
 					}
-
-					/* Accept tunnel */
-					break;
 				}
 			}
+
+			/* Hack -- overwrite half of tunnel */
+			if (start_tunnel)
+			{
+				/* Round up some times */
+				if (((dun->tunn_n - first_tunn) % 2) && (rand_int(100) < 50)) first_tunn++;
+
+				/* Adjust from half-way */
+				first_tunn = first_tunn + (dun->tunn_n - first_tunn) / 2;
+			}
+
+			/* Remove tunnel terrain */
+			for (i = first_tunn; i < dun->tunn_n; i++)
+			{
+				dun->tunn_feat[i] = 0;
+			}
+
+			/* Accept tunnel */
+			break;
 		}
 	}
 
@@ -6179,6 +6203,30 @@ static bool try_door(int y, int x)
 	return (FALSE);
 }
 
+
+
+/*
+ * Type 0 room. Tunnel termination point.
+ */
+static bool build_type0(int room, int type)
+{
+	int y0, x0;
+
+	/* Find and reserve some space in the dungeon.  Get center of room. */
+	if (!find_space(&y0, &x0, 1, 1)) return (FALSE);
+
+	/* Paranoia */
+	if (room < DUN_ROOMS)
+	{
+		/* Type */
+		room_info[room].type = type;
+
+		/* Terminate index list */
+		room_info[room].section[0] = -1;
+	}
+
+	return (TRUE);
+}
 
 
 /*
@@ -6583,6 +6631,8 @@ static bool room_build(int room, int type)
 		case ROOM_NORMAL_CENTRE: if (build_type123(room, type)) return(TRUE); break;
 		case ROOM_NORMAL_WALLS: if (build_type123(room, type)) return(TRUE); break;
 		case ROOM_NORMAL: if (build_type123(room, type)) return(TRUE); break;
+
+		default: if (build_type0(room, type)) return(TRUE); break;
 	}
 
 	/* Failure */
@@ -6945,6 +6995,9 @@ static bool build_lake(int feat, bool do_big_lake, bool merge_lakes,
 			flag |= (STAR_BURST_LIGHT);
 		}
 
+		/* Assign lake as room. */
+		flag |= (STAR_BURST_ROOM);
+
 		/* Connect the lake with the dungeon */
 		/* Note in order to connect the dungeon correctly, we have to set up the lake as a room,
 		   even if we do not mark it as one. We however allow big lakes to have rooms inside them. */
@@ -6958,7 +7011,7 @@ static bool build_lake(int feat, bool do_big_lake, bool merge_lakes,
 			if (dun->cent_n < DUN_ROOMS)
 			{
 				/* Initialise room */
-				room_info[dun->cent_n].flags = 0;
+				room_info[dun->cent_n].flags = (ROOM_BRIDGE);
 				room_info[dun->cent_n].tunnel = 0;
 				room_info[dun->cent_n].solid = 0;
 			}
@@ -6968,8 +7021,8 @@ static bool build_lake(int feat, bool do_big_lake, bool merge_lakes,
 		{
 			for (bx = bx1; bx <= bx2; bx++)
 			{
-				/* Mark the blocks as used -- unless a big lake*/
-				if (!do_big_lake) dun->room_map[by][bx] = TRUE;
+				/* Mark the blocks as used -- unless a big lake. */
+				dun->room_map[by][bx] = TRUE;
 				dun_room[by][bx] = dun->cent_n;
 			}
 		}
@@ -7794,7 +7847,10 @@ static void place_tower()
 		{
 			/* Initialise room description */
 			room_info[dun->cent_n].type = ROOM_TOWER;
-			room_info[dun->cent_n].flags = 0; /* Will be set to ROOM_ICKY at end of generation */
+
+			/* Will be set to ROOM_ICKY at end of generation */
+			room_info[dun->cent_n].flags = (level_flag & (LF1_SURFACE)) != 0 ? ROOM_ICKY : 0;
+
 			room_info[dun->cent_n].tunnel = 0;
 			room_info[dun->cent_n].solid = 0;
 		}
@@ -7861,6 +7917,12 @@ static bool place_rooms()
 					if ((room_data[room_build_order[k]].theme & (level_flag)) != 0) last = FALSE;
 				}
 			}
+		}
+		/* No rooms, just tunnels */
+		else
+		{
+			/* Place tunnel endpoints only */
+			room_type = 0;
 		}
 
 		/* Build the room. */
@@ -8005,13 +8067,13 @@ static bool place_tunnels()
 	{
 		bool finished = TRUE;
 
-		/* Generating */
-		if (cheat_xtra) msg_print("Connecting rooms.");
-
 		/* Abort */
 		if (counter++ > DUN_ROOMS * DUN_ROOMS)
 		{
 			if (cheat_xtra) msg_format("Unable to connect rooms in %d attempted tunnels.", DUN_ROOMS * DUN_ROOMS);
+
+			/* Megahack -- we have connectivity on surface anyway */
+			if (level_flag & (LF1_SURFACE)) return (TRUE);
 
 			return(FALSE);
 		}
@@ -8357,13 +8419,6 @@ static bool cave_gen(void)
 	/* Start with no themes */
 	dun->theme_feat = 0;
 
-	/* Hack -- chance of destroyed level */
-	/* XXX Replace this with 'destroyed' theme later */
-	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) level_flag |= LF1_DESTROYED;
-
-	/* Hack -- No destroyed "quest", "wild" or "guardian" levels */
-	if (level_flag & (LF1_QUEST | LF1_FEATURE | LF1_GUARDIAN)) level_flag &= ~(LF1_DESTROYED);
-
 	/* Set up the monster ecology before placing rooms */
 	/* XXX Very early levels boring with ecologies enabled */
 	if (p_ptr->depth > 3)
@@ -8420,6 +8475,12 @@ static bool cave_gen(void)
 	{
 		if (!place_tunnels()) return (FALSE);
 	}
+
+	/* Hack -- No destroyed "quest" levels */
+	if (level_flag & (LF1_QUEST)) level_flag &= ~(LF1_DESTROYED);
+
+	/* Hack -- No shallow destroyed levels */
+	if (p_ptr->depth <= 20) level_flag &= ~(LF1_DESTROYED);
 
 	/* Destroy the level if necessary */
 	if ((level_flag & (LF1_DESTROYED)) != 0) destroy_level();
@@ -9236,6 +9297,9 @@ void generate_cave(void)
 
 		/* Message */
 		if (why) msg_format("Generation restarted (%s)", why);
+
+		/* Interrupt? */
+		if ((cheat_xtra) && (why) && (get_check("Interrupt? "))) break;
 
 		/* Wipe the objects */
 		wipe_o_list();

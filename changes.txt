@@ -195,6 +195,8 @@ enters the level (Requested by Matthias Rudolf).
 
 - Mice and bats now have better named built-in objects.
 
+- Prevent flooding of open ground.
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -214,6 +216,9 @@ pepebe).
 learn about the spell, even if you didn't see them cast it.
 
 - You can now gather items from wall terrain by walking into them (Requested by ekolis).
+
+- Improved recall of objects that are part of a character's shape (Requested by Mikolaj Konarski
+and pete mac).
 
 ### Bug fixes ###
 
@@ -300,6 +305,14 @@ due to class based sensing (Reported by Matthias Rudolf).
 Konarski).
 
 - Fixed crash when taking poison damage.
+
+- Fix infinite loop when generating lakes of terrain (Reported by pete mac).
+
+- Fix another infinite loop when generating lakes of terrain (Reported by pete mac).
+
+- Fix infinite loop when shuffling shops when haven't entered a store.
+
+- Fix memory corruption bug when generating surface locations.
 
 ### Build / Platform ###
 

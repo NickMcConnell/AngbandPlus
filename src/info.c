@@ -2168,6 +2168,83 @@ void screen_object(object_type *o_ptr)
 
 
 /*
+ * Display an object at the top of the screen that is part of the players shape.
+ */
+void screen_self_object(object_type *o_ptr, int slot)
+{
+	/* Flush messages */
+	message_flush();
+
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
+	/* Display item */
+	text_out("This is a part of your current shape.  ");
+	text_out("You cannot take it off, but it will be removed if you change shape.  ");
+
+	/* Display spell item full flags */
+        if (o_ptr->tval == TV_SPELL)
+	{
+		list_object(o_ptr, OBJECT_FLAGS_FULL);
+	}
+	/* Hack -- body parts and other objects */
+	else
+	{
+		bool attack = FALSE;
+		bool unarmed = FALSE;
+		bool charging = FALSE;
+
+		switch (slot)
+		{
+			case INVEN_WIELD:
+			{
+				if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_HAFTED ||
+					o_ptr->tval == TV_DIGGING) attack = TRUE;
+				else
+					text_out("You must fight using unarmed combat in this shape.  ");
+				break;
+			}
+			case INVEN_HANDS:
+			{
+				attack = TRUE;
+				unarmed = TRUE;
+				break;
+			}
+			case INVEN_FEET:
+			{
+				charging = TRUE;
+				unarmed = TRUE;
+				break;
+			}
+		}
+
+		if ((attack) || (charging))
+		{
+			if (attack) text_out("When attacking");
+			else if (charging) text_out("When charging");
+			if (attack && charging) text_out(" or charging");
+			else if (attack) text_out(" unless charging");
+			if (unarmed) text_out(" unarmed");
+			text_out(format(", it does %dd%d", o_ptr->dd, o_ptr->ds));
+			if (o_ptr->to_d > 0) text_out(format("+%d", o_ptr->to_d));
+			else if (o_ptr->to_d < 0) text_out(format("%d", o_ptr->to_d));
+			text_out(" ");
+			text_out((o_ptr->tval == TV_SPELL) ? "magical" : ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
+				o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT)
+				? "edged" : "blunt"));
+			text_out(" damage.  ");
+		}
+	}
+
+	/* Display item name */
+	obj_top(o_ptr);
+}
+
+
+/*
  * This function displays lists of properties
  */
 static bool outlist(cptr header, const cptr *list, byte attr)
@@ -3004,6 +3081,7 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_SPELL:
 				/* Never thrown */
 				throw = FALSE;
+				break;
 			default:
 				text_out(format("When %sthrown, it ", (f3 & TR3_THROWING) ? "easily " : ""));
 				break;
@@ -3018,9 +3096,9 @@ void list_object(const object_type *o_ptr, int mode)
 				else if (o_ptr->to_d < 0) text_out(format("%d", o_ptr->to_d));
 			}
 			text_out(" ");
-			text_out((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
+			text_out((o_ptr->tval == TV_SPELL) ? "magical" : ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
 						o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT)
-						? "edged" : "blunt");
+						? "edged" : "blunt"));
 			text_out(" damage.  ");
 			anything = TRUE;
 		}
@@ -3231,9 +3309,9 @@ void list_object(const object_type *o_ptr, int mode)
 						else if (o_ptr->to_d < 0) text_out(format("%d", o_ptr->to_d));
 					}
 					text_out(" ");
-					text_out((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
-								o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT)
-								? "edged" : "blunt");
+					text_out((o_ptr->tval == TV_SPELL) ? "magical" : ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
+							o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT)
+							? "edged" : "blunt"));
 					text_out(" damage");
 					anything = TRUE;
 					powers = TRUE;

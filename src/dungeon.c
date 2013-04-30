@@ -539,17 +539,13 @@ static void process_world(void)
 			}
 
 			/* Sometimes, shuffle the shop-keepers */
-			if (rand_int(STORE_SHUFFLE) == 0)
+			if ((total_store_count) && (rand_int(STORE_SHUFFLE) == 0))
 			{
 				/* Message */
 				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
 
 				/* Pick a random shop (except home) */
-				while (1)
-				{
-					n = rand_int(total_store_count);
-					if (n != STORE_HOME) break;
-				}
+				n = randint(total_store_count - 1);
 
 				/* Shuffle it */
 				store_shuffle(n);

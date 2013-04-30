@@ -555,6 +555,7 @@ extern void spell_info(char *p, int spell, bool use_level);
 extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode);
 extern void list_object(const object_type *o_ptr, int mode);
 extern void screen_object(object_type *o_ptr);
+extern void screen_self_object(object_type *o_ptr, int slot);
 extern void print_powers(const s16b *book, int num, int y, int x);
 extern void print_spells(const s16b *book, int num, int y, int x);
 extern bool make_fake_artifact(object_type *o_ptr, byte name1);
