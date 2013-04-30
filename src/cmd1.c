@@ -566,7 +566,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 98) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE, floor);
+					if (p_ptr->branded_blows != 98) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_LITE, floor);
 					l_ptr->flags3 |= (RF3_HURT_LITE);
 				}
 
@@ -574,7 +574,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			}
 			else if ((l_ptr->flags3 & (RF3_HURT_LITE)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE, floor);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_LITE, floor);
 			}
 
 			/* Brand (Dark) */
@@ -2272,6 +2272,25 @@ void hit_trap(int y, int x)
 
 				break;
 			}
+			
+			case TV_SPIKE:
+			{
+				/* Apply damage directly */
+				project_p(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, damroll(6, 6), GF_FALL_SPIKE);
+				
+				/* Hack -- should really check if we get spiked somehow */
+				if (((p_ptr->cur_flags3 & (TR3_FEATHER)) == 0) && (rand_int(100) < 25))
+				{
+					/* Decrease the item */
+					floor_item_increase(cave_o_idx[y][x], -1);
+					floor_item_optimize(cave_o_idx[y][x]);
+	
+					/* Disarm if runs out */
+					if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
+				}
+
+				break;
+			}
 
 			default:
 			{
@@ -2593,6 +2612,13 @@ void py_attack(int dir)
 
 	bool charging = FALSE;
 
+	if (cave_m_idx[y][x] <= 0) 
+	{
+		/* Oops */
+		msg_print("You spin around.");
+		return;
+	}
+
 	/* If moving, you can charge in the direction */
 	if ((p_ptr->charging == dir) || (side_dirs[dir][1] == p_ptr->charging)
 		|| (side_dirs[dir][2] == p_ptr->charging)) charging = TRUE;
@@ -2601,7 +2627,6 @@ void py_attack(int dir)
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
-
 
 	/* Disturb the player */
 	disturb(0, 0);
@@ -2724,7 +2749,7 @@ void py_attack(int dir)
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 		/* Test for resistance */
-		else if (mon_resist_object(cave_m_idx[y][x], o_ptr))
+		else if (o_ptr->k_idx && mon_resist_object(cave_m_idx[y][x], o_ptr))
 		{
 			/* No need for message */
 		}
@@ -2748,7 +2773,9 @@ void py_attack(int dir)
 			bool fumble = FALSE;
 			
 			/* Test for fumble */
-			if (((p_ptr->heavy_wield) || (o_ptr->ident & (IDENT_CURSED))) && (!rand_int(chance)))
+			if (((p_ptr->heavy_wield) 
+				  || (o_ptr->k_idx && o_ptr->ident & (IDENT_CURSED))) 
+				 && (!rand_int(chance)))
 			{
 				/* Hack -- use the player for the attack */
 				my_strcpy(m_name, "yourself", sizeof(m_name));
@@ -2838,6 +2865,9 @@ void py_attack(int dir)
 					equip_not_flags(0x0L,0x0L,TR3_IMPACT,0x0L);
 				}
 
+				/* Adjust for equipment/stats to_d bounded by dice */
+				k += MIN(p_ptr->to_d, 
+							o_ptr->dd * o_ptr->ds + 5);
 			}
 			/* Handle bare-hand/bare-foot attack */
 			else
@@ -2845,10 +2875,6 @@ void py_attack(int dir)
 				k = 1;
 				do_stun = critical_norm(c_info[p_ptr->pclass].min_weight, (style_crit * 30), k);
 			}
-
-			/* Adjust for equipment/stats to_d bounded by dice */
-			k += MIN(p_ptr->to_d, 
-				 o_ptr->dd * o_ptr->ds + 5);
 
 			/* Adjust for style */
 			k += style_dam;
@@ -2964,7 +2990,8 @@ void py_attack(int dir)
 			}
 
 			/* Damage, check for fear and death */
-			else if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+			else if (o_ptr->k_idx 
+						&& mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
 			{
 				u32b f1, f2, f3, f4;
 
@@ -3013,14 +3040,15 @@ void py_attack(int dir)
 			}
 
 			/* Apply additional effect from activation */
-			if (auto_activate(o_ptr))
+			if (o_ptr->k_idx && auto_activate(o_ptr))
 			{
 				/* Make item strike */
-				process_item_blow(SOURCE_PLAYER_ACT_ARTIFACT, o_ptr->name1, o_ptr, y, x);
+				process_item_blow(o_ptr->name1 ? SOURCE_PLAYER_ACT_ARTIFACT : (o_ptr->name2 ? SOURCE_PLAYER_ACT_EGO_ITEM : SOURCE_PLAYER_ACTIVATE),
+						o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), o_ptr, y, x);
 			}
 
 			/* Apply additional effect from coating*/
-			else if (coated_p(o_ptr))
+			else if (o_ptr->k_idx && coated_p(o_ptr))
 			{
 				/* Sometimes coating affects source player */
 				if (!rand_int(chance))
@@ -3239,9 +3267,9 @@ void move_player(int dir)
 		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-			msg_print("This doesn't feel safe.");
+/*			msg_print("This doesn't feel safe."); */
 
-			if (!get_check("Are you sure?")) return;
+			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}
 
 		/* Disturb the player */
@@ -3304,9 +3332,9 @@ void move_player(int dir)
 		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-			msg_print("This doesn't feel safe.");		
+/*			msg_print("This doesn't feel safe.");		*/
 
-			if (!get_check("Are you sure?")) return;
+			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}
 
 		/* Get the mimiced feature */
@@ -3337,9 +3365,9 @@ void move_player(int dir)
 		if ((disturb_detect) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-			msg_print("This doesn't feel safe.");		
+/*			msg_print("This doesn't feel safe.");		*/
 
-			if (!get_check("Are you sure?")) return;
+			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}
 
 		/* Sound XXX XXX XXX */

@@ -1,3 +1,203 @@
+Unangband 0.6.2 Gold "As Is" aka "The Unwarranted Release"
+
+### Game Play ###
+
+- Show basic resists as numbers (similar to pvals) to indicate
+that basic resists are cumulative.
+
+- Add Invisibility spell and potion of Invisibility.
+
+- Make restoring a stat cure temporary stat loss.
+
+* made !oBloating worth some gp so that shops stock it
+
+* filled up runes for some egos
+
+* toned down some artifact stat boosts to make it harder for thorgot next time :)
+
+* added nutritious potions to 2 shops
+
+- Rework low-level bard spellbooks to include another book
+(Sympathies) which fits between Chords and Harmonies, as well as
+remove archery related spells and movve throwing/melee related
+spells so that they are available earlier. (Suggested by Arralen).
+
+* added lights to the Elrond's house
+
+- Further monster tidy ups including moving Tangleweed and golems
+deeper.
+
+- Try to make golems more interesting.
+
+- Give some monsters hit to dispel attacks.
+
+- Uncontrolled objects are now mastered over time, as opposed to
+being uncursed. This should make them more interesting, as well as
+rings of teleportion etc. less boring.
+
+- Allow ego items to have activations. This means Seven League boots
+ should correctly randomly teleport again.
+
+- Added boots of dancing.
+
+- Try to make mouse shape a little more useful, cheetah shape a
+little less like boots of speed. Shapes are still a bit hackish in
+general.
+
+- Player construction of pit traps now requires a digger and spikes,
+making them not exploitable.
+
+* make debug-mode cure-all get rid of diseases, petrification, etc. 
+
+- You can't over-exert yourself if you cast a spell that costs no
+mana (eg. concentration).
+
+* less XP for Beorn
+
+### User Interface ###
+
+- Allow browsing of shrines, magic circles.
+
+- Add a warning when you can't go back to where you came from.
+
+- The big monster color commit. Monsters should now have a unique
+colour / letter combination unless it is for a good reason.
+
+* YAT to char dump (flags move foremost, as in V)
+
+* YAT to dungeon dump
+
+* YAT (yet another tweak) to visited dungeons list
+
+- First pass at 256 color implementation.
+
+- The cause of death is now noted in the character dump.
+
+
+### Bug fixes ###
+
+- Remove pvals from wands that accidentally had them.
+
+- Fix mislearning about HURT_LITE when actually BRAND_LITE.
+
+- Fix for bug Bug #13254 No death from bad mushrooms even if
+identified.
+
+- Fix for Bug #13443 No pval displayed in object name for REGEN_MANA,
+etc.
+
+- Improve correctness of price guessing algorithm, to try to rectify
+various bugs with pricing.
+
+- Fix for Bug #13588 Casting Mana Pool in deep water yields Potion of
+Poison.
+
+- Fix for Bug #13589 One charge missing from selling wands message.
+
+- Fix for Bug #13594 Bridge of stone on lava, spells no longer
+pass over.
+
+- Fix for bug Bug #13599 Globe of Invulnerability is broken.
+
+* probably fixed #13624 (Home Knowledge screen ('~6') crashes game)
+
+- Remove center block of Minas Morgul, Tirith and Dol Guldur so that
+you don't get stuck in stone when you come out the bottom.
+
+- Partially fix #013424 (remember locations of the windows at game startup on OS X)
+
+* got rid of "Lev 0" in ~7
+
+* fixed broken color_table in main-x11.c
+
+* fixed crash when getting gold stolen
+
+- Add back in entry format hints to the lib/edit files where they
+were removed. This makes it easier to quickly refer to, or at least
+guess, the entry meanings.
+
+- Fix for Bug #13582 "A <player> (offscreen) fails to teleport you away."
+
+- Slight tweak to source_birth death message.
+
+- Improve death messages and move generation of death messages to
+point where player is actually killed.
+
+- Fix cause of death issues with activating ego items.
+
+- Fix for Bug #12899 disarming player traps should not give XP.
+
+- Fix bad logic that caused wands and staves to be fully IDed when
+discovering its flavour for the first time. Closes #13456.
+
+- Fix several problems that meant resting until dusk/dawn didn't 
+work or wasn't charged for in stores.
+
+- Monsters that left a body which was hidden in terrain did not
+redraw the 'visible monsters' term window.
+
+- Make mushrooms of poison actually poison you, and fix up a couple
+of (currently unused) note formats.
+
+* fixed services in Heavy Armoury
+
+* fixed a pink mushroom
+
+* fixed store services broken by the blows
+
+- Fix bug that might have caused .raw file initialisation problems.
+
+* a couple of text fixes from the forum
+
+* REGEN_MANA from objects now affects SP not HP
+
+* REGEN_MANA, etc. are displayed with 'I' also for objects that
+don't modify stats
+
+* fixed the inability to fill things from fountains
+
+* temporary Big Al fix to #13409 (Disturb detect problems)
+
+* tweaked the shopkeepers
+
+- Start work on modding.rtf documentation.
+
+* added WOR to temples, slight price tweaks
+
+- Fix for Bug #13256: Throw or fire in place of service "Recharge
+Item II"
+
+- Part of ongoing fixes for Bug #12885: Feature request: let
+Lanterns, etc. set fire
+
+- Fix for Bug #13347 Allow access to documentation at level up
+screen
+
+- Fix for Bug #13255: "Dise" does not disappear
+
+- Fix for Bug #12710: Cumulative Disease broken
+
+* fixed Mighty Blow at empty spave weirdness
+
+### Build / Platform ###
+
+- Add modding.rtf and .txt which provide information about modding
+Unangband and the various lib/edit files.
+
+- Player spell damage scaling now controlled from within spell.txt.
+
+- Move damage specification and number of spell blows from blows.txt into spell.txt.
+
+- Initial blows.txt parsing code and data structures.
+
+* Makefile.std from V; move config.example to config to get nice
+compilation caching and debug binary
+
+* added docs/ to build_win.sh
+
+
+
+
 Unangband 0.6.2 Beta Release 2: "Help of the shopkeepers"
 
 ### Game Play ###

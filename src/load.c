@@ -532,11 +532,13 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- enforce legal pval */
-		if (e_ptr->flags1 & (TR1_PVAL_MASK))
+		if ((e_ptr->flags1 & (TR1_PVAL_MASK)) || (e_ptr->flags3 & (TR3_PVAL_MASK)))
 		{
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
+		
+		
 
 		/* Mega-Hack - Enforce the special broken items */
 		if ((o_ptr->name2 == EGO_BLASTED) ||
@@ -1332,7 +1334,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
+	rd_s16b(&p_ptr->invis);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);

@@ -940,25 +940,27 @@ void object_aware(object_type *o_ptr, bool floor)
 	o_ptr->ident |= (IDENT_NAME);
 
 	/* Is this all we need to know? - wands */
-	if ((o_ptr->tval == TV_WAND) && (o_ptr->ident & (IDENT_CHARGES)))
+	if (o_ptr->tval == TV_WAND)
 	{
-		object_known(o_ptr);
+		if (o_ptr->ident & (IDENT_CHARGES))
+			object_known(o_ptr);
 	}
 
 	/* Is this all we need to know? - staffs */
-	else if ((o_ptr->tval == TV_STAFF) && (o_ptr->ident & (IDENT_CHARGES)) && (o_ptr->ident & (IDENT_BONUS)))
+	else if (o_ptr->tval == TV_STAFF)
 	{
-		object_known(o_ptr);
+		if ((o_ptr->ident & (IDENT_CHARGES)) && (o_ptr->ident & (IDENT_BONUS)))
+			object_known(o_ptr);
 	}
 
 	/* Is this all we need to know? - other wearable items */
-	else if (((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+	else if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
 			  || (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_DRAG_ARMOR))
-			 && ((!(o_ptr->to_h) && !(o_ptr->to_d) && !(o_ptr->to_a)) 
-				 || (o_ptr->ident & (IDENT_BONUS)))
-			 && (!(o_ptr->pval) || (o_ptr->ident & (IDENT_PVAL))))
 	{
-		object_known(o_ptr);
+		if (((!(o_ptr->to_h) && !(o_ptr->to_d) && !(o_ptr->to_a)) 
+				|| (o_ptr->ident & (IDENT_BONUS)))
+				&& (!(o_ptr->pval) || (o_ptr->ident & (IDENT_PVAL))))
+			object_known(o_ptr);
 	}
 
 	/* Is this all we need to know? - flavoured items */
@@ -1257,7 +1259,8 @@ s32b object_value_real(const object_type *o_ptr)
  */
 s32b object_value(const object_type *o_ptr)
 {
-	s32b value;
+	s32b value = 0;
+	s32b pval = 0;
 
 	/* Known items -- acquire the actual value */
 	if (object_known_p(o_ptr) || ((o_ptr->ident & (IDENT_VALUE | IDENT_STORE)) != 0))
@@ -1300,6 +1303,12 @@ s32b object_value(const object_type *o_ptr)
 			/* Hack -- get 'real' value */
 			value = object_value_real(j_ptr);
 
+			/* Apply discount (if any) */
+			if (o_ptr->discount > 0)
+			{
+				value -= (value * o_ptr->discount / 100L);
+			}
+			
 			/* Done */
 			return(value);
 		}
@@ -1315,7 +1324,7 @@ s32b object_value(const object_type *o_ptr)
 
 			/* Guess value of pval, ignore default pval of 1 */
 			if (o_ptr->pval > 1)
-				value += o_ptr->pval * o_ptr->pval * 100L;
+				pval = o_ptr->pval * o_ptr->pval * 100L;
 		}
 
 		/* Hack -- Partially identified items */
@@ -1333,7 +1342,7 @@ s32b object_value(const object_type *o_ptr)
 					if (o_ptr->to_d < 0) return (0L);
 
 					/* Give credit for bonuses */
-					value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+					value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L) + pval;
 
 					/* Done */
 					break;
@@ -1359,6 +1368,9 @@ s32b object_value(const object_type *o_ptr)
 
 					/* Give credit for armor bonus */
 					value += (o_ptr->to_a * 100L);
+					
+					/* Give credit for known pval */
+					value += pval;
 
 					/* Done */
 					break;
@@ -1370,7 +1382,7 @@ s32b object_value(const object_type *o_ptr)
 				case TV_HAFTED:
 				case TV_SWORD:
 				case TV_POLEARM:
-
+				case TV_STAFF:
 				{
 					/* Hack -- negative hit/damage bonuses */
 					if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
@@ -1378,6 +1390,8 @@ s32b object_value(const object_type *o_ptr)
 					/* Factor in the bonuses */
 					value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
 
+					/* Give credit for known pval */
+					value += pval;
 				}
 
 				/* Ammo */
@@ -1394,27 +1408,35 @@ s32b object_value(const object_type *o_ptr)
 					/* Done */
 					break;
 				}
+			}
+		}
 
-
+		/* Add bonus for known charges */
+		if (object_charges_p(o_ptr))
+		{
+			switch(o_ptr->tval)
+			{
 				/* Wands/staffs */
 				case TV_WAND:
 				case TV_STAFF:
 				{
-					/* Hack -- negative/zero hit/damage bonuses */
-					if (o_ptr->charges <= 0) return (0L);
-
-					/* Factor in the bonuses */
-					value += (o_ptr->charges * 5L);
-
+					if (object_charges_p(o_ptr))
+					{
+						/* Hack -- negative/zero hit/damage bonuses */
+						if (o_ptr->charges <= 0) return (0L);
+	
+						/* Factor in the bonuses. Note hack to ensure
+						 * that wands of spark are less valuable per charge */
+						if (k_info[o_ptr->k_idx].level > 5) value += (o_ptr->charges * 5L);
+					}
 					/* Done */
 					break;
 				}
-
 			}
-
 		}
-		/* Hack -- Felt good items */
-		else if (o_ptr->ident & (IDENT_SENSE))
+		
+		/* Hack -- Felt good items. */
+		if (o_ptr->ident & (IDENT_SENSE))
 		{
 			s32b bonus=0L;
 
@@ -1425,9 +1447,19 @@ s32b object_value(const object_type *o_ptr)
 					bonus =10000;
 					break;
 				}
+				case INSCRIP_ARTIFACT:
+				case INSCRIP_UNBREAKABLE:
+				{
+					bonus = 1000;
+				}
 				case INSCRIP_SUPERB:
 				{
 					bonus =2000;
+					break;
+				}
+				case INSCRIP_HIGH_EGO_ITEM:
+				{
+					bonus = 1000;
 					break;
 				}
 				case INSCRIP_EXCELLENT:
@@ -1435,20 +1467,36 @@ s32b object_value(const object_type *o_ptr)
 					bonus =400;
 					break;
 				}
+				case INSCRIP_EGO_ITEM:
+				case INSCRIP_UNGETTABLE:
+				{
+					bonus = 200;
+					break;
+				}
 				case INSCRIP_GREAT:
 				{
-					bonus =800;
+					if (!object_bonus_p(o_ptr)) bonus =800;
 					break;
 				}
 				case INSCRIP_VERY_GOOD:
 				{
-					bonus =400;
+					if (!object_bonus_p(o_ptr)) bonus =400;
 					break;
 				}
 				case INSCRIP_GOOD:
 				{
-					bonus =100;
+					if (!object_bonus_p(o_ptr)) bonus =100;
 					break;
+				}
+				case INSCRIP_UNCURSED:
+				{
+					bonus = 25;
+					break;
+				}
+				case INSCRIP_MAGICAL:
+				case INSCRIP_VALUABLE:
+				{
+					bonus = 100;
 				}
 			}
 
@@ -1458,9 +1506,13 @@ s32b object_value(const object_type *o_ptr)
 			{
 				value += bonus/20;
 			}
-			else
+			else if (!object_bonus_p(o_ptr))
 			{
 				value += bonus;
+			}
+			else
+			{
+				value += bonus / 2;
 			}
 		}
 	}
@@ -7226,15 +7278,19 @@ void pick_trap(int y, int x)
 
 				case TV_FOOD:
 					if (o_list[cave_o_idx[y][x]].sval < SV_FOOD_MIN_FOOD) pick_attr = TERM_GREEN;		/* Gas trap */
-					else pick_attr = TERM_VIOLET;
+					else pick_attr = TERM_L_PURPLE;	/* Loose rock */
 					break;
 
 				case TV_RUNESTONE:
 					pick_attr = TERM_ORANGE;	/* Strange rune */
 					break;
 
+				case TV_SPIKE:
+					pick_attr = TERM_SLATE;	/* Pit */
+					break;
+					
  				default:
-					pick_attr = TERM_VIOLET;	/* Loose rock */
+					pick_attr = TERM_L_PURPLE;	/* Loose rock */
 					break;
 			}
 
@@ -7715,7 +7771,7 @@ void inven_item_increase(int item, int num)
 			o_ptr->stackc = 0;
 
 			/* Decrease charges */
-			if (o_ptr->charges) o_ptr->charges--;
+			if ((o_ptr->charges) && (o_ptr->number > 0)) o_ptr->charges--;
 
 			/* Reset timeout */
 			if (o_ptr->timeout) o_ptr->timeout = 0;
@@ -8851,7 +8907,7 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 					if (p_ptr->cur_runes & (2 << (slot-1)))
 					{
 						/* Use book as hash table */
-                                                slot = (slot - 1) % (INVEN_PACK - 1);
+						slot = (slot - 1) % (INVEN_PACK - 1);
 
 						/* Free entry in book */
 						if (book[slot] == 0)
@@ -8878,13 +8934,37 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 			}
 		}
 	}
-	
+
 	/* Sort book contents */
 	ang_sort_comp = book_sort_comp_hook;
 	ang_sort_swap = book_sort_swap_hook;
 
 	/* Sort the array */
 	ang_sort(book, &why, *num);
+	
+	/* Paranoia */
+	if (*num >= 26) return;
+	
+	/* Get artifact spells */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		if (a_ptr->activation)
+		{
+			book[(*num)++] = a_ptr->activation;
+		}
+	}
+	/* Get ego item spells */
+	else if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+		if (e_ptr->activation)
+		{
+			book[(*num)++] = e_ptr->activation;
+		}
+	}
 }
 
 

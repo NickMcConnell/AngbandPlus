@@ -4,8 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this cofxright and statement
- * are included in all such copies.  Other cofxrights may also apply.
+ * and not for profit purposes provided that this copyright and statement
+ * are included in  all such copies.  Other copyrights may also apply.
  *
  * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
@@ -7252,6 +7252,26 @@ void mon_hit_trap(int m_idx, int y, int x)
 				if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
 
 				break;
+			}
+			
+			case TV_SPIKE:
+			{
+				/* Oozes just ooze around it */
+				if (((r_info[m_ptr->r_idx].flags2 & (FF2_CAN_OOZE)) == 0) && (rand_int(100) < 50))
+				{
+					/* Apply damage directly */
+					project_m(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, damroll(6, 6), GF_FALL_SPIKE);
+					
+					if (rand_int(100) < 50)
+					{					
+						/* Decrease the item */
+						floor_item_increase(cave_o_idx[y][x], -1);
+						floor_item_optimize(cave_o_idx[y][x]);
+		
+						/* Disarm if runs out */
+						if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
+					}
+				}
 			}
 
 			default:

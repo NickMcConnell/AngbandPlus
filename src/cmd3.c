@@ -1361,21 +1361,21 @@ bool item_tester_refill_torch(const object_type *o_ptr)
 bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
 {
 	/* Empty flasks are okay */
-	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_FLASK_EMPTY)) 
+		return (TRUE);
 
 	/* Empty bottles are okay */
-	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && !(o_ptr->name3)) return (TRUE);
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) 
+		 && !(o_ptr->name3)) 
+		return (TRUE);
 
 	/* Lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN))
-	{
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 		return (TRUE);
-	}
 
 	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH)) 
+		return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1388,13 +1388,12 @@ bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
 bool item_tester_refill_flask(const object_type *o_ptr)
 {
 	/* Flasks are okay */
-	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval != SV_FLASK_EMPTY)) return (TRUE);
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval != SV_FLASK_EMPTY)) 
+		return (TRUE);
 
 	/* Potions are okay */
 	if (o_ptr->tval == TV_POTION)
-	{
 		return (TRUE);
-	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1402,7 +1401,7 @@ bool item_tester_refill_flask(const object_type *o_ptr)
 
 
 /*
- * Determine whether rune or coating command based on current item
+ * Determine whether fuel or fill command based on current item
  */
 int cmd_tester_fill_or_fuel(int item)
 {
@@ -1662,8 +1661,10 @@ bool player_refill2(int item2)
 		floor_item_increase(0 - item2, -1);
 		floor_item_describe(0 - item2);
 		floor_item_optimize(0 - item2);
-		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
-		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) 
+			cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) 
+			cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 
 	/* Relite if necessary */
@@ -1680,7 +1681,8 @@ bool player_refill2(int item2)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Lite if necessary */
-	if ((item == INVEN_LITE) || (item2 == INVEN_LITE)) p_ptr->update |= (PU_TORCH);
+	if ((item == INVEN_LITE) || (item2 == INVEN_LITE)) 
+		p_ptr->update |= (PU_TORCH);
 
 	return (TRUE);
 }

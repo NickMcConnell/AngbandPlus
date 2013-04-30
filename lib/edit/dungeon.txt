@@ -123,10 +123,10 @@ L:6:56:0:153:52:0:Front Perch atop
 L:7:56:0:153:0:0:Goblin Town under
 L:13:56:0:154:173:0:the Big Cavern under
 D:The High Pass over Misty Mountains is said to be the easiest road east
-D: to Mirkwood and further towards Smaug's lair.  Easiest does not means easy.
+D: to Mirkwood and further towards Smaug's lair.  Easiest does not mean easy.
 D:  It is too steep and too high to be even attempted when fresh snow falls
 D: and in other times goblins set traps for adventurers entering the Wild.
-D:  After a long walk up the pass you are exhausted, but fortunately
+D:  After a long walk up the pass, you are exhausted, but fortunately,
 D: you find an entrance '>' to a cave...
 
 N:4:house of Beorn
@@ -147,8 +147,7 @@ L:26:56:155:0:1082:0:the Great Hall under
 S:270:271:503:11:12:504:505:0
 D:Dark shapes scuttle in the shadows on the right side of the road through
 D: Mirkwood the Great.  Among odours of decay you sometimes imagine catching a sweet scent
-D: and among echoes of clicking and hissing you can sometimes almost hear as if
-D: a captivating music.
+D: and among echoes of clicking and hissing you can sometimes faintly hear something like a captivating music.
 
 N:6:Lake-town
 X:5:7:48:0

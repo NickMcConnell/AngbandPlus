@@ -8,6 +8,16 @@
 # See "lib/docs/modding.rtf" to understand this file and how to modify
 # it and related files.
 
+# Spell.txt entry format
+
+# N: number : name
+# A: tval : sval : slot
+# C: class : level : mana : failure : min failure
+# F: flags
+# B: attack method : attack effect : damage
+# L: duration
+# S: other effect : parameter
+# D: description
 
 # Version stamp (required)
 
@@ -24,14 +34,11 @@ A:65:24:1
 A:90:32:1
 A:93:2:2
 C:1:1:2:22:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:30:1
-#$ Bard cannot cast this spell.
 C:10:3:2:30:1
 C:11:1:2:22:4
 P:0:0
-B:MISSILE:MANA:3d4+0
+B:MISSILE:MANA:3d4+(1d4)/5
 
 N:2:Detect Monsters
 A:90:32:2
@@ -43,7 +50,6 @@ C:1:1:1:23:4
 C:3:5:1:50:1
 C:4:5:1:50:1
 C:8:2:2:35:2
-#$ Bard cannot cast this spell.
 C:10:3:2:35:2
 C:11:1:1:23:4
 P:0:0
@@ -65,7 +71,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:AWAY_ALL:0d0+10
+B:SELF:AWAY_ALL:10
 F:HOLD_SONG |
 
 N:4:Light Area
@@ -73,7 +79,7 @@ A:90:32:4
 A:90:17:1
 A:90:52:3
 A:90:56:3
-A:92:12:1
+A:92:0:1
 A:93:21:14
 A:90:36:1
 C:1:1:2:26:4
@@ -84,7 +90,7 @@ C:9:5:3:35:1
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:AREA:LITE_WEAK:1d0+0
+B:AREA:LITE_WEAK:1/1
 F:LITE_ROOM |
 F:HOLD_SONG |
 
@@ -116,11 +122,10 @@ C:1:3:3:25:3
 C:3:11:4:65:1
 C:4:11:4:65:1
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:SELF:HEAL:3d8+0
+B:SELF:HEAL:3d8
 
 N:7:Object Detection
 A:66:3:1
@@ -163,14 +168,11 @@ A:90:19:1
 A:90:40:1
 A:93:4:4
 C:1:3:3:27:3
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:10:7:5:40:3
 C:11:3:3:27:3
 P:0:0
-B:CLOUD:POISON:0d0+10
+B:CLOUD:POISON:10+1/2
 
 N:10:Confuse Monster
 A:65:10:1
@@ -178,7 +180,7 @@ A:65:24:3
 A:90:32:8
 A:90:0:1
 A:90:56:5
-A:92:1:1
+A:92:0:1
 A:93:4:12
 C:1:3:4:30:1
 C:3:15:6:75:1
@@ -188,7 +190,7 @@ C:9:3:4:30:1
 C:10:7:6:40:2
 C:11:3:4:30:1
 P:0:0
-B:AIM:CONFUSE_WEAK:1d0+0
+B:AIM:CONFUSE_WEAK:1/1
 
 N:11:Lightning Beam
 A:65:17:1
@@ -198,14 +200,11 @@ A:90:33:1
 A:90:12:1
 A:93:22:19
 C:1:5:4:30:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:5:4:30:4
-#$ Bard cannot cast this spell.
 C:10:9:7:40:3
 C:11:5:4:30:4
 P:162:1
-B:BEAM:ELEC:3d6+0
+B:BEAM:ELEC:2d6+(1d6)/4
 
 N:12:Trap/Door Destruction
 A:70:39:1
@@ -221,7 +220,7 @@ C:9:21:19:60:3
 C:10:21:19:60:3
 C:11:11:7:45:8
 P:0:0
-B:ADJACENT:KILL_DOOR:0d0+0
+B:ADJACENT:KILL_DOOR
 
 N:13:Sleep Monster
 A:65:8:1
@@ -229,18 +228,17 @@ A:65:24:5
 A:66:26:1
 A:90:37:1
 A:90:0:2
-A:92:1:2
+A:92:13:3
 A:93:16:12
 A:90:57:1
 C:1:5:5:30:4
 C:3:19:8:85:1
 C:4:19:8:85:1
-#$ Shaman cannot cast this spell.
 C:9:7:6:35:3
 C:10:11:8:40:3
 C:11:5:5:30:4
 P:0:0
-B:AIM:SLEEP:1d0+0
+B:AIM:SLEEP:1/1
 
 N:14:Cure Poison
 A:75:27:1
@@ -254,7 +252,6 @@ C:1:5:5:35:4
 C:3:15:9:90:1
 C:4:15:9:90:1
 C:8:5:5:35:4
-#$ Bard cannot cast this spell.
 C:10:11:9:45:3
 C:11:5:5:35:4
 P:6:0
@@ -278,7 +275,7 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:3:0
-B:SELF:AWAY_ALL:5d0+0
+B:SELF:AWAY_ALL:5/1
 
 N:16:Spear of Light
 A:65:7:1
@@ -287,16 +284,14 @@ A:66:25:1
 A:90:33:5
 A:90:17:2
 A:93:21:26
-A:92:12:2
+A:92:13:4
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:LINE:LITE_WEAK:2d0+6
+B:LINE:LITE_WEAK:6+2/1
 D:A line of blue shimmering light appears.
 
 N:17:Frost Bolt
@@ -307,14 +302,11 @@ A:90:33:6
 A:90:11:1
 A:93:14:19
 C:1:7:6:40:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:40:6
-#$ Bard cannot cast this spell.
 C:10:15:12:50:4
 C:11:7:6:40:6
 P:445:1
-B:BOLT_10:COLD:5d8+0
+B:BOLT_10:COLD:4d8+(1d8)/4
 
 N:18:Turn Stone to Mud
 A:65:6:1
@@ -328,11 +320,10 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
-B:LINE:KILL_WALL:6d8+0
+B:LINE:KILL_WALL:6d8
 
 N:19:Satisfy Hunger
 A:70:32:1
@@ -367,7 +358,6 @@ C:1:9:12:75:9
 C:3:17:17:90:4
 C:4:25:15:99:1
 C:8:17:17:90:4
-#$ Bard cannot cast this spell.
 C:10:17:17:90:4
 C:11:9:12:75:9
 P:0:0
@@ -377,7 +367,7 @@ N:21:Sleep Monsters
 A:90:37:4
 A:90:0:3
 A:90:53:7
-A:92:1:3
+A:92:1:1
 A:93:16:16
 C:1:9:7:45:8
 C:3:21:17:55:3
@@ -387,7 +377,7 @@ C:9:13:10:50:5
 C:10:21:17:55:3
 C:11:9:7:45:8
 P:13:0
-B:AURA:SLEEP:1d0+0
+B:AURA:SLEEP:1/1
 
 N:22:Polymorph Other
 A:65:13:1
@@ -397,14 +387,12 @@ A:90:33:8
 A:92:9:1
 A:93:28:12
 C:1:11:7:45:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:16:13:50:5
 C:9:21:19:60:3
 C:10:21:19:60:3
 C:11:11:7:45:8
 P:0:0
-B:AIM:POLYMORPH:1d0+0
+B:AIM:POLYMORPH:1/1
 
 N:23:Identify
 A:55:30:1
@@ -419,7 +407,6 @@ C:1:30:10:70:10
 C:3:32:10:50:10
 C:4:37:15:60:10
 C:8:28:16:70:4
-#$ Bard cannot cast this spell.
 C:10:35:20:70:10
 C:11:30:10:70:10
 P:0:0
@@ -429,7 +416,7 @@ N:24:Mass Sleep
 A:66:5:1
 A:90:35:2
 A:90:0:4
-A:92:1:4
+A:92:1:2
 A:93:16:14
 A:55:23:1
 C:1:25:7:50:6
@@ -440,7 +427,7 @@ C:9:25:7:50:6
 C:10:23:20:60:4
 C:11:25:7:50:6
 P:0:0
-B:LOS:SLEEP:1d0+0
+B:LOS:SLEEP:1/1
 F:HOLD_SONG |
 
 N:25:Fire Bolt
@@ -452,21 +439,18 @@ A:90:33:9
 A:90:9:1
 A:93:13:19
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:387:162
-B:BOLT:FIRE:6d8+0
+B:BOLT:FIRE:5d8+(1d8)/4
 
 N:26:Slow Monster
 A:65:9:1
 A:65:24:11
 A:66:27:1
 A:90:34:1
-A:92:1:5
+A:92:1:3
 A:93:25:12
 A:90:0:5
 C:1:17:9:50:7
@@ -477,7 +461,7 @@ C:9:17:9:50:7
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:0:0
-B:AIM:SLOW_WEAK:1d0+0
+B:AIM:SLOW_WEAK:1/1
 
 N:27:Frost Ball
 A:65:23:1
@@ -487,14 +471,11 @@ A:90:34:2
 A:90:11:2
 A:93:14:13
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:17:447
-B:BALL:COLD:1d0+30
+B:BALL:COLD:30+1/1
 
 N:28:Recharge Item I
 A:90:34:3
@@ -505,8 +486,6 @@ A:90:54:1
 C:1:21:12:90:8
 C:3:30:20:99:6
 C:4:30:20:99:6
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:29:23:95:3
 C:11:21:12:90:8
 P:0:0
@@ -524,12 +503,11 @@ A:90:59:2
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:0:0
-B:LINE:AWAY_ALL:1d0+0
+B:LINE:AWAY_ALL:1/1
 
 N:30:Haste Self
 A:55:22:1
@@ -559,14 +537,11 @@ A:90:9:2
 A:93:13:13
 A:90:51:1
 C:1:29:18:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:18:65:12
-#$ Bard cannot cast this spell.
 C:10:35:25:80:5
 C:11:29:18:65:12
 P:25:434
-B:BALL:FIRE:1d0+55
+B:BALL:FIRE:55+1/1
 
 N:32:Word of Destruction
 A:70:41:1
@@ -575,8 +550,6 @@ A:90:6:1
 A:92:10:1
 A:93:19:11
 C:1:33:21:80:35
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:33:21:80:35
 C:9:37:30:95:30
 C:10:37:30:95:30
@@ -596,7 +569,7 @@ C:9:25:17:60:17
 C:10:25:17:60:17
 C:11:15:7:60:29
 P:0:0
-B:BEAM:DISPEL:0d0+0
+B:BEAM:DISPEL
 
 N:34:Door Creation
 A:70:79:1
@@ -606,12 +579,10 @@ A:90:53:8
 C:1:7:7:20:28
 C:3:13:9:20:25
 C:4:13:9:20:25
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:8:17:20:25
 C:11:7:7:20:28
 P:0:0
-B:ADJACENT:MAKE_DOOR:0d0+0
+B:ADJACENT:MAKE_DOOR
 
 N:35:Stair Creation
 A:70:80:1
@@ -622,7 +593,6 @@ C:1:9:12:40:44
 C:3:19:22:40:45
 C:4:19:22:40:45
 C:8:19:22:40:21
-#$ Bard cannot cast this spell.
 C:10:19:22:40:21
 C:11:9:12:40:44
 P:0:0
@@ -652,10 +622,7 @@ A:93:25:14
 A:90:38:1
 A:55:23:2
 C:1:20:18:60:24
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:11:9:55:5
-#$ Bard cannot cast this spell.
 C:10:30:28:60:16
 C:11:20:18:60:24
 P:0:0
@@ -688,14 +655,11 @@ A:90:34:5
 A:90:10:1
 A:93:1:19
 C:1:15:9:50:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:15:9:50:8
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:15:9:50:8
 P:154:440
-B:BOLT:ACID:8d8+0
+B:BOLT:ACID:7d8+(1d8)/4
 
 N:40:Cloud Kill
 A:65:29:1
@@ -705,14 +669,11 @@ A:90:19:2
 A:93:4:13
 A:40:23:1
 C:1:20:9:50:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:20:9:50:8
-#$ Bard cannot cast this spell.
 C:10:22:19:60:6
 C:11:20:9:50:8
 P:9:0
-B:STORM:POISON:2d0+20
+B:STORM:POISON:20+2/1
 
 N:41:Acid Ball
 A:65:20:1
@@ -723,14 +684,11 @@ A:90:8:2
 A:93:1:13
 A:90:50:1
 C:1:20:15:70:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:20:70:16
-#$ Bard cannot cast this spell.
 C:10:30:25:70:13
 C:11:20:15:70:20
 P:39:440
-B:BALL:ACID:1d0+40
+B:BALL:ACID:40+1/1
 
 N:42:Ice Storm
 A:65:30:1
@@ -739,14 +697,11 @@ A:90:8:3
 A:90:11:3
 A:93:14:22
 C:1:27:25:75:29
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:27:25:75:29
-#$ Bard cannot cast this spell.
 C:10:33:35:75:25
 C:11:27:25:75:29
 P:0:0
-B:STORM:COLD:2d0+70
+B:STORM:COLD:70+2/1
 
 N:43:Meteor Swarm
 A:65:31:1
@@ -755,27 +710,19 @@ A:90:8:4
 A:90:17:3
 A:93:21:22
 C:1:30:25:85:34
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:25:85:34
-#$ Bard cannot cast this spell.
 C:10:36:45:80:35
 C:11:30:25:85:34
 P:0:0
-B:SWARM:METEOR:0d0+30
+B:SWARM:METEOR:30+1/2
 
 N:44:Mana Storm
 A:90:6:3
 A:93:17:22
 C:1:42:45:95:200
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:42:45:95:200
 P:1:0
-B:STORM:MANA:2d0+300
+B:STORM:MANA:300+2/1
 
 N:45:Detect Evil
 A:66:9:1
@@ -787,7 +734,6 @@ C:1:1:1:23:4
 C:3:5:2:50:1
 C:4:5:2:50:1
 C:8:2:2:35:2
-#$ Bard cannot cast this spell.
 C:10:3:2:35:2
 C:11:1:1:23:4
 P:0:0
@@ -805,7 +751,6 @@ C:1:10:10:70:40
 C:3:20:15:70:40
 C:4:20:15:70:40
 C:8:15:12:70:25
-#$ Bard cannot cast this spell.
 C:10:15:12:70:25
 C:11:10:10:70:40
 P:7:427
@@ -820,7 +765,6 @@ C:1:25:30:95:160
 C:3:35:40:95:100
 C:4:35:40:95:100
 C:8:35:60:95:115
-#$ Bard cannot cast this spell.
 C:10:35:60:95:115
 C:11:25:30:95:160
 P:28:0
@@ -833,11 +777,7 @@ A:90:6:4
 A:90:2:4
 A:93:7:14
 C:1:30:50:70:40
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:60:80:50
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:30:50:70:40
 P:0:0
 F:BANISHMENT |
@@ -848,11 +788,6 @@ A:90:6:5
 A:90:2:5
 A:93:7:17
 C:1:35:75:90:100
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:35:75:90:100
 P:48:0
 F:MASS_BANISHMENT |
@@ -885,7 +820,6 @@ C:1:10:5:50:10
 C:3:16:12:50:40
 C:4:16:12:50:40
 C:8:10:5:50:10
-#$ Bard cannot cast this spell.
 C:10:8:15:50:30
 C:11:10:5:50:10
 P:0:0
@@ -902,7 +836,6 @@ C:1:10:5:50:10
 C:3:16:12:50:40
 C:4:16:12:50:40
 C:8:10:5:50:10
-#$ Bard cannot cast this spell.
 C:10:8:15:50:30
 C:11:10:5:50:10
 P:0:0
@@ -919,7 +852,6 @@ C:1:25:10:45:20
 C:3:30:25:75:60
 C:4:30:25:75:60
 C:8:25:10:45:20
-#$ Bard cannot cast this spell.
 C:10:26:25:75:50
 C:11:25:10:45:20
 P:0:0
@@ -952,12 +884,11 @@ A:93:3:23
 A:90:59:5
 C:3:26:15:50:40
 C:4:26:15:50:40
-#$ Shaman cannot cast this spell.
 C:9:18:15:50:40
 C:10:18:15:50:40
 C:11:26:15:50:40
 P:0:0
-B:SELF:HEAL_PERC:0d0+10
+B:SELF:HEAL_PERC:10
 F:HERO |
 F:CURE_FEAR |
 S:CURE_DISEASE:19
@@ -989,13 +920,12 @@ A:90:59:7
 C:1:28:20:60:60
 C:3:28:20:60:60
 C:4:28:20:60:60
-#$ Shaman cannot cast this spell.
 C:9:23:30:80:35
 C:10:23:30:80:35
 C:11:28:20:60:60
 P:0:0
-B:SELF:HEAL_PERC:0d0+30
-B:SELF:RAGE:1d0+0
+B:SELF:HEAL_PERC:30
+B:SELF:RAGE:1/1
 F:SHERO |
 F:CURE_FEAR |
 L:1d25+25
@@ -1008,26 +938,25 @@ A:90:58:1
 C:1:22:30:50:250
 C:3:26:30:50:250
 C:4:26:30:50:250
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:32:50:50:250
 C:11:22:30:50:250
 P:0:0
 F:HASTE |
 L:1d30+30
 
-N:59:Globe of Invulneribility
-A:93:20:17
-C:1:45:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
-C:11:45:70:75:250
+N:59:Sense Invisible
+A:90:42:9
+A:90:16:7
+C:1:11:7:45:8
+C:3:17:7:80:1
+C:4:17:7:80:1
+C:8:16:13:50:5
+C:9:21:19:60:3
+C:10:21:19:60:3
+C:11:11:7:45:8
 P:0:0
-F:INVULN |
-L:1d8+8
+F:SEE_INVIS
+L:1d24+24
 
 N:60:Detect Evil
 A:91:32:1
@@ -1035,7 +964,7 @@ A:91:48:1
 A:91:52:1
 A:91:64:1
 A:91:13:1
-A:92:12:3
+A:92:0:2
 A:93:12:23
 C:2:1:1:10:4
 C:5:3:3:35:4
@@ -1050,7 +979,7 @@ N:61:Cure Light Wounds
 A:75:34:1
 A:91:32:2
 A:91:6:1
-A:92:0:2
+A:92:0:3
 A:93:3:21
 A:91:36:1
 A:91:40:1
@@ -1061,14 +990,14 @@ C:8:3:3:25:3
 C:9:3:3:35:4
 C:11:1:2:15:4
 P:0:0
-B:SELF:HEAL:3d10+0
+B:SELF:HEAL:3d10
 F:CURE_BLIND | HOLD_SONG |
 
 N:62:Bless
 A:70:33:1
 A:91:32:3
 A:91:10:1
-A:92:0:3
+A:92:0:4
 A:93:5:2
 A:91:36:2
 A:91:52:3
@@ -1095,7 +1024,7 @@ C:8:7:3:35:4
 C:9:3:2:25:4
 C:11:3:2:25:4
 P:62:0
-B:BLAST:HOLY_ORB:1d4+0
+B:BLAST:HOLY_ORB:1d4+1+1/1
 
 N:64:Call Light
 A:91:32:5
@@ -1109,10 +1038,9 @@ A:91:48:2
 C:2:1:2:25:1
 C:5:5:4:35:4
 C:8:1:2:26:4
-#$ Bard cannot cast this spell.
 C:11:1:2:25:1
 P:0:0
-B:AREA:LITE_WEAK:2d0+0
+B:AREA:LITE_WEAK:2/1
 F:LITE_ROOM |
 
 N:65:Find Traps
@@ -1124,7 +1052,6 @@ A:91:60:1
 C:2:3:3:27:2
 C:5:7:5:40:3
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:11:3:3:27:2
 P:134:0
 F:DETECT_TRAPS |
@@ -1141,7 +1068,6 @@ A:91:48:3
 C:2:3:3:27:2
 C:5:7:5:40:3
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:11:3:3:27:2
 P:64:0
 F:DETECT_DOORS | DETECT_STAIRS |
@@ -1166,7 +1092,7 @@ F:CURE_POIS | HOLD_SONG |
 N:68:Scare Monster
 A:91:33:1
 A:91:12:1
-A:92:1:6
+A:92:13:5
 A:93:23:12
 A:91:37:1
 A:91:41:1
@@ -1177,7 +1103,7 @@ C:8:5:4:29:3
 C:9:5:4:29:3
 C:11:5:4:29:3
 P:65:10
-B:AIM:FEAR_WEAK:1d0+0
+B:AIM:FEAR_WEAK:1/1
 
 N:69:Portal
 A:91:33:2
@@ -1194,7 +1120,7 @@ C:8:9:8:40:3
 C:9:9:8:40:3
 C:11:5:4:30:4
 P:66:112
-B:SELF:AWAY_ALL:3d0+0
+B:SELF:AWAY_ALL:3/1
 
 N:70:Cure Moderate Wounds
 A:66:6:1
@@ -1212,14 +1138,14 @@ C:8:9:6:36:3
 C:9:11:9:40:3
 C:11:5:4:32:4
 P:67:61
-B:SELF:HEAL:5d10+0
+B:SELF:HEAL:5d10
 F:SLOW_CUTS | CURE_BLIND | HOLD_SONG |
 
 N:71:Chant
 A:70:34:1
 A:91:33:4
 A:91:10:2
-A:92:1:7
+A:92:13:5
 A:93:5:19
 A:91:53:2
 A:91:57:1
@@ -1237,7 +1163,7 @@ N:72:Sanctuary
 A:70:60:1
 A:91:33:5
 A:91:10:3
-A:92:1:8
+A:92:13:6
 A:93:16:20
 A:91:41:4
 A:91:61:2
@@ -1247,8 +1173,8 @@ C:8:9:7:40:3
 C:9:9:7:40:3
 C:11:7:5:36:3
 P:68:0
-B:AURA:FEAR_WEAK:1d0+0
-B:ADJACENT:SLEEP:1d0+0
+B:AURA:FEAR_WEAK:1/1
+B:ADJACENT:SLEEP:1/1
 F:SHIELD |
 L:1d4+4
 
@@ -1266,7 +1192,6 @@ A:91:61:3
 C:2:7:5:38:4
 C:5:13:10:45:3
 C:8:9:7:45:8
-#$ Bard cannot cast this spell.
 C:11:7:5:38:4
 P:70:590
 F:CURE_FOOD |
@@ -1305,7 +1230,6 @@ A:91:61:4
 C:2:7:7:38:5
 C:5:15:13:45:4
 C:8:7:7:38:5
-#$ Bard cannot cast this spell.
 C:11:7:7:38:5
 P:69:593
 F:OPP_FIRE | OPP_COLD |
@@ -1341,10 +1265,9 @@ A:91:66:1
 C:2:9:7:38:4
 C:5:17:15:50:4
 C:8:13:11:44:4
-#$ Bard cannot cast this spell.
 C:11:9:7:38:4
 P:74:398
-B:ORB:HOLY_ORB:3d6+0
+B:ORB:HOLY_ORB:3d6+3+3/2
 
 N:78:Cure Critical Wounds
 A:91:34:3
@@ -1356,10 +1279,9 @@ A:91:54:3
 C:2:9:7:40:4
 C:5:17:15:50:4
 C:8:13:11:45:4
-#$ Bard cannot cast this spell.
 C:11:9:7:40:4
 P:73:0
-B:SELF:HEAL:12d10+0
+B:SELF:HEAL:12d10
 F:CURE_CUTS | CURE_STUN |
 
 N:79:Sense Invisible
@@ -1433,7 +1355,6 @@ A:91:54:6
 C:2:13:10:45:4
 C:5:23:17:50:3
 C:8:13:10:45:4
-#$ Bard cannot cast this spell.
 C:11:13:10:45:4
 P:79:81
 F:MAP_AREA |
@@ -1447,10 +1368,9 @@ A:91:54:7
 C:2:13:11:45:4
 C:5:25:20:50:3
 C:8:19:15:47:4
-#$ Bard cannot cast this spell.
 C:11:13:11:45:4
 P:304:0
-B:SELF:HEAL:15d10+0
+B:SELF:HEAL:15d10
 F:CURE_CUTS | CURE_STUN |
 
 N:84:Turn Undead
@@ -1468,7 +1388,7 @@ C:8:13:15:45:4
 C:9:17:21:50:3
 C:11:9:8:40:5
 P:77:0
-B:LOS:TURN_UNDEAD:1d0+0
+B:LOS:TURN_UNDEAD:1/1
 F:HOLD_SONG |
 
 N:85:Prayer
@@ -1502,7 +1422,7 @@ C:8:19:19:55:6
 C:9:31:24:60:3
 C:11:17:14:55:7
 P:84:0
-B:LOS:DISPEL_UNDEAD:3d0+0
+B:LOS:DISPEL_UNDEAD:3/1
 F:HOLD_SONG |
 
 N:87:Heal
@@ -1514,10 +1434,9 @@ A:91:54:9
 C:2:21:16:60:7
 C:5:33:28:60:3
 C:8:27:22:60:5
-#$ Bard cannot cast this spell.
 C:11:21:16:60:7
 P:83:0
-B:SELF:HEAL:0d0+300
+B:SELF:HEAL:300
 F:CURE_CUTS | CURE_STUN |
 
 N:88:Dispel Evil
@@ -1534,7 +1453,7 @@ C:8:25:20:70:12
 C:9:35:32:70:4
 C:11:25:20:70:12
 P:86:0
-B:LOS:DISPEL_EVIL:3d0+0
+B:LOS:DISPEL_EVIL:3/1
 F:HOLD_SONG |
 
 N:89:Glyph of Warding
@@ -1549,7 +1468,6 @@ A:91:55:3
 C:2:33:55:90:15
 C:5:37:70:90:5
 C:8:37:70:90:5
-#$ Bard cannot cast this spell.
 C:11:33:55:90:15
 P:82:0
 S:WARD_GLYPH:3
@@ -1564,11 +1482,10 @@ A:91:55:4
 C:2:39:32:95:20
 C:5:39:38:95:10
 C:8:39:38:95:10
-#$ Bard cannot cast this spell.
 C:11:39:32:95:20
 P:85:0
-B:LOS:DISPEL_EVIL:4d0+0
-B:SELF:HEAL:0d0+1000
+B:LOS:DISPEL_EVIL:4/1
+B:SELF:HEAL:1000
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_FEAR |
 
 N:91:Detect Monsters
@@ -1625,10 +1542,9 @@ A:91:43:2
 C:2:25:10:80:150
 C:5:30:15:80:135
 C:8:25:10:80:150
-#$ Bard cannot cast this spell.
 C:11:25:10:80:150
 P:0:0
-B:LOS:PROBE:0d0+0
+B:LOS:PROBE
 
 N:95:Clairvoyance
 A:75:56:1
@@ -1638,7 +1554,6 @@ A:55:23:8
 C:2:35:50:80:230
 C:5:37:55:80:215
 C:8:37:55:80:215
-#$ Bard cannot cast this spell.
 C:11:35:50:80:230
 P:0:0
 F:WIZ_LITE |
@@ -1657,7 +1572,7 @@ C:8:10:8:41:4
 C:9:13:10:45:3
 C:11:7:5:38:4
 P:61:6
-B:SELF:HEAL:8d10+0
+B:SELF:HEAL:8d10
 F:SLOW_CUTS | SLOW_STUN | CURE_BLIND | HOLD_SONG |
 S:SLOW_CONF:0
 
@@ -1669,10 +1584,9 @@ A:93:3:5
 C:2:17:7:60:45
 C:5:23:25:60:35
 C:8:20:16:60:40
-#$ Bard cannot cast this spell.
 C:11:17:7:60:45
 P:0:0
-B:SELF:HEAL:0d0+120
+B:SELF:HEAL:120
 F:CURE_CUTS | CURE_STUN | CURE_CONF | CURE_BLIND |
 
 N:98:*Heal*
@@ -1682,10 +1596,9 @@ A:93:3:17
 C:2:30:50:80:130
 C:5:35:60:80:115
 C:8:33:55:80:125
-#$ Bard cannot cast this spell.
 C:11:30:50:80:130
 P:0:0
-B:SELF:HEAL:0d0+2000
+B:SELF:HEAL:2000
 F:CURE_CUTS | CURE_STUN |
 
 N:99:Restoration
@@ -1698,7 +1611,6 @@ A:99:10:1
 C:2:35:70:90:230
 C:5:40:80:90:200
 C:8:37:75:90:215
-#$ Bard cannot cast this spell.
 C:11:35:70:90:230
 P:0:0
 F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR | CURE_MEM |
@@ -1726,10 +1638,9 @@ A:91:51:4
 C:2:15:7:70:25
 C:5:20:13:70:20
 C:8:15:7:70:25
-#$ Bard cannot cast this spell.
 C:11:15:7:70:25
 P:84:0
-B:LOS:DISPEL_UNDEAD:4d0+0
+B:LOS:DISPEL_UNDEAD:4/1
 
 N:102:*Dispel Evil*
 A:91:8:2
@@ -1739,10 +1650,9 @@ A:91:55:5
 C:2:20:10:75:60
 C:5:30:20:75:40
 C:8:20:10:75:60
-#$ Bard cannot cast this spell.
 C:11:20:10:75:60
 P:86:77
-B:LOS:DISPEL_EVIL:4d0+0
+B:LOS:DISPEL_EVIL:4/1
 
 N:103:Banish Evil
 A:91:8:3
@@ -1756,7 +1666,7 @@ C:8:25:25:80:250
 C:9:35:40:80:200
 C:11:25:25:80:250
 P:0:0
-B:LOS:AWAY_EVIL:0d0+100
+B:LOS:AWAY_EVIL:100
 F:HOLD_SONG |
 D:The power of your god banishes evil.
 
@@ -1768,7 +1678,6 @@ A:55:23:10
 C:2:35:35:80:115
 C:5:40:40:80:100
 C:8:37:30:95:10
-#$ Bard cannot cast this spell.
 C:11:35:35:80:115
 P:37:0
 S:DESTRUCTION:15
@@ -1781,10 +1690,9 @@ A:93:18:27
 C:2:45:60:75:250
 C:5:47:70:75:250
 C:8:46:75:75:250
-#$ Bard cannot cast this spell.
 C:11:45:60:75:250
 P:0:0
-B:AIM:DRAIN_LIFE:2d0+200
+B:AIM:DRAIN_LIFE:200+2/1
 
 N:106:Unbarring Ways
 A:70:62:1
@@ -1794,14 +1702,13 @@ A:91:41:7
 C:2:5:6:50:40
 C:5:10:16:50:20
 C:8:9:8:45:3
-#$ Bard cannot cast this spell.
 C:11:5:6:50:40
 P:66:0
-B:ADJACENT:KILL_DOOR:0d0+0
+B:ADJACENT:KILL_DOOR
 
 N:107:Recharging
 A:91:7:2
-A:92:1:9
+A:92:1:4
 A:93:17:5
 A:99:12:1
 C:2:15:20:80:25
@@ -1820,7 +1727,6 @@ A:99:13:1
 C:2:25:40:80:160
 C:5:30:50:80:130
 C:8:25:40:80:160
-#$ Bard cannot cast this spell.
 C:11:25:40:80:160
 P:0:0
 F:CURE_CURSE |
@@ -1861,7 +1767,6 @@ A:99:16:1
 C:2:35:95:85:150
 C:5:32:95:85:120
 C:8:32:60:95:120
-#$ Bard cannot cast this spell.
 C:11:35:95:85:150
 P:0:0
 S:BRAND_WEAPON:8
@@ -1877,10 +1782,9 @@ A:93:7:12
 C:2:3:3:50:6
 C:5:7:7:50:2
 C:8:2:2:35:2
-#$ Bard cannot cast this spell.
 C:11:3:3:50:6
 P:332:0
-B:SELF:AWAY_ALL:0d0+10
+B:SELF:AWAY_ALL:10
 
 N:113:Teleport Self
 A:91:4:3
@@ -1892,10 +1796,9 @@ A:91:62:4
 C:2:10:10:50:8
 C:5:20:20:50:4
 C:8:13:10:45:3
-#$ Bard cannot cast this spell.
 C:11:10:10:50:8
 P:112:69
-B:SELF:AWAY_ALL:8d0+0
+B:SELF:AWAY_ALL:8/1
 
 N:114:Teleport Other
 A:91:4:4
@@ -1903,10 +1806,9 @@ A:93:7:26
 C:2:20:20:80:16
 C:5:25:25:80:12
 C:8:25:25:80:12
-#$ Bard cannot cast this spell.
 C:11:20:20:80:16
 P:0:0
-B:AIM:AWAY_ALL:1d0+0
+B:AIM:AWAY_ALL:1/1
 
 N:115:Escape
 A:91:4:5
@@ -1914,7 +1816,6 @@ A:93:7:27
 C:2:30:40:75:133
 C:5:35:50:75:115
 C:8:30:40:75:133
-#$ Bard cannot cast this spell.
 C:11:30:40:75:133
 P:0:0
 F:TELE_LEVEL |
@@ -1926,7 +1827,6 @@ A:99:17:1
 C:2:35:50:75:11
 C:5:40:60:75:10
 C:8:35:35:75:13
-#$ Bard cannot cast this spell.
 C:11:35:50:75:11
 P:0:0
 F:RECALL |
@@ -1951,7 +1851,6 @@ A:93:20:20
 C:2:13:12:75:120
 C:5:18:20:75:80
 C:8:15:20:75:80
-#$ Bard cannot cast this spell.
 C:11:13:12:75:120
 P:0:0
 F:SHIELD |
@@ -1968,7 +1867,7 @@ C:8:24:20:60:35
 C:9:31:24:60:35
 C:11:17:16:60:25
 P:0:0
-B:SELF:HEAL_PERC:0d0+10
+B:SELF:HEAL_PERC:10
 F:HERO | BLESS |
 F:CURE_FEAR |
 L:1d48+48
@@ -1983,23 +1882,13 @@ C:8:19:20:80:200
 C:9:33:30:80:125
 C:11:19:20:80:200
 P:0:0
-B:SELF:HEAL_PERC:0d0+30
-B:SELF:RAGE:1d0+0
+B:SELF:HEAL_PERC:30
+B:SELF:RAGE:1/1
 F:SHERO | BLESS |
 F:CURE_FEAR |
 L:1d48+48
 
-N:121:Armour of God
-A:91:10:9
-A:93:20:5
-C:2:45:70:75:250
-#$ Paladin cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
-C:11:45:70:75:250
-P:0:0
-F:INVULN |
-L:1d8+8
+### 121 - Unused ###
 
 N:122:Ray of Light
 A:77:9:1
@@ -2008,10 +1897,9 @@ A:93:21:12
 C:2:9:6:30:5
 C:5:13:11:55:4
 C:8:7:6:30:5
-#$ Bard cannot cast this spell.
 C:11:9:6:30:5
 P:0:0
-B:LINE:LITE_WEAK:2d0+6
+B:LINE:LITE_WEAK:6+2/1
 D:A line of blue shimmering light appears.
 
 N:123:Spiritual Hammer
@@ -2020,7 +1908,6 @@ A:93:18:20
 C:2:13:9:42:4
 C:5:21:16:50:4
 C:8:17:13:46:4
-#$ Bard cannot cast this spell.
 C:11:13:9:42:4
 P:0:0
 S:INVEN_WIELD:569
@@ -2032,7 +1919,6 @@ A:93:18:23
 C:2:21:13:45:8
 C:5:26:23:60:3
 C:8:26:23:60:3
-#$ Bard cannot cast this spell.
 C:11:21:13:45:8
 P:0:0
 S:INVEN_WIELD:570
@@ -2048,10 +1934,9 @@ A:91:62:5
 C:2:9:7:38:4
 C:5:17:15:50:4
 C:8:13:11:44:4
-#$ Bard cannot cast this spell.
 C:11:9:7:38:4
 P:75:0
-B:STRIKE:FIRE:1d0+55
+B:STRIKE:FIRE:55+1/1
 
 N:126:Petrify Monster
 A:90:18:4
@@ -2061,11 +1946,10 @@ C:1:33:22:90:16
 C:3:41:35:100:6
 C:4:41:35:100:6
 C:8:33:22:90:16
-#$ Bard cannot cast this spell.
 C:10:41:35:100:6
 C:11:33:22:90:16
 P:0:0
-B:AIM:PETRIFY:5d0+0
+B:AIM:PETRIFY:5/1
 
 N:127:Concentrate Light
 A:91:11:8
@@ -2076,7 +1960,7 @@ C:8:25:20:70:12
 C:9:35:32:70:4
 C:11:25:20:70:12
 P:0:0
-B:BOLT:LITE:2d0+0
+B:BOLT:LITE:2/1
 
 N:128:Summon Spirit
 A:91:12:7
@@ -2100,7 +1984,7 @@ C:8:33:55:90:15
 C:9:37:70:90:5
 C:11:33:55:90:15
 P:0:0
-B:AREA:RAISE_DEAD:0d0+1
+B:AREA:RAISE_DEAD
 
 N:130:Detect Curse
 A:66:1:1
@@ -2124,8 +2008,6 @@ A:91:7:7
 A:99:19:1
 C:2:33:25:78:4
 C:5:39:30:85:3
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:11:33:25:78:4
 P:469:0
 S:CURE_DISEASE:25
@@ -2137,8 +2019,6 @@ A:93:2:5
 A:99:20:1
 C:2:39:60:85:250
 C:5:44:80:85:250
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:11:39:60:85:250
 P:0:0
 S:BRAND_WEAPON:6
@@ -2151,7 +2031,6 @@ A:99:21:1
 C:2:43:95:85:250
 C:5:45:95:85:250
 C:8:43:95:85:250
-#$ Bard cannot cast this spell.
 C:11:43:95:85:250
 P:0:0
 S:BRAND_ARMOR:2
@@ -2161,7 +2040,7 @@ A:91:32:9
 A:91:60:3
 A:91:40:7
 A:91:9:4
-A:92:0:4
+A:92:0:6
 A:93:25:4
 A:91:56:5
 A:91:44:5
@@ -2186,7 +2065,7 @@ C:8:9:7:44:8
 C:9:24:11:70:1
 C:11:9:7:44:8
 P:0:0
-B:LINE:LOWER:6d8+0
+B:LINE:LOWER:6d8
 
 N:136:Resist Lightning
 A:91:9:6
@@ -2207,7 +2086,6 @@ A:93:8:20
 C:2:15:20:85:60
 C:5:25:40:85:70
 C:8:15:20:85:60
-#$ Bard cannot cast this spell.
 C:11:15:20:85:60
 P:0:0
 F:OPP_FIRE | OPP_COLD | OPP_ACID | OPP_ELEC | OPP_POIS |
@@ -2222,10 +2100,9 @@ A:93:18:21
 C:2:3:3:20:5
 C:5:5:3:40:5
 C:8:4:3:30:5
-#$ Bard cannot cast this spell.
 C:11:3:3:20:5
 P:587:0
-B:AIM:DRAIN_LIFE:2d10+0
+B:AIM:DRAIN_LIFE:2d10
 
 N:139:Blind Monster
 A:65:32:1
@@ -2235,10 +2112,9 @@ A:93:18:12
 C:2:5:5:35:6
 C:5:9:7:45:7
 C:8:7:6:40:7
-#$ Bard cannot cast this spell.
 C:11:5:5:35:6
 P:0:0
-B:AIM:BLIND:1d0+0
+B:AIM:BLIND:1/1
 
 N:140:Cause Moderate Wounds
 A:91:14:4
@@ -2249,10 +2125,9 @@ A:91:49:4
 C:2:7:6:37:6
 C:5:13:11:45:5
 C:8:10:9:42:5
-#$ Bard cannot cast this spell.
 C:11:7:6:37:6
 P:138:0
-B:AIM:DRAIN_LIFE:3d10+0
+B:AIM:DRAIN_LIFE:3d10
 
 N:141:Animate Dead
 A:91:14:5
@@ -2264,7 +2139,7 @@ C:8:9:7:40:7
 C:9:13:11:45:8
 C:11:9:7:40:7
 P:0:0
-B:AREA:ANIM_DEAD:0d0+0
+B:AREA:ANIM_DEAD
 F:HOLD_SONG |
 
 N:142:Cause Serious Wounds
@@ -2276,10 +2151,9 @@ A:91:50:5
 C:2:9:7:43:7
 C:5:15:12:50:6
 C:8:12:10:47:7
-#$ Bard cannot cast this spell.
 C:11:9:7:43:7
 P:140:0
-B:AIM:DRAIN_LIFE:4d10+0
+B:AIM:DRAIN_LIFE:4d10
 
 N:143:Cause Critical Wounds
 A:91:14:7
@@ -2287,10 +2161,9 @@ A:93:18:25
 C:2:11:9:45:8
 C:5:19:18:55:8
 C:8:15:13:50:8
-#$ Bard cannot cast this spell.
 C:11:11:9:45:8
 P:0:0
-B:AIM:DRAIN_LIFE:5d10+0
+B:AIM:DRAIN_LIFE:5d10
 
 N:144:Summon Ghoul
 A:91:14:8
@@ -2298,7 +2171,6 @@ A:93:19:15
 C:2:15:19:55:29
 C:5:23:33:60:24
 C:8:15:19:55:29
-#$ Bard cannot cast this spell.
 C:11:15:19:55:29
 P:0:0
 S:SUMMON_RACE:599
@@ -2309,23 +2181,19 @@ A:93:18:14
 C:2:19:9:65:50
 C:5:25:27:65:40
 C:8:22:18:65:45
-#$ Bard cannot cast this spell.
 C:11:19:9:65:50
 P:0:0
-B:AIM:DRAIN_LIFE:6d10+0
+B:AIM:DRAIN_LIFE:6d10
 
 N:146:Burning Hands
 A:90:9:4
 A:93:13:16
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:26:4
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:HANDS:FIRE:3d5+0
+B:HANDS:FIRE:3d5+(1d5)/5
 
 N:147:Fire Trap
 A:90:9:5
@@ -2338,7 +2206,6 @@ C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:17:7:80:1
 C:8:5:5:30:6
-#$ Bard cannot cast this spell.
 C:10:9:8:45:3
 C:11:5:5:30:6
 P:0:0
@@ -2376,14 +2243,11 @@ N:150:Wall of Fire
 A:90:9:7
 A:93:13:25
 C:1:23:12:60:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:31:25:70:3
-#$ Bard cannot cast this spell.
 C:10:31:25:70:3
 C:11:23:12:60:8
 P:0:0
-B:LINE:FEATURE:0d0+228
+B:LINE:FEATURE:228
 
 N:151:Fire Bolt II
 A:65:33:1
@@ -2391,15 +2255,12 @@ A:65:60:5
 A:90:9:8
 A:93:13:18
 C:1:20:15:60:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:20:15:60:12
-#$ Bard cannot cast this spell.
 C:10:35:41:70:9
 C:11:20:15:60:12
 P:25:0
-B:BOLT:FIRE:6d12+0
-B:BOLT:FIRE:6d12+0
+B:BOLT:FIRE:5d12+(1d12)/4
+B:BOLT:FIRE:5d12+(1d12)/4
 
 N:152:Fire Bolt III
 A:65:34:1
@@ -2407,16 +2268,13 @@ A:65:60:6
 A:90:9:9
 A:93:13:24
 C:1:30:22:70:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:22:70:18
-#$ Bard cannot cast this spell.
 C:10:45:61:80:15
 C:11:30:22:70:18
 P:151:0
-B:BOLT:FIRE:6d16+0
-B:BOLT:FIRE:6d16+0
-B:BOLT:FIRE:6d16+0
+B:BOLT:FIRE:5d16+(1d16)/4
+B:BOLT:FIRE:5d16+(1d16)/4
+B:BOLT:FIRE:5d16+(1d16)/4
 
 N:153:Fire Storm
 A:65:35:1
@@ -2425,27 +2283,21 @@ A:90:9:10
 A:90:8:5
 A:93:13:22
 C:1:37:37:80:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:37:37:80:18
-#$ Bard cannot cast this spell.
 C:10:43:51:95:11
 C:11:37:37:80:18
 P:31:0
-B:STORM:FIRE:2d0+95
+B:STORM:FIRE:95+2/1
 
 N:154:Acid Spit
 A:90:10:4
 A:93:1:16
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:3:3:29:2
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:HANDS:ACID:3d5+0
+B:HANDS:ACID:3d5+(1d5)/5
 
 N:155:Acid Trap
 A:90:10:5
@@ -2457,7 +2309,6 @@ C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:17:7:80:1
 C:8:7:5:37:5
-#$ Bard cannot cast this spell.
 C:10:9:8:45:3
 C:11:5:5:30:6
 P:0:0
@@ -2482,15 +2333,12 @@ A:65:60:8
 A:90:10:6
 A:93:1:18
 C:1:25:19:60:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:19:60:18
-#$ Bard cannot cast this spell.
 C:10:35:41:60:12
 C:11:25:19:60:18
 P:39:0
-B:BOLT:ACID:8d12+0
-B:BOLT:ACID:8d12+0
+B:BOLT:ACID:7d12+(1d12)/4
+B:BOLT:ACID:7d12+(1d12)/4
 
 N:158:Summon Ooze Elemental
 A:90:10:7
@@ -2500,7 +2348,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:514:521
@@ -2510,14 +2357,11 @@ N:159:Wall of Acid
 A:90:10:8
 A:93:1:25
 C:1:23:12:60:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:27:18:65:5
-#$ Bard cannot cast this spell.
 C:10:31:25:70:3
 C:11:23:12:60:8
 P:0:0
-B:LINE:ACID:0d0+127
+B:LINE:FEATURE:127
 
 N:160:Acid Storm
 A:65:37:1
@@ -2525,14 +2369,11 @@ A:65:60:9
 A:90:10:9
 A:93:1:22
 C:1:28:31:85:26
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:33:41:85:23
-#$ Bard cannot cast this spell.
 C:10:38:51:85:19
 C:11:28:31:85:26
 P:41:0
-B:STORM:ACID:2d0+65
+B:STORM:ACID:65+2/1
 
 N:161:Acid Bolt III
 A:65:38:1
@@ -2540,16 +2381,13 @@ A:65:60:10
 A:90:10:10
 A:93:1:24
 C:1:35:28:70:24
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:28:70:24
-#$ Bard cannot cast this spell.
 C:10:45:61:70:18
 C:11:35:28:70:24
 P:157:0
-B:BOLT:ACID:8d16+0
-B:BOLT:ACID:8d16+0
-B:BOLT:ACID:8d16+0
+B:BOLT:ACID:7d16+(1d16)/4
+B:BOLT:ACID:7d16+(1d16)/4
+B:BOLT:ACID:7d16+(1d16)/4
 
 N:162:Lightning Spark
 A:90:36:2
@@ -2557,14 +2395,11 @@ A:90:12:2
 A:65:67:1
 A:93:22:16
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:26:4
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:HANDS:ELEC:3d5+0
+B:HANDS:ELEC:3d5+(1d5)/5
 
 N:163:Resist Electricity
 A:75:64:1
@@ -2576,7 +2411,6 @@ C:1:10:5:50:10
 C:3:16:12:50:40
 C:4:16:12:50:40
 C:8:10:5:50:10
-#$ Bard cannot cast this spell.
 C:10:8:15:50:30
 C:11:10:5:50:10
 P:0:0
@@ -2594,7 +2428,6 @@ C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:17:7:80:1
 C:8:5:5:30:6
-#$ Bard cannot cast this spell.
 C:10:9:8:45:3
 C:11:5:5:30:6
 P:0:0
@@ -2605,7 +2438,6 @@ A:90:7:5
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
@@ -2620,42 +2452,33 @@ A:90:12:5
 A:90:34:6
 A:93:22:18
 C:1:15:9:40:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:15:9:40:10
-#$ Bard cannot cast this spell.
 C:10:19:15:50:9
 C:11:15:9:40:10
 P:11:453
-B:BEAM:ELEC:3d9+0
-B:BEAM:ELEC:3d9+0
+B:BEAM:ELEC:2d9+(1d9)/4
+B:BEAM:ELEC:2d9+(1d9)/4
 
 N:167:Wall of Thunder
 A:90:12:6
 A:93:22:25
 C:1:23:12:60:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:23:12:60:8
-#$ Bard cannot cast this spell.
 C:10:31:25:70:3
 C:11:23:12:60:8
 P:0:0
-B:LINE:FEATURE:0d0+229
+B:LINE:FEATURE:229
 
 N:168:Ball Lightning
 A:90:8:6
 A:90:12:7
 A:93:22:13
 C:1:24:15:60:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:24:15:60:10
-#$ Bard cannot cast this spell.
 C:10:31:23:75:4
 C:11:24:15:60:10
 P:166:453
-B:8WAY:ELEC:1d0+45
+B:8WAY:ELEC:45+1/1
 
 N:169:Lightning Beam III
 A:65:40:1
@@ -2663,16 +2486,13 @@ A:65:60:12
 A:90:12:8
 A:93:22:24
 C:1:25:13:50:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:13:50:16
-#$ Bard cannot cast this spell.
 C:10:29:22:60:15
 C:11:25:13:50:16
 P:166:0
-B:BEAM:ELEC:3d12+0
-B:BEAM:ELEC:3d12+0
-B:BEAM:ELEC:3d12+0
+B:BEAM:ELEC:2d12+(1d12)/4
+B:BEAM:ELEC:2d12+(1d12)/4
+B:BEAM:ELEC:2d12+(1d12)/4
 
 N:170:Lightning Storm
 A:65:41:1
@@ -2680,27 +2500,21 @@ A:65:60:13
 A:90:12:9
 A:93:22:22
 C:1:32:31:75:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:32:31:75:16
-#$ Bard cannot cast this spell.
 C:10:39:47:90:10
 C:11:32:31:75:16
 P:168:169
-B:STORM:ELEC:2d0+115
+B:STORM:ELEC:115+2/1
 
 N:171:Cold Touch
 A:90:11:5
 A:93:14:16
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:26:4
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:HANDS:COLD:3d5+1
+B:HANDS:COLD:3d5+1+(1d5)/5
 
 N:172:Frost Trap
 A:90:11:6
@@ -2711,7 +2525,6 @@ C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:17:7:80:1
 C:8:5:5:30:6
-#$ Bard cannot cast this spell.
 C:10:9:8:45:3
 C:11:5:5:30:6
 P:0:0
@@ -2737,15 +2550,12 @@ A:90:11:7
 A:90:34:7
 A:93:14:18
 C:1:17:13:50:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:17:13:50:12
-#$ Bard cannot cast this spell.
 C:10:25:25:60:10
 C:11:17:13:50:12
 P:17:447
-B:BOLT_10:COLD:5d12+0
-B:BOLT_10:COLD:5d12+0
+B:BOLT_10:COLD:4d12+(1d12)/4
+B:BOLT_10:COLD:4d12+(1d12)/4
 
 N:175:Summon Ice Elemental
 A:90:11:8
@@ -2755,7 +2565,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:19:20:85:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:514:515
@@ -2767,29 +2576,23 @@ A:65:60:15
 A:90:11:9
 A:93:14:24
 C:1:27:19:60:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:27:19:60:18
-#$ Bard cannot cast this spell.
 C:10:35:37:70:16
 C:11:27:19:60:18
 P:174:0
-B:BOLT_10:COLD:5d16+0
-B:BOLT_10:COLD:5d16+0
-B:BOLT_10:COLD:5d16+0
+B:BOLT_10:COLD:4d16+(1d16)/4
+B:BOLT_10:COLD:4d16+(1d16)/4
+B:BOLT_10:COLD:4d16+(1d16)/4
 
 N:177:Wall of Ice
 A:90:11:10
 A:93:14:25
 C:1:28:15:75:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:28:15:75:18
-#$ Bard cannot cast this spell.
 C:10:36:28:85:12
 C:11:28:15:75:18
 P:430:0
-B:LINE:FEATURE:0d0+115
+B:LINE:FEATURE:115
 
 N:178:Stone Tell
 A:90:18:5
@@ -2815,11 +2618,10 @@ C:1:3:4:30:1
 C:3:15:6:75:1
 C:4:15:6:75:1
 C:8:7:6:40:2
-#$ Bard cannot cast this spell.
 C:10:7:6:40:2
 C:11:3:4:30:1
 P:0:0
-B:BLAST:CONFUSE_WEAK:0d0+10
+B:BLAST:CONFUSE_WEAK:10+1/1
 
 N:180:Philtre of Fearlessness
 A:75:28:1
@@ -2848,7 +2650,6 @@ C:1:7:9:50:6
 C:3:14:12:50:2
 C:4:14:12:50:2
 C:8:12:10:90:3
-#$ Bard cannot cast this spell.
 C:10:12:10:90:3
 C:11:7:9:50:6
 P:0:0
@@ -2862,7 +2663,6 @@ C:1:9:7:38:5
 C:3:17:13:45:4
 C:4:17:13:45:4
 C:8:15:13:45:4
-#$ Bard cannot cast this spell.
 C:10:15:13:45:4
 C:11:9:7:38:5
 P:0:0
@@ -2877,25 +2677,20 @@ C:1:9:7:38:5
 C:3:17:13:45:4
 C:4:17:13:45:4
 C:8:15:13:45:4
-#$ Bard cannot cast this spell.
 C:10:15:13:45:4
 C:11:9:7:38:5
 P:0:0
-B:SELF:HEAL:4d10+0
+B:SELF:HEAL:4d10
 F:CURE_CUTS | CURE_POIS |
 
 N:184:Blasting Powder
 A:90:13:7
 C:1:15:10:50:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:23:17:60:3
 C:11:15:10:50:8
 P:0:0
-B:BLAST:FIRE:2d10+0
-B:BLAST:SOUND:2d10+0
+B:BLAST:FIRE:2d10+1+1/1
+B:BLAST:SOUND:2d10+1+1/1
 
 N:185:Strength Serum
 A:90:13:8
@@ -2905,11 +2700,10 @@ C:1:15:20:80:200
 C:3:20:25:80:160
 C:4:20:25:80:160
 C:8:25:30:80:125
-#$ Bard cannot cast this spell.
 C:10:25:30:80:125
 C:11:15:20:80:200
 P:0:0
-B:SELF:HEAL:0d0+20
+B:SELF:HEAL:20
 F:INC_STR | CURE_STR |
 L:1d25+25
 
@@ -2921,11 +2715,10 @@ C:1:35:50:80:230
 C:3:37:55:80:215
 C:4:37:55:80:215
 C:8:37:55:80:215
-#$ Bard cannot cast this spell.
 C:10:37:55:80:215
 C:11:35:50:80:230
 P:0:0
-B:SELF:MANA:0d0+20
+B:SELF:MANA:20
 F:INC_WIS | CURE_WIS |
 L:1d25+25
 
@@ -2937,7 +2730,6 @@ C:1:30:50:80:230
 C:3:32:55:80:215
 C:4:32:55:80:215
 C:8:32:55:80:215
-#$ Bard cannot cast this spell.
 C:10:32:55:80:215
 C:11:30:50:80:230
 P:0:0
@@ -2952,11 +2744,10 @@ C:1:25:30:80:230
 C:3:27:35:80:215
 C:4:27:35:80:215
 C:8:27:35:80:215
-#$ Bard cannot cast this spell.
 C:10:27:35:80:215
 C:11:25:30:80:230
 P:0:0
-B:SELF:HEAL:0d0+40
+B:SELF:HEAL:40
 F:INC_CON | CURE_CON |
 L:1d25+25
 
@@ -2968,7 +2759,6 @@ C:1:20:25:80:230
 C:3:22:30:80:215
 C:4:22:30:80:215
 C:8:22:30:80:215
-#$ Bard cannot cast this spell.
 C:10:22:30:80:215
 C:11:20:25:80:230
 P:0:0
@@ -2979,52 +2769,41 @@ N:190:Animate Dead
 A:90:41:1
 A:90:14:1
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:AREA:ANIM_DEAD:0d0+0
+B:AREA:ANIM_DEAD
 
 N:191:Turn Undead
 A:93:23:18
 A:90:41:2
 A:90:14:2
 C:1:11:10:40:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:15:45:4
-#$ Bard cannot cast this spell.
 C:10:19:21:50:3
 C:11:11:10:40:5
 P:0:0
-B:LOS:TURN_UNDEAD:2d0+0
+B:LOS:TURN_UNDEAD:2/1
 F:HOLD_SONG |
 
 N:192:Dispel Undead
 A:90:14:3
 A:93:18:17
 C:1:19:16:55:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:15:7:70:25
-#$ Bard cannot cast this spell.
 C:10:33:27:60:3
 C:11:19:16:55:7
 P:0:0
-B:LOS:DISPEL_UNDEAD:3d0+0
+B:LOS:DISPEL_UNDEAD:3/1
 
 N:193:Summon Spirit
 A:90:43:1
 A:90:14:4
 A:93:18:15
 C:1:25:30:70:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:30:70:12
-#$ Bard cannot cast this spell.
 C:10:35:42:70:4
 C:11:25:30:70:12
 P:0:0
@@ -3034,14 +2813,11 @@ N:194:Banish Evil
 A:90:43:2
 A:93:23:7
 C:1:27:27:80:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:25:80:250
-#$ Bard cannot cast this spell.
 C:10:35:39:80:200
 C:11:27:27:80:250
 P:0:0
-B:LOS:AWAY_EVIL:0d0+100
+B:LOS:AWAY_EVIL:100
 D:The power of your magic banishes evil.
 
 N:195:Summon Demon
@@ -3049,11 +2825,7 @@ A:90:26:1
 A:93:6:15
 A:55:23:11
 C:1:40:85:80:100
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:95:90:120
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:40:85:80:100
 P:538:0
 S:SUMMON:25
@@ -3087,11 +2859,10 @@ C:1:7:6:40:7
 C:3:10:13:50:3
 C:4:10:13:50:3
 C:8:7:6:40:7
-#$ Bard cannot cast this spell.
 C:10:15:18:55:3
 C:11:7:6:40:7
 P:0:0
-B:AIM:BIND_FAMILIAR:1d0+0
+B:AIM:BIND_FAMILIAR:1/1
 
 N:198:Summon Animal
 A:90:15:3
@@ -3100,7 +2871,6 @@ A:93:3:15
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
@@ -3115,14 +2885,12 @@ A:92:6:4
 A:93:19:3
 A:90:0:6
 C:1:17:9:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:17:9:50:7
 C:9:17:9:50:7
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:0:0
-B:AIM:CHARM_ANIMAL:1d0+0
+B:AIM:CHARM_ANIMAL:1/1
 
 N:200:Dragon's Flame
 A:65:26:1
@@ -3132,14 +2900,10 @@ A:90:9:11
 A:93:13:8
 A:75:76:1
 C:1:47:75:120:47
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:47:75:120:47
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:47:75:120:47
 P:438:346
-B:ARC_40:FIRE:5d0+75
+B:ARC_40:FIRE:75+5/1
 
 N:201:Dragonscales
 A:90:7:7
@@ -3164,11 +2928,10 @@ C:1:35:27:105:140
 C:3:40:35:105:100
 C:4:40:35:105:100
 C:8:35:27:105:140
-#$ Bard cannot cast this spell.
 C:10:40:35:105:100
 C:11:35:27:105:140
 P:0:0
-B:STORM:POISON:2d0+80
+B:STORM:POISON:80+2/1
 
 #Replace with timed poison effect when spell effects implemented
 
@@ -3176,8 +2939,6 @@ N:203:Summon Dragon
 A:92:6:6
 A:93:8:15
 C:1:40:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:80:75:250
 C:9:45:80:75:250
 C:10:45:80:75:250
@@ -3211,7 +2972,7 @@ C:9:21:14:50:5
 C:10:21:14:50:5
 C:11:11:6:40:8
 P:0:0
-B:LOS:FEAR_WEAK:1d0+0
+B:LOS:FEAR_WEAK:1/1
 F:HOLD_SONG |
 
 N:206:Confusion
@@ -3229,7 +2990,7 @@ C:9:27:22:70:5
 C:10:27:22:70:5
 C:11:17:9:60:8
 P:0:0
-B:LOS:CONFUSE_WEAK:1d0+0
+B:LOS:CONFUSE_WEAK:1/1
 F:HOLD_SONG |
 
 N:207:Unseen Servant
@@ -3239,7 +3000,6 @@ C:1:17:9:50:7
 C:3:20:16:60:5
 C:4:20:16:60:5
 C:8:20:16:60:5
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:515:0
@@ -3250,8 +3010,6 @@ A:90:34:8
 A:93:15:12
 A:55:23:14
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
@@ -3282,7 +3040,6 @@ C:1:32:28:80:16
 C:3:35:35:90:14
 C:4:35:35:90:14
 C:8:32:28:90:14
-#$ Bard cannot cast this spell.
 C:10:40:40:95:12
 C:11:32:28:80:16
 P:209:0
@@ -3296,7 +3053,6 @@ C:1:40:60:75:250
 C:3:45:70:75:250
 C:4:45:70:75:250
 C:8:45:70:75:250
-#$ Bard cannot cast this spell.
 C:10:45:70:75:250
 C:11:40:60:75:250
 P:0:0
@@ -3311,7 +3067,6 @@ C:1:5:5:30:4
 C:3:13:8:65:1
 C:4:13:8:65:1
 C:8:5:5:30:4
-#$ Bard cannot cast this spell.
 C:10:7:5:40:3
 C:11:5:5:30:4
 P:0:0
@@ -3324,28 +3079,24 @@ A:90:17:5
 A:92:10:6
 A:93:21:5
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
 C:11:13:7:50:6
 P:0:0
-B:STAR:LITE_WEAK:3d0+0
+B:STAR:LITE_WEAK:3/1
 F:HOLD_SONG |
 
 N:214:Sunburst
 A:90:17:6
 A:92:10:7
 C:1:17:9:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:17:9:50:7
 C:9:30:25:75:5
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:213:0
-B:AREA:LITE:4d0+0
+B:AREA:LITE:4/1
 F:HOLD_SONG |
 
 N:215:Shooting Star
@@ -3354,14 +3105,11 @@ A:65:60:16
 A:90:17:7
 A:93:21:19
 C:1:22:17:50:11
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:22:17:50:11
-#$ Bard cannot cast this spell.
 C:10:32:27:60:8
 C:11:22:17:50:11
 P:0:0
-B:BOLT:METEOR:10d8+0
+B:BOLT:METEOR:9d8+(1d8)/4
 
 N:216:Stoneskin
 A:90:18:6
@@ -3372,7 +3120,6 @@ C:1:15:12:75:120
 C:3:20:20:75:80
 C:4:20:20:75:80
 C:8:15:12:75:120
-#$ Bard cannot cast this spell.
 C:10:20:20:75:80
 C:11:15:12:75:120
 P:0:0
@@ -3386,11 +3133,10 @@ C:1:17:11:70:6
 C:3:27:24:90:3
 C:4:27:24:90:3
 C:8:17:11:70:6
-#$ Bard cannot cast this spell.
 C:10:27:24:90:3
 C:11:17:11:70:6
 P:0:0
-B:LINE:BRIDGE:0d0+0
+B:LINE:BRIDGE
 
 N:218:Summon Earth Elemental
 A:90:18:8
@@ -3415,11 +3161,10 @@ C:1:33:22:90:16
 C:3:41:35:100:6
 C:4:41:35:100:6
 C:8:33:22:90:16
-#$ Bard cannot cast this spell.
 C:10:41:35:100:6
 C:11:33:22:90:16
 P:0:0
-B:LINE:FEATURE:0d0+50
+B:LINE:FEATURE:50
 
 N:220:Turn Water to Air
 A:90:19:3
@@ -3429,11 +3174,10 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
-B:LINE:LOWER:6d8+0
+B:LINE:LOWER:6d8
 
 N:221:Freezing Cloud
 A:65:45:1
@@ -3441,14 +3185,11 @@ A:65:60:17
 A:90:19:4
 A:93:14:4
 C:1:14:9:45:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:14:9:45:5
-#$ Bard cannot cast this spell.
 C:10:22:18:55:2
 C:11:14:9:45:5
 P:9:0
-B:CLOUD:COLD:0d0+20
+B:CLOUD:COLD:20+1/2
 
 N:222:Acidic Cloud
 A:65:46:1
@@ -3456,14 +3197,11 @@ A:65:60:18
 A:90:19:5
 A:93:1:4
 C:1:15:13:60:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:15:13:60:7
-#$ Bard cannot cast this spell.
 C:10:25:22:60:3
 C:11:15:13:60:7
 P:221:0
-B:CLOUD:ACID:0d0+30
+B:CLOUD:ACID:30+1/2
 
 N:223:Storm Cloud
 A:65:47:1
@@ -3472,14 +3210,12 @@ A:90:19:6
 A:92:7:3
 A:93:22:4
 C:1:19:15:60:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:15:60:10
 C:9:26:23:75:4
 C:10:26:23:75:4
 C:11:19:15:60:10
 P:221:0
-B:STORM:STORM:1d0+40
+B:STORM:STORM:40+1/1
 
 N:224:Summon Air Elemental
 A:90:19:7
@@ -3502,28 +3238,22 @@ A:65:60:20
 A:90:19:8
 A:93:13:4
 C:1:25:13:55:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:27:17:60:7
-#$ Bard cannot cast this spell.
 C:10:30:22:70:4
 C:11:25:13:55:10
 P:223:40
-B:CLOUD:FIRE:1d0+50
+B:CLOUD:FIRE:50+1/2
 
 N:226:Death Fog
 A:90:19:9
 A:93:4:22
 A:90:8:7
 C:1:45:60:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:46:65:75:250
-#$ Bard cannot cast this spell.
 C:10:47:70:75:250
 C:11:45:60:75:250
 P:225:40
-B:STORM:POISON:2d0+80
+B:STORM:POISON:80+2/1
 
 N:227:Find Water
 A:66:22:1
@@ -3535,7 +3265,6 @@ C:1:3:3:25:1
 C:3:13:5:70:1
 C:4:13:5:70:1
 C:8:3:3:25:1
-#$ Bard cannot cast this spell.
 C:10:5:4:45:2
 C:11:3:3:25:1
 P:0:0
@@ -3554,7 +3283,7 @@ C:9:25:12:95:1
 C:10:17:17:55:3
 C:11:9:7:45:8
 P:227:0
-B:AREA:LOWER:2d0+0
+B:AREA:LOWER:2/1
 F:HOLD_SONG |
 
 N:229:Raise Water
@@ -3562,14 +3291,12 @@ A:90:20:3
 A:92:7:6
 A:93:26:26
 C:1:13:11:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:11:50:6
 C:9:23:20:60:3
 C:10:23:20:60:3
 C:11:13:11:50:6
 P:227:0
-B:AREA:RAISE:2d0+0
+B:AREA:RAISE:2/1
 F:HOLD_SONG |
 
 N:230:Water Bolt
@@ -3578,14 +3305,11 @@ A:65:60:21
 A:90:20:4
 A:93:26:19
 C:1:17:13:50:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:17:13:50:12
-#$ Bard cannot cast this spell.
 C:10:25:25:60:10
 C:11:17:13:50:12
 P:227:0
-B:BOLT:WATER:6d8+0
+B:BOLT:WATER:5d8+(1d8)/4
 
 N:231:Summon Water Elemental
 A:90:20:5
@@ -3595,7 +3319,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:19:20:85:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:514:0
@@ -3605,14 +3328,11 @@ N:232:Wall of Water
 A:90:20:6
 A:93:26:25
 C:1:28:15:75:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:28:15:75:18
-#$ Bard cannot cast this spell.
 C:10:36:28:85:12
 C:11:28:15:75:18
 P:227:0
-B:LINE:FEATURE:0d0+126
+B:LINE:FEATURE:126
 
 N:233:Whirlpool
 A:65:50:1
@@ -3621,28 +3341,24 @@ A:90:20:7
 A:92:7:7
 A:93:26:22
 C:1:35:35:85:34
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:35:85:34
 C:9:35:35:85:34
 C:10:35:45:85:35
 C:11:35:35:85:34
 P:230:0
-B:STORM:WATER:2d0+60
+B:STORM:WATER:60+2/1
 
 N:234:Word of Opening
 A:90:21:5
 A:92:10:8
 A:93:19:7
 C:1:9:7:50:40
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:16:50:20
 C:9:13:16:50:20
 C:10:13:16:50:20
 C:11:9:7:50:40
 P:0:0
-B:ADJACENT:KILL_DOOR:0d0+0
+B:ADJACENT:KILL_DOOR
 
 N:235:Power Word Sleep
 A:90:21:6
@@ -3659,7 +3375,7 @@ C:9:25:22:70:6
 C:10:25:22:70:6
 C:11:15:9:60:10
 P:0:0
-B:LOS:SLEEP:0d0+0
+B:LOS:SLEEP
 F:HOLD_SONG |
 
 N:236:Symbol of Pain
@@ -3667,14 +3383,11 @@ A:90:21:7
 A:93:24:3
 A:55:23:16
 C:1:17:14:55:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:23:65:6
-#$ Bard cannot cast this spell.
 C:10:31:24:60:3
 C:11:17:14:55:7
 P:0:0
-B:LOS:DRAIN_LIFE:1d0+10
+B:LOS:DRAIN_LIFE:10+1/1
 
 N:237:Runestaff
 A:90:21:8
@@ -3684,7 +3397,6 @@ C:1:25:14:95:10
 C:3:35:22:104:8
 C:4:35:22:104:8
 C:8:25:14:95:10
-#$ Bard cannot cast this spell.
 C:10:34:25:100:5
 C:11:25:14:95:10
 P:0:0
@@ -3697,14 +3409,12 @@ A:92:11:6
 A:93:19:18
 A:55:23:17
 C:1:29:16:100:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:16:100:12
 C:9:39:24:110:10
 C:10:38:27:105:7
 C:11:29:16:100:12
 P:236:0
-B:LOS:DRAIN_LIFE:2d0+20
+B:LOS:DRAIN_LIFE:20+2/1
 F:HOLD_SONG |
 
 N:239:Scare Monster
@@ -3717,26 +3427,22 @@ C:1:5:4:29:3
 C:3:9:7:40:3
 C:4:9:7:40:3
 C:8:5:4:29:3
-#$ Bard cannot cast this spell.
 C:10:9:7:40:3
 C:11:5:4:29:3
 P:0:0
-B:AIM:FEAR_WEAK:1d0+0
+B:AIM:FEAR_WEAK:1/1
 
 N:240:Charm Person
 A:90:46:3
 A:90:0:10
-A:92:1:10
+A:92:1:5
 A:93:19:24
 C:1:17:9:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
 C:9:25:21:65:3
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:0:0
-B:AIM:CHARM_PERSON:1d0+0
+B:AIM:CHARM_PERSON:1/1
 
 N:241:Love Potion
 A:90:13:13
@@ -3746,8 +3452,6 @@ A:90:53:17
 C:1:10:15:95:160
 C:3:15:20:95:100
 C:4:15:20:95:100
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:15:20:95:115
 C:11:10:15:95:160
 P:0:0
@@ -3760,14 +3464,11 @@ A:90:0:12
 A:92:6:7
 A:93:19:12
 C:1:30:50:70:40
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:50:70:40
 C:9:36:65:85:30
-#$ Warrior Mage cannot cast this spell.
 C:11:30:50:70:40
 P:519:520
-B:AIM:CHARM_MONSTER:1d0+0
+B:AIM:CHARM_MONSTER:1/1
 
 N:243:Read Magic
 A:70:19:1
@@ -3780,7 +3481,6 @@ C:1:7:9:50:6
 C:3:14:12:50:2
 C:4:14:12:50:2
 C:8:12:10:90:3
-#$ Bard cannot cast this spell.
 C:10:12:10:90:3
 C:11:7:9:50:6
 P:0:0
@@ -3793,9 +3493,7 @@ A:93:17:27
 A:99:28:1
 C:1:40:50:80:230
 C:3:37:70:80:200
-#$ Ranger cannot cast this spell.
 C:8:40:70:80:200
-#$ Bard cannot cast this spell.
 C:10:45:70:80:230
 C:11:40:50:80:230
 P:23:335
@@ -3809,11 +3507,10 @@ C:1:10:8:48:8
 C:3:16:13:55:7
 C:4:16:13:55:7
 C:8:10:8:41:4
-#$ Bard cannot cast this spell.
 C:10:16:13:55:7
 C:11:10:8:48:8
 P:6:0
-B:SELF:HEAL:8d10+0
+B:SELF:HEAL:8d10
 F:SLOW_CUTS | SLOW_STUN |
 
 N:246:Cure Mortal Wounds
@@ -3824,11 +3521,10 @@ C:1:20:10:70:55
 C:3:26:28:70:45
 C:4:26:28:70:45
 C:8:19:15:47:4
-#$ Bard cannot cast this spell.
 C:10:26:28:70:45
 C:11:20:10:70:55
 P:245:0
-B:SELF:HEAL:15d10+0
+B:SELF:HEAL:15d10
 F:CURE_CUTS | CURE_STUN |
 
 N:247:Create Golem
@@ -3840,7 +3536,6 @@ C:1:11:22:90:8
 C:3:20:30:99:6
 C:4:25:35:99:6
 C:8:11:22:90:8
-#$ Bard cannot cast this spell.
 C:10:19:33:95:3
 C:11:11:22:90:8
 P:0:0
@@ -3852,9 +3547,6 @@ A:93:2:16
 A:99:29:1
 C:1:35:50:80:230
 C:3:40:70:80:200
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:40:70:80:200
 C:11:35:50:80:230
 P:0:0
@@ -3866,9 +3558,7 @@ A:93:2:24
 A:99:30:1
 C:1:37:60:85:250
 C:3:42:80:85:250
-#$ Ranger cannot cast this spell.
 C:8:42:80:85:250
-#$ Bard cannot cast this spell.
 C:10:42:80:85:250
 C:11:37:60:85:250
 P:0:0
@@ -3880,9 +3570,6 @@ A:93:2:27
 A:99:31:1
 C:1:45:95:85:250
 C:3:47:95:85:250
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:47:95:85:250
 C:11:45:95:85:250
 P:0:0
@@ -3898,7 +3585,6 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
@@ -3911,9 +3597,7 @@ A:93:24:20
 A:90:55:12
 C:1:36:60:70:40
 C:3:40:75:80:80
-#$ Ranger cannot cast this spell.
 C:8:36:60:70:40
-#$ Bard cannot cast this spell.
 C:10:40:75:80:80
 C:11:36:60:70:40
 P:0:0
@@ -3928,7 +3612,6 @@ C:1:25:18:90:8
 C:3:35:27:99:6
 C:4:35:27:99:6
 C:8:25:18:90:8
-#$ Bard cannot cast this spell.
 C:10:33:26:95:3
 C:11:25:18:90:8
 P:0:0
@@ -3948,18 +3631,17 @@ C:9:14:10:55:8
 C:10:25:20:85:80
 C:11:20:12:85:120
 P:0:0
-B:BLAST:SOUND:4d10+0
+B:BLAST:SOUND:4d10+1+1/1
 
 N:255:Sound Bolt
 A:65:51:1
 A:65:60:23
 A:92:11:8
 A:93:19:19
-#$ Shaman cannot cast this spell.
 C:9:25:20:60:3
 C:11:25:20:60:3
 P:0:0
-B:BOLT:SOUND:8d8+0
+B:BOLT:SOUND:7d8+(1d8)/4
 
 # Additional Food effects.
 
@@ -3967,67 +3649,67 @@ N:256:Poison
 A:75:81:1
 A:80:0:1
 P:0:0
-B:SELF:POISON:0d0+0
+B:SELF:POISON:10
 
 N:257:Blindness
 A:75:7:1
 A:80:1:1
 P:0:0
-B:SELF:BLIND_WEAK:0d0+20
+B:SELF:BLIND_WEAK:20
 
 N:258:Paranoia
 A:80:2:1
 P:0:0
-B:SELF:FEAR_WEAK:0d0+10
+B:SELF:FEAR_WEAK:10
 
 N:259:Confusion
 A:75:9:1
 A:80:3:1
 P:0:0
-B:SELF:CONFUSE_WEAK:0d0+0
+B:SELF:CONFUSE_WEAK:10
 
 N:260:Hallucination
 A:80:4:1
 P:0:0
-B:SELF:HALLU:0d0+0
+B:SELF:HALLU:10
 S:CURE_DISEASE:16
 L:1d10+10
 
 N:261:Paralyzation
 A:80:5:1
 P:0:0
-B:SELF:PARALYZE:0d0+0
+B:SELF:PARALYZE:5
 L:1d10+10
 
 N:262:Poisonous Food
 A:80:6:1
 P:0:0
-B:SELF:LOSE_STR:6d6+0
+B:SELF:LOSE_STR:6d6
 
 N:263:Poisonous Food
 A:80:7:1
 P:0:0
-B:SELF:LOSE_CON:6d6+0
+B:SELF:LOSE_CON:6d6
 
 N:264:Poisonous Food
 A:80:9:1
 P:0:0
-B:SELF:LOSE_WIS:8d6+0
+B:SELF:LOSE_WIS:8d6
 
 N:265:Poisonous Food
 A:80:8:1
 P:0:0
-B:SELF:LOSE_INT:8d6+0
+B:SELF:LOSE_INT:8d6
 
 N:266:Poisonous Food
 A:80:10:1
 P:0:0
-B:SELF:LOSE_CON:10d10+0
+B:SELF:LOSE_CON:10d10
 
 N:267:Poisonous Food
 A:80:11:1
 P:0:0
-B:SELF:DISEASE:10d10+0
+B:SELF:DISEASE:10d10
 
 N:268:Cure Blindness
 A:80:13:1
@@ -4085,10 +3767,26 @@ S:CURE_DISEASE:4
 
 ### 279 - Unused ###
 
+#$# 272 - Unused ###
+
+#$# 273 - Unused ###
+
+#$# 274 - Unused ###
+
+#$# 275 - Unused ###
+
+#$# 276 - Unused ###
+
+#$# 277 - Unused ###
+
+#$# 278 - Unused ###
+
+#$# 279 - Unused ###
+
 N:280:Mana
 A:80:20:1
 P:0:0
-B:SELF:GAIN_MANA:4d5+0
+B:SELF:GAIN_MANA:4d5
 S:CURE_DISEASE:24
 
 N:281:Ration
@@ -4109,7 +3807,7 @@ D:That tastes good.
 N:283:Waybread
 A:80:37:1
 P:0:0
-B:SELF:HEAL:4d8+0
+B:SELF:HEAL:4d8
 F:CURE_POIS |
 S:CURE_DISEASE:12
 D:That tastes good.
@@ -4126,14 +3824,14 @@ D:You feel less thirsty.
 N:285:Slowness
 A:75:4:1
 P:0:0
-B:SELF:SLOW_WEAK:0d0+0
+B:SELF:SLOW_WEAK
 F:SLOW |
 L:1d10+10
 
 N:286:Salt Water
 A:75:5:1
 P:0:0
-B:VOMIT:SALT_WATER:2d6+0
+B:VOMIT:SALT_WATER:2d6
 F:CURE_POIS | DEC_FOOD |
 S:CURE_DISEASE:23
 D:The potion makes you vomit!
@@ -4141,7 +3839,7 @@ D:The potion makes you vomit!
 N:287:Sleep
 A:75:11:1
 P:0:0
-B:SELF:SLEEP:0d0+10
+B:SELF:SLEEP:10
 S:CURE_DISEASE:18
 L:1d4+4
 D:You fall asleep.
@@ -4149,8 +3847,8 @@ D:You fall asleep.
 N:288:Lose Memories
 A:75:13:1
 P:0:0
-B:SELF:LOSE_INT:0d0+0
-B:SELF:FORGET:0d0+0
+B:SELF:LOSE_INT
+B:SELF:FORGET
 F:DEC_EXP |
 S:CURE_DISEASE:15
 D:You feel your memories fade.
@@ -4158,44 +3856,44 @@ D:You feel your memories fade.
 N:289:Ruination
 A:75:15:1
 P:0:0
-B:SELF:LOSE_ALL:10d10+0
+B:SELF:LOSE_ALL:10d10
 S:CURE_DISEASE:27
 D:Your nerves and muscles feel weak and lifeless.
 
 N:290:Weakness
 A:75:16:1
 P:0:0
-B:SELF:LOSE_STR:0d0+0
+B:SELF:LOSE_STR
 
 N:291:Stupidity
 A:75:17:1
 P:0:0
-B:SELF:LOSE_INT:0d0+0
+B:SELF:LOSE_INT
 
 N:292:Naivety
 A:75:18:1
 P:0:0
-B:SELF:LOSE_WIS:0d0+0
+B:SELF:LOSE_WIS
 
 N:293:Clumsiness
 A:75:19:1
 P:0:0
-B:SELF:LOSE_DEX:0d0+0
+B:SELF:LOSE_DEX
 
 N:294:Sickliness
 A:75:20:1
 P:0:0
-B:SELF:LOSE_CON:0d0+0
+B:SELF:LOSE_CON
 
 N:295:Ugliness
 A:75:21:1
 P:0:0
-B:SELF:LOSE_CHR:0d0+0
+B:SELF:LOSE_CHR
 
 N:296:Detonations
 A:75:22:1
 P:0:0
-B:EXPLODE:EXPLODE:50d20+0
+B:EXPLODE:EXPLODE:50d20
 F:CUT | STUN |
 S:CURE_DISEASE:27
 L:1d100+0
@@ -4208,7 +3906,6 @@ C:1:15:10:45:20
 C:3:20:15:75:60
 C:4:20:15:75:60
 C:8:15:10:45:20
-#$ Bard cannot cast this spell.
 C:10:16:15:75:50
 C:11:15:10:45:20
 P:0:0
@@ -4235,27 +3932,27 @@ L:1d25+25
 N:299:Cure Critical Wounds
 A:75:36:1
 P:0:0
-B:SELF:HEAL:12d10+0
+B:SELF:HEAL:12d10
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_CONF | CURE_BLIND |
 
 N:300:Healing
 A:75:37:1
 P:0:0
-B:SELF:HEAL:0d0+300
+B:SELF:HEAL:300
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_CONF | CURE_BLIND |
 
 N:301:*Healing*
 A:75:38:1
 A:99:25:1
 P:0:0
-B:SELF:HEAL:0d0+1200
+B:SELF:HEAL:1200
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_CONF | CURE_BLIND |
 S:CURE_DISEASE:30
 
 N:302:Life
 A:75:39:1
 P:0:0
-B:SELF:HEAL:0d0+5000
+B:SELF:HEAL:5000
 F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR | CURE_MEM |
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_CONF | CURE_BLIND | CURE_IMAGE |
 S:CURE_DISEASE:30
@@ -4264,7 +3961,7 @@ D:You feel life flow through your body.
 N:303:Restore Mana
 A:75:40:1
 P:0:0
-B:SELF:GAIN_MANA:0d0+500
+B:SELF:GAIN_MANA:500
 S:CURE_DISEASE:22
 
 N:304:Cure Minor Disease
@@ -4272,8 +3969,6 @@ A:75:71:1
 A:91:34:11
 C:2:11:9:38:4
 C:5:19:15:45:3
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:11:11:9:38:4
 P:78:0
 S:CURE_DISEASE:29
@@ -4285,7 +3980,6 @@ A:99:48:1
 C:2:35:70:90:230
 C:5:40:80:90:200
 C:8:37:75:90:215
-#$ Bard cannot cast this spell.
 C:11:35:70:90:230
 P:469:0
 S:CURE_DISEASE:26
@@ -4318,6 +4012,8 @@ S:CURE_DISEASE:3
 
 ### 307 - Unused ###
 
+#$# 307 - Unused ###
+
 N:308:Strength and Size
 A:75:48:1
 P:0:0
@@ -4337,6 +4033,8 @@ L:1d30+30
 #F:CURE_WIS | INC_WIS
 
 ### 310 - Unused ###
+
+#$# 310 - Unused ###
 
 N:311:Dexterity and Agility
 A:75:51:1
@@ -4358,6 +4056,8 @@ L:1d30+30
 
 ### 313 - Unused ###
 
+#$# 313 - Unused ###
+
 N:314:Augmentation
 A:75:55:1
 A:90:7:9
@@ -4365,7 +4065,6 @@ C:1:40:90:80:230
 C:3:42:95:80:215
 C:4:42:95:80:215
 C:8:42:95:80:215
-#$ Bard cannot cast this spell.
 C:10:42:95:80:215
 C:11:40:90:80:230
 P:0:0
@@ -4413,7 +4112,7 @@ C:9:5:3:35:1
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:EXPLODE:DARK_WEAK:1d0+0
+B:EXPLODE:DARK_WEAK:1/1
 F:DARK_ROOM |
 
 N:319:Aggravate Monster
@@ -4445,13 +4144,13 @@ S:SUMMON:30
 N:324:Trap Creation
 A:70:7:1
 P:0:0
-B:ADJACENT:MAKE_TRAP:0d0+0
+B:ADJACENT:MAKE_TRAP
 
 N:325:Burning Liquor
 A:80:42:1
 P:0:0
-B:SPIT:FIRE:4d6+0
-B:SELF:FIRE:1d6+0
+B:SPIT:FIRE:4d6
+B:SELF:FIRE:1d6
 S:CURE_DISEASE:6
 D:You spit out the burning liquor.
 
@@ -4478,6 +4177,8 @@ P:0:0
 F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH |
 
 ### 330 - Unused ###
+
+#$# 330 - Unused ###
 
 N:331:Recharging
 A:70:22:1
@@ -4531,7 +4232,7 @@ A:55:8:1
 A:66:14:1
 A:70:24:1
 P:0:0
-B:AREA:LITE_WEAK:2d8+0
+B:AREA:LITE_WEAK:2d8
 F:LITE_ROOM |
 
 N:337:Curing
@@ -4543,7 +4244,7 @@ F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_CONF | CURE_BLIND |
 N:338:Healing
 A:66:19:1
 P:0:0
-B:SELF:HEAL:0d0+500
+B:SELF:HEAL:500
 F:CURE_CUTS | CURE_STUN |
 
 N:339:Disarming
@@ -4551,7 +4252,7 @@ A:65:4:1
 A:65:24:18
 A:66:24:1
 P:0:0
-B:BEAM:KILL_TRAP:0d0+0
+B:BEAM:KILL_TRAP
 
 N:340:Drain Life
 A:65:12:1
@@ -4559,38 +4260,38 @@ A:65:24:19
 A:66:28:1
 A:75:74:1
 P:0:0
-B:AIM:DRAIN_LIFE:0d0+125
+B:AIM:DRAIN_LIFE:125
 
 N:341:Lightning Ball
 A:65:21:1
 A:65:24:20
 A:66:35:1
 P:0:0
-B:8WAY:ELEC:1d0+15
+B:8WAY:ELEC:15+1/1
 
 N:342:Heal Monster
 A:65:0:1
 A:65:24:21
 P:0:0
-B:BOLT:HEAL_PERC:3d6+0
+B:BOLT:HEAL_PERC:2d6+(1d6)/4
 
 N:343:Haste Monster
 A:65:1:1
 A:65:24:22
 P:0:0
-B:BOLT:HASTE:2d0+0
+B:BOLT:HASTE:2/1
 
 N:344:Clone Monster
 A:65:2:1
 A:65:24:23
 P:0:0
-B:BOLT:CLONE:0d0+0
+B:BOLT:CLONE
 
 N:345:Trap/Door Destruction
 A:65:5:1
 A:65:24:24
 P:0:0
-B:BOLT:KILL_DOOR:0d0+0
+B:BOLT:KILL_DOOR
 
 N:346:Dragon's Frost
 A:65:27:1
@@ -4598,28 +4299,22 @@ A:65:28:2
 A:75:77:1
 A:90:6:8
 C:1:43:65:100:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:43:65:100:12
-#$ Bard cannot cast this spell.
 C:10:49:81:115:5
 C:11:43:65:100:12
 P:347:449
-B:ARC_40:COLD:4d0+15
+B:ARC_40:COLD:15+4/1
 
 N:347:Dragon's Storm
 A:65:28:3
 A:65:53:1
 A:75:78:1
 C:1:39:57:85:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:39:57:85:12
-#$ Bard cannot cast this spell.
 C:10:45:71:100:5
 C:11:39:57:85:12
 P:348:455
-B:ARC_40:ELEC:4d0+0
+B:ARC_40:ELEC:4/1
 
 N:348:Dragon's Bile
 A:65:28:4
@@ -4627,14 +4322,11 @@ A:65:54:1
 A:75:79:1
 A:90:10:11
 C:1:35:51:85:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:51:85:12
-#$ Bard cannot cast this spell.
 C:10:40:65:100:5
 C:11:35:51:85:12
 P:443:349
-B:ARC_40:ACID:4d0+30
+B:ARC_40:ACID:30+4/1
 
 N:349:Dragon's Venom
 A:65:28:5
@@ -4642,25 +4334,22 @@ A:65:55:1
 A:75:80:1
 A:90:15:7
 C:1:29:41:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:41:65:12
-#$ Bard cannot cast this spell.
 C:10:35:57:80:5
 C:11:29:41:65:12
 P:201:0
-B:ARC_30:POISON:2d0+10
+B:ARC_30:POISON:10+2/1
 
 N:350:Haste Monsters
 A:66:0:1
 A:55:23:18
 P:0:0
-B:LOS:HASTE:1d0+0
+B:LOS:HASTE:1/1
 
 N:351:The Magi
 A:55:19:1
 P:0:0
-B:SELF:GAIN_MANA:0d0+200
+B:SELF:GAIN_MANA:200
 F:CURE_INT |
 D:You feel your head clear.
 
@@ -4672,23 +4361,22 @@ C:1:30:50:80:230
 C:3:32:55:80:215
 C:4:32:55:80:215
 C:8:32:55:80:215
-#$ Bard cannot cast this spell.
 C:10:32:55:80:215
 C:11:30:50:80:230
 P:0:0
-B:LOS:SLOW_WEAK:1d0+0
+B:LOS:SLOW_WEAK:1/1
 
 N:353:Power
 A:55:25:1
 A:55:23:20
 P:0:0
-B:LOS:DISPEL_ALL:5d0+0
+B:LOS:DISPEL_ALL:5/1
 
 N:354:Holiness
 A:55:26:1
 P:0:0
-B:LOS:DISPEL_EVIL:4d0+0
-B:SELF:HEAL:0d0+50
+B:LOS:DISPEL_EVIL:4/1
+B:SELF:HEAL:50
 F:PROT_EVIL |
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_FEAR |
 L:1d25+0
@@ -4697,7 +4385,7 @@ L:1d25+0
 
 N:355:*Dispel Evil*
 P:0:0
-B:LOS:DISPEL_EVIL:5d0+125
+B:LOS:DISPEL_EVIL:125+5/1
 F:HOLD_SONG |
 
 N:356:*Haste Self*
@@ -4707,26 +4395,26 @@ L:1d75+75
 
 N:357:*Ice Storm*
 P:0:0
-B:STORM:COLD:3d0+125
+B:STORM:COLD:125+3/1
 
 N:358:*Lightning Storm*
 P:0:0
-B:STORM:ELEC:3d0+175
+B:STORM:ELEC:175+3/1
 
 N:359:Cure All Wounds
 A:75:66:1
 P:0:0
-B:SELF:HEAL:0d0+500
+B:SELF:HEAL:500
 F:CURE_CUTS | CURE_STUN |
 
 N:360:Restore Health
 A:75:67:1
 P:0:0
-B:SELF:HEAL_PERC:0d0+100
+B:SELF:HEAL_PERC:100
 
 N:361:Lightning Star
 P:0:0
-B:STAR:ELEC:2d0+100
+B:STAR:ELEC:100+2/1
 
 N:362:Rage/Bless/Resist
 P:0:0
@@ -4735,7 +4423,7 @@ L:1d50+50
 
 N:363:*Starlight*
 P:0:0
-B:STAR:LITE_WEAK:6d8+0
+B:STAR:LITE_WEAK:6d8
 F:HOLD_SONG |
 
 N:364:Mana Bolt
@@ -4743,13 +4431,13 @@ A:65:56:1
 A:65:60:24
 A:77:14:1
 P:0:0
-B:BOLT:MANA:4d0+0
+B:BOLT:MANA:4/1
 
 N:365:Magical Arrow
 A:65:57:1
 A:65:60:25
 P:0:0
-B:ARROW:HURT:6d0+0
+B:ARROW:HURT:6/1
 
 N:366:Remove Fear & Poison
 A:75:68:1
@@ -4765,7 +4453,7 @@ A:38:6:1
 A:38:13:1
 A:75:70:1
 P:0:0
-B:BREATH:ELEC:4d0+0
+B:BREATH:ELEC:4/1
 F:OPP_ELEC |
 L:1d20+20
 D:You breathe lightning.
@@ -4777,7 +4465,7 @@ A:38:6:2
 A:38:15:1
 A:75:70:2
 P:0:0
-B:BREATH:COLD:4d0+15
+B:BREATH:COLD:15+4/1
 F:OPP_COLD |
 L:1d20+20
 D:You breathe frost.
@@ -4789,7 +4477,7 @@ A:38:6:3
 A:38:17:1
 A:75:70:3
 P:0:0
-B:BREATH:ACID:4d0+30
+B:BREATH:ACID:30+4/1
 F:OPP_ACID |
 L:1d20+20
 D:You breathe acid.
@@ -4801,7 +4489,7 @@ A:38:6:4
 A:38:16:1
 A:75:70:4
 P:0:0
-B:BREATH:POISON:5d0+25
+B:BREATH:POISON:25+5/1
 F:OPP_POIS |
 L:1d20+20
 D:You breathe poison.
@@ -4814,7 +4502,7 @@ A:38:14:1
 A:75:69:1
 A:75:70:5
 P:0:0
-B:BREATH:FIRE:5d0+75
+B:BREATH:FIRE:75+5/1
 F:OPP_FIRE |
 L:1d20+20
 D:You breathe fire.
@@ -4823,7 +4511,7 @@ N:372:Breathe Confusion
 A:38:14:2
 A:38:10:1
 P:0:0
-B:BREATH:CONFUSE:3d0+45
+B:BREATH:CONFUSE:45+3/1
 F:CURE_CONF |
 D:You breathe confusion.
 
@@ -4832,14 +4520,14 @@ A:38:16:2
 A:38:12:1
 A:38:20:1
 P:0:0
-B:BREATH:SOUND:3d0+55
+B:BREATH:SOUND:55+3/1
 F:CURE_STUN |
 D:You breathe sound.
 
 N:374:Breathe Fear
 A:38:15:2
 P:0:0
-B:BREATH:TERRIFY:3d0+35
+B:BREATH:TERRIFY:35+3/1
 F:CURE_FEAR |
 D:You breathe fear.
 
@@ -4848,20 +4536,20 @@ A:38:17:2
 A:38:18:1
 A:38:20:2
 P:0:0
-B:BREATH:DISENCHANT:3d0+25
+B:BREATH:DISENCHANT:25+3/1
 D:You breathe disenchantment.
 
 N:376:Breathe Nexus
 A:38:13:2
 P:0:0
-B:BREATH:NEXUS:3d0+15
+B:BREATH:NEXUS:15+3/1
 D:You breathe nexus.
 
 N:377:Breathe Chaos
 A:38:18:2
 A:38:20:3
 P:0:0
-B:BREATH:CHAOS:3d0+145
+B:BREATH:CHAOS:145+3/1
 F:CURE_IMAGE |
 D:You breathe chaos.
 
@@ -4869,14 +4557,14 @@ N:378:Breathe Shards
 A:38:12:2
 A:38:20:4
 P:0:0
-B:BREATH:SHARD:3d0+155
+B:BREATH:SHARD:155+3/1
 F:CURE_CUTS |
 D:You breathe shards.
 
 N:379:Breathe Darkness
 A:38:10:2
 P:0:0
-B:BREATH:DARK:3d0+125
+B:BREATH:DARK:125+3/1
 F:BLIND |
 L:1d20+20
 D:You breathe darkness.
@@ -4884,14 +4572,14 @@ D:You breathe darkness.
 N:380:Breathe Light
 A:38:10:3
 P:0:0
-B:BREATH:LITE:3d0+75
+B:BREATH:LITE:75+3/1
 F:CURE_BLIND |
 D:You breathe light.
 
 N:381:Breathe Power
 A:38:30:1
 P:0:0
-B:BREATH:MANA:3d0+225
+B:BREATH:MANA:225+3/1
 D:You breathe the elements.
 
 # Elemental ring activations
@@ -4899,7 +4587,7 @@ D:You breathe the elements.
 N:382:Conjure Flames
 A:45:18:1
 P:0:0
-B:BALL:FIRE:2d0+30
+B:BALL:FIRE:30+2/1
 F:OPP_FIRE |
 L:1d20+20
 D:You conjure up flames.
@@ -4907,7 +4595,7 @@ D:You conjure up flames.
 N:383:Conjure Acid
 A:45:17:1
 P:0:0
-B:BALL:ACID:2d0+20
+B:BALL:ACID:20+2/1
 F:OPP_ACID |
 L:1d20+20
 D:You conjure up acid.
@@ -4915,7 +4603,7 @@ D:You conjure up acid.
 N:384:Conjure Ice
 A:45:19:1
 P:0:0
-B:BALL:COLD:2d0+35
+B:BALL:COLD:35+2/1
 F:OPP_COLD |
 L:1d20+20
 D:You conjure up ice.
@@ -4923,7 +4611,7 @@ D:You conjure up ice.
 N:385:Conjure Lightning
 A:45:38:1
 P:0:0
-B:BALL:ELEC:2d0+25
+B:BALL:ELEC:25+2/1
 F:OPP_ELEC |
 L:1d20+20
 D:You conjure up lightning.
@@ -4934,8 +4622,6 @@ N:386:Elemental Arrows
 A:70:58:1
 A:90:59:11
 C:4:30:35:80:160
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:11:30:35:80:160
 P:0:0
 S:BRAND_AMMO:8
@@ -4950,14 +4636,11 @@ A:90:48:2
 A:90:9:12
 A:93:13:11
 C:1:1:2:22:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:30:1
-#$ Bard cannot cast this spell.
 C:10:3:2:30:1
 C:11:1:2:22:4
 P:0:0
-B:BOLT_MINOR:FIRE:3d6+0
+B:BOLT_MINOR:FIRE:2d6+(1d6)/4
 
 N:388:Fire Blast
 A:77:0:1
@@ -4966,14 +4649,11 @@ A:90:9:13
 A:90:13:14
 A:93:28:13
 C:1:3:3:27:3
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:10:7:5:40:3
 C:11:3:3:27:3
 P:0:0
-B:BLAST:FIRE:2d6+0
+B:BLAST:FIRE:2d6+1+1/1
 
 N:389:Acid Splash
 A:77:2:1
@@ -4982,14 +4662,11 @@ A:90:10:12
 A:90:13:15
 A:93:1:11
 C:1:1:2:22:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:30:1
-#$ Bard cannot cast this spell.
 C:10:3:2:30:1
 C:11:1:2:22:4
 P:0:0
-B:AURA_MINOR:ACID:4d6+0
+B:AURA_MINOR:ACID:4d6
 
 # New spells
 
@@ -5004,7 +4681,6 @@ C:1:22:30:50:250
 C:3:26:30:50:250
 C:4:26:30:50:250
 C:8:26:30:50:250
-#$ Bard cannot cast this spell.
 C:10:22:30:50:250
 C:11:22:30:50:250
 P:0:0
@@ -5021,7 +4697,6 @@ C:1:15:20:80:200
 C:3:20:25:80:160
 C:4:20:25:80:160
 C:8:15:20:80:200
-#$ Bard cannot cast this spell.
 C:10:25:30:80:125
 C:11:15:20:80:200
 P:0:0
@@ -5038,7 +4713,6 @@ C:1:17:15:50:7
 C:3:25:23:65:3
 C:4:25:23:65:3
 C:8:17:9:50:7
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:15:50:7
 P:0:0
@@ -5055,7 +4729,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:0:0
@@ -5072,7 +4745,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:0:0
@@ -5089,7 +4761,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:0:0
@@ -5105,7 +4776,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:0:0
@@ -5128,7 +4798,7 @@ C:9:5:3:35:1
 C:10:3:2:35:1
 C:11:1:1:26:4
 P:0:0
-B:AIM_AREA:LOCK_DOOR:0d0+0
+B:AIM_AREA:LOCK_DOOR
 
 # Intermediate priest attack spell
 
@@ -5143,23 +4813,22 @@ A:91:65:2
 C:2:5:4:30:4
 C:5:9:8:40:3
 C:8:9:8:40:3
-#$ Bard cannot cast this spell.
 C:11:5:4:30:4
 P:490:0
-B:AIM:HOLY_ORB:3d6+0
+B:AIM:HOLY_ORB:3d6
 
 N:399:Ring of Power (Bad)
 A:45:37:1
 A:45:37:1
 P:0:0
-B:SELF:LOSE_ALL:10d10+0
+B:SELF:LOSE_ALL:10d10
 F:DEC_EXP |
 D:You are surrounded by a malignant aura.
 
 N:400:Ring of Power (Powerful)
 A:45:37:2
 P:0:0
-B:LOS:DISPEL_ALL:0d0+1000
+B:LOS:DISPEL_ALL:1000
 D:You are surrounded by a powerful aura.
 
 N:401:Ring of Power (Mana Ball)
@@ -5167,7 +4836,7 @@ A:45:37:3
 A:45:37:3
 A:45:37:3
 P:0:0
-B:STORM:MANA:0d0+300
+B:STORM:MANA:300
 
 N:402:Ring of Power (Mana Bolt)
 A:45:37:4
@@ -5175,21 +4844,18 @@ A:45:37:4
 A:45:37:4
 A:45:37:4
 P:0:0
-B:BOLT:MANA:0d0+250
+B:BOLT:MANA:250
 
 N:403:Shockwave
 A:65:61:1
 A:90:8:8
 A:93:19:13
 C:1:16:10:40:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:16:10:40:6
-#$ Bard cannot cast this spell.
 C:10:35:25:80:50
 C:11:16:10:40:6
 P:0:0
-B:BALL:SOUND:1d0+10
+B:BALL:SOUND:10+1/1
 
 N:404:Explosion
 A:65:63:1
@@ -5197,14 +4863,10 @@ A:90:8:9
 A:93:11:11
 A:93:25:13
 C:1:20:20:50:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:20:20:50:10
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:20:20:50:10
 P:0:0
-B:BALL:SHARD:2d0+20
+B:BALL:SHARD:20+2/1
 
 N:405:Bedlam
 A:65:64:1
@@ -5216,11 +4878,10 @@ C:1:25:15:60:24
 C:3:32:30:70:12
 C:4:32:30:70:12
 C:8:25:15:60:24
-#$ Bard cannot cast this spell.
 C:10:29:20:70:20
 C:11:25:15:60:24
 P:0:0
-B:BALL:CONFUSE_WEAK:1d0+0
+B:BALL:CONFUSE_WEAK:1/1
 
 N:406:Rend Soul
 A:65:65:1
@@ -5228,14 +4889,10 @@ A:90:6:10
 A:93:18:19
 A:77:13:1
 C:1:25:30:80:30
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:30:80:30
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:25:30:80:30
 P:0:0
-B:BOLT_10:NETHER:5d0+0
+B:BOLT_10:NETHER:5/1
 
 N:407:Chaos Strike
 A:65:66:1
@@ -5243,28 +4900,20 @@ A:90:6:11
 A:93:28:19
 A:77:12:1
 C:1:38:35:90:40
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:38:35:90:40
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:38:35:90:40
 P:0:0
-B:BOLT:CHAOS:6d0+0
+B:BOLT:CHAOS:6/1
 
 N:408:Rift
 A:90:8:10
 A:90:17:10
 A:93:21:25
 C:1:35:30:60:25
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:30:60:25
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:35:30:60:25
 P:0:0
-B:BEAM:GRAVITY:3d0+40
+B:BEAM:GRAVITY:40+3/1
 
 N:409:Enchant Armour
 A:93:2:20
@@ -5274,8 +4923,6 @@ A:90:3:16
 C:1:29:50:95:90
 C:3:33:45:90:50
 C:4:33:45:90:50
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:31:50:95:90
 C:11:29:50:95:90
 P:0:0
@@ -5289,8 +4936,6 @@ A:90:3:17
 C:1:29:50:95:90
 C:3:34:50:90:60
 C:4:34:50:90:60
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:10:33:55:90:90
 C:11:29:50:95:90
 P:0:0
@@ -5305,7 +4950,6 @@ C:1:32:60:95:120
 C:3:37:60:80:120
 C:4:37:60:80:120
 C:8:32:60:95:120
-#$ Bard cannot cast this spell.
 C:10:31:60:95:180
 C:11:32:60:95:120
 P:0:0
@@ -5318,14 +4962,11 @@ A:93:14:14
 A:90:8:11
 A:55:23:21
 C:1:27:14:55:27
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:27:14:55:27
-#$ Bard cannot cast this spell.
 C:10:36:24:60:23
 C:11:27:14:55:27
 P:446:0
-B:LOS:COLD:2d0+0
+B:LOS:COLD:2/1
 
 N:413:Acid Rain
 A:70:71:1
@@ -5333,14 +4974,11 @@ A:90:10:14
 A:93:1:14
 A:55:23:22
 C:1:37:24:75:37
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:37:24:75:37
-#$ Bard cannot cast this spell.
 C:10:46:34:80:33
 C:11:37:24:75:37
 P:41:467
-B:LOS:ACID:3d0+0
+B:LOS:ACID:3/1
 
 N:414:Immoliation
 A:70:72:1
@@ -5349,14 +4987,10 @@ A:93:13:14
 A:90:6:12
 A:55:23:23
 C:1:47:75:85:47
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:47:75:85:47
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:47:75:85:47
 P:153:0
-B:LOS:FIRE:4d0+0
+B:LOS:FIRE:4/1
 
 N:415:Vampire's Kiss
 A:70:69:1
@@ -5368,7 +5002,6 @@ C:1:32:60:95:120
 C:3:37:60:80:120
 C:4:37:60:80:120
 C:8:32:60:95:120
-#$ Bard cannot cast this spell.
 C:10:31:60:95:180
 C:11:32:60:95:120
 P:0:0
@@ -5383,16 +5016,14 @@ A:99:43:1
 A:90:54:11
 C:1:15:17:40:29
 C:3:22:24:40:29
-#$ Ranger cannot cast this spell.
 C:8:15:17:40:29
-#$ Bard cannot cast this spell.
 C:10:22:24:40:29
 C:11:15:17:40:29
 P:0:0
-B:EXPLODE:NETHER:3d6+0
-B:EXPLODE:NEXUS:3d6+0
-B:EXPLODE:DISENCHANT:3d6+0
-B:EXPLODE:LITE:3d6+0
+B:EXPLODE:NETHER:3d6
+B:EXPLODE:NEXUS:3d6
+B:EXPLODE:DISENCHANT:3d6
+B:EXPLODE:LITE:3d6
 F:CUT | STUN | HALLUC | BLIND | CONFUSE |
 L:1d5+0
 
@@ -5413,7 +5044,7 @@ N:418:Perilous Summoning
 A:55:33:1
 A:55:23:24
 P:0:0
-B:LOS:CLONE:0d0+0
+B:LOS:CLONE
 
 N:419:Restore Body
 A:75:54:1
@@ -5456,8 +5087,8 @@ C:9:28:10:70:6
 C:10:23:10:60:3
 C:11:19:10:60:8
 P:0:0
-B:SELF:DRAIN_LIFE:0d0+20
-B:SELF:GAIN_MANA:10d5+0
+B:SELF:DRAIN_LIFE:20
+B:SELF:GAIN_MANA:10d5
 
 N:422:Black Arts
 A:70:75:1
@@ -5468,11 +5099,10 @@ C:1:32:30:95:12
 C:3:37:30:80:12
 C:4:37:30:80:12
 C:8:32:30:95:12
-#$ Bard cannot cast this spell.
 C:10:35:30:95:18
 C:11:32:30:95:12
 P:421:0
-B:SELF:DRAIN_LIFE:0d0+100
+B:SELF:DRAIN_LIFE:100
 B:SELF:GAIN_MANA:15d5+50
 
 N:423:Concentration
@@ -5488,12 +5118,11 @@ C:9:28:10:70:6
 C:10:27:0:60:3
 C:11:19:0:60:8
 P:0:0
-B:SELF:GAIN_MANA:5d5+0
+B:SELF:GAIN_MANA:5d5
 
 N:424:Detect Magic
 A:70:31:1
 A:92:2:9
-#$ Shaman cannot cast this spell.
 C:9:15:20:70:25
 C:11:15:20:70:25
 P:0:0
@@ -5509,7 +5138,6 @@ C:1:19:19:70:40
 C:3:25:25:70:25
 C:4:25:25:70:25
 C:8:15:20:70:25
-#$ Bard cannot cast this spell.
 C:10:10:10:70:40
 C:11:19:19:70:40
 P:0:0
@@ -5552,55 +5180,42 @@ A:65:52:1
 A:90:17:12
 A:90:41:5
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:1:318
-B:BOLT:DARK:5d8+0
+B:BOLT:DARK:4d8+(1d8)/4
 
 N:429:Nexus Burst
 A:77:11:1
 A:65:58:1
 A:90:8:12
 C:1:20:15:70:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:20:70:16
-#$ Bard cannot cast this spell.
 C:10:30:25:70:13
 C:11:20:15:70:20
 P:0:0
-B:BOLT_10:NEXUS:6d8+0
+B:BOLT_10:NEXUS:5d8+(1d8)/4
 
 N:430:Ice Lance
 A:77:8:1
 A:65:59:1
 A:90:11:12
 C:1:20:15:70:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:20:70:16
-#$ Bard cannot cast this spell.
 C:10:30:25:70:13
 C:11:20:15:70:20
 P:171:0
-B:BEAM:ICE:6d8+0
+B:BEAM:ICE:5d8+(1d8)/4
 
 N:431:Path of Blood
 A:65:68:1
 A:90:43:4
 C:1:30:30:70:40
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:30:70:40
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:30:30:70:40
 P:0:0
-B:BEAM:BLOOD:10d8+0
+B:BEAM:BLOOD:9d8+(1d8)/4
 
 N:432:Spider's Web
 A:65:70:1
@@ -5608,28 +5223,22 @@ A:77:15:1
 A:90:45:8
 A:90:15:8
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:20:14:55:3
 C:11:10:7:50:7
 P:0:0
-B:8WAY_II:WEB:0d0+0
+B:8WAY_II:WEB
 
 N:433:Gust of Wind
 A:65:71:1
 A:90:45:9
 A:90:19:10
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:20:14:55:3
 C:11:10:7:50:7
 P:0:0
-B:ARC_20:WIND:4d10+0
+B:ARC_20:WIND:3d10+(1d10)/4
 
 ### Here we _greatly_ expand the mage spells ###
 
@@ -5659,258 +5268,194 @@ A:39:1:1
 A:90:9:16
 A:90:49:3
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:388:0
-B:BALL_MINOR:FIRE:1d0+7
+B:BALL_MINOR:FIRE:7+1/1
 
 N:435:Fire Beam
 A:90:9:17
 C:1:29:18:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:18:65:12
-#$ Bard cannot cast this spell.
 C:10:35:25:80:5
 C:11:29:18:65:12
 P:146:0
-B:BEAM:FIRE:2d0+6
+B:BEAM:FIRE:6+2/1
 
 N:436:Fire Ball II
 A:90:9:18
 A:90:8:13
 C:1:39:37:85:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:39:37:85:12
-#$ Bard cannot cast this spell.
 C:10:45:51:100:5
 C:11:39:37:85:12
 P:31:0
-B:BALL_II:FIRE:2d0+155
+B:BALL_II:FIRE:155+2/1
 
 N:437:Fire Ball III
 A:90:9:19
 A:90:6:13
 C:1:49:75:105:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:49:75:105:12
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:49:75:105:12
 P:436:0
-B:BALL_II:FIRE:4d0+305
+B:BALL_II:FIRE:305+4/1
 
 N:438:Arc of Fire
 A:90:9:20
 A:90:8:14
 C:1:37:37:80:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:37:37:80:18
-#$ Bard cannot cast this spell.
 C:10:43:51:95:11
 C:11:37:37:80:18
 P:435:0
-B:ARC_20:FIRE:2d0+65
+B:ARC_20:FIRE:65+2/1
 
 N:439:Arc of Hellfire
 A:90:9:21
 A:90:6:14
 C:1:47:75:95:47
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:47:75:95:47
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:47:75:95:47
 P:438:0
-B:ARC_30:HELLFIRE:3d0+125
+B:ARC_30:HELLFIRE:125+3/1
 
 N:440:Minor Acid Ball
 A:90:10:15
 A:90:49:4
 C:1:7:6:40:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:40:6
-#$ Bard cannot cast this spell.
 C:10:15:12:50:4
 C:11:7:6:40:6
 P:389:0
-B:BALL_MINOR:ACID:1d0+3
+B:BALL_MINOR:ACID:3+1/1
 
 N:441:Acid Ball II
 A:90:10:16
 A:90:8:15
 C:1:30:31:90:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:31:90:16
-#$ Bard cannot cast this spell.
 C:10:40:51:90:13
 C:11:30:31:90:20
 P:41:0
-B:BALL_II:ACID:2d0+140
+B:BALL_II:ACID:140+2/1
 
 N:442:Acid Ball III
 A:90:10:17
 A:90:6:15
 C:1:40:63:110:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:63:110:16
-#$ Bard cannot cast this spell.
 C:10:50:103:110:13
 C:11:40:63:110:20
 P:441:0
-B:BALL_III:ACID:4d0+290
+B:BALL_III:ACID:290+4/1
 
 N:443:Melting Ray
 A:90:10:18
 A:90:35:6
 C:1:29:18:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:18:65:12
-#$ Bard cannot cast this spell.
 C:10:35:25:80:5
 C:11:29:18:65:12
 P:39:0
-B:BEAM:ACID:2d0+15
+B:BEAM:ACID:15+2/1
 
 N:444:Dragon's Bane
 A:90:6:16
 A:90:15:9
 C:1:49:87:130:47
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:49:87:130:47
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:49:87:130:47
 P:200:0
-B:ARC_50:POISON:5d0+25
+B:ARC_50:POISON:25+5/1
 
 N:445:Chill
 A:90:11:13
 A:90:40:5
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:26:4
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:STRIKE:COLD:3d5+0
+B:STRIKE:COLD:2d5+(1d5)/4
 
 N:446:Freeze
 A:90:11:14
 A:90:37:5
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:445:171
-B:STRIKE:COLD:3d8+0
+B:STRIKE:COLD:2d8+(1d8)/4
 
 N:447:Minor Frost Ball
 A:90:11:15
 A:90:37:6
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:445:17
-B:BALL_MINOR:COLD:1d0+5
+B:BALL_MINOR:COLD:5+1/1
 
 N:448:Cone of Cold
 A:90:11:16
 A:90:34:10
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:17:0
-B:ARC_20:COLD:1d0+15
+B:ARC_20:COLD:15+1/1
 
 N:449:Arctic Ray
 A:90:11:17
 A:90:8:16
 C:1:37:37:80:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:37:37:80:18
-#$ Bard cannot cast this spell.
 C:10:43:51:95:11
 C:11:37:37:80:18
 P:448:0
-B:ARC_30:COLD:2d0+40
+B:ARC_30:COLD:40+2/1
 
 N:450:Frost Ball II
 A:90:11:18
 C:1:29:23:75:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:23:75:8
-#$ Bard cannot cast this spell.
 C:10:37:43:85:3
 C:11:29:23:75:8
 P:27:0
-B:BALL:COLD:2d0+130
+B:BALL:COLD:130+2/1
 
 N:451:Frost Ball III
 A:90:11:19
 C:1:39:47:95:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:39:47:95:8
-#$ Bard cannot cast this spell.
 C:10:47:87:105:3
 C:11:39:47:95:8
 P:450:0
-B:BALL:COLD:4d0+280
+B:BALL:COLD:280+4/1
 
 N:452:Fimbulwinter
 A:90:11:20
 A:90:6:17
 C:1:47:80:85:47
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:47:80:85:47
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:47:80:85:47
 P:412:0
-B:LOS:COLD:4d0+0
+B:LOS:COLD:4/1
 
 N:453:Minor Lightning Ball
 A:90:34:11
 A:90:12:10
 C:1:13:8:45:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:8:45:4
-#$ Bard cannot cast this spell.
 C:10:23:15:50:3
 C:11:13:8:45:4
 P:11:0
-B:BALL_MINOR:ELEC:1d0+15
+B:BALL_MINOR:ELEC:15+1/1
 
 # These are place holders until we get chain lightning working.
 
@@ -5919,120 +5464,92 @@ A:10:30:2
 A:90:12:11
 A:90:35:7
 C:1:25:13:50:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:13:50:16
-#$ Bard cannot cast this spell.
 C:10:29:22:60:15
 C:11:25:13:50:16
 P:166:0
-B:ARC_30:ELEC:3d0+0
+B:ARC_30:ELEC:3/1
 
 N:455:Chain Lightning II
 A:90:12:12
 A:90:8:17
 C:1:35:27:70:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:27:70:16
-#$ Bard cannot cast this spell.
 C:10:39:45:80:15
 C:11:35:27:70:16
 P:454:0
-B:ARC_40:ELEC:4d0+0
+B:ARC_40:ELEC:4/1
 
 N:456:Chain Lightning III
 A:90:12:13
 A:90:6:18
 C:1:45:55:90:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:55:90:16
-#$ Bard cannot cast this spell.
 C:10:49:91:100:15
 C:11:45:55:90:16
 P:455:0
-B:ARC_50:ELEC:5d0+0
+B:ARC_50:ELEC:5/1
 
 N:457:Disrupt Undead
 A:90:14:10
 A:93:18:17
 C:1:19:16:55:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:15:7:70:25
-#$ Bard cannot cast this spell.
 C:10:33:27:60:3
 C:11:19:16:55:7
 P:0:0
-B:LINE:DISPEL_UNDEAD:4d0+45
+B:LINE:DISPEL_UNDEAD:45+4/1
 
 N:458:Darkness Ball
 A:90:17:13
 A:90:43:5
 C:1:25:18:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:18:65:12
-#$ Bard cannot cast this spell.
 C:10:30:25:80:5
 C:11:25:18:65:12
 P:428:0
-B:BALL:DARK:1d0+25
+B:BALL:DARK:25+1/1
 
 N:459:Sting
 A:90:36:6
 A:90:15:10
 A:90:40:6
 C:1:1:2:26:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:26:4
-#$ Bard cannot cast this spell.
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:TOUCH:POISON:3d6+0
+B:TOUCH:POISON:2d6+(1d6)/4
 
 N:460:Poison Missile
 A:10:11:1
 A:90:41:6
 A:90:15:11
 C:1:5:4:30:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:5:4:30:4
-#$ Bard cannot cast this spell.
 C:10:9:7:40:3
 C:11:5:4:30:4
 P:459:1
-B:MISSILE:POISON:3d6+0
+B:MISSILE:POISON:3d6+(1d6)/5
 
 N:461:Ball Lightning II
 A:90:12:14
 A:90:8:18
 C:1:34:31:80:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:34:31:80:10
-#$ Bard cannot cast this spell.
 C:10:41:47:95:4
 C:11:34:31:80:10
 P:168:0
-B:8WAY_II:ELEC:2d0+145
+B:8WAY_II:ELEC:145+2/1
 
 N:462:Ball Lightning III
 A:90:12:15
 A:90:6:19
 C:1:44:63:100:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:44:63:100:10
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:44:63:100:10
 P:461:0
-B:8WAY_III:ELEC:4d0+295
+B:8WAY_III:ELEC:295+4/1
 
 N:463:Cure Cuts
 A:80:21:1
@@ -6050,50 +5567,38 @@ N:465:Fire Swarm
 A:90:9:22
 A:90:35:8
 C:1:29:18:65:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:18:65:12
-#$ Bard cannot cast this spell.
 C:10:35:25:80:5
 C:11:29:18:65:12
 P:25:434
-B:SWARM:FIRE:0d0+55
+B:SWARM:FIRE:55+1/2
 
 N:466:Frost Swarm
 A:90:11:21
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:17:447
-B:SWARM:COLD:0d0+30
+B:SWARM:COLD:30+1/2
 
 N:467:Acid Swarm
 A:90:10:19
 C:1:20:15:70:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:20:70:16
-#$ Bard cannot cast this spell.
 C:10:30:25:70:13
 C:11:20:15:70:20
 P:39:440
-B:SWARM:ACID:0d0+40
+B:SWARM:ACID:40+1/2
 
 N:468:Lightning Swarm
 A:90:12:16
 C:1:24:15:60:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:24:15:60:10
-#$ Bard cannot cast this spell.
 C:10:31:23:75:4
 C:11:24:15:60:10
 P:166:453
-B:SWARM:ELEC:0d0+45
+B:SWARM:ELEC:45+1/2
 
 N:469:Cure Disease
 A:75:82:1
@@ -6101,8 +5606,6 @@ A:91:35:7
 A:99:49:1
 C:2:23:15:58:4
 C:5:29:20:65:3
-#$ Shaman cannot cast this spell.
-#$ Bard cannot cast this spell.
 C:11:23:15:58:4
 P:304:0
 S:CURE_DISEASE:32
@@ -6117,7 +5620,6 @@ C:1:25:40:70:110
 C:3:32:60:70:100
 C:4:35:20:70:100
 C:8:25:60:70:100
-#$ Bard cannot cast this spell.
 C:10:32:60:70:100
 C:11:25:40:70:110
 P:0:0
@@ -6130,11 +5632,10 @@ C:1:9:7:44:8
 C:3:14:11:70:1
 C:4:14:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:11:13:50:4
 C:11:9:7:44:8
 P:0:0
-B:BITE:SHARD:6d8+0
+B:BITE:SHARD:6d8
 
 N:472:Cobra's Cowl
 A:90:7:12
@@ -6184,11 +5685,10 @@ C:1:7:5:44:8
 C:3:12:9:70:1
 C:4:12:9:70:1
 C:8:7:5:44:8
-#$ Bard cannot cast this spell.
 C:10:9:7:50:4
 C:11:7:5:44:8
 P:0:0
-B:KICK:FORCE:3d6+0
+B:KICK:FORCE:3d6
 
 N:476:Lion's Mane
 A:90:7:15
@@ -6238,7 +5738,6 @@ A:90:22:2
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
@@ -6278,7 +5777,6 @@ A:90:22:5
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
@@ -6292,7 +5790,6 @@ C:1:30:10:70:10
 C:3:32:10:50:10
 C:4:37:15:60:10
 C:8:28:16:70:4
-#$ Bard cannot cast this spell.
 C:10:35:20:70:10
 C:11:30:10:70:10
 P:0:0
@@ -6301,8 +5798,6 @@ S:CHANGE_SHAPE:34
 N:484:Change into Dragon
 A:90:22:7
 C:1:40:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:80:75:250
 C:9:45:80:75:250
 C:10:45:80:75:250
@@ -6318,7 +5813,6 @@ C:1:30:10:70:10
 C:3:32:10:50:10
 C:4:37:15:60:10
 C:8:28:16:70:4
-#$ Bard cannot cast this spell.
 C:10:35:20:70:10
 C:11:30:10:70:10
 P:0:0
@@ -6391,7 +5885,7 @@ C:8:7:5:35:4
 C:9:9:5:35:4
 C:11:3:3:28:4
 P:60:0
-B:AURA:DISEASE:2d0+0
+B:AURA:DISEASE:2/1
 
 N:491:Flee
 A:90:44:3
@@ -6406,7 +5900,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:FEAR_WEAK:6d1+0
+B:SELF:FEAR_WEAK:6d1
 F:HASTE |
 L:4d1+0
 
@@ -6423,7 +5917,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:AWAY_DARK:0d0+15
+B:SELF:AWAY_DARK:15
 F:HOLD_SONG |
 
 N:493:Detect Minds
@@ -6449,11 +5943,10 @@ C:1:3:3:25:3
 C:3:11:4:65:1
 C:4:11:4:65:1
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:SELF:HEAL:2d8+0
+B:SELF:HEAL:2d8
 F:SLOW_CUTS | HOLD_SONG |
 
 N:495:Ignore Pain
@@ -6464,11 +5957,10 @@ C:1:3:3:25:3
 C:3:11:4:65:1
 C:4:11:4:65:1
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:SELF:HEAL:2d8+0
+B:SELF:HEAL:2d8
 F:SLOW_STUN | HOLD_SONG |
 
 N:496:Purify Self
@@ -6478,11 +5970,10 @@ C:1:3:3:25:3
 C:3:11:4:65:1
 C:4:11:4:65:1
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:SELF:HEAL:2d8+0
+B:SELF:HEAL:2d8
 F:HOLD_SONG |
 S:SLOW_POIS:0
 
@@ -6493,17 +5984,16 @@ C:1:3:3:25:3
 C:3:11:4:65:1
 C:4:11:4:65:1
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:AIM_AREA:HURT_WOOD:2d0+0
+B:AIM_AREA:HURT_WOOD:2/1
 
 N:498:Phlogiston
 A:90:49:5
 A:90:53:22
 A:90:9:23
-A:92:12:4
+A:92:13:7
 C:1:5:5:30:4
 C:3:13:8:65:1
 C:4:13:8:65:1
@@ -6566,7 +6056,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:AWAY_NATURE:0d0+20
+B:SELF:AWAY_NATURE:20
 F:HOLD_SONG |
 
 N:503:Firewalk
@@ -6581,7 +6071,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:AWAY_FIRE:0d0+20
+B:SELF:AWAY_FIRE:20
 F:HOLD_SONG |
 
 N:504:Blind Monster
@@ -6589,12 +6079,11 @@ A:90:45:11
 C:1:5:5:30:4
 C:3:19:8:85:1
 C:4:19:8:85:1
-#$ Shaman cannot cast this spell.
 C:9:11:8:40:3
 C:10:11:8:40:3
 C:11:5:5:30:4
 P:0:0
-B:AIM:BLIND:1d0+0
+B:AIM:BLIND:1/1
 
 N:505:Dryad's Tryst
 A:90:37:7
@@ -6610,8 +6099,8 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:502:0
-B:SELF:FEATURE:0d0+895
-B:SELF:AWAY_NATURE:5d0+0
+B:SELF:FEATURE:895
+B:SELF:AWAY_NATURE:5/1
 
 N:506:Slip into Shadows
 A:90:41:8
@@ -6626,8 +6115,8 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:492:0
-B:AURA:DARK_WEAK:1d0+0
-B:SELF:AWAY_DARK:5d0+0
+B:AURA:DARK_WEAK:1/1
+B:SELF:AWAY_DARK:5/1
 
 N:507:Smoke and Mirrors
 A:90:49:6
@@ -6641,8 +6130,8 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:503:0
-B:AURA:FEATURE:0d0+162
-B:SELF:AWAY_FIRE:5d0+0
+B:AURA:FEATURE:162
+B:SELF:AWAY_FIRE:5/1
 
 N:508:Tangleroot
 A:90:37:8
@@ -6655,34 +6144,30 @@ C:9:9:8:45:3
 C:10:9:8:45:3
 C:11:5:5:30:6
 P:0:0
-B:AREA:TANGLE:2d0+0
+B:AREA:TANGLE:2/1
 
 N:509:Call Lightning
 A:90:37:9
 A:90:12:17
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:BEAM:ELEC:3d6+0
+B:BEAM:ELEC:2d6+(1d6)/4
 
 #Replace with timed lightning effect when spell effects implemented
 
 N:510:Ignite Blaze
 A:90:37:10
 C:1:11:7:45:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:16:13:50:5
 C:9:21:19:60:3
 C:10:21:19:60:3
 C:11:11:7:45:8
 P:0:0
-B:BALL_MINOR:FIRE:1d0+7
+B:BALL_MINOR:FIRE:7+1/1
 
 #Replace with timed fire effect when spell effects implemented
 
@@ -6692,49 +6177,39 @@ A:90:57:22
 A:90:5:17
 A:90:2:12
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:SCATTER:FEATURE:0d0+895
-B:SCATTER:FEATURE:0d0+895
-B:SCATTER:FEATURE:0d0+895
+B:SCATTER:FEATURE:895
 
 N:512:Snuff Small Life
 A:90:37:12
 A:90:2:13
 A:55:23:25
 C:1:11:7:45:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:16:13:50:5
 C:9:21:19:60:3
 C:10:21:19:60:3
 C:11:11:7:45:8
 P:0:0
-B:LOS:SNUFF:1d0+0
+B:LOS:SNUFF:1/1
 
 N:513:Animate Object
 A:90:45:12
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:AREA:ANIM_OBJECT:0d0+0
+B:AREA:ANIM_OBJECT
 
 N:514:Water Spirit
 A:90:38:7
 A:90:20:11
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
@@ -6749,7 +6224,6 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
@@ -6763,7 +6237,6 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
@@ -6781,7 +6254,7 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:0:0
-B:AIM:RAGE:1d0+10
+B:AIM:RAGE:10+1/1
 
 N:518:Wonder
 A:90:33:12
@@ -6790,7 +6263,6 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:24:11:70:1
 C:8:9:7:44:8
-#$ Bard cannot cast this spell.
 C:10:15:13:50:4
 C:11:9:7:44:8
 P:0:0
@@ -6801,14 +6273,12 @@ A:90:46:5
 A:90:0:15
 A:90:15:14
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
 C:11:13:7:50:6
 P:0:0
-B:AIM:CHARM_INSECT:1d0+0
+B:AIM:CHARM_INSECT:1/1
 
 N:520:Charm Reptile
 A:90:46:6
@@ -6816,21 +6286,17 @@ A:90:0:16
 A:90:15:15
 A:92:6:12
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
 C:11:13:7:50:6
 P:0:0
-B:AIM:CHARM_REPTILE:1d0+0
+B:AIM:CHARM_REPTILE:1/1
 
 N:521:Earth Spirit
 A:90:38:8
 A:90:18:10
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
@@ -6845,7 +6311,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:515:516
@@ -6858,7 +6323,6 @@ C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:30:30:99:6
 C:8:21:22:90:8
-#$ Bard cannot cast this spell.
 C:10:29:33:95:3
 C:11:21:22:90:8
 P:516:521
@@ -6869,24 +6333,20 @@ C:1:17:15:50:7
 C:3:25:23:65:3
 C:4:25:23:65:3
 C:8:17:9:50:7
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:15:50:7
 P:0:0
-B:AIM_AREA:ANIM_TREE:0d0+0
+B:AIM_AREA:ANIM_TREE
 
 N:525:Miasma
 A:90:38:9
 A:90:19:12
 C:1:20:9:50:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:20:9:50:8
-#$ Bard cannot cast this spell.
 C:10:22:19:60:6
 C:11:20:9:50:8
 P:0:0
-B:STORM:POISON:2d0+20
+B:STORM:POISON:20+2/1
 
 #Replace with timed poison effect when spell effects implemented
 
@@ -6895,16 +6355,13 @@ A:90:39:2
 A:90:19:13
 A:90:12:18
 C:1:25:13:50:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:13:50:16
-#$ Bard cannot cast this spell.
 C:10:29:22:60:15
 C:11:25:13:50:16
 P:166:0
-B:BEAM:ELEC:3d12+0
-B:BEAM:ELEC:3d12+0
-B:BEAM:ELEC:3d12+0
+B:BEAM:ELEC:2d12+(1d12)/4
+B:BEAM:ELEC:2d12+(1d12)/4
+B:BEAM:ELEC:2d12+(1d12)/4
 
 #Replace with timed lightning effect when spell effects implemented
 
@@ -6912,14 +6369,11 @@ N:527:Blizzard
 A:90:39:3
 A:90:11:22
 C:1:29:23:75:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:23:75:8
-#$ Bard cannot cast this spell.
 C:10:37:43:85:3
 C:11:29:23:75:8
 P:0:0
-B:BALL:COLD:2d0+130
+B:BALL:COLD:130+2/1
 
 #Replace with timed frost effect when spell effects implemented
 
@@ -6927,14 +6381,11 @@ N:528:Twister
 A:90:39:4
 A:90:19:14
 C:1:34:31:80:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:34:31:80:10
-#$ Bard cannot cast this spell.
 C:10:41:47:95:4
 C:11:34:31:80:10
 P:0:0
-B:STORM:WIND:3d0+145
+B:STORM:WIND:145+3/1
 
 #Replace with timed wind effect when spell effects implemented
 
@@ -6942,14 +6393,11 @@ N:529:Tsunami
 A:90:39:5
 A:90:20:12
 C:1:39:57:85:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:39:57:85:12
-#$ Bard cannot cast this spell.
 C:10:45:71:100:5
 C:11:39:57:85:12
 P:0:0
-B:ARC_40:WATER:3d0+0
+B:ARC_40:WATER:3/1
 
 #Replace with timed water effect when spell effects implemented
 
@@ -6957,14 +6405,10 @@ N:530:Volcano
 A:90:39:6
 A:90:18:12
 C:1:44:63:100:10
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:44:63:100:10
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:44:63:100:10
 P:0:0
-B:8WAY_III:LAVA:4d0+295
+B:8WAY_III:LAVA:295+4/1
 
 #Replace with timed fire effect when spell effects implemented
 
@@ -6972,28 +6416,22 @@ N:531:Tree of Life
 A:90:39:7
 A:90:2:14
 C:1:29:23:75:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:23:75:8
-#$ Bard cannot cast this spell.
 C:10:37:43:85:3
 C:11:29:23:75:8
 P:0:0
-B:SELF:HEAL:3d0+0
+B:SELF:HEAL:3/1
 S:CONCENTRATE_LIFE:0
 
 N:532:Mana Pool
 A:90:39:8
 A:90:20:13
 C:1:29:23:75:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:29:23:75:8
-#$ Bard cannot cast this spell.
 C:10:37:43:85:3
 C:11:29:23:75:8
 P:0:0
-B:SELF:GAIN_MANA:2d0+0
+B:SELF:GAIN_MANA:2/1
 S:CONCENTRATE_WATER:0
 
 N:533:Dryad's Kiss
@@ -7004,18 +6442,15 @@ A:90:20:14
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:0:0
-B:LINE:AWAY_NATURE:1d0+0
+B:LINE:AWAY_NATURE:1/1
 
 N:534:Ent's Seeds
 A:90:38:10
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
@@ -7029,11 +6464,10 @@ C:1:17:15:50:7
 C:3:25:23:65:3
 C:4:25:23:65:3
 C:8:17:9:50:7
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:15:50:7
 P:0:0
-B:AIM_AREA:ANIM_ELEMENT:0d0+0
+B:AIM_AREA:ANIM_ELEMENT
 
 N:536:Ent's Draught
 A:90:38:12
@@ -7042,11 +6476,10 @@ C:1:15:20:80:200
 C:3:20:25:80:160
 C:4:20:25:80:160
 C:8:25:30:80:125
-#$ Bard cannot cast this spell.
 C:10:25:30:80:125
 C:11:15:20:80:200
 P:0:0
-B:SELF:HEAL:0d0+20
+B:SELF:HEAL:20
 F:INC_STR | CURE_STR |
 L:1d25+25
 
@@ -7061,7 +6494,7 @@ C:9:25:7:50:6
 C:10:23:20:60:4
 C:11:25:7:50:6
 P:528:0
-B:AIM:BIND_UNDEAD:1d0+0
+B:AIM:BIND_UNDEAD:1/1
 
 N:538:Summon Lemure
 A:90:41:11
@@ -7070,7 +6503,6 @@ C:1:11:22:90:8
 C:3:20:30:99:6
 C:4:25:35:99:6
 C:8:11:22:90:8
-#$ Bard cannot cast this spell.
 C:10:19:33:95:3
 C:11:11:22:90:8
 P:516:0
@@ -7079,14 +6511,11 @@ S:SUMMON_RACE:119
 N:539:Bind Undead
 A:90:14:11
 C:1:35:28:70:24
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:28:70:24
-#$ Bard cannot cast this spell.
 C:10:45:61:70:18
 C:11:35:28:70:24
 P:0:0
-B:AIM:BIND_UNDEAD:1d0+0
+B:AIM:BIND_UNDEAD:1/1
 
 N:540:Mind's Eye
 A:90:42:7
@@ -7095,7 +6524,6 @@ C:1:17:9:50:7
 C:3:20:16:60:5
 C:4:20:16:60:5
 C:8:20:16:60:5
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:0:0
@@ -7109,25 +6537,21 @@ C:1:17:9:50:7
 C:3:20:16:60:5
 C:4:20:16:60:5
 C:8:20:16:60:5
-#$ Bard cannot cast this spell.
 C:10:25:21:65:3
 C:11:17:9:50:7
 P:0:0
-B:SELF:HEAL:12d10+0
+B:SELF:HEAL:12d10
 F:CURE_CUTS | CURE_STUN |
 
 N:542:Absorb Souls
 A:90:14:12
 A:55:23:26
 C:1:35:28:70:24
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:28:70:24
-#$ Bard cannot cast this spell.
 C:10:45:61:70:18
 C:11:35:28:70:24
 P:0:0
-B:LOS:VAMP_DRAIN:2d0+0
+B:LOS:VAMP_DRAIN:2/1
 
 #N:543:Blood Bond
 #A:90:43:8
@@ -7141,11 +6565,11 @@ B:LOS:VAMP_DRAIN:2d0+0
 
 ### 543 - Unused ###
 
+#$# 543 - Unused ###
+
 N:544:Summon Insects
 A:90:42:8
 C:1:13:7:50:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:7:50:6
 C:9:27:24:95:3
 C:10:23:20:60:3
@@ -7161,12 +6585,11 @@ A:90:17:16
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:0:0
-B:LINE:AWAY_DARK:1d0+0
+B:LINE:AWAY_DARK:1/1
 
 N:546:Flame's Reach
 A:90:51:3
@@ -7174,44 +6597,35 @@ A:90:5:20
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:0:0
-B:LINE:AWAY_FIRE:1d0+0
+B:LINE:AWAY_FIRE:1/1
 
 N:547:Bind Dragon
 A:90:0:17
 C:1:40:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:80:75:250
 C:9:45:80:75:250
 C:10:45:80:75:250
 C:11:40:70:75:250
 P:0:0
-B:AIM:BIND_DRAGON:1d0+0
+B:AIM:BIND_DRAGON:1/1
 
 N:548:Darkness Storm
 A:90:17:17
 C:1:37:37:80:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:37:37:80:18
-#$ Bard cannot cast this spell.
 C:10:43:51:95:11
 C:11:37:37:80:18
 P:458:0
-B:STORM:DARK:2d0+35
+B:STORM:DARK:35+2/1
 
 N:549:Release Curse
 A:90:43:8
 C:1:30:25:85:34
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:25:85:34
-#$ Bard cannot cast this spell.
 C:10:36:45:80:35
 C:11:30:25:85:34
 P:0:0
@@ -7221,14 +6635,12 @@ N:550:Vampiric Drain
 A:90:42:9
 A:90:14:13
 C:1:15:7:60:29
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:20:75:133
 C:9:25:17:60:17
 C:10:25:17:60:17
 C:11:15:7:60:29
 P:0:0
-B:BOLT:VAMP_DRAIN:6d8+0
+B:BOLT:VAMP_DRAIN:5d8+(1d8)/4
 
 N:551:Temporary Displacement
 A:90:44:7
@@ -7243,7 +6655,7 @@ C:9:7:2:55:1
 C:10:3:2:35:2
 C:11:1:2:24:4
 P:0:0
-B:SELF:AWAY_ALL:0d0+20
+B:SELF:AWAY_ALL:20
 S:SET_RETURN:0
 L:1d10+10
 
@@ -7251,68 +6663,65 @@ N:552:Mind Thrust
 A:90:44:8
 A:90:16:2
 C:1:1:2:22:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:2:2:30:1
-#$ Bard cannot cast this spell.
 C:10:3:2:30:1
 C:11:1:2:22:4
 P:0:0
-B:AIM:MENTAL:3d5+0
+B:AIM:MENTAL:3d5+(1d5)/5
 
 N:553:Force Bolt
 A:90:44:9
 A:90:16:3
 C:1:3:3:27:3
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:10:7:5:40:3
 C:11:3:3:27:3
 P:0:0
-B:BOLT_MINOR:FORCE:3d4+0
+B:BOLT_MINOR:FORCE:2d4+(1d4)/4
 
 N:554:Ego Whip
 A:90:44:10
 A:90:16:4
 C:1:3:3:27:3
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:5:40:3
-#$ Bard cannot cast this spell.
 C:10:7:5:40:3
 C:11:3:3:27:3
 P:552:0
-B:HANDS:MENTAL:6d5+0
+B:HANDS:MENTAL:6d5+(1d5)/5
 
 N:555:Pyrokinesis
 A:90:45:14
 A:90:16:5
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:0:0
-B:BALL_MINOR:FIRE:1d0+7
+B:BALL_MINOR:FIRE:7+1/1
 
 N:556:Cyrokinesis
 A:90:45:15
 A:90:16:6
 C:1:7:6:40:6
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:40:6
-#$ Bard cannot cast this spell.
 C:10:15:12:50:4
 C:11:7:6:40:6
 P:0:0
-B:BALL_MINOR:COLD:1d0+3
+B:BALL_MINOR:COLD:3+1/1
 
-### 557 - Unused ###
+N:557:Invisibility
+A:75:47:1
+A:90:46:3
+A:90:16:2
+C:1:19:19:70:40
+C:3:25:25:70:25
+C:4:25:25:70:25
+C:8:15:20:70:25
+C:10:10:10:70:40
+C:11:19:19:70:40
+F:INVIS
+L:1d24+24
+B:SELF:INVISIBILITY:1d24+24
 
 N:558:Psychometry
 A:90:46:9
@@ -7322,7 +6731,6 @@ C:1:19:19:70:40
 C:3:25:25:70:25
 C:4:25:25:70:25
 C:8:15:20:70:25
-#$ Bard cannot cast this spell.
 C:10:10:10:70:40
 C:11:19:19:70:40
 P:0:0
@@ -7340,7 +6748,7 @@ C:9:13:10:45:3
 C:10:13:10:45:3
 C:11:7:6:35:5
 P:551:0
-B:SELF:AWAY_ALL:0d0+100
+B:SELF:AWAY_ALL:100
 S:SET_RETURN:0
 L:1d100+100
 
@@ -7348,14 +6756,11 @@ N:560:Psychic Blast
 A:90:46:10
 A:90:16:9
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:552:554
-B:ARC_20:MENTAL:1d0+15
+B:ARC_20:MENTAL:15+1/1
 
 N:561:Thrust Away
 A:90:47:5
@@ -7363,24 +6768,19 @@ A:90:16:10
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:0:0
-B:LINE:FORCE:1d0+0
+B:LINE:FORCE:1/1
 
 N:562:Force Beam
 A:90:16:11
 C:1:35:30:60:25
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:30:60:25
-#$ Bard cannot cast this spell.
-#$ Warrior Mage cannot cast this spell.
 C:11:35:30:60:25
 P:561:0
-B:BEAM:FORCE:3d0+40
+B:BEAM:FORCE:40+3/3
 
 N:563:Mass Charm
 A:90:0:18
@@ -7389,11 +6789,10 @@ C:1:35:28:70:24
 C:3:37:55:80:215
 C:4:37:55:80:215
 C:8:35:28:70:24
-#$ Bard cannot cast this spell.
 C:10:45:61:70:18
 C:11:35:28:70:24
 P:240:0
-B:LOS:CHARM_PERSON:1d0+0
+B:LOS:CHARM_PERSON:1/1
 
 N:564:Domination
 A:90:47:6
@@ -7401,24 +6800,20 @@ A:90:0:19
 C:1:23:12:60:8
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:25:25:80:12
 C:10:25:25:80:12
 C:11:23:12:60:8
 P:240:0
-B:AIM:CHARM_PERSON:2d0+0
+B:AIM:CHARM_PERSON:2/1
 
 N:565:Curse Monster
 A:90:41:12
 C:1:5:5:30:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
-#$ Shaman cannot cast this spell.
 C:9:11:8:40:3
 C:10:11:8:40:3
 C:11:5:5:30:4
 P:0:0
-B:AIM:CURSE:1d0+0
+B:AIM:CURSE:1/1
 
 N:566:Curse Monsters
 A:90:41:13
@@ -7430,7 +6825,7 @@ C:9:13:10:50:5
 C:10:21:17:55:3
 C:11:9:7:45:8
 P:565:0
-B:AURA:CURSE:1d0+0
+B:AURA:CURSE:1/1
 
 N:567:Mass Curse
 A:90:43:9
@@ -7443,227 +6838,181 @@ C:9:25:7:50:6
 C:10:23:20:60:4
 C:11:25:7:50:6
 P:566:0
-B:LOS:CURSE:1d0+0
+B:LOS:CURSE:1/1
 
-N:568:Thuamaturgic Missile
+N:568:Thaumaturgic Missile
 A:90:48:11
 C:1:3:3:25:3
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:3:3:25:3
 C:9:5:3:40:1
 C:10:5:3:40:1
 C:11:3:3:25:3
 P:0:0
-B:MISSILE:MANA:3d4+0
-F:THUAMATURGY |
+B:MISSILE:MANA:3d4+(1d4)/5
+F:THAUMATURGY |
 
-N:569:Thuamaturgic Minor Bolt
+N:569:Thaumaturgic Minor Bolt
 A:90:49:9
 C:1:5:4:30:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:5:4:30:4
-#$ Bard cannot cast this spell.
 C:10:9:7:40:3
 C:11:5:4:30:4
 P:0:0
-B:BOLT:MANA:3d6+0
-F:THUAMATURGY |
+B:BOLT:MANA:2d6+(1d6)/4
+F:THAUMATURGY |
 
-N:570:Thuamaturgic Minor Beam
+N:570:Thaumaturgic Minor Beam
 A:90:49:10
 C:1:7:6:30:5
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:7:6:30:5
 C:9:13:11:55:4
 C:10:13:11:55:4
 C:11:7:6:30:5
 P:0:0
-B:BEAM:MANA:4d8+0
-F:THUAMATURGY |
+B:BEAM:MANA:3d8+(1d8)/4
+F:THAUMATURGY |
 
-N:571:Thuamaturgic Bolt
+N:571:Thaumaturgic Bolt
 A:90:49:11
 C:1:10:7:50:7
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:10:7:50:7
-#$ Bard cannot cast this spell.
 C:10:25:20:60:3
 C:11:10:7:50:7
 P:0:0
-B:BOLT:MANA:6d8+0
-F:THUAMATURGY |
+B:BOLT:MANA:5d8+(1d8)/4
+F:THAUMATURGY |
 
-N:572:Thuamaturgic Minor Ball
+N:572:Thaumaturgic Minor Ball
 A:90:50:3
 C:1:13:8:45:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:8:45:4
-#$ Bard cannot cast this spell.
 C:10:23:15:50:3
 C:11:13:8:45:4
 P:0:0
-B:BALL_MINOR:MANA:1d0+15
-F:THUAMATURGY |
+B:BALL_MINOR:MANA:15+1/1
+F:THAUMATURGY |
 
-N:573:Thuamaturgic Beam
+N:573:Thaumaturgic Beam
 A:90:50:4
 C:1:15:7:60:29
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:20:75:133
 C:9:25:17:60:17
 C:10:25:17:60:17
 C:11:15:7:60:29
 P:0:0
-B:BEAM:MANA:8d8+0
-F:THUAMATURGY |
+B:BEAM:MANA:7d8+(1d8)/4
+F:THAUMATURGY |
 
-N:574:Thuamaturgic Ball
+N:574:Thaumaturgic Ball
 A:90:50:5
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:0:0
-B:BALL:MANA:1d0+30
-F:THUAMATURGY |
+B:BALL:MANA:30+1/1
+F:THAUMATURGY |
 
 # Burst of fiery missiles
 
 N:575:Pyrotechnics
 A:90:50:6
 C:1:19:12:55:8
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:19:12:55:8
-#$ Bard cannot cast this spell.
 C:10:27:21:65:3
 C:11:19:12:55:8
 P:0:0
-B:SWARM:MANA:1d0+30
-F:THUAMATURGY |
+B:SWARM:MANA:30+1/2
+F:THAUMATURGY |
 
-N:576:Thuamaturgic Bolt II
+N:576:Thaumaturgic Bolt II
 A:90:51:4
 C:1:25:19:60:18
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:19:60:18
-#$ Bard cannot cast this spell.
 C:10:35:41:60:12
 C:11:25:19:60:18
 P:0:0
-B:BOLT:MANA:8d12+0
-B:BOLT:MANA:8d12+0
-F:THUAMATURGY |
+B:BOLT:MANA:7d12+(1d12)/4
+B:BOLT:MANA:7d12+(1d12)/4
+F:THAUMATURGY |
 
-N:577:Arc of Thuamaturgy
+N:577:Arc of Thaumaturgy
 A:90:51:5
 C:1:25:13:50:16
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:25:13:50:16
-#$ Bard cannot cast this spell.
 C:10:29:22:60:15
 C:11:25:13:50:16
 P:0:0
-B:ARC_30:MANA:3d0+0
-F:THUAMATURGY |
+B:ARC_30:MANA:3/1
+F:THAUMATURGY |
 
-N:578:Thuamaturgic Major Ball
+N:578:Thaumaturgic Major Ball
 A:90:51:6
 C:1:30:31:90:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:31:90:16
-#$ Bard cannot cast this spell.
 C:10:40:51:90:13
 C:11:30:31:90:20
 P:0:0
-B:BALL_II:MANA:2d0+140
-F:THUAMATURGY |
+B:BALL_II:MANA:140+2/1
+F:THAUMATURGY |
 
-N:579:Thuamaturgic Ball II
+N:579:Thaumaturgic Ball II
 A:90:51:7
 C:1:30:31:90:20
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:31:90:16
-#$ Bard cannot cast this spell.
 C:10:40:51:90:13
 C:11:30:31:90:20
 P:0:0
-B:BALL_II:MANA:2d0+140
-F:THUAMATURGY |
+B:BALL_II:MANA:140+2/1
+F:THAUMATURGY |
 
-N:580:Thuamaturgic Bolt III
+N:580:Thaumaturgic Bolt III
 A:90:51:8
 C:1:35:28:70:24
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:35:28:70:24
-#$ Bard cannot cast this spell.
 C:10:45:61:70:18
 C:11:35:28:70:24
 P:0:0
-B:BOLT:MANA:8d16+0
-B:BOLT:MANA:8d16+0
-B:BOLT:MANA:8d16+0
-F:THUAMATURGY |
+B:BOLT:MANA:7d16+(1d16)/4
+B:BOLT:MANA:7d16+(1d16)/4
+B:BOLT:MANA:7d16+(1d16)/4
+F:THAUMATURGY |
 
-N:581:Thuamaturgic Major Ball II
+N:581:Thaumaturgic Major Ball II
 A:90:51:9
 C:1:39:37:85:12
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:39:37:85:12
-#$ Bard cannot cast this spell.
 C:10:45:51:100:5
 C:11:39:37:85:12
 P:0:0
-B:BALL_II:MANA:2d0+155
-F:THUAMATURGY |
+B:BALL_II:MANA:155+2/1
+F:THAUMATURGY |
 
-N:582:Alt Thuamaturgic Minor Ball
+N:582:Alt Thaumaturgic Minor Ball
 A:90:50:7
 C:1:13:8:45:4
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:13:8:45:4
-#$ Bard cannot cast this spell.
 C:10:23:15:50:3
 C:11:13:8:45:4
 P:0:0
-B:BALL_MINOR:MANA:1d0+15
-F:THUAMATURGY |
+B:BALL_MINOR:MANA:15+1/1
+F:THAUMATURGY |
 
-N:583:Alt Thuamaturgic Beam
+N:583:Alt Thaumaturgic Beam
 A:90:50:8
 C:1:15:7:60:29
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:30:20:75:133
 C:9:25:17:60:17
 C:10:25:17:60:17
 C:11:15:7:60:29
 P:0:0
-B:BEAM:MANA:8d8+0
-F:THUAMATURGY |
+B:BEAM:MANA:7d8+(1d8)/4
+F:THAUMATURGY |
 
 N:584:Change into Ent
 A:90:22:12
 A:90:2:16
 C:1:40:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:80:75:250
 C:9:45:80:75:250
 C:10:45:80:75:250
@@ -7675,8 +7024,6 @@ N:585:Change into Stone Troll
 A:90:22:13
 A:90:18:13
 C:1:40:70:75:250
-#$ Artisan cannot cast this spell.
-#$ Ranger cannot cast this spell.
 C:8:45:80:75:250
 C:9:45:80:75:250
 C:10:45:80:75:250
@@ -7691,7 +7038,6 @@ C:1:29:21:44:8
 C:3:44:33:70:1
 C:4:44:33:70:1
 C:8:29:21:44:8
-#$ Bard cannot cast this spell.
 C:10:35:39:50:4
 C:11:29:21:44:8
 P:518:0
@@ -7704,10 +7050,9 @@ A:91:48:6
 C:2:1:2:25:1
 C:5:1:2:35:4
 C:8:1:2:26:4
-#$ Bard cannot cast this spell.
 C:11:1:2:25:1
 P:0:0
-B:EXPLODE:DARK_WEAK:1d0+0
+B:EXPLODE:DARK_WEAK:1/1
 F:DARK_ROOM |
 
 N:588:Hero's Heart
@@ -7735,7 +7080,6 @@ A:91:64:7
 C:2:3:3:25:4
 C:5:5:5:35:4
 C:8:5:5:35:4
-#$ Bard cannot cast this spell.
 C:11:3:3:25:4
 P:588:0
 F:INC_WIS | INC_CHR |
@@ -7753,7 +7097,7 @@ C:8:3:3:25:3
 C:9:3:3:35:4
 C:11:1:2:15:4
 P:0:0
-B:SELF:HEAL:1d10+0
+B:SELF:HEAL:1d10
 F:SLOW_CUTS | SLOW_STUN | HOLD_SONG |
 
 N:591:Stigmata
@@ -7765,11 +7109,10 @@ A:91:64:9
 C:2:3:2:25:4
 C:5:5:4:35:4
 C:8:5:4:35:4
-#$ Bard cannot cast this spell.
 C:11:3:2:25:4
 P:590:0
-B:HANDS:BLOOD:3d5+0
-B:SELF:WOUND:1d4+0
+B:HANDS:BLOOD:3d5+(1d5)/5
+B:SELF:WOUND:1d4
 F:HOLD_SONG |
 
 N:592:Infravision
@@ -7782,7 +7125,6 @@ A:91:64:10
 C:2:1:2:15:4
 C:5:2:2:35:4
 C:8:3:3:25:3
-#$ Bard cannot cast this spell.
 C:11:1:2:15:4
 P:0:0
 F:INFRA |
@@ -7793,21 +7135,21 @@ A:91:40:10
 A:91:44:10
 A:91:56:10
 A:91:60:10
-A:92:12:5
+A:92:13:8
 C:2:3:3:25:4
 C:5:5:5:35:4
 C:8:5:5:35:4
 C:9:5:5:35:4
 C:11:3:3:25:4
 P:592:0
-B:HANDS:FIRE:3d5+0
+B:HANDS:FIRE:3d5+(1d5)/5
 
 N:594:Teleport
 A:45:4:1
 A:45:0:1
 A:40:0:1
 P:0:0
-B:SELF:AWAY_ALL:2d0+0
+B:SELF:AWAY_ALL:2/1
 
 N:595:Rest until Dusk
 A:99:26:1
@@ -7823,7 +7165,7 @@ S:REST_UNTIL_DAWN:0
 N:597:Guided Blow
 A:91:32:11
 A:91:10:10
-A:92:12:6
+A:92:0:7
 A:93:5:2
 A:91:36:14
 A:91:52:11
@@ -7839,7 +7181,7 @@ S:ACCURATE_BLOW:20
 N:598:Radiant Blow
 A:91:33:10
 A:91:10:11
-A:92:12:7
+A:92:13:9
 A:93:16:20
 A:91:41:8
 A:91:61:5
@@ -7854,7 +7196,7 @@ S:MAGIC_BLOW:98
 N:599:Fiery Blow
 A:91:33:11
 A:91:10:12
-A:92:12:8
+A:92:13:10
 A:93:16:20
 A:91:41:9
 A:91:61:6
@@ -7869,7 +7211,7 @@ S:MAGIC_BLOW:31
 N:600:Mighty Blow
 A:91:32:12
 A:91:10:13
-A:92:12:9
+A:92:13:11
 A:93:5:2
 A:91:36:15
 A:91:52:12
@@ -7884,7 +7226,7 @@ S:MAGIC_BLOW:16
 
 N:601:Smite Demon
 A:91:34:12
-A:92:12:10
+A:92:12:1
 A:93:5:16
 A:91:51:5
 A:91:55:6
@@ -7898,7 +7240,7 @@ S:MAGIC_BLOW:20
 
 N:602:Smite Undead
 A:91:34:13
-A:92:12:11
+A:92:12:2
 A:93:5:16
 A:91:51:6
 A:91:55:7
@@ -7916,7 +7258,7 @@ A:93:3:3
 A:91:38:5
 A:91:42:11
 A:91:54:11
-A:92:12:12
+A:92:12:3
 C:2:21:16:60:7
 C:5:21:16:60:7
 C:8:27:22:60:5
@@ -7931,7 +7273,7 @@ A:93:23:27
 A:55:23:29
 A:91:51:7
 A:91:67:3
-A:92:12:13
+A:92:12:4
 C:2:25:20:70:12
 C:5:25:20:70:12
 C:8:25:20:70:12
@@ -7942,7 +7284,7 @@ S:MAGIC_BLOW:18
 
 N:605:Smite Dragon
 A:91:35:10
-A:92:12:14
+A:92:12:5
 A:93:23:27
 A:55:23:30
 A:91:51:8
@@ -7963,7 +7305,7 @@ A:91:45:7
 A:91:39:2
 A:91:47:2
 A:91:55:8
-A:92:12:15
+A:92:12:6
 C:2:31:25:90:15
 C:5:31:25:90:15
 C:8:37:35:90:5
@@ -7976,7 +7318,6 @@ N:607:Guided Shot
 A:90:1:23
 A:90:56:18
 A:93:12:15
-A:92:0:5
 C:3:5:1:50:1
 C:4:5:1:50:1
 C:8:3:2:35:2
@@ -7988,7 +7329,6 @@ S:ACCURATE_SHOT:15
 
 N:608:Orcslaying Shot
 A:90:56:19
-A:92:0:6
 A:93:21:14
 C:3:9:3:60:1
 C:4:9:3:60:1
@@ -8001,7 +7341,6 @@ S:MAGIC_SHOT:21
 
 N:609:Giantslaying Shot
 A:90:56:20
-A:92:0:7
 A:93:21:14
 C:3:9:3:60:1
 C:4:9:3:60:1
@@ -8013,12 +7352,10 @@ P:607:0
 S:MAGIC_SHOT:23
 
 N:610:Deadly Shot
-A:92:0:8
 A:93:7:26
 A:90:58:12
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:35:35:80:12
 C:10:35:35:80:12
 C:11:31:25:70:3
@@ -8027,7 +7364,6 @@ S:DAMAGING_SHOT:15
 
 N:611:Fiery Shot
 A:90:56:21
-A:92:0:9
 A:93:4:12
 C:3:15:6:75:1
 C:4:15:6:75:1
@@ -8040,7 +7376,6 @@ S:MAGIC_SHOT:31
 
 N:612:Icy Shot
 A:90:56:22
-A:92:0:10
 A:93:4:12
 C:3:15:6:75:1
 C:4:15:6:75:1
@@ -8053,7 +7388,6 @@ S:MAGIC_SHOT:32
 
 N:613:Mighty Shot
 A:90:57:24
-A:92:0:11
 A:93:16:16
 C:3:21:17:55:3
 C:4:21:17:55:3
@@ -8065,7 +7399,6 @@ P:608:609
 S:MAGIC_SHOT:16
 
 N:614:Dark Shot
-A:92:0:12
 A:93:26:24
 A:90:57:25
 C:3:25:12:55:1
@@ -8078,7 +7411,6 @@ P:613:0
 S:MAGIC_SHOT:97
 
 N:615:Dragonslaying Shot
-A:92:0:13
 A:93:26:24
 A:90:57:26
 C:3:25:12:55:1
@@ -8092,9 +7424,7 @@ S:MAGIC_SHOT:25
 
 N:616:Rain of Arrows
 A:93:17:18
-A:99:7:2
 A:90:59:18
-A:92:0:14
 C:3:35:40:75:100
 C:4:35:40:75:100
 C:8:40:60:75:115
@@ -8108,7 +7438,7 @@ N:617:Guided Throw
 A:90:1:24
 A:90:52:17
 A:93:12:15
-A:92:1:11
+A:92:0:8
 C:3:5:1:50:1
 C:4:5:1:50:1
 C:8:3:2:35:2
@@ -8119,13 +7449,11 @@ P:0:0
 S:ACCURATE_HURL:15
 
 N:618:Deadly Throw
-A:92:1:12
+A:92:12:7
 A:93:7:26
 A:90:54:15
-A:92:1:12
 C:3:31:25:70:3
 C:4:31:25:70:3
-#$ Shaman cannot cast this spell.
 C:9:31:25:70:3
 C:10:35:35:80:12
 C:11:31:25:70:3
@@ -8134,9 +7462,8 @@ S:DAMAGING_HURL:10
 
 N:619:Mighty Throw
 A:90:53:24
-A:92:1:13
+A:92:12:8
 A:93:16:16
-A:92:1:13
 C:3:21:17:55:3
 C:4:21:17:55:3
 C:8:21:17:55:3
@@ -8148,9 +7475,8 @@ S:MAGIC_HURL:16
 
 N:620:Incredible Throw
 A:93:17:18
-A:99:7:3
 A:90:55:16
-A:92:1:14
+A:92:12:9
 C:3:35:40:75:100
 C:4:35:40:75:100
 C:8:40:60:75:115
@@ -8161,7 +7487,7 @@ P:28:0
 S:MAGIC_HURL:15
 
 N:621:Clashing Chords
-A:92:0:15
+A:92:13:1
 C:1:1:2:26:4
 C:3:9:3:60:1
 C:4:9:3:60:1
@@ -8170,6 +7496,6 @@ C:9:5:3:35:1
 C:10:5:3:35:1
 C:11:1:2:26:4
 P:0:0
-B:AREA:SOUND:0d0+0
+B:AREA:SOUND
 F:HOLD_SONG |
 

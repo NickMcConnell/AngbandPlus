@@ -927,7 +927,7 @@ D:%.X,X.X&XXX&&XX@XX&&XXX&X.X,X.%
 D:%.XX.X&X.XXXX,,X,,XXXX.X&X.XX.%
 D:%.X.X&X.XXXXX&X,X&XXXXX.X&X.X.%
 D:%.X9XX.X.XX&XXX9XXX&XX.X.XX9X.%
-D:%.X98XX@X..X,,9X9,,X..X@XX89X.%
+D:%.X98XX@X..X,,9.9,,X..X@XX89X.%
 D:%.X9XX.X.XX&XXX9XXX&XX.X.XX9X.%
 D:%.X.X&X.XXXXX&X,X&XXXXX.X&X.X.%
 D:%.XX.X&X.XXXX,,X,,XXXX.X&X.XX.%
@@ -1015,7 +1015,7 @@ D:%....XXX.^^&XX,,XX#XXX***XXX#XX,,XX&^^.XXX....%
 D:%....XX..XXXX,,XXX&&XX***XX&&XXX,,XXXX..XX....%
 D:%....XX+XX&&XX+X9X&XX^X.X^XX&X9X+XX&&XX+XX....%
 D:%....XX^^^^^XX.&.X#X^^X9X^^X#X.&.XX^^^^^XX....%
-D:%....+^^^^^^+^&@&+^^^^9X9^^^^+&@&^+^^^^^^+....%
+D:%....+^^^^^^+^&@&+^^^^9.9^^^^+&@&^+^^^^^^+....%
 D:%....XX^^^^^XX.&.X#X^^X9X^^X#X.&.XX^^^^^XX....%
 D:%....XX+XX&&XX+X9X&XX^X.X^XX&X9X+XX&&XX+XX....%
 D:%....XX..XXXX,,XXX&&XX***XX&&XXX,,XXXX..XX....%

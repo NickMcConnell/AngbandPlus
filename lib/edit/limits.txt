@@ -13,6 +13,9 @@
 
 V:0.6.2
 
+# Maximum number of blow types
+M:b:225
+
 # Maximum number of feature types
 M:F:958
 
@@ -29,7 +32,7 @@ M:A:137
 M:E:128
 
 # Maximum number of flavors
-M:X:492
+M:X:620
 
 # Maximum number of monster races (needs to be max + 2 for player ghost)
 M:R:1368

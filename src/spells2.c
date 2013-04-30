@@ -272,7 +272,7 @@ static int enchant_table[16] =
 /*
  * Hack -- Removes curse from an object.
  */
-static void uncurse_object(object_type *o_ptr)
+void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
@@ -721,7 +721,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	/* Collect temporary effects */
 	vn = 0;
 
-	if (p_ptr->invuln) vp[vn++] = "invulnerable";
+	if (p_ptr->invis) vp[vn++] = "invisible";
 	if (p_ptr->free_act) vp[vn++] = "protected from paralysis and magical slowing";
 
 	for (n = 0; n < A_CHR; n++)
@@ -4153,17 +4153,14 @@ void aggravate_monsters(int who)
 /*
  * Delete all non-unique monsters of a given "type" from the level
  */
-bool banishment(void)
+bool banishment(int who, int what, char typ)
 {
 	int i;
 
-	char typ;
-
 	bool result = FALSE;
 
-
 	/* Mega-Hack -- Get a monster symbol */
-	(void)(get_com("Choose a monster race (by symbol) to banishment: ", &typ));
+	if (typ == '\0') (void)(get_com("Choose a monster race (by symbol) to banish: ", &typ));
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
@@ -4184,7 +4181,7 @@ bool banishment(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(4), "the strain of casting Banishment");
+		if (who <= SOURCE_MONSTER_START) take_hit(who, what, randint(4));
 
 		/* Take note */
 		result = TRUE;
@@ -4200,13 +4197,22 @@ bool banishment(void)
 /*
  * Delete all nearby (non-unique) monsters
  */
-bool mass_banishment(void)
+bool mass_banishment(int who, int what, int y, int x)
 {
 	int i;
 
 	bool result = FALSE;
 
-
+	/* Banishment affects player */
+	if (who > SOURCE_PLAYER_START)
+	{
+		if (distance(y, x, p_ptr->py, p_ptr->px) < MAX_SIGHT)
+		{
+			msg_print("You are banished.");
+			p_ptr->leaving = TRUE;
+		}
+	}
+	
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
@@ -4220,13 +4226,13 @@ bool mass_banishment(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Skip distant monsters */
-		if (m_ptr->cdis > MAX_SIGHT) continue;
+		if (distance(y, x, m_ptr->fy, m_ptr->fx) > MAX_SIGHT) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(3), "the strain of casting Mass Banishment");
+		if (who <= SOURCE_PLAYER_START) take_hit(who, what, randint(3));
 
 		/* Note effect */
 		result = TRUE;
@@ -4510,7 +4516,7 @@ void entomb(int cy, int cx, byte invalid)
 		}
 
 		/* Take some damage */
-		if (damage) take_hit(damage, format("being entombed by %s", f_name + f_info[cave_feat[cy][cx]].name));
+		if (damage) take_hit(SOURCE_ENTOMB, cave_feat[cy][cx], damage);
 	}
 	/* Entomb a monster */
 	else if (cave_m_idx[cy][cx] > 0)
@@ -6198,44 +6204,45 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
+		spell_blow *blow_ptr = &s_ptr->blow[ap_cnt];
 		int damage = 0;
-
-		/* Extract the attack infomation */
-		int effect = s_ptr->blow[ap_cnt].effect;
-		int method = s_ptr->blow[ap_cnt].method;
-		int d_dice = s_ptr->blow[ap_cnt].d_dice;
-		int d_side = s_ptr->blow[ap_cnt].d_side;
-		int d_plus = s_ptr->blow[ap_cnt].d_plus;
+		int effect = blow_ptr->effect;
 
 		/* Hack -- no more attacks */
-		if (!method) break;
+		if (!blow_ptr->method) break;
 
 		/* Hack -- get new target if last target is dead / missing */
 		if ((ap_cnt) && !(target_okay())) p_ptr->command_dir = 0;
 		
-		/* Mega hack -- dispel evil/undead objects */
-		if ((!d_side) && (!level))
-		{
-			d_plus += 25 * d_dice;
-		}
-		/* Hack -- use level as modifier */
-		else if (!d_side)
-		{
-			d_plus += level * d_dice;
-		}
-
 		/* Roll out the damage */
-		if ((d_dice) && (d_side))
+		if (blow_ptr->d_side)
 		{
-			damage = damroll(d_dice, d_side) + d_plus;
+			damage += damroll(blow_ptr->d_dice, blow_ptr->d_side);
 		}
-		else
+		
+		/* Roll out level dependent damage */
+		if (blow_ptr->l_side)
 		{
-			damage = d_plus;
+			damage += damroll(blow_ptr->l_side * level / blow_ptr->levels, blow_ptr->l_side);
 		}
-
+		
+		/* Add constant damage */
+		damage += blow_ptr->d_plus;
+		
+		/* Add level dependent damage */
+		if (blow_ptr->l_plus)
+		{
+			damage += blow_ptr->l_plus * level / blow_ptr->levels;
+			
+			/* Mega-hack - dispel evil/undead etc. */
+			if (!level)
+			{
+				damage += blow_ptr->l_plus * 25 / blow_ptr->levels;
+			}
+		}
+		
 		/* Apply spell method */
-		switch (method)
+		switch (blow_ptr->method)
 		{
 			/* Affect self directly */
 			case RBM_SELF:
@@ -6244,10 +6251,10 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int px = p_ptr->px;
 
 				/* Apply damage */
-				if (project_p(SOURCE_SELF, 0, py, px, damage, effect)) obvious = TRUE;
+				if (project_p(who, what, py, px, damage, effect)) obvious = TRUE;
 
 				/* Apply teleport and other effects */
-				if (project_t(SOURCE_SELF, 0, py, px, damage, effect)) obvious = TRUE;
+				if (project_t(who, what, py, px, damage, effect)) obvious = TRUE;
 				break;
 			}
 
@@ -6267,9 +6274,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage+= damroll((level-1)/5, d_side);
-
 				if (fire_hands(who, what, effect, dir, damage)) obvious = TRUE;
 				break;
 			}
@@ -6278,9 +6282,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
 				if (fire_bolt(who, what, effect, dir, damage)) obvious = TRUE;
 				break;
@@ -6293,9 +6294,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-				
 				if (fire_bolt_minor(who, what, effect, dir, damage, range)) obvious = TRUE;
 				break;
 			}
@@ -6309,9 +6307,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 				
 				if (fire_bolt_or_beam(who, what, beam - 10, effect, dir, damage)) obvious = TRUE;
 				break;
@@ -6326,9 +6321,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-				
 				if (fire_bolt_or_beam(who, what, beam, effect, dir, damage)) obvious = TRUE;
 
 				break;
@@ -6338,9 +6330,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 
 				if (fire_beam(who, what, effect, dir, damage)) obvious = TRUE;
 
@@ -6364,9 +6353,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 
 				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
 				break;
@@ -6470,7 +6456,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			}
 			case RBM_LINE:
 			{
-
 				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
 
 				/* Allow direction to be cancelled for free */
@@ -6485,7 +6470,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
-
 				break;
 			}
 			case RBM_ORB:
@@ -6579,9 +6563,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			        /* Allow direction to be cancelled for free */ 
 			        if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
-
 				if (fire_ball(who, what, effect, dir, damage, 0)) obvious = TRUE;
 
 				break;
@@ -6591,9 +6572,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
 				if (fire_arc(who, what, effect, dir, damage, 0, 20)) obvious = TRUE;
 
@@ -6605,9 +6583,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
-
 				if (fire_arc(who, what, effect, dir, damage, 0, 30)) obvious = TRUE;
 
 				break;
@@ -6617,9 +6592,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
 				if (fire_arc(who, what, effect, dir, damage, 0, 40)) obvious = TRUE;
 
@@ -6631,9 +6603,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
-
 				if (fire_arc(who, what, effect, dir, damage, 0, 50)) obvious = TRUE;
 
 				break;
@@ -6643,9 +6612,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				/* Allow direction to be cancelled for free */
 				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
 				if (fire_arc(who, what, effect, dir, damage, 0, 60)) obvious = TRUE;
 
@@ -6722,9 +6688,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Allow direction to be cancelled for free */
 				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
 
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-
 				if (project(who, what, 0, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
 
 				break;
@@ -6742,7 +6705,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 
 
 
-bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
+bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, bool *known)
 {
 	spell_type *s_ptr = &s_info[spell];
 
@@ -6998,7 +6961,7 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	if ((s_ptr->flags2 & (SF2_SHERO)) && (set_shero(p_ptr->shero + lasts))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_BLESS)) && (set_blessed(p_ptr->blessed + lasts))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_INVULN)) && (set_invuln(p_ptr->invuln + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_INVIS)) && (set_invis(p_ptr->invis + lasts))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts + (level== 0 ? 3 * p_ptr->lev : 0)))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (set_cursed(0))) obvious = TRUE;
@@ -7037,13 +7000,13 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 
 	if (s_ptr->flags2 & (SF2_BANISHMENT))
 	{
-		(void)banishment();
+		(void)banishment(who, what, '\0');
 		obvious = TRUE;
 	}
 
 	if (s_ptr->flags2 & (SF2_MASS_BANISHMENT))
 	{
-		mass_banishment();
+		mass_banishment(who, what, p_ptr->py, p_ptr->px);
 		obvious = TRUE;
 	}
 
@@ -7403,7 +7366,6 @@ bool process_spell_blow_shot_hurl(int type)
  */
 bool process_spell_types(int who, int spell, int level, bool *cancel)
 {
-
 	spell_type *s_ptr = &s_info[spell];
 
 	bool obvious = FALSE;
@@ -7544,7 +7506,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			}
 			case SPELL_CURE_DISEASE:
 			{
-				int v;
+				u32b v;
 				u32b old_disease = p_ptr->disease;
 				
 				char output[1024];
@@ -7552,16 +7514,15 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Hack -- cure disease */
 				if (s_ptr->param >= 32)
 				{
+					/* Cure minor disease */
+					v = DISEASE_LIGHT;
+
 					/* Hack -- Cure 'normal disease' */
 					if (p_ptr->disease < (1L << DISEASE_TYPES_HEAVY))
 					{
-						obvious = TRUE;
-
-						p_ptr->disease = 0;
+						/* Cures all normal diseases */
+						v |= (1L << DISEASE_TYPES_HEAVY) - 1;
 					}
-
-					/* Also cure minor disease */
-					v = DISEASE_LIGHT;
 				}
 				/* Cure symptom / specific disease */
 				else
@@ -7573,9 +7534,11 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				if ((p_ptr->disease & v) == 0)
 				{
 					/* Message */
-					if (p_ptr->disease) msg_print("This cure is ineffective for what ails you.");
-					obvious = TRUE;
-					
+					if (p_ptr->disease)
+					{
+						msg_print("This cure is ineffective for what ails you.");
+						obvious = TRUE;						
+					}
 					break;
 				}
 
@@ -7607,11 +7570,12 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					p_ptr->disease &= (DISEASE_PERMANENT);
 				}
 
+				/* Redraw disease status */
+				p_ptr->redraw |= (PR_DISEASE);
+
 				/* Describe diseases lost */
 				disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
 				msg_print(output);
-
-				p_ptr->redraw |= (PR_DISEASE);
 
 				/* Describe new disease */
 				if (p_ptr->disease)
@@ -7713,7 +7677,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				
 				/* Lite if necessary */
 				if (item == INVEN_LITE) p_ptr->update |= (PU_TORCH);
-				
+				*cancel = FALSE;
 				break;
 			}
 			
@@ -7837,6 +7801,10 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Final update */
 					update_stuff();
 					redraw_stuff();
+					
+					/* Obvious */
+					*cancel = FALSE;
+					obvious = TRUE;
 					break;
 				}
 			}
@@ -7863,6 +7831,9 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 									cave_info[y + ddy_ddd[i]][x + ddx_ddd[i]] |= (CAVE_GLOW);								
 								}
 							}
+							
+							*cancel = FALSE;
+							obvious = TRUE;
 						}
 					}
 				}
@@ -7877,7 +7848,8 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			
 			case SPELL_RELEASE_CURSE:
 			{
-				thaumacurse(TRUE, 2 * level + level * level / 20);
+				obvious |= thaumacurse(TRUE, 2 * level + level * level / 20);
+				*cancel = FALSE;
 				break;
 			}
 			
@@ -7910,15 +7882,20 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					break;
 				}
 				
+				/* Check that it's day or night */
+				if (((level_flag & (LF1_DAYLIGHT)) != 0) != (s_ptr->type == SPELL_REST_UNTIL_DAWN))
+				{
+					msg_format("It's still %s.", s_ptr->type == SPELL_REST_UNTIL_DAWN ? "daylight" : "night");
+					return (TRUE);
+				}
+				
 				/* Hack -- Set time to one turn before sun down / sunrise */
-				turn += ((10L * TOWN_DAWN) / 2) - (turn % ((10L * TOWN_DAWN)) / 2) - 1 +
-					((level_flag & (LF1_DAYLIGHT)) == (spell == SPELL_REST_UNTIL_DUSK)) ?
-						(10L * TOWN_DAWN) / 2 : 0;
+				turn += ((10L * TOWN_DAWN) / 2) - (turn % ((10L * TOWN_DAWN) / 2)) - 1;
 
 				/* XXX Set food, etc */
 
 				/* Inform the player */
-				if (spell == SPELL_REST_UNTIL_DUSK) msg_print("You sleep during the day.");
+				if (s_ptr->type == SPELL_REST_UNTIL_DUSK) msg_print("You sleep during the day.");
 				
 				/* Heroes don't sleep easy */
 				else
@@ -7935,6 +7912,9 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 				/* Hack -- regenerate level */
 				p_ptr->leaving = TRUE;
+				
+				*cancel = FALSE;
+				obvious = TRUE;
 				
 				break;
 			}
@@ -8260,7 +8240,7 @@ bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel)
 	}
 
 	/* Apply flags */
-	if (process_spell_flags(spell, level, cancel, &known)) obvious = TRUE;
+	if (process_spell_flags(who, what, spell, level, cancel, &known)) obvious = TRUE;
 
 	/* Apply flags */
 	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
@@ -8302,7 +8282,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 	/* Note the order is important -- because of the impact of blinding a character on their subsequent
 		ability to see spell blows that affect themselves */
 	if (process_spell_blows(who, what, spell, level, cancel)) obvious = TRUE;
-	if (process_spell_flags(spell, level, cancel, known)) obvious = TRUE;
+	if (process_spell_flags(who, what, spell, level, cancel, known)) obvious = TRUE;
 	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
 
 	/* Return result */
@@ -8320,17 +8300,8 @@ bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
 	int power = 0;
 	bool obvious = FALSE;
 
-	/* Get artifact activation */
-	if (artifact_p(o_ptr))
-	{
-		power = a_info[o_ptr->name1].activation;
-	}
-
 	/* Get item effect */
-	else
-	{
-		get_spell(&power, "use", o_ptr, FALSE);
-	}
+	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Check for return if player */
 	if (cave_m_idx[y][x] < 0) process_spell_prepare(power, 25);

@@ -863,19 +863,16 @@ static void term_data_check_size(term_data *td)
 	{
 		td->r.top = tScreen.bounds.bottom - td->size_hgt;
 	}
-
 	/* Verify the top */
-	if (td->r.top < tScreen.bounds.top + GetMBarHeight())
+	if (td->r.top < tScreen.bounds.top + 2*GetMBarHeight())
 	{
-		td->r.top = tScreen.bounds.top + GetMBarHeight();
+		td->r.top = tScreen.bounds.top + 2*GetMBarHeight();
 	}
-
 	/* Verify the right */
 	if (td->r.left > tScreen.bounds.right - td->size_wid)
 	{
 		td->r.left = tScreen.bounds.right - td->size_wid;
 	}
-
 	/* Verify the left */
 	if (td->r.left < tScreen.bounds.left)
 	{
@@ -1619,6 +1616,12 @@ static void Term_init_mac(term *t)
 			wattrs,
 			&td->r,
 			&td->w);
+
+	Rect tmpR;
+	GetWindowBounds((WindowRef)td->w, kWindowTitleBarRgn, &tmpR);
+	int trueTop = td->r.top - (tmpR.bottom-tmpR.top);
+	MoveWindow((WindowRef)td->w, td->r.left, trueTop, FALSE);
+	
 
 	install_handlers(td->w);
 
@@ -2838,6 +2841,8 @@ static OSStatus ResizeCommand(EventHandlerCallRef inCallRef,
 	
 	Rect tmpR;
 	GetWindowBounds((WindowRef)td->w, kWindowContentRgn, &tmpR);
+	td->r = tmpR;
+	if(td->r.top < 40) td->r.top = 40;
 
 	/* Extract the new ClipRect size in pixels */
 	y = tmpR.bottom - tmpR.top - BORDER_WID;
@@ -3226,8 +3231,7 @@ static OSStatus MouseCommand ( EventHandlerCallRef inCallRef,
 	// X coordinate relative to left side of window exclusive of border.
 	p.x -= (BORDER_WID+td->r.left);
 	// Y coordinate relative to top of window content region.
-	// HACK: assumes title width of 21 pixels.
-	p.y -= (td->r.top + 21);
+	p.y -= td->r.top;
 
 	Term_mousepress(p.x/td->tile_wid, p.y/td->tile_hgt, button);
 

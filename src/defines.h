@@ -1039,6 +1039,8 @@
 #define GF_HEAL_PERC	138
 #define GF_GAIN_MANA_PERC	139
 #define GF_TANGLE		140
+#define GF_POISON_WATER	141
+#define GF_INVISIBILITY	142
 
 
 
@@ -1280,6 +1282,8 @@
 #define FEAT_BUSH_FOOD  440
 #define FEAT_BUSH_HURT_P 441
 
+#define FEAT_SHALLOW_PIT 457
+
 #define FEAT_ENTRANCE 471
 
 #define FEAT_GEYSER 711
@@ -1288,6 +1292,9 @@
 #define FEAT_CRUMBLING_FLOOR 873
 #define FEAT_TREMBLING_RUBBLE 874
 #define FEAT_PULSING_RUBBLE 875
+
+
+
 
 /*Feature flags - should be used instead of feature indexes unless generating.*/
 
@@ -1521,7 +1528,7 @@
 #define SF2_SHERO 0x00100000
 #define SF2_BLESS 0x00200000
 #define SF2_SHIELD       0x00400000
-#define SF2_INVULN       0x00800000
+#define SF2_INVIS	     0x00800000
 #define SF2_SEE_INVIS    0x01000000
 #define SF2_PROT_EVIL    0x02000000
 #define SF2_RECALL       0x04000000
@@ -1564,7 +1571,7 @@
 #define SF3_DEC_FOOD   	 0x10000000
 #define SF3_DEC_EXP      0x20000000
 #define SF3_HOLD_SONG    0x40000000
-#define SF3_THUAMATURGY  0x80000000
+#define SF3_THAUMATURGY  0x80000000
 
 
 #define DISEASE_LOSE_STR    	0x00000001
@@ -1604,6 +1611,7 @@
 /* Maximum number of disease flags that can randomly affect the player */
 #define DISEASE_TYPES 17
 #define DISEASE_BLOWS 23
+#define DISEASE_DRAINING 23	/* Index of disease_drain_hp */
 #define DISEASE_SPECIAL 25
 #define DISEASE_TYPES_HEAVY 26
 
@@ -1840,6 +1848,12 @@
 
 /*** Object "tval" and "sval" codes ***/
 
+
+/*
+ * Used for uncontrolled objects
+ */
+#define UNCONTROLLED_CHANCE		100	/* Chance in 1 in x chance of uncontrolled object activating */	
+#define UNCONTROLLED_CONTROL	200	/* Number of random activations before controlling this object */
 
 
 /*
@@ -2566,6 +2580,11 @@
 
 
 /*
+ * Maximum number of blow descriptions
+ */
+#define MAX_BLOW_DESCRIPTIONS	8
+
+/*
  * New monster blow methods
  */
 #define RBM_HIT		1
@@ -2688,8 +2707,8 @@
 #define PROJECT_ARC          0x00000002
 #define PROJECT_STAR         0x00000004
 #define PROJECT_8WAY         0x00000008
-#define PROJECT_XXX2         0x00000010
-#define PROJECT_XXX3         0x00000020
+#define PROJECT_4WAY         0x00000010
+#define PROJECT_SCATTER      0x00000020
 
 /* What projections do */
 #define PROJECT_BOOM         0x00000040
@@ -2703,22 +2722,44 @@
 #define PROJECT_ITEM         0x00001000
 #define PROJECT_KILL         0x00002000
 #define PROJECT_PLAY         0x00004000
-#define PROJECT_SAFE         0x00008000 /*(unused)*/
+#define PROJECT_SELF         0x00008000
 #define PROJECT_LITE         0x00010000
 #define PROJECT_MAGIC        0x00020000 /* Resistable by monsters with resist magic */
 
 /* Graphics */
 #define PROJECT_HIDE         0x00040000
 #define PROJECT_NO_REDRAW    0x00080000
-#define PROJECT_XXX         0x00100000
 
 /* How projections travel */
+#define PROJECT_SAFE         0x00100000 /* Projection doesn't affect caster */
 #define PROJECT_STOP         0x00200000
 #define PROJECT_JUMP         0x00400000
 #define PROJECT_THRU         0x00800000
 #define PROJECT_CHCK         0x01000000
 #define PROJECT_ORTH         0x02000000 /*(unused)*/
-#define PROJECT_XX10         0x04000000
+
+/* Projections that don't use projection function, or do in an unusual way */
+#define PROJECT_LOS          0x04000000
+#define PROJECT_HOOK         0x08000000
+#define PROJECT_PANEL        0x10000000
+#define PROJECT_LEVEL        0x20000000
+#define PROJECT_FORK		 0x40000000 /* Doesn't follow a straight path */
+#define PROJECT_WIDE         0x80000000 /* Follows a wide path */
+
+/* Melee specific flags */
+#define PR2_MELEE        0x00000001
+#define PR2_RANGED       0x08000002
+#define PR2_BREATH       0x00000004
+#define PR2_INNATE       0x00000008
+#define PR2_CUTS         0x00000010
+#define PR2_STUN         0x00000020
+#define PR2_SHRIEK       0x00000040
+#define PR2_SLIME        0x00000080
+#define PR2_TOUCH        0x00000080
+
+
+
+
 
 /*Who caused the projection*/
 #define SOURCE_MONSTER_START	0 /*Greater than 0 monster is the source*/
@@ -2730,30 +2771,43 @@
 #define SOURCE_DISEASE			-4	/* Source is a disease */
 #define SOURCE_DAYLIGHT			-5	/* Source is the sun */
 #define SOURCE_BIRTH			-6	/* Source is birth of monster race */
-#define SOURCE_PLAYER_ALLY		-7
-#define SOURCE_PLAYER_ATTACK	-8
-#define SOURCE_PLAYER_SHOT		-9
-#define SOURCE_PLAYER_THROW		-10
-#define SOURCE_PLAYER_TRAP		-11
-#define SOURCE_PLAYER_BREAK		-12
-#define SOURCE_PLAYER_SPORE		-13
-#define SOURCE_PLAYER_COATING	-14
-#define SOURCE_PLAYER_EAT_MONSTER	-15
-#define SOURCE_PLAYER_EAT		-16
-#define SOURCE_PLAYER_QUAFF		-17
-#define SOURCE_PLAYER_AIM		-18	/* Wands */
-#define SOURCE_PLAYER_ZAP		-19	/* Rods - with target specified */
-#define SOURCE_PLAYER_ZAP_NO_TARGET		-20	/* Rods - with no target specified */
-#define SOURCE_PLAYER_READ		-21
-#define SOURCE_PLAYER_USE		-22	/* Staffs*/
-#define SOURCE_PLAYER_ACT_ARTIFACT	-23
-#define SOURCE_PLAYER_ACTIVATE	-24
-#define SOURCE_PLAYER_SERVICE	-25
-#define SOURCE_PLAYER_CAST		-26
-#define SOURCE_PLAYER_END		-27
+#define SOURCE_CUTS				-7	/* Source is accumulated cuts */
+#define SOURCE_POISON			-8	/* Source is accumulated poison */
+#define SOURCE_HUNGER			-9	/* Source is hunger */
+#define SOURCE_CURSED_ITEM		-10	/* Source is a cursed item that drains you */
+#define SOURCE_ENTOMB			-11	/* Source is a feature that crushes you */
+#define SOURCE_BLOOD_DEBT		-12	/* Source is a blood debt */
+#define SOURCE_PLAYER_ALLY		-13
+#define SOURCE_PLAYER_ATTACK	-14
+#define SOURCE_PLAYER_SHOT		-15
+#define SOURCE_PLAYER_THROW		-16
+#define SOURCE_PLAYER_TRAP		-17
+#define SOURCE_PLAYER_BREAK		-18
+#define SOURCE_PLAYER_SPORE		-19
+#define SOURCE_PLAYER_COATING	-20
+#define SOURCE_PLAYER_EAT_MONSTER	-21
+#define SOURCE_PLAYER_VAMP_DRAIN	-22
+#define SOURCE_PLAYER_EAT_UNKNOWN	-23
+#define SOURCE_PLAYER_QUAFF_UNKNOWN	-24
+#define SOURCE_PLAYER_READ_UNKNOWN	-25
+#define SOURCE_PLAYER_EAT		-26
+#define SOURCE_PLAYER_QUAFF		-27
+#define SOURCE_PLAYER_AIM		-28	/* Wands */
+#define SOURCE_PLAYER_ZAP		-29	/* Rods - with target specified */
+#define SOURCE_PLAYER_ZAP_NO_TARGET		-30	/* Rods - with no target specified */
+#define SOURCE_PLAYER_READ		-31
+#define SOURCE_PLAYER_USE		-32	/* Staffs*/
+#define SOURCE_PLAYER_ACT_ARTIFACT	-33
+#define SOURCE_PLAYER_ACT_EGO_ITEM	-34
+#define SOURCE_PLAYER_ACTIVATE	-35
+#define SOURCE_PLAYER_SERVICE	-36
+#define SOURCE_PLAYER_WIZARD	-37
+#define SOURCE_PLAYER_CAST		-38
+#define SOURCE_PLAYER_END		-39
 
-#define SOURCE_PLAYER_START		-7	/* Less than here or equal to here, player is the source, and gets experience */
-#define SOURCE_PLAYER_NO_TARGET	-20	/* Less than here or equal to here, no target is specified and some messages are suppressed.
+#define SOURCE_PREFIX			-11	/* Less than here or equal to here, we suffix the string, otherwise we prefix it */
+#define SOURCE_PLAYER_START		-13	/* Less than here or equal to here, player is the source, and gets experience */
+#define SOURCE_PLAYER_NO_TARGET	-30	/* Less than here or equal to here, no target is specified and some messages are suppressed.
 									 * Note that all items less than here that could specify a target always have a 'known' effect. */
 
 #define SOURCE_MESSAGES	4
@@ -3501,6 +3555,13 @@
 	 TR1_CON | TR1_CHR | TR1_SAVE | TR1_DEVICE | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
+
+/* Oops. Ended up with some pval dependent flags in TR3_
+ * Ah well.  We need to reorganise the pvals anyway.
+ */
+#define TR3_PVAL_MASK \
+	(TR3_LITE | TR3_REGEN_HP | TR3_REGEN_MANA)
+
 
 /*
  * Flag set 2 -- mask for "ignore element" flags.
@@ -4539,6 +4600,16 @@
 	((T)->ident & (IDENT_CURSED))
 
 /*
+ * Uncontrolled items.
+ * 
+ * Note should always test for f3 & (TR3_UNCONTROLLED) in addition to this.
+ */
+#define uncontrolled_p(T) \
+	(((T)->ident & (IDENT_CURSED)) || \
+	((T)->usage <= (UNCONTROLLED_CONTROL)))
+
+
+/*
  * Coated items.
  */
 #define coated_p(T) \
@@ -4869,13 +4940,43 @@ extern int PlayerUID;
 #define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
 #define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
 #define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
-#define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
+#define TERM_L_PURPLE	10	/* 'P' */	/* ??? */
 #define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
 #define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
 #define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
 #define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
+#define TERM_PURPLE     16	/* 'p' */
+#define TERM_VIOLET     17	/* 'v' */
+#define TERM_TEAL       18	/* 't' */
+#define TERM_MUD        19	/* 'm' */
+#define TERM_L_YELLOW   20	/* 'Y' */
+#define TERM_MAGENTA    21	/* 'M' */
+#define TERM_L_TEAL     22	/* 'T' */
+#define TERM_L_VIOLET   23	/* 'V' */
+#define TERM_L_PINK     24	/* 'I' */
+#define TERM_MUSTARD    25	/* 'i' */
+#define TERM_BLUE_SLATE 26	/* 'z' */
+#define TERM_DEEP_L_BLUE 27	/* 'Z' */
+
+#define MAX_COLORS 		28	/* Maximum 'normal' colours */
+
+
+#define ATTR_FULL		0	/* full color translation */
+#define ATTR_MONO		1	/* mono color translation */
+#define ATTR_VGA		2	/* 16 color translation */
+#define ATTR_BLIND		3	/* "Blind" color translation */
+#define ATTR_LITE		4	/* "Torchlit" color translation */
+#define ATTR_DARK		5	/* "Dark" color translation */
+#define ATTR_HIGH		6	/* "Highlight" color translation */
+#define ATTR_METAL		7	/* "Metallic" color translation */
+
+/* Strongly consider the following for accessibility reasons */
+#define ATTR_COLOR_RG	8	/* Red/green colorblind users */
+#define ATTR_CONTRAST	9	/* High contrast colors */
+
+#define MAX_ATTR		8
 
 /*** Message constants ***/
 

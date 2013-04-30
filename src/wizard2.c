@@ -1020,6 +1020,9 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
 
+	/* Remove diseases */
+	p_ptr->disease = 0;
+
 	/* Cure stuff */
 	(void)set_blind(0);
 	(void)set_confused(0);
@@ -1027,6 +1030,10 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_afraid(0);
 	(void)set_paralyzed(0);
 	(void)set_image(0);
+	(void)set_amnesia(0);
+	(void)set_cursed(0);
+	(void)set_msleep(0);
+	(void)set_petrify(0);
 	(void)set_stun(0);
 	(void)set_cut(0);
 	(void)set_slow(0);
@@ -1635,7 +1642,7 @@ void do_cmd_debug(void)
 			bool cancel = FALSE;
 			bool known = TRUE;
 
-			process_spell_flags(92, 100, &cancel, &known);
+			process_spell_flags(SOURCE_PLAYER_WIZARD, 0, 92, 100, &cancel, &known);
 			break;
 		}
 		

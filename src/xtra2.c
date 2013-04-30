@@ -1216,9 +1216,9 @@ bool set_protevil(int v)
 
 
 /*
- * Set "p_ptr->invuln", notice observable changes
+ * Set "p_ptr->invis", notice observable changes
  */
-bool set_invuln(int v)
+bool set_invis(int v)
 {
 	bool notice = FALSE;
 
@@ -1228,9 +1228,14 @@ bool set_invuln(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if (!p_ptr->invis)
 		{
-			msg_print("You feel invulnerable!");
+			msg_print("You seem to fade away.");
+			if (p_ptr->cur_lite)
+			{
+				if (inventory[INVEN_LITE].k_idx) msg_print("The light you carry is still visible.");
+				else msg_print("The glow from your equipment is still visible.");
+			}
 			notice = TRUE;
 		}
 	}
@@ -1238,15 +1243,15 @@ bool set_invuln(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->invis)
 		{
-			msg_print("You feel vulnerable once more.");
+			msg_print("You feel visible once more.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->invuln = v;
+	p_ptr->invis = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1254,8 +1259,11 @@ bool set_invuln(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1288,7 +1296,7 @@ bool set_free_act(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->free_act)
 		{
 			msg_print("You feel less free in your actions.");
 			notice = TRUE;
@@ -2516,6 +2524,38 @@ void print_stats(const s16b *sn, int num, int y, int x)
 
 
 /*
+ * Other stat functions.
+ */
+bool stat_commands(char choice, const s16b *sn, int i, bool *redraw)
+{
+	(void)sn;
+	(void)i;
+	
+	switch (choice)
+	{
+		case '?':
+		{
+			/* Save the screen */
+			if (!(*redraw)) screen_save();
+			
+			/* Show stats help */
+			(void)show_file("stats.txt", NULL, 0, 0);
+			
+			/* Load the screen */
+			screen_load();
+			
+			break;
+		}
+		
+		default:
+		{
+			return (FALSE);
+		}
+	}
+	return (TRUE);
+}
+
+/*
  * Improve a player-chosen set of stats.
  * TODO: upon pressing ESC restart the choice.
  * Note the hack to always improve the maximal value of a stat.
@@ -2565,7 +2605,7 @@ static void improve_stat(void)
 				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected); 
 
 				/* Select stat to improve */
-				if (get_list(print_stats, table, A_MAX, "Attribute", buf, 1, 36, &(stat_gain_selection[stat_gain_selected])))
+				if (get_list(print_stats, table, A_MAX, "Attribute", buf, ", ?=help", 1, 36, stat_commands, &(stat_gain_selection[stat_gain_selected])))
 				{
 					/* Check if stat at maximum */
 					if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
@@ -2758,7 +2798,7 @@ void check_experience(void)
 		for (i = p_ptr->max_lev; i <= p_ptr->lev; i++)
 		{
 			/* Level tips */
-			queue_tip(format("level%d.txt", p_ptr->prace, i));
+			queue_tip(format("level%d.txt", i));
 
 			/* Race tips */
 			queue_tip(format("race%d-%d.txt", p_ptr->prace, i));
@@ -3035,7 +3075,7 @@ void monster_death(int m_idx)
 		if (r_ptr->level > p_ptr->csp)
 		{
 			/* Incur blood debt */
-			take_hit(damroll(r_ptr->level - p_ptr->csp, 3),"blood debt for a slain minion");
+			take_hit(SOURCE_BLOOD_DEBT, m_ptr->r_idx, damroll(r_ptr->level - p_ptr->csp, 3));
 			
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -3060,9 +3100,6 @@ void monster_death(int m_idx)
 	
 	/* Extinguish lite */
 	delete_monster_lite(m_idx);
-
-	/* Monster death updates visible monsters */
-	p_ptr->window |= (PW_MONLIST);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -3119,6 +3156,9 @@ void monster_death(int m_idx)
 			drop_near(i_ptr, -1, y, x);
 		}
 	}
+
+	/* Monster death updates visible monsters */
+	p_ptr->window |= (PW_MONLIST);
 
 	/* Add some residue */
 	if (r_ptr->flags3 & (RF3_DEMON)) feat_near(FEAT_FLOOR_FIRE_T,m_ptr->fy,m_ptr->fx);
@@ -5892,7 +5932,7 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -5924,7 +5964,7 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 				else
 				{
 					/* Use "yellow" */
-					*a = lite_attr[*a];
+					*a = get_color(*a, ATTR_LITE, 1);
 				}
 
 				/* Important -- exit loop */
@@ -5950,7 +5990,7 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 		else
 		{
 			/* Use "dark tile" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 }
@@ -5975,7 +6015,7 @@ void modify_grid_unseen_project(byte *a, char *c)
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -5994,7 +6034,7 @@ void modify_grid_unseen_project(byte *a, char *c)
 		else
 		{
 			/* Use "dark tile" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 1);
 		}
 	}
 }
@@ -6021,7 +6061,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_BLIND, 1);
 		}
 	}
 
@@ -6053,7 +6093,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
 				else
 				{
 					/* Use "yellow" */
-					*a = lite_attr[*a];
+					*a = get_color(*a, ATTR_LITE, 1);
 				}
 
 				/* Important -- exit loop */
@@ -6079,7 +6119,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
 		else
 		{
 			/* Use "dark tile" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 1);
 		}
 	}
 }

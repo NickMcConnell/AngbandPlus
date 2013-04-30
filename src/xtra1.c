@@ -1346,7 +1346,7 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 				else if ((sval >= 36) && (sval < 39)) my_strcpy(temp,"Druid", sizeof(temp));
 				else if ((sval >= 40) && (sval < 44)) my_strcpy(temp,"Master", sizeof(temp));
 				else if ((sval >= 45) && (sval < 48)) my_strcpy(temp,"Sorceror", sizeof(temp));
-				else if ((sval >= 48) && (sval < 52)) my_strcpy(temp,"Thuamaturgist", sizeof(temp));
+				else if ((sval >= 48) && (sval < 52)) my_strcpy(temp,"Thaumaturgist", sizeof(temp));
 				else if ((sval >= 52) && (sval < 56)) my_strcpy(temp,"Scientist", sizeof(temp));
 				else if ((sval >= 56) && (sval < 60)) my_strcpy(temp,"Statesman", sizeof(temp));
 
@@ -3367,7 +3367,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_REGEN_HP)) p_ptr->regen_hp += o_ptr->pval;
 
 		/* Affect mana regeneration */
-		if (f3 & (TR3_REGEN_MANA)) p_ptr->regen_hp += o_ptr->pval;
+		if (f3 & (TR3_REGEN_MANA)) p_ptr->regen_mana += o_ptr->pval;
 
 		/* Affect light radius */
 		if (f3 & (TR3_LITE)) p_ptr->glowing += o_ptr->pval;
@@ -3381,7 +3381,7 @@ static void calc_bonuses(void)
 		if (f4 & (TR4_RES_WATER)) p_ptr->incr_resist[INCR_RES_WATER]++;
 
 		/* Affect uncontrolled status */
-		if ((f3 & (TR3_UNCONTROLLED)) && (cursed_p(o_ptr))) p_ptr->uncontrolled = TRUE;
+		if ((f3 & (TR3_UNCONTROLLED)) && (uncontrolled_p(o_ptr))) p_ptr->uncontrolled = TRUE;
 
 		/* Affect flags */
 		p_ptr->cur_flags1 |= f1;
@@ -3536,13 +3536,6 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h -= 5;
 		p_ptr->to_d -= 5;
 		p_ptr->dis_to_d -= 5;
-	}
-
-	/* Invulnerability */
-	if (p_ptr->invuln)
-	{
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
 	}
 
 	/* Temporary blessing */

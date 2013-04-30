@@ -787,6 +787,8 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 			case GF_LITE_WEAK: q="light up";break;
 			case GF_DARK_WEAK: q="darken";break;
 			case GF_WATER_WEAK: q="soak with water";break;
+			case GF_SALT_WATER: q="soak with salt water";break;
+			case GF_POISON_WATER: q="soak with poisonous water";break;
 			case GF_PLASMA: q="blast with plasma";break;
 			case GF_METEOR: q="blast with meteors";break;
 			case GF_ICE: q="cover with ice";break;

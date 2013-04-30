@@ -2341,7 +2341,7 @@ const cptr disease_name[33] =
 	"slow stumble",
 	"black eye",
 	"a hangover",
-	"paranoia",
+	"faint heart",
 	"dementia",
 	"bad luck",
 	"narcolepsy",
@@ -3194,26 +3194,38 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"", "", "", ""}, /* SOURCE_SPELL */
 	{"", "", "", ""}, /* SOURCE_DISEASE */
 	{"daylight", "the sun rising", "no UV protection", "your unholy flesh searing in the radiance of day"}, /* SOURCE_DAYLIGHT */
-	{" being born", " being born", " being born", " being born"},	/* SOURCE_BIRTH */
+	{" being born", " hatching", " emerging", " erupting from you"},	/* SOURCE_BIRTH */
+	{"an untreated scratch", "a nasty cut", "a fatal wound", "poor bandaging"},	/* SOURCE_CUTS */
+	{"poison", "venom", "toxin", "unnatural swelling"},	/* SOURCE_POISON */
+	{"hunger", "starvation", "lack of food", "poor management"},	/* SOURCE_HUNGER */
+	{"an ancient curse", "a perpetual weakness", "a black pact", "the spoor of Morgoth"},	/* SOURCE_CURSED_ITEM */	
+	{"being entombed by ", "being crushed by ", "being buried under ", "a falling cask of Amontillado stored by "},	/* SOURCE_ENTOMB */
+	{"blood debt for a slain ", "backlash for summoning a ", "a dark pact claimed by a dying ", "unearthly powers seeking vengeance on behalf of a "}, /* SOURCE_BLOOD_DEBT */ 
 	{"misjudging ", "treachery of ", "a knife in the back from ", "walking in front of the line of fire of "}, /* SOURCE_PLAYER_ALLY */
-	{"a swing, and a miss", "overenthusiasm", "a hellavu shaving cut", "you're not quite sure how you hit that part of you"}, /* SOURCE_PLAYER_ATTACK */
-	{"a misfire","an unintended discharge","shooting your own foot","you're not quite sure how you shot that part of you"}, /* SOURCE_PLAYER_SHOT */
-	{"a misthrow", "a fumble","juggling a dangerous object","you're not quite sure how you threw that there"}, /* SOURCE_PLAYER_THROW */
+	{"a swing, and a miss", "overenthusiasm", "a hellavu shaving cut", "hmmm... you're not quite sure how you hit that part of you"}, /* SOURCE_PLAYER_ATTACK */
+	{"a misfire","an unintended discharge","shooting your own foot","hmmm... you're not quite sure how you shot that part of you"}, /* SOURCE_PLAYER_SHOT */
+	{"a misthrow", "a fumble","juggling a dangerous object","hmmm... you're not quite sure how you threw that there"}, /* SOURCE_PLAYER_THROW */
 	{"walking headfirst into a ","walking backwards into a ","stumbling into a ","forgetting where you put a "}, /* SOURCE_PLAYER_TRAP */
 	{"breaking ", "smashing ", "cracking open ", "shattering "}, /* SOURCE_PLAYER_BREAK */
 	{"sniffing ", "inhaling ", "snorting ", "getting addicted to "}, /* SOURCE_PLAYER_SPORE */
 	{"a nick from a weapon coated with ", "extract of ", "toxic ", "fumes reeking of "		}, /* SOURCE_PLAYER_COATING */ 
 	{"over cooking ", "undercooking ", "having a taste for ", "not cutting out the poisonous bits off "}, /* SOURCE_PLAYER_EAT_MONSTER */
-	{"eating ", "tasting ", "nibbling ", "indigestion from "}, /* SOURCE_PLAYER_EAT */
-	{"quaffing ", "drinking ", "slurping ", "sipping "}, /* SOURCE_PLAYER_QUAFF */ 
+	{"trying to draw health from ", "the eldritch power of ", "taking the place of ", "connecting to the Negative Plane through "}, /* SOURCE_PLAYER_VAMP_DRAIN */	
+	{"nibbling ", "tasting ", "trying ", "an unknown allergy to "}, /* SOURCE_PLAYER_EAT_UNKNOWN */
+	{"sipping ", "sniffing ", "fumes from ", "not spitting out "}, /* SOURCE_PLAYER_QUAFF_UNKNOWN */ 
+	{"glancing at ", "casting your eyes over ", "browsing ", "looking sideways at "}, /* SOURCE_PLAYER_READ_UNKNOWN */ 
+	{"eating ", "chewing ", "choking on ", "indigestion from "}, /* SOURCE_PLAYER_EAT */
+	{"quaffing ", "drinking ", "slurping ", "guzzling "}, /* SOURCE_PLAYER_QUAFF */ 
 	{"aiming ", "waving ", "pointing ", "holding the wrong end of "}, /* SOURCE_PLAYER_AIM */
-	{"zapping ", "discharging ", "rubbing ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP */ 
-	{"zapping ", "discharging ", "rubbing ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP_NO_TARGET */ 
-	{"reading ", "misreading ", "glancing at ", "reciting "}, /* SOURCE_PLAYER_READ */ 
+	{"zapping ", "plughing ", "xyzzying ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP */ 
+	{"rubbing ", "wondering how to zap ", "seeing which end glows of ", "pressing a hidden stud on "}, /* SOURCE_PLAYER_ZAP_NO_TARGET */ 
+	{"reading ", "misreading ", "reciting ", "holding upside down "}, /* SOURCE_PLAYER_READ */ 
 	{"using ", "misusing ", "abusing ", "badly using "}, /* SOURCE_PLAYER_USE */ 
 	{"activating ", "relying too heavily on ", "mistrusting the power of ", "chancing the gods with "}, /* SOURCE_PLAYER_ACT_ARTIFACT */ 
+	{"activating ", "relying on ", "having an argument with ", "chancing fate with "}, /* SOURCE_PLAYER_ACT_EGO_ITEM */ 
 	{"activating ", "calling on ", "discharging ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */ 
 	{"buying ", "acquiring ", "purchasing ", "the ill-judged purchase of "}, /* SOURCE_PLAYER_SERVICE */ 
+	{"if you died here, you shouldn't be using wizard commands", "are you reading the source again?", "hmmph", "i'm going to ROT13 this table"}, /* SOURCE_PLAYER_WIZARD */
 	{"bad luck casting ", "badly casting ", "slurring a syllable casting ", "magical feedback whilst casting "} /* SOURCE_PLAYER_CAST */
 };
 
@@ -3296,7 +3308,7 @@ const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, cmd_tester_fill_or_fuel},
 			
 	{ player_refill2, '!', "Fill it from where? ", "You have nothing to fill it with.",
-			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
+			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_FEATU), 0L, 0, NULL},
 			
 	{ player_refill2, '~', "Refuel with which torch? ", "You have no torches.",
 			item_tester_refill_torch, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
@@ -3305,5 +3317,5 @@ const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 			item_tester_refill_lantern, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
 	
 	{ player_light_and_douse, '|', "Light/Douse which light source? ", "You have nothing to light or douse.",
-			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
+			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH), 0L, 0, NULL},
 };

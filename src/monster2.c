@@ -3792,7 +3792,7 @@ static bool place_monster_okay(int r_idx)
 		return ((z_ptr->d_char == 't') &&
 				((z_ptr->flags1 & (RF1_UNIQUE)) == 0) &&
 					((z_ptr->flags2 & (RF2_SNEAKY)) == 0) &&
-					((p_ptr->cur_flags4 & (TR4_EVIL)) == ((z_ptr->flags3 & (RF3_EVIL)) != 0)));
+					(((p_ptr->cur_flags4 & (TR4_EVIL)) != 0) == ((z_ptr->flags3 & (RF3_EVIL)) != 0)));
 	}
 	
 	/* Group monsters require similar "group" */

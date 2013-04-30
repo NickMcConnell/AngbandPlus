@@ -2162,9 +2162,9 @@ static cptr display_player_flag_names[6][10] =
 		" Save:",	/* TR1_SAVE */
 		"Devic:",	/* TR1_DEVICE */
 		"Steal:",	/* TR1_STEALTH */
-		"Sear.:",	/* TR1_SEARCH */
+		" Sear:",	/* TR1_SEARCH */
 		"Infra:",	/* TR1_INFRA */
-		"Tunn.:",	/* TR1_TUNNEL */
+		" Tunn:",	/* TR1_TUNNEL */
 		"Speed:",	/* TR1_SPEED */
 		"Blows:",	/* TR1_BLOWS */
 		"Shots:",	/* TR1_SHOTS */
@@ -2254,13 +2254,19 @@ static void put_flag_char(u32b f[4], int set, u32b flag, int y, int x, int row, 
 		else if ((y == 8) &&
 			(f[4] & (TR4_RES_WATER)))
 		{
-			c_put_str(TERM_WHITE, "+", row, col);
+			c_put_str(TERM_L_GREEN, "1", row, col);
 		}
 
 		/* MegaHack -- Skip water */
 		else if (y == 8)
 		{
 			c_put_str(TERM_SLATE, ".", row, col);
+		}
+		
+		/* Hack -- show resistances as fake pvals */
+		else if ((y < 5) && (f[set] & flag))
+		{
+			c_put_str(TERM_L_GREEN, "1", row, col);
 		}
 
 		/* Check flags */
@@ -3437,17 +3443,17 @@ static void dump_player_stat_info(FILE *fff)
 
 	/*Hack - record spaces for the character*/
 
-	fprintf(fff,"(+/-) ");
+	fprintf(fff,"(+/-)  ");
 
 	dump_player_plus_minus(fff);
 
-	fprintf(fff,"\n      %s               %s\n",equippy, equippy);
+	fprintf(fff,"\n       %s               %s\n ",equippy, equippy);
 
 	fprintf(fff,"      abcdefghijkl@              abcdefghijkl@\n");
 
 	for (stats = 0; stats < A_MAX; stats++)
 	{
-		fprintf(fff, "%6s", stat_names_reduced[stats]);
+		fprintf(fff, "   %s:", stat_names_reduced_short[stats]);
 
 		/* Process equipment, show stat modifiers */
 		for (x = 0, y = INVEN_WIELD; y < END_EQUIPMENT; ++y, ++x)
@@ -3496,7 +3502,7 @@ static void dump_player_stat_info(FILE *fff)
 		}
 
 		/*a couple spaces, then do the sustains*/
-		fprintf(fff, ".      %7s ", stat_names_reduced[stats]);
+		fprintf(fff, ".         s%s:", stat_names_reduced_short[stats]);
 
 		/* Process equipment, show stat modifiers */
 		for (y = INVEN_WIELD; y < END_EQUIPMENT; ++y)
@@ -3864,6 +3870,80 @@ errr file_character(cptr name, bool full)
 	}
 	text_out("\n");
 
+	text_out("  [Character Equipment Stat Modifiers, Sustains and Flags]\n\n");
+
+	/*dump stat modifiers and sustains*/
+	dump_player_stat_info(fff);
+
+	/* Display player */
+	display_player(1);
+
+	/* Dump flags, but in two separate rows */
+	for (w = 0; w < 2; w ++)
+	{
+		for (y = 11; y < 21; y++)
+		{
+			/* Dump each row */
+			for (z = 0, x = 0; x < 79; x++, z++)
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x, y, &a, &c));
+
+				/*Go through the whole thing twice, printing
+				 *two of the sets of resist flags each time.
+				 */
+				if ((!w) && (x < 40))
+				{
+					/*hack - space it out a bit*/
+					if (x == 0) text_out(" ");
+					if (x == 20) text_out("       ");
+
+					/* Dump it */
+					text_out(format("%c", c));
+				}
+
+				else if ((w) && (x > 39))
+				{
+					/*hack - space it out a bit*/
+					if (x == 40) text_out(" ");
+					if (x == 60) text_out("       ");
+
+					/* Dump it */
+					text_out(format("%c", c));
+				}
+
+			}
+
+			/* End the row */
+			text_out("\n");
+		}
+	}
+
+	/* Display player */
+	display_player(2);
+
+	/* Display remaining flags */
+	for (y = 11; y < 23; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 40; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/*hack - space it out a bit*/
+			if (x == 0) text_out(" ");
+			if (x == 20) text_out("       ");
+
+			/* Dump it */
+			text_out(format("%c", c));
+		}
+
+		/* End the row */
+		text_out("\n");
+	}
+	text_out("\n");
+
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
@@ -3979,7 +4059,7 @@ errr file_character(cptr name, bool full)
 			bool havoc = FALSE;
 			bool please_print_depths = TRUE;
 
-			/* dungeons with guardians killed elsehwere are too confusing */
+			/* dungeons with guardians killed elsewhere are too confusing */
 			if (!t_info[i].visited) continue;
 
 			long_level_name(str, i, t_info[i].attained_depth);
@@ -4022,20 +4102,26 @@ errr file_character(cptr name, bool full)
 				if (t_info[i].attained_depth > min_depth(i)) {
 					/* descended */
 
-					/* too interesting */
-					if (x) 
-						continue;
-
 					if (t_info[i].attained_depth == max_depth(i))
 					{
+						/* completed */
+
+						/* too interesting */
+						if (x) 
+							continue;
+
 						text_out("You fought through to the other side of");
 					}
 					else 
 					{
+						/* not interesting enough */
+						if (!x) 
+							continue;
+
 						if (havoc)
 							text_out("You broke through to");
 						else
-							text_out("You have reached");
+							text_out("You reached");
 		
 						/* Express in feet or level*/
 						if (depth_in_feet) text_out(format(" %d foot depth in", t_info[i].attained_depth));
@@ -4084,7 +4170,8 @@ errr file_character(cptr name, bool full)
 
 			text_out(format(" %s", str));
 
-			if (please_print_depths) {
+			if (please_print_depths || min_depth(i) != max_depth(i)) 
+			{
 				if (min_depth(i) == max_depth(i))
 					text_out(format(" (%d).\n",  min_depth(i)));
 				else
@@ -4143,127 +4230,6 @@ errr file_character(cptr name, bool full)
 
 	text_out("\n");
 #endif
-
-	text_out("  [Character Equipment Stat Modifiers, Sustains and Flags]\n\n");
-
-	/*dump stat modifiers and sustains*/
-	dump_player_stat_info(fff);
-
-	/* Display player */
-	display_player(1);
-
-	/* Dump flags, but in two separate rows */
-	for (w = 0; w < 2; w ++)
-	{
-		for (y = 11; y < 21; y++)
-		{
-			/* Dump each row */
-			for (z = 0, x = 0; x < 79; x++, z++)
-			{
-				/* Get the attr/char */
-				(void)(Term_what(x, y, &a, &c));
-
-				/*Go through the whole thing twice, printing
-				 *two of the sets of resist flags each time.
-				 */
-				if ((!w) && (x < 40))
-				{
-					/*hack - space it out a bit*/
-					if (x == 20) text_out("       ");
-
-					/* Dump it */
-					text_out(format("%c", c));
-				}
-
-				else if ((w) && (x > 39))
-				{
-					/*hack - space it out a bit*/
-					if (x == 60) text_out("       ");
-
-					/* Dump it */
-					text_out(format("%c", c));
-				}
-
-			}
-
-			/* End the row */
-			text_out("\n");
-		}
-	}
-
-	/* Display player */
-	display_player(2);
-
-	/* Display remaining flags */
-	for (y = 11; y < 23; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 40; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/*hack - space it out a bit*/
-			if (x == 20) text_out("       ");
-
-			/* Dump it */
-			text_out(format("%c", c));
-		}
-
-		/* End the row */
-		text_out("\n");
-	}
-
-	/* Create some space */
-	text_out("\n\n");
-
-	/* Dump the Home Flags , then the inventory -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Header */
-		text_out("  [Home Inventory Stat Modifiers, Sustains and Flags]\n\n");
-
-		/*dump stat modifiers and sustains*/
-		dump_home_stat_info(fff);
-
-		/*dump the home resists and abilities display*/
-		for (i =3; i <6; ++i)
-		{
-			/* Display player */
-			display_player(i);
-
-			/* Dump part of the screen */
-			for (y = 10; y < 20; y++)
-			{
-				/* Dump each row */
-				for (x = 0; x < 79; x++)
-				{
-					/* Get the attr/char */
-					(void)(Term_what(x, y, &a, &c));
-
-					/* Dump it */
-					buf[x] = c;
-				}
-
-				/* Back up over spaces */
-				while ((x > 0) && (buf[x-1] == ' ')) --x;
-
-				/* Terminate */
-				buf[x] = '\0';
-
-				/* End the row */
-				text_out(format("%s\n", buf));
-			}
-		}
-
-		/* Display player */
-		display_player(0);
-
-		/* End the row */
-		text_out("\n");
-	}
-
-	else text_out("  [Your Home Is Empty]\n\n");
 
 	/* Dump options */
 	text_out("  [Options]\n\n");

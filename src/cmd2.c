@@ -35,9 +35,9 @@ bool do_cmd_test(int y, int x, int action)
 	if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 	{
 		disturb(1,0);
-		msg_print("This doesn't feel safe.");
+/*		msg_print("This doesn't feel safe."); */
 
-		if (!get_check("Are you sure?")) return (FALSE);
+		if (!get_check("Are you sure you want to enter undetected territory?")) return (FALSE);
 
 		/* Hack -- mark the target safe */
 		play_info[y][x] |= (PLAY_SAFE);
@@ -351,6 +351,53 @@ void print_routes(const s16b *route, int num, int y, int x)
 }
 
 
+
+/*
+ * Other research field functions.
+ */
+bool route_commands(char choice, const s16b *sn, int i, bool *redraw)
+{
+	(void)sn;
+	(void)i;
+
+	switch (choice)
+	{
+		case 'L':
+		{
+			/* Save screen */
+			if (!(*redraw)) screen_save();
+			
+			/* Do knowledge */
+			do_knowledge_dungeons();
+
+		    /* Load screen */
+		    screen_load();
+		    
+		    break;
+		}
+	
+		case 'M':
+		{
+			/* Save screen */
+			if (!(*redraw)) screen_save();
+
+			(void)show_file("memap.txt", NULL, 0, 0);
+
+			/* Load screen */
+			screen_load();
+
+			break;
+		}
+		
+		default:
+		{
+			return (FALSE);
+		}
+	}
+	return (TRUE);
+}
+
+
 /*
  * This gives either the dungeon, or a replacement one if it is defined.
  */
@@ -637,285 +684,112 @@ static void do_cmd_travel(void)
 			int selection = p_ptr->dungeon;
 
 			s16b routes[24];
-			char out_val[160];
-
-			bool flag, redraw;
-			key_event ke;
-
+			
 			/* Routes */
 			num = set_routes(routes, 24, p_ptr->dungeon);
 
-			/* Build a prompt (accept all spells) */
-			strnfmt(out_val, 78, "(Travel %c-%c, L=locations, M=map, ESC=exit) Travel where? ",
-			I2A(0), I2A(num - 1) );
-
-			/* Nothing chosen yet */
-			flag = FALSE;
-
-			/* No redraw yet */
-			redraw = FALSE;
-
-			/* Show the list */
-			if (show_lists)
+			/* Display the list and get a selection */
+			if (get_list(print_routes, routes, num, "Routes", "Travel to where", ", L=locations, M=map", 1, 22, route_commands, &selection))
 			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save screen */
-				screen_save();
-
-				/* Display a list of routes */
-				print_routes(routes, num, 1, 22);
-			}
-
-			/* Get a spell from the user */
-			while (!flag && get_com_ex(out_val, &ke))
-			{
-				char choice;
-
-				if (ke.key == '\xff')
-				{
-					if (ke.mousebutton)
-					{
-						if (redraw) ke.key = 'a' + ke.mousey - 2;
-						else ke.key = ' ';
-					}
-					else continue;
-				}
-
-				/* Request redraw */
-				if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
-				{
-					/* Hide the list */
-					if (redraw)
-					{
-						/* Load screen */
-						screen_load();
-
-						/* Hide list */
-						redraw = FALSE;
-					}
-
-					/* Show the list */
-					else
-					{
-						/* Show list */
-						redraw = TRUE;
-
-						/* Save screen */
-						screen_save();
-
-						/* Display a list of spells */
-						print_routes(routes, num, 1, 22);
-					}
-
-					/* Ask again */
-					continue;
-				}
-
-				/* Request recall */
-				if (ke.key == 'L')
-				{
-				  if (redraw) {
-				    do_knowledge_dungeons();
-
-				    /* Load screen */
-				    screen_load();
-
-				    /* Save screen */
-				    screen_save();
-
-				    /* Display a list of spells */
-				    print_routes(routes, num, 1, 22);
-				  }
-				  else {
-				    redraw = TRUE;
-				    
-				    /* Save screen */
-				    screen_save();
-
-				    do_knowledge_dungeons();
-
-				    /* Load screen */
-				    screen_load();
-
-				    /* Save screen */
-				    screen_save();
-
-				    /* Display a list of spells */
-				    print_routes(routes, num, 1, 22);
-				  }
-
-				  /* Ask again */
-				  continue;
-				}
-
-				/* Request map */
-				if (ke.key == 'M')
-				{
-				  if (redraw) {
-				    (void)show_file("memap.txt", NULL, 0, 0);
-
-				    /* Load screen */
-				    screen_load();
-
-				    /* Save screen */
-				    screen_save();
-
-				    /* Display a list of spells */
-				    print_routes(routes, num, 1, 22);
-				  }
-				  else {
-				    redraw = TRUE;
-				    
-				    /* Save screen */
-				    screen_save();
-
-				    (void)show_file("memap.txt", NULL, 0, 0);
-
-				    /* Load screen */
-				    screen_load();
-
-				    /* Save screen */
-				    screen_save();
-
-				    /* Display a list of spells */
-				    print_routes(routes, num, 1, 22);
-				  }
-
-				  /* Ask again */
-				  continue;
-				}
-
-				/* Lowercase 1+ */
-				choice = tolower(ke.key);
-
-				/* Extract request */
-				i = (islower(choice) ? A2I(choice) : -1);
-
-				/* Totally Illegal */
-				if ((i < 0) || (i >= num))
-				{
-					bell("Illegal destination choice!");
-					continue;
-				}
-
-				/* Get selection */
-				selection = routes[i];
-
-				/* Require "okay" spells */
-				if (selection < 0)
-				{
-					bell("Illegal destination choice!");
-					msg_print("You may not travel there from here.");
-					continue;
-				}
-
-				/* Stop the loop */
-				flag = TRUE;
-			}
-
-			/* Restore the screen */
-			if (redraw)
-			{
-				/* Load screen */
-				screen_load();
-
-				/* Hack -- forget redraw */
-				/* redraw = FALSE; */
-			}
-
-			/* Abort if needed */
-			if (!flag) return;
-
-			/* Will try to auto-eat? */
-			if (p_ptr->food < PY_FOOD_FULL)
-			{
-				msg_print("You set about filling your stomach for the long road ahead.");
-			}
 			
-			/* Hack -- Consume most food not inscribed with !< */
-			while (p_ptr->food < PY_FOOD_FULL)
-			{
-				for (i = 0; i < INVEN_PACK; i++)
+				if (count_routes(selection, p_ptr->dungeon) <= 0)
 				{
-					/* Eat the food */
-					if (auto_consume_okay(&inventory[i]))
-					{
-						/* Eat the food */
-						player_eat_food(i);
-						
-						break;
-					}
+					msg_print("As you set foot upon the path, you have the sudden feeling you might not be able to get back this way for a long while.");
+					
+					if (!get_check("Are you sure you want to travel? ")) 
+						/* Bail out */
+						return;
+				}
+			
+				/* Will try to auto-eat? */
+				if (p_ptr->food < PY_FOOD_FULL)
+				{
+					msg_print("You set about filling your stomach for the long road ahead.");
 				}
 				
-				/* Escape out if no food */
-				if (i == INVEN_PACK) break;
+				/* Hack -- Consume most food not inscribed with !< */
+				while (p_ptr->food < PY_FOOD_FULL)
+				{
+					for (i = 0; i < INVEN_PACK; i++)
+					{
+						/* Eat the food */
+						if (auto_consume_okay(&inventory[i]))
+						{
+							/* Eat the food */
+							player_eat_food(i);
+							
+							break;
+						}
+					}
+					
+					/* Escape out if no food */
+					if (i == INVEN_PACK) break;
+				}
+
+				if (easy_more) messages_easy(FALSE);
+
+				/* Need to be full to travel */
+				if (p_ptr->food < PY_FOOD_FULL)
+				{
+					msg_print("You notice you don't have enough food to fully satiate you before the travel.");
+					msg_print("You realize you will face the unforeseen dangers with a half-empty stomach!");
+
+					if (!get_check("Are you sure you want to travel? ")) 
+						/* Bail out */
+						return;
+				}
+
+				/* Longer and more random journeys via map */
+				journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
+
+				/* Shorter and more predictable distance if nearby */
+				for (i = 0; i < MAX_NEARBY; i++)
+				{
+					if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
+				}
+				
+				if (journey < 4)
+				{
+					msg_print("You have a mild and pleasant journey.");
+				}
+				else if (journey < 7)
+				{
+					msg_print("Your travels are without incident.");
+				}
+				else if (journey < 10)
+				{
+					msg_print("You have a long and arduous trip.");
+				}
+				else
+				{
+					msg_print("You get lost in the wilderness!");
+					/* XXX Fake a wilderness location? */
+				}
+
+				/* Hack -- Get hungry/tired/sore */
+				set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
+
+				/* Hack -- Time passes (at 4* food use rate) */
+				turn += PY_FOOD_FULL/10*journey*4;
+				
+				/* XXX Recharges, stop temporary speed etc. */
+				/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
+
+				/* Check quests due to travelling - cancel if requested */
+				if (!check_travel_quest(selection, min_depth(p_ptr->dungeon), TRUE)) return;
+
+				/* Change the dungeon */
+				p_ptr->dungeon = selection;
+
+				/* Set the new depth */
+				p_ptr->depth = min_depth(p_ptr->dungeon);
+
+				/* Clear stairs */
+				p_ptr->create_stair = 0;
+				
+				/* Leaving */
+				p_ptr->leaving = TRUE;
 			}
-
-			if (easy_more) messages_easy(FALSE);
-
-			/* Need to be full to travel */
-			if (p_ptr->food < PY_FOOD_FULL)
-			{
-				msg_print("You notice you don't have enough food to fully satiate you before the travel.");
-				msg_print("You realize you will face the unforeseen dangers with a half-empty stomach!");
-
-				if (!get_check("Are you sure you want to travel? ")) 
-					/* Bail out */
-					return;
-			}
-
-			/* Longer and more random journeys via map */
-			journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
-
-			/* Shorter and more predictable distance if nearby */
-			for (i = 0; i < MAX_NEARBY; i++)
-			{
-				if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
-			}
-			
-			if (journey < 4)
-			{
-				msg_print("You have a mild and pleasant journey.");
-			}
-			else if (journey < 7)
-			{
-				msg_print("Your travels are without incident.");
-			}
-			else if (journey < 10)
-			{
-				msg_print("You have a long and arduous trip.");
-			}
-			else
-			{
-				msg_print("You get lost in the wilderness!");
-				/* XXX Fake a wilderness location? */
-			}
-
-			/* Hack -- Get hungry/tired/sore */
-			set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
-
-			/* Hack -- Time passes (at 4* food use rate) */
-			turn += PY_FOOD_FULL/10*journey*4;
-			
-			/* XXX Recharges, stop temporary speed etc. */
-			/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
-
-			/* Check quests due to travelling - cancel if requested */
-			if (!check_travel_quest(selection, min_depth(p_ptr->dungeon), TRUE)) return;
-
-			/* Change the dungeon */
-			p_ptr->dungeon = selection;
-
-			/* Set the new depth */
-			p_ptr->depth = min_depth(p_ptr->dungeon);
-
-			/* Clear stairs */
-			p_ptr->create_stair = 0;
-			
-			/* Leaving */
-			p_ptr->leaving = TRUE;
 		}
 
 		return;
@@ -2770,12 +2644,16 @@ void do_cmd_set_trap_or_spike(void)
                objects in the grid OR the existing objects in the grid have
                the same tval and sval as the trap being set OR the trap
                being set is TV_BOW and all the objects in the grid can be fired
-               by the bow in question */
+               by the bow in question OR the object selected is a digger,
+               we substitute the above rules with spikes */
 		else
 		{
 			int this_o_idx, next_o_idx;
 
 			bool trap_allowed = TRUE;
+
+			/* Hack */
+			int tmp = p_ptr->skill_dis;
 
 			object_type object_type_body;
 
@@ -2835,6 +2713,12 @@ void do_cmd_set_trap_or_spike(void)
 						}
 					}
 				}
+				/* Check if spike -- use digger & spikes to build pits */
+				else if (j_ptr->tval == TV_DIGGING)
+				{
+					if (i_ptr->tval != TV_SPIKE) trap_allowed = FALSE;
+				}
+				
 				else if ((j_ptr->tval != i_ptr->tval) || (j_ptr->sval != i_ptr->sval))
 				{
 					/* Not allowed */
@@ -2845,33 +2729,68 @@ void do_cmd_set_trap_or_spike(void)
 			/* Hack -- Dig trap? */
 			if (j_ptr->tval == TV_DIGGING)
 			{
-				/* Hack */
-				int tmp = p_ptr->skill_dis;
-
 				/* Hack -- use tunnelling skill to build trap */
 				p_ptr->skill_dis = p_ptr->skill_dig;
+				
+				/* Restrict an item */
+				item_tester_tval = TV_SPIKE;
 
-				/* Hack -- base trap directly on digging skill */
-				object_level = MIN(128, p_ptr->skill_dig * 3);
+				/* Get an item */
+				q = "Add which spikes? ";
+				s = "You have no spikes to add.";
+				if (get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+				{
+					/* Get the item (in the pack) */
+					if (item >= 0)
+				        {
+						o_ptr = &inventory[item];
+					}
 
-				/* Set the floor trap */
-				cave_set_feat(y,x,FEAT_TRAP_ROCK_NONE);
+					/* Get the item (on the floor) */
+					else
+					{
+						o_ptr = &o_list[0 - item];
+					}
 
-				/* Set the trap */
-				pick_trap(y,x);
+					/* In a bag? */
+					if (j_ptr->tval == TV_BAG)
+					{
+						/* Get item from bag */
+						if (!get_item_from_bag(&item, q, s, o_ptr)) return;
 
-				/* Reset object level */
-				object_level = p_ptr->depth;
+						/* Refer to the item */
+						o_ptr = &inventory[item];
+					}
+					
+					/* Structure Copy */
+					object_copy(j_ptr, o_ptr);
 
-				/* Check if we can arm it? */
-				do_cmd_disarm_aux(y,x, FALSE);
+					/* Set one object only */
+					j_ptr->number = 1;
 
-				/* Reset disarm skill */
-				p_ptr->skill_dis = tmp;
+				}
+				else if (!cave_o_idx[y][x])
+				{
+					/* Hack -- no spikes. Dig a shallow pit instead. */
+					cave_set_feat(y, x, FEAT_SHALLOW_PIT);
+					
+					return;
+				}
+				else
+				{
+					/* Hack -- use existing floor spikes */
+					item = -cave_o_idx[y][x];
+					
+					/* Structure Copy */
+					object_copy(j_ptr, &o_list[cave_o_idx[y][x]]);
+
+					/* Set one object only */
+					j_ptr->number = 1;
+				}
 			}
 
 			/* Trap allowed? */
-			else if ((trap_allowed) && (floor_carry(y,x,j_ptr)))
+			if ((trap_allowed) && (floor_carry(y,x,j_ptr)))
 			{
 				/* Hack -- ensure trap is created */
 				object_level = 128;
@@ -2909,6 +2828,9 @@ void do_cmd_set_trap_or_spike(void)
 			{
 				msg_print("You can't set this trap here.");
 			}
+			
+			/* Reset skill - hacked for pit traps */
+			p_ptr->skill_dis = tmp;
 		}
 	}
 }
@@ -4057,7 +3979,8 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 			if (auto_activate(o_ptr))
 			{
 				/* Make item strike */
-				process_item_blow(SOURCE_PLAYER_ACT_ARTIFACT, o_ptr->name1, o_ptr, y, x);
+				process_item_blow(o_ptr->name1 ? SOURCE_PLAYER_ACT_ARTIFACT : (o_ptr->name2 ? SOURCE_PLAYER_ACT_EGO_ITEM : SOURCE_PLAYER_ACTIVATE),
+						o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), o_ptr, y, x);
 			}
 
 			/* Apply additional effect from coating*/

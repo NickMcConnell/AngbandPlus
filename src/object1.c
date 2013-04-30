@@ -1590,7 +1590,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Dump "pval" flags for wearable items */
-	if ((pval) && (f1 & (TR1_PVAL_MASK)))
+	if ((pval) && ((f1 & (TR1_PVAL_MASK)) || (f3 & (TR3_PVAL_MASK))))
 	{
 		/* Start the display */
 		object_desc_chr_macro(t, ' ');

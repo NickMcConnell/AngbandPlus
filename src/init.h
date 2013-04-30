@@ -12,7 +12,7 @@
 #define INCLUDED_INIT_H
 
 #include "h-basic.h"
-
+#include "config.h"
 
 /*
  * Parse errors
@@ -115,6 +115,7 @@ extern errr parse_z_info(char *buf, header *head);
 extern errr parse_v_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern errr parse_d_info(char *buf, header *head);
+extern errr parse_blow_info(char *buf, header *head);
 extern errr parse_k_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
@@ -132,13 +133,15 @@ extern errr parse_b_info(char *buf, header *head);
 extern errr parse_g_info(char *buf, header *head);
 extern errr parse_q_info(char *buf, header *head);
 extern errr parse_n_info(char *buf, header *head);
-extern errr parse_flavor_info(char *buf, header *head);
+extern errr parse_flavor_info(char *buf, header *head);\
+extern errr eval_blow_power(header *head);
 extern errr eval_r_power(header *head);
 extern errr eval_e_power(header *head);
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 extern errr emit_d_info_always(FILE *fp, header *head);
 
+extern errr emit_blow_info_index(FILE *fp, header *head, int i);
 extern errr emit_r_info_index(FILE *fp, header *head, int i);
 extern errr emit_f_info_index(FILE *fp, header *head, int i);
 extern errr emit_k_info_index(FILE *fp, header *head, int i);
@@ -168,6 +171,7 @@ extern int error_line;
 extern header z_head;
 extern header v_head;
 extern header d_head;
+extern header blow_head;
 extern header f_head;
 extern header k_head;
 extern header a_head;

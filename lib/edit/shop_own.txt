@@ -57,7 +57,7 @@ N:2:3:Oglign Dragon-Slayer
 I:11:30000:195:112:4:8
 N:2:4:Malak Darkhunter
 I:4:20000:200:113:5:6
-N:2:5:Nick the Wanderer
+N:2:5:Nick the Thrall
 I:1:30000:190:114:6:8
 N:2:6:Narvious the Betrayer
 I:6:25000:200:113:6:9
@@ -75,8 +75,10 @@ N:3:3:Bosk the Wise
 I:5:30000:185:109:5:15
 N:3:4:Will Centipede
 I:3:30000:180:108:5:21
-N:3:5:Pete the Knowledgeable
+N:3:5:Pete the Knife
 I:25:25000:185:109:5:18
+N:3:6:Timo the Wanderer
+I:13:20000:180:107:6:18
 
 # Alchemist
 N:4:0:Mauser the Chemist

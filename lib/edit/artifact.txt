@@ -10,6 +10,16 @@
 # See "lib/docs/modding.rtf" to understand this file and how to modify
 # it and related files.
 
+# Artifact.txt entry format
+
+# N: serial number : item name
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# F: flag | flag | etc
+# A: activation : recharge time : recharge time dice
+# D: description
+
 # Version stamp (required)
 
 
@@ -83,7 +93,7 @@ N:6:of the Dwarves
 I:40:12:3
 W:70:50:3:75000
 P:0:0d0:0:0:0
-F:STR | CON | SAVE | INFRA |
+F:CON | SAVE | INFRA |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT | RES_FEAR |
 F:LITE | REGEN_HP | SEE_INVIS | FREE_ACT | INSTA_ART |
@@ -189,7 +199,7 @@ I:40:16:2
 W:60:60:3:40000
 P:0:0d0:7:7:10
 A:359:200:0
-F:STR | WIS | CHR | SPEED |
+F:WIS | CHR | SPEED |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT | RES_FIRE | RES_POIS | RES_FEAR |
 F:ACTIVATE |
@@ -388,7 +398,7 @@ F:LITE | ACTIVATE |
 # The Small Metal Shield of Thorin
 
 N:30:of Thorin
-I:34:3:4
+I:34:3:2
 W:40:6:65:60000
 P:3:1d2:0:0:25
 F:STR | CON |
@@ -491,7 +501,7 @@ N:39:of Dor-Lomin
 I:32:5:4
 W:40:20:75:300000
 P:5:1d3:0:0:20
-F:STR | DEX | CON |
+F:DEX | CON |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_FEAR |
 F:LITE | TELEPATHY | SEE_INVIS |
@@ -526,7 +536,7 @@ I:33:11:3
 W:40:40:30:100000
 P:0:1d1:0:0:15
 A:359:250:0
-F:STR | WIS | CON | SPEED |
+F:STR | WIS | SPEED |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | RES_CONFU |
 F:RES_SOUND | RES_CHAOS |
@@ -539,7 +549,7 @@ N:43:of Numenor
 I:33:12:2
 W:60:30:40:50000
 P:0:1d1:0:0:18
-F:INT | DEX | CHR | SAVE | SEARCH | SPEED |
+F:INT | CHR | SAVE | SEARCH | SPEED |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT | RES_COLD | RES_LITE | RES_DARK | RES_BLIND | RES_SOUND |
 F:RES_SHARD |

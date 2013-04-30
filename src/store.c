@@ -2861,11 +2861,39 @@ static void store_sell(int store_index)
 			/* Update the display */
 			store_prt_gold();
 
-			/* Get the "apparent" value */
-			dummy = object_value(i_ptr) * i_ptr->number;
-
 			/* Forget about object */
 			if (amt == o_ptr->number) inven_drop_flags(o_ptr);
+			
+			/* Reset the stack */
+			i_ptr->stackc = 0;
+
+			/* Sometimes reverse the stack object */
+			if (!object_charges_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+			{
+				if (amt >= o_ptr->stackc)
+				{
+					i_ptr->stackc = o_ptr->stackc;
+
+					o_ptr->stackc = 0;
+				}
+				else
+				{
+					if (i_ptr->charges) i_ptr->charges--;
+					if (i_ptr->timeout) i_ptr->timeout = 0;
+
+					o_ptr->stackc -= amt;
+				}
+			}
+
+			/* Get stack count */
+			else if (amt >= (o_ptr->number - o_ptr->stackc))
+			{
+				/* Set stack count */
+				i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
+			}
+
+			/* Get the "apparent" value */
+			dummy = object_value(i_ptr) * i_ptr->number;
 
 			/* Erase the inscription */
 			i_ptr->note = 0;
@@ -3705,6 +3733,9 @@ void do_cmd_store(void)
 
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
+		
+		/* Hack -- leave store if leaving */
+		if (p_ptr->leaving) leave_store = TRUE;
 	}
 
 

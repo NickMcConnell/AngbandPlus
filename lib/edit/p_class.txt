@@ -11,6 +11,19 @@
 # See "lib/docs/modding.rtf" to understand this file and how to modify
 # it and related files.
 
+# P_class.txt entry format
+
+# N:class number:class name
+# S:str:int:wis:dex:con:chr:agi:siz
+# C:dis:dev:sav:stl:srh:dig:tht:thn:thb
+# X:dis:dev:sav:stl:srh:dig:tht:thn:thb
+# I:exp:sense_base:sense_div:sense_type:sense_squared
+# A:max_attacks:min_weight:att_multiply:chg_weight
+# M:spellbook tval:spell-stat-study:spell-stat-mana:spell-stat-fail:first-level:max weight:high-power
+# B:spell number:level:mana:fail:exp
+# T:title
+# E:tval:sval:min:maxef
+# F:school flags
 
 # Version stamp (required)
 

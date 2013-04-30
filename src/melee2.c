@@ -5977,10 +5977,13 @@ static void process_monster(int m_idx)
 	}
 
 	/*
-	 * Special behaviour for monsters that need lite when character is not
-	 * carrying a lite.
+	 * Special behaviour for when character is not carrying a lite, and monster
+	 * either needs lite or the player is invisible and the monster can't see
+	 * invisibile. Note that we assume that player temporary invisibility
+	 * also makes them cold-blooded.
 	 */
-	if ((r_ptr->flags2 & (RF2_NEED_LITE)) && !(p_ptr->cur_lite))
+	if (!(p_ptr->cur_lite) && ((r_ptr->flags2 & (RF2_NEED_LITE)) ||
+			((r_ptr->d_char != 'e') && (p_ptr->invis))))
 	{
 		/* Character is not directly visible */
 		if (!player_can_fire_bold(m_ptr->fy, m_ptr->fx))
@@ -5990,10 +5993,11 @@ static void process_monster(int m_idx)
 		}
 
 		/* Character is in darkness and monster is active */
-		else if ((m_ptr->mflag & (MFLAG_ACTV)) && (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_LITE))))
+		else if ((m_ptr->mflag & (MFLAG_ACTV)) && ((!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_LITE)))
+				|| ((r_ptr->d_char != 'e') && (p_ptr->invis))))
 		{
 			/* Lite up */
-			if (!(m_ptr->mflag & (MFLAG_LITE)))
+			if ((r_ptr->flags2 & (RF2_NEED_LITE)) && !(m_ptr->mflag & (MFLAG_LITE)))
 			{
 				m_ptr->mflag |= (MFLAG_LITE);
 

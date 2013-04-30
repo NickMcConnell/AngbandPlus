@@ -661,7 +661,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invuln);
+	wr_s16b(p_ptr->invis);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);

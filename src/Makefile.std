@@ -1,275 +1,169 @@
-# File: Makefile
-
-# This is not a very "nice" Makefile, but it usually works.
-
+# File: Makefile.std
+# Standard makefile for Angband.
 #
-# Note that you may have to make modifications below according
-# to your machine, available libraries, compilation options,
-# and your "visual module" of choice.  This Makefile is intended
-# for use with Unix machines running X11, Curses, Ncurses, or Vt100,
-# or possibly for "Atari" or "Amiga" computers with "Curses" ports,
-# see below for more information.
+# This makefile probably requires GNU make.
 #
-# Note that "main-crb.c", the visual module for the Mac OSX,
-# must be compiled in a special way, see elsewhere.
+# This makefile is intended for use with Unix machines running X11, gtk or 
+# (n)curses.  You can choose which you want to compile for below.
 #
-# Note that "main-win.c", the visual module for Windows,
-# must be compiled in a special way, see elsewhere.
-#
-# Note that "main-ibm.c", "main-dos.c", "main-emx.c", and "main-286.c",
-# the visual modules for various types of IBM-PC computers,
-# must be compiled with special Makefiles, see elsewhere.
-#
-# Note that "main-acn.c", the visual module for Risc Acorn,
-# must be compiled with "Makefile.acn", see elsewhere.
-#
-# Note that "Makefile.w31" and "Makefile.wat" are slight variations
-# on "Makefile.win" and "Makefile.ibm", respectively, which allow
-# the use of the "main-win.c" and "main-ibm.c" files, respectively,
-# with special compilers.
-#
-# If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
-# files for a currently unsupported system, please send them to
-# Robert Ruehlmann < rr9@angband.org > for inclusion in future versions.
-#
-# This Makefile comes with "default" dependancies that may be obsolete.
+# You can also place your alterations to a file in the src/ directory called 
+# "config", in which case that file will override what is specified here.
 #
 
+#### Things you should, or could, change ####
 
+
+# What systems to try.
 #
-# The "source" and "object" files.
-#
-
-default: unangband
-
-OBJEXT=.o
-include commondefs.inc
-OBJS = $(COMMONOBJS) \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o maid-x11.o
+# By default, this tries to compile both the X11 and "curses" terminal mode
+# ports in the same executable.
 
 
+# Recent, known-to-work ports
 
-##
-## Following are some "system" definitions
-##
-## No changes are needed to compile a version that will run on both
-## X11 and Curses, in debugging mode, with maximal warnings, on many
-## normal Unix machines of the Sun OS variety (non-solaris).
-##
-## To use an "alternative" definition, simply "modify" (or "replace")
-## the definition below with one that you like.  For example, you can
-## change the compiler to "cc", or remove the "debugging" options, or
-## remove the X11 or Curses support, etc, as desired.
-##
-## See also "config.h" and "h-config.h" for important information.
-##
-## Some "examples" are given below, they can be used by simply
-## removing the FIRST column of "#" signs from the "block" of lines
-## you wish to use, and commenting out "standard" block below.
-##
-## This is not intended to be a "good" Makefile, just a "simple" one.
-##
-
-
-#
-# This is my compiler of choice, it seems to work most everywhere.
-#
-CC = gcc
-
-
-#
-# Standard version (see main-x11.c and main-gcu.c)
-#
-# This version supports both "X11" and "curses" in a single executable.
-#
+# Support X11 (main-x11.c)
 # You may have to add various X11 include/library directories to the
-# "CFLAGS", if your machine places files in a weird location.
-#
-# You may be able to remove "-ltermcap" on some machines (ex: Solaris).
-#
-# You may have to replace "-lcurses" with "-lncurses" to use the
-# "new curses" library instead of the "old curses" library, and
-# you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
-#
-# See "main-gcu.c" and "config.h" for some optional "curses" defines,
-# including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
-# attempt to "guess" at many of these flags based on your system.
-#
-NORMAL_CFLAGS = -Wall -pipe -O2 -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
-LIBS = -lX11 -lncurses -L/usr/X11R6/lib
+# "CFLAGS", if your machine places files in a weird location, for example
+# " -I/usr/X11R6/include", or "-L/usr/X11R6/lib" to LIBS.
+SYS_x11 = -DUSE_X11 -lX11
 
-DEBUG_CFLAGS=$(NORMAL_CFLAGS) -ggdb -O0 -fno-inline #-D"ALLOW_BORG" 
+# Support curses console mode (main-gcu.c)
+# If this fails, try the alternate below
+SYS_gcu = -DUSE_GCU -DUSE_NCURSES -lncurses
+#SYS_gcu = -DUSE_GCU -lcurses -ltermcap
 
-##
-## Variation -- Only support "main-x11.c" (not "main-gcu.c")
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
-#LIBS = -lX11
+# Support the GTK2 graphical tookit (main-gtk.c)
+#SYS_gtk = -rdynamic -export-dynamic -DUSE_GTK $(shell pkg-config libglade-2.0 gtk+-2.0 --libs --cflags)
+
+# Support SDL frontend
+#SYS_sdl = -DUSE_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_ttf -lSDL_image
 
 
-##
-## Variation -- Only support "main-gcu.c" (not "main-x11.c")
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
-#LIBS = -lcurses -ltermcap
 
 
-##
-## Variation -- Use "main-xaw.c" instead of "main-x11.c"
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
+## Support SDL_mixer for sound
+#SOUND_sdl = -DSOUND_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_mixer
 
 
-##
-## Variation -- Use "main-cap.c" instead of "main-gcu.c"
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
-#LIBS = -lX11 -ltermcap
+
+# Basic compiler stuff
+CC = gcc
+CFLAGS = -Wall -O2 -Wno-unused-parameter
 
 
-##
-## Variation -- Only work on simple vt100 terminals
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_CAP" -D"USE_HARDCODE"
+# Add additional search directives here
+# Example: -I/usr/X11R6/include -I/usr/include/ncurses
+INCLUDES = -I.
+# Example: -L/usr/X11R6/lib 
+LIBS =
 
 
-##
-## Variation -- compile for Linux
-##
-## Allows the use of Angband in the console using ncurses,
-## as well as under X11.
-##
-#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
-#         -O2 -fno-strength-reduce \
-#         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
-#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+# Version info
+EXE = unangband
 
 
-##
-## Variation -- compile for Linux
-##
-## Allows the use of Angband in the console using curses.
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -D"USE_GCU"
-#LIBS = -lcurses
+
+#### Things you probably shouldn't change, unless there is a problem ####
+
+# Import user prefs
+# If you don't want to edit this file, put your module redefinitions
+# and build flags in "./config"
+-include config
 
 
-##
-## Variation -- compile for Linux
-##
-## Allows the use of Angband in X11 using the Athena Widget set.
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -D"USE_XAW"
-#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11
+# Extract CFLAGS and LIBS from the system definitions
+MODULES = $(SYS_x11) $(SYS_gcu) $(SYS_gtk) $(SYS_sdl) $(SOUND_sdl)
+CFLAGS += $(patsubst -l%,,$(MODULES)) $(INCLUDES)
+LIBS += $(patsubst -D%,,$(patsubst -I%,, $(MODULES)))
 
 
-##
-## Variation -- this might work better than the suggestion above
-##
-#CFLAGS = -I/usr/include/ncurses \
-#         -Wall -O2 -fno-strength-reduce -fomit-frame-pointer \
-#         -D"USE_X11" -D"USE_GCU" \
-#         -D"USE_TPOSIX" -D"USE_CURS_SET"
-#LIBS = -lX11 -lncurses
-#LDFLAGS = -s
+# Object definitions
+X11OBJS = maid-x11.o main-x11.o
+GTKOBJS = gtk/main-gtk.o gtk/cairo-utils.o
+#MAINOBJS = main.o main-gcu.o main-sdl.o snd-sdl.o $(X11OBJS) $(GTKOBJS)
+MAINOBJS = main.o main-gcu.o $(X11OBJS)
+OBJS = $(BASEOBJS) $(MAINOBJS)
 
 
-##
-## Variation -- compile for Solaris
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS"
-#LIBS = -lX11 -lsocket -lcurses
 
 
-##
-## Variation -- compile for SGI Indigo runnig Irix
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SGI"
-#LIBS = -lX11 -lcurses -ltermcap -lsun
+#### Targets and objects #####
 
+# By default, copy the executable to ../ so that you don't find
+# yourself debugging a stale copy.
+default: install
 
-##
-## Variation -- compile for Dec ALPHA OSF/1 v2.0
-##
-#CC     = cc
-##CFLAGS = -std -O -g3 -Olimit 4000 -D"USE_X11" -D"USE_GCU"
-#CFLAGS = -std -g -D"USE_X11" -D"USE_GCU"
-#LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc
-
-
-##
-## Variation -- compile for Interactive Unix (ISC) systems
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"ISC"
-#LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix
-
-
-##
-## Variation -- Support fat binaries under NEXTSTEP
-##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -arch m68k -arch i386
-#LIBS = -lcurses -ltermcap
+# Makefile.inc contains an up-to-date set of object files to compile, so
+# we include it
+include Makefile.inc
 
 
 #
-# Default target.
+# Targets
 #
-all: unangband
 
+# Build the "Angband" program
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS)
 
-#
 # Install the game.
-#
+install: ../$(EXE)
 
-install: unangband
-	cp unangband ..
+docs: doc/index.html
 
+../$(EXE): $(EXE)
+	cp $(EXE) ..
 
-#
-# Build the "Unangband" program
-#
-
-.PHONY : unangband debug
-
-unangband:
-	@$(MAKE) $(OBJS) CFLAGS="$(NORMAL_CFLAGS)"
-	$(CC) $(NORMAL_CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
-
-debug: 
-	@$(MAKE) $(OBJS) CFLAGS="$(DEBUG_CFLAGS)"
-	$(CC) $(DEBUG_CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
-
-#
 # Clean up old junk
-#
-
 clean:
-	\rm -f *.o unangband
+	-rm -f *.o gtk/*.o $(EXE)
+	-rm -f ../lib/data/*.raw
+
+# make a distribution
+DIRS = lib/apex lib/bone lib/data lib/edit lib/file lib/help lib/info \
+       lib/pref lib/save lib/user lib/xtra/sound lib/xtra/graf lib/xtra/font
+
+TMPDIR = ./$(EXE)-$(VERSION)
+dist:
+	@-rm -rf $(TMPDIR)
+	@echo making directories...
+	@for i in $(DIRS) ; do mkdir -p $(TMPDIR)/$$i ; done
+	@echo copying files...
+	@cp ../lib/edit/*.txt $(TMPDIR)/lib/edit
+	@cp ../lib/file/*.txt $(TMPDIR)/lib/file
+	@cp ../lib/help/*.txt ../lib/help/*.hlp $(TMPDIR)/lib/help
+	@cp ../lib/pref/*.prf $(TMPDIR)/lib/pref
+	@cp ../lib/xtra/font/*.txt $(TMPDIR)/lib/xtra/font
+	@echo attempting to install sound and graphics
+	@-cp ../lib/xtra/sound/*.wav $(TMPDIR)/lib/xtra/sound
+	@-cp ../lib/xtra/graf/*.bmp $(TMPDIR)/lib/xtra/graf
+	@cp ../changes.txt ../readme.txt $(TMPDIR)
+	@cp $(EXE) $(TMPDIR)
+	tar czf ../$(EXE)-$(VERSION).tar.gz $(TMPDIR)
+	rm -rf $(TMPDIR)
 
 
-#
-# Generate dependancies automatically
-#
+#  Verify module arguments
+args:
+	@echo CFLAGS = $(CFLAGS)
+	@echo LIBS = $(LIBS)
 
+
+# Generate dependencies automatically
 depend:
 	makedepend -D__MAKEDEPEND__ $(SRCS)
 
 
-#
-# Hack -- some file dependencies
-#
-
-HDRS = \
-  h-basic.h \
-  h-define.h h-type.h h-system.h h-config.h
-
-INCS = \
-  angband.h \
-  config.h defines.h types.h externs.h option.h \
-  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
-
-
-%.o: %.c $(INCS)
+# Some file dependencies
+%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+# X11 dependencies
+$(X11OBJS) : $(HEADERS) maid-x11.h main.h
+
+# Basic dependencies for main-xxx.c, main.c
+$(MAINOBJS) : main.h $(HEADERS)
+
+# fake Dependency
+doc/index.html: $(HEADERS)
+	doxygen doc/doxygen.conf

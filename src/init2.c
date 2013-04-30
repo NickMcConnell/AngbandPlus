@@ -366,6 +366,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 header z_head;
 header v_head;
 header d_head;
+header blow_head;
 header f_head;
 header k_head;
 header a_head;
@@ -814,6 +815,40 @@ static errr init_d_info(void)
 
 
 /*
+ * Initialize the "blow_info" array
+ */
+static errr init_blow_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&blow_head, z_info->blow_max, sizeof(blow_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	blow_head.parse_info_txt = parse_blow_info;
+
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the emit function*/
+	blow_head.emit_info_txt_index = emit_blow_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("blows", &blow_head);
+
+	/* Set the global variables */
+	blow_info = blow_head.info_ptr;
+	blow_name = blow_head.name_ptr;
+	blow_text = blow_head.text_ptr;
+
+	return (err);
+}
+
+
+/*
  * Initialize the "f_info" array
  */
 static errr init_f_info(void)
@@ -830,7 +865,7 @@ static errr init_f_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emit function*/
 	f_head.emit_info_txt_index = emit_f_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -865,7 +900,7 @@ static errr init_k_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emit function*/
 	k_head.emit_info_txt_index = emit_k_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 	
@@ -900,7 +935,7 @@ static errr init_a_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emit function*/
 	a_head.emit_info_txt_index = emit_a_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 	
@@ -2114,7 +2149,6 @@ void init_angband(void)
 	/* Failure */
 	if (fd < 0)
 	{
-
 		/* File type is "DATA" */
 		FILE_TYPE(FILE_TYPE_DATA);
 
@@ -2150,6 +2184,10 @@ void init_angband(void)
 	note("[Initializing array sizes...]");
 	if (init_z_info()) quit("Cannot initialize sizes");
 
+	/* Initialize feature info */
+	note("[Initializing arrays... (blows)]");
+	if (init_blow_info()) quit("Cannot initialize blows");	
+	
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -2388,6 +2426,7 @@ void cleanup_angband(void)
 	free_info(&f_head);
 	free_info(&d_head);
 	free_info(&q_head);
+	free_info(&blow_head);
 	free_info(&z_head);
 
 	/* Free the format() buffer */

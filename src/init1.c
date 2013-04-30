@@ -261,6 +261,86 @@ static cptr r_info_blow_method[] =
 
 
 /*
+ * Blow and projection flags
+ */
+static cptr blow_info_flags1[] =
+{
+	"BEAM",
+	"ARC",
+	"STAR",
+	"8WAY",
+	"4WAY",
+	"SCATTER",
+	"BOOM",
+	"WALL",
+	"PASS",
+	"MISS",
+	"AREA",
+	"GRID",
+	"ITEM",
+	"KILL",
+	"PLAY",
+	"SELF",
+	"LITE",
+	"MAGIC",
+	"HIDE",
+	"NO_REDRAW",
+	"SAFE",
+	"STOP",
+	"JUMP",
+	"THRU",
+	"CHCK",
+	"ORTH",
+	"LOS",
+	"HOOK",
+	"PANEL",
+	"LEVEL",
+	"FORK",
+	"WIDE"
+};
+
+
+/*
+ * Blow and projection flags
+ */
+static cptr blow_info_flags2[] =
+{
+	"MELEE",
+	"RANGED",
+	"BREATH",
+	"INNATE",
+	"CUTS",
+	"STUN",
+	"SHRIEK",
+	"SLIME",
+	"TOUCH",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	""	
+};
+
+
+/*
  * Monster/Trap/Spell Blow Effects
  */
 static cptr r_info_blow_effect[] =
@@ -406,6 +486,8 @@ static cptr r_info_blow_effect[] =
 	"HEAL_PERC",
 	"GAIN_MANA_PERC",
 	"TANGLE",
+	"POISON_WATER",
+	"INVISIBILITY",
 	NULL
 };
 
@@ -1207,7 +1289,7 @@ static cptr s_info_flags2[] =
 	"SHERO",
 	"BLESS",
 	"SHIELD",
-	"INVULN",
+	"INVIS",
 	"SEE_INVIS",
 	"PROT_EVIL",
 	"RECALL",
@@ -1254,7 +1336,7 @@ static cptr s_info_flags3[] =
 	"DEC_FOOD",
 	"DEC_EXP",
 	"HOLD_SONG",
-	"THUAMATURGY"
+	"THAUMATURGY"
 };
 
 /*
@@ -1735,6 +1817,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->b_max = max;
 	}
 
+	/* Process 'b' for "Maximum blow_info[] subindex" */
+	else if (buf[2] == 'b')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->blow_max = max;
+	}
+
 	/* Process 'Q' for "Maximum q_info[] subindex" */
 	else if (buf[2] == 'Q')
 	{
@@ -1908,18 +2002,345 @@ errr parse_v_info(char *buf, header *head)
 static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
 {
 	int i;
-
+	
 	/* Check flags */
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, names[i]))
 		{
 			*flags |= (1L << i);
+			
 			return (0);
 		}
 	}
 
 	return (-1);
+}
+
+
+/*
+ * Grab one blow flag in a blow_type from a textual string
+ */
+static errr grab_one_blow_flag(blow_type *blow_ptr, cptr what)
+{
+	if (grab_one_flag(&blow_ptr->flags1, blow_info_flags1, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&blow_ptr->flags2, blow_info_flags2, what) == 0)
+		return (0);
+
+	/* Oops */
+	msg_format("Unknown blow flag '%s'.", what);
+
+	/* Error */			
+	return (PARSE_ERROR_GENERIC);
+	
+	return (0);
+}
+
+
+/*
+* Grab one level scalar from a textual string 		 
+*/ 		 
+static errr grab_one_level_scalar(blow_level_scalar_type *scalar, char *what) 		 
+{ 		 
+	char *s, *t, *u; 		 
+	  		 
+	/* Start at start of string */ 		 
+	s = what; 		 
+	  		 
+	/* Find either a plus or slash */
+	for (t = s; *t && (*t != '+') && (*t != '/'); ++t) /* loop */;
+
+	/* Find a slash */
+	for (u = s; *u && (*u != '/'); ++u) /* loop */;
+	
+	/* No plus sign */
+	if (*t == '/')
+	{
+		/* Move t backwards */
+		t = s;
+		
+		/* Find the end of line */
+		for (; *s && (*s != '\n'); ++s) /* loop */;			
+	}
+	/* Prepare t */
+	else if (*t == '+')
+	{
+		/* Nuke plus sign and advance */
+		*t++ = '\0';
+	}
+	
+	/* Prepare u */
+	if (*u == '/')
+	{
+		/* Nuke divisor and advance */
+		*u++ = '\0';
+	}
+
+	/* Parse values */
+	scalar->base = atoi(s);
+	scalar->gain = atoi(t);
+	scalar->levels = atoi(u);
+	
+	return (0); 		 
+}
+
+/*
+ * Initialize the "project_info" array, by parsing an ascii "template" file
+ */
+errr parse_blow_info(char *buf, header *head)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Current entry */
+	static blow_type *blow_ptr = NULL;
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Get the index */
+		i = atoi(buf+2);
+
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		blow_ptr = (blow_type*)head->info_ptr + i;
+
+		/* Store the name */
+		if (!(blow_ptr->name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		
+		/* Set some values */
+		blow_ptr->max_range = MAX_SIGHT;		
+	}
+
+	/* Hack -- Process 'F' for flags */
+	else if (buf[0] == 'F')
+	{
+		/* There better be a current f_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_blow_flag(blow_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
+	/* Process 'T' for "Blow Description" */
+	else if (buf[0] == 'T')
+	{
+		int n1;
+		
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Analyze effect */
+		for (n1 = 0; blow_ptr->desc[n1].max > 0; n1++) /* loop */ ;
+
+		if (n1 >= MAX_BLOW_DESCRIPTIONS) return (PARSE_ERROR_GENERIC);
+
+		/* Find either a minus sign or colon */
+		for (t = s = buf + 2; *t && (*t != '-') && (*t != '<') && (*t != ':'); ++t) /* loop */;
+
+		/* Parse max */
+		if ((*t == '-') || (*t == '<'))
+		{
+			/* Nuke minus size and advance */
+			*t++ = '\0';
+			
+			blow_ptr->desc[n1].max = atoi(t);
+			
+			/* Find the colon */
+			for (; *t && (*t != ':'); ++t) /* loop */;			
+		}
+		else
+		{
+			/* TODO: Define a MAX_DAMAGE and start using it */
+			blow_ptr->desc[n1].max = 10000;
+		}
+
+		/* No colon */
+		if (*t == 0) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke colon size and advance */
+		*t++ = '\0';
+
+		/* Hack -- allow greater than */
+		if (*s == '>') *s++;
+		
+		/* Parse min */
+		blow_ptr->desc[n1].min = atoi(s);
+		
+		/* Store the description */
+		if (!(add_text(&(blow_ptr->desc[n1].text), head, t)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'I' for "Info" */
+	else if (buf[0] == 'I')
+	{
+		int mana, best, max;
+		
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (3 != sscanf(buf, "I:%d:%d:%d",
+			    &mana, &best, &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		blow_ptr->mana_cost = mana;
+		blow_ptr->best_range = best;
+		blow_ptr->max_range = max;		
+	}
+	
+	/* Process 'D' for "Damage" */
+	else if (buf[0] == 'D')
+	{
+		int mult, div, var, max;
+		int n, n1;
+		char *s;
+		
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* TODO: This is bound to cause memory problems. Should have effect listed first */
+		/* Scan for 5th colon */
+		for (s = buf, n = 0; *s && (n < 5);)
+		{
+			s++;
+			if (*s == ':') n++;
+		}
+		
+		/* Nuke colon and advance */
+		*s++ = '\0';
+		
+		/* Analyze the effect */
+		for (n1 = 0; r_info_blow_effect[n1]; n1++)
+		{
+			if (streq(s, r_info_blow_effect[n1])) break;
+		}
+		
+		/* Save the value */
+		blow_ptr->d_res = n1;
+		
+		/* Scan for the values */
+		if (4 != sscanf(buf, "D:%d:%d:%d:%d",
+			    &mult, &div, &var, &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		blow_ptr->dam_mult = mult;
+		blow_ptr->dam_div = div;
+		blow_ptr->dam_var = var;		
+		blow_ptr->dam_max = max;		
+	}
+	
+	/* Process 'C' for "Choice" */
+	else if (buf[0] == 'C')
+	{
+		int base, summ, hurt, mana, esc, tact, range;
+		
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (7 != sscanf(buf, "C:%d:%d:%d:%d:%d:%d:%d",
+				&base, &summ, &hurt, &mana, &esc, &tact, &range)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		blow_ptr->d_base = base;
+		blow_ptr->d_summ = summ;
+		blow_ptr->d_hurt = hurt;		
+		blow_ptr->d_mana = mana;
+		blow_ptr->d_esc = esc;
+		blow_ptr->d_tact = tact;
+		blow_ptr->d_range = range;		
+	}
+
+	/* Process 'A' for "Arc" */
+	else if (buf[0] == 'A')
+	{
+		int arc, dia, deg;
+		
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (3 != sscanf(buf, "A:%d:%d:%d",
+			    &arc, &dia, &deg)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		blow_ptr->arc = arc;
+		blow_ptr->diameter_of_source = dia;
+		blow_ptr->degree_factor = deg;		
+	}
+	
+	/* Process 'R' for "Radius" */
+	else if (buf[0] == 'R')
+	{
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the radius information */
+		if (grab_one_level_scalar(&blow_ptr->radius, buf + 2)) return (PARSE_ERROR_GENERIC);
+	}
+	
+	/* Process 'U' for "Number" */
+	else if (buf[0] == 'U')
+	{
+		/* There better be a current blow_ptr */
+		if (!blow_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the radius information */
+		if (grab_one_level_scalar(&blow_ptr->number, buf + 2)) return (PARSE_ERROR_GENERIC);
+	}
+	
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Success */
+	return (0);
+	
 }
 
 
@@ -2130,7 +2551,6 @@ errr parse_d_info(char *buf, header *head)
 	/* Process 'B' for "Name2" */
 	else if (buf[0] == 'B')
 	{
-
 		/* There better be a current d_ptr */
 		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -2140,7 +2560,6 @@ errr parse_d_info(char *buf, header *head)
 		/* Store the name */
 		if (!(d_ptr->name2 = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
-
 	}
 
 	/* Process 'D' for "Description" */
@@ -3519,6 +3938,19 @@ errr parse_e_info(char *buf, header *head)
 			s = t;
 		}
 	}
+	/* Process 'A' for "Activation & time" */
+	else if (buf[0] == 'A')
+	{
+		int act, time, rand;
+
+		/* Scan for the values */
+		if (3 != sscanf(buf + 2, "%d:%d:%d",&act, &time, &rand)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		e_ptr->activation = act;
+		e_ptr->time = time;
+		e_ptr->randtime = rand;
+	}
 	else
 	{
 		/* Oops */
@@ -4205,19 +4637,20 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int exp, infra, r_idx;
+		int exp, infra, r_idx, slot;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &exp, &infra, &r_idx)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			    &exp, &infra, &r_idx, &slot)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_exp = exp;
 		pr_ptr->infra = infra;
 		pr_ptr->r_idx = r_idx;
+		pr_ptr->slots[END_EQUIPMENT - INVEN_WIELD] = slot;
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
@@ -4308,7 +4741,7 @@ errr parse_p_info(char *buf, header *head)
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Parse every entry textually */
-		for (s = buf + 2; *s && (i < END_EQUIPMENT - INVEN_WIELD + 1); )
+		for (s = buf + 2; *s && (i < END_EQUIPMENT - INVEN_WIELD); )
 		{
 			/* Find the end of this entry */
 			for (t = s; *t && (*t != ':'); ++t) /* loop */;
@@ -4892,7 +5325,8 @@ errr parse_s_info(char *buf, header *head)
 {
 	int i;
 
-	char *s,*t;
+	char *s, *t, *u, *v, *w;
+
 
 	/* Current entry */
 	static spell_type *s_ptr = NULL;
@@ -4991,7 +5425,7 @@ errr parse_s_info(char *buf, header *head)
 			slot = last_slot + 1;
 		}
 
-		/* Extract the damage dice and sides */
+		/* Extract the info */
 		s_ptr->appears[i].tval = tval;
 		s_ptr->appears[i].sval = sval;
 		s_ptr->appears[i].slot = slot;
@@ -5021,19 +5455,6 @@ errr parse_s_info(char *buf, header *head)
 		s_ptr->cast[i].mana = mana;
 		s_ptr->cast[i].fail = fail;
 		s_ptr->cast[i].min = min;
-
-		/* Hack -- for Istari, for the moment */
-		if (i == 0)
-		{
-			i++;
-			
-			/* Extract the damage dice and sides */
-			s_ptr->cast[i].class = CLASS_ISTARI;
-			s_ptr->cast[i].level = level;
-			s_ptr->cast[i].mana = mana;
-			s_ptr->cast[i].fail = fail;
-			s_ptr->cast[i].min = min;			
-		}
 	}
 
 	/* Process 'P' for "Pre-requisites" */
@@ -5077,13 +5498,13 @@ errr parse_s_info(char *buf, header *head)
 			/* Start the next entry */
 			s = t;
 		}
-
 	}
 
 	/* Process 'B' for "Blows" (up to four lines) */
 	else if (buf[0] == 'B')
 	{
 		int n1, n2;
+		int tmp1, tmp2;
 
 		/* There better be a current s_ptr */
 		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -5124,11 +5545,75 @@ errr parse_s_info(char *buf, header *head)
 		/* Invalid effect */
 		if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
 
-		/* Analyze the third field */
-		for (s = t; *t && (*t != 'd'); t++) /* loop */;
+		/* Advance */
+		s = t;
+		
+		/* Find a left bracket */
+		for (; *t && (*t != '('); ++t) /* loop */;
 
-		/* Terminate the field (if necessary) */
-		if (*t == 'd') *t++ = '\0';
+		/* Find a slash */
+		for (u = s; *u && (*u != '/'); ++u) /* loop */;
+		
+		/* Find a plus before a left bracket */
+		for (v = s; *v && (*v != '+') && (*v != '('); ++v) /* loop */;
+
+		/* Find a plus following t */
+		for (w = t; *w && (*w != '+'); ++w) /* loop */;
+		
+		/* Prepare t */
+		if (*t == '(')
+		{
+			/* Nuke plus sign and advance */
+			*t++ = '\0';
+		}
+		else if (*u == '/')
+		{
+			char *t1 = t;
+			
+			/* Move t backwards */
+			if (*v == '+')
+			{
+				*v++ = '\0';
+				
+				/* Swap around */
+				t = v;
+			}
+			else
+			{
+				/* Swap around */
+				t = s;
+				v = t1;
+				s = t1;
+			}
+		}
+		
+		/* Prepare u */
+		if (*u == '/')
+		{
+			/* Nuke divisor and advance */
+			*u++ = '\0';
+		}
+		
+		/* Prepare v */
+		if (*v == '+')
+		{
+			/* Nuke divisor and advance */
+			*v++ = '\0';
+		}
+		
+		/* Prepare v */
+		if (*v == '(')
+		{
+			/* Nuke divisor and advance */
+			*v++ = '\0';
+		}
+
+		/* Prepare w */
+		if (*w == '+')
+		{
+			/* Nuke divisor and advance */
+			*w++ = '\0';
+		}
 
 		/* Save the method */
 		s_ptr->blow[i].method = n1;
@@ -5136,19 +5621,26 @@ errr parse_s_info(char *buf, header *head)
 		/* Save the effect */
 		s_ptr->blow[i].effect = n2;
 
-		/* Extract the damage dice */
-		s_ptr->blow[i].d_dice = atoi(s);
+		/* Scan for the values */
+		if (2 == sscanf(s, "%dd%d", &tmp1, &tmp2))
+		{
+			s_ptr->blow[i].d_dice = tmp1;
+			s_ptr->blow[i].d_side = tmp2;
+			s_ptr->blow[i].d_plus = atoi(v); 
+		}
+		else s_ptr->blow[i].d_plus = atoi(s);
 
-		/* Analyze the fourth field */
-		for (s = t; *t && (*t != '+'); t++) /* loop */;
+		/* Scan for the values */
+		if (2 == sscanf(t, "%dd%d", &tmp1, &tmp2))
+		{
+			s_ptr->blow[i].l_dice = tmp1;
+			s_ptr->blow[i].l_side = tmp2;
+			s_ptr->blow[i].l_plus = atoi(w); 
+		}	
+		else s_ptr->blow[i].l_plus = atoi(t);
 
-		/* Terminate the field (if necessary) */
-		if (*t == 'd') *t++ = '\0';
-
-		/* Extract the damage sides and plus */
-		s_ptr->blow[i].d_side = atoi(s);
-		s_ptr->blow[i].d_plus = atoi(t);
-
+		/* Get levels */
+		s_ptr->blow[i].levels = atoi(u);		
 	}
 
 	/* Process 'S' for "Spell" */
@@ -5935,7 +6427,6 @@ errr parse_b_info(char *buf, header *head)
 	/* Current entry */
 	static owner_type *ot_ptr = NULL;
 
-
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
 	{
@@ -6515,6 +7006,7 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case GF_LITE:
 		case GF_DARK:
 		case GF_SLOW:
+		case GF_DISPEL:
 		{
 			atk_dam += 10;
 			break;
@@ -6533,6 +7025,7 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case GF_LOSE_WIS:
 		case GF_LOSE_DEX:
 		case GF_HALLU:
+		case GF_PETRIFY:
 		{
 			atk_dam += 20;
 			break;
@@ -8290,25 +8783,114 @@ static errr emit_desc(FILE *fp, cptr intro_text, cptr text)
 }
 
 
-static char color_attr_to_char[] =
+static char color_attr_to_char(int a)
 {
-		'd',
-		'w',
-		's',
-		'o',
-		'r',
-		'g',
-		'b',
-		'u',
-		'D',
-		'W',
-		'v',
-		'y',
-		'R',
-		'G',
-		'B',
-		'U'
-};
+	return (color_table[a].index_char);
+}
+
+
+/*
+ * Emit the "blow_info" array into an ascii "template" file
+ */
+errr emit_blow_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+
+	/* Point at the "info" */
+	blow_type *blow_ptr = (blow_type*)head->info_ptr + i;
+
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + blow_ptr->name);
+	
+	/* Output 'T' for "Text" */
+	for (n = 0; n < MAX_BLOW_DESCRIPTIONS; n++)
+	{
+		if ((blow_ptr->desc[n].max) && (blow_ptr->desc[n].max < 10000))
+		{
+			/* Output 'T' for "Text" */
+			fprintf(fp, "T:%d-%d:%s\n", blow_ptr->desc[n].min, blow_ptr->desc[n].max,head->text_ptr + blow_ptr->desc[n].text);			
+		}
+		else if (blow_ptr->desc[n].max)
+		{
+			/* Output 'T' for "Text" */
+			fprintf(fp, "T:%d:%s\n", blow_ptr->desc[n].min, head->text_ptr + blow_ptr->desc[n].text);
+		}
+	}
+
+	/* Output 'I' for "Blow information" */
+	if (blow_ptr->mana_cost || blow_ptr->best_range || blow_ptr->max_range)
+	{
+		fprintf(fp, "I:%d:%d:%d\n",blow_ptr->mana_cost,blow_ptr->best_range, blow_ptr->max_range);
+	}
+	
+	/* Output 'D' for "Blow damage" */
+	if (blow_ptr->dam_mult || blow_ptr->dam_div || blow_ptr->dam_var || blow_ptr->dam_max || blow_ptr->d_res)
+	{
+		fprintf(fp, "D:%d:%d:%d:%d:%s\n",blow_ptr->dam_mult, blow_ptr->dam_div, blow_ptr->dam_var, blow_ptr->dam_max,
+			r_info_blow_effect[blow_ptr->d_res]);
+	}
+	
+	/* Output 'C' for "Blow choices" */
+	if (blow_ptr->d_base || blow_ptr->d_hurt || blow_ptr->d_esc
+			|| blow_ptr->d_summ || blow_ptr->d_mana || blow_ptr->d_tact || blow_ptr->d_range)
+	{
+		fprintf(fp, "C:%d:%d:%d:%d:%d:%d:%d\n",blow_ptr->d_base, blow_ptr->d_summ, blow_ptr->d_hurt, blow_ptr->d_mana,
+				blow_ptr->d_esc, blow_ptr->d_tact, blow_ptr->d_range);
+	}
+	
+	/* Output 'S' for "Summoning choices" */
+	if (blow_ptr->summon_type)
+	{
+		fprintf(fp, "S:%d\n",blow_ptr->summon_type);
+	}
+	
+	/* Output 'A' for "Arc information" */
+	if (blow_ptr->arc)
+	{
+		fprintf(fp, "A:%d:%d:%d\n", blow_ptr->arc, blow_ptr->diameter_of_source, blow_ptr->degree_factor);
+	}
+	
+	/* Output 'R' for "Radius information */
+	if ((blow_ptr->radius.base) || (blow_ptr->radius.gain))
+	{
+		fprintf(fp, "R:");
+		if (blow_ptr->radius.base)
+		{
+			fprintf(fp,"%d", blow_ptr->radius.base);
+			if (blow_ptr->radius.gain) fprintf(fp, "+");
+		}
+		if (blow_ptr->radius.gain)
+		{
+			fprintf(fp,"%d/%d", blow_ptr->radius.gain, blow_ptr->radius.levels);
+		}
+		fprintf(fp, "\n");
+	}
+	
+	/* Output 'U' for "Number information */
+	if ((blow_ptr->number.base) || (blow_ptr->number.gain))
+	{
+		fprintf(fp, "U:");
+		if (blow_ptr->number.base)
+		{
+			fprintf(fp,"%d", blow_ptr->number.base);
+			if (blow_ptr->number.gain) fprintf(fp, "+");
+		}
+		if (blow_ptr->number.gain)
+		{
+			fprintf(fp,"%d/%d", blow_ptr->number.gain, blow_ptr->number.levels);
+		}
+		fprintf(fp, "\n");
+	}
+	
+	/* Output 'F' for "Flags" */
+	emit_flags_32(fp, "F:", blow_ptr->flags1, blow_info_flags1);
+	emit_flags_32(fp, "F:", blow_ptr->flags2, blow_info_flags2);
+
+	fprintf(fp, "\n");	
+	
+	/* Success */
+	return (0);
+}
 
 
 
@@ -8416,16 +8998,84 @@ errr emit_r_info_index(FILE *fp, header *head, int i)
 {
 	int n;
 
+	/* Used to determine 'free' colours */
+	u32b metallics = 0;
+	u32b chromatics = 0;
+	bool clear = FALSE;
+	bool multi = FALSE;
+	
 	/* Current entry */
 	monster_race *r_ptr = (monster_race*)head->info_ptr + i;
-	
 	
 	/* Output 'N' for "New/Number/Name" */
 	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + r_ptr->name);
 
 	/* Output 'G' for "Graphics" (one line only) */
-	fprintf(fp, "G:%c:%c\n",r_ptr->d_char,color_attr_to_char[r_ptr->d_attr]);
-
+	fprintf(fp, "G:%c:%c\n",r_ptr->d_char,color_attr_to_char(r_ptr->d_attr));
+	
+	/* TODO: Enable this when we go to 256 colours to help reduce duplicate monster appearances */
+	/* Show other monsters with same appearance */
+	for (n = 1; n < z_info->r_max; n++)
+	{
+		monster_race *r2_ptr = (monster_race*)head->info_ptr + n;
+		
+		if (r_ptr->d_char != r2_ptr->d_char) continue;
+		
+		if (r2_ptr->flags1 & (RF1_ATTR_CLEAR)) clear = TRUE;
+		else if (r2_ptr->flags1 & (RF1_ATTR_MULTI)) multi = TRUE;
+		else if (r2_ptr->flags9 & (RF9_ATTR_METAL)) metallics |= 1 << (r2_ptr->d_attr);
+		else chromatics |= 1 << (r2_ptr->d_attr);
+		
+		if (n == i) continue;
+		
+		/* Town monsters allowed to match dungeon monsters */
+		if ((!r2_ptr->level) && (r_ptr->level)) continue;
+		if ((!r_ptr->level) && (r2_ptr->level)) continue;
+		
+		if (((r_ptr->flags1 & (RF1_ATTR_CLEAR)) == 
+			(r2_ptr->flags1 & (RF1_ATTR_CLEAR))) &&
+			((r_ptr->flags1 & (RF1_ATTR_CLEAR)) ||
+					(r2_ptr->flags1 & (RF1_ATTR_CLEAR))))
+		{
+			fprintf(fp, "#$ Matches %s\n", head->name_ptr + r2_ptr->name);
+		}
+		else if (((r_ptr->flags1 & (RF1_ATTR_MULTI)) == 
+			(r2_ptr->flags1 & (RF1_ATTR_MULTI))) &&
+			((r_ptr->flags1 & (RF1_ATTR_MULTI)) ||
+					(r2_ptr->flags1 & (RF1_ATTR_MULTI))))
+		{
+			fprintf(fp, "#$ Matches %s\n", head->name_ptr + r2_ptr->name);
+		}
+		else if ((r_ptr->d_attr == r2_ptr->d_attr) &&
+				((r_ptr->flags9 & (RF9_ATTR_METAL)) == 
+								(r2_ptr->flags9 & (RF9_ATTR_METAL))) &&
+								((r_ptr->flags1 & (RF1_ATTR_MULTI)) == 
+											(r2_ptr->flags1 & (RF1_ATTR_MULTI))) &&
+											((r_ptr->flags1 & (RF1_ATTR_CLEAR)) == 
+														(r2_ptr->flags1 & (RF1_ATTR_CLEAR))))
+		{
+			fprintf(fp, "#$ Matches %s\n", head->name_ptr + r2_ptr->name);
+		}
+	}
+	
+	/* Display free colours */
+	if (!clear) fprintf(fp, "#$ Clear available\n");
+	if (!multi) fprintf(fp, "#$ Multihued available\n");
+	
+	fprintf(fp, "#$ Metallics available:");
+	for (i = 0; i < MAX_COLORS; i++)
+	{
+		if ((metallics & (1 << i)) == 0) fprintf(fp, "%c",color_table[i].index_char);
+	}
+	fprintf(fp, "\n");
+	
+	fprintf(fp, "#$ Colors available:");
+	for (i = 0; i < MAX_COLORS; i++)
+	{
+		if ((chromatics & (1 << i)) == 0) fprintf(fp, "%c",color_table[i].index_char);
+	}
+	fprintf(fp, "\n");
+	
 	/* Output 'I' for "Info" (one line only) */
 	fprintf(fp, "I:%d:%dd%d:%d:%d:%d\n",r_ptr->speed,r_ptr->hdice,r_ptr->hside,r_ptr->aaf,r_ptr->ac,r_ptr->sleep);
 
@@ -8498,7 +9148,7 @@ errr emit_f_info_index(FILE *fp, header *head, int i)
 	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + f_ptr->name);
 
 	/* Output 'G' for "Graphics" (one line only) */
-	fprintf(fp, "G:%c:%c\n",f_ptr->d_char,color_attr_to_char[f_ptr->d_attr]);
+	fprintf(fp, "G:%c:%c\n",f_ptr->d_char,color_attr_to_char(f_ptr->d_attr));
 
 	/* Output 'M' for "Mimic" (one line only) */
 	if (f_ptr->mimic != i)
@@ -8606,7 +9256,7 @@ errr emit_k_info_index(FILE *fp, header *head, int i)
 	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + k_ptr->name);
 
 	/* Output 'G' for "Graphics" (one line only) */
-	fprintf(fp, "G:%c:%c\n",k_ptr->d_char,color_attr_to_char[k_ptr->d_attr]);
+	fprintf(fp, "G:%c:%c\n",k_ptr->d_char,color_attr_to_char(k_ptr->d_attr));
 
 	/* Output 'I' for "Info" (one line only) */
 	fprintf(fp, "I:%d:%d:%d\n",k_ptr->tval,k_ptr->sval,k_ptr->pval);
@@ -8670,7 +9320,7 @@ errr emit_a_info_index(FILE *fp, header *head, int i)
 	/* Output 'P' for "Power" (one line only) */
 	fprintf(fp,"P:%d:%dd%d:%d:%d:%d\n",a_ptr->ac, a_ptr->dd, a_ptr->ds, a_ptr->to_h, a_ptr->to_d, a_ptr->to_a);
 
-	/* Output 'I' for "Info" (one line only) */
+	/* Output 'A' for "Activation" (one line only) */
 	if (a_ptr->activation) fprintf(fp, "A:%d:%d:%d\n",a_ptr->activation,a_ptr->time,a_ptr->randtime);
 
 	/* Output 'F' for "Flags" */
@@ -8718,6 +9368,9 @@ errr emit_e_info_index(FILE *fp, header *head, int i)
 	/* Output 'C' for "Creation" (one line only) */
 	fprintf(fp,"C:%d:%d:%d:%d\n",e_ptr->max_to_h, e_ptr->max_to_d, e_ptr->max_to_a, e_ptr->max_pval);
 
+	/* Output 'A' for "Activation" (one line only) */
+	if (e_ptr->activation) fprintf(fp, "A:%d:%d:%d\n",e_ptr->activation,e_ptr->time,e_ptr->randtime);
+
 	/* Output 'Y' for "Runes" (up to one line only) */
 	if (e_ptr->runest) fprintf(fp, "Y:%d:%d\n",e_ptr->runest, e_ptr->runesc);
 	else fprintf(fp, "# Runes needed\n");
@@ -8756,7 +9409,7 @@ errr emit_x_info_index(FILE *fp, header *head, int i)
 	fprintf(fp, "N:%d:%d%s\n", i,x_ptr->tval, x_ptr->sval == 255 ? "" : format(":%d", x_ptr->sval));
 
 	/* Output 'G' for "Graphics" (one line only) */
-	fprintf(fp, "G:%c:%c\n",x_ptr->d_char,color_attr_to_char[x_ptr->d_attr]);
+	fprintf(fp, "G:%c:%c\n",x_ptr->d_char,color_attr_to_char(x_ptr->d_attr));
 
 	/* Output 'D' for "Description" */
 	emit_desc(fp, "D:", head->text_ptr + x_ptr->text);
@@ -8775,7 +9428,8 @@ errr emit_p_info_index(FILE *fp, header *head, int i)
 {
 	int n;
 	bool introduced = FALSE;
-
+	bool output = FALSE;
+	
 	/* Current entry */
 	player_race *pr_ptr = (player_race*)head->info_ptr + i;
 	
@@ -8803,16 +9457,28 @@ errr emit_p_info_index(FILE *fp, header *head, int i)
 		    pr_ptr->r_srh, pr_ptr->r_dig, pr_ptr->r_tht, pr_ptr->r_thn, pr_ptr->r_thb);
 	
 	/* Output 'X' for "Extra Info" (one line only) */
-	fprintf(fp, "X:%d:%d:%d\n", pr_ptr->r_exp, pr_ptr->infra, pr_ptr->r_idx);
+	if (pr_ptr->r_exp || pr_ptr->infra || pr_ptr->r_idx || pr_ptr->slots[END_EQUIPMENT - INVEN_WIELD])
+	{
+		fprintf(fp, "X:%d:%d:%d:%d\n", pr_ptr->r_exp, pr_ptr->infra, pr_ptr->r_idx, pr_ptr->slots[END_EQUIPMENT - INVEN_WIELD]);
+	}
 
-	/* Output 'I' for "Info" (one line only) */
-	fprintf(fp, "I:%d:%d:%d:%d\n", pr_ptr->hist, pr_ptr->b_age, pr_ptr->m_age, pr_ptr->home);
+	/* Output 'I' for "Info" (one line only) */	
+	if (pr_ptr->hist || pr_ptr->b_age || pr_ptr->m_age || pr_ptr->home)
+	{
+		fprintf(fp, "I:%d:%d:%d:%d\n", pr_ptr->hist, pr_ptr->b_age, pr_ptr->m_age, pr_ptr->home);
+	}
 
 	/* Output 'H' for "Height" (one line only) */
-	fprintf(fp, "H:%d:%d:%d:%d\n", pr_ptr->m_b_ht, pr_ptr->m_m_ht, pr_ptr->f_b_ht, pr_ptr->f_m_ht);
-
-	/* Output 'H' for "Height" (one line only) */
-	fprintf(fp, "W:%d:%d\n", pr_ptr->m_b_wt, pr_ptr->f_b_wt);
+	if  (pr_ptr->m_b_ht || pr_ptr->m_m_ht || pr_ptr->f_b_ht || pr_ptr->f_m_ht)
+	{
+		fprintf(fp, "H:%d:%d:%d:%d\n", pr_ptr->m_b_ht, pr_ptr->m_m_ht, pr_ptr->f_b_ht, pr_ptr->f_m_ht);
+	}
+		
+	/* Output 'W' for "Weight" (one line only) */
+	if (pr_ptr->m_b_wt || pr_ptr->f_b_wt)
+	{
+		fprintf(fp, "W:%d:%d\n", pr_ptr->m_b_wt, pr_ptr->f_b_wt);
+	}
 
 	/* Output 'F' for "Flags" */
 	emit_flags_32(fp, "F:", pr_ptr->flags1, k_info_flags1);
@@ -8820,17 +9486,26 @@ errr emit_p_info_index(FILE *fp, header *head, int i)
 	emit_flags_32(fp, "F:", pr_ptr->flags3, k_info_flags3);
 	emit_flags_32(fp, "F:", pr_ptr->flags4, k_info_flags4);
 
-	/* Start object slots output */
-	fprintf(fp, "O");
-	
-	/* Output stats */
-	for (n = 0; n < END_EQUIPMENT - INVEN_WIELD + 1; n++)
+	/* Check if 'O' required */
+	for (n = 0; n < END_EQUIPMENT - INVEN_WIELD; n++)
 	{
-		fprintf(fp, ":%d", pr_ptr->slots[n]);
+		if (pr_ptr->slots[n]) output = TRUE;
 	}
 	
-	/* Finish object slots output */
-	fprintf(fp, "\n");
+	if (output)
+	{
+		/* Start object slots output */
+		fprintf(fp, "O");
+		
+		/* Output stats */
+		for (n = 0; n < END_EQUIPMENT - INVEN_WIELD; n++)
+		{
+			fprintf(fp, ":%d", pr_ptr->slots[n]);
+		}
+		
+		/* Finish object slots output */
+		fprintf(fp, "\n");
+	}
 
 	/* Only output classes for starting races */
 	if (i< z_info->g_max)
@@ -8848,11 +9523,12 @@ errr emit_p_info_index(FILE *fp, header *head, int i)
 				introduced = TRUE;
 			}
 		}
+		
+		/* Finish class choices output */
+		fprintf(fp, "\n");
+
 	}
 	
-	/* Finish class choices output */
-	fprintf(fp, "\n");
-
 	/* Finish output */
 	fprintf(fp, "\n");
 
@@ -8990,11 +9666,12 @@ errr emit_s_info_index(FILE *fp, header *head, int i)
 				case 5: note_spell = priest_spell; break;
 				case 8: case 9: case 11: note_spell = (s_ptr->cast[0].class != 0); break;
 			}
-			
+#if 0 /* This causes dangerous memory access on some OS'es and needs p_class initialised first. */			
 			if (note_spell)
 			{
 				fprintf(fp, "#$ %s cannot cast this spell.\n", c_name + c_info[l].name);
 			}
+#endif
 		}
 	}
 	
@@ -9010,8 +9687,66 @@ errr emit_s_info_index(FILE *fp, header *head, int i)
 		
 		if (s_ptr->blow[n].effect)
 		{
-			fprintf(fp, ":%s:%dd%d+%d", r_info_blow_effect[s_ptr->blow[n].effect],
-					s_ptr->blow[n].d_dice, s_ptr->blow[n].d_side, s_ptr->blow[n].d_plus);
+			fprintf(fp, ":%s", r_info_blow_effect[s_ptr->blow[n].effect]);
+
+			if ((s_ptr->blow[n].d_dice != 0) || (s_ptr->blow[n].d_side != 0))
+			{
+				fprintf(fp, ":%dd%d", s_ptr->blow[n].d_dice, s_ptr->blow[n].d_side);
+			}
+
+			if ((s_ptr->blow[n].d_plus != 0) || (s_ptr->blow[n].l_side != 0) || (s_ptr->blow[n].l_dice != 0)
+					|| (s_ptr->blow[n].levels != 0))
+			{
+				if ((s_ptr->blow[n].d_dice == 0) && (s_ptr->blow[n].d_side == 0))
+				{
+					fprintf(fp, ":");
+				}
+				else if (s_ptr->blow[n].d_plus)
+				{
+					fprintf(fp, "+");
+				}
+
+				if (s_ptr->blow[n].d_plus)
+				{
+					fprintf(fp, "%d", s_ptr->blow[n].d_plus);
+				}
+
+				if (((s_ptr->blow[n].d_dice != 0) || (s_ptr->blow[n].d_side != 0) || (s_ptr->blow[n].d_plus))
+					&& ((s_ptr->blow[n].l_dice != 0) || (s_ptr->blow[n].l_side != 0) || (s_ptr->blow[n].l_plus)))
+				{
+					fprintf(fp, "+");
+				}
+				
+				if (((s_ptr->blow[n].d_dice != 0) || (s_ptr->blow[n].d_side != 0)) && ((s_ptr->blow[n].l_dice != 0) || (s_ptr->blow[n].l_side != 0)))
+				{
+					fprintf(fp, "(");
+				}
+				
+				if ((s_ptr->blow[n].l_dice != 0) || (s_ptr->blow[n].l_side != 0))
+				{
+					fprintf(fp, "%dd%d", s_ptr->blow[n].l_dice, s_ptr->blow[n].l_side);
+					
+					if (s_ptr->blow[n].l_plus != 0)
+					{
+						fprintf(fp, "+");
+					}
+				}
+				
+				if (s_ptr->blow[n].l_plus != 0)
+				{
+					fprintf(fp, "%d", s_ptr->blow[n].l_plus);
+				}				
+				
+				if (((s_ptr->blow[n].d_dice != 0) || (s_ptr->blow[n].d_side != 0)) && ((s_ptr->blow[n].l_dice != 0) || (s_ptr->blow[n].l_side != 0)))
+				{
+					fprintf(fp, ")");
+				}
+
+				if (s_ptr->blow[n].levels != 0)
+				{
+					fprintf(fp, "/%d", s_ptr->blow[n].levels);
+				}
+			}			
 		}
 		
 		fprintf(fp, "\n");

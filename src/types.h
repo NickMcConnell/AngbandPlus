@@ -72,6 +72,7 @@ typedef s16b s16b_wid[DUNGEON_WID];
 /**** Available Function Definitions ****/
 
 typedef void (*print_list_func)(const s16b *sn, int num, int y, int x);
+typedef bool (*list_command_func)(char choice, const s16b *sn, int i, bool *redraw);
 
 
 typedef bool (*tester_attribute_func)(int y, int x);
@@ -84,6 +85,9 @@ typedef void (*modify_attribute_func)(int y, int x);
 typedef struct maxima maxima;
 typedef struct dungeon_zone dungeon_zone;
 typedef struct town_type town_type;
+typedef struct blow_desc_type blow_desc_type;
+typedef struct blow_level_scalar_type blow_level_scalar_type;
+typedef struct blow_type blow_type;
 typedef struct desc_type desc_type;
 typedef struct room_info_type room_info_type;
 typedef struct feature_state feature_state;
@@ -128,7 +132,7 @@ typedef struct element_type element_type;
 typedef struct quiver_group_type quiver_group_type;
 typedef struct ecology_type ecology_type;
 typedef struct do_cmd_item_type do_cmd_item_type;
-
+typedef struct color_type color_type;
 
 
 
@@ -173,7 +177,8 @@ struct maxima
 	u16b y_max;     /* Max size per element of "y_info[]" */
 
 	u16b w_max;	/* Max size per element of "w_info[]" */
-
+	u16b blow_max;	/* Max size per element of "blow_info[]" */
+	
 	u16b o_max;     /* Max size for "o_list[]" */
 	u16b m_max;     /* Max size for "m_list[]" */
 };
@@ -234,6 +239,75 @@ struct town_type
 	dungeon_zone zone[MAX_DUNGEON_ZONES];
 
 };
+
+
+/*
+ * Text used for blow descriptions
+ */
+struct blow_desc_type
+{
+	s16b min;
+	s16b max;
+	u32b text;	
+};
+
+
+/*
+ * Scalar for blow effect per level
+ * 
+ * Returned value is value + gain * actual_level / levels;
+ */
+struct blow_level_scalar_type
+{
+	s16b base;
+	s16b gain;
+	s16b levels;
+};
+
+
+/*
+ * Information about blow and projection types.
+ */
+struct blow_type
+{
+	u32b name;     /* Name (offset) */
+
+	u32b flags1;	/* Projection flags */
+	u32b flags2;	/* Melee and spell flags */
+
+	blow_desc_type desc[MAX_BLOW_DESCRIPTIONS];	/* Possible text strings describing blow */
+
+	byte arc;
+	byte diameter_of_source;
+	byte degree_factor;
+	byte unused;
+	
+	byte mana_cost;
+	byte best_range;
+	byte max_range;
+	byte summon_type;
+
+	/* Monster spell/breath damage  */
+	byte dam_mult;
+	byte dam_div;
+	byte dam_var;
+	byte dam_max;
+	
+	/* Monster spell desirability */
+	byte d_base;
+	byte d_hurt;
+	byte d_esc;
+	byte d_res;
+	
+	byte d_summ;
+	byte d_mana;
+	byte d_tact;
+	byte d_range;
+	
+	blow_level_scalar_type radius;
+	blow_level_scalar_type number;
+};
+
 
 #define THEME_TUNNEL	0
 #define THEME_SOLID		1
@@ -595,9 +669,15 @@ struct ego_item_type
 	byte runest;   /* Rune type */
 	byte runesc;   /* Rune count */
 
-        byte aware;
+    byte aware;
 
-	s32b slay_power;	/* Pre-computed power from brands/slays */
+    s16b activation;/* Activation to use */
+    u16b time;      /* Activation time */
+    u16b randtime;  /* Activation time dice */
+
+    s16b activated; /* Count of times activated */
+
+    s32b slay_power;	/* Pre-computed power from brands/slays */
 };
 
 struct flavor_type
@@ -1239,6 +1319,7 @@ struct spell_cast
 	byte min;
 };
 
+
 /*
  * Spell blow structure
  *
@@ -1252,7 +1333,12 @@ struct spell_blow
 	byte d_dice;
 	byte d_side;
 	s16b d_plus;
+	byte l_dice;
+	byte l_side;
+	s16b l_plus;
+	byte levels;	
 };
+
 
 /*
  * Spell type info
@@ -1434,7 +1520,7 @@ struct player_type
 	s16b psleep;	/* Timed -- player induced sleep */
 
 	s16b protevil;  /* Timed -- Protection */
-	s16b invuln;    /* Timed -- Invulnerable */
+	s16b invis;	    /* Timed -- Invisbility */
 	s16b free_act;  /* Timed -- Free action */
 	s16b hero;      /* Timed -- Heroism */
 	s16b shero;     /* Timed -- Super Heroism */
@@ -1820,5 +1906,18 @@ struct do_cmd_item_type
 	
 	byte next_command;					/* The next command to use */
 	int (*next_command_eval)(int item);	/* The next command to use - evaluation function */
+};
+
+
+/*
+ * A game color.
+ */
+struct color_type
+{
+	char index_char;            /* Character index:  'r' = red, etc. */
+
+	char name[32];              /* Color name */
+
+	byte color_translate[MAX_ATTR];       /* Index for various in-game translations */
 };
 

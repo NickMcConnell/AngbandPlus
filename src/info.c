@@ -139,6 +139,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 				/* Obvious flags (pval) */
 				(*f1) |= (a_ptr->flags1 & (TR1_PVAL_MASK));
+				(*f3) |= (a_ptr->flags3 & (TR3_PVAL_MASK));
 
 				(*f2) |= (a_ptr->flags2 & (TR2_IGNORE_MASK));
 			}
@@ -821,7 +822,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags2 & (SF2_SHERO)) vp[vn++]="makes you go berserk";
 	if (s_ptr->flags2 & (SF2_BLESS)) vp[vn++]="blesses you";
 	if (s_ptr->flags2 & (SF2_SHIELD)) vp[vn++]="shields you";
-	if (s_ptr->flags2 & (SF2_INVULN)) vp[vn++]="makes you invulnerable to damage";
+	if (s_ptr->flags2 & (SF2_INVIS)) vp[vn++]="makes you invisible";
 	if (s_ptr->flags3 & (SF3_FREE_ACT)) vp[vn++] = "protects you from paralysis and magical slowness";
 	if (s_ptr->flags2 & (SF2_SEE_INVIS)) vp[vn++]="allows you to see invisible monsters";
 	if (s_ptr->flags2 & (SF2_PROT_EVIL)) vp[vn++]="protects you from evil monsters";
@@ -1422,6 +1423,8 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_LITE_WEAK: q="light"; s ="up";break;
 			case GF_DARK_WEAK: q="plunge"; s ="into darkness"; break;
 			case GF_WATER_WEAK: q="soak"; u = "with water";break;
+			case GF_POISON_WATER: q="soak"; u = "with poisonous water";break;
+			case GF_SALT_WATER: q="soak"; u = "with salt water";break;
 			case GF_PLASMA: q="blast"; u = "with plasma";break;
 			case GF_METEOR: q="blast"; u = "with meteors";break;
 			case GF_ICE: q="cover"; u = "with ice";break;
@@ -2312,7 +2315,7 @@ static const o_flag_desc misc_flags3_desc[] =
 	{ TR3_SLOW_DIGEST,	"digest food more efficiently" },
 	{ TR3_FEATHER,		"fall like a feather" },
 	{ TR3_TELEPATHY,	"detect monsters by telepathy" },
-	{ TR3_SEE_INVIS,	"see invisible monters" }
+	{ TR3_SEE_INVIS,	"see invisible monsters" }
 };
 
 /*
@@ -2768,7 +2771,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int pval, int mode)
 
 
 	/* Pval-affected flags */
-	if (f1)
+	if (f1 || f3)
 	{
 		list_ptr = list;
 
@@ -2993,7 +2996,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int pval, int mode)
 				anything |= outlist("It causes its wielder to", list, TERM_WHITE);
 				break;
 			case LIST_FLAGS_MAY:
-				anything |= outlist("It may causes its wielder to", list, TERM_L_WHITE);
+				anything |= outlist("It may cause its wielder to", list, TERM_L_WHITE);
 				break;
 			case LIST_FLAGS_NOT:
 				anything |= outlist("It doesn't cause its wielder to", list, TERM_SLATE);

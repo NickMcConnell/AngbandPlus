@@ -415,56 +415,6 @@ static u16b image_random(void)
 
 
 /*
- * Table lookup for 'metallic' attributes for all metal/gem monsters.
- * These are 1 shade lighter, or yellow if already light.
- */
-byte lite_attr[16] =
-{
-	TERM_L_DARK,	/* TERM_DARK - ebony */
-	TERM_YELLOW, 	/* TERM_WHITE - silver */
-	TERM_L_WHITE, 	/* TERM_SLATE - iron */
-	TERM_YELLOW, 	/* TERM_ORANGE - brass */
-	TERM_L_RED, 	/* TERM_RED - ruby */
-	TERM_L_GREEN, 	/* TERM_GREEN - emerald */
-	TERM_L_BLUE, 	/* TERM_BLUE - sapphire */
-	TERM_L_UMBER, 	/* TERM_UMBER - copper */
-	TERM_SLATE, 	/* TERM_L_DARK - coal */
-	TERM_WHITE, 	/* TERM_L_WHITE - diamond */
-	TERM_YELLOW, 	/* TERM_VIOLET - amethyst */
-	TERM_WHITE, 	/* TERM_YELLOW - gold */
-	TERM_YELLOW, 	/* TERM_L_RED - garnet */
-	TERM_YELLOW, 	/* TERM_L_GREEN - adamantite*/
-	TERM_YELLOW, 	/* TERM_L_BLUE - mithril*/
-	TERM_YELLOW 	/* TERM_L_UMBER - bronze */
-};
-
-/*
- * Reverse of above table lookup.
- * These are 1 or 2 shades darker, or slate if already dark.
- * Don't ever get too dark though.
- */
-byte dark_attr[16] =
-{
-	TERM_DARK,		/* TERM_DARK */
-	TERM_SLATE, 	/* TERM_WHITE - silver */
-	TERM_L_DARK,	/* TERM_SLATE - iron */
-	TERM_SLATE, 	/* TERM_ORANGE - brass */
-	TERM_SLATE,		/* TERM_RED - ruby */
-	TERM_SLATE,		/* TERM_GREEN - emerald */
-	TERM_SLATE, 	/* TERM_BLUE - sapphire */
-	TERM_SLATE, 	/* TERM_UMBER - copper */
-	TERM_L_DARK, 	/* TERM_L_DARK - coal */
-	TERM_SLATE, 	/* TERM_L_WHITE - diamond */
-	TERM_SLATE, 	/* TERM_VIOLET - amethyst */
-	TERM_L_WHITE, 	/* TERM_YELLOW - gold */
-	TERM_RED, 		/* TERM_L_RED */
-	TERM_GREEN, 	/* TERM_L_GREEN - adamantite*/
-	TERM_BLUE,	 	/* TERM_L_BLUE - mithril*/
-	TERM_UMBER	 	/* TERM_L_UMBER - bronze */
-};
-
-
-/*
  * These tables are built by having a 'or'ing the value below when
  * there is a wall in the same direction.
  *
@@ -586,6 +536,52 @@ void modify_grid_adjacent_view(byte *a, char *c, int y, int x, byte adj_char[16]
 
 
 /*
+ * Translate text colours.
+ * 
+ * This translates a color based on the attribute. We use this to set terrain to
+ * be lighter or darker, make metallic monsters shimmer, highlight text under the
+ * mouse, and reduce the colours on mono colour or 16 colour terms to the correct
+ * colour space.
+ * 
+ * TODO: Honour the attribute for the term (full color, mono, 16 color) but ensure
+ * that e.g. the lighter version of yellow becomes white in a 16 color term, but
+ * light yellow in a full colour term.
+ */
+byte get_color(byte a, int attr, int n)
+{
+	/* Accept any graphical attr (high bit set) */
+	if (a & (0x80)) return (a);
+
+	/* TODO: Honour the attribute for the term (full color, mono, 16 color) */
+	if (!attr)
+	{
+		return(a);
+	}
+	
+	/* Note: attempt at efficiency hack by unrolling loop. Whether this sort of thing works anymore
+	 * is pretty questionable. However, we never call this function with n > 2 at the moment. */
+	else
+	{
+loop_hack:
+		switch(n)
+		{
+		case 2: a = color_table[a].color_translate[attr];
+		case 1: a = color_table[a].color_translate[attr];
+		case 0: break;
+		default: a = color_table[a].color_translate[attr];
+				 a = color_table[a].color_translate[attr];
+				 a = color_table[a].color_translate[attr];
+				 n-= 3;
+				 goto loop_hack;
+		}
+	}
+
+	/* Return the modified color */
+	return (a);
+}
+
+
+/*
  * Modify a 'boring' grid appearance based on the ambient light
  */
 void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pinfo)
@@ -611,7 +607,7 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 			else
 			{
 				/* Use "yellow" */
-				*a = lite_attr[*a];
+				*a = get_color(*a, ATTR_LITE, 1);
 			}
 		}
 	}
@@ -631,7 +627,7 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_BLIND, 1);
 		}
 	}
 
@@ -650,7 +646,7 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -669,7 +665,7 @@ void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pi
 		else
 		{
 			/* Use "gray" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 1);
 		}
 	}
 }
@@ -694,7 +690,7 @@ void modify_grid_unseen_view(byte *a, char *c)
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -713,7 +709,7 @@ void modify_grid_unseen_view(byte *a, char *c)
 		else
 		{
 			/* Use "gray" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 1);
 		}
 	}
 }
@@ -756,7 +752,7 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -775,7 +771,7 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 		else
 		{
 			/* Use "dark gray" */
-			*a = dark_attr[dark_attr[*a]];
+			*a = get_color(*a, ATTR_DARK, 2);
 		}
 	}
 
@@ -794,7 +790,7 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
 		else
 		{
 			/* Use "gray" */
-			*a = dark_attr[*a];
+			*a = get_color(*a, ATTR_DARK, 1);
 		}
 	}
 	else
@@ -1436,7 +1432,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
-				a = randint(15);
+				a = randint(MAX_COLORS - 1);
 
 				/* Normal char */
 				c = dc;
@@ -1446,7 +1442,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			else if (r_ptr->flags9 & (RF9_ATTR_METAL))
 			{
 				/* Flickering metallic attr - predominate base color */
-				if (!rand_int(3)) a = lite_attr[da];
+				if (!rand_int(3)) a = get_color(da, ATTR_METAL, 1);
 				else a = da;
 
 				/* Normal char */
@@ -1457,7 +1453,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			else if (r_ptr->flags9 & (RF9_ATTR_INDEX))
 			{
 				/* Hack -- Fake flavored attr based on monster index */
-				a = m_idx % 15 + 1;
+				a = (m_idx % (MAX_COLORS - 1)) + 1;
 
 				/* Normal char */
 				c = dc;
@@ -1504,6 +1500,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	{
 		monster_race *r_ptr = &r_info[0];
 
+		/* Hack - can't see invisible player due to see_invis */
+		if ((p_ptr->invis) && !(p_ptr->tim_invis) && !(p_ptr->cur_flags3 & (TR3_SEE_INVIS)))
+		{
+			/* Use underlying attribute/char */
+		}
+
 		/* Get the "player" attr */
 		/*  DSV:  I've chosen the following sequence of colors to indicate
 				the player's current HP.  There are colors are left over, but I
@@ -1530,8 +1532,14 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			TERM_VIOLET		-% of HP remaining
 		*/
 
-		if (arg_graphics == GRAPHICS_NONE)
+		else if (arg_graphics == GRAPHICS_NONE)
 		{
+			/* Invisible players are 'clear' */
+			if (p_ptr->invis)
+			{
+				/* Use underlying attr */
+			}
+			
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
 				{
 				case 10:
@@ -5035,6 +5043,8 @@ void cave_set_feat_aux(int y, int x, int feat)
 
 	bool hide_item = (f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_ITEM)) != 0;
 
+	bool use_feat = (f_info[cave_feat[y][x]].flags3 & (FF3_USE_FEAT)) != 0 ? f_info[cave_feat[y][x]].k_idx : 0;
+
 	bool outside;
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -5175,11 +5185,19 @@ void cave_set_feat_aux(int y, int x, int feat)
 			o_ptr->ident &= ~(IDENT_MARKED);
 		}
 
-		/* Destroy stored items --- Hack: changed to get Flasks of Oil, etc. from traps; I have no clue what more it does change */
+		/* Destroy stored items */
 		if (o_ptr->ident & (IDENT_STORE))
 		{
-		  o_ptr->ident &= ~IDENT_STORE;
-		  /*			delete_object_idx(this_o_idx); */
+			/* Destroy anything that has a 'used' object that never really exists */
+			if (use_feat && (!(f_ptr->flags3 & (FF3_USE_FEAT)) || (use_feat != f_ptr->k_idx)))
+			{
+				  delete_object_idx(this_o_idx);
+			}
+			/* Reveal other objects from e.g. traps */
+			else if (!use_feat)
+			{
+				o_ptr->ident &= ~IDENT_STORE;
+			}
 			continue;
 		}
 	}

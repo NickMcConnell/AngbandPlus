@@ -98,14 +98,14 @@
 
           Beginning Statesmen start with the book of Trailcraft.
 
-***** <Thuamaturgy>
-        Thuamaturgy
-          The school of Thuamaturgy contains the widest range of direct
-          offensive spells, to allow a thuamaturgist to find and exploit the
-          weakness of any opposition.  The Thuamaturgical energies at his
+***** <Thaumaturgy>
+        Thaumaturgy
+          The school of Thaumaturgy contains the widest range of direct
+          offensive spells, to allow a thaumaturgist to find and exploit the
+          weakness of any opposition.  The Thaumaturgical energies at his
           disposal randomly vary from individual to individual, and as a 
           result, the exact spell selection will vary.  The weakness of the
-          Thuamaturgist is a distinct lack of flexibility in defense: with
+          Thaumaturgist is a distinct lack of flexibility in defense: with
           limited and hard to use escapes and utility magics.
                
-          Latent Thuamaturges start with the book of Fireworks.
+          Latent Thaumaturges start with the book of Fireworks.

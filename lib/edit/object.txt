@@ -11,6 +11,16 @@
 # See "lib/docs/modding.rtf" to understand this file and how to modify
 # it and related files.
 
+# Object.txt entry format
+
+# N: serial number : & object name~
+# G: symbol : color
+# I: tval : sval : pval
+# W: depth : charges : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# A: depth/rarity : depth/rarity : etc
+# F: flag | flag | etc
+# Y: rune type | rune count
 
 # Version stamp (required)
 
@@ -192,7 +202,7 @@ A:0/2
 P:0:0d0:0:0:0
 
 N:24:& Slime Mold~
-G:,:g
+G:,:m
 I:80:36:0
 W:1:600:5:2
 A:1/1
@@ -280,7 +290,7 @@ A:5/3
 P:0:1d7:0:0:0
 
 N:36:& Blade~ of Chaos
-G:|:v
+G:|:P
 I:23:30:0
 W:70:0:180:4000
 A:70/8
@@ -1811,7 +1821,13 @@ P:0:1d1:0:0:0
 Y:25:1
 F:THROWING |
 
-### 227 - Unused ###
+N:227:Invisibility
+G:!:w
+I:75:47:0
+W:1:0:4:50
+A:30/3
+P:0:1d1:0:0:0
+F:THROWING |
 
 N:228:Intelligence and Wisdom
 G:!:w
@@ -1844,9 +1860,19 @@ P:0:1d1:0:0:0
 Y:17:1
 F:THROWING |
 
-### 233 - Unused ###
+N:233:of Sympathies
+G:?:y
+I:92:13:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
 
-### 234 - Unused ###
+N:234:& Guitar~
+G:|:y
+I:24:13:0
+W:5:0:50:90
+A:5/2
+P:0:1d1:0:0:0
 
 N:235:Ugliness
 G:!:w
@@ -2259,7 +2285,7 @@ Y:23:1
 N:285:Teleport Other
 G:-:w
 I:65:3:0
-W:20:0:10:350
+W:20:0:10:550
 A:20/2
 P:0:1d1:0:0:0
 Y:15:2
@@ -2700,7 +2726,7 @@ P:0:1d1:0:0:0
 
 N:338:& Hunter's Stride~
 G:":y
-I:10:16:6
+I:10:16:5
 W:0:0:0:0
 P:0:0d0:0:0:0
 F:SPEED |
@@ -2919,7 +2945,7 @@ Y:3:3
 N:364:Teleport Other
 G:-:w
 I:66:38:0
-W:45:25:15:1400
+W:45:25:15:1900
 A:45/2
 P:0:1d1:0:0:0
 Y:7:3
@@ -3146,7 +3172,7 @@ A:1/1:10/1:20/1:40/1
 P:0:1d1:0:0:0
 
 N:392:& # Bone~
-G:~:R
+G:~:i
 I:1:2:0
 W:0:50:3:0
 A:0/1:1/1:10/1:20/1
@@ -3160,7 +3186,7 @@ A:1/1:10/1:20/1:30/1
 P:0:1d1:0:0:0
 
 N:394:& set~ of # Teeth
-G:~:R
+G:~:i
 I:1:4:0
 W:0:0:1:0
 A:0/1:1/1:5/1
@@ -3718,13 +3744,13 @@ W:1:0:0:7
 P:0:0d0:0:0:0
 
 N:485:electrum
-G:$:r
+G:$:Y
 I:100:6:0
 W:1:0:0:8
 P:0:0d0:0:0:0
 
-N:486:garnet
-G:$:R
+N:486:beryl
+G:$:t
 I:101:7:0
 W:1:0:0:9
 P:0:0d0:0:0:0
@@ -3741,9 +3767,9 @@ I:100:9:0
 W:1:0:0:12
 P:0:0d0:0:0:0
 
-N:489:gold
-G:$:y
-I:100:10:0
+N:489:pearl
+G:$:I
+I:101:10:0
 W:1:0:0:14
 P:0:0d0:0:0:0
 
@@ -4534,7 +4560,7 @@ A:0/1
 P:0:1d5:0:0:0
 
 N:589:& hunk~ of # Meat
-G:~:r
+G:~:R
 I:6:15:0
 W:0:600:25:0
 P:0:1d1:0:0:0
@@ -4571,9 +4597,10 @@ P:0:1d1:0:0:0
 
 N:595:& # Claw~
 G:~:r
-I:6:12:0
+I:6:12:1
 W:2:100:2:0
 P:0:1d1:0:0:0
+F:STEALTH
 
 N:596:& large # Spore~
 G:~:W
@@ -5241,7 +5268,7 @@ P:0:1d1:0:0:0
 
 N:682:Dragon's Storm
 G:-:w
-I:65:53:1
+I:65:53:0
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
@@ -5249,7 +5276,7 @@ F:IGNORE_ELEC |
 
 N:683:Dragon's Bile
 G:-:w
-I:65:54:1
+I:65:54:0
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
@@ -5257,28 +5284,28 @@ F:IGNORE_ACID |
 
 N:684:Dragon's Venom
 G:-:w
-I:65:55:1
+I:65:55:0
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
 
 N:685:Mana Bolts
 G:-:w
-I:65:56:1
+I:65:56:0
 W:60:0:10:4500
 A:60/6
 P:0:1d1:0:0:0
 
 N:686:Magic Arrows
 G:-:w
-I:65:57:1
+I:65:57:0
 W:70:0:10:3000
 A:70/6
 P:0:1d1:0:0:0
 
 N:687:Nexus Bolts
 G:-:w
-I:65:58:1
+I:65:58:0
 W:55:0:10:2000
 A:55/4
 P:0:1d1:0:0:0
@@ -5286,7 +5313,7 @@ F:IGNORE_FIRE |
 
 N:688:Ice Bolts
 G:-:w
-I:65:59:1
+I:65:59:0
 W:55:0:10:2000
 A:55/4
 P:0:1d1:0:0:0
@@ -5294,7 +5321,7 @@ F:IGNORE_ACID |
 
 N:689:Wonder II
 G:-:w
-I:65:60:1
+I:65:60:0
 W:40:0:10:1000
 A:40/3
 P:0:1d1:0:0:0
@@ -5304,7 +5331,7 @@ F:RANDOM |
 
 N:690:Shockwaves
 G:-:w
-I:65:61:1
+I:65:61:0
 W:60:0:10:2000
 A:60/6
 P:0:1d1:0:0:0
@@ -5312,7 +5339,7 @@ F:IGNORE_ELEC |
 
 N:691:Striking
 G:-:w
-I:65:62:1
+I:65:62:0
 W:50:0:10:1800
 A:50/4
 P:0:1d1:0:0:0
@@ -6216,7 +6243,7 @@ F:THROWING |
 N:820:Bloating
 G:!:w
 I:75:73:0
-W:10:15000:4:0
+W:10:15000:4:5
 A:10/1
 P:0:1d1:0:0:0
 F:THROWING |
@@ -6467,7 +6494,7 @@ F:THROWING |
 
 N:851:Explosions
 G:-:w
-I:65:63:1
+I:65:63:0
 W:65:0:10:2000
 A:65/4
 P:0:1d1:0:0:0
@@ -6475,7 +6502,7 @@ F:IGNORE_ELEC |
 
 N:852:Bedlam
 G:-:w
-I:65:64:1
+I:65:64:0
 W:70:0:10:2200
 A:70/4
 P:0:1d1:0:0:0
@@ -6483,7 +6510,7 @@ F:IGNORE_ELEC |
 
 N:853:Soulrending
 G:-:w
-I:65:65:1
+I:65:65:0
 W:75:0:10:2500
 A:75/5
 P:0:1d1:0:0:0
@@ -6491,7 +6518,7 @@ F:IGNORE_ELEC |
 
 N:854:Chaos
 G:-:w
-I:65:66:1
+I:65:66:0
 W:85:0:10:3000
 A:85/6
 P:0:1d1:0:0:0
@@ -6499,7 +6526,7 @@ F:IGNORE_ELEC |
 
 N:855:Spark
 G:-:w
-I:65:67:28
+I:65:67:0
 W:0:0:10:35
 A:1/1
 P:0:1d1:0:0:0
@@ -6507,7 +6534,7 @@ Y:22:1
 
 N:856:Blood
 G:-:w
-I:65:68:1
+I:65:68:0
 W:70:0:10:3750
 A:70/4
 P:0:1d1:0:0:0
@@ -6515,7 +6542,7 @@ F:IGNORE_ELEC |
 
 N:857:Dispelling
 G:-:w
-I:65:69:1
+I:65:69:0
 W:30:0:10:600
 A:30/3
 P:0:1d1:0:0:0
@@ -6523,7 +6550,7 @@ F:IGNORE_ELEC |
 
 N:858:Web building
 G:-:w
-I:65:70:1
+I:65:70:0
 W:30:0:10:800
 A:30/3
 P:0:1d1:0:0:0
@@ -6531,7 +6558,7 @@ F:IGNORE_ELEC |
 
 N:859:Winds
 G:-:w
-I:65:71:1
+I:65:71:0
 W:30:0:10:900
 A:30/3
 P:0:1d1:0:0:0
@@ -7013,10 +7040,11 @@ P:0:1d1:0:0:0
 
 N:919:& # Fur coat
 G:~:G
-I:8:7:0
+I:8:7:1
 W:0:0:40:0
 A:11/1
 P:0:1d1:0:0:0
+F:STEALTH
 
 #### The School Books ####
 
@@ -7272,7 +7300,7 @@ P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 F:IGNORE_THEFT |
 
-#### Thuamaturgy School -- no Sangband correspondence. Random attack spells after 1st book. ####
+#### Thaumaturgy School -- no Sangband correspondence. Random attack spells after 1st book. ####
 
 N:947:of Fireworks
 G:?:R
@@ -7295,7 +7323,7 @@ W:20:0:30:400
 A:20/7
 P:0:1d1:0:0:0
 
-N:950:of Thuamaturgy
+N:950:of Thaumaturgy
 G:?:R
 I:90:51:0
 W:30:0:30:800
@@ -7595,14 +7623,13 @@ P:0:0d0:0:0:0
 N:982:of Beats
 G:?:y
 I:92:12:0
-W:5:0:30:25
-A:5/1
+W:33:0:30:1000
+A:33/2
 P:0:1d1:0:0:0
 
 N:983:& set~ of Bongos
 G:|:y
 I:24:12:0
-W:5:0:50:90
-A:5/2
+W:10:0:5:70
+A:10/2
 P:0:1d1:0:0:0
-

@@ -150,8 +150,6 @@ s16b m_cnt = 0;		 /* Number of live monsters */
 s16b q_max = 1;		 /* Number of allocated quests */
 s16b q_cnt = 0;		 /* Number of live quests */
 
-int cause_of_damage; /* to make traps and test-id less deadly */
-
 /*
  * Hack - Trackees for term windows
  */
@@ -328,23 +326,75 @@ char angband_term_name[8][16] =
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},       /* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},       /* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},       /* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},       /* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},       /* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},       /* TERM_GREEN */
-	{0x00, 0x00, 0x40, 0xFF},       /* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},       /* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},       /* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},       /* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},       /* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},       /* TERM_YELLOW */
-	{0x00, 0xFF, 0x40, 0x40},       /* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},       /* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},       /* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
+	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
+	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
+	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_L_PURPLE */
+	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
+	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
+	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
+	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
+
+	{0x00, 144, 0x00,  144},	/* TERM_PURPLE */
+	{0x00, 144, 32,    0xFF},	/* TERM_VIOLET */
+	{0x00, 0x00, 160,  160},	/* TERM_TEAL */
+	{0x00, 108,  108,  48},		/* TERM_MUD */
+	{0x00, 0xFF, 0xFF, 144},	/* TERM_L_YELLOW */
+	{0x00, 0xFF, 0x00, 160},	/* TERM_MAGENTA */
+	{0x00, 32,   0xFF, 220},	/* TERM_L_TEAL */
+	{0x00, 184,  168,  0xFF},	/* TERM_L_VIOLET */
+	{0x00, 0xFF, 128,  128},	/* TERM_L_PINK */
+	{0x00, 180,  180,  0x00},	/* TERM_MUSTARD */
+	{0x00, 160,  192,  208},	/* TERM_BLUE_SLATE */
+	{0x00, 0x00, 176,  255},	/* TERM_DEEP_L_BLUE */
 };
+
+/*
+ * Global array of color names and translations.
+ */
+color_type color_table[256] =
+{							/* full mono vga blind lighter darker highlight metallic*/
+	{ 'd', "Dark",         {  0,  0,  0,  TERM_DARK,	TERM_L_DARK,	TERM_DARK,	TERM_L_DARK, 	TERM_L_DARK}},
+	{ 'w', "White",        {  1,  1,  1,  TERM_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_L_BLUE,	TERM_YELLOW}},
+	{ 's', "Slate",        {  2,  1,  2,  TERM_SLATE,	TERM_L_WHITE,	TERM_L_DARK,TERM_L_WHITE,	TERM_L_WHITE}},
+	{ 'o', "Orange",       {  3,  1,  3,  TERM_L_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'r', "Red",          {  4,  1,  4,  TERM_SLATE,	TERM_L_RED,		TERM_SLATE,	TERM_L_RED,		TERM_L_RED}},
+	{ 'g', "Green",        {  5,  1,  5,  TERM_SLATE,	TERM_L_GREEN,	TERM_SLATE,	TERM_L_GREEN,	TERM_L_GREEN}},
+	{ 'b', "Blue",         {  6,  1,  6,  TERM_SLATE,	TERM_L_BLUE,	TERM_SLATE,	TERM_L_BLUE,	TERM_L_BLUE}},
+	{ 'u', "Umber",        {  7,  1,  7,  TERM_L_DARK,	TERM_L_UMBER,	TERM_L_DARK,TERM_L_UMBER,	TERM_L_UMBER}},
+	{ 'D', "Light Dark",   {  8,  1,  8,  TERM_L_DARK,	TERM_SLATE,		TERM_L_DARK,TERM_SLATE,		TERM_SLATE}},
+	{ 'W', "Light Slate",  {  9,  1,  9,  TERM_L_WHITE,	TERM_WHITE,		TERM_SLATE,	TERM_WHITE,		TERM_WHITE}},
+	{ 'P', "Light Purple", {  10, 1, 10,  TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'y', "Yellow",       {  11, 1, 11,  TERM_L_WHITE,	TERM_L_YELLOW,	TERM_L_WHITE,	TERM_WHITE,	TERM_WHITE}},
+	{ 'R', "Light Red",    {  12, 1, 12,  TERM_L_WHITE,	TERM_YELLOW,	TERM_RED,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'G', "Light Green",  {  13, 1, 13,  TERM_L_WHITE,	TERM_YELLOW,	TERM_GREEN,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'B', "Light Blue",   {  14, 1, 14,  TERM_L_WHITE,	TERM_YELLOW,	TERM_BLUE,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'U', "Light Umber",  {  15, 1, 15,  TERM_L_WHITE,	TERM_YELLOW,	TERM_UMBER,	TERM_YELLOW,	TERM_YELLOW}},
+
+	{  'p', "Purple",	   {  16,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE}},
+	{  'v', "Violet",	   {  17,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE}},
+	{  't', "Teal",		   {  18,   1, 6, TERM_SLATE,	TERM_L_TEAL,	TERM_SLATE,	TERM_L_TEAL,	TERM_L_TEAL}},
+	{  'm', "Mud",		   {  19,   1, 5, TERM_SLATE,	TERM_MUSTARD,	TERM_SLATE,	TERM_MUSTARD,	TERM_MUSTARD}},
+	{  'Y', "Light Yellow",{  20,   1, 11,TERM_WHITE,	TERM_WHITE,		TERM_YELLOW,TERM_WHITE,		TERM_WHITE}},
+	{  'i', "Magenta-Pink",{  21,   1, 12,TERM_SLATE,	TERM_L_PINK,	TERM_RED,	TERM_L_PINK,	TERM_L_PINK}},
+	{  'T', "Light Teal",  {  22,   1, 14,TERM_L_WHITE,	TERM_YELLOW,	TERM_TEAL,	TERM_YELLOW,	TERM_YELLOW}},
+	{  'V', "Light Violet",{  23,   1, 10,TERM_L_WHITE,	TERM_YELLOW,	TERM_VIOLET,TERM_YELLOW,	TERM_YELLOW}},
+	{  'I', "Light Pink",  {  24,   1, 12,TERM_L_WHITE,	TERM_YELLOW,	TERM_MAGENTA,TERM_YELLOW,	TERM_YELLOW}},
+	{  'M', "Mustard",	   {  25,   1, 11,TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
+	{  'z', "Blue Slate",  {  26,   1, 9, TERM_SLATE,	TERM_DEEP_L_BLUE,TERM_SLATE,TERM_DEEP_L_BLUE,	TERM_DEEP_L_BLUE}},
+	{  'Z', "Deep Light Blue",{ 27, 1, 14,TERM_L_WHITE,	TERM_L_BLUE,	TERM_BLUE_SLATE,TERM_L_BLUE,	TERM_L_BLUE}},
+			
+	/* Rest to be filled in when the game loads */
+};
+
 
 
 /*
@@ -839,6 +889,13 @@ maxima *z_info;
 vault_type *v_info;
 char *v_name;
 char *v_text;
+
+/*
+ * The terrain feature arrays
+ */
+blow_type *blow_info;
+char *blow_name;
+char *blow_text;
 
 /*
  * The terrain feature arrays

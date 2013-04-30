@@ -2693,50 +2693,6 @@ void messages_free(void)
 }
 
 
-/*
- * XXX XXX XXX Important note about "colors" XXX XXX XXX
- *
- * The "TERM_*" color definitions list the "composition" of each
- * "Angband color" in terms of "quarters" of each of the three color
- * components (Red, Green, Blue), for example, TERM_UMBER is defined
- * as 2/4 Red, 1/4 Green, 0/4 Blue.
- *
- * The following info is from "Torbjorn Lindgren" (see "main-xaw.c").
- *
- * These values are NOT gamma-corrected.  On most machines (with the
- * Macintosh being an important exception), you must "gamma-correct"
- * the given values, that is, "correct for the intrinsic non-linearity
- * of the phosphor", by converting the given intensity levels based
- * on the "gamma" of the target screen, which is usually 1.7 (or 1.5).
- *
- * The actual formula for conversion is unknown to me at this time,
- * but you can use the table below for the most common gamma values.
- *
- * So, on most machines, simply convert the values based on the "gamma"
- * of the target screen, which is usually in the range 1.5 to 1.7, and
- * usually is closest to 1.7.  The converted value for each of the five
- * different "quarter" values is given below:
- *
- *  Given     Gamma 1.0       Gamma 1.5       Gamma 1.7     Hex 1.7
- *  -----       ----            ----            ----          ---
- *   0/4        0.00            0.00            0.00          #00
- *   1/4        0.25            0.27            0.28          #47
- *   2/4        0.50            0.55            0.56          #8f
- *   3/4        0.75            0.82            0.84          #d7
- *   4/4        1.00            1.00            1.00          #ff
- *
- * Note that some machines (i.e. most IBM machines) are limited to a
- * hard-coded set of colors, and so the information above is useless.
- *
- * Also, some machines are limited to a pre-determined set of colors,
- * for example, the IBM can only display 16 colors, and only 14 of
- * those colors resemble colors used by Angband, and then only when
- * you ignore the fact that "Slate" and "cyan" are not really matches,
- * so on the IBM, we use "orange" for both "Umber", and "Light Umber"
- * in addition to the obvious "Orange", since by combining all of the
- * "indeterminate" colors into a single color, the rest of the colors
- * are left with "meaningful" values.
- */
 
 
 /*
@@ -4188,92 +4144,6 @@ bool is_a_vowel(int ch)
 }
 
 
-/*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
- */
-int color_char_to_attr(char c)
-{
-	switch (c)
-	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
-
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
-	}
-
-	return (-1);
-}
-
-
-/*
- * Converts a string to a terminal color byte.
- */
-int color_text_to_attr(cptr name)
-{
-	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
-	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
-	if (my_stricmp(name, "slate")      == 0) return (TERM_SLATE);
-	if (my_stricmp(name, "orange")     == 0) return (TERM_ORANGE);
-	if (my_stricmp(name, "red")        == 0) return (TERM_RED);
-	if (my_stricmp(name, "green")      == 0) return (TERM_GREEN);
-	if (my_stricmp(name, "blue")       == 0) return (TERM_BLUE);
-	if (my_stricmp(name, "umber")      == 0) return (TERM_UMBER);
-	if (my_stricmp(name, "violet")     == 0) return (TERM_VIOLET);
-	if (my_stricmp(name, "yellow")     == 0) return (TERM_YELLOW);
-	if (my_stricmp(name, "lightdark")  == 0) return (TERM_L_DARK);
-	if (my_stricmp(name, "lightwhite") == 0) return (TERM_L_WHITE);
-	if (my_stricmp(name, "lightred")   == 0) return (TERM_L_RED);
-	if (my_stricmp(name, "lightgreen") == 0) return (TERM_L_GREEN);
-	if (my_stricmp(name, "lightblue")  == 0) return (TERM_L_BLUE);
-	if (my_stricmp(name, "lightumber") == 0) return (TERM_L_UMBER);
-
-	/* Oops */
-	return (-1);
-}
-
-
-/*
- * Extract a textual representation of an attribute
- */
-cptr attr_to_text(byte a)
-{
-	switch (a)
-	{
-		case TERM_DARK:    return ("Dark");
-		case TERM_WHITE:   return ("White");
-		case TERM_SLATE:   return ("Slate");
-		case TERM_ORANGE:  return ("Orange");
-		case TERM_RED:     return ("Red");
-		case TERM_GREEN:   return ("Green");
-		case TERM_BLUE:    return ("Blue");
-		case TERM_UMBER:   return ("Umber");
-		case TERM_L_DARK:  return ("L.Dark");
-		case TERM_L_WHITE: return ("L.Slate");
-		case TERM_VIOLET:  return ("Violet");
-		case TERM_YELLOW:  return ("Yellow");
-		case TERM_L_RED:   return ("L.Red");
-		case TERM_L_GREEN: return ("L.Green");
-		case TERM_L_BLUE:  return ("L.Blue");
-		case TERM_L_UMBER: return ("L.Umber");
-	}
-
-	/* Oops */
-	return ("Icky");
-}
 
 
 #if 0
@@ -4438,6 +4308,52 @@ void repeat_check(void)
 #endif /* ALLOW_REPEAT */
 
 
+/*
+ * XXX XXX XXX Important note about "colors" XXX XXX XXX
+ *
+ * The "TERM_*" color definitions list the "composition" of each
+ * "Angband color" in terms of "quarters" of each of the three color
+ * components (Red, Green, Blue), for example, TERM_UMBER is defined
+ * as 2/4 Red, 1/4 Green, 0/4 Blue.
+ *
+ * The following info is from "Torbjorn Lindgren" (see "main-xaw.c").
+ *
+ * These values are NOT gamma-corrected.  On most machines (with the
+ * Macintosh being an important exception), you must "gamma-correct"
+ * the given values, that is, "correct for the intrinsic non-linearity
+ * of the phosphor", by converting the given intensity levels based
+ * on the "gamma" of the target screen, which is usually 1.7 (or 1.5).
+ *
+ * The actual formula for conversion is unknown to me at this time,
+ * but you can use the table below for the most common gamma values.
+ *
+ * So, on most machines, simply convert the values based on the "gamma"
+ * of the target screen, which is usually in the range 1.5 to 1.7, and
+ * usually is closest to 1.7.  The converted value for each of the five
+ * different "quarter" values is given below:
+ *
+ *  Given     Gamma 1.0       Gamma 1.5       Gamma 1.7     Hex 1.7
+ *  -----       ----            ----            ----          ---
+ *   0/4        0.00            0.00            0.00          #00
+ *   1/4        0.25            0.27            0.28          #47
+ *   2/4        0.50            0.55            0.56          #8f
+ *   3/4        0.75            0.82            0.84          #d7
+ *   4/4        1.00            1.00            1.00          #ff
+ *
+ * Note that some machines (i.e. most IBM machines) are limited to a
+ * hard-coded set of colors, and so the information above is useless.
+ *
+ * Also, some machines are limited to a pre-determined set of colors,
+ * for example, the IBM can only display 16 colors, and only 14 of
+ * those colors resemble colors used by Angband, and then only when
+ * you ignore the fact that "Slate" and "cyan" are not really matches,
+ * so on the IBM, we use "orange" for both "Umber", and "Light Umber"
+ * in addition to the obvious "Orange", since by combining all of the
+ * "indeterminate" colors into a single color, the rest of the colors
+ * are left with "meaningful" values.
+ */
+
+
 #ifdef SUPPORT_GAMMA
 
 /* Table of gamma values */
@@ -4538,6 +4454,166 @@ void build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+
+/*
+ * Accept a color index character; if legal, return the color.  -LM-
+ *
+ * Unlike Sangband, we don't translate these colours here.
+ */
+int color_char_to_attr(char c)
+{
+	int a;
+
+	/* Is negative -- spit it right back out */
+	if (c < 0) return (c);
+
+	/* Is a space or '\0' -- return black */
+	if (c == '\0' || c == ' ') return (TERM_DARK);
+
+	/* Search the color table */
+	for (a = 0; a < MAX_COLORS; a++)
+	{
+		/* Look for the index */
+		if (color_table[a].index_char == c) break;
+	}
+
+	/* If we don't find the color, we assume white */
+	if (a == MAX_COLORS) return (TERM_WHITE);
+
+	/* Return the color */
+	return (a);
+}
+
+
+
+/*
+ * Converts a string to a terminal color byte.
+ */
+int color_text_to_attr(cptr name)
+{
+	int a;
+	
+	for (a = 0; a < MAX_COLORS; a++)
+	{
+		if (my_stricmp(name, color_table[a].name) == 0) return (a);
+	}
+	
+	/* Default to white */
+	return (TERM_WHITE);
+}
+
+
+/*
+ * Extract a textual representation of an attribute
+ */
+cptr attr_to_text(byte a)
+{
+	if (a < MAX_COLORS) return (color_table[a].name);
+	
+	/* Oops */
+	return ("Icky");
+}
+
+
+/*
+ * Calculate square roots using Newton's method.
+ *
+ * This is not the fastest available integer math square root function
+ * (for that, consult the site "www.azillionmonkeys.com/qed/sqroot.html").
+ * It is, however, both moderately fast and extremely simple.  This
+ * particular implementation features standard rounding (as opposed to
+ * truncation).  -LM-
+ */
+u16b rsqrt(s32b input)
+{
+	s32b tmp = input;
+	s32b tmp2, tmp3;
+	s32b root;
+	int i = 0;
+
+	/* Stay legal */
+	if (input <= 0L) return (0);
+
+
+	/* Find out how many powers of two this number contains */
+	while (tmp)
+	{
+		tmp /= 2;
+		i++;
+	}
+
+	/*
+	 * A decent first guess with Newton's method is input / 2.  A much
+	 * better one is to remove half the powers of two (rounded down).
+	 */
+	tmp = input >> (i / 2);
+
+	/* Close in on the truncated square root */
+	while (TRUE)
+	{
+		/* Get a better guess */
+		root = ((input / tmp) + tmp) / 2;
+
+		/* Require good-enough accuracy (we correct any error later). */
+		if ((root >= tmp - 1) && (root <= tmp + 1)) break;
+
+		/* Save current guess */
+		else tmp = root;
+	}
+
+	/* Get the square of the truncated square root */
+	tmp2 = root * root;
+
+	/* Get the square of the next higher integer */
+	tmp3 = (root + 1) * (root + 1);
+
+	/* If input > than the midpoint between these two values, round up */
+	if (input > (tmp2 + tmp3) / 2) root++;
+
+	/* Return */
+	return (u16b)(root);
+}
+
+
+/*
+ * Round a given value.
+ *
+ * "frac" controls the maximum amount of rounding compared to the given
+ * value.  If "frac" is 8, for example, the given value must be at least
+ * 80 for it to be rounded to the nearest 10.
+ */
+s32b round_it(const s32b v, int frac)
+{
+	s32b round = 5L;
+	s32b abs_v = ABS(v);
+
+	/* Rounding fraction must be at least 2, or no rounding happens */
+	if (frac < 2) return (v);
+
+	/* Small numbers aren't rounded */
+	if (v / frac < 2L) return (v);
+
+	/* Round by 5, then by 10, then by 25, then by 50, ... */
+	while (TRUE)
+	{
+		if (v / frac < round) break;
+		round *= 2L;  /* 10, 100, ... */
+		if (v / frac < round) break;
+		round *= 5L;
+		round /= 2L;  /* 25, 250, ... */
+		if (v / frac < round) break;
+		round *= 2L;  /* 50, 500, ... */
+	}
+
+	/* Apply rounding */
+	if ((abs_v % round) >= round / 2) abs_v += (round - (abs_v % round));
+	else abs_v -= (abs_v % round);
+
+	/* Return signed value */
+	if (v < 0) return (-abs_v);
+	return (abs_v);
+}
 
 
 /*
@@ -5005,7 +5081,7 @@ cptr get_month_name(int day, bool full, bool compact)
 /*
  * Generic display a list and pick a choice function. Returns TRUE selection or -1 if not selection made.
  */
-bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr q, int y, int x, int *selection)
+bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr q, cptr r, int y, int x, list_command_func list_command, int *selection)
 {
 	int i;
 
@@ -5037,14 +5113,12 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 	}
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%s %c-%c, *=List, ESC=exit) %s? ",
-	p, I2A(0), I2A(num - 1), q);
+	strnfmt(out_val, 78, "(%s %c-%c%s, *=List, ESC=exit) %s? ",
+	p, I2A(0), I2A(num - 1), r, q);
 
 	/* Get a spell from the user */
 	while (!flag && get_com_ex(out_val, &ke))
 	{
-		char choice;
-
 		if (ke.key == '\xff')
 		{
 			if (ke.mousebutton)
@@ -5056,7 +5130,7 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 		}
 
 		/* Request redraw */
-		if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
+		if ((ke.key == ' ') || (ke.key == '*'))
 		{
 			/* Hide the list */
 			if (redraw)
@@ -5086,16 +5160,27 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 
 		}
 
-		/* Lowercase 1+*/
-		choice = tolower(ke.key);
-
 		/* Extract request */
-		i = (islower(choice) ? A2I(choice) : -1);
+		i = (islower(ke.key) ? A2I(ke.key) : -1);
 
 		/* Totally Illegal */
 		if ((i < 0) || (i >= num))
 		{
-			bell("Illegal choice!");
+			if (list_command(ke.key, sn, i, &redraw))
+			{
+				if (redraw)
+				{
+					/* Save screen */
+					screen_save();
+
+					/* Display a list of spells */
+					print_list(sn, num, y, x);
+				}
+			}
+			else
+			{
+				bell("Illegal choice!");
+			}
 			continue;
 		}
 

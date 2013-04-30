@@ -393,6 +393,52 @@ void print_fields(const s16b *sn, int num, int y, int x)
 	prt("", y + i, x);
 }
 
+/*
+ * Other research field functions.
+ */
+bool field_commands(char choice, const s16b *sn, int i, bool *redraw)
+{
+	(void)redraw;
+	
+	switch (choice)
+	{
+		case 'B':
+		{
+			/* Fake the o_ptr */
+			object_type object_type_body;
+			object_type *o_ptr = &object_type_body;
+			
+			/* Set object details required */
+			o_ptr->k_idx = sn[i];
+			o_ptr->tval = k_info[sn[i]].tval;
+			o_ptr->sval = k_info[sn[i]].sval;
+			o_ptr->xtra1 = 0;
+			
+			/* Load screen */
+			if (*redraw) screen_load();
+			
+			/* Browse the object */
+			do_cmd_browse_object(o_ptr);
+
+			/* Save screen */
+			if (*redraw) screen_save();
+			
+			break;
+		}
+		
+		default:
+		{
+			return (FALSE);
+		}
+	}
+	
+	
+	
+	return (TRUE);
+}
+
+
+
 
 /*
  * Persuse the spells/prayers in a Book.
@@ -476,7 +522,7 @@ bool do_cmd_browse_object(object_type *o_ptr)
 		if (!num) return (FALSE);
 
 		/* Display the list and get a selection */
-		if (get_list(print_fields, field, num, format("%^ss",p), r, 1, 20, &selection))
+		if (get_list(print_fields, field, num, format("%^ss",p), r, ",B=browse", 1, 20, field_commands, &selection))
 		{
 			/* Fake the o_ptr */
 			o_ptr = &object_type_body;
@@ -690,7 +736,7 @@ void do_cmd_browse(void)
 	/* Get an item */
 	q = "Browse which book or runestone? ";
 	s = "You have no books or runestones that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -926,7 +972,7 @@ void do_cmd_study(void)
 		if (!num) return;
 
 		/* Display the list and get a selection */
-		if (get_list(print_fields, field, num, format("%^ss",p), r, 1, 20, &selection))
+		if (get_list(print_fields, field, num, format("%^ss",p), r, "", 1, 20, field_commands, &selection))
 		{
 			/* Fake the o_ptr */
 			o_ptr = &object_type_body;
@@ -1340,7 +1386,8 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		 * Note that if this occurs, the spell does not cost any mana.
 		 */
 		if ((p_ptr->reserves) && (p_ptr->csp < adj_con_reserve[p_ptr->stat_ind[A_CON]] / 2) &&
-			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]) && (p_ptr->stat_ind[A_CON]))
+			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]) && 
+			(sc_ptr->mana) && (p_ptr->stat_ind[A_CON]))
 		{
 			/* Temporarily weaken the player */
 			if (!p_ptr->stat_dec_tim[A_CON])
@@ -1480,7 +1527,7 @@ void do_cmd_cast(void)
 	item_tester_hook = inven_cast_okay;
 
 	/* Get an item */
-	q = "Use which book? ";
+	q = "Use which book or runestone? ";
 	s = "You have nothing you have studied!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
