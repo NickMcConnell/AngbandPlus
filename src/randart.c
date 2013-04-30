@@ -2415,6 +2415,7 @@ static s16b choose_item(int a_idx)
 
 	case TV_HAFTED:
 		if (r2 < 3) sval = SV_WHIP;
+		else if (r2 < 5) sval = SV_BATON;
 		else if (r2 < 8) sval = SV_MACE;
 		else if (r2 < 15) sval = SV_WAR_HAMMER;
 		else if (r2 < 22) sval = SV_QUARTERSTAFF;
@@ -5303,7 +5304,7 @@ static void scramble_artifact(int a_idx)
 			 */
 			k_ptr = &k_info[k_idx];
 			rarity_new = ( (s16b) rarity_old * (s16b) base_rarity_old ) /
-				(s16b) k_ptr->chance[0];
+				(s16b) (k_ptr->chance[0] ? k_ptr->chance[0] : 1);
 
 			if (rarity_new > 255) rarity_new = 255;
 			if (rarity_new < 1) rarity_new = 1;
@@ -5334,7 +5335,7 @@ static void scramble_artifact(int a_idx)
 	build_freq_table(a_ptr, art_freq);
 
 	/* Copy artifact info temporarily. */
-	a_old = *a_ptr;
+	COPY(&a_old, a_ptr, artifact_type);
 
 	/* Give this artifact a shot at being supercharged */
 	try_supercharge(a_ptr);
@@ -5350,7 +5351,8 @@ static void scramble_artifact(int a_idx)
 	if (curse_me)
 	{
 		/* Copy artifact info temporarily. */
-		a_old = *a_ptr;
+		COPY(&a_old, a_ptr, artifact_type);
+
 		do
 		{
 			add_ability(a_ptr);
@@ -5366,7 +5368,8 @@ static void scramble_artifact(int a_idx)
 			else
 			{
 				LOG_PRINT("Inhibited ability added - rolling back.\n");
-				*a_ptr = a_old;
+				COPY(a_ptr, &a_old, artifact_type);
+
 			}
 		} while (!success);
 	}
@@ -5381,14 +5384,15 @@ static void scramble_artifact(int a_idx)
 		{
 
 			/* Copy artifact info temporarily. */
-			a_old = *a_ptr;
+			COPY(&a_old, a_ptr, artifact_type);
 			add_ability(a_ptr);
 			ap = artifact_power(a_idx);
+
 			/* CR 11/14/01 - pushed both limits up by about 5% */
 			if (ap > (power * 23) / 20 + 1)
 			{
 				/* too powerful -- put it back */
-				*a_ptr = a_old;
+				COPY(a_ptr, &a_old, artifact_type);
 				LOG_PRINT("--- Too powerful!  Rolling back.\n");
 				continue;
 			}

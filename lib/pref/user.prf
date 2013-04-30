@@ -75,6 +75,8 @@
 ?:[EQU $RACE High-Elf]
 %:High-Elf.prf
 
+?:[EQU $RACE Kobold]
+%:Kobold.prf
 
 ##### Class Specific Subfiles #####
 
@@ -95,6 +97,18 @@
 
 ?:[EQU $CLASS Paladin]
 %:Paladin.prf
+
+?:[EQU $CLASS Thief]
+%:Thief.prf
+
+?:[EQU $CLASS Archer]
+%:Archer.prf
+
+?:[EQU $CLASS Bard]
+%:Bard.prf
+
+?:[EQU $CLASS Shaman]
+%:Shaman.prf
 
 
 ?:1

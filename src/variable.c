@@ -370,6 +370,14 @@ u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
 
+/*
+ * Arrays[DYNA_MAX] used for various things
+ */
+sint dyna_n = 0;
+u16b *dyna_g;
+byte dyna_cent_y;
+byte dyna_cent_x;
+bool dyna_full;
 
 /*
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)

@@ -35,11 +35,11 @@
  &  Interact with colors                ^G  Engrave a rune
  *  Target monster or location          ^H  (alter - west)
  (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (alter - south)
+ )  Dump reloadable screen dump         ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
  [  (unused)                            ^M  (special - return)
- ]  (unused)                            ^N  (alter - south east)
+ ]  Dump html screen dump               ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
  +  Alter grid                          ^Q  (unused)

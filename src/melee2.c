@@ -4277,6 +4277,9 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	/* Hack -- fly (almost) anywhere on surface */
+	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
+
 	/* Assume nothing in the grid other than the terrain hinders movement */
 	int move_chance = 100;
 
@@ -4353,7 +4356,6 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	/* Check how we move */
 	mmove = place_monster_here(y,x,m_ptr->r_idx);
 
-
 	/*** Check passability of various features. ***/
 
 	/* The monster is under covered terrain, moving to uncovered terrain. */
@@ -4393,6 +4395,12 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		{
 			/* Glyphs are hard to break */
 			return (MIN(100 * r_ptr->level / BREAK_GLYPH, move_chance));
+		}
+
+		/* Monsters outside can fly/climb over buildings */
+		if ((surface) && (m_ptr->mflag & (MFLAG_OVER)) && (feat != FEAT_PERM_SOLID))
+		{
+			return (100);
 		}
 
 		/* Monster can open doors */
@@ -7370,12 +7378,6 @@ static void recover_monster(int m_idx, bool regen)
 
 	int frac;
 
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
-
-	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
-
-	bool hurt_lite = r_ptr->flags3 & (RF3_HURT_LITE);
-
 	/* Get the origin */
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;
@@ -7391,24 +7393,31 @@ static void recover_monster(int m_idx, bool regen)
 		}
 	}
 
-
-	/* Get hit by terrain continuously, but not traps */
-	if (((f_info[cave_feat[y][x]].blow.method) &&
-	    !(f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)) &&
-	     !(place_monster_here(y,x,m_ptr->r_idx)) &&
-	     !(m_ptr->mflag & (MFLAG_OVER))) || (surface && daytime && hurt_lite))
+	/* Get hit by terrain continuously */
+	if (!(place_monster_here(y,x,m_ptr->r_idx)))
 	{
+
+		bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+
+		bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
+
+		bool hurt_lite = r_ptr->flags3 & (RF3_HURT_LITE);
+
+		bool outside = (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE));
 
 		/* Hack -- silently wake monster */
 		m_ptr->csleep = 0;
 
-		if (surface && daytime && hurt_lite)
+		if (surface && daytime && hurt_lite && outside)
 		{
 			/* Burn the monster */
 			project_m(0, 0, y, x, damroll(4,6), GF_LITE);
 
 		}
-		else mon_hit_trap(m_idx,y,x);
+		else if ((f_info[cave_feat[y][x]].blow.method) && !(f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)))
+		{
+			mon_hit_trap(m_idx,y,x);
+		}
 
 		/* Is the monster hidden?*/
 		if (m_ptr->mflag & (MFLAG_HIDE))

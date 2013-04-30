@@ -958,6 +958,100 @@ errr process_pref_file(cptr name)
 
 
 
+/*
+ * Hack -- save a screen dump to a file in html format
+ *
+ * Note:  Unlike other Angband variants, I'm not worried too about bad attr/char
+ * mappings.
+ *
+ * This may seem like laziness on my part, but the only clean way I can see of
+ * doing this code-wise requires that I reset all the visuals anyway. So we do this
+ * when we have to (Dumping as a command from the main map) and anywhere else, we
+ * try and avoid it (Due to obvious problems with tryiing to redraw the screen
+ * mid-way through displaying a message/animation and so on). That way for someone
+ * truely worried about getting everything via an html screenshot, they can reset
+ * their pref file and avoid using font preferences that use non-ASCII characters.
+ *
+ * This also has the additional advantage that we can dump any screen to html,
+ * rather than just the main map, which other variants do via duplication of the
+ * map info code. We do this by hooking into the currently unused Ctrl-right carat
+ * in util.c. This is probably dangerous, so we don't use screen_save/screen_load
+ * or notify the player in any way that we have committed a screen_dump. Hopefully
+ * by the time we call inkey() we don't have any issues with outputting a file.
+ *
+ */
+void dump_html(void)
+{
+	int y, x;
+
+	byte a = 0, oa = TERM_WHITE;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	/* XXX Support .html vs. .html file names. We dumb down for DOS */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.htm");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Html preamble */
+	fprintf(fff, "<HTML>\n");
+	fprintf(fff, "<HEAD>\n");
+      fprintf(fff, "<META NAME=\"GENERATOR\" Content=\"UnAngband 0.5.2\">\n");
+	fprintf(fff, "<TITLE>Unangband Screen Dump</TITLE>\n");
+	fprintf(fff, "</HEAD>\n");
+	fprintf(fff, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
+	fprintf(fff, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
+	             angband_color_table[TERM_WHITE][1],
+	             angband_color_table[TERM_WHITE][2],
+	             angband_color_table[TERM_WHITE][3]);
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			if (oa != a)
+			{
+				fprintf(fff, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+				oa = a;
+			}
+
+			fprintf(fff, "%c", c);
+		}
+
+		/* End the row */
+		fprintf(fff, "\n");
+	}
+
+	fprintf(fff, "</TT></PRE></FONT>\n");
+
+	fprintf(fff, "</BODY>\n");
+	fprintf(fff, "</HTML>\n");
+
+	/* Close it */
+	my_fclose(fff);
+
+}
+
+
 
 #ifdef CHECK_TIME
 
@@ -2311,7 +2405,7 @@ errr file_character(cptr name, bool full)
 	text_out_file = fff;
 
 	/* Begin dump */
-	fprintf(fff, "  [Unangband 0.5.1d Character Dump]\n\n");
+	fprintf(fff, "  [Unangband 0.5.2 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);
@@ -3526,10 +3620,18 @@ static void death_examine(void)
 		/* Describe */
 		msg_format("Examining %s...", o_name);
 
-                msg_print("");
+		msg_print("");
 
-                screen_object(o_ptr, TRUE);
+		/* Save the screen */
+		screen_save();
 
+		/* Describe */
+		screen_object(o_ptr, TRUE);
+
+		(void)inkey();
+
+		/* Load the screen */
+		screen_load();
 	}
 }
 

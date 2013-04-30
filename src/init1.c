@@ -356,18 +356,18 @@ static cptr f_info_flags3[] =
 	"EASY_CLIMB",
 	"NEED_TREE",
 	"NEED_WALL",
-	"TOWN",
+	"FULL_MOVE",
 	"BLOOD",
 	"DUST",
 	"SLIME",
 	"TREE",
 	"TREE_BIG",
-	"XXX3",
-	"FULL_MOVE",
-	"COLLAPSE",
+	"INSTANT",
+	"EXPLODE",
+	"TIMED",
 	"ERUPT",
 	"STRIKE",
-	"DYNAMIC"
+	"SPREAD"
 };
 
 /*
@@ -443,7 +443,7 @@ static cptr r_info_flags2[] =
 	"MAGE",
 	"HAS_AURA",
 	"HAS_WEB",
-	"BRAIN_7",
+	"NEED_LITE",
 	"BRAIN_8"
 };
 
@@ -856,7 +856,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX1",
+	"THROWING",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"

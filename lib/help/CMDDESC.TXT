@@ -531,6 +531,20 @@ Fire an item (f) or Fire an item (t)
         would get by just throwing the missile.  Fire or Throw requires
         a direction.  Targeting mode (see the next command) can be invoked
         with "*" at the "Direction?" prompt.  This command takes some energy.
+        Items that can be fired apply the appropriate damage type to the
+        monster they are thrown against, such as burning arrows, and to
+        the ground underneath.  Slings may now be used to lob potions
+        for a much greater distance, as well as improving the damage and
+        damage of throwing weapons, such as javelins or spears.
+
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
 
 Throw an item (v)
         You may throw any object carried by your character.  The lighter
@@ -545,8 +559,18 @@ Throw an item (v)
         takes some energy.
         In many instances, you may be able to throw part of the terrain you
         are on. Some items will also apply the appropriate damage type to
-        the monster they are thrown against; others may be consumed by
-        unintelligent monsters or animals if thrown to them.
+        the monster they are thrown against and the ground underneath;
+	others may be consumed by unintelligent monsters or animals if
+	thrown to them.
+
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
 
 Targeting Mode (*)
         This will allow you to aim your spells and such at a specific
@@ -580,7 +604,7 @@ Targeting Mode (*)
         or breath weapon at a location in the middle of a group of monsters
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
-        
+
 --- Looking Commands ---
 
 Full screen map (M)
@@ -774,3 +798,16 @@ Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
 
+Save html screen dump (]) or (^])
+        This command dumps a "snap-shot" of the current screen to the file
+        "dump.htm", including encoded color information. Unlike the above
+        screen shot commands, this screen dump is in html format. Currently
+        Unangband does not have the ability to reload html screen shots
+        dumped in this manner.
+
+        Using ctrl-right-bracket to invoke this command will dump the
+        html file but without any visual feedback as to the success or
+        failure of this command. This method of invoking this command may
+        be used any time Unangband is expecting keyboard input, however it
+        will use the currently set visual prefs, rather than the underlying
+        'ASCII' visuals.

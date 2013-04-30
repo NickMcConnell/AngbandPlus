@@ -100,15 +100,14 @@ R:ANIMAL
 L:10:0:435:0:566:0
 S:14:0:0:0:0:0:0:0
 
-#Should be guarded by King of Wood Elves
-
 N:5:Mirkwood
 X:4:6
 G:l
 R:CAN_CLIMB
 L:14:420:56:153:637:0
 L:15:56:0:0:0:0
-L:26:0:153:0:0:0
+L:25:0:1:0:0:0
+L:26:56:155:0:1082:0
 S:15:16:17:4:5:18:19:0
 
 N:6:Lake-town
@@ -123,8 +122,6 @@ N:7:the Lonely Mountain
 X:8:9
 R:DRAGON
 G:B
-#Was L:33. Need to fix by implementing flags eg RUINS
-#Maybe not...
 L:20:435:56:154:475:0
 L:21:56:0:0:0:0
 L:38:56:0:0:475:0
@@ -135,12 +132,11 @@ N:8:Lake-town
 X:7:9
 R:CAN_SWIM
 L:39:155:407:49:475:0
-L:42:121:56:56:0:0
 
 N:9:Lake-town, rebuilt
 X:42:14
 L:0:0:407:1:0:0
-S:1:2:3:4:5:6:20:0
+S:23:30:31:4:5:6:20:0
 D:Visit the statue to collect a reward from the grateful townsfolk.
 
 #The following levels are from the Fellowship of the Ring.
@@ -159,6 +155,7 @@ X:41:12
 G:t
 R:ANIMAL
 L:0:0:407:419:440:0
+L:1:56:0:0:0:0
 L:3:56:0:0:0:0
 S:22:2:3:4:5:6:0:0
 
@@ -178,7 +175,7 @@ L:14:420:420:154:453:0
 N:14:Rivendell
 X:13:15
 L:0:0:420:126:0:0
-S:12:2:3:4:5:6:13:27
+S:12:30:17:4:5:19:13:27
 
 N:15:Caradhras
 X:16:19
@@ -198,10 +195,9 @@ L:50:56:141:0:483:0
 N:17:Isengard
 X:16:20
 L:21:423:141:141:249:31
-L:22:0:1:0:0:31
-L:23:50:0:0:0:31
+L:22:50:0:0:0:31
 L:50:56:0:0:532:31
-S:23:2:3:4:5:6:7:0
+#S:23:30:31:4:33:19:7:0
 
 N:18:Lothlorien
 X:19:20
@@ -213,96 +209,102 @@ D:Galadriel's gifts can be found at the White tree.
 N:19:Parth Galen
 X:20:24
 G:o
-L:20:420:155:56:644:0
+R:WARRIOR
+L:51:420:155:56:644:0
 
 N:20:Fangorn
 X:21:23
 G:o
+R:PLANT
 L:20:420:420:420:634:0
 
 N:21:Edoras
 X:22:28
-G:t
+G:p
 R:WARRIOR
-L:0:0:407:0:0:0
-L:1:56:0:0:514:0
-S:1:2:3:4:5:6:25:0
+L:51:0:407:0:0:0
+L:52:56:0:0:514:0
+S:16:30:31:33:17:25:23:0
 
 N:22:Hornburg
 X:21:23
 G:o
 R:ESCORT
-L:50:420:56:155:249:49
+L:53:420:56:155:249:49
 
 N:23:Isengard
 X:20:22
-L:50:425:141:141:514:31
-L:51:56:0:0:0:31
-L:81:56:0:0:532:31
+L:21:425:141:141:514:31
+L:22:56:0:0:0:31
+L:50:56:0:0:532:31
 
 N:24:the Marshes of the Dead
 X:19:25
 R:UNDEAD
-L:65:199:200:201:0:0
+L:52:199:200:201:0:0
 
 #Should be guarded by Faramir
 
 N:25:Ithilien
 X:26:49
-G:t
-R:EVIL
+G:T
+R:WARRIOR
 L:20:420:155:199:0:0
-L:21:0:1:153:0:0
-S:26:26:26:0:0:0:0:0
+L:21:0:135:153:1084:0
+S:26:26:26:26:0:0:0:0
 
 N:26:Minas Morgul
 X:25:31
 R:UNDEAD
-L:70:407:56:397:492:46
-L:71:56:0:397:0:46
+L:53:407:56:397:492:46
+L:54:56:0:397:0:46
 L:85:56:0:0:535:46
 
 #Note that we need a map to travel from Minas Morgol to Cirith Ungol now.
 
 N:27:Cirith Ungol
 X:26:31
-L:50:56:141:141:530:11
-L:51:56:1:0:0:11
+L:53:56:141:141:530:11
+L:54:56:1:0:0:11
 L:65:56:1:0:597:11
 
 #King Denethor should guard Minas Tirith
 
 N:28:Minas Tirith
 X:29:30
+G:t
 R:WARRIOR
-L:0:407:56:56:0:0
-S:1:2:3:4:5:6:0:0
+L:54:0:407:0:0:0
+L:55:56:0:0:1085:0
+S:19:30:31:17:33:32:23:0
 
 N:29:the Paths of the Dead
 X:28:30
 G:W
 R:UNDEAD
-L:55:436:56:56:522:0
-L:56:56:0:0:0:0
+L:56:436:56:56:522:0
+L:57:56:0:0:0:0
 L:85:56:0:0:528:0
 
 N:30:the Battle of Pelennor Fields
 X:27:31
 G:W
 R:ESCORTS
-L:70:435:411:420:535:0
+L:56:435:411:420:535:0
 
 N:31:Minas Tirith
 X:25:26
+G:t
 R:WARRIOR
-L:0:407:56:56:0:0
-S:1:2:3:4:5:6:24:0
+L:0:0:407:0:0:0
+L:1:56:0:0:0:0
+S:19:30:31:17:33:32:24:0
 D:A white tree has found root in Minas Tirith.
 
 N:32:the Plains of Gorgoroth
 X:51:27
 G:o
-L:75:441:201:431:0:0
+L:65:441:201:431:0:0
 L:79:56:209:0:0:0
 
 N:33:Orodruin
@@ -325,7 +327,7 @@ N:35:Hobbiton
 X:0:36
 G:h
 L:60:0:407:199:532:0
-S:2:3:7:11:0:0:0:0
+S:30:31:7:11:23:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:39:47
@@ -340,6 +342,7 @@ X:38:39
 G:t
 R:ANIMAL
 L:0:0:407:419:617:0
+L:1:56:0:0:0:0
 L:3:56:0:0:0:0
 S:22:2:3:4:5:6:0:0
 
@@ -361,7 +364,7 @@ N:40:the Old Forest
 X:10:11
 R:PLANT
 L:9:420:420:153:622:0
-L:10:0:419:0:307:0
+L:10:0:135:0:307:0
 S:28:0:0:0:0:0:0:0
 
 # And the same dungeon accessible from the LOtR quest.
@@ -424,9 +427,9 @@ L:60:148:145:0:0:0
 
 N:47:the Battle of Five Armies
 X:52:48
-G:o
+G:C
 R:ESCORT
-L:39:420:56:153:634:0
+L:20:420:56:153:235:0
 
 N:48:Dol Goldur
 X:20:23
@@ -461,7 +464,7 @@ L:90:56:208:218:0:0
 N:52:the Dale
 X:47:42
 L:0:0:411:0:0:0
-S:1:2:3:4:5:6:23:0
+S:23:30:31:4:5:6:13:0
 
 # Other alternate dungeons should be placed here
 

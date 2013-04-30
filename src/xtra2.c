@@ -2228,7 +2228,7 @@ void monster_death(int m_idx)
 	x = m_ptr->fx;
 
 	/* Some monsters stop radiating lite when dying */
-	if (r_ptr->flags2 & (RF2_HAS_LITE))
+	if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE))
 	{
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -4065,6 +4065,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 					object_type *o_ptr;
 
+					bool recall = FALSE;
+
 					/* Get the object */
 					o_ptr = &o_list[this_o_idx];
 
@@ -4074,11 +4076,52 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Obtain an object description */
 					object_desc(o_name, o_ptr, TRUE, 3);
 
-					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
-					prt(out_val, 0, 0);
-					move_cursor_relative(y, x);
-					query = inkey();
+					/* Interact */
+					while (1)
+					{
+						/* Recall */
+						if (recall)
+						{
+							/* Save screen */
+							screen_save();
+
+							/* Recall monster on screen */
+							/* Except for containers holding 'something' */
+							if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_known_p(o_ptr)))) screen_roff(o_ptr->name3);
+
+							/* Recall on screen */
+							else screen_object(o_ptr, TRUE);
+
+							/* Hack -- Complete the prompt (again) */
+							Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+
+							/* Command */
+							query = inkey();
+
+							/* Load screen */
+							screen_load();
+						}
+
+						/* Normal */
+						else
+						{
+							/* Describe the object */
+							sprintf(out_val, "%s%s%s%s [r,%s]", s1, s2, s3, o_name, info);
+							prt(out_val, 0, 0);
+
+							/* Place cursor */
+							move_cursor_relative(y, x);
+
+							/* Command */
+							query = inkey();
+						}
+
+						/* Normal commands */
+						if (query != 'r') break;
+
+						/* Toggle recall */
+						recall = !recall;
+					}
 
 					/* Stop on everything but "return"/"space" */
 					if ((query != '\n') && (query != '\r') && (query != ' ')) break;
@@ -4199,6 +4242,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Describe it */
 			if (o_ptr->marked)
 			{
+				bool recall = FALSE;
+
 				char o_name[80];
 
 				/* Not boring */
@@ -4207,11 +4252,52 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Obtain an object description */
 				object_desc(o_name, o_ptr, TRUE, 3);
 
-				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
-				prt(out_val, 0, 0);
-				move_cursor_relative(y, x);
-				query = inkey();
+				/* Interact */
+				while (1)
+				{
+					/* Recall */
+					if (recall)
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Recall monster on screen */
+						/* Except for containers holding 'something' */
+						if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_known_p(o_ptr)))) screen_roff(o_ptr->name3);
+
+						/* Recall on screen */
+						else screen_object(o_ptr, TRUE);
+
+						/* Hack -- Complete the prompt (again) */
+						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+
+						/* Command */
+						query = inkey();
+
+						/* Load screen */
+						screen_load();
+					}
+
+					/* Normal */
+					else
+					{
+						/* Describe the object */
+						sprintf(out_val, "%s%s%s%s [r,%s]", s1, s2, s3, o_name, info);
+						prt(out_val, 0, 0);
+
+						/* Place cursor */
+						move_cursor_relative(y, x);
+
+						/* Command */
+						query = inkey();
+					}
+
+					/* Normal commands */
+					if (query != 'r') break;
+
+					/* Toggle recall */
+					recall = !recall;
+				}
 
 				/* Stop on everything but "return"/"space" */
 				if ((query != '\n') && (query != '\r') && (query != ' ')) break;
@@ -4360,7 +4446,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 
 			/* Interact */
-
 			while (1)
 			{
 				/* Recall */

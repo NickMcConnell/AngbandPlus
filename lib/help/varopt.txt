@@ -97,6 +97,20 @@ Display room names
      in the room if the variant_room_info option is switched on.
 
 
+
+=== Display options ===
+
+***** <view_glowing_lite>
+Use special colors for glowing lite (slow)   [view_glowing_lite]
+    This option causes special colors to be used for "glowing" grids in
+    certain situations (see "view_granite_lite" and "view_special_lite").
+    Glowing grids are grids adjacent to permanently glowing features such
+    as torches, magical lights and lava.
+    Turning this option off will improve game speed as the code is somewhat
+    less efficient than the other special color options.
+
+
+
 === Birth options ===
 
 ***** <birth_rand_artifacts>
@@ -115,7 +129,6 @@ Birth: Play in Lord of the Rings campaign    [birth_campaign]
      Be prepared for out of depth uniques (Especially at night), dungeon
      guardians you have to defeat in order to progress further, quest
      rewards in set locations, and dangerous battlefields and towers.
-
 
 === Cheating options ===
 

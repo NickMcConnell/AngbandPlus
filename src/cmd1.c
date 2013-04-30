@@ -919,6 +919,10 @@ void py_pickup(int pickup)
 
 			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 			if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+
+			/* XXX XXX - Mark monster objects as "seen" */
+			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
+
 		}
 
 		/* Describe the object */

@@ -1723,6 +1723,9 @@ char inkey(void)
 			/* Strip this key */
 			ch = 0;
 
+			/* Hack -- always do an html dump */
+			dump_html();			
+
 			/* Continue */
 			continue;
 		}

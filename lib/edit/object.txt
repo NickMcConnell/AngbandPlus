@@ -370,7 +370,7 @@ I:23:4:0
 W:0:0:12:10
 A:0/1:5/1:10/1:20/1
 P:0:1d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 N:44:& Rapier~
 G:|:W
@@ -542,7 +542,7 @@ I:22:2:0
 W:5:0:50:36
 A:5/1
 P:0:1d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 N:65:& Spear~
 G:/:y
@@ -550,7 +550,7 @@ I:22:5:0
 W:5:0:70:120
 A:5/1
 P:0:1d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 N:66:& Two-Handed Spear~
 G:/:s
@@ -687,7 +687,7 @@ I:16:0:0
 W:0:0:4:1
 A:0/1:10/1
 P:0:1d2:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 N:83:& Iron Shot~
 G:{:s
@@ -695,7 +695,7 @@ I:16:1:0
 W:3:0:5:2
 A:3/1:40/1
 P:0:1d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 
 ##### Shovels and Picks #####
@@ -1730,6 +1730,7 @@ I:75:2:400
 W:0:0:4:2
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:223:Apple Juice
 G:!:d
@@ -1737,6 +1738,7 @@ I:75:1:250
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:224:Water
 G:!:d
@@ -1744,6 +1746,7 @@ I:75:0:200
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:225:Strength
 G:!:d
@@ -1751,6 +1754,7 @@ I:75:48:0
 W:30:0:4:8000
 A:30/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:226:Weakness
 G:!:d
@@ -1758,6 +1762,7 @@ I:75:16:0
 W:3:0:4:0
 A:3/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:227:Restore Strength
 G:!:d
@@ -1766,6 +1771,7 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 Y:25:1
+F:THROWING
 
 N:228:Intelligence
 G:!:d
@@ -1774,6 +1780,7 @@ W:30:0:4:8000
 A:30/1
 P:0:1d1:0:0:0
 Y:17:2
+F:THROWING
 
 N:229:Stupidity
 G:!:d
@@ -1781,6 +1788,7 @@ I:75:17:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:230:Restore Intelligence
 G:!:d
@@ -1789,6 +1797,7 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 Y:17:1
+F:THROWING
 
 N:231:Wisdom
 G:!:d
@@ -1797,6 +1806,7 @@ W:30:0:4:8000
 A:30/1
 P:0:1d1:0:0:0
 Y:5:2
+F:THROWING
 
 N:232:Naivety
 G:!:d
@@ -1804,6 +1814,7 @@ I:75:18:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:233:Restore Wisdom
 G:!:d
@@ -1812,6 +1823,7 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 Y:5:1
+F:THROWING
 
 N:234:Charisma
 G:!:d
@@ -1820,6 +1832,7 @@ W:20:0:4:1000
 A:20/1
 P:0:1d1:0:0:0
 Y:19:2
+F:THROWING
 
 N:235:Ugliness
 G:!:d
@@ -1827,6 +1840,7 @@ I:75:21:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:236:Restore Charisma
 G:!:d
@@ -1835,6 +1849,7 @@ W:20:0:4:300
 A:20/1
 P:0:1d1:0:0:0
 Y:19:1
+F:THROWING
 
 N:237:Cure Light Wounds
 G:!:d
@@ -1843,6 +1858,7 @@ W:0:0:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0
 Y:21:1
+F:THROWING
 
 N:238:Clumsiness
 G:!:d
@@ -1850,6 +1866,7 @@ I:75:19:0
 W:5:0:4:0
 A:5/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:239:Sickliness
 G:!:d
@@ -1857,6 +1874,7 @@ I:75:20:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:240:Cure Serious Wounds
 G:!:d
@@ -1865,6 +1883,7 @@ W:3:0:4:40
 A:3/1
 P:0:1d1:0:0:0
 Y:3:1
+F:THROWING
 
 N:241:Cure Critical Wounds
 G:!:d
@@ -1873,6 +1892,7 @@ W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
 Y:3:2
+F:THROWING
 
 N:242:Healing
 G:!:d
@@ -1881,6 +1901,7 @@ W:15:0:4:300
 A:15/1:60/1
 P:0:1d1:0:0:0
 Y:3:3
+F:THROWING
 
 N:243:Constitution
 G:!:d
@@ -1889,6 +1910,7 @@ W:30:0:4:8000
 A:30/1
 P:0:1d1:0:0:0
 Y:24:2
+F:THROWING
 
 N:244:Experience
 G:!:d
@@ -1897,6 +1919,7 @@ W:65:0:4:25000
 A:65/1
 P:0:1d1:0:0:0
 Y:27:3
+F:THROWING
 
 N:245:Sleep
 G:!:d
@@ -1905,6 +1928,7 @@ W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 Y:16:1
+F:THROWING
 
 N:246:Blindness
 G:!:d
@@ -1912,6 +1936,7 @@ I:75:7:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:247:Confusion
 G:!:d
@@ -1920,6 +1945,7 @@ W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 Y:2:1
+F:THROWING
 
 N:248:Poison
 G:!:d
@@ -1927,6 +1953,7 @@ I:75:6:0
 W:3:0:4:0
 A:3/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:249:Speed
 G:!:d
@@ -1935,6 +1962,7 @@ W:1:0:4:75
 A:1/1:40/1
 P:0:1d1:0:0:0
 Y:27:1
+F:THROWING
 
 N:250:Slowness
 G:!:d
@@ -1942,6 +1970,7 @@ I:75:4:50
 W:1:0:4:0
 A:1/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:251:Dexterity
 G:!:d
@@ -1950,6 +1979,7 @@ W:30:0:4:8000
 A:30/1
 P:0:1d1:0:0:0
 Y:26:2
+F:THROWING
 
 N:252:Restore Dexterity
 G:!:d
@@ -1958,6 +1988,7 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 Y:26:1
+F:THROWING
 
 N:253:Restore Constitution
 G:!:d
@@ -1966,6 +1997,7 @@ W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 Y:24:1
+F:THROWING
 
 N:254:Lose Memories
 G:!:d
@@ -1973,6 +2005,7 @@ I:75:13:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:255:Salt Water
 G:!:d
@@ -1980,6 +2013,7 @@ I:75:5:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:256:Enlightenment
 G:!:d
@@ -1988,6 +2022,7 @@ W:25:0:4:800
 A:25/1
 P:0:1d1:0:0:0
 Y:12:2
+F:THROWING
 
 N:257:Heroism
 G:!:d
@@ -1996,6 +2031,7 @@ W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0
 Y:20:1
+F:THROWING
 
 N:258:Berserk Strength
 G:!:d
@@ -2004,6 +2040,7 @@ W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0
 Y:23:1
+F:THROWING
 
 N:259:Boldness
 G:!:d
@@ -2011,6 +2048,7 @@ I:75:28:0
 W:1:0:4:10
 A:1/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:260:Restore Life Levels
 G:!:d
@@ -2019,6 +2057,7 @@ W:40:0:4:400
 A:40/1
 P:0:1d1:0:0:0
 Y:27:2
+F:THROWING
 
 N:261:Resist Heat
 G:!:d
@@ -2027,6 +2066,7 @@ W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
 Y:13:1
+F:THROWING
 
 N:262:Resist Cold
 G:!:d
@@ -2035,6 +2075,7 @@ W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
 Y:14:1
+F:THROWING
 
 N:263:Detect Invisible
 G:!:d
@@ -2043,6 +2084,7 @@ W:3:0:4:50
 A:3/1
 P:0:1d1:0:0:0
 Y:12:1
+F:THROWING
 
 N:264:Slow Poison
 G:!:d
@@ -2051,6 +2093,7 @@ W:1:0:4:25
 A:1/1
 P:0:1d1:0:0:0
 Y:4:1
+F:THROWING
 
 N:265:Neutralize Poison
 G:!:d
@@ -2059,6 +2102,7 @@ W:5:0:4:75
 A:5/1
 P:0:1d1:0:0:0
 Y:4:2
+F:THROWING
 
 N:266:Restore Mana
 G:!:d
@@ -2067,6 +2111,7 @@ W:25:0:4:350
 A:25/1:70/1
 P:0:1d1:0:0:0
 Y:17:3
+F:THROWING
 
 N:267:Infra-vision
 G:!:d
@@ -2075,6 +2120,7 @@ W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 Y:13:2
+F:THROWING
 
 N:268:Enchant Weapon Brand
 G:?:d
@@ -2727,6 +2773,7 @@ I:77:1:0
 W:0:0:10:0
 A:0/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:344:& Flask~ of acid
 G:!:g
@@ -2734,6 +2781,7 @@ I:77:2:0
 W:10:0:10:30
 A:10/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:345:& Iron Spike~
 G:~:D
@@ -2764,6 +2812,7 @@ I:77:0:7500
 W:1:0:10:3
 A:1/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:349:& # Bottle~
 G:~:g
@@ -2771,6 +2820,7 @@ I:2:1:0
 W:0:0:2:0
 A:0/1:30/1
 P:0:1d1:0:0:0
+F:THROWING
 
 ##### Here are the Rods #####
 
@@ -3320,6 +3370,7 @@ I:75:23:0
 W:55:0:4:0
 A:55/4
 P:0:1d1:0:0:0
+F:THROWING
 
 N:416:Ruination
 G:!:d
@@ -3327,6 +3378,7 @@ I:75:15:0
 W:40:0:4:0
 A:40/8
 P:0:1d1:0:0:0
+F:THROWING
 
 N:417:Detonations
 G:!:d
@@ -3335,6 +3387,7 @@ W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0
 Y:11:1
+F:THROWING
 
 N:418:Augmentation
 G:!:d
@@ -3342,6 +3395,7 @@ I:75:55:0
 W:40:0:4:60000
 A:40/16
 P:0:1d1:0:0:0
+F:THROWING
 
 N:419:*Healing*
 G:!:d
@@ -3349,6 +3403,7 @@ I:75:38:0
 W:40:0:4:1500
 A:40/4:80/2
 P:0:1d1:0:0:0
+F:THROWING
 
 N:420:Life
 G:!:d
@@ -3356,6 +3411,7 @@ I:75:39:0
 W:60:0:4:5000
 A:60/4:100/4
 P:0:1d1:0:0:0
+F:THROWING
 
 N:421:Self Knowledge
 G:!:d
@@ -3363,6 +3419,7 @@ I:75:58:0
 W:40:0:4:2000
 A:40/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:422:*Enlightenment*
 G:!:d
@@ -3370,6 +3427,7 @@ I:75:57:0
 W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
+F:THROWING
 
 
 ##### Items 423 to 430 are new amulets thought up by JLE #####
@@ -3471,6 +3529,7 @@ I:75:54:0
 W:20:0:1:1000
 A:40/1:60/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:433:& # Figurine~
 G:~:g
@@ -3487,7 +3546,7 @@ I:22:1:0
 W:0:0:12:10
 A:0/1:5/1
 P:0:1d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | THROWING
 
 ### Three new types of ammo ###
 
@@ -4131,7 +4190,7 @@ P:0:1d1:0:0:0
 
 N:564:& set~ of Panpipes
 G:|:y
-I:24:8:0
+I:24:9:0
 W:20:0:80:150
 A:20/2
 P:0:1d1:0:0:0
@@ -4686,6 +4745,7 @@ I:75:60:0
 W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:646:Resist Acid
 G:!:d
@@ -4693,6 +4753,7 @@ I:75:61:0
 W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:647:Resist Poison
 G:!:d
@@ -4700,6 +4761,7 @@ I:75:62:0
 W:15:0:4:400
 A:15/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:648:Resistance
 G:!:d
@@ -4707,6 +4769,7 @@ I:75:63:0
 W:40:0:1:1000
 A:40/1:60/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:649:Resist Lightning
 G:!:d
@@ -4714,6 +4777,7 @@ I:75:64:0
 W:10:0:4:200
 A:10/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:650:Cure Mortal Wounds
 G:!:d
@@ -4722,6 +4786,7 @@ W:10:0:4:200
 A:10/1
 P:0:1d1:0:0:0
 Y:3:2
+F:THROWING
 
 N:651:Cure All Wounds
 G:!:d
@@ -4729,6 +4794,7 @@ I:75:66:0
 W:25:0:4:300
 A:25/1:60/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:652:*Cure All Wounds*
 G:!:d
@@ -4736,6 +4802,7 @@ I:75:67:0
 W:40:0:4:1200
 A:40/2:80/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:653:Remove Fear & Poison
 G:!:d
@@ -4743,6 +4810,7 @@ I:75:68:0
 W:10:0:4:225
 A:10/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:654:Firebreath
 G:!:d
@@ -4751,6 +4819,7 @@ W:40:0:4:1200
 A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
+F:THROWING
 
 N:655:Dragonbreath
 G:!:d
@@ -4760,6 +4829,7 @@ A:40/2
 P:0:1d1:0:0:0
 F:IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC | IGNORE_ACID
 F:IGNORE_WATER
+F:THROWING
 
 N:656:Poison Weapon
 G:?:d
@@ -4790,6 +4860,7 @@ I:65:30:0
 W:60:0:10:4000
 A:60/1
 P:0:1d1:0:0:0
+F:IGNORE_COLD
 
 N:660:Meteors
 G:-:d
@@ -4797,6 +4868,7 @@ I:65:31:0
 W:80:0:10:5500
 A:80/2
 P:0:1d1:0:0:0
+F:IGNORE_FIRE | IGNORE_COLD
 
 N:661:Blind Monster
 G:-:d
@@ -4899,6 +4971,7 @@ I:65:44:0
 W:50:0:10:3000
 A:50/2
 P:0:1d1:0:0:0
+F:IGNORE_FIRE | IGNORE_COLD
 
 N:674:Freezing Clouds
 G:-:d
@@ -4968,6 +5041,7 @@ I:65:53:1
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
+F:IGNORE_ELEC
 
 N:683:Dragon's Bile
 G:-:d
@@ -4975,6 +5049,7 @@ I:65:54:1
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
+F:IGNORE_ACID
 
 N:684:Dragon's Venom
 G:-:d
@@ -5126,3 +5201,18 @@ A:35/1
 P:0:3d8:0:0:0
 F:SHOW_MODS
 
+N:706:& Baton~
+G:\:u
+I:22:1:0
+W:0:0:45:25
+A:0/1:5/1
+P:0:1d5:0:0:0
+F:SHOW_MODS | THROWING
+
+N:707:& Burning Arrow~
+G:{:o
+I:17:4:0
+W:5:0:3:5
+A:5/1:25/1
+P:0:1d3:0:0:0
+F:SHOW_MODS

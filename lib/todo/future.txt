@@ -769,6 +769,9 @@ G:266:0:0:120
 #Boromir does not die, so Faramir never becomes our friend, and we do not access Ilithien with
 #out killing him. Similiarly, if we kill various uniques, we have problems.
 
+#Beorn should be allowed to become a friendly, and if so, he appears at the Battle of Five Armies
+#as an ally.
+
 #The ring quest also causes us problems at various points on the road.
 
 #N:6:been asked for 'My precious' by Smeagol.

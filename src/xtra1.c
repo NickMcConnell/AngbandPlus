@@ -2962,19 +2962,24 @@ static void calc_bonuses(void)
 		p_ptr->heavy_shoot = TRUE;
 	}
 
+	/* Hack -- we use 'firing' for throwing weapons */
+
+	/* Always get to shoot */
+	p_ptr->num_fire = 1;
+
+	/* Always get to do some damage */
+	p_ptr->ammo_mult = 1;
+
 	/* Analyze launcher */
 	if (o_ptr->k_idx)
 	{
-		/* Get to shoot */
-		p_ptr->num_fire = 1;
-
 		/* Analyze the launcher */
 		switch (o_ptr->sval)
 		{
 			/* Sling and ammo */
 			case SV_SLING:
 			{
-				p_ptr->ammo_tval = TV_SHOT;
+				/* Hack -- slings now act like 'throwers' */
 				p_ptr->ammo_mult = 2;
 				break;
 			}
@@ -3027,6 +3032,7 @@ static void calc_bonuses(void)
 		/* Require at least one shot */
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
+
 
 
 	/*** Analyze weapon ***/

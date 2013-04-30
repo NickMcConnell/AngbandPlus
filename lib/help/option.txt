@@ -474,6 +474,15 @@ Use special colors for floor grids (slow)    [view_special_lite]
     the speed of the game.  This option may not work well if the attr/char
     codes for walls/veins have been changed, or if "graphics" are being used.
 
+***** <view_glowing_lite>
+Use special colors for glowing lite (slow)   [view_glowing_lite]
+    This option causes special colors to be used for "glowing" grids in
+    certain situations (see "view_granite_lite" and "view_special_lite").
+    Glowing grids are grids adjacent to permanently glowing features such
+    as torches, magical lights and lava.
+    Turning this option off will improve game speed as the code is somewhat
+    less efficient than the other special color options.
+
 ***** <center_player>
 Center map continuously (very slow)    [center_player]
      The map always centres on the player with this option on. With it off, it

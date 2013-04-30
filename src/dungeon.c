@@ -1330,8 +1330,7 @@ static void process_world(void)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
-			/* Hack -- only recall down if dungeon deeper than one level */
-			else if (min_depth(p_ptr->dungeon) < max_depth(p_ptr->dungeon)-1)
+			else if (min_depth(p_ptr->dungeon) < max_depth(p_ptr->dungeon))
 			{
 				msg_print("You feel yourself yanked downwards!");
 
@@ -1343,18 +1342,9 @@ static void process_world(void)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
-			else if (p_ptr->dungeon != p_ptr->town)
+			else 
 			{
-				msg_print("You feel yourself yanked sideways!");
-
-				/* New depth */
-				p_ptr->depth = town_depth(p_ptr->town);
-
-				/* New dungeon */
-				p_ptr->dungeon = p_ptr->town;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
+				msg_print("A tension leaves the air around you...");
 			}
 		}
 	}
@@ -2056,6 +2046,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Save "html screen dump" */
+		case ']':
+		{
+			do_cmd_save_screen_html();
+			break;
+		}
+
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -2582,6 +2579,9 @@ static void process_player(void)
 		}
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
+
+	/* Update dynamic terrain */
+	update_dyna();
 
 	/* Update noise flow information */
 	update_noise();

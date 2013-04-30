@@ -810,6 +810,12 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* Describe special abilities. */
+	if (l_ptr->flags2 & (RF2_NEED_LITE))
+	{
+		text_out(format("%^s needs light to see you.  ", wd_he[msex]));
+	}
+
+	/* Describe special abilities. */
 	if (l_ptr->flags2 & (RF2_MUST_SWIM))
 	{
 		text_out(format("%^s must swim and cannot move out of water.  ", wd_he[msex]));

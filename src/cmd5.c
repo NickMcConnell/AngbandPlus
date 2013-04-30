@@ -867,7 +867,13 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		/* Verify */
 		if (!get_check("Attempt it anyway? "))
 		{
-			p_ptr->held_song = 0;
+			if (p_ptr->held_song)
+			{
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATE);			
+
+				p_ptr->held_song = 0;
+			}
 
 			return;
 		}
@@ -883,8 +889,13 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		/* Verify */
 		if (!get_check("Attempt it anyway? "))
 		{
-			p_ptr->held_song = 0;
+			if (p_ptr->held_song)
+			{
+				/* Redraw the state */
+				p_ptr->redraw |= (PR_STATE);			
 
+				p_ptr->held_song = 0;
+			}
 			return;
 		}
 	}
@@ -916,7 +927,13 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		if (flush_failure) flush();
 		msg_format("You failed to %s the %s!",p,t);
 
-		p_ptr->held_song = 0;
+		if (p_ptr->held_song)
+		{
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE);			
+
+			p_ptr->held_song = 0;
+		}
 	}
 
 	/* Process spell */
@@ -1039,7 +1056,13 @@ void do_cmd_cast(void)
 	if (p_ptr->held_song)
 	{
 		/* Verify */
-		if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].name))) p_ptr->held_song = 0;
+		if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].name)))
+		{
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE);			
+
+			p_ptr->held_song = 0;
+		}
 	}
 
 	/* Cannot cast spells if illiterate */

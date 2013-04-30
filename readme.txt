@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **  UnAngband 0.5.1d **    The Unnamed Angband  **
+              **  UnAngband 0.5.2  **    The Unnamed Angband  **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -13,7 +13,7 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
                    Angband 2.9.1 by Robert Ruehlmann
-		UnAngband 0.1.0 - 0.5.1 by Andrew Doull
+		UnAngband 0.1.0 - 0.5.2 by Andrew Doull
 
      Send comments, bug reports, and patches, to "andrewdoull@hotmail.com"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"

@@ -1531,7 +1531,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		m_ptr->fx = x2;
 
 		/* Some monsters radiate lite when moving */
-		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE))
 		{
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1589,7 +1589,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 
 		/* Some monsters radiate lite when moving */
-		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE))
 		{
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1726,6 +1726,12 @@ bool mon_resist_feat(int feat, int r_idx)
 	feature_type *f_ptr;
 	monster_race *r_ptr;
 
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+
+	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
+
+	bool outside = (f_info[feat].flags3 & (FF3_OUTSIDE));
+
 	/* Get feature info */
 	f_ptr= &f_info[feat];
 	
@@ -1734,6 +1740,9 @@ bool mon_resist_feat(int feat, int r_idx)
 
 	/* Race */
 	r_ptr = &r_info[r_idx];
+
+	/* Always get burnt by daylight */
+	if ((surface && daytime && outside) && (r_ptr->flags3 & (RF3_HURT_LITE))) return (FALSE);
 
 	/* Always risk traps if stupid */
 	if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
@@ -1900,9 +1909,6 @@ int place_monster_here(int y, int x, int r_idx)
 	feature_type *f_ptr;
 	monster_race *r_ptr;
 
-	/* Hack -- flying/climbing monsters can travel anywhere on surface except outer edges */
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
-
 	/* Get feature */
 	feat = cave_feat[y][x];
 
@@ -1958,7 +1964,7 @@ int place_monster_here(int y, int x, int r_idx)
 
 	/* Hack -- check for flying. */
 	if ((r_ptr->flags2 & (RF2_CAN_FLY)) &&
-		((f_ptr->flags2 & (FF2_CAN_FLY)) || (surface && (cave_feat[y][x] != FEAT_PERM_SOLID)) ))
+		(f_ptr->flags2 & (FF2_CAN_FLY)))
 	{
 		return(MM_FLY);
 	}
@@ -1970,7 +1976,7 @@ int place_monster_here(int y, int x, int r_idx)
 
 	/* Hack -- check for climbing. */
 	if ((r_ptr->flags2 & (RF2_CAN_CLIMB)) && 
-		((f_ptr->flags2 & (FF2_CAN_FLY)) || (surface && (cave_feat[y][x] != FEAT_PERM_SOLID)) ))
+		(f_ptr->flags2 & (FF2_CAN_FLY)))
 	{
 		int i;
 
@@ -2348,7 +2354,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	repair_mflag_born = TRUE;
 
 		/* Some monsters radiate lite when born */
-		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE))
 		{
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -3159,8 +3165,9 @@ void message_pain(int m_idx, int dam)
 	tmp = (newhp * 100L) / oldhp;
 	percentage = (int)(tmp);
 
-	/* Don't alert to minor damage */
-	if ((percentage > 95) && !(m_ptr->ml)) return;
+
+	/* Hack -- avoid mentioning minor damage */
+	if (!(m_ptr->ml) && (percentage > 95)) return;
 
 	/* Jelly's, Mold's, Vortex's, Quthl's */
 	if (strchr("jmvQ", r_ptr->d_char))

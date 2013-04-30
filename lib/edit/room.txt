@@ -805,17 +805,17 @@ B:
 D:thick with dust.  
 F:134
 
-N:8:9:72:10
+N:8:9:72:30
 A:steamy
 B:
 D:filled with steam.  
-F:177
+F:212
 
-N:8:9:73:16
+N:8:9:73:30
 A:
 B:
 D:filled with gas.  
-F:181
+F:211
 
 N:8:9:74:4
 A:smokey
@@ -845,13 +845,13 @@ N:8:9:78:12
 A:
 B:
 D:filled with smoke.  
-F:162
+F:502
 
-N:8:9:79:14
+N:8:9:79:55
 A:
 B:
 D:filled with acidic vapour.  
-F:165
+F:157
 
 N:8:9:99:30
 A:freezing

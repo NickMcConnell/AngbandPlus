@@ -4741,9 +4741,8 @@ static void cave_gen(void)
 			}
 		}
 	}
-	/* Ensure guardian monsters --- only night time in towns */
-	else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0)
-		&& (!surface || !daytime))
+	/* Ensure guardian monsters */
+	else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
 	{
 		int y, x;
 
@@ -4753,7 +4752,7 @@ static void cave_gen(void)
 			y = rand_int(DUNGEON_HGT);
 			x = rand_int(DUNGEON_WID);
 
-			if (cave_naked_bold(y, x)) break;
+			if (place_monster_here(y, x, zone->guard)) break;
 		}
 
 		/* Place the questor */
@@ -5008,7 +5007,9 @@ static void town_gen(void)
 
 	int residents;
 
-	bool daytime;
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+
+	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
 
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
@@ -5034,21 +5035,15 @@ static void town_gen(void)
 	room_info[0].flags = 0;
 
 	/* Day time */
-	if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
+	if (surface && daytime)
 	{
-		/* Day time */
-		daytime = TRUE;
-
 		/* Number of residents */
 		residents = MIN_M_ALLOC_TD;
 	}
 
-	/* Night time */
+	/* Night time / underground */
 	else
 	{
-		/* Night time */
-		daytime = FALSE;
-
 		/* Number of residents */
 		residents = MIN_M_ALLOC_TN;
 
@@ -5081,7 +5076,7 @@ static void town_gen(void)
 	town_illuminate(daytime);
 
 	/* Ensure guardian monsters */
-	if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	if (!(daytime && surface) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
 	{
 		/* Pick a location */
 		while (1)
@@ -5102,8 +5097,6 @@ static void town_gen(void)
 	
 	/* Prepare allocation table */
 	get_mon_num_prep();
-
-
 
 	/* Make some residents */
 	for (i = 0; i < residents; i++)
@@ -5145,6 +5138,9 @@ void generate_cave(void)
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
+
+        /* There is no dynamic terrain */
+        dyna_full = FALSE;
 
 	/* Generate */
 	for (num = 0; TRUE; num++)

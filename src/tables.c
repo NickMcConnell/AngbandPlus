@@ -1455,8 +1455,8 @@ const cptr option_text[OPT_MAX] =
 	"reseed_artifacts",						/* xxx */
         "easy_autos",                                      /* xxx */
 	"easy_search",						/* xxx */
-	"variant_save_feats",					   /* xxx */
-	NULL,						/* xxx */
+	"variant_save_feats",		   /* xxx */
+	"view_glowing_lite",			/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1710,17 +1710,17 @@ const cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	NULL,								/* xxx */
-	"Merge pvals when stacking",					     /* xxx */
-	"Merge timeouts when stacking",					  /* xxx */
-	"Map marked by detect traps",						/* xxx */
-	"Display room descriptions",						/* xxx */
-	"Display room names",						/* xxx */
-	"Verify critical mana",						/* xxx */
-	"Reseed random artifacts on death",						/* xxx */
-        "Automatically inscribe all objects",
+	"Merge pvals when stacking",				/* xxx */
+	"Merge timeouts when stacking",			/* xxx */
+	"Map marked by detect traps",				/* xxx */
+	"Display room descriptions",				/* xxx */
+	"Display room names",					/* xxx */
+	"Verify critical mana",					/* xxx */
+	"Reseed random artifacts on death",			/* xxx */
+      "Automatically inscribe all objects",
 	"Start searching if not disturbed",										/* xxx */
-	"Save new features in save-file",									   /* xxx */
-	NULL,										/* xxx */
+	"Save new features in save-file",			/* xxx */
+	"Use special colours for glowing lite (slow)",	/* OPT_view_glowing_lite */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1984,7 +1984,7 @@ const bool option_norm[OPT_MAX] =
       FALSE,	   /* OPT_easy_autos */
 	FALSE,		/* OPT_easy_search */
 	FALSE,	  /* OPT_variant_save_feats */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_view_glowing_lite */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2278,12 +2278,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		OPT_view_glowing_lite,
  		OPT_center_player,
  		OPT_run_avoid_center,
 		OPT_show_piles,
 		OPT_room_names,
 		OPT_room_descriptions,
-		255,
 		255,
 		255,
 		255

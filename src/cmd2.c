@@ -2257,6 +2257,23 @@ static int breakage_chance(object_type *o_ptr)
 	return (10);
 }
 
+/*
+ * Hook to determine if an object is activatable and charged
+ */
+static bool item_tester_hook_throwing(const object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Check activation flag */
+	if (f3 & (TR3_THROWING)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
+
 
 /*
  * Fire an object from the pack or floor.
@@ -2294,7 +2311,7 @@ void do_cmd_fire(void)
 	int dir, item;
 	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits, tmul;
-	int bonus, chance;
+	int bonus, chance, power;
 
 	int style_hit=0;
 	int style_dam=0;
@@ -2325,16 +2342,11 @@ void do_cmd_fire(void)
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
-	/* Require a usable launcher */
-        if (!(j_ptr->tval == TV_BOW) || !p_ptr->ammo_tval)
-	{
-		msg_print("You have nothing to fire with.");
-		return;
-	}
-
-
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
+
+	/* Require throwing weapon */
+	if (!item_tester_tval) item_tester_hook = item_tester_hook_throwing;
 
 	/* Get an item */
 	q = "Fire which item? ";
@@ -2358,6 +2370,8 @@ void do_cmd_fire(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Hack -- if no bow, make object count for double */
+	if (j_ptr->tval != TV_BOW) j_ptr = o_ptr;
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -2633,11 +2647,60 @@ void do_cmd_fire(void)
 						message_format(MSG_FLEE, m_ptr->r_idx,
 							       "%^s flees in terror!", m_name);
 					}
+
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
+
+					/* Has a power */
+					/* Always apply powers if ammunition */
+					if (power > 0)
+					{
+						spell_type *s_ptr = &s_info[power];
+
+						int ap_cnt;
+
+						/* Object is used */
+						if (k_info[i_ptr->k_idx].used < MAX_SHORT) k_info[i_ptr->k_idx].used++;
+
+						/* Scan through all four blows */
+						for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+						{
+							int damage = 0;
+
+							/* Extract the attack infomation */
+							int effect = s_ptr->blow[ap_cnt].effect;
+							int method = s_ptr->blow[ap_cnt].method;
+							int d_dice = s_ptr->blow[ap_cnt].d_dice;
+							int d_side = s_ptr->blow[ap_cnt].d_side;
+							int d_plus = s_ptr->blow[ap_cnt].d_plus;
+
+							/* Hack -- no more attacks */
+							if (!method) break;
+
+							/* Mega hack -- dispel evil/undead objects */
+							if (!d_side)
+							{
+								d_plus += 25 * d_dice;
+							}
+
+							/* Roll out the damage */
+							if ((d_dice) && (d_side))
+							{
+								damage = damroll(d_dice, d_side) + d_plus;
+							}
+							else
+							{
+								damage = d_plus;
+							}
+
+							(void)project_m(-1,0,y,x,damage, effect);
+							(void)project_f(-1,0,y,x,damage, effect);
+						}
+					}
 				}
 
 				/* Check usage */
 				object_usage(item);
-
 			}
 
 			/* Stop looking */
@@ -2789,7 +2852,6 @@ void do_cmd_throw(void)
 
 	/* Chance of hitting */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
-
 
 	/* Take a (partial) turn */
 	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
@@ -2947,60 +3009,55 @@ void do_cmd_throw(void)
 						message_format(MSG_FLEE, m_ptr->r_idx,
 							       "%^s flees in terror!", m_name);
 					}
-				}
 
-				/* Get item effect */
-				get_spell(&power, "use", o_ptr, FALSE);
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
 
-				/* Has a power */
-				/* Lites, potions and flasks always affect monsters */
-				/* Food affects monsters if they are living and animals or stupid */
-				if ((power > 0) && ((o_ptr->tval == TV_POTION)
-					|| (o_ptr->tval == TV_LITE)
-					|| (o_ptr->tval == TV_FLASK)
-					|| ((o_ptr->tval == TV_FOOD) && ((!(r_info[m_ptr->r_idx].flags3 & (RF3_NONLIVING)))
-					&& (r_info[m_ptr->r_idx].flags3 & (RF3_ANIMAL))
-					&& (r_info[m_ptr->r_idx].flags2 & (RF2_STUPID))))))
-				{
-					spell_type *s_ptr = &s_info[power];
-
-					int ap_cnt;
-
-					/* Object is used */
-					if (k_info[i_ptr->k_idx].used < MAX_SHORT) k_info[i_ptr->k_idx].used++;
-
-					/* Scan through all four blows */
-					for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+					/* Has a power */
+					/* Always apply powers if ammunition */
+					if (power > 0)
 					{
-						int damage = 0;
+						spell_type *s_ptr = &s_info[power];
 
-						/* Extract the attack infomation */
-						int effect = s_ptr->blow[ap_cnt].effect;
-						int method = s_ptr->blow[ap_cnt].method;
-						int d_dice = s_ptr->blow[ap_cnt].d_dice;
-						int d_side = s_ptr->blow[ap_cnt].d_side;
-						int d_plus = s_ptr->blow[ap_cnt].d_plus;
+						int ap_cnt;
 
-						/* Hack -- no more attacks */
-						if (!method) break;
+						/* Object is used */
+						if (k_info[i_ptr->k_idx].used < MAX_SHORT) k_info[i_ptr->k_idx].used++;
 
-						/* Mega hack -- dispel evil/undead objects */
-						if (!d_side)
+						/* Scan through all four blows */
+						for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 						{
-							d_plus += 25 * d_dice;
-						}
+							int damage = 0;
 
-						/* Roll out the damage */
-						if ((d_dice) && (d_side))
-						{
-							damage = damroll(d_dice, d_side) + d_plus;
-						}
-						else
-						{
-							damage = d_plus;
-						}
+							/* Extract the attack infomation */
+							int effect = s_ptr->blow[ap_cnt].effect;
+							int method = s_ptr->blow[ap_cnt].method;
+							int d_dice = s_ptr->blow[ap_cnt].d_dice;
+							int d_side = s_ptr->blow[ap_cnt].d_side;
+							int d_plus = s_ptr->blow[ap_cnt].d_plus;
 
-						(void)project_m(-1,0,y,x,damage, effect);
+							/* Hack -- no more attacks */
+							if (!method) break;
+
+							/* Mega hack -- dispel evil/undead objects */
+							if (!d_side)
+							{
+								d_plus += 25 * d_dice;
+							}
+
+							/* Roll out the damage */
+							if ((d_dice) && (d_side))
+							{
+								damage = damroll(d_dice, d_side) + d_plus;
+							}
+							else
+							{
+								damage = d_plus;
+							}
+
+							(void)project_m(-1,0,y,x,damage, effect);
+							(void)project_f(-1,0,y,x,damage, effect);
+						}
 					}
 				}
 

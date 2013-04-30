@@ -510,6 +510,13 @@ void do_cmd_wield(void)
 	}
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
 
+	/* Hack --- the following are either obvious or (relatively) unimportant */
+	if (f3 & (TR3_THROWING))
+	{
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_THROWING);
+	}
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_THROWING);
+
 	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 
@@ -819,8 +826,16 @@ void do_cmd_observe(void)
 
 	msg_print("");
 
+	/* Save the screen */
+	screen_save();
+
 	/* Describe */
 	screen_object(o_ptr, TRUE);
+
+	(void)inkey();
+
+	/* Load the screen */
+	screen_load();
 }
 
 

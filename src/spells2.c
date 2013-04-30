@@ -1013,6 +1013,9 @@ bool detect_objects_normal(void)
 			/* Hack -- have seen object */
 			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
+			/* XXX XXX - Mark monster objects as "seen" */
+			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -1190,6 +1193,9 @@ bool detect_objects_magic(void)
 
 			/* Hack -- have seen object */
 			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
+
+			/* XXX XXX - Mark monster objects as "seen" */
+			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1381,6 +1387,9 @@ bool detect_objects_cursed(void)
 
 			/* Hack -- have seen object */
 			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
+
+			/* XXX XXX - Mark monster objects as "seen" */
+			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2950,7 +2959,16 @@ bool identify_fully(void)
 
 	msg_print("");
 
-	screen_object(o_ptr,TRUE);
+	/* Save the screen */
+	screen_save();
+
+	/* Describe */
+	screen_object(o_ptr, TRUE);
+
+	(void)inkey();
+
+	/* Load the screen */
+	screen_load();
 
 	/* Success */
 	return (TRUE);
@@ -4239,7 +4257,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
  */
 bool fire_bolt(int typ, int dir, int dam)
 {
-	int flg = PROJECT_STOP | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -4250,7 +4268,7 @@ bool fire_bolt(int typ, int dir, int dam)
  */
 bool fire_beam(int typ, int dir, int dam)
 {
-	int flg = PROJECT_BEAM | PROJECT_KILL;
+	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID;
 	return (project_hook(typ, dir, dam, flg));
 }
 

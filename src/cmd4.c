@@ -2828,7 +2828,152 @@ void do_cmd_save_screen(void)
 	screen_load();
 }
 
+/*
+ * Hack -- save a screen dump to a file in html format
+ */
+void do_cmd_save_screen_html(void)
+{
+	int i;
 
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.prf");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Extract default attr/char code for features */
+	for (i = 0; i < z_info->f_max; i++)
+	{
+		feature_type *f_ptr = &f_info[i];
+
+		if (!f_ptr->name) continue;
+
+		/* Dump a comment */
+		fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+
+		/* Dump the attr/char info */
+		fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
+			(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+
+		/* Assume we will use the underlying values */
+		f_ptr->x_attr = f_ptr->d_attr;
+		f_ptr->x_char = f_ptr->d_char;
+	}
+
+	/* Extract default attr/char code for objects */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		if (!k_ptr->name) continue;
+
+		/* Dump a comment */
+		fprintf(fff, "# %s\n", (k_name + k_ptr->name));
+
+		/* Dump the attr/char info */
+		fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+			(byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+
+		/* Default attr/char */
+		k_ptr->x_attr = k_ptr->d_attr;
+		k_ptr->x_char = k_ptr->d_char;
+	}
+
+	/* Extract default attr/char code for flavors */
+	for (i = 0; i < z_info->x_max; i++)
+	{
+		flavor_type *x_ptr = &x_info[i];
+
+		if (!x_ptr->name) continue;
+
+		/* Dump a comment */
+		fprintf(fff, "# %s\n", (x_name + x_ptr->name));
+
+		/* Dump the attr/char info */
+		fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
+			(byte)(x_ptr->x_attr), (byte)(x_ptr->x_char));
+
+		/* Default attr/char */
+		x_ptr->x_attr = x_ptr->d_attr;
+		x_ptr->x_char = x_ptr->d_char;
+	}
+
+
+	/* Extract default attr/char code for monsters */
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		if (!r_ptr->name) continue;
+
+		/* Dump a comment */
+		fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+
+		/* Dump the attr/char info */
+		fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
+			(byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+
+		/* Default attr/char */
+		r_ptr->x_attr = r_ptr->d_attr;
+		r_ptr->x_char = r_ptr->d_char;
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Close it */
+	my_fclose(fff);
+
+	/* Refresh */
+	do_cmd_redraw();
+
+	/* Hack -- dump the graphics before loading font/graphics */
+	dump_html();
+
+	/* Graphic symbols */
+	if (use_graphics)
+	{
+		/* Process "graf.prf" */
+		process_pref_file("graf.prf");
+	}
+
+	/* Normal symbols */
+	else
+	{
+		/* Process "font.prf" */
+		process_pref_file("font.prf");
+	}
+
+	/* Process "dump.prf" */
+	process_pref_file("dump.prf");
+
+
+#ifdef ALLOW_BORG_GRAPHICS
+	/* Initialize the translation table for the borg */
+	init_translate_visuals();
+#endif /* ALLOW_BORG_GRAPHICS */
+
+	/* Message */
+	msg_print("Html screen dump saved.");
+	message_flush();
+
+	/* Refresh */
+	do_cmd_redraw();
+
+}
 
 
 #define BROWSER_ROWS	16
@@ -3301,8 +3446,8 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 		list += ddy[d];
 
 		/* Verify */
-		if (list < 0) list = 0;
 		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
 	}
 
 	(*grp_cur) = grp;
@@ -3382,7 +3527,16 @@ static void desc_art_fake(int a_idx)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+	/* Save the screen */
+	screen_save();
+
+	/* Describe */
 	screen_object(o_ptr, FALSE);
+
+	/* Load the screen */
+	screen_load();
+
+	(void)inkey();
 }
 
 /*
@@ -3477,7 +3631,7 @@ static void do_cmd_knowledge_artifacts(void)
 		display_artifact_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, ENTER to recall, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (object_cnt) artifact_track(object_idx[object_cur]);
@@ -3513,6 +3667,8 @@ static void do_cmd_knowledge_artifacts(void)
 
 			case 'R':
 			case 'r':
+			case '\n':
+			case '\r':
 			{
 				/* Recall on screen */
 				desc_art_fake(object_idx[object_cur]);
@@ -3670,7 +3826,7 @@ static void do_cmd_knowledge_monsters(void)
 		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top);
 
 		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", 23, 0);
+		prt("<dir>, ENTER to recall, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (mon_cnt) p_ptr->monster_race_idx = mon_idx[mon_cur];
@@ -3702,6 +3858,8 @@ static void do_cmd_knowledge_monsters(void)
 
 			case 'R':
 			case 'r':
+			case '\n':
+			case '\r':
 			{
 				/* Recall on screen */
 				if (mon_idx[mon_cur])
@@ -3903,8 +4061,8 @@ static void do_cmd_knowledge_ego_items(void)
 		display_ego_item_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		if (note_idx) prt("<dir>, 'r', '{', '}', 'c', 'p' to paste, ESC", 23,0);
-		else prt("<dir>, 'r' to recall, '{' to inscribe, '}', 'c' to copy, ESC", 23, 0);
+		if (note_idx) prt("<dir>, ENTER, '{', '}', 'c', 'p' to paste, ESC", 23,0);
+		else prt("<dir>, ENTER to recall, '{' to inscribe, '}', 'c' to copy, ESC", 23, 0);
 
 		if (!column)
 		{
@@ -3927,6 +4085,8 @@ static void do_cmd_knowledge_ego_items(void)
 
 			case 'R':
 			case 'r':
+			case '\n':
+			case '\r':
 			{
 				/* Recall on screen */
 				desc_ego_fake(object_idx[object_cur]);
@@ -4149,7 +4309,16 @@ static void desc_obj_fake(int k_idx)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+	/* Save the screen */
+	screen_save();
+
+	/* Describe */
 	screen_object(o_ptr, FALSE);
+
+	/* Load the screen */
+	screen_load();
+
+	(void)inkey();
 }
 
 /*
@@ -4247,8 +4416,8 @@ static void do_cmd_knowledge_objects(void)
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		if (note_idx) prt("<dir>, 'r', '{', '}', 'c', 'p' to paste, ESC", 23,0);
-		else prt("<dir>, 'r' to recall, '{' to inscribe, '}', 'c' to copy, ESC", 23, 0);
+		if (note_idx) prt("<dir>, ENTER, '{', '}', 'c', 'p' to paste, ESC", 23,0);
+		else prt("<dir>, ENTER to recall, '{' to inscribe, '}', 'c' to copy, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -4284,6 +4453,8 @@ static void do_cmd_knowledge_objects(void)
 
 			case 'R':
 			case 'r':
+			case '\n':
+			case '\r':
 			{
 				/* Recall on screen */
 				desc_obj_fake(object_idx[object_cur]);

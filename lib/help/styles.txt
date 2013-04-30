@@ -67,6 +67,15 @@
 
                 XXX TO BE DONE
 
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
+
 
         Bow (Nomad)
 
@@ -318,6 +327,15 @@
 
                 XXX TO BE DONE
 
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
+
 
         Backstab (Assassin)
 
@@ -414,6 +432,16 @@
         Thrown (Jester)
 
                 XXX TO BE DONE
+
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
+
 
 
 	Instrument (Musician)

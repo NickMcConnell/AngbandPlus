@@ -1181,6 +1181,9 @@ static errr init_other(void)
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
 
+	/* Array of grids */
+	C_MAKE(dyna_g, DYNA_MAX, u16b);
+
 
 	/*** Prepare dungeon arrays ***/
 
