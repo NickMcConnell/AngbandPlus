@@ -279,7 +279,7 @@ F:ATTR_EFFECT
 # so in a wave-like pattern...
 
 N:35:wave
-G:*:b
+G:*:t
 I:1
 F:AUTOMATIC | WALL | RANDOM | DECELERATE
 F:ATTR_EFFECT
@@ -360,3 +360,11 @@ G:*:Z
 I:30
 F:AUTOMATIC | ATTR_EFFECT | PROJECTION
 B:ZAP
+
+# Spring - used by Find Water
+
+N:46:spring
+G:*:b
+I:3
+F:AUTOMATIC | ATTR_EFFECT | PROJECTION
+B:SCATTER

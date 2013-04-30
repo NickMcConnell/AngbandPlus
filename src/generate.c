@@ -124,6 +124,7 @@
 #define SPECIAL_STARBURST	5		/* Starburst over whole level */
 #define SPECIAL_LABYRINTH	6		/* Maze over whole level */
 #define SPECIAL_GREAT_PILLARS	7	/* An open area with large square pillars */
+#define SPECIAL_CITADEL		8		/* An area consisting of city over the whole level */
 
 
 #define MAX_SPECIAL_DUNGEONS	9
@@ -399,7 +400,7 @@ static byte room_build_order[ROOM_MAX] = {ROOM_LAIR, ROOM_GREATER_VAULT, ROOM_CH
 						ROOM_HUGE_BURROW, ROOM_HUGE_CAVE, ROOM_HUGE_FRACTAL, ROOM_HUGE_STAR_BURST, ROOM_HUGE_CONCAVE, ROOM_HUGE_CENTRE, ROOM_LESSER_VAULT,
 						ROOM_MONSTER_PIT, ROOM_LARGE_BURROW, ROOM_LARGE_MAZE, ROOM_LARGE_CAVE, ROOM_LARGE_FRACTAL, ROOM_LARGE_CONCAVE, ROOM_LARGE_CENTRE,
 						ROOM_LARGE_WALLS, ROOM_INTERESTING, ROOM_STAR_BURST, ROOM_BURROW, ROOM_MAZE, ROOM_CELL_CAVE, ROOM_FRACTAL, ROOM_NORMAL_CONCAVE,
-						ROOM_NORMAL_CENTRE, ROOM_NORMAL_WALLS, ROOM_NORMAL, 0, 0, 0, 0};
+						ROOM_NORMAL_CENTRE, ROOM_NORMAL_WALLS, ROOM_NORMAL, 0, 0, 0, 0, 0};
 
 
 /*
@@ -1058,6 +1059,55 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 	}
 }
 
+
+/*
+ * Generate door -- like generate hole above, but pick anywhere to
+ * put the door, not just the centre
+ */
+static void generate_door(int y1, int x1, int y2, int x2, int side, int feat)
+{
+	int y, x;
+	
+	/* Extract a "door location" */
+	switch (side)
+	{
+		/* Bottom side */
+		case 0:
+		{
+			y = y2;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		/* Top side */
+		case 1:
+		{
+			y = y1;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		/* Right side */
+		case 2:
+		{
+			y = rand_range(y1, y2);
+			x = x2;
+			break;
+		}
+
+		/* Left side */
+		default:
+		{
+			y = rand_range(y1, y2);
+			x = x1;
+			break;
+		}
+	}
+
+	/* Clear previous contents, add a store door */
+	cave_set_feat(y, x, feat);
+
+}
 
 /*
  * Record good location for quest objects
@@ -7460,7 +7510,7 @@ static bool build_chambers(int y1, int x1, int y2, int x2, int monsters_left, bo
 		if (!cave_naked_bold(y, x)) continue;
 
 		/* Enforce monster selection */
-		cave_ecology.use_ecology = room_info[room_idx(y, x)].ecology;
+		cave_ecology.use_ecology = room_info[room_idx_ignore_valid(y, x)].ecology;
 
 		/* Place a single monster.  Sleeping 2/3rds of the time. */
 		place_monster_aux(y, x, get_mon_num(monster_level),
@@ -7477,6 +7527,302 @@ static bool build_chambers(int y1, int x1, int y2, int x2, int monsters_left, bo
 	return (TRUE);
 }
 
+
+/*
+ * This builds a simple building in a monster town.
+ */
+static bool build_simple_building(int by, int bx, int floor, int wall)
+{
+	/* Do we need a door? */
+	bool need_door = ((f_info[wall].flags1 & (FF1_MOVE)) == 0) && ((f_info[wall].flags3 & (FF3_EASY_CLIMB)) == 0);
+	
+	/* Occasionaly light */
+	bool light = (p_ptr->depth <= randint(25));
+	
+	/* Rare pillars except on crypts */
+	bool pillars = ((level_flag & (LF1_CRYPT)) != 0) || (rand_int(20) == 0);
+	
+	/* Simple buildings always have locked doors */
+	int door = FEAT_DOOR_CLOSED + randint(1 + p_ptr->depth / 10);
+	
+	int y, x;
+	
+	/* Build polygon room */
+	if (level_flag & (LF1_POLYGON))
+	{
+		/* Edge coordinates */
+		int verty[5];
+		int vertx[5];
+		
+		/* Place vertices */
+		verty[0] = by * BLOCK_HGT + 1;
+		verty[1] = by * BLOCK_HGT + 1 + randint(BLOCK_HGT - 2);
+		verty[2] = (by + 1) * BLOCK_HGT - 2;
+		verty[3] = by * BLOCK_HGT + 1 + randint(BLOCK_HGT - 2);
+		verty[4] = 0;
+		
+		vertx[0] = bx * BLOCK_WID + 1 + randint(BLOCK_WID - 2);
+		vertx[1] = (bx + 1) * BLOCK_WID - 2;
+		vertx[2] = bx * BLOCK_WID + 1 + randint(BLOCK_WID - 2);
+		vertx[3] = bx * BLOCK_WID + 1;
+		vertx[4] = 0;
+		
+		/* Generate room */
+		if (generate_poly_room(5, verty, vertx, wall, floor, wall, 0, (CAVE_ROOM) | (light ? (CAVE_LITE) : 0)))
+		{
+			int i = 0;
+			
+			/* Hack - Place doorway. Try 50 times or no door! */
+			if (need_door) while (i++ < 50)
+			{
+				y = by * BLOCK_HGT + 1 + rand_int(BLOCK_HGT - 2);
+				x = bx * BLOCK_WID + 1 + randint(BLOCK_WID - 2);
+				
+				if (cave_feat[y][x] == wall)
+				{
+					cave_set_feat(y, x, door);
+					
+					break;
+				}
+			}
+			
+			return (TRUE);
+		}
+	}
+	/* Build normal room */
+	else
+	{
+		/* Room coordinates */
+		int y1 = randint(4);
+		int y2 = randint(4);
+		int x1 = randint(4);
+		int x2 = randint(4);
+		
+		/* And recentre */
+		y1 = by * BLOCK_HGT + 5 - y1;
+		y2 = by * BLOCK_HGT + 6 + y2;
+		x1 = bx * BLOCK_WID + 5 - x1;
+		x2 = bx * BLOCK_WID + 6 + x2;
+		
+		/* Generate new room (a) */
+		generate_room(y1, x1, y2, x2, light);
+
+		/* Generate outer walls (a) */
+		generate_rect(y1, x1, y2, x2, wall);
+
+		/* Make corners solid */
+		cave_set_feat(y1, x1, FEAT_WALL_SOLID);
+		cave_set_feat(y2, x2, FEAT_WALL_SOLID);
+		cave_set_feat(y1, x2, FEAT_WALL_SOLID);
+		cave_set_feat(y2, x1, FEAT_WALL_SOLID);
+
+		/* Generate inner floors (a) */
+		generate_fill(y1+1, x1+1, y2-1, x2-1, FEAT_FLOOR);
+
+		/* Generate inner floors (a) */
+		generate_fill_pillars(y1+1, x1+1, y2-1, x2-1, floor, pillars ? 2: 0, 1);
+				
+		/* Place locked doors */
+		if (need_door) generate_door(y1, x1, y2, x2, rand_int(4), door);
+		
+		/* Place second door door - note we ensure both are locked with equal difficulty */
+		if ((need_door) && (rand_int(100) < 33))
+		{
+			/* Place back door */
+			generate_door(y1, x1, y2, x2, rand_int(4), door);
+		}
+		
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
+
+
+
+#if 0
+/*
+ * Build a monster town.
+ * 
+ * In each 11x11 block (by, bx) which the town fully occupies:
+ * 
+ * 1. If the dun_room[by][bx] == base room, we either
+ *   a. place a simple room. up to 9x9 in size with a width 1
+ * border and a door
+ *   b. clear the dun->room_map[by][bx] value (= FALSE) for
+ * certain dungeon types only (those that place only rooms which
+ * are permitted on LF1_WILD locations)
+ *   c. if either the trailing or leading block is empty, and
+ * we have free rooms to place, we place an overlapping room up
+ * to 20x9 in size with a width 1 border
+ * 2. If the dun_room[by][bx] != base_room, we skip this cell
+ * 
+ */
+static bool generate_town(int y1, int x1, int y2, int x2, int base_room, s16b ground, s16b wall, s16b floor, bool light)
+{
+	int by, bx;
+	int y, x;
+	
+	int rooms;
+	
+	dungeon_zone *zone=&t_info[0].zone[0];
+
+	/* Get the zone */
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	
+	/* Fix borders so they are block aligned */
+	if (y1 % BLOCK_HGT) y1+= (y1 % BLOCK_HGT);
+	if (y2 % BLOCK_HGT) y2-= (y1 % BLOCK_HGT);
+	if (x1 % BLOCK_WID) x1+= (y1 % BLOCK_WID);
+	if (x2 % BLOCK_WID) x2-= (y1 % BLOCK_WID);
+
+	/* Paranoia */
+	if ((y1 >= y2) || (x1 >= x2)) return (FALSE);
+
+	/* Expected number of rooms */
+	rooms = ((y2-y1) / BLOCK_HGT) * ((x2 - x1) / BLOCK_WID);
+	
+	/* Minimum number of rooms allowed, 1 for 1, 2 for 2, 2 for 3 etc. */
+	rooms = (rooms + 2) / 2;
+	
+	/* Check each block */
+	for (by = (y1 / BLOCK_HGT); by * BLOCK_HGT < y2; by++)
+	{
+		for (bx = (x1 / BLOCK_WID); bx * BLOCK_WID < x2; bx++)
+		{
+			/* Handle pinching and holes. Don't worry about decreasing room counter. */
+			if (dun->room_map[by][bx] == FALSE) continue;
+			
+			/* Clear the grid and light it if requested*/
+			for (y = by * BLOCK_HGT; y < (by + 1) * BLOCK_HGT; y++)
+			{
+				for (x = bx * BLOCK_WID; x < (bx + 1) * BLOCK_HGT; x++)
+				{
+					/* Be careful not to overwrite rooms */
+					if ((dun_room[by][bx] != base_room) && (cave_info[y][x] & (CAVE_ROOM))) continue;
+					
+					/* Hack -- only overwrite 'base' terrain */
+					if (cave_feat[y][x] == zone->base) cave_set_feat(y, x, ground);
+					
+					/* Light the grid */
+					if (light) cave_feat[y][x] |= (CAVE_GLOW);
+				}
+			}
+			
+			/* Make a choice */
+			switch (rand_int((level_flag & (LF1_STRONGHOLD)) ? 4 : 3))
+			{
+				/* Make a larger room */
+				case 2: case 3:
+				{
+#if 0
+					/* Check for empty trailing block */
+					if (((bx > (x1 / BLOCK_WID)) && (dun->room_map[by][bx-1] == FALSE)) ||
+							/* Hack -- check for 'chance' of leading block empty */
+							((bx < (x2 / BLOCK_WID) - 1) && (!rand_int((level_flag & (LF1_STRONGHOLD)) ? 2 : 3))))
+					{
+						int y0 = by * BLOCK_HGT + 5;
+						int x0 = bx * BLOCK_WID;
+						int y1a, y2a, x1a, x2a, y1b, y2b, x1b, x2b;
+												
+						/* Shift to the right instead */
+						if ((bx == (x1 / BLOCK_WID)) || (dun->room_map[by][bx-1]) || (rand_int(100) < 25))
+						{
+							x0 += BLOCK_WID;
+						}
+						
+						/* Save the room location */
+						if (dun->cent_n < CENT_MAX)
+						{
+							dun->cent[dun->cent_n].y = y0;
+							dun->cent[dun->cent_n].x = x0;
+						}
+
+						/* Use base room's ecology */
+						room_info[dun->cent_n].ecology = room_info[base_room].ecology;
+
+						/* Use base room's deepest monster */
+						room_info[dun->cent_n].deepest_race = room_info[base_room].deepest_race;
+
+						/* Increase the room count */
+						dun->cent_n++;
+						
+						/* Note hack to have 'town-like' rooms */
+						if (build_overlapping(dun->cent_n-1, ROOM_MONSTER_TOWN_SUBROOM, y1a, x1a, y2a, x2a,
+							y1b, x1b, y2b, x2b, light, spacing, scale, scatter, pillars))
+						{
+							/* Room built */
+							break;
+						}
+						else
+						{
+							/* Room not built */
+							dun->cent_n--;
+						}
+#endif
+					}
+					/* Fall through */
+				}
+				/* Make a simple room from 4x4 to 9x9 in size */
+				case 1:
+				{
+					/* Strong holds don't have simple buildings */
+					if (((level_flag & (LF1_STRONGHOLD)) == 0) && (build_simple_building(by, bx, floor, wall)))
+					{
+						break;
+					}
+				}
+				/* No room */
+				case 0:
+				{
+					/*
+					 * Hack -- certain room types look problematic in open spaces.
+					 * We normally handle this with the LF1_WILD flag. However, to
+					 * keep this simple and allow variety of rooms in the rest of
+					 * the dungeon, we decide to just risk the very occasional
+					 * problematic room, and instead exclude level types which almost
+					 * exclusively place these problematic rooms.
+					 */
+					if ((level_flag & (LF1_CAVE | LF1_CAVERN | LF1_BURROWS | LF1_MINE)) == 0)
+					{
+						/* Clear the room */
+						dun->room_map[by][bx] = FALSE;
+						
+						/* We've created less rooms than expected. Here to prevent infinite looping below. */
+						rooms--;
+					}
+					
+					break;
+				}
+			}
+		}
+	}
+
+#if 0
+	/* Ensure we at least generate the mimimum number of rooms */
+	/* This is risky, but we 'should' be safe if we've counted correctly above */
+	while (((level_flag & (LF1_STRONGHOLD)) == 0) && (rooms <= 0))
+	{
+		/* Pick random block */
+		by = (y1 / BLOCK_HGT) + rand_int((y2 - y1) / BLOCK_HGT);
+		bx = (x1 / BLOCK_WID) + rand_int((x2 - x1) / BLOCK_WID;
+		
+		/* Find space */
+		if (dun->room[by][bx]) continue;
+		
+		/* Build simple room */
+		if (build_simple_building(by, bx, floor, wall))
+		{
+			/* Built it */
+			rooms++;
+		}		
+	}
+#endif
+	
+	/* We are done */
+	return (TRUE);
+}
+#endif
 
 
 
@@ -7609,6 +7955,9 @@ static bool build_vault(int room, int y0, int x0, int ymax, int xmax, cptr data)
 	/* Make space for the ecology of the vault */
 	if (cave_ecology.num_ecologies < MAX_ECOLOGIES) cave_ecology.num_ecologies++;
 
+	/* Vault gets its own ecology */
+	room_info[room].ecology |= (1L << (cave_ecology.num_ecologies - 1)) | (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
+	
 	/* Sweep up existing ecology for use in vault */
 	for (i = 0; i < cave_ecology.num_races; i++)
 	{
@@ -8094,7 +8443,12 @@ static bool build_vault(int room, int y0, int x0, int ymax, int xmax, cptr data)
 		if (r_info[cave_ecology.race[j]].level < (p_ptr->depth + vault_deepest_monster) / 2)
 		{
 			/* Appears in rooms near the vault */
-			cave_ecology.race_ecologies[j] |= room_info[room].ecology;
+			cave_ecology.race_ecologies[j] |= (room_info[room].ecology & ((1L << MAX_ECOLOGIES) -1));
+		}
+		else
+		{
+			/* Appears in the vault only */
+			cave_ecology.race_ecologies[j] |= (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
 		}
 	}
 
@@ -11036,6 +11390,12 @@ static bool build_type123(int room, int type)
 		/* Build the room */
 		if (!build_type_concave(room, type, y0, x0, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, FALSE))
 		{
+			if (spaced)
+			{
+				height += 2 * BLOCK_HGT;
+				width += 2 * BLOCK_WID;
+			}
+			
 			free_space(y0, x0, height, width);
 			
 			return (FALSE);
@@ -11045,6 +11405,12 @@ static bool build_type123(int room, int type)
 	/* Build an overlapping room with the above shape */
 	else if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, NUM_SCATTER, pillars))
 	{
+		if (spaced)
+		{
+			height += 2 * BLOCK_HGT;
+			width += 2 * BLOCK_WID;
+		}
+		
 		free_space(y0, x0, height, width);
 		
 		return (FALSE);
@@ -11157,6 +11523,12 @@ static bool build_type45(int room, int type)
 		/* Build the room */
 		if (!build_type_concave(room, type, y0, x0, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, TRUE))
 		{
+			if (spaced)
+			{
+				height += 2 * BLOCK_HGT;
+				width += 2 * BLOCK_WID;
+			}
+			
 			free_space(y0, x0, height, width);
 			
 			return (FALSE);
@@ -11166,6 +11538,12 @@ static bool build_type45(int room, int type)
 	/* Build an overlapping room with the above shape */
 	else if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, NUM_SCATTER + 3, pillars))
 	{
+		if (spaced)
+		{
+			height += 2 * BLOCK_HGT;
+			width += 2 * BLOCK_WID;
+		}
+		
 		free_space(y0, x0, height, width);
 		
 		return (FALSE);
@@ -11289,6 +11667,12 @@ static bool build_type6(int room, int type)
 		/* Build the room */
 		if (!build_type_concave(room, type, y0, x0, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, TRUE))
 		{
+			if (spaced)
+			{
+				height += 2 * BLOCK_HGT;
+				width += 2 * BLOCK_WID;
+			}
+			
 			free_space(y0, x0, height, width);
 			
 			return (FALSE);
@@ -11298,6 +11682,12 @@ static bool build_type6(int room, int type)
 	/* Build an overlapping room with the above shape */
 	else if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, scale, NUM_SCATTER + 8, pillars))
 	{
+		if (spaced)
+		{
+			height += 2 * BLOCK_HGT;
+			width += 2 * BLOCK_WID;
+		}
+		
 		free_space(y0, x0, height, width);
 		
 		return (FALSE);
@@ -11370,6 +11760,12 @@ static bool build_type7(int room, int type)
 	/* Make certain the room does not cross the dungeon edge. */
 	if ((!in_bounds(y1, x1)) || (!in_bounds(y2, x2)))
 	{
+		if (spaced)
+		{
+			height += 2 * BLOCK_HGT;
+			width += 2 * BLOCK_WID;
+		}
+		
 		free_space(y0, x0, height, width);
 		
 		return (FALSE);
@@ -11922,6 +12318,12 @@ static bool build_type202122(int room, int type)
 	if (!generate_cellular_cave(y1, x1, y2, x2, moat, floor, edge, pool, 0, (CAVE_ROOM) | (light ? (CAVE_LITE) : 0),
 			40, 5, 2, 7, 4))
 	{
+		if (moat)
+		{
+			height += 2 * BLOCK_HGT;
+			width += 2 * BLOCK_WID;
+		}
+		
 		free_space(y0, x0, height, width);
 		
 		return (FALSE);
@@ -12170,12 +12572,10 @@ static bool build_type232425(int room, int type)
 #define NUM_PIT_RACES	16
 
 /*
- * Monster pits and monster towns
+ * Monster pits
  *
  * A monster pit is a large room, with an inner room filled with monsters.
  * 
- * A monster town is a town built using BSP division
- *
  * Monster pits will never contain unique monsters.
  *
  * Note:
@@ -12183,7 +12583,7 @@ static bool build_type232425(int room, int type)
  * object) inflators going.  We have therefore reduced their size in many
  * cases.
  */
-static bool build_type2627(int room, int type)
+static bool build_type26(int room, int type)
 {
 	int y, x, y0, x0, y1, x1, y2, x2;
 	int i, j;
@@ -12198,10 +12598,7 @@ static bool build_type2627(int room, int type)
 
 	/* Save ecology start */
 	int ecology_start = cave_ecology.num_races;
-	bool old_ecology_ready = FALSE;
-
-	/* Unused yet */
-	(void)type;
+	bool old_ecology_ready = cave_ecology.ready;
 
 	/* Ensure we have empty space in the ecology for the monster races */
 	if (cave_ecology.num_races + NUM_PIT_RACES >= MAX_ECOLOGY_RACES) return (FALSE);
@@ -12230,6 +12627,9 @@ static bool build_type2627(int room, int type)
 
 	/* Make space for the ecology of the pit */
 	if (cave_ecology.num_ecologies < MAX_ECOLOGIES) cave_ecology.num_ecologies++;
+	
+	/* Pit gets its own ecology */
+	room_info[room].ecology |= (1L << (cave_ecology.num_ecologies - 1)) | (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
 
 	/* Use ecology of room */
 	cave_ecology.ready = FALSE;
@@ -12240,6 +12640,9 @@ static bool build_type2627(int room, int type)
 	/* Clear ecology use */
 	cave_ecology.ready = old_ecology_ready;
 
+	/* Stop allowing tougher monsters */
+	monster_level = p_ptr->depth;
+	
 	/* Remove duplicate races from pit */
 	for (i = ecology_start; i < cave_ecology.num_races; i++)
 	{
@@ -12277,8 +12680,13 @@ static bool build_type2627(int room, int type)
 		/* Deepest monster */
 		if (r_info[cave_ecology.race[j]].level < (p_ptr->depth + r_info[room_info[room].deepest_race].level) / 2)
 		{
-			/* Appears in rooms near the vault */
-			cave_ecology.race_ecologies[j] |= room_info[room].ecology;
+			/* Appears in rooms near the pit */
+			cave_ecology.race_ecologies[j] |= (room_info[room].ecology & ((1L << MAX_ECOLOGIES) - 1));
+		}
+		else
+		{
+			/* Appears in the pit only */
+			cave_ecology.race_ecologies[j] |= (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
 		}
 	}
 
@@ -12485,7 +12893,343 @@ static bool build_type2627(int room, int type)
 	/* Success */
 	return (TRUE);
 }
+#if 0
 
+/*
+ * Monster towns
+ *
+ * A monster town is a large area, with inner rooms which correspond to
+ * buildings. It is the only room type that may have 'genuine' sub
+ * rooms in the sense that the subrooms are treated as a fully fledged
+ * room from the point of view of descriptions and room connectivity.
+ * Note that it will be possible to surround other rooms with townships
+ * so that this may not be strictly correct.
+ * 
+ * Towns buildings consist of a combination of two building types:
+ * 'simple' buildings which contain locked doors and are usually
+ * empty, and 'complex' buildings which are generated using the standard
+ * town algorithm. The town inhabitants wander around from building to
+ * building and are by default set to 'neutral' so that the player is
+ * not immediately subject to attack. As a result, it is possible for
+ * the player to wander around town. Inhabitants will notice and attack
+ * the player occasionally - depending on the player's stealth and
+ * proximity, but it is very dangerous for him to fight back because
+ * 'neutral' monsters will alert other townsfolk to join the fight
+ * for a variety of reasons (including their death being seen by another
+ * monster).
+ * 
+ * Note we don't calculate additional space for the moat, both to make
+ * the larger towns easier to place, and to create lots of back alleys
+ * around the edges of the outermost buildings if we have them.
+ */
+static bool build_type27(int room, int type)
+{
+	int y, x, y0, x0, y1, x1, y2, x2;
+	int i, j;
+
+	int width;
+
+	bool ordered = FALSE;
+	int light = FALSE;
+
+	/* Save level rating */
+	int old_rating = rating;
+	
+	/* Save ecology start */
+	int ecology_start = cave_ecology.num_races;
+	bool old_ecology_ready = cave_ecology.ready;
+
+	/* Race flags for founder */
+	monster_race *r_ptr;
+	
+	int height, width, size_mod;
+	
+	/* Terrain for room */
+	int floor = FEAT_FLOOR;
+	int wall = FEAT_WALL_INNER;
+	
+	/* Allow tougher monsters */
+	monster_level = p_ptr->depth + 3 + div_round(p_ptr->depth, 12);
+
+	/* Make space for the ecology of the pit */
+	if (cave_ecology.num_ecologies < MAX_ECOLOGIES) cave_ecology.num_ecologies++;
+
+	/* Town gets its own ecology */
+	room_info[room] |= (1L << (cave_ecology.num_ecologies - 1)) | (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
+
+	/* Use ecology of room */
+	cave_ecology.ready = FALSE;
+
+	/* Choose appropriate monsters and relationships for town */
+	cave_ecology.town = TRUE;
+	
+	/* Get a founding monster for the town */
+	
+	/* Set monster hook */
+	get_mon_num_hook = dun_level_mon;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Get the ecology */
+	get_monster_ecology(0, NUM_TOWN_RACES);
+
+	/* Clear monster hook */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+	
+	/* Stop allowing tougher monsters */
+	monster_level = p_ptr->depth;
+	
+	/* Remove duplicate races from town */
+	for (i = ecology_start; i < cave_ecology.num_races; i++)
+	{
+		for (j = i + 1; j < cave_ecology.num_races; j++)
+		{
+			/* Duplicate detected */
+			if (cave_ecology.race[i] == cave_ecology.race[j])
+			{
+				cave_ecology.race[j] = cave_ecology.race[cave_ecology.num_races - 1];
+				cave_ecology.num_races--;
+
+				/* Need to recheck swapped in race */
+				j--;
+			}
+		}
+	}
+
+	/* XXX We hackily modify the RF9_TOWNSFOLK flag to keep track of which
+	 * monsters are 'native' to town. */
+	for (i = 0; i < z_ptr->m_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
+		
+		/* Don't touch existing town monsters */
+		if (!r_ptr->level) continue;
+		
+		/* Clear the flag */
+		r_ptr->flags9 &= ~(RF9_TOWNSFOLK);
+		l_ptr->flags9 &= ~(RF9_TOWNSFOLK);
+	}
+
+	/* Mark the above added monsters as townsfolk */
+	for (i = ecology_start; i < cave_ecology.num_races; i++)
+	{
+		monster_race *r_ptr = &r_info[cave_ecology.race[i]];
+
+		/* Hack - Skip tunnelling monsters so they don't destroy town */
+		if (r_ptr->flags2 & (RF2_KILL_WALL)) continue;
+		
+		/* Set the flag */
+		r_ptr->flags9 |= (RF9_TOWNSFOLK);
+	}
+	
+	/* XXX We also generate some client species to keep town interesting */
+	
+	/* Allow any relationships */
+	cave_ecology.town = FALSE;
+	
+	/* Get the ecology */
+	get_monster_ecology(0, NUM_TOWN_CLIENT_RACES);
+
+	/* Clear ecology use */
+	cave_ecology.ready = old_ecology_ready;
+
+	/* Need at least 3 different races in town */
+	if (ecology_start + 2 >= cave_ecology.num_races)
+	{
+		cave_ecology.num_races = ecology_start;
+
+		return(FALSE);
+	}
+
+	/* Deepest race */
+	room_info[room].deepest_race = deeper_monster(room_info[room].deepest_race, cave_ecology.deepest_race[cave_ecology.num_ecologies - 1]);
+	
+	/* Shallower town monsters are found outside the town
+	   We use this to ramp up the difficulty near the town to warn
+	 * the player and make it harder to exploit.
+	 */
+	for (j = ecology_start; j < cave_ecology.num_races; j++)
+	{
+		/* Deepest monster */
+		if (r_info[cave_ecology.race[j]].level < (p_ptr->depth + r_info[room_info[room].deepest_race].level) / 2)
+		{
+			/* Appears in rooms near the town */
+			cave_ecology.race_ecologies[j] |= (room_info[room].ecology & ((1L << MAX_ECOLOGIES) = 1));
+		}
+		else
+		{
+			/* Appears in the town only */
+			cave_ecology.race_ecologies[j] |= (1L << (MAX_ECOLOGIES + cave_ecology.num_ecologies - 1));
+		}
+	}
+
+	
+	/*** Now we generate the town ***/
+
+	/* The basic town design doesn't work very well for monsters which can't open doors.
+	 * So under some circumstances, we generate alternate town layouts.
+	 * 
+	 * For flying monsters and dragons, we generate a 'roost' - just a large flooded cellular cave.
+	 * For monsters with weird minds or webs, we generate a 'weird web' - a starburst room filled
+	 * with polygon shaped buildings made of webs.
+	 * For undead which can't pass through walls and animals, we generate abandoned towns - we just
+	 * don't mark the room as a town, so no monster will use the town AI for movement. However, the
+	 * monsters will ignore the player to start with as they will still be generated with the town
+	 * AI flag.
+	 * For all other monster types, we don't place them in rooms when placing the monsters if they
+	 * can't open doors. This usually means we get weird behaviour with demons and golems, but I'm
+	 * happy for this weird behaviour for those types of monsters.
+	 * 
+	 * Note we only check the 'founding' monster in order to determine this. If the founder is fine
+	 * we have at least one monster capable of moving through town correctly, which should be
+	 * enough.
+	 */
+	
+	/* Get founder flags */
+	r_ptr = &r_info[cave_ecology.race[ecology_start]];
+
+	/* How big is the town? Answer: Really big! */
+	size_mod = 2 + rand_int(1 + p_ptr->depth / 20);
+	
+	/* Calculate the room size. */
+	height = BLOCK_HGT * size_mod;
+	width = BLOCK_WID * (size_mod + randint(size_mod) + rand_int(3));
+
+	/* Even bigger for a roost */
+	if (((r_ptr->flags2 & (RF2_CAN_FLY)) != 0) || ((r_ptr->flags3 & (RF3_DRAGON)) != 0))
+	{
+		height += 2 * BLOCK_HGT;
+		width += 2 * BLOCK_WID;
+	}
+	
+	/* Find and reserve some space in the dungeon.  Get center of room. */
+	if (!find_space(&y0, &x0, height, width)) return (FALSE);
+
+	/* Calculate the borders of the room. */
+	y1 = y0 - (height / 2);
+	x1 = x0 - (width / 2);
+	y2 = y0 + (height - 1) / 2;
+	x2 = x0 + (width - 1) / 2;
+
+	/* Make certain the room does not cross the dungeon edge. */
+	if ((!in_bounds_fully(y1, x1)) || (!in_bounds_fully(y2, x2)))
+	{
+		free_space(y0, x0, height, width);
+		
+		return (FALSE);
+	}
+
+	/* Generate a 'roost' - for flying monsters and dragons*/
+	if (((r_ptr->flags2 & (RF2_CAN_FLY)) != 0) || ((r_ptr->flags3 & (RF3_DRAGON)) != 0))
+	{
+		/* Generate roost */
+		if (!generate_cellular_cave(y1 + BLOCK_HGT, x1 + BLOCK_WID, y2 - BLOCK_HGT, x2 - BLOCK_WID, moat, floor, edge, pool, 0, (CAVE_ROOM) | (light ? (CAVE_LITE) : 0),
+					40, 5, 2, 7, 4))
+		{
+			free_space(y0, x0, height, width);
+			
+			return (FALSE);
+		}
+		
+		/* Hack - describe this as a huge cellular cave */
+		type = ROOM_HUGE_CAVE;
+	}
+	
+	/* Generate a 'weird web' - for web-crawlers and weird monsters */
+	else if ((r_ptr->flags2 & (RF2_WEIRD_MIND | RF2_HAS_WEB)) != 0)
+	{
+		/* Save level flags */
+		int old_level_flag = level_flag;
+
+		/* Hack -- ensure polygonal rooms in town */
+		level_flag |= (LF1_POLYGON);
+		
+		/* Build the town */
+		generate_town(y1, x1, y2, x2, room, ground, FEAT_WEB, ground, light)
+		
+		/* Restore level flag */
+		level_flag = old_level_flag;
+		
+		/* Hack - describe this as a huge cellular cave */
+		type = ROOM_HUGE_CAVE;
+	}
+	
+	/* Generate a normal town */
+	else
+	{
+		/* Build the town */
+		generate_town(y1, x1, y2, x2, room, ground, wall, floor, bool light)		
+	}
+		
+	/* Grow the moat around the town */
+	y1 = MAX(y1 - BLOCK_HGT * 1, 1);
+	x1 = MAX(x1 - BLOCK_WID * 1, 1);
+	y2 = MIN(y2 + BLOCK_HGT * 1, DUNGEON_HGT - 2);
+	x2 = MIN(x2 + BLOCK_WID * 1, DUNGEON_WID  - 2);
+
+	/* Place the moat */
+	generate_starburst_room(y1, x1, y2, x2, floor, f_info[floor].edge, flag);
+
+	/*** Now we get to place the monsters. ***/
+
+	/* Place the monsters. */
+	for (i = 0; i < 300; i++)
+	{
+		/* Check for early completion. */
+		if (!monsters_left) break;
+
+		/* Pick a random in-room square. */
+		y = rand_range(y1, y2);
+		x = rand_range(x1, x2);
+
+		/* Require a floor square with no monster in it already. */
+		if (!cave_naked_bold(y, x)) continue;
+
+		/* Enforce monster selection */
+		cave_ecology.use_ecology = room_info[room].ecology;
+
+		/* Place a single monster.  Sleeping 2/3rds of the time. */
+		place_monster_aux(y, x, get_mon_num(monster_level),
+			(bool)(rand_int(3)), FALSE, 0L);
+
+		/* End enforcement of monster selection */
+		cave_ecology.use_ecology = (0L);
+
+		/* One less monster to place. */
+		monsters_left--;
+	}
+
+	/*
+	 * Because OOD monsters in monster towns are generally less dangerous than
+	 * they are hostile, apply only one-half the difference in
+	 * level rating, and then add something for the sheer quantity of monsters.
+	 */
+	i = rating - old_rating;
+	rating = old_rating + (i / 2) + (width <= 4 ? 5 : 10);
+
+	/* Set the vault / interesting room flags */
+	set_room_flags(room, type, FALSE);
+
+	/* Mark the room as a town unless the founder is an animal or an undead which can't pass walls */
+	if (((r_ptr->flags3 & (RF3_UNDEAD | RF3_ANIMAL)) == 0) && ((r_ptr->flags3 & (RF2_PASS_WALL)) == 0))
+	{
+		/* Townsfolk use the town AI to navigate through this room */
+		room_info[room].flags |= (ROOM_TOWN);
+	}
+	
+	/* Set the chamber flags */
+	set_room_flags(room, type, light);
+	
+	/* Success */
+	return (TRUE);
+
+}
+#endif
 
 
 /*
@@ -12520,8 +13264,8 @@ static bool room_build(int room, int type)
 	switch (type)
 	{
 		/* Build an appropriate room */
-		case ROOM_MONSTER_TOWN:
-		case ROOM_MONSTER_PIT: if (build_type2627(room, type)) return (TRUE); break;
+		case ROOM_MONSTER_TOWN: /*if (build_type27(room, type)) return (TRUE); break;*/
+		case ROOM_MONSTER_PIT: if (build_type26(room, type)) return (TRUE); break;
 		case ROOM_HUGE_BURROW:
 		case ROOM_LARGE_BURROW:
 		case ROOM_BURROW: if (build_type232425(room,type)) return(TRUE); break;
@@ -14764,44 +15508,8 @@ static void build_store(int feat, int yy, int xx)
 		tmp = rand_int(4);
 	}
 
-	/* Extract a "door location" */
-	switch (tmp)
-	{
-		/* Bottom side */
-		case 0:
-		{
-			y = y2;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		/* Top side */
-		case 1:
-		{
-			y = y1;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		/* Right side */
-		case 2:
-		{
-			y = rand_range(y1, y2);
-			x = x2;
-			break;
-		}
-
-		/* Left side */
-		default:
-		{
-			y = rand_range(y1, y2);
-			x = x1;
-			break;
-		}
-	}
-
-	/* Clear previous contents, add a store door */
-	cave_set_feat(y, x, feat);
+	/* Place the store door */
+	generate_door(y1, x1, y2, x2, tmp, feat);
 
 	/* Let monsters shop as well */
 	if (u_info[f_info[feat].power].base >= STORE_MIN_BUY_SELL)

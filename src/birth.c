@@ -1315,6 +1315,53 @@ static void class_aux_hook(birth_menu c_str)
 	( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
 		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
 
+	/* Display spell stats */
+	if (cp_ptr->spell_first < 99)
+	{
+		/* Display spells learned stat */
+		i = cp_ptr->spell_stat_study;
+		sprintf(s, "%s", stat_names[i]);
+		s[3] = '\0';
+		Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 8, -1, TERM_WHITE, "Spells learned: ");
+		Term_putstr(CLASS_AUX2_COL + 16, TABLE_ROW + A_MAX + 8, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+			( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
+
+		/* Display spells learned stat */
+		i = cp_ptr->spell_stat_fail;
+		sprintf(s, "%s", stat_names[i]);
+		s[3] = '\0';
+		Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 9, -1, TERM_WHITE, "Spell success %: ");
+		Term_putstr(CLASS_AUX2_COL + 17, TABLE_ROW + A_MAX + 9, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+			( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
+
+		/* Display spells learned stat */
+		i = cp_ptr->spell_stat_mana;
+		sprintf(s, "%s", stat_names[i]);
+		s[3] = '\0';
+		Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 10, -1, TERM_WHITE, "Primary mana: ");
+		Term_putstr(CLASS_AUX2_COL + 14, TABLE_ROW + A_MAX + 10, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+			( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
+
+		/* Display spells learned stat */
+		i = A_CON;
+		sprintf(s, "%s", stat_names[i]);
+		s[3] = '\0';
+		Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 11, -1, TERM_WHITE, "Reserve mana: ");
+		Term_putstr(CLASS_AUX2_COL + 14, TABLE_ROW + A_MAX + 11, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+			( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
+	}
+	else
+	{
+		for (i = TABLE_ROW + A_MAX + 8; i < TABLE_ROW + A_MAX + 12; i++)
+		{
+			Term_putstr(CLASS_AUX2_COL, i, -1, TERM_WHITE, "                    ");
+		}
+	}
+
 	/* Enumerate through skills */
 	for (i = 0; skill_table[i].skill >= 0; i++)
 	{
@@ -1398,8 +1445,6 @@ static void style_aux_hook(birth_menu w_str)
 
 	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
 	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
-	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 }
 
 
@@ -2961,6 +3006,9 @@ void player_birth(void)
 		/* Style tips */
 		queue_tip(format("style%d.txt", p_ptr->pstyle));
 
+		/* Style tips */
+		queue_tip(format("school%d.txt", p_ptr->pschool));
+
 		/* Specialists get tval tips */
 		if (style2tval[p_ptr->pstyle])
 		{
@@ -2971,9 +3019,17 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
+	/* Hack -- set the depth. */
+	/* Note -- we're not quite as cruel as thrall mode, ghost mode etc
+	 * and we also choose this depth to ensure we end up correctly in
+	 * a relatively 'safe' dungeon, terrain-wise in Mordor.
+	 */
+	if (adult_gollum) p_ptr->depth = 54;
+
 	/* Hack -- set the dungeon. */
-	if (adult_campaign) p_ptr->dungeon = 1;
-	else p_ptr->dungeon = z_info->t_max - 2;
+	if (!adult_campaign) p_ptr->dungeon = z_info->t_max - 2;
+	else if (adult_gollum) p_ptr->dungeon = 61;
+	else  p_ptr->dungeon = 1;
 
 	/* Hack -- set the town. This is now required for shop restocking. */
 	if (adult_campaign) p_ptr->town = 1;

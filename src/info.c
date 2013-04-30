@@ -4844,7 +4844,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((cheat_lore) || !(e_ptr->xtra))
+			if ((adult_lore) || !(e_ptr->xtra))
 			{
 				if ((f1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
@@ -4859,7 +4859,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((cheat_lore) || !(e_ptr->xtra))
+			if ((adult_lore) || !(e_ptr->xtra))
 			{
 				if ((f2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
@@ -4877,7 +4877,7 @@ void object_guess_name(object_type *o_ptr)
 			/* Hack -- don't match on curse flags */
 			if ((1L << ii) >= TR3_LIGHT_CURSE) continue;
 
-			if ((cheat_lore) || !(e_ptr->xtra))
+			if ((adult_lore) || !(e_ptr->xtra))
 			{
 				if ((f3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
@@ -4892,7 +4892,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((cheat_lore) || !(e_ptr->xtra))
+			if ((adult_lore) || !(e_ptr->xtra))
 			{
 				if ((f4 & (1L<<ii)) && (e_ptr->flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (e_ptr->flags4 & (1L<<ii))) score +=1;
@@ -5049,7 +5049,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if (adult_lore)
 			{
 				if ((f1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=1;
@@ -5064,7 +5064,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if (adult_lore)
 			{
 				if ((f2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=1;
@@ -5079,7 +5079,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if (adult_lore)
 			{
 				if ((f3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=1;
@@ -5094,7 +5094,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if (adult_lore)
 			{
 				if ((f4 & (1L<<ii)) && (a_ptr->flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (a_ptr->flags4 & (1L<<ii))) score +=1;

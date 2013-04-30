@@ -695,7 +695,7 @@ bool check_level_flags_race(int r_idx)
 		if (r_ptr->flags1 & (RF1_NEVER_MOVE)) return (FALSE);
 	}
 
-	/* XXX Note we have to move this check to the ecology, to allow a nighttime
+	/* XXX Note we have to move this check to get_mon_num, to allow a nighttime
 	 * ecology to be created.
 	 */
 #if 0
@@ -893,6 +893,9 @@ s16b get_mon_num(int level)
 
 		/* Hack -- Never place quest monsters randomly. */
 		if ((r_ptr->flags1 & (RF1_QUESTOR)) && (is_quest_race(r_idx))) continue;
+		
+		/* Hack -- Never place stupid monsters in towns. */
+		if ((r_ptr->flags2 & (RF2_STUPID)) && (cave_ecology.town)) continue;
 
 		/* Check monster against level flags */
 		if (!check_level_flags_race(r_idx)) continue;
@@ -1906,7 +1909,7 @@ void race_desc(char *desc, size_t max, int r_idx, int mode, int number)
 	*t = '\0';
 
 	/* Pluralize */
-	if ((number != 1) && (((mode & (0x400)) != 0) || ((append_s) && ((mode & (0x100)) != 0))))
+	if ((number != 1) && (((mode & (0x400)) != 0) || (append_s)))
 	{
 		/* We're hacking pluralisation - check for final s */
 		if (mode & (0x400))
@@ -3372,7 +3375,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
  * does not resist, and 1 if the monster resists if they are
  * able to correctly navigate the terrain.
  */
-static int mon_resist_effect(int effect, int r_idx)
+int mon_resist_effect(int effect, int r_idx)
 {
 	monster_race *r_ptr;
 
@@ -4348,7 +4351,7 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		if (o_ptr->feeling == INSCRIP_AVERAGE) object_bonus(o_ptr, TRUE);
 
 		/* Auto-inscribe if necessary */
-		if ((cheat_auto) || (object_aware_p(o_ptr))) o_ptr->note = k_info[ammo_kind].note;
+		if ((adult_auto) || (object_aware_p(o_ptr))) o_ptr->note = k_info[ammo_kind].note;
 
 		/* Apply obvious flags */
 		object_obvious_flags(o_ptr, TRUE);
@@ -7076,11 +7079,15 @@ void get_monster_ecology(int r_idx, int hack_pit)
 			/* Hack -- dragons, except wyrms 'of' match on breath */
 			if (!strchr("adD", r_ptr->d_char) ||
 					(strstr(r_name +  + r_ptr->name, " of "))) hack_ecology--;
+			/* Name matching is too limited for towns */
+			else if (cave_ecology.town) hack_ecology--;
 			else break;
 		case 9:
 			if (!strchr(r_name + r_ptr->name, ' ')) hack_ecology--;
 			/* Paranoia to minimise empty pits */
 			else if (r_ptr->flags1 & (RF1_UNIQUE)) hack_ecology--;
+			/* Name matching is too limited for towns */
+			else if (cave_ecology.town) hack_ecology--;
 			else break;
 		case 8:
 		{
@@ -7092,6 +7099,8 @@ void get_monster_ecology(int r_idx, int hack_pit)
 		}
 		case 7:
 			if ((r_ptr->flags9 & (RF9_DROP_MINERAL)) == 0) hack_ecology--;
+			/* Coin matching is too limited for towns */
+			else if (cave_ecology.town) hack_ecology--;
 			else break;
 		case 6:
 			/* Summon align is too generic for pits */
@@ -7108,8 +7117,8 @@ void get_monster_ecology(int r_idx, int hack_pit)
 			if ((r_ptr->flags2 & (RF2_CLASS_MASK)) != 0) break;
 		case 2:
 		case 1:
-			/* Battle-fields and two thirds of failures match on d_char - the rest use animals */
-			if ((level_flag & (LF1_BATTLE)) || (rand_int(100) < 66)) hack_ecology = 1;
+			/* Battle-fields, towns and two thirds of failures match on d_char - the rest use animals */
+			if ((level_flag & (LF1_BATTLE)) || (cave_ecology.town) || (rand_int(100) < 66)) hack_ecology = 1;
 			else hack_ecology = 2;
 			break;
 	}

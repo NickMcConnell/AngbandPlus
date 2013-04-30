@@ -8872,8 +8872,8 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (r_ptr->flags9 & RF9_IM_BLUNT) 	resists += 5;
 	else if (r_ptr->flags9 & RF9_RES_BLUNT) resists += 2;
 
-	/* Hack -- Evasive = tough */
-	if (r_ptr->flags9 & RF9_EVASIVE) resists += 3;
+	/* Hack -- Evasive = very tough */
+	if (r_ptr->flags9 & RF9_EVASIVE) resists += 8;
 
 	/* Bonus for multiple basic resists and weapon resists */
 	if (resists >= 12) resists *= 6;

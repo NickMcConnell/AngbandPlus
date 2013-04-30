@@ -1851,6 +1851,10 @@ void check_experience(void)
 
 			/* Style tips */
 			queue_tip(format("spec%d-%d-%d.txt", p_ptr->pclass, p_ptr->pstyle, i));
+			
+			/* School tips */
+			queue_tip(format("scho%d-%d-%d.txt", p_ptr->pclass, p_ptr->pschool, i));
+			
 		}
 
 		/* Save the highest level */
@@ -5806,6 +5810,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				case 't':
 				case '5':
 				case '0':
+				case '@':
 				{
 					int m_idx = cave_m_idx[y][x];
 
@@ -6058,6 +6063,15 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				case 't':
 				case '5':
 				case '0':
+				{
+					/* Prevent easy suicide */
+					if ((p_ptr->py == y) && (p_ptr->px == x))
+					{
+						bell("Illegal target! Use @ to target yourself.");
+						break;
+					}
+				}
+				case '@':
 				{
 					target_set_location(y, x, mode);
 					done = TRUE;

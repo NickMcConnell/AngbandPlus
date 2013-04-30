@@ -752,6 +752,9 @@ bool dun_level_mon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	/* If town, require a smart monster */
+	if ((cave_ecology.town) && ((r_ptr->flags2 & (RF2_SMART)) == 0)) return (FALSE);
+	
 	/* If no restriction, accept anything */
 	if (!(t_info[p_ptr->dungeon].r_char) && !(t_info[p_ptr->dungeon].r_flag)) return (TRUE);
 
@@ -778,7 +781,7 @@ bool dun_level_mon(int r_idx)
 			(mon_flag < 128) &&
 			(r_ptr->flags4 & (1L << (mon_flag -96)))) return (TRUE);
 	}
-
+	
 	return (FALSE);
 
 }

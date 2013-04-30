@@ -3657,7 +3657,7 @@ int get_quantity_aux(cptr prompt, int max, int amt)
 s16b get_quantity(cptr prompt, int max)
 {
 	/* The old get_quantity function */
-	get_quantity_aux(prompt, max, 1);
+	return(get_quantity_aux(prompt, max, 1));
 }
 
 

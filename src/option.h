@@ -14,7 +14,7 @@ void option_set_defaults(void);
  * Information for "do_cmd_options()".
  */
 #define OPT_PAGE_MAX				5
-#define OPT_PAGE_PER				18
+#define OPT_PAGE_PER				19
 
 /* The option data structures */
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
@@ -100,6 +100,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_autosave_backup      105
 #define OPT_auto_monlist  		 106
 #define OPT_easy_monlist  		 107
+#define OPT_view_fogged_grids	108
 
 #define OPT_birth_randarts          (OPT_BIRTH+1)
 #define OPT_birth_rand_stats        (OPT_BIRTH+2)
@@ -110,6 +111,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_birth_no_identify		(OPT_BIRTH+7)
 #define OPT_birth_no_stairs			(OPT_BIRTH+8)
 #define OPT_birth_no_selling		(OPT_BIRTH+9)
+#define OPT_birth_lore				(OPT_BIRTH+10)
+#define OPT_birth_auto           (OPT_BIRTH+11)
 /* Options specific to Un */
 #define OPT_birth_campaign          (OPT_BIRTH+20)
 #define OPT_birth_haggle            (OPT_BIRTH+21)
@@ -118,6 +121,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_birth_first_time        (OPT_BIRTH+24)
 #define OPT_birth_reseed_artifacts  (OPT_BIRTH+25)
 #define OPT_birth_evil              (OPT_BIRTH+26)
+#define OPT_birth_gollum			(OPT_BIRTH+28)
 
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -126,8 +130,6 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* options specific to Un */
-#define OPT_cheat_lore           (OPT_CHEAT+20)
-#define OPT_cheat_auto           (OPT_CHEAT+21)
 #define OPT_cheat_wall           (OPT_CHEAT+22)
 
 #define OPT_adult_randarts          (OPT_ADULT+1)
@@ -139,6 +141,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_adult_no_identify		(OPT_ADULT+7)
 #define OPT_adult_no_stairs			(OPT_ADULT+8)
 #define OPT_adult_no_selling		(OPT_ADULT+9)
+#define OPT_adult_lore				(OPT_SCORE+10)
+#define OPT_adult_auto				(OPT_SCORE+11)
 /* options specific to Un */
 #define OPT_adult_campaign  (OPT_ADULT+20)
 #define OPT_adult_haggle (OPT_ADULT+21)
@@ -147,6 +151,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_adult_first_time (OPT_ADULT+24)
 #define OPT_adult_reseed_artifacts (OPT_ADULT+25)
 #define OPT_adult_evil              (OPT_ADULT+26)
+#define OPT_adult_gollum			(OPT_ADULT+27)
 
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -155,8 +160,6 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_score_know				(OPT_SCORE+4)
 #define OPT_score_live				(OPT_SCORE+5)
 /* options specific to Un */
-#define OPT_score_lore           (OPT_SCORE+20)
-#define OPT_score_auto           (OPT_SCORE+21)
 #define OPT_score_wall           (OPT_SCORE+22)
 
 /*
@@ -215,6 +218,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define autosave_backup     OPT(autosave_backup)
 #define auto_monlist        OPT(auto_monlist)
 #define easy_monlist        OPT(easy_monlist)
+#define view_fogged_grids 	OPT(view_fogged_grids)
 
 
 #define birth_randarts			OPT(birth_randarts)
@@ -226,6 +230,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define birth_no_identify       OPT(birth_no_identify)
 #define birth_no_stairs			OPT(birth_no_stairs)
 #define birth_no_selling       OPT(birth_no_selling)
+#define birth_lore            OPT(birth_lore)
+#define birth_auto            OPT(birth_auto)
 #define birth_campaign  			OPT(birth_campaign)
 #define birth_haggle 		   	OPT(birth_haggle)
 #define birth_beginner 			   OPT(birth_beginner)
@@ -240,8 +246,6 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define cheat_xtra				OPT(cheat_xtra)
 #define cheat_know				OPT(cheat_know)
 #define cheat_live				OPT(cheat_live)
-#define cheat_lore            OPT(cheat_lore)
-#define cheat_auto            OPT(cheat_auto)
 #define cheat_wall            OPT(cheat_wall)
 
 #define adult_randarts			OPT(adult_randarts)
@@ -253,6 +257,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define adult_no_identify       OPT(adult_no_identify)
 #define adult_no_stairs			OPT(adult_no_stairs)
 #define adult_no_selling       OPT(adult_no_selling)
+#define adult_lore            OPT(adult_lore)
+#define adult_auto            OPT(adult_auto)
 #define adult_campaign  			OPT(adult_campaign)
 #define adult_haggle 		   	OPT(adult_haggle)
 #define adult_beginner 			   OPT(adult_beginner)
@@ -260,6 +266,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define adult_first_time 			OPT(adult_first_time)
 #define adult_reseed_artifacts  	OPT(adult_reseed_artifacts)
 #define adult_evil	 			OPT(adult_evil)
+#define adult_gollum	 		OPT(adult_gollum)
 
 #define score_peek				OPT(score_peek)
 #define score_hear				OPT(score_hear)
@@ -267,8 +274,6 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define score_xtra				OPT(score_xtra)
 #define score_know				OPT(score_know)
 #define score_live				OPT(score_live)
-#define score_lore            OPT(score_lore)
-#define score_auto            OPT(score_auto)
 #define score_wall            OPT(score_wall)
 
 #endif /* !INCLUDED_OPTIONS_H */

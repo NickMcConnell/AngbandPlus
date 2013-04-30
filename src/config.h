@@ -232,7 +232,7 @@
  * code within Unangband, and then emit a revised version.
  */
 
-#define ALLOW_TEMPLATES_OUTPUT
+/* #define ALLOW_TEMPLATES_OUTPUT */
 
 /*
  * OPTION: Expand object memory. This may be a performance hit on older

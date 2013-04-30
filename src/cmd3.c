@@ -1716,8 +1716,8 @@ bool player_trade(int item2)
 			m_ptr->mflag |= (MFLAG_ALLY);
 
 			/* Clear old targets */
-			m_ptr->ty = p_ptr->target_row;
-			m_ptr->tx = p_ptr->target_col;
+			m_ptr->ty = 0;
+			m_ptr->tx = 0;
 
 			/* Buy more time before they turn on us */
 			m_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -1812,8 +1812,9 @@ bool player_trade(int item2)
 			m_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 		}
 
-		/* We can offer stuff to monsters to either slow them down or make them 'neutral' */
-		else if ((deal > 0) && (((m_ptr->mflag & (MFLAG_TOWN)) == 0) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
+		/* We can offer stuff to monsters to either slow them down or make them 'neutral'. */
+		/* Gollums are wretched enough to make anything sound moderately attractive */
+		else if (((adult_gollum) || (deal > 0)) && (((m_ptr->mflag & (MFLAG_TOWN)) == 0) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
 		{
 			/* Enough to at least make him not attack. */
 			if (deal > 1)
@@ -2191,7 +2192,7 @@ bool player_uninscribe(int item)
 			if (i_ptr->name2 != o_ptr->name2) continue;
 
 			/* Auto-inscribe */
-			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
+			if (object_named_p(i_ptr) || adult_auto) i_ptr->note = 0;
 		}
 	}
 	/* Do we inscribe all these object kinds? */
@@ -2212,7 +2213,7 @@ bool player_uninscribe(int item)
 			if (i_ptr->k_idx != o_ptr->k_idx) continue;
 
 			/* Auto-inscribe */
-			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
+			if (object_named_p(i_ptr) || adult_auto) i_ptr->note = 0;
 		}
 	}
 
@@ -2302,7 +2303,7 @@ bool player_inscribe(int item)
 			if (i_ptr->note) continue;
 
 			/* Auto-inscribe */
-			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = e_info[o_ptr->name2].note;
+			if (object_named_p(i_ptr) || adult_auto) i_ptr->note = e_info[o_ptr->name2].note;
 
 			/* Ignore */
 			if (auto_pickup_ignore(o_ptr)) o_ptr->ident &= ~(IDENT_MARKED);
@@ -2331,7 +2332,7 @@ bool player_inscribe(int item)
 			if (i_ptr->note) continue;
 
 			/* Auto-inscribe */
-			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = o_ptr->note;
+			if (object_named_p(i_ptr) || adult_auto) i_ptr->note = o_ptr->note;
 
 			/* Ignore */
 			if (auto_pickup_ignore(o_ptr)) o_ptr->ident &= ~(IDENT_MARKED);

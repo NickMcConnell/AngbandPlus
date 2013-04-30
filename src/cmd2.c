@@ -4343,11 +4343,13 @@ void player_fire_or_throw_selected(int item, bool fire)
 	}
 
 	/* Is this a trick throw and has the weapon returned? */
-	if (trick_throw && !trick_failure)
+	if ((trick_throw && !trick_failure) ||
+		/* Or the player trying to throw or fire away a cursed item? */
+		((item >= INVEN_WIELD) && (cursed_p(o_ptr))))
 	/* Try to return the weapon to the player */
 	{
 		/* Perhaps harm the weapon */
-		if (rand_int(100) < j && break_near(i_ptr, y, x))
+		if (trick_throw && !trick_failure && (rand_int(100) < j) && break_near(i_ptr, y, x))
 		/* The returned weapon turned out to be totally broken */
 		{
 			/* Reduce and describe inventory */
@@ -4358,6 +4360,13 @@ void player_fire_or_throw_selected(int item, bool fire)
 		else
 		/* Either intact or only mildly harmed */
 		{
+			/* Bad penny */
+			if (cursed_p(o_ptr))
+			{
+				/* Inform the player */
+				msg_print("You can't get rid of it that easily.");
+			}
+
 			/* Wear again the (possibly slighly harmed) weapon */
 			object_copy(o_ptr, i_ptr);
 

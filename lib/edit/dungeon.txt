@@ -900,6 +900,8 @@ X:59:61:0:0
 R:EVIL
 L:55:407:407:218:208:511:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS:
 
+# This position used for gollum-mode.
+
 N:61:Plains of Gorgoroth
 X:60:62:0:0
 G:o

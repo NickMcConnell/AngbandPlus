@@ -9652,7 +9652,7 @@ F:HURT_FIRE | CAN_CLIMB | CAN_FLY |
 F:OUTSIDE | EASY_CLIMB | MUST_CLIMB | ATTR_LITE |
 
 N:446:giant spider web
-G:::W
+G:::Z
 U:56
 #$ granite wall
 O:0

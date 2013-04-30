@@ -2105,6 +2105,7 @@ struct ecology_type
 	byte num_races;
 	bool ready;		/* Are we forced to use this ecology? */
 	bool valid_hook;	/* Is at least one monster valid using current get_mon_hook */
+	bool town;		/* Are we generating a town ecology? */
 	bool get_mon[MAX_ECOLOGY_RACES];	/* Are we permitted to pick this race */
 };
 

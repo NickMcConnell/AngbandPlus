@@ -927,7 +927,7 @@ static void spoil_mon_desc(cptr fname)
 		char m_name[80];
 		
 		/* Get the name */
-		race_desc(m_name, sizeof(m_name), who[i], 0x400, 1);
+		race_desc(m_name, sizeof(m_name), who[i], 0xC00, 1);
 
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))

@@ -685,7 +685,7 @@ W:4:0:0
 M:5
 R:0
 U:3+1/10
-F:GRID | ITEM | KILL | PLAY | SELF | MAGIC |
+F:GRID | ITEM | KILL | PLAY | SELF | MAGIC | SAFE |
 F:RANGED | SCATTER | BOOM |
 D:scatter~ magic around & affecting @ grid#:$ enemies
 
@@ -2368,4 +2368,14 @@ S:SUMMON_WRAITH
 F:SELF |
 F:HEARD | INDIRECT | SUMMON |
 D::
+
+N:224:ARC_60_SHORT
+T:0-9999:create~ a broad, short arc of * at &
+I:0:0:20
+W:5:0:0
+A:60:60
+R:6
+F:ARC | BOOM | WALL | GRID | ITEM | KILL | PLAY | MAGIC |
+F:RANGED |
+D:create~ @ broad short arc#:
 

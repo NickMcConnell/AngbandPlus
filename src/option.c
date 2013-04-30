@@ -43,6 +43,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE
 	},
 
 	/* Display */
@@ -65,6 +66,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_room_names,
 		OPT_room_descriptions,
 		OPT_show_tips,
+		OPT_NONE,
 		OPT_NONE
 	},
 
@@ -86,8 +88,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_mana,
 		OPT_view_unsafe_grids,
 		OPT_view_detect_grids,
+		OPT_view_fogged_grids,
 		OPT_autosave_backup,
-		OPT_NONE,
+		OPT_NONE
 	},
 
 	/* Birth/Difficulty */
@@ -100,6 +103,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stacking,
 		OPT_birth_no_stairs,
 		OPT_birth_no_identify,
+		OPT_birth_lore,
+		OPT_birth_auto,
 		OPT_birth_campaign,
 		OPT_birth_haggle,
 		OPT_birth_beginner,
@@ -108,8 +113,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_reseed_artifacts,
 		OPT_birth_rand_stats,
 		OPT_birth_evil,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_birth_gollum
 	},
 
 	/* Cheat */
@@ -120,8 +124,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		OPT_cheat_lore,
-		OPT_cheat_auto,
 		OPT_cheat_wall,
 		OPT_NONE,
 		OPT_NONE,
@@ -132,6 +134,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	}
 };
 
@@ -253,7 +258,7 @@ static option_entry options[OPT_MAX] =
 { "autosave_backup",     "Create backup savefile before descending",   TRUE }, /* 105 */
 { "auto_monlist",        "Always show visible monsters/objects",		FALSE }, /* 106 */
 { "easy_monlist",        "Spacebar toggles visible monsters/objects",   FALSE }, /* 107 */
-{ NULL,                  NULL,                                          FALSE }, /* 108 */
+{ "view_fogged_grids",   "Show fog of war for unexplored areas",        TRUE }, /* 108 */
 { NULL,                  NULL,                                          FALSE }, /* 109 */
 { NULL,                  NULL,                                          FALSE }, /* 110 */
 { NULL,                  NULL,                                          FALSE }, /* 111 */
@@ -283,8 +288,8 @@ static option_entry options[OPT_MAX] =
 { "birth_no_identify",   "Don't need to identify items",                FALSE }, /* 135 */
 { "birth_no_stairs",     "Don't generate connected stairs",             FALSE }, /* 136 */
 { "birth_no_selling",    "Don't sell to the stores",                    FALSE }, /* 137 */
-{ NULL,                  NULL,                                          FALSE }, /* 138 */
-{ NULL,                  NULL,                                          FALSE }, /* 139 */
+{ "birth_lore",          "Know complete artifact/ego/monster info",     FALSE }, /* 138 */
+{ "birth_auto",          "Auto-inscribe items as if known",             FALSE }, /* 139 */
 { NULL,                  NULL,                                          FALSE }, /* 140 */
 { NULL,                  NULL,                                          FALSE }, /* 141 */
 { NULL,                  NULL,                                          FALSE }, /* 142 */
@@ -299,8 +304,8 @@ static option_entry options[OPT_MAX] =
 { "birth_intermediate",  "Reduce the number of birth choices",          FALSE }, /* 151 */
 { "birth_first_time",    "Ask all birth setup question at start",       TRUE }, /* 152 */
 { "birth_reseed_artifacts", "Reseed random artifacts on death",         TRUE }, /* 153 */
-{ "birth_evil",          "Be born bad",                                 FALSE }, /* 154 */
-{ NULL,                  NULL,                                          FALSE }, /* 155 */
+{ "birth_evil",          "Good monsters attack you",                    FALSE }, /* 154 */
+{ "birth_gollum",        "Play in gollum mode",                         FALSE }, /* 155 */
 { NULL,                  NULL,                                          FALSE }, /* 156 */
 { NULL,                  NULL,                                          FALSE }, /* 157 */
 { NULL,                  NULL,                                          FALSE }, /* 158 */
@@ -325,8 +330,8 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 177 */
 { NULL,                  NULL,                                          FALSE }, /* 178 */
 { NULL,                  NULL,                                          FALSE }, /* 179 */
-{ "cheat_lore",          "Cheat: Know complete artifact/ego info",      FALSE }, /* 180 */
-{ "cheat_auto",          "Cheat: Auto-inscribe items as if known",      FALSE }, /* 181 */
+{ NULL,                  NULL,                                          FALSE }, /* 180 */
+{ NULL,                  NULL,                                          FALSE }, /* 181 */
 { "cheat_wall",          "Cheat: Show false colours for walls",         FALSE }, /* 181 */
 { NULL,                  NULL,                                          FALSE }, /* 183 */
 { NULL,                  NULL,                                          FALSE }, /* 184 */

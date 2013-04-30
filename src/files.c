@@ -4251,6 +4251,14 @@ errr file_character(cptr name, bool full)
 
 	text_out("\n");
 
+	/* Dump self-knowledge */
+	text_out("  [Game Statistics]\n\n");
+
+	/* Do non-spoiler self-knowledge */
+	game_statistics();
+
+	text_out("\n");
+
 	/* Dump spells learnt */
 	if ((c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL)
 		 || (p_ptr->pstyle == WS_MAGIC_BOOK) || (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK))
@@ -4968,7 +4976,7 @@ void show_tip(void)
 	if (p_ptr->command_rep) return;
 
 	/* Have tips to show */
-	if (tips_start != tips_end)
+	if (tips_start < tips_end)
 	{
 		cptr tip = quark_str(tips[tips_start++]);
 

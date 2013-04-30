@@ -5682,8 +5682,8 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 			/* Roll out the damage */
 			for (i = 1; i < num; i++) damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) / (damage_div);
 
-			/* Apply once */
-			if (forreal && project_one(who, what, y1, x1, damage, effect, flg))
+			/* Apply once - note hack for what it effects */
+			if (forreal && project_one(who, what, y1, x1, damage, effect, flg | (PROJECT_PLAY | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID)))
 			{
 				/* Noticed */
 				obvious = TRUE;
@@ -5847,9 +5847,6 @@ bool retarget_blows(int *ty, int *tx, u32b *flg, int method, int level, bool ful
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	/* Any further blows have slightly differing semantics */
-	retarget_blows_subsequent = TRUE;
-
 	/* Never retarget for spells which affect self */
 	if (*flg & (PROJECT_SELF))
 	{
@@ -5873,6 +5870,21 @@ bool retarget_blows(int *ty, int *tx, u32b *flg, int method, int level, bool ful
 		*ty = py + ddy[retarget_blows_dir];
 		*tx = px + ddx[retarget_blows_dir];
 	}
+	
+	/* Melee only attacks */
+	else if ((method_ptr->flags2 & (PR2_RANGED)) == 0)
+	{
+		*one_grid = TRUE;
+		
+		/* Get direction or escape */
+		if (!get_rep_dir(&retarget_blows_dir)) return (FALSE);
+		
+		/* Use the given direction */
+		*ty = py + ddy[retarget_blows_dir];
+		*tx = px + ddx[retarget_blows_dir];
+	}
+	
+	/* Ranged attacks */
 	else
 	{
 		/* Hack -- get new target if last target is dead / missing */
@@ -5893,6 +5905,13 @@ bool retarget_blows(int *ty, int *tx, u32b *flg, int method, int level, bool ful
 		{
 			*ty = p_ptr->target_row;
 			*tx = p_ptr->target_col;
+
+			/* Targetting a monster */
+			if (cave_m_idx[*ty][*tx])
+			{
+				/* Any further blows have slightly differing semantics - provided we targetted a monster */
+				retarget_blows_subsequent = TRUE;
+			}
 		}
 		/* Stop at first target if we're firing in a direction */
 		else if (method_ptr->flags2 & (PR2_DIR_STOP))
@@ -5940,6 +5959,49 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 
 	/* No blows - return */
 	if (!blow_ptr->method) return (FALSE);
+
+	/* Hack - cancel casting of restricted teleports if we are not in the correct starting condition */
+	if (method_info[blow_ptr->method].flags1 & (PROJECT_SELF))
+	{
+		switch (blow_ptr->effect)
+		{
+			/* Teleport from darkness to darkness */
+			case GF_AWAY_DARK:
+			{
+				if (!teleport_darkness_hook(py, px, py, px))
+				{
+					if (*known) msg_print("You cannot do that unless you are in darkness.");
+
+					return (FALSE);
+				}
+				break;
+			}
+
+			/* Teleport from water/living to water/living */
+			case GF_AWAY_NATURE:
+			{
+				if (!teleport_nature_hook(py, px, py, px))
+				{
+					if (*known) msg_print("You cannot do that unless you are next to nature or running water.");
+
+					return (FALSE);
+				}
+				break;
+			}
+
+			/* Teleport from fire/lava to fire/lava */
+			case GF_AWAY_FIRE:
+			{
+				if (!teleport_fiery_hook(py, px, py, px))
+				{
+					if (*known) msg_print("You cannot do that unless you are next to smoke or flame.");
+
+					return (FALSE);
+				}
+				break;
+			}
+		}
+	}
 
 	/* Set up retargetting */
 	retarget_blows_dir = 0;
@@ -6083,7 +6145,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	}
 
 	/*** From this point forward, any abilities cannot be cancelled ***/
-	if (s_ptr->flags1 || s_ptr->flags2 || s_ptr->flags3) *cancel = FALSE;
+	if (s_ptr->flags1 || s_ptr->flags2 || (s_ptr->flags3 & ~(SF3_HOLD_SONG | SF3_THAUMATURGY))) *cancel = FALSE;
 	
 	/* Process the flags -- basic feature detection */
 	if ((s_ptr->flags1 & (SF1_DETECT_DOORS)) && (detect_feat_flags(FF1_DOOR, 0x0L, 0x0L, 2 * MAX_SIGHT, known))) vp[vn++] = "doors";
@@ -6159,6 +6221,9 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	/* Process the 'fake flag' -- detect minds */
 	if ((s_ptr->type == SPELL_DETECT_MIND) || (s_ptr->type == SPELL_MINDS_EYE))
 	{
+		/* Hack -- forbid cancellation */
+		*cancel = FALSE;
+
 		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";
 	}
 
@@ -6821,7 +6886,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Message */
 					if (p_ptr->disease)
 					{
-						msg_print("This cure is ineffective for what ails you.");
+						msg_print("This cure is ineffective for the disease you suffer from.");
 						obvious = TRUE;
 					}
 					break;
@@ -8813,7 +8878,7 @@ bool region_uplift_hook(int y, int x, s16b d, s16b region)
 	if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) return (FALSE);
 
 	/* Have we already collected a feature */
-	if ((rp_ptr->d) || ((r_ptr->effect == GF_FEATURE) && (rp_ptr->d == r_ptr->damage))) return (FALSE);
+	if (rp_ptr->d) return (FALSE);
 
 	/* Check overlapping regions */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
@@ -8902,7 +8967,8 @@ bool region_project_hook(int y, int x, s16b d, s16b region)
 	/* Get the feature from the region */
 	if (r_ptr->effect == GF_FEATURE)
 	{
-		dam = d;
+		/* Always use base damage */
+		dam = r_ptr->damage;
 
 		/* Collecting the feature */
 		region_uplift_hook(y, x, d, region);
@@ -9121,8 +9187,6 @@ bool region_effect(int region, int y, int x)
 		int y1 = y ? y : r_ptr->y1;
 		int x1 = x ? x : r_ptr->x1;
 
-		region_info_type *ri_ptr = &region_info[r_ptr->type];
-
 		/* Attacks come from multiple source features in the region */
 		if (r_ptr->flags1 & (RE1_SOURCE_FEATURE))
 		{
@@ -9170,6 +9234,8 @@ bool region_effect(int region, int y, int x)
 		/* Method is defined */
 		else if (ri_ptr->method)
 		{
+			method_type *method_ptr = &method_info[ri_ptr->method];
+
 			/* Pick a random grid if required */
 			if (r_ptr->flags1 & (RE1_RANDOM))
 			{
@@ -9189,9 +9255,9 @@ bool region_effect(int region, int y, int x)
 				y1 = y;
 				x1 = x;
 			}
-
+			
 			/* Attack the target */
-			notice |= project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, child_region, 0L);
+			notice |= project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, child_region, method_ptr->flags1);
 		}
 
 		/* Method is not defined. Apply effect to all grids */
