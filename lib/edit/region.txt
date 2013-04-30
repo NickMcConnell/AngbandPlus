@@ -62,7 +62,7 @@
 # Version stamp (required)
 
 
-V:0.6.3
+V:0.6.4
 
 
 N:0:nothing
@@ -230,11 +230,10 @@ F:SCALAR_VECTOR | AUTOMATIC | RANDOM
 
 # Blasts of narrow forked lightning - used by Call Lightning
 N:29:storm
-G:*:Y
+G:*:Z
 I:12
 F:AUTOMATIC | INVERSE | RANDOM | PROJECTION | ACCELERATE | DECELERATE
 B:BEAM
-F:ATTR_EFFECT
 
 # Seeker vortex - used by Ignite Blaze
 N:30:vortex
@@ -356,7 +355,7 @@ F:LINGER
 # Zap - used by zap
 
 N:45:zap
-G:*:Z
+G:*:Y
 I:30
 F:AUTOMATIC | ATTR_EFFECT | PROJECTION
 B:ZAP

@@ -1627,7 +1627,7 @@ struct familiar_type
 {
 	const char *name;
 	u16b	method;
-	u16b	attr1, attr2;
+	u16b	attr1, attr2, attr3;
 };
 
 

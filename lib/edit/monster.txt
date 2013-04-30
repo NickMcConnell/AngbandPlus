@@ -28,7 +28,7 @@
 # Version stamp (required)
 
 
-V:0.6.3
+V:0.6.4
 
 
 
@@ -6439,7 +6439,7 @@ G:@:v
 #$ Multihued available
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dwsorgbuDWPyRGBUptmYiTVIMzZ
-I:115:5:4:40:0
+I:115:5:5:40:0
 W:0:0:0:0
 C:1:0:0:6:6
 M:0:0:1:0
@@ -6455,7 +6455,7 @@ G:@:v
 #$ Multihued available
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dwsorgbuDWPyRGBUptmYiTVIMzZ
-I:115:5:4:40:0
+I:115:5:5:40:0
 W:0:0:0:0
 C:1:0:0:6:6
 M:0:0:1:0

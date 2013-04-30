@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.6.3"
+#define VERSION_STRING	"0.6.4"
 
 /*
  * Hack -- note use of new version name/string but old version
@@ -66,8 +66,8 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
-#define VERSION_PATCH	3
-#define VERSION_EXTRA	11
+#define VERSION_PATCH	4
+#define VERSION_EXTRA	0
 
 /*
  * Oldest version number that can still be imported
@@ -210,24 +210,6 @@
  */
 #define MAX_CLASS_ITEMS	10
 #define MAX_COMMON_ITEMS 16
-
-
-/*
- * Maximum number of familiar types
- */
-#define MAX_FAMILIARS 20
-
-
-/*
- * Maximum number of familiar abilities
- */
-#define MAX_FAMILIAR_ABILITIES 118
-
-
-/*
- * Maximum number of times abilities can be picked
- */
-#define MAX_FAMILIAR_GAINS	32
 
 
 /*
@@ -1913,7 +1895,7 @@ enum
  * Used for uncontrolled objects
  */
 #define UNCONTROLLED_CHANCE		100	/* Chance in 1 in x chance of uncontrolled object activating */
-#define UNCONTROLLED_CONTROL	200	/* Number of random activations before controlling this object */
+#define UNCONTROLLED_CONTROL	50	/* Number of random activations before controlling this object */
 
 
 /*
@@ -2910,7 +2892,7 @@ enum
 #define RE2_AUTO_LITE			0x00000000	/* Automatically apply update if in perma light  */
 #define RE2_HIDE_LITE			0x00000000	/* Don't display region in perma light */
 #define RE2_AIMED				0x00000000	/* Update destination if player aims while on source */
-
+#define RE1_CLOSEST_MON			0x00000000
 
 
 
@@ -3976,7 +3958,7 @@ enum
 #define RF2_ARCHER	0x00100000      /* Monster has extra ammo */
 #define RF2_EAT_BODY	0x00200000      /* Monster can eat body parts */
 #define RF2_TAKE_ITEM	0x00400000      /* Monster can pick up items */
-#define RF2_TRAIL	0x00800000      /* Monster leavs a trail behind it */
+#define RF2_TRAIL	0x00800000      /* Monster leaves a trail behind it */
 #define RF2_SNEAKY 	0x01000000 	/* Monster hides a lot of actions */
 #define RF2_ARMOR	0x02000000 	/* Monster is fully armoured (Reduces acid damage/stops some arrows) */
 #define RF2_PRIEST 	0x04000000 	/* Monster has access to priest spells ? */
@@ -4717,6 +4699,39 @@ enum
 #define FAMILIAR_IDX	330
 
 /*
+ * Maximum number of familiar types
+ */
+#define MAX_FAMILIARS 28
+
+
+/*
+ * Maximum number of familiar abilities
+ */
+#define MAX_FAMILIAR_ABILITIES 131
+
+/*
+ * Choices at each 'level' of picks
+ */
+#define FAMILIAR_CHOICES	10
+
+/*
+ * Picks before moving on to the next 'level' of choices
+ */
+#define FAMILIAR_PICKS		2
+
+/*
+ * Maximum number of times abilities can be picked
+ */
+#define MAX_FAMILIAR_GAINS	32
+
+/*
+ * Level at which all familiars get a melee attack
+ */
+#define FAMILIAR_FREE_BLOW	10
+
+
+
+/*
  * Familiar benefits
  *
  * Note the first 288 benefits correspond to monster flags.
@@ -4729,7 +4744,8 @@ enum
 #define FAMILIAR_SIZE	293
 #define FAMILIAR_MANA	294
 #define FAMILIAR_SPIKE	295
-#define FAMILIAR_BLOW	296
+#define FAMILIAR_SHOT	296
+#define FAMILIAR_BLOW	297
 
 /* And the remaining benefits correspond to modifying the blow effect */
 

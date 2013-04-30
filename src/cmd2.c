@@ -979,6 +979,9 @@ void do_cmd_search_or_steal(void)
 		/* Must be able to see monster */
 		if (!m_list[cave_m_idx[y][x]].ml) continue;
 		
+		/* Skip allied monsters */
+		if (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) continue;
+
 		/* Valid direction for a monster */
 		valid_dir |= (1 << ddd[d]);
 	}

@@ -70,6 +70,9 @@ stylenn.txt    The player has just been born as style nn.  See defines.h for whi
 schoolnn.txt   The player has just been born as school nn.  See defines.h for which nn
                corresponds to which style.
 
+spellnn.txt    The player has just learned spell nn.  See spell.txt for which nn
+               corresponds to which style.
+
 specaa-bb-cc.txt The player has reached level cc as class aa, style bb for the first
                time this game.
 

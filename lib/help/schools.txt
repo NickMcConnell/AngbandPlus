@@ -69,35 +69,6 @@
           
           Neophyte Sorcerers start with the book of Glamours.
         
-***** <Science>
-        Science
-          The school of Science has particular affinity for Artisans and
-          Artisans should usually choose this school in order to get the best
-          selection of spells in the least number of different books.
-          Mages or Warrior Mages who specialise in this school will find that
-          it has no offensive spells at early levels, which makes it a very
-          difficult school for them to adopt.
-          The school of Science concentrates on sensing and divining the
-          nature of threats around the Scientist and defusing and neutralising
-          those threats before they are realised.
-          
-          Amateur Scientists start with the book of Trades. 
-
-***** <Statecraft>
-        Statecraft
-          The school of Statecraft has particular affinity for Rangers and
-          Rangers should usually choose this school in order to get the best
-          selection of spells in the least number of different books.
-          Mages or Warrior Mages who specialise in this school will find that
-          it has no offensive spells at early levels, which makes it a very
-          difficult school for them to adopt.
-          The school of Statecraft concentrates on supplementing the natural
-          abilities of the Statesman, to allow him to track the enemy,
-          entrap and encircle them, and ultimately wage cruel war on them
-          if required.
-
-          Beginning Statesmen start with the book of Trailcraft.
-
 ***** <Thaumaturgy>
         Thaumaturgy
           The school of Thaumaturgy contains the widest range of direct
@@ -110,16 +81,49 @@
                
           Latent Thaumaturges start with the book of Fireworks.
 
+***** <Science>
+        Science
+          The school of Science concentrates on sensing and divining the
+          nature of threats around the Scientist and defusing and neutralising
+          those threats before they are realised.
+
+          The school of Science has particular affinity for Artisans and
+          Artisans should usually choose this school in order to get the best
+          selection of spells in the least number of different books.
+          Mages or Warrior Mages who specialise in this school will find that
+          it has no offensive spells at early levels, which makes it a very
+          difficult school for them to adopt.
+          
+          Amateur Scientists start with the book of Trades. 
+
+***** <Statecraft>
+        Statecraft
+          The school of Statecraft concentrates on supplementing the natural
+          abilities of the Statesman, to allow him to track the enemy,
+          entrap and encircle them, and ultimately wage cruel war on them
+          if required.
+
+          The school of Statecraft has particular affinity for Rangers and
+          Rangers should usually choose this school in order to get the best
+          selection of spells in the least number of different books.
+          Mages or Warrior Mages who specialise in this school will find that
+          it has no offensive spells at early levels, which makes it a very
+          difficult school for them to adopt.
+
+          Beginning Statesmen start with the book of Trailcraft.
+
 ***** <Spellstealing>
         Spellstealing
+          The school of Spellstealing concentrates on misdirection and
+          manipulation of enemies, allowing the spell caster to avoid those
+          they don't wish to confront, while thieving from and disposing of
+          those that are more lucrative prospects. 
+          
           The school of Spellstealing has particular affinity for Rogues and
           Rogues should usually choose this school in order to get the best
           selection of spells in the least number of different books.
           Mages or Warrior Mages who specialise in this school will find that
           it has no offensive spells at early levels, which makes it a very
           difficult school for them to adopt.
-          The school of Spellstealing concentrates on misdirection and
-          manipulation of enemies, allowing the spell caster to avoid those
-          they don't wish to confront, while thieving from and disposing of
-          those that are more lucrative prospects. 
-          
+
+          Apprentice Spellstealers start with the book of Tricks.

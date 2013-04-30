@@ -4249,7 +4249,7 @@ errr file_character(cptr name, bool full)
 	/* Do non-spoiler self-knowledge */
 	self_knowledge_aux(FALSE, TRUE);
 
-	text_out("\n");
+	text_out("\n\n");
 
 	/* Dump self-knowledge */
 	text_out("  [Game Statistics]\n\n");
@@ -4942,6 +4942,8 @@ bool queue_tip(cptr tip)
 	/* Path buffer */
 	char path[1024];
 
+	int i;
+
 	/* If no space for more tips; panic */
 	assert(tips_end < TIPS_MAX);
 
@@ -4956,6 +4958,13 @@ bool queue_tip(cptr tip)
 
 	/* Close the file */
 	my_fclose(fff);
+
+	/* Check all tips to see if a duplicate already exists */
+	for (i = 0; i < tips_end; i++)
+	{
+		/* Strings are identical? */
+		if (my_stricmp(tip, quark_str(tips[i])) == 0) return (FALSE);
+	}
 
 	/* Add the tip, using quarks */
 	tips[tips_end++] = quark_add(tip);

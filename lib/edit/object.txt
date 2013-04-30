@@ -25,7 +25,7 @@
 # Version stamp (required)
 
 
-V:0.6.3
+V:0.6.4
 
 
 
@@ -3783,7 +3783,7 @@ F:HOLD_LIFE
 
 N:448:Shadow Fairy
 G:@:w
-I:97:3:1
+I:97:3:3
 W:0:0:0:0
 P:0:1d1:0:0:0
 F:REGEN_MANA |
@@ -4633,7 +4633,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:554:of Symphonies
 G:?:y
-I:92:10:0
+I:92:55:0
 W:50:0:30:20000
 A:50/2
 P:0:1d1:0:0:0
@@ -4718,7 +4718,7 @@ P:0:1d1:0:0:0
 
 N:566:& Violin~
 G:|:y
-I:24:10:0
+I:24:55:0
 W:25:0:30:450
 A:25/2
 P:0:1d1:0:0:0

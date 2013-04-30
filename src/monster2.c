@@ -3666,7 +3666,7 @@ int place_monster_here(int y, int x, int r_idx)
 	/* Regions can also trap the monster */
 	if (cave_region_piece[y][x])
 	{
-		/* XXX Iterate through the traps and see if the monster will be
+		/* XXX Iterate through the regions and see if the monster will be
 		 * affected by any of them.
 		 */
 		s16b this_region_piece, next_region_piece = 0;
@@ -3685,7 +3685,10 @@ int place_monster_here(int y, int x, int r_idx)
 			/* Trapped regions */
 			if (re_ptr->flags1 & (RE1_HIT_TRAP))
 			{
-				if (race_avoid_trap(r_idx, y, x, cave_feat[re_ptr->y0][re_ptr->y1])) trap |= !mon_resist_feat(cave_feat[re_ptr->y0][re_ptr->x0], r_idx);
+				if (!race_avoid_trap(r_idx, y, x, cave_feat[re_ptr->y0][re_ptr->y1]))
+				{
+					trap |= !mon_resist_feat(cave_feat[re_ptr->y0][re_ptr->x0], r_idx);
+				}
 			}
 
 			/* Non-trapped regions */
@@ -3694,8 +3697,6 @@ int place_monster_here(int y, int x, int r_idx)
 				trap = TRUE;
 			}
 		}
-
-		trap |= TRUE;
 	}
 
 
@@ -6659,9 +6660,16 @@ bool multiply_monster(int m_idx)
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, m_ptr->mflag & (MFLAG_ALLY | MFLAG_IGNORE));
 
-		/* Hack -- monster does not drop anything */
-		m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
-
+		/* Result? */
+		if (result)
+		{
+			/* Hack -- monster does not drop anything */
+			m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
+	
+			/* Hack -- new monster inherits poison status from their parent */
+			m_list[cave_m_idx[y][x]].poisoned = m_ptr->poisoned;
+		}
+		
 		/* Done */
 		break;
 	}

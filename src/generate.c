@@ -2601,7 +2601,7 @@ int removeallbutlargest(byte **map, int size_y, int size_x)
 	{ 
 		for (x = 0; x < REGION; x++)
 		{
-			count[REGION]=0;
+			count[x]=0;
 		}
 		
 		for (y = 0; y < size_y; y++)

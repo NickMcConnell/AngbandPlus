@@ -7,7 +7,7 @@ You, who are born to be a true Master, hold the very first of your
 great works in your hands.  The spells you find herein do not have the
 overt flamboyance of fire and lightning, but neither will your hands
 and face end up covered in soot, and your hair will remain unfrazzled and
-not stand on its ends like it dos some idiot wizzards and others. There
+not stand on its ends like it does some idiot wizzards and others. There
 are, however, important errors which you can make as a Master, and hence
 you should pay attention to the notes I have made:
 
@@ -21,7 +21,7 @@ you - the spell will also shutter your lantern and smother your torch -
 but you will have to put away your magical staff and any other light
 sources in order to benefit from this effect.
 
- - Shadowstep requires you be in darkenss, and will only transport
+ - Shadowstep requires you be in darkness, and will only transport
 you to similarly dark places. If you are not standing in such a
 region, attempting to cast this spell will not cost you time or mana.
 Since corridors are usually dark, and rooms are usually lit, this is

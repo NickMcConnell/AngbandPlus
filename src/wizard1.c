@@ -176,7 +176,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 
 
 	/* Level */
-	(*lev) = k_ptr->level;
+	(*lev) = k_ptr->locale[0];
 
 	/* Value */
 	(*val) = object_value(i_ptr);
@@ -358,7 +358,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, sizeof(buf), dam, sizeof(dam), wgt, sizeof(wgt), pow, sizeof(pow), &e, &v, who[s]);
 
 				/* Dump it */
-                                fprintf(fff, "  %-37s%7s%6s%4d%9ld%-12s\n",
+                                fprintf(fff, "  %-41s%3s%6s%4d%9ld%-12s\n",
 					buf, dam, wgt, e, (long)(v), pow);
 
 			}

@@ -1071,6 +1071,9 @@ bool player_study(int item)
 		item = inven_carry(o_ptr);
 	}
 
+	/* Queue a tip if appropriate */
+	queue_tip(format("spell%d.txt", spell));
+
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
 

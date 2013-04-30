@@ -2517,6 +2517,16 @@ void do_cmd_view_map(void)
 	int cy, cx;
 	cptr prompt = "Hit any key to continue";
 
+	/* Display the 'overworld' map if we are in a town */
+	if (level_flag & (LF1_TOWN))
+	{
+		screen_save();
+		(void)show_file("memap.txt", NULL, 0, 0);
+		screen_load();
+		
+		return;
+	}
+	
 	/* Save screen */
 	screen_save();
 
@@ -6214,7 +6224,7 @@ void cave_alter_feat(const int y, const int x, int action)
  * This function returns the number of grids (if any) in the path.  This
  * may be zero if no grids are legal except for the starting one.
  */
-int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg)
+int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg)
 {
 	int i, j, k;
 	int dy, dx;
@@ -6742,6 +6752,16 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 
 
 /*
+ * Wrapper for the above function due to the Sangband return value weirdness
+ * that I introduced.
+ */
+int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg)
+{
+	return(ABS(project_path_aux(gp, range, y1, x1, y2, x2, flg)));
+}
+
+
+/*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination, using the "project_path()" function to check
  * the projection path.
@@ -6791,7 +6811,7 @@ byte projectable(int y1, int x1, int y2, int x2, u32b flg)
 	}
 
 	/* Check the projection path */
-	grid_n = project_path(grid_g, MAX_RANGE, y1, x1, &y2, &x2, flg);
+	grid_n = project_path_aux(grid_g, MAX_RANGE, y1, x1, &y2, &x2, flg);
 
 	/* No grid is ever projectable from itself */
 	if (!grid_n) return (PROJECT_NO);

@@ -889,6 +889,11 @@ static void describe_monster_abilities(const monster_race *r_ptr, const monster_
 	{
 		text_out(format("%^s appears in a giant web.  ", wd_he[msex]));
 	}
+	/* Resist blindness also indicates see invisible */
+	if (l_ptr->flags9 & RF9_RES_BLIND)
+	{
+		text_out(format("%^s can see invisible.  ", wd_he[msex]));
+	}
 
 
 	/* Collect susceptibilities */

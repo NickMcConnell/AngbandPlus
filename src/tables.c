@@ -3298,37 +3298,50 @@ const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 };
 
 
+/*
+ * To design additional familiars, choose a name, blow type, and then 3 abilities:
+ * the first two are gained immediately, the third when the player reaches level 10.
+ * Look up the abilities in the familiar ability table below.
+ */
 const familiar_type familiar_race[MAX_FAMILIARS] =
 {
-	{"", 0, 0, 0},
-	{ "monkey",	RBM_HIT, 54, 45 },
-	{ "cat",	RBM_BITE, 45, FAMILIAR_VISION },
-	{ "owl",	RBM_PECK, 46, FAMILIAR_VISION },
-	{ "mouse",	RBM_BITE, 56, FAMILIAR_SPEED },
-	{ "duck", 	RBM_PECK, 46, 42 },
-	{ "snake", 	RBM_BITE, FAMILIAR_BLOW, 37 },
-	{ "wolverine", RBM_CLAW, FAMILIAR_BLOW, 182},
-	{ "badger",	RBM_BUTT, 34, FAMILIAR_BLOW },
-	{ "rat",	RBM_BITE, 45, 42 },
-	{ "spider",	RBM_BITE, 45, 37 },
-	{ "mole",	RBM_CLAW, 34, FAMILIAR_VISION },
-	{ "ferret", RBM_BITE, 45,  FAMILIAR_VISION },
-	{ "bat", RBM_BITE, 46,  231 },
-	{ "hawk", RBM_CLAW, 46,  FAMILIAR_VISION },
-	{ "pig", RBM_BUTT, 53, FAMILIAR_VISION },
-	{ "dog", RBM_BITE, 53, FAMILIAR_VISION },
-	{ "toad", RBM_TOUCH, 84, FAMILIAR_VISION },
-	{ "frog", RBM_BITE, 42, FAMILIAR_VISION },
-	{ "goat", RBM_BUTT, 49, FAMILIAR_BLOW}
+	{"", 0, 0, 0, 0},
+	{ "monkey",	RBM_HIT, 54, 45, FAMILIAR_SHOT },
+	{ "cat",	RBM_BITE, 45, FAMILIAR_VISION, FAMILIAR_BLOW + GF_CONFUSION },
+	{ "owl",	RBM_PECK, 46, FAMILIAR_VISION, 33 },
+	{ "mouse",	RBM_BITE, 56, 72, FAMILIAR_SPEED },
+	{ "duck", 	RBM_PECK, 46, 42, 85 },
+	{ "snake", 	RBM_BITE, FAMILIAR_BLOW, 37, FAMILIAR_BLOW + GF_POIS },
+	{ "wolverine", RBM_CLAW, 53, FAMILIAR_BLOW, 182},
+	{ "badger",	RBM_BUTT, 34, FAMILIAR_BLOW, 225 },
+	{ "rat",	RBM_BITE, 45, 42, FAMILIAR_BLOW + GF_DISEASE },
+	{ "spider",	RBM_BITE, 45, 37, FAMILIAR_BLOW + GF_POIS },
+	{ "mole",	RBM_CLAW, 34, 228, 51 },
+	{ "ferret", RBM_BITE, 72, 228, FAMILIAR_SPEED },
+	{ "bat", RBM_BITE, 46,  231, FAMILIAR_BLOW + GF_VAMP_DRAIN },
+	{ "hawk", RBM_CLAW, 46,  FAMILIAR_VISION, FAMILIAR_SPEED },
+	{ "pig", RBM_BUTT, 53, FAMILIAR_VISION, FAMILIAR_SIZE },
+	{ "dog", RBM_BITE, 53, 228, 229 },
+	{ "toad", RBM_TOUCH, 84, FAMILIAR_VISION, FAMILIAR_MANA },
+	{ "frog", RBM_BITE, 42, 45, 166 },
+	{ "goat", RBM_BUTT, 49, FAMILIAR_BLOW, FAMILIAR_BLOW + GF_FORCE},
+	{ "turtle", RBM_BITE, 57, 42, 236 },
+	{ "newt", RBM_BITE, 230, 42, FAMILIAR_MANA },
+	{ "lizard", RBM_BITE, 53, 45, 166 },
+	{ "crow", RBM_PECK, 46, 54, 33 },
+	{ "penguin", RBM_PECK, 42, 53, 83},
+	{ "parrot",	RBM_PECK, 46, 56, 33 },
+	{ "dragonfly",	RBM_BITE, 46, 37, FAMILIAR_SPEED },	
+	{ "moth",	RBM_BITE, 46, 37, 166 }
 };
 
 
 const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 {
-	{"", 0, 0},
+	{"", 0, 999},
 
 		/* Pick 2 */
-	{"increase range of vision", FAMILIAR_VISION, 0},
+	{"increase range of senses", FAMILIAR_VISION, 0},
 	{"become hidden to infravision", 37, 0},
 	{"swim", 42, 0},
 	{"dig through dirt and rubble", 34, 0},
@@ -3337,52 +3350,58 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"eat body parts to recover health", 53, 0},
 	{"take items from the ground", 54, 0},
 	{"wear armour to protect against arrows and acid", 57, 0},
+	{"track enemies by scent", 228, 0},
 
 		/* Pick 2 */
-	{"increase size", FAMILIAR_SIZE, 0},
-	{"bash through doors", 49, FAMILIAR_SIZE},
 	{"act sneaky", 56, 0},
+	{"bash through doors", 49, 0},
 	{"open doors and disarm traps", 48, 54},
 	{"communicate with you silently", 74, 0},
-	{"resist blindess", 231, 0},
+	{"resist blindness and see invisible monsters", 231, 0},
 	{"resist mental attack", 38, 0},
 	{"become harder to hit", FAMILIAR_AC, 0},
-	{"immunity to poison", 84, 0},
+	{"radiate light", 35, 0},
+	{"track enemies by scent through water", 230, 42},
+	{"fly", 46, 45},
 
 		/* Pick 2 */
 	{"immunity to acid", 80, 0 },
 	{"immunity to electricity", 81, 0},
 	{"immunity to fire", 82, 0},
 	{"immunity to cold", 83, 0},
-	{"blink away", 164, 56},
+	{"immunity to poison", 84, 0},
+	{"become faster", FAMILIAR_SPEED, 0},
 	{"turn temporarily invisible", 166, 56},
-	{"fly", 46, 45},
+	{"temporarily resist elemental damage", 184, 0},
 	{"gain an additional attack", FAMILIAR_BLOW, 0},
-	{"radiate lite", 35, 0},
+	{"increase size", FAMILIAR_SIZE, 0},
 
 		/* Pick 2 */
 	{"create darkness", 172, 0},
-	{"regenerate quickly", 41, 53},
-	{"go berserk", 182, 0},
-	{"haste itself", 160, 0},
+	{"magically probe an opponent", 186, 0},
+	{"cause hunger", 185, 0},
+	{"cause amnesia", 174, 0},
 	{"bless itself", 181, 0},
 	{"cure itself of ills", 163, 0},
-	{"temporarily resist elemental damage", 184, 0},
 	{"make attack poisonous", FAMILIAR_BLOW + GF_POIS, FAMILIAR_BLOW},
 	{"replace attack with firing spikes", FAMILIAR_SPIKE, FAMILIAR_BLOW},
+	{"replace attack with throwing stones", FAMILIAR_SHOT, FAMILIAR_BLOW},
+	{"track enemies unerringly by scent", 229, 0},
 
 	/* Pick 2 */
 	{"magically shield itself", 183, 0},
 	{"move invisibly", 36, 166},
-	{"magically probe an opponent", 186, 0},
-	{"cause hunger", 185, 0},
-	{"cause amnesia", 174, 0},
+	{"go berserk", 182, 0},
 	{"dispel magic on enemies", 177, 0},
 	{"make attack drain health", FAMILIAR_BLOW + GF_VAMP_DRAIN, FAMILIAR_BLOW + GF_POIS},
 	{"carry additional ammunition", 52, FAMILIAR_SPIKE},
 	{"increase hit points", FAMILIAR_HP, 0},
-
+	{"resist powerful light", 232, 35},
+	{"resist powerful darkness", 233, 172},
+	{"cast stinking cloud", 132, 0},
+	
 		/* Pick 2 */
+	{"blink away", 164, 0},
 	{"teleport away", 165, 164},
 	{"teleport itself to targets", 167, FAMILIAR_BLOW},
 	{"cause terror", 187, 0},
@@ -3391,7 +3410,7 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"cause slowness", 190, 0},
 	{"cause illusions", 179,  0},
 	{"grow additional ammunition", 100, 52},
-	{"become faster", FAMILIAR_SPEED, 0},
+	{"become giant size", 73, FAMILIAR_SIZE},
 
 		/* Pick 2 */
 	{"create traps", 173, 56},
@@ -3400,12 +3419,13 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"cause wounds", 180, 0},
 	{"blast the minds of enemies", 178, 0},
 	{"increase mana", FAMILIAR_MANA, 0},
-	{"heal itself", 162, 163},
-	{"resist edged weapons", 236, 37},
-	{"resist blunt weapons", 237, 37},
+	{"increase spell attack damage", FAMILIAR_POWER, 0},
+	{"cast spells intelligently", 33, FAMILIAR_MANA},
+	{"become harder to hit", FAMILIAR_AC, 0},
+	{"increase hit points", FAMILIAR_HP, 0},
 
 		/* Pick 2 */
-	{"cast spells intelligently", 33, FAMILIAR_MANA},
+	{"regenerate quickly", 41, 0},
 	{"add mana to itself", 161, FAMILIAR_MANA},
 	{"never miss when attacking", 225, 0},
 	{"assume wraith form", 171, 0},
@@ -3414,17 +3434,19 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"breath electricity",105, 81},
 	{"breath fire",106, 82},
 	{"breath cold",107, 83},
+	{"breath poison",108, 84},
 
 		/* Pick 2 */
-	{"breath poison",108, 84},
+	{"increase size", FAMILIAR_SIZE, FAMILIAR_BLOW},
 	{"pass through walls", 50, 171},
 	{"teleport enemies away", 169, 0},
 	{"drain mana from enemies", 175, 0},
 	{"cause paralysis", 191, 0},
-	{"increase spell attack damage", FAMILIAR_POWER, 0},
-	{"resist powerful light", 232, 35},
-	{"resist powerful darkness", 233, 172},
-	{"cast stinking cloud", 132, 0},
+	{"heal itself", 162, 163},
+	{"haste itself", 160, 0},
+	{"increase speed", FAMILIAR_SPEED, 0},
+	{"resist edged weapons", 236, 0},
+	{"resist blunt weapons", 237, 0},
 
 		/* Pick 2 */
 	{"resist plasma", 88, 82},
@@ -3436,6 +3458,7 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"resist lava", 87, 82},
 	{"breath light",110, 232},
 	{"breath darkness",111, 233},
+	{"increase spell attack damage", FAMILIAR_POWER, 0},
 
 		/* Pick 2 */
 	{"cast acid bolt", 144, 0},
@@ -3447,6 +3470,7 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"cast water bolt", 149, 85},
 	{"cast mana bolt", 149, 0},
 	{"increase mana", FAMILIAR_MANA, 0},
+	{"become giant size", 73, FAMILIAR_SIZE},
 
 		/* Pick 2 */
 	{"cast acid ball", 128, 0},
@@ -3458,6 +3482,7 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"cast plasma bolt", 149, 88},
 	{"cast nether bolt", 149, 86},
 	{"increase spell attack damage", FAMILIAR_POWER, 0},
+	{"become giant size", 73, FAMILIAR_SIZE},
 
 	    /* Pick 2 */
 	{"resistance to magic", 242, 0},
@@ -3465,10 +3490,11 @@ const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
 	{"immunity to blunt weapons", 239, 237},
 	{"breath powerfully", 44, FAMILIAR_SIZE},
 	{"make attack drain mana", FAMILIAR_BLOW + GF_MANA_DRAIN, FAMILIAR_BLOW + GF_VAMP_DRAIN},
-	{"tunnel through walls", 51, 49},
+	{"tunnel through walls", 51, 34},
 	{"increase size", FAMILIAR_SIZE, 0},
 	{"increase mana", FAMILIAR_MANA, 0},
-	{"increase spell attack damage", FAMILIAR_POWER, 0}
+	{"increase spell attack damage", FAMILIAR_POWER, 0},
+	{"become giant size", 73, FAMILIAR_SIZE}
 };
 
 

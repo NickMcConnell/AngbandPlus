@@ -1216,6 +1216,12 @@ static errr rd_extra(void)
 		{
 			rd_u16b(&(p_ptr->familiar_attr[i]));
 		}
+
+		/* Only bothering with this as it affects the current competition */
+		if ((older_than(0, 6, 4, 0)) && (p_ptr->familiar_attr[i] >= FAMILIAR_SHOT))
+		{
+			p_ptr->familiar_attr[i]++;
+		}
 	}
 
 	/* Read the timers */

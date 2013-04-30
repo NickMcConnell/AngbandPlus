@@ -641,8 +641,12 @@ static void sense_inventory(void)
 	if (f3 & (TR3_REGEN_MANA)) equip_can_flags(0x0L,0x0L,TR3_REGEN_MANA,0x0L);
 	else if (!(af3 & (TR3_REGEN_MANA))) equip_not_flags(0x0L,0x0L,TR3_REGEN_MANA,0x0L);
 
-	if (f3 & (TR3_HUNGER)) equip_can_flags(0x0L,0x0L,0x0L,TR3_HUNGER);
-	else if (!(af3 & (TR3_HUNGER))) equip_not_flags(0x0L,0x0L,0x0L,TR3_HUNGER);
+	if (f3 & (TR3_HUNGER)) equip_can_flags(0x0L,0x0L,TR3_HUNGER,0x0L);
+	else if (!(af3 & (TR3_HUNGER))) equip_not_flags(0x0L,0x0L,TR3_HUNGER,0x0L);
+
+	/* Hack -- only notice the absence of this ability */
+	if (f3 & (TR3_UNCONTROLLED)) /* Do nothing */;
+	else if (!(af3 & (TR3_UNCONTROLLED))) equip_not_flags(0x0L,0x0L,TR3_UNCONTROLLED,0x0L);
 }
 
 
@@ -1429,10 +1433,10 @@ static void process_world(void)
 			if ((p_ptr->cur_flags3 & (TR3_HUNGER)) != 0) i += 100;
 
 			/* Regeneration takes more food */
-			if (p_ptr->regen_hp > 0) i += 30 * p_ptr->regen_hp;
+			if (p_ptr->regen_hp > 0) i += 15 * p_ptr->regen_hp;
 
 			/* Regeneration takes more food */
-			if (p_ptr->regen_mana > 0) i += 30 * p_ptr->regen_mana;
+			if (p_ptr->regen_mana > 0) i += 15 * p_ptr->regen_mana;
 
 			/* Slow digestion takes less food */
 			if ((p_ptr->timed[TMD_SLOW_DIGEST]) || (p_ptr->cur_flags3 & (TR3_SLOW_DIGEST)) != 0) i -= 10;
@@ -1922,8 +1926,8 @@ static void process_world(void)
 			}
 			else if (o_ptr->usage < UNCONTROLLED_CONTROL)
 			{
-				/* Message only - every 10 attempts */
-				if (!(o_ptr->usage % 10)) msg_print("You feel yourself gain a measure of control.");
+				/* Message only - every 5 attempts */
+				if (!(o_ptr->usage % (UNCONTROLLED_CONTROL / 10))) msg_print("You feel yourself gain a measure of control.");
 			}
 			else if (o_ptr->usage >= UNCONTROLLED_CONTROL)
 			{

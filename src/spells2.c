@@ -121,6 +121,12 @@ void generate_familiar(void)
 			else if (attr < 256) r_ptr->flags8 |= (1 << (attr - 224));
 			else r_ptr->flags9 |= (1 << (attr - 256));
 
+			/* Hack -- huge familiars lose evasion, gain lots of size */
+			if (attr == 73) { r_ptr->flags9 &= ~(RF9_EVASIVE); size += 3; }
+			
+			/* Hack -- monsters which gain permanent invisibility, lose temporary invisibility */
+			if (attr == 36) r_ptr->flags6 &= ~(RF6_INVIS);
+			
 			/* Hack -- ensure minimal mana */
 			if ((attr >= 96) && (attr <= 224)) r_ptr->mana += method_info[attr].mana_cost;
 		}
@@ -162,12 +168,24 @@ void generate_familiar(void)
 					r_ptr->flags1 &= ~(RF1_NEVER_BLOW);
 					break;
 				case FAMILIAR_SPIKE:
-					r_ptr->blow[blow-1].method = RBM_SPIKE;
-					r_ptr->flags4 |= (1 << blow);
-					r_ptr->freq_innate += 25;
+				case FAMILIAR_SHOT:
+					/* Paranoia */
+					if (blow)
+					{
+						r_ptr->blow[blow-1].method = p_ptr->familiar_attr[i] == FAMILIAR_SPIKE ? RBM_SPIKE : RBM_SHOT;
+						r_ptr->flags4 |= (1 << (blow-1));
+						r_ptr->freq_innate += 25;
+						
+						/* Spikes are ranged only */
+						if (blow == 1) r_ptr->flags1 |= (RF1_NEVER_BLOW);
+					}
 					break;
 				default:
-					r_ptr->blow[blow-1].effect = p_ptr->familiar_attr[i] - FAMILIAR_BLOW;
+					/* Paranoia */
+					if (blow)
+					{
+						r_ptr->blow[blow-1].effect = p_ptr->familiar_attr[i] - FAMILIAR_BLOW;
+					}
 					break;
 			}
 		}
@@ -179,11 +197,20 @@ void generate_familiar(void)
 		r_ptr->blow[blow].d_dice *= size;
 	}
 
+	/* No blows - mark appropriately */
+	if (!blow)
+	{
+		r_ptr->flags1 |= (RF1_NEVER_BLOW);
+	}
+
 	/* Fix up speed based on size */
 	r_ptr->speed = 100 + (r_ptr->speed - 100) / size;
 
 	/* Increase hit points at every level */
 	r_ptr->hp *= p_ptr->max_lev;
+	
+	/* Huge monsters get more hp to compensate for loss of evasion */
+	if (r_ptr->flags3 & (RF3_HUGE)) r_ptr->hp *= 3;
 
 	/* Increase mana somewhat */
 	if (p_ptr->max_lev > 15) r_ptr->mana += r_ptr->mana * p_ptr->max_lev / 15;
@@ -5055,7 +5082,6 @@ static void wield_spell(int item, int k_idx, int time, int level, int r_idx)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
-
 /*
  *  Change shape. Add 'built-in' equipment for that shape.
  */
@@ -5076,7 +5102,6 @@ void change_shape(int shape)
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
-
 
 /*
  * Enchant item --- a big pile of (fun) hack
@@ -5810,6 +5835,9 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 
 			/* Notice region? */
 			if (obvious && !ap_cnt) r_ptr->flags1 |= (RE1_NOTICE);
+			
+			/* Refresh the region */
+			region_refresh(region);
 		}
 
 		/* Can't cancel */
@@ -7242,6 +7270,8 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_REST_UNTIL_DAWN:
 			{
 				feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+				bool notice = FALSE;
+				int i;
 
 				/* Hack -- only on the surface for the moment */
 				if ((level_flag & (LF1_SURFACE | LF1_TOWN)) == 0)
@@ -7258,7 +7288,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				}
 
 				/* Check that it's day or night */
-				if (((level_flag & (LF1_DAYLIGHT)) != 0) != (s_ptr->type == SPELL_REST_UNTIL_DAWN))
+				if (((level_flag & (LF1_DAYLIGHT)) != 0) == (s_ptr->type == SPELL_REST_UNTIL_DAWN))
 				{
 					msg_format("It's still %s.", s_ptr->type == SPELL_REST_UNTIL_DAWN ? "daylight" : "night");
 					return (TRUE);
@@ -7291,6 +7321,24 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 				/* Hack -- regenerate level */
 				p_ptr->leaving = TRUE;
+
+				/* Recover one stat point */
+				for (i = 0; i < A_MAX; i++)
+				{
+					if (p_ptr->stat_cur[i]<p_ptr->stat_max[i])
+					{
+						if (p_ptr->stat_cur[i] < 18) p_ptr->stat_cur[i]++;
+						else p_ptr->stat_cur[i] += 10;
+
+						if (p_ptr->stat_cur[i] > p_ptr->stat_max[i]) p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+
+						p_ptr->redraw |= (PR_STATS);
+
+						notice = TRUE;
+					}
+				}
+
+				if (notice) msg_print("You recover somewhat.");
 
 				*cancel = FALSE;
 				obvious = TRUE;
@@ -9139,7 +9187,8 @@ s16b region_random_piece(s16b region)
  *
  * If (y, x) defined, use this as the target.
  * If RE1_RANDOM, pick a random piece from the grid.
- * If RE1_INVERSE, reverse the source and destination.
+ * If RE1_INVERSE, reverse the source and destination. If combine with RANDOM
+ * we randomize both the source and destination.
  * If RE1_CLOSEST_MON, choose the closest monster as a target.
  * If RE1_CHAIN, update the region after affecting it.
  * If RE1_SOURCE_FEATURE is used, attack multiple times,
@@ -9236,6 +9285,26 @@ bool region_effect(int region, int y, int x)
 		{
 			method_type *method_ptr = &method_info[ri_ptr->method];
 
+			/* Pick a random source grid if required */
+			if ((r_ptr->flags1 & (RE1_RANDOM | RE1_INVERSE)) == (RE1_RANDOM | RE1_INVERSE))
+			{
+				int r = region_random_piece(region);
+
+				y0 = region_piece_list[r].y;
+				x0 = region_piece_list[r].x;
+			}
+
+			/* Reverse destination and source */
+			else if (r_ptr->flags1 & (RE1_INVERSE))
+			{
+				y = y0;
+				x = x0;
+				y0 = y1;
+				x0 = x1;
+				y1 = y;
+				x1 = x;
+			}
+			
 			/* Pick a random grid if required */
 			if (r_ptr->flags1 & (RE1_RANDOM))
 			{
@@ -9245,19 +9314,8 @@ bool region_effect(int region, int y, int x)
 				x1 = region_piece_list[r].x;
 			}
 
-			/* Reverse destination and source */
-			if (r_ptr->flags1 & (RE1_INVERSE))
-			{
-				y = y0;
-				x = x0;
-				y0 = x1;
-				x0 = x1;
-				y1 = y;
-				x1 = x;
-			}
-			
 			/* Attack the target */
-			notice |= project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, child_region, method_ptr->flags1);
+			notice |= project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, y0, x0, y1, x1, child_region, method_ptr->flags1);
 		}
 
 		/* Method is not defined. Apply effect to all grids */

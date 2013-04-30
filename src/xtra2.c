@@ -1649,16 +1649,19 @@ bool familiar_commands(char choice, const s16b *sn, int i, bool *redraw)
  */
 void improve_familiar(void)
 {
-	int number_allowed = p_ptr->max_lev < 40 ? (p_ptr->max_lev / 2) : 20 + (p_ptr->max_lev - 40);
+	int number_allowed = p_ptr->lev < 40 ? (p_ptr->lev / 2) : 20 + (p_ptr->lev - 40);
 	int i, j, num;
 	int base, slot, choice;
 
-	s16b table[10];
+	s16b table[FAMILIAR_CHOICES];
 
 #ifdef ALLOW_BORG
 	if (count_stop) return;
 #endif
 
+	/* Hack -- at level 10, the familiar gets a blow for free, and their third attribute */
+	if (p_ptr->lev >= FAMILIAR_FREE_BLOW) number_allowed += 2;
+	
 	/* Flush messages */
 	if (easy_more) messages_easy(FALSE);
 
@@ -1677,16 +1680,38 @@ void improve_familiar(void)
 		/* No more slots */
 		if (slot >= number_allowed) break;
 
-		/* Re-base */
-		base = (slot-2) / 2;
-		base *= 9;
+		/* Hack - fill free blow slot with blow */
+		if (slot == FAMILIAR_FREE_BLOW / FAMILIAR_PICKS)
+		{
+			p_ptr->familiar_attr[FAMILIAR_FREE_BLOW / FAMILIAR_PICKS] = FAMILIAR_BLOW;
+			continue;
+		}
+		
+		/* Hack - fill free attribute slot with third attribute */
+		if (slot == FAMILIAR_FREE_BLOW / FAMILIAR_PICKS + 1)
+		{
+			p_ptr->familiar_attr[FAMILIAR_FREE_BLOW / FAMILIAR_PICKS + 1] = familiar_race[p_ptr->familiar].attr3;
+			continue;
+		}
+		
+		/* Find the location in the table */
+		base = (slot / FAMILIAR_PICKS) - 1;
+		
+		/* Hack -- the following saves us having to have a hole in the familiar ability table */
+		if (slot >= FAMILIAR_FREE_BLOW / FAMILIAR_PICKS) base--;
+		
+		/* Continue finding the location in the table */
+		base *= FAMILIAR_CHOICES;
 		base++;
 
+		/* Paranoia */
+		if (base < 1) base = 1;
+		
 		/* No abilities yet */
 		num = 0;
 
 		/* Initialise table of choices */
-		for (i = base; (i < base + 9) && (i < MAX_FAMILIAR_ABILITIES); i++)
+		for (i = base; (i < base + FAMILIAR_CHOICES) && (i < MAX_FAMILIAR_ABILITIES); i++)
 		{
 			bool okay = TRUE;
 			bool preq = FALSE;
@@ -1694,13 +1719,15 @@ void improve_familiar(void)
 			/* Check to see if the player familiar already has this ability */
 			for (j = 0; j < slot; j++)
 			{
-				if ((familiar_ability[i].attr < FAMILIAR_AC) && (p_ptr->familiar_attr[j] == familiar_ability[i].attr)) okay = FALSE;
+				/* Not allowed to choose most normal abilities, or spikes */
+				if (((familiar_ability[i].attr < FAMILIAR_AC) || (familiar_ability[i].attr == FAMILIAR_SPIKE)) &&
+						(p_ptr->familiar_attr[j] == familiar_ability[i].attr)) okay = FALSE;
 				if (p_ptr->familiar_attr[j] == familiar_ability[i].preq) preq = TRUE;
 			}
 
 			/* Can't pick the same blow improvement twice in a row */
 			if ((slot) && (familiar_ability[i].attr > FAMILIAR_BLOW) && (p_ptr->familiar_attr[slot-1] == familiar_ability[i].attr)) okay = FALSE;
-
+			
 			/* Ability allowed */
 			if (okay && (preq || !familiar_ability[i].preq))
 			{

@@ -684,10 +684,11 @@ extern void describe_feature(int f_idx);
 extern void feature_roff_top(int f_idx);
 extern void screen_feature_roff(int f_idx);
 extern void display_feature_roff(int f_idx);
+extern void describe_region_basic(region_type *r_ptr, const char *create, const char *damage, const char *lasts);
+extern void describe_region(region_type *r_ptr);
 extern void region_top(const region_type *r_ptr);
 extern void screen_region(region_type *r_ptr);
 extern void display_region(region_type *r_ptr);
-
 
 
 /* init2.c */

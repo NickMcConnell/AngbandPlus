@@ -8219,6 +8219,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			/* Monster was affected -- Mark grid for later processing. */
 			cave_temp_mark(y, x, FALSE);
 
+			/* No damage now */
+			dam = 0;
 			break;
 		}
 
@@ -11759,6 +11761,17 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Co-exist with a feature */
+		case GF_FEATURE:
+		{
+			/* Player was affected -- Mark grid for later processing. */
+			cave_temp_mark(y, x, FALSE);
+
+			/* No damage now */
+			dam = 0;
+			break;
+		}
+
 		case GF_STEAM: /* Fire and water damage */
 		{
 			msg_print("You are scalded by steam.");
@@ -14066,6 +14079,11 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 				/* Area-effect and jumping spells cannot be dodged */
 				else if (!(flg & (PROJECT_ARC | PROJECT_STAR | PROJECT_JUMP |
 			             PROJECT_BOOM)) && (cave_m_idx[y][x] > 0) &&
+
+			    /* Allies don't evade if you are targetting them directly */
+			        ((who > SOURCE_PLAYER_SAFE) ||  (p_ptr->target_row != y) || (p_ptr->target_col != x) || ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) == 0)) &&
+
+			        /* The evasion test */
 					(mon_evade(cave_m_idx[y][x],((m_ptr->confused || m_ptr->stunned) ? 1 : 3) + gd[i], 5 + gd[i],
 							who <= SOURCE_PLAYER_SAFE ? " your magic" : ""))) continue;
 

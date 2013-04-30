@@ -1,3 +1,156 @@
+Unangband 0.6.4 pre-release 2 & 3
+
+### Game Play ###
+
+- Allow the familiar to spy for the player if the player is blind.
+
+- Add further tweaks to familiars and allies spying for you.
+
+- Allies capable of detecting scents now track and chase nearby monsters even out of line of sight.
+
+- Add more familiar types.
+
+- Familiars now always get an attack when the player reaches 10th level, plus an additional ability depending on the type of familiar.
+
+- Increase length of time allies, neutral monsters hang around.
+
+- Try to make familiars without blows at least somewhat useful by improving spying and making them fetch objects for you.
+
+- As mana and hp regeneration have been separated, they should only affect food consumption half as much each.
+
+- Reduce time required to control an uncontrolled object.
+
+- Allow player to notice when their equipment doesn't activate uncontrollably.
+
+- Make resist blindness flag consistently allow monster to see invisible.
+
+- Prevent allies walking into traps.
+
+- Prevent allies evading your attacks if you target them directly (This allows you to use a Wand of Heal Monster on your familiar reliably).
+
+- Sleeping using the 'Rest until Dusk / Rest until Dawn' service now recovers stats somewhat.
+
+- Reorganise bard spell books so they have 4 basic books instead of 3.
+
+- Provide additional documentation during character creation for
+magic, prayer and song book specialisation and school choices.
+
+- 'M'ap command in town reveals 'hand-drawn' map of Middle Earth.
+
+- If a multiplying monster is poisoned, their spawn will be likewise
+poisoned. This makes Stinking Cloud and Dust of Sneezing & Choking
+much more effective against breeders.
+
+- Make water created by Find Water more fountain like.
+
+- Allow cancellation of restricted teleports for free if you don't meet the criteria.
+
+- Dust of Sneezing now Dust of Sneezing & Choking; with a poison effect as well.
+
+- Discount Sting and Darkness so they only cost 1 mana.
+
+- Make druid starting spells more interesting.
+
+- Add two more wooden monsters and made warp wood effective against them both.
+
+- Prevent the player throwing or firing away cursed equipment.
+
+- Add birth_gollum option which starts you deep in the dungeon, but with the snivelling, wretched ability to make any offer sound good to a hostile monster who would listen to you.
+
+- Make cheat_lore and cheat_auto birth options.
+
+### User Interface ###
+
+- Include depth of deepest unique in order to provide rankings for competition (Requested by pav).
+
+- Add additional categories for new tip files in tip knowledge menu. Oops. Didn't realise these were visible - they might have to be somewhat
+renamed.
+
+- Ensure visible traps have visible trap regions.
+
+- Skip allied monsters when looking to steal.
+
+- Improve formatting of spoiler table for very long object names somewhat.
+
+- Add tips for wizards, master and druid players.
+
+- Add tips file for Find Familiar spell.
+
+- Add game statistics option to knowledge menu and included in
+character dump. At the moment, just statistics about monsters killed
+are included.
+
+- Add view_fogged_grids option. Switching this off, but leaving view_unsafe_grids on now duplicates the Angband detect trap behaviour. Adjust the invisible grid graphic as required if you want to match the appearance exactly.
+
+- Display information about which stats determine spells learned, failure percentages and mana in birth screen.
+
+- For safety, you now have to use @ to target yourself.
+
+- Offering gold now defaults to a 'recommended' amount to make it
+easier to bribe a monster successfully.
+
+### Bug fixes ###
+
+- Fixed Call Lightning.
+
+- Fix bug where monsters would take damage if a feature was created under them (reported by thorgot).
+
+- Fix/workaround for duplicate tips appearing.
+
+- Fix problem with familiar improvements being delayed by one or more levels.
+
+- Fix assembly and body part descriptions.
+
+- Fix shadow fairy mana regeneration.
+
+- Fix bug preventing uncontrolled objects becoming controllable.
+
+- Fix bug where equipment making the player hungry could incorrectly mark them as a dwarf.
+
+- Fixed wasn't scaling distance by scale factor when checking whether allies could see invisible monsters.
+
+- Fix conditional test to check whether 'Rest' services could be used at day/night.
+
+- Fix bug in poly room generation code (Thanks to SaThaRiel).
+
+- Fix crash bug when displaying object descriptions which included a range.
+
+- Fix scattering bug that prevented scattering more than 1 square distance.
+
+- Fix region projection bugs that prevented automatic regions having any effect.
+
+- Clear targets for monsters you successfully ally through offering.
+
+- Fix for Sting not working (Reported by thorgot).
+
+- Fix to output of monster spoilers.
+
+- Fix detect mind not using a turn or mana.
+
+- Fix to allow cancellation of some effects which were able to be held as songs.
+
+- Fix problem with targeting multi-blow spells when they weren't targetting a monster.
+
+- Fix problems with limited range beam spells skipping first grid.
+
+- Fix starting homes for 2 races.
+
+- Fix array access error when selecting a vault (Thanks to Tynan Fitzpatrick for finding this).
+
+- Prevent numeric overflow for very large gold amounts.
+
+- Fix detection spells so that they update the display immediately.
+
+
+
+### Build / Platform ###
+
+- You can now add tip files for spells, if a player studies the individual spell. These are of the form spellnn.txt.
+
+- Wasn't treating evasive as as powerful as it really should have been for monster power calculations.
+
+
+
 Unangband 0.6.4 pre-release
 
 ### Game Play ###

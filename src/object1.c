@@ -702,7 +702,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		if (o_ptr->name3 > 0)
 		{
 			/* Get the name */
-			race_desc(mon_buf, sizeof(mon_buf), o_ptr->name3, 0x808, 1);
+			race_desc(mon_buf, sizeof(mon_buf), o_ptr->name3, 0x800, 1);
 		}
 
 		/* Describe player */

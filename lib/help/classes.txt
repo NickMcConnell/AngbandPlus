@@ -61,15 +61,14 @@
  
 ***** <Artisan>
          Artisan
-               An Artisan is a character that prefers to live by his
-               cunning, but  is capable of fighting his way out of a tight
-               spot.  He is the master of traps and locks, no device being
-               impossible for  him  to  overcome.  An Artisan is superior to
-               all other classes for their magical item skills and should
-               rely on them heavily, either directly or by setting traps
-               around the dungeon.  An Artisan can also learn a few spells
-               from magic books or song books, but not the powerful
-               offensive spells that mages can use.
+               An Artisan is the master of traps and locks, no device being
+               impossible for  him  to  overcome, and he puts this to good
+               use setting traps around the dungeon for monsters to fall
+               foul of.  The Artisan is also superior to all other classes
+               for their magical item skills and should rely on them heavily,
+               either directly or by in the traps he is renowned for.  An
+               Artisan can also learn a few spells from magic books or song
+               books, but not the powerful offensive spells that mages can use.
                An Artisan's Intelligence determines the number of spells that
                they can learn, Wisdom determines the mana that an artisan may
                safely use and Dexterity determines the failure rate of their
@@ -208,3 +207,25 @@
                not hindered by wearing gloves, although heavy armour can
                penalise their magic.
 
+***** <Rogue>
+          Rogue
+               A Rogue is a character that prefers to live by his cunning,
+               but is capable of fighting his way out of a tight spot.  A
+               rogue has a high stealth allowing him to sneak around many
+               creatures without having to fight, to rob them blind given
+               half a chance, or sneak up and get the first blow - only a
+               thief is more stealthy.  A rogue's perception is higher
+               than any other class, and many times he will notice a
+               trap or secret door before having to search.  A rogue is
+               better than warriors or paladins with magical devices, but
+               still cannot rely on their performance.  Rogues can also
+               learn a few spells, but not the powerful offensive spells
+               mages can use.
+               An Rogue's Intelligence determines the number of spells that
+               they can learn, Wisdom determines the mana that an rogue may
+               safely use and Dexterity determines the failure rate of their
+               magical spells.  Because a rogue requires good dexterity
+               for casting their intricate spells, they will be penalised
+               for wearing gloves or impeding themeselves with too heavy
+               armour.
+               
