@@ -57,7 +57,7 @@ bool is_quest_race(int r_idx)
  * We know have to ensure that target race can survive on the intended
  * terrain.
  */
-s16b poly_r_idx(int y, int x, int base_idx)
+s16b poly_r_idx(int y, int x, int base_idx, bool require_char, bool harmless, bool chaotic)
 {
 	monster_race *r_ptr = &r_info[base_idx];
 
@@ -78,11 +78,17 @@ s16b poly_r_idx(int y, int x, int base_idx)
 	{
 		return (base_idx);
 	}
+	
+	/* Hack - harmless monsters */
+	if (harmless) r_lev /= 10;
 
 	/* Allowable level of new monster */
 	min_lev = (MAX(        1, r_lev - 1 - r_lev / 5));
 	max_lev = (MIN(MAX_DEPTH, r_lev + 1 + r_lev / 5));
 
+	/* Hack -- harmless monsters */
+	if (harmless) min_lev = 0;
+	
 	/* Reset sum */
 	total = 0L;
 
@@ -117,7 +123,7 @@ s16b poly_r_idx(int y, int x, int base_idx)
 		if ((r_ptr->flags1 & (RF1_QUESTOR)) && (is_quest_race(r_idx))) continue;
 
 		/* Hack -- Ensure monster can survive on intended terrain */
-		if (place_monster_here(y, x, r_idx) <= MM_FAIL) continue;
+		if ((!harmless) && (!require_char) && (place_monster_here(y, x, r_idx) <= MM_FAIL)) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -125,9 +131,25 @@ s16b poly_r_idx(int y, int x, int base_idx)
 		/* Bias against monsters far from initial monster's depth */
 		if (table[i].level < (min_lev + r_lev) / 2) table[i].prob3 /= 4;
 		if (table[i].level > (max_lev + r_lev) / 2) table[i].prob3 /= 4;
-
+		
+		/* Special checks for harmless */
+		if (harmless)
+		{
+			if ((r_ptr->flags3 & (RF3_ANIMAL)) == 0) table[i].prob3 = 0;
+		}
+		
+		/* Special checks for chaotic */
+		if (chaotic)
+		{
+			if ((r_ptr->flags4 & (RF4_BRTH_CHAOS)) == 0) table[i].prob3 /= 4;
+		}
+		
 		/* Bias against monsters not of the same symbol */
-		if (r_ptr->d_char != d_char) table[i].prob3 /= 4;
+		if (r_ptr->d_char != d_char)
+		{
+			if ((require_char) && !(harmless)) table[i].prob3 = 0;
+			else table[i].prob3 /= 4;
+		}
 
 		/* Sum up probabilities */
 		total += table[i].prob3;
@@ -206,15 +228,19 @@ void apply_torch_lit(int y, int x)
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
 
-void remove_torch_lit(int y, int x)
+int remove_torch_lit(int y, int x)
 {
 	cave_info[y][x] &= ~(CAVE_TLIT);
 
 	if (!(play_info[y][x] & (PLAY_LITE)) && !(cave_info[y][x] & (CAVE_LITE))) play_info[y][x] &= ~(PLAY_SEEN);
+
+	return (0);
 }
 
-void reapply_torch_lit(int y, int x)
+void reapply_torch_lit(int y, int x, int r)
 {
+	(void)r;
+	
 	cave_info[y][x] |= (CAVE_TLIT);
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
@@ -2999,7 +3025,9 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on visibility change */
-			if (disturb_near) disturb(1, 0);
+			if ((disturb_near)
+				&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+					disturb(1, 0);
 		}
 	}
 
@@ -3013,7 +3041,9 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on visibility change */
-			if (disturb_near) disturb(1, 0);
+			if ((disturb_near)
+				&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+					disturb(1, 0);
 		}
 	}
 }
@@ -4280,12 +4310,20 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 			/* Scale damage dice */
 			if (ammo_tval == TV_ARROW) d_dice = d_dice * 4 / 3;
 			else if (ammo_tval == TV_SHOT) d_dice = d_dice * 2;
+			else if (ammo_tval == TV_FLASK) d_dice /= 3;
 
 			/* Get the ammunition */
-			if (d_dice <= 4)  ammo_sval = SV_AMMO_NORMAL;
+			if (d_dice <= 2) ammo_sval = SV_AMMO_LIGHT;
+			else if (d_dice <= 4)  ammo_sval = SV_AMMO_NORMAL;
 			else if (d_dice <= 16) ammo_sval = SV_AMMO_STEEL;
 			else if (d_dice <= 36) ammo_sval = SV_AMMO_SPECIAL;
 			else ammo_sval = SV_AMMO_HEAVY;
+			
+			/* Hack - arrows and bolts have no light ammo */
+			if ((ammo_sval == SV_AMMO_LIGHT) && ((ammo_tval == TV_ARROW) || (ammo_tval == TV_BOLT))) ammo_sval++;
+			
+			/* Hack - heavy / special flasks become gunpowder */
+			if ((d_dice > 16) && (ammo_tval == TV_FLASK)) ammo_sval = SV_FLASK_GUNPOWDER;
 		}
 		else
 		{
@@ -4587,20 +4625,34 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 		}
 	}
 
-	/* Created allies do not carry treasure */
-	if (flg & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_MADE);
-
-	/* Good monsters - note that these do carry treasure */
-	if (((r_ptr->flags9 & (RF9_GOOD)) != 0) && ((adult_evil) == 0))
+	/* Notice these monsters turn they are created */
+	if (flg & (MFLAG_MARK | MFLAG_SHOW))
 	{
-		n_ptr->mflag |= (MFLAG_ALLY | MFLAG_IGNORE);
+		/* Parnoia */
+		flg |= (MFLAG_MARK | MFLAG_SHOW);
+		
+		/* Optimize -- Repair flags */
+		repair_mflag_mark = repair_mflag_show = TRUE;
 	}
-	/* If in the dungeon, and not a town monster prevent summoning */
-	else if ((character_dungeon) && ((n_ptr->mflag & (MFLAG_TOWN)) == 0))
+
+	/* If in the dungeon, and not a town monster or created prevent summoning */
+	if ((character_dungeon) && ((n_ptr->mflag & (MFLAG_TOWN | MFLAG_MADE)) == 0))
 	{
 		/* Monster must wait a while until summoning anything if summoned/wandering */
 		/* Now uses charisma */
 		n_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	}
+
+	/* Created allies do not carry treasure */
+	if (flg & (MFLAG_ALLY))
+	{
+		n_ptr->mflag |= (MFLAG_MADE);
+	}
+	/* Good monsters - note that these do carry treasure */
+	else if (((r_ptr->flags9 & (RF9_GOOD)) != 0) && ((adult_evil) == 0))
+	{
+		n_ptr->mflag |= (MFLAG_ALLY | MFLAG_IGNORE);
+		n_ptr->summoned = 0;
 	}
 	
 	/* Force monster to wait for player */
@@ -4935,7 +4987,7 @@ s16b player_place(int y, int x, bool escort_allowed)
 		/* Help the player out */
 		monster_level += 5;
 
-		place_monster_escort(y, x, 0, FALSE, (MFLAG_ALLY));
+		place_monster_escort(y, x, 0, FALSE, (MFLAG_ALLY | MFLAG_TOWN));
 
 		msg_print("You are joined by companions in battle.");
 
@@ -6512,7 +6564,7 @@ bool animate_object(int item)
 	if (o_ptr->name3 <= 0) return (FALSE);
 
 	/* Summon the specific race */
-	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE, (o_ptr->ident & (IDENT_FORGED)) != 0 ? (MFLAG_ALLY) : 0L);
+	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE, (o_ptr->ident & (IDENT_FORGED)) != 0 ? (MFLAG_ALLY | MFLAG_MADE) : 0L);
 
 	/* Hack -- no result */
 	if (!result)
@@ -6712,6 +6764,16 @@ void message_pain(int m_idx, int dam)
 		return;
 	}
 
+	/* Notice dead */
+	if (m_ptr->hp < 0)
+	{
+#if 0
+		msg_format("%^s is %s.", m_name, r_ptr->flags3 & (RF3_NONLIVING) ? "destoyed" : "dead");
+#endif
+		return;
+	}
+	
+	
 	/* Note -- subtle fix -CFT */
 	newhp = (long)(m_ptr->hp);
 	oldhp = newhp + (long)(dam);
@@ -7033,7 +7095,7 @@ void get_monster_ecology(int r_idx, int hack_pit)
 	monster_race *r_ptr;
 
 	/* Ensure we're pointing at a valid ecology number */
-	assert(cave_ecology.num_ecologies < MAX_ECOLOGIES);
+	if (cave_ecology.num_ecologies >= MAX_ECOLOGIES) return;
 
 	/* Pick a monster if one not specified */
 	if (!r_idx)

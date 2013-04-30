@@ -16,6 +16,36 @@
 
 #include "angband.h"
 
+/* 
+ * Checks if a given spellbook can be used by a specialist
+ * Returns TRUE if the player can't use this kind of book.
+ */
+bool disdain_book(const object_type *o_ptr)
+{	
+	/* Specialists naturally disdain other books */
+	if ((p_ptr->pstyle == WS_MAGIC_BOOK) || (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK))
+	{
+		/* Reject some/all song books */
+		if (((p_ptr->pstyle == WS_MAGIC_BOOK) && (o_ptr->tval != TV_MAGIC_BOOK)) ||
+			((p_ptr->pstyle == WS_PRAYER_BOOK) && (o_ptr->tval != TV_PRAYER_BOOK)) ||
+			((p_ptr->pstyle == WS_SONG_BOOK) && (o_ptr->tval != TV_SONG_BOOK)))
+		{
+			/* School specialists reject all alternate spellbooks, other specialists just reject the basic books */
+			if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) || (o_ptr->sval >= SV_BOOK_MAX_GOOD))
+			{
+				return(TRUE);
+			}
+		}
+		/* Reject books outside of their school */
+		else if ((o_ptr->sval >= SV_BOOK_MAX_GOOD)
+				 && ((o_ptr->sval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL != (p_ptr->pschool - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL))
+		{
+			return(TRUE);
+		}
+	}
+	
+	return(FALSE);
+}
 
 /*
  * Allow user to choose a spell/prayer from the given book.
@@ -387,6 +417,8 @@ bool inven_study_okay(const object_type *o_ptr)
 	/* Book */
 	else
 	{
+		if (disdain_book(o_ptr)) return FALSE;
+
 		s16b book[26];
 		int num;
 		int i;
@@ -426,8 +458,6 @@ bool player_browse_object(object_type *o_ptr)
 	char choice = 0;
 
 	char out_val[160];
-
-	bool disdain = FALSE;
 	
 	/* Get fake tval */
 	if (o_ptr->tval == TV_STUDY) tval = o_ptr->sval;
@@ -463,30 +493,8 @@ bool player_browse_object(object_type *o_ptr)
 		return (FALSE);
 	}
 
-	/* Specialists naturally disdain other books */
-	if ((p_ptr->pstyle == WS_MAGIC_BOOK) || (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK))
-	{
-		/* Reject some/all song books */
-		if (((p_ptr->pstyle == WS_MAGIC_BOOK) && (o_ptr->tval != TV_MAGIC_BOOK)) ||
-				((p_ptr->pstyle == WS_PRAYER_BOOK) && (o_ptr->tval != TV_PRAYER_BOOK)) ||
-				((p_ptr->pstyle == WS_SONG_BOOK) && (o_ptr->tval != TV_SONG_BOOK)))
-		{
-			/* School specialists reject all alternate spellbooks, other specialists just reject the basic books */
-			if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) || (o_ptr->sval >= SV_BOOK_MAX_GOOD))
-			{
-				disdain = TRUE;
-			}
-		}
-		/* Reject books outside of their school */
-		else if ((o_ptr->sval >= SV_BOOK_MAX_GOOD)
-			&& ((o_ptr->sval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL != (p_ptr->pschool - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL))
-		{
-			disdain = TRUE;
-		}
-	}
-
 	/* Reject spellbooks if a specialist */
-	if (disdain)
+	if (disdain_book(o_ptr))
 	{
 		msg_format("You cannot read any %ss in it.",p);
 		
@@ -1110,20 +1118,24 @@ bool inven_cast_okay(const object_type *o_ptr)
 	}
 
 	/* Book */
-	else for (i=0;i<PY_MAX_SPELLS;i++)
-	{
-		if (p_ptr->spell_order[i] == 0) continue;
+	else {
+		if (disdain_book(o_ptr)) return FALSE;
 
-		s_ptr=&s_info[p_ptr->spell_order[i]];
-
-		/* Book */
-		for (ii=0;ii<MAX_SPELL_APPEARS;ii++)
+		for (i=0;i<PY_MAX_SPELLS;i++)
 		{
-			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
-			    (s_ptr->appears[ii].sval == o_ptr->sval))
+			if (p_ptr->spell_order[i] == 0) continue;
 
+			s_ptr=&s_info[p_ptr->spell_order[i]];
+
+			/* Book */
+			for (ii=0;ii<MAX_SPELL_APPEARS;ii++)
 			{
-				return(1);
+				if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
+					(s_ptr->appears[ii].sval == o_ptr->sval))
+
+				{
+					return(1);
+				}
 			}
 		}
 	}

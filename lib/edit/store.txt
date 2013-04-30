@@ -218,11 +218,13 @@ B:Scroll
 B:Potion
 B:Runestone
 
-#Service of Gauge Magic
+#Service of Gauge Magic, Identify, Recharge Item I
 
 N:6:Magic Shop
 X:8
 O:99:2:0
+O:99:3:0
+O:99:4:0
 O:45:23:1
 O:45:7:1
 O:45:16:1

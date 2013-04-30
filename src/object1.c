@@ -1800,8 +1800,8 @@ s16b wield_slot(const object_type *o_ptr)
 	else if (!inventory[INVEN_LEFT].k_idx)
 	  /* Use the right hand second */
 	  return INVEN_LEFT;
-	else if (!inventory[INVEN_ARM].k_idx
-		 && p_ptr->pstyle == WS_RING)
+	else if (/*!inventory[INVEN_ARM].k_idx
+		 && */p_ptr->pstyle == WS_RING)
 	  /* Use the off-hand last */
 	  return INVEN_ARM;
 	else
@@ -1813,8 +1813,8 @@ s16b wield_slot(const object_type *o_ptr)
       {
 	if (!inventory[INVEN_NECK].k_idx)
 	  return INVEN_NECK;
-	else if (!inventory[INVEN_ARM].k_idx
-		 && p_ptr->pstyle == WS_AMULET)
+	else if (/*!inventory[INVEN_ARM].k_idx
+		 &&*/ p_ptr->pstyle == WS_AMULET)
 	  return INVEN_ARM;
 	else
 	  return INVEN_NECK;
@@ -2124,7 +2124,7 @@ bool item_tester_okay(const object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval >= TV_GOLD) return (FALSE);
+	/*if (o_ptr->tval >= TV_GOLD) return (FALSE);*/
 
 	/* Hack -- check bag contents */
 	if (o_ptr->tval == TV_BAG)
@@ -2298,8 +2298,8 @@ sint scan_feat(int y, int x)
  *   0x02 -- Marked items only
  *   0x04 -- Specified monster only
  *   0x08 -- Visible monsters only
- *   0x10 -- Projectable monsters only
- *   0x20 -- Allies only
+ *   0x10 -- Allies only
+ *   0x20 -- Projectable monsters only
  *   0x40 -- Adjacent to player only
  */
 sint scan_monsters(int *items, int size, int m_idx, int mode)
@@ -3691,10 +3691,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Set monster inventory scan flags */
 	if (!use_range) monster_inven |= 0x40;
-	if (!use_known) monster_inven |= 0x10;
+	if (!use_known) monster_inven |= 0x20;
 	
 	/* Scan all objects carried by allies */
-	allies_num = scan_monsters(allies_list, MAX_FLOOR_STACK, p_ptr->target_who, monster_inven | (0x29));
+	allies_num = scan_monsters(allies_list, MAX_FLOOR_STACK, p_ptr->target_who, monster_inven | (0x19));
 
 	/* Full allies */
 	a1 = 0;

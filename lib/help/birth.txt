@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
+Unangband is a roleplaying game, in which you, the player, control a character
+in the world of Unangband.  Perhaps the most important thing you control is the
 birth of your character, in which you choose or allow to be chosen various
 attributes that will affect the future life of your character.
 

@@ -1,3 +1,166 @@
+### Game Play ###
+
+- Add low level spell to allow Masters to light rooms.
+
+- Ensure minimum blood debt.
+
+- Reduce summoning debt for some monster types.
+
+- Allow travelling while poison is slowed.
+
+- Allow line of sight/panel/level based spells to affect objects and
+grids separately from monsters.
+
+- Improve sensing of non-cursed items using techniques which sense cursed state.
+
+- Improve sensing to note that an item is not cursed when you wield it and it is not cursed, if it was unusual or nonmagical (The other cases were correctly handled prior to this).
+
+- If you sense what bag an item belongs in without identifying the item,
+all subsequently created items are similarly sensed
+
+- Make Cure Poison mushrooms cure poison instead of slowing it.
+
+- Rebalance some master summoning spells to be more useful at lower levels, as well as balance some of the resulting summons.
+
+- Differentiate spells which summon a monster, versus those which create or animate a monster. The latter do not incur mana or blood debt and do not leave your service.
+
+- Hatched eggs or rebuilt golems no longer leave your service.
+
+- Lemures are now truly larval.
+
+- Prevent regions 'double-hitting' a grid during the same attack.
+
+- Make some plants strangle.
+
+- Prevent monsters fighting each other from using attacks which would heal their intended target (Reported by vrbones).
+
+- Make player traps more useful: murder holes use up ammunition less frequently; spring-loaded traps never use up ammunition; allow magic items with higher multipliers when set in traps; give bonus shots and damage multipliers to traps set by the player deeper in the dungeon.
+
+- Add deeper and more deadly murder holes and spring-loaded traps.
+
+- Cure all (debug command) should restore stats before healing.
+
+- Better balance depth of traps based on damage.
+
+- Slight tweak to ensure monkeys only carry pebbles.
+
+- Flask throwing monsters can now carry gunpowder flasks.
+
+- Add seeker shots.
+
+- Allow monsters to surrender.
+
+- Attempt to make mechanisms useful for something.
+
+- Add Reveal Secrets spell.
+
+- Grey monsters are now consistently immune to acid and cold and frequently immune to poison. Grey orcs no longer blink (bug 16745).
+
+- Add identify and recharge item I services to the Magic Shop. These were almost always added by the presence of various Wizard books in those shops, and so unfairly penalized non-Wizard school casters. (Bug 16739, suggested by thorgot). Doubled cost of identify service to compensate.
+
+- Give take item to unseen servants to make them more servant like.
+
+- You now learn monster hit points and armour class based on the number of times you damage the monster, and the number of times you attack the monster with attacks which can miss, instead of the number of times you kill them.
+
+- Make magic mapping dection area consistant with all other detection areas.
+
+### User Interface ###
+
+- Warn the player if their summoning spell doesn't produce a monster.
+
+- Summoned monsters are always visible the first round they are summoned.
+
+- Changed sunken city to sunken cities (Suggested by Arralen).
+
+- Add reserve mana to character display. (Thanks to bigalphillips for this and other fixes).
+
+- Rewrite level up screen to show how increasing a stat will affect your characters abilities. (Thanks to bigalphillips)
+
+- Move Gain Familiar Ability menu over to fit longer entries on a 80x24 screen.
+
+- Minor command documentation changes
+
+### Bug Fixes ###
+
+- Prevent monsters being entombed by traps or regions.
+
+- Fix style description on character sheet.
+
+- Fix display not refreshing after a quake.
+
+- Fix psionic blast message.
+
+- Fix for monsters not incurring summoning debt.
+
+- Distinguish between spells which summon multiples of 1 of a monster vs spells which can summon group monsters.
+
+- Fix for Bug #16933 Libraries need owners
+
+- Fix for 016789 Targeting that does not target ...
+
+- Fix for bug #16792 {Magic} items are called egos or artifacts, but not always (Reported by bigalphillips).
+
+- Fix for Bug #16799 Monster is afraid after already dying (Reported by bigalphillips).
+
+- Fix monster spell and blow descriptions.
+
+- Remove invalid assertion that would cause game to crash.
+
+- Fix description of monsters guarding locations.
+
+- Was biasing stairs in wrong direction.
+
+- Fix for bug Bug #16746 Lines of doors and shops appear in dungeon (Thanks to Big Al for triage and careful analysis).
+
+- Fix for bug 016731 Sanity check birth_gollum.
+
+- Fix for bug 016730 Don't award disarming experience for traps you can't hit
+
+- Fix for potion of experience description.
+
+- Fix parsing of dungeon zone names (reported by Arralen).
+
+- Fix up bag of holdings in dumps. (#16791)
+
+- Fix up various documentation inconsistancies and typos.
+
+- Fix descriptions of bags of holding in death dumps.
+
+- Fix for Bug #16732 stealing doesn't display items you can steal.
+
+- Fix for bug #16780 failed to move 1, 0 messages (Reported by bigalphilips).
+
+- Fix up some typos in character dumps. (#16734)
+
+- Fix spell power calculations (especially for Apprentice Mages). #16735.
+
+- Fix gollum mode birth option. (#16733)
+
+- Fix bug where tangleroot/briarpatch would damage monsters not near water or plants (Reported by satyr).
+
+- Fix bug where detect objects would detect the terrain which contained an object (Reported by arralen).
+
+- Fix pickup messages for items in magic bags. (#13835)
+
+- Fix for bug 16743 Lightning Spark description (Reported by Bandobras).
+
+- Fix for bug 16758 Sting spell never learned, uses energy or mana (Foolishly reported by Pete Mack, also konijn and others)
+
+- Fix for bug 016749 specialist items in off-hand slot can be destroyed by acid
+
+- Fix for bug 016748 specialist can't wield to off-hand slot if a shield is worn.
+
+- Add parentheses to fix punctuation problems. (#16760)
+
+- Stop the player from landing on the downstairs of the Mirkwood Cellers (towns now use MORE and LESS flags).
+
+- First pass at updating monster descriptions to include damage for spells and breaths. There's a couple of extraneous 'to's but looks good otherwise.
+
+- Fix lighting of lanterns with no fuel message.
+
+- Fix up spellbook descriptions for magic specialists.
+
+
 Unangband 0.6.4 pre-release 4
 
 ### Game Play ###

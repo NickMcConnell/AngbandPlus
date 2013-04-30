@@ -23,14 +23,14 @@ something you are more comfortable with.
   .   A floor space                   1   Entrance to General Store
   .   A trap (hidden)                 2   Entrance to Armoury
   ^   A trap (known)                  3   Entrance to Weapon Smith
-  *   A chest 			      4   Entrance to Temple
+  *   A shelf/misc. feature	      4   Entrance to Temple
   '   An open door                    5   Entrance to Alchemy Shop
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up (or a tree)      7   Entrance to the Black Market
   >   A staircase down (or a chasm)   8   Entrance to your Home
   ;   A glyph of warding	      9   A statue
   ;   Shallow water (or lava or acid) 0   An altar (or cage or fountain)
-  :   Deep water (or lava or acid)
+  :   Deep water (or lava or acid)    &   A chest
   %   A vent
   '   A bridge
 	      
@@ -55,7 +55,7 @@ something you are more comfortable with.
   "   An amulet                       [   Hard armour
   $   Gold or gems                    ]   Misc. armour
   ~   Lites, Tools, Chests, etc       )   A shield
-  ~   Junk, Sticks, Skeletons, etc    &   (unused)
+  ~   Junk, Sticks, Skeletons, etc    &   A magical bag
  
  
                              Monsters
@@ -87,5 +87,5 @@ something you are more comfortable with.
             x   (unused)            X   Xorn/Xaren
             y   Hydra               Y   Yeti
             z   Zombie/Mummy        Z   Zephyr Hound
-
+            :   Tree
 

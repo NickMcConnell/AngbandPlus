@@ -874,6 +874,24 @@ static byte mh_attr(void)
 	return (TERM_WHITE);
 }
 
+/*
+ * Draw projection using underlying terrain colour
+ */
+static byte clear_color(int y, int x)
+{
+	int feat;
+	
+	if ((!y) || (!x)) return (TERM_WHITE);
+	
+	if (!in_bounds_fully(y, x)) return (TERM_WHITE);
+	
+	/* Get mimiced feat */
+	feat = f_info[cave_feat[y][x]].mimic;
+	
+	/* Always return a 'real' colour */
+	return (f_info[feat].d_char);
+}
+
 static byte acid_color(void)
 {
 	switch (rand_int(3))
@@ -1111,7 +1129,7 @@ static byte chaos_color(void)
 /*
  * Return a color to use for the bolt/ball spells
  */
-byte spell_color(int type)
+byte spell_color(int type, int y, int x)
 {
 	/* Analyze */
 	switch (type)
@@ -1122,7 +1140,7 @@ byte spell_color(int type)
 		case GF_COLD:         return (cold_color());
 		case GF_POIS:         return (pois_color());
 
-		case GF_DELAY_POISON: return (pois_color());
+		case GF_DELAY_POISON: return (clear_color(y, x));
 		case GF_POISON_WEAK:  return (pois_color());
 		case GF_POISON_HALF:  return (pois_color());
 		case GF_HURT_POISON:  return (pois_color());
@@ -1202,7 +1220,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	if ((ny == y) && (nx == x))
 	{
 		a = effect_info[typ].attr_ball ?
-		    effect_info[typ].attr_ball : spell_color(typ);
+		    effect_info[typ].attr_ball : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_ball ?
 			effect_info[typ].char_ball : '*';
 	}
@@ -1211,7 +1229,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	else if (nx == x)
 	{
 		a = effect_info[typ].attr_vert ?
-		    effect_info[typ].attr_vert : spell_color(typ);
+		    effect_info[typ].attr_vert : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_vert ?
 			effect_info[typ].char_vert : '|';
 	}
@@ -1220,7 +1238,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	else if (ny == y)
 	{
 		a = effect_info[typ].attr_horiz ?
-		    effect_info[typ].attr_horiz : spell_color(typ);
+		    effect_info[typ].attr_horiz : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_horiz ?
 			effect_info[typ].char_horiz : '-';
 	}
@@ -1229,7 +1247,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	else if ((ny - y) == (x - nx))
 	{
 		a = effect_info[typ].attr_rdiag ?
-		    effect_info[typ].attr_rdiag : spell_color(typ);
+		    effect_info[typ].attr_rdiag : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_rdiag ?
 			effect_info[typ].char_rdiag : '/';
 	}
@@ -1238,7 +1256,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	else if ((ny - y) == (nx - x))
 	{
 		a = effect_info[typ].attr_ldiag ?
-		    effect_info[typ].attr_ldiag : spell_color(typ);
+		    effect_info[typ].attr_ldiag : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_ldiag ?
 			effect_info[typ].char_ldiag : '\\';
 	}
@@ -1247,7 +1265,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	else
 	{
 		a = effect_info[typ].attr_ball ?
-		    effect_info[typ].attr_ball : spell_color(typ);
+		    effect_info[typ].attr_ball : spell_color(typ, ny, nx);
 		c = effect_info[typ].char_horiz ?
 			effect_info[typ].char_horiz : '*';
 	}
@@ -1407,7 +1425,6 @@ void take_hit(int who, int what, int dam)
 				case SOURCE_PLAYER_EAT_MONSTER:
 				case SOURCE_PLAYER_SPORE:
 				case SOURCE_PLAYER_VAMP_DRAIN:
-				case SOURCE_BLOOD_DEBT:
 				{
 					/* Get the source feature */
 					char m_name[80];
@@ -1418,6 +1435,20 @@ void take_hit(int who, int what, int dam)
 					/* Get the feature name */
 					(void)my_strcat(p_ptr->died_from, m_name, sizeof(p_ptr->died_from));
 
+					break;
+				}
+
+				case SOURCE_BLOOD_DEBT:
+				{
+					/* Get the source feature */
+					char m_name[80];
+					
+					/* Get the name */
+					race_desc(m_name, sizeof(m_name), what, 0x800, 1);
+					
+					/* Get the feature name */
+					(void)my_strcat(p_ptr->died_from, m_name, sizeof(p_ptr->died_from));
+					
 					break;
 				}
 
@@ -2160,9 +2191,15 @@ static int minus_ac(int ac)
 	/* Nothing to damage */
 	if (!o_ptr->k_idx) return (FALSE);
 
+	/* Hack -- do not damage or destroy non-armour items in off-hand slot */
+	if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) return (FALSE);
+
+	/* Hack -- do not damage or destroy spells */
+	if (o_ptr->tval == TV_SPELL) return (FALSE);
+	
 	/* No damage left to be done */
 	if (o_ptr->ac + o_ptr->to_a - ac <= 0) destroy = TRUE;
-
+	
 	/* Mega Hack -- do not destroy ego items, magic items etc */
 	if ((destroy) && (o_ptr->name2 || o_ptr->xtra1 || o_ptr->xtra2 || (o_ptr->tval == TV_DRAG_ARMOR)))
 	{
@@ -2653,7 +2690,7 @@ static void poison_dam(int who, int what, int dam, bool inven, bool delay, bool 
 			if (!delay) player_can_flags(who, 0x0L,0x0L,0x0L,TR4_IM_POIS);
 
 			/* Weak does no immediate damage */
-			if (weak) return;
+			if (weak || delay) return;
 
 			/* Reduce effect to basic resistance */
 			dam = (dam + 2) / 3;
@@ -2725,7 +2762,7 @@ static void poison_dam(int who, int what, int dam, bool inven, bool delay, bool 
 	}
 
 	/* Weak does no immediate damage */
-	if (weak) return;
+	if (weak || delay) return;
 
 	/* Take damage */
 	if (!hurt) take_hit(who, what, half ? (dam + 1) / 2 : dam);
@@ -2942,50 +2979,35 @@ bool player_ignore_terrain(int f_idx)
 }
 
 
-#define rand_roll(n)	(auto_roll ? (auto_roll == 1 ? 1 : n) : randint(n))
-
 /*
  * Calculate the increase of a stat by one randomized level.
- *
- * The "auto_roll" flag selects maximal changes for use
- * with the auto-roller initialization code
- * or minimal for the point-based character generation.
- * Otherwise, semi-random changes will occur.
  */
-int calc_inc_stat(int value, int auto_roll)
+int calc_inc_stat(int value)
 {
-	int gain;
-
 	/* Gain one point */
 	if (value < 18)
 		value++;
 
-	/* Gain 1/10 to 1/5 of distance to 18/100; at last, 3--5 points */
+	/* Gain 1/10 to 1/5 of distance to 18/100 */
 	else if (value < 18+80)
-	{
-		/* Approximate gain value */
-		gain = ((18+100) - value) / 5 + 1;
+		value += (((18+100) - value) / 5 + 1) * 3 / 4;
 
-		/* Roll the bonus */
-		value += (rand_roll(gain) + gain) / 2;
-	}
-
-	/* Gain 3--5 points at a time */
+	/* Gain 4 points at a time */
 	else if (value < 18+100)
-		value += 2 + rand_roll(3);
+		value += 4;
 
-	/* Gain 3--4 points at a time */
-	else if (value < 18+120)
-		value += 2 + rand_roll(2);
+	/* Gain 3 points at a time */
+	else if (value < 18+130)
+		value += 3;
 
-	/* Gain 2--3 points at a time */
-	else if (value < 18+150)
-		value += 1 + rand_roll(2);
+	/* Gain 2 points at a time */
+	else if (value < 18+160)
+		value += 2;
 
-	/* Gain 1--2 points at a time */
+	/* Gain 1s points at a time */
 	else
 	{
-		value += rand_roll(2);
+		value += 1;
 
 		/* Maximal value */
 		if (value > 18+999) value = 18 + 999;
@@ -3005,7 +3027,7 @@ void inc_stat(int stat)
 	int value = p_ptr->stat_cur[stat];
 
 	/* Calculate the random increase */
-	value = calc_inc_stat(value, 0);
+	value = calc_inc_stat(value);
 
 	/* Save the new value */
 	p_ptr->stat_cur[stat] = value;
@@ -3644,7 +3666,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 		}
 		case GF_POISON_HALF:
 		case GF_POISON_WEAK:
-		case GF_DELAY_POISON:
+		/*case GF_DELAY_POISON: - don't poison features */
 		case GF_POIS:
 		case GF_HURT_POISON:
 		{
@@ -3652,7 +3674,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			       (dam > (f_ptr->power*10)))
 			{
 				/* Check line of sight */
-				if ((player_has_los_bold(y, x)) && (f_ptr->flags1 & FF1_NOTICE))
+				if ((player_has_los_bold(y, x)) && (f_ptr->flags1 & FF1_NOTICE) && (typ != GF_DELAY_POISON))
 				{
 					msg_format("The %s is poisoned.",f);
 				}
@@ -4077,7 +4099,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? m_list[who].r_idx : 0,
 					who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_TREE,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND);
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L))) cave_set_feat(y,x,FEAT_GROUND);
 
 			break;
 		}
@@ -4104,7 +4126,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 					who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND_EMPTY);
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L))) cave_set_feat(y,x,FEAT_GROUND_EMPTY);
 			}
 
 			break;
@@ -4151,7 +4173,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 						who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level-1 : p_ptr->depth, ANIMATE_OBJECT,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) change = TRUE;
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L))) change = TRUE;
 			}
 
 			if (change)
@@ -4178,7 +4200,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 						who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level-1 : p_ptr->depth, SUMMON_KIN,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) obvious = TRUE;
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L))) obvious = TRUE;
 			}
 			break;
 		}
@@ -4363,6 +4385,15 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 				/* Change the feature */
 				cave_set_feat(y, x, feat);
 			}
+
+			/* Fully update the visuals */
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
 
 			break;
 		}
@@ -4848,13 +4879,17 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 						for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), SUMMON_KIN,
-							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L)));
 
 						if (summons)
 						{
 							do_kill = TRUE;
 							do_break = FALSE;
 							note_kill = (plural ? " animate!" : " animates!");
+						}
+						else if (who == SOURCE_PLAYER_CAST)
+						{
+							msg_print("No suitable monsters exist at this depth.");
 						}
 					}
 				}
@@ -4897,7 +4932,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					{
 						summon_race_type = o_ptr->name3;
 						for (i = 0; i < o_ptr->number; i++)
-							summons |= (summon_specific(y, x, 0, 99, SUMMON_FRIEND, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
+							summons |= (summon_specific(y, x, 0, 99, SUMMON_FRIEND, FALSE, who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L));
 
 						if (summons)
 						{
@@ -4905,19 +4940,27 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 							do_break = FALSE;
 							note_kill = (plural ? " animate!" : " animates!");
 						}
+						else if (who == SOURCE_PLAYER_CAST)
+						{
+							msg_print("No suitable monsters exist at this depth.");
+						}
 					}
 					else
 					{
 						for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), ANIMATE_OBJECT,
-							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L)));
 
 						if (summons)
 						{
 							do_kill = TRUE;
 							do_break = FALSE;
 							note_kill = (plural ? " animate!" : " animates!");
+						}
+						else if (who == SOURCE_PLAYER_CAST)
+						{
+							msg_print("No suitable monsters exist at this depth.");
 						}
 					}
 				}
@@ -5002,13 +5045,17 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
 									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), ANIMATE_DEAD,
-						FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
+						FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_MADE) : 0L)));
 
 					if (summons)
 					{
 						do_kill = TRUE;
 						do_break = FALSE;
 						note_kill = (plural ? " animate!" : " animates!");
+					}
+					else if (who == SOURCE_PLAYER_CAST)
+					{
+						msg_print("No suitable monsters exist at this depth.");
 					}
 				}
 				break;
@@ -5056,7 +5103,10 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 						do_break = FALSE;
 						note_kill = (plural ? " come back to life!" : " comes back to life!");
 					}
-
+					else if (who == SOURCE_PLAYER_CAST)
+					{
+						msg_print("No suitable monsters exist at this depth.");
+					}
 
 					summon_race_type = 0;
 				}
@@ -5071,11 +5121,39 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 						do_break = FALSE;
 						note_kill = (plural ? " come back to life!" : " comes back to life!");
 					}
+					else if (who == SOURCE_PLAYER_CAST)
+					{
+						msg_print("No suitable monsters exist at this depth.");
+					}
 				}
 
 				break;
 			}
 
+			/* Lights up body parts */
+			case GF_LITE_BODY:
+			{
+				switch (k_info[o_ptr->k_idx].tval)
+				{
+					case TV_BONE:
+					case TV_BODY:
+					{
+						/* Hack -- prevent the player re-using the same corpse */
+						if (o_ptr->xtra1 != 10)
+						{
+							lite_room(y, x);
+							obvious = TRUE;
+							
+							/* Apply the 'glowing' brand */
+							o_ptr->xtra1 = 10;
+							o_ptr->xtra2 = (byte)rand_int(object_xtra_size[10]);
+						}
+					}
+				}
+				
+				break;
+			}
+				
 			/* Wood warping -- wooden objects */
 			case GF_HURT_WOOD:
 			{
@@ -5237,6 +5315,12 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 			continue;
 		}
+	}
+	
+	/* Note glowing bodies */
+	if ((typ == GF_LITE_BODY) && (obvious))
+	{
+		msg_print("The remnants of flesh glow with unnatural light.");
 	}
 
 	/* Make meat */
@@ -6167,7 +6251,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_IM_POIS))
 			{
 				if (typ != GF_HURT_POISON) dam /= 9;
-				if ((seen) && !(l_ptr->flags3 & (RF3_IM_POIS)))
+				if ((seen) && !(l_ptr->flags3 & (RF3_IM_POIS)) && (typ != GF_DELAY_POISON))
 				{
 					note = " is immune to poison.";
 					l_ptr->flags3 |= (RF3_IM_POIS);
@@ -6626,17 +6710,26 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		case GF_CHAOS:
 		{
 			if (seen) obvious = TRUE;
-			do_poly = TRUE;
+			do_poly = dam;
 			do_conf = 5 + randint(11);
 			if (r_ptr->flags9 & (RF9_RES_CHAOS))
 			{
 				dam *= 3; dam /= (randint(6)+6);
-				do_poly = FALSE;
+				do_poly = 0;
 				if ((seen) && !(l_ptr->flags9 & (RF9_RES_CHAOS)))
 				{
 					note = " resists chaos.";
 					l_ptr->flags9 |= (RF9_RES_CHAOS);
 				}
+			}
+			/* Powerful monsters can resist */
+			else if (monster_save(m_ptr, dam, &near))
+			{
+				if ((near) && (seen))
+				{
+					note = " seems somewhat chaotic.";
+				}
+				do_poly = 0;
 			}
 			break;
 		}
@@ -7023,7 +7116,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Attempt to polymorph (see below) */
-			do_poly = TRUE;
+			do_poly = dam;
 
 			/* Only polymorph living or once living monsters */
 			if (r_ptr->flags3 & (RF3_NONLIVING))
@@ -7035,7 +7128,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				}
 
 				obvious = FALSE;
-				do_poly = FALSE;
+				do_poly = 0;
 			}
 
 			/* Powerful monsters can resist */
@@ -7048,10 +7141,10 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				else
 				{
 					if (seen) note = " is unaffected!";
-
-					do_poly = FALSE;
 					obvious = FALSE;
 				}
+				
+				do_poly = 0;
 			}
 
 			/* No "real" damage */
@@ -8578,7 +8671,11 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		case GF_TANGLE_WEAK:
 		{
 			/* Must be next to plants/water */
-			if (!teleport_nature_hook(y, x, y, x)) break;
+			if (!teleport_nature_hook(y, x, y, x))
+			{
+				dam = 0;
+				break;
+			}
 
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8701,6 +8798,21 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			dam = 0;
 			break;
 		}
+		
+		/* Corpse light */
+		case GF_LITE_BODY:
+		{
+			/* Hack - light up physical undead */
+			if (((r_ptr->flags3 & (RF3_UNDEAD)) != 0) && 
+				((r_ptr->flags2 & (RF2_PASS_WALL)) == 0))
+			{
+				m_ptr->mflag |= (MFLAG_LITE);
+				
+				gain_attribute(m_ptr->fy, m_ptr->fx, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
+			}
+			
+			break;
+		}
 
 		/* Default */
 		default:
@@ -8729,7 +8841,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	}
 
 	/* "Unique" monsters cannot be polymorphed */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
+	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = 0;
 
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -8798,14 +8910,14 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		return(obvious);
 	}
 
-	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-	else if (do_poly && (randint(90) > r_ptr->level))
+	/* Mega-Hack -- Handle "polymorph" */
+	else if (do_poly)
 	{
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
 		/* Pick a "new" monster race */
-		tmp = poly_r_idx(y, x, m_ptr->r_idx);
+		tmp = poly_r_idx(y, x, m_ptr->r_idx, FALSE, randint(do_poly) > r_ptr->level, typ == GF_CHAOS);
 
 		/* Handle polymorh */
 		if (tmp != m_ptr->r_idx)
@@ -9438,7 +9550,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		case GF_POIS:
 		case GF_SLIME:
 		{
-			if (fuzzy) msg_print("You are hit by poison!");
+			if (fuzzy && (typ != GF_DELAY_POISON)) msg_print("You are hit by poison!");
 			poison_dam(who, what, dam, TRUE, typ == GF_DELAY_POISON, typ == GF_POISON_WEAK, typ == GF_POISON_HALF, typ == GF_HURT_POISON);
 			break;
 		}
@@ -12562,7 +12674,7 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Check if monster can move and survive in terrain */
-		if ((affect_monster) && (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL))
+		if (affect_monster && (place_monster_here(y, x, m_ptr->r_idx) == MM_FAIL))
 		{
 			/* Entomb monster */
 			entomb(y, x, blocked);
@@ -12980,6 +13092,13 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 			/* Advance */
 			y = ny;
 			x = nx;
+			
+			/* Disturb the player if we project past them */
+			if (cave_m_idx[y][x] < 0)
+			{
+				disturb(1, 0);
+				notice = TRUE;
+			}
 
 			/* Lite up the path if required */
 			if (flg & (PROJECT_LITE))

@@ -129,3 +129,22 @@ N:6:6:Paffa the Mad
 I:5:20000:250:150:10:5
 N:6:7:Gror the Dispossessed
 I:4:30000:250:150:10:5
+
+# Library
+N:7:0:Darrylyne the Crone
+I:20:15000:200:110:7:8
+N:7:1:Arralen the Stern
+I:16:20000:215:113:6:10
+N:7:2:Derakon Bounder
+I:7:25000:200:110:7:10
+N:7:3:Dog the Brave
+I:6:30000:175:110:5:11
+N:7:4:Thorgot Spellseer
+I:1:30000:220:117:6:13
+N:7:5:Lankiel Luckless
+I:19:25000:210:112:6:7
+N:7:6:Deem the Scholar
+I:0:20000:190:111:6:12
+N:7:7:Kaypy the Sage
+I:3:25000:210:114:6:11
+

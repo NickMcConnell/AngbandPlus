@@ -1353,8 +1353,8 @@ void print_stats(const s16b *sn, int num, int y, int x)
 
 	byte attr;
 
-	/* Display title */
-	/* prt("", y, x); */
+	/* Clear the screen */
+	clear_from(1);
 
 	/* Add labels */
 	for (i = 0; i < num; i++)
@@ -1368,7 +1368,7 @@ void print_stats(const s16b *sn, int num, int y, int x)
 		{
 			if (stat_gain_selection[j] == i) attr = TERM_L_BLUE;
 		}
-
+		
 		/* Display the label */
 		c_prt(attr, format("  %c) ", I2A(i)), y + i + 1, x);
 
@@ -1376,8 +1376,8 @@ void print_stats(const s16b *sn, int num, int y, int x)
 		display_player_stat_info(y + 1, x + 5, i, i + 1, attr);
 	}
 
-	/* Display drop-shadow */
-	prt("", y + i + 1, x);
+	/* Display extra info */
+	display_player_xtra_info(1);
 }
 
 
@@ -1415,7 +1415,6 @@ bool stat_commands(char choice, const s16b *sn, int i, bool *redraw)
 
 /*
  * Improve a player-chosen set of stats.
- * TODO: upon pressing ESC restart the choice.
  * Note the hack to always improve the maximal value of a stat.
  */
 static void improve_stat(void)
@@ -1424,6 +1423,8 @@ static void improve_stat(void)
 	int i;
 
 	s16b table[A_MAX+1];
+	s16b old_max[A_MAX+1];
+	s16b old_cur[A_MAX+1];
 
 	char buf[32];
 
@@ -1438,11 +1439,13 @@ static void improve_stat(void)
 	/* Flush messages */
 	if (easy_more) messages_easy(FALSE);
 
-	/* Check which stats can still be improved */
+	/* Check which stats can still be improved and store old stats*/
 	for (i = 0; i < A_MAX; i++)
 	{
 		table[i] = i;
 		if (p_ptr->stat_max[i] < 18 + 999) count++;
+		old_max[i] = p_ptr->stat_max[i];
+		old_cur[i] = p_ptr->stat_cur[i];
 	}
 
 	/* No stats left to improve */
@@ -1451,46 +1454,86 @@ static void improve_stat(void)
 	/* Reduce count to number of abilities allowed improvements */
 	if (count > stat_gains[p_ptr->lev -1]) count = stat_gains[p_ptr->lev -1];
 
+	if (adult_rand_stats)
+	{
+		/* Improve how many stats with level gain */
+		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
+		{
+			/* Pick a random stat */
+			stat_gain_selection[stat_gain_selected] = rand_int(A_MAX);
+			
+			/* Valid choice? */
+			if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] < 18 + 999)
+			{
+				bool okay = TRUE;
+				
+				/* Check we are not improving another stat */
+				for (i = 0; i < stat_gain_selected; i++)
+				{
+					if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
+				}
+				
+				/* Retry */
+				if (!okay) stat_gain_selected--;
+			}
+			else
+			{
+				/* Retry */
+				stat_gain_selected--;
+			}
+		}
+		
+        /* Improve how many stats with level gain */
+        for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
+        {
+			/* Display */
+			if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
+			{
+				/* Set description */
+				p = "you could be ";
+				
+				/* Hack --- store stat */
+				tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
+				p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
+			}
+			else
+			{
+				p = "";
+				tmp = 0;
+			}
+			
+			/* Increase */
+			inc_stat(stat_gain_selection[stat_gain_selected]);
+#if 0
+			/* Message */
+			msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
+#endif
+			/* Hack --- restore stat */
+			if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
+        }
+		
+		/* end adult_rand_stats */
+		return;
+	}
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Update stats */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	update_stuff();
+
 	/* Confirm stat selection */
 	while (count)
 	{
 		/* Improve how many stats with level gain */
 		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 		{
-			/* Random pick */
-			if (adult_rand_stats)
-			{
-				/* Pick a random stat */
-				stat_gain_selection[stat_gain_selected] = rand_int(A_MAX);
-
-				/* Valid choice? */
-				if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] < 18 + 999)
-				{
-					bool okay = TRUE;
-
-					/* Check we are not improving another stat */
-					for (i = 0; i < stat_gain_selected; i++)
-					{
-						if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
-					}
-
-					/* Retry */
-					if (!okay) stat_gain_selected--;
-				}
-				else
-				{
-					/* Retry */
-					stat_gain_selected--;
-				}
-
-				continue;
-			}
-
 			/* Should be paranoid here */
 			while (TRUE)
 			{
 				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected);
-
+				
 				/* Select stat to improve */
 				if (get_list(print_stats, table, A_MAX, "Attribute", buf, ", ?=help", 1, 36, stat_commands, &(stat_gain_selection[stat_gain_selected])))
 				{
@@ -1512,70 +1555,76 @@ static void improve_stat(void)
 						}
 
 						if (okay)
+						{
+							/* Check for drained stats */
+							if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]]
+								   < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
+								tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
+							else
+								tmp = 0;
+							
+							/* Temporarily restore the stat before increasing */
+							p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
+							
+							/* Increase */
+							inc_stat(stat_gain_selection[stat_gain_selected]);
+							
+							/* Restore drained stats */
+							if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
+
+							/* Update stats */
+							p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+							update_stuff();
+							
+							/* Redisplay stats */
+							print_stats(table, A_MAX, 1, 36);
+														
 							break;
-						else
-							msg_print("You must choose another attribute.");
+						}
 					}
 				}
 				else
 				{
 					/* Clear the attributes */
 					stat_gain_selected = 0;
+					
+					/* Restore old stats */
+					for (i = 0; i < A_MAX; i++)
+					{
+						p_ptr->stat_max[i] = old_max[i];
+						p_ptr->stat_cur[i] = old_cur[i];
+					}
+
+					/* Update stats */
+					p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+					update_stuff();
 				}
 			}
 		}
 
-		/* Done? */
-		if (adult_rand_stats) break;
-
-		/* Save screen */
-		screen_save();
-
-		/* Redisplay stats */
+		/* Redisplay stats */			
 		print_stats(table, A_MAX, 1, 36);
 
 		/* Confirm? */
 		if (get_check("Increasing highlighted stats. Are you sure? "))
 		{
-			/* Load screen */
-			screen_load();
-
 			break;
 		}
 
-		/* Load screen */
-		screen_load();
-	}
-
-	/* Improve how many stats with level gain */
-	for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
-	{
-		/* Display */
-		if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
+		/* Otherwise restore old stats */
+		for (i = 0; i < A_MAX; i++)
 		{
-			/* Set description */
-			p = "you could be ";
-
-			/* Hack --- store stat */
-			tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
-			p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
-		}
-		else
-		{
-			p = "";
-			tmp = 0;
+			p_ptr->stat_max[i] = old_max[i];
+			p_ptr->stat_cur[i] = old_cur[i];
 		}
 
-		/* Increase */
-		inc_stat(stat_gain_selection[stat_gain_selected]);
-
-#if 0
-		/* Message */
-		msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
-#endif
-		/* Hack --- restore stat */
-		if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
+		/* Update stats */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+		update_stuff();
 	}
+	
+	/* Load screen */
+	screen_load();	
 }
 
 
@@ -1736,7 +1785,7 @@ void improve_familiar(void)
 		}
 
 		/* Get a choice */
-		if (get_list(print_familiars, table, num, "Ability", "Familiar gains which ability", ", ?=help", 1, 36, familiar_commands, &choice))
+		if (get_list(print_familiars, table, num, "Ability", "Familiar gains which ability", ", ?=help", 1, 26, familiar_commands, &choice))
 		{
 			p_ptr->familiar_attr[slot] = familiar_ability[choice].attr;
 		}
@@ -2677,11 +2726,23 @@ bool monster_death(int m_idx)
 	/* Incur summoning debt */
 	if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_TOWN)) == 0) && (m_ptr->summoned))
 	{
+		int debt = r_ptr->level;
+		
+		/* Group monsters incur less debt */
+		if (r_ptr->flags1 & (RF1_FRIENDS)) debt -= 10;
+		else if (r_ptr->flags1 & (RF1_FRIEND)) debt -= 5;
+		
+		/* Weak monsters incur less debt */
+		if (r_ptr->level < p_ptr->depth - 5) debt -= 5;
+		
+		/* Ensure minimum debt */
+		if (debt < 3) debt = 3;
+		
 		/* Summoning debt requires blood */
-		if (r_ptr->level > p_ptr->csp)
+		if (debt > p_ptr->csp)
 		{
 			/* Incur blood debt */
-			take_hit(SOURCE_BLOOD_DEBT, m_ptr->r_idx, damroll(r_ptr->level - p_ptr->csp, 3));
+			take_hit(SOURCE_BLOOD_DEBT, m_ptr->r_idx, damroll(debt - p_ptr->csp, 3));
 
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -2689,9 +2750,9 @@ bool monster_death(int m_idx)
 		}
 
 		/* Debt can be met by mana */
-		else
+		else if (debt > 0)
 		{
-			p_ptr->csp -= r_ptr->level;
+			p_ptr->csp -= debt;
 		}
 
 		/* Update mana */
@@ -3027,6 +3088,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
+	
+	/* We are damaging - count damage */
+	if ((l_ptr->tdamage < 10000) && (m_ptr->ml)) l_ptr->tdamage++;
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)
@@ -5619,6 +5683,9 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 	/* Get the real range */
 	if (!range) range = MAX_SIGHT;
 
+	/* Always show beam if just a missile */
+	if ((flg & (PROJECT_4WAY | PROJECT_4WAX | PROJECT_BOOM)) == 0) flg |= (PROJECT_BEAM);
+	
 	/* Cancel target */
 	target_set_monster(0, 0);
 

@@ -1553,6 +1553,9 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 				}
 			}
 		}
+
+		/* Important: Don't use healing attacks against enemies */
+		if ((target_m_idx) && ((r_info[m_list[target_m_idx].r_idx].flags3 & (RF3_DEMON)) != 0)) f5 &= ~(RF5_ARC_HFIRE);
 	}
 
 	/* No valid target or targetting player and friendly/neutral and not aggressive. */
@@ -2762,6 +2765,57 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
 
 
 /*
+ * The monster either surrenders or turns to fight
+ */
+static void monster_surrender_or_fight(int m_idx)
+{
+	char m_name[80];
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Cancel fear */
+	set_monster_fear(m_ptr, 0, FALSE);
+
+	/* Forget target */
+	m_ptr->ty = 0;    m_ptr->tx = 0;
+
+	/* Charge!  XXX XXX */
+	m_ptr->min_range = 1;  m_ptr->best_range = 1;
+
+	/* Visible */
+	if (m_ptr->ml)
+	{
+		/* Get the monster name */
+		monster_desc(m_name, sizeof(m_name), m_idx, 0);
+	
+		/* Chance to surrender */
+		if (!(birth_evil) && ((r_ptr->flags2 & (RF2_STUPID)) == 0)
+			&& (rand_int(adj_chr_stock[p_ptr->stat_ind[A_CHR]]) < (r_ptr->flags2 & (RF2_SNEAKY) ? 20 : 10)))
+		{
+			/* Dump a message */
+			msg_format("%^s surrenders!", m_name);
+			
+			/* Stop attacking player */
+			m_ptr->mflag |= (MFLAG_TOWN);
+			m_ptr->mflag &= ~(MFLAG_AGGR);
+			
+			/* For a while */
+			m_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+			
+			/* Sneaky / evil */
+			if (r_ptr->flags2 & (RF2_SNEAKY)) m_ptr->summoned /= 2;
+			if (r_ptr->flags3 & (RF3_EVIL)) m_ptr->summoned /= 3;					
+		}
+		else
+		{
+			/* Dump a message */
+			msg_format("%^s turns to fight!", m_name);
+		}
+	}
+}
+
+
+/*
  * Helper function for monsters that want to retreat from the character.
  * Used for any monster that is terrified, frightened, is looking for a
  * temporary hiding spot, or just wants to open up some space between it
@@ -2943,30 +2997,13 @@ static bool get_move_retreat(int m_idx, int *ty, int *tx)
 		if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) &&
 		    (m_ptr->cdis < TURN_RANGE))
 		{
-			/* Turn and fight */
-			set_monster_fear(m_ptr, 0, FALSE);
-
-			/* Forget target */
-			m_ptr->ty = 0;    m_ptr->tx = 0;
-
-			/* Charge!  XXX XXX */
-			m_ptr->min_range = 1;  m_ptr->best_range = 1;
-
-			/* Visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, sizeof(m_name), m_idx, 0);
-
-				/* Dump a message */
-				msg_format("%^s turns to fight!", m_name);
-			}
-
-			/* Charge! */
+			/* Turn on the player or give up */
+			monster_surrender_or_fight(m_idx);
+			
+			/* Go for the player */
 			*ty = p_ptr->py;
 			*tx = p_ptr->px;
+			
 			return (TRUE);
 		}
 	}
@@ -3045,6 +3082,12 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 		{
 			if ((m_ptr->ml) && (randint(20) == 1))
 				l_ptr->flags1 |= (RF1_NEVER_MOVE);
+		}
+		
+		/* Use a target if it is adjacent */
+		if ((*ty) && (*tx) && (distance(m_ptr->fy, m_ptr->fx, *ty, *tx) <= 1))
+		{
+			return (TRUE);
 		}
 
 		/* Look for adjacent enemies */
@@ -4508,25 +4551,8 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 						 */
 						 if ((m_ptr->ml) && (cave_project_bold(oy, ox)))
 						 {
-							char m_name[80];
-
-							/* Cancel fear */
-							set_monster_fear(m_ptr, 0, FALSE);
-
-							/* Turn and fight */
-							fear = FALSE;
-
-							/* Forget target */
-							m_ptr->ty = 0;    m_ptr->tx = 0;
-
-							/* Charge!  XXX XXX */
-							m_ptr->min_range = 1;  m_ptr->best_range = 1;
-
-							/* Get the monster name */
-							monster_desc(m_name, sizeof(m_name), m_idx, 0);
-
-							/* Dump a message */
-							msg_format("%^s turns to fight!", m_name);
+							/* Turn on the player or give up */
+							monster_surrender_or_fight(m_idx);
 
 							/* Hack -- lose some time  XXX XXX */
 							return (FALSE);
@@ -5380,6 +5406,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 					int ac = calc_monster_ac(cave_m_idx[ny][nx], FALSE);
 					
+					monster_lore *nl_ptr = &l_list[cave_m_idx[ny][nx]];
+					
 					int result;
 					
 					/* Hack -- no more attacks */
@@ -5391,8 +5419,18 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						break;
 					}
 
+					/* We see the monster fighting */
+					if ((l_ptr->blows[ap_cnt] < MAX_UCHAR) && (m_ptr->ml)) l_ptr->blows[ap_cnt]++;
+					
 					/* Hack -- ignore ineffective attacks */
 					if (!effect) continue;
+					
+					/* We are attacking - count attacks */
+					if ((nl_ptr->tblows < MAX_SHORT) && (m_ptr->ml)) nl_ptr->tblows++;
+
+					/* Important: Don't use healing attacks against enemies */
+					if ((effect == GF_HELLFIRE) && ((r_info[n_ptr->r_idx].flags3 & (RF3_DEMON)) != 0)) continue;
+					if (((effect == GF_DRAIN_LIFE) || (effect == GF_VAMP_DRAIN)) && ((r_info[n_ptr->r_idx].flags3 & (RF3_UNDEAD)) != 0)) continue;
 
 					/* Never display message XXX XXX XXX */
 					if (!n_ptr->csleep && !mon_check_hit(cave_m_idx[ny][nx], effect, r_ptr->level, m_idx , FALSE)) continue;
@@ -5479,8 +5517,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		/* Never move if petrified or never move monster */
 		else if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (m_ptr->petrify))
 		{
-			
-			msg_format("failed to move %d, %d", ny - m_ptr->fy, nx - m_ptr->fx);
 			do_move = FALSE;
 		}
 
@@ -6155,7 +6191,7 @@ static void process_monster(int m_idx)
 			{
 				m_ptr->mflag |= (MFLAG_LITE);
 
-				gain_attribute(m_ptr->fy, m_ptr->fx, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
+				gain_attribute(m_ptr->fy, m_ptr->fx, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
 			}
 
 			/* Player hasn't attacked the monster */
@@ -7081,7 +7117,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Never move can only target adjacent monsters. Note we must use real distance here */
-			/*if ((((r_ptr->flags1 & (RF1_NEVER_MOVE)) != 0) || (m_ptr->petrify)) && (distance(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx) > 1)) continue;*/
+			if ((((r_ptr->flags1 & (RF1_NEVER_MOVE)) != 0) || (m_ptr->petrify)) && (distance(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx) > 1)) continue;
 			
 			/* Can't attack the target */
 			if (!(can_target) || ((r_ptr->flags1 & (RF1_NEVER_BLOW)) != 0))
@@ -7497,6 +7533,7 @@ static void recover_monster(int m_idx, bool regen)
 			monster_speech(m_idx, (m_ptr->mflag & (MFLAG_ALLY))? comment_1a[rand_int(MAX_COMMENT_1a)] : comment_1b[rand_int(MAX_COMMENT_1b)], FALSE);
 		}
 
+		/* No longer summoned */
 		if (!m_ptr->summoned)
 		{
 			/* Town monsters change their tune */
@@ -7556,19 +7593,44 @@ static void recover_monster(int m_idx, bool regen)
 				m_ptr->summoned = 150 - adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 			}
 
-			/* Delete monster summoned by player */
-			if (m_ptr->mflag & (MFLAG_ALLY))
+			/* Delete monster summoned by player - transform lemures */
+			if ((m_ptr->mflag & (MFLAG_ALLY)) || (r_ptr->grp_idx == 28))
 			{
 				s16b this_o_idx, next_o_idx = 0;
+				
+				object_type *o_ptr, *i_ptr;
+				object_type object_type_body;
+
+				/* Drop a chrysalis */
+				if (r_ptr->grp_idx == 28)
+				{
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Copy the object */
+					object_prep(i_ptr, lookup_kind(TV_EGG, SV_EGG_CHRYSALIS));
+					
+					/* Set charges */
+					i_ptr->timeout = 66 /* 6 */;
+					
+					/* Set weight */
+					i_ptr->weight *= 15;
+					
+					/* Set race */
+					i_ptr->name3 = poly_r_idx(y, x, m_ptr->r_idx, TRUE, FALSE, FALSE);
+					
+					/* Make friendly if required */
+					if (m_ptr->mflag & (MFLAG_ALLY)) i_ptr->ident |= (IDENT_FORGED);
+					
+					/* Drop it */
+					drop_near(i_ptr, -1, y, x, TRUE);
+				}
 
 				/* Drop objects being carried - unless a mercenary */
 				if ((m_ptr->mflag & (MFLAG_TOWN)) == 0)
 				{
 					for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 					{
-						object_type *o_ptr, *i_ptr;
-						object_type object_type_body;
-
 						/* Get the object */
 						o_ptr = &o_list[this_o_idx];
 
@@ -7662,6 +7724,15 @@ static void recover_monster(int m_idx, bool regen)
 					((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_FILLED))?"":"the "),
 					f_name+f_info[cave_feat[m_ptr->fy][m_ptr->fx]].name);
 			}
+			
+			/* Disturb on "move" */
+			if ((m_ptr->ml && (disturb_move ||
+				((m_ptr->mflag & (MFLAG_VIEW)) && disturb_near)))
+					&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+			{
+				/* Disturb */
+				disturb(0, 0);
+			}
 		}
 	}
 
@@ -7723,7 +7794,7 @@ static void recover_monster(int m_idx, bool regen)
 		if (((m_ptr->mflag & (MFLAG_TOWN)) != 0) && !(m_ptr->csleep) && !(m_ptr->summoned) && !(rand_int(9)))
 		{
 			/* We don't care about the player */
-			if ((m_ptr->mflag & (MFLAG_AGGR)) == 0)
+			if ((m_ptr->mflag & (MFLAG_AGGR | MFLAG_ALLY)) == 0)
 			{
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_idx, 0);

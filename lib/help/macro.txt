@@ -1,14 +1,14 @@
 === User Pref Files ===
 
-        Angband allows you to change various aspects of the game to suit
-your tastes.  You may define keymaps (changing the way Angband maps your
+        Unangband allows you to change various aspects of the game to suit
+your tastes.  You may define keymaps (changing the way Unangband maps your
 keypresses to underlying commands), create macros (allowing you to map a
 single keypress to a series of keypresses), modify the visuals (allowing
 you to change the appearance of monsters, objects, or terrain features),
 change the colors (allowing you to make a given color brighter, darker,
 or even completely different), or set options (turning them off or on).
 
-        Angband stores your preferences in files called "user pref files",
+        Unangband stores your preferences in files called "user pref files",
 which contain comments and "user pref commands", which are simple strings
 describing one aspect of the system about which the user has a preference.
 There are many ways to load a user pref file, and in fact, some of these

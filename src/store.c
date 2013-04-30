@@ -2431,11 +2431,12 @@ static void store_purchase(int store_index)
 	s32b price;
 
 	object_type *o_ptr;
-
 	object_type *i_ptr;
+	object_type *j_ptr;
 	object_type object_type_body;
 
 	char o_name[80];
+	char j_name[80];
 
 	char out_val[160];
 
@@ -2655,13 +2656,36 @@ static void store_purchase(int store_index)
 				/* Give it to the player */
 				item_new = inven_carry(i_ptr);
 
-				/* Describe the final result */
-				object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
-
-				/* Message */
-				msg_format("You have %s (%c).",
-					   o_name, index_to_label(item_new));
-
+				j_ptr = &inventory[item_new];
+				
+				/* Describe the purchase */
+				if (o_ptr->tval != TV_BAG && j_ptr->tval == TV_BAG)
+				{
+					/* Describe the bag */
+					object_desc(j_name, sizeof(j_name), j_ptr, FALSE, 3);
+					
+					/* Hack -- temporarily change the number to describe it */
+					int old_number = o_ptr->number;
+					o_ptr->number = amt;
+					
+					/* Describe the object */
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+					
+					/* Then restore the number */
+					o_ptr->number = old_number;
+					
+					/* Message */
+					msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+				}
+				else
+				{
+					/* Describe the object */
+					object_desc(j_name, sizeof(j_name), j_ptr, TRUE, 3);
+					
+					/* Message */
+					msg_format("You have %s (%c).", j_name, index_to_label(item_new));
+				}
+								
 				/* Handle stuff */
 				handle_stuff();
 
@@ -2764,11 +2788,35 @@ static void store_purchase(int store_index)
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
 
-		/* Describe just the result */
-		object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
-
-		/* Message */
-		msg_format("You have %s (%c).", o_name, index_to_label(item_new));
+		j_ptr = &inventory[item_new];
+		
+		/* Describe the purchase */
+		if (o_ptr->tval != TV_BAG && j_ptr->tval == TV_BAG)
+		{
+			/* Describe the bag */
+			object_desc(j_name, sizeof(j_name), j_ptr, FALSE, 3);
+			
+			/* Hack -- temporarily change the number to describe it */
+			int old_number = o_ptr->number;
+			o_ptr->number = amt;
+			
+			/* Describe the object */
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			
+			/* Then restore the number */
+			o_ptr->number = old_number;
+			
+			/* Message */
+			msg_format("You put %s in your %s (%c).", o_name, j_name, index_to_label(item_new));		
+		}
+		else
+		{
+			/* Describe the object */
+			object_desc(j_name, sizeof(j_name), j_ptr, TRUE, 3);
+			
+			/* Message */
+			msg_format("You have %s (%c).", j_name, index_to_label(item_new));
+		}
 
 		/* Handle stuff */
 		handle_stuff();

@@ -42,7 +42,7 @@ Weapon of Gondolin.
      A weapon of this kind, from the last kingdom of the High Elves to 
      fall under Morgoth's yoke, provides power against all his living 
      servants - orcs, trolls, demons and dragons. It also gives off light
-     when there are enemies around (which, in Angband, is all the time), 
+     when there are enemies around (which, in Unangband, is all the time), 
      and provides resistance to darkness, the ability to see invisible
      monsters, and one extra random power. These weapons are powerful
      but rare.

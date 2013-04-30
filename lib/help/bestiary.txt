@@ -4,7 +4,7 @@ The surface and depths of Angband are populated with a variety of
 hostile denizens. Monsters are represented by the letters 'a'
 through 'z' and capital letters 'A' through 'Z'. In addition,
 mushroom patches, represented by ',', creeping coins, represented
-by '$' and trees, represented by '<' can be encountered. Rumor
+by '$' and trees, represented by ':' can be encountered. Rumor
 has it that the objects in the dungeon at deeper levels can
 sometimes be hostile.
 
@@ -23,7 +23,7 @@ leave a trail.
 Monsters can attack you by moving into you. Monsters can also
 cast a variety of spells, to hurt or hinder you, protect or
 heal themselves or summon allies. The danger of attacks and
-spells increases greatly after 1500' in the dungeon. In
+spells increases greatly lower than depth 30 in the dungeon. In
 particular, dragons and some other kinds of monsters have
 breath weapons that can be instantly fatal to even the most
 powerful of characters if they are not forewarned and suitably
@@ -95,10 +95,10 @@ pass through the same walls as if they weren't there.
  
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
+There are hundreds of different creatures in the world of Unangband, many of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Angband
+to keep track of the capabilities of various creatures.  Luckily, Unangband
 automatically keeps track of your experiences with a particular creature.
 This feature is called the monster memory.  You monster memory recalls the
 particular attacks of each creature (whether or not technically a monster)
@@ -127,7 +127,7 @@ Mushroom Patch (,)
 	the individual mushrooms in the patch may be consumed. But most
 	mushrooms found this way are poisonous.
 
-Tree (<)
+Tree (:)
 	Great trees grow deep in the earth, magically sustained and often
 	aware of their surroundings. They are usually immobile, but hard to
 	kill.

@@ -34,7 +34,7 @@ features will be picked up in the not so distant future.
 
 [Q1.2]   Why write another variant of Angband?
 
-Unangband is my variant. Its been around longer than many: it
+Unangband is my variant. It's been around longer than many: it
 predates NPPAngband and FAAngband for instance.
 
 As for why I write it, I enjoy coding, particularly coding for
@@ -56,7 +56,7 @@ tail on at least 3 variants (Sangband, NPPAngband and vanilla).
 In addition, I have my own ideas to implement.
 
 Feel free to implement the feature from that variant against the
-latest CVS version and send me a patch file. I mean, the source
+latest SVN version and send me a patch file. I mean, the source
 code is all there...
 
 
@@ -125,15 +125,15 @@ have asked these, so I'll answer them here.
 [Q2.1]   What are corpses for?
 
 They are there for flavor. And some monsters deep in the dungeon
-come back to life if you don't destroy their bodies in time. Next
-version will see monsters animating the dead and feeding from corpses
-to regain their strength. When I get the quest code working, you will
-also occasionally have to collect trophies to complete quests. And
-shopkeepers will restock items for you if you collect the body parts
+come back to life if you don't destroy their bodies in time. Some
+monsters reanimate the dead and feed on corpses to regain their 
+strength. When I get the quest code working, you will also 
+occasionally have to collect trophies to complete quests. And 
+shopkeepers will restock items for you if you collect the body parts 
 of the appropriate monster.
 
-When I get friendly monsters working, you'll be able to re-assemble
-golems and have them fight on your side.
+Additionally, you can re-assemble golems and have them fight on your 
+side.
 
 
 [Q2.2]   What are room descriptions for?

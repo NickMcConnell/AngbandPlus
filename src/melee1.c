@@ -690,7 +690,7 @@ static bool check_hit(int power, int level, int who, bool ranged)
  * descriptions are applied for the same description type, it returns
  * the description 'band' chosen from.
  */
-int attack_desc(char *buf, int target, int method, int effect, int damage, byte flg, int buf_size)
+int attack_desc(char *buf, int target, int method, int effect, int damage, u16b flg, int buf_size)
 {
 	char t_name[80];
 	char t_poss[80];
@@ -705,7 +705,7 @@ int attack_desc(char *buf, int target, int method, int effect, int damage, byte 
 	int div = 1;
 	int mod = 0;
 
-	bool punctuate = TRUE;
+	bool punctuate = (flg & (ATK_DESC_NO_STOP)) == 0;
 	bool uppercase = FALSE;
 
 	int state = 0;
@@ -822,7 +822,7 @@ int attack_desc(char *buf, int target, int method, int effect, int damage, byte 
 		/* String doesn't end in punctuation */
 		else
 		{
-			punctuate = TRUE;
+			punctuate = (flg & (ATK_DESC_NO_STOP)) == 0;
 		}
 
 		/* Handle the target*/
@@ -1424,7 +1424,7 @@ bool make_attack_normal(int m_idx, bool harmless)
  * spell.  The larger the value for "control", the less likely the damage
  * will vary greatly.
  */
-int get_dam(byte power, int attack)
+int get_dam(byte power, int attack, bool varies)
 {
 	int dam = 0;
 	int spread;
@@ -1467,7 +1467,7 @@ int get_dam(byte power, int attack)
 
 
 	/*No point in going through this to return 0*/
-	if (av_dam < 1) return (FALSE);
+	if ((av_dam < 1) || (!varies)) return (av_dam);
 
 	/* Damage may never differ by more than 50% from the average */
 	if (control < 4) control = 4;
@@ -1478,6 +1478,9 @@ int get_dam(byte power, int attack)
 	 */
 	spread = MIN(100, av_dam * 2 / control);
 
+	/* Paranoia - no spread */
+	if (!spread) return (av_dam);
+	
 	/* Loop until damage is within the allowable spread */
 	while (TRUE)
 	{
@@ -1989,7 +1992,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Get the damage */
 		else
 		{
-			dam = get_dam(spower, attack);
+			dam = get_dam(spower, attack, TRUE);
 			dam_desc = spower;
 		}
 	}
@@ -2015,7 +2018,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		rlev = MAX(1, r_ptr->level);
 
 		/* Extract spell power */
-		spower = r_ptr->power;
+		spower = r_ptr->spell_power;
 
 		/* Extract the powerfulness */
 		powerful = (r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE);
@@ -2056,7 +2059,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Get damage for spell attacks */
 		else
 		{
-			dam = get_dam(spower, attack);
+			dam = get_dam(spower, attack, TRUE);
 
 			dam_desc = spower;
 		}
@@ -3311,7 +3314,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if ((blind) && (known)) msg_format("%^s curses %s.", m_name, t_name);
 			else msg_format("%^s points at %s and curses.", m_name, t_name);
 
-			(void)project(who, what, 0, 0, m_ptr->fy, m_ptr->fx, y, x, get_dam(spower, attack), GF_CURSE, FLG_MON_DIRECT, 0, 0);
+			(void)project(who, what, 0, 0, m_ptr->fy, m_ptr->fx, y, x, get_dam(spower, attack, TRUE), GF_CURSE, FLG_MON_DIRECT, 0, 0);
 
 			break;
 		}
@@ -3371,17 +3374,17 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					}
 
 					/* Apply damage directly */
-					project_one(who, what, y, x, get_dam(spower, attack), GF_HURT, (PROJECT_PLAY | PROJECT_HIDE));
+					project_one(who, what, y, x, get_dam(spower, attack, TRUE), GF_HURT, (PROJECT_PLAY | PROJECT_HIDE));
 				}
 			}
 			else if (target > 0)
 			{
 				if (!(r_ptr->flags2 & (RF2_EMPTY_MIND)))
 				{
-					if (known) msg_format ("&^s mind is blasted by psionic energy.",t_poss);
+					if (known) msg_format ("%^s mind is blasted by psionic energy.",t_poss);
 
 					/* Hack --- Use GF_CONFUSION */
-					project_one(who, what, y, x, get_dam(spower, attack), GF_CONFUSION, (PROJECT_KILL));
+					project_one(who, what, y, x, get_dam(spower, attack, TRUE), GF_CONFUSION, (PROJECT_KILL));
 				}
 				else if (n_ptr->ml)
 				{
@@ -3498,7 +3501,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					 * Inflict damage. Note this spell has a hack
 					 * that handles damage differently in get_dam.
 					 */
-					project_one(who, what, y, x, get_dam(spower, attack), GF_HURT, (PROJECT_PLAY | PROJECT_HIDE));
+					project_one(who, what, y, x, get_dam(spower, attack, TRUE), GF_HURT, (PROJECT_PLAY | PROJECT_HIDE));
 
 					/* Cut the player depending on strength of spell. */
 					if (k == 1) (void)set_cut(p_ptr->timed[TMD_CUT] + 8 + damroll(2, 4));
@@ -3733,7 +3736,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else if (m_ptr->mflag & (MFLAG_WEAK))
 				{
 					/* Hack --- Use GF_HURT */
-					project_one(who, what, y, x, get_dam(spower, attack), GF_HURT, (PROJECT_KILL));
+					project_one(who, what, y, x, get_dam(spower, attack, TRUE), GF_HURT, (PROJECT_KILL));
 				}
 				else m_ptr->mflag |= (MFLAG_WEAK);
 			}

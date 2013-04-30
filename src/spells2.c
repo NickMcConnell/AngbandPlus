@@ -19,12 +19,12 @@
 
 
 /*
- * Apply a "project()" directly to all monsters.
+ * Apply a "project()" directly to all monsters/objects/grids.
  *
  * Note that affected monsters are NOT auto-tracked by this usage.
  *
- * PROJECT_PANEL limits the monsters to those within 2 * MAX_SIGHT
- * PROJECT_ALL_IN_LOS limits monsters to those within line of fire and/or
+ * PROJECT_PANEL limits the monsters/objects/grids to those within 2 * MAX_SIGHT
+ * PROJECT_ALL_IN_LOS limits monsters/objects/grids to those within line of fire and/or
  *  line of sight if PROJECT_LOS is enabled.
  */
 bool project_dist(int who, int what, int y0, int x0, int dam, int typ, u32b flg, u32b flg2)
@@ -34,15 +34,30 @@ bool project_dist(int who, int what, int y0, int x0, int dam, int typ, u32b flg,
 	bool notice = FALSE;
 
 	bool player_hack = FALSE;
-
+	
 	/* Projection can also pass through line of sight grids */
 	bool allow_los = (flg & (PROJECT_LOS)) != 0;
+
+	/* Hack - for efficiency we process monsters separately. However, if affecting the
+	 * player's field of view/fire, this is only efficient if the maximum number of monsters
+	 * is smaller than the field of view/fire. */
+	bool m_max_hack = ((allow_los) ? (m_max < view_n) : (m_max < fire_n));
 
 	/* Origin is player */
 	if ((flg2 & (PR2_ALL_IN_LOS)) && (y0 == p_ptr->py) && (x0 == p_ptr->px)) player_hack = TRUE;
 
-	/* Affect all (nearby) monsters */
-	for (i = 1; i < m_max; i++)
+	/* Affect player? */
+	if ((player_hack) || (((flg2 & (PR2_ALL_IN_LOS)) == 0) && (((flg2 & (PR2_PANEL)) == 0) || distance(y0, x0, p_ptr->py, p_ptr->px) < 2 * MAX_SIGHT)) ||
+			(generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOF)) ||
+			((allow_los) && generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOS)))
+	{
+		/* Jump directly to the player */
+		if (project(who, what, 0, 0, p_ptr->py, p_ptr->px, p_ptr->py, p_ptr->px, dam, typ, flg, 0, 10)) notice = TRUE;
+	}
+
+	/* Affect all (nearby) monsters. */
+	if ((flg & (PROJECT_KILL)) && ((!player_hack) || (m_max_hack)))
+		for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 
@@ -72,18 +87,89 @@ bool project_dist(int who, int what, int y0, int x0, int dam, int typ, u32b flg,
 		/* Jump directly to the target monster */
 		if (project(who, what, 0, 0, y, x, y, x, dam, typ, flg, 0, 10)) notice = TRUE;
 	}
-
-	/* Affect player? */
-	if ((player_hack) || (generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOF)) ||
-			((allow_los) && generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOS)))
+	
+	/* Affect all (nearby) objects & grids */
+	if (flg & (PROJECT_ITEM | PROJECT_GRID))
 	{
-		/* Jump directly to the player */
-		if (project(who, what, 0, 0, p_ptr->py, p_ptr->px, p_ptr->py, p_ptr->px, dam, typ, flg, 0, 10)) notice = TRUE;
+		/* Affect line of sight/line of fire - origin is player and restricting to LOS/LOF */
+		if (player_hack)
+		{
+			if (allow_los) for (i = 0; i < view_n; i++)
+			{
+				/* Get grid */
+				y = GRID_Y(view_g[i]);
+				x = GRID_X(view_g[i]);
+				
+				/* Already affected grids with monsters? */
+				if (((flg & (PROJECT_KILL)) != 0) && (cave_m_idx[y][x] > 0) && (m_max_hack)) continue;
+				
+				/* Already affected grids with player */
+				if (cave_m_idx[y][x] < 0) continue;
+				
+				/* Affect grids with objects, or all grids */
+				if (((flg & (PROJECT_GRID)) != 0) || (cave_o_idx[y][x]))
+				{
+					if (project(who, what, 0, 0, y, x, y, x, dam, typ, flg, 0, 10)) notice = TRUE;
+				}
+			}
+			
+			for (i = 0; i < fire_n; i++)
+			{
+				/* Get grid */
+				y = GRID_Y(fire_g[i]);
+				x = GRID_X(fire_g[i]);
+				
+				/* Already affected grids in view */
+				if (allow_los && ((play_info[y][x] & (PLAY_VIEW)) != 0)) continue;
+				
+				/* Already affected grids with monsters? */
+				if (((flg & (PROJECT_KILL)) != 0) && (cave_m_idx[y][x] > 0) && (m_max_hack)) continue;
+				
+				/* Already affected grids with player */
+				if (cave_m_idx[y][x] < 0) continue;
+				
+				/* Affect grids with objects, or all grids */
+				if (((flg & (PROJECT_GRID)) != 0) || (cave_o_idx[y][x]))
+				{
+					if (project(who, what, 0, 0, y, x, y, x, dam, typ, flg, 0, 10)) notice = TRUE;
+				}
+			}
+		}
+		/* Affect panel/level */
+		else
+		{
+			int r = flg2 & (PR2_PANEL) ? MAX_SIGHT * 2 : MAX(DUNGEON_WID, DUNGEON_HGT);
+			
+			for (y = y0 - r; y <= y0 + r; y++)
+			{
+				for (x = x0 - r; x <= x0 + r; x++)
+				{
+					/* Inbounds */
+					if (!in_bounds_fully(y, x)) continue;
+					
+					/* Already affected grids with monsters */
+					if (((flg & (PROJECT_KILL)) != 0) && (cave_m_idx[y][x] > 0)) continue;
+					
+					/* Already affected grids with player */
+					if (cave_m_idx[y][x] < 0) continue;
+					
+					/* Only affect nearby monsters */
+					if ((flg2 & (PR2_PANEL)) && (distance(y0, x0, y, x) > 2 * MAX_SIGHT)) continue;
+
+					/* Affect grids with objects, or all grids */
+					if (((flg & (PROJECT_GRID)) != 0) || (cave_o_idx[y][x]))
+					{
+						if (project(who, what, 0, 0, y, x, y, x, dam, typ, flg, 0, 10)) notice = TRUE;
+					}
+				}
+			}
+		}
 	}
 
 	/* Result */
 	return (notice);
 }
+
 
 /*
  * Generates the familiar attributes
@@ -1168,14 +1254,23 @@ retry:
 					cave_alter_feat(y,x,FS_SECRET);
 				}
 
-				/* Hack -- Memorize */
-				play_info[y][x] |= (PLAY_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
+				/* Retest following secrets being found */
+				/* We do this to avoid detecting e.g. empty shelves once the item has been created that
+				 * was on the shelf */
+				if ((f_info[cave_feat[y][x]].flags1 & (f1)) ||
+					(f_info[cave_feat[y][x]].flags2 & (f2)) ||
+					(f_info[cave_feat[y][x]].flags3 & (f3)) ||
+					((play_info[y][x] & (PLAY_SEEN | PLAY_MARK)) != 0))
+				{
+					/* Hack -- Memorize */
+					play_info[y][x] |= (PLAY_MARK);
+	
+					/* Redraw */
+					lite_spot(y, x);
+	
+					/* Obvious */
+					detect = TRUE;
+				}
 			}
 		}
 	}
@@ -1510,7 +1605,8 @@ int value_check_aux4(const object_type *o_ptr)
 	if ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)
 		|| (o_ptr->feeling == INSCRIP_GREAT) || (o_ptr->feeling == INSCRIP_EXCELLENT)
 		|| (o_ptr->feeling == INSCRIP_SUPERB) || (o_ptr->feeling == INSCRIP_SPECIAL)
-		|| (o_ptr->feeling == INSCRIP_AVERAGE)
+		|| (o_ptr->feeling == INSCRIP_AVERAGE) || (o_ptr->feeling == INSCRIP_BROKEN)
+		|| (o_ptr->feeling == INSCRIP_USELESS) || (o_ptr->feeling == INSCRIP_USEFUL)
 		|| (o_ptr->feeling == INSCRIP_MAGICAL) || (o_ptr->feeling == INSCRIP_UNCURSED)) return (0);
 
 	/* Artifacts */
@@ -1546,19 +1642,11 @@ int value_check_aux4(const object_type *o_ptr)
 	/* Cursed items */
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
-	/* Broken items */
-	if (o_ptr->feeling == INSCRIP_BROKEN)
-		return (INSCRIP_BROKEN);
-	else if (broken_p(o_ptr))
-		return (INSCRIP_UNCURSED);
+	/* Known to be magic items */
+	if (o_ptr->feeling == INSCRIP_MAGIC_ITEM) return (INSCRIP_USEFUL);
 
-	/* Known to be unusual */
-	if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_MAGICAL);
-
-	/* FIXME: I've added the to_* check because it was wrong without it */
-	if (o_ptr->to_h + o_ptr->to_d <= 0
-	    && o_ptr->feeling == INSCRIP_UNCURSED)
-	  return(INSCRIP_AVERAGE);
+	/* Known not to be nonmagical */
+	if (o_ptr->feeling == INSCRIP_NONMAGICAL) return(INSCRIP_USELESS);
 
 	/* Default to uncursed */
 	return (INSCRIP_UNCURSED);
@@ -2162,8 +2250,10 @@ bool place_random_stairs(int y, int x, int feat)
 	}
 
 	/* Random stairs -- bias towards direction player is heading */
-	else if (rand_int(100) < (((f_info[p_ptr->create_stair].flags1 & (FF1_MORE)) != 0) ? 75 :
-					(((f_info[p_ptr->create_stair].flags1 & (FF1_LESS)) != 0) ? 25 : 50)) )
+	/* Important: If we are placing downstairs, it is because we headed up from the previous
+	 * level. So downstairs should be less common as the player is climbing. */
+	else if (rand_int(100) < (((f_info[p_ptr->create_stair].flags1 & (FF1_MORE)) != 0) ? 25 :
+					(((f_info[p_ptr->create_stair].flags1 & (FF1_LESS)) != 0) ? 75 : 50)) )
 	{
 		place_down_stairs(y, x);
 	}
@@ -3419,6 +3509,7 @@ bool ident_spell_sense(void)
 					}
 				}
 
+				break;
 			  }
 		}
 
@@ -5642,11 +5733,17 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 	int damage = 0;
 	int region_id = 0;
 	int delay = 0;
+	int damage_mult = 1;
 
 	bool initial_delay = FALSE;
 
 	/* Hack -- fix damage divisor */
 	if (!damage_div) damage_div = 1;
+	else if (damage_div < 0)
+	{
+		damage_mult = -damage_div;
+		damage_div = 1;
+	}
 
 	/* Get the region identity */
 	if ((who == SOURCE_PLAYER_CAST) && ((p_ptr->spell_trap) || (p_ptr->delay_spell)))
@@ -5704,20 +5801,23 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 		x1 = tx;
 
 		/* Get initial damage */
-		damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) / (damage_div);
+		damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) * (damage_mult) / (damage_div);
 
 		/* Special case for some spells which affect a single grid or for damage computations */
 		if (one_grid || !forreal)
 		{
 			/* Roll out the damage */
-			for (i = 1; i < num; i++) damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) / (damage_div);
+			for (i = 1; i < num; i++) damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) * (damage_mult) / (damage_div);
 
-			/* Apply once - note hack for what it effects */
-			if (forreal && project_one(who, what, y1, x1, damage, effect, flg | (PROJECT_PLAY | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID)))
+			/* Apply once */
+			if (forreal)
 			{
-				/* Noticed */
-				obvious = TRUE;
-
+				/* Note hack to ensure we affect target grid */
+				obvious |= project_one(who, what, y1, x1, damage, effect, flg | (PROJECT_PLAY | PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID));
+				
+				/* Can't cancel */
+				*cancel = FALSE;
+				
 				/* Reset damage */
 				damage = 0;
 			}
@@ -5807,7 +5907,7 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 			obvious |= project_method(who, what, method, effect, damage, level, y0, x0, y1, x1, region, flg);
 
 			/* Revise damage */
-			if (i < num - 1) damage = spell_damage(blow_ptr, level, method_ptr->flags2, damage_div, forreal) / (damage_div);
+			if (i < num - 1) damage = spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) * (damage_mult) / (damage_div);
 
 			/* Reset damage */
 			else damage = 0;
@@ -6073,6 +6173,9 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	char *s = buf;
 
+	/* Hack to prevent chests being called buried treasure */
+	bool hack_chest = FALSE;
+	
 	/* Roll out the duration */
 	if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
 	{
@@ -6214,7 +6317,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		if (detect_monsters(monster_tester_hook_water, known)) vp[vn++] = "watery creatures";	
 	}
 
-	/* Process the flags -- detect water */
+	/* Process the flags -- detect fire */
 	if (s_ptr->type == SPELL_DETECT_FIRE)
 	{
         if (detect_feat_blows(GF_FIRE, 2 * MAX_SIGHT, known)) vp[vn++] = "fire";
@@ -6223,20 +6326,32 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
         if (detect_monsters(monster_tester_hook_fire, known)) vp[vn++] = "fiery creatures";
 	}
 
+	/* Hack to prevent chests being called buried treasure */
+	if (s_ptr->flags1 & (SF1_DETECT_GOLD | SF1_DETECT_OBJECT))
+	{
+        if (detect_feat_flags(0x0L, 0x0L, FF3_CHEST, 2 * MAX_SIGHT, known)) { vp[vn++] = "treasure chests"; hack_chest = TRUE; }
+	}
+	
 	/* Process the flags -- detect gold */
+	/* Important: Because when we detect hidden items, we potentially drop gold, we must detect hidden items
+	 * before detecting objects */
 	if (s_ptr->flags1 & (SF1_DETECT_GOLD))
     {
+		/* We still detect buried treasure if we've found chests, we just don't report it */
+        if ((detect_feat_flags(FF1_HAS_GOLD, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) && !(hack_chest)) vp[vn++] = "buried treasure";
         if (detect_objects_tval(TV_GOLD)) vp[vn++] = "gold";
         if (detect_objects_tval(TV_GEMS)) vp[vn++] = "gems";
-        if (detect_feat_flags(FF1_HAS_GOLD, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "buried treature";
         if (detect_monsters(monster_tester_hook_mineral, known)) vp[vn++] = "mineral creatures";
     }
 
 	/* Process the flags -- detect objects and object monsters */
+	/* Important: Because when we detect hidden items, we potentially drop objects, we must detect hidden items
+	 * before detecting objects */
 	if (s_ptr->flags1 & (SF1_DETECT_OBJECT))
     {
+		/* We still detect hidden items if we've found chests, we just don't report it */
+        if ((detect_feat_flags(FF1_HAS_ITEM, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) && !(hack_chest)) vp[vn++] = "hidden items";
 	    if (detect_objects_normal()) vp[vn++] = "objects";
-		if (detect_feat_flags(FF1_HAS_ITEM, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "hidden items";
         if (detect_monsters(monster_tester_hook_mimic, known)) vp[vn++] = "mimics";
     }
 
@@ -6263,6 +6378,12 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";
 	}
 
+	/* Process the flags -- reveal secrets */
+	if (s_ptr->type == SPELL_REVEAL_SECRETS)
+	{
+		if (detect_feat_flags(FF1_SECRET, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "secrets";
+	}
+	
 	/* Describe detected magic */
 	if (vn)
 	{
@@ -6727,7 +6848,7 @@ bool process_spell_blow_shot_hurl(int type)
  *
  * Basically a collection of hacks
  */
-bool process_spell_types(int who, int spell, int level, bool *cancel)
+bool process_spell_types(int who, int spell, int level, bool *cancel, bool known)
 {
 	spell_type *s_ptr = &s_info[spell];
 
@@ -6736,6 +6857,10 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 	int lasts;
 
 	int dir;
+	int y = p_ptr->py;
+	int x = p_ptr->px;
+	
+	u32b flg = who == SOURCE_PLAYER_CAST ? (MFLAG_ALLY | MFLAG_SHOW | MFLAG_MARK) : 0L;
 
 	/* Roll out the duration */
 	if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
@@ -6829,24 +6954,66 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				obvious = TRUE;
 				break;
 			}
-			case SPELL_SUMMON:
-			{
-				while (lasts-- && summon_specific(p_ptr->py, p_ptr->px, 0, p_ptr->depth+5, s_ptr->param, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
-				*cancel = FALSE;
-				break;
-			}
 			case SPELL_AIM_SUMMON:
+			case SPELL_AIM_CREATE:
+			case SPELL_AIM_SUMMONS:
 			{
-				int y, x;
-				
 				/* Get a destination to summon around */
 				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
 				
-				while (lasts-- && summon_specific(y, x, 0, p_ptr->depth+5, s_ptr->param, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+				/* Fall through */
+			}
+			case SPELL_CREATE:
+			{
+				if ((s_ptr->type != SPELL_AIM_SUMMON) && (s_ptr->type != SPELL_AIM_SUMMONS)) flg |= (MFLAG_MADE);
+				
+				/* Fall through */
+			}
+			case SPELL_SUMMON:
+			case SPELL_SUMMONS:
+			{
+				bool grp = FALSE;
+				int old_monster_level = monster_level;
+				int k = 0;
+				
+				if ((s_ptr->type == SPELL_SUMMONS) || (s_ptr->type == SPELL_AIM_SUMMONS))
+				{
+					grp = TRUE;
+					if (monster_level < 20) monster_level /= 2;
+					else monster_level -= 10;
+				}
+				else if ((s_ptr->type == SPELL_CREATE) || (s_ptr->type == SPELL_AIM_CREATE))
+				{
+					if (monster_level < 10) monster_level /= 2;
+					else monster_level -= 5;
+				}
+				
+				while (lasts-- && summon_specific(y, x, 0, p_ptr->depth+5, s_ptr->param, grp, flg)) k++;
+				
+				if (k) obvious = TRUE;
+				else if (known) msg_print("No such monsters exist at this depth.");
 				*cancel = FALSE;
+				
+				monster_level = old_monster_level;
 				break;
 			}
+			case SPELL_AIM_SUMMON_RACE:
+			case SPELL_AIM_CREATE_RACE:
+			case SPELL_AIM_SUMMONS_RACE:
+			{
+				/* Get a destination to summon around */
+				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
+				
+				/* Fall through */
+			}
+			case SPELL_CREATE_RACE:
+			{
+				if (s_ptr->type != SPELL_AIM_SUMMON_RACE) flg |= (MFLAG_MADE);
+				
+				/* Fall through */
+			}
 			case SPELL_SUMMON_RACE:
+			case SPELL_SUMMONS_RACE:
 			{
 				/* Cancel if unique is dead */
 				if (!r_info[s_ptr->param].max_num)
@@ -6862,17 +7029,60 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Summoning a monster */
 				else
 				{
-					while (lasts-- && summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+					int k = 0;
+					
+					while (lasts-- && summon_specific_one(y, x, s_ptr->param, (s_ptr->type == SPELL_SUMMONS_RACE) || (s_ptr->type == SPELL_AIM_SUMMONS_RACE), flg)) k++;
+
+					if (k) obvious = TRUE;
+					else if (known) msg_print("No such monsters exist at this depth.");
+
 					*cancel = FALSE;
 				}
 				break;
 			}
-			case SPELL_SUMMON_GROUP_IDX:
+			case SPELL_AIM_SUMMON_GROUP_IDX:
+			case SPELL_AIM_CREATE_GROUP_IDX:
+			case SPELL_AIM_SUMMONS_GROUP_IDX:
 			{
+				/* Get a destination to summon around */
+				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
+				
+				/* Fall through */
+			}
+			case SPELL_CREATE_GROUP_IDX:
+			{
+				if (s_ptr->type != SPELL_AIM_SUMMON_GROUP_IDX) flg |= (MFLAG_MADE);
+				
+				/* Fall through */
+			}
+			case SPELL_SUMMON_GROUP_IDX:
+			case SPELL_SUMMONS_GROUP_IDX:
+			{
+				bool grp = FALSE;
+				int old_monster_level = monster_level;
+				int k = 0;
+				
+				if ((s_ptr->type == SPELL_SUMMONS_GROUP_IDX) || (s_ptr->type == SPELL_AIM_SUMMONS_GROUP_IDX))
+				{
+					grp = TRUE;
+					if (monster_level < 20) monster_level /= 2;
+					else monster_level -= 10;
+				}
+				else if ((s_ptr->type == SPELL_CREATE_GROUP_IDX) || (s_ptr->type == SPELL_AIM_CREATE_GROUP_IDX))
+				{
+					if (monster_level < 10) monster_level /= 2;
+					else monster_level -= 5;
+				}
+				
 				summon_group_type = s_ptr->param;
 
-				while (lasts-- && summon_specific(p_ptr->py, p_ptr->px, 0, p_ptr->depth+5, SUMMON_GROUP, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+				while (lasts-- && summon_specific(y, x, 0, p_ptr->depth+5, SUMMON_GROUP, grp, flg)) k++;
 				*cancel = FALSE;
+				
+				if (k) obvious = TRUE;
+				else if (known) msg_print("No such monsters exist at this depth.");
+
+				monster_level = old_monster_level;
 				break;
 			}
 			case SPELL_CREATE_KIND:
@@ -6899,7 +7109,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Summons unique */
 				msg_format("%^s has been summoned from beyond the grave.", m_name);
 				r_info[s_ptr->param].max_num = 1;
-				summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L);
+				summon_specific_one(y, x, s_ptr->param, FALSE, flg);
 				obvious = TRUE;
 				*cancel = FALSE;
 				break;
@@ -7175,7 +7385,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 						/* Hack -- get monster light radius */
 						if (((r_ptr->flags2 & (RF2_HAS_LITE)) != 0) ||
-							((r_ptr->flags1 & (MFLAG_LITE)) != 0))
+							((m_ptr->mflag & (MFLAG_LITE)) != 0))
 						{
 							/* Get maximum light */
 							p_ptr->cur_lite = 2;
@@ -7291,7 +7501,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_REST_UNTIL_DUSK:
 			case SPELL_REST_UNTIL_DAWN:
 			{
-				feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+				feature_type *f_ptr = &f_info[cave_feat[y][x]];
 				bool notice = FALSE;
 				int i;
 
@@ -7835,7 +8045,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 	if (process_spell_prepare(spell, level, cancel, TRUE, !eaten)) obvious = TRUE;
 	if (process_spell_blows(who, what, spell, level, cancel, known, eaten)) obvious = TRUE;
 	if (process_spell_flags(who, what, spell, level, cancel, known)) obvious = TRUE;
-	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
+	if (process_spell_types(who, spell, level, cancel, *known)) obvious = TRUE;
 
 	/* Paranoia - clear boost */
 	p_ptr->boost_spell_power = 0;
@@ -9034,6 +9244,9 @@ bool region_project_hook(int y, int x, s16b d, s16b region)
 	int dam = 0;
 	bool notice;
 
+	/* If temporarily marked, skip to prevent double-hitting any occupants */
+	if (play_info[y][x] & (PLAY_TEMP)) return (FALSE);
+	
 	/* Get the feature from the region */
 	if (r_ptr->effect == GF_FEATURE)
 	{
@@ -9063,6 +9276,9 @@ bool region_project_hook(int y, int x, s16b d, s16b region)
 	/* Apply projection effects to the grids */
 	notice = project_one(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect, method_ptr->flags1 | (PROJECT_TEMP | PROJECT_HIDE));
 
+	/* Mark the grid if occupied to prevent double-hits */
+	if (cave_m_idx[y][x]) cave_temp_mark(y, x, FALSE);
+	
 	return (notice);
 }
 
@@ -9552,14 +9768,9 @@ void trigger_region(int y, int x, bool move)
  * Similar to the above region_iterate, but we are going to move each piece as a part of the
  * function and eliminate pieces if we cannot move them because of underlying terrain.
  *
- * XXX Note that ball projections with MOVE_SOURCE which move will jump all over the place.
+ * Note the code that prevents ball projections with MOVE_SOURCE which move will jump all
+ * over the place.
  * This is only because we can't see the source of the ball projection, which itself is moving.
- *
- * We should consider removing the defines which prevent us moving the destination to a grid
- * that can't be projected from the source. However, this will result in moving projections
- * frequently 'locking up' and not moving at all (for no visible reason). We should really
- * do some smarter way of verifying the source and destination that stops jumping while
- * allowing some movement.
  */
 bool region_iterate_movement(s16b region, void region_iterator(int y, int x, s16b d, s16b region, int *y1, int *x1))
 {

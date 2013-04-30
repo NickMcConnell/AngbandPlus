@@ -3270,7 +3270,7 @@ const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 			item_tester_light_source /*douse*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH | USE_HANDLE), 0L, 0L, 0, NULL},
 #endif
 	{ player_set_magic_trap, 'S', "Set trap", "Set trap with which item? ", "You have nothing which can be used in a trap.",
-			item_tester_hook_magic_trap, 0, (USE_INVEN | USE_FLOOR | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
+			item_tester_hook_magic_trap, 0, (USE_INVEN | USE_FLOOR | USE_ALLY), 0L, 0L, 0, NULL},
 
 	{ player_throw, 't', "Throw", "Throw which item? ", "You have nothing to throw.",
 			item_tester_hook_throwable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_HANDLE),
@@ -3315,7 +3315,11 @@ const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 			NULL, 0, (USE_TARGET | USE_GOLD), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), 0, NULL},
 
 	{ player_handle, 'h', "Handle", "Handle which item? ", "You see nothing to handle.",
-			NULL, 0, (0xFFFFFFFFL) & ~(USE_HANDLE | USE_FEATH | USE_SKIN | USE_QUIVER), 0, 0, 0, NULL}
+			NULL, 0, (0xFFFFFFFFL) & ~(USE_HANDLE | USE_FEATH | USE_SKIN | USE_QUIVER), 0, 0, 0, NULL},
+			
+	{ player_set_trap_or_spike, 'S', "Spike/Set trap", "Spike/Set trap with which item? ", "You have nothing to set a trap or spike with.",
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
+
 };
 
 
@@ -3832,7 +3836,7 @@ const char *inscrip_info[] =
 		"It is of good quality, but with no additional powers.  ",
 		"It is a useful ego item.  ",
 		"It is a useful artifact.  ",
-		"It is of average quality or better, and not cursed.  It may be an ego item or artifact.  ",
+		"It is not cursed.  It may be an ego item or artifact.  ",
 		"It is of very good quality, but with no additional powers.  ",
 		"It is of great quality, but with no additonal powers.  ",
 		"It is a useful ego item, with a random hidden ability.  ",
@@ -3840,7 +3844,7 @@ const char *inscrip_info[] =
 		"It is an ego item or artifact that resisted being picked up or used.  ",
 		"It is of average quality or worse, and may be cursed.  It may be an cursed ego item or artifact.  ",
 		"It is better than average quality, and not cursed.  It may be an ego item or artifact.  ",
-		"It is an ego item or artifact.  ",
+		"It is either better than average quality or cursed.  It is not an ego item or artifact.  ",
 		"It is an ego item, but may or may not be cursed.  ",
 		"It is an ego item, with a random hidden ability, but may or may not be cursed.  ",
 		"It is an artifact, but may or may not be cursed.  ",
@@ -3848,7 +3852,7 @@ const char *inscrip_info[] =
 		"There are runes on it.  It may be an ego item or artifact.  ",
 		"It is of average quality, but may be damaged by wear and tear.  ",
 		"It is valuable, but may or may not be cursed.  ",
-		"It is better than average quality, but may or may not be cursed.  It may be an ego item or artifact.  ",
+		"It is worth further investigation.  It may be a cursed item, ego item or artifact, or simply broken.  ",
 		"It is coated with a substance.  ",
 		"It has a magically applied enchantment.  "
 };

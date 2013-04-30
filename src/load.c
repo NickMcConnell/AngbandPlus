@@ -625,6 +625,18 @@ static void rd_lore(int r_idx)
 	rd_s16b(&l_ptr->deaths);
 	rd_s16b(&l_ptr->pkills);
 	rd_s16b(&l_ptr->tkills);
+	
+	/* Count player attacks */
+	if (older_than(0,6,4,1))
+	{
+		l_ptr->tblows = l_ptr->tkills;
+		l_ptr->tdamage = l_ptr->tkills;
+	}
+	else
+	{
+		rd_s16b(&l_ptr->tblows);
+		rd_s16b(&l_ptr->tdamage);
+	}
 
 	/* Count wakes and ignores */
 	rd_byte(&l_ptr->wake);

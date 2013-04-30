@@ -122,7 +122,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_birth_first_time        (OPT_BIRTH+24)
 #define OPT_birth_reseed_artifacts  (OPT_BIRTH+25)
 #define OPT_birth_evil              (OPT_BIRTH+26)
-#define OPT_birth_gollum			(OPT_BIRTH+28)
+#define OPT_birth_gollum			(OPT_BIRTH+27)
 
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)

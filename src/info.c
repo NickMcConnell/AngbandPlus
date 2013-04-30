@@ -509,6 +509,10 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	bool timed_effect = FALSE;
 
 	u32b id_flags = s_ptr->flags1;
+	
+	bool blood_debt = FALSE;
+	bool summons = FALSE;
+	bool aim_summons = FALSE;
 
 	(void)level;
 
@@ -530,6 +534,8 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags1 & (SF1_DETECT_EVIL))	vp[vn++] = "evil monsters";
 	if (s_ptr->flags1 & (SF1_DETECT_LIFE))	vp[vn++] = "living monsters";
 	if (s_ptr->type == SPELL_DETECT_MIND)	vp[vn++] = "minds";
+	if (s_ptr->type == SPELL_DETECT_FIRE)	vp[vn++] = "fire";
+	if (s_ptr->type == SPELL_REVEAL_SECRETS)	vp[vn++] = "secrets, revealing them only if you are aware of the grid";
 
 	/* Describe detection spells */
 	if (vn)
@@ -1072,14 +1078,11 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 	}
 
-	/* Collect miscellaneous */
+	/* Collect summoning */
 	vn = 0;
 
-	if (s_ptr->flags3 & (SF3_DEC_FOOD)) vp[vn++] = "makes you weak from hunger";
-	if (s_ptr->flags2 & (SF2_SLOW_POIS)) vp[vn++] = "delays the onset of poison";
-	if (s_ptr->flags2 & (SF2_SLOW_DIGEST)) vp[vn++] = "digests food more efficiently";
-	if (s_ptr->flags2 & (SF2_AGGRAVATE)) vp[vn++] = "wakes up nearby monsters and hastes those in line of sight";
-	if ((s_ptr->type == SPELL_SUMMON) || (s_ptr->type == SPELL_AIM_SUMMON))
+	if ((s_ptr->type == SPELL_SUMMON) || (s_ptr->type == SPELL_AIM_SUMMON) || (s_ptr->type == SPELL_CREATE) ||
+			(s_ptr->type == SPELL_AIM_CREATE))
 	{
 		switch(s_ptr->param)
 		{
@@ -1108,9 +1111,14 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 			case SUMMON_WRAITH: vp[vn++] = "summons wraiths"; break;
 			default: vp[vn++] = "summons monsters"; break;
 		}
+		
+		/* We check this this way to allow flags we might introduce later to define this instead */
+		if ((s_ptr->type == SPELL_SUMMON) || (s_ptr->type == SPELL_AIM_SUMMON)) blood_debt = TRUE;
+		if ((s_ptr->type == SPELL_AIM_SUMMON) || (s_ptr->type == SPELL_AIM_CREATE)) aim_summons = TRUE;
 	}
 	
-	if (s_ptr->type == SPELL_SUMMON_RACE)
+	if ((s_ptr->type == SPELL_SUMMON_RACE) || (s_ptr->type == SPELL_AIM_SUMMON_RACE) || (s_ptr->type == SPELL_CREATE_RACE) ||
+			(s_ptr->type == SPELL_AIM_CREATE_RACE))
 	{
 		char m_name[80];
 		
@@ -1118,6 +1126,10 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		race_desc(m_name, sizeof(m_name), s_ptr->param, 0x408, 1);
 
 		vp[vn++] = format("summons %s",	m_name);
+		
+		/* We check this this way to allow flags we might introduce later to define this instead */
+		if ((s_ptr->type == SPELL_SUMMON_RACE) || (s_ptr->type == SPELL_AIM_SUMMON_RACE)) blood_debt = TRUE;
+		if ((s_ptr->type == SPELL_AIM_SUMMON_RACE) || (s_ptr->type == SPELL_AIM_CREATE_RACE)) aim_summons = TRUE;
 	}
 	
 	if (s_ptr->type == SPELL_RAISE_RACE)
@@ -1128,9 +1140,58 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		race_desc(m_name, sizeof(m_name), s_ptr->param, 0x408, 1);
 
 		vp[vn++] = format("summons %s from beyond the grave",	m_name);
+		blood_debt = TRUE;
 	}
 
-	if (s_ptr->type == SPELL_SUMMON_GROUP_IDX) vp[vn++] = "summons related monsters";
+	if ((s_ptr->type == SPELL_SUMMON_GROUP_IDX) || (s_ptr->type == SPELL_AIM_SUMMON_GROUP_IDX) || (s_ptr->type == SPELL_CREATE_GROUP_IDX) ||
+			(s_ptr->type == SPELL_AIM_CREATE_GROUP_IDX))
+	{
+		vp[vn++] = "summons related monsters";
+		
+		/* We check this this way to allow flags we might introduce later to define this instead */
+		if ((s_ptr->type == SPELL_SUMMON_GROUP_IDX) || (s_ptr->type == SPELL_AIM_SUMMON_GROUP_IDX)) blood_debt = TRUE;
+		if ((s_ptr->type == SPELL_AIM_SUMMON_GROUP_IDX) || (s_ptr->type == SPELL_AIM_CREATE_GROUP_IDX)) aim_summons = TRUE;
+	}
+	
+	/* Describe summoning effects */
+	if (vn)
+	{
+		if (!introduced)
+		{
+			/* Intro */
+			text_out(intro);
+
+			introduced = TRUE;
+
+		}
+		else
+		{
+			text_out(" and ");
+		}
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) { }
+			else if (n < vn-1) text_out(", ");
+			else text_out(" and ");
+
+			/* Dump */
+			text_out(vp[n]);
+		}
+		
+		/* For later */
+		summons = TRUE;
+	}
+
+	/* Collect miscellaneous */
+	vn = 0;
+
+	if (s_ptr->flags3 & (SF3_DEC_FOOD)) vp[vn++] = "makes you weak from hunger";
+	if (s_ptr->flags2 & (SF2_SLOW_POIS)) vp[vn++] = "delays the onset of poison";
+	if (s_ptr->flags2 & (SF2_SLOW_DIGEST)) vp[vn++] = "digests food more efficiently";
+	if (s_ptr->flags2 & (SF2_AGGRAVATE)) vp[vn++] = "wakes up nearby monsters and hastes those in line of sight";
 	if (s_ptr->type == SPELL_CREATE_KIND) vp[vn++] = "creates gold";
 	if (s_ptr->flags2 & (SF2_CREATE_STAIR)) vp[vn++] = "creates a staircase under you";
 	if (s_ptr->type == SPELL_WARD_GLYPH) vp[vn++] = "creates a glyph of warding under you";
@@ -1278,6 +1339,17 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		describe_shape(s_ptr->param, FALSE);
 		
 		text_out(format("You will remain a %s until you change to another shape or end the shape change effect", p_name + p_info[s_ptr->param].name));
+	}
+	
+	/* Provide more detail if summoning something */
+	if (summons)
+	{
+		if (blood_debt) text_out(".  The summoning incurs a mana debt or blood debt which you must pay ");
+		else text_out(".  Monsters summoned this way will not leave your service ");
+		if (blood_debt) text_out("if the summons are killed before they leave your service");
+		else text_out("nor incur a mana or blood debt if they are killed");
+		
+		if (aim_summons) text_out(".  You can target this summons anywhere in line of sight");
 	}
 	
 	return (introduced);
@@ -1522,6 +1594,7 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 				case 2: u = "you"; break;
 				case 3: u = "him"; break;
 				case 4: u = "her"; break;
+				case 5: u = "him or her"; break;
 				default: u = "it"; break;
 			}
 
@@ -1539,6 +1612,7 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 				case 2: u = "your"; break;
 				case 3: u = "his"; break;
 				case 4: u = "her"; break;
+				case 5: u = "his or her"; break;
 				default: u = "its"; break;
 			}
 
@@ -1556,6 +1630,7 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 				case 2: u = "yourself"; break;
 				case 3: u = "himself"; break;
 				case 4: u = "herself"; break;
+				case 5: u = "him or herself"; break;
 				default: u = "itself"; break;
 			}
 
@@ -1613,6 +1688,8 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 #define DESC_MONSTER_SELF		0x40
 #define DESC_TRAP_VICTIM		0x80
 #define DESC_MONSTER_ATTACKER	0x100
+#define DESC_MONSTER_MALE		0x200
+#define DESC_MONSTER_FEMALE		0x400
 
 /*
  * Hack -- Get spell description for effects on target based on blow.
@@ -1635,8 +1712,16 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 	int arc = method_ptr->arc;
 	int rng = scale_method(method_ptr->max_range, level);
 
+	int person = 2;
+	
 	/* No method - skip method */
 	if (!method) details |= (DESC_SKIP_METHOD);
+	
+	/* MegaHack -- rewrite 'teleports you to it' as 'teleports its enemies to itself' */
+	if ((method == 160+7) || (method == 160+8))
+	{
+		details |= (DESC_MONSTER_SELF);
+	}
 	
 	/* Hack -- quash range details for describing monster attacks */
 	if (details & (DESC_MELEE_ATTACK))
@@ -1667,8 +1752,27 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 	/* Hack -- attack affects you */
 	if (details & (DESC_MELEE_ATTACK)) p[3] = "you";
 
-	/* Hack -- attack affects a monster using it on itself*/
-	if (details & (DESC_MONSTER_SELF)) p[3] = "them";
+	/* Hack -- attack affects a monster using it on itself */
+	if ((details & (DESC_MONSTER_SELF | DESC_MONSTER_MALE | DESC_MONSTER_FEMALE)) ==(DESC_MONSTER_SELF | DESC_MONSTER_MALE | DESC_MONSTER_FEMALE))
+	{
+		if (p[0]) person = 5;
+		else p[3] = "him or herself";
+	}
+	else if ((details & (DESC_MONSTER_SELF | DESC_MONSTER_MALE)) ==(DESC_MONSTER_SELF | DESC_MONSTER_MALE))
+	{
+		if (p[0]) person = 3;
+		else p[3] = "himself";
+	}
+	else if ((details & (DESC_MONSTER_SELF | DESC_MONSTER_FEMALE)) ==(DESC_MONSTER_SELF | DESC_MONSTER_FEMALE))
+	{
+		if (p[0]) person = 4;
+		else p[3] = "herself";
+	}
+	else if (details & (DESC_MONSTER_SELF))
+	{
+		if (p[0]) person = 6;
+		else p[3] = "itself";
+	}
 
 	/* Hack -- attack affects a monster using it on itself*/
 	if (details & (DESC_TRAP_VICTIM)) p[3] = "the victim";
@@ -1723,7 +1827,7 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 		{
 			if ((details & (DESC_SKIP_METHOD_INTRO)) == 0)
 			{
-				text_out_blow(p[0], 2, (details & (DESC_MELEE_ATTACK)) != 0, num);
+				text_out_blow(p[0], person, (details & (DESC_MELEE_ATTACK)) != 0, num);
 				need_space = TRUE;
 			}
 			
@@ -1743,34 +1847,42 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 		/* Display all effect details */
 		if ((details & (DESC_SKIP_EFFECT)) == 0)
 		{
-			if (need_space) text_out(" ");
+			if (need_space)
+			{
+				text_out(" ");
+				
+				need_space = FALSE;
+			}
 			
-			text_out("to");
+			if (p[1] || p[2] || p[3])
+			{
+				text_out("to");
+				
+				need_space = TRUE;
+			}
 	
 			if (p[1])
 			{
 				text_out(" ");
-				text_out_blow(p[1], 2, TRUE, num);
+				text_out_blow(p[1], person, TRUE, num);
 			}
 			if (p[2])
 			{
 				text_out(" ");
-				text_out_blow(p[2], 2, TRUE, num);
+				text_out_blow(p[2], person, TRUE, num);
 			}
 			if (p[3])
 			{
 				text_out(" ");
-				text_out_blow(p[3], 2, TRUE, num);
+				text_out_blow(p[3], person, TRUE, num);
 			}
-			
-			need_space = TRUE;
 		}
 	}
 	else if ((details & (DESC_SKIP_METHOD_MORE)) == 0)
 	{
 		if (p[1])
 		{
-			text_out_blow(p[1], 2, FALSE, num);
+			text_out_blow(p[1], person, FALSE, num);
 		}
 		else text_out("affects");
 
@@ -1780,12 +1892,12 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 			if (p[2])
 			{
 				text_out(" ");
-				text_out_blow(p[2], 2, FALSE, num);
+				text_out_blow(p[2], person, FALSE, num);
 			}
 			if (p[3])
 			{
 				text_out(" ");
-				text_out_blow(p[3], 2, FALSE, num);
+				text_out_blow(p[3], person, FALSE, num);
 			}
 		}
 		if (rng) text_out (format( " of range %d",rng));
@@ -1799,7 +1911,7 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 	if (((details & (DESC_SKIP_EFFECT)) == 0) && p[4])
 	{
 		if (need_space) text_out(" ");
-		text_out_blow(p[4], 2, FALSE, num);
+		text_out_blow(p[4], person, FALSE, num);
 		need_space = TRUE;
 	}
 
@@ -1815,18 +1927,18 @@ void describe_blow(int method, int effect, int level, int feat, const char *intr
 			if (!(f_ptr->flags1 & (FF1_MOVE)))
 			{
 				if (need_space) text_out(" ");
-				text_out_blow(p[5], 2, FALSE, num);
+				text_out_blow(p[5], person, FALSE, num);
 				text_out(" 4d8 ");
-				text_out_blow(p[6], 2, FALSE, num);
+				text_out_blow(p[6], person, FALSE, num);
 			}
 		}
 		/* Get the description */
 		else if (damage && strlen(damage))
 		{
 			if (need_space) text_out(" ");
-			text_out_blow(p[5], 2, FALSE, num);
+			text_out_blow(p[5], person, FALSE, num);
 			text_out(format(" %s ", damage));
-			text_out_blow(p[6], 2, FALSE, num);
+			text_out_blow(p[6], person, FALSE, num);
 		}
 	}
 }
@@ -4038,7 +4150,23 @@ void list_object(const object_type *o_ptr, int mode)
 				anything = TRUE;
 				break;
 			case TV_ASSEMBLY:
-				text_out("You can assemble this together to make something.  ");
+				if (o_ptr->sval == SV_ASSEMBLY_FULL)
+				{
+					if (o_ptr->name3)
+					{
+						text_out("You have assembled something.  ");
+						
+						if (o_ptr->timeout) text_out("It is alive...  ");
+					}
+					else
+					{
+						text_out(format("When set in a trap with other items, this causes the trap to trigger automatically every %s turns.", o_ptr->charges));
+					}
+				}
+				else
+				{
+					text_out("You can assemble this together to make something.  ");
+				}
 				anything = TRUE;
 				break;
 			case TV_MAP:
@@ -4466,6 +4594,9 @@ void list_object(const object_type *o_ptr, int mode)
 						case TV_MUSHROOM:
 						case TV_FOOD:
 							break;
+						case TV_FLASK:
+							text_out(" if you are undead");
+							break;
 						case TV_EGG:
 							text_out(" to hungry players");
 							break;
@@ -4523,12 +4654,12 @@ void list_object(const object_type *o_ptr, int mode)
 						if (!detail) learn |= tmp;
 					}
 				}
-
-				if (vp[n] == vp_coat_self)
+				
+				if ((powers) && (vp[n] == vp_coat_self))
 				{
 					text_out(", if they hit the applied region");
 				}
-
+				
 				if ((charge) && (powers))
 				{
 					if ((time) && (randtime)) text_out(format(", recharging in d%d+%d turns.  ",randtime, time));
@@ -4807,7 +4938,7 @@ void list_object(const object_type *o_ptr, int mode)
 	}
 
 	/* Abort now if undisplayable origin */
-	if (!(o_ptr->origin == ORIGIN_NONE || o_ptr->origin == ORIGIN_MIXED))
+	if (!random && !(o_ptr->origin == ORIGIN_NONE || o_ptr->origin == ORIGIN_MIXED))
 	{
 
 		if (o_ptr->number > 1)
@@ -4904,7 +5035,7 @@ void list_object(const object_type *o_ptr, int mode)
 			if (!(bag_holds[o_ptr->sval][i][0])) continue;
 
 			/* Nothing in slot */
-			if (!(bag_contents[o_ptr->sval][i]) && !spoil) continue;
+			if (!(bag_contents[o_ptr->sval][i])) continue;
 
 			/* Fake the item */
 			fake_bag_item(i_ptr, o_ptr->sval, i);
@@ -7190,13 +7321,26 @@ s32b object_power(const object_type *o_ptr)
 			/* Might helps with traps but not terribly well */
 			if (f1 & TR1_MIGHT)
 			{
-				if (o_ptr->pval > 3 || o_ptr->pval < 0)
+				if (o_ptr->pval > 10 || o_ptr->pval < 0)
 				{
 					p += 20000;	/* inhibit */
 				}
 				else if (o_ptr->pval > 0)
 				{
-					p = sign(p) * ((ABS(p) * (15 + o_ptr->pval)) / 15);
+					p += sign(p) * o_ptr->pval;
+				}
+			}
+
+			/* Shots helps with traps but not terribly well */
+			if (f1 & TR1_SHOTS)
+			{
+				if (o_ptr->pval > 10 || o_ptr->pval < 0)
+				{
+					p += 20000;	/* inhibit */
+				}
+				else if (o_ptr->pval > 0)
+				{
+					p += sign(p) * o_ptr->pval;
 				}
 			}
 

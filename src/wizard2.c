@@ -996,14 +996,6 @@ static void do_cmd_wiz_cure_all(void)
 	/* Restore the level */
 	(void)restore_level();
 
-	/* Heal the player */
-	p_ptr->chp = p_ptr->mhp;
-	p_ptr->chp_frac = 0;
-
-	/* Restore mana */
-	p_ptr->csp = p_ptr->msp;
-	p_ptr->csp_frac = 0;
-
 	/* Remove diseases */
 	p_ptr->disease = 0;
 
@@ -1013,6 +1005,14 @@ static void do_cmd_wiz_cure_all(void)
 		set_timed(i, 0, TRUE);
 	}
 
+	/* Heal the player */
+	p_ptr->chp = p_ptr->mhp;
+	p_ptr->chp_frac = 0;
+	
+	/* Restore mana */
+	p_ptr->csp = p_ptr->msp;
+	p_ptr->csp_frac = 0;
+	
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
 

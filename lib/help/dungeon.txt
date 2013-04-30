@@ -1,23 +1,33 @@
-=== The Dungeon ===
+=== The World ===
+
+After you have created your character, you will begin your adventures in
+Unangband. Symbols appearing on your screen will represent the world's walls,
+floor, objects, features, and creatures lurking about. In order to direct
+your character through his adventure, you will enter single character
+commands (see "commands.txt").
 
 
-After you have created your character, you will begin your Angband adventure.
-Symbols appearing on your screen will represent the dungeon's walls, floor,
-objects, features, and creatures lurking about.  In order to direct your
-character through his adventure, you will enter single character commands
-(see "commands.txt").
+=== Locations ===
 
-=== The Town Level ===
+You begin in Hobbiton but will have to travel to distant lands to complete
+your quest. Hobbiton is a fairly quiet place but you will find that the
+danger escalates quickly as you stray from it. There are a number of
+locations you can visit, each with their own challenges and rewards. Some
+locations consist of a small towns, while others have dungeons deep
+underground, tall towers, or big battlefields to explore.
 
-The town level is where you will begin your adventure.  The town consists of
-eight buildings (each with an entrance), some townspeople, and a wall which
+
+=== Town Levels ===
+
+You will find various towns in your adventures of Middle Earth.  They consist 
+of buildings (each with an entrance), some townspeople, and a wall which
 surrounds the town.  The first time you are in town it will be daytime, but
 note that the sun rises and falls (rather instantly) as time passes.
 
 
 === Townspeople ===
 
-The town contains many different kinds of people.  There are the street
+The towns contain many different kinds of people.  There are the street
 urchins, young children who will mob an adventurer for money, and seem to
 come out of the woodwork when excited.  Blubbering idiots are a constant
 annoyance, but not harmful.  Public drunks wander about the town singing,
@@ -82,6 +92,9 @@ they will add it to their inventory.  If it was a bad bargain, they simply
 throw the item away.  In any case, you may receive some knowledge of the
 item if another is encountered.
 
+Here is a list of the "basic" kinds of stores, altough you may find others
+during your adventures:
+
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
      oil, shovels, picks, and spikes.  All of these items and some others
@@ -124,7 +137,7 @@ Your Home ("8")
 === Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
-weapons, he is ready to enter the dungeon.  However, first he has to travel
+weapons, he is ready to enter a dungeon.  However, first he has to travel
 through wilderness (using the travel command "<") to find an entrance.
 Look at the file "memap.txt" to get some idea of the layout of the regions 
 of Middle Earth close to the starting town of Hobbiton. Once the entrance 
@@ -200,19 +213,18 @@ also items on the ground, if you are standing on top of them.
 
 Chests are complex objects, containing traps, locks, and possibly treasure
 or other objects inside them once they are opened.  Many of the commands
-that apply to traps or doors also apply to chests and, like traps and doors,
-these commands do not work if you are carrying the chest.
+that apply to traps or doors also apply to chests.
 
 One item in particular will be discussed here.  The scroll of "Word of
 Recall" can be found within the dungeon, or bought at the temple in town.
 It acts in two manners, depending upon  your current location.  If read
-within the dungeon, it will teleport you back to town.  If read in town, it
-will teleport you back down to the deepest level of the dungeon which your
-character has previously been on.  This makes the scroll very useful for
-getting back to the deeper levels of Angband.  Once the scroll has been
-read it takes a while for the spell to act, so don't expect it to save you
-in a crisis.  Reading a second scroll before the first has had a chance to
-take effect will cancel both scrolls.
+within the dungeon, it will teleport you back to the surface.  If read on the
+surface, it will teleport you back down to the deepest level of the dungeon
+which your character has previously been on.  This makes the scroll very
+useful for getting back to the deeper levels.  Once the scroll has been read
+it takes a while for the spell to act, so don't expect it to save you in a
+crisis.  Reading a second scroll before the first has had a chance to take
+effect will cancel both scrolls.
 
 You may "inscribe" any object with a textual inscription of your choice.
 These inscriptions are not limited in length, though you may not be able to
@@ -229,18 +241,16 @@ item which was purchased at a discount, implying that it is slightly
 "sub-standard", will be inscribed with the appropriate "discount", such as
 "25% off".  Note that these inscriptions are fake, and cannot be removed.
 
-Also, occasionally you will notice that something in your inventory or
-equipment list seems to be magical.  High level characters are much more
-likely to notice this than beginning characters.  When you do notice this,
-the item in question will be inscribed with "good" or "cursed" as is
-relevant. Warriors, paladins (both well acquainted with weapons and armor)
-and rogues (who have handled many powerful items in their time as stolen
-goods) are more sensitive, and can notice not just that an item is out of
-the ordinary, but just *how* extraordinary it is: they can notice an 
-"excellent" item (ego item), a "worthless" one (cursed ego item), a 
-"special" one (artifact) and a "terrible" one (cursed artifact). All 
-classes will know an item is "special" if it cannot be destroyed with the 
-"k" command (original keyset.)
+Also, occasionally you will notice that the objects you find seems to be 
+magical.  When you do notice this, the item in question will be inscribed
+with "good" or "cursed" as is relevant. Some classes, such as warriors,  
+paladins (both well acquainted with weapons and armor) or rogues (who have
+handled many powerful items in their time as stolen goods) are more
+sensitive, and can notice not just that an item is out of the ordinary, but
+just *how* extraordinary it is: they can notice an "excellent" item (ego
+item), a "worthless" one (cursed ego item), a "special" one (artifact) and a
+"terrible" one (cursed artifact). All classes will know an item is "special"
+if it cannot be destroyed with the "k" command (original keyset.)
 
 It is rumored that rings of power and extra rare spell books may be found
 deeper in the dungeon...
@@ -255,9 +265,9 @@ chest full of treasure will grow teeth in its lid and bite your hand off...
 Some objects, mainly armor and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
 detract from your character's stats or abilities if worn.  They will also
-be impossible to remove until a remove curse is performed.  In fact some
-are so badly cursed that even this will not work, and more potent methods
-are needed.
+be impossible to remove until a remove curse spell is performed.  In fact 
+some are so badly cursed that even this will not work, and more potent 
+methods are needed.
 
 If you wear or wield a cursed item, you will immediately feel deathly cold,
 and the item will be marked with the fake inscription "cursed".
@@ -392,13 +402,17 @@ less realms beneath.
 
 === Winning The Game ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
-dungeon, a magical staircase will appear that will allow you to finally reach
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be
-able to go below his level until you have killed him.  Try to avoid wandering
-around on level 100 unless you are ready for him, since he has a habit of
-coming at you across the dungeon, the Mighty Hammer 'Grond' in hand, to slay
-you for your impudence.
+The goal of Unangband is to venture deep into the land of Mordor and kill 
+Sauron, and into the depths of Angband to kill Morgoth.  Getting to Mordor is
+not an easy journy however, and there are many who would wish to stop you
+along the way.  Many locations you encounter will have guardians, which
+prevent you from advancing further until you manage to kill them.  Note that
+there are many routes to Mordor, some more obvious and some more difficult 
+than others. Sauron and especially Morgoth are two of the most difficult
+opponents in the game, so try to avoid wandering around on their levels
+unless you are ready for battle. Morgoth has a habit of coming at you across
+the dungeon, the Mighty Hammer 'Grond' in hand, to slay you for your
+impudence.
 
 Morgoth cannot be killed by some of the easier methods used on normal
 creatures.  Morgoth, like all other "Unique" monsters, will simply teleport

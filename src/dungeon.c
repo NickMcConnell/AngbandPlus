@@ -595,7 +595,7 @@ static void sense_inventory(void)
 		}
 
 		/* Eggs become 'attuned' to the player if carried awhile, resulting in friendly monsters */
-		if ((o_ptr->tval == TV_EGG) && (o_ptr->timeout)) o_ptr->ident = (IDENT_FORGED);
+		if ((o_ptr->tval == TV_EGG) && (o_ptr->sval == SV_EGG_EGG) && (o_ptr->timeout)) o_ptr->ident = (IDENT_FORGED);
 
 		/* Sense flags to see if we have ability */
 		if ((i >= INVEN_WIELD) && !(IS_QUIVER_SLOT(i)))
@@ -2453,7 +2453,7 @@ static void process_command(void)
 		/* Jam a door with spikes */
 		case 'j':
 		{
-			do_cmd_set_trap_or_spike();
+			do_cmd_item(COMMAND_ITEM_SET_TRAP_OR_SPIKE);
 			break;
 		}
 

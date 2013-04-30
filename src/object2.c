@@ -5006,8 +5006,11 @@ static bool name_drop_okay(int r_idx)
 		/* Seed layers are plants but not slimes or spores */
 		else if ((j_ptr->sval == SV_EGG_SEED) && ((r_ptr->flags8 & (RF8_HAS_SPORE | RF8_HAS_SLIME)) || !(r_ptr->flags3 & (RF3_PLANT)))) return (FALSE);
 
+		/* Lemure chrysalises hatch demons */
+		if ((j_ptr->sval == SV_EGG_CHRYSALIS) && !(r_ptr->flags3 & (RF3_DEMON))) return (FALSE);
+
 		/* Undead/demons never have eggs */
-		if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON)) return (FALSE);
+		else if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON)) return (FALSE);
 
 		/* Hack -- dragons only hatch babies */
 		if ((r_ptr->flags3 & (RF3_DRAGON)) && (!strstr(r_name+r_ptr->name, "aby"))) return (FALSE);
@@ -5980,6 +5983,27 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	if ((k_info[j_ptr->k_idx].flavor) && !(object_aware_p(j_ptr)) && (k_info[j_ptr->k_idx].aware & (AWARE_RUNEX)))
 	{
 		j_ptr->ident |= (IDENT_RUNES);
+	}
+
+	/* Sense magic on this kind */
+	if ((k_info[j_ptr->k_idx].flavor) && !(object_aware_p(j_ptr)) && (k_info[j_ptr->k_idx].aware & (AWARE_SENSEX)))
+	{
+		int i, j;
+
+		/* Check bags */
+		for (i = 0; i < SV_BAG_MAX_BAGS; i++)
+
+		/* Find slot */
+		for (j = 0; j < INVEN_BAG_TOTAL; j++)
+		{
+			if ((bag_holds[i][j][0] == j_ptr->tval)
+				&& (bag_holds[i][j][1] == j_ptr->sval))
+			{
+			    j_ptr->feeling = MAX_INSCRIP + i;
+			    
+			    break;
+			}
+		}
 	}
 
 	/* Success */
@@ -7869,8 +7893,6 @@ int create_trap_region(int y, int x, int feat, int power, bool player)
 				(!get_aim_dir(&dir, TARGET_KILL, MAX_RANGE, radius, flg, method_ptr->arc, method_ptr->diameter_of_source)))
 						return (0);
 
-		msg_format("%d", dir);
-
 		/* Use the given direction */
 		ty = y + 99 * ddy[dir];
 		tx = x + 99 * ddx[dir];
@@ -8012,6 +8034,7 @@ void pick_trap(int y, int x, bool player)
 					pick_attr = TERM_L_BLUE;	/* Magic symbol */
 					break;
 
+				case TV_ASSEMBLY:
 				case TV_ROD:
 					pick_attr = TERM_MUSTARD;	/* Clockwork mechanism */
 					break;
@@ -9120,6 +9143,10 @@ s16b inven_takeoff(int item, int amt)
 		
 		/* Get the monster name (or "it") */
 		monster_desc(m_name, sizeof(m_name), o_ptr->held_m_idx, 0);
+		
+		/* Hack - capitalize monster name */
+		if (islower((unsigned char)m_name[0]))
+			m_name[0] = toupper((unsigned char)m_name[0]);
 	}
 
 	/* Paranoia */

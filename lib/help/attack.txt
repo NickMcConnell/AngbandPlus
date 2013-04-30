@@ -14,17 +14,18 @@ you to attack any creature in the wall. This applies to creatures which
 there, and the creature can be targetted normally.
 
 If you are wielding a weapon, the damage for the weapon is used when you hit
-a creature.  Otherwise you get a single punch which does minimal damage.
+a creature.  Otherwise you will only be able to punch or kick which does little
+damage.
 
 You may "w"ield one weapon for melee combat, and also one missile launcher
 (bow, crossbow or sling.) You may also wear one amulet (around the one and 
 only neck of the character), two rings (on the two "ring" fingers, i.e. the
 third finger of each hand: a magic ring does not function when worn on any
-other finger, nor may two be worn on the same finger), one light source, 
-and a full set of armor - body armor, shield, helmet, gloves, boots and a
-cloak. Any or all of these items may provide powers to the character in 
-terms of bonuses to-hit, to-damage, to-armor class, or to other stats (in
-the latter case, a single numerical bonus applies to all affected stats.)
+other finger), one light source, and a full set of armor - body armor, shield,
+helmet, gloves, boots and a cloak. Any or all of these items may provide powers
+to the character in terms of bonuses to-hit, to-damage, to-armor class, or to
+other stats (in the latter case, a single numerical bonus applies to all
+affected stats.)
  
 Firing a missile (while wielding the appropriate launcher) is the only way to
 get the "full" power out of the missile.  You may of course throw an arrow at
@@ -49,7 +50,7 @@ character needs at two separate times.
 
 Weapons have two main magical characteristics, their enchanted ability to hit
 and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in Angband have bonuses to hit
+weapon would be `(+0,+0)'.  Many weapons in Unangband have bonuses to hit
 and/or do damage.  Some weapons are cursed, and have penalties that hurt the
 player.  Cursed weapons cannot be unwielded until the curse is lifted.
 Identifying a weapon will inform you of the magical bonuses and penalties

@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	4
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 /*
  * Oldest version number that can still be imported
@@ -626,6 +626,7 @@ enum
 	COMMAND_ITEM_FILL_FIREARM, COMMAND_ITEM_LITE, COMMAND_ITEM_MAGIC_TRAP, COMMAND_ITEM_THROW, COMMAND_ITEM_FIRE_SLING,
 	COMMAND_ITEM_FIRE_BOW, COMMAND_ITEM_FIRE_XBOW, COMMAND_ITEM_FIRE_GUN, COMMAND_ITEM_CAST_SPELL, COMMAND_ITEM_STUDY,
 	COMMAND_ITEM_BROWSE, COMMAND_ITEM_OFFER, COMMAND_ITEM_TRADE, COMMAND_ITEM_STEAL, COMMAND_ITEM_HANDLE,
+	COMMAND_ITEM_SET_TRAP_OR_SPIKE,
 	
 	MAX_COMMANDS
 };
@@ -1077,6 +1078,7 @@ enum
 #define GF_POTS	152
 #define GF_CHARM_PLANT	153
 #define GF_TANGLE_WEAK	154
+#define GF_LITE_BODY	155
 
 
 
@@ -1712,11 +1714,25 @@ enum
 #define SPELL_DAMAGING_HURL	57
 #define SPELL_CURSE_WEAPON	58
 #define SPELL_CURSE_ARMOR	59
-#define SPELL_XXXX			60
+#define SPELL_REVEAL_SECRETS	60
 #define SPELL_DETECT_FIRE	61
 #define SPELL_REGION		62
 #define SPELL_SET_TRAP		63
 #define SPELL_DELAY_SPELL	64
+#define SPELL_AIM_SUMMON_RACE    65
+#define SPELL_AIM_SUMMON_GROUP_IDX    66
+#define SPELL_CREATE     67
+#define SPELL_CREATE_RACE       68
+#define SPELL_CREATE_GROUP_IDX     69
+#define SPELL_AIM_CREATE     70
+#define SPELL_AIM_CREATE_RACE       71
+#define SPELL_AIM_CREATE_GROUP_IDX     72
+#define SPELL_SUMMONS     73
+#define SPELL_SUMMONS_RACE       74
+#define SPELL_SUMMONS_GROUP_IDX     75
+#define SPELL_AIM_SUMMONS     76
+#define SPELL_AIM_SUMMONS_RACE       77
+#define SPELL_AIM_SUMMONS_GROUP_IDX     78
 
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
@@ -1989,6 +2005,7 @@ enum
 #define SV_HOLD_CAGE  4
 
 /* The "sval" codes for TV_JUNK */
+#define SV_JUNK_PEBBLE	     0
 #define SV_JUNK_ROCK	     1
 #define SV_JUNK_SHARD 3
 #define SV_JUNK_STICK	     6
@@ -2064,6 +2081,7 @@ enum
 #define SV_EGG_EGG    1
 #define SV_EGG_SPORE  2
 #define SV_EGG_SEED  3
+#define SV_EGG_CHRYSALIS	4
 
 /* The "sval" codes for TV_SPELL */
 /*
@@ -2545,7 +2563,7 @@ enum
 #define SV_FLASK_ACID     2
 #define SV_FLASK_BLOOD	  3
 #define SV_FLASK_SLIME	  4
-#define SV_FLASK_BILE	  5
+#define SV_FLASK_BILE	  7
 #define SV_FLASK_WEB	  15
 
 /* The sval codes for containers */
@@ -2909,14 +2927,15 @@ enum
 /*
  * Flags for attack descriptions.
  */
-#define ATK_DESC_PRIMARY	0x01
-#define ATK_DESC_ALTERNATE	0x02
-#define ATK_DESC_HEARD		0x04
-#define ATK_DESC_INDIRECT	0x08
-#define ATK_DESC_SELF		0x10
-#define ATK_DESC_TENSE		0x20
-#define ATK_DESC_LAST		0x40
-#define ATK_DESC_EXCLAIM	0x80
+#define ATK_DESC_PRIMARY	0x0001
+#define ATK_DESC_ALTERNATE	0x0002
+#define ATK_DESC_HEARD		0x0004
+#define ATK_DESC_INDIRECT	0x0008
+#define ATK_DESC_SELF		0x0010
+#define ATK_DESC_TENSE		0x0020
+#define ATK_DESC_LAST		0x0040
+#define ATK_DESC_EXCLAIM	0x0080	/* Finish end of sentence with excalamation mark */
+#define ATK_DESC_NO_STOP	0x0100	/* Don't punctuate end of sentence */
 
 
 
@@ -3438,15 +3457,15 @@ enum
 #define INSCRIP_GOOD	    	6
 #define INSCRIP_EXCELLENT       7
 #define INSCRIP_SPECIAL	 	8
-#define INSCRIP_UNCURSED	9  /* Uncursed, or has been detected to be average or better */
+#define INSCRIP_UNCURSED	9  /* Uncursed, or has been detected to be not cursed */
 #define INSCRIP_VERY_GOOD       10
 #define INSCRIP_GREAT    	11
 #define INSCRIP_SUPERB   	12
 #define INSCRIP_UNBREAKABLE	13 /* Artifact */
 #define INSCRIP_UNGETTABLE	14 /* Has flag preventing player / monster getting it */
-#define INSCRIP_NONMAGICAL	15 /* Has been detected to be average or cursed */
+#define INSCRIP_NONMAGICAL	15 /* Has been detected to be average, broken or cursed (includes cursed artifacts, ego items and magic items)*/
 #define INSCRIP_MAGICAL		16 /* Has been detected to be better than average */
-#define INSCRIP_MAGIC_ITEM	17 /* Unusual, but not ego item or artifact. Used to distinguish items which have been sensed. */
+#define INSCRIP_MAGIC_ITEM	17 /* Unusual, but not ego item or artifact */
 #define INSCRIP_EGO_ITEM	18 /* Has been detected to be ego item */
 #define INSCRIP_HIGH_EGO_ITEM	19 /* Has been detected to be high ego item */
 #define INSCRIP_ARTIFACT	20 /* Has been detected to be artifact */
@@ -3457,6 +3476,10 @@ enum
 #define INSCRIP_UNUSUAL		25 /* Has been detected to be not average */
 #define INSCRIP_COATED		26 /* Has been coated with something */
 #define INSCRIP_MIN_HIDDEN      27 /* Minimum inscription for hidden */
+
+#define INSCRIP_USEFUL		16 /* TBD: Either good, very good or great without being an ego item or artifact */
+#define INSCRIP_USELESS		9 /* TBD: Either average or broken, without being cursed */
+
 
 
 /*

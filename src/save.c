@@ -347,6 +347,10 @@ static void wr_lore(int r_idx)
 	wr_s16b(l_ptr->deaths);
 	wr_s16b(l_ptr->pkills);
 	wr_s16b(l_ptr->tkills);
+	
+	/* Count player attacks on monster */
+	wr_s16b(l_ptr->tblows);
+	wr_s16b(l_ptr->tdamage);
 
 	/* Count wakes and ignores */
 	wr_byte(l_ptr->wake);

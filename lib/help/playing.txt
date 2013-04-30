@@ -1,7 +1,7 @@
 === Playing the Game ===
 
-    Most of your interaction with Angband will take the form of "commands".
-Every Angband command consists of an "underlying command" plus a variety of
+    Most of your interaction with Unangband will take the form of "commands".
+Every Unangband command consists of an "underlying command" plus a variety of
 optional or required arguments, such as a repeat count, a direction, or the
 index of an inventory object.  Commands are normally specified by typing a
 series of keypresses, from which the underlying command is extracted, along
@@ -84,7 +84,7 @@ the host machine, causing unexpected results.  In general, these special keys
 are control keys, and often, you can disable their special effects.
 
         If you are playing on a UNIX or similar system, then Ctrl-C will
-interrupt Angband.  The second and third interrupt will induce a warning
+interrupt Unangband.  The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character.  Also,
 Ctrl-Z will suspend the game, and return you to the original command shell,
@@ -101,7 +101,7 @@ by the operating system as explained above.
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
-angband keyset.  The backslash key is useful for creating macro actions
+Unangband keyset.  The backslash key is useful for creating macro actions
 which are not affected by any keymap definitions that may be in force, for
 example, the sequence "\" + "." + "6" will always mean "run east", even if
 the "." key has been mapped to a different underlying command.
@@ -138,7 +138,7 @@ character.  This character is ignored, but it is safest to use a SPACE or
 ESCAPE which are always ignored as commands in case you type the command
 just after the count expires.
 
-        You can tell Angband to automatically use a repeat count of 99
+        You can tell Unangband to automatically use a repeat count of 99
 with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
 
@@ -172,7 +172,7 @@ with "@#" where "#" is the number you entered will be selected.  For example,
 if you have a shovel engraved with "@0" and you type "w" (for wield) and
 then 0, you will wield the shovel.  This is very useful for macros (see
 below), since you can use this to select an object regardless of its
-location in your pack.  For example, Angband automatically defines a macro
+location in your pack.  For example, Unangband automatically defines a macro
 for the key "X" to do "w0".  If you then engrave both your digging
 instrument and your primary weapon with @0, pressing X will wield
 whichever one is not being currently wielded (letting you quickly switch

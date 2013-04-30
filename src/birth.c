@@ -171,7 +171,7 @@ static void load_prev_data(void)
  * or minimal for the point-based character generation.
  * Otherwise, semi-random changes will occur.
  */
-static int adjust_stat(int value, int amount, int auto_roll)
+static int adjust_stat(int value, int amount)
 {
 	/* Negative amounts */
 	if (amount < 0)
@@ -187,7 +187,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
 		/* Apply reward */
 		for (i = 0; i < amount; i++)
 		{
-			value = calc_inc_stat(value, auto_roll);
+			value = calc_inc_stat(value);
 		}
 
 		return (value);
@@ -235,8 +235,8 @@ static void get_stats(void)
 		/* Obtain a "bonus" for "race" and "class" */
 		bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-		/* Apply the bonus to the stat (randomly) */
-		stat_use[i] = adjust_stat(j, bonus_add, 0);
+		/* Apply the bonus to the stat */
+		stat_use[i] = adjust_stat(j, bonus_add);
 
 		/* Save the resulting stat maximum */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
@@ -1154,14 +1154,8 @@ static void race_aux_hook(birth_menu r_str)
 	    /* Obtain a "bonus" for "race" and "class" */
 	    int bonus_add = rp_ptr->r_adj[i];
 
-	    /* Get the minimally increased stat for the bonuses */
-	    int value_min = adjust_stat(10, bonus_add, 1);
-
-	    /* Get the maximally increased stat for the bonuses */
-	    int value_max = adjust_stat(10, bonus_add, 99);
-
 	    /* Get the stat increased by the average for the bonuses */
-	    int value = value_min + (value_max - value_min) / 2;
+	    int value = adjust_stat(10, bonus_add);
 
 	    /* Apply the racial bonuses */
 	    p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
@@ -1274,14 +1268,8 @@ static void class_aux_hook(birth_menu c_str)
 	    /* Obtain a "bonus" for "race" and "class" */
 	    int bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-	    /* Get the minimally increased stat for the bonuses */
-	    int value_min = adjust_stat(10, bonus_add, 1);
-
-	    /* Get the maximally increased stat for the bonuses */
-	    int value_max = adjust_stat(10, bonus_add, 99);
-
-	    /* Get the stat increased by the average for the bonuses */
-	    int value = value_min + (value_max - value_min) / 2;
+	    /* Get the stat increased for the bonuses */
+	    int value = adjust_stat(10, bonus_add);
 
 	    /* Apply the racial/class bonuses */
 	    p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
@@ -2312,14 +2300,8 @@ static bool player_birth_aux_2(void)
 			/* Obtain a "bonus" for "race" and "class" */
 			int bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-			/* Get the minimally increased stat for the bonuses */
-			int value_min = adjust_stat(stats[i], bonus_add, 1);
-
-			/* Get the maximally increased stat for the bonuses */
-			int value_max = adjust_stat(stats[i], bonus_add, 99);
-
-			/* Get the stat increased by the average for the bonuses */
-			int value = value_min + (value_max - value_min) / 2;
+			/* Get the stat increased for the bonuses */
+			int value = adjust_stat(stats[i], bonus_add);
 
 			/* Apply the racial/class bonuses */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
@@ -2502,7 +2484,7 @@ static bool player_birth_aux_3(void)
 			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, 99);
+			m = adjust_stat(17, j);
 
 			/* Save the maximum */
 			mval[i] = m;

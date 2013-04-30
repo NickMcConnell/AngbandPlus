@@ -629,11 +629,12 @@ bool player_wield(int item)
 	{
 		switch (j_ptr->feeling)
 		{
-/* TODO	case INSCRIP_NONMAGICAL: j_ptr->feeling = INSCRIP_AVERAGE; break; */
 			case INSCRIP_ARTIFACT: j_ptr->feeling = INSCRIP_SPECIAL; break;
 			case INSCRIP_HIGH_EGO_ITEM: j_ptr->feeling = INSCRIP_SUPERB; break;
 			case INSCRIP_EGO_ITEM: j_ptr->feeling = INSCRIP_EXCELLENT; break;
-/*	TODO	case INSCRIP_UNUSUAL: j_ptr->feeling = INSCRIP_MAGICAL; break; */
+			case INSCRIP_MAGIC_ITEM: j_ptr->feeling = INSCRIP_USEFUL; break;
+			case INSCRIP_NONMAGICAL: j_ptr->feeling = INSCRIP_USELESS; break;
+			case INSCRIP_UNUSUAL: j_ptr->feeling = INSCRIP_UNCURSED; break;
 		}
 	}
 
@@ -969,7 +970,7 @@ bool player_steal(int item)
 	
 		/* Always have a small chance of success */
 		if (j < 2) j = 2;
-	
+
 		/* Failure */
 		if (rand_int(100) > j)
 		{
@@ -1007,15 +1008,6 @@ bool player_steal(int item)
 			return (FALSE);
 		}
 	}
-	else
-	{
-		/* Stealing monster first time reveals the rest of its inventory */
-		if (monster_drop(p_ptr->target_who))
-		{
-			/* Message */
-			msg_format("%^s has more to steal.", m_name);
-		}
-	}
 	
 	/* Stealing gold is a straight reward */
 	if (item == INVEN_GOLD)
@@ -1025,10 +1017,14 @@ bool player_steal(int item)
 				&& (r_info[m_ptr->r_idx].flags1 >= RF1_DROP_30))
 		{
 			/* XXX Reward based on monster level - token amount for town */
-			p_ptr->au += randint(r_info[m_ptr->r_idx].level * 30 + 5);
+			int au = randint(r_info[m_ptr->r_idx].level * 30 + 5);
+			
+			p_ptr->au += au;
 			
 			/* Update display */
 			p_ptr->redraw |= (PR_GOLD);
+			
+			msg_format("You steal %d gold pieces.", au);
 		}
 		else
 		{
@@ -1047,6 +1043,13 @@ bool player_steal(int item)
 
 		/* Get the item */
 		inven_takeoff(item, amt);
+	}
+	
+	/* Stealing monster first time reveals the rest of its inventory */
+	if (((m_ptr->mflag & (MFLAG_MADE)) == 0) && (monster_drop(p_ptr->target_who)))
+	{
+		/* Message */
+		msg_format("%^s has more to steal.", m_name);
 	}
 	
 	/* Use up energy */
@@ -1214,6 +1217,12 @@ bool player_offer(int item)
 		/* Get the monster name (or "it") */
 		monster_desc(m_name, sizeof(m_name), m_idx, 0x04);
 
+		/* Gollums wake monsters up */
+		if (adult_gollum)
+		{
+			m_ptr->csleep = 0;
+		}
+		
 		/* Sleeping monsters ignore you */
 		if (m_ptr->csleep)
 		{
@@ -1683,7 +1692,7 @@ bool player_trade(int item2)
 	}
 	
 	/* Cheated the player out of money */
-	if ((item2 == INVEN_GOLD) && (item != INVEN_GOLD) && (!value) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
+	if ((!adult_gollum) && (item2 == INVEN_GOLD) && (item != INVEN_GOLD) && (!value) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
 	{
 		/* Really ripping the player off */
 		if (level_flag & (LF1_TOWN)) monster_speech(trade_m_idx, comment_2[rand_int(MAX_COMMENT_2)], FALSE);
@@ -1708,6 +1717,9 @@ bool player_trade(int item2)
 			/* Boost a deal */
 			while (!rand_int((m_ptr->mflag & (MFLAG_ALLY)) ? 3 : 4)) deal++;
 		}
+		
+		/* Gollums always make a minimum deal */
+		if ((adult_gollum) && (deal < 2)) deal = 2;
 
 		/* We can offer stuff to business associates to make them allies */
 		if ((deal > 4) && ((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN | MFLAG_MADE | MFLAG_AGGR)) == (MFLAG_TOWN | MFLAG_MADE)))
@@ -1814,7 +1826,7 @@ bool player_trade(int item2)
 
 		/* We can offer stuff to monsters to either slow them down or make them 'neutral'. */
 		/* Gollums are wretched enough to make anything sound moderately attractive */
-		else if (((adult_gollum) || (deal > 0)) && (((m_ptr->mflag & (MFLAG_TOWN)) == 0) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
+		else if ((deal > 0) && (((m_ptr->mflag & (MFLAG_TOWN)) == 0) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
 		{
 			/* Enough to at least make him not attack. */
 			if (deal > 1)
@@ -2836,13 +2848,19 @@ bool player_light_and_douse(int item)
 	/* Light the light source */
 	if (!(o_ptr->timeout))
 	{
-		msg_format("You light %s %s.", own_str, o_name);
-		o_ptr->timeout = o_ptr->charges;
-		o_ptr->charges = 0;
-
-		if (item < 0)
+		if (!(o_ptr->charges))
 		{
-			gain_attribute(p_ptr->py, p_ptr->px, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
+			msg_format("You try to light %s %s but it splutters and goes out!", own_str, o_name);			
+		}
+		else {
+			msg_format("You light %s %s.", own_str, o_name);
+			o_ptr->timeout = o_ptr->charges;
+			o_ptr->charges = 0;
+
+			if (item < 0)
+			{
+				gain_attribute(p_ptr->py, p_ptr->px, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
+			}
 		}
 	}
 

@@ -32,7 +32,7 @@ you engage in melee with the enemy.
 
 You can also specify a grid position with the 'a' key, whilst
 targetting. This will cause your summons to assault the target grid.
-Summonss in an assault will disregard nearby combat in favour of
+Summons in an assault will disregard nearby combat in favour of
 attacking monsters near the grid that you are assaulting.  Archers
 and spell casters will also seek out targets near the grid that you
 are assaulting, but will prefer to move back towards your position

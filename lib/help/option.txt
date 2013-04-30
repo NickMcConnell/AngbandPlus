@@ -111,6 +111,11 @@ Show flavors in object descriptions     [show_flavors]
      Display "flavors" (color or variety) in object descriptions, even for
      objects whose type is known.  This does not affect objects in stores.
 
+***** <view_flavors>
+Show flavors in object graphics     [view_flavors]
+     Display "flavors" (color or variety) in object descriptions, even for
+     objects whose type is known when using graphical tiles.
+
 ***** <show_labels>
 Show labels in equipment listings     [show_labels]
      Display "labels" (what an object is being used for) for objects in all
@@ -198,9 +203,6 @@ Show attributes in sidebar     [show_sidebar]
     status information in the sidebar. Setting this to no increases the area
     available on the screen to display the map, and moves most of this
     information to a more compact space at the bottom of the screen.
-
-***** <show_itemlist>
-Display all items on the bottom line     [show_itemlist]
 
 ***** <room_names>
 Display room names     [room_names]
@@ -292,11 +294,22 @@ Ignore corpses by default     [easy_corpses]
 ***** <easy_more>
 Minimise '-more-' prompts     [easy_more]
 
+
+***** <auto_monlist>
+Always show visible monsters/objects     [auto_monlist]
+     Automatically show the list of visible monsters and objects whenever
+     there is a monster or object visible.
+	
+***** <easy_monlist>
+Spacebar toggles visible monsters/objects     [easy_monlist]
+     Allows you to press space to toggle the auto_monlist option and show or
+     hide the list of visible monsters and objects.
+
 ***** <verify_mana>
 Verify critical mana     [verify_mana]
-    The game will always prompt you to confirm casting a spell if it
-    would leave you with less mana than the Hitpoint warning
-    percentage.
+     The game will always prompt you to confirm casting a spell if it
+     would leave you with less mana than the Hitpoint warning
+     percentage.
 
 ***** <view_unsafe_grids>
 Mark map where you have detected traps     [view_unsafe_grids]
@@ -320,6 +333,9 @@ Create backup savefile before descending     [autosave_backup]
      The backup savefile can be found in the same directory as the regular
      savefile and has the additionial '.bkp' suffix.
 
+***** <ally_messages>
+Show detailed combat messages for allies    [ally_messages]
+     Show all attack messages for allies actions.
 
 === Birth options ===
 
@@ -347,6 +363,11 @@ Restrict the use of stores/home     [birth_no_stores]
      restore stat... Not recommended for new players, or indeed for
      sane players.
 
+***** <birth_no_selling>
+Don't sell to the stores     [birth_no_selling]
+     The storekeepers will not buy anything from you, altough you can still
+     buy stuff from them.
+
 ***** <birth_no_artifacts>
 Restrict the creation of artifacts     [birth_no_artifacts]
      No artifacts will be created. Ever. Just *how* masochistic are you?
@@ -359,11 +380,21 @@ Don't stack objects on the floor     [birth_no_stacking]
 
 ***** <birth_no_stairs>
 Don't generate connected stairs     [birth_no_stairs]
-    Never generate a staircase back to the level you came from, if you used
-    a staircase to get to the level.
+     Never generate a staircase back to the level you came from, if you used
+     a staircase to get to the level.
+
+***** <birth_no_identify>
+Don't need to identify items     [birth_no_identify]
+     All objects will be found fully identified.
+
+***** <birth_lore>
+Know complete artifact/ego/monster info     [birth_lore]
+
+***** <birth_auto>
+Auto-inscribe items as if known     [birth_auto]
 
 ***** <birth_campaign>
-Birth: Play in Lord of the Rings campaign     [birth_campaign]
+Play in Lord of the Rings campaign     [birth_campaign]
      The character will start in Hobbiton, instead of Angband, and be able
      to travel to Rivendell, the Lonely Mountain, Isengard and other
      locations featured in the Hobbit and the Lord of the Rings books.
@@ -373,11 +404,11 @@ Birth: Play in Lord of the Rings campaign     [birth_campaign]
 
 ***** <birth_haggle>
 Haggle in stores     [birth_haggle]
-    Disable haggling in stores, resulting in a ten percent sales tax
-    on items which you would have otherwise been forced to haggle for.
-    When this option is on, all prices listed in stores will be the
-    actual price that you pay for an item, as opposed to shop-keeper's
-    initial offer.
+     Disable haggling in stores, resulting in a ten percent sales tax
+     on items which you would have otherwise been forced to haggle for.
+     When this option is on, all prices listed in stores will be the
+     actual price that you pay for an item, as opposed to shop-keeper's
+     initial offer.
 
 ***** <birth_beginner>
 Start the game with almost no birth choices     [birth_beginner]
@@ -391,6 +422,18 @@ Ask all birth setup questions at start     [birth_first_time]
 ***** <birth_reseed_artifacts>
 Reseed random artifacts on death     [birth_reseed_artifacts]
 
+***** <birth_rand_stats>
+Randomize attributes chosen on level gain     [birth_rand_stats]
+     Attributes will be randomly chosen when you level up occationally,
+     instead of choosing which stats to increase yourself.
+
+***** <birth_evil>
+Good monsters attack you     [birth_evil]
+
+***** <birth_gollum>
+Play in gollum mode     [birth_gollum]
+     Start the game in Mordor on the Plains of Gorgoroth, for advanced
+     players only.  (Known as "thrall mode" in some variants.)
 
 === Cheat options ===
 
@@ -418,12 +461,9 @@ Know complete monster info     [cheat_know]
 Allow player to avoid death     [cheat_live]
     Cheaters never win.  But they can cheat death.
 
-***** <cheat_lore>
-Know complete artifact/ego info     [cheat_lore]
-
-***** <cheat_auto>
-Auto-inscribe items as if known     [cheat_auto]
-    Cheaters never win. But they squelch lots.
+***** <cheat_wall>
+Show false colours for walls     [cheat_wall]
+    Cheaters never win.  But they can see what the walls are made of.
 
 
 === Subwindow display settings ===

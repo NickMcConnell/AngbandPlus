@@ -278,7 +278,7 @@ W:2:0:0
 M:3
 F:BEAM | GRID | ITEM | KILL | PLAY | MAGIC | THRU |
 F:RANGED |
-D:shoot~:@ beam#
+D:shoot~ @ beam#:$ enemies
 
 N:31:MISSILE
 T:0-9999:shoot~ a * missile at &
@@ -379,7 +379,7 @@ N:42:LOS
 T:0-9999:call~ down *
 W:6:0:0
 M:20
-F:GRID | ITEM | KILL | PLAY | SELF | MAGIC | SAFE |
+F:ITEM | KILL | PLAY | SELF | MAGIC | SAFE |
 F:RANGED | ALL_IN_LOS |
 D::all $ enemies in line of sight
 
@@ -430,7 +430,7 @@ N:48:PANEL
 T:0-9999:call~ down * on all nearby
 W:6:0:0
 M:20
-F:GRID | ITEM | KILL | PLAY | SELF | SAFE |
+F:ITEM | KILL | PLAY | SELF | SAFE |
 F:RANGED | PANEL |
 D::the current panel
 
@@ -438,7 +438,7 @@ N:49:LEVEL
 T:0-9999:call~ down * across this level
 W:8:0:0
 M:20
-F:GRID | ITEM | KILL | PLAY | SELF | SAFE |
+F:ITEM | KILL | PLAY | SELF | SAFE |
 F:RANGED | LEVEL |
 D::the current level
 
@@ -563,7 +563,7 @@ W:0:77:0
 R:1
 M:6
 F:BOOM | WALL | MISS | GRID | ITEM | KILL | PLAY | STOP |
-F:RANGED |
+F:RANGED | SCALE_AMMO
 D:create~ @ ball#:$ enemies
 
 N:64:TRAIL
@@ -1348,7 +1348,7 @@ T:80-9999:invoke~ a storm of * around &
 T:80-9999:intones in a venomous tongue
 T:40-79:invoke~ a storm of * around &
 T:40-79:chant~ powerfully
-T:10-39:cast~ a venmous cloud at &
+T:10-39:cast~ a venomous cloud at &
 T:10-39:murmur~ deeply
 T:0-9:cast~ a stinking cloud at &
 T:0-9:mumble~ bitterly
@@ -1786,99 +1786,115 @@ D::
 N:160:HASTE
 W:6:0:0
 C:50:0:0:0:5:5:100
+X:0:0:0:0:0:0:HASTE
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D::&
 
 N:161:ADD_MANA
 C:15:0:0:25:0:0:100
+X:0:0:0:0:0:0:GAIN_MANA
 M:20
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D::&
 
 N:162:HEAL
 W:3:0:0
 C:10:0:30:0:0:0:100
+X:0:0:0:0:0:0:HEAL
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D::&
 
 N:163:CURE
 W:3:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:cure~ % of ills:
 
 N:164:BLINK
 W:3:0:0
 C:27:0:0:0:10:15:100
+X:0:0:0:0:0:0:AWAY_ALL
 F:SPECIAL_CASE |
+F:SELF |
 D::
 
 N:165:TPORT
 W:8:0:0
 C:3:0:0:0:20:10:100
+X:0:0:0:0:0:0:AWAY_ALL
 F:SPECIAL_CASE |
+F:SELF |
 D::
 
 N:166:INVIS
 W:3:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:make~ % invisible:
 
 N:167:TELE_SELF_TO
 W:4:0:0
 C:30:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D:teleport~ % to $ enemies:
 
 N:168:TELE_TO
 W:4:0:0
 C:30:0:0:0:0:10:100
 F:SPECIAL_CASE |
-D::
+D:teleport~ $ enemies to %:
 
 N:169:TELE_AWAY
 W:8:0:0
 C:3:0:0:0:20:10:100
 F:SPECIAL_CASE |
-D::
+D:teleport~ & away:
 
 N:170:TELE_LEVEL
 W:8:0:0
 C:3:0:0:0:20:10:100
 F:SPECIAL_CASE |
-D::
+D:teleport~ & up or down a level:
 
 N:171:WRAITHFORM
 W:4:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:make~ % insubstantial:
 
 N:172:DARKNESS
 W:1:0:0
 C:20:0:0:0:5:0:100
+X:0:0:0:0:0:0:DARK_WEAK
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:173:TRAPS
 W:2:0:0
 C:25:0:0:0:5:0:100
+X:0:0:0:0:0:0:MAKE_TRAP
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:174:FORGET
 W:6:0:0
 C:45:0:0:0:0:0:100
+X:0:0:0:0:0:0:FORGET
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:175:DRAIN_MANA
 W:2:0:0
 X:0:0:0:0:0:0:LOSE_MANA
 C:25:0:0:15:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:176:CURSE
 I:0:6:0
@@ -1886,13 +1902,14 @@ W:4:0:0
 X:3:2:6:0:2:0:CURSE
 C:45:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:177:DISPEL
 W:4:0:0
 C:45:0:0:0:0:0:100
+X:0:0:0:0:0:0:DISPEL
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:178:MIND_BLAST
 I:0:6:0
@@ -1900,95 +1917,99 @@ W:3:0:0
 X:3:2:6:0:2:0:MENTAL
 C:30:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:179:ILLUSION
 W:4:0:0
 X:0:0:0:0:0:0:HALLU
 C:30:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:180:WOUND
 I:0:6:0
 W:4:0:0
-X:5:2:6:0:2:0:HURT
+X:5:2:6:0:2:0:WOUND
 C:40:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:181:BLESS
 W:2:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:bless||es| %:
 
 N:182:BERSERK
 W:3:0:0
 C:35:0:0:10:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:drive~ % berserk:
 
 N:183:SHIELD
 W:4:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:create~ a magical shield around %:
 
 N:184:OPPOSE_ELEM
 W:3:0:0
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+F:SELF |
+D:make~ % resistant to the elements:
 
 N:185:HUNGER
 W:2:0:0
 X:0:0:0:0:0:0:HUNGER
 C:25:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:186:PROBE
 W:1:0:0
 X:0:0:0:0:0:0:PROBE
 C:50:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:187:SCARE
 W:1:0:0
 X:0:0:0:0:0:0:FEAR_WEAK
 C:25:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:188:BLIND
 W:3:0:0
 X:0:0:0:0:0:0:BLIND_WEAK
 C:30:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:189:CONF
 W:4:0:0
 X:0:0:0:0:0:0:CONFUSE_WEAK
 C:30:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:190:SLOW
 W:5:0:0
 X:0:0:0:0:0:0:SLOW_WEAK
 C:40:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:191:HOLD
 W:6:0:0
 X:0:0:0:0:0:0:SLEEP
 C:35:0:0:0:0:0:100
 F:SPECIAL_CASE |
-D::
+D::&
 
 N:192:S_KIN
 T:0-9999:magically summon~ $ allies

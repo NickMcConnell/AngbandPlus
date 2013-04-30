@@ -4924,33 +4924,32 @@ bool map_home(int m_idx)
 
 
 /*
- * Map the current panel (plus some) ala "magic mapping"
+ * Map a circle ala "magic mapping"
  *
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.
  */
 void map_area(void)
 {
-	int i, x, y, y1, y2, x1, x2;
+	int i, x, y, y1, y2, x1, x2, r;
 
+	/* Radius of detection */
+	r = 2 * MAX_SIGHT;
 
 	/* Pick an area to map */
-	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
-	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
-
-	/* Efficiency -- shrink to fit legal bounds */
-	if (y1 < 1) y1 = 1;
-	if (y2 > DUNGEON_HGT-1) y2 = DUNGEON_HGT-1;
-	if (x1 < 1) x1 = 1;
-	if (x2 > DUNGEON_WID-1) x2 = DUNGEON_WID-1;
+	y1 = MAX(p_ptr->py - r, 1);
+	y2 = MIN(p_ptr->py + r, DUNGEON_HGT-1);
+	x1 = MAX(p_ptr->px - r, 1);
+	x2 = MIN(p_ptr->px + r, DUNGEON_WID-1);
 
 	/* Scan that area */
 	for (y = y1; y < y2; y++)
 	{
 		for (x = x1; x < x2; x++)
 		{
+			/* Check distance */
+			if (distance(p_ptr->py, p_ptr->px, y, x) > r) continue;
+
 			/* All non-walls are "checked" */
 			if (!(f_info[cave_feat[y][x]].flags1 & (FF1_WALL)))
 			{
@@ -5456,7 +5455,7 @@ void cave_set_feat_aux(const int y, const int x, int feat)
  * glowing features etc.
  */
 void check_attribute_lost(const int y, const int x, const int r, const byte los, tester_attribute_func require_attribute, tester_attribute_func has_attribute,
-	tester_attribute_func redraw_attribute, modify_attribute_func remove_attribute,	modify_attribute_func reapply_attribute)
+	tester_attribute_func redraw_attribute, modify_attribute_func_remove remove_attribute,	modify_attribute_func_reapply reapply_attribute)
 {
 	int yy, xx;
 	int yyy, xxx;
@@ -5475,7 +5474,7 @@ void check_attribute_lost(const int y, const int x, const int r, const byte los,
 			if (require_attribute(yy, xx))
 			{
 				/* Temporarily remove the attribute from the grid */
-				remove_attribute(yy, xx);
+				int rr = remove_attribute(yy, xx);
 
 				/* Check nearby grids to reapply it */
 				for (yyy = yy - r; yyy <= yy + r; yyy++)
@@ -5494,7 +5493,7 @@ void check_attribute_lost(const int y, const int x, const int r, const byte los,
 						/* Is supports the 'affected' grid */
 						if (has_attribute(yyy,xxx))
 						{
-							reapply_attribute(yy, xx);
+							reapply_attribute(yy, xx, rr);
 
 							break;
 						}
@@ -5600,14 +5599,18 @@ void apply_halo(int y, int x)
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
 
-void remove_halo(int y, int x)
+int remove_halo(int y, int x)
 {
 	cave_info[y][x] &= ~(CAVE_HALO);
-	if (!(play_info[y][x] & (PLAY_LITE)) && !(cave_info[y][x] & (CAVE_LITE))) play_info[y][x] &= ~(PLAY_SEEN);
+	if (!(play_info[y][x] & (PLAY_LITE)) && !(cave_info[y][x] & (CAVE_LITE))) play_info[y][x] &= ~(PLAY_SEEN);	
+	
+	return (0);
 }
 
-void reapply_halo(int y, int x)
+void reapply_halo(int y, int x, int r)
 {
+	(void)r;
+	
 	cave_info[y][x] |= (CAVE_HALO);
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
@@ -5649,14 +5652,18 @@ void apply_daylight(int y, int x)
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
 
-void remove_daylight(int y, int x)
+int remove_daylight(int y, int x)
 {
 	cave_info[y][x] &= ~(CAVE_DLIT);
 	if (!(play_info[y][x] & (PLAY_LITE)) && !(cave_info[y][x] & (CAVE_LITE))) play_info[y][x] &= ~(PLAY_SEEN);
+	
+	return (0);
 }
 
-void reapply_daylight(int y, int x)
+void reapply_daylight(int y, int x, int r)
 {
+	(void)r;
+	
 	cave_info[y][x] |= (CAVE_DLIT);
 	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
@@ -5696,19 +5703,19 @@ void apply_climb(int y, int x)
 	cave_info[y][x] |= (CAVE_CLIM);
 }
 
-void remove_climb(int y, int x)
+int remove_climb(int y, int x)
 {
 	cave_info[y][x] &= ~(CAVE_CLIM);
+	
+	return (0);
 }
 
-void reapply_climb(int y, int x)
+void reapply_climb(int y, int x, int r)
 {
+	(void)r;
+	
 	cave_info[y][x] |= (CAVE_CLIM);
 }
-
-
-static int old_feat;
-
 
 
 /*
@@ -5750,16 +5757,18 @@ void apply_chasm_edge(int y, int x)
 	}
 }
 
-void remove_chasm_edge(int y, int x)
+int remove_chasm_edge(int y, int x)
 {
-	old_feat = cave_feat[y][x];
+	int r = cave_feat[y][x];
 
 	cave_set_feat_aux(y, x, FEAT_CHASM);
+	
+	return (r);
 }
 
-void reapply_chasm_edge(int y, int x)
+void reapply_chasm_edge(int y, int x, int r)
 {
-	cave_set_feat_aux(y, x, old_feat);
+	cave_set_feat_aux(y, x, r);
 }
 
 
@@ -5792,16 +5801,18 @@ bool redraw_tree_gain(int y, int x)
 	return (FALSE);
 }
 
-void remove_tree(int y, int x)
+int remove_tree(int y, int x)
 {
-	old_feat = cave_feat[y][x];
+	int r = cave_feat[y][x];
 
-	cave_set_feat_aux(y, x, feat_state(old_feat, FS_NEED_TREE));
+	cave_set_feat_aux(y, x, feat_state(r, FS_NEED_TREE));
+	
+	return (r);
 }
 
-void reapply_tree(int y, int x)
+void reapply_tree(int y, int x, int r)
 {
-	cave_set_feat_aux(y, x, old_feat);
+	cave_set_feat_aux(y, x, r);
 }
 
 
@@ -6549,8 +6560,7 @@ int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b
 		 */
 		if (vertical ? y_a == y_b : x_a == x_b) num = 2;
 		else                                    num = 1;
-
-
+		
 		/* Scan one or both grids */
 		for (i = 0; i < num; i++)
 		{
@@ -6576,6 +6586,7 @@ int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b
 				if ((y == *y2) && (x == *x2))
 				{
 					/* End of projection */
+					
 					full_stop = TRUE;
 				}
 			}
@@ -6612,7 +6623,7 @@ int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b
 		 * and are at the end of the path. This helps ensure we end on a
 		 * blocked grid. */
 		if ((num == 1) || (blockage[0] <= blockage[1])
-			|| ((require_strict_lof) && (blockage[1] < 1) && (j >= grids - 2)))
+			|| ((require_strict_lof) && (blockage[1] < 1) && (j >= grids - num)))
 		{
 			/* Store the first grid, advance */
 			if (blockage[0] < 3) gp[step++] = tmp_grids[j];
@@ -6653,7 +6664,7 @@ int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b
 		 * Hack -- If we require orthogonal movement, but are moving
 		 * diagonally, we have to plot an extra grid.  XXX XXX
 		 */
-		if ((flg & (PROJECT_ORTH)) && (step > 1))
+		if (((flg & (PROJECT_ORTH)) != 0) && (step > 1))
 		{
 			/* Get grids for this projection step and the last */
 			y_a = GRID_Y(gp[step-1]);
@@ -6742,11 +6753,13 @@ int project_path_aux(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b
 			if (cheat_xtra) msg_print("Path does not end correctly.");
 		}
 	}
-	
+	/* For some bizarre reason, if we modify this the original path gets recomputed
+	 * with the modified destination. Not sure why. */
+#if 0	
 	/* Accept last grid as the new endpoint */
 	*y2 = GRID_Y(gp[step -1]);
 	*x2 = GRID_X(gp[step -1]);
-
+#endif
 	/* Return count of grids in projection path */
 	if (monster_in_way) return (-step);
 	else return (step);

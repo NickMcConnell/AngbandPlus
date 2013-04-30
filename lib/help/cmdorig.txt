@@ -15,7 +15,7 @@
  m  Cast a spell                         M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  Offer an item
- p  Pray a prayer                        P  (unused)
+ p  (unused)                             P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Steal items or search                S  Toggle search mode
@@ -40,7 +40,7 @@
  }  Uninscribe an object                ^L  Center the screen on player
  [  Display visible monster list        ^M  (special - return)
  ]  Dump html screen dump               ^N  (unused)
- -  (unused)                            ^O  (unused)
+ -  (unused)                            ^O  Show previous message
  _  Enter store                         ^P  Show previous messages
  +  Alter grid                          ^Q  Display current quest
  =  Set options                         ^R  Redraw the screen

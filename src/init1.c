@@ -1336,11 +1336,25 @@ static cptr s_info_types[] =
 	"DAMAGING_HURL",
 	"CURSE_WEAPON",
 	"CURSE_ARMOR",
-	"XXX1",
+	"REVEAL_SECRETS",
 	"DETECT_FIRE",
 	"REGION",
 	"SET_TRAP",
 	"DELAY_SPELL",
+	"AIM_SUMMON_RACE",
+	"AIM_SUMMON_GROUP_IDX",
+	"CREATE",
+	"CREATE_RACE",
+	"CREATE_GROUP_IDX",
+	"AIM_CREATE",
+	"AIM_CREATE_RACE",
+	"AIM_CREATE_GROUP_IDX",
+	"SUMMONS",
+	"SUMMONS_RACE",
+	"SUMMONS_GROUP_IDX",
+	"AIM_SUMMONS",
+	"AIM_SUMMONS_RACE",
+	"AIM_SUMMONS_GROUP_IDX",
 	NULL
 };
 
@@ -7090,7 +7104,7 @@ errr parse_t_info(char *buf, header *head)
 		}
 
 		/* Verify that colon */
-		if (!s) {
+		if (!(*s)) {
 		  name = 0;
 		}
 		else {
