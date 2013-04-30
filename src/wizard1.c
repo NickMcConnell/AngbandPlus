@@ -151,6 +151,8 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
         s16b book[26];
 	int num,i;
 
+	(void)wgt_s;
+	
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -182,10 +184,10 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 
 
 	/* Description (too brief) */
-	object_desc_spoil(buf, sizeof(buf), i_ptr, FALSE, 0);
+	object_desc_spoil(buf, buf_s, i_ptr, FALSE, 0);
 
 	/* Misc info */
-	my_strcpy(dam, "", sizeof(dam));
+	my_strcpy(dam, "", dam_s);
 
 	/* Damage */
 	switch (i_ptr->tval)
@@ -237,7 +239,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 
         /* Power */
-        my_strcpy(pow, "", sizeof(pow));
+        my_strcpy(pow, "", pow_s);
 
 	/* Fill the book with spells */
 	fill_book(i_ptr,book,&num);
@@ -264,7 +266,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 	/* Power */
 	else if (book[0])
 	{
-		spell_info(pow,sizeof(pow), book[0],0);
+		spell_info(pow,pow_s, book[0],0);
 	}
 
 }

@@ -1638,6 +1638,14 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Probably okay */
 			break;
 		}
+		
+		/* Study items */
+		case TV_STUDY:
+		{
+			/* Require identical pvals */
+			if (o_ptr->pval != j_ptr->pval) return (FALSE);
+			break;
+		}
 
 		/* Various */
 		default:
@@ -5806,7 +5814,7 @@ void race_near(int r_idx, int y1, int x1)
 		if (place_monster_here(y, x, r_idx) <= MM_FAIL) continue;
 
 		/* Create a new monster (awake, no groups) */
-		(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
+		(void)place_monster_aux(y, x, r_idx, FALSE, FALSE, 0L);
 
 		/* Hack -- monster does not drop anything */
 		m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
@@ -5863,7 +5871,7 @@ bool apply_alchemical_formula(object_type *o_ptr, int *dam, int *rad, int *rng, 
 		{
 			int n;
 
-			n = atoi(s+2);
+			n = atoi(s+1);
 
 			switch (s[2])
 			{
@@ -6101,6 +6109,9 @@ bool break_near(object_type *j_ptr, int y, int x)
 			int deg = 0;
 			int dia = 10;
 			
+			/* Hack -- use power 0 for fake potion effects */
+			spell_type *s_ptr = &s_info[power];
+
 			/* Initialise flags (may be modified by alchemy) */
 			flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
 
@@ -6109,9 +6120,6 @@ bool break_near(object_type *j_ptr, int y, int x)
 
 			/* Apply alchemy */
 			if ((p_ptr->pstyle == WS_POTION) && (apply_alchemical_formula(j_ptr, &dam, &rad, &rng, &flg, &num, &deg, &dia))) power = 0;
-
-			/* Hack -- use power 0 for fake potion effects */
-			spell_type *s_ptr = &s_info[power];
 
 			/* Applly num times */
 			for (j = 0; j < num; j++)
@@ -6129,8 +6137,17 @@ bool break_near(object_type *j_ptr, int y, int x)
 					if (i && !method) break;
 
 					/* Message */
-					if (!i && !j && rad) msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
-					if (!i && !j && !rad) msg_format("The %s burst%s into flames.",o_name, (plural ? "" : "s"));
+					if (!i && !j) 
+					{
+					  if (power == 0)
+					    msg_format("The %s break%s with a fizzling sound.",o_name, (plural ? "" : "s"));
+					  else if (!method)
+					    msg_format("The %s break%s with a splash.",o_name, (plural ? "" : "s"));
+					  else if (j_ptr->tval == TV_LITE) 
+					    msg_format("The %s burst%s into flames.",o_name, (plural ? "" : "s"));
+					  else
+					    msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
+					}
 
 					/* Mega hack --- spells in objects */
 					if (!d_side)
@@ -8303,6 +8320,59 @@ void inven_drop(int item, int amt)
 	inven_item_optimize(item);
 }
 
+/*
+ * Check for pack overflow
+ */
+void overflow_pack(void)
+{
+	/* Hack -- Pack Overflow */
+	if (inventory[INVEN_PACK].k_idx)
+	{
+		int item = INVEN_PACK;
+
+		char o_name[80];
+
+		object_type *o_ptr;
+
+		/* Get the slot to be dropped */
+		o_ptr = &inventory[item];
+
+		/* Disturbing */
+		disturb(0, 0);
+
+		/* Warning */
+		msg_print("Your pack overflows!");
+
+		/* Describe */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+		/* Message */
+		msg_format("You drop %s (%c).", o_name, index_to_label(item));
+
+		/* Forget about it */
+		inven_drop_flags(o_ptr);
+
+		/* Drop it (carefully) near the player */
+		drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+
+		/* Modify, Describe, Optimize */
+		inven_item_increase(item, -255);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+
+		/* Notice stuff (if needed) */
+		if (p_ptr->notice) notice_stuff();
+
+		/* Update stuff (if needed) */
+		if (p_ptr->update) update_stuff();
+
+		/* Redraw stuff (if needed) */
+		if (p_ptr->redraw) redraw_stuff();
+
+		/* Window stuff (if needed) */
+		if (p_ptr->window) window_stuff();
+	}	
+}
 
 
 /*
@@ -8504,6 +8574,110 @@ void reorder_pack(void)
 
 
 /*
+ * Sorting hook -- Comp function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform on "u".
+ */
+bool book_sort_comp_hook(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	int w1 = who[a];
+	int w2 = who[b];
+
+	int z1, z2;
+
+	spell_type *s1_ptr = &s_info[w1];
+	spell_type *s2_ptr = &s_info[w2];
+
+	(void)v;
+
+	/* Extract spell level */
+	z1 = s1_ptr->cast[0].level;
+	z2 = s2_ptr->cast[0].level;
+
+	/* Compare spell levels */
+	if (z1 < z2) return (TRUE);
+	if (z1 > z2) return (FALSE);
+
+	/* Extract spell mana */
+	z1 = s1_ptr->cast[0].mana;
+	z2 = s2_ptr->cast[0].mana;
+
+	/* Compare spell mana */
+	if (z1 < z2) return (TRUE);
+	if (z1 > z2) return (FALSE);
+	
+	/* Alphabetical sort */
+	return (my_stricmp(s_name + s1_ptr->name, s_name + s2_ptr->name) <= 0);
+}
+
+
+
+/*
+ * Sorting hook -- Swap function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform.
+ */
+void book_sort_swap_hook(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	u16b holder;
+
+	(void)v;
+
+	/* Swap */
+	holder = who[a];
+	who[a] = who[b];
+	who[b] = holder;
+}
+
+
+/*
+ * Does the spell match the player's style
+ */
+bool spell_match_style(int spell)
+{
+	int i;
+	
+	/* Check player styles */
+	if ((p_ptr->pstyle != WS_SONG_BOOK) && (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK)) return (FALSE);
+	
+	/* Check spells */
+	for (i = 0; i < MAX_SPELL_APPEARS; i++)
+	{
+		int tval = s_info[spell].appears[i].tval;
+		int sval = s_info[spell].appears[i].sval;
+		
+		/* Not a book */
+		if ((tval != TV_SONG_BOOK) && (tval != TV_MAGIC_BOOK) && (tval != TV_PRAYER_BOOK)) continue;
+		
+		/* Book does not match player style */
+		if ((tval == TV_SONG_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK)) continue;
+		if ((tval == TV_MAGIC_BOOK) && (p_ptr->pstyle != WS_MAGIC_BOOK)) continue;
+		if ((tval == TV_PRAYER_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK)) continue;
+
+		/* Outright match */
+		if (sval == p_ptr->psval) return (TRUE);
+
+		/* Match because we have specialised in a 'basic spellbook style, and book falls into this category */
+		if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (sval >= SV_BOOK_MAX_GOOD))
+		{
+			/* Sval hackery */
+			if (sval - (sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 == p_ptr->psval) return (TRUE);
+		}
+	}
+	
+	/* No match */
+	return (FALSE);	
+}
+
+
+
+/*
  * Fills a book with spells (in order). Note hack for runestones
  * in order to fit them all in is to use book as a hashtable.
  */
@@ -8512,6 +8686,8 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 	int i,ii;
 
 	spell_type *s_ptr;
+
+	u16b why = 0;
 
 	/* No spells */
 	*num = 0;
@@ -8573,6 +8749,13 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 			}
 		}
 	}
+	
+	/* Sort book contents */
+	ang_sort_comp = book_sort_comp_hook;
+	ang_sort_swap = book_sort_swap_hook;
+
+	/* Sort the array */
+	ang_sort(book, &why, *num);
 }
 
 /*
@@ -8611,22 +8794,16 @@ s16b spell_level(int spell)
 	    }
 
 	/* Hack -- get casting information for specialists */
-	if (!legible)
+	if ((!legible) && (spell_match_style(spell)))
 	{
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			&& (s_info[spell].appears[i].sval == p_ptr->psval))
-			{
-				legible = TRUE;
-				/* Get the first spell caster's casting info */
-				sc_ptr=&(s_ptr->cast[0]);
-				/* And remember to fix it later */
-				fix_level = TRUE;
-			}
-		}
+		/* Can read spell */
+		legible = TRUE;
+
+		/* Get the first spell caster's casting info */
+		sc_ptr=&(s_ptr->cast[0]);
+			
+		/* And remember to fix it later */
+		fix_level = TRUE;
 	}
 
 	/* Illegible */
@@ -8657,54 +8834,14 @@ s16b spell_level(int spell)
 
 		/* Check for styles */
 		/* Hack -- we don't check 'current' styles */
-		if (w_info[i].styles==0
-			|| w_info[i].styles & (1L << p_ptr->pstyle))
-		switch (p_ptr->pstyle)
+		if ((w_info[i].styles == 0)
+			|| (w_info[i].styles & (1L << p_ptr->pstyle)))
 		{
-			case WS_MAGIC_BOOK:
+			/* Check for style match */			
+			if (spell_match_style(spell))
 			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 level -= (level - w_info[i].level)/5;
-					}
-
-				}
-				break;
-			}
-			case WS_PRAYER_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 level -= (level - w_info[i].level)/5;
-					}
-
-				}
-				break;
-			}
-			case WS_SONG_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 level -= (level - w_info[i].level)/5;
-					}
-
-				}
-				break;
+				/* Reduce casting level */
+				level -= (level - w_info[i].level)/5;
 			}
 		}
 	}
@@ -8747,53 +8884,16 @@ s16b spell_power(int spell)
 		/* Check styles */
 		/* Hack -- we don't check 'current' styles
 		   except for rings, amulets, instruments, etc */
-		if (w_info[i].styles==0 
-			|| w_info[i].styles & (1L << p_ptr->pstyle))
+		if ((w_info[i].styles==0) 
+			|| (w_info[i].styles & (1L << p_ptr->pstyle)))
 		switch (p_ptr->pstyle)
 		{
 			case WS_MAGIC_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += 10;
-					}
-
-				}
-				break;
-			}
 			case WS_PRAYER_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += 10;
-					}
-
-				}
-				break;
-			}
 			case WS_SONG_BOOK:
 			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += 10;
-					}
-
-				}
+				/* Increase by 10 levels */
+				if (spell_match_style(spell)) plev += 10;
 				break;
 			}
 			case WS_INSTRUMENT:
@@ -8816,29 +8916,12 @@ s16b spell_power(int spell)
 				}
 				break;
 			}
-			case WS_RING:
-			case WS_AMULET:
-			{
-			  /* TODO: check if the spell appear in the ring */
-				if ( w_info[i].styles & p_ptr->cur_style 
-					 & (1L << p_ptr->pstyle) ) 
-					plev += 10;
-				break;
-			}
-
-			default:
-			{
-			  /* TODO: check if the spell appear in the scroll */
-				plev += 10;
-				break;
-			}
 		}
-
 	}
 
 	return(plev);
-
 }
+
 
 /*
  * Returns chance of failure for a spell
@@ -8875,21 +8958,15 @@ s16b spell_chance(int spell)
 	    }
 
 	/* Hack -- get casting information for specialists */
-	if (!legible)
+	if ((!legible) && (spell_match_style(spell)))
 	{
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			 &&  (s_info[spell].appears[i].sval == p_ptr->psval))
-			{
-				legible = TRUE;
-				/* Get the first spell caster's casting info */
-				sc_ptr=&(s_ptr->cast[0]);
-				/* And remember to fix it later */
-			}
-		}
+		/* Can read it */
+		legible = TRUE;
+		
+		/* Get the first spell caster's casting info */
+		sc_ptr=&(s_ptr->cast[0]);
+		
+		/* And remember to fix it later */
 	}
 
 	/* Illegible */
@@ -8965,21 +9042,12 @@ bool spell_okay(int spell, bool known)
 		{
 		  legible = TRUE;
 		}
-	    }
+	}
 
 	/* Hack -- get casting information for specialists */
-	if (!legible)
+	if ((!legible) && (spell_match_style(spell)))
 	{
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			  && (s_info[spell].appears[i].sval == p_ptr->psval))
-			{
-				legible = TRUE;
-			}
-		}
+		legible = TRUE;
 	}
 
 	/* Spell is illegible */

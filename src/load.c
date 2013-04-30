@@ -690,6 +690,38 @@ static errr rd_store(int n)
 
 	byte own, num;
 
+	/* Paranoia */
+	if (total_store_count >= max_store_count)
+	{
+		/* Oops */
+		/*note("Too many stores");*/
+		
+		/* Error */
+		/*return (-1);*/
+
+		/* Fixing */
+		msg_print("Forgetting about some stores.");
+
+		/* Hack -- free the store inventories. Except home. */
+		for (j = 1; j < total_store_count; j++)
+		{
+			/* Get the store */
+			store_type *st_ptr = store[j];
+
+			/* Free the store inventory */
+			FREE(st_ptr->stock);
+
+			/* Free the store */
+			FREE(st_ptr);
+			
+			/* Disassociate store */
+			store[j] = NULL;
+		}
+		
+		/* Just home left after fix */
+		total_store_count = 1;
+	}
+
 	/* Make a new store */
 	C_MAKE(st_ptr, 1, store_type);
 

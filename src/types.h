@@ -1323,6 +1323,8 @@ struct player_type
 
 	byte psval;	/* Style sub-specialization*/
 	byte pshape;	/* Current shape */
+	byte pschool;	/* Current magic 'school' */
+	byte unused;	/* Current shape */
 
 	u16b dungeon;		/* Current dungeon number */
 	u16b town;      /* Current town number */

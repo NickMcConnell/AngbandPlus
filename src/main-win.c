@@ -5631,6 +5631,10 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	HDC hdc;
 	MSG msg;
 
+	const char *prompt;
+	size_t last_sz;
+
+
 	/* Unused parameter */
 	(void)nCmdShow;
 
@@ -5785,14 +5789,30 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Did the user double click on a save file? */
 	check_for_save_file(lpCmdLine);
 
-	/* Prompt the user */
-	if (strlen(arg_lastsavefile))
-	{
-	     c_prt(TERM_L_BLUE, format("[Press any key to load '%s']",arg_lastsavefile), Term->hgt - 1, MAX(1, (Term->wid - 26 - strlen(arg_lastsavefile)) / 2));
 
-		term_readytoload = TRUE;    
+	/** Prompt the user **/
+
+	last_sz = strlen(arg_lastsavefile);
+
+	/* Prompt if there is a(n existent) last savefile */
+	if (last_sz && check_file(arg_lastsavefile))
+	{
+		/* Only print as much as can be displayed (ish) */
+		if (last_sz > Term->wid - 26)
+			prompt = "[Press any key to load the previous character]";
+		else
+			prompt = format("[Press any key to load '%s']", arg_lastsavefile);
+
+		term_readytoload = TRUE;
 	}
-	else c_prt(TERM_L_BLUE, "[Choose 'New' or 'Open' from the 'File' menu]", Term->hgt - 1, MAX(1, (Term->wid - 45) / 2));
+	else
+	{
+		/* Just display the standard prompt with no (valid) last character */
+		prompt = "[Choose 'New' or 'Open' from the 'File' menu]";
+	}
+
+	/* Show the prompt */
+	c_prt(TERM_L_BLUE, prompt, Term->hgt - 1, MAX(1, (Term->wid - strlen(prompt)) / 2));
 	Term_fresh();
 
 	/* Process messages forever */

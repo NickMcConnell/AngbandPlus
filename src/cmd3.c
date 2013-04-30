@@ -1451,7 +1451,7 @@ static bool item_tester_refill_lantern(const object_type *o_ptr)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(const object_type *o_ptr)
+bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&

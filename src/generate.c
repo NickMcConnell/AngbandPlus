@@ -3015,7 +3015,7 @@ static void check_windows_y(int y1, int y2, int x)
 {
 	int y;
 	
-	for (y = y1; y < y2; y++)
+	for (y = y1; y <= y2; y++)
 	{
 		if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
 			cave_info[y][x] |= (CAVE_GLOW);	
@@ -3028,7 +3028,7 @@ static void check_windows_x(int x1, int x2, int y)
 {
 	int x;
 	
-	for (x = x1; x < x2; x++)
+	for (x = x1; x <= x2; x++)
 	{
 		if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
 			cave_info[y][x] |= (CAVE_GLOW);	
@@ -4821,9 +4821,9 @@ static bool build_chambers(int y1, int x1, int y2, int x2, int monsters_left, bo
 		bool joy = FALSE;
 
 		/* Make new doors and tunnels between magma and open floor. */
-		for (y = y1; y < y2; y++)
+		for (y = y1; y <= y2; y++)
 		{
-			for (x = x1; x < x2; x++)
+			for (x = x1; x <= x2; x++)
 			{
 				/* Current grid must be magma. */
 				if (cave_feat[y][x] != FEAT_MAGMA) continue;
@@ -5005,7 +5005,7 @@ static bool build_chambers(int y1, int x1, int y2, int x2, int monsters_left, bo
 
 		/* Place a single monster.  Sleeping 2/3rds of the time. */
 		place_monster_aux(y, x, get_mon_num(p_ptr->depth),
-			(rand_int(3)), FALSE);
+			(rand_int(3)), FALSE, 0L);
 
 		/* One less monster to place. */
 		monsters_left--;
@@ -8624,7 +8624,7 @@ static void place_tower()
 			/* Initialise room description */
 			room_info[dun->cent_n].type = ROOM_TOWER;
 
-			/* Will be set to ROOM_ICKY at end of generation */
+			/* Non-surface levels will be set to ROOM_ICKY at end of generation */
 			room_info[dun->cent_n].flags = (level_flag & (LF1_SURFACE)) != 0 ? ROOM_ICKY : 0;
 
 			room_info[dun->cent_n].tunnel = 0;
@@ -8641,12 +8641,11 @@ static void place_tower()
 		player_place(y, x);
 	}
 
-	/* Hack -- always have upstairs */
-	else if ((level_flag & LF1_SURFACE) && (level_flag & LF1_LESS))
+	/* Hack -- always have upstairs in surface of tower */
+	if ((level_flag & LF1_SURFACE) && (p_ptr->depth < max_depth(p_ptr->dungeon)))
 	{
 		feat_near(FEAT_LESS, y, x);
 	}
-
 }
 
 
@@ -9101,8 +9100,9 @@ static bool new_player_spot(void)
 			y = rand_int(DUNGEON_HGT);
 			x = rand_int(DUNGEON_WID);
 
-			/* Mega hack -- try to place extra tunnel */
-			if (!(tunnel) && (i == 400))
+			/* Mega hack -- try to place extra tunnel, except above surface in towers */
+			if ((((level_flag & (LF1_TOWER)) == 0) || ((level_flag & (LF1_SURFACE)) != 0)) &&
+				 (!(tunnel) && (i == 400)))
 			{
 				if (build_type0(0, 0))
 				{
@@ -9175,7 +9175,9 @@ static void place_rubble(int y, int x)
  */
 static int alloc_stairs(int feat, int num, int walls)
 {
-	int y, x, i = 0, j;
+	int y = 0, x = 0;
+	
+	int i = 0, j;
 
 	/* Place "num" stairs */
 	for (j = 0; j < num; j++)
@@ -9246,7 +9248,8 @@ static int alloc_stairs(int feat, int num, int walls)
  */
 static int alloc_object(int set, int typ, int num)
 {
-	int y, x, k, i = 0;
+	int y = 0, x = 0;
+	int k, i = 0;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
@@ -9481,7 +9484,7 @@ static bool cave_gen(void)
 
 	/* Hack -- Build terrain */
 	/* XXX Get rid of this later */
-	if (zone->fill) for (y = 0; y < DUNGEON_HGT; y++)
+	if ((zone->fill) && (base != FEAT_CHASM)) for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
@@ -9630,7 +9633,7 @@ static bool cave_gen(void)
 				}
 
 				/* Place the questor */
-				place_monster_aux(y, x, i, FALSE, TRUE);
+				place_monster_aux(y, x, i, FALSE, TRUE, 0L);
 			}
 		}
 	}
@@ -9653,7 +9656,7 @@ static bool cave_gen(void)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, zone->guard, FALSE, TRUE);
+		place_monster_aux(y, x, zone->guard, FALSE, TRUE, 0L);
 	}
 
 	/* Generating */
@@ -9894,8 +9897,8 @@ static void town_gen_hack(void)
 		y = rand_range(3, TOWN_HGT - 4);
 		x = rand_range(3, TOWN_WID - 4);
 
-		/* Require a "naked" floor grid */
-		if (cave_naked_bold(y, x)) break;
+		/* Require a "starting" floor grid */
+		if (cave_start_bold(y, x)) break;
 	}
 
 	/* Clear previous contents, add dungeon entrance */
@@ -10033,7 +10036,7 @@ static bool town_gen(void)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, zone->guard, FALSE, TRUE);
+		place_monster_aux(y, x, zone->guard, FALSE, TRUE, 0L);
 	}
 	else
 	{

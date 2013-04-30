@@ -17,28 +17,28 @@
 
 # Magma (slate / solid block)
 
-F:50:2/127:YES
-F:52:2/127:YES
+F:50:2/127:1:A
+F:52:2/127:1:A
 
 
 # Quartz (light slate / solid block)
 
-F:51:9/127:YES
-F:53:9/127:YES
+F:51:9/127:1:A
+F:53:9/127:1:A
 
 
 # Secret door (white / solid block)
 
-F:48:1/127:YES
+F:48:1/127:1:A
 
 # Granite walls & permanent rock (white / solid block)
 
-F:56:1/127:YES
-F:57:1/127:YES
-F:58:1/127:YES
-F:59:1/127:YES
-F:60:1/127:YES
-F:61:1/127:YES
-F:62:1/127:YES
-F:63:1/127:YES
+F:56:1/127:1:A
+F:57:1/127:1:A
+F:58:1/127:1:A
+F:59:1/127:1:A
+F:60:1/127:1:A
+F:61:1/127:1:A
+F:62:1/127:1:A
+F:63:1/127:1:A
 

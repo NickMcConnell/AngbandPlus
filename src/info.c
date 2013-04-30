@@ -527,6 +527,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags1 & (SF1_DETECT_MONSTER))	vp[vn++] = "visible monsters";
 	if (s_ptr->flags1 & (SF1_DETECT_EVIL))	vp[vn++] = "evil monsters";
 	if (s_ptr->flags1 & (SF1_DETECT_LIFE))	vp[vn++] = "living monsters";
+	if (s_ptr->type == SPELL_DETECT_MIND)	vp[vn++] = "minds";	
 
 	/* Describe detection spells */
 	if (vn)
@@ -572,7 +573,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="the number of charges";
 	if (id_flags & (SF1_IDENT_VALUE)) vp[vn++]="the value";
 	if (id_flags & (SF1_IDENT_RUNES)) vp[vn++]="the types of runes";
-	if ((id_flags & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL)) vp[vn++]="the kind, ego-item and artifact names";
+	if ((id_flags & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL) || (s_ptr->type == SPELL_IDENT_NAME)) vp[vn++]="the kind, ego-item and artifact names";
 	if ((id_flags & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL)) vp[vn++]="all bonuses";
 	if (id_flags & (SF1_IDENT_RUMOR)) vp[vn++]="some hidden powers";
 	if (id_flags & (SF1_IDENT_FULLY)) vp[vn++]="all hidden powers";
@@ -841,7 +842,6 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->type ==SPELL_INVEN_HANDS) vp[vn++]="creates magical gloves";
 	if (s_ptr->type ==SPELL_INVEN_FEET) vp[vn++]="creates magical boots";
 
-
 	/* Describe timed effects */
 	if (vn)
 	{
@@ -887,6 +887,11 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		/* End */
 		text_out(format(" for %dd%d+%d turns",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus));
 	}
+	else if ((s_ptr->l_dice) && (s_ptr->l_side) && (s_ptr->l_side == 1))
+	{
+		/* End */
+		text_out(format(" for %d turn%s",s_ptr->l_dice, s_ptr->l_dice != 1 ? "s" : ""));
+	}
 	else if ((s_ptr->l_dice) && (s_ptr->l_side))
 	{
 		/* End */
@@ -895,7 +900,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	else if (s_ptr->l_plus)
 	{
 		/* End */
-		text_out(format(" for %d turns",s_ptr->l_plus));
+		text_out(format(" for %d turn%s",s_ptr->l_plus, s_ptr->l_plus != 1 ? "s" : ""));
 	}
 
 	/* Collect cure effects */
@@ -1072,9 +1077,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->type == SPELL_SUMMON_RACE) vp[vn++] = format("summons %s%s",
 		is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
 		r_name+r_info[s_ptr->param].name);
-	if (s_ptr->type == SPELL_CREATE_RACE) vp[vn++] = format("creates %s%s",
-		is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
-		r_name+r_info[s_ptr->param].name);
+	if (s_ptr->type == SPELL_SUMMON_GROUP_IDX) vp[vn++] = "summons related monsters";
 	if (s_ptr->type == SPELL_CREATE_KIND) vp[vn++] = "creates gold";
 	if (s_ptr->flags2 & (SF2_CREATE_STAIR)) vp[vn++] = "creates a staircase under you";
 	if (s_ptr->type == SPELL_WARD_GLYPH) vp[vn++] = "creates a glyph of warding under you";
@@ -1099,6 +1102,15 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags1 & (SF1_DARK_ROOM)) vp[vn++] = "plunges the room you are in into darkness";
 	if (s_ptr->flags1 & (SF1_FORGET)) vp[vn++] = "erases the knowledge of the entire level from your mind";
 	if (s_ptr->flags1 & (SF1_SELF_KNOW)) vp[vn++] = "reveals all knowledge of yourself";
+	if (s_ptr->type == SPELL_CONCENTRATE_LITE) vp[vn++] = "concentrates light around you";
+	if (s_ptr->type == SPELL_CONCENTRATE_LIFE) vp[vn++] = "concentrates life around you";
+	if (s_ptr->type == SPELL_CONCENTRATE_WATER) vp[vn++] = "concentrates water around you";
+	if (s_ptr->type == SPELL_RELEASE_CURSE) vp[vn++] = "releases a curse from an item";
+	if (s_ptr->type == SPELL_WONDER) vp[vn++] = "creates random magics";
+	if (s_ptr->type == SPELL_SET_RETURN) vp[vn++] = "marks this grid as a destination for later return";
+	if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN) vp[vn++] = "marks this grid as a destination for later return or returns you to a marked grid";
+	if (s_ptr->type == SPELL_BLOOD_BOND) vp[vn++] = "bonds you with a living creature to share damage and healing";
+	if (s_ptr->type == SPELL_MINDS_EYE) vp[vn++] = "bonds you with a mind to allow you to see through its eyes";
 
 	/* Describe miscellaneous effects */
 	if (vn)
@@ -1236,6 +1248,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_STORM: p = "creates a storm"; t = "your enemies"; rad = 3; break;
 			case RBM_BREATH: p = "breathes";  t = "your enemies"; break;
 			case RBM_AREA: p = "surrounds you with magic"; rad = (level/10)+1; break;
+			case RBM_AIM_AREA: p = "affects an area"; rad = (level/10)+1; break;
 			case RBM_LOS: t = "all your enemies in line of sight"; break;
 			case RBM_LINE: t = "one direction"; break;
 			case RBM_AIM: t = "one target"; break;
@@ -1263,6 +1276,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_8WAY_II: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 3; break;
 			case RBM_8WAY_III: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 4; break;
 			case RBM_SWARM: p = "creates multiple balls"; t = "your enemies"; rad = 1; d3 += level / 2; break;
+			case RBM_SCATTER: p = "scatters magic around you"; t = "your enemies"; break;
 			default: t = "one adjacent target"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
 		}
 
@@ -1319,6 +1333,10 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_AWAY_UNDEAD: q = "teleport"; u="away if undead";break;
 			case GF_AWAY_EVIL: q = "teleport"; u="away if evil";break;
 			case GF_AWAY_ALL: q = "teleport"; u = "away";break;
+			case GF_AWAY_DARK: q = "teleport"; u = "away only in darkness";break;
+			case GF_AWAY_NATURE: q = "teleport"; u = "away if adjacent to water or nature"; break;
+			case GF_AWAY_FIRE: q = "teleport"; u = "away if adjacent to fire, smoke or lava"; break;			
+			case GF_AWAY_JUMP: q = "jump"; u = "away to a location still in line of fire"; break;
 			case GF_TURN_UNDEAD: q = "turn"; u="if undead"; break;
 			case GF_TURN_EVIL: q = "turn"; u="if evil"; break;
 			case GF_FEAR_WEAK: q = "scare";break;
@@ -1389,7 +1407,22 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_WEB:		q = "build"; s = "webs around"; break;
 			case GF_BLOOD:		q = "cover"; u = "in blood"; break;
 			case GF_SLIME:		q = "cover"; u = "in slime"; break;
-
+			case GF_HURT_WOOD:	q = "warp wood out of shape"; break;
+			case GF_ANIM_TREE:	q = "animate trees"; break;
+			case GF_CHARM_INSECT:	q = "charm insects"; break;
+			case GF_CHARM_REPTILE:	q = "charm reptiles or amphibians"; break;
+			case GF_CHARM_ANIMAL:	q = "charm birds or mammals"; break;
+			case GF_CHARM_MONSTER:	q = "charm living monsters other than dragons"; break;
+			case GF_CHARM_PERSON:	q = "charm elves, dwarves, humans, orcs, trolls or giants"; break;
+			case GF_BIND_DEMON:		q = "bind demons to a cursed item"; break;
+			case GF_BIND_DRAGON:	q = "bind dragons to a cursed item"; break;
+			case GF_BIND_UNDEAD:	q = "bind undead to a cursed item"; break;
+			case GF_BIND_FAMILIAR:	q = "bind a familiar to you"; break;
+			case GF_VAMP_DRAIN:	q = "drain"; s = "health from"; break;
+			case GF_MANA_DRAIN:	q = "drain"; s = "mana from"; break;
+			case GF_SNUFF:		q = "snuff"; s = "the life from"; u = "with less than"; break;
+			case GF_RAGE:		q = "enrage"; break;
+			case GF_MENTAL:		q = "blast"; u = "with mental energy"; break;
 
 			/* Hack -- handle features */
 			case GF_FEATURE:
@@ -1397,9 +1430,9 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 				char buf[80];
 				cptr name = f_name + f_info[f_info[d3].mimic].name;
 
-				q = "create";
+				q = "magically create";
 				s = buf;
-				sprintf(buf,"%s%s around",is_a_vowel(name[0])?"a ":"an ",name);
+				sprintf(buf,"%ss %s",name,f_info[f_info[d3].mimic].flags1 & (FF1_MOVE) ? "under" : "around" );
 				if ((f_info[d3].flags1 & (FF1_MOVE)) == 0)
 				{
 					d1 = 4;
@@ -1523,6 +1556,11 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			/* End */
 			text_out(format(" for %dd%d+%d ",d1,d2,d3));
 		}
+		else if ((d1) && (d2) && (d2 == 1))
+		{
+			/* End */
+			text_out(format(" for %d ",d1));
+		}
 		else if ((d1) && (d2))
 		{
 			/* End */
@@ -1541,24 +1579,60 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_WIND: text_out("damage against flying or climbing monsters, less against others"); break;
 			case GF_LITE_WEAK: text_out("damage to monsters vulnerable to light"); break;
 			case GF_KILL_WALL: text_out("damage to monsters made from rock"); break;
+			case GF_HURT_WOOD: text_out("damage to monsters made from wood"); break;			
 			case GF_RAISE: case GF_LOWER: text_out("damage to monsters made from water"); break;
 			case GF_HOLY_ORB: text_out("damage, doubled against evil monsters"); break;
 			case GF_BLIND: text_out("damage, doubled against eye monsters"); break;
-			case GF_TURN_UNDEAD: text_out("power"); break;
-			case GF_TURN_EVIL: text_out("power");  break;
-			case GF_FEAR_WEAK: text_out("power"); break;
-			case GF_CLONE: text_out("power"); break;
-			case GF_POLY: text_out("power"); break;
+			case GF_HASTE: 
+			case GF_SLOW_WEAK: 
+			case GF_CONF_WEAK: 
+			case GF_SLEEP: 
+			case GF_BLIND_WEAK:
+			case GF_TURN_UNDEAD: 
+			case GF_TURN_EVIL: 
+			case GF_FEAR_WEAK: 
+			case GF_CLONE: 
+			case GF_POLY:
+			case GF_CHARM_INSECT:
+			case GF_CHARM_REPTILE:
+			case GF_CHARM_ANIMAL:
+			case GF_CHARM_MONSTER:
+			case GF_CHARM_PERSON:
+			case GF_BIND_DEMON:
+			case GF_BIND_DRAGON:
+			case GF_BIND_UNDEAD:
+			case GF_BIND_FAMILIAR:
+			case GF_RAGE:
+								text_out("power"); break;
+			case GF_SNUFF: text_out("maximum ");
 			case GF_HEAL: text_out("hit points"); break;
-			case GF_AWAY_ALL: text_out("distance on average"); break;
-			case GF_HASTE: text_out("power"); break;
-			case GF_SLOW_WEAK: text_out("power"); break;
-			case GF_CONF_WEAK: text_out("power"); break;
-			case GF_SLEEP: text_out("power"); break;
-			case GF_BLIND_WEAK: text_out("power"); break;
+			case GF_AWAY_ALL:
+			case GF_AWAY_JUMP:
+			case GF_AWAY_DARK:
+			case GF_AWAY_NATURE:
+			case GF_AWAY_FIRE:
+			case GF_AWAY_EVIL:
+			case GF_AWAY_UNDEAD:
+			{
+				text_out("distance on average");
+
+				/* Hack for questionable efficiency */
+				if (strstr(u, " "))
+				{
+					/* Skip two words */
+					u = strstr(u, " ");
+					u++;
+					u = strstr(u, " ");
+					u++;
+					
+					text_out(format(".  The destination will also be %s", u));
+				}
+				break;
+			}
+			case GF_LOSE_MANA:
+			case GF_MANA_DRAIN:
 			case GF_GAIN_MANA: text_out("spell points"); break;
 			default: text_out("damage"); break;
-
 		}
 		r++;
 	}
@@ -1612,6 +1686,11 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 	{
 		/* End */
 		my_strcpy(p,format(" dur %dd%d+%d",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus), p_s);
+	}
+	else if ((s_ptr->l_dice) && (s_ptr->l_side) && (s_ptr->l_side == 1))
+	{
+		/* End */
+		my_strcpy(p,format(" dur %d",s_ptr->l_dice), p_s);
 	}
 	else if ((s_ptr->l_dice) && (s_ptr->l_side))
 	{
@@ -1699,19 +1778,40 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 		/* Get the effect */
 		if (d1 || d2 || d3) switch (effect)
 		{
-			case GF_TURN_UNDEAD: q="pow"; break;
-			case GF_TURN_EVIL: q="pow";  break;
-			case GF_FEAR_WEAK: q="pow"; break;
-			case GF_CLONE: q="pow"; break;
-			case GF_POLY: q="pow"; break;
-			case GF_HEAL: q="heal"; break;
-			case GF_AWAY_ALL: q="range"; break;
-			case GF_HASTE: q="pow"; break;
-			case GF_SLOW_WEAK: q="pow"; break;
-			case GF_CONF_WEAK: q="pow"; break;
-			case GF_SLEEP: q="pow"; break;
-			case GF_BLIND_WEAK: q="pow"; break;
-			case GF_GAIN_MANA: q="mana"; break;
+			case GF_HASTE: 
+			case GF_SLOW_WEAK: 
+			case GF_CONF_WEAK: 
+			case GF_SLEEP: 
+			case GF_BLIND_WEAK:
+			case GF_TURN_UNDEAD: 
+			case GF_TURN_EVIL: 
+			case GF_FEAR_WEAK: 
+			case GF_CLONE: 
+			case GF_POLY:
+			case GF_CHARM_INSECT:
+			case GF_CHARM_REPTILE:
+			case GF_CHARM_ANIMAL:
+			case GF_CHARM_MONSTER:
+			case GF_CHARM_PERSON:
+			case GF_BIND_DEMON:
+			case GF_BIND_DRAGON:
+			case GF_BIND_UNDEAD:
+			case GF_BIND_FAMILIAR:
+			case GF_RAGE:
+								q = "pow"; break;
+			case GF_SNUFF: q = "max hp"; break;
+			case GF_HEAL: q = "heal"; break;
+			case GF_AWAY_ALL:
+			case GF_AWAY_JUMP:
+			case GF_AWAY_DARK:
+			case GF_AWAY_NATURE:
+			case GF_AWAY_FIRE:
+			case GF_AWAY_EVIL:
+			case GF_AWAY_UNDEAD:
+								q = "range"; break;
+			case GF_LOSE_MANA:
+			case GF_MANA_DRAIN:
+			case GF_GAIN_MANA: q = "mana"; break;
 			default: q="dam"; break;
 		}
 
@@ -1721,6 +1821,11 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 		{
 			/* End */
 			my_strcpy(p,format(" %s %dd%d+%d ",q,d1,d2,d3), p_s);
+		}
+		else if ((d1) && (d2) && (d2 == 1))
+		{
+			/* End */
+			my_strcpy(p,format(" %s %d ",q,d1), p_s);
 		}
 		else if ((d1) && (d2))
 		{
@@ -2861,17 +2966,17 @@ const cptr inscrip_info[] =
 		"It is a cursed artifact of some kind, that you may be able to enchant back to full strength.  ",
 		"It is a cursed ego item of some kind.  ",
 		"It is cursed, with negative effects if you attempt to use it.  ",
-		"It has been blasted by powerful magic.  ",
+		"It is broken, having been blasted by powerful magic.  ",
 		"It needs recharging.  ",
 		"It is of good quality, but with no additional powers.  ",
 		"It is a useful ego item.  ",
 		"It is a useful artifact.  ",
-		"It is an artifact that has resisted your destruction.  ",
-		"It is an ego item or artifact that resisted being picked up or used.  ",
 		"It is of average quality or better, and not cursed.  It may be an ego item or artifact.  ",
 		"It is of very good quality, but with no additional powers.  ",
 		"It is of great quality, but with no additonal powers.  ",
 		"It is a useful ego item, with a random hidden ability.  ",
+		"It is an artifact that has resisted your destruction.  ",
+		"It is an ego item or artifact that resisted being picked up or used.  ",
 		"It is of average quality or worse, and may be cursed.  It may be an ego item or artifact.  ",
 		"It is better than average quality, and not cursed.  It may be an ego item or artifact.  ",
 		"It is an ego item or artifact.  ",
@@ -3665,7 +3770,8 @@ void print_spells(const s16b *sn, int num, int y, int x)
 				if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
 					((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
 					((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-				&& (s_info[spell].appears[ii].sval == p_ptr->psval))
+			&& ((s_info[spell].appears[i].sval == p_ptr->psval) || ((p_ptr->psval >= SV_BOOK_MAX_GOOD) &&
+				((s_info[spell].appears[i].sval / SV_BOOK_SCHOOL) * SV_BOOK_SCHOOL + SV_BOOK_SCHOOL - 1 == p_ptr->psval))))
 				{
 				  legible = TRUE;
 				  /* Get the first spell caster's casting info */

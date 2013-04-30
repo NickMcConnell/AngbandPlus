@@ -1336,6 +1336,13 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		   will try and target these monsters.*/
 
 		/* XXX Perhaps we should use a different attr/char */
+		if (m_ptr->mflag & (MFLAG_ALLY))
+		{
+			/* Append special notation */
+			my_strcat(desc, " (allied)", max);
+		}
+
+		/* XXX Perhaps we should use a different attr/char */
 		if (m_ptr->mflag & (MFLAG_HIDE))
 		{
 			/* Append special notation */
@@ -3314,7 +3321,7 @@ int find_monster_ammo(int m_idx, int blow, bool created)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp)
+static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 {
 	monster_race *r_ptr;
 
@@ -3466,6 +3473,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		if ((n_ptr->mflag & (MFLAG_SICK))  && (variety & 0x20)) n_ptr->mflag &= ~(MFLAG_SICK | MFLAG_HEALTHY);
 	}
 
+	/* Apply flags from caller */
+	n_ptr->mflag |= flg;
+
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
 	{
@@ -3521,7 +3531,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
  * level rating.
  */
 static bool place_monster_group(int y, int x, int r_idx, bool slp,
-	s16b group_size)
+	s16b group_size, u32b flg)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3584,7 +3594,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 			int my = hy + ddy_ddd[i % 8];
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp))
+			if (place_monster_one(my, mx, r_idx, slp, flg))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -3601,6 +3611,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 	/* Success */
 	return (TRUE);
 }
+
+
 
 /*
  * Hack -- help pick an escort type
@@ -3635,7 +3647,7 @@ static bool place_monster_okay(int r_idx)
 /*
  * Attempt to place an escort of monsters around the given location
  */
-static void place_monster_escort(int y, int x, int leader_idx, bool slp)
+static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b flg)
 {
 	int escort_size, escort_idx;
 	int n, i;
@@ -3654,7 +3666,6 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 
 	/* Save previous monster restriction value. */
 	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
-
 
 	/* Calculate the number of escorts we want. */
 	if (r_ptr->flags1 & (RF1_ESCORTS)) escort_size = rand_range(12, 18);
@@ -3700,20 +3711,20 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 
 			/* Place a group of escorts if needed */
 			if ((r_info[escort_idx].flags1 & (RF1_FRIENDS)) &&
-				!place_monster_group(my, mx, escort_idx, slp, (rand_range(3, 5))))
+				!place_monster_group(my, mx, escort_idx, slp, (rand_range(3, 5)), flg))
 			{
 				continue;
 			}
 
 			/* Place a group of escorts if needed */
 			if ((r_info[escort_idx].flags1 & (RF1_FRIEND)) &&
-				!place_monster_group(my, mx, escort_idx, slp, 2))
+				!place_monster_group(my, mx, escort_idx, slp, 2, flg))
 			{
 				continue;
 			}
 
 			/* Attempt to place another monster */
-			else if (!place_monster_one(my, mx, escort_idx, slp))
+			if (!place_monster_one(my, mx, escort_idx, slp, flg))
 			{
 				continue;
 			}
@@ -3887,14 +3898,18 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_PLANT:
 		{
+			/* Hack -- exclude trees */
 			okay = ((r_ptr->flags3 & (RF3_PLANT)) &&
+				(r_ptr->d_char != ':') &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_INSECT:
 		{
+			/* Hack -- exclude spiders */
 			okay = ((r_ptr->flags3 & (RF3_INSECT)) &&
+				(r_ptr->d_char != 'S') &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -3906,6 +3921,9 @@ static bool summon_specific_okay(int r_idx)
 			{
 				okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)) &&
+					
+					/* Hack -- exclude hounds */
+					(r_ptr->d_char != 'C') && (r_ptr->d_char != 'Z') &&
 
 					/* Check 'skin' */
 					((r_ptr->flags8 & (RF8_SKIN_MASK)) ?
@@ -3914,7 +3932,7 @@ static bool summon_specific_okay(int r_idx)
 					((r_ptr->flags8 & (summon_flag_type)) ? TRUE : FALSE) :
 
 					/* Has none of the above - treat as scales... */
-					((r_ptr->flags8 & (RF8_HAS_SCALE)) ? TRUE : FALSE)));
+					((summon_flag_type & (RF8_HAS_SCALE)) ? TRUE : FALSE)));
 			}
 			else
 			{
@@ -4036,6 +4054,13 @@ static bool summon_specific_okay(int r_idx)
 					strchr("&:;.,'!_-\\/[]~$%^*(){}+=<>?#",r_ptr->d_char));
 			}
 			break;
+		}
+		
+		case ANIMATE_TREE:
+		{
+			okay = ((r_ptr->d_char == ':') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;			
 		}
 
 		case SUMMON_FRIEND:
@@ -4183,12 +4208,12 @@ static bool summon_specific_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to legal escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
+bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, flg)) return (FALSE);
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -4247,7 +4272,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 				if (!hack_r_idx[hack_n]) break;
 
 				/* Attempt to place another monster */
-				if (place_monster_one(my, mx, hack_r_idx[hack_n], slp))
+				if (place_monster_one(my, mx, hack_r_idx[hack_n], slp, flg))
 				{
 					/* Add it to the "hack" set */
 					hack_y[hack_n] = my;
@@ -4269,7 +4294,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			/* Escorts for certain monsters */
 			if ((r_info[hack_r_idx[n]].flags1 & (RF1_ESCORT)) || (r_info[hack_r_idx[n]].flags1 & (RF1_ESCORTS)))
 			{
-				place_monster_escort(hack_y[n], hack_x[n], hack_r_idx[n], slp);
+				place_monster_escort(hack_y[n], hack_x[n], hack_r_idx[n], slp, flg);
 			}
 		}
 	}
@@ -4277,19 +4302,19 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	else if (r_ptr->flags1 & (RF1_FRIEND))
 	{
 		/* Attempt to place a second monster */
-		(void)place_monster_group(y, x, r_idx, slp, 2);
+		(void)place_monster_group(y, x, r_idx, slp, 2, flg);
 	}
 	/* Friends for certain monsters */
 	else if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a large group */
-		(void)place_monster_group(y, x, r_idx, slp, (s16b)rand_range(3, 5));
+		(void)place_monster_group(y, x, r_idx, slp, (s16b)rand_range(3, 5), flg);
 	}
 
 	/* Escorts for certain monsters */
 	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags1 & (RF1_ESCORTS)))
 	{
-		place_monster_escort(y, x, r_idx, slp);
+		place_monster_escort(y, x, r_idx, slp, flg);
 	}
 
 	/* Certain monsters created in giant spider webs */
@@ -4322,7 +4347,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp)) return (TRUE);
+	if (place_monster_aux(y, x, r_idx, slp, grp, 0L)) return (TRUE);
 
 	/* Oops */
 	return (FALSE);
@@ -4455,7 +4480,7 @@ bool alloc_monster(int dis, bool slp)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(int y1, int x1, int lev, int type, u32b flg)
 {
 	int i, x, y, r_idx;
 
@@ -4526,7 +4551,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE, flg)) return (FALSE);
 
 	/* Hack -- Set specific summoning parameters if not currently set */
 	switch (summon_specific_type)
@@ -4605,11 +4630,12 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	return (TRUE);
 }
 
+
 /*
  * Unlike above routine, we only place one of the monster, regardless
  * of type and we do allow uniques, but not if already created.
  */
-bool summon_specific_one(int y1, int x1, int r_idx, bool slp)
+bool summon_specific_one(int y1, int x1, int r_idx, bool slp, u32b flg)
 {
 	int i, x, y;
 
@@ -4646,7 +4672,7 @@ bool summon_specific_one(int y1, int x1, int r_idx, bool slp)
 	if (i == 20) return (FALSE);
 
 	/* Attempt to place the monster (awake or asleep, do not allow groups) */
-	if (!place_monster_aux(y, x, r_idx, slp, FALSE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, slp, FALSE, flg)) return (FALSE);
 
 	/* Hack -- monster does not drop anything */
 	m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
@@ -4695,7 +4721,7 @@ bool animate_object(int item)
 	if (o_ptr->name3 <= 0) return (FALSE);
 
 	/* Summon the specific race */
-	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE);
+	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE, 0L);
 
 	/* Hack -- no result */
 	if (!result)
@@ -4826,7 +4852,7 @@ bool multiply_monster(int m_idx)
 		if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
+		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, m_ptr->mflag & (MFLAG_ALLY | MFLAG_IGNORE));
 
 		/* Hack -- monster does not drop anything */
 		m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);

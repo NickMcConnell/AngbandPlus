@@ -350,7 +350,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_MIND_BLAST)  vp[vn++] = "cause mind blasting";
 	if (l_ptr->flags6 & RF6_WOUND)       vp[vn++] = "cause wounds";
 	if (l_ptr->flags6 & RF6_BLESS)       vp[vn++] = "become heroic";
-	if (l_ptr->flags6 & RF6_BESERK)      vp[vn++] = "become beserk";
+	if (l_ptr->flags6 & RF6_BERSERK)      vp[vn++] = "become beserk";
 	if (l_ptr->flags6 & RF6_SHIELD)      vp[vn++] = "create a shield";
 	if (l_ptr->flags6 & RF6_OPPOSE_ELEM) vp[vn++] = "become resistant to the elements";
 	if (l_ptr->flags6 & RF6_HUNGER)      vp[vn++] = "cause hunger";
@@ -752,6 +752,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 			case RBM_8WAY_III: p = "create a huge 8-way beam"; break;
 			case RBM_SWARM: p = "create a swarm"; break;
 			case RBM_DAGGER:	p = "throws a dagger at you"; break;
+			case RBM_AIM_AREA:	p = "affect an area"; break;
+			case RBM_SCATTER:	p = "scatters"; break;
 		}
 
 
@@ -875,7 +877,26 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 			case GF_WEB:		q = "build webs"; break;
 			case GF_BLOOD:		q = "bloody"; break;
 			case GF_SLIME:		q = "slime"; break;
-
+			case GF_HURT_WOOD:	q = "warp wood out of shape"; break;
+			case GF_AWAY_DARK: q = "teleport away only in darkness";break;
+			case GF_AWAY_NATURE: q = "teleport away only adjacent to water or nature";break;
+			case GF_AWAY_FIRE: q = "teleport away only adjacent to fire or lava";break;
+			case GF_AWAY_JUMP: q = "jump away"; break;			
+			case GF_ANIM_TREE:	q = "animate trees"; break;
+			case GF_CHARM_INSECT:	q = "charm insects"; break;
+			case GF_CHARM_REPTILE:	q = "charm reptiles or amphibians"; break;
+			case GF_CHARM_ANIMAL:	q = "charm birds or mammals"; break;
+			case GF_CHARM_MONSTER:	q = "charm living monsters other than dragons"; break;
+			case GF_CHARM_PERSON:	q = "charm elves, dwarves, humans, orcs, trolls or giants"; break;
+			case GF_BIND_DEMON:		q = "bind demons to a cursed item"; break;
+			case GF_BIND_DRAGON:	q = "bind dragons to a cursed item"; break;
+			case GF_BIND_UNDEAD:	q = "bind undead to a cursed item"; break;
+			case GF_BIND_FAMILIAR:	q = "bind a familiar to you"; break;
+			case GF_VAMP_DRAIN:	q = "drain health"; break;
+			case GF_MANA_DRAIN:	q = "drain mana"; break;
+			case GF_SNUFF:		q = "snuff the life from"; break;
+			case GF_RAGE:		q = "enrage"; break;
+			case GF_MENTAL:		q = "blast with mental energy"; break;
 		}
 
 

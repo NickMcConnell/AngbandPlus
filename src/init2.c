@@ -1402,8 +1402,6 @@ static errr init_other(void)
 {
 	int i, n;
 
-	int total_store_size = 0;
-
 	/*** Prepare the various "bizarre" arrays ***/
 
 	/* Initialize the "macro" package */
@@ -1517,6 +1515,9 @@ static errr init_other(void)
 
 	/*** Prepare the dungeons ***/
 
+	/* Maximum number of stores */
+	max_store_count = 0;
+
 	/* Initialize maximum depth and count stores */
 	for (i = 0; i < z_info->t_max; i++)
 	{
@@ -1524,7 +1525,7 @@ static errr init_other(void)
 
 		for (n = 0; n < MAX_STORES; n++)
 		{
-			if (t_info[i].store[n]) total_store_size++;
+			if (t_info[i].store[n]) max_store_count++;
 		}
 	}
 
@@ -1535,7 +1536,7 @@ static errr init_other(void)
 	total_store_count = 0;
 
 	/*** Allocate space for the maximum number of stores */
-	C_MAKE(store, total_store_size, store_type_ptr);
+	C_MAKE(store, max_store_count, store_type_ptr);
 
 	/*** Prepare the options ***/
 

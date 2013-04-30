@@ -29,6 +29,8 @@ main-win.o: main-win.c
 # Targets
 #
 
+all: unangband movebin
+
 install: unangband movebin cleanobjs
 
 movebin:

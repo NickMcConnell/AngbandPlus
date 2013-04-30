@@ -1163,8 +1163,21 @@ bool make_attack_normal(int m_idx)
 	/* Blink away */
 	if (blinked)
 	{
-		msg_print("There is a puff of smoke!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+		/* Hack -- haste and flee with the loot */
+		if ((!m_ptr->monfear) && (rand_int(3)))
+		{
+			/* Set monster fast */
+			set_monster_haste(m_idx, 3 + rand_int(3), FALSE);
+
+			/* Make monster 'panic' -- move away */
+			set_monster_fear(m_ptr, m_ptr->hp / 3, TRUE);
+		}
+		else
+		{
+			msg_print("There is a puff of smoke!");
+			teleport_hook = NULL;
+			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+		}
 	}
 
 	/* Shriek */
@@ -1783,6 +1796,7 @@ void mon_blow_ranged(int who, int what, int x, int y, int method, int range, int
 	{
 		monster_type *m_ptr = &m_list[who];
 		r_ptr = &r_info[m_ptr->r_idx];
+		l_ptr = &l_list[m_ptr->r_idx];
 
 		known = m_ptr->ml;
 
@@ -2012,6 +2026,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		l_ptr = &l_list[m_ptr->r_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 
+		/* Hack */
+		what = attack;
+		
 		/* Hack -- never make spell attacks if hidden */
 		if (m_ptr->mflag & (MFLAG_HIDE)) return (FALSE);
 
@@ -2220,7 +2237,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_CLOUD: mon_area(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_STORM: mon_area(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_BREATH: mon_arc(who, what, y, x, effect, MIN(dam, m_ptr->hp / d_side), 0, (powerful ? 40 : 20), result); break;
-				case RBM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
+				case RBM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_AREA, 0, 0);  break;
+				case RBM_AIM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_AREA, 0, 0);  break;
 				case RBM_LOS: (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_LINE: mon_beam(who, what, y, x, effect, dam, 8, result); break;
 				case RBM_AIM: (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
@@ -2248,7 +2266,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_8WAY_III: mon_8way(who, what, y, x, effect, dam, 4, result); break;
 				case RBM_SWARM: for (k = 0; k < (rlev / 20) + 2; k++) mon_ball_minor(who, what, y, x, effect, dam, 2, TRUE, result); break;
 				case RBM_DAGGER: mon_shot(who, what, y, x, effect, dam, hit, result); break;
-				default: mon_beam(who, what, y, x, effect, dam, 2, format("reaches out and %s", result)); /* For all hurt huge attacks */
+				case RBM_SCATTER: for (k = 0; k < (rlev / 10) + 3; k++) { scatter(&y, &x, m_ptr->fy, m_ptr->fx, 5, 0); (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0); } break;
+				default: mon_beam(who, what, y, x, effect, dam, 2, result); /* For all hurt huge attacks */
 			}
 
 			/* Hack -- only one of cut or stun */
@@ -3993,6 +4012,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else
 				{
 					player_not_flags(who, 0x0L, 0x0L, 0x0L, TR4_ANCHOR);
+					teleport_hook = NULL;
 					teleport_player(100);
 				}
 			}
@@ -4002,6 +4022,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				{
 					disturb(1, 0);
 					msg_format("%^s teleports %s away.", m_name, t_name);
+					teleport_hook = NULL;
 					teleport_away(target, MAX_SIGHT * 2 + 5);
 				}
 			}
@@ -5003,7 +5024,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_KIN);
+				count += summon_specific(y, x, rlev - 1, SUMMON_KIN, 0L);
 			}
 
 			break;
@@ -5078,7 +5099,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, RAISE_MONSTER);
+				count += summon_specific(y, x, rlev - 1, 0, 0L);
 			}
 			break;
 		}
@@ -5100,7 +5121,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, 0);
+				count += summon_specific(y, x, rlev - 1, 0, 0L);
 			}
 			break;
 		}
@@ -5140,10 +5161,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else msg_print("You hear distant chanting.");
 			}
 
-			for (k = 0; k < 4; k++)
-			{
-				count += summon_specific(y, x, rlev - 1, 0);
-			}
+			/* All in line of sight */
+			
 			break;
 		}
 
@@ -5164,7 +5183,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_PLANT);
+				count += summon_specific(y, x, rlev - 1, SUMMON_PLANT, 0L);
 			}
 			break;
 		}
@@ -5186,7 +5205,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_INSECT);
+				count += summon_specific(y, x, rlev - 1, SUMMON_INSECT, 0L);
 			}
 			break;
 		}
@@ -5230,7 +5249,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_ANIMAL);
+				count += summon_specific(y, x, rlev - 1, SUMMON_ANIMAL, 0L);
 			}
 			break;
 		}
@@ -5252,7 +5271,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 2; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HOUND);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HOUND, 0L);
 			}
 			break;
 		}
@@ -5274,7 +5293,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_SPIDER);
+				count += summon_specific(y, x, rlev - 1, SUMMON_SPIDER, 0L);
 			}
 			break;
 		}
@@ -5304,7 +5323,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_CLASS);
+				count += summon_specific(y, x, rlev - 1, SUMMON_CLASS, 0L);
 			}
 			break;
 		}
@@ -5340,7 +5359,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_RACE);
+				count += summon_specific(y, x, rlev - 1, SUMMON_RACE, 0L);
 			}
 			break;
 		}
@@ -5367,7 +5386,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_GROUP);
+				count += summon_specific(y, x, rlev - 1, SUMMON_GROUP, 0L);
 			}
 			break;
 		}
@@ -5407,7 +5426,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, summon_type);
+				count += summon_specific(y, x, rlev, summon_type, 0L);
 			}
 
 			break;
@@ -5448,7 +5467,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev, summon_type);
+				count += summon_specific(y, x, rlev, summon_type, 0L);
 			}
 
 			break;
@@ -5471,7 +5490,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_ORC);
+				count += summon_specific(y, x, rlev - 1, SUMMON_ORC, 0L);
 			}
 			break;
 		}
@@ -5493,7 +5512,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_TROLL);
+				count += summon_specific(y, x, rlev - 1, SUMMON_TROLL, 0L);
 			}
 			break;
 		}
@@ -5515,7 +5534,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_GIANT);
+				count += summon_specific(y, x, rlev - 1, SUMMON_GIANT, 0L);
 			}
 			break;
 		}
@@ -5537,7 +5556,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx,
-					rlev - 1, SUMMON_DRAGON);
+					rlev - 1, SUMMON_DRAGON, 0L);
 			}
 
 			break;
@@ -5560,7 +5579,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DRAGON);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DRAGON, 0L);
 			}
 			break;
 		}
@@ -5624,7 +5643,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_DEMON);
+				count += summon_specific(y, x, rlev - 1, SUMMON_DEMON, 0L);
 			}
 			break;
 		}
@@ -5650,7 +5669,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DEMON);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HI_DEMON, 0L);
 			}
 			break;
 		}
@@ -5674,7 +5693,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, summon_type);
+				count += summon_specific(y, x, rlev - 1, summon_type, 0L);
 			}
 			break;
 		}
@@ -5694,7 +5713,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_UNIQUE);
+				count += summon_specific(y, x, rlev - 1, SUMMON_UNIQUE, 0L);
 			}
 			break;
 		}
@@ -5717,7 +5736,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNIQUE);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNIQUE, 0L);
 			}
 			break;
 		}
@@ -5740,7 +5759,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_UNDEAD);
+				count += summon_specific(y, x, rlev - 1, SUMMON_UNDEAD, 0L);
 			}
 			break;
 		}
@@ -5766,7 +5785,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD, 0L);
 			}
 
 			break;
@@ -5793,12 +5812,12 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_WRAITH);
+				count += summon_specific(y, x, rlev - 1, SUMMON_WRAITH, 0L);
 			}
 
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD);
+				count += summon_specific(y, x, rlev - 1, SUMMON_HI_UNDEAD, 0L);
 			}
 
 			break;
@@ -6322,6 +6341,28 @@ void mon_hit_trap(int m_idx, int y, int x)
 						cave_alter_feat(y,x,FS_DISARM);
 					}
 				}
+			}
+
+			/* Similar to hitting a regular trap below, but (hack) damage increased by current player level. */
+			case TV_SPELL:
+			{
+				/* Player floats on terrain */
+				if (player_ignore_terrain(feat)) return;
+
+				if (f_ptr->spell)
+				{
+   		   			make_attack_ranged(-1,f_ptr->spell,y,x);
+				}
+				else if (f_ptr->blow.method)
+				{
+					int dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice * (((p_ptr->lev + 9) / 10) + 1) );
+
+					/* Apply the blow */
+					project_p(SOURCE_PLAYER_TRAP, feat, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+					project_t(SOURCE_PLAYER_TRAP, feat, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+				}
+				
+				/* Drop through to use a charge */
 			}
 
 			case TV_WAND:

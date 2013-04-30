@@ -2181,7 +2181,7 @@ D: towards you, ready to pounce.
 N:167:Moaning spirit
 G:G:u
 I:120:5d8:14:20:10
-W:16:2:0:44
+W:16:2:22:44
 M:6:6:1:35
 B:WAIL:TERRIFY
 B:TOUCH:LOSE_DEX:1d8
@@ -2428,7 +2428,7 @@ D:A ten foot tall humanoid with powerful muscles.
 N:185:Flesh golem
 G:g:R
 I:110:12d8:12:30:10
-W:6:2:0:50
+W:6:2:20:50
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:EMPTY_MIND | BASH_DOOR
@@ -2679,7 +2679,7 @@ D:A completely translucent hound.
 N:204:Clay golem
 G:g:U
 I:110:14d8:12:30:10
-W:11:2:0:60
+W:11:2:20:60
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR
@@ -3091,7 +3091,7 @@ D:The size of a large bird, this fly drips caustic acid.
 N:232:Stone golem
 G:g:W
 I:100:28d8:12:75:10
-W:21:2:0:70
+W:21:2:20:70
 B:HIT:BATTER:2d10
 B:HIT:BATTER:2d10
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR
@@ -3466,7 +3466,7 @@ D:It is a giant beetle with vicious claws.
 N:258:Iron golem
 G:g:s
 I:110:80d12:12:80:10
-W:25:2:0:160
+W:25:2:20:160
 M:15:15:0:50
 B:HIT:HURT:1d12
 B:SPIKE:HURT:3d4
@@ -4380,7 +4380,7 @@ D: bronze hue, and its shape glitters with strange colours that confuse you.
 N:318:Mithril golem
 G:g:B
 I:110:80d15:12:100:10
-W:51:4:0:500
+W:51:4:20:500
 B:HIT:HURT:8d5
 B:HIT:HURT:8d5
 F:ONLY_GOLD | DROP_2D2
@@ -4488,7 +4488,7 @@ D: carapace.
 N:326:Ghost
 G:G:w
 I:120:13d8:20:30:10
-W:38:2:0:350
+W:38:2:21:350
 M:6:6:20:56
 B:WAIL:TERRIFY
 B:TOUCH:EXP_20
@@ -4782,7 +4782,7 @@ D: Bill and Bert.
 N:346:Shade
 G:G:D
 I:120:14d20:20:30:10
-W:48:2:0:350
+W:48:2:21:350
 M:6:6:22:71
 B:WAIL:TERRIFY
 B:TOUCH:EXP_40
@@ -4800,7 +4800,7 @@ D: with a deadly touch.
 N:347:Spectre
 G:G:U
 I:120:14d20:20:30:10
-W:49:1:0:350
+W:49:1:21:350
 M:6:6:25:71
 B:WAIL:TERRIFY
 B:TOUCH:EXP_40
@@ -5037,7 +5037,7 @@ D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 N:362:Eog golem
 G:g:u
 I:100:100d20:12:125:10
-W:48:4:0:1200
+W:48:4:20:1200
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 F:ONLY_GOLD | DROP_2D2
@@ -5263,7 +5263,7 @@ D: has four huge arms protruding from its enormous torso.
 N:377:Shadow
 G:G:D
 I:120:10d20:30:30:20
-W:52:2:0:400
+W:52:2:21:400
 M:0:15:35:45
 B:TOUCH:EXP_80
 B:TOUCH:EXP_40
@@ -5281,7 +5281,7 @@ D: energy from your soul to feed its power.
 N:378:Phantom
 G:G:v
 I:120:20d25:30:30:20
-W:60:1:0:400
+W:60:1:21:400
 M:0:20:35:35
 B:TOUCH:EXP_80
 B:TOUCH:EXP_40
@@ -9237,7 +9237,7 @@ D: and whose howls strike fear into even the boldest heart.
 N:608:Bone golem
 G:g:D
 I:120:35d100:20:170:50
-W:81:3:0:23000
+W:81:3:20:23000
 M:0:15:55:78
 B:HIT:UN_BONUS:8d8
 B:HIT:UN_BONUS:8d8
@@ -9255,7 +9255,7 @@ D: previous victims.
 N:609:Bronze golem
 G:g:o
 I:120:40d100:20:170:50
-W:93:3:0:26000
+W:93:3:20:26000
 M:15:15:90:78
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
@@ -12217,7 +12217,7 @@ D:It is ugly and covered in horned warts.
 N:827:Steel golem
 G:g:w
 I:110:80d14:12:90:10
-W:35:1:0:330
+W:35:1:20:330
 B:HIT:HURT:2d10
 B:HIT:HURT:2d10
 B:HIT:HURT:2d10
@@ -12230,7 +12230,7 @@ D:It is a massive steel statue that moves steadily towards you.
 N:828:Copper golem
 G:g:U
 I:110:80d8:12:80:10
-W:22:1:0:170
+W:22:1:20:170
 M:0:14:23:60
 B:HIT:HURT:2d7
 B:HIT:ELEC:2d4
@@ -12245,7 +12245,7 @@ D:It is a massive copper statue that moves steadily towards you.
 N:829:Brass golem
 G:g:o
 I:110:80d11:12:80:10
-W:29:1:0:300
+W:29:1:20:300
 M:0:14:27:80
 B:HIT:HURT:2d12
 B:HIT:ACID:2d4
@@ -12260,7 +12260,7 @@ D:It is a massive brass statue that moves steadily towards you.
 N:830:Silver golem
 G:g:W
 I:110:80d9:12:80:10
-W:24:1:0:180
+W:24:1:20:180
 M:0:14:24:80
 B:HIT:HURT:2d8
 B:HIT:EAT_LITE:2d6
@@ -12275,7 +12275,7 @@ D:It is a massive silver statue that moves steadily towards you.
 N:831:Gold golem
 G:g:y
 I:110:80d10:12:80:10
-W:24:1:0:250
+W:24:1:20:250
 B:HIT:HURT:2d10
 B:HIT:HURT:6d2
 F:FORCE_SLEEP | 
@@ -12288,7 +12288,7 @@ D:It is a massive gold statue that moves steadily towards you.
 N:832:Coal golem
 G:g:D
 I:110:80d12:12:80:10
-W:23:1:0:300
+W:23:1:20:300
 M:0:14:26:75
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
@@ -12333,7 +12333,7 @@ D:It is a massive ice statue that moves steadily towards you.
 N:835:Shiver
 G:G:w
 I:120:4d5:10:17:10
-W:11:2:0:16
+W:11:2:21:16
 M:0:8:8:20
 B:TOUCH:TERRIFY:1d5
 F:RAND_50 | RAND_25 | ATTR_CLEAR |
@@ -12346,7 +12346,7 @@ D:It is a transparent, ghostly form.
 N:836:Chill
 G:G:B
 I:120:6d6:12:19:10
-W:15:2:0:32
+W:15:2:21:32
 M:0:8:9:23
 B:TOUCH:TERRIFY
 B:CLAW:COLD:1d4
@@ -12361,7 +12361,7 @@ D:It is a chilling, ghostly form.
 N:837:Spook
 G:G:G
 I:120:8d6:14:21:10
-W:19:2:0:64
+W:19:2:21:64
 M:0:8:10:26
 B:TOUCH:TERRIFY:1d6
 B:TOUCH:TERRIFY:1d6
@@ -12376,7 +12376,7 @@ D:It is a spooky, ghostly form.
 N:838:Haunt
 G:G:s
 I:120:9d7:16:24:10
-W:21:2:0:64
+W:21:2:21:64
 M:0:8:11:29
 B:TOUCH:LOSE_INT:1d6
 B:TOUCH:LOSE_WIS:1d6
@@ -12391,7 +12391,7 @@ D:It is a haunting, ghostly form.
 N:839:Fright
 G:G:v
 I:120:11d7:17:26:10
-W:26:2:0:96
+W:26:2:21:96
 M:0:8:12:32
 B:TOUCH:TERRIFY:1d6
 B:TOUCH:EXP_20:1d6
@@ -12406,7 +12406,7 @@ D:It is a terrifying, ghostly form.
 N:840:Idolan
 G:G:v
 I:120:11d7:18:28:10
-W:34:2:0:190
+W:34:2:21:190
 M:0:8:13:35
 B:TOUCH:BLIND:1d7
 B:TOUCH:EXP_20:1d7
@@ -12421,7 +12421,7 @@ D:It is a shimmering, ghostly form.
 N:841:Reflection
 G:G:W
 I:120:12d8:19:29:10
-W:34:2:0:270
+W:34:2:21:270
 M:0:8:14:38
 B:TOUCH:EXP_20:2d4
 B:TOUCH:EXP_20:2d4
@@ -12436,7 +12436,7 @@ D:It is a twisted, ghostly form.
 N:842:Apparition
 G:G:g
 I:120:13d14:20:30:10
-W:43:2:0:350
+W:43:2:21:350
 M:10:10:23:60
 B:WAIL:TERRIFY
 B:TOUCH:EXP_40
@@ -12451,7 +12451,7 @@ D:It looks real but appearances are deceiving.
 N:843:Premonition
 G:G:u
 I:120:20d20:20:30:10
-W:53:2:0:475
+W:53:2:21:475
 M:0:12:26:64
 B:CLAW:LOSE_CON:5d5
 B:CLAW:LOSE_CON:5d5
@@ -12466,7 +12466,7 @@ D:A premonition of death. Its claws reach out to fulfill its dark purpose.
 N:844:Phantasm
 G:G:R
 I:120:18d42:28:45:18
-W:58:2:0:800
+W:58:2:21:800
 M:18:18:29:68
 B:TOUCH:EXP_80
 B:HIT:HURT:4d6
@@ -12482,7 +12482,7 @@ D: caught in the fever of dreams.
 N:845:Vision
 G:G:r
 I:120:16d60:25:60:15
-W:69:2:0:1600
+W:69:2:21:1600
 M:18:18:32:72
 B:HIT:HURT:4d6
 B:GAZE:POISON:5d7
@@ -12499,7 +12499,7 @@ D: and knives.
 N:846:Delerium
 G:G:v
 I:120:14d80:22:80:12
-W:78:2:0:3600
+W:78:2:21:3600
 M:18:18:35:76
 B:HIT:HURT:5d6
 B:GAZE:HALLU:5d6
@@ -12516,7 +12516,7 @@ D: of hideous destruction.
 N:847:Minor Death
 G:G:D
 I:120:24d100:20:140:10
-W:93:3:0:16000
+W:93:3:21:16000
 M:18:18:38:80
 B:HIT:WOUND:18d6
 B:TOUCH:EXP_80
@@ -12676,7 +12676,7 @@ D:It is hideous and barely there.
 N:858:Crying spirit
 G:G:v
 I:120:5d8:14:20:10
-W:12:2:0:14
+W:12:2:22:14
 M:0:8:2:20
 B:TOUCH:TERRIFY
 F:FORCE_SLEEP | RAND_25 |
@@ -12689,7 +12689,7 @@ D:A ghostly apparition that cries horribly.
 N:859:Wailing spirit
 G:G:s
 I:120:5d8:14:20:10
-W:19:2:0:44
+W:19:2:22:44
 M:8:8:2:25
 B:WAIL:TERRIFY
 B:TOUCH:LOSE_DEX:1d8
@@ -12703,7 +12703,7 @@ D:A ghostly apparition that wails horribly.
 N:860:Cackling spirit
 G:G:D
 I:120:6d8:14:20:10
-W:18:2:0:52
+W:18:2:22:52
 M:0:8:2:30
 B:TOUCH:LOSE_DEX:1d8
 F:FORCE_SLEEP | RAND_25 | 
@@ -12716,7 +12716,7 @@ D:A ghostly apparition that cackles horribly.
 N:861:Cursing spirit
 G:G:U
 I:120:7d8:14:20:10
-W:20:2:0:60
+W:20:2:22:60
 M:0:9:14:35
 B:TOUCH:LOSE_WIS:1d9
 F:FORCE_SLEEP | RAND_25 | 
@@ -12729,7 +12729,7 @@ D:A ghostly apparition that curses horribly.
 N:862:Shrieking spirit
 G:G:w
 I:120:8d8:14:20:10
-W:22:2:0:68
+W:22:2:22:68
 M:9:9:15:40
 B:TOUCH:LOSE_CON:1d9
 B:SHRIEK
@@ -12743,7 +12743,7 @@ D:A ghostly apparition that shrieks horribly.
 N:863:Mumbling spirit
 G:G:y
 I:120:9d8:14:20:10
-W:21:2:0:76
+W:21:2:22:76
 M:0:9:21:45
 B:TOUCH:LOSE_INT:1d10
 F:FORCE_SLEEP | RAND_25 | 
@@ -12756,7 +12756,7 @@ D:A ghostly apparition that mumbles horribly.
 N:864:Commanding spirit
 G:G:W
 I:120:10d8:14:20:10
-W:23:2:0:84
+W:23:2:22:84
 M:0:16:23:50
 B:TOUCH:LOSE_STR:1d6
 B:TOUCH:LOSE_STR:1d6
@@ -12770,7 +12770,7 @@ D:A ghostly apparition that commands horribly.
 N:865:Chanting spirit
 G:G:R
 I:120:11d8:14:20:10
-W:25:2:0:92
+W:25:2:22:92
 M:0:16:25:60
 B:TOUCH:LOSE_INT:1d7
 B:TOUCH:LOSE_INT:1d7
@@ -12784,7 +12784,7 @@ D:A ghostly apparition that chants horribly.
 N:866:Incanting spirit
 G:G:b
 I:120:12d8:14:20:10
-W:26:2:0:100
+W:26:2:22:100
 M:0:16:27:65
 B:TOUCH:LOSE_WIS:1d7
 B:TOUCH:LOSE_WIS:1d7
@@ -12798,7 +12798,7 @@ D:A ghostly apparition that incants horribly.
 N:867:Screaming spirit
 G:G:r
 I:120:13d8:14:20:10
-W:28:2:0:110
+W:28:2:22:110
 M:0:16:29:70
 B:TOUCH:LOSE_DEX:1d8
 B:TOUCH:LOSE_DEX:1d8
@@ -12812,7 +12812,7 @@ D:A ghostly apparition that screams horribly.
 N:868:Howling spirit
 G:G:B
 I:120:14d8:14:20:10
-W:33:2:0:125
+W:33:2:22:125
 M:0:16:31:75
 B:TOUCH:LOSE_STR:1d10
 B:TOUCH:LOSE_STR:1d10
@@ -12827,7 +12827,7 @@ D:A ghostly apparition that howls horribly.
 N:869:Whispering spirit
 G:G:s
 I:120:15d8:14:20:10
-W:39:2:0:140
+W:39:2:22:140
 M:0:16:33:80
 B:TOUCH:EXP_20:1d12
 B:TOUCH:EXP_20:1d12

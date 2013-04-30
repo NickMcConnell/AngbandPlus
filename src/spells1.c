@@ -59,6 +59,45 @@ u32b player_smart_flags(u32b f1, u32b f2, u32b f3, u32b f4)
 }
 
 
+/*
+ * Translate monster race flags into monster smart flags
+ */
+u32b monster_smart_flags(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	u32b tmp = 0L;
+
+	/* Know immunities */
+	if (r_ptr->flags3 & (RF3_IM_ACID)) tmp |= (SM_IMM_ACID);
+	if (r_ptr->flags3 & (RF3_IM_ELEC)) tmp |= (SM_IMM_ELEC);
+	if (r_ptr->flags3 & (RF3_IM_FIRE)) tmp |= (SM_IMM_FIRE);
+	if (r_ptr->flags3 & (RF3_IM_COLD)) tmp |= (SM_IMM_COLD);
+	if (r_ptr->flags3 & (RF3_IM_POIS)) tmp |= (SM_IMM_POIS);
+
+	/* Know protections */
+	if (r_ptr->flags9 & (RF9_NO_SLOW)) tmp |= (SM_FREE_ACT);
+
+	/* Known resistances */
+	if (m_ptr->oppose_elem) tmp |= (SM_OPP_ACID | SM_OPP_FIRE | SM_OPP_POIS | SM_OPP_ELEC | SM_OPP_COLD);
+
+	/* Know resistances */
+	if (r_ptr->flags3 & (RF3_NO_FEAR)) tmp |= (SM_RES_FEAR);
+	if (r_ptr->flags9 & (RF9_RES_LITE)) tmp |= (SM_RES_LITE);
+	if (r_ptr->flags9 & (RF9_RES_DARK)) tmp |= (SM_RES_DARK);
+	if (r_ptr->flags9 & (RF9_RES_BLIND)) tmp |= (SM_RES_BLIND);
+	if (r_ptr->flags3 & (RF3_NO_CONF)) tmp |= (SM_RES_CONFU);
+	if (r_ptr->flags3 & (RF3_NO_STUN)) tmp |= (SM_RES_SOUND);
+	if (r_ptr->flags9 & (RF9_NO_CUTS)) tmp |= (SM_RES_SHARD);
+	if (r_ptr->flags3 & (RF3_RES_NEXUS)) tmp |= (SM_RES_NEXUS);
+	if (r_ptr->flags3 & (RF3_RES_NETHR)) tmp |= (SM_RES_NETHR);
+	if (r_ptr->flags9 & (RF9_RES_CHAOS)) tmp |= (SM_RES_CHAOS);
+	if (r_ptr->flags3 & (RF3_RES_DISEN)) tmp |= (SM_RES_DISEN);
+
+	return(tmp);
+}
+
 
 /*
  * Notice that the player has equipment flags.
@@ -287,6 +326,96 @@ void update_smart_racial(int m_idx)
 
 
 /*
+ * Teleport hook: Destination must be projectable from origin
+ */
+bool teleport_project_hook(const int oy, const int ox, const int ny, const int nx)
+{
+	/* Must have line of projection between origin and target */
+	if (generic_los(oy, ox, ny, nx, CAVE_XLOF)) return (TRUE);
+	
+	return (FALSE);
+}
+
+
+/*
+ * Teleport hook: Destination must be in darkness
+ */
+bool teleport_darkness_hook(const int oy, const int ox, const int ny, const int nx)
+{
+	(void)oy;
+	(void)ox;
+
+	/* Daylight or permanent light */
+	if ((cave_info[ny][nx] & (CAVE_DLIT | CAVE_GLOW)) != 0) return (FALSE);
+	
+	return (TRUE);
+}
+
+
+/*
+ * Teleport hook: Destination must be adjacent to water or living terrain
+ */
+bool teleport_nature_hook(const int oy, const int ox, const int ny, const int nx)
+{
+	int y, x;
+	
+	(void)oy;
+	(void)ox;
+
+	for (y = ny - 1; y <= ny + 1; y++)
+	{
+		for (x = nx - 1; x <= nx + 1; x++)
+		{
+			/* Check for valid grid */
+			if (!in_bounds_fully(y,x)) continue;
+					
+			/* Water or living feature */
+			if (((f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) != 0)
+				|| ((f_info[cave_feat[y][x]].flags3 & (FF3_LIVING)) != 0))
+			{
+				return (TRUE);
+			}
+		}
+	}		
+
+	return (FALSE);
+}
+
+
+/*
+ * Teleport hook: Destination must be adjacent to fire or lava
+ */
+bool teleport_fiery_hook(const int oy, const int ox, const int ny, const int nx)
+{
+	int y, x;
+	
+	(void)oy;
+	(void)ox;
+
+	for (y = ny - 1; y <= ny + 1; y++)
+	{
+		for (x = nx - 1; x <= nx + 1; x++)
+		{
+			/* Check for valid grid */
+			if (!in_bounds_fully(y,x)) continue;
+					
+			/* Lava or burning feature */
+			if ((f_info[cave_feat[y][x]].blow.effect == GF_LAVA) ||
+				(f_info[cave_feat[y][x]].blow.effect == GF_FIRE) ||
+				(f_info[cave_feat[y][x]].blow.effect == GF_SMOKE))				
+			{
+				return (TRUE);
+			}
+		}
+	}		
+
+	return (FALSE);
+}
+
+
+
+
+/*
  * Teleport a monster, normally up to "dis" grids away.
  *
  * Attempt to move the monster at least "dis/2" grids away.
@@ -348,6 +477,9 @@ void teleport_away(int m_idx, int dis)
 			/* Hack -- no teleport onto glyph of warding */
 			if (f_info[cave_feat[ny][nx]].flags1 & (FF1_GLYPH)) continue;
 
+			/* Check if teleportation restricted */
+			if (teleport_hook && !(*teleport_hook)(oy, ox, ny, nx)) continue;
+
 			/* Check room */
 			if (cave_info[oy][ox] & (CAVE_ROOM))
 			{
@@ -377,6 +509,9 @@ void teleport_away(int m_idx, int dis)
 			
  			/* Delete monster instead */
 			delete_monster_idx(m_idx);
+			
+			/* Clear hook */
+			teleport_hook = NULL;
 
 			return;
 		}
@@ -394,6 +529,9 @@ void teleport_away(int m_idx, int dis)
 
 	/* Swap the monsters */
 	monster_swap(oy, ox, ny, nx);
+	
+	/* Clear hook */
+	teleport_hook = NULL;
 }
 
 
@@ -457,6 +595,9 @@ void teleport_player(int dis)
 
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(y, x)) continue;
+			
+			/* Check if teleportation restricted */
+			if (teleport_hook && !(*teleport_hook)(py, px, y, x)) continue;
 
 			/* Count tries */
 			tries++;
@@ -488,6 +629,27 @@ void teleport_player(int dis)
 			break;
 		}
 
+		/* Paranoia -- have exhausted looking for space in dungeon */
+		if ((dis >= 200) && (min <= 0))
+		{
+			/* Sound */
+			sound(MSG_TPOTHER);
+			
+			/* Set dodging -- 'random direction' */
+			p_ptr->dodging = rand_int(8);
+			
+			/* Redraw state */
+			p_ptr->redraw |= (PR_STATE);
+
+			/* Handle stuff XXX XXX XXX */
+			handle_stuff();
+			
+			/* Clear hook */
+			teleport_hook = NULL;
+
+			return;
+		}
+		
 		/* Increase the maximum distance */
 		dis = dis * 2;
 
@@ -509,6 +671,9 @@ void teleport_player(int dis)
 
 	/* Handle stuff XXX XXX XXX */
 	handle_stuff();
+	
+	/* Clear hook */
+	teleport_hook = NULL;
 }
 
 
@@ -1249,6 +1414,40 @@ static bool hates_water(object_type *o_ptr)
 
 
 /*
+ * Does a given object (usually) hate getting warped by wood?
+ * Hafted/Polearm weapons have wooden shafts.
+ * Arrows/Bows are mostly wooden.
+ */
+static bool hates_warpwood(object_type *o_ptr)
+{
+	/* Analyze the type */
+	switch (o_ptr->tval)
+	{
+		/* Wearable */
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_INSTRUMENT:
+
+		/* Staffs warp */
+		case TV_STAFF:
+		{
+			return (TRUE);
+		}
+		
+		/* Hack -- wooden statues warp */
+		case TV_STATUE:
+		{
+			if (o_ptr->sval == SV_STATUE_WOOD) return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
  * Does a given object (usually) hate a terrain type?
  */
 bool hates_terrain(object_type *o_ptr, int f_idx)
@@ -1289,6 +1488,10 @@ bool hates_terrain(object_type *o_ptr, int f_idx)
 		case GF_STEAM:
 		case GF_WATER_WEAK:
 			if (hates_water(o_ptr)) return(TRUE);
+			break;
+
+		case GF_HURT_WOOD:
+			if (hates_warpwood(o_ptr)) return (TRUE);
 			break;
 
 		default:
@@ -1392,6 +1595,17 @@ static int set_water_destroy(object_type *o_ptr)
 		object_can_flags(o_ptr,0x0L,TR2_IGNORE_WATER,0x0L,0x0L);
 		return (FALSE);
 	}
+	return (TRUE);
+}
+
+
+/*
+ * Warp wooden things
+ */
+static int set_warpwood_destroy(object_type *o_ptr)
+{
+	if (!hates_warpwood(o_ptr)) return (FALSE);
+
 	return (TRUE);
 }
 
@@ -2775,6 +2989,7 @@ static void apply_nexus(monster_type *m_ptr)
 	{
 		case 1: case 2: case 3:
 		{
+			teleport_hook = NULL;
 			teleport_player(200);
 			break;
 		}
@@ -2956,6 +3171,9 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 	/* Track changes */
 	feat = cave_feat[y][x];
+	
+	/* Reset the teleport hook */
+	teleport_hook = NULL;
 
 	/* Hack -- prevent smoke/vapour etc on floors unless a feature or non-player object causes this */
 	if (((who != SOURCE_FEATURE) || (who != SOURCE_OBJECT)) &&
@@ -3276,7 +3494,40 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			break;
 		}
+		
+		/* Bash doors or jam doors */
+		case GF_HURT_WOOD:
+		{
+			/* Hack -- fail if terrain is not 'wooden' enough */
+			if ((f_ptr->x_attr != 'U') && (f_ptr->x_attr != 'u')
+				&& ((f_ptr->flags3 & (FF3_LIVING)) == 0))
+			{
+				break;
+			}
 
+			/* Hack -- if we can't spike it, bash it instead */
+			if ((((f_ptr->flags1 & (FF1_SPIKE)) == 0)
+				|| (feat_state(feat, FS_SPIKE) == feat)) &&
+				((f_ptr->flags1 & (FF1_BASH)) != 0))
+			{
+				/* Check line of sight */
+				if ((player_has_los_bold(y, x)) && (f_ptr->flags1 & FF1_NOTICE))
+				{
+					msg_format("The %s warps.", f);
+				}
+
+				/* Notice any changes */
+				obvious = TRUE;
+
+				/* Destroy the door */
+				cave_alter_feat(y, x, FS_BASH);				
+				
+				break;
+			}
+
+			/* Fall through */
+		}
+		
 		/* Jam Doors */
 		case GF_LOCK_DOOR:
 		{
@@ -3365,17 +3616,50 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 		/* Make features */
 		case GF_FEATURE:
 		{
+			object_type object_type_body;
+			object_type *o_ptr = &object_type_body;
+			
 			burnout = FALSE;
 
 			/* Require a "floor or ground" grid */
 			if (!(f_ptr->flags1 & (FF1_FLOOR))
 			 && !(f_ptr->flags3 & (FF3_GROUND))) break;
 
-			/* Don't hit caster */
-			if (cave_m_idx[y][x]== who) break;
+			/* If caster is player, place a 'counter' or 'timer' */
+			if ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY))))
+			{
+				object_prep(o_ptr, lookup_kind(TV_SPELL, SV_SPELL_COUNTER));
+				
+				/* Hack -- record feature under terrain to allow 'reversion' to old terrain */
+				o_ptr->pval = cave_feat[y][x];
+				
+				/* Traps are given so many charges */
+				if (f_info[dam].flags1 & (FF1_HIT_TRAP))
+				{
+					o_ptr->charges = (p_ptr->lev + 1) / 2;
+				}
+				/* Other features time out relatively quickly.
+				 * Note this must be the same for all terrain in a single casting
+				 * otherwise e.g. bridges of stone will time out unusually.
+				 */
+				else
+				{
+					o_ptr->timeout = (p_ptr->lev + 1) / 2;
+				}
+				
+				/* Part of the terrain */
+				o_ptr->ident |= (IDENT_STORE);
+			}
 
 			/* Place a feature */
 			if (dam) cave_set_feat(y,x,dam);
+
+			/* Place the counter */			
+			if ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY))))
+			{
+				/* Add to the floor */
+				floor_carry(y,x,o_ptr);
+			}
 
 			/* Notice any changes */
 			obvious = TRUE;
@@ -3514,6 +3798,22 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Animate trees */
+		case GF_ANIM_TREE:
+		{
+			bool change = FALSE;
+
+			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_TREE,
+					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
+
+			if (change)
+			{
+				cave_set_feat(y,x,FEAT_GROUND);
+			}
+
+			break;
+		}
+
 		/* Animate elements */
 		case GF_ANIM_ELEMENT:
 		{
@@ -3534,12 +3834,13 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (summon_group_type)
 			{
-				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT)) change = TRUE;
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
+					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
 			}
 
 			if (change)
 			{
-				cave_set_feat(y,x,FEAT_FLOOR_EARTH);
+				cave_set_feat(y,x,FEAT_GROUND);
 			}
 
 			break;
@@ -3595,7 +3896,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			if (summon_attr_type || summon_char_type)
 			{
-				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT)) change = TRUE;
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT,
+					who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) change = TRUE;
 			}
 
 			if (change)
@@ -4086,11 +4388,12 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					if ((k_info[o_ptr->k_idx].tval == TV_ASSEMBLY) && (o_ptr->name3))
 					{
 						summon_race_type = o_ptr->name3;
-						if (summon_specific(y, x, 99, SUMMON_FRIEND)) do_kill = TRUE;
+						if (summon_specific(y, x, 99, SUMMON_FRIEND, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
 					}
 					else
 					{
-						if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT)) do_kill = TRUE;
+						if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
+							who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
 					}
 				}
 				else
@@ -4160,7 +4463,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 				if (summon_char_type || summon_attr_type || summon_flag_type)
 				{
-					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD)) do_kill = TRUE;
+					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD,
+						who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
 				}
 				break;
 			}
@@ -4191,15 +4495,27 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 				{
 					summon_race_type = o_ptr->name3;
 
-					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD)) do_kill = TRUE;
+					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD,
+						who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
 
 					summon_race_type = 0;
 				}
 				else if ((raise) && (o_ptr->name3 == summon_race_type))
 				{
-					if (summon_specific(y, x, 99, RAISE_DEAD)) do_kill = TRUE;
+					if (summon_specific(y, x, 99, RAISE_DEAD, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) do_kill = TRUE;
 				}
 			}
+			
+			/* Wood warping -- wooden objects */
+			case GF_HURT_WOOD:
+			{
+				if (hates_warpwood(o_ptr))
+				{
+					do_kill = TRUE;
+					note_kill = (plural ? " warp!" : " warps!");
+				}
+				break;
+			}			
 		}
 
 
@@ -4339,7 +4655,6 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 	/* Return "Anything seen?" */
 	return (obvious);
 }
-
 
 
 /*
@@ -4552,6 +4867,259 @@ static bool monster_save(monster_type *m_ptr, int power, bool *near)
 	return (FALSE);
 }
 
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Accept any insects, except spiders.
+ */
+static bool charm_insect_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require insects */
+	if ((r_ptr->flags3 & (RF3_INSECT)) == 0) return (FALSE);
+	
+	/* Reject spiders */
+	if (r_ptr->d_char == 'S') return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Accept reptiles.
+ */
+static bool charm_reptile_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require animals */
+	if ((r_ptr->flags3 & (RF3_ANIMAL)) == 0) return (FALSE);
+
+	/* Explicitly reject undead, demons and dragons, plants and insects */
+	if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_DRAGON | RF3_PLANT | RF3_INSECT)) return (FALSE);
+	
+	/* Reject orcs, trolls, giants */
+	if (r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) return (FALSE);
+	
+	/* Reject men, elves, dwarves */
+	if (r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) return (FALSE);
+	
+	/* Hack -- Reject hydras */
+	if (r_ptr->d_char == 'y') return (FALSE);
+
+	/* Hack -- Reject zephyr hounds */
+	if (r_ptr->d_char == 'Z') return (FALSE);
+	
+	/* Ensure they do not have feathers or fur */
+	if ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_FEATHER)) != 0) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Accept reptiles.
+ */
+static bool charm_animal_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require animals */
+	if ((r_ptr->flags3 & (RF3_ANIMAL)) == 0) return (FALSE);
+
+	/* Explicitly reject undead, demons and dragons, plants and insects */
+	if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_DRAGON | RF3_PLANT | RF3_INSECT)) return (FALSE);
+	
+	/* Reject orcs, trolls, giants */
+	if (r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) return (FALSE);
+	
+	/* Reject men, elves, dwarves */
+	if (r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) return (FALSE);
+	
+	/* Hack -- Reject hydras */
+	if (r_ptr->d_char == 'y') return (FALSE);
+
+	/* Hack -- Reject zephyr hounds */
+	if (r_ptr->d_char == 'Z') return (FALSE);
+	
+	/* If they have feathers, ensure not scales or fur */
+	if (((r_ptr->flags8 & (RF8_HAS_FEATHER)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_SCALE)) != 0)) return (FALSE);
+		
+	/* If they have fur, ensure not scales or feathers */
+	if (((r_ptr->flags8 & (RF8_HAS_FUR)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FEATHER | RF8_HAS_SCALE)) != 0)) return (FALSE);
+
+	/* Reject if they have do not have feathers or fur */
+	if ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_FEATHER)) == 0) return (FALSE);
+
+	return (TRUE);
+}
+
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * We define 'persons' as orcs, trolls, giants, elves, dwarves,
+ * humans who are not also dragons, demons or undead (currently
+ * only undead applies), animals, insects or plants.
+ */
+static bool charm_person_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Explicitly reject undead, demons and dragons, plants, insects, animals */
+	if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_DRAGON | RF3_INSECT | RF3_PLANT | RF3_ANIMAL)) return (FALSE);
+	
+	/* Reject non-orc, non-troll, non-giant, non-elf, non-man, non-dwarf */
+	if (((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) == 0) &&
+		((r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) == 0)) return (FALSE);
+	
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * We define 'monsters' as creatures that are not persons (see above)
+ * who are not also dragons, demons or undead (currently only undead
+ * applies). We also exclude animals that are 'straight' animals,
+ * and not 'weird' hybrids.
+ */
+static bool charm_monster_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Explicitly reject undead, demons and dragons */
+	if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_DRAGON)) return (FALSE);
+	
+	/* Reject orcs, trolls, giants, that are not plant / animal / insect hybrids */
+	if (((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0) && ((r_ptr->flags3 & (RF3_PLANT | RF3_INSECT | RF3_ANIMAL)) == 0)) return (FALSE);
+	
+	/* Reject men, elves, dwarves, that are not plant / animal / insect hybrids */
+	if (((r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) == 0) && ((r_ptr->flags3 & (RF3_PLANT | RF3_INSECT | RF3_ANIMAL)) == 0)) return (FALSE);
+
+	/* Reject 'pure' animals */
+	if ((r_ptr->flags3 & (RF3_ANIMAL)) != 0)
+	{
+		/* If they have feathers, but not scales or fur */
+		if (((r_ptr->flags8 & (RF8_HAS_FEATHER)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_SCALE)) == 0)) return (FALSE);
+		
+		/* If they have fur, but not scales or feathers */
+		if (((r_ptr->flags8 & (RF8_HAS_FUR)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FEATHER | RF8_HAS_SCALE)) == 0)) return (FALSE);
+
+		/* If they have scales, but not feathers or fur */
+		if (((r_ptr->flags8 & (RF8_HAS_SCALE)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_FEATHER)) == 0)) return (FALSE);
+	}
+	
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * We define simple 'familiar' as not undead, demon, dragon, plant, insect,
+ * orc etc., must have the animal flag and not be a hydra, and must not
+ * be 'mixed' hybrid animals. Also exclude 'zephyr hounds'.
+ * 
+ * However, as a nod to D&D, we allow Imps, Quasits and Homouculus'.
+ */
+static bool charm_familiar_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Hack -- accept some fixed races */
+	switch(r_idx)
+	{
+		case 201: /* Homunculus */
+		case 212: /* Quasit */
+		case 213: /* Imp */
+			return (TRUE);
+	}
+
+	/* Require animals */
+	if ((r_ptr->flags3 & (RF3_ANIMAL)) == 0) return (FALSE);
+
+	/* Explicitly reject undead, demons and dragons, plants and insects */
+	if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_DRAGON | RF3_PLANT | RF3_INSECT)) return (FALSE);
+	
+	/* Reject orcs, trolls, giants */
+	if (r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) return (FALSE);
+	
+	/* Reject men, elves, dwarves */
+	if (r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) return (FALSE);
+	
+	/* Hack -- Reject hydras */
+	if (r_ptr->d_char == 'y') return (FALSE);
+
+	/* Hack -- Reject zephyr hounds */
+	if (r_ptr->d_char == 'Z') return (FALSE);
+	
+	/* If they have feathers, ensure not scales or fur */
+	if (((r_ptr->flags8 & (RF8_HAS_FEATHER)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_SCALE)) != 0)) return (FALSE);
+		
+	/* If they have fur, ensure not scales or feathers */
+	if (((r_ptr->flags8 & (RF8_HAS_FUR)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FEATHER | RF8_HAS_SCALE)) != 0)) return (FALSE);
+
+	/* If they have scales, ensure not feathers or fur */
+	if (((r_ptr->flags8 & (RF8_HAS_SCALE)) != 0) && ((r_ptr->flags8 & (RF8_HAS_FUR | RF8_HAS_FEATHER)) != 0)) return (FALSE);
+
+	return (TRUE);
+}
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Anything dragonnish is fine + plus hydras.
+ */
+static bool charm_dragon_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require dragons */
+	if (((r_ptr->flags3 & (RF3_DRAGON)) == 0) && (r_ptr->d_char != 'y')) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Anything demon.
+ */
+static bool charm_demon_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require demons */
+	if ((r_ptr->flags3 & (RF3_DEMON)) == 0) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ * 
+ * Anything undead.
+ */
+static bool charm_undead_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require undead */
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) == 0) return (FALSE);
+
+	return (TRUE);
+}
+
 
 /*
  * Helper function for "project()" below.
@@ -4664,8 +5232,14 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* Heal amount (amount to blind) */
 	int do_blind = 0;
 
+	/* Heal amount (amount to enrage) */
+	int do_rage = 0;
+
 	/* Destruction of inventory? */
 	inven_func do_inven_destroy = NULL;
+
+	/* Affected by charm */
+	bool (*charm_hook)(int r_idx) = NULL;
 
 	/* Hold the monster name */
 	char m_name[80];
@@ -4678,6 +5252,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 	bool was_asleep;
 
+	(void)what;
+	
 	/* No monster here */
 	if (!(cave_m_idx[y][x] > 0)) return (FALSE);
 
@@ -4765,6 +5341,102 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			case 13: typ = GF_PETRIFY; break;
 			case 14: typ = GF_PARALYZE; break;
 			case 15: typ = GF_LOSE_MANA; break;
+		}
+	}
+	
+	/* Hack -- pre-stage teleportation hooks for efficiency */
+	switch(typ)
+	{
+		/* Teleport from darkness to darkness */
+		case GF_AWAY_DARK:
+		{
+			teleport_hook = teleport_darkness_hook;
+			note = "is still in the light.";
+			break;
+		}
+		
+		/* Teleport from water/living to water/living */
+		case GF_AWAY_NATURE:
+		{
+			teleport_hook = teleport_nature_hook;
+			note = "is apart from nature.";
+			break;
+		}
+		
+		/* Teleport from fire/lava to fire/lava */
+		case GF_AWAY_FIRE:
+		{
+			teleport_hook = teleport_fiery_hook;
+			note = "is free of smoke and flame.";
+			break;
+		}
+		
+		default:
+		{
+			teleport_hook = NULL;
+		}
+	}
+
+	/* Hack -- pre-stage charm hooks for efficiency */
+	switch(typ)
+	{
+		/* Teleport from darkness to darkness */
+		case GF_CHARM_INSECT:
+		{
+			charm_hook = charm_insect_hook;
+			break;
+		}
+		
+		/* Scaled / skinned animals */
+		case GF_CHARM_REPTILE:
+		{
+			charm_hook = charm_reptile_hook;
+			break;
+		}
+		
+		/* Feathered / furry animals */
+		case GF_CHARM_ANIMAL:
+		{
+			charm_hook = charm_animal_hook;
+			break;
+		}
+		
+		/* Persons */
+		case GF_CHARM_PERSON:
+		{
+			charm_hook = charm_person_hook;
+			break;
+		}
+
+		/* Living monsters other than dragons */		
+		case GF_CHARM_MONSTER:
+		{
+			charm_hook = charm_monster_hook;
+			break;
+		}
+		
+		/* Any animal */
+		case GF_BIND_FAMILIAR:
+		{
+			charm_hook = charm_familiar_hook;
+		}
+		
+		/* Any dragon */
+		case GF_BIND_DRAGON:
+		{
+			charm_hook = charm_dragon_hook;
+		}
+		
+		/* Any demon */
+		case GF_BIND_DEMON:
+		{
+			charm_hook = charm_demon_hook;
+		}
+
+		/* Any undead */
+		case GF_BIND_UNDEAD:
+		{
+			charm_hook = charm_undead_hook;
 		}
 	}
 
@@ -5666,8 +6338,9 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Drain Life */
+		/* Drain Life and Vampiric Drain */
 		case GF_DRAIN_LIFE:
+		case GF_VAMP_DRAIN:
 		{
 			if (seen) obvious = TRUE;
 
@@ -5700,6 +6373,39 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 				obvious = FALSE;
 				dam = 0;
+			}
+			else
+			{
+				note = " is drained of health.";
+			}
+			
+			if (typ == GF_DRAIN_LIFE) break;
+			
+			/* Do not allow wimpy monsters to yield much profit */
+			if (m_ptr->hp + 1 < dam) dam = m_ptr->hp + 1;
+
+			/* Character has cast the spell */
+			if (who <= SOURCE_PLAYER_START)
+			{
+				/* Spell is damaging, and has hit a warm-blooded creature. */
+				if (dam > 0)
+				{
+					/* msg_print("You suck in some life force."); */
+
+					/* Heal caster */
+					hp_player(dam);
+
+					/* Feed caster -- protect against bloating */
+					if (p_ptr->food + dam * 8 < PY_FOOD_FULL)
+						set_food(p_ptr->food + dam * 8);
+					else
+						set_food(PY_FOOD_FULL);
+				}
+				/* Oops */
+				else if (do_heal)
+				{
+					take_hit(do_heal, "trying to draw health from an undead opponent");
+				}
 			}
 			break;
 		}
@@ -6144,21 +6850,32 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
-
-		/* Teleport monster (Use "dam" as "power") */
+		/* Teleport monster (Use "dam" as "power").
+		 * Hook should be prepared earlier */
+		case GF_AWAY_JUMP:
 		case GF_AWAY_ALL:
+		case GF_AWAY_DARK:
+		case GF_AWAY_NATURE:
+		case GF_AWAY_FIRE:
 		{
-			/* Obvious */
-			if (seen) obvious = TRUE;
-
-			/* Monster was affected -- Mark grid for later processing. */
-			cave_temp_mark(y, x, FALSE);
-
 			/* No "real" damage */
 			dam = 0;
+				
+			/* Valid teleport grid? */
+			if (!teleport_hook || teleport_hook(y, x, y, x))
+			{
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Monster was affected -- Mark grid for later processing. */
+				cave_temp_mark(y, x, FALSE);
+				
+				/* Clear 'failure' note */
+				note = NULL;
+			}
+			
 			break;
 		}
-
 
 		/* Turn undead (Use "dam" as "power") */
 		case GF_TURN_UNDEAD:
@@ -6753,6 +7470,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Melee attack - lose mana */
+		case GF_MANA_DRAIN:
 		case GF_LOSE_MANA:
 		{
 			/* Monster may have mana */
@@ -6760,6 +7478,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			{
 				/* Drain depends on maximum mana */
 				int drain = 2 + rand_int(r_ptr->mana / 10);
+
+				dam = 0;
 
 				/* Monster still has mana */
 				if (m_ptr->mana > drain)
@@ -6775,6 +7495,37 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				}
 
 				if (seen) obvious = TRUE;
+				
+				if (typ == GF_LOSE_MANA) break;
+				
+				/* Convert to player mana */
+				drain = damroll(drain,5);
+				
+				/* Monster notices */
+				update_smart_forget(cave_m_idx[y][x], SM_IMM_MANA);
+
+				/* Player gains back all mana */
+				if (p_ptr->csp + drain >= p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+
+					msg_print("You feel your head clear.");
+				}
+				/* Player gains back partial mana */
+				else
+				{
+					p_ptr->csp += drain;
+
+					/*msg_print("You feel your concentration improve.");*/
+				}
+
+				/* Update mana */
+				p_ptr->update |= (PU_MANA);
+
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2 | PW_PLAYER_3);
+				obvious = TRUE;				
 			}
 			break;
 		}
@@ -6955,6 +7706,49 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Enrage Monster (Use "dam" as "power") */
+		case GF_RAGE:
+		{
+			/* Cannot be slowed */
+			if (r_ptr->flags3 & (RF3_NONLIVING))
+			{
+				if ((seen) && !(l_ptr->flags3 & (RF3_NONLIVING)))
+				{
+					note = " is unaffected.";
+					l_ptr->flags3 |= (RF3_NONLIVING);
+				}
+
+				obvious = FALSE;
+			}
+
+			/* Powerful monsters can resist */
+			else if (monster_save(m_ptr, dam, &near))
+			{
+				if ((near) && (seen))
+				{
+					note = " loses its temper.";
+					do_rage = 1;
+				}
+				else
+				{
+					if (seen) note = " is unaffected!";
+
+					obvious = FALSE;
+				}
+			}
+
+			/* Normal monsters are blinded */
+			else
+			{
+				/* Blind */
+				do_rage = 50 + rand_int(50);
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+		
 		/* Monster forgets things */
 		case GF_FORGET:
 		{
@@ -6998,20 +7792,165 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		/* Hack -- curse effect - dispel plus damage */
 		case GF_CURSE:
 		{
-			/* Monster abilities removed the next round*/
-			if (m_ptr->slowed) m_ptr->slowed = 1;
-			if (m_ptr->hasted) m_ptr->hasted = 1;
-			if (m_ptr->tim_invis) m_ptr->tim_invis = 1;
-			if (m_ptr->tim_passw) m_ptr->tim_passw = 1;
-			if (m_ptr->bless) m_ptr->bless = 1;
-			if (m_ptr->berserk) m_ptr->berserk = 1;
-			if (m_ptr->shield) m_ptr->shield = 1;
-			if (m_ptr->oppose_elem) m_ptr->oppose_elem = 1;
+			/* Non-living are immune */
+			if ((r_ptr->flags3 & (RF3_NONLIVING)) && (typ == GF_CURSE))
+			{
+				dam = 0;
+				if ((seen) && (l_ptr->flags3 & (RF3_NONLIVING)))
+				{
+					note = " is unaffected.";
+					l_ptr->flags3 |= (RF3_NONLIVING);
+				}
+			}
+			/* All others */
+			else
+			{
+				/* Monster abilities removed the next round*/
+				if (m_ptr->slowed) m_ptr->slowed = 1;
+				if (m_ptr->hasted) m_ptr->hasted = 1;
+				if (m_ptr->tim_invis) m_ptr->tim_invis = 1;
+				if (m_ptr->tim_passw) m_ptr->tim_passw = 1;
+				if (m_ptr->bless) m_ptr->bless = 1;
+				if (m_ptr->berserk) m_ptr->berserk = 1;
+				if (m_ptr->shield) m_ptr->shield = 1;
+				if (m_ptr->oppose_elem) m_ptr->oppose_elem = 1;
+			}
 
 			break;
 		}
 
- 		/* Default */
+		/* Damage monsters with minds only */
+		case GF_MENTAL:
+		{
+			/* Non-living are immune */
+			if (r_ptr->flags2 & (RF2_EMPTY_MIND | RF2_WEIRD_MIND))
+			{
+				dam = 0;
+				if ((seen) && (l_ptr->flags2 & (RF2_WEIRD_MIND | RF2_EMPTY_MIND)))
+				{
+					note = " is unaffected.";
+					if (r_ptr->flags2 & (RF2_EMPTY_MIND)) l_ptr->flags2 |= (RF2_EMPTY_MIND);
+					if (r_ptr->flags2 & (RF2_WEIRD_MIND)) l_ptr->flags2 |= (RF2_WEIRD_MIND);					
+				}
+			}
+
+			break;
+		}
+
+		/* Snuff out life if damage exceeds maximum hit points */
+		case GF_SNUFF:
+		{
+			/* Non-living are immune */
+			if ((r_ptr->flags3 & (RF3_NONLIVING)) && (typ == GF_CURSE))
+			{
+				dam = 0;
+				if ((seen) && (l_ptr->flags3 & (RF3_NONLIVING)))
+				{
+					note = " is unaffected.";
+					l_ptr->flags3 |= (RF3_NONLIVING);
+				}
+			}
+
+			/* Monsters with too high hit points are immune */
+			else if (m_ptr->maxhp > dam)
+			{
+				dam = 0;
+				note = " is unaffected.";
+			}
+		}
+
+		/* Warp wood (Ignore "dam") */
+		case GF_HURT_WOOD:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Hack -- damage trees */
+			if (r_ptr->d_char == ':')
+			{
+				if (seen)
+				{
+					note = " shudders as it warps.";
+				}
+				note_dies = " flies apart in shower of splinters.";
+			}
+			else
+			{
+				/* No "real" damage */
+				dam = 0;
+			}
+			
+			/* Do acid damage to inventory */
+			do_inven_destroy = set_warpwood_destroy;
+			
+			break;
+		}
+
+		/* Charm effects */
+		case GF_CHARM_INSECT:
+		case GF_CHARM_ANIMAL:
+		case GF_CHARM_REPTILE:
+		case GF_CHARM_MONSTER:
+		case GF_CHARM_PERSON:
+
+		/* Bind effects for the moment */
+		case GF_BIND_DRAGON:
+		case GF_BIND_FAMILIAR:
+		case GF_BIND_UNDEAD:
+		case GF_BIND_DEMON:
+		{
+			if (charm_hook(m_ptr->r_idx))
+			{
+				if (seen) obvious = TRUE;
+
+				/* Cannot be charmed */
+				if (r_ptr->flags3 & (RF3_NO_SLEEP))
+				{
+					if ((seen) && !(l_ptr->flags3 & (RF3_NO_SLEEP)))
+					{
+						note = " cannot be charmed or slept.";
+						l_ptr->flags3 |= (RF3_NO_SLEEP);
+					}
+				}
+
+				/* Attempt a saving throw */
+				else if (monster_save(m_ptr, dam, &near))
+				{
+					if ((near) && (seen))
+					{
+						note = " appears somewhat persuaded.";
+						m_ptr->mflag |= (MFLAG_IGNORE);
+					}
+					else
+					{
+						if (seen) note = " is unaffected!";
+						obvious = FALSE;
+					}
+				}
+				/* Hack -- can't charm multi-headed monsters */
+				else if (strstr(r_name + r_ptr->name, "headed"))
+				{
+					if (seen) note = "'s heads fight amongst themselves.";
+					do_conf = dam;
+				}
+				else
+				{
+					/* Charm immediately */
+					note = " falls under your influence!";
+					m_ptr->mflag |= (MFLAG_ALLY);
+					m_ptr->mflag &= ~(MFLAG_IGNORE);
+				}
+			}
+			else
+			{
+				skipped = TRUE;
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;			
+		}
+
+		/* Default */
 		default:
 		{
 			/* Irrelevant */
@@ -7047,9 +7986,34 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		if ((who > SOURCE_PLAYER_START) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
+	/* Check healing first */
+	if (do_heal)
+	{
+		/* Obvious */
+		if (seen) obvious = TRUE;
+
+		/* Wake up */
+		m_ptr->csleep = 0;
+
+		/* Heal */
+		m_ptr->hp += dam;
+
+		/* No overflow */
+		if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+		/* Redraw (later) if needed */
+		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
+
+		/* Message */
+		if (r_ptr->flags3 & (RF3_NONLIVING)) note = " repairs.";
+		else note = " looks healthier.";
+
+		/* No "real" damage */
+		dam = 0;
+	}
 
 	/* Check for death */
-	if (dam > m_ptr->hp)
+	else if (dam > m_ptr->hp)
 	{
 		/* Extract method of death */
 		note = note_dies;
@@ -7075,6 +8039,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		/* Hack --- no monster left */
 		return(obvious);
 	}
+	
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
 	else if (do_poly && (randint(90) > r_ptr->level))
 	{
@@ -7100,7 +8065,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, 0L);
 
 			/* Hack -- Assume success XXX XXX XXX */
 
@@ -7111,31 +8076,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			r_ptr = &r_info[m_ptr->r_idx];
 		}
 	}
-	else if (do_heal)
-	{
-		/* Obvious */
-		if (seen) obvious = TRUE;
-
-		/* Wake up */
-		m_ptr->csleep = 0;
-
-		/* Heal */
-		m_ptr->hp += dam;
-
-		/* No overflow */
-		if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-		/* Redraw (later) if needed */
-		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
-
-		/* Message */
-		if (r_ptr->flags3 & (RF3_NONLIVING)) note = " repairs.";
-		else note = " looks healthier.";
-
-		/* No "real" damage */
-		dam = 0;
-	}
-
+	
 	/* Still alive -- apply damage secondary effects */
 	else
 	{
@@ -7182,7 +8123,6 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 			/* Apply stun */
 			m_ptr->stunned = MIN(tmp, 200);
-
 		}
 
 		/* Handle "blindness" */
@@ -7200,8 +8140,46 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 		}
 
-		/* Handle cuts from player only */
-		if (do_cuts && (who <= SOURCE_PLAYER_START) && 
+		/* Handle "rage" */
+		if (do_rage)
+		{
+			/* Obvious */
+			if (seen) obvious = TRUE;
+
+			/* Get confused */
+			if (m_ptr->stunned)
+			{
+				note = " is more enraged.";
+				tmp = m_ptr->berserk + (do_rage / (r_ptr->level / 10 + 1));
+			}
+			else
+			{
+				if (do_rage > 1) note = " is enraged.";
+				tmp = do_rage;
+			}
+
+			/* Apply stun */
+			m_ptr->berserk = MIN(tmp, 200);
+			
+			/* Target the player */
+			if (who <= SOURCE_PLAYER_START)
+			{
+				m_ptr->ty = p_ptr->py;
+				m_ptr->tx = p_ptr->px;
+				m_ptr->mflag &= ~(MFLAG_ALLY);
+			}
+			/* Target a monster */
+			else if (who > SOURCE_MONSTER_START)
+			{
+				m_ptr->ty = m_list[who].fy;
+				m_ptr->tx = m_list[who].fy;
+				m_ptr->mflag |= (MFLAG_IGNORE);				
+			}
+
+		}
+		
+		/* Handle cuts from player or allies only */
+		if (do_cuts && ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY)))) && 
 			 !(r_ptr->flags9 & (RF9_NO_CUTS)))
 		{
 			/* Obvious */
@@ -7224,7 +8202,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Handle poison from player only */
-		if (do_pois && (who <= SOURCE_PLAYER_START) &&
+		if (do_pois && ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY)))) &&
 			 !(r_ptr->flags3 & (RF3_IM_POIS)))
 		{
 			/* Obvious */
@@ -7286,8 +8264,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 	}
 
-	/* If another monster or trap did the damage, hurt the monster by hand */
-	if (who > SOURCE_PLAYER_START)
+	/* If another non-allied monster or trap did the damage, hurt the monster by hand */
+	if ((who > SOURCE_PLAYER_START) && ((who <= 0) || ((m_list[who].mflag & (MFLAG_ALLY)) == 0)))
 	{
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
@@ -7324,7 +8302,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			if (do_sleep) m_ptr->csleep = do_sleep;
 
 			/* Hack -- handle inventory damage */
-			if (do_inven_destroy) mon_inven_damage(cave_m_idx[y][x], do_inven_destroy, (dam / 15) + 1);
+			if (do_inven_destroy) mon_inven_damage(cave_m_idx[y][x], do_inven_destroy, typ == GF_HURT_WOOD ? 30 : (dam / 15) + 1);
 		}
 	}
 
@@ -7482,10 +8460,13 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	}
 	else
 	{
-		/* Add a message of destruction */
-		if (who > SOURCE_PLAYER_START)
+		/* Add object what caused the fatal wound */
+		if (who <= SOURCE_PLAYER_START)
 		{
-			my_strcpy(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
+			my_strcat(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
+
+			/* Hack -- make it clear it was a trap */
+			if (who == SOURCE_PLAYER_TRAP) my_strcat(killer, " trap you set", sizeof(killer));		
 		}
 
 		/* Cause of death routine */
@@ -7573,14 +8554,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				break;
 			}
 		}
-
-		/* Add object what caused the fatal wound */
-		if (who <= SOURCE_PLAYER_START)
+		
+		/* Add a message of destruction */
+		if (who > SOURCE_PLAYER_START)
 		{
-			my_strcat(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
-
-			/* Hack -- make it clear it was a trap */
-			if (who == SOURCE_PLAYER_TRAP) my_strcat(killer, " trap you set", sizeof(killer));		
+			my_strcpy(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
 		}
 	}
 
@@ -7592,6 +8570,36 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			case 0: typ = GF_WIND; break;
 			case 1: typ = GF_WATER; break;
 			case 2: typ = GF_ELEC; break;
+		}
+	}
+
+	/* Hack -- pre-stage teleportation hooks for efficiency */
+	switch(typ)
+	{
+		/* Teleport from darkness to darkness */
+		case GF_AWAY_DARK:
+		{
+			teleport_hook = teleport_darkness_hook;
+			break;
+		}
+		
+		/* Teleport from water/living to water/living */
+		case GF_AWAY_NATURE:
+		{
+			teleport_hook = teleport_nature_hook;
+			break;
+		}
+		
+		/* Teleport from fire/lava to fire/lava */
+		case GF_AWAY_FIRE:
+		{
+			teleport_hook = teleport_fiery_hook;
+			break;
+		}
+		
+		default:
+		{
+			teleport_hook = NULL;
 		}
 	}
 
@@ -10045,12 +11053,28 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Teleport the player -- use dam as power*/
+		case GF_AWAY_JUMP:
 		case GF_AWAY_ALL:
+		case GF_AWAY_DARK:
+		case GF_AWAY_NATURE:
+		case GF_AWAY_FIRE:
 		{
-			if ((p_ptr->cur_flags4 & (TR4_ANCHOR)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_ANCHOR)))
+			/* Teleport restriction fails */
+			if ((teleport_hook && !(teleport_hook(y, x, y, x))) || (p_ptr->cur_flags4 & (TR4_ANCHOR)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_ANCHOR)))
 			{
-				msg_format("%^s fails to teleport you away.", killer);
-				if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_ANCHOR))) player_can_flags(who, 0x0L, 0x0L, 0x0L, TR4_ANCHOR);
+				/* Source is player */
+				if (who <= SOURCE_PLAYER_START)
+				{
+					msg_print("You fail to teleport away.");					
+				}
+				else
+				{
+					/* Fails to teleport */
+					msg_format("%^s fails to teleport you away.", killer);
+				}
+
+				/* Learn about anchor */
+				if (p_ptr->cur_flags4 & (TR4_ANCHOR)) player_can_flags(who, 0x0L, 0x0L, 0x0L, TR4_ANCHOR);
 			}
 			else
 			{
@@ -10059,6 +11083,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				/* Mark grid for later processing. */
 				cave_temp_mark(y, x, FALSE);
 			}
+
 			dam = 0;
 			break;
 		}
@@ -10342,6 +11367,16 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Warp wood -- hack. Damage if an ent. */
+		case GF_HURT_WOOD:
+		{
+			if (p_ptr->pshape != RACE_ENT)
+			{
+				dam = 0;
+			}
+			break;
+		}
+
 		/* Default */
 		default:
 		{
@@ -10357,7 +11392,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	{
 		char output[1024];
 
-		disease_desc(output, old_disease, p_ptr->disease);
+		disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
 
 		msg_print(output);
 
@@ -10412,13 +11447,53 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 	bool affect_monster = FALSE;
 
 	int do_dist = 0;
-	bool do_dist_los = FALSE;
 
 	/* Assume no note */
 	cptr note = NULL;
 
+	(void)what;
+	
 	/* Only process marked grids. */
 	if (!(play_info[y][x] & (PLAY_TEMP))) return (FALSE);
+
+	/* Hack -- pre-stage teleportation hooks for efficiency */
+	switch(typ)
+	{
+		/* Teleport to darkness to darkness */
+		case GF_AWAY_DARK:
+		{
+			teleport_hook = teleport_darkness_hook;
+			break;
+		}
+		
+		/* Teleport to water/living to water/living */
+		case GF_AWAY_NATURE:
+		{
+			teleport_hook = teleport_nature_hook;
+			break;
+		}
+		
+		/* Teleport to fire/lava to fire/lava */
+		case GF_AWAY_FIRE:
+		{
+			teleport_hook = teleport_fiery_hook;
+			break;
+		}
+		
+		/* Teleport to 'projectable' locations */
+		case GF_AWAY_JUMP:
+		case GF_GRAVITY:
+		case GF_WIND:
+		{
+			teleport_hook = teleport_project_hook;
+			break;
+		}
+		
+		default:
+		{
+			teleport_hook = NULL;
+		}
+	}
 
 	/* Clear the cave_temp flag.  (this is paranoid) */
 	play_info[y][x] &= ~(PLAY_TEMP);
@@ -10480,7 +11555,6 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			{
 				/* Damage-variable throw distance */
 				do_dist = 4 + dam / 25;
-				do_dist_los = TRUE;
 
 				/* Resist even when affected */
 				if (r_ptr->flags4 & (RF4_BRTH_GRAV)) do_dist = 0;
@@ -10506,7 +11580,6 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			{
 				/* Damage-variable throw distance */
 				do_dist = 4 + dam / 25;
-				do_dist_los = TRUE;
 
 				/* Force breathers are immune */
 				if (r_ptr->flags4 & (RF4_BRTH_FORCE)) break;
@@ -10552,7 +11625,10 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 					msg_print("The wind buffets you about.");
 
 				/* Throw the player around unsafely. */
-				if (dist) teleport_player(dist);
+				if (dist)
+				{
+					teleport_player(dist);
+				}
 			}
 
 			if (affect_monster)
@@ -10560,7 +11636,6 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 				/* Damage-variable throw distance */
 				do_dist = 1 + dam / 25;
 				if (do_dist > 8) do_dist = 8;
-				do_dist_los = TRUE;
 
 				/* Big, heavy monsters, metallic monsters and ghosts */
 				if ((r_ptr->flags3 & (RF3_HUGE)) || (r_ptr->flags9 & (RF9_IM_BLUNT | RF9_IM_EDGED))) do_dist /= 3;
@@ -10608,11 +11683,15 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			}
 			break;
 		}
-
+		
 		/* Teleport away - movement */
+		case GF_AWAY_JUMP:
 		case GF_AWAY_UNDEAD:
 		case GF_AWAY_EVIL:
 		case GF_AWAY_ALL:
+		case GF_AWAY_NATURE:
+		case GF_AWAY_DARK:
+		case GF_AWAY_FIRE:
 		{
 			if (affect_player)
 			{
@@ -10713,6 +11792,9 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			p_ptr->window |= (PW_MONSTER);
 		}
 	}
+	
+	/* Clear teleport hook */
+	teleport_hook = NULL;
 
 	return (obvious);
 }
@@ -11481,6 +12563,21 @@ bool project(int who, int what, int rad, int y0, int x0, int y1, int x1, int dam
 		dam_at_dist[i] = dam_temp;
 	}
 
+	/* Hack -- prevent arcs and starbursts from hurting the player if they are the source */
+	if ( (who < SOURCE_PLAYER_TRAP) && ((flg & (PROJECT_ARC | PROJECT_STAR)) != 0))
+	{
+		for (i = 0; i < grids; i++)
+		{
+			if (gd[i] == 0)
+			{
+				gy[i] = gy[grids-1];
+				gx[i] = gx[grids-1];
+				gd[i] = gd[grids-1];
+				grids--;
+			}
+		}
+	}
+	
 	/* Sort the blast grids by distance, starting at the origin. */
 	for (i = 0, k = 0; i < rad; i++)
 	{

@@ -790,7 +790,7 @@
 #define ANIMATE_DEAD	3
 /* XXX */
 #define RAISE_MONSTER   6
-/* XXX */
+#define ANIMATE_TREE	7
 #define SUMMON_PLANT    8
 #define SUMMON_INSECT   9
 #define SUMMON_ANIMAL  10
@@ -940,6 +940,26 @@
 #define GF_SLIME	115
 #define GF_RES_MAGIC	116
 #define GF_FALL_LESS    117
+#define GF_AWAY_DARK	118
+#define GF_AWAY_JUMP	119
+#define GF_HURT_WOOD	120
+#define GF_AWAY_NATURE	121
+#define GF_AWAY_FIRE	122
+#define GF_ANIM_TREE	123
+#define GF_CHARM_INSECT	124
+#define GF_CHARM_ANIMAL	125
+#define GF_CHARM_REPTILE	126
+#define GF_CHARM_MONSTER	127
+#define GF_CHARM_PERSON	128
+#define GF_BIND_DEMON	129
+#define GF_BIND_UNDEAD	130
+#define GF_BIND_DRAGON	131
+#define GF_BIND_FAMILIAR	132
+#define GF_VAMP_DRAIN	133
+#define GF_MANA_DRAIN	134
+#define GF_MENTAL		135
+#define GF_SNUFF		136
+#define GF_RAGE			137
 
 /*
  * Columns for the spell cost or damage flags
@@ -1458,7 +1478,7 @@
 #define SF3_DEC_FOOD   	 0x10000000
 #define SF3_DEC_EXP      0x20000000
 #define SF3_HOLD_SONG    0x40000000
-#define SF3_EVIL         0x80000000
+#define SF3_THUAMATURGY  0x80000000
 
 
 #define DISEASE_LOSE_STR    	0x00000001
@@ -1512,7 +1532,7 @@
 #define SPELL_WARD_TRAP  9
 #define SPELL_SUMMON     10
 #define SPELL_SUMMON_RACE       11
-#define SPELL_CREATE_RACE     12
+#define SPELL_SUMMON_GROUP_IDX     12
 #define SPELL_CREATE_KIND     13
 #define SPELL_EARTHQUAKE      14
 #define SPELL_DESTRUCTION     15
@@ -1522,6 +1542,8 @@
 #define SPELL_IDENT_PACK	19
 #define SPELL_CHANGE_SHAPE	20
 #define SPELL_REVERT_SHAPE	21
+#define SPELL_DETECT_MIND	22
+#define SPELL_REFUEL		23
 #define SPELL_INVEN_WIELD      24
 #define SPELL_INVEN_BOW       25
 #define SPELL_INVEN_LEFT      26
@@ -1534,8 +1556,16 @@
 #define SPELL_INVEN_HEAD      33
 #define SPELL_INVEN_HANDS     34
 #define SPELL_INVEN_FEET      35
-
-
+#define	SPELL_WONDER		  36
+#define SPELL_IDENT_NAME		37
+#define SPELL_RELEASE_CURSE		38
+#define SPELL_CONCENTRATE_LITE	39
+#define SPELL_CONCENTRATE_LIFE	40
+#define SPELL_CONCENTRATE_WATER	41
+#define SPELL_SET_RETURN		42
+#define SPELL_SET_OR_MAKE_RETURN	43
+#define SPELL_BLOOD_BOND		44
+#define SPELL_MINDS_EYE			45
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -1820,9 +1850,12 @@
 #define SV_BODY_BUTCHERED  14
 #define SV_BODY_MEAT 15
 
+/* The "sval" codes for TV_SPELL */
+#define SV_SPELL_COUNTER	1
+
 /* The "sval" codes for TV_STATUE */
 #define SV_STATUE_STONE       2
-
+#define SV_STATUE_WOOD		3
 
 /* The "sval" codes for TV_ASSEMBLY */
 #define SV_ASSEMBLY_NONE   	 1
@@ -2408,10 +2441,15 @@
 #define SV_CHEST_MIN_LARGE	4
 
 /*
- * Special "sval" limit -- first "good" magic/prayer book
+ * Special "sval" limit -- first/last "good" magic/prayer book
  */
 #define SV_BOOK_MIN_GOOD	4
+#define SV_BOOK_MAX_GOOD	32
 
+/*
+ * How many books in a school?
+ */
+#define SV_BOOK_SCHOOL		4
 
 /*
  * Special "sval" limit -- maximum number of bags
@@ -2506,6 +2544,8 @@
 #define RBM_8WAY_III	73
 #define RBM_SWARM	74
 #define RBM_DAGGER	75
+#define RBM_AIM_AREA	76
+#define RBM_SCATTER		77
 
 #define RBM_MAX_NORMAL  23
 #define RBM_MIN_RANGED  15
@@ -3690,7 +3730,7 @@
 #define RF6_ILLUSION       0x00080000  /* Hallucinate player */
 #define RF6_WOUND          0x00100000  /* Cause Wounds */
 #define RF6_BLESS          0x00200000  /* Bless */
-#define RF6_BESERK         0x00400000  /* Beserk strength */
+#define RF6_BERSERK         0x00400000  /* Berserk strength */
 #define RF6_SHIELD         0x00800000  /* Shield */
 #define RF6_OPPOSE_ELEM    0x01000000  /* Temporary elemental resist */
 #define RF6_HUNGER         0x02000000  /* Make Player Hungry */
@@ -4092,7 +4132,7 @@
 #define RF6_ASSIST_MASK \
         (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE | RF6_HASTE | \
 	RF6_BLINK | RF6_TPORT | RF6_TELE_TO | RF6_TRAPS | RF6_INVIS | RF6_WRAITHFORM | \
-	RF6_BLESS | RF6_BESERK | RF6_SHIELD | RF6_OPPOSE_ELEM)
+	RF6_BLESS | RF6_BERSERK | RF6_SHIELD | RF6_OPPOSE_ELEM)
 
 #define RF7_ASSIST_MASK \
 	(0L)

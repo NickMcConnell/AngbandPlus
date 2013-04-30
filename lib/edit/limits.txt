@@ -14,13 +14,13 @@
 V:0.6.2
 
 # Maximum number of feature types
-M:F:896
+M:F:897
 
 # Maximum number of room description lines
 M:D:800
 
 # Maximum number of object kinds
-M:K:920
+M:K:951
 
 # Maximum number of artifacts
 M:A:137
@@ -59,7 +59,7 @@ M:C:11
 M:W:160
 
 # Maximum number of spells
-M:S:491
+M:S:586
 
 # Maximum number of runes
 M:Y:30

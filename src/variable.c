@@ -680,6 +680,11 @@ quest_type *q_list;
 
 
 /*
+ * The maximum number of "stores" (at most z_info->t_max * MAX_STORES)
+ */
+s16b max_store_count;
+
+/*
  * The size of "store" (at most z_info->t_max * MAX_STORES)
  */
 s16b total_store_count;
@@ -1060,6 +1065,12 @@ byte item_tester_tval;
  */
 bool (*item_tester_hook)(const object_type*);
 
+
+/*
+ * Here is a "hook" used during calls to "teleport_player()" and
+ * "teleport_away()
+ */
+bool (*teleport_hook)(const int oy, const int ox, const int ny, const int nx);
 
 
 /*

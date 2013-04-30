@@ -225,6 +225,7 @@ void do_cmd_borg(void)
 	if (count_teleport > 0) count_teleport--;
 	else 
 	{
+		teleport_hook = NULL;
 		teleport_player(rand_range(20, 200));
 		count_teleport = rand_range(100, 150);
 		return;

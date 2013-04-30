@@ -1611,13 +1611,13 @@ void hit_trap(int y, int x)
 							project_p(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, k, GF_HURT);
 							
 							/* Apply additional effect from coating or sometimes activate */
-							if ((coated_p(i_ptr)) || (auto_activate(i_ptr)))
+							if ((coated_p(o_ptr)) || (auto_activate(o_ptr)))
 							{
 								/* Make item strike */
-								process_item_blow(SOURCE_PLAYER_TRAP, o_ptr->k_idx, i_ptr, y, x);
+								process_item_blow(SOURCE_PLAYER_TRAP, o_ptr->k_idx, o_ptr, y, x);
 
 								/* Hack -- Remove coating on original */
-								if ((!coated_p(i_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
+								if ((!coated_p(o_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
 							}
 						}
 						else
@@ -1688,13 +1688,13 @@ void hit_trap(int y, int x)
 					project_p(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, k, GF_HURT);
 
 					/* Apply additional effect from coating or sometimes activate */
-					if ((coated_p(i_ptr)) || (auto_activate(i_ptr)))
+					if ((coated_p(o_ptr)) || (auto_activate(o_ptr)))
 					{
 						/* Make item strike */
-						process_item_blow(SOURCE_PLAYER_TRAP, o_ptr->k_idx, i_ptr, y, x);
+						process_item_blow(SOURCE_PLAYER_TRAP, o_ptr->k_idx, o_ptr, y, x);
 
 						/* Hack -- Remove coating on original */
-						if ((!coated_p(i_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
+						if ((!coated_p(o_ptr)) && (o_ptr->feeling == INSCRIP_COATED)) o_ptr->feeling = 0;
 					}
 				}
 				else
@@ -1726,6 +1726,34 @@ void hit_trap(int y, int x)
 				if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
 
 				break;
+			}
+
+			/* Similar to hitting a regular trap below, but (hack) damage increased by current player level. */
+			case TV_SPELL:
+			{
+				/* Player floats on terrain */
+				if (player_ignore_terrain(feat)) return;
+
+				if (strlen(text))
+				{
+					/* Message */
+					msg_format("%s",text);
+				}
+
+				if (f_ptr->spell)
+				{
+   		   			make_attack_ranged(0,f_ptr->spell,y,x);
+				}
+				else if (f_ptr->blow.method)
+				{
+					dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice * (((p_ptr->lev + 9) / 10) + 1) );
+
+					/* Apply the blow */
+					project_p(SOURCE_PLAYER_TRAP, feat, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+					project_t(SOURCE_PLAYER_TRAP, feat, p_ptr->py, p_ptr->px, dam, f_ptr->blow.effect);
+				}
+
+				/* Drop through to use a charge */
 			}
 
 			case TV_WAND:
@@ -1933,7 +1961,6 @@ void hit_trap(int y, int x)
 				break;
 			}
 		}
-
 
 		/* Has a power */
 		/* TODO: join with other spell attack routines */
@@ -2314,6 +2341,14 @@ void py_attack(int dir)
 		  num_blows = MIN(2, num_blows);
 		else 
 		  num_blows = 1;
+	}
+	
+	/* Hack -- no blows */
+	if (num_blows <= 0)
+	{
+		msg_print("You lack the skill to attack.");
+		
+		return;
 	}
 
 	/* Attack once for each legal blow */
@@ -2789,8 +2824,8 @@ void move_player(int dir, int jumping)
 		disturb(0, 0);
 	}
 
-	/* Hack -- attack monsters --- except hidden ones */
-	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)))
+	/* Hack -- attack monsters --- except hidden ones or allies */
+	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE | MFLAG_ALLY)))
 	{
 		/* Attack */
 		py_attack(dir);

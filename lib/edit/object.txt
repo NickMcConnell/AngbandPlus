@@ -2694,30 +2694,32 @@ Y:3:5
 
 N:330:of Cantrips
 G:?:R
-I:90:0:0
+I:90:32:0
 W:5:0:30:25
-A:5/1
+A:5/6
 P:0:1d1:0:0:0
 
 N:331:of Conjuring
 G:?:R
-I:90:1:0
+I:90:33:0
 W:10:0:30:100
-A:10/1
+A:10/6
 P:0:1d1:0:0:0
 
 N:332:of Incantations
 G:?:R
-I:90:2:0
+I:90:34:0
 W:20:0:30:400
-A:20/1
+A:20/6
 P:0:1d1:0:0:0
 
-N:333:of Sorcery
+# Was Sorcery.
+
+N:333:of Wizardry
 G:?:R
-I:90:3:0
+I:90:35:0
 W:30:0:30:800
-A:30/1
+A:30/6
 P:0:1d1:0:0:0
 
 N:334:of Blessings
@@ -3862,17 +3864,17 @@ I:40:17:0
 W:40:0:3:25000
 F:INSTA_ART
 
-N:520:of Glamours
+N:520:of Enchantments
 G:?:r
-I:90:22:0
-W:33:0:30:1000
-A:33/1
+I:90:0:0
+W:70:0:30:18000
+A:70/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:521:of Life Magic
 G:?:r
-I:90:24:0
+I:90:2:0
 W:36:0:30:1500
 A:36/1
 P:0:1d1:0:0:0
@@ -3968,7 +3970,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:533:of Artifice
 G:?:r
-I:90:25:0
+I:90:3:0
 W:73:0:30:22000
 A:73/2
 P:0:1d1:0:0:0
@@ -3976,7 +3978,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:534:of Lore
 G:?:r
-I:90:23:0
+I:90:1:0
 W:76:0:30:24000
 A:76/2
 P:0:1d1:0:0:0
@@ -3990,7 +3992,7 @@ A:33/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-N:536:of Illusions
+N:536:of Psychic Magic
 G:?:r
 I:90:16:0
 W:36:0:30:1750
@@ -4277,7 +4279,7 @@ I:10:31:5
 W:0:0:0:0
 P:5:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
-F:SPEED | FEATHER | ANIMAL | WINDY
+F:SPEED | FEATHER | ANIMAL | WINDY | RES_BLIND
 
 N:573:& Wolf's Maw~
 G:]:v
@@ -6556,54 +6558,48 @@ A:20/1
 # Artisan books
 
 N:898:of Craft
-G:?:r
-I:90:26:0
-W:30:0:30:900
-A:30/3
+G:?:R
+I:90:53:0
+W:10:0:30:100
+A:10/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:899:of Art
-G:?:r
-I:90:27:0
-W:45:0:30:900
-A:45/3
+G:?:R
+I:90:54:0
+W:20:0:30:400
+A:20/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:900:of Science
-G:?:r
-I:90:28:0
-W:60:0:30:2500
-A:60/3
+G:?:R
+I:90:55:0
+W:30:0:30:800
+A:30/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 # Ranger books
 
-N:901:of Trailcraft
-G:?:r
-I:90:29:0
-W:30:0:30:900
-A:30/3
+N:901:of Bushcraft
+G:?:R
+I:90:57:0
+W:10:0:30:100
+A:10/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:902:of Warcraft
-G:?:r
-I:90:30:0
-W:45:0:30:900
-A:45/3
+G:?:R
+I:90:58:0
+W:20:0:30:400
+A:20/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 N:903:of Statecraft
-G:?:r
-I:90:31:0
-W:60:0:30:900
-A:60/3
+G:?:R
+I:90:59:0
+W:30:0:30:800
+A:30/6
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 # Paladin books
 
@@ -6732,4 +6728,259 @@ G:~:G
 I:8:7:0
 W:0:0:40:0
 A:11/1
+P:0:1d1:0:0:0
+
+#### The School Books ####
+
+# The schools correspond roughly to Sangband Oath of Nature
+# spellbooks. However, in Unangband, the school only determines the
+# starting book and books stocked in shops e.g. the basic 4 books.
+
+# Each 'school' acts as a stand alone set of balanced
+# spellbooks. Note the wizard school corresponds to the basic
+# spellbooks and there are separate 'ranger' and 'rogue' schools.
+
+# The high level spellbooks, not being stocked in shops, are just
+# reflective of the pre-requisites and 'ongoing trend' of the spells
+# in the school. The level 70 spellbook just contains all the spells
+# from the level 5, 10, 20 and 30 books.
+
+# It is not possible to pick the 'normal' spellbooks as a speciality.
+# However, the 'high' books picked here can be specialised in.
+
+#### Druidic School -- corresponds to Sangband Oath of Nature ####
+
+N:920:of Hedges
+G:?:R
+I:90:36:0
+W:5:0:30:25
+A:5/6
+P:0:1d1:0:0:0
+
+N:921:of Animation
+G:?:R
+I:90:37:0
+W:10:0:30:100
+A:10/6
+P:0:1d1:0:0:0
+
+N:922:of Invectures
+G:?:R
+I:90:38:0
+W:20:0:30:400
+A:20/6
+P:0:1d1:0:0:0
+
+N:923:of Druidry
+G:?:R
+I:90:39:0
+W:30:0:30:800
+A:30/6
+P:0:1d1:0:0:0
+
+N:924:of Negation
+G:?:r
+I:90:23:0
+W:60:0:30:10000
+A:60/3
+P:0:1d7:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:925:of Nature
+G:?:r
+I:90:24:0
+W:70:0:30:15000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:926:of Space
+G:?:r
+I:90:25:0
+W:80:0:30:30000
+A:80/6
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+#### Mastery School -- corresponds to Sangband Oath of Blood Magic ####
+
+N:927:of Curses
+G:?:R
+I:90:40:0
+W:5:0:30:25
+A:5/6
+P:0:1d1:0:0:0
+
+N:928:of Summoning
+G:?:R
+I:90:41:0
+W:10:0:30:100
+A:10/6
+P:0:1d1:0:0:0
+
+N:929:of Invocations
+G:?:R
+I:90:42:0
+W:20:0:30:400
+A:20/6
+P:0:1d1:0:0:0
+
+N:931:of Mastery
+G:?:R
+I:90:43:0
+W:30:0:30:800
+A:30/6
+P:0:1d1:0:0:0
+
+N:932:of Annihilation
+G:?:r
+I:90:27:0
+W:60:0:30:10000
+A:60/3
+P:0:1d7:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:933:of Demonology
+G:?:r
+I:90:26:0
+W:70:0:30:15000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:934:of the Void
+G:?:r
+I:90:28:0
+W:80:0:30:30000
+A:80/6
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+#### Sorcery School -- no Sangband correspondence ####
+
+N:935:of Glamours
+G:?:R
+I:90:44:0
+W:5:0:30:25
+A:5/6
+P:0:1d1:0:0:0
+
+N:936:of Prestidigitation
+G:?:R
+I:90:45:0
+W:10:0:30:100
+A:10/6
+P:0:1d1:0:0:0
+
+N:937:of Illusions
+G:?:R
+I:90:46:0
+W:20:0:30:400
+A:20/6
+P:0:1d1:0:0:0
+
+N:938:of Sorcery
+G:?:R
+I:90:47:0
+W:30:0:30:800
+A:30/6
+P:0:1d1:0:0:0
+
+N:939:of Immoliation
+G:?:r
+I:90:29:0
+W:60:0:30:10000
+A:60/3
+P:0:1d7:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:940:of Gambits
+G:?:r
+I:90:30:0
+W:70:0:30:15000
+A:70/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:941:of Balance
+G:?:r
+I:90:31:0
+W:80:0:30:30000
+A:80/6
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+N:942:of Shapechanging
+G:?:r
+I:90:22:0
+W:33:0:30:1000
+A:33/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+#### The Artisan School -- consists of the rogue books defined previously, plus this book.
+
+N:943:of Tricks
+G:?:R
+I:90:52:0
+W:5:0:30:25
+A:5/4
+P:0:1d1:0:0:0
+
+#### The Ranger School -- consists of the ranger books defined previously, plus this book.
+
+N:944:of Trailcraft
+G:?:R
+I:90:56:0
+W:5:0:30:25
+A:5/4
+P:0:1d1:0:0:0
+
+# Paladin books
+
+#N:945:of xxx
+#G:?:b
+#I:91:18:0
+#W:30:0:30:800
+#A:30/3
+#P:0:1d1:0:0:0
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+# Used to count down spell-based features and traps
+
+N:946:& Counter~
+G:~:v
+I:10:1:5
+W:0:1:0:0
+P:0:0d0:0:0:0
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
+
+#### Thuamaturgy School -- no Sangband correspondence. Random attack spells after 1st book. ####
+
+N:947:of Fireworks
+G:?:R
+I:90:48:0
+W:5:0:30:25
+A:5/6
+P:0:1d1:0:0:0
+
+N:948:of Evocation
+G:?:R
+I:90:49:0
+W:10:0:30:100
+A:10/6
+P:0:1d1:0:0:0
+
+N:949:of Incendaries
+G:?:R
+I:90:50:0
+W:20:0:30:400
+A:20/6
+P:0:1d1:0:0:0
+
+N:950:of Thuamaturgy
+G:?:R
+I:90:51:0
+W:30:0:30:800
+A:30/6
 P:0:1d1:0:0:0

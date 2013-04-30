@@ -404,7 +404,7 @@ bool restore_level(void)
 /*
  *  Prints the diseases that the player is afflicted with or cured of.
  */
-bool disease_desc(char *desc, u32b old_disease, u32b new_disease)
+bool disease_desc(char *desc, size_t desc_s, u32b old_disease, u32b new_disease)
 {
 	cptr vp[64];
 
@@ -415,12 +415,12 @@ bool disease_desc(char *desc, u32b old_disease, u32b new_disease)
 	/* Getting worse */
 	if ((disease = (new_disease & ~(old_disease))))
 	{
-		strcpy(desc,"You are afflicted with ");
+		my_strcpy(desc,"You are afflicted with ", desc_s);
 	}
 	/* Getting better */
 	else if ((disease = (old_disease & ~(new_disease))))
 	{
-		strcpy(desc,"You are cured of ");
+		my_strcpy(desc,"You are cured of ", desc_s);
 	}
 	/* No change */
 	else
@@ -440,11 +440,11 @@ bool disease_desc(char *desc, u32b old_disease, u32b new_disease)
 	{
 		/* Intro */
 		if (n == 0) { }
-		else if (n < vn-1) my_strcat(desc,", ", sizeof(desc));
-		else my_strcat(desc," and ", sizeof(desc));
+		else if (n < vn-1) my_strcat(desc,", ", desc_s);
+		else my_strcat(desc," and ", desc_s);
 
 		/* Dump */
-		my_strcat(desc,vp[n], sizeof(desc));
+		my_strcat(desc,vp[n], desc_s);
 	}
 
 	/* Collect causes */
@@ -458,16 +458,16 @@ bool disease_desc(char *desc, u32b old_disease, u32b new_disease)
 	for (n = 0; n < vn; n++)
 	{
 		/* Intro */
-		if (n == 0) { if ((disease & ((1 << DISEASE_TYPES_HEAVY) -1)) != 0) my_strcat(desc, " caused by ", sizeof(desc)); }
-		else if (n < vn-1) my_strcat(desc,", ", sizeof(desc));
-		else my_strcat(desc," and ", sizeof(desc));
+		if (n == 0) { if ((disease & ((1 << DISEASE_TYPES_HEAVY) -1)) != 0) my_strcat(desc, " caused by ", desc_s); }
+		else if (n < vn-1) my_strcat(desc,", ", desc_s);
+		else my_strcat(desc," and ", desc_s);
 
 		/* Dump */
-		my_strcat(desc,vp[n], sizeof(desc));
+		my_strcat(desc,vp[n], desc_s);
 	}
 
 	/* Dump */
-	my_strcat(desc,".", sizeof(desc));
+	my_strcat(desc,".", desc_s);
 
 	return(TRUE);
 }
@@ -560,7 +560,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		healthy = FALSE;
 
 		/* Describe diseases */
-		if (disease_desc(output, 0, p_ptr->disease))
+		if (disease_desc(output, sizeof(output), 0, p_ptr->disease))
 		{
 			text_out(format("%s  ", output));
 		}
@@ -1463,19 +1463,82 @@ int value_check_aux5(const object_type *o_ptr)
 	return (INSCRIP_AVERAGE);
 }
 
+/*
+ * Returns true if an item detects as 'magic'
+ */
+static bool item_tester_magic(const object_type *o_ptr)
+{
+	/* Exclude cursed or broken */
+	if (cursed_p(o_ptr) || broken_p(o_ptr)) return (FALSE);
+	
+	/* Include artifacts and ego items */
+	if (artifact_p(o_ptr) || ego_item_p(o_ptr)) return (TRUE);
+	
+	/* Include magic items */
+	if ((o_ptr->xtra1) && (o_ptr->xtra1 < OBJECT_XTRA_MIN_COATS)) return (TRUE);
+	
+	/* Artifacts, misc magic items, or enchanted wearables */
+	switch (o_ptr->tval)
+	{
+		case TV_AMULET:
+		case TV_RING:
+		case TV_STAFF:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_SCROLL:
+		case TV_POTION:
+		case TV_MAGIC_BOOK:
+		case TV_PRAYER_BOOK:
+		case TV_SONG_BOOK:
+		case TV_RUNESTONE:
+		case TV_STUDY:
+			return (TRUE);
+	}
+	
+	/* Positive bonuses */		
+	if ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)) return (TRUE);
+	
+	return (FALSE);
+}
 
 /*
- * Detect all "magic" objects on the current panel.
+ * Returns true if an item detects as 'powerful'
+ */
+static bool item_tester_power(const object_type *o_ptr)
+{
+	/* Include cursed or broken */
+	if (cursed_p(o_ptr) || broken_p(o_ptr)) return (TRUE);
+	
+	/* Otherwise magic */
+	return (item_tester_magic(o_ptr));
+}
+
+
+/*
+ * Returns true if an item detects as 'cursed'
+ */
+static bool item_tester_cursed(const object_type *o_ptr)
+{
+	/* Exclude cursed or broken */
+	if (cursed_p(o_ptr) || broken_p(o_ptr)) return (TRUE);
+
+	return (FALSE);
+}
+
+
+/*
+ * Detect all objects on the current panel of a particular 'type'.
  *
- * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
+ * This will light up all spaces with items matching a tester function
+ * as well as senses all objects in the inventory using a particular
+ * type of sensing function.
+ * 
+ * If ignore_feeling is set, it'll treat a feeling of that value
+ * as not inducing detection.
  *
  * It can probably be argued that this function is now too powerful.
- *
- * Now also senses all magical objects in the inventory.
  */
-bool detect_objects_magic(void)
+static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_ptr), int sense_type, int ignore_feeling)
 {
 	int i, y, x, tv;
 
@@ -1508,13 +1571,7 @@ bool detect_objects_magic(void)
 		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
-		if (!(cursed_p(o_ptr)) && !(broken_p(o_ptr)) && (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-		    ((o_ptr->xtra1) && (o_ptr->xtra1 < OBJECT_XTRA_MIN_COATS)) ||
-		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-		    (o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+		if (!(detect_item_hook) || (detect_item_hook)(o_ptr))
 		{
 			/* Memorize the item */
 			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
@@ -1532,28 +1589,32 @@ bool detect_objects_magic(void)
 			detect = TRUE;
 		}
 
-		/* Get the inscription */
-		feel = sense_magic(o_ptr, 3, TRUE);
+		/* Sense if necessary */
+		if (sense_type)
+		{
+			/* Get the inscription */
+			feel = sense_magic(o_ptr, sense_type, TRUE);
 
-		/* Sense something */
-		if (!feel) continue;
+			/* Sense something */
+			if (!feel) continue;
 
-		/* Sense the object */
-		o_ptr->feeling = feel;
+			/* Sense the object */
+			o_ptr->feeling = feel;
 
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+		}
 	}
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	if (sense_type) for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		int feel = 0;
 
 		object_type *o_ptr = &inventory[i];
 
 		/* Get the inscription */
-		feel = sense_magic(o_ptr, 3, TRUE);
+		feel = sense_magic(o_ptr, sense_type, TRUE);
 
 		/* Sense something */
 		if (!feel) continue;
@@ -1562,7 +1623,7 @@ bool detect_objects_magic(void)
 		if (o_ptr->feeling == feel) continue;
 
 		/* Detect */
-		if (feel != INSCRIP_NONMAGICAL) detect = TRUE;
+		if (feel != ignore_feeling) detect = TRUE;
 
 		/* Sense the object */
 		o_ptr->feeling = feel;
@@ -1581,238 +1642,14 @@ bool detect_objects_magic(void)
 	return (detect);
 }
 
-
-
-/*
- * Detect all "cursed" objects on the current panel.
- *
- * This will light up all spaces with "cursed" items, including artifacts,
- * ego-items, and "enchanted" items of the cursed or broken variety.
- *
- * Should probably marked objects detected as cursed when appropriate.
- *
- * Now also senses all cursed objects in the inventory.
- */
-bool detect_objects_cursed(void)
-{
-	int i, y, x;
-
-	bool detect = FALSE;
-
-	/* Scan all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		int feel;
-
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Skip stored objects */
-		if (o_ptr->ident & (IDENT_STORE)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (distance(p_ptr->py, p_ptr->px, y, x) > 2 * MAX_SIGHT) continue;
-
-		/* Cursed items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr))
-		{
-			/* Memorize the item */
-			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
-
-			/* Hack -- have seen object */
-			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
-
-			/* XXX XXX - Mark monster objects as "seen" */
-			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
-
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Detect */
-			detect = TRUE;
-		}
-
-		/* Get the inscription */
-		feel = sense_magic(o_ptr, 4, TRUE);
-
-		/* Sense something */
-		if (!feel) continue;
-
-		/* Sense the object */
-		o_ptr->feeling = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-	}
-
-	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		int feel;
-
-		object_type *o_ptr = &inventory[i];
-
-		/* Get the inscription */
-		feel = sense_magic(o_ptr, 4, TRUE);
-
-		/* Sense something? */
-		if (!feel) continue;
-
-		/* Any different */
-		if (o_ptr->feeling == feel) continue;
-
-		/* Detect */
-		if (feel != INSCRIP_UNCURSED) detect = TRUE;
-
-		/* Sense the object */
-		o_ptr->feeling = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
-
-	/* Return result */
-	return (detect);
-}
-
-
-
-/*
- * Detect all "powerful" objects on the current panel.
- *
- * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of any time.
- *
- * Now also senses all powerful objects in the inventory.
- */
-bool detect_objects_power(void)
-{
-	int i, y, x, tv;
-
-	bool detect = FALSE;
-
-	/* Scan all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		int feel = 0;
-
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Skip stored objects */
-		if (o_ptr->ident & (IDENT_STORE)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (distance(p_ptr->py, p_ptr->px, y, x) > 2 * MAX_SIGHT) continue;
-
-		/* Examine the tval */
-		tv = o_ptr->tval;
-
-		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-		    ((o_ptr->xtra1) && (o_ptr->xtra1 < OBJECT_XTRA_MIN_COATS)) ||
-		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-		    (o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0))
-		{
-			/* Memorize the item */
-			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
-
-			/* Hack -- have seen object */
-			if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
-
-			/* XXX XXX - Mark monster objects as "seen" */
-			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
-
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Detect */
-			detect = TRUE;
-		}
-
-		/* Get the inscription */
-		feel = sense_magic(o_ptr, 5, TRUE);
-
-		/* Sense something */
-		if (!feel) continue;
-
-		/* Sense the object */
-		o_ptr->feeling = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-	}
-
-	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		int feel = 0;
-
-		object_type *o_ptr = &inventory[i];
-
-		/* Get the inscription */
-		feel = sense_magic(o_ptr, 5, TRUE);
-
-		/* Sense something */
-		if (!feel) continue;
-
-		/* Any different */
-		if (o_ptr->feeling == feel) continue;
-
-		/* Detect */
-		if (feel != INSCRIP_AVERAGE) detect = TRUE;
-
-		/* Sense the object */
-		o_ptr->feeling = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
-
-	/* Return result */
-	return (detect);
-}
 
 
 /*
  * Hook to specify "normal (non-invisible)" monsters
  */
-static bool monster_tester_hook_normal(const monster_type *m_ptr)
+static bool monster_tester_hook_normal(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Don't detect invisible monsters */
@@ -1828,8 +1665,9 @@ static bool monster_tester_hook_normal(const monster_type *m_ptr)
 /*
  * Hook to specify "evil" monsters
  */
-static bool monster_tester_hook_evil(const monster_type *m_ptr)
+static bool monster_tester_hook_evil(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Detect evil monsters */
@@ -1845,8 +1683,9 @@ static bool monster_tester_hook_evil(const monster_type *m_ptr)
 /*
  * Hook to specify "living" monsters
  */
-static bool monster_tester_hook_living(const monster_type *m_ptr)
+static bool monster_tester_hook_living(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Don't detect non-living monsters */
@@ -1862,8 +1701,9 @@ static bool monster_tester_hook_living(const monster_type *m_ptr)
 /*
  * Hook to specify "mineral" monsters
  */
-static bool monster_tester_hook_mineral(const monster_type *m_ptr)
+static bool monster_tester_hook_mineral(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Detect all mineral monsters */
@@ -1879,8 +1719,9 @@ static bool monster_tester_hook_mineral(const monster_type *m_ptr)
 /*
  * Hook to specify "mimic" monsters
  */
-static bool monster_tester_hook_mimic(const monster_type *m_ptr)
+static bool monster_tester_hook_mimic(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Detect all object-like monsters */
@@ -1896,8 +1737,9 @@ static bool monster_tester_hook_mimic(const monster_type *m_ptr)
 /*
  * Hook to specify "water" monsters
  */
-static bool monster_tester_hook_water(const monster_type *m_ptr)
+static bool monster_tester_hook_water(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Detect all magic monsters */
@@ -1913,8 +1755,9 @@ static bool monster_tester_hook_water(const monster_type *m_ptr)
 /*
  * Hook to specify "magic" monsters
  */
-static bool monster_tester_hook_magic(const monster_type *m_ptr)
+static bool monster_tester_hook_magic(const int m_idx)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Detect all magic monsters */
@@ -1927,11 +1770,33 @@ static bool monster_tester_hook_magic(const monster_type *m_ptr)
 }
 
 
+/*
+ * Hook to specify "mental" monsters
+ */
+static bool monster_tester_hook_mental(const int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Don't detect empty mind monsters */
+	if (r_ptr->flags2 & (RF2_EMPTY_MIND))
+	{
+		return (FALSE);
+	}
+	/* Detect weird mind monsters 10% of the time (matches telepathy check in update_mon) */
+	else if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) && ((m_idx % 10) != 5))
+	{
+		return (FALSE);
+	}
+
+	return (TRUE);
+}
+
 
 /*
  * Detect all "normal" monsters on the current panel
  */
-bool detect_monsters(bool (*monster_test_hook)(const monster_type*), bool *known)
+bool detect_monsters(bool (*monster_test_hook)(const int m_idx), bool *known)
 {
 	int i, y, x;
 
@@ -1954,7 +1819,7 @@ bool detect_monsters(bool (*monster_test_hook)(const monster_type*), bool *known
 		if (distance(p_ptr->py, p_ptr->px, y, x) > 2 * MAX_SIGHT) continue;
 
 		/* Detect all non-invisible monsters */
-		if ((*monster_test_hook)(m_ptr))
+		if ((*monster_test_hook)(i))
 		{
 			/* Optimize -- Repair flags */
 			repair_mflag_mark = repair_mflag_show = TRUE;
@@ -2205,6 +2070,17 @@ static bool item_tester_unknown(const object_type *o_ptr)
 	else
 		return TRUE;
 }
+
+static bool item_tester_unknown_name(const object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else if (o_ptr->ident & (IDENT_NAME))
+		return FALSE;
+	else
+		return TRUE;
+}
+
 
 static int unknown_tval;
 
@@ -2849,6 +2725,87 @@ bool ident_spell(void)
 	/* Something happened */
 	return (TRUE);
 }
+
+
+/*
+ * Identify an object in the inventory (or on the floor)
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+bool ident_spell_name(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown_name;
+
+	/* Get an item */
+	q = "Identify which item name? ";
+	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return (TRUE);
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
+	/* Identify it fully */
+	object_aware(o_ptr);
+	o_ptr->ident |= (IDENT_NAME);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+	/* Describe */
+	if (item >= INVEN_WIELD)
+	{
+		msg_format("%^s: %s (%c).",
+			   describe_use(item), o_name, index_to_label(item));
+	}
+	else if (item >= 0)
+	{
+		msg_format("In your pack: %s (%c).",
+			   o_name, index_to_label(item));
+	}
+	else
+	{
+		msg_format("On the ground: %s.",
+			   o_name);
+	}
+	/* Something happened */
+	return (TRUE);
+}
+
 
 /*
  * Identify the bonus/charges of an object in the inventory (or on the floor)
@@ -5056,7 +5013,7 @@ static bool fire_cloud(int who, int what, int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_BOOM | PROJECT_AREA | PROJECT_MAGIC;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_AREA | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -5476,6 +5433,9 @@ void change_shape(int shape, int level)
 
 			/* Mark as 'built-in' item */
 			inventory[i].ident |= (IDENT_STORE);
+			
+			/* Important - to prefent overflow of items, we must check for pack overflow after every item is wielded */
+			overflow_pack();
 		}
 	}
 
@@ -6119,8 +6079,20 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int py = p_ptr->py;
 				int px = p_ptr->px;
 			
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM | PROJECT_AREA;
+				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_BOOM | PROJECT_AREA;
 				if (project(who, what, (level / 10)+1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
+				break;
+			}
+			
+			/* Applies same damage at all ranges */
+			case RBM_AIM_AREA:
+			{
+				int rad = (level / 10)+1;
+
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				
+				if (fire_cloud(who, what, effect, dir, damage, rad)) obvious = TRUE;
 				break;
 			}
 			case RBM_LOS:
@@ -6347,8 +6319,32 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 
 				if (fire_swarm(who, what, 2 + level / 20, effect, dir,
-			           	damage + level / 2, 1)) obvious = TRUE;;
+			           	damage + level / 2, 1)) obvious = TRUE;
+			           	
+			    break;
 			}
+			case RBM_SCATTER:
+			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
+				int y = py;
+				int x = px;
+				int i;
+
+				int flg = PROJECT_KILL | PROJECT_MAGIC | PROJECT_GRID | PROJECT_PLAY | PROJECT_ITEM;
+
+				for (i = 0; i < (p_ptr->lev / 10) + 3; i++)
+				{
+					/* Pick a 'nearby' location */
+	      			scatter(&y, &x, py, px, 5, 0);
+	      		
+	      			/* Project at the location */
+					if (project(who, what, 0, py, px, y, x, damage, effect, flg, 0, 0)) obvious = TRUE;
+				}
+
+				break;	      		
+			}
+			
 			/* One adjacent target */
 			default:
 			{
@@ -6363,7 +6359,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 
-				if (project(who, what, 1, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
+				if (project(who, what, 0, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
 
 				break;
 			}
@@ -6377,8 +6373,6 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 	return (obvious);
 
 }
-
-
 
 
 
@@ -6504,8 +6498,8 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	if ((s_ptr->flags1 & (SF1_DETECT_STAIRS)) && (detect_feat_flags(FF1_STAIRS, 0x0L, 0x0L, 2 * MAX_SIGHT, known))) vp[vn++] = "stairs";
 
 	/* Process the flags -- basic item detection */
-	if ((s_ptr->flags1 & (SF1_DETECT_CURSE)) && (detect_objects_cursed())) vp[vn++] = "cursed items";
-	if ((s_ptr->flags1 & (SF1_DETECT_POWER)) && (detect_objects_power())) vp[vn++] = "powerful items";
+	if ((s_ptr->flags1 & (SF1_DETECT_CURSE)) && (detect_objects_type(item_tester_cursed, 4, INSCRIP_UNCURSED))) vp[vn++] = "cursed items";
+	if ((s_ptr->flags1 & (SF1_DETECT_POWER)) && (detect_objects_type(item_tester_power, 5, INSCRIP_AVERAGE))) vp[vn++] = "powerful items";
 
 	/* Process the flags -- basic monster detection */
 	if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters(monster_tester_hook_evil, known))) vp[vn++] = "evil";
@@ -6513,7 +6507,7 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 
 	/* Process the flags -- detect water */
 	if (s_ptr->flags1 & (SF1_DETECT_WATER))
-        {
+       {
                 if (detect_feat_flags(0x0L, FF2_WATER, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "water";
                 if (detect_monsters(monster_tester_hook_water, known)) vp[vn++] = "watery creatures";
         }
@@ -6538,8 +6532,8 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	/* Process the flags -- detect magic */
 	if (s_ptr->flags1 & (SF1_DETECT_MAGIC))
 	{
-		if (detect_objects_magic()) vp[vn++] = "magic items";
-                if (detect_monsters(monster_tester_hook_magic, known)) vp[vn++] = "magical monsters";
+		if (detect_objects_type(item_tester_magic, 3, INSCRIP_NONMAGICAL)) vp[vn++] = "magic items";
+		if (detect_monsters(monster_tester_hook_magic, known)) vp[vn++] = "magical monsters";
 	}
 
 	/* Process the flags -- detect life */
@@ -6547,6 +6541,12 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	{
 		if (detect_feat_flags(0x0L, 0x0L, FF3_LIVING, 2 * MAX_SIGHT, known)) vp[vn++] = "life";
 		if (detect_monsters(monster_tester_hook_living, known)) vp[vn++] = "living creatures";
+	}
+
+	/* Process the 'fake flag' -- detect minds */
+	if (s_ptr->type == SPELL_DETECT_MIND)
+	{
+		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";		
 	}
 
 	/* Describe detected magic */
@@ -6955,8 +6955,6 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 		}
 	}
 
-	
-
 	if (s_ptr->flags3 & (SF3_DEC_FOOD))
 	{
 		(void)set_food(PY_FOOD_STARVE - 1);
@@ -6980,7 +6978,7 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 
 
 
-bool process_spell_types(int spell, int level, bool *cancel)
+bool process_spell_types(int who, int spell, int level, bool *cancel)
 {
 
 	spell_type *s_ptr = &s_info[spell];
@@ -7082,19 +7080,21 @@ bool process_spell_types(int spell, int level, bool *cancel)
 			}
 			case SPELL_SUMMON:
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param)) obvious = TRUE;
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
 			}
 			case SPELL_SUMMON_RACE:
 			{
-				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE)) obvious = TRUE;
+				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
 			}
-			case SPELL_CREATE_RACE:
+			case SPELL_SUMMON_GROUP_IDX:
 			{
-				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, TRUE)) obvious = TRUE;
+				summon_group_type = s_ptr->param;
+				
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, SUMMON_GROUP, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
 			}
@@ -7179,14 +7179,14 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				{
 					char output[1024];
 
-					disease_desc(output, old_disease, p_ptr->disease);
+					disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
 					msg_print(output);
 
 					p_ptr->redraw |= (PR_DISEASE);
 
 					if (p_ptr->disease)
 					{
-						disease_desc(output, p_ptr->disease, 0x0L);
+						disease_desc(output, sizeof(output), 0x0L, p_ptr->disease);
 						msg_print(output);
 					}
 				}
@@ -7226,6 +7226,96 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				obvious = TRUE;
 				break;
 			}
+			case SPELL_REFUEL:
+			{
+				int item;
+
+				object_type *o_ptr;
+
+				/* Get an item */
+				cptr q = "Refuel which torch? ";
+				cptr s = "You have no torches.";
+
+				/* Restrict the choices */
+				item_tester_hook = item_tester_refill_torch;
+
+				obvious = TRUE;
+
+				if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (TRUE);
+
+				/* Get the item (in the pack) */
+				if (item >= 0)
+				{
+					o_ptr = &inventory[item];
+				}
+
+				/* Get the item (on the floor) */
+				else
+				{
+					o_ptr = &o_list[0 - item];
+				}
+
+				/* In a bag? */
+				if (o_ptr->tval == TV_BAG)
+				{
+					/* Get item from bag */
+					if (!get_item_from_bag(&item, q, s, o_ptr)) return (TRUE);
+
+					/* Refer to the item */
+					o_ptr = &inventory[item];
+				}
+	
+				/* Switch on light source */
+				if (o_ptr->charges)
+				{
+					o_ptr->timeout = o_ptr->charges;
+					o_ptr->charges = 0;
+				}
+				
+				/* Increase fuel */
+				o_ptr->timeout += s_ptr->param / o_ptr->number;
+				
+				/* Over-fuel message */
+				if (o_ptr->timeout >= FUEL_TORCH)
+				{
+					o_ptr->timeout = FUEL_TORCH;
+					msg_format("Your torch%s fully fueled.", o_ptr->number > 1 ? "es are" : " is");
+				}
+				
+				/* Lite if necessary */
+				if (item == INVEN_LITE) p_ptr->update |= (PU_TORCH);
+				
+				break;
+			}
+			
+			case SPELL_IDENT_NAME:
+			{
+				if ((!ident_spell_name()) && (*cancel)) return (TRUE);
+				*cancel = FALSE;
+				obvious = TRUE;
+				break;				
+			}
+
+			case SPELL_DETECT_MIND:
+			{
+				/* Spell was processed previously */
+				break;
+			}
+
+			case SPELL_WONDER:
+			case SPELL_RELEASE_CURSE:
+			case SPELL_CONCENTRATE_LITE:
+			case SPELL_CONCENTRATE_LIFE:
+			case SPELL_CONCENTRATE_WATER:
+			case SPELL_SET_RETURN:
+			case SPELL_SET_OR_MAKE_RETURN:
+			case SPELL_BLOOD_BOND:
+			case SPELL_MINDS_EYE:
+			{
+				msg_print("Oops. Spell not yet implemented.");
+				break;
+			}
+						
 			default:
 			{
 				wield_spell(s_ptr->type,s_ptr->param,lasts, level, 0);
@@ -7329,7 +7419,7 @@ bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel)
 	}
 
 	/* Apply flags */
-	if (process_spell_types(spell, level, cancel)) obvious = TRUE;
+	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
 
 	return (obvious);
 
@@ -7351,9 +7441,10 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 
 	/* Note the order is important -- because of the impact of blinding a character on their subsequent
 		ability to see spell blows that affect themselves */
+	/*if (preprocess_spell_blows(spell, level, cancel, known, TRUE)) obvious = TRUE;*/
 	if (process_spell_blows(who, what, spell, level, cancel)) obvious = TRUE;
 	if (process_spell_flags(spell, level, cancel, known)) obvious = TRUE;
-	if (process_spell_types(spell, level, cancel)) obvious = TRUE;
+	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
 
 	/* Return result */
 	return (obvious);

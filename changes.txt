@@ -233,6 +233,30 @@ features should be chosen a little more appropriately regards for depth.
 
 - Made staffs brandable (Requested by jevansau1).
 
+- Update todo.txt to include conversations with monsters ideas.
+
+- Diseases no longer prevent healing (again), except where the disease drains health.
+
+- Added change shape spells.
+
+- Added summoning spells of various kinds that allow you to summon monsters to fight on your side.
+You earn experience from their kills. At the moment, you cannot give monsters any orders, and must
+maintain the enemies you wish them to attack in line of sight or sensed via telepathy or various
+monster sensing (Detect spells don't qualify). A number of intended improvements are outstanding
+but feedback is welcome (Requested by jevansau1).
+
+- Added charm monster spells of various kinds.
+
+- Player traps created by spells now earns the player experience points, and has a limited number of
+charges (based on level). Other terrain created by the player times out relatively quickly.
+
+- Added schools of magic. A school determines your starting spellbook (currently only for mages
+and mage type casters), and which of your class spellbooks are stocked in town shops. There are
+currently 7 schools of magic, each with their own 4 basic books, and related higher level books.
+Note that a few spells are not currently implemented, and some higher level books are currently
+empty of spells. Priest schools will also be developed, possibly to reflect the different Middle
+Earth deities, plus a paladin school.
+
 
 ### User Interface ###
 
@@ -261,6 +285,8 @@ and pete mac).
 
 - You can now examine more items in shops. This now allows you to browse spellbooks
 (Requested by pebepe).
+
+- Commit patch from Andrew Sidwell that improves main-win.c startup.
 
 ### Bug fixes ###
 
@@ -381,6 +407,37 @@ by matthiasrudolf).
 - Fixed bugs around room walls not being lit correctly (Reported by Mikolaj).
 
 - Fixed bug using repeat command and wands of wonder (Reported by matthiasrudolf).
+
+- Fix problem with disease messages whilst curing them (Reported by Matthias Rudolf).
+
+- Fix 'incorrect' shopkeeper races (Reported by Mikolaj).
+
+- Make size correspond closer to Angband hit die (including removal of con bonus from hit die calculation). Con bonus now applied as per Angband.
+
+- Remove unused hit die display during style selection (Reported by Mikolaj).
+
+- Ensure that zero or less blows, shots or throws prevents melee, throwing or firing a weapon (Reported by Matthias Rudolf).
+
+- Prevent arc and starburst spell effects from hurting the player (Reported by Matthias Rudolf).
+
+- Fix bug where shape change with multiple items worn and a full inventory could result in items being lost (Reported by Matthias Rudolf).
+
+- Fix bug where study items would incorrectly combine (Reported by Matthias Rudolf).
+
+- Prevent starting location being in dangerous terrain in town (Reported by Pete Mac).
+
+- Fix connecting stairs in bottom of tower (Reported by Matthias Rudolf).
+
+- Be paranoid about placing shops in the dungeon  (Reported by Matthias Rudolf).
+
+- Prevent impassable piles of rubble being generated as lakes in the dungeon.
+
+- Fix bug with uncursed items listed as being 'unbreakable' (Reported by Matthias Rudolf).
+
+- Ensure that 'dungeon stores' bug doesn't corrupt memory, and hack a save file fix for those affected. Note that this
+doesn't solve the original bug, and will cause some stores to be reset (Reported by Matthias Rudolf).
+
+- Fixed alchemy bugs and improve messages (Mikolaj).
 
 ### Build / Platform ###
 

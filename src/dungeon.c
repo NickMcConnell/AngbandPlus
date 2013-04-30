@@ -807,7 +807,7 @@ static void process_world(void)
 	if (p_ptr->cut) regen_amount = 0;
 
 	/* If disease has no other effect, prevent regeneration */
-	if ((p_ptr->disease) && !(p_ptr->disease & (DISEASE_BLOWS))) regen_amount = 0;
+	if ((p_ptr->disease) && !(p_ptr->disease & (DISEASE_DRAIN_HP))) regen_amount = 0;
 
 	if ((p_ptr->cur_flags3 & (TR3_DRAIN_HP)) != 0) regen_amount = 0;
 	if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) regen_amount = 0;
@@ -1308,7 +1308,24 @@ static void process_world(void)
 					/* Destroy a spell if discharged */
 					if (o_ptr->timeout) floor_item_increase(i, -1);
 					else if (o_ptr->stackc) floor_item_increase(i, -(o_ptr->stackc));
-					else floor_item_increase(i,-(o_ptr->number));
+					else
+					{
+						/* Was a terrain counter - note paranoia */
+						if ((o_ptr->ident & (IDENT_STORE)) && (o_ptr->pval > 0) && !(o_ptr->held_m_idx))
+						{
+							/* Message */
+							if (play_info[o_ptr->iy][o_ptr->ix] & (PLAY_MARK))
+							{
+								msg_format("The %s fades.", f_name + f_info[cave_feat[o_ptr->iy][o_ptr->ix]].name);
+							}
+
+							/* Revert to old feature */
+							cave_set_feat(o_ptr->iy, o_ptr->ix, o_ptr->pval);
+						}
+
+						/* Destroy remaining spells */
+						floor_item_increase(i,-(o_ptr->number));
+					}
 
 					floor_item_optimize(i);
 				}
@@ -1335,7 +1352,7 @@ static void process_world(void)
 	}
 
 	/*** Handle disease ***/
-	if (rand_int(300) < ((p_ptr->disease & (DISEASE_QUICK | DISEASE_LIGHT)) ? 3 : 1))
+	if ((p_ptr->disease) && (rand_int(300) < ((p_ptr->disease & (DISEASE_QUICK | DISEASE_LIGHT)) ? 3 : 1)))
 	{
 		u32b old_disease = p_ptr->disease;
 
@@ -1402,6 +1419,7 @@ static void process_world(void)
 				{
 					msg_print("You vomit up your food!");
 					(void)set_food(PY_FOOD_STARVE - 1);
+					disturb(0, 0);
 					break;
 				}
 
@@ -1510,15 +1528,16 @@ static void process_world(void)
 				case DISEASE_PARALYZE:
 				{
 					(void)set_paralyzed(p_ptr->paralyzed + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+					disturb(0,0);
 					break;
 				}
 
 				case DISEASE_STASTIS:
 				{
 					(void)set_stastis(p_ptr->stastis + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+					disturb(0,0);
 					break;
 				}
-
 			}
 
 			/* The player is going to suffer further */
@@ -1538,7 +1557,7 @@ static void process_world(void)
 				summon_race_type = parasite_hack[effect];
 
 				/* Drop lots of parasites */
-				for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 99, SUMMON_FRIEND);
+				for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 99, SUMMON_FRIEND, 0L);
 
 				/* Aggravate if not light */
 				if (!(p_ptr->disease & (DISEASE_LIGHT))) aggravate_monsters(-1);
@@ -1562,11 +1581,18 @@ static void process_world(void)
 				if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
 			}
 		}
-
-		/* Plagues mutate to get blows */
-		else if ((p_ptr->disease & (DISEASE_DISEASE)) && !(rand_int(3)))
+		
+		/* All diseases mutate to get blows if they have no effect currently*/
+		else if ((!rand_int(3)) && ((p_ptr->disease & ((1 << DISEASE_TYPES_HEAVY) -1 )) == 0))
 		{
-			p_ptr->disease |= (1 << rand_int(DISEASE_BLOWS));
+			if (p_ptr->disease & (DISEASE_HEAVY))
+			{
+				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+			}
+			else
+			{
+				p_ptr->disease |= (1 << rand_int(DISEASE_BLOWS));
+			}
 			if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
 		}
 
@@ -1579,12 +1605,6 @@ static void process_world(void)
 				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
 		}
 
-		/* Recurrence of heavy diseases if all symptoms treated */
-		if ((p_ptr->disease & (DISEASE_HEAVY)) && !(p_ptr->disease & ((1 << DISEASE_TYPES_HEAVY)-1)) && !(rand_int(10)))
-		{
-			p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-		}
-
 		/* The player is on the mend */
 		if ((p_ptr->disease & (DISEASE_LIGHT)) && !(rand_int(6)))
 		{
@@ -1592,6 +1612,8 @@ static void process_world(void)
 			p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
 
 			p_ptr->redraw |= (PR_DISEASE);
+			
+			if (disturb_state) disturb(0, 0);
 		}
 
 		/* Diseases? */
@@ -1599,7 +1621,7 @@ static void process_world(void)
 		{
 			char output[1024];
 
-			disease_desc(output, old_disease, p_ptr->disease);
+			disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
 
 			msg_print(output);
 
@@ -2598,6 +2620,9 @@ static void process_player_aux(void)
 }
 
 
+
+
+
 /*
  * Process the player
  *
@@ -2766,54 +2791,8 @@ static void process_player(void)
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
 
-		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
-		{
-			int item = INVEN_PACK;
-
-			char o_name[80];
-
-			object_type *o_ptr;
-
-			/* Get the slot to be dropped */
-			o_ptr = &inventory[item];
-
-			/* Disturbing */
-			disturb(0, 0);
-
-			/* Warning */
-			msg_print("Your pack overflows!");
-
-			/* Describe */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-			/* Message */
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
-
-			/* Forget about it */
-			inven_drop_flags(o_ptr);
-
-			/* Drop it (carefully) near the player */
-			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
-
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-
-			/* Notice stuff (if needed) */
-			if (p_ptr->notice) notice_stuff();
-
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
-
-			/* Window stuff (if needed) */
-			if (p_ptr->window) window_stuff();
-		}
-
+		/* Check for pack overflow */
+		overflow_pack();
 
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;

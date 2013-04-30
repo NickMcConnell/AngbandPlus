@@ -1250,7 +1250,7 @@ static void store_create(int store_index)
 
 			if (j >= st_ptr->stock_num)
 			{
-				k_idx = lookup_kind(st_ptr->tval[i],st_ptr->sval[i]);
+					k_idx = lookup_kind(st_ptr->tval[i],st_ptr->sval[i]);
 
 				if (k_idx) break;
 			}
@@ -3851,11 +3851,41 @@ int store_init(int feat)
 	store_type *st_ptr;
 	owner_type *ot_ptr;
 
+	/* Paranoia */
+	if (total_store_count >= max_store_count)
+	{
+		/* Oops */
+		msg_print("BUG: Maximum number of stores reached.");
+		
+		/* Hack -- access home instead */
+		return (0);
+	}
+
 	/* Make a new store */
 	C_MAKE(st_ptr, 1, store_type);
 
 	/* Copy basic store information to it */
 	COPY(st_ptr, &u_info[f_info[feat].power], store_type);
+
+	/* Hack -- ensure that school books are stocked */
+	if (p_ptr->pschool)
+	{
+		for (k = 0; k < STORE_CHOICES; k++)
+		{
+			int tval = st_ptr->tval[k];
+			
+			/* Check books */
+			if (((tval == c_info[p_ptr->pclass].spell_book)
+				|| ((tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK))
+				|| ((tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK))
+				|| ((tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)))
+				&& (st_ptr->sval[k] >= SV_BOOK_MAX_GOOD))
+			{
+				/* Use school book instead */
+				st_ptr->sval[k] += p_ptr->pschool - SV_BOOK_MAX_GOOD;
+			}
+		}
+	}
 
 	/* Assume full stock */
 	st_ptr->stock_size = STORE_INVEN_MAX;
