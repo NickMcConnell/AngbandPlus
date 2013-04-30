@@ -1953,7 +1953,7 @@ void check_experience(void)
 				}
 				
 				/* Queue tip */
-				queue_tip(format("begin%s.txt", p_ptr->max_lev));
+				queue_tip(format("begin%d.txt", p_ptr->max_lev));
 			}
 		}
 

@@ -540,7 +540,7 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 static bool check_hit(int power, int level, int who, bool ranged)
 {
 	int k, ac;
-	int blocking = 0;
+	int blocking = 10;
 
 	/* Object  */
 	object_type *o_ptr = &inventory[INVEN_ARM];

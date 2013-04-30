@@ -91,7 +91,7 @@ APPNAME = Unangband.app
 APPBNDL = ../$(APPNAME)
 
 # Version number (displayed)
-VERSION=0.6.3
+VERSION=0.6.4
 
 # A bundle must have these subdirectories
 APPCONT = $(APPBNDL)/Contents

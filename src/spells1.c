@@ -8846,8 +8846,16 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		/* Uniques may only be killed by the player */
-		if ((who > SOURCE_PLAYER_START) && (dam > m_ptr->hp)) dam = m_ptr->hp;
+		/* Friendly uniques get one free chance to avoid "insta-kills" if hp > 50% of racial average */
+		if (m_ptr->mflag & (MFLAG_ALLY))
+		{
+			if ((m_ptr->hp > r_ptr->hp / 2) && (dam > m_ptr->hp)) dam = m_ptr->hp;
+		}
+		/* Enemy uniques may only be killed by the player */
+		else if (who > SOURCE_PLAYER_START)
+		{
+			if (dam > m_ptr->hp) dam = m_ptr->hp;
+		}
 	}
 
 	/* Check healing first */

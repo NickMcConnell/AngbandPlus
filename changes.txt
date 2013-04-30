@@ -1,3 +1,15 @@
+
+
+- Prevent friendly uniques from being invulnerable to enemy attacks (Reported by Ashkir).
+
+
+Unangband 0.6.4 release
+
+"Once your variant gets a nowhere town, it will never leave" release aka "Wasn't this supposed to be out months ago?"
+
+Special thanks to all those who reported bugs and especially those who fixed them for this release. My
+apologies if I didn't get to your bug this time around.
+
 ### Game Play ###
 
 - Add low level spell to allow Masters to light rooms.
