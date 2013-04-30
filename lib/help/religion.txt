@@ -37,6 +37,7 @@ Presence. (The bonus also shows in your racial bonuses.)
 
 
 
+
 === The Goddesses are different in every game ===
 
 Deities grant either +3 to one ability, or +2 to one ability and +1 to second
@@ -72,6 +73,9 @@ Priests and Templars are experts at religious practices. If they drop any kind
 of torch on an altar, the goddess treats it as an ego item. If they offer an
 ego item, it is treated as an artifact.
 
+High-level characters of non-faery races that are blessed by at least one
+goddess gain access to Escapes points at levels 15 and 25. This is how the
+goddesses protect their favorites.
 
 
 === Becoming a permanent follower ===
@@ -91,10 +95,6 @@ is always +3 to both abilities, "PRE+++ STR+++".
 
 Please not that deities don't want their follower to make offerings to their
 enemies! Making offerings to friendly goddesses is good practise.
-
-
-
-
 
 
 

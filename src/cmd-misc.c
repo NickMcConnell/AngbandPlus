@@ -554,7 +554,7 @@ void do_cmd_open(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	}
 
 	/* Door */
@@ -721,7 +721,7 @@ void do_cmd_close(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	}
 
 	/* Door */
@@ -952,19 +952,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 				message(MSG_DIG, 0, "You have removed the rubble.");
 			}
 
-			/* Hack -- place an object */
-			if ((rand_int(100) < 10) && (!(decoration(y,x))))
-			{
-				/* Create a simple object */
-				place_object(y, x, FALSE, FALSE);
-
-				/* Observe new object */
-				if (player_can_see_bold(y, x))
-				{
-					message(MSG_DIG, 0, "You have found something!");
-				}
-			}
-
 			if decoration(y, x)
 			{
 				delete_trap(y , x);
@@ -1107,7 +1094,7 @@ void do_cmd_tunnel(void)
 	{
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	} */
 
 	/* Tunnel through walls */
@@ -1238,7 +1225,7 @@ void do_cmd_disarm(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	}
 
 	/* Disarm trap */
@@ -1421,7 +1408,7 @@ void do_cmd_bash(void)
 		message(MSG_FAIL, 0, "There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	}
 
 	/* Door */
@@ -1503,7 +1490,7 @@ void do_cmd_alter(void)
 	else if (cave_m_idx[y][x] > 0)
 	{
 		/* Attack */
-		py_attack(y, x, FALSE);
+		py_attack(y, x, FALSE, FALSE);
 	}
 
 	/* Open closed doors */
@@ -1813,7 +1800,7 @@ void do_cmd_proficiency(void)
 	}
 
 	/* Alertness */
-	else if ((ch == 'a') && (lore > 0))
+	else if ((ch == 'a') && (lore > 0) && (!(cp_ptr->flags & CF_FENCING)))
 	{
 		use_charge = do_power(POW_ALERTNESS, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;

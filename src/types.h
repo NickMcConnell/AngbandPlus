@@ -1212,7 +1212,7 @@ struct player_type
 	s16b fencing;		/* Ritual bonus to infravision */
 	s16b archery;		/* Ritual bonus to infravision */
 
-	s16b alertness;		/* Bonuses to AC, Saving Throw, and Perception when detecting traps and runes */
+	s16b alertness;		/* Bonuses to Saving Throw and Perception when detecting traps, runes, and invisible creatures */
 
 	s16b recall_y;		/* Recall coordinates to Circle of Recall */
 	s16b recall_x;

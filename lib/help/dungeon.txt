@@ -241,9 +241,10 @@ commands to use them.  A "<" represents a staircase leading back to surface,
 and a ">" represents a down staircase.  You must move your character over the
 staircase before you can use it.
 
-Note that down staircases found inside the dungeon allows you to descend up to three levels -- that's one level faster than if you visit the town first.
+Note that down staircases found inside the dungeon allows you to descend up
+to three levels -- that's one level faster than if you visit the town first.
 
-Each level has at least one down staircase and a 1/3 chance of an up
+Each level has at least one down staircase and a 2/7 chance of an up
 staircase. In addition, depending on your Mapping skill, you are sometimes
 able to map your way back to surface, which lets you start the dungeon level
 standing on an up stair. Stairs, like permanent walls, and shop entrances,
@@ -269,28 +270,21 @@ through.
 
 === Winning The Game ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
-dungeon, a magical staircase will appear that will allow you to finally reach
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be
-able to go below his level until you have killed him.  Try to avoid wandering
-around on level 100 unless you are ready for him, since he has a habit of
-coming at you across the dungeon, the Mighty Hammer 'Grond' in hand, to slay
-you for your impudence.
+The Thin White Duke lurks on the level 48 of the dungeon, and you will not
+be able to go below his level until you have killed him.
 
-Morgoth cannot be killed by some of the easier methods used on normal
-creatures.  Morgoth, like all other "Unique" monsters, will simply teleport
-away to another region of the level if you attempt to use a spell such as
-destruction is upon him.  Morgoth, like some other monsters, cannot be
-polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
-and Orb of Draining are effective against him, as are some of the more
-powerful weapons, but he is difficult to kill and if allowed to escape for
-a time he will heal himself rapidly.
+If you should actually succeed in the attempt of killing The Duke, you will
+receive the status of WINNER.
 
-If you should actually survive the attempt of killing Morgoth, you will
-receive the status of WINNER.  You may continue to explore, and may even
-save the game and play more later, but since you have defeated the toughest
-creature alive, there is really not much point.  Unless you wish to listen
-to the rumors of a powerful ring buried somewhere in the dungeon...
+Winners who have a low Minimum Depth will instantly get a big bonus multiplier
+to their experience points. In Halls of Mist, your score is equal to your
+experience points. The winner's bonus multiplier is calculated like this:
+
+((58 - Min Depth) * (58 - Min Depth)) / 100
+
+You may continue to explore, and may even save the game and play more later,
+, but there is really not much point. You stop gaining experience after
+winning, but you can still regain lost experience.
 
 When you are ready to retire, simply "commit suicide" (using the "Q" key)
 to have your character entered into the high score list as a winner.  Note

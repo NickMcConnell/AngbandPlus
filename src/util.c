@@ -3026,7 +3026,7 @@ bool get_check(cptr prompt)
 	message_flush();
 
 	/* Hack -- Build a "useful" prompt */
-	strnfmt(buf, sizeof(buf), "%.70s[y/n] ", prompt);
+	strnfmt(buf, sizeof(buf), "%.70s[Y/n] ", prompt);
 
 	/* Prompt for it */
 	prt(buf, 0, 0);
@@ -3045,7 +3045,7 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
+	if ((ch != 'Y') && (ch != 'y') && (ch != '\r')) return (FALSE);
 
 	/* Success */
 	return (TRUE);

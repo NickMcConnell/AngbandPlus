@@ -35,8 +35,8 @@ mation about any command, consult the help file "cmddesc.txt".
  p  Use a proficiency                    P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Toggle search mode
- t  Take off equipment                   T  Dig a tunnel
+ s  (unused)                             S  (unused)
+ t  Take off equipment                   T  Tunnel rubble/Topple a tree
  u  Use a staff                          U  Use racial ability
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
@@ -94,7 +94,7 @@ mation about any command, consult the help file "cmddesc.txt".
  p  Use a proficiency                    P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Invoke a Talisman
+ s  (unused)                             S  Invoke a Talisman
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
@@ -104,7 +104,7 @@ mation about any command, consult the help file "cmddesc.txt".
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (alter - south west)
- #  Toggle search mode                  ^C  (special - break)
+ #  (unused)                            ^C  (special - break)
  $  Mix potions                         ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
@@ -121,7 +121,7 @@ mation about any command, consult the help file "cmddesc.txt".
  +  Alter grid                          ^Q  Show current quest information
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  Dig a Tunnel
+ :  Take notes                          ^T  Tunnel rubble/Topple a tree
  '  (unused)                            ^U  (alter - north east)
  "  Enter a user pref command           ^V  Repeat last command
  ,  Run                                 ^W  (unused)

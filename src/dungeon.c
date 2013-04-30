@@ -378,8 +378,8 @@ static void process_world(void)
 	/* Regeneration ability */
 	if (p_ptr->regenerate) regen_amount = regen_amount * 2;
 	
-	/* Searching or Resting */
-	if (p_ptr->searching || p_ptr->resting)	regen_amount = regen_amount * 2;
+	/* Resting
+	if (p_ptr->resting) regen_amount = regen_amount * 2; */
 
 	/* Regenerate the mana  - Stunning interferes with mana regeneration*/
 	if ((p_ptr->csp < p_ptr->msp) && !p_ptr->stun)
@@ -831,14 +831,12 @@ static void process_command(void)
 		case '-': do_cmd_jump(); break;					/* Jump */
 		case '_': do_cmd_store(); break;				/* Enter store */
 
-		/*** Running, Resting, Searching, Staying */
+		/*** Running, Resting, Staying */
 
 		case '.': do_cmd_run();	break; 					/* Begin Running -- Arg is Max Distance */
 		case ',': do_cmd_hold(); break;					/* Hold still */
 		case 'g': do_cmd_stay(); break;					/* Stay still */
 		case 'R': do_cmd_rest(); break;					/* Rest -- Arg is time */
-		case 's': do_cmd_search(); break;				/* Search for traps/doors */
-		case 'S': do_cmd_toggle_search(); break;		/* Toggle search mode */
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
@@ -1617,7 +1615,7 @@ static void dungeon(void)
 	}
 
 	/* If min depth > 48, you lose the game */
-	if (p_ptr->min_depth > 48)
+	if ((p_ptr->min_depth > 48) && (!p_ptr->total_winner))
 	{
 		message(MSG_GENERIC, 0, "The Thin White Duke takes over Thornwild! You have lost the game.");
 

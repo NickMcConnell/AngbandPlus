@@ -9,13 +9,14 @@ down a staircase.
 
 === Reserves and Escapes ===
 
-Reserves accumulate as you gain levels. Escapes accumulate in the same way, but only for the faery races (Elf, Dwarf, Gnome).
+Reserves accumulate as you gain levels. Escapes accumulate in the same way, but only for the faery races (Elf, Dwarf, Gnome). Non-faeries that are blessed by at least one goddess gain access to some Escapes points at higher levels.
 
-LEVEL	RESERVES	LEVEL	ESCAPES
+				ESCAPES    ESCAPES
+LEVEL	RESERVES	LEVEL   FAERY      BLESSED
 10	1		5	1
-20	2		15	2
+20	2		15	2          1
 30	3		25	3
-40	4		35	4
+40	4		35	4          2
 50	5		45	5
 
 
@@ -50,9 +51,9 @@ Lore points and available proficiencies are derived from your Intelligence and
 Wisdom. As you can see in the table, INT+WIS 20+ gives you access to Common
 Lore, with two proficiencies:
 
-  ALERTNESS grants +4 to armour class, +10 to saving throw, and +25 to finding
-  traps and warding runes and to noticing invisible creatures next to you. The
-  bonuses last until you leave the dungeon level.
+  ALERTNESS grants +15 to saving throw and +30 to finding traps and runes and
+  to noticing invisible creatures next to you. The bonuses last until you leave
+  the dungeon level.
  
   IDENTIFY.
 

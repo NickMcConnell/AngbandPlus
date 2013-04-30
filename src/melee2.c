@@ -4257,7 +4257,7 @@ static void monster_action(int m_idx)
 					{
 						case WG_WARD_SLUMBER_ACTIVE_HIDDEN:
 						{
-							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_SLUMBER_ACTIVE);
+							if (m_ptr->ml) place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_SLUMBER_ACTIVE);
 							/* Fall through */
 						}
 						case WG_WARD_SLUMBER_ACTIVE:
@@ -4290,7 +4290,7 @@ static void monster_action(int m_idx)
 						}
 						case WG_WARD_TERROR_ACTIVE_HIDDEN:
 						{
-							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_TERROR_ACTIVE);
+							if (m_ptr->ml) place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_TERROR_ACTIVE);
 							/* Fall through */
 						}
 						case WG_WARD_TERROR_ACTIVE:
@@ -4330,7 +4330,7 @@ static void monster_action(int m_idx)
 						}
 						case WG_WARD_CHANGE_ACTIVE_HIDDEN:
 						{
-							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CHANGE_ACTIVE);
+							if (m_ptr->ml) place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CHANGE_ACTIVE);
 							/* Fall through */
 						}
 						case WG_WARD_CHANGE_ACTIVE:
@@ -4346,7 +4346,10 @@ static void monster_action(int m_idx)
 							}
 							else
 							{
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes. %^s changes!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes. %^s changes!", m_name);
+								}
 
 								/* Pick a "new" monster race */
 								int tmp = poly_r_idx(m_ptr->r_idx, dam);
@@ -4370,7 +4373,7 @@ static void monster_action(int m_idx)
 						}
 						case WG_WARD_DEATH_ACTIVE_HIDDEN:
 						{
-							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_DEATH_ACTIVE);
+							if (m_ptr->ml) place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_DEATH_ACTIVE);
 							/* Fall through */
 						}
 						case WG_WARD_DEATH_ACTIVE:
@@ -4413,7 +4416,7 @@ static void monster_action(int m_idx)
 						}
 						case WG_WARD_CURSING_ACTIVE_HIDDEN:
 						{
-							place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CURSING_ACTIVE);
+							if (m_ptr->ml) place_decoration(ny+(y_add * distance), nx+(x_add * distance), WG_WARD_CURSING_ACTIVE);
 							/* Fall through */
 						}
 						case WG_WARD_CURSING_ACTIVE:

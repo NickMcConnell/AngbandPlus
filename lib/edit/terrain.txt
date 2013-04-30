@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:1.2.1
+V:1.2.3
 
 # 0x00 --> <darkness>
 

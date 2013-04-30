@@ -1339,19 +1339,107 @@ int generate_fill_table(int y1, int x1, int y2, int x2)
 	/* Draw a 2x5 altar, with two possible shapes */
 	else if ((success == 2) && (rand_int(100) < 50))
 	{
-		place_decoration(y1+1, x1+2, WG_ALTAR_OBSESSION + rand_int(5));
-		place_decoration(y1+1, x1, WG_STATUE);
-		place_decoration(y1, x1+1, WG_STATUE);
-		place_decoration(y1, x2-1, WG_STATUE);
-		place_decoration(y1+1, x2, WG_STATUE);
+		/* Statues of winners that followed the goddesses near altars */
+		switch (randint(5))
+		{
+			case 1:
+			{
+				place_decoration(y1+1, x1+2, WG_ALTAR_OBSESSION);
+				place_decoration(y1+1, x1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE);
+				place_decoration(y1, x2-1, WG_STATUE);
+				place_decoration(y1+1, x2, WG_STATUE);
+				break;
+			}
+			case 2:
+			{
+				place_decoration(y1+1, x1+2, WG_ALTAR_CONFLICT);
+				place_decoration(y1+1, x1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE_FLASHBACK);
+				place_decoration(y1, x2-1, WG_STATUE);
+				place_decoration(y1+1, x2, WG_STATUE);
+				break;
+			}
+			case 3:
+			{
+				place_decoration(y1+1, x1+2, WG_ALTAR_PURITY);
+				place_decoration(y1+1, x1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE);
+				place_decoration(y1, x2-1, WG_STATUE);
+				place_decoration(y1+1, x2, WG_STATUE);
+				break;
+			}
+			case 4:
+			{
+				place_decoration(y1+1, x1+2, WG_ALTAR_TRANSFORMATION);
+				place_decoration(y1+1, x1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE);
+				place_decoration(y1, x2-1, WG_STATUE);
+				place_decoration(y1+1, x2, WG_STATUE);
+				break;
+			}
+			case 5:
+			{
+				place_decoration(y1+1, x1+2, WG_ALTAR_DECEIT);
+				place_decoration(y1+1, x1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE);
+				place_decoration(y1, x2-1, WG_STATUE);
+				place_decoration(y1+1, x2, WG_STATUE);
+				break;
+			}
+		}
 	}
 	else if (success == 2)
 	{
-		place_decoration(y1, x1+2, WG_ALTAR_OBSESSION + rand_int(5));
-		place_decoration(y1, x1, WG_STATUE);
-		place_decoration(y1+1, x1+1, WG_STATUE);
-		place_decoration(y1+1, x2-1, WG_STATUE);
-		place_decoration(y1, x2, WG_STATUE);
+		/* Statues of winners that followed the goddesses near altars */
+		switch (randint(5))
+		{
+			case 1:
+			{
+				place_decoration(y1, x1+2, WG_ALTAR_OBSESSION);
+				place_decoration(y1, x1, WG_STATUE);
+				place_decoration(y1+1, x1+1, WG_STATUE);
+				place_decoration(y1+1, x2-1, WG_STATUE);
+				place_decoration(y1, x2, WG_STATUE);
+				break;
+			}
+			case 2:
+			{
+				place_decoration(y1, x1+2, WG_ALTAR_CONFLICT);
+				place_decoration(y1, x1, WG_STATUE);
+				place_decoration(y1+1, x1+1, WG_STATUE);
+				place_decoration(y1+1, x2-1, WG_STATUE_FLASHBACK);
+				place_decoration(y1, x2, WG_STATUE);
+				break;
+			}
+			case 3:
+			{
+				place_decoration(y1, x1+2, WG_ALTAR_PURITY);
+				place_decoration(y1, x1, WG_STATUE);
+				place_decoration(y1+1, x1+1, WG_STATUE);
+				place_decoration(y1+1, x2-1, WG_STATUE);
+				place_decoration(y1, x2, WG_STATUE);
+				break;
+			}
+			case 4:
+			{
+				place_decoration(y1, x1+2, WG_ALTAR_TRANSFORMATION);
+				place_decoration(y1, x1, WG_STATUE);
+				place_decoration(y1+1, x1+1, WG_STATUE);
+				place_decoration(y1+1, x2-1, WG_STATUE);
+				place_decoration(y1, x2, WG_STATUE);
+				break;
+			}
+			case 5:
+			{
+				place_decoration(y1, x1+2, WG_ALTAR_DECEIT);
+				place_decoration(y1, x1, WG_STATUE);
+				place_decoration(y1+1, x1+1, WG_STATUE);
+				place_decoration(y1+1, x2-1, WG_STATUE);
+				place_decoration(y1, x2, WG_STATUE);
+				break;
+			}
+		}
 	}
 
 	/* Draw the table */
@@ -3365,6 +3453,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 			/* Analyze the grid */
 			switch (*t)
 			{
+				/* Door */
+				case '+':
+				{
+					cave_set_feat(y, x, FEAT_CLOSED);
+					break;
+				}
+
 				/* Granite wall (outer) */
 				case '%':
 				{
@@ -3379,17 +3474,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-				/* Permanent wall (inner) */
+				/* Granite wall (inner) (this used to be permanent wall) */
 				case 'X':
 				{
-					cave_set_feat(y, x, FEAT_PERM_INNER);
-					break;
-				}
-
-				/* Secret doors */
-				case '+':
-				{
-					place_closed_door(y, x);
+					cave_set_feat(y, x, FEAT_WALL_INNER);
 					break;
 				}
 
@@ -3491,8 +3579,8 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '~':
 				{
 					place_chest(y, x);
+					break;
 				}
-
 			}
 		}
 	}
@@ -3801,7 +3889,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		{
 			for (xx = tmp_col - 6; xx < tmp_col + 7; xx++)
 			{
-				if (cave_feat[yy][xx] == FEAT_CLOSED)
+				/* Don't remove doors in vaults */
+				if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
 				{
 					delete_trap(yy, xx);
 					cave_set_feat(yy, xx, FEAT_WALL_OUTER);
@@ -3861,7 +3950,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			{
 				for (xx = x - 6; xx < x + 7; xx++)
 				{
-					if (cave_feat[yy][xx] == FEAT_CLOSED)
+					if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
 					{
 						delete_trap(yy, xx);
 						cave_set_feat(yy, xx, FEAT_WALL_OUTER);
@@ -4157,7 +4246,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		{
 			for (xx = x - 6; xx < x + 7; xx++)
 			{
-				if (cave_feat[yy][xx] == FEAT_CLOSED)
+				if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
 				{
 					delete_trap(yy, xx);
 					cave_set_feat(yy, xx, FEAT_WALL_OUTER);
@@ -5099,8 +5188,8 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_MORE, rand_range(2, 2), 7);
 
 	/* Place up stairs near some walls
-	   Less up stairs in FayAngband */
-	if ((1 > rand_int(3)) || ((quest_check(p_ptr->depth) == QUEST_FIXED) || (quest_check(p_ptr->depth) == QUEST_FIXED_U)))
+	   Less up stairs in Halls of Mist */
+	if ((3 > rand_int(10)) || ((quest_check(p_ptr->depth) == QUEST_FIXED) || (quest_check(p_ptr->depth) == QUEST_FIXED_U)))
 	{
 		alloc_stairs(FEAT_LESS, rand_range(1, 1), 7);
 	}

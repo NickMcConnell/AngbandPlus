@@ -66,6 +66,9 @@ static start_item start_kit[5] =
 
 static int w_choice[18][2] =
 {
+	{TV_BLUNT, SV_FLAIL}, 
+	{TV_POLEARM, SV_BROAD_AXE},
+	{TV_BLUNT, SV_BULLWHIP}, 
 	{TV_SWORD, SV_DAGGER},
 	{TV_POLEARM, SV_HATCHET}, 
 	{TV_BLUNT, SV_CLUB},
@@ -74,17 +77,14 @@ static int w_choice[18][2] =
 	{TV_BLUNT, SV_QUARTERSTAFF},
 	{TV_BLUNT, SV_MACE},
 	{TV_POLEARM, SV_LONGSPEAR},
-	{TV_BLUNT, SV_FLAIL}, 
-	{TV_POLEARM, SV_BROAD_AXE},
 	/* Weapons available to classes with WEAPON_GOOD */
-	{TV_BLUNT, SV_BULLWHIP}, 
+	{TV_POLEARM, SV_GLAIVE},
+	{TV_SWORD, SV_TWO_HANDED_SWORD},
 	{TV_POLEARM, SV_AWL_PIKE}, 
 	{TV_SWORD, SV_BROAD_SWORD},
 	{TV_SWORD, SV_LONG_SWORD}, 
 	{TV_SWORD, SV_BASTARD_SWORD},
-	{TV_BLUNT, SV_MORNING_STAR},
-	{TV_POLEARM, SV_GLAIVE},
-	{TV_SWORD, SV_TWO_HANDED_SWORD} 
+	{TV_BLUNT, SV_MORNING_STAR}
 };
 
 /*
@@ -184,6 +184,7 @@ static void get_stats(void)
 {
 	int i;
 	int j = 0;
+	int x = 0;
 
 	int dice[18];
 
@@ -198,6 +199,26 @@ static void get_stats(void)
 
 			/* Collect the maximum */
 			j += dice[i];
+		}
+
+		/* Roll the stats */
+		for (x = 0; x < A_MAX; x++)
+		{
+			/* Extract 2 + 1d3 + 1d4 + 1d5 */
+			stat_use[x] = 2 + dice[3 * x] + dice[3 * x + 1] + dice[3 * x + 2];
+		}
+
+		/* Reroll if the spell stat is lower than the other Wit stat */
+		if (cp_ptr->spell_stat1 == cp_ptr->spell_stat2)
+		{
+			if (cp_ptr->spell_stat1 == 1)
+			{
+				if (stat_use[2] > stat_use[1]) j = 0;
+			}
+			if (cp_ptr->spell_stat1 == 2)
+			{
+				if (stat_use[1] > stat_use[2]) j = 0;
+			}
 		}
 	}
 
@@ -748,8 +769,8 @@ static void player_outfit(void)
 		int last;
 
 		/* Do the entire list? */
-		if (cp_ptr->flags & CF_WEAPON_GOOD)	last = 18;
-		else last = 10;
+		if (cp_ptr->flags & CF_WEAPON_GOOD) last = 18;
+		else last = 11;
 
 		/* Find the best weapon for the player */
 		for (i = 0; i < last; i++)
@@ -1056,11 +1077,11 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			screen_load();
 		}
 
-		/* Options */
+		/* Options
 		else if (c == '=')
 		{
 			options_birth_menu(TRUE);
-		}
+		} */
 
 		/* Invalid input */
 		else bell("Illegal response to question!");
@@ -1293,16 +1314,16 @@ static bool player_birth_aux_1(void)
 	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
 	            "menu item, '*' for a random menu item, 'ESC' to restart the character");
 	Term_putstr(QUESTION_COL, INSTRUCT_ROW + 2, -1, TERM_WHITE,
-	            "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
+	            "selection, '?' for help, or 'Ctrl-X' to quit.");
 
 	/* Hack - highlight the key names */
 	Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, - 1, TERM_L_GREEN, "movement keys");
 	Term_putstr(QUESTION_COL + 42, INSTRUCT_ROW, - 1, TERM_L_GREEN, "Enter");
 	Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "*");
 	Term_putstr(QUESTION_COL + 40, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "ESC");
-	Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "=");
-	Term_putstr(QUESTION_COL + 39, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
-	Term_putstr(QUESTION_COL + 56, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
+	/* Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "="); */
+	Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
+	Term_putstr(QUESTION_COL + 29, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
 
 	/* Choose the player's sex */
 	if (!get_player_sex()) return (FALSE);

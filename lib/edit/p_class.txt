@@ -91,7 +91,7 @@
 
 # Version stamp (required)
 
-V:1.2.1
+V:1.2.3
 
 N:0:Warrior
 S:3:-2:-1:2:1:-2

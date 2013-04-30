@@ -82,6 +82,7 @@ You make Jumping skill checks to:
 
 - hop on a table or platform
 - hop over bushes
+- deal double damage when charging at a monster with a large weapon
 - dodge thrown weapons and missiles (but not magical bolts)
 - avoid theft
 - avoid some traps

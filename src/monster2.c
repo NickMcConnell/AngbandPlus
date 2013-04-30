@@ -1272,6 +1272,9 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y2;
 		p_ptr->px = x2;
 
+		/* Search */
+		search();
+
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
 

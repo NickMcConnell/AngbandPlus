@@ -771,25 +771,25 @@ void do_cmd_options(void)
 		prt("(5) Efficiency Options", 8, 5);
 
 		/* Special menus */
-		prt("(B) Birth/Difficulty Options", 10, 5);
-		prt("(C) Cheat Options", 11, 5);
+		/* prt("(B) Birth/Difficulty Options", 10, 5); */
+		prt("(C) Cheat Options", 10, 5);
 
 		/* Squelch menus */
-		prt("(I) Item Squelch Menus", 13, 5);
+		prt("(I) Item Squelch Menus", 12, 5);
 
 		/* Other choices */
-		prt("(D) Base Delay Factor", 14, 5);
-		prt("(H) Hitpoint Warning", 15, 5);
+		prt("(D) Base Delay Factor", 13, 5);
+		prt("(H) Hitpoint Warning", 14, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 16, 5);
+		prt("(W) Window flags", 15, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 18, 5);
-		prt("(A) Append options to a file", 19, 5);
+		prt("(L) Load a user pref file", 17, 5);
+		prt("(A) Append options to a file", 18, 5);
 
 		/* Prompt */
-		prt("Command: ", 21, 0);
+		prt("Command: ", 20, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -833,11 +833,11 @@ void do_cmd_options(void)
 			do_cmd_options_aux(5, "Cheat Options", OPT_TYPE_CHEAT);
 		}
 
-		/* Birth Options */
+		/* Birth Options
 		else if ((ch == 'B') || (ch == 'b'))
 		{
 			options_birth_menu(FALSE);
-		}
+		} */
 
 		/* Window flags */
 		else if ((ch == 'W') || (ch == 'w'))

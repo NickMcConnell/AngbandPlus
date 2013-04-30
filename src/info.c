@@ -547,7 +547,7 @@ static void display_player_skill_info(void)
 	{
 		int perception = xskill[SK_PER];
 		if (perception > 100) perception = 100;
-		int alert = xskill[SK_PER] + (p_ptr->alertness * 25);
+		int alert = xskill[SK_PER] + (p_ptr->alertness * 30);
 		if (alert > 100) alert = 100;
 		desc = likert(perception, 5);
 		c_put_str(likert_color, format("%3d%% (%2d%%)", perception, alert), 18, col+12);
@@ -2387,6 +2387,8 @@ void analyze_weapon(const object_type *o_ptr)
 	else text_out(" vs. any monster.\n"); 
 
 	text_out("\nIf you have more than one enemy in melee range, you will attack one extra monster at random.\n");
+
+	if (object_weight(o_ptr) >= 170) text_out("\nThis large weapon may be used for charge attacks.  After you move, if there is a monster right in front of you, you get to swing at it once.  You can't charge at previously unseen or scared monsters.  If you hit and succeed in a Jumping skill check, the assault deals double damage.\n");
 
 	/* Ambush chance */
 	int ambush_remainder = 0;

@@ -351,7 +351,7 @@ info_entry power_info[POW_MAX] =
 	{POW_OIL_LANTERN,		"restores 5000 light units"},
 	{POW_OIL_BURNING,		"restores 15000 light units"},
 	{POW_SHIFT,			"teleports you a short distance a way to the chosen direction"},
-	{POW_ALERTNESS,			"boosts your armour class, saving throw, and trap detection"},
+	{POW_ALERTNESS,			"gives bonus to saving throw and noticing traps and invisible creatures"},
 	{POW_CAVE_LORE,			"detects traps in the direction of your choice"},
 	{POW_DUNGEON_LORE,		"detects all nearby dungeon features and helps your next Mapping attempt"},
 	{POW_ANALYSE_ITEM,		"if you succeed, reveals all information about a specific object"},
@@ -1538,7 +1538,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_EARTHQUAKE:
 		{
-			earthquake(p_ptr->py, p_ptr->px, 10);
+			earthquake(p_ptr->py + randint(5) - 3, p_ptr->px + randint(5) - 3, 10);
 			*obvious = TRUE;
 			break;
 		}

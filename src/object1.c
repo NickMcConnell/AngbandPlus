@@ -2658,6 +2658,10 @@ static bool get_item_allow(int item)
 
 	object_type *o_ptr;
 
+	/* Always allow "safe" commands */
+	if (p_ptr->command_cmd == 'I') return TRUE;
+	if (p_ptr->command_cmd == 'b') return TRUE;
+
 	/* Inventory */
 	if (item >= 0) o_ptr = &inventory[item];
 	/* Floor */

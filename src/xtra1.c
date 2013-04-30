@@ -469,7 +469,7 @@ static void prt_exp_bar(void)
 
 	/* Experience bar on the bottom of the screen */
 	/* len = Term->wid - 80; */
-	len = 6;
+	len = 10;
 
 	if (len > 1)
 	{
@@ -584,11 +584,11 @@ static void prt_poisoned(void)
 {
 	if (p_ptr->poisoned)
 	{
-		c_put_str(TERM_ORANGE, "Poisoned", ROW_POISONED, COL_POISONED);
+		c_put_str(TERM_ORANGE, "Poison", ROW_POISONED, COL_POISONED);
 	}
 	else
 	{
-		put_str("        ", ROW_POISONED, COL_POISONED);
+		put_str("      ", ROW_POISONED, COL_POISONED);
 	}
 }
 
@@ -720,12 +720,6 @@ static void prt_state(void)
 		}
 	}
 
-	/* Searching */
-	else if (p_ptr->searching)
-	{
-		strcpy(text, "Searching");
-	}
-
 	/* Nothing interesting */
 	else
 	{
@@ -745,9 +739,6 @@ static void prt_speed(void)
 
 	byte attr = TERM_WHITE;
 	char buf[32] = "";
-
-	/* Hack -- Visually "undo" the Search Mode Slowdown */
-	if (p_ptr->searching) i += 10;
 
 	/* Fast */
 	if (i > 110)
@@ -771,11 +762,11 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str(format("Study (%d) ",p_ptr->new_spells), ROW_STUDY, COL_STUDY);
+		put_str(format("Study %d ",p_ptr->new_spells), ROW_STUDY, COL_STUDY);
 	}
 	else
 	{
-		put_str("          ", ROW_STUDY, COL_STUDY);
+		put_str("        ", ROW_STUDY, COL_STUDY);
 	}
 }
 
@@ -2486,7 +2477,14 @@ static void calc_bonuses(void)
 	{
 		p_ptr->escapes = (p_ptr->lev + 5) / 10;
 	}
-	else p_ptr->escapes = 0;
+	/* Non-faeries that are blessed by at least one goddess gain Escapes points at levels 15 and 25. */
+	else if ((p_ptr->obsession_status < 2) && (p_ptr->conflict_status < 2) && (p_ptr->purity_status < 2) &&
+		(p_ptr->transformation_status < 2) && (p_ptr->deceit_status < 2)) p_ptr->escapes = 0;
+	else if (!(p_ptr->taint))
+	{
+		if (p_ptr->lev >= 25) p_ptr->escapes = 2;
+		else if (p_ptr->lev >= 15) p_ptr->escapes = 1;
+	}
 
 	/* If not tainted, apply deity bonuses */
 	if (!(p_ptr->taint))
@@ -2976,10 +2974,8 @@ static void calc_bonuses(void)
 	/* Alertness */
 	if (p_ptr->alertness)
 	{
-		/* Each point of Alertness also gives a +25 bonus to Perception when detecting traps & runes */
-		p_ptr->to_a += p_ptr->alertness * 4;
-		p_ptr->dis_to_a += p_ptr->alertness * 4;
-		p_ptr->skill[SK_SAV] += p_ptr->alertness * 10;
+		/* Each point of Alertness also gives a +30 bonus to Perception when detecting traps & runes */
+		p_ptr->skill[SK_SAV] += p_ptr->alertness * 15;
 	}
 
 	/* Temporary "fast" */
@@ -3086,9 +3082,6 @@ static void calc_bonuses(void)
 
 	/* Apply "encumbrance" from weight */
 	if (j > i / 2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
-
-	/* Searching slows the player down */
-	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
 	/* Sanity check on extreme speeds */
 	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;

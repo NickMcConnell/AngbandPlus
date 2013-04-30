@@ -408,7 +408,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Cut the monster */
 		if (r_ptr->flags3 & (RF3_NO_CUT)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
-		else if (rand_int(100) >= r_ptr->level)
+		else if (rand_int(70) >= r_ptr->level)
 		{
 			/* Already partially poisoned */
 			if (m_ptr->bleeding) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s is bleeding more strongly.", m_name);
@@ -426,7 +426,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Poison the monster */
 		if (r_ptr->flags3 & (RF3_RES_POIS)) lore_learn(m_ptr, LRN_FLAG3, RF3_RES_POIS, FALSE);
-		else if (rand_int(100) >= r_ptr->level)
+		else if (rand_int(70) >= r_ptr->level)
 		{
 			/* Already partially poisoned */
 			if (m_ptr->poisoned) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s is more poisoned.", m_name);
@@ -444,14 +444,14 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Blind the monster */
 		if (r_ptr->flags3 & (RF3_NO_BLIND)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_BLIND, FALSE);
-		else if (rand_int(100) >= r_ptr->level)
+		else if (rand_int(50) >= r_ptr->level)
 		{
 			/* Already partially blinded */
 			if (m_ptr->blinded) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears more blinded.", m_name);
 			/* Was not blinded */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears blinded.", m_name);
 
-			tmp = m_ptr->blinded + 1 + dam/3 + rand_int(dam)/3;
+			tmp = m_ptr->blinded + 1 + dam/4 + rand_int(dam)/4;
 
 			m_ptr->blinded = (tmp < 200) ? tmp : 200;
 
@@ -463,7 +463,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Stun the monster */
 		if (r_ptr->flags3 & (RF3_NO_STUN)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_STUN, FALSE);
-		else if (rand_int(100) >= r_ptr->level)
+		else if (rand_int(70) >= r_ptr->level)
 		{
 			/* Already partially stunned */
 			if (m_ptr->stunned) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears more dazed.", m_name);
@@ -481,7 +481,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Confuse the monster */
 		if (r_ptr->flags3 & (RF3_NO_CONF)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CONF, FALSE);
-		else if (rand_int(100) >= r_ptr->level)
+		else if (rand_int(60) >= r_ptr->level)
 		{
 			/* Already partially confused */
 			if (m_ptr->confused) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears more confused.", m_name);
@@ -962,7 +962,7 @@ void create_shelf_item(int y, int x, int theme)
 /*
  * Search for hidden things
  */
-static void search(void)
+void search(void)
 {
 	int x, y;
 	int skill;
@@ -990,7 +990,7 @@ static void search(void)
 				if ((!t_ptr->visible) && (t_ptr->spot_factor == 1) && (trap_detectable(y, x)))
 				{
 					/* Alertness helps when detecting traps and runes */
-					if (rand_int(100) < skill + (p_ptr->alertness * 25))
+					if (rand_int(100) < skill + (p_ptr->alertness * 30))
 					{
 						/* Discover invisible traps */
 
@@ -1026,7 +1026,7 @@ static void search(void)
 				if (t_ptr->spot_factor == 1)
 				{
 					/* Alertness helps when detecting traps and runes */
-					if (rand_int(100) < skill + (p_ptr->alertness * 25))
+					if (rand_int(100) < skill + (p_ptr->alertness * 30))
 					{
 						place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx - 30);
 
@@ -1713,9 +1713,8 @@ static void py_pickup(int pickup)
 /*
  * Attack the monster at the given location
  *
- * If no "weapon" is available, then "punch" the monster one time.
  */
-void py_attack(int y, int x, bool show_monster_name)
+void py_attack(int y, int x, bool show_monster_name, bool charge)
 {
 	int num = 0;
 	int k, chance;
@@ -1734,6 +1733,20 @@ void py_attack(int y, int x, bool show_monster_name)
 	bool do_quake = FALSE;
 	bool deadly_crit = FALSE;
 	bool ambush = FALSE;
+
+	/* Can't charge at monsters in walls */
+	if ((charge) && (!cave_floor_bold(y, x))) return;
+
+	/* Can't charge at unseen monsters */
+	if ((charge) && (!m_ptr->ml)) return;
+	if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
+
+	/* Confirm charging at sleeping or calmed monsters */
+	if ((charge) && (m_ptr->sleep) && (!get_check("Charge at a sleeping monster? "))) return;
+	if ((charge) && (m_ptr->calmed) && (!get_check("Charge at a calmed monster? "))) return;
+
+	/* Can't charge at scared monsters (they're expecting it) */
+	if ((charge) && (m_ptr->monfear)) return;
 
 	/* Disturb the player */
 	disturb(0);
@@ -1802,12 +1815,15 @@ void py_attack(int y, int x, bool show_monster_name)
 	/* Number of blows */
 	int blows = p_ptr->num_blow;
 
-	/* Fencing proficiency gives an extra blows against visible person or humanoid */
+	/* Fencing proficiency gives an extra blows against visible person or humanoid (if not charging) */
 	if ((m_ptr->ml) && (o_ptr->tval == TV_SWORD))
 	{
 		if (r_ptr->flags4 & (RF4_PERSON)) blows += p_ptr->fencing;
 		if (r_ptr->flags4 & (RF4_HUMANOID)) blows += p_ptr->fencing;
 	}
+
+	/* You only get one attack if charging */
+	if (charge) blows = 1;
 
 	/* Attack once for each legal blow */
 	while (num++ < blows)
@@ -1833,8 +1849,17 @@ void py_attack(int y, int x, bool show_monster_name)
 
 		if (critical_hit_chance >= 0)
 		{
+			/* Roll damage */
+			k = damroll(p_ptr->dd, p_ptr->ds);
+
+			/* If charging and the player makes a Jumping check, double damage */
+			if ((charge) && (rand_int(100) < p_ptr->skill[SK_MOB]))
+			{
+				k = k * 2;
+				message_format(MSG_HIT, m_ptr->r_idx, "Assault for double damage!", m_name);
+			}
 			/* Long message for invisible monsters */
-			if (!m_ptr->ml)
+			else if (!m_ptr->ml)
 			{
 				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 			}
@@ -1850,9 +1875,6 @@ void py_attack(int y, int x, bool show_monster_name)
 
 			/* Don't repeat the monster name */
 			show_monster_name = FALSE;
-
-			/* Roll damage */
-			k = damroll(p_ptr->dd, p_ptr->ds);
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
@@ -2224,9 +2246,9 @@ static void move_player(int dir, int jumping)
 			{
 				message(MSG_HITWALL, 0, "You could not attack because of your bad position.");
 			}
-			else py_attack(y, x, FALSE);
+			else py_attack(y, x, FALSE, FALSE);
 		}
-		else py_attack(y, x, FALSE);
+		else py_attack(y, x, FALSE, FALSE);
 
 		int extra_y = 0;
 		int extra_x = 0;
@@ -2279,9 +2301,9 @@ static void move_player(int dir, int jumping)
 					{
 						message(MSG_HITWALL, 0, "You could not attack because of your bad position.");
 					}
-					else py_attack(extra_y, extra_x, TRUE);
+					else py_attack(extra_y, extra_x, TRUE, FALSE);
 				}
-				else py_attack(extra_y, extra_x, TRUE);
+				else py_attack(extra_y, extra_x, TRUE, FALSE);
 
 				wild_melee = 0;
 				calmed_monsters = 0;
@@ -2405,11 +2427,35 @@ static void move_player(int dir, int jumping)
 		y = p_ptr->py;
 		x = p_ptr->px;
 
-		/* Spontaneous Searching -- now automatic */
-		search();
+		object_type *o_ptr;
+		o_ptr = &inventory[INVEN_WIELD];
 
-		/* Continuous Searching */
-		if (p_ptr->searching) search();
+		/* Find the square where you the player would charge to */
+		int charge_y = y + ddy[dir];
+		int charge_x = x + ddx[dir];
+
+		/* Is the player now standing on a table, a platform, or an altar? */
+		high_ground = FALSE;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_TABLE) high_ground = TRUE;
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_PLATFORM) high_ground = TRUE;
+		if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) &&
+			(t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT)) high_ground = TRUE;
+
+		/* If the player is wielding a heavy weapon and there's a visible monster straight ahead, charge it */
+		if ((cave_m_idx[charge_y][charge_x] > 0) && (object_weight(o_ptr) >= 170))
+		{
+			/* Attack the monster. First check whether lower ground hinders attacking */
+			if (((t_list[cave_t_idx[charge_y][charge_x]].w_idx == WG_TABLE)
+				|| (t_list[cave_t_idx[charge_y][charge_x]].w_idx == WG_PLATFORM)) && (!high_ground))
+			{
+				if (rand_int(5) < 2)
+				{
+					/* No message because it could be misleading in some cases */
+				}
+				else py_attack(charge_y, charge_x, FALSE, TRUE);
+			}
+			else py_attack(charge_y, charge_x, FALSE, TRUE);
+		}
 
 		/* Handle "objects" */
 		py_pickup(jumping != always_pickup);
@@ -3118,6 +3164,9 @@ static bool run_test(void)
 				{
 					/* Break if there's a trap on it */
 					if (trap_player(row, col)) break;
+
+					/* Break if there's a feature on it */
+					if (decoration(row, col)) break;
 				}
 
 				/* Secret doors */
@@ -3883,6 +3932,41 @@ void do_cmd_go_down(void)
 		if (p_ptr->transformation_status == 2) p_ptr->transformation_status = 3;
 		if (p_ptr->deceit_status == 2) p_ptr->deceit_status = 3;
 
+		/* Handle non-recent double blessing */
+		if ((p_ptr->obsession_status == 6) && (rand_int(100) < 50))
+		{
+			p_ptr->obsession_status = 4;
+			message(MSG_GENERIC, 0, "Beleth's blessings lose some power.");
+		}
+		if ((p_ptr->conflict_status == 6) && (rand_int(100) < 50))
+		{
+			p_ptr->conflict_status = 4;
+			message(MSG_GENERIC, 0, "Discordia's blessings lose some power.");
+		}
+		if ((p_ptr->purity_status == 6) && (rand_int(100) < 50))
+		{
+			p_ptr->purity_status = 4;
+			message(MSG_GENERIC, 0, "Eostre's blessings lose some power.");
+		}
+		if ((p_ptr->transformation_status == 6) && (rand_int(100) < 50))
+		{
+			p_ptr->transformation_status = 4;
+			message(MSG_GENERIC, 0, "Cyrridven's blessings lose some power.");
+		}
+		if ((p_ptr->deceit_status == 6) && (rand_int(100) < 50))
+		{
+			p_ptr->deceit_status = 4;
+			message(MSG_GENERIC, 0, "Laverna's blessings lose some power.");
+		}
+
+		/* Recent double blessing are not so recent anymore */
+		if (p_ptr->obsession_status == 5) p_ptr->obsession_status = 6;
+		if (p_ptr->conflict_status == 5) p_ptr->conflict_status = 6;
+		if (p_ptr->purity_status == 5) p_ptr->purity_status = 6;
+		if (p_ptr->transformation_status == 5) p_ptr->transformation_status = 6;
+		if (p_ptr->deceit_status == 5) p_ptr->deceit_status = 6;
+
+
 		/* Handle temporary, non-recent curses */
 		if ((p_ptr->obsession_status == 8) && (rand_int(100) < 50))
 		{
@@ -3947,64 +4031,6 @@ void do_cmd_go_down(void)
 	else 
 	{
 		message(MSG_FAIL, 0, "I see no down staircase here.");
-	}
-}
-
-/*
- * Simple command to "search" for one turn
- */
-void do_cmd_search(void)
-{
-	/* Allow repeated command */
-	if (p_ptr->command_arg)
-	{
-		/* Set repeat count */
-		p_ptr->command_rep = p_ptr->command_arg - 1;
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
-
-		/* Cancel the arg */
-		p_ptr->command_arg = 0;
-	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Search */
-	search();
-}
-
-/*
- * Hack -- toggle search mode
- */
-void do_cmd_toggle_search(void)
-{
-	/* Stop searching */
-	if (p_ptr->searching)
-	{
-		/* Clear the searching flag */
-		p_ptr->searching = FALSE;
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
-	}
-
-	/* Start searching */
-	else
-	{
-		/* Set the searching flag */
-		p_ptr->searching = TRUE;
-
-		/* Update stuff */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Redraw stuff */
-		p_ptr->redraw |= (PR_STATE | PR_SPEED);
 	}
 }
 
@@ -4205,9 +4231,6 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Spontaneous Searching -- now automatic */
 	search();
 
-	/* Continuous Searching */
-	if (p_ptr->searching) search();
-
 	/* Handle "objects" */
 	py_pickup(pickup);
 
@@ -4306,9 +4329,6 @@ void do_cmd_rest(void)
 
 	/* Cancel the arg */
 	p_ptr->command_arg = 0;
-
-	/* Cancel searching */
-	p_ptr->searching = FALSE;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

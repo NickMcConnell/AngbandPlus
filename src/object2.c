@@ -4047,18 +4047,6 @@ void place_secret_door(int y, int x)
 }
 
 /*
- * Place a random type of closed door at the given location.
- */
-void place_closed_door(int y, int x)
-{
-	/* Create closed door */
-	cave_set_feat(y, x, FEAT_CLOSED);
-
-	/* Create a locked door, 1 in 4
-	if (!rand_int(4)) place_lock(y, x, TRUE, WG_DOOR_LOCK); */
-}
-
-/*
  * Place a random type of door at the given location.
  */
 void place_random_door(int y, int x)
@@ -4078,11 +4066,11 @@ void place_random_door(int y, int x)
 		cave_set_feat(y, x, FEAT_OPEN);
 	}
 
-	/* Closed, locked, or stuck doors (400/1000) */
+	/* Closed doors (700/1000) */
 	else
 	{
 		/* Create closed door */
-		place_closed_door(y, x);
+		cave_set_feat(y, x, FEAT_CLOSED);
 	}
 }
 

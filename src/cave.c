@@ -4163,19 +4163,6 @@ void disturb(int stop_search)
 		}
 	}
 
-	/* Cancel searching if requested */
-	if (stop_search && p_ptr->searching)
-	{
-		/* Cancel */
-		p_ptr->searching = FALSE;
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
-	}
-
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }

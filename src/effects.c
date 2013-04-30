@@ -381,11 +381,24 @@ void damage_player(int dam, cptr kb_str)
  */
 void gain_exp(s32b amount)
 {
+	/* Winners can only gain experience to recover experience drainage */
+	if (p_ptr->total_winner)
+	{
+		if (p_ptr->exp < p_ptr->max_exp)
+		{
+			if (amount > p_ptr->max_exp - p_ptr->exp)
+			{
+				amount = p_ptr->max_exp - p_ptr->exp;
+			}
+		}
+		else amount = 0;
+	}
+
 	/* Gain some experience */
 	p_ptr->exp += amount;
 
 	/* Slowly recover from experience drainage */
-	if (p_ptr->exp < p_ptr->max_exp)
+	if ((p_ptr->exp < p_ptr->max_exp) && (!p_ptr->total_winner))
 	{
 		/* Gain max experience (10%) */
 		p_ptr->max_exp += amount / 10;

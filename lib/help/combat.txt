@@ -10,6 +10,11 @@ Creatures attack in the same way. If they move into you, they attack you.
 If the target of a melee attack is standing on a table or platform and the
 attacker is not, the attack has a 2/5 chance of missing because of bad position.
 
+Weapons that weight at least 17 lbs can be used for far-reaching charge attacks.
+After you move, if there is a monster right in front of you, you get to swing at
+it once. You can't charge previously unseen or scared monster. If you hit and
+succeed in a Jumping skill check, the assault deals double damage.
+
 You can attack from a distance by firing a missile or by magical means (such as
 aiming a wand). Some creatures can also cast spells from a distance, and others
 can use various breath weapons (such as fire) on you from a distance.

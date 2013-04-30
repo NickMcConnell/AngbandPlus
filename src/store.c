@@ -1395,7 +1395,8 @@ static int confirm_trade(void)
 	strcpy(out_val, "");
 
 	/* Ask the user for a response */
-	return (get_string("Accept? ", out_val, sizeof(out_val)));
+	/* return (get_string("Accept? ", out_val, sizeof(out_val))); */
+	return (get_check("Accept? "));
 }
 
 /*

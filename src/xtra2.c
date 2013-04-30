@@ -320,12 +320,17 @@ void monster_death(int m_idx)
 	}
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 30)) number++;
-	if ((r_ptr->flags1 & (RF1_DROP_70)) && (rand_int(100) < 70)) number++;
 	if (r_ptr->flags1 & (RF1_DROP_1)) number += 1;
 	if (r_ptr->flags1 & (RF1_DROP_2)) number += 2;
 	if (r_ptr->flags1 & (RF1_DROP_3)) number += 3;
 	if (r_ptr->flags1 & (RF1_DROP_4)) number += 4;
+
+	/* A small chance for one extra item */
+	if (rand_int(20) < number) number ++;
+
+	/* Random chance for dropping an item */
+	if ((r_ptr->flags1 & (RF1_DROP_35)) && (rand_int(100) < 35)) number++;
+	if ((r_ptr->flags1 & (RF1_DROP_80)) && (rand_int(100) < 80)) number++;
 
 	/* Hack - clones never drop stuff */
    	if (m_ptr->mflag & (MFLAG_CLON)) number = 0;
@@ -483,6 +488,18 @@ void monster_death(int m_idx)
 		p_ptr->redraw |= (PR_TITLE);
 
 		p_ptr->fame += 50;
+
+		/* Winner gets a big multiplier to experience points for shallow Min Depth */
+		float multiplier = ((58-p_ptr->min_depth)*(58-p_ptr->min_depth));
+
+		/* A little hack to get around the integers. */
+		p_ptr->exp = (p_ptr->exp * multiplier) / 100;
+
+		/* Check Experience */
+		check_experience();
+
+		/* Update condition window */
+		p_ptr->window |= (PW_CONDITION);
 
 		/* Congratulations */
 		message(MSG_QUEST_SUCCEED, TRUE, "*** CONGRATULATIONS ***");

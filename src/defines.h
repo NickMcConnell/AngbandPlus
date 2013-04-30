@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.2.1"
+#define VERSION_STRING	"1.2.3"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	2
-#define VERSION_PATCH	1
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /*
@@ -283,7 +283,7 @@
 /*
  * Constants relating to player "conditions" 
  */
-#define DISEASE_RATE	(adult_nightmare_mode ? 500 : 1000)	/* High value slows disease */
+#define DISEASE_RATE	(adult_nightmare_mode ? 500 : 1500)	/* High value slows disease */
 
 /* 
  * Levels of resistances needed to ignore elemental damage
@@ -663,35 +663,32 @@
 #define ROW_INFO		22
 #define COL_INFO		0	/* Monster Health bar */
 
-#define ROW_HUNGRY		(Term->hgt - 1)
-#define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
-
-#define ROW_BLIND		(Term->hgt - 1)
-#define COL_BLIND		9	/* "Blind" */
-
-#define ROW_CONFUSED	(Term->hgt - 1)
-#define COL_CONFUSED	15	/* "Confused" */
-
-#define ROW_AFRAID		(Term->hgt - 1)
-#define COL_AFRAID		25	/* "Afraid" */
-
-#define ROW_POISONED	(Term->hgt - 1)
-#define COL_POISONED	32	/* "Poisoned" */
-
-#define ROW_STATE		(Term->hgt - 1)
-#define COL_STATE		41	/* <state> */
-
-#define ROW_SPEED		(Term->hgt - 1)
-#define COL_SPEED		51	/* "Slow (-NN)" or "Fast (+NN)" */
-
-#define ROW_STUDY		(Term->hgt - 1)
-#define COL_STUDY		61	/* "Study (NN)" */
-
-#define ROW_DEPTH		(Term->hgt - 1)
-#define COL_DEPTH		72	/* "Lev NNN" / "NNNN ft" */
-
 #define ROW_EXP_BAR		(Term->hgt - 1)
 #define COL_EXP_BAR		0	/* "[***-]" */
+
+#define ROW_BLIND		(Term->hgt - 1)
+#define COL_BLIND		13	/* "Blind" */
+
+#define ROW_CONFUSED	(Term->hgt - 1)
+#define COL_CONFUSED	19	/* "Confused" */
+
+#define ROW_AFRAID		(Term->hgt - 1)
+#define COL_AFRAID		29	/* "Afraid" */
+
+#define ROW_POISONED	(Term->hgt - 1)
+#define COL_POISONED	36	/* "Poison" */
+
+#define ROW_STATE		(Term->hgt - 1)
+#define COL_STATE		43	/* <state> */
+
+#define ROW_SPEED		(Term->hgt - 1)
+#define COL_SPEED		53	/* "Slow (-NN)" or "Fast (+NN)" */
+
+#define ROW_STUDY		(Term->hgt - 1)
+#define COL_STUDY		63	/* "Study (NN)" */
+
+#define ROW_DEPTH		(Term->hgt - 1)
+#define COL_DEPTH		72	/* "DL NNN" / "NNNN ft" */
 
 #define ROW_MAP			1
 #define COL_MAP			13
@@ -1033,7 +1030,7 @@
 #define WG_CIRCLE_BROKEN_EDGE_B	98
 #define WG_CIRCLE_MISSING_EDGE_A	99
 #define WG_CIRCLE_MISSING_EDGE_B	100
-#define WG_FAERY_RING_INTERESTING 101
+#define WG_STATUE_FLASHBACK 101
 #define WG_FAERY_RING_VEGETATION 102
 #define WG_CIRCLE_OF_ILLUSIONS	103
 #define WG_CIRCLE_ILLU_EDGE_A	104	
@@ -2851,8 +2848,8 @@
 #define RF1_RAND_50			0x00080000	/* Moves randomly (50%) */
 #define RF1_ONLY_GOLD		0x00100000	/* Drop only gold */
 #define RF1_ONLY_ITEM		0x00200000	/* Drop only items */
-#define RF1_DROP_30			0x00400000	/* Drop an item/gold (30%) */
-#define RF1_DROP_70			0x00800000	/* Drop an item/gold (70%) */
+#define RF1_DROP_35			0x00400000	/* Drop an item/gold (30%) */
+#define RF1_DROP_80			0x00800000	/* Drop an item/gold (70%) */
 #define RF1_DROP_1		0x01000000	/* Drop 1 items/gold */
 #define RF1_DROP_2		0x02000000	/* Drop 2 items/gold */
 #define RF1_DROP_3		0x04000000	/* Drop 3 items/gold */

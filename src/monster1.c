@@ -500,8 +500,8 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		 ((r_ptr->flags1 & (RF1_DROP_3)) ? 3 : 0) +
 		 ((r_ptr->flags1 & (RF1_DROP_2)) ? 2 : 0) +
 		 ((r_ptr->flags1 & (RF1_DROP_1)) ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_70))  ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_30))  ? 1 : 0));
+		 ((r_ptr->flags1 & (RF1_DROP_80))  ? 1 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_35))  ? 1 : 0));
 
 		/* Hack -- but only "valid" drops */
 		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) l_ptr->r_drop_item = 0;

@@ -302,7 +302,7 @@ extern void scatter(int *yp, int *xp, int y, int x, int d);
 extern void disturb(int stop_search);
 
 /* cmd-attk.c */
-extern void py_attack(int y, int x, bool break_weapon);
+extern void py_attack(int y, int x, bool show_monster_name, bool charge);
 extern void run_step(int dir);
 extern void create_shelf_item(int y, int x, int theme);
 extern void do_cmd_go_up(void);
@@ -461,6 +461,7 @@ extern errr check_time(void);
 extern errr check_time_init(void);
 extern errr check_load(void);
 extern errr check_load_init(void);
+extern long total_points(void);
 extern void player_flags(u32b *f1, u32b *f2, u32b *f3);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);

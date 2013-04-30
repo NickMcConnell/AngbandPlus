@@ -1477,6 +1477,17 @@ errr check_load_init(void)
 }
 
 /*
+ * Hack -- Calculates the total number of points earned
+ */
+long total_points(void)
+{
+	/* Score is now equal to your experience points */
+	int p = p_ptr->max_exp;
+
+	return p;
+}
+
+/*
  * Hack -- Dump a character description file
  *
  * XXX XXX XXX Allow the "full" flag to dump additional info,
@@ -1814,10 +1825,10 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n\n");
  
 	/* Dump options */
-	fprintf(fff, "  [Options]\n\n");
+	fprintf(fff, "  [Cheat Options]\n\n");
 
-	fprintf(fff, "Birth options:\n");
-	/* Dump adult options */
+	/* fprintf(fff, "Birth options:\n"); */
+	/* Dump adult options
 	for (i = 0; i < OPT_BIRTH; i++)
 	{
 		if (options_birth[i].descript)
@@ -1827,11 +1838,11 @@ errr file_character(cptr name, bool full)
 			        op_ptr->opt_adult[i] ? "yes" : "no ",
 			        options_birth[i].text);
 		}
-	}
+	} */
 
-	fprintf(fff, "Cheat options:\n");
+	/* fprintf(fff, "Cheat options:\n"); */
 	/* Dump score options */
-	for (i = 0; i < OPT_CHEAT; i++)
+	for (i = 0; i < OPT_CHEAT - 1; i++)
 	{
 		if (options_cheat[i].descript)
 		{
@@ -2406,28 +2417,6 @@ void get_name(void)
 		/* Process the player name */
 		process_player_name(FALSE);
 	}
-}
-
-/*
- * Hack -- Calculates the total number of points earned
- */
-static long total_points(void)
-{
-	int p = (p_ptr->max_exp + (100 * p_ptr->max_depth));
-	if (adult_easy_mode) p /= 4;
-	if (adult_nightmare_mode) p *= 3;
-
-	/* Winners get a bonus for low minimum depth. */
-	float multiplier;
-	if (p_ptr->total_winner)
-	{
-		multiplier = ((60-p_ptr->min_depth)*(60-p_ptr->min_depth));
-	}
-	else multiplier = 100;
-
-	/* A little hack to get around the integers. */
-	p = (p*multiplier)/100;
-	return p;
 }
 
 /*

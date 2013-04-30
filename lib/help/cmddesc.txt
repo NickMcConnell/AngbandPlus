@@ -173,17 +173,11 @@ Toggle search mode (S) or Toggle search mode (#)
 
 --- Dungeon Interaction Commands ---
 
-Tunnel (T) or Tunnel (^T)
-    Tunneling or mining is a very useful art.  There are many kinds of rock, 
-    with varying hardness, including permanent rock (which cannot be tunneled
-    through), granite (very hard), quartz veins (hard), magma veins (soft), and
-    rubble (very soft).  Quartz and Magma veins may be displayed in a special 
-    way, and may sometimes contain treasure, in which case they will be 
-    displayed in a different way.  Rubble sometimes covers an object.  It is 
-    hard to tunnel unless you are wielding a shovel or a pick, or a heavy 
-    weapon.  Tunneling ability increases with strength and weapon weight, and 
-    is affected by race and class.  This command may take a count, is affected 
-    by the "always_repeat" option, requires a direction, and takes some energy.
+Tunnel/Topple (T) or Tunnel/Topple (^T)
+    You may tunnel trough a rubble or topple a tree. Tunneling ability
+    increases with strength and weapon weight. This command may take a count,
+    is affected by the "always_repeat" option, requires a direction, and takes
+    some energy.
 
 Open a door or chest (o)
     To open an object such as a door or chest, you must use this command.  If 

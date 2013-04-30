@@ -563,15 +563,125 @@ bool detect_traps(int animate, int x_adjust, int y_adjust)
 }
 
 /*
- * Detect all doors nearby
+ * Detect doors
  */
 bool detect_doors(int animate, int x_adjust, int y_adjust)
 {
-	int y, x;
+	int i, y, x;
 	int x1, x2, y1, y2;
+
 	bool detect = FALSE;
 
-	if (animate) animate_detect(animate, x_adjust, y_adjust);
+	if (animate) animate_detect(0, y_adjust, x_adjust);
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 11 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 33 + x_adjust;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Scan traps */
+	for (i = 1; i < t_max; i++)
+	{
+		trap_type *t_ptr = &t_list[i];
+
+		/* Skip dead traps */
+		if (!t_ptr->w_idx) continue;
+
+		/* Location */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
+
+		/* Only detect nearby traps */
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
+
+		/* Convert hidden doors to visible */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_SECRET_DOOR)
+		{
+			place_decoration(y, x, WG_SHELF_CLOSED_DOOR);
+		}
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_SECRET_DOOR)
+		{
+			place_decoration(y, x, WG_CLOSET_CLOSED_DOOR);
+		}
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_SECRET_DOOR)
+		{
+			place_decoration(y, x, WG_PAINTING_CLOSED_DOOR);
+		}
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_SECRET_DOOR)
+		{
+			place_decoration(y, x, WG_RACK_CLOSED_DOOR);
+		}
+
+		/* Only detect some decorations */
+		if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_CLOSED_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_CLOSED_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_CLOSED_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_CLOSED_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_SHELF_OPEN_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET_OPEN_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PAINTING_OPEN_DOOR)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_RACK_OPEN_DOOR)
+		{
+		}
+		else continue;
+
+		/* Set to visible */
+		t_list[i].visible = TRUE;
+
+		detect = TRUE;
+
+		/* Hack -- Memorize */
+		cave_info[y][x] |= (CAVE_MARK);
+
+		/* Redraw */
+		lite_spot(y, x);
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		/* Describe result */
+		message(MSG_DETECT, 0, "You sense the presence of doors!");
+	}
+
+	/* Continuing with detecting normal doors without decorations */
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11 + y_adjust;
@@ -601,7 +711,6 @@ bool detect_doors(int animate, int x_adjust, int y_adjust)
 		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
 	}
 
-
 	/* Scan the maximal area of detection */
 	for (y = y1; y < y2; y++)
 	{
@@ -610,6 +719,9 @@ bool detect_doors(int animate, int x_adjust, int y_adjust)
 
 			/* Ignore "illegal" locations */
 			if (!in_bounds(y, x)) continue;
+
+			/* Ignore decorations */
+			if (decoration(y, x)) continue;
 
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
@@ -1568,6 +1680,9 @@ bool detect_force(int animate, int x_adjust, int y_adjust)
 		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE)
 		{
 		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE_FLASHBACK)
+		{
+		}
 		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
 		{
 		}
@@ -1593,7 +1708,7 @@ bool detect_force(int animate, int x_adjust, int y_adjust)
 	if (flag)
 	{
 		/* Describe result */
-		message(MSG_DETECT, 0, "You sense the presence of force!");
+		message(MSG_DETECT, 0, "You sense the presence of enchanted terrain features!");
 	}
 
 	/* Result */
@@ -1744,6 +1859,9 @@ bool detect_furniture(int animate, int x_adjust, int y_adjust)
 		{
 		}
 		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE)
+		{
+		}
+		else if (t_list[cave_t_idx[y][x]].w_idx == WG_STATUE_FLASHBACK)
 		{
 		}
 		else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
@@ -3302,9 +3420,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 				continue;
 			}
 
-			/* Hack -- Skip the epicenter */
-			if ((y == y1) && (x == x1)) continue;
-
 			/* Delete the monster (if any) */
 			delete_monster(y, x);
 
@@ -3672,25 +3787,11 @@ void earthquake(int cy, int cx, int r)
 				/* Wall (or floor) type */
 				t = (floor ? rand_int(100) : 200);
 
-				/* Granite */
-				if (t < 20)
-				{
-					/* Create granite wall */
-					feat = FEAT_WALL_EXTRA;
-				}
-
-				/* Quartz */
-				else if (t < 70)
-				{
-					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
-				}
-
-				/* Magma */
-				else if (t < 100)
+				/* Rubble */
+				if (t < 100)
 				{
 					/* Create magma vein */
-					feat = FEAT_MAGMA;
+					feat = FEAT_RUBBLE;
 				}
 
 				/* Change the feature */
