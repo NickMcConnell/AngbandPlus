@@ -42,9 +42,3 @@ introduce bugs.
         This will mean that features and objects will be placed
 more aesthetically around the room, and match the textual
 descriptions.
-
-
-
-
-
-

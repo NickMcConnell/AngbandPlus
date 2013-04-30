@@ -1,0 +1,281 @@
+==== New Commands ====
+
+The following commands are new to Unnamed Angband:
+
+Apply rune (y) or Engrave a rune (^G)
+        Apply a rune from a runestone to an object. Applying runes to
+        objects can have various effects, from transforming an object to a 
+        type more closely associated with that rune, to enchanting the object
+        with a magical effect or even an ego power. More runes applied to an
+        object will have additional, and often cumulative effects, up to 4 or 5
+        runes on most objects. Current applying a rune to another rune acts like
+        other objects: in a future version this will cause a magical effect.
+        If an object cannot have a rune applied to it, it is likely to be an
+        artifact or powerful ego item of some kind. Note that not all runes
+        have a beneficial effect, but more than one rune is usually an increase
+        in power.
+
+==== Changed Commands ====
+
+The following commands act differently from Vanilla Angband:
+
+--- Inventory Commands ---
+
+Equipment list (e)
+        There is an additional BELT slot which can have any item wielded
+        into it. Items in your belt slot do not apply any special powers
+        or effects to the character but these items can be wielded/fired
+        and otherwise used in half the normal time. In addition, any
+        item may be wielded into your WIELD slot for the same benefits,
+        but you will only attack with weapons, and can only kick to attack
+        if you are holding other items.
+
+Destroy an item (k) or Destroy an item (^D)
+        Destroying some items will release whatever is trapped inside.
+
+Wear/Wield equipment (w)
+        You can wield any equipped item to move it to your belt slot. If
+        you can wield the belt slot item back in the equipment slot it will
+        be swapped, otherwise the existing belt slot item will be dropped.
+        As describe above, any item can be wielded to halve the time it
+        takes to use the item. Wielding items from the floor takes half
+        the energy that Angband requires.
+
+--- Movement Commands ---
+
+Walk (with pickup) (;)
+Walk (flip pickup) (-)
+        If you walk into a hidden monster, you will push over it, as opposed
+        to attacking it, as you would an invisible monster. Walking also
+        takes half the energy of vanilla Angband, unless you are moving in
+        Search mode or over slippery or treacherous terrain. This is
+        balanced by forcing you to Rest to recover from being tired every so
+        often. This is affected by your Constitution: a higher Constitution
+        allows you to have to rest less frequently.
+
+Go up staircase or travel (<)
+        If you have a map, or are in campaign mode, you can use the < key to
+        travel to an adjacent location while you are on the surface.
+        This uses some food and adds to the time, and requires that you
+        are Full and near the edge of the wilderness map. You will be
+        required to recover from bleeding, stun or poison damage and other
+        conditions that impair you.
+
+Go down staircase or well (>)
+        You may climb down wells in the dungeon in addition to staircases.
+
+--- Resting Commands ---
+
+Stay still (with pickup) (,) or Stay still (with pickup) (.)
+Stay still (flip pickup) (g)
+        These commands all take half the time of vanilla Angband.
+
+
+--- Searching Commands ---
+
+Search (s)
+        Searching can spot if water is deep, and identify many other hidden
+        terrain features.
+
+--- Alter Commands ---
+
+Tunnel (T) or Tunnel (^T)
+        You can tunnel into some of the new terrain, although ice will cut
+        you on its sharp edges.
+
+Open a feature (o)
+        Opening can be performed on some types of new terrain, such as
+        curtains and cupboards.
+
+Close a feature (c)
+        Closing can now be used on chests to protect items in the same
+        location as the chest from being stolen by monsters or damaged by
+        magical attacks. Cupboards also provide this benefit. Closing
+        previously locked doors will lock them again, although not as
+        effectively as before.
+
+Bash a feature (B) or Force a feature (f)
+        Trees and other wooden features may be bashed to destroy them.
+
+Disarm a feature (D)
+        Doors may also be trapped, and trapped doors may be disarmed as
+        a consequence.
+
+--- Spell Commands ---
+
+
+Browse a book (b) or Peruse a book (P)
+        Browsing now allows you to select a spell in a spell books for
+        a comprehensive list of what effects that spell has.
+
+        All spell-using classes may read song books, but classes other
+        that bards and shamans will only be able to use some of the spells
+        from the book. Runestones may also be browsed by all classes,
+        however runestones only permit more than one spell by combining two
+        runestones together, so that at best you will have 4 spells available
+        with 2 runestones, 9 spells with 3 runestones and so forth. The first
+        runestone browsed determines the noun, the other runestones in your
+        inventory acting as verbs to modify its effects. Runestones are best
+        utilised by shamans as a result.
+
+Gain new spells, prayers, songs or runes (G)
+        You are not limited in Unangband to a maximum of 64 spells: instead
+        your intelligence and books and runes available to you dictate what
+        magic you can learn. Note that priests and paladins may also study
+        at altars in the dungeon to learn spells: these are less useful in
+        that the spells may only cast while standing on the altar until you
+        discover the appropriate book they occur in. The various specialist
+        classes may also learn spells earlier.
+
+Cast a spell (m)
+        You must possess the book or combination of runestones, or be standing
+        on the appropriate altar to cast a spell. Note that all classes use this
+        command to cast spells. In future versions (p) will be used to prepare
+        items to make new magical items.
+        
+        You can also use this command to cancel singing a song, if you are a
+        bard.
+
+--- Object Manipulation Commands ---
+
+Eat some food (E)
+        You may also eat the fruit from various trees and bushes in the
+        Dungeon.
+
+Fill or fuel an item (F)
+        In addition to filling lanterns and torches, which you may now do to
+        lanterns and torches in your pack or on the floor, you may also fill
+        empty bottles and flasks from pools and fountains in the dungeon, in
+        order to acquire potions and flasks of oil and other items.
+
+Quaff a potion (q)
+        You may quaff from pools of water and from fountains when you are 
+        standing in them. Some of these may even have beneficial effects.
+
+Inscribe an object ({)
+        After inscribing an identified object, with the easy_autos option
+        selected, all such object kinds will be automatically inscribed with
+        the same inscription. If this is an ego item, all such ego items will
+        be inscribed instead.
+
+        The following additional inscriptions are available: =s, which stacks
+        2 items with this inscription together as if all the force_stack options
+        were available, =d which means you will never pick up an object with
+        this inscription, =k which means you will destroy an object with this
+        inscription when you walk over it and =i which means you will never 
+        remember an object with this inscription, so that it will not be
+        displayed on the overhead map.
+
+        In addition, the {good} pseudo-id is extended to include {very good}
+        and {great} inscriptions to indicate that an item is increasingly 
+        powerful but not an ego item, and the {excellent} pseudo-id is extended
+        to include {superb} pseudo-id which indicates the item in question is an
+        ego item with a hidden power (Typically the more powerful ego objects).
+
+Uninscribe an object (})
+        After uninscribing an identified object, with the easy_autos option
+        selected, the automatic inscription will be removed for all objects of 
+        this kind. If this is an ego item, the ego item's auto inscription will
+        be cleared instead.
+
+--- Magical Object Commands ---
+
+Activate an worn object (A)
+        The rings and dragon armours that may be activated may stack with 1
+        instance of a charging item of the same type, if these items would
+        normally stack if charged, or as many instances as required if
+        stacking is forced on the objects.
+
+Aim a wand (a) or Zap a wand (z)
+        With pval stacking, wands do not unstack until they are empty, and
+        will only sometimes unstack if they are used while not identified.
+
+Use a staff (u) or Zap a staff (Z)
+        With pval stacking, staffs do not unstack until they are empty, and
+        will only sometimes unstack if they are used while not identified.
+        Staffs may also be wielded as weapons, for the most part having 1d6
+        damage, and possibly some special powers.
+
+Zap a rod (z) or Activate a rod (a)
+        Rods may stack with 1 instance of a charging rod of the same type
+        if timeout stacking is enabled, or will always stack with uncharged
+        rods if force timeout stacking is enabled.
+
+Fire an item (f) or fire an item (t)
+        Items that can be fired apply the appropriate damage type to the
+        monster they are thrown against, such as burning arrows, and to
+        the ground underneath.  Slings may now be used to lob potions
+        for a much greater distance, as well as improving the damage and
+        damage of throwing weapons, such as javelins or spears.
+
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
+
+Throw an item (v)
+        In many instances, you may be able to throw part of the terrain you
+        are on. Some items will also apply the appropriate damage type to
+        the monster they are thrown against and the ground underneath;
+	others may be consumed by unintelligent monsters or animals if
+	thrown to them.
+
+        Important note: In order to take advantage of throwing weapons such
+        as daggers, batons, darts, javelins and spears, and the additional
+        benefits of throwing styles, you need to 'fire' rather than throw
+        these weapons. This restricts the list of items you may choose to
+        those balanced for throwing, but gives you the additional damage
+        multiplier and shots of your style, and counts the to-hit and damage
+        bonus of the weapon twice.  You cannot be wielding a bow, sling or
+        crossbow in order to do this.
+
+--- Looking Commands ---
+
+Look around (l) or Examine things (x)
+        You can look at yourself to see the room description of the room you are
+        in, and any object, monster or feature in a room other than the one you
+        are in.
+
+--- Game Status Commands ---
+
+Check knowledge (~)
+        This command allows you to ask about the knowledge possessed by
+        your character.  Currently, this includes being able to list all
+        known "artifacts", "uniques", "ego items" and "objects", and the
+        contents of your home. Normally, once an artifact is "generated",
+        and "lost", it can never again be found, and will become "known" to
+        the player.  With "preserve" mode, an artifact can never be "lost"
+        until it is "known" to the player.  In either case, any "known"
+        artifacts not in the possession of the player will never again be 
+        "generated".  The "uniques" are special "unique" monsters which can
+        only be killed once per game.  Certain "objects" come in "flavors",
+        and you must determine the effect of each "flavor" once for each
+        such type of object, and this command will allow you to display all
+        "known" flavors. Other objects and ego items are displayed as you 
+        encounter them in the game.
+        Auto-inscriptions are inscriptions that are automatically created
+        when an item is created or identified. Currently you can set
+        auto-descriptions for all items of a particular type (tval), kind
+        or ego item type. In a future version, this will be expanded to
+        match the auto-squelch functions of other variants.
+
+
+--- Extra Commands ---
+
+Save html screen dump (]) or (^])
+        This command dumps a "snap-shot" of the current screen to the file
+        "dump.htm", including encoded color information. Unlike the above
+        screen shot commands, this screen dump is in html format. Currently
+        Unangband does not have the ability to reload html screen shots
+        dumped in this manner.
+
+        Using ctrl-right-bracket to invoke this command will dump the
+        html file but without any visual feedback as to the success or
+        failure of this command. This method of invoking this command may
+        be used any time Unangband is expecting keyboard input, however it
+        will use the currently set visual prefs, rather than the underlying
+        'ASCII' visuals.

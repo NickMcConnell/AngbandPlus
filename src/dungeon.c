@@ -3094,16 +3094,16 @@ void play_game(bool new_game)
 				object_lore *n_ptr = &a_list[i];
 
 				n_ptr->can_flags1 = 0x0L;
-				n_ptr->can_flags1 = 0x0L;
-				n_ptr->can_flags1 = 0x0L;
+				n_ptr->can_flags2 = 0x0L;
+				n_ptr->can_flags3 = 0x0L;
 
 				n_ptr->may_flags1 = 0x0L;
-				n_ptr->may_flags1 = 0x0L;
-				n_ptr->may_flags1 = 0x0L;
+				n_ptr->may_flags2 = 0x0L;
+				n_ptr->may_flags3 = 0x0L;
 
 				n_ptr->not_flags1 = 0x0L;
-				n_ptr->not_flags1 = 0x0L;
-				n_ptr->not_flags1 = 0x0L;
+				n_ptr->not_flags2 = 0x0L;
+				n_ptr->not_flags3 = 0x0L;
 			}
 
 		}
@@ -3160,7 +3160,7 @@ void play_game(bool new_game)
 			{
 				int guard = t_info[i].zone[ii].guard;
 
-				if (guard) r_info[guard].flags1 |= RF1_QUESTOR;
+				if (guard) r_info[guard].flags1 |= RF1_GUARDIAN;
 			}
 		}
 	}
@@ -3306,7 +3306,7 @@ void play_game(bool new_game)
 				strcpy(p_ptr->died_from, "Cheating death");
 
 				/* New depth */
-				p_ptr->depth = 0;
+				p_ptr->depth = min_depth(p_ptr->dungeon);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;

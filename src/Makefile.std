@@ -219,23 +219,23 @@ LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 #
 # Default target.
 #
-all: angband
+all: unangband
 
 
 #
 # Install the game.
 #
 
-install: angband
-	cp angband ..
+install: unangband
+	cp unangband ..
 
 
 #
-# Build the "Angband" program
+# Build the "Unangband" program
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+unangband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
 
 
 #
@@ -243,7 +243,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.o angband
+	\rm *.o unangband
 
 
 #

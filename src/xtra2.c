@@ -2422,6 +2422,11 @@ void monster_death(int m_idx)
 	}
 
 	/* Only process "Quest Monsters" */
+	if (!(r_ptr->flags1 & (RF1_QUESTOR | RF1_GUARDIAN)))
+		return;
+
+#if 0
+	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
 	/* Hack -- Mark quests as complete */
@@ -2440,9 +2445,28 @@ void monster_death(int m_idx)
 	{
 		return;
 	}
+#endif
+
+	/* Hack -- Mark quests as complete */
+	if (r_ptr->flags1 & (RF1_QUESTOR)) for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		/* Hack -- note completed quests */
+		if (q_list[i].level == r_ptr->level) q_list[i].level = 0;
+
+		/* Count incomplete quests */
+		if (q_list[i].level) total++;
+	}
+
+	/* Hack -- campaign mode has quest monsters without stairs */
+	if (!(r_ptr->flags1 & (RF1_QUESTOR)) &&
+	    ((p_ptr->depth != max_depth(p_ptr->dungeon)) ||
+	     (p_ptr->depth == min_depth(p_ptr->dungeon))) )
+	{
+		return;
+	}
 
 	/* Need some stairs */
-	else if ((total) || (adult_campaign))
+	else if (total || !(r_ptr->flags1 & (RF1_QUESTOR)))
 	{
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -2741,12 +2765,12 @@ bool modify_panel(int wy, int wx)
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Verify wy, adjust if needed */
-	if (!zone->fill) wy = SCREEN_HGT;
+	if (!zone->fill) wy = 0;
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (!zone->fill) wx = SCREEN_WID;
+	if (!zone->fill) wx = 0;
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
@@ -2907,11 +2931,17 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 		case (ROOM_PIT_GIANT):
 		{
-			strcat(name, "dragon pit");
-			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
+			strcpy(name, "giant pit");
+			strcpy(text_visible, "You have stumbled into an immense cavern where giants dwell.");
 			return;
 		}
 		case (ROOM_PIT_DRAGON):
+		{
+			strcat(name, "dragon pit");
+			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
+			return;
+                }
+		case (ROOM_PIT_DEMON):
 		{
 			strcpy(name, "demon pit");
 			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
@@ -4382,8 +4412,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (f_info[feat].flags1 & (FF1_ENTER))
 			{
 				s3 = "the entrance to the ";
-
-				name = u_name + u_info[t_info[p_ptr->dungeon].store[feat-FEAT_SHOP_HEAD]].name;
 			}
 
 			/* Display a message */
@@ -5042,10 +5070,7 @@ bool get_aim_dir(int *dp)
  *
  * This function should be used for all "repeatable" commands, such as
  * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
- * as all commands which must reference a grid adjacent to the player,
- * and which may not reference the grid under the player.
- *
- * Directions "5" and "0" are illegal and will not be accepted.
+ * as all commands which must reference a grid adjacent to the player.
  *
  * This function tracks and uses the "global direction", and uses
  * that as the "desired direction", if it is set.

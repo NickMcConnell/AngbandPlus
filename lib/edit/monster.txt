@@ -4726,7 +4726,7 @@ D: ethereal drake's eyes glare with white hatred from the shadows.
 N:343:Bert, the Stone Troll
 G:T:W
 I:110:23d10:20:40:50
-W:25:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -4740,7 +4740,7 @@ D: Bill and Tom.
 N:344:Bill, the Stone Troll
 G:T:W
 I:110:23d10:20:40:50
-W:25:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -4754,7 +4754,7 @@ D:Bert and Tom.
 N:345:Tom, the Stone Troll
 G:T:W
 I:110:23d10:20:40:50
-W:25:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -6107,7 +6107,7 @@ D: more than a hatred of all that lives.
 N:428:Vampire lord
 G:V:b
 I:120:16d100:20:70:10
-W:42:1:0:1800
+W:50:1:0:1800
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:BITE:EXP_80:4d6
@@ -6469,7 +6469,7 @@ D: from his slender frame.
 N:451:Master lich
 G:L:r
 I:120:18d100:20:80:50
-W:41:2:0:10000
+W:50:2:0:10000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d12
@@ -8340,7 +8340,7 @@ D: and then slams shut on the adventurer's hand...
 N:557:Demilich
 G:L:U
 I:120:32d100:20:100:50
-W:54:2:0:12500
+W:60:2:0:12500
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:4d12
@@ -10008,7 +10008,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:660:Green slime
 G:,:g
 I:120:2d4:4:1:0
-W:16:2:0:5
+W:18:2:0:5
 B:TOUCH:POISON:1d4
 F:RAND_50 | RAND_25 |
 F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
@@ -10019,7 +10019,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:661:Yellow slime
 G:,:y
 I:120:3d4:4:1:0
-W:17:3:0:6
+W:21:3:0:6
 B:TOUCH:EAT_FOOD:1d4
 F:RAND_50 | RAND_25 |
 F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
@@ -10030,7 +10030,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:662:Silver slime
 G:,:W
 I:120:3d4:4:1:0
-W:18:3:0:7
+W:24:3:0:7
 B:TOUCH:EAT_LITE:1d4
 F:RAND_50 | RAND_25 |
 F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS | ATTR_METAL |
@@ -10041,7 +10041,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:663:Clear slime
 G:,:w
 I:120:4d4:4:1:0
-W:19:3:0:8
+W:27:3:0:8
 B:TOUCH:HURT:1d4
 F:RAND_25 | INVISIBLE | ATTR_CLEAR |
 F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
@@ -10052,7 +10052,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:664:Purple slime
 G:,:v
 I:120:4d4:4:1:0
-W:20:2:0:9
+W:30:2:0:9
 B:TOUCH:LOSE_CON:1d4
 B:TOUCH:LOSE_CON:1d4
 F:RAND_50 | RAND_25 |
@@ -10064,7 +10064,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:665:Pink slime
 G:,:w
 I:120:5d4:4:1:0
-W:21:2:0:10
+W:33:2:0:10
 B:TOUCH:LOSE_STR:1d4
 B:TOUCH:LOSE_STR:1d4
 F:RAND_50 | RAND_25 |
@@ -10076,7 +10076,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:666:Blue slime
 G:,:b
 I:120:5d4:4:1:0
-W:23:3:0:12
+W:42:3:0:12
 B:TOUCH:UN_BONUS:1d4
 B:TOUCH:UN_BONUS:1d4
 F:RAND_50 | RAND_25 |
@@ -10088,7 +10088,7 @@ D:Ugh! It quickly creeps alone the dungeon floor.
 N:667:Black slime
 G:,:D
 I:120:6d4:4:1:0
-W:25:4:0:15
+W:48:4:0:15
 B:TOUCH:LOSE_ALL:1d4
 F:RAND_50 | RAND_25 |
 F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
@@ -13374,7 +13374,7 @@ S:1_IN_9 |
 S:BR_INER
 D:This glistening ruby dragonfly doesn't seem to move at all.
 
-N:917:Giant fruit fly
+N:917:Giant may fly
 G:I:g
 I:120:3d8:12:14:20
 W:4:1:0:14
@@ -13875,7 +13875,7 @@ D:An elven figure that glows with an inner light.
 N:961:Grave lich
 G:L:u
 I:110:20d25:20:63:60
-W:35:2:0:1600
+W:37:2:0:1600
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d9
@@ -13892,7 +13892,7 @@ D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 N:962:Crypt lich
 G:L:U
 I:110:20d35:20:66:60
-W:36:2:0:2400
+W:40:2:0:2400
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d10
@@ -13909,7 +13909,7 @@ D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 N:963:Pit lich
 G:L:g
 I:110:20d45:20:69:60
-W:37:2:0:3200
+W:42:2:0:3200
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d11
@@ -13926,7 +13926,7 @@ D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 N:964:Spirit lich
 G:L:W
 I:110:20d55:20:72:60
-W:38:2:0:4000
+W:44:2:0:4000
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d8
@@ -13943,7 +13943,7 @@ D:It is an insubstantial skeletal form dressed in robes.  It radiates vastly evi
 N:965:Guardian lich
 G:L:B
 I:110:20d65:20:75:60
-W:39:2:0:4800
+W:46:2:0:4800
 B:TOUCH:EXP_40
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d12
@@ -13960,7 +13960,7 @@ D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 N:966:Black lich
 G:L:D
 I:110:30d75:20:78:60
-W:40:2:0:6400
+W:48:2:0:6400
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d12
@@ -13977,7 +13977,7 @@ D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 N:967:Night lich
 G:L:b
 I:120:22d100:20:83:50
-W:42:2:0:11000
+W:52:2:0:11000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d13
@@ -13996,7 +13996,7 @@ D: fingers.
 N:968:Death lich
 G:L:s
 I:120:26d100:20:86:50
-W:44:2:0:12000
+W:54:2:0:12000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d14
@@ -14015,7 +14015,7 @@ D: fingers.
 N:969:Nether lich
 G:L:G
 I:120:30d100:20:90:50
-W:46:2:0:13000
+W:56:2:0:13000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d15
@@ -14035,7 +14035,7 @@ D: fingers.
 N:970:Emperor lich
 G:L:v
 I:120:35d100:20:95:50
-W:48:2:0:15000
+W:58:2:0:15000
 B:TOUCH:EXP_80
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:2d16

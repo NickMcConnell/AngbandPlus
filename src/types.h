@@ -189,7 +189,7 @@ struct town_type
 	u32b name;     /* Name (offset) */
 	u32b text;      /* Text (offset) */
 
-	u16b near;
+	u16b nearby;
 	u16b distant;
 
 	byte r_char;    /* Add races of this char */
@@ -497,6 +497,10 @@ struct ego_item_type
 	u32b flags1;    /* Ego-Item Flags, set 1 */
 	u32b flags2;    /* Ego-Item Flags, set 2 */
 	u32b flags3;    /* Ego-Item Flags, set 3 */
+
+	u32b obv_flags1;    /* Obvious Ego-Item Flags, set 1 */
+	u32b obv_flags2;    /* Obvious Ego-Item Flags, set 2 */
+	u32b obv_flags3;    /* Obvious Ego-Item Flags, set 3 */
 
 	u16b note;     /* Auto-inscription */
 
@@ -904,15 +908,6 @@ struct store_type
 {
 	u32b name;     /* Name (offset) */
 
-	byte d_char;      /* Default feature char */
-	byte d_attr;      /* Default feature attr */
-
-	byte x_attr;    /* Desired feature attribute */
-	char x_char;    /* Desired feature character */
-
-	byte level;
-	byte stval;
-
 	byte owner;     /* Owner index */
 	byte extra;     /* Unused for now */
 
@@ -922,8 +917,7 @@ struct store_type
 	s16b bad_buy;   /* Number of "bad" buys */
 
 	s32b store_open;/* Closed until this turn */
-
-	s32b store_wrap;/* Unused for now */
+	s32b store_wary;/* Unused */
 
 	byte tval[STORE_CHOICES];
 	byte sval[STORE_CHOICES];

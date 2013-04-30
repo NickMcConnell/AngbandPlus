@@ -1371,14 +1371,16 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
+		int slot = INVEN_WIELD;
+
 		/* Deliver a blow */
 		blows++;
 
-		/* Get the weapon */
-		o_ptr = &inventory[INVEN_WIELD];
-
 		/* Get secondary weapon instead */
-		if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) o_ptr = &inventory[INVEN_ARM];
+		if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) slot = INVEN_ARM;
+
+		/* Get the weapon */
+		o_ptr = &inventory[slot];
 
 		/* Get the unarmed weapon */
 		if (melee_style & (1L << WS_UNARMED))
@@ -1442,10 +1444,10 @@ void py_attack(int y, int x)
 
 				/* Check for new flags */
 				n1 = o_ptr->can_flags1 & ~(k1);
-				n2 = o_ptr->can_flags1 & ~(k2);
-				n3 = o_ptr->can_flags1 & ~(k3);
+				n2 = o_ptr->can_flags2 & ~(k2);
+				n3 = o_ptr->can_flags3 & ~(k3);
 
-				if (n1 || n2 || n3) update_slot_flags(INVEN_WIELD, n1, n2, n3);
+				if (n1 || n2 || n3) update_slot_flags(slot, n1, n2, n3);
 
 				/* Check usage */
 				object_usage(INVEN_WIELD);
@@ -1519,7 +1521,7 @@ void py_attack(int y, int x)
  * This routine should only be called when energy has been expended.
  *
  */
-bool stuck_player(int dir)
+bool stuck_player(int *dir)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1531,7 +1533,7 @@ bool stuck_player(int dir)
 	cptr name;
 
 	/* Hack -- allowed to move nowhere */
-	if (dir == 5) return (FALSE);
+	if ((!*dir) || (*dir == 5)) return (FALSE);
 
 	/* Player can not walk through "walls" */
 	if (!(f_ptr->flags1 & (FF1_MOVE))
@@ -1570,20 +1572,8 @@ bool stuck_player(int dir)
 
 		}
 
-		/* Mention known obstacles */
-		else
-		{
-			/* Get the mimiced feature */
-			mimic = f_ptr->mimic;
-
-			/* Get the feature name */
-			name = (f_name + f_info[mimic].name);
-
-			/* Tell the player */
-			msg_format("You are stuck %s%s.",
-				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
-					(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
-		}
+		/* Always make direction 0 */
+		*dir = 0;
 
 		return (TRUE);
 
@@ -1628,7 +1618,7 @@ void move_player(int dir, int jumping)
 		py_attack(y, x);
 	}
 
-	else if (stuck_player(dir))
+	else if (stuck_player(&dir))
 	{
 		/* Do nothing */
 	}
@@ -1713,7 +1703,7 @@ void move_player(int dir, int jumping)
 		name = (f_name + f_info[mimic].name);
 
 		/* Tell the player */
-		msg_format("There is &s%s blocking your way.",
+		msg_format("There is %s%s blocking your way.",
 			((f_ptr->flags2 & (FF2_FILLED)) ? "" :
 			(is_a_vowel(name[0]) ? "an " : "a ")),name);
 		}
@@ -2432,7 +2422,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (!(f_info[feat].flags1 & (FF1_RUN))))
+			    (!(f_info[feat].flags1 & (FF1_WALL))))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

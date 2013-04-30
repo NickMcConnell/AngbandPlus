@@ -1006,19 +1006,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 					}
 				}
 			}
-			/* Mega hack -- fiddle with store graphics */
-			else if ((adult_campaign) && (f_info[feat].flags1 & (FF1_ENTER)))
-			{
-				int n = feat-FEAT_SHOP_HEAD;
-				town_type *t_ptr = &t_info[p_ptr->dungeon];
-				store_type *u_ptr = &u_info[t_ptr->store[n]];
-
-				/* Hack -- custom attr */
-				a = u_ptr->d_attr;
-
-				/* Hack -- custom char */
-				c = u_ptr->d_char;
-			}
 		}
 		/* Hack -- display unseen graphic in wilderness during daytime */
 		else if (surface)
@@ -1643,13 +1630,19 @@ void display_map(int *cy, int *cx)
 
 	monster_race *r_ptr = &r_info[0];
 
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+
+	dungeon_zone *zone=&t_ptr->zone[0];;
+
+	/* Get the zone */
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Desired map height */
 	map_hgt = Term->hgt - 2;
 	map_wid = Term->wid - 2;
 
-	dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
-	dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+	dungeon_hgt = (!(zone->fill)) ? TOWN_HGT : DUNGEON_HGT;
+	dungeon_wid = (!(zone->fill)) ? TOWN_WID : DUNGEON_WID;
 
 	/* Prevent accidents */
 	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
@@ -4163,15 +4156,20 @@ void town_illuminate(bool daytime)
 
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
-	dungeon_zone *zone=&t_ptr->zone[0];;
+	dungeon_zone *zone=&t_ptr->zone[0];
+
+	int dungeon_hgt, dungeon_wid;
 
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
+	dungeon_hgt = (!(zone->fill)) ? TOWN_HGT : DUNGEON_HGT;
+	dungeon_wid = (!(zone->fill)) ? TOWN_WID : DUNGEON_WID;
+
 	/* Apply light or darkness */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < dungeon_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < dungeon_wid; x++)
 		{
 			/* Don't affect indoors */
 			if (!(f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
@@ -4237,8 +4235,8 @@ void town_illuminate(bool daytime)
 		/* Pick a location */
 		while (1)
 		{
-			y = rand_int(DUNGEON_HGT);
-			x = rand_int(DUNGEON_WID);
+			y = rand_int(dungeon_hgt);
+			x = rand_int(dungeon_wid);
 
 			if (cave_naked_bold(y, x)) break;
 		}

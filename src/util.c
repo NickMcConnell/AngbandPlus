@@ -2900,7 +2900,6 @@ void text_out_to_file(byte attr, cptr str)
 	/* Last space saved into roff_buf */
 	static char *roff_s = NULL;
 
-
 	/* Unused */
 	(void)attr;
 
@@ -2912,13 +2911,15 @@ void text_out_to_file(byte attr, cptr str)
 
 		if (!isprint(ch)) ch = ' ';
 
-		if (roff_p >= roff_buf + 75) wrap = TRUE;
+		if (roff_p >= roff_buf + 75 - text_out_indent) wrap = TRUE;
 
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = TRUE;
+		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75 - text_out_indent)) wrap = TRUE;
 
 		/* Handle line-wrap */
 		if (wrap)
 		{
+			int i;
+
 			/* Terminate the current line */
 			*roff_p = '\0';
 
@@ -2930,6 +2931,9 @@ void text_out_to_file(byte attr, cptr str)
 				*roff_s = '\0';
 				r = roff_s + 1;
 			}
+
+			/* Indentation */
+			for (i = 0; i < text_out_indent; i++) fputc(' ', text_out_file);
 
 			/* Output the line */
 			fprintf(text_out_file, "%s\n", roff_buf);

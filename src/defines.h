@@ -41,13 +41,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "UnAngband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.2"
+#define VERSION_STRING	"0.5.3"
 
 /*
  * Hack -- note use of new version name/string but old version
@@ -1185,8 +1185,8 @@
 #define SF2_CREATE_STAIR 0x00000008
 #define SF2_TELE_LEVEL   0x00000010
 #define SF2_ALTER_LEVEL  0x00000020
-#define SF2_GENOCIDE     0x00000040
-#define SF2_MASS_GENOCIDE       0x00000080
+#define SF2_BANISHMENT     0x00000040
+#define SF2_MASS_BANISHMENT       0x00000080
 #define SF2_CUT   0x00000100
 #define SF2_STUN  0x00000200
 #define SF2_POISON       0x00000400
@@ -1826,7 +1826,7 @@
 #define SV_STAFF_DISPEL_EVIL	24
 #define SV_STAFF_POWER			25
 #define SV_STAFF_HOLINESS		26
-#define SV_STAFF_GENOCIDE		27
+#define SV_STAFF_BANISHMENT		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
 
@@ -1939,8 +1939,8 @@
 #define SV_SCROLL_STAR_DESTRUCTION		41
 #define SV_SCROLL_DISPEL_UNDEAD			42
 /* xxx */
-#define SV_SCROLL_GENOCIDE				44
-#define SV_SCROLL_MASS_GENOCIDE			45
+#define SV_SCROLL_BANISHMENT				44
+#define SV_SCROLL_MASS_BANISHMENT			45
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
 #define SV_SCROLL_LEGEND_LORE			48
@@ -2673,7 +2673,7 @@
 #define RF1_FORCE_DEPTH  0x00000100      /* Start at "correct" depth */
 #define RF1_FORCE_MAXHP  0x00000200      /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP  0x00000400      /* Start out sleeping */
-#define RF1_FORCE_EXTRA  0x00000800      /* Start out something */
+#define RF1_GUARDIAN     0x00000800      /* Dungeon guardian*/
 #define RF1_ATTR_METAL   0x00001000      /* Lightens color occasionally */
 #define RF1_FRIENDS       0x00002000      /* Arrive with some friends */
 #define RF1_ESCORT 0x00004000      /* Arrive with an escort */
@@ -2914,7 +2914,7 @@
  */
 #define RF1_OBVIOUS_MASK \
 	(RF1_UNIQUE | RF1_QUESTOR | RF1_MALE | RF1_FEMALE | \
-	 RF1_FRIENDS | RF1_ESCORT | RF1_ESCORTS)
+	 RF1_GUARDIAN | RF1_FRIENDS | RF1_ESCORT | RF1_ESCORTS)
 
 /*
  * "race" flags
@@ -3547,11 +3547,11 @@
 
 /*
  * Return the "attr" for a given item.
- * Use "flavor" if available.
+ * Use "flavor" if available and not aware.
  * Default to user definitions.
  */
 #define object_attr(T) \
-	((k_info[(T)->k_idx].flavor) ? \
+	((k_info[(T)->k_idx].flavor && !k_info[(T)->k_idx].aware) ? \
 	 (x_info[k_info[(T)->k_idx].flavor].x_attr) : \
 	 (k_info[(T)->k_idx].x_attr))
 

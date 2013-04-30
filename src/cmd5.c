@@ -136,6 +136,10 @@ int i,ii;
 		/* Get a random spell */
 		*sn = book[rand_int(num)];
 
+#ifdef ALLOW_REPEAT
+		repeat_push(*sn);
+#endif /* ALLOW_REPEAT */
+
 		/* Something happened */
 		return (TRUE);
 	}
@@ -634,7 +638,7 @@ void do_cmd_study(void)
 		break;
 
 		case TV_MAGIC_BOOK:
-		p = "song";
+		p = "spell";
 		break;
 
 		case TV_RUNESTONE:
@@ -1172,7 +1176,7 @@ void do_cmd_cast(void)
 	/* Ask for a spell */
 	if (!get_spell(&spell, p, o_ptr, TRUE))
 	{
-		if (spell == -2) msg_format("You don't know any &ss in that book.",t);
+		if (spell == -2) msg_format("You don't know any %ss in that book.",t);
 		return;
 	}
 

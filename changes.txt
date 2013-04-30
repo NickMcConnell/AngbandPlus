@@ -1,3 +1,189 @@
+UnAngband 0.5.3: "Let It Be" (the Killer Beatle release)
+
+### Game-play ###
+
+- Dropped down effectiveness of healing spell of a monster.
+
+- *identified* status of an object will be lost when a rune is applied.
+
+- Changed some routes between maps.  So that a meaningless loop is removed.
+
+- Implemented the Obvious Flags set for ego items.
+
+- Resistances and abilities of average items and base item of ego
+items will be known as soon as identified.
+
+- 'I'nspection of *Identified* item will always reveal all its true
+abilities regardless of Save File Option.
+
+- Added additional rune combinations to cast spells.
+
+- Added vanilla 3.0 mage spells.
+
+### User Interface ###
+
+- 'I'nspection of *Identified* items doesn't display annoying 'It does
+not...' descriptions, and display a simple supplement; 'You know
+everything about this item.'
+
+- Variant_save_feats will be automatically turned on as soon as
+character is loaded.
+
+- All Save File Options are now default for new save-file.
+
+### Bug fixes ###
+
+- Made HTML screendumps a fair bit smaller, or so I hope.
+
+- Fixed bug which causes crash when fire/throw command is used.
+
+- Potion of death didn't kill you.
+
+- Fixed bug which causes crash when cheat death is used at Wizard mode. 
+
+- Fixed bug of object detection spell.
+
+- Fixed bug where teleport level was used at surface only map like Lake Town.
+
+- Fixed wrong room descriptions of pits.
+
+- Fixed bug where teleport-to spell of a monster may place player on Chasm.
+
+- Fixed bug which prevents saving Ego status of musical instruments.
+
+- Fixed bug which cause wrong 'may' flags to be remained after
+  applying rune to some object.
+
+- Fixed bug which prevents displaying earth quake ability of a weapon.
+
+- Fixed bug which display meaningless '-more-' prompt when you press
+'=' at startup (only when random artifact is re-rolled).
+
+- Fixed placement of guardians and quest monsters.
+
+
+
+Unangband 0.5.2b Bugfix release
+
+### Game-play ###
+
+- Shamans start having a scroll of bless weapon
+
+### User Interface ###
+
+- Stores no longer use the large hack they did previously for display
+purposes. This will allow the player to set attr/mappings. Also allows
+stores to be seen from anywhere on town level.
+
+- Prevent user inscribing or unscribing any unaware objects, also do 
+not display inscription in the knowledge menus.
+
+- Changed definition of VERSION_NAME from "Angband" to "Unangband",
+  which change name of user directry on unix.
+
+
+### Bug fixes ###
+
+- Fix various bugs preventing player becoming *winner* on campaign mode.
+
+- Fix bug preventing destroy command from actually destroy bottles on floor.
+
+- Fix bug allowing {cursed} good staves being generated.
+
+- Fix bug that objects of your home disappears occasionally.
+
+- Fix bug allowing blood-stained floor being placed at non-floor grids.
+
+- Fix bug allowing flavored name to be displayed when you examine
+  unaware object in store.
+
+- Fix various bugs preventing various spells working correctly.
+
+- Fix various bugs that object memory wasn't correctly
+  updated/displayed.
+
+- Fix bug preventing updating auto inscription of ego item as you
+  inscribe an ego item.
+
+- Fix bug where refilling empty bottle from fountain or other potions
+  was buggy.
+
+- Fix bug preventing 'w'ear command listing normal weapons when you
+  are wielding a staff.
+
+- Fix bug that activate wrong spell when read from a stack of scrolls
+  using repeat command.
+
+- Fix a display problem when pasting a visual attr/char mapping.
+
+- Fix bug with Dragonscales spell applying as a weapon, rather than
+body armor. (Reported by Adam Horowitz).
+
+- Fix bug allowing artifacts to have runes inscribed.
+
+- Fix bug that crashed game if browsing a brand weapon spell (Reported
+by Adam Horowitz).
+
+
+
+Unangband 0.5.2a Bugfix release
+
+### Game-play ###
+
+- Bill Ferny now guards the bottom of Bree.
+
+- The Trollshaw forest is now harder.
+
+- Bert, Bill and Tom occur earlier in non-campaign mode.
+
+### User Interface ###
+
+- Added ability to redefine visual prefs using the knowledge menus (~).
+This is done via a graphic user interface type setting, allowing you to
+see large numbers of possible graphics to select from.
+
+- If you specify a graphic/attr/char mapping for e.g. a potion of speed,
+once you become aware of the object, it will use this mapping rather than
+still using the flavour attr/char mapping. This for instance allows you
+to colour all 'bad' potions/scrolls/etc. dark grey so that you don't
+attempt to get them.
+
+- The objects menu under the knowledge menu now lists the flavours of
+all unknown objects, primarily so you can interact with the visuals for
+these objects. This is different for Eyangband, which lists the objects
+you know of, but have not found this game.
+
+- Added reference to new web site at http://unangband.berlios.de.
+
+- Made torches light brown, and other junk dark brown.
+
+### Build / Platform ###
+
+- Removed use of 'near' member of structure as used as a reserved
+keyword in VC++.
+
+### Bug fixes ###
+
+- Actually made teleport a lot safer to use. You will not be placed in
+potentially dangerous grids.
+
+- Fixed bug where monster could end up in unsafe grids for the monster
+after teleporting.
+
+- Fixed bug where town/dungeon name and depth were displayed in wrong
+part of screen if window is resized.
+
+- Fixed some flags for various types of terrain.
+
+- Fixed bug where learning a spell would report it as a song (Reported
+ by Adam Horowitz).
+
+- Fixed bugs so that you can escape locations where you are stuck other
+than by teleporting.
+
+- Partially fixed bug so that at least 'aware' flavoured items are
+displayed with correct graphic when using graphics.
+
 Angband 0.5.2 "I'm on fire" release
 
 I have reorganised this changes.txt file to similar to what Eytan Zweig
@@ -92,6 +278,9 @@ anytime Angband expects user interaction.
 
 - Now use Enter to continue and ESC to restart the character generation
  process.
+
+- Also use Enter to recall an object/monster/ego item/artifact in the
+knowledge menus.
 
 - You can now recall objects while you are looking at them. You will 
 recall the monster instead if they are a monster body part or container

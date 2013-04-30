@@ -277,7 +277,7 @@ void do_cmd_wield(void)
 		return;
 	}
 	/* Prevent wielding from cursed slot */
-	else if (cursed_p(&inventory[item]) && (item >= INVEN_WIELD) && (item != INVEN_BELT))
+	else if ((item >= INVEN_WIELD) && cursed_p(&inventory[item]) && (item != INVEN_BELT))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[item], FALSE, 0);
@@ -361,17 +361,20 @@ void do_cmd_wield(void)
 		object_copy(j_ptr, o_ptr);
 
 	}
-	/* Drop existing item */
-	else if ((o_ptr->k_idx) && (p_ptr->energy_use == 50))
-	{
-		/* Take off existing item */
-		(void)inven_drop(slot, 255);
-	}
 	/* Take off existing item */
 	else if ((o_ptr->k_idx) && (!rings))
 	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
+                /* variant_fast_floor? */
+                if (p_ptr->energy_use == 50)
+                {
+                        /* Drop existing item */
+                        (void)inven_drop(slot, 255);
+                }
+                else
+                {
+                        /* Take off existing item */
+                        (void)inven_takeoff(slot, 255);
+                }
 	}
 
 	/* Wear the new rings */
@@ -522,10 +525,10 @@ void do_cmd_wield(void)
 
 	/* Check for new flags */
 	n1 = o_ptr->can_flags1 & ~(k1);
-	n2 = o_ptr->can_flags1 & ~(k2);
-	n3 = o_ptr->can_flags1 & ~(k3);
+	n2 = o_ptr->can_flags2 & ~(k2);
+	n3 = o_ptr->can_flags3 & ~(k3);
 
-	if (n1 || n2 || n3) update_slot_flags(INVEN_WIELD, n1, n2, n3);
+	if (n1 || n2 || n3) update_slot_flags(slot, n1, n2, n3);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -896,7 +899,7 @@ void do_cmd_uninscribe(void)
 	/* Do we inscribe all these ego items? */
 	if (object_known_p(o_ptr) && (o_ptr->name2) && (e_info[o_ptr->name2].note))
 	{
-		e_info[o_ptr->name1].note = 0;
+		e_info[o_ptr->name2].note = 0;
 
 		/* Process objects */
 		for (i = 1; i < o_max; i++)
@@ -1014,7 +1017,7 @@ void do_cmd_inscribe(void)
 	/* Do we inscribe all these ego items? */
 	if (object_known_p(o_ptr) && (o_ptr->name2))
 	{
-		e_info[o_ptr->name1].note = o_ptr->note;
+		e_info[o_ptr->name2].note = o_ptr->note;
 
 		/* Process objects */
 		for (i = 1; i < o_max; i++)
@@ -1162,7 +1165,8 @@ void do_cmd_refill(void)
 	object_type *i_ptr;
 	object_type *j_ptr;
 
-object_type object_type_body;
+	object_type object_type_body;
+	object_type feat_object_type_body;
 
 	cptr q, s;
 
@@ -1231,9 +1235,7 @@ bool unstack = FALSE;
 	/* Get the feature */
 	if (item2 >= INVEN_TOTAL+1)
 	{
-		object_type object_type_body;
-
-		j_ptr = &object_type_body;
+		j_ptr = &feat_object_type_body;
 
 		if (!make_feat(j_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -1269,6 +1271,9 @@ bool unstack = FALSE;
 
 		/* Unstack the used item */
 		o_ptr->number--;
+
+		/* Adjust the weight */
+		p_ptr->total_weight -= i_ptr->weight;
 
 		o_ptr = i_ptr;
 
@@ -1321,39 +1326,22 @@ bool unstack = FALSE;
 	}
 	else
 	{
-		if (unstack)
-		{
-			/* We are done */
-		}
-		else if (item >= INVEN_TOTAL+1)
-		{
-			cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-		}
+		/* Fill empty bottle or flask with the potion */
+		object_copy(o_ptr, j_ptr);
 
-		/* Decrease the item (in the pack) */
-		else if ((item >= 0) && (o_ptr->tval != TV_LITE))
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-		/* Decrease the item (from the floor) */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		/* Modify quantity */
+		o_ptr->number = 1;
 
-		/* Adjust the weight and carry */
-		item = inven_carry(j_ptr);
+		/* Reset stack counter */
+		o_ptr->stackc = 0;
 
+		/* Adjust the weight */
+		p_ptr->total_weight += o_ptr->weight;
 	}
 
 	if (unstack)
 	{
-		/* Adjust the weight and carry */
-		p_ptr->total_weight -= o_ptr->weight;
+		/* Carry */
 		item = inven_carry(o_ptr);
 	}
 

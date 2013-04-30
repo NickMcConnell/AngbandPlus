@@ -125,6 +125,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_INSTRUMENT:
 		case TV_STAFF:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -747,6 +748,15 @@ static void rd_options(void)
 	u32b window_flag[ANGBAND_TERM_MAX];
 	u32b window_mask[ANGBAND_TERM_MAX];
 
+        /* Hack -- unset all Save File Options for compatibility */
+	for (i = 0; i < OPT_PAGE_PER; i++)
+	{
+		/* Collect options on this "page" */
+		if (option_page[8][i] != 255)
+		{
+			op_ptr->opt[option_page[8][i]] = FALSE;
+		}
+	}
 
 	/*** Oops ***/
 
@@ -2159,6 +2169,9 @@ static errr rd_savefile_new_aux(void)
 
 	/* Hack -- no ghosts */
 	r_info[z_info->r_max-1].max_num = 0;
+
+        /* Set important Save-File Option */
+        variant_save_feats = TRUE;
 
 
 	/* Success */

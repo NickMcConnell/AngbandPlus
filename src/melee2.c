@@ -3208,7 +3208,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			}
 
 			/* Heal some */
-			n_ptr->hp += (rlev * 6);
+			n_ptr->hp += (rlev * 3);
 
 			/* Fully healed */
 			if (n_ptr->hp >= n_ptr->maxhp)

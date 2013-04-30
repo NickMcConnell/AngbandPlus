@@ -301,6 +301,13 @@ void flavor_init(void)
 
 		/* Check for "easily known" */
 		k_ptr->easy_know = object_easy_know(i);
+
+		/* Hack -- color if flavoured */
+		if (k_ptr->flavor)
+		{
+			k_ptr->d_attr = x_info[k_ptr->flavor].d_attr;
+			k_ptr->x_attr = x_info[k_ptr->flavor].x_attr;
+		}
 	}
 
 }
@@ -1684,7 +1691,7 @@ s16b wield_slot(const object_type *o_ptr)
 			/* Two-weapon combat -- primary weapon */
 			if ((inventory[INVEN_ARM].k_idx)
 				&& ((inventory[INVEN_ARM].tval == TV_SWORD)
-					|| (inventory[INVEN_WIELD].tval == TV_STAFF)
+					|| (inventory[INVEN_ARM].tval == TV_STAFF)
 					|| (inventory[INVEN_ARM].tval == TV_POLEARM)
 						|| (inventory[INVEN_ARM].tval == TV_HAFTED)))
 			{

@@ -386,7 +386,7 @@ static cptr r_info_flags1[] =
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
-	"FORCE_EXTRA",
+	"GUARDIAN",
 	"ATTR_METAL",
 	"FRIENDS",
 	"ESCORT",
@@ -975,8 +975,8 @@ static cptr s_info_flags2[] =
 	"CREATE_STAIR",
 	"TELE_LEVEL",
 	"ALTER_LEVEL",
-	"GENOCIDE",
-	"MASS_GENOCIDE",
+	"BANISHMENT",
+	"MASS_BANISHMENT",
 	"CUT",
 	"STUN",
 	"POISON",
@@ -2769,6 +2769,37 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 
 
 /*
+ * Grab one flag in a ego-item_type from a textual string
+ */
+static bool grab_one_obvious_ego_item_flag(ego_item_type *e_ptr, cptr what)
+{
+	if (grab_one_flag(&e_ptr->obv_flags1, k_info_flags1, what) == 0)
+        {
+                e_ptr->flags1 |= e_ptr->obv_flags1;
+		return (0);
+        }
+
+	if (grab_one_flag(&e_ptr->obv_flags2, k_info_flags2, what) == 0)
+        {
+                e_ptr->flags2 |= e_ptr->obv_flags2;
+		return (0);
+        }
+
+	if (grab_one_flag(&e_ptr->obv_flags3, k_info_flags3, what) == 0)
+        {
+                e_ptr->flags3 |= e_ptr->obv_flags3;
+		return (0);
+        }
+
+	/* Oops */
+	msg_format("Unknown ego-item flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+/*
  * Initialize the "e_info" array, by parsing an ascii "template" file
  */
 errr parse_e_info(char *buf, header *head)
@@ -2942,6 +2973,33 @@ errr parse_e_info(char *buf, header *head)
 
 			/* Parse this entry */
 			if (0 != grab_one_ego_item_flag(e_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
+	/* Hack -- Process 'O' for obvious flags */
+	else if (buf[0] == 'O')
+	{
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while ((*t == ' ') || (*t == '|')) t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_obvious_ego_item_flag(e_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
 			s = t;
@@ -4828,16 +4886,16 @@ errr parse_t_info(char *buf, header *head)
 	/* Process 'X' for "Xtra" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int near,distant;
+		int nearby,distant;
 
 		/* There better be a current t_ptr */
 		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &near, &distant)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d", &nearby, &distant)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		t_ptr->near=near;
+		t_ptr->nearby=nearby;
 		t_ptr->distant = distant;
 
 	}
@@ -4968,51 +5026,6 @@ errr parse_u_info(char *buf, header *head)
 
 		/* Reset the store */
 		cur_t = 0;
-	}
-
-	/* Process 'G' for "Graphics" (one line only) */
-	else if (buf[0] == 'G')
-	{
-		char sym;
-		int tmp;
-
-		/* There better be a current u_ptr */
-		if (!u_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-		if (!buf[3]) return (PARSE_ERROR_GENERIC);
-		if (!buf[4]) return (PARSE_ERROR_GENERIC);
-
-		/* Extract the char */
-		sym = buf[2];
-
-		/* Extract the attr */
-		tmp = color_char_to_attr(buf[4]);
-
-		/* Paranoia */
-		if (tmp < 0) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		u_ptr->d_attr = tmp;
-		u_ptr->d_char = sym;
-	}
-
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int level, stval;
-
-		/* There better be a current u_ptr */
-		if (!u_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &level, &stval)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		u_ptr->level=level;
-		u_ptr->stval=stval;
-
 	}
 
 	/* Process 'O' for "Offered" (up to thirty two lines) */

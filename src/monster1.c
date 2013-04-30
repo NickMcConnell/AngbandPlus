@@ -1528,6 +1528,12 @@ void describe_monster(int r_idx, bool spoilers)
 		text_out("You feel an intense desire to kill this monster...  ");
 	}
 
+	/* Notice "Guardian" monsters */
+	if (lore.flags1 & RF1_GUARDIAN)
+	{
+		text_out("It is a dungeon guardian, impeding your progress further.  ");
+	}
+
 	/* All done */
 	text_out("\n");
 }

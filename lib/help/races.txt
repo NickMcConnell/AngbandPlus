@@ -6,14 +6,14 @@ its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
  
 ***** <Human>
-          Human
+         Human
                The human is the base character.  All other races are com-
                pared to them.  Humans can choose any class and are average
                at everything.  Humans tend to go up levels faster than any
                other race because of their shorter life spans.  No racial
                adjustments or intrinsics occur to characters choosing human.
  
- ***** <Half-Elf>
+***** <Half-Elf>
          Half-Elf
                Half-elves tend to be smarter and faster than a human,  but
                not as wise or strong.  Half-elves are slightly better at magic,
@@ -21,7 +21,7 @@ have intrinsic abilities.
                are not as good at hand weapons.  Half-elves may choose any
                class and have their dexterity sustained.
  
- ***** <Elf>
+***** <Elf>
          Elf
                Elves are better magicians then humans, but not as good at
                fighting.  They tend to be smarter and faster than either
@@ -32,7 +32,7 @@ have intrinsic abilities.
                not be priests or paladins: and they are resistant to attacks 
                involving bright light, and have their dexterity sustained.
  
- ***** <Hobbit>
+***** <Hobbit>
          Hobbits
                Hobbits, or Halflings, are very good at bows, throwing,  and
                have good saving throws.  They also are very good at search-
@@ -45,7 +45,7 @@ have intrinsic abilities.
                are thus intrinsically resistant to life draining.
  
 ***** <Gnome>
-           Gnome
+         Gnome
                Gnomes are smaller than dwarves but larger than halflings.
                They, like  the halflings, live in the earth in burrow-like
                homes.  Gnomes make excellent mages, and have very good saving
@@ -57,7 +57,7 @@ have intrinsic abilities.
                mage, priest, or rogue.  Gnomes are intrinsically protected
                against paralysis and some slowing effects.
  
- ***** <Dwarf>
+***** <Dwarf>
          Dwarf
                Dwarves are the headstrong miners and fighters of legend.
                Since dungeons are the natural home of a dwarf, they are
@@ -73,7 +73,7 @@ have intrinsic abilities.
                other words, dwarves have a miserable stealth.  They can never
                be blinded. 
  
- ***** <Half-Orc>
+***** <Half-Orc>
          Half-Orc
                Half-Orcs make excellent warriors and decent priests, but
                are terrible at magic.  They are as bad as dwarves at stealth,
@@ -85,7 +85,7 @@ have intrinsic abilities.
                preference to living underground to on the surface, half-orcs
                resist darkness attacks.
  
- ***** <Half-Troll>
+***** <Half-Troll>
          Half-Troll
                Half-Trolls are incredibly strong, and have more hit points
                than any other character race.  They are also very stupid and
@@ -97,7 +97,7 @@ have intrinsic abilities.
                Unfortunately, this regeneration also requires them to eat more 
                food than other races.
  
- ***** <Dunadan>
+***** <Dunadan>
          Dunadan
                Dunedain are a race of hardy men from the West.  This elder
                race surpasses human abilities in every field, especially
@@ -107,7 +107,7 @@ have intrinsic abilities.
                stoop to petty crime (when a Dunadan goes evil, he does it in 
                a much bigger way.)  Their constitution cannot be reduced.
  
- ***** <High-Elf>
+***** <High-Elf>
          High-Elf
                High-Elves are descended from those among the Elves who heard 
                and answered the call from the Valar at the very beginning of 
@@ -125,7 +125,7 @@ have intrinsic abilities.
                but may be all other classes.
 
 ***** <Kobold>
-          Kobold
+         Kobold
                Kobolds are a race of small dog-headed humanoids that dwell 
                underground.  They can see in the dark better than almost 
                any other race, and are intrinsically resistant to poisons 

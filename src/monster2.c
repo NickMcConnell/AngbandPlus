@@ -470,17 +470,11 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Hack -- "questor" monsters must be placed specifically */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
-		{
-			continue;
-		}
+		/* Hack -- "questor" monsters and guardians must be placed specifically */
+		if ((r_ptr->flags1 & (RF1_QUESTOR)) || (r_ptr->flags1 & (RF1_GUARDIAN))) continue;
 
 		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
-		{
-			continue;
-		}
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth)) continue;
 
 		/* Hack -- No MULTIPLY monsters on surface */
 		if (surface && (r_ptr->flags2 & (RF2_MULTIPLY))) continue;
@@ -644,7 +638,7 @@ s16b get_mon_num(int level)
  * Useful Modes:
  *   0x00 --> Full nominative name ("the goblin") or "it"
  *   0x04 --> Full nominative name ("the goblin") or "something"
- *   0x80 --> Genocide resistance name ("the goblin")
+ *   0x80 --> Banishment resistance name ("the goblin")
  *   0x88 --> Killing name ("a goblin")
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
@@ -3079,10 +3073,10 @@ bool animate_object(int item)
 		   "has" : "have")), p);
 
 		/* Destroy the item */
-		if (o_ptr->stackc) floor_item_increase(item, -(o_ptr->stackc));
-		else floor_item_increase(item,-(o_ptr->number));
+		if (o_ptr->stackc) floor_item_increase(0 - item, -(o_ptr->stackc));
+		else floor_item_increase(0 - item, -(o_ptr->number));
 
-		floor_item_optimize(item);
+		floor_item_optimize(0 - item);
 	}
 
 	return (TRUE);

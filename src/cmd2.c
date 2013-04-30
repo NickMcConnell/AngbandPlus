@@ -175,7 +175,7 @@ static void do_cmd_travel(void)
 			if (get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) selection = inventory[item].sval;
 
 			/* Make sure we can get back */
-			if ((selection != p_ptr->dungeon) && (!(adult_campaign) || (t_info[selection].near == p_ptr->dungeon)))
+			if ((selection != p_ptr->dungeon) && (!(adult_campaign) || (t_info[selection].nearby == p_ptr->dungeon)))
 			{
 				 msg_format("This map will lead you to %s.",t_name + t_info[selection].name);
 				if (get_check("Journey there? "))
@@ -191,12 +191,13 @@ static void do_cmd_travel(void)
 			{
 				/* XXX Bit wordy, but we may have many locations with 'identical' names. */
 				msg_print("You cannot follow this map yet.");
-				msg_format("But %s seems the best place to start.", t_name + t_info[t_info[selection].near].name);
+				msg_format("But %s seems the best place to start.", t_name + t_info[t_info[selection].nearby].name);
 				selection = p_ptr->dungeon;
 			}
 
 			/* Hack -- need a map to leave dungeon */
-			if (p_ptr->dungeon == 0) return;
+			/* if (p_ptr->dungeon == 0) return; */
+			if (!adult_campaign && p_ptr->dungeon == 0) return;
 
 			if ((selection==p_ptr->dungeon) && !(adult_campaign))
 			{
@@ -208,12 +209,12 @@ static void do_cmd_travel(void)
 					journey = damroll(2,4);
 				}
 			}
-			else if ((selection==p_ptr->dungeon) && (t_ptr->near != p_ptr->dungeon))
+			else if ((selection==p_ptr->dungeon) && (t_ptr->nearby != p_ptr->dungeon))
 			{
-				msg_format("You see a well worn trail to %s.",t_name + t_info[t_ptr->near].name);
+				msg_format("You see a well worn trail to %s.",t_name + t_info[t_ptr->nearby].name);
 				if (get_check("Journey there? "))
 				{
-					selection = t_ptr->near;
+					selection = t_ptr->nearby;
 					
 					journey = damroll(2,4);
 				}
@@ -541,8 +542,8 @@ static int count_feats(int *y, int *x, int action)
 	/* Count how many matches */
 	count = 0;
 
-	/* Check around (and under) the character */
-	for (d = 0; d < 9; d++)
+	/* Check around the character */
+	for (d = 0; d < 8; d++)
 	{
 		/* Extract adjacent (legal) location */
 		int yy = p_ptr->py + ddy_ddd[d];
@@ -550,11 +551,6 @@ static int count_feats(int *y, int *x, int action)
 
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
-
-		/* If stuck in something, we can only modify it */
-	      if (!(f_info[cave_feat[p_ptr->py][p_ptr->px]].flags1 & (FF1_MOVE))
-			&& !(f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_EASY_CLIMB))
-			&& (d!=9)) continue;
 
 		/* Get the feature */
 		feat = cave_feat[yy][xx];
@@ -620,6 +616,12 @@ static bool do_cmd_open_aux(int y, int x)
 
 	/* Verify legality */
 	if (!do_cmd_test(y, x, FS_OPEN)) return (FALSE);
+
+	/* Unknown trapped door */
+	if (f_info[cave_feat[y][x]].flags3 & (FF3_PICK_DOOR))
+	{
+		pick_door(y,x);
+	}
 
 	/* Trapped door */
 	if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
@@ -756,11 +758,8 @@ void do_cmd_open(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -901,11 +900,8 @@ void do_cmd_close(void)
 	/* Take a turn */
 	p_ptr->energy_use = 50;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1138,11 +1134,8 @@ void do_cmd_tunnel(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1325,11 +1318,8 @@ void do_cmd_disarm(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1535,11 +1525,8 @@ void do_cmd_bash(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
 	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1618,6 +1605,9 @@ void do_cmd_alter(void)
 	/* Original feature */
 	feat = cave_feat[y][x];
 
+	/* Get mimiced feature */
+	feat = f_info[feat].mimic;
+
 	/* Must have knowledge to know feature XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) feat = FEAT_NONE;
 
@@ -1625,11 +1615,8 @@ void do_cmd_alter(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1793,11 +1780,8 @@ if (count_feats(&y, &x, FS_SPIKE)==1)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
-	/* Apply confusion */
-	else if (confuse_dir(&dir))
+	/* Apply stuck / confusion */
+	if (stuck_player(&dir) || confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1943,7 +1927,19 @@ static void do_cmd_walk_or_jump(int jumping)
 	else p_ptr->energy_use = 100;
 
 	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
+	if (stuck_player(&dir))
+	{
+		/* Get the mimiced feature */
+		int mimic = f_info[cave_feat[py][px]].mimic;
+
+		/* Get the feature name */
+		cptr name = (f_name + f_info[mimic].name);
+
+		/* Tell the player */
+		msg_format("You are stuck %s%s.",
+			((f_info[mimic].flags2 & (FF2_FILLED)) ? "" :
+				(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
+	}
 
 	/* Apply confusion */
 	else if (confuse_dir(&dir))
@@ -2017,6 +2013,23 @@ void do_cmd_run(void)
 		return;
 	}
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(&dir))
+	{
+		int mimic = f_info[cave_feat[py][px]].mimic;
+
+		/* Get the feature name */
+		cptr name = (f_name + f_info[mimic].name);
+
+		/* Use up energy */
+		p_ptr->energy_use = 100;
+
+		/* Tell the player */
+		msg_format("You are stuck %s%s.",
+			((f_info[mimic].flags2 & (FF2_FILLED)) ? "" :
+				(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
+	}
+
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -2024,12 +2037,8 @@ void do_cmd_run(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
-	/* Hack -- handle stuck players */
-	if (stuck_player(dir)) return;
-
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
 
 	/* Start run */
 	run_step(dir);
@@ -2142,7 +2151,7 @@ void do_cmd_rest(void)
 		strcpy(out_val, "&");
 
 		/* Ask for duration */
-		if (!get_string(p, out_val, 4)) return;
+		if (!get_string(p, out_val, 5)) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')
@@ -2649,7 +2658,7 @@ void do_cmd_fire(void)
 					}
 
 					/* Get item effect */
-					get_spell(&power, "use", o_ptr, FALSE);
+					get_spell(&power, "use", i_ptr, FALSE);
 
 					/* Has a power */
 					/* Always apply powers if ammunition */
@@ -3011,7 +3020,7 @@ void do_cmd_throw(void)
 					}
 
 					/* Get item effect */
-					get_spell(&power, "use", o_ptr, FALSE);
+					get_spell(&power, "use", i_ptr, FALSE);
 
 					/* Has a power */
 					/* Always apply powers if ammunition */

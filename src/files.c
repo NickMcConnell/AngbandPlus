@@ -993,7 +993,7 @@ void dump_html(void)
 
 
 	/* Build the filename */
-	/* XXX Support .html vs. .html file names. We dumb down for DOS */
+	/* XXX Support .html vs. .htm file names. We dumb down for DOS */
 	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.htm");
 
 	/* File type is "TEXT" */
@@ -1007,16 +1007,16 @@ void dump_html(void)
 
 
 	/* Html preamble */
-	fprintf(fff, "<HTML>\n");
-	fprintf(fff, "<HEAD>\n");
-      fprintf(fff, "<META NAME=\"GENERATOR\" Content=\"UnAngband 0.5.2\">\n");
-	fprintf(fff, "<TITLE>Unangband Screen Dump</TITLE>\n");
-	fprintf(fff, "</HEAD>\n");
-	fprintf(fff, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
-	fprintf(fff, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
+	fprintf(fff, "<html>\n");
+	fprintf(fff, "<head>\n");
+	fprintf(fff, "<meta name='generator' content='UnAngband " VERSION_STRING "'>\n");
+	fprintf(fff, "<title>" VERSION_NAME " " VERSION_STRING " Screen Dump</title>\n");
+	fprintf(fff, "</head>\n");
+	fprintf(fff, "<body text='#%02x%02x%02x' bgcolor='#000000'>",
 	             angband_color_table[TERM_WHITE][1],
 	             angband_color_table[TERM_WHITE][2],
 	             angband_color_table[TERM_WHITE][3]);
+	fprintf(fff, "<pre><tt>");
 
 	/* Dump the screen */
 	for (y = 0; y < 24; y++)
@@ -1027,10 +1027,33 @@ void dump_html(void)
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
 
-			/* Dump it */
-			if (oa != a)
+			/* Check for being white (reduce file size) */
+			if ((a == oa) && (oa == TERM_WHITE))
 			{
-				fprintf(fff, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+				/* Do nothing. */
+			}
+			else if ((a != oa) && (oa == TERM_WHITE))
+			{
+				fprintf(fff, "<font color='#%02x%02x%02x'>",
+				                  angband_color_table[a][1],
+				                  angband_color_table[a][2],
+				                  angband_color_table[a][3]);
+
+				oa = a;
+			}
+			else if ((a != oa) && (a == TERM_WHITE))
+			{
+				fprintf(fff, "</font>");
+
+				oa = a;
+			}
+			else if ((a != oa) && (oa != TERM_WHITE))
+			{
+				fprintf(fff, "</font><font color='#%02x%02x%02x'>",
+				                  angband_color_table[a][1],
+				                  angband_color_table[a][2],
+				                  angband_color_table[a][3]);
+
 				oa = a;
 			}
 
@@ -1041,10 +1064,10 @@ void dump_html(void)
 		fprintf(fff, "\n");
 	}
 
-	fprintf(fff, "</TT></PRE></FONT>\n");
+	fprintf(fff, "</tt></pre>\n");
 
-	fprintf(fff, "</BODY>\n");
-	fprintf(fff, "</HTML>\n");
+	fprintf(fff, "</body>\n");
+	fprintf(fff, "</html>\n");
 
 	/* Close it */
 	my_fclose(fff);
@@ -2405,7 +2428,7 @@ errr file_character(cptr name, bool full)
 	text_out_file = fff;
 
 	/* Begin dump */
-	fprintf(fff, "  [Unangband 0.5.2 Character Dump]\n\n");
+	fprintf(fff, "  [Unangband 0.5.2a Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);

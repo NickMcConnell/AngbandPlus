@@ -320,9 +320,9 @@ static int wiz_create_itemtype(void)
 	char ch;
 
 	int choice[60];
-	static const char choice_name[] = ("abcdefghijklmnopqrst"
-	                                   "ABCDEFGHIJKLMNOPQRST"
-	                                   "0123456789:;<=>?@%&*");
+	static const char choice_name[] = "abcdefghijklmnopqrst"
+	                                  "ABCDEFGHIJKLMNOPQRST"
+	                                  "0123456789:;<=>?@%&*";
 	const char *cp;
 
 	char buf[160];
@@ -1032,31 +1032,31 @@ static void do_cmd_wiz_jump(void)
                 if (p_ptr->command_arg <= 0)
                 {
                         char ppp[80];
-        
+
                         char tmp_val[160];
-        
+
                         /* Prompt */
-                        sprintf(ppp, "Jump to dungeon (1-%d): ", z_info->t_max-1);
-        
+                        sprintf(ppp, "Jump to dungeon (0-%d): ", z_info->t_max-1);
+
                         /* Default */
                         sprintf(tmp_val, "%d", p_ptr->dungeon);
-        
+
                         /* Ask for a level */
                         if (!get_string(ppp, tmp_val, 10)) return;
-        
+
                         /* Extract request */
                         p_ptr->command_arg = atoi(tmp_val);
                 }
 
                 /* Paranoia */
-                if (p_ptr->command_arg < 1) p_ptr->command_arg = 1;
-        
+                if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
+
                 /* Paranoia */
                 if (p_ptr->command_arg >= z_info->t_max) p_ptr->command_arg = z_info->t_max -1;
-        
+
                 /* Accept request */
                 msg_format("You jump to %s.", t_name + t_info[p_ptr->command_arg].name);
-        
+
                 /* New depth */
                 p_ptr->dungeon = p_ptr->command_arg;
 
@@ -1238,7 +1238,7 @@ static void do_cmd_wiz_zap(int d)
 {
 	int i;
 
-	/* Genocide everyone nearby */
+	/* Banishment everyone nearby */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
@@ -1605,7 +1605,7 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Zap Monsters (Genocide) */
+		/* Zap Monsters (Banishment) */
 		case 'z':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;

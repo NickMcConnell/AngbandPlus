@@ -1200,7 +1200,6 @@ static void store_create(void)
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
-
 		/* Paranoia */
 		race_drop_idx = 0;
 
@@ -1210,8 +1209,8 @@ static void store_create(void)
 			/* Mega-hack -- fiddle depth */
 			int depth = p_ptr->depth;
 
-			p_ptr->depth = su_ptr->level;
-			object_level = su_ptr->level;
+			p_ptr->depth = f_info[store_num_real].level;
+			object_level = f_info[store_num_real].level;
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -1235,7 +1234,7 @@ static void store_create(void)
 		else if (total == 0)
 		{
 			/* Pick a level for object/magic */
-			level = su_ptr->level + rand_int(su_ptr->level);
+			level = f_info[store_num_real].level + rand_int(f_info[store_num_real].level);
 
 			if (level > 100) level = 100;
 
@@ -1269,7 +1268,7 @@ static void store_create(void)
 			if (!k_idx) continue;
 
 			/* Hack -- fake level for apply_magic() */
-			level = rand_range(1, STORE_OBJ_LEVEL+su_ptr->level);
+			level = rand_range(1, STORE_OBJ_LEVEL + f_info[store_num_real].level);
 		}
 
 		/* Get local object */
@@ -2933,6 +2932,13 @@ static void store_examine(void)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
+	/* Cannot examine unaware object */
+	if (!object_aware_p(o_ptr))
+	{
+		msg_print("You don't have any knowledge about it.");
+		return;
+	}
+
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -3297,16 +3303,15 @@ static void store_process_command(void)
 
 static void set_store(int which)
 {
-
 	/* Save the store number */
 	store_num = which;
 
 	/* Save the fake and real store numbers */
 	store_num_real = t_info[p_ptr->town].store[store_num];
 	
-	if ((u_info[store_num_real].d_char >='1' ) && (u_info[store_num_real].d_char <= '8'))
+	if ((f_info[store_num_real].d_char >='1' ) && (f_info[store_num_real].d_char <= '8'))
 	{
-		store_num_fake = u_info[store_num_real].d_char - '1';
+		store_num_fake = f_info[store_num_real].d_char - '1';
 	}
 	else
 	{
@@ -3333,7 +3338,7 @@ static void set_store(int which)
 		ot_ptr = &b_info[0];
 	}
 
-	su_ptr = &u_info[store_num_real];
+	su_ptr = &u_info[f_info[store_num_real].power];
 
 }
 
@@ -3352,6 +3357,8 @@ void do_cmd_store(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	int feat = cave_feat[py][px];
+
 	int which;
 
 	int tmp_chr;
@@ -3361,17 +3368,12 @@ void do_cmd_store(void)
 	/* Get the zone */	
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-
 	/* Verify a store */
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	if (!(f_info[feat].flags1 & (FF1_ENTER)))
 	{
 		msg_print("You see no store here.");
 		return;
 	}
-
-	/* Hack -- Extract the store code */
-	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
 	/*
 	 * Megahack -- delay initialisation of stores when changing town until here
@@ -3391,8 +3393,16 @@ void do_cmd_store(void)
 		p_ptr->town = p_ptr->dungeon;		
 
 		/* Initialise the stores -- except for home */
-		for (i = 0; i<STORE_HOME;i++)
+		for (i = 0; i < MAX_STORES; i++)
 		{
+			store_num_real = t_info[p_ptr->town].store[i];
+
+			/* No building */
+			if (store_num_real == 0) continue;
+
+			/* Skip Home */
+			if (f_info[store_num_real].d_char == '8') continue;
+
 			store_init(i);
 
 			for (ii = 0;ii<10;ii++)
@@ -3402,8 +3412,16 @@ void do_cmd_store(void)
 		}
 	}
 
+	/* Hack -- Extract the store code */
+	for (which = 0; which < MAX_STORES; which++)
+	{
+		if (t_info[p_ptr->town].store[which] == feat) break;
+	}
+
 	/* Hack -- Check the "locked doors" */
-	if (adult_no_stores || (store[which].store_open >= turn) || ((zone->guard) && (r_info[zone->guard].cur_num>0)))
+	if ((which == MAX_STORES) || adult_no_stores ||
+		(store[which].store_open >= turn) ||
+		((zone->guard) && (r_info[zone->guard].cur_num>0)))
 	{
 		msg_print("The doors are locked.");
 		return;
@@ -3426,7 +3444,7 @@ void do_cmd_store(void)
 	/* No automatic command */
 	p_ptr->command_new = 0;
 
-
+	/* Set the store */
 	set_store(which);
 
 	/* Start at the beginning */

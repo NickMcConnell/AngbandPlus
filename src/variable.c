@@ -902,12 +902,17 @@ bool (*get_feat_num_hook)(int f_idx);
 
 
 /*
- * Hack -- function hook to restrict "get_feat_num_prep()" function
+ * Hack -- File hundle for output used within the text_out_to_file()
  */
 FILE *text_out_file = NULL;
 
 /*
- * Hack -- function hook to restrict "get_feat_num_prep()" function
+ * Hack -- Indent number used within the text_out_to_file()
+ */
+int text_out_indent = 0;
+
+/*
+ * Hack -- function hook for text_out()
  */
 void (*text_out_hook)(byte a, cptr str);
 

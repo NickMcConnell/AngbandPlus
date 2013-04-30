@@ -240,7 +240,7 @@ M:93:3:1:300:1
 A:4:40:2
 E:90:0:1:1
 E:91:0:1:1
-E:21:3:1:1
+E:70:51:1:1
 T:Aspirant
 T:Petitioner
 T:Practiser

@@ -794,17 +794,28 @@ void object_known_store(object_type *o_ptr)
 				a_list[o_ptr->name1].not_flags2,
 				a_list[o_ptr->name1].not_flags3);
 	}
-	/* Now we know what it is, update what we know about it from our ego item memory */
-	else if (o_ptr->name2)
-	{
-		object_can_flags(o_ptr,e_list[o_ptr->name2].can_flags1,
-				e_list[o_ptr->name2].can_flags2,
-				e_list[o_ptr->name2].can_flags3);
+        else
+        {
+                /* Now we know what it is, update what we know about it from our ego item memory */
+                if (o_ptr->name2)
+                {
+                        /* Obvious flags */
+                        object_can_flags(o_ptr,e_info[o_ptr->name2].obv_flags1,
+                                         e_info[o_ptr->name2].obv_flags2,
+                                         e_info[o_ptr->name2].obv_flags3);
 
-		object_not_flags(o_ptr,e_list[o_ptr->name2].not_flags1,
-				e_list[o_ptr->name2].not_flags2,
-				e_list[o_ptr->name2].not_flags3);
-	}
+                        /* Known flags */
+                        object_can_flags(o_ptr,e_list[o_ptr->name2].can_flags1,
+                                         e_list[o_ptr->name2].can_flags2,
+                                         e_list[o_ptr->name2].can_flags3);
+                        
+                        object_not_flags(o_ptr,e_list[o_ptr->name2].not_flags1,
+                                         e_list[o_ptr->name2].not_flags2,
+                                         e_list[o_ptr->name2].not_flags3);
+                }
+                else
+                        object_obvious_flags(o_ptr);
+        }
 
 	/* Now we know what it is, update what we know about it */
 	object_can_flags(o_ptr,o_ptr->can_flags1,
@@ -998,7 +1009,7 @@ void object_aware(object_type *o_ptr)
 	for (i = 1; i < inven_max; i++)
 	{
 		/* Get the object */
-		object_type *i_ptr = &inventory[inven_max];
+		object_type *i_ptr = &inventory[i];
 
 		/* Skip dead objects */
 		if (!i_ptr->k_idx) continue;
@@ -1987,8 +1998,11 @@ s16b lookup_kind(int tval, int sval)
 		if ((k_ptr->tval == tval) && (k_ptr->sval == sval)) return (k);
 	}
 
+        /* Since this function will be called at startup, msg_format is not yet usable. */
+#if 0
 	/* Oops */
 	msg_format("No object (%d,%d)", tval, sval);
+#endif
 
 	/* Oops */
 	return (0);
@@ -3236,6 +3250,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_STAFF:
 		{
 			if (!(k_info[o_ptr->k_idx].cost)) power = -1;
+			else if (power < 0) power = 0;
+
 			if (power) a_m_aux_1(o_ptr, lev, power);
 			a_m_aux_4(o_ptr, lev, power);
 			break;
@@ -4686,7 +4702,7 @@ void feat_near(int feat, int y, int x)
 	}
 
 	/* Give it to the floor */
-	if (flag) cave_set_feat(y, x, feat);
+	if (flag) cave_set_feat(by, bx, feat);
 }
 
 /*

@@ -1983,7 +1983,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_reseed_artifacts */
       FALSE,	   /* OPT_easy_autos */
 	FALSE,		/* OPT_easy_search */
-	FALSE,	  /* OPT_variant_save_feats */
+	TRUE,	  /* OPT_variant_save_feats */
 	FALSE,		/* OPT_view_glowing_lite */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -1999,12 +1999,12 @@ const bool option_norm[OPT_MAX] =
 	FALSE,	  /* OPT_variant_town */
 	TRUE,	   /* OPT_variant_mushroom */
 	TRUE,	   /* OPT_variant_mon_hit_trap */
-	FALSE,	  /* OPT_variant_room_info */
+	TRUE,	  /* OPT_variant_room_info */
 	TRUE,	   /* OPT_variant_free_stats */
 	TRUE,	   /* OPT_variant_fast_kills */
 	TRUE,	   /* OPT_variant_scale_damage */
 	TRUE,	   /* OPT_variant_scale_hp */
-	FALSE,	  /* OPT_variant_pval_stacks */
+	TRUE,	  /* OPT_variant_pval_stacks */
 	TRUE,	   /* OPT_variant_oos_summons */
 	TRUE,	   /* OPT_variant_oos_teleports */
 	TRUE,	   /* OPT_variant_oos_heals */
@@ -2013,21 +2013,21 @@ const bool option_norm[OPT_MAX] =
 	TRUE,	   /* OPT_variant_lake_feats */
 	TRUE,	   /* OPT_variant_big_feats */
 	TRUE,	   /* OPT_variant_new_feats */
-	FALSE,	  /* OPT_variant_learn_id */
-	FALSE,	  /* OPT_variant_guess_id */
-	FALSE,	  /* OPT_variant_usage_id */
+	TRUE,	  /* OPT_variant_learn_id */
+	TRUE,	  /* OPT_variant_guess_id */
+	TRUE,	  /* OPT_variant_usage_id */
 	TRUE,	   /* OPT_variant_great_id */
 	TRUE,	   /* OPT_variant_dis_attacks */
-	FALSE,	  /* OPT_variant_time_stacks */
+	TRUE,	  /* OPT_variant_time_stacks */
 	TRUE,		/* OPT_variant_many_rings */
 	TRUE,	  /* OPT_variant_fast_floor */
 	TRUE,	   /* OPT_variant_fast_equip */
-	FALSE,	  /* OPT_variant_belt_slot */
-	FALSE,	  /* OPT_variant_fast_moves */
-	FALSE,	  /* OPT_variant_unsummon */
+	TRUE,	  /* OPT_variant_belt_slot */
+	TRUE,	  /* OPT_variant_fast_moves */
+	TRUE,	  /* OPT_variant_unsummon */
 	FALSE,	  /* OPT_variant_friendly */
-	FALSE,	  /* OPT_variant_more_spells */
-	FALSE,	  /* OPT_variant_drop_body */
+	TRUE,	  /* OPT_variant_more_spells */
+	TRUE,	  /* OPT_variant_drop_body */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
 	TRUE,		/* OPT_birth_maximize */

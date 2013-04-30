@@ -1,33 +1,29 @@
+              _   _        _             _                  _ 
+             | | | |_ _   /_\  _ _  __ _| |__  __ _ _ _  __| |
+             | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
+              \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
+                                   |___/                      
+           The Unnamed Angband                  Version 0.5.3
+
+                   Earlier versions of Angband & Moria by:
+      Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
+             Charles Swiger, Ben Harrison and Robert Ruehlmann.
+
+        UnAngband 0.5.3 by Andrew Doull, Mogami, and Andrew Sidwell
+             Earlier versions of UnAngband by Andrew Doull.
+
+     Send comments, bug reports and patches to unangband@yahoogroups.com
+         Visit the UnAngband website at http://unangband.berlios.de/
+     Read the Angband Usenet group at news:rec.games.roguelike.angband
 
 
-              **************************************************
-              **  UnAngband 0.5.2  **    The Unnamed Angband  **
-              **************************************************
-
-           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
-               and Umoria:   Copyright (c) 1989 James E. Wilson
-
-                       Angband 2.0 - 2.4 - 2.6.2 by:
-                   Alex Cutler, Andy Astrand, Sean Marsh,
-                 Geoff Hill, Charles Teague, Charles Swiger
-
-                   Angband 2.7.0 - 2.8.5 by Ben Harrison
-                   Angband 2.9.1 by Robert Ruehlmann
-		UnAngband 0.1.0 - 0.5.2 by Andrew Doull
-
-     Send comments, bug reports, and patches, to "andrewdoull@hotmail.com"
-       Visit the Angband Home Page at "http://thangorodrim.angband.org/"
-      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-    Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
-
+            To access the help system, use the '?' key in-game.
 
 === General Info ===
 
-16-7-2001 UnAngband 0.4.0 "Mystery Release" aka "War against the Angels"
-aka "Angry Young Man"
+2002-10-25 - UnAngband 0.5.3: "Let It Be" (the Killer Beatle release).
 
-This is the README file for Unnamed Angband 0.4.0 for 14 July, 2001.
+This is the README file for Unnamed Angband 0.5.3 for 25th October 2002.
 
 For a more recent list of changes, read changes.txt.
 

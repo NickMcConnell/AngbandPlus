@@ -57,6 +57,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			*f1 |= o_ptr->can_flags1;
 			*f2 |= o_ptr->can_flags2;
 			*f3 |= o_ptr->can_flags3;
+			return;
 		}
 
 		/* Must be identified */
@@ -208,12 +209,47 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 }
 
 
+/*
+ * Set obvious flags for average items 
+ */
+void object_obvious_flags(object_type *o_ptr)
+{
+        if (o_ptr->ident & (IDENT_MENTAL))
+        {
+                u32b f1,f2,f3;
+
+                /* Spoil the object */
+                object_flags(o_ptr, &f1, &f2, &f3);
+
+                object_can_flags(o_ptr, f1, f2, f3);
+
+                object_not_flags(o_ptr, ~(f1), ~(f2), ~(f3));
+        }
+
+        else if (object_known_p(o_ptr) && !o_ptr->name1)
+        {
+                /* Abilities of base item are always known */
+                o_ptr->can_flags1 |= k_info[o_ptr->k_idx].flags1;
+                o_ptr->can_flags2 |= k_info[o_ptr->k_idx].flags2;
+                o_ptr->can_flags3 |= k_info[o_ptr->k_idx].flags3;
+
+                /* Non-runed average item have no more hidden ability */
+                if (!o_ptr->name2 && !o_ptr->xtra1 && wield_slot(o_ptr) >= INVEN_WIELD)
+                        object_not_flags(o_ptr, ~(o_ptr->can_flags1), 
+                                         ~(o_ptr->can_flags2), 
+                                         ~(o_ptr->can_flags3));
+        }
+}
+
 
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
+        /* Set obvious flags for an average item */
+        object_obvious_flags(o_ptr);
+
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
 }
 
@@ -222,7 +258,9 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 void identify_random_gen(const object_type *o_ptr)
 {
+	text_out_indent = 4;
 	list_object(o_ptr, OBJECT_FLAGS_RANDOM);
+	text_out_indent = 0;
 }
 
 
@@ -455,7 +493,7 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 
 	if ((s_ptr->type == SPELL_BRAND_WEAPON)
 		|| (s_ptr->type == SPELL_BRAND_ARMOR))
-			vp[vn++]=inscrip_text[INSCRIP_MIN_HIDDEN+s_ptr->param];
+			vp[vn++]=inscrip_text[INSCRIP_MIN_HIDDEN-INSCRIP_NULL+s_ptr->param];
 
 	if (s_ptr->type == SPELL_ENCHANT_TVAL) vp[vn++]="change its kind";
 
@@ -799,8 +837,8 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 	if (s_ptr->flags2 & (SF2_ALTER_LEVEL)) vp[vn++] = "alters the level you are on";
 	if (s_ptr->type == SPELL_EARTHQUAKE) vp[vn++] = format("creates a radius %d earthquake",s_ptr->param);
 	if (s_ptr->type == SPELL_DESTRUCTION) vp[vn++] = format("destroys a radius %d area",s_ptr->param);
-	if (s_ptr->flags2 & (SF2_GENOCIDE)) vp[vn++] = "allows you to remove a monster type from a level (1d4 damage per monster)";
-	if (s_ptr->flags2 & (SF2_MASS_GENOCIDE)) vp[vn++] = "removes all nearby monsters";
+	if (s_ptr->flags2 & (SF2_BANISHMENT)) vp[vn++] = "allows you to remove a monster type from a level (1d4 damage per monster)";
+	if (s_ptr->flags2 & (SF2_MASS_BANISHMENT)) vp[vn++] = "removes all nearby monsters";
 	if (s_ptr->flags3 & (SF3_SLOW_CURSE)) vp[vn++] = "removes a normal curse from an item";
 	if (s_ptr->flags3 & (SF3_CURE_CURSE)) vp[vn++] = "removes all normal and some heavy curses from all items you are wearing or wielding";
 	if (s_ptr->type == SPELL_RECHARGE) vp[vn++] = format("recharges one staff or wand for %d power", s_ptr->param);	
@@ -1577,8 +1615,7 @@ static void obj_top(const object_type *o_ptr, bool real)
 {
 	char name[80];
 
-	if (real) object_desc(name, o_ptr, TRUE, 1);
-	else object_desc_store(name, o_ptr, FALSE, 0);
+	object_desc(name, o_ptr, TRUE, 1);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1593,7 +1630,7 @@ static void obj_top(const object_type *o_ptr, bool real)
 /*
  * Display an object at the top of the screen
  */
-void screen_object(const object_type *o_ptr, bool real)
+void screen_object(object_type *o_ptr, bool real)
 {
 	/* Flush messages */
 	message_flush();
@@ -1604,8 +1641,12 @@ void screen_object(const object_type *o_ptr, bool real)
 	/* Begin recall */
 	Term_gotoxy(0, 1);
 
+        /* Set obvious flags for an average item */
+        object_obvious_flags(o_ptr);
+
 	/* Actually display the item */
-	list_object(o_ptr, OBJECT_FLAGS_KNOWN);
+        if (o_ptr->ident & (IDENT_MENTAL)) list_object(o_ptr, OBJECT_FLAGS_FULL);
+        else list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display item name */
 	obj_top(o_ptr, real);
@@ -1672,7 +1713,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 	cptr *list_ptr;
 
 	/* Brands */
-	if (f1)
+	if (f1 || f3)
 	{
 		list_ptr = list;
 
@@ -1802,12 +1843,12 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 	}
 
 	/* Sustains */
-	if (f1 & all_sustains)
+	if (f2 & all_sustains)
 	{
 		list_ptr = list;
 
 		/* Simplify things if an item sustains all stats */
-		if ((f1 & all_sustains) == all_sustains)
+		if ((f2 & all_sustains) == all_sustains)
 		{
 		switch (mode)
 		{
@@ -1822,9 +1863,9 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 		}
 
 		/* Should we bother? */
-		else if ((f1 & all_sustains))
+		else if ((f2 & all_sustains))
 		{
-			list_ptr = spoiler_flag_aux(f1, sustain_flags_desc, list_ptr, N_ELEMENTS(sustain_flags_desc));
+			list_ptr = spoiler_flag_aux(f2, sustain_flags_desc, list_ptr, N_ELEMENTS(sustain_flags_desc));
 		}
 
 		/* Terminate the description list */
@@ -1936,6 +1977,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 					text_out_c(TERM_SLATE, "It is not blessed by the gods.  ");
 					break;
 			} 
+			anything = TRUE;
 		}
 
 		/* Note that throwing weapons have special treatment */
@@ -1953,6 +1995,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 					text_out_c(TERM_SLATE, "It is not balanced for throwing.  ");
 					break;
 			} 
+			anything = TRUE;
 		}
 	}
 
@@ -2026,6 +2069,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 				text_out_c(TERM_SLATE, "It can be stolen from your inventory.  ");
 				break;
 		} 
+		anything = TRUE;
 		}
 	}
 
@@ -2264,8 +2308,8 @@ void list_object(const object_type *o_ptr, int mode)
 				powers |= spell_desc(&s_info[book[i]],(i==0)?p:", or ",0,detail, target);
 			}
 
-			if ((charge) && (powers)) text_out(format(", recharging in d%d turns.",o_ptr->pval));
-			else if (powers) text_out(".");
+			if ((charge) && (powers)) text_out(format(", recharging in d%d turns.  ",o_ptr->pval));
+			else if (powers) text_out(".  ");
 
 			anything |= powers;
 		}
@@ -2290,9 +2334,14 @@ void list_object(const object_type *o_ptr, int mode)
 		/* Display the flags */
 		anything |= list_object_flags(o_ptr->may_flags1, o_ptr->may_flags2, o_ptr->may_flags3, 2); 
 
-		/* Display the flags */
-		anything |= list_object_flags(o_ptr->not_flags1, o_ptr->not_flags2, o_ptr->not_flags3, 3); 
+                /* Equipment only */
+                if (wield_slot(o_ptr) >= INVEN_WIELD)
+                        /* Display the flags */
+                        anything |= list_object_flags(o_ptr->not_flags1, o_ptr->not_flags2, o_ptr->not_flags3, 3); 
 	}
+
+        /* *Identified* object */
+	else if (spoil) text_out("You know everything about this item.  ");
 
 
 	/* Nothing was printed */
@@ -2973,10 +3022,7 @@ void object_guess_name(object_type *o_ptr)
  */
 void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
-	u32b if1 = o_ptr->may_flags1 & (f1);
-	u32b if2 = o_ptr->may_flags2 & (f2);
-	u32b if3 = o_ptr->may_flags3 & (f3);
-
+	u32b xf1 = 0, xf2 = 0, xf3 = 0;
 	int i;
 
 	/* Variant? */
@@ -2990,6 +3036,10 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	/* Clear may flags on all kit - include inventory */
 	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
+		u32b if1 = o_ptr->may_flags1 & (f1);
+		u32b if2 = o_ptr->may_flags2 & (f2);
+		u32b if3 = o_ptr->may_flags3 & (f3);
+
 		object_type *i_ptr = &inventory[i];
 
 		/* Skip non-objects */
@@ -3048,15 +3098,18 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	{
 		if (object_xtra_what[o_ptr->xtra1] == 1)
 		{
-			(f1) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			xf1 = (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			f1 &= ~xf1;
 		}
 		else if (object_xtra_what[o_ptr->xtra1] == 2)
 		{
-			(f2) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			xf2 = (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			f2 &= ~xf2;
 		}
 		else if (object_xtra_what[o_ptr->xtra1] == 3)
 		{
-			(f3) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			xf3 = (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+			f3 &= ~xf3;
 		}
 	}
 
@@ -3070,14 +3123,20 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		n_ptr->not_flags2 &= ~(f2);
 		n_ptr->not_flags3 &= ~(f3);
 
-		n_ptr->may_flags1 &= ~(f1);
-		n_ptr->may_flags2 &= ~(f2);
-		n_ptr->may_flags3 &= ~(f3);
-
+		/* Fixed flags */
 		n_ptr->can_flags1 |= (f1);
 		n_ptr->can_flags2 |= (f2);
 		n_ptr->can_flags3 |= (f3);
 
+		/* Extra flags */
+		n_ptr->may_flags1 |= xf1;
+		n_ptr->may_flags2 |= xf2;
+		n_ptr->may_flags3 |= xf3;
+
+		/* Exclude fixed flags */
+		n_ptr->may_flags1 &= ~(n_ptr->can_flags1);
+		n_ptr->may_flags2 &= ~(n_ptr->can_flags2);
+		n_ptr->may_flags3 &= ~(n_ptr->can_flags3);
 	}
 
 	/* Ego item */
@@ -3089,28 +3148,20 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		n_ptr->not_flags2 &= ~(f2);
 		n_ptr->not_flags3 &= ~(f3);
 
-		if (!o_ptr->xtra1)
-		{
-			n_ptr->can_flags1 |= f1;
-			n_ptr->can_flags2 |= f2;
-			n_ptr->can_flags3 |= f3;
-		}
-		else if ((n_ptr->can_flags1) || (n_ptr->can_flags2) || (n_ptr->can_flags3))
-		{
-			f1 &= ~(n_ptr->may_flags1);
-			f2 &= ~(n_ptr->may_flags2);
-			f3 &= ~(n_ptr->may_flags3);
+		/* Fixed flags */
+		n_ptr->can_flags1 |= (f1);
+		n_ptr->can_flags2 |= (f2);
+		n_ptr->can_flags3 |= (f3);
 
-			n_ptr->can_flags1 |= f1;
-			n_ptr->can_flags2 |= f2;
-			n_ptr->can_flags3 |= f3;
-		}
-		else
-		{
-			n_ptr->may_flags1 |= f1;
-			n_ptr->may_flags2 |= f2;
-			n_ptr->may_flags3 |= f3;
-		}
+		/* Extra flags */
+		n_ptr->may_flags1 |= xf1;
+		n_ptr->may_flags2 |= xf2;
+		n_ptr->may_flags3 |= xf3;
+
+		/* Exclude fixed flags */
+		n_ptr->may_flags1 &= ~(n_ptr->can_flags1);
+		n_ptr->may_flags2 &= ~(n_ptr->can_flags2);
+		n_ptr->may_flags3 &= ~(n_ptr->can_flags3);
 	}
 }
 
@@ -3304,10 +3355,6 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		n_ptr->not_flags2 |= f2;
 		n_ptr->not_flags3 |= f3;
 
-		n_ptr->may_flags1 &= ~(f1);
-		n_ptr->may_flags2 &= ~(f2);
-		n_ptr->may_flags3 &= ~(f3);
-
 		n_ptr->can_flags1 &= ~(f1);
 		n_ptr->can_flags2 &= ~(f2);
 		n_ptr->can_flags3 &= ~(f3);
@@ -3315,64 +3362,18 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	}
 
 	/* Ego item */
-	if (o_ptr->name2)
+	else if (o_ptr->name2)
 	{
 		object_lore *n_ptr = &e_list[o_ptr->name2];
 
-		u32b one_resist = OBJECT_XTRA_BASE_RESIST + (1L<<OBJECT_XTRA_SIZE_RESIST) -1;
-		u32b one_sustain = OBJECT_XTRA_BASE_SUSTAIN + (1L<<OBJECT_XTRA_SIZE_SUSTAIN) -1;
-		u32b one_power = OBJECT_XTRA_BASE_POWER + (1L<<OBJECT_XTRA_SIZE_POWER) -1;
+		n_ptr->not_flags1 |= f1;
+		n_ptr->not_flags2 |= f2;
+		n_ptr->not_flags3 |= f3;
 
 		n_ptr->can_flags1 &= ~(f1);
 		n_ptr->can_flags2 &= ~(f2);
 		n_ptr->can_flags3 &= ~(f3);
-
-		if ((n_ptr->may_flags2 & (f2)) && (f2 & one_sustain))
-		{
-			/* One sustain */
-			n_ptr->can_flags1 |= n_ptr->may_flags1;
-			n_ptr->can_flags2 |= (n_ptr->may_flags2 & ~(one_sustain));
-			n_ptr->can_flags3 |= n_ptr->may_flags3;
-
-			object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
-					n_ptr->can_flags3);
-
-			n_ptr->may_flags1 = 0x0L;
-			n_ptr->may_flags2 = one_sustain;
-			n_ptr->may_flags3 = 0x0L;
-
-		}
-		else if ((n_ptr->may_flags2 & (f2)) && (f2 & one_resist))
-		{
-			/* One resist */
-			n_ptr->can_flags1 |= n_ptr->may_flags1;
-			n_ptr->can_flags2 |= (n_ptr->may_flags2 & ~(one_resist));
-			n_ptr->can_flags3 |= n_ptr->may_flags3;
-
-			object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
-					n_ptr->can_flags3);
-
-			n_ptr->may_flags1 = 0x0L;
-			n_ptr->may_flags2 = one_resist;
-			n_ptr->may_flags3 = 0x0L;
-		}
-		else if ((n_ptr->may_flags3 & (f3)) && (f2 & one_power))
-		{
-			/* One ability */
-			n_ptr->can_flags1 |= n_ptr->may_flags1;
-			n_ptr->can_flags2 |= n_ptr->may_flags2;
-			n_ptr->can_flags3 |= (n_ptr->may_flags3 & ~(one_power));
-
-			object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
-					n_ptr->can_flags3);
-
-			n_ptr->may_flags1 = 0x0L;
-			n_ptr->may_flags2 = 0x0L;
-			n_ptr->may_flags3 = one_power;
-		}
-
 	}
-
 }
 
 /*
