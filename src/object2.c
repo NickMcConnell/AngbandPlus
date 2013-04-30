@@ -815,12 +815,40 @@ void object_known(object_type *o_ptr)
 
 
 /*
+ * Sense the bonus of an object
+ *
+ * Note under some circumstances, we fully know the object (When
+ * its bonuses are all there is to know about it).
+ */
+void object_bonus(object_type *o_ptr, bool floor)
+{
+	/* Identify the bonuses */
+	o_ptr->ident |= (IDENT_BONUS);
+
+	/* Sense the item (if appropriate) */
+	if (!object_known_p(o_ptr))
+	{
+		sense_magic(o_ptr, 1, TRUE, floor);
+	}
+
+	/* For armour/weapons - is this all we need to know? */
+	if ((o_ptr->feeling == INSCRIP_AVERAGE) ||
+			(o_ptr->feeling == INSCRIP_GOOD) ||
+			(o_ptr->feeling == INSCRIP_VERY_GOOD) ||
+			(o_ptr->feeling == INSCRIP_GREAT))
+	{
+		object_known(o_ptr);
+	}
+}
+
+
+/*
  * Sense the bonus/charges of an object
  *
  * Note under some circumstances, we fully know the object (When
  * its bonuses/charges are all there is to know about it).
  */
-void object_bonus(object_type *o_ptr, bool floor)
+void object_gauge(object_type *o_ptr, bool floor)
 {
 	/* Identify the bonuses */
 	o_ptr->ident |= (IDENT_BONUS | IDENT_CHARGES | IDENT_PVAL);
@@ -842,7 +870,17 @@ void object_bonus(object_type *o_ptr, bool floor)
 	{
 		sense_magic(o_ptr, 1, TRUE, floor);
 	}
+
+	/* For armour/weapons - is this all we need to know? */
+	if ((o_ptr->feeling == INSCRIP_AVERAGE) ||
+			(o_ptr->feeling == INSCRIP_GOOD) ||
+			(o_ptr->feeling == INSCRIP_VERY_GOOD) ||
+			(o_ptr->feeling == INSCRIP_GREAT))
+	{
+		object_known(o_ptr);
+	}
 }
+
 
 
 /*
@@ -895,7 +933,7 @@ void object_aware_tips(object_type *o_ptr, bool seen)
 	}
 
 	/* We didn't note the object */
-	if (!(k_ptr->aware & (AWARE_EXISTS)) && (object_aware_p(o_ptr)))
+	if (!(k_ptr->aware & (AWARE_EXISTS)) && (!(k_ptr->flavor) || (object_aware_p(o_ptr))))
 	{
 		/* Noted object */
 		k_ptr->aware |= (AWARE_EXISTS);
@@ -1334,17 +1372,18 @@ s32b object_value(const object_type *o_ptr)
 
 		/* Real value (see above) */
 		value = object_value_real(o_ptr);
+
+		return (value);
 	}
 
 	/* Unknown items -- acquire a base value */
 	else
 	{
 		/* Hack -- Felt broken items */
-		if (o_ptr->ident & (IDENT_SENSE)
-			 && (o_ptr->feeling == INSCRIP_TERRIBLE
+		if (o_ptr->feeling == INSCRIP_TERRIBLE
 				  || o_ptr->feeling == INSCRIP_WORTHLESS
 				  || o_ptr->feeling == INSCRIP_CURSED
-				  || o_ptr->feeling == INSCRIP_BROKEN))
+				  || o_ptr->feeling == INSCRIP_BROKEN)
 			return (0L);
 
 		/* Named value (use 'real' value and attempt to hack) */
@@ -1357,9 +1396,62 @@ s32b object_value(const object_type *o_ptr)
 			object_copy(j_ptr, o_ptr);
 
 			/* Remove unknown information */
-			if (!object_bonus_p(o_ptr)) { j_ptr->to_h = 0; j_ptr->to_d = 0; j_ptr->to_a = 0; }
+			if (!object_bonus_p(o_ptr))
+			{
+				if (o_ptr->name1)
+				{
+					j_ptr->to_h = a_info[o_ptr->name1].to_h;
+					j_ptr->to_d = a_info[o_ptr->name2].to_d;
+					j_ptr->to_a = a_info[o_ptr->name3].to_a;
+				}
+				else if (o_ptr->name2)
+				{
+					j_ptr->to_h = e_info[o_ptr->name2].max_to_h / 2;
+					j_ptr->to_d = e_info[o_ptr->name2].max_to_d / 2;
+					j_ptr->to_a = e_info[o_ptr->name2].max_to_a / 2;
+				}
+				else
+				{
+					j_ptr->to_h = k_info[o_ptr->to_h].to_h;
+					j_ptr->to_d = k_info[o_ptr->to_d].to_d;
+					j_ptr->to_a = k_info[o_ptr->to_a].to_a;
+				}
+			}
 			if (!object_charges_p(o_ptr)) j_ptr->charges = 0;
-			if (!object_pval_p(o_ptr)) j_ptr->pval = 0;
+			if (!object_pval_p(o_ptr))
+			{
+				if (o_ptr->name1)
+				{
+					j_ptr->pval = a_info[o_ptr->name1].pval;
+				}
+				else if (o_ptr->name2)
+				{
+					j_ptr->pval = e_info[o_ptr->name2].max_pval / 2;
+				}
+				else
+				{
+					j_ptr->pval = k_info[o_ptr->to_h].pval;
+				}
+			}
+
+			/* Try curse analysis */
+			if (o_ptr->name1)
+			{
+				if (a_info[o_ptr->name1].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+					j_ptr->ident |= (IDENT_CURSED);
+			}
+			else if (o_ptr->name2)
+			{
+				if (e_info[o_ptr->name2].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+					j_ptr->ident |= (IDENT_CURSED);
+			}
+			else
+			{
+				if (k_info[o_ptr->k_idx].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+					j_ptr->ident |= (IDENT_CURSED);
+				else
+					j_ptr->ident &= ~(IDENT_CURSED | IDENT_BROKEN);
+			}
 
 			/* Hack -- get 'real' value */
 			value = object_value_real(j_ptr);
@@ -2229,7 +2321,9 @@ void object_prep(object_type *o_ptr, int k_idx)
 			o_ptr->ident |= (IDENT_CURSED);
 		}
 #endif
-		else if (rand_int(100) < 30) o_ptr->ident |= (IDENT_CURSED);
+		/* Generate cursed items deeper in the dungeon */
+		else if (rand_int(75) < p_ptr->depth) o_ptr->ident |= (IDENT_CURSED);
+		/* Otherwise item is easily removable */
 		else o_ptr->ident |= (IDENT_BROKEN);
 	}
 	else if (k_ptr->flags3 & (TR3_UNCONTROLLED))
@@ -4206,7 +4300,7 @@ int value_check_aux13(object_type *o_ptr)
  * Level 8 is equivalent to identify name only.
  * Level 9 is equivalent to full identify on restricted objects only.
  */
-int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
+bool sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 {
 	int feel = 0;
 
@@ -4239,12 +4333,14 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
 	{
-		case TV_RING:
-		case TV_AMULET:
 		case TV_LITE:
 		{
-			heavy = FALSE;
+			/* Torches don't pseudo id */
+			if (o_ptr->sval == SV_LITE_TORCH) break;
 		}
+
+		case TV_RING:
+		case TV_AMULET:
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
@@ -4271,10 +4367,10 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 	}
 
 	/* Skip objects */
-	if (!okay) return (0);
+	if (!okay) return (FALSE);
 
 	/* It is fully known, no information needed */
-	if (object_known_p(o_ptr)) return (0);
+	if (object_known_p(o_ptr)) return (FALSE);
 
 	/* Always update racial information */
 	(void)value_check_aux0(o_ptr, floor);
@@ -4284,7 +4380,7 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 	switch (sense_type)
 	{
 		case 1:
-			feel = heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr);
+			feel = heavy ? value_check_aux1(o_ptr) : value_check_aux11(o_ptr);
 			break;
 		case 2:
 			feel = heavy ? value_check_aux2(o_ptr) : value_check_aux11(o_ptr);
@@ -4318,12 +4414,20 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 			break;
 	}
 
-	if (feel == old_feel) return(0);
+	/* Rings and amulets: Only sense curses/artifacts. */
+	if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
+		/* Rings and amulets only distinguish cursed vs not cursed */
+			((feel == INSCRIP_UNUSUAL) || (feel == INSCRIP_MAGIC_ITEM) || (feel == INSCRIP_AVERAGE))) return(FALSE);
+
+	if (feel == old_feel) return(FALSE);
+
+	/* Mark with feeling */
+	o_ptr->feeling = feel;
 
 	/* Mark as sensed */
-	if ((sense_type) && ((heavy) || (o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))) o_ptr->ident |= (IDENT_SENSE);
+	if ((sense_type) && (heavy)) o_ptr->ident |= (IDENT_SENSE);
 
-	return (feel);
+	return (TRUE);
 }
 
 
@@ -4478,6 +4582,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			if (power)
 			{
 				a_m_aux_1(o_ptr, lev, power);
+
+				/* Allow defensive weapons to be enchanted */
+				if (k_info[o_ptr->k_idx].flags5 & (TR5_SHOW_AC)) a_m_aux_2(o_ptr, lev, power);
 
 				if (((power > 1) || (o_ptr->xtra1) ? TRUE : FALSE) || ((power < -1) || (o_ptr->xtra1) ? TRUE : FALSE))
 					(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE),great);
@@ -5561,6 +5668,8 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 {
 	int prob, base;
 
+	bool clear_temp = FALSE;
+
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
 
@@ -5631,6 +5740,57 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 			/* Prepare allocation table */
 			get_obj_num_prep();
 		}
+		/* MegaHack - for the moment. Ensure that each tval is dropped approximately with the same
+		 * frequency
+		 */
+		else if (!get_obj_num_hook)
+		{
+			/* Pick a random tval. */
+			switch (rand_int(15 + 5 * (object_level / 3)) + 3)
+			{
+				case 7:	tval_drop_idx = TV_FOOD; break;
+				case 8: tval_drop_idx = TV_MUSHROOM; break;
+				case 9: tval_drop_idx = TV_POTION; break;
+				case 10: tval_drop_idx = TV_SCROLL; break;
+				case 11: tval_drop_idx = TV_FLASK; break;
+				case 12:	tval_drop_idx = TV_SHOT; break;
+				case 13:	tval_drop_idx = TV_ARROW; break;
+				case 14: tval_drop_idx = TV_BOLT; break;
+				case 15:	tval_drop_idx = TV_GLOVES; break;
+				case 16:	tval_drop_idx = TV_BOOTS; break;
+				case 17:	tval_drop_idx = TV_CLOAK; break;
+				case 18:	tval_drop_idx = TV_RING; break;
+				case 19: tval_drop_idx = TV_SHIELD; break;
+				case 20: tval_drop_idx = TV_HELM; break;
+				case 21: tval_drop_idx = TV_WAND; break;
+				case 22:	tval_drop_idx = TV_SOFT_ARMOR; break;
+				case 23:	tval_drop_idx = TV_LITE; break;
+				case 24: tval_drop_idx = TV_SWORD; break;
+				case 25: tval_drop_idx = TV_POLEARM; break;
+				case 26: tval_drop_idx = TV_HAFTED; break;
+				case 27: tval_drop_idx = TV_BOW; break;
+				case 28: tval_drop_idx = TV_STAFF; break;
+				case 29:	tval_drop_idx = TV_HARD_ARMOR; break;
+				case 30:	tval_drop_idx = TV_AMULET; break;
+				case 32: tval_drop_idx = TV_ROD; break;
+				case 33: tval_drop_idx = TV_MAGIC_BOOK; break;
+				case 34:	tval_drop_idx = TV_PRAYER_BOOK; break;
+				case 35:	tval_drop_idx = TV_SONG_BOOK; break;
+				case 36:	tval_drop_idx = TV_INSTRUMENT; break;
+				case 37:	tval_drop_idx = TV_RUNESTONE; break;
+			}
+
+			if (tval_drop_idx)
+			{
+				/* Activate tval restriction */
+				get_obj_num_hook = kind_is_tval;
+
+				/* Prepare allocation table */
+				get_obj_num_prep();
+
+				clear_temp = TRUE;
+			}
+		}
 
 		/* Pick a random object */
 		k_idx = get_obj_num(base);
@@ -5643,6 +5803,8 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
+
+			if (clear_temp) tval_drop_idx = FALSE;
 		}
 
 		/* Handle failure */
@@ -5685,9 +5847,10 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		{
 			if (object_level > k_info[j_ptr->k_idx].level + 9) j_ptr->number = damroll(3, 4);
 			else if (object_level > k_info[j_ptr->k_idx].level + 4) j_ptr->number = damroll(2, 3);
+			else j_ptr->number = (byte)randint(3);
 
 			/* Hack -- reduce stack sizes of deep items */
-			j_ptr->number /= (k_info[j_ptr->k_idx].level / 25) + 1;
+			j_ptr->number /= (k_info[j_ptr->k_idx].level / 15) + 1;
 
 			if (j_ptr->number < 1) j_ptr->number = 1;
 			break;
@@ -5707,14 +5870,27 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		{
 			if (object_level > k_info[j_ptr->k_idx].level + 9) j_ptr->number = (byte)randint(5);
 			else if (object_level > k_info[j_ptr->k_idx].level + 4) j_ptr->number = (byte)randint(3);
-
-			if (j_ptr->number < 1) j_ptr->number = 1;
 			break;
 		}
 		default:
 		{
+			/* Throwing weapons come in stacks unless ego items */
 			if ((k_info[j_ptr->k_idx].flags5 & (TR5_THROWING))
-				&& (object_level > k_info[j_ptr->k_idx].level + 4)) j_ptr->number = damroll(3, 4);
+				&& (!ego_item_p(j_ptr))
+				&& (object_level > k_info[j_ptr->k_idx].level + 4))
+				{
+					/* Magic items are permitted stacks only for a few different types */
+					if (((j_ptr->xtra1 == 16) && (j_ptr->xtra2 < 14)) ||
+							((j_ptr->xtra1 == 17) && ((j_ptr->xtra2 < 6) || (j_ptr->xtra2 > 11))) ||
+							((j_ptr->xtra1 == 18) && (j_ptr->xtra2 < 27)) ||
+							((j_ptr->xtra1 == 19) && (((j_ptr->xtra2 > 1) && (j_ptr->xtra2 < 8)) || (j_ptr->xtra2 > 11))))
+					{
+						break;
+					}
+
+					/* Stack of throwing weapons */
+					j_ptr->number = damroll(3, 4);
+				}
 			break;
 		}
 	}
@@ -5728,7 +5904,10 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	}
 
 	/* Sense some magic on object at creation time */
-	j_ptr->feeling = sense_magic(j_ptr, cp_ptr->sense_type, (p_ptr->lev >= 40) || rand_int(100) < 20 + p_ptr->lev * 2, TRUE);
+	sense_magic(j_ptr, cp_ptr->sense_type, (p_ptr->lev >= 40) || rand_int(100) < 20 + p_ptr->lev * 2, TRUE);
+
+	/* Auto-id average items */
+	if (j_ptr->feeling == INSCRIP_AVERAGE) object_bonus(j_ptr, TRUE);
 
 	/* Hack -- theme chests */
 	if (opening_chest) tval_drop_idx = j_ptr->tval;
@@ -6807,7 +6986,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	      return;
 	  }
 
-
 	/* Score */
 	bs = -1;
 
@@ -6976,7 +7154,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		j_ptr->ident &= ~(IDENT_MARKED);
 
 		/* Skip message on auto-ignored items */
-		if (!auto_pickup_ignore(j_ptr))
+		if ((character_dungeon) && (!auto_pickup_ignore(j_ptr)))
 		{
 			/* Message */
 			msg_format("The %s disappear%s from view.",
@@ -7007,7 +7185,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 	}
 
-	/* Trigger regions */
+	/* Trigger regions. Note that this is the original location dropped, not where the object ends up. */
 	trigger_region(y, x, FALSE);
 }
 
@@ -7266,8 +7444,8 @@ s16b get_feat_num(int level)
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
 #endif
 
-			/* 10-20 levels boost */
-			level += (10 + rand_int(11));
+			/* 4-7 levels boost */
+			level += (4 + rand_int(4));
 		}
 	}
 
@@ -7558,10 +7736,10 @@ void create_trap_region(int y, int x, int feat, int power, bool player)
 
 	region_info_type *ri_ptr = &region_info[f_ptr->d_attr];
 
-	int method = ri_ptr->method ? ri_ptr->method : (f_ptr->blow.method ? f_ptr->blow.method : f_ptr->spell);
-	int effect = power ? s_info[power].blow[0].effect : (f_ptr->blow.effect ? f_ptr->blow.effect : method_info[f_ptr->spell].d_res);
+	int method = ri_ptr->method;
+	int effect = 0; /* Not needed - we use discharge_trap code */
 
-	int damage = power ? 0 : (f_ptr->blow.d_dice ? damroll(f_ptr->blow.d_dice, f_ptr->blow.d_side) : 0);
+	int damage = 0; /* Not needed - we use discharge_trap code */
 
 	method_type *method_ptr = &method_info[method];
 	u32b flg = method_ptr->flags1;
@@ -7569,7 +7747,13 @@ void create_trap_region(int y, int x, int feat, int power, bool player)
 	int radius = scale_method(method_ptr->radius, player ? p_ptr->lev : p_ptr->depth);
 
 	/* Paranoia */
+	if (!method) return;
+
+	/* Paranoia */
 	if (effect == GF_FEATURE) effect = 0;
+
+	/* Not needed at the moment */
+	(void)power;
 
 	/* Player is setting a trap */
 	if (player)
@@ -7596,9 +7780,6 @@ void create_trap_region(int y, int x, int feat, int power, bool player)
 			flg |= (PROJECT_STOP);
 		}
 	}
-	
-	/* Hack -- we try to force traps to have a useful region */
-	if ((flg & (PROJECT_4WAY | PROJECT_4WAX | PROJECT_BOOM)) == 0) flg |= (PROJECT_BEAM | PROJECT_THRU);
 
 	/* Get the region */
 	region = init_region(player ? SOURCE_PLAYER_TRAP : SOURCE_FEATURE, feat, f_ptr->d_attr, damage, method, effect,
@@ -7633,14 +7814,50 @@ void pick_trap(int y, int x, bool player)
 	int feat= cave_feat[y][x];
 	int room = room_idx(y, x);
 	feature_type *f_ptr = &f_info[feat];
+	int region = 0;
 
 	int power = 0;
+	int i;
 
 	/* Paranoia */
 	if (!(f_ptr->flags1 & (FF1_TRAP))) return;
 
+	/* 'Pre-trap' region already exists */
+	/* XXX We can't just check the grid, because it's highly likely that the source trap
+	 * for a region won't affect the grid it's in.
+	 */
+	for (i = 0; i < region_max; i++)
+	{
+		/* Get this effect */
+		region_type *r_ptr = &region_list[i];
+
+		/* Skip empty effects */
+		if (!r_ptr->type) continue;
+
+		/* Skip regions with differing sources */
+		if ((r_ptr->y0 != y) || (r_ptr->x0 != x)) continue;
+
+		/* Skip non-trap regions */
+		if ((r_ptr->flags1 & (RE1_HIT_TRAP)) == 0) continue;
+
+		/* We have a region */
+		region = i;
+
+		break;
+	}
+
+	/* Region found */
+	if (region)
+	{
+		/* Use this to pick the trap later */
+		pick_attr = f_info[cave_feat[y][x]].d_attr;
+
+		/* Set hook*/
+		get_feat_num_hook = vault_trap_attr;
+	}
+
 	/* Floor trap */
-	if (f_ptr->flags3 & (FF3_ALLOC))
+	else if (f_ptr->flags3 & (FF3_ALLOC))
 	{
 		/* Set hook */
 		if (f_ptr->flags3 & (FF3_CHEST))
@@ -7834,10 +8051,8 @@ void pick_trap(int y, int x, bool player)
 	/* Get feature */
 	f_ptr = &f_info[feat];
 
-#if 0
 	/* Create trap region */
-	if (power || (f_ptr->blow.method) || (f_ptr->spell)) create_trap_region(y, x, feat, power, player);
-#endif
+	if ((!region) && (power || (f_ptr->blow.method) || (f_ptr->spell))) create_trap_region(y, x, feat, power, player);
 }
 
 

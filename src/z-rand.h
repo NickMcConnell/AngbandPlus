@@ -96,6 +96,7 @@ extern void Rand_state_init(u32b seed);
 extern u32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 extern u32b Rand_simple(u32b m);
+extern s32b div_round(s32b n, s32b d);
 
 
 #endif /* INCLUDED_Z_RAND_H */

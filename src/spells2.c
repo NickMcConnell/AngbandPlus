@@ -458,6 +458,9 @@ void uncurse_object(object_type *o_ptr)
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
 
+	/* Break it */
+	o_ptr->ident |= (IDENT_BROKEN);
+
 	/* Take note */
 	o_ptr->feeling = INSCRIP_UNCURSED;
 
@@ -677,63 +680,18 @@ void self_knowledge_aux(bool spoil, bool random)
 	int vn;
 
 	bool healthy = TRUE;
-#if 0
-	if (p_ptr->timed[TMD_BLIND])
+
+	for (i = 0; i < TMD_MAX; i++)
 	{
-		text_out("You cannot see.  ");
-		healthy = FALSE;
+		if (p_ptr->timed[i])
+		{
+			text_out(format("%s  ", timed_effects[i].self_knowledge));
+
+			/* Hack - treat everything as bad */
+			healthy = FALSE;
+		}
 	}
-	if (p_ptr->timed[TMD_CONFUSED])
-	{
-		text_out("You are confused.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->timed[TMD_AFRAID])
-	{
-		text_out("You are terrified.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->cut)
-	{
-		text_out("You are bleeding.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->timed[TMD_STUN])
-	{
-		text_out("You are stunned.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->timed[TMD_POISONED])
-	{
-		text_out("You are poisoned.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->timed[TMD_IMAGE])
-	{
-		text_out("You are hallucinating.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->amnesia)
-	{
-		text_out("You are suffering from amnesia.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->timed[TMD_CURSED])
-	{
-		text_out("You are cursed.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->msleep)
-	{
-		text_out("You are magically drowsy, and liable to fall asleep.  ");
-		healthy = FALSE;
-	}
-	if (p_ptr->petrify)
-	{
-		text_out("You are petrified.  ");
-		healthy = FALSE;
-	}
-#endif
+
 	if (p_ptr->disease)
 	{
 		char output[1024];
@@ -823,47 +781,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("You suffer from no afflictions.  ");
 	}
-#if 0
-	if (p_ptr->timed[TMD_BLESSED])
-	{
-		text_out("You feel rightous.  ");
-	}
-	if (p_ptr->timed[TMD_HERO])
-	{
-		text_out("You feel heroic.  ");
-	}
-	if (p_ptr->timed[TMD_BERSERK])
-	{
-		text_out("You are in a battle rage.  ");
-	}
-	if ((p_ptr->protevil) || (p_ptr->shield) || (p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_BERSERK]))
-	{
 
-		text_out("You are protected ");
-
-		/* Collect protections */
-		vn = 0;
-
-		if (p_ptr->protevil) vp[vn++]="from evil";
-		if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_BERSERK])) vp[vn++]="from fear";
-		if (p_ptr->shield) vp[vn++]="by a mystic sheild";
-
-		/* Scan */
-		for (n = 0; n < vn; n++)
-		{
-			/* Intro */
-			if (n == 0) { }
-			else if (n < vn-1) text_out(", ");
-			else text_out(" and ");
-
-			/* Dump */
-			text_out(vp[n]);
-		}
-
-		if (n) text_out(".  ");
-
-	}
-#endif
 	if (p_ptr->climbing)
 	{
 		text_out("You are climbing over an obstacle.  ");
@@ -886,82 +804,6 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("You will soon be returned to a nearby location.  ");
 	}
-#if 0
-	/* Hack -- timed abilities that may also be from equipment */
-	if (p_ptr->tim_infra)
-	{
-		text_out("Your eyes are temporarily sensitive to infrared light.  ");
-	}
-
-	if (p_ptr->tim_invis)
-	{
-		text_out("You can temporarily see invisible monsters.  ");
-
-	}
-
-	/* Collect temporary effects */
-	vn = 0;
-
-	if (p_ptr->invis) vp[vn++] = "invisible";
-	if (p_ptr->timed[TMD_FREE_ACT]) vp[vn++] = "protected from paralysis and magical slowing";
-
-	for (n = 0; n < A_CHR; n++)
-	{
-		if (p_ptr->stat_inc_tim[n]) vp[vn++] = desc_stat_imp[n];
-	}
-	for (n = 0; n < A_CHR; n++)
-	{
-		if (p_ptr->stat_dec_tim[n]) vp[vn++] = desc_stat_dec[n];
-	}
-
-	if ((p_ptr->oppose_acid) || (p_ptr->oppose_elec) || (p_ptr->oppose_fire) || (p_ptr->oppose_cold)) vp[vn++]= "resistant to ";
-
-	/* Introduce */
-	if (vn) text_out("You are temporarily ");
-
-	/* Scan */
-	for (n = 0; n < vn; n++)
-	{
-		/* Intro */
-		if (n == 0) { }
-		else if (n < vn-1) text_out(", ");
-		else text_out(" and ");
-
-		/* Dump */
-		text_out(vp[n]);
-	}
-
-	if ((p_ptr->oppose_acid) || (p_ptr->oppose_elec) || (p_ptr->oppose_fire) || (p_ptr->oppose_cold))
-	{
-		/* Collect temporary resistances */
-		vn = 0;
-
-		if (p_ptr->oppose_acid) vp[vn++]= "acid";
-		if (p_ptr->oppose_elec) vp[vn++]= "electricity";
-		if (p_ptr->oppose_fire) vp[vn++]= "fire";
-		if (p_ptr->oppose_cold) vp[vn++]= "cold";
-
-		/* Scan */
-		for (n = 0; n < vn; n++)
-		{
-			/* Intro */
-			if (n == 0) { }
-			else if (n < vn-1) text_out(", ");
-			else text_out(" and ");
-
-			/* Dump */
-			text_out(vp[n]);
-		}
-
-		text_out(".  ");
-
-	}
-	else if (vn)
-	{
-		text_out(".  ");
-	}
-#endif
-	text_out("\n");
 
 	/* Get player flags */
 	player_flags(&t1,&t2,&t3,&t4);
@@ -991,6 +833,9 @@ void self_knowledge_aux(bool spoil, bool random)
 		t2 &= ~(f2);
 		t3 &= ~(f3);
 		t4 &= ~(f4);
+
+		/* Clear the flags */
+		f1 = f2 = f3 = f4 = 0L;
 	}
 
 	/* Hack -- class effects */
@@ -1395,7 +1240,10 @@ bool detect_objects_tval(int tval)
 		if (o_ptr->tval == tval)
 		{
 			/* Hack -- memorize it */
-			o_ptr->ident |= (IDENT_MARKED);
+			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
+
+			/* Get awareness */
+			object_aware_tips(o_ptr, TRUE);
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1688,19 +1536,19 @@ int value_check_aux5(const object_type *o_ptr)
 	{
 		if (o_ptr->feeling == INSCRIP_NONMAGICAL) return (INSCRIP_CURSED);
 
-		return (INSCRIP_UNUSUAL);
+		return (INSCRIP_MAGIC_ITEM);
 	}
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0)
 	{
-		return (INSCRIP_UNUSUAL);
+		return (INSCRIP_MAGIC_ITEM);
 	}
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0)
 	{
-		return (INSCRIP_UNUSUAL);
+		return (INSCRIP_MAGIC_ITEM);
 	}
 
 	/* Default to nothing */
@@ -1791,8 +1639,6 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
-		int feel = 0;
-
 		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
@@ -1836,17 +1682,12 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		/* Sense if necessary */
 		if (sense_type)
 		{
-			/* Get the inscription */
-			feel = sense_magic(o_ptr, sense_type, TRUE, TRUE);
-
 			/* Sense something */
-			if (!feel) continue;
-
-			/* Sense the object */
-			o_ptr->feeling = feel;
-
-			/* The object has been "sensed" */
-			o_ptr->ident |= (IDENT_SENSE);
+			if (sense_magic(o_ptr, sense_type, TRUE, TRUE))
+			{
+				/* Auto-id average items */
+				if (o_ptr->feeling == INSCRIP_AVERAGE) object_bonus(o_ptr, TRUE);
+			}
 		}
 	}
 
@@ -1858,28 +1699,20 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		object_type *o_ptr = &inventory[i];
 
 		/* Get the inscription */
-		feel = sense_magic(o_ptr, sense_type, TRUE, TRUE);
+		if (sense_magic(o_ptr, sense_type, TRUE, TRUE))
+		{
+			/* Detect */
+			if (o_ptr->feeling != ignore_feeling) detect = TRUE;
 
-		/* Sense something */
-		if (!feel) continue;
+			/* Auto-id average items */
+			if (feel == INSCRIP_AVERAGE) object_bonus(o_ptr, TRUE);
 
-		/* Any different */
-		if (o_ptr->feeling == feel) continue;
+			/* Combine / Reorder the pack (later) */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-		/* Detect */
-		if (feel != ignore_feeling) detect = TRUE;
-
-		/* Sense the object */
-		o_ptr->feeling = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		}
 	}
 
 	/* Return result */
@@ -2514,6 +2347,18 @@ static bool item_tester_hook_weapon_strict(const object_type *o_ptr)
 
 
 /*
+ * Hook to specify "ac"
+ */
+static bool item_tester_hook_ac(const object_type *o_ptr)
+{
+	if (k_info[o_ptr->k_idx].flags5 & (TR5_SHOW_AC)) return (TRUE);
+
+	return (FALSE);
+}
+
+
+
+/*
  * Hook to specify "armour"
  */
 static bool item_tester_hook_armour(const object_type *o_ptr)
@@ -2536,6 +2381,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 
 	return (FALSE);
 }
+
 
 /*
  * Hook to specify "bolts"
@@ -2588,7 +2434,7 @@ static bool item_tester_unknown_tval(const object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_bonus(const object_type *o_ptr)
+static bool item_tester_unknown_gauge(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -2844,11 +2690,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Failure */
 	if (!res) return (FALSE);
 
-	/* Hack --- unsense the item */
-	o_ptr->ident &= ~(IDENT_SENSE);
-
-	/* Remove special inscription, if any */
-	o_ptr->feeling = 0;
+	/* Remove some inscriptions */
+	if (!object_bonus_p(o_ptr) && ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)))
+	{
+		/* Hack --- unsense the item */
+		o_ptr->ident &= ~(IDENT_SENSE);
+	}
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2885,7 +2732,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	item_tester_hook = item_tester_hook_weapon;
 
 	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	if (num_ac) item_tester_hook = item_tester_hook_ac;
 
 	/* Get an item */
 	q = "Enchant which item? ";
@@ -3305,7 +3152,7 @@ bool ident_spell_name(void)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
  */
-bool ident_spell_bonus(void)
+bool ident_spell_gauge(void)
 {
 	int item;
 
@@ -3317,7 +3164,7 @@ bool ident_spell_bonus(void)
 
 
 	/* Only un-id'ed items */
-	item_tester_hook = item_tester_unknown_bonus;
+	item_tester_hook = item_tester_unknown_gauge;
 
 	/* Get an item */
 	q = "Gauge which item? ";
@@ -3347,7 +3194,7 @@ bool ident_spell_bonus(void)
 	}
 
 	/* Identify it's bonuses */
-	object_bonus(o_ptr, item < 0);
+	object_gauge(o_ptr, item < 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3389,7 +3236,7 @@ bool ident_spell_bonus(void)
  */
 bool ident_spell_sense(void)
 {
-  int item, feel;
+  int item;
 
 	object_type *o_ptr;
 
@@ -3428,11 +3275,13 @@ bool ident_spell_sense(void)
 		o_ptr = &inventory[item];
 	}
 
-	/* Identify it's bonuses */
-	feel = sense_magic(o_ptr, cp_ptr->sense_type, TRUE, item < 0);
-
 	/* Sense non-wearable items */
-	if (!feel)
+	if (sense_magic(o_ptr, cp_ptr->sense_type, TRUE, item < 0))
+	{
+		if (o_ptr->feeling == INSCRIP_AVERAGE) object_bonus(o_ptr, item < 0);
+	}
+	/* Hack -- describe the item as if sensed */
+	else
 	{
 		int i, j, k;
 
@@ -3446,7 +3295,6 @@ bool ident_spell_sense(void)
 				&& (bag_holds[i][j][1] == o_ptr->sval))
 			  {
 			    o_ptr->feeling = MAX_INSCRIP + i;
-			    feel = 1;
 
 			    if (object_aware_p(o_ptr)) k_info[o_ptr->k_idx].aware |= (AWARE_SENSE);
 			    else if (k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware |= (AWARE_SENSEX);
@@ -3472,15 +3320,10 @@ bool ident_spell_sense(void)
 
 			  }
 		}
+
+		/* Nothing found */
+		if (o_ptr->feeling < MAX_INSCRIP) return (FALSE);
 	}
-	else
-	  o_ptr->feeling = feel;
-
-	/* Nothing sensed */
-	if (!feel) return (FALSE);
-
-	/* Item is sensed */
-	o_ptr->ident |= (IDENT_SENSE);
 
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -4358,9 +4201,6 @@ bool recharge(int num)
 
 			/* Hack -- we no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
-
-			/* Hack -- we no longer "sense" the item */
-			o_ptr->ident &= ~(IDENT_SENSE);
 
 			/* Hack -- the item is no longer empty */
 			if (o_ptr->feeling == INSCRIP_EMPTY) o_ptr->feeling = 0;
@@ -5531,7 +5371,7 @@ static bool curse_weapon(void)
  * Todo: Finish implementing this, once remaining Sangband projection types
  * are implemented.
  */
-static int thaumacurse(bool verbose, int power)
+static bool thaumacurse(bool verbose, int power, bool forreal)
 {
 	int i, dam;
 	int curse_count = 0;
@@ -5575,8 +5415,14 @@ static int thaumacurse(bool verbose, int power)
 	/* Deflate */
 	dam = dam /100;
 
-	/* Fire an explosion of nether */
-	/*notice = fire_star(who, what, 0, GF_NETHER, 0, dam, 3 + curse_count / 2);*/
+	/* Boost player power */
+	p_ptr->boost_spell_power = dam;
+
+	/* Boost player number */
+	p_ptr->boost_spell_number = 3 + curse_count / 2;
+
+	/* Not for real */
+	if (!forreal) return (FALSE);
 
 	/* Break light curses */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -5626,7 +5472,7 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 	if ((player) && (flg & (PR2_BREATH)))
 	{
 		/* Damage uses current hit points */
-		damage = p_ptr->chp * damage / 300;
+		damage = p_ptr->chp / 3;
 	}
 	/* Damage uses dice roll */
 	else
@@ -5657,15 +5503,7 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 		/* Add level dependent damage */
 		if (blow_ptr->l_plus)
 		{
-			/* Mega-hack - dispel evil/undead etc. */
-			if (!level)
-			{
-				damage += blow_ptr->l_plus * 25 / blow_ptr->levels;
-			}
-			else
-			{
-				damage += blow_ptr->l_plus * level / blow_ptr->levels;
-			}
+			damage += blow_ptr->l_plus * level / blow_ptr->levels;
 		}
 
 		/* Add boosted damage */
@@ -5677,39 +5515,59 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 
 
 /*
- *      Process a spell.
+ * Helper function for a variety of spell blow based attacks
  *
- *      Returns -1 iff the spell did something obvious.
- *
- *      Level is set to 0 for most objects, and player level for spells.
- *
- *      *abort is set to TRUE if the user aborts before any spell effects
- *      occur. The return value reflects whether or not they were able to
- *      determine what effect the item has (Currently enchantment and
- *      identify items).
- *
- *      We should choose any item for enchant/curse/identify spells before
- *      calling this routine, when we are using an unknown object, and
- *      only apply the spell, and make the effect obvious, if the object
- *      is correctly chosen. XXX
- *
- *      We should allow useful spells to be cast on adjacent monsters. XXX
- *
- *      We should make summoned monsters friendly if plev is > 0. XXX
- *
+ * who, what		Originator of blow
+ * x0, y0, x1, y1	Source and destination grids
+ * spell			Spell to cast
+ * level			Level of spell effect
+ * flg				Spell effect flags - overrides spell if != 0L
+ * region_id		Type of region to create
+ * delay			Delay of initial region effect - used to simulate delaying casting a spell
+ * damage_div		Damage divisor - used for coatings
+ * one_grid			Effect only a single target grid - for efficiency
+ * forreal			Actually do attack - if false we return the damage the attack would do
+ * player			Apply player damage bonus from spells
+ * retarget			If the player needs an additional target, we set this target using this function
  */
-bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, bool *known, bool eaten)
+int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int spell, int level,
+		int damage_div, bool one_grid, bool forreal, bool player, bool *cancel,
+		bool retarget(int *ty, int *tx, u32b *flg, int method, int level, bool full, bool *one_grid))
 {
 	spell_type *s_ptr = &s_info[spell];
 
 	bool obvious = FALSE;
 	int ap_cnt;
-	int dir = 0;
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-	int ty;
-	int tx;
+	int ty = y1;
+	int tx = x1;
+	int damage = 0;
+	int region_id = 0;
 	int delay = 0;
+
+	bool initial_delay = FALSE;
+
+	/* Hack -- fix damage divisor */
+	if (!damage_div) damage_div = 1;
+
+	/* Get the region identity */
+	if ((who == SOURCE_PLAYER_CAST) && ((p_ptr->spell_trap) || (p_ptr->delay_spell)))
+	{
+		/* Override region */
+		region_id = p_ptr->spell_trap;
+
+		/* Delay the effect */
+		delay = p_ptr->delay_spell;
+
+		/* Start with a delay */
+		initial_delay = TRUE;
+	}
+
+	/* Hack -- create spell region */
+	else if ((s_ptr->type == SPELL_REGION) ||
+			(s_ptr->type == SPELL_SET_TRAP))
+	{
+		region_id = s_ptr->param;
+	}
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -5719,15 +5577,13 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 		int effect = blow_ptr->effect;
 
 		method_type *method_ptr = &method_info[method];
-		int range = scale_method(method_ptr->max_range, level);
-		int radius = scale_method(method_ptr->radius, level);
 		int num = scale_method(method_ptr->number, level);
-
-		u32b flg = method_ptr->flags1;
 
 		s16b region = 0;
 
 		int i;
+
+		u32b flg = method_ptr->flags1;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
@@ -5735,64 +5591,56 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 		/* Hack -- fix number */
 		if (!num) num = 1;
 
-		/* Hack -- get new target if last target is dead / missing */
-		if ((ap_cnt) && !(target_okay())) p_ptr->command_dir = 0;
+		/* Hack -- increase number */
+		if (player) num += p_ptr->boost_spell_number;
 
-		/* Special case for eaten spells */
-		if (eaten && (method != RBM_SPIT) && (method != RBM_BREATH))
+		/* Hack -- spells don't miss */
+		flg &= ~(PROJECT_MISS);
+
+		/* Get the target */
+		if ((retarget) && (!retarget(&ty, &tx, &flg, method, level, TRUE, &one_grid) != 0)) return (obvious);
+
+		/* Set target coords */
+		if (flg & (PROJECT_SELF))
 		{
-			int dam = 0;
+			y1 = y0;
+			x1 = x0;
+		}
+		else
+		{
+			y1 = ty;
+			x1 = tx;
+		}
+		
+		/* Get initial damage */
+		damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) / (damage_div);
 
-			dir = (method == RBM_VOMIT) ? ddd[rand_int(8)] : 5;
-
-			ty = py + 99 * ddy[dir];
-			tx = px + 99 * ddx[dir];
-
+		/* Special case for some spells which affect a single grid or for damage computations */
+		if (one_grid || !forreal)
+		{
 			/* Roll out the damage */
-			for (i = 0; i < num; i++) dam += spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE);
+			for (i = 1; i < num; i++) damage += spell_damage(blow_ptr, level, method_ptr->flags2, player, forreal) / (damage_div);
 
 			/* Apply once */
-			if (project_one(who, what, ty, tx, dam, effect, flg)) obvious = TRUE;
+			if (forreal && project_one(who, what, y1, x1, damage, effect, flg))
+			{
+				/* Noticed */
+				obvious = TRUE;
+
+				/* Reset damage */
+				damage = 0;
+			}
 
 			continue;
 		}
 
-		/* Allow direction to be cancelled for free */
-		if ((((flg & (PROJECT_SELF)) == 0)) &&
-				(!get_aim_dir(&dir, known ? range : MAX_RANGE, known ? radius : 0,
-						known ? flg : (PROJECT_BEAM),
-						known ? method_ptr->arc : 0,
-						known ? method_ptr->diameter_of_source : 0))) return (!(*cancel));
-
-		/* Use the given direction */
-		ty = py + 99 * ddy[dir];
-		tx = px + 99 * ddx[dir];
-
-		/* Hack -- Use an actual "target" */
-		if ((dir == 5) && target_okay())
-		{
-			ty = p_ptr->target_row;
-			tx = p_ptr->target_col;
-		}
-		/* Stop at first target if we're firing in a direction */
-		else if (method_ptr->flags2 & (PR2_DIR_STOP))
-		{
-			flg |= (PROJECT_STOP);
-		}
-
 		/* Initialise the region */
-		if ((s_ptr->type == SPELL_REGION) ||
-				(s_ptr->type == SPELL_SET_TRAP) ||
-				((who == SOURCE_PLAYER_CAST) &&
-				((p_ptr->spell_trap) || (p_ptr->delay_spell))))
+		if (region_id)
 		{
 			region_type *r_ptr;
 
-			int ri = (s_ptr->type == SPELL_REGION) ||
-				(s_ptr->type == SPELL_SET_TRAP) ? s_ptr->param : p_ptr->spell_trap;
-
 			/* Get a newly initialized region */
-			region = init_region(who, what, ri, spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE), method, effect, level, py, px, ty, tx);
+			region = init_region(who, what, region_id, damage, method, effect, level, y0, x0, y1, x1);
 
 			/* Get the region */
 			r_ptr = &region_list[region];
@@ -5801,14 +5649,11 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 			r_ptr->delay = delay;
 
 			/* Hack -- we only apply one attack to determine region shape. */
-			num = 1;
+			if (r_ptr->flags1 & (RE1_PROJECTION)) num = 1;
 
 			/* Delaying casting of a spell */
-			if ((p_ptr->delay_spell) || (p_ptr->spell_trap))
+			if (initial_delay)
 			{
-				/* Delay the effect */
-				r_ptr->delay = p_ptr->delay_spell;
-
 				/* Lasts one turn only */
 				r_ptr->lifespan = 1;
 			}
@@ -5860,8 +5705,20 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 		/* Apply multiple times */
 		for (i = 0; i < num; i++)
 		{
+			/* Retarget after first attack */
+			if ((i) && (retarget))
+			{
+				if (!retarget(&ty, &tx, &flg, method, level, FALSE, &one_grid) != 0) return (obvious);
+			}
+
 			/* Projection method */
-			obvious |= project_method(who, what, method, effect, spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE), level, py, px, ty, tx, region, flg);
+			obvious |= project_method(who, what, method, effect, damage, level, y0, x0, y1, x1, region, flg);
+
+			/* Revise damage */
+			if (i < num - 1) damage = spell_damage(blow_ptr, level, method_ptr->flags2, damage_div, forreal) / (damage_div);
+
+			/* Reset damage */
+			else damage = 0;
 		}
 
 		/* Some region tidy up required */
@@ -5893,21 +5750,141 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, 
 			if (obvious && !ap_cnt) r_ptr->flags1 |= (RE1_NOTICE);
 		}
 
-		/* Hack -- haven't cancelled */
+		/* Can't cancel */
 		*cancel = FALSE;
+
+		/* Player successfully delayed casting */
+		if ((delay) && (who == SOURCE_PLAYER_CAST))
+		{
+			/* Clear delay */
+			p_ptr->delay_spell = 0;
+			p_ptr->spell_trap = 0;
+		}
 	}
 
-	/* Player successfully delayed casting */
-	if ((delay) && (who == SOURCE_PLAYER_CAST))
+	if (forreal) return(obvious);
+	else return (damage);
+}
+
+
+
+int retarget_blows_dir;
+bool retarget_blows_known;
+bool retarget_blows_subsequent;
+bool retarget_blows_eaten;
+
+/*
+ * Allow retargetting of subsequent spell blows
+ */
+bool retarget_blows(int *ty, int *tx, u32b *flg, int method, int level, bool full, bool *one_grid)
+{
+	method_type *method_ptr = &method_info[method];
+	int range = scale_method(method_ptr->max_range, level);
+	int radius = scale_method(method_ptr->radius, level);
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	/* Any further blows have slightly differing semantics */
+	retarget_blows_subsequent = TRUE;
+	
+	/* Never retarget for spells which affect self */
+	if (*flg & (PROJECT_SELF)) return (TRUE);
+
+	/* If we're not fully retargetting, just continue through the target */
+	if (!full)
 	{
-		/* Clear delay */
-		p_ptr->delay_spell = 0;
-		p_ptr->spell_trap = 0;
+		if (!target_okay()) *flg |= (PROJECT_THRU);
+
+		return (TRUE);
 	}
 
-	/* Return result */
-	return (obvious);
+	/* Eaten spells use a single target */
+	if (retarget_blows_eaten && (method != RBM_SPIT) && (method != RBM_BREATH))
+	{
+		*one_grid = TRUE;
+		retarget_blows_dir = (method == RBM_VOMIT) ? ddd[rand_int(8)] : 5;
 
+		/* Use the given direction */
+		*ty = py + ddy[retarget_blows_dir];
+		*tx = px + ddx[retarget_blows_dir];
+	}
+	else
+	{
+		/* Hack -- get new target if last target is dead / missing */
+		if (retarget_blows_subsequent && !(target_okay())) p_ptr->command_dir = 0;
+
+		/* Allow direction to be cancelled for free */
+		if (!get_aim_dir(&retarget_blows_dir, retarget_blows_known ? range : MAX_RANGE, retarget_blows_known ? radius : 0,
+						retarget_blows_known ? *flg : (PROJECT_BEAM),
+						retarget_blows_known ? method_ptr->arc : 0,
+						retarget_blows_known ? method_ptr->diameter_of_source : 0)) return (FALSE);
+
+		/* Use the given direction */
+		*ty = py + 99 * ddy[retarget_blows_dir];
+		*tx = px + 99 * ddx[retarget_blows_dir];
+	}
+
+	/* Hack -- Use an actual "target" */
+	if ((retarget_blows_dir == 5) && target_okay())
+	{
+		*ty = p_ptr->target_row;
+		*tx = p_ptr->target_col;
+	}
+	/* Stop at first target if we're firing in a direction */
+	else if (method_ptr->flags2 & (PR2_DIR_STOP))
+	{
+		*flg |= (PROJECT_STOP);
+	}
+
+	return (TRUE);
+}
+
+
+
+/*
+ *      Process a spell.
+ *
+ *      Returns -1 iff the spell did something obvious.
+ *
+ *      Level is set to 0 for most objects, and player level for spells.
+ *
+ *      *abort is set to TRUE if the user aborts before any spell effects
+ *      occur. The return value reflects whether or not they were able to
+ *      determine what effect the item has (Currently enchantment and
+ *      identify items).
+ *
+ *      We should choose any item for enchant/curse/identify spells before
+ *      calling this routine, when we are using an unknown object, and
+ *      only apply the spell, and make the effect obvious, if the object
+ *      is correctly chosen. XXX
+ *
+ *      We should allow useful spells to be cast on adjacent monsters. XXX
+ *
+ *      We should make summoned monsters friendly. XXX
+ *
+ */
+bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, bool *known, bool eaten)
+{
+	spell_type *s_ptr = &s_info[spell];
+	spell_blow *blow_ptr = &s_ptr->blow[0];
+
+	bool one_grid = FALSE;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	/* No blows - return */
+	if (!blow_ptr->method) return (FALSE);
+
+	/* Set up retargetting */
+	retarget_blows_dir = 0;
+	retarget_blows_known = *known;
+	retarget_blows_subsequent = FALSE;
+	retarget_blows_eaten = eaten;
+
+	/* Cast the spell */
+	return (process_spell_target(who, what, py, px, py, px, spell, level, 1, one_grid, TRUE, who == (SOURCE_PLAYER_CAST), cancel, retarget_blows) != 0);
 }
 
 
@@ -5945,9 +5922,9 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	}
 
 	/* Process the flags that apply to equipment */
-	if (s_ptr->flags1 & (SF1_IDENT_BONUS))
+	if (s_ptr->flags1 & (SF1_IDENT_GAUGE))
 	{
-		if (!ident_spell_bonus() && (*cancel)) return (TRUE);
+		if (!ident_spell_gauge() && (*cancel)) return (TRUE);
 		*cancel = FALSE;
 		obvious = TRUE;
 	}
@@ -6201,14 +6178,14 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (inc_timed(TMD_OPP_ELEC, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_STR)) && (inc_timed(TMD_INC_STR, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_STR)) && (inc_timed(TMD_INC_SIZ, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_INT)) && (inc_timed(TMD_INC_INT, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_WIS)) && (inc_timed(TMD_INC_WIS, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_DEX, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_AGI, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_CON)) && (inc_timed(TMD_INC_CON, lasts, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF3_INC_CHR)) && (inc_timed(TMD_INC_CHR, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_STR, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_SIZ, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_INT)) && (inc_timed(TMD_INC_INT, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_WIS)) && (inc_timed(TMD_INC_WIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_DEX, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_AGI, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_CON)) && (inc_timed(TMD_INC_CON, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_CHR)) && (inc_timed(TMD_INC_CHR, lasts, TRUE))) obvious = TRUE;
 
 	/* SF3 - free action only */
 	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (inc_timed(TMD_FREE_ACT, lasts, TRUE))) obvious = TRUE;
@@ -7067,12 +7044,6 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			}
 
 			case SPELL_RELEASE_CURSE:
-			{
-				obvious |= thaumacurse(TRUE, 2 * level + level * level / 20);
-				*cancel = FALSE;
-				break;
-			}
-
 			case SPELL_SET_RETURN:
 			case SPELL_SET_OR_MAKE_RETURN:
 			case SPELL_CONCENTRATE_LITE:
@@ -7367,6 +7338,7 @@ bool process_spell_prepare(int spell, int level, bool *cancel, bool forreal, boo
 
 	/* Clear boost */
 	p_ptr->boost_spell_power = 0;
+	p_ptr->boost_spell_number = 0;
 
 	switch (s_info[spell].type)
 	{
@@ -7439,14 +7411,15 @@ bool process_spell_prepare(int spell, int level, bool *cancel, bool forreal, boo
 
 		case SPELL_RELEASE_CURSE:
 		{
-			p_ptr->boost_spell_power =	thaumacurse(TRUE, level + (level * level / 20));
+			obvious |= thaumacurse(TRUE, 2 * level + level * level / 20, forreal);
+			if (obvious) *cancel = FALSE;
 			break;
 		}
 
 		case SPELL_SUMMON_RACE:
 		{
-			/* You can choose a familiar ahead of time by examining the find familiar spell */
-			if (interact)
+			/* Check if summoning */
+			if (forreal)
 			{
 				/* Choose familiar if summoning it for the first time */
 				if ((s_ptr->param == FAMILIAR_IDX) && (!p_ptr->familiar))
@@ -7612,6 +7585,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 
 	/* Paranoia - clear boost */
 	p_ptr->boost_spell_power = 0;
+	p_ptr->boost_spell_number = 0;
 
 	/* Return result */
 	return (obvious);
@@ -7625,11 +7599,13 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
  * Otherwise we only affect the targetted grid.
  *
  * XXX We assume that there is only 1 item in the stack at present.
+ *
+ * XXX We should never call this routine on an item in inventory (as opposed
+ * to equipment or on the floor).
  */
 int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool forreal, bool one_grid)
 {
 	int power = 0;
-	bool obvious = FALSE;
 	bool cancel = TRUE;
 
 	int damage = 0;
@@ -7639,6 +7615,10 @@ int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool 
 
 	/* Check for return if player */
 	if (cave_m_idx[y][x] < 0) process_spell_prepare(power, 25, &cancel, forreal, FALSE);
+
+	/* Clear boosts */
+	p_ptr->boost_spell_power = 0;
+	p_ptr->boost_spell_number = 0;
 
 	/* Calculate average base damage if guessing */
 	if (!forreal)
@@ -7654,69 +7634,30 @@ int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool 
 	/* Has a power */
 	if (power > 0)
 	{
-		spell_type *s_ptr = &s_info[power];
+		int damage_div = 1;
 
-		int ap_cnt;
+		int py = p_ptr->py;
+		int px = p_ptr->px;
 
-		int flg = (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY);
+		bool dummy;
 
-		/* Object is used */
-		if ((forreal) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+		/* Scale down effects of coatings */
+		if (coated_p(o_ptr)) damage_div = 5;
 
-		/* Scan through all four blows */
-		for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
-		{
-			/* Get the blow */
-			spell_blow *blow_ptr = &s_ptr->blow[ap_cnt];
-
-			/* Extract the attack infomation */
-			int effect = blow_ptr->effect;
-			int method = blow_ptr->method;
-
-			method_type *method_ptr = &method_info[method];
-
-			int i;
-			int num  = scale_method(method_ptr->number, p_ptr->lev);
-
-			/* Hack -- no more attacks */
-			if (!method) break;
-
-			/* Determine damage */
-			damage += spell_damage(blow_ptr, 0, 0L, FALSE, forreal) / (coated_p(o_ptr) ? 5 : 1);
-
-			/* Reapply apply damage? */
-			if (forreal)
-			{
-				/* Affected only one grid */
-				if (one_grid)
-				{
-					/* Apply damage as projection */
-					obvious |= project_one(who, what, y, x, damage, effect, flg);
-				}
-				else
-				{
-					/* Apply damage as a real projection */
-					for (i = 0; i < num; i++)
-					{
-						/* Projection method */
-						obvious |= project_method(who, what, method, effect, damage, 0, p_ptr->py, p_ptr->px, y, x, 0, flg);
-					}
-				}
-
-				/* We've applied the damage */
-				damage = 0;
-			}
-			else
-			{
-				continue;
-			}
-		}
+		/* Affect the target */
+		damage += process_spell_target(who, what, py, px, y, x, power, 0, damage_div, one_grid, forreal, FALSE, &dummy, NULL);
 
 		/* We've calculated damage? */
 		if (!forreal) return (damage);
 
+		/* We no longer have a valid object? */
+		if (!o_ptr->k_idx) return (damage);
+
+		/* Object is used */
+		if ((k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+
 		/* Evaluate coating */
-		if (obvious && (coated_p(o_ptr)))
+		if (damage && (coated_p(o_ptr)))
 		{
 			object_type object_type_body;
 			object_type *i_ptr = &object_type_body;
@@ -7752,7 +7693,7 @@ int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool 
 			}
 		}
 
-		/* Start recharing item */
+		/* Start recharging item */
 		else if (auto_activate(o_ptr))
 		{
 			if (artifact_p(o_ptr))
@@ -7778,8 +7719,9 @@ int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool 
 	}
 
 	/* Anything seen? */
-	return(obvious ? -1 : 0);
+	return(damage);
 }
+
 
 /*
  * Regions are a collection of grids that have a common ongoing effect.
@@ -8027,6 +7969,15 @@ void compact_region_pieces(int size)
 
 
 /*
+ * This gets set when we max out region pieces.
+ * As the player reduces regions by disarming them,
+ * we then attempt to regenerate some regions that
+ * may previously not had any contents.
+ */
+bool region_piece_limit;
+
+
+/*
  * Get an available region piece
  */
 s16b region_piece_pop(void)
@@ -8070,7 +8021,15 @@ s16b region_piece_pop(void)
 
 
 	/* Warn the player */
-	msg_print("Too many region pieces!");
+	if (cheat_xtra)
+	{
+		msg_print("Too many region pieces!");
+
+		/* We use a global to track when it might be possible
+		 * to regenerate some regions.
+		 */
+		region_piece_limit = TRUE;
+	}
 
 	/* Oops */
 	return (0);
@@ -8582,8 +8541,11 @@ void region_mark_temp(s16b region)
 void region_update(s16b region)
 {
 	region_type *r_ptr = &region_list[region];
+	method_type *method_ptr = &method_info[r_ptr->method];
 
 	int type = r_ptr->type;
+
+	u32b flg = method_ptr->flags1;
 
 	/* Fake clearing the old grids */
 	r_ptr->type = 0;
@@ -8597,8 +8559,11 @@ void region_update(s16b region)
 	/* Hack - remove previous list of grids */
 	region_delete(region);
 
+	/* Hack -- we try to force regions to have a useful effect */
+	if ((flg & (PROJECT_4WAY | PROJECT_4WAX | PROJECT_BOOM)) == 0) flg |= (PROJECT_BEAM | PROJECT_THRU);
+
 	/* Hack - add regions */
-	project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, region, (PROJECT_HIDE));
+	project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, region, flg);
 
 	/* Redraw grids */
 	region_refresh(region);
@@ -8885,122 +8850,162 @@ s16b region_random_piece(s16b region)
  * Note the concept of target only applies if we are using
  * a method, or spawning a region, not if we affect every
  * grid in the region.
+ *
+ * XXX It is important to realise that discharge_trap
+ * called from here can result in an invalidated region.
+ * Therefore the caller needs to check r_ptr->type > 0,
+ * before attempting to refer to the region after calling
+ * this routine.
  */
-bool region_effect(s16b region, int y, int x)
+bool region_effect(int region, int y, int x)
 {
 	region_type *r_ptr = &region_list[region];
-	region_info_type *ri_ptr = &region_info[r_ptr->type];
+	method_type *method_ptr = &method_info[r_ptr->method];
 
 	bool notice = FALSE;
-
-	int y0 = r_ptr->y0;
-	int x0 = r_ptr->x0;
-	int y1 = y ? y : r_ptr->y1;
-	int x1 = x ? x : r_ptr->x1;
 
 	/* Paranoia */
 	if (!r_ptr->type) return (FALSE);
 
-	/* Attacks come from multiple source features in the region */
-	if (r_ptr->flags1 & (RE1_SOURCE_FEATURE))
+	/* Create a child region */
+	if (r_ptr->child_region)
 	{
-		s16b this_region_piece, next_region_piece = 0;
+		int child_region = 0;
 
-		for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+		/* Get a newly initialized region */
+		child_region = init_region(r_ptr->who, r_ptr->what, r_ptr->child_region, r_ptr->damage, r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->y0, r_ptr->x0, y, x);
+
+		/* Paranoia */
+		if (child_region)
 		{
-			/* Get the region piece */
-			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+			/* Projection method */
+			notice |= project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->effect, r_ptr->y0, r_ptr->x0, y, x, child_region, method_ptr->flags1);
 
-			/* Get the next object */
-			next_region_piece = rp_ptr->next_in_region;
+			/* Hack -- lifespan */
+			region_list[child_region].lifespan = scale_method(method_ptr->max_range, r_ptr->level);
 
-			/* Skip if it doesn't match source feature */
-			if ((r_ptr->who != SOURCE_FEATURE) && (r_ptr->who != SOURCE_PLAYER_TRAP)) continue;
-			if (r_ptr->what != cave_feat[rp_ptr->y][rp_ptr->x]) continue;
-
-			/* Hack -- restore original terrain if going backwards */
-			if ((r_ptr->flags1 & (RE1_BACKWARDS)) && (r_ptr->flags1 & (RE1_SCALAR_FEATURE)))
-			{
-				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, FALSE, region_restore_hook);
-			}
-			else
-			{
-				/* Apply projection effects to the grids */
-				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_hook);
-
-				/* Apply temporary effects to grids */
-				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_t_hook);
-
-				/* Clear temporary array */
-				clear_temp_array();
-			}
+			/* Display newly created regions. Allow features to be seen underneath. */
+			if (r_ptr->effect != GF_FEATURE) region_list[child_region].flags1 |= (RE1_DISPLAY);
+			if (notice) region_list[child_region].flags1 |= (RE1_NOTICE);
 		}
 	}
 
-	/* Method is defined */
-	else if (ri_ptr->method)
+	/* A real trap */
+	else if ((r_ptr->flags1 & (RE1_HIT_TRAP)) && (f_info[cave_feat[r_ptr->y0][r_ptr->x0]].flags1 & (FF1_HIT_TRAP)))
 	{
-		/* Pick a random grid if required */
-		if (r_ptr->flags1 & (RE1_RANDOM))
-		{
-			int r = region_random_piece(region);
-
-			y1 = region_piece_list[r].y;
-			x1 = region_piece_list[r].x;
-		}
-
-		/* Reverse destination and source */
-		if (r_ptr->flags1 & (RE1_INVERSE))
-		{
-			y = y0;
-			x = x0;
-			y0 = x1;
-			x0 = x1;
-			y1 = y;
-			x1 = x;
-		}
-
-		/* Attack the target */
-		project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, 0, 0L);
+		/* Discharge the trap */
+		notice |= discharge_trap(r_ptr->y0, r_ptr->x0, y, x);
 	}
-
-	/* Method is not defined. Apply effect to all grids */
 	else
 	{
-		/* Apply projection effects to the grids */
-		notice |= region_iterate(region, region_project_hook);
+		int y0 = r_ptr->y0;
+		int x0 = r_ptr->x0;
+		int y1 = y ? y : r_ptr->y1;
+		int x1 = x ? x : r_ptr->x1;
 
-		/* Apply temporary effects to grids */
-		notice |= region_iterate(region, region_project_t_hook);
+		region_info_type *ri_ptr = &region_info[r_ptr->type];
 
-		/* Clear temporary array */
-		clear_temp_array();
+		/* Attacks come from multiple source features in the region */
+		if (r_ptr->flags1 & (RE1_SOURCE_FEATURE))
+		{
+			s16b this_region_piece, next_region_piece = 0;
+
+			for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+			{
+				/* Get the region piece */
+				region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+				/* Get the next object */
+				next_region_piece = rp_ptr->next_in_region;
+
+				/* Skip if it doesn't match source feature */
+				if ((r_ptr->who != SOURCE_FEATURE) && (r_ptr->who != SOURCE_PLAYER_TRAP)) continue;
+				if (r_ptr->what != cave_feat[rp_ptr->y][rp_ptr->x]) continue;
+
+				/* Hack -- restore original terrain if going backwards */
+				if ((r_ptr->flags1 & (RE1_BACKWARDS)) && (r_ptr->flags1 & (RE1_SCALAR_FEATURE)))
+				{
+					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, FALSE, region_restore_hook);
+				}
+				else
+				{
+					/* Apply projection effects to the grids */
+					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_hook);
+
+					/* Apply temporary effects to grids */
+					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_t_hook);
+
+					/* Clear temporary array */
+					clear_temp_array();
+				}
+			}
+		}
+
+		/* Method is defined */
+		else if (ri_ptr->method)
+		{
+			/* Pick a random grid if required */
+			if (r_ptr->flags1 & (RE1_RANDOM))
+			{
+				int r = region_random_piece(region);
+
+				y1 = region_piece_list[r].y;
+				x1 = region_piece_list[r].x;
+			}
+
+			/* Reverse destination and source */
+			if (r_ptr->flags1 & (RE1_INVERSE))
+			{
+				y = y0;
+				x = x0;
+				y0 = x1;
+				x0 = x1;
+				y1 = y;
+				x1 = x;
+			}
+
+			/* Attack the target */
+			project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, 0, 0L);
+		}
+
+		/* Method is not defined. Apply effect to all grids */
+		else
+		{
+			/* Apply projection effects to the grids */
+			notice |= region_iterate(region, region_project_hook);
+
+			/* Apply temporary effects to grids */
+			notice |= region_iterate(region, region_project_t_hook);
+
+			/* Clear temporary array */
+			clear_temp_array();
+		}
+
+		/* Region chains */
+		if (r_ptr->flags1 & (RE1_CHAIN))
+		{
+			r_ptr->y0 = y0;
+			r_ptr->x0 = x0;
+			r_ptr->y1 = y1;
+			r_ptr->x1 = x1;
+
+			region_update(region);
+		}
+
+		/* Noticed region? */
+		if (notice)
+		{
+			bool refresh = (r_ptr->flags1 & (RE1_NOTICE)) == 0;
+
+			/* Mark region noticed */
+			r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
+
+			/* Refresh required */
+			if (refresh) region_refresh(region);
+		}
 	}
 
-	/* Region chains */
-	if (r_ptr->flags1 & (RE1_CHAIN))
-	{
-		r_ptr->y0 = y0;
-		r_ptr->x0 = x0;
-		r_ptr->y1 = y1;
-		r_ptr->x1 = x1;
-
-		region_update(region);
-	}
-
-	/* Noticed region? */
-	if (notice)
-	{
-		bool refresh = (r_ptr->flags1 & (RE1_NOTICE)) == 0;
-
-		/* Mark region noticed */
-		r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
-
-		/* Refresh required */
-		if (refresh) region_refresh(region);
-	}
-
-	return (notice);
+	return(notice);
 }
 
 
@@ -9032,10 +9037,10 @@ void trigger_region(int y, int x, bool move)
 
 		/* Shoot grid with effect */
 		if ((move ? ((r_ptr->flags1 & (RE1_TRIGGER_MOVE)) != 0) : ((r_ptr->flags1 & (RE1_TRIGGER_DROP)) != 0)) &&
-				((r_ptr->flags1 & (RE1_TRIGGERED)) == 0) && (!r_ptr->delay))
+				((r_ptr->flags1 & (RE1_TRIGGERED)) == 0))
 		{
 			/* Handle avoidable traps */
-			if (r_ptr->flags1 & (RE1_HIT_TRAP))
+			if ((move) && (r_ptr->flags1 & (RE1_HIT_TRAP)))
 			{
 				/* Some traps are avoidable by monsters */
 				if ((cave_m_idx[y][x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[y][x]], y,x)))
@@ -9049,6 +9054,9 @@ void trigger_region(int y, int x, bool move)
 				}
 			}
 
+			/* Reset the delay */
+			r_ptr->delay = r_ptr->delay_reset;
+
 			/* Randomize grid hit */
 			if (r_ptr->flags1 & (RE1_RANDOM))
 			{
@@ -9058,40 +9066,11 @@ void trigger_region(int y, int x, bool move)
 				x = region_piece_list[r].x;
 			}
 
-			/* Create a child region */
-			if (r_ptr->child_region)
-			{
-				int child_region = 0;
+			/* Actually discharge the region */
+			notice |= region_effect(rp_ptr->region, y, x);
 
-				/* Get a newly initialized region */
-				child_region = init_region(r_ptr->who, r_ptr->what, r_ptr->child_region, r_ptr->damage, r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->y0, r_ptr->x0, y, x);
-
-				/* Paranoia */
-				if (child_region)
-				{
-					/* Projection method */
-					notice |= project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->effect, r_ptr->y0, r_ptr->x0, y, x, child_region, method_ptr->flags1);
-
-					/* Hack -- lifespan */
-					region_list[child_region].lifespan = scale_method(method_ptr->max_range, r_ptr->level);
-
-					/* Display newly created regions. Allow features to be seen underneath. */
-					if (r_ptr->effect != GF_FEATURE) region_list[child_region].flags1 |= (RE1_DISPLAY);
-					if (notice) region_list[child_region].flags1 |= (RE1_NOTICE);
-				}
-			}
-
-			/* A real trap */
-			else if ((r_ptr->flags1 & (RE1_HIT_TRAP)) && (f_info[cave_feat[r_ptr->y0][r_ptr->x0]].flags1 & (FF1_HIT_TRAP)))
-			{
-				/* Discharge the trap */
-				notice |= discharge_trap(r_ptr->y0, r_ptr->x0, y, x);
-			}
-			else
-			{
-				/* Fire the attack */
-				notice |= region_effect(rp_ptr->region, y, x);
-			}
+			/* Paranoia - region has been removed */
+			if (!r_ptr->type) return;
 
 			/* Mark region as triggered */
 			r_ptr->flags1 |= (RE1_TRIGGERED);
@@ -9560,11 +9539,20 @@ void process_region(s16b region)
 	int path_n = 0;
 	u16b path_g[99];
 
+	bool update = FALSE;
+
 	/* Paranoia */
 	if (!r_ptr->type) return;
 
-	/* Count down to next turn, return if not yet ready */
-	if (--r_ptr->delay > 0) return;
+	/* Count down to next turn */
+	if (r_ptr->delay)
+	{
+		/* Reduce timer */
+		if (--r_ptr->delay > 0) return;
+	}
+
+	/* Ensure we have a timer interval */
+	r_ptr->delay = r_ptr->delay_reset;
 
 	/* Accelerating */
 	if ((r_ptr->flags1 & (RE1_ACCELERATE)) && (!(r_ptr->flags1 & (RE1_DECELERATE)) || (r_ptr->age < r_ptr->lifespan / 2)))
@@ -9579,9 +9567,6 @@ void process_region(s16b region)
 		r_ptr->delay_reset += r_ptr->delay_reset / 3;
 		if (r_ptr->delay_reset < 3) r_ptr->delay_reset += 1;
 	}
-
-	/* Reset count */
-	r_ptr->delay = r_ptr->delay_reset;
 
 	/* Effects eventually "die" */
 	if (r_ptr->age >= r_ptr->lifespan)
@@ -9635,6 +9620,8 @@ void process_region(s16b region)
 
 		r_ptr->y1 = y;
 		r_ptr->x1 = x;
+
+		update = TRUE;
 	}
 
 	/* Rotate the region */
@@ -9668,12 +9655,8 @@ void process_region(s16b region)
 
 		r_ptr->y1 = y;
 		r_ptr->x1 = x;
-	}
 
-	/* Updating a projection */
-	if (r_ptr->flags1 & (RE1_PROJECTION))
-	{
-		region_update(region);
+		update = TRUE;
 	}
 
 	/* Moving a wall */
@@ -9824,25 +9807,60 @@ void process_region(s16b region)
 	if (r_ptr->flags1 & (RE1_SEEKER))
 	{
 		region_iterate_movement(region, region_move_seeker_hook);
+
+		update = TRUE;
 	}
 
 	/* Apply scalar vector effect */
 	if (r_ptr->flags1 & (RE1_SCALAR_VECTOR))
 	{
 		region_iterate_movement(region, region_move_vector_hook);
+
+		update = TRUE;
 	}
 
 	/* Apply spreading effect */
 	if (r_ptr->flags1 & (RE1_SPREAD))
 	{
 		region_iterate_movement(region, region_move_spread_hook);
+
+		update = TRUE;
+	}
+
+	/* We've freed up some regions. Allow regions to regenerate
+	 * if required.
+	 */
+	if ((region_piece_limit) && (region_piece_max * 5 / 4 < z_info->region_piece_max)
+			&& !(r_ptr->first_piece))
+	{
+		update = TRUE;
+	}
+
+	/* Update the region if required */
+	if ((update) && (r_ptr->flags1& (RE1_PROJECTION)))
+	{
+		region_update(region);
 	}
 
 	/* Apply effect every turn, unless already applied earlier in the turn */
 	if ((r_ptr->flags1 & (RE1_AUTOMATIC)) && !(r_ptr->flags1 & (RE1_TRIGGERED)))
 	{
-		/* Apply the effect */
-		region_effect(region, 0, 0);
+		/* Discharge the region */
+		if (region_effect(region, r_ptr->y1, r_ptr->y0))
+		{
+			bool refresh;
+
+			/* Paranoia: Could end up with an invalid region */
+			if (!r_ptr->type) return;
+
+			refresh = (r_ptr->flags1 & (RE1_NOTICE)) == 0;
+
+			/* Mark region noticed */
+			r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
+
+			/* Refresh required */
+			if (refresh) region_refresh(region);
+		}
 	}
 
 	/* Age the region */
@@ -9887,6 +9905,16 @@ void process_regions(void)
 		process_region(i);
 	}
 
+	/*
+	 * We've finished freeing up enough regions.
+	 */
+	if ((region_piece_limit) && (region_piece_max * 5 / 4 < z_info->region_piece_max))
+	{
+		region_piece_limit = FALSE;
+	}
+
+/* We've fixed the code that this check was used for */
+#if 0
 	/* Warn if we get orphaned pieces */
 	for (i = 0; i < z_info->region_piece_max; i++)
 	{
@@ -9899,6 +9927,7 @@ void process_regions(void)
 		/* Skip empty effects */
 		if (!r_ptr->type) msg_format("Piece %d is orphaned from %d.", i, region);
 	}
+#endif
 }
 
 
@@ -9939,12 +9968,12 @@ s16b init_region(int who, int what, int type, int dam, int method, int effect, i
 		{
 			/* Pick a target */
 			scatter(&y1, &x1, y0, x0, radius ? radius : range, method_ptr->flags1 & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF);
-			 
+
 			/* Parania - always have a target */
 			if ((y1 == y0) && (x1 == x0))
 			{
 				int d = rand_int(8);
-				 
+
 				y1 = y0 + ddy_ddd[d];
 				x1 = x0 + ddx_ddd[d];
 			}

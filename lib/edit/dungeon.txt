@@ -211,7 +211,7 @@ D:Someone with a silver-tongue and guile-full words has brought fair
 D: Hobbiton to its knees in a whir of devilish industry and foul pollution.
 
 N:3:Hobbiton rebuilt
-X:70:0:0:0
+X:69:70:0:0
 G:h
 S:264:515:265:266:772:773:774:0
 L:0:56:0:407:153:0:0:0:SURFACE | DAYLIGHT | TOWN:
@@ -975,6 +975,7 @@ Q:70:547
 S:8:9:10:11:12:13:14:15
 L:0:56:0:407:0:0:0:0:SURFACE | DAYLIGHT | TOWN | MORE:the Siege Camp around
 L:1:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the Dungeon of
+L:59:56:56:0:0:546:0:0:ROOMS | TUNNELS | LESS | MORE:the final Gates of
 L:60:56:56:0:0:547:0:0:ROOMS | TUNNELS | LESS:the Seat of Morgoth in
 D:It feels like home...
 

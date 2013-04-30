@@ -1615,7 +1615,7 @@ key_event inkey_ex(void)
 
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	if (!inkey_scan && (!inkey_flag || hilite_player /*|| character_icky*/))
 	{
 		/* Scan windows */
 		for (j = 0; j < ANGBAND_TERM_MAX; j++)
@@ -1794,7 +1794,7 @@ key_event inkey_ex(void)
 
 
 	/* Hide the cursor again */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	if (!inkey_scan && (!inkey_flag || hilite_player/* || character_icky*/))
 	{
 		/* Scan windows */
 		for (j = 0; j < ANGBAND_TERM_MAX; j++)
@@ -2581,20 +2581,20 @@ void messages_easy(bool command)
 			/* Pause for response */
 			Term_putstr(0, y + 1, -1, a, message__easy == message__next ? "-end-" : "-more-");
 
+			/* Get keypress */
+			ke = inkey_ex();
+
 			/* Get an acceptable keypress. */
 			while (1)
 			{
-				ke = inkey_ex();
-
-				if ((ke.key == '\xff') && !(ke.mousebutton))
+				while ((ke.key == '\xff') && !(ke.mousebutton))
 				{
-					int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
-					int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+					int yi = KEY_GRID_Y(ke);
+					int xi = KEY_GRID_X(ke);
+
 					int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
 
-					if (in_bounds_fully(y, x)) target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
-
-					continue;
+					ke = target_set_interactive_aux(yi, xi, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 				}
 		#if 0
 				if ((p_ptr->chp < warning) && (ke.key != 'c')) { bell("Press c to continue."); continue; }
@@ -2604,6 +2604,9 @@ void messages_easy(bool command)
 				if ((ke.key == '\n') || (ke.key == '\r')) break;
 				if ((ke.key == '\xff') && (ke.mousebutton == 1)) break;
 				bell("Illegal response to a 'more' prompt!");
+
+				/* Get keypress */
+				ke = inkey_ex();
 			}
 
 			/* Refresh screen */
@@ -2639,7 +2642,7 @@ void messages_easy(bool command)
 
 		/* Hack -- Process "Escape"/"Spacebar"/"Return" */
 		if ((p_ptr->command_new.key == ESCAPE) ||
-			(p_ptr->command_new.key == ' ') ||
+			/*(p_ptr->command_new.key == ' ') ||*/
 			(p_ptr->command_new.key == '\r') ||
 			(p_ptr->command_new.key == '\n'))
 		{

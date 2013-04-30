@@ -179,7 +179,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 		/* Display a list of spells */
 		if (cast) print_spells(book, num, 1, 20);
-		else print_powers(book, num, 1, 20);
+		else print_powers(book, num, 1, 20, o_ptr->name1 ? a_info[o_ptr->name1].level :
+		(o_ptr->name2 ? e_info[o_ptr->name2].level : k_info[o_ptr->k_idx].level));
 	}
 
 	/* Build a prompt (accept all spells) */
@@ -225,7 +226,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 				/* Display a list of spells */
 				if (cast) print_spells(book, num, 1, 20);
-				else print_powers(book, num, 1, 20);
+				else print_powers(book, num, 1, 20, o_ptr->name1 ? a_info[o_ptr->name1].level :
+				(o_ptr->name2 ? e_info[o_ptr->name2].level : k_info[o_ptr->k_idx].level));
 			}
 
 			/* Ask again */
@@ -364,78 +366,6 @@ bool inven_book_okay(const object_type *o_ptr)
 
 
 /*
- * Print a list of fields (for research).
- */
-void print_fields(const s16b *sn, int num, int y, int x)
-{
-	int i;
-
-	char out_val[160];
-#if 0
-	/* Title the list */
-	prt("", y, x);
-#endif
-	/* Dump the fields */
-	for (i = 0; i < num; i++)
-	{
-		/* Dump the spell -- skip 'of ' if required */
-		sprintf(out_val, "  %c) %-75s ",
-			I2A(i), k_name + k_info[sn[i]].name);
-		c_prt(TERM_WHITE, out_val, y + i, x);
-	}
-
-	/* Clear the bottom line */
-	prt("", y + i, x);
-}
-
-/*
- * Other research field functions.
- */
-bool field_commands(char choice, const s16b *sn, int i, bool *redraw)
-{
-	(void)redraw;
-
-	switch (choice)
-	{
-		case 'B':
-		{
-			/* Fake the o_ptr */
-			object_type object_type_body;
-			object_type *o_ptr = &object_type_body;
-
-			/* Set object details required */
-			o_ptr->k_idx = sn[i];
-			o_ptr->tval = k_info[sn[i]].tval;
-			o_ptr->sval = k_info[sn[i]].sval;
-			o_ptr->xtra1 = 0;
-
-			/* Load screen */
-			if (*redraw) screen_load();
-
-			/* Browse the object */
-			player_browse_object(o_ptr);
-
-			/* Save screen */
-			if (*redraw) screen_save();
-
-			break;
-		}
-
-		default:
-		{
-			return (FALSE);
-		}
-	}
-
-
-
-	return (TRUE);
-}
-
-
-
-
-/*
  * Peruse the spells/prayers in a Book.
  *
  * Takes an object as a parameter
@@ -446,21 +376,18 @@ bool player_browse_object(object_type *o_ptr)
 
 	s16b book[26];
 
-	cptr p, r;
+	cptr p;
 
 	int spell=-1;
 
-	int i;
+	int i, ii;
 
 	int tval;
+	int level;
 
 	char choice = 0;
 
 	char out_val[160];
-
-	spell_type *s_ptr;
-
-	object_type object_type_body;
 
 	/* Get fake tval */
 	if (o_ptr->tval == TV_STUDY) tval = o_ptr->sval;
@@ -471,63 +398,19 @@ bool player_browse_object(object_type *o_ptr)
 	{
 		case TV_PRAYER_BOOK:
 			p="prayer";
-			r="Pray for which blessing";
 			break;
 
 		case TV_SONG_BOOK:
 			p="song";
-			r="Improvise which melody";
 			break;
 
 		case TV_MAGIC_BOOK:
 			p="spell";
-			r="Research which field";
 			break;
 
 		default:
 			p="power";
-			r = "";
 			break;
-	}
-
-	/* Study materials -- Browse spells in a book related to the current spell for magic books only */
-	if ((o_ptr->tval == TV_STUDY) && ((o_ptr->sval == TV_MAGIC_BOOK)))
-	{
-		s16b field[MAX_SPELL_APPEARS];
-
-		int num = 0;
-
-		int selection = 0;
-
-		/* Get the spell */
-		s_ptr = &s_info[o_ptr->pval];
-
-		/* Pick a new spell item */
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if (s_ptr->appears[i].tval == tval) field[num++] = lookup_kind(tval, s_ptr->appears[i].sval);
-		}
-
-		/* Paranoia */
-		if (!num) return (FALSE);
-
-		/* Display the list and get a selection */
-		if (get_list(print_fields, field, num, format("%^ss",p), r, ",B=browse", 1, 20, field_commands, &selection))
-		{
-			/* Fake the o_ptr */
-			o_ptr = &object_type_body;
-
-			/* Set object details required */
-			o_ptr->k_idx = selection;
-			o_ptr->tval = k_info[selection].tval;
-			o_ptr->sval = k_info[selection].sval;
-			o_ptr->xtra1 = 0;
-		}
-		/* Did not choose something */
-		else
-		{
-			return (FALSE);
-		}
 	}
 
 	/* Fill book with spells */
@@ -661,6 +544,116 @@ bool player_browse_object(object_type *o_ptr)
 
 				/* Terminate if required */
 				if (intro) text_out_c(TERM_VIOLET, format(" before studying this %s.\n",p));
+
+				/* Spell not legible */
+				if (!spell_legible(spell))
+				{
+					text_out_c(TERM_SLATE, "You lack the ability to learn this spell.\n");
+				}
+				else
+				{
+					/* Get level */
+					level = spell_level(spell);
+
+					/* Get the spell knowledge*/
+					for (ii=0;ii<PY_MAX_SPELLS;ii++)
+					{
+						if (p_ptr->spell_order[ii] == spell) break;
+					}
+
+					/* Analyze the spell */
+					if (ii==PY_MAX_SPELLS)
+					{
+						if (level <= p_ptr->lev)
+						{
+							if (spell_okay(spell, FALSE))
+							{
+								/* Describe how the player learns spells */
+								if (o_ptr->tval == TV_PRAYER_BOOK)
+								{
+									text_out_c(TERM_BLUE_SLATE, "The luck of the gods decides whether you learn this spell.\n");
+								}
+								else if (o_ptr->tval == TV_SONG_BOOK)
+								{
+									int iii;
+
+									/* Do the hard work */
+									for(iii=0;iii<num;iii++)
+									{
+										if (spell_okay(book[iii],FALSE) && (i == iii))
+										{
+											text_out_c(TERM_L_BLUE, "You will learn this spell next if you study this book.  ");
+										}
+									}
+									text_out_c(TERM_BLUE_SLATE, "You must learn these spells in the listed order.\n");
+								}
+								else
+								{
+									text_out_c(TERM_BLUE_SLATE, "You may choose to learn this spell.\n");
+								}
+							}
+							else
+							{
+								/* Already highlighted pre-requisites */
+							}
+						}
+						else
+						{
+							text_out_c(TERM_L_RED, "You are not at high enough a level to learn this spell.\n");
+						}
+					}
+					else if ((ii < 32) ? (p_ptr->spell_forgotten1 & (1L << ii)) :
+						  ((ii < 64) ? (p_ptr->spell_forgotten2 & (1L << (ii - 32))) :
+						  ((ii < 96) ? (p_ptr->spell_forgotten3 & (1L << (ii - 64))) :
+						  (p_ptr->spell_forgotten4 & (1L << (ii - 96))))))
+					{
+						/* Describe how the player learns spells */
+						text_out_c(TERM_L_YELLOW, "You have forgotten how to cast this spell.\n");
+					}
+					else if (!((ii < 32) ? (p_ptr->spell_learned1 & (1L << ii)) :
+						  ((ii < 64) ? (p_ptr->spell_learned2 & (1L << (ii - 32))) :
+						  ((ii < 96) ? (p_ptr->spell_learned3 & (1L << (ii - 64))) :
+						  (p_ptr->spell_learned4 & (1L << (ii - 96)))))))
+					{
+						if (level <= p_ptr->lev)
+						{
+							/* Describe how the player learns spells */
+							if (o_ptr->tval == TV_PRAYER_BOOK)
+							{
+								text_out_c(TERM_BLUE_SLATE, "The luck of the gods decides whether you learn this spell.\n");
+							}
+							else if (o_ptr->tval == TV_SONG_BOOK)
+							{
+								int iii;
+
+								/* Do the hard work */
+								for(iii=0;iii<num;iii++)
+								{
+									if (spell_okay(book[iii],FALSE) && (i == iii))
+									{
+										text_out_c(TERM_L_BLUE, "You will learn this spell next if you study this book.  ");
+									}
+								}
+								text_out_c(TERM_BLUE_SLATE, "You must learn these spells in the listed order.\n");
+							}
+							else
+							{
+								text_out_c(TERM_BLUE_SLATE, "You may choose to learn this spell.\n");
+							}
+						}
+						else
+						{
+							text_out_c(TERM_L_RED, "You are not at high enough a level to learn this spell.\n");
+						}
+					}
+					else if (!((ii < 32) ? (p_ptr->spell_worked1 & (1L << ii)) :
+						  ((ii < 64) ? (p_ptr->spell_worked2 & (1L << (ii - 32))) :
+						  ((ii < 96) ? (p_ptr->spell_worked3 & (1L << (ii - 64))) :
+						  (p_ptr->spell_worked4 & (1L << (ii - 96)))))))
+					{
+						text_out_c(TERM_L_GREEN, "You have yet to cast this spell.\n");
+					}
+				}
 
 				/* Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
@@ -822,46 +815,6 @@ bool player_study(int item)
 			break;
 	}
 
-	/* Study materials -- Choose spells in a book related to the current spell */
-	if (o_ptr->tval == TV_STUDY)
-	{
-		s16b field[MAX_SPELL_APPEARS];
-
-		int num = 0;
-
-		int selection = 0;
-
-		/* Get the spell */
-		s_ptr = &s_info[o_ptr->pval];
-
-		/* Pick a new spell item */
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if (s_ptr->appears[i].tval == tval) field[num++] = lookup_kind(tval, s_ptr->appears[i].sval);
-		}
-
-		/* Paranoia */
-		if (!num) return (FALSE);
-
-		/* Display the list and get a selection */
-		if (get_list(print_fields, field, num, format("%^ss",p), r, "", 1, 20, field_commands, &selection))
-		{
-			/* Fake the o_ptr */
-			o_ptr = &object_type_body;
-
-			/* Set object details required */
-			o_ptr->k_idx = selection;
-			o_ptr->tval = k_info[selection].tval;
-			o_ptr->sval = k_info[selection].sval;
-			o_ptr->xtra1 = 0;
-		}
-		/* Did not choose something */
-		else
-		{
-			return (FALSE);
-		}
-	}
-
 	/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
 	if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (o_ptr->sval >= SV_BOOK_MAX_GOOD))
 	{
@@ -954,6 +907,12 @@ bool player_study(int item)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", o_ptr, FALSE) && (spell == -1)) return (FALSE);
+	}
+
+	/* Study -- only one spell available */
+	else if (o_ptr->tval == TV_STUDY)
+	{
+		if (spell_okay(o_ptr->pval,FALSE)) spell = o_ptr->pval;
 	}
 
 	/* Nothing to study */

@@ -610,8 +610,6 @@ errr process_pref_file_command(char *buf)
 			      n1 = a;
 			else  n1 = (byte)color_char_to_attr(c);
 
-			msg_format("%d",n1);
-
 			if ((j < 0) || (j >= 128)) return (1);
 			if (n1) tval_to_attr[j] = n1;
 			return (0);

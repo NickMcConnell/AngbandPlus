@@ -497,8 +497,8 @@ static HMENU main_menu;
 #endif /* USE_SAVER */
 
 static char arg_lastsavefile[1024];
-static int yOldPos = 0;
-static int xOldPos = 0;
+static bool highSensitivity = FALSE;
+static DWORD highTime;
 static bool term_initialised = FALSE;
 static bool term_readytoload = FALSE;
 
@@ -2338,7 +2338,7 @@ static int Term_xtra_win_grids(int v)
 
 	td->grid_display = v;
 
-	if (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
+	if (use_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
 	{
 		Term->always_draw = TRUE;
 	}
@@ -2702,7 +2702,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
          * Hack -- isometric location.
 	 * Note check on grid_display
          */
-	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display))
+	if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display))
 	{
 		x = (x - COL_MAP);
 		y = (y - ROW_MAP);
@@ -2737,7 +2737,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
+	if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (use_graphics == GRAPHICS_DAVID_GERVAIS) || (use_graphics == GRAPHICS_ADAM_BOLT))
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
@@ -2767,7 +2767,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		x1 = col * w1;
 		y1 = row * h1;
 
-		if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
+		if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (use_graphics == GRAPHICS_DAVID_GERVAIS) || (use_graphics == GRAPHICS_ADAM_BOLT))
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
@@ -2775,7 +2775,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 			/* Perfect size */
 			if ((w1 == tw2) && (h1 == th2))
 			{
-				if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
+				if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
 				{
 					if (!(x))
 					{
@@ -2831,7 +2831,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 				/* Set the correct mode for stretching the tiles */
 				SetStretchBltMode(hdc, COLORONCOLOR);
 
-				if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
+				if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
 				{
 					if (!(x))
 					{
@@ -2906,7 +2906,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
+	if ((use_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (use_graphics == GRAPHICS_DAVID_GERVAIS) || (use_graphics == GRAPHICS_ADAM_BOLT))
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
@@ -3016,8 +3016,13 @@ static void windows_map(void)
 	windows_map_aux();
 
 	/* Wait for a keypress, flush key buffer */
-	Term_inkey(&ke, TRUE, TRUE);
-	Term_flush();
+	while (1)
+	{
+		Term_inkey(&ke, TRUE, TRUE);
+		Term_flush();
+
+		if ((ke.key != '\xff') || (ke.mousebutton)) break;
+	}
 
 	/* Switch off the map display */
 	td->grid_display = old_display;
@@ -4745,8 +4750,8 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt) && (use_mouse || !character_generated))
 			{
 				/* Get the text grid */
-				xPos = GET_X_LPARAM(lParam);
-				yPos = GET_Y_LPARAM(lParam);
+				xPos = GET_X_LPARAM(lParam) - td->size_ow1;
+				yPos = GET_Y_LPARAM(lParam) - td->size_oh1;
 				xPos /= td->tile_wid;
 				yPos /= td->tile_hgt;
 
@@ -4807,22 +4812,44 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 #endif /* USE_SAVER */
 			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt) && (use_trackmouse || !character_generated))
 			{
+				dx = LOWORD(lParam) - xMouse;
+				dy = HIWORD(lParam) - yMouse;
+
+				if (dx < 0) dx = -dx;
+				if (dy < 0) dy = -dy;
+
 				/* Get the text grid */
-				xPos = GET_X_LPARAM(lParam);
-				yPos = GET_Y_LPARAM(lParam);
+				xPos = GET_X_LPARAM(lParam) - td->size_ow1;
+				yPos = GET_Y_LPARAM(lParam) - td->size_oh1;
 				xPos /= td->tile_wid;
 				yPos /= td->tile_hgt;
 
-				/* Have we changed grid? */
-				if ((xPos != xOldPos) ||
-					(xPos != yOldPos))
+				/* We've lost sensitivity */
+				if (highSensitivity)
+				{
+					if (highTime < GetTickCount() - 100)
+					{
+						highSensitivity = FALSE;
+					}
+				}
+
+				/* Have we gone sensitive */
+				if ((dx > MOUSE_SENS) || (dy > MOUSE_SENS))
+				{
+					highSensitivity = TRUE;
+					highTime = GetTickCount();
+
+					/* Save last location */
+					iMouse = 1;
+					xMouse = LOWORD(lParam);
+					yMouse = HIWORD(lParam);
+				}
+
+				/* We're sensitive */
+				if (highSensitivity)
 				{
 					Term_mousepress(xPos,yPos,0);
 				}
-
-				/* Save last location */
-				xOldPos = xPos;
-				yOldPos = yPos;
 			}
 		}
 

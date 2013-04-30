@@ -264,12 +264,13 @@ C:0|1|3|4|8|9|10|11
 #U:BEARSKIN
 
 # Currently using Beorning stats. Need to change this.
+# Have tweaked some skills, at least.
 
 #Sum = -2; shapeshift
 
 N:19:Werewolf
 S:2:-2:0:0:2:-3:-2:1
-R:-3:-5:3:1:3:0:0:10:0
+R:-3:-5:3:1:13:5:-5:10:-10
 X:140:0:245
 I:48:14:6:28
 H:72:6:66:4

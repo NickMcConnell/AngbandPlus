@@ -677,7 +677,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		else if (k_ptr->flags6 & (TR6_MOD_NAME)) modstr = basenm;
 
 		/* Add the name if required */
-		if (aware && (k_ptr->flags6 & (TR6_ADD_NAME))) append_name = TRUE;
+		if ((aware || !flavor) && (k_ptr->flags6 & (TR6_ADD_NAME))) append_name = TRUE;
 
 		/* Prepend or append the base name */
 		if (k_ptr->flags6 & (TR6_NO_TVAL))
@@ -923,6 +923,37 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	{
 		object_desc_str_macro(t, "(show_idx ");
 		object_desc_num_macro(t,o_ptr->show_idx);
+		object_desc_str_macro(t, ") ");
+	}
+
+	/* Hack -- display debug value in cheat_peek mode */
+	if (cheat_peek)
+	{
+		object_desc_str_macro(t, "(worth ");
+		object_desc_num_macro(t,object_value(o_ptr));
+		object_desc_str_macro(t, ") ");
+	}
+
+	/* Hack -- display id details */
+	if (cheat_peek)
+	{
+		object_desc_str_macro(t, "(");
+		if (o_ptr->ident & (IDENT_SENSE)) object_desc_chr_macro(t,'s');
+		if (o_ptr->ident & (IDENT_FIXED)) object_desc_chr_macro(t,'x');
+		if (o_ptr->ident & (IDENT_BONUS)) object_desc_chr_macro(t,'b');
+		if (o_ptr->ident & (IDENT_KNOWN)) object_desc_chr_macro(t,'k');
+		if (o_ptr->ident & (IDENT_STORE)) object_desc_chr_macro(t,'u');
+		if (o_ptr->ident & (IDENT_MENTAL)) object_desc_chr_macro(t,'f');
+		if (o_ptr->ident & (IDENT_CURSED)) object_desc_chr_macro(t,'c');
+		if (o_ptr->ident & (IDENT_BROKEN)) object_desc_chr_macro(t,'w');
+		if (o_ptr->ident & (IDENT_BREAKS)) object_desc_chr_macro(t,'k');
+		if (o_ptr->ident & (IDENT_CHARGES)) object_desc_chr_macro(t,'s');
+		if (o_ptr->ident & (IDENT_VALUE)) object_desc_chr_macro(t,'v');
+		if (o_ptr->ident & (IDENT_RUNES)) object_desc_chr_macro(t,'r');
+		if (o_ptr->ident & (IDENT_NAME)) object_desc_chr_macro(t,'n');
+		if (o_ptr->ident & (IDENT_PVAL)) object_desc_chr_macro(t,'p');
+		if (o_ptr->ident & (IDENT_MARKED)) object_desc_chr_macro(t,'m');
+		if (o_ptr->ident & (IDENT_FORGED)) object_desc_chr_macro(t,'g');
 		object_desc_str_macro(t, ") ");
 	}
 
@@ -3500,7 +3531,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		k = lookup_kind(TV_SKIN, j);
 
 		/* Set up bare skin */
-		for (i = INVEN_LEFT; i <= INVEN_FEET; i++)
+		for (i = INVEN_NECK; i <= INVEN_FEET; i++)
 		{
 			object_type *o_ptr = &inventory[i];
 
@@ -4269,8 +4300,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Remove skin */
 	if (use_skin)
 	{
-		/* Set up bare skin */
-		for (i = INVEN_NECK; i <= INVEN_FEET; i++)
+		/* Find bare skin */
+		for (i = INVEN_LEFT; i <= INVEN_FEET; i++)
 		{
 			object_type *o_ptr = &inventory[i];
 

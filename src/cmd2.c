@@ -3259,6 +3259,103 @@ static bool item_tester_hook_rope(const object_type *o_ptr)
 
 
 /*
+ * Calculate the projection path for fired or thrown objects.  -LM-
+ *
+ * From Sangband.
+ *
+ * Apply variable inaccuracy, using angular comparison.
+ *
+ * If inaccuracy is non-zero, we reduce corridor problems by reducing
+ * range instead of immediately running the projectile into the wall.
+ * This favour is not extended to projection sources out in the open,
+ * which makes it much better to be aiming from a firing slit than into
+ * one.
+ */
+int fire_or_throw_path(u16b *gp, int range, int y0, int x0, int *ty, int *tx, int inaccuracy)
+{
+	int reduce, expected_distance;
+	int dy, dx, delta, angle;
+	int mult = 1;
+
+	/* No inaccuracy or no distance -- calculate path and return */
+	if ((inaccuracy <= 0) || ((*ty == y0) && (*tx == x0)))
+	{
+		/* Calculate the path */
+		return(project_path(gp, range, y0, x0, ty, tx, PROJECT_THRU));
+	}
+
+	/* Inaccuracy penalizes range */
+	reduce = rand_int(1 + inaccuracy / 2);
+	if (reduce > range / 3) reduce = range / 3;
+	range -= reduce;
+
+
+	/* Get distance to target */
+	dy = *ty - y0;
+	dx = *tx - x0;
+	delta = MAX(ABS(dy), ABS(dx));
+
+
+	/* Extend target away from source, if necessary */
+	if ((delta > 0) && (delta <= 7))
+	{
+		if      (delta == 1) mult = 10;
+		else if (delta == 2) mult = 5;
+		else if (delta == 3) mult = 4;
+		else if (delta == 4) mult = 3;
+		else                 mult = 2;
+
+		*ty = y0 + (dy * mult);
+		*tx = x0 + (dx * mult);
+	}
+
+	/* Note whether we expect the projectile to travel anywhere */
+	expected_distance = project_path(gp, range, y0, x0, ty, tx, PROJECT_THRU);
+
+	/* Path enters no grids except the origin -- return */
+	if (expected_distance < 2) return (expected_distance);
+
+
+	/* Continue until satisfied */
+	while (TRUE)
+	{
+		int ty2 = *ty;
+		int tx2 = *tx;
+
+		/* Get angle to this target */
+		angle = get_angle_to_target(y0, x0, ty2, tx2, 0);
+
+		/* Inaccuracy changes the angle of projection */
+		angle = Rand_normal(angle, inaccuracy);
+
+		/* Handle the 0-240 angle discontinuity */
+		if (angle < 0) angle = 240 + angle;
+
+		/* Get a grid using the adjusted angle, target it */
+		get_grid_using_angle(angle, y0, x0, &ty2, &tx2);
+
+		/* Calculate the path, accept if it enters at least two grids */
+		if (project_path(gp, range, y0, x0, &ty2, &tx2, PROJECT_THRU) > 1)
+		{
+			break;
+		}
+
+		/* Otherwise, reduce range and expected distance */
+		else
+		{
+			range -= rand_int(div_round(range, 4));
+			if (expected_distance > range) expected_distance = range;
+		}
+	}
+
+	return(range);
+}
+
+
+
+
+
+/*
  * Fire or throw an already chosen object.
  *
  * You may only fire items that "match" your missile launcher
@@ -3290,6 +3387,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 	int bow_to_d = 0;
 	int ranged_skill;
 	int catch_chance = 0;
+	int inaccuracy = 5;
 
 	int style_hit, style_dam, style_crit;
 
@@ -3439,8 +3537,20 @@ void player_fire_or_throw_selected(int item, bool fire)
 	y = p_ptr->py;
 	x = p_ptr->px;
 
-	/* Test for fumble - coated weapons are riskier thrown/shot than wielded */
-	if (((p_ptr->heavy_wield) || (cursed_p(o_ptr)) || (coated_p(o_ptr))) && (!rand_int(ranged_skill)))
+	/* Increase inaccuracy */
+	if (p_ptr->heavy_wield) inaccuracy += 5;
+	if (coated_p(o_ptr)) inaccuracy += 2;
+	if (cursed_p(o_ptr)) inaccuracy += 10;
+	if (fire && (cursed_p(&inventory[INVEN_BOW]))) inaccuracy += 5;
+
+	/* Decrease inaccuracy */
+	inaccuracy -= ranged_skill / 40;
+
+	/* Minimum inaccuracy */
+	if (inaccuracy < 0) inaccuracy = 0;
+
+	/* Test for fumble */
+	if ((inaccuracy > 5) && (rand_int(ranged_skill) < inaccuracy))
 	{
 		int dir;
 
@@ -3458,6 +3568,8 @@ void player_fire_or_throw_selected(int item, bool fire)
 		int dir = 0;
 		int old_y, old_x; /* Previous weapon location */
 		int ty, tx; /* Current target coordinates */
+
+		bool report_miss = TRUE;	/* Report first monster we miss */
 
 		/* If trick throw failure, stop trick throws */
 		if (trick_failure) break;
@@ -3526,7 +3638,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 		if (tx == p_ptr->px && ty == p_ptr->py) tdis = 256;
 
 		/* Calculate the path */
-		path_n = project_path(path_g, tdis, y, x, &ty, &tx, PROJECT_THRU);
+		path_n = fire_or_throw_path(path_g, tdis, y, x, &ty, &tx, inaccuracy);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
@@ -3744,6 +3856,26 @@ void player_fire_or_throw_selected(int item, bool fire)
 					/* Assume a default death */
 					cptr note_dies = " dies.";
 
+					int mult = object_damage_multiplier(o_ptr, m_ptr, item < 0);
+
+					/* Apply bow brands */
+					if (fire) mult = MAX(mult, object_damage_multiplier(&inventory[INVEN_BOW], m_ptr, item < 0) - 1);
+
+					/* Use left-hand ring brand when shooting. Rings contribute 1 less multiplier. */
+					if ((fire) && (inventory[INVEN_LEFT].k_idx))
+					{
+						mult = MAX(mult, object_damage_multiplier(&inventory[INVEN_LEFT], m_ptr, item < 0) - 1);
+					}
+
+					/* Use right-hand ring brand when shooting. Rings contribute 1 less multiplier. */
+					if ((!fire) && (inventory[INVEN_LEFT].k_idx))
+					{
+						mult = MAX(mult, object_damage_multiplier(&inventory[INVEN_RIGHT], m_ptr, item < 0) - 1);
+					}
+
+					/* Get total damage */
+					tdam = tot_dam_mult(tdam, mult);
+
 					/* Note the collision */
 					ammo_can_break = TRUE;
 
@@ -3763,19 +3895,6 @@ void player_fire_or_throw_selected(int item, bool fire)
 						/* Special note at death */
 						note_dies = " is destroyed.";
 					}
-
-					/* Apply special damage XXX XXX XXX */
-					/* Hack -- get brands/slays from artifact/ego item/magic item type */
-					if ((i_ptr->name1) || (i_ptr->name2) || (i_ptr->xtra1) || (i_ptr->ident & (IDENT_FORGED)))
-					{
-						tdam = tot_dam_aux(i_ptr, tdam, m_ptr, item < 0);
-					}
-					/* Hack -- use left-hand ring brand */
-					else if (inventory[INVEN_LEFT].k_idx)
-					{
-						tdam = tot_dam_aux(&inventory[INVEN_LEFT], tdam, m_ptr, item < 0);
-					}
-
 
 					/* The third piece of fire/throw dependent code */
 					if (fire)
@@ -3811,7 +3930,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 						msg_format("The %s finds a mark.", o_name);
 
 						/* Near miss? */
-						if (!genuine_hit) tdam = 0;
+						if (!genuine_hit) break;
 					}
 
 					/* Handle visible monster */
@@ -3828,13 +3947,20 @@ void player_fire_or_throw_selected(int item, bool fire)
 							/* Missile was stopped */
 							if (r_ptr->flags2 & (RF2_ARMOR)
 								|| m_ptr->shield)
-							msg_format("%^s blocks the %s with a %sshield.",
+							{
+								msg_format("%^s blocks the %s with a %sshield.",
 										 m_name,
 										 o_name,
 										 m_ptr->shield ? "mystic " : "");
+							}
+							/* Miss the monster */
+							else if (report_miss && visible)
+							{
+								msg_format("You miss %s.", m_name);
+							}
 
-							/* No normal damage */
-							tdam = 0;
+							/* No further effect */
+							break;
 						}
 						/* Successful hit */
 						else
@@ -3906,6 +4032,18 @@ void player_fire_or_throw_selected(int item, bool fire)
 					/* Stop looking */
 					break;
 				}
+				/* Tell the player they missed */
+				else if (report_miss && visible)
+				{
+					char m_name[80];
+
+					/* Get the monster name (or "it") */
+					monster_desc(m_name, sizeof(m_name), cave_m_idx[y][x], 0);
+
+					msg_format("You miss %s.", m_name);
+
+					report_miss = FALSE;
+				}
 			}
 			/* Handle reaching targetted grid */
 			else if ((i == path_n - 1) && !(trick_throw))
@@ -3921,23 +4059,43 @@ void player_fire_or_throw_selected(int item, bool fire)
 		/* Apply effects of activation/coating */
 		if (activate)
 		{
+			/* Check usage */
+			object_usage(item);
+
+			/* Copy learned values to the thrown/fired weapon.
+			 * We do this to help allow weapons to stack. */
+			i_ptr->ident = o_ptr->ident;
+			i_ptr->usage = o_ptr->usage;
+			i_ptr->feeling = o_ptr->feeling;
+			i_ptr->guess1 = o_ptr->guess1;
+			i_ptr->guess2 = o_ptr->guess2;
+			i_ptr->can_flags1 = o_ptr->can_flags1;
+			i_ptr->can_flags2 = o_ptr->can_flags2;
+			i_ptr->can_flags3 = o_ptr->can_flags3;
+			i_ptr->can_flags4 = o_ptr->can_flags4;
+			i_ptr->may_flags1 = o_ptr->may_flags1;
+			i_ptr->may_flags2 = o_ptr->may_flags2;
+			i_ptr->may_flags3 = o_ptr->may_flags3;
+			i_ptr->may_flags4 = o_ptr->may_flags4;
+			i_ptr->not_flags1 = o_ptr->not_flags1;
+			i_ptr->not_flags2 = o_ptr->not_flags2;
+			i_ptr->not_flags3 = o_ptr->not_flags3;
+			i_ptr->not_flags4 = o_ptr->not_flags4;
+
 			/* Apply additional effect from activation */
 			if (auto_activate(o_ptr))
 			{
 				/* Make item strike */
 				process_item_blow(o_ptr->name1 ? SOURCE_PLAYER_ACT_ARTIFACT : (o_ptr->name2 ? SOURCE_PLAYER_ACT_EGO_ITEM : SOURCE_PLAYER_ACTIVATE),
-						o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), o_ptr, y, x,  TRUE, (play_info[y][x] & (PLAY_FIRE)) == 0);
+						o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), i_ptr, y, x,  TRUE, (play_info[y][x] & (PLAY_FIRE)) == 0);
 			}
 
 			/* Apply additional effect from coating*/
 			else if (coated_p(o_ptr))
 			{
 				/* Make item strike */
-				process_item_blow(SOURCE_PLAYER_COATING, lookup_kind(o_ptr->xtra1, o_ptr->xtra2), o_ptr, y, x, TRUE, TRUE);
+				process_item_blow(SOURCE_PLAYER_COATING, lookup_kind(o_ptr->xtra1, o_ptr->xtra2), i_ptr, y, x, TRUE, TRUE);
 			}
-
-			/* Check usage */
-			object_usage(item);
 
 			/* Chance of breakage */
 			ammo_can_break = TRUE;
@@ -4160,6 +4318,10 @@ void player_fire_or_throw_selected(int item, bool fire)
 				{
 					/* Hack -- drop into chasm */
 					cave_alter_feat(y, x, FS_TIMED);
+				}
+				else
+				{
+					break;
 				}
 			}
 		}

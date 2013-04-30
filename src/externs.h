@@ -107,7 +107,7 @@ extern const familiar_type familiar_race[MAX_FAMILIARS];
 extern const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES];
 extern const timed_effect timed_effects[TMD_MAX];
 extern const skill_table_entry skill_table[];
-
+extern const char *inscrip_info[];
 
 /* variable.c */
 extern cptr copyright;
@@ -456,7 +456,8 @@ extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern sint critical_shot(int weight, int plus, int dam);
 extern sint critical_norm(int weight, int plus, int dam);
-extern sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool floor);
+extern sint object_damage_multiplier(object_type *o_ptr, const monster_type *m_ptr, bool floor);
+extern sint tot_dam_mult(int tdam, int mult);
 extern void find_secret(int y, int x);
 extern void search(void);
 extern bool auto_pickup_ignore(const object_type *o_ptr);
@@ -490,6 +491,7 @@ extern void do_cmd_hold(void);
 extern void do_cmd_pickup(void);
 extern void do_cmd_rest(void);
 extern int breakage_chance(object_type *o_ptr);
+extern int fire_or_throw_path(u16b *gp, int range, int y0, int x0, int *ty, int *tx, int inaccuracy);
 extern bool item_tester_hook_throwable(const object_type *o_ptr);
 extern bool player_fire(int item);
 extern bool player_throw(int item);
@@ -566,6 +568,7 @@ extern bool inven_cast_okay(const object_type *o_ptr);
 extern bool player_cast(int item);
 
 /* cmd6.c */
+extern int find_item_to_reduce(int item);
 extern bool do_cmd_item(int item);
 extern bool item_tester_hook_food_edible(const object_type *o_ptr);
 extern bool item_tester_hook_rod_charged(const object_type *o_ptr);
@@ -640,13 +643,13 @@ extern void generate_cave(void);
 
 /* info.c */
 extern bool spell_desc(spell_type *s_ptr, const cptr intro, int level, bool detail, int target);
-extern void spell_info(char *p, int p_s, int spell, bool use_level);
+extern void spell_info(char *p, int p_s, int spell, int level);
 extern void list_ego_item_runes(int ego, bool spoil);
 extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int pval, int mode);
 extern void list_object(const object_type *o_ptr, int mode);
 extern void screen_object(object_type *o_ptr);
 extern void screen_self_object(object_type *o_ptr, int slot);
-extern void print_powers(const s16b *book, int num, int y, int x);
+extern void print_powers(const s16b *book, int num, int y, int x, int level);
 extern void print_spells(const s16b *book, int num, int y, int x);
 extern bool make_fake_artifact(object_type *o_ptr, byte name1);
 extern void display_koff(const object_type *o_ptr);
@@ -689,7 +692,7 @@ extern bool load_player(void);
 
 /* melee1.c */
 extern bool monster_scale(monster_race *n_ptr, int m_idx, int depth);
-extern int get_breath_dam(s16b hit_points, int gf_type, bool powerful);
+extern int get_breath_dam(s16b hp, int method, bool powerful);
 extern bool mon_check_hit(int m_idx, int power, int level, int who, bool ranged);
 extern int attack_desc(char *buf, int target, int method, int effect, int damage, byte flg, int buf_size);
 extern bool make_attack_normal(int m_idx);
@@ -739,7 +742,7 @@ extern void wipe_m_list(void);
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
-extern void display_monlist(void);
+extern void display_monlist(int row, bool command, bool force);
 extern void monster_desc(char *desc, size_t max, int m_idx, int mode);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
@@ -761,13 +764,17 @@ extern int place_monster_here(int y, int x, int r_idx);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
+extern void summon_specific_params(int r_idx, int summon_specific_type, bool hack_ecology);
 extern bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool grp, u32b flg);
 extern bool summon_specific_one(int y1, int x1, int r_idx, bool slp, u32b flg);
 extern bool animate_object(int item);
 extern void set_monster_fear(monster_type *m_ptr, int v, bool panic);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
-extern void get_monster_ecology(int r_idx);
+extern int deeper_monster(int r_idx, int r);
+extern void get_monster_ecology(int r_idx, int hack_pit);
+extern bool place_guardian(int y0, int x0, int y1, int x1);
+
 
 /* object1.c */
 extern void flavor_init(void);
@@ -807,6 +814,7 @@ extern s16b get_obj_num(int level);
 extern void object_known_store(object_type *o_ptr);
 extern void object_known(object_type *o_ptr);
 extern void object_bonus(object_type *o_ptr, bool floor);
+extern void object_gauge(object_type *o_ptr, bool floor);
 extern void object_mental(object_type *o_ptr, bool floor);
 extern void object_aware_tips(object_type *o_ptr, bool seen);
 extern void object_aware(object_type *o_ptr, bool floor);
@@ -819,7 +827,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
-extern int sense_magic(object_type *o_ptr, int sense_level, bool heavy, bool floor);
+extern bool sense_magic(object_type *o_ptr, int sense_level, bool heavy, bool floor);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
 extern bool make_object(object_type *j_ptr, bool good, bool great);
 extern bool make_chest(int *feat);
@@ -963,7 +971,7 @@ extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool brand_item(int brand, cptr act);
 extern bool ident_spell(void);
-extern bool ident_spell_bonus(void);
+extern bool ident_spell_gauge(void);
 extern bool ident_spell_rumor(void);
 extern bool ident_spell_tval(int tval);
 extern bool identify_fully(void);
@@ -985,6 +993,9 @@ extern bool concentrate_light_hook(const int y, const int x, const bool modify);
 extern int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
 		bool concentrate_hook(const int y, const int x, const bool modify));
 extern bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, bool *known);
+extern int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int spell, int level,
+		int damage_div, bool one_grid, bool forreal, bool player, bool *cancel,
+		bool retarget(int *ty, int *tx, u32b *flg, int method, int level, bool full, bool *one_grid));
 extern bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, bool *known, bool eaten);
 extern bool item_tester_hook_magic_trap(const object_type *o_ptr);
 extern bool player_set_magic_trap(int item);

@@ -16,7 +16,7 @@
 	Email			: angband@blueyonder.co.uk
 	WWW			: http://www.angband.pwp.blueyonder.co.uk
 */
-
+#if 0
 /* Variant name and version */
 #define VARIANT "Angband 3.0.1"
 
@@ -5067,7 +5067,7 @@ void amiga_hs_to_ascii(void)
 	/* Reconfigure Date */
 	if ((*when == '@') && strlen(when) == 9)
 	{
-		sprintf(date_temp, "%.2s-%.2s-%.4s", 
+		sprintf(date_temp, "%.2s-%.2s-%.4s",
 			when+7, when+5, when+1);
 	}
 	else
@@ -5113,7 +5113,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names. 
+   'user/data-ami.prf'. This is a hack, but works for most player names.
    Insert in main.c */
 void amiga_user_name( char *buf )
 {
@@ -5480,4 +5480,5 @@ static void quick_BltMaskBitMapRastPort( struct BitMap *src, int x, int y, struc
 	}
 }
 
+#endif
 #endif

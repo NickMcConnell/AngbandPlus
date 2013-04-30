@@ -759,14 +759,11 @@ U:56
 #$ granite wall
 O:0
 W:6:1:20:0
-T:MIST
 S:S_MONSTERS
 K:DEFAULT:1:6
 #$ open floor
 K:CHASM:141:6
 #$ chasm
-K:HIT_TRAP:20:5
-#$ strange rune
 K:TREE:541:6
 #$ shady ground
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
@@ -783,7 +780,6 @@ U:56
 #$ granite wall
 O:0
 W:2:1:20:0
-T:SCATTER_PASS
 S:TELE_AWAY
 K:DEFAULT:1:5
 #$ open floor
@@ -853,7 +849,7 @@ U:56
 #$ granite wall
 O:434
 W:1:1:20:0
-T:BOLT_MINOR:SLOW:1d4
+T:DART:SLOW:1d4
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -878,7 +874,7 @@ U:56
 #$ granite wall
 O:434
 W:2:1:20:0
-T:BOLT_MINOR:LOSE_STR:1d4
+T:DART:LOSE_STR:1d4
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -903,7 +899,7 @@ U:56
 #$ granite wall
 O:434
 W:3:1:20:0
-T:BOLT_MINOR:LOSE_DEX:1d4
+T:DART:LOSE_DEX:1d4
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -928,7 +924,7 @@ U:56
 #$ granite wall
 O:434
 W:4:1:20:0
-T:BOLT_MINOR:LOSE_CON:1d4
+T:DART:LOSE_CON:1d4
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -1858,7 +1854,7 @@ K:HIT_TRAP:64:5
 K:HURT_WATER:155:5
 #$ deep water
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | SPIKE | DISARM | TRAP |
-F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
+F:CAN_CLIMB | CAN_FLY | HIDE_ITEM | HIT_TRAP
 F:HURT_WATER | EASY_HIDE | MUST_CLIMB | ATTR_LITE |
 D:You fall into a deep pit!
 
@@ -1922,7 +1918,6 @@ U:56
 #$ granite wall
 O:0
 W:12:2:20:0
-T:MIST
 S:S_UNDEAD
 K:DEFAULT:1:12
 #$ open floor
@@ -1930,8 +1925,6 @@ K:CHASM:141:12
 #$ chasm
 K:TREE:541:12
 #$ shady ground
-K:HIT_TRAP:67:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -1946,7 +1939,6 @@ U:56
 #$ granite wall
 O:0
 W:18:2:20:0
-T:MIST
 S:S_DRAGON
 K:DEFAULT:1:18
 #$ open floor
@@ -1954,8 +1946,6 @@ K:CHASM:141:18
 #$ chasm
 K:TREE:541:18
 #$ shady ground
-K:HIT_TRAP:68:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -1970,7 +1960,6 @@ U:56
 #$ granite wall
 O:0
 W:24:2:20:0
-T:MIST
 S:S_DEMON
 K:DEFAULT:1:24
 #$ open floor
@@ -1978,8 +1967,6 @@ K:CHASM:141:24
 #$ chasm
 K:TREE:541:24
 #$ shady ground
-K:HIT_TRAP:69:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -2155,7 +2142,7 @@ U:56
 #$ granite wall
 O:0
 W:2:2:20:0
-T:HANDS
+T:SHRIEK
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2169,8 +2156,6 @@ F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:ATTR_LITE |
 D:An alarm goes off in the distance!
-
-#S:SHRIEK
 
 N:78:tripwire
 G:^:y
@@ -2378,7 +2363,6 @@ U:56
 #$ granite wall
 O:0
 W:2:3:20:0
-T:LINE_LOS
 S:DARKNESS
 K:DEFAULT:1:5
 #$ open floor
@@ -2402,7 +2386,6 @@ U:56
 #$ granite wall
 O:0
 W:4:3:20:0
-T:ADJACENT
 S:FORGET
 K:DEFAULT:1:5
 #$ open floor
@@ -2426,7 +2409,6 @@ U:56
 #$ granite wall
 O:0
 W:8:3:20:0
-T:ARC_40_SHORT
 S:DRAIN_MANA
 K:DEFAULT:1:8
 #$ open floor
@@ -2450,7 +2432,6 @@ U:56
 #$ granite wall
 O:0
 W:16:3:20:0
-T:ADJACENT
 S:MIND_BLAST
 K:DEFAULT:1:16
 #$ open floor
@@ -2474,7 +2455,7 @@ U:56
 #$ granite wall
 O:78
 W:2:1:20:0
-T:BEAM:HURT:1d6
+T:ARROW:HURT:1d6
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2497,7 +2478,7 @@ U:56
 #$ granite wall
 O:80
 W:5:1:20:0
-T:BEAM:HURT:3d6
+T:ARROW:HURT:3d6
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2520,7 +2501,7 @@ U:56
 #$ granite wall
 O:79
 W:8:1:20:0
-T:BEAM:HURT:5d6
+T:ARROW:HURT:5d6
 K:DEFAULT:1:8
 #$ open floor
 K:CHASM:141:8
@@ -2543,7 +2524,7 @@ U:56
 #$ granite wall
 O:81
 W:11:1:20:0
-T:BEAM:HURT:7d6
+T:ARROW:HURT:7d6
 K:DEFAULT:1:11
 #$ open floor
 K:CHASM:141:11
@@ -2588,7 +2569,7 @@ G:::w
 M:49
 #$ pile of rubble
 O:82
-W:1:9:13:0
+W:20:9:13:0
 K:DEFAULT:1:10
 #$ open floor
 K:SECRET:97:10
@@ -2611,7 +2592,7 @@ D:You have found something!
 N:97:a pile of rubble containing something
 G:&:w
 O:82
-W:1:9:13:0
+W:20:9:13:0
 K:DEFAULT:1:10
 #$ open floor
 K:CHASM:141:10
@@ -5891,7 +5872,7 @@ M:1
 U:56
 #$ granite wall
 O:0
-W:1:1:5:0
+W:10:1:5:0
 K:DEFAULT:1:0
 #$ open floor
 K:CHASM:141:0
@@ -6273,7 +6254,6 @@ U:56
 #$ granite wall
 O:0
 W:45:2:20:0
-T:ADJACENT
 S:BALL_NETHR
 K:DEFAULT:1:60
 #$ open floor
@@ -6292,7 +6272,6 @@ U:56
 #$ granite wall
 O:0
 W:55:2:20:0
-T:ARC_40_SHORT
 S:BALL_MANA
 K:DEFAULT:1:80
 #$ open floor
@@ -6330,7 +6309,6 @@ U:56
 #$ granite wall
 O:0
 W:6:3:20:0
-T:ARC_40
 S:WOUND
 K:DEFAULT:1:6
 #$ open floor
@@ -6351,7 +6329,6 @@ U:56
 #$ granite wall
 O:0
 W:12:3:20:0
-T:ARC_40
 S:A_DEAD
 K:DEFAULT:1:12
 #$ open floor
@@ -6372,7 +6349,6 @@ U:56
 #$ granite wall
 O:0
 W:18:3:20:0
-T:ARC_40
 S:A_OBJECT
 K:DEFAULT:1:18
 #$ open floor
@@ -6393,7 +6369,6 @@ U:56
 #$ granite wall
 O:0
 W:24:3:20:0
-T:ARC_40
 S:A_ELEMENT
 K:DEFAULT:1:24
 #$ open floor
@@ -6412,12 +6387,9 @@ U:56
 #$ granite wall
 O:0
 W:10:1:20:0
-T:ARC_40_SHORT
 S:S_ORC
 K:DEFAULT:1:10
 #$ open floor
-K:HIT_TRAP:284:5
-#$ mark of a white hand
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -6431,12 +6403,9 @@ U:56
 #$ granite wall
 O:0
 W:55:2:20:0
-T:MIST
 S:S_HI_DEMON
 K:DEFAULT:1:80
 #$ open floor
-K:HIT_TRAP:285:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -6451,12 +6420,9 @@ U:56
 #$ granite wall
 O:0
 W:6:2:20:0
-T:MIST
 S:S_SPIDER
 K:DEFAULT:1:6
 #$ open floor
-K:HIT_TRAP:286:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -6471,12 +6437,9 @@ U:56
 #$ granite wall
 O:0
 W:45:2:20:0
-T:MIST
 S:S_HI_DRAGON
 K:DEFAULT:1:60
 #$ open floor
-K:HIT_TRAP:287:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -6491,12 +6454,9 @@ U:56
 #$ granite wall
 O:0
 W:50:2:20:0
-T:MIST
 S:S_HI_UNDEAD
 K:DEFAULT:1:70
 #$ open floor
-K:HIT_TRAP:288:5
-#$ strange rune
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
 F:HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
@@ -6511,7 +6471,6 @@ U:56
 #$ granite wall
 O:0
 W:18:1:20:0
-T:8WAY_III
 K:DEFAULT:1:8
 #$ open floor
 K:HIT_TRAP:313:8
@@ -6532,7 +6491,6 @@ U:56
 #$ granite wall
 O:0
 W:31:1:20:0
-T:8WAY_III
 K:DEFAULT:1:32
 #$ open floor
 K:HIT_TRAP:314:32
@@ -6642,8 +6600,8 @@ G:^:M
 U:56
 #$ granite wall
 O:0
-W:2:3:20:0
-T:SCATTER:PLASMA:8d6
+W:32:3:20:0
+T:BALL:PLASMA:8d6
 K:DEFAULT:1:5
 #$ open floor
 K:HIT_TRAP:295:5
@@ -6663,7 +6621,7 @@ U:56
 #$ granite wall
 O:0
 W:33:3:20:0
-T:SCATTER:GRAVITY:8d6
+T:BALL:GRAVITY:8d6
 K:DEFAULT:1:36
 #$ open floor
 K:HIT_TRAP:296:5
@@ -6683,7 +6641,7 @@ U:56
 #$ granite wall
 O:0
 W:31:3:20:0
-T:SCATTER:INERTIA:8d6
+T:BALL:INERTIA:8d6
 K:DEFAULT:1:33
 #$ open floor
 K:HIT_TRAP:297:5
@@ -6703,7 +6661,7 @@ U:56
 #$ granite wall
 O:0
 W:30:3:20:0
-T:SCATTER:FORCE:8d6
+T:BALL:FORCE:8d6
 K:DEFAULT:1:30
 #$ open floor
 K:HIT_TRAP:298:5
@@ -6743,7 +6701,7 @@ U:56
 #$ granite wall
 O:0
 W:12:3:20:0
-T:SCATTER:SOUND:8d6
+T:BALL:SOUND:8d6
 K:DEFAULT:1:12
 #$ open floor
 K:HIT_TRAP:300:5
@@ -6762,8 +6720,8 @@ M:295
 U:56
 #$ granite wall
 O:0
-W:18:3:20:0
-T:SCATTER:SHARD:8d6
+W:28:3:20:0
+T:BALL:SHARD:8d6
 K:DEFAULT:1:18
 #$ open floor
 K:HIT_TRAP:301:5
@@ -6783,7 +6741,7 @@ U:56
 #$ granite wall
 O:0
 W:15:3:20:0
-T:SCATTER:NEXUS:8d6
+T:BALL:NEXUS:8d6
 K:DEFAULT:1:15
 #$ open floor
 K:HIT_TRAP:302:5
@@ -6801,7 +6759,7 @@ U:56
 #$ granite wall
 O:0
 W:24:3:20:0
-T:SCATTER:CHAOS:8d6
+T:BALL:CHAOS:8d6
 K:DEFAULT:1:24
 #$ open floor
 K:HIT_TRAP:303:5
@@ -7130,7 +7088,7 @@ F:HURT_FIRE | HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D3 | ATTR_LITE |
 
 N:319:small wooden chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -7376,7 +7334,7 @@ F:HURT_FIRE | HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D2 | DROP_1D3 | ATTR_LITE |
 
 N:330:large wooden chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -7580,7 +7538,7 @@ F:HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D3 | DROP_GOOD | ATTR_LITE |
 
 N:339:small iron chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -7785,7 +7743,7 @@ F:HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D2 | DROP_1D3 | DROP_GOOD | ATTR_LITE |
 
 N:348:large iron chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -7988,7 +7946,7 @@ F:HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D3 | DROP_GREAT | ATTR_LITE |
 
 N:357:small steel chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -8193,7 +8151,7 @@ F:HURT_ACID | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
 F:CHEST | DROP_1D2 | DROP_1D3 | DROP_GREAT | ATTR_LITE |
 
 N:366:large steel chest (open)
-G:&:d
+G:&:D
 U:56
 #$ granite wall
 O:0
@@ -8645,7 +8603,7 @@ F:LAKE | CAN_CLIMB | CAN_FLY |
 F:HURT_WATER | ATTR_LITE |
 
 N:391:stone well
-G:0:v
+G:0:T
 U:56
 #$ granite wall
 O:224
@@ -8922,7 +8880,7 @@ F:GLOW | CAN_CLIMB | CAN_FLY |
 F:ALLOC | HURT_WATER | USE_FEAT | EASY_CLIMB | ATTR_LITE |
 
 N:405:unlit brazier
-G:0:D
+G:0:M
 O:346
 W:1:1:15:0
 K:DEFAULT:405:0
@@ -9904,7 +9862,6 @@ F:ATTR_LITE |
 
 N:456:vines
 G:':g
-O:846
 W:10:1:20:0
 K:DEFAULT:407:0
 #$ earth
@@ -9916,7 +9873,7 @@ K:HURT_WATER:629:0
 #$ a wave breaking over open ground
 F:PROJECT | MOVE | PLACE | DROP | NOTICE | REMEMBER | OPEN |
 F:LAKE | HURT_FIRE | CAN_CLIMB | CAN_FLY | HIDE_ITEM |
-F:HURT_WATER | GET_FEAT | OUTSIDE | LIVING | ATTR_LITE |
+F:HURT_WATER | OUTSIDE | LIVING | ATTR_LITE |
 
 N:457:shallow pit
 G:^:U
@@ -11269,7 +11226,7 @@ F:HURT_WATER | GROUND | LIVING | NEED_TREE | ATTR_LITE |
 #Note -- open trail through earth
 
 N:537:shady dirt trail
-G:<:Y
+G:.:Y
 U:421
 #$ tree
 O:0
@@ -11472,7 +11429,7 @@ F:PATH | SHALLOW | HURT_FIRE | ICE | CAN_FLY |
 F:HURT_WATER | MUST_CLIMB | LIVING | NEED_TREE | ATTR_LITE |
 
 N:547:open vent
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14594,7 +14551,7 @@ F:USE_FEAT | OUTSIDE | ATTR_LITE | ADJACENT | ERUPT |
 #Quescient phase
 
 N:715:open vent which erupts poison
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14612,7 +14569,7 @@ F:PATH | LAKE | CAN_OOZE |
 F:EASY_CLIMB | MUST_CLIMB | ATTR_LITE | TIMED |
 
 N:716:open vent which erupts boiling water
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14630,7 +14587,7 @@ F:PATH | LAKE | LAVA | WATER | CAN_OOZE |
 F:EASY_CLIMB | MUST_CLIMB | ATTR_LITE | TIMED |
 
 N:717:open vent which erupts fire
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14648,7 +14605,7 @@ F:PATH | LAKE | CAN_OOZE |
 F:EASY_CLIMB | MUST_CLIMB | ATTR_LITE | TIMED |
 
 N:718:open vent which erupts acid
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14666,7 +14623,7 @@ F:PATH | LAKE | ACID | CAN_OOZE |
 F:EASY_CLIMB | MUST_CLIMB | ATTR_LITE | TIMED |
 
 N:719:open vent which erupts water
-G:0:o
+G:0:m
 U:56
 #$ granite wall
 O:0
@@ -14747,7 +14704,7 @@ F:PATH | LAKE | GLOW | LAVA | DEEP | CAN_FLY | HIDE_ITEM |
 F:OUTSIDE | MUST_CLIMB | ATTR_LITE | ADJACENT | TIMED | ERUPT |
 
 N:723:window
-G:*:B
+G:*:Z
 U:56
 #$ granite wall
 O:0
@@ -14765,7 +14722,7 @@ F:HURT_ROCK | CAN_CLIMB | CAN_PASS | KILL_HUGE |
 F:ATTR_LITE |
 
 N:724:open window
-G:':B
+G:':Z
 U:56
 #$ granite wall
 O:0
@@ -14783,7 +14740,7 @@ F:CAN_CLIMB | CAN_FLY | KILL_HUGE |
 F:EASY_CLIMB | MUST_CLIMB | ATTR_LITE |
 
 N:725:broken window
-G:0:o
+G:0:D
 U:56
 #$ granite wall
 O:0
@@ -15187,7 +15144,6 @@ N:742:vine-covered granite wall
 G:*:G
 U:56
 #$ granite wall
-O:846
 W:10:1:10:0
 K:DEFAULT:58:40
 #$ granite wall
@@ -15207,7 +15163,7 @@ K:SECRET:920:40
 #$ vine-covered granite wall
 F:SECRET | REMEMBER | TUNNEL | STREAMER | WALL | OUTER |
 F:LAKE | FILLED | HURT_ROCK | HURT_FIRE | CAN_CLIMB | CAN_PASS |
-F:GET_FEAT | LIVING | ATTR_LITE |
+F:LIVING | ATTR_LITE |
 D:You find nothing interesting.
 
 N:743:vine-covered granite wall
@@ -15216,7 +15172,6 @@ M:742
 #$ vine-covered granite wall
 U:56
 #$ granite wall
-O:846
 W:1:0:10:0
 K:DEFAULT:1:1
 #$ open floor
@@ -15228,11 +15183,11 @@ K:TUNNEL:456:1
 #$ vines
 F:SECRET | REMEMBER | TUNNEL | WALL |
 F:FILLED | HURT_ROCK | HURT_FIRE | CAN_CLIMB | CAN_PASS |
-F:GET_FEAT | LIVING | ATTR_LITE |
+F:LIVING | ATTR_LITE |
 D:You find a tunnel hidden behind the vines.
 
 N:744:basin
-G:*:Z
+G:*:B
 U:56
 #$ granite wall
 O:0
@@ -15255,7 +15210,7 @@ F:ATTR_LITE |
 D:You find nothing interesting.
 
 N:745:basin
-G:*:Z
+G:*:B
 M:744
 #$ basin
 U:56
@@ -16333,7 +16288,6 @@ F:OUTSIDE | ATTR_LITE | INSTANT | ADJACENT |
 
 N:799:vine bridge
 G:x:G
-O:846
 W:48:1:8:0
 K:DEFAULT:800:0
 #$ vine hanging over a chasm
@@ -16346,11 +16300,10 @@ K:TREE:799:0
 F:LOS | PROJECT | PLACE | DROP | REMEMBER | RUN |
 F:PATH | LAKE | COVERED | HURT_FIRE | HURT_ACID | CHASM | CAN_CLIMB |
 F:CAN_FLY | KILL_HUGE |
-F:GET_FEAT | OUTSIDE | EASY_CLIMB | LIVING | ATTR_LITE |
+F:OUTSIDE | EASY_CLIMB | LIVING | ATTR_LITE |
 
 N:800:vine hanging over a chasm
 G:>:G
-O:846
 W:48:1:8:0
 K:DEFAULT:801:0
 #$ falling vine
@@ -16371,7 +16324,7 @@ K:TREE:800:0
 F:LOS | PROJECT | PLACE | REMEMBER | STAIRS | MORE | RUN |
 F:PATH | LAKE | COVERED | HURT_FIRE | HURT_ACID | CHASM | CAN_CLIMB |
 F:CAN_FLY | KILL_HUGE | KILL_MOVE |
-F:GET_FEAT | OUTSIDE | EASY_CLIMB | MUST_CLIMB | LIVING | ATTR_LITE | TIMED |
+F:OUTSIDE | EASY_CLIMB | MUST_CLIMB | LIVING | ATTR_LITE | TIMED |
 
 N:801:falling vine
 G:>:G
@@ -16430,7 +16383,6 @@ F:GET_FEAT | OUTSIDE | ATTR_LITE | INSTANT |
 
 N:804:vine swinging over a chasm
 G:x:G
-O:846
 W:48:1:8:0
 K:DEFAULT:801:0
 #$ falling vine
@@ -16447,7 +16399,7 @@ K:MORE:456:0
 F:LOS | PROJECT | MOVE | PLACE | REMEMBER | STAIRS | MORE | RUN |
 F:PATH | LAKE | COVERED | HURT_FIRE | HURT_ACID | CHASM | CAN_CLIMB |
 F:CAN_FLY |
-F:GET_FEAT | OUTSIDE | LIVING | ATTR_LITE | INSTANT |
+F:OUTSIDE | LIVING | ATTR_LITE | INSTANT |
 
 N:805:tomb of Balin
 G:+:U
@@ -16587,7 +16539,7 @@ F:ALLOC | USE_FEAT | ATTR_LITE |
 D:You find something in the fountain!
 
 N:814:water-filled well
-G:0:b
+G:0:t
 U:56
 #$ granite wall
 O:224
@@ -16602,7 +16554,7 @@ F:HIDE_SWIM |
 F:ALLOC | USE_FEAT | EASY_CLIMB | MUST_CLIMB | ATTR_LITE |
 
 N:815:stone well
-G:0:v
+G:0:T
 U:56
 #$ granite wall
 O:0
@@ -16617,7 +16569,7 @@ F:ALLOC | MUST_CLIMB | ATTR_LITE |
 D:The well is empty.
 
 N:816:empty well
-G:>:w
+G:>:T
 U:56
 #$ granite wall
 O:0
@@ -16645,7 +16597,7 @@ F:ATTR_LITE |
 N:818:shrine
 G:0:g
 O:0
-W:30:1:20:0
+W:5:1:20:0
 K:DEFAULT:1:0
 #$ open floor
 K:CHASM:141:0
@@ -16662,7 +16614,7 @@ G:0:g
 M:818
 #$ shrine
 O:0
-W:30:1:20:0
+W:5:1:20:0
 K:DEFAULT:1:0
 #$ open floor
 K:CHASM:141:0
@@ -16675,7 +16627,7 @@ D:You find something.
 N:820:empty shrine
 G:0:D
 O:0
-W:30:1:20:0
+W:5:1:20:0
 K:DEFAULT:1:0
 #$ open floor
 K:CHASM:141:0
@@ -16748,7 +16700,6 @@ M:742
 #$ vine-covered granite wall
 U:56
 #$ granite wall
-O:846
 W:1:0:10:0
 K:DEFAULT:1:40
 #$ open floor
@@ -16762,7 +16713,7 @@ K:SECRET:920:40
 #$ vine-covered granite wall
 F:SECRET | NOTICE | REMEMBER | TUNNEL | WALL | SOLID |
 F:FILLED | HURT_ROCK | CAN_CLIMB | CAN_PASS |
-F:GET_FEAT | LIVING | ATTR_LITE |
+F:LIVING | ATTR_LITE |
 
 N:825:writing on a granite wall
 G:*:W
@@ -17703,7 +17654,7 @@ F:PATH | CAN_CLIMB | CAN_FLY |
 F:ATTR_LITE |
 
 N:870:opening sliding wall
-G:0:s
+G:0:Z
 U:56
 #$ granite wall
 O:0
@@ -18381,7 +18332,7 @@ F:HURT_WATER | ATTR_LITE |
 D:You have found a hidden valve.
 
 N:907:basin
-G:*:Z
+G:*:B
 M:744
 #$ basin
 U:56
@@ -18406,7 +18357,7 @@ F:ATTR_LITE |
 D:You find nothing interesting.
 
 N:908:basin
-G:*:Z
+G:*:B
 M:744
 #$ basin
 U:56
@@ -18716,7 +18667,6 @@ N:920:vine-covered granite wall
 G:%:o
 U:56
 #$ granite wall
-O:846
 W:10:1:10:0
 K:DEFAULT:58:40
 #$ granite wall
@@ -18734,7 +18684,7 @@ K:STREAMER:56:40
 #$ granite wall
 F:REMEMBER | TUNNEL | STREAMER | WALL | OUTER |
 F:LAKE | FILLED | HURT_ROCK | HURT_FIRE | CAN_CLIMB | CAN_PASS |
-F:GET_FEAT | LIVING | ATTR_LITE |
+F:LIVING | ATTR_LITE |
 
 N:921:metal framework
 G:0:s
@@ -19379,7 +19329,6 @@ U:56
 #$ granite wall
 O:0
 W:20:2:20:0
-T:LINE_LOS
 S:BALL_LITE
 K:DEFAULT:1:70
 #$ open floor
@@ -19396,7 +19345,6 @@ U:56
 #$ granite wall
 O:0
 W:5:2:20:0
-T:AREA
 K:DEFAULT:1:70
 #$ open floor
 K:HIT_TRAP:958:5
@@ -19517,7 +19465,7 @@ U:56
 #$ granite wall
 O:0
 W:1:2:20:0
-T:ARC_30
+T:ARC_30:HURT
 K:DEFAULT:1:70
 #$ open floor
 F:LOS | PROJECT | MOVE | PLACE | NOTICE | REMEMBER | DISARM | TRAP |
@@ -19624,8 +19572,8 @@ G:^:i
 U:56
 #$ granite wall
 O:0
-W:50:2:20:0
-T:BEAM_MINOR:FIRE:4d6
+W:10:2:20:0
+T:BEAM:FIRE:4d6
 K:DEFAULT:1:70
 #$ open floor
 K:HIT_TRAP:971:5
@@ -19689,7 +19637,7 @@ M:1
 U:56
 #$ granite wall
 O:0
-W:1:1:5:0
+W:12:1:5:0
 K:DEFAULT:1:0
 #$ open floor
 K:CHASM:141:0

@@ -2122,7 +2122,7 @@ void get_closest_monster(int n, int y0, int x0, int *ty, int *tx, byte parameter
 	monster_type *m_ptr;
 
 	int i, j;
-	int r_idx;
+	int m_idx;
 	int dist = 100;
 
 	int *monster_dist;
@@ -2251,10 +2251,10 @@ void get_closest_monster(int n, int y0, int x0, int *ty, int *tx, byte parameter
 
 
 	/* Get the nth closest monster's index */
-	r_idx = monster_index[n];
+	m_idx = monster_index[n];
 
 	/* Going for the player */
-	if (r_idx < 0)
+	if (m_idx < 0)
 	{
 		/* Set the target to player's location */
 		*ty = p_ptr->py;
@@ -2263,7 +2263,7 @@ void get_closest_monster(int n, int y0, int x0, int *ty, int *tx, byte parameter
 	else
 	{
 		/* Get the monster */
-		m_ptr = &m_list[r_idx];
+		m_ptr = &m_list[m_idx];
 
 		/* Set the target to its location */
 		*ty = m_ptr->fy;

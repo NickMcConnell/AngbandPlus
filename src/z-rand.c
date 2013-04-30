@@ -347,3 +347,31 @@ u32b Rand_simple(u32b m)
 	/* Use the value */
 	return (result);
 }
+
+
+/*
+ * Given a numerator and a denominator, supply a properly rounded result,
+ * using the RNG to smooth out remainders.  -LM-
+ */
+s32b div_round(s32b n, s32b d)
+{
+	s32b tmp;
+
+	/* Refuse to divide by zero */
+	assert(d != 0);
+
+	/* Division */
+	tmp = n / d;
+
+	/* Rounding */
+	if ((ABS(n) % ABS(d)) > rand_int(ABS(d)))
+	{
+		/* Increase the absolute value */
+		if (n * d > 0L) tmp += 1L;
+		else            tmp -= 1L;
+	}
+
+	/* Return */
+	return (tmp);
+}
+

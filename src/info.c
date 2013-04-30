@@ -565,8 +565,8 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (id_flags & (SF1_DETECT_CURSE)) vp[vn++]="curses";
 	if (id_flags & (SF1_IDENT_SENSE)) vp[vn++]="the general power level";
 	if (id_flags & (SF1_IDENT_MAGIC)) vp[vn++]="a magical attribute";
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="the bonuses to hit, damage and armour class";
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="the number of charges";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="the bonuses to hit, damage and armour class";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="the number of charges";
 	if (id_flags & (SF1_IDENT_VALUE)) vp[vn++]="the value";
 	if (id_flags & (SF1_IDENT_RUNES)) vp[vn++]="the types of runes";
 	if ((id_flags & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL) || (s_ptr->type == SPELL_IDENT_NAME)) vp[vn++]="the kind, ego-item and artifact names";
@@ -617,10 +617,10 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	/* Collect identifies */
 	vn = 0;
 
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="weapon";
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="wearable item";
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="wand";
-	if (id_flags & (SF1_IDENT_BONUS)) vp[vn++]="staff";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="weapon";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="wearable item";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="wand";
+	if (id_flags & (SF1_IDENT_GAUGE)) vp[vn++]="staff";
 	if (id_flags & (SF1_IDENT | SF1_IDENT_SENSE | SF1_IDENT_MAGIC)) vp[vn++]="unknown item";
 	if (id_flags & (SF1_IDENT_RUMOR | SF1_IDENT_FULLY | SF1_FORGET | SF1_IDENT_MAGIC)) vp[vn++]="known item";
 	if (id_flags & (SF1_DETECT_CURSE)) vp[vn++]="cursed item";
@@ -1901,15 +1901,11 @@ bool spell_desc(spell_type *s_ptr, const cptr intro, int level, bool detail, int
  *
  * Note they do not take account of modifiers to player level.
  */
-void spell_info(char *p, int p_s, int spell, bool use_level)
+void spell_info(char *p, int p_s, int spell, int level)
 {
 	spell_type *s_ptr = &s_info[spell];
 
 	int m;
-
-	int level = spell_power(spell);
-
-	if (!use_level) level = 0;
 
 	/* Default */
 	my_strcpy(p, "", p_s);
@@ -3287,41 +3283,6 @@ void list_ego_item_runes(int ego, bool spoil)
 }
 
 
-
-
-const cptr inscrip_info[] =
-{
-		NULL,
-		"It is a cursed artifact of some kind, that you may be able to enchant back to full strength.  ",
-		"It is a cursed ego item of some kind.  ",
-		"It is cursed, with negative effects if you attempt to use it.  ",
-		"It is broken, having been blasted by powerful magic.  ",
-		"It needs recharging.  ",
-		"It is of good quality, but with no additional powers.  ",
-		"It is a useful ego item.  ",
-		"It is a useful artifact.  ",
-		"It is of average quality or better, and not cursed.  It may be an ego item or artifact.  ",
-		"It is of very good quality, but with no additional powers.  ",
-		"It is of great quality, but with no additonal powers.  ",
-		"It is a useful ego item, with a random hidden ability.  ",
-		"It is an artifact that has resisted your destruction.  ",
-		"It is an ego item or artifact that resisted being picked up or used.  ",
-		"It is of average quality or worse, and may be cursed.  It may be an cursed ego item or artifact.  ",
-		"It is better than average quality, and not cursed.  It may be an ego item or artifact.  ",
-		"It is an ego item or artifact.  ",
-		"It is an ego item, but may or may not be cursed.  ",
-		"It is an ego item, with a random hidden ability, but may or may not be cursed.  ",
-		"It is an artifact, but may or may not be cursed.  ",
-		"There are no runes on it.  ",
-		"There are runes on it.  It may be an ego item or artifact.  ",
-		"It is of average quality, but may be damaged by wear and tear.  ",
-		"It is valuable, but may or may not be cursed.  ",
-		"It is better than average quality, but may or may not be cursed.  It may be an ego item or artifact.  ",
-		"It is coated with a substance.  ",
-		"It has a magically applied enchantment.  "
-};
-
-
 /*
  * Create a spoiler file entry for an artifact
  */
@@ -3567,55 +3528,67 @@ void list_object(const object_type *o_ptr, int mode)
 	}
 
 	/* Bows */
-	if (!random && (o_ptr->tval == TV_BOW))
+	if (!random)
 	{
-		int mult = bow_multiplier (o_ptr->sval);
+		int mult = 0;
 
-		text_out("When shooting or set in a trap, it multiplies the base damage of ");
+		/* Bows get innate might */
+		if (o_ptr->tval == TV_BOW) mult += bow_multiplier (o_ptr->sval);
 
 		/* Affect Might */
 		if (f1 & (TR1_MIGHT)) mult += o_ptr->pval;
 
-		/* Analyze the launcher */
-		switch (o_ptr->sval / 10)
+		/* Any benefit? */
+		if (mult)
 		{
-			/* Short Bow and Arrow */
-			case 1:
-			{
-				text_out("arrows");
-				break;
-			}
+			text_out(format("When %sset in a trap, it multiplies the base damage %s",
+					o_ptr->tval == TV_BOW ? "shooting or " : "",
+							o_ptr->tval == TV_BOW ? "of " : ""));
 
-			/* Light Crossbow and Bolt */
-			case 2:
+			/* Analyze the launcher */
+			if (o_ptr->tval == TV_BOW)
 			{
-				text_out("bolts");
-				break;
+				switch (o_ptr->sval / 10)
+				{
+					/* Short Bow and Arrow */
+					case 1:
+					{
+						text_out("arrows");
+						break;
+					}
+
+					/* Light Crossbow and Bolt */
+					case 2:
+					{
+						text_out("bolts");
+						break;
+					}
+
+					/* Firearms */
+					case 3:
+					{
+						text_out("shots");
+						break;
+					}
+
+					/* Sling and ammo */
+					default:
+					{
+						/* Hack -- slings now act like 'throwers' */
+						text_out("shots or thrown items");
+						break;
+					}
+				}
 			}
+			text_out(format(" by %d and has a range of %d grids%s.  ", mult, 6 + mult * 3));
 
 			/* Firearms */
-			case 3:
+			if ((o_ptr->tval == TV_BOW) && (o_ptr->sval / 10 == 3))
 			{
-				text_out("shots");
-				break;
+				int max_charge = k_info[o_ptr->k_idx].charges;
+
+				text_out(format("It requires gunpowder to reload and can fit %d charge%s.  ",max_charge, max_charge > 1 ? "s" : ""));
 			}
-
-			/* Sling and ammo */
-			default:
-			{
-				/* Hack -- slings now act like 'throwers' */
-				text_out("shots or thrown items");
-				break;
-			}
-
-		}
-		text_out(format(" by %d.  ", mult));
-
-		if (o_ptr->sval / 10 == 3)
-		{
-			int max_charge = k_info[o_ptr->k_idx].charges;
-
-			text_out(format("It requires gunpowder to reload and can fit %d charge%s.  ",max_charge, max_charge > 1 ? "s" : ""));
 		}
 	}
 
@@ -3896,7 +3869,9 @@ void list_object(const object_type *o_ptr, int mode)
 						bool tmp;
 
 						/* List powers */
-						tmp = spell_desc(&s_info[book[i]],(i==0) ? (vd[n] ? " and ": vp[n]) : " or ",0,detail, vt[n]);
+						tmp = spell_desc(&s_info[book[i]],(i==0) ? (vd[n] ? " and ": vp[n]) : " or ",
+								o_ptr->name1 ? a_info[o_ptr->name1].level : (o_ptr->name2 ?
+									e_info[o_ptr->name2].level : k_info[o_ptr->k_idx].level),detail, vt[n]);
 
 						/* Any output */
 						powers |= tmp;
@@ -3935,6 +3910,34 @@ void list_object(const object_type *o_ptr, int mode)
 
 	/* Display the flags */
 	anything |= list_object_flags(f1, f2, f3, f4, spoil || (o_ptr->ident & (IDENT_PVAL | IDENT_MENTAL | IDENT_KNOWN | IDENT_STORE)) ? o_ptr->pval : 0, LIST_FLAGS_CAN);
+
+	/* Hack -- Caveat some flags */
+	if (!random)
+	{
+		switch (o_ptr->tval)
+		{
+			case TV_BOOTS:
+			case TV_GLOVES:
+				text_out(format("Slays and brands are %s effective on %s when you attack using unarmed combat.  ",
+						o_ptr->tval == TV_BOOTS ? "only" : "most",
+								o_ptr->tval == TV_BOOTS ? "boots" : "gloves"));
+
+				if (o_ptr->tval == TV_BOOTS) break;
+				text_out("Slays and brands are x1 multiplier less effective on gloves when wielding a weapon.  ");
+				break;
+
+			case TV_RING:
+				text_out("Slays and brands are x1 multiplier less effective on rings and only apply to the hand the ring is worn on.  ");
+				text_out("Wear it on the right hand to affect thrown weapons and the main weapon you are wielding.  ");
+				text_out("Wear it on the left hand to affect missile weapons and off-hand weapons.  ");
+				text_out("Two handed weapons are affected by rings on both hands.  ");
+				break;
+
+			case TV_BOW:
+				text_out("Slays and brands are x1 multiplier less effective on missile weapons then their ammunition.  ");
+				break;
+		}
+	}
 
 	/*
 	 * Handle cursed objects here to avoid redundancies such as noting
@@ -4277,7 +4280,7 @@ void list_object(const object_type *o_ptr, int mode)
 /*
  * Print a list of powers (for selection).
  */
-void print_powers(const s16b *book, int num, int y, int x)
+void print_powers(const s16b *book, int num, int y, int x, int level)
 {
 	int i, spell;
 
@@ -4310,7 +4313,7 @@ void print_powers(const s16b *book, int num, int y, int x)
 		process_spell_prepare(spell, 25, &dummy, FALSE, FALSE);
 
 		/* Get extra info */
-		spell_info(info, sizeof(info), spell, FALSE);
+		spell_info(info, sizeof(info), spell, level);
 
 		/* Use that info */
 		comment = info;
@@ -4391,7 +4394,7 @@ void print_spells(const s16b *sn, int num, int y, int x)
 		process_spell_prepare(spell, spell_power(spell), &dummy, FALSE, FALSE);
 
 		/* Get extra info */
-		spell_info(info, sizeof(info), spell, TRUE);
+		spell_info(info, sizeof(info), spell, spell_power(spell));
 
 		/* Get level */
 		level = spell_level(spell);
@@ -5678,6 +5681,10 @@ void object_usage(int slot)
 
 	char o_name[80];
 
+	bool sense = FALSE;
+	bool bonus = FALSE;
+	bool heavy = FALSE;
+
 	if (slot >=0) o_ptr =&inventory[slot];
 	else o_ptr=&o_list[0-slot];
 
@@ -5687,12 +5694,9 @@ void object_usage(int slot)
 	if (p_ptr->timed[TMD_CONFUSED]) return;
 
 	/* No sensing when hallucinating */
-	if (p_ptr->timed[TMD_CONFUSED]) return;
+	if (p_ptr->timed[TMD_IMAGE]) return;
 
 	if ((o_ptr->usage)<MAX_SHORT) o_ptr->usage++;
-
-	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Don't identify if fully known */
 	if (o_ptr->ident & (IDENT_MENTAL)) return;
@@ -5703,8 +5707,70 @@ void object_usage(int slot)
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
-	/* Calculate object bonus */
-	if (!object_bonus_p(o_ptr) && (o_ptr->usage > 30) && (o_ptr->usage % 30 == 0) && (rand_int(100) < 30))
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_DIGGING:
+		case TV_STAFF:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		{
+			/* Suggested calculation for weapons is 1 + (dd * ds ^ 1.5) / 4 from
+			 * http://angband.oook.cz/forum/showthread.php?t=1135&highlight=weapon+calculation&page=2 */
+			if (!object_bonus_p(o_ptr) && (o_ptr->usage >= (1 + (o_ptr->dd * o_ptr->ds * (o_ptr->ds / 2)) / 4))) bonus = TRUE;
+
+			/* Heavy sense if half-way there */
+			else if (o_ptr->usage > (1 + (o_ptr->dd * o_ptr->ds * (o_ptr->ds / 2)) / 4) / 2) heavy = TRUE;
+
+			/* Sense if one third of way there */
+			else if (o_ptr->usage == (1 + (o_ptr->dd * o_ptr->ds * (o_ptr->ds / 2)) / 4) / 3) sense = TRUE;
+
+			break;
+		}
+
+		case TV_BOW:
+		{
+			/* Calculation is based on the fact that base armour outweighs bonus */
+			if (!object_bonus_p(o_ptr) && (o_ptr->usage > 6)) bonus = TRUE;
+
+			/* Heavy sense if half-way there */
+			else if (o_ptr->usage > 3) heavy = TRUE;
+
+			/* Sense if one-third of way there */
+			else if (o_ptr->usage == 2) sense = TRUE;
+
+			break;
+		}
+
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+			/* Calculation is based on the fact that base armour outweighs bonus */
+			if (!object_bonus_p(o_ptr) && (o_ptr->usage >= o_ptr->ac /2)) bonus = TRUE;
+
+			/* Heavy sense if half-way there */
+			else if (o_ptr->usage > o_ptr->ac / 4) heavy = TRUE;
+
+			/* Sense if one-third of way there */
+			else if (o_ptr->usage == 1 + o_ptr->ac / 6) sense = TRUE;
+
+			break;
+		}
+	}
+
+	/* Fully sense bonus */
+	if (bonus)
 	{
 		/* Describe what we know */
 		msg_format("You feel you know more about the %s you are %s.",o_name,describe_use(slot));
@@ -5720,57 +5786,28 @@ void object_usage(int slot)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
 	}
-	else if ((!o_ptr->feeling) && (!(o_ptr->ident & (IDENT_SENSE))) && (o_ptr->usage > 5) && (o_ptr->usage % 5 == 0)
-		&& (rand_int(100) < 30))
+
+	/* Sense the item if we don't get an exact match */
+	if (((sense) || (heavy)) && !(o_ptr->ident & (IDENT_SENSE)))
 	{
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
+		/* Check for a feeling */
+		if (sense_magic(o_ptr, 1, heavy, slot < 0))
 		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			case TV_INSTRUMENT:
-			case TV_STAFF:
-			{
-				/* Check for a feeling */
-				int feel = value_check_aux1(o_ptr);
+			/* Describe what we know */
+			msg_format("You feel you know more about the %s you are %s.",o_name,describe_use(slot));
 
-				if (feel)
-				{
-					/* Describe what we know */
-					msg_format("You feel you know more about the %s you are %s.",o_name,describe_use(slot));
+			/* Describe the feeling */
+			msg_format("%s", inscrip_info[o_ptr->feeling]);
 
-					/* Sense the object */
-					o_ptr->feeling = feel;
+			/* Auto-id average items */
+			if (o_ptr->feeling == INSCRIP_AVERAGE) object_bonus(o_ptr, slot < 0);
 
-					/* The object has been "sensed" */
-					o_ptr->ident |= (IDENT_SENSE);
+			/* Combine / Reorder the pack (later) */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-					/* Combine / Reorder the pack (later) */
-					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-				}
-				break;
-			}
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
 		}
 	}
 }
@@ -6270,6 +6307,25 @@ s32b object_power(const object_type *o_ptr)
 			}
 			p *= mult;
 
+			/* Apply the correct ego slay multiplier */
+			if (o_ptr->name2)
+			{
+				p = (p * e_info[o_ptr->name2].slay_power) / tot_mon_power;
+			}
+
+			/* Hack -- For efficiency, compute for first slay or brand flag only */
+			else
+			{
+				int i;
+				u32b j, s_index;
+
+				s_index = slay_index(f1, f2, f3, f4);
+
+				for (i = 0, j = 0x00000001L;(i < 32) && (j != s_index); i++, j<<=1);
+
+				if (i < 32) p = (p * magic_slay_power[i]) / tot_mon_power;
+			}
+
 			/* Increase power for to-dam */
 			if (o_ptr->to_d > 9)
 			{
@@ -6436,6 +6492,7 @@ s32b object_power(const object_type *o_ptr)
 				}
 			}
 
+			/* Not as good as blows because we throw the weapon away */
 			if (f3 & TR3_HURL_NUM)
 			{
 				if (o_ptr->pval > 3 || o_ptr->pval < 0)
@@ -6444,13 +6501,14 @@ s32b object_power(const object_type *o_ptr)
 				}
 				else if (o_ptr->pval > 0)
 				{
-					p = sign(p) * ((ABS(p) * (5 + o_ptr->pval)) / 5);
-					/* Add an extra +5 per blow to account for damage rings */
-					/* (The +5 figure is a compromise here - could be adjusted) */
-					p += 5 * o_ptr->pval;
+					p = sign(p) * ((ABS(p) * (10 + o_ptr->pval)) / 10);
+					/* Add an extra +2 per blow to account for damage rings */
+					/* (The +2 figure is a compromise here - could be adjusted) */
+					p += 2 * o_ptr->pval;
 				}
 			}
 
+			/* Not as good as blows because we throw the weapon away */
 			if (f3 & TR3_HURL_DAM)
 			{
 				if (o_ptr->pval > 3 || o_ptr->pval < 0)
@@ -6459,10 +6517,20 @@ s32b object_power(const object_type *o_ptr)
 				}
 				else if (o_ptr->pval > 0)
 				{
-					p = sign(p) * ((ABS(p) * (5 + o_ptr->pval)) / 5);
-					/* Add an extra +5 per blow to account for damage rings */
-					/* (The +5 figure is a compromise here - could be adjusted) */
-					p += 5 * o_ptr->pval;
+					p = sign(p) * ((ABS(p) * (10 + o_ptr->pval)) / 10);
+				}
+			}
+
+			/* Might helps with traps but not terribly well */
+			if (f1 & TR1_MIGHT)
+			{
+				if (o_ptr->pval > 3 || o_ptr->pval < 0)
+				{
+					p += 20000;	/* inhibit */
+				}
+				else if (o_ptr->pval > 0)
+				{
+					p = sign(p) * ((ABS(p) * (15 + o_ptr->pval)) / 15);
 				}
 			}
 
@@ -6763,6 +6831,25 @@ s32b object_power(const object_type *o_ptr)
 			/* Hack -- only if it has other flags though */
 			if (((f2 & (TR2_IGNORE_ELEC)) != 0) && ((kf2 & (TR2_IGNORE_ELEC)) == 0)
 				&& ( (f1 & ~(kf1)) || (f2 & ~(TR2_IGNORE_MASK) & ~(kf2)) || (f3 & ~(kf3)) || (f4 & ~(kf4)) ) ) p++;
+
+			/* Apply the correct ego slay multiplier */
+			if (o_ptr->name2)
+			{
+				p = (p * e_info[o_ptr->name2].slay_power) / tot_mon_power;
+			}
+
+			/* Hack -- For efficiency, compute for first slay or brand flag only */
+			else
+			{
+				int i;
+				u32b j, s_index;
+
+				s_index = slay_index(f1, f2, f3, f4);
+
+				for (i = 0, j = 0x00000001L;(i < 32) && (j != s_index); i++, j<<=1);
+
+				if (i < 32) p = (p * magic_slay_power[i]) / tot_mon_power;
+			}
 
 			/* Fall through */
 		}

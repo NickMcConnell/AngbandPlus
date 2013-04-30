@@ -1123,6 +1123,7 @@ byte spell_color(int type)
 		case GF_POIS:         return (pois_color());
 
 		case GF_DELAY_POISON: return (pois_color());
+		case GF_POISON_WEAK:  return (pois_color());
 
 		case GF_PLASMA:       return (plasma_color());
 		case GF_HELLFIRE:     return (hellfire_color());
@@ -2604,7 +2605,7 @@ static void cold_dam(int who, int what, int dam, bool inven)
 /*
  * Hurt the player with Poison
  */
-static void poison_dam(int who, int what, int dam, bool inven, bool delay)
+static void poison_dam(int who, int what, int dam, bool inven, bool delay, bool weak)
 {
 	int res = p_ptr->incr_resist[INCR_RES_POIS];
 
@@ -2702,9 +2703,12 @@ static void poison_dam(int who, int what, int dam, bool inven, bool delay)
 	if (!(p_ptr->timed[TMD_OPP_POIS]) && !(p_ptr->cur_flags2 & (TR2_RES_POIS)))
 	{
 		/* Set poison counter */
-		(void)set_poisoned(p_ptr->timed[TMD_POISONED] + rand_int(dam + 1) + 10);
+		(void)set_poisoned(p_ptr->timed[TMD_POISONED] + rand_int(dam + 1) + weak ? 0 : 10);
 	}
 
+	/* Weak does no immediate damage */
+	if (weak) return;
+	
 	/* Take damage */
 	take_hit(who, what, dam);
 }
@@ -2805,6 +2809,12 @@ bool player_ignore_terrain(int f_idx)
 	u32b f4 = 0x0L;
 
 	bool ignore = FALSE;
+
+	/* Use covered if necessary */
+	if (f_ptr->flags2 & (FF2_COVERED))
+	{
+		f_ptr = &f_info[f_ptr->mimic];
+	}
 
 	/* Get boot flags -- hack: only if terrain not filled */
 	if ((i_ptr->k_idx) && !(f_ptr->flags2 & (FF2_FILLED))) object_flags(i_ptr, &f1, &f2, &f3, &f4);
@@ -3391,6 +3401,9 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 	/* Set feature name */
 	f = (f_name + f_ptr->name);
 
+	/* Hack - don't affect permanent grids */
+	if (f_ptr->flags1 & (FF1_PERMANENT)) return (FALSE);
+
 	/* Track changes */
 	feat = cave_feat[y][x];
 
@@ -3595,6 +3608,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			}
 			break;
 		}
+		case GF_POISON_WEAK:
 		case GF_DELAY_POISON:
 		case GF_POIS:
 		{
@@ -4378,15 +4392,6 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 	/* Prevent warning */
 	(void)who;
 
-	/* Hack - some effects delete the whole stack */
-	if ((typ == GF_DESTROY) || (typ == GF_QUAKE))
-	{
-		delete_object(y, x);
-
-		/* Notice elsewhere */
-		return (FALSE);
-	}
-
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -4740,7 +4745,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					{
 						for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
-									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, SUMMON_KIN,
+									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), SUMMON_KIN,
 							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 
 						if (summons)
@@ -4803,7 +4808,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					{
 						for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
-									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_OBJECT,
+									SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), ANIMATE_OBJECT,
 							FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 
 						if (summons)
@@ -4894,7 +4899,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 					for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
-									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, ANIMATE_DEAD,
+									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), ANIMATE_DEAD,
 						FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)));
 
 					if (summons)
@@ -4940,7 +4945,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 					for (i = 0; i < o_ptr->number; i++)
 							summons |= (summon_specific(y, x, who > SOURCE_MONSTER_START ? who > m_list[who].r_idx : 0,
-									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : p_ptr->depth, RAISE_DEAD,
+									who > SOURCE_MONSTER_START ? r_info[m_list[who].r_idx].level - 1 : MAX(p_ptr->depth, p_ptr->lev), RAISE_DEAD,
 						FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L));
 
 					if (summons)
@@ -5680,9 +5685,6 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* No monster here */
 	if (!(cave_m_idx[y][x] > 0)) return (FALSE);
 
-	/* Never affect projector */
-	if (cave_m_idx[y][x] == who) return (FALSE);
-
 	/* Obtain monster info */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 
@@ -6027,11 +6029,11 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Poison */
+		case GF_POISON_WEAK:
 		case GF_DELAY_POISON:
 		case GF_POIS:
 		{
 			if (seen) obvious = TRUE;
-			do_pois = dam;
 			if (r_ptr->flags3 & (RF3_IM_POIS))
 			{
 				dam /= 9;
@@ -6040,6 +6042,12 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 					note = " is immune to poison.";
 					l_ptr->flags3 |= (RF3_IM_POIS);
 				}
+			}
+			else
+			{
+				do_pois = dam;
+				
+				if ((typ == GF_POISON_WEAK) && (who <= SOURCE_PLAYER_START)) dam = 0;
 			}
 			break;
 		}
@@ -8659,7 +8667,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 		/* Handle "stun" */
 		if ((do_stun > 1) &&
-			 !(r_ptr->flags3 & (RF3_NO_STUN)))
+			 ((r_ptr->flags3 & (RF3_NO_STUN)) == 0))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8677,12 +8685,12 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Apply stun */
-			m_ptr->stunned = MIN(tmp, 200);
+			m_ptr->stunned = tmp > 200 ? 200 : (byte)tmp;
 		}
 
 		/* Handle "blindness" */
 		if ((do_blind > 1) &&
-			 !(r_ptr->flags9 & (RF9_RES_BLIND)))
+			 ((r_ptr->flags9 & (RF9_RES_BLIND)) == 0))
 		{
 			/* Don't blind already blinded monsters -- but allow cross-eyed to be blinded */
 			if (m_ptr->blind <= 1)
@@ -8691,7 +8699,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				if (do_blind > 1) if (!note) note =  " is blinded.";
 
 				/* Apply blindness */
-				m_ptr->blind = MIN(do_blind, 200);
+				m_ptr->blind = do_blind > 200 ? 200 : (byte)do_blind;
 			}
 		}
 
@@ -8714,7 +8722,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Apply stun */
-			m_ptr->berserk = MIN(tmp, 200);
+			m_ptr->berserk = tmp > 200 ? 200 : (byte)tmp;
 
 			if (r_ptr->flags1 & (RF1_QUESTOR))
 			{
@@ -8756,7 +8764,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Apply stun */
-			m_ptr->tim_invis = MIN(tmp, 200);
+			m_ptr->tim_invis = tmp > 200 ? 200 : (byte)tmp;
 
 			/* Target the player */
 			if (who <= SOURCE_PLAYER_START)
@@ -8776,7 +8784,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 		/* Handle cuts from player or allies only */
 		if ((do_cuts > 1) && ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY)))) &&
-			 !(r_ptr->flags9 & (RF9_NO_CUTS)))
+			 ((r_ptr->flags9 & (RF9_NO_CUTS)) == 0))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8794,12 +8802,12 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			tmp = do_cuts / (r_ptr->level / 10 + 1);
 
 			/* Apply cuts if player only */
-			if (who > SOURCE_MONSTER_START) m_ptr->cut = MIN(255, m_ptr->cut + tmp);
+			if (who > SOURCE_MONSTER_START) m_ptr->cut = tmp > 200 ? 200 : (byte)tmp;
 		}
 
 		/* Handle poison from player only */
 		if ((do_pois > 1) && ((who <= SOURCE_PLAYER_START) || ((who > 0) && (m_list[who].mflag & (MFLAG_ALLY)))) &&
-			 !(r_ptr->flags3 & (RF3_IM_POIS)))
+			 ((r_ptr->flags3 & (RF3_IM_POIS)) == 0))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8818,12 +8826,12 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			tmp = do_pois / (r_ptr->level / 10 + 1);
 
 			/* Only apply poison caused by player*/
-			m_ptr->poisoned = MIN(255, m_ptr->poisoned + tmp);
+			m_ptr->poisoned = tmp > 200 ? 200 : (byte)tmp;
 		}
 
 		/* Handle confusion */
 		if ((do_conf > 1) &&
-			 !(r_ptr->flags3 & (RF3_NO_CONF)))
+			 ((r_ptr->flags3 & (RF3_NO_CONF)) == 0))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8843,7 +8851,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Apply confusion */
-			m_ptr->confused = (tmp < 200) ? tmp : 200;
+			m_ptr->confused = tmp > 200 ? 200 : (byte)tmp;
 		}
 
 		/* Fear */
@@ -8885,7 +8893,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Apply confusion */
-			m_ptr->petrify = (tmp < 200) ? tmp : 200;
+			m_ptr->petrify = tmp > 200 ? 200 : (byte)tmp;
 
 			/* As we can't move, need to find new range */
 			find_range(cave_m_idx[y][x]);
@@ -9225,11 +9233,12 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Standard damage -- also poisons player */
+		case GF_POISON_WEAK:
 		case GF_DELAY_POISON:
 		case GF_POIS:
 		{
 			if (fuzzy) msg_print("You are hit by poison!");
-			poison_dam(who, what, dam, TRUE, typ == GF_DELAY_POISON);
+			poison_dam(who, what, dam, TRUE, typ == GF_DELAY_POISON, typ == GF_POISON_WEAK);
 			break;
 		}
 
@@ -11210,7 +11219,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					(void)set_cut(p_ptr->timed[TMD_CUT] + randint(dam));
 
 					/* Poison the player */
-					poison_dam(who, what, dam, TRUE, FALSE);
+					poison_dam(who, what, dam, TRUE, FALSE, FALSE);
 				}
 
 				/* Take the damage */
@@ -11876,6 +11885,12 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 
 	/* Only process marked grids. */
 	if (!(play_info[y][x] & (PLAY_TEMP))) return (FALSE);
+
+	/* Hack - some effects delete the whole stack */
+	if ((cave_o_idx[y][x]) && ((typ == GF_DESTROY) || (typ == GF_QUAKE)))
+	{
+		delete_object(y, x);
+	}
 
 	/* Hack -- pre-stage teleportation hooks for efficiency */
 	switch(typ)
@@ -12557,8 +12572,12 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 	/* Hack -- paranoia for checking */
 	if (flg & (PROJECT_CHCK))
 	{
+		/* Hide projection and don't affect anything */
 		flg &= ~(PROJECT_LITE);
 		flg |= (PROJECT_HIDE);
+
+		/* XXX Can't use these projections as they modify temp grids */
+		flg &= ~(PROJECT_STAR | PROJECT_FLOW);
 	}
 
 	/* Hack -- Jump to target, but require a valid target */
@@ -12761,16 +12780,17 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 	/* Handle explosions */
 	else if (flg & (PROJECT_BOOM))
 	{
-
 		/* Pre-calculate some things for starbursts. */
 		if (flg & (PROJECT_STAR))
 		{
 			calc_starburst(1 + rad * 2, 1 + rad * 2, arc_first, arc_dist,
 				&arc_num);
 
+			/* Clear the "temp" array  XXX */
+			clear_temp_array();
+
 			/* Mark the area nearby -- limit range, ignore rooms */
 			spread_cave_temp(y0, x0, rad, FALSE);
-
 		}
 
 		/* Pre-calculate some things for arcs. */
@@ -12953,10 +12973,14 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 				}
 			}
 		}
-	}
 
-	/* Clear the "temp" array  XXX */
-	clear_temp_array();
+		/* Clean up starburst. */
+		if (flg & (PROJECT_STAR))
+		{
+			/* Clear the "temp" array  XXX */
+			clear_temp_array();
+		}
+	}
 
 	/* Flood out from existing grids up to radius.
 	 * Reduce flood from any existing square by radius.
@@ -12992,6 +13016,9 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 			grid[*grids] = GRID(y2, x2);
 			gd[(*grids)++] = 0;
 		}
+
+		/* Clear the "temp" array  XXX */
+		clear_temp_array();
 
 		for (i = 0; i < *grids; i++)
 		{
@@ -13093,6 +13120,8 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 			play_info[GRID_Y(grid[i])][GRID_X(grid[i])] &= ~(PLAY_TEMP);
 		}
 
+		/* Clear the "temp" array  XXX */
+		clear_temp_array();
 	}
 
 	/*
@@ -13681,6 +13710,14 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 			{
 			 	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
+				/* Safe projections */
+				if (flg & (PROJECT_SAFE))
+				{
+					/* Skip the monster */
+					if (cave_m_idx[y][x] == who) continue;
+					if ((who == SOURCE_MONSTER_START) && (cave_m_idx[y][x] == what)) continue;
+				}
+
 				/* Hack -- handle resist magic. Deeper monsters are more resistant to spells.
 				 * All monsters are more resistant to devices and spells from each other. */
 				if ((flg & (PROJECT_MAGIC)) && (cave_m_idx[y][x] > 0)
@@ -13735,6 +13772,12 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 			/* Player is in this grid */
 			if (cave_m_idx[y][x] < 0)
 			{
+				/* Safe projections */
+				if (flg & (PROJECT_SAFE))
+				{
+					/* Skip the player - note: allies still affect the player with 'safe' effects */
+					if (who <= SOURCE_PLAYER_SAFE) continue;
+				}
 
 				/* Affect the player */
 				if (project_p(who, what, y, x, gd[i], typ))
@@ -13765,10 +13808,10 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 			/* Affect marked grid */
 			if (project_t(who, what, y, x, gd[i], typ)) notice = TRUE;
 		}
-	}
 
-	/* Clear the "temp" array  (paranoia is good) */
-	clear_temp_array();
+		/* Clear the "temp" array  (paranoia is good) */
+		clear_temp_array();
+	}
 
 	/* Finally break items on floor.  This has to be done here and carefully to avoid infinite recursion. */
 	for (i = 0; i < z_info->o_max; i++)
@@ -13875,21 +13918,23 @@ bool project_one(int who, int what, int y, int x, int dam, int typ, u32b flg)
 
 /*
  * Project an attack method.
+ *
+ * Note the number of attacks should be handled by the calling function to determine things
+ * like what additional attacks do if the original target is killed.
  */
 bool project_method(int who, int what, int method, int effect, int damage, int level, int y0, int x0, int y1, int x1, int region, u32b flg)
 {
 	method_type *method_ptr = &method_info[method];
 	int range = scale_method(method_ptr->max_range, level);
 	int radius = scale_method(method_ptr->radius, level);
-	int num = scale_method(method_ptr->number, level);
 
 	int degrees_of_arc = method_ptr->arc;
 	int diameter_of_source = method_ptr->diameter_of_source;
 
 	bool obvious = FALSE;
 
-	/* Hack -- fix number */
-	if (num < 1) num = 1;
+	int y = y1;
+	int x = x1;
 
 	/* Hack -- fix diameter of source */
 	if (!diameter_of_source) diameter_of_source = 10;
@@ -13897,78 +13942,68 @@ bool project_method(int who, int what, int method, int effect, int damage, int l
 	/* Hack -- regions get applied later */
 	if (region) flg |= (PROJECT_CHCK);
 
-	/* Get method flags */
-	flg |= method_ptr->flags1;
+	/* Pick a 'nearby' location */
+	if (method_ptr->flags2 & (PR2_SCATTER)) scatter(&y, &x, y1, x1, radius, flg & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF);
 
-	/* Create one or more projections */
-	while (num--)
+	/* Affect distant monsters */
+	if (method_ptr->flags2 & (PR2_ALL_IN_LOS | PR2_PANEL | PR2_LEVEL))
 	{
-		int y = y1;
-		int x = x1;
+		if (project_dist(who, what, y, x, damage, effect, flg, method_ptr->flags2)) obvious = TRUE;
+	}
 
-		/* Pick a 'nearby' location */
-		if (method_ptr->flags2 & (PR2_SCATTER)) scatter(&y, &x, y1, x1, radius, flg & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF);
+	/* Analyze the "dir" and the "target". */
+	else if (project(who, what, radius, range, y0, x0, y, x, damage, effect, flg, degrees_of_arc,
+			(byte)diameter_of_source)) obvious = TRUE;
 
-		/* Affect distant monsters */
-		else if (method_ptr->flags2 & (PR2_ALL_IN_LOS | PR2_PANEL | PR2_LEVEL))
+	/* Adding projection to a region */
+	if (region)
+	{
+		region_type *r_ptr = &region_list[region];
+		int i;
+
+		/* Overwriting features */
+		if (r_ptr->effect == GF_FEATURE)
 		{
-			if (project_dist(who, what, y, x, damage, effect, flg, method_ptr->flags2)) obvious = TRUE;
+			/* Clear the scalar */
+			for (i = 0; i < target_path_n; i++) target_path_d[i] = 0;
+
+			/* And set */
+			r_ptr->flags1 |= (RE1_SCALAR_FEATURE);
+			r_ptr->flags1 &= ~(RE1_SCALAR_DISTANCE | RE1_SCALAR_VECTOR | RE1_SCALAR_DAMAGE);
+		}
+		/* Requesting a vector */
+		else if (r_ptr->flags1 & (RE1_SCALAR_VECTOR))
+		{
+			int deg_vary = degrees_of_arc ? degrees_of_arc / 2 : 45;
+
+			/* Randomize the scalar */
+			for (i = 0; i < target_path_n; i++)
+			{
+				int yi = GRID_Y(target_path_g[i]);
+				int xi = GRID_X(target_path_g[i]);
+				int deg_dest = get_angle_to_target(y0, yi, x0, xi, 0);
+
+				int degree = (deg_dest + rand_int(deg_vary)) % 180;
+				int dist = target_path_d[i];
+
+				/* Insert angle and speed into grid damage */
+				target_path_d[i] = GRID(degree, (damage + dist) / (dist + 1));
+
+				/* Hack -- All pieces of a vector start at the origin */
+				target_path_g[i] = GRID(y0, x0);
+			}
+		}
+		else
+		{
+			/* We currently have the computed distance in the region */
+			r_ptr->flags1 |= (RE1_SCALAR_DISTANCE);
 		}
 
-		/* Analyze the "dir" and the "target". */
-		else if (project(who, what, radius, range, y0, x0, y, x, damage, effect, flg, degrees_of_arc,
-				(byte)diameter_of_source)) obvious = TRUE;
+		/* Take the grids and insert them in the region */
+		region_insert(target_path_g, target_path_n, target_path_d, region);
 
-		/* Adding projection to a region */
-		if (region)
-		{
-			region_type *r_ptr = &region_list[region];
-			int i;
-
-			/* Overwriting features */
-			if (r_ptr->effect == GF_FEATURE)
-			{
-				/* Clear the scalar */
-				for (i = 0; i < target_path_n; i++) target_path_d[i] = 0;
-
-				/* And set */
-				r_ptr->flags1 |= (RE1_SCALAR_FEATURE);
-				r_ptr->flags1 &= ~(RE1_SCALAR_DISTANCE | RE1_SCALAR_VECTOR | RE1_SCALAR_DAMAGE);
-			}
-			/* Requesting a vector */
-			else if (r_ptr->flags1 & (RE1_SCALAR_VECTOR))
-			{
-				int deg_vary = degrees_of_arc ? degrees_of_arc / 2 : 45;
-
-				/* Randomize the scalar */
-				for (i = 0; i < target_path_n; i++)
-				{
-					int yi = GRID_Y(target_path_g[i]);
-					int xi = GRID_X(target_path_g[i]);
-					int deg_dest = get_angle_to_target(y0, yi, x0, xi, 0);
-					
-					int degree = (deg_dest + rand_int(deg_vary)) % 180;
-					int dist = target_path_d[i];
-
-					/* Insert angle and speed into grid damage */
-					target_path_d[i] = GRID(degree, (damage + dist) / (dist + 1));
-					
-					/* Hack -- All pieces of a vector start at the origin */
-					target_path_g[i] = GRID(y0, x0);
-				}
-			}
-			else
-			{
-				/* We currently have the computed distance in the region */
-				r_ptr->flags1 |= (RE1_SCALAR_DISTANCE);
-			}
-
-			/* Take the grids and insert them in the region */
-			region_insert(target_path_g, target_path_n, target_path_d, region);
-
-			/* Initialize the facing */
-			r_ptr->facing = get_angle_to_target(y0, x0, y, x, 0);
-		}
+		/* Initialize the facing */
+		r_ptr->facing = get_angle_to_target(y0, x0, y, x, 0);
 	}
 
 	return (obvious);

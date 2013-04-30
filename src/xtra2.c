@@ -1932,7 +1932,7 @@ int get_food_type(const monster_race *r_ptr)
 		if (strstr(name, "Green ")) return (SV_FOOD_NAIVETY+1);
 		if (strstr(name, "Rotting ")) return (SV_FOOD_UNHEALTH+1);
 		if (strstr(name, "Brown ")) return (SV_FOOD_DISEASE+1);
-		if (strstr(name, "Shrieker ")) return (SV_FOOD_CURE_PARANOIA+1);
+		if (strstr(name, "Shrieker ")) return ((rand_int(100)<30?SV_FOOD_HASTE+1:SV_FOOD_CURE_PARANOIA+1));
 		if (strstr(name, "Noxious ")) return (SV_FOOD_DISEASE+1);
 		if (strstr(name, "Magic ")) return ((rand_int(100)<30?SV_FOOD_MANA+1:SV_FOOD_HALLUCINATION+1));
 
@@ -2772,8 +2772,14 @@ bool monster_death(int m_idx)
 		/* Killing this form means there is a chance of the true form being revealed */
 		p_ptr->sauron_forms |= (1 << (m_ptr->r_idx - SAURON_FORM));
 
+		/* XXX We have to manually mark it dead here */
+		r_info[m_ptr->r_idx].max_num = 0;
+
 		/* Sauron changes form */
 		m_ptr->r_idx = sauron_shape(m_ptr->r_idx);
+
+		/* Paranoia */
+		if (!m_ptr->r_idx) m_ptr->r_idx = SAURON_TRUE;
 
 		/* And gets back his hitpoints / mana */
 		m_ptr->hp = m_ptr->maxhp;
@@ -4314,6 +4320,9 @@ static bool target_set_interactive_accept(int y, int x)
 
 	s16b this_region_piece, next_region_piece = 0;
 
+	/* Paranoia -- out of bounds is never interesting */
+	if (!in_bounds_fully(y,x)) return (FALSE);
+
 
 	/* Player grids are always interesting */
 	if (cave_m_idx[y][x] < 0) return (TRUE);
@@ -4501,6 +4510,23 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 		s2 = "";
 		s3 = "";
 
+		/* Out of bounds */
+		if (!in_bounds_fully(y, x))
+		{
+			cptr name = "permanent rock";
+
+			/* Display a message */
+			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			prt(out_val, 0, 0);
+			move_cursor_relative(y, x);
+			query = inkey_ex();
+
+			/* Stop on everything but "return" */
+			if ((query.key != '\n') && (query.key != '\r')) return (query);
+
+			/* Repeat forever */
+			continue;
+		}
 
 		/* The player */
 		if (cave_m_idx[y][x] < 0)
@@ -4522,10 +4548,10 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
-			query = anykey();
+			query = inkey_ex();
 
 			/* Stop on everything but "return" */
-			if ((query.key != '\n') && (query.key != '\r')) break;
+			if ((query.key != '\n') && (query.key != '\r')) return (query);
 
 			/* Repeat forever */
 			continue;
@@ -4737,7 +4763,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 							((r_ptr->flags1 & (RE1_DISPLAY)) != 0))
 			{
 				bool recall = FALSE;
-				
+
 				/* Skip because there is an underlying trap */
 				if ((r_ptr->flags1 & (RE1_HIT_TRAP)) && (f_info[cave_feat[y][x]].flags1 & (FF1_TRAP)))
 				{
@@ -5222,13 +5248,13 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 	{
 		int i;
 
+		/* Paranoia */
+		if (in_bounds_fully(y, x))
+
 		for (i = 0; i < target_path_n; i++)
 		{
 			int path_y = GRID_Y(target_path_g[i]);
 			int path_x = GRID_X(target_path_g[i]);
-
-			/* Hack -- Stop before hitting walls */
-			if (!cave_project_bold(y, x)) break;
 
 			/* X, Y on projection path? */
 			if ((path_y == y) && (path_x == x))
@@ -5351,13 +5377,13 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
 	{
 		int i;
 
+		/* Paranoia */
+		if (in_bounds_fully(y, x))
+
 		for (i = 0; i < target_path_n; i++)
 		{
 			int path_y = GRID_Y(target_path_g[i]);
 			int path_x = GRID_X(target_path_g[i]);
-
-			/* Hack -- Stop before hitting walls */
-			if (!cave_project_bold(y, x)) break;
 
 			/* X, Y on projection path? */
 			if ((path_y == y) && (path_x == x))

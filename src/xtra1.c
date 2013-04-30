@@ -1064,7 +1064,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking a dead monster (?) */
-	else if (!(m_list[p_ptr->health_who].hp < 0))
+	else if (m_list[p_ptr->health_who].hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
@@ -2177,7 +2177,7 @@ static void fix_monlist(void)
 		Term_activate(angband_term[j]);
 
 		/* Display visible monsters */
-		display_monlist();
+		display_monlist(0, FALSE, TRUE);
 
 		/* Fresh */
 		Term_fresh();
@@ -3573,9 +3573,6 @@ static void calc_bonuses(void)
 	/* Set the rate of tiring */
 	if (k > 10) p_ptr->tiring = k - 10;
 	else p_ptr->tiring = 0;
-
-	/* Hack -- temporary speed tires the player out quickly */
-	if (p_ptr->timed[TMD_FAST]) p_ptr->tiring += PY_REST_RATE;
 
 	/* Apply "encumbrance" from weight */
 	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));

@@ -754,6 +754,16 @@ static bool store_will_buy(const object_type *o_ptr)
 		if (st_ptr->tvals_will_buy[i] == o_ptr->tval) return (TRUE);
 	}
 
+	/* Hack -- temples buy blessed items */
+	if (st_ptr->base == STORE_TEMPLE)
+	{
+		u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
+
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
+
+		if (f3 & (TR3_BLESSED)) return (TRUE);
+	}
+
 	/* Assume not okay */
 	return (FALSE);
 }
@@ -1216,6 +1226,11 @@ static void store_create(int store_index)
 			/* Reset depth */
 			p_ptr->depth = depth;
 			object_level = depth;
+
+			/* Its now safe to identify quest rewards */
+			object_aware(i_ptr, TRUE);
+			object_aware_tips(i_ptr, TRUE);
+			object_known(i_ptr);
 
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr, store_index);
@@ -2716,13 +2731,6 @@ static void store_purchase(int store_index)
 		/* The object no longer belongs to the store */
 		i_ptr->ident &= ~(IDENT_STORE);
 
-		/* However, its now identified if we are a quest or store location */
-		if (st_ptr->base == STORE_QUEST_REWARD || st_ptr->base == STORE_STORAGE)
-		{
-			object_aware(i_ptr, TRUE);
-			object_known(i_ptr);
-		}
-
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
 
@@ -2942,6 +2950,7 @@ static void store_sell(int store_index)
 
 			/* Identify original object */
 			object_aware(o_ptr, TRUE);
+			object_aware_tips(o_ptr, TRUE);
 			object_known(o_ptr);
 
 			/* Combine / Reorder the pack (later) */

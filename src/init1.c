@@ -246,10 +246,61 @@ static cptr method_info_flags2[] =
 	"EYESIGHT",
 	"SCALE_AMMO",
 	"SPECIAL_CASE",
-	"SUMMON_CHAR",
 	"SCATTER",
-	"",
-	""
+	"AUTOMATIC",
+	"SUMMON",
+	"NO_ECOLOGY"
+};
+
+
+/*
+ * Summoning types
+ */
+static cptr summon_types[] =
+{
+		"SUMMON_MONSTER",
+		"SUMMON_KIN",
+		"RAISE_DEAD",
+		"ANIMATE_DEAD",
+		"SUMMON_XXX1",
+		"SUMMON_XXX2",
+		"RAISE_MONSTER",
+		"ANIMATE_TREE",
+		"SUMMON_PLANT",
+		"SUMMON_INSECT",
+		"SUMMON_ANIMAL",
+		"SUMMON_HOUND",
+		"SUMMON_SPIDER",
+		"SUMMON_CLASS",
+		"SUMMON_RACE",
+		"SUMMON_GROUP",
+		"SUMMON_FRIEND",
+		"SUMMON_UNIQUE_FRIEND",
+		"SUMMON_ORC",
+		"SUMMON_TROLL",
+		"SUMMON_GIANT",
+		"SUMMON_DRAGON",
+		"SUMMON_HI_DRAGON",
+		"ANIMATE_ELEMENT",
+		"ANIMATE_OBJECT",
+		"SUMMON_DEMON",
+		"SUMMON_HI_DEMON",
+		"RAISE_UNIQUE",
+		"SUMMON_UNIQUE",
+		"SUMMON_HI_UNIQUE",
+		"SUMMON_UNDEAD",
+		"SUMMON_HI_UNDEAD",
+		"SUMMON_WRAITH",
+		"RAISE_HI_UNIQUE",
+		"SUMMON_COLOUR",
+		"SUMMON_PREFIX",
+		"SUMMON_SUFFIX",
+		"SUMMON_ALL_BUT_PREFIX",
+		"SUMMON_INFIX_WYRM_OF",
+		"SUMMON_DRAGON_BREATH",
+		"SUMMON_ALIGN",
+		"SUMMON_LEVEL",
+		""
 };
 
 
@@ -1129,7 +1180,7 @@ static cptr s_info_flags1[] =
 	"IDENT",
 	"IDENT_MAGIC",
 	"IDENT_SENSE",
-	"IDENT_BONUS",
+	"IDENT_GAUGE",
 	"IDENT_RUNES",
 	"IDENT_VALUE",
 	"IDENT_RUMOR",
@@ -2029,6 +2080,34 @@ static errr grab_one_level_scalar(method_level_scalar_type *scalar, char *what)
 
 
 /*
+ * Grab one summon type from a textual string
+ */
+static errr grab_one_summoning(byte *summon_type, cptr what)
+{
+	int i = 0;
+
+	/* Check styles */
+	while (strlen(summon_types[i]))
+	{
+		if (streq(what, summon_types[i]))
+		{
+			*summon_type = i;
+			return (0);
+		}
+
+		i++;
+	}
+
+	/* Oops */
+	msg_format("Unknown summoning type '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+
+/*
  * Initialize the "method_info" array, by parsing an ascii "template" file
  */
 errr parse_method_info(char *buf, header *head)
@@ -2228,7 +2307,7 @@ errr parse_method_info(char *buf, header *head)
 	/* Process 'X' for "Damage" */
 	else if (buf[0] == 'X')
 	{
-		int mult, div, var;
+		int mult, div, var, max, div_pow, max_pow;
 		int n, n1;
 		char *s;
 
@@ -2237,7 +2316,7 @@ errr parse_method_info(char *buf, header *head)
 
 		/* TODO: This is bound to cause memory problems. Should have effect listed first */
 		/* Scan for 4th colon */
-		for (s = buf, n = 0; *s && (n < 4);)
+		for (s = buf, n = 0; *s && (n < 7);)
 		{
 			s++;
 			if (*s == ':') n++;
@@ -2259,13 +2338,16 @@ errr parse_method_info(char *buf, header *head)
 		method_ptr->d_res = n1;
 
 		/* Scan for the values */
-		if (3 != sscanf(buf, "X:%d:%d:%d",
-			    &mult, &div, &var)) return (PARSE_ERROR_GENERIC);
+		if (6 != sscanf(buf, "X:%d:%d:%d:%d:%d:%d",
+			    &mult, &div, &var, &max, &div_pow, &max_pow)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		method_ptr->dam_mult = mult;
 		method_ptr->dam_div = div;
 		method_ptr->dam_var = var;
+		method_ptr->dam_max = max;
+		method_ptr->dam_div_powerful = div_pow;
+		method_ptr->dam_max_powerful = max_pow;
 	}
 
 	/* Process 'C' for "Choice" */
@@ -2335,6 +2417,17 @@ errr parse_method_info(char *buf, header *head)
 
 		/* Get the radius information */
 		if (grab_one_level_scalar(&method_ptr->number, buf + 2)) return (PARSE_ERROR_GENERIC);
+	}
+
+	/* Process 'S' for "Summon type" */
+	else if (buf[0] == 'S')
+	{
+		/* There better be a current method_ptr */
+		if (!method_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the radius information */
+		if (grab_one_summoning(&method_ptr->summon_type, buf + 2)) return (PARSE_ERROR_GENERIC);
+
 	}
 
 	else
@@ -2415,19 +2508,17 @@ errr parse_effect_info(char *buf, header *head)
 	/* Process 'I' for "Info" */
 	else if (buf[0] == 'I')
 	{
-		int power, max, max_power;
+		int power;
 
 		/* There better be a current method_ptr */
 		if (!effect_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf, "I:%d:%d:%d",
-				&power, &max, &max_power)) return (PARSE_ERROR_GENERIC);
+		if (1 != sscanf(buf, "I:%d",
+				&power)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		effect_ptr->power = power;
-		effect_ptr->dam_max = max;
-		effect_ptr->dam_max_powerful = max_power;
 	}
 
 	/* Process 'D' for "Description" */
@@ -3651,6 +3742,15 @@ errr parse_k_info(char *buf, header *head)
 
 		switch (tval)
 		{
+			case TV_JUNK:
+				k_ptr->flags6 |= (TR6_BREAK_THROW);
+				if (k_ptr->sval == SV_JUNK_SHARD) k_ptr->flags6 |= (TR6_NAMED);
+				if (k_ptr->sval == SV_JUNK_STICK) k_ptr->flags6 |= (TR6_NAMED);
+				if (k_ptr->sval == SV_JUNK_STUMP) k_ptr->flags6 |= (TR6_NAMED);
+				if (k_ptr->sval == SV_JUNK_BRANCH) k_ptr->flags6 |= (TR6_NAMED);
+
+				break;
+
 			case TV_FLASK:
 				k_ptr->flags6 |= (TR6_BREAK_THROW);
 				k_ptr->flags6 |= (TR6_ADD_NAME | TR6_MOD_NAME);
@@ -3677,12 +3777,19 @@ errr parse_k_info(char *buf, header *head)
 			case TV_ARROW:
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
+				k_ptr->flags5 |= (TR5_DO_CRIT);
 				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_ROPE);
 				break;
 			case TV_SHOT:
+				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
+				k_ptr->flags5 |= (TR5_SHOW_DD);
+				k_ptr->flags5 |= (TR5_DO_STUN);
+				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_CHAIN);
+			break;
 			case TV_BOLT:
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
+				k_ptr->flags5 |= (TR5_DO_CRIT);
 				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_CHAIN);
 			break;
 
@@ -3702,13 +3809,24 @@ errr parse_k_info(char *buf, header *head)
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_DO_CUTS);
 				k_ptr->flags6 |= (TR6_BAD_THROW);
+				if (k_ptr->ac) k_ptr->flags5 |= (TR5_SHOW_AC);
 				break;
 
 			case TV_HAFTED:
 				k_ptr->flags5 |= (TR5_SHOW_DD);
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
-				k_ptr->flags5 |= (TR5_DO_STUN);
+
+				/*
+				if (!(strstr(k_name + k_ptr->name, "taff")))
+				{*/
+					k_ptr->flags5 |= (TR5_DO_STUN);/*
+				}
+				else
+				{
+					k_ptr->flags5 |= (TR5_DO_TRIP);
+				}*/
 				k_ptr->flags6 |= (TR6_BAD_THROW);
+				if (k_ptr->ac) k_ptr->flags5 |= (TR5_SHOW_AC);
 				break;
 
 			case TV_POLEARM:
@@ -3716,22 +3834,19 @@ errr parse_k_info(char *buf, header *head)
 
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
-				k_ptr->flags5 |= (TR5_DO_CUTS);
 				k_ptr->flags6 |= (TR6_BAD_THROW);
-				break;
-#if 0
+				if (k_ptr->ac) k_ptr->flags5 |= (TR5_SHOW_AC);
+
 				/* Hack -- spears do damaging criticals, axes stun or cut */
-				if (!(strstr(k_name + k_info[o_ptr->k_idx].name, "Axe"))
-					&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Halberd"))
-					&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe")))
-					k += critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
-				else if (!(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe"))
-					&& (rand_int(100) < 50))
-					do_stun = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
-				else
-					do_cuts = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
+				/*if (!(strstr(k_name + k_ptr->name, "xe"))
+					&& !(strstr(k_name + k_ptr->name, "alberd"))
+					&& !(strstr(k_name + k_ptr->name, "cythe")))
+					k_ptr->flags5 |= (TR5_DO_CRIT);
+				else if (!(strstr(k_name + k_ptr->name, "cythe")))
+					k_ptr->flags5 |= (TR5_DO_CUTS | TR5_DO_STUN);
+				else*/
+					k_ptr->flags5 |= (TR5_DO_CUTS);
 				break;
-#endif
 
 			case TV_FOOD:
 				/* Ordinary food is "boring". */
@@ -3809,9 +3924,15 @@ errr parse_k_info(char *buf, header *head)
 
 				break;
 
+			case TV_BAG:
+
+				k_ptr->flags6 |= (TR6_PREPEND | TR6_ADD_NAME | TR6_MOD_NAME);
+				break;
+
 			case TV_PRAYER_BOOK:
 			case TV_MAGIC_BOOK:
 			case TV_SONG_BOOK:
+			case TV_MAP:
 
 				k_ptr->flags6 |= (TR6_MOD_NAME | TR6_FORCE_MOD);
 				break;
@@ -3826,7 +3947,7 @@ errr parse_k_info(char *buf, header *head)
 				break;
 
 			case TV_GLOVES:
-				k_ptr->flags5 |= (TR5_SHOW_DD);
+				if ((k_ptr->ds) && (k_ptr->dd)) k_ptr->flags5 |= (TR5_SHOW_DD);
 
 				/* Fall through */
 
@@ -3964,6 +4085,15 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->to_h = th;
 		k_ptr->to_d = td;
 		k_ptr->to_a =  ta;
+
+		switch(k_ptr->tval)
+		{
+			case TV_SWORD:
+			case TV_HAFTED:
+			case TV_POLEARM:
+				if (k_ptr->ac) k_ptr->flags5 |= (TR5_SHOW_AC);
+				break;
+		}
 	}
 
 	/* Process 'Y' for "Rune" (one line only) */
@@ -6997,6 +7127,7 @@ errr parse_u_info(char *buf, header *head)
 				u_ptr->tvals_will_buy[3] = TV_HAFTED;
 				u_ptr->tvals_will_buy[4] = TV_STATUE;
 				u_ptr->tvals_will_buy[5] = TV_SHOT;
+				u_ptr->tvals_will_buy[6] = TV_STATUE;
 				/*u_ptr->tvals_will_buy[6] = TV_POLEARM; Was blessed only */
 				/*u_ptr->tvals_will_buy[7] = TV_SWORD; Was blessed only */
 				break;
@@ -7024,6 +7155,7 @@ errr parse_u_info(char *buf, header *head)
 				u_ptr->tvals_will_buy[6] = TV_SCROLL;
 				u_ptr->tvals_will_buy[7] = TV_POTION;
 				u_ptr->tvals_will_buy[8] = TV_RUNESTONE;
+				u_ptr->tvals_will_buy[9] = TV_STATUE;
 				break;
 			}
 		}
@@ -8010,7 +8142,7 @@ static long eval_max_dam(monster_race *r_ptr)
 
 					if (which_gf)
 					{
-						this_dam = get_breath_dam(hp, which_gf,
+						this_dam = get_breath_dam(hp,  x * 32 + i,
 									(r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE));
 
 						/* handle elemental breaths*/
@@ -9471,9 +9603,11 @@ errr emit_method_info_index(FILE *fp, header *head, int i)
 	}
 
 	/* Output 'X' for "Extra damage" */
-	if (method_ptr->dam_mult || method_ptr->dam_div || method_ptr->dam_var || method_ptr->d_res)
+	if (method_ptr->dam_mult || method_ptr->dam_div || method_ptr->dam_var || method_ptr->dam_max
+			|| method_ptr->dam_div_powerful || method_ptr->dam_max_powerful || method_ptr->d_res)
 	{
-		fprintf(fp, "X:%d:%d:%d:%s\n",method_ptr->dam_mult, method_ptr->dam_div, method_ptr->dam_var,
+		fprintf(fp, "X:%d:%d:%d:%d:%d:%d:%s\n",method_ptr->dam_mult, method_ptr->dam_div, method_ptr->dam_var,
+				method_ptr->dam_max, method_ptr->dam_div_powerful, method_ptr->dam_max_powerful,
 			effect_name + effect_info[method_ptr->d_res].name);
 	}
 
@@ -9488,7 +9622,7 @@ errr emit_method_info_index(FILE *fp, header *head, int i)
 	/* Output 'S' for "Summoning choices" */
 	if (method_ptr->summon_type)
 	{
-		fprintf(fp, "S:%d\n",method_ptr->summon_type);
+		fprintf(fp, "S:%s\n",summon_types[method_ptr->summon_type]);
 	}
 
 	/* Output 'A' for "Arc information" */
@@ -10727,13 +10861,21 @@ errr emit_effect_info_index(FILE *fp, header *head, int i)
 	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + effect_ptr->name);
 
 	/* Output 'I' for "Info" (one line only) */
-	fprintf(fp,"I:%d:%d:%d\n",effect_ptr->power, effect_ptr->dam_max, effect_ptr->dam_max_powerful);
+	fprintf(fp,"I:%d\n",effect_ptr->power);
 
 	/* Output 'D' for Description */
 	fprintf(fp, "D");
 	for (j = 0; j < 7; j++)
 	{
 		fprintf(fp,":%s",head->text_ptr + effect_ptr->info[j]);
+	}
+	fprintf(fp,"\n");
+
+	/* Output 'T' for Text */
+	fprintf(fp, "T");
+	for (j = 0; j < 1; j++)
+	{
+		fprintf(fp,":%s",head->text_ptr + effect_ptr->desc[j]);
 	}
 	fprintf(fp,"\n");
 

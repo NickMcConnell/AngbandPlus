@@ -1520,10 +1520,19 @@ void do_cmd_wiz_ecology(void)
 				prt(format("%d", i), row, col += 1);
 			}
 		}
+
+		for (i = 0; i <= cave_ecology.num_ecologies; i++)
+		{
+			if (cave_ecology.race_ecologies[num] & (1L << (i + MAX_ECOLOGIES)))
+			{
+				prt(format("c%d", i), row, col += 2);
+			}
+		}
 	}
 
 	/* Total monsters */
-	msg_format("Ecology has %d races and %d sub-ecologies.", cave_ecology.num_races, cave_ecology.num_ecologies);
+	msg_format("Ecology has %d races and %d sub-ecologies. The ecology is %sready.", cave_ecology.num_races, cave_ecology.num_ecologies,
+			cave_ecology.ready ? "" : " not");
 
 	anykey();
 
@@ -1829,8 +1838,25 @@ void do_cmd_debug(void)
 		/* Zap Monsters (Banishment) */
 		case 'z':
 		{
-			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 2 * MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
+			break;
+		}
+
+		/* Nearest monster makes a magical attack */
+		case 'Z':
+		{
+			int m_idx, y, x;
+
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 110;
+
+			/* XXX Note player is the closest, so we need the 2nd closest */
+			get_closest_monster(2, p_ptr->py, p_ptr->px, &y, &x, 0x01, 0);
+
+			m_idx = cave_m_idx[y][x];
+
+			if (m_idx <= 0) break;
+			make_attack_ranged(m_idx, p_ptr->command_arg, p_ptr->py, p_ptr->px);
 			break;
 		}
 

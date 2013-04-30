@@ -409,9 +409,10 @@
 #define ROOM_MAZE				17
 #define ROOM_LARGE_MAZE			18
 #define ROOM_HUGE_MAZE			19
-#define ROOM_LAKE				20
-#define ROOM_HUGE_LAKE			21
-#define ROOM_TOWER       		22
+#define ROOM_MONSTER_PIT		20
+#define ROOM_LAKE				21
+#define ROOM_HUGE_LAKE			22
+#define ROOM_TOWER       		23
 
 
 /*
@@ -730,11 +731,11 @@ enum
 	SKILL_DEVICE,			/* Skill: Magic Devices */
 	SKILL_SAVE,				/* Skill: Saving throw */
 	SKILL_STEALTH,			/* Skill: Stealth factor */
+	SKILL_SEARCH,			/* Skill: Searching frequency */
 	SKILL_DIGGING,			/* Skill: Searching ability */
-	SKILL_SEARCH,	/* Skill: Searching frequency */
-	SKILL_TO_HIT_MELEE,		/* Skill: To hit (normal) */
-	SKILL_TO_HIT_BOW,		/* Skill: To hit (shooting) */
-	SKILL_TO_HIT_THROW,		/* Skill: To hit (throwing) */
+	SKILL_TO_HIT_THROW,		/* Skill: To hit (throw) */
+	SKILL_TO_HIT_MELEE,		/* Skill: To hit (melee) */
+	SKILL_TO_HIT_BOW,		/* Skill: To hit (bow) */
 
 	SKILL_MAX
 };
@@ -959,6 +960,8 @@ enum
 #define SUMMON_ALL_BUT_PREFIX   37
 #define SUMMON_INFIX_WYRM_OF   38
 #define SUMMON_DRAGON_BREATH   39
+#define SUMMON_ALIGN	40		/* Summon monsters which match living & evil flags */
+#define SUMMON_LEVEL	41		/* Summon monsters specific to LF1_TERRAIN flags */
 
 
 /*
@@ -1113,7 +1116,7 @@ enum
 #define GF_LOSE_MANA_PERC	146
 #define GF_DESTROY	147
 #define GF_QUAKE	148
-
+#define GF_POISON_WEAK	149
 
 
 
@@ -1565,7 +1568,7 @@ enum
 #define SF1_IDENT 		0x00040000
 #define SF1_IDENT_MAGIC   	0x00080000
 #define SF1_IDENT_SENSE  	0x00100000
-#define SF1_IDENT_BONUS  	0x00200000
+#define SF1_IDENT_GAUGE  	0x00200000
 #define SF1_IDENT_RUNES  	0x00400000
 #define SF1_IDENT_VALUE  	0x00800000
 #define SF1_IDENT_RUMOR  	0x01000000
@@ -2609,6 +2612,7 @@ enum
 #define SV_FOOD_RESTORE_CON		18
 #define SV_FOOD_RESTORING		19
 #define SV_FOOD_MANA                    20
+#define SV_FOOD_HASTE			26
 /* many missing mushrooms */
 
 /* These are correct */
@@ -2730,8 +2734,8 @@ enum
 #define RBM_EXPLODE	52
 #define RBM_ARROW	53
 #define RBM_XBOLT	54		/* Crossbow bolt */
-#define RBM_DAGGER	55
-#define RBM_DART	56
+#define RBM_DART	55
+#define RBM_DAGGER	56
 #define RBM_SHOT 	57
 #define RBM_ARC_20	58
 #define RBM_ARC_30	59
@@ -2874,11 +2878,13 @@ enum
 #define PR2_FAIL				0x01000000
 #define PR2_EYESIGHT			0x02000000
 #define PR2_SCALE_AMMO			0x04000000
-#define PR2_SPECIAL_CASE		0x08000000	/* Special case in the code */
 
-/* Summoning flags to set */
-#define PR2_SUMMON_CHAR			0x10000000
-#define PR2_SCATTER				0x20000000
+/* Irregular attacks */
+#define PR2_SPECIAL_CASE		0x08000000	/* Special case in the code */
+#define PR2_SCATTER				0x10000000
+#define PR2_AUTOMATIC			0x20000000
+#define PR2_SUMMON				0x40000000
+#define PR2_NO_ECOLOGY			0x80000000	/* Switch off monster ecology */
 
 
 /* Flags for regions */
@@ -2990,6 +2996,7 @@ enum
 
 #define SOURCE_PREFIX			-11	/* Less than here or equal to here, we suffix the string, otherwise we prefix it */
 #define SOURCE_PLAYER_START		-13	/* Less than here or equal to here, player is the source, and gets experience */
+#define SOURCE_PLAYER_SAFE		-28	/* Less than here or equal to here, player cannot hurt themselves with safe attacks */
 #define SOURCE_PLAYER_NO_TARGET	-30	/* Less than here or equal to here, no target is specified and some messages are suppressed.
 									 * Note that all items less than here that could specify a target always have a 'known' effect. */
 
@@ -3265,6 +3272,9 @@ enum
 	LF1_CRYPT | LF1_LAIR | LF1_MINE | LF1_CAVE | LF1_WILD | \
 	LF1_SEWER | LF1_LABYRINTH)
 
+#define LF1_TERRAIN \
+	(LF1_WATER | LF1_LAVA | LF1_ICE | LF1_ACID | LF1_OIL | LF1_CHASM | LF1_LIVING)
+
 /* Room generation flags */
 #define RG1_NORTH	0x00000001L	/* Place in north */
 #define RG1_SOUTH	0x00000002L	/* Place in south */
@@ -3459,7 +3469,7 @@ enum
 #define INSCRIP_UNGETTABLE	14 /* Has flag preventing player / monster getting it */
 #define INSCRIP_NONMAGICAL	15 /* Has been detected to be average or cursed */
 #define INSCRIP_MAGICAL		16 /* Has been detected to be better than average */
-#define INSCRIP_POWERFUL	17 /* XXX Not currently used. */
+#define INSCRIP_MAGIC_ITEM	17 /* Unusual, but not ego item or artifact. Used to distinguish items which have been sensed. */
 #define INSCRIP_EGO_ITEM	18 /* Has been detected to be ego item */
 #define INSCRIP_HIGH_EGO_ITEM	19 /* Has been detected to be high ego item */
 #define INSCRIP_ARTIFACT	20 /* Has been detected to be artifact */
@@ -4336,7 +4346,7 @@ enum
 #define MIN_ECOLOGY_RACES	8	/* Minimum different races in ecology */
 #define MAX_ECOLOGY_RACES	64	/* Maximum total races in ecology (including duplicates) */
 
-#define MAX_ECOLOGIES		(DUN_ROOMS + 1)	/* Maximum total ecologies */
+#define MAX_ECOLOGIES		16	/* Maximum total ecologies */
 
 
 /*
@@ -4759,11 +4769,14 @@ enum
  * Determine if a given inventory item is "named"
  * Test One -- Check for special "known" or "named" tags
  * Test Two -- Check for "Flavor" + "Aware"
+ * Test Three --
  */
 #define object_named_p(T) \
 	(((T)->ident & (IDENT_KNOWN | IDENT_NAME)) || \
-	 (k_info[(T)->k_idx].flavor && \
-	  k_info[(T)->k_idx].aware & (AWARE_FLAVOR)))
+	 (k_info[(T)->k_idx].flavor  ? \
+	  ((k_info[(T)->k_idx].aware & (AWARE_FLAVOR)) != 0) : \
+		((k_info[(T)->k_idx].flags6 & (TR6_MOD_NAME | \
+				TR6_FORCE_MOD | TR6_SIMPLE)) != 0)))
 
 
 /*
@@ -4772,7 +4785,7 @@ enum
  * Test Two -- Check for "Easy Know" + "Aware"
  */
 #define object_charges_p(T) \
-	((T)->ident & (IDENT_KNOWN | IDENT_CHARGES))
+	(((T)->ident & (IDENT_KNOWN | IDENT_CHARGES)) != 0)
 
 
 /*
@@ -4780,7 +4793,7 @@ enum
  * Test One -- Check for special "known" or "named" tags
  */
 #define object_pval_p(T) \
-	((T)->ident & (IDENT_KNOWN | IDENT_PVAL))
+	(((T)->ident & (IDENT_KNOWN | IDENT_PVAL)) != 0)
 
 
 /*
@@ -4788,7 +4801,7 @@ enum
  * Test One -- Check for special "known" or "bonus" tags
  */
 #define object_bonus_p(T) \
-	((T)->ident & (IDENT_KNOWN | IDENT_BONUS))
+	(((T)->ident & (IDENT_KNOWN | IDENT_BONUS)) != 0)
 
 
 /*
@@ -4838,6 +4851,15 @@ enum
  */
 #define cursed_p(T) \
 	((T)->ident & (IDENT_CURSED))
+
+/*
+ * Uninteresting items.
+ */
+#define uninteresting_p(T) \
+	(((T)->feeling == INSCRIP_AVERAGE) || \
+			 ((T)->feeling == INSCRIP_CURSED) || \
+			 ((T)->feeling == INSCRIP_NONMAGICAL) || \
+			 ((T)->feeling == INSCRIP_UNRUNED))
 
 /*
  * Uncontrolled items.

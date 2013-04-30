@@ -1525,6 +1525,12 @@ static errr rd_inventory(void)
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);
 
+			/* Hack -- clear the marked flag */
+			inventory[n].ident &= ~(IDENT_MARKED);
+
+			/* Hack -- in inventory, player must be aware it exists */
+			if (!k_info[i_ptr->k_idx].flavor) k_info[i_ptr->k_idx].aware |= (AWARE_EXISTS);
+
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
 
@@ -2173,7 +2179,7 @@ static errr rd_dungeon(void)
 	rd_byte(&cave_ecology.num_ecologies);
 
 	/* Hack -- verify */
-	if (limit >= MAX_ECOLOGY_RACES)
+	if (limit > MAX_ECOLOGY_RACES)
 	{
 		note(format("Too many (%d) ecology entries!", limit));
 		return (-1);

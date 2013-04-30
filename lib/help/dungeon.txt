@@ -335,6 +335,60 @@ through.
 
 For historical reasons, secret doors are never locked.
 
+=== Traps and Dangerous Terrain ===
+
+Not all parts of the dungeon can be safely moved through. Hidden traps can
+damage, confuse or ensorcle you. Deep pools of water, ice, acid, lava,
+boiling water and other terrain can damage you directly or make it hard
+to progress through parts of the dungeon.
+
+You should search the dungeon regularly, or use trap detection magic to
+try to locate traps as you explore the dungeon. Even when found, traps can
+still pose a problem to disarm or avoid. The source of the trap is indicated
+by a '^' symbol, and the region it affects by one or more 'x' symbols of the
+same colour. It is possible to overcome a trap in one or two ways. Firstly,
+you can disarm a trap by using the disarm command against the trap itself
+('^'). Disarming a trap requires a level of skill - depending on your race
+and class - and exposes you to the risk of accidentally triggering the trap
+should you fail. It may also be difficult to reach the trap itself due to the
+area it affects.
+
+You can also avoid traps. Each trap has a method of avoiding it - some of
+which can be difficult to discover. Some traps require time to recharge
+after being triggered, so if you discover how to trigger the trap without
+being affected, you can potentially bypass it. Others can be avoided by
+moving slowly (searching) through the trap, blocking the missiles the trap
+fires, or by wearing or using magical items which affect or mark you in
+particular ways. Monsters can use the same methods to avoid traps, so
+careful observation of which monsters are affected by which traps can help
+you in this endeavour. You may even discover traps which don't appear to
+affect you immediately - be cautious around these as they may be activated
+by a change in condition in either yourself or the dungeon around you.
+
+Damaging terrain can affect you in a number of different ways. You will
+discover great lakes, moats and waterways during your time exploring the
+dungeon: these can be filled with water, oil (burning or unlit), acid,
+boiling mud or water or even lava. Shallow pools of water can usually
+be safely navigated - deeper water will quickly tire you out and drown
+you if you become exchausted, stunned or paralysed while in it, as well
+as dousing torch or lamp lite. Most dangerous terrain will have relatively
+safe passage through it: either spanned by a stone bridge or with a hidden
+or covered path of comparatively safer footing. Temporary magics which
+provide protection against the elements will also allow you to cross
+terrain safely - as will boots which provide permanent protection against
+the particular element. Various magics can be used to create bridges
+across terrain: cold can be used to freeze a path over water (although
+many swimming monsters will be capable of bashing up through the ice from
+below) and even the humble potion of water can cool a thin crust
+over lava.
+
+Be cautious as well about clouds of smoke, poison or acidic vapour that
+many magics can create when they burn wood or consume leather or metal.
+These will drift around the dungeon burning and choking anyone long after
+the initial magical effect has passed. And beware the risks of open flame
+in the forests that growth both above ground and in the otherwise life-
+less realms beneath.
+
 
 === Winning The Game ===
 

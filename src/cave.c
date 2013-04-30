@@ -1310,10 +1310,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 	/*
 	 * Display regions when:
-	 *  1.  when the player can see the region (either because it is PLAY_SEEN or in PLAY_VIEW and the region is self-lit)
+	 *  1.  when the player can see the region (either because it is PLAY_SEEN or in PLAY_VIEW and the region is self-lit
 	 *  2.  when explicitly told to
+	 *
+	 *  as long as the feature underneath is projectable.
 	 */
-	if (pinfo & (PLAY_REGN | PLAY_VIEW))
+	if ((pinfo & (PLAY_REGN | PLAY_VIEW)) && (f_info[cave_feat[y][x]].flags1 & (FF1_PROJECT)))
 	{
 		s16b this_region_piece, next_region_piece = 0;
 
@@ -1330,7 +1332,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Displaying region */
 			if (((cheat_hear) || ((r_ptr->flags1 & (RE1_NOTICE)) != 0)) &&
-					((pinfo & (PLAY_REGN | PLAY_SEEN)) != 0) &&
+					(((pinfo & (PLAY_REGN | PLAY_SEEN)) != 0) ||
+						(((pinfo & (PLAY_VIEW)) != 0) && ((r_ptr->flags1 & (RE1_SHINING)) != 0))) &&
 							((r_ptr->flags1 & (RE1_DISPLAY)) != 0))
 			{
 				/* Skip because there is an underlying trap */
@@ -1338,6 +1341,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				{
 					/* Don't display */
 				}
+
 				/* Display the effect */
 				else if (r_ptr->flags1 & (RE1_ATTR_EFFECT))
 				{
@@ -5056,21 +5060,8 @@ void town_illuminate(bool daytime)
 	/* Megahack --- darkness brings out the bad guys */
 	if ((character_loaded) && (!daytime) && actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num <= 0))
 	{
-		int y = 0;
-		int x = 0;
-		int count = 0;
-
-		/* Pick a location */
-		while (++count < 1000)
-		{
-			y = rand_int(dungeon_hgt);
-			x = rand_int(dungeon_wid);
-
-			if (cave_naked_bold(y, x)) break;
-		}
-
-		/* Place the questor */
-		place_monster_aux(y, x, actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone), TRUE, TRUE, 0L);
+		/* Place the guardian */
+		place_guardian(1, 1, dungeon_hgt- 1, dungeon_wid -1);
 	}
 
 	/* Fully update the visuals */
@@ -6046,6 +6037,13 @@ void cave_alter_feat(const int y, const int x, int action)
 
 }
 
+/* Check to see whether a monster or player blocks a path */
+/* Player always blocks, monster blocks if not hidden */
+#define monster_block(Y, X) \
+	((cave_m_idx[(Y)][(X)] < 0) || \
+	((cave_m_idx[(Y)][(X)] > 0) && \
+	 ((m_list[cave_m_idx[(Y)][(X)]].mflag & (MFLAG_HIDE)) == 0)))
+
 
 /*
  * Determine the path taken by a projection.  -BEN-, -LM-
@@ -6444,9 +6442,9 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 			}
 
 			/* Try to avoid monsters/players between the endpoints */
-			if ((cave_m_idx[y][x] != 0) && (blockage[i] < 2))
+			if ((monster_block(y,x)) && (blockage[i] < 2))
 			{
-				if      (flg & (PROJECT_MISS)) flg &= ~(PROJECT_MISS);
+				if		(flg & (PROJECT_MISS)) flg &= ~(PROJECT_MISS);
 				else if (flg & (PROJECT_STOP)) blockage[i] = 2;
 				else if (flg & (PROJECT_CHCK)) blockage[i] = 1;
 			}
@@ -6539,12 +6537,12 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 				}
 
 				/* Try to avoid non-initial monsters/players */
-				if (cave_m_idx[y_c][x_c] != 0)
+				if (monster_block(y_c,x_c))
 				{
 					if      (flg & (PROJECT_STOP)) blockage[0] = 2;
 					else if (flg & (PROJECT_CHCK)) blockage[0] = 1;
 				}
-				if (cave_m_idx[y_d][x_d] != 0)
+				if (monster_block(y_d, x_d))
 				{
 					if      (flg & (PROJECT_STOP)) blockage[1] = 2;
 					else if (flg & (PROJECT_CHCK)) blockage[1] = 1;

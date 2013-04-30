@@ -106,6 +106,7 @@ static const grouper group_item[] =
 	{ TV_SCROLL,	"Scrolls" },
 	{ TV_POTION,	"Potions" },
 	{ TV_FOOD,		"Food" },
+	{ TV_MUSHROOM,		"Mushroom" },
 
 	{ TV_ROD,		"Rods" },
 	{ TV_WAND,		"Wands" },
@@ -162,7 +163,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 	object_prep(i_ptr, k);
 
 	/* Obtain the "kind" info */
-	k_ptr = &k_info[i_ptr->k_idx];
+	k_ptr = &k_info[k];
 
 	/* It is known */
 	i_ptr->ident |= (IDENT_KNOWN);
@@ -268,7 +269,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 	/* Power */
 	else if (book[0])
 	{
-		spell_info(pow,pow_s, book[0],0);
+		spell_info(pow,pow_s, book[0],k_info[k].level);
 	}
 
 }

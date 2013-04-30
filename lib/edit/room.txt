@@ -210,9 +210,16 @@ B:labyrinth
 
 # Huge maze.
 
-N:19:113:0:0:1:1:0:128
+N:19:117:0:0:1:1:0:128
 A:
 B:labyrinth
+
+# Monster pit.
+
+N:20:117:0:0:1:1:0:128
+A:
+B:pit
+
 
 
 # An inner room of some description
@@ -753,7 +760,7 @@ R:MAGE
 N:104:119:0:0:35:2:5:128
 A:
 B:shrine
-F:668:0:736:0:0
+F:818:0:736:0:0
 D:A shrine 
 S:SEEN
 R:PRIEST
@@ -2101,6 +2108,15 @@ S:SEEN
 P:PLACE | RANDOM
 
 N:106:107:0:0:25:1:0:128
+A:rubble-filled
+B:
+D:covered in rubble. 
+F:49:49:113:0:0
+S:SEEN
+R:KILL_WALL
+P:PLACE | RANDOM
+
+N:106:156:0:0:25:1:20:128
 A:rubble-filled
 B:
 D:covered in rubble. 
@@ -6098,3 +6114,32 @@ F:0:990:434:0:0
 
 N:155:107:0:0:15:15:40:128
 F:0:990:434:0:0
+
+# Hints for player to explore the rubble.
+
+N:156:157:0:0:25:25:20:128
+D:You see something shiny 
+
+N:156:157:0:0:25:25:25:128
+D:Splinters of broken bone lie 
+K:1:0:99
+
+N:156:157:0:0:25:25:30:128
+D:A mummified body lies 
+K:6:0:99
+
+N:156:157:0:0:25:25:35:128
+D:A half-crushed arm extends from 
+
+N:157:107:0:0:25:25:0:128
+D:amidst the debris.  
+
+N:157:107:0:0:25:25:0:128
+D:between the fallen stones.  
+
+N:157:107:0:0:25:25:0:128
+D:wedged between two boulders.  
+
+N:157:107:0:0:25:25:30:128
+D:trapped under a huge stone block.  
+

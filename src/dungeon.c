@@ -1906,7 +1906,8 @@ static void process_world(void)
 			/* Get power */
 			get_spell(&k, "", &inventory[j], FALSE);
 
-			if (rand_int(200) < o_ptr->usage)
+			/* Uncontrolled activation */
+			if (rand_int(UNCONTROLLED_CONTROL) < (UNCONTROLLED_CONTROL - o_ptr->usage))
 			{
 				/* Process spell - involuntary effects */
 				process_spell(SOURCE_OBJECT, o_ptr->k_idx, k, 25, &dummy, &dummy, 0);
@@ -1920,8 +1921,8 @@ static void process_world(void)
 			}
 			else if (o_ptr->usage < UNCONTROLLED_CONTROL)
 			{
-				/* Message only */
-				msg_print("You feel yourself gain a measure of control.");
+				/* Message only - every 10 attempts */
+				if (!(o_ptr->usage % 10)) msg_print("You feel yourself gain a measure of control.");
 			}
 			else if (o_ptr->usage >= UNCONTROLLED_CONTROL)
 			{
@@ -2207,7 +2208,6 @@ static void process_command(void)
 	{
 		/* Ignore */
 		case ESCAPE:
-		case ' ':
 		{
 			break;
 		}
@@ -2793,6 +2793,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Save "toggle monster list on or off" */
+		case ' ':
+		{
+			easy_monlist = !easy_monlist;
+			break;
+		}
+
 		/* Mouse interaction */
 		case '\xff':
 		{
@@ -2826,7 +2833,7 @@ static void process_command(void)
 			}
 			else if (use_trackmouse && (easy_more || (auto_more && !easy_more)))
 			{
-				target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+				p_ptr->command_new = target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 			}
 			break;
 		}
@@ -3222,6 +3229,9 @@ static void process_player(void)
 		{
 			/* Check monster recall */
 			process_player_aux();
+
+			/* Display the monlist */
+			if (easy_monlist) display_monlist(1, TRUE, FALSE);
 
 			/* Place the cursor on the player */
 			move_cursor_relative(p_ptr->py, p_ptr->px);

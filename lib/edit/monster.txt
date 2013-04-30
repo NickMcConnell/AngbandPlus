@@ -109,7 +109,7 @@ G:h:W
 #$ Multihued available
 #$ Metallics available:dwsrgbuDWPRGBpvtmYiTVIMzZ
 #$ Colors available:dgtz
-I:110:343:40:10:3
+I:110:120:40:10:3
 W:0:7:0:0
 C:6:7:0:9:57
 M:20:0:1:0
@@ -908,22 +908,22 @@ F:HAS_CORPSE | HAS_SLIME |
 F:RES_BLIND | LEVEL_SIZE |
 D:It is a large slimy mass of worms.
 
-N:49:Yellow snake
-G:J:y
+N:49:Clear snake
+G:J:w
 #$ Clear available
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
-I:100:17:5:38:75
-W:3:2:0:3
+I:100:45:5:38:75
+W:7:1:0:5
 M:0:0:1:0
 B:BITE:HURT:1d4
 B:CRUSH:HURT:1d6
 F:RAND_25 |
 F:BASH_DOOR | EAT_BODY |
-F:ANIMAL |
+F:ANIMAL | ATTR_CLEAR | INVISIBLE
 F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
 F:LEVEL_SPEED | LEVEL_SIZE |
-D:It is about ten feet long.
+D:It is about ten feet long and stealthy.
 
 N:50:Cave spider
 G:S:D
@@ -1757,7 +1757,7 @@ G:J:P
 #$ Clear available
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
-I:110:23:6:24:1
+I:110:23:6:44:1
 W:7:2:0:11
 M:25:0:1:0
 B:BITE:POISON:2d5
@@ -2315,7 +2315,22 @@ S:BOLT_MANA |
 S:CURE | BLINK | WOUND | BLESS |
 D:A goblin dressed in skins who gestures wildly.
 
-### 126 - Unused ###
+N:126:Spikey mushroom patch
+G:,:Z
+#$ Multihued available
+#$ Metallics available:dsorPRGBUvtmYTVMzZ
+#$ Colors available:dGUvYTVIZ
+I:120:20:2:30:0
+W:3:1:0:5
+M:16:0:1:0
+B:HIT:HURT:1d3
+B:SPIKE:HURT:1d6
+F:NEVER_MOVE | ONLY_ITEM
+F:STUPID | EMPTY_MIND |
+F:PLANT | IM_POIS | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP |
+F:RES_BLIND | NO_CUTS | LEVEL_SIZE |
+S:BLOW_2 | ADD_AMMO |
+#D:Hmmm... it looks quite painful to eat.
 
 N:127:Baby blue dragon
 G:d:B
@@ -6959,7 +6974,22 @@ F:NO_SLEEP |
 F:NEVER_MISS | LEVEL_SPEED | LEVEL_POWER |
 D:It is impossible to define its form but its violence is legendary.
 
-#$# 353 - Unused ###
+N:353:Stone jelly
+G:j:W
+#$ Metallics available:dsoPvtmYTVZ
+#$ Colors available:dWRmYVZ
+I:120:48:2:1:99
+W:5:2:0:6
+M:15:0:1:0
+B:CRUSH:HURT:1d5
+B:SHOT:HURT:1d5
+F:NEVER_MOVE |
+F:STUPID | EMPTY_MIND |
+F:NONVOCAL | HURT_LITE | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
+F:HAS_CORPSE | HAS_SLIME |
+F:RES_BLIND | LEVEL_SIZE |
+S:BLOW_2 | ADD_AMMO
+#D:Its a large pile of stone-coloured flesh.
 
 N:354:Thief
 G:t:v
@@ -7858,7 +7888,21 @@ F:LEVEL_CLASS | LEVEL_SPEED | LEVEL_SIZE | LEVEL_POWER |
 D:It is a massive figure clothed in wrappings.  You are wary of its
 D: massive fists.
 
-#$# 395 - Unused ###
+N:395:Scarecrow
+G:g:Y
+#$ Multihued available
+#$ Metallics available:drgbuPRGpvtmYiTVIMZ
+#$ Colors available:dwbPpvtmTVIMzZ
+I:110:18:12:30:10
+W:5:1:20:4
+M:0:0:2:0
+B:HIT:HURT:1d3
+B:TOUCH:TERRIFY
+F:EMPTY_MIND | BASH_DOOR | ANIMAL | UNDEAD | RAND_50
+F:NONLIVING | NO_FEAR | NO_CONF |
+F:HAS_CORPSE | HAS_HEAD | HAS_HAND | HAS_ARM | HAS_LEG | ASSEMBLE |
+F:LEVEL_SPEED | LEVEL_SIZE | LEVEL_POWER |
+D:A straw-filled figure animated by the malevolent spirits of dead birds.
 
 N:396:Will o' the wisp
 G:E:W
@@ -8474,7 +8518,24 @@ S:S_GROUP |
 D:A towering water elemental king, he is master of all things liquid. 
 D: Wave after wave drowns your frail body.
 
-#$# 423 - Unused ###
+N:423:Rock python
+G:J:U
+#$ Clear available
+#$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
+#$ Colors available:doUvmiVIZ
+I:100:55:5:55:30
+W:7:1:0:10
+M:15:0:1:0
+B:BITE:HURT:1d5
+B:CRUSH:HURT:2d6
+B:SHOT:HURT:1d10
+F:RAND_25 |
+F:BASH_DOOR | EAT_BODY |
+F:ANIMAL |
+F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
+F:LEVEL_SIZE |
+S:BLOW_3
+D:It is about twenty feet long.
 
 N:424:Ancient white dragon
 G:A:w
@@ -12781,7 +12842,7 @@ D:A great wolf-chieftain whose pack is in the service of the Dark Lord,
 D: and whose howls strike fear into even the boldest heart.
 
 N:608:Bone golem
-G:g:Y
+G:g:w
 #$ Multihued available
 #$ Metallics available:drgbuPRGpvtmYiTVIMZ
 #$ Colors available:dwbPpvtmTVIMzZ
@@ -15652,7 +15713,7 @@ G:C:U
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
 #$ Colors available:dbpviI
-I:120:15:30:30:0
+I:120:15:30:16:0
 W:5:1:0:4
 M:0:0:1:0
 B:BITE:HURT:1d4
@@ -19177,14 +19238,16 @@ G:J:G
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
 I:100:3:5:39:60
-W:3:1:0:1
-M:0:0:1:0
+W:5:1:0:2
+M:8:0:1:0
 B:BITE:POISON:1d5
+B:SPIT:POISON:1d5
 F:RAND_25 |
 F:EAT_BODY |
 F:ANIMAL | IM_POIS |
 F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
 F:LEVEL_SPEED | LEVEL_SIZE |
+S:BLOW_2
 D:It is about two feet long.
 
 N:935:Blue snake
@@ -19193,16 +19256,16 @@ G:J:b
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
 I:100:25:5:40:60
-W:4:1:0:4
+W:6:1:0:7
 M:0:0:1:0
 B:BITE:HURT:1d4
-B:CRUSH:HURT:1d6
+B:CRUSH:ELEC:1d6
 F:RAND_25 |
 F:EAT_BODY |
-F:ANIMAL |
+F:ANIMAL | IM_ELEC |
 F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
 F:LEVEL_SPEED | LEVEL_SIZE |
-D:It is about ten feet long.
+D:It is about ten feet long and charged with electricity.
 
 N:936:Black snake
 G:J:D
@@ -19213,7 +19276,7 @@ I:100:17:5:38:60
 W:4:1:0:3
 M:0:0:1:0
 B:BITE:HURT:1d4
-B:CRUSH:HURT:1d6
+B:CRUSH:HURT_MANA:1d6
 F:RAND_25 |
 F:EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -19243,14 +19306,16 @@ G:J:r
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
 I:100:17:5:39:60
-W:3:2:0:3
-M:0:0:1:0
+W:6:1:0:7
+M:10:0:1:0
 B:BITE:POISON:1d5
+B:GAZE:CONFUSE
 F:RAND_25 |
 F:BASH_DOOR | EAT_BODY |
-F:ANIMAL |
+F:ANIMAL | IM_FIRE |
 F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
 F:LEVEL_SPEED | LEVEL_SIZE |
+S:BLOW_2
 D:It is about six feet long.
 
 N:939:Boa constrictor
@@ -24331,7 +24396,7 @@ G:J:Y
 #$ Clear available
 #$ Metallics available:dwsrgbWyRGBUvtmYiTVIMzZ
 #$ Colors available:doUvmiVIZ
-I:110:21:6:15:30
+I:110:21:6:35:30
 W:5:1:0:5
 M:0:0:1:0
 B:CRUSH:HURT:1d8
@@ -27462,7 +27527,7 @@ G:I:Y
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
 #$ Colors available:dU
-I:120:5:12:34:10
+I:120:5:12:24:10
 W:4:4:0:4
 M:0:0:1:0
 B:STING:POISON:1d4
@@ -28119,7 +28184,7 @@ B:CLAW:HURT_MANA:4d8
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
 F:SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_STUN |
-F:NO_SLEEP |
+F:NO_SLEEP | NO_FEAR
 F:RES_BLIND | NO_SLOW | RES_MAGIC | ATTR_METAL |
 S:BRTH_FIRE | BRTH_NETHR |
 S:BALL_DARK |
@@ -28143,7 +28208,7 @@ B:SPIT:ACID:4d12
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
 F:SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:DRAGON | EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | NO_FEAR |
-F:NO_STUN | NO_CONF |
+F:NO_STUN | NO_CONF | NO_FEAR
 F:RES_BLIND | IM_EDGED | NO_SLOW | ATTR_METAL |
 S:BLOW_4 | BRTH_ACID | BRTH_POIS | BRTH_CHAOS |
 S:ADD_MANA | HEAL | BLINK | TPORT | TELE_LEVEL | FORGET | DISPEL |
@@ -28169,7 +28234,7 @@ B:TOUCH:VAMP_DRAIN
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
 F:SMART | REGENERATE | CAN_FLY | OPEN_DOOR | BASH_DOOR |
 F:UNDEAD | EVIL | IM_ACID | IM_ELEC | IM_COLD | IM_POIS | NO_FEAR | NO_STUN |
-F:NO_CONF | NO_SLEEP |
+F:NO_CONF | NO_SLEEP | NO_FEAR
 F:EVASIVE | RES_BLIND | NO_SLOW | ATTR_METAL |
 S:BALL_ACID | BALL_FIRE | BALL_POIS | BALL_DARK | BALL_STORM | BOLT_PLAS |
 S:BOLT_ICE | BOLT_MANA | BEAM_NETHR |
@@ -28195,7 +28260,7 @@ B:XBOLT:UN_POWER:8d12
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
 F:SMART | REGENERATE | OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:GIANT | EVIL | HUGE | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | NO_FEAR |
-F:NO_STUN | NO_CONF | NO_SLEEP |
+F:NO_STUN | NO_CONF | NO_SLEEP | NO_FEAR
 F:RES_BLIND | NO_CUTS | NO_SLOW | MAN | ATTR_METAL |
 S:BLOW_4 |
 S:HEAL | TPORT | FORGET | MIND_BLAST | ILLUSION | WOUND | SCARE | BLIND |
@@ -28218,7 +28283,7 @@ B:AURA:FIRE:8d12
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
 F:SMART | HAS_LITE | REGENERATE | OPEN_DOOR | BASH_DOOR | HAS_AURA |
 F:DEMON | EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_POIS | NO_FEAR | NO_STUN |
-F:NO_CONF | NO_SLEEP |
+F:NO_CONF | NO_SLEEP | NO_FEAR
 F:IM_BLUNT | NO_CUTS | NO_SLOW | ATTR_METAL |
 S:BLOW_1 | BLOW_2 | BLOW_3 | BLOW_4 | BRTH_ELEC | BRTH_FIRE | BRTH_PLAS |
 S:BALL_FIRE | BALL_DARK | BALL_NETHR | BOLT_PLAS | BEAM_ELEC |

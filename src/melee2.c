@@ -1281,7 +1281,6 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		/* No spells left */
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
-
 	/* Eliminate 'direct' spells when blinded or afraid (except innate spells) * */
 	else if ((m_ptr->blind) || (m_ptr->monfear))
 	{
@@ -1306,34 +1305,30 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
 
-	/* Eliminate all summoning spells if monster has recently summoned or been summoned */
-	if (m_ptr->summoned)
-	{
-		f4 &= (RF4_SUMMON_MASK);
-		f5 &= (RF4_SUMMON_MASK);
-		f6 &= (RF6_SUMMON_MASK);
-		f7 &= (RF7_SUMMON_MASK);
-
-		/* No spells left */
-		if (!f4 && !f5 && !f6 && !f7) return (0);
-	}
-
-	/* Allies do not summon (or teleport unless afraid) */
-	if (m_ptr->mflag & (MFLAG_ALLY))
+	/* Eliminate all summoning spells if monster has recently summoned or been summoned or an ally */
+	if ((m_ptr->summoned) || (m_ptr->mflag & (MFLAG_ALLY)))
 	{
 		f4 &= ~(RF4_SUMMON_MASK);
 		f5 &= ~(RF5_SUMMON_MASK);
 		f6 &= ~(RF6_SUMMON_MASK);
 		f7 &= ~(RF7_SUMMON_MASK);
 
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
+
+	/* Allies do not teleport unless afraid or blink unless we need to reposition */
+	if (m_ptr->mflag & (MFLAG_ALLY))
+	{
 		/* Prevent blinking unless target is at wrong range - note check to see if we can blink for efficiency */
-		if (((f6 & (RF6_BLINK)) != 0) && (!(m_ptr->ty) || !(m_ptr->tx) || (ABS(m_ptr->best_range - distance(m_ptr->fy, m_ptr->fx, m_ptr->ty, m_ptr->tx)) < 4)))
+		if (((f6 & (RF6_BLINK)) != 0) && (m_ptr->cdis >= MAX_SIGHT / 3) &&
+			(!(m_ptr->ty) || !(m_ptr->tx) || (ABS(m_ptr->best_range - distance(m_ptr->fy, m_ptr->fx, m_ptr->ty, m_ptr->tx)) < 4)))
 		{
 			f6 &= ~(RF6_BLINK);
 		}
 
-		/* Prevent teleporting unless afraid */
-		if (!m_ptr->monfear)
+		/* Prevent teleporting unless afraid or too far away */
+		if ((!m_ptr->monfear) || (m_ptr->cdis >= MAX_SIGHT))
 		{
 			f6 &= ~(RF6_TPORT);
 		}
@@ -1503,7 +1498,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 			}
 		}
 	}
-
+	
 	/* No valid target (only possible if an idle ally) */
 	if (!target_m_idx)
 	{
@@ -1994,6 +1989,13 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			return (100);
 		}
 
+		/* Guardians can always push through other monsters, except other guardians */
+		else if ((r_ptr->flags1 & (RF1_GUARDIAN)) && ((nr_ptr->flags1 & (RF1_GUARDIAN)) == 0))
+		{
+			/* Can always push at full speed. */
+			move_chance = 100;
+		}
+
 		/* Pushed already */
 		else if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
 		{
@@ -2080,14 +2082,14 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		if (mmove == MM_DROWN && !m_ptr->confused)
 		{
 			/* Try to get out of existing trouble */
-            if (place_monster_here(m_ptr->fy, m_ptr->fx, m_ptr->r_idx) <= MM_FAIL) move_chance /= 4;
+            if (place_monster_here(m_ptr->fy, m_ptr->fx, m_ptr->r_idx) <= MM_DROWN) move_chance /= 2;
 
 			/* Don't walk into trouble */
 			else move_chance = 0;
 		}
 
 		/* We cannot natively climb, but are negotiating a tree or rubble */
-		else if (mmove == MM_CLIMB && !(r_ptr->flags2 & RF2_CAN_CLIMB))
+		else if (mmove == MM_CLIMB && !(r_ptr->flags2 & (RF2_CAN_CLIMB)))
 		{
 			move_chance /= 2;
 		}
@@ -2095,18 +2097,21 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		/* Check for traps */
 		else if (mmove == MM_TRAP)
 		{
-			/* Stupid monsters ignore traps, as do those which can avoid or resist them */
-			if ((r_ptr->flags2 & (RF2_STUPID)) || (mon_avoid_trap(m_ptr, y, x))
-					|| (mon_resist_feat(cave_feat[y][x], m_ptr->r_idx)))
+			/* Stupid monsters ignore traps */
+			if ((r_ptr->flags2 & (RF2_STUPID)) || (m_ptr->mflag & (MFLAG_STUPID)))
 			{
 				/* No modification */
 			}
 
-			/* Smart and sneaky monsters will disarm traps.
-			 * Monsters in line of fire to the player will consider moving
+			/* Smart and sneaky monsters will disarm traps. */
+			else if ((r_ptr->flags2 & (RF2_SMART | RF2_SNEAKY)) && (f_ptr->flags1 & (FF1_DISARM)))
+			{
+				move_chance /= 2;
+			}
+
+			/* Monsters in line of fire to the player will consider moving
 			 * through traps, as will those monsters aggravated by the player. */
-			else if ((r_ptr->flags2 & (RF2_SMART | RF2_SNEAKY)) ||
-					(play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE)) ||
+			else if	((play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE)) ||
 					(m_ptr->mflag & (MFLAG_AGGR)))
 			{
 				move_chance /= 4;
@@ -3431,7 +3436,7 @@ static bool get_route_to_target(monster_type *m_ptr, int *ty, int *tx)
 			y = m_ptr->fy + ddy_ddd[i];
 			x = m_ptr->fx + ddx_ddd[i];
 
-       			/* Check Bounds (fully) */
+       		/* Check Bounds (fully) */
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Grid is not passable */
@@ -4344,7 +4349,6 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 		}
 	}
 
-
 	/*
 	 * Now that we have an initial direction, we must determine which
 	 * grid to actually move into.
@@ -4367,10 +4371,8 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 		 * looks like it will get the monster to the character - or away
 		 * from him - most effectively.
 		 */
-		for (i = 0; i <= 8; i++)
+		for (i = 0; i < 8; i++)
 		{
-			if (i == 8) break;
-
 			/* Get the actual direction */
 			dir = side_dirs[dir0][i];
 
@@ -4499,7 +4501,7 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 			}
 
 			/* XXX XXX -- Sometimes attempt to break glyphs. */
-			if ((f_info[cave_feat[ny][nx]].flags1 & FF1_GLYPH) && (!fear) &&
+			if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_GLYPH)) && (!fear) &&
 			    (rand_int(5) == 0))
 			{
 				break;
@@ -4625,7 +4627,6 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 		}
 	}
 
-
 	/* Monster is frightened, and is obliged to fight. */
 	if ((fear) && (cave_m_idx[*ty][*tx] < 0))
 	{
@@ -4653,7 +4654,6 @@ static bool make_move(int m_idx, int *ty, int *tx, bool fear, bool *bash)
 			msg_format("%^s turns on you!", m_name);
 		}
 	}
-
 
 	/* We can move. */
 	return (TRUE);
@@ -6256,15 +6256,15 @@ static void process_monster(int m_idx)
 		|| (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
 	{
 		int roll;
-
+		
 		/* Monster must cast */
 		if (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH))
 		{
 			roll = 0;
 		}
 
-		/* Aggressive monsters use ranged attacks more frequently */
-		else if (m_ptr->mflag & (MFLAG_AGGR))
+		/* Aggressive/allied monsters use ranged attacks more frequently */
+		else if (m_ptr->mflag & (MFLAG_AGGR | MFLAG_ALLY | MFLAG_IGNORE))
 		{
 			roll = rand_int(200);
 			if (chance_innate) chance_innate += 100;

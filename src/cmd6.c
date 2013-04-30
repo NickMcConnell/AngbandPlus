@@ -54,9 +54,36 @@
  * item causes the inducer of that action to "move", causing "o_ptr" to
  * no longer point at the correct item, with horrifying results.
  *
+ * We avoid the above horrifying results by flagging the item with
+ * the IDENT_BREAKS flag before applying the "effect", then locate the
+ * item so flagged in the inventory afterwards and consuming it. Be
+ * careful to allow scenarios such as a scroll of fire destroying
+ * itself.
+ *
  * Note that food/potions/scrolls no longer use bit-flags for effects,
  * but instead use the "sval" (which is also used to sort the objects).
  */
+
+/*
+ * This command is used to locate the item to reduce
+ * after applying all effects in the inventory.
+ */
+int find_item_to_reduce(int item)
+{
+	int i;
+
+	/* The default case */
+	if (inventory[item].ident & (IDENT_BREAKS)) return (item);
+
+	/* Scan inventory to locate */
+	for (i = 0; i < INVEN_TOTAL + 1; i++)
+	{
+		if (inventory[i].ident & (IDENT_BREAKS)) return (i);
+	}
+
+	/* Not found - item has been destroyed during use */
+	return (-1);
+}
 
 
 
@@ -322,6 +349,9 @@ bool player_eat_food(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -350,6 +380,8 @@ bool player_eat_food(int item)
 	{
 		/* Normal food */
 		case TV_FOOD:
+		/* Mushroms */
+		case TV_MUSHROOM:
 		{
 			/* Get food effect */
 			get_spell(&power, "use", o_ptr, FALSE);
@@ -360,6 +392,26 @@ bool player_eat_food(int item)
 			/* Apply food effect */
 			if (process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_EAT : SOURCE_PLAYER_EAT_UNKNOWN,
 					o_ptr->k_idx, power,0,&cancel,&ident, TRUE)) ident = TRUE;
+
+			/* Parania */
+			if (item >= 0)
+			{
+				item = find_item_to_reduce(item);
+
+				/* Item has already been destroyed */
+				if (item < 0) return(!cancel);
+
+				/* Get the object */
+				o_ptr = &inventory[item];
+
+				/* Clear marker */
+				o_ptr->ident &= ~(IDENT_BREAKS);
+			}
+			/* More paranoia */
+			else
+			{
+				if (!o_ptr->k_idx) return(!cancel);
+			}
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -389,6 +441,26 @@ bool player_eat_food(int item)
 
 			/* Then apply spore attack */
 			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY);
+
+			/* Parania */
+			if (item >= 0)
+			{
+				item = find_item_to_reduce(item);
+
+				/* Item has already been destroyed */
+				if (item < 0) return(!cancel);
+
+				/* Get the object */
+				o_ptr = &inventory[item];
+
+				/* Clear marker */
+				o_ptr->ident &= ~(IDENT_BREAKS);
+			}
+			/* More paranoia */
+			else
+			{
+				if (!o_ptr->k_idx) return(!cancel);
+			}
 
 			break;
 		}
@@ -445,6 +517,9 @@ bool player_quaff_potion(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -474,6 +549,26 @@ bool player_quaff_potion(int item)
 	if (power >= 0) ident = process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_QUAFF : SOURCE_PLAYER_QUAFF_UNKNOWN,
 			 o_ptr->k_idx, power,0,&cancel,&ident, TRUE);
 	else return (FALSE);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
 
 	/* Clear styles */
 	p_ptr->cur_style &= ~(1L << WS_POTION);
@@ -546,6 +641,9 @@ bool player_read_scroll(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -577,7 +675,7 @@ bool player_read_scroll(int item)
 
 	/* Apply scroll effect */
 	if (power >= 0) ident = process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_READ : SOURCE_PLAYER_READ_UNKNOWN,
-			 o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
+			 o_ptr->k_idx, power, k_info[o_ptr->k_idx].level, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -585,6 +683,26 @@ bool player_read_scroll(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
 
 	/* The item was tried */
 	object_tried(o_ptr);
@@ -652,6 +770,9 @@ bool player_use_staff(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -759,7 +880,7 @@ bool player_use_staff(int item)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply staff effect */
-	if (power >= 0) ident = process_spell(SOURCE_PLAYER_USE, o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_USE, o_ptr->k_idx, power, k_info[o_ptr->k_idx].level, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -767,6 +888,26 @@ bool player_use_staff(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
 
 	/* Tried the item */
 	object_tried(o_ptr);
@@ -906,6 +1047,9 @@ bool player_aim_wand(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -1015,7 +1159,7 @@ bool player_aim_wand(int item)
 	if (object_aware_p(o_ptr)) known = TRUE;
 
 	/* Apply wand effect */
-	if (power >= 0) ident = process_spell(SOURCE_PLAYER_AIM, o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_AIM, o_ptr->k_idx, power, k_info[o_ptr->k_idx].level, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -1023,6 +1167,26 @@ bool player_aim_wand(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
 
 	/* Mark it as tried */
 	object_tried(o_ptr);
@@ -1166,6 +1330,9 @@ bool player_zap_rod(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -1267,15 +1434,35 @@ bool player_zap_rod(int item)
 		ident = process_spell(known && (o_ptr->sval >= SV_ROD_MIN_DIRECTION)
 							  ? SOURCE_PLAYER_ZAP_NO_TARGET
 							  : SOURCE_PLAYER_ZAP,
-							  o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
+							  o_ptr->k_idx, power, k_info[o_ptr->k_idx].level, &cancel, &known, FALSE);
 	else
 		return (TRUE);
 
-	/* Time rod out */
-	o_ptr->timeout = o_ptr->charges;
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
+
+	/* Time rod out */
+	o_ptr->timeout = o_ptr->charges;
 
 	/* Tried the object */
 	object_tried(o_ptr);
@@ -1792,6 +1979,9 @@ bool player_activate(int item)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Mark item for reduction */
+		o_ptr->ident |= (IDENT_BREAKS);
 	}
 
 	/* Get the item (on the floor) */
@@ -1881,6 +2071,7 @@ bool player_activate(int item)
 		if (flush_failure) flush();
 		msg_print("It whines, glows and fades...");
 		o_ptr->feeling = INSCRIP_BROKEN;
+		o_ptr->ident |= (IDENT_SENSE);
 		return (TRUE);
 	}
 
@@ -1908,7 +2099,29 @@ bool player_activate(int item)
 
 	/* Apply object effect */
 	(void)process_spell(o_ptr->name1 ? SOURCE_PLAYER_ACT_ARTIFACT : (o_ptr->name2 ? SOURCE_PLAYER_ACT_EGO_ITEM : SOURCE_PLAYER_ACTIVATE),
-			o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), power, 0, &cancel, &known, FALSE);
+			o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), power, o_ptr->name1 ? a_info[o_ptr->name1].level :
+				(o_ptr->name2 ? e_info[o_ptr->name2].level : k_info[o_ptr->k_idx].level), &cancel, &known, FALSE);
+
+	/* Parania */
+	if (item >= 0)
+	{
+		item = find_item_to_reduce(item);
+
+		/* Item has already been destroyed */
+		if (item < 0) return(!cancel);
+
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Clear marker */
+		o_ptr->ident &= ~(IDENT_BREAKS);
+	}
+	/* More paranoia */
+	else
+	{
+		if (!o_ptr->k_idx) return(!cancel);
+	}
+
 
 	/* We know it activates */
 	object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE,0x0L, item < 0);
@@ -2076,6 +2289,7 @@ bool item_tester_hook_coating(const object_type *o_ptr)
 		case TV_BOLT:
 		case TV_SHIELD:
 		case TV_SKIN:
+		case TV_SPELL:
 			if (o_ptr->weight < 1000) return (TRUE);
 	}
 
@@ -2219,6 +2433,10 @@ bool player_apply_rune_or_coating2(int item2)
 
 		/* Clear feeling */
 		if (o_ptr->feeling == INSCRIP_COATED) o_ptr->feeling = 0;
+
+		/* Clear coating */
+		o_ptr->xtra1 = 0;
+		o_ptr->xtra2 = 0;
 
 		/* Clear charges */
 		o_ptr->charges = 0;
@@ -2506,6 +2724,13 @@ bool player_apply_rune_or_coating2(int item2)
 			}
 		}
 	}
+
+	/* Hack - water washes away */
+	else if ((tval == TV_POTION) && (sval == SV_POTION_WATER))
+	{
+		msg_print("The coating washes away.");
+	}
+
 	/* Coat weapon */
 	else
 	{
@@ -2518,8 +2743,8 @@ bool player_apply_rune_or_coating2(int item2)
 		if (!aware) j_ptr->feeling = INSCRIP_COATED;
 
 		/* Based on the weight, determine charges */
-		j_ptr->charges = (charges + 1000 / j_ptr->weight) / j_ptr->number;
-		j_ptr->stackc = (charges + 1000 / j_ptr->weight) % j_ptr->number;
+		j_ptr->charges = (charges + 1000 / (j_ptr->weight > cp_ptr->min_weight ? j_ptr->weight : cp_ptr->min_weight)) / j_ptr->number;
+		j_ptr->stackc = (charges + 1000 / (j_ptr->weight > cp_ptr->min_weight ? j_ptr->weight : cp_ptr->min_weight)) % j_ptr->number;
 
 		if (j_ptr->stackc) j_ptr->charges++;
 	}

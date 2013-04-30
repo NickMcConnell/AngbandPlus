@@ -513,7 +513,10 @@ static errr init_info(cptr filename, header *head)
 
 	errr err = 1;
 
+#ifdef ALLOW_TEMPLATES
 	FILE *fp;
+#endif
+
 #ifdef ALLOW_TEMPLATES_OUTPUT
 	FILE *fpout;
 #endif

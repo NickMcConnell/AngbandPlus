@@ -115,7 +115,7 @@ N:11:Restore Constitution and Charisma
 G:,:w
 I:79:18:0
 W:10:500:1:50
-A:20/1
+A:10/1
 P:0:0d0:0:0:0
 
 N:12:Restoring
@@ -164,7 +164,7 @@ N:18:Restore Strength and Size
 G:,:w
 I:79:17:0
 W:10:500:1:50
-A:20/1
+A:10/1
 P:0:0d0:0:0:0
 
 N:19:Disease
@@ -314,14 +314,14 @@ G:|:W
 I:23:5:0
 W:3:0:30:25
 A:3/3
-P:0:1d5:0:0:0
+P:2:1d5:0:0:0
 
 N:39:& Cutlass~
 G:|:W
 I:23:12:0
 W:5:0:50:35
 A:5/3
-P:0:1d7:0:0:0
+P:2:1d7:0:0:0
 
 N:40:& Executioner's Sword~
 G:|:r
@@ -357,14 +357,14 @@ G:|:W
 I:23:7:0
 W:5:0:30:42
 A:5/3
-P:0:1d6:0:0:0
+P:2:1d6:0:0:0
 
 N:45:& Sabre~
 G:|:W
 I:23:11:0
-W:5:0:50:50
+W:5:0:60:50
 A:5/3
-P:0:1d8:0:0:0
+P:3:1d8:0:0:0
 
 N:46:& Small Sword~
 G:|:W
@@ -429,7 +429,7 @@ G:\:U
 I:21:3:0
 W:5:0:75:200
 A:5/2
-P:0:1d9:0:0:0
+P:8:1d9:0:0:0
 
 N:55:& War Hammer~
 G:\:D
@@ -474,28 +474,28 @@ G:/:s
 I:22:13:0
 W:15:0:190:363
 A:15/3
-P:0:2d6:0:0:0
+P:8:2d6:0:0:0
 
 N:61:& Halberd~
 G:/:s
 I:22:15:0
-W:20:0:190:430
+W:20:0:230:430
 A:20/3
-P:0:4d5:0:0:0
+P:8:4d5:0:0:0
 
 N:62:& Awl-Pike~
 G:/:s
 I:22:4:0
 W:5:0:160:35
 A:5/3
-P:0:1d8:0:0:0
+P:4:1d8:0:0:0
 
 N:63:& Pike~
 G:/:s
 I:22:8:0
-W:10:0:100:120
+W:10:0:130:120
 A:10/3
-P:0:3d5:0:0:0
+P:5:2d5:0:0:0
 
 N:64:& Javelin~
 G:/:s
@@ -631,15 +631,15 @@ P:0:4d7:0:0:0
 
 N:82:& Rounded Pebble~
 G:{:w
-I:16:0:0
+I:16:1:0
 W:0:0:4:1
 A:0/1:10/1
 P:0:1d2:0:0:0
 F:THROWING |
 
-N:83:& Iron Shot~
-G:{:s
-I:16:1:0
+N:83:& Lead Shot~
+G:{:D
+I:16:2:0
 W:3:0:5:2
 A:3/1:20/1:35/1
 P:0:1d4:0:0:0
@@ -964,7 +964,7 @@ G:]:U
 I:31:1:0
 W:1:0:5:3
 A:1/1
-P:1:0d0:0:0:0
+P:1:1d1:0:0:0
 
 N:126:& Set~ of Gauntlets
 G:]:s
@@ -1091,8 +1091,8 @@ F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
 N:140:Resist Fire
 G:=:w
 I:45:8:0
-W:10:0:2:250
-A:10/1
+W:5:0:2:250
+A:5/1
 P:0:0d0:0:0:0
 Y:13:1
 F:IGNORE_FIRE | RES_FIRE |
@@ -1100,8 +1100,8 @@ F:IGNORE_FIRE | RES_FIRE |
 N:141:Resist Cold
 G:=:w
 I:45:9:0
-W:10:0:2:250
-A:10/1
+W:5:0:2:250
+A:5/1
 P:0:0d0:0:0:0
 Y:14:1
 F:IGNORE_COLD | RES_COLD |
@@ -1353,8 +1353,8 @@ F:ESP_TROLL
 N:168:Resist Acid
 G:":w
 I:40:4:0
-W:20:0:3:300
-A:20/1
+W:10:0:3:300
+A:10/1
 P:0:0d0:0:0:0
 Y:1:1
 F:IGNORE_ACID | RES_ACID |
@@ -1444,24 +1444,24 @@ Y:17:3
 N:178:Detect Magic
 G:?:w
 I:70:31:0
-W:1:0:5:120
-A:1/1:5/2:10/2:30/2
+W:20:0:5:120
+A:20/2:30/2
 P:0:0d0:0:0:0
 Y:12:3
 
 N:179:Detect Curse
 G:?:w
 I:70:40:0
-W:1:0:5:90
-A:1/1:5/1:10/1:30/1
+W:20:0:5:90
+A:20/1:30/1
 P:0:0d0:0:0:0
 Y:5:1
 
 N:180:Remove Curse
 G:?:w
 I:70:14:0
-W:10:0:5:180
-A:10/1
+W:15:0:5:180
+A:15/1
 P:0:0d0:0:0:0
 Y:5:2
 
@@ -1476,24 +1476,24 @@ Y:21:1
 N:182:Read Magic
 G:?:w
 I:70:19:0
-W:3:0:5:75
-A:3/1:10/1:30/1
+W:10:0:5:75
+A:10/1:30/1
 P:0:0d0:0:0:0
 Y:12:2
 
 N:183:Analyze Magic
 G:?:w
 I:70:23:0
-W:3:0:5:75
-A:3/1:10/1:30/1
+W:10:0:5:75
+A:10/1:30/1
 P:0:0d0:0:0:0
 Y:19:1
 
 N:184:Summon Monster
 G:?:w
 I:70:4:0
-W:1:0:5:0
-A:1/1
+W:3:0:5:0
+A:3/1
 P:0:0d0:0:0:0
 Y:15:2
 
@@ -1587,7 +1587,7 @@ P:0:0d0:0:0:0
 N:196:Legend Lore
 G:?:w
 I:70:48:0
-W:3:0:5:225
+W:10:0:5:225
 A:10/1:15/1:20/1:30/1
 P:0:0d0:0:0:0
 Y:17:2
@@ -1697,8 +1697,8 @@ Y:23:2
 N:210:Satisfy Hunger
 G:?:w
 I:70:32:0
-W:5:0:5:10
-A:5/1
+W:15:0:5:10
+A:15/1
 P:0:0d0:0:0:0
 Y:19:2
 
@@ -1816,8 +1816,8 @@ F:THROWING |
 N:225:Strength and Size
 G:!:w
 I:75:48:0
-W:1:0:4:50
-A:1/3:40/3
+W:10:0:4:150
+A:10/3:40/3
 P:0:1d1:0:0:0
 Y:25:2
 F:THROWING |
@@ -1825,8 +1825,8 @@ F:THROWING |
 N:226:Weakness
 G:!:w
 I:75:16:0
-W:5:0:4:0
-A:3/1
+W:10:0:4:0
+A:10/1
 P:0:1d1:0:0:0
 Y:25:1
 F:THROWING |
@@ -1834,7 +1834,7 @@ F:THROWING |
 N:227:Invisibility
 G:!:w
 I:75:47:0
-W:1:0:4:50
+W:30:0:4:500
 A:30/3
 P:0:1d1:0:0:0
 F:THROWING |
@@ -1842,8 +1842,8 @@ F:THROWING |
 N:228:Intelligence and Wisdom
 G:!:w
 I:75:49:0
-W:1:0:4:50
-A:1/3:40/3
+W:10:0:4:150
+A:10/3:40/3
 P:0:1d1:0:0:0
 Y:17:2
 F:THROWING |
@@ -1907,9 +1907,12 @@ P:0:1d1:0:0:0
 Y:24:1
 F:THROWING |
 
-### 236 - Unused ###
-
-#$# 236 - Unused ###
+N:236:Restore Dexterity and Agility
+G:,:w
+I:79:24:0
+W:10:500:1:50
+A:10/1
+P:0:0d0:0:0:0
 
 N:237:Cure Light Wounds
 G:!:w
@@ -1974,8 +1977,8 @@ F:EAT_HEAL
 N:243:Constitution and Charisma
 G:!:w
 I:75:52:0
-W:1:0:4:50
-A:1/3:40/3
+W:10:0:4:150
+A:10/3:40/3
 P:0:1d1:0:0:0
 Y:24:2
 F:THROWING |
@@ -2028,8 +2031,8 @@ F:THROWING |
 N:249:Speed
 G:!:w
 I:75:29:0
-W:1:0:4:200
-A:1/1:35/1
+W:15:0:4:200
+A:15/1:35/1
 P:0:1d1:0:0:0
 Y:27:2
 F:THROWING |
@@ -2046,8 +2049,8 @@ F:THROWING |
 N:251:Dexterity and Agility
 G:!:w
 I:75:51:0
-W:1:0:4:50
-A:1/3:40/3
+W:10:0:4:150
+A:10/3:40/3
 P:0:1d1:0:0:0
 Y:26:2
 F:THROWING |
@@ -2102,9 +2105,11 @@ Y:23:2
 F:THROWING |
 F:EAT_HEAL
 
-N:259:Boldness
-G:!:w
-I:75:28:0
+# Now a mushroom
+
+N:259:Haste
+G:,:w
+I:79:26:0
 W:1:0:4:10
 A:1/1
 P:0:1d1:0:0:0
@@ -2586,7 +2591,7 @@ G:]:B
 I:31:3:0
 W:0:0:20:700
 A:40/1
-P:5:1d1:0:0:0
+P:5:1d2:0:0:0
 F:IGNORE_ACID
 
 N:316:& Set~ of Alchemist's Gloves
@@ -2594,7 +2599,7 @@ G:]:R
 I:31:5:0
 W:0:0:5:500
 A:30/2
-P:0:1d1:0:0:2
+P:0:1d2:0:0:2
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:317:Remove Curse
@@ -2834,7 +2839,7 @@ N:344:Acid
 G:!:G
 I:77:2:0
 W:10:0:10:30
-A:10/1
+A:10/2
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -3681,7 +3686,7 @@ F:SHOW_MULT | SHOW_WEAPON | SHOW_CHARGE
 
 N:437:& Adamantite Shot~
 G:{:G
-I:16:2:0
+I:16:3:0
 W:35:0:4:20
 A:35/4:47/1
 P:0:2d5:5:5:0
@@ -4924,7 +4929,7 @@ W:0:0:1:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:594:& Woad~
+N:594:intricate Woading~
 G:~:I
 I:10:2:0
 W:1:0:0:0
@@ -5303,8 +5308,8 @@ P:0:0d0:0:0:0
 N:644:Value Magic
 G:?:w
 I:70:66:0
-W:3:0:5:25
-A:3/1:5/2:10/2
+W:5:0:5:25
+A:5/2:10/2
 P:0:0d0:0:0:0
 
 # New potions (13)
@@ -5690,35 +5695,35 @@ P:0:1d1:0:0:0
 
 # Maps. Used to travel to locations in t_info.txt (By sval).
 
-N:692:& map~ to the mountain Caradhras
+N:692:to the mountain Caradhras
 G:?:U
 I:72:47:0
 W:20:0:5:250
 A:20/2
 P:0:0d0:0:0:0
 
-N:693:& map~ to the Paths of the Dead
+N:693:to the Paths of the Dead
 G:?:U
 I:72:50:0
 W:30:0:5:250
 A:30/2
 P:0:0d0:0:0:0
 
-N:694:& map~ to the citadel of Isengard
+N:694:to the citadel of Isengard
 G:?:U
 I:72:31:0
 W:20:0:5:250
 A:20/2
 P:0:0d0:0:0:0
 
-N:695:& map~ to Shelob's Lair
+N:695:to Shelob's Lair
 G:?:U
 I:72:56:0
 W:40:0:5:1250
 A:40/2
 P:0:0d0:0:0:0
 
-N:696:& map~ to Mount Doom
+N:696:to Mount Doom
 G:?:U
 I:72:62:0
 W:55:0:5:1500
@@ -5729,35 +5734,35 @@ P:0:0d0:0:0:0
 
 #$# 697 - Unused ###
 
-N:698:& map~ titled 'There and Back Again'
+N:698:titled 'There and Back Again'
 G:?:U
 I:72:25:0
 W:20:0:5:500
 A:20/2
 P:0:0d0:0:0:0
 
-N:699:& map~ to the ruins of Angmar
+N:699:to the ruins of Angmar
 G:?:U
 I:72:68:0
 W:20:0:5:500
 A:20/4
 P:0:0d0:0:0:0
 
-N:700:& map~ to the sunken city of Numenor
+N:700:to the sunken city of Numenor
 G:?:U
 I:72:64:0
 W:20:0:5:500
 A:20/2
 P:0:0d0:0:0:0
 
-N:701:& map~ to the temple of Elemental Evil
+N:701:to the temple of Elemental Evil
 G:?:U
 I:72:65:0
 W:20:0:5:500
 A:20/2
 P:0:0d0:0:0:0
 
-N:702:& map~ to the Crystal Castle
+N:702:to the Crystal Castle
 G:?:U
 I:72:66:0
 W:20:0:5:500
@@ -5778,7 +5783,7 @@ G:/:B
 I:22:14:0
 W:5:0:140:75
 A:5/2
-P:0:3d3:0:0:0
+P:4:3d3:0:0:0
 
 N:705:& Lance~
 G:/:s
@@ -6384,10 +6389,10 @@ I:99:42:0
 W:40:0:0:5000
 P:0:0d0:0:0:0
 
-N:792:Feedback
+N:792:Phlogiston
 G:?:v
 I:99:43:0
-W:40:0:0:200
+W:40:0:0:5
 P:0:0d0:0:0:0
 
 ### Three new types of ammo ###
@@ -6588,9 +6593,11 @@ A:32/2
 P:0:1d1:0:0:0
 F:THROWING |
 
+# Now a mushroom
+
 N:820:Bloating
-G:!:w
-I:75:73:0
+G:,:w
+I:79:25:0
 W:10:15000:4:5
 A:10/1
 P:0:1d1:0:0:0
@@ -6697,7 +6704,7 @@ N:833:Slime
 G:!:W
 I:77:4:0
 W:3:100:10:0
-A:1/2
+A:1/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6705,15 +6712,15 @@ N:834:Bile
 G:!:o
 I:77:5:0
 W:8:50:10:0
-A:8/2
+A:8/4
 P:0:1d1:0:0:0
 F:THROWING |
 
 N:835:Web
 G:!:s
 I:77:15:0
-W:4:0:10:0
-A:2/2
+W:0:0:10:0
+A:0/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6721,7 +6728,7 @@ N:836:Fire
 G:!:r
 I:77:7:0
 W:25:0:10:250
-A:25/1
+A:25/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6729,7 +6736,7 @@ N:837:Ice
 G:!:B
 I:77:8:0
 W:32:0:10:350
-A:32/1
+A:32/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6737,7 +6744,7 @@ N:838:Light
 G:!:y
 I:77:9:0
 W:15:0:10:150
-A:15/1
+A:15/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6745,7 +6752,7 @@ N:839:Darkness
 G:!:D
 I:77:10:0
 W:37:0:10:450
-A:37/1
+A:37/4
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6753,7 +6760,7 @@ N:840:Nexus
 G:!:R
 I:77:11:0
 W:42:0:10:550
-A:42/1
+A:42/5
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6761,7 +6768,7 @@ N:841:Chaos
 G:!:v
 I:77:12:0
 W:52:0:10:750
-A:52/1
+A:52/5
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6769,7 +6776,7 @@ N:842:Nether
 G:!:G
 I:77:13:0
 W:47:0:10:650
-A:47/1
+A:47/5
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6777,7 +6784,7 @@ N:843:Mana
 G:!:b
 I:77:14:0
 W:56:0:10:850
-A:56/1
+A:56/6
 P:0:1d1:0:0:0
 F:THROWING |
 
@@ -6797,13 +6804,6 @@ W:10:0:50:40
 A:10/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE |
-
-N:846:& Vine~
-G:~:u
-I:3:14:0
-W:1:0:15:0
-A:1/1
-P:0:1d1:0:0:0
 
 N:847:Elven Rope
 G:~:y
@@ -7161,7 +7161,7 @@ I:99:51:0
 W:40:0:0:500
 P:0:0d0:0:0:0
 
-N:893:& map~ to the door to Moria
+N:893:to the door to Moria
 G:?:U
 I:72:41:0
 W:20:0:5:250
@@ -7393,7 +7393,7 @@ W:3:0:40:30
 A:3/2
 P:0:1d6:0:0:0
 
-N:917:& shedded # Skin
+N:917:& # Skin
 G:~:G
 I:8:5:0
 W:9:0:20:0

@@ -81,11 +81,11 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_flush_disturb,
 		OPT_easy_corpses,
 		OPT_easy_more,
+		OPT_easy_monlist,
 		OPT_verify_mana,
 		OPT_view_unsafe_grids,
 		OPT_view_detect_grids,
 		OPT_autosave_backup,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 	},
@@ -251,7 +251,7 @@ static option_entry options[OPT_MAX] =
 { "show_tips",           "Show tips as you explore the dungeon",        TRUE }, /* 103 */
 { "easy_more",           "Minimise '-more-' prompts",                   TRUE }, /* 104 */
 { "autosave_backup",     "Create backup savefile before descending",   TRUE }, /* 105 */
-{ NULL,                  NULL,                                          FALSE }, /* 106 */
+{ "easy_monlist",        "Always show visible monsters/objects",		TRUE }, /* 106 */
 { NULL,                  NULL,                                          FALSE }, /* 107 */
 { NULL,                  NULL,                                          FALSE }, /* 108 */
 { NULL,                  NULL,                                          FALSE }, /* 109 */

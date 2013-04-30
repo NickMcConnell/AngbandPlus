@@ -439,7 +439,7 @@ bool player_wield(int item)
 		{
 
 			/* Sense the object */
-			o_ptr->discount = INSCRIP_UNGETTABLE;
+			o_ptr->feeling = INSCRIP_UNGETTABLE;
 
 			/* The object has been "sensed" */
 			o_ptr->ident |= (IDENT_SENSE);
@@ -564,7 +564,7 @@ bool player_wield(int item)
 	p_ptr->total_weight += i_ptr->weight * amt;
 
 	/* Important - clear this flag */
-	j_ptr->ident &= ~(IDENT_STORE);
+	j_ptr->ident &= ~(IDENT_STORE | IDENT_MARKED);
 
 	/* Hack - prevent dragon armour swap abuse */
 	if (j_ptr->tval == TV_DRAG_ARMOR)
@@ -1070,7 +1070,7 @@ bool player_observe(int item)
 	/* Hack - obviously interested enough in item */
 	if (o_ptr->ident & (IDENT_STORE))
 	{
-		o_ptr->ident |= (IDENT_MARKED);
+		if (item < 0) o_ptr->ident |= (IDENT_MARKED);
 
 		/* No longer 'stored' */
 		o_ptr->ident &= ~(IDENT_STORE);
@@ -2472,14 +2472,31 @@ void do_cmd_query_symbol(void)
  */
 void do_cmd_monlist(void)
 {
-	/* Save the screen and display the list */
-	screen_save();
-	display_monlist();
+	/* Hack -- cycling monster list sorting */
+	if (easy_monlist)
+	{
+		if (!op_ptr->monlist_sort_by)
+		{
+			op_ptr->monlist_sort_by = 2;
+			if (op_ptr->monlist_display == 3) op_ptr->monlist_display = 1;
+			else op_ptr->monlist_display = 3;
+		}
+		else op_ptr->monlist_sort_by--;
+	}
 
-	/* Wait */
-	anykey();
+	/* Display the monster list */
+	display_monlist(0, TRUE, TRUE);
 
-	/* Return */
-	screen_load();
+	/* Hack -- cycling monster list sorting */
+	if ((!easy_monlist) && (p_ptr->command_new.key == '['))
+	{
+		if (!op_ptr->monlist_sort_by)
+		{
+			op_ptr->monlist_sort_by = 2;
+			if (op_ptr->monlist_display == 3) op_ptr->monlist_display = 1;
+			else op_ptr->monlist_display = 3;
+		}
+		else op_ptr->monlist_sort_by--;
+	}
 }
 

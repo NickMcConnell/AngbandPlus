@@ -316,12 +316,16 @@ struct method_type
 
 	/* Monter summoning */
 	byte summon_type;
-	char summon_char;
+	byte unused;
 
 	/* Monster spell/breath damage  */
 	byte dam_mult;
 	byte dam_div;
 	byte dam_var;
+	byte dam_div_powerful;
+
+	s16b dam_max;
+	s16b dam_max_powerful;
 
 	/* Monster spell desirability */
 	byte d_base;
@@ -351,9 +355,6 @@ struct effect_type
 	u32b desc[2];     /* Description (offset) */
 
 	u32b flags1;	/* Projection flags */
-
-	s16b dam_max;
-	s16b dam_max_powerful;
 
 	byte power;		/* Attack power */
 	byte unused;
@@ -1588,8 +1589,9 @@ struct player_other
 	u32b window_flag[ANGBAND_TERM_MAX];    /* Window flags */
 
 	byte hitpoint_warn;     /* Hitpoint warning (0 to 9) */
-
 	byte delay_factor;      /* Delay factor (0 to 9) */
+	byte monlist_sort_by;	/* Monster list sorted by (0 to 3) */
+	byte monlist_display;	/* Monster list displays what (1 to 3) */
 };
 
 
@@ -1862,6 +1864,7 @@ struct player_type
 	s16b old_spells;
 
 	s16b boost_spell_power;		/* Temporary power boost for some spells */
+	s16b boost_spell_number;	/* Temporary number boost for some spells */
 
 	bool old_cumber_armor;
 	bool old_cumber_glove;
@@ -2088,11 +2091,10 @@ struct ecology_type
 	s16b race[MAX_ECOLOGY_RACES];
 	u32b race_ecologies[MAX_ECOLOGY_RACES];	/* Which ecologies the race appears in */
 	s16b deepest_race[MAX_ECOLOGIES];
+	u32b use_ecology;		/* Match this ecology when forced */
 	byte num_ecologies;	/* Number of ecologies */
 	byte num_races;
 	bool ready;		/* Are we forced to use this ecology? */
-	bool single_ecology;	/* Are we forced to use a single 'sub' ecology */
-	byte use_ecology;		/* Use this ecology when forced */
 	bool valid_hook;	/* Is at least one monster valid using current get_mon_hook */
 	bool get_mon[MAX_ECOLOGY_RACES];	/* Are we permitted to pick this race */
 };
@@ -2144,6 +2146,7 @@ struct timed_effect
   const char *on_increase;
   const char *on_decrease;
   const char *on_condition;
+  const char *self_knowledge;
   u32b flag_redraw, flag_update;
   int msg;
 };
