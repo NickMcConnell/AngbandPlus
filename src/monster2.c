@@ -840,8 +840,8 @@ s16b get_mon_num(int level)
 		/* Hack -- "questor" monsters and guardians must be placed specifically */
 		if ((r_ptr->flags1 & (RF1_QUESTOR)) || (r_ptr->flags1 & (RF1_GUARDIAN))) continue;
 
-		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth)) continue;
+		/* Depth Monsters never appear at a different depth */
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level != p_ptr->depth)) continue;
 
 		/* Check monster against level flags */
 		if (!check_level_flags_race(r_idx)) continue;
@@ -3532,8 +3532,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 	}
 
 
-	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
+	/* Depth monsters may NOT be created at a different depth */
+	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth != r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);

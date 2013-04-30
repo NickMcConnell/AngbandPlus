@@ -1568,7 +1568,7 @@ static errr init_other(void)
 	/* Initialize maximum depth and count stores */
 	for (i = 0; i < z_info->t_max; i++)
 	{
-		t_info[i].max_depth = 0;
+		t_info[i].attained_depth = min_depth(i);
 
 		for (n = 0; n < MAX_STORES; n++)
 		{

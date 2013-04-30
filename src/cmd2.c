@@ -366,6 +366,69 @@ int actual_route(int dun)
 
 
 /*
+ * Determine if the object can be eaten, and has "=<" in its inscription.
+ */
+static bool auto_consume_okay(const object_type *o_ptr)
+{
+	cptr s;
+
+	/* Inedible */
+	if (!item_tester_hook_food_edible(o_ptr)) return (FALSE);
+	
+	/* Hack -- normal food is fine except waybread and pints of spirits */
+	/* You can inscribe them with !< to prevent this however */
+	if ((o_ptr->tval == TV_FOOD) && (o_ptr->sval >= SV_FOOD_MIN_FOOD)
+		&& (o_ptr->sval != SV_FOOD_WAYBREAD) && (o_ptr->sval != SV_FOOD_PINT_OF_SPIRITS))
+	{
+		/* No inscription */
+		if (!o_ptr->note) return (TRUE);		
+		
+		/* Find a '=' */
+		s = strchr(quark_str(o_ptr->note), '!');
+
+		/* Process inscription */
+		while (s)
+		{
+			/* Auto-consume on "=<" */
+			if (s[1] == '<')
+			{
+				/* Pick up */
+				return (FALSE);
+			}
+
+			/* Find another '=' */
+			s = strchr(s + 1, '!');
+		}
+		
+		return (TRUE);
+	}
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-consume on "=<" */
+		if (s[1] == '<')
+		{
+			/* Pick up */
+			return (TRUE);
+		}
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto consume */
+	return (FALSE);
+}
+
+
+/*
  * Set routes
  *
  * Set up the possible routes from this location.
@@ -803,6 +866,25 @@ static void do_cmd_travel(void)
 
 			/* Hack -- Time passes (at 4* food use rate) */
 			turn += PY_FOOD_FULL/10*journey*4;
+			
+			/* Hack -- Consume ration inscribed with =< */
+			while (p_ptr->food < PY_FOOD_ALERT)
+			{
+				for (i = 0; i < INVEN_PACK; i++)
+				{
+					/* Eat the food */
+					if (auto_consume_okay(&inventory[i]))
+					{
+						/* Eat the food */
+						player_eat_food(i);
+						
+						break;
+					}
+				}
+				
+				/* Escape out if no food */
+				if (i == INVEN_PACK) break;
+			}
 
 			/* XXX Recharges, stop temporary speed etc. */
 			/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
@@ -815,11 +897,6 @@ static void do_cmd_travel(void)
 
 			/* Set the new depth */
 			p_ptr->depth = min_depth(p_ptr->dungeon);
-
-#if 0
-			/* Reset the recall depth */
-			p_ptr->max_depth = min_depth(p_ptr->dungeon);
-#endif
 
 			/* Clear stairs */
 			p_ptr->create_stair = 0;
@@ -890,14 +967,14 @@ void do_cmd_go_up(void)
 		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
 		{			
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian of %s, opening the way through.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian blocking access to %s. The way lies open before you.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
 		}
 		else
 		{
-		        /* Success */
+			/* Success */
 			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.", str));
 		}
 
@@ -980,14 +1057,14 @@ void do_cmd_go_down(void)
 
 	  guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
 
-	        /* Check quests due to travelling - cancel if requested */
+		/* Check quests due to travelling - cancel if requested */
 		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
 
 		/* Check that quest opens monster is dead and of this zone */
 		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian of %s opening the way through.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian blocking access to %s. The way lies open before you.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
@@ -1893,7 +1970,7 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 		msg_format("You have %sed the %s.", act, name);
 
 		/* Reward, unless player trap */
-		/* TODO: ensure no player-made traps give exp, unless very dangerous or consume heavy/expensive objects */
+		/* Note that player traps have an object in the trap */
 		if (disarm && !cave_o_idx[y][x])
 		  gain_exp(power);
 
@@ -3369,6 +3446,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 	bool trick_failure = FALSE;
 	bool chasm = FALSE;
 	bool fumble = FALSE;
+	bool activate = FALSE;
 	int feat;
 
 	byte missile_attr;
@@ -3612,6 +3690,9 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 			/* Otherwise not breaking by default */
 			ammo_can_break = FALSE;
 		}
+		
+		/* Throwing/firing an item at the character's feet */
+		if (!path_n) activate = TRUE;
 
 		/* Project along the path */
 		for (i = 0; i < path_n; ++i)
@@ -3961,21 +4042,8 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 								 "%^s flees in terror!", m_name);
 						}
 
-						/* Apply additional effect from activation */
-						if (auto_activate(o_ptr))
-						
-						{
-							/* Make item strike */
-							process_item_blow(SOURCE_PLAYER_ACT_ARTIFACT, o_ptr->name1, o_ptr, y, x);
-						}
-
-						/* Apply additional effect from coating*/
-						else if (coated_p(o_ptr))
-						{
-							/* Make item strike */
-							process_item_blow(SOURCE_PLAYER_COATING, lookup_kind(o_ptr->xtra1, o_ptr->xtra2), o_ptr, y, x);
-						}
-
+						/* Apply additional effect from activation/coating */
+						activate = TRUE;
 					}
 
 					/* Check usage */
@@ -3985,10 +4053,43 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 					break;
 				}
 			}
+			/* Handle reaching targetted grid */
+			else if ((i == path_n - 1) && !(trick_throw))
+			{
+				/* Activate item */
+				activate = TRUE;
+			}	
 		}
 
 		/* 3rd and last cause of failure: out of range, unless returning */
 		trick_failure = trick_failure || (i == path_n && tdis != 256);
+		
+		/* Apply effects of activation/coating */
+		if (activate)
+		{
+			/* Apply additional effect from activation */
+			if (auto_activate(o_ptr))
+			{
+				/* Make item strike */
+				process_item_blow(SOURCE_PLAYER_ACT_ARTIFACT, o_ptr->name1, o_ptr, y, x);
+			}
+
+			/* Apply additional effect from coating*/
+			else if (coated_p(o_ptr))
+			{
+				/* Make item strike */
+				process_item_blow(SOURCE_PLAYER_COATING, lookup_kind(o_ptr->xtra1, o_ptr->xtra2), o_ptr, y, x);
+			}
+			
+			/* Check usage */
+			object_usage(item);
+			
+			/* Chance of breakage */
+			ammo_can_break = TRUE;
+			
+			/* Paranoia */
+			activate = FALSE;
+		}
 	}
 
 	/* Reenable auto-target */

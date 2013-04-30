@@ -3612,14 +3612,16 @@ void monster_death(int m_idx)
 		  /* Explain the staircase */
 		  msg_print("A magical staircase appears...");
 	
-		  /* Create stairs down */
-		  cave_set_feat(y, x, FEAT_MORE);
-	
+		  /* Create stairs */
+		  if (t_info[p_ptr->dungeon].zone[0].tower)
+			  cave_set_feat(y, x, FEAT_LESS);
+		  else
+			  cave_set_feat(y, x, FEAT_MORE);
+
 		  /* Save any objects in that place */
 		  scatter_objects_under_feat(y, x);
 		}
 	}
-
 
 	/* Hack -- Finishing quest 1 completes the game */
 	/* Nothing left, game over... */
@@ -3778,7 +3780,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has killed one of us!");
 		}
 
-		/* Allies don't provide experience */
+		/* Death of player allies doesn't provide experience */
 		if ((m_ptr->mflag & (MFLAG_ALLY)) == 0)
 		{
 			/* Maximum player level */
@@ -5108,7 +5110,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 /*
  * Hack -- determine if a given location is "interesting"
  */
-static bool target_set_interactive_accept(int y, int x, int mode)
+static bool target_set_interactive_accept(int y, int x)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -5177,7 +5179,7 @@ static void target_set_interactive_prepare(int mode)
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
 
 			/* Require "interesting" contents */
-			if (!target_set_interactive_accept(y, x, mode)) continue;
+			if (!target_set_interactive_accept(y, x)) continue;
 
 			/* Special mode */
 			if (mode & (TARGET_KILL))

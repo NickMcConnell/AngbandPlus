@@ -536,9 +536,9 @@ D: trees have begun to march in response --- but you can only see dark smoke
 D: and, to the east, the even darker shape amongst the darkness: Dol Guldur.
 D:  Now it is clear that the lust for power corrupted Saruman beyond help.
 
-# TODO: perhaps split them: 5--17 initially, weak guardian at the bottom
-# after Dol Guldur: 11--23 (Barrow-downs stirred by Dark Captain)
-# weak guardian at the surface, current big guardian at the bottom
+# TODO: perhaps split them: 5--17 initially, weak guardian at the bottom.
+# After Dol Guldur: 11--23 (Barrow-downs stirred by Dark Captain)
+# weak guardian at the surface, current big guardian at the bottom.
 
 N:38:Barrow-downs
 X:11:12:0:0
@@ -558,7 +558,7 @@ L:6:56:0:0:345:0:the Troll Cave in
 # Goes upwards
 # shallow (but very high) tower to enable revenge to players
 # nearly killed and chased off embarrassingly at Weathertop
-# TODO: recycle 1365
+# not recycling 1365, because he drops nothing and summons
 
 N:40:Isengard
 X:20:21:64:0
@@ -610,10 +610,10 @@ D: rebuild their kingdom using the wealth, your share is here for taking.
 N:43:ruins of Angmar
 X:2:69:0:0
 R:UNDEAD
-L:21:425:141:141:0:0:the
-L:22:56:141:0:0:0:the
-L:80:56:0:0:535:0:the
-L:81:56:0:0:0:0:the
+L:31:425:141:141:0:0:the
+L:32:56:141:0:0:0:the
+L:72:56:0:0:535:0:the
+L:73:56:0:0:0:0:the
 
 # Sunken/outer plane dungeons
 # TODO: add guardian or remove
@@ -622,9 +622,9 @@ N:44:Numenor
 X:2:0:0:0
 G:G
 R:CAN_SWIM
-L:21:403:400:49:0:0:the sunken city of
-L:22:399:56:0:0:0
-L:60:399:56:0:0:0
+L:41:403:400:49:0:0:the sunken city of
+L:42:399:56:0:0:0
+L:65:399:56:0:0:0
 
 # TODO: add guardian or remove
 
@@ -634,7 +634,7 @@ G:E
 R:PRIEST
 L:21:425:141:141:0:0:the Temple of
 L:22:56:0:0:0:0:depths of the Temple of
-L:60:56:0:0:0:0:bottom of the Temple of
+L:50:56:0:0:0:0:bottom of the Temple of
 
 # TODO: add guardian or remove
 
@@ -642,8 +642,8 @@ N:46:Crystal Castle
 X:2:0:0:0
 G:g
 R:MAGE
-L:21:56:144:145:0:0:the
-L:22:148:145:0:0:0:the
+L:31:56:144:145:0:0:the
+L:32:148:145:0:0:0:the
 L:60:148:145:0:0:0:the
 
 # TODO: make Bolg more powerful, I guess, he's fought after Smaug
@@ -727,8 +727,8 @@ X:38:53:0:0
 R:PLANT
 Q:55:622
 L:6:0:420:153:622:0:a clearing in the
-L:7:56:420:420:0:0
-L:10:56:420:420:622:0
+L:7:56:420:420:0:0:the
+L:10:56:420:420:622:0:the
 S:0:0:0:0:0:0:0:0
 
 N:55:Bombadil's house

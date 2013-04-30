@@ -127,6 +127,7 @@ typedef struct tval_desc tval_desc;
 typedef struct element_type element_type;
 typedef struct quiver_group_type quiver_group_type;
 typedef struct ecology_type ecology_type;
+typedef struct do_cmd_item_type do_cmd_item_type;
 
 
 
@@ -224,7 +225,7 @@ struct town_type
 	
 	byte r_char;    /* Add races of this char */
 	byte r_flag;    /* Add races with this flag */
-	byte max_depth;
+	byte attained_depth; /* Absolute, not from dungeon surface */
 	byte visited;
 	
 	u16b store[MAX_STORES];
@@ -1556,6 +1557,9 @@ struct player_type
 
 	s16b command_see;       /* See "cmd1.c" */
 	s16b command_wrk;       /* See "cmd1.c" */
+	
+	s16b command_trans;		/* See "cmd6.c" */
+	s16b command_trans_item;	/* See "cmd6.c" */
 
 	key_event command_new;       /* Hack -- command chaining XXX XXX */
 
@@ -1794,5 +1798,27 @@ struct ecology_type
 	byte use_ecology;		/* Use this ecology when forced */
 	bool valid_hook;	/* Is at least one monster valid using current get_mon_hook */
 	bool get_mon[MAX_ECOLOGY_RACES];	/* Are we permitted to pick this race */
+};
+
+
+/*
+ * Commands that the player can do to items.
+ */
+struct do_cmd_item_type
+{
+	bool (*player_command)(int item);	/* The function to use as the command */
+	char cmd_char;						/* The 'internal' keypress the command corresponds to */
+	
+	const char *item_query;				/* The string to display when asking for which item */
+	const char *item_not_found;			/* The string to display if no valid items are found */
+
+	bool (*item_tester_hook)(const object_type*);	/* The item tester function */
+	int item_tester_tval;				/* The item tester tval */
+
+	u16b use_from;						/* Where item can be used from */
+	u32b conditions;					/* Restrictions on what state the player must be in */
+	
+	byte next_command;					/* The next command to use */
+	int (*next_command_eval)(int item);	/* The next command to use - evaluation function */
 };
 

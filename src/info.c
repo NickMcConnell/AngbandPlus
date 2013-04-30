@@ -86,7 +86,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 			/* Hack: throwing is always obvious */
 			if (k_info[o_ptr->k_idx].flags3 & TR3_THROWING)
-			  *f3 |= TR3_THROWING;
+			  *f3 |= TR3_THROWING;			
 
 			return;
 		}
@@ -386,7 +386,7 @@ void object_obvious_flags(object_type *o_ptr, bool floor)
         }
 
 	/* Abilities of base item are always known if aware */
-	if (object_aware_p(o_ptr))
+	if ((object_aware_p(o_ptr)) || (o_ptr->ident & (IDENT_STORE)))
 	{
         	o_ptr->can_flags1 |= k_info[o_ptr->k_idx].flags1;
                 o_ptr->can_flags2 |= k_info[o_ptr->k_idx].flags2;
@@ -408,7 +408,7 @@ void object_obvious_flags(object_type *o_ptr, bool floor)
 	}
 
 	/* Identified name */
-	if (object_named_p(o_ptr))
+	if ((object_named_p(o_ptr)) || (o_ptr->ident & (IDENT_STORE)))
 	{
 		/* Now we know what it is, update what we know about it from our artifact memory */
 		if (o_ptr->name1)
@@ -598,7 +598,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Intro */
@@ -713,7 +713,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and can enchant one ");
+			text_out(" and can enchant one ");
 		}
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -750,7 +750,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (vn)
 	{
 
-		if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) vp[vn++]="highly ";
+		if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) text_out(" highly");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -795,7 +795,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -866,7 +866,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -906,7 +906,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -980,7 +980,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -1016,7 +1016,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -1055,7 +1055,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -1173,7 +1173,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Scan */
@@ -1578,7 +1578,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else if (!r)
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 		else if (r < n-1)
 		{
@@ -1586,7 +1586,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Describe the method */
@@ -1779,7 +1779,7 @@ static void spell_update_power(spell_type *s_ptr, int level)
 	{
 		case SPELL_CONCENTRATE_LITE:
 		{
-			power = concentrate_power(SOURCE_PLAYER_START, p_ptr->py, p_ptr->px,
+			power = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, FALSE, TRUE, concentrate_light_hook);
 			
 			if (s_ptr->l_dice && !s_ptr->l_side) s_ptr->l_side = power;
@@ -1789,7 +1789,7 @@ static void spell_update_power(spell_type *s_ptr, int level)
 	
 		case SPELL_CONCENTRATE_LIFE:
 		{
-			power = s_ptr->l_plus = concentrate_power(SOURCE_PLAYER_START, p_ptr->py, p_ptr->px,
+			power = s_ptr->l_plus = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, FALSE, FALSE, concentrate_life_hook);
 			
 			if (s_ptr->l_dice && !s_ptr->l_side) s_ptr->l_side = power;
@@ -1799,7 +1799,7 @@ static void spell_update_power(spell_type *s_ptr, int level)
 		
 		case SPELL_CONCENTRATE_WATER:
 		{
-			power = concentrate_power(SOURCE_PLAYER_START, p_ptr->py, p_ptr->px,
+			power = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, FALSE, FALSE, concentrate_water_hook);
 			
 			if (s_ptr->l_dice && !s_ptr->l_side) s_ptr->l_side = power;
@@ -3376,7 +3376,7 @@ void list_object(const object_type *o_ptr, int mode)
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Display the flags */
-	anything |= list_object_flags(f1, f2, f3, f4, spoil || (o_ptr->ident & (IDENT_PVAL | IDENT_MENTAL | IDENT_KNOWN)) ? o_ptr->pval : 0, LIST_FLAGS_CAN); 
+	anything |= list_object_flags(f1, f2, f3, f4, spoil || (o_ptr->ident & (IDENT_PVAL | IDENT_MENTAL | IDENT_KNOWN | IDENT_STORE)) ? o_ptr->pval : 0, LIST_FLAGS_CAN); 
 
 	/*
 	 * Handle cursed objects here to avoid redundancies such as noting
@@ -3734,7 +3734,7 @@ void list_object(const object_type *o_ptr, int mode)
 				for (i = 0; i < num; i++)
 				{
 					/* List powers */
-					powers |= spell_desc(&s_info[book[i]],(i==0) ? (vd[n] ? " and ": vp[n]) : ", or ",0,detail, vt[n]);
+					powers |= spell_desc(&s_info[book[i]],(i==0) ? (vd[n] ? " and ": vp[n]) : " or ",0,detail, vt[n]);
 				}
 
 				if ((charge) && (powers))
@@ -4175,12 +4175,10 @@ void display_koff(const object_type *o_ptr)
 			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
 			    (s_ptr->appears[ii].sval == o_ptr->sval))
 			{
-			  /* Warriors (class 0) have no spells */
-			  if (p_ptr->pclass)
-			    for (iii = 0; iii < MAX_SPELL_CASTERS; iii++)
-			      {
-				if (s_ptr->cast[iii].class == p_ptr->pclass) browse=TRUE;
-			      }
+				for (iii = 0; iii < MAX_SPELL_CASTERS; iii++)
+				{
+					if (s_ptr->cast[iii].class == p_ptr->pclass) browse=TRUE;
+				}
 			}
 		}
 
@@ -4688,7 +4686,7 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 	o_ptr->can_flags4 |= (f4);
 
 	/* If object flavored, learn flags about that flavor */
-	if (!object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].flavor))
+	if (!object_aware_p(o_ptr) && !(o_ptr->ident & IDENT_STORE) && (k_info[o_ptr->k_idx].flavor))
 	{
 		/* Learn for base flavor */
 		x_list[k_info[o_ptr->k_idx].flavor].can_flags1 |= (f1);
@@ -4750,6 +4748,9 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 		/* Guess name */
 		object_guess_name(o_ptr);
 	}
+	
+	/* If in store, stop here */
+	if (o_ptr->ident & (IDENT_STORE)) return;
 
 	/* Must be identified to continue */
 	if (!object_named_p(o_ptr))
@@ -5087,7 +5088,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 	o_ptr->can_flags4 &= ~(f4);
 
 	/* If object flavored, learn flags about that flavor */
-	if (!object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].flavor))
+	if (!object_aware_p(o_ptr) && !(o_ptr->ident & (IDENT_STORE)) && (k_info[o_ptr->k_idx].flavor))
 	{
 		x_list[k_info[o_ptr->k_idx].flavor].not_flags1 |= (f1);
 		x_list[k_info[o_ptr->k_idx].flavor].not_flags2 |= (f2);
@@ -5141,6 +5142,9 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 			object_guess_name(i_ptr);
 		}
 	}
+	
+	/* Stop here if item in a store */
+	if (o_ptr->ident & (IDENT_STORE)) return;
 
 	/* Check inventory */
 	if (!floor) inven_may_flags();
@@ -5186,6 +5190,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 	}
 }
 
+
 /*
  * Object may have these flags. If only object in equipment
  * to do so, will have these flags. Use for object absorbtion.
@@ -5222,6 +5227,7 @@ void object_may_flags(object_type *o_ptr, u32b f1,u32b f2,u32b f3, u32b f4, bool
 		object_guess_name(o_ptr);
 	}
 }
+
 
 /*
  * Object forgets all may flags
@@ -6033,8 +6039,9 @@ s32b object_power(const object_type *o_ptr)
 			else
 				p = 0;
 
-			/* Hack -- small swords can be used as secondary weapons */
-			if ((p > 0) && (o_ptr->tval == TV_SWORD) && (o_ptr->weight < 100)) p++;
+			/* Hack -- throwing weapons can be used as secondary weapons */
+			if (p > 0 && (f3 & (TR3_THROWING)))
+				p++;
 
 			if (o_ptr->ac != k_ptr->ac)
 			{
@@ -6264,7 +6271,7 @@ s32b object_power(const object_type *o_ptr)
 				p += o_ptr->ac - k_ptr->ac;
 			}			
 			
-			p += sign(o_ptr->to_h) * ((ABS(o_ptr->to_h) * 2) / 3);
+			p += sign(o_ptr->to_h - k_ptr->to_h) * ((ABS(o_ptr->to_h - k_ptr->to_h) * 2) / 3);
 
 			p += o_ptr->to_d * 2;
 
@@ -6455,60 +6462,60 @@ s32b object_power(const object_type *o_ptr)
 	{
 		if (f1 & TR1_STR)
 		{
-			p += 3 * o_ptr->pval * o_ptr->pval / 4;  /* Was 3 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
 		}
 		if (f1 & TR1_INT)
 		{
-			p += o_ptr->pval * o_ptr->pval / 2;  /* Was 2 * o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval;  /* Was 2 * o_ptr->pval */
 		}
 		if (f1 & TR1_WIS)
 		{
-			p += o_ptr->pval * o_ptr->pval / 2;  /* Was 2 * o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval;  /* Was 2 * o_ptr->pval */
 		}
 		if (f1 & TR1_DEX)
 		{
-			p += o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
 		}
 		if (f1 & TR1_CON)
 		{
-			p += o_ptr->pval * o_ptr->pval;  /* Was 4 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 4 * o_ptr->pval */
 		}
 		if (f1 & TR1_CHR)
 		{
-			p += o_ptr->pval * o_ptr->pval / 4; /* Was o_ptr->pval */
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 2); /* Was o_ptr->pval */
 		}
 		if (f1 & TR1_SAVE)
 		{
-			p += o_ptr->pval * o_ptr->pval / 4; /* Was o_ptr->pval */
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 2); /* Was o_ptr->pval */
 		}
 		if (f1 & TR1_DEVICE)
 		{
-			p += o_ptr->pval * o_ptr->pval / 6; /* Was o_ptr->pval */
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 3); /* Was o_ptr->pval */
 		}
 		if (f1 & TR1_STEALTH)
 		{
-			p += o_ptr->pval * o_ptr->pval / 4; /* Was o_ptr->pval */
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 2); /* Was o_ptr->pval */
 		}
 		if (f1 & TR1_TUNNEL)
 		{
-			p += o_ptr->pval * o_ptr->pval / 6; /* Was o_ptr->pval */
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 5); /* Was o_ptr->pval */
 		}
 		/* For now add very small amount for searching */
 		if (f1 & TR1_SEARCH)
 		{
-			p += o_ptr->pval * o_ptr->pval / 12;
+			p += MAX(1, o_ptr->pval * o_ptr->pval / 10);
 		}
 		if (f3 & TR3_REGEN_HP)
 		{
-			p += (o_ptr->pval * o_ptr->pval) * 3 / 2; /* Was constant 3 */
+			p += 3 * o_ptr->pval * o_ptr->pval; /* Was constant 3 */
 		}
 		if (f3 & TR3_REGEN_MANA)
 		{
-			p += (o_ptr->pval * o_ptr->pval) * 3 / 2; /* Was constant 3 */
+			p += 3 * o_ptr->pval * o_ptr->pval; /* Was constant 3 */
 		}
 		if (f3 & TR3_LITE)
 		{
-			p += (o_ptr->pval * o_ptr->pval) * 3; /* Was constant 3 */
+			p += 2 ^ o_ptr->pval; /* Was constant 3 */
 		}
 	}
 

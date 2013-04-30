@@ -1218,6 +1218,9 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	{
 		/* Warning */
 		msg_format("You do not have enough mana to %s this %s.",p,t);
+		
+		/* No constitution to drain */
+		if (!p_ptr->stat_ind[A_CON]) return FALSE;
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? "))
@@ -1312,11 +1315,8 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 		for (i=0;i<PY_MAX_SPELLS;i++)
 		{
-
 			if (p_ptr->spell_order[i] == spell) break;
-
 		}
-
 
 		/* Paranoia */
 		if (i==PY_MAX_SPELLS) ;
@@ -1358,7 +1358,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		 * Note that if this occurs, the spell does not cost any mana.
 		 */
 		if ((p_ptr->reserves) && (p_ptr->csp < adj_con_reserve[p_ptr->stat_ind[A_CON]] / 2) &&
-			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]))
+			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]) && (p_ptr->stat_ind[A_CON]))
 		{
 			/* Temporarily weaken the player */
 			if (!p_ptr->stat_dec_tim[A_CON])
@@ -1373,7 +1373,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 				msg_print("You have damaged your health!");
 
 				/* Reduce constitution */
-				(void)dec_stat(A_CON, 15 + randint(10), 0);
+				(void)dec_stat(A_CON, 15 + randint(10));
 			}
 		}
 		else
@@ -1412,16 +1412,17 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
 
-		/* Damage CON (possibly permanently) */
+		/* Damage CON */
 		if (rand_int(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
-
 			/* Message */
 			msg_print("You have damaged your health!");
 
 			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
+			(void)dec_stat(A_CON, 15 + randint(10));
+			
+			/* Add to the temporary drain */
+			set_stat_dec_tim(p_ptr->stat_dec_tim[A_CON] + rand_int(20) + 20, A_CON);	
 		}
 	}
 

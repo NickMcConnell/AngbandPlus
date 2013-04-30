@@ -193,7 +193,7 @@ static void describe_monster_spells(const monster_race *r_ptr, const monster_lor
 {
 	int m, n;
 	int msex = 0;
-	bool ranged = ((l_ptr->flags4 & (RF4_BLOW_1 | RF4_BLOW_2 | RF4_BLOW_3 | RF4_BLOW_4)) ? TRUE : FALSE);
+	bool ranged = l_ptr->flags4 & (RF4_BLOW_1 | RF4_BLOW_2 | RF4_BLOW_3 | RF4_BLOW_4);
 	bool innate = FALSE;
 	bool breath = FALSE;
 	bool magic = FALSE;
@@ -424,7 +424,7 @@ static void describe_monster_spells(const monster_race *r_ptr, const monster_lor
 		/* Intro */
 		if ((innate) || (ranged) || (breath))
 		{
-			text_out(", and is also");
+			text_out(" and is also");
 		}
 		else
 		{
@@ -652,10 +652,10 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 		if (!method) continue;
 
 		/* Ranged? */
-		if ((ranged) && (method < RBM_MIN_RANGED)) continue;
+		if (ranged && method < RBM_MIN_RANGED) continue;
 
 		/* Melee? */
-		if (!(ranged) && (method > RBM_MAX_NORMAL)) continue;
+		if (!ranged && method >= RBM_MIN_RANGED) continue;
 
 		/* Count known attacks */
 		if (l_ptr->blows[m]) n++;
@@ -679,13 +679,13 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 		if (!method) continue;
 
 		/* Ranged? */
-		if ((ranged) && (method < RBM_MIN_RANGED)) continue;
+		if ((ranged) && method < RBM_MIN_RANGED) continue;
 
 		/* Confirm ranged blow */
 		if ((ranged) && !(l_ptr->flags4 & (RF4_BLOW_1 << m))) continue;
 
 		/* Melee? */
-		if (!(ranged) && (method > RBM_MAX_NORMAL)) continue;
+		if (!(ranged) &&  method >= RBM_MIN_RANGED) continue;
 
 		/* No method yet */
 		p = NULL;
@@ -928,11 +928,11 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 		}
 		else if (ranged)
 		{
-			text_out(", or ");
+			text_out(" or ");
 		}
 		else
 		{
-			text_out(", and ");
+			text_out(" and ");
 		}
 
 		/* Hack -- force a method */
@@ -1651,7 +1651,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 		old = TRUE;
 	}
 
-	if (old) text_out(", and");
+	if (old) text_out(" and");
 
 	text_out(" moves");
 
@@ -1676,7 +1676,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 		text_out(" erratically");
 
 		/* Hack -- Occasional conjunction */
-		if (r_ptr->speed != 110) text_out(", and");
+		if (r_ptr->speed != 110) text_out(" and");
 	}
 
 	/* Speed */
@@ -1746,7 +1746,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 	/* The code above includes "attack speed" */
 	if (l_ptr->flags1 & RF1_NEVER_MOVE)
 	{
-		if (vn) text_out(", and");
+		if (vn) text_out(" and");
 		else text_out(", but");
 
 		text_out(" does not deign to chase intruders");

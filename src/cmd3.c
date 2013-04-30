@@ -116,7 +116,7 @@ void do_cmd_equip(void)
 /*
  * The "wearable" tester
  */
-static bool item_tester_hook_wear(const object_type *o_ptr)
+bool item_tester_hook_wear(const object_type *o_ptr)
 {
 	/* Check if wearable/wieldable */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
@@ -212,9 +212,9 @@ void mark_cursed_feeling(object_type *o_ptr)
  * Wield or wear a single item from the pack or floor
  * Now supports wearing multiple rings.
  */
-void do_cmd_wield(void)
+bool player_wield(int item)
 {
-	int item, slot;
+	int slot;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -222,8 +222,6 @@ void do_cmd_wield(void)
 	object_type object_type_body;
 
 	cptr act;
-
-	cptr q, s;
 
 	char o_name[80];
 
@@ -241,14 +239,6 @@ void do_cmd_wield(void)
 	int amt = 1;
 	int rings = 0;
 
-	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_wear;
-
-	/* Get an item */
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
-
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -261,16 +251,6 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	/* Got from feature */
 	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
@@ -278,7 +258,7 @@ void do_cmd_wield(void)
 	slot = wield_slot(o_ptr);
 
 	/* Hack -- slot not allowed */
-	if (slot < 0) return;
+	if (slot < 0) return (FALSE);
 
 	/* Hack -- don't dual wield */
 	if (slot == INVEN_ARM 
@@ -307,7 +287,7 @@ void do_cmd_wield(void)
 		else amt = get_quantity(NULL, (o_ptr->number < rings) ? o_ptr->number : rings);
 
 		/* Allow user abort */
-		if (amt <= 0) return;
+		if (amt <= 0) return (FALSE);
 	}
 
 	/* Hack - Throwing weapons can we wielded in the quiver too. 
@@ -319,7 +299,7 @@ void do_cmd_wield(void)
 		slot = INVEN_QUIVER;
 
 	/* Source and destination identical */
-	if (item == slot) return;
+	if (item == slot) return (FALSE);
 
 	/* Adjust amount */
 	if (IS_QUIVER_SLOT(slot)) amt = o_ptr->number;
@@ -334,7 +314,7 @@ void do_cmd_wield(void)
 		msg_format("You cannot remove the %s.", o_name);
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 	/* Prevent wielding into a cursed slot */
 	else if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
@@ -349,7 +329,7 @@ void do_cmd_wield(void)
 		mark_cursed_feeling(&inventory[slot]);
 
 		/* Cancel the command */
-		return;
+		return (FALSE);
 	}
 	/* Prevent wielding from cursed slot */
 	else if ((item >= INVEN_WIELD) && cursed_p(&inventory[item]))
@@ -364,7 +344,7 @@ void do_cmd_wield(void)
 		mark_cursed_feeling(&inventory[item]);
 
 		/* Cancel the command */
-		return;
+		return (FALSE);
 	}
 
 	/* Take a turn here so that racial object sensing is not free */
@@ -465,7 +445,7 @@ void do_cmd_wield(void)
 			o_ptr->ident |= (IDENT_SENSE);
 		}
 
-		return; /* The turn already taken for racial sensing */
+		return (TRUE); /* The turn already taken for racial sensing */
 	}
 
 	/* Get local object */
@@ -512,7 +492,7 @@ void do_cmd_wield(void)
 	    slot = quiver_wield(item, i_ptr);
 
 	    /* Can't do it; note the turn already wasted for racial sensing */
-	    if (!slot) return;
+	    if (!slot) return (TRUE);
 	  }
 
 	/* Reset stackc; assume no wands in quiver */
@@ -649,11 +629,11 @@ void do_cmd_wield(void)
 	{
 		switch (j_ptr->feeling)
 		{
-			case INSCRIP_NONMAGICAL: j_ptr->feeling = INSCRIP_AVERAGE; break;
+/* TODO	case INSCRIP_NONMAGICAL: j_ptr->feeling = INSCRIP_AVERAGE; break; */
 			case INSCRIP_ARTIFACT: j_ptr->feeling = INSCRIP_SPECIAL; break;
 			case INSCRIP_HIGH_EGO_ITEM: j_ptr->feeling = INSCRIP_SUPERB; break;
 			case INSCRIP_EGO_ITEM: j_ptr->feeling = INSCRIP_EXCELLENT; break;
-			case INSCRIP_UNUSUAL: j_ptr->feeling = INSCRIP_MAGICAL; break;
+/*	TODO	case INSCRIP_UNUSUAL: j_ptr->feeling = INSCRIP_MAGICAL; break; */
 		}
 	}
 
@@ -673,7 +653,7 @@ void do_cmd_wield(void)
 	p_ptr->redraw |= (PR_ITEM_LIST);
 
 	/* Cannot learn quivered item effects */
-	if (IS_QUIVER_SLOT(slot)) return;
+	if (IS_QUIVER_SLOT(slot)) return (TRUE);
 
 	/* Get known flags */
 	k1 = j_ptr->can_flags1;
@@ -758,13 +738,15 @@ void do_cmd_wield(void)
 	n4 = j_ptr->can_flags4 & ~(k4);
 
 	if (n1 || n2 || n3 || n4) update_slot_flags(slot, n1, n2, n3, n4);
+	
+	return (TRUE);
 }
 
 
 /*
  * The "drop" tester
  */
-static bool item_tester_hook_droppable(const object_type *o_ptr)
+bool item_tester_hook_droppable(const object_type *o_ptr)
 {
 	/* Forbid 'built-in' */
 	if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
@@ -776,7 +758,7 @@ static bool item_tester_hook_droppable(const object_type *o_ptr)
 /*
  * The "takeoff" tester
  */
-static bool item_tester_hook_removable(const object_type *o_ptr)
+bool item_tester_hook_removable(const object_type *o_ptr)
 {
 	/* Forbid not droppable */
 	if (!item_tester_hook_droppable(o_ptr)) return (FALSE);
@@ -791,20 +773,9 @@ static bool item_tester_hook_removable(const object_type *o_ptr)
 /*
  * Take off an item
  */
-void do_cmd_takeoff(void)
+bool player_takeoff(int item)
 {
-	int item;
-
 	object_type *o_ptr;
-
-	cptr q, s;
-
-	item_tester_hook = item_tester_hook_removable;
-
-	/* Get an item */
-	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -825,7 +796,7 @@ void do_cmd_takeoff(void)
 		msg_print("You cannot remove this.");
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 	/* Item is cursed */
 	else if (cursed_p(o_ptr))
@@ -836,7 +807,7 @@ void do_cmd_takeoff(void)
 		mark_cursed_feeling(o_ptr);
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 	/* Cursed quiver */
 	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
@@ -845,7 +816,7 @@ void do_cmd_takeoff(void)
 		msg_print("Your quiver is cursed!");
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 
 	/* Take a partial turn */
@@ -853,26 +824,19 @@ void do_cmd_takeoff(void)
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
+	
+	return (TRUE);
 }
 
 
 /*
  * Drop an item
  */
-void do_cmd_drop(void)
+bool player_drop(int item)
 {
-	int item, amt;
-
+	int amt;
+	
 	object_type *o_ptr;
-
-	cptr q, s;
-
-	item_tester_hook = item_tester_hook_droppable;
-
-	/* Get an item */
-	q = "Drop which item? ";
-	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -886,18 +850,11 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag -- hack: cancel to pick the bag itself */
-		if (get_item_from_bag(&item, q, s, o_ptr)) o_ptr = &inventory[item];
-	}
-
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
 
 	/* Allow user abort */
-	if (amt <= 0) return;
+	if (amt <= 0) return (FALSE);
 
 	/* Prevent wielding over 'built-in' item */
 	if (!IS_QUIVER_SLOT(item) && ((inventory[item].ident & (IDENT_STORE)) != 0))
@@ -906,7 +863,7 @@ void do_cmd_drop(void)
 		msg_print("You cannot remove this.");
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 	/* Hack -- Cannot remove cursed items */
 	else if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
@@ -917,7 +874,7 @@ void do_cmd_drop(void)
 		mark_cursed_feeling(o_ptr);
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 	/* Cursed quiver */
 	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
@@ -926,7 +883,7 @@ void do_cmd_drop(void)
 		msg_print("Your quiver is cursed!");
 
 		/* Nope */
-		return;
+		return (FALSE);
 	}
 
 	/* Take a partial turn */
@@ -934,6 +891,8 @@ void do_cmd_drop(void)
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
+	
+	return (TRUE);
 }
 
 
@@ -941,9 +900,9 @@ void do_cmd_drop(void)
 /*
  * Destroy an item
  */
-void do_cmd_destroy(void)
+bool player_destroy(int item)
 {
-	int item, amt;
+	int amt;
 	int old_number;
 
 	object_type *o_ptr;
@@ -952,14 +911,7 @@ void do_cmd_destroy(void)
 
 	char out_val[160];
 
-	cptr q, s;
-
 	bool get_feat = FALSE;
-
-	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -973,16 +925,6 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	/* Get feat */
 	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
@@ -990,7 +932,7 @@ void do_cmd_destroy(void)
 	amt = get_quantity(NULL, o_ptr->number);
 
 	/* Allow user abort */
-	if (amt <= 0) return;
+	if (amt <= 0) return (FALSE);
 
 	/* Describe the object */
 	old_number = o_ptr->number;
@@ -1002,7 +944,7 @@ void do_cmd_destroy(void)
 	if (verify_destroy && !auto_pickup_ignore(o_ptr))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
+		if (!get_check(out_val)) return (FALSE);
 	}
 
 	/* Take a turn */
@@ -1011,12 +953,12 @@ void do_cmd_destroy(void)
 	/* Containers release contents */
 	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
 	{
-		if (animate_object(item)) return;
+		if (animate_object(item)) return (TRUE);
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		return;
+		return (TRUE);
 	}
 
 	/* Artifacts cannot be destroyed */
@@ -1045,7 +987,7 @@ void do_cmd_destroy(void)
 		}
 
 		/* Done */
-		return;
+		return (TRUE);
 
 	}
 
@@ -1059,7 +1001,7 @@ void do_cmd_destroy(void)
 		mark_cursed_feeling(o_ptr);
 
 		/* Done */
-		return;
+		return (TRUE);
 	}
 
 	/* Message */
@@ -1096,28 +1038,20 @@ void do_cmd_destroy(void)
 		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 
+	return (TRUE);
 }
 
 
 /*
  * Observe an item which has been *identify*-ed
  */
-void do_cmd_observe(void)
+bool player_observe(int item)
 {
-	int item;
-
 	object_type *o_ptr;
 
 	char o_name[80];
 
-	cptr q, s;
-
 	bool stored = FALSE;
-
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1129,13 +1063,6 @@ void do_cmd_observe(void)
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}
-
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag -- hack: cancel to pick the bag itself */
-		if (get_item_from_bag(&item, q, s, o_ptr)) o_ptr = &inventory[item];
 	}
 
 	/* Hack - obviously interested enough in item */
@@ -1173,6 +1100,8 @@ void do_cmd_observe(void)
 
 	/* Load the screen */
 	screen_load();
+	
+	return (TRUE);
 }
 
 
@@ -1181,20 +1110,11 @@ void do_cmd_observe(void)
  * Remove the inscription from an object
  * XXX Mention item (when done)?
  */
-void do_cmd_uninscribe(void)
+bool player_uninscribe(int item)
 {
-	int item;
-
 	object_type *o_ptr;
 
-	cptr q, s;
-
 	int i;
-
-	/* Get an item */
-	q = "Un-inscribe which item? ";
-	s = "You have nothing to un-inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1208,21 +1128,11 @@ void do_cmd_uninscribe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	/* Nothing to remove */
 	if (!o_ptr->note)
 	{
 		msg_print("That item had no inscription to remove.");
-		return;
+		return (FALSE);
 	}
 
 	/* Message */
@@ -1238,7 +1148,7 @@ void do_cmd_uninscribe(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Prompt to always inscribe? */
-	if (!easy_autos) return;
+	if (!easy_autos) return (TRUE);
 
 	/* Do we inscribe all these ego items? */
 	if (object_named_p(o_ptr) && (o_ptr->name2) && (e_info[o_ptr->name2].note))
@@ -1282,30 +1192,23 @@ void do_cmd_uninscribe(void)
 			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
 		}
 	}
+	
+	return (TRUE);
 }
 
 
 /*
  * Inscribe an object with a comment
  */
-void do_cmd_inscribe(void)
+bool player_inscribe(int item)
 {
-	int item;
-
 	object_type *o_ptr;
 
 	char o_name[80];
 
 	char tmp[80];
 
-	cptr q, s;
-
 	int i;
-
-	/* Get an item */
-	q = "Inscribe which item? ";
-	s = "You have nothing to inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1317,16 +1220,6 @@ void do_cmd_inscribe(void)
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}
-
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
 	}
 
 	/* Describe the activity */
@@ -1363,7 +1256,7 @@ void do_cmd_inscribe(void)
 	if ((item < 0) && (auto_pickup_ignore(o_ptr))) o_ptr->ident &= ~(IDENT_MARKED);
 
 	/* Prompt to always inscribe? */
-	if (!easy_autos) return;
+	if (!easy_autos) return (TRUE);
 
 	/* Do we inscribe all these ego items? */
 	if (object_named_p(o_ptr) && (o_ptr->name2))
@@ -1421,14 +1314,15 @@ void do_cmd_inscribe(void)
 			if (auto_pickup_ignore(o_ptr)) o_ptr->ident &= ~(IDENT_MARKED);
 
 		}
-
 	}
+	
+	return (TRUE);
 }
 
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(const object_type *o_ptr)
+bool item_tester_refill_lantern(const object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
 	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_OIL)) return (TRUE);
@@ -1462,10 +1356,10 @@ bool item_tester_refill_torch(const object_type *o_ptr)
 /*
  * An "item_tester_hook" for empty flasks
  */
-static bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
+bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
 {
 	/* Empty flasks are okay */
-	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
 
 	/* Empty bottles are okay */
 	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && !(o_ptr->name3)) return (TRUE);
@@ -1489,7 +1383,7 @@ static bool item_tester_empty_flask_or_lite(const object_type *o_ptr)
 /*
  * An "item_tester_hook" for refilling flasks
  */
-static bool item_tester_refill_flask(const object_type *o_ptr)
+bool item_tester_refill_flask(const object_type *o_ptr)
 {
 	/* Flasks are okay */
 	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval != SV_FLASK_EMPTY)) return (TRUE);
@@ -1506,36 +1400,12 @@ static bool item_tester_refill_flask(const object_type *o_ptr)
 
 
 /*
- * Fill a flask
+ * Determine whether rune or coating command based on current item
  */
-void do_cmd_refill(void)
+int cmd_tester_fill_or_fuel(int item)
 {
-	int item, item2;
-
 	object_type *o_ptr;
-	object_type *i_ptr;
-	object_type *j_ptr;
-
-	object_type object_type_body;
-
-	cptr q, s;
-
-	bool unstack = FALSE;
-	bool use_feat = FALSE;
-	bool get_feat = FALSE;
-	bool relite = FALSE;
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_empty_flask_or_lite;
-
-	/* Hack -- prefer equipment */
-	p_ptr->command_wrk = (USE_EQUIP);
-
-	/* Get an item */
-	q = "Fill/fuel which item? ";
-	s = "You have nothing to fill or fuel.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
+	
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -1548,50 +1418,62 @@ void do_cmd_refill(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 	{
-		/* Restrict the choices */
-		item_tester_hook = item_tester_refill_lantern;
-
-		/* Get an item */
-		q = "Refill with which source of oil? ";
-		s = "You have no sources of oil.";
-
-		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
-
+		return(COMMAND_ITEM_FUEL_LAMP);
 	}
 	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
 	{
-		/* Restrict the choices */
-		item_tester_hook = item_tester_refill_torch;
-
-		/* Get an item */
-		q = "Refuel with which torch? ";
-		s = "You have no extra torches.";
-
-		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
+		return(COMMAND_ITEM_FUEL_TORCH);
 	}
-
 	else
 	{
-		/* Restrict the choices */
-		item_tester_hook = item_tester_refill_flask;
+		return(COMMAND_ITEM_FILL);
+	}
+}
 
-		/* Get an item to fill */
-		q = "Fill from where? ";
-		s = "You have nothing to fill it with.";
 
-		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+/*
+ * Fill a flask/torch/lantern
+ */
+bool player_refill(int item)
+{
+	/* Set up for second command */
+	p_ptr->command_trans = COMMAND_ITEM_FUEL;
+	p_ptr->command_trans_item = item;
+	
+	return (TRUE);
+}
+
+
+/*
+ * Fill a flask/torch/lantern
+ */
+bool player_refill2(int item2)
+{
+	int item = p_ptr->command_trans_item;
+
+	object_type *o_ptr;
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	object_type object_type_body;
+
+	bool unstack = FALSE;
+	bool use_feat = FALSE;
+	bool get_feat = FALSE;
+	bool relite = FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
 	}
 
 	/* Get the item (in the pack) */
@@ -1606,18 +1488,8 @@ void do_cmd_refill(void)
 		j_ptr = &o_list[0 - item2];
 	}
 
-	/* In a bag? */
-	if (j_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item2, q, s, j_ptr)) return;
-
-		/* Refer to the item */
-		j_ptr = &inventory[item2];
-	}
-
 	/* Can't fuel self */
-	if (item == item2) return;
+	if (item == item2) return (FALSE);
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -1809,13 +1681,14 @@ void do_cmd_refill(void)
 	/* Lite if necessary */
 	if ((item == INVEN_LITE) || (item2 == INVEN_LITE)) p_ptr->update |= (PU_TORCH);
 
+	return (TRUE);
 }
 
 
 /*
  * An "item_tester_hook" for light sources
  */
-static bool item_tester_light_source(const object_type *o_ptr)
+bool item_tester_light_source(const object_type *o_ptr)
 {
 	/* Return "is a non-artifact light source" */
 	return ((o_ptr->tval == TV_LITE) && !(artifact_p(o_ptr)));
@@ -1824,32 +1697,12 @@ static bool item_tester_light_source(const object_type *o_ptr)
 /*
  * Light or douse a light source.
  */
-void do_cmd_light_and_douse(void)
+bool player_light_and_douse(int item)
 {
-	int item;
-
 	object_type *o_ptr;
 	char o_name[80];
 
 	cptr own_str = "";
-
-	cptr q, s;
-	
-	byte flags = USE_EQUIP | USE_FLOOR;
-
-	/* Check if using a torch */
-	if (item_tester_refill_torch(&inventory[INVEN_LITE])) flags |= (USE_FEATH);
-	
-	/* Check if wielding a known fire brand */
-	if (inventory[INVEN_WIELD].can_flags1 & (TR1_BRAND_FIRE)) flags |= (USE_FEATH);
-	
-	/* Restrict the choices */
-	item_tester_hook = item_tester_light_source;
-
-	/* Get an item (not in the backpack) */
-	q = "Light or douse which light source?";
-	s = "You have no light sources.";
-	if (!get_item(&item, q, s, flags)) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1863,16 +1716,6 @@ void do_cmd_light_and_douse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	/* Get an object description */
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
 
@@ -1881,10 +1724,8 @@ void do_cmd_light_and_douse(void)
 	else if (o_ptr->number != 1) own_str = "some";
 	else own_str = "the";
 
-
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
-
 
 	/* Light the light source */
 	if (!(o_ptr->timeout))
@@ -1917,9 +1758,9 @@ void do_cmd_light_and_douse(void)
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	
+	return (TRUE);
 }
-
-
 
 
 /*

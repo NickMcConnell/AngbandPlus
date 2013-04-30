@@ -5,7 +5,7 @@
         differing situations.
         
         Note to Angband players: Some classes, notably Rangers and Priests
-        are less powerful that the Vanilla Angband characters but may choose
+        are less powerful than the Vanilla Angband characters but may choose
         to regain their former abilities through particular choices of styles.
         To match the Angband classes, you must choose the Hafted speciality
         for Priests and the Bow speciality for Rangers. 

@@ -198,7 +198,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 18) object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 17) object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L, floor);
 					if (r_ptr->flags3 & RF3_ANIMAL) l_ptr->flags3 |= (RF3_ANIMAL);
 					if (r_ptr->flags3 & RF3_PLANT) l_ptr->flags3 |= (RF3_PLANT);
 					if (r_ptr->flags3 & RF3_INSECT) l_ptr->flags3 |= (RF3_INSECT);
@@ -217,7 +217,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 20) object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 19) object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
@@ -234,7 +234,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 21) object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 20) object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 				if (mult < 3) mult = 3;
@@ -250,7 +250,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 25) object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 24) object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
@@ -267,7 +267,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 22) object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 21) object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_ORC);
 				}
 
@@ -284,7 +284,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 23) object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 22) object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
@@ -301,7 +301,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 			{
 				if (m_ptr->ml)
 				{
-					if (p_ptr->branded_blows != 24) object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L, floor);
+					if (p_ptr->branded_blows != 23) object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
@@ -320,7 +320,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				{
 					if (rand_int(100)<tdam)
 					{
-						if (p_ptr->branded_blows != 26) object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L, floor);
+						if (p_ptr->branded_blows != 25) object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
@@ -340,7 +340,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				{
 					if (rand_int(100)<tdam)
 					{
-						if (p_ptr->branded_blows != 27) object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L, floor);
+						if (p_ptr->branded_blows != 26) object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
@@ -360,7 +360,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				{
 					if (rand_int(100)<tdam)
 					{
-						if (p_ptr->branded_blows != 28) object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L, floor);
+						if (p_ptr->branded_blows != 27) object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
@@ -388,7 +388,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 29) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
 
 					/* Armour partially protects the monster */
 					if (r_ptr->flags2 & (RF2_ARMOR))
@@ -434,7 +434,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 30) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L, floor);
 
 					/* Water increases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -467,7 +467,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 31) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L, floor);
 
 					/* Water decreases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -500,7 +500,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 32) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L, floor);
 
 					/* Water increases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -533,7 +533,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 28) object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L, floor);
 
 					if (mult < 3) mult = 3;
 				}
@@ -593,7 +593,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 1) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK, floor);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) if (p_ptr->branded_blows != 97) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK, floor);
 
 					if (mult < 3) mult = 3;
 				}
@@ -674,7 +674,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool f
  * Find a secret at the specified location and change it according to
  * the state.
  * 
- * TODO: Its very repetitive having to walk up a corridor and find
+ * TODO: It's very repetitive having to walk up a corridor and find
  * every square is dusty. We should flow out from the initial secret
  * and find all other nearby squares that have the same feature, and
  * reveal the secrets on those as well. e.g. adjacent secret doors,
@@ -1523,13 +1523,13 @@ void py_pickup(int py, int px, int pickup)
 #ifdef ALLOW_EASY_FLOOR
 
 		/* Easy Floor */
-		if (easy_floor)
+		if (easy_floor && !auto_pickup_never(o_ptr))
 		{
 			/* Pickup if possible */
 			if (pickup && inven_carry_okay(o_ptr))
 			{
 				/* Pick up if allowed */
-				if ((!carry_query_flag) && !auto_pickup_never(o_ptr))
+				if ((!carry_query_flag))
 				{
 					/* Pick up the object */
 					py_pickup_aux(this_o_idx);
@@ -2215,8 +2215,6 @@ void hit_trap(int y, int x)
 				if (!method) break;
 
 				/* Mega hack -- dispel evil/undead objects */
-				/* FIXME: how is player supposed to be unded?
-				   Also in many other places */
 				if (!d_side)
 				{
 					d_plus += 25 * d_dice;

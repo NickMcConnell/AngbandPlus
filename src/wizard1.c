@@ -1849,7 +1849,7 @@ static void spoil_magic_info(cptr fname)
 				fprintf(fff, "%s", desc);
 
 				/* Go to next column */
-				if (strlen(desc) < len + 2) spoiler_out_n_chars(len + 2 - strlen(desc), ' ');
+				if ((int) strlen(desc) < len + 2) spoiler_out_n_chars(len + 2 - strlen(desc), ' ');
 
 				/* Get caster details */
 				for (j = 0; (i + j < casters_n) && (j < 3); j++)
@@ -1922,7 +1922,7 @@ static void spoil_magic_info(cptr fname)
 					fprintf(fff, "%s", s_name + s_ptr->name);
 
 					/* Go to next column */
-					if (strlen(s_name + s_ptr->name) < len + 2) spoiler_out_n_chars(len + 2 - strlen(s_name + s_ptr->name), ' ');
+					if ((int) strlen(s_name + s_ptr->name) < len + 2) spoiler_out_n_chars(len + 2 - strlen(s_name + s_ptr->name), ' ');
 					
 					/* Get caster details */
 					for (k = 0; (i+k < casters_n) && (k < 3); k++)

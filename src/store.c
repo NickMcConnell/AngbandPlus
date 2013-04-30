@@ -847,6 +847,12 @@ static int store_carry(object_type *o_ptr, int store_index)
 	/* Remove special inscription, if any */
 	o_ptr->feeling = 0;
 
+	/* Item belongs to a store */
+	o_ptr->ident |= IDENT_STORE;
+	
+	/* All obvious flags are learnt about the object - important this happens after IDENT_STORE set */
+	object_obvious_flags(o_ptr, TRUE);
+	
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
 	{
@@ -954,9 +960,6 @@ static bool store_services(object_type *i_ptr, int store_index)
 			/* Create a new object of the chosen kind */
 			object_prep(j_ptr, k_idx);
 
-			/* Item belongs to a store */
-			j_ptr->ident |= IDENT_STORE;
-
 			/* The object is "known" */
 			object_known(j_ptr);
 
@@ -1053,11 +1056,29 @@ static void store_delete(int store_index)
 	/* Determine how many objects are in the slot */
 	num = st_ptr->stock[what].number;
 
-	/* Hack -- sometimes, only destroy half the objects */
-	if (rand_int(100) < 50) num = (num + 1) / 2;
+	if (st_ptr->base == STORE_B_MARKET)
+	{
+		object_type *o_ptr;
 
-	/* Hack -- sometimes, only destroy a single object */
-	if (rand_int(100) < 50) num = 1;
+		/* Get the object */
+		o_ptr = &st_ptr->stock[what];
+
+		/* keep expensive stuff */
+		if (rand_int(k_info[o_ptr->k_idx].cost) > 500
+			 && rand_int(k_info[o_ptr->k_idx].cost) > 500
+			 && rand_int(k_info[o_ptr->k_idx].cost) > 500)
+			return;
+	}
+	else 
+	{
+		/* Hack -- sometimes, only destroy half the objects */
+		if (rand_int(100) < 50) 
+			num = (num + 1) / 2;
+
+		/* Hack -- sometimes, only destroy a single object */
+		if (rand_int(100) < 50) 
+			num = 1;
+	}
 
 	/* Actually destroy (part of) the object */
 	store_item_increase(what, -num, store_index);
@@ -1158,9 +1179,6 @@ static void store_create(int store_index)
 			p_ptr->depth = depth;
 			object_level = depth;
 			
-			/* Item belongs to the store */
-			i_ptr->ident |= (IDENT_STORE);
-
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr, store_index);
 
@@ -1219,7 +1237,7 @@ static void store_create(int store_index)
 		}
 
 		/* Item belongs to a store */
-		if (st_ptr->base != STORE_STORAGE) i_ptr->ident |= IDENT_STORE;
+		i_ptr->ident |= IDENT_STORE;
 
 		/* The object is "known" */
 		object_known(i_ptr);
@@ -1579,7 +1597,7 @@ static void display_store(int store_index)
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
-		if (pos_owner + strlen(buf) + 2 > pos_store)
+		if (pos_owner + (int) strlen(buf) + 2 > pos_store)
 		  pos_owner = 1;
 		put_str(buf, 3, pos_owner);
 
@@ -2666,7 +2684,7 @@ static void store_purchase(int store_index)
 		i_ptr->ident &= ~(IDENT_STORE);
 		
 		/* However, its now identified if we are a quest or store location */
-		if (st_ptr->base == STORE_QUEST_REWARD)
+		if (st_ptr->base == STORE_QUEST_REWARD || st_ptr->base == STORE_STORAGE)
 		{
 			object_aware(i_ptr, TRUE);
 			object_known(i_ptr);
@@ -3147,14 +3165,14 @@ static void store_process_command(char *choice, int store_index)
 		/* Wear/wield equipment */
 		case 'w':
 		{
-			do_cmd_wield();
+			do_cmd_item(COMMAND_ITEM_WIELD);
 			break;
 		}
 
 		/* Take off equipment */
 		case 't':
 		{
-			do_cmd_takeoff();
+			do_cmd_item(COMMAND_ITEM_TAKEOFF);
 			break;
 		}
 
@@ -3172,7 +3190,7 @@ static void store_process_command(char *choice, int store_index)
 		/* Destroy an item */
 		case 'k':
 		{
-			do_cmd_destroy();
+			do_cmd_item(COMMAND_ITEM_DESTROY);
 			break;
 		}
 
@@ -3196,7 +3214,7 @@ static void store_process_command(char *choice, int store_index)
 		/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			do_cmd_item(COMMAND_ITEM_EXAMINE);
 			break;
 		}
 
@@ -3221,14 +3239,14 @@ static void store_process_command(char *choice, int store_index)
 		/* Inscribe an object */
 		case '{':
 		{
-			do_cmd_inscribe();
+			do_cmd_item(COMMAND_ITEM_INSCRIBE);
 			break;
 		}
 
 		/* Uninscribe an object */
 		case '}':
 		{
-			do_cmd_uninscribe();
+			do_cmd_item(COMMAND_ITEM_UNINSCRIBE);
 			break;
 		}
 
@@ -3445,7 +3463,7 @@ void do_cmd_store(void)
 		t_ptr->store_index[i] = store_index;
 
 		/* Maintain store */
-		for (i = 0; i< 10; i++)
+		for (i = 0; i < 10; i++)
 		{
 			store_maint(store_index);
 		}
@@ -3837,7 +3855,8 @@ void store_maint(int store_index)
 	if (j < 0) j = 0;
 
 	/* Destroy objects until only "j" slots are left -- fail if tried too many times */
-	while ((st_ptr->stock_num > j) && (tries++ < 100)) store_delete(store_index);
+	while ((st_ptr->stock_num > j) && (tries++ < 100)) 
+		store_delete(store_index);
 
 	/* Reset tries */
 	tries = 0;
@@ -3858,7 +3877,8 @@ void store_maint(int store_index)
 	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
 
 	/* Create some new items -- fail if tried too many times */
-	while ((st_ptr->stock_num < j) && (tries++ < 100)) store_create(store_index);
+	while ((st_ptr->stock_num < j) && (tries++ < 100)) 
+		store_create(store_index);
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;
@@ -3972,9 +3992,6 @@ int store_init(int feat)
 			/* Create a new object of the chosen kind */
 			object_prep(i_ptr, k_idx);
 
-			/* Item belongs to a store */
-			i_ptr->ident |= IDENT_STORE;
-
 			/* The object is "known" */
 			object_known(i_ptr);
 
@@ -3988,7 +4005,7 @@ int store_init(int feat)
 	if (st_ptr->base > STORE_HOME)
 	{
 		/* Create some new items */
-		while (st_ptr->stock_num < ((st_ptr->base == STORE_STORAGE) || (st_ptr->base == STORE_QUEST_REWARD) ? 4 : 8)) store_create(store_index);
+		while (st_ptr->stock_num < ((st_ptr->base == STORE_STORAGE) || (st_ptr->base == STORE_QUEST_REWARD) ? 3 + rand_int(3) : 8)) store_create(store_index);
 	}
 
 

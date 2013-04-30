@@ -165,7 +165,7 @@ O:70:32:1
 O:70:11:4
 O:75:30:1
 O:75:31:1
-O:70:12:3
+O:70:12:7
 O:75:29:2
 
 #Service of Gauge Magic
@@ -597,7 +597,7 @@ N:33:Chemist
 X:7
 O:70:8:4
 O:70:11:4
-O:70:12:3
+O:70:12:7
 O:70:13:1
 O:70:31:2
 O:70:43:3
@@ -667,11 +667,11 @@ O:75:28:2
 O:77:0:1
 O:5:0:1
 
-N:36:tree hung with a banner 'Happy Elventy-One'
+N:36:tree hung with a banner 'Happy Eleventy-One'
 X:2
 
 N:37:at the Prancing Pony
-X:1
+X:0
 
 N:38:the pool of Goldberry
 X:2

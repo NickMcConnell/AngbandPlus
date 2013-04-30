@@ -6,7 +6,7 @@ The following comprises a rough ideas list not already included
 at that URL.
 
 This file describes my basic to do list for Unangband.
-Also see Lib\Todo, which is a dumping group for
+Also see lib\todo, which is a dumping group for
 various files and ideas.
 
 Release v0.6.2 - v0.6.5

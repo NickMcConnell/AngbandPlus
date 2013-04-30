@@ -399,7 +399,7 @@ static void player_wipe(void)
 	/* Clear the maximum depths */
 	for (i = 0; i < z_info->t_max; i++)
 	{
-		t_info[i].max_depth = 0;
+		t_info[i].attained_depth = min_depth(i);
 		t_info[i].visited = 0;
 	}
 
@@ -1703,7 +1703,6 @@ static bool get_player_school(void)
 			
 		default:
 			tval = c_info[p_ptr->pclass].spell_book;
-	
 			break;
 	}
 

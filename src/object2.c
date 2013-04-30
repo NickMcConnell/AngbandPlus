@@ -1272,10 +1272,12 @@ s32b object_value(const object_type *o_ptr)
 	else
 	{
 		/* Hack -- Felt broken items */
-		if ((o_ptr->ident & (IDENT_SENSE)) && broken_p(o_ptr)) return (0L);
-
-		/* Hack -- Felt cursed items */
-		if ((o_ptr->ident & (IDENT_SENSE)) && cursed_p(o_ptr)) return (0L);
+		if (o_ptr->ident & (IDENT_SENSE)
+			 && (o_ptr->feeling == INSCRIP_TERRIBLE
+				  || o_ptr->feeling == INSCRIP_WORTHLESS
+				  || o_ptr->feeling == INSCRIP_CURSED
+				  || o_ptr->feeling == INSCRIP_BROKEN))
+			return (0L);
 
 		/* Named value (use 'real' value and attempt to hack) */
 		if (object_named_p(o_ptr))
@@ -2084,8 +2086,8 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->tval = k_ptr->tval;
 	o_ptr->sval = k_ptr->sval;
 
-	/* Default "pval" */
-	o_ptr->pval = k_ptr->pval;
+	/* Default "pval" or 1 if zero */
+	o_ptr->pval = k_ptr->pval ? k_ptr->pval : 1;
 
 	/* Default "charges" */
 	o_ptr->charges = k_ptr->charges;
@@ -2526,7 +2528,7 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 		/* Reverse sign */
 		if (power < 0) obj_pow2 = -obj_pow2;
 
-		/* Pick this flag? */
+		/* Pick this flag with default pval? */
 		if ((obj_pow2 > obj_pow1) &&			/* Flag has any effect? */
 			((!great) || (obj_pow2 >= ((lev * 19) / 20))) && 	/* Great forces at least 95% */
 			(obj_pow2 <= lev) &&			/* No more than 100% */
@@ -2537,7 +2539,7 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 			max_pval = 0;
 		}
 
-		/* Hack -- try increasing pval */
+		/* Try increasing pval in addition to the flag */
 		else
 		{
 			int old_pval = o_ptr->pval;
@@ -2564,7 +2566,7 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 					obj_pow2 = -object_power(o_ptr);
 				}
 
-			} while (!(obj_pow2 <= old_pow2) && (obj_pow2 < ((lev * 19) / 20)));
+			} while (obj_pow2 > old_pow2 && obj_pow2 < lev * 19 / 20);
 
 			/* Can find valid pval? */
 			if ((obj_pow2 > obj_pow1) && (obj_pow2 < lev) && (rand_int(++count) == 0))
@@ -2684,7 +2686,7 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 			if (max_pval > 0)
 				o_ptr->pval += great ? max_pval : rand_range(1, max_pval);
 			else
-				o_ptr->pval -= great ? max_pval : rand_range(1, -max_pval);
+				o_ptr->pval -= great ? -max_pval : rand_range(1, -max_pval);
 		}
 
 		return(TRUE);
@@ -8827,28 +8829,43 @@ void reorder_pack(void)
 bool book_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
+	u16b *why = (u16b*)(v);
 
 	int w1 = who[a];
 	int w2 = who[b];
 
 	int z1, z2;
+	int i, j;
 
 	spell_type *s1_ptr = &s_info[w1];
 	spell_type *s2_ptr = &s_info[w2];
 
-	(void)v;
+	for (i = 0; i < MAX_SPELL_CASTERS; i++)
+	{
+		if (s1_ptr->cast[i].class == *why) break;
+	}
+		
+	for (j = 0; j < MAX_SPELL_CASTERS; j++)
+	{
+		if (s2_ptr->cast[j].class == *why) break;
+	}
+	
+	/* One spell is illegible */
+	if ((i == MAX_SPELL_CASTERS) && (j == MAX_SPELL_CASTERS)) return (my_stricmp(s_name + s1_ptr->name, s_name + s2_ptr->name) <= 0);
+	else if (i == MAX_SPELL_CASTERS) return (FALSE);
+	else if (j == MAX_SPELL_CASTERS) return (TRUE);
 
 	/* Extract spell level */
-	z1 = s1_ptr->cast[0].level;
-	z2 = s2_ptr->cast[0].level;
+	z1 = s1_ptr->cast[i].level;
+	z2 = s2_ptr->cast[j].level;
 
 	/* Compare spell levels */
 	if (z1 < z2) return (TRUE);
 	if (z1 > z2) return (FALSE);
 
 	/* Extract spell mana */
-	z1 = s1_ptr->cast[0].mana;
-	z2 = s2_ptr->cast[0].mana;
+	z1 = s1_ptr->cast[i].mana;
+	z2 = s2_ptr->cast[j].mana;
 
 	/* Compare spell mana */
 	if (z1 < z2) return (TRUE);
@@ -8932,7 +8949,7 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 
 	spell_type *s_ptr;
 
-	u16b why = 0;
+	u16b why = p_ptr->pclass;
 
 	/* No spells */
 	*num = 0;
@@ -9017,16 +9034,13 @@ spell_cast *spell_cast_details(int spell)
 	spell_cast *sc_ptr = NULL;
 	
 	/* Get our casting information */
-	if (p_ptr->pclass)
-	{
-		int i;
+	int i;
 		
-		for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	{
+		if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
-			if (s_ptr->cast[i].class == p_ptr->pclass)
-			{
-				sc_ptr=&(s_ptr->cast[i]);
-			}
+			sc_ptr=&(s_ptr->cast[i]);
 		}
 	}
 	
@@ -9049,14 +9063,10 @@ bool spell_legible(int spell)
 	int i;
 	spell_type *s_ptr = &s_info[spell];
 	
-	/* Warriors (class 0) have no spells naturally, but may have as a part of being gifted or chosen below. */
-	if (p_ptr->pclass)
+	for (i = 0; i < MAX_SPELL_CASTERS; i++)
 	{
-		for (i = 0; i < MAX_SPELL_CASTERS; i++)
-		{
-			/* Class is allowed to cast the spell */
-			if (s_ptr->cast[i].class == p_ptr->pclass) return (TRUE);
-	    }
+		/* Class is allowed to cast the spell */
+		if (s_ptr->cast[i].class == p_ptr->pclass) return (TRUE);
 	}
 
 	/* Gifted and chosen spell casters can read all spells from the book they have specialised in */
@@ -9089,15 +9099,12 @@ s16b spell_level(int spell)
 
 	/* Hack -- check if we can 'naturally' cast it,
 	 * as opposed to relying on speciality. */
-	if (p_ptr->pclass)
+	for (i = 0;i < MAX_SPELL_CASTERS; i++)
 	{
-		for (i = 0;i < MAX_SPELL_CASTERS; i++)
+		if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
-			if (s_ptr->cast[i].class == p_ptr->pclass)
-			{
-				/* Use the native casting level */
-				fix_level = FALSE;
-			}
+			/* Use the native casting level */
+			fix_level = FALSE;
 		}
 	}
 

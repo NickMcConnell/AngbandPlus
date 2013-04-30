@@ -176,7 +176,7 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:ONLY_ITEM | DROP_90 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:NO_CONF | NO_SLEEP | FORCE_DEPTH
+F:NO_CONF | NO_SLEEP
 F:HAS_LITE | TOWNSFOLK
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy
 D: hobbit!
@@ -638,7 +638,7 @@ D:A small winged figure surrounded by glowing blue light.
 N:46:Grip, Farmer Maggot's dog
 G:C:W
 I:120:5d5:30:30:0
-W:2:1:0:30
+W:3:1:0:30
 B:BITE:HURT:1d4
 F:UNIQUE
 F:FORCE_MAXHP | RAND_25
@@ -651,7 +651,7 @@ D: stealing mushrooms.
 N:47:Fang, Farmer Maggot's dog
 G:C:W
 I:120:5d5:30:30:0
-W:2:1:0:30
+W:3:1:0:30
 B:BITE:HURT:1d4
 F:UNIQUE
 F:FORCE_MAXHP | RAND_25
@@ -2399,7 +2399,7 @@ D: spiders.
 
 N:182:Giant white dragonfly
 G:I:w
-I:120:3d8:12:20:50:0
+I:120:3d8:12:20:50
 W:6:2:0:60
 M:10:0:0:0
 B:BITE:COLD:1d3
@@ -2731,7 +2731,7 @@ B:HIT:HURT:3d5
 B:XBOLT:HURT:3d7
 F:MALE | FEMALE | ESCORT | DROP_90
 F:OPEN_DOOR | BASH_DOOR | WARRIOR
-F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:An armoured orc with an air of authority.
 
 N:207:Gelatinous cube
@@ -2755,7 +2755,7 @@ D: few corpses as well.
 N:208:Giant green dragonfly
 G:I:g
 I:120:6d8:12:20:50
-W:8:2:0:30
+W:8:2:0:70
 M:13:0:0:0
 B:BITE:POISON:1d3
 F:FORCE_SLEEP | RAND_50 | RAND_25
@@ -6338,7 +6338,7 @@ F:ONLY_ITEM | DROP_1D3 | DROP_1D4
 F:INVISIBLE | TAKE_ITEM | PASS_WALL
 F:SMART | PASS_WALL | POWERFUL
 F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | RES_DARK
-F:RES_NETHR | RES_DARK | HUGE
+F:RES_NETHR | HUGE
 S:SLOW | CONF | SCARE
 S:BRTH_NETHR | DARKNESS
 D:A dragon-shaped shadow wielding soul-rending Night.  As it draws near, 
@@ -9424,7 +9424,7 @@ D: his people by letting Saruman's thugs into the city.
 N:618:Wolf, Farmer Maggot's dog
 G:C:W
 I:120:5d5:30:30:0
-W:2:1:0:30
+W:3:1:0:30
 B:BITE:HURT:1d4
 F:UNIQUE | 
 F:FORCE_MAXHP | RAND_25 | FRIENDS | FORCE_DEPTH
@@ -11551,7 +11551,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_1D3 |
 F:BASH_DOOR | HAS_LITE | HAS_AURA
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP | RES_DARK | LEVEL_SIZE | LEVEL_POWER
-F:IM_COLD | IM_ELEC | RES_DARK | POWERFUL | SMART
+F:IM_COLD | IM_ELEC | POWERFUL | SMART
 S:BLINK | SCARE | DARKNESS | BLIND | BRTH_DARK | BRTH_ELEC
 D:It is a dragon-like form wrapped in starlight.  Glowing blue eyes shine out in 
 D: the dark, and it is surrounded by the cold of deep space.
@@ -12881,7 +12881,7 @@ I:110:2d3:10:1:0
 W:0:2:0:0
 M:10:0:0:0
 B:SING
-F:MALE | FEMALE | NEVER_BLOW
+F:MALE | FEMALE
 F:FRIENDS | RAND_50
 F:ONLY_GOLD | DROP_60 | HAS_LITE | NEED_LITE | SMART | ONLY_ITEM
 F:TAKE_ITEM | OPEN_DOOR | FORCE_DEPTH
@@ -14500,7 +14500,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | SMART |
-F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:A large orc who barks commands to |his|her| fellows.
 
 N:996:Orc chieftain||ess|
@@ -14514,7 +14514,7 @@ B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:MALE | FEMALE | ESCORT | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | SMART |
-F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 S:S_ORC
 D:A heavily armoured orc with the mantle of leadership.
 
@@ -14529,7 +14529,7 @@ B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 F:MALE | FEMALE | ESCORT | ESCORTS | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | SMART |
-F:EVIL | ORC | RES_DARK| IM_POIS | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| IM_POIS | LEVEL_POWER
 S:S_ORC
 D:A heavily armoured orc ruler who dominates |his|her| kin with his powerful blows.
 
@@ -14543,7 +14543,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | PRIEST |
-F:EVIL | ORC | RES_DARK| NO_CONF | NO_SLEEP | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| NO_CONF | NO_SLEEP | LEVEL_POWER
 S:BLINK | SCARE | WOUND | CURE | BLESS
 D:An orc who is so bright |he|she| knows how to cast spells.
 
@@ -14557,7 +14557,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | MAGE |
-F:EVIL | ORC | RES_DARK| HURT_LITE | NO_CONF | NO_SLEEP | MAGE | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| HURT_LITE | NO_CONF | NO_SLEEP | MAGE | LEVEL_POWER
 S:BLINK | BLIND | CONF | BOLT_MANA
 D:An orc who is so bright |he|she| knows how to cast spells.
 
@@ -14572,7 +14572,7 @@ B:ARROW:HURT:3d6
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER
-F:EVIL | ORC | RES_DARK| LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | LEVEL_POWER | LEVEL_CLASS
 D:|He|She| is a large orc with powerful arms and oily green skin.
 
 N:1001:Night orc
@@ -14586,7 +14586,7 @@ B:DART:BLIND:3d5
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER
-F:EVIL | ORC | RES_DARK| HURT_LITE | LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | HURT_LITE | LEVEL_POWER | LEVEL_CLASS
 S:DARKNESS
 D:|He|She| is a large orc with powerful arms and night blue skin.
 
@@ -14601,7 +14601,7 @@ B:ARROW:HURT:3d6
 F:MALE | FEMALE | CAN_CLIMB |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER | TAKE_ITEM
-F:EVIL | ORC | RES_DARK| LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | LEVEL_POWER | LEVEL_CLASS
 D:|He|She| is a large orc with powerful arms and brown barklike skin.
 
 N:1003:Mountain orc
@@ -14615,7 +14615,7 @@ B:SHOT:HURT:3d5
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | TAKE_ITEM 
 F:OPEN_DOOR | BASH_DOOR | CAN_CLIMB | RES_DARK
-F:EVIL | ORC | RES_DARK| LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | LEVEL_POWER | LEVEL_CLASS
 D:An agile but primitive orc with large dangerous claws.
 
 N:1004:Forest orc
@@ -14629,7 +14629,7 @@ B:DART:HURT:2d5
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK
-F:EVIL | ORC | RES_DARK| LEVEL_POWER | LEVEL_CLASS | IM_POIS
+F:EVIL | ORC | LEVEL_POWER | LEVEL_CLASS | IM_POIS
 D:A primitive forest-dwelling orc.
 
 N:1005:River orc
@@ -14642,7 +14642,7 @@ B:DART:HURT:3d4
 F:MALE | FEMALE | TAKE_ITEM 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM | RES_DARK
-F:EVIL | ORC | RES_DARK| LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | LEVEL_POWER | LEVEL_CLASS
 D:A river dwelling orc with a piratical bent.
 
 N:1006:Grey orc
@@ -14655,7 +14655,7 @@ B:DAGGER:HURT:2d5
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER | LEVEL_CLASS
+F:EVIL | ORC | RES_DARK | LEVEL_POWER | LEVEL_CLASS
 S:BLINK
 D:|He|She| is a vicious orc with a pale grey face.
 
@@ -18111,7 +18111,7 @@ F:FORCE_SLEEP
 F:FRIENDS
 F:BASH_DOOR
 F:ANIMAL | NO_CONF | NO_SLEEP
-F:RES_DARK | IM_FIRE | RES_BLUNT | CAN_FLY | SCENT | SUPER_SCENT | RES_DARK | LEVEL_SIZE
+F:RES_DARK | IM_FIRE | RES_BLUNT | CAN_FLY | SCENT | SUPER_SCENT | LEVEL_SIZE
 S:BRTH_DARK | BRTH_FIRE
 D:A dark and furious shifting cloud that gathers for a moment in the shape of a hound.
 
@@ -18942,8 +18942,7 @@ B:HIT:WOUND:1d3
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | HAS_LITE | NEED_LITE |
-F:FORCE_DEPTH
+F:OPEN_DOOR | BASH_DOOR | HAS_LITE | NEED_LITE
 D:A majordomo of Theoden and captain of the guard, he requests you put aside
 D: your weapons before entering the Golden Hall.
 
@@ -19363,7 +19362,7 @@ D:evil-looking eyes and a sharp beak, which it aims at your eyes
 D:as it flies at you!
 
 N:1346:Goblin sapper
-G:o:U
+G:k:U
 I:111:8d8:20:32:30
 W:14:1:0:15
 B:HIT:HURT:1d8

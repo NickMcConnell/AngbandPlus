@@ -11843,7 +11843,6 @@ void generate_cave(void)
 			    }
 			  else {
 			    /* remove the guardian to avoid fake victories */
-			    /* TODO: save these for each dungeon */
 			    t_info[i].guardian_ifvisited = 0;
 			    t_info[i].replace_guardian = 0;
 			  }
@@ -11858,16 +11857,16 @@ void generate_cave(void)
 	}
 	
 	/* Set maximum depth for this dungeon */
-	if (t_info[p_ptr->dungeon].max_depth < p_ptr->depth - min_depth(p_ptr->dungeon))
+	if (t_info[p_ptr->dungeon].attained_depth < p_ptr->depth)
 	{
-		for (i = t_info[p_ptr->dungeon].max_depth; i < p_ptr->depth - min_depth(p_ptr->dungeon); i++)
+		for (i = t_info[p_ptr->dungeon].attained_depth; i < p_ptr->depth; i++)
 		{
 			/* Style tips */
 			queue_tip(format("depth%d-%d.txt", p_ptr->dungeon, i));
 		}
 
 		/* Set new maximum depth */
-		t_info[p_ptr->dungeon].max_depth = p_ptr->depth - min_depth(p_ptr->dungeon);
+		t_info[p_ptr->dungeon].attained_depth = p_ptr->depth;
 	}
 	
 	/* Hit by the plague */

@@ -461,25 +461,25 @@ void suffer_disease(void)
 		{
 			case DISEASE_LOSE_STR:
 			{
-				dec_stat(A_STR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_STR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				break;
 			}
 
 			case DISEASE_LOSE_INT:
 			{
-				dec_stat(A_INT, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_INT, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				break;
 			}
 
 			case DISEASE_LOSE_WIS:
 			{
-				dec_stat(A_WIS, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_WIS, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				break;
 			}
 
 			case DISEASE_LOSE_DEX:
 			{
-				dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				/* An exception --- disease does not glue DEX and AGI.
 				   See DISEASE_SLOW below, however. */
 				break;
@@ -487,13 +487,13 @@ void suffer_disease(void)
 
 			case DISEASE_LOSE_CON:
 			{
-				dec_stat(A_CON, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_CON, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				break;
 			}
 
 			case DISEASE_LOSE_CHR:
 			{
-				dec_stat(A_CHR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				dec_stat(A_CHR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1);
 				break;
 			}
 
@@ -569,7 +569,7 @@ void suffer_disease(void)
 			{
 				(void)set_slow(p_ptr->slow + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
 				/* Also slightly reduce agility. */
-				dec_stat(A_AGI, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				dec_stat(A_AGI, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1);
 				break;
 			}
 
@@ -730,7 +730,7 @@ static void process_world(void)
 	cptr name;
 
 	/* no shuffling for alien towns */
-	  town_type *t_ptr = &t_info[p_ptr->town];
+	town_type *t_ptr = &t_info[p_ptr->town];
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -821,20 +821,19 @@ static void process_world(void)
 			/* Message */
 			if (cheat_xtra) msg_print("Updating Shops...");
 
-			/* Maintain each shop (except home, special locations) */
+			/* Maintain each shop */
 			for (n = 0; n < total_store_count; n++)
 			{
-
-			  /* no restocking for alien towns */
-			  town_type *t_ptr = &t_info[p_ptr->town];
-			  for (i = 0; i < MAX_STORES; i++)
-			    {
+				/* no restocking for alien towns; at most 1 shop n in each town */
+				town_type *t_ptr = &t_info[p_ptr->town];
+				for (i = 0; i < MAX_STORES; i++)
+				{
 			      if (t_ptr->store_index[i] == n)
-				break;
-			    }
-			  if (i < MAX_STORES)
-			    /* Maintain */
-			    store_maint(n);
+					{
+						store_maint(n);
+						break;
+					}
+				}
 			}
 
 			/* Sometimes, shuffle the shop-keepers */
@@ -846,14 +845,14 @@ static void process_world(void)
 				/* Pick a random shop (except home) */
 				n = randint(total_store_count - 1);
 
-			  for (i = 0; i < MAX_STORES; i++)
-			    {
+				for (i = 0; i < MAX_STORES; i++)
+				{
 			      if (t_ptr->store_index[i] == n)
-				break;
-			    }
-			  if (i < MAX_STORES)
-			    /* Shuffle it */
-			    store_shuffle(n);
+					{
+						store_shuffle(n);
+						break;
+					}
+				}
 			}
 
 			/* Message */
@@ -1770,12 +1769,13 @@ static void process_world(void)
 				/* No stairs under the player */
 				p_ptr->create_stair = 0;
 			}
-			else if (min_depth(p_ptr->dungeon) < max_depth(p_ptr->dungeon))
+			else
 			{
 				msg_print("You feel yourself yanked downwards!");
 
 				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->depth = t_info[p_ptr->dungeon].attained_depth;
+				/* Repair, in case of old savefile */
 				if (p_ptr->depth <= min_depth(p_ptr->dungeon)) p_ptr->depth = min_depth(p_ptr->dungeon)+1;
 				if (p_ptr->depth > max_depth(p_ptr->dungeon)) p_ptr->depth = max_depth(p_ptr->dungeon);
 
@@ -1784,10 +1784,6 @@ static void process_world(void)
 
 				/* No stairs under the player */
 				p_ptr->create_stair = 0;
-			}
-			else 
-			{
-				msg_print("A tension leaves the air around you...");
 			}
 		}
 	}	
@@ -2035,28 +2031,28 @@ static void process_command(void)
 		/* Wear/wield equipment */
 		case 'w':
 		{
-			do_cmd_wield();
+			do_cmd_item(COMMAND_ITEM_WIELD);
 			break;
 		}
 
 		/* Take off equipment */
 		case 't':
 		{
-			do_cmd_takeoff();
+			do_cmd_item(COMMAND_ITEM_TAKEOFF);
 			break;
 		}
 
 		/* Drop an item */
 		case 'd':
 		{
-			do_cmd_drop();
+			do_cmd_item(COMMAND_ITEM_DROP);
 			break;
 		}
 
 		/* Destroy an item */
 		case 'k':
 		{
-			do_cmd_destroy();
+			do_cmd_item(COMMAND_ITEM_DESTROY);
 			break;
 		}
 
@@ -2080,7 +2076,7 @@ static void process_command(void)
 		/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			do_cmd_item(COMMAND_ITEM_EXAMINE);
 			break;
 		}
 
@@ -2255,35 +2251,35 @@ static void process_command(void)
 		/* Inscribe an object */
 		case '{':
 		{
-			do_cmd_inscribe();
+			do_cmd_item(COMMAND_ITEM_INSCRIBE);
 			break;
 		}
 
 		/* Uninscribe an object */
 		case '}':
 		{
-			do_cmd_uninscribe();
+			do_cmd_item(COMMAND_ITEM_UNINSCRIBE);
 			break;
 		}
 
 		/* Activate an artifact */
 		case 'A':
 		{
-			do_cmd_activate();
+			do_cmd_item(COMMAND_ITEM_ACTIVATE);
 			break;
 		}
 
 		/* Eat some food */
 		case 'E':
 		{
-			do_cmd_eat_food();
+			do_cmd_item(COMMAND_ITEM_EAT);
 			break;
 		}
 
 		/* Fuel your lantern/torch */
 		case 'F':
 		{
-			do_cmd_refill();
+			do_cmd_item(COMMAND_ITEM_FUEL);
 			break;
 		}
 
@@ -2304,56 +2300,56 @@ static void process_command(void)
 		/* Aim a wand */
 		case 'a':
 		{
-			do_cmd_aim_wand();
+			do_cmd_item(COMMAND_ITEM_AIM);
 			break;
 		}
 
 		/* Zap a rod */
 		case 'z':
 		{
-			do_cmd_zap_rod();
+			do_cmd_item(COMMAND_ITEM_ZAP);
 			break;
 		}
 
 		/* Quaff a potion */
 		case 'q':
 		{
-			do_cmd_quaff_potion();
+			do_cmd_item(COMMAND_ITEM_QUAFF);
 			break;
 		}
 
 		/* Read a scroll */
 		case 'r':
 		{
-			do_cmd_read_scroll();
+			do_cmd_item(COMMAND_ITEM_READ);
 			break;
 		}
 
 		/* Use a staff */
 		case 'u':
 		{
-			do_cmd_use_staff();
+			do_cmd_item(COMMAND_ITEM_USE);
 			break;
 		}
 
 		/* Apply a rune */
 		case 'y':
 		{
-			do_cmd_apply_rune_or_coating();
+			do_cmd_item(COMMAND_ITEM_APPLY);
 			break;
 		}
 
 		/* Assemble a mechanism */
 		case 'Y':
 		{
-			do_cmd_assemble();
+			do_cmd_item(COMMAND_ITEM_ASSEMBLE);
 			break;
 		}
 
 		/* Light or douse a light source */
 		case '|':
 		{
-			do_cmd_light_and_douse();
+			do_cmd_item(COMMAND_ITEM_LITE);
 			break;
 		}
 
@@ -2625,6 +2621,27 @@ static void process_command(void)
 			prt("Type '?' or press ENTER for help.", 0, 0);
 			break;
 		}
+	}
+	
+	/* If there is a transitive component to the command, process it */
+	if (p_ptr->command_trans)
+	{
+		const do_cmd_item_type *cmd = &cmd_item_list[p_ptr->command_trans];
+		
+		int cmd_next = cmd->next_command;
+		
+		/* Evaluate which command to do */
+		if (cmd->next_command_eval)
+		{
+			/* Determine new command based on item selected */
+			cmd_next = cmd->next_command_eval(p_ptr->command_trans_item);
+		}
+		
+		/* Process next command */
+		do_cmd_item(cmd_next);
+		
+		/* Processed */
+		p_ptr->command_trans = 0;
 	}
 }
 
@@ -3189,20 +3206,12 @@ static void dungeon(void)
 	/* Disturb */
 	disturb(1, 0);
 
-
-	/* Track maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev)
-	{
-		p_ptr->max_lev = p_ptr->lev;
-	}
-
-
-	/* Track maximum dungeon level */
-	if (p_ptr->max_depth < p_ptr->depth)
+	/* Track maximum dungeon level; surface does not count */
+	if (p_ptr->max_depth < p_ptr->depth 
+		 && p_ptr->depth > min_depth(p_ptr->dungeon))
 	{
 		p_ptr->max_depth = p_ptr->depth;
 	}
-
 
 	/* Choose panel */
 	verify_panel();
@@ -3283,7 +3292,7 @@ static void dungeon(void)
 	if (p_ptr->is_dead) return;
 
 	/* Announce (or repeat) the feeling */
-	if (p_ptr->depth>min_depth(p_ptr->dungeon)) do_cmd_feeling();
+	if (p_ptr->depth > min_depth(p_ptr->dungeon)) do_cmd_feeling();
 
 	/*** Process this dungeon level ***/
 

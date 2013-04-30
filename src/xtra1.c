@@ -1094,14 +1094,16 @@ static void health_redraw(void)
 		/* Healthy */
 		if (pct >= 100) attr = TERM_L_GREEN;
 
-		/* Bleeding - if not too badly wounded */
-		if ((m_ptr->cut) && (pct >= 60)) attr = TERM_L_UMBER;
+		/* Bleeding */
+		if (m_ptr->cut) attr = TERM_L_UMBER;
 
-		/* Poisoned - if not too badly wounded */
-		if ((m_ptr->poisoned) && (pct >= 60)) attr = TERM_GREEN;
+		/* Poisoned */
+		if (m_ptr->poisoned) attr = TERM_GREEN;
 
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
+
+		/* TODO: blinded, etc. */
 
 		/* Confused */
 		if (m_ptr->confused) attr = TERM_UMBER;
@@ -2284,7 +2286,6 @@ void calc_spells(void)
 		default:
 			p="spell";
 		break;
-
 	}
 
 	/* Paranoia -- ensure class is literate */
@@ -2339,23 +2340,21 @@ void calc_spells(void)
 	if (levels) num_allowed++;
 
 	/* Hack --- adjust num_allowed */
-	if (num_allowed >  PY_MAX_SPELLS) num_allowed = PY_MAX_SPELLS;
+	if (num_allowed > PY_MAX_SPELLS) num_allowed = PY_MAX_SPELLS;
 
 	/* Hack --- Assume no spells available */
 	k = 0;
 
 	/* Number of spells can be learnt */
-	for (j = 0; j < z_info->s_max;j++)
+	for (j = 0; j < z_info->s_max; j++)
 	{
-	  /* Get the spell details; warriors (class 0) have no spells */
-	  if (p_ptr->pclass)
-	    for (ii = 0; ii < MAX_SPELL_CASTERS; ii++)
-	      {
-		if (s_info[j].cast[ii].class == p_ptr->pclass)
-		  {
-		    k++;
-		  }
-	      }
+		for (ii = 0; ii < MAX_SPELL_CASTERS; ii++)
+			if (s_info[j].cast[ii].class == p_ptr->pclass)
+				k++;
+
+		/* Gifted and chosen spell casters can read from their book */
+		if (spell_match_style(j))
+			k++;
 	}
 
 	/* Hack --- Assume cannot learn more than spells in spell books */
@@ -2746,7 +2745,9 @@ static void calc_mana(void)
 	cur_wgt = 0;
 	cur_wgt += inventory[INVEN_BODY].weight;
 	cur_wgt += inventory[INVEN_HEAD].weight;
-	cur_wgt += inventory[INVEN_ARM].weight;
+	/* do not count rings and off-hand weapons */
+	if (inventory[INVEN_ARM].tval == TV_SHIELD)
+		cur_wgt += inventory[INVEN_ARM].weight;
 	cur_wgt += inventory[INVEN_OUTER].weight;
 	cur_wgt += inventory[INVEN_HANDS].weight;
 	cur_wgt += inventory[INVEN_FEET].weight;

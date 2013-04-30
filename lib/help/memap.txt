@@ -18,38 +18,38 @@ about wilderness and dungeons, see "dungeon.txt".
 
                                          
                                                    ##            Lonely Mountain
-                                                    ###              (27-42)
-               Trollshaws Forest (5-6)               ##                 | 
+                                                    ###              (26-42)
+               Trollshaws Forest (4-6)               ##                 | 
                 |                  |                  #                 |
                 |   Midgewater     |            Misty Mountains     Lake-town*
 Hobbiton*       |  / Marshes |     |              path ##              /|
- | \            | /  (11-17) |     |             (6-13)<---Beorn's    / |
+ | \            | /  (10-17) |     |             (5-13)<---Beorn's    / |
  |  \          Bree*         |     |            /      #    House    /  |
- | East Road-->(1-4)    Weathertop |  Rivendell*       ##     \     /   |
- |                  \     (18-31)  |  /|     \         ##      \   /    |
+ | East Road-->(0-4)    Weathertop |  Rivendell*       ##     \     /   |
+ |                  \     (17-31)  |  /|     \         ##      \   /    |
  |  Brandywine       \       |  \  | / |      \       ##     Mirkwood   |
- |  | Ferry  |        \      |   Ford  |       \     ##    Road (14-26) |
+ |  | Ferry  |        \      |   Ford  |       \     ##    Road (13-26) |
  |  |        V     ?   \     |         |        \    ###         |      |
  |  V   Buckland*  |    \    |         |         \    ##         |      |
 Farmer    |        V     \   |         |       Redhorn #     Woodmen*   |
-Maggot's  Old Forest-->Barrow Downs    |       Pass (8-37)<--Village    |
- Farm       (7-10)        (5-23)       |         /  ###      (11-13)    |
- (3-6)                                 |        /  ####        /        |
+Maggot's  Old Forest-->Barrow Downs    |       Pass (7-37)<--Village    |
+ Farm       (6-10)        (4-23)       |         /  ###      (10-13)    |
+ (2-6)                                 |        /  ####        /        |
                                        | West Moria ##        /         |
                                        |  entrance ## East Moria        |
-                                       |   (7-24) #### entrance         |
-                                       |    /    ####   (14-24)         |
+                                       |   (6-24) #### entrance         |
+                                       |    /    ####   (13-24)         |
                                        |   /     ##                 Dol Guldur
-                                     Dunland    ##Lorien*          / (43-65)
+                                     Dunland    ##Lorien*          / (42-65)
                                            \  ###                 /
                                             \ ####  Fangorn Forest
                                              \ ##  /
                                             Isengard
-                                             (4-35)               Parth Galen
+                                             (3-35)               Parth Galen
                                                    \             
                                                ##   \               Dead Marshes
                                   #################  Edoras*        
-                        ##############            ## (9-27)             
+                        ##############            ## (8-27)             
                                              Paths #####
                                           of the Dead ######
                                                           ############## Minas

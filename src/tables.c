@@ -559,13 +559,13 @@ const byte adj_chr_taunt[] =
 /*
  * Stat Table (CHR) -- Fear
  */
-const byte adj_chr_fear[] = StatTable_1_31;
+const byte adj_chr_fear[] = StatTable_1_31
 
 
 /*
  * Stat Table (INT) -- Breakage chance for ammo and weapons
  */
-const byte adj_int_break[] = StatTable_1_31;
+const byte adj_int_break[] = StatTable_1_31
 
 
 /*
@@ -3912,7 +3912,7 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {75, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Antidotes – holds low powered curing potions (e.g. restore strength) */
+	/* Bag of Antidotes – holds low powered curing potions */
 	{ {75, 26}, {75, 27}, {75, 28}, {75, 31},
 	  {75, 30}, {75, 34}, {75, 35}, {75, 41},
 	  {75, 42}, {75, 43}, {75, 44}, {75, 45},
@@ -3983,9 +3983,9 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
 	/* Bag of Maps – holds maps */
-	{ {72, 15}, {72, 16}, {72, 17}, {72, 27},
-	  {72, 33}, {72, 42}, {72, 43}, {72, 44},
-	  {72, 45}, {72, 46}, {72, 59}, {72, 61},
+	{ {72, 41}, {72, 29}, {72, 40}, {72, 27},
+	  {72, 33}, {72, 7}, {72, 43}, {72, 44},
+	  {72, 45}, {72, 46}, {72, 59}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
@@ -4192,3 +4192,93 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"bad luck casting ", "badly casting ", "slurring a syllable casting ", "magical feedback whilst casting "} /* SOURCE_PLAYER_CAST */
 };
 
+
+/*
+ * Item manipulation commands.
+ * 
+ * TODO: We could combine player_eat_food & player_quaff potion to a 'player_consume'
+ * function and player_use_staff and player_aim_wand to a 'player_use_charge' function etc.
+ */
+const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
+{
+	{ NULL, '\0', " which ? ", "You have nothing to .",
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, 0, NULL},
+			
+	{ player_eat_food, 'E', "Eat which item? ", "You have nothing to eat.",
+			item_tester_hook_food_edible, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, NULL},
+			
+	{ player_quaff_potion, 'q', "Quaff which potion? ", "You have nothing to quaff.",
+			NULL, TV_POTION, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, NULL},
+			
+	{ player_read_scroll, 'r', "Read which scroll? ", "You have no scrolls to read.",
+			NULL, TV_SCROLL, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), (CONDITION_NOT_BLIND | CONDITION_LITE | CONDITION_NOT_BERSERK), 0, NULL},
+	
+	{ player_use_staff, 'u', "Use which staff? ", "You have no staffs to use.",
+			NULL, TV_STAFF, (USE_INVEN | USE_FLOOR | USE_FEATU), (CONDITION_NOT_BERSERK), 0, NULL},
+			
+	{ player_aim_wand, 'u', "Aim which wand? ", "You have no wands to aim.",
+			NULL, TV_WAND, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), (CONDITION_NOT_BERSERK), 0, NULL},
+
+	{ player_zap_rod, 'z', "Zap which rod? ", "You have no rods to zap.",
+			item_tester_hook_rod_charged, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), (CONDITION_NOT_BERSERK), 0, NULL},
+	
+	{ player_assemble, 'Y', "Assemble which item? ", "You have no items to assemble.",
+			item_tester_hook_assemble, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, COMMAND_ITEM_ASSEMBLY, NULL},
+	
+	{ player_assembly, 'Y', "Assemble with which item? ", "You have no items to assemble it with.",
+			item_tester_hook_assembly, 0, (USE_INVEN | USE_FLOOR), 0L, 0, NULL},
+
+	{ player_activate, 'A', "Activate which item? ", "You have no items you know how to activate.",
+			item_tester_hook_activate, 0, (USE_EQUIP), 0L, 0, NULL},
+			
+	{ player_apply_rune_or_coating, 'y', "Apply which runestone, mushroom, flask or potion? ", "You have no runestones, mushrooms, flasks or potions.",
+			item_tester_hook_apply, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, cmd_tester_rune_or_coating},
+	
+	{ player_apply_rune_or_coating2, 'y', "Apply rune to which item? ", "You have nothing to apply runes to.",
+			NULL, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
+
+	{ player_apply_rune_or_coating2, 'y', "Coat which item? ", "You have nothing which will hold a coating.",
+			item_tester_hook_coating, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
+			
+	{ player_wield, 'w', "Wear/Wield which item? ", "You have nothing you can wear or wield.",
+			item_tester_hook_wear, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0, NULL},
+ 
+	{ player_wield /*_offhand*/, 'o', "Wear/Wield which item into your off-hand? ", "You have nothing you can wear or wield in your off-hand.",
+			item_tester_hook_wear /*_offhand */, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG), 0L, 0, NULL},
+
+	{ player_wield /*_quiver*/, 'p', "Put which item into your quiver? ", "You have nothing you can put in your quiver.",
+			item_tester_hook_wear /*_quiver*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0, NULL},
+
+	{ player_takeoff, 't', "Take off which item? ", "You are not wearing anything to take off.",
+			item_tester_hook_removable, 0, (USE_EQUIP), 0L, 0, NULL},
+	
+	{ player_drop, 'd', "Drop which item? ", "You have nothing to drop.",
+			item_tester_hook_droppable, 0, (USE_EQUIP | USE_INVEN | USE_BAGC | USE_BAGS), 0L, 0, NULL},
+			
+	{ player_destroy, 'k', "Destroy which item? ", "You have nothing to destroy.",
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0, NULL},
+			
+	{ player_observe, 'x', "Examine which item? ", "You have nothing to examine.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0, NULL},
+			
+	{ player_uninscribe, '}', "Un-inscribe which item? ", "You have nothing to un-inscribe.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0, NULL},
+			
+	{ player_inscribe, '{', "Inscribe which item? ", "You have nothing to inscribe.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0, NULL},
+			
+	{ player_refill, 'F', "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
+			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, cmd_tester_fill_or_fuel},
+			
+	{ player_refill2, '!', "Fill it from where? ", "You have nothing to fill it with.",
+			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
+			
+	{ player_refill2, '~', "Refuel with which torch? ", "You have no torches.",
+			item_tester_refill_torch, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
+			
+	{ player_refill2, '`', "Refill with which source of oil? ", "You have no sources of oil.",
+			item_tester_refill_lantern, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
+	
+	{ player_light_and_douse, '|', "Light/Douse which light source? ", "You have nothing to light or douse.",
+			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
+};

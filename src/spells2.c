@@ -167,7 +167,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, FALSE))
+	if (dec_stat(stat, 10))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -629,8 +629,9 @@ void self_knowledge_aux(bool spoil, bool random)
 		/* Can cure by treating symptoms */
 		if (!(p_ptr->disease & (DISEASE_PERMANENT | (1 << DISEASE_SPECIAL))))
 		{
-			text_out(", or can have the symptoms treated");
-			if (p_ptr->disease & (DISEASE_HEAVY)) text_out(" for a temporary respite");
+			text_out(", or you can treat the symptoms ");
+			if (p_ptr->disease & (DISEASE_HEAVY)) text_out("for a temporary respite");
+			else text_out("to cure the disease");
 		}
 
 		/* Dump */
@@ -1047,14 +1048,14 @@ void set_recall(void)
 		  }
 
 		/* Reset recall depth */
-		if ((p_ptr->depth > min_depth(p_ptr->dungeon)) && (p_ptr->depth != p_ptr->max_depth))
+		if (p_ptr->depth > min_depth(p_ptr->dungeon) 
+			 && p_ptr->depth != t_info[p_ptr->dungeon].attained_depth)
 		{
 			/*
-			 * ToDo: Add a new player_type field "recall_depth"
-			 * ToDo: Poll: Always reset recall depth?
+			 * TODO: Poll? Always reset recall depth?
 			 */
 			 if (get_check("Reset recall depth? "))
-				p_ptr->max_depth = p_ptr->depth;
+				 t_info[p_ptr->dungeon].attained_depth = p_ptr->depth;
 		}
 
 		p_ptr->word_recall = rand_int(20) + 15;
@@ -1282,7 +1283,7 @@ int value_check_aux3(const object_type *o_ptr)
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr))	return (INSCRIP_NONMAGICAL);
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_NONMAGICAL);
 
 		/* Superb */
 		if (o_ptr->xtra1) return (INSCRIP_SUPERB);
@@ -1311,7 +1312,13 @@ int value_check_aux3(const object_type *o_ptr)
 	if (coated_p(o_ptr)) return (INSCRIP_COATED);
 
 	/* Magic item */
-	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EXCELLENT);
+	if (o_ptr->xtra1)
+	{
+		if (object_power(o_ptr) > 0)
+			return (INSCRIP_EXCELLENT);
+		else
+			return (INSCRIP_NONMAGICAL);
+	}
 
 	/* Great "armor" bonus */
 	if (o_ptr->to_a > MAX(7, o_ptr->ac)) 
@@ -2090,7 +2097,7 @@ bool concentrate_light_hook(const int y, const int x, const bool modify)
  * 
  * -DarkGod-, -LM-
  */
-int concentrate_power(int who, int y0, int x0, int radius, bool for_real, bool use_los,
+int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
 		bool concentrate_hook(const int y, const int x, const bool modify))
 {
 	int power = 0;
@@ -7534,15 +7541,8 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			{
 				int v;
 				u32b old_disease = p_ptr->disease;
-
-				*cancel = FALSE;
-
-				/* Mega Hack -- one disease is hard to cure. */
-				if ((p_ptr->disease & (1 << DISEASE_SPECIAL)) && (s_ptr->param != DISEASE_SPECIAL))
-				{
-					msg_print("This disease requires a special cure.");
-					return (TRUE);
-				}
+				
+				char output[1024];
 
 				/* Hack -- cure disease */
 				if (s_ptr->param >= 32)
@@ -7564,42 +7564,55 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					v = (1L << s_ptr->param);
 				}
 
-				/* Cure diseases */
-				if ((p_ptr->disease & v) != 0)
+				/* Character not affected by this disease */
+				if ((p_ptr->disease & v) == 0)
 				{
+					/* Message */
+					if (p_ptr->disease) msg_print("This cure is ineffective for what ails you.");
 					obvious = TRUE;
-
-					/* Hack -- always cure light diseases by treating any symptom */
-					if (p_ptr->disease & (DISEASE_LIGHT))
-						p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
-					/* Remove a symptom/cause */
-					else
-						p_ptr->disease &= ~(v);
-
-					/* Cured all symptoms or cured all origins of disease? */
-					/* Note for heavy diseases - curing the symptoms is temporary only */
-					if ( ((s_ptr->param >= DISEASE_TYPES_HEAVY) && (p_ptr->disease < (1L << DISEASE_TYPES_HEAVY)))
-						|| ( ((p_ptr->disease & ((1L << DISEASE_TYPES_HEAVY) -1)) == 0) && !(p_ptr->disease & (DISEASE_HEAVY)) ) )
-					{
-						p_ptr->disease &= (DISEASE_PERMANENT);
-					}
+					
+					break;
 				}
 
-				/* Print diseases cured */
-				if (obvious)
+				/* Don't allow cancellation */
+				*cancel = FALSE;
+
+				/* Mega Hack -- one disease is hard to cure. */
+				if ((p_ptr->disease & (1 << DISEASE_SPECIAL)) && (s_ptr->param != DISEASE_SPECIAL))
 				{
-					char output[1024];
+					msg_print("This disease requires a special cure.");
+					return (TRUE);
+				}
 
-					disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
+				/* Cure diseases */
+				obvious = TRUE;
+
+				/* Hack -- always cure light diseases by treating any symptom */
+				if (p_ptr->disease & (DISEASE_LIGHT))
+					p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
+				/* Remove a symptom/cause */
+				else
+					p_ptr->disease &= ~(v);
+
+				/* Cured all symptoms or cured all origins of disease? */
+				/* Note for heavy diseases - curing the symptoms is temporary only */
+				if ( ((s_ptr->param >= DISEASE_TYPES_HEAVY) && (p_ptr->disease < (1L << DISEASE_TYPES_HEAVY)))
+					|| ( ((p_ptr->disease & ((1L << DISEASE_TYPES_HEAVY) -1)) == 0) && !(p_ptr->disease & (DISEASE_HEAVY)) ) )
+				{
+					p_ptr->disease &= (DISEASE_PERMANENT);
+				}
+
+				/* Describe diseases lost */
+				disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
+				msg_print(output);
+
+				p_ptr->redraw |= (PR_DISEASE);
+
+				/* Describe new disease */
+				if (p_ptr->disease)
+				{
+					disease_desc(output, sizeof(output), 0x0L, p_ptr->disease);
 					msg_print(output);
-
-					p_ptr->redraw |= (PR_DISEASE);
-
-					if (p_ptr->disease)
-					{
-						disease_desc(output, sizeof(output), 0x0L, p_ptr->disease);
-						msg_print(output);
-					}
 				}
 
 				break;
@@ -7954,17 +7967,17 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Hack -- upgrade slays to executions, where possible */
 					case 19:
 					{
-						if (p_ptr->lev >= 30) p_ptr->branded_blows = 28;
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 27;
 						break;
 					}
 					case 20:
 					{
-						if (p_ptr->lev >= 30) p_ptr->branded_blows = 27;
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 26;
 						break;
 					}
-					case 25:
+					case 24:
 					{
-						if (p_ptr->lev >= 30) p_ptr->branded_blows = 26;
+						if (p_ptr->lev >= 30) p_ptr->branded_blows = 25;
 						break;
 					}
 				}
@@ -8068,7 +8081,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
  * We also concentrate spells here, in order to hackily set
  * the spell power for later processing in spell blows.
  */
-void process_spell_prepare(int who, int what, int spell, int level)
+void process_spell_prepare(int spell, int level)
 {
 	spell_type *s_ptr = &s_info[spell];
 	
@@ -8118,21 +8131,21 @@ void process_spell_prepare(int who, int what, int spell, int level)
 		
 		case SPELL_CONCENTRATE_LITE:
 		{
-			power = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+			power = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, TRUE, TRUE, concentrate_light_hook);
 			break;
 		}
 	
 		case SPELL_CONCENTRATE_LIFE:
 		{
-			power = s_ptr->l_plus = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+			power = s_ptr->l_plus = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, TRUE, FALSE, concentrate_life_hook);
 			break;
 		}
 		
 		case SPELL_CONCENTRATE_WATER:
 		{
-			power = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+			power = concentrate_power(p_ptr->py, p_ptr->px,
 					5 + level / 10, TRUE, FALSE, concentrate_water_hook);
 			break;
 		}
@@ -8173,7 +8186,7 @@ bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel)
 	}
 
 	/* Check for return flags */
-	process_spell_prepare(who, what, spell, level);
+	process_spell_prepare(spell, level);
 	
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -8279,7 +8292,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 	}
 
 	/* Check for return flags */
-	process_spell_prepare(who, what, spell, level);	
+	process_spell_prepare(spell, level);	
 	
 	/* Note the order is important -- because of the impact of blinding a character on their subsequent
 		ability to see spell blows that affect themselves */
@@ -8315,7 +8328,7 @@ bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
 	}
 
 	/* Check for return if player */
-	if (cave_m_idx[y][x] < 0) process_spell_prepare(who, what, power, 25);
+	if (cave_m_idx[y][x] < 0) process_spell_prepare(power, 25);
 	
 	/* Has a power */
 	if (power > 0)

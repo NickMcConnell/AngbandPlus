@@ -1297,8 +1297,10 @@ static bool wr_savefile_new(void)
 	/* Write the dungeon max depths */
 	for (i = 0; i < z_info->t_max; i++)
 	{
-		wr_byte(t_info[i].max_depth);
+		wr_byte(t_info[i].attained_depth);
 		wr_byte(t_info[i].visited);
+		wr_u16b(t_info[i].guardian_ifvisited);
+		wr_u16b(t_info[i].replace_guardian);
 
 		/* Write the store indexes if alive */
 		if (!p_ptr->is_dead)

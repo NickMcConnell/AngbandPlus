@@ -1,4 +1,4 @@
-Unangband 0.6.2 Work in Progress Release
+Unangband 0.6.2 Beta Release
 
 
 ### Game Play ###
@@ -454,7 +454,24 @@ of work into this).
 
 - other minor tweaks and additions
 
+* Made most deep dungeons shallower now that you cannot WOR to bottom; cannot make Angband shallower, I guess, or no-campaign mode will break
 
+* You can never be permanently stat drained now.
+
+* Made the number of quest rewards slightly random
+
+- You can also no longer try to cast with insufficient mana if you are at 3 CON.
+
+- You can now inscribe anything edible with =< to eat one of them when you travel.
+Normal food will automatically be eaten, but you can inscribe it with !< to not do so.
+
+* Visiting surface now does not count for player max depth --- easier to keep track of current character power (or risk aversion)
+
+* ?oID wasn't common enough now that you have only 1 town
+
+* Removed armor encumberance by 3rd ring or off-hand weapon --- a mage is now better off with an off-hand dagger than a shield
+
+* Move the Maggot's dogs to DL3 now that they only appear at one level
 
 ### User Interface ###
 
@@ -555,6 +572,17 @@ ensure restocking of shops occurs.
 
 - changed default wrap column to 80 now that we have long texts to print, e.g. dungeon descriptions; some are still 75 column, e.g. ego powers, because they are subordinate to their main item descriptions; tentative
 
+* Removed unvisited dungeons from the dump --- they were too confusing
+
+- All spellbooks now sorted based on the current class of the caster.
+
+* Improved dump description of depth and max depth
+
+* Dump also inventories of the other storage buildings, not only homes
+
+* Made the dungeons visited dump a bit less monotonous
+
+* Poisoned and bleeding monster status is now marked by color even if monster below 60% health. 
 
 
 ### Bug fixes ###
@@ -938,6 +966,82 @@ Fix for Bug #12538 Chain-summoning Termite Mounds.
 
 - fixed another crash with bags and lack of equip term refresh when canceling item selection from a bag
 
+* Magic weapons with negative pvals are no longer {good}
+
+* Object power bonus for swap weapon now correctly assigned to throwing weapons
+
+* Goblin sapper is now a 'k', not 'o'
+
+* Fixed the new bard fighting spells
+
+* To hit penalty of armor was deducted from power, so weak ego armor could end up {very good}; fixed
+
+* Fixed #12875 (+0 amulet of charisma)
+
+* Fixed broken chosen spellcasters' magic
+
+* Probably fixed #12939 (Lower equipment stat bonuses), both the shovel (56) part and the generally big stat boosts part, though random artifacts still seem a bit too stat-powerful
+
+* Fixed #12216 (Tom's potions not identified)
+
+* Fixed #12953 and eliminated a couple more runoff fall throughs from switch
+- Fix for Bug #12800 'brazier containing something' contains nothing
+
+- You now automatically eat any rations to stave off hunger while you travel.
+
+* Removed amulet of Doom's throwing damage, not to spoil the player. Made the damage of the rings higher to be actually interesting to a desperate player (but they are not well balanced).
+
+- Fix for Bug #12812 0-mana casting shoudn't damage CON permanently.
+
+- Fix for Bug #12816 Shop hides Amulet of the Magi powers.
+
+* Fixed some display errors with monster memory.
+
+- Fix for Bug #12889 unclear "or you can treat the symptoms".
+
+- Fix for Bug #12884 Ranger Detect Doors/Traps spell is too high level (13)
+
+- Partial fix for Bug #12867 Bards lack prerequisites to some of their spells
+
+- Fix for Bug #12868 Service of Cure Disease eats money but doesn't cure Plague. You now get a message and no longer lose money from the store service.
+
+- Fix for Bug #12870 Goblin grenadier throws potion, becomes healing potion.
+
+* Fixed broken "build stone bridge" spell
+
+* Fixed #12795: Game hangs at falling into a chasm in Isengard
+
+* Fixed Bug #10307: Restocking of the black market
+
+* Fixed map Caradhras leading to Redhorn Pass and not fitting inside the bag
+
+* Corrected the rule that > max_hp/2 player cannot be instakilled by traps
+
+* The new rods where as heavy as staffs; fixed
+
+* another pseudo-id hack, so that broken items do not get {magical} when worn
+
+* Fixed inability to fill empty flasks (bottles were OK)
+
+* Changed the maximal attained depth per dungeon field to be absolute rather than counted from the surface; lots of code is simplified now
+
+* Saving replacement guardians now, to avoid false dungeon knowledge about recycled guardians
+
+* Fixed WOR that didn't take into account different depths in different dungeons
+
+* Fixed description of *Enchant** items
+
+- Fix for Bug #12794 Wrongly guessed Resist Confusion.
+
+* Changed depth display with ^T and in dump to absolute, as everywhere
+
+* Fixed some warnings by mingw; one of them was a bug making GIANT monsters hard to melee only rarely
+
+* Probably fixed the bad interaction between easy_corpses and easy_floor
+
+* Added auto-correction of too low saved player dungeon depth
+
+* Fixed #12742 (shopekeepers sense curses on all sensed items)
 
 ### Build / Platform ###
 

@@ -5283,7 +5283,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					if (!effect) continue;
 
 					/* Never display message XXX XXX XXX */
-					if (!n_ptr->csleep && !mon_check_hit(cave_m_idx[ny][nx], method, effect, r_ptr->level, m_idx , FALSE)) continue;
+					if (!n_ptr->csleep && !mon_check_hit(cave_m_idx[ny][nx], effect, r_ptr->level, m_idx , FALSE)) continue;
 
 					/* Roll out the damage. Note hack to make fights faster */
 					damage = damroll(d_dice, d_side) * (n_ptr->csleep ? 4 : 2);

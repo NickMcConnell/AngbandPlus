@@ -5269,7 +5269,7 @@ void cave_set_feat_aux(int y, int x, int feat)
  * This occurs for cave edges, trees, locations lit by daylight, locations lit by
  * glowing features.
  */
-void check_attribute_lost(int y, int x, int r, byte los, tester_attribute_func require_attribute, tester_attribute_func has_attribute,
+void check_attribute_lost(const int y, const int x, const int r, const byte los, tester_attribute_func require_attribute, tester_attribute_func has_attribute,
 	tester_attribute_func redraw_attribute, modify_attribute_func remove_attribute,	modify_attribute_func reapply_attribute)
 {
 	int yy, xx;

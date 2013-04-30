@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	4
+#define VERSION_EXTRA	5
 
 
 /*
@@ -625,6 +625,55 @@
  * display 23 objects + 1 header line.
  */
 #define MAX_FLOOR_STACK			23
+
+
+
+
+
+/*
+ * Indexes of various commands.
+ */
+#define COMMAND_ITEM_EAT		1
+#define COMMAND_ITEM_QUAFF		2
+#define COMMAND_ITEM_READ		3
+#define COMMAND_ITEM_USE		4
+#define COMMAND_ITEM_AIM		5
+#define COMMAND_ITEM_ZAP		6
+#define COMMAND_ITEM_ASSEMBLE	7
+#define COMMAND_ITEM_ASSEMBLY	8
+#define COMMAND_ITEM_ACTIVATE	9
+#define COMMAND_ITEM_APPLY		10
+#define COMMAND_ITEM_APPLY_RUNE	11
+#define COMMAND_ITEM_APPLY_COAT	12
+#define COMMAND_ITEM_WIELD		13
+#define COMMAND_ITEM_WIELD_OFF	14
+#define COMMAND_ITEM_READY		15
+#define COMMAND_ITEM_TAKEOFF	16
+#define COMMAND_ITEM_DROP		17
+#define COMMAND_ITEM_DESTROY	18
+#define COMMAND_ITEM_EXAMINE	19
+#define COMMAND_ITEM_UNINSCRIBE	20
+#define COMMAND_ITEM_INSCRIBE	21
+#define COMMAND_ITEM_FUEL		22
+#define COMMAND_ITEM_FILL		23
+#define COMMAND_ITEM_FUEL_TORCH	24
+#define COMMAND_ITEM_FUEL_LAMP	25
+#define COMMAND_ITEM_LITE		26
+
+
+#define MAX_COMMANDS	100
+
+
+/*
+ * Conditional checks to ensure player status does not prevent commands
+ */
+#define CONDITION_NOT_BLIND		0x00000001L
+#define CONDITION_LITE			0x00000002L
+#define CONDITION_NOT_BERSERK	0x00000004L
+#define CONDITION_NOT_FORGET	0x00000008L
+
+
+
 
 
 
@@ -2598,8 +2647,8 @@
 #define RBM_SCATTER		77
 #define RBM_HOWL 		78
 
-#define RBM_MAX_NORMAL  23
-#define RBM_MIN_RANGED  15
+#define RBM_MAX_NORMAL  24
+#define RBM_MIN_RANGED  16
 
 
 /*** Function flags ***/
@@ -2766,14 +2815,17 @@
 /*
  * Bit flags for the "get_item" function
  */
-#define USE_EQUIP		0x01	/* Allow equip items */
-#define USE_INVEN		0x02	/* Allow inven items */
-#define USE_FLOOR		0x04	/* Allow floor items */
-#define USE_FEATU		0x08	/* Allow features (usable) */
-#define USE_FEATG		0x10	/* Allow features (gettable) */
-#define USE_QUIVER		0x20	/* Allow quiver items, forbid classic equipment */
-#define USE_SELF		0x40	/* Allow selection of player */
-#define USE_FEATH		0x80	/* Allow features (hurt by fire) */
+#define USE_EQUIP		0x00000001L	/* Allow equip items */
+#define USE_INVEN		0x00000002L	/* Allow inven items */
+#define USE_FLOOR		0x00000004L	/* Allow floor items */
+#define USE_FEATU		0x00000008L	/* Allow features (usable) */
+#define USE_FEATG		0x00000010L	/* Allow features (gettable) */
+#define USE_QUIVER		0x00000020L	/* Allow quiver items, forbid classic equipment */
+#define USE_SELF		0x00000040L	/* Allow selection of player */
+#define USE_FEATH		0x00000080L	/* Allow features (hurt by fire) */
+#define USE_BAGC		0x00000100L	/* Allow bag contents */
+#define USE_BAGS		0x00000200L	/* Allow whole of bag */
+
 
 
 /*** Player flags ***/

@@ -4083,7 +4083,7 @@ errr parse_r_info(char *buf, header *head)
 		if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
 
 		/* Update the rf4 flags */
-		if (n1 > RBM_MIN_RANGED) r_ptr->flags4 |= (RF4_BLOW_1 << i);
+		if (n1 >= RBM_MIN_RANGED) r_ptr->flags4 |= (RF4_BLOW_1 << i);
 
 		/* Hack -- update the rf7 flags */
 		switch (n1)
@@ -7366,15 +7366,15 @@ static long eval_max_dam(monster_race *r_ptr)
 				}
 			}
 
-			/* Normal melee attack */
-			if ((method < RBM_MAX_NORMAL) && !(r_ptr->flags1 & (RF1_NEVER_BLOW)))
+			/* Normal melee or ranged attack */
+			if ((method <= RBM_MAX_NORMAL) && !(r_ptr->flags1 & (RF1_NEVER_BLOW)))
 			{
 				/* Keep a running total */
 				melee_dam += atk_dam;
 			}
 
 			/* Ranged attacks can also apply spell dam */
-			if (method > RBM_MIN_RANGED)
+			if (method >= RBM_MIN_RANGED)
 			{
 				int range = MAX_SIGHT, mana = 0, has_ammo = 0, freq;
 				bool must_hit = FALSE;
@@ -7726,11 +7726,11 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	
 	/* Monsters with resistances are harder to kill.
 	   Therefore effective slays / brands against them are worth more. */
-	if (r_ptr->flags3 & RF3_IM_ACID)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_FIRE) 	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_COLD)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_ELEC)	resists += 2;
-	if (r_ptr->flags3 & RF3_IM_POIS)	resists += 2;
+	if (r_ptr->flags3 & RF3_IM_ACID) resists += 2;
+	if (r_ptr->flags3 & RF3_IM_FIRE) resists += 2;
+	if (r_ptr->flags3 & RF3_IM_COLD) resists += 2;
+	if (r_ptr->flags3 & RF3_IM_ELEC) resists += 2;
+	if (r_ptr->flags3 & RF3_IM_POIS) resists += 2;
 
 	/* Oppose elements */
 	if (r_ptr->flags6 & RF6_OPPOSE_ELEM)
@@ -7796,14 +7796,14 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	/* If quite resistant, reduce resists by defense holes */
 	if (resists >= 6)
 	{
-		if (r_ptr->flags3 & RF3_HURT_ROCK) 	resists -= 1;
-		if (r_ptr->flags3 & RF3_HURT_WATER) 	resists -= 1;
-		if (!(r_ptr->flags3 & RF3_NO_SLEEP))	resists -= 3;
-		if (!(r_ptr->flags3 & RF3_NO_FEAR))	resists -= 2;
-		if (!(r_ptr->flags3 & RF3_NO_CONF))	resists -= 2;
-		if (!(r_ptr->flags9 & RF9_NO_SLOW))	resists -= 2;
-		if (!(r_ptr->flags3 & RF9_RES_BLIND))	resists -= 2;
-		if (!(r_ptr->flags9 & RF9_RES_TPORT))	resists -= 2;
+		if (r_ptr->flags3 & RF3_HURT_ROCK) resists -= 1;
+		if (r_ptr->flags3 & RF3_HURT_WATER) resists -= 1;
+		if (!(r_ptr->flags3 & RF3_NO_SLEEP)) resists -= 3;
+		if (!(r_ptr->flags3 & RF3_NO_FEAR)) resists -= 2;
+		if (!(r_ptr->flags3 & RF3_NO_CONF)) resists -= 2;
+		if (!(r_ptr->flags9 & RF9_NO_SLOW)) resists -= 2;
+		if (!(r_ptr->flags3 & RF9_RES_BLIND)) resists -= 2;
+		if (!(r_ptr->flags9 & RF9_RES_TPORT)) resists -= 2;
 
 		if (resists < 5) resists = 5;
 	}
@@ -7820,7 +7820,7 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	}
 
 	/* Scale resists to ac */
-	resists = resists * 25;
+	resists *= 25;
 
 	/* Apply magic resistance */
 	if (r_ptr->flags9 & RF9_RES_MAGIC)	resists += 40 + r_ptr->level;
@@ -7838,7 +7838,7 @@ static long eval_hp_adjust(monster_race *r_ptr)
 		hp += (hp * ac) / (150 + r_ptr->level); 			
 	}
 
-	/*boundry control*/
+	/* boundary control */
 	if (hp < 1) hp = 1;
 
 	return (hp);

@@ -31,7 +31,7 @@
 
 # 'R' is for the base skills - disarming, magic devices, saving throws,
 # stealth, searching ability, digging, to hit (throws), to hit (melee),
-# to hit (bows). TODO:? to hit (unarmed), to ac.
+# to hit (bows).
 
 # 'X' is for extra info - experience factor in percent, 
 # range of infravision in 10 feets.

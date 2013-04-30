@@ -109,6 +109,7 @@ extern const cptr w_name_style[32];
 extern const s16b style2tval[32];
 extern const s16b parasite_hack[DISEASE_BLOWS];
 extern const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES];
+extern const do_cmd_item_type cmd_item_list[MAX_COMMANDS];
 
 
 /* variable.c */
@@ -480,18 +481,27 @@ extern int actual_route(int dun);
 
 /* cmd3.c */
 extern void mark_cursed_feeling(object_type *o_ptr);
+extern bool item_tester_hook_wear(const object_type *o_ptr);
+extern bool item_tester_hook_droppable(const object_type *o_ptr);
+extern bool item_tester_hook_removable(const object_type *o_ptr);
+extern bool item_tester_empty_flask_or_lite(const object_type *o_ptr);
+extern bool item_tester_refill_torch(const object_type *o_ptr);
+extern bool item_tester_refill_lantern(const object_type *o_ptr);
+extern bool item_tester_refill_flask(const object_type *o_ptr);
+extern bool item_tester_light_source(const object_type *o_ptr);
+extern int cmd_tester_fill_or_fuel(int item);
 extern void do_cmd_inven(void);
 extern void do_cmd_equip(void);
-extern void do_cmd_wield(void);
-extern void do_cmd_takeoff(void);
-extern void do_cmd_drop(void);
-extern void do_cmd_destroy(void);
-extern void do_cmd_observe(void);
-extern void do_cmd_uninscribe(void);
-extern void do_cmd_inscribe(void);
-extern bool item_tester_refill_torch(const object_type *o_ptr);
-extern void do_cmd_refill(void);
-extern void do_cmd_light_and_douse(void);
+extern bool player_wield(int item);
+extern bool player_takeoff(int item);
+extern bool player_drop(int item);
+extern bool player_destroy(int item);
+extern bool player_observe(int item);
+extern bool player_uninscribe(int item);
+extern bool player_inscribe(int item);
+extern bool player_refill(int item);
+extern bool player_refill2(int item);
+extern bool player_light_and_douse(int item);
 extern void do_cmd_target(void);
 extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
@@ -533,15 +543,26 @@ extern bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t);
 extern void do_cmd_cast(void);
 
 /* cmd6.c */
-extern void do_cmd_eat_food(void);
-extern void do_cmd_quaff_potion(void);
-extern void do_cmd_read_scroll(void);
-extern void do_cmd_use_staff(void);
-extern void do_cmd_aim_wand(void);
-extern void do_cmd_zap_rod(void);
-extern void do_cmd_assemble(void);
-extern void do_cmd_activate(void);
-extern void do_cmd_apply_rune_or_coating(void);
+extern void do_cmd_item(int item);
+extern bool item_tester_hook_food_edible(const object_type *o_ptr);
+extern bool item_tester_hook_rod_charged(const object_type *o_ptr);
+extern bool item_tester_hook_assembly(const object_type *o_ptr);
+extern bool item_tester_hook_assemble(const object_type *o_ptr);
+extern bool item_tester_hook_activate(const object_type *o_ptr);
+extern bool item_tester_hook_apply(const object_type *o_ptr);
+extern bool item_tester_hook_coating(const object_type *o_ptr);
+extern int cmd_tester_rune_or_coating(int item);
+extern bool player_eat_food(int item);
+extern bool player_quaff_potion(int item);
+extern bool player_read_scroll(int item);
+extern bool player_use_staff(int item);
+extern bool player_aim_wand(int item);
+extern bool player_zap_rod(int item);
+extern bool player_assembly(int item);
+extern bool player_assemble(int item);
+extern bool player_activate(int item);
+extern bool player_apply_rune_or_coating(int item);
+extern bool player_apply_rune_or_coating2(int item);
 
 /* dungeon.c */
 extern bool dun_level_mon(int r_idx);
@@ -639,7 +660,7 @@ extern bool load_player(void);
 /* melee1.c */
 extern bool monster_scale(monster_race *n_ptr, int m_idx, int depth);
 extern int get_breath_dam(s16b hit_points, int gf_type, bool powerful);
-extern bool mon_check_hit(int m_idx, int method, int power, int level, int who, bool ranged);
+extern bool mon_check_hit(int m_idx, int power, int level, int who, bool ranged);
 extern void attack_desc(int who, int what, int target, int method, int damage, bool *do_cut, bool *do_stun);
 extern bool make_attack_normal(int m_idx);
 extern void mon_blow_ranged(int who, int what, int x, int y, int method, int range, int flg, cptr result);
@@ -855,7 +876,7 @@ extern bool hates_terrain(object_type *o_ptr, int f_idx);
 extern bool player_ignore_terrain(int f_idx);
 extern int  calc_inc_stat(int value, int auto_roll);
 extern void inc_stat(int stat);
-extern bool dec_stat(int stat, int amount, int permanent);
+extern bool dec_stat(int stat, int amount);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
 extern bool hates_fire(object_type *o_ptr);
@@ -914,7 +935,7 @@ extern void change_shape(int shape, int level);
 extern bool concentrate_water_hook(const int y, const int x, const bool modify);
 extern bool concentrate_life_hook(const int y, const int x, const bool modify);
 extern bool concentrate_light_hook(const int y, const int x, const bool modify);
-extern int concentrate_power(int who, int y0, int x0, int radius, bool for_real, bool use_los,
+extern int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
 		bool concentrate_hook(const int y, const int x, const bool modify));
 extern bool process_spell_flags(int spell, int level, bool *cancel, bool *known);
 extern bool process_spell_blows(int who, int what, int spell, int level, bool *cancel);
