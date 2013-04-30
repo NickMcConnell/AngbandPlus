@@ -5193,7 +5193,7 @@ static void cave_set_feat_aux(int y, int x, int feat)
 
 		if (hidden)
 		{
-			monster_hide(y,x,place_monster_here(y,x,m_ptr->r_idx) > 0, m_ptr);
+			monster_hide(y, x, place_monster_here(y, x, m_ptr->r_idx), m_ptr);
 
 			if (!(m_ptr->mflag & (MFLAG_HIDE)))
 			{
@@ -5244,10 +5244,11 @@ static void cave_set_feat_aux(int y, int x, int feat)
 			o_ptr->ident &= ~(IDENT_MARKED);
 		}
 
-		/* Destroy stored items */
+		/* Destroy stored items --- Hack: changed to get Flasks of Oil, etc. from traps; I have no clue what more it does change */
 		if (o_ptr->ident & (IDENT_STORE))
 		{
-			delete_object_idx(this_o_idx);
+		  o_ptr->ident &= ~IDENT_STORE;
+		  /*			delete_object_idx(this_o_idx); */
 			continue;
 		}
 	}

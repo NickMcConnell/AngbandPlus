@@ -1539,8 +1539,8 @@ bool cave_exist_mon(int r_idx, int y, int x, bool occupied_ok)
 		if (!occupied_ok) return (FALSE);
 	}
 
-	/*** Check passability of various features. ***/
-	if (place_monster_here(y,x,r_idx) > 0) return (TRUE);
+	/* Check passability and survivability of features */
+	if (place_monster_here(y,x,r_idx) > MM_FAIL) return (TRUE);
 
 	/* Catch weirdness */
 	return (FALSE);
@@ -1672,21 +1672,20 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 	}
 
-	/* Feature is passable */
+	/* Feature is passable or damaging */
 	else if (mmove != MM_FAIL)
 	{
-		/* Do not kill ourselves in terrain ourself unless confused */
-		if ((mmove == MM_DROWN) && (!m_ptr->confused))
+		/* Do not kill ourselves in terrain unless confused */
+		if (mmove == MM_DROWN && !m_ptr->confused)
 		{
 			/* Try to get out of existing trouble */
-                        if (place_monster_here(m_ptr->fy,m_ptr->fx, m_ptr->r_idx) <= 0) move_chance /= 4;
-
+                        if (place_monster_here(m_ptr->fy, m_ptr->fx, m_ptr->r_idx) <= MM_FAIL) move_chance /= 4;
 			/* Don't walk into trouble */
 			else move_chance = 0;
 		}
 
 		/* We cannot natively climb, but are negotiating a tree or rubble */
-		else if ((mmove == MM_CLIMB) && !(r_ptr->flags2 & (RF2_CAN_CLIMB)))
+		else if (mmove != MM_DROWN && mmove == MM_CLIMB && !(r_ptr->flags2 & RF2_CAN_CLIMB))
 		{
 			move_chance /= 2;
 		}
@@ -2490,7 +2489,7 @@ static bool get_move_retreat(int m_idx, int *ty, int *tx)
  * Monsters not in LOS always advance (this avoids player frustration).  
  * Monsters in LOS will advance to the character, up to their standard
  * combat range, to a grid that allows them to target the character, or
- * just stay still if they are happy where they are, depending on the
+ * just move at random if they are happy where they are, depending on the
  * tactical situation and the monster's preferred and minimum combat
  * ranges.
  * NOTE:  Here is an area that would benefit from more development work.
@@ -2841,24 +2840,16 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 				*tx = px;
 			}
 
-			/* Otherwise they will stay still or move randomly. */
+			/* Otherwise they will move randomly. */
+			/* TODO: Monsters could look for better terrain... */
 			else
-			{
-				/*
-				 * It would be odd if monsters that move randomly 
-				 * were to stay still.
-				 */
-				if (r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25))
-				{
-					/* pick a random grid next to the monster */
-					int i = rand_int(8);
+			  {
+			    /* pick a random grid next to the monster */
+			    int i = rand_int(8);
 
-					*ty = m_ptr->fy + ddy_ddd[i];
-					*tx = m_ptr->fx + ddx_ddd[i];
-				}
-
-				/* Monsters could look for better terrain... */
-			}
+			    *ty = m_ptr->fy + ddy_ddd[i];
+			    *tx = m_ptr->fx + ddx_ddd[i];
+			  }
 		}
 	}
 
@@ -3151,6 +3142,7 @@ bool player_understands(int language)
 	else if ((language == LANG_DRAGON) && ((p_ptr->cur_flags4 & (TR4_DRAGON)) || (p_ptr->cur_flags3 & (TR3_ESP_DRAGON)))) understand = TRUE;
 	else if ((language == LANG_DEMON) && ((p_ptr->cur_flags4 & (TR4_DEMON)) || (p_ptr->cur_flags3 & (TR3_ESP_DEMON)))) understand = TRUE;
 	else if ((language == LANG_UNDEAD) && ((p_ptr->cur_flags4 & (TR4_UNDEAD)) || (p_ptr->cur_flags3 & (TR3_ESP_UNDEAD)))) understand = TRUE;
+	else if (((language == LANG_FOREST) || (language == LANG_MUSHROOM)) && (p_ptr->pshape == RACE_ENT)) understand = TRUE;
 	else if ((language >= LANG_NATURAL) && ((p_ptr->cur_flags4 & (TR4_ANIMAL)) || (p_ptr->cur_flags3 & (TR3_ESP_NATURE)))) understand = TRUE;
 
 	return (understand);
@@ -4474,7 +4466,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 	/* The monster is stuck in terrain e.g. cages */
 	if (!(m_ptr->mflag & (MFLAG_OVER)) && !(f_info[cave_feat[oy][ox]].flags1 & (FF1_MOVE)) &&
-		(place_monster_here(oy,ox,m_ptr->r_idx) <= 0) && (mmove != MM_PASS))
+		(place_monster_here(oy, ox, m_ptr->r_idx) <= MM_FAIL) && (mmove != MM_PASS))
 	{
 		/* Hack -- check old location */
 		feat = cave_feat[oy][ox];
@@ -5945,7 +5937,7 @@ static void recover_monster(int m_idx, bool regen)
 	}
 
 	/* Get hit by terrain continuously */
-	if (place_monster_here(y,x,m_ptr->r_idx) < 0)
+	if (place_monster_here(y, x, m_ptr->r_idx) < MM_FAIL)
 	{
 		bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 

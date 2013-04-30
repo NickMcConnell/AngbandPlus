@@ -377,7 +377,9 @@ static cptr r_info_blow_effect[] =
 	"WEB",
 	"BLOOD",
 	"SLIME",
-	NULL
+	"RESIST_MAGIC",
+	"FALL_LESS",
+	NULL,
 };
 
 /*
@@ -1393,8 +1395,8 @@ static cptr s_info_types[] =
 	"SLOW_CONF",
 	"SLOW_POIS",
 	"IDENT_PACK",
-	"XXX5",
-	"XXX6",
+	"CHANGE_SHAPE",
+	"REVERT_SHAPE",
 	"XXX7",
 	"XXX8",
 	"INVEN_WIELD",
@@ -1716,6 +1718,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->p_max = max;
 	}
 
+	/* Process 'G' for "Maximum g_info[] index" */
+	else if (buf[2] == 'G')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->g_max = max;
+	}
+
 	/* Process 'C' for "Maximum c_info[] index" */
 	else if (buf[2] == 'C')
 	{
@@ -1811,7 +1825,7 @@ errr parse_z_info(char *buf, header *head)
 		z_info->b_max = max;
 	}
 
-	/* Process 'B' for "Maximum q_info[] subindex" */
+	/* Process 'Q' for "Maximum q_info[] subindex" */
 	else if (buf[2] == 'Q')
 	{
 		int max;
@@ -3808,6 +3822,21 @@ errr parse_r_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(r_ptr->text), head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
+
+		/* Hack: assume 'D' is always after 'B' and 'F' and catch
+		   monsters than have no attacks but no NEVER_BLOW flag */
+		if (!(r_ptr->flags1 & RF1_NEVER_BLOW))
+		  {
+		    int blows = 0;
+
+		    for (i = 0; i < 4; i++) 
+		      if (r_ptr->blow[i].method > 0
+			  && r_ptr->blow[i].method <= RBM_MAX_NORMAL)
+			blows++;
+
+		    if (!blows)
+		      return (PARSE_ERROR_GENERIC);
+		  }
 	}
 
 	/* Process 'G' for "Graphics" (one line only) */
@@ -4024,6 +4053,10 @@ errr parse_r_info(char *buf, header *head)
 		/* Extract the damage dice and sides */
 		r_ptr->blow[i].d_dice = atoi(s);
 		r_ptr->blow[i].d_side = atoi(t);
+
+		/* Catch fraudulent NEVER_BLOW monsters */
+		if (n1 <= RBM_MAX_NORMAL && r_ptr->flags1 & RF1_NEVER_BLOW)
+		  return (PARSE_ERROR_GENERIC);
 	}
 	/* Process 'F' for "Basic Flags" (multiple lines) */
 	else if (buf[0] == 'F')
@@ -4057,6 +4090,13 @@ errr parse_r_info(char *buf, header *head)
 		{
 			r_ptr->flags3 |= RF3_NONLIVING;
 		}
+
+		/* Catch fraudulent NEVER_BLOW monsters */
+		if (r_ptr->flags1 & RF1_NEVER_BLOW)
+		  for (i = 0; i < 4; i++) 
+		    if (r_ptr->blow[i].method > 0
+			&& r_ptr->blow[i].method <= RBM_MAX_NORMAL)
+		      return (PARSE_ERROR_GENERIC);		  
 	}
 
 	/* Process 'S' for "Spell Flags" (multiple lines) */
@@ -4260,15 +4300,15 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, tht, thn, thb;
+		int dis, dev, sav, stl, srh, dig, tht, thn, thb;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &dig, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
@@ -4276,6 +4316,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_sav = sav;
 		pr_ptr->r_stl = stl;
 		pr_ptr->r_srh = srh;
+		pr_ptr->r_dig = dig;
 		pr_ptr->r_tht = tht;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
@@ -4284,17 +4325,16 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int mhp, exp, infra;
+		int exp, infra;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			    &exp, &infra)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
 		pr_ptr->infra = infra;
 	}
@@ -4302,18 +4342,19 @@ errr parse_p_info(char *buf, header *head)
 	/* Hack -- Process 'I' for "info" and such */
 	else if (buf[0] == 'I')
 	{
-		int hist, b_age, m_age;
+		int hist, b_age, m_age, home;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			    &hist, &b_age, &m_age, &home)) return (PARSE_ERROR_GENERIC);
 
 		pr_ptr->hist = hist;
 		pr_ptr->b_age = b_age;
 		pr_ptr->m_age = m_age;
+		pr_ptr->home = home;
 	}
 
 	/* Hack -- Process 'H' for "Height" */
@@ -4337,19 +4378,17 @@ errr parse_p_info(char *buf, header *head)
 	/* Hack -- Process 'W' for "Weight" */
 	else if (buf[0] == 'W')
 	{
-		int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
+		int m_b_wt, f_b_wt;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			    &m_b_wt, &m_m_wt, &f_b_wt, &f_m_wt)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			    &m_b_wt, &f_b_wt)) return (PARSE_ERROR_GENERIC);
 
 		pr_ptr->m_b_wt = m_b_wt;
-		pr_ptr->m_m_wt = m_m_wt;
 		pr_ptr->f_b_wt = f_b_wt;
-		pr_ptr->f_m_wt = f_m_wt;
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -4376,6 +4415,35 @@ errr parse_p_info(char *buf, header *head)
 
 			/* Start the next entry */
 			s = t;
+		}
+	}
+
+	/* Process 'O' for "Built-in Objects" (one line only) */
+	else if (buf[0] == 'O')
+	{
+		i = 0;
+
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s && (i < END_EQUIPMENT - INVEN_WIELD); )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ':'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+			}
+
+			/* Hack - Parse this entry */
+			pr_ptr->slots[i] = atoi(s);
+
+			/* Start the next entry */
+			s = t;
+			i++;
 		}
 	}
 
@@ -4508,15 +4576,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, tht, thn, thb;
+		int dis, dev, sav, stl, srh, dig, tht, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &dig, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_dis = dis;
@@ -4524,6 +4592,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_sav = sav;
 		pc_ptr->c_stl = stl;
 		pc_ptr->c_srh = srh;
+		pc_ptr->c_dig = dig;
 		pc_ptr->c_tht = tht;
 		pc_ptr->c_thn = thn;
 		pc_ptr->c_thb = thb;
@@ -4532,15 +4601,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, tht, thn, thb;
+		int dis, dev, sav, stl, srh, dig, tht, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &dig, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_dis = dis;
@@ -4548,6 +4617,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_sav = sav;
 		pc_ptr->x_stl = stl;
 		pc_ptr->x_srh = srh;
+		pc_ptr->x_dig = dig;
 		pc_ptr->x_tht = tht;
 		pc_ptr->x_thn = thn;
 		pc_ptr->x_thb = thb;
@@ -4556,19 +4626,18 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div, sense_type, sense_squared;
+		int exp, sense_div, sense_type, sense_squared;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%ld:%d:%d:%d",
-			    &mhp, &exp, &sense_base, &sense_div, &sense_type, &sense_squared))
+		if (5 != sscanf(buf+2, "%d:%ld:%d:%d:%d",
+			    &exp, &sense_base, &sense_div, &sense_type, &sense_squared))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		pc_ptr->c_mhp = mhp;
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		pc_ptr->sense_div = sense_div;
@@ -5837,7 +5906,7 @@ errr parse_g_info(char *buf, header *head)
 		s = buf+1;
 
 		/* Initialize the counter to max races */
-		j = z_info->p_max;
+		j = z_info->g_max;
 
 		/* Repeat */
 		while (j-- > 0)

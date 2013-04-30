@@ -572,7 +572,7 @@ C:10:19:22:40:21
 C:8:19:22:40:21
 F:CREATE_STAIR
 
-N:36:Teleport Level
+N:36:Escape
 A:70:10:1
 A:90:5:5
 A:92:3:5
@@ -1504,7 +1504,7 @@ C:5:25:25:80:12
 C:8:25:25:80:12
 B:AIM:AWAY_ALL:1d0+0
 
-N:115:Teleport Level
+N:115:Escape
 A:91:4:5
 A:93:7:27
 C:2:30:40:75:133
@@ -3126,7 +3126,7 @@ A:80:15:1
 F:CURE_CONF
 S:CURE_DISEASE:14
 
-N:270:Restore Strength
+N:270:Restore Strength and Size
 A:75:42:1
 A:80:17:1
 A:90:4:8
@@ -3139,7 +3139,7 @@ C:10:20:36:95:115
 F:CURE_STR
 S:CURE_DISEASE:0
 
-N:271:Restore Constition
+N:271:Restore Constition and Charisma
 A:75:46:1
 A:80:18:1
 A:90:4:9
@@ -3149,7 +3149,7 @@ C:4:24:44:95:100
 C:8:24:44:95:100
 C:9:24:44:95:100
 C:10:24:44:95:115
-F:CURE_CON
+F:CURE_CON | CURE_CHR
 S:CURE_DISEASE:4
 
 N:280:Mana
@@ -3222,7 +3222,7 @@ B:SELF:LOSE_ALL:10d10+0
 S:CURE_DISEASE:27
 D:Your nerves and muscles feel weak and lifeless.
 
-N:290:Weakness
+N:290:Weakness and Smallness
 A:75:16:1
 B:SELF:LOSE_STR
 
@@ -3338,47 +3338,50 @@ C:10:12:28:95:115
 F:CURE_DEX
 S:CURE_DISEASE:3
 
-N:307:Restore Charisma
-A:75:47:1
-A:90:4:1
-C:1:8:15:95:160
-C:3:12:20:95:100
-C:4:12:20:95:100
-C:8:12:20:95:100
-C:9:12:20:95:100
-C:10:12:20:95:115
-F:CURE_CHR
-S:CURE_DISEASE:5
+#Unused
+#N:307:Restore Charisma
+#A:75:47:1
+#A:90:4:1
+#C:1:8:15:95:160
+#C:3:12:20:95:100
+#C:4:12:20:95:100
+#C:8:12:20:95:100
+#C:9:12:20:95:100
+#C:10:12:20:95:115
+#F:CURE_CHR
+#S:CURE_DISEASE:5
 
-N:308:Strength
+N:308:Strength and Size
 A:75:48:1
 L:1d30+30
 F:CURE_STR | INC_STR
 
-N:309:Intelligence
+N:309:Intelligence and Wisdom
 A:75:49:1
 L:1d30+30
-F:CURE_INT | INC_INT
+F:CURE_INT | INC_INT | CURE_WIS | INC_WIS
 
-N:310:Wisdom
-A:75:50:1
-L:1d30+30
-F:CURE_WIS | INC_WIS
+#Unused
+#N:310:Wisdom
+#A:75:50:1
+#L:1d30+30
+#F:CURE_WIS | INC_WIS
 
 N:311:Dexterity and Agility
 A:75:51:1
 L:1d30+30
 F:CURE_DEX | INC_DEX
 
-N:312:Constitution
+N:312:Constitution and Charisma
 A:75:52:1
 L:1d30+30
-F:CURE_CON | INC_CON
+F:CURE_CON | INC_CON | CURE_CHR | INC_CHR
 
-N:313:Charisma
-A:75:53:1
-L:1d30+30
-F:CURE_CHR | INC_CHR
+#Unused
+#N:313:Charisma
+#A:75:53:1
+#L:1d30+30
+#F:CURE_CHR | INC_CHR
 
 N:314:Augmentation
 A:75:55:1
@@ -4192,7 +4195,7 @@ B:EXPLODE:LITE:3d6
 L:1d5
 F:CUT | STUN | BLIND | CONFUSE | HALLUC
 
-N:417:Restore Intelligence
+N:417:Restore Intelligence and Wisdom
 A:75:43:1
 A:90:4:10
 C:1:24:44:95:160
@@ -4201,19 +4204,20 @@ C:4:28:52:95:100
 C:8:28:52:95:100
 C:9:28:52:95:100
 C:10:28:52:95:115
-F:CURE_INT
+F:CURE_INT | CURE_WIS
 S:CURE_DISEASE:1
 
-N:418:Restore Wisdom
-A:75:44:1
-A:90:4:12
-C:1:28:52:95:160
-C:3:32:56:95:100
-C:4:32:56:95:100
-C:8:32:56:95:100
-C:9:32:56:95:100
-C:10:32:56:95:115
-F:CURE_WIS
+#Unused
+#N:418:Restore Wisdom
+#A:75:44:1
+#A:90:4:12
+#C:1:28:52:95:160
+#C:3:32:56:95:100
+#C:4:32:56:95:100
+#C:8:32:56:95:100
+#C:9:32:56:95:100
+#C:10:32:56:95:115
+#F:CURE_WIS
 
 N:419:Restore Body
 A:75:54:1
@@ -4793,3 +4797,65 @@ C:8:25:17:85:120
 C:9:30:25:85:80
 S:INVEN_NECK:915
 L:1d48+48
+
+N:477:End Shapechange
+A:97:29:1:1
+A:97:30:1:1
+A:97:31:1:1
+A:97:32:1:1
+A:97:33:1:1
+A:97:34:1:1
+A:97:35:1:1
+A:97:36:1:1
+A:97:37:1:1
+A:97:38:1:1
+S:REVERT_SHAPE:0
+
+N:478:Change into Goat
+A:97:24:1
+S:CHANGE_SHAPE:29
+
+N:479:Change into Bear
+A:97:18:1
+S:CHANGE_SHAPE:30
+
+N:480:Change into Mouse
+A:97:24:2
+S:CHANGE_SHAPE:31
+
+N:481:Change into Hound
+A:97:24:3
+S:CHANGE_SHAPE:32
+
+N:482:Change into Cheetah
+A:97:24:4
+S:CHANGE_SHAPE:33
+
+N:483:Change into Lion
+A:97:24:5
+S:CHANGE_SHAPE:34
+
+N:484:Change into Dragon
+S:CHANGE_SHAPE:35
+
+N:485:Change into Wolf
+A:97:27:1
+A:97:28:1
+S:CHANGE_SHAPE:36
+
+N:486:Change into Bat
+A:97:24:6
+A:97:28:2
+S:CHANGE_SHAPE:37
+
+N:487:Change into Serpent
+A:97:24:7
+S:CHANGE_SHAPE:38
+
+N:488:Change into Cat
+A:97:24:8
+S:CHANGE_SHAPE:39
+
+N:489:End Shapechange
+A:97:39:1:1
+S:REVERT_SHAPE:0

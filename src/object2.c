@@ -1550,9 +1550,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
-		/* Lites */
-		case TV_LITE:
-
 		/* Weapons and Armor */
 		case TV_STAFF:
 		case TV_BOW:
@@ -1573,9 +1570,11 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall through */
 		}
 
-		/* Rings, Amulets, Lites */
+		/* Rings, Amulets, Lites, Instruments */
 		case TV_RING:
 		case TV_AMULET:
+		case TV_LITE:
+	        case TV_INSTRUMENT:
 
 		/* Missiles */
 		case TV_BOLT:
@@ -2714,6 +2713,9 @@ static bool make_ego_item(object_type *o_ptr, bool cursed, bool great)
 
 	/* Auto-inscribe if necessary */
 	if (cheat_auto) o_ptr->note = e_info[o_ptr->name2].note;
+
+	/* Apply obvious flags */
+	object_obvious_flags(o_ptr);
 
 	return (TRUE);
 }
@@ -5636,6 +5638,8 @@ bool make_feat(object_type *j_ptr, int y, int x)
 
 	/* Auto-inscribe if necessary */
 	if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
+	/* Apply obvious flags */
+	object_obvious_flags(j_ptr);
 
 	/* Add to the floor */
 	if (floor_carry(y,x,j_ptr)) return (TRUE);
@@ -5744,8 +5748,8 @@ void race_near(int r_idx, int y1, int x1)
 		/* Require an "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
 
-		/* Require monster can survive on terrain */
-		if (!place_monster_here(y, x, r_idx)) continue;
+		/* Require monster can move unharmed on terrain */
+		if (place_monster_here(y, x, r_idx) <= MM_FAIL) continue;
 
 		/* Create a new monster (awake, no groups) */
 		(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);

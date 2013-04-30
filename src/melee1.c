@@ -3656,6 +3656,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (p_ptr->stat_cur[A_CON] != p_ptr->stat_max[A_CON]) k++;
 					if (p_ptr->stat_cur[A_CHR] != p_ptr->stat_max[A_CHR]) k++;
 					if (p_ptr->stat_cur[A_AGI] != p_ptr->stat_max[A_AGI]) k++;
+					if (p_ptr->stat_cur[A_SIZ] != p_ptr->stat_max[A_SIZ]) k++;
 					if (p_ptr->exp < p_ptr->max_exp) k++;
 				}
 
@@ -3682,6 +3683,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					else if ((p_ptr->stat_cur[A_CON] != p_ptr->stat_max[A_CON]) && (k) && (rand_int(k--))) do_res_stat(A_CON);
 					else if ((p_ptr->stat_cur[A_CHR] != p_ptr->stat_max[A_CHR]) && (k) && (rand_int(k--))) do_res_stat(A_CHR);
 					else if ((p_ptr->stat_cur[A_AGI] != p_ptr->stat_max[A_AGI]) && (k) && (rand_int(k--))) do_res_stat(A_AGI);
+					else if ((p_ptr->stat_cur[A_SIZ] != p_ptr->stat_max[A_SIZ]) && (k) && (rand_int(k--))) do_res_stat(A_SIZ);
 					else if ((p_ptr->exp < p_ptr->max_exp) && (k) && (rand_int(k--))) restore_level();
 				}
 

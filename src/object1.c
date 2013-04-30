@@ -1228,7 +1228,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Grab any magic name */
-		else if (o_ptr->feeling < INSCRIP_MIN_HIDDEN)
+		else if (o_ptr->tval != TV_POTION
+			 && o_ptr->feeling < INSCRIP_MIN_HIDDEN)
 		{
 			int i;
 			int x1, x2; /* Fake xtra flags */
@@ -2294,14 +2295,28 @@ bool item_tester_okay(const object_type *o_ptr)
 			if (!(bag_holds[o_ptr->sval][i][0]) || !(bag_contents[o_ptr->sval][i])) continue;
 
 			/* Check the tval */
-			if ((item_tester_tval) && !(item_tester_tval == bag_holds[o_ptr->sval][i][0])) continue;
+			if (item_tester_tval)
+			  {
+			    if (!(item_tester_tval == bag_holds[o_ptr->sval][i][0]))
+			      continue;
+			    else 
+			      break;
+			  }
 
 			/* Fake the item */
 			fake_bag_item(i_ptr, o_ptr->sval, i);
 
 			/* Check the hook */
-			if ((item_tester_hook) && !(*item_tester_hook)(i_ptr)) continue;
+			if (item_tester_hook)
+			  {
+			    if (!(*item_tester_hook)(i_ptr))
+			      continue;
+			    else 
+			      break;
+			  }
 		}
+		
+		if (i < INVEN_BAG_TOTAL) return (TRUE);
 	}
 
 	/* Check the tval */
@@ -3560,11 +3575,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_featg = ((mode & (USE_FEATG)) ? TRUE : FALSE);
 	bool use_featu = ((mode & (USE_FEATU)) ? TRUE : FALSE);
 	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
+	bool use_self = ((mode & (USE_SELF)) ? TRUE: FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
 	bool allow_floor = FALSE;
 	bool allow_feats = FALSE;
+	bool allow_self = FALSE;
 
 	bool toggle = FALSE;
 
@@ -3681,8 +3698,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		if ((make_feat(i_ptr,p_ptr->py,p_ptr->px)) && item_tester_okay(i_ptr)) allow_feats = TRUE;
 	}
 
+	/* Scan oneself */
+	if ((use_self) && (item_tester_okay(&inventory[INVEN_SELF]))) allow_self = TRUE;
+
 	/* Require at least one legal choice */
-	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats)
+	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats && !allow_self)
 	{
 		/* Cancel p_ptr->command_see */
 		p_ptr->command_see = FALSE;
@@ -3847,22 +3867,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				strcat(out_val, tmp_val);
 			}
 
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
-
 			/* Indicate legality of "toggle" */
 			if (use_equip) strcat(out_val, " / for Equip,");
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
-
-			/* Indicate legality of the "feature" */
-			if (allow_feats)
-			{
-				strcat(out_val, " . for ");
-				strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
-				strcat(out_val,",");
-			}
 
 		}
 
@@ -3886,22 +3895,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				strcat(out_val, tmp_val);
 			}
 
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
-
 			/* Indicate legality of "toggle" */
 			if (use_inven) strcat(out_val, " / for Inven,");
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
-
-			/* Indicate legality of the "feature" */
-			if (allow_feats)
-			{
-				strcat(out_val, " . for ");
-				strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
-				strcat(out_val,",");
-			}
 		}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -3925,25 +3923,28 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				strcat(out_val, tmp_val);
 			}
 
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
-
 			/* Append */
 			if (use_inven) strcat(out_val, " / for Inven,");
 
 			/* Append */
 			else if (use_equip) strcat(out_val, " / for Equip,");
-
-			/* Indicate legality of the "feature" */
-			if (allow_feats)
-			{
-				strcat(out_val, " . for ");
-				strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
-				strcat(out_val,",");
-			}
 		}
 
 #endif /* ALLOW_EASY_FLOOR */
+
+		/* Indicate ability to "view" */
+		if (!p_ptr->command_see) strcat(out_val, " * to see,");
+
+		/* Indicate legality of the "self" */
+		if (allow_self) strcat(out_val, " @ for self,");
+
+		/* Indicate legality of the "feature" */
+		if (allow_feats)
+		{
+			strcat(out_val, " . for ");
+			strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
+			strcat(out_val,",");
+		}
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -4307,6 +4308,22 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 				break;
 
+			case '@':
+
+				/* Paranoia */
+				if (!allow_self)
+				{
+					bell("Cannot select self!");
+					break;
+				}
+
+				/* Accept that choice */
+				(*cp) = INVEN_SELF;
+				item = TRUE;
+				done = TRUE;
+
+				break;
+
 			default:
 			{
 				bool verify;
@@ -4455,6 +4472,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 /*
  * Create a fake item from the bag arrays
+ *
+ * FIXME: It's sooo ugly and so fragile; why not just copy the objects?
+ * Or if they aren't stored, why not store them somewhere?
  */
 void fake_bag_item(object_type *i_ptr, int sval, int slot)
 {
@@ -4464,8 +4484,7 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	/* Initially no item */
 	i_ptr->k_idx = 0;
 
-	/* Paranoia */
-	if ((sval >= SV_BAG_MAX_BAGS) || (slot >= INVEN_BAG_TOTAL)) return;
+	assert (sval <= SV_BAG_MAX_BAGS && slot <= INVEN_BAG_TOTAL);
 
 	/* Get bag kind from lookup kind cache */
 	i_ptr->k_idx = bag_kinds_cache[sval][slot];
@@ -4537,6 +4556,9 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 
 		/* Auto-inscribe */
 		if (!i_ptr->note) i_ptr->note = k_info[i_ptr->k_idx].note;
+
+		/* Apply obvious flags, e.g. for throwing items */
+		object_obvious_flags(i_ptr);
 	}
 }
 

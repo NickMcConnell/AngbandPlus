@@ -688,7 +688,7 @@ s16b total_store_count;
 store_type_ptr *store;
 
 /*
- * Array[INVEN_TOTAL] of objects in the player's inventory
+ * Array[INVEN_TOTAL+1] of objects in the player's inventory
  */
 object_type *inventory;
 

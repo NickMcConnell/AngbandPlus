@@ -527,6 +527,9 @@ bool set_psleep(int v)
 			}
 		}
 
+		/* Hack -- allow 'built-in' equipment to recover from disenchantment */
+		change_shape(p_ptr->prace, p_ptr->lev);
+
 		if (notice) msg_print("You recover somewhat.");
 	}
 
@@ -711,7 +714,8 @@ cptr desc_stat_imp[A_MAX] =
 	"more dextrous",
 	"healthier",
 	"cuter",
-	"more agile"
+	"more agile",
+	"bigger"
 };
 
 
@@ -726,7 +730,8 @@ cptr desc_stat_imp_end[A_MAX] =
 	"dextrous",
 	"healthy",
 	"cute",
-	"agile"
+	"agile",
+	"big"
 };
 
 
@@ -791,7 +796,8 @@ cptr desc_stat_dec[] =
 	"clumsier",
 	"sicklier",
 	"uglier",
-	"more slugish"
+	"more slugish",
+	"smaller"
 };
 
 
@@ -806,7 +812,8 @@ static cptr desc_stat_dec_end[] =
 	"clumsy",
 	"sickly",
 	"ugly",
-	"slugish"
+	"slugish",
+	"small"
 };
 
 /*
@@ -2926,6 +2933,34 @@ void quest_penalty(int q_idx)
 }
 
 
+void scatter_objects_under_feat(int y, int x)
+{
+  s16b this_o_idx, next_o_idx = 0;
+
+  assert (in_bounds(y, x));
+
+  /* Scan all objects in the grid */
+  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+    {
+      object_type *o_ptr;
+		
+      /* Get the object */
+      o_ptr = &o_list[this_o_idx];
+
+      /* Get the next object */
+      next_o_idx = o_ptr->next_o_idx;
+
+      /* Drop the object */
+      drop_near(o_ptr, -1, y, x);
+    }
+
+  /* Objects are gone */
+  cave_o_idx[y][x] = 0;
+
+  /* Visual update */
+  lite_spot(y, x);
+}
+
 
 /*
  * Handle the "death" of a monster.
@@ -3454,33 +3489,8 @@ void monster_death(int m_idx)
 	  /* Create stairs down */
 	  cave_set_feat(y, x, FEAT_MORE);
 
-	  /* Scatter any objects */
-	  {
-	    s16b this_o_idx, next_o_idx = 0;
-
-	    assert (in_bounds(y, x));
-
-	    /* Scan all objects in the grid */
-	    for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	      {
-		object_type *o_ptr;
-		
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Drop the object */
-		drop_near(o_ptr, -1, y, x);
-	      }
-
-	    /* Objects are gone */
-	    cave_o_idx[y][x] = 0;
-
-	    /* Visual update */
-	    lite_spot(y, x);
-	  }
+	  /* Save any objects in that place */
+	  scatter_objects_under_feat(y, x);
 	}
 
 
@@ -5552,7 +5562,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 			if (prefix(name, "the ")) s3 = "";
 
 			/* Hack -- special introduction for filled areas */
-			if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "";
+			if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "surrounded by ";
 
 			/* Hack -- special introduction for store doors */
 			if (f_info[feat].flags1 & (FF1_ENTER))

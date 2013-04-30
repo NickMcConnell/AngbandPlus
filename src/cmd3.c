@@ -324,8 +324,20 @@ void do_cmd_wield(void)
 	/* Adjust amount */
 	if (IS_QUIVER_SLOT(slot)) amt = o_ptr->number;
 
+	/* Prevent wielding over 'built-in' item */
+	if (!IS_QUIVER_SLOT(slot) && ((inventory[slot].ident & (IDENT_STORE)) != 0))
+	{
+		/* Describe it */
+		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
+
+		/* Oops */
+		msg_format("You cannot remove the %s.", o_name);
+
+		/* Nope */
+		return;
+	}
 	/* Prevent wielding into a cursed slot */
-	if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
+	else if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
@@ -727,12 +739,13 @@ void do_cmd_wield(void)
 	}
 	else object_not_flags(j_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
 
-	/* Hack --- the following are either obvious or (relatively) unimportant */
+	/* Remove if TR3_THROWING is to be obvious forever
 	if (f3 & (TR3_THROWING))
 	{
 		object_can_flags(j_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 	}
 	else object_not_flags(j_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
+	*/
 
 	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(j_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
 	else object_not_flags(j_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
@@ -747,6 +760,32 @@ void do_cmd_wield(void)
 }
 
 
+/*
+ * The "drop" tester
+ */
+static bool item_tester_hook_droppable(const object_type *o_ptr)
+{
+	/* Forbid 'built-in' */
+	if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * The "takeoff" tester
+ */
+static bool item_tester_hook_removable(const object_type *o_ptr)
+{
+	/* Forbid not droppable */
+	if (!item_tester_hook_droppable(o_ptr)) return (FALSE);
+
+	/* Forbid cursed */
+	if (o_ptr->ident & (IDENT_CURSED)) return (FALSE);
+
+	return (TRUE);
+}
+
 
 /*
  * Take off an item
@@ -759,6 +798,7 @@ void do_cmd_takeoff(void)
 
 	cptr q, s;
 
+	item_tester_hook = item_tester_hook_removable;
 
 	/* Get an item */
 	q = "Take off which item? ";
@@ -777,9 +817,17 @@ void do_cmd_takeoff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Item is 'built-in' to shape*/
+	if (!IS_QUIVER_SLOT(item) && ((inventory[item].ident & (IDENT_STORE)) != 0))
+	{
+		/* Oops */
+		msg_print("You cannot remove this.");
 
+		/* Nope */
+		return;
+	}
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+	else if (cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -818,6 +866,7 @@ void do_cmd_drop(void)
 
 	cptr q, s;
 
+	item_tester_hook = item_tester_hook_droppable;
 
 	/* Get an item */
 	q = "Drop which item? ";
@@ -849,8 +898,17 @@ void do_cmd_drop(void)
 	/* Allow user abort */
 	if (amt <= 0) return;
 
+	/* Prevent wielding over 'built-in' item */
+	if (!IS_QUIVER_SLOT(item) && ((inventory[item].ident & (IDENT_STORE)) != 0))
+	{
+		/* Oops */
+		msg_print("You cannot remove this.");
+
+		/* Nope */
+		return;
+	}
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	else if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");

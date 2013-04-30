@@ -184,7 +184,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		screen_save();
 
 		/* Display a list of spells */
-		print_spells(book, num, 1, 20);
+		if (cast) print_spells(book, num, 1, 20);
+		else print_powers(book, num, 1, 20);
 	}
 
 	/* Build a prompt (accept all spells) */
@@ -220,19 +221,6 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			}
 
 			/* Show the list */
-			else if (cast)
-			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save screen */
-				screen_save();
-
-				/* Display a list of spells */
-				print_spells(book, num, 1, 20);
-			}
-			
-			/* Show the list */
 			else
 			{
 				/* Show list */
@@ -242,7 +230,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 				screen_save();
 
 				/* Display a list of spells */
-				print_powers(book, num, 1, 20);
+				if (cast) print_spells(book, num, 1, 20);
+				else print_powers(book, num, 1, 20);
 			}
 
 			/* Ask again */

@@ -12,153 +12,458 @@
 
 # Format:
 # N:race number:race name
-# S:str:int:wis:dex:con:chr:agi
-# R:dis:dev:sav:stl:srh:tht:thn:thb
-# X:hitdie:expbase:infra
-# I:history:agebase:agemod
+# S:str:int:wis:dex:con:chr:agi:siz
+# R:dis:dev:sav:stl:srh:dig:tht:thn:thb
+# X:expbase:infra
+# I:history:agebase:agemod:hometown
 # H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
-# W:wgtmale:modwgtmale:wgtfemale:modwgtfemale
+# W:wgtmale:wgtfemale
 # F:racial flags
 # C:classes (numeric)
+# O:wield:bow:left_ring:right_ring:neck:lite:body:outer:arm:head:hands:feet
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new race.
 
 # 'S' is for the stat modifiers - strength, intelligence, wisdom,
-# dexterity, constitution, charisma, agility.
+# dexterity, constitution, charisma, agility, size.
 
 # 'R' is for the base skills - disarming, magic devices, saving throws,
-# stealth, searching ability, to hit (throws), to hit (melee),
-# to hit (bows).
+# stealth, searching ability, digging, to hit (throws), to hit (melee),
+# to hit (bows). TODO:? to hit (unarmed), to ac.
 
-# 'X' is for extra info - max. hitpoints gained per level, experience
-# factor in percent, range of infravision in 10 feets.
+# 'X' is for extra info - experience factor in percent, 
+# range of infravision in 10 feets.
 
 # 'I' is for info - starting point of the player history, base age,
-# random age modifier.
+# random age modifier, home town.
 
 # 'H' is height info - base height (males), mod height (males),
 # base height (females), mod height (females).
 
-# 'W' is weight info - base weight (males), mod weight (males),
-# base weight (females), mod weight (females).
+# 'W' is weight info - base weight (males), base weight (females).
 
 # 'F' is for racial flags.
 
 # 'C' is for class choices.
 
+# 'O' is for objects. This defines if the class has a built in object
+# in a particular equipment slot.
+
+# XXX We also use this file to define possible shapes that a player can shape
+# change into as an effect, in addition to their starting race. To define that
+# a race is selectable as a starting race, it must have an index less than
+# the number of 'playable' races defined in the limits.txt file.
 
 # Version stamp (required)
 
 V:0.6.2
 
-
-N:0:Human
-S:0:0:0:0:0:0:0
-R:0:0:0:0:5:0:0:0
-X:10:100:0
-I:1:14:6
+#Sum = 0
+N:0:Man of Bree
+S:0:0:0:0:0:0:0:0:0
+R:0:0:0:0:0:0:0:0:0
+X:100:0
+I:1:14:6:11
 H:72:6:66:4
-W:180:25:150:20
-F:MAN
+W:180:150
+F:MAN 
 C:0|1|2|3|4|5|6|7|8|9
 
-N:1:Half-Elf
-S:0:1:-1:1:-1:1:1
-R:2:3:3:1:8:10:-10:10
-X:10:110:2
-I:4:24:16
-H:66:6:62:6
-W:130:15:100:10
-F:SUST_DEX | MAN | ELF
-C:0|1|2|3|4|5|6|7|8|9
-
-N:2:Wood-Elf
-S:-1:2:-1:1:-2:1:3
-R:5:6:6:1:10:10:-10:40
-X:9:120:3
-I:5:75:75
+#Sum = -2; good abilities
+N:1:Wood-Elf
+S:-4:2:-5:2:-1:2:5:-3
+R:5:10:7:2:3:-2:10:-10:40
+X:120:3
+I:5:75:75:5
 H:60:4:54:4
-W:100:6:80:6
-F:SUST_DEX | RES_LITE | ELF
+W:120:100
+F:SUST_DEX | RES_LITE | ELF 
 C:0|1|3|4|6|7|8|9
 
-N:3:Hobbit
-S:-2:2:1:3:2:1:-2
-R:15:18:18:4:13:40:-40:10
-X:7:110:4
-I:10:21:12
+#Sum = -1; much higher without SIZ; good abilities
+N:2:Hobbit
+S:-5:3:2:8:2:1:-2:-10
+R:15:7:18:4:8:2:40:-40:10
+X:110:3
+I:10:21:12:1
 H:36:3:33:3
-W:60:3:50:3
+W:60:50
 F:HOLD_LIFE
 C:0|3|4|6|7
 
-N:4:Gnome
-S:-1:2:0:2:1:-2:-1
-R:10:12:12:3:9:20:-20:20
-X:8:125:4
-I:13:50:40
-H:42:3:39:3
-W:90:6:75:3
-F:FREE_ACT
-C:0|1|2|3|6|7|9
+#Sum = -3; very low HP; high stealth and cool flag
+N:3:Shadow Fairy
+S:-6:6:4:2:-6:0:3:-6
+R:7:20:0:6:5:-3:20:-30:-10
+X:140:6
+I:29:200:100:62
+H:80:8:73:8
+W:90:80
+F:ELF | DEMON | REGEN_MANA 
+#U:SHADOW --- just turning AGGRAVATE to -3 stealth would be nice
+C:0|1|2|3|4|6|7|8
 
-N:5:Dwarf
-S:2:3:2:-2:2:-3:-3
-R:2:9:9:-1:8:10:20:-20
-X:11:120:5
-I:16:35:15
+#Sum = -2; cool resistance; bad abilities
+N:4:Dwarf
+S:2:3:2:-4:4:-3:-4:-2
+R:0:5:10:-1:2:5:0:20:0
+X:120:5
+I:16:35:15:61
 H:48:3:46:3
-W:150:10:120:10
-F:RES_BLIND | DWARF
+W:150:120
+F:RES_BLIND | DWARF 
 C:0|2|5|7|9
 
-N:6:Half-Orc
-S:2:-1:0:0:1:-4:2
-R:-3:-3:-3:-1:3:0:20:0
-X:10:110:3
-I:19:11:4
-H:66:1:62:1
-W:150:5:120:5
-F:RES_DARK | MAN | ORC
-C:0|2|3|6|7
-
-N:7:Half-Troll
-S:4:-4:-2:-4:3:-6:1
-R:-5:-8:-8:-2:0:30:30:-50
-X:12:120:3
-I:21:20:10
-H:96:10:84:8
-W:250:50:225:40
-F:SUST_STR | REGEN_HP | MAN | TROLL
-C:0|2|7
-
-N:8:Dunadan
-S:1:2:2:2:3:1:2
-R:4:5:5:2:7:10:20:10
-X:10:180:0
-I:1:50:20
+#Sum = 11; high exp
+N:5:Dunadan
+S:1:2:2:1:2:1:1:1
+R:5:5:5:2:3:0:10:20:10
+X:180:0
+I:1:50:20:19
 H:82:5:78:6
-W:190:20:180:15
-F:SUST_CON | MAN
+W:190:180
+F:SUST_CON | MAN 
 C:0|1|2|3|4|5|6|7|8|9
 
-N:9:High-Elf
-S:1:3:-1:3:1:3:2
-R:4:20:20:3:9:0:10:20
-X:10:200:4
-I:7:100:30
+#Sum = 12; high exp
+N:6:High-Elf
+S:1:4:-3:3:1:4:2:0
+R:4:20:15:3:0:0:0:10:20
+X:200:4
+I:7:100:30:18
 H:90:10:82:10
-W:190:20:180:15
-F:RES_LITE | SEE_INVIS | ELF
+W:190:180
+F:RES_LITE | SEE_INVIS | ELF 
 C:0|1|2|4|6|7|8|9
 
-N:10:Goblin
-S:-1:-1:0:2:2:-2:0
-R:10:5:0:4:15:10:0:10
-X:8:115:5
-I:23:15:10
+#Sum = 23; munchkin
+N:7:Maia
+S:2:3:3:2:4:4:2:3
+R:15:15:15:0:5:0:20:30:20
+X:100:3
+I:27:10000:5000:62
+H:130:40:130:50
+W:300:280
+F:ELF | DEMON | ACTIVATE
+#U:DIVINE --- not worth it, IMO
+C:0|1|2|3|4|5|6|7|8
+
+# Had tunnel + 8. Has Branches, Barkskin, Ent Roots.
+# We hack the understand plants ability as we do not have a plant flag.
+
+#Sum = 0; branches; bad abilities
+N:8:Ent
+S:4:0:0:-5:1:-2:-5:7
+R:-5:-5:5:1:-10:20:20:30:-20
+X:130:0
+I:31:120:60:20
+H:80:27:75:25
+W:240:220
+#F:PLANT --- hacked OK
+#U:WOODEN | POLEARM_UNSKILL --- both not worth it, IMO
+O:588:588:0:0:0:0:339:0:0:0:588:340
+C:0|2|4|6
+
+#Sum = -4; ESP; high exp
+N:9:Druadan
+S:2:-5:3:-2:3:-4:0:-1
+R:-5:-10:7:3:10:3:20:10:0
+X:190:0
+I:35:11:4:20
+H:66:1:62:1
+W:150:120
+F:TELEPATHY | MAN
+C:0|2|4|5|8
+
+#Sum = 5; undead; frightful
+N:10:Man of Erech
+S:0:0:0:0:0:5:0:0
+R:0:0:0:0:0:0:0:0:0
+X:130:2
+I:45:3000:50:29
+H:72:6:66:4
+W:180:150
+F:MAN | UNDEAD | IM_POIS | RES_COLD
+C:0|1|2|3|4|5|6|7|8|9
+
+#Sum = 0; magic toys
+N:11:Man of Dale
+S:0:0:0:0:0:0:0:0
+R:0:10:0:0:0:0:0:0:0
+X:100:0
+I:1:14:6:52
+H:72:6:66:4
+W:180:150
+F:MAN 
+C:0|1|2|3|4|5|6|7|8|9
+
+#Sum = 3; fast
+N:12:Man of Rohan
+S:0:0:0:0:0:0:3:0
+R:0:0:0:0:0:0:0:0:0
+X:100:0
+I:1:14:6:21
+H:72:6:66:4
+W:180:150
+F:MAN 
+C:0|1|2|3|4|5|6|7|8|9
+
+#Sum = 0; noble
+N:13:Man of Gondor
+S:0:0:0:0:0:0:0:0
+R:0:0:10:0:0:0:0:0:0
+X:100:0
+I:1:14:6:28
+H:72:6:66:4
+W:180:150
+F:MAN 
+C:0|1|2|3|4|5|6|7|8|9
+
+#Sum = 0; fearless
+N:14:Man of Harad
+S:0:0:0:0:0:0:0:0
+R:0:0:0:0:0:0:0:0:0
+X:100:0
+I:1:14:6:51
+H:72:6:66:4
+W:180:150
+F:MAN | RES_FEAR
+C:0|1|2|3|4|5|6|7|8|9
+
+#Sum = -2; much higher without CHR; huge weight; throwing
+N:15:Forge Giant
+S:8:-3:-8:-4:3:-6:-5:13
+R:-10:13:-12:-10:0:5:40:20:-70
+X:120:3
+I:42:20:10:15
+H:144:20:126:12
+W:500:450
+F:GIANT | RES_ELEC
+C:0|2|7
+
+#Sum = -2; much higher without CHR; huge weight; devices
+N:16:Fire Giant
+S:8:-3:-8:-4:3:-6:-5:13
+R:-10:18:-12:-10:0:5:30:20:-70
+X:120:3
+I:42:20:10:15
+H:144:20:126:12
+W:500:450
+F:GIANT | RES_FIRE
+C:0|2|7
+
+#Sum = -1; much higher without CHR; huge weight; cold thinking
+N:17:Frost Giant
+S:8:-1:-6:-4:3:-6:-8:13
+R:-10:13:-12:-10:0:5:30:20:-70
+X:120:3
+I:42:20:10:15
+H:144:20:126:12
+W:500:450
+F:GIANT | RES_COLD
+C:0|2|7
+
+#Sum = -2; shapeshift
+N:18:Beorning
+S:2:-2:0:0:2:-3:-2:1
+R:-3:-3:3:1:3:0:0:10:0
+X:140:0
+I:33:14:6:4
+H:72:6:66:4
+W:180:150
+F:ACTIVATE  | MAN | ANIMAL
+#U:BEARSKIN
+C:0|2|3|4|6
+
+# Currently using Beorning stats. Need to change this.
+
+#Sum = -2; shapeshift
+N:19:Werewolf
+S:2:-2:0:0:2:-3:-2:1
+R:-3:-3:3:1:3:0:0:10:0
+X:140:0
+I:48:14:6:26
+H:72:6:66:4
+W:180:150
+F:ACTIVATE  | MAN | ANIMAL
+C:0|2|3|4|6
+
+# Currently using Beorning stats. Need to change this.
+
+#Sum = -2; shapeshift
+N:20:Vampire
+S:2:-2:0:0:2:-3:-2:1
+R:-3:-3:3:1:3:0:0:10:0
+X:140:3
+I:48:14:9:26
+H:72:6:66:4
+W:180:150
+F:ACTIVATE  | UNDEAD | HURT_LITE | REGEN_HP
+C:0|2|3|4|6
+
+#Sum = -2; cool resist
+N:21:Goblin
+S:-2:1:0:6:-6:-2:3:-2
+R:5:5:0:4:7:0:0:0:20
+X:110:5
+I:23:15:10:3
 H:38:4:36:3
-W:70:5:60:4
-F:RES_POIS | ORC | DWARF
+W:70:60
+F:RES_POIS | ORC | DWARF | HURT_LITE
 C:0|2|3|4|5|6
+
+#Sum = -2; cool resist
+N:22:Goblin-Man
+S:-2:1:0:6:-6:0:-2:3:-2
+R:5:5:0:4:7:0:0:0:20
+X:130:3
+I:41:15:10:34
+H:45:4:40:3
+W:70:60
+F:RES_POIS | ORC | DWARF | MAN
+C:0|2|3|4|5|6
+
+#Sum = -2; much higher without CHR
+N:23:Orc
+S:4:-3:-1:1:2:-7:2:0
+R:-3:-6:-5:-2:0:2:0:20:0
+X:100:4
+I:37:11:4:34
+H:66:1:62:1
+W:150:120
+F:RES_DARK | ORC  | HURT_LITE
+C:0|2|3|6|7
+
+#Sum = -2; much higher without CHR
+N:24:Half-Orc
+S:4:-3:-1:1:2:-7:2:0
+R:-3:-6:-5:-2:0:2:0:20:0
+X:120:2
+I:19:11:4:17
+H:66:1:62:1
+W:150:120
+F:RES_DARK | ORC | MAN
+C:0|2|3|6|7
+
+# Has Stoneskin. Trolls are larger than Ents, smaller than Giants
+
+#Sum = -4; much higher without CHR; huge HP and weight
+N:25:Stone Troll
+S:7:-10:-7:-8:16:-9:-3:10
+R:-10:-15:-10:-3:-10:3:30:30:-50
+X:120:2
+I:44:20:10:39
+H:144:20:126:12
+W:350:300
+F:SUST_STR | REGEN_HP | TROLL | HURT_LITE 
+O:0:0:0:0:0:0:576:0:0:0:0:0
+C:0|2|7
+
+# The following shapes are not startable races.
+# The stats are from Sangband, but could be made a lot more interesting here, 
+# e.g., hounds / wolves bigger, bonus to searching etc.
+
+# Note that the limits.txt 'playable races' value prevents anyone 
+# from entering shops when in the shapes below.
+
+# Has Goat's Hooves.
+
+N:29:Goat
+S:0:0:0:0:0:0:0:0
+R:0:0:0:0:0:0:0:5:0
+X:0:1
+F:SLOW_DIGEST | ANIMAL | ACTIVATE
+O:0:0:0:0:0:0:0:0:0:0:0:913
+
+# Had +10 to barehand to-hit. Now has Talons.
+
+N:30:Bear
+S:2:-1:0:0:2:-3:0:0
+R:0:0:0:0:0:0:0:5:0
+X:0:0:1
+F:ANIMAL | ACTIVATE
+O:0:0:0:0:0:0:0:0:0:0:574:0
+
+# Had -5 to ac, -25 to damage. Has Fur, Claws.
+
+N:31:Mouse
+S:-2:-7:0:0:-1:-5:0:0
+R:0:0:0:10:3:0:0:-15:0
+X:0:2
+F:ANIMAL | ACTIVATE
+O:595:0:0:0:0:0:593:0:595:0:0:0
+
+# Should implement some kind of superscent instead of ESP.
+
+N:32:Hound
+S:0:-2:0:0:2:-2:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:3
+F:TELEPATHY | ANIMAL | ACTIVATE
+O:0:0:0:0:0:0:0:0:0:0:0:0
+
+# Had +6 to speed. Now has Hunter's Stride.
+
+N:33:Cheetah
+S:0:0:0:0:0:0:2:0
+R:0:0:0:0:5:0:0:0:0
+X:0:2
+F:ANIMAL | ACTIVATE
+O:0:0:0:0:0:0:0:0:0:0:0:338
+
+# Had +20 to barehand to-hit. Now has Talons and Lion's Mane.
+
+N:34:Lion
+S:3:-1:-1:0:0:4:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:2
+F:RES_FEAR | ANIMAL | ACTIVATE
+O:0:0:0:0:915:0:0:0:0:0:574:0
+
+# Has Bat Wings, Dragonscales, Dragon's Maw, Talons, Hunter's Stride.
+
+N:35:Dragon
+S:3:0:0:0:2:0:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:3
+F:DRAGON | ACTIVATE
+O:0:0:0:0:0:0:577:572:0:914:574:338
+
+# Has Hunter's Stride, Wolf's Hide, Wolf's Maw, Talons.
+# Technically shouldn't have Talons of course, but this is more a werewolf form than a wolf.
+
+N:36:Wolf
+S:0:0:0:0:0:0:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:3
+F:ANIMAL | ACTIVATE
+O:0:0:0:0:0:0:575:0:0:573:574:338
+
+# Had +5 to speed, -15 to hit, -15 to dam. Now has Bat Wings, Claws.
+
+N:37:Bat
+S:-1:-2:-2:0:0:-2:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:6
+F:ANIMAL | ACTIVATE | RES_BLIND | FEATHER
+O:595:0:0:0:0:0:0:572:595:0:0:0
+
+# Has Cobra's Cowl.
+
+N:38:Serpent
+S:0:0:0:0:0:0:0:0
+R:0:0:0:0:0:0:0:0:0
+X:0:0
+O:0:0:0:0:912:0:0:0:0:0:0:0
+F:ANIMAL | ACTIVATE
+
+# Has Cat's Paw.
+
+N:39:Cat
+S:-1:0:0:0:0:0:4:0
+R:0:0:0:0:0:0:0:0:0
+X:0:4
+F:ANIMAL | ACTIVATE | FEATHER
+O:0:0:0:0:0:0:0:0:0:0:341:0
+

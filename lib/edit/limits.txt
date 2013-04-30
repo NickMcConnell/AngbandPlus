@@ -14,7 +14,7 @@
 V:0.6.2
 
 # Maximum number of feature types
-M:F:872
+M:F:876
 
 # Maximum number of room description lines
 M:D:800
@@ -43,11 +43,14 @@ M:T:63
 # Maximum number of stores
 M:U:43
 
-# Maximum number of player races
-M:P:11
+# Maximum number of player races & shapes
+M:P:40
+
+# Maximum number of playable races
+M:G:26
 
 # Maximum number of player history lines
-M:H:165
+M:H:350
 
 # Maximum number of player classes
 M:C:11
@@ -56,7 +59,7 @@ M:C:11
 M:W:160
 
 # Maximum number of spells
-M:S:477
+M:S:490
 
 # Maximum number of runes
 M:Y:30

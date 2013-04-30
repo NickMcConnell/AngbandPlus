@@ -143,18 +143,19 @@ struct maxima
 	u16b d_max;     /* Max size for "d_info[]" */
 	u16b f_max;     /* Max size for "f_info[]" */
 
-	u16b k_max;     /* Max size for "k_info[]" */
-
 	u16b a_max;     /* Max size for "a_info[]" */
 	u16b e_max;     /* Max size for "e_info[]" */
 
+	u16b k_max;     /* Max size for "k_info[]" */
 	u16b x_max;     /* Max size for "x_info[]" */
-	u16b q_max;	/* Max size for "q_info[]" */
 
-	u16b r_max;     /* Max size for "r_info[]" */
+	u16b q_max;	/* Max size for "q_info[]" */
 	u16b v_max;     /* Max size for "v_info[]" */
 
+	u16b r_max;     /* Max size for "r_info[]" */
 	u16b p_max;     /* Max size for "p_info[]" */
+
+	u16b g_max;     /* Max size for "g_info[]" */
 	u16b h_max;     /* Max size for "h_info[]" */
 
 	u16b t_max;	/* Max size for "t_info[]" */
@@ -1055,27 +1056,26 @@ struct player_race
 	s16b r_sav;     /* saving throw */
 	s16b r_stl;     /* stealth */
 	s16b r_srh;     /* search ability */
+	s16b r_dig;     /* digging ability */
 	s16b r_tht;     /* combat (throwing) */
 	s16b r_thn;     /* combat (normal) */
 	s16b r_thb;     /* combat (shooting) */
 
-	byte r_mhp;     /* Race hit-dice modifier */
 	byte r_exp;     /* Race experience factor */
 
-	byte b_age;     /* base age */
-	byte m_age;     /* mod age */
+	u16b b_age;     /* base age */
+	u16b m_age;     /* mod age */
 
-	byte m_b_ht;    /* base height (males) */
-	byte m_m_ht;    /* mod height (males) */
-	byte m_b_wt;    /* base weight (males) */
-	byte m_m_wt;    /* mod weight (males) */
+	u16b m_b_ht;    /* base height (males) */
+	u16b m_m_ht;    /* mod height (males) */
+	u16b m_b_wt;    /* base weight (males) */
 
-	byte f_b_ht;    /* base height (females) */
-	byte f_m_ht;    /* mod height (females)   */
-	byte f_b_wt;    /* base weight (females) */
-	byte f_m_wt;    /* mod weight (females) */
+	u16b f_b_ht;    /* base height (females) */
+	u16b f_m_ht;    /* mod height (females)   */
+	u16b f_b_wt;    /* base weight (females) */
 
 	byte infra;     /* Infra-vision range */
+	byte home;	/* Home town */
 
 	u32b choice;    /* Legal class choices */
 
@@ -1085,6 +1085,8 @@ struct player_race
 	u32b flags2;    /* Racial Flags, set 2 */
 	u32b flags3;    /* Racial Flags, set 3 */
 	u32b flags4;    /* Racial Flags, set 4 */
+
+	s16b slots[END_EQUIPMENT - INVEN_WIELD];	/* Slot occupied by a shape 'object' */
 };
 
 
@@ -1117,6 +1119,7 @@ struct player_class
 	s16b c_sav;     /* class saving throws */
 	s16b c_stl;     /* class stealth */
 	s16b c_srh;     /* class searching ability */
+	s16b c_dig;     /* class digging ability */
 	s16b c_tht;     /* class to hit (throwing) */
 	s16b c_thn;     /* class to hit (normal) */
 	s16b c_thb;     /* class to hit (bows) */
@@ -1126,11 +1129,11 @@ struct player_class
 	s16b x_sav;     /* extra saving throws */
 	s16b x_stl;     /* extra stealth */
 	s16b x_srh;     /* extra searching ability */
+	s16b x_dig;     /* extra digging ability */
 	s16b x_tht;     /* extra to hit (throwing) */
 	s16b x_thn;     /* extra to hit (normal) */
 	s16b x_thb;     /* extra to hit (bows) */
 
-	s16b c_mhp;     /* Class hit-dice adjustment */
 	s16b c_exp;     /* Class experience factor */
 
 	u16b max_attacks;	/* Maximum possible attacks */
@@ -1308,14 +1311,13 @@ struct player_type
 	byte psex;      /* Sex index */
 	byte prace;     /* Race index */
 	byte pclass;    /* Class index */
-
 	byte pstyle;      /* Style specialization */
 
 	byte hitdie;    /* Hit dice (sides) */
 	byte expfact;   /* Experience factor */
 
-	byte psval;		 /* Style sub-specialization*/
-	byte held_song;  /* Hack --- Song being sung */
+	byte psval;	/* Style sub-specialization*/
+	byte pshape;	/* Current shape */
 
 	u16b dungeon;		/* Current dungeon number */
 	u16b town;      /* Current town number */
@@ -1339,7 +1341,7 @@ struct player_type
 
 	s16b mhp;       /* Max hit pts */
 	s16b chp;       /* Cur hit pts */
-	u16b chp_frac;  /* Cur hit frac (times 2^16) */
+	u16b chp_frac;  /* Cur hit frac (times 2^16); FIXME: probably unused */
 
 	s16b msp;       /* Max mana pts */
 	s16b csp;       /* Cur mana pts */
@@ -1397,10 +1399,11 @@ struct player_type
 	s16b rest;      /* Current rest */
 	s16b water;     /* Current water */
 
+	s16b held_song;     /* Currently held song */
+
 	byte climbing; /* Currently climbing */
 	byte searching; /* Currently searching */
 	byte charging;	/* Currently charging */
-	byte unused;
 
 	u32b disease;	/* Disease types */
 
@@ -1550,11 +1553,11 @@ struct player_type
 	s16b skill_dev; /* Skill: Magic Devices */
 	s16b skill_sav; /* Skill: Saving throw */
 	s16b skill_stl; /* Skill: Stealth factor */
+	s16b skill_dig; /* Skill: Digging */
 	s16b skill_srh; /* Skill: Searching ability */
 	s16b skill_thn; /* Skill: To hit (normal) */
 	s16b skill_thb; /* Skill: To hit (shooting) */
 	s16b skill_tht; /* Skill: To hit (throwing) */
-	s16b skill_dig; /* Skill: Digging */
 
 	s16b regen_hp;	/* Hitpoint regeneration rate */
 	s16b regen_mana;/* Mana regeneration rate */
@@ -1562,9 +1565,10 @@ struct player_type
 
 	u32b noise;     /* Derived from stealth */
 
-	s16b num_blow;  /* Number of blows */
-	s16b num_fire;  /* Number of shots */
-	s16b num_throw; /* Number of throws */
+	s16b num_blow;   /* Number of blows */
+	s16b num_charge; /* Number of shots */
+	s16b num_fire;   /* Number of shots */
+	s16b num_throw;  /* Number of throws */
 
 	byte ammo_mult; /* Ammo multiplier */
 

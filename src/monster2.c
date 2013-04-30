@@ -2591,7 +2591,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		m_ptr->mflag &= ~(MFLAG_OVER | MFLAG_HIDE);
 
 		/* Place as hidden as appropriate */
-		monster_hide(y, x, (place_monster_here(y,x,m_ptr->r_idx) > 0), m_ptr);
+		monster_hide(y, x, place_monster_here(y, x, m_ptr->r_idx), m_ptr);
 
 		/* Update the monster */
 		update_mon(m_idx, TRUE);
@@ -3023,6 +3023,12 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		/* Sense magic */
 		o_ptr->feeling = sense_magic(o_ptr,cp_ptr->sense_type,TRUE);
 
+		/* Auto-inscribe if necessary */
+		if ((cheat_auto) || (object_aware_p(o_ptr))) o_ptr->note = k_info[ammo_kind].note;
+
+		/* Apply obvious flags */
+		object_obvious_flags(o_ptr);
+
 		/* Monster carries the object */
 		ammo = monster_carry(m_idx, o_ptr);
 
@@ -3082,7 +3088,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		return (FALSE);
 	}
 
-	/* Require monster can survive on terrain */
+	/* Require monster can pass and survive on terrain */
 	if (place_monster_here(y, x, r_idx) <= MM_FAIL)
 	{
 		return (FALSE);
@@ -4540,7 +4546,7 @@ bool multiply_monster(int m_idx)
 		/* Require an "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
 
-		/* Require monster can survive on terrain */
+		/* Require monster can pass and survive on terrain */
 		if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) continue;
 
 		/* Create a new monster (awake, no groups) */

@@ -361,18 +361,18 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 
 
 /*
- * Set obvious flags for average items 
+ * Set obvious flags for items 
  */
 void object_obvious_flags(object_type *o_ptr)
 {
+        u32b f1, f2, f3, f4;
+
+	/* Spoil the object */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 	/* Fully identified */
         if (o_ptr->ident & (IDENT_MENTAL))
         {
-                u32b f1,f2,f3,f4;
-
-                /* Spoil the object */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
                 object_can_flags(o_ptr, f1, f2, f3, f4);
 
                 object_not_flags(o_ptr, ~(f1), ~(f2), ~(f3), ~(f4));
@@ -457,6 +457,14 @@ void object_obvious_flags(object_type *o_ptr)
 				~(o_ptr->can_flags4));
 		}
 	}
+
+	/* Hack: if it stays that way, please remove the code from do_cmd_wield */
+	/* Throwing is always obvious */
+	if (f3 & TR3_THROWING)
+	{
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
+	}
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 }
 
 
@@ -977,7 +985,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	/* Collect stat gain effects */
 	vn = 0;
 
-	if (s_ptr->flags3 & (SF3_INC_STR)) vp[vn++]="strength";
+	if (s_ptr->flags3 & (SF3_INC_STR)) vp[vn++]="strength and size";
 	if (s_ptr->flags3 & (SF3_INC_INT)) vp[vn++]="intelligence";
 	if (s_ptr->flags3 & (SF3_INC_WIS)) vp[vn++]="wisdom";
 	if (s_ptr->flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity and agility";
@@ -1016,7 +1024,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 
 	/* Collect restore effects */
 	vn = 0;
-	if (s_ptr->flags3 & (SF3_CURE_STR)) vp[vn++]="strength";
+	if (s_ptr->flags3 & (SF3_CURE_STR)) vp[vn++]="strength and size";
 	if (s_ptr->flags3 & (SF3_CURE_INT)) vp[vn++]="intelligence";
 	if (s_ptr->flags3 & (SF3_CURE_WIS)) vp[vn++]="wisdom";
 	if (s_ptr->flags3 & (SF3_CURE_DEX)) vp[vn++]="dexterity and agility";
@@ -1075,7 +1083,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		f_name+f_info[s_ptr->param].name);
 	if (s_ptr->flags1 & (SF1_STAR_ACQUIREMENT)) vp[vn++] = "creates several excellent, superb or special items";
 	else if (s_ptr->flags1 & (SF1_ACQUIREMENT)) vp[vn++] = "creates an excellent, superb or special item";
-	if (s_ptr->flags2 & (SF2_TELE_LEVEL)) vp[vn++] = "teleports you to an adjacent level";
+	if (s_ptr->flags2 & (SF2_TELE_LEVEL)) vp[vn++] = "pushes you through floor or ceiling";
 	if (s_ptr->flags2 & (SF2_RECALL)) vp[vn++]="returns you to the surface, or teleports you into the depths";
 	if (s_ptr->flags2 & (SF2_ALTER_LEVEL)) vp[vn++] = "alters the level you are on";
 	if (s_ptr->type == SPELL_EARTHQUAKE) vp[vn++] = format("creates a radius %d earthquake",s_ptr->param);
@@ -1338,12 +1346,13 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_EAT_LITE:       q = "absorb light from"; break;
 			case GF_FALL: q = "drop"; u="into a pit";break;
 			case GF_FALL_MORE: q = "drop"; u="through the floor";break;
+			case GF_FALL_LESS: q = "rise"; u="through the ceiling";break;
 			case GF_FALL_SPIKE: q = "drop"; u="into a spiked pit";break;
 			case GF_FALL_POIS: q = "drop"; u="into a poison spiked pit";break;
 			case GF_BLIND:  q = "blind"; break;
 			case GF_TERRIFY:	q = "terrify"; break;
 			case GF_PARALYZE:       q = "paralyze"; break;
-			case GF_LOSE_STR:       q = "reduce"; s="strength from"; break;
+			case GF_LOSE_STR:       q = "reduce"; s="strength and size from"; break;
 			case GF_LOSE_INT:       q = "reduce"; s="intelligence from"; break;
 			case GF_LOSE_WIS:       q = "reduce"; s="wisdom from"; break;
 			case GF_LOSE_DEX:       q = "reduce"; s="dexterity and agility from"; break;
@@ -1547,6 +1556,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_CONF_WEAK: text_out("power"); break;
 			case GF_SLEEP: text_out("power"); break;
 			case GF_BLIND_WEAK: text_out("power"); break;
+			case GF_GAIN_MANA: text_out("spell points"); break;
 			default: text_out("damage"); break;
 
 		}
@@ -1701,6 +1711,7 @@ void spell_info(char *p, int spell, bool use_level)
 			case GF_CONF_WEAK: q="pow"; break;
 			case GF_SLEEP: q="pow"; break;
 			case GF_BLIND_WEAK: q="pow"; break;
+			case GF_GAIN_MANA: q="mana"; break;
 			default: q="dam"; break;
 		}
 
@@ -1747,9 +1758,9 @@ typedef struct o_flag_desc
  * affects all stats.  In this case, "All stats" is used instead of
  * listing each stat individually.
  */
-static const o_flag_desc stat_flags_desc[A_MAX - 1 /* disregarding AGI */] =
+static const o_flag_desc stat_flags_desc[A_MAX - 2 /* disregarding AGI and SIZ */] =
 {
-	{ TR1_STR,	"strength" },
+	{ TR1_STR,	"strength and size" },
 	{ TR1_INT,	"intelligence" },
 	{ TR1_WIS,	"wisdom" },
 	{ TR1_DEX,	"dexterity and agility" },
@@ -1879,7 +1890,7 @@ static const o_flag_desc vamp_flags4_desc[] =
  */
 static const o_flag_desc sustain_flags_desc[] =
 {
-	{ TR2_SUST_STR,   "strength" },
+	{ TR2_SUST_STR,   "strength and size" },
 	{ TR2_SUST_INT,   "intelligence" },
 	{ TR2_SUST_WIS,   "wisdom" },
 	{ TR2_SUST_DEX,   "dexterity and agility" },
@@ -2990,6 +3001,9 @@ void list_object(const object_type *o_ptr, int mode)
 				/* Hack -- display throwing damage later */
 				throw = FALSE;
 				break;
+			case TV_SPELL:
+				/* Never thrown */
+				throw = FALSE;
 			default:
 				text_out(format("When %sthrown, it ", (f3 & TR3_THROWING) ? "easily " : ""));
 				break;
@@ -3736,8 +3750,9 @@ void object_guess_name(object_type *o_ptr)
 	if (object_named_p(o_ptr)) return;
 
 	/* Check the ego item list */
-	/* Hack -- exclude artifacts */
-	if (!(o_ptr->feeling == INSCRIP_SPECIAL) &&
+	/* Hack -- exclude artifacts and potions */
+	if (o_ptr->tval != TV_POTION
+	    && !(o_ptr->feeling == INSCRIP_SPECIAL) &&
 	       !(o_ptr->feeling == INSCRIP_ARTIFACT) &&
 	       !(o_ptr->feeling == INSCRIP_TERRIBLE) &&
 	       !(o_ptr->feeling == INSCRIP_UNBREAKABLE))
@@ -3864,11 +3879,12 @@ void object_guess_name(object_type *o_ptr)
 	/* This should be here to guess for rings/amulets etc. */
 
 	/* Check the normal item list */
-	/* Hack -- exclude artifacts */
-	if (!(o_ptr->feeling == INSCRIP_SPECIAL) &&
-	       !(o_ptr->feeling == INSCRIP_ARTIFACT) &&
-	       !(o_ptr->feeling == INSCRIP_TERRIBLE) &&
-	       !(o_ptr->feeling == INSCRIP_UNBREAKABLE))
+	/* Hack -- exclude artifacts and potions */
+	if (o_ptr->tval != TV_POTION
+	    && o_ptr->feeling != INSCRIP_SPECIAL
+	    && o_ptr->feeling != INSCRIP_ARTIFACT
+	    && o_ptr->feeling != INSCRIP_TERRIBLE
+	    && o_ptr->feeling != INSCRIP_UNBREAKABLE)
 	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];

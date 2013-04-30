@@ -340,7 +340,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_TELE_SELF_TO)vp[vn++] = "teleport-self to";
 	if (l_ptr->flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
-	if (l_ptr->flags6 & RF6_TELE_LEVEL)  vp[vn++] = "teleport level";
+	if (l_ptr->flags6 & RF6_TELE_LEVEL)  vp[vn++] = "push through floor or ceiling";
 	if (l_ptr->flags6 & RF6_WRAITHFORM)  vp[vn++] = "assume wraithform";
 	if (l_ptr->flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
@@ -829,13 +829,14 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 			case GF_EAT_LITE:       q = "absorb light"; break;
 			case GF_FALL: q = "drop into a pit";break;
 			case GF_FALL_MORE: q = "drop through the floor";break;
+			case GF_FALL_LESS: q = "rise through the ceiling";break;
 			case GF_FALL_SPIKE: q = "drop into a spiked pit";break;
 			case GF_FALL_POIS: q = "drop into a poison spiked pit";break;
 			case GF_BLIND:  q = "blind"; break;
 			case GF_SLOW:  q = "slow"; break;
 			case GF_TERRIFY:	q = "terrify"; break;
 			case GF_PARALYZE:       q = "paralyze"; break;
-			case GF_LOSE_STR:       q = "reduce strength"; break;
+			case GF_LOSE_STR:       q = "reduce strength and size"; break;
 			case GF_LOSE_INT:       q = "reduce intelligence"; break;
 			case GF_LOSE_WIS:       q = "reduce wisdom"; break;
 			case GF_LOSE_DEX:       q = "reduce dexterity and agility"; break;

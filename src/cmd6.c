@@ -91,7 +91,7 @@ static bool item_tester_hook_food_edible(const object_type *o_ptr)
 		/* Some flasks count as bodies */
 		case TV_FLASK:
 
-			if (o_ptr->name3) return (FALSE);
+			if (o_ptr->sval != SV_FLASK_BLOOD) return (FALSE);
 
 			/* Fall through */
 
@@ -1678,7 +1678,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	/* Hack -- for spells that can activate */
+	/* Hack -- for spells that can activate. They are always 'charging', so would never activate otherwise. */
 	if ((o_ptr->tval == TV_SPELL) && (f3 & (TR3_ACTIVATE))) return (TRUE);
 
 	/* Check the recharge */
@@ -1735,13 +1735,26 @@ void do_cmd_activate(void)
 		return;
 	}
 
+	/* Hack -- prepare a fake item for innate racial abilities of the current shape */
+	if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE))
+	{
+		/* Prepare a 'fake' object */
+		object_prep(&inventory[INVEN_SELF], lookup_kind(TV_RACE, 0));
+
+		/* Object is known */
+		object_known(&inventory[INVEN_SELF]);
+
+		/* Hack -- set sval */
+		inventory[INVEN_SELF].sval = p_ptr->pshape;
+	}
+
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_SELF))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1835,6 +1848,10 @@ void do_cmd_activate(void)
 		
 		/* Clear styles */
 		p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF));
+
+		/* Clear racial activation */
+		if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)) object_wipe(&inventory[INVEN_SELF]);
+
 		return;
 	}
 
@@ -1906,16 +1923,20 @@ void do_cmd_activate(void)
 		/* Get object effect --- choose if required */
 		get_spell(&power, "use", o_ptr, TRUE);
 
+		/* Clear racial activation */
+		if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)) object_wipe(&inventory[INVEN_SELF]);
+
 		/* Paranoia */
 		if (power < 0) return;
 
 		/* Apply object effect */
 		(void)process_spell(power, 0, &cancel, &known);
 
+		/* Used the object */
 		if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
 
 		/* Time object out */
-		o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
+		if (o_ptr->charges) o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -2153,7 +2174,7 @@ void do_cmd_apply_rune_or_coating(void)
 		o_ptr->stackc = 0;
 	}
 
-	/* Can't apply if artifact */
+	/* Can't apply if artifact or other magical item */
 	if ((artifact_p(j_ptr)) || ((j_ptr->xtra1) && (j_ptr->xtra1 < OBJECT_XTRA_MIN_RUNES)))
 	{
 		msg_print("It has hidden powers that prevent this.");
@@ -2469,16 +2490,28 @@ void do_cmd_apply_rune_or_coating(void)
 	/* Need to carry the new object? */
 	if (split)
 	{
-		/* Carry the new item */
-		if (item2 >= 0)
-		{
-			item = inven_carry(j_ptr);
-			inven_item_describe(item);
-		}
-		else
-		{
-			item = floor_carry(p_ptr->py,p_ptr->px,j_ptr);
-			floor_item_describe(item);
-		}
+	  /* If taken from the quiver, try to combine or put in the quiver */
+	  if (item2 >= INVEN_QUIVER)
+	    if (quiver_carry(j_ptr, -1))
+	      {
+		/* FIXME: use a proper quiver_carry and do not wipe below */
+
+		/* Wipe the object */
+		object_wipe(j_ptr);
+
+		return;
+	      }
+
+	  /* Carry the new item */
+	  if (item2 >= 0)
+	    {
+	      item = inven_carry(j_ptr);
+	      inven_item_describe(item);
+	    }
+	  else
+	    {
+	      item = floor_carry(p_ptr->py,p_ptr->px,j_ptr);
+	      floor_item_describe(item);
+	    }
 	}
 }

@@ -347,7 +347,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip, int store_index
 	if (price <= 0) return (0L);
 
 	/* Compute the racial factor */
-	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
+	factor = g_info[(ot_ptr->owner_race * z_info->g_max) + p_ptr->pshape];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -3519,6 +3519,7 @@ void do_cmd_store(void)
 	/* Hack -- Check the "locked doors" */
 	if (adult_no_stores ||
 		(store[store_index]->store_open >= turn) ||
+		(p_ptr->pshape >= z_info->g_max) ||
 		((zone->guard) && (r_info[zone->guard].cur_num > 0)))
 	{
 		msg_print("The doors are locked.");

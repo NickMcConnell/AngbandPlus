@@ -134,21 +134,21 @@ N:12:104:0:0:1:1:0:128
 
 N:12:117:0:0:1:1:0:128
 
-# Small fractal room.
+# Medium fractal room.
 
 N:13:107:0:0:1:1:0:128
 A:
 B:cave
 
-# Medium fractal room.
+# Large fractal room.
 
 N:14:107:0:0:1:1:0:128
 A:
 B:cavern
 
-# Large fractal room.
+# Huge fractal room.
 
-N:14:107:0:0:1:1:0:128
+N:15:107:0:0:1:1:0:128
 A:
 B:cavern
 
@@ -4081,7 +4081,7 @@ R:SMART
 F:742:456:742
 L:LIVING
 
-N:117:121:107:153:50:3:0:128
+N:117:121:107:151:50:3:0:128
 A:vine-covered
 B:
 D:Vines grow on 

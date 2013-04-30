@@ -127,33 +127,50 @@ static void prt_stat(int stat)
 	char tmp[32];
 
 	/* Display "injured" stat */
-	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
+	if (p_ptr->stat_use[stat] < p_ptr->stat_top[stat])
 	{
-		if (show_sidebar)
-		{
-			put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
-			cnv_stat(p_ptr->stat_use[stat], tmp);
-			c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
-		}
-		else
-		{
-			c_put_str(TERM_YELLOW, stat_names_reduced_short[stat], ROW_STAT, COL_STAT + 3 * stat);
-		}
+	  if (show_sidebar)
+	    {
+	      put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
+	      cnv_stat(p_ptr->stat_use[stat], tmp);
+	      if (p_ptr->stat_dec_tim[stat])
+		c_put_str(TERM_ORANGE, tmp, ROW_STAT + stat, COL_STAT + 6);
+	      else
+		c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
+	    }
+	  else
+	    {
+	      if (p_ptr->stat_dec_tim[stat])
+		c_put_str(TERM_ORANGE, stat_names_reduced_short[stat], 
+			  ROW_STAT, COL_STAT + 3 * stat);
+	      else
+		c_put_str(TERM_YELLOW, stat_names_reduced_short[stat], 
+			  ROW_STAT, COL_STAT + 3 * stat);
+	    }
 	}
 
 	/* Display "healthy" stat */
 	else
 	{
-		if (show_sidebar)
-		{
-			put_str(stat_names[stat], ROW_STAT + stat, 0);
-			cnv_stat(p_ptr->stat_use[stat], tmp);
-			c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
-		}
-		else
-		{
-			put_str("   ", ROW_STAT, COL_STAT + 3 * stat);
-		}
+	  if (show_sidebar)
+	    {
+	      put_str(stat_names[stat], ROW_STAT + stat, 0);
+	      cnv_stat(p_ptr->stat_use[stat], tmp);
+	      if (p_ptr->stat_inc_tim[stat])
+		c_put_str(TERM_L_BLUE, tmp, ROW_STAT + stat, COL_STAT + 6);
+	      else
+		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
+	    }
+	  else
+	    if (p_ptr->stat_inc_tim[stat])
+	      {
+		c_put_str(TERM_L_BLUE, stat_names[stat], 
+			  ROW_STAT, COL_STAT + 3 * stat);
+	      }
+	    else
+	      {
+		put_str("   ", ROW_STAT, COL_STAT + 3 * stat);
+	      }
 	}
 
 	/* Indicate the threshold where increases are never higher than 5 points */
@@ -715,9 +732,10 @@ static void prt_state(void)
 
 	/* Nothing interesting */
 	else
-	{
-                strcpy(text, "          ");
-	}
+	  {
+	    /*strcpy(text, "          "); */
+	    *text = 0;
+	  }
 
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
 	if (p_ptr->searching) strcpy(text, "Searching ");
@@ -750,7 +768,8 @@ static void prt_state(void)
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
+	if (text)
+	  c_put_str(attr, text, ROW_STATE, COL_STATE);
 }
 
 
@@ -771,18 +790,18 @@ static void prt_speed(void)
 	if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, (show_sidebar ? "Fast (+%d)" : "Spd+%d"), (i - 110));
+		sprintf(buf, (1/*show_sidebar*/ ? "Fast (+%d)" : "Spd+%d"), (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, (show_sidebar ? "Slow (-%d)" : "Spd-%d"), (110 - i));
+		sprintf(buf, (1/*show_sidebar*/ ? "Slow (-%d)" : "Spd-%d"), (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format((show_sidebar ? "%-10s" : "%-6s"), buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format((1/*show_sidebar*/ ? "%-10s" : "%-6s"), buf), ROW_SPEED, COL_SPEED);
 }
 
 
@@ -1420,11 +1439,11 @@ static void prt_frame_extra(void)
 	prt_amnesia();
 	prt_petrify();
 
-	/* State */
-	prt_state();
-
 	/* Speed */
 	prt_speed();
+
+	/* State */
+	prt_state();
 
 	/* Study spells */
 	prt_study();
@@ -2634,14 +2653,18 @@ static void calc_hitpoints(void)
 {
 	int bonus, mhp;
 
-	/* Un-inflate "half-hitpoint bonus per level" value */
-	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
+	/* Un-inflate "extra hit die points above SIZ" value */
+	bonus = ((int)(adj_con_die[p_ptr->stat_ind[A_CON]]) - 128);
+
+	/* Un-inflate "extra hit die points on top of standard 1d10" value */
+	bonus += ((int)(adj_siz_die[p_ptr->stat_ind[A_SIZ]]) - 128);
+
+	/* Calculate hitdice */
+	p_ptr->hitdie = 10 + bonus;
 
 	/* Calculate hitpoints */
-	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
-
-	/* Always have at least one hitpoint per level */
-	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
+	mhp = p_ptr->player_hp[p_ptr->lev - 1]
+	  + p_ptr->player_hp[p_ptr->lev - 1] * bonus / 10;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -2661,6 +2684,20 @@ static void calc_hitpoints(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	/* Calculate the weight for males */
+	if (p_ptr->psex == SEX_MALE)
+	{
+		p_ptr->wt = 2 * rp_ptr->m_b_wt / 3 
+		  + rp_ptr->m_b_wt * p_ptr->stat_use[A_SIZ] / 268;
+	}
+
+	/* Calculate the weight for females */
+	else if (p_ptr->psex == SEX_FEMALE)
+	{
+		p_ptr->wt = 2 * rp_ptr->f_b_wt / 3 
+		  + rp_ptr->f_b_wt * p_ptr->stat_use[A_SIZ] / 268;;
 	}
 }
 
@@ -2854,7 +2891,6 @@ static void calc_bonuses(void)
 
 	u32b f1, f2, f3, f4;
 
-
 	/*** Memorize ***/
 
 	/* Save the old speed */
@@ -2875,7 +2911,6 @@ static void calc_bonuses(void)
 		old_stat_ind[i] = p_ptr->stat_ind[i];
 	}
 
-
 	/*** Reset ***/
 
 	/* Reset player speed */
@@ -2886,6 +2921,7 @@ static void calc_bonuses(void)
 
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
+	p_ptr->num_charge = 1;
 	extra_blows = 0;
 
 	/* Reset "fire" info */
@@ -2937,7 +2973,10 @@ static void calc_bonuses(void)
 	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh;
+	p_ptr->skill_srh = 5 + rp_ptr->r_srh + cp_ptr->c_srh;
+
+	/* Base skill -- digging */
+	p_ptr->skill_dig = rp_ptr->r_dig + cp_ptr->c_dig;;
 
 	/* Base skill -- combat (normal) */
 	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
@@ -2948,15 +2987,53 @@ static void calc_bonuses(void)
 	/* Base skill -- combat (throwing) */
 	p_ptr->skill_tht = rp_ptr->r_tht + cp_ptr->c_tht;
 
-	/* Base skill -- digging */
-	p_ptr->skill_dig = 0;
-
 	/* Base regeneration */
 	p_ptr->regen_hp = 0;
 	p_ptr->regen_mana = 0;
 
 	/* Base lite radius */
 	p_ptr->glowing = 0;
+
+	/*** Extract shape info ***/
+
+	/* Apply bonuses if shape differs from race */
+	if (p_ptr->prace != p_ptr->pshape)
+	{
+		player_race *shape_ptr = &p_info[p_ptr->pshape];
+
+		/* Base infravision (purely racial) */
+		p_ptr->see_infra += shape_ptr->infra;
+
+		/* Base skill -- disarming */
+		p_ptr->skill_dis += shape_ptr->r_dis;
+
+		/* Base skill -- magic devices */
+		p_ptr->skill_dev += shape_ptr->r_dev;
+
+		/* Base skill -- saving throw */
+		p_ptr->skill_sav += shape_ptr->r_sav;
+
+		/* Base skill -- stealth */
+		p_ptr->skill_stl += shape_ptr->r_stl;
+
+		/* Base skill -- searching ability */
+		p_ptr->skill_srh += shape_ptr->r_srh;
+
+		/* Base skill -- digging ability */
+		p_ptr->skill_dig += shape_ptr->r_dig;
+
+		/* Base skill -- combat (normal) */
+		p_ptr->skill_thn += shape_ptr->r_thn;
+
+		/* Base skill -- combat (shooting) */
+		p_ptr->skill_thb += shape_ptr->r_thb;
+
+		/* Base skill -- combat (throwing) */
+		p_ptr->skill_tht += shape_ptr->r_tht;
+
+		/* Add the stat modifiers */
+		for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] += shape_ptr->r_adj[i];
+	}
 
 	/*** Analyze player ***/
 
@@ -2972,18 +3049,18 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_REGEN_HP)) p_ptr->regen_hp += 1;
 
 	/* Affect mana regeneration */
-	if (f3 & (TR3_REGEN_MANA)) p_ptr->regen_hp += 1;
+	if (f3 & (TR3_REGEN_MANA)) p_ptr->regen_mana += 1;
 
 	/* Affect light radius */
 	if (f3 & (TR3_LITE)) p_ptr->glowing += 1;
 
 	/* Affect incremental resists */
-	if (f2 & (TR2_RES_ACID)) p_ptr->incr_resist[INCR_RES_ACID]++;
-	if (f2 & (TR2_RES_COLD)) p_ptr->incr_resist[INCR_RES_COLD]++;
-	if (f2 & (TR2_RES_ELEC)) p_ptr->incr_resist[INCR_RES_ELEC]++;
-	if (f2 & (TR2_RES_FIRE)) p_ptr->incr_resist[INCR_RES_FIRE]++;
-	if (f2 & (TR2_RES_POIS)) p_ptr->incr_resist[INCR_RES_POIS]++;
-	if (f4 & (TR4_RES_WATER)) p_ptr->incr_resist[INCR_RES_WATER]++;
+	if (f2 & (TR2_RES_ACID)) p_ptr->incr_resist[INCR_RES_ACID]+=3;
+	if (f2 & (TR2_RES_COLD)) p_ptr->incr_resist[INCR_RES_COLD]+=3;
+	if (f2 & (TR2_RES_ELEC)) p_ptr->incr_resist[INCR_RES_ELEC]+=3;
+	if (f2 & (TR2_RES_FIRE)) p_ptr->incr_resist[INCR_RES_FIRE]+=3;
+	if (f2 & (TR2_RES_POIS)) p_ptr->incr_resist[INCR_RES_POIS]+=3;
+	if (f4 & (TR4_RES_WATER)) p_ptr->incr_resist[INCR_RES_WATER]+=3;
 
 	/*** Analyze equipment ***/
 
@@ -2999,13 +3076,17 @@ static void calc_bonuses(void)
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Affect stats */
-		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
+		if (f1 & (TR1_STR))
+		  {
+		    p_ptr->stat_add[A_STR] += o_ptr->pval;
+		    p_ptr->stat_add[A_SIZ] += o_ptr->pval;
+		  }
 		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
 		if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
 		if (f1 & (TR1_DEX)) 
 		  {
-			p_ptr->stat_add[A_DEX] += o_ptr->pval;
-			p_ptr->stat_add[A_AGI] += o_ptr->pval;
+		    p_ptr->stat_add[A_DEX] += o_ptr->pval;
+		    p_ptr->stat_add[A_AGI] += o_ptr->pval;
 		  }
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
@@ -3157,7 +3238,29 @@ static void calc_bonuses(void)
 		p_ptr->stat_ind[i] = ind;
 	}
 
+	/* Penalty for SIZ over STR */
+	if (p_ptr->stat_ind[A_SIZ] > p_ptr->stat_ind[A_STR])
+	  {
+	    int use, ind;
+	    int penalty = (p_ptr->stat_ind[A_SIZ] - p_ptr->stat_ind[A_STR]) / 2;
+	    /* Extract the new "stat_use" from the old "stat_use" */
+	    use = modify_stat_value(p_ptr->stat_use[A_AGI], -penalty);
 
+	    /* Save the new value */
+	    p_ptr->stat_use[A_AGI] = use;
+
+	    /* Values: 3, 4, ..., 17 */
+	    if (use <= 18) ind = (use - 3);
+
+	    /* Ranges: 18/00-18/09, ..., 18/240-18/249 */
+	    else if (use <= 18+249) ind = (15 + (use - 18) / 10);
+
+	    /* Range: 18/250+ */
+	    else ind = 40;
+
+	    /* Save the new index */
+	    p_ptr->stat_ind[A_AGI] = ind;
+	  }
 
 
 	/*** Temporary flags ***/
@@ -3392,6 +3495,9 @@ static void calc_bonuses(void)
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);
 
+	/* Affect Skill -- digging ability (Level, by Class) */
+	p_ptr->skill_dig += (cp_ptr->x_dig * p_ptr->lev / 10);
+
 	/* Affect Skill -- combat (normal) (Level, by Class) */
 	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10);
 
@@ -3517,9 +3623,9 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index, half_str;
 
-		int num = c_info[p_ptr->pclass].max_attacks;
-		int wgt = c_info[p_ptr->pclass].min_weight;
-		int mul = c_info[p_ptr->pclass].att_multiply;
+		int num = cp_ptr->max_attacks;
+		int wgt = cp_ptr->min_weight;
+		int mul = cp_ptr->att_multiply;
 		int div;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -3559,7 +3665,7 @@ static void calc_bonuses(void)
 		/* Make strength less significant */
 		half_str = 10 + p_ptr->stat_ind[A_STR] / 4;
 
-		/* Get the strength vs weight; strength translated */
+		/* Get the strength vs weight */
 		str_index = adj_str_blow[half_str] * mul / div;
 
 		/* Maximal value */
@@ -3570,7 +3676,7 @@ static void calc_bonuses(void)
 		/* Use the blows table */
 		p_ptr->num_throw = blows_table[str_index][dex_index];
 
-		/* Maximal value */
+		/* Maximal value; limited by class, as for blows */
 		if (p_ptr->num_throw > num) p_ptr->num_throw = num;
 
 		/* Require at least one throw */
@@ -3637,6 +3743,19 @@ static void calc_bonuses(void)
 			}
 		}
 	}
+
+	/* Charging multiplier */
+	if (p_ptr->cur_style & (1L << WS_UNARMED) 
+	    && p_ptr->wt >= 2 * cp_ptr->chg_weight) 
+	  p_ptr->num_charge = p_ptr->wt / cp_ptr->chg_weight;
+	else if (o_ptr->weight >= 2 * cp_ptr->chg_weight) 
+	  p_ptr->num_charge = o_ptr->weight / cp_ptr->chg_weight;
+	else
+	  p_ptr->num_charge = 1;
+
+	/* Can get as low as 0 */
+	p_ptr->num_charge = MIN(p_ptr->num_charge, 
+				adj_charge_siz[p_ptr->stat_ind[A_SIZ]]);
 
 	/* Check if we wear an amulet or a ring */
 	if (inventory[INVEN_NECK].k_idx)
@@ -3824,23 +3943,23 @@ static void calc_bonuses(void)
 		/* Notice changes */
 		if (p_ptr->stat_ind[i] != old_stat_ind[i])
 		{
-			/* Change in CON affects Hitpoints */
-			if (i == A_CON)
+			/* Change in CON or SIZ affects hitpoints */
+			if (i == A_CON || i == A_SIZ)
 			{
 				p_ptr->update |= (PU_HP);
 			}
 
-			/* Change in spell stat may affect Mana */
-			if ((i == c_info[p_ptr->pclass].spell_stat_mana) &&
-				((c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL) || (p_ptr->pstyle == WS_MAGIC_BOOK)
+			/* Change in spell stat may affect mana */
+			if ((i == cp_ptr->spell_stat_mana) &&
+				((cp_ptr->spell_first <= PY_MAX_LEVEL) || (p_ptr->pstyle == WS_MAGIC_BOOK)
 				|| (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK)))
 			{
 				p_ptr->update |= (PU_MANA);
 			}
 
-			/* Change in spell stat may affect Mana */
-			if ((i == c_info[p_ptr->pclass].spell_stat_study) &&
-				((c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL) || (p_ptr->pstyle == WS_MAGIC_BOOK)
+			/* Change in spell stat may affect spells */
+			if ((i == cp_ptr->spell_stat_study) &&
+				((cp_ptr->spell_first <= PY_MAX_LEVEL) || (p_ptr->pstyle == WS_MAGIC_BOOK)
 				|| (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK)))
 			{
 				p_ptr->update |= (PU_SPELLS);
@@ -4176,6 +4295,7 @@ void redraw_stuff(void)
 		prt_stat(A_CON);
 		prt_stat(A_CHR);
 		prt_stat(A_AGI);
+		prt_stat(A_SIZ);
 	}
 
 	if (p_ptr->redraw & (PR_ARMOR))
@@ -4306,6 +4426,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_STATE))
 	{
 		p_ptr->redraw &= ~(PR_STATE);
+		prt_speed();
 		prt_state();
 	}
 
@@ -4313,6 +4434,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_SPEED);
 		prt_speed();
+		prt_state();
 	}
 
 	if (p_ptr->redraw & (PR_STUDY))

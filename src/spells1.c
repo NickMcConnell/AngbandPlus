@@ -242,10 +242,13 @@ void update_smart_racial(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
-	player_race *pr_ptr = &p_info[p_ptr->prace];
+	player_race *shape_ptr = &p_info[p_ptr->pshape];
 
-	/* Get other flags */
-	m_ptr->smart |= player_smart_flags(pr_ptr->flags1, pr_ptr->flags2, pr_ptr->flags3, pr_ptr->flags4);
+	/* Get race flags */
+	m_ptr->smart |= player_smart_flags(rp_ptr->flags1, rp_ptr->flags2, rp_ptr->flags3, rp_ptr->flags4);
+
+	/* Get shape flags */
+	m_ptr->smart |= player_smart_flags(shape_ptr->flags1, shape_ptr->flags2, shape_ptr->flags3, shape_ptr->flags4);
 
 	return;
 }
@@ -304,8 +307,8 @@ void teleport_away(int m_idx, int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(ny, nx)) continue;
 
-			/* Require safe location for monster */
-			if (!place_monster_here(ny, nx, m_ptr->r_idx)) continue;
+			/* Require safe passable space for monster */
+			if (place_monster_here(ny, nx, m_ptr->r_idx) <= MM_FAIL) continue;
 
 			/* Don't allow teleporting into other monster or player */
 			if (cave_m_idx[ny][nx]) continue;
@@ -522,7 +525,6 @@ void teleport_player_to(int ny, int nx)
 }
 
 
-
 /*
  * Teleport monster to a grid near the given location.  This function is
  * used in the monster spell "TELE_SELF_TO", to allow monsters both to
@@ -588,103 +590,68 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 }
 
 
+void create_down_teleport_level(void)
+{
+  message(MSG_TPLEVEL, 0, "The floor beneath you collapses.");
+
+  /* Create feature leading down */
+  cave_set_feat(p_ptr->py, p_ptr->px, CRUMBLING_FLOOR);
+}
+
+
+void create_up_teleport_level(void)
+{
+  message(MSG_TPLEVEL, 0, "Rubble falls down from the ceiling.");
+
+  /* Create feature leading up */
+  cave_set_feat(p_ptr->py, p_ptr->px, TREMBLING_RUBBLE);
+}
+
 
 /*
- * Teleport the player one level up or down (random when legal)
+ * Creates terrain that will move the player one level up or down 
+ * (random when legal)
  *
  * Note hacks because we now support towers as well as dungeons.
  */
 void teleport_player_level(void)
 {
-	if (adult_ironman)
+  if (adult_ironman)
+    {
+      msg_print("Nothing happens.");
+      return;
+    }
+
+  if (!max_depth(p_ptr->dungeon))
+    {
+      msg_print("Nothing happens.");
+      return;
+    }
+  else if (p_ptr->depth == min_depth(p_ptr->dungeon))
+    {
+      create_down_teleport_level();
+    }
+  else if (is_quest(p_ptr->depth) 
+	   || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
+    {
+      /* Hack -- tower level increases depth */
+      if (t_info[p_ptr->dungeon].zone[0].tower)
 	{
-		msg_print("Nothing happens.");
-		return;
+	  create_down_teleport_level();
 	}
-
-	if (!max_depth(p_ptr->dungeon))
+      else
 	{
-		msg_print("Nothing happens.");
-		return;
+	  create_up_teleport_level();
 	}
-	else if (p_ptr->depth == min_depth(p_ptr->dungeon))
-	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
-
-		/* Hack -- tower level decreases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
-		{
-			/* New depth */
-			p_ptr->depth--;
-		}
-		else
-		{
-			/* New depth */
-			p_ptr->depth++;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-	{
-		/* Hack -- tower level increases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
-		{
-			message(MSG_TPLEVEL, 0, "You sink through the floor.");
-		}
-		else
-		{
-			message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
-		}
-
-		/* New depth */
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else if (rand_int(100) < 50)
-	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
-
-		/* Hack -- tower level increases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
-		{
-			/* New depth */
-			p_ptr->depth++;
-		}
-		else
-		{
-			/* New depth */
-			p_ptr->depth--;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else
-	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
-
-		/* Hack -- tower level increases depth */
-		if (t_info[p_ptr->dungeon].zone[0].tower)
-		{
-			/* New depth */
-			p_ptr->depth--;
-		}
-		else
-		{
-			/* New depth */
-			p_ptr->depth++;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+    }
+  else if (rand_int(100) < 50)
+    {
+      create_up_teleport_level();
+    }
+  else
+    {
+      create_down_teleport_level();
+    }
 }
 
 
@@ -1380,36 +1347,17 @@ static int set_cold_destroy(object_type *o_ptr)
 static int set_elec_destroy(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Only affect rods, staffs and wands */
 	if ((o_ptr->tval != TV_ROD) && (o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return (FALSE);
 
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f2 & (TR2_IGNORE_ELEC))
 	{
 		object_can_flags(o_ptr,0x0L,TR2_IGNORE_ELEC,0x0L,0x0L);
 		return (FALSE);
 	}
-
-	/* Only drain charges, don't destroy */
-	if ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND))
-	{
-		/* Uncharge */
-		o_ptr->charges = 0;
-		o_ptr->stackc = 0;
-	}
-
-	/* Quietly drain charged wands/staffs */
-	else if (o_ptr->tval == TV_ROD)
-	{
-		int t = randint(999);
-
-		/* Discharge */
-		if (o_ptr->timeout < t) o_ptr->timeout = t;
-	}
-
-	return (FALSE);
+	return (TRUE);
 }
 
 
@@ -1524,6 +1472,37 @@ static int inven_damage(inven_func typ, int perc)
 
 					break;
 				}
+				/* Rods, staffs and wands */
+			        case TV_STAFF:
+			        case TV_WAND:
+				  {
+				    if (rand_int(100) < perc)
+				      {
+					/* Only drain charges, don't destroy */
+					o_ptr->charges = 0;
+					o_ptr->stackc = 0;
+
+					/* Damaged! */
+					damage = TRUE;
+				      }
+				    else continue;
+				    
+				    break;
+				  }
+			        case TV_ROD:
+				  {
+				    if (rand_int(100) < perc)
+				      {
+					/* Discharge */
+					int t = randint(999);
+					if (o_ptr->timeout < t) o_ptr->timeout = t;
+					/* Damaged! */
+					damage = TRUE;
+				      }
+				    else continue;
+				    
+				    break;
+				  }
 			}
 
 			/* Damage instead of destroy */
@@ -1563,7 +1542,7 @@ static int inven_damage(inven_func typ, int perc)
 					    ((amt == o_ptr->number) ? "All of y" :
 					     (amt > 1 ? "Some of y" : "One of y")) : "Y"),
 					   o_name, index_to_label(i),
-					   ((amt > 1) ? "were" : "was"),
+					   (damage ? (amt > 1 ? "are" : "is") : (amt > 1 ? "were" : "was")),
 					   (damage ? "damaged" : "destroyed"));
 
 				/* Damage already done? */
@@ -6834,7 +6813,8 @@ bool project_m(int who, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
-			if (!place_monster_here(y,x,m_ptr->r_idx)) entomb(y, x, 0x0L);
+			if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) 
+			  entomb(y, x, 0x0L);
 			break;
 		}
 
@@ -9349,6 +9329,13 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				set_stat_dec_tim(p_ptr->stat_dec_tim[A_STR] + rand_int(20) + 20, A_STR);
 			}
 
+			/* Damage (stat) */
+			if (do_dec_stat(A_SIZ))
+			{
+				obvious = TRUE;
+				set_stat_dec_tim(p_ptr->stat_dec_tim[A_SIZ] + rand_int(20) + 20, A_SIZ);
+			}
+
 			break;
 		}
 
@@ -9655,53 +9642,65 @@ bool project_p(int who, int y, int x, int dam, int typ)
 		}
 
 		case GF_FALL_MORE:
-		{
-			if ((p_ptr->cur_flags3 & (TR3_FEATHER)) != 0)
-			{
-				/* Always notice */
-				player_can_flags(who, 0x0L,0x0L,TR3_FEATHER,0x0L);
+		case GF_FALL_LESS:
+		  {
+		    if (typ == GF_FALL_MORE && 
+			(p_ptr->cur_flags3 & TR3_FEATHER) != 0)
+		      {
+			/* Always notice */
+			player_can_flags(who, 0x0L,0x0L,TR3_FEATHER,0x0L);
 
-				msg_print("You gently float down to the next level.");
-				dam = 0;
-			}
-			else
-			{
-				/* Always notice */
-				player_not_flags(who, 0x0L,0x0L,TR3_FEATHER,0x0L);
+			if (typ == GF_FALL_MORE)
+			  msg_print("You gently float down to the next level.");
+				
+			dam = 0;
+		      }
+		    else
+		      {
+			if (typ == GF_FALL_MORE)
+			  /* Always notice */
+			  player_not_flags(who, 0x0L,0x0L,TR3_FEATHER,0x0L);
+			  
+			take_hit(dam, killer);
+		      }
 
-				take_hit(dam, killer);
-			}
+		    /* Hack -- no chasm/trap doors on quest levels */
+		    if (!max_depth(p_ptr->dungeon)
+			|| (typ == GF_FALL_MORE 
+			    && (is_quest(p_ptr->depth) 
+				|| p_ptr->depth == max_depth(p_ptr->dungeon)))
+			|| (typ == GF_FALL_LESS
+			    && p_ptr->depth == min_depth(p_ptr->dungeon)))
+		      {
+			/* Mark grid for later processing. */
+			cave_temp_mark(y, x, FALSE);
+		      }
+		    /* Hack -- tower level decreases depth */
+		    else if ((typ == GF_FALL_MORE 
+			      && !t_info[p_ptr->dungeon].zone[0].tower)
+			     || (typ == GF_FALL_LESS 
+				 && t_info[p_ptr->dungeon].zone[0].tower))
+		      {
+			/* New depth */
+			p_ptr->depth++;
 
-			/* Hack -- tower level decreases depth */
-			if (t_info[p_ptr->dungeon].zone[0].tower)
-			{
-				/* New depth */
-				p_ptr->depth--;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		      }
+		    else
+		      {
+			/* New depth */
+			p_ptr->depth--;
 
-				/* Leaving */
-				p_ptr->leaving = TRUE;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		      }
 
-			}
-			/* Hack -- no chasm/trap doors/down stairs on quest levels */
-			else if (is_quest(p_ptr->depth) || (p_ptr->depth == max_depth(p_ptr->dungeon)))
-			{
-				/* Mark grid for later processing. */
-				cave_temp_mark(y, x, FALSE);
-			}
-			else
-			{
-				/* New depth */
-				p_ptr->depth++;
+		    /* Clear stairs */
+		    p_ptr->create_stair = 0;
 
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-
-			/* Clear stairs */
-			p_ptr->create_stair = 0;
-
-			break;
-		}
+		    break;
+		  }
 
 		case GF_FALL_SPIKE:
 		{
@@ -10556,8 +10555,9 @@ bool project_t(int who, int y, int x, int dam, int typ)
 			if (play_info[ddy_ddd[k]][ddy_ddd[k]] & (PLAY_TEMP)) blocked |= 1 << k;
 		}
 
-		/* Check if monster can survive in terrain or move */
-		if (place_monster_here(y, x, m_ptr->r_idx) == MM_FAIL) entomb(y, x, blocked);
+		/* Check if monster can move and survive in terrain */
+		if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) 
+		  entomb(y, x, blocked);
 	}
 
 	if (affect_monster)

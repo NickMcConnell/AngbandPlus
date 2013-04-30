@@ -1344,13 +1344,17 @@ static cptr likert(int x, int y, byte *attr)
 	if (x < 0)
 	{
 		*attr = TERM_RED;
-		return ("Very Bad");
+		return ("Awful");
 	}
 
 	/* Analyze the value */
 	switch ((x / y))
 	{
 		case 0:
+		{
+			*attr = TERM_RED;
+			return ("Very Bad");
+		}
 		case 1:
 		{
 			*attr = TERM_RED;
@@ -1362,6 +1366,10 @@ static cptr likert(int x, int y, byte *attr)
 			return ("Poor");
 		}
 		case 3:
+		{
+			*attr = TERM_YELLOW;
+			return ("Iffy");
+		}
 		case 4:
 		{
 			*attr = TERM_YELLOW;
@@ -1379,11 +1387,11 @@ static cptr likert(int x, int y, byte *attr)
 		}
 		case 7:
 		case 8:
+		case 9:
 		{
 			*attr = TERM_L_GREEN;
 			return ("Excellent");
 		}
-		case 9:
 		case 10:
 		case 11:
 		case 12:
@@ -1421,8 +1429,7 @@ static void display_player_xtra_info(void)
 	int style_hit, style_dam, style_crit;
 	u32b style;
 	int base, plus;
-	int tmp;
-	int xthn, xthb, xtht, xsrh;
+	int xthn, xthb, xtht, xsrh, xdig;
 	int xdis, xdev, xsav, xstl;
 	byte likert_attr;
 
@@ -1467,29 +1474,64 @@ static void display_player_xtra_info(void)
 
 	/* Age */
 	Term_putstr(col, row, -1, TERM_WHITE, "Age");
-	Term_putstr(col+8, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	Term_putstr(col+8, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age + p_ptr->max_lev / 10));
 
 	/* Height */
 	Term_putstr(col, row + 1, -1, TERM_WHITE, "Height");
-	Term_putstr(col+8, row + 1, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
-
-	/* Weight */
-	Term_putstr(col, row + 2, -1, TERM_WHITE, "Weight");
-	Term_putstr(col+8, row + 2, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
+	Term_putstr(col+8, row + 1, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht + p_ptr->stat_use[A_SIZ]/20));
 
 	/* Status */
-	Term_putstr(col, row + 3, -1, TERM_WHITE, "Status");
-	Term_putstr(col+8, row + 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
-	/* Char level */
-	Term_putstr(col, row + 4, -1, TERM_WHITE, "Level");
-	Term_putstr(col+8, row + 4, -1, ((p_ptr->lev >= p_ptr->max_lev) ? TERM_L_BLUE : TERM_YELLOW),
-				format("%4d", p_ptr->lev));
+	Term_putstr(col, row + 2, -1, TERM_WHITE, "Status");
+	Term_putstr(col+8, row + 2, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
 	/* Left */
 	col = 1;
 
+	/* Char level */
+	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
+	Term_putstr(col+10, 10, -1, 
+		    ((p_ptr->lev >= p_ptr->max_lev) ? TERM_L_GREEN : TERM_YELLOW),
+		    format("%8d", p_ptr->lev));
+
+	/* Current Experience */
+	Term_putstr(col, 11, -1, TERM_WHITE, "Curr Exp");
+	if (p_ptr->exp >= p_ptr->max_exp)
+	{
+		Term_putstr(col+9, 11, -1, TERM_L_GREEN,
+		            format("%9ld", p_ptr->exp));
+	}
+	else
+	{
+		Term_putstr(col+9, 11, -1, TERM_YELLOW,
+		            format("%9ld", p_ptr->exp));
+	}
+
+	/* Maximum Experience */
+	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
+	Term_putstr(col+9, 12, -1, TERM_L_GREEN,
+	            format("%9ld", p_ptr->max_exp));
+
+	/* Advance Experience */
+	Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
+	if (p_ptr->lev < PY_MAX_LEVEL)
+	{
+		s32b advance = (player_exp[p_ptr->lev - 1] *
+		                p_ptr->expfact / 100L);
+
+		/*some players want to see experience needed to gain next level*/
+		if (toggle_xp) advance -= p_ptr->exp;
+
+		Term_putstr(col+9, 13, -1, TERM_L_GREEN,
+		            format("%9ld", advance));
+	}
+	else
+	{
+		Term_putstr(col+9, 13, -1, TERM_L_GREEN,
+		            format("%9s", "********"));
+	}
+
 	/* Current dungeon level */
-	Term_putstr(col, 10, -1, TERM_WHITE, "Depth"); 	 
+	Term_putstr(col, 14, -1, TERM_WHITE, "Depth"); 	 
   	 
 	/* Has he actually left the town? */ 	 
 	if (p_ptr->max_depth) 	 
@@ -1501,10 +1543,10 @@ static void display_player_xtra_info(void)
 	/*hasn't left town*/ 	 
 	else strnfmt(buf, sizeof(buf), "    Town"); 	 
 	
-	Term_putstr(col+10, 10, -1, TERM_L_GREEN, buf);
+	Term_putstr(col+10, 14, -1, TERM_L_GREEN, buf);
 
 	/* Max dungeon level */ 	 
-	Term_putstr(col, 11, -1, TERM_WHITE, "MaxDepth"); 	 
+	Term_putstr(col, 15, -1, TERM_WHITE, "MaxDepth"); 	 
   	 
 	/* Has he actually left the town? */ 	 
 	if (p_ptr->max_depth) 	 
@@ -1516,65 +1558,28 @@ static void display_player_xtra_info(void)
 	/*hasn't left town*/ 	 
 	else strnfmt(buf, sizeof(buf), "    Town"); 	 
 	
-	Term_putstr(col+10, 11, -1, TERM_L_GREEN, buf);
+	Term_putstr(col+10, 15, -1, TERM_L_GREEN, buf);
 
 	/* Game Turn */
-	Term_putstr(col, 12, -1, TERM_WHITE, "Game Turn");
-	Term_putstr(col+9, 12, -1, TERM_L_GREEN,
+	Term_putstr(col, 16, -1, TERM_WHITE, "Game Turn");
+	Term_putstr(col+9, 16, -1, TERM_L_GREEN,
 		            format("%9ld", turn));
 
 	/* Player Game Turn */
-	Term_putstr(col, 13, -1, TERM_WHITE, "Plr Turn");
-	Term_putstr(col+9, 13, -1, TERM_L_GREEN,
+	Term_putstr(col, 17, -1, TERM_WHITE, "Plr Turn");
+	Term_putstr(col+9, 17, -1, TERM_L_GREEN,
 		            format("%9ld", p_ptr->player_turn));
 
 	/* Non-Resting Player Game Turn */
-	Term_putstr(col, 14, -1, TERM_WHITE, "Act Turn");
-	Term_putstr(col+9, 14, -1, TERM_L_GREEN,
+	Term_putstr(col, 18, -1, TERM_WHITE, "Act Turn");
+	Term_putstr(col+9, 18, -1, TERM_L_GREEN,
 		            format("%9ld", p_ptr->player_turn - p_ptr->resting_turn));
-
-	/* Current Experience */
-	Term_putstr(col, 15, -1, TERM_WHITE, "Curr Exp");
-	if (p_ptr->exp >= p_ptr->max_exp)
-	{
-		Term_putstr(col+9, 15, -1, TERM_L_GREEN,
-		            format("%9ld", p_ptr->exp));
-	}
-	else
-	{
-		Term_putstr(col+9, 15, -1, TERM_YELLOW,
-		            format("%9ld", p_ptr->exp));
-	}
-
-	/* Maximum Experience */
-	Term_putstr(col, 16, -1, TERM_WHITE, "Max Exp");
-	Term_putstr(col+9, 16, -1, TERM_L_GREEN,
-	            format("%9ld", p_ptr->max_exp));
-
-	/* Advance Experience */
-	Term_putstr(col, 17, -1, TERM_WHITE, "Adv Exp");
-	if (p_ptr->lev < PY_MAX_LEVEL)
-	{
-		s32b advance = (player_exp[p_ptr->lev - 1] *
-		                p_ptr->expfact / 100L);
-
-		/*some players want to see experience needed to gain next level*/
-		if (toggle_xp) advance -= p_ptr->exp;
-
-		Term_putstr(col+9, 17, -1, TERM_L_GREEN,
-		            format("%9ld", advance));
-	}
-	else
-	{
-		Term_putstr(col+9, 17, -1, TERM_L_GREEN,
-		            format("%9s", "********"));
-	}
 
 	/* Middle left */
 	col = 21;
 
 	/* Hit Points */
-	if (p_ptr->mhp > 99)
+	if (p_ptr->mhp > 99 || p_ptr->chp < 0)
 	{
 		sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
 		Term_putstr(col, 10, -1, TERM_WHITE, "HP");
@@ -1601,46 +1606,50 @@ static void display_player_xtra_info(void)
 		Term_putstr(col+12, 11, -1, TERM_L_BLUE, format("%5s", buf));
 	}
 
+	/* Hit die (changes with SIZ and CON) */
+	Term_putstr(col, 12, -1, TERM_WHITE, "Hit die");
+	Term_putstr(col+8, 12, -1, TERM_L_BLUE, format("%9d", p_ptr->hitdie));
+
 	/* Armor */
 	base = p_ptr->dis_ac;
 	plus = p_ptr->dis_to_a;
 
 	/* Total Armor */
 	strnfmt(buf, sizeof(buf), "[%d,%+d]", base, plus);
-	Term_putstr(col, 12, -1, TERM_WHITE, "Armor");
-	Term_putstr(col+8, 12, -1, TERM_L_BLUE, format("%9s", buf));
+	Term_putstr(col, 13, -1, TERM_WHITE, "Armor");
+	Term_putstr(col+8, 13, -1, TERM_L_BLUE, format("%9s", buf));
 
 	/* Infra */
 	strnfmt(buf, sizeof(buf), "%d ft", p_ptr->see_infra * 10);
-	Term_putstr(col, 13, -1, TERM_WHITE, "Infravis");
-	Term_putstr(col+8, 13, -1, TERM_L_BLUE, format("%9s", buf));
+	Term_putstr(col, 14, -1, TERM_WHITE, "Infravis");
+	Term_putstr(col+8, 14, -1, TERM_L_BLUE, format("%9s", buf));
 
 	/* Gold */
-	Term_putstr(col, 14, -1, TERM_WHITE, "Gold");
-	Term_putstr(col+4, 14, -1, TERM_L_BLUE,
+	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
+	Term_putstr(col+4, 15, -1, TERM_L_BLUE,
 	            format("%13ld", p_ptr->au));
 
 	/* Burden (in pounds) */
 	strnfmt(buf, sizeof(buf), "%ld.%ld lbs",
 	        p_ptr->total_weight / 10L,
 	        p_ptr->total_weight % 10L);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Burden");
+	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
 
 	/* calculate burden as a % of character's max burden */
 	strnfmt(buf, sizeof(buf), format("%6ld lbs", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L));
-	Term_putstr(col+7, 15, -1, TERM_L_BLUE, buf);
+	Term_putstr(col+7, 16, -1, TERM_L_BLUE, buf);
 
 	/* Now print burden as a percentage of carrying capacity */
 	tmpl = ((p_ptr->total_weight * 10L) / adj_str_wgt[p_ptr->stat_ind[A_STR]]) / 10L;
-	Term_putstr(col, 16, -1, TERM_WHITE, "% Burden");
+	Term_putstr(col, 17, -1, TERM_WHITE, "% Burden");
 
 	/* output, but leave a space for the % */
 	strnfmt(buf, sizeof(buf), format("%8ld", tmpl));
-	Term_putstr(col+8, 16, -1, (tmpl < 100L) ? TERM_L_BLUE : TERM_YELLOW, buf);
+	Term_putstr(col+8, 17, -1, (tmpl < 100L) ? TERM_L_BLUE : TERM_YELLOW, buf);
 
 	/* Hack - add the % at the end */
 	sprintf(buf, "%%");
-	Term_putstr(col+16, 16, -1, (tmpl < 100L) ? TERM_L_BLUE : TERM_YELLOW, buf);
+	Term_putstr(col+16, 17, -1, (tmpl < 100L) ? TERM_L_BLUE : TERM_YELLOW, buf);
 
 	/*get the player's speed*/
 	i = p_ptr->pspeed;
@@ -1672,8 +1681,8 @@ static void display_player_xtra_info(void)
 	}
 
 	/* Speed */
-	Term_putstr(col, 17, -1, TERM_WHITE, "Speed");
-	Term_putstr(col+8, 17, -1, TERM_L_BLUE, format("%9s", buf));
+	Term_putstr(col, 18, -1, TERM_WHITE, "Speed");
+	Term_putstr(col+8, 18, -1, TERM_L_BLUE, format("%9s", buf));
 
 	/* Middle */
 	col = 40;
@@ -1805,14 +1814,9 @@ static void display_player_xtra_info(void)
 		Term_putstr(col, 12, -1, TERM_WHITE, "Free");
 	}
 
-	/* Compute charging bonus */
-	if (p_ptr->cur_style & (1L << WS_UNARMED)) 
-		tmp = MAX(1, p_ptr->wt / cp_ptr->chg_weight);
-	else 
-		tmp = MAX(1, inventory[INVEN_WIELD].weight / cp_ptr->chg_weight);
-
 	/* Blows */
-	strnfmt(buf, sizeof(buf), "%d/turn(x%d)", p_ptr->num_blow, tmp);
+	strnfmt(buf, sizeof(buf), "%d/turn(x%d)", 
+		p_ptr->num_blow, p_ptr->num_charge);
 	Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
 	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%12s", buf));
 
@@ -1884,6 +1888,10 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 17, -1, TERM_WHITE, "Hurls");
 	Term_putstr(col+5, 17, -1, TERM_L_BLUE, format("%12s", buf));
 
+	/* Weight */
+	Term_putstr(col, 18, -1, TERM_WHITE, "Weight");
+	Term_putstr(col+6, 18, -1, TERM_L_BLUE, format("%7d lbs", (int)p_ptr->wt));
+
 	/* Right */
 	col = 59;
 
@@ -1893,6 +1901,7 @@ static void display_player_xtra_info(void)
 	xsav = p_ptr->skill_sav;
 	xstl = p_ptr->skill_stl;
 	xsrh = p_ptr->skill_srh;
+	xdig = p_ptr->skill_dig;
 
 	put_str("Fighting", 10, col);
 	desc = likert(xthn, 12, &likert_attr);
@@ -1926,12 +1935,16 @@ static void display_player_xtra_info(void)
 	desc = likert(xsrh, 6, &likert_attr);
 	c_put_str(likert_attr, format("%9s", desc), 17, col+11);
 
-	/* Indent output by 1 character, and wrap at column 72 */
-	text_out_wrap = 65;
+	put_str("Digging", 18, col);
+	desc = likert(xdig, 6, &likert_attr);
+	c_put_str(likert_attr, format("%9s", desc), 18, col+11);
+
+	/* Indent output by 1 character, and wrap at column 76 */
+	text_out_wrap = 76;
 	text_out_indent = 1;
 
 	/* History */
-	Term_gotoxy(text_out_indent, 19);
+	Term_gotoxy(text_out_indent, 20);
 	text_out_to_screen(TERM_WHITE, p_ptr->history);
 
 	/* Reset text_out() vars */
@@ -1947,8 +1960,9 @@ static void display_player_xtra_info(void)
  */
 void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-
 	int i;
+
+	player_race *shape_ptr = &p_info[p_ptr->pshape];
 
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
@@ -1958,6 +1972,12 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
 	(*f4) |= rp_ptr->flags4;
+
+	/* Add shape flags */
+	(*f1) |= shape_ptr->flags1;
+	(*f2) |= shape_ptr->flags2;
+	(*f3) |= shape_ptr->flags3;
+	(*f4) |= shape_ptr->flags4;
 
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
@@ -2698,7 +2718,14 @@ static void display_player_misc_info(void)
 
 	/* Race */
 	put_str("Race", 3, 1);
-	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 3, 8);
+	if (p_ptr->prace != p_ptr->pshape)
+	{
+		c_put_str(TERM_L_BLUE, format("%s (%s)", p_name + rp_ptr->name, p_name + p_info[p_ptr->pshape].name), 3, 8);
+	}
+	else
+	{
+		c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 3, 8);
+	}
 
 
 	/* Class */
@@ -2842,7 +2869,12 @@ void display_player_stat_info(int row, int col, int min, int max, int attr)
 
 		/* Resulting "modified" maximum value */
 		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+20);
+		if (p_ptr->stat_inc_tim[i])
+		  c_put_str(TERM_L_BLUE, buf, row+i, col+20);
+		else if (p_ptr->stat_dec_tim[i])
+		  c_put_str(TERM_ORANGE, buf, row+i, col+20);
+		else
+		  c_put_str(TERM_L_GREEN, buf, row+i, col+20);
 
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
@@ -2898,7 +2930,7 @@ static void display_player_sust_info(void)
 		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 		/* Initialize color based of sign of pval. */
-		for (stat = 0; stat < A_MAX - 1 /* AGI coupled with DEX */; stat++)
+		for (stat = 0; stat < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; stat++)
 		{
 			/* Default */
 			a = TERM_SLATE;
@@ -2945,6 +2977,8 @@ static void display_player_sust_info(void)
 			Term_putch(col, row+stat, a, c);
 			if (stat == A_DEX) 
 			  Term_putch(col, row+A_AGI, a, c);
+			if (stat == A_STR) 
+			  Term_putch(col, row+A_SIZ, a, c);
 		}
 
 		/* Advance */
@@ -2955,7 +2989,7 @@ static void display_player_sust_info(void)
 	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Check stats */
-	for (stat = 0; stat < A_MAX - 1 /* AGI coupled with DEX */; ++stat)
+	for (stat = 0; stat < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; ++stat)
 	{
 		/* Default */
 		a = TERM_SLATE;
@@ -2973,6 +3007,8 @@ static void display_player_sust_info(void)
 		Term_putch(col, row+stat, a, c);
 		if (stat == A_DEX) 
 		  Term_putch(col, row+A_AGI, a, c);
+		if (stat == A_STR) 
+		  Term_putch(col, row+A_SIZ, a, c);
 	}
 }
 
@@ -3040,12 +3076,14 @@ static void display_home_equipment_info(int mode)
 		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 		/* Initialize color based of sign of pval. */
-		for (stats = 0; stats < A_MAX - 1 /* AGI coupled with DEX */; stats++)
+		for (stats = 0; stats < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; stats++)
 		{
 			/* Assume uppercase stat name */
 			c_put_str(TERM_WHITE, stat_names[stats], row+stats, 2);
 			if (stats == A_DEX) 
 			  c_put_str(TERM_WHITE, stat_names[A_AGI], row+A_AGI, 2);
+			if (stats == A_STR) 
+			  c_put_str(TERM_WHITE, stat_names[A_SIZ], row+A_SIZ, 2);
 
 			/* Default */
 			a = TERM_SLATE;
@@ -3092,6 +3130,8 @@ static void display_home_equipment_info(int mode)
 			Term_putch(col, row+stats, a, c);
 			if (stats == A_DEX) 
 			  Term_putch(col, row+A_AGI, a, c);
+			if (stats == A_STR) 
+			  Term_putch(col, row+A_SIZ, a, c);
 		}
 
 		/* Advance */
@@ -3282,7 +3322,7 @@ static void dump_player_plus_minus(FILE *fff)
 		modifier = FALSE;
 
 		/*check to see if there is an increase or decrease of a stat*/
-		for (stats = 0; stats < A_MAX - 1 /* AGI coupled with DEX */; stats++)
+		for (stats = 0; stats < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; stats++)
 		{
 			/* Boost */
 			if (f1 & (1<<stats)) modifier = TRUE;
@@ -3380,7 +3420,7 @@ static void dump_player_stat_info(FILE *fff)
 			object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 			/* Boost */
-			if (f1 & (1<<(stats == A_AGI ? A_DEX : stats)))
+			if (f1 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))
 			{
 				/* Default */
 				c = '*';
@@ -3428,7 +3468,7 @@ static void dump_player_stat_info(FILE *fff)
 			object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 			/* Sustain */
-			if (f2 & (1<<(stats == A_AGI ? A_DEX : stats)))  c = 's';
+			if (f2 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))  c = 's';
 			else c = '.';
 
 			/*dump the result*/
@@ -3443,7 +3483,7 @@ static void dump_player_stat_info(FILE *fff)
 		c = '.';
 
 		/* Sustain */
-		if (f2 & (1<<(stats == A_AGI ? A_DEX : stats))) c = 's';
+		if (f2 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats)))) c = 's';
 
 		/*dump the result*/
 		fprintf(fff,"%c",c);
@@ -3477,7 +3517,7 @@ static void dump_home_plus_minus(FILE *fff)
 		modifier = FALSE;
 
 		/*check to see if there is an increase or decrease of a stat*/
-		for (stats = 0; stats < A_MAX - 1 /* AGI coupled with DEX */; stats++)
+		for (stats = 0; stats < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; stats++)
 		{
 			/* Boost */
 			if (f1 & (1<<stats)) modifier = TRUE;
@@ -3572,7 +3612,7 @@ static void dump_home_stat_info(FILE *fff)
 			c = '.';
 
 			/* Boost */
-			if (f1 & (1<<(stats == A_AGI ? A_DEX : stats)))
+			if (f1 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))
 			{
 				/* Default */
 				c = '*';
@@ -3618,7 +3658,7 @@ static void dump_home_stat_info(FILE *fff)
 			object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 			/* Sustain */
-			if (f2 & (1<<(stats == A_AGI ? A_DEX : stats)))  c = 's';
+			if (f2 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))  c = 's';
 			else c = '.';
 
 			/*dump the result*/
@@ -3656,8 +3696,6 @@ errr file_character(cptr name, bool full)
 	char o_name[80];
 
 	char buf[1024];
-
-	bool no_quests = TRUE;
 
 	char buf2[20];
 
@@ -4964,6 +5002,7 @@ static void make_bones(void)
 			fprintf(fp, "%s\n", op_ptr->full_name);
 			fprintf(fp, "%d\n", p_ptr->mhp);
 			fprintf(fp, "%d\n", p_ptr->prace);
+
 			fprintf(fp, "%d\n", p_ptr->pclass);
 
 			/* Close and save the Bones file */

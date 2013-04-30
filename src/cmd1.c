@@ -748,8 +748,11 @@ void search(void)
 /*
  * Objects that combine with items already in the quiver get picked
  * up, placed in the quiver, and combined automatically.
+ *
+ * FIXME: make a function with this name that will behave 
+ * similarly as inven_carry; then use it in do_cmd_apply_rune_or_coating
  */
-static bool quiver_carry(object_type *o_ptr, int o_idx)
+bool quiver_carry(object_type *o_ptr, int o_idx)
 {
 	int i;
 
@@ -758,7 +761,10 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 	char name[80];
 
 	/* Must be ammo. */
-	if (!ammo_p(o_ptr) && !is_known_throwing_item(o_ptr)) return (FALSE);
+	if (!ammo_p(o_ptr) 
+	    && !(is_known_throwing_item(o_ptr)
+		 && wield_slot(o_ptr) >= INVEN_WIELD)) 
+	  return (FALSE);
 
 	/* Known or sensed cursed ammo is avoided */
 	if (cursed_p(o_ptr) && ((o_ptr->ident & (IDENT_SENSE)) || object_known_p(o_ptr))) return (FALSE);
@@ -856,7 +862,8 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 	msg_format("You have %s (%c).", name, index_to_label(i));
 
 	/* Delete the object */
-	delete_object_idx(o_idx);
+	if (o_idx >= 0)
+	  delete_object_idx(o_idx);
 
 	/* Update "p_ptr->pack_size_reduce" */
 	find_quiver_size();
@@ -2418,10 +2425,7 @@ void py_attack(int y, int x, bool charging)
 
 			/* Adjust for charging */
 			if (charging)
-			{
-				if ((melee_style & (1L << WS_UNARMED)) && (p_ptr->wt >= 2 * cp_ptr->chg_weight)) k *= p_ptr->wt / cp_ptr->chg_weight;
-				else if (o_ptr->weight >= 2 * cp_ptr->chg_weight) k *= o_ptr->weight / cp_ptr->chg_weight;
-			}
+			  k *= p_ptr->num_charge;
 
 			/* Monster armor reduces total damage */
 			k -= (k * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
@@ -2700,7 +2704,7 @@ void move_player(int dir, int jumping)
                 && (f_info[cave_feat[py][px]].flags3 & (FF3_MUST_CLIMB)))) != 0;
 
 	/* Hack -- pickup objects from locations you can't move to but can see */
-	if ((cave_o_idx[y][x]) && !(f_ptr->flags1 & (FF1_MOVE)) && (play_info[y][x] & (PLAY_MARK)))
+	if (((cave_o_idx[y][x]) || (f_ptr->flags3 & (FF3_GET_FEAT))) && !(f_ptr->flags1 & (FF1_MOVE)) && (play_info[y][x] & (PLAY_MARK)))
 	{
 		/* Get item from the destination */
 		py_pickup(y, x, TRUE);

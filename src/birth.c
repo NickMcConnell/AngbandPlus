@@ -216,8 +216,8 @@ static void get_stats(void)
 			j += dice[i];
 		}
 
-		/* Verify totals */
-		if ((j > A_MAX * 7) && (j < A_MAX * 9)) break;
+		/* Verify totals; (A_MAX - 1) to fit spell-point generation */
+		if ((j > (A_MAX - 1) * 7) && (j < (A_MAX - 1) * 9)) break;
 	}
 
 	/* Roll the stats */
@@ -235,59 +235,6 @@ static void get_stats(void)
 		/* Save the resulting stat maximum */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 
-	}
-}
-
-
-/*
- * Roll for some info that the auto-roller ignores
- */
-static void get_extra(void)
-{
-	int i, j, min_value, max_value;
-
-
-	/* Level one */
-	p_ptr->max_lev = p_ptr->lev = 1;
-
-	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
-
-	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
-
-	/* Initial hitpoints */
-	p_ptr->mhp = p_ptr->hitdie;
-
-	/* Minimum hitpoints at highest level */
-	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	/* Maximum hitpoints at highest level */
-	max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	/* Pre-calculate level 1 hitdice */
-	p_ptr->player_hp[0] = p_ptr->hitdie;
-
-	/* Roll out the hitpoints */
-	while (TRUE)
-	{
-		/* Roll the hitpoint values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			j = randint(p_ptr->hitdie);
-			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
-		}
-
-		/* XXX Could also require acceptable "mid-level" hitpoints */
-
-		/* Require "valid" hitpoints at highest level */
-		if (p_ptr->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
-		if (p_ptr->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
-
-		/* Acceptable */
-		break;
 	}
 }
 
@@ -345,25 +292,23 @@ static void get_history(void)
 
 
 /*
- * Computes character's age, height, and weight
+ * Computes character's age and height
  */
 static void get_ahw(void)
 {
 	/* Calculate the age */
 	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
 
-	/* Calculate the height/weight for males */
+	/* Calculate the height for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
 		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 	}
 
-	/* Calculate the height/weight for females */
+	/* Calculate the height for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
 		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
 
@@ -406,7 +351,6 @@ static void get_money(void)
 static void player_wipe(void)
 {
 	int i, j;
-
 
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
@@ -534,6 +478,29 @@ static void player_outfit(void)
 			/* Get the object_kind */
 			s16b k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
 
+			/* MegaHack -- undead start with 'foods' */
+			if (rp_ptr->flags4 & (TR4_UNDEAD)) switch (e_ptr->tval)
+			{
+				case TV_FOOD:
+				{
+					switch(rand_int(4))
+					{
+						case 0:
+							k_idx = lookup_kind(TV_FLASK, SV_FLASK_BLOOD);
+							break;
+						case 1:
+							k_idx = lookup_kind(TV_BONE, SV_BONE_BONE);
+							break;
+						case 2:
+							k_idx = lookup_kind(TV_BODY, SV_BODY_ARM);
+							break;
+						case 3:
+							k_idx = lookup_kind(TV_BODY, SV_BODY_LEG);
+							break;
+					}
+				}
+			}
+
 			/* Hack -- style lookups to change basic equipment */
 			if (p_ptr->pstyle) switch (e_ptr->tval)
 			{
@@ -573,7 +540,7 @@ static void player_outfit(void)
 					{
 					        case WS_RING:
 						  {
-						    k_idx = lookup_kind(TV_RING, rand_int(SV_RING_TELEPORTATION + 1));
+						    k_idx = lookup_kind(TV_RING, rand_int(1) ? SV_RING_AGGRAVATION : rand_int(5) ? SV_RING_TELEPORTATION : SV_RING_WOE);
 						    break;
 						  }
 						case WS_TWO_WEAPON:
@@ -583,20 +550,14 @@ static void player_outfit(void)
 						  }
 						case WS_THROWN:
 						  {
-						    switch (p_ptr->prace)
-						      {
-						      case RACE_HOBBIT:
-						      case RACE_HALF_TROLL:
+						    if (rp_ptr->r_tht > rp_ptr->r_thb)
 							{
 							  k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);
-							  break;
 							}
-						      default:
+							else
 							{
 							  k_idx = lookup_kind(TV_BOW, SV_SLING);
-							  break;
 							}
-						      }
 						    break;
 						  }
 						case WS_SLING:
@@ -632,15 +593,12 @@ static void player_outfit(void)
 						  }
 						case WS_THROWN:
 						  {
-						    switch (p_ptr->prace)
+						    if (rp_ptr->r_tht > rp_ptr->r_thb)
 						      {
-						      case RACE_HOBBIT:
-						      case RACE_HALF_TROLL:
-							{
-							  k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);
-							  break;
-							}
-						      default:
+							k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);
+						      }
+						    else
+						      {
 							switch (randint(3))
 							  {
 							  case 1:
@@ -833,13 +791,13 @@ static void player_outfit(void)
 
 #define QUESTION_COL	3	
 #define SEX_COL			0
-#define RACE_COL		12
-#define RACE_AUX_COL    27
-#define CLASS_COL		27
-#define CLASS_AUX_COL   40
-#define STYLE_COL               40
-#define STYLE_AUX_COL   58
-#define BOOK_COL                58
+#define RACE_COL		10
+#define RACE_AUX_COL    26
+#define CLASS_COL		26
+#define CLASS_AUX_COL   42
+#define STYLE_COL               42
+#define STYLE_AUX_COL   61
+#define BOOK_COL                61
 
 #define INVALID_CHOICE 255
 
@@ -1108,26 +1066,58 @@ static void race_aux_hook(birth_menu r_str)
 	char s[50];
 
 	/* Extract the proper race index from the string. */
-	for (race = 0; race < z_info->p_max; race++)
+	for (race = 0; race < z_info->g_max; race++)
 	{
 		if (!strcmp(r_str.name, p_name + p_info[race].name)) break;
 	}
 
-	if (race == z_info->p_max) return;
+	if (race == z_info->g_max) return;
+
+	/* Save the race pointer */
+	rp_ptr = &p_info[race];
 
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
-		sprintf(s, "%s%+d", stat_names_reduced[i],
-		p_info[race].r_adj[i]);
+		sprintf(s, "%s%+d ", stat_names_reduced[i],
+		rp_ptr->r_adj[i]);
 		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
-	sprintf(s, "Hit die: %d ", p_info[race].r_mhp);
+	/* Process stats */
+	for (i = 0; i < A_MAX; i++)
+	  {
+	    /* Obtain a "bonus" for "race" and "class" */
+	    int bonus_add = rp_ptr->r_adj[i];
+
+	    /* Get the minimally increased stat for the bonuses */
+	    int value_min = adjust_stat(10, bonus_add, 1);
+
+	    /* Get the maximally increased stat for the bonuses */
+	    int value_max = adjust_stat(10, bonus_add, 99);
+
+	    /* Get the stat increased by the average for the bonuses */
+	    int value = value_min + (value_max - value_min) / 2;
+
+	    /* Apply the racial bonuses */
+	    p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
+	  }
+#if 0
+	/* Calculate the hitdie */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	sprintf(s, "Hit die: %d ", p_ptr->hitdie);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Experience: %d%% ", p_info[race].r_exp);
+#endif
+	/* Experience factor */
+	p_ptr->expfact = rp_ptr->r_exp;
+
+	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
@@ -1139,20 +1129,20 @@ static bool get_player_race()
 	int i;
 	birth_menu *races;
 
-	C_MAKE(races, z_info->p_max, birth_menu);
+	C_MAKE(races, z_info->g_max, birth_menu);
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Tabulate races */
-	for (i = 0; i < z_info->p_max; i++)
+	for (i = 0; i < z_info->g_max; i++)
 	{
 		races[i].name = p_name + p_info[i].name;
-		races[i].ghost = FALSE;
+		races[i].ghost = ((p_info[i].flags3 & (TR3_RANDOM)) != 0);
 	}
 
-	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
+	p_ptr->prace = get_player_choice(races, z_info->g_max, RACE_COL, 17,
                 "races.txt", race_aux_hook);
 
 	/* No selection? */
@@ -1165,8 +1155,11 @@ static bool get_player_race()
         	return (FALSE);
 	}
 
-	/* Save the race pointer */
-	rp_ptr = &p_info[p_ptr->prace];
+	/* Save the player shape */
+	p_ptr->pshape = p_ptr->prace;
+
+	/* Save the starting town */
+	p_ptr->town = rp_ptr->home;
 
         FREE(races);
 
@@ -1191,17 +1184,50 @@ static void class_aux_hook(birth_menu c_str)
 
 	if (class_idx == z_info->c_max) return;
 
+	/* Set class */
+	cp_ptr = &c_info[class_idx];
+
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
-		sprintf(s, "%s%+d", stat_names_reduced[i],
-                c_info[class_idx].c_adj[i] + p_info[p_ptr->prace].r_adj[i]);
+		sprintf(s, "%s%+d ", stat_names_reduced[i],
+                cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
-        sprintf(s, "Hit die: %d ", c_info[class_idx].c_mhp+p_info[p_ptr->prace].r_mhp);
+	/* Process stats */
+	for (i = 0; i < A_MAX; i++)
+	  {
+	    /* Obtain a "bonus" for "race" and "class" */
+	    int bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+	    /* Get the minimally increased stat for the bonuses */
+	    int value_min = adjust_stat(10, bonus_add, 1);
+
+	    /* Get the maximally increased stat for the bonuses */
+	    int value_max = adjust_stat(10, bonus_add, 99);
+
+	    /* Get the stat increased by the average for the bonuses */
+	    int value = value_min + (value_max - value_min) / 2;
+
+	    /* Apply the racial/class bonuses */
+	    p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
+	  }
+#if 0
+	/* Calculate the hitdie */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	sprintf(s, "Hit die: %d ", p_ptr->hitdie);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-        sprintf(s, "Experience: %d%% ", c_info[class_idx].c_exp+p_info[p_ptr->prace].r_exp);
+#endif
+
+	/* Experience factor */
+	p_ptr->expfact += cp_ptr->c_exp;
+
+        sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
@@ -1239,7 +1265,7 @@ static bool get_player_class(void)
 		classes[i].name = c_name + c_info[i].name;
 	}
 
-	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 20,
+	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 16,
                                       "classes.txt", class_aux_hook);
 
 	/* No selection? */
@@ -1251,9 +1277,6 @@ static bool get_player_class(void)
 
 		return (FALSE);
 	}
-
-	/* Set class */
-	cp_ptr = &c_info[p_ptr->pclass];
 
         FREE(classes);
 
@@ -1280,15 +1303,18 @@ static void style_aux_hook(birth_menu w_str)
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
-		sprintf(s, "%s%+d", stat_names_reduced[i],
-                c_info[p_ptr->pclass].c_adj[i] + p_info[p_ptr->prace].r_adj[i]);
+		sprintf(s, "%s%+d ", stat_names_reduced[i],
+                cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
                 Term_putstr(STYLE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
-
-        sprintf(s, "Hit die: %d ", c_info[p_ptr->pclass].c_mhp+p_info[p_ptr->prace].r_mhp);
+#if 0
+	sprintf(s, "Hit die: %d ", p_ptr->hitdie);
         Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-        sprintf(s, "Experience: %d%%",c_info[p_ptr->pclass].c_exp+p_info[p_ptr->prace].r_exp +
-                                                (style_idx ? 10 : 0) );
+#endif
+	/* Experience factor */
+	p_ptr->expfact += style_idx ? 10 : 0;
+
+        sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
         Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
@@ -1346,8 +1372,8 @@ static bool get_player_style(void)
 	/* Hack */
 	styles[0].ghost = TRUE;
 
-	choice = get_player_choice(styles, num, STYLE_COL, 20,
-							   "styles.txt", style_aux_hook);
+	choice = get_player_choice(styles, num, STYLE_COL, 19,
+				   "styles.txt", style_aux_hook);
 
 	/* No selection? */
 	if (choice == INVALID_CHOICE)
@@ -1443,7 +1469,7 @@ static bool get_player_book(void)
                 books[i].ghost = FALSE;
 	}
 
-        choice = get_player_choice(books, num, BOOK_COL, 20,
+        choice = get_player_choice(books, num, BOOK_COL, 19,
                                      "styles.txt", NULL);
 
 	/* No selection? */
@@ -1486,7 +1512,7 @@ static bool get_player_sex(void)
 		genders[i].ghost = FALSE;
 	}
 
-        p_ptr->psex = get_player_choice(genders, 2, SEX_COL, 15,
+        p_ptr->psex = get_player_choice(genders, 2, SEX_COL, 10,
                                  "birth.txt",   NULL);
 
 	/* No selection? */
@@ -1527,6 +1553,9 @@ static bool player_birth_aux_1(void)
 	            "menu item, '*' for a random menu item, 'ESC' to restart the character");
 	Term_putstr(QUESTION_COL, HEADER_ROW + 4, -1, TERM_WHITE,
 	            "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
+
+	/* Level one */
+	p_ptr->max_lev = p_ptr->lev = 1;
 
 	if (!get_player_sex()) return (FALSE);
 
@@ -1609,16 +1638,11 @@ static bool player_birth_aux_2(void)
 		stats[i] = 10;
 	}
 
-
-	/* Roll for base hitpoints */
-	get_extra();
-
 	/* Roll for age/height/weight */
 	get_ahw();
 
 	/* Roll for social class */
 	get_history();
-
 
 	/* Interact */
 	while (1)
@@ -1680,14 +1704,14 @@ static bool player_birth_aux_2(void)
 		display_player(0);
 
 		/* Display the costs header */
-		put_str("Cost ", row - 1, col + 32);
+		put_str("Cost ", row - 1, col + 33);
 
 		/* Display the costs */
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
 			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
-			put_str(buf, row + i, col + 32);
+			put_str(buf, row + i, col + 33);
 		}
 
 
@@ -2014,9 +2038,6 @@ static bool player_birth_aux_3(void)
 
 		/*** Display ***/
 
-		/* Roll for base hitpoints */
-		get_extra();
-
 		/* Roll for age/height/weight */
 		get_ahw();
 
@@ -2173,6 +2194,58 @@ static bool player_birth_aux(void)
 }
 
 
+void roll_hp_table(void)
+{
+  int i, j, min_value, max_value; 
+  int random_levels = PY_MAX_LEVEL - 2;
+
+  /* Minimum hitpoints at highest level - 1 */
+  min_value = random_levels * 9 * 3 / 8;
+  min_value += random_levels;
+
+  /* Maximum hitpoints at highest level - 1 */
+  max_value = random_levels * 9 * 5 / 8;
+  max_value += random_levels;
+
+  /* Set level 1 hitdice */
+  p_ptr->player_hp[0] = 10;
+
+  /* Roll out the hitpoints */
+  while (TRUE)
+    {
+      /* Roll the hitpoint values */
+      for (i = 1; i <= random_levels ; i++)
+	{
+	  j = randint(10);
+	  p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+	}
+
+      /* Require "valid" hitpoints at various levels */
+      if (p_ptr->player_hp[random_levels/5] - 10 <= min_value/5) 
+	continue;
+      if (p_ptr->player_hp[random_levels/5] - 10 >= max_value/5) 
+	continue;
+
+      if (p_ptr->player_hp[random_levels/2] - 10 <= min_value/2) 
+	continue;
+      if (p_ptr->player_hp[random_levels/2] - 10 >= max_value/2) 
+	continue;
+
+      if (p_ptr->player_hp[random_levels] - 10 <= min_value) 
+	continue;
+      if (p_ptr->player_hp[random_levels] - 10 >= max_value) 
+	continue;
+
+      /* Acceptable */
+      break;
+    }
+
+  /* Set level 50 hitdice */
+  p_ptr->player_hp[PY_MAX_LEVEL - 1] = 
+    p_ptr->player_hp[random_levels] + 10;
+}
+
+
 /*
  * Create a new character.
  *
@@ -2183,13 +2256,15 @@ void player_birth(void)
 {
 	int n;
 
+	/* Wipe the player */
+	player_wipe();
+
+	/* Roll the hitpoints table */
+	roll_hp_table();
 
 	/* Create a new character */
 	while (1)
 	{
-		/* Wipe the player */
-		player_wipe();
-
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
@@ -2202,6 +2277,8 @@ void player_birth(void)
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
 
+	/* Hack -- assume the new shape */
+	change_shape(p_ptr->prace, p_ptr->lev);
 
 	/* Hack -- outfit the player */
 	player_outfit();
@@ -2209,15 +2286,6 @@ void player_birth(void)
 	/* Hack -- set the dungeon. */
 	if (adult_campaign) p_ptr->dungeon = 1;
 	else p_ptr->dungeon = 0;
-
-	/* Hack -- set the town
-	   TODO: assign home towns for each choice in each starting 
-	   points (1, 4, 5, 7, etc.) of player history in p_hist.txt.
-	   Assume the player had an errand in Hobbiton, so town = 1,
-	   but perhaps allow recalls to the home towns (and back)...
-	   Make some rules for the change of player's home town, see FA. */
-	if (adult_campaign) p_ptr->town = 11;
-	else p_ptr->town = 0;
 
 	/* Set last disturb */
 	p_ptr->last_disturb = turn;

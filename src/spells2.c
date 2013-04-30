@@ -126,7 +126,8 @@ static cptr desc_stat_pos[] =
 	"dextrous",
 	"healthy",
 	"cute",
-	"agile"
+	"agile",
+	"big"
 };
 
 
@@ -141,7 +142,8 @@ static cptr desc_stat_neg[] =
 	"clumsy",
 	"sickly",
 	"ugly",
-	"slugish"
+	"slugish",
+	"small"
 };
 
 
@@ -151,14 +153,14 @@ static cptr desc_stat_neg[] =
 bool do_dec_stat(int stat)
 {
 	/* Sustain */
-	if (p_ptr->cur_flags2 & (TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat)))
+        if (p_ptr->cur_flags2 & (TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat))))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
 			   desc_stat_neg[stat]);
 
 		/* Always notice */
-		equip_can_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat), 0x0L, 0x0L);
+		equip_can_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat)), 0x0L, 0x0L);
 
 		/* Notice effect */
 		return (TRUE);
@@ -171,7 +173,7 @@ bool do_dec_stat(int stat)
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
 
 		/* Always notice */
-		equip_not_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat), 0x0L, 0x0L);
+		equip_not_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat)), 0x0L, 0x0L);
 
 		/* Notice effect */
 		return (TRUE);
@@ -793,6 +795,32 @@ void self_knowledge_aux(bool spoil, bool random)
 	t3 &= ~(rp_ptr->flags3);
 	t4 &= ~(rp_ptr->flags4);
 
+	/* Hack -- shape effects */
+	if (p_ptr->prace != p_ptr->pshape)
+	{
+		player_race *shape_ptr = &p_info[p_ptr->pshape];
+		bool intro = FALSE;
+		
+		/* Hack -- shape flags */
+		if ((!random) && (shape_ptr->flags1 || shape_ptr->flags2 || shape_ptr->flags3 || shape_ptr->flags4))
+		{
+			if (!intro) text_out("Your shape affects you.  ");
+
+			intro = TRUE;
+
+			list_object_flags(shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags4,1);
+		}
+
+		/* Intro? */
+		if (intro) text_out("\n");
+
+		/* Eliminate shape flags */
+		t1 &= ~(shape_ptr->flags1);
+		t2 &= ~(shape_ptr->flags2);
+		t3 &= ~(shape_ptr->flags3);
+		t4 &= ~(shape_ptr->flags4);
+	}
+
 	/* Hack -- class effects */
 	if ((!random) && (t1 || t2 || t3 || t4))
 	{
@@ -1007,6 +1035,12 @@ void set_recall(void)
 	/* Activate recall */
 	if (!p_ptr->word_recall)
 	{
+		if (!get_check("The air starts crackling. Are you sure you want to continue? "))
+		  {
+		    msg_print("A sudden discharge fills the air with a strange smell...");
+		    return;
+		  }
+
 		/* Reset recall depth */
 		if ((p_ptr->depth > min_depth(p_ptr->dungeon)) && (p_ptr->depth != p_ptr->max_depth))
 		{
@@ -4888,7 +4922,7 @@ void unlite_room(int y, int x)
  * Note that this does not allow "target" mode to pass over monsters
  * Affect grids, objects, and monsters
  */
-bool fire_ball_minor(int typ, int dir, int dam, int rad)
+static bool fire_ball_minor(int typ, int dir, int dam, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -4920,7 +4954,7 @@ bool fire_ball_minor(int typ, int dir, int dam, int rad)
  * Targets absolute coordinates instead of a specific monster, so that
  * the death of the monster doesn't change the target's location.
  */
-bool fire_swarm(int num, int typ, int dir, int dam, int rad)
+static bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 {
 	bool noticed = FALSE;
 
@@ -4958,7 +4992,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
  * Allow "target" mode to pass over monsters
  * Affect grids, objects, and monsters
  */
-bool fire_ball(int typ, int dir, int dam, int rad)
+static bool fire_ball(int typ, int dir, int dam, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -4992,7 +5026,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
  * Affect grids, objects, and monsters
  * Do not decrease damage with range
  */
-bool fire_8way(int typ, int dir, int dam, int rad)
+static bool fire_8way(int typ, int dir, int dam, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5026,7 +5060,7 @@ bool fire_8way(int typ, int dir, int dam, int rad)
  * Allow "target" mode to pass over monsters
  * Affect monsters only
  */
-bool fire_cloud(int typ, int dir, int dam, int rad)
+static bool fire_cloud(int typ, int dir, int dam, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5132,7 +5166,7 @@ static bool fire_arc(int typ, int dir, int dam, int rad, int degrees_of_arc)
  * Stop if we hit a monster, as a "bolt"
  * Affect monsters (not grids or objects)
  */
-bool fire_bolt(int typ, int dir, int dam)
+static bool fire_bolt(int typ, int dir, int dam)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5162,7 +5196,7 @@ bool fire_bolt(int typ, int dir, int dam)
  * Affect monsters (not grids or objects)
  * Now only range 10.
  */
-bool fire_beam(int typ, int dir, int dam)
+static bool fire_beam(int typ, int dir, int dam)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5191,7 +5225,7 @@ bool fire_beam(int typ, int dir, int dam)
 /*
  * Cast a bolt spell, or rarely, a beam spell
  */
-bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
+static bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 {
 	if (rand_int(100) < prob)
 	{
@@ -5209,7 +5243,7 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
  * A blast spell is a radius 1 ball spell that only fires to adjacent
  * squares. Used for a couple of alchemy spells.
  */
-bool fire_blast(int typ, int dir, int dam)
+static bool fire_blast(int typ, int dir, int dam)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5227,7 +5261,7 @@ bool fire_blast(int typ, int dir, int dam)
  * Hands is now a range 3 beam, similar to lightening spark from Sangband.
  * It does not affect the grid however.
  */
-bool fire_hands(int typ, int dir, int dam)
+static bool fire_hands(int typ, int dir, int dam)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5256,7 +5290,7 @@ bool fire_hands(int typ, int dir, int dam)
 /*
  * Minor bolts are a limited range bolt.
  */
-bool fire_bolt_minor(int typ, int dir, int dam, int range)
+static bool fire_bolt_minor(int typ, int dir, int dam, int range)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -5326,10 +5360,23 @@ static void wield_spell(int item, int k_idx, int time, int level)
 	if (o_ptr->k_idx)
 	{
 		/* Check if same spell */
-		if ((o_ptr->tval == TV_SPELL) && (o_ptr->sval))
+		if ((o_ptr->tval == i_ptr->tval) && (o_ptr->sval == i_ptr->sval))
 		{
 			/* Reset duration */
 			if (o_ptr->timeout < time) o_ptr->timeout = time;
+
+			/* Ensure minimum level of enchantment */
+			if (o_ptr->dd < i_ptr->dd) o_ptr->dd = i_ptr->dd;
+			if (o_ptr->to_h < i_ptr->to_h) o_ptr->to_h = i_ptr->to_h;
+			if (o_ptr->to_d < i_ptr->to_d) o_ptr->to_d = i_ptr->to_d;
+			if (o_ptr->to_a < i_ptr->to_a) o_ptr->to_a = i_ptr->to_a;
+			if (o_ptr->pval < i_ptr->pval) o_ptr->pval = i_ptr->pval;
+
+			/* Update */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* And done */
 			return;
@@ -5337,9 +5384,6 @@ static void wield_spell(int item, int k_idx, int time, int level)
 
 		/* Take off existing item */
 		(void)inven_takeoff(item, 255);
-
-		/* Oops. Cursed... */
-		if (inventory[item].k_idx) return;
 	}
 
 	/* 'Wear' the spell */
@@ -5377,8 +5421,6 @@ static void wield_spell(int item, int k_idx, int time, int level)
 		act = "You are wearing";
 	}
 
-
-
 	/* Describe the result */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
@@ -5396,7 +5438,59 @@ static void wield_spell(int item, int k_idx, int time, int level)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+}
 
+
+/*
+ *  Change shape. Add 'built-in' equipment for that shape.
+ */
+void change_shape(int shape, int level)
+{
+	int i;
+
+	/* Remove 'built-in' equipment for old shape */
+	if (p_ptr->pshape != shape)
+	{
+		/* Wipe 'built-in' equipment for this shape */
+		for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
+		{
+			/* Currently has a 'built-in' item */
+			if (inventory[i].ident & (IDENT_STORE))
+			{
+				/* Wipe the slot */
+				object_wipe(&inventory[i]);
+			}
+		}
+	}
+
+	/* Set new shape */
+	p_ptr->pshape = shape;
+
+	/* Message */
+	if (p_ptr->pshape != p_ptr->prace)
+	{
+		msg_format("You change into a %s.", p_name + p_info[shape].name);
+	}
+
+	/* Wield 'built-in' equipment for this shape */
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
+	{
+		/* Wield 'built-in' equipment */
+		if (p_info[shape].slots[i - INVEN_WIELD])
+		{
+			/* Wield the spell */
+			wield_spell(i, p_info[shape].slots[i - INVEN_WIELD], 0, level);
+
+			/* Mark as 'built-in' item */
+			inventory[i].ident |= (IDENT_STORE);
+		}
+	}
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -5416,7 +5510,6 @@ static void wield_spell(int item, int k_idx, int time, int level)
  */
 static void enchant_item(byte tval, int plev)
 {
-
 	object_type *o_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -6786,13 +6879,17 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	/* SF3 - duration specified, so temporary stat increase */
 	if (lasts)
 	{
-		if ((s_ptr->flags3 & (SF3_INC_STR)) && (set_stat_inc_tim(lasts, A_STR))) obvious = TRUE;
+  	        if (s_ptr->flags3 & (SF3_INC_STR))
+		  { 
+		    if (set_stat_inc_tim(lasts, A_STR)) obvious = TRUE;
+		    if (set_stat_inc_tim(lasts, A_SIZ)) obvious = TRUE;
+		  }
 		if ((s_ptr->flags3 & (SF3_INC_INT)) && (set_stat_inc_tim(lasts, A_INT))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (set_stat_inc_tim(lasts, A_WIS))) obvious = TRUE;
 		if (s_ptr->flags3 & (SF3_INC_DEX))
 		  { 
-			if (set_stat_inc_tim(lasts, A_DEX)) obvious = TRUE;
-			if (set_stat_inc_tim(lasts, A_AGI)) obvious = TRUE;
+		    if (set_stat_inc_tim(lasts, A_DEX)) obvious = TRUE;
+		    if (set_stat_inc_tim(lasts, A_AGI)) obvious = TRUE;
 		  }
 		if ((s_ptr->flags3 & (SF3_INC_CON)) && (set_stat_inc_tim(lasts, A_CON))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (set_stat_inc_tim(lasts, A_CHR))) obvious = TRUE;
@@ -6800,26 +6897,34 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	/* SF3 - no duration specified, so permanent stat increase */
 	else
 	{
-		if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
+		if (s_ptr->flags3 & (SF3_INC_STR))
+		  {
+		    if (do_inc_stat(A_STR)) obvious = TRUE;
+		    if (do_inc_stat(A_SIZ)) obvious = TRUE;
+		  }
 		if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
 		if (s_ptr->flags3 & (SF3_INC_DEX))
 		  {
-			if (do_inc_stat(A_DEX)) obvious = TRUE;
-			if (do_inc_stat(A_AGI)) obvious = TRUE;
+		    if (do_inc_stat(A_DEX)) obvious = TRUE;
+		    if (do_inc_stat(A_AGI)) obvious = TRUE;
 		  }
 		if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
 	}
 
 	/* SF3 - healing self, and untimed improvements */
-	if ((s_ptr->flags3 & (SF3_CURE_STR)) && (do_res_stat(A_STR))) obvious = TRUE;
+	if (s_ptr->flags3 & (SF3_CURE_STR))
+	  {
+	    if (do_res_stat(A_STR)) obvious = TRUE;
+	    if (do_res_stat(A_SIZ)) obvious = TRUE;
+	  }
 	if ((s_ptr->flags3 & (SF3_CURE_INT)) && (do_res_stat(A_INT))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_WIS)) && (do_res_stat(A_WIS))) obvious = TRUE;
 	if (s_ptr->flags3 & (SF3_CURE_DEX))
 	  {
-		if (do_res_stat(A_DEX)) obvious = TRUE;
-		if (do_res_stat(A_AGI)) obvious = TRUE;
+	    if (do_res_stat(A_DEX)) obvious = TRUE;
+	    if (do_res_stat(A_AGI)) obvious = TRUE;
 	  }
 	if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
@@ -7113,6 +7218,21 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				*cancel = FALSE;
 				identify_pack();
 				obvious = TRUE;
+				break;
+			}
+			case SPELL_CHANGE_SHAPE:
+			{
+				*cancel = FALSE;
+				change_shape(s_ptr->param, level);
+				obvious = TRUE;
+				break;
+			}
+			case SPELL_REVERT_SHAPE:
+			{
+				*cancel = FALSE;
+				change_shape(p_ptr->prace, level);
+				obvious = TRUE;
+				break;
 			}
 			default:
 			{
@@ -7121,9 +7241,7 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				obvious = TRUE;
 				break;
 			}
-	
 		}
-
 	}
 
 	/* Return result */

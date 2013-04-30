@@ -927,6 +927,9 @@ static void wiz_create_item(void)
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
+	/* Apply obvious flags */
+	object_obvious_flags(i_ptr);
+
 	/* Hack -- use repeat count to specify quantity */
 	if (p_ptr->command_arg) i_ptr->number = p_ptr->command_arg;
 
@@ -1004,6 +1007,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)res_stat(A_CON);
 	(void)res_stat(A_CHR);
 	(void)res_stat(A_AGI);
+	(void)res_stat(A_SIZ);
 
 	/* Restore the level */
 	(void)restore_level();
@@ -1158,13 +1162,13 @@ static void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
+	min_value = (PY_MAX_LEVEL * 3 * 9) / 8;
 	min_value += PY_MAX_LEVEL;
 
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
+	max_value = (PY_MAX_LEVEL * 5 * 9) / 8;
 	max_value += PY_MAX_LEVEL;
 
-	p_ptr->player_hp[0] = p_ptr->hitdie;
+	p_ptr->player_hp[0] = 10;
 
 	/* Rerate */
 	while (1)
@@ -1172,7 +1176,7 @@ static void do_cmd_rerate(void)
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
+			p_ptr->player_hp[i] = randint(10);
 			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
 		}
 
@@ -1182,7 +1186,7 @@ static void do_cmd_rerate(void)
 	}
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+	                (10 + ((PY_MAX_LEVEL - 1) * 10)));
 
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);

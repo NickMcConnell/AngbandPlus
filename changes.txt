@@ -174,6 +174,10 @@ type.
 the same percentage chances, however draining them instead of destroying them. Rods will
 be set to a high timeout value instead.
 
+- Added a large number of additional races, including from FAAngband and Oangband. Some
+races have the ability to shape change into other shapes (e.g. Beorning, Vampire, Werewolf,
+Maia). Added support for innate racial activations.
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -191,6 +195,8 @@ pepebe).
 
 - If you see a monster passing a wall that can (merely) cast temporary passwall, you will
 learn about the spell, even if you didn't see them cast it.
+
+- You can now gather items from wall terrain by walking into them (Requested by ekolis).
 
 ### Bug fixes ###
 
@@ -247,6 +253,9 @@ correctly.
 - Fixed bug with player gold not being displayed in stores.
 
 - Fixed bug causing crashes when attempting to travel with maps in the inventory.
+
+- Fixed bug where gain mana effects would report as causing damage instead (Reported by 
+Martin Dann).
 
 ### Build / Platform ###
 

@@ -90,7 +90,7 @@ static void note(cptr msg)
  * This function determines if the version of the savefile
  * currently being read is older than version "x.y.z".
  */
-bool older_than(int x, int y, int z)
+bool older_than(int x, int y, int z, int w)
 {
 	/* Much older, or much more recent */
 	if (sf_major < x) return (TRUE);
@@ -103,6 +103,8 @@ bool older_than(int x, int y, int z)
 	/* Barely older, or barely more recent */
 	if (sf_patch < z) return (TRUE);
 	if (sf_patch > z) return (FALSE);
+	if (sf_extra < w) return (TRUE);
+	if (sf_extra > w) return (FALSE);
 
 	/* Identical versions */
 	return (FALSE);
@@ -278,7 +280,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->show_idx);
 	rd_byte(&o_ptr->discount);
 
-	if (!(older_than(0, 6, 1)))
+	if (!(older_than(0, 6, 1, 0)))
 	{
 		rd_byte(&o_ptr->feeling);
 		rd_byte(&o_ptr->spare);
@@ -306,7 +308,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->timeout);
 
 	/* Get charges */
-	if (!(older_than(0, 6, 1)))
+	if (!(older_than(0, 6, 1, 0)))
 	{
 		rd_s16b(&o_ptr->charges);
 
@@ -346,7 +348,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_u16b(&o_ptr->ident);
 
 	/* Fix marked byte */
-	if (older_than(0, 6, 1))
+	if (older_than(0, 6, 1, 0))
 	{
 		if (o_ptr->ident & (0xFF00))
 		{
@@ -644,7 +646,7 @@ static void rd_lore(int r_idx)
 	rd_u32b(&l_ptr->flags7);
 
 	/* Oops */
-	if (!older_than(0, 6, 2))
+	if (!older_than(0, 6, 2, 0))
 	{
 		rd_u32b(&l_ptr->flags8);
 		rd_u32b(&l_ptr->flags9);
@@ -689,7 +691,7 @@ static errr rd_store(int n)
 	C_MAKE(st_ptr, 1, store_type);
 
 	/* Copy basic information for older versions */
-	if (older_than(0, 6, 2))
+	if (older_than(0, 6, 2, 0))
 	{
 		/* Copy basic store information to it */
 		COPY(st_ptr, &u_info[f_info[t_info[p_ptr->town].store[n]].power], store_type);
@@ -996,7 +998,17 @@ static errr rd_extra(void)
 
 	int a_max = A_MAX;
 
-	if (older_than(0,6,2))
+	/* Hack - this is needed for wip 0.6.2 versions */
+	if (older_than(0, 6, 2, 1))
+	{
+		a_max = 7;
+		p_ptr->stat_max[A_SIZ] = 11;
+		p_ptr->stat_cur[A_SIZ] = 11;
+		p_ptr->stat_inc_tim[A_SIZ] = 0;
+		p_ptr->stat_dec_tim[A_SIZ] = 0;
+	}
+
+	if (older_than(0, 6, 2, 0))
 	{
 		a_max = 6;
 		p_ptr->stat_max[A_AGI] = 11;
@@ -1014,8 +1026,105 @@ static errr rd_extra(void)
 	/* Player race */
 	rd_byte(&p_ptr->prace);
 
+	if (older_than(0, 6, 2, 2))
+	  {
+	    switch (p_ptr->prace)
+	      {
+	      case /* old RACE_MAN_OF_BREE        */ 0:
+		p_ptr->prace = RACE_MAN_OF_BREE;
+		break;
+	      case /* old RACE_HALF_ELF           */ 1:
+		p_ptr->prace = RACE_WOOD_ELF; /* Removed! */
+		break;
+	      case /* old RACE_WOOD_ELF           */ 2:
+		p_ptr->prace = RACE_WOOD_ELF;
+		break;
+	      case /* old RACE_HOBBIT             */ 3:
+		p_ptr->prace = RACE_HOBBIT;
+		break;
+	      case /* old RACE_GNOME              */ 4:
+		p_ptr->prace = RACE_GOBLIN; /* Removed! */
+		break;
+	      case /* old RACE_DWARF              */ 5:
+		p_ptr->prace = RACE_DWARF;
+		break;
+	      case /* old RACE_HALF_ORC           */ 6:
+		p_ptr->prace = RACE_HALF_ORC;
+		break;
+	      case /* old RACE_HALF_TROLL         */ 7:
+		p_ptr->prace = RACE_STONE_TROLL; /* Removed! */
+		break;
+	      case /* old RACE_DUNADAN            */ 8:
+		p_ptr->prace = RACE_DUNADAN;
+		break;
+	      case /* old RACE_HIGH_ELF           */ 9:
+		p_ptr->prace = RACE_HIGH_ELF;
+		break;
+	      case /* old RACE_GOBLIN             */ 10:
+		p_ptr->prace = RACE_GOBLIN;
+		break;
+	      case /* old RACE_ORC                */ 11:
+		p_ptr->prace = RACE_ORC;
+		break;
+	      case /* old RACE_GOBLIN_MAN         */ 12:
+		p_ptr->prace = RACE_GOBLIN_MAN;
+		break;
+	      case /* old RACE_DRUADAN            */ 13:
+		p_ptr->prace = RACE_DRUADAN;
+		break;
+	      case /* old RACE_MAN_OF_ROHAN       */ 14:
+		p_ptr->prace = RACE_MAN_OF_ROHAN;
+		break;
+	      case /* old RACE_MAN_OF_GONDOR      */ 15:
+		p_ptr->prace = RACE_MAN_OF_GONDOR;
+		break;
+	      case /* old RACE_MAN_OF_HARAD       */ 16:
+		p_ptr->prace = RACE_MAN_OF_HARAD;
+		break;
+	      case /* old RACE_MAN_OF_DALE        */ 17:
+		p_ptr->prace = RACE_MAN_OF_DALE;
+		break;
+	      case /* old RACE_BEORNING           */ 18:
+		p_ptr->prace = RACE_BEORNING;
+		break;
+	      case /* old RACE_FIRE_GIANT         */ 19:
+		p_ptr->prace = RACE_FIRE_GIANT;
+		break;
+	      case /* old RACE_FROST_GIANT        */ 20:
+		p_ptr->prace = RACE_FROST_GIANT;
+		break;
+	      case /* old RACE_FORGE_GIANT        */ 21:
+		p_ptr->prace = RACE_FORGE_GIANT;
+		break;
+	      case /* old RACE_STONE_TROLL        */ 22:
+		p_ptr->prace = RACE_STONE_TROLL;
+		break;
+	      case /* old RACE_ENT                */ 23:
+		p_ptr->prace = RACE_ENT;
+		break;
+	      case /* old RACE_MAIA               */ 24:
+		p_ptr->prace = RACE_MAIA;
+		break;
+	      case /* old RACE_SHADOW_FAIRY       */ 25:
+		p_ptr->prace = RACE_SHADOW_FAIRY;
+		break;
+	      case /* old RACE_MAN_OF_ERECH       */ 26:
+		p_ptr->prace = RACE_MAN_OF_ERECH;
+		break;
+	      case /* old RACE_WEREWOLF           */ 27:
+		p_ptr->prace = RACE_WEREWOLF;
+		break;
+	      case /* old RACE_VAMPIRE            */ 28:
+		p_ptr->prace = RACE_VAMPIRE;
+		break;
+	      default:
+		note(format("Invalid player race (%d).", p_ptr->prace));
+		return (-1);
+	      }
+	  }
+
 	/* Verify player race */
-	if (p_ptr->prace >= z_info->p_max)
+	if (p_ptr->prace >= z_info->g_max)
 	{
 		note(format("Invalid player race (%d).", p_ptr->prace));
 		return (-1);
@@ -1037,13 +1146,17 @@ static errr rd_extra(void)
 	/* Player style */
 	rd_byte(&p_ptr->pstyle);
 
-	/* Special Race/Class info */
+	/* XXX Can be removed, most probably */
 	rd_byte(&p_ptr->hitdie);
+
+	/* Special Race/Class info */
 	rd_byte(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
 	rd_s16b(&p_ptr->ht);
+
+	/* Unneeded */
 	rd_s16b(&p_ptr->wt);
 
 	/* Read the stat info */
@@ -1086,41 +1199,24 @@ static errr rd_extra(void)
 	/* Hack -- Repair maximum dungeon level */
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
-	/* More info */
 	/* Hack --- Get psval information. */
-	rd_byte(&tmp8u); /* Oops */
+	rd_byte(&p_ptr->psval);
 
-	/* Ignore old redundant info */
-	p_ptr->psval=tmp8u;
+	/* Hack --- Get shape information. */
+	rd_byte(&p_ptr->pshape);
 
-#if 0
-	/* Unfortunately, we can't say if it's vanilla character
-	 * and this psval hack breaks NONE characters */
-
-	/* Hack -- set styles for vanilla characters */
-	/* Mega Hack -- use psval == 1 to indicate we have applied this hack  */
-	if ((!p_ptr->pstyle) && (!p_ptr->psval))
+	/* Hack - this is needed for wip 0.6.2 versions */
+	if ((older_than(0, 6, 2, 2)) || (!p_ptr->pshape))
 	{
-		switch(p_ptr->pclass)
-		{
-			case 2: /* CLASS_PRIEST */
-				p_ptr->pstyle = WS_HAFTED;
-				break;
-			case 4: /* CLASS_RANGER */
-				p_ptr->pstyle = WS_BOW;
-				break;
-			default:
-				p_ptr->psval = 1;
-				break;
-		}
+		p_ptr->pshape = p_ptr->prace;
 	}
-#endif
 
-	/* Hack --- Get held_song information. */
-	rd_byte(&tmp8u); /* Oops */
-
-	/* Ignore old redundant info */
-	p_ptr->held_song=tmp8u;
+	/* Verify player shape */
+	if (p_ptr->pshape >= z_info->p_max)
+	{
+		note(format("Invalid player shape (%d).", p_ptr->pshape));
+		return (-1);
+	}
 
 	/* Read the timers */
 	rd_s16b(&p_ptr->msleep);
@@ -1159,7 +1255,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
 
-	if (!older_than(0, 6, 2))
+	if (!older_than(0, 6, 2, 0))
 	{
 		rd_s16b(&p_ptr->oppose_water);
 		rd_s16b(&p_ptr->oppose_lava);
@@ -1176,7 +1272,7 @@ static errr rd_extra(void)
 
 	rd_u32b(&p_ptr->disease);
 
-	if (!older_than(0, 6, 2))
+	if (!older_than(0, 6, 2, 0))
 	{
 		/* # of player turns */
 		rd_s32b(&p_ptr->player_turn);
@@ -1190,8 +1286,11 @@ static errr rd_extra(void)
 		p_ptr->resting_turn = 0;
 	}
 
+	/* Get held song */
+	rd_s16b(&p_ptr->held_song);
+
 	/* Future use */
-	strip_bytes(28);
+	strip_bytes(26);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1246,7 +1345,7 @@ static errr rd_extra(void)
 
 
 	/* Warn the player */
-	if (older_than(0, 6, 2) && (p_ptr->pclass == 4))
+	if (older_than(0, 6, 2, 0) && (p_ptr->pclass == 4))
 	{
 		msg_print("Rangers have changed significantly since this save-file version.");
 		msg_print("You must choose now to either to retain the weapon style bonuses or offensive spells for this character.");
@@ -1256,7 +1355,7 @@ static errr rd_extra(void)
 	}
 
 	/* Hack -- unlearn ranger spells */
-	if (older_than(0, 6, 2) && (p_ptr->pclass == 4) && (get_check("Retain weapon style bonuses and discard offensive spells? ")))
+	if (older_than(0, 6, 2, 0) && (p_ptr->pclass == 4) && (get_check("Retain weapon style bonuses and discard offensive spells? ")))
 	{
 		strip_bytes(48);
 	} 
@@ -1277,7 +1376,7 @@ static errr rd_extra(void)
 		rd_u32b(&p_ptr->spell_forgotten4);
 
 		/* Hack -- change class to warrior mage instead */
-		if (older_than(0, 6, 2) && (p_ptr->pclass == 4)){  p_ptr->pclass = 10; p_ptr->pstyle = WS_NONE; p_ptr->psval = 0; }
+		if (older_than(0, 6, 2, 0) && (p_ptr->pclass == 4)){  p_ptr->pclass = 10; p_ptr->pstyle = WS_NONE; p_ptr->psval = 0; }
 	}
 
 	/* Read in the spells */
@@ -1717,7 +1816,7 @@ u16b limit;
 
 
 	/*** Read and discard old room descriptions ***/
-	if (older_than(0, 6, 2))
+	if (older_than(0, 6, 2, 0))
 	{
 		for (i = 1; i < 50; i++)
 		{
@@ -1901,7 +2000,7 @@ u16b limit;
 
 
 	/*** Read the ecology ***/
-	if (!older_than(0, 6, 2))
+	if (!older_than(0, 6, 2, 0))
 	{
 		/* Read the ecology count */
 		rd_u16b(&limit);
@@ -2181,7 +2280,7 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded extra information");
 
 	/* Don't bother saving flavor flags if dead */
-	if ((!older_than(0, 6, 2)) && !(p_ptr->is_dead))
+	if ((!older_than(0, 6, 2, 0)) && !(p_ptr->is_dead))
 	{
 		/* Load the Flavors */
 		rd_u16b(&tmp16u);
@@ -2234,7 +2333,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Read the bags */
-	if (!older_than(0, 6, 1))
+	if (!older_than(0, 6, 1, 0))
 	{
 		/* Load the Bags */
 		rd_u16b(&tmp16u);
@@ -2267,7 +2366,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Read the dungeons */
-	if (!older_than(0, 6, 1))
+	if (!older_than(0, 6, 1, 0))
 	{
 		rd_u16b(&tmp16u);
 
@@ -2290,7 +2389,7 @@ static errr rd_savefile_new_aux(void)
 			t_info[i].max_depth = tmp8u;
 
 			/* Read the store indexes */
-			if (!older_than(0, 6, 2) && !p_ptr->is_dead)
+			if (!older_than(0, 6, 2, 0) && !p_ptr->is_dead)
 			{
 				/* Load the number of stores */
 				rd_byte(&tmp8u);
@@ -2305,13 +2404,13 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Don't read stores anymore if dead */
-	if (!p_ptr->is_dead || older_than(0, 6, 2))
+	if (!p_ptr->is_dead || older_than(0, 6, 2, 0))
 	{
 		/* Read the stores */
 		rd_u16b(&tmp16u);
 
 		/* Hack -- for older versions */
-		if (older_than(0, 6, 2)) total_store_count++;
+		if (older_than(0, 6, 2, 0)) total_store_count++;
 
 		for (i = 0; i < tmp16u; i++)
 		{
@@ -2319,7 +2418,7 @@ static errr rd_savefile_new_aux(void)
 		}
 
 		/* Hack -- for older versions */
-		if (older_than(0, 6, 2))
+		if (older_than(0, 6, 2, 0))
 		{
 			store[STORE_HOME] = store[7];
 
@@ -2344,7 +2443,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Get the stores */
-	if (older_than(0, 6, 2))
+	if (older_than(0, 6, 2, 0))
 	{
 
 	}
@@ -2600,12 +2699,12 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-		if (older_than(OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH))
+		if (older_than(OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH, 0))
 		{
 			err = -1;
 			what = "Savefile is too old";
 		}
-		else if (!older_than(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH + 1))
+		else if (!older_than(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA + 1))
 		{
 			err = -1;
 			what = "Savefile is from the future";

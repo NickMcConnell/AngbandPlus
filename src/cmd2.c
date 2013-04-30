@@ -776,6 +776,7 @@ static void do_cmd_travel(void)
 			turn += PY_FOOD_FULL/10*journey*4;
 
 			/* XXX Recharges, stop temporary speed etc. */
+			/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
 
 			/* Check quests due to travelling - cancel if requested */
 			if (!check_travel_quest(selection, min_depth(p_ptr->dungeon), TRUE)) return;
@@ -1795,13 +1796,21 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 
 		/* Remove the trap */
 		if (disarm)
-		{
-			/* Remove the trap */
-			cave_alter_feat(y, x, FS_DISARM);
+		  {
+		    /* A hack to e.g. get Flasks of Oil, etc. from traps */
+		    object_type *i_ptr;
+		    object_type object_type_body;
 
-			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-		}
+		    i_ptr = &object_type_body;
+
+		    make_feat(i_ptr, y, x);
+
+		    /* Remove the trap */
+		    cave_alter_feat(y, x, FS_DISARM);
+
+		    /* Update the visuals */
+		    p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		  }
 	}
 
 	/* Failure -- Keep trying */
@@ -1818,13 +1827,21 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 
 		/* Remove the trap */
 		if (!disarm)
-		{
-			/* Remove the trap */
-			cave_alter_feat(y, x, FS_DISARM);
+		  {
+		    /* A hack to e.g. get Flasks of Oil, etc. from traps */
+		    object_type *i_ptr;
+		    object_type object_type_body;
 
-			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-		}
+		    i_ptr = &object_type_body;
+
+		    make_feat(i_ptr, y, x);
+
+		    /* Remove the trap */
+		    cave_alter_feat(y, x, FS_DISARM);
+
+		    /* Update the visuals */
+		    p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		  }
 	}
 
 	/* Failure -- Set off the trap */
@@ -3277,7 +3294,7 @@ static bool item_tester_hook_rope(const object_type *o_ptr)
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
-void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
+void do_cmd_fire_or_throw_selected(int item, bool fire)
 {
   int item2 = 0;
   int i = 0;
@@ -3289,6 +3306,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 
   int style_hit, style_dam, style_crit;
 
+  object_type *o_ptr = item >= 0 ? &inventory[item] : &o_list[0 - item];
   object_type *k_ptr;
   object_type *i_ptr;
   object_type object_type_body;
@@ -3509,7 +3527,7 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 	tdis = 256;
 
       /* Calculate the path */
-      path_n = project_path(path_g, tdis, y, x, &ty, &tx, 0);
+      path_n = project_path(path_g, tdis, y, x, &ty, &tx, PROJECT_THRU);
 
       /* Hack -- Handle stuff */
       handle_stuff();
@@ -4036,16 +4054,12 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
       /* Reduce and describe floor item */
       else
 	{
-	  bool get_feat = FALSE;
-	  
 	  floor_item_increase(0 - item, -1);
 	  floor_item_optimize(0 - item);
 	  
 	  /* Get feat */
-	  if (o_ptr->ident & (IDENT_STORE)) 
-	    get_feat = TRUE;
-	  
-	  if (get_feat && scan_feat(p_ptr->py, p_ptr->px) < 0) 
+	  if (o_ptr->ident & (IDENT_STORE) 
+	      && scan_feat(p_ptr->py, p_ptr->px) < 0)
 	    cave_alter_feat(p_ptr->py, p_ptr->px, FS_GET_FEAT);
 	}
 
@@ -4080,10 +4094,26 @@ void do_cmd_fire_or_throw_selected(object_type *o_ptr, int item, bool fire)
 
 
 /*
- * Fire an object from the pack or floor.
+ * Returns TRUE if an object is permitted to be thrown
+ */
+bool item_tester_hook_throwable(const object_type *o_ptr)
+{
+	/* Spell cannot be thrown */
+	if (o_ptr->tval == TV_SPELL) return (FALSE);
+
+	/* Cannot thrown any 'built-in' item type */
+	if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
+
+	/* Allowed */
+	return (TRUE);
+}
+
+
+/*
+ * Throw or fire an object from the pack or floor.
  * See do_cmd_fire_selected.
  */
-void do_cmd_fire(void)
+void do_cmd_throw_fire(bool fire)
 {
   int item;
 
@@ -4106,16 +4136,24 @@ void do_cmd_fire(void)
       return;
     }
 
-  /* Require proper missile */
-  item_tester_tval = p_ptr->ammo_tval;
+  if (fire)
+    {
+      /* Require proper missile */
+      item_tester_tval = p_ptr->ammo_tval;
 
-  /* Require throwing weapon */
-  if (!item_tester_tval) 
-    item_tester_hook = is_known_throwing_item;
+      /* Require throwing weapon */
+      if (!item_tester_tval) 
+	item_tester_hook = is_known_throwing_item;
+    }
+  else
+    {
+      /* Require an item that can be thrown at all */
+      item_tester_hook = item_tester_hook_throwable;
+    }
 
   /* Get an item */
-  q = "Fire which item? ";
-  s = "You have nothing to fire.";
+  q = fire ? "Fire which item? " : "Throw which item? ";
+  s = fire ? "You have nothing to fire." : "You have nothing to throw.";
   if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG)))
     return;
 
@@ -4142,81 +4180,28 @@ void do_cmd_fire(void)
       /* Get item from bag */
       if (!get_item_from_bag(&item, q, s, o_ptr)) 
 	return;
-
-      /* Refer to the item */
-      o_ptr = &inventory[item];
     }
 
-  /* Check for launcher */
-  if (p_ptr->num_fire)
-    /* Launcher wielded, so fire */
-    do_cmd_fire_or_throw_selected(o_ptr, item, TRUE);
+  if (fire && p_ptr->num_fire)
+    do_cmd_fire_or_throw_selected(item, TRUE);
   else 
-    /* No launcher, so throw */
-    do_cmd_fire_or_throw_selected(o_ptr, item, FALSE);
+    do_cmd_fire_or_throw_selected(item, FALSE);
+}
+
+
+/*
+ * Fire an object from the pack or floor.
+ */
+void do_cmd_fire(void)
+{
+  do_cmd_throw_fire(TRUE);
 }
 
 
 /*
  * Throw an object from the pack or floor.
- * See do_cmd_throw_selected.
  */
 void do_cmd_throw(void)
 {
-  int item;
-
-  object_type *o_ptr;
-
-  cptr q, s;
-
-  /* Berserk */
-  if (p_ptr->shero)
-    {
-      msg_print("You are too enraged!");
-      return;
-    }
-
-  /* Some items and some rooms blow missiles around */
-  if (p_ptr->cur_flags4 & (TR4_WINDY) 
-      || room_has_flag(p_ptr->py, p_ptr->px, ROOM_WINDY))
-    {
-      msg_print("Its too windy around you!");
-      return;
-    }
-
-  /* Get an item */
-  q = "Throw which item? ";
-  s = "You have nothing to throw.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG))) 
-    return;
-
-  /* Get the object */
-  if (item >= 0)
-    {
-      o_ptr = &inventory[item];
-
-      /* A cursed quiver disables the use of non-cursed ammo */
-      if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver && !cursed_p(o_ptr))
-	{
-	  msg_print("Your quiver is cursed!");
-	  return;
-	}
-    }
-  else
-    {
-      o_ptr = &o_list[0 - item];
-    }
-
-  /* In a bag? */
-  if (o_ptr->tval == TV_BAG)
-    {
-      /* Get item from bag */
-      if (!get_item_from_bag(&item, q, s, o_ptr)) 
-	return;
-
-      /* Refer to the item */
-      o_ptr = &inventory[item];
-    }
-
-  do_cmd_fire_or_throw_selected(o_ptr, item, FALSE);
+  do_cmd_throw_fire(FALSE);
 }

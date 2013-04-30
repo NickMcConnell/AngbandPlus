@@ -130,7 +130,7 @@ I:80:15:0
 W:10:500:1:50
 A:10/1
 
-N:9:Weakness
+N:9:Weakness and Smallness
 G:,:w
 I:80:6:0
 W:10:500:1:0
@@ -142,10 +142,10 @@ I:80:10:0
 W:15:500:1:50
 A:15/1
 
-N:11:Restore Constitution
+N:11:Restore Constitution and Charisma
 G:,:w
 I:80:18:0
-W:20:500:1:350
+W:10:500:1:150
 A:20/1
 
 N:12:Restoring
@@ -184,10 +184,10 @@ I:80:5:0
 W:20:500:1:0
 A:20/1
 
-N:18:Restore Strength
+N:18:Restore Strength and Size
 G:,:w
 I:80:17:0
-W:20:500:1:350
+W:10:500:1:150
 A:20/1
 
 N:19:Disease
@@ -1070,7 +1070,7 @@ P:5:1d3:0:0:0
 
 ##### Rings #####
 
-N:132:Strength
+N:132:Strength and Size
 G:=:w
 I:45:24:0
 W:30:0:2:500
@@ -1173,7 +1173,7 @@ A:15/1
 F:FREE_ACT
 Y:7:1
 
-N:145:Weakness
+N:145:Weakness and Smallness
 G:=:w
 I:45:2:-5
 W:5:0:2:0
@@ -1260,7 +1260,7 @@ A:20/1
 F:SEE_INVIS
 Y:12:2
 
-N:156:Sustain Strength
+N:156:Sustain Strength and Size
 G:=:w
 I:45:10:0
 W:10:0:2:250
@@ -1268,28 +1268,29 @@ A:10/1
 F:SUST_STR
 Y:25:1
 
-N:157:Sustain Intelligence
+N:157:Sustain Intelligence and Wisdom
 G:=:w
 I:45:11:0
 W:10:0:2:250
 A:10/1
-F:SUST_INT
+F:SUST_INT | SUST_WIS
 Y:17:1
 
-N:158:Sustain Wisdom
-G:=:w
-I:45:12:0
-W:10:0:2:250
-A:10/1
-F:SUST_WIS
-Y:5:1
+#Unused
+#N:158:Sustain Wisdom
+#G:=:w
+#I:45:12:0
+#W:10:0:2:250
+#A:10/1
+#F:SUST_WIS
+#Y:5:1
 
-N:159:Sustain Constitution
+N:159:Sustain Constitution and Charisma
 G:=:w
 I:45:13:0
 W:10:0:2:250
 A:10/1
-F:SUST_CON
+F:SUST_CON | SUST_CHR
 Y:24:1
 
 N:160:Sustain Dexterity and Agility
@@ -1300,13 +1301,14 @@ A:10/1
 F:SUST_DEX
 Y:26:1
 
-N:161:Sustain Charisma
-G:=:w
-I:45:15:0
-W:10:0:2:250
-A:10/1
-F:SUST_CHR
-Y:19:1
+#Unused
+#N:161:Sustain Charisma
+#G:=:w
+#I:45:15:0
+#W:10:0:2:250
+#A:10/1
+#F:SUST_CHR
+#Y:19:1
 
 N:162:Slaying
 G:=:w
@@ -1498,7 +1500,7 @@ W:10:0:5:40
 A:10/1
 Y:7:2
 
-N:187:Teleport Level
+N:187:Escape
 G:?:w
 I:70:10:0
 W:20:0:5:50
@@ -1759,15 +1761,15 @@ A:0/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:225:Strength
+N:225:Strength and Size
 G:!:w
 I:75:48:0
-W:35:0:4:400
-A:35/1
+W:20:0:4:400
+A:20/1:50/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:226:Weakness
+N:226:Weakness and Smallness
 G:!:w
 I:75:16:0
 W:3:0:4:0
@@ -1775,18 +1777,19 @@ A:3/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:227:Restore Strength
+N:227:Restore Strength and Size
 G:!:d
 I:75:42:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:200
+A:15/1
 P:0:1d1:0:0:0
+F:THROWING
 
-N:228:Intelligence
+N:228:Intelligence and Wisdom
 G:!:w
 I:75:49:0
-W:35:0:4:400
-A:35/1
+W:25:0:4:400
+A:25/1:55/1
 P:0:1d1:0:0:0
 Y:17:2
 F:THROWING
@@ -1799,21 +1802,23 @@ A:20/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:230:Restore Intelligence
+N:230:Restore Intelligence and Wisdom
 G:!:d
 I:75:43:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:200
+A:15/1
 P:0:1d1:0:0:0
-
-N:231:Wisdom
-G:!:w
-I:75:50:0
-W:35:0:4:400
-A:35/1
-P:0:1d1:0:0:0
-Y:5:2
 F:THROWING
+
+#Unused
+#N:231:Wisdom
+#G:!:w
+#I:75:50:0
+#W:35:0:4:400
+#A:35/1
+#P:0:1d1:0:0:0
+#Y:5:2
+#F:THROWING
 
 N:232:Naivety
 G:!:w
@@ -1823,21 +1828,24 @@ A:20/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:233:Restore Wisdom
-G:!:d
-I:75:44:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0
+#Unused
+#N:233:Restore Wisdom
+#G:!:d
+#I:75:44:0
+#W:25:0:4:300
+#A:25/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
-N:234:Charisma
-G:!:w
-I:75:53:0
-W:30:0:4:350
-A:30/1
-P:0:1d1:0:0:0
-Y:19:2
-F:THROWING
+#Unused
+#N:234:Charisma
+#G:!:w
+#I:75:53:0
+#W:30:0:4:350
+#A:30/1
+#P:0:1d1:0:0:0
+#Y:19:2
+#F:THROWING
 
 N:235:Ugliness
 G:!:w
@@ -1847,12 +1855,14 @@ A:20/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:236:Restore Charisma
-G:!:d
-I:75:47:0
-W:20:0:4:300
-A:20/1
-P:0:1d1:0:0:0
+#Unused
+#N:236:Restore Charisma
+#G:!:d
+#I:75:47:0
+#W:20:0:4:300
+#A:20/1
+#P:0:1d1:0:0:0
+#F:THROWING
 
 N:237:Cure Light Wounds
 G:!:w
@@ -1908,11 +1918,11 @@ P:0:1d1:0:0:0
 Y:3:3
 F:THROWING
 
-N:243:Constitution
+N:243:Constitution and Charisma
 G:!:w
 I:75:52:0
-W:35:0:4:400
-A:35/1
+W:20:0:4:400
+A:20/1:50/1
 P:0:1d1:0:0:0
 Y:24:2
 F:THROWING
@@ -1980,8 +1990,8 @@ F:THROWING
 N:251:Dexterity and Agility
 G:!:w
 I:75:51:0
-W:35:0:4:400
-A:35/1
+W:20:0:4:400
+A:20/1:50/1
 P:0:1d1:0:0:0
 Y:26:2
 F:THROWING
@@ -1989,16 +1999,18 @@ F:THROWING
 N:252:Restore Dexterity and Agility
 G:!:d
 I:75:45:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:200
+A:15/1
 P:0:1d1:0:0:0
+F:THROWING
 
-N:253:Restore Constitution
+N:253:Restore Constitution and Charisma
 G:!:d
 I:75:46:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:200
+A:15/1
 P:0:1d1:0:0:0
+F:THROWING
 
 N:254:Lose Memories
 G:!:w
@@ -2735,38 +2747,50 @@ W:30:0:30:900
 A:30/1
 P:0:1d1:0:0:0
 
+##### Some magical spells #####
 
-##### Various Stuff #####
+N:338:& Hunter's Stride~
+G:":y
+I:10:16:6
+W:0:0:0:0
+P:0:0d0:0:0:0
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
+F:SPEED
 
-N:338:& handful~ of Sand
-G:~:u
-I:3:9:0
-W:0:0:5:0
-P:0:1d1:0:0:0
+N:339:& Bark Skin~
+G:[:U
+I:10:37:0
+W:0:0:0:0
+P:25:0d0:0:0:0
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
+F:HURT_FIRE
 
-N:339:& handful~ of Earth
-G:~:u
-I:3:10:0
-W:0:0:5:0
-P:0:1d1:0:0:0
+N:340:Ent Roots
+G:[:U
+I:10:38:7
+W:0:0:0:0
+P:0:5d5:0:0:0
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
+F:TUNNEL
 
-N:340:& handful~ of Mud
-G:~:u
-I:3:11:0
-W:0:0:5:0
-P:0:1d1:0:0:0
+# If we implement confusion brand, replace the following with confusion.
 
-N:341:& handful~ of Dust
-G:~:u
-I:3:12:0
-W:0:0:5:0
-P:0:1d1:0:0:0
+N:341:& Cat's Paw~
+G:[:U
+I:10:39:5
+W:0:0:0:0
+P:0:1d5:0:0:0
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
+F:STEALTH | BRAND_POIS
 
-N:342:& handful~ of Ice
-G:~:u
-I:3:13:0
-W:0:0:5:0
-P:0:1d2:0:0:0
+# This is used as the activatable object when the player is activating themself.
+
+N:342:Yourself
+G:@:w
+I:97:0:0
+W:0:0:0:0
+P:0:0d0:0:0:0
+F:ACTIVATE
 
 N:343:& # Flask~
 G:!:w
@@ -4206,7 +4230,7 @@ P:0:1d1:0:0:0
 # and destroyed if they are 'taken off'.
 # So most of the following flags are not useful anyway.
 
-N:567:& Wizard Light spell~
+N:567:& Wizard Light~
 G:~:B
 I:10:10:3
 W:0:0:0:0
@@ -4214,7 +4238,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:LITE
 
-N:568:& Psychic Crown spell~
+N:568:& Psychic Crown~
 G:]:v
 I:10:13:0
 W:0:0:0:0
@@ -4222,7 +4246,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:TELEPATHY | ACTIVATE
 
-N:569:& Spiritual Hammer spell~
+N:569:& Spiritual Hammer~
 G:\:G
 I:10:25:0
 W:0:0:0:0
@@ -4230,7 +4254,7 @@ P:0:3d5:10:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:SLAY_UNDEAD | SEE_INVIS | BLESSED
 
-N:570:& Hexen Hammer spell~
+N:570:& Hexen Hammer~
 G:\:g
 I:10:26:0
 W:0:0:0:0
@@ -4238,7 +4262,7 @@ P:0:5d8:10:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:SLAY_DEMON | RES_FIRE | BLESSED
 
-N:571:& Runestaff spell~
+N:571:& Runestaff~
 G:\:y
 I:10:30:0
 W:0:0:0:0
@@ -4246,7 +4270,7 @@ P:0:6d4:10:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:BRAND_FIRE | BRAND_ELEC | RES_FIRE | RES_ELEC | LITE | BLESSED | ACTIVATE
 
-N:572:& Bat Wings spell~
+N:572:Bat Wings
 G:):v
 I:10:31:5
 W:0:0:0:0
@@ -4254,7 +4278,7 @@ P:5:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:SPEED | FEATHER | ANIMAL | WINDY
 
-N:573:& Wolf's Maw spell~
+N:573:& Wolf's Maw~
 G:]:v
 I:10:32:5
 W:0:1:0:0
@@ -4262,7 +4286,7 @@ P:5:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:INFRA | SEARCH | VAMP_HP | ANIMAL | SILENT | HUNGER | ACTIVATE
 
-N:574:& Talons spell~
+N:574:Talons
 G:):r
 I:10:33:-10
 W:0:0:0:0
@@ -4270,7 +4294,7 @@ P:5:5d20:10:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:BLOWS | SHOTS | DEVICE
 
-N:575:& Wolf's Hide spell~
+N:575:& Wolf's Hide~
 G:[:u
 I:10:34:5
 W:0:0:0:0
@@ -4278,15 +4302,15 @@ P:20:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:RES_COLD | STEALTH | ANIMAL | REGEN_HP | ACTIVATE
 
-N:576:& Stone Skin spell~
+N:576:& Stone Skin~
 G:[:D
 I:10:35:0
 W:0:0:0:0
-P:50:0d0:-25:0:0
+P:50:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:RES_SHARD
 
-N:577:& Dragonscales spell~
+N:577:Dragonscales
 G:[:D
 I:10:36:0
 W:0:0:0:0
@@ -4357,12 +4381,12 @@ W:0:0:300:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:588:& broken Branch~
+N:588:& Branch~
 G:~:u
 I:3:8:0
 W:0:0:30:0
 A:0/1
-P:0:1d1:0:0:0
+P:0:1d5:0:0:0
 
 N:589:& hunk~ of # Meat
 G:~:r
@@ -5661,25 +5685,27 @@ G:?:v
 I:99:22:0
 W:25:0:0:40
 
-N:772:Restore Strength
+N:772:Restore Strength and Size
 G:?:v
 I:99:23:0
 W:20:0:0:250
 
-N:773:Restore Intelligence
+N:773:Restore Intelligence and Wisdom
 G:?:v
 I:99:24:0
 W:20:0:0:250
 
-N:774:Restore Wisdom
-G:?:v
-I:99:25:0
-W:20:0:0:250
+#Unused
+#N:774:Restore Wisdom
+#G:?:v
+#I:99:25:0
+#W:20:0:0:250
 
-N:775:Restore Charisma
-G:?:v
-I:99:26:0
-W:20:0:0:250
+#Unused
+#N:775:Restore Charisma
+#G:?:v
+#I:99:26:0
+#W:20:0:0:250
 
 N:776:Read Magic
 G:?:v
@@ -6439,7 +6465,7 @@ G:?:v
 I:99:46:0
 W:20:0:0:250
 
-N:885:Restore Constitution
+N:885:Restore Constitution and Charisma
 G:?:v
 I:99:47:0
 W:20:0:0:250
@@ -6646,7 +6672,7 @@ A:35/2
 F:RES_POIS | DEX | ACTIVATE
 Y:16:4
 
-N:912:& Cobra's Cowl spell~
+N:912:& Cobra's Cowl~
 G:":G
 I:10:11:5
 W:0:4:0:0
@@ -6654,7 +6680,7 @@ P:5:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:RES_POIS | RES_WATER | INFRA | ACTIVATE
 
-N:913:& Goat's Hooves spell~
+N:913:& Goat's Hooves~
 G:]:W
 I:10:12:5
 W:0:3:0:0
@@ -6662,7 +6688,7 @@ P:5:0d0:0:0:0
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_WATER |
 F:DEX | ACTIVATE
 
-N:914:& Dragon's Maw spell~
+N:914:& Dragon's Maw~
 G:]:v
 I:10:29:0
 W:0:9:0:0
@@ -6671,7 +6697,7 @@ F:IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD | IGNORE_THEFT | IGNORE_
 F:SEE_INVIS | RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS | DRAGON
 F:HUNGER | ACTIVATE
 
-N:915:& Lion's Mane spell~
+N:915:& Lion's Mane~
 G:":y
 I:10:14:5
 W:0:4:0:0

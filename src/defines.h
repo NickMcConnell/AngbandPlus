@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	2
 
 
 /*
@@ -571,6 +571,11 @@
 #define INVEN_TOTAL	END_QUIVER
 
 /*
+ * Total number of inventory slots (hard-coded).
+ */
+#define INVEN_SELF	END_QUIVER
+
+/*
  * Total number of show item slots (hard-coded).
  */
 #define SHOWN_TOTAL	END_QUIVER
@@ -610,11 +615,12 @@
 #define A_CON	4
 #define A_CHR	5
 #define A_AGI	6
+#define A_SIZ	7
 
 /*
  * Total number of stats.
  */
-#define A_MAX	7
+#define A_MAX	8
 
 /*
  * Player sex constants (hard-coded by save-files, arrays, etc)
@@ -625,20 +631,44 @@
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
-#define RACE_HUMAN        0
-#define RACE_HALF_ELF     1
-#define RACE_WOOD_ELF     2
-#define RACE_HOBBIT       3
-#define RACE_GNOME        4
-#define RACE_DWARF        5
-#define RACE_HALF_ORC     6
-#define RACE_HALF_TROLL   7
-#define RACE_DUNADAN      8
-#define RACE_HIGH_ELF     9
-#define RACE_GOBLIN       10
-
-#define MAX_RACES        10
-
+#define RACE_MAN_OF_BREE	0
+#define RACE_WOOD_ELF		1
+#define RACE_HOBBIT		2
+#define RACE_SHADOW_FAIRY	3
+#define RACE_DWARF		4
+#define RACE_DUNADAN		5
+#define RACE_HIGH_ELF		6
+#define RACE_MAIA		7
+#define RACE_ENT           	8
+#define RACE_DRUADAN		9
+#define RACE_MAN_OF_ERECH	10
+#define RACE_MAN_OF_DALE	11
+#define RACE_MAN_OF_ROHAN	12
+#define RACE_MAN_OF_GONDOR	13
+#define RACE_MAN_OF_HARAD	14
+#define RACE_FORGE_GIANT	15
+#define RACE_FIRE_GIANT		16
+#define RACE_FROST_GIANT	17
+#define RACE_BEORNING		18
+#define RACE_WEREWOLF		19
+#define RACE_VAMPIRE		20
+#define RACE_GOBLIN		21
+#define RACE_GOBLIN_MAN		22
+#define RACE_ORC		23
+#define RACE_HALF_ORC		24
+#define RACE_STONE_TROLL	25
+/* 26--28 free */
+#define RACE_GOAT		29
+#define RACE_BEAR		30
+#define RACE_MOUSE		31
+#define RACE_HOUND         	32
+#define RACE_CHEETAH       	33
+#define RACE_LION          	34
+#define RACE_DRAGON        	35
+#define RACE_WOLF         	36
+#define RACE_BAT          	37
+#define RACE_SERPENT          	38
+#define RACE_CAT          	39
 
 
 /*** Screen Locations ***/
@@ -674,62 +704,62 @@
 #define ROW_STAT		(show_sidebar ? 8 : (SECOND_FROM_BOTTOM))
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_AC			(show_sidebar ? 15 : (BOTTOM_LINE))
+#define ROW_AC			(show_sidebar ? 17 : (BOTTOM_LINE))
 #define COL_AC			(show_sidebar ? 0 : 33)	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		(show_sidebar ? 16 : (BOTTOM_LINE))
+#define ROW_MAXHP		(show_sidebar ? 18 : (BOTTOM_LINE))
 #define COL_MAXHP		(show_sidebar ? 0 : 47)	/* "Max HP xxxxx" */
 
-#define ROW_CURHP		(show_sidebar ? 17 : (BOTTOM_LINE))
+#define ROW_CURHP		(show_sidebar ? 19 : (BOTTOM_LINE))
 #define COL_CURHP		(show_sidebar ? 0 : 40)	/* "Cur HP xxxxx" */
 
-#define ROW_MAXSP		(show_sidebar ? 18 : (BOTTOM_LINE))
+#define ROW_MAXSP		(show_sidebar ? 20 : (BOTTOM_LINE))
 #define COL_MAXSP		(show_sidebar ? 0 : 60)	/* "Max SP xxxxx" */
 
-#define ROW_CURSP		(show_sidebar ? 19 : (BOTTOM_LINE))
+#define ROW_CURSP		(show_sidebar ? 21 : (BOTTOM_LINE))
 #define COL_CURSP		(show_sidebar ? 0 : 53)	/* "Cur SP xxxxx" */
 
-#define ROW_INFO		(show_sidebar ? 20 : (BOTTOM_LINE))
+#define ROW_INFO		(show_sidebar ? 22 : (BOTTOM_LINE))
 #define COL_INFO		(show_sidebar ? 0 : 20)	/* "xxxxxxxxxxxx" */
 
-#define ROW_CUT			(show_sidebar ? 21 : (SECOND_FROM_BOTTOM))
-#define COL_CUT			(show_sidebar ? 0 : 18)	/* <cut> */
+#define ROW_CUT			(show_sidebar ? 23 : (SECOND_FROM_BOTTOM))
+#define COL_CUT			(show_sidebar ? 0 : 24)	/* <cut> */
 
-#define ROW_STUN		(show_sidebar ? 22 : (SECOND_FROM_BOTTOM))
-#define COL_STUN		(show_sidebar ? 0 : 22)	/* <stun> */
+#define ROW_STUN		(show_sidebar ? 24 : (SECOND_FROM_BOTTOM))
+#define COL_STUN		(show_sidebar ? 0 : 28)	/* <stun> */
 
 #define ROW_HUNGRY		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_HUNGRY		(show_sidebar ? 0 : 26)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
+#define COL_HUNGRY		(show_sidebar ? 0 : 32)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
 #define ROW_BLIND		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_BLIND		(show_sidebar ? (Term->wid >= 90  ? 7 : 6)  : 30)	/* "Blind" */
+#define COL_BLIND		(show_sidebar ? (Term->wid >= 90  ? 7 : 6)  : 36)	/* "Blind" */
 
 #define ROW_CONFUSED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_CONFUSED		(show_sidebar ? (Term->wid >= 90  ? 13 : 11) : 34)	/* "Confused" */
+#define COL_CONFUSED		(show_sidebar ? (Term->wid >= 90  ? 13 : 11) : 40)	/* "Confused" */
 
 #define ROW_AFRAID		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_AFRAID		(show_sidebar ? (Term->wid >= 90  ? 22 : 19) : 38)	/* "Afraid" */
+#define COL_AFRAID		(show_sidebar ? (Term->wid >= 90  ? 22 : 19) : 44)	/* "Afraid" */
 
 #define ROW_POISONED		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_POISONED		(show_sidebar ? (Term->wid >= 90  ? 29 : 25) : 42)	/* "Poisoned" */
+#define COL_POISONED		(show_sidebar ? (Term->wid >= 90  ? 29 : 25) : 48)	/* "Poisoned" */
 
 #define ROW_DISEASE		(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_DISEASE	(show_sidebar ? (Term->wid >= 90  ? 38 : 33) : 46)	/* "Disease" / "Dise" */
+#define COL_DISEASE	(show_sidebar ? (Term->wid >= 90  ? 38 : 33) : 52)	/* "Disease" / "Dise" */
 
 #define ROW_CURSED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_CURSED	(show_sidebar ? (Term->wid >= 90  ? 46 : 40) : 50)	/* "Cursed" / "Curs" */
+#define COL_CURSED	(show_sidebar ? (Term->wid >= 90  ? 46 : 40) : 56)	/* "Cursed" / "Curs" */
 
 #define ROW_AMNESIA	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_AMNESIA	(show_sidebar ? (Term->wid >= 90  ? 53 : 46) : 54)	/* "Amnesia" / "Forg" */
+#define COL_AMNESIA	(show_sidebar ? (Term->wid >= 90  ? 53 : 46) : 60)	/* "Amnesia" / "Forg" */
 
 #define ROW_PETRIFY	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_PETRIFY	(show_sidebar ? (Term->wid >= 90  ? 61 : 53) : 58)	/* "Petrify" / "Petr" */
+#define COL_PETRIFY	(show_sidebar ? (Term->wid >= 90  ? 61 : 53) : 64)	/* "Petrify" / "Petr" */
 
 #define ROW_STATE	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_STATE		(show_sidebar ? (Term->wid >= 90  ? 69 : 60) : 62)	/* <state> */
+#define COL_STATE		(show_sidebar ? (Term->wid >= 90  ? 69 : 60) : 69)	/* <state> */
 
 #define ROW_SPEED	(show_sidebar ? (BOTTOM_LINE) : (SECOND_FROM_BOTTOM))
-#define COL_SPEED		(show_sidebar ? (Term->wid >= 90  ? 80 : 70) : 72)	/* "Slow (-NN)" or "Fast (+NN)" */
+#define COL_SPEED		(show_sidebar ? (Term->wid >= 90  ? 80 : 70) : 69)	/* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY		(show_sidebar ? (Term->wid >= 96 ? (BOTTOM_LINE) : 14) \
 					: (BOTTOM_LINE))
@@ -901,6 +931,7 @@
 #define GF_BLOOD	114
 #define GF_SLIME	115
 #define GF_RES_MAGIC	116
+#define GF_FALL_LESS    117
 
 /*
  * Columns for the spell cost or damage flags
@@ -1137,7 +1168,12 @@
 
 #define FEAT_ENTRANCE 471
 
-
+#define FEAT_GEYSER 711
+#define FEAT_WATER_SPOUT 714
+#define FEAT_ERUPTING_LAVA 722
+#define CRUMBLING_FLOOR 873
+#define TREMBLING_RUBBLE 874
+#define PULSING_RUBBLE 875
 
 /*Feature flags - should be used instead of feature indexes unless generating.*/
 
@@ -1476,6 +1512,8 @@
 #define SPELL_SLOW_CONF		17
 #define SPELL_SLOW_POIS		18
 #define SPELL_IDENT_PACK	19
+#define SPELL_CHANGE_SHAPE	20
+#define SPELL_REVERT_SHAPE	21
 #define SPELL_INVEN_WIELD      24
 #define SPELL_INVEN_BOW       25
 #define SPELL_INVEN_LEFT      26
@@ -1733,6 +1771,7 @@
 #define TV_PRAYER_BOOK  91
 #define TV_SONG_BOOK    92
 #define TV_RUNESTONE    93
+#define TV_RACE	 97	/* Used for racial activations */
 #define TV_BAG		98	/* Containers for other items */
 #define TV_SERVICE	99	/* Services have special meanings in stores */
 #define TV_GOLD  100     /* Gold or higher tvals can only be picked up by players */
@@ -2591,6 +2630,7 @@
 #define USE_FEATU		0x08	/* Allow features (usable) */
 #define USE_FEATG		0x10	/* Allow features (gettable) */
 #define USE_QUIVER		0x20	/* Allow quiver items, forbid classic equipment */
+#define USE_SELF		0x40	/* Allow selection of player */
 
 
 /*** Player flags ***/
