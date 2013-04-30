@@ -1,3 +1,215 @@
+UnAngband 0.5.4a: "A Whole Lotta Love"
+
+### Game-play ###
+
+- Added high-level guardians to remaining areas in campaign mode.
+
+- Replaced fletchers with jewellers in Edoras.
+
+
+### Build / Platform ###
+
+- readdib.[ch] were old.
+
+- Fixed definition of user_name() for Linux port.
+
+
+### Bug fixes ###
+
+- Fixed some elves that were incorrectly using the 'h' symbol.
+
+- Disallow object recall for unknown flavored objects.
+
+- Incorrect default note was set for object and ego inscriptions
+  if there were no note.
+
+- Fixed some bugs in room.txt
+
+- Some dungeon names are misspelt.
+
+- Loading an old savefile crashed the game.
+
+- Some spell flags were not handled in spell_desc()
+
+- You could not tonnnel cages while stuck in them.
+
+- Some boolean variables are incorrectly set when getting bit flags.
+
+- teleport_away() was swapping a monster and another monster or a
+  player if there is one on a random place.
+
+- A window flag for "Display room description" window was not saved.
+
+- Fixed a minor bug about monster recall flag on OLD_DRAIN spell.
+
+- The game crashed at the end of the game.
+
+- Messages for ice bolt said "a prasma bolt"
+
+- Object usage counters for armors are never updated.
+
+- When an object become known to have some flags, may flags
+  on all kits should be removed.
+
+- "(D) Base Delay Factor" was not displayed.
+
+- It was possible to destroy cursed equipments.
+
+- Fixed the bug which forbids more than 64 spells by introduciing new
+  option "variant_study_more" which really allows more than 64 spells
+  to be studied.  Old option "variant_more_spells" is left for
+  savefile compatibility, and now effects only on the number of spell
+  kind.
+
+- The game occasionally crashed when shooting at nearly dead monster.
+
+- Changed form of Wizard Lock to BEAM from STRIKE to correctly close
+  and jam an open door.
+
+- Behavior of Wizard lock was wrong.
+
+- Really fixed bug where Ungoliant was not a female.
+
+
+
+UnAngband 0.5.4: "It'll be Sangband next" (Out the door release)
+
+### Game Play ###
+
+- Added the ability to create a trap using any object using the 'j'am command
+('S'pike in roguelike keys).
+
+- Changed arrow traps to 'murder holes' and eldritch signs to 'ancient hexes'
+(From Sangband).
+
+- Changed dart traps to 'spring-loaded traps'.
+
+- You can now modify pits using spikes and poison to make them more dangerous.
+
+- Falling terrain now radiates damage to adjacent locations every turn.
+
+- Waves are now just deep water and do 'weak' water damage rather than normal
+water damage.
+
+- Waves in deep water have to be climbed.
+
+- Removed open floors over chasms as unnecessary terrain.
+
+- Geothermal areas now occasionally produce steam.
+
+- You must now climb out of pits/chasms/spider webs/thickets/thorns, taking a
+double move.
+
+- Changed how trees are generated to reduce overhead when generating a level.
+
+- Added hilly terrain which uses '<' graphic. This is primarily for expanded
+wilderness generation, when that is implemented.
+
+- Added shallow pits, which provide cover for monsters hiding in them.
+
+- Allows runestones to be used from the floor now.
+
+- Spells available on runestones are now affected by the day of the lunar
+cycle.
+
+- Fire, acid and so forth will not create smoke, clouds etc. on floors from
+a monster or player spell. Traps and other terrain will create this however.
+
+- Clouds and other terrain effects can be created when an object is destroyed.
+
+- Added Sacrificial daggers in place of Tulwars (As suggested by Johnathan Ellis).
+
+- Detect curse no longer marks valueless items as broken.
+
+- Giants now drop potions, making giant pits worthwhile deep in the dungeon.
+
+- Try to more correctly handle monsters interacting with terrain that
+damages them, in particular when a monster is in dangerous terrain.
+
+- Some high level monsters get resistance to nexus, nether, disenchantment,
+plasma or immunity to water.
+
+- Added town monster AI from Sangband.
+
+- Sneaky monsters try to be more sneaky.
+
+- Hidden monsters no longer radiate an aura.
+
+- Adjusted various ring depths to make some more useful.
+
+### User Interface ###
+
+- You will only be notified when a monster resists an attack the first time
+you learn it, instead of multiple 'It resists.' messages.
+
+- You will only hear pain messages if you cannot see the monster - otherwise
+you will only see monster pain messages when a monster gets to a worse 'state'
+than it currently is.
+
+- Exploding and spreading terrain now does so without visible 'blast'.
+
+- Flavors are now handled as per vanilla Angband. This should allow graphics
+to be enabled again.
+
+- Once you identify an object, it uses a different graphic. This allows you to
+use special graphics for identified items of various sorts.
+
+- Changed how many locations are displayed so that viewing options affect more
+terrain.
+
+- Added option view_surface_lite that allows you to see which terrain is 'indoors'
+when you are on the surface (In particular, terrain covered by tree branches).
+
+- Change the way map locations are displayed on the surface when inside or
+outside.
+
+- Generate artifact spoilers using object info code.
+
+- Features should only be listed in the knowledge menus if not "mimiced".
+
+- Stone bridges are now G:.:w, but are visibly different from floors.
+
+- Wave crests now use G:':w to distinguish them from steam clouds.
+
+- Trees now use ':' instead of '<'.
+
+- Added 32x32 bmp and big_graphics support.
+
+
+### Bug fixes ###
+
+- Fixed major bug with identify flags code that caused you to misguess abilities
+after you sold an item that may have those abilities in the store.
+
+- Fixed bug so monsters actually break down some doors.
+
+- Fixed bug so that the effects of water, mud etc. when are correctly applied
+when first moving into the terrain.
+
+- Fixed bugs created by attempting to allow flying monsters to cross any
+terrain while on the surface.
+
+- Fixed bug where wizard lock opened doors instead of locking them.
+
+- Fixed some inconsistencies with giants.
+
+- Fixed some inconsistencies with oozes.
+
+- Fixed bug where unflavoured items were 'guessed'.
+
+- Fixed bug where already known or aware items were sometimes re-'guessed'.
+
+### Build / Platform ###
+
+- Added 'f_info.txt', 'w_info.txt' and 'misc.txt' from Zangband. These are not
+currently used, but if you copy them into your Zangband lib\edit directory
+(Backing up the current versions of the files), you can see an Unangband
+'version' of the Zangband wilderness, using Unangband's version of the terrain
+graphics. (Uses Zangband 2.8.1). This is for testing purposes and comments...
+
+- Updated copyright notices in source.
+
+
 UnAngband 0.5.3: "Let It Be" (the Killer Beatle release)
 
 ### Game-play ###

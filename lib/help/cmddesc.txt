@@ -256,14 +256,23 @@ Close a door (c)
         previously locked doors will lock them again, although not as
         effectively as before.
 
-Jam a door (j) or Spike a door (S)
+Jam a door/Set a trap (j) or Spike a door/Set a trap (S)
+        Certain objects can be effectively used to set a trap that can
+        delay, injure or even kill monsters. This command allows you to
+        attempt to set a trap using any object. Some objects will only prove
+        to be a distraction to monsters, however the majority should injure
+        or apply spell effects against a monster. This ability is affected
+        by your disarm skill - in particular you can accidentally set off
+        an object while you are attempting to set a trap with that object,
+        should it be significantly more powerful than your abilities.
         Many monsters can simply open closed doors, and can eventually
         get through a locked door.  You may therefore occasionally want
         to jam a door shut with iron spikes.  Each spike used on the door
         will make it harder to bash down the door, up to a certain limit.
-        Smaller monsters are less able to bash down doors.  In order to
-        use this command, you must be carrying iron spikes.  This command
-        requires a direction, and takes some energy.
+        Smaller monsters are less able to bash down doors. You can also use
+        spikes to make pit traps more dangerous.
+        This command may take a count, requires a direction, and takes some 
+        energy.
 
 Bash a door (B) or Force a door (f)
         This command allows you to bash down jammed doors.  Your bashing
@@ -394,7 +403,20 @@ Read a scroll (r)
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.  This command takes some energy.
- 
+
+Apply rune (y) or Engrave a rune (^G)
+        Apply a rune from a runestone to an object. Applying runes to
+        objects can have various effects, from transforming an object to a 
+        type more closely associated with that rune, to enchanting the object
+        with a magical effect or even an ego power. More runes applied to an
+        object will have additional, and often cumulative effects, up to 4 or 5
+        runes on most objects. Current applying a rune to another rune acts like
+        other objects: in a future version this will cause a magical effect.
+        If an object cannot have a rune applied to it, it is likely to be an
+        artifact or powerful ego item of some kind. Note that not all runes
+        have a beneficial effect, but applying more than one rune will have
+        additional effects.
+
 Inscribe an object ({) 
         This command inscribes a string on an object.  The inscription is
         displayed inside curly braces after the object description.  The

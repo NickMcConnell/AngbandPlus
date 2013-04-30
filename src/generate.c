@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -888,14 +888,10 @@ static void build_terrain(int y, int x, int feat)
 	if (f_info[newfeat].flags3 & (FF3_TREE))
 	{
 		if (k<=85) newfeat = oldfeat;
-		if ((k > 85) && (k <= 92)) newfeat = FEAT_TREE;
-		if ((k > 91) && (k <= 92)) newfeat = FEAT_TREE_BROKEN;
-		if ((k > 92) && (k <= 93)) newfeat = FEAT_TREE_HIDE;
 	}
 
-	switch (newfeat) {
-
-
+	switch (newfeat)
+	{
 		case FEAT_BUSH:
 		case FEAT_BUSH_HURT:
 		case FEAT_BUSH_FOOD:
@@ -996,6 +992,42 @@ static void build_terrain(int y, int x, int feat)
 	/* Set the feature if we have a change */
 	if (newfeat != oldfeat) cave_set_feat(y,x,newfeat);
 
+	/* Change reference */
+        f2_ptr = &f_info[newfeat];
+
+	/*
+	 * Handle creation of big trees.
+       *
+       * Note hack to minimise number of calls to rand_int.
+	 */
+	if (f_info[newfeat].flags3 & (FF3_TREE))
+	{
+            int k = 0;
+		int i;
+
+            k = rand_int(2<<26);
+
+		/* Place branches over trunk */
+            if (k & (0xFF000000)) cave_alter_feat(y,x,FS_TREE);
+
+		for (i = 0; i < 8; i++)
+		{
+			int yy,xx;
+
+			yy = y + ddy_ddd[i];
+			xx = x + ddx_ddd[i];
+	
+			/* Ignore annoying locations */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+			/* Ignore if not placing a tree */
+			/* Hack -- we make it 150% as likely to place branches on non-diagonal locations */
+                  if (!(k & (2 << i)) && !(k & (2 << (i+8) )) && !((i<4) && (k & (2 << (i+16)))) ) continue;
+
+			/* Place branches */
+			cave_alter_feat(yy,xx,FS_TREE);
+		}
+	}
 }
 
 /*
@@ -4156,6 +4188,8 @@ static void cave_gen(void)
 
 	int by, bx;
 
+	int base;
+
 	bool destroyed = FALSE;
 
 	bool battlefield = FALSE;
@@ -4177,27 +4211,39 @@ static void cave_gen(void)
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-	/* Hack -- Start with basic granite */
+
+
+	/* Create air */
+	if ((zone->tower) && (p_ptr->depth > min_depth(p_ptr->dungeon)))
+	{
+		base = FEAT_CHASM;
+	}
+	/* Create ground */
+	else if (surface)
+	{
+		base = FEAT_GROUND;
+	}
+	/* Create granite wall */
+	else
+	{
+		base = FEAT_WALL_EXTRA;
+	}
+
+	/* Hack -- Start with base */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
-			/* Create air */
-			if ((zone->tower) && (p_ptr->depth > min_depth(p_ptr->dungeon))) cave_set_feat(y,x,FEAT_CHASM);
+			cave_set_feat(y,x,base);
+		}
+	}
 
-			/* Create ground */
-			else if (surface)
-			{
-				cave_set_feat(y,x,FEAT_GROUND);
-				if (zone->fill) build_terrain(y,x,zone->fill);
-			}
-
-			/* Create granite wall */
-			else
-			{
-				cave_set_feat(y,x,FEAT_WALL_EXTRA);
-				if (zone->fill) build_terrain(y,x,zone->fill);
-			}
+	/* Hack -- Build terrain */
+	if (zone->fill) for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			build_terrain(y,x,zone->fill);
 		}
 	}
 
@@ -4752,7 +4798,7 @@ static void cave_gen(void)
 			y = rand_int(DUNGEON_HGT);
 			x = rand_int(DUNGEON_WID);
 
-			if (place_monster_here(y, x, zone->guard)) break;
+			if (place_monster_here(y, x, zone->guard) > 0) break;
 		}
 
 		/* Place the questor */
@@ -5280,6 +5326,3 @@ void generate_cave(void)
 	old_turn = turn;
 
 }
-
-
-

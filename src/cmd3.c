@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -267,7 +267,7 @@ void do_cmd_wield(void)
 	if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[slot], FALSE, 0);
+		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
@@ -280,7 +280,7 @@ void do_cmd_wield(void)
 	else if ((item >= INVEN_WIELD) && cursed_p(&inventory[item]) && (item != INVEN_BELT))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[item], FALSE, 0);
+		object_desc(o_name, sizeof(o_name), &inventory[item], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
@@ -423,7 +423,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
@@ -690,7 +690,7 @@ void do_cmd_destroy(void)
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
@@ -744,6 +744,17 @@ void do_cmd_destroy(void)
 		/* Done */
 		return;
 
+	}
+
+	/* Cursed equipments cannot be destroyed */
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	{
+		/* Message */
+		msg_format("The %s you are %s appears to be cursed.",
+		           o_name, describe_use(item));
+
+		/* Done */
+		return;
 	}
 
 	/* Message */
@@ -822,7 +833,7 @@ void do_cmd_observe(void)
 	}
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);
@@ -979,7 +990,7 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("Inscribing %s.", o_name);
@@ -1805,6 +1816,7 @@ static void roff_top(int r_idx)
 	/* Append the "optional" attr/char info */
 	Term_addstr(-1, TERM_WHITE, "/('");
 	Term_addch(a2, c2);
+	if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
 	Term_addstr(-1, TERM_WHITE, "'):");
 }
 

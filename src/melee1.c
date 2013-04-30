@@ -1,13 +1,13 @@
 /* File: melee1.c */
 
 /*
- * Cofxright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this cofxright and statement
  * are included in all such copies.  Other cofxrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -19,39 +19,44 @@
 
 
 /*
- * Critical blow.  All hits that do 95% of total possible damage,
- * and which also do at least 20 damage, or, sometimes, N damage.
- * This is used only to determine "cuts" and "stuns".
+ * Critical blows by monsters can inflict cuts and stuns.
  */
-static int monster_critical(int dice, int sides, int dam)
+static int monster_critical(int dice, int sides, int dam, int effect)
 {
 	int max = 0;
+	int bonus;
 	int total = dice * sides;
 
-	/* Must do at least 95% of perfect */
-	if (dam < total * 19 / 20) return (0);
 
-	/* Weak blows rarely work */
-	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
+	/* Special case -- wounding/battering attack */
+	if ((effect == GF_WOUND) || (effect == GF_BATTER))
+	{
+		/* Must do at least 70% of perfect */
+		if (dam < total * 7 / 10) return (0);
+
+		max = 1;
+	}
+
+	/* Standard attack */
+	else
+	{
+		/* Weak blows rarely work */
+		if ((rand_int(20) >= dam) || (!rand_int(3))) return (0);
+
+		/* Must do at least 90% of perfect */
+		if (dam < total * 9 / 10) return (0);
+	}
+
 
 	/* Perfect damage */
 	if (dam == total) max++;
 
-	/* Super-charge */
-	if (dam >= 20)
-	{
-		while (rand_int(100) < 2) max++;
-	}
+	/* Get bonus to critical damage (never greater than 6) */
+	bonus = MIN(6, dam / 8);
 
-	/* Critical damage */
-	if (dam > 45) return (6 + max);
-	if (dam > 33) return (5 + max);
-	if (dam > 25) return (4 + max);
-	if (dam > 18) return (3 + max);
-	if (dam > 11) return (2 + max);
-	return (1 + max);
+	/* Critical damage  (never greater than 6 + max) */
+	return (randint(bonus) + max);
 }
-
 
 
 
@@ -61,9 +66,11 @@ static int monster_critical(int dice, int sides, int dam)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level)
+static int check_hit(int power, int level, int m_idx)
 {
 	int i, k, ac;
+
+	monster_type *m_ptr = &m_list[m_idx];
 
 	/* Percentile dice */
 	k = rand_int(100);
@@ -71,8 +78,8 @@ static int check_hit(int power, int level)
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
 
-	/* Calculate the "attack quality" */
-	i = (power + (level * 3));
+	/* Calculate the "attack quality".  Stunned monsters are hindered. */
+	i = (power + (m_ptr->stunned ? level * 2 : level * 3));
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -88,10 +95,9 @@ static int check_hit(int power, int level)
 		if(room_info[dun_room[by][bx]].flags & (ROOM_CURSED))
 		{
 			/* Halve the effective armor class */
-			ac /=2;
+			ac /= 2;
 		}
 	}							    
-
 
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
@@ -99,7 +105,6 @@ static int check_hit(int power, int level)
 	/* Assume miss */
 	return (FALSE);
 }
-
 
 
 /*
@@ -143,7 +148,7 @@ bool make_attack_normal(int m_idx)
 	int ap_cnt;
 
 	int tmp, ac, rlev;
-	int do_cut, do_stun;
+	int do_cut, do_stun, touched;
 
 	char m_name[80];
 
@@ -198,34 +203,45 @@ bool make_attack_normal(int m_idx)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
 		/* Skip 'tricky' attacks */
-		if ((method == RBM_SHOOT) ||
-		       (method == RBM_TRAP) ||
-			(method == RBM_AURA)) continue;
+		if (method > RBM_MAX_NORMAL) continue;
 
-		/* Extract the attack "power" */
+		/* Assume no cut or stun or touched */
+		do_cut = do_stun = touched = 0;
+
+		/* Extract the attack "power". Elemental attacks upgraded. */
 		switch (effect)
 		{
 			case GF_HURT: power = 60; break;
-			case GF_POIS:	power =  5; break;
+			case GF_WOUND: power = 60; break;
+			case GF_BATTER: power = 60; break;
+			case GF_SHATTER: power = 60; break;
+
 			case GF_UN_BONUS:	power = 20; break;
 			case GF_UN_POWER:	power = 15; break;
+			case GF_LOSE_MANA: power = 45; break;
 			case GF_EAT_GOLD:	power =  5; break;
 			case GF_EAT_ITEM:	power =  5; break;
-			case GF_EAT_FOOD:	power =  5; break;
-			case GF_EAT_LITE:	power =  5; break;
-			case GF_ACID:		power =  0; break;
-			case GF_ELEC:		power = 10; break;
-			case GF_FIRE:		power = 10; break;
-			case GF_COLD:		power = 10; break;
-			case GF_BLIND:		power =  2; break;
+			case GF_EAT_FOOD:	power =  45; break;
+			case GF_EAT_LITE:	power =  45; break;
+			case GF_HUNGER: power = 45; break;
+
+			case GF_POIS:	power =  25; break;
+			case GF_ACID:		power = 50; break;
+			case GF_ELEC:		power = 50; break;
+			case GF_FIRE:		power = 50; break;
+			case GF_COLD:		power = 50; break;
+
+			case GF_BLIND:	power =  5; break;
 			case GF_CONFUSION:	power = 10; break;
 			case GF_TERRIFY:	power = 10; break;
-			case GF_PARALYZE:	power =  2; break;
+			case GF_PARALYZE:	power =  5; break;
+			case GF_HALLU:     power = 10; break;
+			case GF_DISEASE:	power = 10; break;
+
 			case GF_LOSE_STR:	power =  0; break;
 			case GF_LOSE_DEX:	power =  0; break;
 			case GF_LOSE_CON:	power =  0; break;
@@ -233,22 +249,218 @@ bool make_attack_normal(int m_idx)
 			case GF_LOSE_WIS:	power =  0; break;
 			case GF_LOSE_CHR:	power =  0; break;
 			case GF_LOSE_ALL:	power =  2; break;
-			case GF_SHATTER:	power = 60; break;
+
 			case GF_EXP_10:	power =  5; break;
 			case GF_EXP_20:	power =  5; break;
 			case GF_EXP_40:	power =  5; break;
 			case GF_EXP_80:	power =  5; break;
-			case GF_HALLU:     power = 10; break;
 
 			/* Need to add extra flavours in here */
 		}
 
+		/* Roll out the damage */
+		damage = damroll(d_dice, d_side);
+
+		/* Describe the attack method */
+		switch (method)
+		{
+			case RBM_HIT:
+			{
+				/* Handle special effect types */
+				if (effect == GF_WOUND)
+				{
+					if      (damage >= 30) act = "gouges you";
+					else if (damage >= 20) act = "slashes you";
+					else if (damage >= 5)  act = "cuts you";
+					else                act = "scratches you";
+
+					/* Usually don't stun */
+					if (!rand_int(5)) do_stun = 1;
+
+					do_cut = touched = 1;
+				}
+				else if (effect == GF_BATTER)
+				{
+					if      (damage >= 30) act = "bludgeons you";
+					else if (damage >= 20) act = "batters you";
+					else if (damage >= 5)  act = "bashes you";
+					else                act = "hits you";
+
+					/* Usually don't cut */
+					if (!rand_int(5)) do_cut = 1;
+
+					do_stun = touched = 1;
+				}
+				else
+				{
+					act = "hits you";
+					do_cut = do_stun = touched = 1;
+				}
+
+				break;
+			}
+
+			case RBM_TOUCH:
+			{
+				act = "touches you";
+				touched = 1;
+				break;
+			}
+
+			case RBM_PUNCH:
+			{
+				act = "punches you";
+				do_stun = touched = 1;
+				break;
+			}
+
+			case RBM_KICK:
+			{
+				act = "kicks you";
+				do_stun = touched = 1;
+				break;
+			}
+
+			case RBM_CLAW:
+			{
+				if      (damage >= 25) act = "slashes you";
+				else if (damage >=  5) act = "claws you";
+				else                act = "scratches you";
+				do_cut = touched = 1;
+				break;
+			}
+
+			case RBM_BITE:
+			{
+				if (damage >= 5) act = "bites you";
+				else          act = "nips you";
+				do_cut = touched = 1;
+				break;
+			}
+
+			case RBM_PECK:
+			{
+				act = "pecks you";
+				do_stun = touched = 1;
+				break;
+			}
+
+			case RBM_STING:
+			{
+				act = "stings you";
+				touched = 1;
+				break;
+			}
+
+			case RBM_VOMIT:
+			{
+				act = "vomits on you";
+				touched = 1;
+				break;
+			}
+
+			case RBM_BUTT:
+			{
+				if (damage >= rand_range(10, 20)) act = "tramples you";
+				else                           act = "butts you";
+				do_stun = touched = 1;
+				break;
+			}
+
+			case RBM_CRUSH:
+			{
+				if (damage >= 10) act = "crushes you";
+				else           act = "squeezes you";
+				do_stun = touched = 1;
+				break;
+			}
+
+			case RBM_ENGULF:
+			{
+				if (damage >= randint(50)) act = "envelops you";
+				else                    act = "engulfs you";
+				touched = 1;
+				break;
+			}
+
+			case RBM_CRAWL:
+			{
+				act = "crawls on you";
+				touched = 1;
+				break;
+			}
+
+			case RBM_DROOL:
+			{
+				act = "drools on you";
+				break;
+			}
+
+			case RBM_SLIME:
+			{
+				act = "slimes you!";
+				break;
+			}
+
+			case RBM_SPIT:
+			{
+				act = "spits on you";
+				break;
+			}
+
+			case RBM_GAZE:
+			{
+				if      (damage >= rand_range(20, 30))
+					act = "glares at you terribly";
+				else if (damage >= rand_range(5, 30))
+					act = "gazes upon you";
+				else act = "gazes at you";
+				break;
+			}
+
+			case RBM_WAIL:
+			{
+				act = "wails horribly";
+				break;
+			}
+
+			case RBM_SPORE:
+			{
+				act = "releases a cloud of spores";
+				break;
+			}
+
+			case RBM_LASH:
+			{
+				act = "lashes you with a whip";
+				touched = 1;
+				break;
+			}
+
+			case RBM_BEG:
+			{
+				act = "begs you for money";
+				break;
+			}
+
+			case RBM_INSULT:
+			{
+				act = desc_insult[rand_int(8)];
+				break;
+			}
+
+			case RBM_MOAN:
+			{
+				act = desc_moan[rand_int(4)];
+				break;
+			}
+		}
+
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || check_hit(power, rlev, m_idx))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
-
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
@@ -270,173 +482,14 @@ bool make_attack_normal(int m_idx)
 			}
 
 
-			/* Assume no cut or stun */
-			do_cut = do_stun = 0;
-
-			/* Describe the attack method */
-			switch (method)
-			{
-				case RBM_HIT:
-				{
-					act = "hits you.";
-					do_cut = do_stun = 1;
-					break;
-				}
-
-				case RBM_TOUCH:
-				{
-					act = "touches you.";
-					break;
-				}
-
-				case RBM_PUNCH:
-				{
-					act = "punches you.";
-					do_stun = 1;
-					break;
-				}
-
-				case RBM_KICK:
-				{
-					act = "kicks you.";
-					do_stun = 1;
-					break;
-				}
-
-				case RBM_CLAW:
-				{
-					act = "claws you.";
-					do_cut = 1;
-					break;
-				}
-
-				case RBM_BITE:
-				{
-					act = "bites you.";
-					do_cut = 1;
-					break;
-				}
-
-				case RBM_STING:
-				{
-					act = "stings you.";
-					break;
-				}
-
-				case RBM_VOMIT:
-				{
-					act = "vomits on you.";
-					break;
-				}
-
-				case RBM_BUTT:
-				{
-					act = "butts you.";
-					do_stun = 1;
-					break;
-				}
-
-				case RBM_CRUSH:
-				{
-					act = "crushes you.";
-					do_stun = 1;
-					break;
-				}
-
-				case RBM_ENGULF:
-				{
-					act = "engulfs you.";
-					break;
-				}
-
-				case RBM_XXX2:
-				{
-					act = "XXX2's you.";
-					break;
-				}
-
-				case RBM_CRAWL:
-				{
-					act = "crawls on you.";
-					break;
-				}
-
-				case RBM_DROOL:
-				{
-					act = "drools on you.";
-					break;
-				}
-
-				case RBM_SPIT:
-				{
-					act = "spits on you.";
-					break;
-				}
-
-				case RBM_XXX3:
-				{
-					act = "XXX3's on you.";
-					break;
-				}
-
-				case RBM_GAZE:
-				{
-					act = "gazes at you.";
-					break;
-				}
-
-				case RBM_WAIL:
-				{
-					act = "wails at you.";
-					break;
-				}
-
-				case RBM_SPORE:
-				{
-					act = "releases spores at you.";
-					break;
-				}
-
-				case RBM_XXX4:
-				{
-					act = "projects XXX4's at you.";
-					break;
-				}
-
-				case RBM_BEG:
-				{
-					act = "begs you for money.";
-					break;
-				}
-
-				case RBM_INSULT:
-				{
-					act = desc_insult[rand_int(8)];
-					break;
-				}
-
-				case RBM_MOAN:
-				{
-					act = desc_moan[rand_int(4)];
-					break;
-				}
-
-				case RBM_XXX5:
-				{
-					act = "XXX5's you.";
-					break;
-				}
-			}
-
 			/* Message */
-			if (act) msg_format("%^s %s", m_name, act);
-
-
-			/* Hack -- assume all attacks are obvious */
-			obvious = TRUE;
-
-			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
+			if (act)
+			{
+				if (damage > p_ptr->chp / 3)
+					msg_format("%^s %s!", m_name, act);
+				else
+					msg_format("%^s %s.", m_name, act);
+			}
 
 			/* Check for usage */
 			if (rand_int(100)<damage)
@@ -455,10 +508,18 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Object used? */
-				object_usage(INVEN_WIELD);
+				object_usage(slot);
 			}
-			/* New result routine */
-			project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
+
+			if (effect)
+			{
+				/* New result routine */
+				obvious = project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
+			}
+			else
+			{
+				obvious = TRUE;
+			}
 
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)
@@ -482,7 +543,7 @@ bool make_attack_normal(int m_idx)
 				int k;
 
 				/* Critical hit (zero if non-critical) */
-				tmp = monster_critical(d_dice, d_side, damage);
+				tmp = monster_critical(d_dice, d_side, damage, effect);
 
 				/* Roll for damage */
 				switch (tmp)
@@ -507,19 +568,19 @@ bool make_attack_normal(int m_idx)
 				int k;
 
 				/* Critical hit (zero if non-critical) */
-				tmp = monster_critical(d_dice, d_side, damage);
+				tmp = monster_critical(d_dice, d_side, damage, effect);
 
 				/* Roll for damage */
 				switch (tmp)
 				{
 					case 0: k = 0; break;
 					case 1: k = randint(5); break;
-					case 2: k = randint(10) + 10; break;
-					case 3: k = randint(20) + 20; break;
-					case 4: k = randint(30) + 30; break;
-					case 5: k = randint(40) + 40; break;
-					case 6: k = 100; break;
-					default: k = 200; break;
+					case 2: k = randint(8) + 8; break;
+					case 3: k = randint(15) + 15; break;
+					case 4: k = randint(25) + 25; break;
+					case 5: k = randint(35) + 35; break;
+					case 6: k = randint(45) + 45; break;
+					default: k = 100; break;
 				}
 
 				/* Apply the stun */
@@ -528,34 +589,16 @@ bool make_attack_normal(int m_idx)
 		}
 
 		/* Monster missed player */
-		else
+		else if (touched)
 		{
-			/* Analyze failed attacks */
-			switch (method)
+			/* Visible monsters */
+			if (m_ptr->ml)
 			{
-				case RBM_HIT:
-				case RBM_TOUCH:
-				case RBM_PUNCH:
-				case RBM_KICK:
-				case RBM_CLAW:
-				case RBM_BITE:
-				case RBM_STING:
-				case RBM_BUTT:
-				case RBM_CRUSH:
-				case RBM_ENGULF:
-				case RBM_XXX2:
+				/* Disturbing */
+				disturb(1, 0);
 
-				/* Visible monsters */
-				if (m_ptr->ml)
-				{
-					/* Disturbing */
-					disturb(1, 0);
-
-					/* Message */
-					msg_format("%^s misses you.", m_name);
-				}
-
-				break;
+				/* Message */
+				msg_format("%^s misses you.", m_name);
 			}
 		}
 
@@ -594,6 +637,522 @@ bool make_attack_normal(int m_idx)
 	/* Assume we attacked */
 	return (TRUE);
 }
+
+
+
+/*
+ * Handle monster hitting a real trap.
+ */
+void mon_hit_trap(int m_idx, int y, int x)
+{
+	feature_type *f_ptr;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	int feat = cave_feat[y][x];
+
+	bool fear;
+
+	/* Option */
+	if (!variant_hit_traps) return;
+
+	/* Hack --- don't activate unknown invisible traps */
+	if (cave_feat[y][x] == FEAT_INVIS) return;
+
+	/* Get feature */
+	f_ptr = &f_info[cave_feat[y][x]];
+
+	/* Hack --- trapped doors */
+	/* XXX XXX Dangerous */
+	while (!(f_ptr->spell) && !(f_ptr->blow.method) && (f_ptr->flags1 & (FF1_TRAP)))
+	{
+		pick_trap(y,x);
+
+		/* Error */
+		if (cave_feat[y][x] == feat) break;
+
+		feat = cave_feat[y][x];
+
+		/* Get feature */
+		f_ptr = &f_info[feat];
+
+	}
+
+	/* Use covered or bridged if necessary */
+	if ((f_ptr->flags2 & (FF2_COVERED)) || (f_ptr->flags2 & (FF2_BRIDGED)))
+	{
+		f_ptr = &f_info[f_ptr->mimic];
+	}
+
+	/* Hack -- monster falls onto trap */
+	if ((m_ptr->fy!=y)|| (m_ptr->fx !=x))
+	{
+		/* Move monster */
+		monster_swap(m_ptr->fy, m_ptr->fx, y, x);
+	}
+
+	/* Apply the object */
+	if ((cave_o_idx[y][x]) && (f_ptr->flags1 & (FF1_HIT_TRAP)))
+	{
+		object_type *o_ptr = &o_list[cave_o_idx[y][x]];
+
+		char o_name[80];
+
+		int power = 0;
+
+		switch (o_ptr->tval)
+		{
+			case TV_BOW:
+			{
+				object_type *j_ptr;
+				u32b f1,f2,f3;
+
+				int i, shots = 1;
+
+				/* Get bow */
+				j_ptr = o_ptr;
+
+				/* Get bow flags */
+				object_flags(o_ptr,&f1,&f2,&f3);
+
+				/* Apply extra shots */
+				if (f1 & (TR1_SHOTS)) shots += j_ptr->pval;
+
+				/* Test for hit */
+				for (i = 0; i < shots; i++)
+				{
+					if (j_ptr->next_o_idx)
+					{
+						int ammo = j_ptr->next_o_idx;
+						object_type *i_ptr;
+						object_type object_type_body;
+
+						/* Use ammo instead of bow */
+						o_ptr = &o_list[ammo];
+
+						/* Describe ammo */
+						object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+
+						if ((ammo) && (test_hit_fire((j_ptr->to_h + o_ptr->to_h)* BTH_PLUS_ADJ + f_ptr->power,  r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), TRUE)))
+						{
+							int k, mult;
+
+							switch (j_ptr->sval)
+							{
+								case SV_SLING:
+								case SV_SHORT_BOW:
+								mult = 2;
+								break;
+								case SV_LONG_BOW:
+								case SV_LIGHT_XBOW:
+									mult = 3;
+									break;
+								case SV_HEAVY_XBOW:
+									mult = 4;
+									break;
+								default:
+									mult = 1;
+									break;
+							}
+
+							/* Apply extra might */
+							if (f1 & (TR1_MIGHT)) mult += j_ptr->pval;
+
+							k = damroll(o_ptr->dd, o_ptr->ds);
+							k *= mult;
+
+							k = tot_dam_aux(o_ptr, k, m_ptr);
+
+							k = critical_shot(o_ptr->weight, o_ptr->to_h + j_ptr->to_h, k);
+							k += o_ptr->to_d + j_ptr->to_d;
+
+							/* No negative damage */
+							if (k < 0) k = 0;
+
+							/* Trap description */
+							msg_format("%^s hits you.",o_name);
+
+							/* Damage, check for fear and death */
+							(void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+
+						}
+						else
+						{
+							/* Trap description */
+							msg_format("%^s narrowly misses you.",o_name);
+						}
+
+						/* Get local object */
+						i_ptr = &object_type_body;
+
+						/* Obtain a local object */
+						object_copy(i_ptr, o_ptr);
+
+						/* Modify quantity */
+						i_ptr->number = 1;
+
+						/* Drop nearby - some chance of breakage */
+						drop_near(i_ptr,y,x,breakage_chance(i_ptr));
+
+						/* Decrease the item */
+						floor_item_increase(ammo, -1);
+						floor_item_optimize(ammo);
+
+						break;
+					}
+					else
+					{
+						/* Disarm */
+						cave_alter_feat(y,x,FS_DISARM);
+					}
+				}
+			}
+
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_HAFTED:
+			case TV_SWORD:
+			case TV_POLEARM:
+			{
+				object_type *i_ptr;
+				object_type object_type_body;
+
+				/* Describe ammo */
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+
+				/* Test for hit */
+				if (test_hit_norm(o_ptr->to_h * BTH_PLUS_ADJ + f_ptr->power, r_ptr->ac, TRUE))
+				{
+					int k;
+
+					k = damroll(o_ptr->dd, o_ptr->ds);
+
+					k = tot_dam_aux(o_ptr, k, m_ptr);
+
+					k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+					k += o_ptr->to_d;
+
+					/* Armour reduces total damage */
+					k -= (k * ((p_ptr->ac < 150) ? p_ptr->ac : 150) / 250);
+
+					/* No negative damage */
+					if (k < 0) k = 0;
+
+					/* Trap description */
+					msg_format("%^s hits you.",o_name);
+
+					/* Damage, check for fear and death */
+					(void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+
+				}
+				else
+				{
+					/* Trap description */
+					msg_format("%^s narrowly misses you.",o_name);					
+				}
+
+				/* Get local object */
+				i_ptr = &object_type_body;
+
+				/* Obtain a local object */
+				object_copy(i_ptr, o_ptr);
+
+				/* Modify quantity */
+				i_ptr->number = 1;
+
+				/* Drop nearby - some chance of breakage */
+				drop_near(i_ptr,y,x,breakage_chance(i_ptr));
+
+				/* Decrease the item */
+				floor_item_increase(cave_o_idx[y][x], -1);
+				floor_item_optimize(cave_o_idx[y][x]);
+
+				/* Disarm if runs out */
+				if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
+
+				break;
+			}
+
+			case TV_WAND:
+			case TV_STAFF:
+			{
+				if (o_ptr->pval > 0)
+				{
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
+
+					/* XXX Hack -- new unstacking code */
+					o_ptr->stackc++;
+
+					/* No spare charges */	
+					if (o_ptr->stackc >= o_ptr->number)
+					{
+						/* Use a charge off the stack */
+						o_ptr->pval--;
+
+						/* Reset the stack count */
+						o_ptr->stackc = 0;
+					}
+
+					/* XXX Hack -- unstack if necessary */
+					if ((o_ptr->number > 1) &&
+					((!variant_pval_stacks) || 
+					((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
+					  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+					  (o_ptr->stackc != 1) && (o_ptr->pval > 2)))))
+					{
+						object_type *i_ptr;
+						object_type object_type_body;
+
+						/* Get local object */
+						i_ptr = &object_type_body;
+
+						/* Obtain a local object */
+						object_copy(i_ptr, o_ptr);
+
+						/* Modify quantity */
+						i_ptr->number = 1;
+
+						/* Reset stack counter */
+						i_ptr->stackc = 0;
+ 
+				 		/* Unstack the used item */
+				 		o_ptr->number--;
+
+						/* Reduce the charges on the new item */
+						if (o_ptr->stackc > 1)
+						{
+							i_ptr->pval-=2;
+							o_ptr->stackc--;
+						}
+						else if (!o_ptr->stackc)
+						{
+							i_ptr->pval--;
+							o_ptr->pval++;
+							o_ptr->stackc = o_ptr->number-1;
+						}
+
+						(void)floor_carry(y,x,i_ptr);
+					}
+				}
+				else
+				{
+					/* Disarm if runs out */
+					cave_alter_feat(y,x,FS_DISARM);
+				}
+
+				break;
+			}
+
+			case TV_ROD:
+			case TV_DRAG_ARMOR:
+			{
+				if (!((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))))
+				{
+					int tmpval;
+
+					/* Store pval */
+					tmpval = o_ptr->timeout;
+
+					/* Time rod out */
+					o_ptr->timeout = o_ptr->pval;
+
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
+
+					/* Has a power */
+					/* Hack -- check if we are stacking rods */
+					if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+					{
+						/* Hack -- one more rod charging */
+						if (o_ptr->timeout) o_ptr->stackc++;
+
+						/* Reset stack count */
+						if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+						/* Hack -- always use maximum timeout */
+						if (tmpval > o_ptr->timeout) o_ptr->timeout = tmpval;
+					}
+
+					/* XXX Hack -- unstack if necessary */
+					if ((o_ptr->number > 1) && (o_ptr->timeout > 0))
+					{
+						object_type *i_ptr;
+						object_type object_type_body;
+
+						/* Get local object */
+						i_ptr = &object_type_body;
+
+						/* Obtain a local object */
+						object_copy(i_ptr, o_ptr);
+
+						/* Modify quantity */
+						i_ptr->number = 1;
+
+						/* Clear stack counter */
+						i_ptr->stackc = 0;
+
+						/* Restore "charge" */
+						o_ptr->timeout = tmpval;
+
+						/* Unstack the used item */
+						o_ptr->number--;
+
+						/* Reset the stack if required */
+						if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+						(void)floor_carry(y,x,i_ptr);
+					}
+				}
+				break;
+			}
+
+			case TV_POTION:
+			case TV_SCROLL:
+			case TV_FLASK:
+			case TV_FOOD:
+			{
+				/* Hack -- boring food */
+				if ((o_ptr->tval == TV_FOOD) && (o_ptr->sval >= SV_FOOD_MIN_FOOD))
+				{
+					/* Disarm */
+					cave_alter_feat(y,x,FS_DISARM);
+				}
+				else
+				{
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
+
+					/* Decrease the item */
+					floor_item_increase(cave_o_idx[y][x], -1);
+					floor_item_optimize(cave_o_idx[y][x]);
+
+					/* Disarm if runs out */
+					if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
+				}
+
+				break;
+			}
+
+			case TV_RUNESTONE:
+			{
+				u32b runes = p_ptr->cur_runes;
+
+				int num = 0;
+				s16b book[26];
+
+				/* Hack -- use current rune */
+				p_ptr->cur_runes = (2 << (o_ptr->sval-1));
+
+				/* Fill the book with spells */
+				fill_book(o_ptr,book,&num);
+
+				/* Unhack */
+				p_ptr->cur_runes = runes;
+
+				/* Get a power */
+				power = book[rand_int(num)];
+
+				/* Decrease the item */
+				floor_item_increase(cave_o_idx[y][x], -1);
+				floor_item_optimize(cave_o_idx[y][x]);
+
+				/* Disarm if runs out */
+				if (!cave_o_idx[y][x]) cave_alter_feat(y,x,FS_DISARM);
+
+				break;
+			}
+
+			default:
+			{
+				/* Disarm */
+				cave_alter_feat(y,x,FS_DISARM);
+
+				break;
+			}
+		}
+
+		/* Has a power */
+		if (power > 0)
+		{
+			spell_type *s_ptr = &s_info[power];
+
+			int ap_cnt;
+
+			/* Object is used */
+			if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
+
+			/* Scan through all four blows */
+			for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+			{
+				int damage = 0;
+
+				/* Extract the attack infomation */
+				int effect = s_ptr->blow[ap_cnt].effect;
+				int method = s_ptr->blow[ap_cnt].method;
+				int d_dice = s_ptr->blow[ap_cnt].d_dice;
+				int d_side = s_ptr->blow[ap_cnt].d_side;
+				int d_plus = s_ptr->blow[ap_cnt].d_plus;
+
+				/* Hack -- no more attacks */
+				if (!method) break;
+
+				/* Mega hack -- dispel evil/undead objects */
+				if (!d_side)
+				{
+					d_plus += 25 * d_dice;
+				}
+
+				/* Roll out the damage */
+				if ((d_dice) && (d_side))
+				{
+					damage = damroll(d_dice, d_side) + d_plus;
+				}
+				else
+				{
+					damage = d_plus;
+				}
+
+				(void)project_m(0,0,y,x,damage, effect);
+				(void)project_f(0,0,y,x,damage, effect);
+			}
+		}
+	}
+
+	/* Regular traps */
+	else
+	{
+		if (f_ptr->spell)
+		{
+	      		make_attack_spell_aux(0,y,x,f_ptr->spell);
+		}
+		else if (f_ptr->blow.method)
+		{
+			int damage = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice);
+   
+			/* Apply the blow */
+			project_m(0, 0, y, x, damage, f_ptr->blow.effect);
+		}
+
+		/* Get feature */
+		f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
+		if (f_ptr->flags1 & (FF1_HIT_TRAP))
+		{
+			/* Modify the location hit by the trap */
+			cave_alter_feat(y,x,FS_HIT_TRAP);
+		}
+		else if (f_ptr->flags1 & (FF1_SECRET))
+		{
+			/* Discover */
+			cave_alter_feat(y,x,FS_SECRET);
+		}
+	}
+}
+
+
+
 
 #if 0
 
@@ -1061,3 +1620,4 @@ void mon_run_step(int dir)
 
 
 #endif
+

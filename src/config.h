@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -184,7 +184,7 @@
 /*
  * OPTION: Compile in scripting support
  */
-#define USE_SCRIPT
+/* #define USE_SCRIPT */
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -508,7 +508,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"andrewdoull@hotmail.com"
 
 
 /*

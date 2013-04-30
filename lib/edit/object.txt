@@ -70,7 +70,7 @@
 
 # Version stamp (required)
 
-V:2.9.6
+V:3.0.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -82,121 +82,121 @@ G:&:w
 ##### Mushrooms #####
 
 N:1:Blindness
-G:,:d
+G:,:w
 I:80:1:500
 W:5:0:1:0
 A:5/1
 
 N:2:Paranoia
-G:,:d
+G:,:w
 I:80:2:500
 W:5:0:1:0
 A:5/1
 
 N:3:Confusion
-G:,:d
+G:,:w
 I:80:3:500
 W:5:0:1:0
 A:5/1
 
 N:4:Hallucination
-G:,:d
+G:,:w
 I:80:4:500
 W:10:0:1:0
 A:10/1
 
 N:5:Cure Poison
-G:,:d
+G:,:w
 I:80:12:500
 W:10:0:1:60
 A:10/1
 
 N:6:Cure Blindness
-G:,:d
+G:,:w
 I:80:13:500
 W:10:0:1:50
 A:10/1
 
 N:7:Cure Paranoia
-G:,:d
+G:,:w
 I:80:14:500
 W:10:0:1:25
 A:10/1
 
 N:8:Cure Confusion
-G:,:d
+G:,:w
 I:80:15:500
 W:10:0:1:50
 A:10/1
 
 N:9:Weakness
-G:,:d
+G:,:w
 I:80:6:500
 W:10:0:1:0
 A:10/1
 
 N:10:Unhealth
-G:,:d
+G:,:w
 I:80:10:500
 W:15:0:1:50
 A:15/1
 
 N:11:Restore Constitution
-G:,:d
+G:,:w
 I:80:18:500
 W:20:0:1:350
 A:20/1
 
 N:12:Restoring
-G:,:d
+G:,:w
 I:80:19:500
 W:20:0:1:1000
 A:20/8:30/4:40/1
 
 N:13:Stupidity
-G:,:d
+G:,:w
 I:80:8:500
 W:15:0:1:0
 A:15/1
 
 N:14:Naivety
-G:,:d
+G:,:w
 I:80:9:500
 W:15:0:1:0
 A:15/1
 
 N:15:Poison
-G:,:d
+G:,:w
 I:80:0:500
 W:5:0:1:0
 A:5/1:5/1
 
 N:16:Sickness
-G:,:d
+G:,:w
 I:80:7:500
 W:10:0:1:0
 A:10/1
 
 N:17:Paralysis
-G:,:d
+G:,:w
 I:80:5:500
 W:20:0:1:0
 A:20/1
 
 N:18:Restore Strength
-G:,:d
+G:,:w
 I:80:17:500
 W:20:0:1:350
 A:20/1
 
 N:19:Disease
-G:,:d
+G:,:w
 I:80:11:500
 W:20:0:1:50
 A:20/1
 
 N:20:Cure Serious Wounds
-G:,:d
+G:,:w
 I:80:16:500
 W:15:0:1:75
 A:15/1
@@ -246,7 +246,7 @@ W:0:0:10:2
 A:0/2
 
 N:28:Mana
-G:,:d
+G:,:w
 I:80:20:500
 W:10:0:1:75
 A:15/1
@@ -284,13 +284,13 @@ A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 
-N:33:& Tulwar~
+N:33:& Sacrificial Dagger~
 G:|:W
 I:23:15:0
-W:5:0:100:200
-A:5/1
-P:0:2d4:0:0:0
-F:SHOW_MODS
+W:20:0:12:10
+A:20/4
+P:0:2d4:5:5:0
+F:SHOW_MODS | BLESSED
 
 N:34:& Broad Sword~
 G:|:W
@@ -1068,7 +1068,7 @@ P:5:1d3:0:0:0
 ##### Rings #####
 
 N:132:Strength
-G:=:d
+G:=:w
 I:45:24:0
 W:30:0:2:500
 A:30/1
@@ -1076,7 +1076,7 @@ F:STR | SUST_STR | HIDE_TYPE
 Y:25:2
 
 N:133:Dexterity
-G:=:d
+G:=:w
 I:45:26:0
 W:30:0:2:500
 A:30/1
@@ -1084,7 +1084,7 @@ F:DEX | SUST_DEX | HIDE_TYPE
 Y:26:2
 
 N:134:Constitution
-G:=:d
+G:=:w
 I:45:27:0
 W:30:0:2:500
 A:30/1
@@ -1092,7 +1092,7 @@ F:CON | SUST_CON | HIDE_TYPE
 Y:24:2
 
 N:135:Intelligence
-G:=:d
+G:=:w
 I:45:25:0
 W:30:0:2:500
 A:30/1
@@ -1100,7 +1100,7 @@ F:INT | SUST_INT | HIDE_TYPE
 Y:17:2
 
 N:136:Speed
-G:=:d
+G:=:w
 I:45:31:0
 W:75:0:2:100000
 A:75/1
@@ -1108,7 +1108,7 @@ F:SPEED | HIDE_TYPE
 Y:27:2
 
 N:137:Searching
-G:=:d
+G:=:w
 I:45:23:0
 W:5:0:2:250
 A:5/1
@@ -1116,14 +1116,14 @@ F:SEARCH | HIDE_TYPE
 Y:12:1
 
 N:138:Teleportation
-G:=:d
+G:=:w
 I:45:4:0
 W:5:0:2:0
 A:5/1
 F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 
 N:139:Sustaining
-G:=:d
+G:=:w
 I:45:6:0
 W:50:0:2:20000
 A:50/4
@@ -1131,7 +1131,7 @@ F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | EASY_KNOW
 Y:20:3
 
 N:140:Resist Fire
-G:=:d
+G:=:w
 I:45:8:0
 W:10:0:2:250
 A:10/1
@@ -1139,7 +1139,7 @@ F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
 Y:13:1
 
 N:141:Resist Cold
-G:=:d
+G:=:w
 I:45:9:0
 W:10:0:2:250
 A:10/1
@@ -1147,7 +1147,7 @@ F:RES_COLD | IGNORE_COLD | EASY_KNOW
 Y:14:1
 
 N:142:Feather Falling
-G:=:d
+G:=:w
 I:45:7:0
 W:5:0:2:200
 A:5/1
@@ -1155,7 +1155,7 @@ F:FEATHER | EASY_KNOW
 Y:16:1
 
 N:143:Resist Poison
-G:=:d
+G:=:w
 I:45:20:0
 W:40:0:2:16000
 A:40/2
@@ -1163,22 +1163,22 @@ F:RES_POIS | EASY_KNOW
 Y:4:1
 
 N:144:Free Action
-G:=:d
+G:=:w
 I:45:21:0
-W:20:0:2:1500
-A:20/1
+W:15:0:2:500
+A:15/1
 F:FREE_ACT | EASY_KNOW
 Y:7:1
 
 N:145:Weakness
-G:=:d
+G:=:w
 I:45:2:-5
 W:5:0:2:0
 A:5/1
 F:LIGHT_CURSE | STR | HIDE_TYPE
 
 N:146:Flames
-G:=:d
+G:=:w
 I:45:18:50
 W:50:0:2:3000
 A:50/2
@@ -1187,7 +1187,7 @@ F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 Y:13:1
 
 N:147:Acid
-G:=:d
+G:=:w
 I:45:17:50
 W:50:0:2:3000
 A:50/2
@@ -1196,7 +1196,7 @@ F:RES_ACID | IGNORE_ACID | ACTIVATE
 Y:1:3
 
 N:148:Ice
-G:=:d
+G:=:w
 I:45:19:50
 W:50:0:2:3000
 A:50/2
@@ -1205,42 +1205,42 @@ F:RES_COLD | IGNORE_COLD | ACTIVATE
 Y:14:3
 
 N:149:Woe
-G:=:d
+G:=:w
 I:45:0:-5
 W:50:0:2:0
 A:50/1
 F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
 N:150:Stupidity
-G:=:d
+G:=:w
 I:45:3:-5
 W:5:0:2:0
 A:5/1
 F:LIGHT_CURSE | INT | HIDE_TYPE
 
 N:151:Damage
-G:=:d
+G:=:w
 I:45:29:0
-W:20:0:2:500
-A:20/1
+W:30:0:2:500
+A:30/1
 Y:23:2
 
 N:152:Accuracy
-G:=:d
+G:=:w
 I:45:28:0
-W:20:0:2:500
-A:20/1
+W:30:0:2:500
+A:30/1
 Y:2:2
 
 N:153:Protection
-G:=:d
+G:=:w
 I:45:16:0
-W:10:0:2:500
-A:10/1
+W:20:0:2:500
+A:20/1
 Y:20:1
 
 N:154:Aggravate Monster
-G:=:d
+G:=:w
 I:45:1:0
 W:5:0:2:0
 A:5/1
@@ -1248,63 +1248,63 @@ F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
 Y:15:1
 
 N:155:See Invisible
-G:=:d
+G:=:w
 I:45:22:0
-W:30:0:2:340
-A:30/1
+W:20:0:2:340
+A:20/1
 F:SEE_INVIS | EASY_KNOW
 Y:12:1
 
 N:156:Sustain Strength
-G:=:d
+G:=:w
 I:45:10:0
-W:20:0:2:750
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_STR | EASY_KNOW
 Y:25:1
 
 N:157:Sustain Intelligence
-G:=:d
+G:=:w
 I:45:11:0
-W:20:0:2:600
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_INT | EASY_KNOW
 Y:17:1
 
 N:158:Sustain Wisdom
-G:=:d
+G:=:w
 I:45:12:0
-W:20:0:2:600
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_WIS | EASY_KNOW
 Y:5:1
 
 N:159:Sustain Constitution
-G:=:d
+G:=:w
 I:45:13:0
-W:20:0:2:750
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_CON | EASY_KNOW
 Y:24:1
 
 N:160:Sustain Dexterity
-G:=:d
+G:=:w
 I:45:14:0
-W:20:0:2:750
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_DEX | EASY_KNOW
 Y:26:1
 
 N:161:Sustain Charisma
-G:=:d
+G:=:w
 I:45:15:0
-W:20:0:2:500
-A:20/1
+W:10:0:2:250
+A:10/1
 F:SUST_CHR | EASY_KNOW
 Y:19:1
 
 N:162:Slaying
-G:=:d
+G:=:w
 I:45:30:0
 W:40:0:2:1000
 A:40/1
@@ -1314,7 +1314,7 @@ Y:23:3
 ##### Amulets #####
 
 N:163:Wisdom
-G:":d
+G:":w
 I:40:6:0
 W:30:0:3:500
 A:30/1
@@ -1322,7 +1322,7 @@ F:WIS | SUST_WIS | HIDE_TYPE
 Y:5:2
 
 N:164:Charisma
-G:":d
+G:":w
 I:40:7:0
 W:30:0:3:500
 A:30/1
@@ -1330,7 +1330,7 @@ F:CHR | SUST_CHR | HIDE_TYPE
 Y:19:2
 
 N:165:Searching
-G:":d
+G:":w
 I:40:5:0
 W:20:0:3:600
 A:20/1
@@ -1338,7 +1338,7 @@ F:SEARCH | HIDE_TYPE
 Y:12:1
 
 N:166:Teleportation
-G:":d
+G:":w
 I:40:1:0
 W:15:0:3:0
 A:15/1
@@ -1346,7 +1346,7 @@ F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 Y:7:1
 
 N:167:Slow Digestion
-G:":d
+G:":w
 I:40:3:0
 W:15:0:3:200
 A:15/1
@@ -1354,7 +1354,7 @@ F:SLOW_DIGEST | EASY_KNOW
 Y:19:1
 
 N:168:Resist Acid
-G:":d
+G:":w
 I:40:4:0
 W:20:0:3:300
 A:20/1
@@ -1362,7 +1362,7 @@ F:RES_ACID | IGNORE_ACID | EASY_KNOW
 Y:1:1
 
 N:169:Adornment
-G:":d
+G:":w
 I:40:2:0
 W:15:0:3:20
 A:15/1
@@ -1371,7 +1371,7 @@ F:EASY_KNOW
 ## XXX 170 XXX ##
 
 N:171:the Magi
-G:":d
+G:":w
 I:40:8:0
 W:50:0:3:30000
 A:50/4
@@ -1381,7 +1381,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 Y:17:2
 
 N:172:Doom
-G:":d
+G:":w
 I:40:0:-5
 W:50:0:3:0
 A:50/1
@@ -1390,105 +1390,105 @@ F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 ##### Scrolls #####
 
 N:173:Enchant Weapon To-Hit
-G:?:d
+G:?:w
 I:70:17:0
 W:15:0:5:125
 A:15/1
 Y:2:2
 
 N:174:Enchant Weapon To-Dam
-G:?:d
+G:?:w
 I:70:18:0
 W:15:0:5:125
 A:15/1
 Y:23:1
 
 N:175:Enchant Armor
-G:?:d
+G:?:w
 I:70:16:0
 W:15:0:5:125
 A:15/1
 Y:20:1
 
 N:176:Identify
-G:?:d
+G:?:w
 I:70:12:0
 W:10:0:5:500
 A:10/1:15/1:20/1:30/1
 Y:17:1
 
 N:177:*Identify*
-G:?:d
+G:?:w
 I:70:13:0
 W:40:0:5:2000
 A:40/1:70/1
 Y:17:3
 
 N:178:Detect Magic
-G:?:d
+G:?:w
 I:70:31:0
 W:1:0:5:120
 A:1/1:5/1:10/1:30/1
 Y:12:2
 
 N:179:Detect Curse
-G:?:d
+G:?:w
 I:70:40:0
 W:1:0:5:90
 A:1/1:5/1:10/1:30/1
 Y:5:1
 
 N:180:Remove Curse
-G:?:d
+G:?:w
 I:70:14:0
 W:10:0:5:180
 A:10/1
 Y:5:2
 
 N:181:Light
-G:?:d
+G:?:w
 I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:10/1
 Y:21:1
 
 N:182:Read Magic
-G:?:d
+G:?:w
 I:70:19:0
 W:3:0:5:75
 A:3/1:10/1:30/1
 Y:12:1
 
 N:183:Analyze Magic
-G:?:d
+G:?:w
 I:70:23:0
 W:3:0:5:75
 A:3/1:10/1:30/1
 Y:19:1
 
 N:184:Summon Monster
-G:?:d
+G:?:w
 I:70:4:0
 W:1:0:5:0
 A:1/1
 Y:15:1
 
 N:185:Phase Door
-G:?:d
+G:?:w
 I:70:8:0
 W:1:0:5:15
 A:1/1
 Y:7:1
 
 N:186:Teleportation
-G:?:d
+G:?:w
 I:70:9:0
 W:10:0:5:40
 A:10/1
 Y:7:2
 
 N:187:Teleport Level
-G:?:d
+G:?:w
 I:70:10:0
 W:20:0:5:50
 A:20/1
@@ -1502,221 +1502,221 @@ A:0/2
 F:IGNORE_FIRE
 
 N:189:Magic Mapping
-G:?:d
+G:?:w
 I:70:25:0
 W:5:0:5:40
 A:5/1
 Y:27:2
 
 N:190:Rune of Protection
-G:?:d
+G:?:w
 I:70:38:0
 W:60:0:5:500
 A:60/4:90/1
 Y:15:3
 
 N:191:*Remove Curse*
-G:?:d
+G:?:w
 I:70:15:0
 W:50:0:5:8000
 A:50/2
 Y:5:3
 
 N:192:Treasure Detection
-G:?:d
+G:?:w
 I:70:26:0
 W:0:0:5:15
 A:0/1
 Y:27:1
 
 N:193:Object Detection
-G:?:d
+G:?:w
 I:70:27:0
 W:0:0:5:15
 A:0/1
 Y:2:1
 
 N:194:Trap Detection
-G:?:d
+G:?:w
 I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
 Y:1:1
 
 N:195:Gauge Magic
-G:?:d
+G:?:w
 I:70:43:0
 W:5:0:5:75
 A:5/1:15/1:35/1
 
 N:196:Legend Lore
-G:?:d
+G:?:w
 I:70:48:0
 W:3:0:5:225
-A:15/2:30/2
+A:10/1:15/1:20/1:30/1
 Y:17:2
 
 N:197:Door/Stair Location
-G:?:d
+G:?:w
 I:70:29:0
 W:5:0:5:35
 A:5/1:10/1:15/1
 Y:7:1
 
 N:198:Acquirement
-G:?:d
+G:?:w
 I:70:46:0
 W:20:0:5:100000
 A:20/8
 
 N:199:*Acquirement*
-G:?:d
+G:?:w
 I:70:47:0
 W:60:0:5:200000
 A:60/16
 
 N:200:Mass Banishment
-G:?:d
+G:?:w
 I:70:45:0
 W:50:0:5:1000
 A:50/4:95/4
 Y:3:3
 
 N:201:Detect Invisible
-G:?:d
+G:?:w
 I:70:30:0
 W:1:0:5:15
 A:1/1
 
 N:202:Aggravate Monster
-G:?:d
+G:?:w
 I:70:1:0
 W:5:0:5:0
 A:5/1
 
 N:203:Trap Creation
-G:?:d
+G:?:w
 I:70:7:0
 W:10:0:5:0
 A:10/1
 Y:1:2
 
 N:204:Trap/Door Destruction
-G:?:d
+G:?:w
 I:70:39:0
 W:10:0:5:50
 A:10/1
 Y:11:1
 
 N:205:Enchant Armor To-Resist
-G:?:d
+G:?:w
 I:70:49:0
 W:50:0:5:5000
 A:50/1
 Y:20:3
 
 N:206:Recharging
-G:?:d
+G:?:w
 I:70:22:0
 W:40:0:5:200
 A:40/1
 Y:27:1
 
 N:207:Banishment
-G:?:d
+G:?:w
 I:70:44:0
 W:40:0:5:750
 A:40/4:80/2
 Y:3:2
 
 N:208:Darkness
-G:?:d
+G:?:w
 I:70:0:0
 W:1:0:5:0
 A:1/1
 Y:18:1
 
 N:209:Protection from Evil
-G:?:d
+G:?:w
 I:70:37:0
 W:30:0:5:50
 A:30/1
 Y:23:2
 
 N:210:Satisfy Hunger
-G:?:d
+G:?:w
 I:70:32:0
 W:5:0:5:10
 A:5/1
 Y:19:2
 
 N:211:Dispel Undead
-G:?:d
+G:?:w
 I:70:42:0
 W:40:0:5:200
 A:40/1
 Y:18:3
 
 N:212:*Enchant Weapon*
-G:?:d
+G:?:w
 I:70:21:0
 W:50:0:5:500
 A:50/1
 Y:23:3
 
 N:213:Curse Weapon
-G:?:d
+G:?:w
 I:70:3:0
 W:50:0:5:0
 A:50/1
 
 N:214:*Enchant Armor*
-G:?:d
+G:?:w
 I:70:20:0
 W:50:0:5:500
 A:50/1:50/1
 Y:20:2
 
 N:215:Curse Armor
-G:?:d
+G:?:w
 I:70:2:0
 W:50:0:5:0
 A:50/1
 
 N:216:Summon Undead
-G:?:d
+G:?:w
 I:70:5:0
 W:15:0:5:0
 A:15/1
 Y:18:2
 
 N:217:Blessing
-G:?:d
+G:?:w
 I:70:33:0
 W:1:0:5:15
 A:1/1
 
 N:218:Holy Chant
-G:?:d
+G:?:w
 I:70:34:0
 W:10:0:5:40
 A:10/1
 
 N:219:Holy Prayer
-G:?:d
+G:?:w
 I:70:35:0
 W:25:0:5:80
 A:25/1
 
 N:220:Word of Recall
-G:?:d
+G:?:w
 I:70:11:0
 W:5:0:5:150
 A:5/1
 Y:7:3
 
 N:221:*Destruction*
-G:?:d
+G:?:w
 I:70:41:0
 W:40:0:5:250
 A:40/1
@@ -1725,7 +1725,7 @@ Y:11:2
 ##### Potions #####
 
 N:222:Slime Mold Juice
-G:!:d
+G:!:w
 I:75:2:400
 W:0:0:4:2
 A:0/1
@@ -1733,7 +1733,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:223:Apple Juice
-G:!:d
+G:!:w
 I:75:1:250
 W:0:0:4:1
 A:0/1
@@ -1741,7 +1741,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:224:Water
-G:!:d
+G:!:w
 I:75:0:200
 W:0:0:4:1
 A:0/1
@@ -1749,7 +1749,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:225:Strength
-G:!:d
+G:!:w
 I:75:48:0
 W:30:0:4:8000
 A:30/1
@@ -1757,7 +1757,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:226:Weakness
-G:!:d
+G:!:w
 I:75:16:0
 W:3:0:4:0
 A:3/1
@@ -1765,7 +1765,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:227:Restore Strength
-G:!:d
+G:!:w
 I:75:42:0
 W:25:0:4:300
 A:25/1
@@ -1774,7 +1774,7 @@ Y:25:1
 F:THROWING
 
 N:228:Intelligence
-G:!:d
+G:!:w
 I:75:49:0
 W:30:0:4:8000
 A:30/1
@@ -1783,7 +1783,7 @@ Y:17:2
 F:THROWING
 
 N:229:Stupidity
-G:!:d
+G:!:w
 I:75:17:0
 W:20:0:4:0
 A:20/1
@@ -1791,7 +1791,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:230:Restore Intelligence
-G:!:d
+G:!:w
 I:75:43:0
 W:25:0:4:300
 A:25/1
@@ -1800,7 +1800,7 @@ Y:17:1
 F:THROWING
 
 N:231:Wisdom
-G:!:d
+G:!:w
 I:75:50:0
 W:30:0:4:8000
 A:30/1
@@ -1809,7 +1809,7 @@ Y:5:2
 F:THROWING
 
 N:232:Naivety
-G:!:d
+G:!:w
 I:75:18:0
 W:20:0:4:0
 A:20/1
@@ -1817,7 +1817,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:233:Restore Wisdom
-G:!:d
+G:!:w
 I:75:44:0
 W:25:0:4:300
 A:25/1
@@ -1826,7 +1826,7 @@ Y:5:1
 F:THROWING
 
 N:234:Charisma
-G:!:d
+G:!:w
 I:75:53:0
 W:20:0:4:1000
 A:20/1
@@ -1835,7 +1835,7 @@ Y:19:2
 F:THROWING
 
 N:235:Ugliness
-G:!:d
+G:!:w
 I:75:21:0
 W:20:0:4:0
 A:20/1
@@ -1843,7 +1843,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:236:Restore Charisma
-G:!:d
+G:!:w
 I:75:47:0
 W:20:0:4:300
 A:20/1
@@ -1852,7 +1852,7 @@ Y:19:1
 F:THROWING
 
 N:237:Cure Light Wounds
-G:!:d
+G:!:w
 I:75:34:50
 W:0:0:4:15
 A:0/1:1/1:3/1
@@ -1861,7 +1861,7 @@ Y:21:1
 F:THROWING
 
 N:238:Clumsiness
-G:!:d
+G:!:w
 I:75:19:0
 W:5:0:4:0
 A:5/1
@@ -1869,7 +1869,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:239:Sickliness
-G:!:d
+G:!:w
 I:75:20:0
 W:10:0:4:0
 A:10/1
@@ -1877,7 +1877,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:240:Cure Serious Wounds
-G:!:d
+G:!:w
 I:75:35:100
 W:3:0:4:40
 A:3/1
@@ -1886,7 +1886,7 @@ Y:3:1
 F:THROWING
 
 N:241:Cure Critical Wounds
-G:!:d
+G:!:w
 I:75:36:100
 W:5:0:4:100
 A:5/1
@@ -1895,7 +1895,7 @@ Y:3:2
 F:THROWING
 
 N:242:Healing
-G:!:d
+G:!:w
 I:75:37:200
 W:15:0:4:300
 A:15/1:60/1
@@ -1904,7 +1904,7 @@ Y:3:3
 F:THROWING
 
 N:243:Constitution
-G:!:d
+G:!:w
 I:75:52:0
 W:30:0:4:8000
 A:30/1
@@ -1913,7 +1913,7 @@ Y:24:2
 F:THROWING
 
 N:244:Experience
-G:!:d
+G:!:w
 I:75:59:0
 W:65:0:4:25000
 A:65/1
@@ -1922,7 +1922,7 @@ Y:27:3
 F:THROWING
 
 N:245:Sleep
-G:!:d
+G:!:w
 I:75:11:100
 W:0:0:4:0
 A:0/1
@@ -1931,7 +1931,7 @@ Y:16:1
 F:THROWING
 
 N:246:Blindness
-G:!:d
+G:!:w
 I:75:7:0
 W:0:0:4:0
 A:0/1
@@ -1939,7 +1939,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:247:Confusion
-G:!:d
+G:!:w
 I:75:9:50
 W:0:0:4:0
 A:0/1
@@ -1948,7 +1948,7 @@ Y:2:1
 F:THROWING
 
 N:248:Poison
-G:!:d
+G:!:w
 I:75:6:0
 W:3:0:4:0
 A:3/1
@@ -1956,7 +1956,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:249:Speed
-G:!:d
+G:!:w
 I:75:29:0
 W:1:0:4:75
 A:1/1:40/1
@@ -1965,7 +1965,7 @@ Y:27:1
 F:THROWING
 
 N:250:Slowness
-G:!:d
+G:!:w
 I:75:4:50
 W:1:0:4:0
 A:1/1
@@ -1973,7 +1973,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:251:Dexterity
-G:!:d
+G:!:w
 I:75:51:0
 W:30:0:4:8000
 A:30/1
@@ -1982,7 +1982,7 @@ Y:26:2
 F:THROWING
 
 N:252:Restore Dexterity
-G:!:d
+G:!:w
 I:75:45:0
 W:25:0:4:300
 A:25/1
@@ -1991,7 +1991,7 @@ Y:26:1
 F:THROWING
 
 N:253:Restore Constitution
-G:!:d
+G:!:w
 I:75:46:0
 W:25:0:4:300
 A:25/1
@@ -2000,7 +2000,7 @@ Y:24:1
 F:THROWING
 
 N:254:Lose Memories
-G:!:d
+G:!:w
 I:75:13:0
 W:10:0:4:0
 A:10/1
@@ -2008,7 +2008,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:255:Salt Water
-G:!:d
+G:!:w
 I:75:5:0
 W:0:0:4:0
 A:0/1
@@ -2016,7 +2016,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:256:Enlightenment
-G:!:d
+G:!:w
 I:75:56:0
 W:25:0:4:800
 A:25/1
@@ -2025,7 +2025,7 @@ Y:12:2
 F:THROWING
 
 N:257:Heroism
-G:!:d
+G:!:w
 I:75:32:0
 W:1:0:4:35
 A:1/1
@@ -2034,7 +2034,7 @@ Y:20:1
 F:THROWING
 
 N:258:Berserk Strength
-G:!:d
+G:!:w
 I:75:33:0
 W:3:0:4:100
 A:3/1
@@ -2043,7 +2043,7 @@ Y:23:1
 F:THROWING
 
 N:259:Boldness
-G:!:d
+G:!:w
 I:75:28:0
 W:1:0:4:10
 A:1/1
@@ -2051,7 +2051,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:260:Restore Life Levels
-G:!:d
+G:!:w
 I:75:41:0
 W:40:0:4:400
 A:40/1
@@ -2060,7 +2060,7 @@ Y:27:2
 F:THROWING
 
 N:261:Resist Heat
-G:!:d
+G:!:w
 I:75:30:0
 W:1:0:4:30
 A:1/1
@@ -2069,7 +2069,7 @@ Y:13:1
 F:THROWING
 
 N:262:Resist Cold
-G:!:d
+G:!:w
 I:75:31:0
 W:1:0:4:30
 A:1/1
@@ -2078,7 +2078,7 @@ Y:14:1
 F:THROWING
 
 N:263:Detect Invisible
-G:!:d
+G:!:w
 I:75:25:0
 W:3:0:4:50
 A:3/1
@@ -2087,7 +2087,7 @@ Y:12:1
 F:THROWING
 
 N:264:Slow Poison
-G:!:d
+G:!:w
 I:75:26:0
 W:1:0:4:25
 A:1/1
@@ -2096,7 +2096,7 @@ Y:4:1
 F:THROWING
 
 N:265:Neutralize Poison
-G:!:d
+G:!:w
 I:75:27:0
 W:5:0:4:75
 A:5/1
@@ -2105,7 +2105,7 @@ Y:4:2
 F:THROWING
 
 N:266:Restore Mana
-G:!:d
+G:!:w
 I:75:40:0
 W:25:0:4:350
 A:25/1:70/1
@@ -2114,7 +2114,7 @@ Y:17:3
 F:THROWING
 
 N:267:Infra-vision
-G:!:d
+G:!:w
 I:75:24:0
 W:3:0:4:20
 A:3/1
@@ -2123,7 +2123,7 @@ Y:13:2
 F:THROWING
 
 N:268:Enchant Weapon Brand
-G:?:d
+G:?:w
 I:70:50:0
 W:50:0:5:2500
 A:50/1
@@ -2132,7 +2132,7 @@ Y:13:2
 ##### Wands #####
 
 N:269:Light
-G:-:d
+G:-:w
 I:65:7:0
 W:3:0:10:200
 A:3/1
@@ -2140,7 +2140,7 @@ P:0:1d1:0:0:0
 Y:21:2
 
 N:270:Lightning Bolts
-G:-:d
+G:-:w
 I:65:17:0
 W:15:0:10:600
 A:15/1
@@ -2148,7 +2148,7 @@ P:0:1d1:0:0:0
 Y:22:2
 
 N:271:Frost Bolts
-G:-:d
+G:-:w
 I:65:19:0
 W:20:0:10:800
 A:20/1
@@ -2156,7 +2156,7 @@ P:0:1d1:0:0:0
 Y:14:2
 
 N:272:Fire Bolts
-G:-:d
+G:-:w
 I:65:18:0
 W:30:0:10:1000
 A:30/1
@@ -2164,7 +2164,7 @@ P:0:1d1:0:0:0
 Y:13:2
 
 N:273:Stone to Mud
-G:-:d
+G:-:w
 I:65:6:0
 W:10:0:10:300
 A:10/1
@@ -2172,7 +2172,7 @@ P:0:1d1:0:0:0
 Y:25:2
 
 N:274:Polymorph
-G:-:d
+G:-:w
 I:65:13:0
 W:20:0:10:400
 A:20/1
@@ -2180,7 +2180,7 @@ P:0:1d1:0:0:0
 Y:28:2
 
 N:275:Heal Monster
-G:-:d
+G:-:w
 I:65:0:0
 W:3:0:10:0
 A:3/1
@@ -2188,7 +2188,7 @@ P:0:1d1:0:0:0
 Y:3:1
 
 N:276:Haste Monster
-G:-:d
+G:-:w
 I:65:1:0
 W:3:0:10:0
 A:3/1
@@ -2196,7 +2196,7 @@ P:0:1d1:0:0:0
 Y:27:1
 
 N:277:Slow Monster
-G:-:d
+G:-:w
 I:65:9:0
 W:5:0:10:500
 A:5/1
@@ -2204,7 +2204,7 @@ P:0:1d1:0:0:0
 Y:26:2
 
 N:278:Confuse Monster
-G:-:d
+G:-:w
 I:65:10:0
 W:5:0:10:500
 A:5/1
@@ -2212,7 +2212,7 @@ P:0:1d1:0:0:0
 Y:4:3
 
 N:279:Sleep Monster
-G:-:d
+G:-:w
 I:65:8:0
 W:5:0:10:500
 A:5/1
@@ -2220,7 +2220,7 @@ P:0:1d1:0:0:0
 Y:16:2
 
 N:280:Drain Life
-G:-:d
+G:-:w
 I:65:12:0
 W:50:0:10:1200
 A:50/1
@@ -2228,7 +2228,7 @@ P:0:1d1:0:0:0
 Y:3:3
 
 N:281:Trap/Door Destruction
-G:-:d
+G:-:w
 I:65:5:0
 W:10:0:10:100
 A:10/1
@@ -2236,7 +2236,7 @@ P:0:1d1:0:0:0
 Y:11:2
 
 N:282:Magic Missile
-G:-:d
+G:-:w
 I:65:15:0
 W:3:0:10:200
 A:3/1
@@ -2244,7 +2244,7 @@ P:0:1d1:0:0:0
 Y:2:2
 
 N:283:Clone Monster
-G:-:d
+G:-:w
 I:65:2:0
 W:15:0:10:0
 A:15/1:50/1
@@ -2252,7 +2252,7 @@ P:0:1d1:0:0:0
 Y:24:2
 
 N:284:Scare Monster
-G:-:d
+G:-:w
 I:65:11:0
 W:10:0:10:500
 A:10/4
@@ -2260,7 +2260,7 @@ P:0:1d1:0:0:0
 Y:23:1
 
 N:285:Teleport Other
-G:-:d
+G:-:w
 I:65:3:0
 W:20:0:10:350
 A:20/1
@@ -2268,7 +2268,7 @@ P:0:1d1:0:0:0
 Y:15:2
 
 N:286:Disarming
-G:-:d
+G:-:w
 I:65:4:0
 W:20:0:10:700
 A:20/1
@@ -2276,7 +2276,7 @@ P:0:1d1:0:0:0
 Y:16:3
 
 N:287:Lightning Balls
-G:-:d
+G:-:w
 I:65:21:0
 W:35:0:10:1200
 A:35/1
@@ -2285,7 +2285,7 @@ F:IGNORE_ELEC
 Y:22:3
 
 N:288:Cold Balls
-G:-:d
+G:-:w
 I:65:23:0
 W:40:0:10:1500
 A:40/1
@@ -2294,7 +2294,7 @@ F:IGNORE_COLD
 Y:14:3
 
 N:289:Fire Balls
-G:-:d
+G:-:w
 I:65:22:0
 W:50:0:10:1800
 A:50/1
@@ -2303,7 +2303,7 @@ F:IGNORE_FIRE
 Y:14:2
 
 N:290:Stinking Cloud
-G:-:d
+G:-:w
 I:65:14:0
 W:5:0:10:400
 A:5/1
@@ -2311,7 +2311,7 @@ P:0:1d1:0:0:0
 Y:4:2
 
 N:291:Acid Balls
-G:-:d
+G:-:w
 I:65:20:0
 W:50:0:10:1650
 A:50/1
@@ -2320,7 +2320,7 @@ F:IGNORE_ACID
 Y:1:3
 
 N:292:Wonder
-G:-:d
+G:-:w
 I:65:24:0
 W:3:0:10:250
 A:3/1
@@ -2330,13 +2330,13 @@ F:RANDOM
 Y:28:1
 
 N:293:Bless Weapon
-G:?:d
+G:?:w
 I:70:51:0
 W:50:0:5:500
 A:50/1
 
 N:294:Acid Bolts
-G:-:d
+G:-:w
 I:65:16:0
 W:30:0:10:950
 A:30/1
@@ -2344,7 +2344,7 @@ P:0:1d1:0:0:0
 Y:1:2
 
 N:295:Dragon's Flame
-G:-:d
+G:-:w
 I:65:26:0
 W:50:0:10:2400
 A:50/4
@@ -2353,7 +2353,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 Y:8:2
 
 N:296:Dragon's Frost
-G:-:d
+G:-:w
 I:65:27:0
 W:50:0:10:2400
 A:50/4
@@ -2362,7 +2362,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 Y:8:3
 
 N:297:Dragon's Breath
-G:-:d
+G:-:w
 I:65:28:0
 W:60:0:10:2400
 A:60/4
@@ -2372,7 +2372,7 @@ F:RANDOM
 Y:8:4
 
 N:298:Annihilation
-G:-:d
+G:-:w
 I:65:25:0
 W:60:0:10:3000
 A:60/4
@@ -2383,7 +2383,7 @@ Y:3:4
 ##### Staffs #####
 
 N:299:Perception
-G:_:d
+G:_:w
 I:55:30:0
 W:45:0:50:3000
 A:45/1
@@ -2392,7 +2392,7 @@ Y:17:2
 F:SHOW_MODS
 
 N:300:Trap Location
-G:_:d
+G:_:w
 I:55:12:0
 W:10:0:50:350
 A:10/1
@@ -2401,7 +2401,7 @@ Y:1:2
 F:SHOW_MODS
 
 N:301:Treasure Location
-G:_:d
+G:_:w
 I:55:10:0
 W:5:0:50:200
 A:5/1
@@ -2410,7 +2410,7 @@ Y:25:1
 F:SHOW_MODS
 
 N:302:Object Location
-G:_:d
+G:_:w
 I:55:11:0
 W:5:0:50:200
 A:5/1
@@ -2419,7 +2419,7 @@ Y:2:1
 F:SHOW_MODS
 
 N:303:Teleportation
-G:_:d
+G:_:w
 I:55:4:0
 W:20:0:50:2000
 A:20/1
@@ -2428,7 +2428,7 @@ Y:7:3
 F:SHOW_MODS
 
 N:304:Earthquakes
-G:_:d
+G:_:w
 I:55:28:0
 W:40:0:50:350
 A:40/1
@@ -2438,7 +2438,7 @@ Y:25:3
 F:SHOW_MODS
 
 N:305:Summoning
-G:_:d
+G:_:w
 I:55:3:0
 W:10:0:50:0
 A:10/1:50/1
@@ -2447,7 +2447,7 @@ Y:15:2
 F:SHOW_MODS
 
 N:306:Light
-G:_:d
+G:_:w
 I:55:8:0
 W:5:0:50:250
 A:5/1
@@ -2457,7 +2457,7 @@ Y:21:2
 F:SHOW_MODS
 
 N:307:*Destruction*
-G:_:d
+G:_:w
 I:55:29:0
 W:50:0:50:2500
 A:50/1:70/1
@@ -2466,7 +2466,7 @@ Y:11:3
 F:SHOW_MODS
 
 N:308:Starlight
-G:_:d
+G:_:w
 I:55:7:0
 W:20:0:50:800
 A:20/1
@@ -2476,7 +2476,7 @@ Y:21:3
 F:SHOW_MODS
 
 N:309:Haste Monsters
-G:_:d
+G:_:w
 I:55:2:0
 W:10:0:50:0
 A:10/1
@@ -2485,7 +2485,7 @@ Y:27:2
 F:SHOW_MODS
 
 N:310:Slow Monsters
-G:_:d
+G:_:w
 I:55:21:0
 W:10:0:50:800
 A:10/1
@@ -2494,7 +2494,7 @@ Y:26:2
 F:SHOW_MODS
 
 N:311:Sleep Monsters
-G:_:d
+G:_:w
 I:55:20:0
 W:10:0:50:700
 A:10/1
@@ -2503,7 +2503,7 @@ Y:16:2
 F:SHOW_MODS
 
 N:312:Cure Light Wounds
-G:_:d
+G:_:w
 I:55:16:0
 W:5:0:50:350
 A:5/1
@@ -2512,7 +2512,7 @@ Y:3:1
 F:SHOW_MODS
 
 N:313:Detect Invisible
-G:_:d
+G:_:w
 I:55:14:0
 W:5:0:50:200
 A:5/1
@@ -2522,7 +2522,7 @@ F:SHOW_MODS
 Y:12:1
 
 N:314:Speed
-G:_:d
+G:_:w
 I:55:22:0
 W:40:0:50:1000
 A:40/1
@@ -2531,7 +2531,7 @@ Y:27:3
 F:SHOW_MODS
 
 N:315:Slowness
-G:_:d
+G:_:w
 I:55:1:0
 W:40:0:50:0
 A:40/1
@@ -2539,7 +2539,7 @@ P:0:1d6:0:0:0
 F:SHOW_MODS
 
 N:316:Door/Stair Location
-G:_:d
+G:_:w
 I:55:13:0
 W:10:0:50:350
 A:10/1
@@ -2548,7 +2548,7 @@ Y:7:1
 F:SHOW_MODS
 
 N:317:Remove Curse
-G:_:d
+G:_:w
 I:55:6:0
 W:40:0:50:500
 A:40/1
@@ -2557,7 +2557,7 @@ Y:5:3
 F:SHOW_MODS
 
 N:318:Detect Evil
-G:_:d
+G:_:w
 I:55:15:0
 W:20:0:50:350
 A:20/1
@@ -2567,7 +2567,7 @@ F:SHOW_MODS
 Y:23:2
 
 N:319:Curing
-G:_:d
+G:_:w
 I:55:17:0
 W:25:0:50:1000
 A:25/1
@@ -2576,7 +2576,7 @@ Y:3:2
 F:SHOW_MODS
 
 N:320:Dispel Evil
-G:_:d
+G:_:w
 I:55:24:0
 W:50:0:50:1200
 A:50/1
@@ -2586,7 +2586,7 @@ F:SHOW_MODS
 Y:23:3
 
 N:321:Probing
-G:_:d
+G:_:w
 I:55:23:0
 W:30:0:50:2000
 A:30/1
@@ -2595,7 +2595,7 @@ Y:12:3
 F:SHOW_MODS
 
 N:322:Darkness
-G:_:d
+G:_:w
 I:55:0:0
 W:5:0:50:0
 A:5/1:50/1
@@ -2605,7 +2605,7 @@ F:SHOW_MODS
 Y:18:2
 
 N:323:Banishment
-G:_:d
+G:_:w
 I:55:27:0
 W:70:0:50:3500
 A:70/2
@@ -2615,7 +2615,7 @@ F:SHOW_MODS
 Y:3:4
 
 N:324:Power
-G:_:d
+G:_:w
 I:55:25:0
 W:70:0:50:4000
 A:70/2
@@ -2626,7 +2626,7 @@ F:SHOW_MODS
 Y:17:3
 
 N:325:the Magi
-G:_:d
+G:_:w
 I:55:19:0
 W:70:0:50:4500
 A:70/2
@@ -2638,7 +2638,7 @@ F:SHOW_MODS
 Y:17:4
 
 N:326:Detect Curse
-G:_:d
+G:_:w
 I:55:5:0
 W:10:0:50:400
 A:10/1
@@ -2647,7 +2647,7 @@ F:SHOW_MODS
 Y:5:2
 
 N:327:Holiness
-G:_:d
+G:_:w
 I:55:26:0
 W:70:0:50:4500
 A:70/2
@@ -2658,7 +2658,7 @@ F:SHOW_MODS
 Y:5:4
 
 N:328:Enlightenment
-G:_:d
+G:_:w
 I:55:9:0
 W:20:0:50:750
 A:20/1
@@ -2668,7 +2668,7 @@ F:SHOW_MODS
 Y:12:2
 
 N:329:Healing
-G:_:d
+G:_:w
 I:55:18:0
 W:70:0:50:5000
 A:70/2
@@ -2827,7 +2827,7 @@ F:THROWING
 ### 350 ###
 
 N:351:Door/Stair Location
-G:-:d
+G:-:w
 I:66:1:70
 W:15:0:15:1000
 A:15/1
@@ -2835,7 +2835,7 @@ P:0:1d1:0:0:0
 Y:7:1
 
 N:352:Trap Location
-G:-:d
+G:-:w
 I:66:0:50
 W:5:0:15:100
 A:5/1
@@ -2843,7 +2843,7 @@ P:0:1d1:0:0:0
 Y:1:1
 
 N:353:Gauge Magic
-G:-:d
+G:-:w
 I:66:7:10
 W:55:0:15:12000
 A:55/5
@@ -2851,7 +2851,7 @@ P:0:1d1:0:0:0
 Y:17:1
 
 N:354:Recall
-G:-:d
+G:-:w
 I:66:3:60
 W:30:0:15:4000
 A:30/4
@@ -2859,7 +2859,7 @@ P:0:1d1:0:0:0
 Y:7:2
 
 N:355:Illumination
-G:-:d
+G:-:w
 I:66:4:30
 W:20:0:15:1000
 A:20/1
@@ -2867,7 +2867,7 @@ P:0:1d1:0:0:0
 Y:21:2
 
 N:356:Light
-G:-:d
+G:-:w
 I:66:15:9
 W:10:0:15:500
 A:10/1
@@ -2875,7 +2875,7 @@ P:0:1d1:0:0:0
 Y:21:1
 
 N:357:Lightning Bolts
-G:-:d
+G:-:w
 I:66:21:11
 W:20:0:15:2000
 A:20/1
@@ -2883,7 +2883,7 @@ P:0:1d1:0:0:0
 Y:22:2
 
 N:358:Frost Bolts
-G:-:d
+G:-:w
 I:66:23:13
 W:25:0:15:2500
 A:25/1
@@ -2891,7 +2891,7 @@ P:0:1d1:0:0:0
 Y:14:2
 
 N:359:Fire Bolts
-G:-:d
+G:-:w
 I:66:22:15
 W:30:0:15:3000
 A:30/1
@@ -2899,7 +2899,7 @@ P:0:1d1:0:0:0
 Y:13:2
 
 N:360:Polymorph
-G:-:d
+G:-:w
 I:66:19:25
 W:35:0:15:1200
 A:35/1
@@ -2907,7 +2907,7 @@ P:0:1d1:0:0:0
 Y:28:2
 
 N:361:Slow Monster
-G:-:d
+G:-:w
 I:66:17:20
 W:30:0:15:1500
 A:30/1
@@ -2915,7 +2915,7 @@ P:0:1d1:0:0:0
 Y:26:2
 
 N:362:Sleep Monster
-G:-:d
+G:-:w
 I:66:16:18
 W:30:0:15:1500
 A:30/1
@@ -2923,7 +2923,7 @@ P:0:1d1:0:0:0
 Y:16:2
 
 N:363:Drain Life
-G:-:d
+G:-:w
 I:66:18:23
 W:75:0:15:3600
 A:75/4
@@ -2931,7 +2931,7 @@ P:0:1d1:0:0:0
 Y:3:3
 
 N:364:Teleport Other
-G:-:d
+G:-:w
 I:66:13:25
 W:45:0:15:1400
 A:45/2
@@ -2939,7 +2939,7 @@ P:0:1d1:0:0:0
 Y:7:3
 
 N:365:Disarming
-G:-:d
+G:-:w
 I:66:14:30
 W:35:0:15:2100
 A:35/1
@@ -2947,7 +2947,7 @@ P:0:1d1:0:0:0
 Y:16:3
 
 N:366:Lightning Balls
-G:-:d
+G:-:w
 I:66:25:23
 W:55:0:15:4000
 A:55/1
@@ -2955,7 +2955,7 @@ P:0:1d1:0:0:0
 Y:22:3
 
 N:367:Cold Balls
-G:-:d
+G:-:w
 I:66:27:25
 W:60:0:15:4500
 A:60/1
@@ -2963,7 +2963,7 @@ P:0:1d1:0:0:0
 Y:14:3
 
 N:368:Fire Balls
-G:-:d
+G:-:w
 I:66:26:30
 W:75:0:15:5000
 A:75/1
@@ -2971,7 +2971,7 @@ P:0:1d1:0:0:0
 Y:13:3
 
 N:369:Acid Balls
-G:-:d
+G:-:w
 I:66:24:27
 W:70:0:15:5500
 A:70/1
@@ -2979,7 +2979,7 @@ P:0:1d1:0:0:0
 Y:1:3
 
 N:370:Acid Bolts
-G:-:d
+G:-:w
 I:66:20:12
 W:40:0:15:3500
 A:40/1
@@ -2987,7 +2987,7 @@ P:0:1d1:0:0:0
 Y:1:2
 
 N:371:Enlightenment
-G:-:d
+G:-:w
 I:66:5:99
 W:65:0:15:10000
 A:65/4
@@ -2995,7 +2995,7 @@ P:0:1d1:0:0:0
 Y:12:4
 
 N:372:Detect Magic
-G:-:d
+G:-:w
 I:66:2:10
 W:50:0:15:13000
 A:50/8
@@ -3003,7 +3003,7 @@ P:0:1d1:0:0:0
 Y:12:3
 
 N:373:Curing
-G:-:d
+G:-:w
 I:66:8:999
 W:65:0:15:15000
 A:65/8
@@ -3011,7 +3011,7 @@ P:0:1d1:0:0:0
 Y:3:2
 
 N:374:Healing
-G:-:d
+G:-:w
 I:66:9:999
 W:80:0:15:20000
 A:80/8
@@ -3019,7 +3019,7 @@ P:0:1d1:0:0:0
 Y:3:4
 
 N:375:Detection
-G:-:d
+G:-:w
 I:66:6:99
 W:30:0:15:5000
 A:30/8
@@ -3027,7 +3027,7 @@ P:0:1d1:0:0:0
 Y:12:2
 
 N:376:Restoration
-G:-:d
+G:-:w
 I:66:10:999
 W:80:0:15:25000
 A:80/16
@@ -3035,7 +3035,7 @@ P:0:1d1:0:0:0
 Y:27:2
 
 N:377:Speed
-G:-:d
+G:-:w
 I:66:11:90
 W:95:0:15:50000
 A:95/16
@@ -3043,7 +3043,7 @@ P:0:1d1:0:0:0
 Y:27:3
 
 N:378:Dowsing
-G:-:d
+G:-:w
 I:66:12:10
 W:5:0:15:100
 A:5/1
@@ -3365,7 +3365,7 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATE
 ##### Extra potions #####
 
 N:415:Death
-G:!:d
+G:!:w
 I:75:23:0
 W:55:0:4:0
 A:55/4
@@ -3373,7 +3373,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:416:Ruination
-G:!:d
+G:!:w
 I:75:15:0
 W:40:0:4:0
 A:40/8
@@ -3381,7 +3381,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:417:Detonations
-G:!:d
+G:!:w
 I:75:22:0
 W:60:0:4:10000
 A:60/8
@@ -3390,7 +3390,7 @@ Y:11:1
 F:THROWING
 
 N:418:Augmentation
-G:!:d
+G:!:w
 I:75:55:0
 W:40:0:4:60000
 A:40/16
@@ -3398,7 +3398,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:419:*Healing*
-G:!:d
+G:!:w
 I:75:38:0
 W:40:0:4:1500
 A:40/4:80/2
@@ -3406,7 +3406,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:420:Life
-G:!:d
+G:!:w
 I:75:39:0
 W:60:0:4:5000
 A:60/4:100/4
@@ -3414,7 +3414,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:421:Self Knowledge
-G:!:d
+G:!:w
 I:75:58:0
 W:40:0:4:2000
 A:40/1
@@ -3422,7 +3422,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:422:*Enlightenment*
-G:!:d
+G:!:w
 I:75:57:0
 W:70:0:4:80000
 A:70/4
@@ -3434,7 +3434,7 @@ F:THROWING
 
 
 N:423:ESP
-G:":d
+G:":w
 I:40:13:0
 W:60:0:3:25000
 A:60/8
@@ -3444,11 +3444,11 @@ F:HIDE_TYPE
 Y:12:4
 
 N:424:Resistance
-G:":d
+G:":w
 I:40:14:0
 W:60:0:3:20000
 A:60/8
-F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | 
+F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 Y:8:3
 
@@ -3459,7 +3459,7 @@ Y:8:3
 
 
 N:425:Regeneration
-G:":d
+G:":w
 I:40:15:0
 W:30:0:3:600
 A:30/3
@@ -3467,7 +3467,7 @@ F:REGEN | EASY_KNOW
 Y:3:1
 
 N:426:Devotion
-G:":d
+G:":w
 I:40:18:0
 W:70:0:3:30000
 A:70/8
@@ -3477,7 +3477,7 @@ F:HIDE_TYPE
 Y:5:4
 
 N:427:Weaponmastery
-G:":d
+G:":w
 I:40:19:0
 W:70:0:3:30000
 P:0:0d0:0:0:0
@@ -3487,7 +3487,7 @@ F:RES_FEAR | RES_DISEN | HIDE_TYPE
 Y:23:4
 
 N:428:Trickery
-G:":d
+G:":w
 I:40:20:1
 W:70:0:3:30000
 A:70/8
@@ -3496,7 +3496,7 @@ F:RES_NEXUS | RES_POIS | HIDE_TYPE
 Y:16:4
 
 N:429:Infravision
-G:":d
+G:":w
 I:40:21:0
 W:10:0:3:200
 A:10/2
@@ -3504,7 +3504,7 @@ F:INFRA | HIDE_TYPE
 Y:13:1
 
 N:430:Resist Lightning
-G:":d
+G:":w
 I:40:22:0
 W:10:0:3:300
 A:10/1
@@ -3514,7 +3514,7 @@ Y:22:1
 ### And a ring ###
 
 N:431:Lightning
-G:=:d
+G:=:w
 I:45:38:0
 W:50:0:2:5000
 A:50/2
@@ -3524,7 +3524,7 @@ Y:22:3
 # Another potion
 
 N:432:Restoring
-G:!:d
+G:!:w
 I:75:54:0
 W:20:0:1:1000
 A:40/1:60/1
@@ -3750,7 +3750,7 @@ F:INSTA_ART
 # The Amulet of Carlammas -- see artifact list
 
 N:503:& Amulet~
-G:":d
+G:":w
 I:40:10:0
 W:50:0:3:60000
 F:INSTA_ART
@@ -3758,7 +3758,7 @@ F:INSTA_ART
 # The Amulet of Ingwe -- see artifact list
 
 N:504:& Amulet~
-G:":d
+G:":w
 I:40:11:0
 W:65:0:3:90000
 F:INSTA_ART
@@ -3766,7 +3766,7 @@ F:INSTA_ART
 # The Necklace of the Dwarves -- see artifact list
 
 N:505:& Necklace~
-G:":d
+G:":w
 I:40:12:0
 W:70:0:3:75000
 F:INSTA_ART
@@ -3774,7 +3774,7 @@ F:INSTA_ART
 # The Ring of Barahir -- see artifact list
 
 N:506:& Ring~
-G:=:d
+G:=:w
 I:45:32:0
 W:50:0:2:65000
 F:INSTA_ART
@@ -3782,7 +3782,7 @@ F:INSTA_ART
 # The Ring of Tulkas -- see artifact list
 
 N:507:& Ring~
-G:=:d
+G:=:w
 I:45:33:0
 W:70:0:2:150000
 F:INSTA_ART
@@ -3790,7 +3790,7 @@ F:INSTA_ART
 # The Ring of Power 'Narya' -- see artifact list
 
 N:508:& Ring~
-G:=:d
+G:=:w
 I:45:34:0
 W:80:0:2:100000
 F:INSTA_ART
@@ -3798,7 +3798,7 @@ F:INSTA_ART
 # The Ring of Power 'Nenya' -- see artifact list
 
 N:509:& Ring~
-G:=:d
+G:=:w
 I:45:35:0
 W:85:0:2:200000
 F:INSTA_ART
@@ -3806,7 +3806,7 @@ F:INSTA_ART
 # The Ring of Power 'Vilya' -- see artifact list
 
 N:510:& Ring~
-G:=:d
+G:=:w
 I:45:36:0
 W:90:0:2:300000
 F:INSTA_ART
@@ -4444,8 +4444,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 N:602:Blood
 G:?:g
 I:93:3:0
-W:40:0:20:2000
-A:40/2
+W:15:0:20:200
+A:15/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
@@ -4460,8 +4460,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 N:604:Cross
 G:?:g
 I:93:5:0
-W:60:0:20:6000
-A:60/3
+W:25:0:20:600
+A:25/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
@@ -4652,85 +4652,85 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 ### New scrolls (13)
 
 N:631:Continual Light
-G:?:d
+G:?:w
 I:70:53:0
 W:35:0:5:600
 A:35/1
 
 N:632:Acid Proofing
-G:?:d
+G:?:w
 I:70:54:0
 W:35:0:5:300
 A:35/1
 
 N:633:Fire Proofing
-G:?:d
+G:?:w
 I:70:55:0
 W:35:0:5:400
 A:35/1
 
 N:634:Water Proofing
-G:?:d
+G:?:w
 I:70:56:0
 W:35:0:5:300
 A:35/1
 
 N:635:Theft Proofing
-G:?:d
+G:?:w
 I:70:57:0
 W:35:0:5:500
 A:35/1
 
 N:636:Enchant Bolts Brand
-G:?:d
+G:?:w
 I:70:58:0
 W:25:0:5:750
 A:25/1
 
 N:637:Shielding
-G:?:d
+G:?:w
 I:70:59:0
 W:10:0:5:250
 A:10/1
 
 N:638:Sanctuary
-G:?:d
+G:?:w
 I:70:60:0
 W:10:0:5:150
 A:10/1
 
 N:639:Detection
-G:?:d
+G:?:w
 I:70:61:0
 W:25:0:5:250
 A:25/1
 
 N:640:Opening
-G:?:d
+G:?:w
 I:70:62:0
 W:5:0:5:75
 A:5/1
 
 N:641:Alter Reality
-G:?:d
+G:?:w
 I:70:63:0
 W:35:0:5:600
 A:35/1
 
 N:642:Hero's Prayer
-G:?:d
+G:?:w
 I:70:64:0
 W:35:0:5:200
 A:35/1
 
 N:643:Detect Undead
-G:?:d
+G:?:w
 I:70:65:0
 W:3:0:5:25
 A:3/1
 
 N:644:Detect Animals
-G:?:d
+G:?:w
 I:70:66:0
 W:3:0:5:25
 A:3/1
@@ -4740,7 +4740,7 @@ A:3/1
 # New potions (13)
 
 N:645:Resist Heat & Cold
-G:!:d
+G:!:w
 I:75:60:0
 W:5:0:4:100
 A:5/1
@@ -4748,7 +4748,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:646:Resist Acid
-G:!:d
+G:!:w
 I:75:61:0
 W:5:0:4:100
 A:5/1
@@ -4756,7 +4756,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:647:Resist Poison
-G:!:d
+G:!:w
 I:75:62:0
 W:15:0:4:400
 A:15/1
@@ -4764,7 +4764,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:648:Resistance
-G:!:d
+G:!:w
 I:75:63:0
 W:40:0:1:1000
 A:40/1:60/1
@@ -4772,7 +4772,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:649:Resist Lightning
-G:!:d
+G:!:w
 I:75:64:0
 W:10:0:4:200
 A:10/1
@@ -4780,7 +4780,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:650:Cure Mortal Wounds
-G:!:d
+G:!:w
 I:75:65:200
 W:10:0:4:200
 A:10/1
@@ -4789,7 +4789,7 @@ Y:3:2
 F:THROWING
 
 N:651:Cure All Wounds
-G:!:d
+G:!:w
 I:75:66:0
 W:25:0:4:300
 A:25/1:60/1
@@ -4797,7 +4797,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:652:*Cure All Wounds*
-G:!:d
+G:!:w
 I:75:67:0
 W:40:0:4:1200
 A:40/2:80/1
@@ -4805,7 +4805,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:653:Remove Fear & Poison
-G:!:d
+G:!:w
 I:75:68:0
 W:10:0:4:225
 A:10/1
@@ -4813,7 +4813,7 @@ P:0:1d1:0:0:0
 F:THROWING
 
 N:654:Firebreath
-G:!:d
+G:!:w
 I:75:69:0
 W:40:0:4:1200
 A:40/2
@@ -4822,7 +4822,7 @@ F:IGNORE_FIRE
 F:THROWING
 
 N:655:Dragonbreath
-G:!:d
+G:!:w
 I:75:70:0
 W:40:0:4:1200
 A:40/2
@@ -4832,14 +4832,14 @@ F:IGNORE_WATER
 F:THROWING
 
 N:656:Poison Weapon
-G:?:d
+G:?:w
 I:70:67:0
 W:25:0:4:600
 A:25/1
 P:0:1d1:0:0:0
 
 N:657:Poison Bolts
-G:?:d
+G:?:w
 I:70:68:0
 W:25:0:4:750
 A:25/1
@@ -4848,14 +4848,14 @@ P:0:1d1:0:0:0
 # New wands (34)
 
 N:658:Deadly Clouds
-G:-:d
+G:-:w
 I:65:29:0
 W:40:0:10:1500
 A:40/2
 P:0:1d1:0:0:0
 
 N:659:Ice Storms
-G:-:d
+G:-:w
 I:65:30:0
 W:60:0:10:4000
 A:60/1
@@ -4863,7 +4863,7 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:660:Meteors
-G:-:d
+G:-:w
 I:65:31:0
 W:80:0:10:5500
 A:80/2
@@ -4871,14 +4871,14 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE | IGNORE_COLD
 
 N:661:Blind Monster
-G:-:d
+G:-:w
 I:65:32:0
 W:10:0:10:700
 A:10/1
 P:0:1d1:0:0:0
 
 N:662:Fire Bolts II
-G:-:d
+G:-:w
 I:65:33:0
 W:45:0:10:1500
 A:45/1
@@ -4886,7 +4886,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:663:Fire Bolts III
-G:-:d
+G:-:w
 I:65:34:0
 W:60:0:10:2500
 A:60/1
@@ -4894,7 +4894,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:664:Fire Storms
-G:-:d
+G:-:w
 I:65:35:0
 W:70:0:10:4500
 A:70/1
@@ -4902,7 +4902,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:665:Acid Bolts II
-G:-:d
+G:-:w
 I:65:36:0
 W:50:0:10:1750
 A:50/1
@@ -4910,7 +4910,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:666:Acid Storms
-G:-:d
+G:-:w
 I:65:37:0
 W:80:0:10:5000
 A:80/1
@@ -4918,7 +4918,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:667:Acid Bolts III
-G:-:d
+G:-:w
 I:65:38:0
 W:70:0:10:4500
 A:70/1
@@ -4926,7 +4926,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:668:Lightning Bolts II
-G:-:d
+G:-:w
 I:65:39:0
 W:35:0:10:1250
 A:35/1
@@ -4934,7 +4934,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:669:Lightning Bolts III
-G:-:d
+G:-:w
 I:65:40:0
 W:50:0:10:2000
 A:50/1
@@ -4942,7 +4942,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:670:Lightning Storms
-G:-:d
+G:-:w
 I:65:41:0
 W:70:0:10:4500
 A:70/1
@@ -4950,7 +4950,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:671:Frost Bolts II
-G:-:d
+G:-:w
 I:65:42:0
 W:40:0:10:1400
 A:40/1
@@ -4958,7 +4958,7 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:672:Frost Bolts III
-G:-:d
+G:-:w
 I:65:43:0
 W:55:0:10:2300
 A:55/1
@@ -4966,7 +4966,7 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:673:Shooting Stars
-G:-:d
+G:-:w
 I:65:44:0
 W:50:0:10:3000
 A:50/2
@@ -4974,7 +4974,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE | IGNORE_COLD
 
 N:674:Freezing Clouds
-G:-:d
+G:-:w
 I:65:45:0
 W:50:0:10:1500
 A:50/2
@@ -4982,7 +4982,7 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:675:Acidic Clouds
-G:-:d
+G:-:w
 I:65:46:0
 W:60:0:10:2500
 A:60/2
@@ -4990,7 +4990,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:676:Storm Clouds
-G:-:d
+G:-:w
 I:65:47:0
 W:70:0:10:3000
 A:70/2
@@ -4998,7 +4998,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:677:Burning Clouds
-G:-:d
+G:-:w
 I:65:48:0
 W:80:0:10:3500
 A:80/2
@@ -5006,7 +5006,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:678:Water Bolts
-G:-:d
+G:-:w
 I:65:49:0
 W:40:0:10:1500
 A:40/2
@@ -5014,7 +5014,7 @@ P:0:1d1:0:0:0
 F:IGNORE_WATER
 
 N:679:Whirlpools
-G:-:d
+G:-:w
 I:65:50:0
 W:80:0:10:6500
 A:80/3
@@ -5022,21 +5022,21 @@ P:0:1d1:0:0:0
 F:IGNORE_WATER
 
 N:680:Sound Bolts
-G:-:d
+G:-:w
 I:65:51:0
 W:50:0:10:2500
 A:50/2
 P:0:1d1:0:0:0
 
 N:681:Death
-G:-:d
+G:-:w
 I:65:52:1
 W:111:0:10:60000
 A:111/11
 P:0:1d1:0:0:0
 
 N:682:Dragon's Storm
-G:-:d
+G:-:w
 I:65:53:1
 W:50:0:10:2400
 A:50/4
@@ -5044,7 +5044,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:683:Dragon's Bile
-G:-:d
+G:-:w
 I:65:54:1
 W:50:0:10:2400
 A:50/4
@@ -5052,28 +5052,28 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:684:Dragon's Venom
-G:-:d
+G:-:w
 I:65:55:1
 W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
 
 N:685:Mana Bolts
-G:-:d
+G:-:w
 I:65:56:1
 W:60:0:10:4500
 A:60/2
 P:0:1d1:0:0:0
 
 N:686:Magic Arrows
-G:-:d
+G:-:w
 I:65:57:1
 W:70:0:10:3000
 A:70/4
 P:0:1d1:0:0:0
 
 N:687:Conjuring Flame
-G:-:d
+G:-:w
 I:65:58:1
 W:60:0:10:2000
 A:60/3
@@ -5081,7 +5081,7 @@ P:0:1d1:0:0:0
 F:IGNORE_FIRE
 
 N:688:Conjuring Acid
-G:-:d
+G:-:w
 I:65:59:1
 W:60:0:10:2000
 A:60/3
@@ -5089,7 +5089,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID
 
 N:689:Conjuring Ice
-G:-:d
+G:-:w
 I:65:60:1
 W:60:0:10:2000
 A:60/3
@@ -5097,7 +5097,7 @@ P:0:1d1:0:0:0
 F:IGNORE_COLD
 
 N:690:Conjuring Lightning
-G:-:d
+G:-:w
 I:65:61:1
 W:60:0:10:2000
 A:60/3
@@ -5105,7 +5105,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ELEC
 
 N:691:Striking
-G:-:d
+G:-:w
 I:65:62:1
 W:50:0:10:1800
 A:50/1

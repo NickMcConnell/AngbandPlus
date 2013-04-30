@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -2214,7 +2214,7 @@ void monster_death(int m_idx)
 
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-	bool do_chest = (r_ptr->flags7 & (RF7_DROP_CHEST));
+	bool do_chest = (r_ptr->flags7 & (RF7_DROP_CHEST) ? TRUE : FALSE);
 
 	int force_food = get_food_type(r_ptr);
 	int force_coin = get_coin_type(r_ptr);
@@ -3368,13 +3368,12 @@ cptr look_mon_desc(int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
-	int perc;
 
 
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
 	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
-	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
+	if (r_ptr->flags3 & (RF3_NONLIVING)) living = FALSE;
 
 
 	/* Healthy monsters */
@@ -3383,27 +3382,25 @@ cptr look_mon_desc(int m_idx)
 		/* No damage */
 		return (living ? "unhurt" : "undamaged");
 	}
-
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else
 	{
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		/* Calculate a health "percentage" */
+		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+
+		if (perc >= 60)
+			return(living ? "somewhat wounded" : "somewhat damaged");
+		else if (perc >= 25)
+			return (living ? "wounded" : "damaged");
+		else if (perc >= 10)
+			return (living ? "badly wounded" : "badly damaged");
+		else
+			return(living ? "almost dead" : "almost destroyed");
 	}
 
-	if (perc >= 25)
-	{
-		return (living ? "wounded" : "damaged");
-	}
-
-	if (perc >= 10)
-	{
-		return (living ? "badly wounded" : "badly damaged");
-	}
-
-	return (living ? "almost dead" : "almost destroyed");
+	if (m_ptr->csleep) return("asleep");
+	if (m_ptr->confused) return("confused");
+	if (m_ptr->monfear) return("afraid");
+	if (m_ptr->stunned) return("stunned");
 }
 
 
@@ -4104,7 +4101,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 					/* Interact */
 					while (1)
@@ -4190,11 +4187,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
-			int floor_list[24];
+			int floor_list[MAX_FLOOR_STACK];
 			int floor_num;
 
 			/* Scan for floor objects */
-			floor_num = scan_floor(floor_list, 24, y, x, 0x02);
+			floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, y, x, 0x02);
 
 			/* Actual pile */
 			if (floor_num > 1)
@@ -4280,7 +4277,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Interact */
 				while (1)
@@ -4376,7 +4373,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			    (f_info[feat].flags2 & (FF2_DEEP)) ||
 			    (f_info[feat].flags2 & (FF2_FILLED)) ||
 			    (f_info[feat].flags2 & (FF2_CHASM)) ||
-			    (f_info[feat].flags3 & (FF3_CAN_HIDE)) ||
+			    (f_info[feat].flags2 & (FF2_HIDE_SNEAK)) ||
 			    (f_info[feat].flags3 & (FF3_NEED_TREE)) ))
 			{
 				s2 = "in ";

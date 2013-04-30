@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -555,7 +555,8 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
+		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->discount = (INSCRIP_EMPTY);
 		return;
 	}
 
@@ -619,7 +620,7 @@ void do_cmd_use_staff(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) &&
+	if ((o_ptr->number > 1) &&
 	((!variant_pval_stacks) || 
 	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
@@ -657,8 +658,16 @@ void do_cmd_use_staff(void)
 		}
 
 		/* Adjust the weight and carry */
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
+		if (item >= 0)
+		{
+			p_ptr->total_weight -= i_ptr->weight;
+			item = inven_carry(i_ptr);
+		}
+		else
+		{
+			item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+			floor_item_describe(item);
+		}
 
 		/* Message */
 		msg_print("You unstack your staff.");
@@ -823,7 +832,8 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
+		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->discount = (INSCRIP_EMPTY);
 		return;
 	}
 
@@ -883,7 +893,7 @@ void do_cmd_aim_wand(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) &&
+	if ((o_ptr->number > 1) &&
 	((!variant_pval_stacks) || 
 	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
@@ -921,8 +931,16 @@ void do_cmd_aim_wand(void)
 		}
 
 		/* Adjust the weight and carry */
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
+		if (item >= 0)
+		{
+			p_ptr->total_weight -= i_ptr->weight;
+			item = inven_carry(i_ptr);
+		}
+		else
+		{
+			item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+			floor_item_describe(item);
+		}
 
 		/* Message */
 		msg_print("You unstack your wand.");
@@ -1149,7 +1167,7 @@ void do_cmd_zap_rod(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->timeout > 0))
+	if ((o_ptr->number > 1) && (o_ptr->timeout > 0))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -1175,8 +1193,17 @@ void do_cmd_zap_rod(void)
 		/* Reset the stack if required */
 		if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
 
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
+		/* Adjust the weight and carry */
+		if (item >= 0)
+		{
+			p_ptr->total_weight -= i_ptr->weight;
+			item = inven_carry(i_ptr);
+		}
+		else
+		{
+			item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+			floor_item_describe(item);
+		}
 
 		/* Message */
 		msg_print("You unstack your rod.");
@@ -1420,7 +1447,7 @@ void do_cmd_activate(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->timeout > 0))
+	if ((o_ptr->number > 1) && (o_ptr->timeout > 0))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -1448,11 +1475,20 @@ void do_cmd_activate(void)
 		/* Reset the stack if required */
 		if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
 
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
+		/* Adjust the weight and carry */
+		if (item >= 0)
+		{
+			p_ptr->total_weight -= i_ptr->weight;
+			item = inven_carry(i_ptr);
+		}
+		else
+		{
+			item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+			floor_item_describe(item);
+		}
 
 		/* Describe */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Message */
 		msg_format("You unstack your %s.",o_name);
@@ -1656,11 +1692,11 @@ void do_cmd_apply_rune(void)
 			/* Hack -- Clear the "bonus" flag */
 			i_ptr->ident &= ~(IDENT_BONUS);
 
+			/* Hack -- Clear the "store" flag */
+			i_ptr->ident &= ~(IDENT_STORE);
+
 			/* Hack -- Clear the "known" flag */
 			i_ptr->ident &= ~(IDENT_KNOWN);
-
-			/* Hack -- Clear the "empty" flag */
-			i_ptr->ident &= ~(IDENT_EMPTY);
 
 			break;
 		}
@@ -1746,8 +1782,11 @@ void do_cmd_apply_rune(void)
 					/* Hack -- Clear the "known" flag */
 					i_ptr->ident &= ~(IDENT_KNOWN);
 
-					/* Hack -- Clear the "empty" flag */
-					i_ptr->ident &= ~(IDENT_EMPTY);
+					/* Hack -- Clear the "store" flag */
+					i_ptr->ident &= ~(IDENT_STORE);
+
+					/* Hack -- Clear the "known" flag */
+					i_ptr->ident &= ~(IDENT_KNOWN);
 
 					break;
 				}

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -689,9 +689,6 @@ bool lose_all_info(void)
 
 		/* Hack -- Clear the "known" flag */
 		o_ptr->ident &= ~(IDENT_KNOWN);
-
-		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
 	}
 
 	/* Recalculate bonuses */
@@ -1158,7 +1155,7 @@ bool detect_objects_magic(void)
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
-		int feel = INSCRIP_AVERAGE;
+		int feel = 0;
 
 		bool okay = FALSE;
 
@@ -1262,7 +1259,7 @@ bool detect_objects_magic(void)
 	/* Sense inventory */
 	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
-		int feel = INSCRIP_AVERAGE;
+		int feel = 0;
 
 		bool okay = FALSE;
 
@@ -1291,6 +1288,8 @@ bool detect_objects_magic(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_STAFF:
+			case TV_INSTRUMENT:
 			{
 				okay = TRUE;
 				break;
@@ -1364,6 +1363,8 @@ bool detect_objects_cursed(void)
 	{
 		int feel;
 
+		bool okay = FALSE;
+
 		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
@@ -1398,6 +1399,39 @@ bool detect_objects_cursed(void)
 			detect = TRUE;
 		}
 
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			case TV_AMULET:
+			case TV_RING:
+			case TV_STAFF:
+			case TV_INSTRUMENT:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip objects */
+		if (!okay) continue;
+
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;
 
@@ -1427,10 +1461,45 @@ bool detect_objects_cursed(void)
 	{
 		int feel;
 
+		bool okay = FALSE;
+
 		object_type *o_ptr = &inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			case TV_AMULET:
+			case TV_RING:
+			case TV_STAFF:
+			case TV_INSTRUMENT:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip objects */
+		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;
@@ -1442,7 +1511,7 @@ bool detect_objects_cursed(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-		 feel = value_check_aux4(o_ptr);
+		feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
 		if (!feel) continue;
@@ -2294,7 +2363,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	}
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Describe */
 	msg_format("%s %s glow%s brightly!",
@@ -2373,7 +2442,7 @@ bool brand_item(int brand, cptr act)
 	}
 
 	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Describe */
 	msg_format("%s %s %s!",
@@ -2531,7 +2600,7 @@ bool ident_spell(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -2603,7 +2672,7 @@ bool ident_spell_bonus(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -2746,7 +2815,7 @@ bool ident_spell_rumor(void)
 		object_can_flags(o_ptr,f1,f2,f3);
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Describe */
 		if (item >= INVEN_WIELD)
@@ -2858,7 +2927,7 @@ bool ident_spell_tval(int tval)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -2937,7 +3006,7 @@ bool identify_fully(void)
 	handle_stuff();
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -3134,8 +3203,11 @@ bool recharge(int num)
 			/* Hack -- we no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
 
-			/* Hack -- we no longer think the item is empty */
-			o_ptr->ident &= ~(IDENT_EMPTY);
+			/* Hack -- we no longer "sense" the item */
+			o_ptr->ident &= ~(IDENT_SENSE);
+
+			/* Hack -- the item is no longer empty */
+			if (o_ptr->discount < INSCRIP_MIN_HIDDEN) o_ptr->discount = 0;
 
 			/* Hack -- round up */
 			o_ptr->stackc = 0;
@@ -4403,7 +4475,7 @@ static void wield_spell(int item, int k_idx, int time)
 
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(item));
@@ -4645,7 +4717,7 @@ static bool curse_armor(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
 	if (artifact_p(o_ptr) && (rand_int(100) < 50))
@@ -4713,7 +4785,7 @@ static bool curse_weapon(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
 	if (artifact_p(o_ptr) && (rand_int(100) < 50))

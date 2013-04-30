@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -19,9 +19,9 @@
 /*
  * Max sizes of the following arrays.
  */
-
 #define MAX_TITLES     75       /* Used with scrolls (min 65) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
+
 
 /*
  * Syllables for scrolls (must be 1-4 letters each).
@@ -60,66 +60,95 @@ static cptr syllables[MAX_SYLLABLES] =
 
 static char scroll_adj[MAX_TITLES][16];
 
-/*
- * Certain items, if aware, are known instantly.
- *
- * This function is used only by "flavor_init()".
- *
- * Add "EASY_KNOW" flag to "k_info.txt" file.  XXX XXX XXX
- */
-static bool object_easy_know(int i)
+
+static void flavor_assign_fixed(void)
 {
-	object_kind *k_ptr = &k_info[i];
+	int i, j;
 
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
+	for (i = 0; i < z_info->x_max; i++)
 	{
-		/* Spellbooks */
-		case TV_SPELL:
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_SONG_BOOK:
-		{
-			return (TRUE);
-		}
+		flavor_type *flavor_ptr = &x_info[i];
 
-		/* Simple items */
-		case TV_FLASK:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_BODY:
-		case TV_SKIN:
-		case TV_BONE:
-		case TV_EGG:
-		case TV_FIGURE:
-		case TV_STATUE:
-		{
-			return (TRUE);
-		}
+		/* Skip random flavors */
+		if (flavor_ptr->sval == SV_UNKNOWN) continue;
 
-		/* All Food, Potions, Scrolls, Rods */
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
-		case TV_ROD:
-		case TV_MAP:
+		for (j = 0; j < z_info->k_max; j++)
 		{
-			return (TRUE);
+			/* Skip other objects */
+			if ((k_info[j].tval == flavor_ptr->tval) &&
+			    (k_info[j].sval == flavor_ptr->sval))
+			{
+				/* Store the flavor index */
+				k_info[j].flavor = i;
+			}
 		}
+	}
+}
 
-		/* Some Rings, Amulets, Lites, Containers */
-		case TV_HOLD:
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LITE:
+
+static void flavor_assign_random(byte tval)
+{
+	int i, j;
+	int flavor_count = 0;
+	int choice;
+
+	/* Count the random flavors for the given tval */
+	for (i = 0; i < z_info->x_max; i++)
+	{
+		if ((x_info[i].tval == tval) &&
+		    (x_info[i].sval == SV_UNKNOWN))
 		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
+			flavor_count++;
 		}
 	}
 
-	/* Nope */
-	return (FALSE);
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		/* Skip other object types */
+		if (k_info[i].tval != tval) continue;
+
+		/* Skip objects that already are flavored */
+		if (k_info[i].flavor != 0) continue;
+
+		/* HACK - Ordinary food is "boring" */
+		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
+			continue;
+
+		/* HACK - Ordinary lites are "boring" */
+		if ((tval == TV_LITE) && (k_info[i].sval >= SV_LITE_MAX_LITE))
+			continue;
+
+		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
+
+		/* Select a flavor */
+		choice = rand_int(flavor_count);
+	
+		/* Find and store the flavor */
+		for (j = 0; j < z_info->x_max; j++)
+		{
+			/* Skip other tvals */
+			if (x_info[j].tval != tval) continue;
+
+			/* Skip assigned svals */
+			if (x_info[j].sval != SV_UNKNOWN) continue;
+
+			if (choice == 0)
+			{
+				/* Store the flavor index */
+				k_info[i].flavor = j;
+
+				/* Mark the flavor as used */
+				x_info[j].sval = k_info[i].sval;
+
+				/* One less flavor to choose from */
+				flavor_count--;
+
+				break;
+			}
+
+			choice--;
+		}
+	}
 }
 
 
@@ -154,15 +183,26 @@ static bool object_easy_know(int i)
  */
 void flavor_init(void)
 {
-	int i, j, k;
+	int i, j;
 
-	int tvalc[100];
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
 	/* Hack -- Induce consistant flavors */
 	Rand_value = seed_flavor;
+
+
+	flavor_assign_fixed();
+
+	flavor_assign_random(TV_RING);
+	flavor_assign_random(TV_AMULET);
+	flavor_assign_random(TV_STAFF);
+	flavor_assign_random(TV_WAND);
+	flavor_assign_random(TV_ROD);
+	flavor_assign_random(TV_FOOD);
+	flavor_assign_random(TV_POTION);
+	flavor_assign_random(TV_SCROLL);
 
 	/* Scrolls (random titles, always white) */
 	for (i = 0; i < MAX_TITLES; i++)
@@ -194,7 +234,7 @@ void flavor_init(void)
 				for (q = 0; q < s; q++)
 				{
 					/* Add the syllable */
-					strcat(tmp, syllables[rand_int(MAX_SYLLABLES)]);
+					my_strcat(tmp, syllables[rand_int(MAX_SYLLABLES)], sizeof(tmp));
 				}
 
 				/* Stop before getting too long */
@@ -204,11 +244,11 @@ void flavor_init(void)
 				strcat(buf, " ");
 
 				/* Add the word */
-				strcat(buf, tmp);
+				my_strcat(buf, tmp, sizeof(buf));
 			}
 
 			/* Save the title */
-			strcpy(scroll_adj[i], buf+1);
+			my_strcpy(scroll_adj[i], buf+1, sizeof(scroll_adj[0]));
 
 			/* Assume okay */
 			okay = TRUE;
@@ -237,53 +277,6 @@ void flavor_init(void)
 		}
 	}
 
-	/* Reset tval count */
-	for (i = 0; i<100;i++)
-	{
-		tvalc[i]=0;
-	}
-
-	/* Analyze flavors */
-	for (i = 0; i<z_info->x_max;i++)
-	{
-		flavor_type *x_ptr = &x_info[i];
-
-		for (j = 0; j < 5; j++)
-		{
-			int min = x_ptr->min_sval[j];
-			int max = x_ptr->max_sval[j];
-
-			int tval = x_ptr->tval[j];
-
-			int count = tvalc[tval] + 1;
-			int flavor = i;
-
-			if (!tval) break;
-
-			if (count > max-min) count = max-min+1;
-
-			for (k = 0; (k < z_info->k_max) && flavor && count; k++)
-			{
-				if (k_info[k].tval != tval) continue;
-
-				if (k_info[k].sval < min) continue;
-				if (k_info[k].sval > max) continue;
-
-				if (!(k_info[k].flavor) || !(rand_int(count)))
-				{
-					int tmp;
-
-					tmp = k_info[k].flavor;
-					k_info[k].flavor = flavor;
-					flavor = tmp;
-				}
-
-				count--;
-
-				if (flavor == 0) tvalc[tval]++;
-			}
-		}
-	}
 
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = FALSE;
@@ -296,23 +289,10 @@ void flavor_init(void)
 		/* Skip "empty" objects */
 		if (!k_ptr->name) continue;
 
-		/* Hack -- scrolls */
-		if (k_ptr->tval == TV_SCROLL) k_ptr->flavor = z_info->x_max-1;
-
-		/* Check for "easily known" */
-		k_ptr->easy_know = object_easy_know(i);
-
-		/* Hack -- color if flavoured */
-		if (k_ptr->flavor)
-		{
-			k_ptr->d_attr = x_info[k_ptr->flavor].d_attr;
-			k_ptr->x_attr = x_info[k_ptr->flavor].x_attr;
-		}
+		/* No flavor yields aware */
+		if (!k_ptr->flavor) k_ptr->aware = TRUE;
 	}
-
 }
-
-
 
 #ifdef ALLOW_BORG_GRAPHICS
 extern void init_translate_visuals(void);
@@ -561,7 +541,7 @@ void reset_visuals(bool unused)
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
  */
-void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
 	cptr basenm;
 	cptr modstr;
@@ -615,6 +595,17 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Allow flavors to be hidden when aware */
 	if (aware && !show_flavors) flavor = FALSE;
+
+	/* Object is in the inventory of a store */
+	if (o_ptr->ident & IDENT_STORE)
+	{
+		/* Don't show flavors */
+		flavor = FALSE;
+
+		/* Pretend known and aware */
+		aware = TRUE;
+		known = TRUE;
+	}
 
 	/* Assume no name appending */
 	append_name = FALSE;
@@ -688,7 +679,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			if (artifact_p(o_ptr) && aware) break;
 
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
@@ -703,16 +694,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			if (artifact_p(o_ptr) && aware) break;
 
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Ring~" : "& Ring~");
-
-			/* Mega-Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER))
-			{
-				modstr = "Plain Gold";
-			}
 
 			break;
 		}
@@ -722,7 +707,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
@@ -735,7 +720,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Wand~" : "& Wand~");
@@ -747,7 +732,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_ROD:
 		{
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Rod~" : "& Rod~");
@@ -770,7 +755,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_POTION:
 		{
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Potion~" : "& Potion~");
@@ -785,7 +770,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Color the object */
-			modstr = x_name + x_info[flavor].name;
+			modstr = x_text + x_info[flavor].text;
 
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
@@ -1457,12 +1442,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		v = "cursed";
 	}
 
-	/* Hack -- Use "empty" for empty wands/staffs */
-	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
-	{
-		v = "empty";
-	}
-
 	/* Use "tried" if the object has been tested unsuccessfully, but not guessed */
 	else if (!aware && object_tried_p(o_ptr))
 	{
@@ -1532,52 +1511,24 @@ object_desc_done:
 	strcpy(buf, tmp_buf);
 }
 
-
 /*
- * Hack -- describe an item currently in a store's inventory
- * This allows an item to *look* like the player is "aware" of it
+ * Describe an item and pretend the item is fully known and has no flavor.
  */
-void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode)
+void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;
 
-	u16b hack_flavor;
-	bool hack_aware;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Copy the object */
+	/* Make a backup */
 	object_copy(i_ptr, o_ptr);
 
-	/* Save the "flavor" */
-	hack_flavor = k_info[i_ptr->k_idx].flavor;
+	/* HACK - Pretend the object is in a store inventory */
+	i_ptr->ident |= IDENT_STORE;
 
-	/* Save the "aware" flag */
-	hack_aware = k_info[i_ptr->k_idx].aware;
-
-	/* Clear the flavor */
-	k_info[i_ptr->k_idx].flavor = 0;
-
-	/* Set the "known" flag */
-	i_ptr->ident |= (IDENT_KNOWN);
-
-	/* Force "aware" for description */
-	k_info[i_ptr->k_idx].aware = TRUE;
-
-
-	/* Describe the object */
-	object_desc(buf, i_ptr, pref, mode);
-
-
-	/* Restore "flavor" value */
-	k_info[i_ptr->k_idx].flavor = hack_flavor;
-
-	/* Restore "aware" flag */
-	k_info[i_ptr->k_idx].aware = hack_aware;
+	/* Describe */
+	object_desc(buf, max, i_ptr, pref, mode);
 }
+
 
 /*
  * Convert an inventory index into a one character label.
@@ -2101,7 +2052,7 @@ void display_inven(void)
 		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -2174,7 +2125,7 @@ void display_equip(void)
 		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -2266,7 +2217,7 @@ void show_inven(void)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -2376,7 +2327,7 @@ void show_equip(void)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Truncate the description */
 		o_name[lim] = 0;
@@ -2475,9 +2426,9 @@ void show_floor(const int *floor_list, int floor_num)
 
 	char tmp_val[80];
 
-	int out_index[24];
-	byte out_color[24];
-	char out_desc[24][80];
+	int out_index[MAX_FLOOR_STACK];
+	byte out_color[MAX_FLOOR_STACK];
+	char out_desc[MAX_FLOOR_STACK][80];
 
 
 	/* Default length */
@@ -2498,7 +2449,7 @@ void show_floor(const int *floor_list, int floor_num)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -2507,10 +2458,10 @@ void show_floor(const int *floor_list, int floor_num)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the object description */
-		strcpy(out_desc[k], o_name);
+		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Find the predicted "line length" */
 		l = strlen(out_desc[k]) + 5;
@@ -2563,7 +2514,6 @@ void show_floor(const int *floor_list, int floor_num)
 }
 
 #endif /* ALLOW_EASY_FLOOR */
-
 
 
 /*
@@ -2632,7 +2582,7 @@ static bool verify_item(cptr prompt, int item)
 	}
 
 	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Prompt */
 	sprintf(out_val, "%s %s? ", prompt, o_name);
@@ -2874,7 +2824,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
-	int floor_list[24];
+	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
 
@@ -2950,7 +2900,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (e1 <= e2) allow_equip = TRUE;
 
 	/* Scan all objects in the grid */
-	floor_num = scan_floor(floor_list, 23, py, px, 0x00);
+	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x00);
 
 	/* Full floor */
 	f1 = 0;

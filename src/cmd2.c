@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -63,6 +63,7 @@ bool do_cmd_test(int y, int x, int action)
 		case FS_MORE: act=" to climb down"; break;
 		case FS_RUN: act=" to run on"; break;
 		case FS_KILL_MOVE: act=" to disturb"; break;
+		case FS_FLOOR: act=" to set a trap on"; break;
 		default: break;
 	}
 
@@ -1123,6 +1124,9 @@ void do_cmd_tunnel(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -1134,8 +1138,8 @@ void do_cmd_tunnel(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	/* Apply confusion */
+	if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1183,18 +1187,20 @@ void do_cmd_tunnel(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_disarm_aux(int y, int x)
+static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 {
 	int i, j, power;
 
-	cptr name;
+	cptr name, act;
 
 	bool more = FALSE;
 
+	/* Arm or disarm */
+	if (disarm) act = "disarm";
+	else act = "arm";
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_DISARM)) return (FALSE);
-
+	if (!do_cmd_test(y, x, (disarm ? FS_DISARM : FS_TRAP))) return (FALSE);
 
 	/* Get the trap name */
 	name = (f_name + f_info[cave_feat[y][x]].name);
@@ -1211,6 +1217,13 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Extract trap "power" */
 	power = f_info[cave_feat[y][x]].power;
 
+	/* Player trap */
+	if (cave_o_idx[y][x])
+	{
+		/* Use object level instead */
+		power = k_info[o_list[cave_o_idx[y][x]].k_idx].level;
+	}
+
 	/* Extract the difficulty */
 	j = i - power;
 
@@ -1220,29 +1233,21 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Success */
 	if (rand_int(100) < j)
 	{
-		object_type object_type_body;
-
-		object_type *o_ptr = &object_type_body;
-
 		/* Message */
-		msg_format("You have disarmed the %s.", name);
+		msg_format("You have %sed the %s.", act, name);
 
 		/* Reward */
 		gain_exp(power);
 
-		/* Drop an object */
-		if (make_feat(o_ptr, cave_feat[y][x]))
-		{
-			/* Drop (or break) near that location */
-			drop_near(o_ptr, 0, y, x);
-		}
-
 		/* Remove the trap */
-		cave_alter_feat(y, x, FS_DISARM);
+		if (disarm)
+		{
+			/* Remove the trap */
+			cave_alter_feat(y, x, FS_DISARM);
 
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
 	}
 
 	/* Failure -- Keep trying */
@@ -1252,10 +1257,20 @@ static bool do_cmd_disarm_aux(int y, int x)
 		if (flush_failure) flush();
 
 		/* Message */
-		msg_format("You failed to disarm the %s.", name);
+		msg_format("You failed to %s the %s.", act, name);
 
 		/* We may keep trying */
 		more = TRUE;
+
+		/* Remove the trap */
+		if (!disarm)
+		{
+			/* Remove the trap */
+			cave_alter_feat(y, x, FS_DISARM);
+
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
 	}
 
 	/* Failure -- Set off the trap */
@@ -1353,7 +1368,7 @@ void do_cmd_disarm(void)
 	else
 	{
 		/* Disarm the trap */
-		more = do_cmd_disarm_aux(y, x);
+		more = do_cmd_disarm_aux(y, x, TRUE);
 	}
 
 	/* Cancel repeat unless told not to */
@@ -1597,6 +1612,9 @@ void do_cmd_alter(void)
 	/* Get a direction */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -1615,8 +1633,8 @@ void do_cmd_alter(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	/* Apply confusion */
+	if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1648,7 +1666,7 @@ void do_cmd_alter(void)
 	else if (f_info[feat].flags1 & (FF1_DISARM))
 	{
 		/* Tunnel */
-		more = do_cmd_disarm_aux(y, x);
+		more = do_cmd_disarm_aux(y, x, TRUE);
 	}
 
 	/* Open closed doors */
@@ -1696,59 +1714,80 @@ void do_cmd_alter(void)
 
 
 /*
- * Find the index of some "spikes", if possible.
- *
- * XXX XXX XXX Let user choose a pile of spikes, perhaps?
+ * Hook to determine if an object is good to throw
  */
-static bool get_spike(int *ip)
+static bool item_tester_hook_throwing(const object_type *o_ptr)
 {
-	int i;
+	u32b f1, f2, f3;
 
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+	/* Check activation flag */
+	if (f3 & (TR3_THROWING)) return (TRUE);
 
-		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
-		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-	/* Oops */
+	/* Assume not */
 	return (FALSE);
 }
 
 
 /*
- * Jam a closed door with a spike
+ * Hack -- Set a trap or jam a door closed with a spike.
  *
- * This command may NOT be repeated
+ * This command may not be repeated.
+ *
+ * See pick_trap for how traps are chosen, and hit_trap and mon_hit_trap for what
+ * player set traps will do.
  */
-void do_cmd_spike(void)
+void do_cmd_set_trap_or_spike(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x, dir, item;
+	int y, x, dir, item, action;
 
+	object_type *o_ptr;
 
-	/* Get a spike */
-	if (!get_spike(&item))
+	cptr q,s;
+
+	/* Get an item */
+	q = "Spike/Set trap with which item? ";
+	s = "You have nothing to set a trap or spike with.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
 	{
-		/* Message */
-		msg_print("You have no spikes!");
+		object_type object_type_body;
 
-		/* Done */
-		return;
+		o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
+
+	/* Get the item (in the pack) */
+	else if (item >= 0)
+        {
+
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Spiking or setting trap? */
+	if (o_ptr->tval == TV_SPIKE)
+	{
+		/* We are spiking */
+		action = FS_SPIKE;
+	}
+	else
+	{
+		/* Hack -- only set traps on floors (at this stage) XXX */
+		action = FS_FLOOR;
 	}
 
 #ifdef ALLOW_EASY_OPEN
@@ -1756,8 +1795,8 @@ void do_cmd_spike(void)
 	/* Easy Bash */
 	if (easy_open)
 	{
-/* Handle a single visible trap */
-if (count_feats(&y, &x, FS_SPIKE)==1)
+		/* Handle a single visible trap */
+		if (count_feats(&y, &x, action)==1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
@@ -1774,11 +1813,14 @@ if (count_feats(&y, &x, FS_SPIKE)==1)
 
 
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_SPIKE)) return;
+	if (!do_cmd_test(y, x, action)) return;
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Take a (partial) turn */
+	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
+
 
 	/* Apply stuck / confusion */
 	if (stuck_player(&dir) || confuse_dir(&dir))
@@ -1804,7 +1846,7 @@ if (count_feats(&y, &x, FS_SPIKE)==1)
 	else
 	{
 		/* Verify legality */
-		if (!do_cmd_test(y, x, FS_SPIKE)) return;
+		if (!do_cmd_test(y, x, action)) return;
 
 
 		/* Trapped door */
@@ -1823,28 +1865,150 @@ if (count_feats(&y, &x, FS_SPIKE)==1)
 			(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 		{
 			/* Stuck */
-		find_secret(y,x);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		}
-
-		/* Spike the door */
-		else 
-		{
-			cave_alter_feat(y,x,FS_SPIKE);
+			find_secret(y,x);
 
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
 
+		/* Spike the door */
+		else if (action == FS_SPIKE)
+		{
+			cave_alter_feat(y,x,FS_SPIKE);
 
-		/* Use up, and describe, a single spike, from the bottom */
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			/* Destroy the feature */
+			if (item >= INVEN_TOTAL+1)
+			{
+				cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+			}
+			/* Destroy a spike in the pack */
+			else if (item >= 0)
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
+
+			/* Destroy a spike on the floor */
+			else
+			{
+				floor_item_increase(0 - item, -1);
+				floor_item_describe(0 - item);
+				floor_item_optimize(0 - item);
+			}
+		}
+
+		/* Set the trap */
+		/* We only let the player set traps when there are no existing
+               objects in the grid OR the existing objects in the grid have
+               the same tval and sval as the trap being set OR the trap
+               being set is TV_BOW and all the objects in the grid can be fired
+               by the bow in question */
+		else
+		{
+			int this_o_idx, next_o_idx;
+
+			bool trap_allowed = TRUE;
+
+			object_type object_type_body;
+
+			object_type *j_ptr;
+
+			/* Get object body */
+			j_ptr = &object_type_body;
+
+			/* Structure Copy */
+			object_copy(j_ptr, o_ptr);
+
+			/* Set one object only */
+			j_ptr->number = 1;
+
+			/* Scan all objects in the grid */
+			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *i_ptr;
+
+				/* Get the object */
+				i_ptr = &o_list[this_o_idx];
+
+				/* Get the next object */
+				next_o_idx = i_ptr->next_o_idx;
+
+				/* Check if fired */
+				if (j_ptr->tval == TV_BOW)
+				{
+					switch(j_ptr->sval)
+					{
+						case SV_LONG_BOW:
+						case SV_SHORT_BOW:
+						{
+							if (i_ptr->tval != TV_ARROW) trap_allowed = FALSE;
+							break;
+						}
+						case SV_LIGHT_XBOW:
+						case SV_HEAVY_XBOW:
+						{
+							if (i_ptr->tval != TV_BOLT) trap_allowed = FALSE;
+							break;
+						}
+						default:
+						{
+							if (!item_tester_hook_throwing(i_ptr)) trap_allowed = FALSE;
+							break;
+						}
+					}
+				}
+				else if ((j_ptr->tval != i_ptr->tval) || (j_ptr->sval != i_ptr->sval))
+				{
+					/* Not allowed */
+					trap_allowed = FALSE;
+				}
+			}
+
+			/* Trap allowed? */
+			if ((trap_allowed) && (floor_carry(y,x,j_ptr)))
+			{
+				/* Hack -- ensure trap is created */
+				object_level = 128;
+
+				/* Set the floor trap */
+				cave_set_feat(y,x,FEAT_INVIS);
+
+				/* Set the trap */
+				pick_trap(y,x);
+
+				/* Reset object level */
+				object_level = p_ptr->depth;
+
+				/* Check if we can arm it? */
+				do_cmd_disarm_aux(y,x, FALSE);
+	
+				/* Destroy the feature */
+				if (item >= INVEN_TOTAL+1)
+				{
+					cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+				}
+				/* Destroy a food in the pack */
+				else if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+
+				/* Destroy a food on the floor */
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+		}
 	}
 }
 
@@ -1923,7 +2087,7 @@ static void do_cmd_walk_or_jump(int jumping)
 	if (!do_cmd_walk_test(y, x)) return;
 
 	/* Take time */
-	if ((variant_fast_moves) && !(p_ptr->searching) && !(f_info[cave_feat[y][x]].flags3 & FF3_FULL_MOVE)) p_ptr->energy_use = 50;
+	if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
 	else p_ptr->energy_use = 100;
 
 	/* Hack -- handle stuck players */
@@ -2219,7 +2383,7 @@ void do_cmd_rest(void)
  *
  * Note that artifacts never break, see the "drop_near()" function.
  */
-static int breakage_chance(object_type *o_ptr)
+int breakage_chance(object_type *o_ptr)
 {
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -2265,24 +2429,6 @@ static int breakage_chance(object_type *o_ptr)
 	/* Rarely break */
 	return (10);
 }
-
-/*
- * Hook to determine if an object is activatable and charged
- */
-static bool item_tester_hook_throwing(const object_type *o_ptr)
-{
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Check activation flag */
-	if (f3 & (TR3_THROWING)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
-
 
 /*
  * Fire an object from the pack or floor.
@@ -2440,7 +2586,7 @@ void do_cmd_fire(void)
 
 
 	/* Describe the object */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
@@ -2838,7 +2984,7 @@ void do_cmd_throw(void)
 
 
 	/* Description */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);

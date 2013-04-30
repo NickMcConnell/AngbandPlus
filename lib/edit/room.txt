@@ -61,7 +61,7 @@
 
 # Version stamp (required)
 
-V:2.9.6
+V:3.0.1
 
 # 20% of rooms have at least one kind of visible feature
 
@@ -72,13 +72,13 @@ D:
 
 # another 20% of rooms have one kind of visible feature
 
-N:1:4:10:0
+N:1:4:40:0
 A:
 B:
 D:
 
 
-# 80% may only have non-visible features
+# 60% may only have non-visible features
 
 N:1:7:100:0
 A:
@@ -253,14 +253,14 @@ B:
 D:A shallow grave 
 R:UNDEAD
 S:SEEN
-F:135
+F:457
 
 N:4:5:13:0
 A:sunken
 B:
 D:A sunken pit 
 S:SEEN
-F:445
+F:457
 
 N:4:5:14:0
 A:
@@ -385,18 +385,11 @@ S:SEEN
 N:4:5:31:0
 A:
 B:
-F:422
-D:A hollow tree 
-S:SEEN
-
-N:4:5:32:0
-A:
-B:
 F:426
 D:An apple tree 
 S:SEEN
 
-N:4:5:33:10
+N:4:5:32:10
 A:
 B:pen
 D:A wooden cage 
@@ -434,7 +427,7 @@ B:
 D:aginst the west wall is 
 S:SEEN
 
-N:4:6:70:0
+N:5:6:70:0
 A:
 B:
 D:against the south wall is 

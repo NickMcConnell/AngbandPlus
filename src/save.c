@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -242,7 +242,6 @@ static void wr_item(const object_type *o_ptr)
 	}
 }
 
-
 /*
  * Write a "monster" record
  */
@@ -261,8 +260,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
 	if (variant_unsummon)
 	{
-		wr_s16b(m_ptr->summoned);
-		wr_byte(m_ptr->mflag);
+		wr_byte(m_ptr->summoned);
+		wr_u16b(m_ptr->mflag);
 		wr_byte(m_ptr->min_range);
 		wr_byte(m_ptr->best_range);
 		wr_byte(m_ptr->ty);
@@ -527,16 +526,13 @@ static void wr_extra(void)
 
 	u16b tmp16u;
 
-	if (!variant_more_spells) max_spells = 64;
+	if (!variant_study_more) max_spells = 64;
 
 	wr_string(op_ptr->full_name);
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
-	{
-		wr_string(p_ptr->history[i]);
-	}
+	wr_string(p_ptr->history);
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);

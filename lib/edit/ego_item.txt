@@ -92,7 +92,7 @@
 
 # Version stamp (required)
 
-V:2.9.6
+V:3.0.1
 
 ### Body Armor & Shields ###
 
@@ -191,7 +191,7 @@ C:0:0:50:0
 T:35:0:99
 T:36:0:99
 T:37:0:99
-F:LIGHT_CURSE
+F:LIGHT_CURSE | DRAIN_MANA
 Y:2:3
 
 ### Robes only ###
@@ -435,7 +435,7 @@ X:33:0:0
 C:0:0:0:5
 W:0:2:0:0
 T:33:0:99
-F:STR | DEX | CON | LIGHT_CURSE
+F:STR | DEX | CON | LIGHT_CURSE | DRAIN_HP
 
 ### Cloaks ###
 
@@ -716,7 +716,7 @@ T:22:10:99
 T:23:16:99
 C:10:10:0:2 
 F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE | 
-F:IGNORE_ACID | IGNORE_FIRE
+F:IGNORE_ACID | IGNORE_FIRE | DRAIN_MANA
 Y:23:4
 
 # 71 (unused)
@@ -1091,7 +1091,7 @@ X:25:0:0
 W:127:1:0:0
 C:10:10:0:0
 T:19:0:99
-F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS
+F:LIGHT_CURSE | DRAIN_EXP | DRAIN_MANA | SEE_INVIS
 Y:18:2
 
 ### Ammo ###

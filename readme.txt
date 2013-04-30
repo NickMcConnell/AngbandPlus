@@ -3,7 +3,7 @@
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
                                    |___/                      
-           The Unnamed Angband                  Version 0.5.3
+           The Unnamed Angband                  Version 0.5.4
 
                    Earlier versions of Angband & Moria by:
       Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
@@ -21,9 +21,10 @@
 
 === General Info ===
 
-2002-10-25 - UnAngband 0.5.3: "Let It Be" (the Killer Beatle release).
+2003-March-31 - UnAngband 0.5.4: "It'll be Sangband Next"
+(Out the door release).
 
-This is the README file for Unnamed Angband 0.5.3 for 25th October 2002.
+This is the README file for Unnamed Angband 0.5.4 for 31st March 2003.
 
 For a more recent list of changes, read changes.txt.
 

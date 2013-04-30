@@ -1761,15 +1761,17 @@ static void display_player_xtra_info(void)
 	desc = likert(xsrh, 6);
 	c_put_str(likert_color, format("%9s", desc), 17, col+14);
 
-
-	/* Bottom */
-	col = 5;
+	/* Indent output by 1 character, and wrap at column 72 */
+	text_out_wrap = 72;
+	text_out_indent = 1;
 
 	/* History */
-	for (i = 0; i < 4; i++)
-	{
-		put_str(p_ptr->history[i], i + 19, col);
-	}
+	Term_gotoxy(text_out_indent, 19);
+	text_out_to_screen(TERM_WHITE, p_ptr->history);
+
+	/* Reset text_out() vars */
+	text_out_wrap = 0;
+	text_out_indent = 0;
 }
 
 
@@ -2428,7 +2430,7 @@ errr file_character(cptr name, bool full)
 	text_out_file = fff;
 
 	/* Begin dump */
-	fprintf(fff, "  [Unangband 0.5.2a Character Dump]\n\n");
+	fprintf(fff, "  [Unangband 0.5.3b Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);
@@ -2483,7 +2485,7 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < inven_max; i++)
 		{
-			object_desc(o_name, &inventory[i], TRUE, 3);
+			object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
 			        index_to_label(i), o_name);
 
@@ -2499,7 +2501,7 @@ errr file_character(cptr name, bool full)
 	{
 		if (!inventory[i].k_idx) break;
 
-		object_desc(o_name, &inventory[i], TRUE, 3);
+		object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
 		fprintf(fff, "%c) %s\n",
 		        index_to_label(i), o_name);
 
@@ -2518,7 +2520,7 @@ errr file_character(cptr name, bool full)
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			object_desc(o_name, sizeof(o_name), &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n", I2A(i), o_name);
 
 			/* Describe random object attributes */
@@ -3587,7 +3589,7 @@ static void show_info(void)
 				prt(tmp_val, j+2, 4);
 
 				/* Get the object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Get the inventory color */
 				attr = tval_to_attr[o_ptr->tval & 0x7F];
@@ -3638,7 +3640,7 @@ static void death_examine(void)
                 object_known(o_ptr);
 
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Describe */
 		msg_format("Examining %s...", o_name);

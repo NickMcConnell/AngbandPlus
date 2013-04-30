@@ -109,6 +109,13 @@ Use special colors for glowing lite (slow)   [view_glowing_lite]
     Turning this option off will improve game speed as the code is somewhat
     less efficient than the other special color options.
 
+***** <view_surface_lite>
+Use special colors for surface lite (slow)   [view_surface_lite]
+    This option causes special colors to be used for "surface" grids in
+    certain situations (see "view_granite_lite" and "view_special_lite").
+    This will cause locations on the surface that are lit by sunlight but
+    not outside to appear darker.
+    Turning this option off may improve game speed.
 
 
 === Birth options ===

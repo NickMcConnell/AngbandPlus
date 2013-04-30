@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:2.9.6
+V:3.0.1
 
 N:0:(illegible)
 C:0:99:99:100:100
@@ -3478,7 +3478,7 @@ C:3:9:3:60:1
 C:4:5:3:35:1
 C:8:5:3:35:1
 C:9:5:3:35:1
-B:STRIKE:LOCK_DOOR
+B:BEAM:LOCK_DOOR
 
 # Intermediate priest attack spell
 

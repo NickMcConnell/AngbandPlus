@@ -18,7 +18,7 @@
  p  Pray a prayer                        P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Jam a door (Spike)
+ s  Search for traps/doors               S  Set a trap/Jam a door (Spike)
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info

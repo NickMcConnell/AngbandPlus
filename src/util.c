@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -70,7 +76,7 @@ extern struct passwd *getpwnam();
 /*
  * Find a default user name from the system.
  */
-void user_name(char *buf, int id)
+void user_name(char *buf, size_t len, int id)
 {
 	struct passwd *pw;
 
@@ -78,50 +84,19 @@ void user_name(char *buf, int id)
 	if ((pw = getpwuid(id)))
 	{
 		/* Get the first 15 characters of the user name */
-		strncpy(buf, pw->pw_name, 16);
-		buf[15] = '\0';
+		my_strcpy(buf, pw->pw_name, len);
 
 #ifdef CAPITALIZE_USER_NAME
 		/* Hack -- capitalize the user name */
-		if (islower(buf[0])) buf[0] = toupper(buf[0]);
-#endif
+		if (islower((unsigned char)buf[0]))
+			buf[0] = toupper((unsigned char)buf[0]);
+#endif /* CAPITALIZE_USER_NAME */
 
 		return;
 	}
 
 	/* Oops.  Hack -- default to "PLAYER" */
-	strcpy(buf, "PLAYER");
-}
-
-
-/*
- * Find the users home directory.
- */
-errr user_home(char *buf, int len)
-{
-	char *homedir;
-	struct passwd *pw;
-
-	/* Get the "HOME" environment variable */
-	homedir = getenv("HOME");
-
-	if (!homedir)
-	{
-		/* Get the directory from the passwd structure */
-		pw = getpwuid(getuid());
-
-		if (pw) homedir = pw->pw_dir;
-
-		/* Paranoia */
-		if (!homedir) return (-1);
-	}
-
-	/* Store the users home directory */
-	strncpy(buf, homedir, len);
-	buf[len-1] = '\0';
-
-	/* Success */
-	return (0);
+	my_strcpy(buf, "PLAYER", len);
 }
 
 #endif /* SET_UID */
@@ -1559,7 +1534,7 @@ char (*inkey_hack)(int flush_first) = NULL;
  */
 char inkey(void)
 {
-	int v;
+	bool cursor_state;
 
 	char kk;
 
@@ -1617,13 +1592,13 @@ char inkey(void)
 
 
 	/* Get the cursor state */
-	(void)Term_get_cursor(&v);
+	(void)Term_get_cursor(&cursor_state);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
 	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
 	{
 		/* Show the cursor */
-		(void)Term_set_cursor(1);
+		(void)Term_set_cursor(TRUE);
 	}
 
 
@@ -1723,9 +1698,6 @@ char inkey(void)
 			/* Strip this key */
 			ch = 0;
 
-			/* Hack -- always do an html dump */
-			dump_html();			
-
 			/* Continue */
 			continue;
 		}
@@ -1777,7 +1749,7 @@ char inkey(void)
 
 
 	/* Restore the cursor */
-	Term_set_cursor(v);
+	Term_set_cursor(cursor_state);
 
 
 	/* Cancel the various "global parameters" */
@@ -1787,6 +1759,7 @@ char inkey(void)
 	/* Return the keypress */
 	return (ch);
 }
+
 
 
 
@@ -2784,16 +2757,24 @@ void text_out_to_screen(byte a, cptr str)
 {
 	int x, y;
 
-	int w, h;
+	int wid, h;
+
+	int wrap;
 
 	cptr s;
 
 
 	/* Obtain the size */
-	(void)Term_get_size(&w, &h);
+	(void)Term_get_size(&wid, &h);
 
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
+
+	/* Use special wrapping boundary? */
+	if ((text_out_wrap > 0) && (text_out_wrap < wid))
+		wrap = text_out_wrap;
+	else
+		wrap = wid;
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -2804,7 +2785,7 @@ void text_out_to_screen(byte a, cptr str)
 		if (*s == '\n')
 		{
 			/* Wrap */
-			x = 0;
+			x = text_out_indent;
 			y++;
 
 			/* Clear line, move cursor */
@@ -2814,10 +2795,10 @@ void text_out_to_screen(byte a, cptr str)
 		}
 
 		/* Clean up the char */
-		ch = (isprint(*s) ? *s : ' ');
+		ch = (isprint((unsigned char)*s) ? *s : ' ');
 
 		/* Wrap words as needed */
-		if ((x >= w - 1) && (ch != ' '))
+		if ((x >= wrap - 1) && (ch != ' '))
 		{
 			int i, n = 0;
 
@@ -2825,10 +2806,10 @@ void text_out_to_screen(byte a, cptr str)
 			char cv[256];
 
 			/* Wrap word */
-			if (x < w)
+			if (x < wrap)
 			{
 				/* Scan existing text */
-				for (i = w - 2; i >= 0; i--)
+				for (i = wrap - 2; i >= 0; i--)
 				{
 					/* Grab existing attr/char */
 					Term_what(i, y, &av[i], &cv[i]);
@@ -2842,26 +2823,26 @@ void text_out_to_screen(byte a, cptr str)
 			}
 
 			/* Special case */
-			if (n == 0) n = w;
+			if (n == 0) n = wrap;
 
 			/* Clear line */
 			Term_erase(n, y, 255);
 
 			/* Wrap */
-			x = 0;
+			x = text_out_indent;
 			y++;
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
 
 			/* Wrap the word (if any) */
-			for (i = n; i < w - 1; i++)
+			for (i = n; i < wrap - 1; i++)
 			{
 				/* Dump */
 				Term_addch(av[i], cv[i]);
 
 				/* Advance (no wrap) */
-				if (++x > w) x = w;
+				if (++x > wrap) x = wrap;
 			}
 		}
 
@@ -2869,7 +2850,7 @@ void text_out_to_screen(byte a, cptr str)
 		Term_addch(a, ch);
 
 		/* Advance */
-		if (++x > w) x = w;
+		if (++x > wrap) x = wrap;
 	}
 }
 
@@ -2880,84 +2861,119 @@ void text_out_to_screen(byte a, cptr str)
  * Hook function for text_out(). Make sure that text_out_file points
  * to an open text-file.
  *
- * Long lines will be wrapped on the last space before column 75,
- * directly at column 75 if the word is *very* long, or when
- * encountering a newline character.
+ * Long lines will be wrapped at text_out_wrap, or at column 75 if that
+ * is not set; or at a newline character.
  *
- * Buffers the last line till a wrap occurs.  Flush the buffer with
- * an explicit newline if necessary.
+ * You must be careful to end all file output with a newline character
+ * to "flush" the stored line position.
  */
-void text_out_to_file(byte attr, cptr str)
+void text_out_to_file(byte a, cptr str)
 {
-	cptr r;
+	/* Current position on the line */
+	static int pos = 0;
 
-	/* Line buffer */
-	static char roff_buf[256];
+	/* Wrap width */
+	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* Current pointer into line roff_buf */
-	static char *roff_p = roff_buf;
+	/* Current location within "str" */
+	cptr s = str;
 
-	/* Last space saved into roff_buf */
-	static char *roff_s = NULL;
+	/* Unused parameter */
+	(void)a;
 
-	/* Unused */
-	(void)attr;
-
-	/* Scan the given string, character at a time */
-	for (; *str; str++)
+	/* Process the string */
+	while (*s)
 	{
-		char ch = *str;
-		bool wrap = (ch == '\n');
+		char ch;
+		int n = 0;
+		int len = wrap - pos;
+		int l_space = 0;
 
-		if (!isprint(ch)) ch = ' ';
-
-		if (roff_p >= roff_buf + 75 - text_out_indent) wrap = TRUE;
-
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75 - text_out_indent)) wrap = TRUE;
-
-		/* Handle line-wrap */
-		if (wrap)
+		/* If we are at the start of the line... */
+		if (pos == 0)
 		{
 			int i;
 
-			/* Terminate the current line */
-			*roff_p = '\0';
-
-			r = roff_p;
-
-			/* Wrap the line on the last known space */
-			if (roff_s && (ch != ' '))
+			/* Output the indent */
+			for (i = 0; i < text_out_indent; i++)
 			{
-				*roff_s = '\0';
-				r = roff_s + 1;
+				fputc(' ', text_out_file);
+				pos++;
 			}
-
-			/* Indentation */
-			for (i = 0; i < text_out_indent; i++) fputc(' ', text_out_file);
-
-			/* Output the line */
-			fprintf(text_out_file, "%s\n", roff_buf);
-
-			/* Reset the buffer */
-			roff_s = NULL;
-			roff_p = roff_buf;
-			roff_buf[0] = '\0';
-
-			/* Copy the remaining line into the buffer */
-			while (*r) *roff_p++ = *r++;
-
-			/* Append the last character */
-			if (ch != ' ') *roff_p++ = ch;
-
-			continue;
 		}
 
-		/* Remember the last space character */
-		if (ch == ' ') roff_s = roff_p;
+		/* Find length of line up to next newline or end-of-string */
+		while ((n < len) && !((s[n] == '\n') || (s[n] == '\0')))
+		{
+			/* Mark the most recent space in the string */
+			if (s[n] == ' ') l_space = n;
 
-		/* Save the char */
-		*roff_p++ = ch;
+			/* Increment */
+			n++;
+		}
+
+		/* If we have encountered no spaces */
+		if ((l_space == 0) && (n == len))
+		{
+			/* If we are at the start of a new line */
+			if (pos == text_out_indent)
+			{
+				len = n;
+			}
+			else
+			{
+				/* Begin a new line */
+				fputc('\n', text_out_file);
+
+				/* Reset */
+				pos = 0;
+
+				continue;
+			}
+		}
+		else
+		{
+			/* Wrap at the newline */
+			if ((s[n] == '\n') || (s[n] == '\0')) len = n;
+
+			/* Wrap at the last space */
+			else len = l_space;
+		}
+
+		/* Write that line to file */
+		for (n = 0; n < len; n++)
+		{
+			/* Ensure the character is printable */
+			ch = (isprint(s[n]) ? s[n] : ' ');
+
+			/* Write out the character */
+			fputc(ch, text_out_file);
+
+			/* Increment */
+			pos++;
+		}
+
+		/* Move 's' past the stuff we've written */
+		s += len;
+
+		/* If we are at the end of the string, end */
+		if (*s == '\0') return;
+
+		/* Skip newlines */
+		if (*s == '\n') s++;
+
+		/* Begin a new line */
+		fputc('\n', text_out_file);
+
+		/* Reset */
+		pos = 0;
+
+		/* Skip whitespace */
+		while (*s == ' ') s++;
 	}
+
+	/* We are done */
+	return;
 }
 
 
@@ -2981,6 +2997,7 @@ void text_out_c(byte a, cptr str)
 }
 
 
+
 /*
  * Clear part of the screen
  */
@@ -2995,8 +3012,6 @@ void clear_from(int row)
 		Term_erase(0, y, 255);
 	}
 }
-
-
 
 
 /*
@@ -3698,6 +3713,62 @@ int color_char_to_attr(char c)
 	return (-1);
 }
 
+
+/*
+ * Converts a string to a terminal color byte.
+ */
+int color_text_to_attr(cptr name)
+{
+	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
+	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
+	if (my_stricmp(name, "slate")      == 0) return (TERM_SLATE);
+	if (my_stricmp(name, "orange")     == 0) return (TERM_ORANGE);
+	if (my_stricmp(name, "red")        == 0) return (TERM_RED);
+	if (my_stricmp(name, "green")      == 0) return (TERM_GREEN);
+	if (my_stricmp(name, "blue")       == 0) return (TERM_BLUE);
+	if (my_stricmp(name, "umber")      == 0) return (TERM_UMBER);
+	if (my_stricmp(name, "violet")     == 0) return (TERM_VIOLET);
+	if (my_stricmp(name, "yellow")     == 0) return (TERM_YELLOW);
+	if (my_stricmp(name, "lightdark")  == 0) return (TERM_L_DARK);
+	if (my_stricmp(name, "lightwhite") == 0) return (TERM_L_WHITE);
+	if (my_stricmp(name, "lightred")   == 0) return (TERM_L_RED);
+	if (my_stricmp(name, "lightgreen") == 0) return (TERM_L_GREEN);
+	if (my_stricmp(name, "lightblue")  == 0) return (TERM_L_BLUE);
+	if (my_stricmp(name, "lightumber") == 0) return (TERM_L_UMBER);
+
+	/* Oops */
+	return (-1);
+}
+
+
+/*
+ * Extract a textual representation of an attribute
+ */
+cptr attr_to_text(byte a)
+{
+	switch (a)
+	{
+		case TERM_DARK:    return ("Dark");
+		case TERM_WHITE:   return ("White");
+		case TERM_SLATE:   return ("Slate");
+		case TERM_ORANGE:  return ("Orange");
+		case TERM_RED:     return ("Red");
+		case TERM_GREEN:   return ("Green");
+		case TERM_BLUE:    return ("Blue");
+		case TERM_UMBER:   return ("Umber");
+		case TERM_L_DARK:  return ("L.Dark");
+		case TERM_L_WHITE: return ("L.Slate");
+		case TERM_VIOLET:  return ("Violet");
+		case TERM_YELLOW:  return ("Yellow");
+		case TERM_L_RED:   return ("L.Red");
+		case TERM_L_GREEN: return ("L.Green");
+		case TERM_L_BLUE:  return ("L.Blue");
+		case TERM_L_UMBER: return ("L.Umber");
+	}
+
+	/* Oops */
+	return ("Icky");
+}
 
 
 #if 0

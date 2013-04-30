@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -882,10 +888,10 @@ void do_cmd_options(void)
 
 		/* Special choices */
 		prt("(D) Base Delay Factor", 18, 5);
-		prt("(H) Hitpoint Warning", 18, 5);
+		prt("(H) Hitpoint Warning", 19, 5);
 
 		/* Prompt */
-		prt("Command: ", 20, 0);
+		prt("Command: ", 21, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -2003,11 +2009,27 @@ void do_cmd_visuals(void)
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, -1);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
+
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, -1);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
@@ -2058,11 +2080,27 @@ void do_cmd_visuals(void)
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, -1);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
+
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-					    format("Current attr/char = %3d / %3d", ca, cc));
+					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, -1);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
@@ -2113,11 +2151,27 @@ void do_cmd_visuals(void)
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, -1);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
+
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-					    format("Current attr/char = %3d / %3d", ca, cc));
+					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, -1);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
@@ -2168,11 +2222,28 @@ void do_cmd_visuals(void)
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
+
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, -1);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
+
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-					    format("Current attr/char = %3d / %3d", ca, cc));
+					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, -1);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
@@ -2549,7 +2620,7 @@ static void strip_name(char *buf, int k_idx)
 	cptr str = (k_name + k_ptr->name);
 
 	/* If not aware, use flavor */
-	if (!k_ptr->aware && k_ptr->flavor) str = x_name + x_info[k_ptr->flavor].name;
+	if (!k_ptr->aware && k_ptr->flavor) str = x_text + x_info[k_ptr->flavor].text;
 
 	/* Skip past leading characters */
 	while ((*str == ' ') || (*str == '&') || (*str == '#')) str++;
@@ -3215,7 +3286,7 @@ static int collect_objects(int grp_cur, int object_idx[], int mode)
 		if (!k_ptr->flavor) continue;
 #endif
 		/* Skip items with no distribution (special artifacts) */
-		for (j = 0, k = 0; j < z_info->k_max; j++) k += k_ptr->chance[j];
+		for (j = 0, k = 0; j < 4; j++) k += k_ptr->chance[j];
 		if (!(k))  continue; 
 
 		/* Require objects ever seen*/
@@ -3522,7 +3593,7 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		make_fake_artifact(o_ptr, a_idx);
 
 		/* Get its name */
-		object_desc_store(o_name, o_ptr, TRUE, 0);
+		object_desc_spoil(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
@@ -4270,13 +4341,16 @@ static void do_cmd_knowledge_ego_items(void)
 
 			case '{':
 			{
-				char note_text[80];
+				char note_text[80] = "";
 
 				/* Prompt */
 				prt("Inscribe with: ", 23, 0);
 	
 				/* Default note */
-				sprintf(note_text, "%s", quark_str(e_ptr->note));
+				if (e_ptr->note)
+				{
+					sprintf(note_text, "%s", quark_str(e_ptr->note));
+				}
 	
 				/* Get a filename */
 				if (!askfor_aux(note_text, 80)) continue;
@@ -4455,8 +4529,11 @@ static void desc_obj_fake(int k_idx)
 	/* Create the artifact */
 	object_prep(o_ptr, k_idx);
 
+	/* Hack -- its in the store */
+	o_ptr->ident |= (IDENT_STORE);
+
 	/* It's fully know */
-	if (!k_info[k_idx].flavor) object_known_store(o_ptr);
+	if (!k_info[k_idx].flavor) object_known(o_ptr);
 
 	/* Track the object */
 	object_actual_track(o_ptr);
@@ -4611,7 +4688,7 @@ static void do_cmd_knowledge_objects(void)
 		else if (note_idx && (k_ptr->aware || !k_ptr->flavor)) prt("<dir>, ENTER, '{', '}', 'c', 'p' to paste inscrip, 'v' for visuals, ESC", 23,0);
 		else if (note_idx) prt("<dir>, ENTER, 'c', 'p' to paste inscrip, 'v' for visuals, ESC", 23,0);
 		else if (k_ptr->aware || !k_ptr->flavor) prt("<dir>, ENTER to recall, '{' to inscribe, '}', 'c' to copy, 'v' for visuals, ESC", 23, 0);
-		else prt("<dir>, ENTER to recall, 'c' to copy, 'v' for visuals, ESC", 23, 0);
+		else prt("<dir>, 'c' to copy, 'v' for visuals, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -4672,9 +4749,12 @@ static void do_cmd_knowledge_objects(void)
 				}
 				else
 				{
-					/* Recall on screen */
-					desc_obj_fake(object_idx[object_cur]);
-					redraw = TRUE;
+					if (k_ptr->aware || !k_ptr->flavor)
+					{
+						/* Recall on screen */
+						desc_obj_fake(object_idx[object_cur]);
+						redraw = TRUE;
+					}
 				}
 				break;
 			}
@@ -4701,7 +4781,7 @@ static void do_cmd_knowledge_objects(void)
 
 			case '{':
 			{
-				char note_text[80];
+				char note_text[80] = "";
 
 				if (!visual_list && (k_ptr->aware || !k_ptr->flavor))
 				{
@@ -4710,7 +4790,10 @@ static void do_cmd_knowledge_objects(void)
 					prt("Inscribe with: ", 23, 0);
 	
 					/* Default note */
-					sprintf(note_text, "%s", quark_str(k_ptr->note));
+					if (k_ptr->note)
+					{
+						sprintf(note_text, "%s", quark_str(k_ptr->note));
+					}
 	
 					/* Get a filename */
 					if (!askfor_aux(note_text, 80)) continue;
@@ -4874,9 +4957,6 @@ static void do_cmd_knowledge_objects(void)
  */
 static cptr feature_group_text[] = 
 {
-	"Hidden Features",
-	"Useful Terrain",
-	"Pickable Terrain",
 	"Floors",
 	"Traps",
 	"Doors",
@@ -4888,17 +4968,15 @@ static cptr feature_group_text[] =
 	"Furnishings",
 	"Bridges",
 	"Water",
-	"Waves",
 	"Lava",
 	"Ice",
 	"Acid",
 	"Oil",
 	"Chasms",
-	"Mud/Earth",
+	"Sand/Earth",
 	"Ground",
 	"Trees",
-	"Cover",
-	"Clouds",
+	"Wilderness",
 	NULL
 };
 
@@ -4907,9 +4985,6 @@ static cptr feature_group_text[] =
  */
 static u32b feature_group_flag[] = 
 {
-	FF1_SECRET, 0, 0,
-	0, 0, FF3_USE_FEAT,
-	0, 0, FF3_GET_FEAT,
 	FF1_FLOOR, 0, 0,
 	FF1_TRAP, 0, 0,
 	FF1_DOOR, 0, 0,
@@ -4921,7 +4996,6 @@ static u32b feature_group_flag[] =
 	0, 0, FF3_ALLOC,
 	0, FF2_BRIDGED, 0,
 	0, FF2_WATER, 0,
-	0, 0, FF3_INSTANT | FF3_EXPLODE,
 	0, FF2_LAVA, 0,
 	0, FF2_ICE, 0,
 	0, FF2_ACID, 0,
@@ -4930,8 +5004,7 @@ static u32b feature_group_flag[] =
 	0, FF2_CAN_DIG, 0,
 	0, 0, FF3_GROUND,
 	0, 0, FF3_TREE,
-	0, 0, FF3_CAN_HIDE,
-	0, 0, FF3_SPREAD | FF3_STRIKE,
+	0, 0, FF3_OUTSIDE,
 	0,0,0
 };
 
@@ -4955,6 +5028,9 @@ static int collect_features(int grp_cur, int *feat_idx)
 
 		/* Skip empty race */
 		if (!f_ptr->name) continue;
+
+		/* Skip features we never see */
+		if (f_ptr->mimic != i) continue;
 
 		/* Check for any flags matching in the group */
 		if (f_ptr->flags1 & (flags1))
@@ -5305,7 +5381,7 @@ static void do_cmd_knowledge_home(void)
 			o_ptr = &st_ptr->stock[k];
 
 			/* Acquire object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Print a message */
 			fprintf(fff, "     %s\n", o_name);

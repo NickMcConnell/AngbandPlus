@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -70,7 +70,7 @@ int value_check_aux1(object_type *o_ptr)
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* Default to "average" */
-	return (INSCRIP_AVERAGE);
+	return (0);
 }
 
 
@@ -86,16 +86,16 @@ static int value_check_aux2(object_type *o_ptr)
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return (INSCRIP_GOOD);
+	if (artifact_p(o_ptr)) return (INSCRIP_UNCURSED);
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
+	if (ego_item_p(o_ptr)) return (INSCRIP_UNCURSED);
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_a > 0) return (INSCRIP_UNCURSED);
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_UNCURSED);
 
 	/* No feeling */
 	return (0);
@@ -241,7 +241,7 @@ static void sense_inventory(void)
 		if (disturb_minor) disturb(0, 0);
 
 		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
@@ -266,7 +266,6 @@ static void sense_inventory(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
-
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -586,6 +585,9 @@ static void process_world(void)
 
 			/* Illuminate */
 			town_illuminate(dawn);
+
+			/* Update runes */
+			p_ptr->update |= (PU_RUNES);
 		}
 	}
 
@@ -1103,6 +1105,39 @@ static void process_world(void)
 		}
 	}
 
+	/* Handle hit point draining */
+	if (p_ptr->hp_drain)
+	{
+		if ((rand_int(100) < 10) && (p_ptr->chp > 0))
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,TR3_DRAIN_HP);
+
+			p_ptr->chp--;
+			p_ptr->chp_frac = 0;
+
+			/* Redraw */
+			p_ptr->redraw |= (PR_HP);
+
+		}
+	}
+
+	/* Handle mana draining */
+	if (p_ptr->mana_drain)
+	{
+		if ((rand_int(100) < 10) && (p_ptr->csp > 0))
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,TR3_DRAIN_MANA);
+
+			p_ptr->csp--;
+			p_ptr->csp_frac = 0;
+
+			/* Redraw */
+			p_ptr->redraw |= (PR_MANA);		
+		}
+	}
+
 	/* Process timeouts */
 	for (k = 0, j = 0, i = 0; i < INVEN_TOTAL+1; i++)
 	{
@@ -1130,7 +1165,7 @@ static void process_world(void)
 				object_flags(o_ptr,&f1, &f2, &f3);
 
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 				/* Spells run out */
 				if (o_ptr->tval == TV_SPELL)
@@ -1188,7 +1223,7 @@ static void process_world(void)
 				char o_name[80];
 
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 				if (disturb_minor) disturb(0, 0);
 
@@ -1714,7 +1749,7 @@ static void process_command(void)
 		/* Jam a door with spikes */
 		case 'j':
 		{
-			do_cmd_spike();
+			do_cmd_set_trap_or_spike();
 			break;
 		}
 
@@ -2311,7 +2346,7 @@ static void process_player(void)
 			msg_print("Your pack overflows!");
 
 			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Message */
 			msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -2494,28 +2529,6 @@ static void process_player(void)
 				}
 			}
 
-			/* Repair "nice" flags */
-			if (repair_mflag_nice)
-			{
-				/* Clear flag */
-				repair_mflag_nice = FALSE;
-
-				/* Process monsters */
-				for (i = 1; i < m_max; i++)
-				{
-					monster_type *m_ptr;
-
-					/* Get the monster */
-					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
-
-					/* Clear "nice" flag */
-					m_ptr->mflag &= ~(MFLAG_NICE);
-				}
-			}
-
 			/* Repair "mark" flags */
 			if (repair_mflag_mark)
 			{
@@ -2640,8 +2653,6 @@ static void dungeon(void)
 	shimmer_objects = TRUE;
 
 	/* Reset repair flags */
-	repair_mflag_born = TRUE;
-	repair_mflag_nice = TRUE;
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
 

@@ -18,7 +18,7 @@
 */
 
 /* Variant name and version */
-#define VARIANT "Angband 2.9.6 alpha 3"
+#define VARIANT "Angband 3.0.1"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
 #define VERPATH "Angband:"
@@ -1747,7 +1747,7 @@ static void link_term( int i )
 	t->char_blank = ' ';
 
 	/* Remember where we come from */
-	t->data = (vptr) td;
+	t->data = td;
 
 	/* Activate it */
 	Term_activate( t );
@@ -3994,20 +3994,21 @@ static int amiga_fail( char *msg )
 	return( -1 );
 }
 
-static void amiga_map( void )
+
+static void amiga_map(void)
 {
-	term_data *td = &data[ 0 ];
-	int i,j;
-	byte ta,tc;
-	int cur_wid = DUNGEON_WID,cur_hgt = DUNGEON_HGT;
+	term_data *td = &data[0];
+	int i, j;
+	byte a, ta;
+	char c, tc;
+	int cur_wid = DUNGEON_WID
+	int cur_hgt = DUNGEON_HGT;
 
 	/* Only in graphics mode, and not on Kickstart1.3 */
-	if ( !use_graphics || KICK13)
-		return;
+	if (!use_graphics || KICK13) return;
 
 	/* Turn off cursor */
-	if ( td->cursor_visible )
-		cursor_off( td );
+	if (td->cursor_visible) cursor_off(td);
 
 	/* Save screen */
 	Term_save();
@@ -4017,47 +4018,45 @@ static void amiga_map( void )
 	Term_fresh();
 
 	/* Calculate offset values */
-	td->map_x = (( td->fw * 80 ) - ( td->mpt_w * cur_wid )) / 2;
-	td->map_y = (( td->fh * 24 ) - ( td->mpt_h * cur_hgt )) / 2;
+	td->map_x = ((td->fw * 80) - (td->mpt_w * cur_wid)) / 2;
+	td->map_y = ((td->fh * 24) - (td->mpt_h * cur_hgt)) / 2;
 
-	if (td->map_x < 0)
-		td->map_x = 0;
-	if (td->map_y < 0)
-		td->map_y = 0;
+	if (td->map_x < 0) td->map_x = 0;
+	if (td->map_y < 0) td->map_y = 0;
 
 	/* Draw all "interesting" features */
-	for ( i = 0; i < cur_wid; i++ )
+	for (i = 0; i < cur_wid; i++)
 	{
-		for ( j = 0; j < cur_hgt; j++ )
+		for (j = 0; j < cur_hgt; j++)
 		{
 			/* Get frame tile */
-			if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
+			if ((i == 0) || (i == cur_wid - 1) || (j == 0) || (j == cur_hgt - 1))
 			{
-				ta = f_info[ 63 ].x_attr;
-				tc = f_info[ 63 ].x_char;
+				ta = f_info[63].x_attr;
+				tc = f_info[63].x_char;
 			}
 
 			/* Get tile from cave table */
 			else
 			{
-				map_info( j, i, &ta, (char *) &tc );
+				map_info(j, i, &a, &c, &ta, &tc);
 			}
 
 			/* Ignore non-graphics */
-			if ( ta & 0x80 )
+			if (ta & 0x80)
 			{
 				ta = ta & ((GFXH >> 3) - 1);
 				tc = tc & ((GFXW >> 3) - 1);
 
 				/* Player XXX XXX XXX */
-				if ( ta == 12 && tc == 0 )
+				if ((ta == 12) && (tc == 0))
 				{
 					ta = get_p_attr();
 					tc = get_p_char();
 				}
 
 				/* Put the graphics to the screen */
-				put_gfx_map( td, i, j, tc, ta );
+				put_gfx_map(td, i, j, tc, ta);
 			}
 		}
 	}
@@ -4066,7 +4065,7 @@ static void amiga_map( void )
 	td->cursor_map = TRUE;
 
 	/* Wait for a keypress, flush key buffer */
-	Term_inkey( &tc, TRUE, TRUE );
+	Term_inkey(&tc, TRUE, TRUE);
 	Term_flush();
 
 	/* Normal cursor again */
@@ -4079,8 +4078,7 @@ static void amiga_map( void )
 	Term_fresh();
 
 	/* Turn cursor back on */
-	if ( td->cursor_visible )
-		cursor_on( td );
+	if (td->cursor_visible) cursor_on(td);
 }
 
 
@@ -5062,9 +5060,9 @@ void amiga_hs_to_ascii(void)
 	mdun = atoi(h.max_dun);
 
 	/* Hack -- extract the gold and such */
-	for (when = h.day; isspace(*when); when++) /* loop */;
-	for (gold = h.gold; isspace(*gold); gold++) /* loop */;
-	for (aged = h.turns; isspace(*aged); aged++) /* loop */;
+	for (when = h.day; isspace((unsigned char)*when); when++) /* loop */;
+	for (gold = h.gold; isspace((unsigned char)*gold); gold++) /* loop */;
+	for (aged = h.turns; isspace((unsigned char)*aged); aged++) /* loop */;
 
 	/* Reconfigure Date */
 	if ((*when == '@') && strlen(when) == 9)

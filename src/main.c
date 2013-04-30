@@ -17,7 +17,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS)
 
 #include "main.h"
 
@@ -144,13 +144,13 @@ static void create_user_dir(void)
 
 
 	/* Get an absolute path from the filename */
-	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
 
 	/* Create the ~/.angband/ directory */
 	mkdir(dirpath, 0700);
 
 	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, 1024, dirpath, VERSION_NAME);
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
 
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
@@ -202,13 +202,13 @@ static void init_stuff(void)
 #endif /* FIXED_PATHS */
 
 	/* Use the angband_path, or a default */
-	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+	my_strcpy(path, tail ? tail : DEFAULT_PATH, sizeof(path));
 
 	/* Make sure it's terminated */
 	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
 
 #endif /* AMIGA / VM */
 
@@ -238,7 +238,7 @@ static void change_path(cptr info)
 	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
 
 	/* Analyze */
-	switch (tolower(info[0]))
+	switch (tolower((unsigned char)info[0]))
 	{
 #ifndef FIXED_PATHS
 		case 'a':
@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get the "user name" as a default player name */
-	user_name(op_ptr->full_name, player_uid);
+	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 
 #ifdef PRIVATE_USER_PATH
 
@@ -502,7 +502,8 @@ int main(int argc, char *argv[])
 			case 'G':
 			case 'g':
 			{
-				arg_graphics = TRUE;
+				/* Default graphics tile */
+				arg_graphics = GRAPHICS_ADAM_BOLT;
 				break;
 			}
 
@@ -534,11 +535,7 @@ int main(int argc, char *argv[])
 				if (!*arg) goto usage;
 
 				/* Get the savefile name */
-				strncpy(op_ptr->full_name, arg, 32);
-
-				/* Make sure it's terminated */
-				op_ptr->full_name[31] = '\0';
-
+				my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
 				continue;
 			}
 
@@ -584,7 +581,7 @@ int main(int argc, char *argv[])
 				puts("  -m<sys>  use Module <sys>, where <sys> can be:");
 
 				/* Print the name and help for each available module */
-				for (i = 0; i < N_ELEMENTS(modules); i++)
+				for (i = 0; i < (int)N_ELEMENTS(modules); i++)
 				{
 					printf("     %s   %s\n",
 					       modules[i].name, modules[i].help);
@@ -613,7 +610,7 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 	/* Try the modules in the order specified by modules[] */
-	for (i = 0; i < N_ELEMENTS(modules); i++)
+	for (i = 0; i < (int)N_ELEMENTS(modules); i++)
 	{
 		/* User requested a specific module? */
 		if (!mstr || (streq(mstr, modules[i].name)))
@@ -640,7 +637,7 @@ int main(int argc, char *argv[])
 	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(Term->hgt - 1);
 
 	/* Play the game */
 	play_game(new_game);
@@ -655,4 +652,4 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(RISCOS) */

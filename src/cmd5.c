@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -562,7 +562,7 @@ void do_cmd_study(void)
 
 	int max_spells = PY_MAX_SPELLS;
 
-	if (!variant_more_spells) max_spells = 64;
+	if (!variant_study_more) max_spells = 64;
 
 	/* Cannot cast spells if illiterate */
 	if (c_info[p_ptr->pclass].spell_first > 50)

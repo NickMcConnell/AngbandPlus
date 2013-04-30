@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -115,6 +115,16 @@ static void find_range(monster_type *m_ptr)
 
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) m_ptr->min_range = FLEE_RANGE;
+
+	/* Some monsters run when low on mana */
+	else if ((r_ptr->flags2 & (RF2_LOW_MANA_RUN)) &&
+	    (m_ptr->mana < r_ptr->mana / 6)) m_ptr->min_range = FLEE_RANGE;
+
+	/* Hack -- townsmen go about their business */
+	else if (m_ptr->mflag & (MFLAG_TOWN)) m_ptr->min_range = 1;
+
+	/* Breeders cannot be terrified */
+	else if (r_ptr->flags2 & (RF2_MULTIPLY)) m_ptr->min_range = 1;
 
 	else
 	{
@@ -546,15 +556,8 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	if (m_ptr->mflag & (MFLAG_HIDE))
 	{
 
-		/* We can't get out of hiding */
-		if ((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_HIDE_DEEP)) &&
-			(place_monster_here(m_ptr->fy,m_ptr->fx,m_ptr->r_idx) == MM_WALK))
-		{
-			return (0);
-		}
-
 		/* Monster is under COVER. Bash up or fail to cast spell. */
-		else if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_COVERED))
+		if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_COVERED))
 		{
 
 			if ((r_ptr->flags2 & (RF2_BASH_DOOR)) && (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags1 & (FF1_BASH)))
@@ -707,6 +710,9 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		l_ptr = &l_list[m_ptr->r_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 
+		/* Hack -- never make spell attacks if hidden */
+		if (m_ptr->mflag & (MFLAG_HIDE)) return (FALSE);
+
 		/* Get the monster name (or "it") */
 		monster_desc(m_name, m_ptr, 0x00);
 
@@ -746,11 +752,11 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			/* Check "projectable" */
 			direct = (projectable(m_ptr->fy,m_ptr->fx,y,x));
+
 		}
 		else
 		{
 			known = (m_ptr->ml && player_can_see_bold(y,x));
-
 
 			/* Always known if target */
 			known = TRUE;
@@ -2881,8 +2887,8 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			if (who > 0)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
-				else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a plasma bolt.", m_name);
-				else if (known) msg_format("%^s casts a plasma bolt at %s.", m_name, t_name);
+				else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts an ice bolt.", m_name);
+				else if (known) msg_format("%^s casts an ice bolt at %s.", m_name, t_name);
 
 				flg = PROJECT_STOP | PROJECT_KILL;
 
@@ -3916,8 +3922,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
  * them, or has spells but they will have no "useful" effect.  Note that
  * this function has been an efficiency bottleneck in the past.
  *
- * Note the special "MFLAG_NICE" flag, which prevents a monster from using
- * any spell attacks until the player has had a single chance to move.
  */
 bool make_attack_spell(int m_idx)
 {
@@ -3957,9 +3961,6 @@ bool make_attack_spell(int m_idx)
 
 	/* Assume "normal" target */
 	bool normal = TRUE;
-
-	/* Cannot cast spells when nice */
-	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 
 	/* Cannot cast spells */
 	if (!r_ptr->freq_spell && !r_ptr->freq_innate) return (FALSE);
@@ -4252,7 +4253,7 @@ bool cave_exist_mon(int r_idx, int y, int x, bool occupied_ok)
 	}
 
 	/*** Check passability of various features. ***/
-	if (place_monster_here(y,x,r_idx)) return (TRUE);
+	if (place_monster_here(y,x,r_idx) > 0) return (TRUE);
 
 	/* Catch weirdness */
 	return (FALSE);
@@ -4276,9 +4277,6 @@ bool cave_exist_mon(int r_idx, int y, int x, bool occupied_ok)
 static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	/* Hack -- fly (almost) anywhere on surface */
-	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
 
 	/* Assume nothing in the grid other than the terrain hinders movement */
 	int move_chance = 100;
@@ -4306,8 +4304,8 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	/* The grid is occupied by a monster. */
 	else if (cave_m_idx[y][x] > 0)
 	{
-	       	monster_type *n_ptr = &m_list[cave_m_idx[y][x]];
-       		monster_race *nr_ptr = &r_info[n_ptr->r_idx];
+		monster_type *n_ptr = &m_list[cave_m_idx[y][x]];
+		monster_race *nr_ptr = &r_info[n_ptr->r_idx];
 
 		/* Kill weaker monsters */
 		if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
@@ -4318,10 +4316,11 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		}
 
 		/* Push past weaker or similar monsters */
-		else if ((r_ptr->flags2 & (RF2_MOVE_BODY)) && 
-		    (r_ptr->mexp >= nr_ptr->mexp))
+		else if (r_ptr->mexp >= nr_ptr->mexp)
 		{
-			move_chance = 80;
+			/* It's easier to push past weaker monsters */
+			if (r_ptr->mexp == nr_ptr->mexp) move_chance = 40;
+			else move_chance = 80;
 		}
 
 		/* Push past flying monsters or if flying */
@@ -4350,6 +4349,12 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		else return (0);
 	}
 
+	/* Hack -- avoid less interesting squares if collecting items */
+	else if ((cave_o_idx[y][x] == 0) && (r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)))
+	{
+		move_chance = 99;
+	}
+
 	/* Paranoia -- move_chance must not be more than 100 */
 	if (move_chance > 100) move_chance = 100;
 
@@ -4360,16 +4365,16 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 	/* The monster is under covered terrain, moving to uncovered terrain. */
 	if ((m_ptr->mflag & (MFLAG_HIDE)) && (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_COVERED)) &&
-		!(f_info[cave_feat[y][x]].flags2 & (FF2_COVERED)) && (mmove != MM_SWIM) && (mmove != MM_DIG))
+		!(f_info[cave_feat[y][x]].flags2 & (FF2_COVERED)) && (mmove != MM_SWIM) && (mmove != MM_DIG) && (mmove != MM_UNDER))
 	{
 
-		if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[y][x]].flags1 & (FF1_BASH)))
+		if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags1 & (FF1_BASH)))
 		{
 			*bash = TRUE;
 		}
 		else
 		{
-			move_chance =0;
+			move_chance = 0;
 		}
 
 		return (move_chance);
@@ -4379,6 +4384,21 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	/* Feature is passable */
 	else if (mmove != MM_FAIL)
 	{
+		/* Do not kill ourselves in terrain ourself unless confused */
+		if ((mmove == MM_DROWN) && (!m_ptr->confused))
+		{
+			/* Try to get out of existing trouble */
+                        if (place_monster_here(m_ptr->fy,m_ptr->fx, m_ptr->r_idx) <= 0) move_chance /= 4;
+
+			/* Don't walk into trouble */
+			else move_chance = 0;
+		}
+
+		/* We cannot natively climb, but are negotiating a tree or rubble */
+		else if ((mmove == MM_CLIMB) && !(r_ptr->flags2 & (RF2_CAN_CLIMB)))
+		{
+			move_chance /= 2;
+		}
 
 		/* Anything else that's not a wall we assume to be passable. */
 		return (move_chance);
@@ -4395,12 +4415,6 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		{
 			/* Glyphs are hard to break */
 			return (MIN(100 * r_ptr->level / BREAK_GLYPH, move_chance));
-		}
-
-		/* Monsters outside can fly/climb over buildings */
-		if ((surface) && (m_ptr->mflag & (MFLAG_OVER)) && (feat != FEAT_PERM_SOLID))
-		{
-			return (100);
 		}
 
 		/* Monster can open doors */
@@ -4499,6 +4513,85 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	/* Any wall grid that isn't explicitly made passible is impassible. */
 	return (0);
 }
+
+
+/*
+ * Get a target for a monster using the special "townsman" AI.
+ */
+static void get_town_target(monster_type *m_ptr)
+{
+	int i, feat;
+	int y, x;
+
+	/* Clear target */
+	m_ptr->ty = 0;
+	m_ptr->tx = 0;
+
+	/* Hack -- Usually choose a random store */
+	if (rand_int(100) < 80)
+	{
+		i = t_info[p_ptr->town].store[rand_int(8)];
+
+		/* Try to find the store XXX XXX */
+		if (i) for (y = 1; y < TOWN_HGT - 2; y++)
+		{
+			for (x = 1; x < TOWN_WID - 2; x++)
+			{
+				feat = cave_feat[y][x];
+
+				/* Is our store */
+				if (feat == i)
+				{
+					m_ptr->ty = y;
+					m_ptr->tx = x;
+					break;
+				}
+			}
+		}
+	}
+
+	/* No store chosen */
+	if (!m_ptr->ty)
+	{
+		for (i = 0;; i++)
+		{
+			/* Pick a grid on the edge of the map (simple test) */
+			if (i < 100)
+			{
+				if (rand_int(2))
+				{
+					/* Pick a random location along the N/S walls */
+					x = rand_range(1, TOWN_WID - 2);
+
+					if (rand_int(2)) y = 1;
+					else            y = TOWN_HGT - 2;
+				}
+				else
+				{
+					/* Pick a random location along the E/W walls */
+					y = rand_range(1, TOWN_HGT - 2);
+
+					if (rand_int(2)) x = 1;
+					else            x = TOWN_WID - 2;
+				}
+			}
+			else
+			{
+				y = rand_range(1, TOWN_HGT - 2);
+				x = rand_range(1, TOWN_WID - 2);
+			}
+
+			/* Require "empty" floor grids */
+			if (cave_empty_bold(y, x))
+			{
+				m_ptr->ty = y;
+				m_ptr->tx = x;
+				break;
+			}
+		}
+	}
+}
+
 
 
 /*
@@ -4881,7 +4974,6 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
  * If the monster is not in LOS, and cannot pass through walls, try to 
  * use flow (noise) information.
  * If the monster is in LOS, even if it can pass through walls, 
- * search for a hiding place (helper function "find_safety()"):
  * search for a hiding place (helper function "find_safety()").
  * If no hiding place is found, and there seems no way out, go down
  * fighting.
@@ -5366,6 +5458,38 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 		}
 	}
 
+	/* Sneak monsters try to get 'near' the player without being seen,
+		before attacking. */
+	if ((!*fear) && (r_ptr->flags2 & (RF2_SNEAKY)) && (m_ptr->cdis >= 3))
+	{
+		/* If we're in sight, find a hiding place */
+		if (cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_SEEN))
+		{
+			/* Find a safe spot to lurk in */
+			if (get_move_retreat(m_ptr, ty, tx))
+			{
+				*fear = TRUE;
+			}
+			else
+			{
+				/* No safe spot -- charge */
+				*ty = py;
+				*tx = px;
+			}
+		}
+
+		/* If we're not viewable, we advance cautiously */
+		else
+		{
+			/* Advance, ... */
+			get_move_advance(m_ptr, ty, tx);
+
+			/* ... but make sure we stay hidden. */
+			*fear = TRUE;
+		}
+	}
+
+
 	/* Monster can go through rocks - head straight for character */
 	if ((!*fear) && ((r_ptr->flags2 & (RF2_PASS_WALL)) || 
 			 (r_ptr->flags2 & (RF2_KILL_WALL))))
@@ -5679,90 +5803,6 @@ static bool push_aside(monster_type *m_ptr, monster_type *n_ptr)
 
 	/* We didn't find any empty, legal grids */
 	return (FALSE);
-}
-
-
-
-/*
- * Handle monster hitting a real trap.
- */
-void mon_hit_trap(int m_idx, int y, int x)
-{
-	int dam;
-
-	feature_type *f_ptr;
-	monster_type *m_ptr = &m_list[m_idx];
-
-	int feat = cave_feat[y][x];
-
-	/* Option */
-	if (!variant_hit_traps) return;
-
-	/* Hack --- don't activate unknown invisible traps */
-	if (cave_feat[y][x] == FEAT_INVIS) return;
-
-	/* Get feature */
-	f_ptr = &f_info[cave_feat[y][x]];
-
-	/* Hack --- trapped doors */
-	/* XXX XXX Dangerous */
-	while (!(f_ptr->spell) && !(f_ptr->blow.method) && (f_ptr->flags1 & (FF1_TRAP)))
-	{
-		pick_trap(y,x);
-
-		/* Error */
-		if (cave_feat[y][x] == feat) break;
-
-		feat = cave_feat[y][x];
-
-		/* Get feature */
-		f_ptr = &f_info[feat];
-
-	}
-
-	/* Use covered or bridged if necessary */
-	if ((f_ptr->flags2 & (FF2_COVERED)) || (f_ptr->flags2 & (FF2_BRIDGED)))
-	{
-		f_ptr = &f_info[f_ptr->mimic];
-	}
-
-	/* Paranoia */
-	if (!(f_ptr->spell) && !(f_ptr->blow.method)) return;
-
-	/* Hack -- monster falls onto trap */
-	if ((m_ptr->fy!=y)|| (m_ptr->fx !=x))
-	{
-		/* Move monster */
-		monster_swap(m_ptr->fy, m_ptr->fx, y, x);
-	}
-
-
-	/* Apply the spell */
-	if (f_ptr->spell)
-	{
-	      make_attack_spell_aux(0,y,x,f_ptr->spell);
-	}
-
-	/* Apply the attack */
-	else if (f_ptr->blow.method)
-	{
-		dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice);
-			   
-		/* Apply the blow */
-		project_m(0,
-			  0,
-			  y,
-			  x,
-			  dam,
-			  f_info[cave_feat[y][x]].blow.effect);
-
-	}
-
-	if (f_ptr->flags1 & (FF1_HIT_TRAP))
-	{
-		/* Modify the location hit by the trap */
-		cave_alter_feat(y,x,FS_HIT_TRAP);
-	}
 }
 
 
@@ -6251,15 +6291,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	bool did_bash_door = FALSE;
 	bool did_take_item = FALSE;
 	bool did_kill_item = FALSE;
-	bool did_move_body = FALSE;
 	bool did_kill_body = FALSE;
 	bool did_pass_wall = FALSE;
 	bool did_kill_wall = FALSE;
 	bool did_smart = FALSE;
 	bool did_sneak = FALSE;
-
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
-	bool outside = (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_OUTSIDE)) && (surface);
 
 	/* Remember where monster is */
 	oy = m_ptr->fy;
@@ -6273,13 +6309,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	if (!in_bounds(ny, nx)) return;
 
 
-	/* The monster is flying around above the player while they are in a building */
-	if (do_move && (m_ptr->mflag & (MFLAG_OVER)) && (surface) && (!outside) && cave_m_idx[ny][nx]<0)
-	{
-		return;
-	}
 	/* The monster is hidden in terrain, trying to attack the player.*/
-	else if (do_move && (m_ptr->mflag & (MFLAG_HIDE)) && (cave_m_idx[ny][nx] < 0))
+	if (do_move && (m_ptr->mflag & (MFLAG_HIDE)) && (cave_m_idx[ny][nx] < 0))
 	{
 		/* We can't get out of hiding */
 		if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) ||
@@ -6391,7 +6422,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 	/* The monster is stuck in terrain */
 	if (!(m_ptr->mflag & (MFLAG_OVER)) && !(f_info[cave_feat[oy][ox]].flags1 & (FF1_MOVE)) &&
-		!place_monster_here(oy,ox,m_ptr->r_idx) && (mmove != MM_PASS))
+		(place_monster_here(oy,ox,m_ptr->r_idx)<= 0) && (mmove != MM_PASS))
 	{
 		if (((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[oy][ox]].flags1 & (FF1_BASH)))
 				|| (r_ptr->flags2 & (RF2_KILL_WALL)))
@@ -6434,18 +6465,17 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 			do_move = FALSE;
 		}
-			else
-			{
-				do_move = FALSE;
-			}
-			
+		else
+		{
+			do_move = FALSE;
+		}			
 	}
 
 	/* The monster is under covered terrain, moving to uncovered terrain. */
 	else if ((m_ptr->mflag & (MFLAG_HIDE)) && (f_info[cave_feat[oy][ox]].flags2 & (FF2_COVERED)) &&
 		!(f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) && (mmove != MM_FAIL))
 	{
-		if ((mmove == MM_SWIM) || (mmove == MM_DIG) || (mmove == MM_PASS))
+		if ((mmove == MM_SWIM) || (mmove == MM_DIG) || (mmove == MM_PASS) || (mmove == MM_UNDER))
 		{
 				/* Move harmlessly */
 		}
@@ -6552,14 +6582,13 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		{
 			mmove = MM_WALK;
 		}
-			else
-			{
-				do_move = FALSE;
-			}
-	 
+		else
+		{
+			do_move = FALSE;
+		}
 	}
 
-	else if (mmove == MM_FAIL)
+	else if (mmove <= MM_FAIL)
 	{
 		/* Glyphs */
 		if (f_info[feat].flags1 & (FF1_GLYPH))
@@ -6604,7 +6633,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 				/* Break down the door */
 				if (rand_int(100) < 50) cave_alter_feat(ny, nx, FS_OPEN);
-				else cave_alter_feat(ny, nx, FS_OPEN);
+				else cave_alter_feat(ny, nx, FS_BASH);
 
 				/* Handle viewable doors */
 				if (cave_info[ny][nx] & (CAVE_SEEN)) 
@@ -6634,8 +6663,20 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		else if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_TRAP)) &&
 			(r_ptr->flags2 & (RF2_SMART)))
 		{
+			int power;
+
+			/* Get trap "power" */
+			power = f_info[cave_feat[ny][nx]].power;
+
+			/* Player trap */
+			if (cave_o_idx[ny][nx])
+			{
+				/* Use object level instead */
+				power = k_info[o_list[cave_o_idx[ny][nx]].k_idx].level;
+			}
+
 			/* Break the ward */
-			if (randint(r_ptr->level) > f_info[cave_feat[ny][nx]].power)
+			if (randint(r_ptr->level) > power)
 			{
 				/* Describe hidden trap breakage */
 				if ((cave_feat[ny][nx] == FEAT_INVIS) || (cave_feat[ny][nx] == FEAT_DOOR_INVIS))
@@ -6680,6 +6721,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				/* Did smart stuff */
 				did_smart = TRUE;
 			}
+
 			/* Don't set off the ward */
 			else if (randint(r_ptr->level) > f_info[cave_feat[ny][nx]].power)
 			{
@@ -6765,9 +6807,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						do_move = FALSE;
 					}
 				}
-
-				/* Note */
-				if (do_move) did_move_body = TRUE;
 			}
 		}
 	}
@@ -6953,7 +6992,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					monster_desc(m_name, m_ptr, 0);
 	
 					/* Get the object name */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	
 					msg_format("%^s hides behind %s.",m_name, o_name);
 	
@@ -6978,7 +7017,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					object_flags(o_ptr, &f1, &f2, &f3);
 	
 					/* Acquire the object name */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	
 					/* Acquire the monster name */
 					monster_desc(m_name, m_ptr, 0x04);
@@ -7097,10 +7136,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		/* Monster tried to crush something */
 		if (did_kill_item) l_ptr->flags2 |= (RF2_KILL_ITEM);
 
-		/* Monster pushed past another monster */
-		/* XXX Fleeing monsters will always push past others, so need to check */
-		if ((did_move_body) && (r_ptr->flags2 & RF2_MOVE_BODY)) l_ptr->flags2 |= (RF2_MOVE_BODY);
-
 		/* Monster ate another monster */
 		if (did_kill_body) l_ptr->flags2 |= (RF2_KILL_BODY);
 
@@ -7156,6 +7191,10 @@ static void process_monster(int m_idx)
 
 	int i, k, y, x;
 	int ty, tx;
+#if 0
+	int chance = 0;
+	int choice = 0;
+#endif
 	int dir;
 	bool fear;
 
@@ -7199,6 +7238,9 @@ static void process_monster(int m_idx)
 
 		/* Monster has a target */
 		else if ((m_ptr->ty) && (m_ptr->tx)) m_ptr->mflag |= (MFLAG_ACTV);
+
+		/* Monster will get a target */
+		else if (m_ptr->mflag & (MFLAG_TOWN)) m_ptr->mflag |= (MFLAG_ACTV);
 
 		/* The monster is catching too much of a whiff to ignore */
 		else if (cave_when[m_ptr->fy][m_ptr->fx])
@@ -7256,6 +7298,50 @@ static void process_monster(int m_idx)
 
 	if (make_attack_spell(m_idx)) return;
 
+	/* Note -- transitioning to the 4GAI */
+
+#if 0
+
+	/*** Ranged attacks ***/
+
+	/* Extract the ranged attack probability. */
+	chance = r_ptr->freq_spell;
+
+	/* Cannot use ranged attacks beyond maximum range. */
+	if ((chance) && (m_ptr->cdis > MAX_RANGE)) chance = 0;
+
+	/* Cannot use ranged attacks when confused or not aware. */
+	if ((chance) && ((m_ptr->confused) || (!aware))) chance = 0;
+
+	/* Stunned monsters use ranged attacks half as often. */
+	if ((chance) && (m_ptr->stunned)) chance /= 2;
+
+	/* Monster can use ranged attacks */
+	if ((chance) && (rand_int(100) < chance))
+	{
+		/* Pick a ranged attack */
+		choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], FALSE);
+	}
+
+	/* Roll to use ranged attacks failed, but monster is an archer. */
+	if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)))
+	{
+		/* Pick an archery attack (usually) */
+		if ((!rand_int(5)) && (m_ptr->cdis > 1))
+			choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], TRUE);
+	}
+
+	/* Selected a ranged attack? */
+	if (choice != 0)
+	{
+		/* Execute said attack */
+		make_attack_ranged(m_ptr, choice);
+
+		/* End turn */
+		return;
+	}
+
+#endif
 	/*** Movement ***/
 
 	/* Assume no movement */
@@ -7297,6 +7383,22 @@ static void process_monster(int m_idx)
 		/* Monster is just going to have to search at random */
 		else random = TRUE;
 	}
+
+	/* Monster is using the special "townsman" AI */
+	else if (m_ptr->mflag & (MFLAG_TOWN))
+	{
+		/* Always have somewhere to go */
+		if ((!m_ptr->ty) || (!m_ptr->tx) ||
+		    (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags1 & (FF1_ENTER)))
+		{
+			/* Get a new target */
+			get_town_target(m_ptr);
+		}
+
+		/* Not interested in the character */
+		must_use_target = TRUE;
+	}
+
 
 
 	/*** Find a target to move to ***/
@@ -7394,16 +7496,16 @@ static void recover_monster(int m_idx, bool regen)
 	}
 
 	/* Get hit by terrain continuously */
-	if (!(place_monster_here(y,x,m_ptr->r_idx)))
+	if (place_monster_here(y,x,m_ptr->r_idx) < 0)
 	{
 
 		bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 
 		bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
 
-		bool hurt_lite = r_ptr->flags3 & (RF3_HURT_LITE);
+		bool hurt_lite = ((r_ptr->flags3 & (RF3_HURT_LITE)) ? TRUE : FALSE);
 
-		bool outside = (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE));
+		bool outside = ((f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)) ? TRUE : FALSE);
 
 		/* Hack -- silently wake monster */
 		m_ptr->csleep = 0;
@@ -7412,11 +7514,17 @@ static void recover_monster(int m_idx, bool regen)
 		{
 			/* Burn the monster */
 			project_m(0, 0, y, x, damroll(4,6), GF_LITE);
-
 		}
 		else if ((f_info[cave_feat[y][x]].blow.method) && !(f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)))
 		{
 			mon_hit_trap(m_idx,y,x);
+		}
+
+		/* Suffocate */
+		else
+		{
+			/* Burn the monster */
+			project_m(0, 0, y, x, damroll(4,6), GF_SUFFOCATE);
 		}
 
 		/* Is the monster hidden?*/
@@ -7768,13 +7876,13 @@ void process_monsters(byte minimum_energy)
 		if (!m_ptr->r_idx) continue;
 
 		/* Ignore monsters that have already been handled */
-		if (m_ptr->moved) continue;
+		if (m_ptr->mflag & (MFLAG_MOVE)) continue;
 
 		/* Leave monsters without enough energy for later */
 		if (m_ptr->energy < minimum_energy) continue;
 
 		/* Prevent reprocessing */
-		m_ptr->moved = TRUE;
+		m_ptr->mflag |= (MFLAG_MOVE);
 
 		/* Handle temporary monster attributes every ten game turns */
 		if (recover) recover_monster(i, regen);
@@ -7796,6 +7904,8 @@ void process_monsters(byte minimum_energy)
 
 /*
  * Clear 'moved' status from all monsters.
+ *
+ * Clear noise if appropriate.
  */
 void reset_monsters(void)
 {
@@ -7809,8 +7919,7 @@ void reset_monsters(void)
 		m_ptr = &m_list[i];
 
 		/* Monster is ready to go again */
-		m_ptr->moved = FALSE;
+		m_ptr->mflag &= ~(MFLAG_MOVE);
 	}
-
 }
-		
+

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -27,7 +27,7 @@ cptr copyright =
 	"and not for profit purposes provided that this copyright and statement\n"
 	"are included in all such copies.  Other copyrights may also apply.\n"
 	"\n"
-	"UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6\n"
+	"UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6\n"
 	"source code are released under the Gnu Public License. See www.fsf.org\n"
 	"for current GPL license details. Addition permission granted to\n"
 	"incorporate modifications in all Angband variants as defined in the\n"
@@ -100,6 +100,8 @@ bool daytime;
 
 bool use_sound;		 /* The "sound" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
+bool use_bigtile = FALSE;
+
 
 s16b signal_count;	      /* Hack -- Count interrupts */
 
@@ -121,8 +123,6 @@ bool opening_chest;	     /* Hack -- prevent chest generation */
 bool shimmer_monsters;  /* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;   /* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_born; /* Hack -- repair monster flags (born) */
-bool repair_mflag_nice; /* Hack -- repair monster flags (nice) */
 bool repair_mflag_show; /* Hack -- repair monster flags (show) */
 bool repair_mflag_mark; /* Hack -- repair monster flags (mark) */
 
@@ -906,8 +906,16 @@ bool (*get_feat_num_hook)(int f_idx);
  */
 FILE *text_out_file = NULL;
 
+
 /*
- * Hack -- Indent number used within the text_out_to_file()
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ */
+int text_out_wrap = 0;
+
+
+/*
+ * Hack -- Indentation for the text when using text_out().
  */
 int text_out_indent = 0;
 

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -510,28 +510,20 @@ struct ego_item_type
         byte aware;
 };
 
-/*
- * Info about "flavors"
- */
 struct flavor_type
 {
 	u32b name;      /* Name (offset) */
 	u32b text;      /* Text (offset) */
+	
+	byte tval;      /* Associated object type */
+	byte sval;      /* Associated object sub-type */
 
-	byte tval[5];   /* Legal tval */
-	byte min_sval[5];       /* Minimum legal sval */
-	byte max_sval[5];       /* Maximum legal tval */
-	byte spare;
+	byte d_attr;    /* Default flavor attribute */
+	char d_char;    /* Default flavor character */
 
-	byte d_attr;    /* Default object attribute */
-	char d_char;    /* Default object character */
-
-	byte x_attr;    /* Desired object attribute */
-	char x_char;    /* Desired object character */
-
+	byte x_attr;    /* Desired flavor attribute */
+	char x_char;    /* Desired flavor character */
 };
-
-
 
 /*
  * Monster blow structure
@@ -578,6 +570,7 @@ struct monster_race
 	byte hside;     /* Creatures hit dice sides */
 
 	s16b ac;/* Armour Class */
+	s16b mana; /* Mana */
 
 	s16b sleep;     /* Inactive counter (base) */
 	byte aaf;       /* Area affect radius (1-100) */
@@ -794,6 +787,8 @@ struct monster_type
 	s16b hp;/* Current Hit points */
 	s16b maxhp;     /* Max Hit points */
 
+	s16b mana; /* Current Mana */
+
 	s16b csleep;    /* Inactive counter */
 
 	byte mspeed;    /* Monster "speed" */
@@ -820,7 +815,6 @@ struct monster_type
 	byte summoned;  /* Monster is/has summoned */
 	byte min_range;
 	byte best_range;
-	byte moved;
 
 	byte ty;
 	byte tx;
@@ -1294,7 +1288,7 @@ struct player_type
 	s16b player_hp[PY_MAX_LEVEL];   /* HP Array */
 
 	char died_from[80];     /* Cause of death */
-	char history[4][60];    /* Initial history */
+	char history[250];    /* Initial history */
 
 	u16b total_winner;      /* Total winner */
 	u16b panic_save;/* Panic save */
@@ -1443,6 +1437,8 @@ struct player_type
 	bool aggravate; /* Aggravate monsters */
 	bool teleport;  /* Random teleporting */
 	bool exp_drain; /* Experience draining */
+	bool hp_drain; /* Experience draining */
+	bool mana_drain; /* Experience draining */
 
 	bool bless_blade;       /* Blessed blade */
 
@@ -1484,10 +1480,13 @@ struct player_type
 	s16b tiring;    /* Current rate of tiring */
 
 	u32b cur_style; /* Current weapon style(s)*/
+	u32b cur_runes; /* Current runes */
 
 	s32b last_disturb;	/* Last time disturbed */
 
 	s16b vulnerability;     /* How vulnerible? */
+
+	byte outside;	/* Player is outside? */
 
 };
 

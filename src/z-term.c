@@ -185,6 +185,7 @@
  *   Term->user_hook = Perform user actions
  *   Term->xtra_hook = Perform extra actions
  *   Term->curs_hook = Draw (or Move) the cursor
+ *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
  *   Term->wipe_hook = Draw some blank spaces
  *   Term->text_hook = Draw some text in the window
  *   Term->pict_hook = Draw some attr/chars in the window
@@ -485,14 +486,14 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
 	byte *scr_aa = Term->scr->a[y];
 	char *scr_cc = Term->scr->c[y];
 
-	int oa = scr_aa[x];
-	int oc = scr_cc[x];
+	byte oa = scr_aa[x];
+	char oc = scr_cc[x];
 
 	byte *scr_taa = Term->scr->ta[y];
 	char *scr_tcc = Term->scr->tc[y];
 
-	int ota = scr_taa[x];
-	int otc = scr_tcc[x];
+	byte ota = scr_taa[x];
+	char otc = scr_tcc[x];
 
 	/* Don't change is the terrain value is 0 */
 	if (!ta) ta = ota;
@@ -539,11 +540,11 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		byte oa = scr_aa[x];
+		char oc = scr_cc[x];
 
-		int ota = scr_taa[x];
-		int otc = scr_tcc[x];
+		byte ota = scr_taa[x];
+		char otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
@@ -769,6 +770,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		/* Handle high-bit attr/chars */
 		if ((na & 0x80) && (nc & 0x80))
 		{
+			/* 2nd byte of bigtile */
+			if ((na == 255) && (nc == -1)) continue;
+
 			/* Flush */
 			if (fn)
 			{
@@ -1114,6 +1118,7 @@ errr Term_fresh(void)
 
 	/* Paranoia -- use "fake" hooks to prevent core dumps */
 	if (!Term->curs_hook) Term->curs_hook = Term_curs_hack;
+	if (!Term->bigcurs_hook) Term->bigcurs_hook = Term->curs_hook;
 	if (!Term->wipe_hook) Term->wipe_hook = Term_wipe_hack;
 	if (!Term->text_hook) Term->text_hook = Term_text_hack;
 	if (!Term->pict_hook) Term->pict_hook = Term_pict_hack;
@@ -1129,7 +1134,8 @@ errr Term_fresh(void)
 		Term_xtra(TERM_XTRA_CLEAR, 0);
 
 		/* Hack -- clear all "cursor" data */
-		old->cv = old->cu = old->cx = old->cy = 0;
+		old->cv = old->cu = FALSE;
+		old->cx = old->cy = 0;
 
 		/* Wipe each row */
 		for (y = 0; y < h; y++)
@@ -1296,8 +1302,16 @@ errr Term_fresh(void)
 		/* Draw the cursor */
 		if (!scr->cu && scr->cv)
 		{
-			/* Call the cursor display routine */
-			(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			if ((scr->cx + 1 < w) && (old->a[scr->cy][scr->cx + 1] == 255))
+			{
+				/* Double width cursor for the Bigtile mode */
+				(void)((*Term->bigcurs_hook)(scr->cx, scr->cy));
+			}
+			else
+			{
+				/* Call the cursor display routine */
+				(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			}
 		}
 	}
 
@@ -1359,7 +1373,7 @@ errr Term_fresh(void)
 /*
  * Set the cursor visibility
  */
-errr Term_set_cursor(int v)
+errr Term_set_cursor(bool v)
 {
 	/* Already done */
 	if (Term->scr->cv == v) return (1);
@@ -1569,8 +1583,8 @@ errr Term_erase(int x, int y, int n)
 	int x1 = -1;
 	int x2 = -1;
 
-	int na = Term->attr_blank;
-	int nc = Term->char_blank;
+	byte na = Term->attr_blank;
+	char nc = Term->char_blank;
 
 	byte *scr_aa;
 	char *scr_cc;
@@ -1591,11 +1605,17 @@ errr Term_erase(int x, int y, int n)
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
 
+	if ((n > 0) && (scr_cc[x] == -1) && (scr_aa[x] == 255))
+	{
+		x--;
+		n++;
+	}
+
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		byte oa = scr_aa[x];
+		char oc = scr_cc[x];
 
 		/* Hack -- Ignore "non-changes" */
 		if ((oa == na) && (oc == nc)) continue;
@@ -1729,6 +1749,9 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 	/* Set the x limits */
 	for (i = Term->y1; i <= Term->y2; i++)
 	{
+		if ((x1 > 0) && (Term->old->a[i][x1] == 255))
+			x1--;
+
 		Term->x1[i] = x1;
 		Term->x2[i] = x2;
 
@@ -1759,7 +1782,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 /*
  * Extract the cursor visibility
  */
-errr Term_get_cursor(int *v)
+errr Term_get_cursor(bool *v)
 {
 	/* Extract visibility */
 	(*v) = Term->scr->cv;

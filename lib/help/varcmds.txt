@@ -101,6 +101,19 @@ Disarm a feature (D)
         Doors may also be trapped, and trapped doors may be disarmed as
         a consequence.
 
+Jam a door/Set a trap (j) or Spike a door/Set a trap (S)
+        Certain objects can be effectively used to set a trap that can
+        delay, injure or even kill monsters. This command allows you to
+        attempt to set a trap using any object. Some objects will only prove
+        to be a distraction to monsters, however the majority should injure
+        or apply spell effects against a monster. This ability is affected
+        by your disarm skill - in particular you can accidentally set off
+        an object while you are attempting to set a trap with that object,
+        should it be significantly more powerful than your abilities.
+        You can also use spikes to make pit traps more dangerous.
+        This command may take a count, requires a direction, and takes some 
+        energy.
+
 --- Spell Commands ---
 
 

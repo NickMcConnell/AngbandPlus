@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -102,19 +102,19 @@ static cptr r_info_blow_method[] =
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"XXX2",
+	"PECK",
 	"CRAWL",
 	"DROOL",
+	"SLIME",
 	"SPIT",
-	"XXX3",
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
+	"LASH",
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+	"THROW",
 	"TRAP",
 	"SHOOT",
 	"AURA",
@@ -250,6 +250,12 @@ static cptr r_info_blow_effect[] =
 	"STEAM",
 	"VAPOUR",
 	"SMOKE",
+	"SUFFOCATE",
+	"HUNGER",
+	"DISEASE",
+	"LOSE_MANA",
+	"WOUND",
+	"BATTER",
 	NULL
 };
 
@@ -321,10 +327,10 @@ static cptr f_info_flags2[] =
 	"CAN_FLY",
 	"CAN_SWIM",
 	"CAN_PASS",
-        "CAN_OOZE",
+	"CAN_OOZE",
 	"CAN_DIG",
 	"HIDE_ITEM",
-	"HIDE_DEEP",
+	"HIDE_SNEAK",
 	"HIDE_SWIM",
 	"HIDE_DIG",
 	"KILL_HUGE",
@@ -350,18 +356,18 @@ static cptr f_info_flags3[] =
 	"HURT_BWATER",
 	"USE_FEAT",
 	"GET_FEAT",
-	"CAN_HIDE",
 	"GROUND",
 	"OUTSIDE",
+	"EASY_HIDE",
 	"EASY_CLIMB",
+	"MUST_CLIMB",
+	"TREE",
 	"NEED_TREE",
-	"NEED_WALL",
-	"FULL_MOVE",
 	"BLOOD",
 	"DUST",
 	"SLIME",
-	"TREE",
-	"TREE_BIG",
+	"XXX1",
+	"XXX2",
 	"INSTANT",
 	"EXPLODE",
 	"TIMED",
@@ -433,7 +439,7 @@ static cptr r_info_flags2[] =
 	"BASH_DOOR",
 	"PASS_WALL",
 	"KILL_WALL",
-	"MOVE_BODY",
+	"ARCHER",
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
@@ -444,7 +450,7 @@ static cptr r_info_flags2[] =
 	"HAS_AURA",
 	"HAS_WEB",
 	"NEED_LITE",
-	"BRAIN_8"
+	"LOW_MANA_RUN"
 };
 
 /*
@@ -460,7 +466,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-        "OOZE",
+	"OOZE",
 	"HUGE",
 	"XXX3X3",
 	"XXX4X3",
@@ -473,13 +479,13 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-        "IM_WATER",
+	"IM_WATER",
 	"RES_NETH",
-        "RES_LAVA",
+	"RES_LAVA",
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-        "HURT_WATER",
+	"HURT_WATER",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -521,8 +527,8 @@ static cptr r_info_flags4[] =
 	"BR_MANA",
 	"BR_FEAR",
 	"XXX6X4",
-	"XXX7X4",
-	"BOULDER"
+	"LASH",
+	"THROW"
 };
 
 /*
@@ -542,10 +548,10 @@ static cptr r_info_flags5[] =
 	"DRAIN_MANA",
 	"MIND_BLAST",
 	"BRAIN_SMASH",
-	"CAUSE_1",
-	"CAUSE_2",
-	"CAUSE_3",
-	"CAUSE_4",
+	"WOUND",
+	"HUNGER",
+	"",
+	"",
 	"BO_ACID",
 	"BO_ELEC",
 	"BO_FIRE",
@@ -556,7 +562,7 @@ static cptr r_info_flags5[] =
 	"BO_MANA",
 	"BO_PLAS",
 	"BO_ICEE",
-	"MISSILE",
+	"",
 	"SCARE",
 	"BLIND",
 	"CONF",
@@ -570,13 +576,13 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	"ADD_MANA",
 	"HEAL",
-	"XXX2X6",
+	"CURE",
 	"BLINK",
 	"TPORT",
 	"XXX3X6",
-	"XXX4X6",
+	"TELE_SELF_TO",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
@@ -649,7 +655,7 @@ static u32b hack_rf7_flags[52]=
 	(RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
 	 RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
 	 RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_CHEST |
-	 RF7_DROP_TOOL | RF7_DROP_JUNK | RF7_DROP_MUSIC | RF7_DROP_LITE),
+	 RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_MUSIC | RF7_DROP_LITE),
 	(RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_FUR |
 	 RF7_HAS_LEG | RF7_HAS_HEAD | RF7_HAS_BLOOD |
 	 RF7_DROP_WEAPON | RF7_DROP_CHEST | RF7_DROP_FOOD | RF7_DROP_TOOL),
@@ -3022,32 +3028,22 @@ errr parse_e_info(char *buf, header *head)
 errr parse_x_info(char *buf, header *head)
 {
 	int i;
-
-	char *s;
-
+	
 	/* Current entry */
-	static flavor_type *x_ptr = NULL;
-
-	static int cur_t = 0;
+	static flavor_type *x_ptr;
 
 
-	/* Process 'N' for "New/Number/Name" */
+	/* Process 'N' for "Number" */
 	if (buf[0] == 'N')
 	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
+		int tval, sval;
+		int result;
 
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		/* Scan the value */
+		result = sscanf(buf, "N:%d:%d:%d", &i, &tval, &sval);
 
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
+		/* Either two or three values */
+		if ((result != 2) && (result != 3)) return (PARSE_ERROR_GENERIC);
 
 		/* Verify information */
 		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
@@ -3061,19 +3057,24 @@ errr parse_x_info(char *buf, header *head)
 		/* Point at the "info" */
 		x_ptr = (flavor_type*)head->info_ptr + i;
 
-		/* Store the name */
-		if (!(x_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		/* Save the tval */
+		x_ptr->tval = (byte)tval;
 
-		/* Start with the first of the tval indices */
-		cur_t = 0;
+		/* Save the sval */
+		if (result == 2)
+		{
+			/* Megahack - unknown sval */
+			x_ptr->sval = SV_UNKNOWN;
+		}
+		else
+			x_ptr->sval = (byte)sval;
 	}
 
-	/* Process 'G' for "Graphics" (one line only) */
+	/* Process 'G' for "Graphics" */
 	else if (buf[0] == 'G')
 	{
-		char sym;
-		int tmp;
+		char d_char;
+		int d_attr;
 
 		/* There better be a current x_ptr */
 		if (!x_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -3083,42 +3084,30 @@ errr parse_x_info(char *buf, header *head)
 		if (!buf[3]) return (PARSE_ERROR_GENERIC);
 		if (!buf[4]) return (PARSE_ERROR_GENERIC);
 
-		/* Extract the char */
-		sym = buf[2];
+		/* Extract d_char */
+		d_char = buf[2];
 
-		/* Extract the attr */
-		tmp = color_char_to_attr(buf[4]);
+		/* If we have a longer string than expected ... */
+		if (buf[5])
+		{
+			/* Advance "buf" on by 4 */
+			buf += 4;
+
+			/* Extract the colour */
+			d_attr = color_text_to_attr(buf);
+		}
+		else
+		{
+			/* Extract the attr */
+			d_attr = color_char_to_attr(buf[4]);
+		}
 
 		/* Paranoia */
-		if (tmp < 0) return (PARSE_ERROR_GENERIC);
+		if (d_attr < 0) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		x_ptr->d_attr = tmp;
-		x_ptr->d_char = sym;
-	}
-
-	/* Process 'T' for "Types allowed" (up to five lines) */
-	else if (buf[0] == 'T')
-	{
-		int tval, sval1, sval2;
-
-		/* There better be a current x_ptr */
-		if (!x_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		x_ptr->tval[cur_t] = (byte)tval;
-		x_ptr->min_sval[cur_t] = (byte)sval1;
-		x_ptr->max_sval[cur_t] = (byte)sval2;
-
-		/* increase counter for 'possible tval' index */
-		cur_t++;
-
-		/* only three T: lines allowed */
-		if (cur_t > 5) return (PARSE_ERROR_GENERIC);
+		x_ptr->d_attr = d_attr;
+		x_ptr->d_char = d_char;
 	}
 
 	/* Process 'D' for "Description" */
@@ -3127,13 +3116,15 @@ errr parse_x_info(char *buf, header *head)
 		/* There better be a current x_ptr */
 		if (!x_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Get the text */
-		s = buf+2;
+		/* Paranoia */
+		if (!buf[1]) return (PARSE_ERROR_GENERIC);
+		if (!buf[2]) return (PARSE_ERROR_GENERIC);
 
 		/* Store the text */
-		if (!add_text(&x_ptr->text, head, s))
+		if (!add_text(&x_ptr->text, head, buf + 2))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
+
 	else
 	{
 		/* Oops */
@@ -3143,7 +3134,6 @@ errr parse_x_info(char *buf, header *head)
 	/* Success */
 	return (0);
 }
-
 
 
 /*

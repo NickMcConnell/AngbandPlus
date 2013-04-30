@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -1562,7 +1562,7 @@ static void calc_spells(void)
 	int max_spells = PY_MAX_SPELLS;
 	cptr p;
 
-	if (!variant_more_spells) max_spells = 64;
+	if (!variant_study_more) max_spells = 64;
 
 	/* Hack --- We don't know which book it comes from */
 	switch (c_info[p_ptr->pclass].spell_stat)
@@ -2089,7 +2089,47 @@ static void calc_mana(void)
 	}
 }
 
+/*
+ * Calculate the players available runes
+ *
+ * Uses carried runes, runes on ground and seasonal information.
+ *
+ */
+static void calc_runes(void)
+{
+        int i;
+        int this_o_idx,next_o_idx;
 
+	/* Clear runes */
+	p_ptr->cur_runes = 0;
+
+	/* Check inventory */
+	for (i = 0;i<INVEN_WIELD;i++)
+	{
+		if (inventory[i].k_idx)
+		{
+			if (inventory[i].tval == TV_RUNESTONE) p_ptr->cur_runes |= (2 << (inventory[i].sval-1));
+		}
+	}
+
+	/* Scan all objects in the grid */
+	for (this_o_idx = cave_o_idx[p_ptr->py][p_ptr->px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+                if (o_ptr->tval == TV_RUNESTONE) p_ptr->cur_runes |= (2 << inventory[i].sval);
+	}
+
+	/* Fun hack -- each rune has 1 day in lunar cycle */
+	p_ptr->cur_runes |= 2 << ((turn / (10L * TOWN_DAWN)) % z_info->y_max);
+
+}
 
 /*
  * Calculate the players (maximal) hit points
@@ -2493,6 +2533,8 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	if (f3 & (TR3_DRAIN_HP)) p_ptr->hp_drain = TRUE;
+	if (f3 & (TR3_DRAIN_MANA)) p_ptr->mana_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2599,6 +2641,8 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_DRAIN_HP)) p_ptr->hp_drain = TRUE;
+		if (f3 & (TR3_DRAIN_MANA)) p_ptr->mana_drain = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2811,7 +2855,7 @@ static void calc_bonuses(void)
 	{
 		feature_type *f_ptr =&f_info[cave_feat[p_ptr->py][p_ptr->px]];
 
-		bool can_swim = f_ptr->flags2 & (FF2_CAN_SWIM);
+		bool can_swim = ((f_ptr->flags2 & (FF2_CAN_SWIM)) ? TRUE : FALSE);
 
 		/* If both hands not free, we cannot swim */
 		if ((inventory[INVEN_WIELD].k_idx) ||
@@ -3553,6 +3597,11 @@ void update_stuff(void)
 		calc_spells();
 	}
 
+	if (p_ptr->update & (PU_RUNES))
+	{
+		p_ptr->update &= ~(PU_RUNES);
+		calc_runes();
+	}
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;

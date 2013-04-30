@@ -1242,7 +1242,7 @@ static void init_stuff(void)
 	strcpy(path, tail ? tail : DEFAULT_PATH);
 
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, sizeof(path));
 
 	/* Initialize */
 	init_file_paths(path);
@@ -1313,7 +1313,7 @@ void angbandThread(void *arg)
 	init_angband();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(Term->hgt - 1);
 
 	/* Play the game */
 	play_game(new_game);

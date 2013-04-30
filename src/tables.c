@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -1342,7 +1342,7 @@ const cptr window_flag_desc[32] =
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
-	NULL,
+	"Display room description",
 	"Display snap-shot",
 	NULL,
 	NULL,
@@ -1397,9 +1397,9 @@ const cptr option_text[OPT_MAX] =
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
-	"disturb_other",			/* OPT_disturb_other */
-	"alert_hitpoint",			/* OPT_alert_hitpoint */
-	"alert_failure",			/* OPT_alert_failure */
+	"",			/* OPT_disturb_other */
+	"",			/* OPT_alert_hitpoint */
+	"",			/* OPT_alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
@@ -1457,8 +1457,8 @@ const cptr option_text[OPT_MAX] =
 	"easy_search",						/* xxx */
 	"variant_save_feats",		   /* xxx */
 	"view_glowing_lite",			/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"view_surface_lite",			/* OPT_view_surface_lite */
+	"variant_study_more",		   /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1509,7 +1509,7 @@ const cptr option_text[OPT_MAX] =
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_campaign",			       /* xxx */
-	NULL,						/* xxx */
+	"birth_no_stacking",			/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1573,7 +1573,7 @@ const cptr option_text[OPT_MAX] =
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_campaign",				/* xxx */
-	NULL,						/* xxx */
+	"adult_no_stacking",			/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1661,9 +1661,9 @@ const cptr option_desc[OPT_MAX] =
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	"Disturb whenever various things happen",	/* OPT_disturb_other */
-	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
-	"Alert user to various failures",			/* OPT_alert_failure */
+	"",	/* OPT_disturb_other */
+	"",			/* OPT_alert_hitpoint */
+	"",			/* OPT_alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
@@ -1721,8 +1721,8 @@ const cptr option_desc[OPT_MAX] =
 	"Start searching if not disturbed",										/* xxx */
 	"Save new features in save-file",			/* xxx */
 	"Use special colours for glowing lite (slow)",	/* OPT_view_glowing_lite */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Use special colours for surface lite",		/* OPT_view_surface_lite */
+	"Learn more than 64 spells",										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1762,7 +1762,7 @@ const cptr option_desc[OPT_MAX] =
 	"Move faster but get tired",									   /* xxx */
 	"Limit power of summoning",									   /* xxx */
 	"Generate friendly uniques",									   /* xxx */
-	"Learn more than 64 spells",									   /* xxx */
+	"Allow more than 256 kind of spells",									   /* xxx */
 	"Monsters drop corpses",									   /* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
@@ -1773,7 +1773,7 @@ const cptr option_desc[OPT_MAX] =
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize all of the artifacts",       /* OPT_birth_rand_artifacts */
 	"Birth: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
-	NULL,										/* xxx */
+	"Birth: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1837,6 +1837,7 @@ const cptr option_desc[OPT_MAX] =
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize all of the artifacts",       /* OPT_adult_rand_artifacts */
 	"Adult: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
+	"Adult: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1859,15 +1860,14 @@ const cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Score: Peek into object creation",			/* OPT_score_peek */
-	"Score: Peek into monster creation",		/* OPT_score_hear */
-	"Score: Peek into dungeon creation",		/* OPT_score_room */
-	"Score: Peek into something else",			/* OPT_score_xtra */
+	"Score: Peek into object creation",					/* OPT_score_peek */
+	"Score: Peek into monster creation",				/* OPT_score_hear */
+	"Score: Peek into dungeon creation",				/* OPT_score_room */
+	"Score: Peek into something else",/* OPT_score_xtra */
 	"Score: Know complete monster info",		/* OPT_score_know */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
-	"Score: Know complete artifact/ego info",					       /* xxx */
-	"Score: Auto-inscribe items as if known",									   /* xxx */
+	"Score: Know complete artifact/ego info",				/* xxx */
+	"Score: Auto-inscribe items as if known",				/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1985,8 +1985,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_easy_search */
 	TRUE,	  /* OPT_variant_save_feats */
 	FALSE,		/* OPT_view_glowing_lite */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_view_surface_lite */
+	TRUE,	  /* OPT_variant_study_more */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2101,7 +2101,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
 	FALSE,	  /* OPT_adult_campaign */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_no_stacking */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2201,12 +2201,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
-		OPT_alert_failure,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
 		OPT_verify_mana,
+		255,
 		255,
 		255,
 		255,
@@ -2279,12 +2279,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
 		OPT_view_glowing_lite,
+		OPT_view_surface_lite,
  		OPT_center_player,
  		OPT_run_avoid_center,
 		OPT_show_piles,
 		OPT_room_names,
 		OPT_room_descriptions,
-		255,
 		255,
 		255
 	},
@@ -2301,7 +2301,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
 		OPT_birth_campaign,
-		255,
+		OPT_birth_no_stacking,
 		255,
 		255,
 		255,
@@ -2377,9 +2377,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_fast_moves,
 		OPT_variant_unsummon,
 		OPT_variant_more_spells,
+		OPT_variant_study_more,
 		OPT_variant_drop_body,
 		OPT_variant_save_feats,
-		255,
 		255,
 		255,
 		255,
@@ -2397,7 +2397,7 @@ const cptr inscrip_text[MAX_INSCRIP] =
 	"worthless",
 	"cursed",
 	"broken",
-	"average",
+	"empty",
 	"good",
 	"excellent",
 	"special",

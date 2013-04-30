@@ -9,7 +9,7 @@
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
- j  Jam a door                           J  (unused)
+ j  Jam a door/Set a trap                J  (unused)
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map

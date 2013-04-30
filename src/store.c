@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -887,6 +887,9 @@ static int home_carry(object_type *o_ptr)
 		/* The home acts just like the player */
 		if (object_similar(j_ptr, o_ptr))
 		{
+			/* Forget information on dropped object */
+			drop_may_flags(o_ptr);
+
 			/* Save the new number of items */
 			object_absorb(j_ptr, o_ptr);
 
@@ -942,6 +945,9 @@ static int home_carry(object_type *o_ptr)
 	/* More stuff now */
 	st_ptr->stock_num++;
 
+	/* Forget information on dropped object */
+	drop_may_flags(o_ptr);
+
 	/* Hack -- Insert the new object */
 	object_copy(&st_ptr->stock[slot], o_ptr);
 
@@ -993,6 +999,9 @@ static int store_carry(object_type *o_ptr)
 			/* Absorb (some of) the object */
 			store_object_absorb(j_ptr, o_ptr);
 
+			/* Forget information on dropped object */
+			drop_may_flags(o_ptr);
+
 			/* All done */
 			return (slot);
 		}
@@ -1033,6 +1042,9 @@ static int store_carry(object_type *o_ptr)
 
 	/* More stuff now */
 	st_ptr->stock_num++;
+
+	/* Forget information on dropped object */
+	drop_may_flags(o_ptr);
 
 	/* Hack -- Insert the new object */
 	object_copy(&st_ptr->stock[slot], o_ptr);
@@ -1221,8 +1233,14 @@ static void store_create(void)
 			p_ptr->depth = depth;
 			object_level = depth;
 
+			/* Hack -- set in store */
+			i_ptr->ident |= (IDENT_STORE);
+
 			object_aware(i_ptr);
-			object_known_store(i_ptr);
+			object_known(i_ptr);
+
+			/* Hack -- remove from store */
+			i_ptr->ident &= ~(IDENT_STORE);
 
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr);
@@ -1287,8 +1305,12 @@ static void store_create(void)
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
 		}
 
+		/* Item belongs to a store */
+		i_ptr->ident |= IDENT_STORE;
+
 		/* The object is "known" */
-		object_known_store(i_ptr);
+		object_known(i_ptr);
+
 #if 0
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)
@@ -1420,7 +1442,7 @@ static void display_entry(int item)
 		if (show_weights) maxwid -= 10;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
@@ -1460,7 +1482,7 @@ static void display_entry(int item)
 		if (show_weights) maxwid -= 7;
 
 		/* Describe the object (fully) */
-		object_desc_store(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
@@ -1717,14 +1739,14 @@ static bool get_stock(int *com_val, cptr pmt)
 		if (store_num == STORE_HOME)
 		{
 			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		}
 
 		/* Shop */
 		else
 		{
 			/* Describe */
-			object_desc_store(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 		}
 
 		/* Prompt */
@@ -2463,7 +2485,7 @@ static void store_purchase(void)
 	if ((store_num_fake != STORE_HOME) && (store_num_fake != -1))
 	{
 		/* Describe the object (fully) */
-		object_desc_store(o_name, i_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("Buying %s (%c).",
@@ -2513,8 +2535,11 @@ static void store_purchase(void)
 				/* Clear the "fixed" flag from the object */
 				i_ptr->ident &= ~(IDENT_FIXED);
 
+				/* The object no longer belongs to the store */
+				i_ptr->ident &= ~(IDENT_STORE);
+
 				/* Describe the transaction */
-				object_desc(o_name, i_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 				/* Message */
 				msg_format("You bought %s (%c) for %ld gold.",
@@ -2531,7 +2556,7 @@ static void store_purchase(void)
 				item_new = inven_carry(i_ptr);
 
 				/* Describe the final result */
-				object_desc(o_name, &inventory[item_new], TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
 
 				/* Message */
 				msg_format("You have %s (%c).",
@@ -2620,7 +2645,7 @@ static void store_purchase(void)
 #if 0
 
 		/* Describe the object */
-		object_desc(o_name, i_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("You pick up %s (%c).",
@@ -2632,7 +2657,7 @@ static void store_purchase(void)
 		item_new = inven_carry(i_ptr);
 
 		/* Describe just the result */
-		object_desc(o_name, &inventory[item_new], TRUE, 3);
+		object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
 
 		/* Message */
 		msg_format("You have %s (%c).", o_name, index_to_label(item_new));
@@ -2750,7 +2775,7 @@ static void store_sell(void)
 	i_ptr->number = amt;
 
 	/* Get a full description */
-	object_desc(o_name, i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 
 	/* Is there room in the store (or the home?) */
@@ -2824,11 +2849,14 @@ static void store_sell(void)
 			/* Modify quantity */
 			i_ptr->number = amt;
 
+			/* The object belongs to the store now */
+			i_ptr->ident |= IDENT_STORE;
+
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
 
 			/* Get the description all over again */
-			object_desc(o_name, i_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 			/* Describe the result (in message buffer) */
 			msg_format("You sold %s (%c) for %ld gold.",
@@ -2940,7 +2968,7 @@ static void store_examine(void)
 	}
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);
@@ -3550,7 +3578,7 @@ void do_cmd_store(void)
 				object_copy(i_ptr, o_ptr);
 
 				/* Describe it */
-				object_desc(o_name, i_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 				/* Message */
 				msg_format("You drop %s (%c).", o_name, index_to_label(item));

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -517,6 +517,7 @@ static errr rd_item(object_type *o_ptr)
 static void rd_monster(monster_type *m_ptr)
 {
 	byte tmp8u;
+	s16b tmp16s;
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
@@ -536,11 +537,21 @@ static void rd_monster(monster_type *m_ptr)
 	/* Summoned monsters timeout */
 	if (variant_unsummon)
 	{
-		rd_byte(&m_ptr->summoned);
+		if (older_than(3,0,1))
+		{
+			rd_s16b(&tmp16s);
+			m_ptr->summoned = (byte)tmp16s;
+			rd_byte(&tmp8u);
+			m_ptr->mflag = tmp8u;
+		}
+		else
+		{
+			rd_byte(&m_ptr->summoned);
+			rd_u16b(&m_ptr->mflag);
+		}
 
 		if (!(older_than(2,9,6)))
 		{
-			rd_u16b(&m_ptr->mflag);
 			rd_byte(&m_ptr->min_range);
 			rd_byte(&m_ptr->best_range);
 			rd_byte(&m_ptr->ty);
@@ -890,15 +901,35 @@ static errr rd_extra(void)
 
 	int max_spells = PY_MAX_SPELLS;
 
-	if (!variant_more_spells) max_spells = 64;
+	if (!variant_study_more) max_spells = 64;
 
 	rd_string(op_ptr->full_name, 32);
 
 	rd_string(p_ptr->died_from, 80);
 
-	for (i = 0; i < 4; i++)
+	if (older_than(3, 0, 1))
 	{
-		rd_string(p_ptr->history[i], 60);
+		char *hist = p_ptr->history;
+
+		for (i = 0; i < 4; i++)
+		{
+			/* Read a part of the history */
+			rd_string(hist, 60);
+
+			/* Advance */
+			hist += strlen(hist);
+
+			/* Separate by spaces */
+			hist[0] = ' ';
+			hist++;
+		}
+
+		/* Make sure it is terminated */
+		hist[0] = '\0';
+	}
+	else
+	{
+		rd_string(p_ptr->history, 250);
 	}
 
 	/* Player race */
@@ -1661,7 +1692,7 @@ u16b limit;
 	rd_u16b(&limit);
 
 	/* Verify maximum */
-	if (limit >= z_info->o_max)
+	if (limit > z_info->o_max)
 	{
 		note(format("Too many (%d) object entries!", limit));
 		return (-1);
@@ -1729,7 +1760,7 @@ u16b limit;
 	rd_u16b(&limit);
 
 	/* Hack -- verify */
-	if (limit >= z_info->m_max)
+	if (limit > z_info->m_max)
 	{
 		note(format("Too many (%d) monster entries!", limit));
 		return (-1);

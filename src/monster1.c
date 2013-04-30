@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -187,10 +193,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & (RF4_GAZE))vp[vn++] = "gaze at you";
 	if (l_ptr->flags4 & (RF4_WAIL))vp[vn++] = "wail at you";
 	if (l_ptr->flags4 & (RF4_SPIT))     vp[vn++] = "spit on you";
+	if (l_ptr->flags4 & (RF4_LASH))     vp[vn++] = "lash at you";
 	if (l_ptr->flags4 & (RF4_SHOOT))     vp[vn++] = "shoot at you";
 	if (l_ptr->flags4 & (RF4_EXPLODE))     vp[vn++] = "explode";
 	if (l_ptr->flags4 & (RF4_AURA)) vp[vn++] = "radiate a powerful aura";
-	if (l_ptr->flags4 & RF4_BOULDER) vp[vn++] = "throw boulders";
+	if (l_ptr->flags4 & (RF4_THROW)) vp[vn++] = "throw things at you";
+
 
 	/* Describe innate attacks */
 	if (vn)
@@ -239,7 +247,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & RF4_BR_MANA)		vp[vn++] = "mana";
 	if (l_ptr->flags4 & RF4_BR_FEAR)		vp[vn++] = "fear";
 	if (l_ptr->flags4 & RF4_XXX6)		vp[vn++] = "something";
-	if (l_ptr->flags4 & RF4_XXX7)		vp[vn++] = "something";
 
 	/* Describe breaths */
 	if (vn)
@@ -278,10 +285,10 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_DRAIN_MANA)  vp[vn++] = "drain mana";
 	if (l_ptr->flags5 & RF5_MIND_BLAST)  vp[vn++] = "cause mind blasting";
 	if (l_ptr->flags5 & RF5_BRAIN_SMASH) vp[vn++] = "cause brain smashing";
-	if (l_ptr->flags5 & RF5_CAUSE_1)     vp[vn++] = "cause light wounds";
-	if (l_ptr->flags5 & RF5_CAUSE_2)     vp[vn++] = "cause serious wounds";
-	if (l_ptr->flags5 & RF5_CAUSE_3)     vp[vn++] = "cause critical wounds";
-	if (l_ptr->flags5 & RF5_CAUSE_4)     vp[vn++] = "cause mortal wounds";
+	if (l_ptr->flags5 & RF5_WOUND)       vp[vn++] = "cause wounds";
+	if (l_ptr->flags5 & RF5_HUNGER)      vp[vn++] = "cause hunger";
+	if (l_ptr->flags5 & RF5_XXX3)        vp[vn++] = "do something";
+	if (l_ptr->flags5 & RF5_XXX4)        vp[vn++] = "do something";
 	if (l_ptr->flags5 & RF5_BO_ACID)     vp[vn++] = "produce acid bolts";
 	if (l_ptr->flags5 & RF5_BO_ELEC)     vp[vn++] = "produce lightning bolts";
 	if (l_ptr->flags5 & RF5_BO_FIRE)     vp[vn++] = "produce fire bolts";
@@ -292,20 +299,20 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_BO_MANA)     vp[vn++] = "produce mana bolts";
 	if (l_ptr->flags5 & RF5_BO_PLAS)     vp[vn++] = "produce plasma bolts";
 	if (l_ptr->flags5 & RF5_BO_ICEE)     vp[vn++] = "produce ice bolts";
-	if (l_ptr->flags5 & RF5_MISSILE)     vp[vn++] = "produce magic missiles";
+	if (l_ptr->flags5 & RF5_XXX5)        vp[vn++] = "do something";
 	if (l_ptr->flags5 & RF5_SCARE)       vp[vn++] = "terrify";
 	if (l_ptr->flags5 & RF5_BLIND)       vp[vn++] = "blind";
 	if (l_ptr->flags5 & RF5_CONF)vp[vn++] = "confuse";
 	if (l_ptr->flags5 & RF5_SLOW)vp[vn++] = "slow";
 	if (l_ptr->flags5 & RF5_HOLD)vp[vn++] = "paralyze";
 	if (l_ptr->flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
-	if (l_ptr->flags6 & RF6_XXX1)vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_ADD_MANA)vp[vn++] = "recover mana";
 	if (l_ptr->flags6 & RF6_HEAL)vp[vn++] = "heal-self";
-	if (l_ptr->flags6 & RF6_XXX2)vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_CURE)vp[vn++] = "cure-self";
 	if (l_ptr->flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
 	if (l_ptr->flags6 & RF6_XXX3)vp[vn++] = "do something";
-	if (l_ptr->flags6 & RF6_XXX4)vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_TELE_SELF_TO)vp[vn++] = "teleport-self to";
 	if (l_ptr->flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
 	if (l_ptr->flags6 & RF6_TELE_LEVEL)  vp[vn++] = "teleport level";
@@ -552,19 +559,19 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
+			case RBM_PECK:	p = "peck"; break;
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
+			case RBM_SLIME:	p = "slimed you"; break;
 			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
 			case RBM_GAZE:	p = "gaze"; break;
 			case RBM_WAIL:	p = "wail"; break;
 			case RBM_SPORE:	p = "release spores"; break;
-			case RBM_XXX4:	break;
+			case RBM_LASH:	p = "lash you with a whip"; break;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:	p = "moan"; break;
-			case RBM_XXX5:	break;
+			case RBM_THROW:	p = "throw"; break;
 			case RBM_TRAP: p = "trap"; break;
 			case RBM_SHOOT: p = "shoot"; break;
 			case RBM_AURA: p = "radiate"; break;
@@ -687,6 +694,15 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_LOCK_DOOR:	q = "lock doors"; break;
 			case GF_HALLU:	  q = "create hallucinations"; break;
 			case GF_FEATURE:	q = "surround you with something"; break;
+			case GF_STEAM:	q = "scald with steam"; break;
+			case GF_VAPOUR:	q = "dissolve with acidic vapour"; break;
+			case GF_SMOKE:	q = "burn with smoke"; break;
+			case GF_SUFFOCATE:	q = "suffocate"; break;
+			case GF_HUNGER:		q = "starve"; break;
+			case GF_DISEASE:		q = "infect with disease"; break;
+			case GF_LOSE_MANA:	q = "drain mana"; break;
+			case GF_WOUND:		q = "wound"; break;
+			case GF_BATTER:		q = "batter"; break;
 		}
 
 
@@ -776,7 +792,6 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
 	if (l_ptr->flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
-	if (l_ptr->flags2 & RF2_MOVE_BODY) vp[vn++] = "push past weaker monsters";
 	if (l_ptr->flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
 	if (l_ptr->flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
 	if (l_ptr->flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
@@ -1301,6 +1316,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		else if (l_ptr->flags2 & (RF2_MAGE)) text_out(" mage");
 		else if (l_ptr->flags2 & (RF2_SNEAKY)) text_out(" thief");
 		else if (l_ptr->flags2 & (RF2_ARMOR)) {} /* Hack */
+		else if (l_ptr->flags2 & (RF2_ARCHER)) text_out(" archer"); /* Hack */
 		else if ((!vn) && (strchr("pqt", r_ptr->d_char))) text_out(" person");
 		else if (!vn) text_out(" creature");
 	}
@@ -1585,7 +1601,9 @@ static void roff_top(int r_idx)
 	/* Append the "optional" attr/char info */
 	Term_addstr(-1, TERM_WHITE, "/('");
 	Term_addch(a2, c2);
+	if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
 	Term_addstr(-1, TERM_WHITE, "'):");
+
 }
 
 

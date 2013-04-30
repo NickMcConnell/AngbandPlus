@@ -1,13 +1,15 @@
+Unangband now uses an online database to record bugs and feature
+requests. See http://developer.berlios.de/bugs/?group_id=331 for
+an up to date list.
+
+The following comprises a rough ideas list not already included
+at that URL.
+
+
+
 This file describes my basic to do list for Unangband.
 Also see Lib\Todo, which is a dumping group for
 various files and ideas.
-
-For a start, here are the current bugs:
-
-
-- Death and high scores do not record styles and sub-styles.
-	Trivial fix. Just haven't got around to it. But it will
-break highscore compatibility for people. :(
 
 And new features:
 - Implement Ego lights, and monster bleeding/poisoning from
@@ -17,6 +19,11 @@ it bleed everywhere. Which is currently done as a hack. I was
 also thinking about doing magical candles, and haven't decided
 whether lanterns will be done in e_info.txt or k_info.txt.
 
+- Implement monster invisibility spells.
+Some monsters can make themselves invisible temporarily... should
+also make see invisible items deeper in the dungeon, simply because
+it is less important...
+
 - Implement the player hiding in terrain, and items of
 invisibility.
 	This will require tweaking the monster AI so that
@@ -25,20 +32,133 @@ in my opinion, a bit of a hack. I'd rather they left the room,
 or wandered around the room, if they weren't aware of you. Acting
 confused if they are aware of you might be a possibility.
 
+- Give monsters some AI patterns. eg
+
+Hunt - move to a random room exit, or move down corridor.
+Make decision again when encountering another room exit.
+Attack anyone from another room. Get the bodies and bring
+back to home room.
+
+Patrol - as hunt, but never leave room. Attack anyone from
+another room. Return to room if outside it.
+
+Twitch - move randomly (Don't use unless none other possible).
+
+Gather - Use hunt algorithm to go to another room. If room has
+items, get items and return to home room and drop them in home
+room. Flee anyone from another room if has items, or attack
+them otherwise. (requires take item ability).
+
+Scout - move to a random room exit, or move down corridor.
+Attack anyone from another room, and set immediately to flee.
+Return to home room. (requires ranged attack)
+
+Animals only use patrol and hunt algorithms (Hunting when hungry,
+patrol when satiated).
+
+Rest - never leave room. Remains stationary until detects target.
+Return to room if outside it.
+
+
 - Implement friendly monsters and uniques.
 	Long overdue, but its a reasonably big job.
-
-- Implement magic items the same way as spells.
-	The structure is there, but this is guaranteed to
-introduce bugs.
 
 - Implement monster spells the same way as player spells.
 	Ditto.
 
 - Implement alchemy/manufacturing items.
-	This is low priority at this stage.
+	This is low priority at this stage. Perhaps do essences
+as per Sangband, or ingredients based system?
 
 - Implement room descriptions version 2.
         This will mean that features and objects will be placed
 more aesthetically around the room, and match the textual
 descriptions.
+
+- Implement revised bard spell list.
+Revise bard spells, so that none are directional spells.
+(Eg fiery aura etc.)
+
+- Implement line of sight damage intensification spells.
+eg Fire Dance, Wild Waters, Sea's Rage and so on.
+These spells affect terrain with the same flavour attack and
+result in an extra dynamic action.  Eg Fire Dance causes
+all locations in line of sight that cause FIRE damage to burn
+again immediately.
+
+- Implement all magic spells so that they are level dependent.
+
+- Implement mana regeneration, searching, detection etc. as a spell effect.
+
+- Implement monster spellbooks, so that monsters can cast all ACID_MAGIC
+etc. spells.
+
+- Implement 4GAI for monsters.
+
+- Implement skill system. Unangband skill system comes out of the
+specialistaion system: Similar to Sangband, but with restrictions on what
+you can spend skills on based on your surroundings. eg you can only learn
+weapon & shield skill when you are holding or carrying a shield.
+Also add Damage Resistance skill, so that you increase you hps
+independently of total skills.
+
+Instead of Oaths, have totals for certain skill combinations limited to
+a certain value eg highest magic skill + highest weapon skill may not exceed 150,
+Fire Magic + Water Magic may not exceed 150 etc.
+
+Allow spell skills to be learnt based on what spells are known and books
+are held. eg to learn any spell in Cantrips requires the player have a
+Cantrips book.
+
+Other skills: Literacy (Use of scrolls), Wizardy (Use of staffs), Chemistry
+(Use of potions) etc.
+
+- Allow research of spells without a spellbook. You can continue to research
+a spell once you have learnt it. This gives you a chance of producing
+Research Notes (for spells), Runesticks (For runes), Lyric Sheets (For songs)
+or Prayer Beads (for prayers). The item contains a spell from another spell
+book that the spell you are researching is contained in. eg researching
+Detect Monsters in a magic book of Cantrips may help you produce research
+notes for Identify.
+
+TODO: Make mushrooms and other mimic monsters 'hide' in objects that they
+mimic.
+
+TODO: Add tents (G:<:R), sails (G:>:R).
+
+TODO: Replace wooden floors with wooden decks.
+
+TODO: Allow player to dig shallow pits, which fill with water etc to become
+shallow water.
+
+TODO: Let pits and deep pits fill with water to become deep water etc.
+
+TODO: As previous points, but let water flow into a chasm to become a
+waterfall, similiarly lava etc.
+
+The above three should probably use LAVA, ACID etc transitions, rather
+than HURT_FIRE, HURT_ACID.
+
+TODO: Should be able to traverse chasms/pits once fallen in without damage
+(Actually all MUST_CLIMB terrain).
+
+TODO: Have the monster TRAPS spell have a chance of triggering any adjacent
+traps after creating traps, to affect the target. This is based on monster
+level, but we need to be careful to pick such activated traps at a reduced
+difficulty (eg 2/3 level) as traps can be dangerous. This also applies for
+chests.
+
+TODO: Add phases of the moon. During a full moon, light all outside
+locations (but not adjacent locations - so still darker than daylight).
+During a new moon, treat outside like inside.  Should treat one phase
+darker if the night is overcast, and two phases darker if it is
+stormy (2 phases darker during daytime treats like a full moon).
+
+TODO: Add before sunrise and after sunset phases of night. During
+before sunrise, do not light locations to the west. During
+after sunset, do not light locations to the east. These time last
+for half an hour.
+
+TODO: Add an eclipse, which lasts 5 minutes and occurs once... light
+like a full moon.
+
