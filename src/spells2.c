@@ -125,7 +125,8 @@ static cptr desc_stat_pos[] =
 	"wise",
 	"dextrous",
 	"healthy",
-	"cute"
+	"cute",
+	"agile"
 };
 
 
@@ -139,7 +140,8 @@ static cptr desc_stat_neg[] =
 	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"ugly",
+	"slugish"
 };
 
 
@@ -149,14 +151,14 @@ static cptr desc_stat_neg[] =
 bool do_dec_stat(int stat)
 {
 	/* Sustain */
-	if ((p_ptr->cur_flags2 & (TR2_SUST_STR << stat)) != 0)
+	if (p_ptr->cur_flags2 & (TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat)))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
 			   desc_stat_neg[stat]);
 
 		/* Always notice */
-		equip_can_flags(0x0L,(TR2_SUST_STR<<stat),0x0L,0x0L);
+		equip_can_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat), 0x0L, 0x0L);
 
 		/* Notice effect */
 		return (TRUE);
@@ -169,7 +171,7 @@ bool do_dec_stat(int stat)
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
 
 		/* Always notice */
-		equip_not_flags(0x0L,(TR2_SUST_STR<<stat),0x0L,0x0L);
+		equip_not_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : stat), 0x0L, 0x0L);
 
 		/* Notice effect */
 		return (TRUE);
@@ -205,33 +207,17 @@ bool do_res_stat(int stat)
  */
 bool do_inc_stat(int stat)
 {
-	bool res;
+	/* Restore stat */
+	res_stat(stat);
 
-	/* Restore strength */
-	res = res_stat(stat);
+	/* Increase stat */
+	inc_stat(stat);
 
-	/* Attempt to increase */
-	if (inc_stat(stat))
-	{
-		/* Message */
-		msg_format("You feel very %s!", desc_stat_pos[stat]);
+	/* Message */
+	msg_format("You feel very %s!", desc_stat_pos[stat]);
 
-		/* Notice */
-		return (TRUE);
-	}
-
-	/* Restoration worked */
-	if (res)
-	{
-		/* Message */
-		msg_format("You feel less %s.", desc_stat_neg[stat]);
-
-		/* Notice */
-		return (TRUE);
-	}
-
-	/* Nothing obvious */
-	return (FALSE);
+	/* Notice */
+	return (TRUE);
 }
 
 /*
@@ -242,7 +228,7 @@ void identify_pack(void)
 	int i;
 
 	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -1271,10 +1257,16 @@ int value_check_aux3(const object_type *o_ptr)
 	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EXCELLENT);
 
 	/* Great "armor" bonus */
-	if (o_ptr->to_a > 8) return (INSCRIP_GREAT);
+	if (o_ptr->to_a > 9) return (INSCRIP_GREAT);
 
-	/* Great "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 14) return (INSCRIP_GREAT);
+	/* Great to_h bonus */
+	if (o_ptr->to_h > 9) return (INSCRIP_GREAT);
+
+	/* Great to_d bonus */
+	if (o_ptr->to_d >
+	    (k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds < 4 ?
+	     9 : k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
+	  return (INSCRIP_GREAT);
 
 	/* Great "weapon" dice */
 	if (o_ptr->dd > k_info[o_ptr->k_idx].dd) return (INSCRIP_GREAT);
@@ -1283,7 +1275,7 @@ int value_check_aux3(const object_type *o_ptr)
 	if (o_ptr->ds > k_info[o_ptr->k_idx].ds) return (INSCRIP_GREAT);
 
 	/* Very good "armor" bonus */
-	if (o_ptr->to_a > 4) return (INSCRIP_VERY_GOOD);
+	if (o_ptr->to_a > 5) return (INSCRIP_VERY_GOOD);
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 7) return (INSCRIP_VERY_GOOD);
@@ -1516,7 +1508,7 @@ bool detect_objects_magic(void)
 	}
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		int feel = 0;
 
@@ -1625,7 +1617,7 @@ bool detect_objects_cursed(void)
 	}
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		int feel;
 
@@ -1742,7 +1734,7 @@ bool detect_objects_power(void)
 	}
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		int feel = 0;
 
@@ -1963,10 +1955,43 @@ static void place_up_stairs(int y, int x)
  */
 static void place_down_stairs(int y, int x)
 {
+	/* Surface -- place entrance if outside */
+	if ((level_flag & (LF1_SURFACE)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
+	{
+		cave_set_feat(y, x, FEAT_ENTRANCE);
+	}
+
 	/* Create down stairs */
-	cave_set_feat(y, x, FEAT_MORE);
+	else
+	{
+		cave_set_feat(y, x, FEAT_MORE);
+	}
 }
 
+
+/*
+ * Convert existing terrain type to "quest stairs"
+ */
+void place_quest_stairs(int y, int x)
+{
+	/* Create up stairs in tower */
+	if (level_flag & (LF1_TOWER))
+	{
+		cave_set_feat(y, x, FEAT_LESS);
+	}		
+
+	/* Surface -- place entrance if outside */
+	else if ((level_flag & (LF1_SURFACE)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
+	{
+		cave_set_feat(y, x, FEAT_ENTRANCE);
+	}
+
+	/* Create down stairs */
+	else
+	{
+		cave_set_feat(y, x, FEAT_MORE);
+	}
+}
 
 
 /*
@@ -1978,33 +2003,21 @@ bool place_random_stairs(int y, int x, int feat)
 	if (!cave_clean_bold(y, x)) return (FALSE);
 
 	/* No dungeon, no stairs */
-	if (min_depth(p_ptr->dungeon) == max_depth(p_ptr->dungeon))
+	if (!(level_flag & (LF1_LESS | LF1_MORE)))
 	{
 		return (FALSE);
 	}
 
-	/* Top of tower -- must go down */
-	else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth >= max_depth(p_ptr->dungeon)))
+	/* Cannot go down, must go up */
+	else if (!(level_flag & (LF1_MORE)))
+	{
+		place_up_stairs(y, x);
+	}
+
+	/* Cannot go up, must go down */
+	else if (!(level_flag & (LF1_LESS)))
 	{
 		place_down_stairs(y, x);
-	}
-
-	/* Bottom of tower dungeon -- must go up */
-	else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth <= min_depth(p_ptr->dungeon)))
-	{
-		place_up_stairs(y, x);
-	}
-
-	/* Surface -- must go down */
-	else if (p_ptr->depth == min_depth(p_ptr->dungeon))
-	{
-		cave_set_feat(y, x, FEAT_ENTRANCE);
-	}
-
-	/* Quest or bottom of dungeon -- must go up */
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-	{
-		place_up_stairs(y, x);
 	}
 
 	/* Fixed stairs */
@@ -2355,8 +2368,14 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			else if (o_ptr->tval == TV_BOW)
+			{
+				if (o_ptr->to_d > 15) chance = 1000;
+				else chance = enchant_table[o_ptr->to_d];
+			}
+			else if (o_ptr->to_d > o_ptr->dd * o_ptr->ds + 5) chance = 1000;
+			else if (o_ptr->to_d < o_ptr->dd * o_ptr->ds) chance = enchant_table[o_ptr->to_d * 10 / o_ptr->dd / o_ptr->ds];
+			else chance = enchant_table[o_ptr->to_d + 10 - o_ptr->dd - o_ptr->ds];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -2383,8 +2402,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOAC))
 		{
 			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_a];
+			else if (o_ptr->to_a > o_ptr->ac + 5) chance = 1000;
+			else if (o_ptr->to_a < o_ptr->ac) chance = enchant_table[o_ptr->to_a * 10 / o_ptr->ac];
+			else chance = enchant_table[o_ptr->to_a + 10 - o_ptr->ac];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -4177,6 +4197,8 @@ void destroy_area(int y1, int x1, int r, bool full)
  * stuck in ice is different from granite wall is different from 
  * (impassable) rubble. Of course, we could just pull this from the
  * feature at this location.
+ *
+ * XXX This now does not kill nonliving monsters, for balance reasons.
  */
 void entomb(int cy, int cx, byte invalid)
 {
@@ -4318,13 +4340,13 @@ void entomb(int cy, int cx, byte invalid)
 			}
 
 			/* Describe the monster */
-			monster_desc(m_name, m_ptr, 0);
+			monster_desc(m_name, cave_m_idx[cy][cx], 0);
 
 			/* Scream in pain */
 			msg_format("%^s wails out in pain!", m_name);
 
 			/* Take damage from the quake */
-			damage = (sn ? (int)damroll(4, 8) : (m_ptr->hp + 1));
+			damage = (sn || (r_ptr->flags3 & (RF3_NONLIVING)) ? (int)damroll(4, 8) : (m_ptr->hp + 1));
 
 			/* Monster is certainly awake */
 			m_ptr->csleep = 0;
@@ -4721,7 +4743,7 @@ static void cave_temp_room_lite(void)
 					char m_name[80];
 
 					/* Get the monster name */
-					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_name, cave_m_idx[y][x], 0);
 
 					/* Dump a message */
 					msg_format("%^s wakes up.", m_name);
@@ -4872,7 +4894,7 @@ bool fire_ball_minor(int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -4906,7 +4928,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -4942,7 +4964,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -4976,7 +4998,7 @@ bool fire_8way(int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_8WAY | PROJECT_AREA;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_8WAY | PROJECT_AREA | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -5010,7 +5032,7 @@ bool fire_cloud(int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_BOOM | PROJECT_AREA;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_BOOM | PROJECT_AREA | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -5041,7 +5063,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	int ty, tx;
 
 	/* Pass through the target if needed */
-	flg |= (PROJECT_THRU);
+	flg |= (PROJECT_THRU | PROJECT_MAGIC);
 
 	/* Use the given direction */
 	ty = py + ddy[dir];
@@ -5068,7 +5090,7 @@ static bool fire_arc(int typ, int dir, int dam, int rad, int degrees_of_arc)
 
 	int ty, tx;
 
-	int flg = PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL;
+	int flg = PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL | PROJECT_MAGIC;
 
 	/* Diameter of source of energy is at least 20. */
 	int diameter_of_source = 20;
@@ -5116,7 +5138,7 @@ bool fire_bolt(int typ, int dir, int dam)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -5146,7 +5168,7 @@ bool fire_beam(int typ, int dir, int dam)
 
 	int ty, tx;
 
-	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID | PROJECT_THRU;
+	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID | PROJECT_THRU | PROJECT_MAGIC;
 
 	int range = 10;
 
@@ -5194,7 +5216,7 @@ bool fire_blast(int typ, int dir, int dam)
 	int ty = p_ptr->py+ddy[dir];
 	int tx = p_ptr->px+ddx[dir];
 
-	int flg = PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_BOOM | PROJECT_PLAY;
+	int flg = PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_BOOM | PROJECT_PLAY | PROJECT_MAGIC;
 	return (project(-1, 1, py, px, ty, tx, dam, typ, flg, 0, 0));
 
 }
@@ -5211,7 +5233,7 @@ bool fire_hands(int typ, int dir, int dam)
 
 	int ty, tx;
 
-	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU;
+	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_MAGIC;
 
 	int range = 3;
 
@@ -5240,7 +5262,7 @@ bool fire_bolt_minor(int typ, int dir, int dam, int range)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY | PROJECT_MAGIC;
 
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
@@ -5261,7 +5283,7 @@ bool fire_bolt_minor(int typ, int dir, int dam, int range)
 /*
  * Create a (wielded) spell item
  */
-static void wield_spell(int item, int k_idx, int time)
+static void wield_spell(int item, int k_idx, int time, int level)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -5281,6 +5303,23 @@ static void wield_spell(int item, int k_idx, int time)
 	i_ptr->timeout = time;
 	object_aware(i_ptr);
 	object_known(i_ptr);
+
+	/* Scale the item based on the player's level */
+
+	/* Hack - scale damage */
+	if ((level > 8) && (i_ptr->ds)) i_ptr->dd += (level-5)/4;
+
+	/* Hack - scale pvals */
+	if (i_ptr->pval) i_ptr->pval += (level / 10);
+
+	/* Hack - scale to hit */
+	if (i_ptr->to_h) i_ptr->to_h += (level / 2);
+
+	/* Hack - scale to dam */
+	if (i_ptr->to_d) i_ptr->to_d += (level / 2);
+
+	/* Hack - scale to ac */
+	if (i_ptr->ac) i_ptr->to_a += (i_ptr->ac * level / 25);
 
 	/* Take off existing item */
 	if (o_ptr->k_idx)
@@ -5805,27 +5844,8 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 				int py = p_ptr->py;
 				int px = p_ptr->px;
 
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM;
+				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM | PROJECT_MAGIC;
 				if (project(-1, 1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
-			}
-
-			/* One adjacent target */
-			case RBM_TOUCH:
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-
-				int flg = PROJECT_KILL;
-
-				/* Allow direction to be cancelled for free */
-				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
-
-				/* Hack - scale damage */
-				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-				
-				if (project(-1, 1, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
-
 				break;
 			}
 
@@ -6243,12 +6263,21 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 				if (fire_swarm(2 + level / 20, effect, dir,
 			           	damage + level / 2, 1)) obvious = TRUE;;
 			}
+			/* One adjacent target */
 			default:
 			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
+
+				int flg = PROJECT_KILL | PROJECT_MAGIC;
+
 				/* Allow direction to be cancelled for free */
 				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
 
-				if (fire_hands(effect, dir, damage)) obvious = TRUE;
+				/* Hack - scale damage */
+				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+
+				if (project(-1, 1, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
 
 				break;
 			}
@@ -6759,7 +6788,11 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 		if ((s_ptr->flags3 & (SF3_INC_STR)) && (set_stat_inc_tim(lasts, A_STR))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_INT)) && (set_stat_inc_tim(lasts, A_INT))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (set_stat_inc_tim(lasts, A_WIS))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_DEX)) && (set_stat_inc_tim(lasts, A_DEX))) obvious = TRUE;
+		if (s_ptr->flags3 & (SF3_INC_DEX))
+		  { 
+			if (set_stat_inc_tim(lasts, A_DEX)) obvious = TRUE;
+			if (set_stat_inc_tim(lasts, A_AGI)) obvious = TRUE;
+		  }
 		if ((s_ptr->flags3 & (SF3_INC_CON)) && (set_stat_inc_tim(lasts, A_CON))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (set_stat_inc_tim(lasts, A_CHR))) obvious = TRUE;
 	}
@@ -6769,7 +6802,11 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 		if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_DEX)) && (do_inc_stat(A_DEX))) obvious = TRUE;
+		if (s_ptr->flags3 & (SF3_INC_DEX))
+		  {
+			if (do_inc_stat(A_DEX)) obvious = TRUE;
+			if (do_inc_stat(A_AGI)) obvious = TRUE;
+		  }
 		if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
 		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
 	}
@@ -6778,7 +6815,11 @@ bool process_spell_flags(int spell, int level, bool *cancel, bool *known)
 	if ((s_ptr->flags3 & (SF3_CURE_STR)) && (do_res_stat(A_STR))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_INT)) && (do_res_stat(A_INT))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_WIS)) && (do_res_stat(A_WIS))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_DEX))  && (do_res_stat(A_DEX))) obvious = TRUE;
+	if (s_ptr->flags3 & (SF3_CURE_DEX))
+	  {
+		if (do_res_stat(A_DEX)) obvious = TRUE;
+		if (do_res_stat(A_AGI)) obvious = TRUE;
+	  }
 	if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
@@ -6894,7 +6935,7 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				/* Only brand weapons */
 				item_tester_hook = item_tester_hook_weapon_strict;
 
-				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				if (!brand_item(s_ptr->param, "glows brightly") && (*cancel)) return (TRUE);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;
@@ -6904,14 +6945,14 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				/* Only brand weapons */
 				item_tester_hook = item_tester_hook_armour;
 
-				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				if (!brand_item(s_ptr->param, "glows brightly") && (*cancel)) return (TRUE);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;
 			}
 			case SPELL_BRAND_ITEM:
 			{
-				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				if (!brand_item(s_ptr->param, "glows brightly") && (*cancel)) return (TRUE);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;
@@ -6921,7 +6962,7 @@ bool process_spell_types(int spell, int level, bool *cancel)
 				/* Only brand ammo */
 				item_tester_hook = item_tester_hook_ammo;
 
-				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				if (!brand_item(s_ptr->param, "glows brightly") && (*cancel)) return (TRUE);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;
@@ -7074,7 +7115,7 @@ bool process_spell_types(int spell, int level, bool *cancel)
 			}
 			default:
 			{
-				wield_spell(s_ptr->type,s_ptr->param,lasts);
+				wield_spell(s_ptr->type,s_ptr->param,lasts, level);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;

@@ -74,14 +74,14 @@ bool test_hit_norm(int chance, int ac, int vis)
 
 /*
  * Critical hits (from objects thrown by player)
- * Factor in item weight, total plusses, and player level.
+ * Factor in item weight, total plusses, and intelligence.
  */
 sint critical_shot(int weight, int plus, int dam)
 {
 	int i, k, crit = 0;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = weight + plus * 4 + adj_int_th[p_ptr->stat_ind[A_INT]] * 8;
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -110,14 +110,14 @@ sint critical_shot(int weight, int plus, int dam)
 /*
  * Critical hits (by player)
  *
- * Factor in weapon weight, total plusses, player level.
+ * Factor in weapon weight, total plusses, and intelligence.
  */
 sint critical_norm(int weight, int plus, int dam)
 {
 	int i, k, crit = 0;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = weight + plus * 5 + adj_int_th[p_ptr->stat_ind[A_INT]] * 10;
 
 	/* Chance */
 	if (randint(5000) <= i)
@@ -744,6 +744,133 @@ void search(void)
 }
 
 
+
+/*
+ * Objects that combine with items already in the quiver get picked
+ * up, placed in the quiver, and combined automatically.
+ */
+static bool quiver_carry(object_type *o_ptr, int o_idx)
+{
+	int i;
+
+	object_type *i_ptr, *j_ptr = NULL;
+
+	char name[80];
+
+	/* Must be ammo. */
+	if (!ammo_p(o_ptr) && !is_known_throwing_item(o_ptr)) return (FALSE);
+
+	/* Known or sensed cursed ammo is avoided */
+	if (cursed_p(o_ptr) && ((o_ptr->ident & (IDENT_SENSE)) || object_known_p(o_ptr))) return (FALSE);
+
+	/* Check quiver space */
+	if (!quiver_carry_okay(o_ptr, o_ptr->number, -1)) return (FALSE);
+
+	/* Check quiver for similar objects. */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get object in that slot. */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx)
+		{
+			/* But save first empty slot, see later */
+			if (!j_ptr) j_ptr = i_ptr;
+
+			continue;
+		}
+
+		/* Look for similar. */
+		if (object_similar(i_ptr, o_ptr))
+		{
+
+			/* Absorb floor object. */
+			object_absorb(i_ptr, o_ptr);
+
+			/* Remember this slot */
+			j_ptr = i_ptr;
+
+			/* Done */
+			break;
+		}
+	}
+
+	/* Can't combine the ammo. Search for the "=g" inscription */
+	if (i >= END_QUIVER)
+	{
+		char *s;
+
+		/* Full quiver or no inscription at all */
+		if (!j_ptr || !(o_ptr->note)) return (FALSE);
+
+		/* Search the '=' character in the inscription */
+		s = strchr(quark_str(o_ptr->note), '=');
+
+		while (TRUE)
+		{
+			/* We reached the end of the inscription */
+			if (!s) return (FALSE);
+
+			/* We found the "=g" inscription */
+			if (s[1] == 'g')
+			{
+				/* Put the ammo in the empty slot */
+				object_copy(j_ptr, o_ptr);
+
+				/* Done */
+				break;
+			}
+
+			/* Keep looking */
+			s = strchr(s + 1, '=');
+		}
+	}
+
+	/*
+	 * Increase carried weight.
+	 * Note that o_ptr has the right number of missiles to add.
+	 */
+	p_ptr->total_weight += o_ptr->weight * o_ptr->number;
+
+	/* Reorder the quiver, track the index */
+	i = reorder_quiver(j_ptr - inventory);
+
+	/* Get the final slot */
+	j_ptr = &inventory[i];
+
+	/* Cursed! */
+	if (cursed_p(j_ptr))
+	{
+		/* Warn the player */
+		sound(MSG_CURSED);
+		msg_print("Oops! It feels deathly cold!");
+
+		mark_cursed_feeling(o_ptr);
+	}
+
+	/* Describe the object */
+	object_desc(name, sizeof(name), j_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("You have %s (%c).", name, index_to_label(i));
+
+	/* Delete the object */
+	delete_object_idx(o_idx);
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+
+	return (TRUE);
+}
+
+
 /*
  * Determine if the object can be picked up, and has "=g" in its inscription.
  * If "=g" is followed by a number, pick up if the player has less than this number of similar objects in their inventory.
@@ -1096,11 +1223,8 @@ static void py_pickup_aux(int o_idx)
  *
  * If "pickup" is FALSE then only gold will be picked up.
  */
-void py_pickup(int pickup)
+void py_pickup(int py, int px, int pickup)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	s16b this_o_idx, next_o_idx = 0;
 
 	object_type *o_ptr;
@@ -1117,7 +1241,8 @@ void py_pickup(int pickup)
 #endif /* ALLOW_EASY_FLOOR */
 
 	/* Are we allowed to pick up anything here? */
-	if (!(f_info[cave_feat[py][px]].flags1 & (FF1_DROP))) return;
+	if (!(f_info[cave_feat[py][px]].flags1 & (FF1_DROP)) &&
+		(f_info[cave_feat[py][px]].flags1 & (FF1_MOVE))) return;
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -1185,6 +1310,9 @@ void py_pickup(int pickup)
 			/* Check the next object */
 			continue;
 		}
+
+		/* Test for quiver auto-pickup */
+		if (quiver_carry(o_ptr, this_o_idx)) continue;
 
 		/* Test for auto-pickup */
 		if (auto_pickup_okay(o_ptr))
@@ -1392,8 +1520,8 @@ void hit_trap(int y, int x)
 		f_ptr = &f_info[f_ptr->mimic];
 	}
 
-	/* Hack -- fall onto trap */
-	if ((p_ptr->py != y) || (p_ptr->px !=x))
+	/* Hack -- fall onto trap if we can move */
+	if ((f_ptr->flags1 & (FF1_MOVE)) && ((p_ptr->py != y) || (p_ptr->px !=x)))
 	{
 		/* Move player */
 		monster_swap(p_ptr->py, p_ptr->px, y, x);
@@ -1409,6 +1537,7 @@ void hit_trap(int y, int x)
 	disturb(0, 0);
 
 	/* Apply the object */
+	/* TODO: join with other (monster?) attack routines */
 	if ((cave_o_idx[y][x]) && (f_ptr->flags1 & (FF1_HIT_TRAP)))
 	{
 		object_type *o_ptr = &o_list[cave_o_idx[y][x]];
@@ -1454,23 +1583,7 @@ void hit_trap(int y, int x)
 						{
 							int k, mult;
 
-							switch (j_ptr->sval)
-							{
-								case SV_SLING:
-								case SV_SHORT_BOW:
-								mult = 2;
-								break;
-								case SV_LONG_BOW:
-								case SV_LIGHT_XBOW:
-									mult = 3;
-									break;
-								case SV_HEAVY_XBOW:
-									mult = 4;
-									break;
-								default:
-									mult = 1;
-									break;
-							}
+							mult = bow_multiplier(j_ptr->sval);
 
 							/* Apply extra might */
 							if (f1 & (TR1_MIGHT)) mult += j_ptr->pval;
@@ -1539,7 +1652,7 @@ void hit_trap(int y, int x)
 				object_type *i_ptr;
 				object_type object_type_body;
 
-				/* Describe ammo */
+				/* Describe */
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
 
 				/* Test for hit */
@@ -1549,7 +1662,7 @@ void hit_trap(int y, int x)
 
 					k = damroll(o_ptr->dd, o_ptr->ds);
 
-					k += critical_norm(o_ptr->weight, o_ptr->to_h, k);
+					k += critical_norm(o_ptr->weight, 2 * o_ptr->to_h, k);
 					k += o_ptr->to_d;
 
 					/* Armour reduces total damage */
@@ -1810,6 +1923,7 @@ void hit_trap(int y, int x)
 
 
 		/* Has a power */
+		/* TODO: join with other spell attack routines */
 		if (power > 0)
 		{
 			spell_type *s_ptr = &s_info[power];
@@ -1835,6 +1949,8 @@ void hit_trap(int y, int x)
 				if (!method) break;
 
 				/* Mega hack -- dispel evil/undead objects */
+				/* FIXME: how is player supposed to be unded?
+				   Also in many other places */
 				if (!d_side)
 				{
 					d_plus += 25 * d_dice;
@@ -1857,9 +1973,12 @@ void hit_trap(int y, int x)
 		}
 	}
 
-	/* Regular traps */
+	/* Regular traps / terrain */
 	else
 	{
+		/* Player floats on terrain */
+		if (player_ignore_terrain(feat)) return;
+
 		if (strlen(text))
 		{
 			/* Message */
@@ -1901,7 +2020,7 @@ void hit_trap(int y, int x)
  */
 void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int *to_dam, int *to_crit)
 {
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = NULL;
 	int i;
 
 	/* Reset style benefits */
@@ -1909,11 +2028,20 @@ void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int 
 	*to_dam = 0;
 	*to_crit = 0;
 
-	/* Check backstab if monster sleeping or fleeing */
-	if (((m_ptr->csleep) || (m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
-		  (p_ptr->pstyle == WS_BACKSTAB) && (inventory[INVEN_WIELD].weight < 100)) style |= (1L <<WS_BACKSTAB);
+  if (m_ptr) /* A hack for display of bonuses */
+  {
+	r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Check slay orc if monster is an orc */
+	/* Now record in style what styles we can potentially exercise here.
+	   Leter we will check if we actually have picked one of those at birth. */
+
+	/* Check backstab if monster sleeping or fleeing */
+	if ( (m_ptr->csleep || m_ptr->monfear) 
+		 && style & (1L<<WS_SWORD) /* works only for melee */
+		 && inventory[INVEN_WIELD].weight < 100 ) 
+		style |= (1L <<WS_BACKSTAB);
+
+	/* Check slay orc if monster is an orc; works also for ranged attacks */
 	if (r_ptr->flags3 & (RF3_ORC)) style |= (1L <<WS_SLAY_ORC);
 
 	/* Check slay troll if monster is a troll */
@@ -1936,6 +2064,7 @@ void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int 
 
 	/* Check slay giant if monster is a demon */
 	if (r_ptr->flags3 & (RF3_DEMON)) style |= (1L <<WS_SLAY_DEMON);
+  }
 
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
@@ -1958,20 +2087,24 @@ void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int 
 					break;
 
 				case WB_CRITICAL:
-					*to_crit++;
+					*to_crit += 1;
 					break;
 			}
 		}
 	}
 
 	/* Only allow criticals against living opponents */
-	if ((r_ptr->flags3 & (RF3_NONLIVING)) || (r_ptr->flags2 & (RF2_STUPID)))
+	if (r_ptr && (r_ptr->flags3 & (RF3_NONLIVING) 
+				  || r_ptr->flags2 & (RF2_STUPID)))
 	{
 		*to_crit = 0;
 	}
 
 	/* Only allow criticals against visible opponents */
-	if (!(m_ptr->ml)) *to_crit = 0;
+	if (m_ptr && !(m_ptr->ml))
+	{
+		*to_crit = 0;
+	}
 }
 
 
@@ -2105,7 +2238,7 @@ void py_attack(int y, int x, bool charging)
 	disturb(0, 0);
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, cave_m_idx[y][x], 0);
 
 	/* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2150,8 +2283,10 @@ void py_attack(int y, int x, bool charging)
 	/* Restrict blows if charging */
 	if (charging)
 	{
-		if (melee_style & (1L << WS_TWO_WEAPON)) num_blows = 2;
-		else num_blows = 1;
+		if (melee_style & (1L << WS_TWO_WEAPON)) 
+		  num_blows = MIN(2, num_blows);
+		else 
+		  num_blows = 1;
 	}
 
 	/* Attack once for each legal blow */
@@ -2181,7 +2316,7 @@ void py_attack(int y, int x, bool charging)
 		}
 
 		/* Some monsters are great at dodging  -EZ- */
-		if (mon_evade(m_ptr, m_ptr->stunned || m_ptr->confused? 50 : 80, 100, "your blow")) continue;
+		if (mon_evade(cave_m_idx[y][x], (m_ptr->stunned || m_ptr->confused) ? 50 : 80, 100, " your blow")) continue;
 
 		/* Calculate the "attack quality" */
 		if (o_ptr->k_idx) bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
@@ -2196,7 +2331,7 @@ void py_attack(int y, int x, bool charging)
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 		/* Test for resistance */
-		else if (mon_resist_object(m_ptr, o_ptr))
+		else if (mon_resist_object(cave_m_idx[y][x], o_ptr))
 		{
 			/* No need for message */
 		}
@@ -2227,21 +2362,21 @@ void py_attack(int y, int x, bool charging)
 						if (!(strstr(k_name + k_info[o_ptr->k_idx].name, "Axe"))
 							&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Halberd"))
 							&& !(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe")))
-							k += critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+							k += critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
 						else if ((j < 50) && !(strstr(k_name + k_info[o_ptr->k_idx].name, "Scythe")))
-							do_stun = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+							do_stun = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
 						else
-							do_cuts = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+							do_cuts = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
 						break;
 					}
 					case TV_SWORD:
 					{
-						do_cuts = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+						do_cuts = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
 						break;
 					}
 					default:
 					{
-						do_stun = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
+						do_stun = critical_norm(o_ptr->weight, bonus + (style_crit * 30), k);
 						break;
 					}
 				}
@@ -2271,16 +2406,20 @@ void py_attack(int y, int x, bool charging)
 			else
 			{
 				k = 1;
-				do_stun = critical_norm(c_info[p_ptr->pclass].min_weight, (style_crit * 30),k);
+				do_stun = critical_norm(c_info[p_ptr->pclass].min_weight, (style_crit * 30), k);
 			}
 
+			/* Adjust for equipment/stats to_d bounded by dice */
+			k += MIN(p_ptr->to_d, 
+				 o_ptr->dd * o_ptr->ds + 5);
+
 			/* Adjust for style */
-			k += p_ptr->to_d + style_dam;
+			k += style_dam;
 
 			/* Adjust for charging */
 			if (charging)
 			{
-				if ((melee_style & (1L << WS_UNARMED)) && (p_ptr->wt > 33)) k *= p_ptr->wt / cp_ptr->chg_weight;
+				if ((melee_style & (1L << WS_UNARMED)) && (p_ptr->wt >= 2 * cp_ptr->chg_weight)) k *= p_ptr->wt / cp_ptr->chg_weight;
 				else if (o_ptr->weight >= 2 * cp_ptr->chg_weight) k *= o_ptr->weight / cp_ptr->chg_weight;
 			}
 
@@ -2437,16 +2576,12 @@ void py_attack(int y, int x, bool charging)
 
 		tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
 	}
-	else if (fear)
-	{
-		tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has hurt me badly!");
-	}
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
 	{
 		/* Message */
-		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
+		message_format(MSG_FLEE, cave_m_idx[m_ptr->fy][m_ptr->fx], "%^s flees in terror!", m_name);
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
@@ -2564,6 +2699,16 @@ void move_player(int dir, int jumping)
 		|| (!(f_ptr->flags3 & (FF3_MUST_CLIMB)) 
                 && (f_info[cave_feat[py][px]].flags3 & (FF3_MUST_CLIMB)))) != 0;
 
+	/* Hack -- pickup objects from locations you can't move to but can see */
+	if ((cave_o_idx[y][x]) && !(f_ptr->flags1 & (FF1_MOVE)) && (play_info[y][x] & (PLAY_MARK)))
+	{
+		/* Get item from the destination */
+		py_pickup(y, x, TRUE);
+
+		/* Disturb the player */
+		disturb(0, 0);
+	}
+
 	/* Hack -- attack monsters --- except hidden ones */
 	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)))
 	{
@@ -2613,11 +2758,20 @@ void move_player(int dir, int jumping)
 
 #endif /* ALLOW_EASY_ALTER */
 
+	/* Petrified */
+	else if (p_ptr->petrify)
+	{
+		/* Disturb the player */
+		disturb(0, 0);
+
+		msg_print("You are too petrified to move.");
+		return;
+	}
+
 	/* Player can not walk through "walls" */
 	/* Also cannot climb over unknown "trees/rubble" */
 	else if (!(f_ptr->flags1 & (FF1_MOVE))
-	&& (!(f_ptr->flags3 & (FF3_EASY_CLIMB))
-	|| !(play_info[y][x] & (PLAY_MARK))))
+	&& (!(f_ptr->flags3 & (FF3_EASY_CLIMB)) || !(play_info[y][x] & (PLAY_MARK))))
 	{
 		if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
@@ -2673,16 +2827,6 @@ void move_player(int dir, int jumping)
 				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
 				(is_a_vowel(name[0]) ? "an " : "a ")),name);
 		}
-	}
-
-	/* Petrified */
-	else if (p_ptr->petrify)
-	{
-		/* Disturb the player */
-		disturb(0, 0);
-
-		msg_print("You are too petrified to move.");
-		return;
 	}
 
 	/* Partial movement */
@@ -2743,8 +2887,8 @@ void move_player(int dir, int jumping)
 		p_ptr->climbing = 0;
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
+		if ((p_ptr->skill_srh >= 50) ||
+		    (0 == rand_int(50 - p_ptr->skill_srh)))
 		{
 			search();
 		}
@@ -2779,7 +2923,7 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Handle "objects" */
-		py_pickup(jumping != always_pickup);
+		py_pickup(y, x, jumping != always_pickup);
 
 		/* Handle "store doors" */
 		if (f_ptr->flags1 & (FF1_ENTER))

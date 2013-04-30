@@ -436,15 +436,11 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || adult_preserve)
+		/* Hack -- Preserve unknown artifacts */
+		if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 		{
-			/* Hack -- Preserve unknown artifacts */
-			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
-			{
-				/* Mega-Hack -- Preserve the artifact */
-				a_info[o_ptr->name1].cur_num = 0;
-			}
+			/* Mega-Hack -- Preserve the artifact */
+			a_info[o_ptr->name1].cur_num = 0;
 		}
 
 		/* Monster */
@@ -851,11 +847,8 @@ void object_aware(object_type *o_ptr)
 	/* Identify the name */
 	o_ptr->ident |= (IDENT_NAME);
 
-	/* Check if easily known */
-	if (f3 & (TR3_EASY_KNOW)) object_known(o_ptr);
-
 	/* Is this all we need to know? - wands */
-	else if ((o_ptr->tval == TV_WAND) && (o_ptr->ident & (IDENT_CHARGES)))
+	if ((o_ptr->tval == TV_WAND) && (o_ptr->ident & (IDENT_CHARGES)))
 	{
 		object_known(o_ptr);
 	}
@@ -866,8 +859,18 @@ void object_aware(object_type *o_ptr)
 		object_known(o_ptr);
 	}
 
-	/* Is this all we need to know? - other items */
-	else if ((o_ptr->ident & (IDENT_BONUS)) && (o_ptr->ident & (IDENT_PVAL)))
+	/* Is this all we need to know? - other wearable items */
+	else if (((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+			  || (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_DRAG_ARMOR))
+			 && ((!(o_ptr->to_h) && !(o_ptr->to_d) && !(o_ptr->to_a)) 
+				 || (o_ptr->ident & (IDENT_BONUS)))
+			 && (!(o_ptr->pval) || (o_ptr->ident & (IDENT_PVAL))))
+	{
+		object_known(o_ptr);
+	}
+
+	/* Is this all we need to know? - flavoured items */
+	else if (k_info[o_ptr->k_idx].flavor)
 	{
 		object_known(o_ptr);
 	}
@@ -1015,7 +1018,6 @@ s32b object_value_real(const object_type *o_ptr)
 
 	int power;
 
-
 	/* Hack -- "worthless" items */
 	if (!k_ptr->cost) return (0L);
 
@@ -1053,6 +1055,7 @@ s32b object_value_real(const object_type *o_ptr)
 
 	/* Now evaluate object power */
 	power = object_power(o_ptr);
+
 #if 0
 	/* Hack -- No negative power on uncursed objects */
 	if ((power < 0) && !(cursed_p(o_ptr))) power = 0;
@@ -1068,7 +1071,7 @@ s32b object_value_real(const object_type *o_ptr)
 	}		
 
 	/* Hack -- object power assumes (+11,+9) on weapons and ammo so we need to include some smaller bonuses,
-		and +9 ac on armour so we need to include some bonuses. */
+		and ac bonus on armour equal to its base armour class so we need to include some bonuses. */
 	switch (o_ptr->tval)
 	{
 		/* Armour */
@@ -1083,7 +1086,7 @@ s32b object_value_real(const object_type *o_ptr)
 		case TV_DRAG_ARMOR:
 		{
 			/* Factor in the bonuses not considered by power equation */
-			value += o_ptr->to_a < 10 ? o_ptr->to_a * 100L : 1000L;
+			value += o_ptr->to_a <= o_ptr->ac ? o_ptr->to_a * 100L : o_ptr->ac * 100L;
 
 			break;
 		}
@@ -1109,6 +1112,7 @@ s32b object_value_real(const object_type *o_ptr)
 
 		{
 			/* Factor in the bonuses not considered by power equation */
+		  /* TODO: change now that to_d is bound by weapon dice? */
 			value += o_ptr->to_h < 12 ? o_ptr->to_h * 100L : 1200L;
 			value += o_ptr->to_d < 10 ? o_ptr->to_d * 100L : 1000L;
 
@@ -2176,8 +2180,10 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 
 			case 3: case 4: case 5:
 
-				/* Increase to_d */
-				if (o_ptr->to_d) o_ptr->to_d += sign;
+				/* Increase to_d; not above weapon dice */
+				if (o_ptr->to_d
+				    && o_ptr->to_d < o_ptr->dd * o_ptr->ds + 5)
+				  o_ptr->to_d += sign;
 				else tryagain = TRUE;
 
 				break;
@@ -2192,10 +2198,25 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 
 			case 9:
 
-				/* Increase pval */
-				if (o_ptr->pval) o_ptr->pval += sign;
-				else tryagain = TRUE;
+			  /* Is this an ego item? */
+			  if (o_ptr->name2)
+				{
+				ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
+				/* Increase pval; only rarely if SPEED */
+				if (o_ptr->pval 
+					&& (!(e_ptr->flags1 & (TR1_SPEED))
+					    || rand_int(100) < 33))
+				  o_ptr->pval += sign;
+				else tryagain = TRUE;
+				}
+			  else
+				{
+				/* Increase pval */
+				if (o_ptr->pval)
+				  o_ptr->pval += sign;
+				else tryagain = TRUE;
+				}
 				break;
 
 			case 10:
@@ -2346,6 +2367,9 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 	{
 		o_ptr->xtra1 = 16;
 		o_ptr->xtra2 = i;
+
+		/* Too shallow SPEED */
+		if (j == TR1_SPEED && p_ptr->depth < 40 + rand_int (20)) continue;
 
 		/* Skip non-weapons -- we have to do this because brands grant ignore flags XXX */
 		if ((j >= TR1_BRAND_ACID) && (o_ptr->tval != TV_DIGGING) && (o_ptr->tval != TV_HAFTED)
@@ -2903,14 +2927,16 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	{
 		/* Enchant */
 		o_ptr->to_h += tohit1;
-		o_ptr->to_d += todam1;
+		o_ptr->to_d = MIN(o_ptr->to_d + todam1, 
+				  o_ptr->dd * o_ptr->ds + 5);
 
 		/* Very good */
 		if (power > 1)
 		{
 			/* Enchant again */
 			o_ptr->to_h += tohit2;
-			o_ptr->to_d += todam2;
+			o_ptr->to_d = MIN(o_ptr->to_d + todam2, 
+					  o_ptr->dd * o_ptr->ds + 5);
 		}
 	}
 
@@ -3124,14 +3150,14 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Ring of Speed! */
 				case SV_RING_SPEED:
 				{
-					/* Base speed (1 to 10) */
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+					/* Base speed (1 to 8) */
+					o_ptr->pval = randint(3) + m_bonus(5, level);
 
 					/* Super-charge the ring */
-					while (rand_int(100) < 50) o_ptr->pval++;
+					while (rand_int(100) < 33) o_ptr->pval++;
 
-					/* Cursed Ring */
-					if (power < 0)
+					/* Cursed Ring; Hack: above DL30 sure */
+					if (power < 0 || p_ptr->depth < 30 + rand_int (20))
 					{
 						/* Broken */
 						o_ptr->ident |= (IDENT_BROKEN);
@@ -3219,6 +3245,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				}
 
 				/* Ring of damage */
+				/* TODO: reduce bonus here and elsewhere now that to_d is bound by weapon dice */
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
@@ -3361,6 +3388,28 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				/* Regeneration */
+				case SV_AMULET_REGEN:
+				{
+					/* Bonus to regeneration */
+					o_ptr->pval = 1 + m_bonus(5, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
 				/* Amulet of ESP -- never cursed */
 				case SV_AMULET_ESP:
 				{
@@ -3414,10 +3463,25 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulet of Trickery -- never cursed */
+				/* Amulet of Trickery -- never cursed below DL50 */
 				case SV_AMULET_TRICKERY:
 				{
 					o_ptr->pval = randint(1) + m_bonus(3, level);
+
+					/* Cursed */
+					if (p_ptr->depth < 20 + rand_int (30))
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+
+						break;
+					}
 
 					/* Boost the rating */
 					rating += 25;
@@ -3440,6 +3504,35 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Penalize */
 					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
 					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
+
+					break;
+				}
+
+				/* Amulet of the Serpents --- no speed, so bigger pval */
+				case SV_AMULET_SERPENTS:
+				{
+					o_ptr->pval = 1 + m_bonus(7, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+
+						break;
+					}
+
+					/* Boost the rating */
+					rating += 25;
+
+					/* Mention the item */
+					if (cheat_peek) object_mention(o_ptr);
 
 					break;
 				}
@@ -3658,8 +3751,7 @@ int value_check_aux10(object_type *o_ptr, bool limit, bool weapon)
 	if (!limit || !weapon) for (i = 0, j = 0x00000001L; (i< 32);i++, j <<= 1)
 	{
 		/* Skip 'useless' flags */
-		if (j & (TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART |
-			  TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS)) continue;
+		if (j & (TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART)) continue;
 
 		if (((f3) & (j)) && !(rand_int(++count))) { flag1 = 3; flag2 = j;}
 	}
@@ -4089,7 +4181,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->ds = a_ptr->ds;
 		o_ptr->to_a = a_ptr->to_a;
 		o_ptr->to_h = a_ptr->to_h;
-		o_ptr->to_d = a_ptr->to_d;
+		o_ptr->to_d = MIN(a_ptr->to_d, 
+				  a_ptr->dd * a_ptr->ds + 5);
 		o_ptr->weight = a_ptr->weight;
 
 		/* Hack -- extract the "broken" flag */
@@ -4236,6 +4329,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
+		/* Hack --- too shallow SPEED item */
+		if (e_ptr->flags1 & (TR1_SPEED)
+			&& p_ptr->depth < 35 + rand_int (20))
+		  { 
+			o_ptr->ident |= (IDENT_BROKEN);
+			o_ptr->ident |= (IDENT_CURSED);
+		  }
+
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
@@ -4253,7 +4354,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		{
 			/* Hack -- obtain bonuses */
 			if (e_ptr->max_to_h > 0) o_ptr->to_h += randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d > 0) o_ptr->to_d += randint(e_ptr->max_to_d);
+			if (e_ptr->max_to_d > 0) o_ptr->to_d = MIN(o_ptr->to_d + randint(e_ptr->max_to_d), 
+								   o_ptr->dd * o_ptr->ds + 5);
 			if (e_ptr->max_to_a > 0) o_ptr->to_a += randint(e_ptr->max_to_a);
 
 			/* Hack -- obtain pval */
@@ -4443,15 +4545,17 @@ static bool name_drop_okay(int r_idx)
 		/* Spore shooters have spores */
 		if ((j_ptr->sval == SV_EGG_SPORE) && !(r_ptr->flags8 & (RF8_HAS_SPORE))) return (FALSE);
 
-		/* Egg-layers shed their skin or have feathers or scales */
-		else if ((j_ptr->sval == SV_EGG_EGG) || (!(r_ptr->flags8 & (RF8_HAS_SKIN | RF8_HAS_FEATHER | RF8_HAS_SCALE)))) return (FALSE);
+		/* Egg-layers have feathers or scales or are insects*/
+		else if ((j_ptr->sval == SV_EGG_EGG) && !((r_ptr->flags8 & (RF8_HAS_FEATHER | RF8_HAS_SCALE)) || (r_ptr->flags3 & (RF3_INSECT)))) return (FALSE);
+
+		/* Seed layers are plants but not slimes or spores */
+		else if ((j_ptr->sval == SV_EGG_SEED) && ((r_ptr->flags8 & (RF8_HAS_SPORE | RF8_HAS_SLIME)) || !(r_ptr->flags3 & (RF3_PLANT)))) return (FALSE);
 
 		/* Undead/demons never have eggs */
 		if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON)) return (FALSE);
 
 		/* Hack -- dragons only hatch babies */
 		if ((r_ptr->flags3 & (RF3_DRAGON)) && (!strstr(r_name+r_ptr->name, "aby"))) return (FALSE);
-
 	}
 	else if (j_ptr->tval == TV_SKIN)
 	{
@@ -4534,10 +4638,8 @@ static bool name_drop_okay(int r_idx)
 		if ((j_ptr->sval == SV_FLASK_WEB) && !(r_ptr->flags2 & (RF2_HAS_WEB))) return (FALSE);
 	}
 
-
 	/* Accept */
 	return (TRUE);
-
 }
 
 
@@ -4555,7 +4657,6 @@ static void name_drop(object_type *j_ptr)
 	if (j_ptr->name2) return;
 	if (j_ptr->xtra1) return;
 
-#if 0
 	/* Mark weapons and armour with racial flags */
 	switch (j_ptr->tval)
 	{
@@ -4602,7 +4703,7 @@ static void name_drop(object_type *j_ptr)
 			if ((r_info[r_idx].flags9 & (RF9_ELF)) && !(rand_int(count++))) { j_ptr->xtra1 = 19; j_ptr->xtra2 = 26;}
 		}
 	}
-#endif
+
 	/* Are we done? */
 	if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG) && (j_ptr->tval != TV_STATUE)
 		&& (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
@@ -4781,6 +4882,25 @@ static bool kind_is_race(int k_idx)
 
 	if ((r_ptr->flags1 & (RF1_DROP_GOOD)) && (!kind_is_good(k_idx))) return (FALSE);
 
+	/* Handle mimics differently */
+	if (r_ptr->flags1 & (RF1_CHAR_MULTI))
+	{
+		/* Hack -- act like chest */
+		if (r_ptr->d_char == '&') return (TRUE);
+
+		/* Force char */
+		if (r_ptr->d_char != k_ptr->d_char) return (FALSE);
+
+		/* Allow any attribute */
+		if (r_ptr->flags9 & (RF9_ATTR_INDEX)) return (TRUE);
+
+		/* Force attribute */
+		if (r_ptr->d_attr != k_ptr->d_attr) return (FALSE);
+
+		/* Done */
+		return (TRUE);
+	}
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -4861,10 +4981,6 @@ static bool kind_is_race(int k_idx)
 			return (FALSE);
 		}
 		case TV_SCROLL:
-		{
-			if (r_ptr->d_char == '?') return (TRUE);
-
-		}
 		case TV_RUNESTONE:
 		case TV_MAP:
 		{
@@ -4874,9 +4990,6 @@ static bool kind_is_race(int k_idx)
 
 		/* Rings/Amulets/Crowns */
 		case TV_RING:
-		{
-			if (r_ptr->d_char == '=') return (TRUE);
-		}
 		case TV_AMULET:
 		case TV_CROWN:
 		{
@@ -4887,7 +5000,6 @@ static bool kind_is_race(int k_idx)
 		/* Potions */
 		case TV_POTION:
 		{
-			if (r_ptr->d_char == '!') return (TRUE);
 			if (r_ptr->flags8 & (RF8_DROP_POTION)) return (TRUE);
 			return (FALSE);
 		}
@@ -4946,16 +5058,9 @@ static bool kind_is_race(int k_idx)
 
 		/* Rod/staff/wand */
 		case TV_STAFF:
-		{
-			if (r_ptr->d_char == '_') return (TRUE);
-			if (r_ptr->flags8 & (RF8_DROP_RSW)) return (TRUE);
-			return (FALSE);
-		}
-
 		case TV_ROD:
 		case TV_WAND:
 		{
-			if (r_ptr->d_char == '-') return (TRUE);
 			if (r_ptr->flags8 & (RF8_DROP_RSW)) return (TRUE);
 			return (FALSE);
 		}
@@ -5677,6 +5782,37 @@ bool break_near(object_type *j_ptr, int y, int x)
 
 	bool obvious = FALSE;
 
+	/* These lose bonuses before breaking */
+	switch (j_ptr->tval)
+	  {
+	  case TV_HAFTED: 
+	  case TV_POLEARM:
+	  case TV_SWORD:
+	  case TV_STAFF:  
+	  case TV_DIGGING:
+	    {
+	      /* Artifacts have 60% chance to resist disenchantment */
+	      if (artifact_p(j_ptr) && (rand_int(100) < 60))
+		{
+		  return (FALSE);
+		}
+	      else if (j_ptr->to_h > 0 && j_ptr->to_h >= j_ptr->to_d)
+		{
+		  j_ptr->to_h--;
+		  return (FALSE);
+		}
+	      else if (j_ptr->to_d > 0)
+		{
+		  j_ptr->to_d--;
+		  return (FALSE);
+		}
+	    }
+	  }
+
+	/* Artifacts do not break */
+	if (artifact_p(j_ptr))
+	  return (FALSE);
+
 	/* Extract plural */
 	if (j_ptr->number != 1) plural = TRUE;
 
@@ -5757,7 +5893,7 @@ bool break_near(object_type *j_ptr, int y, int x)
 					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
 
 					/* Hit with radius 1 attack */
-					obvious |= project(-1, rad, y, x, y, x, damroll(d_side, d_dice) * j_ptr->number,
+					obvious |= project(-1, rad, y, x, y, x, damage * j_ptr->number,
 						 effect, flg, 0, 0);
 				}
 
@@ -5877,10 +6013,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	object_desc(o_name, sizeof(o_name), j_ptr, FALSE, 0);   
 
 	/* Handle normal "breakage" */
-	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
-	{
-		if (break_near(j_ptr, y, x)) return;
-	}
+	if (rand_int(100) < chance)
+	  {
+	    if (break_near(j_ptr, y, x)) 
+	      return;
+	  }
 
 
 	/* Score */
@@ -6333,7 +6470,6 @@ s16b get_feat_num(int level)
 	/* Process probabilities */
 	for (i = 0; i < alloc_feat_size; i++)
 	{
-
 		/* Default */
 		table[i].prob3 = 0;
 
@@ -6346,28 +6482,9 @@ s16b get_feat_num(int level)
 		/* Get the actual feature */
 		f_ptr = &f_info[f_idx];
 
-		/* Hack -- restrict up stairs */
-		if (f_ptr->flags1 & (FF1_LESS))
-		{
-			/* On surface -- hack - towers place their upstairs separately */
-			if (p_ptr->depth == min_depth(p_ptr->dungeon)) continue;
-
-			/* On quest levels in towers */
-			if ((t_info[p_ptr->dungeon].zone[0].tower) && (is_quest(p_ptr->depth))) continue;
-		}
-
-		/* Hack -- no chasm/trap doors/down stairs/wells on quest levels */
-		if (f_ptr->flags1 & (FF1_MORE))
-		{
-			/* At bottom of dungeon except in towers */
-			if (!(t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth == max_depth(p_ptr->dungeon))) continue;
-
-			/* On quest levels except in towers */
-			if (!(t_info[p_ptr->dungeon].zone[0].tower) && (is_quest(p_ptr->depth))) continue;
-
-			/* Hack -- no chasm/trap doors/down stairs at the bottom of a tower dungeon */
-			if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth == 1)) continue;
-		}
+		/* Hack -- restrict stairs */
+		if ((f_ptr->flags1 & (FF1_LESS)) && !(level_flag & (LF1_LESS))) continue;
+		if ((f_ptr->flags1 & (FF1_MORE)) && !(level_flag & (LF1_MORE))) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -6880,7 +6997,7 @@ void place_closed_door(int y, int x)
 	if (randint(400) < 300)
 	{
 		/* Create closed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD);
+		cave_set_feat(y, x, FEAT_DOOR_CLOSED);
 
 		return;
 	}
@@ -6926,7 +7043,7 @@ static bool vault_locked_door(int f_idx)
 	if (!(f_ptr->flags1 & (FF1_OPEN))) return (FALSE);
 
 	/* Decline unlocked doors */
-	if (f_idx == FEAT_DOOR_HEAD) return (FALSE);
+	if (f_idx == FEAT_DOOR_CLOSED) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -7182,6 +7299,9 @@ void inven_item_increase(int item, int num)
 		/* Add the weight */
 		p_ptr->total_weight += (num * o_ptr->weight);
 
+		/* Update "p_ptr->pack_size_reduce" */
+		if (IS_QUIVER_SLOT(item)) find_quiver_size();
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -7241,6 +7361,9 @@ void inven_item_optimize(int item)
 	/* The item is being wielded */
 	else
 	{
+		/* Reorder the quiver if necessary */
+		if (IS_QUIVER_SLOT(item)) p_ptr->notice |= (PN_REORDER);
+
 		/* One less item */
 		p_ptr->equip_cnt--;
 
@@ -7377,7 +7500,7 @@ bool inven_carry_okay(const object_type *o_ptr)
 	int j;
 
 	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK) return (TRUE);
+	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce) return (TRUE);
 
 	/* Similar slot? */
 	for (j = 0; j < INVEN_PACK; j++)
@@ -7461,6 +7584,18 @@ s16b inven_carry(object_type *o_ptr)
 	/* Find an empty slot */
 	for (j = 0; j <= INVEN_PACK; j++)
 	{
+		/*
+		 * Hack -- Force pack overflow if we reached the slots of the
+		 * inventory reserved for the quiver. -DG-
+		 */
+		if (j >= INVEN_PACK - p_ptr->pack_size_reduce)
+		{
+			/* Jump to INVEN_PACK to not mess up pack reordering */
+			j = INVEN_PACK;
+
+			break;
+		}
+
 		j_ptr = &inventory[j];
 
 		/* Use it if found */
@@ -7647,6 +7782,7 @@ s16b inven_takeoff(int item, int amt)
 	object_type object_type_body;
 
 	cptr act;
+	cptr act2 = "";
 
 	char o_name[80];
 
@@ -7703,21 +7839,18 @@ s16b inven_takeoff(int item, int amt)
 	{
 		act = "You were enchanted with";
 	}
-	else if ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_POLEARM)
-			|| (i_ptr->tval == TV_HAFTED) || (i_ptr->tval== TV_STAFF))
-	{
-		act = "You were wielding";
-		if (item == INVEN_ARM) act = "You were wielding off-handed";
-	}
-	else if (item == INVEN_WIELD)
-	{
-		act = "You were using";
-	}
 
 	/* Took off weapon */
 	else if (item == INVEN_WIELD)
 	{
 		act = "You were wielding";
+	}
+
+	/* Took off shield / secondary weapon */
+	else if (item == INVEN_ARM)
+	{
+		if (i_ptr->tval == TV_SHIELD) act = "You were wearing";
+		else act = "You were off-hand wielding";
 	}
 
 	/* Took off bow */
@@ -7737,6 +7870,13 @@ s16b inven_takeoff(int item, int amt)
 			i_ptr->charges = i_ptr->timeout;
 			i_ptr->timeout = 0;
 		}
+	}
+
+	/* Removed ammunition */
+	else if (IS_QUIVER_SLOT(item))
+	{
+		act = "You removed";
+		act2 = " from your quiver";
 	}
 
 	/* Took off something */
@@ -7759,8 +7899,9 @@ s16b inven_takeoff(int item, int amt)
 		slot = -1;
 	}
 
-	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	/* Message, sound if not the quiver */
+	if (!(IS_QUIVER_SLOT(item))) sound(MSG_WIELD);
+	msg_format("%s %s (%c)%s.", act, o_name, index_to_label(slot), act2);
 
 	/* Return slot */
 	return (slot);
@@ -8149,29 +8290,51 @@ s16b spell_level(int spell)
 
 	spell_type *s_ptr;
 
-	spell_cast *sc_ptr = &(s_info[0].cast[0]);
+	spell_cast *sc_ptr = NULL;
 
 	bool legible = FALSE;
+	bool fix_level = FALSE;
 
 	/* Paranoia -- must be literate */
-	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return (100);
+	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
+		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
+			return (100);
 
 	/* Get the spell */
 	s_ptr = &s_info[spell];
 
-	/* Get casting information */
-	for (i=0;i<MAX_SPELL_CASTERS;i++)
-	{
-		if (s_ptr->cast[i].class == p_ptr->pclass)
+	/* Get our casting information; warriors (class 0) have no spells */
+	if (p_ptr->pclass)
+	  for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	    {
+	      if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
-			legible = TRUE;
-			sc_ptr=&(s_ptr->cast[i]);
+		  legible = TRUE;
+		  sc_ptr=&(s_ptr->cast[i]);
+		}
+	    }
+
+	/* Hack -- get casting information for specialists */
+	if (!legible)
+	{
+		for (i = 0; i < MAX_SPELL_APPEARS; i++)
+		{
+			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
+			&& (s_info[spell].appears[i].sval == p_ptr->psval))
+			{
+				legible = TRUE;
+				/* Get the first spell caster's casting info */
+				sc_ptr=&(s_ptr->cast[0]);
+				/* And remember to fix it later */
+				fix_level = TRUE;
+			}
 		}
 	}
 
 	/* Illegible */
 	if (!legible) return (100);
-
 
 	/* Get the level */
 	level = sc_ptr->level;
@@ -8181,13 +8344,25 @@ s16b spell_level(int spell)
 	{
 		if (w_info[i].class != p_ptr->pclass) continue;
 
+		/* Hack -- Increase minimum level */
+		if (fix_level)
+		{
+			if ((w_info[i].styles & (1L << p_ptr->pstyle)) != 0)
+			{
+				level += w_info[i].level - 1;
+
+				fix_level = FALSE;
+			}
+		}
+
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		if (w_info[i].benefit != WB_POWER) continue;
 
 		/* Check for styles */
 		/* Hack -- we don't check 'current' styles */
-		if ((w_info[i].styles==0) || (w_info[i].styles & (1L << p_ptr->pstyle)))
+		if (w_info[i].styles==0
+			|| w_info[i].styles & (1L << p_ptr->pstyle))
 		switch (p_ptr->pstyle)
 		{
 			case WS_MAGIC_BOOK:
@@ -8237,6 +8412,7 @@ s16b spell_level(int spell)
 			}
 		}
 	}
+
 	return(level);
 }
 
@@ -8273,8 +8449,10 @@ s16b spell_power(int spell)
 		if (w_info[i].benefit != WB_POWER) continue;
 
 		/* Check styles */
-		/* Hack -- we don't check 'current' styles except for rings, amulets, instruments, etc */
-		if ((w_info[i].styles==0) || (w_info[i].styles & (1L << p_ptr->pstyle)))
+		/* Hack -- we don't check 'current' styles
+		   except for rings, amulets, instruments, etc */
+		if (w_info[i].styles==0 
+			|| w_info[i].styles & (1L << p_ptr->pstyle))
 		switch (p_ptr->pstyle)
 		{
 			case WS_MAGIC_BOOK:
@@ -8340,10 +8518,22 @@ s16b spell_power(int spell)
 						plev += 10;
 					}
 				}
+				break;
 			}
+			case WS_RING:
+			case WS_AMULET:
+			{
+			  /* TODO: check if the spell appear in the ring */
+				if ( w_info[i].styles & p_ptr->cur_style 
+					 & (1L << p_ptr->pstyle) ) 
+					plev += 10;
+				break;
+			}
+
 			default:
 			{
-				if (w_info[i].styles & p_ptr->cur_style) plev += 10;
+			  /* TODO: check if the spell appear in the scroll */
+				plev += 10;
 				break;
 			}
 		}
@@ -8363,25 +8553,46 @@ s16b spell_chance(int spell)
 
 	spell_type *s_ptr;
 
-	spell_cast *sc_ptr = &(s_info[0].cast[0]);
+	spell_cast *sc_ptr = NULL;
 
 	bool legible = FALSE;
 
 	int i;
 
 	/* Paranoia -- must be literate */
-	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return (100);
+	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
+		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
+			return (100);
 
 	/* Get the spell */
 	s_ptr = &s_info[spell];
 
-	/* Get casting information */
-	for (i=0;i<MAX_SPELL_CASTERS;i++)
-	{
-		if (s_ptr->cast[i].class == p_ptr->pclass)
+	/* Get our casting information; warriors (class 0) have no spells */
+	if (p_ptr->pclass)
+	  for (i = 0; i < MAX_SPELL_CASTERS; i++)
+	    {
+	      if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
-			legible = TRUE;
-			sc_ptr=&(s_ptr->cast[i]);
+		  legible = TRUE;
+		  sc_ptr=&(s_ptr->cast[i]);
+		}
+	    }
+
+	/* Hack -- get casting information for specialists */
+	if (!legible)
+	{
+		for (i = 0; i < MAX_SPELL_APPEARS; i++)
+		{
+			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
+			 &&  (s_info[spell].appears[i].sval == p_ptr->psval))
+			{
+				legible = TRUE;
+				/* Get the first spell caster's casting info */
+				sc_ptr=&(s_ptr->cast[0]);
+				/* And remember to fix it later */
+			}
 		}
 	}
 
@@ -8394,7 +8605,7 @@ s16b spell_chance(int spell)
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - spell_level(spell));
 
-	/* Reduce failure rate by INT/WIS adjustment */
+	/* Reduce failure rate by the fail-stat adjustment */
 	chance -= 3 * (adj_mag_fail_rate[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_fail]] - 1);
 
 	/* Not enough mana to cast */
@@ -8443,8 +8654,6 @@ bool spell_okay(int spell, bool known)
 {
 	spell_type *s_ptr;
 
-	spell_cast *sc_ptr = &(s_info[0].cast[0]);
-
 	int i;
 
 	bool legible =FALSE;
@@ -8452,13 +8661,28 @@ bool spell_okay(int spell, bool known)
 	/* Get the spell */
 	s_ptr = &s_info[spell];
 
-	/* Get casting information */
-	for (i=0;i<MAX_SPELL_CASTERS;i++)
-	{
-		if (s_ptr->cast[i].class == p_ptr->pclass)
+	/* Get our casting information; warriors (class 0) have no spells */
+	if (p_ptr->pclass)
+	  for (i = 0; i < MAX_SPELL_CASTERS; i++)
+	    {
+	      if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
-			legible = TRUE;
-			sc_ptr=&(s_ptr->cast[i]);
+		  legible = TRUE;
+		}
+	    }
+
+	/* Hack -- get casting information for specialists */
+	if (!legible)
+	{
+		for (i = 0; i < MAX_SPELL_APPEARS; i++)
+		{
+			if ((((s_info[spell].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
+				((s_info[spell].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
+			  && (s_info[spell].appears[i].sval == p_ptr->psval))
+			{
+				legible = TRUE;
+			}
 		}
 	}
 
@@ -8525,5 +8749,536 @@ bool spell_okay(int spell, bool known)
 
 	/* Okay to study, not to cast */
 	return (!known);
+}
+
+/*
+ * Returns in tag_num the numeric value of the inscription tag associated with
+ * an object in the inventory.
+ * Valid tags have the form "@n" or "@xn" where "n" is a number (0-9) and "x"
+ * is cmd. If cmd is 0 then "x" can be anything.
+ * Returns FALSE if the object doesn't have a valid tag.
+ */
+int get_tag_num(int o_idx, int cmd, byte *tag_num)
+{
+	object_type *o_ptr = &inventory[o_idx];
+	char *s;
+
+	/* Ignore empty objects */
+	if (!o_ptr->k_idx) return FALSE;
+
+	/* Ignore objects without notes */
+	if (!o_ptr->note) return FALSE;
+
+	/* Find the first '@' */
+	s = strchr(quark_str(o_ptr->note), '@');
+
+	while (s)
+	{
+		/* Found "@n"? */
+		if (isdigit((unsigned char)s[1]))
+		{
+			/* Convert to number */
+			*tag_num = D2I(s[1]);
+			return TRUE;
+		}
+
+		/* Found "@xn"? */
+		if ((!cmd || ((unsigned char)s[1] == cmd)) &&
+			isdigit((unsigned char)s[2]))
+		{
+			/* Convert to number */
+			*tag_num = D2I(s[2]);
+			return TRUE;
+		}
+
+		/* Find another '@' in any other case */
+		s = strchr(s + 1, '@');
+	}
+
+	return FALSE;
+}
+
+
+/*
+ * Calculate and apply the reduction in pack size due to use of the
+ * Quiver.
+ */
+void find_quiver_size(void)
+{
+	int ammo_num, i;
+	object_type *i_ptr;
+
+	/*
+	 * Items in the quiver take up space which needs to be subtracted
+	 * from space available elsewhere.
+	 */
+	ammo_num = 0;
+
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty. */
+		if (!i_ptr->k_idx) continue;
+
+		/* Tally up missiles. */
+		ammo_num += i_ptr->number * quiver_space_per_unit(i_ptr);
+	}
+
+	/* Every 99 missiles in the quiver takes up one backpack slot. */
+	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+}
+
+
+/*
+ * Combine ammo in the quiver.
+ */
+void combine_quiver(void)
+{
+	int i, j, k;
+
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	bool flag = FALSE;
+
+	/* Combine the quiver (backwards) */
+	for (i = END_QUIVER - 1; i > INVEN_QUIVER; i--)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Skip empty items */
+		if (!i_ptr->k_idx) continue;
+
+		/* Scan the items above that item */
+		for (j = INVEN_QUIVER; j < i; j++)
+		{
+			/* Get the item */
+			j_ptr = &inventory[j];
+
+			/* Skip empty items */
+			if (!j_ptr->k_idx) continue;
+
+			/* Can we drop "i_ptr" onto "j_ptr"? */
+			if (object_similar(j_ptr, i_ptr))
+			{
+				/* Take note */
+				flag = TRUE;
+
+				/* Add together the item counts */
+				object_absorb(j_ptr, i_ptr);
+
+				/* Slide everything down */
+				for (k = i; k < (END_QUIVER - 1); k++)
+				{
+					/* Hack -- slide object */
+					COPY(&inventory[k], &inventory[k+1], object_type);
+				}
+
+				/* Hack -- wipe hole */
+				object_wipe(&inventory[k]);
+
+				/* Done */
+				break;
+			}
+		}
+	}
+
+	if (flag)
+	{
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/* Message */
+		msg_print("You combine your quiver.");
+	}
+}
+
+/*
+ * Sort ammo in the quiver.  If requested, track the given slot and return
+ * its final position.
+ *
+ * Items marked with inscriptions of the form "@ [f] [any digit]"
+ * ("@f4", "@4", etc.) will be locked. It means that the ammo will be always
+ * fired using that digit. Different locked ammo can share the same tag.
+ * Unlocked ammo can be fired using its current pseudo-tag (shown in the
+ * equipment window). In that case the pseudo-tag can change depending on
+ * ammo consumption. -DG- (based on code from -LM- and -BR-)
+ */
+int reorder_quiver(int slot)
+{
+	int i, j, k;
+
+	s32b i_value;
+	byte i_group;
+
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	bool flag = FALSE;
+
+	byte tag;
+
+	/* This is used to sort locked and unlocked ammo */
+	struct ammo_info_type {
+		byte group;
+		s16b idx;
+		byte tag;
+		s32b value;
+	} ammo_info[MAX_QUIVER];
+	/* Position of the first locked slot */
+	byte first_locked;
+	/* Total size of the quiver (unlocked + locked ammo) */
+	byte quiver_size;
+
+	/*
+	 * This will hold the final ordering of ammo slots.
+	 * Note that only the indexes are stored
+	 */
+	s16b sorted_ammo_idxs[MAX_QUIVER];
+
+	/*
+	 * Reorder the quiver.
+	 *
+	 * First, we sort the ammo *indexes* in two sets, locked and unlocked
+	 * ammo. We use the same table for both sets (ammo_info).
+	 * Unlocked ammo goes in the beginning of the table and locked ammo
+	 * later.
+	 * The sets are merged later to produce the final ordering.
+	 * We use "first_locked" to determine the bound between sets. -DG-
+	 */
+	first_locked = quiver_size = 0;
+
+	/* Traverse the quiver */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the object */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Get the value of the object */
+		i_value = object_value(i_ptr);
+
+		/* Note that we store all throwing weapons in the same group */
+		i_group = quiver_get_group(i_ptr);
+
+		/* Get the real tag of the object, if any */
+		if (get_tag_num(i, quiver_group[i_group].cmd, &tag))
+		{
+			/* Determine the portion of the table to be used */
+			j = first_locked;
+			k = quiver_size;
+		}
+		/*
+		 * If there isn't a tag we use a special value
+		 * to separate the sets.
+		 */
+		else
+		{
+			tag = 10;
+			/* Determine the portion of the table to be used */
+			j = 0;
+			k = first_locked;
+
+			/* We know that all locked ammo will be displaced */
+			++first_locked;
+		}
+
+		/* Search for the right place in the table */
+		for (; j < k; j++)
+		{
+			/* Get the other ammo */
+			j_ptr = &inventory[ammo_info[j].idx];
+
+			/* Objects sort by increasing group */
+			if (i_group < ammo_info[j].group) break;
+			if (i_group > ammo_info[j].group) continue;
+
+			/*
+			 * Objects sort by increasing tag.
+			 * Note that all unlocked ammo have the same tag (10)
+			 * so this step is meaningless for them -DG-
+			 */
+			if (tag < ammo_info[j].tag) break;
+			if (tag > ammo_info[j].tag) continue;
+
+			/* Objects sort by decreasing tval */
+			if (i_ptr->tval > j_ptr->tval) break;
+			if (i_ptr->tval < j_ptr->tval) continue;
+
+			/* Non-aware items always come last */
+			if (!object_aware_p(i_ptr)) continue;
+			if (!object_aware_p(j_ptr)) break;
+
+			/* Objects sort by increasing sval */
+			if (i_ptr->sval < j_ptr->sval) break;
+			if (i_ptr->sval > j_ptr->sval) continue;
+
+			/* Unidentified objects always come last */
+			if (!object_known_p(i_ptr)) continue;
+			if (!object_known_p(j_ptr)) break;
+
+			/* Objects sort by decreasing value */
+			if (i_value > ammo_info[j].value) break;
+			if (i_value < ammo_info[j].value) continue;
+		}
+
+		/*
+		 * We found the place. Displace the other slot
+		 * indexes if neccesary
+		 */
+		for (k = quiver_size; k > j; k--)
+		{
+			COPY(&ammo_info[k], &ammo_info[k - 1],
+				struct ammo_info_type);
+		}
+
+		/* Cache some data from the slot in the table */
+		ammo_info[j].group = i_group;
+		ammo_info[j].idx = i;
+		ammo_info[j].tag = tag;
+		/* We cache the value of the object too */
+		ammo_info[j].value = i_value;
+
+		/* Update the size of the quiver */
+		++quiver_size;
+	}
+
+	/*
+	 * Second, we merge the two sets to find the final ordering of the
+	 * ammo slots.
+	 * What this step really does is to place unlocked ammo in
+	 * the slots which aren't used by locked ammo. Again, we only work
+	 * with indexes in this step.
+	 */
+	i = 0;
+	j = first_locked;
+	tag = k = 0;
+
+	/* Compare ammo between the sets */
+	while ((i < first_locked) && (j < quiver_size))
+	{
+		/* Groups are different. Add the smallest first */
+		if (ammo_info[i].group > ammo_info[j].group)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+			/* Reset the tag */
+			tag = 0;
+		}
+
+		/* Groups are different. Add the smallest first */
+		else if (ammo_info[i].group < ammo_info[j].group)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+			/* Reset the tag */
+			tag = 0;
+		}
+
+		/*
+		 * Same group, and the tag is unlocked. Add some unlocked
+		 * ammo first
+		 */
+		else if (tag < ammo_info[j].tag)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+			/* Increment the pseudo-tag */
+			++tag;
+		}
+		/*
+		 * The tag is locked. Perhaps there are several locked
+		 * slots with the same tag too. Add the locked ammo first
+		 */
+		else
+		{
+			/*
+			 * The tag is incremented only at the first ocurrence
+			 * of that value
+			 */
+			if (tag == ammo_info[j].tag)
+			{
+				++tag;
+			}
+			/* But the ammo is always added */
+			sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+		}
+	}
+
+	/* Add remaining unlocked ammo, if neccesary */
+	while (i < first_locked)
+	{
+		sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+	}
+
+	/* Add remaining locked ammo, if neccesary */
+	while (j < quiver_size)
+	{
+		sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+	}
+
+	/* Determine if we have to reorder the real ammo */
+	for (k = 0; k < quiver_size; k++)
+	{
+		if (sorted_ammo_idxs[k] != (INVEN_QUIVER + k))
+		{
+			flag = TRUE;
+
+			break;
+		}
+	}
+
+	/* Reorder the real quiver, if necessary */
+	if (flag)
+	{
+		/* Temporary copy of the quiver */
+		object_type quiver[MAX_QUIVER];
+
+		/*
+		 * Copy the real ammo into the temporary quiver using
+		 * the new order
+		 */
+		for (i = 0; i < quiver_size; i++)
+		{
+			/* Get the original slot */
+			k = sorted_ammo_idxs[i];
+
+			/* Note the indexes */
+			object_copy(&quiver[i], &inventory[k]);
+
+			/*
+			 * Hack - Adjust the temporary slot if necessary.
+			 * Note that the slot becomes temporarily negative
+			 * to avoid multiple matches (indexes are positive).
+			 */
+			if (slot == k) slot = 0 - (INVEN_QUIVER + i);
+		}
+
+		/*
+		 * Hack - The loop has ended and slot was changed only once
+		 * like we wanted. Now we make slot positive again. -DG-
+		 */
+		if (slot < 0) slot = 0 - slot;
+
+		/*
+		 * Now dump the temporary quiver (sorted) into the real quiver
+		 */
+		for (i = 0; i < quiver_size; i++)
+		{
+			object_copy(&inventory[INVEN_QUIVER + i],
+					&quiver[i]);
+		}
+
+		/* Clear unused slots */
+		for (i = INVEN_QUIVER + quiver_size; i < END_QUIVER; i++)
+		{
+			object_wipe(&inventory[i]);
+		}
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/* Message */
+		if (!slot) msg_print("You reorganize your quiver.");
+	}
+
+	return (slot);
+}
+
+
+/*
+ * Returns TRUE if an object is a throwing item
+ */
+bool is_throwing_item(const object_type *o_ptr)
+{
+  u32b f1, f2, f3, f4;
+
+  object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+  return (f3 & TR3_THROWING ? TRUE : FALSE);
+}
+
+
+/*
+ * Returns TRUE if an object is a known throwing item
+ */
+bool is_known_throwing_item(const object_type *o_ptr)
+{
+  u32b f1, f2, f3, f4;
+
+  object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
+
+  return (f3 & TR3_THROWING ? TRUE : FALSE);
+}
+
+
+/*
+ * Returns the number of quiver units an object will consume when it's stored in the quiver.
+ * Every 99 quiver units we consume an inventory slot
+ */
+int quiver_space_per_unit(const object_type *o_ptr)
+{
+	return (ammo_p(o_ptr) ? 1: 5);
+}
+
+/*
+ * Returns TRUE if the specified number of objects of type o_ptr->k_idx can be hold in the quiver.
+ * Hack: if you are moving objects from the inventory to the quiver pass the inventory slot occupied by the object in
+ * "item". This will help us to determine if we have one free inventory slot more. You can pass -1 to ignore this feature.
+ */
+bool quiver_carry_okay(const object_type *o_ptr, int num, int item)
+{
+	int i;
+	int ammo_num = 0;
+	int have;
+	int need;
+
+	/* Paranoia */
+	if ((num <= 0) || (num > o_ptr->number)) num = o_ptr->number;
+
+	/* Count ammo in the quiver */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the object */
+		object_type *i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Increment the ammo count */
+		ammo_num += (i_ptr->number * quiver_space_per_unit(i_ptr));
+	}
+
+	/* Add the requested amount of objects to be put in the quiver */
+	ammo_num += (num * quiver_space_per_unit(o_ptr));
+
+	/* We need as many free inventory as: */
+	need = (ammo_num + 98) / 99;
+
+	/* Calculate the number of available inventory slots */
+	have = INVEN_PACK - p_ptr->inven_cnt;
+
+	/* If we are emptying an inventory slot we have one free slot more */
+	if ((item >= 0) && (item < INVEN_PACK) && (num == o_ptr->number)) ++have;
+
+	/* Compute the result */
+	return (need <= have);
+}
+
+/*
+ * Returns the quiver group associated to an object. Defaults to throwing weapons
+ */
+byte quiver_get_group(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT: return (QUIVER_GROUP_BOLTS);
+		case TV_ARROW: return (QUIVER_GROUP_ARROWS);
+		case TV_SHOT: return (QUIVER_GROUP_SHOTS);
+	}
+
+	return (QUIVER_GROUP_THROWING_WEAPONS);
 }
 

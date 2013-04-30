@@ -157,19 +157,13 @@ static void load_prev_data(void)
 }
 
 
-
-
 /*
  * Adjust a stat by an amount.
  *
- * This just uses "modify_stat_value()"
- * and a positive bonus is being applied, in which case, a special hack
- * is used, with the "auto_roll" flag affecting the result.
- *
- * The "auto_roll" flag selects "maximal" changes for use with the
- * auto-roller initialization code.  Otherwise, if "maximize" mode
- * is being used, the changes are fixed.  Otherwise, semi-random
- * changes will occur, with larger changes at lower values.
+ * The "auto_roll" flag selects maximal changes for use 
+ * with the auto-roller initialization code
+ * or minimal for the point-based character generation.  
+ * Otherwise, semi-random changes will occur.
  */
 static int adjust_stat(int value, int amount, int auto_roll)
 {
@@ -179,7 +173,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
 		return (modify_stat_value(value, amount));
 	}
 
-	/* Special hack */
+	/* Increase, using the real stat increase function */
 	else
 	{
 		int i;
@@ -187,30 +181,12 @@ static int adjust_stat(int value, int amount, int auto_roll)
 		/* Apply reward */
 		for (i = 0; i < amount; i++)
 		{
-			if (value < 18)
-			{
-				value++;
-			}
-			else if (value < 18+70)
-			{
-				value += ((auto_roll ? 15 : randint(15)) + 5);
-			}
-			else if (value < 18+90)
-			{
-				value += ((auto_roll ? 6 : randint(6)) + 2);
-			}
-			else if (value < 18+100)
-			{
-				value++;
-			}
+			value = calc_inc_stat(value, auto_roll); 
 		}
+
+		return (value);
 	}
-
-	/* Return the result */
-	return (value);
 }
-
-
 
 
 /*
@@ -222,16 +198,16 @@ static void get_stats(void)
 {
 	int i, j;
 
-	int bonus_max, bonus_add;
+	int bonus_add;
 
-	int dice[18];
+	int dice[A_MAX * 3];
 
 
 	/* Roll and verify some stats */
 	while (TRUE)
 	{
 		/* Roll some dice */
-		for (j = i = 0; i < 18; i++)
+		for (j = i = 0; i < A_MAX * 3; i++)
 		{
 			/* Roll the dice */
 			dice[i] = randint(3 + i % 3);
@@ -241,7 +217,7 @@ static void get_stats(void)
 		}
 
 		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
+		if ((j > A_MAX * 7) && (j < A_MAX * 9)) break;
 	}
 
 	/* Roll the stats */
@@ -251,30 +227,14 @@ static void get_stats(void)
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus_max = (adult_maximize_race ? rp_ptr->r_adj[i] : 0) + (adult_maximize_class ? cp_ptr->c_adj[i] : 0);
-		bonus_add = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
+		bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-		/* Fixed stat maxes */
-		if (bonus_add)
-		{
-			/* Apply the bonus to the stat (somewhat randomly) */
-			stat_use[i] = adjust_stat(j, bonus_add, FALSE);
-
-		}
-		else
-		{
-			stat_use[i] = j;
-		}
+		/* Apply the bonus to the stat (randomly) */
+		stat_use[i] = adjust_stat(j, bonus_add, 0);
 
 		/* Save the resulting stat maximum */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 
-		/* Variable stat maxes */
-		if (bonus_max)
-		{
-			/* Efficiency -- Apply the racial/class bonuses */
-			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus_max);
-		}
 	}
 }
 
@@ -493,6 +453,9 @@ static void player_wipe(void)
 	{
 		object_kind *k_ptr = &k_info[i];
 
+		/* Reset "guess" */
+		k_ptr->guess = 0;
+
 		/* Reset "tried" */
 		k_ptr->tried = FALSE;
 
@@ -608,12 +571,33 @@ static void player_outfit(void)
 				{
 					switch (p_ptr->pstyle)
 					{
+					        case WS_RING:
+						  {
+						    k_idx = lookup_kind(TV_RING, rand_int(SV_RING_TELEPORTATION + 1));
+						    break;
+						  }
 						case WS_TWO_WEAPON:
+						  {
+						    k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
+						    break;
+						  }
 						case WS_THROWN:
-						{
-							k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
-							break;
-						}
+						  {
+						    switch (p_ptr->prace)
+						      {
+						      case RACE_HALF_TROLL:
+							{
+							  k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);
+							  break;
+							}
+						      default:
+							{
+							  k_idx = lookup_kind(TV_BOW, SV_SLING);
+							  break;
+							}
+						      }
+						    break;
+						  }
 						case WS_SLING:
 						{
 							k_idx = lookup_kind(TV_BOW, SV_SLING);
@@ -640,11 +624,48 @@ static void player_outfit(void)
 					switch (p_ptr->pstyle)
 					{
 						case WS_TWO_WEAPON:
+						  {
+						    /* Used to polish weapons */
+						    k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
+						    break;
+						  }
 						case WS_THROWN:
-						{
-							k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
-							break;
-						}
+						  {
+						    switch (p_ptr->prace)
+						      {
+						      case RACE_HOBBIT:
+						      case RACE_HALF_TROLL:
+							{
+							  k_idx = lookup_kind(TV_SHOT, SV_AMMO_LIGHT);
+							  break;
+							}
+						      default:
+							switch (randint(3))
+							  {
+							  case 1:
+							    {
+							      k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
+							      break;
+							    }
+							  case 2:
+							    {
+							      k_idx = lookup_kind(TV_POLEARM, SV_DART);
+							      break;
+							    }
+							  case 3:
+							    {
+							      k_idx = lookup_kind(TV_SPIKE, 0);
+							      break;
+							    }
+							  }
+						      }
+						    break;
+						  }
+						case WS_RING:
+						  {
+						    k_idx = lookup_kind(TV_ROPE, SV_ROPE_ELVEN);
+						    break;
+						  }
 						case WS_SLING:
 						{
 							k_idx = lookup_kind(TV_SHOT, SV_AMMO_NORMAL);
@@ -659,7 +680,7 @@ static void player_outfit(void)
 						{
 							k_idx = lookup_kind(TV_BOLT, SV_AMMO_NORMAL);
 							break;
-						}	break;
+						}
 					}
 					break;
 				}
@@ -675,15 +696,94 @@ static void player_outfit(void)
 			/* Modify the charges */
 			if ((e_ptr->charge_min) && (e_ptr->charge_max)) i_ptr->charges = rand_range(e_ptr->charge_min, e_ptr->charge_max);
 
-			object_aware(i_ptr);
-			object_known(i_ptr);
+			/* Rings are mysterious and powerful */
+			if (i_ptr->tval == TV_RING)
+			  {
+			    apply_magic(i_ptr, 50, FALSE, TRUE, TRUE);
+			  }
+			else
+			  {
+			    object_aware(i_ptr);
+			    object_known(i_ptr);
+			  }
 
 			/* Check the slot */
 			slot = wield_slot(i_ptr);
 
+			/* Ammo gets special rules */
+			if (IS_QUIVER_SLOT(slot))
+			{
+				bool combined = FALSE;
+				int k;
+
+				/* Reset the slot. Check quiver space */
+				slot = -1;
+
+				if (quiver_carry_okay(i_ptr, i_ptr->number, -1))
+				{
+					/* Check quiver slots */
+					for (k = INVEN_QUIVER; k < END_QUIVER; k++)
+					{
+						/* Get the slot */
+						o_ptr = &inventory[k];
+
+						/* Empty slot */
+						if (!o_ptr->k_idx)
+						{
+							/* Remember the slot */
+							slot = k;
+						}
+						/* Occupied slot */
+						else if (object_similar(o_ptr, i_ptr))
+						{
+							/* Remember the slot */
+							slot = k;
+
+							/* Trigger object combination */
+							combined = TRUE;
+
+							/* Done */
+							break;
+						}
+					}
+				}
+
+	 			/* Found a slot */
+				if (slot != -1)
+ 				{
+					/* Get the slot again */
+					o_ptr = &inventory[slot];
+
+					/* Check insertion mode */
+					if (!combined)
+					{
+						/* Raw copy */
+						object_copy(o_ptr, i_ptr);
+
+						/* Hack -- Set a unique show_idx */
+						o_ptr->show_idx = show_idx++;
+					}
+					else
+					{
+						/* Combine */
+						object_absorb(o_ptr, i_ptr);
+					}
+
+					/* Increase the weight by hand */
+					p_ptr->total_weight += (i_ptr->weight * i_ptr->number);
+
+					/* Compute quiver size */
+					find_quiver_size();
+
+					/* Reorder quiver, refresh slot */
+					slot = reorder_quiver(slot);
+
+					/* We have used up all the object */					
+					i_ptr->number = 0;
+				}
+			}
 			/* If player can wield an item, and slot not already occupied, do so */
-			/* Hack -- Temporarily don't wield lites until lite on/off code working */
-			if ((slot >= INVEN_WIELD) && (slot != INVEN_LITE) && !(inventory[slot].k_idx))
+			else if ((slot >= INVEN_WIELD) && !(inventory[slot].k_idx))
 			{
 				/* Get the wield slot */
 				o_ptr = &inventory[slot];
@@ -701,7 +801,7 @@ static void player_outfit(void)
 				p_ptr->equip_cnt++;
 
 				/* Increase the weight */
-				p_ptr->total_weight += i_ptr->weight;
+				p_ptr->total_weight += o_ptr->weight;
 
 				/* Hack -- Set a unique show_idx */
 				o_ptr->show_idx = show_idx++;
@@ -1197,18 +1297,17 @@ static void style_aux_hook(birth_menu w_str)
  */
 static bool get_player_style(void)
 {
-        int     i,choice;
-        birth_menu    styles[32];
-
+	int i,choice;
+	birth_menu styles[MAX_WEAP_STYLES];
 	u32b style;
-
-        int style_list[MAX_WEAP_STYLES];
+	int style_list[MAX_WEAP_STYLES];
+	int num = 0;
 
 	/*** Player weapon speciality ***/
 
-	int num = 0;
 
-        style = (1L<<WS_NONE);
+	style = (1L<<WS_NONE);	/* Every class can choose this style */
+
 
 	/* Collect styles */
 	for (i = 0;i< z_info->w_max;i++)
@@ -1216,7 +1315,6 @@ static bool get_player_style(void)
 		if (w_info[i].class != p_ptr->pclass) continue;
 
 		style |= w_info[i].styles;
-
 	}
 
 	/* Analyse styles */
@@ -1225,43 +1323,42 @@ static bool get_player_style(void)
 		if (style & (1L<<i)) style_list[num++]=i;
 
 	}
-
-        if (num == 1)
-        {
-                p_ptr->pstyle = style_list[0];
-
-                return (TRUE);
+	if (num == 1)
+	{
+		p_ptr->pstyle = style_list[0];
+		
+		return (TRUE);
 	}
 
 	/* Extra info */
         Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-	            "Your 'style' determines under what circumstances you get extra bonuses.");
+					"Your 'style' determines under what circumstances you get extra bonuses.");
 
 	/* Tabulate styles */
 	for (i = 0; i < num; i++)
 	{
 		/* Save the string */
-                styles[i].name = w_name_style[style_list[i]];
-                styles[i].ghost = FALSE;
+		styles[i].name = w_name_style[style_list[i]];
+		styles[i].ghost = FALSE;
 	}
 
-        /* Hack */
-        styles[0].ghost = TRUE;
+	/* Hack */
+	styles[0].ghost = TRUE;
 
-        choice = get_player_choice(styles, num, STYLE_COL, 20,
-                                     "styles.txt", style_aux_hook);
+	choice = get_player_choice(styles, num, STYLE_COL, 20,
+							   "styles.txt", style_aux_hook);
 
 	/* No selection? */
-        if (choice == INVALID_CHOICE)
+	if (choice == INVALID_CHOICE)
 	{
 		p_ptr->pstyle = 0;
 
 		return (FALSE);
 	}
-        else
-        {
-                p_ptr->pstyle = style_list[choice];
-        }
+	else
+	{
+		p_ptr->pstyle = style_list[choice];
+	}
 
 	return (TRUE);
 }
@@ -1472,7 +1569,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 3, 6, 9, 13, 16, 23};
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 3, 5, 7, 10, 13, 16, 23};
 
 
 /*
@@ -1490,7 +1587,7 @@ static bool player_birth_aux_2(void)
 {
 	int i;
 
-	int row = 3;
+	int row = 2;
 	int col = 42;
 
 	int stat = 0;
@@ -1532,18 +1629,19 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Obtain a "bonus" for "race" and "class" */
-			int bonus_add = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
+			int bonus_add = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-			/* Reset stats */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+			/* Get the minimally increased stat for the bonuses */
+			int value_min = adjust_stat(stats[i], bonus_add, 1);
 
-			/* Fixed stat maxes */
-			if (bonus_add)
-			{
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus_add);
-			}
+			/* Get the maximally increased stat for the bonuses */
+			int value_max = adjust_stat(stats[i], bonus_add, 99);
+
+			/* Get the stat increased by the average for the bonuses */
+			int value = value_min + (value_max - value_min) / 2;
+
+			/* Apply the racial/class bonuses */
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = value;
 
 			/* Total cost */
 			cost += birth_stat_costs[stats[i] - 10];
@@ -1581,7 +1679,7 @@ static bool player_birth_aux_2(void)
 		display_player(0);
 
 		/* Display the costs header */
-		put_str("Cost", row - 1, col + 32);
+		put_str("Cost ", row - 1, col + 32);
 
 		/* Display the costs */
 		for (i = 0; i < A_MAX; i++)
@@ -1707,16 +1805,10 @@ static bool player_birth_aux_3(void)
 			stat_match[i] = 0;
 
 			/* Race/Class bonus */
-			j = (adult_maximize_race ? 0 : rp_ptr->r_adj[i]) + (adult_maximize_class ? 0 : cp_ptr->c_adj[i]);
+			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-
-			/* Modify for race if maximised */
-			if (adult_maximize_race) m = modify_stat_value(m, rp_ptr->r_adj[i]);
-
-			/* Modify for class if maximised */
-			if (adult_maximize_class) m = modify_stat_value(m, cp_ptr->c_adj[i]);
+			m = adjust_stat(17, j, 99);
 
 			/* Save the maximum */
 			mval[i] = m;
@@ -2088,7 +2180,7 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-	int i, n;
+	int n;
 
 
 	/* Create a new character */
@@ -2113,28 +2205,30 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-	/* Hack -- set the dungeon */
+	/* Hack -- set the dungeon. */
 	if (adult_campaign) p_ptr->dungeon = 1;
 	else p_ptr->dungeon = 0;
 
-	/* Hack -- set the town */
-	p_ptr->town = p_ptr->dungeon;
+	/* Hack -- set the town
+	   TODO: assign home towns for each choice in each starting 
+	   points (1, 4, 5, 7, etc.) of player history in p_hist.txt.
+	   Assume the player had an errand in Hobbiton, so town = 1,
+	   but perhaps allow recalls to the home towns (and back)...
+	   Make some rules for the change of player's home town, see FA. */
+	if (adult_campaign) p_ptr->town = 11;
+	else p_ptr->town = 0;
 
 	/* Set last disturb */
 	p_ptr->last_disturb = turn;
 
-	/* Shops */
-	for (n = 0; n < MAX_STORES; n++)
-	{
-		/* Initialize */
-		store_init(n);
+	/* Initialize */
+	store_init(STORE_HOME);
 
-		/* Ignore home */
-		if (n == STORE_HOME) continue;
+	/* Maintain the shop (ten times) */
+	for (n = 0; n < 10; n++) store_maint(STORE_HOME);
 
-		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
-	}
+	/* Hack -- name home */
+	store[STORE_HOME]->index = 8;
 
 	/* Quests */
 	for (n = 0; n < z_info->q_max; n++)

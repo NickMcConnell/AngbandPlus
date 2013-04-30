@@ -514,9 +514,6 @@ void reset_visuals(bool unused)
  * Amulet or Necklace).  They will NEVER "append" the "k_info" name.  But,
  * they will append the artifact name, just like any artifact, if known.
  *
- * None of the Special Rings/Amulets are "EASY_KNOW", though they could be,
- * at least, those which have no "pluses", such as the three artifact lites.
- *
  * Hack -- Display "The One Ring" as "a Plain Gold Ring" until aware.
  *
  * The "pluralization" rules are extremely hackish, in fact, for efficiency,
@@ -556,6 +553,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	int flavor;
 
 	bool append_name;
+	bool append_modstr;
 
 	bool show_weapon;
 	bool show_armour;
@@ -629,6 +627,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/* Assume no name appending */
 	append_name = FALSE;
+
+	/* Assume no modstr appending */
+	append_modstr = FALSE;
 
 	/* Assume no need to show "weapon" bonuses */
 	show_weapon = FALSE;
@@ -786,10 +787,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_FLASK:
 		{
 			append_name = TRUE;
-			basenm = (o_ptr->name3 ? "& # Flask~" : "& Flask~");
+			basenm = "& Flask~";
 
 			/* Racially mark the object */
-			if (o_ptr->name3) modstr = (r_name + r_info[o_ptr->name3].name);
+			if (o_ptr->name3)
+			{
+				modstr = (r_name + r_info[o_ptr->name3].name);
+				append_modstr = TRUE;
+			}
 
 			break;
 		}
@@ -1130,11 +1135,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 
-	/* Append the "kind name" to the "base name" */
-	if (append_name)
+	/* Append the "kind name" and/or "mod string" to the "base name" */
+	if ((append_name) || (append_modstr))
 	{
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
+		if (append_modstr) object_desc_str_macro(t, modstr);
+		if ((append_modstr) && (append_name)) object_desc_str_macro(t, " ");
+		if (append_name) object_desc_str_macro(t, (k_name + k_ptr->name));
 	}
 
 
@@ -1276,8 +1283,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			for (i = 0, j = 0x00000001L; i < 32; i++, j <<=1)
 			{
 				/* Skip 'useless' flags */
-				if (j & (TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART |
-					  TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS)) continue;
+				if (j & (TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART)) continue;
 
 				/* Found a flag */
 				if ((j & f3) != 0)
@@ -1362,18 +1368,23 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (mode < 1) goto object_desc_done;
 
 	/* Display the item like a weapon */
-	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
-
-	/* Display the item like a weapon */
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
 	/* Display the item like armour */
 	if (o_ptr->ac) show_armour = TRUE;
 
-
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
 	{
+		/* Spells */
+		case TV_SPELL:
+		{
+			/* Hack -- check damage */
+			if ((o_ptr->dd < 2) && (o_ptr->ds < 2)) break;
+
+			/* Fall through */
+		}
+
 		/* Missiles */
 		case TV_SHOT:
 		case TV_BOLT:
@@ -1397,6 +1408,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			object_desc_num_macro(t, o_ptr->ds);
 			object_desc_chr_macro(t, p2);
 
+			/* Show mods like a weapon */
+			show_weapon = TRUE;
+
 			/* All done */
 			break;
 		}
@@ -1405,7 +1419,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_BOW:
 		{
 			/* Hack -- Extract the "base power" */
-			power = (o_ptr->sval % 10);
+			power = bow_multiplier(o_ptr->sval);
 
 			/* Append a "power" string */
 			object_desc_chr_macro(t, ' ');
@@ -1413,6 +1427,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			object_desc_chr_macro(t, 'x');
 			object_desc_num_macro(t, power);
 			object_desc_chr_macro(t, p2);
+
+			/* Show mods like a weapon */
+			show_weapon = TRUE;
 
 			/* All done */
 			break;
@@ -1541,96 +1558,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Dump "pval" flags for wearable items */
 	if ((pval) && (f1 & (TR1_PVAL_MASK)))
 	{
-		cptr tail = "";
-		cptr tail2 = "";
-
 		/* Start the display */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
 
 		/* Dump the "pval" itself */
 		object_desc_int_macro(t, o_ptr->pval);
-
-		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
-		{
-			/* Nothing */
-		}
-
-		/* Do not display the "pval" flags */
-		else if (!pval)
-		{
-			/* Nothing */
-		}
-
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			tail = " to stealth";
-		}
-
-		/* Searching */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			tail = " to searching";
-		}
-
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			tail = " to infravision";
-		}
-
-#if 0
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			tail = " to digging";
-		}
-
-#endif
-
-		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			tail = " to speed";
-		}
-
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			tail = " attack";
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) tail2 = "s";
-		}
-
-#if 0
-
-		/* Shots */
-		else if (f1 & (TR1_SHOTS))
-		{
-			/* Nothing */
-		}
-
-		/* Might */
-		else if (f1 & (TR1_MIGHT))
-		{
-			/* Nothing */
-		}
-
-#endif
-
-		/* Add the descriptor */
-		object_desc_str_macro(t, tail);
-		object_desc_str_macro(t, tail2);
 
 		/* Finish the display */
 		object_desc_chr_macro(t, p2);
@@ -1640,7 +1573,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Indicate "charging" artifacts/rods */
 	if (o_ptr->timeout)
 	{
-		if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
+		if (((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE))) && (o_ptr->tval != TV_SPELL))
 		{
 			/* Hack -- variant timeout stack */
 			if (o_ptr->stackc)
@@ -1909,149 +1842,273 @@ s16b label_to_equip(int c)
 }
 
 
+/*
+ * Can the two weapons be wielded together?
+ * If one does not exist, assume they can.
+ */
+bool two_weapons_balanced(const object_type *o_ptr, const object_type *i_ptr)
+{
+  /* If one of the weapons is a digger, the pair is not balanced
+     (but they still can be dual-wielded if the digger goes
+     into the main wield slot, see below) */
+  if (o_ptr->tval == TV_DIGGING || i_ptr->tval == TV_DIGGING)
+    return FALSE;
+
+  /* Weapons do not unbalance each other if one does not exist... */
+  if (!o_ptr->k_idx || !i_ptr->k_idx)
+    return TRUE;
+  /* ...or if one is actually a shield... */
+  else if (o_ptr->tval == TV_SHIELD || i_ptr->tval == TV_SHIELD)
+    return TRUE;
+  /* ...or if one is actually a ring... */
+  else if (o_ptr->tval == TV_RING || i_ptr->tval == TV_RING)
+    return TRUE;
+  /* ...or if one is actually an amulet... */
+  else if (o_ptr->tval == TV_AMULET || i_ptr->tval == TV_AMULET)
+    return TRUE;
+  /* ...or i_ptr is throwing... */
+  else if (is_known_throwing_item(i_ptr)
+      && o_ptr->weight < 200)
+    return TRUE;
+  /* ...or o_ptr is throwing... */
+  else if (is_known_throwing_item(o_ptr)
+	   && i_ptr->weight < 200)
+    return TRUE;
+  /* ...or both are identical. */
+  else if (i_ptr->tval == o_ptr->tval 
+	   && ((i_ptr->sval == o_ptr->sval 
+		&& (i_ptr->weight < 150)
+		&& (o_ptr->weight < 150))
+	       /* (All staffs are "identical".) */
+	       || i_ptr->tval == TV_STAFF))
+    return TRUE;
+  /* No other possibility */
+  else
+    return FALSE;
+}
+
 
 /*
- * Determine which equipment slot (if any) an item likes
+ * Determine which equipment slot (if any) an item likes.
+ * Prefer empty slots, then prefer INVEN_WIELD.
+ * For compatibility with do_cmd_wield assure 
+ * that if we propose INVEN_ARM then also INVEN_WIELD is legal.
+ * It's possible to off-hand wield Ringil and fight unarmed,
+ * but let people discover how to do that instead of making it
+ * a separate explicit UI choice, annoying for everybody else.
  */
 s16b wield_slot(const object_type *o_ptr)
 {
-	/* Slot for equipment */
-	switch (o_ptr->tval)
+  /* Slot for equipment */
+  switch (o_ptr->tval)
+    {
+    case TV_HAFTED: 
+    case TV_POLEARM:
+    case TV_SWORD:
+    case TV_STAFF:  
+      {
+	object_type *w_ptr = &inventory[INVEN_WIELD];
+	object_type *a_ptr = &inventory[INVEN_ARM];
+
+	if (!w_ptr->k_idx)
+	/* If main wield slot free, try to take it */
+	  if (two_weapons_balanced(o_ptr, a_ptr))
+	    /* Arm slot does not cause problems */
+	    return INVEN_WIELD;
+	  else
+	    /* Arm slot precludes dual-wield; for do_cmd_wield
+	       compatiblity we do not offer to replace arm slot */ 
+	    return -1;
+	else if (!a_ptr->k_idx)
+	  /* else if arm slot free, try to take it */
+	  if (two_weapons_balanced(o_ptr, w_ptr))
+	    /* Main wield slot does not cause problems;
+	       this single choice can be overriden in do_cmd_wield;
+	       freeing the off-hand slot is also only the only way 
+	       to get a weapon to the off-hand slot */
+	    return INVEN_ARM;
+	  else
+	    /* Main wield slot precludes dual-wield; replace it */ 
+	    return INVEN_WIELD;
+	else
+	  /* else both slots are taken; try to replace 
+	     only the main wield slot to reduce the UI annoyance factor
+	     --- now the off-hand weapon behaves much as a shield */
+	  if (two_weapons_balanced(o_ptr, a_ptr))
+	    /* Arm slot does not cause problems */
+	    return INVEN_WIELD;
+	  else
+	    /* Arm slot precludes dual-wield, fail */
+	    return -1;
+      }
+
+    case TV_DIGGING:
+      {
+	/* Diggers only go into the main wield slot,
+	   but they coexist peacefully with everything, so that two-weapon 
+	   specialists do not have to unwield off-hand weapons all the time;
+	   if there is systematic abuse, tone down digger attack power */
+	return INVEN_WIELD;
+      }
+
+    case TV_INSTRUMENT:
+    case TV_BOW:
+      {
+	return INVEN_BOW;
+      }
+
+    case TV_RING:
+      {
+	if (!inventory[INVEN_RIGHT].k_idx) 
+	  /* Use the right hand first */
+	  return INVEN_RIGHT;
+	else if (!inventory[INVEN_LEFT].k_idx) 
+	  /* Use the right hand second */
+	  return INVEN_LEFT;
+	else if (!inventory[INVEN_ARM].k_idx
+		 && p_ptr->pstyle == WS_RING)
+	  /* Use the off-hand last */
+	  return INVEN_ARM;
+	else
+	  /* Use the left hand for swapping, by default */
+	  return INVEN_LEFT;
+      }
+
+    case TV_AMULET:
+      {
+	if (!inventory[INVEN_NECK].k_idx) 
+	  return INVEN_NECK;
+	else if (!inventory[INVEN_ARM].k_idx
+		 && p_ptr->pstyle == WS_AMULET)
+	  return INVEN_ARM;
+	else
+	  return INVEN_NECK;
+      }
+
+    case TV_LITE:
+      {
+	return INVEN_LITE;
+      }
+
+    case TV_DRAG_ARMOR:
+    case TV_HARD_ARMOR:
+    case TV_SOFT_ARMOR:
+      {
+	return INVEN_BODY;
+      }
+
+    case TV_CLOAK:
+      {
+	return INVEN_OUTER;
+      }
+
+    case TV_SHIELD:
+      {
+	return INVEN_ARM;
+      }
+
+    case TV_CROWN:
+    case TV_HELM:
+      {
+	return INVEN_HEAD;
+      }
+
+    case TV_GLOVES:
+      {
+	return INVEN_HANDS;
+      }
+
+    case TV_BOOTS:
+      {
+	return INVEN_FEET;
+      }
+
+      /* Ammo asks for first quiver slot */
+    case TV_BOLT:
+    case TV_ARROW:
+    case TV_SHOT:
+      {
+	return INVEN_QUIVER;
+      }
+
+    default:
+      {
+	break;
+      }
+
+    }
+
+  /* No slot available */
+  return -1;
+}
+
+
+/*
+ * Get the string that represents the pseudo-tag of the given quiver slot.
+ * The color of the pseudo-tag is also obtained.
+ * Returns the length of the pseudo-tag (0 on error).
+ */
+static int get_pseudo_tag(int slot, char tag[], int max_len, byte *color)
+{
+	byte tag_num = 0;
+	object_type *o_ptr, *i_ptr;
+	bool locked;
+	int i;
+	byte o_group;
+
+	/* Paranoia */
+	if (!IS_QUIVER_SLOT(slot)) return 0;
+
+	/* Get the object */
+	o_ptr = &inventory[slot];
+
+	/* Paranoia */
+	if (!o_ptr->k_idx) return 0;
+
+	/* Get the group of the object */
+	o_group = quiver_get_group(o_ptr);
+
+	/* Check if the ammo is locked */
+	locked = get_tag_num(slot, quiver_group[o_group].cmd, &tag_num);
+
+	/* We calculate the pseudo-tag if there is not a real one */
+	if (!locked)
 	{
-		case TV_SWORD:
-			/* Two-weapon combat -- Wielding a light stabbing weapon */
-			if ((inventory[INVEN_WIELD].k_idx)
-				&& ((inventory[INVEN_WIELD].tval == TV_SWORD)
-					|| (inventory[INVEN_WIELD].tval == TV_STAFF)
-					|| (inventory[INVEN_WIELD].tval == TV_POLEARM)
-						|| (inventory[INVEN_WIELD].tval == TV_HAFTED)))
-			{
-				if ((inventory[INVEN_WIELD].weight < 200) && (o_ptr->weight < 100)) return (INVEN_ARM);
-			}
-
-			/* Fall through */
-		case TV_STAFF:
-  			/* Two-weapon combat -- all staffs are "identical" */
-			if ((inventory[INVEN_WIELD].k_idx)
-				&& (inventory[INVEN_WIELD].tval == TV_STAFF))
-			{
-				return (INVEN_ARM);
-			}
-			/* Fall through */
-		case TV_HAFTED:
-		case TV_POLEARM:
-  			/* Two-weapon combat -- identical weapons are "balanced" if less than 15 lbs*/
-			if ((inventory[INVEN_WIELD].k_idx)
-				&& ((inventory[INVEN_WIELD].tval == TV_SWORD)
-					|| (inventory[INVEN_WIELD].tval == TV_STAFF)
-					|| (inventory[INVEN_WIELD].tval == TV_POLEARM)
-						|| (inventory[INVEN_WIELD].tval == TV_HAFTED)))
-			{
-				object_type *i_ptr = &inventory[INVEN_WIELD];
-
-				if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval) 
-						&& (o_ptr->weight < 150)) return (INVEN_ARM);
-			}
-
-			/* Two-weapon combat -- primary weapon */
-			if ((inventory[INVEN_ARM].k_idx)
-				&& ((inventory[INVEN_ARM].tval == TV_SWORD)
-					|| (inventory[INVEN_ARM].tval == TV_STAFF)
-					|| (inventory[INVEN_ARM].tval == TV_POLEARM)
-						|| (inventory[INVEN_ARM].tval == TV_HAFTED)))
-			{
-				object_type *i_ptr = &inventory[INVEN_ARM];
-
-				/* Wielding a light stabbing weapon */
-				if ((i_ptr->tval == TV_SWORD) && (o_ptr->weight < 200) && (i_ptr->weight < 100)) return (INVEN_WIELD);
-
-				/* Identical weapons are "balanced" if less than 20 lbs */
-				if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval) && (o_ptr->weight < 150)) return (INVEN_WIELD);
-
-				/* Hack -- too unbalanced to wield */
-				return (-1);
-			}
-
-			/* Wield in primary hand */
-			return (INVEN_WIELD);
-			break;
-
-		case TV_DIGGING:
+		/* Search the slots of the given ammo type */
+		for (i = INVEN_QUIVER; i < slot; i++)
 		{
-			/* Two-weapon combat not allowed */
-			if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].tval != TV_SHIELD)) return (-1);
+			byte i_group;
 
-			/* Wield in primary hand */
-			return (INVEN_WIELD);
-			break;
+			/* Get the object */
+			i_ptr = &inventory[i];
+
+			/* Paranoia */
+			if (!i_ptr->k_idx) continue;
+
+			/* Get the group of the object */
+			i_group = quiver_get_group(i_ptr);
+
+			/* The groups must be equal */
+			if (i_group != o_group) continue;
+
+			/*
+			 * A real tag overrides the current pseudo-tag when
+			 * we have many locked ammo with the same tag
+			 */
+			(void)get_tag_num(i, quiver_group[i_group].cmd, &tag_num);
+
+			/* But we always increment the pseudo-tag */
+			++tag_num;
 		}
-                case TV_INSTRUMENT:
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
-
-		case TV_RING:
-		{
-			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
-
-			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
-		}
-
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
-
-		case TV_LITE:
-		{
-			return (INVEN_LITE);
-		}
-
-		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
-
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
-
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
-
-		case TV_CROWN:
-		case TV_HELM:
-		{
-			return (INVEN_HEAD);
-		}
-
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
-
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
-
-		default:
-		{
-			break;
-		}
-
 	}
 
-	/* No slot available */
-	return (-1);
+	/* Format the pseudo-tag */
+	strnfmt(tag, max_len, "%s%c%d", (locked ? "@": ""), quiver_group[o_group].cmd, tag_num);
+
+	/* Get the color of the group */
+	*color = quiver_group[o_group].color;
+
+	return strlen(tag);
 }
 
 
@@ -2080,6 +2137,12 @@ cptr mention_use(int i)
 		default:	  p = "In pack"; break;
 	}
 
+	/* Hack -- Handle quiver */
+	if (IS_QUIVER_SLOT(i))
+	{
+		p = "In quiver";
+	}
+
 	/* Hack -- Heavy weapon */
 	if ((i == INVEN_WIELD) && (p_ptr->heavy_wield)) p = "Just lifting";
 
@@ -2087,30 +2150,7 @@ cptr mention_use(int i)
 	if ((i == INVEN_BOW) && (p_ptr->heavy_shoot)) p = "Just holding";
 
 	/* Hack -- Non-shield item */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-
-		/* Multiple wielded items */
-		if (o_ptr->number > 1) p = "Carrying";
-
-		/* Describe use better */
-		else switch (o_ptr->tval)
-		{
-			case TV_SWORD:
-			case TV_STAFF:
-			case TV_POLEARM:
-			case TV_HAFTED:
-				break;
-
-			default:
-				p = "Using";
-				break;
-		}
-	}
-	/* Hack -- Non-shield item */
-	else if (i == INVEN_ARM)
+	if (i == INVEN_ARM)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
@@ -2253,16 +2293,14 @@ bool item_tester_okay(const object_type *o_ptr)
 			/* Empty slot */
 			if (!(bag_holds[o_ptr->sval][i][0]) || !(bag_contents[o_ptr->sval][i])) continue;
 
+			/* Check the tval */
+			if ((item_tester_tval) && !(item_tester_tval == bag_holds[o_ptr->sval][i][0])) continue;
+
 			/* Fake the item */
 			fake_bag_item(i_ptr, o_ptr->sval, i);
 
-			/* Check the tval */
-			if ((item_tester_tval) && !(item_tester_tval == i_ptr->tval)) continue;
-
 			/* Check the hook */
-			if ((item_tester_hook) && (!(*item_tester_hook)(i_ptr))) continue;
-
-			return(TRUE);
+			if ((item_tester_hook) && !(*item_tester_hook)(i_ptr)) continue;
 		}
 	}
 
@@ -2476,11 +2514,60 @@ void display_equip(void)
 
 	char o_name[80];
 
+	char ptag_desc[MAX_QUIVER][10];
+	byte ptag_len[MAX_QUIVER];
+	byte ptag_color[MAX_QUIVER];
+	byte max_ptag_len = 0;
+	byte ptag_space;
+
+	/* Get the pseudo-tags of the quiver slots */
+	/* Calculate the maximum length of the pseudo-tags (for alignment) */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* The index in the temporary arrays */
+		int q = i - INVEN_QUIVER;
+
+		/* Paranoia */
+		ptag_len[q] = 0;
+
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Store pseudo-tag data in the arrays */
+		ptag_len[q] = get_pseudo_tag(i, ptag_desc[q],
+			sizeof(ptag_desc[q]), &ptag_color[q]);
+
+		/* Update the maximum length if necessary */
+		if (ptag_len[q] > max_ptag_len)
+		{
+			max_ptag_len = ptag_len[q];
+		}
+	}
+
 	/* Display the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Examine the item */
 		o_ptr = &inventory[i];
+
+		/* Hack -- Never show empty quiver slots */
+		if (!o_ptr->k_idx && IS_QUIVER_SLOT(i))
+		{
+			/* Clear that line */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
+
+		/* Hack -- Never show the gap between equipment and quiver */
+		if (i == INVEN_BLANK)
+		{
+			/* Clear that line */
+			Term_erase(0, i - INVEN_WIELD, 255);
+			continue;
+		}
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -2507,11 +2594,33 @@ void display_equip(void)
 		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
+		/* Regular slots don't have a pseudo-tag */
+		ptag_space = 0;
+
+		/* Show quiver slot pseudo-tag if needed */
+		if (IS_QUIVER_SLOT(i) &&
+			(ptag_len[i - INVEN_QUIVER] > 0))
+		{
+			/* The index in the temporary arrays */
+			int q = i - INVEN_QUIVER;
+
+			/* Reserve space for the pseudo-tag in this case */
+			ptag_space = max_ptag_len + 1;
+
+			/* Hack -- Clear that space first */
+			Term_erase(3, i - INVEN_WIELD, ptag_space);
+
+			/* Show the pseudo-tag */
+			Term_putstr(3 + max_ptag_len - ptag_len[q],
+				i - INVEN_WIELD, ptag_len[q],
+				ptag_color[q], ptag_desc[q]);
+		}
+
 		/* Display the entry itself */
-		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
+		Term_putstr(3 + ptag_space , i - INVEN_WIELD, n, attr, o_name);
 
 		/* Erase the rest of the line */
-		Term_erase(3+n, i - INVEN_WIELD, 255);
+		Term_erase(3 + ptag_space + n, i - INVEN_WIELD, 255);
 
 		/* Display the slot description (if needed) */
 		if (show_labels)
@@ -2651,8 +2760,71 @@ void show_inven(void)
 		}
 	}
 
+	/*
+	 * Add notes about slots used by the quiver, if we have space, want
+	 * to show all slots, and have items in the quiver.
+	 */
+	if ((p_ptr->pack_size_reduce) && (item_tester_full) &&
+		(j <= (INVEN_PACK - p_ptr->pack_size_reduce)))
+	{
+		int ammo_num = 0, ammo_slot;
+
+		/* Count quiver ammo */
+		for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+		{
+			/* Get the object */
+			o_ptr = &inventory[i];
+
+			/* Ignore empty objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Increment counter */
+			ammo_num += o_ptr->number * quiver_space_per_unit(o_ptr);
+		}
+
+		/* Insert a blank dividing line, if we have the space. */
+		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
+		{
+			j++;
+
+			prt("", j, col ? col - 2 : col);
+		}
+
+		for (i = 0; i < p_ptr->pack_size_reduce; i++)
+		{
+			/* Go to next line. */
+			j++;
+
+			prt("", j, col ? col - 2 : col);
+
+			/* Determine index, print it out. */
+			sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK -
+				p_ptr->pack_size_reduce + i));
+
+			put_str(tmp_val, j, col);
+
+			/* Get the number of missiles gathered in this slot */
+			if (i == 0)
+			{
+				ammo_slot = ammo_num -
+					99 * (p_ptr->pack_size_reduce - 1);
+			}
+			else
+			{
+				ammo_slot = 99;
+			}
+
+			/* Hack -- use "(QUIVER)" as a description. */
+			strnfmt(o_name, sizeof(o_name),
+				"(QUIVER - %d missile%s)", ammo_slot,
+				(ammo_slot == 1) ? "": "s");
+
+			c_put_str(TERM_BLUE, o_name, j, col + 3);
+		}
+	}
+
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < Term->hgt)) prt("", j + 1, col ? col - 2 : col);
 }
 
 
@@ -2674,6 +2846,12 @@ void show_equip(void)
 	byte out_color[24];
 	char out_desc[24][80];
 
+	char ptag_desc[MAX_QUIVER][10];
+	byte ptag_len[MAX_QUIVER];
+	byte ptag_color[MAX_QUIVER];
+	byte max_ptag_len = 0;
+	byte ptag_space;
+
 	/* Default length */
 	len = 79 - 50;
 
@@ -2686,10 +2864,46 @@ void show_equip(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
+	/*
+	 * Get the pseudo-tags of the quiver slots
+	 * Calculate the maximum length of the pseudo-tags (for UI
+	 * alignment if show_labels is off)
+	 */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* The index in the temporary arrays */
+		int q = i - INVEN_QUIVER;
+
+		/* Paranoia */
+		ptag_len[q] = 0;
+
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Is this item acceptable? */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Store pseudo-tag data in the arrays */
+		ptag_len[q] = get_pseudo_tag(i, ptag_desc[q],
+			sizeof(ptag_desc[q]), &ptag_color[q]);
+
+		/* Update the maximum length if necessary */
+		if (ptag_len[q] > max_ptag_len)
+		{
+			max_ptag_len = ptag_len[q];
+		}
+	}
+
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Don't show empty quiver slots */
+		if (!o_ptr->k_idx && IS_QUIVER_SLOT(i)) continue;
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
@@ -2697,8 +2911,18 @@ void show_equip(void)
 		/* Description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
+		/* Regular slots don't have a pseudo-tag */
+		ptag_space = 0;
+
+		/* But quiver slots reserve some space if show_labels is off */
+		if (IS_QUIVER_SLOT(i) && (ptag_len[i - INVEN_QUIVER] > 0) &&
+			!show_labels)
+		{
+			ptag_space = max_ptag_len + 1;
+		}
+
 		/* Truncate the description */
-		o_name[lim] = 0;
+		o_name[lim - ptag_space] = 0;
 
 		/* Save the index */
 		out_index[k] = i;
@@ -2710,7 +2934,7 @@ void show_equip(void)
 		strcpy(out_desc[k], o_name);
 
 		/* Extract the maximal length (see below) */
-		l = strlen(out_desc[k]) + (2 + 3);
+		l = strlen(out_desc[k]) + (2 + 3) + ptag_space;
 
 		/* Increase length for labels (if needed) */
 		if (show_labels) l += (14 + 2);
@@ -2740,6 +2964,9 @@ void show_equip(void)
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
 
+		/* Show a blank line between "real" equipment and quiver */
+		if (i == INVEN_BLANK) continue;
+
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
@@ -2753,6 +2980,16 @@ void show_equip(void)
 			sprintf(tmp_val, "%-14s: ", mention_use(i));
 			put_str(tmp_val, j+1, col + 3);
 
+			/* Show the pseudo-tag if needed */
+			if (IS_QUIVER_SLOT(i) &&
+				(ptag_len[i - INVEN_QUIVER] > 0))
+			{
+				int q = i - INVEN_QUIVER;
+
+				c_put_str(ptag_color[q], ptag_desc[q],
+					j+1, col + 3 + 13 - ptag_len[q]);
+			}
+
 			/* Display the entry itself */
 			c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
 		}
@@ -2760,8 +2997,26 @@ void show_equip(void)
 		/* No labels */
 		else
 		{
+			/* Regular slots don't have a pseudo-tag */
+			ptag_space = 0;
+
+			/* Show pseudo-tags if necessary */
+			if (IS_QUIVER_SLOT(i) &&
+				(ptag_len[i - INVEN_QUIVER] > 0))
+			{
+				int q = i - INVEN_QUIVER;
+
+				/* Show the pseudo tag */
+				c_put_str(ptag_color[q], ptag_desc[q], j+1,
+					col + 3 + max_ptag_len - ptag_len[q]);
+
+				/* Reserve space for the pseudo-tag */
+				ptag_space = max_ptag_len + 1;
+			}
+
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3);
+			c_put_str(out_color[j], out_desc[j], j+1,
+				col + 3 + ptag_space);
 		}
 
 		/* Display the weight if needed */
@@ -2774,7 +3029,7 @@ void show_equip(void)
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < Term->hgt)) prt("", j + 1, col ? col - 2 : col);
 }
 
 
@@ -2878,7 +3133,7 @@ void show_floor(const int *floor_list, int floor_num)
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < Term->hgt)) prt("", j + 1, col ? col - 2 : col);
 }
 
 #endif /* ALLOW_EASY_FLOOR */
@@ -3123,6 +3378,60 @@ static int get_tag(int *cp, char tag)
 	int i;
 	cptr s;
 
+	/*
+	 * The 'f'ire and 't'hrow commands behave differently when we are using the
+	 * equipment (quiver)
+	 */
+	if (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v')) && (p_ptr->command_wrk == USE_EQUIP))
+	{
+		/* The pseudo-tag */
+		byte tag_num = 0;
+		object_type *o_ptr;
+		byte group;
+
+		/* Get the proper quiver group to determine which objects can be selected */
+		if (p_ptr->command_cmd == 'f')
+		{
+			/* Ammo groups are taken from the missile weapon */
+			switch (p_ptr->ammo_tval)
+			{
+				case TV_BOLT:	group = QUIVER_GROUP_BOLTS;	break;
+				case TV_ARROW:	group = QUIVER_GROUP_ARROWS;	break;
+				default:	group = QUIVER_GROUP_SHOTS;	break;
+			}
+		}
+		/* Hack - Everything else is a throwing weapon */
+		else
+		{
+		 	group = QUIVER_GROUP_THROWING_WEAPONS;
+		}
+
+		/* Iterate over the quiver */
+		for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* (Paranoia) Ignore empty slots */
+			if (!o_ptr->k_idx) continue;
+
+			/* Groups must be equal */
+			if (quiver_get_group(o_ptr) != group) continue;
+
+			/* Allow pseudo-tag override */
+			(void)get_tag_num(i, quiver_group[group].cmd, &tag_num);
+
+			/* We have a match? */
+			if (I2D(tag_num) == tag)
+			{
+				*cp = i;
+				return TRUE;
+			}
+
+			/* Try with the next pseudo-tag */
+			++tag_num;
+		}
+	}
+
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
 	{
@@ -3250,6 +3559,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
 	bool use_featg = ((mode & (USE_FEATG)) ? TRUE : FALSE);
 	bool use_featu = ((mode & (USE_FEATU)) ? TRUE : FALSE);
+	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
@@ -3311,6 +3621,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept inventory */
 	if (i1 <= i2) allow_inven = TRUE;
 
+	/* Hack -- The quiver is displayed in the equipment window */
+	if (use_quiver) use_equip = TRUE;
+
 
 	/* Full equipment */
 	e1 = INVEN_WIELD;
@@ -3318,6 +3631,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;
+
+	/* Restrict the beginning of the equipment */
+	if (use_quiver) e1 = INVEN_QUIVER;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -3389,6 +3705,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
+		/* Hack -- Start on equipment if shooting, throwing or fueling */
+		if ((p_ptr->command_cmd == 'f' 
+		     || p_ptr->command_cmd == 'v' 
+		     || p_ptr->command_cmd == 'F')
+			&& allow_equip)
+		{
+			p_ptr->command_wrk = (USE_EQUIP);
+		}
+
 		/* Use inventory if allowed */
 		else if (use_inven)
 		{
@@ -3424,13 +3749,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/*Hack -- Validate the item */
 		if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
 		{
-			bell("Illegal object choice (tag)!");
+			bell(format("Illegal object choice%s!", cheat_xtra ? " (1, tag)" : ""));
 		}
 
 		/* Validate the item */
 		else if (!get_item_okay(k))
 		{
-			bell("Illegal object choice (tag)!");
+			bell(format("Illegal object choice%s!", cheat_xtra ? " (2, tag)" : ""));
 		}
 
 		/* Allow player to "refuse" certain actions */
@@ -3853,21 +4178,28 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Look up the tag */
 				if (!get_tag(&k, ke.key))
 				{
-					bell("Illegal object choice (tag)!");
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (3, tag)" : ""));
 					break;
 				}
 
 				/* Hack -- Validate the item */
 				if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
 				{
-					bell("Illegal object choice (tag)!");
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (4, tag)" : ""));
+					break;
+				}
+
+				/* Forbid classic equipment if using the quiver */
+				if (use_quiver && (k >= INVEN_WIELD) && !IS_QUIVER_SLOT(k))
+				{
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (5, tag)" : ""));
 					break;
 				}
 
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (tag)!");
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (6, tag)" : ""));
 					break;
 				}
 
@@ -3893,7 +4225,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				{
 					if (i1 != i2)
 					{
-						bell("Illegal object choice (default)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (7, default)" : ""));
 						break;
 					}
 
@@ -3905,7 +4237,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				{
 					if (e1 != e2)
 					{
-						bell("Illegal object choice (default)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (8, default)" : ""));
 						break;
 					}
 
@@ -3919,7 +4251,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				{
 					if (f1 != f2)
 					{
-						bell("Illegal object choice (default)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (9, default)" : ""));
 						break;
 					}
 
@@ -3931,7 +4263,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (default)!");
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (10, default)" : ""));
 					break;
 				}
 
@@ -3993,7 +4325,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					if (k < 0)
 					{
-						bell("Illegal object choice (inven)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (11, inven)" : ""));
 						break;
 					}
 				}
@@ -4005,7 +4337,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					if (k < 0)
 					{
-						bell("Illegal object choice (equip)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (12, equip)" : ""));
+						break;
+					}
+
+					/* Forbid classic equipment if using the quiver */
+					if (use_quiver && !IS_QUIVER_SLOT(k))
+					{
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (13, equip)" : ""));
 						break;
 					}
 				}
@@ -4019,7 +4358,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					if (k < 0 || k >= floor_num)
 					{
-						bell("Illegal object choice (floor)!");
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (14, floor)" : ""));
 						break;
 					}
 
@@ -4032,7 +4371,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (normal)!");
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (15, normal)" : ""));
 					break;
 				}
 
@@ -4057,6 +4396,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 		}
+
 	}
 
 
@@ -4069,7 +4409,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Hack -- Cancel "display" */
 		p_ptr->command_see = FALSE;
 	}
-
 
 	/* Forget the item restrictions if not picking a bag */
 	if (!(item) || ((*cp >= 0) && (inventory[*cp].tval != TV_BAG))
@@ -4128,14 +4467,8 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	/* Paranoia */
 	if ((sval >= SV_BAG_MAX_BAGS) || (slot >= INVEN_BAG_TOTAL)) return;
 
-	/* Get bag tval */
-	i_ptr->tval = bag_holds[sval][slot][0];
-
-	/* Get bag sval */
-	i_ptr->sval = bag_holds[sval][slot][1];
-
-	/* Lookup kind */
-	i_ptr->k_idx = lookup_kind(i_ptr->tval, i_ptr->sval);
+	/* Get bag kind from lookup kind cache */
+	i_ptr->k_idx = bag_kinds_cache[sval][slot];
 
 	/* Paranoia */
 	if (!i_ptr->k_idx) return;
@@ -4196,8 +4529,8 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	/* Awareness always gives full knowledge */
 	if (object_aware_p(i_ptr))
 	{
-		object_aware(i_ptr);
-		object_known(i_ptr);
+		/* Hack -- Don't use object_aware() and object_known() due to performance problems */
+		i_ptr->ident |= (IDENT_KNOWN);
 
 		/* Add usage information */
 		i_ptr->usage = k_info[i_ptr->k_idx].used;

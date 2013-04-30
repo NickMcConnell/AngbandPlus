@@ -95,9 +95,10 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -pipe -O2 -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
+NORMAL_CFLAGS = -Wall -pipe -O2 -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
 LIBS = -lX11 -lncurses -ltermcap -L/usr/X11R6/lib
 
+DEBUG_CFLAGS=$(NORMAL_CFLAGS) -ggdb -O0 -fno-inline
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")
@@ -229,9 +230,15 @@ install: unangband
 # Build the "Unangband" program
 #
 
-unangband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
+.PHONY : unangband debug
 
+unangband:
+	@$(MAKE) $(OBJS) CFLAGS="$(NORMAL_CFLAGS)"
+	$(CC) $(NORMAL_CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
+
+debug: 
+	@$(MAKE) $(OBJS) CFLAGS="$(DEBUG_CFLAGS)"
+	$(CC) $(DEBUG_CFLAGS) $(LDFLAGS) -o unangband $(OBJS) $(LIBS)
 
 #
 # Clean up old junk

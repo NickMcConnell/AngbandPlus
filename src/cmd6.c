@@ -59,6 +59,63 @@
  */
 
 
+
+/*
+ * Hook to determine if an object is activatable and charged
+ */
+static bool item_tester_hook_food_edible(const object_type *o_ptr)
+{
+	/* Check based on tval */
+	switch(o_ptr->tval)
+	{
+		/* Undead can't eat normal food */
+		case TV_FOOD:
+			/* Undead cannot eat food */
+			if (!(p_ptr->cur_flags4 & (TR4_UNDEAD))) return (TRUE);
+
+			break;
+
+		/* Eggs can be eaten by animals and hungry people */
+		case TV_EGG:
+			/* Undead cannot eat eggs */
+			if (p_ptr->cur_flags4 & (TR4_UNDEAD)) return (FALSE);
+
+			/* Animals */
+			if (p_ptr->cur_flags4 & (TR4_ANIMAL)) return (TRUE);
+
+			/* Hungry */
+			if (p_ptr->food < PY_FOOD_ALERT) return (TRUE);
+
+			break;
+
+		/* Some flasks count as bodies */
+		case TV_FLASK:
+
+			if (o_ptr->name3) return (FALSE);
+
+			/* Fall through */
+
+		/* Bodies can only be eaten by animals, undead and starving people */
+		case TV_BODY:
+		case TV_BONE:
+			/* Undead and animals can eat bodies */
+			if (p_ptr->cur_flags4 & (TR4_UNDEAD | TR4_ANIMAL)) return (TRUE);
+
+			/* Orcs, trolls, giants have harder stomachs */
+			if ((p_ptr->cur_flags4 & (TR4_ORC | TR4_TROLL | TR4_GIANT)) && (p_ptr->food < PY_FOOD_ALERT)) return (TRUE);
+
+			/* Starving */
+			if (p_ptr->food < PY_FOOD_ALERT) return (TRUE);
+
+			break;
+	}
+
+	/* Assume not edible */
+	return (FALSE);
+}
+
+
+
 /*
  * Eat some food (from the pack or floor)
  */
@@ -78,7 +135,12 @@ void do_cmd_eat_food(void)
 	bool use_feat = FALSE;
 
 	/* Restrict choices to food */
+	item_tester_hook = item_tester_hook_food_edible;
+
+#if 0
+	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
+#endif
 
 	/* Get an item */
 	q = "Eat which item? ";
@@ -122,36 +184,58 @@ void do_cmd_eat_food(void)
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
-	/* Get food effect */
-	get_spell(&power, "use", o_ptr, FALSE);
-
-	/* Paranoia */
-	if (power < 0) return;
-
-	/* Apply food effect */
-	if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* We have tried it */
-	object_tried(o_ptr);
-
-	/* The player is now aware of the object */
-	if (ident && !object_aware_p(o_ptr))
+	/* Eating effects */
+	switch (o_ptr->tval)
 	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+		/* Normal food */
+		case TV_FOOD:
+		{
+			/* Get food effect */
+			get_spell(&power, "use", o_ptr, FALSE);
+
+			/* Paranoia */
+			if (power < 0) return;
+
+			/* Apply food effect */
+			if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
+
+			/* Combine / Reorder the pack (later) */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+			/* We have tried it */
+			object_tried(o_ptr);
+
+			/* The player is now aware of the object */
+			if (ident && !object_aware_p(o_ptr))
+			{
+				object_aware(o_ptr);
+				gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+			}
+
+			if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+
+			break;
+		}
+
+		default:
+		{
+			/* First, apply breath weapon attack */
+
+			/* Then apply touch attack */
+			mon_blow_ranged(0, p_ptr->py, p_ptr->px, RBM_TOUCH, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+
+			/* Then apply spore attack */
+			mon_blow_ranged(0, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+
+			break;
+		}
 	}
-
-	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
-
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->charges);
+	(void)set_food(p_ptr->food + o_ptr->charges * o_ptr->weight);
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -286,6 +370,7 @@ void do_cmd_quaff_potion(void)
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 }
+
 
 /*
  * Read a scroll (from the pack or floor).
@@ -1590,11 +1675,14 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
-	/* Check the recharge */
-	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Hack -- for spells that can activate */
+	if ((o_ptr->tval == TV_SPELL) && (f3 & (TR3_ACTIVATE))) return (TRUE);
+
+	/* Check the recharge */
+	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -1706,10 +1794,8 @@ void do_cmd_activate(void)
 			break;
 */
 		case TV_AMULET:
-			p_ptr->cur_style |= 1L << WS_AMULET;
-			break;
 		case TV_RING:
-			p_ptr->cur_style |= 1L << WS_RING;
+		  /* Already assigned, because wielded */
 			break;
 	}
 
@@ -1748,7 +1834,7 @@ void do_cmd_activate(void)
 		msg_print("You failed to activate it properly.");
 		
 		/* Clear styles */
-		p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF) | (1L << WS_RING) | (1L << WS_AMULET));
+		p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF));
 		return;
 	}
 
@@ -1899,7 +1985,7 @@ void do_cmd_activate(void)
 	}
 
 	/* Clear styles */
-	p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF) | (1L << WS_RING) | (1L << WS_AMULET));
+	p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF));
 
 }
 
@@ -2308,7 +2394,7 @@ void do_cmd_apply_rune_or_coating(void)
 						/* Hack -- apply extra penalties if needed */
 						if (cursed_p(j_ptr) || broken_p(j_ptr))
 						{
-							/* Hack -- obtain bonuses */
+							/* Hack -- obtain penalties */
 							if (e_ptr->max_to_h > 0) j_ptr->to_h = MIN(j_ptr->to_h,-randint(e_ptr->max_to_h));
 							else j_ptr->to_h = MIN(j_ptr->to_h,0);
 
@@ -2329,7 +2415,8 @@ void do_cmd_apply_rune_or_coating(void)
 							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h,randint(e_ptr->max_to_h));
 							else j_ptr->to_h = MIN(j_ptr->to_h,0);
 
-							if (e_ptr->max_to_d > 0) j_ptr->to_d = MAX(j_ptr->to_d,randint(e_ptr->max_to_d));
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(MAX(j_ptr->to_d,randint(e_ptr->max_to_d)),
+												   j_ptr->dd * j_ptr->ds + 5);
 							else j_ptr->to_d = MIN(j_ptr->to_d,0);
 
 							if (e_ptr->max_to_a > 0) j_ptr->to_a = MAX(j_ptr->to_a,randint(e_ptr->max_to_a));

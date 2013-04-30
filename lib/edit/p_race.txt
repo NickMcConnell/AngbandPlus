@@ -12,8 +12,8 @@
 
 # Format:
 # N:race number:race name
-# S:str:int:wis:dex:con:chr
-# R:dis:dev:sav:stl:srh:fos:thn:thb
+# S:str:int:wis:dex:con:chr:agi
+# R:dis:dev:sav:stl:srh:tht:thn:thb
 # X:hitdie:expbase:infra
 # I:history:agebase:agemod
 # H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
@@ -25,10 +25,10 @@
 # increase for each new race.
 
 # 'S' is for the stat modifiers - strength, intelligence, wisdom,
-# dexterity, constitution, charisma.
+# dexterity, constitution, charisma, agility.
 
 # 'R' is for the base skills - disarming, magic devices, saving throws,
-# stealth, searching ability, searching frequency, to hit (melee),
+# stealth, searching ability, to hit (throws), to hit (melee),
 # to hit (bows).
 
 # 'X' is for extra info - max. hitpoints gained per level, experience
@@ -50,12 +50,12 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 
 N:0:Human
-S:0:0:0:0:0:0
-R:0:0:0:0:0:10:0:0
+S:0:0:0:0:0:0:0
+R:0:0:0:0:5:0:0:0
 X:10:100:0
 I:1:14:6
 H:72:6:66:4
@@ -64,8 +64,8 @@ F:MAN
 C:0|1|2|3|4|5|6|7|8|9
 
 N:1:Half-Elf
-S:0:1:-1:1:-1:1
-R:2:3:3:1:6:11:-1:5
+S:0:1:-1:1:-1:1:1
+R:2:3:3:1:8:10:-1:10
 X:10:110:2
 I:4:24:16
 H:66:6:62:6
@@ -74,8 +74,8 @@ F:SUST_DEX | MAN | ELF
 C:0|1|2|3|4|5|6|7|8|9
 
 N:2:Wood-Elf
-S:-1:2:-1:1:-2:1
-R:5:6:6:1:8:12:-5:15
+S:-1:2:-1:1:-2:1:3
+R:5:6:6:1:10:10:-5:25
 X:9:120:3
 I:5:75:75
 H:60:4:54:4
@@ -84,8 +84,8 @@ F:SUST_DEX | RES_LITE | ELF
 C:0|1|3|4|6|7|8|9
 
 N:3:Hobbit
-S:-2:2:1:3:2:1
-R:15:18:18:4:12:15:-10:20
+S:-2:2:1:3:2:1:-2
+R:15:18:18:4:13:25:-10:10
 X:7:110:4
 I:10:21:12
 H:36:3:33:3
@@ -94,8 +94,8 @@ F:HOLD_LIFE
 C:0|3|4|6|7
 
 N:4:Gnome
-S:-1:2:0:2:1:-2
-R:10:12:12:3:6:13:-8:12
+S:-1:2:0:2:1:-2:-1
+R:10:12:12:3:9:10:-8:10
 X:8:125:4
 I:13:50:40
 H:42:3:39:3
@@ -104,8 +104,8 @@ F:FREE_ACT
 C:0|1|2|3|6|7|9
 
 N:5:Dwarf
-S:2:-3:2:-2:2:-3
-R:2:9:9:-1:7:10:15:0
+S:2:3:2:-2:2:-3:-3
+R:2:9:9:-1:8:5:15:-5
 X:11:120:5
 I:16:35:15
 H:48:3:46:3
@@ -114,8 +114,8 @@ F:RES_BLIND | DWARF
 C:0|2|5|7|9
 
 N:6:Half-Orc
-S:2:-1:0:0:1:-4
-R:-3:-3:-3:-1:0:7:12:-5
+S:2:-1:0:0:1:-4:2
+R:-3:-3:-3:-1:3:0:12:0
 X:10:110:3
 I:19:11:4
 H:66:1:62:1
@@ -124,18 +124,18 @@ F:RES_DARK | MAN | ORC
 C:0|2|3|6|7
 
 N:7:Half-Troll
-S:4:-4:-2:-4:3:-6
-R:-5:-8:-8:-2:-1:5:20:-10
+S:4:-4:-2:-4:3:-6:1
+R:-5:-8:-8:-2:0:15:20:-15
 X:12:120:3
 I:21:20:10
 H:96:10:84:8
 W:250:50:225:40
-F:SUST_STR | REGEN | MAN | TROLL
+F:SUST_STR | REGEN_HP | MAN | TROLL
 C:0|2|7
 
 N:8:Dunadan
-S:1:2:2:2:3:2
-R:4:5:5:2:3:13:15:10
+S:1:2:2:2:3:1:2
+R:4:5:5:2:7:10:15:10
 X:10:180:0
 I:1:50:20
 H:82:5:78:6
@@ -144,8 +144,8 @@ F:SUST_CON | MAN
 C:0|1|2|3|4|5|6|7|8|9
 
 N:9:High-Elf
-S:1:3:-1:3:1:5
-R:4:20:20:3:3:14:10:25
+S:1:3:-1:3:1:3:2
+R:4:20:20:3:9:5:10:20
 X:10:200:4
 I:7:100:30
 H:90:10:82:10
@@ -154,8 +154,8 @@ F:RES_LITE | SEE_INVIS | ELF
 C:0|1|2|4|6|7|8|9
 
 N:10:Goblin
-S:-1:-1:0:2:2:-2
-R:10:5:0:4:15:15:-5:10
+S:-1:-1:0:2:2:-2:0
+R:10:5:0:4:15:10:-5:10
 X:8:115:5
 I:23:15:10
 H:38:4:36:3

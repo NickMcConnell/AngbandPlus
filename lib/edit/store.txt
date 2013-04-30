@@ -15,11 +15,12 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 N:0:(for sale sign)
 
 N:1:General store
+X:3
 O:80:35:4
 O:92:0:2
 O:80:32:1
@@ -43,6 +44,7 @@ O:14:2:1
 # Service of Enchant Armour
 
 N:2:Armoury
+X:4
 O:99:15:0
 O:30:2:2
 O:30:3:2
@@ -69,6 +71,7 @@ O:34:3:1
 #Services of Enchant Weapon To-Hit and To-Dam
 
 N:3:Weapon Smith
+X:5
 O:99:44:0
 O:99:45:0
 O:23:4:1
@@ -96,6 +99,7 @@ O:21:2:1
 O:19:2:1
 O:19:12:1
 O:19:13:1
+O:19:22:1
 O:19:23:1
 O:16:1:2
 O:17:1:2
@@ -103,6 +107,7 @@ O:18:1:2
 
 #Service of Restoration
 N:4:Temple
+X:6
 O:99:10:0
 O:21:2:1
 O:21:3:1
@@ -133,6 +138,7 @@ O:91:3:1
 # Service of Analyze Magic and Read Magic
 
 N:5:Alchemist
+X:7
 O:99:22:0
 O:99:27:0
 O:70:77:3
@@ -161,6 +167,7 @@ O:75:29:2
 
 #Service of Gauge Magic
 N:6:Magic Shop
+X:8
 O:99:2:0
 O:45:23:1
 O:45:7:1
@@ -190,10 +197,13 @@ O:90:2:2
 O:90:3:1
 
 N:7:Black Market
+X:9
 
 N:8:Your home
+X:0
 
 N:9:Farmer Maggot's Mushroom Store
+X:7
 O:80:12:2
 O:80:13:2
 O:80:14:2
@@ -210,10 +220,13 @@ O:75:2:1
 O:75:1:1
 
 N:10:Mill
+X:9
 
 N:11:'Bag End'
+X:0
 
 N:12:House of Elrond
+X:1
 O:80:35:4
 O:80:37:1
 O:80:40:2
@@ -222,8 +235,10 @@ O:80:38:1
 O:80:41:1
 
 N:13:Marketplace
+X:9
 
 N:14:House of Beorn
+X:1
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -234,6 +249,7 @@ O:80:41:1
 
 #Service of Satisfy Hunger
 N:15:Festhall
+X:3
 O:99:1:0
 O:80:35:4
 O:80:32:1
@@ -253,6 +269,7 @@ O:92:1:2
 O:92:2:2
 
 N:16:Music hall
+X:3
 O:92:3:2
 O:92:4:2
 O:92:5:2
@@ -271,6 +288,7 @@ O:24:9:1
 #Service of Poison Arrows
 
 N:17:Fletcher
+X:5
 O:99:33:0
 O:17:1:3
 O:17:2:1
@@ -284,12 +302,14 @@ O:18:5:2
 O:18:6:2
 O:19:12:3
 O:19:13:2
+O:19:22:2
 O:19:23:2
 O:19:24:2
 O:14:1:2
 O:14:2:1
 
 N:18:Jewelers
+X:8
 O:40:5:1
 O:40:6:1
 O:40:7:1
@@ -313,6 +333,7 @@ O:45:29:1
 O:45:30:1
 
 N:19:Library
+X:8
 O:92:0:3
 O:92:1:2
 O:92:2:2
@@ -347,8 +368,10 @@ O:72:44:1
 O:72:45:1
 
 N:20:newly erected statue in your honor
+X:2
 
 N:21:Farmhouse
+X:1
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -358,8 +381,10 @@ O:80:40:1
 O:80:41:1
 
 N:22:a room at the Inn
+X:0
 
 N:23:Barracks
+X:3
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -378,8 +403,10 @@ O:20:5:1
 O:35:1:3
 
 N:24:the Mirror of Galadriel
+X:2
 
 N:25:Shrine
+X:6
 O:55:31:1
 O:75:54:2
 O:70:14:1
@@ -404,6 +431,7 @@ O:91:12:1
 O:91:13:1
 
 N:26:Storeroom
+X:1
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -425,8 +453,10 @@ O:70:40:1
 O:70:34:1
 
 N:27:Bilbo's House
+X:0
 
 N:28:House of Tom Bombadil
+X:1
 O:75:30:1
 O:75:31:1
 O:70:12:3
@@ -438,6 +468,7 @@ O:75:36:2
 O:75:41:3
 
 N:29:Small Goods Store
+X:4
 O:30:2:2
 O:30:3:2
 O:32:2:2
@@ -451,9 +482,10 @@ O:31:2:2
 O:34:2:2
 O:34:4:2
 O:19:2:1
-O:19:12:1
+O:19:12:2
 O:19:13:1
-O:19:23:2
+O:19:22:2
+O:19:23:1
 O:16:1:2
 O:17:1:2
 O:18:1:2
@@ -466,6 +498,7 @@ O:14:2:1
 
 #Service of Enchant Armour and Enchant Armour To-Resist
 N:30:Heavy Armoury
+X:4
 O:99:15:0
 O:99:22:0
 O:30:6:2
@@ -492,6 +525,7 @@ O:34:5:2
 
 #Service of Enchant Weapon and Enchant Weapon Brand
 N:31:Heavy Weapon Smith
+X:5
 O:99:14:0
 O:99:16:0
 O:23:10:1
@@ -524,6 +558,7 @@ O:17:1:3
 O:18:1:3
 
 N:32:Runesmith
+X:8
 O:70:38:2
 O:70:19:2
 O:90:21:2
@@ -557,6 +592,7 @@ O:93:27:1
 O:93:28:1
 
 N:33:Chemist
+X:7
 O:70:8:4
 O:70:11:4
 O:70:12:3
@@ -585,6 +621,7 @@ O:39:1:4
 O:77:0:4
 
 N:34:Gandalf's Firework Shop
+X:8
 O:65:7:1
 O:65:17:1
 O:65:6:1
@@ -606,6 +643,7 @@ O:70:77:2
 
 #Service of Satisfy Hunger
 N:35:Inn of the Green Dragon
+X:3
 O:91:0:3
 O:91:1:2
 O:91:2:2
@@ -623,15 +661,22 @@ O:75:42:1
 O:75:28:2
 
 N:36:tree hung with a banner 'Happy Elventy-One'
+X:2
 
 N:37:a room at the Prancing Pony
+X:1
 
 N:38:the pool of Goldberry
+X:2
 
 N:39:the White Tree
+X:2
 
 N:40:Frodo's House
+X:0
 
 N:41:tomb of Durin
+X:2
 
 N:42:grey slab of stone
+X:2

@@ -11,16 +11,16 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 # Maximum number of feature types
-M:F:807
+M:F:872
 
 # Maximum number of room description lines
-M:D:255
+M:D:800
 
 # Maximum number of object kinds
-M:K:899
+M:K:916
 
 # Maximum number of artifacts
 M:A:137
@@ -29,10 +29,10 @@ M:A:137
 M:E:128
 
 # Maximum number of flavors
-M:X:466
+M:X:487
 
 # Maximum number of monster races (needs to be max + 2 for player ghost)
-M:R:1281
+M:R:1282
 
 # Maximum number of vaults
 M:V:51
@@ -50,13 +50,13 @@ M:P:11
 M:H:165
 
 # Maximum number of player classes
-M:C:10
+M:C:11
 
 # Maximum number of weapon style lines
-M:W:127
+M:W:160
 
 # Maximum number of spells
-M:S:471
+M:S:477
 
 # Maximum number of runes
 M:Y:30

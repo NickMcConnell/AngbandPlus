@@ -19,6 +19,7 @@
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
+ * TODO: a lot of code is here duplicated with value_check_aux3 in spells2.c
  */
 int value_check_aux1(const object_type *o_ptr)
 {
@@ -58,10 +59,16 @@ int value_check_aux1(const object_type *o_ptr)
 	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EXCELLENT);
 
 	/* Great "armor" bonus */
-	if (o_ptr->to_a > 8) return (INSCRIP_GREAT);
+	if (o_ptr->to_a > 9) return (INSCRIP_GREAT);
 
-	/* Great "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 14) return (INSCRIP_GREAT);
+	/* Great to_h bonus */
+	if (o_ptr->to_h > 9) return (INSCRIP_GREAT);
+
+	/* Great to_d bonus */
+	if (o_ptr->to_d >
+	    (k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds < 4 ?
+	     9 : k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
+	  return (INSCRIP_GREAT);
 
 	/* Great "weapon" dice */
 	if (o_ptr->dd > k_info[o_ptr->k_idx].dd) return (INSCRIP_GREAT);
@@ -70,7 +77,7 @@ int value_check_aux1(const object_type *o_ptr)
 	if (o_ptr->ds > k_info[o_ptr->k_idx].ds) return (INSCRIP_GREAT);
 
 	/* Very good "armor" bonus */
-	if (o_ptr->to_a > 4) return (INSCRIP_VERY_GOOD);
+	if (o_ptr->to_a > 5) return (INSCRIP_VERY_GOOD);
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 7) return (INSCRIP_VERY_GOOD);
@@ -219,7 +226,7 @@ static void sense_inventory(void)
 	/*** Sense everything ***/
 
 	/* Check everything */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -229,14 +236,14 @@ static void sense_inventory(void)
 		/* Hack -- we seem to get a source of corrupt objects that crash this routine. Putting this warning in. */
 		if ((o_ptr->k_idx >= z_info->k_max) || (o_ptr->k_idx < 0))
 		{
-			bell(format("BUG: Object corruption detected (%d). See bugs.txt for reporting details.",o_ptr->k_idx));
+			msg_format("BUG: Object corruption detected (%d). Please report.",o_ptr->k_idx);
 
 			o_ptr->k_idx = 0;
 			continue;
 		}
 
 		/* Sense flags to see if we have ability */
-		if (i >= INVEN_WIELD)
+		if ((i >= INVEN_WIELD) && !(IS_QUIVER_SLOT(i)))
 		{
 			u32b if1,if2,if3,if4;
 
@@ -273,11 +280,14 @@ static void sense_inventory(void)
 	if (f3 & (TR3_SLOW_DIGEST)) equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST,0x0L);
 	else if (!(af3 & (TR3_SLOW_DIGEST))) equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST,0x0L);
 
-	if (f3 & (TR3_REGEN)) equip_can_flags(0x0L,0x0L,TR3_REGEN,0x0L);
-	else if (!(af3 & (TR3_REGEN))) equip_not_flags(0x0L,0x0L,TR3_REGEN,0x0L);
+	if (f3 & (TR3_REGEN_HP)) equip_can_flags(0x0L,0x0L,TR3_REGEN_HP,0x0L);
+	else if (!(af3 & (TR3_REGEN_HP))) equip_not_flags(0x0L,0x0L,TR3_REGEN_HP,0x0L);
 
-	if (f4 & (TR4_HUNGER)) equip_can_flags(0x0L,0x0L,0x0L,TR4_HUNGER);
-	else if (!(af4 & (TR4_HUNGER))) equip_not_flags(0x0L,0x0L,0x0L,TR4_HUNGER);
+	if (f3 & (TR3_REGEN_MANA)) equip_can_flags(0x0L,0x0L,TR3_REGEN_MANA,0x0L);
+	else if (!(af3 & (TR3_REGEN_MANA))) equip_not_flags(0x0L,0x0L,TR3_REGEN_MANA,0x0L);
+
+	if (f3 & (TR3_HUNGER)) equip_can_flags(0x0L,0x0L,0x0L,TR3_HUNGER);
+	else if (!(af3 & (TR3_HUNGER))) equip_not_flags(0x0L,0x0L,0x0L,TR3_HUNGER);
 }
 
 
@@ -522,8 +532,8 @@ static void process_world(void)
 			/* Message */
 			if (cheat_xtra) msg_print("Updating Shops...");
 
-			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES; n++)
+			/* Maintain each shop (except home, special locations) */
+			for (n = 0; n < total_store_count; n++)
 			{
 				/* Maintain */
 				store_maint(n);
@@ -538,7 +548,7 @@ static void process_world(void)
 				/* Pick a random shop (except home) */
 				while (1)
 				{
-					n = rand_int(MAX_STORES);
+					n = rand_int(total_store_count);
 					if (n != STORE_HOME) break;
 				}
 
@@ -577,20 +587,8 @@ static void process_world(void)
 			/* Sneaky characters make monsters sleepy */
 			if (p_ptr->skill_stl > rand_int(100)) slp = TRUE;
 
-			/* Ensure wandering monsters suit the dungeon level */
-			get_mon_num_hook = dun_level_mon;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
 			/* Make a new monster */
 			(void)alloc_monster(MAX_SIGHT + 5, slp);
-
-			/* Ensure wandering monsters suit the dungeon level */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
 		}
 	}
 
@@ -627,7 +625,6 @@ static void process_world(void)
 	if (!(f_ptr->flags1 & (FF1_HIT_TRAP)) &&
 	    ((f_ptr->blow.method) || (f_ptr->spell)))
 	{
-
 		/* Damage from terrain */
 		hit_trap(p_ptr->py,p_ptr->px);
 	}
@@ -636,7 +633,6 @@ static void process_world(void)
 	if ((p_ptr->paralyzed || (p_ptr->stun >=100) || (p_ptr->psleep >= PY_SLEEP_ASLEEP)) &&
 		(f_ptr->flags2 & (FF2_DEEP | FF2_SHALLOW | FF2_FILLED)))
 	{
-
 		/* Get the mimiced feature */
 		mimic = f_ptr->mimic;
 
@@ -705,10 +701,13 @@ static void process_world(void)
 			i = extract_energy[p_ptr->pspeed] * 2;
 
 			/* Hunger takes more food */
-			if ((p_ptr->cur_flags4 & (TR4_HUNGER)) != 0) i += 100;
+			if ((p_ptr->cur_flags3 & (TR3_HUNGER)) != 0) i += 100;
 
 			/* Regeneration takes more food */
-			if ((p_ptr->cur_flags3 & (TR3_REGEN)) != 0) i += 30;
+			if (p_ptr->regen_hp > 0) i += 30 * p_ptr->regen_hp;
+
+			/* Regeneration takes more food */
+			if (p_ptr->regen_mana > 0) i += 30 * p_ptr->regen_mana;
 
 			/* Slow digestion takes less food */
 			if ((p_ptr->cur_flags3 & (TR3_SLOW_DIGEST)) != 0) i -= 10;
@@ -789,12 +788,6 @@ static void process_world(void)
 		}
 	}	
 
-	/* Regeneration ability */
-	if ((p_ptr->cur_flags3 & (TR3_REGEN)) != 0)
-	{
-		regen_amount = regen_amount * 2;
-	}
-
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
 	{
@@ -805,7 +798,8 @@ static void process_world(void)
 	if (p_ptr->csp < p_ptr->msp)
 	{
 		if (!(p_ptr->cur_flags3 & (TR3_DRAIN_MANA)) &&
-			!(p_ptr->disease & (DISEASE_DRAIN_MANA))) regenmana(regen_amount);
+			!(p_ptr->disease & (DISEASE_DRAIN_MANA))
+			&& (p_ptr->regen_mana >= 0)) regenmana(regen_amount * (p_ptr->regen_mana + 1));
 	}
 
 	/* Various things interfere with healing */
@@ -821,9 +815,9 @@ static void process_world(void)
 	if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if ((p_ptr->chp < p_ptr->mhp) && (p_ptr->regen_hp >= 0))
 	{
-		regenhp(regen_amount);
+		regenhp(regen_amount * (p_ptr->regen_hp + 1));
 	}
 
 
@@ -1110,7 +1104,7 @@ static void process_world(void)
 	}
 
 	/* Process timeouts */
-	for (k = 0, j = 0, i = 0; i < INVEN_TOTAL+1; i++)
+	for (k = 0, j = 0, i = 0; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -1378,6 +1372,8 @@ static void process_world(void)
 				case DISEASE_LOSE_DEX:
 				{
 					dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+					/* An exception --- disease does not glue DEX and AGI.
+					   See DISEASE_SLOW below, however. */
 					break;
 				}
 
@@ -1463,6 +1459,8 @@ static void process_world(void)
 				case DISEASE_SLOW:
 				{
 					(void)set_slow(p_ptr->slow + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+					/* Also slightly reduce agility. */
+					dec_stat(A_AGI, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
 					break;
 				}
 
@@ -1683,9 +1681,10 @@ static void process_world(void)
 		(void)res_stat(A_STR);
 		(void)res_stat(A_INT);
 		(void)res_stat(A_WIS);
-		(void)res_stat(A_CON);
 		(void)res_stat(A_DEX);
+		(void)res_stat(A_CON);
 		(void)res_stat(A_CHR);
+		(void)res_stat(A_AGI);
 
 		/* Restore experience. */
 		p_ptr->exp = p_ptr->max_exp;
@@ -2908,23 +2907,30 @@ static void process_player(void)
 
 		/*** Clean up ***/
 
+		/* Action is or was resting */
+		if (p_ptr->resting)
+		{
+			/* Increment the resting counter */
+			p_ptr->resting_turn++;
+		}
+
 		/* Significant */
 		if (p_ptr->energy_use)
 		{
 			/* Hack -- sing song */
 			if (p_ptr->held_song)
 			{
-
 				/* Cast the spell */
-			    	do_cmd_cast_aux(p_ptr->held_song, spell_power(p_ptr->held_song), ((p_ptr->pstyle == WS_INSTRUMENT)?"play":"sing"), "song");
-
-				/* Hack -- Always use a full turn */
-				p_ptr->energy_use = 100;
-
+			    if (do_cmd_cast_aux(p_ptr->held_song, spell_power(p_ptr->held_song), ((p_ptr->pstyle == WS_INSTRUMENT)?"play":"sing"), "song"))
+					/* Hack -- if not aborted, always use a full turn */
+					p_ptr->energy_use = 100;
 			}
 
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
+
+			/* Increment the player turn counter */
+			p_ptr->player_turn++;
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
@@ -3530,19 +3536,17 @@ void play_game(bool new_game)
 
 			for (i = 0;i<z_info->a_max;i++)
 			{
-				object_lore *n_ptr = &a_list[i];
+				object_info *n_ptr = &a_list[i];
 
 				n_ptr->can_flags1 = 0x0L;
 				n_ptr->can_flags2 = 0x0L;
 				n_ptr->can_flags3 = 0x0L;
-
-				n_ptr->may_flags1 = 0x0L;
-				n_ptr->may_flags2 = 0x0L;
-				n_ptr->may_flags3 = 0x0L;
+				n_ptr->can_flags4 = 0x0L;
 
 				n_ptr->not_flags1 = 0x0L;
 				n_ptr->not_flags2 = 0x0L;
 				n_ptr->not_flags3 = 0x0L;
+				n_ptr->not_flags4 = 0x0L;
 			}
 
 		}
@@ -3555,7 +3559,8 @@ void play_game(bool new_game)
 
 		/* Hack -- enter the world */
 		turn = 1;
-
+		p_ptr->player_turn = 0;
+		p_ptr->resting_turn = 0;
 	}
 
 	/* Normal machine (process player name) */

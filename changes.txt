@@ -1,8 +1,191 @@
-Unangband 0.6.1a Bugfix release
+Unangband 0.6.2 Work in Progress Release
+
+
+### Game Play ###
+
+- Wall of stone, earthquake and other effects that entomb monsters do not automatically
+destroy non-living monsters, making them slightly less abusable.
+
+- If you learnt something about a flavored object, you will continue to remember it for
+all instances of that object type.
+
+- Implemented quivers from NPPAngband code.
+
+- Made mimics drop objects relating to their graphic. Chest and bag mimics now drop items
+similar to opening a chest.
+
+- Temporary elemental resistance now gives additional protection against appropriate terrain
+effects: you must have more than temporary fire resistance to resist steam, lava, boiling mud
+and boiling water however.  Also resistance on boots provides equivalent protection, except
+where the terrain is completely filled (e.g underwater).  Note waves, eruptions, spreading 
+clouds and other dangers will still splash and damage you from adjacent locations so that you
+will not be completely immune to damage on this terrain.
+
+- Added items of resist water.
+
+- Made lite and regeneration pval-dependent and cumulative.  Regeneration now comes in two
+flavours - hit point and mana regeneration.  Amulets of regeneration provide both and
+various ego-objects and (especially) artifacts will usually benefit one or the other,
+sometimes greatly.
+
+- Made basic resists (acid, fire, cold, electricity) as well as resist poison and resist
+water incremental, with a geometric progression. Wearing 1 permanent resistance item
+gives you 1/2 resistance, wearing 2 gives you 1/3 resistance etc.  Temporary resistance
+counts as wearing 3 additional items but only for protecting you from damage, not your
+equipment.  Because cumulative resistance also protects your equipment, wearing e.g.
+two items of acid resistance will completely prevent equipment destruction for any 
+individual attack that does 30 hp or less resistance.  Now wearing two items is the
+equivalent of the old 'elemental resistance' bonus, but to get the equivalent of the
+old double-resist bonus, you have to wear 6 items + have temporary resistance.  This
+should make dangerous elemental breathers suitable threatening again.  Of course, immunity
+provide complete protection as always.
+
+- Added a new stat: agility. Agility modifies base movement speed and increases armour class.
+Agility now also provides protection against theft instead of dexterity.  Currently no items
+modify agility directly.  (Significant contributions to code by Mikolaj Konarski).
+
+- Made speed rarer to compensate (Mikolaj Konarski).
+
+- Reorganised existing stat modifiers to make other stats more useful for warriors.
+Intelligence now modifies to hit bonus, instead of strength, and greatly increases chance of
+critical blows and shots.  Dexterity now has more of an impact on to-hit bonus, and no longer
+modifies armour class.  Wisdom now greatly modifies armour class.  Charisma decreases the
+chance of monsters using ranged attacks against you (taunting) and increases the chance of
+monsters fleeing after sustaining damage (intimidating).
+
+- Modified enchantment and item power evaluation.  It is now no longer possible to enchant
+weapon damage greater than damage dice * damage sides + 5, instead of the old value of 15.
+It is now now longer possible to enchant armour bonus greater than armour class + 5, instead
+of the old value of 15.
+
+- All to-hit bonuses are now only 2/3rds effective as before for hitting an enemy.  This makes
+base skill more important (similar to Oangband style combat) however it is easier in Unangband
+to get additional to-hit bonuses from styles and attributes.
+
+- The to-dam bonus from strength and items can not exceed damage dice * damage sides + 5 of
+the wielded weapon (Mikolaj Konarski).
+
+- Significant rewrite and rebalancing of styles and starting equipment  (Mikolaj Konarski).
+
+- Seperated out throwing as a separate skill and made some races (e.g. Hobbits, Half-Trolls)
+significantly better at throwing than bows.  Balanced throwing as an ability.  Intelligence
+now makes throwing weapons less likely to break.  Larger throwing weapons will be damaged
+instead of being destroyed by breakage. (Mikolaj Konarski).
+
+- If you throw a weapon from your wielded slot and have multiple throws, you can select
+multiple targets to hit (Trick Shot).  Selecting yourself as a target will allow the weapon
+to return to your wielded slot. You may accidentally injure yourself if you attempt this,
+agility helps to avoid this (Mikolaj Konarski).
+
+- Combined Perception and Searching skills, now named Searching. (Mikolaj Konarski).
+
+- Fleeing monsters no longer wake allies. Allies only wake each other if they are nearby or
+within line of fire (Suggested by Matthias Rudolf).
+
+- Dwarves now get an intelligence bonus instead of penalty.
+
+- Attacking a fleeing monster will make them alert their allies if they recover their courage.
+
+- Killing a monster will alert their allies, if one of them is awake to see it.
+
+- Monster level and rarity now set by algorithm as opposed to manually.
+
+- Levels now will only spawn a limit different types of monsters. If you want to encounter a 
+different range of monsters, you need to travel to a new level.
+
+- Rooms descriptions will now be based on the most powerful monster on the level.
+
+- The dungeon generator will now create a lot less rooms on a level and will work much harder
+to ensure that all rooms are correctly connected.
+
+- Corridors will now be generated according to the appropriate level 'theme'.
+
+- Room descriptions now properly place items and features around the room as described.
+
+- More items than food can be eaten under the right circumstances.
+
+- Added new class Warrior Mage, which has good combat abilities and magic equivalent to the
+old Ranger.  Rangers now only cast spells (approximately) as well as rogues.
+
+- Added priests who specialise in magic books, which allows the priest to cast spells from
+one magic book as per a non-specialist mage. Added Gifted and Chosen Warriors, Archers and
+Thieves who can choose from a single magic book or prayer book spells. Added Cultists who
+are mages with access to one prayer book and renamed old Shaman Cultists to Druids.
+
+- Renamed Rogues to Artisans. Swapped Ranger and Artisan stealth.
+
+- Added 'Artisan' and 'Ranger' magic books, so that these two classes can get their entire
+spell selection in 6 books.
+
+- You now don't gain a stat increase every level, but gain multiple stat increases instead
+periodically. However, when increasing multiple stats, you can only increase each stat once
+per level gain. This prevents you maximising key stats too early and makes high starting
+stats more useful.
+
+- Improvements to costs when assigning attributes using the point assignment method at birth.
+This now mimics the distribution of stats using the auto-roller a lot more (Analysis by
+mikon).
+
+- Added magic resistance to a number of monsters, in particular demons and Maia. Magic
+resistance means that a monster has a percentage chance of completely ignoring an attack
+from a magical source (spell, scroll, rod, staff, wand or activated item). Activations that
+apply with the blow of an activated item ignore magic resistance, as weapon coatings and
+effects from thrown potions, flasks and food. Magic resistance also applies to the
+appropriate effects if an item is set in a trap. Magic resistance protects a monster against
+spells wielded as weapons.
+
+- Demons are also immune to damage from more elemental effects.
+
+- Added heavy armoured coats that wield into the Cloak slot. This allows players to easily
+increase their armour early on, at the cost of additional encumberance.
+
+- Added starburst rooms, fractal rooms from NPPAngband, streamer code and room distribution
+code from Sangband (modified somewhat).
+
+- Changed to NPP-style lakes and rivers.
+
+- Removed hack that prevented more than 1 town worth of stores being kept in memory. All the
+stores you have visited will now keep their inventory between visits, being maintained and
+shuffled normally.
+
+- Stats now can be increased above 18/100 through level increases (Mikolaj Konarski).
+
+- Rebalancing of stats, stat progression and stat tables (Mikolaj Konarski).
+
+- Added a number of additional spells wielded as weapons, armour and amulets.  These are
+mostly available in Animal Magic and Transformation magic books.
+
+### User Interface ###
+
+- The high score table now records character styles and dungeon location killed in.
+Old score files are (currently) incompatible and should be renamed from scores.raw.  If
+there is sufficient demand I (may) add in code to load these old score files.
+
+- Display the number of spells you can learn before picking which book to study (suggested by
+pepebe).
+
+- Fixed bug in big term display of shop inventories (Reported by Pav Lucistnik).
+
+- Major overhaul of the Character Screen (Mikolaj Konarski).
 
 ### Bug fixes ###
 
+- Fixed bug where many monster flags were not written to the save file (Reported by
+Matthias Rudolf).
+
+- Fixed some more corruption bugs.
+
+- Improved performance of commands such as wielding when carrying several bags.
+
+- Fixed lockup when generating towers.
+
+- Fixed bug preventing resist disease magical items from being generated.
+
+- Fixed a number of monsters so they get to use their spells or innate ranged abilities.
+
 - Replaced Durin's tomb with Balin's tomb.
+
+- Prevented stone wells from appearing at the bottom of dungeons (Reported by pepebe).
 
 - Test for evasion was reversed.
 
@@ -18,9 +201,35 @@ fix by RDE).
 
 - Salt water now cures poison again (Reported by Harriet Bazley).
 
-- Minor Acid Ball now does fire damage.
+- Minor Acid Ball now does acid damage.
 
-- Fix pre-requisite for Cure Serious Wounds.
+- Fixed some bugs around trying to discount heavy item power levels.
+
+- Fixed names of flasks when containing monster parts.
+
+- Fixed cure serious wounds pre-requisite.
+
+- Fixed bug where chests would drop the wrong number of items.
+
+- Fixed bug where archery monsters could end up with negative ammo.
+
+- Fixed bug preventing wizard lock correctly jamming doors.
+
+- The experience from killing a monster that increases you by several levels is scaled down
+correctly.
+
+### Build / Platform ###
+
+- Reduce memory footprint of artifact lore.
+
+- Add additional files to src distribution to allow minimal compilation and running of
+Windows compile.
+
+- Removed HIDE_TYPE, SHOW_MODS and EASY_KNOW flags from items.
+
+- Added additional level flags to improve correctness of dungeon generation.
+
+- Tidy up comments in a number of edit files (Mikolaj Konarski).
 
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down

@@ -261,10 +261,10 @@ Check knowledge (~)
         your character.  Currently, this includes being able to list all
         known "artifacts", "uniques", "ego items" and "objects", and the
         contents of your home. Normally, once an artifact is "generated",
-        and "lost", it can never again be found, and will become "known" to
-        the player.  With "preserve" mode, an artifact can never be "lost"
-        until it is "known" to the player.  In either case, any "known"
-        artifacts not in the possession of the player will never again be 
+        and "lost", it can never again be found, and will become 
+	"known" to the player.  An artifact can never be "lost", 
+	until it is "known" to the player.  Any "known" artifacts 
+	not in the possession of the player will never again be 
         "generated".  The "uniques" are special "unique" monsters which can
         only be killed once per game.  Certain "objects" come in "flavors",
         and you must determine the effect of each "flavor" once for each

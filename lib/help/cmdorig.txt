@@ -24,7 +24,7 @@
  v  (unused)                             V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
- y  Apply a run                          Y  Assemble a part
+ y  Apply a rune, potion, etc.           Y  Assemble a part
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (unused)

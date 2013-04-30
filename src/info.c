@@ -43,6 +43,28 @@
 
 
 /*
+ * Calculate the multiplier we'll get with a given bow type.
+ */
+int bow_multiplier(int sval)
+{
+	switch (sval)
+	{
+		case SV_SLING:
+		case SV_SHORT_BOW:
+		case SV_HAND_XBOW:
+			return (2);
+		case SV_LONG_BOW:
+		case SV_LIGHT_XBOW:
+			return (3);
+		case SV_HEAVY_XBOW:
+			return (4);
+		default:
+			return (0); /* instruments, etc. */
+	}
+}
+
+
+/*
  * Obtain the "flags" for an item
  */
 static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
@@ -274,6 +296,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 				case TR3_PERMA_CURSE:
 					(*f3) |= TR3_HEAVY_CURSE;
 					/* Fall through */
+				case TR3_HUNGER:
 				case TR3_TELEPORT:
 				case TR3_DRAIN_MANA:
 				case TR3_DRAIN_HP:
@@ -292,7 +315,10 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			switch (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2)
 			{
 				case TR4_BRAND_LITE:
-					(*f3) |= (TR3_LITE);
+					(*f3) |= TR3_LITE;
+					break;
+				case TR4_RES_WATER:
+					(*f2) |= TR2_IGNORE_WATER;
 					break;
 				case TR4_VAMP_HP:
 					(*f3) |= (TR3_DRAIN_HP | TR3_LIGHT_CURSE);
@@ -302,7 +328,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 					break;
 				case TR4_HURT_WATER:
 				case TR4_HURT_LITE:
-				case TR4_HUNGER:
 				case TR4_ANCHOR:
 				case TR4_SILENT:
 				case TR4_STATIC:
@@ -360,6 +385,19 @@ void object_obvious_flags(object_type *o_ptr)
                 o_ptr->can_flags2 |= k_info[o_ptr->k_idx].flags2;
                 o_ptr->can_flags3 |= k_info[o_ptr->k_idx].flags3;
                 o_ptr->can_flags4 |= k_info[o_ptr->k_idx].flags4;
+	}
+	/* Learnt abilities of flavored items are added if not aware */
+	else if (k_info[o_ptr->k_idx].flavor)
+	{
+		object_can_flags(o_ptr,x_list[k_info[o_ptr->k_idx].flavor].can_flags1,
+				x_list[k_info[o_ptr->k_idx].flavor].can_flags2,
+				x_list[k_info[o_ptr->k_idx].flavor].can_flags3,
+				x_list[k_info[o_ptr->k_idx].flavor].can_flags4);
+
+		object_not_flags(o_ptr,x_list[o_ptr->name1].not_flags1,
+				x_list[k_info[o_ptr->k_idx].flavor].not_flags2,
+				x_list[k_info[o_ptr->k_idx].flavor].not_flags3,
+				x_list[k_info[o_ptr->k_idx].flavor].not_flags4);	
 	}
 
 	/* Identified name */
@@ -425,7 +463,7 @@ void object_obvious_flags(object_type *o_ptr)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
 }
@@ -941,7 +979,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags3 & (SF3_INC_STR)) vp[vn++]="strength";
 	if (s_ptr->flags3 & (SF3_INC_INT)) vp[vn++]="intelligence";
 	if (s_ptr->flags3 & (SF3_INC_WIS)) vp[vn++]="wisdom";
-	if (s_ptr->flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity";
+	if (s_ptr->flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity and agility";
 	if (s_ptr->flags3 & (SF3_INC_CON)) vp[vn++]="constitution";
 	if (s_ptr->flags3 & (SF3_INC_CHR)) vp[vn++]="charisma";
 	if (s_ptr->flags3 & (SF3_INC_EXP)) vp[vn++]="experience";
@@ -980,7 +1018,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags3 & (SF3_CURE_STR)) vp[vn++]="strength";
 	if (s_ptr->flags3 & (SF3_CURE_INT)) vp[vn++]="intelligence";
 	if (s_ptr->flags3 & (SF3_CURE_WIS)) vp[vn++]="wisdom";
-	if (s_ptr->flags3 & (SF3_CURE_DEX)) vp[vn++]="dexterity";
+	if (s_ptr->flags3 & (SF3_CURE_DEX)) vp[vn++]="dexterity and agility";
 	if (s_ptr->flags3 & (SF3_CURE_CON)) vp[vn++]="constitution";
 	if (s_ptr->flags3 & (SF3_CURE_CHR)) vp[vn++]="charisma";
 	if (s_ptr->flags3 & (SF3_CURE_EXP)) vp[vn++]="experience";
@@ -1169,7 +1207,6 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		switch (method)
 		{
 			case RBM_HIT: p = "hits"; t = "one target"; break;
-			case RBM_TOUCH: t = "one adjacent target"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
 			case RBM_SPIT: p = "spits"; t = "one target"; break;
 			case RBM_AURA: p = "surrounds you with an aura";  t = "your enemies"; rad = 2; break;
 			case RBM_AURA_MINOR: p = "surrounds you with an aura";  t = "your enemies"; rad = 1; break;
@@ -1217,6 +1254,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_8WAY_II: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 3; break;
 			case RBM_8WAY_III: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 4; break;
 			case RBM_SWARM: p = "creates multiple balls"; t = "your enemies"; rad = 1; d3 += level / 2; break;
+			default: t = "one adjacent target"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
 		}
 
 
@@ -1307,7 +1345,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_LOSE_STR:       q = "reduce"; s="strength from"; break;
 			case GF_LOSE_INT:       q = "reduce"; s="intelligence from"; break;
 			case GF_LOSE_WIS:       q = "reduce"; s="wisdom from"; break;
-			case GF_LOSE_DEX:       q = "reduce"; s="dexterity from"; break;
+			case GF_LOSE_DEX:       q = "reduce"; s="dexterity and agility from"; break;
 			case GF_LOSE_CON:       q = "reduce"; s="constitution from"; break;
 			case GF_LOSE_CHR:       q = "reduce"; s="charisma from"; break;
 			case GF_LOSE_ALL:       q = "reduce"; s="all stats from"; break;
@@ -1346,15 +1384,22 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			/* Hack -- handle features */
 			case GF_FEATURE:
 			{
-
 				char buf[80];
 				cptr name = f_name + f_info[f_info[d3].mimic].name;
 
 				q = "create";
 				s = buf;
 				sprintf(buf,"%s%s around",is_a_vowel(name[0])?"a ":"an ",name);
-				d1 = 0;
-				d2 = 0;
+				if ((f_info[d3].flags1 & (FF1_MOVE)) == 0)
+				{
+					d1 = 4;
+					d2 = 8;
+				}
+				else
+				{
+					d1 = 0;
+					d2 = 0;
+				}
 				d3 = 0;
 
 			}
@@ -1482,6 +1527,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		/* Get the effect */
 		if ((d1 || d2 || d3) && (detail)) switch (effect)
 		{
+			case GF_FEATURE: text_out("damage, destroying living monsters that cannot escape to an adjacent grid"); break;
 			case GF_WIND: text_out("damage against flying or climbing monsters, less against others"); break;
 			case GF_LITE_WEAK: text_out("damage to monsters vulnerable to light"); break;
 			case GF_KILL_WALL: text_out("damage to monsters made from rock"); break;
@@ -1700,12 +1746,12 @@ typedef struct o_flag_desc
  * affects all stats.  In this case, "All stats" is used instead of
  * listing each stat individually.
  */
-static const o_flag_desc stat_flags_desc[A_MAX] =
+static const o_flag_desc stat_flags_desc[A_MAX - 1 /* disregarding AGI */] =
 {
 	{ TR1_STR,	"strength" },
 	{ TR1_INT,	"intelligence" },
 	{ TR1_WIS,	"wisdom" },
-	{ TR1_DEX,	"dexterity" },
+	{ TR1_DEX,	"dexterity and agility" },
 	{ TR1_CON,	"constitution" },
 	{ TR1_CHR,	"charisma" }
 };
@@ -1726,6 +1772,18 @@ static const o_flag_desc pval_flags1_desc[] =
 	{ TR1_BLOWS,      "attacks" },
 	{ TR1_SHOTS,      "shots" },
 	{ TR1_MIGHT,      "might" }
+};
+
+
+/*
+ * Besides stats, these are the other player traits
+ * which may be affected by an object's pval
+ */
+static const o_flag_desc pval_flags3_desc[] =
+{
+	{ TR3_LITE,       "light radius" },
+	{ TR3_REGEN_HP,       "hitpoint regeneration" },
+	{ TR3_REGEN_MANA,     "mana regeneration" },
 };
 
 
@@ -1823,7 +1881,7 @@ static const o_flag_desc sustain_flags_desc[] =
 	{ TR2_SUST_STR,   "strength" },
 	{ TR2_SUST_INT,   "intelligence" },
 	{ TR2_SUST_WIS,   "wisdom" },
-	{ TR2_SUST_DEX,   "dexterity" },
+	{ TR2_SUST_DEX,   "dexterity and agility" },
 	{ TR2_SUST_CON,   "constitution" },
 	{ TR2_SUST_CHR,   "charisma" }
 };
@@ -1943,8 +2001,6 @@ static const o_flag_desc misc_flags3_desc[] =
 {
 	{ TR3_SLOW_DIGEST,	"slow digestion" },
 	{ TR3_FEATHER,		"feather falling" },
-	{ TR3_LITE,	     "brighter light" },
-	{ TR3_REGEN,		"regeneration" },
 	{ TR3_TELEPATHY,	"telepathy" },
 	{ TR3_SEE_INVIS,	"see invisible" }
 };
@@ -2005,6 +2061,7 @@ static const o_flag_desc ignore_flags2_desc[] =
  */
 static const o_flag_desc bad_flags3_desc[] =
 {
+	{ TR3_HUNGER,		"hunger" },
 	{ TR3_TELEPORT,		"random teleportation" },
 	{ TR3_AGGRAVATE,	"aggravation" },
 	{ TR3_DRAIN_HP,		"health drain" },
@@ -2018,7 +2075,6 @@ static const o_flag_desc bad_flags3_desc[] =
  */
 static const o_flag_desc bad_flags4_desc[] =
 {
-	{ TR4_HUNGER,		"hunger" },
 	{ TR4_ANCHOR,		"inability to teleport" },
 	{ TR4_SILENT,		"inability to cast spells" },
 	{ TR4_STATIC,       	"inability to use magical devices" },
@@ -2337,6 +2393,9 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode)
 
 		/* And now the "rest" */
 		list_ptr = spoiler_flag_aux(f1, pval_flags1_desc, list_ptr, N_ELEMENTS(pval_flags1_desc));
+
+		/* And now the "rest" */
+		list_ptr = spoiler_flag_aux(f3, pval_flags3_desc, list_ptr, N_ELEMENTS(pval_flags3_desc));
 
 		/* Terminate the description list */
 		*list_ptr = NULL;
@@ -2797,10 +2856,21 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_SWORD:
 			case TV_HAFTED:
 			case TV_POLEARM:
-				if (o_ptr->weight >= 66)
+				if (cp_ptr)
+				{ 
+					if (o_ptr->weight >= 2 * cp_ptr->chg_weight)
+					{
+						text_out(format("It does x%d damage when charging.  ", o_ptr->weight / cp_ptr->chg_weight));
+						anything = TRUE;
+					}
+		        } 
+		        else  
 				{
-					text_out(format("It does x%d damage when charging.  ", o_ptr->weight / 33));
-					anything = TRUE;
+					if (o_ptr->weight >= 66)
+					{
+						text_out(format("It does x%d damage when charging.  ", o_ptr->weight / 33));
+						anything = TRUE;
+					}
 				}
 				break;
 			case TV_SPIKE:
@@ -2872,7 +2942,7 @@ void list_object(const object_type *o_ptr, int mode)
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Display the flags */
-	anything |= list_object_flags(f1, f2, f3, f4, 1); 
+	anything |= list_object_flags(f1, f2, f3, f4, LIST_FLAGS_CAN); 
 
 	/*
 	 * Handle cursed objects here to avoid redundancies such as noting
@@ -2944,7 +3014,7 @@ void list_object(const object_type *o_ptr, int mode)
 	/* Bows */
 	if (!random && (o_ptr->tval == TV_BOW))
 	{
-		int mult = 2;
+		int mult = bow_multiplier (o_ptr->sval);
 
 		text_out("When shooting or set in a trap, it multiplies the base damage of ");
 
@@ -2963,26 +3033,18 @@ void list_object(const object_type *o_ptr, int mode)
 			}
 
 			/* Short Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				mult++;
-				/* Fall through */
-			}
 			case SV_SHORT_BOW:
+			case SV_LONG_BOW:
 			{
 				text_out("arrows");
 				break;
 			}
 
 			/* Light Crossbow and Bolt */
+			case SV_HAND_XBOW:
+			case SV_LIGHT_XBOW:
 			case SV_HEAVY_XBOW:
 			{
-				mult++;
-				/* Fall through */
-			}
-			case SV_LIGHT_XBOW:
-			{
-				mult++;
 				text_out("bolts");
 				break;
 			}
@@ -3214,23 +3276,7 @@ void list_object(const object_type *o_ptr, int mode)
 	/* Basic abilities -- armor class */
 	if (!random)
 	{
-		int armor = 0;
-
-		switch(o_ptr->tval)
-		{
-			/* Armour */
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-				armor = o_ptr->ac;
-				break;
-		}
+		int armor = o_ptr->ac;
 
 		if (object_bonus_p(o_ptr) || spoil) armor += o_ptr->to_a;
 
@@ -3266,13 +3312,13 @@ void list_object(const object_type *o_ptr, int mode)
 	if (!random && !spoil)
 	{
 		/* Display the flags */
-		anything |= list_object_flags(o_ptr->may_flags1, o_ptr->may_flags2, o_ptr->may_flags3, o_ptr->may_flags4, 2); 
+		anything |= list_object_flags(o_ptr->may_flags1, o_ptr->may_flags2, o_ptr->may_flags3, o_ptr->may_flags4, LIST_FLAGS_MAY); 
 
 #if 0
                 /* Equipment only */
                 if (wield_slot(o_ptr) >= INVEN_WIELD)
                         /* Display the flags */
-                        anything |= list_object_flags(o_ptr->not_flags1, o_ptr->not_flags2, o_ptr->not_flags3, o_ptr->not_flags4, 3);
+                        anything |= list_object_flags(o_ptr->not_flags1, o_ptr->not_flags2, o_ptr->not_flags3, o_ptr->not_flags4, LIST_FLAGS_NOT);
 #endif
 	}
 
@@ -3395,7 +3441,7 @@ void print_spells(const s16b *sn, int num, int y, int x)
 
 	spell_type *s_ptr;
 
-	spell_cast *sc_ptr;
+	spell_cast *sc_ptr = NULL;
 
 	/* Title the list */
 	prt("", y, x);
@@ -3405,9 +3451,6 @@ void print_spells(const s16b *sn, int num, int y, int x)
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
 	{
-		/* Set casting details to null */
-		sc_ptr = &(s_info[0].cast[0]);
-		
 		/* Get the spell index */
 		spell = sn[i];
 
@@ -3424,12 +3467,31 @@ void print_spells(const s16b *sn, int num, int y, int x)
 
 		legible = FALSE;
 
-		for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
-		{
-			if (s_ptr->cast[ii].class == p_ptr->pclass)
+		/* Get the spell details; warriors (class 0) have no spells */
+		if (p_ptr->pclass)
+		  for (ii = 0; ii < MAX_SPELL_CASTERS; ii++)
+		    {
+		      if (s_ptr->cast[ii].class == p_ptr->pclass)
 			{
-				legible = TRUE;
-				sc_ptr=&(s_ptr->cast[ii]);
+			  legible = TRUE;
+			  sc_ptr=&(s_ptr->cast[ii]);
+			}
+		    }
+
+		/* Hack -- get casting information for specialists */
+		if (!legible)
+		{
+			for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
+			{
+				if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
+					((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
+					((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
+				&& (s_info[spell].appears[ii].sval == p_ptr->psval))
+				{
+				  legible = TRUE;
+				  /* Get the first spell caster's casting info */
+				  sc_ptr=&(s_ptr->cast[0]);
+				}
 			}
 		}
 
@@ -3519,7 +3581,7 @@ void print_spells(const s16b *sn, int num, int y, int x)
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 			I2A(i), s_name + s_ptr->name,
-			spell_level(spell), sc_ptr->mana, spell_chance(spell), comment);
+			level, sc_ptr->mana, spell_chance(spell), comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
@@ -3613,7 +3675,8 @@ void display_koff(const object_type *o_ptr)
 	obj_top(o_ptr);
 
 	/* Warriors are illiterate */
-	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
+	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
+		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK)) return;
 
 	browse = FALSE;
 
@@ -3626,11 +3689,12 @@ void display_koff(const object_type *o_ptr)
 			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
 			    (s_ptr->appears[ii].sval == o_ptr->sval))
 			{
-				for (iii=0;iii<MAX_SPELL_CASTERS;iii++)
-				{
-
-					if (s_ptr->cast[iii].class == p_ptr->pclass) browse=TRUE;
-				}
+			  /* Warriors (class 0) have no spells */
+			  if (p_ptr->pclass)
+			    for (iii = 0; iii < MAX_SPELL_CASTERS; iii++)
+			      {
+				if (s_ptr->cast[iii].class == p_ptr->pclass) browse=TRUE;
+			      }
 			}
 		}
 
@@ -3893,7 +3957,7 @@ void object_guess_name(object_type *o_ptr)
 		for (i = 1; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		object_lore *n_ptr = &a_list[i];
+		object_info *n_ptr = &a_list[i];
 
 		/* Skip "empty" items */
 		if (!a_ptr->name) continue;
@@ -4115,6 +4179,57 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 	o_ptr->can_flags3 |= (f3);
 	o_ptr->can_flags4 |= (f4);
 
+	/* If object flavored, learn flags about that flavor */
+	if (!object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].flavor))
+	{
+		/* Learn for base flavor */
+		x_list[k_info[o_ptr->k_idx].flavor].can_flags1 |= (f1);
+		x_list[k_info[o_ptr->k_idx].flavor].can_flags2 |= (f2);
+		x_list[k_info[o_ptr->k_idx].flavor].can_flags3 |= (f3);
+		x_list[k_info[o_ptr->k_idx].flavor].can_flags4 |= (f4);
+
+		/* Process inventory */
+		for (i = 0; i < INVEN_TOTAL; i++)
+		{
+			object_type *i_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!i_ptr->k_idx) continue;
+
+			/* Not matching kind */
+			if (i_ptr->k_idx != o_ptr->k_idx) continue;
+
+			i_ptr->can_flags1 |= (f1);
+			i_ptr->can_flags2 |= (f2);
+			i_ptr->can_flags3 |= (f3);
+			i_ptr->can_flags4 |= (f4);
+
+			/* Guess name */
+			object_guess_name(o_ptr);
+		}
+
+		/* Process objects */
+		for (i = 1; i < o_max; i++)
+		{
+			/* Get the object */
+			object_type *i_ptr = &o_list[i];
+
+			/* Skip dead objects */
+			if (!i_ptr->k_idx) continue;
+
+			/* Not matching kind */
+			if (i_ptr->k_idx != o_ptr->k_idx) continue;
+
+			i_ptr->can_flags1 |= (f1);
+			i_ptr->can_flags2 |= (f2);
+			i_ptr->can_flags3 |= (f3);
+			i_ptr->can_flags4 |= (f4);
+
+			/* Guess name */
+			object_guess_name(o_ptr);
+		}
+	}
+
 	/* Must be identified to continue */
 	if (!object_named_p(o_ptr))
 	{
@@ -4188,7 +4303,7 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		object_lore *n_ptr = &a_list[o_ptr->name1];
+		object_info *n_ptr = &a_list[o_ptr->name1];
 
 		n_ptr->not_flags1 &= ~(f1);
 		n_ptr->not_flags2 &= ~(f2);
@@ -4200,18 +4315,6 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 		n_ptr->can_flags2 |= (f2);
 		n_ptr->can_flags3 |= (f3);
 		n_ptr->can_flags4 |= (f4);
-
-		/* Extra flags */
-		n_ptr->may_flags1 |= xf1;
-		n_ptr->may_flags2 |= xf2;
-		n_ptr->may_flags3 |= xf3;
-		n_ptr->may_flags4 |= xf4;
-
-		/* Exclude fixed flags */
-		n_ptr->may_flags1 &= ~(n_ptr->can_flags1);
-		n_ptr->may_flags2 &= ~(n_ptr->can_flags2);
-		n_ptr->may_flags3 &= ~(n_ptr->can_flags3);
-		n_ptr->may_flags4 &= ~(n_ptr->can_flags4);
 	}
 
 	/* Ego item */
@@ -4343,7 +4446,7 @@ static void equip_may_flags(u32b f1, u32b f2, u32b f3, u32b f4)
 	object_type *i_ptr;
 
 	/* Check inventory may flags*/
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		i_ptr = &inventory[i];
 
@@ -4396,7 +4499,7 @@ static void equip_may_flags(u32b f1, u32b f2, u32b f3, u32b f4)
 	if (!(if1) && !(if2) && !(if3) && !(if4)) return;
 
 	/* Check equipment may flags*/
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		i_ptr = &inventory[i];
 
@@ -4415,6 +4518,8 @@ static void equip_may_flags(u32b f1, u32b f2, u32b f3, u32b f4)
  */
 void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 {
+	int i;
+
 	/* No change */
 	if (!(f1 & ~(o_ptr->not_flags1)) && !(f2 & ~(o_ptr->not_flags2)) && !(f3 & ~(o_ptr->not_flags3)) && !(f4 & ~(o_ptr->not_flags4))) return;
 	
@@ -4442,7 +4547,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 		Term_gotoxy(0, 1);
 
 		/* Actually display the item */
-		list_object_flags(f1 & (o_ptr->can_flags1), f2 & (o_ptr->can_flags2), f3 & (o_ptr->can_flags3), f4 & (o_ptr->can_flags4), 1);
+		list_object_flags(f1 & (o_ptr->can_flags1), f2 & (o_ptr->can_flags2), f3 & (o_ptr->can_flags3), f4 & (o_ptr->can_flags4), LIST_FLAGS_CAN);
 
 		(void)anykey();
 	
@@ -4458,6 +4563,62 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 	o_ptr->can_flags3 &= ~(f3);
 	o_ptr->can_flags4 &= ~(f4);
 
+	/* If object flavored, learn flags about that flavor */
+	if (!object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].flavor))
+	{
+		x_list[k_info[o_ptr->k_idx].flavor].not_flags1 |= (f1);
+		x_list[k_info[o_ptr->k_idx].flavor].not_flags2 |= (f2);
+		x_list[k_info[o_ptr->k_idx].flavor].not_flags3 |= (f3);
+		x_list[k_info[o_ptr->k_idx].flavor].not_flags4 |= (f4);
+
+		/* Process inventory */
+		for (i = 0; i < INVEN_TOTAL; i++)
+		{
+			object_type *i_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!i_ptr->k_idx) continue;
+
+			/* Not matching kind */
+			if (i_ptr->k_idx != o_ptr->k_idx) continue;
+
+			i_ptr->not_flags1 |= (f1);
+			i_ptr->not_flags2 |= (f2);
+			i_ptr->not_flags3 |= (f3);
+			i_ptr->not_flags4 |= (f4);
+
+			/* Important -- have to clear may flags on inventory */
+			i_ptr->may_flags1 &= ~(f1);
+			i_ptr->may_flags2 &= ~(f2);
+			i_ptr->may_flags3 &= ~(f3);
+			i_ptr->may_flags4 &= ~(f4);
+
+			/* Guess name */
+			object_guess_name(o_ptr);
+		}
+
+		/* Process objects */
+		for (i = 1; i < o_max; i++)
+		{
+			/* Get the object */
+			object_type *i_ptr = &o_list[i];
+
+			/* Skip dead objects */
+			if (!i_ptr->k_idx) continue;
+
+			/* Not matching kind */
+			if (i_ptr->k_idx != o_ptr->k_idx) continue;
+
+			i_ptr->not_flags1 |= (f1);
+			i_ptr->not_flags2 |= (f2);
+			i_ptr->not_flags3 |= (f3);
+			i_ptr->not_flags4 |= (f4);
+
+			/* Guess name */
+			object_guess_name(o_ptr);
+		}
+	}
+
 	/* Check inventory */
 	inven_may_flags();
 
@@ -4472,7 +4633,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 	/* Artifact */
 	if (o_ptr->name1) 
 	{
-		object_lore *n_ptr = &a_list[o_ptr->name1];
+		object_info *n_ptr = &a_list[o_ptr->name1];
 
 		n_ptr->not_flags1 |= f1;
 		n_ptr->not_flags2 |= f2;
@@ -4555,7 +4716,6 @@ void drop_may_flags(object_type *o_ptr)
  */
 void drop_all_flags(object_type *o_ptr)
 {
-
 	/* Clear may flags */
 	o_ptr->can_flags1 = 0L;
 	o_ptr->can_flags2 = 0L;
@@ -4716,7 +4876,7 @@ void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3, u32b f4)
 	Term_gotoxy(0, 1);
 
 	/* Actually display the item */
-	list_object_flags(f1, f2, f3, f4, 1);
+	list_object_flags(f1, f2, f3, f4, LIST_FLAGS_CAN);
 
 	(void)anykey();
 	
@@ -4756,7 +4916,7 @@ void equip_can_flags(u32b f1,u32b f2,u32b f3, u32b f4)
 	if (p_ptr->blessed) f3 &= ~(TR3_HOLD_LIFE);
 
 	/* Exclude known flags */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		i_ptr = &inventory[i];
 
@@ -4774,7 +4934,7 @@ void equip_can_flags(u32b f1,u32b f2,u32b f3, u32b f4)
 	if (!f1 && !f2 && !f3 && !f4) return;
 
 	/* Check for flags */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		u32b if1 = f1;
 		u32b if2 = f2;
@@ -4824,7 +4984,7 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3, u32b f4)
 	object_type *i_ptr;
 
 	/* Mark equipment with not flags*/
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		i_ptr = &inventory[i];
 
@@ -4878,29 +5038,6 @@ void inven_drop_flags(object_type *o_ptr)
 #define AVG_SLING_AMMO_DAMAGE 11
 #define AVG_BOW_AMMO_DAMAGE 12
 #define AVG_XBOW_AMMO_DAMAGE 12
-
-/*
- * Calculate the multiplier we'll get with a given bow type.
- */
-static int bow_multiplier(int sval)
-{
-	switch (sval)
-	{
-		case SV_SLING:
-		case SV_SHORT_BOW:
-		case SV_HAND_XBOW:
-			return (2);
-		case SV_LONG_BOW:
-		case SV_LIGHT_XBOW:
-			return (3);
-		case SV_HEAVY_XBOW:
-			return (4);
-		default:
-			msg_format("Illegal bow sval %d", sval);
-	}
-
-	return (0);
-}
 
 
 /*
@@ -5163,12 +5300,13 @@ s32b object_power(const object_type *o_ptr)
 				p += AVG_SLING_AMMO_DAMAGE;
 			}
 			else if (o_ptr->sval == SV_SHORT_BOW ||
-				o_ptr->sval == SV_LONG_BOW)
+					 o_ptr->sval == SV_LONG_BOW)
 			{
 				p += AVG_BOW_AMMO_DAMAGE;
 			}
-			else if (o_ptr->sval == SV_LIGHT_XBOW ||
-				o_ptr->sval == SV_HEAVY_XBOW)
+			else if (o_ptr->sval == SV_HAND_XBOW ||
+					 o_ptr->sval == SV_LIGHT_XBOW ||
+					 o_ptr->sval == SV_HEAVY_XBOW)
 			{
 				p += AVG_XBOW_AMMO_DAMAGE;
 			}
@@ -5194,14 +5332,7 @@ s32b object_power(const object_type *o_ptr)
 			{
 				p += o_ptr->to_d;
 			}
-			else if (o_ptr->to_d > -10)
-			{
-				p += 9;
-			}
-			else
-			{
-				p += o_ptr->to_d + 9;
-			}
+			else p += 9;
 
 			if (f1 & TR1_SHOTS)
 			{
@@ -5233,18 +5364,11 @@ s32b object_power(const object_type *o_ptr)
 			{
 				p+= (o_ptr->to_h) * 2 / 3;
 			}
-			else if (o_ptr->to_h > -12)
-			{
-				p += 6;
-			}
-			else
-			{
-				p += (o_ptr->to_h) * 2 / 3 + 6;
-			}
+			else p += 6;
 
 			/* Normalise power back */
 			/* We now only count power as 'above' having the basic weapon at the same level */
-			if (o_ptr->sval == SV_SLING)
+			if (o_ptr->sval < 10)
 			{
 				int q = AVG_SLING_AMMO_DAMAGE * bow_multiplier(k_ptr->sval) + 15;
 
@@ -5253,8 +5377,7 @@ s32b object_power(const object_type *o_ptr)
 				else
 					p = 0;
 			}
-			else if (o_ptr->sval == SV_SHORT_BOW ||
-				o_ptr->sval == SV_LONG_BOW)
+			else if (o_ptr->sval < 20)
 			{
 				int q = AVG_BOW_AMMO_DAMAGE * bow_multiplier(k_ptr->sval) + 15;
 
@@ -5263,8 +5386,7 @@ s32b object_power(const object_type *o_ptr)
 				else
 					p = 0;
 			}
-			else if (o_ptr->sval == SV_LIGHT_XBOW ||
-				o_ptr->sval == SV_HEAVY_XBOW)
+			else if (o_ptr->sval < 30)
 			{
 				int q = AVG_XBOW_AMMO_DAMAGE * bow_multiplier(k_ptr->sval) + 15;
 
@@ -5336,7 +5458,7 @@ s32b object_power(const object_type *o_ptr)
 
 				s_index = slay_index(f1, f2, f3, f4);
 
-				for (i = 0, j = 0x00000001L;(i < 32) && (j != s_index); i++, j<<=1);
+				for (i = 0, j = 0x00000001L; (i < 32) && (j != s_index); i++, j<<=1);
 
 				if (i < 32)
 				{
@@ -5350,18 +5472,11 @@ s32b object_power(const object_type *o_ptr)
 			/* Correction factor for damage */
 			p /= 2;
 
-			if (o_ptr->to_d > 9)
+			if (o_ptr->to_d > o_ptr->dd * o_ptr->ds)
 			{
 				p += o_ptr->to_d;
 			}
-			else if (o_ptr->to_d > -10)
-			{
-				p += 9;
-			}
-			else
-			{
-				p += o_ptr->to_d + 9;
-			}
+			else p += o_ptr->dd * o_ptr->ds;
 
 			if (f1 & TR1_BLOWS)
 			{
@@ -5380,23 +5495,16 @@ s32b object_power(const object_type *o_ptr)
 
 			if (o_ptr->to_h > 9)
 			{
-				p+= (o_ptr->to_h) * 2 / 3;
+				p += (o_ptr->to_h) * 2 / 3;
 			}
-			else if (o_ptr->to_h > -12)
-			{
-				p += 6;
-			}
-			else
-			{
-				p += (o_ptr->to_d) * 2 / 3 + 6;
-			}
+			else p += 6;
 
 			/* Normalise power back */
 			/* We remove the weapon base damage to get 'true' power */
-			/* This makes e.g. a sword that provides fire immunity the same value as
-			   a ring that provides fire immunity */
-			if (ABS(p) > k_ptr->dd * (k_ptr->ds + 1) / 2 + 15)
-				p -= sign(p) * (k_ptr->dd * (k_ptr->ds + 1) / 2 + 15);
+			/* This makes e.g. a sword that provides fire immunity 
+			   the same value as a ring that provides fire immunity */
+			if (ABS(p) > k_ptr->dd * (k_ptr->ds + 1) / 2 + 6 + o_ptr->dd * o_ptr->ds)
+				p -= sign(p) * (k_ptr->dd * (k_ptr->ds + 1) / 2 + 6 + k_ptr->dd * k_ptr->ds);
 			else
 				p = 0;
 
@@ -5408,15 +5516,10 @@ s32b object_power(const object_type *o_ptr)
 				p += o_ptr->ac - k_ptr->ac;
 			}
 
-			if (o_ptr->weight < k_ptr->weight)
-			{
-				p++;
-			}
-
 			/* Remember, weight is in 0.1 lb. units. */
 			if (o_ptr->weight != k_ptr->weight)
 			{
-			/*	p += (k_ptr->weight - o_ptr->weight) / 20; */
+				p += (k_ptr->weight - o_ptr->weight) / 20;
 			}
 
 			/* Bonus as we may use a staff or hafted weapon as swap weapon */
@@ -5427,15 +5530,9 @@ s32b object_power(const object_type *o_ptr)
 			if (((f2 & (TR2_IGNORE_ACID)) != 0) && ((kf2 & (TR2_IGNORE_ACID)) == 0)) p++;
 			if (((f2 & (TR2_IGNORE_THEFT)) != 0) && ((kf2 & (TR2_IGNORE_THEFT)) == 0)) p++;
 
-			/* Bonus if throwing weapon */
+			/* Bonus for an extra throwing flag */
 			if (((f3 & (TR3_THROWING)) != 0) && ((kf3 & (TR3_THROWING)) == 0))
-			{
 				p += 2;
-
-				/* Bonus as we carry thrown weapons in inventory and throw them */
-				if (((f2 & (TR2_IGNORE_ACID)) != 0) && ((kf2 & (TR2_IGNORE_ACID)) == 0)) p++;
-				if (((f2 & (TR2_IGNORE_FIRE)) != 0) && ((kf2 & (TR2_IGNORE_FIRE)) == 0)) p++;
-			}
 
 			/* Add some specific powers here only */
 			ADD_POWER("blessed",		 1, TR3_BLESSED, 3,);
@@ -5607,6 +5704,19 @@ s32b object_power(const object_type *o_ptr)
 		}
 
 		case TV_BOOTS:
+		{
+			/* Bonus for resistance on boots due to terrain protection */
+			ADD_POWER("resist acid",	 3, TR2_RES_ACID, 2, );
+#if 0
+			ADD_POWER("resist elec",	 5, TR2_RES_ELEC, 2, );
+#endif
+			ADD_POWER("resist fire",	 3, TR2_RES_FIRE, 2, );
+			ADD_POWER("resist cold",	 1, TR2_RES_COLD, 2, );
+			ADD_POWER("resist water",	 3, TR2_RES_COLD, 4, );
+
+			/* Fall through */
+		}
+
 		case TV_CLOAK:
 		{
 			/* Bonus as we may choose to use a swap armour */
@@ -5746,15 +5856,9 @@ s32b object_power(const object_type *o_ptr)
 
 	}
 
-	/* Compute weight discount percentage */
-	/*
-	 * If an item weighs more than 5 pounds, we discount its power.
-	 *
-	 * This figure is from 30 lb weight limit for mages divided by 6 slots;
-	 * but we do it for all items as they may be used as swap items, but use a divisor of 10 lbs instead.
-	 */
+	/* Compute ac bonuses */
 
-	/* Evaluate ac bonus and weight differently for armour and non-armour. */
+	/* Evaluate ac bonus differently for armour and non-armour. */
 	switch (o_ptr->tval)
 	{
 		case TV_BOOTS:
@@ -5767,33 +5871,19 @@ s32b object_power(const object_type *o_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			if (o_ptr->weight >= 50)
+			if (o_ptr->to_a > o_ptr->ac)
 			{
-				p -= o_ptr->weight / 50; 
+				p+= (o_ptr->to_a - o_ptr->ac);
 			}
 
-			if (o_ptr->to_a > 9)
+			if (o_ptr->to_a > o_ptr->ac + 10)
 			{
-				p+= (o_ptr->to_a - 9);
-			}
-			else if (o_ptr->to_a > -10)
-			{
-				/* No change */
-			}
-			else
-			{
-				p += o_ptr->to_d + 9;
+				p += (o_ptr->to_a - o_ptr->ac - 10);
 			}
 
-
-			if (o_ptr->to_a > 19)
+			if (o_ptr->to_a > o_ptr->ac + 20)
 			{
-				p += (o_ptr->to_a - 19);
-			}
-
-			if (o_ptr->to_a > 29)
-			{
-				p += (o_ptr->to_a - 29);
+				p += (o_ptr->to_a - o_ptr->ac - 20);
 			}
 
 			if (o_ptr->to_a > 39)
@@ -5801,7 +5891,7 @@ s32b object_power(const object_type *o_ptr)
 				p += 20000;	/* inhibit */
 			}
 			break;
-
+		}
 		case TV_SWORD:
 		case TV_DIGGING:
 		case TV_STAFF:
@@ -5810,30 +5900,9 @@ s32b object_power(const object_type *o_ptr)
 		case TV_BOW:
 		case TV_INSTRUMENT:
 		case TV_LITE:
-			/* These are breaks for 1-handed, 2-handed, max 4 blows for warriors,
-				and max 3 blows for others */
-			if (o_ptr->weight >= 150)
-			{
-				p -= 1; 
-			}
-
-			if (o_ptr->weight >= 200)
-			{
-				p -= 1; 
-			}
-
-			if (o_ptr->weight > 240)
-			{
-				p -= 1; 
-			}
-
-			if (o_ptr->weight > 960)
-			{
-				p -= 1; 
-			}
-
 		case TV_RING:
 		case TV_AMULET:
+		{
 			p += sign(o_ptr->to_a) * (ABS(o_ptr->to_a) / 2);
 
 			if (o_ptr->to_a > 9)
@@ -5851,10 +5920,9 @@ s32b object_power(const object_type *o_ptr)
 				p += 20000;	/* inhibit */
 			}
 			break;
-
+		}
 		default:
 			return(p);
-		}
 	}
 
 	/* Other abilities are evaluated independent of the object type. */
@@ -5874,7 +5942,7 @@ s32b object_power(const object_type *o_ptr)
 		}
 		if (f1 & TR1_DEX)
 		{
-			p += 3 * o_ptr->pval * o_ptr->pval / 4;  /* Was 3 * o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
 		}
 		if (f1 & TR1_CON)
 		{
@@ -5882,7 +5950,7 @@ s32b object_power(const object_type *o_ptr)
 		}
 		if (f1 & TR1_CHR)
 		{
-			p += o_ptr->pval * o_ptr->pval / 8; /* Was o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval / 4; /* Was o_ptr->pval */
 		}
 		if (f1 & TR1_SAVE)
 		{
@@ -5903,12 +5971,19 @@ s32b object_power(const object_type *o_ptr)
 		/* For now add very small amount for searching */
 		if (f1 & TR1_SEARCH)
 		{
-			p += (o_ptr->pval * o_ptr->pval) / 12; /* Was o_ptr->pval / 6 */
+			p += o_ptr->pval * o_ptr->pval / 12;
 		}
-		/* For now add very small amount for infravision */
-		if (f1 & TR1_INFRA)
+		if (f3 & TR3_REGEN_HP)
 		{
-			p += (o_ptr->pval * o_ptr->pval) / 8; /* Was o_ptr->pval */
+			p += (o_ptr->pval * o_ptr->pval) * 3 / 2; /* Was constant 3 */
+		}
+		if (f3 & TR3_REGEN_MANA)
+		{
+			p += (o_ptr->pval * o_ptr->pval) * 3 / 2; /* Was constant 3 */
+		}
+		if (f3 & TR3_LITE)
+		{
+			p += (o_ptr->pval * o_ptr->pval) * 3; /* Was constant 3 */
 		}
 	}
 
@@ -5917,7 +5992,7 @@ s32b object_power(const object_type *o_ptr)
 		if (f1 & TR1_STR) p += 4 * o_ptr->pval;
 		if (f1 & TR1_INT) p += 2 * o_ptr->pval;
 		if (f1 & TR1_WIS) p += 2 * o_ptr->pval;
-		if (f1 & TR1_DEX) p += 3 * o_ptr->pval;
+		if (f1 & TR1_DEX) p += 4 * o_ptr->pval;
 		if (f1 & TR1_CON) p += 4 * o_ptr->pval;
 		if (f1 & TR1_CHR) p += o_ptr->pval;
 		if (f1 & TR1_SAVE) p += o_ptr->pval;
@@ -5926,11 +6001,14 @@ s32b object_power(const object_type *o_ptr)
 		if (f1 & TR1_TUNNEL) p += o_ptr->pval;
 		if (f1 & TR1_SEARCH) p += o_ptr->pval;
 		if (f1 & TR1_INFRA) p += o_ptr->pval;
+		if (f3 & TR3_REGEN_HP) p -= 16;
+		if (f3 & TR3_REGEN_MANA) p -= 8;
+		if (f3 & TR3_LITE) p += 3 * o_ptr->pval;
 	}
 
 	if (f1 & TR1_SPEED)
 	{
-		p += 5 * o_ptr->pval;
+		p += 7 * o_ptr->pval;
 	}
 
 	ADD_POWER("sustain STR",	 5, TR2_SUST_STR, 2, sustains++);
@@ -5965,7 +6043,6 @@ s32b object_power(const object_type *o_ptr)
 	ADD_POWER("free action",	 7, TR3_FREE_ACT, 3, high_resists++);
 	ADD_POWER("hold life",		 6, TR3_HOLD_LIFE, 3, high_resists++);
 	ADD_POWER("feather fall",	 2, TR3_FEATHER, 3,); /* was 2 */
-	ADD_POWER("permanent light",     4, TR3_LITE, 3,); /* was 2 */
 
 	ADD_POWER("see invisible",	 4, TR3_SEE_INVIS, 3,);
 	ADD_POWER("sense orcs",	  	3, TR3_ESP_ORC, 3,);
@@ -6000,11 +6077,11 @@ s32b object_power(const object_type *o_ptr)
 	ADD_POWER("resist nether",	10, TR2_RES_NETHR, 2, high_resists++);
 	ADD_POWER("resist chaos",	10, TR2_RES_CHAOS, 2, high_resists++);
 	ADD_POWER("resist disenchantment", 10, TR2_RES_DISEN, 2, high_resists++);
+	ADD_POWER("resist disease", 10, TR4_RES_DISEASE, 4, high_resists++);
+	ADD_POWER("resist water",	5, TR4_RES_WATER, 4, high_resists++);
 
 	/* Add bonus for sustains getting 'high_resists-lock' */
 	if (high_resists > 1) p += high_resists * high_resists / 2;
-
-	ADD_POWER("regeneration",	 4, TR3_REGEN, 3,);
 
 	ADD_POWER("teleportation",	 -40, TR3_TELEPORT, 3,);
 	ADD_POWER("drain experience",	 -20, TR3_DRAIN_EXP, 3,);
@@ -6017,7 +6094,7 @@ s32b object_power(const object_type *o_ptr)
 /*	ADD_POWER("permanent curse",	 -40, TR3_PERMA_CURSE, 3,);*/
 	ADD_POWER("light vulnerability", -30, TR4_HURT_LITE, 4,);
 	ADD_POWER("water vulnerability", -30, TR4_HURT_WATER, 4,);
-	ADD_POWER("hunger",	 	 -15, TR4_HUNGER, 4,);
+	ADD_POWER("hunger",	 	 -15, TR3_HUNGER, 3,);
 	ADD_POWER("anchor",	 	 -4, TR4_ANCHOR, 4,);
 	ADD_POWER("silent",	 	 -20, TR4_SILENT, 4,);
 	ADD_POWER("static",	 	 -15, TR4_STATIC, 4,);
@@ -6038,6 +6115,92 @@ s32b object_power(const object_type *o_ptr)
 	ADD_POWER("lightning vulnerability", -40, TR4_HURT_ELEC, 4,);
 	ADD_POWER("fire vulnerability",	 -40, TR4_HURT_FIRE, 4,);
 	ADD_POWER("cold vulnerability",	 -40, TR4_HURT_COLD, 4,);
+
+
+	/* Evaluate weight discount. */
+	switch (o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+	/*
+	 * If a worn item weighs more than 5 pounds, we discount its power by up to 50%.
+	 *
+	 * This figure is from 30 lb weight limit for mages divided by 6 slots.
+	 */
+			if (o_ptr->weight >= 50)
+			{
+				if (p > o_ptr->weight / 25)
+					p -= o_ptr->weight / 50;
+				else if (p > 0)
+					p = (p + 1) / 2;
+			}
+
+			break;
+		}
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_STAFF:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		{
+			/* These are breaks for 1-handed, 2-handed, max 4 blows for warriors,
+				and max 3 blows for others */
+			if (p > 0)
+			{
+				if ((o_ptr->weight > 960) && (p > 7))
+				{
+					p -= 1; 
+				}
+
+				if ((o_ptr->weight > 240) && (p > 5))
+				{
+					p -= 1; 
+				}
+
+				if ((o_ptr->weight >= 200) && (p > 3))
+				{
+					p -= 1; 
+				}
+
+				if ((o_ptr->weight >= 150) && (p > 1))
+				{
+					p -= 1; 
+				}
+			}
+			break;
+		}
+		case TV_BOW:
+		case TV_INSTRUMENT:
+		case TV_LITE:
+		case TV_RING:
+		case TV_AMULET:
+		{
+	/*
+	 * If a worn item weighs more than 15 pounds, we discount its power by up to 50%.
+	 *
+	 * This if for acting as a swap item. Note that super heavy weapons get less of a
+	 * discount than other super heavy swap items, because of the increased criticals
+	 * and charge bonus.
+	 */
+			if (o_ptr->weight >= 150)
+			{
+				if (p > o_ptr->weight / 75)
+					p -= o_ptr->weight / 150;
+				else if (p > 0)
+					p = (p + 1) / 2;
+			}
+			break;
+		}
+	}
+
 
 	return (p);
 }

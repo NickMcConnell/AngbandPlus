@@ -99,8 +99,7 @@ u32b summon_flag_type;	   /* Hack -- See summon_specific() */
 s16b summon_race_type;	   /* Hack -- See summon_specific() */
 
 s32b turn;			      /* Current game turn */
-
-s32b old_turn;		  /* Hack -- Level feeling counter */
+s32b old_turn;		      /* Hack -- Level feeling counter */
 
 bool surface;
 bool daytime;
@@ -166,7 +165,7 @@ bool command_repeating = FALSE;
 byte feeling;		   /* Most recent feeling */
 s16b rating;		    /* Level's current rating */
 
-byte level_flag;		/* Level type */
+u32b level_flag;		/* Level type */
 
 
 bool good_item_flag;    /* True if "Artifact" on this level */
@@ -657,7 +656,7 @@ monster_lore *l_list;
 /*
  * Array[z_info->a_max] of artifact lore
  */
-object_lore *a_list;
+object_info *a_list;
 
 /*
  * Array[z_info->e_max] of ego item lore
@@ -665,9 +664,9 @@ object_lore *a_list;
 object_lore *e_list;
 
 /*
- * Array[z_info->k_max] of kind lore
+ * Array[z_info->k_max] of flavor lore
  */
-object_lore *k_list;
+object_info *x_list;
 
 
 /*
@@ -676,10 +675,17 @@ object_lore *k_list;
 quest_type *q_list;
 
 
+
 /*
- * Array[MAX_STORES] of stores
+ * The size of "store" (at most z_info->t_max * MAX_STORES)
  */
-store_type *store;
+s16b total_store_count;
+
+
+/*
+ * Array[total_store_count] of pointers to stores
+ */
+store_type_ptr *store;
 
 /*
  * Array[INVEN_TOTAL] of objects in the player's inventory
@@ -697,7 +703,7 @@ s16b bag_contents[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL];
  * Array[INVEN_TOTAL] of items listed at the bottom of the screen
  * This is used to track player items in a pointer-based user interface
  */
-int itemlist[INVEN_TOTAL+1];
+int itemlist[INVEN_TOTAL];
 
 
 /*
@@ -1164,3 +1170,30 @@ long tot_mon_power;
  */
 char pf_result[MAX_PF_LENGTH];
 int pf_result_index;
+
+
+/*
+ * Some static info used to manage quiver groups
+ */
+quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
+{
+	{'f', TERM_L_BLUE},
+	{'f', TERM_L_GREEN},
+	{'f', TERM_YELLOW},
+	{'v', TERM_ORANGE},
+};
+
+
+/*
+ * We cache the kinds of objects held in bags here
+ *
+ * Otherwise we get a significant performance penalty when checking bags for valid items due
+ * to the performance of lookup_kind when faking the objects in bags.
+ */
+s16b bag_kinds_cache[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL];
+
+
+/*
+ * We now use a 'dungeon ecology' system to generate monsters on a level.
+ */
+ecology_type cave_ecology;

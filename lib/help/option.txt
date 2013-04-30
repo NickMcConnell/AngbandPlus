@@ -576,43 +576,6 @@ Allow specification of minimum stats    [birth_auto_roller]
      higher with point-based generation, but the overall total of all the 
      will be higher when rolling randomly (including with the auto-roller.)
 
-***** <birth_maximize>
-Maximize effect of race/class bonuses    [birth_maximize]
-     Normally, if a character should find potions that permanently increase
-     his stats, the maximum that can be achieved without equipment bonuses 
-     is 18/100. If maximize mode is on (which is the default), then the race
-     and class bonuses and penalties apply to this limit, so your half-troll 
-     will have a greater maximum possible strength (unassisted by his 
-     equipment) than a hobbit. With maximize mode off, all characters max 
-     out at 18/100 for all stats. This also affects the start of the game, 
-     because race and class bonuses are applied as if they were "rings" in 
-     maximize mode (at an exact rate of 0/10 percentile points equals 1 point
-     for stats over 18), and as "potions" in non-maximize mode (drinking six
-     potions of [stat] will probably increase your stat by more than 0/60 if 
-     it was at 18 to start with.) To cut a long story short and a confusing 
-     explanation simple, you get better starting stats in non-maximize mode,
-     but can't get as good at what you're supposed to be best at in the later 
-     stages of the game.
-
-***** <birth_preserve>
-Preserve artifacts on leaving level    [birth_preserve]
-     If preserve mode is "off", you can get a level feeling that you *NEVER*
-     get with preserve mode "on": a "special" feeling. This means that there 
-     is an artifact, a pit or a vault on the level: and while a pit or vault
-     may not necessarily cause a special feeling, an artifact CERTAINLY will.
-     This is principally of use in finding out which levels are *not* 
-     "special", i.e. which ones can be left in a hurry without worrying 
-     about leaving something behind - if it's not "special", there is no 
-     artifact unless a monster has dropped one when you killed it. This is 
-     particularly important because, with preserve mode off, no artifact can
-     be generated more than once in the game. If it's on a level and you miss
-     it, it's gone forever. With preserve mode "on", if you miss an artifact, 
-     it can turn up later provided you didn't pick it up and identify it 
-     the first time (in which case there is no excuse for losing it.) But 
-     you don't get the "special" feeling. (Chances are that a vault will 
-     provide a good level feeling anyway, and quite possibly a couple of 
-     good items which may or may not include an artifact.)
-
 ***** <birth_ironman>
 Restrict the use of stairs/recall    [birth_ironman]
      This option, not recommended for non-advanced players, prevents the 

@@ -404,31 +404,6 @@ static errr init_names(void)
 }
 
 
-
-
-/*
- * Calculate the multiplier we'll get with a given bow type.
- */
-static int bow_multiplier(int sval)
-{
-	switch (sval)
-	{
-		case SV_SLING:
-		case SV_SHORT_BOW:
-			return (2);
-		case SV_LONG_BOW:
-		case SV_LIGHT_XBOW:
-			return (3);
-		case SV_HEAVY_XBOW:
-			return (4);
-		default:
-			msg_format("Illegal bow sval %s", sval);
-	}
-
-	return (0);
-}
-
-
 static void remove_contradictory(artifact_type *a_ptr)
 {
 	if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
@@ -449,6 +424,8 @@ static void remove_contradictory(artifact_type *a_ptr)
 	if (a_ptr->flags2 & TR2_RES_COLD) a_ptr->flags4 &= ~(TR4_HURT_COLD);
 	if (a_ptr->flags2 & TR2_RES_LITE) a_ptr->flags4 &= ~(TR4_HURT_LITE);
 
+	if (a_ptr->flags4 & TR4_RES_WATER) a_ptr->flags4 &= ~(TR4_HURT_WATER);
+
 	if (a_ptr->pval < 0)
 	{
 		if (a_ptr->flags1 & TR1_STR) a_ptr->flags2 &= ~(TR2_SUST_STR);
@@ -465,8 +442,8 @@ static void remove_contradictory(artifact_type *a_ptr)
 	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
 	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
-	if (a_ptr->flags3 & TR3_DRAIN_HP) a_ptr->flags3 &= ~(TR3_REGEN);
-	if (a_ptr->flags3 & TR3_DRAIN_MANA) a_ptr->flags3 &= ~(TR3_REGEN);
+	if (a_ptr->flags3 & TR3_DRAIN_HP) a_ptr->flags3 &= ~(TR3_REGEN_HP);
+	if (a_ptr->flags3 & TR3_DRAIN_MANA) a_ptr->flags3 &= ~(TR3_REGEN_MANA);
 
 	if (!(a_ptr->flags4 & TR4_EVIL))
 	{
@@ -502,6 +479,14 @@ static void remove_contradictory(artifact_type *a_ptr)
 	if (a_ptr->flags3 & TR3_TELEPORT) a_ptr->flags4 &= ~(TR4_ANCHOR);
 
 }
+
+
+#define ADD_POWER(string, val, flag, flgnum, extra) \
+	if (a_ptr->flags##flgnum & flag) { \
+		p += (val); \
+		extra; \
+		LOG_PRINT1("Modifying power for " string ", total is %d\n", p); \
+	}
 
 
 /*
@@ -567,8 +552,9 @@ static s32b artifact_power(int a_idx)
 			{
 				p += AVG_BOW_AMMO_DAMAGE;
 			}
-			else if (a_ptr->sval == SV_LIGHT_XBOW ||
-				a_ptr->sval == SV_HEAVY_XBOW)
+			else if (a_ptr->sval == SV_HAND_XBOW ||
+					 a_ptr->sval == SV_LIGHT_XBOW ||
+					 a_ptr->sval == SV_HEAVY_XBOW)
 			{
 				p += AVG_XBOW_AMMO_DAMAGE;
 			}
@@ -668,15 +654,16 @@ static s32b artifact_power(int a_idx)
 					p = 0;
 			}
 			else if (a_ptr->sval == SV_SHORT_BOW ||
-				a_ptr->sval == SV_LONG_BOW)
+					 a_ptr->sval == SV_LONG_BOW)
 			{
 				if (ABS(p) > AVG_BOW_AMMO_DAMAGE)
 					p -= sign(p) * AVG_BOW_AMMO_DAMAGE * bow_multiplier(k_ptr->sval);
 				else
 					p = 0;
 			}
-			else if (a_ptr->sval == SV_LIGHT_XBOW ||
-				a_ptr->sval == SV_HEAVY_XBOW)
+			else if (a_ptr->sval == SV_HAND_XBOW ||
+					 a_ptr->sval == SV_LIGHT_XBOW ||
+					 a_ptr->sval == SV_HEAVY_XBOW)
 			{
 				if (ABS(p) > AVG_XBOW_AMMO_DAMAGE)
 					p -= sign(p) * AVG_XBOW_AMMO_DAMAGE * bow_multiplier(k_ptr->sval);
@@ -803,6 +790,11 @@ static s32b artifact_power(int a_idx)
 			p += 3;
 			LOG_PRINT1("Adding power for ignore theft / acid / fire, total is %d\n", p);
 
+
+			ADD_POWER("blessed",		 1, TR3_BLESSED, 3,);
+
+			ADD_POWER("blood vampire",	 25, TR4_VAMP_HP, 4,);
+			ADD_POWER("mana vampire",	 14, TR4_VAMP_MANA, 4,);
 			break;
 		}
 		case TV_BOOTS:
@@ -977,8 +969,8 @@ static s32b artifact_power(int a_idx)
 		}
 		if (a_ptr->flags1 & TR1_DEX)
 		{
-			p += 3 * a_ptr->pval * a_ptr->pval / 4;
-			LOG_PRINT2("Adding power for DEX bonus %d, total is %d\n", a_ptr->pval, p);
+			p += a_ptr->pval * a_ptr->pval;
+			LOG_PRINT2("Adding power for DEX+AGI bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_CON)
 		{
@@ -1008,18 +1000,41 @@ static s32b artifact_power(int a_idx)
 		/* For now add very small amount for searching */
 		if (a_ptr->flags1 & TR1_SEARCH)
 		{
-			p += a_ptr->pval * a_ptr->pval / 24;
+			p += a_ptr->pval * a_ptr->pval / 12;
 			LOG_PRINT2("Adding power for searching bonus %d, total is %d\n", a_ptr->pval , p);
 		}
+		if (a_ptr->flags3 & TR3_REGEN_HP)
+		{
+			p += (a_ptr->pval * a_ptr->pval) * 3 / 2; /* Was constant 3 */
+			LOG_PRINT2("Adding power for regenerate hit points bonus %d, total is %d\n", a_ptr->pval , p);
+		}
+		if (a_ptr->flags3 & TR3_REGEN_MANA)
+		{
+			p += (a_ptr->pval * a_ptr->pval) * 3 / 2; /* Was constant 3 */
+			LOG_PRINT2("Adding power for regenerate mana bonus bonus %d, total is %d\n", a_ptr->pval , p);
+		}
+		if (a_ptr->flags3 & TR3_LITE)
+		{
+			p += (a_ptr->pval * a_ptr->pval) * 3; /* Was constant 3 */
+			LOG_PRINT2("Adding power for lite bonus %d, total is %d\n", a_ptr->pval , p);
+		}
+
 	}
 	else if (a_ptr->pval < 0)	/* hack: don't give large negatives */
 	{
 		if (a_ptr->flags1 & TR1_STR) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_INT) p += 2 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_WIS) p += 2 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_DEX) p += 3 * a_ptr->pval;
+		if (a_ptr->flags1 & TR1_DEX) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_TUNNEL) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_SEARCH) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_INFRA) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_REGEN_HP) p -= 16;
+		if (a_ptr->flags3 & TR3_REGEN_MANA) p -= 8;
+		if (a_ptr->flags3 & TR3_LITE) p += 3 * a_ptr->pval;
 		LOG_PRINT1("Subtracting power for negative ability values, total is %d\n", p);
 	}
 	if (a_ptr->flags1 & TR1_CHR)
@@ -1034,15 +1049,8 @@ static s32b artifact_power(int a_idx)
 	}
 	if (a_ptr->flags1 & TR1_SPEED)
 	{
-		p += 5 * a_ptr->pval;
+		p += 7 * a_ptr->pval;
 		LOG_PRINT2("Adding power for speed bonus/penalty %d, total is %d\n", a_ptr->pval, p);
-	}
-
-#define ADD_POWER(string, val, flag, flgnum, extra) \
-	if (a_ptr->flags##flgnum & flag) { \
-		p += (val); \
-		extra; \
-		LOG_PRINT1("Modifying power for " string ", total is %d\n", p); \
 	}
 
 	ADD_POWER("sustain STR",	 5, TR2_SUST_STR, 2,sustains++);
@@ -1086,7 +1094,6 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("free action",	 7, TR3_FREE_ACT, 3, high_resists++);
 	ADD_POWER("hold life",		 6, TR3_HOLD_LIFE, 3, high_resists++);
 	ADD_POWER("feather fall",	 1, TR3_FEATHER, 3,); /* was 2 */
-	ADD_POWER("permanent light",     4, TR3_LITE, 3,); /* was 2 */
 
 	ADD_POWER("see invisible",	 4, TR3_SEE_INVIS, 3,);
 	ADD_POWER("sense orcs",	  	3, TR3_ESP_ORC, 3,);
@@ -1126,6 +1133,7 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("resist chaos",	10, TR2_RES_CHAOS, 2, high_resists++);
 	ADD_POWER("resist disenchantment", 10, TR2_RES_DISEN, 2, high_resists++);
 	ADD_POWER("resist disease",	10, TR4_RES_DISEASE, 4, high_resists++);
+	ADD_POWER("resist water",	5, TR4_RES_WATER, 4, high_resists++);
 
 	/* Add bonus for getting 'high resist-lock' */
 	if (high_resists > 1)
@@ -1133,12 +1141,6 @@ static s32b artifact_power(int a_idx)
 		p += (high_resists-1) * 3;
 		LOG_PRINT1("Adding power for multiple high resists, total is %d\n", p); \
 	}
-
-	ADD_POWER("regeneration",	 4, TR3_REGEN, 3,);
-	ADD_POWER("blessed",		 1, TR3_BLESSED, 3,);
-
-	ADD_POWER("blood vampire",	 25, TR4_VAMP_HP, 4,);
-	ADD_POWER("mana vampire",	 14, TR4_VAMP_MANA, 4,);
 
 	ADD_POWER("teleportation",	 -40, TR3_TELEPORT, 3,);
 	ADD_POWER("drain experience",	 -20, TR3_DRAIN_EXP, 3,);
@@ -1151,7 +1153,7 @@ static s32b artifact_power(int a_idx)
 /*	ADD_POWER("permanent curse",	 -40, TR3_PERMA_CURSE, 3,);*/
 	ADD_POWER("light vulnerability", -30, TR4_HURT_LITE, 4,);
 	ADD_POWER("water vulnerability", -30, TR4_HURT_WATER, 4,);
-	ADD_POWER("hunger",	 	 -15, TR4_HUNGER, 4,);
+	ADD_POWER("hunger",	 	 -15, TR3_HUNGER, 3,);
 	ADD_POWER("anchor",	 	 -1, TR4_ANCHOR, 4,);
 	ADD_POWER("silent",	 	 -20, TR4_SILENT, 4,);
 	ADD_POWER("static",	 	 -15, TR4_STATIC, 4,);
@@ -1227,7 +1229,8 @@ static void store_base_power (void)
 			case TV_SHIELD:
 				art_shield_total++; break;
 			case TV_CLOAK:
-				art_cloak_total++; break;
+				if (a_info[i].sval <= SV_SHADOW_CLOAK) art_cloak_total++;
+				else art_armor_total++; break;
 			case TV_HELM:
 			case TV_CROWN:
 				art_headgear_total++; break;
@@ -1325,10 +1328,11 @@ static s16b choose_item(int a_idx)
 	switch (tval)
 	{
 	case TV_BOW:
-		if (r2 <10) sval = SV_SLING;
+		if (r2 < 15) sval = SV_SLING;
 		else if (r2 < 30) sval = SV_SHORT_BOW;
-		else if (r2 < 60) sval = SV_LONG_BOW;
-		else if (r2 < 90) sval = SV_LIGHT_XBOW;
+		else if (r2 < 60) sval = SV_HAND_XBOW;
+		else if (r2 < 90) sval = SV_LONG_BOW;
+		else if (r2 < 120) sval = SV_LIGHT_XBOW;
 		else sval = SV_HEAVY_XBOW;
 		break;
 
@@ -1404,6 +1408,7 @@ static s16b choose_item(int a_idx)
 
 		/* Adjust tval, as all armour is done together */
 		if (r2 < 30) tval = TV_SOFT_ARMOR;
+		else if (r2 < 37) tval = TV_CLOAK;
 		else if (r2 < 106) tval = TV_HARD_ARMOR;
 		else tval = TV_DRAG_ARMOR;
 
@@ -1416,10 +1421,14 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 25) sval = SV_HARD_STUDDED_LEATHER;
 		else if (r2 < 30) sval = SV_LEATHER_SCALE_MAIL;
 
+		/* Cloak-like armour */
+		else if (r2 < 33) sval = SV_RIVETED_LEATHER_COAT;
+		else if (r2 < 37) sval = SV_CHAIN_MAIL_COAT;
+
 		/* Hard stuff. */
-		else if (r2 < 33) sval = SV_RUSTY_CHAIN_MAIL;
-		else if (r2 < 38) sval = SV_METAL_SCALE_MAIL;
-		else if (r2 < 44) sval = SV_CHAIN_MAIL;
+		else if (r2 < 39) sval = SV_RUSTY_CHAIN_MAIL;
+		else if (r2 < 43) sval = SV_METAL_SCALE_MAIL;
+		else if (r2 < 46) sval = SV_CHAIN_MAIL;
 		else if (r2 < 49) sval = SV_AUGMENTED_CHAIN_MAIL;
 		else if (r2 < 54) sval = SV_DOUBLE_CHAIN_MAIL;
 		else if (r2 < 59) sval = SV_BAR_CHAIN_MAIL;
@@ -1483,7 +1492,9 @@ static s16b choose_item(int a_idx)
 		break;
 
 	case TV_CLOAK:
-		if (r2 < 100) sval = SV_CLOAK;
+		if (r2 < 30) sval = SV_CLOAK;
+		else if (r2 < 50) sval = SV_TABARD;
+		else if (r2 < 100) sval = SV_LEATHER_COAT;
 		else sval = SV_SHADOW_CLOAK;
 		break;
 	}
@@ -2330,7 +2341,7 @@ static void parse_frequencies ()
 			 * frequency for the supercharged value and the normal value.
 			 * We get away with this by using a somewhat lower average value
 			 * for the supercharged ability than in the basic set (around
-			 * +7 or +8 - c.f. Ringil and the others at +10 and upwards).
+			 * +4 or +5 - c.f. Ringil and the others at +7 and upwards).
 			 * This then allows us to add an equal number of
 			 * small bonuses around +3 or so without unbalancing things.
 			 */
@@ -2484,7 +2495,15 @@ static void parse_frequencies ()
 			(artprobs[ART_IDX_GEN_SDIG])++;
 		}
 
-		if (a_ptr->flags3 & TR3_REGEN)
+		if (a_ptr->flags3 & TR3_REGEN_HP)
+		{
+			/* Regeneration case - generic. */
+			LOG_PRINT("Adding 1 for regeneration - general.\n");
+
+			(artprobs[ART_IDX_GEN_REGEN])++;
+		}
+
+		if (a_ptr->flags3 & TR3_REGEN_MANA)
 		{
 			/* Regeneration case - generic. */
 			LOG_PRINT("Adding 1 for regeneration - general.\n");
@@ -2563,6 +2582,7 @@ static void parse_frequencies ()
 			if (a_ptr->flags2 & TR2_RES_CHAOS) temp++;
 			if (a_ptr->flags2 & TR2_RES_DISEN) temp++;
 			if (a_ptr->flags4 & TR4_RES_DISEASE) temp++;
+			if (a_ptr->flags4 & TR4_RES_WATER) temp++;
 
 			LOG_PRINT1("Adding %d for high resists on body armor.\n", temp);
 
@@ -3279,8 +3299,16 @@ static void add_permanent_light(artifact_type *a_ptr)
 
 static void add_regeneration(artifact_type *a_ptr)
 {
-	a_ptr->flags3 |= TR3_REGEN;
-	LOG_PRINT("Adding ability: regeneration\n");
+	if (rand_int(3))
+	{
+		a_ptr->flags3 |= TR3_REGEN_HP;
+		LOG_PRINT("Adding ability: regenerate hit points\n");
+	}
+	else
+	{
+		a_ptr->flags3 |= TR3_REGEN_MANA;
+		LOG_PRINT("Adding ability: regenerate mana\n");
+	}
 }
 
 static void add_telepathy(artifact_type *a_ptr)
@@ -3747,13 +3775,13 @@ static void add_restrict_rand(artifact_type *a_ptr)
 	{
 		r = rand_int(9);
 		if ((r == 0) && ((a_ptr->flags2 & TR2_RES_DARK) || (a_ptr->flags4 & TR4_SLAY_ELF))) success = add_restrict_orc(a_ptr);
-		else if ((r == 1) && ((a_ptr->flags1 & TR1_STR) || (a_ptr->flags4 & TR4_SLAY_DWARF))) success = add_restrict_giant(a_ptr);
-		else if ((r == 2) && (a_ptr->flags3 & TR3_REGEN)) success = add_restrict_troll(a_ptr);
+		else if ((r == 1) && ((a_ptr->flags1 & TR1_STR) || (a_ptr->flags2 & TR2_SUST_STR) || (a_ptr->flags4 & TR4_SLAY_DWARF))) success = add_restrict_giant(a_ptr);
+		else if ((r == 2) && (a_ptr->flags3 & TR3_REGEN_HP)) success = add_restrict_troll(a_ptr);
 		else if ((r == 3) && (a_ptr->flags2 & TR2_RES_ACID) && (a_ptr->flags2 & TR2_RES_FIRE) && (a_ptr->flags2 & TR2_RES_ELEC) && (a_ptr->flags2 & TR2_RES_COLD)) success = add_restrict_dragon(a_ptr);
 		else if ((r == 4) && (a_ptr->flags2 & (TR2_RES_FIRE | TR2_IM_FIRE))) success = add_restrict_demon(a_ptr);
 		else if ((r == 5) && ((a_ptr->flags2 & TR2_RES_NETHR) || (a_ptr->flags3 & (TR3_SEE_INVIS | TR3_HOLD_LIFE)))) success = add_restrict_undead(a_ptr);
 		else if ((r == 6) && ((a_ptr->flags1 & (TR1_SLAY_ORC | TR1_STEALTH)) || (a_ptr->flags2 & TR2_RES_LITE) || (a_ptr->flags3 & TR3_SEE_INVIS))) success = add_restrict_elf(a_ptr);
-		else if ((r == 7) && ((a_ptr->flags2 & TR2_RES_BLIND) || (a_ptr->flags3 & (TR3_FREE_ACT | TR3_HOLD_LIFE)) || (a_ptr->flags4 & TR4_SLAY_DWARF))) success = add_restrict_dwarf(a_ptr);
+		else if ((r == 7) && ((a_ptr->flags1 & (TR1_SLAY_GIANT)) || (a_ptr->flags2 & TR2_RES_BLIND) || (a_ptr->flags3 & (TR3_FREE_ACT | TR3_HOLD_LIFE)))) success = add_restrict_dwarf(a_ptr);
 		else if ((r == 8) && ((a_ptr->flags1 & TR1_STEALTH) || (a_ptr->flags3 & (TR3_SLOW_DIGEST | TR3_FEATHER)))) success = add_restrict_animal(a_ptr);
 
 		count++;
@@ -3804,7 +3832,6 @@ static void add_to_hit(artifact_type *a_ptr, int fixed, int random)
 			return;
 		}
 	}
-	a_ptr->flags3 |= TR3_SHOW_MODS;
 	a_ptr->to_h += (s16b)(fixed + rand_int(random));
 	LOG_PRINT1("Adding ability: extra to_h (now %+d)\n", a_ptr->to_h);
 }
@@ -3830,7 +3857,6 @@ static void add_to_dam(artifact_type *a_ptr, int fixed, int random)
 			return;
 		}
 	}
-	a_ptr->flags3 |= TR3_SHOW_MODS;
 	a_ptr->to_d += (s16b)(fixed + rand_int(random));
 	LOG_PRINT1("Adding ability: extra to_dam (now %+d)\n", a_ptr->to_d);
 }
@@ -4405,7 +4431,7 @@ static void try_supercharge(artifact_type *a_ptr)
 	if (rand_int (z_info->a_max) < artprobs[ART_IDX_GEN_SPEED_SUPER])
 	{
 		a_ptr->flags1 |= TR1_SPEED;
-		a_ptr->pval = 6 + rand_int(4);
+		a_ptr->pval = 3 + rand_int(3);
 		LOG_PRINT1("Supercharging speed for this item!  (New speed bonus is %d)\n", a_ptr->pval);
 	}
 	/* Aggravation */
@@ -4445,7 +4471,7 @@ static void do_curse(artifact_type *a_ptr)
 	else if (r == 4) a_ptr->flags3 |= TR3_TELEPORT;
 	else if (r == 5) a_ptr->flags4 |= TR4_HURT_LITE;
 	else if (r == 6) a_ptr->flags4 |= TR4_HURT_WATER;
-	else if (r == 7) a_ptr->flags4 |= TR4_HUNGER;
+	else if (r == 7) a_ptr->flags3 |= TR3_HUNGER;
 	else if (r == 8) a_ptr->flags4 |= TR4_ANCHOR;
 	else if (r == 9) a_ptr->flags4 |= TR4_SILENT;
 	else if (r == 10) a_ptr->flags4 |= TR4_STATIC;
@@ -4722,13 +4748,6 @@ static void scramble_artifact(int a_idx)
 	/* Store artifact power */
 	a_ptr->power = ap;
 
-	/*
-	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
-	 * too lazy to find out which ones need it and which ones don't.
-	 */
-	if (a_ptr->pval)
-		a_ptr->flags3 |= TR3_HIDE_TYPE;
-
 	/* Success */
 	LOG_PRINT(">>>>>>>>>>>>>>>>>>>>>>>>>> ARTIFACT COMPLETED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 	LOG_PRINT2("Number of tries for artifact %d was: %d\n", a_idx, tries);
@@ -4904,7 +4923,7 @@ errr do_randart(u32b randart_seed, bool full)
 
 		artifact_type *a_info_new;
 
-		object_lore *a_list_new;
+		object_info *a_list_new;
 
 		int art_high_slot = 255;
 
@@ -4912,7 +4931,7 @@ errr do_randart(u32b randart_seed, bool full)
 		C_MAKE(a_info_new, 256, artifact_type);
 
 		/* Allocate the new artifact lore range */
-		C_MAKE(a_list_new, 256, object_lore);
+		C_MAKE(a_list_new, 256, object_info);
 
 		/* Copy base artifacts to seed random powers */
 		for (i = ART_MIN_NORMAL; i < z_info->a_max;i++)

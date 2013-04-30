@@ -838,7 +838,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool r
 			case GF_LOSE_STR:       q = "reduce strength"; break;
 			case GF_LOSE_INT:       q = "reduce intelligence"; break;
 			case GF_LOSE_WIS:       q = "reduce wisdom"; break;
-			case GF_LOSE_DEX:       q = "reduce dexterity"; break;
+			case GF_LOSE_DEX:       q = "reduce dexterity and agility"; break;
 			case GF_LOSE_CON:       q = "reduce constitution"; break;
 			case GF_LOSE_CHR:       q = "reduce charisma"; break;
 			case GF_LOSE_ALL:       q = "reduce all stats"; break;
@@ -1162,6 +1162,8 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags9 & RF9_RES_DARK) vp[vn++] = "darkness";
 	if (l_ptr->flags9 & RF9_RES_CHAOS) vp[vn++] = "chaos";
 	if (l_ptr->flags9 & RF9_RES_TPORT) vp[vn++] = "teleportation";
+	if (l_ptr->flags9 & RF9_RES_MAGIC) vp[vn++] = "magical spells";
+	if (l_ptr->flags9 & RF9_RES_MAGIC) vp[vn++] = "the effects of rods, staffs and wands";
 	if ((l_ptr->flags9 & RF9_RES_EDGED) && (l_ptr->flags9 & RF9_RES_BLUNT)) vp[vn++] = "edged";
 	else if (l_ptr->flags9 & RF9_RES_EDGED) vp[vn++] = "edged weapons";
 	if (l_ptr->flags9 & RF9_RES_BLUNT) vp[vn++] = "blunt weapons";
@@ -1650,11 +1652,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* Speed */
-	if (l_ptr->flags9 & (RF9_SAME_SPEED))
-	{
-		text_out( " keeps apace with you");
-	}
-	else if (r_ptr->speed > 110)
+	if (r_ptr->speed > 110)
 	{
 		if (r_ptr->speed > 130) text_out( " incredibly");
 		else if (r_ptr->speed > 120) text_out(" very");
@@ -1688,10 +1686,40 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		text_out(" on business");
 	}
 
+	/* Collect improvements */
+	vn = 0;
+
+	/* Describe the improvements */
+	if (l_ptr->flags9 & (RF9_LEVEL_SIZE)) vp[vn++] ="larger";
+	if (l_ptr->flags9 & (RF9_LEVEL_SPEED)) vp[vn++] ="faster";
+	if (l_ptr->flags9 & (RF9_LEVEL_POWER)) vp[vn++] ="more powerful";
+
+	/* Describe "improvements" */
+	if (vn)
+	{
+		if (old) text_out(", but");
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) text_out(" is ");
+			else if (n < vn-1) text_out(", ");
+			else text_out(" or ");
+			/* Dump */
+			text_out(vp[n]);
+		}
+
+		text_out(" deeper in the dungeon");
+	}
+
 	/* The code above includes "attack speed" */
 	if (l_ptr->flags1 & RF1_NEVER_MOVE)
 	{
-		text_out(", but does not deign to chase intruders");
+		if (vn) text_out(", and");
+		else text_out(", but");
+
+		text_out(" does not deign to chase intruders");
 	}
 
 	/* End this sentence */

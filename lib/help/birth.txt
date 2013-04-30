@@ -47,14 +47,9 @@ dexterity, constitution, and charisma, which modify the abilities of the
 character in a variety of ways.  Every stat has a numerical value, ranging
 from a minimum of 3, up to a normal maximum of 18, and even higher, into
 the "percentile" range, represented as "18/01" through "18/100": this is the
-maximum that can be achieved intrinsically, for any given stat. If the 
-character is started with the option of "maximize effect of race/class 
-bonuses" (from the Birth Options menu, and this is set as "on" by default), 
-the maximum figure of 18/100 is further adjusted by the adjustments for 
-race and class - for instance, a Half-Troll Warrior will max out at 18/190 
-strength, but only 18/40 intelligence, whereas a Hobbit Mage will be able 
-to reach 18/150 intelligence but only 18/30 strength. Equipment may add 
-bonuses or penalties to this, and raise the player's stats beyond the normal
+maximum that can be achieved intrinsically, for any given stat. 
+Equipment may add bonuses or penalties to this, 
+and raise the player's stats beyond the normal
 intrinsic limits: the stats may go as high as they like, with the right choice
 of equipment, but the effects of having higher stats largely stop at 18/200.
 

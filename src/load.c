@@ -643,6 +643,13 @@ static void rd_lore(int r_idx)
 	rd_u32b(&l_ptr->flags6);
 	rd_u32b(&l_ptr->flags7);
 
+	/* Oops */
+	if (!older_than(0, 6, 2))
+	{
+		rd_u32b(&l_ptr->flags8);
+		rd_u32b(&l_ptr->flags9);
+	}
+
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
@@ -660,6 +667,9 @@ static void rd_lore(int r_idx)
 	l_ptr->flags5 &= r_ptr->flags5;
 	l_ptr->flags6 &= r_ptr->flags6;
 	l_ptr->flags7 &= r_ptr->flags7;
+	l_ptr->flags8 &= r_ptr->flags8;
+	l_ptr->flags9 &= r_ptr->flags9;
+
 }
 
 
@@ -670,12 +680,38 @@ static void rd_lore(int r_idx)
  */
 static errr rd_store(int n)
 {
-	store_type *st_ptr = &store[n];
-
+	store_type *st_ptr;
 	int j;
 
 	byte own, num;
 
+	/* Make a new store */
+	C_MAKE(st_ptr, 1, store_type);
+
+	/* Copy basic information for older versions */
+	if (older_than(0, 6, 2))
+	{
+		/* Copy basic store information to it */
+		COPY(st_ptr, &u_info[f_info[t_info[p_ptr->town].store[n]].power], store_type);
+	}
+
+	else
+	{
+		/* Read the store index */
+		rd_byte(&st_ptr->index);
+
+		/* Copy basic store information to it */
+		COPY(st_ptr, &u_info[st_ptr->index], store_type);
+	}
+
+	/* Assume full stock */
+	st_ptr->stock_size = STORE_INVEN_MAX;
+
+	/* Allocate the stock */
+	C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+
+	/* Add it to the list of stores */
+	store[total_store_count++] = st_ptr;
 
 	/* Read the basic info */
 	rd_s32b(&st_ptr->store_open);
@@ -958,6 +994,17 @@ static errr rd_extra(void)
 	byte tmp8u;
 	u16b tmp16u;
 
+	int a_max = A_MAX;
+
+	if (older_than(0,6,2))
+	{
+		a_max = 6;
+		p_ptr->stat_max[A_AGI] = 11;
+		p_ptr->stat_cur[A_AGI] = 11;
+		p_ptr->stat_inc_tim[A_AGI] = 0;
+		p_ptr->stat_dec_tim[A_AGI] = 0;
+	}
+
 	rd_string(op_ptr->full_name, 32);
 
 	rd_string(p_ptr->died_from, 80);
@@ -1000,10 +1047,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->wt);
 
 	/* Read the stat info */
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_inc_tim[i]);
-	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_dec_tim[i]);
+	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_max[i]);
+	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_inc_tim[i]);
+	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_dec_tim[i]);
 
 	strip_bytes(24);	/* oops */
 
@@ -1046,6 +1093,10 @@ static errr rd_extra(void)
 	/* Ignore old redundant info */
 	p_ptr->psval=tmp8u;
 
+#if 0
+	/* Unfortunately, we can't say if it's vanilla character
+	 * and this psval hack breaks NONE characters */
+
 	/* Hack -- set styles for vanilla characters */
 	/* Mega Hack -- use psval == 1 to indicate we have applied this hack  */
 	if ((!p_ptr->pstyle) && (!p_ptr->psval))
@@ -1060,9 +1111,10 @@ static errr rd_extra(void)
 				break;
 			default:
 				p_ptr->psval = 1;
-			break;
+				break;
 		}
 	}
+#endif
 
 	/* Hack --- Get held_song information. */
 	rd_byte(&tmp8u); /* Oops */
@@ -1106,6 +1158,13 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+
+	if (!older_than(0, 6, 2))
+	{
+		rd_s16b(&p_ptr->oppose_water);
+		rd_s16b(&p_ptr->oppose_lava);
+	}
+
 	rd_s16b(&p_ptr->free_act);
 
 	rd_byte(&p_ptr->charging);
@@ -1117,8 +1176,22 @@ static errr rd_extra(void)
 
 	rd_u32b(&p_ptr->disease);
 
+	if (!older_than(0, 6, 2))
+	{
+		/* # of player turns */
+		rd_s32b(&p_ptr->player_turn);
+
+		/* # of turns spent resting */
+		rd_s32b(&p_ptr->resting_turn);
+	}
+	else
+	{
+		p_ptr->player_turn = 0;
+		p_ptr->resting_turn = 0;
+	}
+
 	/* Future use */
-	strip_bytes(36);
+	strip_bytes(28);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1172,19 +1245,40 @@ static errr rd_extra(void)
 	}
 
 
-	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_learned3);
-	rd_u32b(&p_ptr->spell_learned4);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_worked3);
-	rd_u32b(&p_ptr->spell_worked4);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_forgotten2);
-	rd_u32b(&p_ptr->spell_forgotten3);
-	rd_u32b(&p_ptr->spell_forgotten4);
+	/* Warn the player */
+	if (older_than(0, 6, 2) && (p_ptr->pclass == 4))
+	{
+		msg_print("Rangers have changed significantly since this save-file version.");
+		msg_print("You must choose now to either to retain the weapon style bonuses or offensive spells for this character.");
+		msg_print("");
+
+		if(!get_check("Continue? ")) return(-1);
+	}
+
+	/* Hack -- unlearn ranger spells */
+	if (older_than(0, 6, 2) && (p_ptr->pclass == 4) && (get_check("Retain weapon style bonuses and discard offensive spells? ")))
+	{
+		strip_bytes(48);
+	} 
+	else
+	{
+		/* Read spell info */
+		rd_u32b(&p_ptr->spell_learned1);
+		rd_u32b(&p_ptr->spell_learned2);
+		rd_u32b(&p_ptr->spell_learned3);
+		rd_u32b(&p_ptr->spell_learned4);
+		rd_u32b(&p_ptr->spell_worked1);
+		rd_u32b(&p_ptr->spell_worked2);
+		rd_u32b(&p_ptr->spell_worked3);
+		rd_u32b(&p_ptr->spell_worked4);
+		rd_u32b(&p_ptr->spell_forgotten1);
+		rd_u32b(&p_ptr->spell_forgotten2);
+		rd_u32b(&p_ptr->spell_forgotten3);
+		rd_u32b(&p_ptr->spell_forgotten4);
+
+		/* Hack -- change class to warrior mage instead */
+		if (older_than(0, 6, 2) && (p_ptr->pclass == 4)){  p_ptr->pclass = 10; p_ptr->pstyle = WS_NONE; p_ptr->psval = 0; }
+	}
 
 	/* Read in the spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
@@ -1317,7 +1411,7 @@ static errr rd_inventory(void)
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
 
 			/* One more item */
-			p_ptr->equip_cnt++;
+			if (!IS_QUIVER_SLOT(n)) p_ptr->equip_cnt++;
 		}
 
 		/* Warning -- backpack is full */
@@ -1346,6 +1440,9 @@ static errr rd_inventory(void)
 			p_ptr->inven_cnt++;
 		}
 	}
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
 
 	/* Success */
 	return (0);
@@ -1402,7 +1499,7 @@ static void rd_messages(void)
 static errr rd_dungeon(void)
 {
 	int i, y, x;
-int by, bx;
+	int by, bx;
 
 	s16b town;
 	s16b dungeon;
@@ -1413,6 +1510,8 @@ int by, bx;
 	byte count;
 	byte tmp8u;
 	u16b tmp16u;
+	u32b tmp32u;
+	s16b tmp16s;
 
 u16b limit;
 
@@ -1607,7 +1706,7 @@ u16b limit;
 	}
 
 
-	/*** Room descriptions ***/
+	/*** Room indexes ***/
 	for (bx = 0; bx < MAX_ROOMS_ROW; bx++)
 	{
 		for (by = 0; by < MAX_ROOMS_COL; by++)
@@ -1616,21 +1715,49 @@ u16b limit;
 		}
 	}
 
-	for (i = 1; i < DUN_ROOMS; i++)
+
+	/*** Read and discard old room descriptions ***/
+	if (older_than(0, 6, 2))
+	{
+		for (i = 1; i < 50; i++)
+		{
+			int j;
+
+			rd_byte(&tmp8u);
+			rd_u32b(&tmp32u);
+
+			if (!room_info[i].type)
+			{
+				for (j = 0; j < 15; j++)
+				{
+					rd_s16b(&tmp16s);
+
+					if (tmp16s == -1) break;
+				}
+			}
+		}
+
+		for (i = 1; i < DUN_ROOMS; i++)
+		{
+			room_info[i].type = ROOM_NONE;
+			room_info[i].section[0] = -1;
+		}
+	}
+
+	/*** Room descriptions ***/
+	else for (i = 1; i < DUN_ROOMS; i++)
 	{
 		int j;
 
-		rd_byte(&room_info[i].type);
+		rd_s16b(&room_info[i].type);
+		rd_s16b(&room_info[i].vault);
 		rd_u32b(&room_info[i].flags);
 
-		if (room_info[i].type == ROOM_NORMAL)
+		for (j = 0; j < ROOM_DESC_SECTIONS; j++)
 		{
-			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
-			{
-				rd_s16b(&room_info[i].section[j]);
+			rd_s16b(&room_info[i].section[j]);
 
-				if (room_info[i].section[j] == -1) break;
-			}
+			if (room_info[i].section[j] == -1) break;
 		}
 	}
 
@@ -1772,6 +1899,29 @@ u16b limit;
 		m_ptr->hold_o_idx = i;
 	}
 
+
+	/*** Read the ecology ***/
+	if (!older_than(0, 6, 2))
+	{
+		/* Read the ecology count */
+		rd_u16b(&limit);
+
+		/* Hack -- verify */
+		if (limit > MAX_ECOLOGY_RACES)
+		{
+			note(format("Too many (%d) ecology entries!", limit));
+			return (-1);
+		}
+
+		/* Read the ecology */
+		for (i = 1; i < limit; i++)
+		{
+			rd_s16b(&(cave_ecology.race[i]));
+		}
+
+		/* Ecology ready? */
+		cave_ecology.ready = (limit > 0);
+	}
 
 	/*** Success ***/
 
@@ -1957,7 +2107,7 @@ static errr rd_savefile_new_aux(void)
 	/* Read the artifact flags */
 	for (i = 0; i < z_info->a_max; i++)
 	{
-		object_lore *n_ptr = &a_list[i];
+		object_info *n_ptr = &a_list[i];
 
 		rd_byte(&tmp8u);
 		a_info[i].cur_num = (tmp8u != 0);
@@ -2026,10 +2176,41 @@ static errr rd_savefile_new_aux(void)
 
 	if (arg_fiddle) note("Loaded Ego Items");
 
-
 	/* Read the extra stuff */
 	if (rd_extra()) return (-1);
 	if (arg_fiddle) note("Loaded extra information");
+
+	/* Don't bother saving flavor flags if dead */
+	if ((!older_than(0, 6, 2)) && !(p_ptr->is_dead))
+	{
+		/* Load the Flavors */
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if (tmp16u > z_info->x_max)
+		{
+			note(format("Too many (%u) flavors!", tmp16u));
+			return (-1);
+		}
+
+		/* Read the flavor flags */
+		for (i = 0; i < tmp16u; i++)
+		{
+			object_info *n_ptr = &x_list[i];
+
+			rd_u32b(&n_ptr->can_flags1);
+			rd_u32b(&n_ptr->can_flags2);
+			rd_u32b(&n_ptr->can_flags3);
+			rd_u32b(&n_ptr->can_flags4);
+
+			rd_u32b(&n_ptr->not_flags1);
+			rd_u32b(&n_ptr->not_flags2);
+			rd_u32b(&n_ptr->not_flags3);
+			rd_u32b(&n_ptr->not_flags4);
+		}
+
+		if (arg_fiddle) note("Loaded Flavors");
+	}
 
 	/* Read random artifacts */
 	if (adult_rand_artifacts)
@@ -2107,16 +2288,45 @@ static errr rd_savefile_new_aux(void)
 
 			/* Set the max_depth */
 			t_info[i].max_depth = tmp8u;
+
+			/* Read the store indexes */
+			if (!older_than(0, 6, 2) && !p_ptr->is_dead)
+			{
+				/* Load the number of stores */
+				rd_byte(&tmp8u);
+
+				for (j = 0; j < tmp8u; j++)
+				{
+					/* Load the store index */
+					rd_u16b(&t_info[i].store_index[j]);
+				}
+			}
 		}
 	}
 
-	/* Read the stores */
-	rd_u16b(&tmp16u);
-	for (i = 0; i < tmp16u; i++)
+	/* Don't read stores anymore if dead */
+	if (!p_ptr->is_dead || older_than(0, 6, 2))
 	{
-		if (rd_store(i)) return (-1);
-	}
+		/* Read the stores */
+		rd_u16b(&tmp16u);
 
+		/* Hack -- for older versions */
+		if (older_than(0, 6, 2)) total_store_count++;
+
+		for (i = 0; i < tmp16u; i++)
+		{
+			if (rd_store(i)) return (-1);
+		}
+
+		/* Hack -- for older versions */
+		if (older_than(0, 6, 2))
+		{
+			store[STORE_HOME] = store[7];
+
+			/* Paranoia */
+			if (tmp16u == 8) total_store_count--;
+		}
+	}
 
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
@@ -2131,6 +2341,12 @@ static errr rd_savefile_new_aux(void)
 
 		/* Read the ghost info */
 		rd_ghost();
+	}
+
+	/* Get the stores */
+	if (older_than(0, 6, 2))
+	{
+
 	}
 
 
@@ -2237,6 +2453,8 @@ bool load_player(void)
 
 	/* Paranoia */
 	turn = 0;
+	p_ptr->player_turn  = 0;
+	p_ptr->resting_turn = 0;
 
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;
@@ -2465,6 +2683,7 @@ bool load_player(void)
 
 			/* Forget turns */
 			turn = old_turn = 0;
+			p_ptr->player_turn = p_ptr->resting_turn = 0;
 
 			/* Done */
 			return (TRUE);

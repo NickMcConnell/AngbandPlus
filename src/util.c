@@ -3775,7 +3775,7 @@ void request_command(bool shopping)
 
 
 	/* Hack -- Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		cptr s;
 
@@ -4808,4 +4808,76 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 
 	/* Return success / failure */
 	return (flag);
+}
+
+
+/*
+ * Create a new grid queue. "q" must be a pointer to an unitialized
+ * grid_queue_type structure. That structure must be already allocated
+ * (it can be in the system stack).
+ * You must supply the maximum number of grids for the queue
+ */
+void grid_queue_create(grid_queue_type *q, size_t max_size)
+{
+	/* Remember the maximum size */
+	q->max_size = max_size;
+
+	/* Allocate the grid storage */
+	C_MAKE(q->data, max_size, coord);
+
+	/* Initialize head and tail of the queue */
+	q->head = q->tail = 0;
+}
+
+/*
+ * Free the resources used by a queue
+ */
+void grid_queue_destroy(grid_queue_type *q)
+{
+	/* Free the allocated grid storage */
+	if (q->data)
+	{
+		FREE(q->data);
+	}
+
+	/* Clear all */
+	WIPE(q, grid_queue_type);
+}
+
+/*
+ * Append a grid at the tail of the queue, given the coordinates of that grid.
+ * Returns FALSE if the queue is full, or TRUE on success.
+ */
+bool grid_queue_push(grid_queue_type *q, byte y, byte x)
+{
+	/* Check space */
+	if (GRID_QUEUE_FULL(q)) return (FALSE);
+
+	/* Append the grid */
+	q->data[q->tail].y = y;
+	q->data[q->tail].x = x;
+
+	/*
+	 * Update the tail of the queue.
+	 * The queue is circular, note tail adjustment
+	 */
+	q->tail = (q->tail + 1) % q->max_size;
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
+ * Remove the grid at the front of the queue
+ */
+void grid_queue_pop(grid_queue_type *q)
+{
+	/* Something to pop? */
+	if (GRID_QUEUE_EMPTY(q)) return;
+
+	/*
+	 * Update the head of the queue.
+	 * The queue is circular, note head adjustment
+	 */
+	q->head = (q->head + 1) % q->max_size;
 }

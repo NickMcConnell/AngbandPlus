@@ -3,13 +3,13 @@
              | | | |_ _   /_\  _ _  __ _| |__  __ _ _ _  __| |
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
-           The Unnamed Angband                |___/    v0.6.1a                 
+           The Unnamed Angband      |___/              v0.6.2                  
 
                    Earlier versions of Angband & Moria by:
       Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
-             Charles Swiger, Ben Harrison and Robert Ruehlmann.
-
-        UnAngband 0.5.4a by Andrew Doull, Mogami, and Andrew Sidwell
+             Charles Swiger, Ben Harrison, Robert Ruehlmann and others.
+              Unangband 0.6.2 by Andrew Doull and Mikolaj Konarski.
+        UnAngband 0.5.4a by Andrew Doull, Mogami, and Andrew Sidwell.
                Other versions of UnAngband by Andrew Doull.
   This program incorporates code from other Angband variants: NPPAngband &
    Sangband under the Angband license and Angband Open Source Initiative.

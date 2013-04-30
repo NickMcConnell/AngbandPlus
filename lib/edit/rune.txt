@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 N:0:unruned
 
@@ -30,7 +30,8 @@ Y:2:RES_CONFU
 
 N:3:Blood
 B:SELF:HEAL:0d0+0
-Y:2:REGEN
+Y:2:REGEN_HP
+Y:3:REGEN_MANA
 
 N:4:Cloud
 B:CLOUD:POISON:0d0+0

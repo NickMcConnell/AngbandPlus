@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 
 ##### Rings #####
@@ -1051,7 +1051,6 @@ N:251:75
 G:!:y
 D:Gold
 
-
 ##### Scrolls #####
 
 # Scroll names are generated from randomly combined syllables
@@ -1845,3 +1844,98 @@ G:?:w
 
 N:465:70
 G:?:w
+
+# Additional flavours for potions (from S)
+
+N:466:75
+G:!:o
+D:Amber
+
+N:467:75
+G:!:u
+D:Auburn
+
+N:468:75
+G:!:B
+D:Clear Blue
+
+N:469:75
+G:!:b
+D:Cobalt
+# was G:!:Z in Sang
+
+N:470:75
+G:!:s
+D:Frothing
+
+N:471:75
+G:!:U
+D:Golden Brown
+
+N:472:75
+G:!:W
+D:Ivory White
+
+N:473:75
+G:!:v
+D:Lavender
+# was G:!:V in Sang
+
+N:474:75
+G:!:w
+D:Moldy
+# was G:!:m in Sang
+
+N:475:75
+G:!:U
+D:Muddy
+# was G:!:m in Sang
+
+N:476:75
+G:!:G
+D:Mustard Green
+# was G:!:M in Sang
+
+N:477:75
+G:!:g
+D:Myrtle Green
+
+N:478:75
+G:!:R
+D:Peach
+# was G:!:I in Sang
+
+N:479:75
+G:!:w
+D:Pearl-grey
+
+N:480:75
+G:!:R
+D:Rosy
+
+N:481:75
+G:!:B
+D:Sea-blue
+# was G:!:t in Sang
+
+N:482:75
+G:!:w
+D:Shining
+# was G:!:T in Sang
+
+N:483:75
+G:!:G
+D:Sickly Green
+
+N:484:75
+G:!:u
+D:Tawny
+
+N:485:75
+G:!:U
+D:Turgid
+
+N:486:75
+G:!:u
+D:Umber
+

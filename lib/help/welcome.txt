@@ -103,9 +103,9 @@ be taken directly to the character creation screen, or you may have to ask
 to create a new character.  In either case, you will be shown the character
 information screen, and you will be asked a series of questions.  For this
 demo, press "a" three times to select a "female human warrior" character.
-Then press "n" when asked about preserve mode and maximize mode, and when
-asked if you wish to use the autoroller.  You will now be presented with a
-description of your character.  Look over the description briefly, there is
+Then press "n" when asked if you wish to use the autoroller.  
+You will now be presented with a description of your character.  
+Look over the description briefly, there is
 a lot of information here, and most of it will not make any sense.  Press
 escape three times and your character will be placed into the "town".
 

@@ -1400,6 +1400,7 @@ static errr init_other(void)
 {
 	int i, n;
 
+	int total_store_size = 0;
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -1479,13 +1480,13 @@ static errr init_other(void)
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
 	/* Lore */
-	C_MAKE(a_list, z_info->a_max, object_lore);
+	C_MAKE(a_list, z_info->a_max, object_info);
 
 	/* Lore */
 	C_MAKE(e_list, z_info->e_max, object_lore);
 
 	/* Lore */
-	C_MAKE(k_list, z_info->k_max, object_lore);
+	C_MAKE(x_list, z_info->x_max, object_info);
 
 	/*** Prepare quest array ***/
 
@@ -1506,33 +1507,32 @@ static errr init_other(void)
 		for (n = 0; n < INVEN_BAG_TOTAL; n++)
 			bag_contents[i][n] = 0;
 
+	/* Initialize bag kind cache */
+	for (i = 0; i < SV_BAG_MAX_BAGS; i++)
+		for (n = 0; n < INVEN_BAG_TOTAL; n++)
+			bag_kinds_cache[i][n] = lookup_kind(bag_holds[i][n][0], bag_holds[i][n][1]);
 
 	/*** Prepare the dungeons ***/
 
-	/* Initialize maximum depth */
+	/* Initialize maximum depth and count stores */
 	for (i = 0; i < z_info->t_max; i++)
+	{
 		t_info[i].max_depth = 0;
+
+		for (n = 0; n < MAX_STORES; n++)
+		{
+			if (t_info[i].store[n]) total_store_size++;
+		}
+	}
 
 
 	/*** Prepare the stores ***/
 
-	/* Allocate the stores */
-	C_MAKE(store, MAX_STORES, store_type);
+	/* Set zero stores initially. Stores get initialized at load time or when first entering a store. */
+	total_store_count = 0;
 
-	/* Fill in each store */
-	for (i = 0; i < MAX_STORES; i++)
-	{
-		/* Get the store */
-		store_type *st_ptr = &store[i];
-
-		/* Assume full stock */
-		st_ptr->stock_size = STORE_INVEN_MAX;
-
-		/* Allocate the stock */
-		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-
-	}
-
+	/*** Allocate space for the maximum number of stores */
+	C_MAKE(store, total_store_size, store_type_ptr);
 
 	/*** Prepare the options ***/
 
@@ -2240,18 +2240,18 @@ void cleanup_angband(void)
 	if (store)
 	{
 		/* Free the store inventories */
-		for (i = 0; i < MAX_STORES; i++)
+		for (i = 0; i < total_store_count; i++)
 		{
 			/* Get the store */
-			store_type *st_ptr = &store[i];
+			store_type *st_ptr = store[i];
 
 			/* Free the store inventory */
 			FREE(st_ptr->stock);
+
+			/* Free the store */
+			FREE(st_ptr);
 		}
 	}
-
-	/* Free the stores */
-	FREE(store);
 
 	/* Free the player inventory */
 	FREE(inventory);

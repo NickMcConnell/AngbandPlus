@@ -703,28 +703,30 @@ bool set_stastis(int v)
 /*
  * Array of stat "descriptions"
  */
-cptr desc_stat_imp[] =
+cptr desc_stat_imp[A_MAX] =
 {
 	"stronger",
 	"smarter",
 	"wiser",
 	"more dextrous",
 	"healthier",
-	"cuter"
+	"cuter",
+	"more agile"
 };
 
 
 /*
  * Array of stat "descriptions"
  */
-static cptr desc_stat_imp_end[] =
+cptr desc_stat_imp_end[A_MAX] =
 {
 	"strong",
 	"smart",
 	"wise",
 	"dextrous",
 	"healthy",
-	"cute"
+	"cute",
+	"agile"
 };
 
 
@@ -788,7 +790,8 @@ cptr desc_stat_dec[] =
 	"more naive",
 	"clumsier",
 	"sicklier",
-	"uglier"
+	"uglier",
+	"more slugish"
 };
 
 
@@ -802,7 +805,8 @@ static cptr desc_stat_dec_end[] =
 	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"ugly",
+	"slugish"
 };
 
 /*
@@ -2476,13 +2480,16 @@ void improve_aware(void)
 }
 
 
+static int stat_gain_selection[PY_MAX_STAT_GAIN];
+static int stat_gain_selected;
+
 
 /*
  * Print a list of stats (for improvement).
  */
 void print_stats(const s16b *sn, int num, int y, int x)
 {
-	int i;
+	int i, j;
 
 	byte attr;
 
@@ -2494,98 +2501,148 @@ void print_stats(const s16b *sn, int num, int y, int x)
 	{
 		attr = TERM_WHITE;
 
-		if (p_ptr->stat_cur[sn[i]] == 18 + 100) attr = TERM_L_DARK;
-		if (p_ptr->stat_cur[sn[i]]<p_ptr->stat_max[sn[i]]) attr = TERM_YELLOW;
+		if (p_ptr->stat_cur[sn[i]] < p_ptr->stat_max[sn[i]]) attr = TERM_YELLOW;
+		if (p_ptr->stat_max[sn[i]] == 18 + 999) attr = TERM_L_DARK;
 
-		/* Hack -- Dump the stat - hack from magic_name table */
+		for (j = 0; j < stat_gain_selected; j++)
+		{
+			if (stat_gain_selection[j] == i) attr = TERM_L_BLUE;
+		}
+
+		/* Display the label */
 		c_prt(attr, format("  %c) ", I2A(i)), y + i + 1, x);
+
+		/* Display the stats */
+		display_player_stat_info(y + 1, x + 5, i, i + 1, attr);	
 	}
 
 	/* Display drop-shadow */
 	prt("", y + i + 1, x);
-
-	/* Display the stats */
-	display_player_stat_info(y + 1, x + 5);
 }
 
 
 /*
- * Improve one stat, preferring lowest stats
- * Note hack to always improve the maximal value of a stat.
+ * Improve a player-chosen set of stats.
+ * TODO: upon pressing ESC restart the choice.
+ * Note the hack to always improve the maximal value of a stat.
  */
 static void improve_stat(void)
 {
 	int tmp = 0;
-	int i, selection;
+	int i;
 
-	s16b table[A_CHR+1];
+	s16b table[A_MAX+1];
+
+	char buf[32];
 
 	cptr p = "";
 
-	bool okay = FALSE;
+	int count = 0;
 
 #ifdef ALLOW_BORG
 	if (count_stop) return;
 #endif
 
 	/* Check which stats can still be improved */
-	for (i = 0; i <= A_CHR; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		table[i] = i;
-		if (p_ptr->stat_cur[i] < 18 + 100) okay = TRUE;
+		if (p_ptr->stat_max[i] < 18 + 999) count++;
 	}
 
 	/* No stats left to improve */
-	if (!okay) return;
+	if (!count) return;
 
-	/* Should be paranoid here */
-	while (TRUE)
+	/* Reduce count to number of abilities allowed improvements */
+	if (count > stat_gains[p_ptr->lev -1]) count = stat_gains[p_ptr->lev -1];
+
+	/* Confirm stat selection */
+	while (count)
 	{
-		/* Select stat to improve */
-		if (get_list(print_stats, table, 6, "Attribute", "Improve which attribute", 1, 37, &selection))
+		/* Improve how many stats with level gain */
+		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 		{
-			/* Check if stat at maximum */
-			if (p_ptr->stat_cur[selection] >= 18 + 100)
+			/* Should be paranoid here */
+			while (TRUE)
 			{
-				msg_format("You cannot get any %s",desc_stat_imp[selection]);
-			}
+				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected); 
 
-			/* Always verify */
-			else if (!(get_check(format("Are you sure you want to be %s? ", desc_stat_imp[selection]))))
-			{
-				/* Nothing */
-			}
+				/* Select stat to improve */
+				if (get_list(print_stats, table, A_MAX, "Attribute", buf, 1, 41, &(stat_gain_selection[stat_gain_selected])))
+				{
+					/* Check if stat at maximum */
+					if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
+					{
+						msg_format("You cannot get any %s",desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
+					}
 
-			/* Good selection */
-			else
-			{
-				break;
+					/* Good stat_gain_selection? */
+					else
+					{
+						bool okay = TRUE;
+
+						/* Check we are not improving another stat */
+						for (i = 0; i < stat_gain_selected; i++)
+						{
+							if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
+						}
+
+						if (okay)
+							break;
+						else
+							msg_print("You must choose another attribute.");
+					}
+				}
 			}
 		}
+
+		/* Save screen */
+		screen_save();
+
+		/* Redisplay stats */
+		print_stats(table, A_MAX, 1, 41);
+
+		/* Confirm? */
+		if (get_check("Increasing highlighted stats. Are you sure? "))
+		{
+			/* Load screen */
+			screen_load();
+
+			break;
+		}
+
+		/* Load screen */
+		screen_load();
 	}
-
-	/* Display */
-	if (p_ptr->stat_cur[selection]<p_ptr->stat_max[selection])
+	
+	/* Improve how many stats with level gain */
+	for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 	{
-		/* Set description */
-		p = "you could be ";
+		/* Display */
+		if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
+		{
+			/* Set description */
+			p = "you could be ";
 
-		/* Hack --- store stat */
-		tmp = p_ptr->stat_cur[selection];
-		p_ptr->stat_cur[selection] = p_ptr->stat_max[selection];
-	}
+			/* Hack --- store stat */
+			tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
+			p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
+		}
+		else
+		{ 
+			p = "";
+			tmp = 0;
+		}
 
-	/* Attempt to increase */
-	if (inc_stat(selection))
-	{
+		/* Increase */
+		inc_stat(stat_gain_selection[stat_gain_selected]);
+
 		/* Message */
-		msg_format("You feel %s%s.",p,desc_stat_imp[selection]);
+		msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
 
+		/* Hack --- restore stat */
+		if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
 	}
-
-	/* Hack --- restore stat */
-	if (tmp) p_ptr->stat_cur[selection] = tmp;
-
 }
 
 
@@ -2607,9 +2664,47 @@ void check_experience(void)
 	/* Hack -- upper limit */
 	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
 
-
 	/* Hack -- maintain "max" experience */
-	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
+	if (p_ptr->exp > p_ptr->max_exp)
+	{
+		int adjust = -1;
+		s32b new_exp = p_ptr->exp;
+		s32b new_exp_frac = p_ptr->exp_frac;
+
+		/* Gain levels while possible */
+		while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+		       (p_ptr->exp >= (player_exp[p_ptr->max_lev+adjust] *
+				       p_ptr->expfact / 100L)))
+		{
+
+			/* Reduce outstanding experience after level gain */
+			p_ptr->exp = (player_exp[p_ptr->max_lev+adjust] * p_ptr->expfact / 100L) +
+				(p_ptr->exp - (player_exp[p_ptr->max_lev+adjust] * p_ptr->expfact / 100L)) * (p_ptr->max_lev + adjust + 1) / (p_ptr->max_lev + adjust + 2);
+
+			/* Modify adjustment */
+			adjust++;
+		}
+
+		/* Add fractional experience */
+		/* Handle fractional experience */
+		if (adjust > -1) new_exp_frac = (((new_exp * (p_ptr->max_lev + adjust + 1)) % (p_ptr->max_lev + adjust + 2))
+				* 0x10000L / (p_ptr->max_lev + adjust + 2)) + p_ptr->exp_frac;
+
+		/* Keep track of experience */
+		if (new_exp_frac >= 0x10000L)
+		{
+			p_ptr->exp++;
+			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+		}
+		else
+		{
+			p_ptr->exp_frac = (u16b)new_exp_frac;
+		}
+
+		/* Set new maximum experience */
+		p_ptr->max_exp = p_ptr->exp;
+
+	}
 
 	/* Redraw experience */
 	p_ptr->redraw |= (PR_EXP);
@@ -3066,7 +3161,14 @@ void monster_death(int m_idx)
 			/* Make an object */
 			if (!make_object(i_ptr, good, great)) continue;
 
-			if (food_type) l_ptr->flags9 |= (RF9_DROP_MUSHROOM);
+			/* Hack -- chest/bag mimics drop matching tvals */
+			if ((r_ptr->flags1 & (RF1_CHAR_MULTI)) && (r_ptr->d_char == '&')) tval_drop_idx = i_ptr->tval;
+
+			/* Hack -- mimics */
+			if (r_ptr->flags1 & (RF1_CHAR_MULTI)) l_ptr->flags1 |= (RF1_CHAR_MULTI);
+
+			/* Learn about drops */
+			else if (food_type) l_ptr->flags9 |= (RF9_DROP_MUSHROOM);
 
 			/* Hack -- ignore bodies */
 			else switch (i_ptr->tval)
@@ -3187,6 +3289,9 @@ void monster_death(int m_idx)
 
 	/* Reset "coin" type */
 	coin_type = 0;
+
+	/* Reset "tval drop" type */
+	tval_drop_idx = 0;
 
 	/* Reset "monster drop" type */
 	race_drop_idx = 0;
@@ -3332,7 +3437,7 @@ void monster_death(int m_idx)
 	if ((r_ptr->flags1 & (RF1_GUARDIAN)) && (p_ptr->depth != min_depth(p_ptr->dungeon)))
 	{
 		/* Stagger around */
-		while (!cave_valid_bold(y, x) && !cave_clean_bold(y, x))
+		while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
 		{
 			int d = 1;
 
@@ -3406,6 +3511,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b div, new_exp, new_exp_frac;
+	byte new_level;
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -3470,12 +3576,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
+		monster_desc(m_name, m_idx, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+
 		}
 
 		/* Death by physical attack -- invisible monster */
@@ -3489,13 +3596,29 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			 (r_ptr->flags2 & (RF2_STUPID)))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
+
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
+
 		}
+
+		/* Death by Physical attack -- non-living monster */
+		if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+			 (r_ptr->flags2 & (RF2_STUPID)))
+		{
+			/* Warn allies */
+			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has destroyed one of us!");
+		}
+		else
+		{
+			/* Warn allies */
+			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has killed one of us!");
+		}
+
 
 		/* Maximum player level */
 		div = p_ptr->max_lev;
@@ -3503,9 +3626,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
 
+		/* Base adjustment */
+		new_level = -1;
+
 		/* Handle fractional experience */
 		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
 				* 0x10000L / div) + p_ptr->exp_frac;
+
+		
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
@@ -3570,23 +3698,35 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* No more fear */
 			(*fear) = FALSE;
+
+			/* Warn allies */
+			tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
 		}
 	}
 
 	/* Sometimes a monster gets scared by damage */
 	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
-		int percentage;
+		long oldhp, newhp, tmp;
+		int percentage, fitness;
 
-		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		/* Note -- subtle fix -CFT */
+		newhp = (long)(m_ptr->hp);
+		oldhp = newhp + (long)(dam);
+		tmp = (newhp * 100L) / (oldhp);
+		percentage = (int)(tmp);
+
+		/* Percentage of fully healthy. Note maxhp can be zero. */
+		fitness = (100L * (m_ptr->hp + 1)) / (m_ptr->maxhp + 1);
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
-		 * or (usually) when hit for half its current hit points
+		 * or (more often) when hit for 11% or more its current hit points
+		 * 
+		 * Percentages depend on player's charisma.
 		 */
-		if ((randint(10) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (rand_int(5))))
+		if ((randint(adj_chr_fear[p_ptr->stat_ind[A_CHR]]) >= fitness) ||
+		    ((percentage > 10) && (rand_int(adj_chr_fear[p_ptr->stat_ind[A_CHR]] * percentage) > 100)) )
 		{
 			int fear_amt;
 
@@ -3714,23 +3854,29 @@ bool change_panel(int dir)
  */
 static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
 {
+	bool scan_name = FALSE;
+	bool scan_desc = FALSE;
+	bool beware = FALSE;
+
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	dungeon_zone *zone=&t_ptr->zone[0];
+
+	/* Get the zone */ 
+	get_zone(&zone,p_ptr->dungeon,max_depth(p_ptr->dungeon));
+
 	/* Initialize text */
 	strcpy(name, "");
-	strcpy(text_always, "");
-	strcpy(text_visible, "");
+	if (text_always) strcpy(text_always, "");
+	if (text_visible) strcpy(text_visible, "");
 
 	/* Town or not in room */
 	if (!room)
 	{
-		town_type *t_ptr = &t_info[p_ptr->dungeon];
-		dungeon_zone *zone=&t_ptr->zone[0];
-
-		/* Get the zone */ 
-		get_zone(&zone,p_ptr->dungeon,max_depth(p_ptr->dungeon));
-
 		if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || (!zone->fill))
 		{
 			strcpy(name, t_name + t_ptr->name);
+
+			if (!text_always) return;
 
 			/* If defeated guardian, tell the player */
 			if ((zone->guard) && (!r_info[zone->guard].max_num))
@@ -3759,7 +3905,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			else
 			{
 				/* Describe location */
-				strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+				strcpy(text_always, t_text + t_ptr->text);
 
 				/* Describe the guardian */
 				if (zone->guard)
@@ -3767,17 +3913,17 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 					if (strlen(text_always)) strcat(text_always,"  ");
 
 					/* Path to be opened */
-					if ((t_info[p_ptr->dungeon].distant != p_ptr->dungeon) && (adult_campaign))
+					if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
 					{
 						strcat(text_always, format("The path to %s is guarded by %s, who you must defeat ",
-							t_name + t_info[t_info[p_ptr->dungeon].distant].name,
+							t_name + t_info[t_ptr->distant].name,
 							r_name + r_info[zone->guard].name));
 					}
 					/* Dungeon guardian */
 					else
 					{
 						strcat(text_always, format("%^s is guarded by %s, who you must defeat ",
-							t_name + t_info[p_ptr->dungeon].name,
+							t_name + t_ptr->name,
 							r_name + r_info[zone->guard].name));
 					}
 
@@ -3785,7 +3931,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 					if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, "here");
 
 					/* Guards top of tower */					
-					if (t_info[p_ptr->dungeon].zone[0].tower)
+					if (t_ptr->zone[0].tower)
 					{
 						if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, " or ");
 						strcat(text_always, "at the top of the tower");
@@ -3813,170 +3959,178 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 	/* In room */
 	switch (room_info[room].type)
 	{
-		case (ROOM_LARGE):
+		case (ROOM_TOWER):
 		{
-			strcpy(name, "large chamber");
-			strcpy(text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
-			return;
+			strcpy(name, "the tower of ");
+			strcat(name, t_name + t_ptr->name);
+
+			/* Brief description */
+			if (text_visible) strcpy(text_visible, "This tower is filled with monsters and traps.  ");
+
+			/* Describe height of tower */
+			if (text_visible)
+			{
+				strcpy(text_visible, format("It looks about %d feet tall.  ", (max_depth(p_ptr->dungeon) - min_depth(p_ptr->dungeon) + 1) * 50));
+			}
+			break;
 		}
 
-		case (ROOM_NEST_THEME):
+		case (ROOM_LAIR):
 		{
-			strcpy(name, "monster den");
-			strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
-			return;
-		}
+			monster_race *r_ptr = &r_info[room_info[room].vault];
 
-		case (ROOM_NEST_JELLY):
-		{
-			strcpy(name, "jelly pit");
-			strcpy(text_always, "An overpowering stench pervades the air here, which is unnaturally humid.");
-			return;
-		}
+			strcpy(name, "the lair of ");
+			strcat(name, r_name + r_ptr->name);
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) == 0) strcat(name, "s");
 
-		case (ROOM_NEST_ANIMAL):
-		{
-			strcpy(name, "zoo");
-			strcpy(text_visible, "This room contains a wide assortment of animals, probably collected by some mad spellcaster.");
-			return;
-		}
+			if (text_visible) strcpy(text_visible, "This is the lair of ");
+			if (text_visible) strcat(text_visible, r_name + r_ptr->name);
+			if ((text_visible) && ((r_ptr->flags1 & (RF1_UNIQUE)) == 0)) strcat(name, "s");
+			if (text_visible) strcat(text_visible, ".  ");
+			if (text_visible) strcat(text_visible, r_text + r_ptr->name);
+			beware = TRUE;
 
-		case (ROOM_NEST_UNDEAD):
-		{
-			strcpy(name, "graveyard");
-			strcpy(text_visible, "This room is full of corpses. Some of them don't seem to be still.");
-			return;
-		}
-
-		case (ROOM_PIT_THEME):
-		{
-			strcpy(name, "monster pit");
-			strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
-			return;
-		}
-
-		case (ROOM_PIT_ORC):
-		{
-			strcpy(name, "orc pit");
-			strcpy(text_visible, "You have stumbled into the barracks of a group of war-hungry orcs.");
-			return;
-		}
-		case (ROOM_PIT_TROLL):
-		{
-			strcpy(name, "troll pit");
-			strcpy(text_visible, "You have stumbled into a conclave of several troll clans. Filth lines the walls, ");
-			strcat(text_visible, "and the floor is covered with crushed bones and mangled equipment.");
-			strcpy(text_always, "The stink is unbearable.");
-			return;
-		}
-
-		case (ROOM_PIT_GIANT):
-		{
-			strcpy(name, "giant pit");
-			strcpy(text_visible, "You have stumbled into an immense cavern where giants dwell.");
-			return;
-		}
-		case (ROOM_PIT_DRAGON):
-		{
-			strcat(name, "dragon pit");
-			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
-			return;
-                }
-		case (ROOM_PIT_DEMON):
-		{
-			strcpy(name, "demon pit");
-			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
-			return;
+			break;
 		}
 
 		case (ROOM_GREATER_VAULT):
 		{
-			strcpy(name, "greater vault");
-			strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
-			strcat(text_visible, "deadly monsters and rich treasure.");
-			strcpy(text_always, "Beware!");
-			return;
+			strcpy(name, "greater ");
+
+			if (text_visible) strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+			if (text_visible) strcat(text_visible, "deadly monsters and rich treasure.  ");
+			beware = TRUE;
+
+			/* Fall through */	
 		}
+
 		case (ROOM_LESSER_VAULT):
 		{
-			strcpy(name, "lesser vault");
-			strcpy(text_visible, "This vault is larger than most you have seen and contains more than ");
-			strcat(text_visible, "its share of monsters and treasure.");
-			return;
-		}
-		case (ROOM_TOWER):
-		{
-			strcpy(name, "tower");
-			strcpy(text_visible, "This tower is filled with monsters and traps.");
-			return;
-		}
-		case (ROOM_NORMAL):
-		{
-			int i, j, n;
-
-			char *s;
-
-			char buf_text1[240];
-			char buf_text2[240];
-			char buf_name1[16];
-			char buf_name2[16];
-
-			/* Clear the history text */
-			buf_text1[0] = '\0';
-			buf_text2[0] = '\0';
-
-			/* Clear the name1 text */
-			buf_name1[0] = '\0';
-
-			/* Clear the name2 text */
-			buf_name2[0] = '\0';
-			
-			i = 0;
-
-			while ((j = room_info[room].section[i++]) != -1)
+			/* Display vault name */
+			if ((v_name + v_info[room_info[room].vault].name)[0] == '\'')
 			{
-				/* Visible description or always present? */
-				if (d_info[j].flags & (ROOM_SEEN))
-				{
-					/* Get the textual history */
-					strcat(buf_text1, (d_text + d_info[j].text));
-				}
-				else
-				{
-					/* Get the textual history */
-					strcat(buf_text2, (d_text + d_info[j].text));
-				}
-
-				/* Get the name1 text if needed */
-				if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
-
-				/* Get the name2 text if needed */
-				if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+				strcat(name, "vault ");
+				strcat(name, v_name + v_info[room_info[room].vault].name);
+			}
+			else
+			{
+				strcat(name, "vault");
 			}
 
-			/* Skip leading spaces */
-			for (s = buf_text1; *s == ' '; s++) /* loop */;
+			scan_desc = TRUE;
+			break;
+		}
 
-			/* Get apparent length */
-			n = strlen(s);
+		case (ROOM_INTERESTING):
+		{
+			strcat(name, v_name + v_info[room_info[room].vault].name);
+			if (text_visible) strcpy(text_visible, "There is something remarkable here.  ");
+			break;
+		}
 
-			/* Kill trailing spaces */
-			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+		case (ROOM_CHAMBERS):
+		{
+			if (text_visible) strcpy(text_visible, "This is one of many rooms crowded with monsters.  ");
+			scan_name = TRUE;
+			scan_desc = TRUE;
+			break;
+		}
 
-			/* Set the visible description */
-			strcpy(text_visible, s);
+		default:
+		{
+			scan_name = TRUE;
+			scan_desc = TRUE;
+			break;
+		}
+	}
 
-			/* Skip leading spaces */
-			for (s = buf_text2; *s == ' '; s++) /* loop */;
+	/* Read through and display the description if required */
+	if ((scan_name) || (scan_desc))
+	{
+		int i, j;
 
-			/* Get apparent length */
-			n = strlen(s);
+		char buf_name1[16];
+		char buf_name2[16];
+		char *last_buf = NULL;
 
-			/* Kill trailing spaces */
-			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+		/* Clear the name1 text */
+		buf_name1[0] = '\0';
 
-			/* Set the visible description */
-			strcpy(text_always, s);
+		/* Clear the name2 text */
+		buf_name2[0] = '\0';
+			
+		i = 0;
+
+		while ((room >= 0) && (i < ROOM_DESC_SECTIONS))
+		{
+			/* Get description */
+			j = room_info[room].section[i++];
+
+			/* End of description */
+			if (j < 0) break;
+
+			/* Get the name1 text if needed */
+			if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
+
+			/* Get the name2 text if needed */
+			if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+
+			/* Need description? */
+			if (!scan_desc) continue;
+
+			/* Must understand language? */
+			if (d_info[j].flags & (ROOM_LANGUAGE))
+			{
+				/* Does the player understand the main language of the level? */
+				if ((last_buf) && (cave_ecology.ready) && (cave_ecology.num_races)
+					&& player_understands(monster_language(cave_ecology.race[0])))
+				{
+					/* Get the textual history */
+					strcat(last_buf, (d_text + d_info[j].text));
+				}
+				else if (last_buf)
+				{
+					/* Fake it */
+					strcat(last_buf, "nothing you can understand.  ");
+
+					/* Clear last buf to skip remaining language lines */
+					last_buf = NULL;
+				}
+
+				/* Diagnostics */
+				if ((cheat_xtra) && (last_buf)) strcat(last_buf, format("%d", i));
+			}
+
+			/* Visible description */
+			else if (d_info[j].flags & (ROOM_SEEN))
+			{
+				/* Get the textual history */
+				if (text_visible) strcat(text_visible, (d_text + d_info[j].text));
+
+				/* Record last buffer for language */
+				last_buf = text_visible;
+
+				/* Diagnostics */
+				if ((cheat_xtra) && (text_visible)) strcat(text_visible, format("%d", i));
+			}
+
+			/* Description always present */
+			else
+			{
+				/* Get the textual history */
+				if (text_always) strcat(text_always, (d_text + d_info[j].text));
+
+				/* Record last buffer for language */
+				last_buf = text_always;
+
+				/* Diagnostics */
+				if ((cheat_xtra) && (text_always)) strcat(text_always, format("%d", i));
+			}
+		}
+
+		/* Set the name if required */
+		if (scan_name)
+		{
 
 			/* Set room name */
 			if (strlen(buf_name1)) strcpy(name, buf_name1);
@@ -3993,21 +4147,22 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 				{
 					strcpy(name, buf_name2);
 				}
-
 			}
-
 		}
 	}
 
-	if (cheat_room)
+	/* Beware */
+	if ((beware) && (text_always)) strcpy(text_always, "Beware!  ");
+
+	if ((cheat_room) && (text_always))
 	{
-		if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"  This room cannot be teleported into.");
-		if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"  This room prevent you naturally healing your wounds.");
-		if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"  This room makes you vulnerable to being hit.");
-		if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"  This room cannot be magically lit.");
-		if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"  This room magically teleports you occasionally.");
-		if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"  This room prevents you casting spells.");
-		if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"  This room prevents you using wands, staffs or rods.");
+		if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"This room cannot be teleported into.  ");
+		if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"This room prevent you naturally healing your wounds.  ");
+		if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"This room makes you vulnerable to being hit.  ");
+		if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"This room cannot be magically lit.  ");
+		if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"This room magically teleports you occasionally.  ");
+		if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"This room prevents you casting spells.  ");
+		if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"This room prevents you using wands, staffs or rods.  ");
 	}
 
 }
@@ -4080,7 +4235,6 @@ static void screen_room_info(int room)
 
 		if (strlen(text_always))
 		{
-			text_out("  ");
 			text_out(text_always);
 		}
 
@@ -4136,7 +4290,6 @@ void display_room_info(int room)
 
 		if (strlen(text_always))
 		{
-			text_out("  ");
 			text_out(text_always);
 		}
 
@@ -4214,8 +4367,6 @@ void describe_room(void)
 
 			if (strlen(text_always))
 			{
-				if (strlen(text_visible)) text_out(" ");
-
 				/* Message */
 				text_out(text_always);
 			}
@@ -4995,7 +5146,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 				boring = FALSE;
 
 				/* Get the monster name ("a goblin") */
-				monster_desc(m_name, m_ptr, 0x08);
+				monster_desc(m_name, cave_m_idx[y][x], 0x08);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -5448,13 +5599,10 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 			int bx = x/BLOCK_HGT;
 
 			char name[32];
-			char text_visible[240];
-			char text_always[240];
-
 			*room = dun_room[by][bx];
 
 			/* Get the actual room description */
-			get_room_desc(*room, name, text_visible, text_always);
+			get_room_desc(*room, name, NULL, NULL);
 
 			/* Always in rooms */
 			s2 = "in ";

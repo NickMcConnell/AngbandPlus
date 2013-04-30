@@ -125,13 +125,12 @@ Go up staircase (<)
         level (this doesn't mean it's easy to find).  Going up a staircase
         will take you to a new dungeon level unless you are at 50 feet
         (dungeon level 1), in which case you will return to the town
-        level.  Note that whenever you leave a level (not the town), you
-        will never find it again.  This means that for all intents and
-        purposes, any objects on that level are destroyed.  This includes
-        artifacts unless the "Create characters in preserve mode" option
-        was set when your character was created, in which case the artifacts
-        may show up again later.  This command takes some energy.
-        If you have a map, or are in campaign mode, you can use the < key to
+        level.  Note that whenever you leave a level (not the town), 
+	you will never find it again.  This means that for all intents 
+	and purposes, any objects on that level are destroyed.  
+	This, however, does not include artifacts, which are
+	preserved and may show up later.  This command takes some energy. 
+	If you have a map, or are in campaign mode, you can use the < key to
         travel to an adjacent location while you are on the surface.
         This uses some food and adds to the time, and requires that you
         are Full and near the edge of the wilderness map. You will be
@@ -683,10 +682,10 @@ Check knowledge (~)
         known "artifacts", "uniques", "ego items" and "objects", and the
         contents of your home. Normally, once an artifact is "generated",
         and "lost", it can never again be found, and will become "known" to
-        the player.  With "preserve" mode, an artifact can never be "lost"
-        until it is "known" to the player.  In either case, any "known"
-        artifacts not in the possession of the player will never again be 
-        "generated".  The "uniques" are special "unique" monsters which can
+        the player.  An artifact can never be "lost" until it is "known" 
+	to the player.  Any "known" artifacts not in the possession 
+	of the player will never again be "generated".  
+	The "uniques" are special "unique" monsters which can
         only be killed once per game.  Certain "objects" come in "flavors",
         and you must determine the effect of each "flavor" once for each
         such type of object, and this command will allow you to display all

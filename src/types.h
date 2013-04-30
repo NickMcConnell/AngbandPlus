@@ -87,6 +87,7 @@ typedef struct feature_state feature_state;
 typedef struct feature_blow feature_blow;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
+typedef struct object_info object_info;
 typedef struct object_lore object_lore;
 typedef struct artifact_type artifact_type;
 typedef struct names_type names_type;
@@ -103,6 +104,7 @@ typedef struct quest_event quest_event;
 typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
+typedef store_type *store_type_ptr;
 typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
@@ -119,6 +121,8 @@ typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct tval_desc tval_desc;
 typedef struct element_type element_type;
+typedef struct quiver_group_type quiver_group_type;
+typedef struct ecology_type ecology_type;
 
 
 
@@ -204,6 +208,8 @@ struct town_type
 	byte r_flag;    /* Add races with this flag */
 
 	u16b store[MAX_STORES];
+	u16b store_index[MAX_STORES];
+
 	dungeon_zone zone[MAX_DUNGEON_ZONES];
 
 	byte max_depth;
@@ -214,7 +220,6 @@ struct town_type
 
 /*
  * Information about room descriptions
- *
  */
 struct desc_type
 {
@@ -222,39 +227,56 @@ struct desc_type
 	u32b name2;
 	u32b text;      /* Text (offset) */
 
-	u32b flags;      /* Room flags */
+	u32b flags;     /* Room flags */
+	u32b p_flag;	/* Description placement flags */
 
-	byte roll;  /* Frequency of this entry */
-	byte chart; /* Chart index */
-	byte next;  /* Next chart index */
-	byte unused;
+	byte chance;  	/* Frequency of this entry */
+	byte not_chance;/* Frequency of this entry if conditions not met */
+	byte chart; 	/* Chart index */
+	byte next;  	/* Next chart index */
+
+	byte branch;	/* Branch to chart index */
+	byte branch_on;	/* Branch on chart index */
 	
-	u16b level; /* Minimum */
+	byte level_min; /* Minimum level */
+	byte level_max;	/* Maximum level */
+
+	u32b l_flag;    /* Restrict to these level types */
+	u16b r_flag;    /* Restrict to levels with these monster types */
 
 	s16b feat;      /* Extra features of this type */
+	s16b solid;	/* Place solid walls of this type */
+	s16b tunnel;	/* Fill tunnels with floors of this type */
 
-	u16b tval;      /* Add objects of this tval */
-	byte r_flag;    /* Add races with this flag */
-
+	byte tval;      /* Add objects of this tval */
+	byte min_sval;  /* And from this sval */
+	byte max_sval;  /*   ... to this sval */
 	byte r_char;    /* Add races of this char */
-	byte l_flag;    /* Restrict to these level types */
-
 };
 
+
+/*
+ * Description of a room
+ */
 struct room_info_type
 {
-	byte type;				/* Type of room (normal/pit) */
+	s16b type;				/* Type of room (normal/pit) */
+	s16b vault;				/* Vault chosen */
 	s16b section[ROOM_DESC_SECTIONS];	/* Array of room descriptions */
 
 	u32b flags;		/* Room flags */
 
 	/* Decorations */
-
+	s16b	solid;		/* Feature to use as solid wall */
+	s16b	tunnel;		/* Feature to use as tunnel */
+	
+#if 0
 	byte d_attr[5];    	/* Desired feature attribute (basic / inner / outer / solid) */
 	char d_char[5];    	/* Desired feature character (basic / inner / outer / solid) */
 
 	byte x_attr[5];    	/* Desired feature attribute (basic / inner / outer / solid) */
 	char x_char[5];    	/* Desired feature character (basic / inner / outer / solid) */
+#endif
 };
 
 
@@ -303,7 +325,9 @@ struct feature_type
 	u32b flags1;
 	u32b flags2;
 	u32b flags3;
-
+#if 0
+	u32b flows;    	/* Flow flags */
+#endif
 	u16b level;     /* Minimum level */
 	u16b rarity;    /* 1/Rarity */
 
@@ -326,36 +350,6 @@ struct feature_type
 
 	byte x_attr;    /* Desired feature attribute */
 	char x_char;    /* Desired feature character */
-};
-
-/*
- * Information known about objects.
- *
- * Note we should retain kind/ego item information from
- * saved game to saved game, artifacts only if not random
- * artifacts, and never objects.
- *
- * Note that this is 2 bytes shorter than we want, but we
- * take advantage of that in the structures it is in.
- */
-struct object_info
-{
-	u32b can_flags1;
-	u32b can_flags2;
-	u32b can_flags3;
-	u32b can_flags4;
-
-	u32b may_flags1;
-	u32b may_flags2;
-	u32b may_flags3;
-	u32b may_flags4;
-
-	u32b not_flags1;
-	u32b not_flags2;
-	u32b not_flags3;
-	u32b not_flags4;
-
-	s16b usage;
 };
 
 
@@ -420,6 +414,28 @@ struct object_kind
 	byte guess;
 	s16b used;	/* Number of times used */
 };
+
+
+/*
+ * Information known about objects.
+ *
+ * This is used for flavors/artifacts which only record whether
+ * or not an object has an ability. Ego items, which 'may' have
+ * abilities use the object_lore structure instead.
+ */
+struct object_info
+{
+	u32b can_flags1;
+	u32b can_flags2;
+	u32b can_flags3;
+	u32b can_flags4;
+
+	u32b not_flags1;
+	u32b not_flags2;
+	u32b not_flags3;
+	u32b not_flags4;
+};
+
 
 /*
  * Lore about "objects".
@@ -632,7 +648,9 @@ struct monster_race
 	u32b flags7;    /* Flags 7 (summons) */
 	u32b flags8;	/* Flags 8 (drops) */
 	u32b flags9;	/* Flags 9 (extra) */
-
+#if 0
+	u32b flows;	/* Flow flags */
+#endif
 	monster_blow blow[4];   /* Up to four blows per round */
 
 	byte level;     /* Level of creature */
@@ -648,6 +666,10 @@ struct monster_race
 	byte grp_idx;	/* Monster group index */
 	byte pad;
 	s16b pad2;
+
+	byte best_spell;	/* Best attack spell */
+	s16b highest_threat;	/* Computed highest threat */
+	byte best_threat;	/* Best threat (one off attack) */
 #if 0
 	s16b note;      /* Inscribe body parts with */
 #endif
@@ -694,7 +716,6 @@ struct monster_lore
 	u32b flags7;  /* Observed racial flags */
 	u32b flags8;  /* Observed racial flags */
 	u32b flags9;	/* Flags 9 (extra) */
-
 };
 
 
@@ -983,18 +1004,20 @@ struct owner_type
  */
 struct store_type
 {
-	u32b name;     /* Name (offset) */
+	u32b name;    	/* Name (offset) */
 
-	byte owner;     /* Owner index */
-	byte extra;     /* Unused for now */
+	byte base;     	/* Store basic type */
+	byte index;	/* Index into u_info */
+	byte owner;    	/* Owner index */
+	byte level;	/* Store generation level */
 
-	s16b insult_cur;/* Insult counter */
+	s16b insult_cur; /* Insult counter */
 
 	s16b good_buy;  /* Number of "good" buys */
 	s16b bad_buy;   /* Number of "bad" buys */
 
 	s32b store_open;/* Closed until this turn */
-	s32b store_wary;/* Unused */
+	s16b store_wary;/* Unused */
 
 	byte tval[STORE_CHOICES];
 	byte sval[STORE_CHOICES];
@@ -1032,7 +1055,7 @@ struct player_race
 	s16b r_sav;     /* saving throw */
 	s16b r_stl;     /* stealth */
 	s16b r_srh;     /* search ability */
-	s16b r_fos;     /* search frequency */
+	s16b r_tht;     /* combat (throwing) */
 	s16b r_thn;     /* combat (normal) */
 	s16b r_thb;     /* combat (shooting) */
 
@@ -1094,7 +1117,7 @@ struct player_class
 	s16b c_sav;     /* class saving throws */
 	s16b c_stl;     /* class stealth */
 	s16b c_srh;     /* class searching ability */
-	s16b c_fos;     /* class searching frequency */
+	s16b c_tht;     /* class to hit (throwing) */
 	s16b c_thn;     /* class to hit (normal) */
 	s16b c_thb;     /* class to hit (bows) */
 
@@ -1103,7 +1126,7 @@ struct player_class
 	s16b x_sav;     /* extra saving throws */
 	s16b x_stl;     /* extra stealth */
 	s16b x_srh;     /* extra searching ability */
-	s16b x_fos;     /* extra searching frequency */
+	s16b x_tht;     /* extra to hit (throwing) */
 	s16b x_thn;     /* extra to hit (normal) */
 	s16b x_thb;     /* extra to hit (bows) */
 
@@ -1362,6 +1385,9 @@ struct player_type
 	s16b oppose_cold;       /* Timed -- oppose cold */
 	s16b oppose_pois;       /* Timed -- oppose poison */
 
+	s16b oppose_water;       /* Timed -- oppose water */
+	s16b oppose_lava;       /* Timed -- oppose lava */
+
 	s16b word_recall;       /* Word of recall counter */
 
 	s16b energy;    /* Current energy */
@@ -1423,6 +1449,9 @@ struct player_type
 
 	s16b inven_cnt; /* Number of items in inventory */
 	s16b equip_cnt; /* Number of items in equipment */
+	s16b pack_size_reduce;		/* Number of inventory slots used by
+					   the quiver */
+
 
 	s16b target_set;/* Target flag */
 	s16b target_who;/* Target identity */
@@ -1502,6 +1531,8 @@ struct player_type
 	u32b cur_flags3;
 	u32b cur_flags4;
 
+	byte incr_resist[MAX_INCR_RESISTS];
+
 	s16b dis_to_h;  /* Known bonus to hit */
 	s16b dis_to_d;  /* Known bonus to dam */
 	s16b dis_to_a;  /* Known bonus to ac */
@@ -1521,16 +1552,20 @@ struct player_type
 	s16b skill_sav; /* Skill: Saving throw */
 	s16b skill_stl; /* Skill: Stealth factor */
 	s16b skill_srh; /* Skill: Searching ability */
-	s16b skill_fos; /* Skill: Searching frequency */
 	s16b skill_thn; /* Skill: To hit (normal) */
 	s16b skill_thb; /* Skill: To hit (shooting) */
 	s16b skill_tht; /* Skill: To hit (throwing) */
 	s16b skill_dig; /* Skill: Digging */
 
+	s16b regen_hp;	/* Hitpoint regeneration rate */
+	s16b regen_mana;/* Mana regeneration rate */
+	s16b glowing;	/* Light radius bonus from items */
+
 	u32b noise;     /* Derived from stealth */
 
 	s16b num_blow;  /* Number of blows */
 	s16b num_fire;  /* Number of shots */
+	s16b num_throw; /* Number of throws */
 
 	byte ammo_mult; /* Ammo multiplier */
 
@@ -1546,7 +1581,11 @@ struct player_type
 
 	s16b vulnerability;     /* How vulnerable? */
 
+	s32b player_turn;         /* Number of player turns (including resting) */
+	s32b resting_turn;        /* Number of player turns spent resting */
+
 	byte outside;	/* Player is outside? */
+	bool cursed_quiver;	/* The quiver is cursed */
 
 };
 
@@ -1583,14 +1622,47 @@ struct high_score
 	char sex[2];    /* Player Sex (string) */
 	char p_r[3];    /* Player Race (number) */
 	char p_c[3];    /* Player Class (number) */
+	char p_s[3];    /* Player Style (number) */
+	char p_p[3];    /* Player Pvalstyle (number) */
 
 	char cur_lev[4];/* Current Player Level (number) */
-	char cur_dun[4];/* Current Dungeon Level (number) */
+	char cur_dep[4];/* Current Player Depth (number) */
+	char cur_dun[4];/* Current Dungeon (number) */
 	char max_lev[4];/* Max Player Level (number) */
-	char max_dun[4];/* Max Dungeon Level (number) */
+	char max_dep[4];/* Max Dungeon Level (number) */
 
 	char how[32];   /* Method of death (string) */
 };
+
+
+
+/*
+ * Simple structure to hold a map location
+ */
+
+typedef struct coord coord;
+
+struct coord
+{
+	byte y;
+	byte x;
+};
+
+
+/*
+ * A circular queue of map locations.
+ * Check out defines.h and util.c for usage
+ */
+typedef struct
+{
+	/* Maximum number of grids in the queue */
+	size_t max_size;
+	/* Grid data */
+	coord *data;
+	/* Head and tail of the queue */
+	size_t head, tail;
+} grid_queue_type;
+
 
 
 
@@ -1615,3 +1687,26 @@ struct element_type
 	u32b flags2;
 	int grp_idx;
 };
+
+
+/*
+ * Info used to manage quiver groups
+ */
+struct quiver_group_type
+{
+	char cmd;		/* The command used to perform an action with the objects in the group */
+	byte color;		/* The color of the pseudo-tag used for the group */
+};
+
+
+/*
+ * Info about what monsters are placed in the dungeon.
+ */
+struct ecology_type
+{
+	s16b deepest_race;	/* Race that defines what the dungeon looks like */
+	s16b race[MAX_ECOLOGY_RACES];
+	byte num_races;
+	bool ready;		/* Are we forced to use this ecology? */
+};
+

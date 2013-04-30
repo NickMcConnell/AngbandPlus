@@ -453,6 +453,9 @@ errr get_mon_num_prep(void)
 {
 	int i;
 
+	/* Using the ecology model */
+	if (cave_ecology.ready) return (0);
+
 	/* Scan the allocation table */
 	for (i = 0; i < alloc_race_size; i++)
 	{
@@ -520,6 +523,38 @@ s16b get_mon_num(int level)
 
 	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
 
+	/*
+	 * Use the ecology model
+	 *
+	 * This is a completely different model of monster distribution.
+	 *
+	 * We initialise a small table at the start of level generation and then
+	 * pick monsters from it. We ignore all rarity models and only accept
+	 * monsters from the table.
+	 */
+	if ((cave_ecology.ready) && (cave_ecology.num_races > 0))
+	{
+		int choice = 0;
+
+		/* Count of choices */
+		j = 0;
+
+		/* Get monster */
+		for (i = 0; i < cave_ecology.num_races; i++)
+		{
+			if ((!(get_mon_num_hook) || (*get_mon_num_hook)(i)) && !(rand_int(++j))) choice = i;
+		}
+
+		/* Hack -- Only 1 opportunity to encounter a unique */
+		if (r_info[cave_ecology.race[choice]].flags1 & (RF1_UNIQUE))
+		{
+			/* Replace entry in table */
+			cave_ecology.race[choice] = cave_ecology.race[--cave_ecology.num_races];
+		}
+
+		return (cave_ecology.race[choice]);
+	}
+
 	/* Boost the level */
 	if (level > 0)
 	{
@@ -556,6 +591,9 @@ s16b get_mon_num(int level)
 
 		/* Default */
 		table[i].prob3 = 0;
+
+		/* Ensure minimum depth */
+		if (table[i].level < MIN(p_ptr->depth - 3, level - 2)) continue;
 
 		/* No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
@@ -870,10 +908,11 @@ void display_monlist(void)
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
-void monster_desc(char *desc, const monster_type *m_ptr, int mode)
+void monster_desc(char *desc, int m_idx, int mode)
 {
 	cptr res;
 
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	cptr name = (r_name + r_ptr->name);
@@ -895,8 +934,8 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 		int kind = 0x00;
 
 		/* Extract the gender (if applicable) */
-		if (r_ptr->flags1 & (RF1_FEMALE)) kind = 0x20;
-		else if (r_ptr->flags1 & (RF1_MALE)) kind = 0x10;
+		if ((r_ptr->flags1 & (RF1_FEMALE)) && (!(r_ptr->flags1 & (RF1_MALE)) || (m_idx % 2))) kind = 0x20;
+		else if ((r_ptr->flags1 & (RF1_MALE)) && (!(r_ptr->flags1 & (RF1_FEMALE)) || !(m_idx % 2)))  kind = 0x10;
 
 		/* Ignore the gender (if desired) */
 		if (!m_ptr || !pron) kind = 0x00;
@@ -948,8 +987,8 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 	else if ((mode & 0x02) && (mode & 0x01))
 	{
 		/* The monster is visible, so use its gender */
-		if (r_ptr->flags1 & (RF1_FEMALE)) strcpy(desc, "herself");
-		else if (r_ptr->flags1 & (RF1_MALE)) strcpy(desc, "himself");
+		if ((r_ptr->flags1 & (RF1_FEMALE)) && (!(r_ptr->flags1 & (RF1_MALE)) || (m_idx % 2))) strcpy(desc, "herself");
+		else if ((r_ptr->flags1 & (RF1_MALE)) && (!(r_ptr->flags1 & (RF1_FEMALE)) || !(m_idx % 2))) strcpy(desc, "himself");
 		else strcpy(desc, "itself");
 	}
 
@@ -957,6 +996,93 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 	/* Handle all other visible monster requests */
 	else
 	{
+		monster_race monster_race_scaled;
+		cptr prefix = NULL, suffix = NULL;
+		int level = r_ptr->level;
+		u32b class = r_ptr->flags2 & (RF2_CLASS_MASK);
+
+#if 0
+		/* Scale a monster */
+		if ((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0)
+		{
+			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth);
+			r_ptr = &monster_race_scaled;
+		}
+#endif
+		/* Add prefixes to levelled monsters */
+		if (r_ptr->flags9 & (RF9_LEVEL_SIZE))
+		{
+			if (p_ptr->depth >= level + 15) prefix = "Giant ";
+			else if (p_ptr->depth >= level + 10) prefix = "Huge ";
+			else if (p_ptr->depth >= level + 5) prefix = "Large ";
+		}
+		else if (r_ptr->flags9 & (RF9_LEVEL_SPEED))
+		{
+			if (p_ptr->depth >= level + 15) prefix = "Deadly ";
+			else if (p_ptr->depth >= level + 10) prefix = "Furious ";
+			else if (p_ptr->depth >= level + 5) prefix = "Fast ";
+		}
+		else if (r_ptr->flags9 & (RF9_LEVEL_POWER))
+		{
+			/* Lesser / greater / master */
+			if (((r_ptr->flags3 & (RF3_UNDEAD | RF3_DRAGON | RF3_DEMON | RF3_ANIMAL | RF3_PLANT | RF3_INSECT)) != 0) ||
+				(((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) == 0) &&
+				((r_ptr->flags9 & (RF9_MAN | RF9_ELF | RF9_DWARF)) == 0)))
+			{
+				if (p_ptr->depth >= level + 15) prefix = "Master ";
+				else if (p_ptr->depth >= level + 10) prefix = "Greater ";
+				else prefix = "Lesser ";
+			}
+			else
+			{
+				/* Add a class suffix to some monsters */
+				if ((class == 0) && ((r_ptr->flags2 & (RF2_CLASS_MASK)) != 0))
+				{
+					if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_MAGE)) != 0)) suffix = "shaman";
+					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
+					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
+					else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
+					else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "knight";
+					else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest";
+					else if ((r_ptr->flags2 & (RF2_ARCHER)) != 0) suffix = "archer";
+					else if ((r_ptr->flags2 & (RF2_SNEAKY)) != 0) suffix = "scout";
+					else if ((r_ptr->flags2 & (RF2_ARMOR)) != 0) suffix = "warrior";
+
+					/* Hack -- reduce rank */
+					if (suffix) level += 5;
+				}
+
+				/* Powerful monster ranks */
+				if (p_ptr->depth >= level + 15)
+				{
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
+							prefix = "Elite ";
+					else if (r_ptr->flags2 & (RF2_MAGE | RF2_PRIEST)) prefix = "Arch ";
+					else prefix = "Master ";
+				}
+				/* Moderately powerful monster ranks */
+				else if (p_ptr->depth >= level + 10)
+				{
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
+							prefix = "Veteran ";
+					else prefix = "Senior ";
+				}
+				/* Somewhat powerful monster ranks */
+				else if (p_ptr->depth >= level + 5)
+				{
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
+							prefix = "Hardened ";
+					else if (r_ptr->flags2 & (RF2_MAGE)) prefix = "Wily ";
+					else if (r_ptr->flags2 & (RF2_PRIEST)) prefix = "Superior ";
+					else prefix = "Experienced ";
+				}
+			}
+		}
+
+
 		/* It could be a Unique */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -970,8 +1096,10 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 			/* XXX Check plurality for "some" */
 
 			/* Indefinite monsters need an indefinite article */
-			strcpy(desc, is_a_vowel(name[0]) ? "an " : "a ");
+			strcpy(desc, is_a_vowel(prefix ? prefix[0] : name[0]) ? "an " : "a ");
+			if (prefix) strcat(desc, prefix);
 			strcat(desc, name);
+			if (suffix) strcat(desc, suffix);
 		}
 
 		/* It could be a normal, definite, monster */
@@ -979,7 +1107,9 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 		{
 			/* Definite monsters need a definite article */
 			strcpy(desc, "the ");
+			if (prefix) strcat(desc, prefix);
 			strcat(desc, name);
+			if (suffix) strcat(desc, suffix);
 		}
 
 		/* Handle the Possessive as a special afterthought */
@@ -2553,12 +2683,6 @@ byte calc_monster_speed(const monster_type *m_ptr)
 	/* Get the monster race */
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Monster has same speed as player? */
-	if (r_ptr->flags9 & (RF9_SAME_SPEED))
-	{
-		return (p_ptr->pspeed);
-	}
-
 	/* Get the monster base speed */
 	speed = r_ptr->speed;
 
@@ -2593,7 +2717,7 @@ void set_monster_haste(s16b m_idx, s16b counter, bool message)
 	char m_name[80];
 
 	/* Get monster name*/
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_idx, 0);
 
 	/*see if we need to recalculate speed*/
 	if (m_ptr->hasted)
@@ -2638,7 +2762,7 @@ void set_monster_slow(s16b m_idx, s16b counter, bool message)
 	char m_name[80];
 
 	/* Get monster name*/
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_idx, 0);
 
 	/*see if we need to recalculate speed*/
 	if (m_ptr->slowed)
@@ -2833,14 +2957,17 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		/* Prepare the item */
 		object_prep(o_ptr, ammo_kind);
 
+		/* Give uniques maximum shots */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) o_ptr->number = (byte)r_ptr->level;
+
+		/* Archers get more shots */
+		else if (r_ptr->flags2 & (RF2_ARCHER)) o_ptr->number += (byte)MIN(99,damroll(2, (r_ptr->level + 1) / 2));
+
 		/* Give the monster some shots */
-		o_ptr->number = (byte)rand_range(1, r_ptr->level);
+		else o_ptr->number = (byte)rand_range(1, (r_ptr->level + 1) / 2);
 
 		/* Flavour spores */
 		if (o_ptr->tval == TV_EGG) o_ptr->name3 = m_ptr->r_idx;
-
-		/* Archers get more shots */
-		if (r_ptr->flags2 & (RF2_ARCHER)) o_ptr->number += (byte)rand_range(1, r_ptr->level);
 
 		/* Boulder / flask throwers get less shots */
 		if ((ammo_tval == TV_JUNK) || (ammo_tval == TV_FLASK) || (ammo_tval == TV_POTION)) o_ptr->number = (o_ptr->number + 1) / 2;
@@ -3045,8 +3172,18 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Calculate the monster_speed*/
 	n_ptr->mspeed = calc_monster_speed(n_ptr);
 
-	/* And start with random energy */
-	n_ptr->energy = (byte)rand_int(100);
+	/* Force monster to wait for player */
+	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+	{
+		/* Give almost no starting energy (avoids clumped movement) */
+		n_ptr->energy = (byte)rand_int(10);
+	}
+
+	else
+	{
+		/* Give a random starting energy */
+		n_ptr->energy = (byte)rand_int(50);
+	}
 
 	/* Some monsters radiate lite when born */
 	if ((r_ptr->flags2 & (RF2_HAS_LITE))
@@ -4351,7 +4488,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_idx, 0);
 
 	/* Notice non-damage */
 	if (dam == 0)
@@ -4472,4 +4609,341 @@ void message_pain(int m_idx, int dam)
 		else
 			msg_format("%^s cries out feebly.", m_name);
 	}
+}
+
+
+/*
+ * Auxiliary helper function for get_monster_ecology.
+ */
+bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int number)
+{
+	int i, count;
+	int races = cave_ecology.num_races + number;
+
+	/* No more races */
+	if (cave_ecology.num_races >= MAX_ECOLOGY_RACES) return (FALSE);
+
+	/* Reduce races required by existing races in ecology */
+	for (i = 0, count = 0; i < cave_ecology.num_races; i++)
+	{
+		if (tmp_mon_num_hook(cave_ecology.race[i])) races--;
+	}
+
+	/* Limit races */
+	if (races >= MAX_ECOLOGY_RACES) races = MAX_ECOLOGY_RACES;
+
+	/* Minimum 1 additional race */
+	else if (races <= cave_ecology.num_races) races = cave_ecology.num_races + 1;
+
+	/* Use supplied hook */
+	get_mon_num_hook = tmp_mon_num_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Limit loop */
+	count = 0;
+
+	/* Pick */
+	while ((count < 1000) && (cave_ecology.num_races < races))
+	{
+		/* Make a resident */
+		int r_idx = get_mon_num(monster_level);
+
+		/* Have a good race */
+		if (r_idx)
+		{
+			cave_ecology.race[cave_ecology.num_races] = r_idx;
+
+			cave_ecology.num_races++;
+
+			/* Is the current monster deeper */
+			if (r_info[cave_ecology.deepest_race].level < r_info[r_idx].level)
+			{
+				/* Monster race */
+				cave_ecology.deepest_race = r_idx;
+			}
+
+			/* Is the current monster deeper */
+			else if ((r_info[cave_ecology.deepest_race].level == r_info[r_idx].level) || (r_info[cave_ecology.deepest_race].mexp < r_info[r_idx].mexp))
+			{
+				/* Monster race */
+				cave_ecology.deepest_race = r_idx;
+			}
+		}
+
+		/* Increase counter */
+		count++;
+	}
+
+	return(TRUE);
+}
+
+
+
+/*
+ * Get a monster, and add it and its allies to the ecology for the level.
+ *
+ * If a race is passed to this routine, we assume it has been added already and only add its allies.
+ */
+void get_monster_ecology(int r_idx)
+{
+	/* Store old hook */
+	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
+
+	/* Regenerate hook? */
+	bool used_new_hook = FALSE;
+
+	int old_monster_level = monster_level;
+
+	/* Paranoia */
+	if (cave_ecology.num_races >= MAX_ECOLOGY_RACES) return;
+
+	/* Pick a monster if one not specified */
+	if (!r_idx)
+	{
+		r_idx = get_mon_num(monster_level);
+
+		/* Add the monster */
+		if (r_idx) cave_ecology.race[cave_ecology.num_races++] = r_idx;
+	}
+
+	/* Have a good race */
+	if (r_idx)
+	{
+		monster_race *r_ptr = &r_info[r_idx];
+
+		/* Hack -- hack the ecology */
+		int hack_ecology = 0;
+
+		/* Is the current monster deeper */
+		if (r_info[cave_ecology.deepest_race].level < r_info[r_idx].level)
+		{
+			/* Monster race */
+			cave_ecology.deepest_race = r_idx;
+		}
+
+		/* Is the current monster deeper */
+		else if ((r_info[cave_ecology.deepest_race].level == r_info[r_idx].level) || (r_info[cave_ecology.deepest_race].mexp < r_info[r_idx].mexp))
+		{
+			/* Monster race */
+			cave_ecology.deepest_race = r_idx;
+		}
+
+		/* Try slightly lower monster level */
+		monster_level = r_ptr->level > 1 ? r_ptr->level - 1 : r_ptr->level;
+
+		/* For first monster, we force some related monsters to appear */
+		if (!cave_ecology.num_races) hack_ecology = randint(6);
+
+		/* Add escort races */
+		if (r_ptr->flags1 & (RF1_ESCORT | RF1_ESCORTS))
+		{
+			place_monster_idx = cave_ecology.race[cave_ecology.num_races];
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(place_monster_okay, 2 + rand_int(3) + (r_ptr->flags1 & (RF1_ESCORT) ? rand_int(3) : 0));
+		}
+
+		/* Add summon races -- summon kin */
+		if ((r_ptr->flags7 & (RF7_S_KIN)) || (hack_ecology == 1))
+		{
+			summon_specific_type = SUMMON_KIN;
+			summon_char_type = r_ptr->d_char;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + rand_int(2) + (r_ptr->flags1 & (RF1_UNIQUE) ? rand_int(3) : 0));
+		}
+
+		/* Add summon races -- summon plant */
+		if ((r_ptr->flags7 & (RF7_S_PLANT)) || (hack_ecology == 2))
+		{
+			summon_specific_type = SUMMON_PLANT;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon insect */
+		if (r_ptr->flags7 & (RF7_S_INSECT))
+		{
+			summon_specific_type = SUMMON_INSECT;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon animal */
+		if ((r_ptr->flags7 & (RF7_S_ANIMAL)) || (hack_ecology == 3))
+		{
+			summon_specific_type = SUMMON_ANIMAL;
+
+			/* Hack -- Set the class flags to summon */
+			summon_flag_type = (r_ptr->flags8 & (RF8_SKIN_MASK));
+
+			/* Mega Hack -- Other racial preferences for animals */
+			if (!summon_flag_type)
+			{
+				/* Everyone likes lions, tigers, wolves */
+				summon_flag_type |= RF8_HAS_FUR;
+
+				/* Surface dwellers like birds */
+				if ((r_ptr->flags9 & (RF9_RACE_MASK)) && ! (r_ptr->flags3 & (RF3_RACE_MASK))) 
+					summon_flag_type |= RF8_HAS_FEATHER;
+
+				/* Dungeon dwellers like reptiles, fish and worse */
+				else summon_flag_type |= RF8_HAS_SCALE;
+			}
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon hound */
+		if (r_ptr->flags7 & (RF7_S_HOUND))
+		{
+			summon_specific_type = SUMMON_HOUND;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon spider */
+		if (r_ptr->flags7 & (RF7_S_SPIDER))
+		{
+			summon_specific_type = SUMMON_SPIDER;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon class */
+		if ((r_ptr->flags7 & (RF7_S_CLASS)) || (hack_ecology == 4))
+		{
+			summon_specific_type = SUMMON_CLASS;
+
+			/* Hack -- Set the class flags to summon */
+			summon_flag_type = (r_ptr->flags2 & (RF2_CLASS_MASK));
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon race */
+		if ((r_ptr->flags7 & (RF7_S_RACE)) || (hack_ecology == 5))
+		{
+			summon_specific_type = SUMMON_RACE;
+
+			/* Hack -- Set the class flags to summon */
+			summon_flag_type = (r_ptr->flags3 & (RF3_RACE_MASK));
+
+			/* Mega Hack -- Combine two flags XXX */
+			summon_flag_type |= (r_ptr->flags9 & (RF9_RACE_MASK));
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon group */
+		if ((r_ptr->flags7 & (RF7_S_GROUP)) || (hack_ecology == 6))
+		{
+			summon_specific_type = SUMMON_GROUP;
+			summon_group_type = r_ptr->grp_idx;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon orc */
+		if (r_ptr->flags7 & (RF7_S_ORC))
+		{
+			summon_specific_type = SUMMON_ORC;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon troll */
+		if (r_ptr->flags7 & (RF7_S_TROLL))
+		{
+			summon_specific_type = SUMMON_TROLL;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon giant */
+		if (r_ptr->flags7 & (RF7_S_GIANT))
+		{
+			summon_specific_type = SUMMON_GIANT;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon dragon */
+		if (r_ptr->flags7 & (RF7_S_DRAGON))
+		{
+			summon_specific_type = SUMMON_DRAGON;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon high dragon */
+		if (r_ptr->flags7 & (RF7_S_HI_DRAGON))
+		{
+			summon_specific_type = SUMMON_HI_DRAGON;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon demon */
+		if (r_ptr->flags7 & (RF7_S_DEMON))
+		{
+			summon_specific_type = SUMMON_DEMON;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon high demon */
+		if (r_ptr->flags7 & (RF7_S_HI_DEMON))
+		{
+			summon_specific_type = SUMMON_HI_DEMON;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon undead */
+		if (r_ptr->flags7 & (RF7_S_UNDEAD))
+		{
+			summon_specific_type = SUMMON_UNDEAD;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+
+		/* Add summon races -- summon high undead */
+		if (r_ptr->flags7 & (RF7_S_HI_UNDEAD))
+		{
+			summon_specific_type = SUMMON_HI_UNDEAD;
+
+			/* Get additional monsters */
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 2 + rand_int(3));
+		}
+	}
+
+	/* Regenerate monster hook */
+	if (used_new_hook)
+	{
+		get_mon_num_hook = get_mon_num_hook_temp;
+
+		get_mon_num_prep();
+	}
+
+	/* Get old monster level */
+	monster_level = old_monster_level;
 }

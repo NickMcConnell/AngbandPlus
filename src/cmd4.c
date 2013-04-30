@@ -7043,7 +7043,7 @@ static void do_cmd_knowledge_home(void)
 
 	char file_name[1024];
 
-	store_type *st_ptr = &store[STORE_HOME];
+	store_type *st_ptr = store[STORE_HOME];
 
 	/* Temporary file */
 	fff = my_fopen_temp(file_name, 1024);

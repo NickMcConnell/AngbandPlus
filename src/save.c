@@ -325,6 +325,8 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->flags5);
 	wr_u32b(l_ptr->flags6);
 	wr_u32b(l_ptr->flags7);
+	wr_u32b(l_ptr->flags8);
+	wr_u32b(l_ptr->flags9);
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
@@ -396,6 +398,9 @@ static void wr_xtra(int k_idx)
 static void wr_store(const store_type *st_ptr)
 {
 	int j;
+
+	/* Save the store index */
+	wr_byte(st_ptr->index);
 
 	/* Save the "open" counter */
 	wr_u32b(st_ptr->store_open);
@@ -658,6 +663,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_water);
+	wr_s16b(p_ptr->oppose_lava);
 	wr_s16b(p_ptr->free_act);
 
 	wr_byte(p_ptr->charging);
@@ -669,8 +676,14 @@ static void wr_extra(void)
 
 	wr_u32b(p_ptr->disease);
 
+	/* # of player turns */
+	wr_s32b(p_ptr->player_turn);
+
+	/* # of turns spent resting */
+	wr_s32b(p_ptr->resting_turn);
+
 	/* Future use */
-	for (i = 0; i < 9; i++) wr_u32b(0L);
+	for (i = 0; i < 7; i++) wr_u32b(0L);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);
@@ -951,20 +964,17 @@ static void wr_dungeon(void)
 	{
 		int j;
 
-		wr_byte(room_info[i].type);
+		wr_s16b(room_info[i].type);
+		wr_s16b(room_info[i].vault);
 		wr_u32b(room_info[i].flags);
 
-		if (room_info[i].type == ROOM_NORMAL)
+		for (j = 0; j < ROOM_DESC_SECTIONS; j++)
 		{
-			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
-			{
-				wr_s16b(room_info[i].section[j]);
+			wr_s16b(room_info[i].section[j]);
 
-				if (room_info[i].section[j] == -1) break;
-			}
+			if (room_info[i].section[j] == -1) break;
 		}
 	}
-
 
 	/*** Compact ***/
 
@@ -1002,6 +1012,25 @@ static void wr_dungeon(void)
 
 		/* Dump it */
 		wr_monster(m_ptr);
+	}
+
+	/*** Dump the monster ecology ***/
+	if (cave_ecology.ready)
+	{
+		/* Total races in ecology */
+		wr_u16b(cave_ecology.num_races);
+
+		/* Dump the monsters */
+		for (i = 1; i < cave_ecology.num_races; i++)
+		{
+			/* Dump it */
+			wr_u16b(cave_ecology.race[i]);
+		}
+	}
+	else
+	{
+		/* Hack -- no ecology */
+		wr_u16b(0);
 	}
 }
 
@@ -1123,7 +1152,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		object_lore *n_ptr = &a_list[i];
+		object_info *n_ptr = &a_list[i];
 
 		wr_byte(a_ptr->cur_num);
 		wr_byte(0);
@@ -1178,11 +1207,33 @@ static bool wr_savefile_new(void)
                 /* Oops */
                	wr_byte(0);
                 wr_byte(0);
-
         }
 
 	/* Write the "extra" information */
 	wr_extra();
+
+	/* Don't bother saving the learnt flavor flags if dead */
+	if (!p_ptr->is_dead)
+	{
+		/* Hack -- Dump the flavors */
+		tmp16u =z_info->x_max;
+		wr_u16b(tmp16u);
+
+	        for (i = 0; i < tmp16u; i++)
+		{
+                	object_info *n_ptr = &x_list[i];
+
+                	wr_u32b(n_ptr->can_flags1);
+                	wr_u32b(n_ptr->can_flags2);
+                	wr_u32b(n_ptr->can_flags3);
+                	wr_u32b(n_ptr->can_flags4);
+
+                	wr_u32b(n_ptr->not_flags1);
+                	wr_u32b(n_ptr->not_flags2);
+                	wr_u32b(n_ptr->not_flags3);
+                	wr_u32b(n_ptr->not_flags4);
+		}
+        }
 
 	if (adult_rand_artifacts) wr_randarts();
 
@@ -1225,18 +1276,30 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < z_info->t_max; i++)
 	{
 		wr_byte(t_info[i].max_depth);
-	} 
 
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
+		/* Write the store indexes if alive */
+		if (!p_ptr->is_dead)
+		{
+			wr_byte(MAX_STORES);
 
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
+			/* Write the actual store indexes */
+			for (j = 0; j < MAX_STORES; j++)
+			{
+				wr_u16b((u16b)t_info[i].store_index[j]);
+			}
+		}
+	}
 
-	/* Player is not dead, write the dungeon */
+	/* Player is not dead, write the stores and the dungeon */
 	if (!p_ptr->is_dead)
 	{
+		/* Note the stores */
+		tmp16u = total_store_count;
+		wr_u16b(tmp16u);
+
+		/* Dump the stores */
+		for (i = 0; i < tmp16u; i++) wr_store(store[i]);
+
 		/* Dump the dungeon */
 		wr_dungeon();
 

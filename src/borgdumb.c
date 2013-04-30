@@ -103,9 +103,10 @@ void do_cmd_borg(void)
 		(void)res_stat(A_STR);
 		(void)res_stat(A_INT);
 		(void)res_stat(A_WIS);
-		(void)res_stat(A_CON);
 		(void)res_stat(A_DEX);
+		(void)res_stat(A_CON);
 		(void)res_stat(A_CHR);
+		(void)res_stat(A_AGI);
 
 		/* Restore experience. */
 		p_ptr->exp = p_ptr->max_exp;

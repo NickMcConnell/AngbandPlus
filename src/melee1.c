@@ -58,6 +58,206 @@ static int monster_critical(int dice, int sides, int dam, int effect)
 }
 
 
+/*
+ * Monster scale
+ *
+ * Scale a levelling monster based on monster depth vs actual depth.
+ */
+bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
+{
+	monster_race *r_ptr = &r_info[m_list[m_idx].r_idx];
+
+	int d1, d2, scale;
+	int i, boost;
+
+	/* Paranoia */
+	if ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) == 0) return (FALSE);
+
+	/* Hack -- ensure distinct monster types */
+	depth = depth - ((depth - r_ptr->level) % 5);
+
+	/* Hack -- maximum power increase */
+	if (depth > r_ptr->level + 15) depth = r_ptr->level + 15;
+
+	/* This is the reverse of the algorithmic level
+	   computation in eval_r_power in init1.c.
+	   We apply this because monster power increases
+	   much faster per level deeper in the dungeon.
+	 */
+
+	/* Compute effective power for monsters at this depth */
+	d1 = (depth <= 40 ? depth :
+			(depth <= 70 ? depth * 3 - 80 : 
+			(depth <= 90 ? depth * 6 - 290
+			: depth * 20 - 1550)));
+
+	/* Compute effective power for monster's old depth */
+	d2 = (r_ptr->level <= 40 ? r_ptr->level :
+			(r_ptr->level <= 70 ? r_ptr->level * 3 - 80 : 
+			(r_ptr->level <= 90 ? r_ptr->level * 6 - 290
+			: r_ptr->level * 20 - 1550)));
+
+	/* We only care about significant multipliers but scale up by multiple of 100 */
+	scale = ((d1 * 100) / d2);
+
+	/* Paranoia */
+	if (scale <= 100) return (FALSE);
+
+	/* Copy real monster to fake */
+	COPY(n_ptr, r_ptr, monster_race);
+
+	/* Set experience */
+	n_ptr->mexp = r_ptr->mexp * scale / 100;
+
+	/* Pick which flag if multiple flags */
+	if ((r_ptr->flags9 & (RF9_LEVEL_SPEED)) != 0)
+	{
+		if (((r_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0) && ((r_ptr->flags9 & (RF9_LEVEL_POWER)) != 0))
+		{
+			if (m_idx % 3 == 2) n_ptr->flags9 &= ~(RF9_LEVEL_SPEED | RF9_LEVEL_SIZE);
+			else if (m_idx % 3 == 1) n_ptr->flags9 &= ~(RF9_LEVEL_SPEED | RF9_LEVEL_POWER);
+			else n_ptr->flags9 &= ~(RF9_LEVEL_SPEED | RF9_LEVEL_SIZE);
+		}
+		else if ((r_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0)
+		{
+			if (m_idx % 2) n_ptr->flags9 &= ~(RF9_LEVEL_SPEED);
+			else n_ptr->flags9 &= ~(RF9_LEVEL_SIZE);
+		}
+		else if ((r_ptr->flags9 & (RF9_LEVEL_POWER)) != 0)
+		{
+			if (m_idx % 2) n_ptr->flags9 &= ~(RF9_LEVEL_POWER);
+			else n_ptr->flags9 &= ~(RF9_LEVEL_SIZE);
+		}
+	}
+	/* Pick another flag */
+	else if ((r_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0)
+	{
+		if ((r_ptr->flags9 & (RF9_LEVEL_POWER)) != 0)
+		{
+			if (m_idx % 2) n_ptr->flags9 &= ~(RF9_LEVEL_POWER);
+			else n_ptr->flags9 &= ~(RF9_LEVEL_SIZE);
+		}
+	}
+
+	/* Scale up for speed */
+	if ((n_ptr->flags9 & (RF9_LEVEL_SPEED)) != 0)
+	{
+		/* We rely on speed giving us an overall scale improvement */
+		/* Note breeders are more dangerous on speed overall */
+
+		/* Boost speed first */
+		boost = scale / 100;
+
+		/* Limit to +25 faster */
+		if (boost > 25) boost = 25;
+
+		/* Increase fake speed */
+		n_ptr->speed += boost;
+
+		/* Reduce scale by actual improvement in energy */
+		scale = scale * extract_energy[r_ptr->speed] / extract_energy[n_ptr->speed];
+
+		/* Fast breeders more dangerous so reduce speed improvement */
+		if ((n_ptr->flags2 & (RF2_MULTIPLY)) != 0) n_ptr->speed -= boost / 2;
+
+		/* Hack -- faster casters run out of mana faster */
+		else if (n_ptr->mana && (boost > 10)) n_ptr->flags6 |= RF6_ADD_MANA;
+
+	}
+	/* Scale up for size */
+	else if ((n_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0)
+	{
+		/* Boost to huge first if required */
+		if (r_ptr->level >= depth + 20)
+		{
+			n_ptr->flags3 |= (RF3_HUGE);
+			scale = scale * 2 / 3;
+		}
+
+		/* Boost attack damage partially */
+		if (scale > 133)
+			for (i = 0; i < 4; i++)
+		{
+			if (!n_ptr->blow[i].d_side) continue;
+
+			boost = (scale * n_ptr->blow[i].d_dice / 25) / (n_ptr->blow[i].d_side * 3);
+
+			if (boost > 19 * n_ptr->blow[i].d_dice) boost = 19 * n_ptr->blow[i].d_dice;
+
+			if (boost > 1) n_ptr->blow[i].d_dice += boost - 1;
+		}
+
+		/* Boost power slightly */
+		if (scale > 133)
+		{
+			n_ptr->power = (r_ptr->power * scale * 3) / 4;
+		}
+	}
+
+	/* Scale up for power */
+	else if ((n_ptr->flags9 & (RF9_LEVEL_POWER)) != 0)
+	{
+		/* Boost speed first */
+		boost = scale / 400;
+
+		/* Limit to +15 faster */
+		if (boost > 15) boost = 15;
+
+		/* Increase fake speed */
+		n_ptr->speed += boost;
+
+		/* Reduce scale by actual improvement in energy */
+		scale = scale * extract_energy[r_ptr->speed] / extract_energy[n_ptr->speed];
+
+		/* Boost attack damage partially */
+		if (scale > 200)
+			for (i = 0; i < 4; i++)
+		{
+			if (!n_ptr->blow[i].d_side) continue;
+
+			boost = (scale * n_ptr->blow[i].d_dice / 50) / n_ptr->blow[i].d_side;
+
+			if (boost > 9 * n_ptr->blow[i].d_dice) boost = 9 * n_ptr->blow[i].d_dice;
+
+			if (boost > 1) n_ptr->blow[i].d_dice += boost - 1;
+		}
+
+		/* Boost power */
+		if (scale > 100)
+		{
+			n_ptr->power = (r_ptr->power * scale);
+		}
+	}
+
+	/* Not done? */
+	if (scale > 100)
+	{
+		/* Boost armour class next */
+		boost = r_ptr->ac * scale / 200;
+
+		/* Limit armour class improvement */
+		if (boost > 50 + n_ptr->ac / 3) boost = 50 + n_ptr->ac / 3;
+
+		/* Improve armour class */
+		n_ptr->ac += boost;
+
+		/* Reduce scale by actual scaled improvement in armour class */
+		scale = scale * r_ptr->ac / n_ptr->ac;
+
+		/* Not done? */
+		if (scale > 100)
+		{
+			/* Boost hit points -- unlimited */
+			n_ptr->hside = n_ptr->hside * scale / 100;
+		}
+	}
+
+	/* Set level to depth */
+	n_ptr->level = depth;
+
+	return (TRUE);
+}
+
 
 
 /*
@@ -205,7 +405,7 @@ static void attack_desc(int who, int target, int method, int damage, bool *do_cu
 	if (who > 0)
 	{
 		/* Get the monster name (or "it") */
-		monster_desc(m_name, &m_list[who], 0x00);
+		monster_desc(m_name, who, 0x00);
 	}
 	else if (who < 0)
 	{
@@ -220,7 +420,7 @@ static void attack_desc(int who, int target, int method, int damage, bool *do_cu
 	if (target > 0)
 	{
 		/* Get the monster name (or "it") */
-		monster_desc(t_name, &m_list[target], 0x00);
+		monster_desc(t_name, target, 0x00);
 	}
 	else if (target < 0)
 	{
@@ -447,7 +647,7 @@ static void attack_desc(int who, int target, int method, int damage, bool *do_cu
 			suffix = " aura";
 
 			/* Get the monster possessive ("his"/"her"/"its") */
-			if (who > 0) monster_desc(t_name, &m_list[who], 0x22);
+			if (who > 0) monster_desc(t_name, who, 0x22);
 			else strcpy (t_name,"its");
 
 			break;
@@ -473,7 +673,7 @@ static void attack_desc(int who, int target, int method, int damage, bool *do_cu
 
 		case RBM_EXPLODE:
 		{
-			prefix = "explodes ";
+			prefix = "explodes";
 			strcpy(t_name, "");
 			break;
 		}
@@ -604,6 +804,7 @@ static int attack_power(int effect)
 
 /*
  * Attack the player via physical attacks.
+ * TODO: join with other (monster?) attack routines
  */
 bool make_attack_normal(int m_idx)
 {
@@ -639,10 +840,10 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_idx, 0);
 
 	/* Get the "died from" information (i.e. "a goblin") */
-	monster_desc(ddesc, m_ptr, 0x88);
+	monster_desc(ddesc, m_idx, 0x88);
 
 
 	/* Scan through all four blows */
@@ -672,9 +873,9 @@ bool make_attack_normal(int m_idx)
 		if (method > RBM_MAX_NORMAL) continue;
 
 		/* Assume no cut or stun or touched */
-		do_cut = TRUE;
-		do_stun = TRUE;
-		touched = TRUE;
+		do_cut = FALSE;
+		do_stun = FALSE;
+		touched = FALSE;
 
 		/* Apply monster stats */
 		if (d_side > 1)
@@ -1156,19 +1357,22 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 
 
 #define FLG_MON_BEAM (PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
-			PROJECT_PLAY)
-#define FLG_MON_BOLT (PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY | PROJECT_GRID)
-#define FLG_MON_BALL (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
+			PROJECT_PLAY | PROJECT_MAGIC)
+#define FLG_MON_SHOT (PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY | PROJECT_GRID)
+#define FLG_MON_BALL_SHOT (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
 			PROJECT_PLAY | PROJECT_WALL)
+#define FLG_MON_BOLT (PROJECT_STOP | PROJECT_KILL | PROJECT_PLAY | PROJECT_GRID | PROJECT_MAGIC)
+#define FLG_MON_BALL (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
+			PROJECT_PLAY | PROJECT_WALL | PROJECT_MAGIC)
 #define FLG_MON_AREA (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
-			PROJECT_PLAY | PROJECT_WALL | PROJECT_AREA)
+			PROJECT_PLAY | PROJECT_WALL | PROJECT_AREA | PROJECT_MAGIC)
 #define FLG_MON_8WAY (PROJECT_8WAY | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
-			PROJECT_PLAY | PROJECT_WALL | PROJECT_AREA)
+			PROJECT_PLAY | PROJECT_WALL | PROJECT_AREA | PROJECT_MAGIC)
 #define FLG_MON_CLOUD (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | \
-			PROJECT_HIDE | PROJECT_WALL)
+			PROJECT_HIDE | PROJECT_WALL | PROJECT_MAGIC)
 #define FLG_MON_ARC  (PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | \
-	           PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL)
-#define FLG_MON_DIRECT (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAY)
+	           PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL | PROJECT_MAGIC)
+#define FLG_MON_DIRECT (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAY | PROJECT_MAGIC)
 
 
 /*
@@ -1203,6 +1407,7 @@ static void mon_bolt(int who, int y, int x, int typ, int dam, cptr result)
  * Stop if we hit a monster
  * Affect monsters and the player
  * Can miss the first target
+ * Not treated as magic
  */
 static void mon_shot(int who, int y, int x, int typ, int dam, bool hit, cptr result)
 {
@@ -1216,7 +1421,7 @@ static void mon_shot(int who, int y, int x, int typ, int dam, bool hit, cptr res
 		int fx = m_ptr->fx;
 
 		/* Aim at target with a bolt attack */
-		(void)project(who, 0, fy, fx, y, x, dam, typ, FLG_MON_BOLT | (hit ? 0L : PROJECT_MISS), 0 , 0);
+		(void)project(who, 0, fy, fx, y, x, dam, typ, FLG_MON_SHOT | (hit ? 0L : PROJECT_MISS), 0 , 0);
 	}
 	else
 	{
@@ -1306,6 +1511,34 @@ static void mon_area(int who, int y, int x, int typ, int dam, int rad, cptr resu
 	{
 		/* Affect grids in radius with a ball attack */
 		(void)project(0, rad, y, x, y, x, dam, typ, FLG_MON_AREA, 0, 0);
+	}
+}
+
+
+/*
+ * Cast a ball shot at the target
+ * Affect grids, objects, monsters, and (specifically) the player
+ * Not treated as magic
+ * Stop at first target
+ */
+static void mon_ball_minor_shot(int who, int y, int x, int typ, int dam, int rad, bool hit, cptr result)
+{
+	/* Message */
+	if (result) msg_print(result);
+
+	if (who > 0)
+	{
+		monster_type *m_ptr = &m_list[who];
+		int fy = m_ptr->fy;
+		int fx = m_ptr->fx;
+
+		/* Aim at target with a ball attack */
+		(void)project(who, rad, fy, fx, y, x, dam, typ, FLG_MON_BALL_SHOT | PROJECT_STOP | (hit ? 0L : PROJECT_MISS), 0, 0);
+	}
+	else
+	{
+		/* Affect grids in radius with a ball attack */
+		(void)project(0, rad, y, x, y, x, dam, typ, FLG_MON_BALL_SHOT, 0, 0);
 	}
 }
 
@@ -1450,6 +1683,7 @@ static void mon_arc(int who, int y, int x, int typ, int dam, int rad, int degree
 
 /*
  * Monster attempts to make a ranged melee attack.
+ * TODO: join with other (monster?) attack routines
  *
  * Use by aura and trail effects.
  */
@@ -1514,6 +1748,7 @@ void mon_blow_ranged(int who, int x, int y, int method, int range, int flg, cptr
 
 /*
  * Monster attempts to make a ranged (non-melee) attack.
+ * TODO: join with other (monster?) attack routines
  *
  * Determine if monster can attack at range, then see if it will.  Use
  * the helper function "choose_attack_spell()" to pick a physical ranged
@@ -1557,6 +1792,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	bool powerful;
 	bool normal;
 	bool direct;
+
+	/* Some summons override cave ecology */
+	bool old_cave_ecology = cave_ecology.ready;
 
 	/* Hack -- don't summon on surface */
 	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
@@ -1612,10 +1850,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		k_ptr = &l_list[cave_m_idx[y][x]];
 
 		/* Get the monster name (or "it") */
-		monster_desc(t_name, n_ptr, 0x00);
+		monster_desc(t_name, cave_m_idx[y][x], 0x00);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
-		monster_desc(t_poss, n_ptr, 0x22);
+		monster_desc(t_poss, cave_m_idx[y][x], 0x22);
 	}
 	else if (target < 0)
 	{
@@ -1684,13 +1922,13 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		if (m_ptr->mflag & (MFLAG_HIDE)) return (FALSE);
 
 		/* Get the monster name (or "it") */
-		monster_desc(m_name, m_ptr, 0x00);
+		monster_desc(m_name, who, 0x00);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
-		monster_desc(m_poss, m_ptr, 0x22);
+		monster_desc(m_poss, who, 0x22);
 
 		/* Hack -- Get the "died from" name */
-		monster_desc(ddesc, m_ptr, 0x88);
+		monster_desc(ddesc, who, 0x88);
 
 		/* Extract the "see-able-ness" */
 		seen = (!blind && m_ptr->ml);
@@ -1910,7 +2148,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_ARC_40: mon_arc(who, y, x, effect, dam, 0, (powerful ? 60 : 40), result); break;
 				case RBM_ARC_50: mon_arc(who, y, x, effect, dam, 0, 50, result); break;
 				case RBM_ARC_60: mon_arc(who, y, x, effect, dam, 0, 60, result); break;
-				case RBM_FLASK:	mon_ball_minor(who, y, x, effect, dam, 1, hit, result); break;
+				case RBM_FLASK:	mon_ball_minor_shot(who, y, x, effect, dam, 1, hit, result); break;
 				case RBM_8WAY: mon_8way(who, y, x, effect, dam, 2, result); break;
 				case RBM_8WAY_II: mon_8way(who, y, x, effect, dam, 3, result); break;
 				case RBM_8WAY_III: mon_8way(who, y, x, effect, dam, 4, result); break;
@@ -3417,6 +3655,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (p_ptr->stat_cur[A_DEX] != p_ptr->stat_max[A_DEX]) k++;
 					if (p_ptr->stat_cur[A_CON] != p_ptr->stat_max[A_CON]) k++;
 					if (p_ptr->stat_cur[A_CHR] != p_ptr->stat_max[A_CHR]) k++;
+					if (p_ptr->stat_cur[A_AGI] != p_ptr->stat_max[A_AGI]) k++;
 					if (p_ptr->exp < p_ptr->max_exp) k++;
 				}
 
@@ -3437,11 +3676,12 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					else if ((p_ptr->food < PY_FOOD_WEAK) && (k) && (rand_int(k--))) set_food(PY_FOOD_MAX -1);
 					else if ((rlev < 30) || (k <= 0)) /* Nothing */ ;
 					else if ((p_ptr->stat_cur[A_STR] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_STR);
-					else if ((p_ptr->stat_cur[A_INT] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_INT);
-					else if ((p_ptr->stat_cur[A_WIS] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_WIS);
-					else if ((p_ptr->stat_cur[A_DEX] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_DEX);
-					else if ((p_ptr->stat_cur[A_CON] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_CON);
-					else if ((p_ptr->stat_cur[A_CHR] != p_ptr->stat_max[A_STR]) && (k) && (rand_int(k--))) do_res_stat(A_CHR);
+					else if ((p_ptr->stat_cur[A_INT] != p_ptr->stat_max[A_INT]) && (k) && (rand_int(k--))) do_res_stat(A_INT);
+					else if ((p_ptr->stat_cur[A_WIS] != p_ptr->stat_max[A_WIS]) && (k) && (rand_int(k--))) do_res_stat(A_WIS);
+					else if ((p_ptr->stat_cur[A_DEX] != p_ptr->stat_max[A_DEX]) && (k) && (rand_int(k--))) do_res_stat(A_DEX);
+					else if ((p_ptr->stat_cur[A_CON] != p_ptr->stat_max[A_CON]) && (k) && (rand_int(k--))) do_res_stat(A_CON);
+					else if ((p_ptr->stat_cur[A_CHR] != p_ptr->stat_max[A_CHR]) && (k) && (rand_int(k--))) do_res_stat(A_CHR);
+					else if ((p_ptr->stat_cur[A_AGI] != p_ptr->stat_max[A_AGI]) && (k) && (rand_int(k--))) do_res_stat(A_AGI);
 					else if ((p_ptr->exp < p_ptr->max_exp) && (k) && (rand_int(k--))) restore_level();
 				}
 
@@ -3581,7 +3821,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if ((!seen) && (m_ptr->ml))
 				{
 					/* Get the name (using "A"/"An") again. */
-					monster_desc(ddesc, m_ptr, 0x08);
+					monster_desc(ddesc, who, 0x08);
 
 					/* Message */
 					msg_format("%^s suddenly appears.", ddesc);
@@ -4670,6 +4910,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_R_KIN */
 		case 192 + 1:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
@@ -4698,6 +4941,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_A_DEAD */
 		case 192 + 2:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
@@ -4756,6 +5002,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_R_MONSTER */
 		case 192 + 5:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
@@ -4773,6 +5022,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_R_MONSTERS */
 		case 192 + 6:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
@@ -4798,7 +5050,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons plants.", m_name);
-				else msg_print("You hear distant chanting.");
+				else msg_print("You hear distant rustling.");
 			}
 
 			/* Count them for later */
@@ -5089,7 +5341,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons orcs.", m_name);
-				else msg_print("You hear distant chanting.");
+				else msg_print("You hear distant drums.");
 			}
 
 			/* Count them for later */
@@ -5109,7 +5361,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons trolls.", m_name);
-				else msg_print("You hear distant chanting.");
+				else msg_print("You hear distant drums.");
 			}
 
 			/* Count them for later */
@@ -5129,7 +5381,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons giants.", m_name);
-				else msg_print("You hear distant chanting.");
+				else msg_print("You hear distant thunder.");
 			}
 
 			/* Count them for later */
@@ -5149,13 +5401,13 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons a dragon.", m_name);
-				else msg_print("You hear distant chanting.");
+				else msg_print("You hear distant roars.");
 			}
 
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx,
-					rlev - 1 - 1, SUMMON_DRAGON);
+					rlev - 1, SUMMON_DRAGON);
 			}
 
 			break;
@@ -5171,7 +5423,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons ancient dragons!", m_name);
-				else msg_print("You hear cacophonous chanting.");
+				else msg_print("You hear cacophonous roars.");
 			}
 
 			for (k = 0; k < 4; k++)
@@ -5184,6 +5436,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_A_ELEMENT */
 		case 192 + 22:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 
@@ -5191,7 +5446,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) result = format("%^s mumbles.", m_name);
 				else if (known) result = format("%^s magically animates the elements around %s.", m_name, t_name);
-				else result = "You hear distant chanting.";
+				else result = "You hear distant rumbles.";
 			}
 
 			/* Animate elements */
@@ -5202,6 +5457,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_A_OBJECT */
 		case 192 + 23:
 		{
+			/* Override cave ecology */
+			cave_ecology.ready = FALSE;
+
 			if (surface) break;
 			disturb(1, 0);
 
@@ -5209,7 +5467,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) result = format("%^s mumbles.", m_name);
 				else if (known) result = format("%^s magically animates the objects around %s.", m_name, t_name);
-				else result = "You hear distant chanting.";
+				else result = "You hear distant clanking.";
 			}
 
 			/* Animate objects */
@@ -5360,7 +5618,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if ((blind) && (known)) msg_format("%^s whispers.", m_name);
 				else if (known) msg_format("%^s magically summons greater undead!", m_name);
-				else msg_print("You hear loud whispering.");
+				else msg_print("You hear loud and imperious whispering.");
 
 				/* Hack -- prevent summoning for a short while */
 				m_ptr->summoned = 20;
@@ -5413,6 +5671,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				msg_print("Something tried to cast a spell that has not yet been defined.");
 		}
 	}
+
+	/* Restore cave ecology */
+	cave_ecology.ready = old_cave_ecology;
 
 	/* Hack - Inform a blind player about monsters appearing nearby */
 	if (blind && count && (target < 0))
@@ -5526,8 +5787,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
  *
  * Return TRUE if evasion was successful.
  */
-bool mon_evade(const monster_type* m_ptr, int chance, int out_of, cptr r)
+bool mon_evade(int m_idx, int chance, int out_of, cptr r)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
@@ -5535,10 +5797,12 @@ bool mon_evade(const monster_type* m_ptr, int chance, int out_of, cptr r)
 
 	cptr p;
 
-	/* Get "the monster" or "it" */
-	monster_desc(m_name, m_ptr, 0x40);
+	int roll = rand_int(out_of);
 
-	switch(rand_int(4))
+	/* Get "the monster" or "it" */
+	monster_desc(m_name, m_idx, 0x40);
+
+	switch(roll % 4)
 	{
 		case 0: p = "dodges"; break;
 		case 1: p = "evades"; break;
@@ -5548,12 +5812,12 @@ bool mon_evade(const monster_type* m_ptr, int chance, int out_of, cptr r)
 
 	/* Hack -- evasive monsters may ignore trap */
 	if ((r_ptr->flags9 & (RF9_EVASIVE)) && (!m_ptr->berserk) && (!m_ptr->blind)
-		&& (rand_int(out_of) <= chance))
+		&& (roll < chance))
 	{
 		if (m_ptr->ml)
 		{
 			/* Message */
-			message_format(MSG_MISS, 0, "%^s %s %s!", m_name, p, r);
+			message_format(MSG_MISS, 0, "%^s %s%s!", m_name, p, r);
 
 			/* Note that monster is evasive */
 			l_ptr->flags9 |= (RF9_EVASIVE);
@@ -5570,8 +5834,9 @@ bool mon_evade(const monster_type* m_ptr, int chance, int out_of, cptr r)
  *
  * Return TRUE if blow was avoided.
  */
-bool mon_resist_object(const monster_type* m_ptr, const object_type *o_ptr)
+bool mon_resist_object(int m_idx, const object_type *o_ptr)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
@@ -5584,7 +5849,7 @@ bool mon_resist_object(const monster_type* m_ptr, const object_type *o_ptr)
 	char o_name[80];
 
 	/* Get "the monster" or "it" */
-	monster_desc(m_name, m_ptr, 0x40);
+	monster_desc(m_name, m_idx, 0x40);
 
 	/* Describe object */
 	if (o_ptr->k_idx) object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -5593,9 +5858,31 @@ bool mon_resist_object(const monster_type* m_ptr, const object_type *o_ptr)
 	/*
 	 * Handle monsters that resist blunt and/or edged weapons. We include
 	 * martial arts as a blunt attack, as well as any unusual thrown objects.
+	 * We include resist magic for instances where we try to attack monsters
+	 * with spell based weapons.
 	 */
 	switch (o_ptr->tval)
 	{
+		case TV_SPELL:
+		{
+			/* Resist */
+			if ((r_ptr->flags9 & (RF9_RES_MAGIC)) != 0)
+			{
+				resist = 60;
+
+				if (((l_ptr->flags9 & (RF9_RES_MAGIC)) == 0) &&
+					(m_ptr->ml))
+				{
+					l_ptr->flags9 |= (RF9_RES_MAGIC);
+					learn = TRUE;
+				}
+			}
+
+			/* Take note */
+			note = "glances off of";
+			break;
+		}
+
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_POLEARM:
@@ -5717,6 +6004,8 @@ bool mon_resist_object(const monster_type* m_ptr, const object_type *o_ptr)
 
 /*
  * Handle monster hitting a real trap.
+ * TODO: join with other (monster?) attack routines
+ * TODO: this is probably the easiest place for the refactoring
  */
 void mon_hit_trap(int m_idx, int y, int x)
 {
@@ -5726,6 +6015,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 	int feat = cave_feat[y][x];
 
 	bool fear;
+	bool magic = TRUE;
 
 	char m_name[80];
 
@@ -5736,7 +6026,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 	f_ptr = &f_info[cave_feat[y][x]];
 
 	/* Get "the monster" or "it" */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, m_idx, 0);
 
 	/* Hack --- trapped doors */
 	/* XXX XXX Dangerous */
@@ -5768,7 +6058,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 	}
 
 	/* Hack -- evasive monsters may ignore trap */
-	if (mon_evade(m_ptr, m_ptr->stunned || m_ptr->confused ? 50 : 80, 100, " a trap"))
+	if (mon_evade(m_idx, (m_ptr->stunned || m_ptr->confused) ? 50 : 80, 100, " a trap"))
 	{
 		if (f_ptr->flags1 & (FF1_SECRET))
 		{
@@ -5826,23 +6116,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 						{
 							int k, mult;
 
-							switch (j_ptr->sval)
-							{
-								case SV_SLING:
-								case SV_SHORT_BOW:
-								mult = 2;
-								break;
-								case SV_LONG_BOW:
-								case SV_LIGHT_XBOW:
-									mult = 3;
-									break;
-								case SV_HEAVY_XBOW:
-									mult = 4;
-									break;
-								default:
-									mult = 1;
-									break;
-							}
+							mult = bow_multiplier(j_ptr->sval);
 
 							/* Apply extra might */
 							if (f1 & (TR1_MIGHT)) mult += j_ptr->pval;
@@ -5859,7 +6133,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 							if (k < 0) k = 0;
 
 							/* Damage, check for fear and death */
-							if (!mon_resist_object(m_ptr, o_ptr)) (void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+							if (!mon_resist_object(m_idx, o_ptr)) (void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 
 						}
 						else
@@ -6038,10 +6312,12 @@ void mon_hit_trap(int m_idx, int y, int x)
 			}
 
 			case TV_POTION:
-			case TV_SCROLL:
 			case TV_FLASK:
-			case TV_LITE:
 			case TV_FOOD:
+				magic = FALSE;
+				/* Drop through */
+			case TV_SCROLL:
+			case TV_LITE:
 			{
 				/* Hack -- boring food */
 				if ((o_ptr->tval == TV_FOOD) && (o_ptr->sval >= SV_FOOD_MIN_FOOD))
@@ -6113,7 +6389,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 					k = tot_dam_aux(o_ptr, k, m_ptr);
 
-					k += critical_norm(o_ptr->weight, o_ptr->to_h, k);
+					k += critical_norm(o_ptr->weight, 2 * o_ptr->to_h, k);
 					k += o_ptr->to_d;
 
 					/* Armour reduces total damage */
@@ -6123,7 +6399,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 					if (k < 0) k = 0;
 
 					/* Damage, check for fear and death */
-					if (!mon_resist_object(m_ptr, o_ptr)) (void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+					if (!mon_resist_object(m_idx, o_ptr)) (void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 
 				}
 				else
@@ -6195,6 +6471,19 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 				/* Hack -- no more attacks */
 				if (!method) break;
+
+				if  ((magic) && ((r_info[m_ptr->r_idx].flags9 & (RF9_RES_MAGIC)) != 0)
+					&& (rand_int(100) < 20 + p_ptr->depth / 2))
+				{
+					msg_format("%^s is unaffected.", m_name);
+
+					if ((m_ptr->ml) && !(l_list[m_ptr->r_idx].flags9 & (RF9_RES_MAGIC)))
+					{
+						l_list[m_ptr->r_idx].flags9 |= (RF9_RES_MAGIC);
+					}
+
+					continue;
+				}
 
 				/* Mega hack -- dispel evil/undead objects */
 				if (!d_side)

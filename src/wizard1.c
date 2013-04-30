@@ -704,7 +704,144 @@ static void spoil_artifact(cptr fname)
 }
 
 
-
+/*
+ * The artifacts categorized by type
+ */
+static const cptr mon_spell_desc[] =
+{
+	"BLOW_1",
+	"BLOW_2",
+	"BLOW_3",
+	"BLOW_4",
+	"AMMO",
+	"QUAKE",
+	"EXPLOD",
+	"AURA",
+	"BRACID",
+	"BRELEC",
+	"BRFIRE",
+	"BRCOLD",
+	"BRPOIS",
+	"BRPLAS",
+	"BRLITE",
+	"BRDARK",
+	"BRCONF",
+	"BRSOUN",
+	"BRSHAR",
+	"BRINER",
+	"BRGRAV",
+	"BRWIND",
+	"BRFORC",
+	"BRNEXU",
+	"BRNETH",
+	"BRCHAO",
+	"BRDISE",
+	"BRTIME",
+	"BRMANA",
+	"BRHOLY",
+	"BRFEAR",
+	"BRDISE",
+	"BAACID",
+	"BAELEC",
+	"BAFIRE",
+	"BACOLD",
+	"BAPOIS",
+	"BALITE",
+	"BADARK",
+	"BACONF",
+	"BASOUN",
+	"BASHAR",
+	"BAWIND",
+	"BASTOR",
+	"BANETH",
+	"BACHAO",
+	"BAMANA",
+	"BAWATE",
+	"BOACID",
+	"BOELEC",
+	"BOFIRE",
+	"BOCOLD",
+	"BOPOIS",
+	"BOPLAS",
+	"BOICE",
+	"BOWATE",
+	"BONETH",
+	"BOMANA",
+	"HLYORB",
+	"BEELEC",
+	"BEICE",
+	"BENETH",
+	"ARCHFI",
+	"ARCFOR",
+	"HASTE",
+	"ADMANA",
+	"HEAL",
+	"CURE",
+	"BLINK",
+	"TPORT",
+	"INVIS",
+	"TESELF",
+	"TELETO",
+	"TELEAW",
+	"TELLVL",
+	"WRAITH",
+	"DARKNE",
+	"TRAPS",
+	"FORGET",
+	"DRAINM",
+	"CURSE",
+	"DISPEL",
+	"MINDBL",
+	"ILLUSI",
+	"WOUND",
+	"BLESS",
+	"BESERK",
+	"SHIELD",
+	"OPPOSE",
+	"HUNGER",
+	"PROBE",
+	"SCARE",
+	"BLIND",
+	"CONF",
+	"SLOW",
+	"HOLD",
+	"S_KIN",
+	"R_KIN",
+	"A_DEAD",
+	"S_MON",
+	"S_MONS",
+	"R_MON",
+	"R_MONS",
+	"S_PLAN",
+	"S_INSE",
+	"S_ANIM",
+	"S_HOUN",
+	"S_SPID",
+	"S_CLAS",
+	"S_RACE",
+	"S_GROU",
+	"S_FRD",
+	"S_FRDS",
+	"S_ORC",
+	"S_TROL",
+	"S_GIAN",
+	"S_DRAG",
+	"S_HIDR",
+	"A_ELEM",
+	"A_OBJE",
+	"S_DEMO",
+	"S_HIDE",
+	"R_UNIQ",
+	"S_UNIQ",
+	"S_HUNQ",
+	"S_UNDE",
+	"S_HIUN",
+	"S_WRAI",
+	"XXXX",
+	"XXXX",
+	"XXXX",
+	"XXXX"
+};
 
 
 /*
@@ -721,6 +858,9 @@ static void spoil_mon_desc(cptr fname)
 	char rar[80];
 	char pow[80];
 	char exp[80];
+	char bsp[80];
+	char thr[80];
+	char bth[80];
 	char spd[80];
 	char ac[80];
 	char hp[80];
@@ -752,10 +892,10 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
-	fprintf(fff, "%-40.40s%4s%4s%8s%8s%6s%8s%4s  %11.11s\n",
-		"Name", "Lev", "Rar", "Power", "Exper", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%8s%8s%6s%8s%4s  %11.11s\n",
-		"----", "---", "---", "-----", "-----", "---", "--", "--", "-----------");
+	fprintf(fff, "%-40.40s%4s%4s%8s%8s%7s%8s%7s%6s%8s%4s  %11.11s\n",
+		"Name", "Lev", "Rar", "Power", "Exper", "Spell", "Threat", "From", "Spd", "Hp", "Ac", "Visual Info");
+	fprintf(fff, "%-40.40s%4s%4s%8s%8s%7s%8s%7s%6s%8s%4s  %11.11s\n",
+		"----", "---", "---", "-----", "-----", "-----", "------", "----", "---", "--", "--", "-----------");
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -810,6 +950,17 @@ static void spoil_mon_desc(cptr fname)
 		/* Experience */
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
+		/* Best spell */
+		if (r_ptr->best_spell) sprintf(bsp, "%s", mon_spell_desc[r_ptr->best_spell-96]);
+		else strcpy(bsp, "");
+
+		/* Highest threat */
+		sprintf(thr, "%d", r_ptr->highest_threat);
+
+		/* Best spell */
+		if (r_ptr->best_threat) sprintf(bth, "%s", mon_spell_desc[r_ptr->best_threat-96]);
+		else strcpy(bth, "");
+
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
@@ -838,8 +989,8 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(vis, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%8s%8s%6s%8s%4s  %11.11s\n",
-			nam, lev, rar, pow, exp, spd, hp, ac, vis);
+		fprintf(fff, "%-40.40s%4s%4s%8s%8s%7s%8s%7s%6s%8s%4s  %11.11s\n",
+			nam, lev, rar, pow, exp, bsp, thr, bth, spd, hp, ac, vis);
 	}
 
 	/* End it */

@@ -12,7 +12,7 @@
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
  * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
-*/
+ */
 
 #include "angband.h"
 
@@ -66,8 +66,8 @@ static cptr d_info_sflags[] =
 	"QUEST",
 	"LITE",
 	"DARK",
-	"SURFACE",
-	"BOTTOM",
+	"LANGUAGE",
+	"XXXX",
 	"DAYLITE",
 	"ICKY",
 	"BLOODY",
@@ -97,6 +97,45 @@ static cptr d_info_sflags[] =
 /*
  * Room Level Flags
  */
+static cptr d_info_pflags[] =
+{
+	"NORTH",
+	"SOUTH",
+	"WEST",
+	"EAST",
+	"CENTRE",
+	"EDGE",
+	"PLACE",
+	"ALLOC",
+	"CHECKER",
+	"SCATTER",
+	"OUTER",
+	"RANDOM",
+	"HAS_ITEM",
+	"HAS_GOLD",
+	"TRAIL",
+	"INNER",
+	"ROWS",
+	"COLS",
+	"MAZE_PATH",
+	"MAZE_WALL",
+	"MAZE_DECOR",
+	"2X2",
+	"3X3",
+	"8WAY",
+	"DOORWAY",
+	"3X3HIDDEN",
+	"STARBURST",
+	"BRIDGE_EDGE",
+	"IGNORE_EDGE",
+	"BRIDGE_IN",
+	"LITE",
+	"DARK"
+};
+
+/*
+ * Room Level Flags
+ */
 static cptr d_info_lflags[] =
 {
 	"WATER",
@@ -105,8 +144,32 @@ static cptr d_info_lflags[] =
 	"ACID",
 	"OIL",
 	"CHASM",
-	"DARK",  /* Hack -- dark rooms - was destroyed */
-	"CROWDED"
+	"DESTROYED",
+	"LIVING",
+	"SEWER",
+	"SURFACE",
+	"DAYLIGHT",
+	"TOWER",
+	"BATTLE",
+	"VAULT",
+	"DUNGEON",
+	"STRONGHOLD",
+	"CRYPT",
+	"LAIR",
+	"MINE",
+	"CAVE",
+	"TOWN",
+	"WILD",
+	"RUIN",
+	"FEATURE",
+	"CHAMBERS",
+	"DARK",
+	"QUEST",
+	"GUARDIAN",
+	"ROOMS",
+	"TUNNELS",
+	"LESS",
+	"MORE"
 };
 
 /*
@@ -729,7 +792,6 @@ static cptr r_info_flags8[] =
 	"HAS_BLOOD",
 	"HAS_SLIME",
 	"HAS_SPORE",
-	"DROP_JUNK",
 	"DROP_CHEST",
 	"DROP_MISSILE",
 	"DROP_TOOL",
@@ -743,6 +805,7 @@ static cptr r_info_flags8[] =
 	"DROP_WRITING",
 	"DROP_POTION",
 	"DROP_FOOD",
+	"DROP_JUNK",
 	"ASSEMBLE"
 };
 
@@ -754,7 +817,7 @@ static cptr r_info_flags9[] =
 {
 	"PLAYER_GHOST",
 	"NEVER_MISS",
-	"SAME_SPEED",
+	"LEVEL_SPEED",
 	"EVASIVE",
 	"SCENT",
 	"SUPER_SCENT",
@@ -770,7 +833,7 @@ static cptr r_info_flags9[] =
 	"IM_BLUNT",
 	"NO_CUTS",
 	"NO_SLOW",
-	"FAMILY",
+	"RES_MAGIC",
 	"GOOD",
 	"NEUTRAL",
 	"DWARF",
@@ -782,11 +845,50 @@ static cptr r_info_flags9[] =
 	"DROP_MINERAL",
 	"ATTR_METAL",
 	"ATTR_INDEX",
-	"MORGUL_MAGIC",
-	"UDUN_MAGIC"
+	"LEVEL_SIZE",
+	"LEVEL_POWER"
 };
 
-
+#if 0
+/*
+ * Flow flags
+ */
+static cptr flow_flags[] =
+{
+	"FLOW_WALK_WALL",
+	"FLOW_WALK_OOZE",
+	"FLOW_WALK_BASH_OPEN",
+	"FLOW_WALK_BASH",
+	"FLOW_WALK_OPEN",
+	"FLOW_WALK",
+	"FLOW_WALK_FLY",
+	"FLOW_WALK_CLIMB",
+	"FLOW_FLY",
+	"FLOW_WALK_SWIM",
+	"FLOW_SWIM",
+	"FLOW_WALK_DIG",
+	"FLOW_WALK_ACID",
+	"FLOW_WALK_COLD",
+	"FLOW_WALK_ELEC",
+	"FLOW_WALK_FIRE",
+	"FLOW_WALK_FIRE_DIG",
+	"FLOW_WALK_FIRE_SWIM",
+	"FLOW_WALK_NONLIVING",
+	"FLOW_ACID",
+	"FLOW_COLD",
+	"FLOW_DIG",
+	"FLOW_FIRE",
+	"FLOW_FIRE_DIG",
+	"FLOW_FIRE_SWIM",
+	"FLOW_FLY_CHASM",
+	"FLOW_SWIM_DEEP",
+	"FLOW_HURT_FIRE",
+	"FLOW_HURT_WATER",
+	"",
+	"",
+	""
+};
+#endif
 
 /*
  * Monster race flags
@@ -1015,7 +1117,7 @@ static cptr k_info_flags3[] =
 	"SLOW_DIGEST",
 	"FEATHER",
 	"LITE",
-	"REGEN",
+	"REGEN_HP",
 	"TELEPATHY",
 	"SEE_INVIS",
 	"FREE_ACT",
@@ -1027,7 +1129,7 @@ static cptr k_info_flags3[] =
 	"ESP_TROLL",
 	"ESP_UNDEAD",
 	"ESP_NATURE",
-	"IMPACT",
+	"REGEN_MANA",
 	"DRAIN_HP",
 	"DRAIN_MANA",
 	"DRAIN_EXP",
@@ -1037,9 +1139,9 @@ static cptr k_info_flags3[] =
 	"ACTIVATE",
 	"BLESSED",
 	"INSTA_ART",
-	"EASY_KNOW",
-	"HIDE_TYPE",
-	"SHOW_MODS",
+	"HUNGER",
+	"IMPACT",
+	"HAS_ROPE",
 	"THROWING",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
@@ -1059,7 +1161,7 @@ static cptr k_info_flags4[] =
 	"VAMP_MANA",
 	"IM_POIS",
 	"RES_DISEASE",
-	"HUNGER",
+	"RES_WATER",
 	"SLAY_MAN",
 	"SLAY_ELF",
 	"SLAY_DWARF",
@@ -1898,27 +2000,6 @@ static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
 
 
 /*
- * Grab one byte flag from a textual string
- */
-static errr grab_one_bflag(byte *flags, cptr names[], cptr what)
-{
-	int i;
-
-	/* Check flags */
-	for (i = 0; i < 8; i++)
-	{
-		if (streq(what, names[i]))
-		{
-			*flags |= (1L << i);
-			return (0);
-		}
-	}
-
-	return (-1);
-}
-
-
-/*
  * Grab one flag from a textual string and convert to numeric
  */
 static errr grab_one_offset(byte *offset, cptr names[], cptr what)
@@ -1936,6 +2017,28 @@ static errr grab_one_offset(byte *offset, cptr names[], cptr what)
 	}
 
 	*offset = *offset+32;
+	return (-1);
+}
+
+
+/*
+ * Grab one flag from a textual string and convert to numeric
+ */
+static errr grab_one_offset_u16b(u16b *offset, cptr names[], cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, names[i]))
+		{
+			*offset = *offset + i;
+			return (0);
+		}
+	}
+
+	*offset = *offset + 32;
 	return (-1);
 }
 
@@ -1959,9 +2062,25 @@ static errr grab_one_special_flag(desc_type *d_ptr, cptr what)
 /*
  * Grab one level flag in an desc_type from a textual string
  */
+static errr grab_one_place_flag(desc_type *d_ptr, cptr what)
+{
+	if (grab_one_flag(&d_ptr->p_flag, d_info_pflags, what) == 0)
+		return (0);
+
+	/* Oops */
+	msg_format("Unknown room generate flag '%s'.", what);
+
+	/* Error */			
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+/*
+ * Grab one level flag in an desc_type from a textual string
+ */
 static errr grab_one_level_flag(desc_type *d_ptr, cptr what)
 {
-	if (grab_one_bflag(&d_ptr->l_flag, d_info_lflags, what) == 0)
+	if (grab_one_flag(&d_ptr->l_flag, d_info_lflags, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1971,6 +2090,7 @@ static errr grab_one_level_flag(desc_type *d_ptr, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
+
 /*
  * Grab an race flag in an desc_type from a textual string
  */
@@ -1978,32 +2098,36 @@ static errr grab_one_room_race_flag(desc_type *d_ptr, cptr what)
 {
 	d_ptr->r_flag = 1;
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags1, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags2, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags3, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags3, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags4, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags4, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags5, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags5, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags6, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags6, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags7, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags7, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags8, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags8, what) == 0)
 		return (0);
 
-	if (grab_one_offset(&d_ptr->r_flag, r_info_flags9, what) == 0)
+	if (grab_one_offset_u16b(&d_ptr->r_flag, r_info_flags9, what) == 0)
 		return (0);
+#if 0
+	if (grab_one_offset(&d_ptr->r_flag, flow_flags, what) == 0)
+		return (0);
+#endif
 
 	/* Oops */
 	msg_format("Unknown room race flag '%s'.", what);
@@ -2027,7 +2151,7 @@ errr parse_d_info(char *buf, header *head)
 	/* Process 'N' for "New/Number" */
 	if (buf[0] == 'N')
 	{
-		int prv, nxt, prc, min;
+		int prv, nxt, bon, bra, cha, noc, min, max;
 
 		/* Hack - get the index */
 		i = error_idx + 1;
@@ -2045,14 +2169,18 @@ errr parse_d_info(char *buf, header *head)
 		d_ptr = (desc_type*)head->info_ptr + i;
 
 		/* Scan for the values */
-		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			    &prv, &nxt, &prc, &min)) return (PARSE_ERROR_GENERIC);
+		if (8 != sscanf(buf, "N:%d:%d:%d:%d:%d:%d:%d:%d",
+			    &prv, &nxt, &bon, &bra, &cha, &noc, &min, &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		d_ptr->chart = prv;
 		d_ptr->next = nxt;
-		d_ptr->roll = prc;
-		d_ptr->level = min;
+		d_ptr->branch_on = bon;
+		d_ptr->branch = bra;
+		d_ptr->chance = cha;
+		d_ptr->not_chance = noc;
+		d_ptr->level_min = min;
+		d_ptr->level_max = max;
 
 		/* Initialize other values */
 		d_ptr->flags = 0;
@@ -2104,6 +2232,7 @@ errr parse_d_info(char *buf, header *head)
 		if (!add_text(&d_ptr->text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
+
 	/* Hack -- Process 'S' for special flags */
 	else if (buf[0] == 'S')
 	{
@@ -2130,6 +2259,34 @@ errr parse_d_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Hack -- Process 'P' for placement flags */
+	else if (buf[0] == 'P')
+	{
+		/* There better be a current d_ptr */
+		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_place_flag(d_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
 	/* Hack -- Process 'L' for level flags */
 	else if (buf[0] == 'L')
 	{
@@ -2173,32 +2330,35 @@ errr parse_d_info(char *buf, header *head)
 	/* Process 'K' for "Kind" (one line only) */
 	else if (buf[0] == 'K')
 	{
-		int kind;
+		int tval, min_sval, max_sval;
 
 		/* There better be a current d_ptr */
 		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d", &kind)) return (1);
+		if (3 != sscanf(buf+2, "%d:%d:%d", &tval, &min_sval, &max_sval)) return (1);
 
 		/* Save the values */
-		d_ptr->tval = kind;
+		d_ptr->tval = tval;
+		d_ptr->min_sval = min_sval;
+		d_ptr->max_sval = max_sval;
 	}
 
 	/* Process 'F' for "Feature" (one line only) */
 	else if (buf[0] == 'F')
 	{
-		int feat;
+		int feat, tunnel, solid;
 
 		/* There better be a current d_ptr */
 		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d", &feat)) return (1);
+		if (3 != sscanf(buf+2, "%d:%d:%d", &feat, &tunnel, &solid)) return (1);
 
 		/* Save the values */
 		d_ptr->feat = feat;
-
+		d_ptr->tunnel = tunnel;
+		d_ptr->solid = solid;
 	}
 
 	/* Process 'R' for "Race flag" (once only) */
@@ -2238,7 +2398,10 @@ static errr grab_one_feat_flag(feature_type *f_ptr, cptr what)
 
 	if (grab_one_flag(&f_ptr->flags3, f_info_flags3, what) == 0)
 		return (0);
-
+#if 0
+	if (grab_one_flag(&f_ptr->flows, flow_flags, what) == 0)
+		return (0);
+#endif
 	/* Oops */
 	msg_format("Unknown feature flag '%s'.", what);
 
@@ -3548,7 +3711,10 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 
 	if (grab_one_flag(&r_ptr->flags9, r_info_flags9, what) == 0)
 		return (0);
-
+#if 0
+	if (grab_one_flag(&r_ptr->flows, flow_flags, what) == 0)
+		return (0);
+#endif
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
@@ -4094,7 +4260,7 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, tht, thn, thb;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4102,7 +4268,7 @@ errr parse_p_info(char *buf, header *head)
 		/* Scan for the values */
 		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
@@ -4110,7 +4276,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_sav = sav;
 		pr_ptr->r_stl = stl;
 		pr_ptr->r_srh = srh;
-		pr_ptr->r_fos = fos;
+		pr_ptr->r_tht = tht;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
 	}
@@ -4342,7 +4508,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, tht, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4350,7 +4516,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Scan for the values */
 		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_dis = dis;
@@ -4358,7 +4524,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_sav = sav;
 		pc_ptr->c_stl = stl;
 		pc_ptr->c_srh = srh;
-		pc_ptr->c_fos = fos;
+		pc_ptr->c_tht = tht;
 		pc_ptr->c_thn = thn;
 		pc_ptr->c_thb = thb;
 	}
@@ -4366,7 +4532,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, tht, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4374,7 +4540,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Scan for the values */
 		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
 			    &dis, &dev, &sav, &stl,
-			    &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			    &srh, &tht, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_dis = dis;
@@ -4382,7 +4548,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_sav = sav;
 		pc_ptr->x_stl = stl;
 		pc_ptr->x_srh = srh;
-		pc_ptr->x_fos = fos;
+		pc_ptr->x_tht = tht;
 		pc_ptr->x_thn = thn;
 		pc_ptr->x_thb = thb;
 	}
@@ -5501,8 +5667,22 @@ errr parse_u_info(char *buf, header *head)
 		/* Store the name */
 		if (!(u_ptr->name = add_name(head, s))) return (PARSE_ERROR_OUT_OF_MEMORY);
 
+		/* Save the index into the store structure */
+		u_ptr->index = i;
+		
 		/* Reset the store */
 		cur_t = 0;
+	}
+
+	/* Process 'X' for "Extra" */
+	else if (buf[0] == 'X')
+	{
+		int base;
+
+		/* Scan for the values */
+		if (1 != sscanf(buf+2, "%d", &base)) return (PARSE_ERROR_GENERIC);
+
+		u_ptr->base = base;
 	}
 
 	/* Process 'O' for "Offered" (up to thirty two lines) */
@@ -6092,6 +6272,123 @@ errr eval_info(eval_info_power_func eval_info_process, header *head)
 
 
 
+static long eval_blow_effect(int effect, int atk_dam, int rlev)
+{
+	switch (effect)
+	{
+		/*other bad effects - minor*/
+		case GF_EAT_GOLD:
+		case GF_EAT_ITEM:
+		case GF_EAT_FOOD:
+		case GF_EAT_LITE:
+		case GF_LOSE_CHR:
+		case GF_WIND:
+		{
+			atk_dam += 5;
+			break;
+		}
+		/*other bad effects - poison / disease */
+		case GF_DISEASE:
+		case GF_POIS:
+		case GF_ICE:
+		case GF_SHARD:
+		{
+			atk_dam *= 5;
+			atk_dam /= 4;
+			atk_dam += 5;
+			break;
+		}
+		/*other bad effects - elements / sustains*/
+		case GF_TERRIFY:
+		case GF_ACID:
+		case GF_ELEC:
+		case GF_FIRE:
+		case GF_COLD:
+		case GF_HUNGER:
+		case GF_LOSE_MANA:
+		case GF_LITE:
+		case GF_DARK:
+		case GF_SLOW:
+		{
+			atk_dam += 10;
+			break;
+		}
+		/*other bad effects - major*/
+		case GF_PLASMA:
+		case GF_WATER:
+		case GF_SOUND:
+		case GF_NEXUS:
+		case GF_BLIND:
+		case GF_LAVA:
+		case GF_CONFUSION:
+		case GF_LOSE_STR:
+		case GF_LOSE_INT:
+		case GF_LOSE_WIS:
+		case GF_LOSE_DEX:
+		case GF_HALLU:
+		{
+			atk_dam += 20;
+			break;
+		}
+		/*other bad effects - major*/
+		case GF_GRAVITY:
+		case GF_INERTIA:
+		case GF_FORCE:
+		case GF_NETHER:
+		case GF_DISENCHANT:
+		case GF_UN_BONUS:
+		case GF_UN_POWER:
+		case GF_LOSE_CON:
+		{
+			atk_dam += 30;
+			break;
+		}
+		/*other bad effects - major*/
+		case GF_PARALYZE:
+		case GF_LOSE_ALL:
+		{
+			atk_dam += 40;
+			break;
+		}
+		/* Experience draining attacks */
+		case GF_EXP_10:
+		case GF_EXP_20:
+		{
+			atk_dam += 1000 / (rlev + 1);
+			break;
+		}
+		case GF_CHAOS:
+		case GF_TIME:
+		case GF_EXP_40:
+		case GF_EXP_80:
+		{
+			atk_dam += 2000 / (rlev + 1);
+			break;
+		}
+		/*Earthquakes*/
+		case GF_SHATTER:
+		{
+			atk_dam += 300;
+			break;
+		}
+		/* No damage normally */
+		case GF_LITE_WEAK:
+		case GF_DARK_WEAK:
+		case GF_WATER_WEAK:
+		case GF_SALT_WATER:
+		case GF_BLIND_WEAK:
+		{
+			atk_dam = 5;
+		}
+		/*nothing special*/
+		default: break;
+	}
+
+	return (atk_dam);
+}
+
+
+
 /*
  * Go through the attack types for this monster.
  * We look for the maximum possible maximum damage that this
@@ -6105,9 +6402,9 @@ errr eval_info(eval_info_power_func eval_info_process, header *head)
 static long eval_max_dam(monster_race *r_ptr)
 {
 	int i, x;
-	u32b dam = 1;
-	u32b hp;
-	u32b melee_dam, atk_dam, spell_dam;
+	int dam = 1;
+	int hp;
+	int melee_dam, atk_dam, spell_dam;
 	byte rlev;
 	u32b flag, breath_mask, attack_mask, innate_mask;
 	u32b flag_counter;
@@ -6124,7 +6421,6 @@ static long eval_max_dam(monster_race *r_ptr)
 
 	for (x = 0; x < 4; x++)
 	{
-
 		/*Get the flags 4 monster flags and masks*/
 		switch (x)
 		{
@@ -6171,7 +6467,9 @@ static long eval_max_dam(monster_race *r_ptr)
 		/* using 32 assumes a u32b flag size*/
 		for (i = 0; i < 32; i++)
 		{
-			u16b this_dam = 0;
+			int this_dam;
+
+			this_dam = 0;
 
 			/* We count ranged blows later */
 			if (!(x) && ((flag <= RF4_BLOW_4) || (flag == RF4_EXPLODE) || (flag == RF4_AURA))) continue;
@@ -6321,15 +6619,17 @@ static long eval_max_dam(monster_race *r_ptr)
 							case GF_ELEC:
 							case GF_POIS:
 							{
-								/* Lets just pretend the player has the right base resist*/
-								div_by *= 3;
+								/* Scale for level */
+								mult *= 20;
+								div_by *= rlev + 20;
 
 								break;
 							}
 
 						}
 
-						this_dam = (this_dam * mult) / div_by;
+						/* Get damage */
+						this_dam = eval_blow_effect(which_gf, (this_dam * mult) / div_by, r_ptr->level);
 
 						/* Slight bonus for being powerful */
 						if (r_ptr->flags2 & (RF2_POWERFUL)) this_dam = this_dam * 8 / 7;
@@ -6343,25 +6643,25 @@ static long eval_max_dam(monster_race *r_ptr)
 					{
 						case 0:
 						{
-							this_dam = r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_DAM_MULT];
+							this_dam = eval_blow_effect(spell_desire_RF4[i][6], r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_DAM_MULT], r_ptr->level);
 							this_dam /=  MAX(1, spell_info_RF4[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 1:
 						{
-							this_dam = r_ptr->spell_power * spell_info_RF5[i][COL_SPELL_DAM_MULT];
+							this_dam = eval_blow_effect(spell_desire_RF5[i][6], r_ptr->spell_power * spell_info_RF5[i][COL_SPELL_DAM_MULT], r_ptr->level);
 							this_dam /=  MAX(1, spell_info_RF5[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 2:
 						{
-							this_dam = r_ptr->spell_power * spell_info_RF6[i][COL_SPELL_DAM_MULT];
+							this_dam = eval_blow_effect(spell_desire_RF6[i][6], r_ptr->spell_power * spell_info_RF6[i][COL_SPELL_DAM_MULT], r_ptr->level);
 							this_dam /=  MAX(1, spell_info_RF6[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 3:
 						{
-							this_dam = r_ptr->spell_power * spell_info_RF7[i][COL_SPELL_DAM_MULT];
+							this_dam = eval_blow_effect(spell_desire_RF7[i][6], r_ptr->spell_power * spell_info_RF7[i][COL_SPELL_DAM_MULT], r_ptr->level);
 							this_dam /=  MAX(1, spell_info_RF7[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
@@ -6385,7 +6685,7 @@ static long eval_max_dam(monster_race *r_ptr)
 					case 2:
 					{
 						/*Misc flag6 flags*/
-						if (flag_counter == RF6_ADD_MANA) this_dam = MAX(r_ptr->mana, 30);
+						if (flag_counter == RF6_ADD_MANA) this_dam = 0;
 						else if (flag_counter == RF6_BLINK) this_dam = rlev / 3;
 						else if (flag_counter == RF6_TELE_SELF_TO) this_dam = rlev * 2;
 						else if (flag_counter == RF6_TELE_TO) this_dam = rlev;
@@ -6445,52 +6745,95 @@ static long eval_max_dam(monster_race *r_ptr)
 						else if (flag_counter == RF7_S_WRAITH)	this_dam = rlev * 9 / 2;
 						else if (flag_counter == RF7_S_UNIQUE)	this_dam = rlev * 3;
 						else if (flag_counter == RF7_S_HI_UNIQUE)	this_dam = rlev * 5;
+
+						/* Fast summoners are more threatening */
+						this_dam = (this_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)]) / 10;
 						break;
 					}
 				}
 
 			}
 
-			/* Hack - always allow one attack at maximum */
-			if (this_dam > spell_dam) spell_dam = this_dam;
+			/* Hack - record most damaging spell for diagnostics */
+			if (this_dam > r_ptr->highest_threat)
+			{
+				r_ptr->highest_threat = this_dam;
+				r_ptr->best_threat = 96 + x * 32 + i;
+			}
 
 			/* Hack - Apply over 10 rounds */
 			this_dam *= 10;
 
-			/* Scale for frequency */
-			if (flag_counter & innate_mask)	this_dam = this_dam * r_ptr->freq_innate / 100;
-			else this_dam = this_dam * r_ptr->freq_spell / 100;
-
 			/* Scale for spell failure chance */
 			if (!(r_ptr->flags2 & RF2_STUPID) && (x > 0)) this_dam = this_dam * MIN(75 + (rlev + 3) / 4, 100) / 100;
 
-			/* Scale for mana requirement */
-			if ((x == 0) && (spell_info_RF4[i][0] * 10 > r_ptr->mana))
+			/* Scale for frequency and availability of mana / ammo */
+			if (this_dam)
 			{
-				this_dam = this_dam * r_ptr->mana / (spell_info_RF4[i][0] * 10);
-			}
-			else if ((x == 1) && (spell_info_RF5[i][0] * 10 > r_ptr->mana))
-			{
-				this_dam = this_dam * r_ptr->mana / (spell_info_RF5[i][0] * 10);
-			}
-			else if ((x == 2) && (spell_info_RF6[i][0] * 10 > r_ptr->mana))
-			{
-				this_dam = this_dam * r_ptr->mana / (spell_info_RF6[i][0] * 10);
-			}
-			else if ((x == 3) && (spell_info_RF7[i][0] * 10 > r_ptr->mana))
-			{
-				this_dam = this_dam * r_ptr->mana / (spell_info_RF7[i][0] * 10);
+				int freq;
+				int need_mana = 0;
+				int has_ammo = 0;
+
+				/* Get frequency */
+				if ((x == 0) && (flag_counter & innate_mask)) freq = r_ptr->freq_innate;
+				else freq = r_ptr->freq_spell;
+#if 0
+				/* Paranoia */
+				if (!freq)
+				{
+					r_ptr->highest_threat = 30000;
+					r_ptr->best_threat = 96 + x * 32 + i;
+				}
+#endif
+				/* Get mana required */
+				if (x == 0) need_mana = spell_info_RF4[i][0];
+				else if (x == 1) need_mana = spell_info_RF5[i][0];
+				else if (x == 2) need_mana = spell_info_RF6[i][0];
+				else if (x == 3) need_mana = spell_info_RF7[i][0];
+#if 0
+				/* Paranoia */
+				if ((need_mana) && !(r_ptr->mana))
+				{
+					r_ptr->highest_threat = 30000;
+					r_ptr->best_threat = 96 + x * 32 + i;
+				}
+#endif
+				/* Adjust frequency for ammo */
+				if (has_ammo * 5 < freq) freq = has_ammo * 5;
+
+				/* Adjust frequency for mana -- casters that can add mana and need to do so */
+				if ((r_ptr->flags6 & (RF6_ADD_MANA)) && (need_mana) && (freq > r_ptr->mana * 10 / need_mana))
+				{
+					freq = MIN(freq, (freq + r_ptr->mana * 10 / need_mana) / 2);
+				}
+
+				/* Adjust frequency for mana */
+				else if (need_mana)
+				{
+					freq = MIN(freq, r_ptr->mana * 10 / need_mana);
+				}
+
+				/* Hack -- always get 1 shot */
+				if (freq < 10) freq = 10;
+
+				/* Adjust for frequency */
+				this_dam = this_dam * freq / 100;
 			}
 
-			if (this_dam > spell_dam) spell_dam = this_dam;
+			/* Better spell? */
+			if (this_dam > spell_dam)
+			{
+				r_ptr->best_spell = 96 + x * 32 + i;
+				spell_dam = this_dam;
+			}
 
 			/*shift one bit*/
 			flag_counter = flag_counter << 1;
 		}
 	}
 
-	/* Only do if it has attacks */
-	if (!(r_ptr->flags1 & (RF1_NEVER_BLOW)))
+	/* Check attacks */
+	if (TRUE)
 	{
 		for (i = 0; i < 4; i++)
 		{
@@ -6504,7 +6847,7 @@ static long eval_max_dam(monster_race *r_ptr)
 			if (!method) continue;
 
 			/* Assume maximum damage*/
-			atk_dam = d_dice * d_side;
+			atk_dam = eval_blow_effect(effect, d_dice * d_side, r_ptr->level);
 
 			switch (method)
 			{
@@ -6538,137 +6881,41 @@ static long eval_max_dam(monster_race *r_ptr)
 				}
 			}
 
-			switch (effect)
-			{
-				/*other bad effects - minor*/
-				case GF_EAT_GOLD:
-				case GF_EAT_ITEM:
-				case GF_EAT_FOOD:
-				case GF_EAT_LITE:
-				case GF_LOSE_CHR:
-				case GF_WIND:
-				{
-					atk_dam += 5;
-					break;
-				}
-				/*other bad effects - poison / disease */
-				case GF_DISEASE:
-				case GF_POIS:
-				case GF_ICE:
-				case GF_SHARD:
-				{
-					atk_dam *= 5;
-					atk_dam /= 4;
-					atk_dam += 5;
-					break;
-				}
-				/*other bad effects - elements / sustains*/
-				case GF_TERRIFY:
-				case GF_ACID:
-				case GF_ELEC:
-				case GF_FIRE:
-				case GF_COLD:
-				case GF_HUNGER:
-				case GF_LOSE_MANA:
-				case GF_LITE:
-				case GF_DARK:
-				case GF_SLOW:
-				{
-					atk_dam += 10;
-					break;
-				}
-				/*other bad effects - major*/
-				case GF_PLASMA:
-				case GF_WATER:
-				case GF_SOUND:
-				case GF_NEXUS:
-				case GF_BLIND:
-				case GF_LAVA:
-				case GF_CONFUSION:
-				case GF_LOSE_STR:
-				case GF_LOSE_INT:
-				case GF_LOSE_WIS:
-				case GF_LOSE_DEX:
-				case GF_EXP_10:
-				case GF_HALLU:
-				{
-					atk_dam += 20;
-					break;
-				}
-				/*other bad effects - major*/
-				case GF_GRAVITY:
-				case GF_INERTIA:
-				case GF_FORCE:
-				case GF_NETHER:
-				case GF_CHAOS:
-				case GF_DISENCHANT:
-				case GF_UN_BONUS:
-				case GF_UN_POWER:
-				case GF_LOSE_CON:
-				case GF_EXP_20:
-				{
-					atk_dam += 30;
-					break;
-				}
-				/*other bad effects - major*/
-				case GF_TIME:
-				case GF_PARALYZE:
-				case GF_LOSE_ALL:
-				case GF_EXP_40:
-				case GF_EXP_80:
-				{
-					atk_dam += 40;
-					break;
-				}
-
-
-				/*Earthquakes*/
-				case GF_SHATTER:
-				{
-					atk_dam += 300;
-					break;
-				}
-
-				/* No damage normally */
-				case GF_LITE_WEAK:
-				case GF_DARK_WEAK:
-				case GF_WATER_WEAK:
-				case GF_SALT_WATER:
-				case GF_BLIND_WEAK:
-				{
-					atk_dam = 5;
-				}
-
-				/*nothing special*/
-				default: break;
-			}
-
-
 			/* Normal melee attack */
-			if (method < RBM_MAX_NORMAL)
+			if ((method < RBM_MAX_NORMAL) && !(r_ptr->flags1 & (RF1_NEVER_BLOW)))
 			{
 				/* Keep a running total */
 				melee_dam += atk_dam;
 			}
 
-			/* Hack -- aura is extra tough in melee */
-			if (method == RBM_AURA) 
-			{
-				/* Keep a running total */
-				melee_dam += 3 * atk_dam;
-			}
-
 			/* Ranged attacks can also apply spell dam */
 			if (method > RBM_MIN_RANGED)
 			{
-				int range = MAX_SIGHT, mana = 0;
+				int range = MAX_SIGHT, mana = 0, has_ammo = 0, freq;
 				bool must_hit = FALSE;
 
-				/* Hack -- always allow one attack at maximum */
-				if (spell_dam < atk_dam) spell_dam = atk_dam;
+				/* handle elemental breaths*/
+				switch (effect)
+				{
+					case GF_ACID:
+					case GF_FIRE:
+					case GF_COLD:
+					case GF_ELEC:
+					case GF_POIS:
+					{
+						/* Scale for level */
+						atk_dam *= 20;
+						atk_dam /= rlev + 20;
+						break;
+					}
+				}
 
-				/* Scale for frequency of innate attacks */
-				atk_dam = atk_dam * r_ptr->freq_innate / 100;
+				/* Hack - record most damaging spell for diagnostics */
+				if (atk_dam > r_ptr->highest_threat)
+				{
+					r_ptr->highest_threat = atk_dam;
+					r_ptr->best_threat = 96 + i;
+				}
 
 				/* Some ranged blows can miss */
 				switch(method)
@@ -6676,13 +6923,13 @@ static long eval_max_dam(monster_race *r_ptr)
 					case RBM_SPIT:	mana = 0; must_hit = TRUE; break;
 					case RBM_GAZE:	mana = 3; range = MIN(MAX_SIGHT, r_ptr->aaf);break;
 					case RBM_WAIL:  mana = 5; range = 4; break;
-					case RBM_SPORE:	mana = 0; range = 3; must_hit = TRUE; break;
+					case RBM_SPORE:	mana = 0; range = 3; must_hit = TRUE; has_ammo = r_ptr->level; break;
 					case RBM_LASH:  mana = 0; range = 3; break;
 					case RBM_BEG:	mana = 0; range = 4; break;
 					case RBM_INSULT: mana = 0; range = 4; break;
 					case RBM_SING:  mana = 0; range = 4; break;
 					case RBM_TRAP:  mana = 0; range = 1; break;
-					case RBM_BOULDER: mana = 0; range = 8; must_hit = TRUE; break;
+					case RBM_BOULDER: mana = 0; range = 8; must_hit = TRUE; has_ammo = (r_ptr->level + 1) / 2; break;
 					case RBM_AURA:	mana = 4; range = 2; break;
 					case RBM_SELF:	mana = 3; range = 0; break;
 					case RBM_ADJACENT: mana = 3; range = 1; break;
@@ -6711,15 +6958,18 @@ static long eval_max_dam(monster_race *r_ptr)
 					case RBM_CROSS: mana = 4; range = MAX_SIGHT; break;
 					case RBM_STRIKE: mana = 5; range = MAX_SIGHT; break;
 					case RBM_EXPLODE: mana = 0; range = 1; break;
-					case RBM_ARROW: mana = 0; range = 10; must_hit = TRUE; break;
-					case RBM_XBOLT: mana = 0; range = 12; must_hit = TRUE; break;
-					case RBM_SPIKE: mana = 0; range = 4; must_hit = TRUE; break;
-					case RBM_DART: mana = 0; range = 8; must_hit = TRUE; break;
+					case RBM_ARROW: mana = 0; range = 10; must_hit = TRUE; has_ammo = r_ptr->level; break;
+					case RBM_XBOLT: mana = 0; range = 12; must_hit = TRUE; has_ammo = r_ptr->level; break;
+					case RBM_SPIKE: mana = 0; range = 4; must_hit = TRUE; has_ammo = r_ptr->level; break;
+					case RBM_DART: mana = 0; range = 8; must_hit = TRUE; has_ammo = r_ptr->level; break;
 					case RBM_SHOT: mana = 0; range = 8; must_hit = TRUE; break;
 					case RBM_ARC_20: mana = 6; range = 8; break;
 					case RBM_ARC_30: mana = 5; range = 6; break;
-					case RBM_FLASK:	mana = 0; range = 6; must_hit = TRUE; break;
+					case RBM_FLASK:	mana = 0; range = 6; must_hit = TRUE; has_ammo = (r_ptr->level + 1) / 2; break;
 				}
+
+				/* Archers get more shots */
+				if (r_ptr->flags2 & (RF2_ARCHER)) has_ammo *= 2;
 
 				/* Scale if needs to hit */
 				if (must_hit && !(r_ptr->flags9 & (RF9_NEVER_MISS)))
@@ -6730,16 +6980,71 @@ static long eval_max_dam(monster_race *r_ptr)
 				/* Scale for maximum range */
 				if (r_ptr->flags2 & (RF2_KILL_WALL | RF2_PASS_WALL)) atk_dam *= 10;
 				else if (range >= 7) atk_dam *= 10;
-				else if (r_ptr->flags9 & (RF9_SAME_SPEED)) atk_dam *= MIN(4 + range, 10);
 				else
 					atk_dam = atk_dam * (3 + range) + atk_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)] / (7 - range);
 
-				/* Scale for mana requirement */
-				if (mana * 10 > r_ptr->mana) atk_dam = atk_dam * r_ptr->mana / (mana * 10);
+				/* Get frequency */
+				freq = r_ptr->freq_innate;
+#if 0
+				/* Paranoia */
+				if (!freq)
+				{
+					r_ptr->highest_threat = 30000;
+					r_ptr->best_threat = 96 + i;
+				}
 
-				if (spell_dam < atk_dam) spell_dam = atk_dam;
+				/* Paranoia */
+				if ((mana) && !(r_ptr->mana))
+				{
+					r_ptr->highest_threat = 30000;
+					r_ptr->best_threat = 96 + i;
+				}
+#endif
+				/* Adjust frequency for ammo */
+				if (has_ammo * 5 < freq) freq = has_ammo * 5;
+
+				/* Adjust frequency for mana -- casters that can add mana and need to do so */
+				if ((r_ptr->flags6 & (RF6_ADD_MANA)) && (mana) && (freq > r_ptr->mana * 10 / mana))
+				{
+					freq = MIN(freq, (freq + r_ptr->mana * 10 / mana) / 2);
+				}
+
+				/* Adjust frequency for mana */
+				else if (mana)
+				{
+					freq = MIN(freq, r_ptr->mana * 10 / mana);
+				}
+
+				/* Hack -- always get 1 shot */
+				if (freq < 10) freq = 10;
+
+				/* Hack -- aura frequency */
+				if (method == RBM_AURA) freq += 100;
+
+				/* Adjust for frequency */
+				atk_dam = atk_dam * freq / 100;
+
+				/* Best ranged attack? */
+				if (atk_dam > spell_dam)
+				{
+					spell_dam = atk_dam;
+					r_ptr->best_spell = 96 + i;
+				}
 			}
 
+			/* Hack -- aura is extra tough in melee */
+			if (method == RBM_AURA) 
+			{
+				/* Keep a running total */
+				melee_dam += 3 * atk_dam;
+			}
+		}
+
+		/* Hack - record most damaging spell for diagnostics */
+		if ((melee_dam > r_ptr->highest_threat) && (!(r_ptr->flags1 & (RF1_NEVER_MOVE)) || (r_ptr->flags2 & (RF2_MULTIPLY))))
+		{
+			r_ptr->highest_threat = melee_dam;
+			r_ptr->best_threat = 0;
 		}
 
 		/* 
@@ -6752,15 +7057,11 @@ static long eval_max_dam(monster_race *r_ptr)
 				melee_dam *= 10;
 		else if (r_ptr->flags3 & (RF3_HUGE))
 		{
-			if (r_ptr->flags9 & (RF9_SAME_SPEED)) melee_dam *= 6;
-			else
-				melee_dam = melee_dam * 4 + melee_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)] / 6;
+			melee_dam = melee_dam * 4 + melee_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)] / 6;
 		}
 		else
 		{
-			if (r_ptr->flags9 & (RF9_SAME_SPEED)) melee_dam *= 5;
-			else
-				melee_dam = melee_dam * 3 + melee_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)] / 7;
+			melee_dam = melee_dam * 3 + melee_dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)] / 7;
 		}
 
 		/*
@@ -6825,6 +7126,12 @@ static long eval_max_dam(monster_race *r_ptr)
 	 */
 	dam = (dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)]) / 10;
 
+	/*
+	 * Adjust threat for speed -- multipliers are more threatening.
+	 */
+	if (r_ptr->flags2 & (RF2_MULTIPLY))
+		r_ptr->highest_threat = (r_ptr->highest_threat * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)]) / 5;
+
 	/*but deep in a minimum*/
 	if (dam < 1) dam  = 1;
 
@@ -6837,7 +7144,7 @@ static long eval_max_dam(monster_race *r_ptr)
 static long eval_hp_adjust(monster_race *r_ptr)
 {
 	long hp;
-	int resists = 0;
+	int resists = 1;
 	int ac = 0;
 	int hide_bonus = 0;
 
@@ -6884,6 +7191,11 @@ static long eval_hp_adjust(monster_race *r_ptr)
 		 (r_ptr->flags6 & RF6_TELE_AWAY)||
 		 (r_ptr->flags6 & RF6_TELE_LEVEL)) hp = (hp * 6) / 5;
 
+	/*
+ 	 * Monsters that multiply are tougher to kill
+	 */
+	if (r_ptr->flags2 & (RF2_MULTIPLY)) hp *= 2;
+
 	/* Monsters with resistances are harder to kill.
 	   Therefore effective slays / brands against them are worth more. */
 	if (r_ptr->flags3 & RF3_IM_ACID)	resists += 2;
@@ -6912,21 +7224,21 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (r_ptr->flags9 & RF9_EVASIVE) resists += 2;
  
 	/* Bonus for multiple basic resists and weapon resists */
-	if (resists >= 10) resists *= 6;
+	if (resists >= 12) resists *= 6;
 	else if (resists >= 10) resists *= 4;
 	else if (resists >= 8) resists *= 3;
 	else if (resists >= 6) resists *= 2;
 
-	/* Reduce resists by vulnerabilities */
-	if (r_ptr->flags3 & RF3_HURT_LITE)	resists -= 3;
-	if (r_ptr->flags3 & RF3_HURT_ROCK)	resists -= 3;
-	if (r_ptr->flags3 & RF3_HURT_WATER)	resists -= 1;
-	if (r_ptr->flags2 & RF2_MUST_FLY)	resists -= 1;
-	if (r_ptr->flags2 & RF2_MUST_SWIM)	resists -= 1;
+	/* Terrain exploits reduce overall resists */
+	if (r_ptr->flags3 & RF3_HURT_LITE) 	resists /= 2;
+	if (r_ptr->flags2 & RF2_MUST_FLY)	resists /= 2;
+	if (r_ptr->flags2 & RF2_MUST_SWIM)	resists /= 3;
 
 	/* If quite resistant, reduce resists by defense holes */
-	if (resists >= 5)
+	if (resists >= 6)
 	{
+		if (r_ptr->flags3 & RF3_HURT_ROCK) 	resists -= 1;
+		if (r_ptr->flags3 & RF3_HURT_WATER) 	resists -= 1;
 		if (!(r_ptr->flags3 & RF3_NO_SLEEP))	resists -= 3;
 		if (!(r_ptr->flags3 & RF3_NO_FEAR))	resists -= 2;
 		if (!(r_ptr->flags3 & RF3_NO_CONF))	resists -= 2;
@@ -6936,11 +7248,11 @@ static long eval_hp_adjust(monster_race *r_ptr)
 		if (!(r_ptr->flags9 & RF9_NO_CUTS))	resists -= 1;
 		if (!(r_ptr->flags9 & RF9_RES_TPORT))	resists -= 2;
 
-		if (resists < 0) resists = 0;
+		if (resists < 5) resists = 5;
 	}
 
 	/* If quite resistant, bonus for high resists */
-	if (resists >= 5)
+	if (resists >= 3)
 	{
 		if (r_ptr->flags9 & RF9_RES_DARK)	resists += 1;
 		if (r_ptr->flags9 & RF9_RES_CHAOS)	resists += 1;
@@ -6954,6 +7266,9 @@ static long eval_hp_adjust(monster_race *r_ptr)
 
 	/* Scale resists to ac */
 	resists = resists * 25;
+
+	/* Apply magic resistance */
+	if (r_ptr->flags9 & RF9_RES_MAGIC)	resists += 40 + r_ptr->level;
 
 	/* Get the monster ac */
 	ac = r_ptr->ac;
@@ -6980,12 +7295,12 @@ static long eval_hp_adjust(monster_race *r_ptr)
 	if (resists < ac)
 	{
 		/* Modify hit points by ac */
-		hp += hp * resists / 250;
+		hp += hp * resists / (150 + r_ptr->level);
 	}
 	else
 	{
 		/* Modify hit points by ac */
-		hp += hp * ac / 250;
+		hp += hp * ac / (150 + r_ptr->level);
 	}
 
 	/*boundry control*/
@@ -7011,14 +7326,20 @@ errr eval_r_power(header *head)
 	long mon_count[MAX_DEPTH];
 	monster_race *r_ptr = NULL;
 
-	/* Reset the sum of all monster power values */
-	tot_mon_power = 0;
+	int iteration;
 
 	/* Allocate space for power */
 	C_MAKE(power, z_info->r_max, long);
 
-	/* Make sure all arrays start at zero */
 
+for (iteration = 0; iteration < 3; iteration ++)
+{
+
+	/* Reset the sum of all monster power values */
+	tot_mon_power = 0;
+
+
+	/* Make sure all arrays start at zero */
 	for (i = 0; i < MAX_DEPTH; i++)
 	{
 		tot_hp[i] = 0;
@@ -7027,12 +7348,52 @@ errr eval_r_power(header *head)
 	}
 
 	/*
-	 * Go through r_info and evaluate power ratings.
+	 * Go through r_info and evaluate power ratings & flows.
 	 */
 	for (i = 0; i < z_info->r_max; i++)
 	{
 		/* Point at the "info" */
 		r_ptr = (monster_race*)head->info_ptr + i;
+#if 0
+		/*** Evaluate flows ***/
+
+		/* Evaluate 'unusual' flows */
+		if (r_ptr->flags2 & (RF2_KILL_WALL | RF2_PASS_WALL)) r_ptr->flows |= (1L << FLOW_WALK_WALL);
+		if (r_ptr->flags2 & (RF2_MUST_FLY)) r_ptr->flows |= (1L << FLOW_FLY);
+		if (r_ptr->flags2 & (RF2_MUST_SWIM)) r_ptr->flows |= (1L << FLOW_SWIM);
+
+		/* Evaluate walking flows */
+		if ((r_ptr->flags2 & (RF2_MUST_FLY | RF2_MUST_SWIM)) == 0)
+		{
+			/* Use walking */
+			r_ptr->flows |= (1L << FLOW_WALK);
+
+			/* Evaluate walk + other */
+			if (r_ptr->flags2 & (RF2_CAN_DIG)) r_ptr->flows |= (1L << FLOW_WALK_DIG) | (1L << FLOW_DIG);
+			if (r_ptr->flags2 & (RF2_CAN_FLY)) r_ptr->flows |= (1L << FLOW_WALK_FLY) | (1L << FLOW_FLY_CHASM);
+			if (r_ptr->flags2 & (RF2_CAN_SWIM)) r_ptr->flows |= (1L << FLOW_WALK_SWIM) | (1L << FLOW_SWIM);
+			if (r_ptr->flags2 & (RF2_CAN_CLIMB)) r_ptr->flows |= (1L << FLOW_WALK_CLIMB);
+			if (r_ptr->flags2 & (RF2_BASH_DOOR)) r_ptr->flows |= (1L << FLOW_WALK_BASH);
+			if (r_ptr->flags2 & (RF2_OPEN_DOOR)) r_ptr->flows |= (1L << FLOW_WALK_OPEN);
+			if ((r_ptr->flags2 & (RF2_BASH_DOOR)) && (r_ptr->flags2 & (RF2_OPEN_DOOR))) r_ptr->flows |= (1L << FLOW_WALK_BASH_OPEN);
+			if (r_ptr->flags3 & (RF3_OOZE)) r_ptr->flows |= (1L << FLOW_WALK_OOZE);
+			if (r_ptr->flags3 & (RF3_NONLIVING)) r_ptr->flows |= (1L << FLOW_WALK_NONLIVING);
+			if (r_ptr->flags3 & (RF3_IM_ACID)) r_ptr->flows |= (1L << FLOW_WALK_ACID) | (1L << FLOW_ACID);
+			if (r_ptr->flags3 & (RF3_IM_COLD)) r_ptr->flows |= (1L << FLOW_WALK_COLD);
+			if (r_ptr->flags3 & (RF3_IM_ELEC)) r_ptr->flows |= (1L << FLOW_WALK_ELEC);
+
+			/* Evaluate fire immunity flows */
+			if (r_ptr->flags3 & (RF3_IM_FIRE))
+			{
+				/* Use walking + fire immunity */
+				r_ptr->flows |= (1L << FLOW_WALK_FIRE) | (1L << FLOW_FIRE);
+
+				if (r_ptr->flags2 & (RF2_CAN_DIG)) r_ptr->flows |= (1L << FLOW_WALK_FIRE_DIG) | (1L << FLOW_FIRE_DIG);
+				if (r_ptr->flags2 & (RF2_CAN_SWIM)) r_ptr->flows |= (1L << FLOW_WALK_FIRE_SWIM) | (1L << FLOW_FIRE_SWIM);
+			}
+		}
+#endif
+		/*** Evaluate power ratings ***/
 
 		/* Set the current level */
 		lvl = r_ptr->level;
@@ -7045,13 +7406,46 @@ errr eval_r_power(header *head)
 
 		/* Hack -- set exp */
 		if (lvl == 0) r_ptr->mexp = 0L;
-		else r_ptr->mexp = (hp * dam) / (lvl * 25);
+		else
+		{
+			/* Compute depths of non-unique monsters */
+			if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+			{
+				long mexp = (hp * dam) / 25;
+				long threat = r_ptr->highest_threat;
+
+				/* Compute level algorithmically */
+				for (j = 1; (mexp > j + 4) || (threat > j + 5); mexp -= j * j, threat -= (j + 4), j++);
+
+				/* Set level */
+				lvl = MIN(( j > 250 ? 90 + (j - 250) / 20 : 	/* Level 90 and above */
+						(j > 130 ? 70 + (j - 130) / 6 :	/* Level 70 and above */
+						(j > 40 ? 40 + (j - 40) / 3 :	/* Level 40 and above */
+						j))), 99);
+
+				/* Set level */
+				r_ptr->level = lvl;
+			}
+
+			/* Hack -- for Ungoliant */
+			if (hp > 10000) r_ptr->mexp = (hp / 25) * (dam / lvl);
+			else r_ptr->mexp = (hp * dam) / (lvl * 25);
+
+			/* Round to 2 significant figures */
+			if (r_ptr->mexp > 100)
+			{
+				if (r_ptr->mexp < 1000) { r_ptr->mexp = (r_ptr->mexp + 5) / 10; r_ptr->mexp *= 10; }
+				else if (r_ptr->mexp < 10000) { r_ptr->mexp = (r_ptr->mexp + 50) / 100; r_ptr->mexp *= 100; }
+				else if (r_ptr->mexp < 100000) { r_ptr->mexp = (r_ptr->mexp + 500) / 1000; r_ptr->mexp *= 1000; }
+				else if (r_ptr->mexp < 1000000) { r_ptr->mexp = (r_ptr->mexp + 5000) / 10000; r_ptr->mexp *= 10000; }
+				else if (r_ptr->mexp < 10000000) { r_ptr->mexp = (r_ptr->mexp + 50000) / 100000; r_ptr->mexp *= 100000; }
+			}
+		}
 
 		if ((lvl) && (r_ptr->mexp < 1L)) r_ptr->mexp = 1L;
 
 		/*
-		 * Hack - at level 50 & above and 75 & above, we have to use an adjustment
-		 * factor to prevent overflow.
+		 * Hack - We have to use an adjustment factor to prevent overflow.
                  */
 		if (lvl >= 90)
 		{
@@ -7178,6 +7572,8 @@ errr eval_r_power(header *head)
 	/* Apply divisors now */
 	for (i = 0; i < z_info->r_max; i++)
 	{
+		int new_power;
+
 		/* Point at the "info" */
 		r_ptr = (monster_race*)head->info_ptr + i;
 
@@ -7201,8 +7597,19 @@ errr eval_r_power(header *head)
 
 			/* Never less than 1 */
 			if (r_ptr->power < 1) r_ptr->power = 1;
+
+			/* Get power */
+			new_power = r_ptr->power;
+
+			/* Compute rarity algorithmically */
+			for (j = 1; new_power > j; new_power -= j * j, j++);
+
+			/* Set rarity */
+			r_ptr->rarity = j;
 		}
 	}
+
+}
 
 	/* Free power array */
 	FREE(power);
@@ -7227,6 +7634,51 @@ errr eval_e_power(header *head)
 		e_ptr = (ego_item_type*)head->info_ptr + i;
 
 		e_ptr->slay_power = slay_power(slay_index(e_ptr->flags1, e_ptr->flags2, e_ptr->flags3, e_ptr->flags4));
+	}
+
+	/* Success */
+	return(0);
+}
+
+
+/*
+ * Evaluate the feature flows to be stored in f_info.raw
+ */
+errr eval_f_power(header *head)
+{
+	int i;
+	feature_type *f_ptr = NULL;
+#if 0
+	feature_type *f2_ptr = NULL;
+#endif
+
+	/* Precompute values for feature flows */
+	for (i = 0; i < z_info->f_max; i++)
+	{
+		/* Point at the "info" */
+		f_ptr = (feature_type*)head->info_ptr + i;
+
+		/* Some obvious flags */
+		if (f_ptr->flags2 & (FF2_CAN_FLY)) 
+
+
+		/* Evaluate feature blows */
+		switch(f_ptr->blow.effect)
+		{
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
 	}
 
 	/* Success */

@@ -4286,7 +4286,7 @@ void update_dyna(void)
 
 				adjfeat = cave_feat[yy][xx];
 
-				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE | PROJECT_PLAY;
+				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
 				dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice);
    
@@ -4323,7 +4323,7 @@ void update_dyna(void)
 
 				int adjfeat = cave_feat[yy][xx];
 
-				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE | PROJECT_PLAY;
+				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
 				dam = damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice);
    
@@ -5115,6 +5115,13 @@ static void cave_set_feat_aux(int y, int x, int feat)
 
 	s16b this_o_idx, next_o_idx = 0;
 
+	/* Paranoia */
+	if ((feat > z_info->f_max) || (y < 0) || (y > DUNGEON_HGT) || (x < 0) || (x > DUNGEON_WID))
+	{
+		msg_format("Error: Setting invalid feat %d at (%d, %d).", feat, y, x);
+		return;
+	}
+
 	/* Really set the feature */
 	cave_feat[y][x] = feat;
 
@@ -5193,18 +5200,18 @@ static void cave_set_feat_aux(int y, int x, int feat)
 				/* And update */
 				update_mon(cave_m_idx[y][x],FALSE);
 
-		/* Hack --- tell the player if something unhides */
-		if (m_ptr->ml)
-		{
-		char m_name[80];
+				/* Hack --- tell the player if something unhides */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
 
-		/* Get the monster name */
-		monster_desc(m_name, m_ptr, 0);
+					/* Get the monster name */
+					monster_desc(m_name, cave_m_idx[y][x], 0);
 
-		msg_format("%^s emerges from %s%s.",m_name,
-			((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_FILLED))?"":"the "),
-			f_name+f_info[cave_feat[m_ptr->fy][m_ptr->fx]].name);
-		}
+					msg_format("%^s emerges from %s%s.",m_name,
+						((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_FILLED))?"":"the "),
+						f_name+f_info[cave_feat[m_ptr->fy][m_ptr->fx]].name);
+				}
 
 				/* Disturb on "move" */
 				if (m_ptr->ml &&
@@ -5408,6 +5415,7 @@ void cave_set_feat(int y, int x, int feat)
 	if (f_ptr2->flags2 & (FF2_ACID)) level_flag |= (LF1_ACID);
 	if (f_ptr2->flags2 & (FF2_OIL)) level_flag |= (LF1_OIL);
 	if (f_ptr2->flags2 & (FF2_CHASM)) level_flag |= (LF1_CHASM);
+	if (f_ptr2->flags3 & (FF3_LIVING)) level_flag |= (LF1_LIVING);
 
 	/* Handle NEED_TREE locations */
 	if (tree && !tree2)
@@ -5602,8 +5610,8 @@ void cave_set_feat(int y, int x, int feat)
 		object_type *i_ptr;
 		object_type object_type_body;
 
-		if (f_ptr->flags1 & (FF3_DROP_1D2)) number += damroll(1, 2);
-		if (f_ptr->flags1 & (FF3_DROP_2D2)) number += damroll(2, 2);
+		if (f_ptr->flags3 & (FF3_DROP_1D2)) number += damroll(1, 2);
+		if (f_ptr->flags3 & (FF3_DROP_2D2)) number += damroll(2, 2);
 
 		/* Always drop something */
 		if (!number) number = 1;
@@ -5673,7 +5681,14 @@ int feat_state(int feat, int action)
 		}
 	}
 
-	/* No change in state */
+	/* Paranoia */
+	if (newfeat > z_info->f_max)
+	{
+		msg_format("Error: %d transitioning to %d by action %d out of bounds.", feat, newfeat, action);
+		return (feat);
+	}
+
+	/* Change in state */
 	return (newfeat);
 }
 

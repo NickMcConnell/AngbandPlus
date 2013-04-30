@@ -118,11 +118,119 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(const object_type *o_ptr)
 {
-	/* Check for a usable slot */
+	/* Check if wearable/wieldable */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
 
 	/* Assume not wearable */
 	return (FALSE);
+}
+
+
+static int quiver_wield(int item, object_type *o_ptr)
+{
+	int slot = 0;
+	bool use_new_slot = FALSE;
+	int num;
+	int i;
+
+	object_type object_type_body;
+	object_type *i_ptr;
+
+	/* was: num = get_quantity(NULL, o_ptr->number);*/
+	num = o_ptr->number;
+
+	/* Cancel */
+	if (num <= 0) return 0;
+
+	/* Check free space */
+	if (!quiver_carry_okay(o_ptr, num, item))
+	{
+		msg_print("Your quiver needs more backpack space.");
+		return 0;
+ 	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Copy to the local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Modify quantity */
+	i_ptr->number = num;
+
+	/* Search for available slots. */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the item */
+		o_ptr = &inventory[i];
+
+		/* Accept empty slot, but keep searching for combining */
+		if (!o_ptr->k_idx)
+		{
+			slot = i;
+			use_new_slot = TRUE;
+			continue;
+		}
+
+		/* Accept slot that has space to absorb more */
+		if (object_similar(o_ptr, i_ptr))
+		{
+			slot = i;
+			use_new_slot = FALSE;
+			object_absorb(o_ptr, i_ptr);
+			break;
+		}
+	}
+
+	/* Use a new slot if needed */
+	if (use_new_slot) object_copy(&inventory[slot], i_ptr);
+
+	if (!slot)
+	{
+		/* No space. */
+		msg_print("Your quiver is full.");
+		return 0;
+	}
+
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight * num;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -num);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -num);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
+
+	/* Reorder the quiver and return the perhaps modified slot */
+	return reorder_quiver(slot);
+}
+
+/*
+ * Mark the item as known cursed.
+ */
+void mark_cursed_feeling(object_type *o_ptr)
+{
+  switch (o_ptr->feeling)
+    {
+    case INSCRIP_ARTIFACT: o_ptr->feeling = INSCRIP_TERRIBLE; break;
+    case INSCRIP_HIGH_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
+    case INSCRIP_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
+    default: o_ptr->feeling = INSCRIP_CURSED;
+    }
+
+  /* The object has been "sensed" */
+  o_ptr->ident |= (IDENT_SENSE);
 }
 
 
@@ -202,13 +310,16 @@ void do_cmd_wield(void)
 	if (slot < 0) return;
 
 	/* Hack -- don't dual wield */
-	if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD))
-	{
-		if (!get_check("Wield it in your off-hand? "))
-		{
-			slot = INVEN_WIELD;
-		}
-	}
+	if (slot == INVEN_ARM 
+	    && o_ptr->tval != TV_SHIELD
+	    && o_ptr->tval != TV_RING
+	    && o_ptr->tval != TV_AMULET)
+	  {
+	    if (!get_check("Wield it in your off-hand? "))
+	      {
+		slot = INVEN_WIELD;
+	      }
+	  }
 
 	/* Hack -- multiple rings */
 	else if (o_ptr->tval == TV_RING)
@@ -228,11 +339,22 @@ void do_cmd_wield(void)
 		if (amt <= 0) return;
 	}
 
+	/* Hack - Throwing weapons can we wielded in the quiver too. 
+	   Ask the player, unless he has already chosen the off-hand. */
+	if ( is_known_throwing_item(o_ptr) 
+		 && !IS_QUIVER_SLOT(slot) 
+		 && slot != INVEN_ARM
+		 && get_check("Do you want to put it in the quiver? ") ) 
+		slot = INVEN_QUIVER;
+
 	/* Source and destination identical */
 	if (item == slot) return;
 
+	/* Adjust amount */
+	if (IS_QUIVER_SLOT(slot)) amt = o_ptr->number;
+
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+	if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
@@ -240,6 +362,8 @@ void do_cmd_wield(void)
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
 		   o_name, describe_use(slot));
+
+		mark_cursed_feeling(&inventory[slot]);
 
 		/* Cancel the command */
 		return;
@@ -253,6 +377,8 @@ void do_cmd_wield(void)
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
 		   o_name, describe_use(item));
+
+		mark_cursed_feeling(&inventory[item]);
 
 		/* Cancel the command */
 		return;
@@ -437,49 +563,62 @@ void do_cmd_wield(void)
 		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 
-	/* Get the wield slot */
-	o_ptr = &inventory[slot];
-
-	/* Swap existing item. Note paranoia check (item >= INVEN_WIELD). */
-	if ((o_ptr->k_idx) && (swap) && (item >= INVEN_WIELD))
+	/* Ammo goes in quiver slots, which have special rules. */
+	if (IS_QUIVER_SLOT(slot))
 	{
-		/* Get the old slot */
-		object_type *j_ptr = &inventory[item];
+		/* Put the ammo in the quiver */
+		slot = quiver_wield(item, i_ptr);
 
-		/* Swap the items */
-		object_copy(j_ptr, o_ptr);
+		/* Can't do it */
+		if (!slot) return;
+
+		/* Get the object again */
+		o_ptr = &inventory[slot];
 	}
-
-	/* Take off existing item */
-	else if ((o_ptr->k_idx) && (!rings))
+	else
 	{
+		/* Get the wield slot */
+		o_ptr = &inventory[slot];
+
+		/* Swap existing item. Note paranoia check (item >= INVEN_WIELD). */
+		if ((o_ptr->k_idx) && (swap) && (item >= INVEN_WIELD))
+		{
+			/* Get the old slot */
+			object_type *j_ptr = &inventory[item];
+
+			/* Swap the items */
+			object_copy(j_ptr, o_ptr);
+		}
+
 		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
+		else if ((o_ptr->k_idx) && (!rings))
+		{
+			/* Take off existing item */
+			(void)inven_takeoff(slot, 255);
+		}
+
+		/* Wear the new rings */
+		if (rings) object_absorb(o_ptr, i_ptr);
+
+		/* Wear the new stuxff */
+		else object_copy(o_ptr, i_ptr);
+
+		/* Increase the weight */
+		p_ptr->total_weight += i_ptr->weight * amt;
+
+		/* Increment the equip counter by hand */
+		p_ptr->equip_cnt++;
 	}
-
-	/* Wear the new rings */
-	if (rings) object_absorb(o_ptr, i_ptr);
-
-	/* Wear the new stuxff */
-	else object_copy(o_ptr, i_ptr);
-
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight * amt;
-
-	/* Increment the equip counter by hand */
-	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
-		|| (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF) ||
-		(o_ptr->tval == TV_DIGGING))
+	if (slot == INVEN_WIELD)
 	{
 		act = "You are wielding";
-		if (slot == INVEN_ARM) act = "You are wielding off-handed";
 	}
-	else if (slot == INVEN_WIELD)
+	else if (slot == INVEN_ARM)
 	{
-		act = "You are using";
+		if (o_ptr->tval == TV_SHIELD) act = "You are wearing";
+		else act = "You are off-hand wielding";
 	}
 	else if (o_ptr->tval == TV_INSTRUMENT)
 	{
@@ -500,9 +639,13 @@ void do_cmd_wield(void)
 			o_ptr->charges = 0;
 		}
 	}
-	else
+	else if (!IS_QUIVER_SLOT(slot))
 	{
 		act = "You are wearing";
+	}
+	else
+	{
+		act = "You have readied";
 	}
 
 	/* Describe the result */
@@ -517,17 +660,7 @@ void do_cmd_wield(void)
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
-		switch (o_ptr->feeling)
-		{
-			case INSCRIP_ARTIFACT: o_ptr->feeling = INSCRIP_TERRIBLE; break;
-			case INSCRIP_HIGH_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
-			case INSCRIP_EGO_ITEM: o_ptr->feeling = INSCRIP_WORTHLESS; break;
-			default: o_ptr->feeling = INSCRIP_CURSED;
-		}
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-
+		mark_cursed_feeling(o_ptr);
 	}
 	/* Not cursed */
 	else
@@ -541,6 +674,24 @@ void do_cmd_wield(void)
 			case INSCRIP_UNUSUAL: o_ptr->feeling = INSCRIP_MAGICAL; break;
 		}
 	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Update item list */
+	p_ptr->redraw |= (PR_ITEM_LIST);
+
+	/* Cannot learn quivered item effects */
+	if (IS_QUIVER_SLOT(slot)) return;
 
 	/* Get known flags */
 	k1 = o_ptr->can_flags1;
@@ -632,21 +783,6 @@ void do_cmd_wield(void)
 	n4 = o_ptr->can_flags4 & ~(k4);
 
 	if (n1 || n2 || n3 || n4) update_slot_flags(slot, n1, n2, n3, n4);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Update item list */
-	p_ptr->redraw |= (PR_ITEM_LIST);
 }
 
 
@@ -687,10 +823,20 @@ void do_cmd_takeoff(void)
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
 
+		mark_cursed_feeling(o_ptr);
+
 		/* Nope */
 		return;
 	}
+	/* Cursed quiver */
+	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	{
+		/* Oops */
+		msg_print("Your quiver is cursed!");
 
+		/* Nope */
+		return;
+	}
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -747,6 +893,17 @@ void do_cmd_drop(void)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
+
+		mark_cursed_feeling(o_ptr);
+
+		/* Nope */
+		return;
+	}
+	/* Cursed quiver */
+	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	{
+		/* Oops */
+		msg_print("Your quiver is cursed!");
 
 		/* Nope */
 		return;
@@ -878,6 +1035,8 @@ void do_cmd_destroy(void)
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
 		           o_name, describe_use(item));
+
+		mark_cursed_feeling(o_ptr);
 
 		/* Done */
 		return;
@@ -1077,9 +1236,7 @@ void do_cmd_uninscribe(void)
 
 			/* Auto-inscribe */
 			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
-
 		}
-
 	}
 	/* Do we inscribe all these object kinds? */
 	else if (object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].note))
@@ -1100,7 +1257,6 @@ void do_cmd_uninscribe(void)
 
 			/* Auto-inscribe */
 			if (object_named_p(i_ptr) || cheat_auto) i_ptr->note = 0;
-
 		}
 	}
 }
@@ -2039,7 +2195,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 < z2) return (TRUE);
 		if (z1 > z2) return (FALSE);
 	}
-
 
 	/* Compare indexes */
 	return (w1 <= w2);

@@ -91,7 +91,7 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > 18+999) tmp_int = 18+999;
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
@@ -1000,9 +1000,10 @@ static void do_cmd_wiz_cure_all(void)
 	(void)res_stat(A_STR);
 	(void)res_stat(A_INT);
 	(void)res_stat(A_WIS);
-	(void)res_stat(A_CON);
 	(void)res_stat(A_DEX);
+	(void)res_stat(A_CON);
 	(void)res_stat(A_CHR);
+	(void)res_stat(A_AGI);
 
 	/* Restore the level */
 	(void)restore_level();
@@ -1344,7 +1345,7 @@ static void do_cmd_wiz_query(void)
 		{
 			case 'm': mask |= (PLAY_MARK); break;
 			case 'd': mask |= (PLAY_SAFE); break;
-      	      		case 'p': mask |= (PLAY_TMP2); break;
+      	      		case 'p': mask |= (PLAY_MAGI); break;
 			case 'l': mask |= (PLAY_LITE); break;
 			case 's': mask |= (PLAY_SEEN); break;
 			case 't': mask |= (PLAY_TEMP); break;
@@ -1357,9 +1358,9 @@ static void do_cmd_wiz_query(void)
 			case 'g': mask |= (CAVE_GLOW); break;
 			case 'r': mask |= (CAVE_ROOM); break;
 	      	        case 'd': mask |= (CAVE_DLIT); break;
-			case 'l': mask |= (CAVE_LITE); break;
+			case 'l': mask |= (CAVE_HALO); break;
 			case 'm': mask |= (CAVE_MLIT); break;
-			case 'x': mask |= (CAVE_XLIT); break;
+			case 'x': mask |= (CAVE_CLIM); break;
 			case 'f': mask |= (CAVE_XLOF); break;
 			case 's': mask |= (CAVE_XLOS); break;
 			case 'p': play_mask = TRUE; cmd = '\0'; break;
