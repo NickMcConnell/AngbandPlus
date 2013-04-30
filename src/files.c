@@ -5,7 +5,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -32,7 +32,7 @@ void safe_setuid_drop(void)
 	{
 		quit("setegid(): cannot set permissions correctly!");
 	}
- 
+
 #  else /* HAVE_SETEGID */
 
 #   ifdef SAFE_SETUID_POSIX
@@ -41,7 +41,7 @@ void safe_setuid_drop(void)
 	{
 		quit("setgid(): cannot set permissions correctly!");
 	}
-    
+
 #   else /* SAFE_SETUID_POSIX */
 
 	if (setregid(getegid(), getgid()) != 0)
@@ -239,6 +239,59 @@ s16b tokenize(char *buf, s16b num, char **tokens)
 
 
 /*
+ * Allow users to supply attr and char information in decimal, hexa-
+ * decimal, octal, or even character form (the last of these three
+ * being most familiar to many).  -LM-
+ */
+static bool read_byte_or_char(char *zz, byte *a, char *c)
+{
+	*a = 0;  *c = '\0';
+
+	/* First character is a single quote; third is another */
+	if ((zz[0] == '\'') && (zz[1]) && (zz[2]) && (zz[2] == '\''))
+	{
+		/* Accept the character between them */
+		*c = zz[1];
+
+		/* We are returning a char */
+		return (FALSE);
+	}
+
+	/* First character is a '+' followed by a digit */
+	if ((zz[0] == '+') && zz[1] && isdigit(zz[1]))
+	{
+		/* Skip the '+' */
+		zz++;
+
+		/* Read as 8-bit number */
+		*a = (byte)strtol(zz, NULL, 0);
+
+		/* If number is less than 128, add 128 */
+		if (*a < 128) *a += 128;
+
+		/* We are returning a byte */
+		return (TRUE);
+	}
+
+	/* First character is a digit, or a '-' followed by a digit */
+	if (isdigit(zz[0]) || ((zz[0] == '-') && zz[1] && isdigit(zz[1])))
+	{
+		/* Read as 8-bit number */
+		*a = (byte)strtol(zz, NULL, 0);
+
+		/* We are returning a byte */
+		return (TRUE);
+	}
+
+	/* Usual case -- read it as a character */
+	*c = zz[0];
+
+	/* We are returning a char */
+	return (FALSE);
+}
+
+
+/*
  * Parse a sub-file of the "extra info" (format shown below)
  *
  * Each "action" line has an "action symbol" in the first column,
@@ -267,6 +320,9 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *
  * Specify the attr/char values for "features" by feature index.
  *   F:<num>:<a>/<c>:<flags>
+ *
+ * Specify the attr/char values for "regions" by region index.
+ *   E:<num>:<a>/<c>
  *
  * Specify the attr/char values for "special" things.
  *   S:<num>:<a>/<c>
@@ -307,9 +363,12 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  */
 errr process_pref_file_command(char *buf)
 {
-	int i, j, n1, n2, n3;
+	int i, j, n1, n3;
 
 	char *zz[16];
+
+	byte a;
+	char c;
 
 
 	/* Skip "empty" lines */
@@ -337,12 +396,19 @@ errr process_pref_file_command(char *buf)
 		{
 			monster_race *r_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
 			if ((i < 0) || (i >= z_info->r_max)) return (1);
 			r_ptr = &r_info[i];
-			if (n1) r_ptr->x_attr = n1;
-			if (n2) r_ptr->x_char = n2;
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      r_ptr->x_attr = a;
+			else  r_ptr->x_attr = (byte)color_char_to_attr(c);
+
+			/* Get symbol */
+			if (read_byte_or_char(zz[2], &a, &c))
+			      r_ptr->x_char = (char)a;
+			else  r_ptr->x_char = c;
+
 			return (0);
 		}
 	}
@@ -355,43 +421,66 @@ errr process_pref_file_command(char *buf)
 		{
 			object_kind *k_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
 			if ((i < 0) || (i >= z_info->k_max)) return (1);
 			k_ptr = &k_info[i];
-			if (n1) k_ptr->x_attr = n1;
-			if (n2) k_ptr->x_char = n2;
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      k_ptr->x_attr = a;
+			else  k_ptr->x_attr = (byte)color_char_to_attr(c);
+
+			/* Get symbol */
+			if (read_byte_or_char(zz[2], &a, &c))
+			      k_ptr->x_char = (char)a;
+			else  k_ptr->x_char = c;
+
 			return (0);
 		}
 	}
 
 
-	/* Process "F:<num>:<a>/<c>:<flags>" -- attr/char for terrain features, plus flags for lighting etc. */
+	/* Process "F:<num>:<a>/<c>:<under>:<flags>" -- attr/char for terrain features, plus flags for lighting etc. */
 	else if (buf[0] == 'F')
 	{
+		int t = tokenize(buf+2, 5, zz);
+
 		/* Mega-hack -- feat supports lighting 'yes' or 'no' */
-		if (tokenize(buf+2, 5, zz) == 5)
+		if (t >= 3)
 		{
 			feature_type *f_ptr;
 
 			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			n3 = strtol(zz[3], NULL, 0);
 			if ((i < 0) || (i >= z_info->f_max)) return (1);
 			f_ptr = &f_info[i];
-			if (n1) f_ptr->x_attr = n1;
-			if (n2) f_ptr->x_char = n2;
-			if (n3) f_ptr->under = n3;
 
 			/* Clear current flags */
 			f_ptr->flags3 &= ~(FF3_ATTR_LITE | FF3_ATTR_ITEM | FF3_ATTR_DOOR | FF3_ATTR_WALL);
 
-			if (strstr("A", zz[4])) f_ptr->flags3 |= (FF3_ATTR_LITE);
-			else if (strstr("F", zz[4])) f_ptr->flags3 |= (FF3_ATTR_ITEM);
-			else if (strstr("D", zz[4])) f_ptr->flags3 |= (FF3_ATTR_DOOR);
-			else if (strstr("W", zz[4])) f_ptr->flags3 |= (FF3_ATTR_WALL);
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      f_ptr->x_attr = a;
+			else  f_ptr->x_attr = (byte)color_char_to_attr(c);
 
+			/* Get symbol */
+			if (read_byte_or_char(zz[2], &a, &c))
+			      f_ptr->x_char = (char)a;
+			else  f_ptr->x_char = c;
+
+			if (t >= 4)
+			{
+				/* Get graphic 'under' the main graphic */
+				n3 = strtol(zz[3], NULL, 0);
+				if (n3) f_ptr->under = n3;
+
+				if (t >= 4)
+				{
+					/* Get feature flags */
+					if (strstr("A", zz[4])) f_ptr->flags3 |= (FF3_ATTR_LITE);
+					else if (strstr("F", zz[4])) f_ptr->flags3 |= (FF3_ATTR_ITEM);
+					else if (strstr("D", zz[4])) f_ptr->flags3 |= (FF3_ATTR_DOOR);
+					else if (strstr("W", zz[4])) f_ptr->flags3 |= (FF3_ATTR_WALL);
+				}
+			}
 			return (0);
 		}
 	}
@@ -404,32 +493,110 @@ errr process_pref_file_command(char *buf)
 		{
 			flavor_type *x_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
                         if ((i < 0) || (i >= z_info->x_max)) return (1);
 			x_ptr = &x_info[i];
-			if (n1) x_ptr->x_attr = n1;
-			if (n2) x_ptr->x_char = n2;
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      x_ptr->x_attr = a;
+			else  x_ptr->x_attr = (byte)color_char_to_attr(c);
+
+			/* Get symbol */
+			if (read_byte_or_char(zz[2], &a, &c))
+			      x_ptr->x_char = (char)a;
+			else  x_ptr->x_char = c;
+
 			return (0);
 		}
 	}
 
 
-	/* Process "S:<num>:<a>/<c>" -- attr/char for special things */
+	/* Process "N:<num>:<a>/<c>:<use effect>" -- attr/char for regions */
+	if (buf[0] == 'N')
+	{
+		if (tokenize(buf+2, 4, zz) == 4)
+		{
+			region_info_type *r_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			if ((i < 0) || (i >= z_info->region_info_max)) return (1);
+			r_ptr = &region_info[i];
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      r_ptr->x_attr = a;
+			else  r_ptr->x_attr = (byte)color_char_to_attr(c);
+
+			/* Get symbol */
+			if (read_byte_or_char(zz[2], &a, &c))
+			      r_ptr->x_char = (char)a;
+			else  r_ptr->x_char = c;
+
+			/* Clear use of effect for attribute */
+			r_ptr->flags1 &= ~(RE1_ATTR_EFFECT);
+
+			/* Get whether we use effect for attribute */
+			if (strstr("TRUE", zz[4])) r_ptr->flags1 |= (RE1_ATTR_EFFECT);
+
+			return (0);
+		}
+	}
+
+
+	/* Process "S:<num>:<a>/<c>" -- projection graphics */
 	else if (buf[0] == 'S')
 	{
-		if (tokenize(buf+2, 3, zz) == 3)
+		if (tokenize(buf+2, 11, zz) == 11)
 		{
-			j = (byte)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if ((j < 0) || (j >= 256)) return (1);
-			misc_to_attr[j] = n1;
-			misc_to_char[j] = n2;
+			i = (huge)strtol(zz[0], NULL, 0);
+
+			/* Scan the project graphics array */
+			for (j = i; j < 256; j++)
+			{
+				int k;
+				byte atmp;
+				char ctmp;
+
+				/* Scan down the list */
+				for (k = 1; k < 11; k++)
+				{
+					/* Translate attr/chars */
+					if (read_byte_or_char(zz[k], &a, &c))
+					{
+						if ((k == 1) || (k == 3) || (k == 5) || (k == 7) || (k == 9))
+							atmp = a;
+						else
+							atmp = a;
+						ctmp = (char)atmp;
+					}
+					else
+					{
+						if ((k == 1) || (k == 3) || (k == 5) || (k == 7) || (k == 9))
+							ctmp = color_char_to_attr(c);
+						else
+							ctmp = c;
+						atmp = (byte)ctmp;
+					}
+
+					/* Store attr/char pairs */
+					if (k == 1) effect_info[j].attr_vert  = atmp;
+					else if (k == 2) effect_info[j].char_vert  = ctmp;
+					else if (k == 3) effect_info[j].attr_horiz = atmp;
+					else if (k == 4) effect_info[j].char_horiz = ctmp;
+					else if (k == 5) effect_info[j].attr_rdiag = atmp;
+					else if (k == 6) effect_info[j].char_rdiag = ctmp;
+					else if (k == 7) effect_info[j].attr_ldiag = atmp;
+					else if (k == 8) effect_info[j].char_ldiag = ctmp;
+					else if (k == 9) effect_info[j].attr_ball  = atmp;
+					else if (k ==10) effect_info[j].char_ball  = ctmp;
+				}
+
+				/* Usually only store this set of graphics */
+				if (i) break;
+			}
+
 			return (0);
 		}
 	}
-
 
 	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
 	else if (buf[0] == 'E')
@@ -437,7 +604,14 @@ errr process_pref_file_command(char *buf)
 		if (tokenize(buf+2, 2, zz) == 2)
 		{
 			j = (byte)strtol(zz[0], NULL, 0) % 128;
-			n1 = strtol(zz[1], NULL, 0);
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      n1 = a;
+			else  n1 = (byte)color_char_to_attr(c);
+
+			msg_format("%d",n1);
+
 			if ((j < 0) || (j >= 128)) return (1);
 			if (n1) tval_to_attr[j] = n1;
 			return (0);
@@ -579,7 +753,12 @@ errr process_pref_file_command(char *buf)
 		if (tokenize(buf+2, 2, zz) == 2)
 		{
 			u16b type = (u16b)strtol(zz[0], NULL, 0);
-			int color = color_char_to_attr(zz[1][0]);
+			int color;
+
+			/* Get color */
+			if (read_byte_or_char(zz[1], &a, &c))
+			      color = a;
+			else  color = (byte)color_char_to_attr(c);
 
 			/* Ignore illegal color */
 			if (color < 0) return (1);
@@ -616,6 +795,31 @@ errr process_pref_file_command(char *buf)
 			 }
 		}
 	}
+
+	/* Process "D:<num>" -- delay factor */
+	else if (buf[0] == 'D')
+	{
+		if (tokenize(buf + 2, 1, zz) == 1)
+		{
+			op_ptr->delay_factor = (byte)strtol(zz[0], NULL, 0);
+
+			/* Success */
+			return (0);
+		}
+	}
+
+	/* Process "H:<num>" -- hit point warning */
+	else if (buf[0] == 'H')
+	{
+		if (tokenize(buf + 2, 1, zz) == 1)
+		{
+			op_ptr->hitpoint_warn = (byte)strtol(zz[0], NULL, 0);
+
+			/* Success */
+			return (0);
+		}
+	}
+
 
 
 
@@ -930,7 +1134,9 @@ static errr process_pref_file_aux(cptr name)
 		/* ToDo: Add better error messages */
 		msg_format("Error %d in line %d of file '%s'.", err, line, name);
 		msg_format("Parsing '%s'", old);
+		msg_format("Press any key to continue.");
 		message_flush();
+		anykey();
 	}
 
 	/* Close the file */
@@ -1429,14 +1635,13 @@ cptr likert(int x, int y, byte *attr)
 static void display_player_xtra_info(void)
 {
 	int i;
+
 	s32b tmpl;
 	int col, row;
 	int hit, dam, hit_real;
 	int style_hit, style_dam, style_crit;
 	u32b style;
 	int base, plus;
-	int xthn, xthb, xtht, xsrh, xdig;
-	int xdis, xdev, xsav, xstl;
 	byte likert_attr;
 
 	object_type *o_ptr;
@@ -1502,7 +1707,7 @@ static void display_player_xtra_info(void)
 
 	/* Pre-calculate height */
 	i = (int)p_ptr->ht + p_ptr->stat_use[A_SIZ]/20;
-	
+
 	/* Height */
 	Term_putstr(col, row + 1, -1, TERM_WHITE, "Height");
 	Term_putstr(col+7, row + 1, -1, TERM_L_BLUE, format("%2d'%2d", i / 12, i % 12));
@@ -1516,7 +1721,7 @@ static void display_player_xtra_info(void)
 
 	/* Char level */
 	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
-	Term_putstr(col+10, 10, -1, 
+	Term_putstr(col+10, 10, -1,
 		    ((p_ptr->lev >= p_ptr->max_lev) ? TERM_L_GREEN : TERM_YELLOW),
 		    format("%8d", p_ptr->lev));
 
@@ -1555,36 +1760,36 @@ static void display_player_xtra_info(void)
 	}
 
 	/* Current dungeon level */
-	Term_putstr(col, 14, -1, TERM_WHITE, "Curr Danger"); 	 
-  	 
-	if (p_ptr->depth) 	 
-	{ 
+	Term_putstr(col, 14, -1, TERM_WHITE, "Curr Danger");
+
+	if (p_ptr->depth)
+	{
 		if (p_ptr->depth < 100)
 		{
-			/* express in feet or level */ 	 
-			if (depth_in_feet) strnfmt(buf, sizeof(buf), "%4d ft", p_ptr->depth * 50);
-			else strnfmt(buf, sizeof(buf), " Lev%3d", p_ptr->depth); 	 
+			/* express in feet or level */
+			if (depth_in_feet) strnfmt(buf, sizeof(buf), "  %4d'", p_ptr->depth * 50);
+			else strnfmt(buf, sizeof(buf), " Lev%3d", p_ptr->depth);
 		}
 		else strnfmt(buf, sizeof(buf), " Absurd");
-	} 	 
-	else strnfmt(buf, sizeof(buf), " Benign"); 	 
+	}
+	else strnfmt(buf, sizeof(buf), " Benign");
 
 	Term_putstr(col+11, 14, -1, TERM_L_GREEN, buf);
 
-	/* Max dungeon level */ 	 
-	Term_putstr(col, 15, -1, TERM_WHITE, "Max Dungeon"); 	 
-  	 
-	if (p_ptr->max_depth) 	 
+	/* Max dungeon level */
+	Term_putstr(col, 15, -1, TERM_WHITE, "Max Dungeon");
+
+	if (p_ptr->max_depth)
 	{
 		if (p_ptr->max_depth < 100)
 		{
-			/* express in feet or level */ 	 
-			if (depth_in_feet) strnfmt(buf, sizeof(buf), "%4d ft", p_ptr->max_depth * 50); 	 
-			else strnfmt(buf, sizeof(buf), " Lev%3d", p_ptr->max_depth); 	 
+			/* express in feet or level */
+			if (depth_in_feet) strnfmt(buf, sizeof(buf), "  %4d'", p_ptr->max_depth * 50);
+			else strnfmt(buf, sizeof(buf), " Lev%3d", p_ptr->max_depth);
 		}
 		else strnfmt(buf, sizeof(buf), " Bottom");
 	}
-	else strnfmt(buf, sizeof(buf), "   None"); 	 
+	else strnfmt(buf, sizeof(buf), "   None");
 
 	Term_putstr(col+11, 15, -1, TERM_L_GREEN, buf);
 
@@ -1613,7 +1818,7 @@ static void display_player_xtra_info(void)
 		Term_putstr(col, 10, -1, TERM_WHITE, "HP");
 		Term_putstr(col+8, 10, -1, TERM_L_BLUE, format("%9s", buf));
 	}
-	else 
+	else
 	{
 		sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
 		Term_putstr(col, 10, -1, TERM_WHITE, "Hit-Points");
@@ -1627,7 +1832,7 @@ static void display_player_xtra_info(void)
 		Term_putstr(col, 11, -1, TERM_WHITE, "SP");
 		Term_putstr(col+8, 11, -1, TERM_L_BLUE, format("%9s", buf));
 	}
-	else 
+	else
 	{
 		sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
 		Term_putstr(col, 11, -1, TERM_WHITE, "Spell-Pts");
@@ -1686,10 +1891,10 @@ static void display_player_xtra_info(void)
 	if (p_ptr->searching) i += 10;
 
 	/* Hack -- Visually "undo" temp speed */
-	if (p_ptr->fast) i -= 10;
+	if (p_ptr->timed[TMD_FAST]) i -= 10;
 
 	/* Hack -- Visually "undo" temp slowing */
-	if (p_ptr->slow) i += 10;
+	if (p_ptr->timed[TMD_SLOW]) i += 10;
 
 	/* Fast */
 	if (i > 110)
@@ -1729,7 +1934,7 @@ static void display_player_xtra_info(void)
 
 	/* Base skill; damage from equipment bound by weapon dice */
 	hit = p_ptr->dis_to_h;
-	dam = MIN(p_ptr->dis_to_d, 
+	dam = MIN(p_ptr->dis_to_d,
 		  o_ptr->dd * o_ptr->ds + 5);
 	hit_real = p_ptr->to_h;
 
@@ -1747,9 +1952,6 @@ static void display_player_xtra_info(void)
 	if (object_bonus_p(o_ptr)) dam += o_ptr->to_d;
 	hit_real += o_ptr->to_h;
 
-	/* Fighting Skill (with current weapon) */
-	xthn = p_ptr->skill_thn + (hit_real * BTH_PLUS_ADJ);
-
 	/* Melee attacks */
 	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%12s", buf));
@@ -1763,7 +1965,7 @@ static void display_player_xtra_info(void)
 	else if (p_ptr->pstyle == WS_TWO_HANDED
 			 && p_ptr->cur_style & (1L << WS_TWO_HANDED))
 		Term_putstr(col, 11, -1, TERM_WHITE, "2Hand");
-	else if (p_ptr->cur_style & (1L << WS_TWO_WEAPON)) 
+	else if (p_ptr->cur_style & (1L << WS_TWO_WEAPON))
 	{
 		Term_putstr(col, 11, -1, TERM_WHITE, "Dual");
 
@@ -1774,7 +1976,7 @@ static void display_player_xtra_info(void)
 
 		/* Base skill; damage from equipment bound by weapon dice */
 		hit = p_ptr->dis_to_h;
-		dam = MIN(p_ptr->dis_to_d, 
+		dam = MIN(p_ptr->dis_to_d,
 			  o_ptr->dd * o_ptr->ds + 5);
 
 		/* Check melee styles only */
@@ -1793,7 +1995,7 @@ static void display_player_xtra_info(void)
 		strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 		Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%12s", buf));
 	}
-	else if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)) 
+	else if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD))
 	{
 		Term_putstr(col, 11, -1, TERM_WHITE, "WShld");
 
@@ -1817,8 +2019,8 @@ static void display_player_xtra_info(void)
 	if (inventory[INVEN_ARM].k_idx)
 	{
 		o_ptr = &inventory[INVEN_ARM];
-	
-		if (o_ptr->tval == TV_SHIELD 
+
+		if (o_ptr->tval == TV_SHIELD
 		    && !(p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)))
 		{
 			/* Shield stats (if shield bashes are in, display bash value) */
@@ -1843,7 +2045,7 @@ static void display_player_xtra_info(void)
 	}
 
 	/* Blows */
-	strnfmt(buf, sizeof(buf), "%d/turn(x%d)", 
+	strnfmt(buf, sizeof(buf), "%d/turn(x%d)",
 		p_ptr->num_blow, p_ptr->num_charge);
 	Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
 	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%12s", buf));
@@ -1858,7 +2060,7 @@ static void display_player_xtra_info(void)
 
 	/* Check shooting styles only */
 	style = p_ptr->cur_style & WS_LAUNCHER_FLAGS;
-	
+
 	/* Get style benefits */
 	mon_style_benefits(NULL, style, &style_hit, &style_dam, &style_crit);
 	hit += style_hit;
@@ -1870,18 +2072,15 @@ static void display_player_xtra_info(void)
 	if (object_bonus_p(o_ptr)) dam += o_ptr->to_d;
 	hit_real += o_ptr->to_h;
 
-	/* Shooting Skill (with current bow) */
-	xthb = p_ptr->skill_thb + (hit_real * BTH_PLUS_ADJ);
-
 	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%12s", buf));
 
 	/* Describe shooting styles */
-	if (p_ptr->cur_style & (1L << WS_SLING)) 
+	if (p_ptr->cur_style & (1L << WS_SLING))
 		Term_putstr(col, 14, -1, TERM_WHITE, "Sling");
-	else if (p_ptr->cur_style & (1L << WS_BOW)) 
+	else if (p_ptr->cur_style & (1L << WS_BOW))
 		Term_putstr(col, 14, -1, TERM_WHITE, "Bow  ");
-	else if (p_ptr->cur_style & (1L << WS_XBOW)) 
+	else if (p_ptr->cur_style & (1L << WS_XBOW))
 		Term_putstr(col, 14, -1, TERM_WHITE, "XBow ");
 	else
 		Term_putstr(col, 14, -1, TERM_WHITE, "Shoot");
@@ -1905,16 +2104,13 @@ static void display_player_xtra_info(void)
 	dam += style_dam;
 	hit_real += style_hit;
 
-	/* Throwing Skill */
-	xtht = p_ptr->skill_tht + (hit_real * BTH_PLUS_ADJ);
-
 	Term_putstr(col, 16, -1, TERM_WHITE, "Throw");
 	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%12s", buf));
 
 	/* Throws */
-	strnfmt(buf, sizeof(buf), "%d/turn(x%d)", p_ptr->num_throw, 
-		is_known_throwing_item(&inventory[INVEN_WIELD]) 
+	strnfmt(buf, sizeof(buf), "%d/turn(x%d)", p_ptr->num_throw,
+		is_known_throwing_item(&inventory[INVEN_WIELD])
 		? p_ptr->num_blow : 1);
 	Term_putstr(col, 17, -1, TERM_WHITE, "Hurls");
 	Term_putstr(col+5, 17, -1, TERM_L_BLUE, format("%12s", buf));
@@ -1926,49 +2122,13 @@ static void display_player_xtra_info(void)
 	/* Right */
 	col = 59;
 
-	/* Basic abilities */
-	xdis = p_ptr->skill_dis;
-	xdev = p_ptr->skill_dev;
-	xsav = p_ptr->skill_sav;
-	xstl = p_ptr->skill_stl;
-	xsrh = p_ptr->skill_srh;
-	xdig = p_ptr->skill_dig;
-
-	put_str("Fighting", 10, col);
-	desc = likert(xthn, 12, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 10, col+11);
-
-	put_str("Shooting", 11, col);
-	desc = likert(xthb, 12, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 11, col+11);
-
-	put_str("Throwing", 12, col);
-	desc = likert(xtht, 12, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 12, col+11);
-
-	put_str("Stealth", 13, col);
-	desc = likert(xstl, 1, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 13, col+11);
-
-	put_str("Save Throw", 14, col);
-	desc = likert(xsav, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 14, col+11);
-
-	put_str("Disarming", 15, col);
-	desc = likert(xdis, 8, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 15, col+11);
-
-	put_str("Devices", 16, col);
-	desc = likert(xdev, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 16, col+11);
-
-	put_str("Searching", 17, col);
-	desc = likert(xsrh, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 17, col+11);
-
-	put_str("Digging", 18, col);
-	desc = likert(xdig, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), 18, col+11);
+	/* Enumerate through skills */
+	for (i = 0; skill_table[i].skill >= 0; i++)
+	{
+		put_str(skill_table[i].name, 10 + i, col);
+		desc = likert(p_ptr->skills[skill_table[i].skill], skill_table[i].div, &likert_attr);
+		c_put_str(likert_attr, format("%9s", desc), 10 + i, col+11);
+	}
 
 	/* History */
 	Term_gotoxy(1, 20);
@@ -1984,22 +2144,11 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	int i;
 
-	player_race *shape_ptr = &p_info[p_ptr->pshape];
-
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
-	/* Add racial flags */
-	(*f1) |= rp_ptr->flags1;
-	(*f2) |= rp_ptr->flags2;
-	(*f3) |= rp_ptr->flags3;
-	(*f4) |= rp_ptr->flags4;
-
-	/* Add shape flags */
-	(*f1) |= shape_ptr->flags1;
-	(*f2) |= shape_ptr->flags2;
-	(*f3) |= shape_ptr->flags3;
-	(*f4) |= shape_ptr->flags4;
+	/*** Handle racial object */
+	object_flags(&inventory[INVEN_SELF], f1, f2, f3, f4);
 
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
@@ -2262,7 +2411,7 @@ static void put_flag_char(u32b f[4], int set, u32b flag, int y, int x, int row, 
 		{
 			c_put_str(TERM_SLATE, ".", row, col);
 		}
-		
+
 		/* Hack -- show resistances as fake pvals */
 		else if ((y < 5) && (f[set] & flag))
 		{
@@ -2345,14 +2494,28 @@ static void put_flag_char(u32b f[4], int set, u32b flag, int y, int x, int row, 
 
 		/* MegaHack -- Check throwing */
 		else if ((y == 9) &&
-			(f[3] & (TR3_THROWING)))
+			(f[3] & (TR3_HURL_NUM | TR3_HURL_DAM)) == (TR3_HURL_NUM | TR3_HURL_DAM))
+		{
+			c_put_str(TERM_WHITE, "*", row, col);
+		}
+
+		/* MegaHack -- Check throwing */
+		else if ((y == 9) &&
+			(f[3] & (TR3_HURL_NUM)))
 		{
 			c_put_str(TERM_WHITE, "+", row, col);
 		}
 
+		/* MegaHack -- Check throwing */
+		else if ((y == 9) &&
+			(f[3] & (TR3_HURL_DAM)))
+		{
+			c_put_str(TERM_WHITE, "x", row, col);
+		}
+
 		/* MegaHack -- Skip throwing */
 		else if ((y == 9) &&
-			!(f[3] & (TR3_THROWING)))
+			!(f[3] & (TR3_HURL_DAM | TR3_HURL_NUM)))
 		{
 			c_put_str(TERM_SLATE, ".", row, col);
 		}
@@ -2774,30 +2937,28 @@ static void display_player_misc_info(void)
 	{
 		int t, u;
 
-	        switch (p_ptr->pstyle)
+		switch (p_ptr->pstyle)
 		{
-			case WS_MAGIC_BOOK:
-                        	t = TV_MAGIC_BOOK;
-                        	break;
+		case WS_MAGIC_BOOK:
+			t = TV_MAGIC_BOOK;
+			break;
 
-                	case WS_PRAYER_BOOK:
-                        	t = TV_PRAYER_BOOK;
-                        	break;
+		case WS_PRAYER_BOOK:
+			t = TV_PRAYER_BOOK;
+			break;
 
-                	case WS_SONG_BOOK:
-                        	t = TV_SONG_BOOK;
-                        	break;
+		case WS_SONG_BOOK:
+			t = TV_SONG_BOOK;
+			break;
 
-			default:
-				t = TV_RUNESTONE;
-				break;
+		default:
+			t = TV_RUNESTONE;
+			break;
 		}
 
 		u = lookup_kind(t, p_ptr->psval);
-
 		p = k_name + k_info[u].name + 3;
-
-        }
+	}
 	else
 		p = w_name_style[p_ptr->pstyle];
 
@@ -2852,7 +3013,7 @@ void display_player_stat_info(int row, int col, int min, int max, int attr)
 	int i;
 
 	char buf[80];
-	
+
 	player_race *shape_ptr = &p_info[p_ptr->pshape != p_ptr->prace ? p_ptr->pshape : 0];
 
 	/* Hack -- display header if displaying first stat only */
@@ -2903,16 +3064,16 @@ void display_player_stat_info(int row, int col, int min, int max, int attr)
 		c_put_str(TERM_L_BLUE, buf, row+i, col+17);
 
 		/* Temporary Bonus */
-		sprintf(buf, "%+3d", 
-				(p_ptr->stat_inc_tim[i] ? 5 : 0)
-				- (p_ptr->stat_dec_tim[i] ? 5 : 0));
+		sprintf(buf, "%+3d",
+				(p_ptr->timed[i] ? 5 : 0)
+				- (p_ptr->timed[i + A_MAX] ? 5 : 0));
 		c_put_str(TERM_L_BLUE, buf, row+i, col+21);
 
 		/* Resulting "modified" maximum value */
 		cnv_stat(p_ptr->stat_top[i], buf);
-		if (p_ptr->stat_inc_tim[i] && !p_ptr->stat_dec_tim[i])
+		if (p_ptr->timed[i] && !p_ptr->timed[i + A_MAX])
 		  c_put_str(TERM_L_BLUE, buf, row+i, col+25);
-		else if (p_ptr->stat_dec_tim[i] && !p_ptr->stat_inc_tim[i])
+		else if (p_ptr->timed[i + A_MAX] && !p_ptr->timed[i])
 		  c_put_str(TERM_ORANGE, buf, row+i, col+25);
 		else
 		  c_put_str(TERM_L_GREEN, buf, row+i, col+25);
@@ -2962,7 +3123,7 @@ static void display_player_sust_info(void)
 	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
 	{
 		/* Get the object */
-		
+
 		o_ptr = &inventory[i];
 
 		/* Get the "known" flags */
@@ -2978,12 +3139,12 @@ static void display_player_sust_info(void)
 			{
 				/* Assume uppercase stat name */
 				c_put_str(TERM_WHITE, stat_names[stat], row+stat, col);
-				if (stat == A_DEX) 
+				if (stat == A_DEX)
 				  c_put_str(TERM_WHITE, stat_names[A_AGI], row+A_AGI, col);
-				if (stat == A_STR) 
+				if (stat == A_STR)
 				  c_put_str(TERM_WHITE, stat_names[A_SIZ], row+A_SIZ, col);
 			}
-			  
+
 			/* Default */
 			a = TERM_SLATE;
 			c = '.';
@@ -3027,9 +3188,9 @@ static void display_player_sust_info(void)
 
 			/* Dump proper character */
 			Term_putch(col + 5, row+stat, a, c);
-			if (stat == A_DEX) 
+			if (stat == A_DEX)
 			  Term_putch(col + 5, row+A_AGI, a, c);
-			if (stat == A_STR) 
+			if (stat == A_STR)
 			  Term_putch(col + 5, row+A_SIZ, a, c);
 		}
 
@@ -3057,9 +3218,9 @@ static void display_player_sust_info(void)
 
 		/* Dump */
 		Term_putch(col+5, row+stat, a, c);
-		if (stat == A_DEX) 
+		if (stat == A_DEX)
 		  Term_putch(col+5, row+A_AGI, a, c);
-		if (stat == A_STR) 
+		if (stat == A_STR)
 		  Term_putch(col+5, row+A_SIZ, a, c);
 	}
 }
@@ -3132,9 +3293,9 @@ static void display_home_equipment_info(int mode)
 		{
 			/* Assume uppercase stat name */
 			c_put_str(TERM_WHITE, stat_names[stats], row+stats, 2);
-			if (stats == A_DEX) 
+			if (stats == A_DEX)
 			  c_put_str(TERM_WHITE, stat_names[A_AGI], row+A_AGI, 2);
-			if (stats == A_STR) 
+			if (stats == A_STR)
 			  c_put_str(TERM_WHITE, stat_names[A_SIZ], row+A_SIZ, 2);
 
 			/* Default */
@@ -3180,9 +3341,9 @@ static void display_home_equipment_info(int mode)
 
 			/* Dump proper character */
 			Term_putch(col, row+stats, a, c);
-			if (stats == A_DEX) 
+			if (stats == A_DEX)
 			  Term_putch(col, row+A_AGI, a, c);
-			if (stats == A_STR) 
+			if (stats == A_STR)
 			  Term_putch(col, row+A_SIZ, a, c);
 		}
 
@@ -3547,185 +3708,6 @@ static void dump_player_stat_info(FILE *fff)
 }
 
 
-static void dump_home_plus_minus(FILE *fff)
-{
-	int i, stats, modifier;
-
-	u32b f1, f2, f3, f4;
-
-	object_type *o_ptr;
-	store_type *st_ptr = store[STORE_HOME];
-
-	/* Print it out */
-	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
-	{
-
-		/* Object */
-		o_ptr = &st_ptr->stock[i];
-
-		/* Get the "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
-
-		modifier = FALSE;
-
-		/*check to see if there is an increase or decrease of a stat*/
-		for (stats = 0; stats < A_MAX - 2 /* AGI coupled with DEX and SIZ with STR */; stats++)
-		{
-			/* Boost */
-			if (f1 & (1<<stats)) modifier = TRUE;
-		}
-
-		if (modifier)
-		{
-			/* positive pval */
-			if (o_ptr->pval > 0)
-			{
-				/*Make it a space*/
-				fprintf(fff,"+");
-
-			}
-
-			/* negative pval */
-			else if (o_ptr->pval < 0)
-			{
-				/*Make it a space*/
-				fprintf(fff,"-");
-
-			}
-		}
-
-		/* Just a space */
-		else fprintf(fff," ");
-	}
-}
-
-
-
-static void dump_home_stat_info(FILE *fff)
-{
-	int i, stats;
-
-	object_type *o_ptr;
-	store_type *st_ptr = store[STORE_HOME];
-	u32b f1, f2, f3, f4;
-	u32b ignore_f2, ignore_f3, ignore_f4;
-
-	char c;
-	char equippy[30];
-
-	/* Print it out */
-	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
-	{
-
-		/* Object */
-		o_ptr = &st_ptr->stock[i];
-
-		/* empty objects */
-		if (!o_ptr->k_idx)
-		{
-			/*Make it a space*/
-			equippy[i] = ' ';
-
-		}
-
-		/* Get attr/char for display */
-		else equippy[i] = object_char(o_ptr);
-	}
-
-	/*finish off the string*/
-	equippy[i] = '\0';
-
-	/*Hack - record spaces for the character*/
-
-	fprintf(fff,"(+/-)  ");
-
-	dump_home_plus_minus(fff);
-
-	fprintf(fff,"\n       %s        %s\n", equippy, equippy);
-
-	fprintf(fff,"       abcdefghijklmnopqrstuvwx        abcdefghijklmnopqrstuvwx\n");
-
-	for (stats = 0; stats < A_MAX; stats++)
-	{
-		fprintf(fff, "%6s ", stat_names_reduced[stats]);
-
-		/* Process home stats */
-		for (i = 0; i < MAX_INVENTORY_HOME; ++i)
-		{
-			/* Object */
-			o_ptr = &st_ptr->stock[i];
-
-			/* Get the "known" flags */
-			object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
-
-			/* Hack -- assume stat modifiers are known */
-			object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
-
-			c = '.';
-
-			/* Boost */
-			if (f1 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))
-			{
-				/* Default */
-				c = '*';
-
-				/* Good */
-				if (o_ptr->pval > 0)
-				{
-
-					/* Label boost */
-					if (o_ptr->pval < 10) c = I2D(o_ptr->pval);
-
-				}
-
-				/* Bad */
-				if (o_ptr->pval < 0)
-				{
-					/* Label boost */
-					if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
-
-				}
-				if (o_ptr->pval == 0) c = '.';
-
-			}
-			/*dump the result*/
-			fprintf(fff,"%c",c);
-
-		}
-
-		/*a couple spaces, then do the sustains*/
-		fprintf(fff, "  %5s ", stat_names_reduced[stats]);
-
-		/* Process equipment, show stat modifiers */
-		for (i = 0; i < MAX_INVENTORY_HOME; ++i)
-		{
-
-			/* Object */
-			o_ptr = &st_ptr->stock[i];
-
-			/* Get the "known" flags */
-			object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
-
-			/* Hack -- assume stat modifiers are known */
-			object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
-
-			/* Sustain */
-			if (f2 & (1<<(stats == A_AGI ? A_DEX : (stats == A_SIZ ? A_STR : stats))))  c = 's';
-			else c = '.';
-
-			/*dump the result*/
-			fprintf(fff,"%c",c);
-
-		}
-
-		fprintf(fff, "\n");
-
-	}
-
-}
-
-
-
 /*
  * Hack -- Dump a character description file
  *
@@ -4004,7 +3986,7 @@ errr file_character(cptr name, bool full)
 		}
 		else
 			/* Describe random object attributes */
-			1;/*			identify_random_gen(&inventory[i]);*/
+			(void)1;/*			identify_random_gen(&inventory[i]);*/
 	}
 
 	text_out("\n");
@@ -4032,7 +4014,7 @@ errr file_character(cptr name, bool full)
 			}
 			else
 				/* Describe random object attributes */
-				1;/*				identify_random_gen(&st_ptr->stock[i]);*/
+				(void)1;/*				identify_random_gen(&st_ptr->stock[i]);*/
 		}
 
 		/* Add an empty line */
@@ -4040,11 +4022,11 @@ errr file_character(cptr name, bool full)
 	}
 
 	/* Print other storages */
-	for (j = 0; j < total_store_count; j++) 
+	for (j = 0; j < total_store_count; j++)
 	{
 		store_type *st_ptr = store[j];
 
-		if ((st_ptr->base != 1 && st_ptr->base != 2) || !st_ptr->stock_num) 
+		if ((st_ptr->base != 1 && st_ptr->base != 2) || !st_ptr->stock_num)
 			continue;
 
 		/* Header */
@@ -4055,7 +4037,7 @@ errr file_character(cptr name, bool full)
 		{
 			object_desc(o_name, sizeof(o_name), &st_ptr->stock[i], TRUE, 3);
 			text_out(format("%c) %s\n", I2A(i), o_name));
-			
+
 			if (st_ptr->stock[i].tval == TV_BAG)
 			{
 				if (!bags_listed[st_ptr->stock[i].sval])
@@ -4067,7 +4049,7 @@ errr file_character(cptr name, bool full)
 			}
 			else
 				/* Describe random object attributes */
-				1;/*				identify_random_gen(&st_ptr->stock[i]);*/
+				(void)1;/*				identify_random_gen(&st_ptr->stock[i]);*/
 		}
 
 		/* Add an empty line */
@@ -4109,12 +4091,12 @@ errr file_character(cptr name, bool full)
 				}
 			}
 
-			if (victory) 
+			if (victory)
 			{
 				/* guardians present and all killed */
 
 				/* too interesting */
-				if (x) 
+				if (x)
 					continue;
 
 				if (t_info[i].attained_depth > min_depth(i))
@@ -4124,7 +4106,7 @@ errr file_character(cptr name, bool full)
 					/* won on the surface */
 					text_out("You cleared the passage through");
 			}
-			else 
+			else
 			{
 				/* no guardians or not all killed */
 
@@ -4136,50 +4118,50 @@ errr file_character(cptr name, bool full)
 						/* completed */
 
 						/* too interesting */
-						if (x) 
+						if (x)
 							continue;
 
 						text_out("You fought through to the other side of");
 					}
-					else 
+					else
 					{
 						/* not interesting enough */
-						if (!x) 
+						if (!x)
 							continue;
 
 						if (havoc)
 							text_out("You broke through to");
 						else
 							text_out("You reached");
-		
+
 						/* Express in feet or level*/
-						if (depth_in_feet) text_out(format(" %d foot depth in", t_info[i].attained_depth));
+						if (depth_in_feet) text_out(format(" %d foot depth in", 50 * t_info[i].attained_depth));
 						else text_out(format(" level %d in", t_info[i].attained_depth));
 					}
 				}
-				else 
+				else
 				{
 					/* not descended, but visited */
 
 					please_print_depths = FALSE;
 
-					if (t_info[i].quest_monster 
-						 && r_info[t_info[i].quest_monster].max_num == 0) 
+					if (t_info[i].quest_monster
+						 && r_info[t_info[i].quest_monster].max_num == 0)
 					{
 						/* not descended nor cleared, but another location opened */
 
 						/* too interesting */
-						if (x) 
+						if (x)
 							continue;
 
 						text_out("You opened the passage through");
 					}
-					else if (havoc) 
+					else if (havoc)
 					{
 						/* not descended nor cleared, but killed a guardian */
 
 						/* too interesting */
-						if (x) 
+						if (x)
 							continue;
 
 						text_out("You wrecked havoc at");
@@ -4189,22 +4171,24 @@ errr file_character(cptr name, bool full)
 						/* only visited on the surface */
 
 						/* not interesting enough */
-						if (!x) 
+						if (!x)
 							continue;
 
-						text_out("You have visited");		
+						text_out("You have visited");
 					}
 				}
 			}
 
 			text_out(format(" %s", str));
 
-			if (please_print_depths || min_depth(i) != max_depth(i)) 
+			if (please_print_depths || min_depth(i) != max_depth(i))
 			{
 				if (min_depth(i) == max_depth(i))
-					text_out(format(" (%d).\n",  min_depth(i)));
+					if (depth_in_feet) text_out(format(" (%d').\n", 50 * min_depth(i)));
+					else text_out(format(" (%d).\n",  min_depth(i)));
 				else
-					text_out(format(" (%d-%d).\n",  min_depth(i), max_depth(i)));
+					if (depth_in_feet) text_out(format(" (%d-%d').\n", 50 * min_depth(i), 50 *max_depth(i)));
+					else text_out(format(" (%d-%d).\n",  min_depth(i), max_depth(i)));
 			}
 			else
 				text_out(".\n");
@@ -4237,6 +4221,39 @@ errr file_character(cptr name, bool full)
 			{
 				if (i % 3 == 2) text_out(format("%s\n",s_name + s_info[spell].name));
 				else text_out(format("%-25s",s_name + s_info[spell].name));
+			}
+		}
+
+		text_out("\n\n");
+	}
+
+	/* Dump familiar abilities gained */
+	if (p_ptr->familiar)
+	{
+		monster_race *r_ptr = &r_info[FAMILIAR_IDX];
+		bool alive = (p_ptr->is_dead || (r_ptr->max_num <= 0)) == 0;
+
+		text_out("  [Familiar]\n\n");
+
+		text_out(format("Your familiar %s a %s.\n\n", alive ? "is" : "was", familiar_race[p_ptr->familiar].name));
+
+		/* Has at least one non-innate ability - 1st and 2nd abilities are innate */
+		if (p_ptr->familiar_attr[2])
+		{
+			text_out(format("While serving you it %sgained the following abilities:\n",
+					alive ? "has " : ""));
+
+			/* Iterate through familiar abilities */
+			for (i = 2; (p_ptr->familiar_attr[i]) && (i < MAX_FAMILIAR_GAINS); i++)
+			{
+				for (j = 0; j < MAX_FAMILIAR_ABILITIES; j++)
+				{
+					if (familiar_ability[j].attr == p_ptr->familiar_attr[i])
+					{
+						text_out(format("  %s\n", familiar_ability[j].text));
+						break;
+					}
+				}
 			}
 		}
 
@@ -4315,13 +4332,13 @@ static void string_lower(char *buf)
  * use of perfect seeking.  XXX XXX XXX
  *
  * Allow the user to "save" the current file.  XXX XXX XXX
- * 
+ *
  * If mode is set to 1, the file is shown but ignores the menu
  * structure, and only has 3 commands: space advances a
  * screenful, enter exits, and any other key exits and pushes
  * the key_press back as a command.  This is used to show
  * the commands for the user if they press the enter key.
- * 
+ *
  */
 bool show_file(cptr name, cptr what, int line, int mode)
 {
@@ -4658,14 +4675,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		{
 			/* Also break on ENTER */
 			if ((ke.key == ESCAPE) || (ke.key == '\r') || (ke.key == '\n')) break;
-			
+
 			else if (ke.key != ' ')
 			{
 				p_ptr->command_new = ke;
 				break;
 			}
 		}
-		
+
 		/* Return to last screen */
 		if (ke.key == '?') break;
 
@@ -4842,23 +4859,23 @@ void do_cmd_quick_help(void)
 
 /*
  * Queue up tips to be shown.
- * 
+ *
  * Tips are bits of context sensitive help that
  * we want to interrupt the game with (because they are
  * useful) but only want to interrupt the game in certain
  * 'safe' locations. Currently, we use show a tip every
  * 1000 turns while searching, every 100 turns while in town,
  * and when we first enter a level.
- * 
+ *
  * Tips go into the info directly (currently unused).
- * 
+ *
  * We don't show tips while repeating a command.
- * 
+ *
  * But because these are context sensitive, we need them
  * to approximately appear at the time we find them. So
  * we queue them up in the permanent array of already shown tips
  * clear the queue markers in show_tip when they are shown.
- * 
+ *
  * Currently we check if the tip file exists before queuing it.
  * If we call tips frequently, we probably will want to
  * move this check to when we show the tip.
@@ -4873,7 +4890,7 @@ bool queue_tip(cptr tip)
 
 	/* If no space for more tips; panic */
 	assert(tips_end < TIPS_MAX);
-	
+
 	/* Build the filename */
 	path_build(path, 1024, ANGBAND_DIR_INFO, tip);
 
@@ -4884,11 +4901,11 @@ bool queue_tip(cptr tip)
 	if (!fff) return (FALSE);
 
 	/* Close the file */
-	my_fclose(fff);		
-	
+	my_fclose(fff);
+
 	/* Add the tip, using quarks */
 	tips[tips_end++] = quark_add(tip);
-	
+
 	return (TRUE);
 }
 
@@ -4900,10 +4917,10 @@ void show_tip(void)
 {
 	/* Don't interrupt running with tips */
 	if (p_ptr->running) return;
-	
+
 	/* Don't interrupt repeating with tips */
 	if (p_ptr->command_rep) return;
-	
+
 	/* Have tips to show */
 	if (tips_start != tips_end)
 	{
@@ -4912,18 +4929,18 @@ void show_tip(void)
 #ifdef ALLOW_BORG
 		if (count_stop) { /* Do nothing */ } else
 #endif
-	
+
 		if (show_tips)
 		{
 			msg_print("You find a note.");
 			msg_print(NULL);
-			
+
 			/* Save screen */
 			screen_save();
-	
+
 			/* Peruse the help tip file */
 			(void)show_file(tip, NULL, 0, 0);
-	
+
 			/* Load screen */
 			screen_load();
 		}
@@ -5633,7 +5650,7 @@ static void death_examine(void)
 		screen_object(o_ptr);
 
 		(void)anykey();
-		
+
 		/* Needed to handle bags */
 		notice_stuff();
 
@@ -5904,12 +5921,12 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			sprintf(out_val, "               %s %s",
-			        (cdep == min_depth(cdun) 
+			        (cdep == min_depth(cdun)
 				 && cdep == max_depth(cdun))
 				? "in"
-				: (cdep == min_depth(cdun) 
+				: (cdep == min_depth(cdun)
 				   ? "on the surface of"
-				   : format("on level %d in", cdep)), 
+				   : format("on level %d in", cdep)),
 				str);
 			}
 
@@ -5970,7 +5987,7 @@ void display_scores(int from, int to)
 	}
 
 	/* Compare string */
-	if (!strcmp(version, "0.6.2"))
+	if (!strcmp(version, "0.6.3"))
 	{
 		msg_print("Incompatible high score table.");
 		msg_print("Please rename lib\\apex\\scores.raw.");
@@ -6366,7 +6383,7 @@ static void close_game_aux(void)
 
 	/* Easy more? */
 	if (easy_more) messages_easy(FALSE);
-	
+
 	/* Save screen */
 	screen_save();
 
@@ -6678,7 +6695,7 @@ static Signal_Handler_t wrap_signal(int sig, Signal_Handler_t handler)
 	return signal(sig, handler);
 }
 
-/* Call this instead of calling signal() directly. */  
+/* Call this instead of calling signal() directly. */
 Signal_Handler_t (*signal_aux)(int, Signal_Handler_t) = wrap_signal;
 
 

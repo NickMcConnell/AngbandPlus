@@ -38,7 +38,7 @@
  )  Dump reloadable screen dump         ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
- [  (unused)                            ^M  (special - return)
+ [  Display visible monster list        ^M  (special - return)
  ]  Dump html screen dump               ^N  (unused)
  -  (unused)                            ^O  (unused)
  _  Enter store                         ^P  Show previous messages

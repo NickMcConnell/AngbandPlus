@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -19,125 +19,164 @@
 
 
 /*
- * Set "p_ptr->blind", notice observable changes
- *
- * Note the use of "PU_FORGET_VIEW" and "PU_UPDATE_VIEW", which are needed
- * because "p_ptr->blind" affects the "CAVE_SEEN" flag, and "PU_MONSTERS",
- * because "p_ptr->blind" affects monster visibility, and "PU_MAP", because
- * "p_ptr->blind" affects the way in which many cave grids are displayed.
+ * Set a timed event (except timed resists, cutting and stunning).
  */
-bool set_blind(int v)
+bool set_timed(int idx, int v, bool notify)
 {
-	bool notice = FALSE;
+	const timed_effect *effect;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	if ((idx < 0) || (idx > TMD_MAX)) return FALSE;
 
-	/* Open */
-	if (v)
+	/* No change */
+	if (p_ptr->timed[idx] == v) return FALSE;
+
+	/* Hack -- call other functions */
+	switch (idx)
 	{
-		if (!p_ptr->blind)
-		{
-			msg_print("You are blinded!");
-			notice = TRUE;
-		}
+		case TMD_STUN:
+			return set_stun(v);
+
+		case TMD_CUT:
+			return set_cut(v);
+
+		case TMD_POISONED:
+			return set_poisoned(v);
+
+		case TMD_SLOW_POISON:
+			return set_slow_poison(v);
+
+		case TMD_AFRAID:
+			return set_afraid(v);
+
+		case TMD_MSLEEP:
+			return set_msleep(v);
+
+		case TMD_PSLEEP:
+			return set_psleep(v);
+
+		case TMD_STASTIS:
+			return set_stastis(v);
 	}
 
-	/* Shut */
-	else
+
+	/* Don't mention some effects. */
+	if (idx == TMD_OPP_ACID && p_ptr->cur_flags2 & (TR2_IM_ACID)) notify = FALSE;
+	else if (idx == TMD_OPP_ELEC && p_ptr->cur_flags2 & (TR2_IM_ELEC)) notify = FALSE;
+	else if (idx == TMD_OPP_FIRE && p_ptr->cur_flags2 & (TR2_IM_FIRE)) notify = FALSE;
+	else if (idx == TMD_OPP_COLD && p_ptr->cur_flags2 & (TR2_IM_COLD)) notify = FALSE;
+	else if (idx == TMD_OPP_POIS && p_ptr->cur_flags2 & (TR4_IM_POIS)) notify = FALSE;
+	else if (idx == TMD_OPP_CONF && p_ptr->cur_flags2 & (TR2_RES_CONFU)) notify = FALSE;
+	else if (idx == TMD_FREE_ACT && p_ptr->cur_flags2 & (TR3_FREE_ACT)) notify = FALSE;
+
+
+	/* Find the effect */
+	effect = &timed_effects[idx];
+
+	/* Turning off, always mention */
+	if (v == 0)
 	{
-		if (p_ptr->blind)
-		{
-			msg_print("You can see again.");
-			notice = TRUE;
-		}
+		message(MSG_RECOVER, 0, effect->on_end);
+		notify = TRUE;
+	}
+
+	/* Turning on, always mention */
+	else if (p_ptr->timed[idx] == 0)
+	{
+		message(effect->msg, 0, effect->on_begin);
+		notify = TRUE;
+	}
+
+	else if (notify)
+	{
+		/* Decrementing */
+		if (p_ptr->timed[idx] > v && effect->on_decrease)
+			message(effect->msg, 0, effect->on_decrease);
+
+		/* Incrementing */
+		else if (v > p_ptr->timed[idx] && effect->on_decrease)
+			message(effect->msg, 0, effect->on_increase);
 	}
 
 	/* Use the value */
-	p_ptr->blind = v;
+	p_ptr->timed[idx] = v;
+
+	/* Sort out the sprint effect */
+	if (idx == TMD_SPRINT && v == 0)
+		inc_timed(TMD_SLOW, 100, TRUE);
+
 
 	/* Nothing to notice */
-	if (!notice) return (FALSE);
+	if (!notify) return FALSE;
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Redraw the "blind" */
-	p_ptr->redraw |= (PR_BLIND);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	/* Update the visuals, as appropriate. */
+	p_ptr->update |= effect->flag_update;
+	p_ptr->redraw |= effect->flag_redraw;
 
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Result */
-	return (TRUE);
+	return TRUE;
 }
 
-
-/*
- * Set "p_ptr->confused", notice observable changes
+/**
+ * Increase the timed effect `idx` by `v`.  Mention this if `notify` is TRUE.
  */
-bool set_confused(int v)
+bool inc_timed(int idx, int v, bool notify)
 {
-	bool notice = FALSE;
+	/* Check we have a valid effect */
+	if ((idx < 0) || (idx > TMD_MAX)) return FALSE;
 
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	/* Set v */
+	v = v + p_ptr->timed[idx];
 
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->confused)
-		{
-			msg_print("You are confused!");
-			notice = TRUE;
-		}
-	}
+	return set_timed(idx, v, notify);
+}
 
-	/* Shut */
-	else
-	{
-		if (p_ptr->confused)
-		{
-			msg_print("You feel less confused now.");
-			notice = TRUE;
-		}
-	}
+/**
+ * Decrease the timed effect `idx` by `v`.  Mention this if `notify` is TRUE.
+ */
+bool dec_timed(int idx, int v, bool notify)
+{
+	/* Check we have a valid effect */
+	if ((idx < 0) || (idx > TMD_MAX)) return FALSE;
 
-	/* Use the value */
-	p_ptr->confused = v;
+	/* Set v */
+	v = p_ptr->timed[idx] - v;
 
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
+	return set_timed(idx, v, notify);
+}
 
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+/**
+ * Clear the timed effect `idx`.  Mention this if `notify` is TRUE.
+ */
+bool clear_timed(int idx, bool notify)
+{
+	return set_timed(idx, 0, notify);
+}
 
-	/* Redraw the "confused" */
-	p_ptr->redraw |= (PR_CONFUSED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+/**
+ * Halves the timed effect `idx`.  Mention this if `notify` is TRUE.
+ */
+bool pfix_timed(int idx, bool notify)
+{
+	return set_timed(idx, p_ptr->timed[idx] / 2, notify);
 }
 
 
+
 /*
- * Set "p_ptr->poisoned", notice observable changes
+ * Set "p_ptr->timed[TMD_POISONED]", notice observable changes
  */
 bool set_poisoned(int v)
 {
 	bool notice = FALSE;
+	bool really_notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -145,9 +184,19 @@ bool set_poisoned(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->poisoned)
+		if (!p_ptr->timed[TMD_POISONED])
 		{
-			msg_print("You are poisoned!");
+			if (p_ptr->timed[TMD_SLOW_POISON])
+			{
+				/* Deliberately ambiguous message */
+				msg_print("Whew.");
+				msg_print("You thought you saw poison but you feel fine.");
+			}
+			else
+			{
+				msg_print("You are poisoned!");
+				really_notice = TRUE;
+			}
 			notice = TRUE;
 		}
 	}
@@ -155,15 +204,67 @@ bool set_poisoned(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->poisoned)
+		if (p_ptr->timed[TMD_POISONED])
 		{
 			msg_print("You are no longer poisoned.");
+			notice = TRUE;
+			really_notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->timed[TMD_POISONED] = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the "poisoned" */
+	p_ptr->redraw |= (PR_POISONED);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (really_notice);
+}
+
+
+/*
+ * Set "p_ptr->timed[TMD_SLOW_POISON]", notice observable changes
+ */
+bool set_slow_poison(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->timed[TMD_POISONED])
+		{
+			msg_print("The poison in your veins is slowed.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->timed[TMD_POISONED])
+		{
+			msg_print("You are poisoned!");
+			msg_print("How did you not notice?");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->poisoned = v;
+	p_ptr->timed[TMD_SLOW_POISON] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -181,9 +282,8 @@ bool set_poisoned(int v)
 	return (TRUE);
 }
 
-
 /*
- * Set "p_ptr->afraid", notice observable changes
+ * Set "p_ptr->timed[TMD_AFRAID]", notice observable changes
  */
 bool set_afraid(int v)
 {
@@ -195,7 +295,7 @@ bool set_afraid(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->afraid)
+		if (!p_ptr->timed[TMD_AFRAID])
 		{
 			msg_print("You are terrified!");
 			notice = TRUE;
@@ -205,7 +305,7 @@ bool set_afraid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->afraid)
+		if (p_ptr->timed[TMD_AFRAID])
 		{
 			msg_print("You feel bolder now.");
 			notice = TRUE;
@@ -215,12 +315,12 @@ bool set_afraid(int v)
 	/* Hack -- petrify the player if over 100 */
 	if (v > 100)
 	{
-		p_ptr->afraid = 100;
-		set_petrify(p_ptr->afraid - 100 / 10);
+		p_ptr->timed[TMD_AFRAID] = 100;
+		inc_timed(TMD_PETRIFY, p_ptr->timed[TMD_AFRAID] - 100 / 10, TRUE);
 	}
 
 	/* Use the value */
-	else p_ptr->afraid = v;
+	else p_ptr->timed[TMD_AFRAID] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -240,216 +340,7 @@ bool set_afraid(int v)
 
 
 /*
- * Set "p_ptr->paralyzed", notice observable changes
- */
-bool set_paralyzed(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->paralyzed)
-		{
-			msg_print("You are paralyzed!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if ((p_ptr->paralyzed) && !(p_ptr->stastis) && !(p_ptr->petrify))
-		{
-			msg_print("You can move again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->paralyzed = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the state */
-	p_ptr->redraw |= (PR_STATE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->image", notice observable changes
- *
- * Note the use of "PR_MAP", which is needed because "p_ptr->image" affects
- * the way in which monsters, objects, and some normal grids, are displayed.
- */
-bool set_image(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->image)
-		{
-			msg_print("You feel drugged!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->image)
-		{
-			msg_print("You can see clearly again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->image = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->amnesia", notice observable changes
- */
-bool set_amnesia(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->amnesia)
-		{
-			msg_print("Your memories temporarily fade.");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->amnesia)
-		{
-			msg_print("You feel less forgetful now.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->amnesia = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "amnesia" */
-	p_ptr->redraw |= (PR_AMNESIA);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->cursed", notice observable changes
- */
-bool set_cursed(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->cursed)
-		{
-			msg_print("You feel unlucky!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->cursed)
-		{
-			msg_print("The curse has expired.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->cursed = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "cursed" */
-	p_ptr->redraw |= (PR_CURSED);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->msleep", notice observable changes
+ * Set "p_ptr->timed[TMD_MSLEEP]", notice observable changes
  */
 bool set_msleep(int v)
 {
@@ -461,7 +352,7 @@ bool set_msleep(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->msleep)
+		if (!p_ptr->timed[TMD_MSLEEP])
 		{
 			msg_print("Your eyelids feel heavy.");
 			notice = TRUE;
@@ -471,7 +362,7 @@ bool set_msleep(int v)
 	/* Shut */
 	else
 	{
-		if ((p_ptr->msleep) && !(p_ptr->psleep))
+		if ((p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP]))
 		{
 			msg_print("You no longer feel sleepy.");
 			notice = TRUE;
@@ -479,7 +370,7 @@ bool set_msleep(int v)
 	}
 
 	/* Use the value */
-	p_ptr->msleep = v;
+	p_ptr->timed[TMD_MSLEEP] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -493,7 +384,7 @@ bool set_msleep(int v)
 
 
 /*
- * Set "p_ptr->psleep", notice observable changes
+ * Set "p_ptr->timed[TMD_PSLEEP]", notice observable changes
  */
 bool set_psleep(int v)
 {
@@ -506,7 +397,7 @@ bool set_psleep(int v)
 	if (v >= PY_SLEEP_MAX) v = 0;
 
 	/* Recover stats */
-	if (p_ptr->psleep >= PY_SLEEP_RECOVER)
+	if (p_ptr->timed[TMD_PSLEEP] >= PY_SLEEP_RECOVER)
 	{
 		int i;
 
@@ -527,21 +418,18 @@ bool set_psleep(int v)
 			}
 		}
 
-		/* Hack -- allow 'built-in' equipment to recover from disenchantment */
-		change_shape(p_ptr->prace, p_ptr->lev);
-
 		if (notice) msg_print("You recover somewhat.");
 	}
 
 	/* Open */
 	if (v)
 	{
-		if ((p_ptr->psleep < PY_SLEEP_ASLEEP) && (v >= PY_SLEEP_ASLEEP))
+		if ((p_ptr->timed[TMD_PSLEEP] < PY_SLEEP_ASLEEP) && (v >= PY_SLEEP_ASLEEP))
 		{
 			msg_print("You fall asleep.");
 			notice = TRUE;
 		}
-		else if ((p_ptr->psleep < PY_SLEEP_DROWSY) && (v >= PY_SLEEP_DROWSY))
+		else if ((p_ptr->timed[TMD_PSLEEP] < PY_SLEEP_DROWSY) && (v >= PY_SLEEP_DROWSY))
 		{
 			msg_print("You feel drowsy.");
 			/* notice = TRUE; */
@@ -551,7 +439,7 @@ bool set_psleep(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->psleep)
+		if (p_ptr->timed[TMD_PSLEEP])
 		{
 			msg_print("You wake up.");
 			notice = TRUE;
@@ -559,7 +447,7 @@ bool set_psleep(int v)
 	}
 
 	/* Use the value */
-	p_ptr->psleep = v;
+	p_ptr->timed[TMD_PSLEEP] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -587,65 +475,10 @@ bool set_psleep(int v)
 }
 
 
-/*
- * Set "p_ptr->petrify", notice observable changes
- */
-bool set_petrify(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->petrify)
-		{
-			msg_print("You are petrified to the spot!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if ((p_ptr->petrify) && !(p_ptr->stastis) && !(p_ptr->paralyzed))
-		{
-			msg_print("You can move again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Hack -- paralyze the player if over 100 */
-	if (v > 100)
-	{
-		p_ptr->petrify = 100;
-		set_paralyzed(p_ptr->petrify - 100 / 10);
-	}
-
-	/* Use the value */
-	else p_ptr->petrify = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "petrify" */
-	p_ptr->redraw |= (PR_PETRIFY);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
 
 
 /*
- * Set "p_ptr->stastis", notice observable changes
+ * Set "p_ptr->timed[TMD_STASTIS]", notice observable changes
  */
 bool set_stastis(int v)
 {
@@ -667,7 +500,7 @@ bool set_stastis(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->stastis)
+		if (!p_ptr->timed[TMD_STASTIS])
 		{
 			msg_print("You are stuck in a time-loop!");
 			notice = TRUE;
@@ -677,7 +510,7 @@ bool set_stastis(int v)
 	/* Shut */
 	else
 	{
-		if ((p_ptr->stastis) && !(p_ptr->paralyzed) && !(p_ptr->petrify))
+		if ((p_ptr->timed[TMD_STASTIS]) && !(p_ptr->timed[TMD_PARALYZED]) && !(p_ptr->timed[TMD_PETRIFY]))
 		{
 			msg_print("You can move again.");
 			notice = TRUE;
@@ -685,7 +518,7 @@ bool set_stastis(int v)
 	}
 
 	/* Use the value */
-	p_ptr->stastis = v;
+	p_ptr->timed[TMD_STASTIS] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -705,973 +538,7 @@ bool set_stastis(int v)
 
 
 /*
- * Array of stat "descriptions"
- */
-cptr desc_stat_imp[A_MAX] =
-{
-	"stronger",
-	"smarter",
-	"wiser",
-	"more dextrous",
-	"healthier",
-	"cuter",
-	"more agile",
-	"bigger"
-};
-
-
-/*
- * Array of stat "descriptions"
- */
-cptr desc_stat_imp_end[A_MAX] =
-{
-	"strong",
-	"smart",
-	"wise",
-	"dextrous",
-	"healthy",
-	"cute",
-	"agile",
-	"big"
-};
-
-
-/*
- * Set "p_ptr->stat_inc_tim", notice observable changes
- */
-bool set_stat_inc_tim(int v, int i)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->stat_inc_tim[i])
-		{
-			msg_format("You feel temporarily %s!",desc_stat_imp[i]);
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->stat_inc_tim[i])
-		{
-			msg_format("You feel less %s.", desc_stat_imp_end[i]);
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->stat_inc_tim[i] = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Array of stat "descriptions"
- */
-cptr desc_stat_dec[] =
-{
-	"weaker",
-	"stupider",
-	"more naive",
-	"clumsier",
-	"sicklier",
-	"uglier",
-	"more slugish",
-	"smaller"
-};
-
-
-/*
- * Array of stat "descriptions"
- */
-static cptr desc_stat_dec_end[] =
-{
-	"weak",
-	"stupid",
-	"naive",
-	"clumsy",
-	"sickly",
-	"ugly",
-	"slugish",
-	"small"
-};
-
-/*
- * Set "p_ptr->stat_dec_tim", notice observable changes
- */
-bool set_stat_dec_tim(int v, int i)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->stat_dec_tim[i])
-		{
-			msg_format("You feel temporarily %s!", desc_stat_dec[i]);
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->stat_dec_tim[i])
-		{
-			msg_format("You no longer feel so %s.", desc_stat_dec_end[i]);
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->stat_dec_tim[i] = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->fast", notice observable changes
- */
-bool set_fast(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->fast)
-		{
-			msg_print("You feel yourself moving faster!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->fast)
-		{
-			msg_print("You feel yourself slow down.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->fast = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->slow", notice observable changes
- */
-bool set_slow(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->slow)
-		{
-			msg_print("You feel yourself moving slower!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->slow)
-		{
-			msg_print("You feel yourself speed up.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->slow = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->shield", notice observable changes
- */
-bool set_shield(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->shield)
-		{
-			msg_print("A mystic shield forms around your body!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->shield)
-		{
-			msg_print("Your mystic shield crumbles away.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->shield = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-
-/*
- * Set "p_ptr->blessed", notice observable changes
- */
-bool set_blessed(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->blessed)
-		{
-			msg_print("You feel righteous!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->blessed)
-		{
-			msg_print("The prayer has expired.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->blessed = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->hero", notice observable changes
- */
-bool set_hero(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->hero)
-		{
-			msg_print("You feel like a hero!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->hero)
-		{
-			msg_print("The heroism wears off.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->hero = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->shero", notice observable changes
- */
-bool set_shero(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->shero)
-		{
-			msg_print("You feel like a killing machine!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->shero)
-		{
-			msg_print("You feel less Berserk.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->shero = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->protevil", notice observable changes
- */
-bool set_protevil(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->protevil)
-		{
-			msg_print("You feel safe from evil!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->protevil)
-		{
-			msg_print("You no longer feel safe from evil.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->protevil = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->invis", notice observable changes
- */
-bool set_invis(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->invis)
-		{
-			msg_print("You seem to fade away.");
-			if (p_ptr->cur_lite)
-			{
-				if (inventory[INVEN_LITE].k_idx) msg_print("The light you carry is still visible.");
-				else msg_print("The glow from your equipment is still visible.");
-			}
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->invis)
-		{
-			msg_print("You feel visible once more.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->invis = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->free_act", notice observable changes
- */
-bool set_free_act(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->free_act)
-		{
-			msg_print("You feel you may act freely!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->free_act)
-		{
-			msg_print("You feel less free in your actions.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->free_act = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_invis", notice observable changes
- *
- * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
- */
-bool set_tim_invis(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_invis)
-		{
-			msg_print("Your eyes feel very sensitive!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_invis)
-		{
-			msg_print("Your eyes feel less sensitive.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_invis = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_infra", notice observable changes
- *
- * Note the use of "PU_MONSTERS", which is needed because because
- * "p_ptr->tim_infra" affects monster visibility.
- */
-bool set_tim_infra(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_infra)
-		{
-			msg_print("Your eyes begin to tingle!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_infra)
-		{
-			msg_print("Your eyes stop tingling.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_infra = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_acid", notice observable changes
- */
-bool set_oppose_acid(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_acid)
-		{
-			msg_print("You feel resistant to acid!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_acid)
-		{
-			msg_print("You feel less resistant to acid.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_acid = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_elec", notice observable changes
- */
-bool set_oppose_elec(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_elec)
-		{
-			msg_print("You feel resistant to electricity!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_elec)
-		{
-			msg_print("You feel less resistant to electricity.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_elec = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_fire", notice observable changes
- */
-bool set_oppose_fire(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_fire)
-		{
-			msg_print("You feel resistant to fire!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_fire)
-		{
-			msg_print("You feel less resistant to fire.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_fire = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_cold", notice observable changes
- */
-bool set_oppose_cold(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_cold)
-		{
-			msg_print("You feel resistant to cold!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_cold)
-		{
-			msg_print("You feel less resistant to cold.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_cold = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_pois", notice observable changes
- */
-bool set_oppose_pois(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_pois)
-		{
-			msg_print("You feel resistant to poison!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_pois)
-		{
-			msg_print("You feel less resistant to poison.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_pois = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->stun", notice observable changes
+ * Set "p_ptr->timed[TMD_STUN]", notice observable changes
  *
  * Note the special code to only notice "range" changes.
  */
@@ -1685,19 +552,19 @@ bool set_stun(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Knocked out */
-	if (p_ptr->stun > 100)
+	if (p_ptr->timed[TMD_STUN] > 100)
 	{
 		old_aux = 3;
 	}
 
 	/* Heavy stun */
-	else if (p_ptr->stun > 50)
+	else if (p_ptr->timed[TMD_STUN] > 50)
 	{
 		old_aux = 2;
 	}
 
 	/* Stun */
-	else if (p_ptr->stun > 0)
+	else if (p_ptr->timed[TMD_STUN] > 0)
 	{
 		old_aux = 1;
 	}
@@ -1784,7 +651,7 @@ bool set_stun(int v)
 	}
 
 	/* Use the value */
-	p_ptr->stun = v;
+	p_ptr->timed[TMD_STUN] = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -1807,7 +674,7 @@ bool set_stun(int v)
 
 
 /*
- * Set "p_ptr->cut", notice observable changes
+ * Set "p_ptr->timed[TMD_CUT]", notice observable changes
  *
  * Note the special code to only notice "range" changes.
  */
@@ -1821,43 +688,43 @@ bool set_cut(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Mortal wound */
-	if (p_ptr->cut > 1000)
+	if (p_ptr->timed[TMD_CUT] > 1000)
 	{
 		old_aux = 7;
 	}
 
 	/* Deep gash */
-	else if (p_ptr->cut > 200)
+	else if (p_ptr->timed[TMD_CUT] > 200)
 	{
 		old_aux = 6;
 	}
 
 	/* Severe cut */
-	else if (p_ptr->cut > 100)
+	else if (p_ptr->timed[TMD_CUT] > 100)
 	{
 		old_aux = 5;
 	}
 
 	/* Nasty cut */
-	else if (p_ptr->cut > 50)
+	else if (p_ptr->timed[TMD_CUT] > 50)
 	{
 		old_aux = 4;
 	}
 
 	/* Bad cut */
-	else if (p_ptr->cut > 25)
+	else if (p_ptr->timed[TMD_CUT] > 25)
 	{
 		old_aux = 3;
 	}
 
 	/* Light cut */
-	else if (p_ptr->cut > 10)
+	else if (p_ptr->timed[TMD_CUT] > 10)
 	{
 		old_aux = 2;
 	}
 
 	/* Graze */
-	else if (p_ptr->cut > 0)
+	else if (p_ptr->timed[TMD_CUT] > 0)
 	{
 		old_aux = 1;
 	}
@@ -1996,7 +863,7 @@ bool set_cut(int v)
 	}
 
 	/* Use the value */
-	p_ptr->cut = v;
+	p_ptr->timed[TMD_CUT] = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -2134,16 +1001,17 @@ bool set_food(int v)
 	}
 
 	/* Food increase */
-	if (new_aux > old_aux)
+	if ((new_aux > old_aux) || ((v > p_ptr->food) && (new_aux == old_aux)))
 	{
 		/* Describe the state */
 		switch (new_aux)
 		{
 			/* Weak */
+			case 0:
 			case 1:
 			case 2:
 			{
-				msg_print("You are still weak.");
+				msg_print("You are still starving.");
 				break;
 			}
 
@@ -2263,6 +1131,8 @@ bool set_food(int v)
 	/* Result */
 	return (TRUE);
 }
+
+
 /*
  * Set "p_ptr->rest", notice observable changes
  *
@@ -2421,11 +1291,9 @@ bool set_rest(int v)
  */
 void improve_aware(void)
 {
-	int i;
+	int i, ii;
 	int awareness = -1;
-	int tip_count_start = 0;
-	int tip_count = 0;
-	
+
 	/* Hack -- Check for id'ed */
 	for (i=1;i<z_info->w_max;i++)
 	{
@@ -2436,48 +1304,38 @@ void improve_aware(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		if ((w_info[i].styles & (1L << p_ptr->pstyle)) == 0) continue;
-		
+
 		awareness = 2*(p_ptr->lev - w_info[i].level)+1;
 	}
 
-	/* Hack -- efficiency for tips */
-	for (i=1;i<z_info->k_max;i++)
-	{
-		/*Already aware */
-		if (k_info[i].aware) continue;
-		
-		/* Check awareness */
-		if (k_info[i].tval == style2tval[p_ptr->pstyle])
-		{
-			tip_count_start++;
-		}
-	}
-	
 	/* Hack -- Check for id'ed */
 	for (i=1;i<z_info->k_max;i++)
 	{
-		/*Already aware */
-		if (k_info[i].aware) continue;
-
 		/* Check for awareness */
 		if (k_info[i].level > awareness) continue;
-		
+
 		/* Check awareness */
 		if (k_info[i].tval == style2tval[p_ptr->pstyle])
 		{
-			queue_tip(format("kind%d.txt", i));
-			k_info[i].aware=TRUE;
-			p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-			
-			tip_count++;
+			/* Aware next time player sees an object */
+			k_info[i].aware |= (AWARE_CLASS);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);
+
+			/* Check inventory */
+			for (ii = 0; ii < INVEN_TOTAL; ii++)
+			{
+				if (inventory[ii].k_idx == i)
+				{
+					/* Become aware of object */
+					object_aware(&inventory[ii], FALSE);
+				}
+
+				/* Notice stuff */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+			}
 		}
-	}
-	
-	/* Show all tval tips */
-	for(i = tip_count_start; i < tip_count_start + tip_count; i++)
-	{
-		/* Show tips */
-		queue_tip(format("tval%d-%d.txt", style2tval[p_ptr->pstyle], i));
 	}
 }
 
@@ -2515,7 +1373,7 @@ void print_stats(const s16b *sn, int num, int y, int x)
 		c_prt(attr, format("  %c) ", I2A(i)), y + i + 1, x);
 
 		/* Display the stats */
-		display_player_stat_info(y + 1, x + 5, i, i + 1, attr);	
+		display_player_stat_info(y + 1, x + 5, i, i + 1, attr);
 	}
 
 	/* Display drop-shadow */
@@ -2530,23 +1388,23 @@ bool stat_commands(char choice, const s16b *sn, int i, bool *redraw)
 {
 	(void)sn;
 	(void)i;
-	
+
 	switch (choice)
 	{
 		case '?':
 		{
 			/* Save the screen */
 			if (!(*redraw)) screen_save();
-			
+
 			/* Show stats help */
 			(void)show_file("stats.txt", NULL, 0, 0);
-			
+
 			/* Load the screen */
 			screen_load();
-			
+
 			break;
 		}
-		
+
 		default:
 		{
 			return (FALSE);
@@ -2579,7 +1437,7 @@ static void improve_stat(void)
 
 	/* Flush messages */
 	if (easy_more) messages_easy(FALSE);
-	
+
 	/* Check which stats can still be improved */
 	for (i = 0; i < A_MAX; i++)
 	{
@@ -2599,10 +1457,39 @@ static void improve_stat(void)
 		/* Improve how many stats with level gain */
 		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 		{
+			/* Random pick */
+			if (birth_rand_stats)
+			{
+				/* Pick a random stat */
+				stat_gain_selection[stat_gain_selected] = rand_int(A_MAX);
+
+				/* Valid choice? */
+				if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] < 18 + 999)
+				{
+					bool okay = TRUE;
+
+					/* Check we are not improving another stat */
+					for (i = 0; i < stat_gain_selected; i++)
+					{
+						if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
+					}
+
+					/* Retry */
+					if (!okay) stat_gain_selected--;
+				}
+				else
+				{
+					/* Retry */
+					stat_gain_selected--;
+				}
+
+				continue;
+			}
+
 			/* Should be paranoid here */
 			while (TRUE)
 			{
-				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected); 
+				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected);
 
 				/* Select stat to improve */
 				if (get_list(print_stats, table, A_MAX, "Attribute", buf, ", ?=help", 1, 36, stat_commands, &(stat_gain_selection[stat_gain_selected])))
@@ -2610,7 +1497,7 @@ static void improve_stat(void)
 					/* Check if stat at maximum */
 					if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
 					{
-						msg_format("You cannot get any %s",desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
+						msg_format("You cannot get any better.");
 					}
 
 					/* Good stat_gain_selection? */
@@ -2638,6 +1525,9 @@ static void improve_stat(void)
 			}
 		}
 
+		/* Done? */
+		if (birth_rand_stats) break;
+
 		/* Save screen */
 		screen_save();
 
@@ -2656,7 +1546,7 @@ static void improve_stat(void)
 		/* Load screen */
 		screen_load();
 	}
-	
+
 	/* Improve how many stats with level gain */
 	for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 	{
@@ -2671,7 +1561,7 @@ static void improve_stat(void)
 			p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
 		}
 		else
-		{ 
+		{
 			p = "";
 			tmp = 0;
 		}
@@ -2679,14 +1569,164 @@ static void improve_stat(void)
 		/* Increase */
 		inc_stat(stat_gain_selection[stat_gain_selected]);
 
+#if 0
 		/* Message */
 		msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
-
+#endif
 		/* Hack --- restore stat */
 		if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
 	}
 }
 
+
+/*
+ * Print a list of abilities that can be gained by a familiar.
+ */
+void print_familiars(const s16b *sn, int num, int y, int x)
+{
+	int i;
+
+	char out_val[60];
+
+	byte line_attr;
+
+	/* Title the list */
+	prt("", y, x);
+	put_str("Ability", y, x + 5);
+
+	/* Dump the familiar abilities */
+	for (i = 0; i < num; i++)
+	{
+		line_attr = TERM_WHITE;
+
+		/* Dump the route --(-- */
+		sprintf(out_val, "  %c) %s",
+			I2A(i), familiar_ability[sn[i]].text);
+		c_prt(line_attr, out_val, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+
+}
+
+
+/*
+ * Other stat functions.
+ */
+bool familiar_commands(char choice, const s16b *sn, int i, bool *redraw)
+{
+	(void)sn;
+	(void)i;
+
+	switch (choice)
+	{
+		case '?':
+		{
+			/* Save the screen */
+			if (!(*redraw)) screen_save();
+
+			/* Show stats help */
+			(void)show_file("familiar.txt", NULL, 0, 0);
+
+			/* Load the screen */
+			screen_load();
+
+			break;
+		}
+
+		default:
+		{
+			return (FALSE);
+		}
+	}
+	return (TRUE);
+}
+
+
+/*
+ * Improve the player's familiar by adding a player chosen ability.
+ */
+void improve_familiar(void)
+{
+	int number_allowed = p_ptr->max_lev < 40 ? (p_ptr->max_lev / 2) : 20 + (p_ptr->max_lev - 40);
+	int i, j, num;
+	int base, slot, choice;
+
+	s16b table[10];
+
+#ifdef ALLOW_BORG
+	if (count_stop) return;
+#endif
+
+	/* Flush messages */
+	if (easy_more) messages_easy(FALSE);
+
+	/* Does not yet have a familiar */
+	if (!p_ptr->familiar) return;
+
+	/* Familiar is dead */
+	if (r_info[FAMILIAR_IDX].max_num <= 0) return;
+
+	/* Keep filling slots if required */
+	while (TRUE)
+	{
+		/* Find the next available slot */
+		for (slot = 0; p_ptr->familiar_attr[slot]; slot++);
+
+		/* No more slots */
+		if (slot >= number_allowed) break;
+
+		/* Re-base */
+		base = (slot-2) / 2;
+		base *= 9;
+		base++;
+
+		/* No abilities yet */
+		num = 0;
+
+		/* Initialise table of choices */
+		for (i = base; (i < base + 9) && (i < MAX_FAMILIAR_ABILITIES); i++)
+		{
+			bool okay = TRUE;
+			bool preq = FALSE;
+
+			/* Check to see if the player familiar already has this ability */
+			for (j = 0; j < slot; j++)
+			{
+				if ((familiar_ability[i].attr < FAMILIAR_AC) && (p_ptr->familiar_attr[j] == familiar_ability[i].attr)) okay = FALSE;
+				if (p_ptr->familiar_attr[j] == familiar_ability[i].preq) preq = TRUE;
+			}
+
+			/* Can't pick the same blow improvement twice in a row */
+			if ((slot) && (familiar_ability[i].attr > FAMILIAR_BLOW) && (p_ptr->familiar_attr[slot-1] == familiar_ability[i].attr)) okay = FALSE;
+
+			/* Ability allowed */
+			if (okay && (preq || !familiar_ability[i].preq))
+			{
+				table[num++] = i;
+			}
+		}
+
+		/* Get a choice */
+		if (get_list(print_familiars, table, num, "Ability", "Familiar gains which ability", ", ?=help", 1, 36, familiar_commands, &choice))
+		{
+			p_ptr->familiar_attr[slot] = familiar_ability[choice].attr;
+		}
+	}
+
+	/* Revise familiar stats */
+	generate_familiar();
+
+	/* Revise familiar hit points */
+	for (i = 0; i < z_info->m_max; i++)
+	{
+		if (m_list[i].r_idx == FAMILIAR_IDX)
+		{
+			calc_monster_hp(i);
+		}
+	}
+}
 
 
 /*
@@ -2790,6 +1830,9 @@ void check_experience(void)
 
 		/* Improve awareness */
 		if (p_ptr->lev > p_ptr->max_lev) improve_aware();
+
+		/* Improve familiar */
+		if (p_ptr->lev > p_ptr->max_lev) improve_familiar();
 
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
@@ -2946,43 +1989,10 @@ int get_coin_type(const monster_race *r_ptr)
 }
 
 
-/*
- * Handle the quest assignment
- *
- * Getting a quest assigned.
- */
-void quest_assign(int q_idx)
-{
-	(void)q_idx;
-}
-
-
-/*
- * Handle the quest reward.
- *
- * Completing a quest 
- */
-void quest_reward(int q_idx)
-{
-	(void)q_idx;
-
-}
-
-/*
- * Handle the quest reward.
- *
- * Completing a quest 
- */
-void quest_penalty(int q_idx)
-{
-	(void)q_idx;
-}
-
-
 void scatter_objects_under_feat(int y, int x)
 {
   s16b this_o_idx, next_o_idx = 0;
-  
+
   object_type *o_ptr;
 
   assert (in_bounds(y, x));
@@ -3019,6 +2029,234 @@ void scatter_objects_under_feat(int y, int x)
 
 
 /*
+ * Handle a quest event.
+ */
+bool check_quest(quest_event *qe1_ptr, bool advance)
+{
+	int i, j;
+	bool questor = FALSE;
+
+	return (FALSE);
+
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		quest_type *q_ptr = &(q_list[i]);
+
+		int next_stage = 0;
+		bool partial = FALSE;
+
+		/* Check the next possible stages */
+		for (j = 0; j < MAX_QUEST_EVENTS ; j++)
+		{
+			quest_event *qe2_ptr = &(q_ptr->event[j]);
+			quest_event *qe3_ptr = &(q_ptr->event[QUEST_ACTION]);
+
+			/* Not all quests advance */
+			switch (q_ptr->stage)
+			{
+				/* We can succeed or fail quests at any time once the player has activated them. */
+				case QUEST_ACTIVE:
+					if (j == QUEST_ACTIVE) break;
+					if (j == QUEST_FAILED) break;
+					continue;
+				/* Track what the player has done / changed in the world */
+				case QUEST_ACTION: /* A quest should never get to this stage... */
+				case QUEST_FINISH:
+				case QUEST_PENALTY:
+				/* We don't do pay outs until the start of the next player turn */
+				case QUEST_PAYOUT:
+				case QUEST_FORFEIT:
+					continue;
+				/* We just advance otherwise */
+				default:
+					if (q_ptr->stage != j) continue;
+			}
+
+			/* We support quests with blank transitions */
+			if (qe2_ptr->flags)
+			{
+				/* Check for quest match */
+				if ((qe2_ptr->flags & (qe1_ptr->flags)) == 0) continue;
+
+				/* Check for level match */
+				if ((qe2_ptr->dungeon) && ((qe2_ptr->dungeon != qe1_ptr->dungeon) ||
+						(qe2_ptr->level != qe2_ptr->level))) continue;
+
+				/* Check for race match */
+				if (qe1_ptr->flags & (EVENT_GIVE_RACE | EVENT_GET_RACE | EVENT_FIND_RACE | EVENT_KILL_RACE |
+						EVENT_ALLY_RACE | EVENT_HATE_RACE | EVENT_FEAR_RACE | EVENT_HEAL_RACE |
+						EVENT_BANISH_RACE | EVENT_DEFEND_RACE | EVENT_DEFEND_STORE | EVENT_DEFEND_FEAT))
+				{
+					/* Match any monster or specific race */
+					if ((qe2_ptr->race) && (qe2_ptr->race != qe1_ptr->race)) continue;
+
+					/* Have to check monster states? */
+					if ((qe1_ptr->flags & (EVENT_GIVE_RACE | EVENT_GET_RACE | EVENT_DEFEND_FEAT)) == 0)
+					{
+						/* Add flags */
+						qe3_ptr->flags |= qe1_ptr->flags;
+
+						/* Hack -- we accumulate banishes and kills in the QUEST_ACTION. For others,
+						 * we only check if the number provided >= the number required.
+						 */
+						if (qe1_ptr->flags & (EVENT_BANISH_RACE | EVENT_KILL_RACE | EVENT_DEFEND_RACE |
+								EVENT_DEFEND_STORE))
+							qe3_ptr->number = qe1_ptr->number;
+						else if (qe1_ptr->number + qe3_ptr->number >= qe2_ptr->number)
+							qe3_ptr->number = qe2_ptr->number;
+					}
+				}
+
+				/* Check for store match */
+				if ((qe1_ptr->flags & (EVENT_BUY_STORE | EVENT_SELL_STORE | EVENT_GIVE_STORE |
+						EVENT_STOCK_STORE | EVENT_GET_STORE | EVENT_DEFEND_STORE)) &&
+						(qe2_ptr->store != qe1_ptr->store)) continue;
+
+				/* Check for item match */
+				if (qe1_ptr->flags & (EVENT_GIVE_RACE | EVENT_GET_RACE | EVENT_BUY_STORE |
+						EVENT_SELL_STORE | EVENT_GIVE_STORE | EVENT_STOCK_STORE | EVENT_GET_STORE |
+						EVENT_GET_ITEM | EVENT_FIND_ITEM | EVENT_DESTROY_ITEM | EVENT_LOSE_ITEM))
+				{
+					/* Match artifact, ego_item_type or kind of item or any item */
+					if (((qe2_ptr->artifact) && (qe2_ptr->artifact != qe1_ptr->artifact)) ||
+					 ((qe2_ptr->ego_item_type) && (qe2_ptr->ego_item_type != qe1_ptr->ego_item_type)) ||
+					 ((qe2_ptr->kind) && (qe2_ptr->kind != qe1_ptr->kind))) continue;
+
+					/* XXX Paranoia around artifacts */
+					if ((qe2_ptr->artifact) && (qe2_ptr->number)) qe2_ptr->number = 1;
+
+					/* Hack -- we accumulate item destructions in the QUEST_ACTION. For others,
+					   we only check if the number provided >= the number required.
+					 */
+					if (qe1_ptr->flags & (EVENT_DESTROY_ITEM))
+						qe3_ptr->number = qe1_ptr->number;
+					else if	(qe1_ptr->number >= qe2_ptr->number)
+						qe3_ptr->number = qe2_ptr->number;
+				}
+
+				/* Check for feature match */
+				if (qe1_ptr->flags & (EVENT_ALTER_FEAT | EVENT_DEFEND_FEAT))
+				{
+					/* Match feature or any feature */
+					if ((qe2_ptr->feat) && (qe2_ptr->feat != qe1_ptr->feat)) continue;
+
+					/* Accumulate features */
+					qe3_ptr->number = qe1_ptr->number;
+				}
+
+				/* Check for room type match */
+				if (((qe1_ptr->flags & (EVENT_FIND_ROOM | EVENT_FLAG_ROOM | EVENT_UNFLAG_ROOM))) &&
+					(((qe2_ptr->room_type_a) && (qe2_ptr->room_type_a != qe1_ptr->room_type_a)) ||
+					((qe2_ptr->room_type_b) && (qe2_ptr->room_type_b != qe1_ptr->room_type_b))))
+						continue;
+
+				/* Check for room flag match */
+				if (((qe1_ptr->flags & (EVENT_FLAG_ROOM | EVENT_UNFLAG_ROOM))) &&
+						((qe2_ptr->room_flags & (qe1_ptr->room_flags)) == 0))
+					continue;
+
+				/* Do we have to stay on this level a set amount of time? */
+				if (qe2_ptr->flags & (EVENT_STAY | EVENT_DEFEND_RACE | EVENT_DEFEND_FEAT | EVENT_DEFEND_STORE))
+				{
+					if (old_turn + qe2_ptr->time < turn) continue;
+				}
+
+				/* Do we have to succeed at a quest? */
+				if (qe2_ptr->flags & (EVENT_PASS_QUEST))
+				{
+					if (q_info[qe2_ptr->quest].stage != QUEST_FINISH) continue;
+				}
+
+				/* Check for defensive failure */
+				if (qe1_ptr->flags & (EVENT_DEFEND_RACE | EVENT_DEFEND_FEAT))
+				{
+					/* Hack - fail the quest */
+					if (!qe1_ptr->number)
+					{
+						next_stage = QUEST_FAILED;
+						break;
+					}
+				}
+
+				/* Check for completion */
+				else if ((qe3_ptr->number) && (qe3_ptr->number < qe2_ptr->number))
+				{
+					/* We at least have a partial match */
+					partial = TRUE;
+				}
+			}
+
+			/* We have qualified for the next stage of the quest */
+			next_stage = (j == QUEST_ACTIVE ? QUEST_REWARD : j + 1);
+		}
+
+		/* Advance the quest */
+		if (next_stage)
+		{
+			const char *prefix = ( next_stage == QUEST_REWARD ? "To claim your reward, " : NULL);
+
+			/* Not advancing */
+			if (!advance)
+			{
+				/* Voluntarily fail quest? */
+				if (next_stage == QUEST_FAILED)
+				{
+					return (get_check(format("Fail %s?", q_name + q_ptr->name)));
+				}
+				else
+				{
+					return (FALSE);
+				}
+			}
+
+			/* Describe the quest if assigned it */
+			if ((next_stage == QUEST_ACTIVE) &&
+					strlen(q_text + q_ptr->text)) msg_format("%s", q_text + q_ptr->text);
+
+			/* Tell the player the next step of the quest. */
+			if ((next_stage < QUEST_PAYOUT) &&
+				(q_info[i].event[next_stage].flags))
+			{
+				/* Display the event 'You must...' */
+				print_event(&q_info[i].event[next_stage], 2, 3, prefix);
+			}
+			/* Tell the player they have succeeded */
+			else if (next_stage == QUEST_FINISH)
+			{
+				msg_format("You have completed %s!", q_name + q_ptr->name);
+			}
+			/* Tell the player they have failed */
+			else if (next_stage == QUEST_PENALTY)
+			{
+				msg_format("You have failed %s.", q_name + q_ptr->name);
+			}
+
+			/* Advance quest to the next stage */
+			q_ptr->stage = next_stage;
+
+			/* Something done? */
+			questor = TRUE;
+		}
+		/* Tell the player they have partially advanced the quest */
+		else if (partial)
+		{
+			quest_event event;
+
+			COPY(&event, &q_ptr->event[q_ptr->stage], quest_event);
+
+			/* Tell the player the action they have completed */
+			print_event(qe1_ptr, 2, 1, NULL);
+
+			/* Tell the player the action(s) they must still do */
+			print_event(&event, 2, 3, NULL);
+		}
+	}
+
+	return(questor);
+}
+
+
+/*
  * Handle the "death" of a monster.
  *
  * Disperse treasures centered at the monster location based on the
@@ -3032,9 +2270,9 @@ void scatter_objects_under_feat(int y, int x)
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
  */
-void monster_death(int m_idx)
+bool monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx;
+	int j, y, x, ny, nx;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -3063,6 +2301,7 @@ void monster_death(int m_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	quest_event quest_check;
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -3076,16 +2315,16 @@ void monster_death(int m_idx)
 		{
 			/* Incur blood debt */
 			take_hit(SOURCE_BLOOD_DEBT, m_ptr->r_idx, damroll(r_ptr->level - p_ptr->csp, 3));
-			
+
 			/* No mana left */
 			p_ptr->csp = 0;
 			p_ptr->csp_frac = 0;
 		}
-		
+
 		/* Debt can be met by mana */
 		else
 		{
-			p_ptr->csp -= r_ptr->level;		
+			p_ptr->csp -= r_ptr->level;
 		}
 
 		/* Update mana */
@@ -3094,12 +2333,22 @@ void monster_death(int m_idx)
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2 | PW_PLAYER_3);
 
 		/* Player death */
-		if (p_ptr->is_dead) return;
+		if (p_ptr->is_dead) return (TRUE);
 	}
 
-	
 	/* Extinguish lite */
 	delete_monster_lite(m_idx);
+
+	/* Clear the quest */
+	WIPE(&quest_check, quest_event);
+
+	/* Set the quest */
+	quest_check.flags = EVENT_KILL_RACE;
+	quest_check.race = m_ptr->r_idx;
+	quest_check.number = 1;
+
+	/* Check quest events */
+	check_quest(&quest_check, TRUE);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -3140,7 +2389,7 @@ void monster_death(int m_idx)
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Wipe the object */ 
+		/* Wipe the object */
 		object_wipe(i_ptr);
 
 		/* Drop a body? */
@@ -3166,7 +2415,7 @@ void monster_death(int m_idx)
 	if (r_ptr->flags8 & (RF8_HAS_SLIME)) feat_near(FEAT_FLOOR_SLIME_T,m_ptr->fy,m_ptr->fx);
 
 	/* Do we drop more treasure? */
-	if (m_ptr->mflag & (MFLAG_MADE)) return;
+	if (m_ptr->mflag & (MFLAG_MADE)) return (TRUE);
 
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
@@ -3183,9 +2432,13 @@ void monster_death(int m_idx)
 		/* Mega-Hack -- Actually create "Grond" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
 
+		/* Mark origin */
+		i_ptr->origin = ORIGIN_DROP;
+		i_ptr->origin_depth = p_ptr->depth;
+		i_ptr->origin_xtra = m_ptr->r_idx;
+
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
-
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -3198,6 +2451,11 @@ void monster_death(int m_idx)
 
 		/* Mega-Hack -- Actually create "Morgoth" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+
+		/* Mark origin */
+		i_ptr->origin = ORIGIN_DROP;
+		i_ptr->origin_depth = p_ptr->depth;
+		i_ptr->origin_xtra = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -3215,7 +2473,6 @@ void monster_death(int m_idx)
 		msg_print("You may retire (commit suicide) when you are ready.");
 
 	}
-
 
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 30)) number++;
@@ -3239,7 +2496,7 @@ void monster_death(int m_idx)
 
 	/* Clear monster equipment */
 	hack_monster_equip = 0L;
-	
+
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
@@ -3260,7 +2517,7 @@ void monster_death(int m_idx)
 			l_ptr->flags8 |= (RF8_DROP_CHEST);
 
 			hack_monster_equip |= (RF8_DROP_CHEST);
-			
+
 			continue;
 		}
 
@@ -3277,7 +2534,7 @@ void monster_death(int m_idx)
 				hack_monster_equip = 0L;
 			}
 		}
-		
+
 		/* Make Gold */
 		if (do_gold && (!do_item || (rand_int(100) < 50) ))
 		{
@@ -3348,7 +2605,7 @@ void monster_death(int m_idx)
 				case TV_SONG_BOOK:
 				{
 					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_MUSIC);
-					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_WRITING);					
+					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_WRITING);
 				}
 				case TV_INSTRUMENT:
 				{
@@ -3458,6 +2715,7 @@ void monster_death(int m_idx)
 					break;
 				}
 
+				case TV_MUSHROOM:
 				case TV_FOOD:
 				{
 					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_FOOD);
@@ -3470,13 +2728,18 @@ void monster_death(int m_idx)
 			dump_item++;
 		}
 
+		/* Set origin */
+		i_ptr->origin = visible ? ORIGIN_DROP : ORIGIN_DROP_UNKNOWN;
+		i_ptr->origin_depth = p_ptr->depth;
+		i_ptr->origin_xtra = m_ptr->r_idx;
+
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 	}
 
 	/* Reset monster equipment */
 	hack_monster_equip = 0L;
-	
+
 	/* Reset the object level */
 	object_level = p_ptr->depth;
 
@@ -3501,132 +2764,34 @@ void monster_death(int m_idx)
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR | RF1_GUARDIAN)))
-		return;
+		return (TRUE);
 
-	/* Check quests for completion */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	/* Sauron forms */
+	if ((m_ptr->r_idx >= SAURON_FORM) && (m_ptr->r_idx < SAURON_FORM + MAX_SAURON_FORMS))
 	{
-		quest_type *q_ptr = &(q_list[i]);
-		quest_event *qe_ptr = &(q_ptr->event[q_ptr->stage]);
+		/* Killing this form means there is a chance of the true form being revealed */
+		p_ptr->sauron_forms |= (1 << (m_ptr->r_idx - SAURON_FORM));
 
-		if (q_ptr->stage == QUEST_ACTION) qe_ptr = &(q_ptr->event[QUEST_ACTIVE]);
+		/* Sauron changes form */
+		m_ptr->r_idx = sauron_shape(m_ptr->r_idx);
 
-		if ((qe_ptr->dungeon != p_ptr->dungeon) ||
-			(qe_ptr->level != p_ptr->depth - min_depth(p_ptr->dungeon))) continue;
+		/* And gets back his hitpoints / mana */
+		m_ptr->hp = m_ptr->maxhp;
+		m_ptr->mana = r_ptr->mana;
 
-		if (!(qe_ptr->race) || (qe_ptr->race != m_list[m_idx].r_idx)) continue;
-
-		/* Assign quest */
-		if (q_ptr->stage == QUEST_ASSIGN)
+		/* Message for the player */
+		if (m_ptr->r_idx == SAURON_TRUE)
 		{
-			/* Wipe the structure */
-			(void)WIPE(qe_ptr, quest_event);
-
-			qe_ptr->dungeon = p_ptr->dungeon;
-			qe_ptr->level = p_ptr->depth - min_depth(p_ptr->dungeon);
-			qe_ptr->race = m_list[m_idx].r_idx;
-			qe_ptr->number = 1;
-			qe_ptr->flags |= (EVENT_KILL_RACE);
-
-			quest_assign(i);
-
-			continue;
+			msg_print("Sauron's form shifts, revealing his true shape.");
+			msg_print("He is vulnerable and can be killed permanently while in this form.");
+		}
+		else
+		{
+			msg_print("Sauron's form shifts fluidly.");
+			msg_print("You have destroyed this shape, but must continue the fight!");
 		}
 
-		if (q_ptr->stage != QUEST_ACTION) continue;
-
-		/* If last monster killed, drop artifact */
-		if ((q_ptr->event[QUEST_ACTION].number + 1 >= qe_ptr->number) && (qe_ptr->artifact))
-		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Wipe the object */
-			object_wipe(i_ptr);
-
-			/* Prepare artifact */
-			qe_ptr->kind = lookup_kind(a_info[qe_ptr->artifact].tval, a_info[qe_ptr->artifact].sval);
-
-			/* Prepare object */
-			object_prep(i_ptr, qe_ptr->kind);
-
-			/* Prepare artifact */
-			i_ptr->name1 = qe_ptr->artifact;
-
-			/* Apply magic */
-			apply_magic(i_ptr, object_level, FALSE, FALSE, FALSE);
-
-			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, m_list[m_idx].fy, m_list[m_idx].fx);
-		}
-
-		/* All slain quest monsters drop items */
-		else if ((qe_ptr->kind) || (qe_ptr->ego_item_type))
-		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Wipe the object */
-			object_wipe(i_ptr);
-
-			/* Prepare ego item */
-			if ((qe_ptr->ego_item_type) && !(qe_ptr->kind)) qe_ptr->kind =
-				lookup_kind(e_info[qe_ptr->ego_item_type].tval[0],
-					e_info[qe_ptr->ego_item_type].min_sval[0]);
-
-			/* Prepare object */
-			object_prep(i_ptr, qe_ptr->kind);
-
-			/* Prepare ego item */
-			i_ptr->name2 = qe_ptr->ego_item_type;
-
-			/* Apply magic */
-			apply_magic(i_ptr, object_level, FALSE, FALSE, FALSE);
-
-			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
-		}
-
-		/* Update actions */
-		qe_ptr = &(q_ptr->event[QUEST_ACTION]);
-
-		/* Fail quest because we killed someone */
-		if (q_ptr->event[QUEST_FAILED].flags & (EVENT_KILL_RACE))
-		{
-			/* Wipe the structure */
-			(void)WIPE(qe_ptr, quest_event);
-
-			/* Set action details */
-			qe_ptr->dungeon = p_ptr->dungeon;
-			qe_ptr->level = p_ptr->depth - min_depth(p_ptr->dungeon);
-			qe_ptr->race = m_list[m_idx].r_idx;
-			qe_ptr->number = 1;
-			qe_ptr->flags |= (EVENT_KILL_RACE);
-
-			quest_penalty(i);
-		}
-
-		/* Get closer to success because we need to terrify someone */
-		else if ((qe_ptr->flags & (EVENT_KILL_RACE)) && (qe_ptr->number + 1 >= q_ptr->event[QUEST_ACTIVE].number))
-		{
-			/* Don't count terrified monsters if we can kill _or_ terrify them */
-			if (!m_ptr->monfear || !(qe_ptr->flags & (EVENT_FEAR_RACE))) qe_ptr->number++;
-
-			qe_ptr->flags |= (EVENT_KILL_RACE);
-
-			/* Have completed quest? */
-			if ((qe_ptr->flags == q_ptr->event[QUEST_ACTIVE].flags) && (qe_ptr->number >= q_ptr->event[QUEST_ACTIVE].number))
-			{
-				msg_print("Congratulations. You have succeeded at your quest.");
-
-				quest_reward(i);
-			}
-			/* Partially completed quest */
-			else
-			{
-				msg_print("You have xxx to go.");
-			}
-		}
+		return (FALSE);
 	}
 
 	/* Dungeon guardian defeated - need some stairs except on surface */
@@ -3641,17 +2806,17 @@ void monster_death(int m_idx)
 			while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
 		    {
 				int d = 1;
-	
+
 				/* Pick a location */
 				scatter(&ny, &nx, y, x, d, 0);
-	
+
 		    	/* Stagger */
 				y = ny; x = nx;
 		    }
-	
+
 		  /* Explain the staircase */
 		  msg_print("A magical staircase appears...");
-	
+
 		  /* Create stairs */
 		  if (level_flag & (LF1_TOWER))
 			  cave_set_feat(y, x, FEAT_LESS);
@@ -3678,6 +2843,8 @@ void monster_death(int m_idx)
 		msg_print("You have won the game!");
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
+
+	return (TRUE);
 }
 
 
@@ -3821,7 +2988,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if ((m_ptr->mflag & (MFLAG_ALLY)) == 0)
 		{
 			s32b mult, div, new_exp, new_exp_frac;
-			byte new_level;
 
 			/* 10 + killed monster level */
 			mult = 10 + r_ptr->level;
@@ -3831,9 +2997,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Give some experience for the kill */
 			new_exp = ((long)r_ptr->mexp * mult) / div;
-
-			/* Base adjustment */
-			new_level = -1;
 
 			/* Handle fractional experience */
 			new_exp_frac = ((((long)r_ptr->mexp * mult) % div)
@@ -3855,7 +3018,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Generate treasure */
-		monster_death(m_idx);
+		if (!monster_death(m_idx)) return (FALSE);
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
@@ -3868,7 +3031,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Show killer tips */
 			if (!l_ptr->tkills) queue_tip(format("kill%d.txt", m_ptr->r_idx));
-			
+
 			/* Count kills in all lives */
 			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
@@ -3930,7 +3093,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (more often) when hit for 11% or more its current hit points
-		 * 
+		 *
 		 * Percentages depend on player's charisma.
 		 */
 		if ((randint(adj_chr_fear[p_ptr->stat_ind[A_CHR]]) >= fitness) ||
@@ -4057,8 +3220,8 @@ bool change_panel(int dir)
 	return (modify_panel(wy, wx));
 }
 
-/* 
- * Hack - generate the current room description 
+/*
+ * Hack - generate the current room description
  */
 static void get_room_desc(int room, char *name, int name_s, char *text_visible, int text_visible_s, char *text_always, int text_always_s)
 {
@@ -4091,7 +3254,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 		}
 		return;
 	}
-	
+
 	/* In room */
 	switch (room_info[room].type)
 	{
@@ -4107,7 +3270,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			/* Describe height of tower */
 			if (text_visible)
 			{
-				int height = (1 + max_depth(p_ptr->dungeon) 
+				int height = (1 + max_depth(p_ptr->dungeon)
 								  - min_depth(p_ptr->dungeon));
 				my_strcpy(text_visible, format("It looks about %d %s tall.  ", depth_in_feet ? height * 50 : height, depth_in_feet ? "feet" : "stories"), text_visible_s);
 			}
@@ -4139,7 +3302,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			if (text_visible) my_strcat(text_visible, "deadly monsters and rich treasure.  ", text_visible_s);
 			beware = TRUE;
 
-			/* Fall through */	
+			/* Fall through */
 		}
 
 		case (ROOM_LESSER_VAULT):
@@ -4197,11 +3360,11 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 
 		/* Clear the name2 text */
 		buf_name2[0] = '\0';
-			
+
 		i = 0;
 
 		if (cheat_xtra && text_always) my_strcat(text_visible, format ("%s (%ld)", r_name + r_info[room_info[room].deepest_race].name, room_info[room].ecology), text_visible_s);
-		
+
 		while ((room >= 0) && (i < ROOM_DESC_SECTIONS))
 		{
 			/* Get description */
@@ -4334,7 +3497,7 @@ static void room_info_top(int room)
 	Term_gotoxy(0, 0);
 
 	/* Hack - set first character to upper */
-	if (first[0] >= 'a') first[0] = name[0]-32;
+	if (name[0] >= 'a') first[0] = name[0]-32;
 	else first[0] = name[0];
 	first[1] = '\0';
 
@@ -4505,7 +3668,7 @@ void describe_room(void)
 			{
 				/* Message */
 				text_out(text_visible);
-				
+
 				/* Add it to the buffer */
 				message_add(text_visible, MSG_GENERIC);
 			}
@@ -4562,20 +3725,20 @@ void describe_room(void)
 			else
 			{
 				message_flush();
-	
+
 				screen_save();
-	
+
 				/* Set text_out hook */
 				text_out_hook = text_out_to_screen;
-	
+
 				text_out_c(TERM_L_BLUE, name);
 				text_out("\n");
-	
+
 				/* Message */
 				text_out(text_always);
-	
+
 				(void)anykey();
-	
+
 				screen_load();
 			}
 		}
@@ -4877,7 +4040,7 @@ bool target_able(int m_idx)
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx, 0)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -4928,14 +4091,14 @@ bool target_okay(void)
 
 /*
  * Get allies to adopt the player's target.
- * 
+ *
  * If order is true, we order allies to this.
  * If order is false, only allies without targets will go here.
  */
 static void player_tell_allies_target(int y, int x, bool order)
 {
 	int i;
-	
+
 	/* Get allies to target this location */
 	for (i = 1; i < m_max; i++)
 	{
@@ -4943,23 +4106,23 @@ static void player_tell_allies_target(int y, int x, bool order)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
-		
+
 		/* Skip non-allies, or allies who ignore the player */
 		if ( ((m_ptr->mflag & (MFLAG_ALLY)) == 0) || ((m_ptr->mflag & (MFLAG_IGNORE)) != 0) ) continue;
-		
+
 		/* Skip unseen monsters that the player cannot speak to or telepathically communicate with */
 		if (!m_ptr->ml && ((r_info[m_ptr->r_idx].flags3 & (RF3_NONVOCAL)) == 0))
 		{
 			/* Cannot hear the player */
 			if ((m_ptr->cdis > 3) && ((play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE)) == 0)) continue;
-			
+
 			/* Cannot understand the player */
 			if (!player_understands(monster_language(m_ptr->r_idx))) continue;
 		}
 
 		/* Skip monsters with targets already */
 		if ((!order) && (m_ptr->ty || m_ptr->tx)) continue;
-		
+
 		/* Set the monster target */
 		m_ptr->ty = y;
 		m_ptr->tx = x;
@@ -4982,7 +4145,7 @@ void target_set_monster(int m_idx, s16b flags)
 		p_ptr->target_who = m_idx;
 		p_ptr->target_row = m_ptr->fy;
 		p_ptr->target_col = m_ptr->fx;
-		
+
 		/* Get allies to target this */
 		player_tell_allies_target(m_ptr->fy, m_ptr->fx, FALSE);
 	}
@@ -5012,7 +4175,7 @@ void target_set_location(int y, int x, s16b flags)
 		p_ptr->target_who = 0;
 		p_ptr->target_row = y;
 		p_ptr->target_col = x;
-		
+
 		/* Get allies to target this */
 		player_tell_allies_target(y,x, FALSE);
 	}
@@ -5149,13 +4312,15 @@ static bool target_set_interactive_accept(int y, int x)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
+	s16b this_region_piece, next_region_piece = 0;
+
 
 	/* Player grids are always interesting */
 	if (cave_m_idx[y][x] < 0) return (TRUE);
 
 
 	/* Handle hallucination */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
 
 
 	/* Visible monsters */
@@ -5165,6 +4330,24 @@ static bool target_set_interactive_accept(int y, int x)
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
+	}
+
+	/* Scan all regions in the grid */
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr->region];
+
+		/* Get the next region */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Skip dead regions */
+		if (!r_ptr->type) continue;
+
+		/* Displaying region */
+		if (((cheat_hear) || ((r_ptr->flags1 & (RE1_NOTICE)) != 0)) &&
+				((play_info[y][x] & (PLAY_REGN | PLAY_SEEN)) != 0) &&
+						((r_ptr->flags1 & (RE1_DISPLAY)) != 0)) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -5221,7 +4404,7 @@ static void target_set_interactive_prepare(int mode)
 
 				/* Must be a targettable monster */
 				if (!target_able(cave_m_idx[y][x])) continue;
-				
+
 				/* Must not be an ally */
 				if (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) continue;
 			}
@@ -5235,7 +4418,7 @@ static void target_set_interactive_prepare(int mode)
 				/* Must be an ally */
 				if ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) == 0) continue;
 			}
-			
+
 			/* If matching race, must match race */
 			if (p_ptr->target_race)
 			{
@@ -5290,6 +4473,8 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 {
 	s16b this_o_idx, next_o_idx = 0;
 
+	s16b this_region_piece, next_region_piece = 0;
+
 	cptr s1, s2, s3;
 
 	bool boring;
@@ -5329,7 +4514,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 
 
 		/* Hack -- hallucination */
-		if (p_ptr->image)
+		if (p_ptr->timed[TMD_IMAGE])
 		{
 			cptr name = "something strange";
 
@@ -5345,7 +4530,6 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 			/* Repeat forever */
 			continue;
 		}
-
 
 		/* Actual monsters */
 		if (cave_m_idx[y][x] > 0)
@@ -5424,7 +4608,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 							p_ptr->target_race = m_list[cave_m_idx[y][x]].r_idx;
 						}
 					}
-					
+
 					/* Normal commands */
 					if (query.key != 'r') break;
 
@@ -5523,7 +4707,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 				if (this_o_idx) break;
 
 				/* Use a preposition */
-				if (m_ptr->mflag && (MFLAG_OVER))
+				if (m_ptr->mflag & (MFLAG_OVER))
 				{
 					s2 = "above ";
 				}
@@ -5534,6 +4718,111 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 				}
 			}
 		}
+
+		/* Regions */
+		for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+		{
+			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+			region_type *r_ptr = &region_list[rp_ptr->region];
+
+			/* Get the next region */
+			next_region_piece = rp_ptr->next_in_grid;
+
+			/* Skip dead regions */
+			if (!r_ptr->type) continue;
+
+			/* Displaying region */
+			if (((cheat_hear) || ((r_ptr->flags1 & (RE1_NOTICE)) != 0)) &&
+					((play_info[y][x] & (PLAY_REGN | PLAY_SEEN)) != 0) &&
+							((r_ptr->flags1 & (RE1_DISPLAY)) != 0))
+			{
+				bool recall = FALSE;
+				
+				/* Skip because there is an underlying trap */
+				if ((r_ptr->flags1 & (RE1_HIT_TRAP)) && (f_info[cave_feat[y][x]].flags1 & (FF1_TRAP)))
+				{
+					continue;
+				}
+
+				/* Not boring */
+				boring = FALSE;
+
+				/* Bring region to 'top' */
+				region_highlight(rp_ptr->region);
+
+				/* And refresh */
+				region_refresh(rp_ptr->region);
+
+				/* Interact */
+				while (1)
+				{
+					/* Recall */
+					if (recall)
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Recall on screen */
+						screen_region(r_ptr);
+
+						/* Hack -- Complete the prompt (again) */
+						Term_addstr(-1, TERM_WHITE, format("  [r,s,%s]", info));
+
+						/* Command */
+						query = inkey_ex();
+
+						/* Load screen */
+						screen_load();
+					}
+
+					/* Normal */
+					else
+					{
+						/* Describe the object */
+						sprintf(out_val, "%s%s%s%s [r,s,%s]", s1, s2, s3,
+								format("%s %s",is_a_vowel((region_name + region_info[r_ptr->type].name)[0]) ? "an" : "a",
+										region_name + region_info[r_ptr->type].name), info);
+						prt(out_val, 0, 0);
+
+						/* Place cursor */
+						move_cursor_relative(y, x);
+
+						/* Command */
+						query = inkey_ex();
+					}
+
+					/* Normal commands */
+					if (query.key != 'r') break;
+
+					/* Toggle recall */
+					recall = !recall;
+				}
+
+				/* Stop on everything but "return"/"space" */
+				if ((query.key != '\n') && (query.key != '\r') && (query.key != ' ') && (query.key != 's')) break;
+
+				/* Sometimes stop at "space" key */
+				if ((query.key == ' ') && !(mode & (TARGET_LOOK))) break;
+
+				/* Hide this region */
+				if (query.key == 's')
+				{
+					r_ptr->flags1 &= ~(RE1_DISPLAY);
+
+					region_refresh(rp_ptr->region);
+				}
+
+				/* Change the intro */
+				s1 = "It is ";
+
+				/* Preposition */
+				s2 = "on ";
+
+			}
+		}
+
+		/* Double break */
+		if (this_region_piece) break;
 
 		/* Assume not floored */
 		floored = FALSE;
@@ -5899,12 +5188,6 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 	return (query);
 }
 
-/*
- * Variables used to highlight project path to target.
- */
-static int target_path_n;
-static u16b target_path_g[256];
-
 
 /*
  * Modify a 'boring' grid appearance based on the 'projectability'
@@ -5916,7 +5199,7 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 	(void)cinfo;
 
 	/* Handle "blind" first*/
-	if (p_ptr->blind)
+	if (p_ptr->timed[TMD_BLIND])
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -5999,7 +5282,7 @@ void modify_grid_boring_project(byte *a, char *c, int y, int x, byte cinfo, byte
 void modify_grid_unseen_project(byte *a, char *c)
 {
 	/* Handle "blind" first */
-	if (p_ptr->blind)
+	if (p_ptr->timed[TMD_BLIND])
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -6045,7 +5328,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
 	(void)cinfo;
 
 	/* Handle "blind" and night time*/
-	if (p_ptr->blind)
+	if (p_ptr->timed[TMD_BLIND])
 	{
 		/* Mega-hack */
 		if (*a & 0x80)
@@ -6164,7 +5447,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
  * This command will cancel any old target, even if used from
  * inside the "look" command.
  */
-bool target_set_interactive(int mode)
+bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc, byte diameter_of_source)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -6187,6 +5470,11 @@ bool target_set_interactive(int mode)
 
 	int room = -1;
 
+	s16b this_region;
+
+	/* Get the real range */
+	if (!range) range = MAX_SIGHT;
+
 	/* Cancel target */
 	target_set_monster(0, 0);
 
@@ -6197,12 +5485,12 @@ bool target_set_interactive(int mode)
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
-	
+
 	/* Nothing in it. Clear race filter if set and try again. */
 	if (!temp_n && (p_ptr->target_race))
 	{
 		p_ptr->target_race = 0;
-		
+
 		target_set_interactive_prepare(mode);
 	}
 
@@ -6242,7 +5530,9 @@ bool target_set_interactive(int mode)
 			/* Calculate the path */
 			if (mode & (TARGET_KILL))
 			{
-				target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+				/* Get the projection grids */
+				project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+							 flg | (PROJECT_CHCK), arc, diameter_of_source);
 
 				/* Redraw map */
 				p_ptr->redraw |= (PR_MAP);
@@ -6251,7 +5541,7 @@ bool target_set_interactive(int mode)
 				p_ptr->window |= (PW_OVERHEAD);
 
 				/* Handle stuff */
-				handle_stuff();					
+				handle_stuff();
 			}
 
 			/* Allow target */
@@ -6309,11 +5599,13 @@ bool target_set_interactive(int mode)
 				{
 					y = py;
 					x = px;
-					
+
 					/* Calculate the path */
 					if (mode & (TARGET_KILL))
 					{
-						target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+						/* Get the projection grids */
+						project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+									 flg | (PROJECT_CHCK), arc, diameter_of_source);
 
 						/* Redraw map */
 						p_ptr->redraw |= (PR_MAP);
@@ -6322,7 +5614,7 @@ bool target_set_interactive(int mode)
 						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
-						handle_stuff();					
+						handle_stuff();
 					}
 
 					/* Recenter around player */
@@ -6348,10 +5640,10 @@ bool target_set_interactive(int mode)
 				{
 					/* Bounds check */
 					if (in_bounds(KEY_GRID_Y(query), KEY_GRID_X(query)))
-					{	
+					{
 						ty = y = KEY_GRID_Y(query);
 						tx = x = KEY_GRID_X(query);
-	
+
 						/* Go to if clicked with BUTTON_MOVE */
 						if (query.mousebutton == BUTTON_MOVE)
 						{
@@ -6367,21 +5659,23 @@ bool target_set_interactive(int mode)
 						else
 						{
 							flag = FALSE;
-	
+
 							/* Calculate the path */
 							if (mode & (TARGET_KILL))
 							{
-								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
-	
+								/* Get the projection grids */
+								project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+											 flg | (PROJECT_CHCK), arc, diameter_of_source);
+
 								/* Redraw map */
 								p_ptr->redraw |= (PR_MAP);
-	
+
 								/* Hack -- Window stuff */
 								p_ptr->window |= (PW_OVERHEAD);
-	
+
 								/* Handle stuff */
-								handle_stuff();	
-	
+								handle_stuff();
+
 								/* Force an update */
 								Term_fresh();
 							}
@@ -6400,7 +5694,7 @@ bool target_set_interactive(int mode)
 				case '?':
 				{
 					screen_save();
-					
+
 					/* Help file depends on mode */
 					if (mode & (TARGET_KILL))
 					{
@@ -6410,11 +5704,11 @@ bool target_set_interactive(int mode)
 					{
 						(void)show_file("cmdlook.txt", NULL, 0, 0);
 					}
-					
+
 					screen_load();
 					break;
 				}
-				
+
 				/* Get allies to attack anything near here */
 				case 'a':
 				{
@@ -6442,7 +5736,7 @@ bool target_set_interactive(int mode)
 					}
 					break;
 				}
-				
+
 				/* Have set or changed race filter */
 				case 's':
 				{
@@ -6451,11 +5745,11 @@ bool target_set_interactive(int mode)
 
 					/* Re-prepare targets */
 					target_set_interactive_prepare(mode);
-					
+
 					/* Start near the player again and fake movement */
 					m = 0;
 					d = 5;
-					
+
 					break;
 				}
 
@@ -6554,7 +5848,9 @@ bool target_set_interactive(int mode)
 					/* Calculate the path */
 					if (mode & (TARGET_KILL))
 					{
-						target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+						/* Get the projection grids */
+						project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+									 flg | (PROJECT_CHCK), arc, diameter_of_source);
 
 						/* Redraw map */
 						p_ptr->redraw |= (PR_MAP);
@@ -6563,7 +5859,7 @@ bool target_set_interactive(int mode)
 						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
-						handle_stuff();					
+						handle_stuff();
 					}
 
 					/* Recenter around player */
@@ -6609,7 +5905,7 @@ bool target_set_interactive(int mode)
 				{
 					/* Bounds check */
 					if (in_bounds(KEY_GRID_Y(query), KEY_GRID_X(query)))
-					{	
+					{
 						ty = y = KEY_GRID_Y(query);
 						tx = x = KEY_GRID_X(query);
 
@@ -6630,7 +5926,9 @@ bool target_set_interactive(int mode)
 							/* Calculate the path */
 							if (mode & (TARGET_KILL))
 							{
-								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+								/* Get the projection grids */
+								project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+											 flg | (PROJECT_CHCK), arc, diameter_of_source);
 
 								/* Redraw map */
 								p_ptr->redraw |= (PR_MAP);
@@ -6642,7 +5940,7 @@ bool target_set_interactive(int mode)
 								handle_stuff();
 
 								/* Force an update */
-								Term_fresh();			
+								Term_fresh();
 							}
 						}
 					}
@@ -6663,7 +5961,7 @@ bool target_set_interactive(int mode)
 					screen_load();
 					break;
 				}
-				
+
 				case 'a':
 				{
 					target_set_location(y, x, mode | (TARGET_NEAR));
@@ -6689,11 +5987,11 @@ bool target_set_interactive(int mode)
 
 					/* Re-prepare targets */
 					target_set_interactive_prepare(mode);
-					
+
 					/* Start near the player again and fake movement */
 					m = 0;
 					d = 5;
-					
+
 					break;
 				}
 
@@ -6751,7 +6049,9 @@ bool target_set_interactive(int mode)
 				/* Calculate the path */
 				if (mode & (TARGET_KILL))
 				{
-					target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
+					/* Get the projection grids */
+					project(-1, 0, radius, range, py, px, ty, tx, 0, GF_NOTHING,
+								 flg | (PROJECT_CHCK), arc, diameter_of_source);
 
 					/* Redraw map */
 					p_ptr->redraw |= (PR_MAP);
@@ -6760,7 +6060,7 @@ bool target_set_interactive(int mode)
 					p_ptr->window |= (PW_OVERHEAD);
 
 					/* Handle stuff */
-					handle_stuff();					
+					handle_stuff();
 				}
 			}
 		}
@@ -6787,6 +6087,18 @@ bool target_set_interactive(int mode)
 
 		/* Handle stuff */
 		handle_stuff();
+	}
+
+	/* Redisplay all regions */
+	for (this_region = 0; this_region < region_max; this_region++)
+	{
+		region_list[this_region].flags1 |= (RE1_DISPLAY);
+	}
+
+	/* Refresh all regions */
+	for (this_region = 0; this_region < region_max; this_region++)
+	{
+		region_refresh(this_region);
 	}
 
 	/* Recenter around player */
@@ -6819,7 +6131,7 @@ bool target_set_interactive(int mode)
  *
  * Currently this function applies confusion directly.
  */
-bool get_aim_dir(int *dp)
+bool get_aim_dir(int *dp, int range, int radius, u32b flg, byte arc, byte diameter_of_source)
 {
 	int dir;
 
@@ -6875,9 +6187,9 @@ bool get_aim_dir(int *dp)
 				{
 					int y = KEY_GRID_Y(ke);
 					int x = KEY_GRID_X(ke);
-					
+
 					if (!in_bounds_fully(y, x)) break;
-					
+
 					target_set_location(y, x, 0);
 					dir = 5;
 					break;
@@ -6888,7 +6200,7 @@ bool get_aim_dir(int *dp)
 			/* Set new target, use target if legal */
 			case '*':
 			{
-				if (target_set_interactive(TARGET_KILL)) dir = 5;
+				if (target_set_interactive(TARGET_KILL, range, radius, flg, arc, diameter_of_source)) dir = 5;
 				break;
 			}
 
@@ -6921,7 +6233,7 @@ bool get_aim_dir(int *dp)
 	p_ptr->command_dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->confused)
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		/* Random direction */
 		dir = ddd[rand_int(8)];
@@ -6947,6 +6259,27 @@ bool get_aim_dir(int *dp)
 	return (TRUE);
 }
 
+
+/*
+ * Take an angle and returns a direction.
+ */
+int get_angle_to_dir(int angle)
+{
+	int dir;
+
+	/* Convert angle to direction */
+	if (angle < 15) dir = 6;
+	else if (angle < 33) dir = 9;
+	else if (angle < 59) dir = 8;
+	else if (angle < 78) dir = 7;
+	else if (angle < 104) dir = 4;
+	else if (angle < 123) dir = 1;
+	else if (angle < 149) dir = 2;
+	else if (angle < 168) dir = 3;
+	else dir = 6;
+
+	return dir;
+}
 
 
 /*
@@ -7002,22 +6335,14 @@ bool get_rep_dir(int *dp)
 				int x = KEY_GRID_X(ke);
 
 				int angle;
-				
+
 				if (!in_bounds_fully(y, x)) break;
-				
+
 				/* Calculate approximate angle */
 				angle = get_angle_to_target(p_ptr->py, p_ptr->px,y, x, 0);
 
 				/* Convert angle to direction */
-				if (angle < 15) dir = 6;
-				else if (angle < 33) dir = 9;
-				else if (angle < 59) dir = 8;
-				else if (angle < 78) dir = 7;
-				else if (angle < 104) dir = 4;
-				else if (angle < 123) dir = 1;
-				else if (angle < 149) dir = 2;
-				else if (angle < 168) dir = 3;
-				else dir = 6;
+				dir = get_angle_to_dir(angle);
 			}
 			else continue;
 		}
@@ -7062,7 +6387,7 @@ bool confuse_dir(int *dp)
 	dir = (*dp);
 
 	/* Apply "confusion" */
-	if ((p_ptr->confused) && (p_ptr->confused > rand_int(33)))
+	if ((p_ptr->timed[TMD_CONFUSED]) && (p_ptr->timed[TMD_CONFUSED] > rand_int(33)))
 	{
 		/* Apply confusion XXX XXX XXX */
 		if ((dir == 5) || (rand_int(100) < 75))
@@ -7102,7 +6427,7 @@ int max_depth(int dungeon)
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
-	/* Get the zone */	
+	/* Get the zone */
 	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
 		if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
@@ -7121,8 +6446,8 @@ bool is_typical_town(int dungeon, int depth)
 	get_zone(&zone, dungeon, depth);
 
 	return (level_flag & (LF1_SURFACE)
-			&& !zone->fill 
-			&& zone->level <= 10 
+			&& !zone->fill
+			&& zone->level <= 10
 			&& t_info[dungeon].store[3]);
 }
 
@@ -7132,7 +6457,7 @@ int town_depth(int dungeon)
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
-	/* Get the zone */	
+	/* Get the zone */
 	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
 		zone = &t_info[dungeon].zone[i];
@@ -7148,7 +6473,7 @@ void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
-	/* Get the zone */	
+	/* Get the zone */
 	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
 		if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
@@ -7160,4 +6485,21 @@ void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
 
 	*zone_handle = zone;
 
+}
+
+
+/*
+ * Use scalar
+ */
+int scale_method(method_level_scalar_type scalar, int level)
+{
+	int result = scalar.base;
+
+	/* Scale radius up */
+	if (scalar.levels)
+	{
+		result += scalar.gain * level / scalar.levels;
+	}
+
+	return (result);
 }

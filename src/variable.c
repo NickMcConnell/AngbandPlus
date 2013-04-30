@@ -7,11 +7,11 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
+ * Angband variants FAQ.  rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -89,6 +89,9 @@ u32b seed_randart;	      /* Hack -- consistent random artifacts */
 
 u32b seed_flavor;	       /* Hack -- consistent object colors */
 u32b seed_town;		 /* Hack -- consistent town layout */
+
+u32b seed_dungeon;		/* Hack -- consistent current dungeon */
+u32b seed_last_dungeon;		/* Hack -- consistent current dungeon */
 
 s16b num_repro;		 /* Current reproducer count */
 s16b object_level;	      /* Current object creation level */
@@ -175,13 +178,13 @@ bool closing_flag;	      /* Dungeon is closing */
 
 
 /*
- * The character generates both directed (extra) noise (by doing noisy 
- * things) and ambiant noise (the combination of directed and innate 
- * noise).  Directed noise can immediately wake up monsters in LOS. 
- * Ambient noise determines how quickly monsters wake up and how often 
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambiant noise (the combination of directed and innate
+ * noise).  Directed noise can immediately wake up monsters in LOS.
+ * Ambient noise determines how quickly monsters wake up and how often
  * they get new information on the current character position.
  *
- * Each player turn, more noise accumulates.  Every time monster 
+ * Each player turn, more noise accumulates.  Every time monster
  * temporary conditions are processed, all non-innate noise is cleared.
  */
 int add_wakeup_chance = 0;
@@ -307,7 +310,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Angband",
+	"Unangband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -352,6 +355,8 @@ byte angband_color_table[256][4] =
 	{0x00, 180,  180,  0x00},	/* TERM_MUSTARD */
 	{0x00, 160,  192,  208},	/* TERM_BLUE_SLATE */
 	{0x00, 0x00, 176,  255},	/* TERM_DEEP_L_BLUE */
+
+	/* Rest to be filled in when the game loads */
 };
 
 /*
@@ -388,7 +393,7 @@ color_type color_table[256] =
 	{  'M', "Mustard",	   {  25,   1, 11,TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW, TERM_MUSTARD}},
 	{  'z', "Blue Slate",  {  26,   1, 9, TERM_SLATE,	TERM_DEEP_L_BLUE,TERM_SLATE,TERM_DEEP_L_BLUE,	TERM_DEEP_L_BLUE, TERM_BLUE_SLATE}},
 	{  'Z', "Deep Light Blue",{ 27, 1, 14,TERM_L_WHITE,	TERM_L_BLUE,	TERM_BLUE_SLATE,TERM_L_BLUE,	TERM_L_BLUE, TERM_DEEP_L_BLUE}},
-			
+
 	/* Rest to be filled in when the game loads */
 };
 
@@ -427,123 +432,123 @@ const cptr angband_sound_name[MSG_MAX] =
 	"bell",
 	"nothing_to_open",
 	"lockpick_fail",
-	"stairs_down", 
+	"stairs_down",
 	"hitpoint_warn",
-	"act_artifact", 
-	"use_staff", 
-	"destroy", 
-	"mon_hit", 
-	"mon_touch", 
-	"mon_punch", 
-	"mon_kick", 
-	"mon_claw", 
-	"mon_bite", 
-	"mon_sting", 
-	"mon_butt", 
-	"mon_crush", 
-	"mon_engulf", 
-	"mon_crawl", 
-	"mon_drool", 
-	"mon_spit", 
-	"mon_gaze", 
-	"mon_wail", 
-	"mon_spore", 
-	"mon_beg", 
-	"mon_insult", 
-	"mon_moan", 
-	"recover", 
-	"blind", 
-	"confused", 
-	"poisoned", 
-	"afraid", 
-	"paralyzed", 
-	"drugged", 
-	"speed", 
-	"slow", 
-	"shield", 
-	"blessed", 
-	"hero", 
-	"berserk", 
-	"prot_evil", 
-	"invuln", 
-	"see_invis", 
-	"infrared", 
-	"res_acid", 
-	"res_elec", 
-	"res_fire", 
-	"res_cold", 
-	"res_pois", 
-	"stun", 
-	"cut", 
-	"stairs_up", 
-	"store_enter", 
-	"store_leave", 
-	"store_home", 
-	"money1", 
-	"money2", 
-	"money3", 
-	"shoot_hit", 
-	"store5", 
-	"lockpick", 
-	"disarm", 
-	"identify_bad", 
-	"identify_ego", 
-	"identify_art", 
-	"breathe_elements", 
-	"breathe_frost", 
-	"breathe_elec", 
-	"breathe_acid", 
-	"breathe_gas", 
-	"breathe_fire", 
-	"breathe_confusion", 
-	"breathe_disenchant", 
-	"breathe_chaos", 
-	"breathe_shards", 
-	"breathe_sound", 
-	"breathe_light", 
-	"breathe_dark", 
-	"breathe_nether", 
-	"breathe_nexus", 
-	"breathe_time", 
-	"breathe_inertia", 
-	"breathe_gravity", 
-	"breathe_plasma", 
-	"breathe_force", 
-	"summon_monster", 
-	"summon_angel", 
-	"summon_undead", 
-	"summon_animal", 
-	"summon_spider", 
-	"summon_hound", 
-	"summon_hydra", 
-	"summon_demon", 
-	"summon_dragon", 
-	"summon_gr_undead", 
-	"summon_gr_dragon", 
-	"summon_gr_demon", 
-	"summon_ringwraith", 
-	"summon_unique", 
-	"wield", 
-	"cursed", 
-	"pseudo_id", 
-	"hungry", 
-	"notice", 
-	"ambient_day", 
-	"ambient_nite", 
-	"ambient_dng1", 
-	"ambient_dng2", 
-	"ambient_dng3", 
-	"ambient_dng4", 
-	"ambient_dng5", 
-	"mon_create_trap", 
-	"mon_shriek", 
-	"mon_cast_fear", 
-	"hit_good", 
-	"hit_great", 
-	"hit_superb", 
-	"hit_hi_great", 
-	"hit_hi_superb", 
-	"cast_spell", 
+	"act_artifact",
+	"use_staff",
+	"destroy",
+	"mon_hit",
+	"mon_touch",
+	"mon_punch",
+	"mon_kick",
+	"mon_claw",
+	"mon_bite",
+	"mon_sting",
+	"mon_butt",
+	"mon_crush",
+	"mon_engulf",
+	"mon_crawl",
+	"mon_drool",
+	"mon_spit",
+	"mon_gaze",
+	"mon_wail",
+	"mon_spore",
+	"mon_beg",
+	"mon_insult",
+	"mon_moan",
+	"recover",
+	"blind",
+	"confused",
+	"poisoned",
+	"afraid",
+	"paralyzed",
+	"drugged",
+	"speed",
+	"slow",
+	"shield",
+	"blessed",
+	"hero",
+	"berserk",
+	"prot_evil",
+	"invuln",
+	"see_invis",
+	"infrared",
+	"res_acid",
+	"res_elec",
+	"res_fire",
+	"res_cold",
+	"res_pois",
+	"stun",
+	"cut",
+	"stairs_up",
+	"store_enter",
+	"store_leave",
+	"store_home",
+	"money1",
+	"money2",
+	"money3",
+	"shoot_hit",
+	"store5",
+	"lockpick",
+	"disarm",
+	"identify_bad",
+	"identify_ego",
+	"identify_art",
+	"breathe_elements",
+	"breathe_frost",
+	"breathe_elec",
+	"breathe_acid",
+	"breathe_gas",
+	"breathe_fire",
+	"breathe_confusion",
+	"breathe_disenchant",
+	"breathe_chaos",
+	"breathe_shards",
+	"breathe_sound",
+	"breathe_light",
+	"breathe_dark",
+	"breathe_nether",
+	"breathe_nexus",
+	"breathe_time",
+	"breathe_inertia",
+	"breathe_gravity",
+	"breathe_plasma",
+	"breathe_force",
+	"summon_monster",
+	"summon_angel",
+	"summon_undead",
+	"summon_animal",
+	"summon_spider",
+	"summon_hound",
+	"summon_hydra",
+	"summon_demon",
+	"summon_dragon",
+	"summon_gr_undead",
+	"summon_gr_dragon",
+	"summon_gr_demon",
+	"summon_ringwraith",
+	"summon_unique",
+	"wield",
+	"cursed",
+	"pseudo_id",
+	"hungry",
+	"notice",
+	"ambient_day",
+	"ambient_nite",
+	"ambient_dng1",
+	"ambient_dng2",
+	"ambient_dng3",
+	"ambient_dng4",
+	"ambient_dng5",
+	"mon_create_trap",
+	"mon_shriek",
+	"mon_cast_fear",
+	"hit_good",
+	"hit_great",
+	"hit_superb",
+	"hit_hi_great",
+	"hit_hi_superb",
+	"cast_spell",
 	"pray_prayer",
 	"kill_unique",
 	"kill_king",
@@ -651,6 +656,42 @@ s16b (*cave_o_idx)[DUNGEON_WID];
  * if any, monster or player is in any given grid.
  */
 s16b (*cave_m_idx)[DUNGEON_WID];
+
+
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid region indexes
+ *
+ * Note that this array yields the index of the top region in the stack of
+ * region in a given grid, using the "next_region_idx" field in that region to
+ * indicate the next region in the stack, and so on, using zero to indicate
+ * "nothing".  This array replicates the information contained in the region
+ * list, for efficiency, providing extremely fast determination of whether
+ * any region is in a grid, and relatively fast determination of which regions
+ * are in a grid.
+ */
+s16b (*cave_region_piece)[DUNGEON_WID];
+
+
+/*
+ * Array[z_info->?_max] of region pieces
+ */
+region_piece_type *region_piece_list;
+
+
+int region_piece_max = 1;
+int region_piece_cnt = 0;
+
+
+/*
+ * Array[z_info->?_max] of regions
+ */
+region_type *region_list;
+
+
+int region_max = 1;
+int region_cnt = 0;
+
 
 
 
@@ -818,14 +859,6 @@ alloc_entry *alloc_race_table;
 
 
 /*
- * Specify attr/char pairs for visual special effects
- * Be sure to use "index & 0xFF" to avoid illegal access
- */
-byte misc_to_attr[256];
-char misc_to_char[256];
-
-
-/*
  * Specify color for inventory item text display (by tval)
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
@@ -888,11 +921,25 @@ char *v_name;
 char *v_text;
 
 /*
- * The terrain feature arrays
+ * The blow arrays
  */
-blow_type *blow_info;
-char *blow_name;
-char *blow_text;
+method_type *method_info;
+char *method_name;
+char *method_text;
+
+/*
+ * The effect arrays
+ */
+effect_type *effect_info;
+char *effect_name;
+char *effect_text;
+
+/*
+ * The region info arrays
+ */
+region_info_type *region_info;
+char *region_name;
+char *region_text;
 
 /*
  * The terrain feature arrays
@@ -1030,13 +1077,13 @@ char *q_text;
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
-char *ANGBAND_SYS = "xxx";
+const char *ANGBAND_SYS = "xxx";
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-char *ANGBAND_GRAF = "old";
+const char *ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
@@ -1284,4 +1331,13 @@ ecology_type cave_ecology;
  * We now try to force monsters to have 'one of each item slot'.
  */
 u32b hack_monster_equip;
+
+
+/*
+ * Variables used to highlight project path to target.
+ */
+int target_path_n;
+u16b target_path_g[512];
+s16b target_path_d[512];
+
 

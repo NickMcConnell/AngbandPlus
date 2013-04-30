@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -16,13 +16,40 @@
 
 #include "angband.h"
 
+/*
+ * We use this routine to detect when a monster race is a quest race.
+ *
+ * If so, we don't place this monster randomly.
+ */
+bool is_quest_race(int r_idx)
+{
+	int i;
+
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		quest_type *q_ptr = &(q_list[i]);
+		quest_event *qe_ptr = &(q_ptr->event[q_ptr->stage]);
+
+		if (q_ptr->stage == QUEST_ACTION) qe_ptr = &(q_ptr->event[QUEST_ACTIVE]);
+
+		if ((qe_ptr->dungeon) && ((qe_ptr->dungeon != p_ptr->dungeon) ||
+			(qe_ptr->level != p_ptr->depth - min_depth(p_ptr->dungeon)))) continue;
+
+		if (!(qe_ptr->race) || (qe_ptr->race != r_idx)) continue;
+
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
 
 /*
  * Return another race for a monster to polymorph into.  -LM-
  *
  * Perform a modified version of "get_mon_num()", with exact minimum and
  * maximum depths and preferred monster types.
- * 
+ *
  * We know have to ensure that target race can survive on the intended
  * terrain.
  */
@@ -42,7 +69,7 @@ s16b poly_r_idx(int y, int x, int base_idx)
 	char d_char = r_ptr->d_char;
 
 
-	/* Hack -- Uniques and quest monsters never polymorph */
+	/* Hack -- Uniques never polymorph */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		return (base_idx);
@@ -76,18 +103,18 @@ s16b poly_r_idx(int y, int x, int base_idx)
 		/* We're polymorphing -- we don't want the same monster */
 		if (r_idx == base_idx) continue;
 
-		/* Do not polymorph into a quest monster */
-		/* if ((q_idx) && (r_idx == q_idx)) continue; */
-
 		/* Get the actual race */
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- No uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
+		/* Hack -- Never polymorph into a quest monster. */
+		if ((r_ptr->flags1 & (RF1_QUESTOR)) && (is_quest_race(r_idx))) continue;
+
 		/* Hack -- Ensure monster can survive on intended terrain */
 		if (place_monster_here(y, x, r_idx) <= MM_FAIL) continue;
-		
+
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -152,7 +179,7 @@ bool has_torch_lit(int y, int x)
 {
 	/* No monster, no torch lite */
 	if (cave_m_idx[y][x] <= 0) return FALSE;
-	
+
 	/* Check monster lite */
 	if (check_monster_lite(cave_m_idx[y][x])) return TRUE;
 
@@ -161,18 +188,18 @@ bool has_torch_lit(int y, int x)
 
 bool redraw_torch_lit_loss(int y, int x)
 {
-	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) == 0));	
+	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) == 0));
 }
 
 bool redraw_torch_lit_gain(int y, int x)
 {
-	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) != 0));	
+	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) != 0));
 }
 
 void apply_torch_lit(int y, int x)
 {
 	cave_info[y][x] |= (CAVE_TLIT);
-	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->blind)) play_info[y][x] |= (PLAY_SEEN);
+	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
 
 void remove_torch_lit(int y, int x)
@@ -185,11 +212,11 @@ void remove_torch_lit(int y, int x)
 void reapply_torch_lit(int y, int x)
 {
 	cave_info[y][x] |= (CAVE_TLIT);
-	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->blind)) play_info[y][x] |= (PLAY_SEEN);
+	if ((play_info[y][x] & (PLAY_VIEW)) && !(p_ptr->timed[TMD_BLIND])) play_info[y][x] |= (PLAY_SEEN);
 }
 
 
-/* 
+/*
  * Delete a monster by index.
  *
  * When a monster is deleted, all of its objects are deleted.
@@ -243,7 +270,7 @@ void delete_monster_idx(int i)
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
 	}
-	
+
 	/* Extinguish lite */
 	if (check_monster_lite(i))
 	{
@@ -288,7 +315,7 @@ void delete_monster_lite(int i)
 	/* Get location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-	
+
 	/* Extinguish lite */
 	if (check_monster_lite(i))
 	{
@@ -551,7 +578,7 @@ errr get_mon_num_prep(void)
 
 	/* No ecology creatures valid yet */
 	cave_ecology.valid_hook = FALSE;
-		
+
 	/* Using the ecology model */
 	for (i = 0; i < cave_ecology.num_races; i++)
 	{
@@ -560,7 +587,7 @@ errr get_mon_num_prep(void)
 		{
 			/* Accept this monster */
 			cave_ecology.get_mon[i] = TRUE;
-				
+
 			/* Have a valid monster */
 			cave_ecology.valid_hook = TRUE;
 		}
@@ -572,12 +599,12 @@ errr get_mon_num_prep(void)
 			cave_ecology.get_mon[i] = FALSE;
 		}
 	}
-		
+
 		/*
 		 * Have a valid choice -- we should uncomment this for efficiency if we are sure we don't change value of
 		 * cave_ecology.ready between calling get_mon_num_prep() and get_mon_num()
 		 */
-		/* if ((cave_ecology.ready) && (cave_ecology.valid_hook)) return (0); */	
+		/* if ((cave_ecology.ready) && (cave_ecology.valid_hook)) return (0); */
 
 	/* Scan the allocation table */
 	for (i = 0; i < alloc_race_size; i++)
@@ -608,13 +635,13 @@ errr get_mon_num_prep(void)
 
 /*
  * Restrict a monster based on the level flags.
- * 
+ *
  * Note we only apply 'hard' requirements here, such
  * as monsters needing to be immune to an element
  * because its splashed around the level, and no
  * 'soft' requirements, because a level may be
  * 'thematically' interesting.
- * 
+ *
  * The exception is for multipliers and non-movers
  * because it'd be unfair on the player to fill
  * the level with multipliers, and on the monster
@@ -631,21 +658,21 @@ bool check_level_flags_race(int r_idx)
 	{
 		return (FALSE);
 	}
-	
+
 	/* Lava level */
 	if (level_flag & (LF1_LAVA))
 	{
 		/* Require monsters immune to fire */
 		if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
 	}
-	
+
 	/* Acid level */
 	if (level_flag & (LF1_ACID))
 	{
 		/* Require monsters immune to acid */
 		if (!(r_ptr->flags3 & (RF3_IM_ACID))) return (FALSE);
 	}
-	
+
 	/* Surface level */
 	if (level_flag & (LF1_SURFACE))
 	{
@@ -709,9 +736,9 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
-	int local_monster_level = MIN(99, MAX(0, monster_level));
+	int local_monster_level = MIN(59, MAX(0, monster_level));
 
-	level = MIN(99, MAX(0, level));
+	level = MIN(59, MAX(0, level));
 
 	/*
 	 * Use the ecology model
@@ -741,46 +768,49 @@ s16b get_mon_num(int level)
 			{
 				continue;
 			}
-			
+
+			/* Hack -- Never place quest monsters randomly. */
+			if ((r_ptr->flags1 & (RF1_QUESTOR)) && (is_quest_race(i))) continue;
+
 			/* Hack -- we are picking a random monster or doing initial
 			 * placement of monsters in rooms.
 			 */
 			if (cave_ecology.single_ecology)
 			{
 				u32b match;
-				
-				if (cave_ecology.use_ecology <= DUN_ROOMS)
+
+				if (cave_ecology.use_ecology < DUN_ROOMS)
 				{
 					match = (room_info[cave_ecology.use_ecology].ecology);
 				}
 				else
 				{
-					match = (1L);					
+					match = (1L);
 				}
-				
+
 				/* Doesn't exist in current ecology */
 				if ((cave_ecology.race_ecologies[i] & (match)) == 0) continue;
 			}
-			
+
 			/*
 			 * No "hurt" lite monsters allowed in daytime
-			 * 
+			 *
 			 * We have to check this here because it it 'time-dependent'
 			 */
 			if (level_flag & (LF1_DAYLIGHT))
 			{
 				/* No hurt lite monsters in daytime */
 				if (r_ptr->flags3 & (RF3_HURT_LITE)) continue;
-			}			
+			}
 
 			/* Can choose this monster? */
-			if ((cave_ecology.get_mon[i] != 0) && !(rand_int(++j))) choice = i;
+			if ((cave_ecology.get_mon[i] != 0) && (one_in_(++j))) choice = i;
 		}
 
 		/* Made a choice */
 		if (choice >= 0)
 			return (cave_ecology.race[choice]);
-		
+
 		/* Warn that we are not selecting from ecology */
 		if (cheat_hear) msg_print("Unable to find a valid monster in the ecology");
 	}
@@ -821,7 +851,7 @@ s16b get_mon_num(int level)
 
 		/* Default */
 		table[i].prob3 = 0;
-		
+
 		/* No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
 
@@ -841,11 +871,14 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Hack -- "questor" monsters and guardians must be placed specifically */
-		if ((r_ptr->flags1 & (RF1_QUESTOR)) || (r_ptr->flags1 & (RF1_GUARDIAN))) continue;
+		/* Hack -- guardians must be placed specifically */
+		if (r_ptr->flags1 & (RF1_GUARDIAN)) continue;
 
 		/* Depth Monsters never appear at a different depth */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level != p_ptr->depth)) continue;
+
+		/* Hack -- Never place quest monsters randomly. */
+		if ((r_ptr->flags1 & (RF1_QUESTOR)) && (is_quest_race(r_idx))) continue;
 
 		/* Check monster against level flags */
 		if (!check_level_flags_race(r_idx)) continue;
@@ -855,30 +888,30 @@ s16b get_mon_num(int level)
 		{
 			int miss_level = table[i].level;
 			int count = 0;
-			
+
 			/* Modify up for leveled monsters */
 			if (r_ptr->flags9 & RF9_LEVEL_MASK) miss_level += 15;
-			
+
 			/* Allow a best effort choice in the event we can't find anything */
-			/* Hack -- have a soft boundary, so we don't always get 
+			/* Hack -- have a soft boundary, so we don't always get
 			   the same monster very deep */
 			if (closest_miss_level + 5 < miss_level
-				|| (closest_miss_level <= miss_level 
-					&& !rand_int(++count)))
+				|| (closest_miss_level <= miss_level
+					&& one_in_(++count)))
 			{
 				closest_miss_r_idx = table[i].index;
-				if (closest_miss_level < miss_level) 
+				if (closest_miss_level < miss_level)
 					closest_miss_level = miss_level;
 			}
-			
-			/* Ensure minimum depth for monsters, 
+
+			/* Ensure minimum depth for monsters,
 			   except those that have friends or level up */
-			if ((r_ptr->flags1 & RF1_FRIENDS) == 0 
-				&& (r_ptr->flags9 & RF9_LEVEL_MASK) == 0) 
+			if ((r_ptr->flags1 & RF1_FRIENDS) == 0
+				&& (r_ptr->flags9 & RF9_LEVEL_MASK) == 0)
 				continue;
-			
+
 			/* Ensure hard minimum depth for monsters */
-			if (table[i].level < MIN(local_monster_level - 19, level - 18)) 
+			if (table[i].level < MIN(local_monster_level - 19, level - 18))
 				continue;
 		}
 
@@ -901,20 +934,20 @@ s16b get_mon_num(int level)
 		if (closest_miss_level)
 		{
 			if (cheat_hear) msg_format("Picking closest miss (%s).", r_name + r_info[closest_miss_r_idx].name);
-			
+
 			return (closest_miss_r_idx);
 		}
 		else
 		{
 			if (cheat_hear) msg_print("No legal monsters.");
-			
+
 			return (0);
 		}
 	}
 
 	/* Report range of level monsters */
 	if (cheat_hear) msg_format("Picking from probably range of %d.", total);
-	
+
 	/* Pick a monster */
 	value = rand_int(total);
 
@@ -990,8 +1023,9 @@ s16b get_mon_num(int level)
  */
 void display_monlist(void)
 {
-	int idx, n;
-	int line = 0;
+	int idx, n, max;
+	int line = 1;
+	int total_count = 0, disp_count = 0;
 
 	char *m_name;
 	char buf[80];
@@ -1000,6 +1034,24 @@ void display_monlist(void)
 	monster_race *r_ptr;
 
 	u16b *race_counts;
+
+	/* Clear the term if in a subwindow, set x otherwise */
+	if (Term != angband_term[0])
+	{
+		clear_from(0);
+		max = Term->hgt - 1;
+	}
+	else
+	{
+		max = Term->hgt - 2;
+	}
+
+	/* If hallucinating, we can't see any monsters */
+	if (p_ptr->timed[TMD_IMAGE])
+	{
+		c_prt(TERM_SLATE, "You're too confused to see straight!", 0, 0);
+		return;
+	}
 
 	/* Allocate the array */
 	race_counts = C_ZNEW(z_info->r_max, u16b);
@@ -1014,11 +1066,32 @@ void display_monlist(void)
 
 		/* Bump the count for this race */
 		race_counts[m_ptr->r_idx]++;
+		total_count++;
 	}
 
+	/* Note no visible monsters */
+	if (!total_count)
+	{
+		/* Clear display and print note */
+		c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
+
+		/* Display a message */
+		if (Term == angband_term[0])
+		    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
+
+		/* Free up memory */
+		FREE(race_counts);
+
+		/* Done */
+		return;
+	}
+
+	/* Message */
+	prt(format("You can see %d monster%s:",
+		total_count, (total_count > 1 ? "s" : "")), 0, 0);
 
 	/* Iterate over mon_list ( again :-/ ) */
-	for (idx = 1; idx < z_info->m_max; idx++)
+	for (idx = 1; idx < z_info->m_max && (line < max); idx++)
 	{
 		m_ptr = &m_list[idx];
 
@@ -1060,6 +1133,7 @@ void display_monlist(void)
 			Term_putstr(0, line, n, TERM_WHITE, m_name);
 		}
 
+
 		/* Append the "standard" attr/char info */
 		Term_addstr(-1, TERM_WHITE, " ('");
 		Term_addch(r_ptr->d_attr, r_ptr->d_char);
@@ -1091,22 +1165,46 @@ void display_monlist(void)
 		/* Erase the rest of the line */
 		Term_erase(n, line, 255);
 
+		/* Add to monster counter */
+		disp_count += race_counts[m_ptr->r_idx];
+
 		/* Don't display again */
 		race_counts[m_ptr->r_idx] = 0;
 
 		/* Bump line counter */
 		line++;
+
+		/* Page wrap */
+		if (Term == angband_term[0] && (line == max) && disp_count != total_count)
+		{
+			prt("-- more --", line, 0);
+			anykey();
+
+			/* Clear the screen */
+			clear_from(0);
+
+			/* Reprint Message */
+			prt(format("You can see %d monster%s:",
+				total_count, (total_count > 1 ? "s" : "")), 0, 0);
+
+			/* Reset */
+			line = 1;
+		}
 	}
+
+	/* Print "and others" message if we're out of space */
+	if (disp_count != total_count)
+		prt(format("  ...and %d others.", total_count - disp_count), line, 0);
+
+	/* Put a shadow */
+	else
+		prt("", line, 0);
+
+	if (Term == angband_term[0])
+	prt("(Press any key to continue.)", line, 0);
 
 	/* Free the race counters */
 	FREE(race_counts);
-
-	/* Erase the rest of the window */
-	for (idx = line; idx < Term->hgt; idx++)
-	{
-		/* Erase the line */
-		Term_erase(0, idx, 255);
-	}
 }
 
 
@@ -1256,7 +1354,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 
 		/* Hack - scale up a leader */
 		if (m_ptr->mflag & (MFLAG_LEADER)) level -= 5;
-		
+
 		/* Scale a monster */
 		if (((r_ptr->flags9 & RF9_LEVEL_MASK) != 0) &&
 			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
@@ -1267,7 +1365,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		/* Add a class suffix to some monsters */
 		if (/* r_ptr->flags9 & (RF9_LEVEL_CLASS) */ FALSE)
 		{
-			if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_MAGE)) != 0)) suffix = "shaman";
+			if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_PRIEST)) != 0)) suffix = "shaman";
 			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
 			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
 			else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
@@ -1317,7 +1415,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 				/* Powerful monster ranks */
 				if (p_ptr->depth >= level + 15)
 				{
-					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) ||
 						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
 							prefix = "Elite ";
 					else if (r_ptr->flags2 & (RF2_MAGE | RF2_PRIEST)) prefix = "Arch ";
@@ -1326,7 +1424,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 				/* Moderately powerful monster ranks */
 				else if (p_ptr->depth >= level + 10)
 				{
-					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) ||
 						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
 							prefix = "Veteran ";
 					else prefix = "Senior ";
@@ -1334,7 +1432,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 				/* Somewhat powerful monster ranks */
 				else if (p_ptr->depth >= level + 5)
 				{
-					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) || 
+					if (((r_ptr->flags2 & (RF2_ARMOR)) != 0) ||
 						((r_ptr->flags3 & (RF3_ORC | RF3_TROLL | RF3_GIANT)) != 0))
 							prefix = "Hardened ";
 					else if (r_ptr->flags2 & (RF2_MAGE)) prefix = "Wily ";
@@ -1435,7 +1533,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 
 		/* Show additional flags */
 		if (cheat_xtra)
-		{			
+		{
 			if (m_ptr->mflag & (MFLAG_AGGR))
 			{
 				/* Append special notation */
@@ -1447,13 +1545,13 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 				/* Append special notation */
 				my_strcat(desc, " (ignore)", max);
 			}
-		
+
 			if (m_ptr->ty && m_ptr->tx)
 			{
 				/* Append special notation */
 				my_strcat(desc, format(" (t:%d, %d)", m_ptr->ty - m_ptr->fy, m_ptr->tx - m_ptr->fx) , max);
 			}
-			
+
 			if (m_ptr->min_range)
 			{
 				/* Append special notation */
@@ -1472,9 +1570,9 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			else
 			{
 				/* Append special notation */
-				my_strcat(desc, format(" (hp:%d)", m_ptr->maxhp) , max);				
+				my_strcat(desc, format(" (hp:%d)", m_ptr->maxhp) , max);
 			}
-			
+
 			if (m_ptr->mana < r_ptr->mana)
 			{
 				/* Append special notation */
@@ -1483,10 +1581,10 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			else if (r_ptr->mana)
 			{
 				/* Append special notation */
-				my_strcat(desc, format(" (sp:%d)", r_ptr->mana) , max);				
+				my_strcat(desc, format(" (sp:%d)", r_ptr->mana) , max);
 			}
 		}
-		
+
 		/* Remove gender sensitivity */
 		for (t = s = desc; *s; s++)
 		{
@@ -1897,7 +1995,7 @@ void update_mon(int m_idx, bool full)
 		}
 
 		/* Normal line of sight, and not blind */
-		if ((!p_ptr->blind) && (player_has_los_bold(fy, fx)))
+		if ((!p_ptr->timed[TMD_BLIND]) && (player_has_los_bold(fy, fx)))
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
@@ -2198,9 +2296,9 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 
 /*
  * Position player on a grid and update information.
- * 
+ *
  * Used by player_swap and player_place.
- * 
+ *
  * TODO: Consider using when cave information (e.g. light) is under
  * player or when terrain is updated under the player.
  */
@@ -2216,11 +2314,11 @@ static void player_position()
 	/* Update view if moved outside/inside */
 	bool outside = (level_flag & (LF1_SURFACE))
 		&& (f_ptr->flags3 & (FF3_OUTSIDE));
-	
+
 	/* Room is perma-lit */
-	if (cave_info[y][x] & (CAVE_GLOW)) 
+	if (cave_info[y][x] & (CAVE_GLOW))
 		room_info[dun_room[by][bx]].flags |= (ROOM_SEEN);
-	
+
 	/* Player has heard the room */
 	room_info[dun_room[by][bx]].flags |= (ROOM_HEARD);
 
@@ -2237,7 +2335,7 @@ static void player_position()
 	if (((f_ptr->flags3 & (FF3_ALLOC)) != 0) &&
 		((f_ptr->flags1 & (FF1_TRAP)) == 0))
 	{
-		msg_format("You %s %s %s.", p_ptr->blind || no_lite()? "feel" : "see", is_a_vowel((f_name + f_ptr->name)[0]) ? "an" : "a",
+		msg_format("You %s %s %s.", p_ptr->timed[TMD_BLIND] || no_lite()? "feel" : "see", is_a_vowel((f_name + f_ptr->name)[0]) ? "an" : "a",
 			f_name + f_ptr->name);
 
 		play_info[y][x] |= (PLAY_MARK);
@@ -2246,7 +2344,7 @@ static void player_position()
 	}
 
 	/* If blind, silently notice what the player is on */
-	else if ((p_ptr->blind || no_lite()) && ((play_info[y][x] & (PLAY_MARK)) == 0) &&
+	else if ((p_ptr->timed[TMD_BLIND] || no_lite()) && ((play_info[y][x] & (PLAY_MARK)) == 0) &&
 		((f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)) != 0))
 	{
 		play_info[y][x] |= (PLAY_MARK);
@@ -2277,7 +2375,7 @@ static void player_swap(const int y1, const int x1, const int y2, const int x2)
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
 	/* Update the bonuses -- due to mud etc */
-	p_ptr->update |= (PU_BONUS | PU_RUNES); 
+	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -2295,7 +2393,7 @@ static void player_swap(const int y1, const int x1, const int y2, const int x2)
 		p_ptr->window |= (PW_ROOM_INFO);
 		p_ptr->update |= (PU_ROOM_INFO);
 	}
-	
+
 	/* Update positional information */
 	player_position();
 }
@@ -2312,7 +2410,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
-	
+
 	bool lite1 = FALSE, lite2 = FALSE, lite3 = FALSE, lite4 = FALSE;
 
 	/* Monsters */
@@ -2344,7 +2442,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			PROJECT_HIDE | PROJECT_WALL);
 
 			/* The target is attacked by a ball attack */
-			(void)mon_blow_ranged(m1, 96 + 7, y2, x2, RBM_AURA, 2, flg, NULL);
+			(void)mon_blow_ranged(m1, 96 + 7, y2, x2, RBM_AURA, 2, flg);
 		}
 
 		/* Some monsters trail damage when moving */
@@ -2354,12 +2452,12 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			PROJECT_HIDE | PROJECT_WALL);
 
 			/* The target is attacked by a ball attack */
-			(void)mon_blow_ranged(m1, 96 + 7, y2, x2, RBM_TRAIL, 0, flg, NULL);
+			(void)mon_blow_ranged(m1, 96 + 7, y2, x2, RBM_TRAIL, 0, flg);
 		}
 
 		/* Update monster */
 		update_mon(m1, TRUE);
-		
+
 		/* Check for lite again */
 		lite2 = check_monster_lite(m1);
 	}
@@ -2398,7 +2496,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			PROJECT_HIDE | PROJECT_WALL);
 
 			/* The target is attacked by a ball attack */
-			(void)mon_blow_ranged(m2, 96 + 7, y1, x1, RBM_AURA, 2, flg, NULL);
+			(void)mon_blow_ranged(m2, 96 + 7, y1, x1, RBM_AURA, 2, flg);
 		}
 
 		/* Some monsters trail damage when moving */
@@ -2408,12 +2506,12 @@ void monster_swap(int y1, int x1, int y2, int x2)
 			PROJECT_HIDE | PROJECT_WALL);
 
 			/* The target is attacked by a ball attack */
-			(void)mon_blow_ranged(m2, 96 + 7, y1, x1, RBM_TRAIL, 0, flg, NULL);
+			(void)mon_blow_ranged(m2, 96 + 7, y1, x1, RBM_TRAIL, 0, flg);
 		}
 
 		/* Update monster */
 		update_mon(m2, TRUE);
-		
+
 		/* Check monster lite at origin */
 		lite4 = check_monster_lite(m2);
 	}
@@ -2441,7 +2539,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	{
 		gain_attribute(y1, x1, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
 	}
-	
+
 	/* Handle creating "glowing" terrain */
 	if (!lite3 && lite2)
 	{
@@ -2508,8 +2606,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
  *
  * We then stop monsters flowing that can't flow through all non-wall terrain
  * on the level. This is currently unimplemented.
- *
- * XXX We should risk traps based on monster hp.
  */
 
 bool mon_resist_feat(int feat, int r_idx)
@@ -2517,7 +2613,7 @@ bool mon_resist_feat(int feat, int r_idx)
 	monster_race *r_ptr;
 	feature_type *f_ptr = &f_info[feat];
 
-	bool daytime = level_flag & LF1_DAYLIGHT;
+	bool daytime = (bool)(level_flag & LF1_DAYLIGHT);
 	bool outside = (level_flag & (LF1_SURFACE))
 		&& (f_ptr->flags3 & (FF3_OUTSIDE));
 
@@ -2528,20 +2624,15 @@ bool mon_resist_feat(int feat, int r_idx)
 	r_ptr = &r_info[r_idx];
 
 	/* Always get burnt by daylight */
-	if ((daytime && outside) && (r_ptr->flags3 & (RF3_HURT_LITE))) 
+	if ((daytime && outside) && (r_ptr->flags3 & (RF3_HURT_LITE)))
 		return (FALSE);
 
-	/* Always risk traps if stupid */
-	if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
-	    (r_ptr->flags2 & (RF2_STUPID))) return (TRUE);
+	/* Monsters which never move can never be hit by traps,
+	 * as traps require movement to trigger. */
+	if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && (f_ptr->flags1 & (FF1_HIT_TRAP))) return (TRUE);
 
 	/* Always fail for spells */
 	if (f_ptr->spell) return (FALSE);
-
-	/* Sometimes risk traps if not smart */
-	if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
-	    !(r_ptr->flags2 & (RF2_SMART)) &&
-	    (rand_int(100)<5)) return (TRUE);
 
 	/* Check trap/feature attack */
 	if (f_ptr->blow.method)
@@ -2560,6 +2651,7 @@ bool mon_resist_feat(int feat, int r_idx)
 			return ((f_ptr->blow.d_dice * f_ptr->blow.d_side)==0);
 			break;
 
+			case GF_DELAY_POISON:
 			case GF_POIS:
 			if (!(r_ptr->flags3 & (RF3_IM_POIS))) return (FALSE);
 			break;
@@ -2582,6 +2674,10 @@ bool mon_resist_feat(int feat, int r_idx)
 			if (!(r_ptr->flags3 & (RF3_RES_LAVA))) return (FALSE);
 			break;
 
+			case GF_POISON_WATER:
+			if (!(r_ptr->flags3 & (RF3_IM_POIS))) return (FALSE);
+			/* Fall through */
+
 			case GF_WATER_WEAK:
 			case GF_WATER:
 			if (r_ptr->flags3 & (RF3_NONLIVING))  return (TRUE);
@@ -2602,7 +2698,7 @@ bool mon_resist_feat(int feat, int r_idx)
 
 			case GF_BWATER:
 			case GF_STEAM:
-			if ((r_ptr->flags3 & (RF3_NONLIVING)) && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags3 & (RF3_NONLIVING)) && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE);
 			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
 			{
 				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
@@ -2614,7 +2710,7 @@ bool mon_resist_feat(int feat, int r_idx)
 			break;
 
 			case GF_BMUD:
-			if ((r_ptr->flags3 & (RF3_NONLIVING))&& (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags3 & (RF3_NONLIVING))&& (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE);
 			if ((r_ptr->flags2 & (RF2_CAN_DIG)) && (f_ptr->flags2 & (FF2_CAN_DIG)))
 			{
 				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
@@ -2685,25 +2781,24 @@ bool mon_resist_feat(int feat, int r_idx)
 	return(TRUE);
 }
 
+
 /* ANDY - The routine we use to determine if we can place a monster
  * on a particular terrain type. This returns an integer defining
  * what mode of movement the monster is using (climbing, swimming etc.)
  * or a FALSE result if the monster cannot move (at all) on this terrain.
  *
- * Note the integer is negative if the monster doesn't 'like' the terrain.
+ * Note the integer is negative if the monster doesn't 'like' the terrain
+ * and will begin drowning in it if this returns MM_DROWN. Drowning is
+ * used to force monsters to either move or die.
  */
 int place_monster_here(int y, int x, int r_idx)
 {
-	int feat;
-
 	feature_type *f_ptr;
 	monster_race *r_ptr;
 
 	/* Improve efficiency -- forced boolean */
 	bool resist;
-
-    /* Get feature */
-	feat = cave_feat[y][x];
+	bool trap = FALSE;
 
 	/* Get feature info */
 	f_ptr= &f_info[cave_feat[y][x]];
@@ -2714,11 +2809,31 @@ int place_monster_here(int y, int x, int r_idx)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
-	/* Monster resists? */
-	resist = mon_resist_feat(feat,r_idx);
+	/* Monster resists terrain damage? */
+	resist = mon_resist_feat(cave_feat[y][x],r_idx);
 
-	/* Hack -- Player traps */
-	if ((cave_o_idx[y][x]) && ((f_info[feat].flags1 & (FF1_HIT_TRAP)) != 0)) resist = TRUE;
+	/* Monster can't move through terrain */
+	if (f_ptr->flags1 & (FF1_HIT_TRAP))
+	{
+		/* Monster can't avoid trap */
+		/*
+		 * Note that traps are the only way flying/climbing monsters can
+		 * take damage from terrain.
+		 */
+		if (f_ptr->flags1 & (FF1_TRAP))
+		{
+			/* Unavoidable */
+			if (race_avoid_trap(r_idx, y, x))
+			{
+				resist = TRUE;
+			}
+			/* Prevent flyers avoiding, but they may resist */
+			else
+			{
+				trap = !resist;
+			}
+		}
+	}
 
 	/* Check for pass wall */
 	if (resist &&
@@ -2761,12 +2876,11 @@ int place_monster_here(int y, int x, int r_idx)
 		return(MM_OOZE);
 	}
 
-
 	/* Hack -- check for flying. */
 	if (((r_ptr->flags2 & (RF2_CAN_FLY | RF2_MUST_FLY)) != 0) &&
 		((f_ptr->flags2 & (FF2_CAN_FLY)) != 0))
 	{
-		return(MM_FLY);
+		return(trap ? MM_TRAP : MM_FLY);
 	}
 
 	else if ((r_ptr->flags2 & (RF2_MUST_FLY)) != 0)
@@ -2774,48 +2888,34 @@ int place_monster_here(int y, int x, int r_idx)
 		return(MM_DROWN);
 	}
 
-	/* Hack -- check for climbing */
-	if (((r_ptr->flags2 & (RF2_CAN_CLIMB)) != 0) && 
+	/* Check for climbing - easily climb-able */
+	if (((r_ptr->flags2 & (RF2_CAN_CLIMB)) != 0) &&
 		((f_ptr->flags3 & (FF3_EASY_CLIMB)) != 0))
 	{
-		return(MM_CLIMB);
+		return(trap ? MM_TRAP : MM_CLIMB);
 	}
 
-	/* Hack -- check for climbing. */
-	if (((r_ptr->flags2 & (RF2_CAN_CLIMB)) != 0) && 
+	/* Check for climbing - adjacent to CAN_CLIMB terrain.
+	 * Note the use of the CAVE_CLIM flag to optimise this. */
+	if ((cave_info[y][x] & (CAVE_CLIM)) &&
 		((f_ptr->flags2 & (FF2_CAN_FLY)) != 0))
 	{
-		int i;
-
-		for (i=0;i<8;i++)
-		{
-			int d,yi,xi;
-			
-			d = ddd[i];
-			yi = ddy[d];
-			xi = ddx[d];
-
-			if (in_bounds(yi, xi) 
-				&& (f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) != 0) 
-				return(MM_CLIMB);
-		}
-
+		return(trap ? MM_TRAP : MM_CLIMB);
 	}
 
 	/* Get mimiced feat if covered/bridged */
-	if ((f_ptr->flags2 & (FF2_COVERED | FF2_BRIDGED)) != 0)
+	if ((f_ptr->flags2 & (FF2_COVERED)) != 0)
 	{
-		feat = f_ptr->mimic;
-		resist = mon_resist_feat(feat,r_idx);
+		resist = mon_resist_feat(f_ptr->mimic,r_idx);
 	}
 
 	/* Regular move/climb/drown */
 	if (((f_ptr->flags1 & (FF1_MOVE)) != 0) || ((f_ptr->flags3 & (FF3_EASY_CLIMB)) != 0))
 	{
-		if (!resist) return (MM_DROWN);
+		if (!resist) return ((f_ptr->flags1 & (FF1_HIT_TRAP)) ? MM_TRAP : MM_DROWN);
 		if (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)) return (MM_DROWN);
 		if (!(f_ptr->flags1 & (FF1_MOVE))) return (MM_CLIMB);
-		
+
 		return (MM_WALK);
 	}
 
@@ -2825,13 +2925,13 @@ int place_monster_here(int y, int x, int r_idx)
 
 /*
  * Hide a monster in terrain or position it over terrain as necessary.
- * 
+ *
  * If check is set to true, we just return whether or not the monster
  * would have hidden.
  */
 void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 {
-	bool surface = (level_flag & (LF1_SURFACE));
+	bool surface = (bool)(level_flag & (LF1_SURFACE));
 	bool lite = (m_ptr->mflag & (MFLAG_LITE)) != 0;
 
 	/* Get the feature */
@@ -2843,7 +2943,7 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 	/* Over the ceiling of a building */
 	if ((m_ptr->mflag & (MFLAG_OVER)) &&
 		(m_ptr->mflag & (MFLAG_HIDE)))
-	{	
+	{
 		/* Don't change state or update further */
 		return;
 	}
@@ -2919,7 +3019,7 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 	else if ((f_ptr->flags3 & (FF3_EASY_HIDE)) != 0)
 	{
 		/* Covered/bridged features are special */
-                if ((f_ptr->flags2 & (FF2_BRIDGED)) != 0)
+                if ((f_ptr->flags2 & (FF2_COVERED)) != 0)
 		{
 			/* Nothing */
 		}
@@ -2932,26 +3032,26 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 	{
 		m_ptr->mflag &= ~(MFLAG_HIDE);
 	}
-	
+
 	/* Hiding monsters gets rid of light */
 	if (m_ptr->mflag & (MFLAG_HIDE))
 	{
 		m_ptr->mflag &= ~(MFLAG_LITE);
-		
+
 		if (lite)
 		{
-			check_attribute_lost(y, x, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);	
+			check_attribute_lost(y, x, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
 		}
 	}
-	
+
 	/* Unhiding monsters which have light always show lite */
 	else if (r_ptr->flags2 & (RF2_HAS_LITE))
 	{
 		m_ptr->mflag |= (MFLAG_LITE);
-		
+
 		if (!lite)
 		{
-			gain_attribute(y, x, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);	
+			gain_attribute(y, x, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
 		}
 	}
 }
@@ -3057,7 +3157,7 @@ int calc_monster_ac(int m_idx, bool ranged)
 	if ((r_ptr->flags2 & (RF2_ARMOR)) && (ranged))
 	{
 		/* Notice this */
-		if ((m_ptr->ml) && (!l_ptr->flags2 & (RF2_ARMOR))) l_ptr->flags2 |= (RF2_ARMOR);
+		if ((m_ptr->ml) && (!(l_ptr->flags2 & (RF2_ARMOR)))) l_ptr->flags2 |= (RF2_ARMOR);
 
 		/* Hack -- assume a shield provides 1/4 of overall base ac */
 		ac += r_ptr->ac / 4;
@@ -3096,18 +3196,8 @@ int calc_monster_hp(int m_idx)
 		r_ptr = &monster_race_scaled;
 	}
 
-	/* Assign maximal hitpoints */
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
-	{
-		hp = maxroll(r_ptr->hdice, r_ptr->hside);
-	}
-	else
-	{
-		hp = damroll(r_ptr->hdice, r_ptr->hside);
-	}
-
-	/* Hack -- Scale down hit points by monster armour */
-	hp -= (hp * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
+	/* Hit points */
+	hp = r_ptr->hp;
 
 	/* Adjust for monster constitution stat */
 	if (m_ptr->mflag & (MFLAG_SICK)) hp = hp * 9 / 10;
@@ -3255,7 +3345,7 @@ void set_monster_slow(s16b m_idx, s16b counter, bool message)
 }
 
 /*
- * Given a monster and possibly a blow number, return the 
+ * Given a monster and possibly a blow number, return the
  * first object index that it can use as ammunition. If
  * created is set to true, create ammunition for the monster
  * if there is none.
@@ -3296,6 +3386,8 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 	{
 		int method, effect, d_dice, d_side;
 
+		method_type *method_ptr;
+
 		/* Skip non-attacks */
 		if (!r_ptr->blow[i].method) continue;
 
@@ -3305,90 +3397,31 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		d_dice = r_ptr->blow[i].d_dice;
 		d_side = r_ptr->blow[i].d_side;
 
-		/* Ranged? */
-		if (method < RBM_MIN_RANGED) continue;
+		/* Get the blow pointer */
+		method_ptr  = &method_info[method];
+		ammo_tval = method_ptr->ammo_tval;
 
-		switch (method)
+		/* No ammo requirement */
+		if (!ammo_tval) continue;
+
+		/* Pick an item kind */
+		if (method_ptr->flags2 & (PR2_SCALE_AMMO))
 		{
-			case RBM_SPORE:
-			{
-				ammo_kind = 596;
-				ammo_tval = TV_EGG;
-				ammo_sval = SV_EGG_SPORE;
-				break;
-			}
-			case RBM_BOULDER:
-			{
-				ammo_kind = 598;
-				ammo_tval = TV_JUNK;
-				ammo_sval = SV_JUNK_ROCK;
-				break;
-			}
-			case RBM_ARROW:
-			{
-				ammo_tval = TV_ARROW;
-				if (d_dice <= 3)  ammo_sval = SV_AMMO_NORMAL;
-				else if (d_dice <= 12) ammo_sval = SV_AMMO_STEEL;
-				else if (d_dice <= 27) ammo_sval = SV_AMMO_SPECIAL;
-				else ammo_sval = SV_AMMO_HEAVY;
-				break;
-			}
-			case RBM_XBOLT:
-			{
-				ammo_tval = TV_BOLT;
-				if (d_dice <= 4)  ammo_sval = SV_AMMO_NORMAL;
-				else if (d_dice <= 16) ammo_sval = SV_AMMO_STEEL;
-				else if (d_dice <= 36) ammo_sval = SV_AMMO_SPECIAL;
-				else ammo_sval = SV_AMMO_HEAVY;
-				break;
-			}
-			case RBM_SPIKE:
-			{
-				ammo_kind = 345;
-				ammo_tval = TV_SPIKE;
-				ammo_sval = 0;
-				break;
-			}
-			case RBM_DART:
-			{
-				ammo_kind = 434;
-				ammo_tval = TV_POLEARM;
-				ammo_sval = SV_DART;
-				break;
-			}
-			case RBM_SHOT:
-			{
-				ammo_tval = TV_SHOT;
-				if (d_dice < 2)  ammo_sval = SV_AMMO_LIGHT;
-				else if (d_dice < 8) ammo_sval = SV_AMMO_NORMAL;
-				else if (d_dice < 18) ammo_sval = SV_AMMO_STEEL;
-				else ammo_sval = SV_AMMO_HEAVY;
-				break;
-			}
-			case RBM_FLASK:
-			{
-				if (d_dice < 7)
-				{
-					ammo_tval = TV_FLASK;
-					ammo_sval = SV_FLASK_OIL;
-				}
-				else
-				{
-					ammo_tval = TV_POTION;
-					ammo_sval = SV_POTION_DETONATIONS;
-				}
-				break;
-			}			
-			case RBM_DAGGER:
-			{
-				ammo_kind = 43;
-				ammo_tval = TV_SWORD;
-				ammo_sval = SV_DAGGER;
-				break;
-			}
+			/* Scale damage dice */
+			if (ammo_tval == TV_ARROW) d_dice = d_dice * 4 / 3;
+			else if (ammo_tval == TV_SHOT) d_dice = d_dice * 2;
 
-			default:
-				continue;
+			/* Get the ammunition */
+			if (d_dice <= 4)  ammo_sval = SV_AMMO_NORMAL;
+			else if (d_dice <= 16) ammo_sval = SV_AMMO_STEEL;
+			else if (d_dice <= 36) ammo_sval = SV_AMMO_SPECIAL;
+			else ammo_sval = SV_AMMO_HEAVY;
+		}
+		else
+		{
+			/* Get sval and kind */
+			ammo_sval = method_ptr->ammo_sval;
+			ammo_kind = method_ptr->ammo_kind;
 		}
 
 		/* Scan monster inventory */
@@ -3402,7 +3435,7 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 
 			/* Important -- skip artifacts */
 			if (o_ptr->name1) continue;
-			
+
 			/* Check if ammo */
 			if (o_ptr->tval == ammo_tval) ammo = this_o_idx;
 
@@ -3415,7 +3448,7 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 
 		/* Monster has ammo */
 		if (ammo != 0) continue;
-		
+
 		/* Monster not creating ammo */
 		if (!created) continue;
 
@@ -3429,10 +3462,10 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 		object_prep(o_ptr, ammo_kind);
 
 		/* Give uniques maximum shots */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) o_ptr->number = MIN(99, (byte)r_ptr->level);
+		if (r_ptr->flags1 & (RF1_UNIQUE)) o_ptr->number = MIN(59, (byte)r_ptr->level);
 
 		/* Archers get more shots */
-		else if (r_ptr->flags2 & (RF2_ARCHER)) o_ptr->number += (byte)MIN(99,damroll(2, (r_ptr->level + 1) / 2));
+		else if (r_ptr->flags2 & (RF2_ARCHER)) o_ptr->number += (byte)MIN(59,damroll(2, (r_ptr->level + 1) / 2));
 
 		/* Give the monster some shots */
 		else o_ptr->number = (byte)rand_range(1, (r_ptr->level + 1) / 2);
@@ -3498,6 +3531,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* Get the feature */
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+	int i;
 
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
@@ -3601,14 +3636,14 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 		if (r_ptr->flags9 & (RF9_TOWNSFOLK)) n_ptr->mflag |= (MFLAG_TOWN);
 
 		/* Mega-hack -- no nasty town dwellers when starting out */
-		else if (turn < 1000) return (FALSE);
+		else if ((turn < 1000) && ((flg & (MFLAG_ALLY)) == 0)) return (FALSE);
 	}
 
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
 	{
 		int val = r_ptr->sleep;
-		n_ptr->csleep = ((val * 2) + randint(val * 10));
+		n_ptr->csleep = ((val * 2) + (s16b)randint(val * 10));
 	}
 
 	/* Hack -- allow uniques to have their stats drained multiple times */
@@ -3639,7 +3674,31 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* Apply flags from caller */
 	n_ptr->mflag |= flg;
-	
+
+	/* Hack -- ensure quest monsters are generated appropriately */
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		quest_type *q_ptr = &q_list[i];
+		quest_event *qe_ptr = &(q_ptr->event[q_ptr->stage]);
+
+		/* Hack -- player must have ended up allying this monster */
+		if (q_ptr->stage <= QUEST_ACTION) continue;
+
+		/* Quest doesn't occur on this level */
+		if ((qe_ptr->dungeon) && ((qe_ptr->dungeon != p_ptr->dungeon) ||
+			(qe_ptr->level != (p_ptr->depth - min_depth(p_ptr->dungeon))))) continue;
+
+		/* Mark monsters with the results of various quests */
+		if ((qe_ptr->race) && (qe_ptr->race == n_ptr->r_idx))
+		{
+			if (qe_ptr->flags & (EVENT_ALLY_RACE)) n_ptr->mflag |= (MFLAG_ALLY);
+			if (qe_ptr->flags & (EVENT_HATE_RACE)) n_ptr->mflag &= ~(MFLAG_ALLY | MFLAG_IGNORE);
+			if (qe_ptr->flags & (EVENT_FEAR_RACE)) n_ptr->monfear = 100;
+			if (qe_ptr->flags & (EVENT_HEAL_RACE)) n_ptr->mflag |= (MFLAG_STRONG | MFLAG_SMART | MFLAG_WISE | MFLAG_SKILLFUL | MFLAG_HEALTHY);
+			if (qe_ptr->flags & (EVENT_BANISH_RACE | EVENT_KILL_RACE)) return (FALSE);
+		}
+	}
+
 	/* Created allies do not carry treasure */
 	if (flg & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_MADE);
 
@@ -3681,7 +3740,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* Monster must wait a while until summoning anything if summoned/wandering */
 	if (character_dungeon) n_ptr->summoned = 100;
-	
+
 	/* Calculate the monster_speed*/
 	n_ptr->mspeed = calc_monster_speed(cave_m_idx[y][x]);
 
@@ -3721,14 +3780,14 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
 		if (r_ptr->level > p_ptr->depth)
 		{
 			adjust = (r_ptr->level - p_ptr->depth) / 2;
-			group_size -= randint(adjust);
+			group_size -= (s16b)randint(adjust);
 		}
 
 		/* Easier monsters, bigger groups */
 		if (p_ptr->depth > r_ptr->level)
 		{
 			adjust = (p_ptr->depth - r_ptr->level) / 2;
-			group_size += randint(adjust);
+			group_size += (s16b)randint(adjust);
 		}
 	}
 
@@ -3807,7 +3866,7 @@ static bool place_monster_okay(int r_idx)
 					((z_ptr->flags2 & (RF2_SNEAKY)) == 0) &&
 					(((p_ptr->cur_flags4 & (TR4_EVIL)) != 0) == ((z_ptr->flags3 & (RF3_EVIL)) != 0)));
 	}
-	
+
 	/* Group monsters require similar "group" */
 	if (r_ptr->grp_idx)
 	{
@@ -3851,7 +3910,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 
 	/* Save previous monster restriction value. */
 	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
-	
+
 	int old_monster_level = monster_level;
 
 	/* Calculate the number of escorts we want. */
@@ -3873,7 +3932,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 
 	/* Build monster table, get index of first escort */
 	escort_idx = get_mon_num(monster_level);
-		
+
 	/* Start on the monster */
 	hack_n = 1;
 	hack_x[0] = x;
@@ -3895,10 +3954,10 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 		{
 			int mx = hx + ddx_ddd[i % 8];
 			int my = hy + ddy_ddd[i % 8];
-			
+
 			/* Place a group of escorts if needed */
 			if (((r_info[escort_idx].level < old_monster_level - 9) || (r_info[escort_idx].flags1 & (RF1_FRIENDS))) &&
-				!place_monster_group(my, mx, escort_idx, slp, (rand_range(3, 5)), flg))
+				!place_monster_group(my, mx, escort_idx, slp, (s16b)(rand_range(3, 5)), flg))
 			{
 				continue;
 			}
@@ -3924,17 +3983,17 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 			/* Get index of the next escort */
 			escort_idx = get_mon_num(monster_level);
 		}
-		
+
 		/* No luck -- boost */
-		if (!escort_idx) 
+		if (!escort_idx)
 			monster_level += 3;
 
-		if (monster_level > 110)
+		if (monster_level > 70)
 			break;
 	}
 
 	monster_level = old_monster_level;
-	
+
 	/* Return to previous monster restrictions (usually none) */
 	get_mon_num_hook = get_mon_num_hook_temp;
 
@@ -3948,21 +4007,21 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 
 /*
  * Place the player in the dungeon XXX XXX
- * 
+ *
  * Note similarity to player_swap.
  */
 s16b player_place(int y, int x, bool escort_allowed)
-{	
+{
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
 
 	/* Mark cave grid */
 	cave_m_idx[y][x] = -1;
-	
+
 	/* Update player position */
 	p_ptr->py = y;
 	p_ptr->px = x;
-	
+
 	/* Update positional information*/
 	player_position();
 
@@ -3971,9 +4030,9 @@ s16b player_place(int y, int x, bool escort_allowed)
 	{
 		/* Help the player out */
 		monster_level += 5;
-		
+
 		place_monster_escort(y, x, rp_ptr->r_idx, FALSE, (MFLAG_ALLY));
-		
+
 		msg_print("You are joined by companions in battle.");
 
 		monster_level -= 5;
@@ -4008,7 +4067,7 @@ static bool summon_specific_okay(int r_idx)
 	/* Hack -- try to minimise annoyance if monsters summon monsters */
 	if (summoner && summon_strict)
 	{
-		/* This prevents 'circular' chain summoning */	
+		/* This prevents 'circular' chain summoning */
 		if ((r_info[r_idx].flags4 & (RF4_SUMMON_MASK) ||
 			  r_info[r_idx].flags5 & (RF5_SUMMON_MASK) ||
 			  r_info[r_idx].flags6 & (RF6_SUMMON_MASK) ||
@@ -4019,7 +4078,7 @@ static bool summon_specific_okay(int r_idx)
 
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
-	
+
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
@@ -4028,7 +4087,7 @@ static bool summon_specific_okay(int r_idx)
 		{
 			if (summon_char_type)
 			{
-				okay = ((r_ptr->d_char == summon_char_type) && 
+				okay = ((r_ptr->d_char == summon_char_type) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else
@@ -4103,9 +4162,9 @@ static bool summon_specific_okay(int r_idx)
 
 					/* Match attr */
 					(r_ptr->d_attr == summon_attr_type) &&
-						
+
 					/* Match char */
-					(r_ptr->d_char == summon_char_type));				
+					(r_ptr->d_char == summon_char_type));
 			}
 			else if (summon_char_type)
 			{
@@ -4156,7 +4215,7 @@ static bool summon_specific_okay(int r_idx)
 			{
 				okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)) &&
-					
+
 					/* Hack -- exclude hounds */
 					(r_ptr->d_char != 'C') && (r_ptr->d_char != 'Z') &&
 
@@ -4239,7 +4298,7 @@ static bool summon_specific_okay(int r_idx)
 			}
 			break;
 		}
-		
+
 		case SUMMON_COLOUR:
 		{
 			if ((summon_attr_type) || (summon_flag_type))
@@ -4250,17 +4309,17 @@ static bool summon_specific_okay(int r_idx)
 				okay = (!(r_ptr->flags1 & (RF1_UNIQUE)) &&
 
 					/* Hack - Reject index color */
-					((r_ptr->flags9 & (RF9_ATTR_INDEX)) == 0) && 
-					
+					((r_ptr->flags9 & (RF9_ATTR_INDEX)) == 0) &&
+
 					/* Match colour */
 					(((r_ptr->d_attr == summon_attr_type) &&
 
 					/* Match 'metallic-ness' */
 					((r_ptr->flags9 & (RF9_ATTR_METAL)) == summon_flag9_type) &&
-					
+
 					/* Reject clear or multi-hued */
 					((r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_ATTR_MULTI)) == 0)) ||
-					
+
 					/* Match 'clearness or multi-huedness */
 					((summon_flag1_type) &&
 						((r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_ATTR_MULTI)) == summon_flag1_type))));
@@ -4269,7 +4328,7 @@ static bool summon_specific_okay(int r_idx)
 			{
 				okay = /* Hack - Reject index color */
 					(((r_ptr->flags9 & (RF9_ATTR_INDEX)) == 0) &&
-					!(r_ptr->flags1 & (RF1_UNIQUE)));				
+					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			break;
 		}
@@ -4289,7 +4348,7 @@ static bool summon_specific_okay(int r_idx)
 			}
 			break;
 		}
-		
+
 		case SUMMON_ALL_BUT_PREFIX:
 		case SUMMON_SUFFIX:
 		{
@@ -4306,7 +4365,7 @@ static bool summon_specific_okay(int r_idx)
 			}
 			break;
 		}
-		
+
 		case SUMMON_INFIX_WYRM_OF:
 		{
 			if (strlen(summon_word_type))
@@ -4320,20 +4379,20 @@ static bool summon_specific_okay(int r_idx)
 					(!(strchr(r_name + r_ptr->name, ' ')) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
-			break;			
+			break;
 		}
-		
+
 		case SUMMON_DRAGON_BREATH:
 		{
 			if (summon_flag_type)
 			{
 				/* Match on dragon */
 				okay = (strchr("AdD",r_ptr->d_char) &&
-				
+
 				/* Hack - Match on undead if requested */
 				(((summon_flag_type & (0x0000001L)) &&
 						(r_ptr->flags3 & (RF3_UNDEAD))) ||
-				
+
 				/* Match on breath */
 				((summon_flag_type & (RF4_BREATH_MASK)) &&
 						(r_ptr->flags4 & (RF4_BREATH_MASK)) == summon_flag_type)));
@@ -4353,7 +4412,7 @@ static bool summon_specific_okay(int r_idx)
 				okay = (!(r_ptr->flags1 & (RF1_UNIQUE)) &&
 
 					/* Has a group */
-					(r_ptr->grp_idx) && 
+					(r_ptr->grp_idx) &&
 
 					/* Match group index */
 					(r_ptr->grp_idx == summon_group_type));
@@ -4372,20 +4431,20 @@ static bool summon_specific_okay(int r_idx)
 			{
 				okay = (((r_ptr->d_attr == summon_attr_type) ||
 					(r_ptr->flags1 & (RF1_ATTR_CLEAR)) ||
-					(r_ptr->flags9 & (RF9_ATTR_INDEX))) && 
-					(r_ptr->d_char == summon_char_type) && 
+					(r_ptr->flags9 & (RF9_ATTR_INDEX))) &&
+					(r_ptr->d_char == summon_char_type) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else if (summon_attr_type)
 			{
 				okay = (((r_ptr->d_attr == summon_attr_type) ||
 					(r_ptr->flags1 & (RF1_ATTR_CLEAR)) ||
-					(r_ptr->flags9 & (RF9_ATTR_INDEX))) && 
+					(r_ptr->flags9 & (RF9_ATTR_INDEX))) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else if (summon_char_type)
 			{
-				okay = ((r_ptr->d_char == summon_char_type) && 
+				okay = ((r_ptr->d_char == summon_char_type) &&
 					!(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else
@@ -4395,12 +4454,12 @@ static bool summon_specific_okay(int r_idx)
 			}
 			break;
 		}
-		
+
 		case ANIMATE_TREE:
 		{
 			okay = ((r_ptr->d_char == ':') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;			
+			break;
 		}
 
 		case SUMMON_FRIEND:
@@ -4420,18 +4479,18 @@ static bool summon_specific_okay(int r_idx)
 		{
 			if (summon_attr_type && summon_char_type)
 			{
-				okay = ((r_ptr->d_attr == summon_attr_type) && 
-					(r_ptr->d_char == summon_char_type) && 
+				okay = ((r_ptr->d_attr == summon_attr_type) &&
+					(r_ptr->d_char == summon_char_type) &&
 					(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else if (summon_attr_type)
 			{
-				okay = ((r_ptr->d_attr == summon_attr_type) && 
+				okay = ((r_ptr->d_attr == summon_attr_type) &&
 					(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else if (summon_char_type)
 			{
-				okay = ((r_ptr->d_char == summon_char_type) && 
+				okay = ((r_ptr->d_char == summon_char_type) &&
 					(r_ptr->flags1 & (RF1_UNIQUE)));
 			}
 			else
@@ -4552,6 +4611,12 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	/* MegaHack: Handle forms of Sauron */
+	if (r_idx == SAURON_TRUE)
+	{
+		r_idx = sauron_shape(0);
+	}
+
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp, r_ptr->flags1 & (RF1_FRIENDS) ? flg | MFLAG_LEADER : flg)) return (FALSE);
 
@@ -4660,10 +4725,10 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 	/* Certain monsters created in giant spider webs */
 	if (r_ptr->flags2 & (RF2_HAS_WEB))
 	{
-		int flg = PROJECT_BOOM | PROJECT_8WAY | PROJECT_GRID | PROJECT_THRU | PROJECT_HIDE;
-							
+		int flg = PROJECT_BOOM | PROJECT_4WAY | PROJECT_4WAX | PROJECT_GRID | PROJECT_THRU | PROJECT_HIDE;
+
 		/* Shoot web out in 8 directions when placed */
-		(void)project(SOURCE_BIRTH, r_idx, (r_ptr->level / 10) + 2, y, x, y, x, 0, GF_WEB, flg, 0, 0);
+		(void)project(SOURCE_BIRTH, r_idx, (r_ptr->level / 10) + 2, 0, y, x, y, x, 0, GF_WEB, flg, 0, 0);
 	}
 
 	/* Success */
@@ -4754,7 +4819,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 static void summon_specific_params(int r_idx, int summon_specific_type)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-	
+
 	/* Hack -- Set specific summoning parameters if not currently set */
 	switch (summon_specific_type)
 	{
@@ -4790,7 +4855,7 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 					summon_flag_type |= RF8_HAS_FUR;
 
 					/* Surface dwellers like birds */
-					if ((r_ptr->flags9 & (RF9_RACE_MASK)) && ! (r_ptr->flags3 & (RF3_RACE_MASK))) 
+					if ((r_ptr->flags9 & (RF9_RACE_MASK)) && ! (r_ptr->flags3 & (RF3_RACE_MASK)))
 						summon_flag_type |= RF8_HAS_FEATHER;
 
 					/* Dungeon dwellers like reptiles, fish and worse */
@@ -4810,7 +4875,7 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 			}
 			break;
 		}
-		
+
 		case SUMMON_COLOUR:
 		{
 			if (!summon_flag_type)
@@ -4824,21 +4889,21 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 			}
 			break;
 		}
-		
+
 		case SUMMON_PREFIX:
 		{
 			/* Copy prefix */
 			char *t = r_name + r_ptr->name;
 			char *s = summon_word_type;
-			
+
 			if (!strlen(summon_word_type))
 			{
 				/* Copy string */
 				my_strcpy(s, t, sizeof(summon_word_type));
-	
+
 				/* Find first space */
 				while ((*s) && (*s != ' ')) s++;
-				
+
 				/* Terminate string */
 				*s = '\0';
 			}
@@ -4851,37 +4916,37 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 			/* Copy prefix */
 			char *t = r_name + r_ptr->name;
 			char *s = summon_word_type;
-			
+
 			if (!strlen(summon_word_type))
 			{
 				/* Find space */
 				while (strchr(t, ' '))
 				{
 					t++;
-					
+
 					if ((summon_specific_type == SUMMON_ALL_BUT_PREFIX) && (*t == ' ')) break;
 				}
-				
+
 				/* Copy string */
 				my_strcpy(s, t, sizeof(summon_word_type));
 			}
 			break;
 		}
-		
+
 		case SUMMON_INFIX_WYRM_OF:
 		{
 			/* Copy prefix */
 			char *u = NULL;
 			char *t = r_name + r_ptr->name;
 			char *s = summon_word_type;
-			
+
 			int k = 0;
-			
+
 			if (!strlen(summon_word_type))
 			{
 				/* Copy string. Note offset. */
 				my_strcpy(s, t, sizeof(summon_word_type) - 1);
-				
+
 				/* Break up into words */
 				while (*s)
 				{
@@ -4889,41 +4954,41 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 					if ((*s == '-') && (rand_int(100) < 30)) *s = '\0';
 					s++;
 				}
-				
+
 				/* Ensure double \0 at end of string */
 				*(++s) = '\0';
-				
+
 				/* Scan words */
 				s = summon_word_type;
-				
+
 				/* Skip unique names */
 				while (strchr(s, ',')) { s++; t++; }
-				
+
 				while (*s && (s < summon_word_type + sizeof(summon_word_type)))
 				{
 					int n = strlen(s);
-					
+
 					/* Skip 'the', 'of', 'great', 'wyrm' */
 					if ((my_stricmp(s, "the")) && (my_stricmp(s, "of")) && (my_stricmp(s, "Wyrm")) &&
 							(my_stricmp(s,"Great ")))
 					{
 						/* Maybe get this word */
-						if (!rand_int(++k)) u = t;
+						if (one_in_(++k)) u = t;
 					}
-					
+
 					s += n + 1;
 					t += n + 1;
 				}
-				
+
 				if (u)
 				{
 					my_strcpy(summon_word_type, u, sizeof(summon_word_type));
-	
+
 					s = summon_word_type;
-					
+
 					/* Find first space */
 					while ((*s) && (*s != ' ')) s++;
-					
+
 					/* Terminate string */
 					*s = '\0';
 				}
@@ -4953,7 +5018,7 @@ static void summon_specific_params(int r_idx, int summon_specific_type)
 			}
 			break;
 		}
-		
+
 		case SUMMON_GROUP:
 		case ANIMATE_ELEMENT:
 		{
@@ -5027,7 +5092,7 @@ bool alloc_monster(int dis, bool slp)
 
 		cave_ecology.use_ecology = dun_room[y/BLOCK_HGT][x/BLOCK_WID];
 	}
-	
+
 	/* Attempt to place the monster, allow groups */
 	if (place_monster(y, x, slp, TRUE)) return (TRUE);
 
@@ -5036,7 +5101,7 @@ bool alloc_monster(int dis, bool slp)
 	{
 		cave_ecology.single_ecology = FALSE;
 	}
-	
+
 	/* Nope */
 	return (FALSE);
 }
@@ -5081,7 +5146,7 @@ bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool 
 		int d = (i / 15) + 1;
 
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		scatter(&y, &x, y1, x1, d, CAVE_XLOF);
 
 		if (!in_bounds_fully(y,x)) continue;
 
@@ -5107,7 +5172,7 @@ bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool 
 
 	/* Restrict race as appropriate */
 	summoner = restrict_race;
-	
+
 	/* Require "okay" monsters */
 	get_mon_num_hook = summon_specific_okay;
 
@@ -5122,10 +5187,10 @@ bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool 
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
-	
+
 	/* Reset summoner */
 	summoner = 0;
-	
+
 	/* No longer strict */
 	summon_strict = FALSE;
 
@@ -5137,7 +5202,7 @@ bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool 
 
 	/* Set additional paramaters if we haven't yet set a restriction */
 	if (summon_specific_type) summon_specific_params(r_idx, summon_specific_type);
-	
+
 	/* Success */
 	return (TRUE);
 }
@@ -5151,16 +5216,6 @@ bool summon_specific_one(int y1, int x1, int r_idx, bool slp, u32b flg)
 {
 	int i, x, y;
 
-	/* Get the monster */
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-	    (r_ptr->cur_num >= r_ptr->max_num))
-	{
-		return (FALSE);
-	}
-
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
 	{
@@ -5168,7 +5223,7 @@ bool summon_specific_one(int y1, int x1, int r_idx, bool slp, u32b flg)
 		int d = (i / 15) + 1;
 
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		scatter(&y, &x, y1, x1, d, CAVE_XLOF);
 
 		/* Require "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
@@ -5233,7 +5288,7 @@ bool animate_object(int item)
 	if (o_ptr->name3 <= 0) return (FALSE);
 
 	/* Summon the specific race */
-	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE, 0L);
+	result = summon_specific_one(y1, x1, o_ptr->name3, FALSE, (o_ptr->ident & (IDENT_FORGED)) != 0 ? (MFLAG_ALLY) : 0L);
 
 	/* Hack -- no result */
 	if (!result)
@@ -5311,6 +5366,16 @@ bool animate_object(int item)
 
 
 
+/* Check monsters for fear */
+static bool questor_test_fear(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	if (m_ptr->monfear) return (TRUE);
+	else return (FALSE);
+}
+
+
 /*
  * Change monster fear.
  *
@@ -5333,6 +5398,12 @@ void set_monster_fear(monster_type *m_ptr, int v, bool panic)
 
 	/* Otherwise, reset monster combat ranges (later) */
 	else m_ptr->min_range = 0;
+
+	/* Quest monster */
+	if (r_ptr->flags1 & (RF1_QUESTOR))
+	{
+		check_monster_quest(cave_m_idx[m_ptr->fy][m_ptr->fx], questor_test_fear, EVENT_FEAR_RACE);
+	}
 }
 
 
@@ -5355,10 +5426,13 @@ bool multiply_monster(int m_idx)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, 0);
+		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, CAVE_XLOF);
 
 		/* Require an "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
+
+		/* Require no risk of damage */
+		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)) continue;
 
 		/* Require monster can pass and survive on terrain */
 		if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) continue;
@@ -5525,7 +5599,7 @@ void message_pain(int m_idx, int dam)
 static void deepest_in_ecology(int r_idx)
 {
 	int r;
-	
+
 	/* Check the overall depth, and the room depth */
 	for (r = 0; r <= cave_ecology.num_ecologies; r += cave_ecology.num_ecologies)
 	{
@@ -5535,7 +5609,7 @@ static void deepest_in_ecology(int r_idx)
 			/* Monster race */
 			cave_ecology.deepest_race[r] = r_idx;
 		}
-	
+
 		/* Is the current monster deeper */
 		else if ((r_info[cave_ecology.deepest_race[r]].level == r_info[r_idx].level) && (r_info[cave_ecology.deepest_race[r]].mexp < r_info[r_idx].mexp))
 		{
@@ -5568,7 +5642,7 @@ static bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int num
 
 	/* Limit races */
 	if (races >= MAX_ECOLOGY_RACES) races = MAX_ECOLOGY_RACES;
-	
+
 	/* Use supplied hook */
 	get_mon_num_hook = tmp_mon_num_hook;
 
@@ -5590,16 +5664,16 @@ static bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int num
 			/* Add monster to ecology */
 			cave_ecology.get_mon[cave_ecology.num_races] = TRUE;
 			cave_ecology.race[cave_ecology.num_races] = r_idx;
-			
+
 			/* Add monster to room and dungeon */
 			cave_ecology.race_ecologies[cave_ecology.num_races] |= (1L) | (1L << cave_ecology.num_ecologies);
 
 			/* Is the current monster deeper */
-			deepest_in_ecology(r_idx);		
-				
+			deepest_in_ecology(r_idx);
+
 			/* Increase total race count */
 			cave_ecology.num_races++;
-			
+
 			if (cheat_hear) msg_format("Ecology dependent monster (%s) based on %s (%d).",r_name + r_info[r_idx].name,
 				r_name + r_info[summoner].name, tmp_mon_num_hook == summon_specific_okay ? summon_specific_type : -1);
 		}
@@ -5647,20 +5721,20 @@ void get_monster_ecology(int r_idx)
 	if (r_idx)
 	{
 		if (cheat_hear) msg_format("Adding base race to ecology (%s)", r_name + r_info[r_idx].name);
-		
+
 		/* Add monster to ecology */
 		cave_ecology.get_mon[cave_ecology.num_races] = TRUE;
 		cave_ecology.race[cave_ecology.num_races] = r_idx;
-		
+
 		/* Add monster to room (base races don't wander around dungeon) */
 		cave_ecology.race_ecologies[cave_ecology.num_races] |= (1L << (++cave_ecology.num_ecologies));
-
+		assert (cave_ecology.num_ecologies <= MAX_ECOLOGIES);
 		/* Is the current monster deeper */
-		deepest_in_ecology(r_idx);		
-			
+		deepest_in_ecology(r_idx);
+
 		/* Increase total race count */
 		cave_ecology.num_races++;
-		
+
 		/* Try to ensure we have a hack */
 		switch(hack_ecology)
 		{
@@ -5683,7 +5757,7 @@ void get_monster_ecology(int r_idx)
 				else break;
 			case 3:
 				if ((r_info[r_idx].flags2 & (RF2_CLASS_MASK)) != 0) break;
-	
+
 			case 2:
 			case 1:
 				/* Battle-fields and two thirds of failures match on d_char - the rest use animals */
@@ -5692,9 +5766,9 @@ void get_monster_ecology(int r_idx)
 				break;
 		}
 	}
-	
+
 	/* Display hack index */
-	if (hack_ecology && cheat_hear) 
+	if (hack_ecology && cheat_hear)
 		msg_format("Hacking ecology (%d)", hack_ecology);
 
 	/* Have a good race */
@@ -5702,7 +5776,7 @@ void get_monster_ecology(int r_idx)
 	{
 		/* Monster race pointer */
 		monster_race *r_ptr;
-		
+
 		/* How many monsters to generate per summons */
 		int k = cave_ecology.num_races > 2 * MIN_ECOLOGY_RACES ? 1 :
 			cave_ecology.num_races > MIN_ECOLOGY_RACES ? 2 : 3;
@@ -5711,16 +5785,16 @@ void get_monster_ecology(int r_idx)
 		r_idx = cave_ecology.race[i];
 		r_ptr = &r_info[r_idx];
 
-		/* Try slightly lower monster level */  	 	 
-		monster_level = MAX(1, MIN(monster_level - 3, 
+		/* Try slightly lower monster level */
+		monster_level = MAX(1, MIN(monster_level - 3,
 								   (monster_level + r_ptr->level) / 2 - 1));
- 
+
 		/* Set summoner */
 		summoner = r_idx;
-		
+
 		/* Hack - always summon lower level monsters for ecology */
 		summon_strict = TRUE;
-		
+
 		/* Add escort races */
 		if (r_ptr->flags1 & (RF1_ESCORT | RF1_ESCORTS))
 		{
@@ -5740,7 +5814,7 @@ void get_monster_ecology(int r_idx)
 
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_KIN);
-			
+
 			/* Get additional monsters */
 			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + randint(k) + (r_ptr->flags1 & (RF1_UNIQUE) ? rand_int(3) : 0));
 		}
@@ -5770,10 +5844,10 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_flag_type = 0L;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_ANIMAL);
-			
+
 			/* Get additional monsters */
 			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, randint(k));
 		}
@@ -5803,7 +5877,7 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_flag_type = 0L;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_CLASS);
 
@@ -5818,7 +5892,7 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_flag_type = 0L;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_RACE);
 
@@ -5833,10 +5907,10 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_group_type = 0;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_GROUP);
-			
+
 			/* Get additional monsters */
 			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + randint(k));
 		}
@@ -5849,12 +5923,12 @@ void get_monster_ecology(int r_idx)
 			/* Clear existing restrictions */
 			summon_attr_type = 0;
 			summon_flag_type = 0L;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_COLOUR);
-			
+
 			/* Get additional monsters */
-			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + randint(k));		
+			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + randint(k));
 		}
 
 		/* Add summon races -- summon infix. Note this is only done via ecology hacks. */
@@ -5864,14 +5938,14 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_word_type[0] = '\0';
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_INFIX_WYRM_OF);
 
 			/* Get additional monsters */
 			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, 1 + randint(k));
 		}
-		
+
 		/* Add summon races -- summon infix. Note this is only done via ecology hacks. */
 		if (hack_ecology == 8)
 		{
@@ -5879,7 +5953,7 @@ void get_monster_ecology(int r_idx)
 
 			/* Clear existing restrictions */
 			summon_flag_type = 0L;
-			
+
 			/* Set the restrictions */
 			summon_specific_params(r_idx, SUMMON_DRAGON_BREATH);
 
@@ -5967,7 +6041,7 @@ void get_monster_ecology(int r_idx)
 			/* Get additional monsters */
 			used_new_hook |= get_monster_ecology_aux(summon_specific_okay, randint(k));
 		}
-		
+
 		/* Unhack ecology */
 		hack_ecology = 0;
 	}

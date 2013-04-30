@@ -104,7 +104,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_intermediate,
 		OPT_birth_first_time,
 		OPT_birth_reseed_artifacts,
-		OPT_NONE,
+		OPT_birth_rand_stats,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -122,7 +122,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_live,
 		OPT_cheat_lore,
 		OPT_cheat_auto,
-		OPT_NONE,
+		OPT_cheat_wall,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -275,7 +275,7 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 127 */
 { NULL,                  NULL,                                          FALSE }, /* 128 */
 { "birth_randarts",      "Randomize all of the artifacts, even fixed",  FALSE }, /* 129 */
-{ NULL,                  NULL,                                          FALSE }, /* 130 */
+{ "birth_rand_stats",    "Randomize attributes chosen on level gain",   FALSE }, /* 130 */
 { "birth_ironman",       "Restrict the use of stairs/recall",           FALSE }, /* 131 */
 { "birth_no_stores",     "Restrict the use of stores/home",             FALSE }, /* 132 */
 { "birth_no_artifacts",  "Restrict creation of artifacts",              FALSE }, /* 133 */
@@ -327,7 +327,7 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 179 */
 { "cheat_lore",          "Cheat: Know complete artifact/ego info",      FALSE }, /* 180 */
 { "cheat_auto",          "Cheat: Auto-inscribe items as if known",      FALSE }, /* 181 */
-{ NULL,                  NULL,                                          FALSE }, /* 182 */
+{ "cheat_wall",          "Cheat: Show false colours for walls",         FALSE }, /* 181 */
 { NULL,                  NULL,                                          FALSE }, /* 183 */
 { NULL,                  NULL,                                          FALSE }, /* 184 */
 { NULL,                  NULL,                                          FALSE }, /* 185 */
@@ -391,7 +391,7 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 243 */
 { "score_lore",          "Score: Know complete artifact/ego info",      FALSE }, /* 244 */
 { "score_auto",          "Score: Auto-inscribe items as if known",      FALSE }, /* 245 */
-{ NULL,                  NULL,                                          FALSE }, /* 246 */
+{ "score_wall",          "Score: Show false colours for walls",         FALSE }, /* 245 */
 { NULL,                  NULL,                                          FALSE }, /* 247 */
 { NULL,                  NULL,                                          FALSE }, /* 248 */
 { NULL,                  NULL,                                          FALSE }, /* 249 */

@@ -866,8 +866,13 @@ XImage *ResizeImage(Display *dpy, XImage *Im,
 
 	char *Data;
 
+#if defined(__cplusplus) || defined(c_plusplus)
+	if (smoothRescaling && (ix != ox || iy != oy) &&
+	    (visual->c_class == TrueColor))
+#else
 	if (smoothRescaling && (ix != ox || iy != oy) &&
 	    (visual->class == TrueColor))
+#endif
 	{
 		return ResizeImageSmooth(dpy, Im, ix, iy, ox, oy);
 	}

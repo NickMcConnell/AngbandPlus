@@ -122,20 +122,13 @@ Jam a door/Set a trap (j) or Spike a door/Set a trap (S)
 Browse a book (b) or Peruse a book (P)
         Browsing now allows you to select a spell in a spell books for
         a comprehensive list of what effects that spell has.
-
         All spell-using classes may read song books, but classes other
         that bards and shamans will only be able to use some of the spells
-        from the book. Runestones may also be browsed by all classes,
-        however runestones only permit more than one spell by combining two
-        runestones together, so that at best you will have 4 spells available
-        with 2 runestones, 9 spells with 3 runestones and so forth. The first
-        runestone browsed determines the noun, the other runestones in your
-        inventory acting as verbs to modify its effects. Runestones are best
-        utilised by shamans as a result.
+        from the book. 
 
-Gain new spells, prayers, songs or runes (G)
+Gain new spells, prayers or songs (G)
         You are not limited in Unangband to a maximum of 64 spells: instead
-        your intelligence and books and runes available to you dictate what
+        your intelligence and books available to you dictate what
         magic you can learn. Note that priests and paladins may also study
         at altars in the dungeon to learn spells: these are less useful in
         that the spells may only cast while standing on the altar until you
@@ -143,7 +136,7 @@ Gain new spells, prayers, songs or runes (G)
         classes may also learn spells earlier.
 
 Cast a spell (m)
-        You must possess the book or combination of runestones, or be standing
+        You must possess the book or be standing
         on the appropriate altar to cast a spell. Note that all classes use this
         command to cast spells. In future versions (p) will be used to prepare
         items to make new magical items.

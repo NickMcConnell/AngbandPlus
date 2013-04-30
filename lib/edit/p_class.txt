@@ -28,7 +28,7 @@
 # Version stamp (required)
 
 
-V:0.6.2
+V:0.6.3
 
 
 #Sum = 12;
@@ -67,7 +67,7 @@ A:4:40:2:66
 M:90:1:2:3:1:300:1
 T:Novice
 T:Apprentice
-T:Trickster
+T:Journeyman
 T:Illusionist
 T:Spellbinder
 T:Evoker
@@ -180,12 +180,12 @@ A:5:30:4:44
 M:0:1:2:6:99:400:0
 T:Vagabond
 T:Cutpurse
+T:Footpad
 T:Robber
 T:Burglar
 T:Filcher
 T:Sharper
-T:Low Thief
-T:High Thief
+T:Thief
 T:Master Thief
 T:Assassin
 E:23:18:1:1:0:0:0:100
@@ -266,8 +266,8 @@ E:24:0:1:1:0:0:0:100
 
 N:10:Warrior Mage
 S:2:1:1:0:1:-1:-1:2
-C:45:22:26:1:22:0:10:20:10
-X:15:13:7:0:0:0:20:40:20
+C:45:20:26:1:22:0:10:20:10
+X:15:10:7:0:0:0:20:40:20
 I:25:20000:40:10:1
 A:5:30:3:55
 M:90:1:2:3:3:400:0
@@ -310,3 +310,26 @@ E:19:2:1:1:0:0:0:100
 E:16:0:3:7:0:0:30:79
 E:16:1:5:11:0:0:80:100
 
+#Sum = 13; magic
+
+N:12:Rogue
+S:2:1:-2:3:5:-1:0:5
+C:45:20:26:3:34:0:40:20:20
+X:15:8:7:1:0:0:50:40:30
+I:25:20000:40:10:1
+A:5:30:3:55
+M:90:1:2:3:5:350:0
+T:Dicer
+T:Cardshark
+T:Chancer
+T:Gambler
+T:Confident
+T:Trickster
+T:Faker
+T:Confabulator
+T:Rogue
+T:Master Rogue
+E:23:7:1:1:0:0:0:100
+E:90:52:1:1:0:0:0:100
+E:36:4:1:1:0:0:0:100
+E:70:21:1:1:0:0:0:100

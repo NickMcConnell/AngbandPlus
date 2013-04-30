@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -45,16 +45,16 @@ const s16b ddy_ddd[9] =
 
 
 /*
- * Given a central direction at position [dir #][0], return a series 
- * of directions radiating out on both sides from the central direction 
+ * Given a central direction at position [dir #][0], return a series
+ * of directions radiating out on both sides from the central direction
  * all the way back to its rear.
- * 
- * Side directions come in pairs; for example, directions '1' and '3' 
- * flank direction '2'.  The code should know which side to consider 
- * first.  If the left, it must add 10 to the central direction to 
+ *
+ * Side directions come in pairs; for example, directions '1' and '3'
+ * flank direction '2'.  The code should know which side to consider
+ * first.  If the left, it must add 10 to the central direction to
  * access the second part of the table.
- */ 
-const byte side_dirs[20][8] = 
+ */
+const byte side_dirs[20][8] =
 {
 	{ 0, 0, 0, 0, 0, 0, 0, 0 },	/* bias right */
 	{ 1, 4, 2, 7, 3, 8, 6, 9 },
@@ -76,7 +76,7 @@ const byte side_dirs[20][8] =
 	{ 6, 9, 3, 8, 2, 7, 1, 4 },
 	{ 7, 4, 8, 1, 9, 2, 6, 3 },
 	{ 8, 7, 9, 4, 6, 1, 3, 2 },
-	{ 9, 8, 6, 7, 3, 4, 2, 1 } 
+	{ 9, 8, 6, 7, 3, 4, 2, 1 }
 };
 
 
@@ -96,7 +96,7 @@ const char hexsym[16] =
  * Global array for number of stats to increase at each level.
  * Ensure that no number here is greater than PY_MAX_STAT_GAIN.
  */
-const byte stat_gains[PY_MAX_LEVEL] = 
+const byte stat_gains[PY_MAX_LEVEL] =
 {
 /* This spreads the stat gains better at lower levels and
 	gives bigger increases at higher levels. */
@@ -110,7 +110,7 @@ const byte stat_gains[PY_MAX_LEVEL] =
 
 /*
  * Stat Table -- One less than number of spells at adj_mag_study_max (see below).
- * 
+ *
  * This attempts to balance out the maximum number of spells available, which we
  * do not want to be too high at high levels, as this is unbalancing, against
  * the rate of spells learnt, which is important at low levels.
@@ -213,7 +213,7 @@ const byte adj_mag_study_max[] =
 
 /*
  * Stat Table -- one (or 4 for mages) less than the amount of mana at level 50
- * 
+ *
  * Now also used for 'reach' with size.
  */
 const s16b adj_mag_mana[] =
@@ -1855,33 +1855,6 @@ const player_sex sex_info[MAX_SEXES] =
 };
 
 
-
-
-
-/*
- * Hack -- the "basic" color names (see "TERM_xxx")
- */
-const cptr color_names[16] =
-{
-	"Dark",
-	"White",
-	"Slate",
-	"Orange",
-	"Red",
-	"Green",
-	"Blue",
-	"Umber",
-	"Light Dark",
-	"Light Slate",
-	"Violet",
-	"Yellow",
-	"Light Red",
-	"Light Green",
-	"Light Blue",
-	"Light Umber",
-};
-
-
 /*
  * Abbreviations of healthy stats
  */
@@ -2036,7 +2009,7 @@ const u32b object_xtra_base[OBJECT_XTRA_MAX_HIDDEN] =
 	TR2_IGNORE_ACID,
 	TR2_IGNORE_FIRE,
 	TR2_IGNORE_WATER,
-        TR2_IGNORE_THEFT,
+	TR2_IGNORE_THEFT,
 	TR4_HURT_LITE,
 	1L,	/* Magic item - flag 1 */
 	1L,	/* Magic item - flag 2 */
@@ -2062,7 +2035,7 @@ const int object_xtra_size[OBJECT_XTRA_MAX_HIDDEN] =
 	1,
 	1,
 	1,
-        8,
+	4,
 	32,	/* Magic item - flag 1 */
 	32,	/* Magic item - flag 2 */
 	32,	/* Magic item - flag 3 */
@@ -2073,108 +2046,57 @@ const int object_xtra_size[OBJECT_XTRA_MAX_HIDDEN] =
 /*
  * Description of each object group.
  */
-const cptr object_group_text[] =
+const object_grouper object_group[] =
 {
-	"Sword",
-	"Polearm",
-	"Hafted Weapon",
-	"Bow",
-	"Arrows"	 ,
-	"Bolt"	,
-	"Shot"	,
-	"Shield"	 ,
-	"Crown"	,
-	"Helm",
-	"Gloves"	 ,
-	"Boots"	,
-	"Cloak"	,
-	"Dragon Scale Mail",
-	"Hard Armor"	 ,
-	"Soft Armor"	 ,
-	"Ring"		 ,
-	"Amulet"	 ,
-	"Lite",
-	"Potion"	 ,
-	"Scroll"	 ,
-	"Wand",
-	"Staff"	,
-	"Rod"	,
-	"Priest Book",
-	"Magic Book",
-	"Song Book"	,
-	"Instrument",
-	"Runestone"	,
-	"Map"		,
-	"Spike"	,
-	"Rope" ,
-	"Digger"	 ,
-	"Food"	,
-	"Flask"	,
-	"Service", 
-	"Bag"	,
-	"Container"	,
-	"Statue"	 ,
-	"Assembly"	 ,
-	"Skeleton"	,
-	"Corpse"	 ,
-	"Egg"		 ,
-	"Skin"		 ,
-	"Junk",
-	NULL
-};
-
-
-/*
- * TVALs of items in each group
- */
-const byte object_group_tval[] = 
-{
-	TV_SWORD,
-	TV_POLEARM,
-	TV_HAFTED,
-	TV_BOW,	
-	TV_ARROW,	
-	TV_BOLT,
-	TV_SHOT,
-	TV_SHIELD,
-	TV_CROWN,	  
-	TV_HELM,	  
-	TV_GLOVES,	  
-	TV_BOOTS,	  
-	TV_CLOAK,	  
-	TV_DRAG_ARMOR,
-	TV_HARD_ARMOR,
-	TV_SOFT_ARMOR,
-	TV_RING,	  
-	TV_AMULET,	  
-	TV_LITE,	  
-	TV_POTION,	  
-	TV_SCROLL,	  
-	TV_WAND,	  
-	TV_STAFF,	  
-	TV_ROD,	  
-	TV_PRAYER_BOOK,
-	TV_MAGIC_BOOK,
-	TV_SONG_BOOK,
-	TV_INSTRUMENT,
-	TV_RUNESTONE,
-	TV_MAP,	 
-	TV_SPIKE,
-	TV_ROPE,
-	TV_DIGGING,	 
-	TV_FOOD,	 
-	TV_FLASK,	 
-	TV_SERVICE,
-	TV_BAG,
-	TV_HOLD,
-	TV_STATUE,
-	TV_ASSEMBLY,	
-	TV_BONE,	
-	TV_BODY,	
-	TV_EGG,	
-	TV_SKIN,	
-	TV_JUNK,
-	0
+	{"Sword",	TV_SWORD},
+	{"Polearm",	TV_POLEARM},
+	{"Hafted Weapon",	TV_HAFTED},
+	{"Bow",		TV_BOW},
+	{"Arrow",	TV_ARROW},
+	{"Bolt"	,	TV_BOLT},
+	{"Shot"	,	TV_SHOT},
+	{"Shield",	TV_SHIELD},
+	{"Crown"	,	TV_CROWN},
+	{"Helm",	TV_HELM},
+	{"Gloves",	TV_GLOVES},
+	{"Boots"	,	TV_BOOTS},
+	{"Cloak"	,	TV_CLOAK},
+	{"Dragon Scale Mail",	TV_DRAG_ARMOR},
+	{"Hard Armor",	TV_HARD_ARMOR},
+	{"Soft Armor",	TV_SOFT_ARMOR},
+	{"Ring",		TV_RING},
+	{"Amulet",	TV_AMULET},
+	{"Lite",	TV_LITE},
+	{"Potion"	 ,	TV_POTION},
+	{"Scroll"	 ,	TV_SCROLL},
+	{"Wand",	TV_WAND},
+	{"Staff"	,	TV_STAFF},
+	{"Rod"	,	TV_ROD},
+	{"Prayer Book",	TV_PRAYER_BOOK},
+	{"Magic Book",	TV_MAGIC_BOOK},
+	{"Song Book"	,	TV_SONG_BOOK},
+	{"Instrument",	TV_INSTRUMENT},
+	{"Runestone"	,	TV_RUNESTONE},
+	{"Map"		,	TV_MAP},
+	{"Spike"	,	TV_SPIKE},
+	{"Rope" ,	TV_ROPE},
+	{"Digger"	 ,	TV_DIGGING},
+	{"Mushroom"	,	TV_MUSHROOM},
+	{"Flask"	,	TV_FLASK},
+	{"Food"		,	TV_FOOD},
+	{"Service", 	TV_SERVICE},
+	{"Magic Bag"	,	TV_BAG},
+	{"Container"	,	TV_HOLD},
+	{"Statue"	 ,	TV_STATUE},
+	{"Assembly"	 ,	TV_ASSEMBLY},
+	{"Skeleton"	,	TV_BONE},
+	{"Corpse"	 ,	TV_BODY},
+	{"Egg"		 ,	TV_EGG},
+	{"Skin"		 ,	TV_SKIN},
+	{"Junk",	TV_JUNK},
+	{"Gold",	TV_GOLD},
+	{"Gemstones",	TV_GEMS},
+	{NULL, 0}
 };
 
 const cptr magic_name[4][32] =
@@ -2273,15 +2195,15 @@ const cptr magic_name[4][32] =
 		"(Drains Mana)",
 		"(Drains Experience)",
 		"of Aggravation",
-		"of Teleportation",
-		"", /* Random activation */
+		"", /* Uncontrolled */
+		"", /* Activates on blow */
 		"", /* Activates */
 		"(Blessed)",
-		"", /* Artifact */
+		"(Quickfingered)",
 		"of Hunger",
-		"of Impact",
-		"(Rope-attached)",
+		"of Charging",
 		"of Throwing",
+		"of Hurling",
 		"",	/* Light curse */
 		"",	/* Heavy curse */
 		""	/* Permanently cursed */
@@ -2320,7 +2242,7 @@ const cptr magic_name[4][32] =
 		"of Acid Vulnerability",
 		"of Lightning Vulnerability",
 		"of Fire Vulnerability",
-		"of Frost Vulnerability"	
+		"of Frost Vulnerability"
 	}
 };
 
@@ -2374,7 +2296,7 @@ const cptr disease_name[33] =
  *
  * This range is considered a preference if d_range in spell_desire is > 0.
  * It is a hard limit if d_range = 0.
- * 
+ *
  * Note that _RF4 tables are non-constant due to updating the blow effects
  * for each monster type.
  */
@@ -2906,13 +2828,13 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	{ {75, 4}, {75, 5}, {75, 7}, {75, 9},
 	  {75, 11}, {75, 13}, {75, 15}, {75, 16},
 	  {75, 17}, {75, 18}, {75, 19}, {75, 20},
-	  {75, 21}, {75, 22}, {75, 73},	{75, 74}, 
+	  {75, 21}, {75, 22}, {75, 73},	{75, 74},
 	  {75, 76}, {75, 77}, {75, 78}, {75, 79},
 	  {75, 80}, {75, 81}, {0, 0} },
 	/* Bag of Harmful Mushrooms - holds harmful mushrooms */
-	{ {80, 0}, {80, 1}, {80, 2}, {80, 3},
-	  {80, 4}, {80, 5}, {80, 6}, {80, 7},
-	  {80, 8}, {80, 9}, {80, 10}, {80, 11},
+	{ {79, 0}, {79, 1}, {79, 2}, {79, 3},
+	  {79, 4}, {79, 5}, {79, 6}, {79, 7},
+	  {79, 8}, {79, 9}, {79, 10}, {79, 11},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
@@ -2937,20 +2859,20 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {75, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Antidotes – holds low powered curing potions */
+	/* Bag of Antidotes - holds low powered curing potions */
 	{ {75, 26}, {75, 27}, {75, 28}, {75, 31},
 	  {75, 30}, {75, 34}, {75, 35}, {75, 41},
-	  {75, 42}, {75, 43}, {75, 44}, {75, 45},
-	  {75, 46}, {75, 47}, {75, 60}, {75, 61},
-	  {75, 62}, {75, 64}, {75, 68}, {75, 71},
-	  {75, 83}, {0, 0}, {0, 0} },
+	  {75, 47}, {75, 60}, {75, 61}, {75, 62},
+	  {75, 64}, {75, 68}, {75, 71}, {75, 83},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
 	/* Bag of Philtres - holds medium power potions */
 	{ {75, 23}, {75, 24}, {75, 25}, {75, 32},
 	  {75, 33}, {75, 35}, {75, 36}, {75, 48},
-	  {75, 49}, {75, 50}, {75, 51}, {75, 52},
-	  {75, 53}, {75, 55}, {75, 68}, {75, 69},
+	  {75, 49}, {75, 51}, {75, 52}, {75, 55},
+	  {75, 68}, {75, 69}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
-	  {0, 0}, {0, 0}, {0, 0} },
+	  {0, 0}, {0, 0}, {0, 0}  },
 	/* Bag of Elixirs - holds high power potions */
 	{ {75, 29}, {75, 37}, {75, 38}, {75, 39},
 	  {75, 40}, {75, 54}, {75, 56}, {75, 57},
@@ -2959,9 +2881,9 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
 	/* Bag of Helpful Mushrooms - holds helpful mushrooms */
-	{ {80, 12}, {80, 13}, {80, 14}, {80, 15},
-	  {80, 16}, {80, 17}, {80, 18}, {80, 19},
-	  {80, 20}, {80, 21}, {80, 22}, {0, 0},
+	{ {79, 12}, {79, 13}, {79, 14}, {79, 15},
+	  {79, 16}, {79, 17}, {79, 18}, {79, 19},
+	  {79, 20}, {79, 21}, {79, 22}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
@@ -2972,45 +2894,45 @@ const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
 	  {70, 48}, {70, 61}, {70, 65}, {70, 66},
 	  {70, 73}, {70, 77}, {70, 78}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Hedge Magics – holds less useful scrolls */
+	/* Bag of Hedge Magics - holds less useful scrolls */
 	{ {70, 8}, {70, 9}, {70, 10}, {70, 11},
 	  {70, 22}, {70, 24}, {70, 32}, {70, 33},
 	  {70, 34}, {70, 35}, {70, 37}, {70, 39},
 	  {70, 59}, {70, 60}, {70, 62}, {70, 64},
 	  {70, 76}, {70, 79}, {70, 80}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Enchantments – holds enchantment scrolls */
+	/* Bag of Enchantments - holds enchantment scrolls */
 	{ {70, 14}, {70, 16}, {70, 17}, {70, 18},
 	  {70, 20}, {70, 21}, {70, 49}, {70, 50},
 	  {70, 51}, {70, 53}, {70, 54}, {70, 55},
 	  {70, 56}, {70, 57}, {70, 58}, {70, 67},
 	  {70, 68}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Eldritch Magics – holds powerful scrolls */
+	/* Bag of Eldritch Magics - holds powerful scrolls */
 	{ {70, 13}, {70, 15}, {70, 38}, {70, 41},
 	  {70, 42}, {70, 44}, {70, 45}, {70, 46},
 	  {70, 47}, {70, 63}, {70, 70}, {70, 71},
 	  {70, 72}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Lesser Runes – holds weaker runes */
+	/* Bag of Lesser Runes - holds weaker runes */
 	{ {93, 1}, {93, 3}, {93, 5}, {93, 7},
 	  {93, 11}, {93, 12}, {93, 13}, {93, 14},
 	  {93, 15}, {93, 16}, {93, 19}, {93, 21},
 	  {93, 22}, {93, 25}, {93, 26}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Greater Runes – holds more powerful runes */
+	/* Bag of Greater Runes - holds more powerful runes */
 	{ {93, 2}, {93, 4}, {93, 6}, {93, 8},
 	  {93, 9}, {93, 10}, {93, 17}, {93, 18},
 	  {93, 20}, {93, 23}, {93, 24}, {93, 27},
 	  {93, 28}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
-	/* Bag of Maps – holds maps */
-	{ {72, 41}, {72, 29}, {72, 40}, {72, 27},
-	  {72, 33}, {72, 7}, {72, 43}, {72, 44},
-	  {72, 45}, {72, 46}, {72, 59}, {0, 0},
+	/* Bag of Maps - holds maps */
+	{ {72, 25}, {72, 31}, {72, 41}, {72, 47},
+	  {72, 50}, {72, 56},  {72, 62}, {72, 64},
+	  {72, 65}, {72, 66}, {72, 68}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
 	  {0, 0}, {0, 0}, {0, 0} },
@@ -3198,9 +3120,9 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"an untreated scratch", "a nasty cut", "a fatal wound", "poor bandaging"},	/* SOURCE_CUTS */
 	{"poison", "venom", "toxin", "unnatural swelling"},	/* SOURCE_POISON */
 	{"hunger", "starvation", "lack of food", "poor management"},	/* SOURCE_HUNGER */
-	{"an ancient curse", "a perpetual weakness", "a black pact", "the spoor of Morgoth"},	/* SOURCE_CURSED_ITEM */	
+	{"an ancient curse", "a perpetual weakness", "a black pact", "the spoor of Morgoth"},	/* SOURCE_CURSED_ITEM */
 	{"being entombed by ", "being crushed by ", "being buried under ", "a falling cask of Amontillado stored by "},	/* SOURCE_ENTOMB */
-	{"blood debt for a slain ", "backlash for summoning a ", "a dark pact claimed by a dying ", "unearthly powers seeking vengeance on behalf of a "}, /* SOURCE_BLOOD_DEBT */ 
+	{"blood debt for a slain ", "backlash for summoning a ", "a dark pact claimed by a dying ", "unearthly powers seeking vengeance on behalf of a "}, /* SOURCE_BLOOD_DEBT */
 	{"misjudging ", "treachery of ", "a knife in the back from ", "walking in front of the line of fire of "}, /* SOURCE_PLAYER_ALLY */
 	{"a swing, and a miss", "overenthusiasm", "a hellavu shaving cut", "hmmm... you're not quite sure how you hit that part of you"}, /* SOURCE_PLAYER_ATTACK */
 	{"a misfire","an unintended discharge","shooting your own foot","hmmm... you're not quite sure how you shot that part of you"}, /* SOURCE_PLAYER_SHOT */
@@ -3208,114 +3130,569 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
 	{"walking headfirst into a ","walking backwards into a ","stumbling into a ","forgetting where you put a "}, /* SOURCE_PLAYER_TRAP */
 	{"breaking ", "smashing ", "cracking open ", "shattering "}, /* SOURCE_PLAYER_BREAK */
 	{"sniffing ", "inhaling ", "snorting ", "getting addicted to "}, /* SOURCE_PLAYER_SPORE */
-	{"a nick from a weapon coated with ", "extract of ", "toxic ", "fumes reeking of "		}, /* SOURCE_PLAYER_COATING */ 
+	{"a nick from a weapon coated with ", "extract of ", "toxic ", "fumes reeking of "		}, /* SOURCE_PLAYER_COATING */
 	{"over cooking ", "undercooking ", "having a taste for ", "not cutting out the poisonous bits off "}, /* SOURCE_PLAYER_EAT_MONSTER */
-	{"trying to draw health from ", "the eldritch power of ", "taking the place of ", "connecting to the Negative Plane through "}, /* SOURCE_PLAYER_VAMP_DRAIN */	
+	{"trying to draw health from ", "the eldritch power of ", "taking the place of ", "connecting to the Negative Plane through "}, /* SOURCE_PLAYER_VAMP_DRAIN */
 	{"nibbling ", "tasting ", "trying ", "an unknown allergy to "}, /* SOURCE_PLAYER_EAT_UNKNOWN */
-	{"sipping ", "sniffing ", "fumes from ", "not spitting out "}, /* SOURCE_PLAYER_QUAFF_UNKNOWN */ 
-	{"glancing at ", "casting your eyes over ", "browsing ", "looking sideways at "}, /* SOURCE_PLAYER_READ_UNKNOWN */ 
+	{"sipping ", "sniffing ", "fumes from ", "not spitting out "}, /* SOURCE_PLAYER_QUAFF_UNKNOWN */
+	{"glancing at ", "casting your eyes over ", "browsing ", "looking sideways at "}, /* SOURCE_PLAYER_READ_UNKNOWN */
 	{"eating ", "chewing ", "choking on ", "indigestion from "}, /* SOURCE_PLAYER_EAT */
-	{"quaffing ", "drinking ", "slurping ", "guzzling "}, /* SOURCE_PLAYER_QUAFF */ 
+	{"quaffing ", "drinking ", "slurping ", "guzzling "}, /* SOURCE_PLAYER_QUAFF */
 	{"aiming ", "waving ", "pointing ", "holding the wrong end of "}, /* SOURCE_PLAYER_AIM */
-	{"zapping ", "plughing ", "xyzzying ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP */ 
-	{"rubbing ", "wondering how to zap ", "seeing which end glows of ", "pressing a hidden stud on "}, /* SOURCE_PLAYER_ZAP_NO_TARGET */ 
-	{"reading ", "misreading ", "reciting ", "holding upside down "}, /* SOURCE_PLAYER_READ */ 
-	{"using ", "misusing ", "abusing ", "badly using "}, /* SOURCE_PLAYER_USE */ 
-	{"activating ", "relying too heavily on ", "mistrusting the power of ", "chancing the gods with "}, /* SOURCE_PLAYER_ACT_ARTIFACT */ 
-	{"activating ", "relying on ", "having an argument with ", "chancing fate with "}, /* SOURCE_PLAYER_ACT_EGO_ITEM */ 
-	{"activating ", "calling on ", "discharging ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */ 
-	{"buying ", "acquiring ", "purchasing ", "the ill-judged purchase of "}, /* SOURCE_PLAYER_SERVICE */ 
+	{"zapping ", "plughing ", "xyzzying ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP */
+	{"rubbing ", "wondering how to zap ", "seeing which end glows of ", "pressing a hidden stud on "}, /* SOURCE_PLAYER_ZAP_NO_TARGET */
+	{"reading ", "misreading ", "reciting ", "holding upside down "}, /* SOURCE_PLAYER_READ */
+	{"using ", "misusing ", "abusing ", "badly using "}, /* SOURCE_PLAYER_USE */
+	{"activating ", "relying too heavily on ", "mistrusting the power of ", "chancing the gods with "}, /* SOURCE_PLAYER_ACT_ARTIFACT */
+	{"activating ", "relying on ", "having an argument with ", "chancing fate with "}, /* SOURCE_PLAYER_ACT_EGO_ITEM */
+	{"activating ", "calling on ", "discharging ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */
+	{"buying ", "acquiring ", "purchasing ", "the ill-judged purchase of "}, /* SOURCE_PLAYER_SERVICE */
 	{"if you died here, you shouldn't be using wizard commands", "are you reading the source again?", "hmmph", "i'm going to ROT13 this table"}, /* SOURCE_PLAYER_WIZARD */
 	{"bad luck casting ", "badly casting ", "slurring a syllable casting ", "magical feedback whilst casting "} /* SOURCE_PLAYER_CAST */
 };
 
 
 /*
+ * Used for timed condition checking below.
+ */
+#define TMD_CONDITION(T) \
+	((T) < TMD_CONDITION_MAX ? 1L << (T) : 0L)
+
+/*
  * Item manipulation commands.
- * 
+ *
  * TODO: We could combine player_eat_food & player_quaff potion to a 'player_consume'
  * function and player_use_staff and player_aim_wand to a 'player_use_charge' function etc.
  */
 const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 {
 	{ NULL, '\0', " which ? ", "You have nothing to .",
-			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, 0, NULL},
-			
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, 0L, 0, NULL},
+
 	{ player_eat_food, 'E', "Eat which item? ", "You have nothing to eat.",
-			item_tester_hook_food_edible, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, NULL},
-			
+			item_tester_hook_food_edible, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0L, 0, NULL},
+
 	{ player_quaff_potion, 'q', "Quaff which potion? ", "You have nothing to quaff.",
-			NULL, TV_POTION, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, NULL},
-			
+			NULL, TV_POTION, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0L, 0, NULL},
+
 	{ player_read_scroll, 'r', "Read which scroll? ", "You have no scrolls to read.",
-			NULL, TV_SCROLL, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), (CONDITION_NOT_BLIND | CONDITION_LITE | CONDITION_NOT_BERSERK), 0, NULL},
-	
+			NULL, TV_SCROLL, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), (CONDITION_LITE), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND), 0, NULL},
+
 	{ player_use_staff, 'u', "Use which staff? ", "You have no staffs to use.",
-			NULL, TV_STAFF, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATU), (CONDITION_NOT_BERSERK), 0, NULL},
-			
+			NULL, TV_STAFF, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATU), 0L, TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
 	{ player_aim_wand, 'u', "Aim which wand? ", "You have no wands to aim.",
-			NULL, TV_WAND, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), (CONDITION_NOT_BERSERK), 0, NULL},
+			NULL, TV_WAND, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
 	{ player_zap_rod, 'z', "Zap which rod? ", "You have no rods to zap.",
-			item_tester_hook_rod_charged, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), (CONDITION_NOT_BERSERK), 0, NULL},
-	
+			item_tester_hook_rod_charged, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
 	{ player_assemble, 'Y', "Assemble which item? ", "You have no items to assemble.",
-			item_tester_hook_assemble, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, COMMAND_ITEM_ASSEMBLY, NULL},
-	
+			item_tester_hook_assemble, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, 0L, COMMAND_ITEM_ASSEMBLY, NULL},
+
 	{ player_assembly, 'Y', "Assemble with which item? ", "You have no items to assemble it with.",
-			item_tester_hook_assembly, 0, (USE_INVEN | USE_FLOOR), 0L, 0, NULL},
+			item_tester_hook_assembly, 0, (USE_INVEN | USE_FLOOR), 0L, 0L, 0, NULL},
 
 	{ player_activate, 'A', "Activate which item? ", "You have no items you know how to activate.",
-			item_tester_hook_activate, 0, (USE_EQUIP), 0L, 0, NULL},
-			
+			item_tester_hook_activate, 0, (USE_EQUIP | USE_SELF), 0L, 0L, 0, NULL},
+
 	{ player_apply_rune_or_coating, 'y', "Apply which runestone, mushroom, flask or potion? ", "You have no runestones, mushrooms, flasks or potions.",
-			item_tester_hook_apply, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0, cmd_tester_rune_or_coating},
-	
+			item_tester_hook_apply, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC), 0L, 0L, 0, cmd_tester_rune_or_coating},
+
 	{ player_apply_rune_or_coating2, 'y', "Apply rune to which item? ", "You have nothing to apply runes to.",
-			NULL, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
+			NULL, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR | USE_SKIN), 0L, 0L, 0, NULL},
 
 	{ player_apply_rune_or_coating2, 'y', "Coat which item? ", "You have nothing which will hold a coating.",
-			item_tester_hook_coating, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR), 0L, 0, NULL},
-			
+			item_tester_hook_coating, 0, (USE_INVEN  | USE_EQUIP | USE_FLOOR | USE_SKIN), 0L, 0L, 0, NULL},
+
 	{ player_wield, 'w', "Wear/Wield which item? ", "You have nothing you can wear or wield.",
-			item_tester_hook_wear, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0, NULL},
- 
+			item_tester_hook_wear, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0L, 0, NULL},
+
 	{ player_wield /*_offhand*/, 'o', "Wear/Wield which item into your off-hand? ", "You have nothing you can wear or wield in your off-hand.",
-			item_tester_hook_wear /*_offhand */, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG), 0L, 0, NULL},
+			item_tester_hook_wear /*_offhand */, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG), 0L, 0L, 0, NULL},
 
 	{ player_wield /*_quiver*/, 'p', "Put which item into your quiver? ", "You have nothing you can put in your quiver.",
-			item_tester_hook_wear /*_quiver*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0, NULL},
+			item_tester_hook_wear /*_quiver*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0L, 0, NULL},
 
 	{ player_takeoff, 't', "Take off which item? ", "You are not wearing anything to take off.",
-			item_tester_hook_removable, 0, (USE_EQUIP), 0L, 0, NULL},
-	
+			item_tester_hook_removable, 0, (USE_EQUIP), 0L, 0L, 0, NULL},
+
 	{ player_drop, 'd', "Drop which item? ", "You have nothing to drop.",
-			item_tester_hook_droppable, 0, (USE_EQUIP | USE_INVEN | USE_BAGC | USE_BAGS), 0L, 0, NULL},
-			
+			item_tester_hook_droppable, 0, (USE_EQUIP | USE_INVEN | USE_BAGC | USE_BAGS), 0L, 0L, 0, NULL},
+
 	{ player_destroy, 'k', "Destroy which item? ", "You have nothing to destroy.",
-			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0, NULL},
-			
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0L, 0, NULL},
+
 	{ player_observe, 'x', "Examine which item? ", "You have nothing to examine.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0, NULL},
-			
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS), 0L, 0L, 0, NULL},
+
 	{ player_uninscribe, '}', "Un-inscribe which item? ", "You have nothing to un-inscribe.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0, NULL},
-			
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0L, 0, NULL},
+
 	{ player_inscribe, '{', "Inscribe which item? ", "You have nothing to inscribe.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0, NULL},
-			
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR), 0L, 0L, 0, NULL},
+
 	{ player_refill, 'F', "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
-			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, cmd_tester_fill_or_fuel},
-			
+			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0L, 0, cmd_tester_fill_or_fuel},
+
 	{ player_refill2, '!', "Fill it from where? ", "You have nothing to fill it with.",
-			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_FEATU), 0L, 0, NULL},
-			
+			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_FEATU), 0L, 0L, 0, NULL},
+
 	{ player_refill2, '~', "Refuel with which torch? ", "You have no torches.",
-			item_tester_refill_torch, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
-			
+			item_tester_refill_torch, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0L, 0, NULL},
+
 	{ player_refill2, '`', "Refill with which source of oil? ", "You have no sources of oil.",
-			item_tester_refill_lantern, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0, NULL},
-	
+			item_tester_refill_lantern, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0L, 0, NULL},
+
+	{ player_refill2, '`', "Refill with which gunpowder? ", "You have no gunpowder.",
+			item_tester_refill_firearm, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC), 0L, 0L, 0, NULL},
+
 	{ player_light_and_douse, '|', "Light/Douse which light source? ", "You have nothing to light or douse.",
-			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH), 0L, 0, NULL},
+			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH), 0L, 0L, 0, NULL},
+
+	{ player_set_magic_trap, 'S', "Set trap with which item? ", "You have nothing which can be used in a trap.",
+			item_tester_hook_magic_trap, 0, (USE_INVEN | USE_FLOOR), 0L, 0L, 0, NULL},
+
+	{ player_throw, 't', "Throw which item? ", "You have nothing to throw.",
+			item_tester_hook_throwable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
+			(CONDITION_NO_WIND | CONDITION_SKILL_THROW), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
+	{ player_fire, 'f', "Sling which item? ", "You have nothing to sling around.",
+			is_known_throwing_item, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
+	{ player_fire, 'f', "Fire which arrow? ", "You have no arrows to fire.",
+			0, TV_ARROW, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
+	{ player_fire, 'f', "Fire which bolt? ", "You have no bolts to fire.",
+			0, TV_BOLT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
+	{ player_fire, 'f', "Fire which shot? ", "You have no shots to fire.",
+			0, TV_SHOT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_GUN_CHARGED), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+
+	{ player_cast, 'm', "Use which book? ", "You have nothing you have studied.",
+			inven_cast_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU),
+			(CONDITION_LITE | CONDITION_LITERATE | CONDITION_HOLD_SONG),
+			TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND) | TMD_CONDITION(TMD_AMNESIA), 0, NULL},
+
+	{ player_study, 'G', "Study which book? ", "You have no books that you can read.",
+			inven_book_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU),
+			(CONDITION_LITE | CONDITION_LITERATE | CONDITION_NEED_SPELLS),
+			TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND) | TMD_CONDITION(TMD_AMNESIA), 0, NULL},
+
+	{ player_browse, 'b', "Browse which book? ", "You have no books that you can browse.",
+			inven_book_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), (CONDITION_LITERATE), 0L, 0, NULL},
+
 };
+
+
+const familiar_type familiar_race[MAX_FAMILIARS] =
+{
+	{"", 0, 0, 0},
+	{ "monkey",	RBM_HIT, 54, 45 },
+	{ "cat",	RBM_BITE, 45, FAMILIAR_VISION },
+	{ "owl",	RBM_PECK, 46, FAMILIAR_VISION },
+	{ "mouse",	RBM_BITE, 56, FAMILIAR_SPEED },
+	{ "duck", 	RBM_PECK, 46, 42 },
+	{ "snake", 	RBM_BITE, FAMILIAR_BLOW, 37 },
+	{ "wolverine", RBM_CLAW, FAMILIAR_BLOW, 182},
+	{ "badger",	RBM_BUTT, 34, FAMILIAR_BLOW },
+	{ "rat",	RBM_BITE, 45, 42 },
+	{ "spider",	RBM_BITE, 45, 37 },
+	{ "mole",	RBM_CLAW, 34, FAMILIAR_VISION },
+	{ "ferret", RBM_BITE, 45,  FAMILIAR_VISION },
+	{ "bat", RBM_BITE, 46,  231 },
+	{ "hawk", RBM_CLAW, 46,  FAMILIAR_VISION },
+	{ "pig", RBM_BUTT, 53, FAMILIAR_VISION },
+	{ "dog", RBM_BITE, 53, FAMILIAR_VISION },
+	{ "toad", RBM_TOUCH, 84, FAMILIAR_VISION },
+	{ "frog", RBM_BITE, 42, FAMILIAR_VISION },
+	{ "goat", RBM_BUTT, 49, FAMILIAR_BLOW}
+};
+
+
+const familiar_ability_type familiar_ability[MAX_FAMILIAR_ABILITIES] =
+{
+	{"", 0, 0},
+
+		/* Pick 2 */
+	{"increase range of vision", FAMILIAR_VISION, 0},
+	{"become hidden to infravision", 37, 0},
+	{"swim", 42, 0},
+	{"dig through dirt and rubble", 34, 0},
+	{"climb walls and ceilings", 45, 0},
+	{"fit through narrow spaces", 72, 0},
+	{"eat body parts to recover health", 53, 0},
+	{"take items from the ground", 54, 0},
+	{"wear armour to protect against arrows and acid", 57, 0},
+
+		/* Pick 2 */
+	{"increase size", FAMILIAR_SIZE, 0},
+	{"bash through doors", 49, FAMILIAR_SIZE},
+	{"act sneaky", 56, 0},
+	{"open doors and disarm traps", 48, 54},
+	{"communicate with you silently", 74, 0},
+	{"resist blindess", 231, 0},
+	{"resist mental attack", 38, 0},
+	{"become harder to hit", FAMILIAR_AC, 0},
+	{"immunity to poison", 84, 0},
+
+		/* Pick 2 */
+	{"immunity to acid", 80, 0 },
+	{"immunity to electricity", 81, 0},
+	{"immunity to fire", 82, 0},
+	{"immunity to cold", 83, 0},
+	{"blink away", 164, 56},
+	{"turn temporarily invisible", 166, 56},
+	{"fly", 46, 45},
+	{"gain an additional attack", FAMILIAR_BLOW, 0},
+	{"radiate lite", 35, 0},
+
+		/* Pick 2 */
+	{"create darkness", 172, 0},
+	{"regenerate quickly", 41, 53},
+	{"go berserk", 182, 0},
+	{"haste itself", 160, 0},
+	{"bless itself", 181, 0},
+	{"cure itself of ills", 163, 0},
+	{"temporarily resist elemental damage", 184, 0},
+	{"make attack poisonous", FAMILIAR_BLOW + GF_POIS, FAMILIAR_BLOW},
+	{"replace attack with firing spikes", FAMILIAR_SPIKE, FAMILIAR_BLOW},
+
+	/* Pick 2 */
+	{"magically shield itself", 183, 0},
+	{"move invisibly", 36, 166},
+	{"magically probe an opponent", 186, 0},
+	{"cause hunger", 185, 0},
+	{"cause amnesia", 174, 0},
+	{"dispel magic on enemies", 177, 0},
+	{"make attack drain health", FAMILIAR_BLOW + GF_VAMP_DRAIN, FAMILIAR_BLOW + GF_POIS},
+	{"carry additional ammunition", 52, FAMILIAR_SPIKE},
+	{"increase hit points", FAMILIAR_HP, 0},
+
+		/* Pick 2 */
+	{"teleport away", 165, 164},
+	{"teleport itself to targets", 167, FAMILIAR_BLOW},
+	{"cause terror", 187, 0},
+	{"cause blindness", 188, 0},
+	{"cause confusion", 189, 0},
+	{"cause slowness", 190, 0},
+	{"cause illusions", 179,  0},
+	{"grow additional ammunition", 100, 52},
+	{"become faster", FAMILIAR_SPEED, 0},
+
+		/* Pick 2 */
+	{"create traps", 173, 56},
+	{"teleport enemies to itself", 168, 164},
+	{"curse enemies", 176, 0},
+	{"cause wounds", 180, 0},
+	{"blast the minds of enemies", 178, 0},
+	{"increase mana", FAMILIAR_MANA, 0},
+	{"heal itself", 162, 163},
+	{"resist edged weapons", 236, 37},
+	{"resist blunt weapons", 237, 37},
+
+		/* Pick 2 */
+	{"cast spells intelligently", 33, FAMILIAR_MANA},
+	{"add mana to itself", 161, FAMILIAR_MANA},
+	{"never miss when attacking", 225, 0},
+	{"assume wraith form", 171, 0},
+	{"resist teleportation", 235, 0},
+	{"breath acid",104, 80},
+	{"breath electricity",105, 81},
+	{"breath fire",106, 82},
+	{"breath cold",107, 83},
+
+		/* Pick 2 */
+	{"breath poison",108, 84},
+	{"pass through walls", 50, 171},
+	{"teleport enemies away", 169, 0},
+	{"drain mana from enemies", 175, 0},
+	{"cause paralysis", 191, 0},
+	{"increase spell attack damage", FAMILIAR_POWER, 0},
+	{"resist powerful light", 232, 35},
+	{"resist powerful darkness", 233, 172},
+	{"cast stinking cloud", 132, 0},
+
+		/* Pick 2 */
+	{"resist plasma", 88, 82},
+	{"resist nexus", 89, 0},
+	{"resist disenchantment", 90, 0},
+	{"resist chaos", 234, 0},
+	{"resist powerful water", 85, 42},
+	{"resist nether", 86, 0},
+	{"resist lava", 87, 82},
+	{"breath light",110, 232},
+	{"breath darkness",111, 233},
+
+		/* Pick 2 */
+	{"cast acid bolt", 144, 0},
+	{"cast lightning bolt", 145, 0},
+	{"cast fire bolt", 146, 0},
+	{"cast frost bolt", 147, 0},
+	{"cast poison bolt", 148, 0},
+	{"cast ice bolt", 149, 83},
+	{"cast water bolt", 149, 85},
+	{"cast mana bolt", 149, 0},
+	{"increase mana", FAMILIAR_MANA, 0},
+
+		/* Pick 2 */
+	{"cast acid ball", 128, 0},
+	{"cast lightning ball", 129, 0},
+	{"cast fire ball", 130, 0},
+	{"cast frost ball", 131, 0},
+	{"cast ball of light", 133, 0},
+	{"cast ball of darkness", 134, 0},
+	{"cast plasma bolt", 149, 88},
+	{"cast nether bolt", 149, 86},
+	{"increase spell attack damage", FAMILIAR_POWER, 0},
+
+	    /* Pick 2 */
+	{"resistance to magic", 242, 0},
+	{"immunity to edged weapons", 238, 236},
+	{"immunity to blunt weapons", 239, 237},
+	{"breath powerfully", 44, FAMILIAR_SIZE},
+	{"make attack drain mana", FAMILIAR_BLOW + GF_MANA_DRAIN, FAMILIAR_BLOW + GF_VAMP_DRAIN},
+	{"tunnel through walls", 51, 49},
+	{"increase size", FAMILIAR_SIZE, 0},
+	{"increase mana", FAMILIAR_MANA, 0},
+	{"increase spell attack damage", FAMILIAR_POWER, 0}
+};
+
+
+const timed_effect timed_effects[TMD_MAX] =
+{
+	{ "You feel temporarily stronger!", "You feel less strong.",
+			NULL, NULL,
+			"You are too strong.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily smarter!", "You feel less smart.",
+			NULL, NULL,
+			"You are too smart.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily wiser!", "You feel less wise.",
+			NULL, NULL,
+			"You are too wise.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily more dextrous!", "You feel less dextrous.",
+			NULL, NULL,
+			"You are too dextrous.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily healthier!", "You feel less healthy.",
+			NULL, NULL,
+			"You are too healthy.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily cuter!", "You feel less attractive.",
+			NULL, NULL,
+			"You are too healthy.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily more agile!", "You feel less agile.",
+			NULL, NULL,
+			"You are too agile.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily larger!", "You feel smaller again.",
+			NULL, NULL,
+			"You are too large.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily weaker!", "You feel less weak.",
+			NULL, NULL,
+			"You are too weak.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily stupider!", "You feel less stupid.",
+			NULL, NULL,
+			"You are too stupid.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily more naive!", "You feel less naive.",
+			NULL, NULL,
+			"You are too naive.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily more fumble fingered!", "You feel less fumble fingered.",
+			NULL, NULL,
+			"You are too fumble fingered.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily sicker!", "You feel less sick.",
+			NULL, NULL,
+			"You are too sick.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily uglier!", "You feel less ugly.",
+			NULL, NULL,
+			"You are too ugly.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily more clumsy!", "You feel less clumsy.",
+			NULL, NULL,
+			"You are too clumsy.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel temporarily smaller!", "You feel larger again.",
+			NULL, NULL,
+			"You are too small.",
+			PR_STATS, PU_BONUS, MSG_GENERIC },
+	{ "You feel yourself moving faster!", "You feel yourself slow down.",
+			NULL, NULL,
+			"You are moving too quickly.",
+			PR_SPEED, PU_BONUS, MSG_SPEED },
+	{ "You feel yourself moving slower!", "You feel yourself speed up.",
+			NULL, NULL,
+			"You are moving too slowly.",
+			PR_SPEED, PU_BONUS, MSG_SLOW },
+	{ "You are blind.", "You can see again.",
+			NULL, NULL,
+			"You can't see anything.",
+			(PR_MAP | PR_BLIND), PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS, MSG_BLIND },
+	{ "You are paralysed!", "You can move again.",
+			"You are more paralysed!", "You are less paralysed.",
+			"You are paralysed!",
+			PR_STATE, 0, MSG_PARALYZED },
+	{ "You are confused!", "You are no longer confused.",
+			"You are more confused!", "You feel a little less confused.",
+			"You are confused.",
+			PR_CONFUSED, 0, MSG_CONFUSED },
+	{ "You are terrified!", "You feel bolder now.",
+			"You are more scared!", "You feel a little less scared.",
+			"You are too terrified.",
+			PR_AFRAID, PU_BONUS, MSG_AFRAID },
+	{ "You feel drugged!", "You can see clearly again.",
+			"You feel more drugged!", "You feel less drugged.",
+			"You feel drugged.",
+			PR_MAP, 0, MSG_DRUGGED },
+	{ "You are poisoned!", "You are no longer poisoned.",
+			"You are more poisoned!", "You are less poisoned.",
+			"The poison prevents you.",
+			PR_POISONED, 0, MSG_POISONED },
+	{ NULL, NULL, NULL, NULL, NULL, 0, 0, 0 },  /* TMD_CUT -- handled seperately */
+	{ NULL, NULL, NULL, NULL, NULL, 0, 0, 0 },  /* TMD_STUN -- handled seperately */
+	{ "You feel unlucky.", "The curse has expired.",
+			NULL, NULL,
+			"Your luck has run out.",
+			PR_CURSED, PU_BONUS, MSG_GENERIC },
+	{ "You feel your memories fade.", "Your memories come flooding back.",
+			NULL, NULL,
+			"You have forgotten how.",
+			PR_AMNESIA, 0, MSG_GENERIC },
+	{ "You are petrified to the spot!", "You can move freely again.",
+			NULL, NULL,
+			"You are too petrified!",
+			PR_PETRIFY, 0, MSG_GENERIC },
+	{ "You are stuck in a time-loop!", "You can move again.",
+			NULL, NULL,
+			"You are trapped in a temporal anomaly.",
+			PR_STATE, 0, MSG_GENERIC },
+	{ "Your eyelids feel heavy.", "You no longer feel sleepy.",
+			NULL, NULL,
+			"You feel too drowsy.",
+			PR_STATE, 0, MSG_GENERIC },
+	{ "You feel drowsy.", "You wake up.",
+			NULL, NULL,
+			"You feel too drowsy.",
+			PR_STATE, 0, MSG_GENERIC },
+	{ "You feel safe from evil!", "You no longer feel safe from evil.",
+			"You feel even safer from evil!", "You feel less safe from evil.",
+			"You are protected from evil.",
+			0, 0, MSG_PROT_EVIL },
+	{ "You fade from view!", "You feel visible once more.",
+			NULL, NULL,
+			"You cannot be seen.",
+			0, PU_BONUS, MSG_INVULN },
+	{ "You feel like a hero!", "You no longer feel heroic.",
+			"You feel more like a hero!", "You feel less heroic.",
+			"A hero wouldn't do this.",
+			0, PU_BONUS, MSG_HERO },
+	{ "You feel like a killing machine!", "You no longer feel berserk.",
+			"You feel even more enraged!", "You feel less angry.",
+			"You are too enraged!",
+			0, PU_BONUS, MSG_BERSERK },
+	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.",
+			"The mystic shield strengthens.", "The mystic shield weakens.",
+			"The mystic shield prevents you.",
+			0, PU_BONUS, MSG_SHIELD },
+	{ "You feel righteous!", "The prayer has expired.",
+			"You feel more righteous!", "You feel less righteous.",
+			"You are too righteous.",
+			0, PU_BONUS, MSG_BLESSED },
+	{ "Your eyes feel very sensitive!", "Your no longer feel so sensitive.",
+			"Your eyes feel more sensitive!", "Your eyes feel less sensitive.",
+			"Your eyes are too sensitve.",
+			0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
+	{ "Your eyes begin to tingle!", "Your eyes stop tingling.",
+			"Your eyes' tingling intensifies.", "Your eyes tingle less.",
+			"Your eyes are too sensitive to heat.",
+			0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
+	{ "You feel resistant to acid!", "You are no longer resistant to acid.",
+			"You feel more resistant to acid!", "You feel less resistant to acid.",
+			"You cannot be hurt by this acid.",
+			0, 0, MSG_RES_ACID },
+	{ "You feel resistant to electricity!", "You are no longer resistant to electricity.",
+			"You feel more resistant to electricity!", "You feel less resistant to electricity.",
+			"You cannot be hurt by this electricity.",
+			0, 0, MSG_RES_ELEC },
+	{ "You feel resistant to fire!", "You are no longer resistant to fire.",
+			"You feel more resistant to fire!", "You feel less resistant to fire.",
+			"You cannot be hurt by this fire.",
+			0, 0, MSG_RES_FIRE },
+	{ "You feel resistant to cold!", "You are no longer resistant to cold.",
+			"You feel more resistant to cold!", "You feel less resistant to cold.",
+			"You cannot be hurt by this cold.",
+			0, 0, MSG_RES_COLD },
+	{ "You feel resistant to poison!", "You are no longer resistant to poison.",
+			"You feel more resistant to poison!", "You feel less resistant to poison.",
+			"You cannot be hurt by this poison.",
+			0, 0, MSG_RES_POIS },
+	{ NULL, NULL,
+			NULL, NULL,
+			"You cannot yet be hurt by this poison.",
+			PR_POISONED, 0, MSG_RES_POIS },
+	{ NULL, NULL,
+			NULL, NULL,
+			"Your metabolism is too slow.",
+			0, 0, MSG_GENERIC },
+	{ "You feel resistant to water!", "You are no longer resistant to water.",
+			"You feel more resistant to water!", "You feel less resistant to water.",
+			"You cannot be hurt by this water.",
+			0, 0, MSG_GENERIC },
+	{ "You feel resistant to lava!", "You are no longer resistant to lava.",
+			"You feel more resistant to lava!", "You feel less resistant to lava.",
+			"You cannot be hurt by this lava.",
+			0, 0, MSG_GENERIC },
+	{ "You feel resistant to confusion!", "You are no longer resistant to confusion.",
+			"You feel more resistant to confusion!", "You feel less resistant to confusion.",
+			"You cannot be hurt by this confusion.",
+			0, PU_BONUS, 0 },
+	{ "You feel as if you move more freely!", "You are no longer moving as freely.",
+			NULL, NULL,
+			"You cannot be hurt by this.",
+			0, PU_BONUS, 0 },
+	{ "Your mind expands.", "Your horizons are once more limited.",
+			"Your mind expands further.", NULL,
+			"Your mind is too open to further experience.",
+			0, PU_BONUS, MSG_GENERIC },
+	{ "Your skin turns to stone.", "A fleshy shade returns to your skin.",
+			NULL, NULL,
+			"Your skin is too rigid.",
+			0, PU_BONUS, MSG_GENERIC },
+	{ "You feel the need to run away, and fast!", "The urge to run dissipates.",
+			NULL, NULL,
+			"You are too terrified.",
+			0, PU_BONUS, MSG_AFRAID },
+	{ "You start sprinting.", "You suddenly stop sprinting.",
+			NULL, NULL,
+			"You are running too quickly",
+			0, PU_BONUS, MSG_SPEED },
+};
+
+
+const skill_table_entry skill_table[] =
+{
+		{SKILL_TO_HIT_MELEE, "Fighting", 12 },
+		{SKILL_TO_HIT_BOW, "Shooting", 12 },
+		{SKILL_TO_HIT_THROW, "Throwing", 12 },
+		{SKILL_STEALTH, "Stealth", 1},
+		{SKILL_SAVE, "Save Throw", 6},
+		{SKILL_DISARM, "Disarming", 6},
+		{SKILL_DEVICE, "Devices", 6},
+		{SKILL_SEARCH, "Searching", 6},
+		{SKILL_DIGGING, "Digging", 6},
+		{-1, "", 0}
+};
+

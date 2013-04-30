@@ -248,23 +248,23 @@ struct AngbandClassRec
  */
 static XtResource resources[] =
 {
-	{ XtNstartRows, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNstartRows, XtCValue, XtRInt, sizeof(int),
 	  offset(start_rows), XtRImmediate, (XtPointer) 24 },
-	{ XtNstartColumns, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNstartColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(start_columns), XtRImmediate, (XtPointer) 80 },
-	{ XtNminRows, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNminRows, XtCValue, XtRInt, sizeof(int),
 	  offset(min_rows), XtRImmediate, (XtPointer) 1 },
-	{ XtNminColumns, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNminColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(min_columns), XtRImmediate, (XtPointer) 1 },
-	{ XtNmaxRows, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNmaxRows, XtCValue, XtRInt, sizeof(int),
 	  offset(max_rows), XtRImmediate, (XtPointer) 24 },
-	{ XtNmaxColumns, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNmaxColumns, XtCValue, XtRInt, sizeof(int),
 	  offset(max_columns), XtRImmediate, (XtPointer) 80 },
-	{ XtNinternalBorder, XtCValue, XtRInt, sizeof(int),
+	{ (char*)XtNinternalBorder, XtCValue, XtRInt, sizeof(int),
 	  offset(internal_border), XtRImmediate, (XtPointer) 2 },
-	{ XtNfont, XtCFont, XtRString, sizeof(char *),
-	  offset(font), XtRString, DEFAULT_X11_FONT },
-	{ XtNredrawCallback, XtCCallback, XtRCallback, sizeof(XtPointer),
+	{ (char*)XtNfont, XtCFont, XtRString, sizeof(char *),
+	  offset(font), XtRString, (void*)DEFAULT_X11_FONT },
+	{ (char*)XtNredrawCallback, XtCCallback, XtRCallback, sizeof(XtPointer),
 	  offset(redraw_callbacks), XtRCallback, (XtPointer)NULL }
 };
 
@@ -531,6 +531,9 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
  */
 static void Initialize(AngbandWidget request, AngbandWidget wnew)
 {
+	/* Unused parameter */
+	(void)request;
+	
 	Display *dpy = XtDisplay(wnew);
 
 	int depth = DefaultDepthOfScreen(XtScreen((Widget) wnew));

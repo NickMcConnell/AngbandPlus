@@ -1367,7 +1367,7 @@ Space - cold snap, chain lightning, ball lightning, ball lightning ii, artic ray
 
 9th mage book: (Was just Destruction)
 Destruction - shockwave, cloud kill, acid ball, ice storm, meteor swarm, rift
-Immoliation - immoliation, fire ball iii, arc of hellfire, acid ball iii
+Immolation - immolation, fire ball iii, arc of hellfire, acid ball iii
 Annihilation - death fog, dragon's bane, fimbulwinter, chain lightning
 iii, ball lightning iii
 

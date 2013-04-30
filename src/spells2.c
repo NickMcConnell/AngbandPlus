@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -15,6 +15,186 @@
  */
 
 #include "angband.h"
+
+
+
+/*
+ * Apply a "project()" directly to all monsters.
+ *
+ * Note that affected monsters are NOT auto-tracked by this usage.
+ *
+ * PROJECT_PANEL limits the monsters to those within 2 * MAX_SIGHT
+ * PROJECT_ALL_IN_LOS limits monsters to those within line of fire and/or
+ *  line of sight if PROJECT_LOS is enabled.
+ */
+bool project_dist(int who, int what, int y0, int x0, int dam, int typ, u32b flg, u32b flg2)
+{
+	int i, x, y;
+
+	bool notice = FALSE;
+
+	bool player_hack = FALSE;
+
+	/* Projection can also pass through line of sight grids */
+	bool allow_los = (flg & (PROJECT_LOS)) != 0;
+
+	/* Origin is player */
+	if ((flg2 & (PR2_ALL_IN_LOS)) && (y0 == p_ptr->py) && (x0 == p_ptr->px)) player_hack = TRUE;
+
+	/* Affect all (nearby) monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only affect nearby monsters */
+		if ((flg2 & (PR2_PANEL)) && (distance(y0, x0, y, x) > 2 * MAX_SIGHT)) continue;
+
+		/* Require line of fire - from player */
+		if (player_hack)
+		{
+			if ((!player_can_fire_bold(y, x)) &&
+				((!allow_los) || !player_has_los_bold(y, x))) continue;
+		}
+		/* Require line of fire - from origin */
+		else if (flg2 & (PR2_ALL_IN_LOS))
+		{
+			if ((!generic_los(y0, x0, y, x, CAVE_XLOF)) &&
+				((!allow_los) || !generic_los(y0, x0, y, x, CAVE_XLOS))) continue;
+		}
+
+		/* Jump directly to the target monster */
+		if (project(who, what, 0, 0, y, x, y, x, dam, typ, flg, 0, 10)) notice = TRUE;
+	}
+
+	/* Affect player? */
+	if ((player_hack) || (generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOF)) ||
+			((allow_los) && generic_los(y0, x0, p_ptr->py, p_ptr->px, CAVE_XLOS)))
+	{
+		/* Jump directly to the player */
+		if (project(who, what, 0, 0, p_ptr->py, p_ptr->px, p_ptr->py, p_ptr->px, dam, typ, flg, 0, 10)) notice = TRUE;
+	}
+
+	/* Result */
+	return (notice);
+}
+
+/*
+ * Generates the familiar attributes
+ */
+void generate_familiar(void)
+{
+	int i;
+	int blow = 0;
+	int size = 1;
+	monster_race *r_ptr = &r_info[FAMILIAR_IDX];
+
+	COPY(r_ptr, &r_info[FAMILIAR_BASE_IDX], monster_race);
+
+	/* Hack - familiars don't level like regular monsters */
+	r_ptr->flags9 &= ~(RF9_LEVEL_CLASS | RF9_LEVEL_SPEED | RF9_LEVEL_POWER | RF9_LEVEL_AGE | RF9_LEVEL_SIZE);
+
+	/* Familiar not yet defined */
+	if (!p_ptr->familiar) return;
+
+	/* Generate the familiar attributes */
+	for (i = 0; p_ptr->familiar_attr[i]; i++)
+	{
+		int attr = p_ptr->familiar_attr[i];
+
+		/* Hack -- add a flag */
+		if (attr < FAMILIAR_AC)
+		{
+			if (attr < 32) r_ptr->flags1 |= (1 << attr);
+			else if (attr < 64) r_ptr->flags2 |= (1 << (attr - 32));
+			else if (attr < 96) r_ptr->flags3 |= (1 << (attr - 64));
+			else if (attr < 128) { r_ptr->flags4 |= (1 << (attr - 96)); r_ptr->freq_innate += 10; }
+			else if (attr < 160) { r_ptr->flags5 |= (1 << (attr - 128)); r_ptr->freq_spell += 15;}
+			else if (attr < 192) { r_ptr->flags6 |= (1 << (attr - 160)); r_ptr->freq_spell += 15;}
+			else if (attr < 224) { r_ptr->flags7 |= (1 << (attr - 192)); r_ptr->freq_spell += 15;}
+			else if (attr < 256) r_ptr->flags8 |= (1 << (attr - 224));
+			else r_ptr->flags9 |= (1 << (attr - 256));
+
+			/* Hack -- ensure minimal mana */
+			if ((attr >= 96) && (attr <= 224)) r_ptr->mana += method_info[attr].mana_cost;
+		}
+		/* Add other attributes */
+		else
+		{
+			switch(p_ptr->familiar_attr[i])
+			{
+				case FAMILIAR_AC:
+					r_ptr->ac += 25;
+					break;
+				case FAMILIAR_SPEED:
+					r_ptr->speed += 10;
+					break;
+				case FAMILIAR_POWER:
+					r_ptr->spell_power += p_ptr->max_lev;
+					break;
+				case FAMILIAR_HP:
+					r_ptr->hp += 2;
+					break;
+				case FAMILIAR_VISION:
+					r_ptr->aaf *= 2;
+					break;
+				case FAMILIAR_SIZE:
+					r_ptr->hp += 5;
+					size++;
+					break;
+				case FAMILIAR_MANA:
+					r_ptr->mana += 10;
+					break;
+				case FAMILIAR_BLOW:
+					if (blow < 4)
+					{
+						r_ptr->blow[blow].d_dice = 1;
+						r_ptr->blow[blow].d_side = p_ptr->max_lev / 3;
+						r_ptr->blow[blow].method = familiar_race[p_ptr->familiar].method;
+						r_ptr->blow[blow++].effect = GF_HURT;
+					}
+					r_ptr->flags1 &= ~(RF1_NEVER_BLOW);
+					break;
+				case FAMILIAR_SPIKE:
+					r_ptr->blow[blow-1].method = RBM_SPIKE;
+					r_ptr->flags4 |= (1 << blow);
+					r_ptr->freq_innate += 25;
+					break;
+				default:
+					r_ptr->blow[blow-1].effect = p_ptr->familiar_attr[i] - FAMILIAR_BLOW;
+					break;
+			}
+		}
+	}
+
+	/* Fix up blow damage based on size */
+	for (i = 0; i < blow; i++)
+	{
+		r_ptr->blow[blow].d_dice *= size;
+	}
+
+	/* Fix up speed based on size */
+	r_ptr->speed = 100 + (r_ptr->speed - 100) / size;
+
+	/* Increase hit points at every level */
+	r_ptr->hp *= p_ptr->max_lev;
+
+	/* Increase mana somewhat */
+	if (p_ptr->max_lev > 15) r_ptr->mana += r_ptr->mana * p_ptr->max_lev / 15;
+
+	/* Fix up attack frequencies */
+	if (r_ptr->freq_innate > 90) r_ptr->freq_innate = 90;
+	if (r_ptr->freq_spell > 90) r_ptr->freq_spell = 90;
+
+	/* Set level for blood debt */
+	r_ptr->level = p_ptr->max_lev;
+}
 
 
 
@@ -95,6 +275,7 @@ void warding_glyph(void)
 	cave_set_feat(py, px, FEAT_GLYPH);
 }
 
+
 /*
  * Leave a "trap" which affects those moving on it
  */
@@ -142,7 +323,7 @@ static cptr desc_stat_neg[] =
 	"clumsy",
 	"sickly",
 	"ugly",
-	"slugish",
+	"sluggish",
 	"small"
 };
 
@@ -496,18 +677,18 @@ void self_knowledge_aux(bool spoil, bool random)
 	int vn;
 
 	bool healthy = TRUE;
-
-	if (p_ptr->blind)
+#if 0
+	if (p_ptr->timed[TMD_BLIND])
 	{
 		text_out("You cannot see.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->confused)
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		text_out("You are confused.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->afraid)
+	if (p_ptr->timed[TMD_AFRAID])
 	{
 		text_out("You are terrified.  ");
 		healthy = FALSE;
@@ -517,17 +698,17 @@ void self_knowledge_aux(bool spoil, bool random)
 		text_out("You are bleeding.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->stun)
+	if (p_ptr->timed[TMD_STUN])
 	{
 		text_out("You are stunned.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->poisoned)
+	if (p_ptr->timed[TMD_POISONED])
 	{
 		text_out("You are poisoned.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->image)
+	if (p_ptr->timed[TMD_IMAGE])
 	{
 		text_out("You are hallucinating.  ");
 		healthy = FALSE;
@@ -537,7 +718,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		text_out("You are suffering from amnesia.  ");
 		healthy = FALSE;
 	}
-	if (p_ptr->cursed)
+	if (p_ptr->timed[TMD_CURSED])
 	{
 		text_out("You are cursed.  ");
 		healthy = FALSE;
@@ -552,7 +733,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		text_out("You are petrified.  ");
 		healthy = FALSE;
 	}
-
+#endif
 	if (p_ptr->disease)
 	{
 		char output[1024];
@@ -642,20 +823,20 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("You suffer from no afflictions.  ");
 	}
-
-	if (p_ptr->blessed)
+#if 0
+	if (p_ptr->timed[TMD_BLESSED])
 	{
 		text_out("You feel rightous.  ");
 	}
-	if (p_ptr->hero)
+	if (p_ptr->timed[TMD_HERO])
 	{
 		text_out("You feel heroic.  ");
 	}
-	if (p_ptr->shero)
+	if (p_ptr->timed[TMD_BERSERK])
 	{
 		text_out("You are in a battle rage.  ");
 	}
-	if ((p_ptr->protevil) || (p_ptr->shield) || (p_ptr->hero) || (p_ptr->shero))
+	if ((p_ptr->protevil) || (p_ptr->shield) || (p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_BERSERK]))
 	{
 
 		text_out("You are protected ");
@@ -664,7 +845,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		vn = 0;
 
 		if (p_ptr->protevil) vp[vn++]="from evil";
-		if ((p_ptr->hero) || (p_ptr->shero)) vp[vn++]="from fear";
+		if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_BERSERK])) vp[vn++]="from fear";
 		if (p_ptr->shield) vp[vn++]="by a mystic sheild";
 
 		/* Scan */
@@ -682,7 +863,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		if (n) text_out(".  ");
 
 	}
-
+#endif
 	if (p_ptr->climbing)
 	{
 		text_out("You are climbing over an obstacle.  ");
@@ -705,7 +886,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out("You will soon be returned to a nearby location.  ");
 	}
-
+#if 0
 	/* Hack -- timed abilities that may also be from equipment */
 	if (p_ptr->tim_infra)
 	{
@@ -722,7 +903,7 @@ void self_knowledge_aux(bool spoil, bool random)
 	vn = 0;
 
 	if (p_ptr->invis) vp[vn++] = "invisible";
-	if (p_ptr->free_act) vp[vn++] = "protected from paralysis and magical slowing";
+	if (p_ptr->timed[TMD_FREE_ACT]) vp[vn++] = "protected from paralysis and magical slowing";
 
 	for (n = 0; n < A_CHR; n++)
 	{
@@ -779,52 +960,37 @@ void self_knowledge_aux(bool spoil, bool random)
 	{
 		text_out(".  ");
 	}
-
+#endif
 	text_out("\n");
-
-	/* Hack -- racial effects */
-	if ((!random) && (rp_ptr->flags1 || rp_ptr->flags2 || rp_ptr->flags3 || rp_ptr->flags4))
-	{
-		text_out("Your race affects you.  ");
-
-		list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags4, 1, 1);
-
-		text_out("\n");
-	}
 
 	/* Get player flags */
 	player_flags(&t1,&t2,&t3,&t4);
 
-	/* Eliminate race flags */
-	t1 &= ~(rp_ptr->flags1);
-	t2 &= ~(rp_ptr->flags2);
-	t3 &= ~(rp_ptr->flags3);
-	t4 &= ~(rp_ptr->flags4);
-
-	/* Hack -- shape effects */
-	if (p_ptr->prace != p_ptr->pshape)
+	/* Hack -- race / shape effects */
+	if (!random)
 	{
-		player_race *shape_ptr = &p_info[p_ptr->pshape];
 		bool intro = FALSE;
-		
+
+		object_flags(&inventory[INVEN_SELF], &f1, &f2, &f3, &f4);
+
 		/* Hack -- shape flags */
-		if ((!random) && (shape_ptr->flags1 || shape_ptr->flags2 || shape_ptr->flags3 || shape_ptr->flags4))
+		if ((!random) && (f1 || f2 || f3 || f4))
 		{
-			if (!intro) text_out("Your shape affects you.  ");
+			if (!intro) text_out(format("Your %s affects you.  ", p_ptr->prace != p_ptr->pshape ? "shape" : "race"));
 
 			intro = TRUE;
 
-			list_object_flags(shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags1,shape_ptr->flags4, 1, 1);
+			list_object_flags(f1, f2, f3, f4, 1, 1);
 		}
 
 		/* Intro? */
 		if (intro) text_out("\n");
 
 		/* Eliminate shape flags */
-		t1 &= ~(shape_ptr->flags1);
-		t2 &= ~(shape_ptr->flags2);
-		t3 &= ~(shape_ptr->flags3);
-		t4 &= ~(shape_ptr->flags4);
+		t1 &= ~(f1);
+		t2 &= ~(f2);
+		t3 &= ~(f3);
+		t4 &= ~(f4);
 	}
 
 	/* Hack -- class effects */
@@ -899,13 +1065,13 @@ void self_knowledge_aux(bool spoil, bool random)
 		if (t1 || t2 || t3 || t4)
 		{
 			text_out("Your weapon has special powers.  ");
-	
+
 			list_object_flags(t1,t2,t3,t4,o_ptr->pval, 1);
 
 			if (spoil)
-			{	
+			{
 				object_can_flags(o_ptr,t1,t2,t3,t4, FALSE);
-	
+
 				object_not_flags(o_ptr,TR1_WEAPON_FLAGS & ~(t1),TR2_WEAPON_FLAGS & ~(t2),TR3_WEAPON_FLAGS & ~(t3), TR4_WEAPON_FLAGS & ~(t4), FALSE);
 			}
 
@@ -959,7 +1125,7 @@ void self_knowledge(bool spoil)
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
-	
+
 	/* Head the screen */
 	text_out_c(TERM_L_BLUE, "Self-knowledge\n");
 
@@ -1052,14 +1218,14 @@ void set_recall(void)
 			do_cmd_save_bkp();
 
 		/* Reset recall depth */
-		if (p_ptr->depth > min_depth(p_ptr->dungeon) 
+		if (p_ptr->depth > min_depth(p_ptr->dungeon)
 			 && p_ptr->depth != t_info[p_ptr->dungeon].attained_depth)
 		{
 			 if (get_check("Reset recall depth? "))
 				 t_info[p_ptr->dungeon].attained_depth = p_ptr->depth;
 		}
 
-		p_ptr->word_recall = rand_int(20) + 15;
+		p_ptr->word_recall = (s16b)rand_int(20) + 15;
 		msg_print("The air about you becomes charged...");
 	}
 
@@ -1139,6 +1305,60 @@ retry:
 	/* Result */
 	return (detect);
 }
+
+
+/*
+ * Detect all features on current panel
+ */
+bool detect_feat_blows(int effect, int r, bool *known)
+{
+	int y, x;
+
+	bool detect = FALSE;
+
+retry:
+	/* Scan the grids out to radius */
+	for (y = MAX(p_ptr->py - r, 0); y < MIN(p_ptr->py + r, DUNGEON_HGT); y++)
+	{
+		for (x = MAX(p_ptr->px - r, 0); x < MIN(p_ptr->px+r, DUNGEON_WID); x++)
+		{
+			/* Check distance */
+			if (distance(p_ptr->py, p_ptr->px, y, x) > r) continue;
+
+			/* Detect blow match */
+			if (f_info[cave_feat[y][x]].blow.effect == effect)
+			{
+				/* Detect secrets */
+				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
+				{
+					/*Find secrets*/
+					cave_alter_feat(y,x,FS_SECRET);
+				}
+
+				/* Hack -- Memorize */
+				play_info[y][x] |= (PLAY_MARK);
+
+				/* Redraw */
+				lite_spot(y, x);
+
+				/* Obvious */
+				detect = TRUE;
+			}
+		}
+	}
+
+	/* Was unknown */
+	if (detect && !(*known))
+	{
+		*known = TRUE;
+
+		goto retry;
+	}
+
+	/* Result */
+	return (detect);
+}
+
 
 
 /*
@@ -1226,22 +1446,9 @@ bool detect_objects_normal(void)
 			/* Hack -- memorize it */
 			if (!auto_pickup_ignore(o_ptr)) o_ptr->ident |= (IDENT_MARKED);
 
-			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-			if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
-			{
-				object_aware_tips(o_ptr->k_idx);
+			/* Get awareness */
+			object_aware_tips(o_ptr, TRUE);
 
-				k_info[o_ptr->k_idx].aware = TRUE;
-			}
-
-			/* XXX XXX - Mark monster objects as "seen" */
-			if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights))
-			{
-				l_list[o_ptr->name3].sights++;
-				
-				queue_tip(format("look%d.txt", o_ptr->name3));
-			}
-			
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -1322,7 +1529,7 @@ int value_check_aux3(const object_type *o_ptr)
 	}
 
 	/* Great "armor" bonus */
-	if (o_ptr->to_a > MAX(7, o_ptr->ac)) 
+	if (o_ptr->to_a > MAX(7, o_ptr->ac))
 	  return (INSCRIP_GREAT);
 
 	/* Great to_h bonus */
@@ -1411,16 +1618,16 @@ int value_check_aux4(const object_type *o_ptr)
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
 	/* Broken items */
-	if (o_ptr->feeling == INSCRIP_BROKEN) 
+	if (o_ptr->feeling == INSCRIP_BROKEN)
 		return (INSCRIP_BROKEN);
-	else if (broken_p(o_ptr)) 
+	else if (broken_p(o_ptr))
 		return (INSCRIP_UNCURSED);
 
 	/* Known to be unusual */
 	if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_MAGICAL);
 
 	/* FIXME: I've added the to_* check because it was wrong without it */
-	if (o_ptr->to_h + o_ptr->to_d <= 0 
+	if (o_ptr->to_h + o_ptr->to_d <= 0
 	    && o_ptr->feeling == INSCRIP_UNCURSED)
 	  return(INSCRIP_AVERAGE);
 
@@ -1438,7 +1645,7 @@ int value_check_aux5(const object_type *o_ptr)
 	if ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)
 		|| (o_ptr->feeling == INSCRIP_GREAT)
 		|| (o_ptr->feeling == INSCRIP_SUPERB) || (o_ptr->feeling == INSCRIP_SPECIAL)
-		|| (o_ptr->feeling == INSCRIP_ARTIFACT) || (o_ptr->feeling == INSCRIP_EGO_ITEM)		
+		|| (o_ptr->feeling == INSCRIP_ARTIFACT) || (o_ptr->feeling == INSCRIP_EGO_ITEM)
 		|| (o_ptr->feeling == INSCRIP_TERRIBLE) || (o_ptr->feeling == INSCRIP_WORTHLESS)
 		|| (o_ptr->feeling == INSCRIP_CURSED)|| (o_ptr->feeling == INSCRIP_HIGH_EGO_ITEM)) return (0);
 
@@ -1507,13 +1714,13 @@ static bool item_tester_magic(const object_type *o_ptr)
 {
 	/* Exclude cursed or broken */
 	if (cursed_p(o_ptr) || broken_p(o_ptr)) return (FALSE);
-	
+
 	/* Include artifacts and ego items */
 	if (artifact_p(o_ptr) || ego_item_p(o_ptr)) return (TRUE);
-	
+
 	/* Include magic items */
 	if ((o_ptr->xtra1) && (o_ptr->xtra1 < OBJECT_XTRA_MIN_COATS)) return (TRUE);
-	
+
 	/* Artifacts, misc magic items, or enchanted wearables */
 	switch (o_ptr->tval)
 	{
@@ -1531,10 +1738,10 @@ static bool item_tester_magic(const object_type *o_ptr)
 		case TV_STUDY:
 			return (TRUE);
 	}
-	
-	/* Positive bonuses */		
+
+	/* Positive bonuses */
 	if ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)) return (TRUE);
-	
+
 	return (FALSE);
 }
 
@@ -1545,7 +1752,7 @@ static bool item_tester_power(const object_type *o_ptr)
 {
 	/* Include cursed or broken */
 	if (cursed_p(o_ptr) || broken_p(o_ptr)) return (TRUE);
-	
+
 	/* Otherwise magic */
 	return (item_tester_magic(o_ptr));
 }
@@ -1569,7 +1776,7 @@ static bool item_tester_cursed(const object_type *o_ptr)
  * This will light up all spaces with items matching a tester function
  * as well as senses all objects in the inventory using a particular
  * type of sensing function.
- * 
+ *
  * If ignore_feeling is set, it'll treat a feeling of that value
  * as not inducing detection.
  *
@@ -1681,6 +1888,26 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 
 
 
+static int monster_race_hook = 0;
+
+
+/*
+ * Hook to specify a single race of monster;
+ */
+static bool monster_tester_hook_single(const int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	/* Don't detect invisible monsters */
+	if (monster_race_hook == m_ptr->r_idx)
+	{
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
 /*
  * Hook to specify "normal (non-invisible)" monsters
  */
@@ -1779,7 +2006,7 @@ static bool monster_tester_hook_water(const int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Detect all magic monsters */
+	/* Detect all watery monsters */
 	if (r_ptr->flags3 & (RF3_HURT_WATER))
 	{
 		return (TRUE);
@@ -1828,6 +2055,30 @@ static bool monster_tester_hook_mental(const int m_idx)
 
 	return (TRUE);
 }
+
+
+/*
+ * Hook to specify "fiery" monsters
+ */
+static bool monster_tester_hook_fire(const int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	int i;
+
+	for (i = 0; i < 4; i++)
+	{
+		int effect = r_ptr->blow[i].effect;
+
+		if ((effect == GF_FIRE) || (effect == GF_SMOKE) || (effect == GF_LAVA))
+			return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
 
 
 /*
@@ -1924,7 +2175,7 @@ void place_quest_stairs(int y, int x)
 	if (level_flag & (LF1_TOWER))
 	{
 		cave_set_feat(y, x, FEAT_LESS);
-	}		
+	}
 
 	/* Surface -- place entrance if outside */
 	else if (outside)
@@ -2009,13 +2260,13 @@ bool concentrate_water_hook(const int y, const int x, const bool modify)
 
 	/* Not modifying yet */
 	if (!modify) return (TRUE);
-	
+
 	/* From lower water in spells1.c */
 	if (prefix(f_name+f_ptr->name,"stone bridge"))
 	{
 		/* Hack -- change bridges to prevent exploits */
 		cave_set_feat(y, x, FEAT_BRIDGE_CHASM);
-		
+
 		/* Notice any changes */
 		if (player_can_see_bold(y,x)) return (TRUE);
 	}
@@ -2046,7 +2297,7 @@ bool concentrate_life_hook(const int y, const int x, const bool modify)
 
 	/* Not modifying yet */
 	if (!modify) return (TRUE);
-	
+
 	/* Kill it */
 	cave_alter_feat(y,x,FS_LIVING);
 
@@ -2103,10 +2354,10 @@ bool concentrate_light_hook(const int y, const int x, const bool modify)
  * Allow use by both the character and monsters.
  *
  * Adapted from Sangband implementation of concentrate_light.
- * 
+ *
  * TODO: Consider only altering the target terrain if the caster
  * is 'evil'.
- * 
+ *
  * -DarkGod-, -LM-
  */
 int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
@@ -2114,7 +2365,7 @@ int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
 {
 	int power = 0;
 	int y, x, r;
-	
+
 	bool changes = FALSE;
 
 	/* Hack -- Flush any pending output */
@@ -2157,7 +2408,7 @@ int concentrate_power(int y0, int x0, int radius, bool for_real, bool use_los,
 				}
 			}
 		}
-		
+
 #if 0
 		/* Graphics */
 		if ((for_real) && (changes) && (op_ptr->delay_factor))
@@ -2594,7 +2845,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	if (!res) return (FALSE);
 
 	/* Hack --- unsense the item */
-	o_ptr->ident &= ~(IDENT_SENSE);	
+	o_ptr->ident &= ~(IDENT_SENSE);
 
 	/* Remove special inscription, if any */
 	o_ptr->feeling = 0;
@@ -2690,7 +2941,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
-	
+
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -2864,10 +3115,10 @@ bool brand_item(int brand, cptr act)
 			if (inven_carry_okay(o_ptr)) inven_carry(o_ptr);
 			else drop_near(o_ptr,0,p_ptr->py,p_ptr->px);
 		}
-	
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
-	
+
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -3183,7 +3434,7 @@ bool ident_spell_sense(void)
 	/* Sense non-wearable items */
 	if (!feel)
 	{
-		int i, j;
+		int i, j, k;
 
 		/* Check bags */
 		for (i = 0; i < SV_BAG_MAX_BAGS; i++)
@@ -3192,13 +3443,36 @@ bool ident_spell_sense(void)
 		for (j = 0; j < INVEN_BAG_TOTAL; j++)
 		{
 			if ((bag_holds[i][j][0] == o_ptr->tval)
-				&& (bag_holds[i][j][1] == o_ptr->sval)) 
+				&& (bag_holds[i][j][1] == o_ptr->sval))
 			  {
 			    o_ptr->feeling = MAX_INSCRIP + i;
-			    feel = 1; 
+			    feel = 1;
+
+			    if (object_aware_p(o_ptr)) k_info[o_ptr->k_idx].aware |= (AWARE_SENSE);
+			    else if (k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware |= (AWARE_SENSEX);
+
+			    /* Mark all such objects sensed */
+			    /* Check world */
+			    for (k = 0; k < o_max; k++)
+			    {
+					if ((o_list[k].k_idx == o_ptr->k_idx) && !(o_list[k].feeling))
+					{
+						o_list[k].feeling = o_ptr->feeling;
+					}
+			    }
+
+				/* Check inventory */
+				for (k = 0; k < INVEN_TOTAL; k++)
+				{
+					if ((inventory[k].k_idx == o_ptr->k_idx) && !(inventory[k].feeling))
+					{
+						inventory[k].feeling = o_ptr->feeling;
+					}
+				}
+
 			  }
 		}
-	} 
+	}
 	else
 	  o_ptr->feeling = feel;
 
@@ -3423,7 +3697,6 @@ bool ident_spell_runes(void)
 
 	cptr q, s;
 
-
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unknown_runes;
 
@@ -3457,6 +3730,12 @@ bool ident_spell_runes(void)
 	/* Identify it's bonuses */
 	o_ptr->ident |= (IDENT_RUNES);
 
+	/* Make the object aware if player knows the rune recipe */
+	if (k_info[o_ptr->k_idx].aware & (AWARE_RUNES))
+	{
+		object_aware(o_ptr, item < 0);
+	}
+
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
@@ -3475,6 +3754,45 @@ bool ident_spell_runes(void)
 	{
 		msg_format("On the ground: %s.",
 			   o_name);
+	}
+
+	/* Learn the rune recipe if the object is aware */
+	if (object_aware_p(o_ptr))
+	{
+		k_info[o_ptr->k_idx].aware |= (AWARE_RUNES);
+	}
+	/* Otherwise associate flavor with the object */
+	else if (k_info[o_ptr->k_idx].flavor)
+	{
+		int k;
+
+		k_info[o_ptr->k_idx].aware |= (AWARE_RUNEX);
+
+	    /* Mark all such objects sensed */
+	    /* Check world */
+	    for (k = 0; k < o_max; k++)
+	    {
+			if (o_list[k].k_idx == o_ptr->k_idx)
+			{
+				o_list[k].ident |= (IDENT_RUNES);
+			}
+	    }
+
+		/* Check inventory */
+		for (k = 0; k < INVEN_TOTAL; k++)
+		{
+			if (inventory[k].k_idx == o_ptr->k_idx)
+			{
+				inventory[k].ident |= (IDENT_RUNES);
+			}
+		}
+	}
+
+	/* Add ego item rune awareness */
+	if ((object_named_p(o_ptr)) && (o_ptr->name2))
+	{
+		/* Learn ego runes */
+		e_info[o_ptr->name2].aware |= (AWARE_RUNES);
 	}
 
 	/* Something happened */
@@ -3565,8 +3883,8 @@ bool ident_spell_rumor(void)
 	/* Remove known flags */
 	f1 &= ~(o_ptr->can_flags1);
 	f2 &= ~(o_ptr->can_flags2);
-	f3 &= ~(o_ptr->can_flags3); 
-	f4 &= ~(o_ptr->can_flags4); 
+	f3 &= ~(o_ptr->can_flags3);
+	f4 &= ~(o_ptr->can_flags4);
 
 	/* We know everything? */
 	done = ((f1 | f2 | f3 | f4) ? FALSE : TRUE);
@@ -3667,7 +3985,7 @@ bool ident_spell_rumor(void)
 		list_object_flags(f1, f2, f3, f4, o_ptr->ident & (IDENT_PVAL | IDENT_MENTAL | IDENT_KNOWN) ? o_ptr->pval : 0, 1);
 
 		(void)anykey();
-	
+
 		/* Load screen */
 		screen_load();
 	}
@@ -4036,7 +4354,7 @@ bool recharge(int num)
 			t = (num / (lev + 2)) + 1;
 
 			/* Recharge based on the power */
-			if (t > 0) o_ptr->charges += 2 + randint(t);
+			if (t > 0) o_ptr->charges += 2 + (s16b)randint(t);
 
 			/* Hack -- we no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
@@ -4064,42 +4382,6 @@ bool recharge(int num)
 }
 
 
-/*
- * Apply a "project()" directly to all viewable monsters
- *
- * Note that affected monsters are NOT auto-tracked by this usage.
- */
-static bool project_hack(int who, int what, int typ, int dam)
-{
-	int i, x, y;
-
-	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE | PROJECT_PLAY | PROJECT_ITEM | PROJECT_GRID;
-
-	bool obvious = FALSE;
-
-
-	/* Affect all (nearby) monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Require line of sight */
-		if (!player_has_los_bold(y, x)) continue;
-
-		/* Jump directly to the target monster */
-		if (project(who, what, 0, y, x, y, x, dam, typ, flg, 0, 10)) obvious = TRUE;
-	}
-
-	/* Result */
-	return (obvious);
-}
 
 
 
@@ -4220,7 +4502,7 @@ bool mass_banishment(int who, int what, int y, int x)
 			p_ptr->leaving = TRUE;
 		}
 	}
-	
+
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
@@ -4255,182 +4537,10 @@ bool mass_banishment(int who, int what, int y, int x)
 
 
 /*
- * The spell of destruction
- *
- * This spell "deletes" monsters (instead of "killing" them).
- *
- * Later we may use one function for both "destruction" and
- * "earthquake" by using the "full" to select "destruction".
- */
-void destroy_area(int y1, int x1, int r, bool full)
-{
-	int y, x, k, t;
-
-	bool flag = FALSE;
-
-	/* Prevent compiler warning */
-	(void)full;
-
-	/* Big area of affect */
-	for (y = (y1 - r); y <= (y1 + r); y++)
-	{
-		for (x = (x1 - r); x <= (x1 + r); x++)
-		{
-			/* Skip illegal grids */
-			if (!in_bounds_fully(y, x)) continue;
-
-			/* Extract the distance */
-			k = distance(y1, x1, y, x);
-
-			/* Stay in the circle of death */
-			if (k > r) continue;
-
-			/* Lose room and vault */
-			cave_info[y][x] &= ~(CAVE_ROOM);
-
-			/* Lose light */
-			cave_info[y][x] &= ~(CAVE_GLOW);
-
-			/* Lose knowledge */
-			play_info[y][x] &= ~(PLAY_MARK);
-
-			/* Hack -- Notice player affect */
-			if (cave_m_idx[y][x] < 0)
-			{
-				/* Hurt the player later */
-				flag = TRUE;
-
-				/* Do not hurt this grid */
-				continue;
-			}
-
-			/* Hack -- Skip the epicenter */
-			if ((y == y1) && (x == x1)) continue;
-
-			/* Delete the monster (if any) */
-			delete_monster(y, x);
-
-			/* Destroy "outside" grids */
-			if ((cave_valid_bold(y,x)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
-			{
-				/* Delete objects */
-				delete_object(y, x);
-
-				/* Burn stuff */
-				if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-				{
-					cave_alter_feat(y,x,FS_HURT_FIRE);
-				}
-				/* Chasm */
-				else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
-				{
-					/* Nothing */
-				}
-				/* Rubble */
-				else if (rand_int(100) < 15)
-				{
-					/* Create magma vein */
-					cave_set_feat(y,x,FEAT_RUBBLE);
-				}
-
-			}
-			/* Destroy "valid" grids */
-			else if (cave_valid_bold(y, x))
-			{
-				int feat = FEAT_FLOOR;
-
-				/* Delete objects */
-				delete_object(y, x);
-
-				/* Wall (or floor) type */
-				t = rand_int(200);
-
-				/* Burn stuff */
-				if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-				{
-					feat = feat_state(cave_feat[y][x], FS_HURT_FIRE);
-				}
-
-				/* Granite */
-				else if (t < 20)
-				{
-					/* Create granite wall */
-					feat = FEAT_WALL_EXTRA;
-				}
-
-				/* Quartz */
-				else if (t < 70)
-				{
-					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
-				}
-
-				/* Magma */
-				else if (t < 100)
-				{
-					/* Create magma vein */
-					feat = FEAT_MAGMA;
-				}
-
-				/* Rubble */
-				else if (t < 130)
-				{
-					/* Create magma vein */
-					feat = FEAT_RUBBLE;
-				}
-
-				/* Change the feature */
-				cave_set_feat(y, x, feat);
-			}
-		}
-	}
-
-
-	/* Hack -- Affect player */
-	if (flag)
-	{
-		/* Message */
-		msg_print("There is a searing blast of light!");
-
-		/* Blind the player */
-		if ((p_ptr->cur_flags2 & (TR2_RES_BLIND | TR2_RES_LITE)) == 0)
-		{
-			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint(10));
-
-			/* Always notice */
-			equip_not_flags(0x0L,TR2_RES_BLIND,0x0L,0x0L);
-
-			/* Always notice */
-			equip_not_flags(0x0L,TR2_RES_LITE,0x0L,0x0L);
-		}
-		else
-		{
-			/* Sometimes notice */
-			if (((p_ptr->cur_flags2 & (TR2_RES_BLIND)) != 0) && (rand_int(100)<50)) equip_can_flags(0x0L,TR2_RES_BLIND,0x0L,0x0L);
-
-			/* Sometimes notice */
-			if (((p_ptr->cur_flags2 & (TR2_RES_LITE)) != 0) && (rand_int(100)<50)) equip_can_flags(0x0L,TR2_RES_LITE,0x0L,0x0L);
-		}
-	}
-
-
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
-}
-
-
-/*
  * Entomb a player or monster in a location known to be impassable.
  *
  * Players take a lot of damage.
- * 
+ *
  * Monsters will take damage, and "jump" into a safe grid if possible,
  * otherwise they will be "buried" in the rubble, disappearing from
  * the level in the same way that they do when banished.
@@ -4447,7 +4557,7 @@ void destroy_area(int y1, int x1, int r, bool full)
  * grid to prevent monsters getting hit twice by earthquakes.
  *
  * XXX Consider passing a damage value and/or flavor so that getting
- * stuck in ice is different from granite wall is different from 
+ * stuck in ice is different from granite wall is different from
  * (impassable) rubble. Of course, we could just pull this from the
  * feature at this location.
  *
@@ -4507,14 +4617,14 @@ void entomb(int cy, int cx, byte invalid)
 				{
 					msg_format("You are bashed by %s!", f_name + f_info[cave_feat[cy][cx]].name);
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					inc_timed(TMD_STUN, randint(50), TRUE);
 					break;
 				}
 				case 3:
 				{
 					msg_format("You are crushed between the %s and ceiling!", f_name + f_info[cave_feat[cy][cx]].name);
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					inc_timed(TMD_STUN, randint(50), TRUE);
 					break;
 				}
 			}
@@ -4607,212 +4717,6 @@ void entomb(int cy, int cx, byte invalid)
 		}
 	}
 }
-
-
-
-/*
- * Induce an "earthquake" of the given radius at the given location.
- *
- * This will turn some walls into floors and some floors into walls.
- *
- * The player will take damage and "jump" into a safe grid if possible,
- * otherwise, he will "tunnel" through the rubble instantaneously.
- *
- * Monsters will take damage, and "jump" into a safe grid if possible,
- * otherwise they will be "buried" in the rubble, disappearing from
- * the level in the same way that they do when banished.
- *
- * Note that players and monsters (except eaters of walls and passers
- * through walls) will never occupy the same grid as a wall (or door).
- */
-void earthquake(int cy, int cx, int r)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int t, y, x, yy, xx, dy, dx;
-
-	bool hurt = FALSE;
-
-	bool map[32][32];
-
-
-	/* Paranoia -- Enforce maximum range */
-	if (r > 12) r = 12;
-
-	/* Clear the "maximal blast" area */
-	for (y = 0; y < 32; y++)
-	{
-		for (x = 0; x < 32; x++)
-		{
-			map[y][x] = FALSE;
-		}
-	}
-
-	/* Check around the epicenter */
-	for (dy = -r; dy <= r; dy++)
-	{
-		for (dx = -r; dx <= r; dx++)
-		{
-			/* Extract the location */
-			yy = cy + dy;
-			xx = cx + dx;
-
-			/* Skip illegal grids */
-			if (!in_bounds_fully(yy, xx)) continue;
-
-			/* Skip distant grids */
-			if (distance(cy, cx, yy, xx) > r) continue;
-
-			/* Lose room and vault */
-			cave_info[yy][xx] &= ~(CAVE_ROOM);
-
-			/* Lose light */
-			cave_info[y][x] &= ~(CAVE_GLOW);
-
-			/* Lose light */
-			play_info[y][x] &= ~(PLAY_MARK);
-
-			/* Skip the epicenter */
-			if (!dx && !dy) continue;
-
-			/* Skip most grids */
-			if (rand_int(100) < 85) continue;
-
-			/* Damage this grid */
-			map[16+yy-cy][16+xx-cx] = TRUE;
-
-			/* Hack -- Take note of player damage */
-			if ((yy == py) && (xx == px)  && !(f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE))) hurt = TRUE;
-		}
-	}
-
-	if (hurt)
-	{
-		/* Entomb the player */
-		entomb(py,px, 0x00);
-	}
-
-	/* Examine the quaked region */
-	for (dy = -r; dy <= r; dy++)
-	{
-		for (dx = -r; dx <= r; dx++)
-		{
-			/* Extract the location */
-			yy = cy + dy;
-			xx = cx + dx;
-
-			/* Skip unaffected grids */
-			if (!map[16+yy-cy][16+xx-cx]) continue;
-
-			/* Entomb monster */
-			if (cave_m_idx[yy][xx] > 0)
-			{
-				byte invalid = 0x00;
-
-				int i;
-
-				/* Determine invalid directions */
-				for (i = 0; i < 8; i++)
-					if (map[16+yy-cy+ddy_ddd[i]][16+xx-cx+ddx_ddd[i]]) invalid |= 1 << i;
-
-				/* Entomb the monster */
-				entomb(yy, xx, invalid);
-			}
-		}
-	}
-
-	/* XXX XXX XXX */
-
-	/* New location */
-	py = p_ptr->py;
-	px = p_ptr->px;
-
-	/* Important -- no wall on player */
-	map[16+py-cy][16+px-cx] = FALSE;
-
-	/* Examine the quaked region */
-	for (dy = -r; dy <= r; dy++)
-	{
-		for (dx = -r; dx <= r; dx++)
-		{
-			/* Extract the location */
-			yy = cy + dy;
-			xx = cx + dx;
-
-			/* Skip unaffected grids */
-			if (!map[16+yy-cy][16+xx-cx]) continue;
-
-			/* Paranoia -- never affect player */
-			if ((yy == py) && (xx == px)) continue;
-
-			/* Destroy "outside" grids */
-			if ((cave_valid_bold(yy,xx)) && (f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE)))
-			{
-				/* Delete objects */
-				delete_object(yy, xx);
-
-				/* Bash stuff */
-				if (f_info[cave_feat[yy][xx]].flags1 & (FF1_BASH))
-				{
-					cave_alter_feat(yy,xx,FS_BASH);
-				}
-			}
-			/* Destroy location (if valid) */
-			else if (cave_valid_bold(yy, xx))
-			{
-				int feat = FEAT_FLOOR;
-
-				bool floor = cave_floor_bold(yy, xx);
-
-				/* Delete objects */
-				delete_object(yy, xx);
-
-				/* Wall (or floor) type */
-				t = (floor ? rand_int(100) : 200);
-
-				/* Granite */
-				if (t < 20)
-				{
-					/* Create granite wall */
-					feat = FEAT_WALL_EXTRA;
-				}
-
-				/* Quartz */
-				else if (t < 70)
-				{
-					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
-				}
-
-				/* Magma */
-				else if (t < 100)
-				{
-					/* Create magma vein */
-					feat = FEAT_MAGMA;
-				}
-
-				/* Change the feature */
-				cave_set_feat(yy, xx, feat);
-			}
-		}
-	}
-
-
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
-}
-
-
 
 
 /*
@@ -5037,7 +4941,7 @@ static void cave_temp_room_unlite(void)
 		}
 
 		/* Hack -- Forget "boring" grids */
-		if (!(cave_info[y][x] & (CAVE_GLOW)) && 
+		if (!(cave_info[y][x] & (CAVE_GLOW)) &&
 			!(f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER)))
 		{
 			/* Forget the grid */
@@ -5110,438 +5014,6 @@ void unlite_room(int y, int x)
 
 	/* Lite the (part of) room */
 	cave_temp_room_unlite();
-}
-
-
-/*
- * Cast a minor ball spell
- * Stop if we hit a monster, act as a "ball"
- * Note that this does not allow "target" mode to pass over monsters
- * Affect grids, objects, and monsters
- */
-static bool fire_ball_minor(int who, int what, int typ, int dir, int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
-}
-
-
-
-/*
- * Cast multiple non-jumping ball spells at the same target.
- *
- * Targets absolute coordinates instead of a specific monster, so that
- * the death of the monster doesn't change the target's location.
- */
-static bool fire_swarm(int who, int what, int num, int typ, int dir, int dam, int rad)
-{
-	bool noticed = FALSE;
-
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" (early detonation) */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	while (num--)
-	{
-		/* Analyze the "dir" and the "target".  Hurt items on floor. */
-		if (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10)) noticed = TRUE;
-	}
-
-	return noticed;
-}
-
-
-/*
- * Cast a ball spell
- * Stop if we hit a monster, act as a "ball"
- * Allow "target" mode to pass over monsters
- * Affect grids, objects, and monsters
- */
-static bool fire_ball(int who, int what, int typ, int dir, int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		flg &= ~(PROJECT_STOP);
-
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
-}
-
-
-/*
- * Cast a 8-way beam spell
- * Stop if we hit a monster, act as a beam in 8 directions
- * Allow "target" mode to pass over monsters
- * Affect grids, objects, and monsters
- * Do not decrease damage with range
- */
-static bool fire_8way(int who, int what, int typ, int dir, int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_8WAY | PROJECT_AREA | PROJECT_MAGIC;
-
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		flg &= ~(PROJECT_STOP);
-
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
-}
-
-
-/*
- * Cast a cloud spell
- * Stop if we hit a monster, act as a "ball"
- * However damages all targets in area of effect equally
- * Allow "target" mode to pass over monsters
- * Affect monsters only
- */
-static bool fire_cloud(int who, int what, int typ, int dir, int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_AREA | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		flg &= ~(PROJECT_STOP);
-
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
-}
-
-
-/*
- * Cast an area spell
- * Stop if we hit a monster, act as a "ball"
- * However damages all targets in area of effect equally
- * Allow "target" mode to pass over monsters
- * Affect monsters only
- */
-static bool fire_area(int who, int what, int typ, int dir, int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_AREA | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		flg &= ~(PROJECT_STOP);
-
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
-}
-
-/*
- * Hack -- apply a "projection()" in a direction (or at the target)
- */
-static bool project_hook(int who, int what, int typ, int dir, int dam, int flg)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	/* Pass through the target if needed */
-	flg |= (PROJECT_THRU | PROJECT_MAGIC);
-
-	/* Use the given direction */
-	ty = py + ddy[dir];
-	tx = px + ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(who, what, 0, py, px, ty, tx, dam, typ, flg, 0, 0));
-}
-
-/*
- * Apply an arc in a direction
- */
-static bool fire_arc(int who, int what, int typ, int dir, int dam, int rad, int degrees_of_arc)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL | PROJECT_MAGIC;
-
-	/* Diameter of source of energy is at least 20. */
-	int diameter_of_source = 20;
-
-	int degree_factor = 60;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Narrow arcs lose relatively little energy over distance. */
-	if (degrees_of_arc < degree_factor)
-	{
-		if (degrees_of_arc <= 6) diameter_of_source = rad * 10;
-		else diameter_of_source = diameter_of_source * degree_factor /
-			degrees_of_arc;
-	}
-
-	/* Radius of zero means no fixed limit. */
-	if (rad == 0) rad = MAX_SIGHT;
-
-	/* Analyze the "dir" and the "target" */
-	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, degrees_of_arc,
-			(byte)diameter_of_source));
-}
-
-
-
-/*
- * Cast a bolt spell
- * Stop if we hit a monster, as a "bolt"
- * Affect monsters (not grids or objects)
- */
-static bool fire_bolt(int who, int what, int typ, int dir, int dam)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, 0, py, px, ty, tx, dam, typ, flg, 0, 0));
-}
-
-/*
- * Cast a beam spell
- * Pass through monsters, as a "beam"
- * Affect monsters (not grids or objects)
- * Now only range 10.
- */
-static bool fire_beam(int who, int what, int typ, int dir, int dam)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID | PROJECT_THRU | PROJECT_MAGIC;
-
-	int range = 10;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, range, py, px, ty, tx, dam, typ, flg, 0, 0));
-}
-
-/*
- * Cast a bolt spell, or rarely, a beam spell
- */
-static bool fire_bolt_or_beam(int who, int what, int prob, int typ, int dir, int dam)
-{
-	if (rand_int(100) < prob)
-	{
-		return (fire_beam(who, what, typ, dir, dam));
-	}
-	else
-	{
-		return (fire_bolt(who, what, typ, dir, dam));
-	}
-}
-
-
-/*
- * Cast a blast spell
- * A blast spell is a radius 1 ball spell that only fires to adjacent
- * squares. Used for a couple of alchemy spells.
- */
-static bool fire_blast(int who, int what, int typ, int dir, int dam)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty = p_ptr->py+ddy[dir];
-	int tx = p_ptr->px+ddx[dir];
-
-	int flg = PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM | PROJECT_BOOM | PROJECT_PLAY | PROJECT_MAGIC;
-
-	return (project(who, what, 1, py, px, ty, tx, dam, typ, flg, 0, 15));
-
-}
-
-/*
- * Hands is now a range 3 beam, similar to lightening spark from Sangband.
- * It does not affect the grid however.
- */
-static bool fire_hands(int who, int what, int typ, int dir, int dam)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_MAGIC;
-	int range = 3;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, range, py, px, ty, tx, dam, typ, flg, 0, 0));
-}
-
-/*
- * Minor bolts are a limited range bolt.
- */
-static bool fire_bolt_minor(int who, int what, int typ, int dir, int dam, int range)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY | PROJECT_MAGIC;
-
-	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-		ty = p_ptr->target_row;
-		tx = p_ptr->target_col;
-	}
-
-	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(who, what, range, py, px, ty, tx, dam, typ, flg, 0, 0));
 }
 
 
@@ -5678,25 +5150,8 @@ static void wield_spell(int item, int k_idx, int time, int level, int r_idx)
 /*
  *  Change shape. Add 'built-in' equipment for that shape.
  */
-void change_shape(int shape, int level)
+void change_shape(int shape)
 {
-	int i;
-
-	/* Remove 'built-in' equipment for old shape */
-	if (p_ptr->pshape != shape)
-	{
-		/* Wipe 'built-in' equipment for this shape */
-		for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
-		{
-			/* Currently has a 'built-in' item */
-			if (inventory[i].ident & (IDENT_STORE))
-			{
-				/* Wipe the slot */
-				object_wipe(&inventory[i]);
-			}
-		}
-	}
-
 	/* Set new shape */
 	p_ptr->pshape = shape;
 
@@ -5704,23 +5159,6 @@ void change_shape(int shape, int level)
 	if (p_ptr->pshape != p_ptr->prace)
 	{
 		msg_format("You change into a %s.", p_name + p_info[shape].name);
-	}
-
-	/* Wield 'built-in' equipment for this shape */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
-	{
-		/* Wield 'built-in' equipment */
-		if (p_info[shape].slots[i - INVEN_WIELD])
-		{
-			/* Wield the spell */
-			wield_spell(i, p_info[shape].slots[i - INVEN_WIELD], 0, level, k_info[i].tval != TV_SPELL ? p_info[shape].r_idx : 0);
-
-			/* Mark as 'built-in' item */
-			inventory[i].ident |= (IDENT_STORE);
-			
-			/* Important - to prefent overflow of items, we must check for pack overflow after every item is wielded */
-			overflow_pack();
-		}
 	}
 
 	/* Update stuff */
@@ -5735,7 +5173,7 @@ void change_shape(int shape, int level)
  * Enchant item --- a big pile of (fun) hack
  *
  * Basically we select an adjacent item of the same tval,
- * compare the difference in levels between the two, and 
+ * compare the difference in levels between the two, and
  * if randint(plev) > difference, polymorph the item.
  * Otherwise scan until we encounter a 0 value item
  * of the same tval and polymorph the item into that, or
@@ -5834,7 +5272,7 @@ static void enchant_item(byte tval, int plev)
 				i+=dirs;
 			}
 		}
-					
+
 		/* No bad items at all */
 		if (k_info[i].tval !=tval)
 		{
@@ -5865,6 +5303,7 @@ static void enchant_item(byte tval, int plev)
 			}
 		/* XXX Odd junk, but can't be food */
 		case TV_FOOD:
+		case TV_MUSHROOM:
 			{
 				kind = lookup_kind(TV_JUNK,3);
 				break;
@@ -5877,7 +5316,7 @@ static void enchant_item(byte tval, int plev)
 			}
 		}
 	}
-	
+
 
 	/* Ta da! */
 	msg_print("There is a blinding flash!");
@@ -5938,7 +5377,7 @@ static void create_gold(void)
 	base = k_info[i_ptr->k_idx].cost;
 
 	/* Determine how much the treasure is "worth" */
-	i_ptr->charges = (base + (8L * randint(base)) + randint(8));
+	i_ptr->charges = (s16b)(base + (8 * randint(base)) + randint(8));
 
 	/* Floor carries the item */
 	drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
@@ -5984,7 +5423,7 @@ static bool curse_armor(void)
 		/* Blast the armor */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_BLASTED;
-		o_ptr->to_a = 0 - randint(5) - randint(5);
+		o_ptr->to_a = 0 - (s16b)randint(5) - (s16b)randint(5);
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
 		o_ptr->ac = 0;
@@ -6052,8 +5491,8 @@ static bool curse_weapon(void)
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_SHATTERED;
-		o_ptr->to_h = 0 - randint(5) - randint(5);
-		o_ptr->to_d = 0 - randint(5) - randint(5);
+		o_ptr->to_h = 0 - (s16b)randint(5) - (s16b)randint(5);
+		o_ptr->to_d = 0 - (s16b)randint(5) - (s16b)randint(5);
 		o_ptr->to_a = 0;
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
@@ -6088,7 +5527,7 @@ static bool curse_weapon(void)
  * Turn curses on equipped items into starbursts of nether.  -LM-
  *
  * Idea by Mikko Lehtinen.
- * 
+ *
  * Todo: Finish implementing this, once remaining Sangband projection types
  * are implemented.
  */
@@ -6099,13 +5538,13 @@ static int thaumacurse(bool verbose, int power)
 	object_type *o_ptr;
 	bool notice = FALSE;
 	u32b f1, f2, f3, f4;
-	
+
 
 	/* Count curses */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
-		
+
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Skip non-objects */
@@ -6176,6 +5615,65 @@ static int thaumacurse(bool verbose, int power)
 }
 
 
+/*
+ * Get damage from casting spell
+ */
+static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, bool forreal)
+{
+	int damage = 0;
+
+	/* Use player hit points */
+	if ((player) && (flg & (PR2_BREATH)))
+	{
+		/* Damage uses current hit points */
+		damage = p_ptr->chp * damage / 300;
+	}
+	/* Damage uses dice roll */
+	else
+	{
+		/* Roll out the damage */
+		if (blow_ptr->d_side)
+		{
+			int dd = blow_ptr->d_dice;
+			int ds = blow_ptr->d_side;
+
+			/* Determine damage */
+			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
+		}
+
+		/* Roll out level dependent damage */
+		if (blow_ptr->l_side)
+		{
+			int dd = blow_ptr->l_dice * level / blow_ptr->levels;
+			int ds = blow_ptr->l_side;
+
+			/* Determine damage */
+			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
+		}
+
+		/* Add constant damage */
+		damage += blow_ptr->d_plus;
+
+		/* Add level dependent damage */
+		if (blow_ptr->l_plus)
+		{
+			/* Mega-hack - dispel evil/undead etc. */
+			if (!level)
+			{
+				damage += blow_ptr->l_plus * 25 / blow_ptr->levels;
+			}
+			else
+			{
+				damage += blow_ptr->l_plus * level / blow_ptr->levels;
+			}
+		}
+
+		/* Add boosted damage */
+		if (player) damage += p_ptr->boost_spell_power;
+	}
+
+	return (damage);
+}
 
 
 /*
@@ -6200,519 +5698,222 @@ static int thaumacurse(bool verbose, int power)
  *      We should make summoned monsters friendly if plev is > 0. XXX
  *
  */
-
-bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
+bool process_spell_blows(int who, int what, int spell, int level, bool *cancel, bool *known, bool eaten)
 {
 	spell_type *s_ptr = &s_info[spell];
 
 	bool obvious = FALSE;
 	int ap_cnt;
-	int dir;
+	int dir = 0;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int ty;
+	int tx;
+	int delay = 0;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
 		spell_blow *blow_ptr = &s_ptr->blow[ap_cnt];
-		int damage = 0;
+		int method = blow_ptr->method;
 		int effect = blow_ptr->effect;
 
+		method_type *method_ptr = &method_info[method];
+		int range = scale_method(method_ptr->max_range, level);
+		int radius = scale_method(method_ptr->radius, level);
+		int num = scale_method(method_ptr->number, level);
+
+		u32b flg = method_ptr->flags1;
+
+		s16b region = 0;
+
+		int i;
+
 		/* Hack -- no more attacks */
-		if (!blow_ptr->method) break;
+		if (!method) break;
+
+		/* Hack -- fix number */
+		if (!num) num = 1;
 
 		/* Hack -- get new target if last target is dead / missing */
 		if ((ap_cnt) && !(target_okay())) p_ptr->command_dir = 0;
-		
-		/* Roll out the damage */
-		if (blow_ptr->d_side)
+
+		/* Special case for eaten spells */
+		if (eaten && (method != RBM_SPIT) && (method != RBM_BREATH))
 		{
-			damage += damroll(blow_ptr->d_dice, blow_ptr->d_side);
+			int dam = 0;
+
+			dir = (method == RBM_VOMIT) ? ddd[rand_int(8)] : 5;
+
+			ty = py + 99 * ddy[dir];
+			tx = px + 99 * ddx[dir];
+
+			/* Roll out the damage */
+			for (i = 0; i < num; i++) dam += spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE);
+
+			/* Apply once */
+			if (project_one(who, what, ty, tx, dam, effect, flg)) obvious = TRUE;
+
+			continue;
 		}
-		
-		/* Roll out level dependent damage */
-		if (blow_ptr->l_side)
+
+		/* Allow direction to be cancelled for free */
+		if ((((flg & (PROJECT_SELF)) == 0)) &&
+				(!get_aim_dir(&dir, known ? range : MAX_RANGE, known ? radius : 0,
+						known ? flg : (PROJECT_BEAM),
+						known ? method_ptr->arc : 0,
+						known ? method_ptr->diameter_of_source : 0))) return (!(*cancel));
+
+		/* Use the given direction */
+		ty = py + 99 * ddy[dir];
+		tx = px + 99 * ddx[dir];
+
+		/* Hack -- Use an actual "target" */
+		if ((dir == 5) && target_okay())
 		{
-			damage += damroll(blow_ptr->l_dice * level / blow_ptr->levels, blow_ptr->l_side);
+			ty = p_ptr->target_row;
+			tx = p_ptr->target_col;
 		}
-		
-		/* Add constant damage */
-		damage += blow_ptr->d_plus;
-		
-		/* Add level dependent damage */
-		if (blow_ptr->l_plus)
+		/* Stop at first target if we're firing in a direction */
+		else if (method_ptr->flags2 & (PR2_DIR_STOP))
 		{
-			damage += blow_ptr->l_plus * level / blow_ptr->levels;
-			
-			/* Mega-hack - dispel evil/undead etc. */
-			if (!level)
-			{
-				damage += blow_ptr->l_plus * 25 / blow_ptr->levels;
-			}
+			flg |= (PROJECT_STOP);
 		}
-		
-		/* Apply spell method */
-		switch (blow_ptr->method)
+
+		/* Initialise the region */
+		if ((s_ptr->type == SPELL_REGION) ||
+				(s_ptr->type == SPELL_SET_TRAP) ||
+				((who == SOURCE_PLAYER_CAST) &&
+				((p_ptr->spell_trap) || (p_ptr->delay_spell))))
 		{
-			/* Affect self directly */
-			case RBM_SELF:
+			region_type *r_ptr;
+
+			int ri = (s_ptr->type == SPELL_REGION) ||
+				(s_ptr->type == SPELL_SET_TRAP) ? s_ptr->param : p_ptr->spell_trap;
+
+			/* Get a newly initialized region */
+			region = init_region(who, what, ri, spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE), method, effect, level, py, px, ty, tx);
+
+			/* Get the region */
+			r_ptr = &region_list[region];
+
+			/* Hack -- we delay subsequent regions from the same spell casting until the first has expired */
+			r_ptr->delay = delay;
+
+			/* Hack -- we only apply one attack to determine region shape. */
+			num = 1;
+
+			/* Delaying casting of a spell */
+			if ((p_ptr->delay_spell) || (p_ptr->spell_trap))
 			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
+				/* Delay the effect */
+				r_ptr->delay = p_ptr->delay_spell;
 
-				/* Apply damage */
-				if (project_p(who, what, py, px, damage, effect)) obvious = TRUE;
-
-				/* Apply teleport and other effects */
-				if (project_t(who, what, py, px, damage, effect)) obvious = TRUE;
-				break;
+				/* Lasts one turn only */
+				r_ptr->lifespan = 1;
 			}
 
-			/* Radius 1, centred on self */
-			case RBM_ADJACENT:
+			/* Set the life span according to the duration */
+			else if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
 			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM | PROJECT_MAGIC;
-				if (project(who, what, 1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
+				r_ptr->lifespan = damroll(s_ptr->lasts_dice, s_ptr->lasts_side) + s_ptr->lasts_plus;
+			}
+			else if (s_ptr->lasts_plus)
+			{
+				r_ptr->lifespan = s_ptr->lasts_plus;
 			}
 
-			case RBM_HANDS:
+			/* Increase delay - we predict effects of acceleration/deceleration */
+			if (r_ptr->flags1 & (RE1_ACCELERATE | RE1_DECELERATE))
 			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_hands(who, what, effect, dir, damage)) obvious = TRUE;
-				break;
-			}
-
-			case RBM_MISSILE:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_bolt(who, what, effect, dir, damage)) obvious = TRUE;
-				break;
-			}
-
-			case RBM_BOLT_MINOR:
-			{
-				int range = 4;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_bolt_minor(who, what, effect, dir, damage, range)) obvious = TRUE;
-				break;
-			}
-
-			case RBM_BOLT_10:
-			{
-				int beam;
-
-				if (c_info[p_ptr->pclass].spell_power) beam = level;
-				else beam = level/2;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-				
-				if (fire_bolt_or_beam(who, what, beam - 10, effect, dir, damage)) obvious = TRUE;
-				break;
-			}
-
-			case RBM_BOLT:
-			{
-				int beam;
-
-				if (c_info[p_ptr->pclass].spell_power) beam = level;
-				else beam = level/2;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-				if (fire_bolt_or_beam(who, what, beam, effect, dir, damage)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_BEAM:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_beam(who, what, effect, dir, damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_BLAST:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				damage += level;
-
-				if (fire_blast(who, what, effect, dir, damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_WALL:
-			{
-				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
-				break;
-			}
-			case RBM_BALL:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, 2)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_BALL_II:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, 3)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_BALL_III:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, 4)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_BALL_MINOR:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball_minor(who, what, effect, dir, damage, 1)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_CLOUD:
-			{
-				int rad = 2;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				/* Hack - scale damage */
-				damage += level / 2;
-				
-				if (fire_cloud(who, what, effect, dir, damage, rad)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_STORM:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_cloud(who, what, effect, dir, damage, 3)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_BREATH:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, p_ptr->chp * damage / 300, 0, (effect == GF_SOUND) || (effect == GF_POIS) ? 30 : 20)) obvious = TRUE;
-
-				break;
-			}
-
-			/* Applies same damage at all ranges */
-			case RBM_AREA:
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-			
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_BOOM | PROJECT_AREA;
-				if (project(who, what, (level / 10)+1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
-			}
-			
-			/* Applies same damage at all ranges */
-			case RBM_AIM_AREA:
-			{
-				int rad = (level / 10)+1;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-				
-				if (fire_area(who, what, effect, dir, damage, rad)) obvious = TRUE;
-				break;
-			}
-			case RBM_LOS:
-			{
-				if (project_hack(who, what, effect, damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_LINE:
-			{
-				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
-				break;
-			}
-			case RBM_AIM:
-			{
-				int flg = PROJECT_STOP | PROJECT_KILL;
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
-				break;
-			}
-			case RBM_ORB:
-			{
-				int rad = (level < 30 ? 2 : 3);
-
-				if (c_info[p_ptr->pclass].spell_power) damage += level + level/2;
-				else damage += level + level/4;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, rad)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_CROSS:
-			{
-				int k;
-
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				for (k = 0; k < 4; k++) if (fire_beam(who, what, effect, ddd[k], damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_STAR:
-			{
-				int k;
-
-									
-				for (k = 0; k < 8; k++) if (fire_beam(who, what, effect, ddd[k], damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_AURA:
-			/* Radius 2, centred on self */
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-			
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM;
-				if (project(who, what, 2, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
-			}
-			case RBM_AURA_MINOR:
-			/* Radius 1, centred on self */
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-			
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL | PROJECT_BOOM;
-				if (project(who, what, 1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
-			}
-			case RBM_EXPLODE:
-			/* Radius 1, centred on self -- affects self */
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-			
-				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY;
-				if (project(who, what, 1, py, px, py, px, damage, effect, flg, 0, 0)) obvious = TRUE;
-				break;
-			}
-			case RBM_SPHERE:
-			/* Variable radius */
-			{
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, (level/10)+1)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_PANEL:
-			{
-				if (project_hack(who, what, effect, damage)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_LEVEL:
-			{
-				if (project_hack(who, what, effect, damage)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_STRIKE:
-			{
-			        /* Allow direction to be cancelled for free */ 
-			        if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_ball(who, what, effect, dir, damage, 0)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_ARC_20:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, damage, 0, 20)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_ARC_30:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, damage, 0, 30)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_ARC_40:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, damage, 0, 40)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_ARC_50:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, damage, 0, 50)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_ARC_60:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_arc(who, what, effect, dir, damage, 0, 60)) obvious = TRUE;
-
-				break;
-			}
-
-			case RBM_8WAY:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_8way(who, what, effect, dir, damage, 2)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_8WAY_II:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_8way(who, what, effect, dir, damage, 3)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_8WAY_III:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_8way(who, what, effect, dir, damage, 4)) obvious = TRUE;
-
-				break;
-			}
-			case RBM_SWARM:
-			{
-				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
-
-				if (fire_swarm(who, what, 2 + level / 20, effect, dir,
-			           	damage + level / 2, 1)) obvious = TRUE;
-			           	
-			    break;
-			}
-			case RBM_SCATTER:
-			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-				int y = py;
-				int x = px;
 				int i;
+				int delay_current = delay;
 
-				int flg = PROJECT_KILL | PROJECT_MAGIC | PROJECT_GRID | PROJECT_PLAY | PROJECT_ITEM;
-
-				for (i = 0; i < (p_ptr->lev / 10) + 3; i++)
+				for (i = 0; i < r_ptr->lifespan; i++)
 				{
-					/* Pick a 'nearby' location */
-	      			scatter(&y, &x, py, px, 5, 0);
-	      		
-	      			/* Project at the location */
-					if (project(who, what, 0, py, px, y, x, damage, effect, flg, 0, 0)) obvious = TRUE;
+					delay += delay_current;
+
+					if ((r_ptr->flags1 & (RE1_ACCELERATE)) && (!(r_ptr->flags1 & (RE1_DECELERATE)) || (i < r_ptr->lifespan / 2)))
+					{
+						delay_current /= 2;
+						if (delay_current < 1) delay_current = 1;
+					}
+
+					/* Decelerating */
+					if ((r_ptr->flags1 & (RE1_DECELERATE)) && (!(r_ptr->flags1 & (RE1_ACCELERATE)) || (i > r_ptr->lifespan / 2)))
+					{
+						delay_current += delay_current / 3;
+						if (delay_current < 3) delay_current += 1;
+					}
 				}
-
-				break;	      		
 			}
-			
-			/* One adjacent target */
-			default:
+			/* Normal delay */
+			else
 			{
-				int py = p_ptr->py;
-				int px = p_ptr->px;
-
-				int flg = PROJECT_KILL | PROJECT_MAGIC;
-
-				/* Allow direction to be cancelled for free */
-				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
-
-				if (project(who, what, 0, py, px, py + ddy[dir], px + ddx[dir], damage, effect, flg, 0, 0)) obvious = TRUE;
-
-				break;
+				delay += r_ptr->lifespan * r_ptr->delay_reset;
 			}
+
+			/* Display first of newly created regions. Allow features to be seen underneath. */
+			if ((!ap_cnt) && (r_ptr->effect != GF_FEATURE)) r_ptr->flags1 |= (RE1_DISPLAY);
+		}
+
+		/* Apply multiple times */
+		for (i = 0; i < num; i++)
+		{
+			/* Projection method */
+			obvious |= project_method(who, what, method, effect, spell_damage(blow_ptr, level, method_ptr->flags2, TRUE, TRUE), level, py, px, ty, tx, region, flg);
+		}
+
+		/* Some region tidy up required */
+		if (region)
+		{
+			region_type *r_ptr = &region_list[region];
+
+			/*
+			 * Hack -- Some regions' source is target.
+			 *
+			 * This is used to prevent projections which have no apparent source from weirdly jumping around
+			 * the map, because the target stops being projectable from the invisible source. We set the source
+			 * for the projection here, and then keep the source in sync with the target if it moves.
+			 */
+			if ((r_ptr->flags1 & (RE1_MOVE_SOURCE)) &&
+					(method_ptr->flags1 & (PROJECT_BOOM | PROJECT_4WAY | PROJECT_4WAX | PROJECT_JUMP)) &&
+					((method_ptr->flags1 & (PROJECT_ARC | PROJECT_STAR)) == 0) && (r_ptr->first_piece))
+			{
+				/* Set source to first projectable location */
+				r_ptr->y0 = region_piece_list[r_ptr->first_piece].y;
+				r_ptr->x0 = region_piece_list[r_ptr->first_piece].x;
+
+				/* Set target to same */
+				r_ptr->y1 = r_ptr->y0;
+				r_ptr->x1 = r_ptr->x0;
+			}
+
+			/* Notice region? */
+			if (obvious && !ap_cnt) r_ptr->flags1 |= (RE1_NOTICE);
 		}
 
 		/* Hack -- haven't cancelled */
 		*cancel = FALSE;
 	}
-	
+
+	/* Player successfully delayed casting */
+	if ((delay) && (who == SOURCE_PLAYER_CAST))
+	{
+		/* Clear delay */
+		p_ptr->delay_spell = 0;
+		p_ptr->spell_trap = 0;
+	}
+
 	/* Return result */
 	return (obvious);
 
 }
 
 
-
+/*
+ * Process various spell flags.
+ */
 bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, bool *known)
 {
 	spell_type *s_ptr = &s_info[spell];
@@ -6734,13 +5935,13 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	char *s = buf;
 
 	/* Roll out the duration */
-	if ((s_ptr->l_dice) && (s_ptr->l_side))
+	if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
 	{
-		lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+		lasts = damroll(s_ptr->lasts_dice, s_ptr->lasts_side) + s_ptr->lasts_plus;
 	}
 	else
 	{
-		lasts = s_ptr->l_plus;
+		lasts = s_ptr->lasts_plus;
 	}
 
 	/* Process the flags that apply to equipment */
@@ -6824,7 +6025,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		{
 			return (TRUE);
 		}
-		
+
 		*cancel = FALSE;
 		obvious = TRUE;
 	}
@@ -6842,12 +6043,32 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters(monster_tester_hook_evil, known))) vp[vn++] = "evil";
 	if ((s_ptr->flags1 & (SF1_DETECT_MONSTER)) && (detect_monsters(monster_tester_hook_normal, known))) vp[vn++] = "monsters";
 
+	/* Process the flags -- specific monster detection */
+	if (s_ptr->type == SUMMON_RACE)
+	{
+		/* If summoning a unique that already exists, find it instead */
+		if (r_info[s_ptr->param].cur_num >= r_info[s_ptr->param].max_num)
+		{
+			monster_race_hook = s_ptr->param;
+			if (detect_monsters(monster_tester_hook_single, known)) vp[vn++] = r_name + r_info[s_ptr->param].name;
+		}
+	}
+
 	/* Process the flags -- detect water */
 	if (s_ptr->flags1 & (SF1_DETECT_WATER))
-       {
+	{
                 if (detect_feat_flags(0x0L, FF2_WATER, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "water";
                 if (detect_monsters(monster_tester_hook_water, known)) vp[vn++] = "watery creatures";
-        }
+	}
+
+	/* Process the flags -- detect water */
+	if (s_ptr->type == SPELL_DETECT_FIRE)
+	{
+                if (detect_feat_blows(GF_FIRE, 2 * MAX_SIGHT, known)) vp[vn++] = "fire";
+                if (detect_feat_blows(GF_SMOKE, 2 * MAX_SIGHT, known)) vp[vn++] = "smoke";
+                if (detect_feat_blows(GF_LAVA, 2 * MAX_SIGHT, known)) vp[vn++] = "lava";
+                if (detect_monsters(monster_tester_hook_fire, known)) vp[vn++] = "fiery creatures";
+	}
 
 	/* Process the flags -- detect gold */
 	if (s_ptr->flags1 & (SF1_DETECT_GOLD))
@@ -6883,7 +6104,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	/* Process the 'fake flag' -- detect minds */
 	if (s_ptr->type == SPELL_DETECT_MIND)
 	{
-		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";		
+		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";
 	}
 
 	/* Describe detected magic */
@@ -6964,24 +6185,33 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	/* SF2 - timed abilities and modifying level */
 	if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_INFRA)) && (set_tim_infra(p_ptr->tim_infra + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_HERO)) && (set_hero(p_ptr->hero + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_SHERO)) && (set_shero(p_ptr->shero + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_BLESS)) && (set_blessed(p_ptr->blessed + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_INVIS)) && (set_invis(p_ptr->invis + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts + (level== 0 ? 3 * p_ptr->lev : 0)))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (set_cursed(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (set_cursed(0))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (set_oppose_fire(p_ptr->oppose_fire + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (set_oppose_cold(p_ptr->oppose_cold + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (set_oppose_acid(p_ptr->oppose_acid + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (set_oppose_elec(p_ptr->oppose_elec + lasts))) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (set_oppose_pois(p_ptr->oppose_pois + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_INFRA)) && (inc_timed(TMD_INFRA, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_HERO)) && (inc_timed(TMD_HERO, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SHERO)) && (inc_timed(TMD_BERSERK, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_BLESS)) && (inc_timed(TMD_BLESSED, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SHIELD)) && (inc_timed(TMD_SHIELD, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_INVIS)) && (inc_timed(TMD_INVIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (inc_timed(TMD_SEE_INVIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (inc_timed(TMD_PROTEVIL, lasts + (level== 0 ? 3 * p_ptr->lev : 0), TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (set_timed(TMD_CURSED, p_ptr->timed[TMD_CURSED] / 2, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (clear_timed(TMD_CURSED, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (inc_timed(TMD_OPP_FIRE, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (inc_timed(TMD_OPP_COLD, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (inc_timed(TMD_OPP_ACID, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (inc_timed(TMD_OPP_ELEC, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_STR)) && (inc_timed(TMD_INC_STR, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_STR)) && (inc_timed(TMD_INC_SIZ, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_INT)) && (inc_timed(TMD_INC_INT, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_WIS)) && (inc_timed(TMD_INC_WIS, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_DEX, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_AGI, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_CON)) && (inc_timed(TMD_INC_CON, lasts, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF3_INC_CHR)) && (inc_timed(TMD_INC_CHR, lasts, TRUE))) obvious = TRUE;
 
 	/* SF3 - free action only */
-	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (set_free_act(p_ptr->free_act + lasts))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (inc_timed(TMD_FREE_ACT, lasts, TRUE))) obvious = TRUE;
 
 	if (s_ptr->flags2 & (SF2_AGGRAVATE))
 	{
@@ -7027,7 +6257,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	{
 		if ((p_ptr->cur_flags2 & (TR2_RES_SHARD)) == 0)
 		{
-			if (set_cut(p_ptr->cut + lasts))
+			if (inc_timed(TMD_CUT, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7046,7 +6276,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	{
 		if ((p_ptr->cur_flags2 & (TR2_RES_SOUND)) == 0)
 		{
-			if (set_stun(p_ptr->stun + lasts))
+			if (inc_timed(TMD_STUN, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7063,10 +6293,10 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	if (s_ptr->flags2 & (SF2_POISON))
 	{
-		if (((p_ptr->cur_flags2 & (TR2_RES_POIS)) == 0) && !(p_ptr->oppose_pois) &&
+		if (((p_ptr->cur_flags2 & (TR2_RES_POIS)) == 0) && !(p_ptr->timed[TMD_OPP_POIS]) &&
 			(p_ptr->cur_flags4 & (TR4_IM_POIS)) == 0)
 		{
-			if (set_poisoned(p_ptr->poisoned + lasts))
+			if (inc_timed(TMD_POISONED, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7074,7 +6304,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 				equip_not_flags(0x0L,TR2_RES_POIS,0x0L,TR4_IM_POIS);
 			}
 		}
-		else if (!p_ptr->oppose_pois) /* && (obvious) */
+		else if (!p_ptr->timed[TMD_OPP_POIS]) /* && (obvious) */
 		{
 			/* Always notice */
 			if (p_ptr->cur_flags4 & (TR4_IM_POIS)) equip_can_flags(0x0L,TR2_RES_POIS,0x0L,0x0L);
@@ -7088,7 +6318,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	{
 		if ((p_ptr->cur_flags2 & (TR2_RES_BLIND)) == 0)
 		{
-			if (set_blind(p_ptr->blind + lasts))
+			if (inc_timed(TMD_BLIND, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7105,9 +6335,9 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	if (s_ptr->flags2 & (SF2_FEAR))
 	{
-		if (((p_ptr->cur_flags2 & (TR2_RES_FEAR)) == 0) && (!p_ptr->hero) && (!p_ptr->shero))
+		if (((p_ptr->cur_flags2 & (TR2_RES_FEAR)) == 0) && (!p_ptr->timed[TMD_HERO]) && (!p_ptr->timed[TMD_BERSERK]))
 		{
-			if (set_afraid(p_ptr->afraid + lasts))
+			if (set_afraid(p_ptr->timed[TMD_AFRAID] + lasts))
 			{
 				obvious = TRUE;
 
@@ -7115,7 +6345,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 				equip_not_flags(0x0L,TR2_RES_FEAR,0x0L,0x0L);
 			}
 		}
-		else if ((!p_ptr->hero)&&(!p_ptr->shero)) /* && (obvious) */
+		else if ((!p_ptr->timed[TMD_HERO])&&(!p_ptr->timed[TMD_BERSERK])) /* && (obvious) */
 		{
 			/* Always notice */
 			equip_can_flags(0x0L,TR2_RES_FEAR,0x0L,0x0L);
@@ -7126,7 +6356,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	{
 		if ((p_ptr->cur_flags2 & (TR2_RES_CONFU)) == 0)
 		{
-			if (set_confused(p_ptr->confused + lasts))
+			if (inc_timed(TMD_CONFUSED, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7145,7 +6375,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	{
 		if ((p_ptr->cur_flags2 & (TR2_RES_CHAOS)) == 0)
 		{
-			if (set_image(p_ptr->image + lasts))
+			if (inc_timed(TMD_IMAGE, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7162,9 +6392,9 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	if (s_ptr->flags2 & (SF2_PARALYZE))
 	{
-		if (((p_ptr->cur_flags3 & (TR3_FREE_ACT)) == 0) && !(p_ptr->free_act))
+		if (((p_ptr->cur_flags3 & (TR3_FREE_ACT)) == 0) && !(p_ptr->timed[TMD_FREE_ACT]))
 		{
-			if (set_paralyzed(p_ptr->paralyzed + lasts))
+			if (inc_timed(TMD_PARALYZED, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7175,15 +6405,15 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		else /* if (obvious) */
 		{
 			/* Always notice */
-			if (!p_ptr->free_act) equip_can_flags(0x0L,0x0L,TR3_FREE_ACT,0x0L);
+			if (!p_ptr->timed[TMD_FREE_ACT]) equip_can_flags(0x0L,0x0L,TR3_FREE_ACT,0x0L);
 		}
 	}
 
 	if (s_ptr->flags2 & (SF2_SLOW))
 	{
-		if (((p_ptr->cur_flags3 & (TR3_FREE_ACT)) == 0) && !(p_ptr->free_act))
+		if (((p_ptr->cur_flags3 & (TR3_FREE_ACT)) == 0) && !(p_ptr->timed[TMD_FREE_ACT]))
 		{
-			if (set_slow(p_ptr->slow + lasts))
+			if (inc_timed(TMD_SLOW, lasts, TRUE))
 			{
 				obvious = TRUE;
 
@@ -7194,57 +6424,19 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		else /* if (obvious) */
 		{
 			/* Always notice */
-			if (!p_ptr->free_act) equip_can_flags(0x0L,0x0L,TR3_FREE_ACT,0x0L);
+			if (!p_ptr->timed[TMD_FREE_ACT]) equip_can_flags(0x0L,0x0L,TR3_FREE_ACT,0x0L);
 		}
 	}
 
 	if (s_ptr->flags2 & (SF2_HASTE))
 	{
-		if ((p_ptr->fast) && (set_fast(p_ptr->fast + rand_int(s_ptr->l_side/3)))) obvious = TRUE;
-		else if (set_fast(p_ptr->fast + lasts + level)) obvious = TRUE;
+		if (inc_timed(TMD_FAST, p_ptr->timed[TMD_FAST] ? rand_int(s_ptr->lasts_side/3): lasts + level, TRUE)) obvious = TRUE;
 	}
 
 	if (s_ptr->flags2 & (SF2_RECALL))
 	{
 		set_recall();
 		obvious = TRUE;
-	}
-
-	/* SF3 - duration specified, so temporary stat increase */
-	if (lasts)
-	{
-  	        if (s_ptr->flags3 & (SF3_INC_STR))
-		  { 
-		    if (set_stat_inc_tim(lasts, A_STR)) obvious = TRUE;
-		    if (set_stat_inc_tim(lasts, A_SIZ)) obvious = TRUE;
-		  }
-		if ((s_ptr->flags3 & (SF3_INC_INT)) && (set_stat_inc_tim(lasts, A_INT))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (set_stat_inc_tim(lasts, A_WIS))) obvious = TRUE;
-		if (s_ptr->flags3 & (SF3_INC_DEX))
-		  { 
-		    if (set_stat_inc_tim(lasts, A_DEX)) obvious = TRUE;
-		    if (set_stat_inc_tim(lasts, A_AGI)) obvious = TRUE;
-		  }
-		if ((s_ptr->flags3 & (SF3_INC_CON)) && (set_stat_inc_tim(lasts, A_CON))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (set_stat_inc_tim(lasts, A_CHR))) obvious = TRUE;
-	}
-	/* SF3 - no duration specified, so permanent stat increase */
-	else
-	{
-		if (s_ptr->flags3 & (SF3_INC_STR))
-		  {
-		    if (do_inc_stat(A_STR)) obvious = TRUE;
-		    if (do_inc_stat(A_SIZ)) obvious = TRUE;
-		  }
-		if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
-		if (s_ptr->flags3 & (SF3_INC_DEX))
-		  {
-		    if (do_inc_stat(A_DEX)) obvious = TRUE;
-		    if (do_inc_stat(A_AGI)) obvious = TRUE;
-		  }
-		if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
-		if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
 	}
 
 	/* SF3 - healing self, and untimed improvements */
@@ -7263,38 +6455,37 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (set_slow(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_MEM)) && (set_amnesia(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (remove_curse())) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (clear_timed(TMD_SLOW, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_MEM)) && (clear_timed(TMD_AMNESIA, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (remove_curse())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (remove_all_curse())) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_SLOW_CUTS)) && (set_cut(p_ptr->cut / 2))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (set_cut(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_SLOW_STUN)) && (set_stun(p_ptr->stun / 2))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_STUN)) && (set_stun(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (set_poisoned(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_CONF)) && (set_confused(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_PFIX_CUTS)) && (pfix_timed(TMD_CUT, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (clear_timed(TMD_CUT, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_PFIX_STUN)) && (pfix_timed(TMD_STUN, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_STUN)) && (clear_timed(TMD_STUN, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (clear_timed(TMD_POISONED, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CONF)) && (clear_timed(TMD_CONFUSED, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_FOOD)) && (set_food(PY_FOOD_MAX -1))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_afraid(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_petrify(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (set_blind(0))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_IMAGE)) && (set_image(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (clear_timed(TMD_AFRAID, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (clear_timed(TMD_BLIND, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_IMAGE)) && (clear_timed(TMD_IMAGE, TRUE))) obvious = TRUE;
 
 
 	if (s_ptr->flags3 & (SF3_DEC_EXP))
 	{
 		/* Undead races are healed instead */
 		if (p_ptr->cur_flags4 & TR4_UNDEAD
-			&& !p_ptr->blessed)
+			&& !p_ptr->timed[TMD_BLESSED])
 		{
 			obvious = hp_player(300);
 
 			equip_can_flags(0x0L,0x0L,0x0L,TR4_UNDEAD);
 		}
 		else if ((p_ptr->cur_flags3 & (TR3_HOLD_LIFE)) != 0
-				 || p_ptr->blessed 
+				 || p_ptr->timed[TMD_BLESSED]
 				 || p_ptr->exp == 0)
 		{
-			if (!p_ptr->blessed && p_ptr->exp > 0) 
+			if (!p_ptr->timed[TMD_BLESSED] && p_ptr->exp > 0)
 				equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE,0x0L);
 			equip_not_flags(0x0L,0x0L,0x0L,TR4_UNDEAD);
 		}
@@ -7337,7 +6528,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
  * This helper function allows the player to ensorcle a single
  * round of attacks, round of shots or round of shooting with
  * various effects.
- * 
+ *
  * Returns FALSE if cancelled
  */
 bool process_spell_blow_shot_hurl(int type)
@@ -7347,37 +6538,37 @@ bool process_spell_blow_shot_hurl(int type)
 		case SPELL_BLOW_HACK:
 		{
 			int dir;
-			
+
 			/* Allow direction to be cancelled for free */
 			if (!get_rep_dir(&dir)) return (FALSE);
-			
+
 			/* Attack */
 			py_attack(dir);
-			
+
 			break;
 		}
 		case SPELL_SHOT_HACK:
 		{
 			/* Fire */
-			do_cmd_fire();
-			
+			do_cmd_item(p_ptr->fire_command);
+
 			/* Cancelled */
 			if (!p_ptr->energy_use) return (FALSE);
-			
+
 			break;
 		}
 		case SPELL_HURL_HACK:
 		{
 			/* Fire */
-			do_cmd_throw();
-			
+			do_cmd_item(COMMAND_ITEM_THROW);
+
 			/* Cancelled */
 			if (!p_ptr->energy_use) return (FALSE);
-			
+
 			break;
 		}
 	}
-	
+
 	return (TRUE);
 }
 
@@ -7385,7 +6576,7 @@ bool process_spell_blow_shot_hurl(int type)
 
 /*
  * Process the spell types.
- * 
+ *
  * Basically a collection of hacks
  */
 bool process_spell_types(int who, int spell, int level, bool *cancel)
@@ -7399,13 +6590,13 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 	int dir;
 
 	/* Roll out the duration */
-	if ((s_ptr->l_dice) && (s_ptr->l_side))
+	if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
 	{
-		lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+		lasts = damroll(s_ptr->lasts_dice, s_ptr->lasts_side) + s_ptr->lasts_plus;
 	}
 	else
 	{
-		lasts = s_ptr->l_plus;
+		lasts = s_ptr->lasts_plus;
 	}
 
 	/* Has another effect? */
@@ -7502,7 +6693,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_SUMMON_GROUP_IDX:
 			{
 				summon_group_type = s_ptr->param;
-				
+
 				if (summon_specific(p_ptr->py, p_ptr->px, 0, p_ptr->depth+5, SUMMON_GROUP, TRUE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
 				*cancel = FALSE;
 				break;
@@ -7514,25 +6705,11 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				obvious = TRUE;
 				break;
 			}
-			case SPELL_EARTHQUAKE:
-			{
-				earthquake(p_ptr->py,p_ptr->px, s_ptr->param);
-				*cancel = FALSE;
-				obvious = TRUE;
-				break;
-			}
-			case SPELL_DESTRUCTION:
-			{
-				destroy_area(p_ptr->py,p_ptr->px, s_ptr->param, TRUE);
-				*cancel = FALSE;
-				obvious = TRUE;
-				break;
-			}
 			case SPELL_CURE_DISEASE:
 			{
 				u32b v;
 				u32b old_disease = p_ptr->disease;
-				
+
 				char output[1024];
 
 				/* Hack -- cure disease */
@@ -7561,7 +6738,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					if (p_ptr->disease)
 					{
 						msg_print("This cure is ineffective for what ails you.");
-						obvious = TRUE;						
+						obvious = TRUE;
 					}
 					break;
 				}
@@ -7610,16 +6787,35 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 				break;
 			}
-			case SPELL_SLOW_CONF:
+			case SPELL_PFIX_CONF:
 			{
 				*cancel = FALSE;
-				if (set_confused(p_ptr->confused / 2)) obvious = TRUE;
+				if (pfix_timed(TMD_CONFUSED, TRUE)) obvious = TRUE;
+				break;
+			}
+			case SPELL_PFIX_POIS:
+			{
+				*cancel = FALSE;
+				if (pfix_timed(TMD_POISONED, TRUE)) obvious = TRUE;
 				break;
 			}
 			case SPELL_SLOW_POIS:
 			{
 				*cancel = FALSE;
-				if (set_poisoned(p_ptr->poisoned / 2)) obvious = TRUE;
+				if (set_slow_poison(p_ptr->timed[TMD_SLOW_POISON] + lasts)) obvious = TRUE;
+				break;
+			}
+			case SPELL_SLOW_DIGEST:
+			{
+				*cancel = FALSE;
+				if (inc_timed(TMD_SLOW_DIGEST, lasts, TRUE)) obvious = TRUE;
+				break;
+			}
+			case SPELL_SLOW_META:
+			{
+				*cancel = FALSE;
+				if (inc_timed(TMD_SLOW_DIGEST, lasts, TRUE)) obvious = TRUE;
+				if (inc_timed(TMD_SLOW_POISON, lasts, TRUE)) obvious = TRUE;
 				break;
 			}
 			case SPELL_IDENT_PACK:
@@ -7632,14 +6828,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_CHANGE_SHAPE:
 			{
 				*cancel = FALSE;
-				change_shape(s_ptr->param, level);
+				change_shape(s_ptr->param);
 				obvious = TRUE;
 				break;
 			}
 			case SPELL_REVERT_SHAPE:
 			{
 				*cancel = FALSE;
-				change_shape(p_ptr->prace, level);
+				change_shape(p_ptr->prace);
 				obvious = TRUE;
 				break;
 			}
@@ -7681,36 +6877,36 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Refer to the item */
 					o_ptr = &inventory[item];
 				}
-	
+
 				/* Switch on light source */
 				if (o_ptr->charges)
 				{
 					o_ptr->timeout = o_ptr->charges;
 					o_ptr->charges = 0;
 				}
-				
+
 				/* Increase fuel */
 				o_ptr->timeout += s_ptr->param / o_ptr->number;
-				
+
 				/* Over-fuel message */
 				if (o_ptr->timeout >= FUEL_TORCH)
 				{
 					o_ptr->timeout = FUEL_TORCH;
 					msg_format("Your torch%s fully fueled.", o_ptr->number > 1 ? "es are" : " is");
 				}
-				
+
 				/* Lite if necessary */
 				if (item == INVEN_LITE) p_ptr->update |= (PU_TORCH);
 				*cancel = FALSE;
 				break;
 			}
-			
+
 			case SPELL_IDENT_NAME:
 			{
 				if ((!ident_spell_name()) && (*cancel)) return (TRUE);
 				*cancel = FALSE;
 				obvious = TRUE;
-				break;				
+				break;
 			}
 
 			case SPELL_USE_OBJECT:
@@ -7731,7 +6927,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				u32b old_cur_flags3 = p_ptr->cur_flags3;
 
 				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir)) return (!(*cancel));
+				if (!get_aim_dir(&dir, 0, 0, 0, 0, 0)) return (!(*cancel));
 
 				/* Use the given direction */
 				ty = p_ptr->py + 99 * ddy[dir];
@@ -7743,12 +6939,12 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					ty = p_ptr->target_row;
 					tx = p_ptr->target_col;
 				}
-				
+
 				/* Paranoia - ensure we have no outstanding updates before messing with
 				 * player variables. */
 				update_stuff();
 				redraw_stuff();
-				
+
 				/* Paranoia - ensure bounds */
 				if (in_bounds_fully(ty, tx))
 				{
@@ -7757,7 +6953,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					{
 						monster_type *m_ptr = &m_list[cave_m_idx[ty][tx]];
 						monster_race *r_ptr = &r_info[m_ptr->r_idx];
-					
+
 						/* Hack -- get monster light radius */
 						if (((r_ptr->flags2 & (RF2_HAS_LITE)) != 0) ||
 							((r_ptr->flags1 & (MFLAG_LITE)) != 0))
@@ -7770,20 +6966,20 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 							/* No lite */
 							p_ptr->cur_lite = 0;
 						}
-					
+
 						/* Hack - special darknes sight for monsters that don't need lite */
 						if ((r_ptr->flags2 & (RF2_NEED_LITE)) == 0)
 						{
 							/* Get maximum sight */
 							p_ptr->see_infra = MIN(MAX_SIGHT, r_ptr->aaf);
 						}
-					
+
 						/* Hack - monsters that see invisible */
 						if ((r_ptr->flags2 & (RF2_INVISIBLE)) != 0)
 						{
 							p_ptr->cur_flags3 |= (TR3_SEE_INVIS);
 						}
-					
+
 						/* XXX Show player scent?? */
 					}
 					/* Hack -- second sight */
@@ -7792,7 +6988,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 						/* Does not have innate light */
 						p_ptr->cur_lite = 0;
 					}
-				
+
 					/* Use target location */
 					p_ptr->py = ty;
 					p_ptr->px = tx;
@@ -7805,11 +7001,11 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Update display */
 					update_stuff();
 					redraw_stuff();
-				
+
 					/* Message */
 					msg_print("You cast your mind adrift.");
 					msg_print("");
-								
+
 					/* Reset hacks */
 					p_ptr->py = old_py;
 					p_ptr->px = old_px;
@@ -7825,14 +7021,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 					/* Final update */
 					update_stuff();
 					redraw_stuff();
-					
+
 					/* Obvious */
 					*cancel = FALSE;
 					obvious = TRUE;
 					break;
 				}
 			}
-			
+
 			case SPELL_LIGHT_CHAMBERS:
 			{
 				int x, y, i;
@@ -7846,16 +7042,16 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 						if ((cave_info[y][x] & (CAVE_ROOM)) && !(room_has_flag(y, x, (ROOM_ICKY | ROOM_HIDDEN))))
 						{
 							cave_info[y][x] |= (CAVE_GLOW);
-							
+
 							/* Light spills out of windows etc. */
 							if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
 							{
 								for (i = 0; i < 8; i++)
 								{
-									cave_info[y + ddy_ddd[i]][x + ddx_ddd[i]] |= (CAVE_GLOW);								
+									cave_info[y + ddy_ddd[i]][x + ddx_ddd[i]] |= (CAVE_GLOW);
 								}
 							}
-							
+
 							*cancel = FALSE;
 							obvious = TRUE;
 						}
@@ -7869,14 +7065,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				msg_print("Oops. Spell not yet implemented.");
 				break;
 			}
-			
+
 			case SPELL_RELEASE_CURSE:
 			{
 				obvious |= thaumacurse(TRUE, 2 * level + level * level / 20);
 				*cancel = FALSE;
 				break;
 			}
-			
+
 			case SPELL_SET_RETURN:
 			case SPELL_SET_OR_MAKE_RETURN:
 			case SPELL_CONCENTRATE_LITE:
@@ -7886,26 +7082,26 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Implemented elsewhere */
 				break;
 			}
-			
+
 			case SPELL_REST_UNTIL_DUSK:
 			case SPELL_REST_UNTIL_DAWN:
 			{
 				feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
-				
+
 				/* Hack -- only on the surface for the moment */
 				if ((level_flag & (LF1_SURFACE | LF1_TOWN)) == 0)
 				{
 					msg_print("You cannot tell what time of day or night it is.");
 					break;
 				}
-				
+
 				/* Hack -- Vampires must be able to hide in the soil */
 				if (((f_ptr->flags1 & (FF1_ENTER)) == 0) && ((f_ptr->flags2 & (FF2_CAN_DIG)) == 0))
 				{
 					msg_print("You cannot rest here.");
 					break;
 				}
-				
+
 				/* Check that it's day or night */
 				if (((level_flag & (LF1_DAYLIGHT)) != 0) != (s_ptr->type == SPELL_REST_UNTIL_DAWN))
 				{
@@ -7916,7 +7112,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Save the old dungeon in case something goes wrong */
 				if (autosave_backup)
 					do_cmd_save_bkp();
-				
+
 				/* Hack -- Set time to one turn before sun down / sunrise */
 				turn += ((10L * TOWN_DAWN) / 2) - (turn % ((10L * TOWN_DAWN) / 2)) - 1;
 
@@ -7924,7 +7120,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 				/* Inform the player */
 				if (s_ptr->type == SPELL_REST_UNTIL_DUSK) msg_print("You sleep during the day.");
-				
+
 				/* Heroes don't sleep easy */
 				else
 				{	switch(p_ptr->lev / 10)
@@ -7940,22 +7136,22 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 				/* Hack -- regenerate level */
 				p_ptr->leaving = TRUE;
-				
+
 				*cancel = FALSE;
 				obvious = TRUE;
-				
+
 				break;
 			}
-			
+
 			case SPELL_MAGIC_BLOW:
 			case SPELL_MAGIC_SHOT:
 			case SPELL_MAGIC_HURL:
 			{
 				bool result;
-				
+
 				/* Magical blow */
 				p_ptr->branded_blows = s_ptr->param;
-				
+
 				/* Hack - try to assist a couple of things.
 				 * Note that a lot of flags don't actually work
 				 * such as e.g. stat bonuses. We hackily adjust
@@ -7994,7 +7190,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 						break;
 					}
 				}
-				
+
 				/* Allow direction to be cancelled for free */
 				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_MAGIC_BLOW);
 
@@ -8018,23 +7214,23 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 						break;
 					}
 				}
-				
+
 				if (!result) return (!(*cancel));
 
 				*cancel = FALSE;
-				obvious = TRUE;				
+				obvious = TRUE;
 				break;
 			}
-			
+
 			case SPELL_ACCURATE_BLOW:
 			case SPELL_ACCURATE_SHOT:
 			case SPELL_ACCURATE_HURL:
 			{
 				bool result;
-				
+
 				/* Accurate blow */
 				p_ptr->to_h = s_ptr->param;
-				
+
 				/* Allow direction to be cancelled for free */
 				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_ACCURATE_BLOW);
 
@@ -8053,10 +7249,10 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_DAMAGING_HURL:
 			{
 				bool result;
-				
+
 				/* Damaging blow */
 				p_ptr->to_d += s_ptr->param;
-				
+
 				/* Allow direction to be cancelled for free */
 				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_DAMAGING_BLOW);
 
@@ -8066,15 +7262,30 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				if (!result) return (!(*cancel));
 
 				*cancel = FALSE;
-				obvious = TRUE;				
+				obvious = TRUE;
 				break;
 			}
-			
+
+			case SPELL_REGION:
+			case SPELL_SET_TRAP:
+			case SPELL_DELAY_SPELL:
+			{
+				/* Already initialized elsewhere */
+				break;
+			}
+
 			default:
 			{
-				wield_spell(s_ptr->type,s_ptr->param,lasts, level, 0);
-				*cancel = FALSE;
-				obvious = TRUE;
+				if ((s_ptr->type >= INVEN_WIELD) && (s_ptr->type < END_EQUIPMENT))
+				{
+					wield_spell(s_ptr->type,s_ptr->param,lasts, level, 0);
+					*cancel = FALSE;
+					obvious = TRUE;
+				}
+				else
+				{
+					msg_format("Undefined spell %d.", s_ptr->type);
+				}
 				break;
 			}
 		}
@@ -8084,203 +7295,291 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 	return (obvious);
 }
 
+
+/*
+ * Hook to determine if a trap is useful.
+ */
+bool item_tester_hook_magic_trap(const object_type *o_ptr)
+{
+	/* Check based on tval */
+	switch(o_ptr->tval)
+	{
+		/* All these are good */
+		case TV_MUSHROOM:
+		case TV_HAFTED:
+		case TV_SWORD:
+		case TV_POLEARM:
+		case TV_WAND:
+		case TV_STAFF:
+		case TV_ROD:
+		case TV_DRAG_ARMOR:
+		case TV_POTION:
+		case TV_SCROLL:
+		case TV_FLASK:
+		case TV_LITE:
+		case TV_SPIKE:
+			return (TRUE);
+	}
+
+	/* Assume not edible */
+	return (FALSE);
+}
+
+
+/* Hack to allow us to record the item used for later */
+int set_magic_trap_item;
+
+/*
+ * The player sets a magic trap
+ */
+bool player_set_magic_trap(int item)
+{
+	/* Hack - record the item selected */
+	set_magic_trap_item = item;
+
+	/* Destroy item later */
+	return (TRUE);
+}
+
+
+
+
 /*
  * Some spell actions have to occur prior to processing the spell
  * proper.
- * 
+ *
  * We check the spell to see if we have to set a return point as
  * we have to set return points before processing spell blows.
- * 
+ *
  * We also concentrate spells here, in order to hackily set
  * the spell power for later processing in spell blows.
+ *
+ * When browsing spells, we should also call this function to
+ * correctly initialize the spell for the current circumstances.
+ * When doing this forreal is set to FALSE, and interact is set to
+ * TRUE if the player is examining the individual spell, and FALSE
+ * if just browsing.
  */
-void process_spell_prepare(int spell, int level)
+bool process_spell_prepare(int spell, int level, bool *cancel, bool forreal, bool interact)
 {
 	spell_type *s_ptr = &s_info[spell];
-	
-	/* Many of these boost spell damage / power */
-	int power = 0;
-	
+	bool obvious = FALSE;
+
+	/* Clear boost */
+	p_ptr->boost_spell_power = 0;
+
 	switch (s_info[spell].type)
 	{
 		case SPELL_SET_RETURN:
-		case SPELL_SET_OR_MAKE_RETURN:		
+		case SPELL_SET_OR_MAKE_RETURN:
 		{
 			bool return_time = FALSE;
-			
-			/* Set the return location if required */
-			if (!(p_ptr->return_y) && !(p_ptr->return_x))
+
+			/* This affects the game world */
+			if (forreal)
 			{
-				/* Set return point */
-				p_ptr->return_y = p_ptr->py;
-				p_ptr->return_x = p_ptr->px;
-				
-				/* Set the return time */
-				if (s_ptr->type == SPELL_SET_RETURN) return_time = TRUE;
-			}
-			/* Set the return time */
-			else if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN)
-			{
-				/* Set the return time */
-				return_time = TRUE;
-			}
-			
-			/* Set return time */
-			if (return_time)
-			{
-				/* Roll out the duration */
-				if ((s_ptr->l_dice) && (s_ptr->l_side))
+				/* Set the return location if required */
+				if (!(p_ptr->return_y) && !(p_ptr->return_x))
 				{
-					p_ptr->word_return = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+					/* Set return point */
+					p_ptr->return_y = p_ptr->py;
+					p_ptr->return_x = p_ptr->px;
+
+					/* Set the return time */
+					if (s_ptr->type == SPELL_SET_RETURN) return_time = TRUE;
 				}
-				else
+				/* Set the return time */
+				else if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN)
 				{
-					p_ptr->word_return = s_ptr->l_plus;
+					/* Set the return time */
+					return_time = TRUE;
 				}
+
+				/* Set return time */
+				if (return_time)
+				{
+					/* Roll out the duration */
+					if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
+					{
+						p_ptr->word_return = damroll(s_ptr->lasts_dice, s_ptr->lasts_side) + s_ptr->lasts_plus;
+					}
+					else
+					{
+						p_ptr->word_return = s_ptr->lasts_plus;
+					}
+				}
+
+				obvious = TRUE;
+				*cancel = FALSE;
 			}
-			
+
 			break;
 		}
-		
+
 		case SPELL_CONCENTRATE_LITE:
 		{
-			power = concentrate_power(p_ptr->py, p_ptr->px,
-					5 + level / 10, TRUE, TRUE, concentrate_light_hook);
+			p_ptr->boost_spell_power = concentrate_power(p_ptr->py, p_ptr->px,
+					5 + level / 10, forreal, TRUE, concentrate_light_hook);
 			break;
 		}
-	
+
 		case SPELL_CONCENTRATE_LIFE:
 		{
-			power = s_ptr->l_plus = concentrate_power(p_ptr->py, p_ptr->px,
-					5 + level / 10, TRUE, FALSE, concentrate_life_hook);
+			p_ptr->boost_spell_power = concentrate_power(p_ptr->py, p_ptr->px,
+					5 + level / 10, forreal, FALSE, concentrate_life_hook);
 			break;
 		}
-		
+
 		case SPELL_CONCENTRATE_WATER:
 		{
-			power = concentrate_power(p_ptr->py, p_ptr->px,
-					5 + level / 10, TRUE, FALSE, concentrate_water_hook);
+			p_ptr->boost_spell_power = concentrate_power(p_ptr->py, p_ptr->px,
+					5 + level / 10, forreal, FALSE, concentrate_water_hook);
 			break;
 		}
-		
+
 		case SPELL_RELEASE_CURSE:
 		{
-			power =	thaumacurse(TRUE, level + (level * level / 20));
+			p_ptr->boost_spell_power =	thaumacurse(TRUE, level + (level * level / 20));
 			break;
+		}
+
+		case SPELL_SUMMON_RACE:
+		{
+			/* You can choose a familiar ahead of time by examining the find familiar spell */
+			if (interact)
+			{
+				/* Choose familiar if summoning it for the first time */
+				if ((s_ptr->param == FAMILIAR_IDX) && (!p_ptr->familiar))
+				{
+					p_ptr->familiar = (byte)randint(19);
+					msg_format("You have found %s %s as a familiar.", is_a_vowel(familiar_race[p_ptr->familiar].name[0]) ? "an" : "a",
+							familiar_race[p_ptr->familiar].name);
+
+					/* Set the default attributes */
+					p_ptr->familiar_attr[0] = familiar_race[p_ptr->familiar].attr1;
+					p_ptr->familiar_attr[1] = familiar_race[p_ptr->familiar].attr2;
+
+					improve_familiar();
+				}
+
+				/* Obvious */
+				*cancel = FALSE;
+				obvious = TRUE;
+			}
+			break;
+		}
+
+		case SPELL_SET_TRAP:
+		{
+			/* You can see how much damage a particular object does when setting it in a trap */
+			if (interact)
+			{
+				int item;
+				int power;
+				object_type *o_ptr;
+
+				/* Pick the item */
+				if (do_cmd_item(COMMAND_ITEM_MAGIC_TRAP))
+				{
+					/* Get the item */
+					item = set_magic_trap_item;
+
+					/* Get the item (in the pack) */
+					if (item >= 0)
+					{
+						o_ptr = &inventory[item];
+					}
+
+					/* Get the item (on the floor) */
+					else
+					{
+						o_ptr = &o_list[0 - item];
+					}
+
+					/* Get item effect */
+					get_spell(&power, "use", o_ptr, FALSE);
+
+					/* Modify power */
+					p_ptr->boost_spell_power = process_item_blow(0, 0, o_ptr, 0, 0, FALSE, FALSE);
+
+					/*
+					 * This hack is so ugly, I'm going to have to shower afterwards.
+					 */
+					s_ptr->blow[0].effect = power ? s_info[power].blow[0].effect : GF_HURT;
+
+					/* Use up the item if required */
+					if (forreal)
+					{
+						/* Destroy an item in the pack */
+						if (item >= 0)
+						{
+							if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
+							inven_item_increase(item, -1);
+							inven_item_describe(item);
+							inven_item_optimize(item);
+						}
+
+						/* Destroy a food on the floor */
+						else
+						{
+							floor_item_increase(0 - item, -1);
+							floor_item_describe(0 - item);
+							floor_item_optimize(0 - item);
+						}
+
+						/* Window stuff */
+						p_ptr->window |= (PW_INVEN | PW_EQUIP);
+					}
+
+
+					/* Done something? */
+					*cancel = FALSE;
+				}
+
+				/* Obvious */
+				obvious = TRUE;
+			}
+			/* Paranoia */
+			else
+			{
+				/* Not interacting --> no effect */
+				s_ptr->blow[0].effect = GF_NOTHING;
+			}
+
+			break;
+		}
+
+		/* The spell */
+		case SPELL_DELAY_SPELL:
+		{
+			/* Use up the item if required */
+			if (forreal)
+			{
+				/* Choose the effect */
+				p_ptr->spell_trap = s_ptr->param;
+
+				/* Set the delay */
+				if ((s_ptr->lasts_dice) && (s_ptr->lasts_side))
+				{
+					p_ptr->delay_spell = damroll(s_ptr->lasts_dice, s_ptr->lasts_side) + s_ptr->lasts_plus;
+				}
+				else if (s_ptr->lasts_plus)
+				{
+					p_ptr->delay_spell = s_ptr->lasts_plus;
+				}
+			}
 		}
 	}
 
-	/* Hack -- modify spell power */
-	if (power)
-	{
-		if (s_ptr->l_dice && !s_ptr->l_side) s_ptr->l_side = power;
-		else s_ptr->l_plus += power;
-	}
+	return (obvious);
 }
 
 
 /*
- * Hack -- we process swallowed objects a little differently.
+ * Process spells
  */
-bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel)
-{
-	spell_type *s_ptr = &s_info[spell];
-
-	bool obvious = FALSE;
-	bool known = FALSE;
-
-	int ap_cnt;
-
-	/* Inform the player */
-	if (strlen(s_text + s_info[spell].text))
-	{
-		msg_format("%s",s_text + s_info[spell].text);
-		obvious = TRUE;
-	}
-
-	/* Check for return flags */
-	process_spell_prepare(spell, level);
-	
-	/* Scan through all four blows */
-	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
-	{
-		int damage = 0;
-
-		int dir;
-
-		/* Extract the attack infomation */
-		int effect = s_ptr->blow[ap_cnt].effect;
-		int method = s_ptr->blow[ap_cnt].method;
-		int d_dice = s_ptr->blow[ap_cnt].d_dice;
-		int d_side = s_ptr->blow[ap_cnt].d_side;
-		int d_plus = s_ptr->blow[ap_cnt].d_plus;
-
-		/* Hack -- no more attacks */
-		if (!method) break;
-
-		/* Mega hack -- dispel evil/undead objects */
-		if ((!d_side) && (!level))
-		{
-			d_plus += 25 * d_dice;
-		}
-		/* Hack -- use level as modifier */
-		else if (!d_side)
-		{
-			d_plus += level * d_dice;
-		}
-
-		/* Roll out the damage */
-		if ((d_dice) && (d_side))
-		{
-			damage = damroll(d_dice, d_side) + d_plus;
-		}
-		else
-		{
-			damage = d_plus;
-		}
-
-		/* Hack -- breath weapons act like a normal spell */
-		if ((method == RBM_BREATH) && (get_aim_dir(&dir)))
-		{
-			if (fire_ball(who, what, effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
-		}
-		/* Hack -- spitting acts like a normal spell */
-		else if ((method == RBM_SPIT) && (get_rep_dir(&dir)))
-		{
-			if (fire_hands(who, what, effect, dir, damage)) obvious = TRUE;
-		}
-		/* Hack -- vomit in a random direction */
-		else if (method == RBM_VOMIT)
-		{
-			/* Random direction */
-			dir = ddd[rand_int(8)];
-
-			if (fire_hands(who, what, effect, dir, damage)) obvious = TRUE;
-		}
-		else
-		{
-			/* Apply damage */
-			if (project_p(who, what,p_ptr->py,p_ptr->px,damage, effect)) obvious = TRUE;
-
-			/* Apply teleport and other effects */
-			if (project_t(who, what,p_ptr->py,p_ptr->px,damage, effect)) obvious = TRUE;
-		}
-	}
-
-	/* Apply flags */
-	if (process_spell_flags(who, what, spell, level, cancel, &known)) obvious = TRUE;
-
-	/* Apply flags */
-	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
-
-	return (obvious);
-
-}
-
-
-
-
-bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *known)
+bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *known, bool eaten)
 {
 	bool obvious = FALSE;
 
@@ -8292,7 +7591,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 
 		/* Create a fake object */
 		object_prep(o_ptr, s_info[spell].param);
-		
+
 		/* Get a power */
 		get_spell(&spell, "use", o_ptr, FALSE);
 	}
@@ -8304,14 +7603,15 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 		obvious = TRUE;
 	}
 
-	/* Check for return flags */
-	process_spell_prepare(spell, level);	
-	
 	/* Note the order is important -- because of the impact of blinding a character on their subsequent
 		ability to see spell blows that affect themselves */
-	if (process_spell_blows(who, what, spell, level, cancel)) obvious = TRUE;
+	if (process_spell_prepare(spell, level, cancel, TRUE, !eaten)) obvious = TRUE;
+	if (process_spell_blows(who, what, spell, level, cancel, known, eaten)) obvious = TRUE;
 	if (process_spell_flags(who, what, spell, level, cancel, known)) obvious = TRUE;
-	if (process_spell_types(who, spell, level, cancel)) obvious = TRUE;
+	if ((!eaten) && (process_spell_types(who, spell, level, cancel))) obvious = TRUE;
+
+	/* Paranoia - clear boost */
+	p_ptr->boost_spell_power = 0;
 
 	/* Return result */
 	return (obvious);
@@ -8321,19 +7621,36 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 /*
  * Apply spell from an item as a blow to one grid and monsters/players, but not objects.
  *
+ * If one grid is false, we apply the full from the player to the target grid.
+ * Otherwise we only affect the targetted grid.
+ *
  * XXX We assume that there is only 1 item in the stack at present.
  */
-bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
+int process_item_blow(int who, int what, object_type *o_ptr, int y, int x, bool forreal, bool one_grid)
 {
 	int power = 0;
 	bool obvious = FALSE;
+	bool cancel = TRUE;
+
+	int damage = 0;
 
 	/* Get item effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Check for return if player */
-	if (cave_m_idx[y][x] < 0) process_spell_prepare(power, 25);
-	
+	if (cave_m_idx[y][x] < 0) process_spell_prepare(power, 25, &cancel, forreal, FALSE);
+
+	/* Calculate average base damage if guessing */
+	if (!forreal)
+	{
+		int d_dice = o_ptr->dd;
+		int d_side = o_ptr->ds;
+		int d_plus = o_ptr->to_d;
+
+		/* Base damage */
+		damage += d_side > 1 ? (d_dice * (d_side + 1)) / 2 + d_plus : d_dice * d_side + d_plus;
+	}
+
 	/* Has a power */
 	if (power > 0)
 	{
@@ -8344,49 +7661,79 @@ bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
 		int flg = (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_GRID | PROJECT_PLAY);
 
 		/* Object is used */
-		if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
+		if ((forreal) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
 
 		/* Scan through all four blows */
 		for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 		{
-			int damage = 0;
+			/* Get the blow */
+			spell_blow *blow_ptr = &s_ptr->blow[ap_cnt];
 
 			/* Extract the attack infomation */
-			int effect = s_ptr->blow[ap_cnt].effect;
-			int method = s_ptr->blow[ap_cnt].method;
-			int d_dice = s_ptr->blow[ap_cnt].d_dice;
-			int d_side = s_ptr->blow[ap_cnt].d_side;
-			int d_plus = s_ptr->blow[ap_cnt].d_plus;
+			int effect = blow_ptr->effect;
+			int method = blow_ptr->method;
+
+			method_type *method_ptr = &method_info[method];
+
+			int i;
+			int num  = scale_method(method_ptr->number, p_ptr->lev);
 
 			/* Hack -- no more attacks */
 			if (!method) break;
 
-			/* Mega hack -- dispel evil/undead objects */
-			if (!d_side)
-			{
-				d_plus += 25 * d_dice;
-			}
+			/* Determine damage */
+			damage += spell_damage(blow_ptr, 0, 0L, FALSE, forreal) / (coated_p(o_ptr) ? 5 : 1);
 
-			/* Roll out the damage */
-			if ((d_dice) && (d_side))
+			/* Reapply apply damage? */
+			if (forreal)
 			{
-				damage = damroll(d_dice, d_side) + d_plus;
+				/* Affected only one grid */
+				if (one_grid)
+				{
+					/* Apply damage as projection */
+					obvious |= project_one(who, what, y, x, damage, effect, flg);
+				}
+				else
+				{
+					/* Apply damage as a real projection */
+					for (i = 0; i < num; i++)
+					{
+						/* Projection method */
+						obvious |= project_method(who, what, method, effect, damage, 0, p_ptr->py, p_ptr->px, y, x, 0, flg);
+					}
+				}
+
+				/* We've applied the damage */
+				damage = 0;
 			}
 			else
 			{
-				damage = d_plus;
+				continue;
 			}
-
-			/* Hack -- apply damage as projection */
-			obvious |= project(who, what, 0, y, x, y, x,
-				(coated_p(o_ptr) ? damage / 5 : damage), effect, flg, 0, 0);
 		}
+
+		/* We've calculated damage? */
+		if (!forreal) return (damage);
 
 		/* Evaluate coating */
 		if (obvious && (coated_p(o_ptr)))
 		{
-			int k_idx = lookup_kind(o_ptr->xtra1, o_ptr->xtra2);
-			k_info[k_idx].aware = TRUE;
+			object_type object_type_body;
+			object_type *i_ptr = &object_type_body;
+
+			int coating = lookup_kind(o_ptr->xtra1, o_ptr->xtra2);
+
+			/* Prepare object */
+			object_prep(i_ptr,coating);
+
+			/* Queue tips */
+			object_aware_tips(i_ptr, FALSE);
+
+			/* Make coating aware */
+			k_info[coating].aware |= (AWARE_FLAVOR);
+
+			k_info[coating].aware &= ~(AWARE_TRIED);
+
 			if (o_ptr->feeling == INSCRIP_COATED) o_ptr->feeling = 0;
 		}
 
@@ -8425,11 +7772,2212 @@ bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
 			else
 			{
 				/* Time object out */
-				o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
+				o_ptr->timeout = (s16b)rand_int(o_ptr->charges)+o_ptr->charges;
 			}
 		}
 	}
 
 	/* Anything seen? */
-	return(obvious);
+	return(obvious ? -1 : 0);
+}
+
+/*
+ * Regions are a collection of grids that have a common ongoing effect.
+ *
+ * We usually define a region to indicate what grids an ongoing effect will possibly hit.
+ * We use the projection function to return a list of grids, by passing it the PROJECT_CHCK
+ * flag. We then initialise a region based on this list of grids.
+ *
+ * A region can be traversed in one of two ways:
+ *
+ * 1. cave_region_piece[y][x] refers to the first region index on top of a stack of regions.
+ * Subsequent regions are chained together as a linked list of regions referred to by the
+ * next_region_idx of each previous region in the list.
+ *
+ * 2. ongoing_effect[n] refers to the first region index of all grids that have a common
+ * effect applied to them. Subsequent regions are chained together as a linked list of
+ * all regions referred by by the next_region_sequence of each previous region in the list.
+ *
+ * We'll only every add and remove to regions by adding or deleting a list of grids
+ * corresponding to an effect. However, if we modify a grid so that it blocks or unblocks
+ * line of sight or line of fire (as appropriate) for an effect on that grid, we will
+ * need to recompute the list of grids in the region for the ongoing effect.
+ *
+ * All this complication is required to ensure that we have a list of all ongoing effects
+ * that could possibly apply to a particular grid, so that the monster AI can determine
+ * whether a grid is safe or not.
+ */
+
+/*
+ * Excise a region piece from any stacks
+ */
+void excise_region_piece(s16b region_piece)
+{
+	int y = region_piece_list[region_piece].y;
+	int x = region_piece_list[region_piece].x;
+
+	s16b this_region_piece, next_region_piece = 0;
+
+	s16b prev_region_piece = 0;
+
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Done */
+		if (this_region_piece == region_piece)
+		{
+			if (prev_region_piece == 0)
+			{
+				cave_region_piece[y][x] = next_region_piece;
+			}
+			else
+			{
+				region_piece_type *i_ptr;
+
+				/* Previous object */
+				i_ptr = &region_piece_list[prev_region_piece];
+
+				/* Remove from list */
+				i_ptr->next_in_grid = next_region_piece;
+			}
+
+			/* Forget next pointer */
+			rp_ptr->next_in_grid = 0;
+
+			/* Done */
+			break;
+		}
+
+		/* Save prev_o_idx */
+		prev_region_piece = this_region_piece;
+	}
+}
+
+
+/*
+ * Wipe a region piece clean.
+ */
+void region_piece_wipe(region_piece_type *rp_ptr)
+{
+	/* Wipe the structure */
+	(void)WIPE(rp_ptr, region_piece_type);
+}
+
+
+/*
+ * Delete all region pieces when we leave a level.
+ */
+void wipe_region_piece_list(void)
+{
+	int i;
+
+	/* Delete the existing objects */
+	for (i = 1; i < region_piece_max; i++)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[i];
+
+		/* Get the location */
+		int y = rp_ptr->y;
+		int x = rp_ptr->x;
+
+		/* Skip dead region piece */
+		if (!rp_ptr->region) continue;
+
+		/* Hack -- see above */
+		cave_region_piece[y][x] = 0;
+
+		/* Wipe the region_piece */
+		region_piece_wipe(rp_ptr);
+	}
+
+	/* Reset "o_max" */
+	region_piece_max = 1;
+
+	/* Reset "o_cnt" */
+	region_piece_cnt = 0;
+}
+
+
+/*
+ * Copy a region piece
+ */
+void region_piece_copy(region_piece_type *rp_ptr, const region_piece_type *rp_ptr2)
+{
+	/* Copy the structure */
+	(void)COPY(rp_ptr, rp_ptr2, region_piece_type);
+
+	/* Zero some parameters */
+	rp_ptr->next_in_region = 0;
+	rp_ptr->next_in_grid = 0;
+}
+
+
+/*
+ * Move a region piece from index i1 to index i2 in the region piece list
+ */
+static void compact_region_pieces_aux(int i1, int i2)
+{
+	int i, y, x;
+
+	region_piece_type *rp_ptr;
+	region_type *r_ptr;
+
+	/* Do nothing */
+	if (i1 == i2) return;
+
+	/* Repair region pieces */
+	for (i = 1; i < region_piece_max; i++)
+	{
+		/* Get the object */
+		rp_ptr = &region_piece_list[i];
+
+		/* Skip "dead" objects */
+		if (!rp_ptr->region) continue;
+
+		/* Repair "next" pointers */
+		if (rp_ptr->next_in_region == i1)
+		{
+			/* Repair */
+			rp_ptr->next_in_region = i2;
+		}
+
+		/* Repair "next" pointers */
+		if (rp_ptr->next_in_grid == i1)
+		{
+			/* Repair */
+			rp_ptr->next_in_grid = i2;
+		}
+	}
+
+	/* Repair regions */
+	for (i = 1; i < region_max; i++)
+	{
+		/* Get the object */
+		r_ptr = &region_list[i];
+
+		/* Skip "dead" objects */
+		if (!r_ptr->type) continue;
+
+		/* Repair "next" pointers */
+		if (r_ptr->first_piece == i1)
+		{
+			/* Repair */
+			r_ptr->first_piece = i2;
+		}
+	}
+
+	/* Get the object */
+	rp_ptr = &region_piece_list[i1];
+
+	/* Get location */
+	y = rp_ptr->y;
+	x = rp_ptr->x;
+
+	/* Repair grid */
+	if (cave_region_piece[y][x] == i1)
+	{
+		/* Repair */
+		cave_region_piece[y][x] = i2;
+	}
+
+	/* Hack -- move object */
+	COPY(&region_piece_list[i2], &region_piece_list[i1], region_piece_type);
+
+	/* Hack -- wipe hole */
+	region_piece_wipe(rp_ptr);
+}
+
+
+/*
+ * Compact and Reorder the region piece list
+ *
+ * This function can be very dangerous, use with caution!
+ *
+ * After "compacting" (if needed), we "reorder" the objects into a more
+ * compact order, and we reset the allocation info, and the "live" array.
+ */
+void compact_region_pieces(int size)
+{
+	int i;
+
+	(void)size;
+
+	/* Excise dead objects (backwards!) */
+	for (i = region_piece_max - 1; i >= 1; i--)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[i];
+
+		/* Skip real region pieces */
+		if (rp_ptr->region) continue;
+
+		/* Move last object into open hole */
+		compact_region_pieces_aux(region_piece_max - 1, i);
+
+		/* Compress "region_piece_max" */
+		region_piece_max--;
+	}
+}
+
+
+/*
+ * Get an available region piece
+ */
+s16b region_piece_pop(void)
+{
+	int i;
+
+	/* Initial allocation */
+	if (region_piece_max < z_info->region_piece_max)
+	{
+		/* Get next space */
+		i = region_piece_max;
+
+		/* Expand region piece array */
+		region_piece_max++;
+
+		/* Count region pieces */
+		region_piece_cnt++;
+
+		/* Use this region piece */
+		return (i);
+	}
+
+
+	/* Recycle dead region pieces */
+	for (i = 1; i < region_piece_max; i++)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the region piece */
+		rp_ptr = &region_piece_list[i];
+
+		/* Skip live region pieces */
+		if (rp_ptr->region) continue;
+
+		/* Count region pieces */
+		region_piece_cnt++;
+
+		/* Use this region piece */
+		return (i);
+	}
+
+
+	/* Warn the player */
+	msg_print("Too many region pieces!");
+
+	/* Oops */
+	return (0);
+}
+
+
+/*
+ * This returns a region piece from (y,x) for the corresponding
+ * region, or 0 if no region piece exists on this grid for this
+ * region
+ */
+int get_region_piece(int y, int x, s16b region)
+{
+	s16b this_region_piece, next_region_piece = 0;
+
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Done */
+		if (rp_ptr->region == region)
+		{
+			return (this_region_piece);
+		}
+	}
+
+	return (0);
+}
+
+
+/*
+ * Wipe a region clean.
+ */
+void region_wipe(region_type *r_ptr)
+{
+	/* Wipe the structure */
+	(void)WIPE(r_ptr, region_type);
+}
+
+
+/*
+ * Delete all regions when we leave a level.
+ */
+void wipe_region_list(void)
+{
+	int i;
+
+	/* Delete the existing objects */
+	for (i = 1; i < region_max; i++)
+	{
+		region_type *r_ptr = &region_list[i];
+
+		/* Skip dead region piece */
+		if (!r_ptr->type) continue;
+
+		/* Wipe the region */
+		region_wipe(r_ptr);
+	}
+
+	/* Reset "o_max" */
+	region_max = 1;
+
+	/* Reset "o_cnt" */
+	region_cnt = 0;
+}
+
+
+/*
+ * Move a region piece from index i1 to index i2 in the region piece list
+ */
+static void compact_regions_aux(int i1, int i2)
+{
+	int i;
+
+	region_piece_type *rp_ptr;
+	region_type *r_ptr;
+
+	/* Do nothing */
+	if (i1 == i2) return;
+
+	/* Repair region pieces */
+	for (i = 1; i < region_piece_max; i++)
+	{
+		/* Get the object */
+		rp_ptr = &region_piece_list[i];
+
+		/* Skip "dead" objects */
+		if (!rp_ptr->region) continue;
+
+		/* Repair "next" pointers */
+		if (rp_ptr->region == i1)
+		{
+			/* Repair */
+			rp_ptr->region = i2;
+		}
+	}
+
+	/* Get the object */
+	r_ptr = &region_list[i1];
+
+	/* Hack -- move object */
+	COPY(&region_list[i2], &region_list[i1], region_type);
+
+	/* Hack -- wipe hole */
+	region_wipe(r_ptr);
+}
+
+
+/*
+ * Compact and Reorder the region piece list
+ *
+ * This function can be very dangerous, use with caution!
+ *
+ * After "compacting" (if needed), we "reorder" the objects into a more
+ * compact order, and we reset the allocation info, and the "live" array.
+ */
+void compact_regions(int size)
+{
+	int i;
+
+	(void)size;
+
+	/* Excise dead objects (backwards!) */
+	for (i = region_max - 1; i >= 1; i--)
+	{
+		region_type *r_ptr = &region_list[i];
+
+		/* Skip real region pieces */
+		if (r_ptr->type) continue;
+
+		/* Move last object into open hole */
+		compact_regions_aux(region_max - 1, i);
+
+		/* Compress "region_max" */
+		region_max--;
+	}
+}
+
+
+/*
+ * Get an available region
+ */
+s16b region_pop(void)
+{
+	int i;
+
+	/* Initial allocation */
+	if (region_max < z_info->region_max)
+	{
+		/* Get next space */
+		i = region_max;
+
+		/* Expand region array */
+		region_max++;
+
+		/* Count regions */
+		region_cnt++;
+
+		/* Use this region */
+		return (i);
+	}
+
+
+	/* Recycle dead regions */
+	for (i = 1; i < region_max; i++)
+	{
+		region_type *r_ptr;
+
+		/* Get the region */
+		r_ptr = &region_list[i];
+
+		/* Skip live regions */
+		if (r_ptr->type) continue;
+
+		/* Count regions */
+		region_cnt++;
+
+		/* Use this region */
+		return (i);
+	}
+
+
+	/* Warn the player */
+	msg_print("Too many regions!");
+
+	/* Oops */
+	return (0);
+}
+
+
+/*
+ * Deletes all region pieces which refer to a region
+ */
+void region_delete(s16b region)
+{
+	s16b this_region_piece, next_region_piece = 0;
+
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Excise region piece */
+		excise_region_piece(this_region_piece);
+
+		/* Forget next pointer */
+		rp_ptr->next_in_region = 0;
+
+		/* Forget owner */
+		rp_ptr->region = 0;
+	}
+
+	/* Clear first in sequence */
+	region_list[region].first_piece = 0;
+}
+
+
+/*
+ * Inserts one region piece into a region
+ */
+void region_piece_insert(int y, int x, s16b d, s16b region)
+{
+	int r = region_piece_pop();
+	region_piece_type *rp_ptr = &region_piece_list[r];
+
+	/* Paranoia */
+	if (!r) return;
+
+	/* Update the region piece with the grid details */
+	rp_ptr->d = d;
+	rp_ptr->x = x;
+	rp_ptr->y = y;
+	rp_ptr->region = region;
+	rp_ptr->next_in_grid = cave_region_piece[y][x];
+	rp_ptr->next_in_region = region_list[region].first_piece;
+	cave_region_piece[y][x] = r;
+	region_list[region].first_piece = r;
+
+}
+
+
+/*
+ * Makes a copy of a region, excluding the region pieces
+ */
+void region_copy(region_type *r_ptr, const region_type *r_ptr2)
+{
+	/* Copy the structure */
+	(void)COPY(r_ptr, r_ptr2, region_type);
+
+	/* Zero some parameters */
+	r_ptr->first_piece = 0;
+}
+
+
+/*
+ * Takes a copy of the region pieces and adds it to another region.
+ *
+ * If region2 is 0, a new region is created.
+ */
+s16b region_copy_pieces(s16b region, s16b region2)
+{
+	s16b this_region_piece, next_region_piece = 0;
+
+	int new_region = region2 ? region2 : region_pop();
+
+	if (!new_region) return (0);
+
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		/* Get the region piece */
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Copy the region pieces */
+		region_piece_insert(rp_ptr->y, rp_ptr->x, rp_ptr->d, new_region);
+	}
+
+	return (new_region);
+}
+
+
+
+/*
+ * Inserts the grids of a region into the region pieces
+ */
+void region_insert(u16b *gp, int grid_n, s16b *gd, s16b region)
+{
+	int i;
+
+	for (i = 0; i < grid_n; i++)
+	{
+		int y = GRID_Y(gp[i]);
+		int x = GRID_X(gp[i]);
+
+		region_type *r_ptr = &region_list[region];
+
+		/* Hack -- don't overwrite the 'parent' trap */
+		if (r_ptr->flags1 & (RE1_HIT_TRAP))
+		{
+			if ((y == r_ptr->y0) && (x == r_ptr->x0) && (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))) continue;
+		}
+
+		/* Update the region piece with the grid details */
+		region_piece_insert(y, x, gd[i], region);
+	}
+}
+
+
+/*
+ * Iterate through a region, applying a region_hook function to each grid in the region
+ */
+bool region_iterate(s16b region, bool region_iterator(int y, int x, int d, s16b region))
+{
+	s16b this_region_piece, next_region_piece = 0;
+	bool seen = FALSE;
+
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		/* Get the region piece */
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Iterate on region piece */
+		seen |= region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region);
+	}
+
+	return (seen);
+}
+
+
+/*
+ * Iterate through a region, applying a region_hook function to each grid in the region
+ *
+ * Similar to the above region_iterate, but we only affect grids within d distance of (y,x)
+ * if gt is true, or further than d distance if gt is false. We also check for LOS.
+ */
+bool region_iterate_distance(s16b region, int y, int x, int d, bool gt, bool region_iterator(int y, int x, int d, s16b region))
+{
+	method_type *method_ptr = &method_info[region_list[region].method];
+	s16b this_region_piece, next_region_piece = 0;
+	bool seen = FALSE;
+
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		/* Get the region piece */
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Check distance */
+		if ((distance(y, x, rp_ptr->y, rp_ptr->x) > d) == gt) continue;
+
+		/* Check projectable */
+		if (!generic_los(y, x, rp_ptr->y, rp_ptr->x, method_ptr->flags1 & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF)) continue;
+
+		/* Iterate on region piece */
+		seen |= region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region);
+	}
+
+	return (seen);
+}
+
+
+/*
+ * Hook for redrawing all grids in a region.
+ */
+bool region_refresh_hook(int y, int x, int d, s16b region)
+{
+	(void)d;
+	(void)region;
+
+	lite_spot(y, x);
+
+	/* Notice elsewhere */
+	return (FALSE);
+}
+
+
+/*
+ * Redraw the region
+ */
+void region_refresh(s16b region)
+{
+	region_iterate(region, region_refresh_hook);
+}
+
+
+/*
+ * Highlight the region. We do this by moving the first region pieces to the top of the stack.
+ */
+bool region_highlight_hook(int y, int x, int d, s16b region)
+{
+	s16b this_region_piece, next_region_piece = 0;
+
+	s16b prev_region_piece = 0;
+
+	(void)d;
+
+	/* Iterate through stack of grids */
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Done */
+		if (region_piece_list[this_region_piece].region == region)
+		{
+			if (prev_region_piece == 0)
+			{
+				cave_region_piece[y][x] = next_region_piece;
+			}
+			else
+			{
+				region_piece_type *i_ptr;
+
+				/* Previous object */
+				i_ptr = &region_piece_list[prev_region_piece];
+
+				/* Remove from list */
+				i_ptr->next_in_grid = next_region_piece;
+			}
+
+			/* Remember first on stack */
+			rp_ptr->next_in_grid = next_region_piece;
+
+			/* Bring to top of stack */
+			cave_region_piece[y][x] = this_region_piece;
+
+			/* Done */
+			break;
+		}
+
+		/* Save prev_o_idx */
+		prev_region_piece = this_region_piece;
+	}
+
+	return(FALSE);
+}
+
+
+/*
+ * Highlight the region
+ */
+void region_highlight(s16b region)
+{
+	region_iterate(region, region_highlight_hook);
+}
+
+
+
+/*
+ * Hook for setting temp grids for region
+ */
+bool region_mark_temp_hook(int y, int x, int d, s16b region)
+{
+	(void)d;
+	(void)region;
+
+	/* Verify space */
+	if (temp_n == TEMP_MAX) return (FALSE);
+
+	/* Mark the grid */
+	play_info[y][x] |= (PLAY_TEMP);
+
+	/* Add it to the marked set */
+	temp_y[temp_n] = y;
+	temp_x[temp_n] = x;
+	temp_n++;
+
+	/* Notice elsewhere */
+	return (FALSE);
+}
+
+
+/*
+ * Set PLAY_TEMP on all grids in region
+ */
+void region_mark_temp(s16b region)
+{
+	region_iterate(region, region_mark_temp_hook);
+}
+
+
+
+/*
+ * Updates a region based on the shape of the defined projection.
+ */
+void region_update(s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+
+	int type = r_ptr->type;
+
+	/* Fake clearing the old grids */
+	r_ptr->type = 0;
+
+	/* Clear the grids */
+	region_refresh(region);
+
+	/* Unfake */
+	r_ptr->type = type;
+
+	/* Hack - remove previous list of grids */
+	region_delete(region);
+
+	/* Hack - add regions */
+	project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, region, (PROJECT_HIDE));
+
+	/* Redraw grids */
+	region_refresh(region);
+
+	/* Update the facing */
+	r_ptr->facing = get_angle_to_target(r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, 0);
+}
+
+
+/*
+ * This routine writes the current feat under the grid to the scalar
+ * for that region. This is used to overlay temporary terrain onto a region,
+ * then restore it later using region_restore_hook.
+ */
+bool region_uplift_hook(int y, int x, int d, s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+	s16b region_piece = get_region_piece(y, x, region);
+
+	region_piece_type *rp_ptr = &region_piece_list[region_piece];
+
+	int this_region_piece, next_region_piece = 0;
+
+	(void)d;
+
+	/* Paranoia */
+	if (!region_piece) return (FALSE);
+
+	/* Start getting features */
+	if ((r_ptr->flags1 & (RE1_SCALAR_DAMAGE | RE1_SCALAR_DISTANCE | RE1_SCALAR_VECTOR)) == 0)
+	{
+		r_ptr->flags1 |= (RE1_SCALAR_FEATURE);
+	}
+
+	/* Paranoia */
+	if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) return (FALSE);
+
+	/* Have we already collected a feature */
+	if ((rp_ptr->d) || ((r_ptr->effect == GF_FEATURE) && (rp_ptr->d == r_ptr->damage))) return (FALSE);
+
+	/* Check overlapping regions */
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr2->next_in_grid;
+
+		/* Skip itself */
+		if (rp_ptr2->region == region) continue;
+
+		/* Skip if not a region piece */
+		if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) continue;
+
+		/* We have something else collecting the underlying feature. Use it's value instead */
+		rp_ptr->d = rp_ptr2->d;
+		return (FALSE);
+	}
+
+	/* Collect this feature */
+	rp_ptr->d = cave_feat[y][x];
+
+	/* Notice elsewhere */
+	return (FALSE);
+}
+
+
+/*
+ * Sets the feature for a grid, based on the scalar set for the
+ * region of that grid. Use region_uplift_hook to set the region.
+ */
+bool region_restore_hook(int y, int x, int d, s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+	int this_region_piece, next_region_piece = 0;
+
+	(void)region;
+
+	/* Paranoia */
+	if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) return (FALSE);
+
+	/* Did we collect anything? */
+	if (d)
+	{
+		/* Check overlapping regions */
+		for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+		{
+			region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+
+			/* Get the next object */
+			next_region_piece = rp_ptr2->next_in_grid;
+
+			/* Skip itself */
+			if (rp_ptr2->region == region) continue;
+
+			/* Skip if not a region piece */
+			if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) continue;
+
+			/* We have something else collecting the underlying feature. Don't write this value down. */
+			return (FALSE);
+		}
+
+		/* Restore the terrain */
+		cave_set_feat(y, x, d);
+	}
+
+	/* Cave_set_feat handles the player noticing this */
+	return (FALSE);
+}
+
+
+/*
+ * Apply effect to every grid. Note that we have to apply the
+ * project_t() effect separately. This is done by setting the
+ * PROJECT_TEMP flag.
+ */
+bool region_project_hook(int y, int x, int d, s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+	method_type *method_ptr = &method_info[r_ptr->method];
+
+	int dam = 0;
+	bool notice;
+
+	/* Get the feature from the region */
+	if (r_ptr->effect == GF_FEATURE)
+	{
+		dam = d;
+
+		/* Collecting the feature */
+		region_uplift_hook(y, x, d, region);
+	}
+
+	/* Get the damage from the region piece */
+	else if (r_ptr->flags1 & (RE1_SCALAR_DAMAGE))
+	{
+		dam = d;
+	}
+	/* Compute the damage based on distance */
+	else if ((d) && (r_ptr->flags1 & (RE1_SCALAR_DISTANCE)))
+	{
+		dam = r_ptr->damage / d;
+	}
+	/* Get the damage from the region */
+	else
+	{
+		dam = r_ptr->damage;
+	}
+
+	/* Apply projection effects to the grids */
+	notice = project_one(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect, method_ptr->flags1 | (PROJECT_TEMP | PROJECT_HIDE));
+
+	return (notice);
+}
+
+
+/*
+ * Apply project_t to every grid. Note that we have to apply the
+ * project_t() effect separately.
+ */
+bool region_project_t_hook(int y, int x, int d, s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+
+	int dam = 0;
+	bool notice;
+
+	/* Using a feature */
+	if (r_ptr->effect == GF_FEATURE)
+	{
+		dam = d;
+	}
+	/* Get the damage from the region piece */
+	else if (r_ptr->flags1 & (RE1_SCALAR_DAMAGE))
+	{
+		dam = d;
+	}
+	/* Compute the damage based on distance */
+	else if ((d) && (r_ptr->flags1 & (RE1_SCALAR_DISTANCE)))
+	{
+		dam = r_ptr->damage / d;
+	}
+	/* Get the damage from the region */
+	else
+	{
+		dam = r_ptr->damage;
+	}
+
+	/* Apply projection effects to the grids */
+	notice = project_t(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect);
+
+	return (notice);
+}
+
+
+/*
+ * Kill a region.
+ */
+void region_terminate(s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+
+	/* Effect is "dead" - mark for later */
+	r_ptr->type = 0;
+
+	/* Restore underlying terrain */
+	region_iterate(region, region_restore_hook);
+
+	/* Redraw region */
+	region_refresh(region);
+
+	/* Clear the grids associated with the region */
+	region_delete(region);
+
+	/* Wipe the region clean */
+	region_wipe(r_ptr);
+}
+
+
+/*
+ * Pick a random piece from a region.
+ */
+s16b region_random_piece(s16b region)
+{
+	s16b this_region_piece, next_region_piece = 0;
+	int k = 0;
+
+	/*
+	 * Note for efficiency, we iterate through twice. This means we only generate one random number, as opposed to
+	 * one random number for each grid checked.
+	 */
+
+	/* Count grids we could effect */
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Count the grids */
+		k++;
+	}
+
+	/* Pick random grid. */
+	if (k) k = randint(k);
+
+	/* Get the coordinates of the grid choosen */
+	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece, k--)
+	{
+		region_piece_type *rp_ptr;
+
+		/* Get the object */
+		rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Get coordinates */
+		if (k == 1)
+		{
+			return (this_region_piece);
+		}
+	}
+
+	return(0);
+}
+
+
+/*
+ * Apply effect to a region
+ *
+ * If (y, x) defined, use this as the target.
+ * If RE1_RANDOM, pick a random piece from the grid.
+ * If RE1_INVERSE, reverse the source and destination.
+ * If RE1_CLOSEST_MON, choose the closest monster as a target.
+ * If RE1_CHAIN, update the region after affecting it.
+ * If RE1_SOURCE_FEATURE is used, attack multiple times,
+ * once from each feature in the region.
+ *
+ * Note the concept of target only applies if we are using
+ * a method, or spawning a region, not if we affect every
+ * grid in the region.
+ */
+bool region_effect(s16b region, int y, int x)
+{
+	region_type *r_ptr = &region_list[region];
+	region_info_type *ri_ptr = &region_info[r_ptr->type];
+
+	bool notice = FALSE;
+
+	int y0 = r_ptr->y0;
+	int x0 = r_ptr->x0;
+	int y1 = y ? y : r_ptr->y1;
+	int x1 = x ? x : r_ptr->x1;
+
+	/* Paranoia */
+	if (!r_ptr->type) return (FALSE);
+
+	/* Attacks come from multiple source features in the region */
+	if (r_ptr->flags1 & (RE1_SOURCE_FEATURE))
+	{
+		s16b this_region_piece, next_region_piece = 0;
+
+		for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
+		{
+			/* Get the region piece */
+			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+			/* Get the next object */
+			next_region_piece = rp_ptr->next_in_region;
+
+			/* Skip if it doesn't match source feature */
+			if ((r_ptr->who != SOURCE_FEATURE) && (r_ptr->who != SOURCE_PLAYER_TRAP)) continue;
+			if (r_ptr->what != cave_feat[rp_ptr->y][rp_ptr->x]) continue;
+
+			/* Hack -- restore original terrain if going backwards */
+			if ((r_ptr->flags1 & (RE1_BACKWARDS)) && (r_ptr->flags1 & (RE1_SCALAR_FEATURE)))
+			{
+				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, FALSE, region_restore_hook);
+			}
+			else
+			{
+				/* Apply projection effects to the grids */
+				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_hook);
+
+				/* Apply temporary effects to grids */
+				notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_t_hook);
+
+				/* Clear temporary array */
+				clear_temp_array();
+			}
+		}
+	}
+
+	/* Method is defined */
+	else if (ri_ptr->method)
+	{
+		/* Pick a random grid if required */
+		if (r_ptr->flags1 & (RE1_RANDOM))
+		{
+			int r = region_random_piece(region);
+
+			y1 = region_piece_list[r].y;
+			x1 = region_piece_list[r].x;
+		}
+
+		/* Reverse destination and source */
+		if (r_ptr->flags1 & (RE1_INVERSE))
+		{
+			y = y0;
+			x = x0;
+			y0 = x1;
+			x0 = x1;
+			y1 = y;
+			x1 = x;
+		}
+
+		/* Attack the target */
+		project_method(r_ptr->who, r_ptr->what, ri_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->level, r_ptr->y0, r_ptr->x0, y1, x1, 0, 0L);
+	}
+
+	/* Method is not defined. Apply effect to all grids */
+	else
+	{
+		/* Apply projection effects to the grids */
+		notice |= region_iterate(region, region_project_hook);
+
+		/* Apply temporary effects to grids */
+		notice |= region_iterate(region, region_project_t_hook);
+
+		/* Clear temporary array */
+		clear_temp_array();
+	}
+
+	/* Region chains */
+	if (r_ptr->flags1 & (RE1_CHAIN))
+	{
+		r_ptr->y0 = y0;
+		r_ptr->x0 = x0;
+		r_ptr->y1 = y1;
+		r_ptr->x1 = x1;
+
+		region_update(region);
+	}
+
+	/* Noticed region? */
+	if (notice)
+	{
+		bool refresh = (r_ptr->flags1 & (RE1_NOTICE)) == 0;
+
+		/* Mark region noticed */
+		r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
+
+		/* Refresh required */
+		if (refresh) region_refresh(region);
+	}
+
+	return (notice);
+}
+
+
+/*
+ * Trigger regions at grid y, x when a monster moves through it.
+ *
+ * This is used to fire traps if a player or monster moves into them,
+ * as well as handle these moving through lingering effects.
+ *
+ * If move is true, we check for TRIGGER_MOVE, otherwise we check for
+ * TRIGGER_DROP.
+ */
+void trigger_region(int y, int x, bool move)
+{
+	int this_region_piece, next_region_piece = 0;
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr->region];
+		method_type *method_ptr = &method_info[r_ptr->method];
+
+		bool notice = FALSE;
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Paranoia */
+		if (!r_ptr->type) continue;
+
+		/* Shoot grid with effect */
+		if ((move ? ((r_ptr->flags1 & (RE1_TRIGGER_MOVE)) != 0) : ((r_ptr->flags1 & (RE1_TRIGGER_DROP)) != 0)) &&
+				((r_ptr->flags1 & (RE1_TRIGGERED)) == 0) && (!r_ptr->delay))
+		{
+			/* Handle avoidable traps */
+			if (r_ptr->flags1 & (RE1_HIT_TRAP))
+			{
+				/* Some traps are avoidable by monsters */
+				if ((cave_m_idx[y][x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[y][x]], y,x)))
+				{
+					return;
+				}
+				/* Some traps are avoidable by the player */
+				else if ((cave_m_idx[y][x] < 0) && (avoid_trap(y,x)))
+				{
+					return;
+				}
+			}
+
+			/* Randomize grid hit */
+			if (r_ptr->flags1 & (RE1_RANDOM))
+			{
+				int r = region_random_piece(rp_ptr->region);
+
+				y = region_piece_list[r].y;
+				x = region_piece_list[r].x;
+			}
+
+			/* Create a child region */
+			if (r_ptr->child_region)
+			{
+				int child_region = 0;
+
+				/* Get a newly initialized region */
+				child_region = init_region(r_ptr->who, r_ptr->what, r_ptr->child_region, r_ptr->damage, r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->y0, r_ptr->x0, y, x);
+
+				/* Paranoia */
+				if (child_region)
+				{
+					/* Projection method */
+					notice |= project_method(r_ptr->who, r_ptr->what, r_ptr->method, r_ptr->effect, r_ptr->damage, r_ptr->effect, r_ptr->y0, r_ptr->x0, y, x, child_region, method_ptr->flags1);
+
+					/* Hack -- lifespan */
+					region_list[child_region].lifespan = scale_method(method_ptr->max_range, r_ptr->level);
+
+					/* Display newly created regions. Allow features to be seen underneath. */
+					if (r_ptr->effect != GF_FEATURE) region_list[child_region].flags1 |= (RE1_DISPLAY);
+					if (notice) region_list[child_region].flags1 |= (RE1_NOTICE);
+				}
+			}
+
+			/* A real trap */
+			else if ((r_ptr->flags1 & (RE1_HIT_TRAP)) && (f_info[cave_feat[r_ptr->y0][r_ptr->x0]].flags1 & (FF1_HIT_TRAP)))
+			{
+				/* Discharge the trap */
+				notice |= discharge_trap(r_ptr->y0, r_ptr->x0, y, x);
+			}
+			else
+			{
+				/* Fire the attack */
+				notice |= region_effect(rp_ptr->region, y, x);
+			}
+
+			/* Mark region as triggered */
+			r_ptr->flags1 |= (RE1_TRIGGERED);
+		}
+
+		/* Lingering effect hits player/monster moving into grid */
+		if ((r_ptr->flags1 & (RE1_LINGER)) &&
+				((r_ptr->age) || ((r_ptr->flags1 & (RE1_TRIGGERED)) != 0)))
+		{
+			int dam = 0;
+
+			/* Get the damage from the region piece */
+			if (r_ptr->flags1 & (RE1_SCALAR_DAMAGE))
+			{
+				dam = rp_ptr->d;
+			}
+			/* Compute the damage based on distance */
+			else if ((rp_ptr->d) && (r_ptr->flags1 & (RE1_SCALAR_DISTANCE)))
+			{
+				dam = r_ptr->damage / rp_ptr->d;
+			}
+			/* Get the damage from the region */
+			else
+			{
+				dam = r_ptr->damage;
+			}
+
+			/* Avoid hitting player or monsters multiple times with lingering effects unless moving. */
+			if (move)
+			{
+				/* Affect the monster, player or object in this grid only */
+				notice |= project_one(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect, method_ptr->flags1);
+			}
+			else
+			{
+				/* Damage objects directly if dropping an object. */
+				notice |= project_o(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect);
+			}
+		}
+
+		/* Noticed region? */
+		if (notice)
+		{
+			bool refresh = (r_ptr->flags1 & (RE1_NOTICE)) == 0;
+
+			/* Mark region noticed */
+			r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
+
+			/* Refresh required */
+			if (refresh) region_refresh(rp_ptr->region);
+		}
+	}
+}
+
+
+/* Some special 'age' values */
+#define AGE_OLD			9998
+#define AGE_ANCIENT		9999
+#define AGE_INFINITY	10000
+#define AGE_LIFELESS	10001
+#define AGE_EXPIRED		10002
+
+
+
+
+/*
+ * Iterate through a region, applying a region_hook function to each grid in the region
+ *
+ * Similar to the above region_iterate, but we are going to move each piece as a part of the
+ * function and eliminate pieces if we cannot move them because of underlying terrain.
+ *
+ * XXX Note that ball projections with MOVE_SOURCE which move will jump all over the place.
+ * This is only because we can't see the source of the ball projection, which itself is moving.
+ *
+ * We should consider removing the defines which prevent us moving the destination to a grid
+ * that can't be projected from the source. However, this will result in moving projections
+ * frequently 'locking up' and not moving at all (for no visible reason). We should really
+ * do some smarter way of verifying the source and destination that stops jumping while
+ * allowing some movement.
+ */
+bool region_iterate_movement(s16b region, void region_iterator(int y, int x, int d, s16b region, int *y1, int *x1))
+{
+	region_type *r_ptr = &region_list[region];
+	method_type *method_ptr = &method_info[region_info[r_ptr->type].method];
+
+	s16b this_region_piece, next_region_piece = 0;
+	int prev_region_piece = 0;
+	bool seen = FALSE;
+	bool update_facing = FALSE;
+	int ty, tx;
+
+	/* Move the destination */
+	region_iterator(r_ptr->y1, r_ptr->x1, 0, region, &ty, &tx);
+
+	/* Attempt at efficiency */
+	if ((r_ptr->y1 != ty) || (r_ptr->x1 != tx))
+	{
+		r_ptr->y1 = ty;
+		r_ptr->x1 = tx;
+		update_facing = TRUE;
+	}
+
+	/* Move the source if requested */
+	if (r_ptr->flags1 & (RE1_MOVE_SOURCE))
+	{
+		/*
+		 * Hack -- Some regions' source is target.
+		 *
+		 * This is used to prevent projections which have no apparent source from weirdly jumping around
+		 * the map, because the target stops being projectable from the invisible source. We set the source
+		 * for the projection as the target when initialized, and then keep the source in sync with the target
+		 * here.
+		 */
+		if ((method_ptr->flags1 & (PROJECT_BOOM | PROJECT_4WAY | PROJECT_4WAX | PROJECT_JUMP)) &&
+				((method_ptr->flags1 & (PROJECT_ARC | PROJECT_STAR)) == 0))
+		{
+			/* Set source to target */
+			ty = r_ptr->y1;
+			tx = r_ptr->x1;
+		}
+
+		else
+		{
+			/* Move the source */
+			region_iterator(r_ptr->y0, r_ptr->x0, 0, region, &ty, &tx);
+		}
+
+		/* Attempt at efficiency */
+		if ((r_ptr->y0 != ty) || (r_ptr->x0 != tx))
+		{
+			r_ptr->y0 = ty;
+			r_ptr->x0 = tx;
+			update_facing = TRUE;
+		}
+	}
+
+	/* Update the facing */
+	if (update_facing)
+	{
+		r_ptr->facing = get_angle_to_target(r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, 0);
+	}
+
+	/* We are done? */
+	if ((r_ptr->flags1 & (RE1_MOVE_SOURCE)) && (r_ptr->flags1 & (RE1_PROJECTION)))
+	{
+		return (FALSE);
+	}
+
+	for (this_region_piece = r_ptr->first_piece; this_region_piece; this_region_piece = next_region_piece)
+	{
+		/* Get the region piece */
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_region;
+
+		/* Unable to exist here */
+		if (!cave_passable_bold(rp_ptr->y, rp_ptr->x, method_ptr->flags1))
+		{
+			/* Excise region piece */
+			excise_region_piece(this_region_piece);
+
+			/* No previous */
+			if (prev_region_piece == 0)
+			{
+				region_list[region].first_piece = next_region_piece;
+			}
+			/* Real previous */
+			else
+			{
+				region_piece_type *i_ptr;
+
+				/* Previous object */
+				i_ptr = &region_piece_list[prev_region_piece];
+
+				/* Remove from list */
+				i_ptr->next_in_region = next_region_piece;
+			}
+
+			/* Remove region piece */
+			rp_ptr->region = 0;
+
+			/* Forget next pointer */
+			rp_ptr->next_in_region = 0;
+
+			/* Relight */
+			lite_spot(rp_ptr->y, rp_ptr->x);
+
+			continue;
+		}
+
+		/* Update previous */
+		prev_region_piece = this_region_piece;
+
+		/* Iterate on region piece */
+		region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region, &ty, &tx);
+
+		/* Move the piece */
+		if ((ty != rp_ptr->y) || (tx != rp_ptr->x))
+		{
+			int y = rp_ptr->y;
+			int x = rp_ptr->x;
+
+			/* Can't move out of bounds */
+			if (!in_bounds(ty, tx)) continue;
+
+			/* Move the vortex */
+			excise_region_piece(this_region_piece);
+			rp_ptr->y = ty;
+			rp_ptr->x = tx;
+			rp_ptr->next_in_grid = cave_region_piece[ty][tx];
+			cave_region_piece[ty][tx] = this_region_piece;
+
+			/* Redraw old grid */
+			lite_spot(y, x);
+
+			/* Redraw new grid */
+			lite_spot(ty, tx);
+		}
+	}
+
+	/* Kill region if no grids are left */
+	if (!r_ptr->first_piece) r_ptr->age = AGE_LIFELESS;
+
+	return (seen);
+}
+
+
+/*
+ * Movement for seekers
+ */
+void region_move_seeker_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+{
+	region_type *r_ptr = &region_list[region];
+	method_type *method_ptr = &method_info[r_ptr->method];
+	int r = rand_int(100);
+	int i, dir;
+	int grids = 0;
+
+	(void)d;
+
+	/* No movement by default */
+	*ty = y;
+	*tx = x;
+
+	/* If random, we only move vortexes 20% of the time */
+	if ((r_ptr->flags1 & (RE1_RANDOM)) && (r % 5)) return;
+
+	/* Check around (and under) the vortex */
+	for (dir = 0; dir < 9; dir++)
+	{
+		/* Extract adjacent (legal) location */
+		int yy = y + ddy_ddd[dir];
+		int xx = x + ddx_ddd[dir];
+
+		/* Count passable grids */
+		if (cave_passable_bold(yy, xx, method_ptr->flags1)) grids++;
+
+	}
+
+	/*
+	 * Vortexes only seek in open spaces.  This makes them useful in
+	 * rooms and not too powerful in corridors.
+	 */
+	if      (grids >= 5) i = 85;
+	else if (grids == 4) i = 50;
+	else                 i = 0;
+
+	/* Seek out monsters */
+	if (r < i)
+	{
+		/* Try to get a target (nearest or next-nearest monster) */
+		get_closest_monster(randint(2), y, x,
+			ty, tx, (method_ptr->flags1 & (PROJECT_LOS)) != 0 ? 0x01 : 0x02, r_ptr->who);
+	}
+
+	/* No valid target, targetting self, or monster is in an impassable grid */
+	if (((*ty == 0) && (*tx == 0)) || ((*ty == y) && (*tx == x)) || (!cave_passable_bold(*ty, *tx, method_ptr->flags1)))
+	{
+		/* Move randomly */
+		dir = randint(9);
+	}
+
+	/* Valid target in passable terrain */
+	else
+	{
+		/* Get change in position from current location to target */
+		int dy = y - *ty;
+		int dx = x - *tx;
+
+		/* Calculate vertical and horizontal distances */
+		int ay = ABS(dy);
+		int ax = ABS(dx);
+
+		/* We mostly want to move vertically */
+		if (ay > (ax * 2))
+		{
+			/* Choose between directions '8' and '2' */
+			if (dy > 0) dir = 8;
+			else        dir = 2;
+		}
+
+		/* We mostly want to move horizontally */
+		else if (ax > (ay * 2))
+		{
+			/* Choose between directions '4' and '6' */
+			if (dx > 0) dir = 4;
+			else        dir = 6;
+		}
+
+		/* We want to move up and sideways */
+		else if (dy > 0)
+		{
+			/* Choose between directions '7' and '9' */
+			if (dx > 0) dir = 7;
+			else        dir = 9;
+		}
+
+		/* We want to move down and sideways */
+		else
+		{
+			/* Choose between directions '1' and '3' */
+			if (dx > 0) dir = 1;
+			else        dir = 3;
+		}
+	}
+
+	/* Extract adjacent (legal) location */
+	*ty = y + ddy[dir];
+	*tx = x + ddx[dir];
+
+	/* Require passable grids */
+	if ((cave_passable_bold(*ty, *tx, method_ptr->flags1)) == 0)
+	{
+		int k = 0;
+
+		/* Is at least one adjacent grid passable? */
+		for (i = 1; i < 9; i++)
+		{
+			int yy = y + ddy[i];
+			int xx = x + ddx[i];
+
+			if (((cave_passable_bold(yy, xx, method_ptr->flags1)) != 0) && (!rand_int(++k))) dir = i;
+		}
+
+		/* No grids passable, we're stuck */
+		if ((k == 0) && ((cave_passable_bold(y, x, method_ptr->flags1)) != 0)) dir = randint(9);
+
+		/* Extract adjacent (legal) location */
+		*ty = y + ddy[dir];
+		*tx = x + ddx[dir];
+	}
+
+	return;
+}
+
+
+/*
+ * Function to move region pieces as if encoding a vector
+ */
+void region_move_vector_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+{
+	region_type *r_ptr = &region_list[region];
+	int angle, speed;
+
+	u16b path_g[99];
+	int path_n;
+
+	/* No movement by default */
+	*ty = y;
+	*tx = x;
+
+	/* Speed of travel */
+	speed = GRID_X(d);
+
+	/* Does this fragment move at this age? */
+	if ((r_ptr->age * speed / 100) == ((r_ptr->age - 1) * speed / 100)) return;
+
+	/* If random, we only move vertexes 20% of the time */
+	if ((r_ptr->flags1 & (RE1_RANDOM)) && (rand_int(100) < 80)) return;
+
+	/* Angle of travel */
+	angle = GRID_Y(d);
+
+	/* Get the target grid for this angle */
+	get_grid_using_angle(angle, r_ptr->y0, r_ptr->x0, ty, tx);
+
+	/* If we have a legal target, */
+	if ((*ty != r_ptr->y0) || (*tx != r_ptr->x0))
+	{
+		/* Calculate the projection path */
+		path_n = project_path(path_g, 99, r_ptr->y0, r_ptr->x0,
+				ty, tx, PROJECT_PASS | PROJECT_THRU);
+
+		/* Get the location */
+		if (path_n >= (r_ptr->age * speed / 100))
+		{
+			*ty = GRID_Y(path_g[(r_ptr->age * speed / 100)]);
+			*tx = GRID_X(path_g[(r_ptr->age * speed / 100)]);
+		}
+	}
+}
+
+
+/*
+ * Function to spread regions
+ */
+void region_move_spread_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+{
+	method_type *method_ptr = &method_info[region_list[region].method];
+	int dir = rand_int(12);
+
+	(void)d;
+
+	if (dir < 8)
+	{
+		*ty = y + ddy_ddd[dir];
+		*tx = x + ddx_ddd[dir];
+
+		/* Can drift into new location? */
+		if (!cave_passable_bold(*ty, *tx, method_ptr->flags1))
+		{
+			int i;
+
+			/* Is at least one adjacent grid passable? */
+			for (i = 0; i < 8; i++)
+			{
+				int yy = y + ddy_ddd[dir];
+				int xx = x + ddx_ddd[dir];
+
+				if (cave_passable_bold(yy, xx, method_ptr->flags1)) break;
+			}
+
+			/* If at least one grid passable, abort */
+			if ((i < 8) || (cave_passable_bold(y, x, method_ptr->flags1)))
+			{
+				*ty = y;
+				*tx = x;
+			}
+		}
+	}
+	else
+	{
+		*ty = y;
+		*tx = x;
+	}
+}
+
+
+
+/*
+ * Process region.
+ *
+ * We potentially transform the region, then apply the effect if
+ * required.
+ */
+void process_region(s16b region)
+{
+	region_type *r_ptr = &region_list[region];
+	method_type *method_ptr = &method_info[r_ptr->method];
+
+	int range = scale_method(method_ptr->max_range, r_ptr->level);
+	int radius = scale_method(method_ptr->radius, r_ptr->level);
+
+	int i, j, k;
+	int path_n = 0;
+	u16b path_g[99];
+
+	/* Paranoia */
+	if (!r_ptr->type) return;
+
+	/* Count down to next turn, return if not yet ready */
+	if (--r_ptr->delay > 0) return;
+
+	/* Accelerating */
+	if ((r_ptr->flags1 & (RE1_ACCELERATE)) && (!(r_ptr->flags1 & (RE1_DECELERATE)) || (r_ptr->age < r_ptr->lifespan / 2)))
+	{
+		r_ptr->delay_reset /= 2;
+		if (r_ptr->delay_reset < 1) r_ptr->delay_reset = 1;
+	}
+
+	/* Decelerating */
+	if ((r_ptr->flags1 & (RE1_DECELERATE)) && (!(r_ptr->flags1 & (RE1_ACCELERATE)) || (r_ptr->age > r_ptr->lifespan / 2)))
+	{
+		r_ptr->delay_reset += r_ptr->delay_reset / 3;
+		if (r_ptr->delay_reset < 3) r_ptr->delay_reset += 1;
+	}
+
+	/* Reset count */
+	r_ptr->delay = r_ptr->delay_reset;
+
+	/* Effects eventually "die" */
+	if (r_ptr->age >= r_ptr->lifespan)
+	{
+		/* Region loops backwards once finished */
+		if (region_info[r_ptr->type].flags1 & (RE1_BACKWARDS))
+		{
+			/* Start going backwards instead */
+			r_ptr->flags1 |= (RE1_BACKWARDS);
+
+			/* Wait for trigger?  */
+			if (!(region_info[r_ptr->type].flags1 & (RE1_AUTOMATIC))) r_ptr->flags1 &= ~(RE1_AUTOMATIC);
+		}
+		else
+		{
+			/* Kill the region */
+			region_terminate(region);
+
+			return;
+		}
+	}
+
+	/* Rotate the region */
+	if (r_ptr->flags1 & (RE1_CLOCKWISE))
+	{
+		int old_dir = get_angle_to_dir(r_ptr->facing);
+		int facing = r_ptr->facing - 3;
+		int dir;
+		int y, x;
+
+		while (facing < 0) facing += 180;
+
+		dir = get_angle_to_dir(facing);
+
+		/* Change direction if we can't project at least 1 grid after rotating */
+		if ((cave_passable_bold(r_ptr->y0 + ddy_ddd[old_dir], r_ptr->x0 + ddx_ddd[old_dir], method_ptr->flags1)) &&
+				!(cave_passable_bold(r_ptr->y0 + ddy_ddd[dir], r_ptr->x0 + ddx_ddd[dir], method_ptr->flags1)))
+		{
+			facing += 6;
+			while (facing >= 180) facing -= 180;
+
+			r_ptr->flags1 &= ~(RE1_CLOCKWISE);
+			r_ptr->flags1 |= (RE1_COUNTER_CLOCKWISE);
+		}
+
+		/* Use revised facing */
+		r_ptr->facing = facing;
+
+		/* Get new target */
+		get_grid_using_angle(r_ptr->facing, r_ptr->y0, r_ptr->x0, &y, &x);
+
+		r_ptr->y1 = y;
+		r_ptr->x1 = x;
+	}
+
+	/* Rotate the region */
+	else if (r_ptr->flags1 & (RE1_COUNTER_CLOCKWISE))
+	{
+		int old_dir = get_angle_to_dir(r_ptr->facing);
+		int facing = r_ptr->facing + 3;
+		int dir;
+		int y, x;
+
+		while (facing >= 180) facing -= 180;
+
+		dir = get_angle_to_dir(facing);
+
+		/* Change direction if we can't project at least 1 grid after rotating */
+		if ((cave_passable_bold(r_ptr->y0 + ddy_ddd[old_dir], r_ptr->x0 + ddx_ddd[old_dir], method_ptr->flags1)) &&
+				!(cave_passable_bold(r_ptr->y0 + ddy_ddd[dir], r_ptr->x0 + ddx_ddd[dir], method_ptr->flags1)))
+		{
+			facing -= 6;
+			while (facing < 0) facing += 180;
+
+			r_ptr->flags1 &= ~(RE1_COUNTER_CLOCKWISE);
+			r_ptr->flags1 |= (RE1_CLOCKWISE);
+		}
+
+		/* Use revised facing */
+		r_ptr->facing = facing;
+
+		/* Get new target */
+		get_grid_using_angle(r_ptr->facing, r_ptr->y0, r_ptr->x0, &y, &x);
+
+		r_ptr->y1 = y;
+		r_ptr->x1 = x;
+	}
+
+	/* Updating a projection */
+	if (r_ptr->flags1 & (RE1_PROJECTION))
+	{
+		region_update(region);
+	}
+
+	/* Moving a wall */
+	if (r_ptr->flags1 & (RE1_WALL))
+	{
+		/* Get the direction of travel (angular dir is 2x this) */
+		int major_axis =
+			get_angle_to_target(r_ptr->y0, r_ptr->x0, r_ptr->y1, r_ptr->x1, 0);
+
+		/* Store target grid */
+		int ty = r_ptr->y1;
+		int tx = r_ptr->x1;
+
+		/* Hack - fix range */
+		range = range ? range : MAX_RANGE;
+
+		/* Hack - mark grids with temp flags. Used to ensure wall grids are next to previous wall grids */
+		region_mark_temp(region);
+
+		/* Remove previous list of grids */
+		region_delete(region);
+
+		/* Calculate the projection path -- require orthogonal movement */
+		path_n = project_path(path_g, range, r_ptr->y0, r_ptr->x0,
+			&ty, &tx, PROJECT_PASS | PROJECT_THRU | PROJECT_ORTH);
+
+		/* Require a working projection path */
+		if ((path_n > r_ptr->age) || (path_n > range))
+		{
+			/* Remember delay factor */
+			int old_delay = op_ptr->delay_factor;
+
+			int zaps = 0;
+			int axis;
+
+			/* Get center grid (walls travel one grid per turn) */
+			int y0 = GRID_Y(path_g[(r_ptr->age > range) ? range : r_ptr->age]);
+			int x0 = GRID_X(path_g[(r_ptr->age > range) ? range : r_ptr->age]);
+
+			/* Set delay to half normal */
+			op_ptr->delay_factor /= 2;
+
+			/*
+			 * If the center grid is both projectable and next to a previous wall grid, zap it.
+			 */
+			if (cave_passable_bold(y0, x0, method_ptr->flags1))
+			{
+				bool near_old_wall = FALSE;
+
+				for (i = 0; (i < 8) && (!near_old_wall); i++)
+				{
+					int y = y0 + ddy_ddd[i];
+					int x = x0 + ddx_ddd[i];
+
+					if (play_info[y][x] & (PLAY_TEMP)) near_old_wall = TRUE;
+				}
+
+				if (near_old_wall)
+				{
+					zaps++;
+					region_piece_insert(y0, x0, r_ptr->damage, region);
+				}
+			}
+
+			/* If this wall spreads out from the origin, */
+			if (radius > 0)
+			{
+				/* Get the directions of spread (angles are twice this) */
+				int minor_axis1 = (major_axis +  45) % 180;
+				int minor_axis2 = (major_axis + 135) % 180;
+
+				/* Process the left, then right-hand sides of the wall */
+				for (i = 0; i < 2; i++)
+				{
+					if (i == 0) axis = minor_axis1;
+					else        axis = minor_axis2;
+
+					/* Get the target grid for this side */
+					get_grid_using_angle(axis, y0, x0, &ty, &tx);
+
+					/* If we have a legal target, */
+					if ((ty != y0) || (tx != x0))
+					{
+						/* Calculate the projection path */
+						path_n = project_path(path_g, radius, y0, x0, &ty, &tx,
+							PROJECT_PASS | PROJECT_THRU | PROJECT_ORTH);
+
+						/* Check all the grids */
+						for (j = 0; j < path_n; j++)
+						{
+							/* Get grid */
+							ty = GRID_Y(path_g[j]);
+							tx = GRID_X(path_g[j]);
+
+							/*
+							 * If this grid is both projectable, and next to a previous wall grid, zap it.
+							 */
+							if (cave_passable_bold(ty, tx, method_ptr->flags1))
+							{
+								bool near_old_wall = FALSE;
+
+								for (k = 0; (k < 8) && (!near_old_wall); k++)
+								{
+									int y = ty + ddy_ddd[k];
+									int x = tx + ddx_ddd[k];
+
+									if (play_info[y][x] & (PLAY_TEMP)) near_old_wall = TRUE;
+								}
+
+								if (near_old_wall)
+								{
+									zaps++;
+									region_piece_insert(ty, tx, r_ptr->damage, region);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			/* Kill wall if nothing got zapped this turn */
+			if (zaps == 0)
+			{
+				r_ptr->age = AGE_LIFELESS;
+			}
+
+			/* Restore standard delay */
+			op_ptr->delay_factor = old_delay;
+		}
+
+		/* No working projection path -- kill the wall */
+		else
+		{
+			r_ptr->age = AGE_LIFELESS;
+		}
+
+		/* Refresh temp grids */
+		for (i =  0; i < temp_n; i++)
+		{
+			lite_spot(temp_y[i], temp_x[i]);
+		}
+
+		/* Clear temporary grids */
+		clear_temp_array();
+	}
+
+	/* Apply seeker effect */
+	if (r_ptr->flags1 & (RE1_SEEKER))
+	{
+		region_iterate_movement(region, region_move_seeker_hook);
+	}
+
+	/* Apply scalar vector effect */
+	if (r_ptr->flags1 & (RE1_SCALAR_VECTOR))
+	{
+		region_iterate_movement(region, region_move_vector_hook);
+	}
+
+	/* Apply spreading effect */
+	if (r_ptr->flags1 & (RE1_SPREAD))
+	{
+		region_iterate_movement(region, region_move_spread_hook);
+	}
+
+	/* Apply effect every turn, unless already applied earlier in the turn */
+	if ((r_ptr->flags1 & (RE1_AUTOMATIC)) && !(r_ptr->flags1 & (RE1_TRIGGERED)))
+	{
+		/* Apply the effect */
+		region_effect(region, 0, 0);
+	}
+
+	/* Age the region */
+	if (r_ptr->flags1 & (RE1_AUTOMATIC | RE1_TRIGGERED))
+	{
+		/* Region ages backwards */
+		if (r_ptr->flags1 & (RE1_BACKWARDS))
+		{
+			if (r_ptr->age) r_ptr->age--;
+			else
+			{
+				r_ptr->flags1 &= ~(RE1_BACKWARDS | RE1_AUTOMATIC);
+				if (region_info[r_ptr->type].flags1 & (RE1_AUTOMATIC)) r_ptr->flags1 |= (RE1_AUTOMATIC);
+			}
+		}
+		/* Region ages normally */
+		else if (r_ptr->age < AGE_INFINITY) r_ptr->age++;
+
+		/* Clear trigger */
+		r_ptr->flags1 &= ~(RE1_TRIGGERED);
+	}
+}
+
+
+/*
+ * Process effects.
+ */
+void process_regions(void)
+{
+	int i;
+
+	/* Process all regions */
+	for (i = 0; i < region_max; i++)
+	{
+		/* Get this effect */
+		region_type *r_ptr = &region_list[i];
+
+		/* Skip empty effects */
+		if (!r_ptr->type) continue;
+
+		/* Process effect */
+		process_region(i);
+	}
+
+	/* Warn if we get orphaned pieces */
+	for (i = 0; i < z_info->region_piece_max; i++)
+	{
+		s16b region = region_piece_list[i].region;
+		/* Get this effect */
+		region_type *r_ptr = &region_list[region];
+
+		if (!region) continue;
+
+		/* Skip empty effects */
+		if (!r_ptr->type) msg_format("Piece %d is orphaned from %d.", i, region);
+	}
+}
+
+
+/*
+ * Initialise a region at (y,x).
+ *
+ * Use the level to initialise region effects.
+ *
+ * Optionally use a target (ty, tx). If target not supplied
+ * try to pick a target to allow the region to affect a number of grids.
+ *
+ */
+s16b init_region(int who, int what, int type, int dam, int method, int effect, int level, int y0, int x0, int y1, int x1)
+{
+	region_info_type *ri_ptr = &region_info[type];
+	method_type *method_ptr = &method_info[method];
+
+	s16b region = region_pop();
+	int radius = scale_method(method_ptr->radius, level);
+	int range = scale_method(method_ptr->max_range, level);
+
+	region_type *r_ptr = &region_list[region];
+
+	/* Paranoia */
+	if (!region) return(0);
+
+	/* Pick a target */
+	if ((!y1) && (!x1))
+	{
+		/* Target self */
+		if (method_ptr->flags1 & (PROJECT_SELF))
+		{
+			/* Target self */
+			y1 = y0;
+			x1 = x0;
+		}
+		else
+		{
+			/* Pick a target */
+			scatter(&y1, &x1, y0, x0, radius ? radius : range, method_ptr->flags1 & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF);
+			 
+			/* Parania - always have a target */
+			if ((y1 == y0) && (x1 == x0))
+			{
+				int d = rand_int(8);
+				 
+				y1 = y0 + ddy_ddd[d];
+				x1 = x0 + ddx_ddd[d];
+			}
+		}
+	}
+
+	/* Initialise region values from parameters passed to this routine */
+	r_ptr->type = type;
+	r_ptr->level = level;
+	r_ptr->y0 = y0;
+	r_ptr->x0 = x0;
+	r_ptr->y1 = y1;
+	r_ptr->x1 = x1;
+	r_ptr->who = who;
+	r_ptr->what = what;
+	r_ptr->damage = dam;
+	r_ptr->effect = effect;
+	r_ptr->lifespan = AGE_INFINITY;
+	r_ptr->method = method;
+
+	/* Initialise region values from region info type */
+	r_ptr->flags1 = ri_ptr->flags1;
+	r_ptr->delay_reset = ri_ptr->delay_reset;
+	r_ptr->child_region = ri_ptr->child_region;
+
+	/* Exclude one of clockwise and counter clockwise */
+	if ((r_ptr->flags1 & (RE1_CLOCKWISE)) &&
+			(r_ptr->flags1 & (RE1_COUNTER_CLOCKWISE)) &&
+			(rand_int(100) < 50))
+	{
+		/* Remove one - we always default to clockwise if both set */
+		r_ptr->flags1 &= ~(RE1_CLOCKWISE);
+	}
+
+	return(region);
 }

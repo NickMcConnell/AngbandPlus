@@ -38,7 +38,7 @@
  )  Dump reloadable screen dump         ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
- [  (unused)                            ^M  (special - return)
+ [  Display visible monster list        ^M  (special - return)
  ]  Dump html screen dump               ^N  (alter - south east)
  -  (unused)                            ^O  Operate a part
  _  Enter store                         ^P  Show previous messages

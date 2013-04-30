@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -120,12 +120,12 @@ static const grouper group_item[] =
 	  { TV_SERVICE,       "Services" },
 	  { TV_MAP,       "Maps" },
 		{ TV_STATUE,    "Art" },
-	  
+
 	{ TV_SPIKE,		"Tools" },
 	{ TV_ROPE,		  NULL },
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
-	
+
 	{ TV_JUNK,		  "Junk" },
 	{ TV_HOLD,      NULL },
 	{ TV_BONE,    NULL },
@@ -154,7 +154,7 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 	int num,i;
 
 	(void)wgt_s;
-	
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -255,8 +255,8 @@ static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int
 			if (book[i]) count++;
 		}
 
-		if ((count) && ((i_ptr->tval == TV_MAGIC_BOOK) || (i_ptr->tval == TV_PRAYER_BOOK) 
-			|| (i_ptr->tval == TV_SONG_BOOK) || (i_ptr->tval == TV_RUNESTONE)))
+		if ((count) && ((i_ptr->tval == TV_MAGIC_BOOK) || (i_ptr->tval == TV_PRAYER_BOOK)
+			|| (i_ptr->tval == TV_SONG_BOOK)))
 		{
                         sprintf(pow," %d spells",count);
 		}
@@ -381,7 +381,7 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->flags5 & (TR5_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -528,7 +528,7 @@ static void spoil_object(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->flags5 & (TR5_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -979,15 +979,7 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(ac, "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
-		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
-		}
-
+		sprintf(hp, "%d", r_ptr->hp);
 
 		/* Hack -- use visual instead */
 		sprintf(vis, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
@@ -1141,14 +1133,8 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
-		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
-		}
+		sprintf(buf, "Hp:%d  ", r_ptr->hp);
+
 		text_out(buf);
 
 		/* Armor Class */
@@ -1499,7 +1485,7 @@ static void spoil_ego_desc(cptr fname)
 
 				/* Dump it */
                                 fprintf(fff, "%-37s  %7ld%4d%4d\n",
-					e_name + e_ptr->name, e_ptr->slay_power * 1000 / tot_mon_power, 
+					e_name + e_ptr->name, e_ptr->slay_power * 1000 / tot_mon_power,
 					e_ptr->level, e_ptr->rarity);
 
 			}
@@ -1548,7 +1534,7 @@ static void spoil_ego_desc(cptr fname)
  *
  * Could probably be smart and extract this from magic item table.
  *
- */ 
+ */
 static const cptr slay_name[]=
 {
 	"Slay Nature",
@@ -1607,7 +1593,7 @@ static void spoil_slay_table(cptr fname)
 	/* Header */
 	fprintf(fff, "Spoiler File -- Relative Slay Power (%s)\n\n", VERSION_STRING);
 	fprintf(fff, "Note: 1000 power equals no benefit\n\n");
-	
+
 	/* More Header */
 	fprintf(fff, formatter, "Slay", "Power");
         fprintf(fff, formatter, "-------------------------------------",
@@ -1648,10 +1634,10 @@ static void spoil_fake_class(char *buf, size_t buf_s, int c, int t, int s)
 			case TV_PRAYER_BOOK: p_ptr->pclass = 2; p_ptr->pstyle = WS_MAGIC_BOOK; break;
 			case TV_SONG_BOOK: p_ptr->pclass = 9; p_ptr->pstyle = WS_MAGIC_BOOK; break;
 		}
-		
+
 		p_ptr->psval = s;
 	}
-	/* Hack - get a real class */ 
+	/* Hack - get a real class */
 	else
 	{
 		p_ptr->pclass = c;
@@ -1660,7 +1646,7 @@ static void spoil_fake_class(char *buf, size_t buf_s, int c, int t, int s)
 
 	/* Get other details */
 	cp_ptr = &c_info[p_ptr->pclass];
-	
+
 	/* Get the class name */
 	lookup_prettyname(buf, buf_s, p_ptr->pclass, p_ptr->pstyle, p_ptr->psval, FALSE, TRUE);
 }
@@ -1676,12 +1662,11 @@ static void spoil_magic_info(cptr fname)
 	int old_pstyle = p_ptr->pstyle;
 	int old_psval = p_ptr->psval;
 	const player_class *old_cp_ptr = cp_ptr;
-	int old_cur_runes = p_ptr->cur_runes;
-	
+
 	int t, s, i, j, k, l;
 
 	s16b book[26];
-	
+
 	char name[32];
 	char desc[80];
 	s16b casters[32];
@@ -1713,20 +1698,16 @@ static void spoil_magic_info(cptr fname)
 	/* Header */
 	fprintf(fff, "Spoiler File -- Spell Casting (%s)\n\n\n", VERSION_STRING);
 
-	/* Hack -- mess with runestones */
-	p_ptr->cur_runes = 0;
-	
 	/* Check relevent tvals */
-	for (t = TV_MAGIC_BOOK; t < TV_RUNESTONE; t++)
+	for (t = TV_MAGIC_BOOK; t <= TV_SONG_BOOK; t++)
 	{
 		switch (t)
 		{
 			case TV_MAGIC_BOOK:	spoiler_underline("Magic Books", '='); break;
 			case TV_PRAYER_BOOK:	spoiler_underline("Prayer Books", '='); break;
 			case TV_SONG_BOOK:	spoiler_underline("Song Books", '='); break;
-			case TV_RUNESTONE:	spoiler_underline("Runestones", '='); break;		
 		}
-		
+
 		fprintf(fff, "\n");
 
 		/* Cycle through all the books */
@@ -1736,11 +1717,11 @@ static void spoil_magic_info(cptr fname)
 			object_type *o_ptr;
 			object_type object_type_body;
 			spell_type *s_ptr;
-			
+
 			int len;
-			
+
 			o_ptr = &object_type_body;
-			
+
 			/* Hack -- jump around to display basic prayer/magic books first */
 			if (t < TV_SONG_BOOK)
 			{
@@ -1751,70 +1732,63 @@ static void spoil_magic_info(cptr fname)
 
 			/* Get kind */
 			k_idx = lookup_kind(t, s);
-			
+
 			/* Nothing found */
 			if (!k_idx) continue;
-			
-			/* Hack -- mess with runes, to allow all spells to be displayed */
-			if (t == TV_RUNESTONE)
-			{
-				if (p_ptr->cur_runes == (0x0000FFFFL)) p_ptr->cur_runes = (0xFFFF0000L);
-				else p_ptr->cur_runes = (0x0000FFFFL);
-			}
 
 			/* Prepare the book */
 			object_prep(o_ptr, k_idx);
-			
+
 			/* Description (too brief) */
 			object_desc_spoil(desc, sizeof(desc), o_ptr, FALSE, 0);
-			
+
 			/* Get length of book name */
 			len = strlen(desc);
-			
+
 			/* Fill the book with spells */
 			fill_book(o_ptr,book,&num);
-			
+
 			/* No casters cast from this yet -- except specialist */
-			casters_n = (t == TV_RUNESTONE ? 0 : 1);
-			
+			casters_n = 1;
+
 			/* Hack -- null caster for specialist */
 			if (casters_n) casters[0] = 0;
-			
+
 			/* Collect some spell information */
 			for (i = 0; i < num; i++)
 			{
 				/* Get spell */
 				s_ptr = &s_info[book[i]];
-				
+
 				/* Check length of spell name */
 				l = strlen(s_name + s_ptr->name);
-				
+
 				if (l > len) len = l;
-				
+
 				/* Get the casters for the spell */
 				for (j = 0; j < MAX_SPELL_CASTERS; j++)
 				{
 					bool done = FALSE;
-					
+
 					/* Not cast by anyone */
 					if (!s_ptr->cast[j].class) continue;
-					
-					for (k = (TV_RUNESTONE ? 0 : 1); k < casters_n; k++)
+
+					for (k = 1; k < casters_n; k++)
 					{
 						/* Already have it */
 						if (casters[k] == s_ptr->cast[j].class) done = TRUE;
 					}
-					
+
 					/* Add additional caster */
 					if (!done) casters[casters_n++] = s_ptr->cast[j].class;
 				}
 			}
-			
+
 			/* Display the spell casters, 3 per row */
 			for (i = 0; i < casters_n; i += 3)
 			{
 				/* Line 1                 Warrior Mage  Priest   Mage*/
-				
+
 				/* Display header */
 				spoiler_out_n_chars(len + 2, ' ');
 
@@ -1823,12 +1797,12 @@ static void spoil_magic_info(cptr fname)
 				{
 					/* Fake the class */
 					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
-					
+
 					/* Get the length of the class name */
 					l = strlen(name);
-						
+
 					fprintf(fff, "-%s-", name);
-					
+
 					/* Extend space */
 					if (l < 12) spoiler_out_n_chars(12 - l, '-');
 
@@ -1842,9 +1816,9 @@ static void spoil_magic_info(cptr fname)
 						fprintf(fff, "   ");
 					}
 				}
-				
+
 				/* Line 2  Magic Book of Spells   Lvl Mana Fail   Lvl Mana Fail   Lvl Mana Fail  */
-				
+
 				/* Display book name */
 				fprintf(fff, "%s", desc);
 
@@ -1855,15 +1829,15 @@ static void spoil_magic_info(cptr fname)
 				for (j = 0; (i + j < casters_n) && (j < 3); j++)
 				{
 					int l;
-					
+
 					/* Fake the class */
 					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
-					
+
 					/* Get the length of the class name */
 					l = strlen(name);
-						
+
 					fprintf(fff, "Lvl Mana Fail ");
-					
+
 					/* Extend space */
 					if (l >= 12) spoiler_out_n_chars(l - 11, ' ');
 
@@ -1877,28 +1851,28 @@ static void spoil_magic_info(cptr fname)
 						fprintf(fff, "   ");
 					}
 				}
-				
+
 				/* Line 3 ------------------- --- ---- ---- --- ---- ---- --- ---- ---- */
 
 				/* Display header */
 				spoiler_out_n_chars(len, '-');
-				
+
 				/* Gap */
 				fprintf(fff, "  ");
-				
+
 				/* Get caster details */
 				for (j = 0; (i+j < casters_n) && (j < 3); j++)
 				{
 					int l;
-					
+
 					/* Fake the class */
 					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
-					
+
 					/* Get the length of the class name */
 					l = strlen(name);
-						
+
 					fprintf(fff, "--- ---- ---- ");
-					
+
 					/* Extend space */
 					if (l >= 12) spoiler_out_n_chars(l - 11, ' ');
 
@@ -1911,31 +1885,31 @@ static void spoil_magic_info(cptr fname)
 					{
 						fprintf(fff, "   ");
 					}
-				}				
-				
+				}
+
 				/* Display spells - 1 per line */
 				for (j = 0; j < num; j++)
 				{
 					s_ptr = &s_info[book[j]];
-					
+
 					/* Display spell name */
 					fprintf(fff, "%s", s_name + s_ptr->name);
 
 					/* Go to next column */
 					if ((int) strlen(s_name + s_ptr->name) < len + 2) spoiler_out_n_chars(len + 2 - strlen(s_name + s_ptr->name), ' ');
-					
+
 					/* Get caster details */
 					for (k = 0; (i+k < casters_n) && (k < 3); k++)
 					{
 						/* Fake the class */
 						spoil_fake_class(name, sizeof(name),casters[i+k], t, s);
-						
+
 						/* Display casting details */
 						for (l = 0; l < MAX_SPELL_CASTERS; l++)
 						{
 							if (s_ptr->cast[l].class == p_ptr->pclass) break;
 						}
-						
+
 						if (l < MAX_SPELL_CASTERS)
 						{
 							/* Display spell details */
@@ -1946,7 +1920,7 @@ static void spoil_magic_info(cptr fname)
 							/* Display spell details */
 							fprintf(fff, "xxx xxxx xxxx ");
 						}
-						
+
 						/* End of line */
 						if ((i+k == casters_n - 1) || (k == 2))
 						{
@@ -1956,35 +1930,27 @@ static void spoil_magic_info(cptr fname)
 						{
 							/* Get the length of the class name */
 							l = strlen(name);
-								
+
 							/* Extend space */
 							if (l >= 11) spoiler_out_n_chars(l - 11, ' ');
-							
+
 							fprintf(fff, "   ");
 						}
 					}
 				}
-				
-				fprintf(fff, "\n\n");				
-			}
-			
 
-			/* Hack -- mess with runes, to allow all spells to be displayed */
-			if (t == TV_RUNESTONE)
-			{
-				if (p_ptr->cur_runes == (0x0000FFFFL)) s--;
+				fprintf(fff, "\n\n");
 			}
 		}
 
 		fprintf(fff, "\n\n");
 	}
-    
+
 	/* Restore class information */
 	p_ptr->pclass = old_pclass;
 	p_ptr->pstyle = old_pstyle;
 	p_ptr->psval = old_psval;
 	cp_ptr = old_cp_ptr;
-	p_ptr->cur_runes = old_cur_runes;
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2032,7 +1998,7 @@ void do_cmd_spoilers(void)
                 prt("(8) Brief Ego Item Info (ego-desc.spo)", 12, 5);
                 prt("(9) Slay Table (slay-tbl.spo)", 13, 5);
                 prt("(0) Spell Casting (mag-info.spo)", 14, 5);
-                
+
 
 		/* Prompt */
 		prt("Command: ", 16, 0);

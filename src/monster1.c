@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -96,11 +96,11 @@ static void describe_monster_desc(const monster_race *r_ptr)
 	char buf[2048];
 
 	char *s, *t;
-	
+
 	int match = (r_ptr->flags1 & (RF1_FEMALE)) ? 2 : 1;
-	
+
 	int state = 0;
-	
+
 #ifdef DELAY_LOAD_R_TEXT
 
 	int fd;
@@ -181,7 +181,7 @@ static void describe_monster_desc(const monster_race *r_ptr)
 
 	/* Terminate buffer */
 	*t = '\0';
-	
+
 	/* Dump it */
 	text_out(buf);
 
@@ -735,7 +735,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 			case RBM_BREATH: p = "breathes"; break;
 			case RBM_AREA: p = "affect an area"; break;
 			case RBM_LOS: p = "affect all in line of sight"; break;
-			case RBM_LINE: p = "creats a line"; break;
+			case RBM_LINE: p = "creates a line"; break;
 			case RBM_AIM: p = "affect a target"; break;
 			case RBM_ORB: p = "create an orb"; break;
 			case RBM_STAR: p = "create a star"; break;
@@ -784,7 +784,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 			case GF_STORM: p= "lash with wind, rain and lightning"; break;
 			case GF_WIND: p= "blast with wind"; break;
 			case GF_HELLFIRE: q="blast with hellfire";break;
-			case GF_MANA: q="blast with magic";break;       
+			case GF_MANA: q="blast with magic";break;
 			case GF_HOLY_ORB: q="blast with holy magic";break;
 			case GF_LITE_WEAK: q="light up";break;
 			case GF_DARK_WEAK: q="darken";break;
@@ -900,7 +900,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 			case GF_AWAY_DARK: q = "teleport away only in darkness";break;
 			case GF_AWAY_NATURE: q = "teleport away only adjacent to water or nature";break;
 			case GF_AWAY_FIRE: q = "teleport away only adjacent to fire or lava";break;
-			case GF_AWAY_JUMP: q = "jump away"; break;			
+			case GF_AWAY_JUMP: q = "jump away"; break;
 			case GF_ANIM_TREE:	q = "animate trees"; break;
 			case GF_CHARM_INSECT:	q = "charm insects"; break;
 			case GF_CHARM_REPTILE:	q = "charm reptiles or amphibians"; break;
@@ -1457,7 +1457,7 @@ static void describe_monster_toughness(const monster_race *r_ptr, const monster_
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
-	
+
 	/* Describe monster "toughness" */
 	if (know_armour(r_ptr, l_ptr))
 	{
@@ -1469,14 +1469,14 @@ static void describe_monster_toughness(const monster_race *r_ptr, const monster_
 		if (l_ptr->flags1 & RF1_FORCE_MAXHP)
 		{
 			text_out(format(" and a life rating of %d.  ",
-			    r_ptr->hdice * r_ptr->hside));
+			    r_ptr->hp));
 		}
 
 		/* Variable hitpoints */
 		else
 		{
-			text_out(format(" and a life rating of %dd%d.  ",
-			    r_ptr->hdice, r_ptr->hside));
+			text_out(format(" and an average life rating of %d.  ",
+			    r_ptr->hp));
 		}
 	}
 }
@@ -1648,7 +1648,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 			text_out(" is found ");
 		else
 			text_out(" is normally found ");
-		
+
 		if (depth_in_feet)
 		{
 			text_out(format("at depths of %d feet",
@@ -1927,13 +1927,13 @@ static void roff_top(const monster_race *r_ptr, int m_idx)
 	char c1, c2;
 
 	char desc[80];
-	
+
 	/* Describe the monster */
 	if (m_idx)
 	{
 		/* Describe the monster */
 		monster_desc(desc, sizeof(desc), m_idx, 0x80);
-		
+
 		/* Capitalise the first letter */
 		if (islower(desc[0])) desc[0] = toupper(desc[0]);
 	}
@@ -1952,10 +1952,10 @@ static void roff_top(const monster_race *r_ptr, int m_idx)
 		{
 			my_strcpy(desc, "The ", sizeof(desc));
 		}
-		
+
 		/* Start with the name (thus nominative and objective) */
 		my_strcat(desc, r_name + r_ptr->name, sizeof(desc));
-		
+
 		/* Fix up genderised descriptions manually */
 		for (t = s = desc; *s; s++)
 		{
@@ -1969,11 +1969,11 @@ static void roff_top(const monster_race *r_ptr, int m_idx)
 				*t++ = *s;
 			}
 		}
-		
+
 		/* Terminate */
 		*t = '\0';
 	}
-	
+
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -2069,7 +2069,7 @@ void screen_monster_look(const int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_race race;
-		
+
 	/* Scale monster */
 	if (((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)
 			&& monster_scale(&race, m_idx, p_ptr->depth))
@@ -2081,7 +2081,7 @@ void screen_monster_look(const int m_idx)
 	{
 		COPY(&race, r_ptr, monster_race);
 	}
-	
+
 	/* Remove genders */
 	if ((race.flags1 & (RF1_FEMALE)) && (m_idx % 2)) race.flags1 &= ~(RF1_MALE);
 	else if (race.flags1 & (RF1_MALE)) race.flags1 &= ~(RF1_FEMALE);
@@ -2103,3 +2103,174 @@ void screen_monster_look(const int m_idx)
 }
 
 
+/*
+ * Given a starting position, find the 'n'th closest monster.
+ *
+ * The follow parameters are possible.
+ *
+ * 0x01 Require LOS
+ * 0x02	Require LOF
+ * 0x04 Require visibility
+ * 0x08 If no monsters found, fall back to choosing an empty square
+ * near the source grid.
+ *
+ *
+ * Set ty and tx to zero on failure.
+ */
+void get_closest_monster(int n, int y0, int x0, int *ty, int *tx, byte parameters, int who)
+{
+	monster_type *m_ptr;
+
+	int i, j;
+	int r_idx;
+	int dist = 100;
+
+	int *monster_dist;
+	int *monster_index;
+	int monster_count = 0;
+
+	bool player = FALSE;
+
+	/* Allocate some arrays */
+	monster_dist = C_ZNEW(z_info->m_max + 1, int);
+	monster_index = C_ZNEW(z_info->m_max + 1, int);
+
+	/* Note that we're looking from the character's grid */
+	if ((y0 == p_ptr->py) && (x0 == p_ptr->px)) player = TRUE;
+
+	/* Reset target grids */
+	*ty = 0;  *tx = 0;
+
+	/* N, as input, goes from 1+.  Map it to 0+ for table access */
+	if (n > 0) n--;
+
+
+	/* Check all the monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		/* Get the monster */
+		m_ptr = &m_list[i];
+
+		/* Paranoia -- skip "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip the caster */
+		if (who == i) continue;
+
+		/* Skip allies */
+		if ((who > SOURCE_MONSTER_START) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0)) continue;
+
+		/* Skip player allies */
+		if ((who <= SOURCE_PLAYER_START) && ((m_ptr->mflag & (MFLAG_ALLY)) != 0)) continue;
+
+		/* Check for visibility */
+		if (parameters & (0x04))
+		{
+			if ((player) && (!m_ptr->ml)) continue;
+		}
+
+		/* Use CAVE_VIEW information (fast way) */
+		if (player)
+		{
+			/* Requires line of sight */
+			if (((parameters & (0x01)) != 0) &&
+					(!(play_info[m_ptr->fy][m_ptr->fx] & (PLAY_VIEW)))) continue;
+
+			/* Requires line of fire */
+			if (((parameters & (0x02)) != 0) &&
+					(!(play_info[m_ptr->fy][m_ptr->fx] & (PLAY_FIRE)))) continue;
+
+			/* Get stored distance */
+			dist = m_ptr->cdis;
+		}
+
+		/* Monster must be in los from the starting position (slower way) */
+		else
+		{
+			/* Get distance from starting position */
+			dist = distance(y0, x0, m_ptr->fy, m_ptr->fx);
+
+			/* Monster location must be within range */
+			if (dist > MAX_SIGHT) continue;
+
+			/* Require line of sight */
+			if (((parameters & (0x01)) != 0) && (!generic_los(y0, x0, m_ptr->fy, m_ptr->fx, CAVE_XLOS))) continue;
+
+			/* Require line of fire */
+			if (((parameters & (0x02)) != 0) && (!generic_los(y0, x0, m_ptr->fy, m_ptr->fx, CAVE_XLOF))) continue;
+		}
+
+		/* Remember this monster */
+		monster_dist[monster_count] = dist;
+		monster_index[monster_count++] = i;
+	}
+
+	/* Check the player? */
+	if (who > SOURCE_PLAYER_START)
+	{
+		monster_dist[monster_count] = distance(y0, x0, p_ptr->py, p_ptr->px);
+		monster_index[monster_count++] = -1;
+	}
+
+	/* Not enough monsters found */
+	if (monster_count <= n)
+	{
+		/* Free some arrays */
+		FREE(monster_dist);
+		FREE(monster_index);
+
+		/* Pick a nearby grid instead */
+		if (parameters & (0x08)) scatter(ty, tx, y0, x0, n,
+				(parameters & (0x01) ? CAVE_XLOS : 0) | (parameters & (0x02) ? CAVE_XLOF : 0));
+
+		return;
+	}
+
+	/* Sort the monsters in ascending order of distance */
+	for (i = 0; i < monster_count - 1; i++)
+	{
+		for (j = 0; j < monster_count - 1; j++)
+		{
+			int this_dist = monster_dist[j];
+			int next_dist = monster_dist[j + 1];
+
+			/* Bubble sort */
+			if (this_dist > next_dist)
+			{
+				int tmp_dist  = monster_dist[j];
+				int tmp_index = monster_index[j];
+
+				monster_dist[j] = monster_dist[j + 1];
+				monster_dist[j + 1] = tmp_dist;
+
+				monster_index[j] = monster_index[j + 1];
+				monster_index[j + 1] = tmp_index;
+			}
+		}
+	}
+
+
+	/* Get the nth closest monster's index */
+	r_idx = monster_index[n];
+
+	/* Going for the player */
+	if (r_idx < 0)
+	{
+		/* Set the target to player's location */
+		*ty = p_ptr->py;
+		*tx = p_ptr->px;
+	}
+	else
+	{
+		/* Get the monster */
+		m_ptr = &m_list[r_idx];
+
+		/* Set the target to its location */
+		*ty = m_ptr->fy;
+		*tx = m_ptr->fx;
+	}
+
+	/* Free some arrays */
+	FREE(monster_dist);
+	FREE(monster_index);
+}

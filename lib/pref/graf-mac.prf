@@ -19,3 +19,6 @@
 ?:[EQU $GRAF david]
 %:graf-dvg.prf
 
+# David Gervais' iso-tiles
+?:[EQU $GRAF davidiso]
+%:graf-iso.prf

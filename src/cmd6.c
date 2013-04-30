@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -63,72 +63,124 @@
 /*
  * Do a command to an item.
  */
-void do_cmd_item(int command)
+bool do_cmd_item(int command)
 {
 	int item;
+	int i;
 
-	/* Must be true to let us cancel */
-	bool cancel = TRUE;
-	
+	/* Did we cancel out of command */
+	bool result;
+
 	/* Flags we can use the item from */
 	u16b flags = cmd_item_list[command].use_from;
 
-	/* Check some conditions */
-	if ((cmd_item_list[command].conditions & (CONDITION_NOT_BLIND)) && (p_ptr->blind))
+	/* Check some timed effects */
+	for (i = 0; i < TMD_CONDITION_MAX; i++)
 	{
-		msg_print("You can't see anything.");
-		return;
+		if ((cmd_item_list[command].timed_conditions & (1L << i)) && (p_ptr->timed[i]))
+		{
+			msg_format("%s", timed_effects[i].on_condition);
+			return (FALSE);
+		}
 	}
-	
+
+	/* Check some conditions - need skill to fire bow */
+	if ((cmd_item_list[command].conditions & (CONDITION_SKILL_FIRE)) && (p_ptr->num_fire <= 0))
+	{
+		msg_print("You lack the skill to fire a weapon.");
+		return (FALSE);
+	}
+
+	/* Check some conditions - need skill to fire bow */
+	if ((cmd_item_list[command].conditions & (CONDITION_SKILL_THROW)) && (p_ptr->num_throw <= 0))
+	{
+		msg_print("You lack the skill to throw a weapon.");
+		return (FALSE);
+	}
+
+	/* Check for charged weapon */
+	if ((cmd_item_list[command].conditions & (CONDITION_GUN_CHARGED)) &&
+			(inventory[INVEN_BOW].sval/10 == 3) && (inventory[INVEN_BOW].charges <= 0))
+	{
+		msg_print("You must refill your weapon with gunpowder.");
+
+		return (FALSE);
+	}
+
+	/* Check if we are holding a song */
+	if ((cmd_item_list[command].conditions & (CONDITION_HOLD_SONG)) && (p_ptr->held_song))
+	{
+		/* Verify */
+		if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].name)))
+		{
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE);
+
+			p_ptr->held_song = 0;
+		}
+	}
+
+	/* Cannot cast spells if illiterate */
+	if ((cmd_item_list[command].conditions & (CONDITION_LITERATE)) && ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL))
+		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
+	{
+		msg_print("You cannot read books.");
+		return (FALSE);
+	}
+
+	/* Check some conditions - need lite */
 	if ((cmd_item_list[command].conditions & (CONDITION_LITE)) && (no_lite()))
 	{
 		msg_print("You have no light to read by.");
-		return;
+		return (FALSE);
 	}
-	
-	if ((cmd_item_list[command].conditions & (CONDITION_NOT_BERSERK)) && (p_ptr->shero))
+
+	/* Check some conditions - no wind */
+	if ((cmd_item_list[command].conditions & (CONDITION_NO_WIND)) && ((p_ptr->cur_flags4 & (TR4_WINDY)
+				|| room_has_flag(p_ptr->py, p_ptr->px, ROOM_WINDY))))
 	{
-		msg_print("You are too enraged!");
-		return;
+		msg_print("It is too windy around you!");
+		return (FALSE);
 	}
 
-	/* Amnesia */
-	if ((cmd_item_list[command].conditions & (CONDITION_NOT_FORGET)) && (p_ptr->amnesia))
+	/* Check some conditions - no wind */
+	if (cmd_item_list[command].conditions & (CONDITION_NEED_SPELLS))
 	{
-		msg_print("You have forgotten how!");
-		return;
+		/* Cannot learn more spells */
+		if (!(p_ptr->new_spells))
+		{
+			msg_print("You cannot learn anything more yet.");
+			return (FALSE);
+		}
+
+		/* Message if needed */
+		else
+		{
+			/* Hack */
+			p_ptr->old_spells = 0;
+
+			/* Message */
+			calc_spells();
+		}
 	}
 
-	/* Hack -- prepare a fake item for innate racial abilities of the current shape */
-	if ((command == COMMAND_ITEM_ACTIVATE) && (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)))
-	{
-		/* Prepare a 'fake' object */
-		object_prep(&inventory[INVEN_SELF], lookup_kind(TV_RACE, 0));
-
-		/* Object is known */
-		object_known(&inventory[INVEN_SELF]);
-
-		/* Hack -- set sval */
-		inventory[INVEN_SELF].sval = p_ptr->pshape;
-	}
-	
 	/* Hack --- fuel equipment from inventory */
-	if (command == COMMAND_ITEM_FUEL) 
+	if (command == COMMAND_ITEM_FUEL)
 		p_ptr->command_wrk = (USE_EQUIP); /* TODO: this one does not work here */
-	if (command == COMMAND_ITEM_FUEL_TORCH || command == COMMAND_ITEM_FUEL_LAMP) 
+	if (command == COMMAND_ITEM_FUEL_TORCH || command == COMMAND_ITEM_FUEL_LAMP)
 		p_ptr->command_wrk = (USE_INVEN);
-	
-	/* Restrict choices to tval */
+
+	/* Restrict choices to hook function */
 	item_tester_hook = cmd_item_list[command].item_tester_hook;
 
-	/* Restrict choices to food */
+	/* Restrict choices to tval */
 	item_tester_tval = cmd_item_list[command].item_tester_tval;
 
 	/* Get an item */
-	if (!get_item(&item, cmd_item_list[command].item_query, cmd_item_list[command].item_not_found, flags & ~(USE_BAGS))) return;
+	if (!get_item(&item, cmd_item_list[command].item_query, cmd_item_list[command].item_not_found, flags & ~(USE_BAGS))) return (FALSE);
 
-	/* Get the item from a bag */
-	if (flags & (USE_BAGC))
+	/* Get the item from a bag or quiver */
+	if ((flags & (USE_BAGC)) || (IS_QUIVER_SLOT(item)))
 	{
 		object_type *o_ptr;
 
@@ -143,21 +195,33 @@ void do_cmd_item(int command)
 		{
 			o_ptr = &o_list[0 - item];
 		}
-		
+
 		/* In a bag? */
 		if (o_ptr->tval == TV_BAG)
 		{
 			/* Get item from bag */
 			if (!get_item_from_bag(&item, cmd_item_list[command].item_query, cmd_item_list[command].item_not_found, o_ptr))
 			{
-				if ((flags & (USE_BAGS)) == 0) return;
+				if ((flags & (USE_BAGS)) == 0) return (FALSE);
 			}
 		}
+
+		/* In a quiver? */
+		if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver && !cursed_p(o_ptr))
+		{
+			/* A cursed quiver disables the use of non-cursed ammo */
+			msg_print("Your quiver is cursed!");
+			return (FALSE);
+		}
 	}
-	
+
 	/* Auxiliary function */
-	cancel = !(cmd_item_list[command].player_command)(item);
+	result = (cmd_item_list[command].player_command)(item);
+
+	/* Return whether we cancelled */
+	return (result);
 }
+
 
 static bool kind_is_harmful_shroom(int k_idx)
 {
@@ -168,11 +232,12 @@ static bool kind_is_harmful_shroom(int k_idx)
 	for (i = 0; i < INVEN_BAG_TOTAL; i++)
 	{
 		if (bag_holds[SV_BAG_HARMFUL_MUSHROOMS][i][0] == k_ptr->tval
-			&& bag_holds[SV_BAG_HARMFUL_MUSHROOMS][i][1] == k_ptr->sval) 
+			&& bag_holds[SV_BAG_HARMFUL_MUSHROOMS][i][1] == k_ptr->sval)
 			return TRUE;
 	}
 	return FALSE;
 }
+
 
 /*
  * Hook to determine if an object is edible
@@ -182,14 +247,18 @@ bool item_tester_hook_food_edible(const object_type *o_ptr)
 	/* Check based on tval */
 	switch(o_ptr->tval)
 	{
-		/* Undead can't eat normal food */
-		case TV_FOOD:
-			/* Undead cannot eat food, except harmful mushrooms */
-			if (!(p_ptr->cur_flags4 & TR4_UNDEAD)
-				|| kind_is_harmful_shroom(o_ptr->k_idx)) 
-				return (TRUE);
+	    /* Undead can eat harmful mushrooms */
+	    case TV_MUSHROOM:
+		    if (kind_is_harmful_shroom(o_ptr->k_idx)) return (TRUE);
 
+		/* Fall through */
+
+		/* Undead can't eat normal food */
+	    case TV_FOOD:
+			/* Undead cannot eat food, except harmful mushrooms */
+			if (!(p_ptr->cur_flags4 & TR4_UNDEAD)) return (TRUE);
 			break;
+
 
 		/* Eggs can be eaten by animals and hungry people */
 		case TV_EGG:
@@ -236,7 +305,9 @@ bool item_tester_hook_food_edible(const object_type *o_ptr)
  */
 bool player_eat_food(int item)
 {
-	int ident, lev;
+	bool ident;
+
+	int lev;
 
 	object_type *o_ptr;
 
@@ -287,8 +358,8 @@ bool player_eat_food(int item)
 			if (power < 0) return (FALSE);
 
 			/* Apply food effect */
-			if (process_spell_eaten(object_aware_p(o_ptr) ? SOURCE_PLAYER_EAT : SOURCE_PLAYER_EAT_UNKNOWN,
-					o_ptr->k_idx, power,0,&cancel)) ident = TRUE;
+			if (process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_EAT : SOURCE_PLAYER_EAT_UNKNOWN,
+					o_ptr->k_idx, power,0,&cancel,&ident, TRUE)) ident = TRUE;
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -304,6 +375,7 @@ bool player_eat_food(int item)
 			}
 
 			if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+			if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 			break;
 		}
@@ -313,10 +385,10 @@ bool player_eat_food(int item)
 			/* First, apply breath weapon attack */
 
 			/* Then apply touch attack */
-			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_TOUCH, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_TOUCH, 0, PROJECT_HIDE | PROJECT_PLAY);
 
 			/* Then apply spore attack */
-			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY);
 
 			break;
 		}
@@ -346,7 +418,7 @@ bool player_eat_food(int item)
 		floor_item_optimize(0 - item);
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
-	
+
 	/* Eaten */
 	return (!cancel);
 }
@@ -358,7 +430,9 @@ bool player_eat_food(int item)
  */
 bool player_quaff_potion(int item)
 {
-	int ident, lev, power;
+	bool ident;
+
+	int lev, power;
 
 	/* Must be true to let us cancel */
 	bool cancel = TRUE;
@@ -397,8 +471,8 @@ bool player_quaff_potion(int item)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply food effect */
-	if (power >= 0) ident = process_spell_eaten(object_aware_p(o_ptr) ? SOURCE_PLAYER_QUAFF : SOURCE_PLAYER_QUAFF_UNKNOWN,
-			 o_ptr->k_idx, power,0,&cancel);
+	if (power >= 0) ident = process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_QUAFF : SOURCE_PLAYER_QUAFF_UNKNOWN,
+			 o_ptr->k_idx, power,0,&cancel,&ident, TRUE);
 	else return (FALSE);
 
 	/* Clear styles */
@@ -418,6 +492,7 @@ bool player_quaff_potion(int item)
 	}
 
 	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+	if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -443,7 +518,7 @@ bool player_quaff_potion(int item)
 		floor_item_optimize(0 - item);
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
-	
+
 	return (!cancel);
 }
 
@@ -502,7 +577,7 @@ bool player_read_scroll(int item)
 
 	/* Apply scroll effect */
 	if (power >= 0) ident = process_spell(object_aware_p(o_ptr) ? SOURCE_PLAYER_READ : SOURCE_PLAYER_READ_UNKNOWN,
-			 o_ptr->k_idx, power, 0, &cancel, &known);
+			 o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -522,6 +597,7 @@ bool player_read_scroll(int item)
 	}
 
 	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+	if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -547,7 +623,7 @@ bool player_read_scroll(int item)
 		floor_item_optimize(0 - item);
 		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
-	
+
 	return (!cancel);
 }
 
@@ -601,10 +677,10 @@ bool player_use_staff(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills[SKILL_DEVICE];
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* Check for speciality */
 	if (p_ptr->pstyle == WS_STAFF)
@@ -683,7 +759,7 @@ bool player_use_staff(int item)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply staff effect */
-	if (power >= 0) ident = process_spell(SOURCE_PLAYER_USE, o_ptr->k_idx, power, 0, &cancel, &known);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_USE, o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -703,6 +779,7 @@ bool player_use_staff(int item)
 	}
 
 	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+	if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -713,7 +790,7 @@ bool player_use_staff(int item)
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
 
-	/* No spare charges */	
+	/* No spare charges */
 	if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
@@ -724,7 +801,7 @@ bool player_use_staff(int item)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((o_ptr->number > 1) && 
+	if ((o_ptr->number > 1) &&
 	((!object_charges_p(o_ptr) && (o_ptr->charges == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_charges_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
 	  (o_ptr->stackc != 1) && (o_ptr->charges > 2))))
@@ -743,7 +820,7 @@ bool player_use_staff(int item)
 
 		/* Reset stack counter */
 		i_ptr->stackc = 0;
- 
+
  		/* Unstack the used item */
  		o_ptr->number--;
 
@@ -788,7 +865,7 @@ bool player_use_staff(int item)
 	{
 		floor_item_charges(0 - item);
 	}
-	
+
 	return (!cancel);
 }
 
@@ -855,10 +932,10 @@ bool player_aim_wand(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills[SKILL_DEVICE];
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* Check for speciality */
 	if (p_ptr->pstyle == WS_WAND)
@@ -938,7 +1015,7 @@ bool player_aim_wand(int item)
 	if (object_aware_p(o_ptr)) known = TRUE;
 
 	/* Apply wand effect */
-	if (power >= 0) ident = process_spell(SOURCE_PLAYER_AIM, o_ptr->k_idx, power, 0, &cancel, &known);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_AIM, o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
 	else return (TRUE);
 
 	/* Clear styles */
@@ -958,6 +1035,7 @@ bool player_aim_wand(int item)
 	}
 
 	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+	if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -968,7 +1046,7 @@ bool player_aim_wand(int item)
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
 
-	/* No spare charges */	
+	/* No spare charges */
 	if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
@@ -979,7 +1057,7 @@ bool player_aim_wand(int item)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((o_ptr->number > 1) && 
+	if ((o_ptr->number > 1) &&
 	((!object_charges_p(o_ptr) && (o_ptr->charges == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_charges_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
 	  (o_ptr->stackc != 1) && (o_ptr->charges > 2))))
@@ -998,7 +1076,7 @@ bool player_aim_wand(int item)
 
 		/* Reset stack counter */
 		i_ptr->stackc = 0;
- 
+
  		/* Unstack the used item */
  		o_ptr->number--;
 
@@ -1042,7 +1120,7 @@ bool player_aim_wand(int item)
 	{
 		floor_item_charges(0 - item);
 	}
-	
+
 	return (!cancel);
 }
 
@@ -1113,10 +1191,10 @@ bool player_zap_rod(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills[SKILL_DEVICE];
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -1173,7 +1251,7 @@ bool player_zap_rod(int item)
 	sound(MSG_ZAP_ROD);
 
 	/* Hack -- get fake direction */
-	if (!object_aware_p(o_ptr) && (o_ptr->sval < SV_ROD_MIN_DIRECTION)) get_aim_dir(&dir);
+	if (!object_aware_p(o_ptr) && (o_ptr->sval < SV_ROD_MIN_DIRECTION)) get_aim_dir(&dir, MAX_RANGE, 0, (PROJECT_BEAM), 0, 0);
 
 	/* Set if known */
 	if (object_aware_p(o_ptr)) known = TRUE;
@@ -1182,9 +1260,16 @@ bool player_zap_rod(int item)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply rod effect */
-	/* Note we use two different sources to suppress messages from dispel evil, in the even the rod is known to be ineffective against non-evil monsters */
-	if (power >= 0) ident = process_spell(known && (o_ptr->sval >= SV_ROD_MIN_DIRECTION) ? SOURCE_PLAYER_ZAP_NO_TARGET : SOURCE_PLAYER_ZAP, o_ptr->k_idx, power, 0, &cancel, &known);
-	else return (TRUE);
+	/* Note we use two different sources to suppress messages
+	   from dispel evil, in the event the rod is known
+	   to be ineffective against non-evil monsters */
+	if (power >= 0)
+		ident = process_spell(known && (o_ptr->sval >= SV_ROD_MIN_DIRECTION)
+							  ? SOURCE_PLAYER_ZAP_NO_TARGET
+							  : SOURCE_PLAYER_ZAP,
+							  o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
+	else
+		return (TRUE);
 
 	/* Time rod out */
 	o_ptr->timeout = o_ptr->charges;
@@ -1203,6 +1288,7 @@ bool player_zap_rod(int item)
 	}
 
 	if ((ident) && (k_info[o_ptr->k_idx].used < MAX_SHORT)) k_info[o_ptr->k_idx].used++;
+	if ((ident) && (k_info[o_ptr->k_idx].ever_used < MAX_SHORT)) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1304,22 +1390,22 @@ static void assemble_parts(int *src_sval, int *tgt_sval, const int r_idx)
 			else if (*tgt_sval == SV_ASSEMBLY_PART_HAND_L)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
 			break;
 		case SV_ASSEMBLY_HAND_L:
-			if (*tgt_sval == SV_ASSEMBLY_HAND_R) {*tgt_sval = SV_ASSEMBLY_HANDS;} 
-			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_HAND_L;} 
+			if (*tgt_sval == SV_ASSEMBLY_HAND_R) {*tgt_sval = SV_ASSEMBLY_HANDS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_HAND_L;}
 			else if (*tgt_sval == SV_ASSEMBLY_PART_ARMS)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
 			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_L) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;}
 			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) &&!(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
 			break;
 		case SV_ASSEMBLY_HAND_R:
-			if (*tgt_sval == SV_ASSEMBLY_HAND_L) {*tgt_sval = SV_ASSEMBLY_HANDS;} 
-			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_HAND_R;} 
+			if (*tgt_sval == SV_ASSEMBLY_HAND_L) {*tgt_sval = SV_ASSEMBLY_HANDS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_HAND_R;}
 			else if (*tgt_sval == SV_ASSEMBLY_PART_ARMS)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_L;}
-			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_R) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;} 
+			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_R) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;}
 			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_MISS_HAND_L;}
 			break;
 		case SV_ASSEMBLY_ARMS:
-			if (*tgt_sval == SV_ASSEMBLY_NONE) {*tgt_sval = SV_ASSEMBLY_PART_ARMS;} 
-			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_ARMS; *src_sval = SV_ASSEMBLY_ARM_L; } 
+			if (*tgt_sval == SV_ASSEMBLY_NONE) {*tgt_sval = SV_ASSEMBLY_PART_ARMS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_ARMS; *src_sval = SV_ASSEMBLY_ARM_L; }
 			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_ARMS; *src_sval = SV_ASSEMBLY_ARM_R; }
 			break;
 		case SV_ASSEMBLY_HANDS:
@@ -1390,7 +1476,7 @@ bool item_tester_hook_assembly(const object_type *o_ptr)
 {
 	object_type *j_ptr;
 	int item2 = p_ptr->command_trans_item;
-	
+
 	/* Paranoia */
 	if (p_ptr->command_trans != COMMAND_ITEM_ASSEMBLE) return (FALSE);
 
@@ -1405,9 +1491,9 @@ bool item_tester_hook_assembly(const object_type *o_ptr)
 	{
 		j_ptr = &o_list[0 - item2];
 	}
-	
+
 	/* Make sure the same type */
-	if (o_ptr->name3 != j_ptr->name3) return (FALSE);	
+	if (o_ptr->name3 != j_ptr->name3) return (FALSE);
 
 	/* Re-attached assemblies to assemblies */
 	if (o_ptr->tval == TV_ASSEMBLY)
@@ -1434,7 +1520,7 @@ bool player_assembly(int item2)
 	int src_sval, tgt_sval = 0;
 
 	object_type *o_ptr, *j_ptr;
-	
+
 	int item = p_ptr->command_trans_item;
 
 	/* Paranoia */
@@ -1451,7 +1537,7 @@ bool player_assembly(int item2)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-	
+
 	/* Get the item (in the pack) */
 	if (item2 >= 0)
 	{
@@ -1538,7 +1624,10 @@ bool player_assembly(int item2)
 		i_ptr->sval = tgt_sval;
 		if (src_sval != k_ptr->sval) i_ptr->weight += k_ptr->weight /2;
 		else i_ptr->weight += k_ptr->weight;
-		if (k_info[i_ptr->k_idx].charges) i_ptr->timeout = randint(k_info[i_ptr->k_idx].charges) + k_info[i_ptr->k_idx].charges;
+		if (k_info[i_ptr->k_idx].charges) i_ptr->timeout = (s16b)randint(k_info[i_ptr->k_idx].charges) + k_info[i_ptr->k_idx].charges;
+
+		/* Hack - mark as made by the player */
+		i_ptr->ident |= (IDENT_FORGED);
 
 		/* Adjust the weight and carry */
 		if (item2 >= 0)
@@ -1574,7 +1663,7 @@ bool player_assembly(int item2)
 			}
 		}
 	}
-	
+
 	return (TRUE);
 }
 
@@ -1610,10 +1699,10 @@ bool player_assemble(int item)
 	if (o_ptr->name3) lev = r_info[o_ptr->name3].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills[SKILL_DEVICE];
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -1632,11 +1721,11 @@ bool player_assemble(int item)
 		msg_print("You failed to understand it properly.");
 		return (FALSE);
 	}
-	
+
 	/* Initialise stuff for the second part of the command */
 	p_ptr->command_trans = COMMAND_ITEM_ASSEMBLE;
 	p_ptr->command_trans_item = item;
-	
+
 	return (TRUE);
 }
 
@@ -1721,10 +1810,10 @@ bool player_activate(int item)
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills[SKILL_DEVICE];
 
 	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -1779,16 +1868,13 @@ bool player_activate(int item)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to activate it properly.");
-		
+
 		/* Clear styles */
 		p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF));
 
-		/* Clear racial activation */
-		if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)) object_wipe(&inventory[INVEN_SELF]);
-
 		return (TRUE);
 	}
-	
+
 	/* Item is broken */
 	if (o_ptr->ident & (IDENT_BROKEN))
 	{
@@ -1819,16 +1905,17 @@ bool player_activate(int item)
 
 	/* Paranoia */
 	if (power < 0) return (TRUE);
-	
+
 	/* Apply object effect */
 	(void)process_spell(o_ptr->name1 ? SOURCE_PLAYER_ACT_ARTIFACT : (o_ptr->name2 ? SOURCE_PLAYER_ACT_EGO_ITEM : SOURCE_PLAYER_ACTIVATE),
-			o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), power, 0, &cancel, &known);
+			o_ptr->name1 ? o_ptr->name1 : (o_ptr->name2 ? o_ptr->name2 : o_ptr->k_idx), power, 0, &cancel, &known, FALSE);
 
 	/* We know it activates */
 	object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE,0x0L, item < 0);
 
 	/* Used the object */
 	if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
+	if (k_info[o_ptr->k_idx].ever_used < MAX_SHORT) k_info[o_ptr->k_idx].ever_used++;
 
 	/* Tire the player */
 	if ((item == INVEN_SELF) || (o_ptr->tval == TV_SPELL))
@@ -1881,10 +1968,7 @@ bool player_activate(int item)
 	}
 
 	/* Time object out */
-	else if (o_ptr->charges) o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
-
-	/* Clear racial activation */
-	if (p_info[p_ptr->pshape].flags3 & (TR3_ACTIVATE)) object_wipe(&inventory[INVEN_SELF]);
+	else if (o_ptr->charges) o_ptr->timeout = (s16b)rand_int(o_ptr->charges)+o_ptr->charges;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1967,9 +2051,7 @@ bool item_tester_hook_apply(const object_type *o_ptr)
 {
 	switch(o_ptr->tval)
 	{
-		case TV_FOOD:
-			if (o_ptr->sval < SV_FOOD_MIN_FOOD) return (TRUE);
-			break;
+		case TV_MUSHROOM:
 		case TV_POTION:
 		case TV_FLASK:
 		case TV_RUNESTONE:
@@ -1992,6 +2074,8 @@ bool item_tester_hook_coating(const object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_SHIELD:
+		case TV_SKIN:
 			if (o_ptr->weight < 1000) return (TRUE);
 	}
 
@@ -2014,7 +2098,7 @@ bool player_apply_rune_or_coating(int item)
 	/* Set up for second command */
 	p_ptr->command_trans = COMMAND_ITEM_APPLY;
 	p_ptr->command_trans_item = item;
-	
+
 	return (TRUE);
 }
 
@@ -2025,7 +2109,7 @@ bool player_apply_rune_or_coating(int item)
 int cmd_tester_rune_or_coating(int item)
 {
 	object_type *o_ptr;
-	
+
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -2036,8 +2120,8 @@ int cmd_tester_rune_or_coating(int item)
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}	
-	
+	}
+
 	/* Check command */
 	if (o_ptr->tval == TV_RUNESTONE)
 		return (COMMAND_ITEM_APPLY_RUNE);
@@ -2062,7 +2146,7 @@ bool player_apply_rune_or_coating2(int item2)
 
 	int rune;
 	int tval, sval;
-	
+
 	bool aware = FALSE;
 	bool use_feat = FALSE;
 	bool brand_ammo = FALSE;
@@ -2086,6 +2170,21 @@ bool player_apply_rune_or_coating2(int item2)
 	/* Use feat */
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
+	/* Get rune */
+	if (o_ptr->tval == TV_RUNESTONE)
+	{
+		rune = o_ptr->sval;
+		tval = -1;
+		sval = -1;
+	}
+	else
+	{
+		rune = -1;
+		tval = o_ptr->tval;
+		sval = o_ptr->sval;
+		aware = ( k_info[o_ptr->k_idx].aware & (AWARE_FLAVOR) ) != 0;
+	}
+
 	/* Get the item (in the pack) */
 	if (item2 >= 0)
 	{
@@ -2097,7 +2196,16 @@ bool player_apply_rune_or_coating2(int item2)
 	{
 		j_ptr = &o_list[0 - item2];
 	}
-	
+
+	/* Set up tattoo */
+	if ((j_ptr->ident & (IDENT_STORE)) && (item2 >= 0))
+	{
+		i = lookup_kind(TV_SPELL, rune >= 0 ? SV_RUNIC_TATTOO : SV_WOAD);
+
+		/* Prepare tattoo */
+		object_prep(j_ptr, i);
+	}
+
 	/* Remove coating */
 	if ((coated_p(j_ptr)) && ((j_ptr->xtra1 != o_ptr->tval) || (j_ptr->xtra2 != o_ptr->sval)))
 	{
@@ -2124,21 +2232,6 @@ bool player_apply_rune_or_coating2(int item2)
 
 		/* Sense the item? */
 		return (FALSE);
-	}
-
-	/* Get rune */
-	if (o_ptr->tval == TV_RUNESTONE)
-	{
-		rune = o_ptr->sval;
-		tval = -1;
-		sval = -1;
-	}
-	else
-	{
-		rune = -1;
-		tval = o_ptr->tval;
-		sval = o_ptr->sval;
-		aware = k_info[o_ptr->k_idx].aware;
 	}
 
 	/* Overwrite runes */
@@ -2359,36 +2452,36 @@ bool player_apply_rune_or_coating2(int item2)
 						if (cursed_p(j_ptr) || broken_p(j_ptr))
 						{
 							/* Hack -- obtain penalties */
-							if (e_ptr->max_to_h > 0) j_ptr->to_h = MIN(j_ptr->to_h,-randint(e_ptr->max_to_h));
+							if (e_ptr->max_to_h > 0) j_ptr->to_h = MIN(j_ptr->to_h,-(s16b)randint(e_ptr->max_to_h));
 							else j_ptr->to_h = MIN(j_ptr->to_h,0);
 
-							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(j_ptr->to_d,-randint(e_ptr->max_to_d));
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(j_ptr->to_d,-(s16b)randint(e_ptr->max_to_d));
 							else j_ptr->to_d = MIN(j_ptr->to_d,0);
 
-							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(j_ptr->to_a,-randint(e_ptr->max_to_a));
+							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(j_ptr->to_a,-(s16b)randint(e_ptr->max_to_a));
 							else j_ptr->to_a = MIN(j_ptr->to_a,0);
 
 							/* Hack -- obtain charges */
-							if (e_ptr->max_pval > 0) j_ptr->pval = MIN(j_ptr->pval,-randint(e_ptr->max_pval));
+							if (e_ptr->max_pval > 0) j_ptr->pval = MIN(j_ptr->pval,-(s16b)randint(e_ptr->max_pval));
 						}
 
 						/* Hack -- apply extra bonuses if needed */
 						else
 						{
 							/* Hack -- obtain bonuses */
-							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h, randint(e_ptr->max_to_h));
+							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h, (s16b)randint(e_ptr->max_to_h));
 							else j_ptr->to_h = MIN(j_ptr->to_h, 0);
 
-							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(MAX(j_ptr->to_d, randint(e_ptr->max_to_d)),
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(MAX(j_ptr->to_d, (s16b)randint(e_ptr->max_to_d)),
 												   (j_ptr->tval == TV_BOW ? 15 : j_ptr->dd * j_ptr->ds + 5));
 							else j_ptr->to_d = MIN(j_ptr->to_d, 0);
 
-							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(MAX(j_ptr->to_a, randint(e_ptr->max_to_a)),
+							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(MAX(j_ptr->to_a, (s16b)randint(e_ptr->max_to_a)),
 												   j_ptr->ac + 5);
 							else j_ptr->to_a = MIN(j_ptr->to_a, 0);
 
 							/* Hack -- obtain pval */
-							if (e_ptr->max_pval > 0) j_ptr->pval = MAX(1,MIN(j_ptr->pval, randint(e_ptr->max_pval)));
+							if (e_ptr->max_pval > 0) j_ptr->pval = MAX(1,MIN(j_ptr->pval, (s16b)randint(e_ptr->max_pval)));
 							else j_ptr->pval = MIN(j_ptr->pval, 0);
 						}
 
@@ -2461,7 +2554,8 @@ bool player_apply_rune_or_coating2(int item2)
 	      floor_item_describe(item);
 	    }
 	}
-	
+
+
 	return (TRUE);
 }
 

@@ -541,7 +541,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				{
 					/* Capitalize if possible */
 					if (islower((unsigned char)tmp[q]))
-						tmp[q] = toupper((unsigned char)tmp[q]);
+						tmp[q] = (unsigned char)toupper((unsigned char)tmp[q]);
 
 					/* Done */
 					break;

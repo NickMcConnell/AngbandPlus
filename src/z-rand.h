@@ -73,6 +73,12 @@
 	((A) + (rand_int(1+(D)+(D))) - (D))
 
 
+/*
+ * An alternative method of calling "rand_int()".
+ * From Zangband.
+ */
+#define one_in_(X) \
+	(rand_int(X) == 0)
 
 /**** Available Variables ****/
 

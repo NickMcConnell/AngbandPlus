@@ -20,7 +20,7 @@
 # Version stamp (required)
 
 
-V:0.6.2
+V:0.6.3
 
 
 ##### Rings #####
@@ -731,93 +731,93 @@ D:Pewter
 
 ##### Mushrooms #####
 
-N:173:80
+N:173:79
 G:,:b
 D:Blue
 
 #Fixed
 
-N:174:80:8
+N:174:79:8
 G:,:D
 D:Black
 
-N:175:80
+N:175:79
 G:,:D
 D:Black Spotted
 
 #Fixed: Confusion
 
-N:176:80:11
+N:176:79:11
 G:,:u
 D:Brown
 
-N:177:80
+N:177:79
 G:,:b
 D:Dark Blue
 
-N:178:80
+N:178:79
 G:,:g
 D:Dark Green
 
-N:179:80
+N:179:79
 G:,:r
 D:Dark Red
 
 #Fixed
 
-N:180:80:2
+N:180:79:2
 G:,:y
 D:Yellow
 
-N:181:80
+N:181:79
 G:,:W
 D:Furry
 
 #Fixed
 
-N:182:80:9
+N:182:79:9
 G:,:g
 D:Green
 
 #Fixed
 
-N:183:80:3
+N:183:79:3
 G:,:s
 D:Grey
 
-N:184:80:4
+N:184:79:4
 G:,:u
 D:Light Brown
 
-N:185:80
+N:185:79
 G:,:G
 D:Light Green
 
-N:186:80
+N:186:79
 G:,:v
 D:Violet
 
-N:187:80
+N:187:79
 G:,:r
 D:Red
 
-N:188:80
+N:188:79
 G:,:M
 D:Slimy
 
-N:189:80
+N:189:79
 G:,:U
 D:Tan
 
-N:190:80
+N:190:79
 G:,:w
 D:White
 
-N:191:80
+N:191:79
 G:,:w
 D:White Spotted
 
-N:192:80
+N:192:79
 G:,:m
 D:Wrinkled
 
@@ -1660,31 +1660,31 @@ D:Divining
 
 #Fixed
 
-N:409:80:20
+N:409:79:20
 G:,:B
 D:Light Blue
 
-N:410:80:6
+N:410:79:6
 G:,:i
 D:Pink
 
-N:411:80:7
+N:411:79:7
 G:,:p
 D:Purple
 
-N:412:80:0
+N:412:79:0
 G:,:z
 D:Spotted
 
-N:413:80:1
+N:413:79:1
 G:,:W
 D:Silver
 
-N:414:80:5
+N:414:79:5
 G:,:u
 D:Copper
 
-N:415:80:10
+N:415:79:10
 G:,:m
 D:Rotting
 
@@ -2422,51 +2422,51 @@ D:Hag's Head
 
 ### More Mushrooms from Sangband ###
 
-N:595:80
+N:595:79
 G:,:G
 D:Ecru
 
-N:596:80
+N:596:79
 G:,:R
 D:Fleshy
 
-N:597:80
+N:597:79
 G:,:M
 D:Fuzzy
 
-N:598:80
+N:598:79
 G:,:m
 D:Greasy
 
-N:599:80
+N:599:79
 G:,:U
 D:Leathery
 
-N:600:80
+N:600:79
 G:,:Y
 D:Lemon Speckled
 
-N:601:80
+N:601:79
 G:,:B
 D:Luminescent
 
-N:602:80
+N:602:79
 G:,:o
 D:Orange Capped
 
-N:603:80
+N:603:79
 G:,:R
 D:Scarlet Rimmed
 
-N:604:80
+N:604:79
 G:,:p
 D:Purple Blotched
 
-N:605:80
+N:605:79
 G:,:R
 D:Red Spotted
 
-N:606:80
+N:606:79
 G:,:D
 D:Smelly
 

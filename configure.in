@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/main.c])
 dnl write the resulting #defines into a header file
 AM_CONFIG_HEADER(src/autoconf.h)
 
-AM_INIT_AUTOMAKE(UnAngband, 0.6.2)
+AM_INIT_AUTOMAKE(UnAngband, 0.6.3)
 
 AC_ARG_WITH(setgid,
 [  --with-setgid=NAME      install unangband as group NAME],
@@ -173,6 +173,14 @@ else
     esac
   fi
 fi
+
+dnl add some warning flags
+CFLAGS="$CFLAGS -Wall -Wextra -Wformat=0 -Wlogical-op -Wredundant-decls -Wnested-externs -std=gnu99"
+dnl some other warnings to test: -Wc++-compat -Wno-multichar
+dnl generates lots of warnings: -Wconversion -Wshadow
+dnl unimportant: -Wpointer-arith -Waddress
+dnl don't bother: -Waggregate-return -Wstrict-prototypes -Wpointer-sign
+dnl produces lots of dodgy warnings: -Wunreachable-code
 
 AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
 

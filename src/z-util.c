@@ -38,8 +38,8 @@ int my_stricmp(const char *s1, const char *s2)
 			return (0);
 		}
 
-		ch1 = toupper(*s1);
-		ch2 = toupper(*s2);
+		ch1 = (char)toupper(*s1);
+		ch2 = (char)toupper(*s2);
 
 		/* If the characters don't match */
 		if (ch1 != ch2)

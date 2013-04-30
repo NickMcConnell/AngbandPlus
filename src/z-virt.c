@@ -129,21 +129,10 @@ char *string_make(const char *str)
 
 	/* Allocate space for the string (including terminator) */
 	siz = strlen(str) + 1;
-	res = mem_alloc(siz);
+	res = (char*)mem_alloc(siz);
 
 	/* Copy the string (with terminator) */
 	my_strcpy(res, str, siz);
 
 	return res;
-}
-
-
-/*
- * Un-allocate a string allocated above.
- */
-#undef string_free
-char *string_free(char *str)
-{
-	/* Kill the buffer of chars we must have allocated above */
-	return mem_free(str);
 }

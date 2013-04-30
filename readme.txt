@@ -3,8 +3,8 @@
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
                                     |___/                      
-           The Unnamed Angband                  Version 0.6.2
-        Copyright (c) 2001-2008 by Andrew Doull and others, except where noted.
+           The Unnamed Angband                  Version 0.6.3
+        Copyright (c) 2001-2009 by Andrew Doull and others, except where noted.
         UnAngband 0.5.3 by Andrew Doull, Mogami, and Andrew Sidwell
                Other versions of UnAngband by Andrew Doull.
     Based on:   Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -19,7 +19,7 @@
                 Sangband 0.9.9 and Demoband by Leon Marrick
 
      Send comments, bug reports and patches to unangband@yahoogroups.com
-         Visit the UnAngband website at http://unangband.berlios.de/
+         Visit the UnAngband website at http://unangband.blogspot.com/
      Read the Angband Usenet group at news:rec.games.roguelike.angband
 
 

@@ -16,7 +16,7 @@
                ant or immune to edged or blunt weapons - to compensate it's
                probably worth carrying a backup weapon of the other type.
 
-***** <Mage> 
+***** <Mage>
           Mage
                A Mage must live by his wits.  He cannot hope to simply hack
                his  way  through the dungeon, and so must therefore use his
@@ -96,7 +96,7 @@
                for wearing gloves or impeding themeselves with too heavy
                armour.
                 
-***** <Paladin> 
+***** <Paladin>
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
                second  only to the warrior class, but not very good at mis-

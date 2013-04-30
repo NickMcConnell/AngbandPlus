@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -284,33 +284,6 @@ static void wiz_display_item(const object_type *o_ptr)
 }
 
 
-
-/*
- * Strip an "object name" into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-
 /*
  * Get an object kind for creation (or zero)
  *
@@ -338,12 +311,12 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-        for (num = 0; (num < 78) && object_group_tval[num]; num++)
+        for (num = 0; (num < 78) && object_group[num].tval; num++)
 	{
 		row = 2 + (num % 26);
 		col = 30 * (num / 26);
 		ch  = choice_name[num];
-                prt(format("[%c] %s", ch, object_group_text[num]), row, col);
+                prt(format("[%c] %s", ch, object_group[num].text), row, col);
 	}
 
 	/* We need to know the maximal possible tval_index */
@@ -361,8 +334,8 @@ static int wiz_create_itemtype(void)
 	if ((num < 0) || (num >= max_num)) return (0);
 
 	/* Base object type chosen, fill in tval */
-        tval = object_group_tval[num];
-        tval_desc = object_group_text[num];
+        tval = object_group[num].tval;
+        tval_desc = object_group[num].text;
 
 
 	/*** And now we go for k_idx ***/
@@ -379,7 +352,7 @@ static int wiz_create_itemtype(void)
 		if (k_ptr->tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->flags5 & (TR5_INSTA_ART)) continue;
 
 			/* Prepare it */
 			row = 2 + (num % 26);
@@ -387,7 +360,7 @@ static int wiz_create_itemtype(void)
 			ch  = choice_name[num];
 
 			/* Get the "name" of object "i" */
-			strip_name(buf, i);
+			strip_name(buf, sizeof(buf), i);
 
 			/* Print it */
 			prt(format("[%c] %s", ch, buf), row, col);
@@ -503,14 +476,14 @@ static void wiz_reroll_item(object_type *o_ptr)
 		}
 
 		/* Apply good magic, but first clear object */
-		else if (ch == 'g' || ch == 'g')
+		else if (ch == 'g' || ch == 'G')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
 			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
-		else if (ch == 'e' || ch == 'e')
+		else if (ch == 'e' || ch == 'E')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
 			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
@@ -521,6 +494,9 @@ static void wiz_reroll_item(object_type *o_ptr)
 	/* Notice change */
 	if (changed)
 	{
+		/* Mark as cheat */
+		i_ptr->origin = ORIGIN_CHEAT;
+
 		/* Restore the position information */
 		i_ptr->iy = o_ptr->iy;
 		i_ptr->ix = o_ptr->ix;
@@ -837,7 +813,7 @@ static void do_cmd_wiz_play(void)
 			wiz_statistics(i_ptr);
 		}
 
-		if (ch == 'r' || ch == 'r')
+		if (ch == 'r' || ch == 'R')
 		{
 			wiz_reroll_item(i_ptr);
 		}
@@ -927,6 +903,9 @@ static void wiz_create_item(void)
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
+	/* Mark as cheat */
+	i_ptr->origin = ORIGIN_CHEAT;
+
 	/* Apply obvious flags */
 	object_obvious_flags(i_ptr, TRUE);
 
@@ -983,6 +962,9 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->to_d = a_ptr->to_d;
 	i_ptr->weight = a_ptr->weight;
 
+	/* Mark as cheat */
+	i_ptr->origin = ORIGIN_CHEAT;
+
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 
@@ -996,6 +978,8 @@ static void wiz_create_artifact(int a_idx)
  */
 static void do_cmd_wiz_cure_all(void)
 {
+	int i;
+
 	/* Remove curses */
 	(void)remove_all_curse();
 
@@ -1023,23 +1007,17 @@ static void do_cmd_wiz_cure_all(void)
 	/* Remove diseases */
 	p_ptr->disease = 0;
 
-	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_amnesia(0);
-	(void)set_cursed(0);
-	(void)set_msleep(0);
-	(void)set_petrify(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	/* Remove all timed effects */
+	for (i = 0; i < TMD_MAX; i++)
+	{
+		set_timed(i, 0, TRUE);
+	}
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
+
+	/* No longer tired */
+	(void)set_rest(PY_REST_MAX - 1);
 
 	/* Redraw everything */
 	do_cmd_redraw();
@@ -1189,7 +1167,7 @@ static void do_cmd_rerate(void)
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			p_ptr->player_hp[i] = randint(10);
+			p_ptr->player_hp[i] = (s16b)randint(10);
 			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
 		}
 
@@ -1346,7 +1324,7 @@ static void do_cmd_wiz_detect(void)
 		/* Memorize */
 		o_ptr->ident |= (IDENT_MARKED);
 	}
-	
+
 	/* Scan all normal grids */
 	for (y = 1; y < DUNGEON_HGT-1; y++)
 	{
@@ -1393,8 +1371,8 @@ static void do_cmd_wiz_detect(void)
 		/* Update the monster */
 		update_mon(i, FALSE);
 	}
-	
-	
+
+
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
@@ -1444,7 +1422,7 @@ static void do_cmd_wiz_query(void)
 		{
 			case 'm': mask |= (PLAY_MARK); break;
 			case 'd': mask |= (PLAY_SAFE); break;
-      	      		case 'p': mask |= (PLAY_MAGI); break;
+      	    case 'p': mask |= (PLAY_REGN); break;
 			case 'l': mask |= (PLAY_LITE); break;
 			case 's': mask |= (PLAY_SEEN); break;
 			case 't': mask |= (PLAY_TEMP); break;
@@ -1456,7 +1434,7 @@ static void do_cmd_wiz_query(void)
 		{
 			case 'g': mask |= (CAVE_GLOW); break;
 			case 'r': mask |= (CAVE_ROOM); break;
-	      	        case 'd': mask |= (CAVE_DLIT); break;
+			case 'd': mask |= (CAVE_DLIT); break;
 			case 'l': mask |= (CAVE_HALO); break;
 			case 't': mask |= (CAVE_TLIT); break;
 			case 'x': mask |= (CAVE_CLIM); break;
@@ -1514,27 +1492,27 @@ static void do_cmd_wiz_query(void)
 void do_cmd_wiz_ecology(void)
 {
 	int num, row, col, i;
-	
+
 	/* No ecology */
 	if (!cave_ecology.get_mon)
 	{
 		msg_print("No ecology on this level.");
-		
+
 		return;
 	}
-	
+
 	/* Save screen */
 	screen_save();
-	
+
 	/* Print all members of the ecology and their descriptions */
         for (num = 0; num < cave_ecology.num_races; num++)
 	{
 		row = 2 + (num % 26);
 		col = 30 * (num / 26);
 		prt(r_name + r_info[cave_ecology.race[num]].name, row, col);
-		
+
 		col += 20;
-		
+
 		for (i = 0; i <= cave_ecology.num_ecologies; i++)
 		{
 			if (cave_ecology.race_ecologies[num] & (1L << i))
@@ -1543,12 +1521,12 @@ void do_cmd_wiz_ecology(void)
 			}
 		}
 	}
-	
+
 	/* Total monsters */
 	msg_format("Ecology has %d races and %d sub-ecologies.", cave_ecology.num_races, cave_ecology.num_ecologies);
 
 	anykey();
-	
+
 	/* Screen_load */
 	screen_load();
 }
@@ -1610,7 +1588,14 @@ void do_cmd_debug(void)
 		/* Hack -- Help */
 		case '?':
 		{
-			do_cmd_help();
+			/* Save the screen */
+			screen_save();
+
+			/* Show stats help */
+			(void)show_file("debug.txt", NULL, 0, 0);
+
+			/* Load the screen */
+			screen_load();
 			break;
 		}
 
@@ -1651,12 +1636,12 @@ void do_cmd_debug(void)
 			process_spell_flags(SOURCE_PLAYER_WIZARD, 0, 92, 100, &cancel, &known);
 			break;
 		}
-		
+
 		/* Wizard detect */
 		case 'D':
 		{
 			do_cmd_wiz_detect();
-			break;			
+			break;
 		}
 
 		/* Edit character */
@@ -1665,14 +1650,13 @@ void do_cmd_debug(void)
 			do_cmd_wiz_change();
 			break;
 		}
-		
+
 		/* Show ecology */
 		case 'E':
 		{
 			do_cmd_wiz_ecology();
 			break;
 		}
-		
 
 		/* View item info */
 		case 'f':
@@ -1724,6 +1708,16 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Regenerate level - Use last dungeon seed if specified */
+		case 'L':
+		{
+			if (seed_last_dungeon) seed_dungeon = seed_last_dungeon;
+			p_ptr->leaving = TRUE;
+
+			msg_format("Generating %slevel.", seed_dungeon ? "last " : "");
+			break;
+		}
+
 		/* Magic Mapping */
 		case 'm':
 		{
@@ -1766,6 +1760,27 @@ void do_cmd_debug(void)
 			do_cmd_wiz_summon(p_ptr->command_arg);
 			break;
 		}
+
+		/* Seed dungeon generation */
+		case 'S':
+		{
+			char out_val[32];
+
+			/* Default */
+			sprintf(out_val, "%ld", seed_last_dungeon);
+
+			/* Ask the user for a response */
+			if (!get_string("Dungeon seed (0 to stop seeding, 1 for random): ", out_val, sizeof(out_val))) return;
+
+			/* Extract a number */
+			seed_dungeon = atol(out_val);
+
+			/* Pick random value if requested */
+			if (seed_dungeon == 1) seed_dungeon = rand_int(0x10000000);
+
+			break;
+		}
+
 
 		/* Teleport */
 		case 't':

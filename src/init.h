@@ -33,7 +33,7 @@
 #define PARSE_ERROR_TOO_MANY_ENTRIES        14
 #define PARSE_ERROR_VAULT_TOO_BIG           15
 
-#define PARSE_ERROR_MAX                     16
+#define PARSE_ERROR_MAX                     15
 
 
 typedef struct header header;
@@ -107,7 +107,7 @@ extern errr init_info_txt(FILE *fp, char *buf, header *head,
 
 extern errr eval_info(eval_info_power_func eval_info_process, header *head);
 
-extern errr emit_info_txt(FILE *fp, FILE *template, char *buf, header *head,
+extern errr emit_info_txt(FILE *fp, FILE *atemplate, char *buf, header *head,
    emit_info_txt_index_func emit_info_txt_index, emit_info_txt_always_func emit_info_txt_always);
 
 #ifdef ALLOW_TEMPLATES
@@ -115,7 +115,9 @@ extern errr parse_z_info(char *buf, header *head);
 extern errr parse_v_info(char *buf, header *head);
 extern errr parse_f_info(char *buf, header *head);
 extern errr parse_d_info(char *buf, header *head);
-extern errr parse_blow_info(char *buf, header *head);
+extern errr parse_method_info(char *buf, header *head);
+extern errr parse_effect_info(char *buf, header *head);
+extern errr parse_region_info(char *buf, header *head);
 extern errr parse_k_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
@@ -134,24 +136,26 @@ extern errr parse_g_info(char *buf, header *head);
 extern errr parse_q_info(char *buf, header *head);
 extern errr parse_n_info(char *buf, header *head);
 extern errr parse_flavor_info(char *buf, header *head);\
-extern errr eval_blow_power(header *head);
+extern errr eval_method_power(header *head);
 extern errr eval_r_power(header *head);
 extern errr eval_e_power(header *head);
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 extern errr emit_d_info_always(FILE *fp, header *head);
 
-extern errr emit_blow_info_index(FILE *fp, header *head, int i);
+extern errr emit_method_info_index(FILE *fp, header *head, int i);
+extern errr emit_effect_info_index(FILE *fp, header *head, int i);
+extern errr emit_v_info_index(FILE *fp, header *head, int i);
 extern errr emit_r_info_index(FILE *fp, header *head, int i);
 extern errr emit_f_info_index(FILE *fp, header *head, int i);
 extern errr emit_k_info_index(FILE *fp, header *head, int i);
 extern errr emit_a_info_index(FILE *fp, header *head, int i);
 extern errr emit_e_info_index(FILE *fp, header *head, int i);
 extern errr emit_x_info_index(FILE *fp, header *head, int i);
-extern errr emit_r_info_index(FILE *fp, header *head, int i);
 extern errr emit_p_info_index(FILE *fp, header *head, int i);
 extern errr emit_c_info_index(FILE *fp, header *head, int i);
 extern errr emit_s_info_index(FILE *fp, header *head, int i);
+extern errr emit_t_info_index(FILE *fp, header *head, int i);
 
 #endif
 
@@ -171,7 +175,9 @@ extern int error_line;
 extern header z_head;
 extern header v_head;
 extern header d_head;
-extern header blow_head;
+extern header method_head;
+extern header effect_head;
+extern header region_head;
 extern header f_head;
 extern header k_head;
 extern header a_head;

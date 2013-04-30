@@ -76,15 +76,15 @@
 
 /* Allocate, wipe, and return an array of type T[N] */
 #define C_ZNEW(N, T) \
-	(C_WIPE(C_RNEW(N, T), N, T))
+	((T*)C_WIPE(C_RNEW(N, T), N, T))
 
 /* Allocate, wipe, and return a thing of type T */
 #define ZNEW(T) \
-	(WIPE(RNEW(T), T))
+	((T*)WIPE(RNEW(T), T))
 
 
 /* Free one thing at P, return NULL */
-#define FREE(P) (P = mem_free(P))
+#define FREE(P) (mem_free(P), P=0)
 
 
 
@@ -115,7 +115,6 @@ void *mem_realloc(void *p, size_t len);
 char *string_make(const char *str);
 
 /* Free a string allocated with "string_make()" */
-char *string_free(char *str);
 #define string_free mem_free
 
 #endif /* INCLUDED_Z_VIRT_H */

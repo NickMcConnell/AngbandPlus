@@ -316,7 +316,7 @@ static errr init_names(void)
 
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
-	names = C_ZNEW(z_info->a_max, cptr);
+	names = (char**)C_ZNEW(z_info->a_max, cptr);
 
 	for (i = 1 ; i < z_info->a_max; i++)
 	{
@@ -878,7 +878,7 @@ static s32b artifact_power(int a_idx)
 		{
 			if (a_ptr->weight >= 50)
 			{
-				p -= a_ptr->weight / 50; 
+				p -= a_ptr->weight / 50;
 
 				LOG_PRINT2("Reducing power for armour weight of %d, total is %d\n", a_ptr->weight, p);
 			}
@@ -911,7 +911,7 @@ static s32b artifact_power(int a_idx)
 		default:
 			if (a_ptr->weight >= 100)
 			{
-				p -= a_ptr->weight / 100; 
+				p -= a_ptr->weight / 100;
 
 				LOG_PRINT2("Reducing power for swap item weight of %d, total is %d\n", a_ptr->weight, p);
 
@@ -946,68 +946,72 @@ static s32b artifact_power(int a_idx)
 	{
 		if (a_ptr->flags1 & TR1_STR)
 		{
-			p += 3 * a_ptr->pval * a_ptr->pval / 4;
+			p += 2 * a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for STR bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_INT)
 		{
-			p += a_ptr->pval * a_ptr->pval / 2;
+			p += a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for INT bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_WIS)
 		{
-			p += a_ptr->pval * a_ptr->pval / 2;
+			p += a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for WIS bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_DEX)
 		{
-			p += a_ptr->pval * a_ptr->pval;
+			p += 2 * a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for DEX+AGI bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_CON)
 		{
-			p += a_ptr->pval * a_ptr->pval;
+			p += 2 * a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for CON bonus %d, total is %d\n", a_ptr->pval, p);
+		}
+		if (a_ptr->flags1 & TR1_CHR)
+		{
+			p += 1 + a_ptr->pval * a_ptr->pval / 2;
+			LOG_PRINT2("Adding power for CHR bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_SAVE)
 		{
-			p += a_ptr->pval * a_ptr->pval / 4;
+			p += 1 + a_ptr->pval * a_ptr->pval / 2;
 			LOG_PRINT2("Adding power for save bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_DEVICE)
 		{
-			p += a_ptr->pval * a_ptr->pval / 6;
+			p += 1 + a_ptr->pval * a_ptr->pval / 3;
 			LOG_PRINT2("Adding power for device bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_STEALTH)
 		{
-			p += a_ptr->pval * a_ptr->pval / 4;
+			p += 1 + a_ptr->pval * a_ptr->pval / 2;
 			LOG_PRINT2("Adding power for stealth bonus %d, total is %d\n", a_ptr->pval, p);
 		}
 		if (a_ptr->flags1 & TR1_TUNNEL)
 		{
-			p += a_ptr->pval * a_ptr->pval / 6;
+			p += 1 + a_ptr->pval * a_ptr->pval / 4; /* Can't get lower */
 			LOG_PRINT2("Adding power for tunnel bonus %d, total is %d\n", a_ptr->pval, p);
 		}
-		/* For now add very small amount for searching */
 		if (a_ptr->flags1 & TR1_SEARCH)
 		{
-			p += a_ptr->pval * a_ptr->pval / 12;
+			p += 1 + a_ptr->pval * a_ptr->pval / 4; /* Can't get lower */
 			LOG_PRINT2("Adding power for searching bonus %d, total is %d\n", a_ptr->pval , p);
 		}
 		if (a_ptr->flags3 & TR3_REGEN_HP)
 		{
-			p += (a_ptr->pval * a_ptr->pval) * 3 / 2; /* Was constant 3 */
+			p += 3 * a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for regenerate hit points bonus %d, total is %d\n", a_ptr->pval , p);
 		}
 		if (a_ptr->flags3 & TR3_REGEN_MANA)
 		{
-			p += (a_ptr->pval * a_ptr->pval) * 3 / 2; /* Was constant 3 */
+			p += 2 * a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for regenerate mana bonus bonus %d, total is %d\n", a_ptr->pval , p);
 		}
 		if (a_ptr->flags3 & TR3_LITE)
 		{
-			p += (a_ptr->pval * a_ptr->pval) * 3; /* Was constant 3 */
+			p += a_ptr->pval * a_ptr->pval;
 			LOG_PRINT2("Adding power for lite bonus %d, total is %d\n", a_ptr->pval , p);
 		}
 
@@ -1019,28 +1023,21 @@ static s32b artifact_power(int a_idx)
 		if (a_ptr->flags1 & TR1_WIS) p += 2 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_DEX) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += 4 * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_CHR) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_SAVE) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_DEVICE) p += a_ptr->pval;
+		if (a_ptr->flags1 & TR1_STEALTH) p += 2 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_TUNNEL) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_SEARCH) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_INFRA) p += a_ptr->pval;
-		if (a_ptr->flags3 & TR3_REGEN_HP) p -= 16;
-		if (a_ptr->flags3 & TR3_REGEN_MANA) p -= 8;
+		if (a_ptr->flags3 & TR3_REGEN_HP) p += 6 * a_ptr->pval;
+		if (a_ptr->flags3 & TR3_REGEN_MANA) p += 4 * a_ptr->pval;
 		if (a_ptr->flags3 & TR3_LITE) p += 3 * a_ptr->pval;
 		LOG_PRINT1("Subtracting power for negative ability values, total is %d\n", p);
 	}
-	if (a_ptr->flags1 & TR1_CHR)
-	{
-		p += a_ptr->pval;
-		LOG_PRINT2("Adding power for CHR bonus/penalty %d, total is %d\n", a_ptr->pval, p);
-	}
-	if (a_ptr->flags1 & TR1_INFRA)
-	{
-		p += a_ptr->pval;
-		LOG_PRINT2("Adding power for infra bonus/penalty %d, total is %d\n", a_ptr->pval, p);
-	}
 	if (a_ptr->flags1 & TR1_SPEED)
 	{
-		p += 7 * a_ptr->pval;
+		p += 3 * a_ptr->pval * a_ptr->pval;
 		LOG_PRINT2("Adding power for speed bonus/penalty %d, total is %d\n", a_ptr->pval, p);
 	}
 
@@ -1049,7 +1046,7 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("sustain WIS",	 2, TR2_SUST_WIS, 2,sustains++);
 	ADD_POWER("sustain DEX",	 4, TR2_SUST_DEX, 2,sustains++);
 	ADD_POWER("sustain CON",	 3, TR2_SUST_CON, 2,sustains++);
-	ADD_POWER("sustain CHR",	 0, TR2_SUST_CHR, 2,sustains++);
+	ADD_POWER("sustain CHR",	 1, TR2_SUST_CHR, 2,sustains++);
 
 	/* Add bonus for sustains getting 'sustain-lock' */
 	if (sustains > 1)
@@ -1096,9 +1093,6 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("sense nature",	4, TR3_ESP_NATURE, 3,);
 	ADD_POWER("telepathy",	  18, TR3_TELEPATHY, 3,);
 	ADD_POWER("slow digestion",	 1, TR3_SLOW_DIGEST, 3,);
-
-	/* Digging moved to general section since it can be on anything now */
-	ADD_POWER("tunnelling",	 a_ptr->pval, TR1_TUNNEL, 1,);
 
 	ADD_POWER("resist acid",	 2, TR2_RES_ACID, 2, low_resists++);
 	ADD_POWER("resist elec",	 3, TR2_RES_ELEC, 2, low_resists++);
@@ -1241,7 +1235,7 @@ static void store_base_power (void)
 static struct item_choice {
 	int threshold;
 	int tval;
-	char *report;
+	const char *report;
 } item_choices[] = {
 	{  6, TV_BOW,		"a missile weapon"},
 	{  9, TV_DIGGING,	"a digger"},
@@ -1772,7 +1766,7 @@ static void parse_frequencies ()
 				artprobs[ART_IDX_BOW_RESTRICT] += temp;
 
 				LOG_PRINT1("Adding %d restrictions for bows\n", temp);
-			}		
+			}
 		}
 
 		/* Handle hit / dam ratings - are they higher than normal? */
@@ -3347,7 +3341,7 @@ static bool add_sense_demon(artifact_type *a_ptr)
 	a_ptr->flags3 |= TR3_ESP_DEMON;
 	LOG_PRINT("Adding ability: sense demon\n");
 	return (TRUE);
-}		     
+}
 
 static bool add_sense_undead(artifact_type *a_ptr)
 {
@@ -3603,7 +3597,7 @@ static bool add_slay_man(artifact_type *a_ptr)
 
 static bool add_slay_elf(artifact_type *a_ptr)
 {
-	if (a_ptr->flags1 & TR1_BRAND_HOLY) return FALSE; 
+	if (a_ptr->flags1 & TR1_BRAND_HOLY) return FALSE;
 	if (a_ptr->flags4 & TR4_SLAY_ELF) return FALSE;
 	a_ptr->flags4 |= TR4_SLAY_ELF;
 	if (rand_int(3) == 0) a_ptr->flags4 |= TR4_EVIL;
@@ -3614,7 +3608,7 @@ static bool add_slay_elf(artifact_type *a_ptr)
 
 static bool add_slay_dwarf(artifact_type *a_ptr)
 {
-	if (a_ptr->flags1 & TR1_BRAND_HOLY) return FALSE; 
+	if (a_ptr->flags1 & TR1_BRAND_HOLY) return FALSE;
 	if (a_ptr->flags4 & TR4_SLAY_DWARF) return FALSE;
 	a_ptr->flags4 |= TR4_SLAY_DWARF;
 	LOG_PRINT("Adding ability: slay dwarf\n");
@@ -3866,8 +3860,8 @@ static void add_to_AC(artifact_type *a_ptr, int fixed, int random)
 		/* Strongly inhibit */
 		if (rand_int(INHIBIT_STRONG) > 0)
 		{
-			return;
 			LOG_PRINT1("Failed to add to-AC, value of %d is too high\n", a_ptr->to_a);
+			return;
 		}
 	}
 	else if (a_ptr->to_a > 25)
@@ -4395,7 +4389,7 @@ static void try_supercharge(artifact_type *a_ptr)
 	{
 		if (rand_int (z_info->a_max) < artprobs[ART_IDX_MELEE_DICE_SUPER])
 		{
-			a_ptr->dd += 3 + rand_int(4);
+			a_ptr->dd += 3 + (s16b)rand_int(4);
 			if (a_ptr->dd > 9) a_ptr->dd = 9;
 			LOG_PRINT1("Supercharging damage dice!  (Now %d dice)\n", a_ptr->dd);
 		}
@@ -4422,7 +4416,7 @@ static void try_supercharge(artifact_type *a_ptr)
 	if (rand_int (z_info->a_max) < artprobs[ART_IDX_GEN_SPEED_SUPER])
 	{
 		a_ptr->flags1 |= TR1_SPEED;
-		a_ptr->pval = 3 + rand_int(3);
+		a_ptr->pval = 3 + (s16b)rand_int(3);
 		LOG_PRINT1("Supercharging speed for this item!  (New speed bonus is %d)\n", a_ptr->pval);
 	}
 	/* Aggravation */
@@ -4598,7 +4592,7 @@ static void scramble_artifact(int a_idx)
 			 */
 			k_ptr = &k_info[k_idx];
 			rarity_new = ( (s16b) rarity_old * (s16b) base_rarity_old ) /
-				(s16b) (k_ptr->chance[0] ? k_ptr->chance[0] : 1);
+				(s16b) (k_ptr->chance[0] ? k_ptr->chance[0] : base_rarity_old);
 
 			if (rarity_new > 255) rarity_new = 255;
 			if (rarity_new < 1) rarity_new = 1;
@@ -4734,7 +4728,6 @@ static void scramble_artifact(int a_idx)
 
 	/* Restore some flags */
 	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
-	if (a_idx < ART_MIN_NORMAL) a_ptr->flags3 |= TR3_INSTA_ART;
 
 	/* Store artifact power */
 	a_ptr->power = ap;

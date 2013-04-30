@@ -6,7 +6,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -424,6 +424,7 @@ static void mass_produce(object_type *o_ptr, bool allow_discount)
 	{
 		/* Food, Flasks, and Lites */
 		case TV_FOOD:
+		case TV_MUSHROOM:
 		case TV_FLASK:
 		case TV_LITE:
 		{
@@ -632,6 +633,43 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr, int stor
 		o_ptr->number = 1;
 	}
 
+	/* Merge the origin */
+	if ((o_ptr->origin != j_ptr->origin) ||
+		(o_ptr->origin_depth != j_ptr->origin_depth) ||
+		(o_ptr->origin_xtra != j_ptr->origin_xtra))
+	{
+		int act = 2;
+
+		if ((o_ptr->origin == ORIGIN_DROP) && (o_ptr->origin == j_ptr->origin))
+		{
+			monster_race *r_ptr = &r_info[o_ptr->origin_xtra];
+			monster_race *s_ptr = &r_info[j_ptr->origin_xtra];
+
+			bool r_uniq = (r_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE;
+			bool s_uniq = (s_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE;
+
+			if (r_uniq && !s_uniq) act = 0;
+			else if (s_uniq && !r_uniq) act = 1;
+			else act = 2;
+		}
+
+		switch (act)
+		{
+			/* Overwrite with j_ptr */
+			case 1:
+			{
+				o_ptr->origin = j_ptr->origin;
+				o_ptr->origin_depth = j_ptr->origin_depth;
+				o_ptr->origin_xtra = j_ptr->origin_xtra;
+			}
+
+			/* Set as "mixed" */
+			case 2:
+			{
+				o_ptr->origin = ORIGIN_MIXED;
+			}
+		}
+	}
 }
 
 
@@ -709,7 +747,7 @@ static bool store_will_buy(const object_type *o_ptr)
 	{
 		if (st_ptr->tval[i] == o_ptr->tval) return (TRUE);
 	}
-	
+
 	/* Buy tvals that the store will buy */
 	for (i = 0; i < STORE_WILL_BUY; i++)
 	{
@@ -834,7 +872,7 @@ static int store_carry(object_type *o_ptr, int store_index)
 
 	/* Item belongs to a store */
 	o_ptr->ident |= IDENT_STORE;
-	
+
 	/* Evaluate the object */
 	value = object_value(o_ptr);
 
@@ -852,7 +890,7 @@ static int store_carry(object_type *o_ptr, int store_index)
 
 	/* All obvious flags are learnt about the object - important this happens after IDENT_STORE set */
 	object_obvious_flags(o_ptr, TRUE);
-	
+
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
 	{
@@ -1069,14 +1107,14 @@ static void store_delete(int store_index)
 			 && rand_int(k_info[o_ptr->k_idx].cost) > 500)
 			return;
 	}
-	else 
+	else
 	{
 		/* Hack -- sometimes, only destroy half the objects */
-		if (rand_int(100) < 50) 
+		if (rand_int(100) < 50)
 			num = (num + 1) / 2;
 
 		/* Hack -- sometimes, only destroy a single object */
-		if (rand_int(100) < 50) 
+		if (rand_int(100) < 50)
 			num = 1;
 	}
 
@@ -1173,12 +1211,12 @@ static void store_create(int store_index)
 			/* Get local object */
 			i_ptr = &object_type_body;
 
-			if (!make_object(i_ptr, TRUE, TRUE)) continue;
+			if (!make_object(i_ptr, TRUE, FALSE)) continue;
 
 			/* Reset depth */
 			p_ptr->depth = depth;
 			object_level = depth;
-			
+
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr, store_index);
 
@@ -1238,6 +1276,7 @@ static void store_create(int store_index)
 
 		/* Item belongs to a store */
 		i_ptr->ident |= IDENT_STORE;
+		i_ptr->origin = ORIGIN_STORE;
 
 		/* The object is "known" */
 		object_known(i_ptr);
@@ -1329,7 +1368,7 @@ static long guess_cost(int item, int store_index)
 	owner_type *ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
 
 	int x;
-	
+
 	/* Get the object */
 	object_type *o_ptr = &st_ptr->stock[item];
 
@@ -1356,7 +1395,7 @@ static long guess_cost(int item, int store_index)
 		/* Hack -- Apply Sales Tax if needed */
 		if (!noneedtobargain(x, store_index)) x += x / 10;
 	}
-	
+
 	return (x);
 }
 
@@ -1411,32 +1450,25 @@ static void display_entry(int item, int store_index)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
-		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if (!k_info[o_ptr->k_idx].flavor)
+		/* Class learning */
+		if (k_info[o_ptr->k_idx].aware & (AWARE_CLASS))
 		{
-			/* Object not known */
-			if (!object_aware_p(o_ptr))
-			{
-				/* Display tips */
-				object_aware_tips(o_ptr->k_idx);
-			}
-			
-			/* Make object aware - short routine */
-			k_info[o_ptr->k_idx].aware = TRUE;
+			/* Learn flavor */
+			object_aware(o_ptr, TRUE);
 		}
 
-		/* XXX XXX - Mark monster objects as "seen" */
-		if ((o_ptr->name3 > 0) && !(l_list[o_ptr->name3].sights)) l_list[o_ptr->name3].sights++;
+		/* Mark object seen */
+		object_aware_tips(o_ptr, TRUE);
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 		if (o_ptr->name2)
 		{
-			if (!e_info[o_ptr->name2].aware)
+			if (!(e_info[o_ptr->name2].aware & (AWARE_EXISTS)))
 			{
 				queue_tip(format("ego%d.txt", o_ptr->name2));
 			}
-			
-			e_info[o_ptr->name2].aware = TRUE;
+
+			e_info[o_ptr->name2].aware |= (AWARE_EXISTS);
 		}
 
 		/* Only show the weight of a single object */
@@ -1472,19 +1504,14 @@ static void display_entry(int item, int store_index)
 		sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 		put_str(out_val, y, 61);
 
-		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
-		if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
-		{
-			object_aware_tips(o_ptr->k_idx);
+		/* Make object aware - short routine */
+		k_info[o_ptr->k_idx].aware |= (AWARE_EXISTS);
 
-			k_info[o_ptr->k_idx].aware = TRUE;
-		}
-		
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 		if (o_ptr->name2)
-		{			
-			e_info[o_ptr->name2].aware = TRUE;
-			
+		{
+			e_info[o_ptr->name2].aware |= (AWARE_EXISTS);
+
 			queue_tip(format("ego%d.txt", o_ptr->name2));
 		}
 
@@ -1583,7 +1610,7 @@ static void display_store(int store_index)
 		cptr store_name = (u_name + u_info[st_ptr->index].name);
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
 		/* Maias and evil shapechangers hide their race */
-		cptr race_name = 
+		cptr race_name =
 			(ot_ptr->owner_race == RACE_MAIA
 			 || ot_ptr->owner_race == RACE_WEREWOLF
 			 || ot_ptr->owner_race == RACE_VAMPIRE)
@@ -2398,13 +2425,13 @@ static void store_purchase(int store_index)
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
-	
+
 	/* Try to restrict quantity based on what the player can afford */
 	if (st_ptr->base >= STORE_MIN_BUY_SELL)
 	{
 		/* Guess maximum items can afford */
 		n = p_ptr->au / guess_cost(item, store_index);
-		
+
 		/* Maybe able to haggle */
 		if (!n)
 		{
@@ -2419,7 +2446,7 @@ static void store_purchase(int store_index)
 			}
 		}
 	}
-	
+
 	/* Get a quantity */
 	amt = get_quantity(NULL, n > o_ptr->number ? o_ptr->number : n);
 
@@ -2440,19 +2467,19 @@ static void store_purchase(int store_index)
 	{
 		bool hack_ident_store = (i_ptr->ident & (IDENT_STORE)) != 0;
 		bool can_carry;
-		
+
 		/* Hack -- manipulate store flag */
 		if (hack_ident_store) i_ptr->ident &= ~(IDENT_STORE);
-		
+
 		can_carry = inven_carry_okay(i_ptr);
 
 		/* Hack -- manipulate store flag */
 		if (hack_ident_store) i_ptr->ident |= (IDENT_STORE);
-		
+
 		if (!can_carry)
 		{
 			msg_print("You cannot carry that many items.");
-			
+
 			return;
 		}
 	}
@@ -2464,7 +2491,7 @@ static void store_purchase(int store_index)
 		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/* Haggle for a final price */
-		choice = purchase_haggle(i_ptr, &price, o_name, store_to_label(item, store_index), store_index);
+		choice = purchase_haggle(i_ptr, &price, o_name, (char)store_to_label(item, store_index), store_index);
 
 		/* Hack -- Got kicked out */
 		if (st_ptr->store_open >= turn) return;
@@ -2494,7 +2521,7 @@ static void store_purchase(int store_index)
 				if (power <= 0) return;
 
 				/* Apply service effect */
-				(void)process_spell(SOURCE_PLAYER_SERVICE, o_ptr->k_idx, power, 0, &cancel, &known);
+				(void)process_spell(SOURCE_PLAYER_SERVICE, o_ptr->k_idx, power, 0, &cancel, &known, FALSE);
 
 				/* Hack -- allow certain services to be cancelled */
 				if (cancel) return;
@@ -2511,6 +2538,15 @@ static void store_purchase(int store_index)
 				/* Update the display */
 				store_prt_gold();
 
+				/* Class learning */
+				if (k_info[o_ptr->k_idx].aware & (AWARE_CLASS))
+				{
+					/* Learn flavor */
+					object_aware(o_ptr, TRUE);
+				}
+
+				/* Mark object seen */
+				object_aware_tips(o_ptr, TRUE);
 			}
 
 			/* Player cannot afford it */
@@ -2518,7 +2554,7 @@ static void store_purchase(int store_index)
 			{
 				/* Simple message (no insult) */
 				msg_print("You do not have enough gold.");
-			}		
+			}
 		}
 
 		/* Player wants anything else */
@@ -2541,6 +2577,9 @@ static void store_purchase(int store_index)
 
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr, FALSE);
+
+				/* Mark object seen */
+				object_aware_tips(o_ptr, TRUE);
 
 				/* The object kind is not guessed */
 				k_info[i_ptr->k_idx].guess = 0;
@@ -2676,7 +2715,7 @@ static void store_purchase(int store_index)
 
 		/* The object no longer belongs to the store */
 		i_ptr->ident &= ~(IDENT_STORE);
-		
+
 		/* However, its now identified if we are a quest or store location */
 		if (st_ptr->base == STORE_QUEST_REWARD || st_ptr->base == STORE_STORAGE)
 		{
@@ -2863,7 +2902,7 @@ static void store_sell(int store_index)
 
 			/* Forget about object */
 			if (amt == o_ptr->number) inven_drop_flags(o_ptr);
-			
+
 			/* Reset the stack */
 			i_ptr->stackc = 0;
 
@@ -3037,9 +3076,9 @@ static void store_examine(int store_index)
 	screen_object(o_ptr);
 
 	(void)anykey();
-	
+
 	/* Browse books */
-	if (inven_book_okay(o_ptr)) do_cmd_browse_object(o_ptr);
+	if (inven_book_okay(o_ptr)) player_browse_object(o_ptr);
 
 	/* Load the screen */
 	screen_load();
@@ -3254,7 +3293,7 @@ static void store_process_command(char *choice, int store_index)
 		/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse();
+			do_cmd_item(COMMAND_ITEM_BROWSE);
 			break;
 		}
 
@@ -3445,7 +3484,7 @@ void do_cmd_store(void)
 
 	store_type *st_ptr;
 
-	/* Get the zone */	
+	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Verify a store */
@@ -3477,7 +3516,7 @@ void do_cmd_store(void)
 	if (p_ptr->pshape >= z_info->g_max)
 	{
 		cptr closed_reason;
-		
+
 		switch(store_index % 4)
 		{
 			case 0:
@@ -3494,7 +3533,7 @@ void do_cmd_store(void)
 				break;
 		}
 		msg_print(closed_reason);
-		return;		
+		return;
 	}
 
 	/* Doors locked if player has visited a location to release a unique and hasn't killed it */
@@ -3502,7 +3541,7 @@ void do_cmd_store(void)
 		&& (!(t_ptr->town_lockup_ifvisited) || t_info[t_ptr->town_lockup_ifvisited].visited))
 	{
 		cptr closed_reason;
-		
+
 		switch(store_index % 4)
 		{
 			case 0:
@@ -3518,7 +3557,7 @@ void do_cmd_store(void)
 				closed_reason = "'It's not safe here with %s about.' the shopkeeper whispers before closing the shutters.";
 				break;
 		}
-		
+
 		msg_format(closed_reason, r_name + r_info[t_ptr->town_lockup_monster].name);
 		return;
 	}
@@ -3527,7 +3566,7 @@ void do_cmd_store(void)
 	if ((actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num > 0))
 	{
 		cptr closed_reason;
-		
+
 		switch(store_index % 4)
 		{
 			case 0:
@@ -3543,11 +3582,11 @@ void do_cmd_store(void)
 				closed_reason = "'Come back when %s isn't around.' a voice whispers before closing the shutters.";
 				break;
 		}
-		
+
 		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].name);
 		return;
 	}
-	
+
 	/* Hack -- homes are special */
 	if (f_info[feat].d_char == '8')
 	{
@@ -3573,7 +3612,7 @@ void do_cmd_store(void)
 			store_maint(store_index);
 		}
 	}
-	
+
 	/* Forget the view */
 	forget_view();
 
@@ -3731,7 +3770,7 @@ void do_cmd_store(void)
 
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
-		
+
 		/* Hack -- leave store if leaving */
 		if (p_ptr->leaving) leave_store = TRUE;
 	}
@@ -3789,11 +3828,11 @@ void store_shuffle(int store_index)
 
 	store_type *st_ptr = store[store_index];
 	owner_type *ot_ptr;
-	
+
 	/* Justifiable paranoia */
 	if (!st_ptr) return;
-	
-	if (st_ptr->base < STORE_MIN_BUY_SELL) 
+
+	if (st_ptr->base < STORE_MIN_BUY_SELL)
 	{
 		return;
 	}
@@ -3805,7 +3844,7 @@ void store_shuffle(int store_index)
 		{
 			int j = st_ptr->owner;
 			int count = 0;
-			do 
+			do
 			{
 				count++;
 
@@ -3815,7 +3854,7 @@ void store_shuffle(int store_index)
 				/* Activate the new owner */
 				ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
 								  + st_ptr->owner];
-			} 
+			}
 			while (j == st_ptr->owner
 					 || (count < 500 && ot_ptr->busy)
 					 || (count < 1000 && !ot_ptr->owner_name));
@@ -3900,7 +3939,7 @@ void store_maint(int store_index)
 	if (j < 0) j = 0;
 
 	/* Destroy objects until only "j" slots are left -- fail if tried too many times */
-	while ((st_ptr->stock_num > j) && (tries++ < 100)) 
+	while ((st_ptr->stock_num > j) && (tries++ < 100))
 		store_delete(store_index);
 
 	/* Reset tries */
@@ -3922,7 +3961,7 @@ void store_maint(int store_index)
 	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
 
 	/* Create some new items -- fail if tried too many times */
-	while ((st_ptr->stock_num < j) && (tries++ < 100)) 
+	while ((st_ptr->stock_num < j) && (tries++ < 100))
 		store_create(store_index);
 
 	/* Hack -- Restore the rating */
@@ -3946,7 +3985,7 @@ int store_init(int feat)
 	{
 		/* Oops */
 		msg_print("BUG: Maximum number of stores reached.");
-		
+
 		/* Hack -- access home instead */
 		return (0);
 	}
@@ -3963,7 +4002,7 @@ int store_init(int feat)
 		for (k = 0; k < STORE_CHOICES; k++)
 		{
 			int tval = st_ptr->tval[k];
-			
+
 			/* Check books */
 			if (((tval == c_info[p_ptr->pclass].spell_book)
 				|| ((tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK))
@@ -3995,7 +4034,7 @@ int store_init(int feat)
 	if (st_ptr->base >= STORE_MIN_BUY_SELL)
 	{
 		int count = 0;
-		do 
+		do
 		{
 			count++;
 
@@ -4005,7 +4044,7 @@ int store_init(int feat)
 			/* Activate the new owner */
 			ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
 								  + st_ptr->owner];
-		} 
+		}
 		while ((count < 500 && ot_ptr->busy)
 				 || (count < 1000 && !ot_ptr->owner_name));
 	}

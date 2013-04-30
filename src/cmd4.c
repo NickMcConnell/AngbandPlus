@@ -5,7 +5,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -89,11 +89,11 @@ static int default_join_cmp(const void *a, const void *b)
 static int default_group(int oid) { return default_join[oid].gid; }
 
 
-static int *obj_group_order;
+static int *obj_group_order = 0;
 /*
  * Description of each monster group.
  */
-static cptr monster_group_text[] = 
+static cptr monster_group_text[] =
 {
 	"Uniques",
 	"Amphibians/Fish",
@@ -153,7 +153,7 @@ static cptr monster_group_text[] =
  * Symbols of monsters in each group. Note the "Uniques" group
  * is handled differently.
  */
-static cptr monster_group_char[] = 
+static cptr monster_group_char[] =
 {
 	(char *) -1L,
 	"F",
@@ -212,7 +212,7 @@ static cptr monster_group_char[] =
 /*
  * Description of each feature group.
  */
-const cptr feature_group_text[] = 
+const cptr feature_group_text[] =
 {
 	"Floors",
 	"Secrets",
@@ -245,16 +245,16 @@ const cptr feature_group_text[] =
 static void display_visual_list(int col, int row, int height, int width,
 								byte attr_top, char char_left);
 
-static void browser_mouse(key_event ke, int *column, int *grp_cur, int grp_cnt, 
+static void browser_mouse(key_event ke, int *column, int *grp_cur, int grp_cnt,
 							int *list_cur, int list_cnt, int col0, int row0,
 							int grp0, int list0, int *delay);
 
-static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, 
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 						   int *list_cur, int list_cnt);
 
-static bool visual_mode_command(key_event ke, bool *visual_list_ptr, 
-				int height, int width, 
-				byte *attr_top_ptr, char *char_left_ptr, 
+static bool visual_mode_command(key_event ke, bool *visual_list_ptr,
+				int height, int width,
+				byte *attr_top_ptr, char *char_left_ptr,
 				byte *cur_attr_ptr, char *cur_char_ptr,
 				int col, int row, int *delay);
 
@@ -281,7 +281,7 @@ int feat_order(int feat)
 	else if (f_ptr->flags3 & (FF3_ALLOC)) return (9);
 	else if (f_ptr->flags1 & (FF1_FLOOR)) return (0);
 	else if (f_ptr->flags1 & (FF1_STREAMER)) return (6);
-	else if (f_ptr->flags2 & (FF2_BRIDGED)) return (10);
+	else if (f_ptr->flags2 & (FF2_COVERED)) return (10);
 	else if (f_ptr->flags2 & (FF2_LAVA)) return (12);
 	else if (f_ptr->flags2 & (FF2_ICE)) return (13);
 	else if (f_ptr->flags2 & (FF2_CAN_DIG)) return (17);
@@ -310,7 +310,7 @@ static void big_pad(int col, int row, byte a, byte c)
 
 /*
  * Interact with inscriptions.
- * Create a copy of an existing quark, except if the quark has '=x' in it, 
+ * Create a copy of an existing quark, except if the quark has '=x' in it,
  * If an quark has '=x' in it remove it from the copied string, otherwise append it where 'x' is ch.
  * Return the new quark location.
  */
@@ -349,7 +349,7 @@ static int auto_note_modify(int note, char ch)
 
 				/* Overwrite shorter string */
 				my_strcat(tmp,s+2,80);
-				
+
 				/* Create quark */
 				return(quark_add(tmp));
 			}
@@ -403,7 +403,7 @@ static void display_member_list(int col, int row, int wid, int per_page,
 	int i, pos;
 
 	(void)wid;
-	
+
 	for(i = 0, pos = start; i < per_page && pos < o_count; i++, pos++) {
 		int oid = object_idx[pos];
 		byte attr = curs_attrs[CURS_KNOWN][cursor == oid];
@@ -436,7 +436,7 @@ static void display_member_list(int col, int row, int wid, int per_page,
 
 
 /*
- * Interactive group by. 
+ * Interactive group by.
  * Recognises inscriptions, graphical symbols, lore
  * Some more enlightment by Pete Mac:
 
@@ -528,7 +528,7 @@ static void display_knowledge_start_at(
 
 
 	/* The compact set of group names, in display order */
-	g_names = C_ZNEW(grp_cnt, const char **);
+	g_names = (const char**)C_ZNEW(grp_cnt, const char **);
 	for (i = 0; i < grp_cnt; i++) {
 		int len;
 		g_names[i] = g_funcs.name(g_list[i]);
@@ -553,7 +553,7 @@ static void display_knowledge_start_at(
 				Term_addstr(-1, TERM_WHITE, "Inscribed ");
 			if(otherfields)
 				Term_addstr(-1, TERM_WHITE, otherfields);
-		
+
 			for (i = 0; i < 78; i++)
 			{
 				Term_putch(i, 5, TERM_WHITE, '=');
@@ -610,7 +610,7 @@ static void display_knowledge_start_at(
 
 		if(!visual_list) {
 			/* Display a list of objects in the current group */
-			display_member_list(g_name_len + 3, 6, g_name_len, browser_rows, 
+			display_member_list(g_name_len + 3, 6, g_name_len, browser_rows,
 								object_top, g_o_max, o_cur, obj_list, o_funcs);
 		}
 		else
@@ -618,7 +618,7 @@ static void display_knowledge_start_at(
 			/* Edit 1 group member */
 			object_top = o_cur;
 			/* Display a single-row list */
-			display_member_list(g_name_len + 3, 6, g_name_len, 1, 
+			display_member_list(g_name_len + 3, 6, g_name_len, 1,
 								o_cur, g_o_max, o_cur, obj_list, o_funcs);
 			/* Display visual list below first object */
 			display_visual_list(g_name_len + 3, 7, browser_rows-1,
@@ -629,17 +629,17 @@ static void display_knowledge_start_at(
 			const char *pedit = (!o_funcs.xattr) ? "" :
 				(!(attr_idx|char_idx) ? ", 'c' to copy" : ", 'c', 'p' to paste");
 
-			const char *pnote = (!o_funcs.note || !o_funcs.note(oid)) ? "" : 
+			const char *pnote = (!o_funcs.note || !o_funcs.note(oid)) ? "" :
 							((note_idx) ? ", '\\' to re-inscribe"  :  "");
 
-			const char *pnote1 = (!o_funcs.note || !o_funcs.note(oid)) ? "" : 
+			const char *pnote1 = (!o_funcs.note || !o_funcs.note(oid)) ? "" :
 								", '{', '}', 'k', 'g', ...";
 
 			const char *pvs = (!o_funcs.xattr) ? ", " : ", 'v' for visuals, ";
 
 			if(visual_list)
 				prt(format("<dir>, 'r' to recall, ENTER to accept%s, ESC to exit", pedit), hgt-1, 0);
-			else 
+			else
 				prt(format("<dir>, 'r' to recall%sESC%s%s%s",
 											pvs, pedit, pnote, pnote1), hgt-1, 0);
 		}
@@ -648,7 +648,7 @@ static void display_knowledge_start_at(
 
 		if (visual_list)
 		{
-			place_visual_list_cursor(g_name_len + 3, 7, *o_funcs.xattr(oid), 
+			place_visual_list_cursor(g_name_len + 3, 7, *o_funcs.xattr(oid),
 									*o_funcs.xchar(oid), attr_top, char_left);
 		}
 		else if (!column)
@@ -659,7 +659,7 @@ static void display_knowledge_start_at(
 		{
 			Term_gotoxy(g_name_len + 3, 6 + (o_cur - object_top));
 		}
-	
+
 		if (delay)
 		{
 			/* Force screen update */
@@ -773,7 +773,7 @@ static void display_knowledge_start_at(
 
 				break;
 			}
-			
+
 			/* HACK: make this a function.  Replace g_funcs.aware() */
 			case 'w': case 'W':
 			case 'a': case 'A':
@@ -981,9 +981,9 @@ static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr
 /*
  *  Do visual mode command -- Change symbols
  */
-static bool visual_mode_command(key_event ke, bool *visual_list_ptr, 
-				int height, int width, 
-				byte *attr_top_ptr, char *char_left_ptr, 
+static bool visual_mode_command(key_event ke, bool *visual_list_ptr,
+				int height, int width,
+				byte *attr_top_ptr, char *char_left_ptr,
 				byte *cur_attr_ptr, char *cur_char_ptr,
 				int col, int row, int *delay)
 {
@@ -1100,7 +1100,7 @@ static bool visual_mode_command(key_event ke, bool *visual_list_ptr,
 				if (use_trptile) eff_height = height / 3;
 				else if (use_dbltile) eff_height = height / 2;
 				else eff_height = height;
-					
+
 				/* Get mouse movement */
 				if (ke.key == '\xff')
 				{
@@ -1167,7 +1167,7 @@ static bool visual_mode_command(key_event ke, bool *visual_list_ptr,
 					if (d != 0) return TRUE;
 				}
 			}
-				
+
 		break;
 	}
 
@@ -1233,7 +1233,7 @@ static int m_cmp_race(const void *a, const void *b) {
 	return strcmp(r_name + r_a->name, r_name + r_b->name);
 }
 
-static char *m_xchar(int oid) 
+static char *m_xchar(int oid)
 	{ return &r_info[default_join[oid].oid].x_char; }
 static byte *m_xattr(int oid)
 	{ return &r_info[default_join[oid].oid].x_attr; }
@@ -1249,7 +1249,7 @@ static void do_cmd_knowledge_monsters(void)
 							m_cmp_race, default_group, 0};
 
 	member_funcs m_funcs = {display_monster, mon_lore, m_xchar, m_xattr, 0, 0};
-	
+
 	int *monsters;
 	int m_count = 0;
 	int i;
@@ -1275,10 +1275,10 @@ static void do_cmd_knowledge_monsters(void)
 		monster_race *r_ptr = &r_info[i];
 		if(!cheat_lore && !l_list[i].sights) continue;
 		if(!r_ptr->name) continue;
-	
+
 		for(j = 0; j < N_ELEMENTS(monster_group_char)-1; j++) {
 			const char *pat = monster_group_char[j];
-			if(j == 0 && !(r_ptr->flags1 & RF1_UNIQUE)) 
+			if(j == 0 && !(r_ptr->flags1 & RF1_UNIQUE))
 				continue;
 			else if(j > 0 && !strchr(pat, r_ptr->d_char))
 				continue;
@@ -1376,7 +1376,7 @@ static int a_cmp_tval(const void *a, const void *b)
 }
 
 static const char *kind_name(int gid)
-{ return object_group_text[obj_group_order[gid]]; }
+{ return object_group[obj_group_order[gid]].text; }
 static int art2tval(int oid) { return a_info[oid].tval; }
 
 /*
@@ -1393,7 +1393,7 @@ static void do_cmd_knowledge_artifacts(void)
 	int i, j;
 
 	artifacts = C_ZNEW(z_info->a_max, int);
-	
+
 	/* Collect valid artifacts */
 	for(i = 0; i < z_info->a_max; i++) {
 		if((cheat_lore || a_info[i].cur_num) && a_info[i].name)
@@ -1404,7 +1404,7 @@ static void do_cmd_knowledge_artifacts(void)
 		if(a && !object_known_p(&o_list[i])) {
 			for(j = 0; j < a_count && a != artifacts[j]; j++);
 			a_count -= 1;
-			for(; j < a_count; j++) 
+			for(; j < a_count; j++)
 				artifacts[j] = artifacts[j+1];
 		}
 	}
@@ -1422,7 +1422,7 @@ static void display_ego_item(int col, int row, bool cursor, int oid)
 	ego_item_type *e_ptr = &e_info[default_join[oid].oid];
 
 	/* Choose a color */
-	byte attr = curs_attrs[(e_ptr->aware)][(int)cursor];
+	byte attr = curs_attrs[(e_ptr->aware) ? 1 : 0][(int)cursor];
 
 	/* Display the name */
 	c_prt(attr, e_name + e_ptr->name, row, col);
@@ -1467,6 +1467,9 @@ static void desc_ego_fake(int oid)
 		}
 	}
 
+	/* List the runes required to make this item */
+	list_ego_item_runes(e_idx, cheat_lore);
+
 	Term_flush();
 	(void)anykey();
 	screen_load();
@@ -1484,7 +1487,7 @@ static int e_cmp_tval(const void *a, const void *b)
 	return strcmp(e_name + ea->name, e_name + eb->name);
 }
 static u16b *e_note(int oid) { return &e_info[default_join[oid].oid].note; }
-static const char *ego_grp_name(int gid) { return object_group_text[gid]; }
+static const char *ego_grp_name(int gid) { return object_group[gid].text; }
 
 /*
  * Display known ego_items
@@ -1504,7 +1507,7 @@ static void do_cmd_knowledge_ego_items(void)
 	egoitems = C_ZNEW(z_info->e_max*3, int);
 	default_join = C_ZNEW(z_info->e_max*3, join_t);
 	for(i = 0; i < z_info->e_max; i++) {
-		if(e_info[i].aware || cheat_lore) {
+		if((e_info[i].aware & (AWARE_EXISTS)) || cheat_lore) {
 			for(j = 0; j < 3 && e_info[i].tval[j]; j++) {
 				int gid = obj_group_order[e_info[i].tval[j]];
 				/* HACK: Ignore duplicate tvals */
@@ -1512,7 +1515,7 @@ static void do_cmd_knowledge_ego_items(void)
 					continue;
 				egoitems[e_count] = e_count;
 				default_join[e_count].oid = i;
-				default_join[e_count++].gid = gid; 
+				default_join[e_count++].gid = gid;
 			}
 		}
 	}
@@ -1529,25 +1532,27 @@ static void do_cmd_knowledge_ego_items(void)
 /*
  * Strip an "object kind name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int buf_s, int oid)
 {
 	char *t;
+
+	int k_idx = oid >= 0 ? oid : -oid;
 
 	object_kind *k_ptr = &k_info[k_idx];
 
 	cptr str = (k_name + k_ptr->name);
 
 	/* If not aware, use flavor */
-	if (!k_ptr->aware && k_ptr->flavor) str = x_text + x_info[k_ptr->flavor].text;
+	if (oid < 0) str = x_text + x_info[k_ptr->flavor].text;
 
 	/* Skip past leading characters */
 	while ((*str == ' ') || (*str == '&') || (*str == '#')) str++;
 
 	/* Copy useful chars */
-	for (t = buf; *str; str++)
+	for (t = buf; *str && buf_s; str++)
 	{
 		if (prefix(str,"# ")) str++; /* Skip following space */
-		else if (*str != '~') *t++ = *str;
+		else if (*str != '~') { *t++ = *str; buf_s--; }
 	}
 
 	/* Terminate the new name */
@@ -1559,21 +1564,22 @@ static void strip_name(char *buf, int k_idx)
  */
 static void display_object(int col, int row, bool cursor, int oid)
 {
-	int k_idx = oid;
-	
+	int k_idx = oid >= 0 ? oid : -oid;
+
 	/* Access the object */
 	object_kind *k_ptr = &k_info[k_idx];
 
 	char o_name[80];
 
 	/* Choose a color */
-	bool aware = (k_ptr->flavor == 0) || (!view_flavors && k_ptr->aware);
+	bool aware = (oid >= 0) || (!view_flavors && (k_ptr->aware & (AWARE_FLAVOR)));
 	byte a = aware ? k_ptr->x_attr : x_info[k_ptr->flavor].x_attr;
 	byte c = aware ? k_ptr->x_char : x_info[k_ptr->flavor].x_char;
-	byte attr = curs_attrs[(int)k_ptr->flavor == 0 || k_ptr->aware][(int)cursor];
+	byte attr = curs_attrs[(int)oid >= 0  && k_ptr->flavor != 0 ? ((k_ptr->aware & (AWARE_FLAVOR)) != 0 ? 1 : 0)
+						: ((k_ptr->aware & (AWARE_SEEN)) != 0) ? 1 : 0][(int)cursor];
 
-	/* Symbol is unknown.  This should never happen.*/	
-	if (!k_ptr->aware && !k_ptr->flavor && !p_ptr->wizard && !cheat_lore)
+	/* Symbol is unknown.  This should never happen.*/
+	if (!(k_ptr->aware & (AWARE_EXISTS)) && !k_ptr->flavor && !p_ptr->wizard && !cheat_lore)
 	{
 		assert(FALSE);
 		c = ' ';
@@ -1581,7 +1587,7 @@ static void display_object(int col, int row, bool cursor, int oid)
 	}
 
 	/* Tidy name */
-	strip_name(o_name,k_idx);
+	strip_name(o_name,sizeof(o_name),oid);
 
 	/* Display the name */
 	c_prt(attr, o_name, row, col);
@@ -1598,8 +1604,10 @@ static void display_object(int col, int row, bool cursor, int oid)
 /*
  * Describe fake object
  */
-static void desc_obj_fake(int k_idx)
+static void desc_obj_fake(int oid)
 {
+	int k_idx = oid >= 0 ? oid : -oid;
+
 	object_type object_type_body;
 	object_type *o_ptr = &object_type_body;
 	/* Wipe the object */
@@ -1609,10 +1617,7 @@ static void desc_obj_fake(int k_idx)
 	object_prep(o_ptr, k_idx);
 
 	/* Hack -- its in the store */
-	if (k_info[k_idx].aware) o_ptr->ident |= (IDENT_STORE);
-
-	/* It's fully know */
-	if (!k_info[k_idx].flavor) object_known(o_ptr);
+	if (oid >= 0) o_ptr->ident |= (IDENT_STORE);
 
 	/* Track the object */
 	object_actual_track(o_ptr);
@@ -1636,17 +1641,17 @@ static void desc_obj_fake(int k_idx)
 
 static int o_cmp_tval(const void *a, const void *b)
 {
-	object_kind *k_a = &k_info[*(int*)a];
-	object_kind *k_b = &k_info[*(int*)b];
+	object_kind *k_a = &k_info[*(int*)a >= 0 ? *(int*)a : -*(int*)a];
+	object_kind *k_b = &k_info[*(int*)b >= 0 ? *(int*)b : -*(int*)b];
 	/*group by */
 	int ta = obj_group_order[k_a->tval];
 	int tb = obj_group_order[k_b->tval];
 	int c = ta - tb;
 	if(c) return c;
 	/* order by */
-	c = k_a->aware - k_b->aware;
+	c = (*(int*)a >= 0 ? 1 : 0) - (*(int*)b >= 0 ? 1 : 0);
 	if(c) return -c; /* aware has low sort weight */
-	if(!k_a->aware) {
+	if(*(int*)a < 0) {
 		return strcmp(x_text + x_info[k_a->flavor].text,
 									x_text +x_info[k_b->flavor].text);
 	}
@@ -1654,20 +1659,20 @@ static int o_cmp_tval(const void *a, const void *b)
 	if(c) return c;
 	return strcmp(k_name + k_a->name, k_name + k_b->name);
 }
-static int obj2tval(int oid) { return k_info[oid].tval; }
+static int obj2tval(int oid) { return k_info[oid >= 0 ? oid : -oid].tval; }
 static char *o_xchar(int oid) {
-	object_kind *k_ptr = &k_info[oid];
-	if(!k_ptr->flavor || k_ptr->aware) return &k_ptr->x_char;
+	object_kind *k_ptr = &k_info[oid >= 0 ? oid : -oid];
+	if(oid >= 0) return &k_ptr->x_char;
 	else return &x_info[k_ptr->flavor].x_char;
 }
 static byte *o_xattr(int oid) {
-	object_kind *k_ptr = &k_info[oid];
-	if(!k_ptr->flavor || k_ptr->aware) return &k_ptr->x_attr;
+	object_kind *k_ptr = &k_info[oid >= 0 ? oid : -oid];
+	if(oid >= 0) return &k_ptr->x_attr;
 	else return &x_info[k_ptr->flavor].x_attr;
 }
 static u16b *o_note(int oid) {
-	object_kind *k_ptr = &k_info[oid];
-	if(!k_ptr->flavor || k_ptr->aware) return &k_ptr->note;
+	object_kind *k_ptr = &k_info[oid >= 0 ? oid : -oid];
+	if(oid >= 0) return &k_ptr->note;
 	else return 0;
 }
 
@@ -1685,13 +1690,20 @@ static void do_cmd_knowledge_objects(void)
 	int o_count = 0;
 	int i;
 
-	objects = C_ZNEW(z_info->k_max, int);
+	objects = C_ZNEW(z_info->k_max * 2, int);
 
 	for(i = 0; i < z_info->k_max; i++) {
-		if(k_info[i].aware || k_info[i].flavor || cheat_lore) {
+		if((k_info[i].aware & (AWARE_EXISTS)) || (k_info[i].flavor) || cheat_lore) {
 			int c = obj_group_order[k_info[i].tval];
-			if(c >= 0 && object_group_text[c]) {
-				objects[o_count++] = i;
+			if(c >= 0 && object_group[c].text) {
+				if ((k_info[i].aware & (AWARE_EXISTS)) || (cheat_lore))
+				{
+					objects[o_count++] = i;
+				}
+				if (k_info[i].flavor && !(k_info[i].aware & (AWARE_FLAVOR)))
+				{
+					objects[o_count++] = -i;
+				}
 			}
 		}
 	}
@@ -1857,7 +1869,7 @@ static void do_cmd_knowledge_home(void)
 	int o_count = 0;
 
 	for(i = 0; i < total_store_count; i++) {
-		if(!cheat_xtra && i != STORE_HOME && store[i]->base != 1 && store[i]->base != 2) 
+		if(!cheat_xtra && i != STORE_HOME && store[i]->base != 1 && store[i]->base != 2)
 			continue;
 		store_count++;
 	}
@@ -1867,7 +1879,7 @@ static void do_cmd_knowledge_home(void)
 
 	for(i = 0; i < total_store_count; i++) {
 		/* Check for current home */
-		if(!cheat_xtra && i != STORE_HOME && store[i]->base != 1 && store[i]->base != 2) 
+		if(!cheat_xtra && i != STORE_HOME && store[i]->base != 1 && store[i]->base != 2)
 			continue;
 		for(j = 0; j < store[i]->stock_size && store[i]->stock[j].k_idx; j++) {
 			objects[o_count] = o_count;
@@ -1899,20 +1911,20 @@ int count_routes(int from, int to)
     return -num;
 }
 
-static void describe_surface_dungeon(int dun) 
+static void describe_surface_dungeon(int dun)
 {
 	int myd = p_ptr->dungeon;
 	int num;
 
-	if (dun == rp_ptr->home) 
+	if (dun == rp_ptr->home)
 	{
 		text_out_c(TERM_WHITE, t_info[dun].text + t_text);
-		
+
 		if (dun == myd)
 			text_out_c(TERM_SLATE, "  You were born right here.");
 		else
 			text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago.");
-	} 
+	}
 	else if (t_info[dun].visited)
 		text_out_c(TERM_WHITE, t_info[dun].text + t_text);
 	else
@@ -1925,10 +1937,10 @@ static void describe_surface_dungeon(int dun)
 		/* no road back to current */
 		if (count_routes(myd, dun) > 0)
 			/* road forth, hence one way */
-			text_out_c(TERM_RED, format("  You know of no way back from %s to %s!", 
-										t_info[dun].name + t_name, 
+			text_out_c(TERM_RED, format("  You know of no way back from %s to %s!",
+										t_info[dun].name + t_name,
 										t_info[myd].name + t_name));
-	  
+
 	if (!num)
 		text_out_c(TERM_SLATE, format("  You feel your old maps will not avail you %s.", dun == myd ? "here" : "there"));
 
@@ -1936,11 +1948,11 @@ static void describe_surface_dungeon(int dun)
 	{
 		char str[1000];
 		int i, found = 0;
-		for (i = 1; i < z_info->t_max; i++) 
+		for (i = 1; i < z_info->t_max; i++)
 		{
 			if (t_info[i].replace_ifvisited == dun)
 			{
-				if (found == 0) 
+				if (found == 0)
 				{
 					sprintf(str, "  If you enter %s, you will never find %s", t_info[dun].name + t_name, t_info[i].name + t_name);
 					found = -1;
@@ -1956,21 +1968,21 @@ static void describe_surface_dungeon(int dun)
 				}
 			}
 		}
-		if (found > 0) 
+		if (found > 0)
 			my_strcat(str, format(" and %s again!", t_info[found].name + t_name), 1000);
-		else if (found < 0) 
+		else if (found < 0)
 			my_strcat(str, " again!", 1000);
 		if (found != 0)
 			text_out_c(TERM_WHITE, str);
 	}
 }
 
-static void describe_zone_guardian(int dun, int zone) 
+static void describe_zone_guardian(int dun, int zone)
 {
   int guard = actual_guardian(t_info[dun].zone[zone].guard, dun, zone);
 
   if (guard) {
-    bool bars = (r_info[guard].max_num 
+    bool bars = (r_info[guard].max_num
 		 && t_info[dun].quest_monster == guard);
     char str[46];
 
@@ -1978,7 +1990,7 @@ static void describe_zone_guardian(int dun, int zone)
       long_level_name(str, actual_route(t_info[dun].quest_opens), 0);
 
     text_out_c(TERM_SLATE, format("  It %s guarded by %s%s%s.",
-				  r_info[guard].max_num ? "is" : "was", 
+				  r_info[guard].max_num ? "is" : "was",
 				  r_info[guard].name + r_name,
 				  bars ? ", who bars the way to " : "",
 				  bars ? str : ""));
@@ -1995,21 +2007,32 @@ static void dungeon_lore(int oid) {
 	screen_save();
 
 	if (zone == MAX_DUNGEON_ZONES - 1
-	    || t_info[dun].zone[zone+1].level == 0
-	    || t_info[dun].zone[zone+1].level - 1 == t_info[dun].zone[zone].level) {
-	  /* one-level zone */ 
-	  c_prt(TERM_L_BLUE, format("Level %d of %s", t_info[dun].zone[zone].level, str), 0, 0);
+			|| t_info[dun].zone[zone+1].level == 0
+			|| t_info[dun].zone[zone+1].level - 1 == t_info[dun].zone[zone].level) {
+		/* one-level zone */
+		if (t_info[dun].zone[zone].level == 0)
+			c_prt(TERM_L_BLUE, str, 0, 0);
+		else if (depth_in_feet)
+			c_prt(TERM_L_BLUE, format("%d feet at %s", 50 * t_info[dun].zone[zone].level, str), 0, 0);
+		else
+			c_prt(TERM_L_BLUE, format("Level %d of %s", t_info[dun].zone[zone].level, str), 0, 0);
 	}
 	else {
-	  c_prt(TERM_L_BLUE, format("Levels %d-%d of %s", 
-				    t_info[dun].zone[zone].level,
-				    t_info[dun].zone[zone+1].level - 1, 
-				    str), 0, 0);
+		if (depth_in_feet)
+			c_prt(TERM_L_BLUE, format("%d-%d feet at %s",
+					t_info[dun].zone[zone].level * 50,
+					(t_info[dun].zone[zone+1].level - 1) * 50,
+					str), 0, 0);
+		else
+			c_prt(TERM_L_BLUE, format("Levels %d-%d of %s",
+					t_info[dun].zone[zone].level,
+					t_info[dun].zone[zone+1].level - 1,
+					str), 0, 0);
 	}
 
 	Term_gotoxy(0, 1);
 
-	if (!zone) 
+	if (!zone)
 	  describe_surface_dungeon(dun);
 
 	describe_zone_guardian(dun, zone);
@@ -2044,7 +2067,11 @@ static void display_dungeon_zone(int col, int row, bool cursor, int oid)
 			c_prt(attr, t_info[dun].name + t_name, row, col);
 		}
 		else {
-			c_prt(attr, format("Level %d of %s", t_info[dun].zone[zone].level,
+			if (depth_in_feet)
+				c_prt(attr, format("%d' in %s", t_info[dun].zone[zone].level * 50,
+									 t_info[dun].name + t_name),  row, col);
+			else
+				c_prt(attr, format("Level %d of %s", t_info[dun].zone[zone].level,
 									 t_info[dun].name + t_name),  row, col);
 		}
 	}
@@ -2052,24 +2079,28 @@ static void display_dungeon_zone(int col, int row, bool cursor, int oid)
 		c_prt(attr, format("%s", str), row, col);
 	}
 
-	if (t_info[dun].attained_depth >= t_info[dun].zone[zone].level) 
+	if (t_info[dun].attained_depth >= t_info[dun].zone[zone].level)
 	{
 		if (/* last zone */
-			(zone == MAX_DUNGEON_ZONES - 1 
+			(zone == MAX_DUNGEON_ZONES - 1
 			 || t_info[dun].zone[zone+1].level == 0)
 			/* depth in that dungeon is less than start of the next zone */
-			|| (t_info[dun].attained_depth < t_info[dun].zone[zone+1].level)) 
+			|| (t_info[dun].attained_depth < t_info[dun].zone[zone+1].level))
 		{
 			if (t_info[dun].attained_depth)
-				c_prt(attr, format(" Lev %3d", t_info[dun].attained_depth), 
-						row, 67);
-			else if (zone == 1 
+				if (depth_in_feet)
+					c_prt(attr, format(" %4d'", 50 * t_info[dun].attained_depth),
+							row, 67);
+				else
+					c_prt(attr, format(" Lev %3d", t_info[dun].attained_depth),
+							row, 67);
+			else if (zone == 1
 						|| t_info[dun].zone[zone+1].level == 0)
 				; /* no dungeon nor tower --- no babbling */
 			else
 				c_prt(attr, " surface", row, 67);
 		}
-		else 
+		else
 		{
 			if (guard && r_info[guard].max_num)
 				/* we've reached the guardian and escaped (or he did) */
@@ -2088,24 +2119,24 @@ static void display_dungeon_zone(int col, int row, bool cursor, int oid)
 static int oiddiv4 (int oid) { return oid/MAX_DUNGEON_ZONES; }
 static const char* town_name(int gid) { return t_info[gid].name+t_name; }
 
-void long_level_name(char* str, int town, int depth) 
+void long_level_name(char* str, int town, int depth)
 {
   dungeon_zone *zone;
 
   /* Get the zone */
   get_zone(&zone, town, depth);
-  
+
   if (zone->name)
     sprintf(str, "%s %s", zone->name + t_name, t_info[town].name + t_name);
   else
     sprintf(str, "%s", t_info[town].name + t_name);
 }
 
-void current_long_level_name(char* str) 
+void current_long_level_name(char* str)
 {
   long_level_name(str, p_ptr->dungeon, p_ptr->depth);
 }
-	       
+
 static void do_cmd_knowledge_dungeons(void)
 {
 	int i, j;
@@ -2118,14 +2149,14 @@ static void do_cmd_knowledge_dungeons(void)
 
 	zones = C_ZNEW(z_info->t_max*MAX_DUNGEON_ZONES, int);
 
-	for (i = 1; i < z_info->t_max; i++) 
+	for (i = 1; i < z_info->t_max; i++)
 	{
-		if (!t_info[i].visited 
+		if (!t_info[i].visited
 			&& !(i == rp_ptr->home)
 			&& !(count_routes(myd, i) > 0))
 			continue;
 
-		if (t_info[i].replace_ifvisited 
+		if (t_info[i].replace_ifvisited
 			&& t_info[t_info[i].replace_ifvisited].visited)
 			continue;
 
@@ -2145,7 +2176,7 @@ static void do_cmd_knowledge_dungeons(void)
 }
 
 /* Keep macro counts happy. */
-static void cleanup_cmds () {
+static void cleanup_cmds (void) {
 	FREE(obj_group_order);
 }
 
@@ -2166,7 +2197,7 @@ void do_knowledge_dungeons(void)
 /*
  * File name prefix of each group
  */
-static cptr tip_prefix[] = 
+static cptr tip_prefix[] =
 {
 	"All current tips",
 	"birth",
@@ -2219,7 +2250,7 @@ static void display_tip_title(int col, int row, bool cursor, int oid)
 	}
 
 	/* Close the file */
-	my_fclose(fff);		
+	my_fclose(fff);
 
 	c_prt(attr, buf, row, col);
 }
@@ -2261,7 +2292,7 @@ static void do_cmd_knowledge_help_tips(void)
 	help_tips = C_ZNEW(tips_start * 2, int);
 	default_join = C_ZNEW(tips_start * 2, join_t);
 
-	for(i = 0; i < tips_start; i++) 
+	for(i = 0; i < tips_start; i++)
 	{
 		for(j = 0; j < (int)N_ELEMENTS(tip_prefix) - 1; j++) {
 			const char *pat = tip_prefix[j];
@@ -4269,8 +4300,8 @@ void do_cmd_visuals(void)
 				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
-				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
-				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3);
 				Term_putch(43, linec, ca, cc);
 
 				if (use_bigtile || use_dbltile || use_trptile)
@@ -4342,8 +4373,8 @@ void do_cmd_visuals(void)
 				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
-				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
-				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3);
 				Term_putch(43, linec, ca, cc);
 
 				if (use_bigtile || use_dbltile || use_trptile)
@@ -4415,8 +4446,8 @@ void do_cmd_visuals(void)
 				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
-				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
-				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3);
 				Term_putch(43, linec, ca, cc);
 
 				if (use_bigtile || use_dbltile || use_trptile)
@@ -4488,8 +4519,8 @@ void do_cmd_visuals(void)
 				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
-				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
-				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3);
 				Term_putch(43, linec, ca, cc);
 
 				if (use_bigtile || use_dbltile || use_trptile)
@@ -4667,7 +4698,7 @@ void do_cmd_colors(void)
 				if (!kv && !rv && !gv && !bv) continue;
 
 				/* Extract the color name */
-				if (i < 16) name = color_names[i];
+				if (i < BASE_COLORS) name = color_table[i].name;
 
 				/* Dump a comment */
 				fprintf(fff, "# Color '%s'\n", name);
@@ -4714,7 +4745,7 @@ void do_cmd_colors(void)
 				}
 
 				/* Describe the color */
-				name = ((a < 16) ? color_names[a] : "undefined");
+				name = ((a < BASE_COLORS) ? color_table[a].name : "undefined");
 
 				/* Describe the color */
 				Term_putstr(5, 10, -1, TERM_WHITE,
@@ -4888,7 +4919,7 @@ static errr cmd_autos_dump(void)
 
 	/* Grab priv's */
 	safe_setuid_grab();
-   
+
 	/* Message */
 	msg_print("Appended auto-inscriptions.");
 
@@ -5084,6 +5115,7 @@ static cptr event_pronoun_text_which[6] =
 
 /*
  * Array of tense strings (0, 1 and 2 occurred in past, however 0, 1 only are past tense )
+ *
  */
 static cptr event_tense_text[8] =
 {
@@ -5201,7 +5233,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		output = TRUE;
 	}
 
-	/* Visit a store */	
+	/* Visit a store */
 	if ((event->owner) || (event->store) || (event->flags & (EVENT_TALK_STORE | EVENT_DEFEND_STORE)))
 	{
 		output = TRUE;
@@ -5226,7 +5258,9 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		{
 			if (tense < 0) text_out("defended ");
 			else text_out("defend ");
-		}	
+
+			used_race = TRUE;
+		}
 		else if (event->flags & (EVENT_TALK_STORE))
 		{
 			if (tense < 0) text_out("talked to");
@@ -5248,7 +5282,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		if (event->store)
 		{
 			text_out(f_name + f_info[event->feat].name);
-		}		
+		}
 
 		if ((event->flags & (EVENT_DEFEND_STORE)) && !(event->room_type_a) && !(event->room_type_b)
 			&& !(event->room_flags) && !((event->feat) && (event->action)))
@@ -5264,7 +5298,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		else text_out(" ");
 
 		output = TRUE;
-	}	
+	}
 
 	/* Affect room */
 	if ((event->room_type_a) || (event->room_type_b) || (event->room_flags))
@@ -5492,10 +5526,10 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 				else if (event->race) { text_out(" guarded by "); used_race = TRUE; }
 				else text_out(" and ");
 			}
-		}		
+		}
 	}
 
-	/* Kill a monster */	
+	/* Kill a monster */
 	if ((event->race) && ((used_race) || !((event->kind) || (event->ego_item_type) || (event->artifact))))
 	{
 		used_race = TRUE;
@@ -5512,7 +5546,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 			if (event->flags & (EVENT_FEAR_RACE)) vp[vn++] = "terrify";
 			if (event->flags & (EVENT_HEAL_RACE)) vp[vn++] = "heal";
 			if (event->flags & (EVENT_BANISH_RACE)) vp[vn++] = "banish";
-			if (event->flags & (EVENT_KILL_RACE)) vp[vn++] = "kill";
+			if (event->flags & (EVENT_KILL_RACE | EVENT_DEFEND_STORE)) vp[vn++] = "kill";
 		}
 		else
 		{
@@ -5524,7 +5558,7 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 			if (event->flags & (EVENT_FEAR_RACE)) vp[vn++] = "terrified";
 			if (event->flags & (EVENT_HEAL_RACE)) vp[vn++] = "healed";
 			if (event->flags & (EVENT_BANISH_RACE)) vp[vn++] = "banished";
-			if (event->flags & (EVENT_KILL_RACE)) vp[vn++] = "killed";
+			if (event->flags & (EVENT_KILL_RACE | EVENT_DEFEND_STORE)) vp[vn++] = "killed";
 		}
 
 		/* Hack -- monster race */
@@ -5861,6 +5895,13 @@ bool print_quests(int min_stage, int max_stage)
 					else if (q_info[i].stage > QUEST_FINISH) continue;
 					else { tense = 3; prefix = "To claim your reward, "; }
 					break;
+				case QUEST_PAYOUT:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage == QUEST_PAYOUT) { tense = 0; prefix = "and "; }
+					else if (q_info[i].stage == QUEST_FINISH) { tense = 0; prefix = "and "; }
+					else if (q_info[i].stage > QUEST_FINISH) continue;
+					else { tense = 4; prefix = "and ";}
+					break;
 				case QUEST_FINISH:
 					if (q_info[i].stage < QUEST_ACTION) continue;
 					else if (q_info[i].stage == QUEST_FINISH) { tense = 0; prefix = "and "; }
@@ -5875,6 +5916,12 @@ bool print_quests(int min_stage, int max_stage)
 						prefix = ".  You will fail the quest if ";
 					}
 					else if (q_info[i].stage == QUEST_PENALTY) { tense = 0; }
+					else continue;
+					break;
+				case QUEST_FORFEIT:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage < QUEST_REWARD) { tense = 4; prefix = ". If this happens "; }
+					else if (q_info[i].stage == QUEST_FORFEIT) { tense = 0; prefix = "causing you to fail the quest and "; }
 					else continue;
 					break;
 				case QUEST_PENALTY:
@@ -5929,7 +5976,7 @@ void do_cmd_quest(void)
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
-	
+
 	/* Print title */
 	text_out_c(TERM_L_BLUE, "Current Quests\n");
 
@@ -6352,12 +6399,12 @@ static void browser_mouse(key_event ke, int *column, int *grp_cur,
 
 	(*grp_cur) = grp;
 	(*list_cur) = list;
-} 
+}
 
-/* 
- * Move the cursor in a browser window 
+/*
+ * Move the cursor in a browser window
  */
-static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, 
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 						   int *list_cur, int list_cnt)
 {
 	int d;
@@ -6464,17 +6511,17 @@ typedef struct {
 	int page;
 } command_menu;
 
-static command_menu option_actions [] = 
+static command_menu option_actions [] =
 {
-	{'1', "Interface options", do_cmd_options_aux, 0}, 
+	{'1', "Interface options", do_cmd_options_aux, 0},
 	{'2', "Display options", do_cmd_options_aux, 1},
-	{'3', "Warning and disturbance options", do_cmd_options_aux, 2}, 
-	{'4', "Birth (difficulty) options", do_cmd_options_aux, 3}, 
-	{'5', "Cheat options", do_cmd_options_aux, 4}, 
+	{'3', "Warning and disturbance options", do_cmd_options_aux, 2},
+	{'4', "Birth (difficulty) options", do_cmd_options_aux, 3},
+	{'5', "Cheat options", do_cmd_options_aux, 4},
 	{0, 0, 0, 0},
-	{'W', "Subwindow display settings", (action_f) do_cmd_options_win, 0}, 
-	{'D', "Set base delay factor", (action_f) do_cmd_delay, 0}, 
-	{'H', "Set hitpoint warning", (action_f) do_cmd_hp_warn, 0}, 
+	{'W', "Subwindow display settings", (action_f) do_cmd_options_win, 0},
+	{'D', "Set base delay factor", (action_f) do_cmd_delay, 0},
+	{'H', "Set hitpoint warning", (action_f) do_cmd_hp_warn, 0},
 	{0, 0, 0, 0},
 	{'L', "Load a user pref file", (action_f) do_cmd_pref_file_hack, 22},
 	{'A', "Append options to a file", do_cmd_options_append, 0},
@@ -6559,13 +6606,13 @@ void do_cmd_menu(int menuID, const char *title)
 	/* initialize static variables */
 	if(!obj_group_order) {
 		int i, n = 0;
-		for(n = 0; object_group_tval[n]; n++)
+		for(n = 0; object_group[n].tval; n++)
 		obj_group_order = C_ZNEW(TV_GEMS+1, int);
 		ang_atexit(cleanup_cmds);
 		for(i = 0; i <= TV_GEMS; i++) /* allow for missing values */
 			obj_group_order[i] = -1;
 		for(i = 0; i < n; i++) {
-			obj_group_order[object_group_tval[i]] = i;
+			obj_group_order[object_group[i].tval] = i;
 		}
 	}
 

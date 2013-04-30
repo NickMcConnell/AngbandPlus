@@ -23,7 +23,6 @@
                 worn), they gain to hit and damage bonuses, improved armour
                 class and at higher levels, attack with multiple blows and
                 additional critical damage.
-                The rate of progress of these abilities varies with each class.
 
 ***** <One-handed>
         One-handed
@@ -32,8 +31,7 @@
                 a shield, a one-handed specialist gets additional to hit 
                 bonuses, improved natural armour class and can cause 
                 additional critical damage at higher levels.  One-handed 
-                weapons weigh up to 15 lbs in weight.
-                The rate of progress of these abilities varies with each class.
+                weapons have up to 15 lbs in weight.
 
 ***** <Two-handed>
         Two-handed
@@ -42,7 +40,6 @@
                 additional to hit and damage with their weapon, 
                 and gains additional blows in melee at higher levels.  
                 Two-handed weapons are any weapons that weigh more than 10 lbs.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Dual-wield>
         Dual-wield
@@ -55,7 +52,6 @@
                 dual wielded include any weapon under 15 lbs, as long as both 
                 weapons are identical types, and any weapon under 20lb may be 
                 paired with a secondary throwing weapon.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Shield & weapon>
         Shield & weapon
@@ -74,7 +70,6 @@
                 type (Either hafted or polearm weapons or swords), they
                 may gain an advantage to hit and damage and additional blows
                 at higher levels.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Thrown weapons>
         Thrown weapons
@@ -83,7 +78,6 @@
                 exceeds that of archers.  When throwing well-balanced throwing
                 weapons, the throwing specialist achieves increasing accuracy,
                 rate of hurls and damage multiplier at higher levels.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Slings>
         Slings
@@ -91,14 +85,12 @@
                 thrown weapons in his sling to good effect.  With a sling 
                 equipped, these weapons can be fired with increasing accuracy,
                 rate of fire and damage multiplier at higher levels.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Bows>
         Bows
                 The bow specialist prefers to pincushion his target with many
                 arrows.  With a bow equipped, arrows can be fired with 
                 increasing accuracy and rate of fire at higher levels.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Cross-bows>
         Cross-bows
@@ -107,7 +99,6 @@
                 bolts that his weapon fires.  With a cross-bow equipped, 
                 bolts can be fired with increasing accuracy and damage 
                 multiplier at higher levels.
-                The rate of progress of these abilities varies with each class.
 
 ***** <Slay Orcs>
 ***** <Slay Giants>
@@ -127,8 +118,7 @@
                 cause additional critical damage at higher levels.  
                 In addition, they gain a sixth sense about the presence 
                 of these creatures.
-                The rate of progress of these abilities varies with each class.
-
+ 
 ***** <Magic books>
 ***** <Prayer books>
         Magic Books / Prayer Books
@@ -153,8 +143,6 @@
                 from their specialised book or school of magic at roughly 
                 twice the effective power of a non-specialised mage, 
                 and learns them approximately 20% earlier.
-
-                The rate of progress of these abilities varies with each class.
 
 ***** <Amulets>
         Amulets

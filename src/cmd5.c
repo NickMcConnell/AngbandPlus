@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -26,7 +26,7 @@
  *
  * The "prompt" should be "cast", "recite", or "study"
  * The "known" should be TRUE for cast/pray/sing, FALSE for study if
- * a book (eg magic book, prayer book, song book, runestone).
+ * a book (eg magic book, prayer book, song book).
  * For all others, "known" should be TRUE if the player is to be
  * prompted to select an object power, or FALSE if a random power is
  * to be chosen.
@@ -85,11 +85,6 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			cast = TRUE;
 			break;
 
-		case TV_RUNESTONE:
-			p="pattern";
-			cast = TRUE;
-			break;
-
 		default:
 			p="power";
 			break;
@@ -99,7 +94,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 	if ((cast) &&(c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
 		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
 	{
-		msg_print("You cannot read books or runestones.");
+		msg_print("You cannot read books.");
 
 		return(-2);
 
@@ -111,7 +106,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		object_type object_type_body;
 		object_type *j_ptr = &object_type_body;
 		object_wipe(j_ptr);
-	
+
 		j_ptr->tval = o_ptr->xtra1;
 		j_ptr->sval = o_ptr->xtra2;
 		j_ptr->k_idx = lookup_kind(o_ptr->xtra1, o_ptr->xtra2);
@@ -135,7 +130,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 #endif /* ALLOW_REPEAT */
 
 	/* Fill the book with spells */
-	fill_book(o_ptr,book,&num); 
+	fill_book(o_ptr,book,&num);
 
 	/* Assume no usable spells */
 	okay = 0;
@@ -279,7 +274,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			{
 				/* Get the casting details */
 				sc_ptr = spell_cast_details(spell);
-				
+
 				/* Paranoia */
 				if (!sc_ptr) return (FALSE);
 
@@ -332,7 +327,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 /*
  * Is the book okay to select?
- * 
+ *
  * This requires that the player has spells in it that
  * they can 'read'.
  */
@@ -340,7 +335,6 @@ bool inven_book_okay(const object_type *o_ptr)
 {
 	if ((o_ptr->tval != TV_MAGIC_BOOK) &&
   	  (o_ptr->tval != TV_PRAYER_BOOK) &&
-  	  (o_ptr->tval != TV_RUNESTONE) &&
   	  (o_ptr->tval != TV_SONG_BOOK) &&
 	  (o_ptr->tval != TV_STUDY)) return (0);
 
@@ -350,20 +344,20 @@ bool inven_book_okay(const object_type *o_ptr)
 		return (spell_legible(o_ptr->pval));
 	}
 
-	/* Book / runestone */
+	/* Book */
 	else
 	{
 		s16b book[26];
 		int num;
 		int i;
-		
+
 		fill_book(o_ptr, book, &num);
-		
+
 		for (i=0; i < num; i++)
 		{
 			if (spell_legible(book[i])) return (TRUE);
 		}
-	}			
+	}
 
 	return (FALSE);
 }
@@ -386,7 +380,7 @@ void print_fields(const s16b *sn, int num, int y, int x)
 	{
 		/* Dump the spell -- skip 'of ' if required */
 		sprintf(out_val, "  %c) %-75s ",
-			I2A(i), k_name + k_info[sn[i]].name + (k_info[sn[i]].tval == TV_RUNESTONE ? 0 : 3));
+			I2A(i), k_name + k_info[sn[i]].name);
 		c_prt(TERM_WHITE, out_val, y + i, x);
 	}
 
@@ -400,7 +394,7 @@ void print_fields(const s16b *sn, int num, int y, int x)
 bool field_commands(char choice, const s16b *sn, int i, bool *redraw)
 {
 	(void)redraw;
-	
+
 	switch (choice)
 	{
 		case 'B':
@@ -408,33 +402,33 @@ bool field_commands(char choice, const s16b *sn, int i, bool *redraw)
 			/* Fake the o_ptr */
 			object_type object_type_body;
 			object_type *o_ptr = &object_type_body;
-			
+
 			/* Set object details required */
 			o_ptr->k_idx = sn[i];
 			o_ptr->tval = k_info[sn[i]].tval;
 			o_ptr->sval = k_info[sn[i]].sval;
 			o_ptr->xtra1 = 0;
-			
+
 			/* Load screen */
 			if (*redraw) screen_load();
-			
+
 			/* Browse the object */
-			do_cmd_browse_object(o_ptr);
+			player_browse_object(o_ptr);
 
 			/* Save screen */
 			if (*redraw) screen_save();
-			
+
 			break;
 		}
-		
+
 		default:
 		{
 			return (FALSE);
 		}
 	}
-	
-	
-	
+
+
+
 	return (TRUE);
 }
 
@@ -442,11 +436,11 @@ bool field_commands(char choice, const s16b *sn, int i, bool *redraw)
 
 
 /*
- * Persuse the spells/prayers in a Book.
- * 
+ * Peruse the spells/prayers in a Book.
+ *
  * Takes an object as a parameter
  */
-bool do_cmd_browse_object(object_type *o_ptr)
+bool player_browse_object(object_type *o_ptr)
 {
 	int num = 0;
 
@@ -490,19 +484,14 @@ bool do_cmd_browse_object(object_type *o_ptr)
 			r="Research which field";
 			break;
 
-		case TV_RUNESTONE:
-			p="pattern";
-			r="Engrave which pattern";
-			break;
-
 		default:
 			p="power";
 			r = "";
 			break;
 	}
 
-	/* Study materials -- Browse spells in a book related to the current spell for magic books and runestones only */
-	if ((o_ptr->tval == TV_STUDY) && ((o_ptr->sval == TV_MAGIC_BOOK) || (o_ptr->sval == TV_RUNESTONE)))
+	/* Study materials -- Browse spells in a book related to the current spell for magic books only */
+	if ((o_ptr->tval == TV_STUDY) && ((o_ptr->sval == TV_MAGIC_BOOK)))
 	{
 		s16b field[MAX_SPELL_APPEARS];
 
@@ -569,7 +558,7 @@ bool do_cmd_browse_object(object_type *o_ptr)
 			return (FALSE);
 		}
 	}
-	
+
 	/* Display the spells */
 	print_spells(book, num, 1, 20);
 
@@ -589,7 +578,7 @@ bool do_cmd_browse_object(object_type *o_ptr)
 		if ((i >= 0) && (i < num))
 		{
 			spell_type *s_ptr;
-			
+
 			/* Save the spell index */
 			spell = book[i];
 
@@ -607,12 +596,12 @@ bool do_cmd_browse_object(object_type *o_ptr)
 
 			/* Get the spell */
 			s_ptr = &s_info[spell];
-			
+
 			/* Spell is illegible */
 			if (!spell_legible(spell))
 			{
 				msg_format("You cannot read that %s.",p);
-				
+
 				/* Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
 					p, I2A(0), I2A(num - 1), p);
@@ -620,6 +609,10 @@ bool do_cmd_browse_object(object_type *o_ptr)
 			else
 			{
 				bool intro = FALSE;
+				bool dummy = TRUE;
+
+				/* Prepare the spell */
+				process_spell_prepare(spell, spell_power(spell), &dummy, FALSE, TRUE);
 
 				/* Set text_out hook */
 				text_out_hook = text_out_to_screen;
@@ -640,7 +633,7 @@ bool do_cmd_browse_object(object_type *o_ptr)
 					text_out(".  ");
 
 					/* Clear until the end of the line */
-					/* XXX XXX Not sure why we have to do this.*/ 
+					/* XXX XXX Not sure why we have to do this.*/
 
 					/* Obtain the cursor */
 					(void)Term_locate(&x, &y);
@@ -672,12 +665,15 @@ bool do_cmd_browse_object(object_type *o_ptr)
 				/* Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
 					p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+
+				/* Paranoia - clear boost */
+				p_ptr->boost_spell_power = 0;
 			}
 
 			continue;
 		}
 	}
-	
+
 	return (TRUE);
 }
 
@@ -691,53 +687,11 @@ bool do_cmd_browse_object(object_type *o_ptr)
  * Note that browsing is allowed while berserk or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
-void do_cmd_browse(void)
+bool player_browse(int item)
 {
-	int item, sval;
+	int sval;
 
 	object_type *o_ptr;
-
-	cptr q, s;
-
-	/* Cannot browse books if illiterate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-	{
-		msg_print("You cannot read books or runestones.");
-
-		return;
-	}
-
-#if 0
-
-	/* No lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Berserk */
-	if (p_ptr->shero)
-	{
-		msg_print("You are too enraged!");
-		return;
-	}
-
-	/* Amnesia */
-	if (p_ptr->amnesia)
-	{
-		msg_print("You have forgotten all your spells!");
-		return;
-	}
-#endif
-
-	item_tester_hook = inven_book_okay;
-
-	/* Get an item */
-	q = "Browse which book or runestone? ";
-	s = "You have no books or runestones that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -751,34 +705,18 @@ void do_cmd_browse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
 	/* Get the item's sval */
 	sval = o_ptr->sval;
 
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-	
-	/* Save screen */
+	/* Save the screen */
 	screen_save();
 
 	/* Browse the object */
-	if (do_cmd_browse_object(o_ptr))
+	if (player_browse_object(o_ptr))
 	{
 		/* Prompt for a command */
 		put_str("(Browsing) Command: ", 0, 0);
-	
+
 		/* Hack -- Get a new command */
 		p_ptr->command_new = inkey_ex();
 	}
@@ -786,7 +724,7 @@ void do_cmd_browse(void)
 	else if (easy_more)
 	{
 		msg_print(NULL);
-		
+
 		messages_easy(TRUE);
 	}
 
@@ -799,6 +737,8 @@ void do_cmd_browse(void)
 		/* Reset stuff */
 		p_ptr->command_new.key = 0;
 	}
+
+	return (TRUE);
 }
 
 
@@ -806,13 +746,13 @@ void do_cmd_browse(void)
 /*
  * Study a book to gain a new spell/prayer
  */
-void do_cmd_study(void)
+bool player_study(int item)
 {
-	int i, item;
+	int i;
 
 	int spell = -1;
 
-	cptr p, q, r, s;
+	cptr p, r;
 
 	cptr u = " book";
 
@@ -829,59 +769,6 @@ void do_cmd_study(void)
 	bool study_item = FALSE;
 	bool disdain = FALSE;
 
-	/* Cannot cast spells if illiterate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-	{
-		msg_print("You cannot read books or runestones.");
-
-		return;
-	}
-
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	if (p_ptr->shero)
-	{
-		msg_print("You are too enraged!");
-		return;
-	}
-
-	/* Amnesia */
-	if (p_ptr->amnesia)
-	{
-		msg_print("You have forgotten how to read!");
-		return;
-	}
-
-	/* Cannot learn more spells */
-	if (!(p_ptr->new_spells))
-	{
-		msg_format("You cannot learn anything more yet.");
-		return;
-	}
-
-	/* Message if needed */
-	else
-	{
-		/* Hack */
-		p_ptr->old_spells = 0;
-
-		/* Message */
-		calc_spells();
-	}
-
-	/* Restrict choices to "useful" books */
-	item_tester_hook = inven_book_okay;
-
-	/* Get an item */
-	q = "Study which book or runestone? ";
-	s = "You have no books or runestones that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
-
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -892,16 +779,6 @@ void do_cmd_study(void)
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}
-
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
 	}
 
 	/* Generate study item from features */
@@ -939,12 +816,6 @@ void do_cmd_study(void)
 			r="Research which field";
 			break;
 
-		case TV_RUNESTONE:
-			p="pattern";
-			r="Engrave which pattern";
-			u=" combination of runes";
-			break;
-
 		default:
 			p="power";
 			r = "";
@@ -970,7 +841,7 @@ void do_cmd_study(void)
 		}
 
 		/* Paranoia */
-		if (!num) return;
+		if (!num) return (FALSE);
 
 		/* Display the list and get a selection */
 		if (get_list(print_fields, field, num, format("%^ss",p), r, "", 1, 20, field_commands, &selection))
@@ -987,7 +858,7 @@ void do_cmd_study(void)
 		/* Did not choose something */
 		else
 		{
-			return;
+			return (FALSE);
 		}
 	}
 
@@ -997,7 +868,7 @@ void do_cmd_study(void)
 		/* Sval hackery */
 		if (o_ptr->sval - (o_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) disdain = TRUE;
 	}
-	
+
 	/* Spell is illegible */
 	if (disdain)
 	{
@@ -1010,15 +881,15 @@ void do_cmd_study(void)
 			case 2: msg_print(format("Your %ss resemble deranged scribblings from a lunatic asylum.", p)); break;
 			case 3: msg_print("The book burns red hot in your hands!"); break;
 		}
-		
+
 		msg_print("You pass out from the strain!");
-	
+
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(o_ptr->sval % 4 + 1));
-		
-		return;
+		inc_timed(TMD_PARALYZED, randint(o_ptr->sval % 4 + 1), FALSE);
+
+		return (FALSE);
 	}
-	
+
 	/* Prayer book -- Learn a random prayer */
 	if (o_ptr->tval == TV_PRAYER_BOOK)
 	{
@@ -1078,11 +949,11 @@ void do_cmd_study(void)
 		spell = graft;
 	}
 
-	/* Magic book / runestone -- Learn a selected spell */
-	else if ((o_ptr->tval == TV_MAGIC_BOOK) || (o_ptr->tval == TV_RUNESTONE))
+	/* Magic book -- Learn a selected spell */
+	else if (o_ptr->tval == TV_MAGIC_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", o_ptr, FALSE) && (spell == -1)) return;
+		if (!get_spell(&spell, "study", o_ptr, FALSE) && (spell == -1)) return (FALSE);
 	}
 
 	/* Nothing to study */
@@ -1092,7 +963,7 @@ void do_cmd_study(void)
 		msg_format("You cannot learn any %ss in that%s.", p, u);
 
 		/* Abort */
-		return;
+		return (FALSE);
 	}
 
 
@@ -1112,7 +983,7 @@ void do_cmd_study(void)
 		/* Message */
 		msg_format("You cannot learn any more %ss.", p);
 
-		return;
+		return (FALSE);
 	}
 
 	/* Add the spell to the known list */
@@ -1171,11 +1042,14 @@ void do_cmd_study(void)
 	/* Redraw object recall */
 	p_ptr->window |= (PW_OBJECT);
 
+	return (TRUE);
+
 }
 
 
-
-
+/*
+ * Check whether there is a spell that can be cast from the object by the player.
+ */
 bool inven_cast_okay(const object_type *o_ptr)
 {
 	int i,ii;
@@ -1184,9 +1058,9 @@ bool inven_cast_okay(const object_type *o_ptr)
 
 	if ((o_ptr->tval != TV_MAGIC_BOOK) &&
 	    (o_ptr->tval != TV_PRAYER_BOOK) &&
-	    (o_ptr->tval != TV_RUNESTONE) &&
-  	  (o_ptr->tval != TV_SONG_BOOK) &&
-	  (o_ptr->tval != TV_STUDY)) return (0);
+		 (o_ptr->tval != TV_SONG_BOOK) &&
+		 (o_ptr->tval != TV_STUDY))
+		return (0);
 
 	/* Research materials */
 	if (o_ptr->tval == TV_STUDY)
@@ -1197,14 +1071,14 @@ bool inven_cast_okay(const object_type *o_ptr)
 		}
 	}
 
-	/* Book / runestone */
+	/* Book */
 	else for (i=0;i<PY_MAX_SPELLS;i++)
 	{
 		if (p_ptr->spell_order[i] == 0) continue;
 
 		s_ptr=&s_info[p_ptr->spell_order[i]];
 
-		/* Book / runestone */
+		/* Book */
 		for (ii=0;ii<MAX_SPELL_APPEARS;ii++)
 		{
 			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
@@ -1224,7 +1098,7 @@ bool inven_cast_okay(const object_type *o_ptr)
 /*
  * Cast a spell (once chosen); return FALSE if aborted
  */
-bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
+bool player_cast_spell(int spell, int plev, cptr p, cptr t)
 {
 	int i;
 	int chance;
@@ -1238,7 +1112,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 	/* Get the cost */
 	sc_ptr = spell_cast_details(spell);
-	
+
 	/* Paranoia */
 	if (!sc_ptr) return (FALSE);
 
@@ -1257,7 +1131,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			if (p_ptr->held_song)
 			{
 				/* Redraw the state */
-				p_ptr->redraw |= (PR_STATE);			
+				p_ptr->redraw |= (PR_STATE);
 
 				p_ptr->held_song = 0;
 			}
@@ -1279,7 +1153,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			if (p_ptr->held_song)
 			{
 				/* Redraw the state */
-				p_ptr->redraw |= (PR_STATE);			
+				p_ptr->redraw |= (PR_STATE);
 
 				p_ptr->held_song = 0;
 			}
@@ -1321,7 +1195,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		if (p_ptr->held_song)
 		{
 			/* Redraw the state */
-			p_ptr->redraw |= (PR_STATE);			
+			p_ptr->redraw |= (PR_STATE);
 
 			p_ptr->held_song = 0;
 		}
@@ -1337,7 +1211,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		bool known = TRUE;
 
 		/* Apply the spell effect */
-		process_spell(SOURCE_PLAYER_CAST, spell, spell,plev,&abort,&known);
+		process_spell(SOURCE_PLAYER_CAST, spell, spell,plev,&abort,&known, FALSE);
 
 		/* Did we cancel? */
 		if (abort) return FALSE;
@@ -1350,7 +1224,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		/* Paranoia */
 		if (i==PY_MAX_SPELLS) ;
 
-		/* A spell was cast */ 
+		/* A spell was cast */
 		else if (!((i < 32) ?
 		      (p_ptr->spell_worked1 & (1L << i)) :
 		      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
@@ -1387,15 +1261,15 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		 * Note that if this occurs, the spell does not cost any mana.
 		 */
 		if ((p_ptr->reserves) && (p_ptr->csp < adj_con_reserve[p_ptr->stat_ind[A_CON]] / 2) &&
-			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]) && 
+			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]) &&
 			(sc_ptr->mana) && (p_ptr->stat_ind[A_CON]))
 		{
 			/* Temporarily weaken the player */
-			if (!p_ptr->stat_dec_tim[A_CON])
+			if (!p_ptr->timed[TMD_DEC_CON])
 			{
-				set_stat_dec_tim(rand_int(20) + 20, A_CON);
+				inc_timed(TMD_DEC_CON,rand_int(20) + 20, TRUE);
 			}
-			
+
 			/* Weaken the player */
 			else
 			{
@@ -1416,14 +1290,14 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				/* Give some mana */
 				msg_print("You draw on your reserves.");
-			
+
 				p_ptr->reserves = TRUE;
 
 				p_ptr->csp = (p_ptr->csp + adj_con_reserve[p_ptr->stat_ind[A_CON]]) / 2;
-				
+
 				/* Update mana */
 				p_ptr->update |= (PU_MANA);
-			}			
+			}
 		}
 	}
 
@@ -1440,7 +1314,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		inc_timed(TMD_PARALYZED, randint(5 * oops + 1), TRUE);
 
 		/* Damage CON */
 		if (rand_int(100) < 50)
@@ -1450,9 +1324,9 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 15 + randint(10));
-			
+
 			/* Add to the temporary drain */
-			set_stat_dec_tim(p_ptr->stat_dec_tim[A_CON] + rand_int(20) + 20, A_CON);	
+			inc_timed(TMD_DEC_CON, rand_int(20) + 20, TRUE);
 		}
 	}
 
@@ -1467,70 +1341,17 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 
 /*
- * Cast a spell
+ * Choose a spell to cast from an item
  */
-void do_cmd_cast(void)
+bool player_cast(int item)
 {
-	int item, spell, tval;
+	int spell, tval;
 
 	object_type *o_ptr;
 
 	cptr p, t;
 
-	cptr q, s;
-
 	cptr u = " book";
-
-	/* Check if we are holding a song */
-	if (p_ptr->held_song)
-	{
-		/* Verify */
-		if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].name)))
-		{
-			/* Redraw the state */
-			p_ptr->redraw |= (PR_STATE);			
-
-			p_ptr->held_song = 0;
-		}
-	}
-
-	/* Cannot cast spells if illiterate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-	{
-		msg_print("You cannot read books or runestones.");
-		return;
-	}
-
-
-	/* Require lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Not when berserk */
-	if (p_ptr->shero)
-	{
-		msg_print("You are too enraged!");
-		return;
-	}
-
-	/* Amnesia */
-	if (p_ptr->amnesia)
-	{
-		msg_print("You have forgotten how to read!");
-		return;
-	}
-
-	/* Restrict choices to spells we can cast */
-	item_tester_hook = inven_cast_okay;
-
-	/* Get an item */
-	q = "Use which book or runestone? ";
-	s = "You have nothing you have studied!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1542,22 +1363,6 @@ void do_cmd_cast(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
 
 	/* Get fake tval */
 	if (o_ptr->tval == TV_STUDY)
@@ -1574,22 +1379,14 @@ void do_cmd_cast(void)
 		{
 			p="cast";
 			t="spell";
-			
-			break;
-		}
-		case TV_RUNESTONE:
-		{
-			p="draw";
-			t="pattern";
-			u=" combination of runes";
-			
+
 			break;
 		}
 		case TV_PRAYER_BOOK:
 		{
-       			p="recite";
+			p="recite";
 			t="prayer";
-			
+
 			break;
 		}
 		case TV_SONG_BOOK:
@@ -1611,7 +1408,7 @@ void do_cmd_cast(void)
 		{
 			p="use";
 			t="power";
-			break;		
+			break;
 		}
 	}
 
@@ -1619,7 +1416,7 @@ void do_cmd_cast(void)
 	if (!get_spell(&spell, p, o_ptr, TRUE))
 	{
 		if (spell == -2) msg_format("You don't know any %ss in that%s.",t,u);
-		return;
+		return (FALSE);
 	}
 
 	/* Hold a song if possible */
@@ -1635,7 +1432,7 @@ void do_cmd_cast(void)
 
 			if (w_info[i].benefit != WB_HOLD_SONG) continue;
 
-			/* Check for styles */       
+			/* Check for styles */
 			if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 			{
 				/* Verify */
@@ -1664,8 +1461,10 @@ void do_cmd_cast(void)
 
 	/* Cast the spell - held songs get cast later*/
 	if (p_ptr->held_song != spell)
-		if (do_cmd_cast_aux(spell,spell_power(spell),p,t))
+		if (player_cast_spell(spell,spell_power(spell),p,t))
 			/* If not aborted, take a turn */
 			p_ptr->energy_use = 100;
+
+	return (TRUE);
 }
 

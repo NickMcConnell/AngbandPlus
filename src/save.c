@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -167,7 +167,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
-	
+
 	wr_byte(o_ptr->stackc);
 
 	wr_byte(o_ptr->show_idx);
@@ -193,8 +193,11 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_u16b(o_ptr->ident);
 
+	wr_byte(o_ptr->origin);
+	wr_byte(o_ptr->origin_depth);
+	wr_u16b(o_ptr->origin_xtra);
+
 	/* Old flags */
-	wr_u32b(0L);
 	wr_u32b(0L);
 	wr_u32b(0L);
 
@@ -238,6 +241,54 @@ static void wr_item(const object_type *o_ptr)
 	}
 }
 
+
+/*
+ * Write a "region" record
+ */
+static void wr_region(const region_type *r_ptr)
+{
+	/* Write the region */
+	wr_s16b(r_ptr->type);
+
+	wr_s16b(r_ptr->who);          	/* Source of effect - 'who'. */
+	wr_s16b(r_ptr->what);			/* Source of effect - 'what'. */
+
+	wr_s16b(r_ptr->effect);
+	wr_s16b(r_ptr->method);
+	wr_byte(r_ptr->level);
+	wr_byte(r_ptr->facing);		/* Region facing */
+
+	wr_s16b(r_ptr->damage);
+	wr_s16b(r_ptr->child_region);
+
+	wr_s16b(r_ptr->delay);     /* Number of turns effect has left */
+	wr_s16b(r_ptr->delay_reset);			/* Number of turns to reset counter to when countdown has finished */
+	wr_s16b(r_ptr->age);			/* Number of turns effect has been alive */
+	wr_s16b(r_ptr->lifespan);		/* Number of turns effect will be alive */
+
+	wr_byte(r_ptr->y0);			/* Source y location */
+	wr_byte(r_ptr->x0);			/* Source x location */
+	wr_byte(r_ptr->y1);			/* Destination y location */
+	wr_byte(r_ptr->x1);			/* Destination x location */
+
+	wr_u32b(r_ptr->flags1);		/* Ongoing effect bitflags */
+}
+
+
+/*
+ * Write a "region piece" record
+ */
+static void wr_region_piece(const region_piece_type *rp_ptr)
+{
+	/* Write the region piece */
+	wr_byte(rp_ptr->y);
+	wr_byte(rp_ptr->x);
+	wr_s16b(rp_ptr->d);
+	wr_s16b(rp_ptr->region);
+
+}
+
+
 /*
  * Write a "monster" record
  */
@@ -270,7 +321,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->oppose_elem);
 	wr_byte(m_ptr->summoned);
 	wr_byte(m_ptr->petrify);
-	wr_byte(m_ptr->facing);	
+	wr_byte(m_ptr->facing);
 
 	wr_u32b(m_ptr->mflag);
 	wr_u32b(m_ptr->smart);
@@ -378,19 +429,19 @@ static void wr_event(int n, int s)
  */
 static void wr_xtra(int k_idx)
 {
-	byte tmp8u = 0;
-
 	object_kind *k_ptr = &k_info[k_idx];
 
-	if (k_ptr->aware) tmp8u = 1;
-	else if (k_ptr->guess) tmp8u = k_ptr->guess+2;
-	else if (k_ptr->tried) tmp8u = 2;
+	/* Write awareness */
+	wr_u16b(k_ptr->aware);
 
-	wr_byte(tmp8u);
+	/* Write sval guess */
+	wr_byte(k_ptr->guess);
+
+	/* Activations ever */
+	wr_u16b(k_ptr->ever_used);
 
 	/* Activations */
-	wr_u16b(k_ptr->used);	
-
+	wr_u16b(k_ptr->used);
 }
 
 
@@ -591,7 +642,9 @@ static void wr_extra(void)
 
 	/* School */
 	wr_byte(p_ptr->pschool);
-	
+
+	/* Forms of Sauron killed on current level */
+	wr_byte(p_ptr->sauron_forms);
 
 	wr_byte(p_ptr->expfact);
 
@@ -604,15 +657,13 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
-	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_inc_tim[i]);
-	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_dec_tim[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_birth[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
 	wr_u32b(p_ptr->au);
-	wr_u32b(p_ptr->birth_au);	
+	wr_u32b(p_ptr->birth_au);
 
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -639,46 +690,29 @@ static void wr_extra(void)
 	/* Hack --- save shape here.*/
 	wr_byte(p_ptr->pshape);
 
-	/* Write the timers */
-	wr_s16b(p_ptr->msleep);
-	wr_s16b(p_ptr->petrify);
-	wr_s16b(p_ptr->stastis);
+	/* Hack -- save familiar here */
+	wr_byte(p_ptr->familiar);
+
+	for (i = 0; i < MAX_FAMILIAR_GAINS; i++)
+	{
+		wr_u16b(p_ptr->familiar_attr[i]);
+	}
+
+	/* Write some important values */
 	wr_s16b(p_ptr->sc);
-	wr_s16b(p_ptr->cursed);
-	wr_s16b(p_ptr->amnesia);
-	wr_s16b(p_ptr->blind);
-	wr_s16b(p_ptr->paralyzed);
-	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->rest);
-	wr_s16b(p_ptr->psleep);
 	wr_s16b(p_ptr->energy);
-	wr_s16b(p_ptr->fast);
-	wr_s16b(p_ptr->slow);
-	wr_s16b(p_ptr->afraid);
-	wr_s16b(p_ptr->cut);
-	wr_s16b(p_ptr->stun);
-	wr_s16b(p_ptr->poisoned);
-	wr_s16b(p_ptr->image);
-	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invis);
-	wr_s16b(p_ptr->hero);
-	wr_s16b(p_ptr->shero);
-	wr_s16b(p_ptr->shield);
-	wr_s16b(p_ptr->blessed);
-	wr_s16b(p_ptr->tim_invis);
-	wr_s16b(p_ptr->word_recall);
-	wr_s16b(p_ptr->see_infra);
-	wr_s16b(p_ptr->tim_infra);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
-	wr_s16b(p_ptr->oppose_water);
-	wr_s16b(p_ptr->oppose_lava);
-	wr_s16b(p_ptr->free_act);
 
+	/* Dump the "player timer" entries */
+	tmp16u = TMD_MAX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		wr_s16b(p_ptr->timed[i]);
+	}
+
+	/* Write some other player values */
 	wr_byte(p_ptr->charging);
 	wr_byte(p_ptr->climbing);
 	wr_byte(p_ptr->searching);
@@ -701,10 +735,14 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_return);
 	wr_s16b(p_ptr->return_y);
 	wr_s16b(p_ptr->return_x);
-	
+
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
 	wr_u32b(seed_town);
+
+	/* Write the "dungeon debugging seeds" */
+	wr_u32b(seed_dungeon);
+	wr_u32b(seed_last_dungeon);
 
 	/* Special stuff */
 	wr_u16b(p_ptr->panic_save);
@@ -836,7 +874,7 @@ static void wr_dungeon(void)
 	wr_u16b(DUNGEON_WID);
 	wr_u16b(p_ptr->town);
 	wr_u32b(level_flag);
-	
+
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -913,7 +951,6 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
-
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
 	/* Note that this will induce two wasted bytes */
@@ -985,6 +1022,12 @@ static void wr_dungeon(void)
 	/* Compact the objects */
 	compact_objects(0);
 
+	/* Compact the regions */
+	compact_regions(0);
+
+	/* Compact the regions */
+	compact_region_pieces(0);
+
 	/* Compact the monsters */
 	compact_monsters(0);
 
@@ -1001,6 +1044,36 @@ static void wr_dungeon(void)
 
 		/* Dump it */
 		wr_item(o_ptr);
+	}
+
+
+	/*** Dump the regions ***/
+
+	/* Total regions */
+	wr_u16b(region_max);
+
+	/* Dump the regions */
+	for (i = 1; i < region_max; i++)
+	{
+		region_type *r_ptr = &region_list[i];
+
+		/* Dump it */
+		wr_region(r_ptr);
+	}
+
+
+	/*** Dump the region pieces ***/
+
+	/* Total regions */
+	wr_u16b(region_piece_max);
+
+	/* Dump the regions */
+	for (i = 1; i < region_piece_max; i++)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[i];
+
+		/* Dump it */
+		wr_region_piece(rp_ptr);
 	}
 
 
@@ -1023,7 +1096,7 @@ static void wr_dungeon(void)
 	{
 		/* Total races in ecology */
 		wr_u16b(cave_ecology.num_races);
-		
+
 		/* Total number of ecologies. This is only used in wizard2.c, but we may need it later */
 		wr_byte(cave_ecology.num_ecologies);
 
@@ -1036,7 +1109,7 @@ static void wr_dungeon(void)
 		}
 	}
 	else
-	{	
+	{
 		/* Hack -- no ecology */
 		wr_u16b(0);
 		wr_byte(0);
@@ -1059,7 +1132,7 @@ static bool wr_savefile_new(void)
 	s16b tmp16s;
 
 	/* Guess at the current time */
-	now = time((time_t *)0);
+	now = (u32b)time((time_t *)0);
 
 
 	/* Note the operating system */
@@ -1228,10 +1301,8 @@ static bool wr_savefile_new(void)
                 wr_u32b(n_ptr->not_flags3);
                 wr_u32b(n_ptr->not_flags4);
 
-                /* Oops */
-                wr_byte(e_info[i].aware);
-                wr_byte(0);
- 
+                wr_u16b(e_info[i].aware);
+
                 /* Oops */
                	wr_byte(0);
                 wr_byte(0);
@@ -1278,7 +1349,7 @@ static bool wr_savefile_new(void)
 
 		/* Dump object */
 		wr_item(o_ptr);
-	} 
+	}
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
@@ -1295,7 +1366,7 @@ static bool wr_savefile_new(void)
 		{
 			wr_u16b((u16b)bag_contents[i][j]);
 		}
-	} 
+	}
 
 	/* Write the number of dungeon types */
 	wr_u16b((u16b)z_info->t_max);

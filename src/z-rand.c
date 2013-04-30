@@ -287,7 +287,7 @@ s16b Rand_normal(int mean, int stand)
 	}
 
 	/* Convert the index into an offset */
-	offset = (long)stand * (long)low / RANDNOR_STD;
+	offset = (s16b)((long)stand * (long)low / RANDNOR_STD);
 
 	/* One half should be negative */
 	if (rand_int(100) < 50) return (mean - offset);
@@ -330,7 +330,7 @@ u32b Rand_simple(u32b m)
 	else
 	{
 		/* Initialize with new seed */
-		Rand_value = time(NULL);
+		Rand_value = (u32b)time(NULL);
 		initialized = TRUE;
 	}
 

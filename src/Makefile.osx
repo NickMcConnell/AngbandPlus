@@ -9,7 +9,7 @@
 #Name of the executable file
 EXE=unangband
 NAME=Unangband
-COPYRIGHT=2001-2006 Andrew Doull et al
+COPYRIGHT=2001-2009 Andrew Doull
 
 TOOLDIR = /Developer/Tools
 SETFILE = $(TOOLDIR)/SetFile
@@ -17,8 +17,19 @@ REZ = $(TOOLDIR)/Rez
 
 CC = gcc
 
-LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
-CFLAGS = -Wall -std=c99 -g -fpascal-strings -DMACH_O_CARBON \
+LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon \
+	-framework Cocoa
+CFLAGS = -Wall -std=gnu99 -g -O2 -DMACH_O_CARBON -DHAVE_MKSTEMP \
+	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" -DPRIVATE_USER_PATHS \
+	-arch ppc -arch i386 -mmacosx-version-min=10.3
+
+#
+# Provide a CFLAGS override so that older versions of OS X can continue to
+# compile their own builds.  The default CFLAGS provide a backwards-compatible
+# binary, but will error when building on <10.3.9.
+#
+ppc: CFLAGS = \
+	-Wall -std=gnu99 -O2 -DMACH_O_CARBON -DHAVE_MKSTEMP \
 	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" -DPRIVATE_USER_PATHS
 
 default: all
@@ -33,7 +44,7 @@ OBJS = $(COMMONOBJS) \
 # 
 # Additional dependencies
 #
-main-crb.c: osx/osx_tables.h
+main-crb.o: osx/osx_tables.h
 
 #
 # Targets
@@ -62,6 +73,8 @@ $(EXE): $(OBJS)
 # Compiling objects
 #
 
+main-crb.o : main-crb.c
+	CC $(CFLAGS) -x objective-c -c -o $@ $<
 %.o: %.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -73,12 +86,12 @@ $(EXE): $(OBJS)
 #
 
 # Name of the game
-APPNAME = UnAngband.app
+APPNAME = Unangband.app
 # Bundle of the game (it must be a directory whose name ends in ".app")
 APPBNDL = ../$(APPNAME)
 
 # Version number (displayed)
-VERSION=0.6.2
+VERSION=0.6.3
 
 # A bundle must have these subdirectories
 APPCONT = $(APPBNDL)/Contents
@@ -97,7 +110,7 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-ICONFILES = osx/unangband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+ICONFILES = osx/Unangband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
 PLIST = osx/Angband.xml
 
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
@@ -172,6 +185,7 @@ dist: install
 
 	-rm ../"$(PACKAGE_NAME)-osx.dmg"
 
-	hdiutil create -fs HFS+ -volname $(PACKAGE_NAME) -srcfolder disttemp ../"$(PACKAGE_NAME)-osx.dmg"
+	hdiutil create -quiet -fs HFS+ -volname "$(PACKAGE_NAME)" -srcfolder disttemp disttemp.dmg
+	hdiutil convert disttemp.dmg -quiet -format UDZO -imagekey zlib-level=6 -o ../"$(PACKAGE_NAME)-osx.dmg"
 
-	rm -rf disttemp
+	rm -rf disttemp*

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -110,19 +110,14 @@ static void flavor_assign_random(byte tval)
 		/* Skip objects that already are flavored */
 		if (k_info[i].flavor != 0) continue;
 
-		/* HACK - Ordinary food is "boring" */
-		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
-			continue;
+		/* Skip objects which don't get a flavor */
+		if ((k_info[i].flags6 & (TR6_FLAVOR)) ==  0) continue;
 
-		/* HACK - Ordinary lites are "boring" */
-		if ((tval == TV_LITE) && (k_info[i].sval >= SV_LITE_MAX_LITE))
-			continue;
-
-		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
+		if (!flavor_count) quit_fmt("Not enough flavors for tval %d (at object %d).", tval, i);
 
 		/* Select a flavor */
 		choice = rand_int(flavor_count);
-	
+
 		/* Find and store the flavor */
 		for (j = 0; j < z_info->x_max; j++)
 		{
@@ -200,7 +195,7 @@ void flavor_init(void)
 	flavor_assign_random(TV_STAFF);
 	flavor_assign_random(TV_WAND);
 	flavor_assign_random(TV_ROD);
-	flavor_assign_random(TV_FOOD);
+	flavor_assign_random(TV_MUSHROOM);
 	flavor_assign_random(TV_POTION);
 	flavor_assign_random(TV_SCROLL);
 
@@ -355,6 +350,16 @@ void reset_visuals(bool unused)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
+
+	/* Extract default attr/char code for regions */
+	for (i = 0; i < z_info->region_info_max; i++)
+	{
+		region_info_type *r_ptr = &region_info[i];
+
+		/* Default attr/char */
+		r_ptr->x_attr = r_ptr->d_attr;
+		r_ptr->x_char = r_ptr->d_char;
+	}
 
 	/* Extract attr/chars for inventory objects (by tval) */
 	for (i = 0; i < 128; i++)
@@ -538,8 +543,8 @@ void reset_visuals(bool unused)
  */
 void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
-	cptr basenm;
-	cptr modstr;
+	const char *basenm;
+	const char *modstr;
 
 	int power;
 
@@ -633,10 +638,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	append_modstr = FALSE;
 
 	/* Assume no need to show "weapon" bonuses */
-	show_weapon = FALSE;
+	show_weapon = (k_ptr->flags5 & (TR5_SHOW_WEAPON)) != 0;
 
 	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
+	show_armour = (k_ptr->flags5 & (TR5_SHOW_AC)) != 0;
 
 	/* Extract default "base" string */
 	basenm = (k_name + k_ptr->name);
@@ -644,358 +649,154 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Assume no "modifier" string */
 	modstr = "";
 
-	/* Prep the monster name if required */
-	if (o_ptr->name3)
+	/* Describe 'simple' objects and return */
+	if (k_ptr->flags6 & (TR6_SIMPLE))
 	{
-		char *s, *t;
-		int state = 0;
-	
-		/* Save the monster name */
-		my_strcpy(mon_buf, r_name + r_info[o_ptr->name3].name, sizeof(mon_buf));
-
-		/* Fix up genderised descriptions manually */
-		for (t = s = mon_buf; *s; s++)
-		{
-			if (*s == '|')
-			{
-				state++;
-				if (state == 3) state = 0;
-			}
-			else if (!state || (state == 1 /* Male */))
-			{
-				*t++ = *s;
-			}
-		}
-		
-		/* Terminate */
-		*t = '\0';
+		my_strcpy(buf, basenm, max);
+		return;
 	}
 
-	/* Analyze the object */
-	switch (o_ptr->tval)
+	/* Get the modstr */
+	if (artifact_p(o_ptr) && aware)
 	{
-		/* Some objects are easy to describe */
-		case TV_SPIKE:
-		case TV_INSTRUMENT:
-		case TV_SPELL:
-		case TV_MAP:
-		{
-			break;
-		}
+		/* Do nothing */
+	}
+	/* Modify the name in various ways */
+	else
+	{
+		bool show_flavor = flavor || (k_ptr->flags6 & (TR6_FORCE_MOD));
 
-		/* Missiles/Bows/Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			show_weapon = TRUE;
-			break;
-		}
-
-		/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
-
-		/* Lites (including a few "Specials") */
-		case TV_LITE:
-		{
-			break;
-		}
-
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
-
-			break;
-		}
-
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
-
-			break;
-		}
-
-		/* Staffs */
-		case TV_STAFF:
-		{
-
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
-			show_weapon = TRUE;
-			break;
-		}
-
-		/* Wands */
-		case TV_WAND:
-		{
-
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Wand~" : "& Wand~");
-
-			break;
-		}
-
-		/* Rods */
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Rod~" : "& Rod~");
-
-			break;
-		}
-
-		/* Scrolls */
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
-
-			break;
-		}
-
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
-
-			break;
-		}
-
-		/* Flasks */
-		case TV_FLASK:
-		{
-			append_name = TRUE;
-			basenm = "& Flask~";
-
-			/* Racially mark the object */
-			if (o_ptr->name3)
-			{
-				modstr = mon_buf;
-				append_modstr = TRUE;
-			}
-
-			break;
-		}
-
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = x_text + x_info[flavor].text;
-
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
-
-			break;
-		}
-
-		/* Magic Books */
-		case TV_MAGIC_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Magic Book~ #";
-			break;
-		}
-
-
-		/* Prayer Books */
-		case TV_PRAYER_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Prayer Book~ #";
-			break;
-		}
-
-		/* Song Books */
-		case TV_SONG_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Song Book~ #";
-			break;
-		}
-
-		/* Runestones */
-		case TV_RUNESTONE:
-		{
-			modstr = basenm;
-			basenm = "& # Rune stone~";
-			break;
-		}
-
-		/* Hack -- Rope */
-		case TV_ROPE:
-		{
-			modstr = basenm;
-			basenm = "& #";
-			break;
-		}
-
-		/* Hack -- Research materials */
-		case TV_STUDY:
+		/* Hack for study materials */
+		if (k_ptr->flags6 & (TR6_RESEARCH))
 		{
 			if (o_ptr->pval >= 0) modstr = s_name + s_info[o_ptr->pval].name;
 			else modstr = s_name + s_info[0].name;
-			break;
 		}
+		else if (k_ptr->flags6 & (TR6_TITLE)) modstr = scroll_adj[o_ptr->sval];
+		else if (k_ptr->flags6 & (TR6_FLAVOR)) modstr = x_text + x_info[flavor].text;
+		else if (k_ptr->flags6 & (TR6_MOD_NAME)) modstr = basenm;
 
-		/* Magical Bags */
-		case TV_BAG:
+		/* Add the name if required */
+		if (aware && (k_ptr->flags6 & (TR6_ADD_NAME))) append_name = TRUE;
+
+		/* Prepend or append the base name */
+		if (k_ptr->flags6 & (TR6_NO_TVAL))
 		{
-			append_name = TRUE;
-			basenm = "& Magical Bag~";
-			break;
-		}
-
-		/* Services */
-		case TV_SERVICE:
-		{
-			append_name = TRUE;
-			basenm = "& Service~";
-			break;
-		}
-
-
-		/* Hack -- Gold */
-		case TV_GOLD:
-		{
-			my_strcpy(buf, basenm, max);
-			return;
-		}
-
-		/* Gems */
-		case TV_GEMS:
-		{
-			modstr = basenm;
 			basenm = "& #~";
-			break;
 		}
-
-		/* Container */
-		case TV_HOLD:
+		else if (k_ptr->flags6 & (TR6_PREPEND))
 		{
-			if (o_ptr->name3 > 0) modstr = "sealed";
-			else modstr = "empty";
-			break;
+			basenm = (show_flavor ? "& # @~" : "& @~");
 		}
-
-		/* Hack -- Body Parts/Skeletons/Skins etc. */
-		case TV_JUNK:
-		case TV_STATUE:
-		case TV_ASSEMBLY:
-		case TV_BODY:
-		case TV_BONE:
-		case TV_EGG:
-		case TV_SKIN:
+		/* Append the base name */
+		else if (k_ptr->flags6 & (TR6_MOD_NAME))
 		{
-			if (!o_ptr->name3)
-			{
-				switch (o_ptr->tval)
-				{
-					case TV_STATUE:
-						modstr = "an ancient god";
-						break;
-					case TV_ASSEMBLY:
-						modstr = "mechanism";
-						break;
-					case TV_SKIN:
-						modstr = "dusty";
-						break;
-					case TV_BODY:
-						modstr = "mummified";
-						break;
-					case TV_EGG:
-						if (o_ptr->sval == SV_EGG_SPORE)
-						{
-							modstr = "dried";
-							break;
-						}
-						/* Drop down */
-					default:
-						modstr = "broken";
-						break;
-				}
-			}
-			else if (r_info[o_ptr->name3].flags1 & (RF1_UNIQUE))
-			{
-				if (o_ptr->tval != TV_STATUE) my_strcat(mon_buf, "'s", sizeof(mon_buf));
-				
-				/* Use the mod string */
-				modstr = mon_buf;
-
-				/* Skip a/an */
-				if (basenm[2] == '#') basenm = &basenm[2];
-			}
-			else
-			{
-				if (o_ptr->tval == TV_STATUE)
-				{
-					 my_strcpy(mon_buf, format("%s %s", is_a_vowel(mon_buf[0]) ? "an" : "a", mon_buf), sizeof(mon_buf));
-				}
-
-				modstr = mon_buf;
-			}
-			break;
-		}
-
-		/* Hack -- Default -- Used in the "inventory" routine */
-		default:
-		{
-			my_strcpy(buf, "(nothing)", max);
-			return;
+			basenm = (show_flavor ? "& @~ #" : "& @~");
 		}
 	}
 
+	/* Prep the monster name if required */
+	if (k_ptr->flags6 & (TR6_NAMED))
+	{
+		char *s, *t;
+		int state = 0;
+
+		/* Describe monster */
+		if (o_ptr->name3 > 0)
+		{
+			/* Save the monster name */
+			my_strcpy(mon_buf, r_name + r_info[o_ptr->name3].name, sizeof(mon_buf));
+
+			/* Fix up genderised descriptions manually */
+			for (t = s = mon_buf; *s; s++)
+			{
+				if (*s == '|')
+				{
+					state++;
+					if (state == 3) state = 0;
+				}
+				else if (!state || (state == 1 /* Male */))
+				{
+					*t++ = *s;
+				}
+			}
+
+			/* Terminate */
+			*t = '\0';
+		}
+
+		/* Describe player */
+		else if (o_ptr->name3 < 0)
+		{
+			/* Save the monster name */
+			my_strcpy(mon_buf, "your", sizeof(mon_buf));
+		}
+
+		/* This particular object isn't named */
+		if (!o_ptr->name3)
+		{
+			switch (o_ptr->tval)
+			{
+				case TV_STATUE:
+					modstr = "an ancient god";
+					break;
+				case TV_ASSEMBLY:
+					modstr = "mechanism";
+					break;
+				case TV_SKIN:
+					modstr = "dusty";
+					break;
+				case TV_BODY:
+					modstr = "mummified";
+					break;
+				case TV_FLASK:
+					modstr = "spoiled";
+					break;
+				case TV_HOLD:
+					modstr = "empty";
+					break;
+				case TV_EGG:
+					if (o_ptr->sval == SV_EGG_SPORE)
+					{
+						modstr = "dried";
+						break;
+					}
+					/* Drop down */
+				default:
+					modstr = "broken";
+					break;
+			}
+		}
+		else if (o_ptr->tval == TV_HOLD)
+		{
+			/* Note the container is closed */
+			modstr = "sealed";
+		}
+		else if (r_info[o_ptr->name3].flags1 & (RF1_UNIQUE))
+		{
+			if (o_ptr->tval != TV_STATUE) my_strcat(mon_buf, "'s", sizeof(mon_buf));
+
+			/* Use the mod string */
+			modstr = mon_buf;
+
+			/* Skip a/an */
+			if (basenm[2] == '#') basenm = &basenm[2];
+		}
+		else
+		{
+			if (o_ptr->tval == TV_STATUE)
+			{
+				my_strcpy(mon_buf, format("%s %s", is_a_vowel(mon_buf[0]) ? "an" : "a", mon_buf), sizeof(mon_buf));
+			}
+			else if (o_ptr->tval == TV_FLASK)
+			{
+				append_modstr = TRUE;
+			}
+
+			/* Set the mod string */
+			modstr = mon_buf;
+		}
+	}
 
 	/* Start dumping the result */
 	t = b = tmp_buf;
@@ -1025,7 +826,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Hack -- rope */
-		else if (o_ptr->tval == TV_ROPE)
+		else if (k_ptr->flags6 & (TR6_IN_FEET))
 		{
 			object_desc_num_macro(t, o_ptr->number);
 			object_desc_str_macro(t, "0 feet of ");
@@ -1042,6 +843,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		else if (named && artifact_p(o_ptr))
 		{
 			object_desc_str_macro(t, "The ");
+		}
+
+		/* Hack -- belongs to the player */
+		else if ((k_ptr->flags6 & (TR6_NAMED)) && (o_ptr->name3 < 0))
+		{
+			/* Nothing */
 		}
 
 		/* Hack -- A single one, and next character will be a vowel */
@@ -1137,6 +944,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Pluralizer */
 		if (*s == '~')
 		{
+			/* Don't display if in feet */
+			if (k_ptr->flags6 & (TR6_IN_FEET)) continue;
+
 			/* Add a plural if needed */
 			if (o_ptr->number != 1)
 			{
@@ -1153,8 +963,33 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Modifier */
 		else if (*s == '#')
 		{
+			/* Append title text */
+			if (k_ptr->flags6 & (TR6_TITLE)) object_desc_str_macro(t, "titled \"");
+
 			/* Append the modifier */
 			object_desc_str_macro(t, modstr);
+
+			/* Append title terminator */
+			if (k_ptr->flags6 & (TR6_TITLE)) object_desc_str_macro(t, "\"");
+		}
+
+		/* Base */
+		else if (*s == '@')
+		{
+			int i;
+
+			/* Find base text */
+			for (i = 0; object_group[i].text; i++)
+			{
+				if (object_group[i].tval == k_ptr->tval) break;
+			}
+
+			/* Append base text */
+			if (object_group[i].text)
+			{
+				/* Append the modifier */
+				object_desc_str_macro(t, object_group[i].text);
+			}
 		}
 
 		/* Normal */
@@ -1279,9 +1114,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				f4 &= ~(k_info[o_ptr->k_idx].flags4);
 			}
 
-			/* Hack -- remove throwing flag */
-			f3 &= ~(TR3_THROWING);
-			
 			x1 = 0;
 			x2 = 0;
 
@@ -1317,7 +1149,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			for (i = 0, j = 0x00000001L; i < 32; i++, j <<=1)
 			{
 				/* Skip 'useless' flags */
-				if (j & (TR3_ACTIVATE | TR3_RANDOM | TR3_INSTA_ART)) continue;
+				if (j & (TR3_ACTIVATE | TR3_ACT_ON_BLOW | TR3_UNCONTROLLED)) continue;
 
 				/* Found a flag */
 				if ((j & f3) != 0)
@@ -1350,7 +1182,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				if (*(magic_name[x1-1][x2]) == '(')
 				{
 					object_desc_str_macro(t, (magic_name[x1-1][x2]) + 1);
-					*(t)-- = '\0';			
+					*(t)-- = '\0';
 				}
 				else
 				{
@@ -1358,7 +1190,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				}
 
 				object_desc_str_macro(t, "?)");
-			}	
+			}
 		}
 	}
 
@@ -1369,15 +1201,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 		if (named)
 		{
-	
+
 			if (!(r_info[o_ptr->name3].flags1 & (RF1_UNIQUE)))
 			{
 				cptr name = mon_buf;
-	
+
 				if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
 				else object_desc_str_macro(t, "a ");
 			}
-	
+
 			object_desc_str_macro(t, mon_buf);
 		}
 		else
@@ -1387,12 +1219,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/*
-         * Display object value
-         */
+	 * Display object value
+	 */
 	if (o_ptr->ident & (IDENT_VALUE))
 	{
-		
-
 		object_desc_str_macro(t, " worth ");
 		object_desc_num_macro(t,object_value_real(o_ptr));
 		object_desc_str_macro(t, " gold pieces");
@@ -1408,68 +1238,30 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (o_ptr->ac) show_armour = TRUE;
 
 	/* Dump base weapon info */
-	switch (o_ptr->tval)
+	if (k_ptr->flags5 & (TR5_SHOW_DD))
 	{
-		/* Spells */
-		case TV_SPELL:
-		{
-			/* Hack -- check damage */
-			if ((o_ptr->dd < 2) && (o_ptr->ds < 2)) break;
-
-			/* Fall through */
-		}
-
-		/* Missiles */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		{
-			/* Fall through */
-		}
-
-		/* Weapons */
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_STAFF:
-		case TV_DIGGING:
-		{
-			/* Append a "damage" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->dd);
-			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->ds);
-			object_desc_chr_macro(t, p2);
-
-			/* Show mods like a weapon */
-			show_weapon = TRUE;
-
-			/* All done */
-			break;
-		}
-
-		/* Bows */
-		case TV_BOW:
-		{
-			/* Hack -- Extract the "base power" */
-			power = bow_multiplier(o_ptr->sval);
-
-			/* Append a "power" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_chr_macro(t, 'x');
-			object_desc_num_macro(t, power);
-			object_desc_chr_macro(t, p2);
-
-			/* Show mods like a weapon */
-			show_weapon = TRUE;
-
-			/* All done */
-			break;
-		}
+		/* Append a "damage" string */
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_num_macro(t, o_ptr->dd);
+		object_desc_chr_macro(t, 'd');
+		object_desc_num_macro(t, o_ptr->ds);
+		object_desc_chr_macro(t, p2);
 	}
 
+	/* Dump bow weapon info */
+	if (k_ptr->flags6 & (TR6_SHOW_MULT))
+	{
+		/* Hack -- Extract the "base power" */
+		power = bow_multiplier(o_ptr->sval);
+
+		/* Append a "power" string */
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_chr_macro(t, 'x');
+		object_desc_num_macro(t, power);
+		object_desc_chr_macro(t, p2);
+	}
 
 	/* Add the weapon bonuses */
 	if (bonus)
@@ -1545,8 +1337,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/* Hack -- Wands and Staffs have charges */
 	if ((charges) &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	    ((k_ptr->flags5 & (TR5_SHOW_CHARGE)) != 0))
 	{
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
@@ -1561,7 +1352,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	else if ((k_ptr->flags5 & (TR5_SHOW_FUEL)) != 0)
 	{
 		/* Hack -- Turns of light for normal lites */
 		if (o_ptr->charges)
@@ -1579,7 +1370,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Process food/fuel */
-	else if ((cheat_peek) && ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_FLASK)))
+	else if ((cheat_peek) && ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_MUSHROOM) || (o_ptr->tval == TV_FLASK)))
 	{
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
@@ -1603,11 +1394,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_chr_macro(t, p2);
 	}
 
-
 	/* Indicate "charging" artifacts/rods */
 	if (o_ptr->timeout)
 	{
-		if (((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE))) && (o_ptr->tval != TV_SPELL))
+		if ((k_ptr->flags6 & (TR6_NO_TIMEOUT)) == 0)
 		{
 			/* Hack -- variant timeout stack */
 			if (o_ptr->stackc)
@@ -1631,7 +1421,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	{
 		int coating = lookup_kind(o_ptr->xtra1, o_ptr->xtra2);
 
-		if (k_info[coating].aware)
+		if (k_info[coating].flavor ? k_info[coating].aware & (AWARE_FLAVOR) : k_info[coating].aware & (AWARE_EXISTS))
 		{
 			object_desc_str_macro(t, " <");
 			object_desc_str_macro(t, k_name+k_info[coating].name);
@@ -1668,7 +1458,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			}
 			object_desc_str_macro(t, y_name+y_info[e_info[o_ptr->name2].runest].name);
 			if (e_info[o_ptr->name2].runesc > 1) object_desc_chr_macro(t,'s');
-			object_desc_chr_macro(t, '>');		
+			object_desc_chr_macro(t, '>');
 		}
 		else if (k_info[o_ptr->k_idx].runest)
 		{
@@ -1680,7 +1470,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			}
 			object_desc_str_macro(t, y_name+y_info[k_info[o_ptr->k_idx].runest].name);
 			if (k_info[o_ptr->k_idx].runesc > 1) object_desc_chr_macro(t,'s');
-			object_desc_chr_macro(t, '>');		
+			object_desc_chr_macro(t, '>');
 		}
 		else if ((o_ptr->name2) || (o_ptr->xtra1))
 		{
@@ -1909,8 +1699,8 @@ bool two_weapons_balanced(const object_type *o_ptr, const object_type *i_ptr)
 	   && i_ptr->weight < 200)
     return TRUE;
   /* ...or both are identical. */
-  else if (i_ptr->tval == o_ptr->tval 
-	   && ((i_ptr->sval == o_ptr->sval 
+  else if (i_ptr->tval == o_ptr->tval
+	   && ((i_ptr->sval == o_ptr->sval
 		&& (i_ptr->weight < 150)
 		&& (o_ptr->weight < 150))
 	       /* (All staffs are "identical".) */
@@ -1925,7 +1715,7 @@ bool two_weapons_balanced(const object_type *o_ptr, const object_type *i_ptr)
 /*
  * Determine which equipment slot (if any) an item likes.
  * Prefer empty slots, then prefer INVEN_WIELD.
- * For compatibility with do_cmd_wield assure 
+ * For compatibility with do_cmd_wield assure
  * that if we propose INVEN_ARM then also INVEN_WIELD is legal.
  * It's possible to off-hand wield Ringil and fight unarmed,
  * but let people discover how to do that instead of making it
@@ -1936,10 +1726,10 @@ s16b wield_slot(const object_type *o_ptr)
   /* Slot for equipment */
   switch (o_ptr->tval)
     {
-    case TV_HAFTED: 
+    case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
-    case TV_STAFF:  
+    case TV_STAFF:
       {
 	object_type *w_ptr = &inventory[INVEN_WIELD];
 	object_type *a_ptr = &inventory[INVEN_ARM];
@@ -1951,21 +1741,21 @@ s16b wield_slot(const object_type *o_ptr)
 	    return INVEN_WIELD;
 	  else
 	    /* Arm slot precludes dual-wield; for do_cmd_wield
-	       compatiblity we do not offer to replace arm slot */ 
+	       compatiblity we do not offer to replace arm slot */
 	    return -1;
 	else if (!a_ptr->k_idx)
 	  /* else if arm slot free, try to take it */
 	  if (two_weapons_balanced(o_ptr, w_ptr))
 	    /* Main wield slot does not cause problems;
 	       this single choice can be overriden in do_cmd_wield;
-	       freeing the off-hand slot is also only the only way 
+	       freeing the off-hand slot is also only the only way
 	       to get a weapon to the off-hand slot */
 	    return INVEN_ARM;
 	  else
-	    /* Main wield slot precludes dual-wield; replace it */ 
+	    /* Main wield slot precludes dual-wield; replace it */
 	    return INVEN_WIELD;
 	else
-	  /* else both slots are taken; try to replace 
+	  /* else both slots are taken; try to replace
 	     only the main wield slot to reduce the UI annoyance factor
 	     --- now the off-hand weapon behaves much as a shield */
 	  if (two_weapons_balanced(o_ptr, a_ptr))
@@ -1979,7 +1769,7 @@ s16b wield_slot(const object_type *o_ptr)
     case TV_DIGGING:
       {
 	/* Diggers only go into the main wield slot,
-	   but they coexist peacefully with everything, so that two-weapon 
+	   but they coexist peacefully with everything, so that two-weapon
 	   specialists do not have to unwield off-hand weapons all the time;
 	   if there is systematic abuse, tone down digger attack power */
 	return INVEN_WIELD;
@@ -1993,10 +1783,10 @@ s16b wield_slot(const object_type *o_ptr)
 
     case TV_RING:
       {
-	if (!inventory[INVEN_RIGHT].k_idx) 
+	if (!inventory[INVEN_RIGHT].k_idx)
 	  /* Use the right hand first */
 	  return INVEN_RIGHT;
-	else if (!inventory[INVEN_LEFT].k_idx) 
+	else if (!inventory[INVEN_LEFT].k_idx)
 	  /* Use the right hand second */
 	  return INVEN_LEFT;
 	else if (!inventory[INVEN_ARM].k_idx
@@ -2010,7 +1800,7 @@ s16b wield_slot(const object_type *o_ptr)
 
     case TV_AMULET:
       {
-	if (!inventory[INVEN_NECK].k_idx) 
+	if (!inventory[INVEN_NECK].k_idx)
 	  return INVEN_NECK;
 	else if (!inventory[INVEN_ARM].k_idx
 		 && p_ptr->pstyle == WS_AMULET)
@@ -2339,7 +2129,7 @@ bool item_tester_okay(const object_type *o_ptr)
 			  {
 			    if (!(item_tester_tval == bag_holds[o_ptr->sval][i][0]))
 			      continue;
-			    else 
+			    else
 			      break;
 			  }
 
@@ -2351,11 +2141,11 @@ bool item_tester_okay(const object_type *o_ptr)
 			  {
 			    if (!(*item_tester_hook)(i_ptr))
 			      continue;
-			    else 
+			    else
 			      break;
 			  }
 		}
-		
+
 		if (i < INVEN_BAG_TOTAL) return (TRUE);
 	}
 
@@ -3345,7 +3135,7 @@ static bool get_item_allow(int item)
 				/* Verify the choice */
 				if ((o_ptr->number < n) && (!verify_item("Really try", item))) return (FALSE);
 			}
-			
+
 		}
 
 		/* Find another '!' */
@@ -3380,7 +3170,7 @@ static bool get_item_allow(int item)
 				/* Verify the choice */
 				if ((o_ptr->number > n) && (!verify_item("Really try", item))) return (FALSE);
 			}
-			
+
 		}
 
 		/* Find another '!' */
@@ -3449,10 +3239,10 @@ static int get_tag(int *cp, char tag)
 		if (p_ptr->command_cmd == 'f')
 		{
 			/* Ammo groups are taken from the missile weapon */
-			switch (p_ptr->ammo_tval)
+			switch (p_ptr->fire_command)
 			{
-				case TV_BOLT:	group = QUIVER_GROUP_BOLTS;	break;
-				case TV_ARROW:	group = QUIVER_GROUP_ARROWS;	break;
+				case COMMAND_ITEM_FIRE_XBOW:	group = QUIVER_GROUP_BOLTS;	break;
+				case COMMAND_ITEM_FIRE_BOW:	group = QUIVER_GROUP_ARROWS;	break;
 				default:	group = QUIVER_GROUP_SHOTS;	break;
 			}
 		}
@@ -3613,9 +3403,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
 	bool use_featg = ((mode & (USE_FEATG)) ? TRUE : FALSE);
 	bool use_featu = ((mode & (USE_FEATU)) ? TRUE : FALSE);
-	bool use_feath = ((mode & (USE_FEATH)) ? TRUE : FALSE);	
+	bool use_feath = ((mode & (USE_FEATH)) ? TRUE : FALSE);
 	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
 	bool use_self = ((mode & (USE_SELF)) ? TRUE: FALSE);
+	bool use_skin = ((mode & (USE_SKIN)) ? TRUE: FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
@@ -3681,6 +3472,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Hack -- The quiver is displayed in the equipment window */
 	if (use_quiver) use_equip = TRUE;
 
+	/* Hack -- The skin is displayed in the equipment window */
+	if (use_skin) use_equip = TRUE;
 
 	/* Full equipment */
 	e1 = INVEN_WIELD;
@@ -3691,6 +3484,46 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Restrict the beginning of the equipment */
 	if (use_quiver) e1 = INVEN_QUIVER;
+
+	/* Set up skin */
+	if (use_skin)
+	{
+		/* Get monster race */
+		monster_race *r_ptr = &r_info[rp_ptr->r_idx];
+
+		/* Get skin type */
+		j = r_ptr->flags8 & (RF8_HAS_SCALE) ? SV_SKIN_SCALE_COAT :
+			(r_ptr->flags8 & (RF8_HAS_FEATHER) ? SV_SKIN_FEATHER_COAT :
+			(r_ptr->flags8 & (RF8_HAS_FUR) ? SV_SKIN_FUR_COAT : SV_SKIN_SKIN));
+
+		/* Get bare skin */
+		k = lookup_kind(TV_SKIN, j);
+
+		/* Set up bare skin */
+		for (i = INVEN_LEFT; i <= INVEN_FEET; i++)
+		{
+			object_type *o_ptr = &inventory[i];
+
+			/* Hack -- Skip light source */
+			if (i == INVEN_LITE) continue;
+
+			/* Bare skin */
+			if (!o_ptr->k_idx)
+			{
+				/* Set up skin */
+				object_prep(o_ptr, k);
+
+				/* And remove weight */
+				o_ptr->weight = 0;
+
+				/* And belong to the player */
+				o_ptr->name3 = -1;
+
+				/* And store it - hack used later to identify which slots to clear */
+				o_ptr->ident |= (IDENT_STORE);
+			}
+		}
+	}
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -3737,27 +3570,27 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 		if ((make_feat(i_ptr,p_ptr->py,p_ptr->px)) && item_tester_okay(i_ptr)) allow_feats = TRUE;
 	}
-	
+
 	/* Scan the feature -- this is a big hack.  We allow the feature to be set on fire. */
 	if ((use_feath) && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags2 & (FF2_HURT_FIRE))) allow_feats = TRUE;
-	
-	/* Scan the feature -- this is a big hack.  If we have burnable objects on the floor, we allow the feature to be set on fire. */	
+
+	/* Scan the feature -- this is a big hack.  If we have burnable objects on the floor, we allow the feature to be set on fire. */
 	if ((use_feath) && !(allow_feats))
 	{
 		int b1, b2;
-		
+
 		b1 = 0;
 		b2 = floor_num - 1;
 
 		/* Restrict floor indexes */
 		while ((b1 <= b2) && (!hates_fire(&o_list[floor_list[b1]]))) b1++;
 		while ((b1 <= b2) && (!hates_fire(&o_list[floor_list[b2]]))) b2--;
-		
+
 		if (b1 <= b2) allow_feats = TRUE;
 	}
 
 	/* Scan oneself */
-	if ((use_self) && (item_tester_okay(&inventory[INVEN_SELF]))) 
+	if ((use_self) && (item_tester_okay(&inventory[INVEN_SELF])))
 		allow_self = TRUE;
 
 	/* Require at least one legal choice */
@@ -3785,8 +3618,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 
 		/* Hack -- Start on equipment if shooting, throwing or fueling */
-		if ((p_ptr->command_cmd == 'f' 
-		     || p_ptr->command_cmd == 'v' 
+		if ((p_ptr->command_cmd == 'f'
+		     || p_ptr->command_cmd == 'v'
 		     || (p_ptr->command_wrk != (USE_INVEN) && p_ptr->command_cmd == 'F'))
 			&& allow_equip)
 		{
@@ -4301,13 +4134,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					bell("Cannot select feature!");
 					break;
 				}
-				
+
 				/* Mega-Hack -- we are setting the floor alight with a torch */
 				if (use_feath)
 				{
 					project_o(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
 					project_f(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
-					
+
 					done = TRUE;
 					break;
 				}
@@ -4433,6 +4266,28 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	}
 
+	/* Remove skin */
+	if (use_skin)
+	{
+		/* Set up bare skin */
+		for (i = INVEN_NECK; i <= INVEN_FEET; i++)
+		{
+			object_type *o_ptr = &inventory[i];
+
+			/* Hack -- Skip light source */
+			if (i == INVEN_LITE) continue;
+
+			/* Hack -- Skip item */
+			if (i == (*cp)) continue;
+
+			/* Bare skin */
+			if (o_ptr->ident & (IDENT_STORE))
+			{
+				/* Set up skin */
+				object_wipe(o_ptr);
+			}
+		}
+	}
 
 	/* Fix the screen if necessary */
 	if (p_ptr->command_see)
@@ -4499,7 +4354,7 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	/* Initially no item */
 	i_ptr->k_idx = 0;
 
-	assert (sval <= SV_BAG_MAX_BAGS && slot <= INVEN_BAG_TOTAL);
+	assert (sval < SV_BAG_MAX_BAGS && slot < INVEN_BAG_TOTAL);
 
 	/* Get bag kind from lookup kind cache */
 	i_ptr->k_idx = bag_kinds_cache[sval][slot];
@@ -4519,7 +4374,7 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		charges = bag_contents[sval + 1][slot];
 
 		/* Real object */
-		if (number)		
+		if (number)
 		{
 			/* Get bag charges */
 			i_ptr->charges = charges / number;
@@ -4587,16 +4442,13 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		/* Apply obvious flags, e.g. for throwing items. XXX
 		 * This is, of course, *really dangerous* due to the calls in object_obvious_flags */
 		/* object_obvious_flags(i_ptr); */
-		
+
 		/* Hack -- instead apply kind flags */
 		i_ptr->can_flags1 = k_info[i_ptr->k_idx].flags1;
 		i_ptr->can_flags2 = k_info[i_ptr->k_idx].flags2;
 		i_ptr->can_flags3 = k_info[i_ptr->k_idx].flags3;
-		i_ptr->can_flags4 = k_info[i_ptr->k_idx].flags4;		
+		i_ptr->can_flags4 = k_info[i_ptr->k_idx].flags4;
 	}
-	
-	/* Hack - Always allow throwable from bags */
-	if (k_info[i_ptr->k_idx].flags3 & (TR3_THROWING)) i_ptr->can_flags3 |= (TR3_THROWING);
 }
 
 
@@ -4746,7 +4598,7 @@ bool get_item_from_bag(int *cp, cptr pmt, cptr str, object_type *o_ptr)
 	*cp = i;
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS | PU_RUNES);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Combine and Reorder pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);

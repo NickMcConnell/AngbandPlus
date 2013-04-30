@@ -8,7 +8,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -84,7 +84,7 @@ void init_file_paths(char *path)
 #ifdef PRIVATE_USER_PATH
 	char dirpath[1024];
 	char buf[1024];
-#endif 
+#endif
 
 	/*** Free everything ***/
 
@@ -366,7 +366,9 @@ static cptr err_str[PARSE_ERROR_MAX] =
 header z_head;
 header v_head;
 header d_head;
-header blow_head;
+header method_head;
+header effect_head;
+header region_head;
 header f_head;
 header k_head;
 header a_head;
@@ -423,7 +425,7 @@ static errr init_info_raw(int fd, header *head)
 	head->info_ptr = C_ZNEW(head->info_size, char);
 
 	/* Read the "*_info" array */
-	fd_read(fd, head->info_ptr, head->info_size);
+	fd_read(fd, (char*)head->info_ptr, head->info_size);
 
 	if (head->name_size)
 	{
@@ -678,7 +680,7 @@ static errr init_info(cptr filename, header *head)
 			fd_write(fd, (cptr)head, head->head_size);
 
 			/* Dump the "*_info" array */
-			fd_write(fd, head->info_ptr, head->info_size);
+			fd_write(fd, (char*)head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
 			fd_write(fd, head->name_ptr, head->name_size);
@@ -774,7 +776,7 @@ static errr init_z_info(void)
 	err = init_info("limits", &z_head);
 
 	/* Set the global variables */
-	z_info = z_head.info_ptr;
+	z_info = (maxima*)z_head.info_ptr;
 
 	return (err);
 }
@@ -800,13 +802,13 @@ static errr init_d_info(void)
 	/* Save a pointer to the evaluate power function*/
 	d_head.emit_info_txt_always = emit_d_info_always;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("room", &d_head);
 
 	/* Set the global variables */
-	d_info = d_head.info_ptr;
+	d_info = (desc_type*)d_head.info_ptr;
 	d_name = d_head.name_ptr;
 	d_text = d_head.text_ptr;
 
@@ -817,32 +819,94 @@ static errr init_d_info(void)
 /*
  * Initialize the "blow_info" array
  */
-static errr init_blow_info(void)
+static errr init_method_info(void)
 {
 	errr err;
 
 	/* Init the header */
-	init_header(&blow_head, z_info->blow_max, sizeof(blow_type));
+	init_header(&method_head, z_info->method_max, sizeof(method_type));
 
 #ifdef ALLOW_TEMPLATES
 
 	/* Save a pointer to the parsing function */
-	blow_head.parse_info_txt = parse_blow_info;
+	method_head.parse_info_txt = parse_method_info;
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
 	/* Save a pointer to the emit function*/
-	blow_head.emit_info_txt_index = emit_blow_info_index;
+	method_head.emit_info_txt_index = emit_method_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
 #endif /* ALLOW_TEMPLATES */
 
-	err = init_info("blows", &blow_head);
+	err = init_info("blows", &method_head);
 
 	/* Set the global variables */
-	blow_info = blow_head.info_ptr;
-	blow_name = blow_head.name_ptr;
-	blow_text = blow_head.text_ptr;
+	method_info = (method_type*)method_head.info_ptr;
+	method_name = method_head.name_ptr;
+	method_text = method_head.text_ptr;
+
+	return (err);
+}
+
+
+/*
+ * Initialize the "effect_info" array
+ */
+static errr init_effect_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&effect_head, z_info->effect_max, sizeof(effect_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	effect_head.parse_info_txt = parse_effect_info;
+
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the emit function*/
+	effect_head.emit_info_txt_index = emit_effect_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("effect", &effect_head);
+
+	/* Set the global variables */
+	effect_info = (effect_type*)effect_head.info_ptr;
+	effect_name = effect_head.name_ptr;
+	effect_text = effect_head.text_ptr;
+
+	return (err);
+}
+
+
+/*
+ * Initialize the "region_info" array
+ */
+static errr init_region_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&region_head, z_info->region_info_max, sizeof(region_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	region_head.parse_info_txt = parse_region_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("region", &region_head);
+
+	/* Set the global variables */
+	region_info = (region_info_type*)region_head.info_ptr;
+	region_name = region_head.name_ptr;
+	region_text = region_head.text_ptr;
 
 	return (err);
 }
@@ -874,7 +938,7 @@ static errr init_f_info(void)
 	err = init_info("terrain", &f_head);
 
 	/* Set the global variables */
-	f_info = f_head.info_ptr;
+	f_info = (feature_type*)f_head.info_ptr;
 	f_name = f_head.name_ptr;
 	f_text = f_head.text_ptr;
 
@@ -903,13 +967,13 @@ static errr init_k_info(void)
 	/* Save a pointer to the emit function*/
 	k_head.emit_info_txt_index = emit_k_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("object", &k_head);
 
 	/* Set the global variables */
-	k_info = k_head.info_ptr;
+	k_info = (object_kind*)k_head.info_ptr;
 	k_name = k_head.name_ptr;
 	k_text = k_head.text_ptr;
 
@@ -938,13 +1002,13 @@ static errr init_a_info(void)
 	/* Save a pointer to the emit function*/
 	a_head.emit_info_txt_index = emit_a_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("artifact", &a_head);
 
 	/* Set the global variables */
-	a_info = a_head.info_ptr;
+	a_info = (artifact_type*)a_head.info_ptr;
 	a_name = a_head.name_ptr;
 	a_text = a_head.text_ptr;
 
@@ -972,7 +1036,7 @@ static errr init_n_info(void)
 
   err = init_info("names", &n_head);
 
-  n_info = n_head.info_ptr;
+  n_info = (names_type*)n_head.info_ptr;
 
   return (err);
 }
@@ -1001,13 +1065,13 @@ static errr init_e_info(void)
 	/* Save a pointer to the evaluate power function*/
 	e_head.emit_info_txt_index = emit_e_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("ego_item", &e_head);
 
 	/* Set the global variables */
-	e_info = e_head.info_ptr;
+	e_info = (ego_item_type*)e_head.info_ptr;
 	e_name = e_head.name_ptr;
 	e_text = e_head.text_ptr;
 
@@ -1035,13 +1099,13 @@ static errr init_x_info(void)
 	/* Save a pointer to the evaluate power function*/
 	x_head.emit_info_txt_index = emit_x_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("flavor", &x_head);
 
 	/* Set the global variables */
-	x_info = x_head.info_ptr;
+	x_info = (flavor_type*)x_head.info_ptr;
 	x_name = x_head.name_ptr;
 	x_text = x_head.text_ptr;
 
@@ -1069,8 +1133,8 @@ static errr init_r_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
 	r_head.emit_info_txt_index = emit_r_info_index;
+
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
 #endif /* ALLOW_TEMPLATES */
@@ -1078,7 +1142,7 @@ static errr init_r_info(void)
 	err = init_info("monster", &r_head);
 
 	/* Set the global variables */
-	r_info = r_head.info_ptr;
+	r_info = (monster_race*)r_head.info_ptr;
 	r_name = r_head.name_ptr;
 	r_text = r_head.text_ptr;
 
@@ -1102,12 +1166,18 @@ static errr init_v_info(void)
 	/* Save a pointer to the parsing function */
 	v_head.parse_info_txt = parse_v_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	v_head.emit_info_txt_index = emit_v_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("vault", &v_head);
 
 	/* Set the global variables */
-	v_info = v_head.info_ptr;
+	v_info = (vault_type*)v_head.info_ptr;
 	v_name = v_head.name_ptr;
 	v_text = v_head.text_ptr;
 
@@ -1135,13 +1205,13 @@ static errr init_p_info(void)
 	/* Save a pointer to the evaluate power function*/
 	p_head.emit_info_txt_index = emit_p_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
-	
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("p_race", &p_head);
 
 	/* Set the global variables */
-	p_info = p_head.info_ptr;
+	p_info = (player_race*)p_head.info_ptr;
 	p_name = p_head.name_ptr;
 	p_text = p_head.text_ptr;
 
@@ -1174,7 +1244,7 @@ static errr init_c_info(void)
 	err = init_info("p_class", &c_head);
 
 	/* Set the global variables */
-	c_info = c_head.info_ptr;
+	c_info = (player_class*)c_head.info_ptr;
 	c_name = c_head.name_ptr;
 	c_text = c_head.text_ptr;
 
@@ -1202,7 +1272,7 @@ static errr init_w_info(void)
 	err = init_info("style", &w_head);
 
 	/* Set the global variables */
-	w_info = w_head.info_ptr;
+	w_info = (weapon_style*)w_head.info_ptr;
 
 	return (err);
 }
@@ -1234,7 +1304,7 @@ static errr init_s_info(void)
 	err = init_info("spell", &s_head);
 
 	/* Set the global variables */
-	s_info = s_head.info_ptr;
+	s_info = (spell_type*)s_head.info_ptr;
 	s_name = s_head.name_ptr;
 	s_text = s_head.text_ptr;
 
@@ -1262,7 +1332,7 @@ static errr init_y_info(void)
 	err = init_info("rune", &y_head);
 
 	/* Set the global variables */
-	y_info = y_head.info_ptr;
+	y_info = (rune_type*)y_head.info_ptr;
 	y_name = y_head.name_ptr;
 	y_text = y_head.text_ptr;
 
@@ -1290,7 +1360,7 @@ static errr init_h_info(void)
 	err = init_info("p_hist", &h_head);
 
 	/* Set the global variables */
-	h_info = h_head.info_ptr;
+	h_info = (hist_type*)h_head.info_ptr;
 	h_text = h_head.text_ptr;
 
 	return (err);
@@ -1313,12 +1383,18 @@ static errr init_t_info(void)
 	/* Save a pointer to the parsing function */
 	t_head.parse_info_txt = parse_t_info;
 
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the evaluate power function*/
+	t_head.emit_info_txt_index = emit_t_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("dungeon", &t_head);
 
 	/* Set the global variables */
-	t_info = t_head.info_ptr;
+	t_info = (town_type*)t_head.info_ptr;
 	t_name = t_head.name_ptr;
 	t_text = t_head.text_ptr;
 
@@ -1346,7 +1422,7 @@ static errr init_u_info(void)
 	err = init_info("store", &u_head);
 
 	/* Set the global variables */
-	u_info = u_head.info_ptr;
+	u_info = (store_type*)u_head.info_ptr;
 	u_name = u_head.name_ptr;
 	u_text = u_head.text_ptr;
 
@@ -1374,7 +1450,7 @@ static errr init_b_info(void)
 	err = init_info("shop_own", &b_head);
 
 	/* Set the global variables */
-	b_info = b_head.info_ptr;
+	b_info = (owner_type*)b_head.info_ptr;
 	b_name = b_head.name_ptr;
 	b_text = b_head.text_ptr;
 
@@ -1404,7 +1480,7 @@ static errr init_g_info(void)
 	err = init_info("cost_adj", &g_head);
 
 	/* Set the global variables */
-	g_info = g_head.info_ptr;
+	g_info = (byte_hack*)g_head.info_ptr;
 	g_name = g_head.name_ptr;
 	g_text = g_head.text_ptr;
 
@@ -1432,7 +1508,7 @@ static errr init_q_info(void)
 	err = init_info("quest", &q_head);
 
 	/* Set the global variables */
-	q_info = q_head.info_ptr;
+	q_info = (quest_type*)q_head.info_ptr;
 	q_name = q_head.name_ptr;
 	q_text = q_head.text_ptr;
 
@@ -1527,6 +1603,9 @@ static errr init_other(void)
 	/* Padded into array */
 	play_info = C_ZNEW(DUNGEON_HGT, byte_256);
 
+	/* Region piece array */
+	cave_region_piece = C_ZNEW(DUNGEON_HGT, s16b_wid);
+
 	/* Feature array */
 	cave_feat = C_ZNEW(DUNGEON_HGT, s16b_wid);
 
@@ -1555,6 +1634,12 @@ static errr init_other(void)
 
 	/* Monsters */
 	m_list = C_ZNEW(z_info->m_max, monster_type);
+
+	/* Region pieces */
+	region_piece_list = C_ZNEW(z_info->region_piece_max, region_piece_type);
+
+	/* Regions */
+	region_list = C_ZNEW(z_info->region_max, region_type);
 
 
 	/*** Prepare lore array ***/
@@ -1995,7 +2080,6 @@ static errr init_alloc(void)
 		}
 	}
 
-
 	/* Success */
 	return (0);
 }
@@ -2184,10 +2268,18 @@ void init_angband(void)
 	note("[Initializing array sizes...]");
 	if (init_z_info()) quit("Cannot initialize sizes");
 
-	/* Initialize feature info */
+	/* Initialize effect info */
+	note("[Initializing arrays... (effects)]");
+	if (init_effect_info()) quit("Cannot initialize effects");
+
+	/* Initialize blow info */
 	note("[Initializing arrays... (blows)]");
-	if (init_blow_info()) quit("Cannot initialize blows");	
-	
+	if (init_method_info()) quit("Cannot initialize blows");
+
+	/* Initialize region info */
+	note("[Initializing arrays... (regions)]");
+	if (init_region_info()) quit("Cannot initialize regions");
+
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -2293,13 +2385,13 @@ void init_angband(void)
 }
 
 void ang_atexit(void (*arg)(void) ){
-	
+
 	typedef struct exitlist exitlist;
 	struct exitlist {
 		void (*func)(void) ;
 		exitlist *next;
 	};
-	static exitlist *list; 
+	static exitlist *list;
 	exitlist *next;
 
 	if(arg != 0) {
@@ -2309,7 +2401,7 @@ void ang_atexit(void (*arg)(void) ){
 		list = next;
 		return;
 	}
-	
+
 	while (list) {
 		next = list->next;
 		list->func();
@@ -2364,6 +2456,7 @@ void cleanup_angband(void)
 		}
 	}
 
+
 	/* Free the player inventory */
 	FREE(inventory);
 
@@ -2374,6 +2467,8 @@ void cleanup_angband(void)
 	FREE(l_list);
 	FREE(m_list);
 	FREE(o_list);
+	FREE(region_piece_list);
+	FREE(region_list);
 
 #ifdef MONSTER_FLOW
 
@@ -2386,6 +2481,8 @@ void cleanup_angband(void)
 	/* Free the cave */
 	FREE(cave_o_idx);
 	FREE(cave_m_idx);
+	FREE(cave_region_piece);
+
 	FREE(cave_feat);
 	FREE(cave_info);
 	FREE(play_info);
@@ -2426,7 +2523,9 @@ void cleanup_angband(void)
 	free_info(&f_head);
 	free_info(&d_head);
 	free_info(&q_head);
-	free_info(&blow_head);
+	free_info(&region_head);
+	free_info(&method_head);
+	free_info(&effect_head);
 	free_info(&z_head);
 
 	/* Free the format() buffer */

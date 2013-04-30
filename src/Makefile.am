@@ -23,7 +23,7 @@ unangband_SOURCES = \
   angband.h config.h defines.h externs.h h-basic.h \
   h-config.h h-define.h h-system.h h-type.h init.h \
   types.h z-form.h z-rand.h z-term.h z-util.h \
-  z-virt.h option.h main.h
+  z-virt.h option.h main.h borgdumb.c borgdumb.h
 
 
 EXTRA_unangband_SOURCES = \

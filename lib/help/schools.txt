@@ -77,11 +77,11 @@
           Mages or Warrior Mages who specialise in this school will find that
           it has no offensive spells at early levels, which makes it a very
           difficult school for them to adopt.
-          The school of Science concentrates on sensing and diving the
+          The school of Science concentrates on sensing and divining the
           nature of threats around the Scientist and defusing and neutralising
           those threats before they are realised.
           
-          Amateur Scientists start with the book of Tricks. 
+          Amateur Scientists start with the book of Trades. 
 
 ***** <Statecraft>
         Statecraft
@@ -109,3 +109,17 @@
           limited and hard to use escapes and utility magics.
                
           Latent Thaumaturges start with the book of Fireworks.
+
+***** <Spellstealing>
+        Spellstealing
+          The school of Spellstealing has particular affinity for Rogues and
+          Rogues should usually choose this school in order to get the best
+          selection of spells in the least number of different books.
+          Mages or Warrior Mages who specialise in this school will find that
+          it has no offensive spells at early levels, which makes it a very
+          difficult school for them to adopt.
+          The school of Spellstealing concentrates on misdirection and
+          manipulation of enemies, allowing the spell caster to avoid those
+          they don't wish to confront, while thieving from and disposing of
+          those that are more lucrative prospects. 
+          
