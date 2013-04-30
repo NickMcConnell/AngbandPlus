@@ -1048,7 +1048,7 @@ static cptr k_info_flags5[] =
 	"HURT_ELEC",
 	"HURT_FIRE",
 	"HURT_WATER",
-	"HURT_XXXX"
+	"TRICK_THROW"
 };
 
 /*
@@ -3791,18 +3791,21 @@ errr parse_k_info(char *buf, header *head)
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
 				k_ptr->flags5 |= (TR5_DO_CRIT);
+				k_ptr->flags6 |= (TR6_BAD_THROW);
 				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_ROPE);
 				break;
 			case TV_SHOT:
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
 				k_ptr->flags5 |= (TR5_DO_STUN);
+				k_ptr->flags6 |= (TR6_BAD_THROW);
 				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_CHAIN);
 			break;
 			case TV_BOLT:
 				k_ptr->flags5 |= (TR5_SHOW_WEAPON);
 				k_ptr->flags5 |= (TR5_SHOW_DD);
 				k_ptr->flags5 |= (TR5_DO_CRIT);
+				k_ptr->flags6 |= (TR6_BAD_THROW);
 				if (sval == SV_AMMO_GRAPPLE) k_ptr->flags6 |= (TR6_HAS_CHAIN);
 			break;
 

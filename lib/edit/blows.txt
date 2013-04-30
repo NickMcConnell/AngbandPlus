@@ -257,7 +257,6 @@ T:0-9999:intensif|y|ies| % aura
 W:4:0:0
 R:2
 F:BOOM | WALL | GRID | ITEM | KILL | PLAY | SELF | MAGIC | HIDE | SAFE |
-F:SPECIAL_CASE |
 D:surround~ & with @ aura#:$ enemies
 
 N:28:SELF
@@ -463,7 +462,7 @@ D:strike~:$ enemy
 N:52:EXPLODE
 T:0-9999:explodes!
 R:2
-F:BOOM | WALL | GRID | ITEM | KILL | PLAY | SELF | MAGIC | EXPAND |
+F:BOOM | WALL | GRID | ITEM | KILL | PLAY | SELF | MAGIC | 
 F:RANGED | AUTOMATIC | MELEE
 D::& and all enemies adjacent to &
 
@@ -471,7 +470,7 @@ N:53:ARROW
 T:0-9999:shoot~ & with an arrow
 W:0:17:0
 M:10
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED | SCALE_AMMO |
 D:create~ @ arrow#:@ target#
 
@@ -479,7 +478,7 @@ N:54:XBOLT
 T:0-9999:shoot~ & with a crossbow bolt
 W:0:18:0
 M:12
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED | SCALE_AMMO |
 D:create~ @ crossbow bolt#:@ target#
 
@@ -487,7 +486,7 @@ N:55:DART
 T:0-9999:throw~ a dart at &
 W:0:22:1
 M:6
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED |
 D:create~ @ dart#:@ target#
 
@@ -495,7 +494,7 @@ N:56:DAGGER
 T:0-9999:throw~ a dagger at &
 W:0:23:4
 M:6
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED |
 D:create~ @ dagger:@ target#
 
@@ -503,7 +502,7 @@ N:57:SHOT
 T:0-9999:hurl~ a shot at &
 W:0:16:0
 M:8
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED | SCALE_AMMO |
 D:create~ @ shot#:@ target#
 
@@ -665,7 +664,7 @@ N:75:SPIKE
 T:0-9999:shoot~ & with a spike
 W:0:5:0
 M:6
-F:MISS | GRID | KILL | PLAY | MAGIC | STOP |
+F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED |
 D:create~ @ spike#:one target
 
@@ -815,7 +814,7 @@ T:0-9999:create~ * around &
 W:3:0:0
 R:10
 F:BOOM | WALL | PASS | AREA | GRID | ITEM | KILL | PLAY | SELF | HIDE |
-F:RANGED |
+F:RANGED | SAFE
 D:surround~ & with magic:
 
 N:92:DESTROY_AREA
@@ -825,10 +824,17 @@ T:0-9999:create~ * around &
 W:3:0:0
 R:15
 F:BOOM | WALL | PASS | AREA | GRID | ITEM | KILL | PLAY | SELF | HIDE |
-F:RANGED |
+F:RANGED | SAFE
 D:surround~ & with magic:
 
-#$# 93 - Unused ###
+N:93:HAMMER
+T:0-9999:throw~ a hammer at &
+W:0:21:1
+M:5
+F:MISS | GRID | KILL | PLAY | STOP |
+F:RANGED |
+D:create~ @ hammer:@ target#
+
 
 #$# 94 - Unused ###
 
@@ -879,6 +885,7 @@ X:0:0:0:0:0:0:QUAKE
 C:40:0:0:5:0:0:100
 R:8
 F:BOOM | WALL | PASS | AREA | GRID | ITEM | KILL | PLAY | SELF | HIDE |
+F:SAFE
 D:surround~ & with magic:
 
 N:102:EXPLODE
@@ -894,10 +901,9 @@ D:explode~:
 N:103:AURA
 I:0:1:0
 C:40:0:0:0:0:0:100
-R:1
-F:BOOM | WALL | GRID | ITEM | PLAY | SELF | MAGIC | HIDE | SAFE |
-F:SPECIAL_CASE |
-D::
+R:2
+F:BOOM | WALL | GRID | ITEM | KILL | PLAY | SELF | MAGIC | HIDE | SAFE |
+D:surround~ & with @ aura#:$ enemies
 
 #R:2 if powerful
 

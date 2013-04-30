@@ -44,11 +44,12 @@ O:35:1:3
 O:14:1:2
 O:14:2:1
 
-# Service of Enchant Armour
+# Service of Enchant Armour and Acid Proofing
 
 N:2:Armoury
 X:4
 O:99:15:0
+O:99:35:0
 O:30:2:2
 O:30:3:2
 O:32:2:2
@@ -477,6 +478,7 @@ O:75:35:2
 O:75:36:2
 O:75:41:3
 
+#Service of Acid Proofing
 N:29:Small Goods Store
 X:4
 O:65:67:1
@@ -505,6 +507,7 @@ O:22:1:2
 O:14:1:2
 O:14:2:1
 O:70:8:1
+O:99:35:0
 
 #Service of Enchant Armour and Enchant Armour To-Resist
 N:30:Heavy Armoury
@@ -700,7 +703,6 @@ X:2
 N:43:vault of the city of Erebor
 X:2
 
-#Service of Satisfy Hunger
 N:44:the Brandywine Barge House
 X:3
 O:31:1:2
@@ -749,3 +751,6 @@ O:72:45:10
 
 N:49:the hut of Radagast the Brown
 X:0
+
+N:50:pavilion of the Army of the West
+X:2

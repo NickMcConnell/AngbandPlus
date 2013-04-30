@@ -4276,8 +4276,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
 
-	/* Small (often town) levels have some special rules */
-	if (!zone->fill)
+	/* Town levels have some special rules */
+	if ((level_flag & (LF1_TOWN)) != 0)
 	{
 		/* Hack -- harmless townsmen are not threatening */
 		if (r_ptr->flags9 & (RF9_TOWNSFOLK)) n_ptr->mflag |= (MFLAG_TOWN);
@@ -4500,12 +4500,12 @@ static int place_monster_idx = 0;
  */
 static bool place_monster_okay(int r_idx)
 {
-	monster_race *r_ptr = &r_info[place_monster_idx];
+	monster_race *r_ptr = &r_info[place_monster_idx ? place_monster_idx  : rp_ptr->r_idx];
 
 	monster_race *z_ptr = &r_info[r_idx];
 
-	/* Hack -- player escort */
-	if (!place_monster_idx)
+	/* Hack -- player escort for non-monster races */
+	if ((!place_monster_idx) && (!rp_ptr->r_idx))
 	{
 		/* Hack -- place warriors/thieves */
 		return ((z_ptr->d_char == 't') &&
@@ -4524,7 +4524,7 @@ static bool place_monster_okay(int r_idx)
 	else if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
 
 	/* Skip more advanced monsters */
-	if (z_ptr->level > r_ptr->level) return (FALSE);
+	if ((place_monster_idx) && (z_ptr->level > r_ptr->level)) return (FALSE);
 
 	/* Skip unique monsters */
 	if (z_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -4675,14 +4675,22 @@ s16b player_place(int y, int x, bool escort_allowed)
 	/* Place escorts on battle-field */
 	if ((escort_allowed) && (level_flag & (LF1_BATTLE)))
 	{
+		/* Hack -- Switch off ecology */
+		bool old_ecology_ready = cave_ecology.ready;
+
+		/* Ecology off */
+		cave_ecology.ready = FALSE;
+
 		/* Help the player out */
 		monster_level += 5;
 
-		place_monster_escort(y, x, rp_ptr->r_idx, FALSE, (MFLAG_ALLY));
+		place_monster_escort(y, x, 0, FALSE, (MFLAG_ALLY));
 
 		msg_print("You are joined by companions in battle.");
 
 		monster_level -= 5;
+
+		cave_ecology.ready = old_ecology_ready;
 	}
 
 	/* Success */

@@ -665,7 +665,7 @@ D:You fall through a trap door!
 # 0x11 --> visible trap -- open pit
 
 N:17:pit
-G:^:s
+G:^:D
 U:56
 #$ granite wall
 O:0
@@ -694,7 +694,7 @@ D:You fall into a pit!
 # 0x12 --> visible trap -- spiked pit
 
 N:18:spiked pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -725,7 +725,7 @@ D:You fall into a spiked pit!
 # 0x13 --> visible trap -- poison pit
 
 N:19:poisoned spiked pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -1835,7 +1835,7 @@ F:ATTR_LITE |
 D:This seems to be permanent rock.
 
 N:64:deep pit
-G:^:s
+G:^:D
 U:56
 #$ granite wall
 O:0
@@ -1859,7 +1859,7 @@ F:HURT_WATER | EASY_HIDE | MUST_CLIMB | ATTR_LITE |
 D:You fall into a deep pit!
 
 N:65:deep spiked pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -1886,7 +1886,7 @@ F:HURT_POIS | HURT_WATER | EASY_HIDE | MUST_CLIMB | ATTR_LITE |
 D:You fall into a deep spiked pit!
 
 N:66:deep poisoned spiked pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -1976,7 +1976,7 @@ D:You are enveloped in a cloud of sulpher!
 # --> visible trap -- silent watcher
 
 N:70:silent watcher
-G:^:D
+G:^:s
 U:56
 #$ granite wall
 O:0
@@ -1997,7 +1997,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:71:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -2020,7 +2020,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:72:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -2043,7 +2043,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:73:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -2066,7 +2066,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:74:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -2089,7 +2089,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:75:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -2112,7 +2112,7 @@ F:ATTR_LITE |
 D:It gazes at you.
 
 N:76:silent watcher
-G:^:D
+G:^:s
 M:70
 #$ silent watcher
 U:56
@@ -5452,7 +5452,7 @@ F:HURT_ELEC | ATTR_LITE | TIMED | SPREAD |
 # 0x02 --> invisible trap (drawn as open floor)
 
 N:237:invisible trap
-G:x:w
+G:^:w
 M:1
 #$ open floor
 U:56
@@ -5475,7 +5475,7 @@ F:PICK_TRAP | ATTR_LITE |
 D:You have found a trap.
 
 N:238:invisible trap
-G:^:s
+G:^:D
 M:1
 #$ open floor
 U:56
@@ -6504,7 +6504,7 @@ D:An iron cage falls from the ceiling!
 # Pit
 
 N:291:pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -6527,7 +6527,7 @@ D:You fall into a pit! It quickly fills with water.
 # Pit
 
 N:292:pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -6550,7 +6550,7 @@ D:You fall into a pit! It quickly fills with burning oil.
 # Pit
 
 N:293:pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -6573,7 +6573,7 @@ D:You fall into a pit! It quickly fills with boiling water.
 # Pit
 
 N:294:pit
-G:^:s
+G:^:D
 M:17
 #$ pit
 U:56
@@ -9023,7 +9023,7 @@ T:TRAP:FIRE:3d6
 K:DEFAULT:413:0
 K:CHASM:141:0
 #$ chasm
-K:TIMED:418:0
+K:INSTANT:418:0
 #$ burnt ground
 K:HURT_WATER:629:0
 #$ a wave breaking over open ground
@@ -9033,7 +9033,7 @@ K:OPEN:418:0
 #$ burnt ground
 F:LOS | PROJECT | MOVE | DROP | NOTICE | REMEMBER | BASH |
 F:PATH | LAKE | GLOW | OIL | CAN_CLIMB | CAN_FLY | HIDE_ITEM | HIDE_DIG |
-F:HURT_WATER | OUTSIDE | ATTR_LITE | TIMED | SPREAD |
+F:HURT_WATER | OUTSIDE | ATTR_LITE | INSTANT | SPREAD |
 
 N:414:open ground
 G:.:U
@@ -11289,7 +11289,7 @@ F:HIDE_DIG |
 F:HURT_WATER | GROUND | LIVING | NEED_TREE | ATTR_LITE |
 
 N:540:shady trail through grass
-G:<:Y
+G:.:Y
 U:421
 #$ tree
 O:0
@@ -13185,7 +13185,7 @@ K:CHASM:141:0
 #$ chasm
 K:PATH:415:0
 #$ open trail
-K:HURT_COLD:143:0
+K:HURT_COLD:145:0
 #$ ice
 K:TREE:634:0
 #$ shady wet ground
@@ -14232,7 +14232,28 @@ F:NOTICE | REMEMBER | TUNNEL | STREAMER |
 F:LAKE | HURT_ROCK | CAN_CLIMB | CAN_PASS | CAN_OOZE | CAN_DIG |
 F:GET_FEAT | OUTSIDE | ATTR_LITE |
 
-#$# 699 - Unused ###
+N:699:invisible trap
+G:^:s
+M:1
+#$ open floor
+U:56
+#$ granite wall
+O:0
+W:1:1:5:0
+K:DEFAULT:1:0
+#$ open floor
+K:CHASM:141:0
+#$ chasm
+K:TREE:541:0
+#$ shady ground
+K:SECRET:977:0
+#$ invisible trap
+K:HIT_TRAP:977:5
+#$ invisible trap
+F:LOS | PROJECT | MOVE | SECRET | TRAP | RUN | HIT_TRAP |
+F:CAN_CLIMB | CAN_FLY | HIDE_ITEM |
+F:PICK_TRAP | ATTR_LITE |
+D:You have found a trap.
 
 N:700:impassable tree trunk
 G:#:U
@@ -20047,3 +20068,38 @@ F:LAKE | WATER | DEEP | FILLED | HURT_COLD | CAN_SWIM | HIDE_ITEM |
 F:HIDE_SWIM |
 F:USE_FEAT | OUTSIDE | ATTR_LITE | INSTANT | TIMED |
 
+N:992:pavilion of the Army of the West
+G:+:U
+O:0
+W:45:1:20:0
+K:DEFAULT:897:50
+F:LOS | PROJECT | MOVE | NOTICE | REMEMBER | ENTER | PERMANENT |
+F:GLOW | CAN_FLY |
+F:OUTSIDE | ATTR_LITE |
+
+N:993:pavilion of the Army of the West
+G:+:U
+O:0
+W:45:1:20:0
+K:DEFAULT:897:50
+F:LOS | PROJECT | MOVE | NOTICE | REMEMBER | ENTER | PERMANENT |
+F:GLOW | CAN_FLY |
+F:OUTSIDE | ATTR_LITE |
+
+N:994:pavilion of the Army of the West
+G:+:U
+O:0
+W:45:1:20:0
+K:DEFAULT:897:50
+F:LOS | PROJECT | MOVE | NOTICE | REMEMBER | ENTER | PERMANENT |
+F:GLOW | CAN_FLY |
+F:OUTSIDE | ATTR_LITE |
+
+N:995:pavilion of the Army of the West
+G:+:U
+O:0
+W:45:1:20:0
+K:DEFAULT:897:50
+F:LOS | PROJECT | MOVE | NOTICE | REMEMBER | ENTER | PERMANENT |
+F:GLOW | CAN_FLY |
+F:OUTSIDE | ATTR_LITE |

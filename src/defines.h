@@ -450,6 +450,7 @@
  */
 #define MIN_M_ALLOC_LEVEL	14
 
+
 /*
  * The town starts out with 4 residents during the day
  */
@@ -3714,7 +3715,7 @@ enum
 #define TR5_HURT_ELEC	0x10000000L	/* Item can be destroyed by electricity */
 #define TR5_HURT_FIRE	0x20000000L	/* Item can be destroyed by fire */
 #define TR5_HURT_WATER	0x40000000L	/* Item can be destroyed by water */
-#define TR5_HURT_XXXX	0x80000000L	/* Item can be destroyed by XXXX */
+#define TR5_TRICK_THROW	0x80000000L	/* Item always does tricks if thrown */
 
 #define TR6_WEAPON		0x00000001L	/* Item is a weapon */
 #define TR6_ARMOUR		0x00000002L	/* Item is an armour */
@@ -5584,5 +5585,7 @@ enum
 	ORIGIN_FEAT,
  	ORIGIN_ACQUIRE,
 	ORIGIN_CHEAT,
-	ORIGIN_CHEST
+	ORIGIN_CHEST,
+	ORIGIN_STORE_REWARD,
+	ORIGIN_STORE_STORAGE
 };

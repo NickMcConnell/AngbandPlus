@@ -17,7 +17,7 @@ reserved for any harmful potions that you may find.
 Finally, you may be able to learn spells or find items with
 the ability to provide more information about unknown potions.
 Identify or Analyze Magic spells will let you learn the type
-of potion outright.  Test Magic will let you learn which of
+of potion outright.  Sense Magic will let you learn which of
 several types of category the potion falls into.  Keep an eye
 out for items with these abilities to help you identify the
 potions you encounter without having to use them up.

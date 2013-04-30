@@ -3660,7 +3660,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Analyze launcher */
-	if (o_ptr->k_idx)
+	if ((o_ptr->k_idx) && (o_ptr->tval == TV_BOW))
 	{
 		p_ptr->ammo_mult = bow_multiplier(o_ptr->sval);
 		p_ptr->num_fire = 1;

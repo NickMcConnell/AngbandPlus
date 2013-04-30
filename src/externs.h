@@ -962,7 +962,6 @@ extern bool disease_desc(char *desc, size_t desc_s, u32b old_disease, u32b new_d
 extern void self_knowledge_aux(bool spoil, bool random);
 extern void self_knowledge(bool spoil);
 extern bool lose_all_info(void);
-extern void set_recall(void);
 extern int value_check_aux3(const object_type *o_ptr);
 extern int value_check_aux4(const object_type *o_ptr);
 extern int value_check_aux5(const object_type *o_ptr);

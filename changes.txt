@@ -1,3 +1,140 @@
+Unangband 0.6.3a "Football Competition" Release
+
+### Game Play ###
+
+- Storage locations now contain fully identified objects. It is possible for the player to learn about new items this way.
+
+- Never discount services.
+
+- Add service of Acid Proofing to Small Goods Store and Armoury.
+
+- Temples should now usually stock Satisfy Hunger service.
+
+- Don't break thrown weapons.
+
+- Allow flasks to be wielded into the quiver.
+
+- Increase number of monsters in wilderness.
+
+- Reduce starting number of monsters on each dungeon level.
+
+- Reduce frequency of diseases caused by non-disease damage.
+
+- You will now get a disease if you let your stat be drained while at the minimum.
+
+- Grass fires now burn out much faster.
+
+- Make Hornburg open above the ground level.
+
+- Improve routine which picks player allies on the battlefield.
+
+- Make forge giant monsters more like player class.
+
+- Prevent battlefields from getting consumed by fire as easily.
+
+- Improve effectiveness of wand of haste monster.
+
+- Ensure staff of perilous summoning is marked cursed.
+
+- Change semantics of healing percentage to match Angband's.
+
+- Change most healing effects to heal a percentage of the player hit points.
+
+- Increase length of time poison attacks last for.
+
+- Change throwing so that badly balanced weapons do the minimum damage and only have half the damage bonus when thrown.
+
+- Increase frequency of potion and scroll drops deeper in the dungeon.
+
+
+### User Interface ###
+
+- Allies use the player's name when speaking about them.
+
+- If a player is not hungry and not full and eats and ends up in the same state, don't report anything.
+
+- Remember when we get objects from storage locations or as quest rewards.
+
+- Change appearance of pits and silent watchers to prevent trap regions having the same appearance as unknown areas.
+
+- Suppress messages about weapons getting damaged on the ground.
+
+- Change appearance of shady trail.
+
+- Improve appearance of Old Forest.
+
+- Allow cancellation of recall to avoid consuming scroll.
+
+- Tweak throwing damage information.
+
+- Make some mushroom tips appear early enough to be useful.
+
+- Make the monlist option switched off by default. Bump the save file version to force this off for the competition 70 character. This is due to an unresolved bug with monlist option on preventing stores from being entered.
+
+- Separate out the option to toggle the monlist on or off via space bar from whether it is actually on to start with.
+
+
+### Bug fixes ###
+
+- Fix stacking bugs between lit and nonlit torches.
+
+- Prevent lit torches in inventory.
+
+- Fix bug where object sold to store wouldn't 'really' become identified.
+
+- Fix bugs causing duplicate tips to appear when seeing items in stores.
+
+- Fix for mushroom spores not stacking.
+
+- Fix bug where thrown items wouldn't be identified when the target died.
+
+- Fix for room filled with trap doors.
+
+- Fix bug with aura reporting itself as an undefined attack.
+
+- Fix explosion and slime attacks so they affect the player.
+
+- Fix bug where ice chasms would be created from wet ground.
+
+- Fix stair direction on the top levels of towers.
+
+- Fix Violin and Drum svals (Thanks to Satyr).
+
+- Fix possible out of bounds error when enchanting (Thanks to Satyr).
+
+- Fix resist nether being accidentally identified on items.
+
+- Fix bug causing slow poison messages every round if poison slowed.
+
+- Fix bug when wielded instruments acted as bows.
+
+- Avoid writing base terrain twice.
+
+- Fix for bug 015845 Khazad-dum - map is locked to 0,0
+
+- Fix up some timed effect description mismatches.
+
+- Fix for discounts not reducing cost of items.
+
+- Fix for Bug #15841 Quake destroys critter
+
+- Fix levels some room descriptions appear on to ensure that the appropriate objects are generated.
+
+- Fix for bug Bug #15836 Giant white mousemice bone
+
+- Fix for Old Forest locations suggested by Satyr.
+
+- Fix for Bug #15830 Dropped staff turned to Nothing
+
+
+### Build / Platform ###
+
+- Correct code to ensure dumb borg doesn't bother with towns.
+
+
+
+
+
 Unangband 0.6.3 "Death to the Case Statement" aka "The Projected Release"
 
 ### Game Play ###

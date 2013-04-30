@@ -1800,7 +1800,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const char *intro, int lev
 				break;
 
 			case SPELL_TARGET_AIMED:
-				method = RBM_TRAP;
+				method = RBM_AIM;
 				break;
 
 			case SPELL_TARGET_COATED:
@@ -3494,6 +3494,7 @@ void list_object(const object_type *o_ptr, int mode)
 	if (!random && o_ptr->dd && o_ptr->ds)
 	{
 		bool throw_it = TRUE;
+		bool throw_it_good = ((f3 & (TR3_HURL_DAM | TR3_HURL_NUM)) != 0) || ((f5 & TR5_THROWING) != 0);
 
 		/* Handle melee & throwing weapon damage. Ammunition handled later. */
 		switch (o_ptr->tval)
@@ -3503,7 +3504,7 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_HAFTED:
 			case TV_POLEARM:
 			case TV_DIGGING:
-				text_out(format("When attacking or %sthrown, it ", (f5 & TR5_THROWING) ? "easily " : ""));
+				text_out(format("When attacking%s, it ", throw_it_good ? " or easily thrown" : ""));
 				break;
 			case TV_LITE:
 			case TV_POTION:
@@ -3515,8 +3516,15 @@ void list_object(const object_type *o_ptr, int mode)
 				/* Never thrown */
 				throw_it = FALSE;
 				break;
+			case TV_BOW:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_SHOT:
+				/* Hack -- display throwing damage later */
+				throw_it = FALSE;
+				break;
 			default:
-				text_out(format("When %sthrown, it ", (f5 & TR5_THROWING) ? "easily " : ""));
+				if (throw_it) text_out(format("When %sthrown, it ", throw_it_good ? "easily " : ""));
 				break;
 		}
 
@@ -3534,6 +3542,11 @@ void list_object(const object_type *o_ptr, int mode)
 						? "edged" : "blunt"));
 			text_out(" damage.  ");
 			anything = TRUE;
+
+			if (f3 & (TR3_HURL_DAM))
+			{
+				text_out(format(". It does x%d damage when thrown", o_ptr->pval));
+			}
 		}
 	}
 
@@ -3623,6 +3636,7 @@ void list_object(const object_type *o_ptr, int mode)
 		cptr vp_set_trap = "When set in a trap, it ";
 		cptr vp_throw = "When thrown, it ";
 		cptr vp_coating = "When applied to coat an arrow, bolt, sword or polearm, it ";
+		cptr vp_coat_self = "When applied to your skin or armour, it ";
 		cptr vp_activate = "When activated, it ";
 		cptr vp_activate_throw = "When inscribed with {=A} and attacking or thrown against an opponent, it ";
 		cptr vp_activate_attack = "When inscribed with {=A} and attacking an opponent, it ";
@@ -3650,7 +3664,7 @@ void list_object(const object_type *o_ptr, int mode)
 				case TV_HAFTED:
 				case TV_DIGGING:
 				{
-					if (f5 & (TR5_THROWING)) vp[vn] = vp_activate_throw;
+					if (((f3 & (TR3_HURL_DAM | TR3_HURL_NUM)) != 0) || ((f5 & TR5_THROWING) != 0)) vp[vn] = vp_activate_throw;
 					else vp[vn] = vp_activate_attack;
 					vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED; break;
 				}
@@ -3660,6 +3674,16 @@ void list_object(const object_type *o_ptr, int mode)
 		/* Other attacks based on type */
 		switch(o_ptr->tval)
 		{
+			case TV_BOW:
+				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				break;
+			case TV_DIGGING:
+				if (((f3 & (TR3_HURL_DAM | TR3_HURL_NUM)) == 0) && ((f5 & TR5_THROWING) == 0) && ((f6 & TR6_BAD_THROW) != 0))
+				{
+					vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				}
+				break;
+
 			case TV_SCROLL:
 				vp[vn] = "When read, it "; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_NORMAL;
 				vp[vn] = vp_set_trap; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
@@ -3673,6 +3697,7 @@ void list_object(const object_type *o_ptr, int mode)
 
 			case TV_MUSHROOM:
 				vp[vn] = vp_coating; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_COATED;
+				vp[vn] = vp_coat_self; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_COATED;
 				vp[vn] = vp_set_trap; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
 
 				/* Fall through */
@@ -3691,6 +3716,10 @@ void list_object(const object_type *o_ptr, int mode)
 
 			case TV_STAFF:
 				vp[vn] = "When used, it "; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_NORMAL;
+				if (((f3 & (TR3_HURL_DAM | TR3_HURL_NUM)) == 0) && ((f5 & TR5_THROWING) == 0) && ((f6 & TR6_BAD_THROW) != 0))
+				{
+					vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				}
 				vp[vn] = vp_set_trap; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
 				break;
 
@@ -3702,18 +3731,21 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_BOLT:
 				vp[vn] = "When fired from a crossbow, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				fired = TRUE;
 				break;
 
 			case TV_ARROW:
 				vp[vn] = "When fired from a bow, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				fired = TRUE;
 				break;
 
 			case TV_SHOT:
 				vp[vn] = "When fired from a sling, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				fired = TRUE;
 				break;
 
@@ -3730,6 +3762,7 @@ void list_object(const object_type *o_ptr, int mode)
 					vp[vn] = vp_player_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;
 				}
 				vp[vn] = vp_coating; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_COATED;
+				vp[vn] = vp_coat_self; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_COATED;
 				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_EXPLODE;
 				vp[vn] = vp_set_trap; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
 				break;
@@ -3742,6 +3775,10 @@ void list_object(const object_type *o_ptr, int mode)
 			case TV_SWORD:
 			case TV_POLEARM:
 			case TV_HAFTED:
+				if (((f3 & (TR3_HURL_DAM | TR3_HURL_NUM)) == 0) && ((f5 & TR5_THROWING) == 0) && ((f6 & TR6_BAD_THROW) != 0))
+				{
+					vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
+				}
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				break;
 
@@ -3783,12 +3820,25 @@ void list_object(const object_type *o_ptr, int mode)
 				/* Display damage if required */
 				if (vd[n])
 				{
+					int to_d = o_ptr->to_d;
+
 					text_out(vp[n]);
-					text_out(format("does %dd%d", o_ptr->dd, o_ptr->ds));
+					/* Badly balanced weapons do minimum damage */
+					if ((vp[n] == vp_throw) && ((f3 & (TR3_HURL_NUM | TR3_HURL_DAM)) == 0) &&
+							((f5 & (TR5_THROWING)) == 0) && ((f6 & (TR6_BAD_THROW)) != 0))
+					{
+						text_out(format("does %d", o_ptr->dd));
+					}
+					else
+					{
+						text_out(format("does %dd%d", o_ptr->dd, o_ptr->ds));
+
+						if (vp[n] == vp_throw) to_d *= 2;
+					}
 					if (object_bonus_p(o_ptr) || spoil)
 					{
-						if (o_ptr->to_d > 0) text_out(format("+%d", o_ptr->to_d));
-						else if (o_ptr->to_d < 0) text_out(format("%d", o_ptr->to_d));
+						if (to_d > 0) text_out(format("+%d", to_d));
+						else if (to_d < 0) text_out(format("%d", to_d));
 					}
 					text_out(" ");
 					text_out((o_ptr->tval == TV_SPELL) ? "magical" : ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
@@ -3800,22 +3850,18 @@ void list_object(const object_type *o_ptr, int mode)
 						switch(o_ptr->tval)
 						{
 							case TV_BOLT:
-								text_out(" times the crossbow multiplier");
-								break;
-
 							case TV_ARROW:
-								text_out(" times the bow multiplier");
-								break;
-
 							case TV_SHOT:
-								text_out(" times the sling or firearm multiplier");
+								text_out(format(" times the %s multiplier", o_ptr->tval == TV_BOLT ? "crossbow" :
+									(o_ptr->tval == TV_ARROW ? "bow" : "sling or firearm")));
+								if ((trap) || (vp[n] == vp_set_trap))
+								{
+									text_out(" of the trap it is loaded in");
+								}
+
 								break;
 						}
 
-						if (trap)
-						{
-							text_out(" of the trap it is loaded in");
-						}
 					}
 					else
 					{
@@ -3894,6 +3940,11 @@ void list_object(const object_type *o_ptr, int mode)
 						powers |= tmp;
 						if (!detail) learn |= tmp;
 					}
+				}
+
+				if (vp[n] == vp_coat_self)
+				{
+					text_out(" to attacking monsters, if they hit the applied region");
 				}
 
 				if ((charge) && (powers))
@@ -4231,6 +4282,16 @@ void list_object(const object_type *o_ptr, int mode)
 			case ORIGIN_CHEST:
 				text_out("found in a chest");
 				break;
+
+			case ORIGIN_STORE_REWARD:
+				text_out("given as a reward");
+				break;
+
+			case ORIGIN_STORE_STORAGE:
+				text_out("found in storage");
+				break;
+
+
 		}
 
 		if (o_ptr->origin_depth)
@@ -6536,6 +6597,13 @@ s32b object_power(const object_type *o_ptr)
 				{
 					p = sign(p) * ((ABS(p) * (10 + o_ptr->pval)) / 10);
 				}
+			}
+
+			/* Big boost for non-throwing weapons */
+			if (((f3 & (TR3_HURL_NUM | TR3_HURL_DAM)) != 0) && ((f5 & (TR5_THROWING)) == 0))
+			{
+				/* Base damage dice used */
+				p += o_ptr->dd * (o_ptr->ds + 1) / 3;
 			}
 
 			/* Might helps with traps but not terribly well */

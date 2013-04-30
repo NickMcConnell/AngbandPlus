@@ -481,6 +481,10 @@ more frequent while expensive */
 			if (cost <= 500L) size += mass_roll(5, 5);
 			break;
 		}
+
+		case TV_SERVICE:
+			/* Never discount services */
+			return;
 	}
 
 	if (!allow_discount) return;
@@ -871,6 +875,8 @@ static int home_carry(object_type *o_ptr, int store_index)
  * Adding an object to a "fixed" price stack will not change the fixed price.
  *
  * In all cases, return the slot (or -1) where the object was placed
+ *
+ * IDENT_STORE should be set by the calling routine if required.
  */
 static int store_carry(object_type *o_ptr, int store_index)
 {
@@ -879,9 +885,6 @@ static int store_carry(object_type *o_ptr, int store_index)
 	object_type *j_ptr;
 
 	store_type *st_ptr = store[store_index];
-
-	/* Item belongs to a store */
-	o_ptr->ident |= IDENT_STORE;
 
 	/* Evaluate the object */
 	value = object_value(o_ptr);
@@ -1009,7 +1012,11 @@ static bool store_services(object_type *i_ptr, int store_index)
 			object_prep(j_ptr, k_idx);
 
 			/* The object is "known" */
+			object_aware(j_ptr, TRUE);
 			object_known(j_ptr);
+
+			/* The object belongs to the store */
+			j_ptr->ident |= (IDENT_STORE);
 
 			/* Carry the object in the store */
 			if (store_carry(j_ptr, store_index) >= 0) service = TRUE;
@@ -1229,8 +1236,10 @@ static void store_create(int store_index)
 
 			/* Its now safe to identify quest rewards */
 			object_aware(i_ptr, TRUE);
-			object_aware_tips(i_ptr, TRUE);
 			object_known(i_ptr);
+
+			/* Get store origina */
+			i_ptr->origin = ORIGIN_STORE_REWARD;
 
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr, store_index);
@@ -1289,12 +1298,24 @@ static void store_create(int store_index)
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->charges = FUEL_LAMP / 2;
 		}
 
-		/* Item belongs to a store */
-		i_ptr->ident |= IDENT_STORE;
-		i_ptr->origin = ORIGIN_STORE;
+		/* Item belongs to storage */
+		if (st_ptr->base == STORE_STORAGE)
+		{
+			i_ptr->origin = ORIGIN_STORE_STORAGE;
 
-		/* The object is "known" */
-		object_known(i_ptr);
+			/* The object is "known" */
+			object_aware(i_ptr, TRUE);
+			object_known(i_ptr);
+		}
+		/* Item belongs to a store */
+		else
+		{
+			i_ptr->ident |= IDENT_STORE;
+			i_ptr->origin = ORIGIN_STORE;
+
+			/* The object is "known" */
+			object_known(i_ptr);
+		}
 
 		/* No "worthless" items */
 		if (object_value(i_ptr) <= 0) continue;
@@ -1471,9 +1492,11 @@ static void display_entry(int item, int store_index)
 			/* Learn flavor */
 			object_aware(o_ptr, TRUE);
 		}
-
-		/* Mark object seen */
-		object_aware_tips(o_ptr, TRUE);
+		else
+		{
+			/* Mark object seen */
+			object_aware_tips(o_ptr, TRUE);
+		}
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 		if (o_ptr->name2)
@@ -2559,9 +2582,11 @@ static void store_purchase(int store_index)
 					/* Learn flavor */
 					object_aware(o_ptr, TRUE);
 				}
-
-				/* Mark object seen */
-				object_aware_tips(o_ptr, TRUE);
+				else
+				{
+					/* Mark object seen */
+					object_aware_tips(o_ptr, TRUE);
+				}
 			}
 
 			/* Player cannot afford it */
@@ -2592,9 +2617,6 @@ static void store_purchase(int store_index)
 
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr, FALSE);
-
-				/* Mark object seen */
-				object_aware_tips(o_ptr, TRUE);
 
 				/* The object kind is not guessed */
 				k_info[i_ptr->k_idx].guess = 0;
@@ -2855,6 +2877,9 @@ static void store_sell(int store_index)
 	/* Allow user abort */
 	if (amt <= 0) return;
 
+	/* Forget about what item may do */
+	if (amt == o_ptr->number) inven_drop_flags(o_ptr);
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -2908,9 +2933,6 @@ static void store_sell(int store_index)
 			/* Update the display */
 			store_prt_gold();
 
-			/* Forget about object */
-			if (amt == o_ptr->number) inven_drop_flags(o_ptr);
-
 			/* Reset the stack */
 			i_ptr->stackc = 0;
 
@@ -2950,8 +2972,11 @@ static void store_sell(int store_index)
 
 			/* Identify original object */
 			object_aware(o_ptr, TRUE);
-			object_aware_tips(o_ptr, TRUE);
 			object_known(o_ptr);
+
+			/* Identify store object */
+			object_aware(i_ptr, TRUE);
+			object_known(i_ptr);
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -3006,9 +3031,6 @@ static void store_sell(int store_index)
 	{
 		/* Describe */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
-
-		/* Forget about object */
-		if (amt == o_ptr->number) inven_drop_flags(o_ptr);
 
 		/* Take it from the players inventory */
 		inven_item_increase(item, -amt);
@@ -4101,7 +4123,11 @@ int store_init(int feat)
 			object_prep(i_ptr, k_idx);
 
 			/* The object is "known" */
+			object_aware(i_ptr, TRUE);
 			object_known(i_ptr);
+
+			/* The object belongs to a store */
+			i_ptr->ident |= (IDENT_STORE);
 
 			/* Carry the object in the store */
 			(void) store_carry(i_ptr, store_index);

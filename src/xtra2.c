@@ -245,7 +245,7 @@ bool set_slow_poison(int v)
 	/* Open */
 	if (v)
 	{
-		if (p_ptr->timed[TMD_POISONED])
+		if ((p_ptr->timed[TMD_POISONED]) && !(p_ptr->timed[TMD_SLOW_POISON]))
 		{
 			msg_print("The poison in your veins is slowed.");
 			notice = TRUE;
@@ -313,10 +313,10 @@ bool set_afraid(int v)
 	}
 
 	/* Hack -- petrify the player if over 100 */
-	if (v > 100)
+	if (v > 109)
 	{
 		p_ptr->timed[TMD_AFRAID] = 100;
-		inc_timed(TMD_PETRIFY, p_ptr->timed[TMD_AFRAID] - 100 / 10, TRUE);
+		inc_timed(TMD_PETRIFY, (v - 100) / 10, TRUE);
 	}
 
 	/* Use the value */
@@ -1025,7 +1025,7 @@ bool set_food(int v)
 			/* Normal */
 			case 4:
 			{
-				msg_print("You are no longer hungry.");
+				if (new_aux != old_aux) msg_print("You are no longer hungry.");
 				break;
 			}
 
@@ -3148,7 +3148,7 @@ bool modify_panel(int wy, int wx)
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Verify wy, adjust if needed */
-	if (!zone->fill)
+	if ((level_flag & (LF1_TOWN)) != 0)
 	{
 		if (wy > TOWN_HGT - SCREEN_HGT) wy = TOWN_HGT - SCREEN_HGT;
 		else if (wy < 0) wy = 0;
@@ -3158,7 +3158,7 @@ bool modify_panel(int wy, int wx)
 	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (!zone->fill)
+	if ((level_flag & (LF1_TOWN)) != 0)
 	{
 		if (wx > TOWN_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
 		else if (wx < 0) wx = 0;

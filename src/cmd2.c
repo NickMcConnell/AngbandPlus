@@ -498,7 +498,7 @@ static void do_cmd_travel(void)
 		{
 			msg_print("You need to recover from any poison, cuts or stun damage.");
 		}
-		else if (!edge_y && !edge_x && zone->fill)
+		else if (!edge_y && !edge_x && ((level_flag & (LF1_TOWN)) == 0))
 		{
 			msg_format("You need to be close to the edge of %s.", str);
 		}
@@ -3238,11 +3238,23 @@ int breakage_chance(object_type *o_ptr)
 		{
 		  return (41 - adj_int_break[p_ptr->stat_ind[A_INT]]);
 		}
-	}
 
-	/* Rarely break: shots, bolts, weapons (throwing and regular);
-	   break 0% of the time with max INT */
-	return (31 - adj_int_break[p_ptr->stat_ind[A_INT]]);
+		/* Rarely break: shots, bolts
+		   break 0% of the time with max INT */
+		case TV_SHOT:
+		case TV_BOLT:
+		{
+			return (31 - adj_int_break[p_ptr->stat_ind[A_INT]]);
+		}
+
+		/* Don't break thrown weapons (throwing and regular) to
+		 * allow these to stack better. These weapons have enough
+		 * chance of breaking on the ground after throwing anyway. */
+		default:
+		{
+			return (0);
+		}
+	}
 }
 
 
@@ -3413,8 +3425,11 @@ void player_fire_or_throw_selected(int item, bool fire)
 
 	int use_old_target_backup = use_old_target;
 
+	/* Get kind flags */
+	u32b f5 = k_info[o_ptr->k_idx].flags5;
+
 	bool throwing = is_throwing_item(o_ptr);
-	bool trick_throw = !fire && item == INVEN_WIELD && throwing;
+	bool trick_throw = !fire && ((item == INVEN_WIELD) || (f5 & (TR5_TRICK_THROW))) && throwing;
 	int num_tricks = trick_throw ? p_ptr->num_blow + 1 : 1;
 
 	/* Get kind flags */
@@ -3549,8 +3564,14 @@ void player_fire_or_throw_selected(int item, bool fire)
 	/* Minimum inaccuracy */
 	if (inaccuracy < 0) inaccuracy = 0;
 
+	/* Hack to avoid divide by zero, and give nonskilled users
+	 * a chance to shoot without fumbling */
+	if ((ranged_skill <= 1) && (rand_int(100) < 50)) ranged_skill = 2;
+	
 	/* Test for fumble */
-	if ((inaccuracy > 5) && (rand_int(ranged_skill) < inaccuracy))
+	/* XXX Avoid divide by zero here */
+	if ((ranged_skill <= 1)
+		|| ((inaccuracy > 5) && (rand_int(ranged_skill) < inaccuracy)))
 	{
 		int dir;
 
@@ -3778,8 +3799,16 @@ void player_fire_or_throw_selected(int item, bool fire)
 				/* If the weapon returns, ignore monsters */
 				if (tdis == 256) continue;
 
-				/* Base damage from the object */
-				tdam = damroll(i_ptr->dd, i_ptr->ds);
+				/* Badly balanced weapons do minimum damage
+			 	Various junk (non-weapons) do not use damage for anything else
+			 	so don't penalize a second time. */
+				if (!fire && !throwing
+					&& (f6 & (TR6_BAD_THROW)))
+					/* Minimum damage from the object */
+					tdam = i_ptr->dd;
+				else
+					/* Base damage from the object */
+					tdam = damroll(i_ptr->dd, i_ptr->ds);
 
 				/* The second fire/throw dependent code piece */
 				if (fire)
@@ -3917,8 +3946,16 @@ void player_fire_or_throw_selected(int item, bool fire)
 						tdam += 0;
 					}
 
-					/* Apply launcher, missile and style bonus */
-					tdam += i_ptr->to_d + bow_to_d + style_dam;
+					/* Badly balanced weapons have less effective damage bonus
+				 	Various junk (non-weapons) do not use damage for anything else
+				 	so don't penalize a second time. */
+					if (!fire && !throwing
+						&& (f6 & (TR6_BAD_THROW)) && (i_ptr->to_d > 0))
+						/* Halve damage bonus */
+						tdam += i_ptr->to_d + style_dam;
+					else
+						/* Apply launcher, missile and style bonus */
+						tdam += i_ptr->to_d + bow_to_d + style_dam;
 
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;
@@ -4029,6 +4066,26 @@ void player_fire_or_throw_selected(int item, bool fire)
 					/* Check usage */
 					object_usage(item);
 
+					/* Copy learned values to the thrown/fired weapon.
+					 * We do this to help allow weapons to stack. */
+					i_ptr->ident = o_ptr->ident;
+					i_ptr->usage = o_ptr->usage;
+					i_ptr->feeling = o_ptr->feeling;
+					i_ptr->guess1 = o_ptr->guess1;
+					i_ptr->guess2 = o_ptr->guess2;
+					i_ptr->can_flags1 = o_ptr->can_flags1;
+					i_ptr->can_flags2 = o_ptr->can_flags2;
+					i_ptr->can_flags3 = o_ptr->can_flags3;
+					i_ptr->can_flags4 = o_ptr->can_flags4;
+					i_ptr->may_flags1 = o_ptr->may_flags1;
+					i_ptr->may_flags2 = o_ptr->may_flags2;
+					i_ptr->may_flags3 = o_ptr->may_flags3;
+					i_ptr->may_flags4 = o_ptr->may_flags4;
+					i_ptr->not_flags1 = o_ptr->not_flags1;
+					i_ptr->not_flags2 = o_ptr->not_flags2;
+					i_ptr->not_flags3 = o_ptr->not_flags3;
+					i_ptr->not_flags4 = o_ptr->not_flags4;
+
 					/* Stop looking */
 					break;
 				}
@@ -4059,29 +4116,6 @@ void player_fire_or_throw_selected(int item, bool fire)
 		/* Apply effects of activation/coating */
 		if (activate)
 		{
-			/* Check usage */
-			object_usage(item);
-
-			/* Copy learned values to the thrown/fired weapon.
-			 * We do this to help allow weapons to stack. */
-			i_ptr->ident = o_ptr->ident;
-			i_ptr->usage = o_ptr->usage;
-			i_ptr->feeling = o_ptr->feeling;
-			i_ptr->guess1 = o_ptr->guess1;
-			i_ptr->guess2 = o_ptr->guess2;
-			i_ptr->can_flags1 = o_ptr->can_flags1;
-			i_ptr->can_flags2 = o_ptr->can_flags2;
-			i_ptr->can_flags3 = o_ptr->can_flags3;
-			i_ptr->can_flags4 = o_ptr->can_flags4;
-			i_ptr->may_flags1 = o_ptr->may_flags1;
-			i_ptr->may_flags2 = o_ptr->may_flags2;
-			i_ptr->may_flags3 = o_ptr->may_flags3;
-			i_ptr->may_flags4 = o_ptr->may_flags4;
-			i_ptr->not_flags1 = o_ptr->not_flags1;
-			i_ptr->not_flags2 = o_ptr->not_flags2;
-			i_ptr->not_flags3 = o_ptr->not_flags3;
-			i_ptr->not_flags4 = o_ptr->not_flags4;
-
 			/* Apply additional effect from activation */
 			if (auto_activate(o_ptr))
 			{

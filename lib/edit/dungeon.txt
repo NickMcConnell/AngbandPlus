@@ -31,8 +31,8 @@
 # 7:Buckland (0)
 # 8:Old Forest (6-10)
 # 9:Bombadil's house (11-12)
-# 10:Barrow-downs (4-23)
-# 11:unused (future barrow-downs basement?)
+# 10:Barrow-downs (4-17)
+# 11:Tyrn Gorthad (10-23)
 
 # -- But they all get to Bree & Rivendell eventually --
 # 12:Bree (0-4)*
@@ -103,12 +103,15 @@
 # 65:Elemental Evil (21-40)
 # 66:Crystal Castle (30-45)
 
-# 67:unused
+# Oops - should move this to the appropriate section
+# 67:Black Gate
+# 69:Army of the West*
+# 70:Osgiliath
 
 # -- Angband --
 # 68:ruins of Angmar (30-51)
-# 69:Angband (0-60)*
-# 70:the West (0)
+# 72:Angband (0-60)*
+# 73:the West (0)
 
 # === Understanding dungeon.txt ===
 
@@ -181,7 +184,7 @@ V:0.6.3
 # The non-campaign start is the second to last dungeon.
 
 N:0:Nowhere Town
-X:69:0:0:0
+X:72:0:0:0
 S:954:955:0:0:0:0:0:0
 L:0:56:0:407:0:0:0:0:SURFACE | DAYLIGHT | TOWN:
 D:It feels like in the middle of nowhere.  You shouldn't be there.  Please
@@ -211,7 +214,7 @@ D:Someone with a silver-tongue and guile-full words has brought fair
 D: Hobbiton to its knees in a whir of devilish industry and foul pollution.
 
 N:3:Hobbiton rebuilt
-X:69:70:0:0
+X:72:73:0:0
 G:h
 S:264:515:265:266:772:773:774:0
 L:0:56:0:407:153:0:0:0:SURFACE | DAYLIGHT | TOWN:
@@ -271,10 +274,10 @@ N:8:Old Forest
 X:7:10:0:0
 Q:9:622
 R:PLANT
-L:6:407:420:420:153:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:Bonfire Glade in the
-L:7:56:0:420:420:0:0:0:ROOMS | TUNNELS | LESS | MORE:a knoll in the
-L:8:56:0:420:153:0:0:0:ROOMS | TUNNELS | LESS | MORE:Withywindle river in the
-L:10:56:0:420:153:622:0:0:TOWN | LESS:a willow clearing in the
+L:6:407:420:153:419:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:Bonfire Glade in the
+L:7:407:419:420:420:0:0:0:ROOMS | TUNNELS | WILD | LESS | MORE:a knoll in the
+L:8:407:419:153:420:0:0:0:ROOMS | TUNNELS | WILD | LESS | MORE:Withywindle river in the
+L:10:407:0:420:153:622:0:0:TOWN | LESS:a willow clearing in the
 
 N:9:Bombadil's house
 X:8:0:0:0
@@ -284,20 +287,20 @@ L:11:56:0:420:153:307:0:0:SURFACE | DAYLIGHT | TOWN | MORE:Tom
 L:12:56:56:1:420:307:0:0:ROOMS | TUNNELS | LESS:the basement under Tom
 D:Goldberry's gifts can be found at her pool.
 
-# TODO: perhaps split them: 5--17 initially, weak guardian at the bottom.
-# After Dol Guldur: 11--23 (Barrow-downs stirred by Dark Captain)
-# weak guardian at the surface, current big guardian at the bottom.
-
 N:10:Barrow-downs
 X:12:15:0:0
 Q:8:546
+Z:11:28
 L:4:407:420:420:56:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:
 L:5:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:
-L:23:56:56:0:0:1081:0:0:ROOMS | TUNNELS | LESS:
+L:17:56:56:0:0:431:0:0:ROOMS | TUNNELS | LESS:
 
-#N:11 unused (future Barrow-downs basement)
-
-#$# 11 - Unused ###
+N:11:Tyrn Gorthad
+X:12:15:0:0
+Q:8:546
+L:10:407:420:420:56:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:the entrance to
+L:11:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the barrows of
+L:23:56:56:0:0:1081:0:0:ROOMS | TUNNELS | LESS:deep under
 
 N:12:Bree
 X:10:13:14:0
@@ -341,7 +344,7 @@ W:449:28
 S:954:0:0:0:0:0:0:0
 L:17:407:420:56:49:0:31:0:SURFACE | DAYLIGHT | TOWER | WILD | TUNNELS:the hill of
 L:18:141:56:0:0:0:31:0:TOWER | LESS | MORE:the tower of
-L:30:141:0:407:0:0:31:0:TOWER | TOWN | LESS:the crown of
+L:30:141:0:407:0:0:31:0:TOWER | TOWN | MORE:the crown of
 
 N:16:Ford to Rivendell
 X:13:15:17:0
@@ -435,7 +438,7 @@ X:21:25:28:0
 Z:24:24
 G:t
 R:CAN_SWIM
-L:17:407:155:407:49:475:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS:the
+L:17:407:155:410:49:475:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | DESTROYED:the
 D:Smaug has laid waste to Lake-town.  The townsfolk gather, angry at you
 D: for disturbing his lair.  What is left of the songs of treasures and
 D: splendour you set out with?
@@ -458,7 +461,7 @@ Q:24:475
 Z:26:24
 G:B
 R:DRAGON
-L:26:407:435:56:154:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:the
+L:26:407:435:56:56:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:the
 L:27:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:western passage into the
 L:28:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the tunnels of
 L:36:56:56:0:0:475:0:0:ROOMS | TUNNELS | LESS:the Bottommost Hall under
@@ -475,7 +478,7 @@ Q:27:235
 Z:27:27
 G:C
 R:ESCORT
-L:30:407:414:56:153:235:0:0:DESTROYED | SURFACE | DAYLIGHT | BATTLE | WILD | TUNNELS:the Battle of
+L:30:407:414:56:153:235:0:0:SURFACE | DAYLIGHT | BATTLE | WILD | TUNNELS:the Battle of
 D:Five great armies have gathered at the promise of Smaug's riches hidden
 D: in the Lonely Mountain.
 
@@ -502,7 +505,7 @@ G:q
 R:EVIL
 L:36:407:420:56:420:474:44:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:37:141:56:0:0:0:44:0:TOWER | LESS | MORE:
-L:48:141:56:0:0:645:44:0:TOWER | LESS:
+L:48:141:56:0:0:645:44:0:TOWER | MORE:
 D:You have disturbed a terrible evil here... much has gone wrong with the
 D: land since its waking.
 
@@ -539,7 +542,7 @@ G:B
 R:MAGE
 L:3:407:420:141:141:0:31:0:SURFACE | DAYLIGHT | TOWER | WILD | TUNNELS:
 L:4:141:56:0:0:0:31:0:TOWER | LESS | MORE:
-L:33:141:56:0:0:1365:31:0:TOWER | LESS:
+L:33:141:56:0:0:1365:31:0:TOWER | MORE:
 D:The tower of Isengard is home to the wise councillor Saruman the White,
 D: head of the order of Istari.  However, you are not yet a member...
 
@@ -551,7 +554,7 @@ Q:51:532
 Z:33:38
 L:21:407:420:141:141:514:31:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:22:141:56:0:0:0:31:0:TOWER | LESS | MORE:
-L:40:141:56:0:0:532:31:0:TOWER | LESS:
+L:40:141:56:0:0:532:31:0:TOWER | MORE:
 D:You've discovered the true intents of Saruman and he no longer conceals
 D: his war preparations.  If you conquer Isengard, darkened by the clouds
 D: of Saruman's machinations, you open the easier path to Minas Tirith.
@@ -565,7 +568,7 @@ X:29:35:0:0
 Q:51:532
 L:30:407:420:397:141:514:31:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:31:141:56:0:0:0:31:0:TOWER | LESS | MORE:
-L:45:141:56:0:0:532:31:0:TOWER | LESS:
+L:45:141:56:0:0:532:31:0:TOWER | MORE:
 D:Almost all of the Saruman's army went for Hornburg.  What are the
 D: tidings?
 
@@ -620,7 +623,7 @@ R:WARRIOR
 S:271:516:517:519:504:511:509:508
 L:8:56:0:533:529:1310:49:0:SURFACE | DAYLIGHT | TOWER | TOWN:the town of
 L:9:141:56:0:0:0:49:0:TOWER | LESS | MORE:the town of
-L:27:141:56:0:0:1311:49:0:TOWER | LESS:the town of
+L:27:141:56:0:0:1311:49:0:TOWER | MORE:the town of
 D:The slumbering city of Edoras.  King Theoden has gathered many warriors
 D: around him, but seeks less than wise council...
 
@@ -633,9 +636,9 @@ X:50:0:0:0
 Q:36:249
 G:t
 R:TROLL
-L:22:407:420:56:155:249:49:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | BATTLE | WILD | TUNNELS:the Siege of
-L:23:141:420:56:155:249:49:0:TOWER | BATTLE | LESS | MORE:
-L:40:141:420:56:155:249:49:0:TOWER | BATTLE | LESS:
+L:22:407:420:56:155:249:49:0:SURFACE | DAYLIGHT | TOWER | BATTLE | WILD | TUNNELS:the Siege of
+L:23:141:56:0:0:249:49:0:TOWER | BATTLE | LESS | MORE:
+L:40:141:56:0:0:249:49:0:TOWER | BATTLE | MORE:
 D:Saruman's orcs have laid siege to the fortress of Hornburg.  You stand
 D: with your allies to relieve the siege --- fight your way through the
 D: narrow ravine of Helm's Deep and scale the tower to confront the leader
@@ -731,7 +734,7 @@ D: the west.
 N:45:Khazad-Dum
 X:42:0:0:0
 Q:48:483
-L:30:1:0:141:0:483:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:
+L:30:1:1:141:0:483:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:
 L:31:56:56:141:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:
 L:39:56:56:141:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:
 L:40:56:56:393:393:483:0:0:ROOMS | TUNNELS | LESS:
@@ -787,7 +790,7 @@ D: you with gifts at her mirror.
 
 N:49:Parth Galen
 X:48:57:0:0
-L:20:407:420:155:56:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:
+L:20:407:420:155:56:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE | ROOMS:
 L:21:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:
 L:40:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS:
 D:The ruins of a more ancient race lie here: the glens and hillocks strewn
@@ -811,19 +814,21 @@ D: lifeless place.
 # Goes upwards
 
 N:51:Minas Tirith
-X:31:52:54:0
+X:31:70:0:0
 Q:53:1085
 G:t
 R:MAGE
 S:505:516:517:503:519:518:509:508
 L:0:56:0:410:56:0:46:0:SURFACE | DAYLIGHT | TOWER | TOWN:
 L:1:141:56:0:0:0:46:0:TOWER | LESS | MORE:
-L:48:141:56:0:0:1085:46:0:TOWER | LESS:
+L:48:141:56:0:0:1085:46:0:TOWER | MORE:
 
 N:52:Pelennor Fields
 X:51:0:0:0
 G:W
-R:ESCORT
+R:ESCORTS
+Q:69:535
+Z:69:69
 L:43:407:435:411:420:535:0:0:SURFACE | DAYLIGHT | BATTLE | WILD | TUNNELS:the Battle of
 
 N:53:Mount Mindolluin
@@ -836,9 +841,10 @@ D: above Minas Tirith, a descendant of the sapling rescued from Numenor by
 D: King Isildur.  Come closer...
 
 N:54:Ithilien
-X:55:58:0:0
+X:55:58:70:0
 G:T
 R:WARRIOR
+Q:69:535
 S:512:520:521:522:0:0:0:0
 L:20:407:420:155:199:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:
 L:21:56:0:1:155:1084:0:0:TOWN | LESS:
@@ -850,7 +856,7 @@ X:54:0:0:0
 R:UNDEAD
 L:42:407:407:56:397:492:46:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:43:141:56:0:397:0:46:0:TOWER | LESS | MORE:
-L:57:141:56:0:0:535:46:0:TOWER | LESS:
+L:57:141:56:0:0:535:46:0:TOWER | MORE:
 
 # Goes upwards
 # Note that we need a map to travel from Minas Morgul to Cirith Ungol now.
@@ -860,14 +866,14 @@ X:55:0:0:0
 Q:62:530
 L:42:407:56:141:141:530:11:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:43:141:56:1:0:0:11:0:TOWER | LESS | MORE:
-L:48:141:56:1:0:641:11:0:TOWER | LESS:
+L:48:141:56:1:0:641:11:0:TOWER | MORE:
 
 # TODO: find anything to do here, e.g. guardian that opens the way forth
 
 N:57:Dead Marshes
 X:49:54:0:0
 R:UNDEAD
-L:41:407:199:200:201:505:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS:
+L:41:407:199:396:442:442:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS:
 D:A dreadful place.  Nobody who crosses these marshes returns.
 
 # Goes upwards
@@ -876,16 +882,17 @@ N:58:Morannon
 X:54:59:0:0
 G:q
 R:EVIL
+Q:67:535
 L:40:407:407:56:397:538:43:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:41:141:56:0:397:0:43:0:TOWER | LESS | MORE:
-L:53:141:56:0:0:538:43:0:TOWER | LESS:
+L:53:141:56:0:0:538:43:0:TOWER | MORE:
 
 N:59:Udun
 X:58:60:0:0
 R:DEMON
 L:54:407:407:218:218:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:
 L:55:56:56:218:218:0:0:0:ROOMS | TUNNELS | LESS | MORE:
-L:58:56:56:218:218:545:0:0:ROOMS | TUNNELS | LESS:
+L:58:56:56:218:218:545:0:0:ROOMS | TUNNELS | MORE:
 
 N:60:Isenmouthe
 X:59:61:0:0
@@ -896,7 +903,7 @@ N:61:Plains of Gorgoroth
 X:60:62:0:0
 G:o
 L:48:407:441:201:431:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:the
-L:54:56:56:209:0:595:0:0:ROOMS | TUNNELS | LESS:beneath the
+L:54:56:56:209:0:595:0:0:ROOMS | TUNNELS | MORE:beneath the
 
 N:62:Orodruin
 X:61:63:0:0
@@ -904,7 +911,7 @@ Q:17:546
 R:BRTH_FIRE
 L:54:407:432:218:218:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:
 L:55:56:56:218:218:0:0:0:ROOMS | TUNNELS | LESS | MORE:
-L:59:56:56:218:218:546:0:0:ROOMS | TUNNELS | LESS:
+L:59:56:56:218:218:546:0:0:ROOMS | TUNNELS | MORE:
 D:You can choose to confront Sauron here, deep in the blasted bowels of
 D: this mountain.
 
@@ -917,7 +924,7 @@ G:M
 R:EVIL
 L:48:407:409:218:216:541:20:0:DESTROYED | SURFACE | DAYLIGHT | TOWER | WILD | ROOMS | TUNNELS:
 L:49:141:56:218:216:0:20:0:TOWER | LESS | MORE:
-L:59:141:56:218:216:546:20:0:TOWER | LESS:
+L:59:141:56:218:216:546:20:0:TOWER | MORE:
 D:You can choose to confront Sauron here, high in a tower lit by a flaming
 D: eye.
 
@@ -952,26 +959,43 @@ L:30:407:56:144:145:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNEL
 L:31:56:148:145:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the
 L:45:56:148:145:0:0:0:0:ROOMS | TUNNELS | LESS:the
 
-#N:67 unused
+N:67:Black-Gate
+X:54:59:69:0
+G:T
+R:ESCORTS
+L:45:407:407:56:397:538:43:0:SURFACE | DAYLIGHT | WILD | TUNNELS | BATTLE:the Battle of
 
 # Alternate to bypass Moria etc. and reach Angband...
 
-#$# 67 - Unused ###
-
 N:68:ruins of Angmar
-X:17:69:0:0
+X:17:72:0:0
 R:UNDEAD
 L:30:407:425:141:141:0:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS | MORE:the
 L:31:56:56:141:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the
 L:50:56:56:0:0:535:0:0:ROOMS | TUNNELS | LESS | MORE:the
 L:51:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS:the
 
+N:69:Army of the West
+X:67:0:0:0
+R:WARRIOR
+S:992:993:994:995:0:0:0:0
+L:0:56:0:407:0:0:0:0:SURFACE | DAYLIGHT | TOWN:
+D:A great force, ready to assail the gates of Mordor.
+
+N:70:Osgiliath
+X:51:54:0:0
+G:o
+R:ESCORT
+Q:52:457
+Z:52:52
+L:40:407:49:155:199:457:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | ROOMS | DESTROYED | BATTLE:the siege of
+
 # The non-campaign starting dungeon.
 # Must always be second to last position
 
-N:69:Angband
+N:72:Angband
 X:68:0:0:0
-Q:70:547
+Q:73:547
 S:8:9:10:11:12:13:14:15
 L:0:56:0:407:0:0:0:0:SURFACE | DAYLIGHT | TOWN | MORE:the Siege Camp around
 L:1:56:56:0:0:0:0:0:ROOMS | TUNNELS | LESS | MORE:the Dungeon of
@@ -981,7 +1005,7 @@ D:It feels like home...
 
 # Must always be last position
 
-N:70:the West
+N:73:the West
 X:0:0:0:0
 G:M
 S:777:0:0:0:0:0:0:0

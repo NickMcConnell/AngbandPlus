@@ -2338,8 +2338,8 @@ void display_map(int *cy, int *cx)
 	map_hgt = Term->hgt - 2;
 	map_wid = Term->wid - 2;
 
-	dungeon_hgt = (!(zone->fill)) ? TOWN_HGT : DUNGEON_HGT;
-	dungeon_wid = (!(zone->fill)) ? TOWN_WID : DUNGEON_WID;
+	dungeon_hgt = (level_flag & (LF1_TOWN)) != 0 ? TOWN_HGT : DUNGEON_HGT;
+	dungeon_wid = (level_flag & (LF1_TOWN)) != 0 ? TOWN_WID : DUNGEON_WID;
 
 	/* Prevent accidents */
 	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
@@ -5000,8 +5000,8 @@ void town_illuminate(bool daytime)
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-	dungeon_hgt = (!(zone->fill)) ? TOWN_HGT : DUNGEON_HGT;
-	dungeon_wid = (!(zone->fill)) ? TOWN_WID : DUNGEON_WID;
+	dungeon_hgt = (level_flag & (LF1_TOWN)) != 0 ? TOWN_HGT : DUNGEON_HGT;
+	dungeon_wid = (level_flag & (LF1_TOWN)) != 0 ? TOWN_WID : DUNGEON_WID;
 
 	/* Darken at night */
 	for (y = 0; y < dungeon_hgt; y++)

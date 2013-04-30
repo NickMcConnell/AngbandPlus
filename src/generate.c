@@ -110,7 +110,9 @@
 /* DUN_ROOMS now defined in defines.h */
 #define DUN_NATURE_SURFACE	80	/* Chance in 100 of having lakes on surface */
 #define DUN_NATURE_DEEP		40	/* Chance in 100 of having lakes at depth */
-#define DUN_MAX_LAKES   5       /* Maximum number of lakes/rivers */
+#define DUN_MAX_LAKES		 8	/* Maximum number of lakes/rivers */
+#define DUN_MAX_LAKES_NONE   8	/* Maximum number of lakes/rivers in roomless areas */
+#define DUN_MAX_LAKES_ROOM   4	/* Maximum number of lakes/rivers in normal areas */
 #define DUN_FEAT_RNG    2       /* Width of lake */
 
 /*
@@ -606,6 +608,12 @@ static void build_terrain(int y, int x, int feat)
 	feature_type *f_ptr;
 	feature_type *f2_ptr;
 
+	/* Get dungeon zone */
+	dungeon_zone *zone=&t_info[0].zone[0];
+
+	/* Get the zone */
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
 	/* Get the feature */
 	oldfeat = cave_feat[y][x];
 	f_ptr = &f_info[oldfeat];
@@ -803,7 +811,7 @@ static void build_terrain(int y, int x, int feat)
 		else if (f_ptr->flags2 & (FF2_HURT_COLD)) newfeat = feat_state(oldfeat,FS_HURT_COLD);
 		else if (f_ptr->flags2 & (FF2_HIDE_DIG)) newfeat = feat;
 	}
-	else if ((f_ptr->flags2 & (FF2_WATER)) || (f2_ptr->flags2 & (FF2_WATER)))
+	else if ((f_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_WATER)))
 	{
 		/* Hack -- we try and match water properties */
 		u32b mask1 = (FF1_SECRET | FF1_LESS);
@@ -846,10 +854,18 @@ static void build_terrain(int y, int x, int feat)
 
 			newfeat = i;
 		}
+
 	}
 	else if ((f_ptr->flags2 & (FF2_CAN_DIG)) || (f2_ptr->flags2 & (FF2_CAN_DIG)))
 	{
 		newfeat = feat;
+	}
+
+	/* Hack -- unchanged? */
+	if (newfeat == oldfeat)
+	{
+		if (feat == zone->big) newfeat = zone->big;
+		else if (feat == zone->small) newfeat = zone->small;
 	}
 
 	/* Vary the terrain */
@@ -10415,6 +10431,20 @@ static bool build_feature(int feat, bool do_big_lake, bool merge_lakes)
 
 		/* Generate the river */
 		build_river(feat, y0, x0);
+
+		/* Usually build an outflow as well */
+		if ((!merge_lakes) && (rand_int(100) < 90))
+		{
+			/* Pick starting coordinates, if needed */
+			if ((y0 + x0) == 0)
+			{
+				y0 = randint(DUNGEON_HGT - 2);
+				x0 = randint(DUNGEON_WID - 2);
+			}
+
+			/* Generate the river */
+			build_river(feat, y0, x0);
+		}
 	}
 
 	/* Ensure interesting stuff in lake */
@@ -10433,8 +10463,10 @@ static void build_nature(void)
 {
 	bool big = FALSE;
 	bool done_big = FALSE;
+	bool force_big = FALSE;
 
 	int feat;
+	int max_lakes = level_flag & (LF1_ROOMS) ? DUN_MAX_LAKES_ROOM : DUN_MAX_LAKES_NONE;
 
 	/* Flavor */
 	bool merge_lakes = ((p_ptr->depth >= 30) && !rand_int(7));
@@ -10446,7 +10478,7 @@ static void build_nature(void)
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Allocate some lakes and rivers */
-	for (dun->lake_n = 0; dun->lake_n < DUN_MAX_LAKES; )
+	for (dun->lake_n = 0; dun->lake_n < max_lakes; )
 	{
 		/* Have placed features */
 		if (!(zone->big) && !(zone->small) && (rand_int(100) >= ((level_flag & (LF1_SURFACE)) ? DUN_NATURE_SURFACE : DUN_NATURE_DEEP)))
@@ -10454,7 +10486,8 @@ static void build_nature(void)
 			break;
 		}
 
-		if ((dun->lake_n == 0) && (zone->big))
+		/* Place zone big terrain last */
+		if ((force_big) || ((dun->lake_n >= max_lakes - (max_lakes + 3) / 4) && (zone->big)))
 		{
 			feat = zone->big;
 			big = TRUE;
@@ -10473,21 +10506,16 @@ static void build_nature(void)
 		if (feat)
 		{
 			/* Try a big lake */
-			if (!done_big)
+			if ((!done_big) && (!big))
 			{
 				big = (randint(150) < p_ptr->depth);
 
 				/* Got one */
-				done_big = big;
-			}
-			else
-			{
-				/* We have a big one already */
-				big = FALSE;
+				done_big |= big;
 			}
 
-			/* Shallow dungeons have separate lakes */
-			if (rand_int(75) > p_ptr->depth)
+			/* Shallow and roomless dungeons have separate lakes */
+			if ((force_big) || ((level_flag & (LF1_ROOMS)) == 0) || (rand_int(75) > p_ptr->depth))
 			{
 				/* Report creation of lakes/rivers */
 				if (cheat_room)
@@ -10503,8 +10531,8 @@ static void build_nature(void)
 					}
 				}
 
-				/* Build one lake/river on surface */
-				if (!build_feature(feat, big, merge_lakes)) break;
+				/* Build one lake/river */
+				if ((!build_feature(feat, big, merge_lakes)) || (force_big)) break;
 			}
 			else
 			{
@@ -10517,9 +10545,14 @@ static void build_nature(void)
 				/* Flood the dungeon */
 				dun->flood_feat = feat;
 
-				break;
+				/* Must place one big feature */
+				if (zone->big) force_big = TRUE;
+				else break;
 			}
 		}
+
+		/* Clear big-ness for next iteration */
+		big = FALSE;
 	}
 }
 
@@ -10737,13 +10770,15 @@ static void build_streamer(int feat)
 }
 
 
+#define SPELL_DESTRUCTION	32
+
 /*
  * Build a destroyed level
  */
 static void destroy_level(void)
 {
-	int y1, x1, y, x, k, t, n;
-
+	int y, x, n;
+	bool dummy = FALSE;
 
 	/* Note destroyed levels */
 	if (cheat_room) message_add("Destroyed Level", MSG_GENERIC);
@@ -10752,109 +10787,11 @@ static void destroy_level(void)
 	for (n = 0; n < randint(5); n++)
 	{
 		/* Pick an epi-center */
-		x1 = rand_range(5, DUNGEON_WID-1 - 5);
-		y1 = rand_range(5, DUNGEON_HGT-1 - 5);
+		x = rand_range(5, DUNGEON_WID-1 - 5);
+		y = rand_range(5, DUNGEON_HGT-1 - 5);
 
-		/* Big area of affect */
-		for (y = (y1 - 15); y <= (y1 + 15); y++)
-		{
-			for (x = (x1 - 15); x <= (x1 + 15); x++)
-			{
-				/* Skip illegal grids */
-				if (!in_bounds_fully(y, x)) continue;
-
-				/* Extract the distance */
-				k = distance(y1, x1, y, x);
-
-				/* Stay in the circle of death */
-				if (k >= 16) continue;
-
-				/* Delete the monster (if any) */
-				delete_monster(y, x);
-
-				/* Destroy "outside" grids */
-				if ((cave_valid_bold(y,x)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
-				{
-					/* Delete objects */
-					delete_object(y, x);
-
-					/* Burn stuff */
-					if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-					{
-						cave_alter_feat(y,x,FS_HURT_FIRE);
-					}
-					/* Don't touch chasms */
-					else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
-					{
-						/* Nothing */
-					}
-							/* Magma */
-					else if (rand_int(100)< 15)
-					{
-						/* Create magma vein */
-						cave_set_feat(y, x, FEAT_RUBBLE);
-					}
-
-
-				}
-				/* Destroy valid grids */
-				else if (cave_valid_bold(y, x))
-				{
-					/* Delete objects */
-					delete_object(y, x);
-
-					/* Wall (or floor) type */
-					t = rand_int(200);
-
-					/* Burn stuff */
-					if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-					{
-						cave_alter_feat(y,x,FS_HURT_FIRE);
-					}
-
-					/* Granite */
-					else if (t < 20)
-					{
-						/* Create granite wall */
-						cave_set_feat(y, x, FEAT_WALL_EXTRA);
-					}
-
-					/* Quartz */
-					else if (t < 70)
-					{
-						/* Create quartz vein */
-						cave_set_feat(y, x, FEAT_QUARTZ);
-					}
-
-					/* Magma */
-					else if (t < 100)
-					{
-						/* Create magma vein */
-						cave_set_feat(y, x, FEAT_MAGMA);
-					}
-
-					/* Rubble */
-					else if (t < 130)
-					{
-						/* Create rubble */
-						cave_set_feat(y, x, FEAT_RUBBLE);
-					}
-
-					/* Floor */
-					else
-					{
-						/* Create floor */
-						cave_set_feat(y, x, FEAT_FLOOR);
-					}
-
-					/* No longer part of a room or vault */
-					cave_info[y][x] &= ~(CAVE_ROOM);
-
-					/* No longer illuminated */
-					cave_info[y][x] &= ~(CAVE_GLOW);
-				}
-			}
-		}
+		/* Apply destruction effect */
+		process_spell_target(0, 0, y, x, y, x, SPELL_DESTRUCTION, 0, 1, FALSE, TRUE, FALSE, &dummy, NULL);
 	}
 }
 
@@ -11976,8 +11913,8 @@ static bool place_contents()
 	int i, k;
 
 	/* Hack -- have less monsters during day light */
-	if ((level_flag & (LF1_DAYLIGHT)) != 0) k = (p_ptr->depth / 6);
-	else k = (p_ptr->depth / 3);
+	if ((level_flag & (LF1_DAYLIGHT)) != 0) k = (p_ptr->depth / 10);
+	else k = (p_ptr->depth / 5);
 
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
@@ -12027,8 +11964,8 @@ static bool place_contents()
 	if (((p_ptr->py == 0) || (p_ptr->px == 0)) && ! (new_player_spot())) return (FALSE);
 
 	/* Pick a base number of monsters */
-	/* Strongholds and sewers have more monsters */
-	i = MIN_M_ALLOC_LEVEL + randint(8 * (((level_flag & (LF1_STRONGHOLD | LF1_SEWER | LF1_BATTLE)) != 0) ? 2 : 1));
+	/* Strongholds, sewers, battlefields and wilderness areas have more monsters */
+	i = MIN_M_ALLOC_LEVEL + randint(5 * (((level_flag & (LF1_STRONGHOLD | LF1_SEWER | LF1_BATTLE | LF1_WILD)) != 0) ? 2 : 1));
 
 	/* Generating */
 	if (cheat_room) message_add("Placing monsters.", MSG_GENERIC);
@@ -12146,7 +12083,7 @@ static bool cave_gen(void)
 
 	/* Hack -- Build terrain */
 	/* XXX Get rid of this later */
-	if (zone->fill)
+	if ((zone->fill) && (zone->fill != zone->base))
 	{
 		for (y = 0; y < DUNGEON_HGT; y++)
 		{
@@ -13178,7 +13115,7 @@ void generate_cave(void)
 		/* Set this dungeon as visited */
 		t_info[p_ptr->dungeon].visited = TRUE;
 
-		/* Style tips */
+		/* Show tip */
 		queue_tip(format("dungeon%d.txt", p_ptr->dungeon));
 	}
 

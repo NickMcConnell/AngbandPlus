@@ -595,7 +595,7 @@ static void sense_inventory(void)
 		}
 
 		/* Eggs become 'attuned' to the player if carried awhile, resulting in friendly monsters */
-		if (o_ptr->tval == TV_EGG) o_ptr->ident = (IDENT_FORGED);
+		if ((o_ptr->tval == TV_EGG) && (o_ptr->timeout)) o_ptr->ident = (IDENT_FORGED);
 
 		/* Sense flags to see if we have ability */
 		if ((i >= INVEN_WIELD) && !(IS_QUIVER_SLOT(i)))
@@ -1769,10 +1769,11 @@ static void process_world(void)
 	sense_inventory();
 
 	/* Show tips */
-	if  (!p_ptr->command_rep
+	if  (((turn < old_turn + 1000) && !(turn % 100)) ||
+		(!p_ptr->command_rep
 		 && ((p_ptr->searching && !(turn % 1000))
 			 || (is_typical_town(p_ptr->dungeon, p_ptr->depth)
-				 && !(turn % 100))))
+				 && !(turn % 100)))))
 	{
 		/* Show a tip */
 		show_tip();

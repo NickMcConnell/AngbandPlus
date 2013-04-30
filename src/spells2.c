@@ -1040,13 +1040,13 @@ bool lose_all_info(void)
 /*
  *  Set word of recall as appropriate
  */
-void set_recall(void)
+static bool set_recall(void)
 {
 	/* Ironman */
 	if (adult_ironman && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
-		return;
+		return (FALSE);
 	}
 
 	/* Activate recall */
@@ -1055,7 +1055,7 @@ void set_recall(void)
 		if (!get_check("The air starts crackling. Are you sure you want to continue? "))
 		{
 		    msg_print("A sudden discharge fills the air with a strange smell...");
-		    return;
+		    return (FALSE);
 		}
 
 		/* Save the old dungeon in case something goes wrong */
@@ -1080,6 +1080,8 @@ void set_recall(void)
 		p_ptr->word_recall = 0;
 		msg_print("A tension leaves the air around you...");
 	}
+
+	return (TRUE);
 }
 
 
@@ -2634,7 +2636,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			}
 			else if (o_ptr->to_d > o_ptr->dd * o_ptr->ds + 5) chance = 1000;
 			else if (o_ptr->to_d < o_ptr->dd * o_ptr->ds) chance = enchant_table[o_ptr->to_d * 10 / o_ptr->dd / o_ptr->ds];
-			else chance = enchant_table[o_ptr->to_d + 10 - o_ptr->dd - o_ptr->ds];
+			else chance = enchant_table[o_ptr->to_d + 10 - o_ptr->dd * o_ptr->ds];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -6406,8 +6408,15 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	if (s_ptr->flags2 & (SF2_RECALL))
 	{
-		set_recall();
-		obvious = TRUE;
+		if (set_recall())
+		{
+			*cancel = FALSE;
+			obvious = TRUE;
+		}
+		else
+		{
+			return (TRUE);
+		}
 	}
 
 	/* SF3 - healing self, and untimed improvements */
@@ -6864,6 +6873,13 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				{
 					o_ptr->timeout = FUEL_TORCH;
 					msg_format("Your torch%s fully fueled.", o_ptr->number > 1 ? "es are" : " is");
+				}
+
+				/* Switch off light source if in inventory*/
+				if ((item >= 0) && (item < INVEN_WIELD))
+				{
+					o_ptr->charges = o_ptr->timeout;
+					o_ptr->timeout = 0;
 				}
 
 				/* Lite if necessary */
@@ -9197,7 +9213,7 @@ void trigger_region(int y, int x, bool move)
 			 * This prevents a situation where a region gets retriggered by a monster drop
 			 * due to a monster dying, and recursively overrunning the stack. */
 			r_ptr->flags1 |= (RE1_TRIGGERED);
-			
+
 			/* Actually discharge the region */
 			notice |= region_effect(rp_ptr->region, y, x);
 

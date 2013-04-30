@@ -1614,6 +1614,10 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 				f4 &= ~(RF4_BLOW_1 << i);
 		}
 
+		/* Hack -- remove beam spells 'by hand' */
+		if (dist > 10) f5 &= ~(RF5_BEAM_NETHR | RF5_BEAM_ELEC);
+		if (dist >  12) f5 &= ~(RF5_BEAM_ICE);
+
 		/* No spells left */
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 
@@ -1655,15 +1659,16 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 					 ((f7 & (RF7_BALL_MASK)) != 0)))
 			{
 				int rad = (r_ptr->spell_power < 10 ? 2 : (r_ptr->spell_power < 40 ? 3 : (r_ptr->spell_power < 80 ? 4 : 5)));
+				int dist2 = distance(*tar_y, *tar_x, p_ptr->py, p_ptr->px);
 
 				/* Hack -- melee attacks */
-				if (dist < 2)
+				if (dist2 < 2)
 				{
 					f4 &= ~(rf4_ball_mask);
 				}
 
 				/* Check for spell range */
-				if (dist < rad)
+				if (dist2 < rad)
 				{
 					f4 &= ~(rf4_ball_mask);
 					f5 &= ~(RF5_BALL_MASK);
@@ -1672,7 +1677,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 				}
 
 				/* Hack -- some balls are bigger */
-				else if (dist == rad)
+				else if (dist2 == rad)
 				{
 					f5 &= ~(RF5_BALL_POIS | RF5_BALL_WIND | RF5_BALL_WATER);
 				}
@@ -3678,8 +3683,8 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 			/* Player name */
 			if (*s == '&')
 			{
-				/* Hack -- townsfolk know the players name */
-				if ((m_ptr->mflag & (MFLAG_TOWN)) && (strlen(op_ptr->full_name)))
+				/* Hack -- townsfolk and allies know the players name */
+				if ((m_ptr->mflag & (MFLAG_TOWN | MFLAG_ALLY)) && (strlen(op_ptr->full_name)))
 				{
 					u = op_ptr->full_name;
 

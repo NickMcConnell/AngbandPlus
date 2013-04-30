@@ -184,15 +184,15 @@ void do_cmd_borg(void)
 				/* New dungeon */
 				p_ptr->dungeon = (s16b)rand_int(z_info->t_max);
 
+				/* New depth */
+				p_ptr->depth = (s16b)rand_range(min_depth(p_ptr->dungeon), max_depth(p_ptr->dungeon));
+				
 				/* Get the zone */
 				get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
-				if (zone->fill) break;
-
+				if ((zone->flags1 & (LF1_TOWN)) == 0) break;
 			}
 
-			/* New depth */
-			p_ptr->depth = (s16b)rand_range(min_depth(p_ptr->dungeon), max_depth(p_ptr->dungeon));
 		}
 		else
 		{

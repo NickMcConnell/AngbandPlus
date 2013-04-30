@@ -4,7 +4,7 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
+ * and not for protv_fit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
  * UnAngband (c) 2001-2009 Andrew Doull. Modifications to the Angband 2.9.1
@@ -1379,102 +1379,98 @@ s32b object_value(const object_type *o_ptr)
 
 		/* Real value (see above) */
 		value = object_value_real(o_ptr);
-
-		return (value);
 	}
 
-	/* Unknown items -- acquire a base value */
-	else
+	/* Hack -- Felt broken items */
+	else if (o_ptr->feeling == INSCRIP_TERRIBLE
+			  || o_ptr->feeling == INSCRIP_WORTHLESS
+			  || o_ptr->feeling == INSCRIP_CURSED
+			  || o_ptr->feeling == INSCRIP_BROKEN)
 	{
-		/* Hack -- Felt broken items */
-		if (o_ptr->feeling == INSCRIP_TERRIBLE
-				  || o_ptr->feeling == INSCRIP_WORTHLESS
-				  || o_ptr->feeling == INSCRIP_CURSED
-				  || o_ptr->feeling == INSCRIP_BROKEN)
-			return (0L);
+		return (0L);
+	}
 
-		/* Named value (use 'real' value and attempt to hack) */
-		if (object_named_p(o_ptr))
+	/* Named value (use 'real' value and attempt to hack) */
+	else if (object_named_p(o_ptr))
+	{
+		object_type object_type_body;
+		object_type *j_ptr = &object_type_body;
+
+		/* Copy object */
+		object_copy(j_ptr, o_ptr);
+
+		/* Remove unknown information */
+		if (!object_bonus_p(o_ptr))
 		{
-			object_type object_type_body;
-			object_type *j_ptr = &object_type_body;
-
-			/* Copy object */
-			object_copy(j_ptr, o_ptr);
-
-			/* Remove unknown information */
-			if (!object_bonus_p(o_ptr))
-			{
-				if (o_ptr->name1)
-				{
-					j_ptr->to_h = a_info[o_ptr->name1].to_h;
-					j_ptr->to_d = a_info[o_ptr->name2].to_d;
-					j_ptr->to_a = a_info[o_ptr->name3].to_a;
-				}
-				else if (o_ptr->name2)
-				{
-					j_ptr->to_h = e_info[o_ptr->name2].max_to_h / 2;
-					j_ptr->to_d = e_info[o_ptr->name2].max_to_d / 2;
-					j_ptr->to_a = e_info[o_ptr->name2].max_to_a / 2;
-				}
-				else
-				{
-					j_ptr->to_h = k_info[o_ptr->to_h].to_h;
-					j_ptr->to_d = k_info[o_ptr->to_d].to_d;
-					j_ptr->to_a = k_info[o_ptr->to_a].to_a;
-				}
-			}
-			if (!object_charges_p(o_ptr)) j_ptr->charges = 0;
-			if (!object_pval_p(o_ptr))
-			{
-				if (o_ptr->name1)
-				{
-					j_ptr->pval = a_info[o_ptr->name1].pval;
-				}
-				else if (o_ptr->name2)
-				{
-					j_ptr->pval = e_info[o_ptr->name2].max_pval / 2;
-				}
-				else
-				{
-					j_ptr->pval = k_info[o_ptr->to_h].pval;
-				}
-			}
-
-			/* Try curse analysis */
 			if (o_ptr->name1)
 			{
-				if (a_info[o_ptr->name1].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
-					j_ptr->ident |= (IDENT_CURSED);
+				j_ptr->to_h = a_info[o_ptr->name1].to_h;
+				j_ptr->to_d = a_info[o_ptr->name2].to_d;
+				j_ptr->to_a = a_info[o_ptr->name3].to_a;
 			}
 			else if (o_ptr->name2)
 			{
-				if (e_info[o_ptr->name2].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
-					j_ptr->ident |= (IDENT_CURSED);
+				j_ptr->to_h = e_info[o_ptr->name2].max_to_h / 2;
+				j_ptr->to_d = e_info[o_ptr->name2].max_to_d / 2;
+				j_ptr->to_a = e_info[o_ptr->name2].max_to_a / 2;
 			}
 			else
 			{
-				if (k_info[o_ptr->k_idx].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
-					j_ptr->ident |= (IDENT_CURSED);
-				else
-					j_ptr->ident &= ~(IDENT_CURSED | IDENT_BROKEN);
+				j_ptr->to_h = k_info[o_ptr->to_h].to_h;
+				j_ptr->to_d = k_info[o_ptr->to_d].to_d;
+				j_ptr->to_a = k_info[o_ptr->to_a].to_a;
 			}
-
-			/* Hack -- get 'real' value */
-			value = object_value_real(j_ptr);
-
-			/* Apply discount (if any) */
-			if (o_ptr->discount > 0)
+		}
+		if (!object_charges_p(o_ptr)) j_ptr->charges = 0;
+		if (!object_pval_p(o_ptr))
+		{
+			if (o_ptr->name1)
 			{
-				value -= (value * o_ptr->discount / 100L);
+				j_ptr->pval = a_info[o_ptr->name1].pval;
 			}
-
-			/* Done */
-			return(value);
+			else if (o_ptr->name2)
+			{
+				j_ptr->pval = e_info[o_ptr->name2].max_pval / 2;
+			}
+			else
+			{
+				j_ptr->pval = k_info[o_ptr->to_h].pval;
+			}
 		}
 
+		/* Try curse analysis */
+		if (o_ptr->name1)
+		{
+			if (a_info[o_ptr->name1].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+				j_ptr->ident |= (IDENT_CURSED);
+		}
+		else if (o_ptr->name2)
+		{
+			if (e_info[o_ptr->name2].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+				j_ptr->ident |= (IDENT_CURSED);
+		}
+		else
+		{
+			if (k_info[o_ptr->k_idx].flags3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_UNCONTROLLED))
+				j_ptr->ident |= (IDENT_CURSED);
+			else
+				j_ptr->ident &= ~(IDENT_CURSED | IDENT_BROKEN);
+		}
+
+		/* Hack -- get 'real' value */
+		value = object_value_real(j_ptr);
+
+		/* Apply discount (if any) */
+		if (o_ptr->discount > 0)
+		{
+			value -= (value * o_ptr->discount / 100L);
+		}
+	}
+	/* Unknown items -- acquire a base value */
+	else
+	{
 		/* Base value (see above) */
-		else value = object_value_base(o_ptr);
+		value = object_value_base(o_ptr);
 
 		/* Hack -- assess known pval */
 		if (object_pval_p(o_ptr))
@@ -1832,10 +1828,16 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall through */
 		}
 
-		/* Rings, Amulets, Lites, Instruments */
+		/* Lites */
+		case TV_LITE:
+		{
+			if ((o_ptr->charges != 0) == (j_ptr->timeout != 0)) return (FALSE);
+			if ((o_ptr->timeout != 0) == (j_ptr->charges != 0)) return (FALSE);
+		}
+
+		/* Rings, Amulets, Instruments */
 		case TV_RING:
 		case TV_AMULET:
-		case TV_LITE:
 		case TV_INSTRUMENT:
 
 		/* Missiles */
@@ -5779,12 +5781,14 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 				case 28: tval_drop_idx = TV_STAFF; break;
 				case 29:	tval_drop_idx = TV_HARD_ARMOR; break;
 				case 30:	tval_drop_idx = TV_AMULET; break;
-				case 32: tval_drop_idx = TV_ROD; break;
-				case 33: tval_drop_idx = TV_MAGIC_BOOK; break;
-				case 34:	tval_drop_idx = TV_PRAYER_BOOK; break;
-				case 35:	tval_drop_idx = TV_SONG_BOOK; break;
-				case 36:	tval_drop_idx = TV_INSTRUMENT; break;
-				case 37:	tval_drop_idx = TV_RUNESTONE; break;
+				case 31: tval_drop_idx = TV_POTION; break;
+				case 32: tval_drop_idx = TV_SCROLL; break;
+				case 33: tval_drop_idx = TV_ROD; break;
+				case 34: tval_drop_idx = TV_MAGIC_BOOK; break;
+				case 35:	tval_drop_idx = TV_PRAYER_BOOK; break;
+				case 36:	tval_drop_idx = TV_SONG_BOOK; break;
+				case 37:	tval_drop_idx = TV_INSTRUMENT; break;
+				case 38:	tval_drop_idx = TV_RUNESTONE; break;
 			}
 
 			if (tval_drop_idx)
@@ -6731,7 +6735,7 @@ bool break_near(object_type *j_ptr, int y, int x)
 		  j_ptr->to_h--;
 
 		  /* Message */
-		  msg_format("Your %s bends!", o_name);
+		  if (!(j_ptr->ident & (IDENT_BREAKS))) msg_format("Your %s bends!", o_name);
 
 		  return (FALSE);
 		}
@@ -6740,7 +6744,7 @@ bool break_near(object_type *j_ptr, int y, int x)
 		  j_ptr->to_d--;
 
 		  /* Message */
-		  msg_format("Your %s chips!", o_name);
+		  if (!(j_ptr->ident & (IDENT_BREAKS))) msg_format("Your %s chips!", o_name);
 
 		  return (FALSE);
 		}
@@ -8760,6 +8764,13 @@ s16b inven_carry(object_type *o_ptr)
 	object_type *j_ptr;
 
 	int book_tval= c_info[p_ptr->pclass].spell_book;
+
+	/* XXX Douse lights in inventory */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout))
+	{
+		o_ptr->charges = o_ptr->timeout;
+		o_ptr->timeout = 0;
+	}
 
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)

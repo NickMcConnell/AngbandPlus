@@ -630,7 +630,7 @@ F:314:0:726:0:0
 K:1:0:99
 R:MAN
 
-N:104:119:0:0:15:2:20:128
+N:104:119:0:0:15:2:15:128
 A:
 B:cell
 D:A wooden cage 
@@ -666,7 +666,7 @@ S:SEEN
 R:GIANT
 P:SCATTER
 
-N:104:119:0:0:25:5:1:128
+N:104:119:0:0:25:5:5:128
 A:
 B:
 D:A fallen statue 
@@ -675,7 +675,7 @@ F:0:0:732:0:0
 S:SEEN
 R:MAN
 
-N:104:119:0:0:25:5:1:128
+N:104:119:0:0:25:5:10:128
 A:
 B:
 D:A statue 
@@ -838,7 +838,7 @@ F:313:0:313:0:0
 K:2:4:4
 R:ANIMAL
 
-N:104:105:107:126:25:2:50:128
+N:104:105:107:126:25:2:40:128
 A:
 B:throneroom
 D:A stone throne 
@@ -848,7 +848,7 @@ F:807:0:732:0:0
 P:ALLOC
 R:NONLIVING
 
-N:104:105:107:127:25:2:45:128
+N:104:105:107:127:25:2:20:128
 A:
 B:throneroom
 D:An iron throne 
@@ -858,7 +858,7 @@ F:807:0:732:0:0
 S:SEEN
 P:ALLOC
 
-N:104:105:107:127:25:1:45:128
+N:104:105:107:127:25:1:30:128
 A:
 B:throneroom
 D:A gold-leafed throne 
@@ -868,13 +868,13 @@ F:807:0:732:0:0
 S:SEEN
 P:ALLOC
 
-N:104:105:0:0:50:0:40:128
+N:104:105:0:0:50:0:30:128
 A:
 B:nest
 D:A huge nest 
 G:B
 S:SEEN
-K:8:3:3:0:0
+K:8:3:3
 P:SCATTER
 
 N:104:105:0:0:50:0:25:128
@@ -938,7 +938,6 @@ A:
 B:
 D:A giant stone head 
 S:SEEN
-K:12:14:14:0:0
 F:57:0:0:0:0
 R:GIANT
 
@@ -947,7 +946,6 @@ A:
 B:
 D:A giant stone head 
 S:SEEN
-K:12:14:14:0:0
 F:57:0:0:0:0
 R:DWARF
 
@@ -1935,7 +1933,7 @@ S:SEEN
 R:DROP_MISSILE
 P:PLACE | SCATTER
 
-N:106:107:0:0:75:1:1:128
+N:106:107:0:0:75:1:10:128
 A:machine
 B:
 D:covered with machine parts. 
@@ -2493,7 +2491,7 @@ B:
 D:heady with the perfume of flowers. 
 G:PLANT
 
-N:108:109:0:0:15:0:9:128
+N:108:109:0:0:15:0:7:128
 A:
 B:
 D:filled with spores. 
@@ -2843,7 +2841,7 @@ N:112:153:115:107:15:1:15:128
 A:
 B:
 D:the clank of machinery... 
-F:987:0:0:0:0
+F:971:0:0:0:0
 P:PLACE | SCATTER
 
 N:112:115:0:0:15:1:51:128
@@ -3301,7 +3299,7 @@ P:OUTER
 S:SEEN
 R:SMART
 
-N:117:102:107:123:25:2:65:128
+N:117:102:107:123:25:2:47:128
 A:painted
 B:
 D:Paintings cover 
@@ -3311,7 +3309,7 @@ S:SEEN
 R:SMART
 K:11:29:29
 
-N:117:102:107:123:25:2:70:128
+N:117:102:107:123:25:2:50:128
 A:painted
 B:
 D:Paintings cover 
@@ -3330,7 +3328,7 @@ P:OUTER
 G:z
 S:SEEN
 
-N:117:102:0:0:10:1:60:128
+N:117:102:0:0:10:1:40:128
 A:runed
 B:
 D:Strange runes cover 
@@ -3833,7 +3831,7 @@ S:SEEN
 K:11:3:3
 P:ROWS | COLS
 
-N:117:121:0:0:30:6:1:128
+N:117:121:0:0:30:6:5:128
 A:
 B:
 D:Broken statues line 
@@ -3842,7 +3840,7 @@ K:11:1:1
 R:STUPID
 P:SCATTER
 
-N:117:121:0:0:75:3:4:128
+N:117:121:0:0:75:3:15:128
 A:
 B:crypt
 D:Stone caskets line 
@@ -3909,59 +3907,99 @@ R:DROP_FOOD
 N:117:113:0:0:15:1:0:128
 A:
 B:
-D:A dull 
-S:SEEN | HIDDEN
-R:SNEAKY
-F:0:868:752:0:0
-
-N:117:113:0:0:15:1:0:128
-A:
-B:
-D:A worn 
+D:Worn 
 S:SEEN
 R:STUPID
 
 N:117:113:0:0:15:1:5:128
 A:
 B:
-D:A mottled 
+D:Patterned 
 S:SEEN
 R:SMART
 P:OUTER
 
-N:117:113:0:0:15:1:40:128
+N:117:113:0:0:15:1:10:128
 A:
 B:
-D:A strange 
-S:SEEN | PORTAL
-R:RES_TPORT
+D:Gloomy 
+S:SEEN | GLOOMY
+R:HURT_LITE
+P:OUTER
+
+N:117:113:0:0:15:1:15:128
+A:
+B:
+D:Mottled 
+S:SEEN | HIDDEN
+R:SNEAKY
 P:OUTER
 
 N:117:113:0:0:15:1:30:128
 A:
 B:
-D:A gleaming 
+D:Skull-inlaid 
+S:SEEN | GRAVE
+R:UNDEAD
+F:0:868:752:0:0
+
+N:117:113:0:0:15:1:30:128
+A:
+B:
+D:Strange 
+S:SEEN | PUZZLE
+R:WEIRD_MIND
+P:OUTER
+
+N:117:113:0:0:15:1:20:128
+A:
+B:
+D:Heavy 
+S:SEEN | ANCHOR
+R:RES_TPORT
+P:OUTER
+
+N:117:113:0:0:15:1:20:128
+A:
+B:
+D:Shimmering 
+S:SEEN | PORTAL
+R:RES_TPORT
+P:OUTER
+
+N:117:113:0:0:15:1:20:128
+A:
+B:
+D:Gleaming 
 S:SEEN | ICKY
+R:EVIL
+P:OUTER
+
+N:117:113:0:0:15:1:20:128
+A:
+B:
+D:Dull 
+S:SEEN | DISPEL
+R:RES_MAGIC
+F:0:868:752:0:0
+
+N:117:113:0:0:15:1:40:128
+A:
+B:
+D:Glistening 
+S:SEEN | BLOODY
 R:EVIL
 P:OUTER
 
 N:117:113:0:0:15:1:50:128
 A:
 B:
-D:A glistening 
-S:SEEN | BLOODY
-R:EVIL
-P:OUTER
-
-N:117:113:0:0:15:1:60:128
-A:
-B:
-D:A glowing 
+D:Glowing 
 S:SEEN | CURSED
 R:EVIL
 P:OUTER
 
-N:117:102:0:0:15:0:40:128
+N:117:102:0:0:15:0:30:128
 A:
 B:
 D:Blood seeps from
@@ -4036,7 +4074,7 @@ S:SEEN
 R:SNEAKY
 P:SCATTER
 
-N:117:102:0:0:150:2:14:128
+N:117:102:0:0:150:2:10:128
 A:
 B:workshop
 D:Spare parts cover
@@ -4045,7 +4083,7 @@ S:SEEN
 G:g
 P:SCATTER
 
-N:117:102:0:0:150:2:45:128
+N:117:102:0:0:150:2:37:128
 A:
 B:workshop
 D:Diagrams cover
@@ -6054,6 +6092,14 @@ A:portal
 B:
 D:surrounded by shimmering portals. 
 F:976:0:0:0:0
+S:SEEN
+
+N:152:153:0:0:25:1:1:128
+A:watched
+B:
+D:surrounded by silent watchers. 
+R:SMART
+F:699:0:0:0:0
 S:SEEN
 
 N:153:107:0:0:25:1:1:128
