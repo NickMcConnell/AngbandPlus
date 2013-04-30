@@ -3761,7 +3761,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Percentages depend on player's charisma.
 		 */
 		if ((randint(adj_chr_fear[p_ptr->stat_ind[A_CHR]]) >= fitness) ||
-		    ((percentage > 10) && (rand_int(adj_chr_fear[p_ptr->stat_ind[A_CHR]] * percentage) > 100)) )
+		    ((percentage > 20) && (rand_int(adj_chr_fear[p_ptr->stat_ind[A_CHR]] * percentage) > 100)) )
 		{
 			int fear_amt;
 

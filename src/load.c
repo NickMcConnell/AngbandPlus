@@ -465,6 +465,9 @@ static errr rd_item(object_type *o_ptr)
 
 		/* Verify that artifact */
 		if (!a_ptr->name) o_ptr->name1 = 0;
+
+		/* Ensure that one of this exists */
+		a_ptr->cur_num = 1;
 	}
 
 	/* Paranoia */

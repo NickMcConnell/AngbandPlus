@@ -10244,7 +10244,7 @@ S:DRAIN_MANA | DARKNESS
 D:It is a tree twisted into the shape of a man.
 
 N:676:Wormwood
-G:::G
+G:::v
 I:100:30d10:6:20:0
 W:33:1:0:100
 M:0:11:20:40
@@ -18437,3 +18437,17 @@ F:RES_NETHR | RES_CHAOS | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | RES_BLIND
 S:BLINK | BALL_CHAOS | WOUND
 D:A blade with no wielder you can see, shifting forms and glowing with chaos.  
 D:It radiates a deadly aura of change as it opens wounds across your body.
+
+N:1279:Ent
+G:::G
+I:120:40d100:30:120:15
+W:46:3:0:12500:0:0
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+F:FORCE_SLEEP | FORCE_MAXHP
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | HUGE |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_POTION
+F:MALE
+D:A treeherd; a sentient, moving tree. Its wrath is fearsome!

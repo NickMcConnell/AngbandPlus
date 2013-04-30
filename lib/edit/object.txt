@@ -3168,14 +3168,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 ##### Junk #####
 
-N:389:& Shard~ of Pottery
+N:389:& Shard~ of # Pottery
 G:~:u
 I:3:3:0
 W:0:0:5:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:390:& Broken Stick~
+N:390:& # Stick~
 G:~:u
 I:3:6:0
 W:0:0:3:0
@@ -4374,14 +4374,14 @@ I:6:14:0
 W:0:100:25:0
 P:0:1d1:0:0:0
 
-N:587:& broken Stump~
+N:587:& # Stump~
 G:~:u
 I:3:7:0
 W:0:0:300:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:588:& Branch~
+N:588:& # Branch~
 G:~:u
 I:3:8:0
 W:0:0:30:0
@@ -5159,7 +5159,7 @@ A:20/2
 
 N:693:& map~ to Khazad-Dum
 G:?:U
-I:72:60:0
+I:72:61:0
 W:30:0:5:250
 A:30/2
 
@@ -6711,3 +6711,25 @@ I:22:3:0
 W:5:0:40:40
 A:5/2
 P:0:1d5:0:0:0
+
+N:917:& shedded # Skin
+G:~:G
+I:8:5:0
+W:9:0:20:0
+A:18/1
+P:0:1d1:0:0:0
+
+N:918:& # Feather coat
+G:~:G
+I:8:6:0
+W:2:0:30:0
+A:12/1
+P:0:1d1:0:0:0
+
+N:919:& # Fur coat
+G:~:G
+I:8:7:0
+W:0:0:40:0
+A:11/1
+P:0:1d1:0:0:0
+

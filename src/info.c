@@ -4557,6 +4557,9 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4)
 	{
 		msg_print("BUG: Forgetting something on an object we shouldn't forget. Please report.");
 
+		/* Set text_out hook */
+		text_out_hook = text_out_to_screen;
+
 		/* Load screen */
 		screen_save();
 

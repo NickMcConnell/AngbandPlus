@@ -648,7 +648,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_JUNK:
 		case TV_SPIKE:
 		case TV_INSTRUMENT:
 		case TV_SPELL:
@@ -904,6 +903,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Hack -- Body Parts/Skeletons/Skins etc. */
+		case TV_JUNK:
 		case TV_STATUE:
 		case TV_ASSEMBLY:
 		case TV_BODY:

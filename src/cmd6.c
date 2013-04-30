@@ -2444,19 +2444,20 @@ void do_cmd_apply_rune_or_coating(void)
 						else
 						{
 							/* Hack -- obtain bonuses */
-							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h,randint(e_ptr->max_to_h));
-							else j_ptr->to_h = MIN(j_ptr->to_h,0);
+							if (e_ptr->max_to_h > 0) j_ptr->to_h = MAX(j_ptr->to_h, randint(e_ptr->max_to_h));
+							else j_ptr->to_h = MIN(j_ptr->to_h, 0);
 
-							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(MAX(j_ptr->to_d,randint(e_ptr->max_to_d)),
-												   j_ptr->dd * j_ptr->ds + 5);
-							else j_ptr->to_d = MIN(j_ptr->to_d,0);
+							if (e_ptr->max_to_d > 0) j_ptr->to_d = MIN(MAX(j_ptr->to_d, randint(e_ptr->max_to_d)),
+												   (j_ptr->tval == TV_BOW ? 15 : j_ptr->dd * j_ptr->ds + 5));
+							else j_ptr->to_d = MIN(j_ptr->to_d, 0);
 
-							if (e_ptr->max_to_a > 0) j_ptr->to_a = MAX(j_ptr->to_a,randint(e_ptr->max_to_a));
-							else j_ptr->to_a = MIN(j_ptr->to_a,0);
+							if (e_ptr->max_to_a > 0) j_ptr->to_a = MIN(MAX(j_ptr->to_a, randint(e_ptr->max_to_a)),
+												   j_ptr->ac + 5);
+							else j_ptr->to_a = MIN(j_ptr->to_a, 0);
 
 							/* Hack -- obtain pval */
-							if (e_ptr->max_pval > 0) j_ptr->pval = MAX(1,MIN(j_ptr->pval,randint(e_ptr->max_pval)));
-							else j_ptr->pval = MIN(j_ptr->pval,0);
+							if (e_ptr->max_pval > 0) j_ptr->pval = MAX(1,MIN(j_ptr->pval, randint(e_ptr->max_pval)));
+							else j_ptr->pval = MIN(j_ptr->pval, 0);
 						}
 
 						/* Remove special inscription, if any */

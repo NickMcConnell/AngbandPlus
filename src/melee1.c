@@ -4007,7 +4007,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			}
 
 			/* Hook into the "project()" function */
-			(void)project(-1, 3, y, x, y, x, 0, GF_DARK_WEAK, FLG_MON_BALL, 0, 0);
+			(void)project(who, 3, y, x, y, x, 0, GF_DARK_WEAK, FLG_MON_BALL, 0, 0);
 
 			/* Lite up the room */
 			unlite_room(y, x);
@@ -4031,7 +4031,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else if (known) msg_format("%^s casts a spell at %s and cackles evilly.",m_name,t_name);
 			}
 
-			(void)project(0, 1, y, x, y, x, 0, GF_MAKE_TRAP, flg, 0, 0);
+			(void)project(who, 1, y, x, y, x, 0, GF_MAKE_TRAP, flg, 0, 0);
 
 			break;
 		}
@@ -4155,7 +4155,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if ((blind) && (known)) msg_format("%^s curses %s.", m_name, t_name);
 			else msg_format("%^s points at %s and curses.", m_name, t_poss);
 
-			(void)project(0, 0, m_ptr->fy, m_ptr->fx, y, x, get_dam(spower, attack), GF_CURSE, FLG_MON_DIRECT, 0, 0);
+			(void)project(who, 0, m_ptr->fy, m_ptr->fx, y, x, get_dam(spower, attack), GF_CURSE, FLG_MON_DIRECT, 0, 0);
 
 			break;
 		}
@@ -4174,7 +4174,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				msg_format("%^s dispels %s magic.", m_name, t_poss);
 			}
 
-			(void)project(0, 0, m_ptr->fy, m_ptr->fx, y, x, rlev, GF_DISPEL, FLG_MON_DIRECT, 0, 0);
+			(void)project(who, 0, m_ptr->fy, m_ptr->fx, y, x, rlev, GF_DISPEL, FLG_MON_DIRECT, 0, 0);
 
 			break;
 		}

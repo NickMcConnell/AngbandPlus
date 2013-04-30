@@ -183,6 +183,17 @@ or launches you up a level. This gives you a chance to evade the attack by movin
 
 - Activating spell objects or innate abilities now tires you out.
 
+- Monsters when blinded now have a better selection of spells to cast.
+
+- Resist disease now completely protects against diseases from disease attacks. Constitution
+provides significant reduction in disease effects (Requested by Matthias Rudolf).
+
+- Monsters cannot target the player with ranged attacks or spells the first turn the player
+enters the level (Requested by Matthias Rudolf).
+
+- Tree-filled caverns are placed better in the dungeon.
+
+- Mice and bats now have better named built-in objects.
 
 ### User Interface ###
 
@@ -203,7 +214,6 @@ pepebe).
 learn about the spell, even if you didn't see them cast it.
 
 - You can now gather items from wall terrain by walking into them (Requested by ekolis).
-
 
 ### Bug fixes ###
 
@@ -265,6 +275,31 @@ correctly.
 manchu).
 
 - Fix the return of the shrine exploit (Reported by Matthias Rudolf).
+
+- Fix map "door to Moria" cannot be stored in bag of maps (Reported by Matthias Rudolf).
+
+- Fix game crash reported by Matthias Rudolf.
+
+- Fixed bug where plasma incorrectly interacted with sound resistance (Reported
+by Matthias Rudolf).
+
+- Fixed bug where spell weapons would cause you to fight unarmed instead (Reported by pepebe).
+
+- Fixed bug where monsters would blind themselves with darkness spells (Reported by
+redelmansidi).
+
+- Fixed bug where detecting curses twice on an item would mark it average (Reported by
+Matthias Rudolf).
+
+- Fixed bug where artifacts would be lost if generated on a level and automatically id'ed
+due to class based sensing (Reported by Matthias Rudolf).
+
+- Fixed bugs with Khazad-Dum (Reported by Matthias Rudolf).
+
+- Fixed lockup when generating dungeon under clearing in the forest (Reported by Mikolaj
+Konarski).
+
+- Fixed crash when taking poison damage.
 
 ### Build / Platform ###
 

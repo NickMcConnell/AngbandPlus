@@ -1061,7 +1061,9 @@ struct player_race
 	s16b r_thn;     /* combat (normal) */
 	s16b r_thb;     /* combat (shooting) */
 
+	s16b r_idx;	/* Monster index */
 	byte r_exp;     /* Race experience factor */
+	byte unused;	/* Unused */
 
 	u16b b_age;     /* base age */
 	u16b m_age;     /* mod age */

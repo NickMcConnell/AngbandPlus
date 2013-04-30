@@ -1808,11 +1808,11 @@ static void acid_dam(int who, int dam, cptr kb_str, bool inven)
 	/* If any armor gets hit, defend the player */
 	if (minus_ac(inv)) dam = (dam + 1) / 2;
 
-	/* Reduce the damage */
-	dam = (dam - res - 1) / res;
-
 	/* Inventory damage */
 	if ((inven) && (inv)) inven_damage(set_acid_destroy, inv);
+
+	/* Reduce the damage */
+	dam = (dam - res - 1) / res;
 
 	/* No damage */
 	if (dam <= 0) return;
@@ -1902,11 +1902,11 @@ static void elec_dam(int who, int dam, cptr kb_str, bool inven)
 		update_smart_forget(who, SM_OPP_ELEC);
 	}
 
-	/* Reduce the damage */
-	dam = (dam - res - 1) / res;
-
 	/* Inventory damage */
 	if ((inven) && (inv)) inven_damage(set_elec_destroy, inv);
+
+	/* Reduce the damage */
+	dam = (dam - res - 1) / res;
 
 	/* No damage */
 	if (dam <= 0) return;
@@ -1997,11 +1997,11 @@ static void fire_dam(int who, int dam, cptr kb_str, bool inven)
 		update_smart_forget(who, SM_OPP_FIRE);
 	}
 
-	/* Reduce the damage */
-	dam = (dam - res - 1) / res;
-
 	/* Inventory damage */
 	if ((inven) && (inv)) inven_damage(set_fire_destroy, inv);
+
+	/* Reduce the damage */
+	dam = (dam - res - 1) / res;
 
 	/* No damage */
 	if (dam <= 0) return;
@@ -2090,11 +2090,11 @@ static void cold_dam(int who, int dam, cptr kb_str, bool inven)
 		update_smart_forget(who, SM_OPP_COLD);
 	}
 
-	/* Reduce the damage */
-	dam = (dam - res - 1) / res;
-
 	/* Inventory damage */
 	if ((inven) && (inv)) inven_damage(set_cold_destroy, inv);
+
+	/* Reduce the damage */
+	dam = (dam - res - 1) / res;
 
 	/* No damage */
 	if (dam <= 0) return;
@@ -2183,15 +2183,15 @@ static void poison_dam(int who, int dam, cptr kb_str, bool inven)
 	/* Reduce the damage */
 	dam = (dam - res - 1) / res;
 
+	/* No damage */
+	if (dam <= 0) return;
+
 	/* Increase poison counter */
 	if (!(p_ptr->oppose_pois) && !(p_ptr->cur_flags2 & (TR2_RES_POIS)))
 	{
 		/* Set poison counter */
 		(void)set_poisoned(p_ptr->poisoned + rand_int(dam + 1) + 10);
 	}
-
-	/* No damage */
-	if (dam <= 0) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -2264,11 +2264,11 @@ static void water_dam(int who, int dam, cptr kb_str, bool inven)
 	/* Inventory damage */
 	if (inven) inven_damage(set_water_destroy, inv);
 
-	/* No damage */
-	if (dam <= 0) return;
-
 	/* Reduce the damage */
 	dam = (dam - res - 1) / res;
+
+	/* No damage */
+	if (dam <= 0) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -7531,85 +7531,91 @@ bool project_p(int who, int y, int x, int dam, int typ)
 			}
 			else
 			{
+				int rating = dam / (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
 				/* Always notice */
 				player_not_flags(who, 0x0L,0x0L,0x0L,TR4_RES_DISEASE);
+
+				/* Critical disease - multiple effects either quickly, powerfully or heavily */
+				if (rating > 45)
+				{
+					while (rating > 0)
+					{
+						if (p_ptr->disease & (DISEASE_HEAVY)) rating -= 45;
+						else if (p_ptr->disease & (DISEASE_QUICK)) rating -= 30;
+						else if (p_ptr->disease & (DISEASE_POWER)) rating -= 15;
+
+						if (rating > 0)
+						{
+							p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+							rating -= 15;
+
+							if ((rating > 45) && (rand_int(4)))
+							{
+								p_ptr->disease |= (DISEASE_HEAVY);
+								rating -= 60;
+							}
+							else if ((rating > 15) && (rand_int(3)))
+							{
+								p_ptr->disease |= (DISEASE_QUICK);
+								rating -= 30;
+							}
+							else if ((rating > 15) && (rand_int(2)))
+							{
+								p_ptr->disease |= (DISEASE_POWER);
+								rating -= 30;
+							}
+						}
+
+						p_ptr->disease &= ~(DISEASE_LIGHT);
+					}
+
+					if (rating < 0) rating = 0;
+				}
+				/* Serious disease - multiple mutating disease effects for long time */
+				else if (rating > 25)
+				{
+					if (!p_ptr->disease)
+					{
+						p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+						p_ptr->disease |= (DISEASE_DISEASE);											
+					}
+					else if (!p_ptr->disease & (DISEASE_HEAVY | DISEASE_QUICK | DISEASE_POWER)) p_ptr->disease |= (DISEASE_DISEASE);
+					p_ptr->disease &= ~(DISEASE_LIGHT);
+				}
+				/* Moderate disease - 1 disease effect for a long time, or multiple for a short time */
+				else if (rating > 10)
+				{
+					if ((!p_ptr->disease) && (rand_int(100) < 33))
+					{
+						p_ptr->disease |= (1 << rand_int(DISEASE_TYPES)) | (DISEASE_LIGHT);
+					}
+
+					if ((!p_ptr->disease) || ((p_ptr->disease & (DISEASE_LIGHT)) != 0))
+					{
+						p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+					}
+				}
+				/* Light disease - 1 disease effect for limited time */
+				else if (rating > 0)
+				{
+					if (!p_ptr->disease)
+					{
+						p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+						p_ptr->disease |= (DISEASE_LIGHT);
+					}
+				}
+				/* Very light disease - stops recovery of hp for limited time */
+				else
+				{
+					if (!p_ptr->disease)
+						p_ptr->disease |= (DISEASE_LIGHT);
+				}
 			}
 
 			/* Apply damage */
 			take_hit(dam, killer);
 
-			/* Critical disease - multiple effects either quickly, powerfully or heavily */
-			if (dam > 45)
-			{
-				while (dam > 0)
-				{
-					if (p_ptr->disease & (DISEASE_HEAVY)) dam -= 30;
-					if (p_ptr->disease & (DISEASE_QUICK)) dam -= 30;
-					if (p_ptr->disease & (DISEASE_POWER)) dam -= 15;
-
-					if (dam > 0)
-					{
-						p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-						dam -= 15;
-
-						if ((dam > 15) && (rand_int(4)))
-						{
-							p_ptr->disease |= (DISEASE_HEAVY);
-							dam -= 30;
-						}
-
-						else if ((dam > 15) && (rand_int(3)))
-						{
-							p_ptr->disease |= (DISEASE_QUICK);
-							dam -= 30;
-						}
-
-						else if ((dam > 15) && (rand_int(2)))
-						{
-							p_ptr->disease |= (DISEASE_POWER);
-							dam -= 30;
-						}
-					}
-
-					p_ptr->disease &= ~(DISEASE_LIGHT);
-				}
-
-				if (dam < 0) dam = 0;
-			}
-			/* Serious disease - multiple mutating disease effects for long time */
-			else if (dam > 25)
-			{
-				if (!p_ptr->disease)
-				{
-					p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
-					p_ptr->disease |= (DISEASE_DISEASE);											
-				}
-				else if (!p_ptr->disease & (DISEASE_HEAVY | DISEASE_QUICK | DISEASE_POWER)) p_ptr->disease |= (DISEASE_DISEASE);
-				p_ptr->disease &= ~(DISEASE_LIGHT);
-			}
-			/* Moderate disease - 1 disease effect for a long time, or multiple for a short time */
-			else if (dam > 10)
-			{
-				if ((!p_ptr->disease) || ((p_ptr->disease & (DISEASE_LIGHT)) != 0))
-				{
-					p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
-				}
-			}
-			/* Light disease - 1 disease effect for limited time */
-			else if (dam > 0)
-			{
-				if (!p_ptr->disease || !(p_ptr->disease & (DISEASE_BLOWS)) )
-				{
-					p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
-					p_ptr->disease |= (DISEASE_LIGHT);
-				}
-			}
-			/* Very light disease - stops recovery of hp for limited time */
-			else
-			{
-				if (!p_ptr->disease)
-					p_ptr->disease |= (DISEASE_LIGHT);
-			}
 			break;
 		}
 
@@ -7738,7 +7744,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
-			if ((p_ptr->cur_flags2 & (TR2_RES_SOUND)) != 0)
+			if ((p_ptr->cur_flags2 & (TR2_RES_SOUND)) == 0)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 

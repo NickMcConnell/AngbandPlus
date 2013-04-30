@@ -162,7 +162,7 @@ H:80:27:75:25
 W:240:220
 #F:PLANT --- hacked OK
 #U:WOODEN | POLEARM_UNSKILL --- both not worth it, IMO
-O:588:588:0:0:0:0:339:0:0:0:588:340
+O:588:588:0:0:0:0:339:0:0:0:588:340:1279
 C:0|2|4|6
 
 #Sum = -4; ESP; high exp
@@ -357,7 +357,7 @@ I:44:20:10:39
 H:144:20:126:12
 W:350:300
 F:SUST_STR | REGEN_HP | TROLL | HURT_LITE 
-O:0:0:0:0:0:0:576:0:0:0:0:0
+O:0:0:0:0:0:0:576:0:0:0:0:0:278
 C:0|2|7
 
 # The following shapes are not startable races.
@@ -374,7 +374,7 @@ S:0:0:0:0:0:0:0:0
 R:0:0:0:0:0:0:0:5:0
 X:0:1
 F:SLOW_DIGEST | ANIMAL | ACTIVATE
-O:0:0:0:0:0:0:0:0:0:0:0:913
+O:0:0:0:0:0:0:0:0:0:0:0:913:0
 
 # Had +10 to barehand to-hit. Now has Talons.
 
@@ -383,7 +383,7 @@ S:2:-1:0:0:2:-3:0:0
 R:0:0:0:0:0:0:0:5:0
 X:0:0:1
 F:ANIMAL | ACTIVATE
-O:0:0:0:0:0:0:0:0:0:0:574:0
+O:0:0:0:0:0:0:0:0:0:0:574:0:0
 
 # Had -5 to ac, -25 to damage. Has Fur, Claws.
 
@@ -392,7 +392,7 @@ S:-2:-7:0:0:-1:-5:0:0
 R:0:0:0:10:3:0:0:-15:0
 X:0:2
 F:ANIMAL | ACTIVATE
-O:595:0:0:0:0:0:593:0:595:0:0:0
+O:595:0:0:0:0:0:919:0:595:0:0:0:1036
 
 # Should implement some kind of superscent instead of ESP.
 
@@ -401,7 +401,7 @@ S:0:-2:0:0:2:-2:0:0
 R:0:0:0:0:0:0:0:0:0
 X:0:3
 F:TELEPATHY | ANIMAL | ACTIVATE
-O:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:0
 
 # Had +6 to speed. Now has Hunter's Stride.
 
@@ -410,7 +410,7 @@ S:0:0:0:0:0:0:2:0
 R:0:0:0:0:5:0:0:0:0
 X:0:2
 F:ANIMAL | ACTIVATE
-O:0:0:0:0:0:0:0:0:0:0:0:338
+O:0:0:0:0:0:0:0:0:0:0:0:338:0
 
 # Had +20 to barehand to-hit. Now has Talons and Lion's Mane.
 
@@ -428,7 +428,7 @@ S:3:0:0:0:2:0:0:0
 R:0:0:0:0:0:0:0:0:0
 X:0:3
 F:DRAGON | ACTIVATE
-O:0:0:0:0:0:0:577:572:0:914:574:338
+O:0:0:0:0:0:0:577:572:0:914:574:338:406
 
 # Has Hunter's Stride, Wolf's Hide, Wolf's Maw, Talons.
 # Technically shouldn't have Talons of course, but this is more a werewolf form than a wolf.
@@ -438,7 +438,7 @@ S:0:0:0:0:0:0:0:0
 R:0:0:0:0:0:0:0:0:0
 X:0:3
 F:ANIMAL | ACTIVATE
-O:0:0:0:0:0:0:575:0:0:573:574:338
+O:0:0:0:0:0:0:575:0:0:573:574:338:245
 
 # Had +5 to speed, -15 to hit, -15 to dam. Now has Bat Wings, Claws.
 
@@ -447,7 +447,7 @@ S:-1:-2:-2:0:0:-2:0:0
 R:0:0:0:0:0:0:0:0:0
 X:0:6
 F:ANIMAL | ACTIVATE | RES_BLIND | FEATHER
-O:595:0:0:0:0:0:0:572:595:0:0:0
+O:595:0:0:0:0:0:0:572:595:0:0:0:723
 
 # Has Cobra's Cowl.
 
@@ -455,7 +455,7 @@ N:38:Serpent
 S:0:0:0:0:0:0:0:0
 R:0:0:0:0:0:0:0:0:0
 X:0:0
-O:0:0:0:0:912:0:0:0:0:0:0:0
+O:0:0:0:0:912:0:0:0:0:0:0:0:934
 F:ANIMAL | ACTIVATE
 
 # Has Cat's Paw.
@@ -465,5 +465,5 @@ S:-1:0:0:0:0:0:4:0
 R:0:0:0:0:0:0:0:0:0
 X:0:4
 F:ANIMAL | ACTIVATE | FEATHER
-O:0:0:0:0:0:0:0:0:0:0:341:0
+O:0:0:0:0:0:0:0:0:0:0:341:0:51
 

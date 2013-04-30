@@ -1291,7 +1291,8 @@ int value_check_aux3(const object_type *o_ptr)
 	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EXCELLENT);
 
 	/* Great "armor" bonus */
-	if (o_ptr->to_a > 9) return (INSCRIP_GREAT);
+	if (o_ptr->to_a > MAX(7, o_ptr->ac)) 
+	  return (INSCRIP_GREAT);
 
 	/* Great to_h bonus */
 	if (o_ptr->to_h > 9) return (INSCRIP_GREAT);
@@ -1341,7 +1342,7 @@ int value_check_aux4(const object_type *o_ptr)
 	if ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)
 		|| (o_ptr->feeling == INSCRIP_GREAT) || (o_ptr->feeling == INSCRIP_EXCELLENT)
 		|| (o_ptr->feeling == INSCRIP_SUPERB) || (o_ptr->feeling == INSCRIP_SPECIAL)
-		|| (o_ptr->feeling == INSCRIP_MAGICAL)) return (0);
+		|| (o_ptr->feeling == INSCRIP_MAGICAL) || (o_ptr->feeling == INSCRIP_UNCURSED)) return (0);
 
 	/* Artifacts */
 	if ((artifact_p(o_ptr)) || (o_ptr->feeling == INSCRIP_ARTIFACT))
@@ -5325,7 +5326,7 @@ static bool fire_bolt_minor(int typ, int dir, int dam, int range)
 /*
  * Create a (wielded) spell item
  */
-static void wield_spell(int item, int k_idx, int time, int level)
+static void wield_spell(int item, int k_idx, int time, int level, int r_idx)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -5362,6 +5363,9 @@ static void wield_spell(int item, int k_idx, int time, int level)
 
 	/* Hack - scale to ac */
 	if (i_ptr->ac) i_ptr->to_a += (i_ptr->ac * level / 25);
+
+	/* Mark with 'monster race' */
+	i_ptr->name3 = r_idx;
 
 	/* Take off existing item */
 	if (o_ptr->k_idx)
@@ -5486,7 +5490,7 @@ void change_shape(int shape, int level)
 		if (p_info[shape].slots[i - INVEN_WIELD])
 		{
 			/* Wield the spell */
-			wield_spell(i, p_info[shape].slots[i - INVEN_WIELD], 0, level);
+			wield_spell(i, p_info[shape].slots[i - INVEN_WIELD], 0, level, k_info[i].tval != TV_SPELL ? p_info[shape].r_idx : 0);
 
 			/* Mark as 'built-in' item */
 			inventory[i].ident |= (IDENT_STORE);
@@ -7243,7 +7247,7 @@ bool process_spell_types(int spell, int level, bool *cancel)
 			}
 			default:
 			{
-				wield_spell(s_ptr->type,s_ptr->param,lasts, level);
+				wield_spell(s_ptr->type,s_ptr->param,lasts, level, 0);
 				*cancel = FALSE;
 				obvious = TRUE;
 				break;

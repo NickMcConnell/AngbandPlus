@@ -1488,7 +1488,7 @@
 
 
 /* Maximum number of disease flags that can randomly affect the player */
-#define DISEASE_TYPES 18
+#define DISEASE_TYPES 17
 #define DISEASE_BLOWS 23
 #define DISEASE_SPECIAL 25
 #define DISEASE_TYPES_HEAVY 26
@@ -1848,9 +1848,12 @@
 
 /* The "sval" codes for TV_SKIN */
 #define SV_SKIN_SKIN  1
-#define SV_SKIN_SCALE 2
-#define SV_SKIN_FEATHER      3
-#define SV_SKIN_FUR   4
+#define SV_SKIN_SCALES 2
+#define SV_SKIN_FEATHERS      3
+#define SV_SKIN_FURS   4
+#define SV_SKIN_SCALE_COAT 5
+#define SV_SKIN_FEATHER_COAT      6
+#define SV_SKIN_FUR_COAT   7
 
 /* The "sval" codes for TV_EGG */
 #define SV_EGG_EGG    1

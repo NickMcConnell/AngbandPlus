@@ -593,6 +593,187 @@ static void alloc_object(int set, int typ, int num)
 	}
 }
 
+
+
+/*
+ * Replace terrain with a mix of terrain types. Returns true iff
+ * this is a mixed terrain type.
+ */
+static bool variable_terrain(int *feat, int oldfeat)
+{
+	int k;
+
+	/* Hack -- place trees infrequently */
+	if (f_info[*feat].flags3 & (FF3_TREE))
+	{
+		k = randint(100);
+
+		if (k<=85) *feat = oldfeat;
+		return (TRUE);
+	}
+
+	switch (*feat)
+	{
+		case FEAT_BUSH:
+		case FEAT_BUSH_HURT:
+		case FEAT_BUSH_FOOD:
+		case FEAT_BUSH_HURT_P:
+		{
+			k = randint(100);
+			if (k<=30) *feat = oldfeat;
+			if (k<=90) *feat = FEAT_GRASS;
+			break;
+		}
+
+		case FEAT_RUBBLE:
+		{
+			k = randint(100);
+			if (k<90) *feat = oldfeat;
+			break;
+		}
+
+		case FEAT_LIMESTONE:
+		{
+			k = randint(100);
+			if (k<40) *feat = FEAT_FLOOR;
+			if ((k > 40) && (k <= 60)) *feat = FEAT_WATER;
+			break;
+		}
+
+		case FEAT_ICE:
+		{
+			k = randint(100);
+			if (k <= 10) *feat = FEAT_ICE_C;
+			break;
+		}
+
+		case FEAT_ICE_GEOTH:
+		{
+			k = randint(100);
+			if (k <= 10) *feat = FEAT_ICE_GEOTH_HC;
+			break;
+		}
+
+		case FEAT_ICE_WATER_K:
+		{
+			k = randint(100);
+			if (k<= 15) *feat = FEAT_WATER_K;
+			break;
+		}
+
+		case FEAT_ICE_CHASM:
+		{
+			k = randint(100);
+			if (k <= 80) *feat = FEAT_FLOOR_ICE;
+			if ((k > 80) && (k<90)) *feat = FEAT_CHASM_E;
+			break;
+		}
+
+		case FEAT_ICE_FALLS:
+		{
+			k = randint(100);
+			if (k <= 40) *feat = FEAT_FLOOR_ICE;
+			if (k <= 60) *feat = FEAT_ICE_CHASM;
+			if ((k > 60) && (k<80)) *feat = FEAT_ICE_FALL;
+			break;
+		}
+
+		case FEAT_WATER_FALLS:
+		{
+			k = randint(100);
+			if (k <= 60) *feat = FEAT_WATER_H;
+			if ((k > 60) && (k<80)) *feat = FEAT_WATER;
+			break;
+		}
+
+		case FEAT_ACID_FALLS:
+		{
+			k = randint(100);
+			if (k <= 60) *feat = FEAT_ACID_H;
+			if ((k > 60) && (k<80)) *feat = FEAT_ACID;
+			break;
+		}
+
+		case FEAT_MUD:
+		{
+			k = randint(100);
+			if (k <= 10) *feat = FEAT_FLOOR_EARTH;
+			if ((k> 10) && (k <= 13)) *feat = FEAT_WATER;
+			break;
+		}
+
+		case FEAT_MUD_H:
+		{
+			k = randint(100);
+			if (k <= 10) *feat = FEAT_FLOOR_EARTH;
+			if ((k> 10) && (k <= 23)) *feat = FEAT_WATER_H;
+			break;
+		}
+
+		case FEAT_MUD_K:
+		{
+			k = randint(100);
+			if (k <= 5) *feat = FEAT_WATER_K;
+			break;
+		}
+
+		case FEAT_QSAND_H:
+		{
+			k = randint(100);
+			if (k <= 25) *feat = FEAT_SAND_H;
+			if ((k> 25) && (k <= 28)) *feat = FEAT_WATER;
+			break;
+		}
+
+		case FEAT_BWATER_FALLS:
+		{
+			k = randint(100);
+			if (k <= 60) *feat = FEAT_BWATER;
+			if ((k > 60) && (k<80)) *feat = FEAT_FLOOR_RUBBLE;
+			break;
+		}
+
+		case FEAT_BMUD:
+		{
+			k = randint(100);
+			if (k <= 10) *feat = FEAT_BWATER;
+			if ((k> 10) && (k <= 13)) *feat = FEAT_VENT_BWATER;
+			break;
+		}
+
+		case FEAT_GEOTH:
+		{
+			k = randint(100);
+			if (k <= 5) *feat = FEAT_VENT_STEAM;
+			if ((k> 5) && (k <= 10)) *feat = FEAT_VENT_GAS;
+			break;
+		}
+
+		case FEAT_GEOTH_LAVA:
+		{
+			k = randint(100);
+			if (k <= 5) *feat = FEAT_LAVA_H;
+			if ((k> 5) && (k <= 10)) *feat = FEAT_LAVA;
+			if ((k> 10) && (k <= 13)) *feat = FEAT_VENT_LAVA;
+			break;
+		}
+
+		case FEAT_LAVA_FALLS:
+		{
+			k = randint(100);
+			if (k <= 60) *feat = FEAT_LAVA_H;
+			if ((k > 60) && (k<80)) *feat = FEAT_FLOOR_RUBBLE;
+			break;
+		}
+
+		default:
+		return(FALSE);
+	}
+
+	return (TRUE);
+}
+
+
 /*
  * Note that the order we generate the dungeon is terrain features, then
  * rooms, then corridors, then streamers. This is important, because 
@@ -616,12 +797,9 @@ static void alloc_object(int set, int typ, int num)
 /*
  * Places a terrain on another terrain 
  */
-
 static void build_terrain(int y, int x, int feat)
 {
 	int oldfeat, newfeat;
-	int k;
-
 	feature_type *f_ptr;
 	feature_type *f2_ptr;
 
@@ -871,118 +1049,17 @@ static void build_terrain(int y, int x, int feat)
 		newfeat = feat;
 	}
 
+	/* Vary the terrain */
+	if (variable_terrain(&feat, oldfeat))
+	{
+		newfeat = feat;
+	}
 
 	/* Hack -- no change */
 	if (newfeat == oldfeat) return;
 
-	k = randint(100);
-
-	if (f_info[newfeat].flags3 & (FF3_TREE))
-	{
-		if (k<=85) newfeat = oldfeat;
-	}
-
-	switch (newfeat)
-	{
-		case FEAT_BUSH:
-		case FEAT_BUSH_HURT:
-		case FEAT_BUSH_FOOD:
-		case FEAT_BUSH_HURT_P:
-		if (k<=30) newfeat = oldfeat;
-		if (k<=90) newfeat = FEAT_GRASS;
-		break;
-
-		case FEAT_RUBBLE:
-		if (k<90) newfeat = oldfeat;
-		break;
-
-		case FEAT_LIMESTONE:
-		if (k<40) newfeat = FEAT_FLOOR;
-		if ((k > 40) && (k <= 60)) newfeat = FEAT_WATER;
-		break;
-
-		case FEAT_ICE:
-		if (k <= 10) newfeat = FEAT_ICE_C;
-		break;
-
-		case FEAT_ICE_GEOTH:
-		if (k <= 10) newfeat = FEAT_ICE_GEOTH_HC;
-		break;
-
-		case FEAT_ICE_WATER_K:
-		if (k<= 15) newfeat = FEAT_WATER_K;
-		break;
-
-		case FEAT_ICE_CHASM:
-		if (k <= 80) newfeat = FEAT_FLOOR_ICE;
-		if ((k > 80) && (k<90)) newfeat = FEAT_CHASM_E;
-		break;
-
-		case FEAT_ICE_FALLS:
-		if (k <= 40) newfeat = FEAT_FLOOR_ICE;
-		if (k <= 60) newfeat = FEAT_ICE_CHASM;
-		if ((k > 60) && (k<80)) newfeat = FEAT_ICE_FALL;
-		break;
-
-		case FEAT_WATER_FALLS:
-		if (k <= 60) newfeat = FEAT_WATER_H;
-		if ((k > 60) && (k<80)) newfeat = FEAT_WATER;
-		break;
-
-		case FEAT_ACID_FALLS:
-		if (k <= 60) newfeat = FEAT_ACID_H;
-		if ((k > 60) && (k<80)) newfeat = FEAT_ACID;
-		break;
-
-		case FEAT_MUD:
-		if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
-		if ((k> 10) && (k <= 13)) newfeat = FEAT_WATER;
-		break;
-
-		case FEAT_MUD_H:
-		if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
-		if ((k> 10) && (k <= 23)) newfeat = FEAT_WATER_H;
-		break;
-
-		case FEAT_MUD_K:
-		if (k <= 5) newfeat = FEAT_WATER_K;
-		break;
-
-		case FEAT_QSAND_H:
-		if (k <= 25) newfeat = FEAT_SAND_H;
-		if ((k> 25) && (k <= 28)) newfeat = FEAT_WATER;
-		break;
-
-		case FEAT_BWATER_FALLS:
-		if (k <= 60) newfeat = FEAT_BWATER;
-		if ((k > 60) && (k<80)) newfeat = FEAT_FLOOR_RUBBLE;
-		break;
-
-		case FEAT_BMUD:
-		if (k <= 10) newfeat = FEAT_BWATER;
-		if ((k> 10) && (k <= 13)) newfeat = FEAT_VENT_BWATER;
-		break;
-
-		case FEAT_GEOTH:
-		if (k <= 5) newfeat = FEAT_VENT_STEAM;
-		if ((k> 5) && (k <= 10)) newfeat = FEAT_VENT_GAS;
-		break;
-
-		case FEAT_GEOTH_LAVA:
-		if (k <= 5) newfeat = FEAT_LAVA_H;
-		if ((k> 5) && (k <= 10)) newfeat = FEAT_LAVA;
-		if ((k> 10) && (k <= 13)) newfeat = FEAT_VENT_LAVA;
-		break;
-
-		case FEAT_LAVA_FALLS:
-		if (k <= 60) newfeat = FEAT_LAVA_H;
-		if ((k > 60) && (k<80)) newfeat = FEAT_FLOOR_RUBBLE;
-		break;
-
-	}
-
 	/* Set the feature if we have a change */
-	if (newfeat != oldfeat) cave_set_feat(y,x,newfeat);
+	cave_set_feat(y,x,newfeat);
 
 	/* Change reference */
         f2_ptr = &f_info[newfeat];
@@ -1496,6 +1573,11 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 			/* Floor is merged with the dungeon */
 			else
 			{
+				int dummy = feat;
+
+				/* Hack -- make variable terrain surrounded by floors */
+				if (variable_terrain(&dummy,feat)) cave_set_feat(y,x,FEAT_FLOOR);
+
 				build_terrain(y, x, feat);
 			}
 
@@ -7558,8 +7640,8 @@ void init_level_flags(void)
 	if (RF1_ESCORT & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
 	if (RF1_ESCORTS & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
 
-	/* Battlefields don't have rooms, but do have paths across the level */
-	if (level_flag & (LF1_BATTLE)) level_flag &= ~(LF1_ROOMS);
+	/* Surface battlefields don't have rooms, but do have paths across the level */
+	if (((level_flag & (LF1_SURFACE)) != 0) && ((level_flag & (LF1_BATTLE)) != 0)) level_flag &= ~(LF1_ROOMS);
 
 	/* Non-destroyed surface locations don't have rooms, but do have paths across the level */
 	if (((level_flag & (LF1_SURFACE)) != 0) && ((level_flag & (LF1_DESTROYED)) == 0)) level_flag &= ~(LF1_ROOMS);

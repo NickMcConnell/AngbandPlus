@@ -32,7 +32,7 @@ M:E:128
 M:X:487
 
 # Maximum number of monster races (needs to be max + 2 for player ghost)
-M:R:1282
+M:R:1283
 
 # Maximum number of vaults
 M:V:51

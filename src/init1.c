@@ -4427,7 +4427,7 @@ errr parse_p_info(char *buf, header *head)
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Parse every entry textually */
-		for (s = buf + 2; *s && (i < END_EQUIPMENT - INVEN_WIELD); )
+		for (s = buf + 2; *s && (i < END_EQUIPMENT - INVEN_WIELD + 1); )
 		{
 			/* Find the end of this entry */
 			for (t = s; *t && (*t != ':'); ++t) /* loop */;
@@ -4438,8 +4438,12 @@ errr parse_p_info(char *buf, header *head)
 				*t++ = '\0';
 			}
 
+			/* Hack - Last entry is r_idx */
+			if (i == END_EQUIPMENT - INVEN_WIELD)
+				pr_ptr->r_idx = atoi(s);
+
 			/* Hack - Parse this entry */
-			pr_ptr->slots[i] = atoi(s);
+			else pr_ptr->slots[i] = atoi(s);
 
 			/* Start the next entry */
 			s = t;

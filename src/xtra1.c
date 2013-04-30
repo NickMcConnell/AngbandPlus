@@ -3736,6 +3736,7 @@ static void calc_bonuses(void)
 				p_ptr->cur_style |= (1L << WS_POLEARM);
 				break;
 			}
+			case TV_SPELL:
 			case TV_DIGGING:
 				break;
 			default:

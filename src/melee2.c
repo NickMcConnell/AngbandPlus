@@ -1198,13 +1198,36 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	}
 
 	/* Eliminate other spells if not set */
-	/* Hack -- if caster is blind, only spell they can cast is cure */
-	if ((m_ptr->blind) || (!(choose & 0x02) && !(m_ptr->mflag & (MFLAG_CAST))))
+	if (!(choose & 0x02) && !(m_ptr->mflag & (MFLAG_CAST)))
 	{
 		f4 &= (RF4_INNATE_MASK);
 		f5 &= (RF5_INNATE_MASK);
-		f6 &= (RF6_INNATE_MASK) | (m_ptr->blind ? (RF6_CURE) : 0x0L);
+		f6 &= (RF6_INNATE_MASK);
 		f7 &= (RF7_INNATE_MASK);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
+
+	/* Eliminate 'direct' spells when blinded (except innate spells) * */
+	else if (m_ptr->blind)
+	{
+		f4 &= (rf4_no_player_mask | RF4_INNATE_MASK | RF4_SUMMON_MASK);
+		f5 &= (RF5_NO_PLAYER_MASK | RF5_INNATE_MASK | RF4_SUMMON_MASK);
+		f6 &= (RF6_NO_PLAYER_MASK | RF6_INNATE_MASK | RF6_SUMMON_MASK);
+		f7 &= (RF7_NO_PLAYER_MASK | RF7_INNATE_MASK | RF7_SUMMON_MASK);
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
+
+	/* Eliminate all direct spells when player entering a level */
+	if (p_ptr->dodging == 9)
+	{
+		f4 &= (rf4_no_player_mask | RF4_SUMMON_MASK);
+		f5 &= (RF5_NO_PLAYER_MASK | RF4_SUMMON_MASK);
+		f6 &= (RF6_NO_PLAYER_MASK | RF6_SUMMON_MASK);
+		f7 &= (RF7_NO_PLAYER_MASK | RF7_SUMMON_MASK);
 
 		/* No spells left */
 		if (!f4 && !f5 && !f6 && !f7) return (0);
