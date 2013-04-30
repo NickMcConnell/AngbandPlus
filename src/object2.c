@@ -162,6 +162,13 @@ void delete_object_idx(int o_idx)
 		y = j_ptr->iy;
 		x = j_ptr->ix;
 
+		/* Check if was projecting lite */
+		if (check_object_lite(j_ptr))
+		{
+			/* Recheck surrounding lite */
+			check_attribute_lost(y, x, 2, CAVE_XLOS, require_halo, has_halo, redraw_halo_loss, remove_halo, reapply_halo);		
+		}
+
 		/* Visual update */
 		lite_spot(y, x);
 	}
@@ -311,7 +318,6 @@ void compact_objects(int size)
 	int i, y, x, num, cnt;
 
 	int cur_lev, cur_dis, chance;
-
 
 	/* Compact */
 	if (size)
@@ -5811,6 +5817,174 @@ void race_near(int r_idx, int y1, int x1)
 }
 
 
+
+/*
+ * Allow potion specialists to modify potion/flask/lite explosions
+ * by inscribing an object with a special formula.
+ * This takes the form of pairs of a number followed by a letter
+ * following the equals sign. e.g =1r2d3i
+ * 
+ * The letters indicate the effect:
+ * a change to arc of 0 - 90 degrees (number times 10).
+ * b changes to starburst of 0 - 9 radius.
+ * d change damage multiplier from 0 - 9
+ * e changes to beam of 0 - 9 radius.
+ * f switch PROJECT_GRID flag on (if 1) or off (if 0)
+ * h switch PROJECT_HIDE flag on (if 1) or off (if 0)
+ * i switch PROJECT_ITEM flag on (if 1) or off (if 0)
+ * j switch PROJECT_JUMP flag on (if 1) or off (if 0).
+ * k switch PROJECT_KILL & PROJECT_PLAY flag on (if 1) or off (if 0)
+ * l switch PROJECT_LITE flag on (if 1) or off (if 0). Overridden by some effects e.g. fire.
+ * n explode from 0 - 9 times
+ * r change radius from 0 - 9
+ * s scatter blast from target by 0 - 9 squares
+ * t potion explodes in approximately 0-9 turns (XXX not implemented yet)
+ * u switch PROJECT_AREA flag on (if 1) or off (if 0).
+ * w change to 8-way blast if number is 8
+ * 
+ * Return FALSE if formula not applied, or if applied successfully.
+ * Return TRUE if formula fails. We set power = 0 in calling routine to create a 'dud' effect.
+ */
+bool apply_alchemical_formula(object_type *o_ptr, int *dam, int *rad, int *rng, u32b *flg, int *num, int *deg, int *dia)
+{
+	cptr s;
+	int pow = 1;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		while ((s[1] >= '0') && (s[1] <= '9'))
+		{
+			int n;
+
+			n = atoi(s+2);
+
+			switch (s[2])
+			{
+				case 'a':
+				{
+					*flg |= (PROJECT_ARC | PROJECT_BOOM);
+					*flg &= ~(PROJECT_BEAM | PROJECT_STAR);
+					*deg = 10 * n;
+					*dia = 15;
+					*rad = 10;
+					*rng = 5;
+					break;
+				}
+				case 'b':
+				{
+					*flg |= (PROJECT_STAR | PROJECT_BOOM);
+					*flg &= ~(PROJECT_BEAM | PROJECT_ARC);
+					*rad = n;
+					*rng = 5;
+					break;
+				}
+				case 'd':
+				{
+					*dam = n;
+					break;
+				}
+				case 'e':
+				{
+					*flg |= (PROJECT_BEAM);
+					*flg &= ~(PROJECT_ARC | PROJECT_STAR | PROJECT_BOOM);
+					*rng = 5;
+					*rad = n;
+					break;
+				}
+				case 'f':
+				{
+					if (n) *flg |= (PROJECT_GRID); else *flg &= ~(PROJECT_GRID);
+					break;
+				}
+				case 'h':
+				{
+					if (n) *flg |= (PROJECT_HIDE); else *flg &= ~(PROJECT_HIDE);
+					break;
+				}
+				case 'i':
+				{
+					if (n) *flg |= (PROJECT_ITEM); else *flg &= ~(PROJECT_ITEM);
+					break;
+				}			
+				case 'j':
+				{
+					if (n) { *flg |= (PROJECT_JUMP); *rng = n; } else *flg &= ~(PROJECT_JUMP);
+					break;
+				}					
+				case 'k':
+				{
+					if (n) *flg |= (PROJECT_KILL | PROJECT_PLAY); else *flg &= ~(PROJECT_KILL | PROJECT_PLAY);
+					break;
+				}
+				case 'l':
+				{
+					if (n) *flg |= (PROJECT_LITE); else *flg &= ~(PROJECT_LITE);
+					break;
+				}
+				case 'n':
+				{
+					*num = n;
+					break;
+				}
+				case 'r':
+				{
+					*rad = n;
+					break;
+				}
+				case 's':
+				{
+					*rng = n;
+					break;
+				}
+				case 'u':
+				{
+					if (n) *flg |= (PROJECT_AREA); else *flg &= ~(PROJECT_AREA);
+					break;
+				}				
+				case 'w':
+				{
+					if (n == 8)
+					{
+						*flg |= (PROJECT_8WAY | PROJECT_BOOM);
+						*flg &= ~(PROJECT_ARC | PROJECT_STAR | PROJECT_BEAM);
+					}
+					break;
+				}
+			}
+			
+			/* Increase difficulty */
+			pow++;
+			
+			/* Check next formula */
+			s += 2;
+		}
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+	
+	/* Increase power based on effect */
+	pow	*= (*dam) * (*rad + 1) * (*num) * ((*deg / 10) + 1) * ((*dia / 5) + 1);
+
+	/* Hack -- project area is powerful */
+	if (*flg & (PROJECT_AREA)) pow *= (*rng + 1);
+	
+	/* Test against player level. 'Dud' potion if this is true. */
+	if ((pow) && (rand_int(pow) > 5 + (p_ptr->lev / 5))) return (TRUE);
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
+
+
+
 /*
  * Break an object near a location. Returns true if actually broken.
  *
@@ -5917,17 +6091,31 @@ bool break_near(object_type *j_ptr, int y, int x)
 		case TV_LITE:
 		{
 			int power;
+			
+			/* The following may all be modifiedy by alchemy */
 			int rad = j_ptr->tval == TV_LITE ? 0 : 1;
+			int dam = 1;
+			int rng = 0;
+			int num = 1;
+			int j;
+			int deg = 0;
+			int dia = 10;
+			
+			/* Initialise flags (may be modified by alchemy) */
+			flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
 
 			/* Get item effect */
 			get_spell(&power, "use", j_ptr, FALSE);
 
-			/* Has a power */
-			/* Always apply powers if ammunition */
-			if (power > 0)
-			{
-				spell_type *s_ptr = &s_info[power];
+			/* Apply alchemy */
+			if ((p_ptr->pstyle == WS_POTION) && (apply_alchemical_formula(j_ptr, &dam, &rad, &rng, &flg, &num, &deg, &dia))) power = 0;
 
+			/* Hack -- use power 0 for fake potion effects */
+			spell_type *s_ptr = &s_info[power];
+
+			/* Applly num times */
+			for (j = 0; j < num; j++)
+			{
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
@@ -5937,12 +6125,12 @@ bool break_near(object_type *j_ptr, int y, int x)
 					d_side = s_ptr->blow[i].d_side;
 					d_plus = s_ptr->blow[i].d_plus;
 
-					/* Hack -- no more attacks */
-					if (!method) break;
+					/* Hack -- no more attacks. Mega hack - 'fake' the first attack. */
+					if (i && !method) break;
 
 					/* Message */
-					if (!i && rad) msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
-					if (!i && !rad) msg_format("The %s burst%s into flames.",o_name, (plural ? "" : "s"));
+					if (!i && !j && rad) msg_format("The %s explode%s.",o_name, (plural ? "" : "s"));
+					if (!i && !j && !rad) msg_format("The %s burst%s into flames.",o_name, (plural ? "" : "s"));
 
 					/* Mega hack --- spells in objects */
 					if (!d_side)
@@ -5960,15 +6148,13 @@ bool break_near(object_type *j_ptr, int y, int x)
 						damage = d_plus;
 					}
 
-					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
+					/* Hit with projection */
+					obvious |= project(SOURCE_PLAYER_BREAK, j_ptr->k_idx, rad, y, x, rand_spread(y, rng), rand_spread(x, rng),
+						damage * j_ptr->number * dam, effect, flg, deg, dia);
 
-					/* Hit with radius 1 attack */
-					obvious |= project(-1, rad, y, x, y, x, damage * j_ptr->number,
-						 effect, flg, 0, 0);
+					/* Object is used */
+					if ((obvious) && (k_info[j_ptr->k_idx].used < MAX_SHORT)) k_info[j_ptr->k_idx].used++;
 				}
-
-				/* Object is used */
-				if ((obvious) && (k_info[j_ptr->k_idx].used < MAX_SHORT)) k_info[j_ptr->k_idx].used++;
 			}
 
 			return TRUE;
@@ -6007,7 +6193,7 @@ bool break_near(object_type *j_ptr, int y, int x)
 					flg = PROJECT_KILL | PROJECT_PLAY | PROJECT_BOOM;
 
 					/* Hit with radiate attack */
-					obvious = project(-1, 1, y, x, y, x, damroll(d_side, d_dice) * j_ptr->number,
+					obvious = project(SOURCE_PLAYER_SPORE, j_ptr->name3, 1, y, x, y, x, damroll(d_side, d_dice) * j_ptr->number,
 						 effect, flg, 0, 0);
 
 					/* Count "obvious" attacks */
@@ -6042,6 +6228,32 @@ bool break_near(object_type *j_ptr, int y, int x)
 
 	return TRUE;
 }
+
+/*
+ * Is item a lite source on the floor?
+ */
+bool check_object_lite(object_type *j_ptr)
+{
+#if 0
+	/* Is item visible? */
+	if (!(j_ptr->ident & (IDENT_MARKED))) return FALSE;
+#endif
+	/* Is timing out, and a lite? */
+	if ((j_ptr->timeout) && (j_ptr->tval == TV_LITE)) return TRUE;
+
+	/* Is timing out, and a lite source */
+	else if (j_ptr->timeout)
+	{
+		u32b f1, f2, f3, f4;
+			
+		object_flags(j_ptr, &f1, &f2, &f3, &f4);
+			
+		if (f3 & (TR3_LITE)) return (TRUE);
+	}
+	
+	return FALSE;
+}
+
 
 /*
  * Let an object fall to the ground at or near a location.
@@ -6149,7 +6361,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 				/* Count objects */
 				k++;
-
+				
 				/* Check for possible combination */
 				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
 			}
@@ -6252,6 +6464,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Warn if we lose the item from view */
 	if (f_info[cave_feat[by][bx]].flags2 & (FF2_HIDE_ITEM))
 	{
+		/* Clear visibility */
+		j_ptr->ident &= ~(IDENT_MARKED);
+
 		/* Skip message on auto-ignored items */
 		if (!auto_pickup_ignore(j_ptr))
 		{
@@ -6259,6 +6474,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			msg_format("The %s disappear%s from view.",
 				   o_name, (plural ? "" : "s"));
 		}
+	}
+
+	/* Gain lite? */
+	if (check_object_lite(j_ptr))
+	{
+		/* Message */
+		msg_format("The %s light%s up the surroundings.", o_name, (plural ? "" : "s"));
+		
+		gain_attribute(by, bx, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
 	}
 
 	/* Sound */
@@ -7557,9 +7781,10 @@ void floor_item_optimize(int item)
 
 	/* Only optimize empty items */
 	if (o_ptr->number) return;
-
+	
 	/* Delete the object */
 	delete_object_idx(item);
+
 }
 
 

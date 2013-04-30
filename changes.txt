@@ -200,6 +200,40 @@ enters the level (Requested by Matthias Rudolf).
 - Added some low level priest spells and defined some pre-requisites for basic priest
 spells.
 
+- Dungeon generation has been comprehensively revised and improved for correctness.
+
+- You now dodge towards any monster you are attacking, which means ranged attacks can hit
+them instead, and that you can charge in the opposite direction the following turn.
+
+- Blocking now last two turns.
+
+- Added alchemical formulas. These allow potion specialists to inscribe a formula on a
+potion, scroll or lite object to modify how the object explodes. e.g. =1l causes any 
+explosion to lite up the area it affects. =3r makes potion have radius 3. =2d makes potion
+do double damage. There are currently 15 different letters for you to discover, which can 
+be combined. e.g. =3r2d.
+
+- Added a comprehensive set of death messages for various types of self-inflicted and
+unusual deaths.
+
+- You can now damage yourself with bolt and (more importantly) ball spells.
+
+- Thrown potions now explode with a fake 'nothing' effect if they have no effect 
+(Suggested by Mikolaj).
+
+- Updated to allow radius 2 monster lites, improved glowing terrain and dropping a lit light to
+allow it to lite up the surroundings.
+
+- No ice-themed dungeons at shallow depth (Reported by Pete Mac). In general, dungeon
+features should be chosen a little more appropriately regards for depth.
+
+- Food descriptions improved (Reported by Pete Mac).
+
+- Dungeon connectivity should be greatly improved (Reported by Pete Mac and others).
+
+- Made staffs brandable (Requested by jevansau1).
+
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -222,6 +256,11 @@ learn about the spell, even if you didn't see them cast it.
 
 - Improved recall of objects that are part of a character's shape (Requested by Mikolaj Konarski
 and pete mac).
+
+- Further work on allowing doors and walls to display different orientations in isometric mode.
+
+- You can now examine more items in shops. This now allows you to browse spellbooks
+(Requested by pebepe).
 
 ### Bug fixes ###
 
@@ -319,6 +358,29 @@ Konarski).
 
 - Fix bug causing guardian uniques to be accompanied by out of depth monsters (Reported
 by Matthias Rudolf).
+
+- Fix major bug with level_flags.
+
+- Adjust recommended classes to minimise very negative stats.
+
+- Improvements to allow player to be accidentally crushed by closing a sliding wall on themselves.
+
+- Fix a number of infinite loops and crashes in dungeon generation.
+
+- Fix strange messages for monster name display in various circumstances (Reported by
+redelmansidi).
+
+- Fixed problems with monster escorts and monster summoning picking invalid monsters or
+too tough monsters (Reported by matthiasrudolf).
+
+- Fixed objects lost in stairs created by quests (Fix by Mikolaj).
+
+- Fixed exploit where player created traps would allow additional items to be created (Reported
+by matthiasrudolf).
+
+- Fixed bugs around room walls not being lit correctly (Reported by Mikolaj).
+
+- Fixed bug using repeat command and wands of wonder (Reported by matthiasrudolf).
 
 ### Build / Platform ###
 

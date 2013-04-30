@@ -92,11 +92,13 @@ s16b num_repro;		 /* Current reproducer count */
 s16b object_level;	      /* Current object creation level */
 s16b monster_level;	     /* Current monster creation level */
 
-char summon_char_type;	   /* Hack -- See summon_specific() */
-byte summon_attr_type;	   /* Hack -- See summon_specific() */
-byte summon_group_type;  /* Hack -- See summon_specific() */
-u32b summon_flag_type;	   /* Hack -- See summon_specific() */
-s16b summon_race_type;	   /* Hack -- See summon_specific() */
+s16b summoner = 0;				/* Hack -- See summon specific() */
+bool summon_strict = FALSE;		/* Hack -- See summon specific() */
+char summon_char_type = '\0';	   /* Hack -- See summon_specific() */
+byte summon_attr_type = 0;	   /* Hack -- See summon_specific() */
+byte summon_group_type = 0;  /* Hack -- See summon_specific() */
+u32b summon_flag_type = 0L;	   /* Hack -- See summon_specific() */
+s16b summon_race_type = 0;	   /* Hack -- See summon_specific() */
 
 s32b turn;			      /* Current game turn */
 s32b old_turn;		      /* Hack -- Level feeling counter */

@@ -68,24 +68,34 @@ V:0.6.2
 # 'Empty' room.
 
 N:1:107:0:0:1:1:0:128
+A:
+B:
 
 # Wall decorated room.
 
 N:2:117:0:0:1:1:0:20
+A:
+B:
 
 # Central feature room.
 
 N:3:104:0:0:1:1:0:128
+A:
+B:
 
 # Wall decorated large room.
 
 N:4:117:0:0:1:1:0:20
+A:
+B:
 
 # Central feature large room.
 
 N:5:104:0:0:1:1:0:128
+A:
+B:
 
-# Central feature large room.
+# Central feature huge room.
 
 N:6:104:0:0:1:1:0:128
 A:
@@ -117,40 +127,74 @@ D:A
 # Small starburst room.
 
 N:11:107:0:0:1:1:0:128
+A:
+B:
 
 # Small starburst room - central feature.
 
 N:11:104:0:0:1:1:0:128
+A:
+B:
 
 # Small starburst room - wall decorations.
 
 N:11:117:0:0:1:1:0:128
+A:
+B:
 
 # Large starburst room - central feature.
 
 N:12:104:0:0:1:1:0:128
+A:
+B:
 
 # Large starburst room - wall decorations.
 
 N:12:117:0:0:1:1:0:128
+A:
+B:
 
-# Medium fractal room.
+# Medium fractal room - central feature.
 
-N:13:107:0:0:1:1:0:128
+N:13:104:0:0:1:1:0:128
 A:
 B:cave
 
-# Large fractal room.
+# Medium fractal room - wall decorations.
 
-N:14:107:0:0:1:1:0:128
+N:13:117:0:0:1:1:0:128
+A:
+B:cave
+
+# Large fractal room - central feature.
+
+N:14:104:0:0:1:1:0:128
 A:
 B:cavern
 
-# Huge fractal room.
+# Large fractal room - wall decorations.
 
-N:15:107:0:0:1:1:0:128
+N:14:117:0:0:1:1:0:128
+A:
+B:cave
+
+# Huge fractal room - central feature
+
+N:15:104:0:0:1:1:0:128
 A:
 B:cavern
+
+# Huge fractal room - wall decorations
+
+N:15:117:0:0:1:1:0:128
+A:
+B:cavern
+
+# Lair.
+
+N:16:107:0:0:1:1:0:128
+A:
+B:lair
 
 # An inner room of some description
 
@@ -882,7 +926,7 @@ D:A window
 R:SMART
 F:723:0:0
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 
 N:104:119:0:0:25:2:0:128
 A:
@@ -891,7 +935,7 @@ D:An open window
 R:SMART
 F:724:0:0
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 
 N:104:119:0:0:25:2:0:128
 A:
@@ -900,7 +944,7 @@ D:A broken window
 R:NONLIVING
 F:725:0:0
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 
 N:104:119:0:0:25:2:0:128
 A:
@@ -945,7 +989,7 @@ D:A burning torch
 R:SMART
 F:736:0:736
 S:SEEN
-P:OUTER
+P:OUTER | DARK
 
 N:104:119:0:0:25:2:0:128
 A:
@@ -954,7 +998,7 @@ D:A burning torch
 R:SMART
 F:736:0:736
 S:SEEN
-P:OUTER
+P:OUTER | DARK
 
 N:104:105:106:140:25:2:0:128
 A:
@@ -1394,7 +1438,7 @@ P:PLACE | SCATTER
 N:106:146:0:0:210:3:0:128
 A:damp
 B:
-D:slick with moisture.
+D:slick with moisture.  
 F:307:0:0
 L:WATER
 S:SEEN
@@ -1721,7 +1765,7 @@ D:criss-crossed with rays of light.
 F:2:0:406
 S:SEEN
 R:SNEAKY
-P:PLACE | SCATTER
+P:PLACE | SCATTER | DARK
 
 N:106:107:0:0:150:1:12:128
 A:
@@ -1918,7 +1962,7 @@ F:141:0:0
 L:CHASM
 P:PLACE
 
-N:106:107:0:0:50:3:0:128
+N:106:107:0:0:50:0:0:128
 A:bloody
 B:
 D:spattered with dried blood.  
@@ -1927,7 +1971,7 @@ F:305:305:754
 R:EVIL
 P:PLACE | SCATTER
 
-N:106:107:0:0:50:3:0:128
+N:106:107:0:0:50:0:0:128
 A:bloody
 B:
 D:covered in body parts.  
@@ -2179,7 +2223,7 @@ F:404:0:736
 L:DARK
 S:SEEN
 R:NEED_LITE
-P:PLACE | SCATTER | ROWS | COLS
+P:PLACE | SCATTER | ROWS | COLS | DARK
 
 N:106:107:0:0:80:8:0:128
 A:candle-lit
@@ -2189,7 +2233,7 @@ F:405:0:405
 L:DARK
 S:SEEN
 R:NEED_LITE
-P:PLACE | SCATTER | ROWS | COLS
+P:PLACE | SCATTER | ROWS | COLS | DARK
 
 N:106:107:0:0:80:4:0:128
 A:magical
@@ -2199,7 +2243,7 @@ F:406:0:406
 L:DARK
 S:SEEN
 R:MAGE
-P:PLACE | SCATTER | ROWS | COLS
+P:PLACE | SCATTER | ROWS | COLS | DARK
 
 N:106:107:0:0:50:2:0:128
 A:dusty
@@ -2419,7 +2463,7 @@ B:
 D:ripe with decay.  
 R:UNDEAD
 
-N:108:109:0:0:5:1:9:128
+N:108:109:0:0:5:0:9:128
 A:
 B:
 D:misty with blood.  
@@ -3143,6 +3187,11 @@ N:116:0:0:0:26:13:1:128
 A:
 B:hall
 R:GIANT
+
+N:116:0:0:0:26:13:1:128
+A:
+B:grotto
+R:PLANT
 
 N:116:0:0:0:32:16:1:128
 A:
@@ -3868,7 +3917,7 @@ S:SEEN | CURSED
 R:EVIL
 P:OUTER
 
-N:117:102:0:0:15:1:40:128
+N:117:102:0:0:15:0:40:128
 A:
 B:
 D:Blood seeps from
@@ -3906,7 +3955,7 @@ F:404:0:736
 L:DARK
 S:SEEN
 R:NEED_LITE
-P:ROWS | COLS
+P:ROWS | COLS | DARK
 
 N:117:102:0:0:80:4:10:128
 A:magical
@@ -3916,7 +3965,7 @@ F:406:0:406
 L:DARK
 S:SEEN
 R:MAGE
-P:ROWS | COLS
+P:ROWS | COLS | DARK
 
 N:117:102:0:0:75:3:2:128
 A:thieves
@@ -3960,7 +4009,7 @@ B:
 D:Stained-glass windows line 
 F:723:0:723
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 R:PRIEST
 
 N:117:121:0:0:50:2:0:128
@@ -3969,7 +4018,7 @@ B:
 D:Windows line 
 F:723:0:723
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 R:SMART
 
 N:117:121:0:0:50:2:0:128
@@ -3978,7 +4027,7 @@ B:
 D:Open windows line 
 F:724:0:723
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 R:SMART
 
 N:117:121:0:0:50:2:0:128
@@ -3987,7 +4036,7 @@ B:
 D:Broken windows line 
 F:725:0:723
 S:SEEN
-P:OUTER
+P:OUTER | LITE
 R:NONLIVING
 
 N:117:121:0:0:50:2:0:128
@@ -4154,7 +4203,7 @@ P:OUTER
 R:DWARF
 F:750:817:750
 
-N:117:121:0:0:100:3:0:128
+N:117:121:0:0:100:0:0:128
 A:bloody
 B:
 D:Blood covers 
@@ -4334,7 +4383,7 @@ A:
 B:
 D:
 P:ROWS | COLS
-R:UNDEAD
+L:CRYPT
 
 N:121:102:0:0:5:5:0:128
 A:
@@ -4342,11 +4391,12 @@ B:
 D:
 P:ROWS | COLS | OUTER
 
-N:121:102:0:0:5:5:0:128
+#Inner room by itself
+
+N:121:102:0:0:15:15:0:128
 A:
 B:
 D:
-P:INNER
 
 N:121:102:0:0:5:5:0:128
 A:
@@ -5017,7 +5067,7 @@ B:
 D:Someone has scratched 
 S:SEEN
 
-N:134:135:0:0:15:15:25:128
+N:134:135:0:0:15:0:25:128
 A:
 B:
 D:Someone has scrawled in blood 
@@ -5419,6 +5469,11 @@ N:145:106:0:0:15:15:0:128
 A:
 B:
 P:CENTRE
+
+N:145:106:0:0:15:15:0:128
+A:
+B:
+P:CENTRE | EDGE
 
 N:145:106:0:0:15:15:0:128
 A:

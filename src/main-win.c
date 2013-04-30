@@ -1790,10 +1790,11 @@ static void term_change_font(term_data *td)
 {
 	OPENFILENAME ofn;
 
-	char tmp[1024] = "";
+	char tmp[1024];
 
 	/* Extract a default if possible */
-	if (td->font_file) strcpy(tmp, td->font_file);
+	if (td->font_file) my_strcpy(tmp, td->font_file, sizeof(tmp));
+	else  my_strcpy(tmp, "", sizeof(tmp));
 
 	/* Ask for a choice */
 	memset(&ofn, 0, sizeof(ofn));

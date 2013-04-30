@@ -368,8 +368,8 @@
 /*
  * Dungeon room types 
  */
-#define ROOM_NONE			0
-#define ROOM_NORMAL			1
+#define ROOM_NONE				0
+#define ROOM_NORMAL				1
 #define ROOM_NORMAL_WALLS		2
 #define ROOM_NORMAL_CENTRE		3
 #define ROOM_LARGE_WALLS		4
@@ -380,12 +380,14 @@
 #define ROOM_LESSER_VAULT		9
 #define ROOM_GREATER_VAULT		10
 #define ROOM_STAR_BURST			11
-#define ROOM_HUGE_STAR_BURST		12
+#define ROOM_HUGE_STAR_BURST	12
 #define ROOM_FRACTAL			13
 #define ROOM_LARGE_FRACTAL		14
 #define ROOM_HUGE_FRACTAL		15
-#define ROOM_LAIR			16
-#define ROOM_TOWER       		17
+#define ROOM_LAKE				16
+#define ROOM_HUGE_LAKE			17
+#define ROOM_LAIR				18
+#define ROOM_TOWER       		19
 
 
 
@@ -2579,10 +2581,41 @@
 #define PROJECT_XX10         0x04000000
 
 /*Who caused the projection*/
-#define SOURCE_PLAYER			-1  /*player is the source of projection*/
-#define SOURCE_TRAP			-2	/*Trap*/
-#define SOURCE_OTHER			-3	/*Terrain, something other than player or monster*/
 #define SOURCE_MONSTER_START	0 /*Greater than 0 monster is the source*/
+
+#define SOURCE_SELF				0	/* Monster comitting suicide */
+#define SOURCE_OBJECT			-1	/* Source is an object */
+#define SOURCE_FEATURE			-2	/* Source is a feature */
+#define SOURCE_SPELL			-3	/* Source is a spell */
+#define SOURCE_DISEASE			-4	/* Source is a disease */
+#define SOURCE_DAYLIGHT			-5	/* Source is the sun */
+#define SOURCE_BIRTH			-6	/* Source is birth of monster race */
+#define SOURCE_PLAYER_ATTACK	-7
+#define SOURCE_PLAYER_SHOT		-8
+#define SOURCE_PLAYER_THROW		-9
+#define SOURCE_PLAYER_TRAP		-10
+#define SOURCE_PLAYER_BREAK		-11
+#define SOURCE_PLAYER_SPORE		-12
+#define SOURCE_PLAYER_COATING	-13
+#define SOURCE_PLAYER_EAT_MONSTER	-14
+#define SOURCE_PLAYER_EAT		-15
+#define SOURCE_PLAYER_QUAFF		-16
+#define SOURCE_PLAYER_AIM		-17	/* Wands */
+#define SOURCE_PLAYER_ZAP		-18	/* Rods - with target specified */
+#define SOURCE_PLAYER_ZAP_NO_TARGET		-19	/* Rods - with no target specified */
+#define SOURCE_PLAYER_READ		-20
+#define SOURCE_PLAYER_USE		-21	/* Staffs*/
+#define SOURCE_PLAYER_ACT_ARTIFACT	-22
+#define SOURCE_PLAYER_ACTIVATE	-23
+#define SOURCE_PLAYER_SERVICE	-24
+#define SOURCE_PLAYER_CAST		-25
+#define SOURCE_PLAYER_END		-26
+
+#define SOURCE_PLAYER_START		-7	/* Less than here or equal to here, player is the source, and gets experience */
+#define SOURCE_PLAYER_NO_TARGET	-19	/* Less than here or equal to here, no target is specified and some messages are suppressed.
+									 * Note that all items less than here that could specify a target always have a 'known' effect. */
+
+#define SOURCE_MESSAGES	4
 
 /*
  * An arc with a width (in degrees) less than this value will lose less
@@ -2744,10 +2777,13 @@
 #define CAVE_ROOM		0x02	/* part of a room */
 #define CAVE_DLIT		0x04	/* lit by daylight during daytime */
 #define CAVE_HALO		0x08	/* lit by glowing feature */
-#define CAVE_MLIT		0x10	/* lit by a monster (or player in multi-player versions) */
+#define CAVE_TLIT		0x10	/* lit by a monster or player */
 #define CAVE_CLIM		0x20	/* location is 'climable' */
 #define CAVE_XLOF		0x40	/* blocks line of fire */
 #define CAVE_XLOS		0x80	/* blocks line of sight */
+
+/* Cave lit by any form of light - except player torch */
+#define CAVE_LITE		(CAVE_GLOW | CAVE_DLIT | CAVE_TLIT | CAVE_HALO)
 
 /*
  * Special player grid flags
@@ -2863,14 +2899,14 @@
 #define RG1_2X2		0x00200000L	/* Place in 2x2 grids */
 #define RG1_3X3		0x00400000L	/* Place in 3x3 grids */
 #define RG1_8WAY	0x00800000L	/* Place 8 ways */
-#define RG1_DOORWAY	0x01000000L	/* Place doorway in 1 edge */
+#define RG1_DOORWAY	0x01000000L	/* Place a doorway */
 #define RG1_3X3HIDDEN	0x02000000L	/* Place 3x3 with hollow inside and doorway */
 #define RG1_STARBURST	0x04000000L	/* Place starburst in centre */
 #define RG1_BRIDGE_EDGE	0x08000000L	/* Replace edges of room with bridges */
 #define RG1_IGNORE_EDGE	0x10000000L	/* Ignore edges, run terrain to edge of room */
 #define RG1_BRIDGE_IN	0x20000000L	/* Run bridges into the centre of the room */
-#define RG1_LITE	0x40000000L	/* Generate room with light */
-#define RG1_DARK	0x80000000L	/* Generate room with darkness */
+#define RG1_LITE	0x40000000L	/* Place in lit rooms */
+#define RG1_DARK	0x80000000L	/* Place in dark rooms */
 
 
 /*** Room flags ***/
@@ -2882,10 +2918,10 @@
 #define ROOM_HEARD	0x00000002L	   /* room has been heard */
 #define ROOM_ENTERED	0x00000004L	   /* room has been entered */
 #define ROOM_QUEST	0x00000008L	   /* room is a quest */
-#define ROOM_LITE	0x00000010L	   /* room is lit */
-#define ROOM_DARK	0x00000020L	   /* room is dark */
+#define ROOM_BRIDGED	0x00000010L	   /* room must be bridged */
+#define ROOM_EDGED	0x00000020L	   /* room doesn't have 'outer' terrain */
 #define ROOM_LANGUAGE	0x00000040L	   /* room has language inscriptions */
-#define ROOM_BRIDGE	0x00000080L	   /* room has bridges running through it */
+#define ROOM_FLOODED	0x00000080L	   /* room is flooded with terrain */
 #define ROOM_DAYLITE	0x00000100L	   /* room is lit during daytime */ 
 #define ROOM_ICKY 	0x00000200L    /* room cannot be teleport target */
 #define ROOM_BLOODY	0x00000400L    /* room causes wounds/poison to become worse */
@@ -3400,11 +3436,11 @@
 #define MFLAG_MARK      0x00000080    /* Monster is currently memorized */
 
 #define MFLAG_ACTV      0x00000100    /* Monster is currently active */
-#define MFLAG_RUNS      0x00000200    /* Monster is currently running */
+#define MFLAG_LITE      0x00000200    /* Monster is using a lite */
 #define MFLAG_PUSH      0x00000400    /* Monster has pushed/been pushed aside */
-#define MFLAG_CAST	0x00000800    /* Monster will cast spell at first opportunity */
+#define MFLAG_CAST	0x00000800    	/* Monster will cast spell at first opportunity */
 #define MFLAG_SNEAKED	0x00001000    /* Monster has been sneak attacked */
-#define MFLAG_AGGR	0x00002000    /* Monster will act in aggressive manner */
+#define MFLAG_AGGR	0x00002000    	/* Monster will act in aggressive manner */
 #define MFLAG_HIT_RANGE	0x00004000    /* Monster has just been hit by ranged attack */
 #define MFLAG_HIT_BLOW	0x00008000    /* Monster has just been hit by melee attack */
 
@@ -4801,16 +4837,35 @@
 /*
  * Determine if a "legal" grid is an "naked" floor grid
  *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid non-placers
- * Line 3 -- forbid non-droppers
- * Line 4 -- forbid permanent
- * Line 5 -- forbid normal objects
- * Line 6 -- forbid player/monsters
+ * Line 1 -- forbid non-placers
+ * Line 2 -- forbid non-droppers
+ * Line 3 -- forbid permanent
+ * Line 4 -- forbid normal objects
+ * Line 5 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
  ((f_info[cave_feat[Y][X]].flags1 & (FF1_PLACE)) && \
 	 (f_info[cave_feat[Y][X]].flags1 & (FF1_DROP)) && \
+	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
+	 (cave_o_idx[Y][X] == 0) && \
+	 (cave_m_idx[Y][X] == 0))
+
+/*
+ * Determine if a "legal" grid is an "nearly naked" grid
+ * 
+ * This can help for placing stairs on completely flooded levels.
+ *
+ * Line 1 -- forbid non-placers
+ * Line 2-4 -- require drop terrain, or shallow or easy climb
+ * Line 5 -- forbid permanent
+ * Line 6 -- forbid normal objects
+ * Line 7 -- forbid player/monsters
+ */
+#define cave_nearly_naked_bold(Y,X) \
+ ((f_info[cave_feat[Y][X]].flags1 & (FF1_PLACE)) && \
+ 	((f_info[cave_feat[Y][X]].flags1 & (FF1_DROP)) || \
+ 	(f_info[cave_feat[Y][X]].flags2 & (FF2_SHALLOW)) || \
+ 	(f_info[cave_feat[Y][X]].flags3 & (FF3_EASY_CLIMB))) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
@@ -4832,11 +4887,10 @@
  * Line 1 -- permanent flag
  */
 #define room_has_flag(Y,X,FLAG) \
- ((cave_info[Y][X] & (CAVE_ROOM)) ? \
+ (((cave_info[Y][X] & (CAVE_ROOM)) != 0) &&\
+ 	(dun_room[Y/BLOCK_HGT][X/BLOCK_WID] < DUN_ROOMS) ? \
 	 (room_info[dun_room[Y/BLOCK_HGT][X/BLOCK_WID]].flags & (FLAG)) : \
 	 (room_info[0].flags & (FLAG)))
-
-
 
 
 /*

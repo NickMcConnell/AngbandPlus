@@ -1098,7 +1098,7 @@ static void do_cmd_wiz_jump(void)
 		sprintf(ppp, "Jump to level (0-%d): ", max_depth(p_ptr->dungeon)-min_depth(p_ptr->dungeon));
 
 		/* Default */
-		sprintf(tmp_val, "%d", p_ptr->depth);
+		sprintf(tmp_val, "%d", p_ptr->depth-min_depth(p_ptr->dungeon));
 
 		/* Ask for a level */
 		if (!get_string(ppp, tmp_val, 10)) return;
@@ -1312,6 +1312,88 @@ static void do_cmd_wiz_unhide(int d)
 
 
 /*
+ * Reveal all of dungeon
+ */
+static void do_cmd_wiz_detect(void)
+{
+	int i, y, x;
+
+
+	/* Memorize objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Memorize */
+		o_ptr->ident |= (IDENT_MARKED);
+	}
+	
+	/* Scan all normal grids */
+	for (y = 1; y < DUNGEON_HGT-1; y++)
+	{
+		/* Scan all normal grids */
+		for (x = 1; x < DUNGEON_WID-1; x++)
+		{
+			/* Process all non-basic granite */
+			if (cave_feat[y][x] != 56)
+			{
+				/* Perma-lite the grid */
+				cave_info[y][x] |= (CAVE_GLOW);
+
+				/* Memorize normal features */
+				if (f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER))
+				{
+					/* Memorize the grid */
+					play_info[y][x] |= (PLAY_MARK);
+				}
+
+				/* Normally, memorize floors (see above) */
+				if (view_perma_grids && !view_torch_grids)
+				{
+					/* Memorize the grid */
+					play_info[y][x] |= (PLAY_MARK);
+				}
+			}
+		}
+	}
+
+	/* Process monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Optimize -- Repair flags */
+		repair_mflag_mark = repair_mflag_show = TRUE;
+
+		/* Detect the monster */
+		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+		/* Update the monster */
+		update_mon(i, FALSE);
+	}
+	
+	
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
+}
+
+
+/*
  * Query the dungeon
  */
 static void do_cmd_wiz_query(void)
@@ -1363,7 +1445,7 @@ static void do_cmd_wiz_query(void)
 			case 'r': mask |= (CAVE_ROOM); break;
 	      	        case 'd': mask |= (CAVE_DLIT); break;
 			case 'l': mask |= (CAVE_HALO); break;
-			case 'm': mask |= (CAVE_MLIT); break;
+			case 't': mask |= (CAVE_TLIT); break;
 			case 'x': mask |= (CAVE_CLIM); break;
 			case 'f': mask |= (CAVE_XLOF); break;
 			case 's': mask |= (CAVE_XLOS); break;
@@ -1408,11 +1490,51 @@ static void do_cmd_wiz_query(void)
 
 	/* Get keypress */
 	msg_print("Press any key.");
-	message_flush();
+	anykey();
 
 	/* Redraw map */
 	prt_map();
 }
+
+
+
+void do_cmd_wiz_ecology(void)
+{
+	int num, row, col;
+	
+	/* No ecology */
+	if (!cave_ecology.get_mon)
+	{
+		msg_print("No ecology on this level.");
+		
+		return;
+	}
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Clear screen */
+	Term_clear();
+
+	/* Print all members of the ecology and their descriptions */
+        for (num = 0; num < cave_ecology.num_races; num++)
+	{
+		row = 2 + (num % 26);
+		col = 30 * (num / 26);
+		prt(r_name + r_info[cave_ecology.race[num]].name, row, col);
+	}
+	
+	/* Total monsters */
+	msg_format("Ecology has %d races.", cave_ecology.num_races);
+	
+	/* Wait for a keypress */
+	anykey();
+	
+	/* Screen_load */
+	screen_load();
+}
+
+
 
 
 #ifdef ALLOW_SPOILERS
@@ -1510,6 +1632,13 @@ void do_cmd_debug(void)
 			process_spell_flags(92, 100, &cancel, &known);
 			break;
 		}
+		
+		/* Wizard detect */
+		case 'D':
+		{
+			do_cmd_wiz_detect();
+			break;			
+		}
 
 		/* Edit character */
 		case 'e':
@@ -1517,6 +1646,14 @@ void do_cmd_debug(void)
 			do_cmd_wiz_change();
 			break;
 		}
+		
+		/* Show ecology */
+		case 'E':
+		{
+			do_cmd_wiz_ecology();
+			break;
+		}
+		
 
 		/* View item info */
 		case 'f':

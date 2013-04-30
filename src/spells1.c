@@ -71,7 +71,7 @@ void player_can_flags(int who, u32b f1, u32b f2, u32b f3, u32b f4)
 	equip_can_flags(f1, f2, f3, f4);
 
 	/* Monster notices ability */
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 	 	monster_type *m_ptr = &m_list[who];
 	 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -107,7 +107,7 @@ void player_not_flags(int who, u32b f1, u32b f2, u32b f3, u32b f4)
 	equip_not_flags(f1, f2, f3, f4);
 
 	/* Monster notices ability */
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 	 	monster_type *m_ptr = &m_list[who];
 	 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -138,7 +138,7 @@ void player_not_flags(int who, u32b f1, u32b f2, u32b f3, u32b f4)
 void update_smart_save(int who)
 {
 	/* Monster notices ability */
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 		u32b smart = 0L;
 
@@ -189,7 +189,7 @@ void update_smart_save(int who)
 void update_smart_learn(int who, u32b flag)
 {
 	/* Monster notices ability */
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 	 	monster_type *m_ptr = &m_list[who];
 	 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -216,7 +216,7 @@ void update_smart_learn(int who, u32b flag)
 void update_smart_forget(int who, u32b flag)
 {
 	/* Monster notices ability */
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 	 	monster_type *m_ptr = &m_list[who];
 	 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -369,11 +369,24 @@ void teleport_away(int m_idx, int dis)
 			break;
 		}
 
+		/* Paranoia -- have exhausted looking for space in dungeon */
+		if ((dis >= 200) && (min <= 0))
+		{
+			/* Sound */
+			sound(MSG_TPOTHER);
+			
+ 			/* Delete monster instead */
+			delete_monster_idx(m_idx);
+
+			return;
+		}
+
 		/* Increase the maximum distance */
 		dis = dis * 2;
 
 		/* Decrease the minimum distance */
 		min = min / 2;
+		
 	}
 
 	/* Sound */
@@ -1060,7 +1073,7 @@ void take_hit(int dam, cptr kb_str)
 		msg_print(NULL);
 
 		/* Note cause of death */
-		strcpy(p_ptr->died_from, kb_str);
+		my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
 
 		/* No longer a winner */
 		p_ptr->total_winner = FALSE;
@@ -1621,7 +1634,7 @@ static int mon_inven_damage(int m_idx, inven_func typ, int perc)
 				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 				/* Get "possessive" */
-				monster_desc(m_name, m_idx, 0x22);
+				monster_desc(m_name, sizeof(m_name), m_idx, 0x22);
 
 				/* Message */
 				msg_format("%^s%s %s %s destroyed!",
@@ -1632,7 +1645,7 @@ static int mon_inven_damage(int m_idx, inven_func typ, int perc)
 					   ((amt > 1) ? "were" : "was"));
 
 				/* Destroy "amt" items */
-				if (k < o_ptr->number) o_ptr->number -= k;
+				if (amt < o_ptr->number) o_ptr->number -= amt;
 
 				/* Delete the object */
 				else delete_object_idx(this_o_idx);
@@ -2924,7 +2937,7 @@ static bool temp_lite(int y, int x)
  * Luckily this is very generic and doesn't require we duplicate transition
  * code between here and project_t.
  */
-bool project_f(int who, int y, int x, int dam, int typ)
+bool project_f(int who, int what, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
 	bool burnout = FALSE;
@@ -2934,6 +2947,9 @@ bool project_f(int who, int y, int x, int dam, int typ)
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 	int feat;
+	
+	/* Prevent warning */
+	(void)what;
 
 	/* Set feature name */
 	f = (f_name + f_ptr->name);
@@ -2941,8 +2957,9 @@ bool project_f(int who, int y, int x, int dam, int typ)
 	/* Track changes */
 	feat = cave_feat[y][x];
 
-	/* Hack -- prevent smoke/vapour etc on floors */
-	if ((who) && ((f_ptr->flags1 & (FF1_FLOOR)) != 0))
+	/* Hack -- prevent smoke/vapour etc on floors unless a feature or non-player object causes this */
+	if (((who != SOURCE_FEATURE) || (who != SOURCE_OBJECT)) &&
+			((f_ptr->flags1 & (FF1_FLOOR)) != 0))
 	{
 		burnout = TRUE;
 	}
@@ -3376,7 +3393,7 @@ bool project_f(int who, int y, int x, int dam, int typ)
 
 			cave_alter_feat(y,x,FS_BRIDGE);
 
-			strcpy(name,f_name+f_ptr->name);
+			my_strcpy(name,f_name+f_ptr->name, sizeof(name));
 
 			if (!(strstr(name,"stone bridge")))
 			{
@@ -3517,7 +3534,7 @@ bool project_f(int who, int y, int x, int dam, int typ)
 
 			if (summon_group_type)
 			{
-				if (summon_specific(y, x, who > 0 ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT)) change = TRUE;
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT)) change = TRUE;
 			}
 
 			if (change)
@@ -3578,7 +3595,7 @@ bool project_f(int who, int y, int x, int dam, int typ)
 
 			if (summon_attr_type || summon_char_type)
 			{
-				if (summon_specific(y, x, who > 0 ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT)) change = TRUE;
+				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level-1 : p_ptr->depth, ANIMATE_OBJECT)) change = TRUE;
 			}
 
 			if (change)
@@ -3695,8 +3712,8 @@ bool project_f(int who, int y, int x, int dam, int typ)
 	/* Check for monster */
 	if (feat != cave_feat[y][x])
 	{
-		/* Monster was affected -- Mark grid for later processing. */
-		if (cave_m_idx[y][x] > 0) cave_temp_mark(y, x, FALSE);
+		/* Player or monster was affected -- Mark grid for later processing. */
+		if (cave_m_idx[y][x] != 0) cave_temp_mark(y, x, FALSE);
 	}
 
 	/* Return "Anything seen?" */
@@ -3721,7 +3738,7 @@ bool project_f(int who, int y, int x, int dam, int typ)
  *
  * We return "TRUE" if the effect of the projection is "obvious".
  */
-bool project_o(int who, int y, int x, int dam, int typ)
+bool project_o(int who, int what, int y, int x, int dam, int typ)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -3736,7 +3753,7 @@ bool project_o(int who, int y, int x, int dam, int typ)
 	char o_name[80];
 
 	/* Prevent warning */
-	who = 0;
+	(void)who;
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -4005,18 +4022,18 @@ bool project_o(int who, int y, int x, int dam, int typ)
 				{
 					int dist = 1 + (dam - o_ptr->weight) / 33;
 
-					if (who < 0)
+					if (who <= SOURCE_PLAYER_START)
 					{
 						ny = p_ptr->py;
 						nx = p_ptr->px;
 					}
-					else if (who > 0)
+					else if (who > SOURCE_MONSTER_START)
 					{
 						ny = m_list[who].fy;
 						nx = m_list[who].fx;
 					}
 
-					if (who)
+					if ((who > SOURCE_MONSTER_START) || (who <= SOURCE_PLAYER_START))
 					{
 						int path_n;
 						u16b path_g[256];
@@ -4073,7 +4090,7 @@ bool project_o(int who, int y, int x, int dam, int typ)
 					}
 					else
 					{
-						if (summon_specific(y, x, who > 0 ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT)) do_kill = TRUE;
+						if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_OBJECT)) do_kill = TRUE;
 					}
 				}
 				else
@@ -4143,7 +4160,7 @@ bool project_o(int who, int y, int x, int dam, int typ)
 
 				if (summon_char_type || summon_attr_type || summon_flag_type)
 				{
-					if (summon_specific(y, x, who > 0 ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD)) do_kill = TRUE;
+					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_DEAD)) do_kill = TRUE;
 				}
 				break;
 			}
@@ -4174,7 +4191,7 @@ bool project_o(int who, int y, int x, int dam, int typ)
 				{
 					summon_race_type = o_ptr->name3;
 
-					if (summon_specific(y, x, who > 0 ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD)) do_kill = TRUE;
+					if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, RAISE_DEAD)) do_kill = TRUE;
 
 					summon_race_type = 0;
 				}
@@ -4275,10 +4292,10 @@ bool project_o(int who, int y, int x, int dam, int typ)
 				o_ptr->ident |= (IDENT_BREAKS);
 
 				/* Splash damage on terrain */
-				(void)project_f(0, y, x, damroll(1, o_ptr->weight), typ);
+				(void)project_f(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
 
 				/* And apply effects */
-				(void)project_t(0, y, x, damroll(1, o_ptr->weight), typ);
+				(void)project_t(SOURCE_OBJECT, what, y, x, damroll(1, o_ptr->weight), typ);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -4589,7 +4606,7 @@ static bool monster_save(monster_type *m_ptr, int power, bool *near)
  *
  * We attempt to return "TRUE" if the player saw anything "useful" happen.
  */
-bool project_m(int who, int y, int x, int dam, int typ)
+bool project_m(int who, int what, int y, int x, int dam, int typ)
 {
 	int tmp;
 
@@ -4685,7 +4702,7 @@ bool project_m(int who, int y, int x, int dam, int typ)
 
 
 	/* Get the monster name (BEFORE polymorphing) */
-	monster_desc(m_name, who, 0);
+	monster_desc(m_name, sizeof(m_name), cave_m_idx[y][x], 0);
 
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
@@ -6793,13 +6810,8 @@ bool project_m(int who, int y, int x, int dam, int typ)
 		{
 			dam = 0;
 
-			if ((who < 0) && (m_ptr->ml))
+			if ((who <= SOURCE_PLAYER_START) && (cave_m_idx[y][x] > 0))
 			{
-				char m_name[80];
-
-				/* Get "the monster" or "something" */
-				monster_desc(m_name, who, 0x04);
-
 				/* Describe the monster */
 				msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 
@@ -6818,8 +6830,9 @@ bool project_m(int who, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
-			if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) 
-			  entomb(y, x, 0x0L);
+			/* Monster was affected -- Mark grid for later processing. */
+			cave_temp_mark(y, x, FALSE);
+
 			break;
 		}
 
@@ -7004,27 +7017,34 @@ bool project_m(int who, int y, int x, int dam, int typ)
 			/* Irrelevant */
 			skipped = TRUE;
 
-			/* No damage */
-			dam = 0;
-
 			break;
 		}
 	}
 
 
 	/* Absolutely no effect */
-	if (skipped) return (FALSE);
+	if (skipped)
+	{
+		/* Skip further if applied to a target known to be unaffected */
+		if (who <= SOURCE_PLAYER_NO_TARGET)
+			 return (FALSE);
 
+		if (seen) note = " is unaffected!";
+
+		obvious = FALSE;
+
+		/* No damage */
+		dam = 0;
+	}
 
 	/* "Unique" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
-
 
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Uniques may only be killed by the player */
-		if ((who >= 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
+		if ((who > SOURCE_PLAYER_START) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
 
@@ -7181,7 +7201,7 @@ bool project_m(int who, int y, int x, int dam, int typ)
 		}
 
 		/* Handle cuts from player only */
-		if (do_cuts && (who < 0) && 
+		if (do_cuts && (who <= SOURCE_PLAYER_START) && 
 			 !(r_ptr->flags9 & (RF9_NO_CUTS)))
 		{
 			/* Obvious */
@@ -7200,11 +7220,11 @@ bool project_m(int who, int y, int x, int dam, int typ)
 			tmp = do_cuts / (r_ptr->level / 10 + 1);
 
 			/* Apply cuts if player only */
-			if (who > 0) m_ptr->cut = MIN(255, m_ptr->cut + tmp);
+			if (who > SOURCE_MONSTER_START) m_ptr->cut = MIN(255, m_ptr->cut + tmp);
 		}
 
 		/* Handle poison from player only */
-		if (do_pois && (who < 0) &&
+		if (do_pois && (who <= SOURCE_PLAYER_START) &&
 			 !(r_ptr->flags3 & (RF3_IM_POIS)))
 		{
 			/* Obvious */
@@ -7267,7 +7287,7 @@ bool project_m(int who, int y, int x, int dam, int typ)
 	}
 
 	/* If another monster or trap did the damage, hurt the monster by hand */
-	if (who >= 0)
+	if (who > SOURCE_PLAYER_START)
 	{
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
@@ -7385,10 +7405,6 @@ bool project_m(int who, int y, int x, int dam, int typ)
 }
 
 
-
-
-
-
 /*
  * Helper function for "project()" below.
  *
@@ -7406,7 +7422,7 @@ bool project_m(int who, int y, int x, int dam, int typ)
  * Actually, for historical reasons, we just assume that the effects were
  * obvious.  XXX XXX XXX
  */
-bool project_p(int who, int y, int x, int dam, int typ)
+bool project_p(int who, int what, int y, int x, int dam, int typ)
 {
 	int k = 0;
 	int i,j;
@@ -7426,9 +7442,6 @@ bool project_p(int who, int y, int x, int dam, int typ)
 	/* Source monster */
 	monster_type *m_ptr=NULL;
 
-	/* Monster name (for attacks) */
-	char m_name[80];
-
 	/* Monster name (for damage) */
 	char killer[80];
 
@@ -7444,9 +7457,6 @@ bool project_p(int who, int y, int x, int dam, int typ)
 	/* No player here */
 	if (!(cave_m_idx[y][x] < 0)) return (FALSE);
 
-	/* Never affect projector */
-	if (cave_m_idx[y][x] == who) return (FALSE);
-
 	/* Never affect player in stastis */
 	if (p_ptr->stastis) return (FALSE);
 
@@ -7456,28 +7466,122 @@ bool project_p(int who, int y, int x, int dam, int typ)
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
-	if (who > 0)
+	if (who > SOURCE_MONSTER_START)
 	{
 		/* Get the source monster */
 		m_ptr = &m_list[who];
 
-		/* Get the monster name */
-		monster_desc(m_name, who, 0);
-
 		/* Get the monster's real name */
-		monster_desc(killer, who, 0x88);
-	}
-	else if (who == 0)
-	{
-		feature_type *f_ptr = &f_info[cave_feat[y][x]];
-
-		/* Get the feature description */
-		strcpy(killer,f_name + f_ptr->name);
-
+		monster_desc(killer, sizeof(killer), who, 0x88);
+		
+		/*
+		 * XXX Add what?
+		 * This will be 1-4 for blows 1-4
+		 * and the spell cast for 96 and over.
+		 */
 	}
 	else
 	{
-		strcpy(killer, "yourself");
+		/* Add a message of destruction */
+		if (who > SOURCE_PLAYER_START)
+		{
+			my_strcpy(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
+		}
+
+		/* Cause of death routine */
+		switch(who)
+		{
+			case SOURCE_SELF:
+			{
+				/* Get the source monster */
+				m_ptr = &m_list[what];
+
+				/* Get the monster's real name */
+				monster_desc(killer, sizeof(killer), who, 0x88);
+				
+				break;
+			}
+
+			case SOURCE_FEATURE:
+			{
+				/* Get the source feature */
+				feature_type *f_ptr = &f_info[what];
+				
+				/* Get the feature name */
+				my_strcpy(killer, format("%s %s", is_a_vowel((f_name + f_ptr->name)[0]) ? "an" : "a", f_name + f_ptr->name), sizeof(killer));
+				
+				break;
+			}
+			
+			case SOURCE_SPELL:
+			case SOURCE_PLAYER_CAST:
+			{
+				/* Get the source spell */
+				spell_type *s_ptr = &s_info[what];
+				
+				/* Get the spell name */
+				my_strcpy(killer, format("%s %s", is_a_vowel((s_name + s_ptr->name)[0]) ? "an" : "a", s_name + s_ptr->name), sizeof(killer));
+				
+				break;
+			}
+			
+			case SOURCE_DISEASE:
+			{
+				/* Get the feature name */
+				my_strcpy(killer, disease_name[what], sizeof(killer));
+				
+				break;
+			}
+			
+			case SOURCE_DAYLIGHT:
+			case SOURCE_PLAYER_ATTACK:
+			case SOURCE_PLAYER_SHOT:
+			case SOURCE_PLAYER_THROW:
+			{
+				/* Nothing */
+				
+				break;	
+			}
+
+			case SOURCE_BIRTH:
+			case SOURCE_PLAYER_EAT_MONSTER:
+			case SOURCE_PLAYER_SPORE:
+			{
+				/* Get the source feature */
+				monster_race *r_ptr = &r_info[what];
+				
+				/* Get the feature name */
+				my_strcpy(killer, format("%s %s", is_a_vowel((r_name + r_ptr->name)[0]) ? "an" : "a", r_name + r_ptr->name), sizeof(killer));
+				
+				break;
+			}			
+
+			default:
+			{
+				/* Fake object */
+				object_type object_type_body;
+
+				/* Get an object */
+				object_type *o_ptr = &object_type_body;
+
+				/* Prepare the object */
+				object_prep(o_ptr, what);
+
+				/* Get the object name */
+				object_desc(killer, sizeof(killer), o_ptr, TRUE, 0); 
+				
+				break;
+			}
+		}
+
+		/* Add object what caused the fatal wound */
+		if (who <= SOURCE_PLAYER_START)
+		{
+			my_strcat(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
+
+			/* Hack -- make it clear it was a trap */
+			if (who == SOURCE_PLAYER_TRAP) my_strcat(killer, " trap you set", sizeof(killer));		
+		}
 	}
 
 	/* Hack -- storm can do several things */
@@ -8174,7 +8278,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else if (who > 0)
+			else if (who > SOURCE_MONSTER_START)
 			{
 				/* Always notice */
 				player_not_flags(who, 0x0L,TR2_RES_NEXUS,0x0L,0x0L);
@@ -8486,7 +8590,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				if (apply_disenchant(0)) obvious = TRUE;
 
 				/* Monsters get fed */
-				if (who > 0)
+				if (who > SOURCE_MONSTER_START)
 				{
 					feed_monster(who);
 				}
@@ -8527,7 +8631,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (who > 0)
+					if (who > SOURCE_MONSTER_START)
 					{
 						/* Heal */
 						j = dam/10;
@@ -8549,7 +8653,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 					p_ptr->window |= (PW_INVEN);
 
 					/* Monsters get fed */
-					if (who > 0)
+					if (who > SOURCE_MONSTER_START)
 					{
 						feed_monster(who);
 					}
@@ -8612,7 +8716,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 				/* Run away */
-				if (who > 0) m_ptr->monfear = 100;
+				if (who > SOURCE_MONSTER_START) m_ptr->monfear = 100;
 			}
 
 			break;
@@ -8704,7 +8808,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				drop_may_flags(i_ptr);
 
 				/* Carry the object */
-				if (who > 0)
+				if (who > SOURCE_MONSTER_START)
 				{
 					(void)monster_carry(who, i_ptr);
 				}
@@ -8725,7 +8829,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				obvious = TRUE;
 
 				/* Run away */
-				if (who > 0) m_ptr->monfear = 100;
+				if (who > SOURCE_MONSTER_START) m_ptr->monfear = 100;
 
 				/* Done */
 				break;
@@ -8773,7 +8877,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				obvious = TRUE;
 
 				/* Monsters get fed */
-				if (who > 0)
+				if (who > SOURCE_MONSTER_START)
 				{
 					feed_monster(who);
 				}
@@ -8811,7 +8915,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				p_ptr->window |= (PW_EQUIP);
 
 				/* Monsters get fed */
-				if (who > 0)
+				if (who > SOURCE_MONSTER_START)
 				{
 					feed_monster(who);
 				}
@@ -9461,7 +9565,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 			/* Take damage */
 			take_hit(dam, killer);
 
-			if (who > 0)
+			if (who > SOURCE_MONSTER_START)
 			{
 				/* Radius 8 earthquake centered at the monster */
 				if (dam > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
@@ -9945,7 +10049,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			if ((p_ptr->cur_flags4 & (TR4_ANCHOR)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_ANCHOR)))
 			{
-				msg_format("%^s fails to teleport you away.", m_name);
+				msg_format("%^s fails to teleport you away.", killer);
 				if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_ANCHOR))) player_can_flags(who, 0x0L, 0x0L, 0x0L, TR4_ANCHOR);
 			}
 			else
@@ -10017,6 +10121,9 @@ bool project_p(int who, int y, int x, int dam, int typ)
 					update_smart_forget(who, SM_IMM_MANA);
 				}
 
+				/* Update mana */
+				p_ptr->update |= (PU_MANA);				
+
 				/* Redraw mana */
 				p_ptr->redraw |= (PR_MANA);
 
@@ -10055,6 +10162,9 @@ bool project_p(int who, int y, int x, int dam, int typ)
 
 					msg_print("You feel your concentration improve.");
 				}
+
+				/* Update mana */
+				p_ptr->update |= (PU_MANA);				
 
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2 | PW_PLAYER_3);
@@ -10120,7 +10230,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			dam = 0;
 
-			if (who > 0)
+			if (who > SOURCE_MONSTER_START)
 			{
 				msg_print("You have been probed for weaknesses!");
 
@@ -10286,7 +10396,7 @@ bool project_p(int who, int y, int x, int dam, int typ)
  *
  * This function assumes that most messages have already been shown.
  */
-bool project_t(int who, int y, int x, int dam, int typ)
+bool project_t(int who, int what, int y, int x, int dam, int typ)
 {
 	monster_type *m_ptr = NULL;
 	monster_race *r_ptr = NULL;
@@ -10330,7 +10440,7 @@ bool project_t(int who, int y, int x, int dam, int typ)
 		if (m_ptr->ml) seen = TRUE;
 
 		/* Get the monster name (before teleporting) */
-		monster_desc(m_name, cave_m_idx[y][x], 0x40);
+		monster_desc(m_name, sizeof(m_name), cave_m_idx[y][x], 0x40);
 	}
 
 	/* Hack -- storm can do several things */
@@ -10394,6 +10504,10 @@ bool project_t(int who, int y, int x, int dam, int typ)
 		{
 			if (affect_monster)
 			{
+				/* Damage-variable throw distance */
+				do_dist = 4 + dam / 25;
+				do_dist_los = TRUE;
+
 				/* Force breathers are immune */
 				if (r_ptr->flags4 & (RF4_BRTH_FORCE)) break;
 
@@ -10462,14 +10576,14 @@ bool project_t(int who, int y, int x, int dam, int typ)
 		case GF_SALT_WATER:
 		case GF_SUFFOCATE:
 		{
-
+			/* XXX To do */
 			break;
 		}
 
 		/* Nexus - movement */
 		case GF_NEXUS:
 		{
-			if (affect_player)
+			if ((affect_player) && (who > SOURCE_MONSTER_START))
 			{
 				if ((p_ptr->cur_flags2 & (TR2_RES_NEXUS)) == 0)
 				{
@@ -10555,8 +10669,8 @@ bool project_t(int who, int y, int x, int dam, int typ)
 		}
 	}
 
-	/* Check if monster cannot survive on terrain and possibly entomb */
-	if (affect_monster)
+	/* Not teleporting: check if player or monster cannot survive on changed terrain and possibly entomb */
+	else
 	{
 		byte blocked = 0x00;
 
@@ -10567,8 +10681,18 @@ bool project_t(int who, int y, int x, int dam, int typ)
 		}
 
 		/* Check if monster can move and survive in terrain */
-		if (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL) 
-		  entomb(y, x, blocked);
+		if ((affect_monster) && (place_monster_here(y, x, m_ptr->r_idx) <= MM_FAIL))
+		{
+			/* Entomb monster */
+			entomb(y, x, blocked);
+		}
+		/* Check if player can move in terrain */
+		else if (affect_player && ((f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) == 0)
+			&& ((f_info[cave_feat[y][x]].flags3 & (FF3_EASY_CLIMB)) == 0))
+		{
+			/* Entomb player */
+			entomb(y, x, blocked);			
+		}
 	}
 
 	if (affect_monster)
@@ -10838,7 +10962,7 @@ static void calc_starburst(int height, int width, byte *arc_first,
  * in the blast radius, in case the illumination of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
+bool project(int who, int what, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			 u32b flg, int degrees, byte source_diameter)
 {
 	int i, j, k;
@@ -10901,7 +11025,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 	handle_stuff();
 
 	/* Make certain that the radius is not too large */
-	if (rad > MAX_SIGHT) rad = MAX_SIGHT;
+	if (rad > MAX_RANGE) rad = MAX_RANGE;
 
 	/* Some projection types always PROJECT_WALL. */
 	if ((typ == GF_KILL_WALL) || (typ == GF_KILL_DOOR))
@@ -11504,7 +11628,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			x = gx[i];
 
 			/* Affect the feature in that grid */
-			if (project_f(who, y, x, dam_at_dist[gd[i]], typ))
+			if (project_f(who, what, y, x, dam_at_dist[gd[i]], typ))
 				notice = TRUE;
 		}
 	}
@@ -11522,7 +11646,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			x = gx[i];
 
 			/* Affect the object in the grid */
-			if (project_o(who, y, x, dam_at_dist[gd[i]], typ)) notice = TRUE;
+			if (project_o(who, what, y, x, dam_at_dist[gd[i]], typ)) notice = TRUE;
 		}
 	}
 
@@ -11548,27 +11672,28 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			{
 			 	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
-				/* Hack -- handle resist magic. Deeper monsters are more resistant. */
+				/* Hack -- handle resist magic. Deeper monsters are more resistant to spells.
+				 * All monsters are more resistant to devices and spells from each other. */
 				if ((flg & (PROJECT_MAGIC)) && (cave_m_idx[y][x] > 0)
 					&& ((r_info[m_list[cave_m_idx[y][x]].r_idx].flags9 & (RF9_RES_MAGIC)) != 0)
-					&& (rand_int(100) < 20 + p_ptr->depth / 2))
+					&& (rand_int(100) < 20 + p_ptr->depth / (who != SOURCE_PLAYER_CAST ? 1 : 2)))
 				{
 					/* Hack -- resist magic */
-					if (project_m(who, y, x, 0, GF_RES_MAGIC)) notice = TRUE;
+					if (project_m(who, what, y, x, 0, GF_RES_MAGIC)) notice = TRUE;
 				}
 				/* Check if monster evades */
 				/* Area-effect and jumping spells cannot be dodged */
 				else if (!(flg & (PROJECT_ARC | PROJECT_STAR | PROJECT_JUMP |
 			             PROJECT_BOOM)) && (cave_m_idx[y][x] > 0) && 
-					(mon_evade(cave_m_idx[y][x],((m_ptr->confused || m_ptr->stunned) ? 1 : 3) + gd[i], 5 + gd[i], who < 0 ? " your magic" : ""))) continue;
+					(mon_evade(cave_m_idx[y][x],((m_ptr->confused || m_ptr->stunned) ? 1 : 3) + gd[i], 5 + gd[i], who <= SOURCE_PLAYER_START ? " your magic" : ""))) continue;
 
 				/* Affect the monster in the grid */
-				else if (project_m(who, y, x, dam_at_dist[gd[i]], typ))	notice = TRUE;
+				else if (project_m(who, what, y, x, dam_at_dist[gd[i]], typ))	notice = TRUE;
 			}
 		}
 
 		/* Player affected one monster (without "jumping") */
-		if ((who == SOURCE_PLAYER) && (project_m_n == 1) && !(flg & (PROJECT_JUMP)))
+		if ((who <= SOURCE_PLAYER_START) && (project_m_n == 1) && !(flg & (PROJECT_JUMP)))
 		{
 			/* Location */
 			x = project_m_x;
@@ -11605,7 +11730,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			{
 
 				/* Affect the player */
-				if (project_p(who, y, x, dam_at_dist[gd[i]], typ))
+				if (project_p(who, what, y, x, dam_at_dist[gd[i]], typ))
 				{
 					notice = TRUE;
 
@@ -11628,7 +11753,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 		if (!(play_info[y][x] & (PLAY_TEMP))) continue;
 
 		/* Affect marked grid */
-		if (project_t(who, y, x, dam_at_dist[gd[i]], typ)) notice = TRUE;
+		if (project_t(who, what, y, x, dam_at_dist[gd[i]], typ)) notice = TRUE;
 	}
 
 	/* Clear the "temp" array  (paranoia is good) */

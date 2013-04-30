@@ -197,7 +197,7 @@ void do_cmd_eat_food(void)
 			if (power < 0) return;
 
 			/* Apply food effect */
-			if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
+			if (process_spell_eaten(SOURCE_PLAYER_EAT, o_ptr->k_idx, power,0,&cancel)) ident = TRUE;
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -222,10 +222,10 @@ void do_cmd_eat_food(void)
 			/* First, apply breath weapon attack */
 
 			/* Then apply touch attack */
-			mon_blow_ranged(0, p_ptr->py, p_ptr->px, RBM_TOUCH, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_TOUCH, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
 
 			/* Then apply spore attack */
-			mon_blow_ranged(0, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
+			mon_blow_ranged(SOURCE_PLAYER_EAT_MONSTER, o_ptr->name3, p_ptr->py, p_ptr->px, RBM_SPORE, 0, PROJECT_HIDE | PROJECT_PLAY, NULL);
 
 			break;
 		}
@@ -324,7 +324,7 @@ void do_cmd_quaff_potion(void)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply food effect */
-	if (power >= 0) ident = process_spell_eaten(power,0,&cancel);
+	if (power >= 0) ident = process_spell_eaten(SOURCE_PLAYER_QUAFF, o_ptr->k_idx, power,0,&cancel);
 	else return;
 
 	/* Clear styles */
@@ -463,7 +463,7 @@ void do_cmd_read_scroll(void)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply scroll effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_READ, o_ptr->k_idx, power, 0, &cancel, &known);
 	else return;
 
 	/* Clear styles */
@@ -669,7 +669,7 @@ void do_cmd_use_staff(void)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply staff effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_USE, o_ptr->k_idx, power, 0, &cancel, &known);
 	else return;
 
 	/* Clear styles */
@@ -948,7 +948,7 @@ void do_cmd_aim_wand(void)
 	if (object_aware_p(o_ptr)) known = TRUE;
 
 	/* Apply wand effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	if (power >= 0) ident = process_spell(SOURCE_PLAYER_AIM, o_ptr->k_idx, power, 0, &cancel, &known);
 	else return;
 
 	/* Clear styles */
@@ -1216,7 +1216,8 @@ void do_cmd_zap_rod(void)
 	get_spell(&power, "use", o_ptr, FALSE);
 
 	/* Apply rod effect */
-	if (power >= 0) ident = process_spell(power, 0, &cancel, &known);
+	/* Note we use two different sources to suppress messages from dispel evil, in the even the rod is known to be ineffective against non-evil monsters */
+	if (power >= 0) ident = process_spell(known && (o_ptr->sval >= SV_ROD_MIN_DIRECTION) ? SOURCE_PLAYER_ZAP_NO_TARGET : SOURCE_PLAYER_ZAP, o_ptr->k_idx, power, 0, &cancel, &known);
 	else return;
 
 	/* Time rod out */
@@ -1880,7 +1881,7 @@ void do_cmd_activate(void)
 		if (a_ptr->activation)
 		{
 			/* Apply artifact effect */
-			(void)process_spell(a_ptr->activation, 0, &cancel, &known);
+			(void)process_spell(SOURCE_PLAYER_ACT_ARTIFACT, o_ptr->name1, a_ptr->activation, 0, &cancel, &known);
 		}
 		else
 		{
@@ -1891,7 +1892,7 @@ void do_cmd_activate(void)
 			if (power < 0) return;
 
 			/* Apply object effect */
-			(void)process_spell(power, 0, &cancel, &known);
+			(void)process_spell(SOURCE_PLAYER_ACTIVATE, o_ptr->k_idx, power, 0, &cancel, &known);
 		}
 
 		/* Set the recharge time */
@@ -1931,7 +1932,7 @@ void do_cmd_activate(void)
 		if (power < 0) return;
 
 		/* Apply object effect */
-		(void)process_spell(power, 0, &cancel, &known);
+		(void)process_spell(SOURCE_PLAYER_ACTIVATE, o_ptr->k_idx, power, 0, &cancel, &known);
 
 		/* Used the object */
 		if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;

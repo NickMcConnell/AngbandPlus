@@ -1887,6 +1887,11 @@ void do_cmd_light_and_douse(void)
 		msg_format("You light %s %s.", own_str, o_name);
 		o_ptr->timeout = o_ptr->charges;
 		o_ptr->charges = 0;
+
+		if (item < 0)
+		{
+			gain_attribute(p_ptr->py, p_ptr->px, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);			
+		}
 	}
 
 	/* Douse the light source */
@@ -1895,6 +1900,11 @@ void do_cmd_light_and_douse(void)
 		msg_format("You douse %s %s.", own_str, o_name);
 		o_ptr->charges = o_ptr->timeout;
 		o_ptr->timeout = 0;
+		
+		if (item < 0)
+		{
+			check_attribute_lost(p_ptr->py, p_ptr->px, 2, CAVE_XLOS, require_halo, has_halo, redraw_halo_loss, remove_halo, reapply_halo);			
+		}
 	}
 
 	/* Update torch */

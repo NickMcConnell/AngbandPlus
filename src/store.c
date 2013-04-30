@@ -1953,10 +1953,10 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 		char out_val[80];
 
 		/* Default */
-		strcpy(out_val, "");
+		my_strcpy(out_val, "", sizeof(out_val));
 
 		/* Ask the user for a response */
-		if (!get_string(buf, out_val, 80)) return (FALSE);
+		if (!get_string(buf, out_val, sizeof(out_val))) return (FALSE);
 
 		/* Skip leading spaces */
 		for (p = out_val; *p == ' '; p++) /* loop */;
@@ -2548,7 +2548,7 @@ static void store_purchase(int store_index)
 				if (power < 0) return;
 
 				/* Apply service effect */
-				(void)process_spell(power, 0, &cancel, &known);
+				(void)process_spell(SOURCE_PLAYER_SERVICE, o_ptr->k_idx, power, 0, &cancel, &known);
 
 				/* Hack -- allow certain services to be cancelled */
 				if (cancel) return;
@@ -3035,21 +3035,6 @@ static void store_examine(int store_index)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
-	/* Cannot examine unaware object */
-	if (!object_aware_p(o_ptr))
-	{
-		msg_print("You don't have any knowledge about it.");
-		return;
-	}
-
-	/* TODO: improve this to always reveal all obvious properties */
-	if (st_ptr->base >= STORE_MIN_BUY_SELL)
-	{
-		/* Examining an object requires you to be more aware of it
-		   but don't auto-*ID* things at home */
-		object_aware(o_ptr);
-	}
-
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
@@ -3065,6 +3050,9 @@ static void store_examine(int store_index)
 	screen_object(o_ptr);
 
 	(void)anykey();
+	
+	/* Browse books */
+	if (inven_book_okay(o_ptr)) do_cmd_browse_object(o_ptr);
 
 	/* Load the screen */
 	screen_load();
@@ -3734,9 +3722,14 @@ void store_shuffle(int store_index)
 	int i, j;
 
 	store_type *st_ptr = store[store_index];
-	owner_type *ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
-
+	owner_type *ot_ptr;
+	
+	/* Justifiable paranoia */
+	if (!st_ptr) return;
+	
 	if (st_ptr->base < STORE_MIN_BUY_SELL) return;
+
+	ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
 
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )

@@ -241,7 +241,7 @@ void flavor_init(void)
 				if (strlen(buf) + 1 + strlen(tmp) > 15) break;
 
 				/* Add a space */
-				strcat(buf, " ");
+				my_strcat(buf, " ", sizeof(buf));
 
 				/* Add the word */
 				my_strcat(buf, tmp, sizeof(buf));
@@ -882,7 +882,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Hack -- Gold */
 		case TV_GOLD:
 		{
-			strcpy(buf, basenm);
+			my_strcpy(buf, basenm, max);
 			return;
 		}
 
@@ -943,8 +943,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			{
 				char tmp_buf[160];
 
-				strcpy(tmp_buf, r_name + r_info[o_ptr->name3].name);
-				if (o_ptr->tval != TV_STATUE) strcat(tmp_buf, "'s");
+				my_strcpy(tmp_buf, r_name + r_info[o_ptr->name3].name, sizeof(tmp_buf));
+				if (o_ptr->tval != TV_STATUE) my_strcat(tmp_buf, "'s", sizeof(tmp_buf));
 				modstr = tmp_buf;
 
 				/* Skip a/an */
@@ -960,7 +960,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Hack -- Default -- Used in the "inventory" routine */
 		default:
 		{
-			strcpy(buf, "(nothing)");
+			my_strcpy(buf, "(nothing)", max);
 			return;
 		}
 	}
@@ -1061,8 +1061,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 	}
 
-	/* Hack -- display debug tval/sval info in cheat_xtra mode */
-	if (cheat_xtra)
+	/* Hack -- display debug tval/sval info in cheat_peek mode */
+	if (cheat_peek)
 	{
 		object_desc_str_macro(t, "(t");
 		object_desc_num_macro(t,o_ptr->tval);
@@ -1071,8 +1071,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_str_macro(t, ") ");
 	}
 
-	/* Hack -- display debug stack info in cheat_xtra mode */
-	if ((cheat_xtra) && (o_ptr->stackc))
+	/* Hack -- display debug stack info in cheat_peek mode */
+	if ((cheat_peek) && (o_ptr->stackc))
 	{
 		object_desc_str_macro(t, "(stack ");
 		object_desc_num_macro(t,o_ptr->stackc);
@@ -1080,16 +1080,16 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 
-	/* Hack -- display debug show_idx info in cheat_xtra mode */
-	if ((cheat_xtra) && (o_ptr->show_idx))
+	/* Hack -- display debug show_idx info in cheat_peek mode */
+	if ((cheat_peek) && (o_ptr->show_idx))
 	{
 		object_desc_str_macro(t, "(show_idx ");
 		object_desc_num_macro(t,o_ptr->show_idx);
 		object_desc_str_macro(t, ") ");
 	}
 
-	/* Hack -- display debug xtra info in cheat_xtra mode */
-	if ((cheat_xtra) && (o_ptr->xtra1))
+	/* Hack -- display debug xtra info in cheat_peek mode */
+	if ((cheat_peek) && (o_ptr->xtra1))
 	{
 		object_desc_str_macro(t, "(xtra ");
 		object_desc_num_macro(t,o_ptr->xtra1);
@@ -1546,7 +1546,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Process food/fuel */
-	else if ((cheat_xtra) && ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_FLASK)))
+	else if ((cheat_peek) && ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_FLASK)))
 	{
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
@@ -1760,7 +1760,7 @@ object_desc_done:
 	tmp_buf[79] = '\0';
 
 	/* Copy the string over */
-	strcpy(buf, tmp_buf);
+	my_strcpy(buf, tmp_buf, sizeof(tmp_buf));
 }
 
 /*
@@ -2735,7 +2735,7 @@ void show_inven(void)
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Save the object description */
-		strcpy(out_desc[k], o_name);
+		my_strcpy(out_desc[k], o_name, sizeof(out_desc[k]));
 
 		/* Find the predicted "line length" */
 		l = strlen(out_desc[k]) + 5;
@@ -2954,7 +2954,7 @@ void show_equip(void)
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Save the description */
-		strcpy(out_desc[k], o_name);
+		my_strcpy(out_desc[k], o_name, sizeof(out_desc[k]));
 
 		/* Extract the maximal length (see below) */
 		l = strlen(out_desc[k]) + (2 + 3) + ptag_space;
@@ -3107,7 +3107,7 @@ void show_floor(const int *floor_list, int floor_num)
 		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the object description */
-		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
+		my_strcpy(out_desc[k], o_name, sizeof(out_desc[k]));
 
 		/* Find the predicted "line length" */
 		l = strlen(out_desc[k]) + 5;
@@ -3872,14 +3872,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					index_to_label(i1), index_to_label(i2));
 
 				/* Append */
-				strcat(out_val, tmp_val);
+				my_strcat(out_val, tmp_val, sizeof(out_val));
 			}
 
 			/* Indicate legality of "toggle" */
-			if (use_equip) strcat(out_val, " / for Equip,");
+			if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
 
 			/* Indicate legality of the "floor" */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 
 		}
 
@@ -3900,14 +3900,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					index_to_label(e1), index_to_label(e2));
 
 				/* Append */
-				strcat(out_val, tmp_val);
+				my_strcat(out_val, tmp_val, sizeof(out_val));
 			}
 
 			/* Indicate legality of "toggle" */
-			if (use_inven) strcat(out_val, " / for Inven,");
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
 
 			/* Indicate legality of the "floor" */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 		}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -3928,34 +3928,34 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				sprintf(tmp_val, " %c-%c,", I2A(f1), I2A(f2));
 
 				/* Append */
-				strcat(out_val, tmp_val);
+				my_strcat(out_val, tmp_val, sizeof(out_val));
 			}
 
 			/* Append */
-			if (use_inven) strcat(out_val, " / for Inven,");
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
 
 			/* Append */
-			else if (use_equip) strcat(out_val, " / for Equip,");
+			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
 		}
 
 #endif /* ALLOW_EASY_FLOOR */
 
 		/* Indicate ability to "view" */
-		if (!p_ptr->command_see) strcat(out_val, " * to see,");
+		if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 		/* Indicate legality of the "self" */
-		if (allow_self) strcat(out_val, " @ for self,");
+		if (allow_self) my_strcat(out_val, " @ for self,", sizeof(out_val));
 
 		/* Indicate legality of the "feature" */
 		if (allow_feats)
 		{
-			strcat(out_val, " . for ");
-			strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
-			strcat(out_val,",");
+			my_strcat(out_val, " . for ", sizeof(out_val));
+			my_strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name, sizeof(out_val));
+			my_strcat(out_val,",", sizeof(out_val));
 		}
 
 		/* Finish the prompt */
-		strcat(out_val, " ESC");
+		my_strcat(out_val, " ESC", sizeof(out_val));
 
 		/* Build the prompt */
 		sprintf(tmp_val, "(%s) %s", out_val, pmt);
@@ -4511,11 +4511,15 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	{
 		charges = bag_contents[sval + 1][slot];
 
-		/* Get bag charges */
-		i_ptr->charges = charges / number;
+		/* Real object */
+		if (number)		
+		{
+			/* Get bag charges */
+			i_ptr->charges = charges / number;
 
-		/* Round up */
-		if (charges % number) i_ptr->charges++;
+			/* Round up */
+			if (charges % number) i_ptr->charges++;
+		}
 	}
 	/* Hack -- torch charges */
 	else if ((i_ptr->tval == TV_LITE) && (i_ptr->sval == SV_LITE_TORCH))
@@ -4528,11 +4532,15 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		/* Round up */
 		if (charges % FUEL_TORCH) number++;
 
-		/* Get bag charges */
-		i_ptr->charges = charges / number;
+		/* Real object */
+		if (number)
+		{
+			/* Get bag charges */
+			i_ptr->charges = charges / number;
 
-		/* Round up */
-		if (charges % number) i_ptr->charges++;
+			/* Round up */
+			if (charges % number) i_ptr->charges++;
+		}
 	}
 
 	/* Hack -- limit total number */
@@ -4549,8 +4557,12 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		/* Normal number */
 		i_ptr->number = number;
 
-		/* Set stack counter */
-		i_ptr->stackc = i_ptr->charges % number;
+		/* Real object */
+		if (number)
+		{
+			/* Set stack counter */
+			i_ptr->stackc = i_ptr->charges % number;
+		}
 	}
 
 	/* Awareness always gives full knowledge */
@@ -4623,10 +4635,10 @@ bool get_item_from_bag(int *cp, cptr pmt, cptr str, object_type *o_ptr)
 	inventory = inventory_fake;
 
 	/* Hack -- modify failure string */
-	strcpy(str_buf, str);
+	my_strcpy(str_buf, str, sizeof(str_buf));
 
 	/* Hack -- append */
-	strcpy(str_buf + strlen(str) - 1, " inside the bag.");
+	my_strcat(str_buf, " inside the bag.", sizeof(str_buf));
 
 	/* Get an item */
 	if (!get_item(&item, pmt, str_buf, (USE_INVEN))) cancel = TRUE;

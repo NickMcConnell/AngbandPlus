@@ -72,7 +72,7 @@ C:0|1|2|3|4|5|6|7|8|9
 
 #Sum = -2; good abilities
 N:1:Wood-Elf
-S:-4:2:-5:2:-1:2:5:-3
+S:-1:2:-5:2:-1:2:3:-1
 R:5:10:7:2:3:-2:10:-10:40
 X:120:3
 I:5:75:75:5
@@ -81,9 +81,9 @@ W:120:100
 F:SUST_DEX | RES_LITE | ELF 
 C:0|1|3|4|6|7|8|9
 
-#Sum = -1; much higher without SIZ; good abilities
+#Sum = 1; good abilities; somewhat easy
 N:2:Hobbit
-S:-5:3:2:8:2:1:-2:-10
+S:-2:-1:2:4:2:1:-2:-3
 R:15:7:18:4:8:2:40:-40:10
 X:110:3
 I:10:21:12:1
@@ -94,7 +94,7 @@ C:0|3|4|6|7
 
 #Sum = -3; very low HP; high stealth and cool flag
 N:3:Shadow Fairy
-S:-6:6:4:2:-6:0:3:-6
+S:-6:3:4:2:-3:0:3:-6
 R:7:20:0:6:5:-3:20:-30:-10
 X:140:6
 I:29:200:100:62

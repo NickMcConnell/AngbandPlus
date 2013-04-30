@@ -1786,6 +1786,7 @@ u16b limit;
 		}
 	}
 
+
 	/*** Player ***/
 
 	/* Fix depth */
@@ -1799,6 +1800,23 @@ u16b limit;
 	p_ptr->dungeon = dungeon;
 	p_ptr->town = town;
 
+	/* Fix level flags */
+	init_level_flags();	
+
+	/* Apply daylight */
+	if ((level_flag & (LF1_SURFACE)) != 0) town_illuminate((level_flag & (LF1_DAYLIGHT)) != 0);
+
+	/* Fix dungeon light */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			if (f_info[cave_feat[y][x]].flags2 & (FF2_GLOW))
+			{
+				gain_attribute(y, x, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
+			}
+		}
+	}
 
 	/* Place player in dungeon */
 	if (!player_place(py, px))
@@ -1927,6 +1945,12 @@ u16b limit;
 
 			/* Link the floor to the object */
 			cave_o_idx[y][x] = o_idx;
+			
+			/* Check if object lites the dungeon */
+			if (check_object_lite(i_ptr))
+			{
+				gain_attribute(y, x, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
+			}
 		}
 	}
 
@@ -1958,7 +1982,6 @@ u16b limit;
 
 		/* Read the monster */
 		rd_monster(n_ptr);
-
 
 		/* Place monster in dungeon */
 		if (monster_place(n_ptr->fy, n_ptr->fx, n_ptr) != i)
@@ -2599,8 +2622,8 @@ bool load_player(void)
 		char temp[1024];
 
 		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
+		my_strcpy(temp, savefile);
+		my_strcat(temp, ".lok");
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -2798,7 +2821,7 @@ bool load_player(void)
 		if (p_ptr->chp >= 0)
 		{
 			/* Reset cause of death */
-			strcpy(p_ptr->died_from, "(alive and well)");
+			my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
 		}
 
 		/* Success */
@@ -2814,8 +2837,8 @@ bool load_player(void)
 		char temp[1024];
 
 		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
+		my_strcpy(temp, savefile);
+		my_strcat(temp, ".lok");
 
 		/* Grab permissions */
 		safe_setuid_grab();

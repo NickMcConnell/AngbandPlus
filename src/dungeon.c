@@ -235,7 +235,7 @@ static void sense_inventory(void)
 		/* Hack -- we seem to get a source of corrupt objects that crash this routine. Putting this warning in. */
 		if ((o_ptr->k_idx >= z_info->k_max) || (o_ptr->k_idx < 0))
 		{
-			msg_format("BUG: Object corruption detected (%d). Please report.",o_ptr->k_idx);
+			msg_format("BUG: Object corruption detected (kind %d, held by %s). Please report.",o_ptr->k_idx, o_ptr->held_m_idx ? r_name + r_info[o_ptr->held_m_idx].name : "floor");
 
 			o_ptr->k_idx = 0;
 			continue;
@@ -375,6 +375,9 @@ static void regenmana(int percent)
 	/* Redraw mana */
 	if (old_csp != p_ptr->csp)
 	{
+		/* Update mana */
+		p_ptr->update |= (PU_MANA);				
+
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
 
@@ -637,10 +640,10 @@ static void process_world(void)
 		msg_format("You are drowning %s%s!",(f_ptr->flags2 & (FF2_FILLED)?"":"in the "),name);
 
 		/* Apply the blow */
-		project_p(0, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
+		project_p(SOURCE_FEATURE, mimic, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
 
 		/* Apply the blow */
-		project_t(0, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
+		project_t(SOURCE_FEATURE, mimic, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
 	}
 
 	/* Take damage from poison */
@@ -1093,6 +1096,9 @@ static void process_world(void)
 			p_ptr->csp_frac = 0;
 			if (p_ptr->exp <= 0) p_ptr->csp = 0;
 
+			/* Update mana */
+			p_ptr->update |= (PU_MANA);				
+
 			/* Redraw */
 			p_ptr->redraw |= (PR_MANA);		
 		}
@@ -1130,7 +1136,7 @@ static void process_world(void)
 				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 				/* Hack -- lites */
-				if (o_ptr->tval == TV_LITE) strcpy(o_name,"light");
+				if (o_ptr->tval == TV_LITE) my_strcpy(o_name,"light",sizeof(o_name));
 
 				/* Hack -- update torch radius */
 				if (i == INVEN_LITE) p_ptr->update |= (PU_TORCH);
@@ -1274,8 +1280,18 @@ static void process_world(void)
 		/* Timing out? */
 		if (o_ptr->timeout > 0)
 		{
+			/* Check for light extinguishing */
+			bool extinguish = ((o_ptr->timeout == 1) && check_object_lite(o_ptr));
+			
 			/* Recharge */
 			o_ptr->timeout--;
+			
+			/* Extinguish lite */
+			if ((extinguish) && (o_ptr->iy) && (o_ptr->ix))
+			{
+				/* Check for loss of light */
+				check_attribute_lost(o_ptr->iy, o_ptr->ix, 2, CAVE_XLOS, require_halo, has_halo, redraw_halo_loss, remove_halo, reapply_halo);
+			}
 
 			/* Notice changes */
 			if (!(o_ptr->timeout) || ((o_ptr->stackc) ? (o_ptr->timeout < o_ptr->stackc) :
@@ -1312,8 +1328,6 @@ static void process_world(void)
 				{
 					/* Notice count */
 					j++;
-		
-		
 				}
 			}
 		}
@@ -1467,6 +1481,9 @@ static void process_world(void)
 						p_ptr->csp -= randint(30);
 						if (p_ptr->csp < 0) p_ptr->csp = 0;
 
+						/* Update mana */
+						p_ptr->update |= (PU_MANA);				
+
 						/* Redraw */
 						p_ptr->redraw |= (PR_MANA);
 
@@ -1474,7 +1491,7 @@ static void process_world(void)
 						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 					}
 
-					(void)project_p(0, p_ptr->py, p_ptr->px, 0, GF_DISPEL);
+					(void)project_p(SOURCE_DISEASE, effect, p_ptr->py, p_ptr->px, 0, GF_DISPEL);
 					break;
 				}
 
@@ -2718,8 +2735,11 @@ static void process_player(void)
 	/*** Clear blocking ***/
 	if (p_ptr->blocking)
 	{
-		/* Clear blocking */
-		p_ptr->blocking = 0;
+		/* Reduce blocking */
+		p_ptr->blocking--;
+		
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
 	}
 
 	/*** Handle actual user input ***/
@@ -3202,6 +3222,8 @@ static void dungeon(void)
 	/* Main loop */
 	while (TRUE)
 	{
+		int i;
+		
 		/* Hack -- Compact the monster list occasionally */
 		if (m_cnt + 32 > z_info->m_max) compact_monsters(64);
 
@@ -3215,6 +3237,28 @@ static void dungeon(void)
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
+		/*** Verify the object list ***/
+		/*
+		 * This is required until we identify the source of object corruption.
+		 */
+		for (i = 1; i < z_info->o_max; i++)
+		{
+			/* Check for straightforward corruption */
+			if (o_list[i].next_o_idx == i)
+			{
+				msg_format("Object %d (%s) corrupted. Fixing.", i, k_name + k_info[o_list[i].k_idx].name);
+				o_list[i].next_o_idx = 0;
+				
+				if (o_list[i].held_m_idx)
+				{
+					msg_format("Was held by %d.", o_list[i].held_m_idx);
+				}
+				else
+				{
+					msg_format("Was held at (%d, %d).", o_list[i].iy, o_list[i].ix);					
+				}
+			}
+		}
 
 		/*** Apply energy ***/
 
@@ -3435,7 +3479,7 @@ void play_game(bool new_game)
 	/* Hack -- Default base_name */
 	if (!op_ptr->base_name[0])
 	{
-		strcpy(op_ptr->base_name, "PLAYER");
+		my_strcpy(op_ptr->base_name, "PLAYER", sizeof(op_ptr->base_name));
 	}
 
 	/* Init RNG */
@@ -3698,7 +3742,7 @@ void play_game(bool new_game)
 				}
 
 				/* Note cause of death XXX XXX XXX */
-				strcpy(p_ptr->died_from, "Cheating death");
+				my_strcpy(p_ptr->died_from, "Cheating death", sizeof(p_ptr->died_from));
 
 				/* New depth */
 				p_ptr->depth = min_depth(p_ptr->dungeon);

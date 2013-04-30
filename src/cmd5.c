@@ -153,10 +153,6 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		/* Get a random spell */
 		*sn = book[rand_int(num)];
 
-#ifdef ALLOW_REPEAT
-		repeat_push(*sn);
-#endif /* ALLOW_REPEAT */
-
 		/* Something happened */
 		return (TRUE);
 	}
@@ -444,24 +440,17 @@ void print_fields(const s16b *sn, int num, int y, int x)
 
 
 /*
- * Peruse the spells/prayers in a Book
- *
- * Note that *all* spells in the book are listed
- *
- * Note that browsing is allowed while berserk or blind,
- * and in the dark, primarily to allow browsing in stores.
+ * Persuse the spells/prayers in a Book.
+ * 
+ * Takes an object as a parameter
  */
-void do_cmd_browse(void)
+void do_cmd_browse_object(object_type *o_ptr)
 {
-	int item, sval;
-
 	int num = 0;
 
 	s16b book[26];
 
-	object_type *o_ptr;
-
-	cptr p, q, r, s;
+	cptr p, r;
 
 	int spell=-1;
 
@@ -476,77 +465,6 @@ void do_cmd_browse(void)
 	spell_type *s_ptr;
 
 	object_type object_type_body;
-
-	/* Cannot browse books if illiterate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-	{
-		msg_print("You cannot read books or runestones.");
-
-		return;
-	}
-
-#if 0
-
-	/* No lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Berserk */
-	if (p_ptr->shero)
-	{
-		msg_print("You are too enraged!");
-		return;
-	}
-
-	/* Amnesia */
-	if (p_ptr->amnesia)
-	{
-		msg_print("You have forgotten all your spells!");
-		return;
-	}
-#endif
-
-	item_tester_hook = inven_book_okay;
-
-	/* Get an item */
-	q = "Browse which book or runestone? ";
-	s = "You have no books or runestones that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* In a bag? */
-	if (o_ptr->tval == TV_BAG)
-	{
-		/* Get item from bag */
-		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
-
-		/* Refer to the item */
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item's sval */
-	sval = o_ptr->sval;
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
 
 	/* Get fake tval */
 	if (o_ptr->tval == TV_STUDY) tval = o_ptr->sval;
@@ -630,9 +548,6 @@ void do_cmd_browse(void)
 		msg_format("There are no %ss to browse.",p);
 		return;
 	}
-
-	/* Save screen */
-	screen_save();
 
 	/* Display the spells */
 	print_spells(book, num, 1, 20);
@@ -767,8 +682,103 @@ void do_cmd_browse(void)
 
 			continue;
 		}
+	}	
+}
 
+
+
+/*
+ * Peruse the spells/prayers in a Book
+ *
+ * Note that *all* spells in the book are listed
+ *
+ * Note that browsing is allowed while berserk or blind,
+ * and in the dark, primarily to allow browsing in stores.
+ */
+void do_cmd_browse(void)
+{
+	int item, sval;
+
+	object_type *o_ptr;
+
+	cptr q, s;
+
+	/* Cannot browse books if illiterate */
+	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
+		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
+	{
+		msg_print("You cannot read books or runestones.");
+
+		return;
 	}
+
+#if 0
+
+	/* No lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Berserk */
+	if (p_ptr->shero)
+	{
+		msg_print("You are too enraged!");
+		return;
+	}
+
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+		msg_print("You have forgotten all your spells!");
+		return;
+	}
+#endif
+
+	item_tester_hook = inven_book_okay;
+
+	/* Get an item */
+	q = "Browse which book or runestone? ";
+	s = "You have no books or runestones that you can read.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* In a bag? */
+	if (o_ptr->tval == TV_BAG)
+	{
+		/* Get item from bag */
+		if (!get_item_from_bag(&item, q, s, o_ptr)) return;
+
+		/* Refer to the item */
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item's sval */
+	sval = o_ptr->sval;
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+	
+	/* Save screen */
+	screen_save();
+
+	/* Browse the object */
+	do_cmd_browse_object(o_ptr);
 
 	/* Prompt for a command */
 	put_str("(Browsing) Command: ", 0, 0);
@@ -1298,7 +1308,7 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		bool known = TRUE;
 
 		/* Apply the spell effect */
-		process_spell(spell,plev,&abort,&known);
+		process_spell(SOURCE_PLAYER_CAST, spell, spell,plev,&abort,&known);
 
 		/* Did we cancel? */
 		if (abort) return FALSE;
@@ -1352,8 +1362,47 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	/* Sufficient mana */
 	if (sc_ptr->mana <= p_ptr->csp)
 	{
-		/* Use some mana */
-		p_ptr->csp -= sc_ptr->mana;
+		/* Over-exert the player if casting in the 'red-zone' of their reserve.
+		 * Note that if this occurs, the spell does not cost any mana.
+		 */
+		if ((p_ptr->reserves) && (p_ptr->csp < adj_con_reserve[p_ptr->stat_ind[A_CON]] / 2) &&
+			(rand_int(100) < adj_con_reserve[p_ptr->stat_ind[A_CON]]))
+		{
+			/* Temporarily weaken the player */
+			if (!p_ptr->stat_dec_tim[A_CON])
+			{
+				set_stat_dec_tim(rand_int(20) + 20, A_CON);
+			}
+			
+			/* Weaken the player */
+			else
+			{
+				/* Message */
+				msg_print("You have damaged your health!");
+
+				/* Reduce constitution */
+				(void)dec_stat(A_CON, 15 + randint(10), 0);
+			}
+		}
+		else
+		{
+			/* Use some mana */
+			p_ptr->csp -= sc_ptr->mana;
+
+			/* Need reserves */
+			if (!(p_ptr->reserves) && (p_ptr->csp < adj_con_reserve[p_ptr->stat_ind[A_CON]] / 2))
+			{
+				/* Give some mana */
+				msg_print("You draw on your reserves.");
+			
+				p_ptr->reserves = TRUE;
+
+				p_ptr->csp = (p_ptr->csp + adj_con_reserve[p_ptr->stat_ind[A_CON]]) / 2;
+				
+				/* Update mana */
+				p_ptr->update |= (PU_MANA);
+			}			
+		}
 	}
 
 	/* Over-exert the player */

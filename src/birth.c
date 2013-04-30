@@ -424,7 +424,7 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
-                l_ptr->pkills = 0;
+		l_ptr->pkills = 0;
 	}
 
 
@@ -538,7 +538,7 @@ static void player_outfit(void)
 				{
 					switch (p_ptr->pstyle)
 					{
-					        case WS_RING:
+					case WS_RING:
 						  {
 						    k_idx = lookup_kind(TV_RING, rand_int(1) ? SV_RING_AGGRAVATION : rand_int(5) ? SV_RING_TELEPORTATION : SV_RING_WOE);
 						    break;
@@ -795,9 +795,10 @@ static void player_outfit(void)
 #define RACE_AUX_COL    26
 #define CLASS_COL		26
 #define CLASS_AUX_COL   42
-#define STYLE_COL               42
+#define STYLE_COL       42
 #define STYLE_AUX_COL   61
-#define BOOK_COL                61
+#define BOOK_COL		61
+#define ROLLER_COL		61
 
 #define INVALID_CHOICE 255
 
@@ -820,7 +821,7 @@ static void clear_question(void)
  * Generic "get choice from menu" function
  */
 static int get_player_choice(birth_menu *choices, int num, int col, int wid,
-                             cptr helpfile, void (*hook)(birth_menu))
+     cptr helpfile, void (*hook)(birth_menu))
 {
 	int top = 0, cur = 0;
 	int i, dir;
@@ -1112,6 +1113,7 @@ static void race_aux_hook(birth_menu r_str)
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
+
 /*
  * Player race
  */
@@ -1134,16 +1136,16 @@ static bool get_player_race()
 	}
 
 	p_ptr->prace = get_player_choice(races, z_info->g_max, RACE_COL, 17,
-                "races.txt", race_aux_hook);
+		"races.txt", race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
 	{
 		p_ptr->prace = 0;
 
-                FREE(races);
+		FREE(races);
 
-        	return (FALSE);
+		return (FALSE);
 	}
 
 	/* Save the player shape */
@@ -1152,7 +1154,7 @@ static bool get_player_race()
 	/* Save the starting town */
 	p_ptr->town = rp_ptr->home;
 
-        FREE(races);
+	FREE(races);
 
 	/* Success */
 	return (TRUE);
@@ -1182,7 +1184,7 @@ static void class_aux_hook(birth_menu c_str)
 	for (i = 0; i < A_MAX; i++)
 	{
 		sprintf(s, "%s%+d ", stat_names_reduced[i],
-                cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
+		cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
@@ -1208,7 +1210,7 @@ static void class_aux_hook(birth_menu c_str)
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-        sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
+	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
@@ -1232,6 +1234,7 @@ static bool get_player_class(void)
 	/* Tabulate classes */
 	for (i = 0; i < z_info->c_max; i++)
 	{
+#if 0
 		/* Analyze */
 		if (!(rp_ptr->choice & (1L << i)))
 		{
@@ -1241,25 +1244,50 @@ static bool get_player_class(void)
 		{
 			classes[i].ghost = FALSE;
 		}
+#endif
+		classes[i].ghost = FALSE;
+
+		/* Ghost if not warrior, and two stats are -4 or below, or 1 is -5 or below */
+		if (i)
+		{
+			int j;
+			bool minus_4 = FALSE;
+			
+			for (j = 0; j < A_MAX; j++)
+			{
+			    /* Obtain a "bonus" for "race" and "class" */
+				int value = rp_ptr->r_adj[j] + c_info[i].c_adj[j];
+
+				if ((value <= -5) || (minus_4 && value <= -4))
+				{
+					classes[i].ghost = TRUE;
+				}
+				else if (value <= -4)
+				{
+					minus_4 = TRUE;
+				}
+			}
+		}
 
 		/* Save the string */
 		classes[i].name = c_name + c_info[i].name;
 	}
 
+
 	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 16,
-                                      "classes.txt", class_aux_hook);
+				      "classes.txt", class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
 	{
 		p_ptr->pclass = 0;
 
-                FREE(classes);
+		FREE(classes);
 
 		return (FALSE);
 	}
 
-        FREE(classes);
+	FREE(classes);
 
 	return (TRUE);
 }
@@ -1269,34 +1297,34 @@ static bool get_player_class(void)
  */
 static void style_aux_hook(birth_menu w_str)
 {
-        int style_idx,i;
+	int style_idx,i;
 	char s[128];
 
 	/* Extract the proper class index from the string. */
 	for (style_idx = 0; style_idx < MAX_WEAP_STYLES; style_idx++)
 	{
-                strcpy(s,w_name_style[style_idx]);
-                if (!strcmp(w_str.name, s )) break;
+		strcpy(s,w_name_style[style_idx]);
+		if (!strcmp(w_str.name, s )) break;
 	}
 
-        if (style_idx == MAX_WEAP_STYLES) return;
+	if (style_idx == MAX_WEAP_STYLES) return;
 
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
 		sprintf(s, "%s%+d ", stat_names_reduced[i],
-                cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
-                Term_putstr(STYLE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
+		cp_ptr->c_adj[i] + rp_ptr->r_adj[i]);
+		Term_putstr(STYLE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
 	sprintf(s, "Hit die: %d ", p_ptr->hitdie);
-        Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
+	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + (style_idx ? 10 : 0);
 
-        sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
-        Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
+	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
+	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
 
@@ -1339,7 +1367,7 @@ static bool get_player_style(void)
 	}
 
 	/* Extra info */
-        Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 					"Your 'style' determines under what circumstances you get extra bonuses.");
 
 	/* Tabulate styles */
@@ -1376,102 +1404,154 @@ static bool get_player_style(void)
  */
 static bool get_player_book(void)
 {
-        int     i,choice;
-        birth_menu *books;
+	int     i,choice;
+	birth_menu *books;
 
-        int *book_list;
+	int *book_list;
 
-        /*** Player book speciality ***/
+	/*** Player book speciality ***/
 
-        int bookc = 0;
+	int bookc = 0;
 	int num = 0;
 
-        object_kind *k_ptr;
+	object_kind *k_ptr;
 
-        int t=0;
+	int t=0;
 
-        switch (p_ptr->pstyle)
-        {
-                case WS_MAGIC_BOOK:
-                        t = TV_MAGIC_BOOK;
-                        break;
+	switch (p_ptr->pstyle)
+	{
+		case WS_MAGIC_BOOK:
+			t = TV_MAGIC_BOOK;
+			break;
 
-                case WS_PRAYER_BOOK:
-                        t = TV_PRAYER_BOOK;
-                        break;
+		case WS_PRAYER_BOOK:
+			t = TV_PRAYER_BOOK;
+			break;
 
-                case WS_SONG_BOOK:
-                        t = TV_SONG_BOOK;
-                        break;
-        }
+		case WS_SONG_BOOK:
+			t = TV_SONG_BOOK;
+			break;
+	}
 
-        /* Count books */
-        for (i = 0;i<z_info->k_max;i++)
-        {
-                k_ptr = &k_info[i];
+	/* Count books */
+	for (i = 0;i<z_info->k_max;i++)
+	{
+		k_ptr = &k_info[i];
 
-                if (k_ptr->tval == t) bookc++;
+		if (k_ptr->tval == t) bookc++;
 
-        }
+	}
 
-        if (!bookc) return (FALSE);
+	if (!bookc) return (FALSE);
 
-        C_MAKE(books, bookc, birth_menu);
-        C_MAKE(book_list, bookc, int);
+	C_MAKE(books, bookc, birth_menu);
+	C_MAKE(book_list, bookc, int);
 
-        /* Analyse books */
-        for (i = 0;i<z_info->k_max;i++)
-        {
-                k_ptr = &k_info[i];
+	/* Analyse books */
+	for (i = 0;i<z_info->k_max;i++)
+	{
+		k_ptr = &k_info[i];
 
-                if (k_ptr->tval == t) book_list[num++] = i;
+		if (k_ptr->tval == t) book_list[num++] = i;
 
-        }
+	}
 
-        if (num == 1)
-        {
-                p_ptr->psval = k_info[book_list[0]].sval;
+	if (num == 1)
+	{
+		p_ptr->psval = k_info[book_list[0]].sval;
 
-                FREE(book_list);
-                FREE(books);
+		FREE(book_list);
+		FREE(books);
 
-                return (TRUE);
+		return (TRUE);
 	}
 
 	/* Extra info */
-        Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-	            "Your 'book' determines which spell book you benefit most using.");
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		    "Your 'book' determines which spell book you benefit most using.");
 
 	/* Tabulate styles */
 	for (i = 0; i < num; i++)
 	{
-                /* Save the string. Note offset to skip 'of ' */
-                books[i].name = k_name + k_info[book_list[i]].name + 3;
-                books[i].ghost = FALSE;
+		/* Save the string. Note offset to skip 'of ' */
+		books[i].name = k_name + k_info[book_list[i]].name + 3;
+		books[i].ghost = FALSE;
 	}
 
-        choice = get_player_choice(books, num, BOOK_COL, 19,
-                                     "styles.txt", NULL);
+	choice = get_player_choice(books, num, BOOK_COL, 19,
+				     "styles.txt", NULL);
 
 	/* No selection? */
-        if (choice == INVALID_CHOICE)
+	if (choice == INVALID_CHOICE)
 	{
 		p_ptr->psval = 0;
 
-		return (FALSE);
+		FREE(book_list);
+		FREE(books);
 
-                FREE(book_list);
-                FREE(books);
+		return (FALSE);
 	}
-        else
-        {
-                p_ptr->psval = k_info[book_list[choice]].sval;
-        }
-        FREE(book_list);
-        FREE(books);
+	else
+    {
+    	p_ptr->psval = k_info[book_list[choice]].sval;
+    }
+	FREE(book_list);
+	FREE(books);
 
 	return (TRUE);
 }
+
+#define MAX_ROLLER_CHOICES	3
+
+/*
+ * Player roller
+ */
+static bool get_player_roller(void)
+{
+	int     choice;
+	birth_menu roller[MAX_ROLLER_CHOICES] =
+	{
+		{TRUE, "Just roll"},
+		{FALSE, "Choose minimum"},
+		{FALSE,	"Spend points"},		
+	};
+
+	/*** Player roller choice ***/
+
+	/* Extra info */
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		    "Choose how you specify your starting stats.");
+
+	choice = get_player_choice(roller, MAX_ROLLER_CHOICES, ROLLER_COL, 19,
+				     "rollers.txt", NULL);
+
+	/* No selection? */
+    if (choice == INVALID_CHOICE)
+	{
+		return (FALSE);
+	}
+	else
+	{
+		switch(choice)
+		{
+			case 0:
+				birth_point_based = FALSE;
+				birth_auto_roller = FALSE;
+				break;
+			case 1:
+				birth_point_based = FALSE;
+				birth_auto_roller = TRUE;
+				break;
+			case 2:
+				birth_point_based = TRUE;
+				birth_auto_roller = FALSE;
+				break;
+		}
+	}
+
+	return (TRUE);
+}
+
 
 
 /*
@@ -1480,21 +1560,21 @@ static bool get_player_book(void)
 static bool get_player_sex(void)
 {
 	int i;
-        birth_menu genders[2];
+	birth_menu genders[2];
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'sex' does not have any significant gameplay effects.");
 
 	/* Tabulate genders */
-        for (i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		genders[i].name = sex_info[i].title;
 		genders[i].ghost = FALSE;
 	}
 
-        p_ptr->psex = get_player_choice(genders, 2, SEX_COL, 10,
-                                 "birth.txt",   NULL);
+	p_ptr->psex = get_player_choice(genders, 2, SEX_COL, 10,
+				 "birth.txt",   NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)
@@ -1527,13 +1607,13 @@ static bool player_birth_aux_1(void)
 
 	/* Display some helpful information */
 	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_WHITE,
-	            "Please select your character from the menu below.");
+		    "Please select your character from the menu below.");
 	Term_putstr(QUESTION_COL, HEADER_ROW + 2, -1, TERM_WHITE,
-	            "Use the movement keys to scroll the menu, 'Enter' to select the current");
+		    "Use the movement keys to scroll the menu, 'Enter' to select the current");
 	Term_putstr(QUESTION_COL, HEADER_ROW + 3, -1, TERM_WHITE,
-	            "menu item, '*' for a random menu item, 'ESC' to restart the character");
+		    "menu item, '*' for a random menu item, 'ESC' to restart the character");
 	Term_putstr(QUESTION_COL, HEADER_ROW + 4, -1, TERM_WHITE,
-	            "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
+		    "selection, '=' for the birth options, '?' for help, or 'Ctrl-X' to quit.");
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -1568,6 +1648,12 @@ static bool player_birth_aux_1(void)
 		if (!get_player_book()) return (FALSE);
 
 	}
+
+	/* Clean up */
+	clear_question();
+	
+	/* Choose the roller */
+	if (!get_player_roller()) return (FALSE);
 
 	/* Clear */
 	Term_clear();
@@ -1793,13 +1879,13 @@ static bool player_birth_aux_3(void)
 
 		/* Extra info */
 		Term_putstr(5, 10, -1, TERM_WHITE,
-		            "The auto-roller will automatically ignore characters which do");
+			    "The auto-roller will automatically ignore characters which do");
 		Term_putstr(5, 11, -1, TERM_WHITE,
-		            "not meet the minimum values for any stats specified below.");
+			    "not meet the minimum values for any stats specified below.");
 		Term_putstr(5, 12, -1, TERM_WHITE,
-		            "Note that stats are not independant, so it is not possible to");
+			    "Note that stats are not independant, so it is not possible to");
 		Term_putstr(5, 13, -1, TERM_WHITE,
-		            "get perfect (or even high) values for all your stats.");
+			    "get perfect (or even high) values for all your stats.");
 
 		/* Prompt for the minimum stats */
 		put_str("Enter minimum value for: ", 15, 2);
@@ -1859,7 +1945,7 @@ static bool player_birth_aux_3(void)
 				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- add a fake slash */
-				strcat(inp, "/");
+				my_strcat(inp, "/", sizeof(inp));
 
 				/* Hack -- look for the "slash" */
 				s = strchr(inp, '/');
@@ -2119,7 +2205,7 @@ static bool player_birth_aux_3(void)
  */
 static bool player_birth_aux(void)
 {
-        int i;
+	int i;
 
 	key_event ke;
 

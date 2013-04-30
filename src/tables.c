@@ -1203,6 +1203,7 @@ const byte adj_str_blow[] =
 };
 
 
+
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
@@ -1236,7 +1237,7 @@ const byte adj_dex_blow[] =
 	6	/* 18/100-18/109 */,
 	7	/* 18/110-18/119 */,
 	7	/* 18/120-18/129 */,
-        8	/* 18/130-18/139 */,
+    8	/* 18/130-18/139 */,
 	8	/* 18/140-18/149 */,
 	9	/* 18/150-18/159 */,
 	9	/* 18/160-18/169 */,
@@ -1449,51 +1450,101 @@ const byte adj_con_die[] =
 
 
 /*
+ * Stat Table (CON) -- reserve mana for spells.
+ */
+const byte adj_con_reserve[] =
+{
+	0	/* 3 */,
+	1	/* 4 */,
+	2	/* 5 */,
+	3	/* 6 */,
+	4	/* 7 */,
+	5	/* 8 */,
+	6	/* 9 */,
+	7	/* 10 */,
+	8	/* 11 */,
+	9	/* 12 */,
+	10	/* 13 */,
+	11	/* 14 */,
+	12	/* 15 */,
+	13	/* 16 */,
+	14	/* 17 */,
+	15 /* 18/00-18/09 */,
+	17 /* 18/10-18/19 */,
+	19 /* 18/20-18/29 */,
+	21 /* 18/30-18/39 */,
+	24 /* 18/40-18/49 */,
+	27 /* 18/50-18/59 */,
+	30 /* 18/60-18/69 */,
+	34 /* 18/70-18/79 */,
+	38 /* 18/80-18/89 */,
+	42 /* 18/90-18/99 */,
+	46 /* 18/100-18/109 */,
+	50 /* 18/110-18/119 */,
+	55 /* 18/120-18/129 */,
+	60 /* 18/130-18/139 */,
+	65 /* 18/140-18/149 */,
+	70 /* 18/150-18/159 */,
+	75 /* 18/160-18/169 */,
+	80 /* 18/170-18/179 */,
+	85 /* 18/180-18/189 */,
+	90 /* 18/190-18/199 */,
+	95 /* 18/200-18/209 */,
+	100 /* 18/210-18/219 */,
+	105 /* 18/220-18/229 */,
+	110 /* 18/230-18/239 */,
+	115 /* 18/240-18/249 */,
+	120 /* 18/250+ */
+};
+
+
+/*
  * Stat Table (SIZ) -- extra hit die points on top of standard 1d10 (plus 128)
+ * This is the total bonus at 1st level, plus every 2 levels thereafter.
  */
 const byte adj_siz_die[] =
 {
-	128 + -3	/* 3 */,
-	128 + -2	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + -1	/* 7 */,
-	128 + 0	/* 8 */,
+	128 + -6	/* 3 */,
+	128 + -5	/* 4 */,
+	128 + -4	/* 5 */,
+	128 + -3	/* 6 */,
+	128 + -2	/* 7 */,
+	128 + -1	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 1	/* 13 */,
-	128 + 1	/* 14 */,
-	128 + 2	/* 15 */,
-	128 + 2	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 3	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
-	128 + 5	/* 18/60-18/69 */,
-	128 + 6	/* 18/70-18/79 */,
-	128 + 6	/* 18/80-18/89 */,
-	128 + 7	/* 18/90-18/99 */,
-	128 + 7	/* 18/100-18/109 */,
-	128 + 8	/* 18/110-18/119 */,
-	128 + 9	/* 18/120-18/129 */,
-	128 + 10	/* 18/130-18/139 */,
-	128 + 11 	/* 18/140-18/149 */,
-	128 + 12	/* 18/150-18/159 */,
-	128 + 13	/* 18/160-18/169 */,
-	128 + 14	/* 18/170-18/179 */,
-	128 + 15	/* 18/180-18/189 */,
-	128 + 16	/* 18/190-18/199 */,
-	128 + 17	/* 18/200-18/209 */,
-	128 + 18	/* 18/210-18/219 */,
-	128 + 19	/* 18/220-18/229 */,
-	128 + 20	/* 18/230-18/239 */,
-	128 + 21	/* 18/240-18/249 */,
-	128 + 22	/* 18/250+ */
+	128 + 1	/* 11 */,
+	128 + 2	/* 12 */,
+	128 + 2	/* 13 */,
+	128 + 3	/* 14 */,
+	128 + 3	/* 15 */,
+	128 + 4	/* 16 */,
+	128 + 4	/* 17 */,
+	128 + 5	/* 18/00-18/09 */,
+	128 + 6	/* 18/10-18/19 */,
+	128 + 7	/* 18/20-18/29 */,
+	128 + 8	/* 18/30-18/39 */,
+	128 + 9	/* 18/40-18/49 */,
+	128 + 10	/* 18/50-18/59 */,
+	128 + 11	/* 18/60-18/69 */,
+	128 + 12	/* 18/70-18/79 */,
+	128 + 13	/* 18/80-18/89 */,
+	128 + 14	/* 18/90-18/99 */,
+	128 + 15	/* 18/100-18/109 */,
+	128 + 16	/* 18/110-18/119 */,
+	128 + 18	/* 18/120-18/129 */,
+	128 + 20	/* 18/130-18/139 */,
+	128 + 22 	/* 18/140-18/149 */,
+	128 + 24	/* 18/150-18/159 */,
+	128 + 26	/* 18/160-18/169 */,
+	128 + 28	/* 18/170-18/179 */,
+	128 + 30	/* 18/180-18/189 */,
+	128 + 32	/* 18/190-18/199 */,
+	128 + 34	/* 18/200-18/209 */,
+	128 + 36	/* 18/210-18/219 */,
+	128 + 38	/* 18/220-18/229 */,
+	128 + 40	/* 18/230-18/239 */,
+	128 + 42	/* 18/240-18/249 */,
+	128 + 45	/* 18/250+ */
 };
 
 
@@ -4063,3 +4114,35 @@ const s16b parasite_hack[DISEASE_BLOWS] =
 	656,	/* Wrinkled mushroom */
 	85	/* Disenchanter eye */
 };
+
+
+const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
+{
+	{ "","","",""},	/* SOURCE_SELF */
+	{" being destroyed under you"," being destroyed under you"," being destroyed under you"," being destroyed under you"},	/* SOURCE_OBJECT */
+	{"", "", "", ""}, /* SOURCE_FEATURE */
+	{"", "", "", ""}, /* SOURCE_SPELL */
+	{"", "", "", ""}, /* SOURCE_DISEASE */
+	{"daylight", "the sun rising", "no UV protection", "your unholy flesh searing in the radiance of day"}, /* SOURCE_DAYLIGHT */
+	{" being born", " being born", " being born", " being born"},	/* SOURCE_BIRTH */
+	{"a swing, and a miss", "overenthusiasm", "a hellavu shaving cut", "you're not quite sure how you hit that part of you"}, /* SOURCE_PLAYER_ATTACK */
+	{"a misfire","an unintended discharge","shooting your own foot","you're not quite sure how you shot that part of you"}, /* SOURCE_PLAYER_SHOT */
+	{"a misthrow", "a fumble","juggling a dangerous object","you're not quite sure how you threw that there"}, /* SOURCE_PLAYER_THROW */
+	{"walking headfirst into a ","walking backwards into a ","stumbling into a ","forgetting where you put a "}, /* SOURCE_PLAYER_TRAP */
+	{"breaking ", "smashing ", "cracking open ", "shattering "}, /* SOURCE_PLAYER_BREAK */
+	{"sniffing ", "inhaling ", "snorting ", "getting addicted to "}, /* SOURCE_PLAYER_SPORE */
+	{"a nick from a weapon coated with ", "extract of ", "toxic ", "fumes reeking of "		}, /* SOURCE_PLAYER_COATING */ 
+	{"over cooking ", "undercooking ", "having a taste for ", "not cutting out the poisonous bits off "}, /* SOURCE_PLAYER_EAT_MONSTER */
+	{"eating ", "tasting ", "nibbling ", "indigestion from "}, /* SOURCE_PLAYER_EAT */
+	{"quaffing ", "drinking ", "slurping ", "sipping "}, /* SOURCE_PLAYER_QUAFF */ 
+	{"aiming ", "waving ", "pointing ", "holding the wrong end of "}, /* SOURCE_PLAYER_AIM */
+	{"zapping ", "discharging ", "rubbing ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP */ 
+	{"zapping ", "discharging ", "rubbing ", "holding the wrong end of "}, /* SOURCE_PLAYER_ZAP_NO_TARGET */ 
+	{"reading ", "misreading ", "glancing at ", "reciting "}, /* SOURCE_PLAYER_READ */ 
+	{"using ", "misusing ", "abusing ", "badly using "}, /* SOURCE_PLAYER_USE */ 
+	{"activating ", "relying too heavily on ", "mistrusting the power of ", "chancing the gods with "}, /* SOURCE_PLAYER_ACT_ARTIFACT */ 
+	{"activating ", "calling on ", "discharing ", "misusing "}, /* SOURCE_PLAYER_ACTIVATE */ 
+	{"buying ", "acquiring ", "purchasing ", "the ill-judged purchase of "}, /* SOURCE_PLAYER_SERVICE */ 
+	{"bad luck casting ", "badly casting ", "slurring a syllable casting ", "magical feedback whilst casting "} /* SOURCE_PLAYER_CAST */
+};
+

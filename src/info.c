@@ -1592,7 +1592,7 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
  *
  * Note they do not take account of modifiers to player level.
  */
-void spell_info(char *p, int spell, bool use_level)
+void spell_info(char *p, int p_s, int spell, bool use_level)
 {
 	cptr q;
 
@@ -1605,23 +1605,23 @@ void spell_info(char *p, int spell, bool use_level)
 	if (!use_level) level = 0;
 
 	/* Default */
-	strcpy(p, "");
+	my_strcpy(p, "", p_s);
 
 	/* Roll out the duration */
 	if ((s_ptr->l_dice) && (s_ptr->l_side) && (s_ptr->l_plus))
 	{
 		/* End */
-		strcpy(p,format(" dur %dd%d+%d",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus));
+		my_strcpy(p,format(" dur %dd%d+%d",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus), p_s);
 	}
 	else if ((s_ptr->l_dice) && (s_ptr->l_side))
 	{
 		/* End */
-		strcpy(p,format(" dur %dd%d",s_ptr->l_dice,s_ptr->l_side));
+		my_strcpy(p,format(" dur %dd%d",s_ptr->l_dice,s_ptr->l_side), p_s);
 	}
 	else if (s_ptr->l_plus)
 	{
 		/* End */
-		strcpy(p,format(" dur %d",s_ptr->l_plus));
+		my_strcpy(p,format(" dur %d",s_ptr->l_plus), p_s);
 	}
 
 	rad = 0;
@@ -1720,17 +1720,17 @@ void spell_info(char *p, int spell, bool use_level)
 		if ((d1) && (d2) && (d3))
 		{
 			/* End */
-			strcpy(p,format(" %s %dd%d+%d ",q,d1,d2,d3));
+			my_strcpy(p,format(" %s %dd%d+%d ",q,d1,d2,d3), p_s);
 		}
 		else if ((d1) && (d2))
 		{
 			/* End */
-			strcpy(p,format(" %s %dd%d ",q,d1,d2));
+			my_strcpy(p,format(" %s %dd%d ",q,d1,d2), p_s);
 		}
 		else if (d3)
 		{
 			/* End */
-			strcpy(p,format(" %s %d ",q,d3));
+			my_strcpy(p,format(" %s %d ",q,d3), p_s);
 		}
 
 	}
@@ -3179,7 +3179,7 @@ void list_object(const object_type *o_ptr, int mode)
 	}
 
 	/* Extra powers */
-	if (!random && ((object_aware_p(o_ptr)) || (spoil))
+	if (!random && ((object_aware_p(o_ptr)) || (spoil) || (o_ptr->ident & (IDENT_STORE)))
 		&& (o_ptr->tval !=TV_MAGIC_BOOK) && (o_ptr->tval != TV_PRAYER_BOOK)
 		&& (o_ptr->tval !=TV_SONG_BOOK) && (o_ptr->tval != TV_STUDY))
 	{
@@ -3435,7 +3435,13 @@ void list_object(const object_type *o_ptr, int mode)
 	if ((o_ptr->feeling) || (object_known_p(o_ptr)))
 	{
 		int feeling = o_ptr->feeling;
-		if (!feeling) feeling = value_check_aux1(o_ptr);
+		if (!feeling)
+		{
+			feeling = value_check_aux1(o_ptr);
+			
+			/* Hack -- exclude 'average' feelings for known items */
+			if ((feeling == INSCRIP_AVERAGE) && (object_known_p(o_ptr))) feeling = 0;
+		}
 		
 		if (feeling)
 		{
@@ -3532,7 +3538,7 @@ void list_object(const object_type *o_ptr, int mode)
 		}
 	}
 
-        /* *Identified* object */
+	/* *Identified* object */
 	if (spoil && anything) text_out("You know everything about this item.  ");
 
 	/* Nothing was printed */
@@ -3541,8 +3547,8 @@ void list_object(const object_type *o_ptr, int mode)
 	/* End */
 	if (!random) text_out("\n");
 	else if (anything) text_out("\n");
-
 }
+
 
 /*
  * Print a list of powers (for selection).
@@ -3575,7 +3581,7 @@ void print_powers(const s16b *book, int num, int y, int x)
 		s_ptr = &s_info[spell];
 
 		/* Get extra info */
-		spell_info(info, spell, FALSE);
+		spell_info(info, sizeof(info), spell, FALSE);
 
 		/* Use that info */
 		comment = info;
@@ -3677,7 +3683,7 @@ void print_spells(const s16b *sn, int num, int y, int x)
 		}
 
 		/* Get extra info */
-		spell_info(info, spell, TRUE);
+		spell_info(info, sizeof(info), spell, TRUE);
 
 		/* Get level */
 		level = spell_level(spell);

@@ -20,6 +20,7 @@
  * Global variables
  */
 u32b count_stop = 0L;
+int change_level = 0;
 int count_change_level = 0;
 int count_teleport = 0;
 byte allowed_depth[2] = { 0, 0 };
@@ -49,6 +50,11 @@ void do_cmd_borg(void)
 		/* Set timer */
 		count_stop = 1L + (long)atol(ch);
 
+		/* Query */
+		if (!get_string("How many turns shall the borg stay on a level for (0 for random)?", ch, 9)) return;
+
+		/* Set timer */
+		change_level = 1L + (long)atol(ch);
 
 		/* Query */
 		if (!get_string("What is the minimun level that the borg should travel on?", ch, 3)) return;
@@ -182,8 +188,21 @@ void do_cmd_borg(void)
 		/* Jump around dungeons */
 		if (adult_campaign)
 		{
-			/* New dungeon */
-			p_ptr->dungeon = rand_int(z_info->t_max);
+			/* Skip towns */
+			while (TRUE)
+			{
+				/* Get dungeon zone */
+				dungeon_zone *zone=&t_info[0].zone[0];
+
+				/* New dungeon */
+				p_ptr->dungeon = rand_int(z_info->t_max);
+				
+				/* Get the zone */
+				get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+			
+				if (zone->fill) break;
+				
+			}
 
 			/* New depth */
 			p_ptr->depth = rand_range(min_depth(p_ptr->dungeon), max_depth(p_ptr->dungeon));
@@ -197,7 +216,8 @@ void do_cmd_borg(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 
-		count_change_level = rand_range(1000, 2500);
+		if (change_level) count_change_level = change_level;
+		else count_change_level = rand_range(1000, 2500);
 		return;
 	}
 

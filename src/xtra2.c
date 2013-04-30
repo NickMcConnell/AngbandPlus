@@ -2575,7 +2575,7 @@ static void improve_stat(void)
 				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected); 
 
 				/* Select stat to improve */
-				if (get_list(print_stats, table, A_MAX, "Attribute", buf, 1, 41, &(stat_gain_selection[stat_gain_selected])))
+				if (get_list(print_stats, table, A_MAX, "Attribute", buf, 1, 36, &(stat_gain_selection[stat_gain_selected])))
 				{
 					/* Check if stat at maximum */
 					if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
@@ -2607,7 +2607,7 @@ static void improve_stat(void)
 		screen_save();
 
 		/* Redisplay stats */
-		print_stats(table, A_MAX, 1, 41);
+		print_stats(table, A_MAX, 1, 36);
 
 		/* Confirm? */
 		if (get_check("Increasing highlighted stats. Are you sure? "))
@@ -2901,8 +2901,6 @@ int get_coin_type(const monster_race *r_ptr)
  */
 void quest_assign(int q_idx)
 {
-	int i;
-
 	(void)q_idx;
 }
 
@@ -2914,8 +2912,6 @@ void quest_assign(int q_idx)
  */
 void quest_reward(int q_idx)
 {
-	int i;
-
 	(void)q_idx;
 
 }
@@ -2927,8 +2923,6 @@ void quest_reward(int q_idx)
  */
 void quest_penalty(int q_idx)
 {
-	int i;
-
 	(void)q_idx;
 }
 
@@ -2936,14 +2930,14 @@ void quest_penalty(int q_idx)
 void scatter_objects_under_feat(int y, int x)
 {
   s16b this_o_idx, next_o_idx = 0;
+  
+  object_type *o_ptr;
 
   assert (in_bounds(y, x));
 
   /* Scan all objects in the grid */
   for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
     {
-      object_type *o_ptr;
-		
       /* Get the object */
       o_ptr = &o_list[this_o_idx];
 
@@ -2954,8 +2948,18 @@ void scatter_objects_under_feat(int y, int x)
       drop_near(o_ptr, -1, y, x);
     }
 
-  /* Objects are gone */
-  cave_o_idx[y][x] = 0;
+  /* Scan all objects in the grid */
+  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+    {
+      /* Get the object */
+      o_ptr = &o_list[this_o_idx];
+
+      /* Get the next object */
+      next_o_idx = o_ptr->next_o_idx;
+
+		/* Delete object */
+		delete_object_idx(this_o_idx);
+    }
 
   /* Visual update */
   lite_spot(y, x);
@@ -2984,7 +2988,6 @@ void monster_death(int m_idx)
 	int dump_gold = 0;
 
 	int number = 0;
-	int total = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -3013,12 +3016,8 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-	/* Some monsters stop radiating lite when dying */
-	if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE))
-	{
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-	}
+	/* Extinguish lite */
+	delete_monster_lite(m_idx);
 
 	/* Monster death updates visible monsters */
 	p_ptr->window |= (PW_MONLIST);
@@ -3054,10 +3053,10 @@ void monster_death(int m_idx)
 	m_ptr->hold_o_idx = 0;
 
 	/* Hack -- only sometimes drop bodies */
-	if ((rand_int(100)<30) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
-		(r_ptr->flags2 & (RF2_REGENERATE)) ||
+	if ((rand_int(100)<30) || ((r_ptr->flags1 & (RF1_UNIQUE)) != 0) ||
+		((r_ptr->flags2 & (RF2_REGENERATE)) != 0) ||
 		(r_ptr->level > p_ptr->depth) ||
-		(r_ptr->flags8 & (RF8_ASSEMBLY)))
+		((r_ptr->flags8 & (RF8_ASSEMBLY)) != 0))
 	{
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -3611,7 +3610,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_idx, 0);
+		monster_desc(m_name, sizeof(m_name), m_idx, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -3887,7 +3886,7 @@ bool change_panel(int dir)
 /* 
  * Hack - generate the current room description 
  */
-static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
+static void get_room_desc(int room, char *name, int name_s, char *text_visible, int text_visible_s, char *text_always, int text_always_s)
 {
 	bool scan_name = FALSE;
 	bool scan_desc = FALSE;
@@ -3900,16 +3899,16 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 	get_zone(&zone,p_ptr->dungeon,max_depth(p_ptr->dungeon));
 
 	/* Initialize text */
-	strcpy(name, "");
-	if (text_always) strcpy(text_always, "");
-	if (text_visible) strcpy(text_visible, "");
+	my_strcpy(name, "", name_s);
+	if (text_always) my_strcpy(text_always, "", text_always_s);
+	if (text_visible) my_strcpy(text_visible, "", sizeof(text_visible));
 
 	/* Town or not in room */
 	if (!room)
 	{
 		if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || (!zone->fill))
 		{
-			strcpy(name, t_name + t_ptr->name);
+			my_strcpy(name, t_name + t_ptr->name, name_s);
 
 			if (!text_always) return;
 
@@ -3917,76 +3916,76 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			if ((zone->guard) && (!r_info[zone->guard].max_num))
 			{
 				/* Tell player guardian is defeated */
-				strcpy(text_always, format("You have defeated %s, guardian of %s",
+				my_strcpy(text_always, format("You have defeated %s, guardian of %s",
 						r_name + r_info[zone->guard].name,
-						t_name + t_ptr->name));
+						t_name + t_ptr->name), text_always_s);
 
 				/* Tell player where they can travel to */
 				if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
 				{
-					strcat(text_always, format(", which allows you to travel to %s",
-						t_name + t_info[t_ptr->distant].name));
+					my_strcat(text_always, format(", which allows you to travel to %s",
+						t_name + t_info[t_ptr->distant].name), text_always_s);
 
 					/* Tell player if they may have difficulty getting back */
 					if (t_info[t_ptr->distant].nearby != p_ptr->dungeon)
 					{
-						strcat(text_always, ".  Collect anything you require from this location before you travel.  You may have difficulty returning here");
+						my_strcat(text_always, ".  Collect anything you require from this location before you travel.  You may have difficulty returning here", text_always_s);
 					}
 				}
 
 				/* End sentence */
-				strcat(text_always, ".");
+				my_strcat(text_always, ".", text_always_s);
 			}
 			else
 			{
 				/* Describe location */
-				strcpy(text_always, t_text + t_ptr->text);
+				my_strcpy(text_always, t_text + t_ptr->text, text_always_s);
 
 				/* Describe the guardian */
 				if (zone->guard)
 				{
-					if (strlen(text_always)) strcat(text_always,"  ");
+					if (strlen(text_always)) my_strcat(text_always,"  ", text_always_s);
 
 					/* Path to be opened */
 					if ((t_ptr->distant != p_ptr->dungeon) && (adult_campaign))
 					{
-						strcat(text_always, format("The path to %s is guarded by %s, who you must defeat ",
+						my_strcat(text_always, format("The path to %s is guarded by %s, who you must defeat ",
 							t_name + t_info[t_ptr->distant].name,
-							r_name + r_info[zone->guard].name));
+							r_name + r_info[zone->guard].name), text_always_s);
 					}
 					/* Dungeon guardian */
 					else
 					{
-						strcat(text_always, format("%^s is guarded by %s, who you must defeat ",
+						my_strcat(text_always, format("%^s is guarded by %s, who you must defeat ",
 							t_name + t_ptr->name,
-							r_name + r_info[zone->guard].name));
+							r_name + r_info[zone->guard].name), text_always_s);
 					}
 
 					/* Guards surface */
-					if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, "here");
+					if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, "here", text_always_s);
 
 					/* Guards top of tower */					
 					if (t_ptr->zone[0].tower)
 					{
-						if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, " or ");
-						strcat(text_always, "at the top of the tower");
+						if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, " or ", text_always_s);
+						my_strcat(text_always, "at the top of the tower", text_always_s);
 					}
 
-					/* Guards bottom of dugeon */
+					/* Guards bottom of dungeon */
 					else if (min_depth(p_ptr->dungeon) != max_depth(p_ptr->dungeon))
 					{
-						if (t_ptr->zone[0].guard == zone->guard) strcat(text_always, " or ");
-						strcat(text_always, "at the bottom of the dungeon");
+						if (t_ptr->zone[0].guard == zone->guard) my_strcat(text_always, " or ", text_always_s);
+						my_strcat(text_always, "at the bottom of the dungeon", text_always_s);
 					}
 
 					/* End sentence */
-					strcat(text_always, ".");
+					my_strcat(text_always, ".", text_always_s);
 				}
 			}
 		}
 		else
 		{
-			strcpy(name, "empty room");
+			my_strcpy(name, "empty room", name_s);
 		}
 		return;
 	}
@@ -3996,16 +3995,16 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 	{
 		case (ROOM_TOWER):
 		{
-			strcpy(name, "the tower of ");
-			strcat(name, t_name + t_ptr->name);
+			my_strcpy(name, "the tower of ", name_s);
+			my_strcat(name, t_name + t_ptr->name, name_s);
 
 			/* Brief description */
-			if (text_visible) strcpy(text_visible, "This tower is filled with monsters and traps.  ");
+			if (text_visible) my_strcpy(text_visible, "This tower is filled with monsters and traps.  ", text_visible_s);
 
 			/* Describe height of tower */
 			if (text_visible)
 			{
-				strcpy(text_visible, format("It looks about %d feet tall.  ", (max_depth(p_ptr->dungeon) - min_depth(p_ptr->dungeon) + 1) * 50));
+				my_strcpy(text_visible, format("It looks about %d feet tall.  ", (max_depth(p_ptr->dungeon) - min_depth(p_ptr->dungeon) + 1) * 50), text_visible_s);
 			}
 			break;
 		}
@@ -4014,15 +4013,14 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		{
 			monster_race *r_ptr = &r_info[room_info[room].vault];
 
-			strcpy(name, "the lair of ");
-			strcat(name, r_name + r_ptr->name);
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) == 0) strcat(name, "s");
+			my_strcpy(name, "the lair of ", name_s);
+			my_strcat(name, r_name + r_ptr->name, name_s);
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) == 0) my_strcat(name, "s", name_s);
 
-			if (text_visible) strcpy(text_visible, "This is the lair of ");
-			if (text_visible) strcat(text_visible, r_name + r_ptr->name);
-			if ((text_visible) && ((r_ptr->flags1 & (RF1_UNIQUE)) == 0)) strcat(name, "s");
-			if (text_visible) strcat(text_visible, ".  ");
-			if (text_visible) strcat(text_visible, r_text + r_ptr->name);
+			if (text_visible) my_strcpy(text_visible, "This is the lair of ", text_visible_s);
+			if (text_visible) my_strcat(text_visible, r_name + r_ptr->name, text_visible_s);
+			if ((text_visible) && ((r_ptr->flags1 & (RF1_UNIQUE)) == 0)) my_strcat(name, "s", text_visible_s);
+			if (text_visible) my_strcat(text_visible, ".  ", text_visible_s);
 			beware = TRUE;
 
 			break;
@@ -4030,10 +4028,10 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 		case (ROOM_GREATER_VAULT):
 		{
-			strcpy(name, "greater ");
+			my_strcpy(name, "greater ", name_s);
 
-			if (text_visible) strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
-			if (text_visible) strcat(text_visible, "deadly monsters and rich treasure.  ");
+			if (text_visible) my_strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ", text_visible_s);
+			if (text_visible) my_strcat(text_visible, "deadly monsters and rich treasure.  ", text_visible_s);
 			beware = TRUE;
 
 			/* Fall through */	
@@ -4044,12 +4042,12 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			/* Display vault name */
 			if ((v_name + v_info[room_info[room].vault].name)[0] == '\'')
 			{
-				strcat(name, "vault ");
-				strcat(name, v_name + v_info[room_info[room].vault].name);
+				my_strcat(name, "vault ", name_s);
+				my_strcat(name, v_name + v_info[room_info[room].vault].name, name_s);
 			}
 			else
 			{
-				strcat(name, "vault");
+				my_strcat(name, "vault", name_s);
 			}
 
 			scan_desc = TRUE;
@@ -4058,14 +4056,14 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 		case (ROOM_INTERESTING):
 		{
-			strcat(name, v_name + v_info[room_info[room].vault].name);
-			if (text_visible) strcpy(text_visible, "There is something remarkable here.  ");
+			my_strcat(name, v_name + v_info[room_info[room].vault].name, name_s);
+			if (text_visible) my_strcpy(text_visible, "There is something remarkable here.  ", text_visible_s);
 			break;
 		}
 
 		case (ROOM_CHAMBERS):
 		{
-			if (text_visible) strcpy(text_visible, "This is one of many rooms crowded with monsters.  ");
+			if (text_visible) my_strcpy(text_visible, "This is one of many rooms crowded with monsters.  ", text_visible_s);
 			scan_name = TRUE;
 			scan_desc = TRUE;
 			break;
@@ -4087,6 +4085,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		char buf_name1[16];
 		char buf_name2[16];
 		char *last_buf = NULL;
+		int last_buf_s = 0;
 
 		/* Clear the name1 text */
 		buf_name1[0] = '\0';
@@ -4105,10 +4104,10 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			if (j < 0) break;
 
 			/* Get the name1 text if needed */
-			if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
+			if (!strlen(buf_name1)) my_strcpy(buf_name1, (d_name + d_info[j].name1), sizeof(buf_name1));
 
 			/* Get the name2 text if needed */
-			if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+			if (!strlen(buf_name2)) my_strcpy(buf_name2, (d_name + d_info[j].name2), sizeof(buf_name2));
 
 			/* Need description? */
 			if (!scan_desc) continue;
@@ -4118,48 +4117,50 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			{
 				/* Does the player understand the main language of the level? */
 				if ((last_buf) && (cave_ecology.ready) && (cave_ecology.num_races)
-					&& player_understands(monster_language(cave_ecology.race[0])))
+					&& player_understands(monster_language(cave_ecology.deepest_race)))
 				{
 					/* Get the textual history */
-					strcat(last_buf, (d_text + d_info[j].text));
+					my_strcat(last_buf, (d_text + d_info[j].text), last_buf_s);
 				}
 				else if (last_buf)
 				{
 					/* Fake it */
-					strcat(last_buf, "nothing you can understand.  ");
+					my_strcat(last_buf, "something you cannot understand.  ", last_buf_s);
 
 					/* Clear last buf to skip remaining language lines */
 					last_buf = NULL;
 				}
 
 				/* Diagnostics */
-				if ((cheat_xtra) && (last_buf)) strcat(last_buf, format("%d", i));
+				if ((cheat_xtra) && (last_buf)) my_strcat(last_buf, format("%d", i), last_buf_s);
 			}
 
 			/* Visible description */
 			else if (d_info[j].flags & (ROOM_SEEN))
 			{
 				/* Get the textual history */
-				if (text_visible) strcat(text_visible, (d_text + d_info[j].text));
+				if (text_visible) my_strcat(text_visible, (d_text + d_info[j].text), text_visible_s);
 
 				/* Record last buffer for language */
 				last_buf = text_visible;
+				last_buf_s = text_visible_s;
 
 				/* Diagnostics */
-				if ((cheat_xtra) && (text_visible)) strcat(text_visible, format("%d", i));
+				if ((cheat_xtra) && (text_visible)) my_strcat(text_visible, format("%d", i), text_visible_s);
 			}
 
 			/* Description always present */
 			else
 			{
 				/* Get the textual history */
-				if (text_always) strcat(text_always, (d_text + d_info[j].text));
+				if (text_always) my_strcat(text_always, (d_text + d_info[j].text), text_always_s);
 
 				/* Record last buffer for language */
 				last_buf = text_always;
+				last_buf_s = text_always_s;
 
 				/* Diagnostics */
-				if ((cheat_xtra) && (text_always)) strcat(text_always, format("%d", i));
+				if ((cheat_xtra) && (text_always)) my_strcat(text_always, format("%d", i), text_always_s);
 			}
 		}
 
@@ -4168,36 +4169,36 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		{
 
 			/* Set room name */
-			if (strlen(buf_name1)) strcpy(name, buf_name1);
+			if (strlen(buf_name1)) my_strcpy(name, buf_name1, name_s);
 
 			/* And add second room name if necessary */
 			if (strlen(buf_name2))
 			{
 				if (strlen(buf_name1))
 				{
-					strcat(name, " ");
-					strcat(name, buf_name2);
+					my_strcat(name, " ", name_s);
+					my_strcat(name, buf_name2, name_s);
 				}
 				else
 				{
-					strcpy(name, buf_name2);
+					my_strcpy(name, buf_name2, name_s);
 				}
 			}
 		}
 	}
 
 	/* Beware */
-	if ((beware) && (text_always)) strcpy(text_always, "Beware!  ");
+	if ((beware) && (text_always)) my_strcpy(text_always, "Beware!  ", text_always_s);
 
 	if ((cheat_room) && (text_always))
 	{
-		if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"This room cannot be teleported into.  ");
-		if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"This room prevent you naturally healing your wounds.  ");
-		if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"This room makes you vulnerable to being hit.  ");
-		if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"This room cannot be magically lit.  ");
-		if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"This room magically teleports you occasionally.  ");
-		if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"This room prevents you casting spells.  ");
-		if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"This room prevents you using wands, staffs or rods.  ");
+		if (room_info[room].flags & (ROOM_ICKY)) my_strcat(text_always,"This room cannot be teleported into.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_BLOODY)) my_strcat(text_always,"This room prevent you naturally healing your wounds.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_CURSED)) my_strcat(text_always,"This room makes you vulnerable to being hit.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_GLOOMY)) my_strcat(text_always,"This room cannot be magically lit.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_PORTAL)) my_strcat(text_always,"This room magically teleports you occasionally.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_SILENT)) my_strcat(text_always,"This room prevents you casting spells.  ", text_always_s);
+		if (room_info[room].flags & (ROOM_STATIC)) my_strcat(text_always,"This room prevents you using wands, staffs or rods.  ", text_always_s);
 	}
 
 }
@@ -4217,7 +4218,7 @@ static void room_info_top(int room)
 	if (!character_dungeon) return;
 
 	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), text_always, sizeof(text_always));
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -4251,7 +4252,7 @@ static void screen_room_info(int room)
 	if (!character_dungeon) return;
 
 	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), text_always, sizeof(text_always));
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -4312,7 +4313,7 @@ void display_room_info(int room)
 	Term_gotoxy(0, 1);
 
 	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), text_always, sizeof(text_always));
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
@@ -4367,7 +4368,7 @@ void describe_room(void)
 	if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) room = 0;
 
 	/* Get the actual room description */
-	get_room_desc(room, name, text_visible, text_always);
+	get_room_desc(room, name, sizeof(name), text_visible, sizeof(text_visible), text_always, sizeof(text_always));
 
 	if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
 	 && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
@@ -5181,7 +5182,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 				boring = FALSE;
 
 				/* Get the monster name ("a goblin") */
-				monster_desc(m_name, cave_m_idx[y][x], 0x08);
+				monster_desc(m_name, sizeof(m_name), cave_m_idx[y][x], 0x08);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -5637,7 +5638,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 			*room = dun_room[by][bx];
 
 			/* Get the actual room description */
-			get_room_desc(*room, name, NULL, NULL);
+			get_room_desc(*room, name, sizeof(name), NULL, 0, NULL, 0);
 
 			/* Always in rooms */
 			s2 = "in ";
@@ -6062,13 +6063,13 @@ bool target_set_interactive(int mode)
 			/* Allow target */
 			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
 			{
-				strcpy(info, "q,t,p,o,+,-,<dir>");
+				my_strcpy(info, "q,t,p,o,+,-,<dir>", sizeof (info));
 			}
 
 			/* Dis-allow target */
 			else
 			{
-				strcpy(info, "q,p,o,+,-,<dir>");
+				my_strcpy(info, "q,p,o,+,-,<dir>", sizeof (info));
 			}
 
 			/* Describe and Prompt */
@@ -6275,7 +6276,7 @@ bool target_set_interactive(int mode)
 		else
 		{
 			/* Default prompt */
-			strcpy(info, "q,t,p,m,+,-,<dir>");
+			my_strcpy(info, "q,t,p,m,+,-,<dir>", sizeof (info));
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, &room, mode | TARGET_LOOK, info);

@@ -74,6 +74,9 @@ typedef s16b s16b_wid[DUNGEON_WID];
 typedef void (*print_list_func)(const s16b *sn, int num, int y, int x);
 
 
+typedef bool (*tester_attribute_func)(int y, int x);
+typedef void (*modify_attribute_func)(int y, int x);
+
 
 /**** Available Structs ****/
 
@@ -1406,6 +1409,7 @@ struct player_type
 	byte climbing; /* Currently climbing */
 	byte searching; /* Currently searching */
 	byte charging;	/* Currently charging */
+	byte reserves;	/* Currently on reserve mana */
 
 	u32b disease;	/* Disease types */
 
@@ -1536,6 +1540,8 @@ struct player_type
 	u32b cur_flags4;
 
 	byte incr_resist[MAX_INCR_RESISTS];
+	
+	byte siz_penalty;
 
 	s16b dis_to_h;  /* Known bonus to hit */
 	s16b dis_to_d;  /* Known bonus to dam */

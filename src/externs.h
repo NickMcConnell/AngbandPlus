@@ -62,6 +62,7 @@ extern const byte adj_agi_safe[];
 extern const byte adj_agi_speed[];
 extern const byte adj_con_fix[];
 extern const byte adj_con_die[];
+extern const byte adj_con_reserve[];
 extern const byte adj_siz_die[];
 extern const byte adj_charge_siz[];
 extern const byte blows_table[12][12];
@@ -102,6 +103,7 @@ extern const cptr month_name[9];
 extern const s16b bag_holds[SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2];
 extern const cptr w_name_style[32];
 extern const s16b parasite_hack[DISEASE_BLOWS];
+extern const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES];
 
 
 /* variable.c */
@@ -139,6 +141,8 @@ extern u32b seed_town;
 extern s16b num_repro;
 extern s16b object_level;
 extern s16b monster_level;
+extern s16b summoner;
+extern bool	summon_strict;
 extern char summon_char_type;
 extern byte summon_attr_type;
 extern byte summon_group_type;
@@ -390,6 +394,17 @@ extern void map_area(void);
 extern void wiz_lite(void);
 extern void wiz_dark(void);
 extern void town_illuminate(bool daytime);
+extern void check_attribute_lost(int y, int x, int r, byte los, tester_attribute_func require_attribute, tester_attribute_func has_attribute,
+	tester_attribute_func redraw_attribute, modify_attribute_func remove_attribute,	modify_attribute_func reapply_attribute);
+extern void gain_attribute(int y, int x, int r, byte los, modify_attribute_func apply_attribute, tester_attribute_func redraw_attribute);
+extern bool require_halo(int y, int x);
+extern bool has_halo(int y, int x);
+extern bool redraw_halo_loss(int y, int x);
+extern bool redraw_halo_gain(int y, int x);
+extern void apply_halo(int y, int x);
+extern void remove_halo(int y, int x);
+extern void reapply_halo(int y, int x);
+extern void set_level_flags(int feat);
 extern void cave_set_feat(int y, int x, int feat);
 extern int feat_state(int feat, int action);
 extern void cave_alter_feat(int y, int x, int action);
@@ -403,6 +418,7 @@ extern void object_kind_track(int k_idx);
 extern void object_actual_track(const object_type *j_ptr);
 extern void disturb(int stop_search, int wake_up);
 extern bool is_quest(int level);
+extern void init_level_flags(void);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -417,7 +433,7 @@ extern void py_pickup(int py, int px, int pickup);
 extern void hit_trap(int y, int x);
 extern void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int *to_dam, int *to_crit);
 extern bool auto_activate(const object_type *o_ptr);
-extern void py_attack(int y, int x, bool charging);
+extern void py_attack(int dir);
 extern bool stuck_player(int *dir);
 extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
@@ -490,7 +506,8 @@ extern int feat_order(int feat);
 
 /* cmd5.c */
 extern int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known);
-extern void do_cmd_browse_aux(const object_type *o_ptr);
+extern bool inven_book_okay(const object_type *o_ptr);
+extern void do_cmd_browse_object(object_type *o_ptr);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t);
@@ -553,7 +570,7 @@ extern void generate_cave(void);
 
 /* info.c */
 extern bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detail, int target);
-extern void spell_info(char *p, int spell, bool use_level);
+extern void spell_info(char *p, int p_s, int spell, bool use_level);
 extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode);
 extern void list_object(const object_type *o_ptr, int mode);
 extern void screen_object(object_type *o_ptr);
@@ -598,7 +615,7 @@ extern bool load_player(void);
 extern bool monster_scale(monster_race *n_ptr, int m_idx, int depth);
 extern int get_breath_dam(s16b hit_points, int gf_type, bool powerful);
 extern bool make_attack_normal(int m_idx);
-extern void mon_blow_ranged(int who, int x, int y, int method, int range, int flg, cptr result);
+extern void mon_blow_ranged(int who, int what, int x, int y, int method, int range, int flg, cptr result);
 extern bool make_attack_ranged(int who, int attack, int py, int px);
 extern bool mon_evade(int m_idx, int chance, int out_of, cptr r);
 extern bool mon_resist_object(int m_idx, const object_type *o_ptr);
@@ -629,13 +646,14 @@ extern void display_roff(int r_idx);
 extern s16b poly_r_idx(int r_idx);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
+extern void delete_monster_lite(int i);
 extern void compact_monsters(int size);
 extern void wipe_m_list(void);
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern void display_monlist(void);
-extern void monster_desc(char *desc, int m_idx, int mode);
+extern void monster_desc(char *desc, size_t max, int m_idx, int mode);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
@@ -728,6 +746,7 @@ extern void place_trapped_door(int y, int x);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void race_near(int r_idx, int y1, int x1);
 extern bool break_near(object_type *j_ptr, int y1, int x1);
+extern bool check_object_lite(object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
 extern void feat_near(int feat, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great);
@@ -801,12 +820,12 @@ extern void inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
-extern bool project_f(int who, int y, int x, int dam, int typ);
-extern bool project_o(int who, int y, int x, int dam, int typ);
-extern bool project_m(int who, int y, int x, int dam, int typ);
-extern bool project_p(int who, int y, int x, int dam, int typ);
-extern bool project_t(int who, int y, int x, int dam, int typ);
-extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
+extern bool project_f(int who, int what, int y, int x, int dam, int typ);
+extern bool project_o(int who, int what, int y, int x, int dam, int typ);
+extern bool project_m(int who, int what, int y, int x, int dam, int typ);
+extern bool project_p(int who, int what, int y, int x, int dam, int typ);
+extern bool project_t(int who, int what, int y, int x, int dam, int typ);
+extern bool project(int who, int what, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			 u32b flg, int degrees, byte source_diameter);
 
 /* spells2.c */
@@ -854,11 +873,11 @@ extern void lite_room(int y1, int x1);
 extern void unlite_room(int y1, int x1);
 extern void change_shape(int shape, int level);
 extern bool process_spell_flags(int spell, int level, bool *cancel, bool *known);
-extern bool process_spell_blows(int spell, int level, bool *cancel);
+extern bool process_spell_blows(int who, int what, int spell, int level, bool *cancel);
 extern bool process_spell_types(int spell, int level, bool *cancel);
-extern bool process_spell_eaten(int spell, int level, bool *cancel);
-extern bool process_spell(int spell, int level, bool *cancel, bool *known);
-extern bool process_item_blow(object_type *o_ptr, int y, int x);
+extern bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel);
+extern bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *known);
+extern bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x);
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -966,7 +985,7 @@ extern void cnv_stat(int val, char *out_val);
 extern void calc_spells(void);
 extern s16b modify_stat_value(int value, int amount);
 #ifdef USE_CLASS_PRETTY_NAMES
-extern void lookup_prettyname(char name[60], int class, int style, int sval, bool long_name, bool short_name);
+extern void lookup_prettyname(cptr name, size_t name_s, int class, int style, int sval, bool long_name, bool short_name);
 #endif
 extern void notice_stuff(void);
 extern void update_stuff(void);

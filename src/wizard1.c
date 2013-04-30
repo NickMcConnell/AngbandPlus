@@ -141,7 +141,7 @@ static const grouper group_item[] =
 /*
  * Describe the kind
  */
-static void kind_info(char *buf, char *dam, char *wgt, char *pow, int *lev, s32b *val, int k)
+static void kind_info(char *buf, int buf_s, char *dam, int dam_s, char *wgt, int wgt_s, char *pow, int pow_s, int *lev, s32b *val, int k)
 {
 	object_kind *k_ptr;
 
@@ -185,7 +185,7 @@ static void kind_info(char *buf, char *dam, char *wgt, char *pow, int *lev, s32b
 	object_desc_spoil(buf, sizeof(buf), i_ptr, FALSE, 0);
 
 	/* Misc info */
-	strcpy(dam, "");
+	my_strcpy(dam, "", sizeof(dam));
 
 	/* Damage */
 	switch (i_ptr->tval)
@@ -237,7 +237,7 @@ static void kind_info(char *buf, char *dam, char *wgt, char *pow, int *lev, s32b
 	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 
         /* Power */
-        strcpy(pow, "");
+        my_strcpy(pow, "", sizeof(pow));
 
 	/* Fill the book with spells */
 	fill_book(i_ptr,book,&num);
@@ -264,7 +264,7 @@ static void kind_info(char *buf, char *dam, char *wgt, char *pow, int *lev, s32b
 	/* Power */
 	else if (book[0])
 	{
-		spell_info(pow,book[0],0);
+		spell_info(pow,sizeof(pow), book[0],0);
 	}
 
 }
@@ -331,8 +331,8 @@ static void spoil_obj_desc(cptr fname)
 					s32b t1;
 					s32b t2;
 
-					kind_info(NULL, NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, NULL, &e2, &t2, who[i2]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, NULL, 0, &e1, &t1, who[i1]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, NULL, 0, &e2, &t2, who[i2]);
 
 					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
 					{
@@ -350,7 +350,7 @@ static void spoil_obj_desc(cptr fname)
 				s32b v;
 
 				/* Describe the kind */
-				kind_info(buf, dam, wgt, pow, &e, &v, who[s]);
+				kind_info(buf, sizeof(buf), dam, sizeof(dam), wgt, sizeof(wgt), pow, sizeof(pow), &e, &v, who[s]);
 
 				/* Dump it */
                                 fprintf(fff, "  %-37s%7s%6s%4d%9ld%-12s\n",
@@ -456,8 +456,8 @@ static void spoil_object(cptr fname)
 					s32b t1;
 					s32b t2;
 
-					kind_info(NULL, NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, NULL, &e2, &t2, who[i2]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, NULL, 0, &e1, &t1, who[i1]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, NULL, 0, &e2, &t2, who[i2]);
 
 					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
 					{
@@ -952,14 +952,14 @@ static void spoil_mon_desc(cptr fname)
 
 		/* Best spell */
 		if (r_ptr->best_spell) sprintf(bsp, "%s", mon_spell_desc[r_ptr->best_spell-96]);
-		else strcpy(bsp, "");
+		else my_strcpy(bsp, "", sizeof(bsp));
 
 		/* Highest threat */
 		sprintf(thr, "%d", r_ptr->highest_threat);
 
 		/* Best spell */
 		if (r_ptr->best_threat) sprintf(bth, "%s", mon_spell_desc[r_ptr->best_threat-96]);
-		else strcpy(bth, "");
+		else my_strcpy(bth, "", sizeof(bth));
 
 		/* Speed */
 		if (r_ptr->speed >= 110)

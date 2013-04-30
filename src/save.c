@@ -1433,13 +1433,13 @@ bool save_player(void)
 
 
 	/* New savefile */
-	strcpy(safe, savefile);
-	strcat(safe, ".new");
+	my_strcpy(safe, savefile, sizeof(safe));
+	my_strcat(safe, ".new", sizeof(safe));
 
 #ifdef VM
 	/* Hack -- support "flat directory" usage on VM/ESA */
-	strcpy(safe, savefile);
-	strcat(safe, "n");
+	my_strcpy(safe, savefile, sizeof(new));
+	my_strcat(safe, "n", sizeof(new));
 #endif /* VM */
 
 	/* Grab permissions */
@@ -1457,13 +1457,13 @@ bool save_player(void)
 		char temp[1024];
 
 		/* Old savefile */
-		strcpy(temp, savefile);
-		strcat(temp, ".old");
+		my_strcpy(temp, savefile, sizeof(temp));
+		my_strcat(temp, ".old", sizeof(temp));
 
 #ifdef VM
 		/* Hack -- support "flat directory" usage on VM/ESA */
-		strcpy(temp, savefile);
-		strcat(temp, "o");
+		my_strcpy(temp, savefile, sizeof(temp));
+		my_strcat(temp, "o", sizeof(temp));
 #endif /* VM */
 
 		/* Grab permissions */
@@ -1490,8 +1490,8 @@ bool save_player(void)
 #ifdef VERIFY_SAVEFILE
 
 		/* Lock on savefile */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
+		my_strcpy(temp, savefile, sizeof(temp));
+		my_strcat(temp, ".lok", sizeof(temp));
 
 		/* Grab permissions */
 		safe_setuid_grab();

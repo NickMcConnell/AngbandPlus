@@ -1,0 +1,338 @@
+# File: blows.txt
+
+
+# This file is used to initialize the "lib/data/blows.raw" file, which
+# is used to initialize the "blows" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/spell.raw" file.
+
+# Note that all monster blows and projection effects are specified
+# in this file.
+
+# The monster.txt spell.txt, terrain.txt, rune.txt and other files
+# depend on this file to provide the blow names, in order that they
+# can be parsed.
+
+# We alias hit to 50% hit cut, 50% hit stun and handle bolt with a 10%
+# chance of beam in the actual blow setup (hit_cut:50:hit_stun and
+# bolt:10:beam respectively). Because 99% of blows are always identical
+# (except hits), we alias all other blows to mean blow:0:(undefined)
+
+# Remember all hurt huge attacks are MON_BEAM | RAD_2 so all melee
+# attacks need to be set up with this as the default.
+
+N:0:miss
+T:0:miss|es| &
+
+N:1:hit cut
+T:30:gouge|s| &
+T:20:slashe|s| &
+T:5:cut|s| &
+T:0:scratch|es| &
+F:MELEE | TOUCH
+F:STUN
+
+N:2:hit stun
+T:30:bludgeon|s| &
+T:20:batter|s| &
+T:5:bashe|s| &
+T:0:hit|s| &
+F:MELEE | TOUCH
+F:CUTS
+
+N:3:punch
+T:0:punche|s| &
+F:MELEE | TOUCH
+F:STUN
+
+N:4:kick
+T:0:kick|s| &
+F:MELEE | TOUCH
+F:STUN
+
+N:5:claw
+T:25:slashe|s| &
+T:5:claw|s| &
+T:0:scratche|s| &
+F:MELEE | TOUCH
+F:CUTS
+
+N:6:bite
+T:5:bite|s| &
+T:0:nip|s| &
+F:MELEE | TOUCH
+F:CUTS
+
+N:7:peck
+T:0:peck|s| &
+F:MELEE | STUN | TOUCH
+
+N:8:sting
+T:0:sting|s| &
+F:MELEE | TOUCH
+
+N:9:vomit
+T:0:vomits on &
+F:MELEE | TOUCH
+
+N:10:butt
+T:10-20:trample|s| &
+T:0:butt|s| &
+F:STUNS | TOUCH
+F:MELEE
+
+N:11:crush
+T:10:crushe|s| &
+T:0:squeeze|s| &
+F:CUTS | TOUCH
+F:MELEE
+
+N:12:engulf
+T:0-50:envelope|s| &
+T:0:engulf|s| &
+F:MELEE | TOUCH
+
+N:13:crawl
+T:0:crawls on &
+F:MELEE | TOUCH
+
+N:13:slime
+T:0:slime|s| &
+F:MELEE | SLIME | EXCLAIM | TOUCH
+
+N:14:spit
+T:0:spit|s| on &
+F:MELEE | RANGED | TOUCH
+MON_SHOT
+
+N:15:gaze
+T:20-30:gaze|s| terribly at &
+T:5-30:gaze|s| upon &
+T:0:gaze|s| at &
+F:MELEE | RANGED
+MON_DIRECT
+
+N:16:wail
+T:0:wail|s| horribly
+F:MELEE | RANGED
+MON_BALL | RAD_4 | SELF
+
+N:17:shriek
+T:0:shriek|s| horribly
+F:MELEE | RANGED | SHRIEK
+MON_ARC | PROJECT_HIDDEN | RAD_6
+
+N:18:spore
+T:0:release|s| a cloud of spores
+F:MELEE | RANGED
+MON_BALL_SHOT | RAD_1
+
+N:19:lash
+T:0:lash|es| & with a whip
+F:MELEE | RANGED | TOUCH
+MON_BEAM | RAD_2
+
+N:20:begs
+T:0:beg|s| & for money
+F:MELEE | RANGED
+MON_DIRECT
+
+N:21:insult
+T:0:insult|s| &!
+T:0:insult|s| % mother!
+T:0:give|s| & the finger!
+T:0:humiliate|s| &!
+T:0:defile|s| &!
+T:0:dance|s| around &!
+T:0:make|s| obscene gestures!
+T:0:moon|s| &!!!
+F:MELEE | RANGED | SAYING
+MON_DIRECT
+
+N:22:moan
+T:0:seem|s| sad about something.
+T:0:ask|s| if & have seen % dogs.
+T:0:tell|s| & to get off % land.
+T:0:mumble|s| something about mushrooms.
+F:MELEE | RANGED | SAYING
+MON_DIRECT
+
+N:23:sing
+T:0:start|s| to read & a poem.
+T:0:sing|s| a happy tune.
+T:0:pick|s| a flower for you.
+T:0:skip|s| in a circle.
+F:MELEE | RANGED | SAYING
+MON_DIRECT
+
+N:24:trap
+T:0:trap|s| &
+F:MELEE | RANGED
+MON_DIRECT
+
+N:25:boulder
+T:0:throw|s| a boulder at &
+F:RANGED
+MON_SHOT
+
+N:27:explode
+T:0:explodes
+F:RANGED | EXCLAIM
+
+N:28:arrow
+T:0:shoot|s| & with an arrow
+
+N:29:xbolt
+T:0:shoot|s| & with a crossbow bolt
+
+N:30:spike
+T:0:shoot|s| & with a spike
+
+N:31:dart
+T:0:throw|s| a dart at &
+
+N:32:shot
+T:0:hurl|s| a shot at &
+
+N:33:flask
+T:0:throw|s| a fizzing flask at &
+
+N:34:dagger
+T:0:throw|s| a dagger at &
+
+N:35:aura
+T:0:intensif|y|ies| % aura
+MON_CLOUD | RAD_2 | SELF
+
+N:36:aura minor
+T:0:intensify|y|ies| % aura
+MON_CLOUD | RAD_2 | SELF
+
+N:37:self
+T:0:concentrate|s| on %self
+SELF | HURT_SELF
+
+N:38:adjacent
+T:0:
+SELF | HURT_SELF | RAD_1
+
+N:39:hands
+T:0:shoot|s| * from % fingers at &
+MON_BEAM | RAD_3
+
+N:40:missile
+T:0:shoot|s| a * missile at &
+MON_BOLT
+
+N:41:bolt minor
+T:0:shoot|s| a minor bolt of * at &
+MON_BOLT
+
+N:42:touch
+T:0:touche|s| &
+F:MELEE | TOUCH
+
+N:43:bolt
+T:0:shoot|s| a bolt of * at &
+MON_BOLT
+
+N:44:beam
+T:0:shoot|s| a bolt of * at &
+MON_BEAM | RAD_10
+
+N:45:blast
+T:0:blast|s| & with magical *
+MON_BALL | RAD_1
+
+N:46:wall
+T:0:rais|es| a wall of *
+MON_BEAM | RAD_12
+
+N:47:ball minor
+T:0:throw|s| a minor ball of * at &
+MON_BALL_MINOR | RAD_1
+
+N:48:ball
+T:0:throw|s| a ball of * at &
+MON_BALL | RAD_2
+
+N:49:ball II
+T:0:throw|s| a large ball of * at &
+MON_BALL | RAD_3
+
+N:49:ball III
+T:0:throw|s| a huge ball of * at &
+MON_BALL | RAD_3
+
+N:50:cloud
+T:0:surround|s| & with a cloud of *
+MON_AREA | RAD_3
+
+N:51:storm
+T:0:hurls a storm of * at &
+MON_AREA | RAD_3
+
+N:52:breath 20
+T:0:breathe|s| * at &
+F:RANGED
+MON_ARC_20 | BREATH
+
+N:53:breath 30
+T:0:breathe|s| * at &
+F:RANGED
+MON_ARC_30 | BREATH
+
+N:54:breath 40
+T:0:breathe|s| * at &
+F:RANGED
+MON_ARC_40 | BREATH
+
+N:55:breath 50
+T:0:breathe|s| * at &
+F:RANGED
+MON_ARC_50 | BREATH
+
+N:56:area
+T:0:calls|s| * around &
+T:0:summon|s| * around &
+T:0:create|s| * around &
+AREA | LEV_10+1
+
+N:57:los
+T:0:call|s| down *
+LOS
+
+N:58:line
+T:0:creat|es| a path of *
+BEAM | RAD_8
+
+N:59:aim
+T:0:aim|s| * at &
+MON_DIRECT
+
+N:60:orb
+T:0:hurl|s| an orb of * at &
+AREA | RAD_2
+
+N:61:star
+T:0:create|s| * in eight directions
+8WAY | RAD_10 | SELF
+
+N:62:sphere
+T:0:create|s| a sphere of * around &
+AREA | RAD_4
+
+N:63:panel
+T:0:calls down * on all nearby
+PANEL
+
+N:64:level
+T:0:calls down * across this level
+LEVEL
+
+N:65:cross
+T:0:create|s| a cross of *
+
+N:66:
