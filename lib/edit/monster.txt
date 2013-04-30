@@ -18366,7 +18366,7 @@ F:NEED_LITE | SMART | SUPER_SCENT
 F:WARRIOR | ELF | RES_LITE
 D:A grey-garbed elven warrior who moves with confidence.
 
-N:1277:the Cave troll at Durin's Tomb
+N:1277:the Cave troll at Balin's Tomb
 G:T:u
 I:110:24d12:20:50:50
 W:30:1:0:350

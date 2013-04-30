@@ -1,3 +1,28 @@
+Unangband 0.6.1a Bugfix release
+
+### Bug fixes ###
+
+- Replaced Durin's tomb with Balin's tomb.
+
+- Test for evasion was reversed.
+
+- Potion of free action appears in correct bag now (Reported by pepebe).
+
+- Potion of cure moderate wounds now heals instead of poisons the player (Reported by
+several people).
+
+- Prevent quest stairs destroying items (Reported by pepebe).
+
+- Fixed bug that was restricting item selection incorrectly (Reported by numerous people,
+fix by RDE).
+
+- Salt water now cures poison again (Reported by Harriet Bazley).
+
+- Minor Acid Ball now does fire damage.
+
+- Fix pre-requisite for Cure Serious Wounds.
+
+
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down
 Sinners"
 

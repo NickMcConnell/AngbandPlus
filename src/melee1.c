@@ -5548,7 +5548,7 @@ bool mon_evade(const monster_type* m_ptr, int chance, int out_of, cptr r)
 
 	/* Hack -- evasive monsters may ignore trap */
 	if ((r_ptr->flags9 & (RF9_EVASIVE)) && (!m_ptr->berserk) && (!m_ptr->blind)
-		&& (rand_int(out_of) >= chance))
+		&& (rand_int(out_of) <= chance))
 	{
 		if (m_ptr->ml)
 		{

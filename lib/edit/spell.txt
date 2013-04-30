@@ -914,6 +914,7 @@ B:SELF:AWAY_ALL:3d0+0
 
 N:70:Cure Moderate Wounds
 A:55:16:1
+A:75:83:1
 A:91:1:3
 A:91:6:2
 A:92:4:2
@@ -2742,7 +2743,7 @@ F:IDENT_FULLY
 N:245:Cure Serious Wounds
 A:90:24:5
 A:93:3:2
-P:9:0
+P:6:0
 C:1:10:8:48:8
 C:3:16:13:55:7
 C:4:16:13:55:7
@@ -2968,7 +2969,7 @@ F:SLOW
 
 N:286:Salt Water
 A:75:5:1
-F:DEC_FOOD
+F:DEC_FOOD | CURE_POIS
 B:VOMIT:SALT_WATER:2d6
 S:CURE_DISEASE:23
 D:The potion makes you vomit!
@@ -4106,7 +4107,7 @@ P:389:0
 C:1:7:6:40:6
 C:4:15:12:50:4
 C:8:7:6:40:6
-B:BALL_MINOR:FIRE:1d0+3
+B:BALL_MINOR:ACID:1d0+3
 
 N:441:Acid Ball II
 A:90:10:15

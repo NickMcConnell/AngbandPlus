@@ -10807,12 +10807,12 @@ F:LOS | MOVE | PROJECT | REMEMBER | PLACE | BRIDGED
 F:CAN_FLY | CAN_CLIMB | BRIDGE | RUN | OUTSIDE | HURT_ACID | HURT_FIRE | MORE
 F:INSTANT | GET_FEAT | STAIRS
 
-N:805:tomb of Durin
+N:805:tomb of Balin
 G:+:U
 W:30:1:20:0
 F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
 F:POWER_41
-D:'Here is located the tomb of Durin, and here dwelt the heart of his people.'
+D:'Here is located the tomb of Balin, and here dwelt the heart of his people.'
 
 N:806:grey slab of stone
 G:0:s
