@@ -135,22 +135,22 @@ INCS = \
 #
 
 
-default:	angband
+default:	mist
 
-install:	angband movebin cleanobjs
+install:	mist movebin cleanobjs
 
 # movebin:
-#		copy angband.exe ..
-#		del angband.exe
+#		copy mist.exe ..
+#		del mist.exe
 
 movebin:
-		mv -f angband.exe ../angband.exe
+		mv -f mist.exe ../mist.exe
 
 cleanobjs:
 		rm -f $(EXOBJS)
 
 cleanbin:
-		rm -f angband.exe
+		rm -f mist.exe
 
 clean:	cleanobjs cleanbin
 
@@ -159,8 +159,8 @@ clean:	cleanobjs cleanbin
 # Dependency rules
 #
 
-angband: $(EXOBJS)
-	$(CC) -o angband $(EXOBJS) $(LIBS)
+mist: $(EXOBJS)
+	$(CC) -o mist $(EXOBJS) $(LIBS)
 
 
 #

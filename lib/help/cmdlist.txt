@@ -131,6 +131,3 @@ mation about any command, consult the help file "cmddesc.txt".
  \  (special - bypass keymap)            |  (unused)
  `  (special - escape)                   ~  Check knowledge
  /  Identify symbol                      ?  Help
-
-
-====================== Last updated for FayAngband 1.1.0 ======================

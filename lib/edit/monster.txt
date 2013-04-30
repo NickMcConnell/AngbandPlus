@@ -3,7 +3,7 @@
 #This file is currently in transition. Documentation will return in a future 
 #version.
 
-V:1.2.0
+V:1.2.1
 
 N:0:<player>
 G:@:w

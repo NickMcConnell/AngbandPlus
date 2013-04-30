@@ -3533,10 +3533,14 @@ void do_cmd_go_down(void)
 			}
 		}
 
-		/* Third set of questions: Not near the quest depth */
-		else
+		/* Third set of questions: Quest depth is two levels away*/
+		else if ((quest_check(p_ptr->max_depth +2) == QUEST_FIXED) || (quest_check(p_ptr->max_depth +2) == QUEST_FIXED_U))
 		{
-			if ((p_ptr->depth) || (p_ptr->max_depth < 1))
+			if ((p_ptr->depth) || (p_ptr->max_depth < 2))
+			{
+				prt("Descend a (l)evel or (d)ive two levels?", 0, 0);
+			}
+			else if ((p_ptr->depth) || (p_ptr->max_depth < 1))
 			{
 				prt("Descend one (l)evel or (d)ive two levels?", 0, 0);
 			}
@@ -3578,6 +3582,70 @@ void do_cmd_go_down(void)
 			else if (ch == 'd')
 			{
 				p_ptr->max_depth = p_ptr->max_depth +2;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		/* Fourth set of questions: Not near the quest depth */
+		else
+		{
+			if ((p_ptr->depth) || (p_ptr->max_depth < 2))
+			{
+				prt("Descend a (l)evel, (d)ive two levels, or (p)lunge three levels?", 0, 0);
+			}
+			else if ((p_ptr->depth) || (p_ptr->max_depth < 1))
+			{
+				prt("Descend one (l)evel or (d)ive two levels?", 0, 0);
+			}
+			else if (p_ptr->max_depth <= p_ptr->min_depth)
+			{
+				prt("Descend to (l)ower depth than before or (d)ive even deeper?", 0, 0);
+			}
+			else if (p_ptr->max_depth == p_ptr->min_depth +1)
+			{
+				prt("Navigate to which depth: (s)ame as before, (l)ower, or (d)ive?", 0, 0);
+			}	
+			else
+			{
+				prt("Navigate to which depth: (e)asier, (s)ame, (l)ower, (d)ive?", 0, 0);
+			}
+			flush();
+			int ch;
+			ch = inkey();
+			prt("", 0, 0);
+
+			/* Analyze the answer, then adjust max_depth, min_depth, and current depth. */
+			if ((ch == 'e') && (p_ptr->max_depth > p_ptr->min_depth +1) && !(p_ptr->depth))
+			{
+				p_ptr->max_depth--;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if ((ch == 's') && (p_ptr->max_depth > p_ptr->min_depth) && !(p_ptr->depth))
+			{
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'l')
+			{
+				p_ptr->max_depth++;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'd')
+			{
+				p_ptr->max_depth = p_ptr->max_depth +2;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'p')
+			{
+				p_ptr->max_depth = p_ptr->max_depth +3;
 				p_ptr->depth = p_ptr->max_depth;
 				p_ptr->min_depth++;
 			}

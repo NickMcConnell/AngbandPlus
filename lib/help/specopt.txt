@@ -94,11 +94,3 @@ Display monster recall
 Display object recall
     Display a description of the most recently selected object.  This window 
 	flag may be usefully combined with others, such as "monster recall".
-
-Display room descriptions
-    Whenever you enter a room, a short description of it will appear in this
-	window. It has no real game effect, though it can provide you with some
-	hints of the room's contents.
-
-
-======================= Last updated for EyAngband 0.5.0 ======================

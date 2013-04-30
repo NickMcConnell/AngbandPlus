@@ -59,19 +59,6 @@ spell: maa, the highest level power if you type a upper-case letter: maA, and a
 menu only if you type a captial letter for the spellbook: mAaa.
 
 
-=== Musical Instrument Magic ===
-
-Bards use musical instruments to cast their spells. They must wield an 
-instrument to be able to cast spells from it.  However, they do not need to 
-study spells - a bard can automatically cast any spell offered by the 
-instrument if he's of a high enough level.  However, musical instruments vary 
-by quality; and a low-level instrument will not offer the same selection of 
-spells as a higher-grade instrument of the same type.  A musical instrument +N
-can only offer spells up to level 10*N - so for instance, a horn (+2) can only
-offer spells up to level 20 - to cast better spells, you must find better
-quality musical instruments.
-
-
 === Mushroom Magic ===
 
 Shamans practice their own special form of magic, based on eating magical
@@ -85,6 +72,3 @@ effects.
 Good effects are mostly not altered. The mushrooms that cure wounds are an
 exception: they function at a higher power level. For example, Cure Light Wounds
 becomes Cure Medium Wounds if eaten by a Shaman.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================

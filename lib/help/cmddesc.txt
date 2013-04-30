@@ -48,7 +48,7 @@ Equipment list (e)
 Drop an item (d)
     This drops an item from your inventory or equipment onto the dungeon floor.
     If the floor spot you are standing on already has an object in it, 
-    FayAngband will attempt to drop the item onto an adjacent space.  This 
+    Halls of Mist will attempt to drop the item onto an adjacent space.  This 
     command may take a quantity, and takes some energy.
 
 Destroy an item (k) or Destroy an item (^D)
@@ -294,9 +294,9 @@ Inscribe an object ({)
     inside curly braces after the object description.  The inscription is 
     limited to the particular object (or pile) and is not automatically 
     transferred to all similar objects (except if the "stack_force_notes" 
-    option is set).  Under certain circumstances, FayAngband will display "fake"
+    option is set).  Under certain circumstances, Halls of Mist will display "fake"
     inscriptions on certain objects ("cursed", "broken", "tried", "empty", 
-    "NN% off") when appropriate.  In addition, FayAngband will occasionally 
+    "NN% off") when appropriate.  In addition, Halls of Mist will occasionally 
     place a "real" inscription on an object for you, normally as the result of
     using the squelching options.  The main purpose of "fake" inscriptions is 
     to inform you of "feelings" about carried weapon and armor. All characters
@@ -505,19 +505,19 @@ Save and Quit (Ctrl-X)
     the same options and the knowledge you gained about monsters and artifacts.
 
 Save (Ctrl-S)
-    This command saves the game but doesn't exit FayAngband.  Use this often if
+    This command saves the game but doesn't exit Halls of Mist.  Use this often if
     you are paranoid about having your computer crash (or your power going out)
     while you are playing.
 
 Quit (commit suicide) (Q)
-    Kills your character and exits FayAngband.  You will be prompted to make 
+    Kills your character and exits Halls of Mist.  You will be prompted to make 
     sure you really want to do this, and then asked to verify that choice.  
     Note that dead characters are dead forever.
 
 --- Help ---
 
 Help (?)
-    Brings up the FayAngband on-line help system, of which this file is a part.
+    Brings up the Halls of Mist on-line help system, of which this file is a part.
 
 Identify Symbol (/)
     Use this command to find out what a character stands for.  For instance, by
@@ -540,7 +540,7 @@ Identify Symbol (/)
     about all non-unique monsters.
 
 Game Version (V)
-    This command will tell you what version of FayAngband you are playing.  For 
+    This command will tell you what version of Halls of Mist you are playing.  For 
     more information, see the "version.txt" help file.
 
 --- User pref file commands ---
@@ -568,7 +568,7 @@ Interact with visuals (%)
     after changing attr/char mappings. 
 
     Note that this command was not kept up-to-date with the changes in 
-    FayAngband's history, and therefore does not provide full functionality at
+    Halls of Mist's history, and therefore does not provide full functionality at
     the moment; the main deficiencies are the lack of ability to interact with
     trap visuals or unique monsters.
 
@@ -599,6 +599,3 @@ Text screen dump (left-paren)
 HTML screen dump (right-paren)
     This command dumps a "snap-shot" of the current screen an HTML file that can
     be read in web browsers.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================

@@ -1,6 +1,6 @@
 === Version Information ===
 
-FayAngband has an incredibly complex history, and is the result of a lot of
+Halls of Mist has an incredibly complex history, and is the result of a lot of
 work by a lot of people, all of whom have contributed their time and energy
 for free, being rewarded only by the pleasure they incur from it.
 
@@ -9,11 +9,15 @@ time, and more than six different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
 
-FayAngband home page is at
-(http://www.mikkolehtinen.net/fayangband_description.html).
+Halls of Mist home page is at
+(http://www.mikkolehtinen.net/mist).
 
-If you want to know more about EyAngband, visit the EyAngband home page
-(http://eyangband.sourceforge.net).
+The best place to discuss Halls of Mist with other players, including the
+maintainer of the game, in probably on the the Variants forum of
+(http://angband.oook.cz).
+
+If you want to know more about EyAngband, the variant Halls of Mist is based
+on, visit the EyAngband home page (http://eyangband.sourceforge.net).
 
 Angband home page can be found at (http://rephial.org/).
 
@@ -152,6 +156,3 @@ all users insofar as the above licenses are respected for accompanying code.
 
 All changes made by Mikko Lehtinen are public domain, and may be used freely by 
 all users insofar as the above licenses are respected for accompanying code.
-
-
-====================== Last updated for FayAngband 1.0.1 ======================

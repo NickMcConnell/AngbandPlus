@@ -1220,12 +1220,12 @@ static bool get_player_class(void)
 	/* HACK: Change class if the race prefers Frost-Magic (14 means 50%, 15 means 100%) */
 	z_info->c_max = 13;
 
-	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
+	if (p_ptr->pclass > 4)
 	{
 		if ((rp_ptr->choice & (1L << 14)) && (50 > rand_int(100))) p_ptr->pclass = p_ptr->pclass +4;
 	}
 
-	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
+	if (p_ptr->pclass > 4)
 	{
 		if (rp_ptr->choice & (1L << 15)) p_ptr->pclass = p_ptr->pclass +4;
 	}

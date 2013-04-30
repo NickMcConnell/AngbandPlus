@@ -1,175 +1,115 @@
-=== Character Statistics and Skills ===
+=== The Vital Statistics (Stats) ===
 
-This file describes your character.  It discusses the attributes shown on 
-the left side of the main window, the basic skills characters possess, and the 
-various special immunities and qualities that characters may acquire in their 
-adventures.  It also tells you how to keep track of all this information.
+Strength (STR)
+   - Bonuses to all combat skills. (Stat bonuses to combat skills also increase
+     Ambush chance, meaning the critical chance against distracted monsters.)
+   - Carrying capacity.
+   - Maximum weapon weight. (The heaviest of weapons get only one blow per turn
+     but it will hurt.)
+   - How heavy body armour you can wear and still get DEX bonus to Jumping.
+   - Throwing range.
+   - Thrown weapon damage multiplier.
 
-=== Character Attributes Shown on the Left Side of the Main Window ===
-     
-Level:        Your character's level.  It reflects how powerful you are; level
-              1 is a beginning character, while level 50 is the maximum you can
-              reach.
-Next:         The amount of experience necessary for the next level.  
-              Experience affects almost everything else about your character.  
-              As he kills monsters, casts spells and prays prayers for the 
-              first time, learns about an object kind by using it, disarms 
-              traps, and unlocks doors.
-AU:           Represents your current gold supply. Gold is amazingly handy, 
-              because everything the town can sell can be yours with enough of 
-              the stuff.  
-Vital Statistics (STR, INT, WIS, DEX, CON and CHR):
-              Your character has six primary statistics, or stats. The lowest 
-              any stat can go is 0, a level which greatly reduces any abilities
-              that stat influences. The lowest "safe" figure for most stats is
-              4, but you can't expect any significant bonuses until the stat
-              reaches 15 or higher. The highest a stat can rise without 
-              equipment or race bonuses is 20. More information on individual 
-              stats is available below.
-AC:           Armor class helps prevent you getting killed.  It may be 
-              increased by equipping more and better armor, and by increasing 
-              your Dexterity.  
-HP:           Each character has hit points, representing how much damage he 
-              can sustain before he suffers a permanent wound or, if he already
-              has the same wound, dies. The maximum number of hit points is
-              derived from race, class, level, and constitution. Hit points may
-              be regained by resting, or by a variety of magical means. Once
-              your character suffers a permanent wound, adrenalin surge heals
-              him to 50 % of maximum hitpoints and cures all poison, cuts,
-              stunning, confusion, blindness, and slowing. 
-SP:           Each character has spell points, or mana, which represents how 
-              many spells a character can cast (or tunes he can play). Mana may
-              be regained by resting or some rare magical means.
-Lore:         You may use Lore points to use many proficiencies. They refresh
-              every time you take the stairs down.
-Reserves:     You may use Reserves to use the proficiency Recover. Recover
-              restores hitpoints and cures many status effects. Reserves points
-              refresh every time you take the stairs down.
-Escapes:      You may spend Escapes to use the proficiency Shift, which is
-              directed teleportation. Escapes points refresh every time you
-              take the stairs down.
+Memory (MEM)
+   - The spellcasting stat for mages, spellswords, rangers and mystics. For
+     these classes, this stat will affect the number of spells they may learn
+     each level, the number of spell points they receive, and the chance for
+     spells to fail.
+   - Navigation skill.
+   - Alchemy skill.
+   - Lore. (Lore proficiencies allow you to identify items, for example.)
+
+Wisdom (WIS)
+   - The spellcasting stat for priests, shamans and mystics. For these classes,
+     this stat will affect the number of spells they may learn each level, the
+     number of spell points they receive, and the chance for spells to fail.
+   - Saving Throw skill.
+   - Perception skill.
+   - Lore.
+
+Dexterity (DEX)
+   - Bonuses to all combat skills. (Stat bonuses to combat skills also increase
+     Ambush chance.)
+   - How many blows you can get with light weapons. (All weapons have a maximum
+     number of blows, based on their weight.)
+   - A big bonus to Jumping skill.
+   - Bonus to your armor class.
+
+Constitution (CON)
+   - Recovery from stuns, poison, disease, cuts.
+   - Hit points.
+   - Regeneration speed.
+
+Presence (PRE)
+   - Magic Device skill.
+   - Spell and device range.
+   - Cheaper prices in shops, better prices for rogues selling loot.
+   - Bigger fleeing chance for damaged monsters.
+   - Duration of magical calming effects.
 
 
-=== Stats ===
+=== The stats are the heart of the game ===
 
-Strength:     Strength is critical to fighting effectively in melee and with 
-              missile weapons. Increases in Strength allow you to use heavier
-              weapons, and make you more likely to hit through armor.  Strength
-              is useful in tunneling and for carrying heavy items without being
-              slowed down. Strong character may also throw objects longer
-              distances, and very strong characters gain double or triple
-              damage with thrown weapons.
-Intelligence: Intelligence represents the character's ability in logic and
-              language. It affects the spellcasting abilities of mages, as well
-              as spellswords, rangers and mystics. For these classes, this stat
-              will affect the number of spells they may learn each level, the
-              number of spell points they receive, and the chance for spells to
-              fail. Intelligent characters are better mappers, and they also
-              mix potions, pick locks and disarm traps more effectively.
-              Intelligence and Wisdom together determine your Lore points. They
-              are used to identify objects or to gather information about your
-              surroundings.
-Wisdom:       Wise character are at peace with the world, full of common sense,
-              and always aware of their surroundings. Wisdom affects the
-              spellcasting abilities of priests, paladins, and mystics. For
-              these classes, this stat will affect the number of spells they may
-              learn each level, the number of spell points  they receive, and
-              the chance for spells to fail. Wise characters also have a good
-              perception, and have a better chance of resisting magical spells
-              cast upon them by monsters. Wisdom and Intelligence together
-              determine your Lore points.
-Dexterity:    Dexterity is a combination of agility and quickness.  A high 
-              dexterity may allow a character to get multiple blows with 
-              lighter weapons, and will significantly increase his chances of 
-              hitting with any weapon and dodging blows from enemies. Dexterity
-              is also useful in picking locks, disarming traps, and protecting 
-              yourself from some of the thieves that inhabit the dungeon.
-Constitution: Constitution is a character's ability to resist damage to his 
-              body, and to recover from stuns, poison, disease, cuts, and pure
-              damage. Therefore a character with a high constitution will 
-              receive more hit points and also recover them faster while 
-              resting.
-Charisma:     Charisma is more than just appearances and personality. It also
-              represents the character's metaphysical presence, his "aura". It
-              affects the spellcasting abilities of bards, affecting the number
-              of spell points they receive and the chance of their tunes
-              failing. Charismatic characters are very good with magical
-              devices, and they get better range with spells and devices. They
-              will also receive better prices from store owners, whereas a
-              character with a very low charisma may be robbed blind. Finally,
-              a high charisma will allow monsters that are magically calmed to
-              remain non-aggressive longer.
+Here's some design philosophy behind stats. This chapter is probably
+particularly interesting for Angband veterans.
+
+The stats are basically the same six as in Angband. I've renamed Intelligence
+to Memory, and Charisma to Presence. I think these names are slightly better at
+conveying their game effects in Halls of Mist.
+
+When you create a new character, Attribute scores are rolled randomly. You may
+keep rolling for as long as you like. Every starting character has exactly 66
+points in stats, plus bonuses from race and class.
+
+The stats are the heart of Halls of Mist. They are very, very important in
+determining what your character can do.
+
+Every stat is useful for every character. Different stat arrays result in
+different gameplay and change the optimal strategies. To some extent, the stats
+in Halls of Mist can be compared to skills in Sangband. (In Halls of Mist, just
+like in Angband, skills are simply important abilities derived from your stats,
+class, level, and race.)
+
+As long as your spellcaster has a high score in her spell stat, or a warrior in
+either strength or dexterity, your character should be competitive. Even these
+are not absolute requirements.
+
+I hope that this heightened importance of stats makes equipment choices --
+perhaps the most important strategic decisions in Angband -- even more
+interesting in Halls of Mist.
+
+Besides equipment, I've added new kinds of temporary and permanent effects that
+affect your abilities. Temporary effects, like blessings and transformations,
+usually last for at least your current dungeon level and the level after that.
+(Visiting the town does not count.) After that the effects have a 50 % chance
+of ending whenever you take the stairs down.
+
+During a game of Halls of Mist, your stat array is in constant flux, and you
+get to make strategic decisions that concern your stats much more often than in
+Angband.
+
+Stat bonuses from your class are added to your internal stat score. The
+internal maximum for every stat is 20 but bonuses from your race, your
+equipment, your deity, and your shapeshifted form may increase your stat score
+even higher than that. The game benefits from stats keep increasing until your
+score reaches 30.
 
 
-=== Skills ===
+=== The sum of MEM + WIS is very important ===
 
-Characters possess various abilities which help them to survive and prosper.  
-The starting abilities of a character are based upon race and class. Abilities 
-may be adjusted by high or low stats, and some increase with experience level.
+QUESTION: Why is MEM+WIS so important? It's used in both Lore calculations and
+          Ritual Magic?
 
-Saving Throw: A Saving Throw is the ability of a character to resist the 
-              effects of a spell cast on him by another person/creature. This 
-              does not include spells cast on the player by his own stupidity,
-              such as quaffing a nasty potion.  
-Stealth:      The ability to move silently about is very useful.  Characters
-              with good stealth can usually surprise their opponents, gaining 
-              the first blow.  Also, creatures may fail to notice a stealthy 
-              character entirely.
-Fighting:     Melee (hand to hand) combat depends on this skill.  A character
-              with a low fighting skill cannot hope to either hit monsters 
-              often or do much damage if he does.  
-Shooting:     Using ranged missile weapons depends on this skill.  The higher 
-              the character's shooting ability, the more frequently he will 
-              hit his targets and the more damage he will do when he does.  
-Throwing:     Using thrown weapons depends on this skill.  The higher your
-              character's throwing ability, the more frequently he will hit 
-              his target.  
-Disarming:    Disarming is the ability to safely remove traps and pick locks on 
-              chests and doors. A trap must be found before it can be disarmed.
-Magic Device: The chance of succesfully using a magical device such as a wand,
-              staff, or any activatable object depends on this skill.
-Perception:   Perception affects your chances of finding traps and secret
-              doors. You will automatically keep watch for traps, and you get
-              only get one chance to detect them. In comparison, you usually
-              have to actively look for secret doors, and use the (s)earch
-              command many times. High perception also sometimes lets you
-              "hear" nearby monsters. Perception skill helps when you use the
-              proficiency Analyse Item to fully identify any non-potions.
-Digging:      Digging is a tedious art, but characters with a higher skill
-              may do it much faster than others. 
-Alchemy:      Mixing potions is a hazardous art, and without a high alchemy 
-              skill it is likely to cause accidental explosions or no effect
-              at all.  Characters who excel in alchemy may learn alchemical 
-              formulae by simply quaffing potions.  Alchemy skill helps when
-              you use the proficiency Analyse Item to find out alchemical
-              information about potions.
-Mapping:      Mapping is a very useful skill in the depths of Angband. If you
-              succeed in mapping your path to the depths, you get to begin a new
-              dungeon level standing on a stairway leading back to surface.
-              In addition, characters with a high mapping skill carry a
-              collection of old dungeon maps with them. If you follow a map to
-              a dungeon level, you start with the level partially mapped.
+ANSWER:   This way spellcasters have a good reason not to use the other stat as
+          their dump stat.
 
-=== Other abilities ===
+QUESTION: Shouldn't you always aim at having exactly 20 or 30 points in
+          MEM+WIS?
 
-Infra-vision: Infra-vision is the ability to see heat sources.  It will allow 
-              a character to see any warm-blooded creature up to a certain 
-              distance. This ability works equally well with or without a light
-              source.  Several of the playable races have innate infravision.
+ANSWER:   Bookshelves and Circles of Knowledge are designed to complicate
+          min-maxing. Lots of numbers, like 17, 23 and 27, work very well.
+          Besides, stats go up and down all the time.
 
-Racial Ab.:   Angels and Demons, being more magical than the other races, may
-              have access to special, innate, magical spells.  These can be 
-              activated by the 'U' command, and need some time to recharge.
+Read the help file prof.txt for a full description of Lore proficiencies.
 
-Wounds:       Your character may have three kinds of wounds: VIGOR, WIT, and
-              GRACE. Each wound hurts two of your abilities. If your character
-              doesn't have an ability sustained at the time of being wounded,
-              one point of ability damage is reduced from the racial bonus. This
-              is truly permanent damage. If your character ever suffers the same
-              wound again, she instantly dies. Half-faery races have a 50%
-              chance of dying when they receive any wound because of their more
-              fragile constitution. Angels and Demons have a 25 % chance of
-              getting banished when they are wounded.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================
+Read the help file circles.txt for a description of Ritual Magic.

@@ -1,0 +1,80 @@
+=== Taking the stairs ===
+
+Stairs are radically different in Halls of Mist compared to most other
+roguelikes.
+
+Stairs up take you straight back to the town. Stairs down take you somewhere
+near your maximum depth.
+
+The Thin White Duke isn't sleeping, he's preparing for war and strengthening
+his position in the dungeons. The minimum difficulty level (Min Depth, shown on
+your character sheet) increases by one each time you take the stairs down.
+
+When you take the stairs in town, you are asked where you want to navigate. Do
+you want to descend to (e)asier depth than before, (s)ame depth, (l)ower depth,
+or perhaps (d)ive two levels deeper? So you can still control how fast you
+dive, as long as your current depth is at least as deep as the minimum depth.
+
+If you take the stairs down while in the dungeon (skipping the trip to the town
+and back), you have the choice of descending even faster if you like, up to
+three levels for every down staircase.
+
+If you dive fast, you'll get some wiggle room on deeper levels. For example,
+you could dive fast early, and then return to level 15 several times.
+
+Winners who dove fast get a big score multiplier.
+
+The Thin White Duke resides on the dungeon level 48. If your Min Depth ever
+grows beyond that, you lose the game.
+
+
+=== How do these changes affect gameplay? ===
+
+Slowly accumulating power on easy dungeon levels isn't really an option.
+
+Diving fast has many benefits, but it is also more dangerous in this roguelike.
+I hope that the player will usually navigate to the "just right" difficulty
+level for his power level. In this roguelike, you have to live on the edge.
+
+To keep up with the ever-strengthening monsters, it is recommended that you try
+to clean each level throughoutly. This is how many people like to play anyway,
+and in this roguelike it's the best strategy.
+
+
+=== The flavour behind the stairs mechanic ===
+
+The travel between dungeon levels takes a lot of time, let's say a week.
+Traveling, resting, etc. inside a dungeon level is "tactical time" and doesn't
+really matter.
+
+Every week the Thin White Duke also strengthens his position in the dungeons.
+This increases the minimum danger level because Duke's agents are everywhere.
+If the player wants he can advance further than this to the areas in Duke's
+direct control, to even more dangerous dungeon levels.
+
+In about a year of game time (48 weeks) the Duke has finished his negotiations
+with the Dragons of Chaos and the Demons of Aether, and conquers your home
+realm. You have lost your mission.
+
+Of course the timekeeping is very abstract, and is not completely logical. But
+this is the basic thinking behind the rules.
+
+   "It takes a week to travel between dungeon LEVELS? Dungeons I'd understand,
+   but individual levels?" (ekolis on the angband.oook.cz forums)
+
+Each dungeon level is an outpost under the Duke's control, with large sections
+of wilderness between them.
+
+And its not just boring wilderness. The Halls of Mist is a dungeon complex that
+connects worlds. Some of those worlds have completely different laws of nature.
+Navigating the beast isn't exactly simple.
+
+The dungeon keeps magically shifting, and there's always that hallucinary blue
+mist confusing you. And labyrinths, those crazy labyrinths everywhere. Who was
+the idiot who built this damn thing?
+
+For all these reasons and more, all players have the Navigation skill (based on
+Memory). If you make your roll, you know where you are and know your way back
+to town. If you make another Navigation skill check, you have followed an
+ancient map to this level and get a mapping effect that reveals the nearby
+dungeon.

@@ -116,6 +116,3 @@ Monsters chase current location [birth_flow_by_sound] (default: yes)
 Monsters chase recent locations [birth_flow_by_smell] (default: yes)
     Allow monsters to take advantage of "old" trails that you may have left
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================

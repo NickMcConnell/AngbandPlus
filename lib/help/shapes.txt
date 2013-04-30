@@ -1,0 +1,48 @@
+=== Shapeshifting ===
+
+Some strange magicks may turn you into a different species. The two most common
+ways are getting blasted by a Rune of Change -- if you are already in
+a different shape, repeated blastings do nothing -- and 'q'uaffing from an
+enchanted fountain. You may decide to only drink from fountains you manage to
+identify with a successful Perception roll when walking next to them. If you
+make your roll, look at the fountain to see what it does.
+
+Shapeshifting lasts at least for the current dungeon level and the next dungeon
+level. (Town doesn't count.) After that, every time you take the stairs down,
+there's a 50% chance of returning to your original form. Note that temporary
+blessings from goddesses work similarly.
+
+Here's a list of all possible shapes. All shapes are possible when getting
+blasted by a Rune of Change. The first five shapes are possible fountain
+effects.
+
+
+
+Harpy
+   Speed +5, DEX +5, WIS -5, PRE -5. Flies over obstacles. Does not have the
+   following item slots: melee weapon, bow, rings, body armor, cloak, shield,
+   gloves, boots. (If you have items in these slots when transforming, you
+   drop them.) Unarmed damage Xd3 (claws) instead of the normal Xd2.
+
+Angel
+   Speed +2, DEX +2, WIS +5, PRE +5. Flies over obstacles. May not wear body
+   armor or cloak.
+
+Ape
+   STR +5, CON +2, MEM -5, PRE -2, Jumping +25.
+
+Naga
+   Speed -2, MEM +5, STR +2, Stealth +5, Jumping -25. May not wear boots.
+   Unarmed damage Xd4 (crush) instead of the normal Xd2.
+
+Statue
+   Speed -5, CON +5, PRE +2, Jumping -25, Armor +25, all resists +25.
+
+Faun
+   MEM -2, WIS +2, CON +2. May not wear a helmet or boots.
+
+Goblin
+   Speed +2, DEX +2, STR -2, MEM -2, WIS -2, CON -2, PRE -2.
+
+Icky Thing
+   Speed -1, STR -1, MEM -1, WIS -1, DEX -1, CON -1, PRE -1.

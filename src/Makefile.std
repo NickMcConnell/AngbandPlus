@@ -239,23 +239,23 @@ LIBS = -L/usr/X11R6/lib -lXext -lSM -lICE -lXt -lX11 -lncurses
 #
 # Default target.
 #
-all: angband
+all: mist
 
 
 #
 # Install the game.
 #
 
-install: angband
-	cp angband ..
+install: mist
+	cp mist ..
 
 
 #
 # Build the "Angband" program
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+mist: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o mist $(OBJS) $(LIBS)
 
 
 #
@@ -263,7 +263,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.o angband
+	\rm *.o mist
 
 
 #

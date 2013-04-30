@@ -232,6 +232,3 @@ which is higher than normal.
 All characters gain some resistances with level, depending on their class and 
 race.  Items can provide bonuses to these resistances.  Note that if you have 
 no resistance whatsoever to some effect, it will not show up.
-
-
-======================= Last updated for EyAngband 0.5.0 ======================

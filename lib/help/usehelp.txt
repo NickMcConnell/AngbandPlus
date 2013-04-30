@@ -15,6 +15,3 @@ You can press Pound (#) [or Percent (%)] to go to a specific line [or file].
 You can press Slash (/) [or Ampersand (&)] to search for [or hilite] a string
 (case-insensitive by default, (!) toggles to case-sensitive).
 Use "#" + "0" + Return + "/" + Return to restart a search.
-
-
-======================= Last updated for EyAngband 0.5.0 ======================

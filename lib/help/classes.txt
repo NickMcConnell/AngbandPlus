@@ -29,7 +29,24 @@ Rogue
     She usually spots traps before stumbling on them, and knows more about
     traps than the other classes.
 
-***** <Priest?>
+***** <Templar>
+Templar
+    Templar is a deeply religious knight with a vow of poverty, meaning that he
+    only gets to keep 1/3 of the gold he finds. Templars are very interested in
+    mysteries and in the occult. They are the best alchemists in the game.
+    Templars are almost as good fighters as Warriors, and have almost as many
+    hit points. Unlike Warriors, they are just as good archers as melee
+    fighters. They have a superb saving throw. Templars practise ancient armed
+    martial arts with swords and bows. They can access the Lore proficiency
+    Fencing, which gives them an extra blow with a sword against persons and
+    humanoids until they leave the current dungeon level. With Greater Lore
+    (INT+WIS 30+) they gain access to Archery proficiency, which increases
+    their bow might multiplier by two. Just like Priests, Templars may offer
+    torches for the goddesses in place of ego items, and ego items in place of
+    artifacts. (The class is inspired by both Rosicrucianism and the Knights
+    Templar.)
+
+***** <Priest>
 Priest
     A Priest is a character of holy devotion. He explores the dungeon only in
     order to destroy the evil that lurks within, and if treasure just happens
@@ -39,7 +56,9 @@ Priest
     calls instruments of god, but is not as good as a mage in their use. A
     priest has good saving throws, and makes a decent fighter, preferring blunt
     weapons over edged ones. Wisdom is the priest's primary stat, determining
-    spellcasting ability.
+    spellcasting ability. Priests are experts at religious practices. If they
+    drop any kind of torch on an altar, the goddess treats it as an ego item.
+    If they offer an ego item, it is treated as an artifact.
 
 ***** <Shaman>
 Shaman
@@ -67,7 +86,7 @@ Mage
     kinds of gloves, will severly damage his spellcasting abilities, so while
     there is no rule that says a mage cannot become a good fighter, most mages
     will prefer to rely on their spells. Depending on race, mages specialise in
-    either fire or frost. This affects their resistances, and the available
+    either fire or frost. This affects their resistances and the available
     magical books.
 
 ***** <Spellsword>
@@ -84,7 +103,7 @@ Spellsword
     mapping, and at resisting harmful spells. Spellsword is also the slowest of
     all classes to advance. Intelligence governs spellsword's spellcasting
     prowess. Depending on race, spellswords specialise in either fire or frost.
-    This affects their resistances, and the available magical books.
+    This affects their resistances and the available magical books.
 
 ***** <Ranger>
 Ranger
@@ -98,7 +117,7 @@ Ranger
     ranger has good stealth, good perception, good searching, a good saving
     throw, and is quite good with magical devices. Ranger is the best mapper in
     the game. Intelligence determines his magical ability. Depending on race,
-    rangers specialise in either fire or frost. This affects their resistances,
+    rangers specialise in either fire or frost. This affects their resistances
     and the available magical books.
 
 ***** <Mystic>
@@ -112,72 +131,5 @@ Mystic
     dungeon that teach her discplines that lie beyond the scope of other
     classes. Her primary stats are Wisdom and Intelligence, which combine to
     determine her spellcasting power. Depending on race, mystics specialise in
-    either fire or frost. This affects their resistances, and the available
+    either fire or frost. This affects their resistances and the available
     magical books.
-
-***** <Bard>
-Bard
-    A Bard is an artist. He adventures neither for gold nor fame but for the
-    value of the experience. His fighting skills are decent, and he can use a
-    variety of musical instruments to play magic tunes. As he delves deeper in
-    the dungeon, better quality instruments can be found which he can use to
-    play more powerful melodies. The bard is a master of lore - he knows many
-    legends of powerful artifacts and were he to find one of these, simple
-    knowledge of the artifact's name can be sufficient for him to know all of
-    its abilities. Bards are also good mappers. The bard's primary stat is
-    Charisma, which his musical abilities depend on, and which also helps with
-    magical devices.
-
-
-=== Recommended combinations of Race and Class ===
-
-         Warrior Rogue Priest Shaman Mage Spellsword Ranger Mystic Bard
-Human      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Elf        Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Dwarf      Yes    Yes  Yes     Yes   No       No     No      Yes   No
-Gnome      Yes    Yes  Yes     Yes   Yes      Yes    No      Yes   No
-Grippli    No     Yes  Yes     Yes   Yes      No     Yes     Yes   Yes
-Lizardman  Yes    No   No      Yes   No       Yes    Yes     No    No
-Rattikin   Yes    Yes  No      No    Yes      Yes    Yes     No    No
-Felpurr    Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Ursa       Yes    No   Yes     Yes   No       No     No      No    No
-Vargr      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Kyrrus     No     No   Yes     Yes   Yes      No     No      Yes   No
-Angel      Yes    No   Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Demon      Yes    Yes  No      No    Yes      Yes    Yes     No    No
-
-=== Stat and Other Bonuses Tables ===
-
-               STR    INT    WIS    DEX    CON    CHR  Hit Dice  EXP/Lev
-Warrior        +3     -2     -1     +2     +1     -2      9        +0%
-Rogue           0      0      0     +3     -1      0      5        +0%
-Priest          0     -1     +2     -2      0     +1      2       +15%
-Shaman         +1     -2     +1     +1      0     -1      5       +30%
-Mage           -3     +2      0     +1     -1     +2      0       +25%
-Spellsword     +2     +1     -3      0      0     +1      6       +35%
-Ranger         +1     +1      0     +1     +1     -1      4       +25%
-Mystic         -4     +3     +3      0      0      0      1       +27%
-Bard           +0     +1     -1     +1      0     +2      3       +15%
-
-
-=== Class resistance tables ===
-
-Note: This is the innate resistance for a level 50 member of this class.
-
-       acd elc fir cld wtr psn dis lit drk snd shr nex nth chs dsn tim mna
-War.    18  18  18  18  5   12  12  5   5   5   5   3   3   3   5   -   -
-Rogue   10  10  10  10  5   5   15  5   10  15  5   3   3   3   -   -   -
-Priest  10  10  10  10  5   5   5   10  15  5   5   10  15  10  -   -   -
-Shaman  15  15  15  15  15  15  15  5   5   5   5   5   10  5   -   -   -
-Mage    12  18  24   6  5   5   5   5   5   5   5   10  10  10  -   -   3
-Spel.   10  16  21   5  5   10  10  5   5   5   5   3   3   5   -   -   -
-Ranger  17  25  34   8  15  15  15  3   3   3   3   3   3   3   -   -   -
-Mystic  12  18  24   6  10  10  10  10  10  10  10  10  10  -   -   -   8
-Bard    10  10  10  10  5   5   5   5   10  15  5   3   3   5   -   -   -
-
-Arcane spellcasters (mage, spellsword, ranger and mystic) that specialise in
-frost have their basic elemental resistances in reverse order: frost is their
-best resistance, acid second best, electricity third, and fire the worst.
-
-
-====================== Last updated for FayAngband 1.0.0 ======================

@@ -940,7 +940,7 @@ static void display_player_misc_info(void)
 	else if (p_ptr->shape == SHAPE_STATUE) p="Statue";
 	else if (p_ptr->shape == SHAPE_FAUN) p="Faun";
 	else if (p_ptr->shape == SHAPE_GOBLIN) p="Goblin";
-	else if (p_ptr->shape == SHAPE_GHOUL) p="Ghoul";
+	else if (p_ptr->shape == SHAPE_GHOUL) p="Icky Thing";
 	else if (!rp_ptr->special) p=p_name + rp_ptr->name;
 	else p=rsp_ptr[(p_ptr->max_lev)/5]->name;
 	c_put_str(TERM_L_BLUE, p, 3, 8);
@@ -1607,6 +1607,8 @@ static void display_player_stat_info(void)
 
 			if (p_ptr->shape == SHAPE_APE) n += 5;
 			if (p_ptr->shape == SHAPE_NAGA) n += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 		else if (stat == 1)
 		{
@@ -1615,6 +1617,9 @@ static void display_player_stat_info(void)
 
 			if (p_ptr->shape == SHAPE_APE) n -= 5;
 			if (p_ptr->shape == SHAPE_NAGA) n += 5;
+			if (p_ptr->shape == SHAPE_FAUN) n -= 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 		else if (stat == 2)
 		{
@@ -1623,6 +1628,9 @@ static void display_player_stat_info(void)
 
 			if (p_ptr->shape == SHAPE_HARPY) n -= 5;
 			if (p_ptr->shape == SHAPE_ANGEL) n += 5;
+			if (p_ptr->shape == SHAPE_FAUN) n += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 		else if (stat == 3)
 		{
@@ -1631,6 +1639,8 @@ static void display_player_stat_info(void)
 
 			if (p_ptr->shape == SHAPE_HARPY) n += 5;
 			if (p_ptr->shape == SHAPE_ANGEL) n += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n += 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 		else if (stat == 4)
 		{
@@ -1639,6 +1649,9 @@ static void display_player_stat_info(void)
 
 			if (p_ptr->shape == SHAPE_APE) n += 2;
 			if (p_ptr->shape == SHAPE_STATUE) n += 5;
+			if (p_ptr->shape == SHAPE_FAUN) n += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 		else if (stat == 5)
 		{
@@ -1649,6 +1662,8 @@ static void display_player_stat_info(void)
 			if (p_ptr->shape == SHAPE_ANGEL) n += 5;
 			if (p_ptr->shape == SHAPE_APE) n -= 2;
 			if (p_ptr->shape == SHAPE_STATUE) n += 2;
+			if (p_ptr->shape == SHAPE_GOBLIN) n -= 2;
+			if (p_ptr->shape == SHAPE_GHOUL) n -= 1;
 		}
 
 		/*** Hack: goddesses give bonuses or penalties ***/

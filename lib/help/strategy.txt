@@ -1,0 +1,60 @@
+=== The Tiny Strategy Guides ===
+
+Halls of Mist is a difficult game, just like its predecessor FayAngband.
+I thought it might be worthwhile to write three strategy guides for beginners
+but I didn't have time to actually do it. Here's really short synopsises of
+what the three fictional guides would include.
+
+1) Assassin's Guide. To do well in Halls of Mist, you need to learn how to
+distract (confuse, scare, sleep, or blind) tough enemies with spells or powder
+vials, and then kill them with critical hits. You can increase your ambush
+chance by boosting your strength and dexterity, by using an enchanted weapon,
+or by boosting your combat skill with a magical buff, like Heroism. Rogue is
+the specialist here but everybody -- save maybe mage -- needs to use these
+tactics often.
+
+2) Swashbuckler's Guide. How to use terrain features for fun and profit. Take
+cover against spells and missiles by standing behind a table or platform. Jump
+on tables and use high ground to help you defend against melee attacks. In
+Halls of Mist, you can attack two opponents in melee just as well as when
+attacking only one, so you may sometimes want to hop on a table to fight an
+entire orc tribe! Hop over bushes and flee tough enemies through wilderness
+rooms. Most enemies are probably worse jumpers than you are, with 40% in
+Jumping; orcs, golems, and zombies are especially bad with only 20% in Jumping.
+
+3) Seer's Guide. Identifying stuff is not at all straightforward in Halls of
+Mist. You need to use your brain. First of all, you need to have at least 20
+points in Memory + Wisdom to be able to use Lore proficiencies. (Use
+proficiencies by pressing 'p'.) If you have MEM+WIS at 30 or higher, you get to
+identify your whole pack at once or do some other cool things. Stand near
+a bookshelf to gain a +3 bonus in these Lore calculations, or draw a Circle of
+Knowledge to get +7. Or you might want to save your Lore point for Alertness
+(bonuses to AC, saving throw, and detecting traps and invisible creatures until
+you leave the dungeon level), and instead identify items by using them.
+
+
+=== Summoners can get nasty ===
+
+In Halls of Mist, you can explore at most 48 dungeon levels before you will
+have to face the boss, the Thin White Duke. In the earlier versions there were
+some exploits that allowed you to dodge this limitation and keep collecting
+experience on shallow levels.
+
+I've greatly reduced the number of breeder monsters. The ones that are left
+don't give you any experience points or loot.
+
+Summoners were a tougher nut to crack. It was painful to watch my friend Ear
+farm summoners. "Hey, man, Mist is not supposed to be played like that!"
+I tried several fixes during our playtesting sessions, and the last of them
+seemed to scare Ear out of farming.
+
+Every time a summoner summons monsters, SUMMON_POWER goes up by one. Then, if
+you roll 1d40 under SUMMON_POWER, the summoned monsters' level is increased by
+SUMMON_POWER. When you leave the dungeon level, SUMMON_POWER is reset to zero.
+
+Farm summoners long enough, and you will face Grand Wyrms.
+
+(This fix is quite unelegant, and will be gone in the next version of the game!
+In the future summoned monsters will be phantasmal creatures formed of the blue
+mist. They will give no experience or loot, and will eventually dissolve back
+to mist.)

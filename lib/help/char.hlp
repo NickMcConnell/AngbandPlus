@@ -2,10 +2,13 @@
 
 Please choose one of the following online help files:
 
-    (1) Stats and Skills               (stats.txt)
-    (2) Abilities and Conditions       (cond.txt)
-    (3) Character Races                (races.txt)
-    (4) Character Classes              (classes.txt)
+    (1) Vital Statistics               (stats.txt)
+    (2) Skills                         (skills.txt)
+    (3) Other Attributes               (other.txt)
+    (4) Conditions & Special Qualities (cond.txt)
+    (5) Character Races                (races.txt)
+    (6) Character Classes              (classes.txt)
+    (7) Shapeshifting                  (shapes.txt)
 
 
 
@@ -18,7 +21,9 @@ Please choose one of the following online help files:
  ESC: leave help
 
 ***** [1] stats.txt
-***** [2] condition.txt
-***** [3] races.txt
-***** [4] classes.txt
-
+***** [2] skills.txt
+***** [3] other.txt
+***** [4] cond.txt
+***** [5] races.txt
+***** [6] classes.txt
+***** [7] shapes.txt

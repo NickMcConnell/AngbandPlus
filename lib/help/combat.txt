@@ -1,82 +1,92 @@
 === Attacking and Being Attacked ===
- 
-Attacking is simple in FayAngband.  If you move into a creature, you attack him.
-You can attack from a distance by firing a missile or by magical means (such
-as aiming a wand).  Creatures attack in the same way.  If they move into you,
-they attack you.  Some creatures can also cast spells from a distance, and
-others can use various breath weapons (such as fire) on you from a distance.
 
-Creatures in walls can not be attacked by wands or other magic attacks
-normally stopped by walls, nor can they be shot at with bows and arrows.
-Tunnelling into the wall (using the "tunnel" or "alter" command) will allow 
-you to attack any creature in the wall. This applies to creatures which 
-"pass through" walls: if they "bore through" walls, the wall is no longer
-there, and the creature can be targetted normally.
+Attacking is simple in Halls of Mist. If you move into a creature, you attack
+it. In addition, if there is another creature in melee range, you get a free
+attack against it! If there are many additional creatures in melee range, you
+make the extra attack against a random enemy.
+
+Creatures attack in the same way. If they move into you, they attack you.
+
+If the target of a melee attack is standing on a table or platform and the
+attacker is not, the attack has a 2/5 chance of missing because of bad position.
+
+You can attack from a distance by firing a missile or by magical means (such as
+aiming a wand). Some creatures can also cast spells from a distance, and others
+can use various breath weapons (such as fire) on you from a distance.
+
+If a table or platform is between you and the enemy, the missile or spell has
+a 3/5 chance of hitting the cover instead of the intended target. However, if
+the attacker is standing right next to the cover, he can shoot or cast spells
+without problems while still gaining defense bonuses from the cover.
+
+Creatures in walls can not be attacked. (There are rare exceptions, like the
+Wand of Stone to Shards.) This applies to creatures which "pass through" walls:
+if they "bore through" walls, the wall is no longer there, and the creature can
+be targetted normally.
 
 If you are wielding a weapon, the damage for the weapon is used when you hit
-a creature.  Otherwise you will do some damage based on your strength and
-dexterity - but fighting empty handed is never really worthwhile.
+a creature. Otherwise you will do some damage based on your strength and
+dexterity - but fighting empty handed is almost never really worthwhile.
 
-You may wield both a primary weapon for melee combat, and a bow or other
-missile launcher for launching missiles at the same time (along with a
-light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
-body armor).  Be sure not to try and kill a dragon with a shovel, it makes
-you look silly and probably won't work. (Note that "probably" is used 
-advisedly: it has actually been done...)
- 
-Firing a missile (while wielding the appropriate launcher) is the only way to
-get the "full" power out of the missile.  You may of course throw an arrow at
-a monster without shooting it, but you will find the effects may not be what
-you had hoped. Note that the targeting interface tells the distance in feet
-between you and the target. If the monster is out of range, the description
-changes from "You target" to "You see".
+You may wield both a primary weapon for melee combat, and a bow for firing
+arrows at the same time (along with a light, an amulet, two rings, a helmet,
+boots, gloves, a shield, a cloak, and body armor).
 
-Hits and misses are determined by ability to hit versus armor class.  A hit
-is a strike that does some damage; a miss may in fact reach a target, but
-fails to do any damage.  Higher armor classes make it harder to do damage,
-and so lead to more misses.
+Firing an arrow (while wielding a bow) is the only way to get the full power
+out of the arrow. If you try to throw an arrow at a monster, it causes no
+damage. Note that the targeting interface tells the distance between you and
+the target. If the monster is out of range, the description changes from "You
+target" to "You see".
+
+Hits and misses are determined by ability to hit versus armor class. A hit is
+a strike that does some damage; a miss may in fact reach a target, but fails to
+do any damage. Higher armor classes make it harder to do damage, and so lead to
+more misses.
 
 You may check your melee hit chance against a monster by (l)ooking at it. If
 you see two percentage scores (like 92% + 4%) the first score is your hit
 chance and the second score your critical hit chance if you hit. Similarly, you
-can check your archery hit chance by targeting a monster with a bow, and
-your throwing hit chance by targeting it with a thrown weapon.
+can check your archery hit chance by targeting a monster with a bow, and your
+throwing hit chance by targeting it with a thrown weapon.
 
 
 === Your Melee Weapon ===
 
-Carrying a weapon in your backpack does you no good.  You must wield a weapon 
-before it can be used in a fight.  A secondary weapon (indeed, more than one)
-can be kept by keeping it in the backpack, and switching it with the primary 
+Carrying a weapon in your backpack does you no good. You must wield a weapon
+before it can be used in a fight. A secondary weapon (indeed, more than one)
+can be kept by keeping it in the backpack, and switching it with the primary
 weapon when needed.
 
 Weapons have two main characteristics, their enchanted bonus to hit (if any)
-and their damage dice, expressed as `(+#, #d#)'.  The third major thing to know
-about your weapon is its weight.  The weapon's weight, and your dexterity, 
-determine how many blows you will get with it.  In addition, depending on your
-strength, some weapons will be too heavy for you.  Wielding a weapon that is 
-too heavy can seriously cripple your combat capabilities.  
+and their damage dice, expressed as `(+#, #d#)'.
+
+The third major thing to know about your weapon is its weight. Your number of
+blows per turn is either the weapon's maximum blows (depending purely on weapon
+weight) or the maximum blows granted by your dexterity, whichever is lower. In
+addition, depending on your strength, some weapons will be too heavy for you.
+Wielding a weapon that is too heavy can seriously cripple your combat
+capabilities.
 
 Fortunately, you don't have to do the math for each weapon you find, trying to
-figure out whether it is more or less effective than your current weapon.  To
-see how many blows you will get with a weapon, how much damage it will do on 
+figure out whether it is more or less effective than your current weapon. To
+see how many blows you will get with a weapon, how much damage it will do on
 average, and whether it is too heavy for you, all you need to do is 'I'nspect
 it.
 
-In addition to their basic characteristics, many weapons have additional 
-magical powers such as fire brands or extra damage vs. demons.  If you have 
+In addition to their basic characteristics, many weapons have additional
+magical powers such as fire brands or extra damage vs. demons. If you have
 identified the weapon, you can see these effects as well when 'I'nspecting the
-waepon.  
+weapon.
 
-If you score a critical hit with a melee weapon, the effect depends on the 
-weapon type.  Swords will cause open wounds, making the enemy bleed, incurring
-additional wounds over time.  Blunt weapons can cause concussions, stunning and
-occasionally confusing your opponents.  Axes and polearms will simply provide a 
-greater amount of bonus damage.  Priests or Shamans will never score a critical
-hit with a weapon that displeases their god.
+If you score a critical hit with a melee weapon, the effect depends on the
+weapon type. Swords will cause open wounds, making the enemy bleed, incurring
+additional wounds over time. Blunt weapons can cause concussions, stunning and
+occasionally confusing your opponents. Axes and polearms will simply provide
+a greater amount of bonus damage. Priests or Shamans will never score
+a critical hit with a weapon that displeases their god.
 
 
-=== Missile Weapons - Bow and Arrows ===
+=== Bow and Arrows ===
 
 Similarly to melee weapons, bows and arrows each have basic characteristics.
 Bows have three major characteristics - their to-hit bonus, their multiplier,
@@ -84,58 +94,62 @@ and their range, displayed as (+#, x#, #). Arrows also have three attributes:
 their to-hit bonus, their damage dice, and their range modifier (+#, #d#, +#).
 
 When shooting an arrow with a bow, the to-hit bonuses of both bow and arrow are
-cumulative, and can have a major effect on your chance of hitting.  The damage
-done by an arrow is calculated by its damage die similarly to a melee weapon, 
-but is further multiplied by the bow's multiplier.  Finally, the range is the
+cumulative, and can have a major effect on your chance of hitting. The damage
+done by an arrow is calculated by its damage die similarly to a melee weapon,
+but is further multiplied by the bow's multiplier. Finally, the range is the
 furthest, in dungeon squares, that you can reach with your current bow - the
-arrow's modifier may influence this, as some arrows can reach further than 
+arrow's modifier may influence this, as some arrows can reach further than
 others.
 
 If you are wielding a bow, all you need to do is 'I'nspect an arrow and you can
 see exactly how effective it is with your current bow.
 
-Like melee weapons, you will occasionally get critical hits with bows.  These
+Like melee weapons, you will occasionally get critical hits with bows. These
 can cause additional damage, and sometimes can make an enemy bleed.
 
 
-=== Missile Weapons - Thrown ===
+=== Thrown Weapons ===
 
-You can throw effectively any weapons that weigh less than 10 lbs.  Throwing
-heavier weapons doesn't cause any damage.  The range traversed depends on your
-strength and the weight of the object.  Some items, such as flasks of lantern
-oil, can indeed be quite effective thrown - the largest class of these are the
-powders, which can create many special effects upon an enemy, and some more
-powerful types can injure a group of enemies.
+You can throw effectively any weapons that weigh less than 10 lbs. Also, your
+strength must be at least equal to the weapon weight in pounds. Throwing
+heavier weapons than this doesn't cause any damage. The range traversed depends
+on your strength and the weight of the object.
 
-Powders and oils have a bigger radius if you score a critical hit with them.
-Normally the radius increases by one. Rogues may score a great hit which
-increases radius by two.
+Magical powders can be be very effective when thrown at enemies. They create
+many special effects upon an enemy, and some more powerful types can injure
+a group of enemies. Powders have a bigger radius if you score a critical hit
+with them. Normally the radius increases by one. Rogues may score a great hit
+which increases radius by two.
 
-Strength affects how far you can throw affects. When your Strength reaches 17,
-you will get double damage with trown weapons (but not with powder vials). STR
-25+ gives triple damage.
+Your strength determines the thrown weapon damage multiplier like this:
+
+Code: STR  Thrown weapon damage multiplier 13   *2 17   *3 21   *4 25   *5
+29   *6 The Berserk Strength buff doubles your thrown weapon damage, and so do
+some rare magic items. The absolute maximum thrown damage multiplier is
+6 * 2 * 2 = 24!
 
 
 === Critical Hits ===
 
 Occasionally, for all combat types, you will score a critical hit - a hit so
 effective that it does extra damage. Depending on the type of weapon involved,
-this can have additional effects. You can't get criticals against unseen monsters.
+this can have additional effects. You can't get criticals against unseen
+monsters.
 
 There are two ways to score critical hits.
 
-You can get Ambush-criticals against sleeping, scared, confused, or blind
-monsters. Ambush chance in percentages is 5 + character's to-hit bonus +
-weapon's to-hit bonus. Rogues get to add 5 + half their level. (Note that your
-bow's to-hit bonus has no effect here. Only the arrow's to-hit bonus matters.)
+You can get Ambush criticals against sleeping, scared, confused, or blind
+monsters. Ambush chance in percentages is 5 + character's to-hit bonus from
+stats, temporary magical buffs and weapon enchantments. (The combined bonus
+from stats & magic is shown on character sheet in parenthesis after combat
+skill scores.) Rogues get to add 5 + half their level. (Note that your bow's
+to-hit bonus has no effect here. Only the arrow's to-hit bonus matters.)
 
 You can also get criticals if you have a truly overpowering combat skill versus
 your opponent. Once your hit chance reaches 91% or higher, your gain a bonus to
-your critical hit chance. The bonus is (hit chance -90) * (hit chance -90).
+your critical hit chance, even when the target is not distracted. The bonus is
+(hit chance -90) * (hit chance -90).
 
 Rogues get double power thrown criticals, and one-and-half power melee and
-archery criticals. Warriors get double power melee criticals. Rangers get double
-power archery criticals.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================
+archery criticals. Warriors get double power melee criticals. Rangers get
+double power archery criticals.

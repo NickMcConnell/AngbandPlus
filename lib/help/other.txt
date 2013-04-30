@@ -1,0 +1,86 @@
+=== Other Attributes ===
+
+This file discusses the attributes shown on the left side of the main window
+and the various special immunities and qualities that characters may acquire in
+their adventures.  It also tells you how to keep track of all this information.
+
+
+=== Character Attributes Shown on the Left Side of the Main Window ===
+     
+Level:        Your character's level.  It reflects how powerful you are; level
+              1 is a beginning character, while level 50 is the maximum you can
+              reach.
+Gold:         Your current gold supply. Gold is amazingly handy, because
+              everything the town can sell can be yours with enough of the
+              stuff.  
+Vital Statistics (STR, MEM, WIS, DEX, CON and PRE):
+              Your character has six primary statistics, or stats. The lowest 
+              any stat can go is 0, a level which greatly reduces any abilities
+              that stat influences. The highest a stat can rise without 
+              equipment or race bonuses is 20. More information on individual 
+              stats is available in the help file stats.txt.
+Armor:         Armor class helps prevent you getting killed.  It may be 
+              increased by equipping more and better armor, and by increasing 
+              your Dexterity.
+Hits:         Each character has hit points, representing how much damage he 
+              can sustain before he suffers a permanent wound or, if he already
+              has the same wound, dies. The maximum number of hit points is
+              derived from race, class, level, and constitution. Hit points may
+              be regained by resting, or by a variety of magical means. Once
+              your character suffers a permanent wound, adrenalin surge heals
+              him to 50 % of maximum hitpoints and cures all poison, cuts,
+              stunning, confusion, blindness, and slowing. 
+Mana:         Each character has spell points, or mana, which represents how 
+              many spells a character can cast (or tunes he can play). Mana may
+              be regained by resting or some rare magical means.
+Lore:         You may use Lore points to use many proficiencies. They refresh
+              every time you take the stairs down. Read the help file prof.txt
+              for detailed information on proficiencies.
+Reserves:     You may use Reserves to use the proficiency Recover. Recover
+              restores hitpoints and cures many status effects. Reserves points
+              refresh every time you take the stairs down.
+Escapes:      You may spend Escapes to use the proficiency Escape, which is
+              directed teleportation. Escapes points refresh every time you
+              take the stairs down.
+
+
+=== Other abilities ===
+
+Infra-vision: Infra-vision is the ability to see heat sources.  It will allow 
+              a character to see any warm-blooded creature up to a certain 
+              distance. This ability works equally well with or without a light
+              source.  Several of the playable races have innate infravision.
+
+Wounds:       Your character may have three kinds of wounds. Each wound hurts
+              two of your stats either temporarily or permanently.
+
+                 VIGOR (STR & CON)
+                 WIT (MEM & WIS)
+                 GRACE (DEX & PRE)
+
+	      Whenever your hit points go to negative, you heal to half your
+	      maximum hitpoints, cure most negative effects, and get a random
+              wound. If you ever get the same wound again, you die.
+
+              The ability damage from a wound depends on the dungeon level:
+              - In town, you just get a scar. No ability damage.
+              - Starting from DL 1, you get some temporary ability damage to
+                one of the stats.
+              - Starting from DL 12 you get some temporary ability damage to
+                both stats.
+              - Starting from DL 24 you get a point of permanent damage to one
+                of the stats, and some temporary damage to both stats.
+              - Starting from DL 36 you get a point of permanent damage and
+                some temporary damage to both stats.
+
+              The permanent damage from wounds is truly permanent. It's reduced
+              from your racial bonus.
+
+              Sustained stats are protected from wound damage, both temporary
+              and permanent.
+
+	      There are now a couple of ways to cure a Wound: drinking from
+	      a Fountain of Cure Wound or performing the Ritual of Cure Wound.
+              The ritual may sometimes cure more than one wound. If a Wound is
+              cured, all the permanent ability damage from that wound is also
+              healed.

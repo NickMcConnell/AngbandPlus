@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-EyAngband is a roleplaying game, in which you, the player, control a character
-in the world of EyAngband. One of the most important things you control is the
+Halls of Mist is a roleplaying game, in which you, the player, control a character
+in the world of Halls of Mist. One of the most important things you control is the
 "birth" of your character, the process in which you choose - or let the game
 choose for you - various attributes that will affect the future life of your
 character.
@@ -38,6 +38,3 @@ Quickstarting creates a character identical in all the above aspects to the one
 that just died. If you don't wish to create an identical character, just answer
 no when prompted, and you will be directed to the normal character creation
 process.
-
-
-====================== Last updated for FayAngband 1.0.1 ======================

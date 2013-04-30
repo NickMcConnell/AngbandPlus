@@ -17,9 +17,9 @@ treasure.
 
 === Monsters of the Dungeon ===
 
-If there's one thing the dungeons of EyAngband don't lack, its monsters.  As
-you travel down the murky depths, you will encounter many different types of 
-creatures, some very dangerous, while others only mildly annoying.
+If there's one thing the Halls of Mist don't lack, its monsters.  As you travel
+down the murky depths, you will encounter many different types of creatures, some
+very dangerous, while others only mildly annoying.
 
 Many monsters in the dungeon are either resistant or vulnerable to many
 elements. If a monster is especially vulnerable to, say, fire, it will take 1.5
@@ -86,7 +86,8 @@ In addition to these monster types, there are rumors of other creatures found
 deep in the dungeon: strange golems constructed by mages for purposes unknown,
 unspeakable and unnamable horrors that even the demons fear, elemntal beings
 and vortices, and many others.  Never let your guard down, as you travel the
-passageways of FayAngband, as you never know what you may encounter next.
+passageways of the Halls of Mist, as you never know what you may encounter
+next.
 
 
 === Monster Symbols ===
@@ -122,11 +123,11 @@ passageways of FayAngband, as you never know what you may encounter next.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of FayAngband, many of
+There are hundreds of different creatures in the Halls of Mist, many of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by using the 'l'ook command.  It is also very
 difficult to keep track of the capabilities of various creatures.  Luckily, 
-FayAngband automatically keeps track of your experiences with a particular 
+Halls of Mist automatically keeps track of your experiences with a particular 
 creature.  This feature is called the monster memory.  You monster memory 
 recalls the particular attacks of each creature (whether or not technically a
 monster) which you have suffered, as well as recalling if you have observed 
@@ -139,6 +140,3 @@ otherwise available, such as a armor class or hit dice.  These are not
 explained, but may be useful to give the relative danger of each creature.
 This memory can be passed on to a new character even after you die by means
 of a reduced save file.
-
-
-====================== Last updated for FayAngband 1.1.0 ======================

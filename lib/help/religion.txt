@@ -1,0 +1,174 @@
+=== Altars ===
+
+This is an altar on a stone platform. ='s are steps. Let's imagine the 0 is
+blood red -- an altar of obsession.
+
+     =
+    ###
+   =#0#=
+    ###
+     =
+
+You may sacrifice any ego item (except arrows) on an altar to gain a deity's
+temporary blessing. The blessing will last at least for this dungeon level and
+for the next dungeon level you visit. After that every time you take the stairs
+down there's a 50 % chance that the goddess withdraws her blessing.
+
+Here's a gameplay example. Our hero takes the steps to the platform (no Jumping
+check needed) and drops an ego item on the altar.
+
+"A brilliant light consumes a Short Bow of Accuracy (+8, x2, 7) -more-"
+"Beleth, the Queen of Hell, blesses you. -more-" "You have no more Short Bows
+of Accuracy (+8, x2, 7)."
+
+You may sacrifice any ego item (except arrows) on an altar to gain a deity's
+temporary blessing. The blessing will last at least for this dungeon level and
+for the next dungeon level you visit. After that every time you take the stairs
+down there's a 50 % chance that the goddess withdraws her blessing.
+
+Here's what Beleth's blessing looks like on the character sheet:
+
+   Beleth
+   PRE+++
+
+As you can see, Beleth grants the character "PRE+++" which translates to +3 to
+Presence. (The bonus also shows in your racial bonuses.)
+
+
+
+
+=== The Goddesses are different in every game ===
+
+Deities grant either +3 to one ability, or +2 to one ability and +1 to second
+one. For example, Beleth could have granted "PRE++ STR+" instead.
+
+The blessings of the goddesses are generated procedurally and are different in
+every game. Each goddess has a "style guide" of thematic abilities, and one or
+two of them are picked randomly for their blessing.
+
+Here's a list of all possible deity bonuses that may show on your character
+sheet:
+
+   STR = Strength
+   MEM = Memory
+   WIS = Wisdom
+   DEX = Dexterity
+   CON = Constitution
+   PRE = Presence
+   Ber = Berserk. You gain extra Reserves points which may be used for the
+         (b)erserk proficiency, but you can no longer use the (r)ecover
+         proficiency.
+   Esc = Escapes. You gain Escapes points which may be spent for the (e)scape
+         proficiency.
+   Arm = Armor. +4 to your armour class per +.
+   Rng = Range. Extra range with bows, thrown weapons, spells, and devices. In
+         addition, you gain the bonus to your throwing and archery skills.
+   Ste = Stealth. Bonus to Stealth skill.
+
+This is a polytheistic world, and goddesses don't usually mind if you worship
+other goddesses. You may have at most three blessings at the same time.
+
+Priests and Templars are experts at religious practices. If they drop any kind
+of torch on an altar, the goddess treats it as an ego item. If they offer an
+ego item, it is treated as an artifact.
+
+
+
+=== Becoming a permanent follower ===
+
+If you sacrifice an artifact to a deity, you become her permanent follower.
+
+You gain her normal blessing permanently. Whenever you offer a new ego item or
+an artifact for her, you gain a doubly powerful temporary bonus. Note that you
+can first offer an artifact to become a follower, and then right away offer an
+ego item to gain the temporary double bonus.
+
+For example, Beleth's (from our previous example) double bonus would be
+"PRE++++++" or +6 to Presence.
+
+If a deity grants bonuses to two abilities, like PRE++ STR+, the double bonus
+is always +3 to both abilities, "PRE+++ STR+++".
+
+Please not that deities don't want their follower to make offerings to their
+enemies! Making offerings to friendly goddesses is good practise.
+
+
+
+
+
+
+
+Here's a pentagon of the deities. Each goddess has two friends next to her, and
+two enemies on the opposite side.
+
+*------------------------------------------------------------------* 
+|                                                                  |
+|                 Beleth, the Queen of Hell (obsession)            |
+|                                                                  |
+|  Laverna, the Mistress                  Discordia, the Warrior   |
+|  of the Underworld                      (conflict)               |
+|  (secrets)                                                       |
+|                                                                  |
+|            Cyrridven, the Crone    Eostre, the Maiden of Spring  |
+|            (transformation)          (purity)                    |
+|                                                                  |
+*------------------------------------------------------------------*
+
+
+=== Good religious practices ===
+
+In the beginning of the game you have no knowledge of the abilities each deity
+boosts. It's a good idea to sacrifice ego items to find gain knowledge about at
+least a couple of deities before you commit to a goddess permanently.
+
+Even if you are a follower, It is possible to change your deity by offering an
+artifact to another goddess. Be aware, though, that both goddesses will hate
+you for some time if you switch to an enemy goddess!
+
+If a goddess gets angry at you, her bonuses turn into penalties.
+
+Unfortunately at the moment the game doesn't keep the information you know
+about the goddesses for you. You may want to write a note about the goddesses'
+bonuses for yourself.
+
+
+=== The design thinking behind the deity system ===
+
+I got the inspiration for the deity system from an ancient Angband variant
+Kamband. I think you can still find lots of similarities, especially in the
+flavour. Kamband has a mysterious flavour all its own, and I want to instill
+a similar feeling of mystery in my own variant.
+
+The deity system tries to accomplish several things.
+
+First of all, this is how I think religion would work in a polytheistic world.
+I dislike how in most roguelikes you need to pick a god early and then stick
+with him.
+
+The flavour is that the player meets these new goddesses for the first time.
+His old gods don't have power here in the Halls of Mist.
+
+The goddesses are a bit alien for a purpose. It's a pantheon with goddesses for
+obsession, conflict, purity, transformation and secrets. It's a bit different
+from your typical fantasy pantheon.
+
+Like any good polytheist, even a Priest or a Templar has an open mind when he
+meets new deities. How powerful is this deity? Let's check it out by giving her
+a gift...
+
+For the first part of the game, the player is supposed to find out lots of
+information about the goddesses. Later, when he finally finds an artifact he is
+ready to part with, he knows how powerful most of the deities are from his
+point of view. (A warrior would want different kinds of blessings than a mage.)
+If you want to insert some roleplaying into the decision, you may also think
+how compatible your character's ethics is with the deities'. This would
+definitely be a part of the choosing process. After all, you are about to
+become a follower of this goddess for the rest of your life.
+
+Oh, and the allies and enemies of each deity may affect your decision too!
+After you have become a follower of a goddess, it's usually (but not always)
+wise to only offer sacrifices to her friends. You are not choosing a single
+goddess, you are choosing a trinity.
+
+Unlike most characters, priests and templars complete their testing and
+choosing process in the early stages of the game.

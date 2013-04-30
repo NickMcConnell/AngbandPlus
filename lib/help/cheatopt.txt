@@ -46,6 +46,3 @@ No respawning monsters [cheat_no_respawn] (default: no)
 Activate wizard mode [cheat_wizard] (default: no)
     Wizard mode allows you to receive a lot of information that is normally
     kept hidden from the player.
-
-
-======================= Last updated for EyAngband 0.5.0 ======================

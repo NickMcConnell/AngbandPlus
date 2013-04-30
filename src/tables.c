@@ -2183,7 +2183,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_floor_query_flag,
 		OPT_carry_query_flag,
 		OPT_carry_heavy_query,
-		OPT_use_old_target,
+		/* OPT_use_old_target, */
 		OPT_always_pickup,
 		OPT_always_repeat,
 		OPT_verify_destroy,

@@ -93,7 +93,7 @@ static void prt_shape(void)
 		case (SHAPE_STATUE): p = "Statue"; break;
 		case (SHAPE_FAUN): p = "Faun"; break;
 		case (SHAPE_GOBLIN): p = "Goblin"; break;
-		case (SHAPE_GHOUL): p = "Ghoul"; break;
+		case (SHAPE_GHOUL): p = "Icky Thing"; break;
 	}
 
 	prt_field(p, ROW_RACE, COL_RACE);

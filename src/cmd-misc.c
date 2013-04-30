@@ -1110,12 +1110,8 @@ void do_cmd_tunnel(void)
 		py_attack(y, x, FALSE);
 	} */
 
-	/* Walls */
-	else
-	{
-		/* Tunnel through walls */
-		more = do_cmd_tunnel_aux(y, x);
-	}
+	/* Tunnel through walls */
+	more = do_cmd_tunnel_aux(y, x);
 
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0);

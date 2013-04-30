@@ -1,18 +1,18 @@
 === A Simple Tutorial ===
 
-FayAngband is a very complex game, so you may want to try the following quick 
-tutorial.  The following instructions are for demonstration purposes only, 
-and so they are intentionally boring.
+Halls of Mist is a very complex game, so you may want to try the following
+quick tutorial.  The following instructions are for demonstration purposes
+only, and so they are intentionally boring.
 
-For this demo, I will assume that you have never played FayAngband, or indeed 
-Angband or any of its other variants, before, that you have not requested any
-special "sub-windows", that you have not requested any special "graphics" 
-modes, that you have a "numeric keypad" on your computer, and that you are 
-using the default options, including, in particular, the "original" command 
-set.  If any of these assumptions are incorrect, you will need to keep in mind
-that this demo may not work.  There are many ways to view this file while 
-playing, in particular, you should be able to view it using the "online help"
-built into the game.
+For this demo, I will assume that you have never played Halls of Mist, or
+indeed Angband or any of its other variants, before, that you have not
+requested any special "sub-windows", that you have not requested any special
+"graphics" modes, that you have a "numeric keypad" on your computer, and that
+you are using the default options, including, in particular, the "original"
+command set.  If any of these assumptions are incorrect, you will need to
+keep in mind that this demo may not work.  There are many ways to view this
+file while playing, in particular, you should be able to view it using the
+"online help" built into the game.
 
 Any time you see the "-more-" prompt, read the message and press space.  This 
 takes precedence over any other instructions.  At any other prompt, for 
@@ -31,7 +31,7 @@ be placed into the "town".
 
 You should now be looking at the basic dungeon interaction screen.  To the left
 is some information about your character.  To the right is an overhead view of 
-the town.  Nothing happens in Angband while the game is waiting for you to 
+the town.  Nothing happens in Halls of Mist while the game is waiting for you to 
 specify a command, so take a good look at the town.  You will see a variety of
 symbols on the screen.  Each symbol normally represents a terrain feature, an
 object, or a monster.  The "@" symbol is special, it represents your character.
@@ -46,10 +46,8 @@ most of the town should consist of stores and illuminated floor grids.
 
 Any "alphabetic" symbols always represent monsters, where the word "monsters"
 specifies a wide variety of entities, including people, animals, plants, etc.
-Only a few "races" of monsters normally appear in town, and all of them are
-"relatively" harmless.  The most common "monsters" in town are animals (dogs,
-and, for a reason too complex to explain, cows) and townspeople (merchants, 
-mercenaries, miscreants, etc).
+All the alphabets you can see in the town are agents of the Thin White Duke,
+and they have orders to kill you on sight!
 
 Now use the "l" command to "look" around.  This will cause the cursor to be
 moved onto each "interesting" grid that can be "seen" by your character, one at 
@@ -149,7 +147,7 @@ gets harder after each trip to the dungeon.
 
 The dungeon is so huge, once you leave one part of the dungeon, you will never
 find it again. Remember this, as it is one of the features that seperate
-FayAngband (and Angband in general) from similar games.
+Halls of Mist (and Halls of Mist in general) from similar games.
 
 Now look the screen.  Your character may be in a lit room, represented as a
 large rectangle of illuminated floor grids ("."), surrounded by walls ("#").  
@@ -191,15 +189,12 @@ directly to the east, press "v" + "b" + "6" to throw a flask of oil at the
 monster.  To drop an item from your inventory, press "d" plus the index of
 that item.  You can use the "^X" key to quit and save the game.
 
-You now know enough to play a quick game of Angband.  There is a lot more for
-you to learn, including how to interpret information about your character, how
-to create different kinds of characters, how to determine which equipment to
-wield/wear, how to use various kinds of objects, and how to use the more than
-fifty different commands available to your character.  The best resource for
-learning these things is the online help, which include, among other things,
-a complete list of all commands available to your player, and a list of all
-the symbols which you may encounter in the dungeon, and information about
-creating new characters.
-
-
-====================== Last updated for FayAngband 1.0.1 ======================
+You now know enough to play a quick game of Halls of Mist.  There is a lot
+more for you to learn, including how to interpret information about your
+character, how to create different kinds of characters, how to determine which
+equipment to wield/wear, how to use various kinds of objects, and how to use
+the more than fifty different commands available to your character.  The best
+resource for learning these things is the online help, which include, among
+other things, a complete list of all commands available to your player, and a
+list of all the symbols which you may encounter in the dungeon, and information
+about creating new characters.

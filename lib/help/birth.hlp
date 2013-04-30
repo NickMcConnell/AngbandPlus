@@ -3,11 +3,12 @@
 Please choose one of the following online help files:
 
     (1) Character Creation Overview    (birth.txt)
-    (2) Stats and Skills               (stats.txt)
-    (3) Character Races                (races.txt)
-    (4) Character Classes              (classes.txt)
-    (5) Birth Options                  (birthopt.txt)
- 
+    (2) Vital Statistics               (stats.txt)
+    (3) Skills                         (skills.txt)
+    (4) Other Attributes               (other.txt)
+    (5) Character Races                (races.txt)
+    (6) Character Classes              (classes.txt)
+
 
 
 
@@ -19,7 +20,7 @@ Please choose one of the following online help files:
 
 ***** [1] birth.txt
 ***** [2] stats.txt
-***** [3] races.txt
-***** [4] classes.txt
-***** [5] birthopt.txt
-
+***** [3] skills.txt
+***** [4] other.txt
+***** [5] races.txt
+***** [6] classes.txt

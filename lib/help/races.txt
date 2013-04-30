@@ -1,6 +1,6 @@
 === Races ===
 
-There are thirteen different races that you can choose from in FayAngband.
+There are thirteen different races that you can choose from in Halls of Mist.
 Some races are restricted as to what profession they may be, and each race 
 has its own adjustments to a character's stats and abilities. The race stat
 adjustment lasts throughout the game, raising the maximum levels the character
@@ -8,7 +8,7 @@ can otherwise achieve in this stat. Most races also have intrinsic abilities.
 
 ***** <Human>
 Human
-    The oldest race in the world of FayAngband, the human is the base
+    The oldest race in the world of Halls of Mist, the human is the base
     character. All other races are compared to them. Humans can choose any
     class and are average at everything. Humans tend to go up levels faster
     than any other race because of their shorter life spans. No racial
@@ -25,9 +25,8 @@ Elf
     magic, but they are not as good at hand weapons or digging. Elves may 
     choose any class. They are resistant to attacks involving bright light.
     Elven arcane spellcasters specialise in either fire or frost, chosen
-    randomly. As half-faeries, Elves learn to Shift earlier than other races.
-    Half-faeries are more fragile than other races and often die when they are
-    wounded critically.
+    randomly. As half-faeries, Elves gain a point of Escape at levels 5, 15,
+    25, 35, and 45. These points can be used for directed teleport.
 
 ***** <Dwarf>
 Dwarf
@@ -45,9 +44,9 @@ Dwarf
     challenges at imagined foes. In other words, dwarves are miserable at
     stealth. Just as comfortable relying on their hearing as on their eyes, 
     they can never be truly blinded. Dwarven arcane spellcasters, "smith-mages",
-    specialise in fire. As half-faeries, Dwarves learn to Shift earlier than
-    other races. Half-faeries are more fragile than other races and often die
-    when they are wounded critically.
+    specialise in fire. As half-faeries, Dwarves gain a point of Escape at
+    levels 5, 15, 25, 35, and 45. These points can be used for directed
+    teleport.
 
 ***** <Gnome>
 Gnome
@@ -60,8 +59,8 @@ Gnome
     As comfortable below ground as above it, gnomes have fair infra-vision, and
     are intrinsically protected against paralysis and some slowing effects.
     Gnomish arcane spellcasters specialise in frost. As half-faeries, Gnomes
-    learn to Shift earlier than other races. Half-faeries are more fragile than
-    other races and often die when they are wounded critically.
+    gain a point of Escape at levels 5, 15, 25, 35, and 45. These points can be
+    used for directed teleport.
 
 ***** <Grippli>
 Grippli
@@ -143,148 +142,3 @@ Kyrrus
     who choose to combine might with religous faith and become shamans. Well 
     educated and wise, their wisdom is naturally sustained against attacks.
     Kyrrus arcane spellcasters, "sun-mages", specialise in fire.
-
-***** <Angel>
-Angel
-    Angels come from heaven to spread the causes of good, by any means 
-    necessary. While they start out as being rather weak and fragile, as they
-    gain experience they are awarded new abilities and they eventually become 
-    powerful in all regards. Angels possess special racial abilities. Coming
-    from a higher plane, the experiences of this world do not leave a strong 
-    impression and them and they gain levels slowly. In addition, killing non-
-    evil creatures may sometimes be necessary for their survival, but it goes
-    against the basic fibre of their being and doing so provides them with only
-    minimal experience rewards. During their time on this plane, they can 
-    choose to belong to any trade - except, of course, thievery. Angelic arcane
-    spellcasters specialise in fire. When an Angel is wounded critically, his
-    spirit sometimes escapes to Heaven.
-
-***** <Demon>
-Demon
-    Demons are the evil spawn of hell. Chaotic and unpredictable, some demons 
-    realize that the quickest path to promotion is by destroying all their 
-    rivals, and thus temporarily join the side of good to cleanse the dungeons
-    of FayAngband. They are the weakest of the races at their creation, but 
-    their abilities grow with their levels and they eventually gain immense 
-    power. From a certain level, Demons gain special racial abilities. Low 
-    level demons are quite stealthy, but as they grow more powerful their 
-    stealth rapidly decreases. Death and mayhem being commonplace to them, they
-    gain levels slowly. They can play warriors, rogues, spellswords, mages and 
-    rangers. Demons are masters of torture in all its forms, and therefore
-    demon arcane spellcasters can specialise in either fire or frost, chosen
-    randomly. When a Demon is wounded critically, her spirit may escape to Hell.
-
-
-=== Recommended combinations of Race and Class ===
-
-         Warrior Rogue Priest Shaman Mage Spellsword Ranger Mystic Bard
-Human      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Elf        Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Dwarf      Yes    Yes  Yes     Yes   No       No     No      Yes   No
-Gnome      Yes    Yes  Yes     Yes   Yes      Yes    No      Yes   No
-Grippli    No     Yes  Yes     Yes   Yes      No     Yes     Yes   Yes
-Lizardman  Yes    No   No      Yes   No       Yes    Yes     No    No
-Rattikin   Yes    Yes  No      No    Yes      Yes    Yes     No    No
-Felpurr    Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Ursa       Yes    No   Yes     Yes   No       No     No      No    No
-Vargr      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Kyrrus     No     No   Yes     Yes   Yes      No     No      Yes   No
-Angel      Yes    No   Yes     Yes   Yes      Yes    Yes     Yes   Yes
-Demon      Yes    Yes  No      No    Yes      Yes    Yes     No    No
-
-
-=== Stat Bonus Tables ===
-
-Stat, hit dice, and experience points per level modifications due to race
-are listed in the following table.
-
-                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
-
-           Human        0    0    0    0    0    0      10          +0%
-           Elf         -1   +2   -1   +2   +1   +3       9         +40%
-           Dwarf       +1   -2   +1   -1   +1   -2      11         +20%
-           Gnome       -2   +1    0   +2   +1   -1       8         +20%
-           Grippli     -3   +1   +1   +2   +1    0       7         +10%
-           Lizardman   +1   -2   -1    0   +1   -3      11         +20%
-           Rattikin    -2   +1   -1   +3   -1   -2       7         +10%
-           Felpurr     -2   +1    0   +1   -1    0      10         +25%
-           Ursa        +3   -3    0   -2   +2   -2      12         +25%
-           Vargr       +1   +1   +1   +1   +1    0      11         +60%
-           Kyrrus       0   +1   +2   -2    0   -1       9         +20%
-           Angel        *    *    *    *    *    *       9         +90%
-           Demon        *    *    *    *    *    *      10         +80%
-
-           *see below           
-
-=== Racial resistance tables ===
-
-Note: This is the innate resistance for a level 50 member of this race.
-
-       acd elc fir cld wtr psn dis lit drk cnf snd shr nex nth chs dsn tim mna
-Human   10  10  10  10  10  20  20  10  10  20  10  10  10  10  10  -   -   -
-Elf     5   15  5   15  5   25  25  50  -   15  10  10  10  5   10  -   4   -
-Dwarf   15  15  15  15  10  25  25  -   20  5   5   10  10  10  5   -   -   -
-Gnome   10  10  10  10  10  10  10  -   20  10  5   10  -   5   5   4   -   4
-Grip.   20  5   10  5   66  30  25  10  5   10  10  10  10  10  10  -   -   -
-Lizard. 15  10  10  10  20  66  20  -   10  10  5   5   10  5   5   -   -   -
-Rat.    10  10  5   10  10  35  66  5   25  5   10  5   10  10  5   -   -   -
-Fel.    5   5   15  15  10  10  10  15  15  15  10  10  10  10  10  -   -   -
-Ursa    10  10  25  50  10  15  15  10  10  5   10  10  5   10  10  -   -   -
-Vargr   15  15  15  15  15  25  25  15  15  15  5   15  15  15  10  -   -   -
-Kyruss  -   -   -   30  -   8   12  15  15  25  10   5  10  10  -   10  10  10
-Angel   40  40  40  30  35  35  35 100  20  35  35  35  20  35  -   7   7   7
-Demon   35  35  66  35  30  35  35  -   50  30  30  30  30  30  30  7   -   7
-
-=== Angel Progression chart ===
-
-             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
-
-Cherub        1- 4   -2    0   +1    0   -2   +1      Detect Evil
-Seraph        5- 9   -2    0   +1    0   -1   +1      Call Light 
-Deva         10-19    0    0   +2    0    0   +2      Spear of Light
-Planetar     20-29    0   +1   +2    0    0   +2      Spear of Light
-Archon       30-39   +1   +1   +3    0   +1   +3      Orb of Draining
-Solar        40-49   +1   +2   +3    0   +1   +3      Prot. from Evil
-Archangel       50   +2   +2   +4    0   +2   +4      Prot. from Evil
-
-Resistances and inherent abilties (cumulative):
-Cherub    - None.
-Seraph    - Sustain Wisdom, Permanent Light (radius 1).
-Deva      - Bravery, Feather Falling.
-Planetar  - See Invisible, Sustain Charisma.
-Archon    - Free Action.
-Solar     - Regeneration, Slow digestion.
-Archangel - Hold Life.
-
-
-=== Demon Progression chart ===
-             LEVEL   STR  INT  WIS  DEX  CON  CHR     ABILITY
-
-Lemure        1- 4   -3   -3   -5   -3   -3   -5      
-Quasit        5- 9   -2   -3   -5   -2   -2   -5      
-Imp          10-14   -1   -1   -5   -1   -1   -6        
-Tengu        15-19    0    0   -5    0   -1   -6      Blink
-Bodak        20-24    0    0   -5    0    0   -6      Fire Bolt
-Vrock        25-29    0    0   -4    0   +1   -6      Fire Bolt
-Hezrou       30-34   +1    0   -4    0   +2   -7      Fire Bolt
-Glabrezu     35-39   +1    0   -4    0   +2   -7      Fire Ball
-Nalfeshnee   40-44   +2   +1   -3    0   +3   -7      Fire Ball
-Pit Fiend    45-49   +2   +1   -3    0   +3   -8      Fire Ball
-Balrog          50   +3   +2   -3   +1   +4   -9      Plasma Ball
-
-Resistances and inherent abilties (cumulative):
-
-Lemure     - Taint.
-Quasit     - Bravery.
-Imp        - None.
-Tengu      - No Blindness.
-Bodak      - Sustain strength.
-Vrock      - None.
-Hezrou     - Sustain Constituion.
-Glabrezu   - None.
-Nalfeshnee - Regeneration. 
-Pit Fiend  - None.
-Balrog     - None.
-
-
-====================== Last updated for FayAngband 1.0.0 ======================

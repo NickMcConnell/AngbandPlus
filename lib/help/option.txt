@@ -466,6 +466,3 @@ Compress messages in savefiles [compress_savefile] (default: yes)
 Avoid centering while running [run_avoid_center] (default: no)
     The map does not centre on the player if the player moves with the "run" 
     command, only when the running finishes.
-
-
-======================= Last updated for FayAngband 1.1.0 =====================

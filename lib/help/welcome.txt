@@ -1,6 +1,6 @@
 === General Information ===
 
-FayAngband is basically a complex single player dungeon simulation.  A player
+Halls of Mist is basically a complex single player dungeon simulation.  A player
 creates a character, choosing from a variety of sexes, races and classes,
 and then "runs" that character over a period of days, weeks, even months.
 
@@ -10,13 +10,13 @@ owners.  Then the player can descend into the dungeon, where he will explore
 the many levels of the dungeon, gaining experience by killing fierce creatures,
 collecting powerful objects and valuable treasure, and returning to town 
 occasionally to barter for new supplies.  Eventually, as the player grows more
-experienced, he may attempt to win the game by defeating Morgoth, the Lord of 
-Darkness, who resides far below the surface.
+experienced, he may attempt to win the game by defeating The Thin White Duke,
+who resides at the bottom of the dungeon, on dungeon level 48.
 
-Note that FayAngband is a very complex game, and it may be difficult to grasp
-everything at first, especially if you have never played a "roguelike" game
-before.  Even if you are an experienced hand at Angband or others of its many
-variants, however, you will discover that much is different.  You should 
+Note that Halls of Mist is a very complex game, and it may be difficult to
+grasp everything at first, especially if you have never played a "roguelike"
+game before.  Even if you are an experienced hand at Angband or others of its
+many variants, however, you will discover that much is different.  You should
 probably browse through all of the "online help files" before beginning any
 serious adventuring.
 
@@ -24,9 +24,10 @@ For the true newcomer, a simple tutorial is available in the "tutorial.txt"
 help file.
 
 
-=== FayAngband ===
+=== Halls of Mist ===
 
-FayAngband is a variant of EyAngband, which is a variant of Angband.
+Halls of Mist is the successor to FayAngband, my earlier variant. FayAngband is
+a variant of EyAngband, which is a variant of Angband.
 
 
 === A Note from Eytan Zweig ===
@@ -68,6 +69,3 @@ to date, but when in doubt, you should ask the newsgroup for confirmation.
 And be sure to tell all your friends about how much you like EyAngband - and if 
 you found that it isn't quite suited for your tastes, try one of the many other
 Angband variants out there.  You'll be amazed at the variety available.
-
-
-====================== Last updated for FayAngband 1.0.0 ======================

@@ -1,6 +1,6 @@
 === Interacting with Objects ===
 
-FayAngband features many different item types, all of which are at least 
+Halls of Mist features many different item types, all of which are at least 
 potentially useful for players.  This help file summarizes the various item 
 types and the means of interaction with them.
 
@@ -185,6 +185,3 @@ Rods
     use a rod, 'z'ap it.  Up to 5 rods can share an inventory slot.
 
     Rods are indestructible.
-
-
-====================== Last updated for FayAngband 1.0.1 ======================

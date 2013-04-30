@@ -1,0 +1,83 @@
+=== The Alchemical Circles ===
+
+You will fairly often find broken magical circles like this in the dungeon:
+
+    \
+/    \
+\    /
+ \  /
+
+As you can see, the pattern is broken in one place. To complete the circle, you
+need to first move on the empty square, and the pour (drop) a Powder Vial.
+
+ @  \
+/    \
+\    /
+ \  /
+
+You need to make an Alchemy skill check to complete the pattern. If you fail,
+the Powder Vial is wasted.
+
+You may 'I'nspect a Powder Vial to find out what kind of circles it completes.
+Some powders always complete a certain circle. For example, dropping a Powder
+Vial of Sleeping on the broken pattern makes a Circle of Illusions out of the
+broken circle. Other powders have two possible circles, chosen randomly when
+you complete the circle.
+
+In my own games, two basic circles have become essential tools: Circle of
+Lifeforce and Circle of Knowledge.
+
+
+=== All seven circles ===
+
+Circle of Lifeforce restores and sustains STR, DEX, CON and experience points.
+It also cures and protects from the effects of disease. Undead and demons have
+difficulties moving (80 % fail) or attacking in melee (50 % fail) on a Circle
+of Lifeforce.
+
+Circle of Illusions increases spell range by 7 squares and makes your influence
+spells (not devices) harder to resist. Animals, persons and humanoids have
+difficulties moving (80% fail) or attacking in melee (50 % fail) on a Circle of
+Illusions.
+
+Circle of Nexus restores and sustains MEM, WIS and PRE. All teleportation
+effects other than Phase Door will take you to the Circle of Nexus. Any
+teleporting monster (for whatever reason) will also end up there.
+
+Circle of Recall will call you back when your hitpoints are at 20 % of maximum
+or lower.
+
+Circle of Summoning summons a group of monsters when completed.
+
+Circle of Knowledge gives +7 to Lore calculations. When your MEM+WIS+bonus
+reaches 20, 30, 40, 50 or 60 you gain either more Lore points or better
+proficiencies.
+
+Circle of Permanence will make any positive temporary status effect started
+inside the circle last until you leave the dungeon level.
+
+
+=== Ritual Magic ===
+
+Some spell books can often be purchaced from the town. These books are called
+the "town spellbooks". Other spell books can only be found in the dungeons.
+They are "dungeon spellbooks". Finally, some spell books are one of the kind,
+true artifacts.
+
+Every dungeon and artifact spellbook contains a ritual. 'I'nspect the book to
+find out everything about the ritual. Here's an example ritual from The Lore of
+the Hunter (ranger's own spellbook).
+
+   This tome contains the Ritual of Wisdom. You may use the ritual by dropping
+   the book on a Circle of Recall. The book is consumed in the process. The
+   ritual's power is MEM+WIS-1d20. For each full 10 power points, gain a point
+   of Wisdom.
+
+All rituals use the same mechanics but they do different things. For example,
+there's a ritual that permanently increases your infravision by one square per
+10 power points. Another raises all of your resistances by 3 points per a 10
+power points. Yet another summons powerful weapons, one weapon per 10 power
+points.
+
+Hint: offer a gift to an intellectual goddess and wield a Torch of Wisdom
+before attempting rituals. Ritual magic takes careful planning.
