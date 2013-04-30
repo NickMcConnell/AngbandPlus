@@ -876,22 +876,20 @@ void do_cmd_options(void)
 		prt("(5) Display Options", 8, 5);
 		prt("(6) Birth Options", 9, 5);
 		prt("(7) Cheat Options", 10, 5);
-		prt("(8) Variant Options", 11, 5);
-		prt("(9) Save-File Options", 12, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 14, 5);
+		prt("(W) Window flags", 12, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 15, 5);
-		prt("(A) Append options to a file", 16, 5);
+		prt("(L) Load a user pref file", 13, 5);
+		prt("(A) Append options to a file", 14, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 18, 5);
-		prt("(H) Hitpoint Warning", 19, 5);
+		prt("(D) Base Delay Factor", 16, 5);
+		prt("(H) Hitpoint Warning", 17, 5);
 
 		/* Prompt */
-		prt("Command: ", 21, 0);
+		prt("Command: ", 19, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -940,7 +938,7 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_aux(6, "Cheat Options");
 		}
-
+#if 0
 		/* Variant Options */
 		else if (ch == '8')
 		{
@@ -952,7 +950,7 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_aux(8, "Save-File Options");
 		}
-
+#endif
 		/* Window flags */
 		else if ((ch == 'W') || (ch == 'w'))
 		{
@@ -1697,6 +1695,9 @@ void do_cmd_visuals(void)
 
 	char buf[1024];
 
+	const char *empty_symbol = "<< ? >>";
+
+	if (use_bigtile) empty_symbol = "<< ?? >>";
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1910,8 +1911,8 @@ void do_cmd_visuals(void)
 				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 
 				/* Dump the feature attr/char info */
-				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+				fprintf(fff, "F:%d:0x%02X:0x%02X:%s\n\n", i,
+					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char),(f_ptr->flags2 & (FF2_ATTR_LITE)) ? "YES" : "NO");
 			}
 
 			/* All done */
@@ -2006,7 +2007,7 @@ void do_cmd_visuals(void)
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
 					    format("Default attr/char = %3u / %3u", da, dc));
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 19, da, dc);
 
 				if (use_bigtile)
@@ -2020,7 +2021,7 @@ void do_cmd_visuals(void)
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 20, ca, cc);
 
 				if (use_bigtile)
@@ -2077,7 +2078,7 @@ void do_cmd_visuals(void)
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
 					    format("Default attr/char = %3d / %3d", da, dc));
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 19, da, dc);
 
 				if (use_bigtile)
@@ -2091,7 +2092,7 @@ void do_cmd_visuals(void)
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 20, ca, cc);
 
 				if (use_bigtile)
@@ -2148,7 +2149,7 @@ void do_cmd_visuals(void)
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
 					    format("Default attr/char = %3d / %3d", da, dc));
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 19, da, dc);
 
 				if (use_bigtile)
@@ -2162,7 +2163,7 @@ void do_cmd_visuals(void)
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 20, ca, cc);
 
 				if (use_bigtile)
@@ -2219,7 +2220,7 @@ void do_cmd_visuals(void)
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
 					    format("Default attr/char = %3d / %3d", da, dc));
-				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 19, da, dc);
 
 
@@ -2234,7 +2235,7 @@ void do_cmd_visuals(void)
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
 				Term_putch(43, 20, ca, cc);
 
 				if (use_bigtile)
@@ -3052,9 +3053,6 @@ void do_cmd_save_screen_html(void)
 }
 
 
-
-#define BROWSER_ROWS	16
-
 /*
  * Description of each monster group.
  */
@@ -3205,8 +3203,21 @@ static int collect_monsters(int grp_cur, int *mon_idx, int mode)
 		/* Check for race in the group */
 		if (grp_unique || strchr(group_char, r_ptr->d_char))
 		{
+			int idx, ii, tmp;
+
+			for (ii = 0, idx = i;ii < mon_cnt; ii++)
+			{
+				if (strcmp(r_name + r_info[idx].name, r_name + r_info[mon_idx[ii]].name) <= 0)
+				{
+					tmp = idx;
+					idx = mon_idx[ii];
+					mon_idx[ii] = tmp;
+				}
+
+			}
+
 			/* Add the race */
-			mon_idx[mon_cnt++] = i;
+			mon_idx[mon_cnt++] = idx;
 
 			/* XXX Hack -- Just checking for non-empty group */
 			if (mode & 0x01) break;
@@ -3222,8 +3233,8 @@ static int collect_monsters(int grp_cur, int *mon_idx, int mode)
 
 
 /*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
+ * Build a list of ego item indexes in the given group. Return the number
+ * of ego items in the group.
  */
 static int collect_ego_items(int grp_cur, int object_idx[])
 {
@@ -3241,15 +3252,35 @@ static int collect_ego_items(int grp_cur, int object_idx[])
 		/* Skip empty objects */
 		if (!e_ptr->name) continue;
 
-		/* Test if this is a legal ego-item type for this object */
-		for (j = 0, k = 0; j < 3; j++) if (group_tval == e_ptr->tval[j]) k++;
-		if (!(k))  continue; 
-
 		/* Require objects ever seen*/
 		if (!(cheat_lore) && !(e_ptr->aware)) continue;
 
-		/* Add the race */
-		object_idx[object_cnt++] = i;
+		/* Test if this is a legal ego-item type for this object */
+		for (j = 0, k = 0; j < 3; j++) if (group_tval == e_ptr->tval[j]) k++;
+
+		/* Check for race in the group */
+		if (k)
+		{
+			int idx, ii, tmp;
+
+			for (ii = 0, idx = i;ii < object_cnt; ii++)
+			{
+				/* XXX Need to remove leading ' of' or single-quote */
+
+				if (strcmp(e_name + e_info[idx].name, e_name + e_info[object_idx[ii]].name) <= 0)
+				{
+					tmp = idx;
+					idx = object_idx[ii];
+					object_idx[ii] = tmp;
+				}
+
+			}
+
+			/* Add the race */
+			object_idx[object_cnt++] = idx;
+
+		}
+
 	}
 
 	/* Terminate the list */
@@ -3262,8 +3293,8 @@ static int collect_ego_items(int grp_cur, int object_idx[])
 
 
 /*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
+ * Build a list of object indexes in the given group. Return the number
+ * of objects in the group.
  */
 static int collect_objects(int grp_cur, int object_idx[], int mode)
 {
@@ -3334,8 +3365,8 @@ static int collect_objects(int grp_cur, int object_idx[], int mode)
 }
 
 /*
- * Build a list of monster indexes in the given group. Return the number
- * of monsters in the group.
+ * Build a list of artifact indexes in the given group. Return the number
+ * of artifacts in the group.
  */
 static int collect_artifacts(int grp_cur, int object_idx[])
 {
@@ -3344,7 +3375,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
 
-	int k, y, x;
+	int y, x;
 
 	bool *okay;
 
@@ -3352,12 +3383,12 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 	C_MAKE(okay, z_info->a_max, bool);
 
 	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		artifact_type *a_ptr = &a_info[i];
 
 		/* Default */
-		okay[k] = FALSE;
+		okay[i] = FALSE;
 
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
@@ -3366,7 +3397,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 		if (!(cheat_lore) && !a_ptr->cur_num) continue;
 
 		/* Assume okay */
-		okay[k] = TRUE;
+		okay[i] = TRUE;
 	}
 
 	/* Check the dungeon */
@@ -3418,18 +3449,33 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 	}
 
 	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		artifact_type *a_ptr = &a_info[i];
 
 		/* List "dead" ones */
-		if (!okay[k]) continue;
+		if (!okay[i]) continue;
 
 		/* Check for race in the group */
 		if (a_ptr->tval == group_tval)
 		{
+			int idx, ii, tmp;
+
+			for (ii = 0, idx = i;ii < object_cnt; ii++)
+			{
+				/* XXX Need to remove leading ' of' or single-quote */
+
+				if (strcmp(a_name + a_info[idx].name, a_name + a_info[object_idx[ii]].name) <= 0)
+				{
+					tmp = idx;
+					idx = object_idx[ii];
+					object_idx[ii] = tmp;
+				}
+
+			}
+
 			/* Add the race */
-			object_idx[object_cnt++] = k;
+			object_idx[object_cnt++] = idx;
 		}
 	}
 
@@ -3487,13 +3533,21 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 	/* Diagonals - hack */
 	if ((ddx[d] > 0) && ddy[d])
 	{
+		int browser_rows;
+		int wid, hgt;
+
+		/* Get size */
+		Term_get_size(&wid, &hgt);
+
+		browser_rows = hgt - 8;
+
 		/* Browse group list */
 		if (!col)
 		{
 			int old_grp = grp;
 
 			/* Move up or down */
-			grp += ddy[d] * BROWSER_ROWS;
+			grp += ddy[d] * browser_rows;
 
 			/* Verify */
 			if (grp >= grp_cnt)	grp = grp_cnt - 1;
@@ -3505,7 +3559,7 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 		else
 		{
 			/* Move up or down */
-			list += ddy[d] * BROWSER_ROWS;
+			list += ddy[d] * browser_rows;
 
 			/* Verify */
 			if (list >= list_cnt) list = list_cnt - 1;
@@ -3598,6 +3652,11 @@ static void display_artifact_list(int col, int row, int per_page, int object_idx
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
 
+		if (p_ptr->wizard) 
+		{
+			c_prt(attr, format("%d", a_idx), row + i, 60);
+		}
+
 	}
 
 	/* Clear remaining lines */
@@ -3637,7 +3696,7 @@ static void desc_art_fake(int a_idx)
 	screen_save();
 
 	/* Describe */
-	screen_object(o_ptr, FALSE);
+	screen_object(o_ptr);
 
 	/* Load the screen */
 	screen_load();
@@ -3661,6 +3720,14 @@ static void do_cmd_knowledge_artifacts(void)
 	bool flag;
 	bool redraw;
 
+	int browser_rows;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
+
 	/* Allocate the "object_idx" array */
 	C_MAKE(object_idx, z_info->a_max, int);
 
@@ -3676,10 +3743,10 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Save the maximum length */
 		if (len > max) max = len;
 
-		/* See if any monsters are known */
+		/* See if any artifacts are known */
 		if (collect_artifacts(i, object_idx))
 		{
-			/* Build a list of groups with known monsters */
+			/* Build a list of groups with known artifacts */
 			grp_idx[grp_cnt++] = i;
 		}
 	}
@@ -3711,7 +3778,7 @@ static void do_cmd_knowledge_artifacts(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < BROWSER_ROWS; i++)
+			for (i = 0; i < browser_rows; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -3721,25 +3788,28 @@ static void do_cmd_knowledge_artifacts(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
 
-		/* Scroll monster list */
+		/* Scroll artifact list */
 		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
+		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
 
 		/* Display a list of object groups */
-		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_artifacts(grp_idx[grp_cur], object_idx);
 
 		/* Display a list of objects in the current group */
-		display_artifact_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
+		display_artifact_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, ENTER to recall, ESC", 23, 0);
+		prt("<dir>, ENTER to recall, ESC", hgt, 0);
 
-		/* Mega Hack -- track this monster race */
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", hgt - 1, 0);
+
+		/* Mega Hack -- track this artifact race */
 		if (object_cnt) artifact_track(object_idx[object_cur]);
 
 		/* The "current" object changed */
@@ -3801,27 +3871,200 @@ static void do_cmd_knowledge_artifacts(void)
 /*
  * Display visuals.
  */
-static void display_visual_list(int col, int row, int height, byte attr_cur, byte attr_top, char char_cur, char char_left)
+static void display_visual_list(int col, int row, int height, int width, byte attr_top, char char_left)
 {
-	int i, ii;
+	int i, j;
 
 	/* Clear the display lines */
 	for (i = 0; i < height; i++)
 	{
-		Term_erase(col, row + i, 255);
+		Term_erase(col, row + i, width);
 	}
+
+	/* Bigtile mode uses double width */
+	if (use_bigtile) width /= 2;
 
 	/* Display lines until done */
 	for (i = 0; i < height; i++)
 	{
 		/* Display columns until done */
-		for (ii = 0; ii < (SCREEN_WID - col); ii++)
+		for (j = 0; j < width; j++)
 		{
-			/* Display the name */
-			Term_putch(col+ii, row+i, attr_top + i, char_left+ii);
+			byte a;
+			char c;
+			int x = col + j;
+			int y = row + i;
+			int ia, ic;
+
+			/* Bigtile mode uses double width */
+			if (use_bigtile) x += j;
+
+			ia = attr_top + i;
+			ic = char_left + j;
+
+			a = (byte)ia;
+			c = (char)ic;
+
+			/* Display symbol */
+			Term_putch(x, y, a, c);
+
+			if (use_bigtile)
+			{
+				if (a & 0x80)
+					Term_putch(x + 1, y, 255, -1);
+				else
+					Term_putch(x + 1, y, TERM_WHITE, ' ');
+			}
+
 		}
 	}
 }
+
+
+/*
+ * Place the cursor at the collect position for visual mode
+ */
+static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr_top, byte char_left)
+{
+	int i = a - attr_top;
+	int j = c - char_left;
+
+	int x = col + j;
+	int y = row + i;
+
+	/* Bigtile mode uses double width */
+	if (use_bigtile) x += j;
+
+	/* Place the cursor */
+	Term_gotoxy(x, y);
+}
+
+
+/*
+ *  Clipboard variables for copy&paste in visual mode
+ */
+static byte attr_idx = 0;
+static byte char_idx = 0;
+
+/*
+ *  Do visual mode command -- Change symbols
+ */
+static bool visual_mode_command(char ch, bool *visual_list_ptr, 
+				int height, int width, 
+				byte *attr_top_ptr, char *char_left_ptr, 
+				byte *cur_attr_ptr, char *cur_char_ptr)
+{
+	static byte attr_old = 0;
+	static char char_old = 0;
+
+	switch (ch)
+	{
+	case ESCAPE:
+		if (*visual_list_ptr)
+		{
+			/* Cancel change */
+			*cur_attr_ptr = attr_old;
+			*cur_char_ptr = char_old;
+			*visual_list_ptr = FALSE;
+
+			return TRUE;
+		}
+
+		break;
+
+	case '\n':
+	case '\r':
+		if (*visual_list_ptr)
+		{
+			/* Accept change */
+			*visual_list_ptr = FALSE;
+
+			return TRUE;
+		}
+		break;
+
+	case 'V':
+	case 'v':
+		if (!*visual_list_ptr)
+		{
+			*visual_list_ptr = TRUE;
+
+			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - 5);
+			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - 10);
+
+			attr_old = *cur_attr_ptr;
+			char_old = *cur_char_ptr;
+
+			return TRUE;
+		}
+		break;
+
+	case 'C':
+	case 'c':
+		/* Set the visual */
+		attr_idx = *cur_attr_ptr;
+		char_idx = *cur_char_ptr;
+
+		return TRUE;
+
+	case 'P':
+	case 'p':
+		if (attr_idx)
+		{
+			/* Set the char */
+			*cur_attr_ptr = attr_idx;
+			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - 5);
+		}
+
+		if (char_idx)
+		{
+			/* Set the char */
+			*cur_char_ptr = char_idx;
+			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - 10);
+		}
+
+		return TRUE;
+
+	default:
+		if (*visual_list_ptr)
+		{
+			int eff_width;
+			int d = target_dir(ch);
+			byte a = *cur_attr_ptr;
+			char c = *cur_char_ptr;
+
+			if (use_bigtile) eff_width = width / 2;
+			else eff_width = width;
+					
+			/* Restrict direction */
+			if ((a == 0) && (ddy[d] < 0)) d = 0;
+			if ((c == -128) && (ddx[d] < 0)) d = 0;
+			if ((a == 255) && (ddy[d] > 0)) d = 0;
+			if ((c == 127) && (ddx[d] > 0)) d = 0;
+
+			a += ddy[d];
+			c += ddx[d];
+
+			/* Set the visual */
+			*cur_attr_ptr = a;
+			*cur_char_ptr = c;
+
+
+			/* Move the frame */
+			if ((ddx[d] < 0) && *char_left_ptr > MAX(-128, (int)c - 10)) (*char_left_ptr)--;
+			if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(127, (int)c + 10)) (*char_left_ptr)++;
+			if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)a - 4)) (*attr_top_ptr)--;
+			if ((ddy[d] > 0) && *attr_top_ptr + height < MIN(255, (int)a + 4)) (*attr_top_ptr)++;
+			return TRUE;
+		}
+				
+		break;
+	}
+
+	/* Visual mode command is not used */
+	return FALSE;
+}
+
 
 /*
  * Display the monsters in a group.
@@ -3835,6 +4078,8 @@ static void display_monster_list(int col, int row, int per_page, int *mon_idx,
 	for (i = 0; i < per_page && mon_idx[i]; i++)
 	{
 		byte attr;
+		byte a;
+		char c;
 
 		/* Get the race index */
 		int r_idx = mon_idx[mon_top + i];
@@ -3849,8 +4094,29 @@ static void display_monster_list(int col, int row, int per_page, int *mon_idx,
 		/* Display the name */
 		c_prt(attr, r_name + r_ptr->name, row + i, col);
 
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format(r_ptr->x_char >= 0 ? "%02x/%02x" : "%02x/%d", r_ptr->x_attr, r_ptr->x_char), row + i, 60);
+		}
+		else if (p_ptr->wizard) 
+		{
+			c_prt(attr, format("%d", r_idx), row + i, 60);
+		}
+
+		a = r_ptr->x_attr;
+		c = r_ptr->x_char;
+
 		/* Display symbol */
-		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+		Term_putch(70, row + i, a, c);
+
+		if (use_bigtile)
+		{
+			if (a & 0x80)
+				Term_putch(71, row + i, 255, -1);
+			else
+				Term_putch(71, row + i, TERM_WHITE, ' ');
+		}
 
 		/* Display kills */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) put_str(format("%s", (r_ptr->max_num == 0)? "dead" : "alive"), row + i, 73);
@@ -3865,13 +4131,14 @@ static void display_monster_list(int col, int row, int per_page, int *mon_idx,
 	}
 }
 
+
 /*
  * Display known monsters.
  */
 static void do_cmd_knowledge_monsters(void)
 {
 	int i, len, max;
-	int grp_cur, grp_top;
+	int grp_cur, grp_top, old_grp_cur;
 	int mon_cur, mon_top;
 	int grp_cnt, grp_idx[100];
 	int mon_cnt;
@@ -3884,12 +4151,16 @@ static void do_cmd_knowledge_monsters(void)
 	bool visual_list = FALSE;
 	byte attr_top = 0;
 	char char_left = 0;
-	byte attr_idx = 0;
-	char char_idx = 0;
-	byte attr_old = 0;
-	char char_old = 0;
+
+	int browser_rows;
+	int wid, hgt;
 
 	monster_race *r_ptr;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
 
 	/* Allocate the "mon_idx" array */
 	C_MAKE(mon_idx, z_info->r_max, int);
@@ -3917,8 +4188,10 @@ static void do_cmd_knowledge_monsters(void)
 	/* Terminate the list */
 	grp_idx[grp_cnt] = -1;
 
+	old_grp_cur = -1;
 	grp_cur = grp_top = 0;
 	mon_cur = mon_top = 0;
+	mon_cnt = 0;
 
 	flag = FALSE;
 	redraw = TRUE;
@@ -3941,7 +4214,7 @@ static void do_cmd_knowledge_monsters(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < BROWSER_ROWS; i++)
+			for (i = 0; i < browser_rows; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -3951,35 +4224,54 @@ static void do_cmd_knowledge_monsters(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll monster list */
-		if (mon_cur < mon_top) mon_top = mon_cur;
-		if (mon_cur >= mon_top + BROWSER_ROWS) mon_top = mon_cur - BROWSER_ROWS + 1;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
 
 		/* Display a list of monster groups */
-		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, monster_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, browser_rows, grp_idx, monster_group_text, grp_cur, grp_top);
 
-		/* Get a list of monsters in the current group */
-		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
 
-		/* Display a list of monsters in the current group */
-		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top);
+			/* Get a list of monsters in the current group */
+			mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
+		}
+
+		/* Scroll monster list */
+		while (mon_cur < mon_top)
+			mon_top = MAX(0, mon_top - browser_rows/2);
+		while (mon_cur >= mon_top + browser_rows)
+			mon_top = MIN(mon_cnt - browser_rows, mon_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of monsters in the current group */
+			display_monster_list(max + 3, 6, browser_rows, mon_idx, mon_cur, mon_top);
+		}
+		else
+		{
+			mon_top = mon_cur;
+
+			/* Display a monster name */
+			display_monster_list(max + 3, 6, 1, mon_idx, mon_cur, mon_top);
+
+			/* Display visual list below first monster */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Prompt */
+		prt(format("<dir>, 'r' to recall%s%s, ESC",
+			visual_list ? ", ENTER to accept" : ", 'v' for visuals",
+			(attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
 
 		/* Get the current monster */
 		r_ptr = &r_info[mon_idx[mon_cur]];
 
-		/* Display visual list below first monster */
-		if (visual_list) display_visual_list(max + 3, 7, BROWSER_ROWS-1, r_ptr->x_attr, attr_top, r_ptr->x_char, char_left);
-
-		/* Prompt */
-		if (visual_list && (attr_idx || char_idx)) prt("<dir>, ENTER to accept, 'c', 'p' to paste ESC",23,0);
-		else if (visual_list) prt("<dir>, ENTER to accept, 'c' to copy, ESC",23,0);
-		else if ((attr_idx || char_idx)) prt("<dir>, ENTER to recall, 'v' for visuals, 'p' to paste, ESC", 23, 0);
-		else prt("<dir>, ENTER to recall, 'v' for visuals, ESC", 23, 0);
+		/* Get the current monster */
+		r_ptr = &r_info[mon_idx[mon_cur]];
 
 		/* Mega Hack -- track this monster race */
-		if (mon_cnt) p_ptr->monster_race_idx = mon_idx[mon_cur];
+		if (mon_cnt) monster_race_track(mon_idx[mon_cur]);
 
 		/* Track this monster race */
 		p_ptr->window |= (PW_MONSTER);
@@ -3989,8 +4281,7 @@ static void do_cmd_knowledge_monsters(void)
 
 		if (visual_list)
 		{
-			/* Place the cursor */
-			Term_gotoxy(max + 3 + (r_ptr->x_char - char_left), 7 + (r_ptr->x_attr - attr_top));
+			place_visual_list_cursor(max + 3, 7, r_ptr->x_attr, r_ptr->x_char, attr_top, char_left);
 		}
 		else if (!column)
 		{
@@ -4003,120 +4294,37 @@ static void do_cmd_knowledge_monsters(void)
 	
 		ch = inkey();
 
+		/* Do visual mode command if needed */
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &r_ptr->x_attr, &r_ptr->x_char)) continue;
+
 		switch (ch)
 		{
 			case ESCAPE:
 			{
-				if (visual_list)
-				{
-					r_ptr->x_attr = attr_old;
-					r_ptr->x_char = char_old;					
-
-					visual_list = FALSE;
-				}
-				else
-				{
-					flag = TRUE;
-				}
+				flag = TRUE;
 				break;
 			}
 
 			case 'R':
 			case 'r':
-			case '\n':
-			case '\r':
 			{
-				if (visual_list)
-				{
-					visual_list = FALSE;
-				}
 				/* Recall on screen */
-				else if (mon_idx[mon_cur])
+				if (mon_idx[mon_cur])
 				{
 					screen_roff(mon_idx[mon_cur]);
 
-					(void) inkey();
+					(void)inkey();
+	
 					redraw = TRUE;
-				}
-				break;
-			}
-
-			case 'V':
-			case 'v':
-			{
-				if (!visual_list)
-				{
-					visual_list = TRUE;
-
-					attr_top = MAX(0, r_ptr->x_attr - 5);
-					char_left = MAX(-128, r_ptr->x_char - 10);
-
-					attr_old = r_ptr->x_attr;
-					char_old = r_ptr->x_char;
-
-					mon_top = mon_cur;
-				}
-				break;
-			}
-
-			case 'C':
-			case 'c':
-			{
-				if (visual_list)
-				{
-					/* Set the visual */
-					attr_idx = r_ptr->x_attr;
-					char_idx = r_ptr->x_char;
-				}
-				break;
-			}
-
-			case 'P':
-			case 'p':
-			{
-				if (attr_idx)
-				{
-					/* Set the char */
-					r_ptr->x_attr = attr_idx;
-					attr_top = MAX(0, r_ptr->x_attr - 5);
-				}
-
-				if (char_idx)
-				{
-					/* Set the char */
-					r_ptr->x_char = char_idx;
-					char_left = MAX(-128, r_ptr->x_char - 10);
 				}
 				break;
 			}
 
 			default:
 			{
-				if (visual_list)
-				{
-					int d = target_dir(ch);
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
 
-					/* Restrict direction */
-					if ((r_ptr->x_attr== 0) && (ddy[d] < 0)) d = 0;
-					if ((r_ptr->x_char== -128) && (ddx[d] < 0)) d = 0;
-					if ((r_ptr->x_attr== 255) && (ddy[d] > 0)) d = 0;
-					if ((r_ptr->x_char== 127) && (ddx[d] > 0)) d = 0;
-
-					/* Set the visual */
-					r_ptr->x_attr += ddy[d];
-					r_ptr->x_char += ddx[d];
-
-					/* Move the frame */
-					if ((char_left > -128) && (ddx[d] < 0) && (r_ptr->x_char < 117)) char_left += ddx[d];
-					if ((char_left < 127 - SCREEN_WID + max + 4) && (ddx[d] > 0) && (r_ptr->x_char > -118)) char_left += ddx[d];
-					if ((attr_top > 0) && (ddy[d] < 0) && (r_ptr->x_attr < 250)) attr_top += ddy[d];
-					if ((attr_top < 255 - BROWSER_ROWS + 2) && (ddy[d] > 0) && (r_ptr->x_attr > 5)) attr_top += ddy[d];
-				}
-				else
-				{
-					/* Move the cursor */
-					browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
-				}
 				break;
 			}
 		}
@@ -4154,6 +4362,11 @@ static void display_ego_item_list(int col, int row, int per_page, int object_idx
 
 		/* Display the name */
 		c_prt(attr, e_name + e_ptr->name, row + i, col);
+
+		if (p_ptr->wizard) 
+		{
+			c_prt(attr, format("%d", e_idx), row + i, 60);
+		}
 
 		if (e_ptr->note)
 		{
@@ -4224,7 +4437,15 @@ static void do_cmd_knowledge_ego_items(void)
 
 	int note_idx = 0;
 
+	int browser_rows;
+	int wid, hgt;
+
 	ego_item_type *e_ptr;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
 
 	/* Allocate the "object_idx" array */
 	C_MAKE(object_idx, z_info->e_max, int);
@@ -4241,10 +4462,10 @@ static void do_cmd_knowledge_ego_items(void)
 		/* Save the maximum length */
 		if (len > max) max = len;
 
-		/* See if any monsters are known */
+		/* See if any ego items are known */
 		if (collect_ego_items(i, object_idx))
 		{
-			/* Build a list of groups with known monsters */
+			/* Build a list of groups with known ego items */
 			grp_idx[grp_cnt++] = i;
 		}
 	}
@@ -4276,7 +4497,7 @@ static void do_cmd_knowledge_ego_items(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < BROWSER_ROWS; i++)
+			for (i = 0; i < browser_rows; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -4286,27 +4507,27 @@ static void do_cmd_knowledge_ego_items(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
 
-		/* Scroll monster list */
+		/* Scroll ego item list */
 		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
+		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
 
 		/* Display a list of object groups */
-		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_ego_items(grp_idx[grp_cur], object_idx);
 
 		/* Display a list of objects in the current group */
-		display_ego_item_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
+		display_ego_item_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
 
 		/* Get the current ego item */
 		e_ptr = &e_info[object_idx[object_cur]];
 
 		/* Prompt */
-		if (note_idx) prt("<dir>, ENTER, '{', '}', 'c', 'p' to paste, ESC", 23,0);
-		else prt("<dir>, ENTER to recall, '{' to inscribe, '}', 'c' to copy, ESC", 23, 0);
+		prt(format("<dir>, 'r' to recall, '{', '}'%s, ESC",
+			(note_idx) ? ", 'i' to re-inscribe" : (e_ptr->note) ? ", 'i'" : ""), hgt - 1, 0);
 
 		if (!column)
 		{
@@ -4329,8 +4550,6 @@ static void do_cmd_knowledge_ego_items(void)
 
 			case 'R':
 			case 'r':
-			case '\n':
-			case '\r':
 			{
 				/* Recall on screen */
 				desc_ego_fake(object_idx[object_cur]);
@@ -4344,7 +4563,7 @@ static void do_cmd_knowledge_ego_items(void)
 				char note_text[80] = "";
 
 				/* Prompt */
-				prt("Inscribe with: ", 23, 0);
+				prt("Inscribe with: ", hgt, 0);
 	
 				/* Default note */
 				if (e_ptr->note)
@@ -4357,6 +4576,9 @@ static void do_cmd_knowledge_ego_items(void)
 	
 				/* Set the inscription */
 				e_ptr->note = quark_add(note_text);
+
+				/* Set the note */
+				note_idx = e_ptr->note;
 
 				/* Process objects */
 				for (i = 1; i < o_max; i++)
@@ -4404,17 +4626,8 @@ static void do_cmd_knowledge_ego_items(void)
 				break;
 			}
 
-			case 'C':
-			case 'c':
-			{
-				/* Set the note */
-				note_idx = e_ptr->note;
-
-				break;
-			}
-
-			case 'P':
-			case 'p':
+			case 'I':
+			case 'i':
 			{
 				if (note_idx)
 				{
@@ -4440,6 +4653,11 @@ static void do_cmd_knowledge_ego_items(void)
 						if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = note_idx;
 	
 					}
+				}
+				else if (e_ptr->note)
+				{
+					/* Set the note */
+					note_idx = e_ptr->note;
 				}
 				break;
 			}
@@ -4484,17 +4702,33 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		byte attr = ((k_ptr->aware) ? TERM_WHITE : TERM_SLATE);
 		byte cursor = ((k_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
 
-		byte a = (k_ptr->flavor && !k_ptr->aware)? x_info[k_ptr->flavor].x_attr:
-				k_ptr->x_attr;
-		byte c = k_ptr->x_char;
+		byte a = k_ptr->flavor && (view_flavors || !k_ptr->aware) ? (x_info[k_ptr->flavor].x_attr) : (k_ptr->x_attr);
+		char c = k_ptr->flavor && (view_flavors || !k_ptr->aware) ? (x_info[k_ptr->flavor].x_char) : (k_ptr->x_char);
 	
 		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Symbol is unknown */	
+		if (!k_ptr->aware && !k_ptr->flavor && !p_ptr->wizard)
+		{
+			c = ' ';
+			a = TERM_DARK;
+		}
 
 		/* Tidy name */
 		strip_name(o_name,k_idx);
 
 		/* Display the name */
 		c_prt(attr, o_name, row + i, col);
+
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format(c >= 0 ? "%02x/%02x" : "%02x/%d", a, c), row + i, 60);
+		}
+		else if (p_ptr->wizard) 
+		{
+			c_prt(attr, format("%d", k_idx), row + i, 60);
+		}
 
 		if (k_ptr->note && (k_ptr->aware || !k_ptr->flavor))
 		{
@@ -4503,6 +4737,14 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 
 		/* Display symbol */
 		Term_putch(76, row + i, a, c);
+
+		if (use_bigtile)
+		{
+			if (a & 0x80)
+				Term_putch(76 + 1, row + i, 255, -1);
+			else
+				Term_putch(76 + 1, row + i, 0, ' ');
+		}
 	}
 
 	/* Clear remaining lines */
@@ -4548,7 +4790,7 @@ static void desc_obj_fake(int k_idx)
 	screen_save();
 
 	/* Describe */
-	screen_object(o_ptr, FALSE);
+	screen_object(o_ptr);
 
 	/* Load the screen */
 	screen_load();
@@ -4563,7 +4805,7 @@ static void desc_obj_fake(int k_idx)
 static void do_cmd_knowledge_objects(void)
 {
 	int i, len, max;
-	int grp_cur, grp_top;
+	int grp_cur, grp_top, old_grp_cur;
 	int object_old, object_cur, object_top;
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
@@ -4576,16 +4818,18 @@ static void do_cmd_knowledge_objects(void)
 	bool visual_list = FALSE;
 	byte attr_top = 0;
 	char char_left = 0;
-	byte attr_idx = 0;
-	char char_idx = 0;
-	byte attr_old = 0;
-	char char_old = 0;
+
+	int browser_rows;
+	int wid, hgt;
 
 	int note_idx = 0;
 
 	object_kind *k_ptr;
-	byte *x_attr;
-	char *x_char;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
 
 	/* Allocate the "object_idx" array */
 	C_MAKE(object_idx, z_info->k_max, int);
@@ -4613,9 +4857,11 @@ static void do_cmd_knowledge_objects(void)
 	/* Terminate the list */
 	grp_idx[grp_cnt] = -1;
 
+	old_grp_cur = -1;
 	grp_cur = grp_top = 0;
 	object_cur = object_top = 0;
 	object_old = -1;
+	object_cnt = 0;
 
 	flag = FALSE;
 	redraw = TRUE;
@@ -4638,60 +4884,61 @@ static void do_cmd_knowledge_objects(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < BROWSER_ROWS; i++)
+			for (i = 0; i < browser_rows; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
 
 			redraw = FALSE;
 		}
-
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll monster list */
-		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
 
 		/* Display a list of object groups */
-		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
 
-		/* Get a list of objects in the current group */
-		object_cnt = collect_objects(grp_idx[grp_cur], object_idx,0x00);
-
-		/* Display a list of objects in the current group */
-		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
-
-		/* Get the current object kind */
-		k_ptr = &k_info[object_idx[object_cur]];
-
-		/* Get the 'correct' attr/char */
-		if (k_ptr->flavor && !k_ptr->aware)
+		if (old_grp_cur != grp_cur)
 		{
-			x_attr = &x_info[k_ptr->flavor].x_attr;
-			x_char = &x_info[k_ptr->flavor].x_char;
+			old_grp_cur = grp_cur;
+
+			/* Get a list of objects in the current group */
+			object_cnt = collect_objects(grp_idx[grp_cur], object_idx,0x01);
+		}
+
+		/* Scroll object list */
+		while (object_cur < object_top)
+			object_top = MAX(0, object_top - browser_rows/2);
+		while (object_cur >= object_top + browser_rows)
+			object_top = MIN(object_cnt - browser_rows, object_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of objects in the current group */
+			display_object_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
 		}
 		else
 		{
-			x_attr = &k_ptr->x_attr;
-			x_char = &k_ptr->x_char;
-		}		
+			object_top = object_cur;
 
-		/* Display visual list below first object */
-		if (visual_list) display_visual_list(max + 3, 7, BROWSER_ROWS-1, *x_attr, attr_top, *x_attr, char_left);
+			/* Display a list of objects in the current group */
+			display_object_list(max + 3, 6, 1, object_idx, object_cur, object_top);
+
+			/* Display visual list below first object */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Get the current object */
+		k_ptr = &k_info[object_idx[object_cur]];
+
+		/* Mega Hack -- track this object */
+		if (object_cnt) object_kind_track(object_idx[object_cur]);
 
 		/* Prompt */
-		if (visual_list && (attr_idx || char_idx)) prt("<dir>, ENTER to accept, 'c', 'p' to paste, ESC",23,0);
-		else if (visual_list) prt("<dir>, ENTER to accept, 'c' to copy, ESC",23,0);
-		else if (attr_idx || char_idx) prt("<dir>, ENTER to recall, 'c', 'p' to paste visual, 'v', ESC",23,0);
-		else if (note_idx && (k_ptr->aware || !k_ptr->flavor)) prt("<dir>, ENTER, '{', '}', 'c', 'p' to paste inscrip, 'v' for visuals, ESC", 23,0);
-		else if (note_idx) prt("<dir>, ENTER, 'c', 'p' to paste inscrip, 'v' for visuals, ESC", 23,0);
-		else if (k_ptr->aware || !k_ptr->flavor) prt("<dir>, ENTER to recall, '{' to inscribe, '}', 'c' to copy, 'v' for visuals, ESC", 23, 0);
-		else prt("<dir>, 'c' to copy, 'v' for visuals, ESC", 23, 0);
-
-		/* Mega Hack -- track this monster race */
-		if (object_cnt) object_kind_track(object_idx[object_cur]);
+		prt(format("<dir>, 'r' to recall%s%s, '{', '}'%s, ESC",
+			(visual_list) ? ", ENTER to accept" : ", 'v' for visuals",
+			(attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy",
+			(note_idx) ? ", 'i' to re-inscribe" : (k_ptr->note) ? ", 'i'" : ""), hgt - 1, 0);
 
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
@@ -4705,8 +4952,7 @@ static void do_cmd_knowledge_objects(void)
 
 		if (visual_list)
 		{
-			/* Place the cursor */
-			Term_gotoxy(max + 3 + (*x_char - char_left), 7 + (*x_attr + - attr_top));
+			place_visual_list_cursor(max + 3, 7, k_ptr->flavor ? x_info[k_ptr->flavor].x_attr : k_ptr->x_attr, k_ptr->flavor ? x_info[k_ptr->flavor].x_char : k_ptr->x_char, attr_top, char_left);
 		}
 		else if (!column)
 		{
@@ -4719,63 +4965,25 @@ static void do_cmd_knowledge_objects(void)
 	
 		ch = inkey();
 
+		/* Do visual mode command if needed */
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_attr) : &k_ptr->x_attr, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_char) :&k_ptr->x_char)) continue;
+
 		switch (ch)
 		{
 			case ESCAPE:
 			{
-				if (visual_list)
-				{
-					/* Reset the visuals */
-					*x_attr = attr_old;
-					*x_char = char_old;
-
-					visual_list = FALSE;
-				}
-				else
-				{
-					flag = TRUE;
-				}
+				flag = TRUE;
 				break;
 			}
 
 			case 'R':
 			case 'r':
-			case '\n':
-			case '\r':
 			{
-				if (visual_list)
-				{
-					visual_list = FALSE;
-				}
-				else
-				{
-					if (k_ptr->aware || !k_ptr->flavor)
-					{
-						/* Recall on screen */
-						desc_obj_fake(object_idx[object_cur]);
-						redraw = TRUE;
-					}
-				}
-				break;
-			}
+				/* Recall on screen */
+				if (grp_cnt > 0)
+					desc_obj_fake(object_idx[object_cur]);
 
-			case 'V':
-			case 'v':
-			{
-				if (!visual_list)
-				{
-					visual_list = TRUE;
-
-					attr_top = MAX(0, *x_attr - 5);
-					char_left = MAX(-128, *x_char - 10);
-
-					attr_old = *x_attr;
-					char_old = *x_char;
-
-					object_top = object_cur;
-
-					note_idx = 0;
-				}
+				redraw = TRUE;
 				break;
 			}
 
@@ -4783,11 +4991,11 @@ static void do_cmd_knowledge_objects(void)
 			{
 				char note_text[80] = "";
 
-				if (!visual_list && (k_ptr->aware || !k_ptr->flavor))
+				if (k_ptr->aware || !k_ptr->flavor)
 				{
 
 					/* Prompt */
-					prt("Inscribe with: ", 23, 0);
+					prt("Inscribe with: ", hgt, 0);
 	
 					/* Default note */
 					if (k_ptr->note)
@@ -4800,6 +5008,9 @@ static void do_cmd_knowledge_objects(void)
 	
 					/* Set the inscription */
 					k_ptr->note = quark_add(note_text);
+
+					/* Set the note */
+					note_idx = k_ptr->note;
 
 					/* Process objects */
 					for (i = 1; i < o_max; i++)
@@ -4825,7 +5036,7 @@ static void do_cmd_knowledge_objects(void)
 
 			case '}':
 			{
-				if (!visual_list && (k_ptr->aware || !k_ptr->flavor))
+				if (k_ptr->aware || !k_ptr->flavor)
 				{
 					/* Set the inscription */
 					k_ptr->note = 0;
@@ -4849,44 +5060,9 @@ static void do_cmd_knowledge_objects(void)
 				break;
 			}
 
-			case 'C':
-			case 'c':
+			case 'I':
+			case 'i':
 			{
-				if (visual_list)
-				{
-					/* Clear the buffer */
-					note_idx = 0;
-
-					attr_idx = *x_attr;
-					char_idx = *x_char;
-				}
-				else
-				{
-					/* Set the note */
-					note_idx = k_ptr->note;
-
-					/* Clear the buffer */
-					char_idx = 0;
-					attr_idx = 0;
-				}
-				break;
-			}
-
-			case 'P':
-			case 'p':
-			{
-				if (attr_idx)
-				{
-					*x_attr = attr_idx;
-					attr_top = MAX(0, *x_attr - 5);
-				}
-
-				if (char_idx)
-				{
-					*x_char = char_idx;
-					char_left = MAX(-128, *x_char - 10);
-				}
-
 				if (note_idx)
 				{
 					/* Set the note */
@@ -4912,36 +5088,21 @@ static void do_cmd_knowledge_objects(void)
 					}
 		
 				}
+				else if (k_ptr->note)
+				{
+					/* Set the note */
+					note_idx = k_ptr->note;
+				}
 				break;
 			}
 
 			default:
 			{
-				if (visual_list)
-				{
-					int d = target_dir(ch);
-
-					if ((*x_attr== 0) && (ddy[d] < 0)) d = 0;
-					if ((*x_char== -128) && (ddx[d] < 0)) d = 0;
-					if ((*x_attr== 255) && (ddy[d] > 0)) d = 0;
-					if ((*x_char== 127) && (ddx[d] > 0)) d = 0;
-
-					*x_attr += ddy[d];
-					*x_char += ddx[d];
-
-					/* Move the frame */
-					if ((char_left > -128) && (ddx[d] < 0) && (*x_char < 117)) char_left += ddx[d];
-					if ((char_left < 127 - SCREEN_WID + max + 4) && (ddx[d] > 0) && (*x_char > -118)) char_left += ddx[d];
-					if ((attr_top > 0) && (ddy[d] < 0) && (*x_attr < 250)) attr_top += ddy[d];
-					if ((attr_top < 255 - BROWSER_ROWS + 2) && (ddy[d] > 0) && (*x_attr > 5)) attr_top += ddy[d];
-				}
-				else
-				{
-					/* Move the cursor */
-					browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
-				}
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
 				break;
 			}
+
 		}
 	}
 
@@ -4975,7 +5136,7 @@ static cptr feature_group_text[] =
 	"Chasms",
 	"Sand/Earth",
 	"Ground",
-	"Trees",
+	"Trees/Plants",
 	"Wilderness",
 	NULL
 };
@@ -5003,7 +5164,7 @@ static u32b feature_group_flag[] =
 	0, FF2_CHASM, 0,
 	0, FF2_CAN_DIG, 0,
 	0, 0, FF3_GROUND,
-	0, 0, FF3_TREE,
+	0, 0, FF3_LIVING,
 	0, 0, FF3_OUTSIDE,
 	0,0,0
 };
@@ -5033,24 +5194,23 @@ static int collect_features(int grp_cur, int *feat_idx)
 		if (f_ptr->mimic != i) continue;
 
 		/* Check for any flags matching in the group */
-		if (f_ptr->flags1 & (flags1))
+		if ((f_ptr->flags1 & (flags1)) || (f_ptr->flags2 & (flags2)) || (f_ptr->flags3 & (flags3)))
 		{
-			/* Add the race */
-			feat_idx[feat_cnt++] = i;
-		}
+			int idx, ii, tmp;
 
-		/* Check for any flags matching in the group */
-		else if (f_ptr->flags2 & (flags2))
-		{
-			/* Add the race */
-			feat_idx[feat_cnt++] = i;
-		}
+			for (ii = 0, idx = i;ii < feat_cnt; ii++)
+			{
+				if (strcmp(f_name + f_info[idx].name, f_name + f_info[feat_idx[ii]].name) <= 0)
+				{
+					tmp = idx;
+					idx = feat_idx[ii];
+					feat_idx[ii] = tmp;
+				}
 
-		/* Check for any flags matching in the group */
-		else if (f_ptr->flags3 & (flags3))
-		{
+			}
+
 			/* Add the race */
-			feat_idx[feat_cnt++] = i;
+			feat_idx[feat_cnt++] = idx;
 		}
 	}
 
@@ -5061,6 +5221,7 @@ static int collect_features(int grp_cur, int *feat_idx)
 	return feat_cnt;
 }
 
+
 /*
  * Display the features in a group.
  */
@@ -5068,6 +5229,15 @@ static void display_feature_list(int col, int row, int per_page, int *feat_idx,
 	int feat_cur, int feat_top)
 {
 	int i;
+	int col2 = 70;
+	int col3 = 72;
+
+	/* Correct columns 1 and 3 */
+	if (use_bigtile)
+	{
+		col2++; col3++; col3++;
+	}
+
 
 	/* Display lines until done */
 	for (i = 0; i < per_page && feat_idx[i]; i++)
@@ -5086,8 +5256,78 @@ static void display_feature_list(int col, int row, int per_page, int *feat_idx,
 		/* Display the name */
 		c_prt(attr, f_name + f_ptr->name, row + i, col);
 
+		/* Hack -- visual_list mode */
+		if (per_page == 1)
+		{
+			c_prt(attr, format(f_ptr->x_char >= 0 ? "%02x/%02x" : "%02x/%d", f_ptr->x_attr, f_ptr->x_char), row + i, 60);
+		}
+		else if (p_ptr->wizard) 
+		{
+			c_prt(attr, format("%d", f_idx), row + i, 60);
+		}
+
 		/* Display symbol */
 		Term_putch(68, row + i, f_ptr->x_attr, f_ptr->x_char);
+
+		if (use_bigtile)
+		{
+			if ((f_ptr->x_attr) & 0x80)
+				Term_putch(68 + 1, row + i, 255, -1);
+			else
+				Term_putch(68 + 1, row + i, 0, ' ');
+		}
+
+		/* Tile supports special lighting? */
+		if (!(f_ptr->flags2 & (FF2_ATTR_LITE)))
+		{
+			prt("       ", row + i, col2);
+			continue;
+		}
+
+		Term_putch(col2, row + i, TERM_SLATE, '(');
+
+		Term_putch(col3, row + i, TERM_SLATE, '/');
+
+		if (use_bigtile)
+			Term_putch(col3 + 3, row + i, TERM_SLATE, ')');
+		else
+			Term_putch(col3 + 2, row + i, TERM_SLATE, ')');
+
+
+		/* Mega-hack */
+		if (f_ptr->x_attr & 0x80)
+		{
+			/* Use a brightly lit tile */
+			if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+				Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char-1);
+			else
+				Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char+2);
+
+			/* Use a dark tile */
+			Term_putch(col3+1, row + i, f_ptr->x_attr, f_ptr->x_char+1);
+
+		}
+		else
+		{
+			/* Use "yellow" */
+			Term_putch(col2+1, row + i, lite_attr[f_ptr->x_attr], f_ptr->x_char);
+
+			/* Use "grey" */
+			Term_putch(col3+1, row + i, dark_attr[f_ptr->x_attr], f_ptr->x_char);
+		}
+
+		if (use_bigtile)
+		{
+			if ((f_ptr->x_attr) & 0x80)
+				Term_putch(col2 + 2, row + i, 255, -1);
+			else
+				Term_putch(col2 + 2, row + i, 0, ' ');
+
+			if ((f_ptr->x_attr) & 0x80)
+				Term_putch(col3 + 2, row + i, 255, -1);
+			else
+				Term_putch(col3 + 2, row + i, 0, ' ');
+		}
 
 	}
 
@@ -5105,7 +5345,7 @@ static void display_feature_list(int col, int row, int per_page, int *feat_idx,
 static void do_cmd_knowledge_features(void)
 {
 	int i, len, max;
-	int grp_cur, grp_top;
+	int grp_cur, grp_top, old_grp_cur;
 	int feat_cur, feat_top;
 	int grp_cnt, grp_idx[100];
 	int feat_cnt;
@@ -5118,12 +5358,16 @@ static void do_cmd_knowledge_features(void)
 	bool visual_list = FALSE;
 	byte attr_top = 0;
 	char char_left = 0;
-	byte attr_idx = 0;
-	char char_idx = 0;
-	byte attr_old = 0;
-	char char_old = 0;
+
+	int browser_rows;
+	int wid, hgt;
 
 	feature_type *f_ptr;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	browser_rows = hgt - 8;
 
 	/* Allocate the "feat_idx" array */
 	C_MAKE(feat_idx, z_info->f_max, int);
@@ -5151,8 +5395,10 @@ static void do_cmd_knowledge_features(void)
 	/* Terminate the list */
 	grp_idx[grp_cnt] = -1;
 
+	old_grp_cur = -1;
 	grp_cur = grp_top = 0;
 	feat_cur = feat_top = 0;
+	feat_cnt = 0;
 
 	flag = FALSE;
 	redraw = TRUE;
@@ -5175,7 +5421,7 @@ static void do_cmd_knowledge_features(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < BROWSER_ROWS; i++)
+			for (i = 0; i < browser_rows; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -5185,37 +5431,50 @@ static void do_cmd_knowledge_features(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
-
-		/* Scroll feature list */
-		if (feat_cur < feat_top) feat_top = feat_cur;
-		if (feat_cur >= feat_top + BROWSER_ROWS) feat_top = feat_cur - BROWSER_ROWS + 1;
+		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
 
 		/* Display a list of feature groups */
-		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, feature_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, browser_rows, grp_idx, feature_group_text, grp_cur, grp_top);
 
-		/* Get a list of features in the current group */
-		feat_cnt = collect_features(grp_idx[grp_cur], feat_idx);
+		if (old_grp_cur != grp_cur)
+		{
+			old_grp_cur = grp_cur;
 
-		/* Display a list of features in the current group */
-		display_feature_list(max + 3, 6, BROWSER_ROWS, feat_idx, feat_cur, feat_top);
+			/* Get a list of features in the current group */
+			feat_cnt = collect_features(grp_idx[grp_cur], feat_idx);
+		}
+
+		/* Scroll feature list */
+		while (feat_cur < feat_top)
+			feat_top = MAX(0, feat_top - browser_rows/2);
+		while (feat_cur >= feat_top + browser_rows)
+			feat_top = MIN(feat_cnt - browser_rows, feat_top + browser_rows/2);
+
+		if (!visual_list)
+		{
+			/* Display a list of features in the current group */
+			display_feature_list(max + 3, 6, browser_rows, feat_idx, feat_cur, feat_top);
+		}
+		else
+		{
+			feat_top = feat_cur;
+
+			/* Display a list of features in the current group */
+			display_feature_list(max + 3, 6, 1, feat_idx, feat_cur, feat_top);
+
+			/* Display visual list below first feature */
+			display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
+		}
+
+		/* Prompt */
+		prt(format("<dir>%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals, 'a' for lite", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
 
 		/* Get the current feature */
 		f_ptr = &f_info[feat_idx[feat_cur]];
 
-		/* Display visual list below first monster */
-		if (visual_list) display_visual_list(max + 3, 7, BROWSER_ROWS-1, f_ptr->x_attr, attr_top, f_ptr->x_char, char_left);
-
-		/* Prompt */
-		if (visual_list && (attr_idx || char_idx)) prt("<dir>, ENTER to accept, 'c', 'p' to paste ESC",23,0);
-		else if (visual_list) prt("<dir>, ENTER to accept, 'c' to copy, ESC",23,0);
-		else if ((attr_idx || char_idx)) prt("<dir>, 'v' for visuals, 'p' to paste, ESC", 23, 0);
-		else prt("<dir>, 'v' for visuals, ESC", 23, 0);
-
 		if (visual_list)
 		{
-			/* Place the cursor */
-			Term_gotoxy(max + 3 + (f_ptr->x_char - char_left), 7 + (f_ptr->x_attr - attr_top));
+			place_visual_list_cursor(max + 3, 7, f_ptr->x_attr, f_ptr->x_char, attr_top, char_left);
 		}
 		else if (!column)
 		{
@@ -5228,112 +5487,33 @@ static void do_cmd_knowledge_features(void)
 	
 		ch = inkey();
 
+		/* Do visual mode command if needed */
+		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &f_ptr->x_attr, &f_ptr->x_char)) continue;
+
 		switch (ch)
 		{
 			case ESCAPE:
 			{
-				if (visual_list)
-				{
-					f_ptr->x_attr = attr_old;
-					f_ptr->x_char = char_old;					
+				flag = TRUE;
+				break;
+			}
 
-					visual_list = FALSE;
+			case 'a': case 'A':
+			{
+				if (f_ptr->flags2 & (FF2_ATTR_LITE))
+				{
+					f_ptr->flags2 &= ~(FF2_ATTR_LITE);
 				}
 				else
 				{
-					flag = TRUE;
+					f_ptr->flags2 |= (FF2_ATTR_LITE);
 				}
-				break;
-			}
-
-			case 'R':
-			case 'r':
-			case '\n':
-			case '\r':
-			{
-				if (visual_list)
-				{
-					visual_list = FALSE;
-				}
-				break;
-			}
-
-			case 'V':
-			case 'v':
-			{
-				if (!visual_list)
-				{
-					visual_list = TRUE;
-
-					attr_top = MAX(0, f_ptr->x_attr - 5);
-					char_left = MAX(-128, f_ptr->x_char - 10);
-
-					attr_old = f_ptr->x_attr;
-					char_old = f_ptr->x_char;
-
-					feat_top = feat_cur;
-				}
-				break;
-			}
-
-			case 'C':
-			case 'c':
-			{
-				if (visual_list)
-				{
-					/* Set the visual */
-					attr_idx = f_ptr->x_attr;
-					char_idx = f_ptr->x_char;
-				}
-				break;
-			}
-
-			case 'P':
-			case 'p':
-			{
-				if (attr_idx)
-				{
-					/* Set the char */
-					f_ptr->x_attr = attr_idx;
-					attr_top = MAX(0, f_ptr->x_attr - 5);
-				}
-
-				if (char_idx)
-				{
-					/* Set the char */
-					f_ptr->x_char = char_idx;
-					char_left = MAX(-128, f_ptr->x_char - 10);
-				}
-				break;
 			}
 
 			default:
 			{
-				if (visual_list)
-				{
-					int d = target_dir(ch);
-
-					/* Restrict direction */
-					if ((f_ptr->x_attr== 0) && (ddy[d] < 0)) d = 0;
-					if ((f_ptr->x_char== -128) && (ddx[d] < 0)) d = 0;
-					if ((f_ptr->x_attr== 255) && (ddy[d] > 0)) d = 0;
-					if ((f_ptr->x_char== 127) && (ddx[d] > 0)) d = 0;
-
-					/* Set the visual */
-					f_ptr->x_attr += ddy[d];
-					f_ptr->x_char += ddx[d];
-
-					/* Move the frame */
-					if ((char_left > -128) && (ddx[d] < 0) && (f_ptr->x_char < 117)) char_left += ddx[d];
-					if ((char_left < 127 - SCREEN_WID + max + 4) && (ddx[d] > 0) && (f_ptr->x_char > -118)) char_left += ddx[d];
-					if ((attr_top > 0) && (ddy[d] < 0) && (f_ptr->x_attr < 250)) attr_top += ddy[d];
-					if ((attr_top < 255 - BROWSER_ROWS + 2) && (ddy[d] > 0) && (f_ptr->x_attr > 5)) attr_top += ddy[d];
-				}
-				else
-				{
-					/* Move the cursor */
-					browser_cursor(ch, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
-				}
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
 				break;
 			}
 		}

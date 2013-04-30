@@ -366,7 +366,7 @@ static cptr f_info_flags3[] =
 	"BLOOD",
 	"DUST",
 	"SLIME",
-	"XXX1",
+	"LIVING",
 	"XXX2",
 	"INSTANT",
 	"EXPLODE",
@@ -2064,6 +2064,13 @@ errr parse_f_info(char *buf, header *head)
 
 		/* Default "states" */
 		for (i = 0; i < MAX_FEAT_STATES; i++) f_ptr->state[i].action = FS_FLAGS_END;
+
+		/* Hack -- handle graphics */
+		/* Note that in a future version of Unangband, a preference 'Use special lighting
+		 * for all features' will set this flag for all features, and the features that are
+		 * dynamically lit in vanilla Angband will have this flag in terrain.txt.
+		 */
+		f_ptr->flags2 |= (FF2_ATTR_LITE);
 	}
 
 	/* Process 'M' for "Mimic" (one line only) */

@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.4a"
+#define VERSION_STRING	"0.5.4b"
 
 /*
  * Hack -- note use of new version name/string but old version
@@ -352,7 +352,7 @@
  */
 #define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
 #define FUEL_LAMP	15000   /* Maximum amount of fuel in a lantern */
-
+#define FUEL_LOW	1500    /* Point below which torch lit dims */
 
 /*
  * More maximum values
@@ -1092,7 +1092,7 @@
 #define FF3_BLOOD		0x00200000
 #define FF3_DUST		0x00400000
 #define FF3_SLIME		0x00800000
-#define FF3_XXX1 		0x01000000
+#define FF3_LIVING 		0x01000000
 #define FF3_XXX2        0x02000000
 #define FF3_INSTANT	0x04000000
 #define FF3_EXPLODE 	0x08000000
@@ -2670,10 +2670,8 @@
 
 #define MFLAG_ACTV      0x0100    /* Monster is currently active */
 #define MFLAG_RUNS      0x0200    /* Monster is currently running */
-#define MFLAG_RUN_BREAK_LEFT    0x1000
-#define MFLAG_RUN_BREAK_RIGHT   0x2000
-#define MFLAG_RUN_OPEN_LEFT     0x4000
-#define MFLAG_RUN_OPEN_RIGHT    0x8000
+#define MFLAG_PUSH      0x0400    /* Monster has pushed/been pushed aside */
+
 
 /*
  * Monster movement (return from place_monster_on)
@@ -3231,7 +3229,7 @@
 #define OPT_disturb_panel  22
 #define OPT_disturb_state  23
 #define OPT_disturb_minor  24
-/* #define OPT_disturb_other */
+#define OPT_view_flavors   25
 /* #define OPT_alert_hitpoint */
 /* #define OPT_alert_failure */
 #define OPT_verify_destroy 28
@@ -3391,7 +3389,7 @@
 #define disturb_panel     op_ptr->opt[OPT_disturb_panel]
 #define disturb_state     op_ptr->opt[OPT_disturb_state]
 #define disturb_minor     op_ptr->opt[OPT_disturb_minor]
-#define disturb_other     op_ptr->opt[OPT_disturb_other]
+#define view_flavors      op_ptr->opt[OPT_view_flavors]
 #define alert_hitpoint    op_ptr->opt[OPT_alert_hitpoint]
 #define alert_failure     op_ptr->opt[OPT_alert_failure]
 #define verify_destroy    op_ptr->opt[OPT_verify_destroy]
@@ -3532,7 +3530,7 @@
 /*
  * Information for "do_cmd_options()".
  */
-#define OPT_PAGE_MAX			    9
+#define OPT_PAGE_MAX			    7
 #define OPT_PAGE_PER				20
 
 
@@ -3588,16 +3586,19 @@
  * Default to user definitions.
  */
 #define object_attr(T) \
-	((k_info[(T)->k_idx].flavor && !k_info[(T)->k_idx].aware) ? \
+	((k_info[(T)->k_idx].flavor && (view_flavors || !k_info[(T)->k_idx].aware)) ? \
 	 (x_info[k_info[(T)->k_idx].flavor].x_attr) : \
 	 (k_info[(T)->k_idx].x_attr))
 
 /*
  * Return the "char" for a given item.
+ * Use "flavor" if available and not aware.
  * Default to user definitions.
  */
 #define object_char(T) \
-	 (k_info[(T)->k_idx].x_char)
+	((k_info[(T)->k_idx].flavor && (view_flavors || !k_info[(T)->k_idx].aware)) ? \
+	 (x_info[k_info[(T)->k_idx].flavor].x_char) : \
+	 (k_info[(T)->k_idx].x_char))
 
 
 

@@ -11,193 +11,193 @@
 # Feature Graphic Definitions
 
 # open floor
-F:1:1/-39
+F:1:1/-39:YES
 
 # invisible trap
-F:2:1/-39
+F:2:1/-39:NO
 
 # glyph of warding
-F:3:11/-48
+F:3:11/-48:NO
 
 # open door
-F:4:15/-40
+F:4:15/-40:NO
 
 # broken door
-F:5:15/-40
+F:5:15/-40:NO
 
 # up staircase
-F:6:1/-32
+F:6:1/-32:NO
 
 # down staircase
-F:7:1/-50
+F:7:1/-50:NO
 
 # General Store
-F:8:15/-61
+F:8:15/-61:NO
 
 # Armoury
-F:9:2/-60
+F:9:2/-60:NO
 
 # Weapon Smiths
-F:10:1/-59
+F:10:1/-59:NO
 
 # Temple
-F:11:5/-58
+F:11:5/-58:NO
 
 # Alchemy Shop
-F:12:6/-57
+F:12:6/-57:NO
 
 # Magic Shop
-F:13:4/-56
+F:13:4/-56:NO
 
 # Black Market
-F:14:8/-55
+F:14:8/-55:NO
 
 # Home
-F:15:11/-54
+F:15:11/-54:NO
 
 # trap door
-F:16:1/-34
+F:16:1/-34:NO
 
 # pit
-F:17:2/-34
+F:17:2/-34:NO
 
 # pit
-F:18:2/-34
+F:18:2/-34:NO
 
 # pit
-F:19:2/-34
+F:19:2/-34:NO
 
 # strange rune
-F:20:3/-33
+F:20:3/-33:NO
 
 # strange rune
-F:21:3/-33
+F:21:3/-33:NO
 
 # discolored spot
-F:22:7/-33
+F:22:7/-33:NO
 
 # discolored spot
-F:23:7/-33
+F:23:7/-33:NO
 
 # dart trap
-F:24:4/-36
+F:24:4/-36:NO
 
 # dart trap
-F:25:4/-36
+F:25:4/-36:NO
 
 # dart trap
-F:26:4/-36
+F:26:4/-36:NO
 
 # dart trap
-F:27:4/-36
+F:27:4/-36:NO
 
 # gas trap
-F:28:5/-35
+F:28:5/-35:NO
 
 # gas trap
-F:29:5/-35
+F:29:5/-35:NO
 
 # gas trap
-F:30:5/-35
+F:30:5/-35:NO
 
 # gas trap
-F:31:5/-35
+F:31:5/-35:NO
 
 # door
-F:32:15/-51
+F:32:15/-51:NO
 
 # locked door
-F:33:15/-42
+F:33:15/-42:NO
 
 # locked door
-F:34:15/-42
+F:34:15/-42:NO
 
 # locked door
-F:35:15/-42
+F:35:15/-42:NO
 
 # locked door
-F:36:15/-42
+F:36:15/-42:NO
 
 # locked door
-F:37:15/-42
+F:37:15/-42:NO
 
 # locked door
-F:38:15/-42
+F:38:15/-42:NO
 
 # locked door
-F:39:15/-42
+F:39:15/-42:NO
 
 # jammed door
-F:40:15/-43
+F:40:15/-43:NO
 
 # jammed door
-F:41:15/-43
+F:41:15/-43:NO
 
 # jammed door
-F:42:15/-43
+F:42:15/-43:NO
 
 # jammed door
-F:43:15/-43
+F:43:15/-43:NO
 
 # jammed door
-F:44:15/-43
+F:44:15/-43:NO
 
 # jammed door
-F:45:15/-43
+F:45:15/-43:NO
 
 # jammed door
-F:46:15/-43
+F:46:15/-43:NO
 
 # jammed door
-F:47:15/-43
+F:47:15/-43:NO
 
 # secret door
-F:48:1/-44
+F:48:1/-44:YES
 
 # pile of rubble
-F:49:1/-37
+F:49:1/-37:NO
 
 # magma vein
-F:50:2/-41
+F:50:2/-41:YES
 
 # quartz vein
-F:51:1/-38
+F:51:1/-38:YES
 
 # magma vein
-F:52:2/-41
+F:52:2/-41:YES
 
 # quartz vein
-F:53:1/-38
+F:53:1/-38:YES
 
 # magma vein with treasure
-F:54:3/-46
+F:54:3/-46:YES
 
 # quartz vein with treasure
-F:55:3/-45
+F:55:3/-45:YES
 
 # granite wall
-F:56:1/-44
+F:56:1/-44:YES
 
 # granite wall
-F:57:1/-44
+F:57:1/-44:YES
 
 # granite wall
-F:58:1/-44
+F:58:1/-44:YES
 
 # granite wall
-F:59:1/-44
+F:59:1/-44:YES
 
 # permanent wall
-F:60:1/-44
+F:60:1/-44:YES
 
 # permanent wall
-F:61:1/-44
+F:61:1/-44:YES
 
 # permanent wall
-F:62:1/-44
+F:62:1/-44:YES
 
 # permanent wall
-F:63:1/-44
+F:63:1/-44:YES
 
 
 # Item Graphic Definitions

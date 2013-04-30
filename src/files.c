@@ -365,7 +365,8 @@ errr process_pref_file_command(char *buf)
 	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
 	else if (buf[0] == 'F')
 	{
-		if (tokenize(buf+2, 3, zz) == 3)
+		/* Mega-hack -- feat supports lighting 'yes' or 'no' */
+		if (tokenize(buf+2, 4, zz) == 4)
 		{
 			feature_type *f_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
@@ -375,6 +376,19 @@ errr process_pref_file_command(char *buf)
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
+			switch (zz[3][0])
+			{
+				case 0: case 'N': case 'n':
+				{
+					f_ptr->flags2 &= ~(FF2_ATTR_LITE);
+					break;
+				}
+				default:
+				{
+					f_ptr->flags2 |= (FF2_ATTR_LITE);
+					break;
+				}
+			}
 			return (0);
 		}
 	}
@@ -2430,7 +2444,7 @@ errr file_character(cptr name, bool full)
 	text_out_file = fff;
 
 	/* Begin dump */
-	fprintf(fff, "  [Unangband 0.5.3b Character Dump]\n\n");
+	fprintf(fff, "  [Unangband 0.5.4b Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);
@@ -3651,7 +3665,7 @@ static void death_examine(void)
 		screen_save();
 
 		/* Describe */
-		screen_object(o_ptr, TRUE);
+		screen_object(o_ptr);
 
 		(void)inkey();
 

@@ -9670,14 +9670,14 @@ B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 B:TOUCH:UN_POWER:3d3
 B:TOUCH:UN_BONUS:3d3
-F:UNIQUE |
+F:UNIQUE | FEMALE
 F:FORCE_MAXHP |
 F:DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_2 |
 S:BLINK | TELE_TO | HEAL | S_MONSTER | BO_ACID | BO_MANA | WOUND
-D:In life, she was the husband of Gorlim. In death, her shade was
+D:In life, she was the wife of Gorlim. In death, her shade was
 D: entrapped by Morgoth and used to trick her husband into betraying
 D: Barahir. Now she is totally entrapped by Morgoth's power, and uses
 D: her magic to do his bidding.

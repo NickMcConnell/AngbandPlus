@@ -10,44 +10,44 @@
 # Secret doors
 #
 
-F:48:1/0xA3
+F:48:1/0xA3:YES
 
 #
 # Magma
 #
 
-F:50:2/0xA5
-F:52:2/0xA5
+F:50:2/0xA5:YES
+F:52:2/0xA5:YES
 
 #
 # Quartz
 #
 
-F:51:9/0xA5
-F:53:9/0xA5
+F:51:9/0xA5:YES
+F:53:9/0xA5:YES
 
 #
 # Treasure veins
 #
 
-#F:54:3/0xA3
-#F:55:3/0xA3
+#F:54:3/0xA3:YES
+#F:55:3/0xA3:YES
 
 #
 # Granite walls
 #
 
-F:56:1/0xA3
-F:57:1/0xA3
-F:58:1/0xA3
-F:59:1/0xA3
+F:56:1/0xA3:YES
+F:57:1/0xA3:YES
+F:58:1/0xA3:YES
+F:59:1/0xA3:YES
 
 #
 # Permanent walls
 #
 
-F:60:1/0xA3
-F:61:1/0xA3
-F:62:1/0xA3
-F:63:1/0xA3
+F:60:1/0xA3:YES
+F:61:1/0xA3:YES
+F:62:1/0xA3:YES
+F:63:1/0xA3:YES
 

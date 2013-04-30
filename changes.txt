@@ -1,3 +1,95 @@
+UnAngband 0.5.4b: "Survival of the Fittest"
+
+### Game Play ###
+
+- The Dale now has a food supply (Bug 588).
+
+- If you fire or thrown an object that misses a monster, it will continue to
+travel along the line of fire, possibly hitting other monsters in its path.
+
+- The variant and save file options are now compulsory, and removed from the
+user interface.
+
+- One rod in a stack of recharging rods will recharge in (t - n) time, where
+t is the timeout of the stack and n is the number of rods recharging. This
+allows rods to be reused more quickly, and where the rod timeout is less than
+stack size, you can reuse a rod every turn.
+
+### User Interface ###
+
+- Now supports specifying whether or not a feature supports advanced lighting
+options in the pref file. Just append :YES or :NO to the existing pref file
+entry in the graf-xxx.prf file. The default is 'NO' for any existing entry
+and 'YES' for any feature which does not have an entry (eg uses original
+ASCII graphics).
+
+- Knowledge menu sub-items are sorted alphabetically. This could be changed 
+in the future to allow a selection of possible sort orders (Depth, kills etc).
+
+- 'view_flavors' option is added, which allows you to display, eg, known rings
+of speed using a different graphics consistently from game to game. This also
+allows all the David Gervais known scroll graphics to be used when a scroll is
+found. Switch this option from TRUE (The Angband default) to FALSE to enable
+this.
+
+### Bug fixes ###
+
+- Eilineil the Entrapped is now a female (Bug 648).
+
+- The ruins of Lake-town are no longer too deep for those who flee the Lonely
+Mountain (Bug 589).
+
+- Objects resistant to damage will only display a message the first time they
+are unaffected (Bug 682).
+
+- Support transparency for graphics modes (Bug 782).
+
+- Updated pref files required for 32x32 bit maps (Bug 777).
+
+- Improved 'visual' editting code from Hengband (Bug 778).
+
+- Fixed map refresh bugs caused in big tile mode (Bug 780).
+
+- Improved support for advanced lighting features in graphics mode (Bug 779).
+
+- Handle being stuck inside terrain correctly in all instances (Bug 807).
+
+- Fixed spurious and incorrect messages when monster hits player trap (Bug
+808).
+
+- Monsters can now tunnel (Bug 605).
+
+- Monsters will no longer push each other around, preventing them from
+moving or attacking successfully (Bug 653).
+
+- Hidden monsters can no longer pick up objects from the ground or be hit
+by missile or thrown weapons (Bug 654).
+
+- Priest spell banish evil now works (Bug 681).
+
+- Can no longer browse illegible spells (Bug 253).
+
+- Spells and items that brand objects correctly tell you which brand they
+provide when inspected or browsed.
+
+- Additional features can be editted from within knowledge menus.
+
+- Can correctly edit the displayed graphic for tree tops.
+
+- Flavoured items are now correctly displayed when unknown for all graphics.
+
+- Character dump version updated.
+
+### Build / Platform ###
+
+- Remove references to nangband in makefile.
+
+- Reduce compiler warnings through bogus assignments. I have mixed thoughts on
+this, as to whether it is better to change function declarations than use
+bogus assignments, or perhaps leave warnings intact. These warnings only occur
+in GCC 3 or later.
+
+
 UnAngband 0.5.4a: "A Whole Lotta Love"
 
 ### Game-play ###

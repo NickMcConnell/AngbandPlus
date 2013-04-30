@@ -1397,7 +1397,7 @@ const cptr option_text[OPT_MAX] =
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
-	"",			/* OPT_disturb_other */
+	"view_flavors",				/* OPT_view_flavors */
 	"",			/* OPT_alert_hitpoint */
 	"",			/* OPT_alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
@@ -1661,7 +1661,7 @@ const cptr option_desc[OPT_MAX] =
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	"",	/* OPT_disturb_other */
+	"Show flavors in object graphics",	/* OPT_view_flavors */
 	"",			/* OPT_alert_hitpoint */
 	"",			/* OPT_alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
@@ -1925,9 +1925,9 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
-	TRUE,		/* OPT_disturb_other */
-	FALSE,		/* OPT_alert_hitpoint */
-	FALSE,		/* OPT_alert_failure */
+	TRUE,		/* OPT_view_flavors */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
@@ -2273,6 +2273,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
+		OPT_view_flavors,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
@@ -2285,7 +2286,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_piles,
 		OPT_room_names,
 		OPT_room_descriptions,
-		255,
 		255
 	},
 
@@ -2337,7 +2337,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255,
 		255
-	},
+	}
+#if 0
+,
 
 	/*** Variant game-play ***/
 
@@ -2388,6 +2390,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255
 	}
+#endif
 };
 
 const cptr inscrip_text[MAX_INSCRIP] =
@@ -2413,7 +2416,7 @@ const cptr inscrip_text[MAX_INSCRIP] =
 	"low resist",
 	"ignore",
 	"blessed",
-	"slay",
+	"slaying",
 	"branded",
 	"poisoned",
 	"lite",

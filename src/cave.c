@@ -415,37 +415,6 @@ static u16b image_random(void)
 
 
 /*
- * The 16x16 and 32x32 tile of the terrain supports lighting
- */
-bool feat_supports_lighting(byte feat)
-{
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
-		return TRUE;
-
-	switch (feat)
-	{
-		case FEAT_FLOOR:
-		case FEAT_INVIS:
-		case FEAT_SECRET:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-			return TRUE;
-		default:
-			return FALSE;
-	}
-}
-
-/*
  * Table lookup for 'metallic' attributes for all metal/gem monsters.
  * These are 1 shade lighter, or yellow if already light.
  */
@@ -683,9 +652,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 	int floor_num = 0;
 
-	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
-	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
-
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
@@ -724,7 +690,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects */
-			if (view_special_lite) /* && (use_transparency ? feat_supports_lighting(feat) : TRUE))*/
+			if ((view_special_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -733,7 +699,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 					if (view_surface_lite && p_ptr->outside &&
                                                 !(f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
 					{
-						if (graf_new)
+
+						/* Mega-hack */
+						if (a & 0x80)
 						{
 							/* Use a dark tile */
 							c += 1;
@@ -748,7 +716,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 					/* Only lit by "torch" lite */
 					else if (view_yellow_lite && !(info & (CAVE_GLOW)))
 					{
-						if (graf_new)
+						/* Mega-hack */
+						if (a & 0x80)
 						{
 							/* Use a brightly lit tile */
 							if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
@@ -778,7 +747,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 							if (f_info[cave_feat[yy][xx]].flags2 & (FF2_GLOW))
 							{
-								if (graf_new)
+								/* Mega-hack */
+								if (a & 0x80)
 								{
 									/* Use a brightly lit tile */
 									if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
@@ -802,7 +772,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -817,7 +788,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "dark" grids */
 				else if (!(info & (CAVE_GLOW)))
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -832,7 +804,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -863,9 +836,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Handle "blind" and night time*/
-			if (p_ptr->blind  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+			if ((p_ptr->blind  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+				 && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
-				if (graf_new)
+				/* Mega-hack */
+				if (a & 0x80)
 				{
 					/* Use a dark tile */
 					c += 1;
@@ -878,9 +853,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Handle "dark" grids */
-			else if (view_bright_lite)
+			else if ((view_bright_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
-				if (graf_new)
+				/* Mega-hack */
+				if (a & 0x80)
 				{
 					/* Use a dark tile */
 					c += 1;
@@ -942,15 +918,14 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Normal char */
 			c = f_ptr->x_char;
 
-			/* Special lighting effects (walls only) */
-			if (view_granite_lite) /*&&
-                            ((!use_transparency && (f_ptr->flags1 && (FF1_WALL))) ||
-			     (use_transparency && feat_supports_lighting(feat))))*/
+			/* Special lighting effects */
+			if ((view_granite_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a lit tile */
 					}
@@ -963,7 +938,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -978,7 +954,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "dark" grids */
 				else if (!(info & (CAVE_GLOW)))
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -993,7 +970,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a dark tile */
 						c += 1;
@@ -1006,7 +984,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				}
 				else
 				{
-					if (graf_new)
+					/* Mega-hack */
+					if (a & 0x80)
 					{
 						/* Use a brightly lit tile */
 						if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
@@ -1039,9 +1018,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Handle "blind" and night time*/
-			if (p_ptr->blind  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+			if ((p_ptr->blind  || !(((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+				 && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
-				if (graf_new)
+				/* Mega-hack */
+				if (a & 0x80)
 				{
 					/* Use a dark tile */
 					c += 1;
@@ -1054,9 +1035,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Handle "dark" grids */
-			else if (view_bright_lite)
+			else if ((view_bright_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
 			{
-				if (graf_new)
+				/* Mega-hack */
+				if (a & 0x80)
 				{
 					/* Use a dark tile */
 					c += 1;
@@ -1101,13 +1083,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	}
 
 
-#ifdef USE_TRANSPARENCY
-
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
-
-#endif /* USE_TRANSPARENCY */
 
 	/* Objects */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -1548,7 +1526,6 @@ void lite_spot(int y, int x)
 }
 
 
-
 /*
  * Redraw (on the screen) the current map panel
  *
@@ -1560,7 +1537,6 @@ void prt_map(void)
 {
 	byte a;
 	char c;
-
 	byte ta;
 	char tc;
 
@@ -1569,13 +1545,13 @@ void prt_map(void)
 	int ty, tx;
 
 	/* Assume screen */
-	ty = ROW_MAP + SCREEN_HGT;
-	tx = COL_MAP + SCREEN_WID;
+	ty = p_ptr->wy + SCREEN_HGT;
+	tx = p_ptr->wx + SCREEN_WID;
 
 	/* Dump the map */
-	for (y = p_ptr->wy, vy = ROW_MAP; vy < ty; vy++, y++)
+	for (y = p_ptr->wy, vy = ROW_MAP; y < ty; vy++, y++)
 	{
-		for (x = p_ptr->wx, vx = COL_MAP; vx < tx; vx++, x++)
+		for (x = p_ptr->wx, vx = COL_MAP; x < tx; vx++, x++)
 		{
 			/* Check bounds */
 			if (!in_bounds(y, x)) continue;
@@ -1598,8 +1574,6 @@ void prt_map(void)
 			}
 		}
 	}
-
-	return;
 }
 
 
@@ -1791,6 +1765,8 @@ void display_map(int *cy, int *cx)
 	row = (py * map_hgt / dungeon_hgt);
 	col = (px * map_wid / dungeon_wid);
 
+	if (use_bigtile)
+		col = col & ~1;
 
 	/*** Make sure the player is visible ***/
 

@@ -398,7 +398,7 @@ bool make_attack_normal(int m_idx)
 
 			case RBM_SLIME:
 			{
-				act = "slimes you!";
+				act = "slimes you";
 				break;
 			}
 
@@ -504,7 +504,7 @@ bool make_attack_normal(int m_idx)
 					case 3: slot = INVEN_OUTER; break;
 					case 4: slot = INVEN_HANDS; break;
 					case 5: slot = INVEN_HEAD; break;
-					case 6: slot = INVEN_FEET; break;
+					default: slot = INVEN_FEET; break;
 				}
 
 				/* Object used? */
@@ -769,17 +769,9 @@ void mon_hit_trap(int m_idx, int y, int x)
 							/* No negative damage */
 							if (k < 0) k = 0;
 
-							/* Trap description */
-							msg_format("%^s hits you.",o_name);
-
 							/* Damage, check for fear and death */
 							(void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 
-						}
-						else
-						{
-							/* Trap description */
-							msg_format("%^s narrowly misses you.",o_name);
 						}
 
 						/* Get local object */
@@ -838,9 +830,6 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 					/* No negative damage */
 					if (k < 0) k = 0;
-
-					/* Trap description */
-					msg_format("%^s hits you.",o_name);
 
 					/* Damage, check for fear and death */
 					(void)mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);

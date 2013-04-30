@@ -3032,7 +3032,7 @@ bool identify_fully(void)
 	screen_save();
 
 	/* Describe */
-	screen_object(o_ptr, TRUE);
+	screen_object(o_ptr);
 
 	(void)inkey();
 
@@ -3423,6 +3423,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	bool flag = FALSE;
 
+	/* Prevent compiler warning */
+	(void)full;
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -3806,7 +3808,7 @@ void earthquake(int cy, int cx, int r)
 					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
+					damage = (sn ? (int)damroll(4, 8) : (m_ptr->hp + 1));
 
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;

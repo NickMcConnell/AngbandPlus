@@ -1055,13 +1055,6 @@ static void process_world(void)
 			/* Decrease life-span */
 			o_ptr->pval--;
 
-			/* Hack -- notice interesting fuel steps */
-			if ((o_ptr->pval < 100) || (!(o_ptr->pval % 10)))
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_EQUIP);
-			}
-
 			/* Hack -- Special treatment when blind */
 			if (p_ptr->blind)
 			{
@@ -1076,18 +1069,24 @@ static void process_world(void)
 				msg_print("Your light has gone out!");
 			}
 
-			/* The light is getting dim */
+			/* The light is getting faint */
 			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
 			{
 				if (disturb_minor) disturb(0, 0);
 				msg_print("Your light is growing faint.");
+			}
+
+			/* The light is getting dim */
+			else if ((o_ptr->pval == FUEL_LOW) && (o_ptr->sval == SV_LITE_TORCH))
+			{
+				if (disturb_minor) disturb(0, 0);
+				msg_print("Your torch flame dims.");
 			}
 		}
 	}
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
-
 
 	/*** Process Inventory ***/
 
@@ -1155,7 +1154,9 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout))
+			/* Now if 3 rods charging and timeout == 2 => 1 rod has recharged */
+			if (!(o_ptr->timeout) || ((o_ptr->stackc) ? (o_ptr->timeout < o_ptr->stackc) :
+					(o_ptr->timeout < o_ptr->number) ))
 			{
 				char o_name[80];
 
@@ -1175,13 +1176,13 @@ static void process_world(void)
 					else k++;
 
 					/* Message */
-					msg_format("Your %s %s has run out.", o_name,
-					   ((o_ptr->stackc == 1) ? "has" :
-					   ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
-					   "has" : "have")));
+					if (o_ptr->timeout) msg_format("One of your %s has run out.",o_name);
+					else msg_format("Your %s %s run out.", o_name,
+					   (o_ptr->number == 1) ? "has" : "have");
 
 					/* Destroy a spell if discharged */
-					if (o_ptr->stackc) inven_item_increase(i, -(o_ptr->stackc));
+					if (o_ptr->timeout) inven_item_increase(i, -1);
+					else if (o_ptr->stackc) inven_item_increase(i, -(o_ptr->stackc));
 					else inven_item_increase(i,-(o_ptr->number));
 
 					inven_item_optimize(i);
@@ -1195,14 +1196,16 @@ static void process_world(void)
 					if (i < INVEN_PACK) j++;
 					else k++;
 	
-					/* Reset stack */
-					o_ptr->stackc = 0;
-	
 					/* Message */
-					msg_format("Your %s %s charged.", o_name,
-					   ((o_ptr->stackc == 1) ? "has" :
-					   ((!(o_ptr->stackc) && (o_ptr->number == 1)) ?
-					   "has" : "have")));
+					if (o_ptr->timeout) msg_format("One of your %s has charged.",o_name);
+					else msg_format("Your %s %s charged.", o_name,
+					   (o_ptr->number == 1) ? "has" : "have");
+
+					/* Reset stack */
+					if ((o_ptr->timeout) && !(o_ptr->stackc)) o_ptr->stackc = o_ptr->number -1;
+					else if (o_ptr->timeout) o_ptr->stackc--;
+					else o_ptr->stackc = 0;
+
 				}
 
 				/* Bodies/mimics become a monster */
@@ -1272,13 +1275,14 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Timing out? */
-		if (o_ptr->timeout)
+		if (o_ptr->timeout > 0)
 		{
 			/* Recharge */
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout))
+			if (!(o_ptr->timeout) || ((o_ptr->stackc) ? (o_ptr->timeout < o_ptr->stackc) :
+				(o_ptr->timeout < o_ptr->number) ))
 			{
 				u32b f1, f2, f3;
 
@@ -1289,7 +1293,8 @@ static void process_world(void)
 				if (o_ptr->tval == TV_SPELL)
 				{
 					/* Destroy a spell if discharged */
-					if (o_ptr->stackc) floor_item_increase(i, -(o_ptr->stackc));
+					if (o_ptr->timeout) floor_item_increase(i, -1);
+					else if (o_ptr->stackc) floor_item_increase(i, -(o_ptr->stackc));
 					else floor_item_increase(i,-(o_ptr->number));
 
 					floor_item_optimize(i);
@@ -1299,7 +1304,9 @@ static void process_world(void)
 				else if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
 				{
 					/* Reset stack */
-					o_ptr->stackc = 0;
+					if ((o_ptr->timeout) && !(o_ptr->stackc)) o_ptr->stackc = o_ptr->number -1;
+					else if (o_ptr->timeout) o_ptr->stackc--;
+					else o_ptr->stackc = 0;
 		
 				}
 
@@ -1315,7 +1322,6 @@ static void process_world(void)
 		}
 
 	}
-
 
 	/*** Involuntary Movement ***/
 

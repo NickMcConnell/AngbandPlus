@@ -125,22 +125,32 @@ N:7:the Lonely Mountain
 X:8:9
 R:DRAGON
 G:B
-L:20:435:56:154:475:0
+L:20:435:56:154:0:0
 L:21:56:0:0:0:0
 L:38:56:0:0:475:0
+D:There is a sudden flash of gold and flame in the 
+D:air... Smaug has taken flight. You desperately 
+D:cower for cover on the open mountainside... he 
+D:wheels once, twice over you and departs. In the 
+D:distance, you see smoke start to rise as Lake-
+D:town burns.
 
 # With disasterous consequences.
 
-N:8:Lake-town
+N:8:the ruins of Lake-town
 X:7:9
 R:CAN_SWIM
-L:39:155:407:49:475:0
+G:t
+L:22:155:407:49:475:0
+D:Smaug has laid waste to Lake-town. The townsfolk 
+D:gather, angry at you for disturbing his lair...
 
 N:9:Lake-town, rebuilt
 X:42:14
 L:0:0:407:1:0:0
 S:509:516:517:11:12:13:506:0
-D:Visit the statue to collect a reward from the grateful townsfolk.
+D:Visit the statue to collect a reward from the 
+D:grateful townsfolk.
 
 #The following levels are from the Fellowship of the Ring.
 
@@ -463,7 +473,7 @@ L:80:407:218:208:511:0
 N:52:the Dale
 X:47:42
 L:0:0:411:0:0:0
-S:515:516:517:11:12:13:268:0
+S:509:516:517:11:12:13:268:0
 
 # Other alternate dungeons should be placed here
 

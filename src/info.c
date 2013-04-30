@@ -448,7 +448,7 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 	if ((s_ptr->flags1 & (SF1_ENCHANT_TOH | SF1_ENCHANT_TOD))
 		|| (s_ptr->type == SPELL_BRAND_AMMO)) vp[vn++]="missile";
 	if ((s_ptr->flags1 & (SF1_ENCHANT_TOA))
-		|| (s_ptr->type == SPELL_BRAND_WEAPON)) vp[vn++]="piece of armor";
+		|| (s_ptr->type == SPELL_BRAND_ARMOR)) vp[vn++]="piece of armor";
 	if (s_ptr->type == SPELL_BRAND_ITEM) vp[vn++]="item";
 
 	if (s_ptr->type == SPELL_ENCHANT_TVAL)
@@ -500,9 +500,10 @@ bool spell_desc(const spell_type *s_ptr, const cptr intro, int level, bool detai
 
 	if ((s_ptr->type == SPELL_BRAND_WEAPON) ||
 	    (s_ptr->type == SPELL_BRAND_ARMOR) ||
-	    (s_ptr->type == SPELL_BRAND_AMMO))
+	    (s_ptr->type == SPELL_BRAND_AMMO) ||
+	    (s_ptr->type == SPELL_BRAND_ITEM))
 	{
-		vp[vn++]=inscrip_text[INSCRIP_MIN_HIDDEN-INSCRIP_NULL+s_ptr->param];
+		vp[vn++]=format("become %s",inscrip_text[INSCRIP_MIN_HIDDEN-INSCRIP_NULL+s_ptr->param-1]);
 	}
 
 	if (s_ptr->type == SPELL_ENCHANT_TVAL) vp[vn++]="change its kind";
@@ -1622,7 +1623,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const o_flag_desc *flag_x_pt
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void obj_top(const object_type *o_ptr, bool real)
+static void obj_top(const object_type *o_ptr)
 {
 	char o_name[80];
 
@@ -1641,7 +1642,7 @@ static void obj_top(const object_type *o_ptr, bool real)
 /*
  * Display an object at the top of the screen
  */
-void screen_object(object_type *o_ptr, bool real)
+void screen_object(object_type *o_ptr)
 {
 	/* Flush messages */
 	message_flush();
@@ -1660,7 +1661,7 @@ void screen_object(object_type *o_ptr, bool real)
         else list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display item name */
-	obj_top(o_ptr, real);
+	obj_top(o_ptr);
 }
 
 
@@ -2107,7 +2108,7 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, int mode)
 				anything |= outlist("It may burden you with", list, TERM_L_WHITE);
 				break;
 			case LIST_FLAGS_NOT:
-				anything |= outlist("It does not burdern you with", list, TERM_SLATE);
+				anything |= outlist("It does not burden you with", list, TERM_SLATE);
 				break;
 		} 
 	}
@@ -2617,7 +2618,7 @@ void display_koff(const object_type *o_ptr)
 	list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display item name */
-	obj_top(o_ptr, term_obj_real);
+	obj_top(o_ptr);
 
 	/* Warriors are illiterate */
 	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
@@ -3023,6 +3024,23 @@ void object_guess_name(object_type *o_ptr)
 
 /*
  * Object does have flags.
+ *
+ * XXX The function object_can_flags assumes that the object we notice has a particular
+ * set of flags is either wielded or in the inventory, and therefore we clear the 
+ * 'may_flags' that we use to track which objects have information with which we may
+ * be able to deduce what flags that object has, and which do not.
+ *
+ * However, for instance, objects that are thrown from the floor, or are damaged by fire
+ * but ignore it, or are damaging to a particular type of monster which fails to pick it
+ * up, are some of the instances where we call this routine for objects other than those
+ * held in the inventory.
+ *
+ * Currently this is fine as the flags are not those kind we attempt to track anyway eg
+ * weapon flags, ignore flags and so on.
+ *
+ * XXX We might want to return TRUE from this routine if the flags we are adding are not
+ * already known.
+ *
  */
 void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {

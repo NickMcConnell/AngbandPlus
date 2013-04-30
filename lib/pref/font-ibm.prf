@@ -11,56 +11,44 @@
 ### Terrain Features ###
 
 
-#
-# Floors (white / centered dot)
-#
-
-F:1:1/-7
-
-#
-# Invis traps (white / centered dot)
-#
-
-F:2:1/-7
-
 
 #
 # Magma (slate / special solid block)
 #
 
-F:50:2/-80
-F:52:2/-80
+F:50:2/-80:YES
+F:52:2/-80:YES
 
 
 #
 # Quartz (light slate / special solid block)
 #
 
-F:51:9/-80
-F:53:9/-80
+F:51:9/-80:YES
+F:53:9/-80:YES
 
 
 #
 # Secret door (white / solid block)
 #
 
-F:48:1/-79
+F:48:1/-79:YES
 
 #
 # Granite walls (white / solid block)
 #
 
-F:56:1/-79
-F:57:1/-79
-F:58:1/-79
-F:59:1/-79
+F:56:1/-79:YES
+F:57:1/-79:YES
+F:58:1/-79:YES
+F:59:1/-79:YES
 
 #
 # Permanent rock (white / solid block)
 #
 
-F:60:1/-79
-F:61:1/-79
-F:62:1/-79
-F:63:1/-79
+F:60:1/-79:YES
+F:61:1/-79:YES
+F:62:1/-79:YES
+F:63:1/-79:YES
 

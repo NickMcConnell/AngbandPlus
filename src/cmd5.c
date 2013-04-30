@@ -493,6 +493,13 @@ void do_cmd_browse(void)
 
 		if ((i >= 0) && (i < num))
 		{
+			int ii;
+			bool legible = FALSE;
+
+			spell_type *s_ptr;
+
+			spell_cast *sc_ptr = &(s_info[0].cast[0]);
+
 			/* Save the spell index */
 			spell = book[i];
 
@@ -508,17 +515,44 @@ void do_cmd_browse(void)
 			/* Begin recall */
 			Term_gotoxy(0, 1);
 
-			/* Set text_out hook */
-			text_out_hook = text_out_to_screen;
+			/* Get the spell */
+			s_ptr = &s_info[spell];
 
-			/* Recall spell */
-			spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE, 1);
+			/* Get casting information */
+			for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
+			{
+				if (s_ptr->cast[ii].class == p_ptr->pclass)
+				{
+					legible = TRUE;
+					sc_ptr=&(s_ptr->cast[ii]);
+				}
+			}
 
-			text_out(".");
+			/* Spell is illegible */
+			if (!legible)
+			{
+				msg_print("You cannot read that spell.");
 
-			/* Build a prompt (accept all spells) */
-			strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
-				p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+				/* Build a prompt (accept all spells) */
+				strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
+					p, I2A(0), I2A(num - 1), p);
+
+			}
+			else
+			{
+
+				/* Set text_out hook */
+				text_out_hook = text_out_to_screen;
+
+				/* Recall spell */
+				spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE, 1);
+
+				text_out(".");
+
+				/* Build a prompt (accept all spells) */
+				strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
+					p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+			}
 
 			continue;
 		}

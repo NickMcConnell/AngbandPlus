@@ -4315,6 +4315,15 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			move_chance = 100;
 		}
 
+		/* Pushed already */
+		else if ((m_ptr->mflag & (MFLAG_PUSH)) || (n_ptr->mflag & (MFLAG_PUSH)))
+		{
+
+			/* Cannot push away the other monster */
+			return (0);
+
+		}
+
 		/* Push past weaker or similar monsters */
 		else if (r_ptr->mexp >= nr_ptr->mexp)
 		{
@@ -6599,9 +6608,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				msg_print("The rune of protection is broken!");
 			}
 	
-			/* Forget the rune */
-			cave_info[ny][nx] &= ~(CAVE_MARK);
-	
 			/* Break the rune */
 			cave_alter_feat(ny, nx, FS_GLYPH);
 	
@@ -6616,7 +6622,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 			if (f_info[feat].flags1 & (FF1_SECRET)) cave_alter_feat(ny,nx,FS_SECRET);
 
 			/* Monster bashes the door down */
-			if ((bash) & (f_info[feat].flags1 & (FF1_BASH)))
+			if ((bash) && (f_info[feat].flags1 & (FF1_BASH)))
 			{
 				/* Character is not too far away */
 				if (m_ptr->cdis < 30)
@@ -6651,11 +6657,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 			/* Monster opens the door */
 			else if (f_info[feat].flags1 & (FF1_OPEN))
 			{
-					/* Unlock the door */
-					cave_alter_feat(ny, nx, FS_OPEN);
+				/* Unlock the door */
+				cave_alter_feat(ny, nx, FS_OPEN);
 
-					/* Do not move */
-					do_move = FALSE;
+				/* Do not move */
+				do_move = FALSE;
 			}
 		}
 
@@ -6709,9 +6715,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					msg_format("%^s disarms the %s.",m_name,f_name+f_info[cave_feat[ny][nx]].name);
 				}
 
-				/* Forget the rune */
-				cave_info[ny][nx] &= ~(CAVE_MARK);
-
 				/* Break the rune */
 				cave_alter_feat(ny, nx, FS_DISARM);
 
@@ -6728,6 +6731,17 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				do_move = FALSE;	
 			}
 		}
+
+		/* Monsters tunnel through impassable terrain */
+		else if ((r_ptr->flags2 & (RF2_KILL_WALL)) && (f_info[feat].flags1 & (FF1_TUNNEL)))
+		{
+			/* Unlock the door */
+			cave_alter_feat(ny, nx, FS_TUNNEL);
+
+			/* Did kill wall */
+			did_kill_wall = TRUE;
+		}
+
 
 		else if (!(f_info[feat].flags1 & (FF1_MOVE))) return;
 
@@ -6806,6 +6820,16 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						/* Cancel move on failure */
 						do_move = FALSE;
 					}
+				}
+
+				/* Mark monsters as pushed */
+				if (do_move)
+				{
+					/* Monster has pushed */
+					m_ptr->mflag |= (MFLAG_PUSH);
+
+					/* Monster has been pushed aside */
+					n_ptr->mflag |= (MFLAG_PUSH);
 				}
 			}
 		}
@@ -6965,7 +6989,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 		/* Can we get the objects */
 		if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_DROP)) &&
-			!(m_ptr->mflag & (MFLAG_OVER)))
+			!(m_ptr->mflag & (MFLAG_OVER | MFLAG_HIDE)))
 		{
 			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
 			{
@@ -7208,6 +7232,9 @@ static void process_monster(int m_idx)
 	bool random = FALSE;
 
 
+	/* Monster can act - Reset push flag */
+	m_ptr->mflag &= ~(MFLAG_PUSH);
+
 	/* If monster is sleeping, or in stasis, it loses its turn. */
 	if (m_ptr->csleep) return;
 
@@ -7248,7 +7275,6 @@ static void process_monster(int m_idx)
 			if (monster_can_smell(m_ptr)) m_ptr->mflag |= (MFLAG_ACTV);
 		}
 	}
-
 
 	/* A monster in passive mode will end its turn at this point. */
 	if (!(m_ptr->mflag & (MFLAG_ACTV))) return;

@@ -2765,14 +2765,22 @@ bool modify_panel(int wy, int wx)
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Verify wy, adjust if needed */
-	if (!zone->fill) wy = 0;
+	if (!zone->fill)
+	{
+		if (wy > TOWN_HGT - SCREEN_HGT) wy = TOWN_HGT - SCREEN_HGT;
+		else if (wy < 0) wy = 0;
+	}
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
-	else if (wy < 0) wy = 0;
+
+	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (!zone->fill) wx = 0;
-	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
-	else if (wx < 0) wx = 0;
+	if (!zone->fill)
+	{
+		if (wx > TOWN_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
+		else if (wx < 0) wx = 0;
+	}
+	else if (wx > DUNGEON_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
@@ -4117,7 +4125,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 							if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_known_p(o_ptr)))) screen_roff(o_ptr->name3);
 
 							/* Recall on screen */
-							else screen_object(o_ptr, TRUE);
+							else screen_object(o_ptr);
 
 							/* Hack -- Complete the prompt (again) */
 							Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
@@ -4293,7 +4301,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_known_p(o_ptr)))) screen_roff(o_ptr->name3);
 
 						/* Recall on screen */
-						else screen_object(o_ptr, TRUE);
+						else screen_object(o_ptr);
 
 						/* Hack -- Complete the prompt (again) */
 						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));

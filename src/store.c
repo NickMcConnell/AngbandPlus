@@ -2979,7 +2979,7 @@ static void store_examine(void)
 	screen_save();
 
 	/* Describe */
-	screen_object(o_ptr, TRUE);
+	screen_object(o_ptr);
 
 	(void)inkey();
 

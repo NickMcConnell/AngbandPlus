@@ -606,20 +606,33 @@ void search(void)
 
 	int y, x, chance;
 
-	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
+	int range = 1;
+
+	/* Start with base search ability, modified by depth */
+	chance = 10 + (2 * p_ptr->skill_srh) - p_ptr->depth;
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
 	if (p_ptr->confused || p_ptr->image) chance = chance / 10;
 
-	/* Search the nearby grids, which are always in bounds */
-	for (y = (py - 1); y <= (py + 1); y++)
+	/* Increase searching range sometimes */
+	if (chance >= rand_range(40,  70)) range++;
+	if (chance >= rand_range(80, 140)) range++;
+
+	/* Search all grids in range and in los */
+	for (y = py - range; y <= py + range; y++)
 	{
-		for (x = (px - 1); x <= (px + 1); x++)
+		for (x = px - range; x <= px + range; x++)
 		{
+			/* Get adjusted chance */
+			int chance2 = chance - ((range-1) * 40);
+
+			/* Require that grid be fully in bounds and in LOS */
+			if (!in_bounds_fully(y, x)) continue;
+			if (!los(py, px, y, x)) continue;
+
 			/* Sometimes, notice things */
-			if (rand_int(100) < chance)
+			if (rand_int(100) < chance2)
 			{
 				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
 				{
@@ -1963,10 +1976,6 @@ bool stuck_player(int *dir)
 
 	feature_type *f_ptr = &f_info[cave_feat[py][px]];
 
-	int mimic;
-
-	cptr name;
-
 	/* Hack -- allowed to move nowhere */
 	if ((!*dir) || (*dir == 5)) return (FALSE);
 
@@ -1989,17 +1998,6 @@ bool stuck_player(int *dir)
 				/* Hit the trap */
 				hit_trap(py, px);
 			}
-
-			/* Get the mimiced feature */
-			mimic = f_ptr->mimic;
-
-			/* Get the feature name */
-			name = (f_name + f_info[mimic].name);
-
-			/* Tell the player */
-			msg_format("You feel you are stuck %s%s.",
-				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
-					(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
 
 			cave_info[py][px] |= (CAVE_MARK);
 
@@ -2212,6 +2210,16 @@ void move_player(int dir, int jumping)
 			}
 
 			search();
+		}
+
+		/* Moving cautiously */
+		else
+		{
+			/* Rest after each step */
+			if (always_pickup) p_ptr->command_cmd = 'g';
+			else p_ptr->command_cmd = ',';
+			p_ptr->command_rep = 1;
+			p_ptr->command_dir = 5;
 		}
 
 		/* Handle "objects" */

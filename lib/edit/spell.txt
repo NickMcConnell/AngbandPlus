@@ -1251,7 +1251,7 @@ C:5:30:35:80:200
 C:8:25:25:80:250
 C:9:35:40:80:200
 F:HOLD_SONG
-B:LOS:AWAY_EVIL
+B:LOS:AWAY_EVIL:0d0+100
 D:The power of your god banishes evil.
 
 N:104:Word of Destruction

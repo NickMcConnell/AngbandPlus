@@ -2186,15 +2186,6 @@ static void calc_torch(void)
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
-	/* Player is glowing */
-	if (p_ptr->lite)
-	{
-#ifdef ALLOW_OBJECT_INFO_MORE
-		equip_can_flags(0x0L,0x0L,TR3_LITE);
-#endif
-		p_ptr->cur_lite = 2;
-	}
-
 	/* Get the object flags */
 	object_flags(o_ptr,&f1,&f2,&f3);
 
@@ -2204,7 +2195,8 @@ static void calc_torch(void)
 		/* Torches (with fuel) provide some lite */
 		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
 		{
-			p_ptr->cur_lite = 1;
+			if (o_ptr->pval < FUEL_LOW) p_ptr->cur_lite = 1;
+			else p_ptr->cur_lite = 2;
 		}
 
 		/* Lanterns (with fuel) provide more lite */
@@ -2216,7 +2208,7 @@ static void calc_torch(void)
 		/* Artifact Lites provide permanent, bright, lite */
 		if (artifact_p(o_ptr))
 		{
-			p_ptr->cur_lite = 3;
+			p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
 			object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
@@ -2230,7 +2222,7 @@ static void calc_torch(void)
 	{
 		if (f3 & (TR3_LITE))
 		{
-			p_ptr->cur_lite = 3;
+			p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
 			object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
@@ -2240,6 +2232,15 @@ static void calc_torch(void)
 		{	     
 			p_ptr->cur_lite = 1;
 		}	     
+	}
+
+	/* Player is glowing */
+	if (p_ptr->lite)
+	{
+#ifdef ALLOW_OBJECT_INFO_MORE
+		equip_can_flags(0x0L,0x0L,TR3_LITE);
+#endif
+		p_ptr->cur_lite++;
 	}
 
 	/* Reduce lite when running if requested */

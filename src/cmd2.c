@@ -242,7 +242,7 @@ static void do_cmd_travel(void)
 			else if ((zone2->guard) && (selection == p_ptr->dungeon))
 			{
 				/* XXX Reveal monster name? */
-				msg_print("All other ways are guarded.");
+				msg_format("All other ways are guarded by %s.",r_name + r_info[zone2->guard].name);
 			}
 
 			/* Do we travel? */
@@ -747,6 +747,9 @@ void do_cmd_open(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -759,8 +762,8 @@ void do_cmd_open(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	/* Apply confusion */
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -891,6 +894,9 @@ void do_cmd_close(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -902,7 +908,7 @@ void do_cmd_close(void)
 	p_ptr->energy_use = 50;
 
 	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1139,13 +1145,14 @@ void do_cmd_tunnel(void)
 	p_ptr->energy_use = 100;
 
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
 
 	}
+
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -1321,6 +1328,9 @@ void do_cmd_disarm(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -1334,7 +1344,7 @@ void do_cmd_disarm(void)
 	p_ptr->energy_use = 100;
 
 	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1528,6 +1538,9 @@ void do_cmd_bash(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -1541,7 +1554,7 @@ void do_cmd_bash(void)
 	p_ptr->energy_use = 100;
 
 	/* Apply confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1634,7 +1647,7 @@ void do_cmd_alter(void)
 	p_ptr->energy_use = 100;
 
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1807,6 +1820,9 @@ void do_cmd_set_trap_or_spike(void)
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
+	/* Hack -- Apply stuck */
+	stuck_player(&dir);
+
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -1823,7 +1839,7 @@ void do_cmd_set_trap_or_spike(void)
 
 
 	/* Apply stuck / confusion */
-	if (stuck_player(&dir) || confuse_dir(&dir))
+	if (dir && confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -2246,14 +2262,8 @@ static void do_cmd_hold_or_stay(int pickup)
 		set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
 	}
 
-	/* Spontaneous Searching */
-	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
-	{
-		search();
-	}
-
-	/* Continuous Searching */
-	if (p_ptr->searching)
+	/* Spontaneous Searching - doubly effective */
+	if ((p_ptr->skill_fos >= 25) || (0 == rand_int(25 - p_ptr->skill_fos)))
 	{
 		search();
 	}
@@ -2715,16 +2725,16 @@ void do_cmd_fire(void)
 
 			int visible = m_ptr->ml;
 
-			/* Note the collision */
-			hit_body = TRUE;
-
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml))
+			if (!(m_ptr->mflag & (MFLAG_HIDE)) && (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml)))
 			{
 				bool fear = FALSE;
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
+
+				/* Note the collision */
+				hit_body = TRUE;
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
@@ -2856,10 +2866,10 @@ void do_cmd_fire(void)
 
 				/* Check usage */
 				object_usage(item);
-			}
 
-			/* Stop looking */
-			break;
+				/* Stop looking */
+				break;
+			}
 		}
 	}
 
@@ -3076,16 +3086,16 @@ void do_cmd_throw(void)
 
 			int visible = m_ptr->ml;
 
-			/* Note the collision */
-			hit_body = TRUE;
-
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml))
+			if (!(m_ptr->mflag & (MFLAG_HIDE)) && (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml)))
 			{
 				bool fear = FALSE;
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
+
+				/* Note the collision */
+				hit_body = TRUE;
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
@@ -3219,10 +3229,9 @@ void do_cmd_throw(void)
 				/* Check usage */
 				object_usage(item);
 
+				/* Stop looking */
+				break;
 			}
-
-			/* Stop looking */
-			break;
 		}
 	}
 
