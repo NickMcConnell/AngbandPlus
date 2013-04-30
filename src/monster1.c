@@ -408,21 +408,21 @@ int collect_mon_group(u32b flags1, cptr vp[64])
 	n = 0;
 	if (flags1 & (RF1_GRP_ESCORT))
 	{
-		if (flags1 & (RF1_GRP_27)) vp[n++] = "many escorts";
-		else if (flags1 & (RF1_GRP_18)) vp[n++] = "escorts";
-		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few escorts";
+		if (flags1 & (RF1_GRP_18)) vp[n++] = "many escorts";
+		else if (flags1 & (RF1_GRP_12)) vp[n++] = "escorts";
+		else if (flags1 & (RF1_GRP_6)) vp[n++] = "a few escorts";
 	}
 	else if (flags1 & (RF1_GRP_PEER))
 	{
-		if (flags1 & (RF1_GRP_27)) vp[n++] = "many companions";
-		else if (flags1 & (RF1_GRP_18)) vp[n++] = "companions";
-		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few companions";
+		if (flags1 & (RF1_GRP_18)) vp[n++] = "many companions";
+		else if (flags1 & (RF1_GRP_12)) vp[n++] = "companions";
+		else if (flags1 & (RF1_GRP_6)) vp[n++] = "a few companions";
 	}
 	else 
 	{
-		if (flags1 & (RF1_GRP_27)) vp[n++] = "many similar companions";
-		else if (flags1 & (RF1_GRP_18)) vp[n++] = "similar companions";
-		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few similar companions";
+		if (flags1 & (RF1_GRP_18)) vp[n++] = "many similar companions";
+		else if (flags1 & (RF1_GRP_12)) vp[n++] = "similar companions";
+		else if (flags1 & (RF1_GRP_6)) vp[n++] = "a few similar companions";
 	}
 
 	if (flags1 & (RF1_COMPANION)) vp[n++] = "a unique companion";
@@ -540,9 +540,9 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 
 	/* Assume some "creation" flags */
 	if (r_ptr->flags1 & (RF1_COMPANION))	flags1 |= (RF1_COMPANION);
-	if (r_ptr->flags1 & (RF1_GRP_9))		flags1 |= (RF1_GRP_9);
+	if (r_ptr->flags1 & (RF1_GRP_6))		flags1 |= (RF1_GRP_6);
+	if (r_ptr->flags1 & (RF1_GRP_12))		flags1 |= (RF1_GRP_12);
 	if (r_ptr->flags1 & (RF1_GRP_18))		flags1 |= (RF1_GRP_18);
-	if (r_ptr->flags1 & (RF1_GRP_27))		flags1 |= (RF1_GRP_27);
 	if (r_ptr->flags1 & (RF1_GRP_PEER))		flags1 |= (RF1_GRP_PEER);
 	if (r_ptr->flags1 & (RF1_GRP_ESCORT))	flags1 |= (RF1_GRP_ESCORT);
 
@@ -822,6 +822,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		else if (flags4 & (RF4_PERSON))		text_out(" person");
 		else if (flags4 & (RF4_PLANT))		text_out(" plant");
 		else if (flags4 & (RF4_ANIMAL))		text_out(" animal");
+		else if (flags4 & (RF4_LYCANTHROPE))	text_out(" lycanthrope");
 		else text_out(" creature");
 
 		/* Describe the "origin" */

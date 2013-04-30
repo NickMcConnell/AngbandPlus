@@ -3,7 +3,7 @@
 #This file is currently in transition. Documentation will return in a future 
 #version.
 
-V:1.2.3
+V:1.3.0
 
 N:0:<player>
 G:@:w
@@ -35,7 +35,7 @@ G:@:w
 #W:0:2:0
 #B:TOUCH:EAT_GOLD
 #B:BEG
-#F:GRP_27 | MALE | PERSON | RAND_25 | TAKE_ITEM | ROGUE
+#F:GRP_18 | MALE | PERSON | RAND_25 | TAKE_ITEM | ROGUE
 #D:He looks squalid and thoroughly revolting.
 
 #N:5:village idiot
@@ -148,7 +148,7 @@ G:@:w
 #I:110:3:10:5:10
 #W:0:1:1
 #B:BITE:HURT:1d1
-#F:ANIMAL | GRP_27 | HURT_FIRE | HURT_COLD | EGO
+#F:ANIMAL | GRP_18 | HURT_FIRE | HURT_COLD | EGO
 #D:It is a yapping, snarling canine, dangerous when in a pack.
 
 #N:18:rock lizard
@@ -181,7 +181,7 @@ G:@:w
 #I:120:1:20:5:10
 #W:0:1:1
 #B:BITE:HURT:1d1
-#F:ANIMAL | EGO | GRP_18 | NO_BLIND | SEE_INVIS | NO_TRAP | FLYING
+#F:ANIMAL | EGO | GRP_12 | NO_BLIND | SEE_INVIS | NO_TRAP | FLYING
 #D:A fast-moving pest.
 
 #N:22:white icky thing
@@ -278,7 +278,7 @@ G:@:w
 #I:120:4:20:6:15
 #W:1:1:2
 #B:BITE:HURT:1d1
-#F:ANIMAL | EGO | GRP_18 | NO_BLIND | SEE_INVIS | NO_TRAP  | FLYING
+#F:ANIMAL | EGO | GRP_12 | NO_BLIND | SEE_INVIS | NO_TRAP  | FLYING
 #D:A fast-moving pest with big ears.
 
 #N:33:giant white mouse
@@ -340,7 +340,7 @@ I:110:18:16:11:10
 W:0:1:1
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:SKULTGARD | OPEN_DOOR | PICK_LOCK | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | 
+F:SKULTGARD | OPEN_DOOR | PICK_LOCK | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | 
 F:PERSON | TAKE_ITEM | EGO | ROGUE
 D:A rather shifty individual.
 
@@ -349,7 +349,7 @@ G:l:r
 I:110:14:16:7:10
 W:0:1:2
 B:HIT:HURT:1d4
-F:SKULTGARD | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO |
+F:SKULTGARD | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO |
 F:MAGE
 S:1_IN_12 | BLIND | BLINK | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
@@ -360,7 +360,7 @@ I:110:22:16:15:10
 W:0:1:2
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-F:SKULTGARD | BASH_DOOR | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | 
+F:SKULTGARD | BASH_DOOR | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR | 
 F:PERSON | EGO | WARRIOR
 D:He looks inexperienced but tough.
 
@@ -369,7 +369,7 @@ G:l:g
 I:110:15:16:11:10
 W:0:1:2
 B:HIT:HURT:1d5
-F:THORNWILD | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | 
+F:THORNWILD | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | 
 F:PRIEST
 S:1_IN_12 | CAUSE_1 | HEAL | SCARE
 D:He is tripping over his priestly robes.
@@ -415,7 +415,7 @@ D:He is tripping over his priestly robes.
 #I:120:7:8:15:80
 #W:1:2:12
 #B:BITE:HURT:1d4
-#F:ANIMAL | EGO | BASH_DOOR | GRP_27 | WEIRD_MIND | HURT_FIRE
+#F:ANIMAL | EGO | BASH_DOOR | GRP_18 | WEIRD_MIND | HURT_FIRE
 #D:It is a black spider that moves in fits and starts.
 
 #N:48:green ooze
@@ -455,7 +455,7 @@ I:110:20:16:15:10
 W:0:1:2
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
-F:SKULTGARD | BASH_DOOR | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | 
+F:SKULTGARD | BASH_DOOR | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR | 
 F:PERSON | EGO | MAGE | WARRIOR
 S:1_IN_12 | BLIND | BLINK | MISSILE
 D:He has some training in both magic and fighting, though not much in either.
@@ -465,7 +465,7 @@ G:l:o
 I:110:13:16:6:10
 W:0:1:2
 B:HIT:HURT:1d2
-F:SKULTGARD | DROP_35 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | 
+F:SKULTGARD | DROP_35 | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | 
 F:MAGE
 S:1_IN_8 | BLINK | CAUSE_1 | HEAL | MISSILE 
 D:He is stuttering over mystic incantations.
@@ -495,7 +495,7 @@ D:He is stuttering over mystic incantations.
 #I:110:36:20:32:30
 #W:2:1:80
 #B:HIT:HURT:1d8
-#F:BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE |
+#F:BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE |
 #F:OPEN_DOOR | EGO
 #D:He is one of the many weaker 'slave' orcs, often serving as an advance scout.
 
@@ -588,7 +588,7 @@ D:He is stuttering over mystic incantations.
 #B:BITE:EAT_FOOD
 #B:BITE:HURT:1d3
 #B:CRAWL:EAT_ITEM
-#F:ANIMAL | DROP_35 | GRP_9 | RAND_25 | TAKE_ITEM | WEIRD_MIND
+#F:ANIMAL | DROP_35 | GRP_6 | RAND_25 | TAKE_ITEM | WEIRD_MIND
 #D:Forever scurrying around, collecting anything that they can lay their paws
 #D: on.
 
@@ -617,7 +617,7 @@ D:He is stuttering over mystic incantations.
 #W:2:4:13
 #B:TOUCH:CONFUSE
 #F:SMART | FAERY | EVASIVE | RAND_50 | RAND_25 | WEIRD_MIND | NO_CUT | NO_SLEEP |
-#F:NO_CONF | REGENERATE | DROP_35 | ONLY_GOLD | NEVER_FAIL | GRP_9 | NO_TRAP |
+#F:NO_CONF | REGENERATE | DROP_35 | ONLY_GOLD | NEVER_FAIL | GRP_6 | NO_TRAP |
 #F:HURT_ACID | HURT_ELEC
 #S:1_IN_5 | BLINK | HEAL | BLINK_TO | SCARE 
 #D:A mischievous faery, that delights in practical jokes. It zooms around you
@@ -628,7 +628,7 @@ D:He is stuttering over mystic incantations.
 #I:130:7:25:13:10
 #W:2:4:50
 #B:HIT:BLIND:1d4
-#F:COLD_BLOOD | GRP_9 | HAS_LITE | HURT_DARK | NO_BLIND | NO_CUT | NO_FEAR | 
+#F:COLD_BLOOD | GRP_6 | HAS_LITE | HURT_DARK | NO_BLIND | NO_CUT | NO_FEAR | 
 #F:NO_FEAR | NO_SLEEP | PASS_WALL | RAND_25 | RAND_50 | RES_DISEASE | RES_POIS |
 #F:NO_TRAP | FLYING
 #D:A floating orb of pure light, it scurries around the dungeon for reasons
@@ -749,7 +749,7 @@ I:110:30:20:9:10
 W:1:2:7
 B:HIT:HURT:2d5
 B:HIT:HURT:2d5
-F:THORNWILD | BASH_DOOR | DROP_1 | GRP_9 | GRP_PEER | HAS_LITE | MALE | OPEN_DOOR | 
+F:THORNWILD | BASH_DOOR | DROP_1 | GRP_6 | GRP_PEER | HAS_LITE | MALE | OPEN_DOOR | 
 F:PERSON | WARRIOR | EGO
 S:1_IN_7 | ARROW_2 
 D:A warrior and bowman, he seeks the thrill of the kill.
@@ -762,14 +762,14 @@ B:HIT:HURT:1d4
 B:TOUCH:POISON:2d4
 F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_1 | NO_BLIND | NO_CUT | NO_SLEEP | NO_CONF |
 F:RES_ELEC | RES_POIS | DROP_MIMIC | BAD_JUMPER
-D:It is a pile of copper coins.
+D:It is a pile of copper coins. It looks a bit TOO shiny.
 
 N:85:manes
 G:u:u
 I:110:36:20:29:30
 W:1:2:10
 B:HIT:TAINT:1d8
-F:AETHER | BASH_DOOR | DEMON | EVIL | GRP_18 | NO_FEAR | OPEN_DOOR | RES_FIRE
+F:AETHER | BASH_DOOR | DEMON | EVIL | GRP_12 | NO_FEAR | OPEN_DOOR | RES_FIRE
 D:It is a minor but aggressive demon.
 
 N:86:wood spider
@@ -778,7 +778,7 @@ I:120:11:8:15:80
 W:1:3:10
 B:BITE:HURT:1d3
 B:STING:POISON:1d4
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | RES_POIS | WEIRD_MIND | HURT_ACID | PASS_VEGETATION
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | RES_POIS | WEIRD_MIND | HURT_ACID | PASS_VEGETATION
 D:It scuttles towards you.
 
 N:87:rabid jackal
@@ -796,7 +796,7 @@ I:110:20:20:11:5
 W:1:3:4
 B:HIT:HURT:1d9
 B:TOUCH:EAT_GOLD
-F:THORNWILD | BASH_DOOR | DROP_80 | EVIL | GRP_9 | HURT_LITE | MALE | OPEN_DOOR |
+F:THORNWILD | BASH_DOOR | DROP_80 | EVIL | GRP_6 | HURT_LITE | MALE | OPEN_DOOR |
 F:RES_DISE | TAKE_ITEM | PICK_LOCK | HURT_FIRE | RES_COLD | HUMANOID
 D:The greed of these crafty humanoids is legendary.
 
@@ -812,7 +812,7 @@ G:o:G
 I:110:50:20:29:30
 W:2:1:14
 B:HIT:HURT:1d8
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE |
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE |
 F:OPEN_DOOR | EGO | BAD_JUMPER
 D:These slave orcs dig and defend the mines of Skultgard.
 
@@ -877,7 +877,7 @@ G:b:u
 I:130:12:20:17:20
 W:2:1:6
 B:BITE:HURT:1d3
-F:THORNWILD | ANIMAL | NO_BLIND | RAND_25 | GRP_9 | SEE_INVIS | NO_TRAP | FLYING
+F:THORNWILD | ANIMAL | NO_BLIND | RAND_25 | GRP_6 | SEE_INVIS | NO_TRAP | FLYING
 D:It screeches as it attacks.
 
 N:98:night lizard
@@ -943,7 +943,7 @@ G:u:U
 I:110:50:20:29:30
 W:2:3:13
 B:HIT:TAINT:1d8
-F:AETHER | BASH_DOOR | DEMON | EVIL | GRP_18 | NO_FEAR | OPEN_DOOR | RES_FIRE
+F:AETHER | BASH_DOOR | DEMON | EVIL | GRP_12 | NO_FEAR | OPEN_DOOR | RES_FIRE
 D:It is the larval form of a major demon.
 
 N:104:crow of Durthang
@@ -952,7 +952,7 @@ I:120:12:25:14:15
 W:2:5:21
 B:BITE:HURT:1d4
 B:CLAW:HURT:1d4
-F:THORNWILD | ANIMAL | EGO | EVIL | GRP_27 | NO_TRAP | HURT_ACID | FLYING
+F:THORNWILD | ANIMAL | EGO | EVIL | GRP_18 | NO_TRAP | HURT_ACID | FLYING
 S:1_IN_10 | CAUSE_1
 D:A crook-beaked bird with bedraggled black feathers.  It mocks you, and you
 D: realise that its scorn can kill.
@@ -964,7 +964,7 @@ G:k:b
 I:110:60:20:26:30
 W:3:1:10
 B:HIT:HURT:1d10
-F:HUMANOID | WARRIOR | GRP_9 | SKULTGARD | BASH_DOOR | DROP_80 |
+F:HUMANOID | WARRIOR | GRP_6 | SKULTGARD | BASH_DOOR | DROP_80 |
 F:EVIL | OPEN_DOOR | RES_POIS | EGO
 S:1_IN_12 | JAVELIN_1
 D:The backbone of the Imperial Army.
@@ -977,7 +977,7 @@ B:HIT:HURT:1d6
 B:TOUCH:POISON:2d6
 F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_1 | NO_BLIND | NO_CUT |
 F:NO_SLEEP | NO_CONF | RES_ELEC | RES_POIS | DROP_MIMIC | BAD_JUMPER
-D:It is a pile of silver coins, crawling forward on thousands of tiny legs.
+D:It is a pile of silver coins. It looks a bit TOO shiny.
 
 N:108:headless
 G:h:u
@@ -1046,7 +1046,7 @@ I:120:5:12:27:10
 W:3:2:20
 B:STING:LOSE_STR:1d4
 B:STING:POISON:1d4
-F:THORNWILD | ANIMAL | GRP_18 | WEIRD_MIND | NO_TRAP | HURT_FIRE | HURT_ELEC | FLYING
+F:THORNWILD | ANIMAL | GRP_12 | WEIRD_MIND | NO_TRAP | HURT_FIRE | HURT_ELEC | FLYING
 D:It is poisonous and aggressive.
 
 N:113:plague rat
@@ -1118,7 +1118,7 @@ G:C:u
 I:120:20:30:25:20
 W:4:1:30
 B:BITE:HURT:1d6
-F:THORNWILD | ANIMAL | EGO | BASH_DOOR | GRP_18 | RAND_25
+F:THORNWILD | ANIMAL | EGO | BASH_DOOR | GRP_12 | RAND_25
 D:It howls and snaps at you.
 
 N:120:giant pink frog
@@ -1186,7 +1186,7 @@ W:4:3:14
 B:BITE:HURT:1d8
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
-F:THORNWILD | ANIMAL | EVASIVE | GRP_18 | RAND_50 | SMART | FAERY | WEIRD_MIND | NO_SLEEP |
+F:THORNWILD | ANIMAL | EVASIVE | GRP_12 | RAND_50 | SMART | FAERY | WEIRD_MIND | NO_SLEEP |
 F:NO_CONF | NEVER_FAIL  | NO_TRAP | HURT_ELEC | PASS_VEGETATION | HURT_DARK
 S:1_IN_8 | BLINK | BLINK_TO | CONF
 D:At first glance a normal cat, there is something about it that seems a bit weird...
@@ -1247,7 +1247,7 @@ I:110:44:20:27:10
 W:5:1:20
 B:HIT:HURT:2d5
 B:HIT:HURT:2d5
-F:THORNWILD | PERSON | OPEN_DOOR | BASH_DOOR | DROP_1 | GRP_PEER | GRP_9 | HAS_LITE | 
+F:THORNWILD | PERSON | OPEN_DOOR | BASH_DOOR | DROP_1 | GRP_PEER | GRP_6 | HAS_LITE | 
 F:MALE | EGO | WARRIOR | EVIL | TAKE_ITEM
 D:His hand rests on his sword, as he scans his surroundings alertly.
 
@@ -1259,7 +1259,7 @@ B:HIT:HURT:2d3
 B:HIT:HURT:2d3
 B:TOUCH:EAT_ITEM
 F:SKULTGARD | PERSON | OPEN_DOOR | PICK_LOCK | DROP_1 | EVIL | MALE | TAKE_ITEM | EGO | 
-F:ROGUE | GRP_PEER | GRP_9 | SET_TRAPS
+F:ROGUE | GRP_PEER | GRP_6 | SET_TRAPS
 D:A skilled sneak, he is eyeing your backpack.
 
 N:136:rat-thing
@@ -1279,7 +1279,7 @@ I:110:50:20:27:30
 W:5:1:20
 B:HIT:HURT:1d8
 B:CLAW:CUT:1d6
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_9 | HUMANOID | MALE | OPEN_DOOR | EGO | BAD_JUMPER | HURT_LITE
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_6 | HUMANOID | MALE | OPEN_DOOR | EGO | BAD_JUMPER | HURT_LITE
 D:A warrior from a wild orc tribe deemed too unpredictable for the Legion.
 
 N:138:leprechaun
@@ -1300,7 +1300,7 @@ I:120:12:40:11:20
 W:5:4:24
 B:BITE:HURT:2d4
 B:BITE:HURT:2d4
-F:THORNWILD | ANIMAL | GRP_27 | HURT_LITE | RAND_25 | WEIRD_MIND | RES_SOUN | NO_TRAP  | FLYING
+F:THORNWILD | ANIMAL | GRP_18 | HURT_LITE | RAND_25 | WEIRD_MIND | RES_SOUN | NO_TRAP  | FLYING
 S:1_IN_5 | BR_SOUN
 D:A small bird, resembling a thrush with large, night-adapted eyes.
 
@@ -1328,7 +1328,7 @@ I:120:28:30:27:20
 W:6:1:36
 B:BITE:HURT:1d4
 B:BITE:HURT:1d4
-F:THORNWILD | ANIMAL | EGO | BASH_DOOR | GRP_18 | RAND_25 | RES_COLD | HURT_FIRE
+F:THORNWILD | ANIMAL | EGO | BASH_DOOR | GRP_12 | RAND_25 | RES_COLD | HURT_FIRE
 D:A large and muscled wolf from the northern wastes.  Its breath is cold and
 D: icy and its fur coated in frost.
 
@@ -1417,7 +1417,7 @@ W:6:3:25
 B:GRAB:HURT:1d3
 B:GRAB:HURT:1d3
 F:THORNWILD | SMART | FAERY | WEIRD_MIND | NO_CUT | NO_SLEEP | NO_CONF | DROP_35 | EVIL
-F:NEVER_FAIL | TAKE_ITEM | OPEN_DOOR | PICK_LOCK | GRP_18 | EVASIVE | HURT_LITE | PASS_VEGETATION
+F:NEVER_FAIL | TAKE_ITEM | OPEN_DOOR | PICK_LOCK | GRP_12 | EVASIVE | HURT_LITE | PASS_VEGETATION
 S:1_IN_4 | SCARE
 D:Small and evil natured, these creatures take delight in spreading misery and 
 D: mischief.
@@ -1449,10 +1449,10 @@ B:HIT:HURT:2d4
 F:SKULTGARD | BASH_DOOR | EMPTY_MIND | NO_FEAR | NO_SLEEP | NO_CONF | RES_ELEC | BAD_JUMPER
 D:A shambling humanoid monster with long scars.
 
-N:155:Wormtongue, agent of Saruman
-G:l:B
+N:155:Whiskers the Rebel
+G:W:g
 W:6:1:0
-F:UNIQUE | THORNWILD
+F:UNIQUE | LYCANTHROPE | THORNWILD
 
 N:156:Mughash the Kobold Lord
 G:k:b
@@ -1477,7 +1477,7 @@ I:110:29:20:18:10
 W:7:1:40
 B:HIT:HURT:1d6
 F:SKULTGARD | PERSON | DROP_80 | EVIL | HAS_LITE | MALE | RES_POIS | RES_FIRE | ONLY_ITEM |
-F:OPEN_DOOR | MAGE | GRP_PEER | GRP_9 | EGO | TAKE_ITEM
+F:OPEN_DOOR | MAGE | GRP_PEER | GRP_6 | EGO | TAKE_ITEM
 S:1_IN_5 | BLIND | BO_ACID | BO_ELEC | BO_FIRE | CONF | BLINK | DARKNESS
 D:A mage of some power - you can tell by the size of his hat.
 
@@ -1487,7 +1487,7 @@ I:110:22:20:17:10
 W:7:2:40
 B:HIT:HURT:1d4
 F:SKULTGARD | PERSON | DROP_80 | EVIL | HAS_LITE | MALE | NO_BLIND | ONLY_ITEM | 
-F:OPEN_DOOR | NO_CONF | EGO | MAGE | GRP_PEER | GRP_9
+F:OPEN_DOOR | NO_CONF | EGO | MAGE | GRP_PEER | GRP_6
 S:1_IN_2 | BLIND | BO_COLD | BO_ELEC | CAUSE_2 | CONF | HEAL | BLINK | SCARE 
 D:Shrouded in robes, his stance exhudes confidence.
 
@@ -1526,7 +1526,7 @@ W:7:2:48
 B:BITE:HURT:1d8
 B:CLAW:HURT:1d
 B:CLAW:HURT:1d5
-F:CHAOS | ANIMAL | EVIL | GRP_18 | RAND_25 | RES_FIRE | WEIRD_MIND | HURT_COLD
+F:CHAOS | ANIMAL | EVIL | GRP_12 | RAND_25 | RES_FIRE | WEIRD_MIND | HURT_COLD
 D:It is as large as a tiger, its yellow eyes are pupilless.
 
 N:164:giant spider
@@ -1580,7 +1580,7 @@ B:HIT:HURT:2d5
 B:TOUCH:POISON:3d5
 F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_1 | NO_BLIND | NO_CUT | NO_SLEEP | 
 F:NO_CONF | RES_ELEC | RES_POIS | DROP_MIMIC | BAD_JUMPER
-D:It is a pile of golden coins, crawling forward on thousands of tiny legs.
+D:It is a pile of golden coins. It looks a bit TOO shiny.
 
 N:169:blue icky thing
 G:i:b
@@ -1590,21 +1590,21 @@ B:CRAWL:EAT_FOOD
 B:CRAWL:POISON:1d4
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
-F:CHAOS | BASH_DOOR | EVIL | GRP_18 | OPEN_DOOR | RAND_50 | RES_POIS | HURT_ELEC | 
+F:CHAOS | BASH_DOOR | EVIL | GRP_12 | OPEN_DOOR | RAND_50 | RES_POIS | HURT_ELEC | 
 F:RES_COLD | BAD_JUMPER
 S:1_IN_8 | BLIND | CONF | SCARE
 D:It is a strange, slimy, icky creature, with rudimentary intelligence,
 D: but evil cunning.  It hungers for food, and you look tasty.
 
 N:170:death sword
-G:|:W
+G:|:r
 I:130:33:20:36:0
 W:7:5:90
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
-F:AETHER | COLD_BLOOD | EMPTY_MIND | EVIL | NEVER_MOVE | ATTR_MIMIC | NO_CUT | STUPID | 
+F:AETHER | COLD_BLOOD | EMPTY_MIND | EVIL | NEVER_MOVE | NO_CUT | STUPID | 
 F:NO_CALM | NO_BLIND | NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF | HURT_ACID | 
 F:RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | DROP_80 | DROP_MIMIC 
 D:A bloodthirsty blade lurking for prey. Beware!
@@ -1662,7 +1662,7 @@ W:8:1:55
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:DROP_1 | EVIL | HAS_LITE | MALE | OPEN_DOOR | PERSON | SMART | EGO | 
-F:THORNWILD | PRIEST | GRP_PEER | GRP_9
+F:THORNWILD | PRIEST | GRP_PEER | GRP_6
 S:1_IN_5 | CAUSE_2 | HEAL | SCARE | DARKNESS
 D:A robed figure dedicated to his dark god.
 
@@ -1673,7 +1673,7 @@ W:8:2:50
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:SKULTGARD | PERSON | BASH_DOOR | DROP_80 | EVIL | HAS_LITE | MALE | OPEN_DOOR | EGO |
-F:TAKE_ITEM | MAGE | WARRIOR | GRP_PEER | GRP_9
+F:TAKE_ITEM | MAGE | WARRIOR | GRP_PEER | GRP_6
 S:1_IN_7 | BLIND | BLINK | BO_FIRE
 D:This person commands both magic and the art of melee combat.
 
@@ -1735,7 +1735,7 @@ I:110:58:20:32:20
 W:9:1:58
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE | EGO | 
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE | EGO | 
 F:OPEN_DOOR | PICK_LOCK | BAD_JUMPER
 D:He is a large orc with powerful arms and deep black skin.
 
@@ -1767,7 +1767,7 @@ W:9:1:43
 B:BITE:HURT:1d8
 B:BITE:POISON:1d6
 B:BITE:POISON:1d6
-F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_18 | RES_POIS | WEIRD_MIND | HURT_FIRE | PASS_VEGETATION
+F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_12 | RES_POIS | WEIRD_MIND | HURT_FIRE | PASS_VEGETATION
 D:A strong and powerful spider from Myrkwood forest.  Cunning and evil, it
 D: seeks to taste your juicy insides.
 
@@ -1776,7 +1776,7 @@ G:l:R
 I:110:33:20:20:10
 W:9:2:60
 B:HIT:HURT:1d5
-F:SKULTGARD | PERSON | DROP_1 | EVIL | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR |
+F:SKULTGARD | PERSON | DROP_1 | EVIL | GRP_PEER | GRP_6 | HAS_LITE | MALE | OPEN_DOOR |
 F:EGO | MAGE
 S:1_IN_4 | BLINK | BO_COLD | DARKNESS | S_MONSTER
 D:A mage, trained in the arts of summoning.
@@ -1818,7 +1818,7 @@ W:9:3:50
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
 F:THORNWILD | FAERY | WEIRD_MIND | NO_CUT | DROP_80 | NEVER_FAIL | TAKE_ITEM | OPEN_DOOR |
-F:EVIL | BASH_DOOR | GRP_9 | BAD_JUMPER
+F:EVIL | BASH_DOOR | GRP_6 | BAD_JUMPER
 S:1_IN_6 | SLOW | SCARE
 D:Short and stocky, it resembles a beardless dwarfs with a misshapen head.
 
@@ -1868,7 +1868,7 @@ G:O:U
 I:110:58:20:27:30
 W:9:3:60
 B:HIT:HURT:2d8
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | EGO
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | EGO
 D:A hideous, smallish giant that is often found near or with orcs.
 
 # Level 13 #
@@ -1888,7 +1888,7 @@ W:10:1:65
 B:BITE:HURT:1d6
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
-F:BASH_DOOR | GRP_18 | HAS_LITE | HURT_DARK | ANIMAL | RES_LITE | CHAOS
+F:BASH_DOOR | GRP_12 | HAS_LITE | HURT_DARK | ANIMAL | RES_LITE | CHAOS
 S:1_IN_5 | BR_LITE
 D:A brilliant canine form whose light hurts your eyes, even at this distance.
 
@@ -1899,7 +1899,7 @@ W:10:1:65
 B:BITE:HURT:1d6
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
-F:BASH_DOOR | GRP_18 | ANIMAL | RES_DARK | HURT_LITE | CHAOS
+F:BASH_DOOR | GRP_12 | ANIMAL | RES_DARK | HURT_LITE | CHAOS
 S:1_IN_5 | BR_DARK
 D:A hole in the air in the shape of a huge hound.  No light falls upon its
 D: form.
@@ -1949,7 +1949,7 @@ G:C:s
 I:120:45:20:18:40
 W:10:2:64
 B:BITE:HURT:1d8
-F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_18 | RAND_25 | EGO
+F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_12 | RAND_25 | EGO
 D:It is a large wolf with eyes full of cunning.
 
 N:206:drider
@@ -1969,7 +1969,7 @@ I:120:15:40:11:0
 W:10:2:32
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
-F:THORNWILD | ANIMAL | GRP_18 | NO_TRAP | FLYING
+F:THORNWILD | ANIMAL | GRP_12 | NO_TRAP | FLYING
 S:1_IN_8 | SHRIEK
 D:A type of crow, specially bred by the forces of evil as spies: their
 D: rudimentary intelligence guided by an evil mind has tracked you down.
@@ -1994,7 +1994,7 @@ I:110:40:30:27:20
 W:10:3:70
 B:BITE:LOSE_CON:1d4
 B:BITE:POISON:1d3
-F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_35 | EVIL | GRP_27 | NO_BLIND | NO_CUT |
+F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_35 | EVIL | GRP_18 | NO_BLIND | NO_CUT |
 F:NO_FEAR | NO_SLEEP | NO_CONF | RES_POIS | UNDEAD | FLYING |
 F:WEIRD_MIND | NO_TRAP | HURT_FIRE
 D:A skullpack animated by necromantic spells.
@@ -2006,7 +2006,7 @@ W:10:3:67
 B:BITE:HURT:1d4
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:THORNWILD | BASH_DOOR | GRP_27 | HURT_LITE | OPEN_DOOR | RAND_25 | HURT_FIRE |
+F:THORNWILD | BASH_DOOR | GRP_18 | HURT_LITE | OPEN_DOOR | RAND_25 | HURT_FIRE |
 F:RES_COLD | RES_ELEC | STUPID
 D:A slender, bipedal creature about 5 feet in height, it's head is large
 D: compared to its body and its arms are long.
@@ -2050,7 +2050,7 @@ W:10:5:80
 B:BITE:HURT:1d11
 B:CLAW:ELEC:2d4
 B:CLAW:ELEC:2d4
-F:AETHER | EVIL | GRP_18 | GRP_ESCORT | NO_FEAR | RES_ELEC | FEMALE | DROP_1 | 
+F:AETHER | EVIL | GRP_12 | GRP_ESCORT | NO_FEAR | RES_ELEC | FEMALE | DROP_1 | 
 F:ONLY_GOLD | BASH_DOOR | NO_TRAP | FLYING | HURT_DARK
 D:The leader of a flock of harpies, lightning sparks emerge from her claws.
 
@@ -2070,7 +2070,7 @@ I:112:76:20:36:20
 W:11:3:70
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | MALE | OPEN_DOOR | EGO
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | MALE | OPEN_DOOR | EGO
 D:Hardy, well weathered survivors, surprisingly agile in their stinking hide armour.
 
 N:216:forest troll
@@ -2080,7 +2080,7 @@ W:11:1:110
 B:BITE:HURT:1d6
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE | EGO |
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE | EGO |
 F:OPEN_DOOR | REGENERATE | HURT_FIRE | HURT_ACID
 D:He is green skinned and ugly.
 
@@ -2113,7 +2113,7 @@ W:11:2:80
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
 F:SKULTGARD | BASH_DOOR | DROP_1 | EVIL | MALE | ONLY_ITEM | OPEN_DOOR | PERSON | SMART |
-F:PRIEST | EGO | NO_FEAR | GRP_9
+F:PRIEST | EGO | NO_FEAR | GRP_6
 S:1_IN_4 | BLIND | CAUSE_2 | DARKNESS | HEAL | BO_COLD | HASTE
 D:Dressed in dark robes, he has dedicated his life to his dark master.
 
@@ -2153,7 +2153,7 @@ I:110:75:20:31:30
 W:11:2:100
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | RAND_25 | EGO
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | RAND_25 | EGO
 D:A massive orc-like figure with black skin and powerful arms.
 
 N:224:Golfimbul, the hill orc chief
@@ -2170,7 +2170,7 @@ W:12:1:95
 B:BITE:COLD:1d6
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
-F:BASH_DOOR | GRP_18 | RES_COLD | ANIMAL | HURT_FIRE | CHAOS
+F:BASH_DOOR | GRP_12 | RES_COLD | ANIMAL | HURT_FIRE | CHAOS
 S:1_IN_10 | BR_COLD
 D:A hound as tall as a man, this creature appears to be composed of angular
 D: planes of ice.  Cold radiates from it and freezes your breath in the air.
@@ -2205,7 +2205,7 @@ W:12:2:27
 B:BITE:TERRIFY:1d3
 B:CLAW:HURT:1d2
 B:CLAW:HURT:1d2
-F:THORNWILD | ANIMAL | NO_BLIND | RAND_25 | GRP_9 | SEE_INVIS | NO_TRAP | FLYING
+F:THORNWILD | ANIMAL | NO_BLIND | RAND_25 | GRP_6 | SEE_INVIS | NO_TRAP | FLYING
 D:A giant bat, the beating of whose wings produces a strangely unnerving
 D: noise.
 
@@ -2214,7 +2214,7 @@ G:C:B
 I:120:32:20:18:10
 W:12:2:90
 B:BITE:HURT:1d8
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | RAND_25 | NEVER_FAIL | EGO | HURT_ELEC | HURT_DARK
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | RAND_25 | NEVER_FAIL | EGO | HURT_ELEC | HURT_DARK
 S:1_IN_4 | BLINK | BLINK_TO
 D:A strange magical member of the canine race, its form seems to shimmer and
 D: fade in front of your very eyes.
@@ -2288,7 +2288,7 @@ W:13:1:100
 B:BITE:FIRE:2d5
 B:CLAW:HURT:2d3
 B:CLAW:HURT:2d3
-F:BASH_DOOR | GRP_18 | HAS_LITE | RES_FIRE | ANIMAL | HURT_COLD | CHAOS
+F:BASH_DOOR | GRP_12 | HAS_LITE | RES_FIRE | ANIMAL | HURT_COLD | CHAOS
 S:1_IN_10 | BR_FIRE
 D:Flames lick at its feet and its tongue is a blade of fire.  You can feel a
 D: furnace heat radiating from the creature.
@@ -2300,7 +2300,7 @@ W:13:1:110
 B:BITE:ELEC:2d6
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | HAS_LITE | RES_ELEC | ANIMAL | HURT_DARK | CHAOS
+F:BASH_DOOR | GRP_12 | HAS_LITE | RES_ELEC | ANIMAL | HURT_DARK | CHAOS
 S:1_IN_10 | BR_ELEC
 D:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting
 D: your fingers as energy builds up in the air around you.
@@ -2419,7 +2419,7 @@ I:110:65:20:41:20
 W:14:1:122
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | WARRIOR | MALE |
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | WARRIOR | MALE |
 F:OPEN_DOOR | RES_POIS | PICK_LOCK | EGO | BAD_JUMPER
 S:1_IN_12 | JAVELIN_2
 D:The backbone of the Imperial Army.
@@ -2482,7 +2482,7 @@ W:14:2:135
 B:BITE:HURT:1d8
 B:BITE:POISON:1d6
 B:BITE:POISON:1d6
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | RES_POIS | WEIRD_MIND | NEVER_FAIL | NO_TRAP
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | RES_POIS | WEIRD_MIND | NEVER_FAIL | NO_TRAP
 S:1_IN_5 | BLINK | BLINK_TO | TELE_TO
 D:A spider that never seems quite there.  Everywhere you look it is just
 D: half-seen in the corner of one eye.
@@ -2577,7 +2577,7 @@ B:BITE:HURT:1d8
 B:BITE:HURT:1d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | ANIMAL | RES_SHAR | HURT_ACID | CHAOS
+F:BASH_DOOR | GRP_12 | ANIMAL | RES_SHAR | HURT_ACID | CHAOS
 S:1_IN_10 | BR_SHAR
 D:A beautiful crystalline shape does not disguise the danger this hound
 D: clearly presents.  Your flesh tingles as it approaches.
@@ -2590,7 +2590,7 @@ B:BITE:HURT:1d8
 B:BITE:HURT:1d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | RES_POIS | ANIMAL | HURT_ELEC | FLYING | CHAOS
+F:BASH_DOOR | GRP_12 | RES_POIS | ANIMAL | HURT_ELEC | FLYING | CHAOS
 S:1_IN_10 | BR_POIS
 D:Swirling vapours surround this beast as it floats towards you, seemingly
 D: walking on air.  Noxious gases sting your throat.
@@ -2603,7 +2603,7 @@ B:BITE:ACID:1d8
 B:BITE:ACID:1d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | RES_ACID | ANIMAL | CHAOS
+F:BASH_DOOR | GRP_12 | RES_ACID | ANIMAL | CHAOS
 S:1_IN_10 | BR_ACID
 D:Footprints are burned in the ground behind this hound as it pads around 
 D: the dungeon. An acrid smell of acid rises from the dog's pelt. 
@@ -2658,7 +2658,7 @@ G:O:s
 I:110:90:20:33:30
 W:16:1:120
 B:HIT:HURT:5d8
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | EGO
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | EGO
 D:A massive orc-like figure with rough grey skin.
 
 N:274:red mold
@@ -2774,7 +2774,7 @@ W:17:2:121
 B:BITE:HURT:1d7
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
-F:THORNWILD | ANIMAL | GRP_27 | NO_TRAP | EGO | FLYING
+F:THORNWILD | ANIMAL | GRP_18 | NO_TRAP | EGO | FLYING
 D:Often flocks of these winged menaces can be found in underground caverns.
 
 N:285:sabre-tooth tiger
@@ -2872,7 +2872,7 @@ B:BITE:HURT:1d8
 B:BITE:HURT:1d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | RES_WATER | ANIMAL | HURT_COLD | HURT_FIRE | CHAOS
+F:BASH_DOOR | GRP_12 | RES_WATER | ANIMAL | HURT_COLD | HURT_FIRE | CHAOS
 S:1_IN_10 | BR_WATER
 D:Liquid footprints follow this hound as it pads around the dungeon.
 D: Its dog-shaped body moves fluidly, its muscles flowing rather than bending.
@@ -2928,7 +2928,7 @@ W:19:1:200
 B:BITE:HURT:3d4
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | HURT_ROCK | 
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | HURT_ROCK | 
 F:MALE | OPEN_DOOR | REGENERATE | HURT_ACID | EGO
 D:He is a giant troll with scabrous black skin.
 
@@ -3019,7 +3019,7 @@ W:20:2:400
 B:HIT:POISON:3d9
 B:TOUCH:PARALYZE:1d4
 B:TOUCH:LOSE_CON:1d4
-F:GRP_ESCORT | GRP_18 | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:GRP_ESCORT | GRP_12 | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:AETHER | NO_BLIND | NO_FEAR | ONLY_ITEM | DROP_80 | EVIL | UNDEAD | RES_POIS | 
 F:NO_SLEEP | BAD_JUMPER | PERSON
 D:A grave-robbing undead with a withering touch, surrounded by animated
@@ -3083,7 +3083,7 @@ B:BITE:COLD:2d6
 B:BITE:COLD:2d6
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE | 
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE | 
 F:OPEN_DOOR | REGENERATE | RES_COLD | HURT_FIRE | HURT_ACID | EGO
 D:He is a white troll with powerfully clawed hands.
 
@@ -3164,7 +3164,7 @@ W:22:1:360
 B:BITE:HURT:1d6
 B:CLAW:POISON:3d3
 B:CLAW:POISON:3d3
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | RES_POIS |
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | RES_POIS |
 F:REGENERATE | HURT_ACID | EGO
 D:A powerful troll form.  Venom drips from its needlelike claws.
 
@@ -3192,7 +3192,7 @@ I:110:103:15:36:10
 W:22:2:200
 B:STING:PARALYZE:2d6
 B:STING:PARALYZE:2d6
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | RAND_25 | RES_POIS | WEIRD_MIND | BAD_JUMPER
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | RAND_25 | RES_POIS | WEIRD_MIND | BAD_JUMPER
 D:A hideous centipede covered in slime and with glowing tentacles around its
 D: head.
 
@@ -3223,7 +3223,7 @@ B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | RES_NEXU | CHAOS
+F:BASH_DOOR | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | RES_NEXU | CHAOS
 S:1_IN_5 | BR_NEXU
 D:A locus of conflicting points coalesce to form the vague shape of a huge
 D: hound.  Or is it just your imagination?
@@ -3236,7 +3236,7 @@ B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | RES_SOUN | CHAOS
+F:BASH_DOOR | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | RES_SOUN | CHAOS
 S:1_IN_5 | BR_SOUN
 D:A blurry canine form which seems to be moving as fast as the eye can
 D: follow.  You can feel the earth resonating beneath your feet.
@@ -3276,7 +3276,7 @@ I:110:126:20:36:30
 W:23:1:220
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
-F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | EGO | WARRIOR
+F:SKULTGARD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | EGO | WARRIOR
 S:1_IN_12 | JAVELIN_3
 D:The backbone of the Imperial Army.
 
@@ -3470,8 +3470,7 @@ B:HIT:HURT:1d12
 B:TOUCH:POISON:3d5
 F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_2 | NO_BLIND | NO_CUT |
 F:NO_SLEEP | NO_CONF | RES_ELEC | RES_POIS | DROP_MIMIC | BAD_JUMPER
-D:It is a pile of precious mithril coins, rolling forward on thousands of
-D: tiny legs.
+D:It is a pile of precious mithril coins. It looks a bit TOO shiny.
 
 N:351:Dom, the black goblin
 G:h:D
@@ -3507,7 +3506,7 @@ G:a:o
 I:120:60:10:36:40
 W:25:2:150
 B:BITE:HURT:2d12
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_27 | KILL_BODY | RAND_25 | WEIRD_MIND
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | KILL_BODY | RAND_25 | WEIRD_MIND
 D:An armoured form moving with purpose.  Powerful on its own, flee when
 D: hordes of them march.
 
@@ -3595,7 +3594,7 @@ W:25:3:300
 B:BITE:POISON:1d9
 B:CLAW:HURT:1d2
 B:CLAW:HURT:1d2
-F:THORNWILD | RAND_25 | MOVE_BODY | BASH_DOOR | WEIRD_MIND | ANIMAL | RES_POIS | GRP_27 |
+F:THORNWILD | RAND_25 | MOVE_BODY | BASH_DOOR | WEIRD_MIND | ANIMAL | RES_POIS | GRP_18 |
 F:NEVER_FAIL | NO_BLIND | SEE_INVIS | FLYING
 S:1_IN_8 | SCARE | BR_POIS | BR_DARK
 D:Fed with horrid meats and grown to enormous size, this slavering creature
@@ -3741,7 +3740,7 @@ B:BITE:HURT:1d8
 B:BITE:HURT:1d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | HURT_LITE | MALE |
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | HURT_LITE | MALE |
 F:OPEN_DOOR | REGENERATE | RES_POIS | HURT_ACID | EGO
 D:He is a vicious monster, feared for his ferocity.
 
@@ -3884,7 +3883,7 @@ D: carapace.
 
 N:387:chaos cockroach
 G:I:v
-I:120:10:7:18:45
+I:115:10:7:18:45
 W:27:3:0
 B:CRAWL:HURT:1d5
 F:CHAOS | ANIMAL | ATTR_MULTI | CHAOS | HURT_LITE | MULTIPLY | NO_FEAR |
@@ -3901,7 +3900,7 @@ B:HIT:HURT:3d3
 B:HIT:HURT:3d3
 B:HIT:HURT:3d3
 B:HIT:HURT:3d3
-F:SKULTGARD | COLD_BLOOD | EMPTY_MIND | GRP_18 | NO_CUT | NO_FEAR | NO_SLEEP | NO_CONF | 
+F:SKULTGARD | COLD_BLOOD | EMPTY_MIND | GRP_12 | NO_CUT | NO_FEAR | NO_SLEEP | NO_CONF | 
 F:RES_POIS | RES_COLD | HURT_ELEC | BAD_JUMPER
 S:1_IN_9 | ARROW_1 | ARROW_3
 D:A human-shaped contraption made of gears and metal scrapes, it makes a 
@@ -3942,7 +3941,7 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
-F:SKULTGARD | BASH_DOOR | DROP_80 | GRP_18 | GRP_ESCORT | EVIL | HUMANOID |
+F:SKULTGARD | BASH_DOOR | DROP_80 | GRP_12 | GRP_ESCORT | EVIL | HUMANOID |
 F:ONLY_ITEM | OPEN_DOOR | EGO | MOVE_BODY
 D:This ogre is leader of his tribe.  He sneers at you as he advances towards you,
 D: wielding a huge club and pushing his own followers rudely aside.
@@ -4001,7 +4000,7 @@ B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
-F:BASH_DOOR | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | RES_GRAV | HURT_ELEC | CHAOS
+F:BASH_DOOR | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | RES_GRAV | HURT_ELEC | CHAOS
 S:1_IN_5 | BR_GRAV
 D:Unfettered by the usual constraints of gravity, these unnatural creatures
 D: are walking on the walls and even the ceiling!  The earth suddenly feels
@@ -4014,7 +4013,7 @@ W:28:3:900
 B:HIT:TAINT:1d8
 B:HIT:TAINT:1d8
 B:TOUCH:EXP_3
-F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_35 | EVIL | GRP_18 | HURT_LITE | NO_BLIND |
+F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_35 | EVIL | GRP_12 | HURT_LITE | NO_BLIND |
 F:NO_CUT | NO_SLEEP | OPEN_DOOR | RES_COLD | NO_CONF | RES_POIS | UNDEAD
 S:1_IN_8 | CAUSE_2 | DARKNESS | HOLD | SCARE
 D:It is a ghostly nightmare of an entity.
@@ -4036,7 +4035,7 @@ I:110:140:14:45:40
 W:29:1:600
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | HAS_LITE | KILL_BODY | RES_FIRE | WEIRD_MIND |
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | HAS_LITE | KILL_BODY | RES_FIRE | WEIRD_MIND |
 F:HURT_COLD
 D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
@@ -4060,7 +4059,7 @@ B:BITE:HURT:2d2
 B:BITE:HURT:2d2
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | EGO | HURT_LITE | MALE | 
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | EGO | HURT_LITE | MALE | 
 F:OPEN_DOOR | REGENERATE | RES_COLD | RES_POIS | RES_WATER
 D:He is a troll that reeks of brine.
 
@@ -4109,7 +4108,7 @@ B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
-F:BASH_DOOR | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | RES_INER | CHAOS
+F:BASH_DOOR | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | RES_INER | CHAOS
 S:1_IN_5 | BR_INER
 D:Bizarrely, this hound seems to be hardly moving at all, yet it approaches
 D: you with deadly menace.  It makes you tired just to look at it.
@@ -4186,7 +4185,7 @@ B:BITE:HURT:2d3
 B:BITE:HURT:2d3
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
-F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_18 | HUMANOID | OPEN_DOOR | REGENERATE |
+F:THORNWILD | BASH_DOOR | DROP_35 | EVIL | GRP_12 | HUMANOID | OPEN_DOOR | REGENERATE |
 F:RES_POIS | SMART | HURT_ACID | EGO
 D:It is a massive intelligent troll with needle sharp fangs.
 
@@ -4233,7 +4232,7 @@ B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
-F:BASH_DOOR | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | RES_FORCE | CHAOS
+F:BASH_DOOR | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | RES_FORCE | CHAOS
 S:1_IN_8 | BR_FORCE
 D:A deep brown shape is visible before you, its canine form strikes you with
 D: an almost physical force.  The dungeon floor buckles as if struck by a
@@ -4477,7 +4476,7 @@ W:32:1:1000
 B:BUTT:HURT:4d6
 B:BUTT:HURT:4d6
 B:CRUSH:HURT:4d4
-F:THORNWILD | ANIMAL | BASH_DOOR | GRP_18 | EGO | BAD_JUMPER | PASS_VEGETATION
+F:THORNWILD | ANIMAL | BASH_DOOR | GRP_12 | EGO | BAD_JUMPER | PASS_VEGETATION
 D:A massive elephantine form with eyes twisted by madness.
 
 N:436:hellhound
@@ -4556,8 +4555,7 @@ B:HIT:HURT:3d6
 B:TOUCH:POISON:3d6
 F:AETHER | BASH_DOOR | COLD_BLOOD | DROP_3 | DROP_35 | NO_BLIND | NO_CUT | NO_SLEEP |
 F:RES_ACID | NO_CONF | RES_ELEC | RES_POIS | DROP_MIMIC | BAD_JUMPER
-D:It is a pile of precious adamantite coins, slithering forward on thousands of
-D: tiny legs.
+D:It is a pile of precious adamantite coins. It looks a bit TOO shiny.
 
 N:442:master ^vampire
 G:V:g
@@ -4575,14 +4573,14 @@ D:It is a humanoid form dressed in robes.  Power emanates from its chilling
 D: frame.
 
 N:443:doom sword
-G:|:W
+G:|:v
 I:130:60:20:36:0
 W:32:4:1000
 B:HIT:HURT:6d7
 B:HIT:HURT:6d7
 B:HIT:HURT:6d7
 B:HIT:HURT:6d7
-F:AETHER | COLD_BLOOD | EMPTY_MIND | EVIL | NEVER_MOVE | ATTR_MIMIC | NO_CUT | STUPID | 
+F:AETHER | COLD_BLOOD | EMPTY_MIND | EVIL | NEVER_MOVE | NO_CUT | STUPID | 
 F:NO_CALM | NO_BLIND | NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF | RES_ELEC | 
 F:RES_FIRE | RES_COLD | RES_POIS | DROP_80 | DROP_MIMIC 
 S:1_IN_5 | BLINK_TO
@@ -4827,7 +4825,7 @@ W:34:2:3000
 B:CRUSH:HURT:8d12
 B:CRUSH:HURT:8d12
 B:HIT:TAINT:3d4
-F:AETHER | BASH_DOOR | DEMON | DROP_35 | EVIL | GRP_18 | NO_SLEEP | ONLY_ITEM | 
+F:AETHER | BASH_DOOR | DEMON | DROP_35 | EVIL | GRP_12 | NO_SLEEP | ONLY_ITEM | 
 F:OPEN_DOOR | NO_CONF | RES_FIRE
 S:1_IN_8 | BLIND | CONF
 D:It is a demon with a long neck and raking claws.
@@ -4908,7 +4906,7 @@ B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
-F:CHAOS | BASH_DOOR | COLD_BLOOD | DROP_1 | DROP_35 | DROP_80 | EMPTY_MIND | GRP_18 |
+F:CHAOS | BASH_DOOR | COLD_BLOOD | DROP_1 | DROP_35 | DROP_80 | EMPTY_MIND | GRP_12 |
 F:NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | OPEN_DOOR | PLANT | RES_ACID | 
 F:NO_CONF | RES_ELEC | RES_FIRE | RES_POIS | STUPID | TAKE_ITEM | NO_TRAP | BAD_JUMPER
 D:A lump of rotting black ooze that slurrrrrrrps across the dungeon floor.
@@ -4957,7 +4955,7 @@ B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:LOSE_STR:1d5
 F:AETHER | BASH_DOOR | DROP_80 | EVIL | FEMALE | NO_SLEEP | ONLY_ITEM | OPEN_DOOR |
-F:NO_CONF | RES_FIRE | RES_POIS | NO_CALM | GRP_9 | FLYING
+F:NO_CONF | RES_FIRE | RES_POIS | NO_CALM | GRP_6 | FLYING
 S:1_IN_7 | SCARE | BO_FIRE | CONF | HOLD
 D:She is one of the furies, an incrantion of pure outrage with no goal
 D: but destruction and revenge.
@@ -4992,7 +4990,7 @@ I:110:380:20:36:80
 W:35:3:1750
 B:HIT:TAINT:3d4
 B:HIT:TAINT:3d4
-F:AETHER | BASH_DOOR | DEMON | DROP_2 | EVIL | GRP_18 | NO_SLEEP | ONLY_ITEM |
+F:AETHER | BASH_DOOR | DEMON | DROP_2 | EVIL | GRP_12 | NO_SLEEP | ONLY_ITEM |
 F:OPEN_DOOR | NO_CONF | RES_FIRE
 S:1_IN_9 | BO_FIRE | S_DEMON
 D:It is a demon of lizard form with cruel-looking jaws.
@@ -5005,7 +5003,7 @@ B:CLAW:POISON:2d8
 B:CLAW:POISON:2d8
 B:BITE:POISON:2d6
 B:BITE:POISON:2d6
-F:THORNWILD | GRP_18 | OPEN_DOOR | BASH_DOOR | HURT_LITE | ANIMAL | EVIL | RES_POIS | SMART | PASS_VEGETATION
+F:THORNWILD | GRP_12 | OPEN_DOOR | BASH_DOOR | HURT_LITE | ANIMAL | EVIL | RES_POIS | SMART | PASS_VEGETATION
 S:1_IN_6 | BO_FIRE | SLOW | HOLD | CAUSE_3 | MISSILE
 D:An intelligent arachnid whose hairy legs weave spells in the air.
 
@@ -5071,7 +5069,7 @@ B:BITE:HURT:3d4
 B:BITE:HURT:3d4
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:THORNWILD | BASH_DOOR | DROP_2 | GRP_18 | GRP_ESCORT | EVIL | HUMANOID | HURT_ACID | 
+F:THORNWILD | BASH_DOOR | DROP_2 | GRP_12 | GRP_ESCORT | EVIL | HUMANOID | HURT_ACID | 
 F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | REGENERATE | NO_CONF | RES_POIS | EGO
 D:This troll's great strength and size have won it the place of chieftain of
 D: its tribe.
@@ -5142,7 +5140,7 @@ W:36:2:3000
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:HIT:LOSE_STR:3d4
-F:AETHER | COLD_BLOOD | DROP_35 | EVIL | GRP_9 | INVISIBLE | NO_BLIND | NO_CUT | 
+F:AETHER | COLD_BLOOD | DROP_35 | EVIL | GRP_6 | INVISIBLE | NO_BLIND | NO_CUT | 
 F:NO_SLEEP | ONLY_ITEM | PASS_WALL | RAND_25 | RES_COLD | NO_CONF | RES_POIS |
 F:TAKE_ITEM | UNDEAD
 S:1_IN_15 | BLIND | BO_NETH | CONF | DRAIN_MANA | HOLD
@@ -5509,7 +5507,7 @@ N:519:time fly
 G:I:B
 I:140:10:12:18:40
 W:38:4:500
-F:CHAOS | ANIMAL | GRP_27 | NEVER_BLOW | NO_SLEEP | RAND_25 | RAND_50 | WEIRD_MIND |
+F:CHAOS | ANIMAL | GRP_18 | NEVER_BLOW | NO_SLEEP | RAND_25 | RAND_50 | WEIRD_MIND |
 F:RES_TIME | NO_TRAP | EVASIVE | FLYING
 S:1_IN_3 | BR_TIME | SLOW | HASTE
 D:Not much larger than a normal fly, this insect emits a strangely modulated
@@ -5631,7 +5629,7 @@ B:BITE:PARALYZE:4d8
 B:CLAW:LOSE_WIS:3d7
 B:CLAW:LOSE_WIS:3d7
 B:GAZE:CONFUSE:3d4
-F:THORNWILD | THORNWILD | PASS_WALL | GRP_18 | FAERY | NO_SLEEP | NO_CALM | RES_ACID | RES_FIRE |
+F:THORNWILD | THORNWILD | PASS_WALL | GRP_12 | FAERY | NO_SLEEP | NO_CALM | RES_ACID | RES_FIRE |
 F:RES_POIS | RES_DISEASE | SEE_INVIS | ANIMAL | REGENERATE | INVISIBLE | 
 F:SMART | WEIRD_MIND | PASS_VEGETATION
 S:1_IN_6 | BLINK | SCARE
@@ -5880,7 +5878,7 @@ W:42:3:1500
 B:STING:FIRE:3d12
 B:STING:FIRE:3d12
 B:STING:FIRE:3d12
-F:THORNWILD | RAND_25 | WEIRD_MIND | BASH_DOOR | GRP_18 | ANIMAL | RES_POIS | RES_FIRE |
+F:THORNWILD | RAND_25 | WEIRD_MIND | BASH_DOOR | GRP_12 | ANIMAL | RES_POIS | RES_FIRE |
 F:EVIL | HURT_COLD
 S:1_IN_6 | BR_FIRE
 D:A monstrous centipede coated with fire and with flaming tentacles around its
@@ -5953,7 +5951,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
-F:BASH_DOOR | GRP_18 | NO_SLEEP | OPEN_DOOR | NO_CONF | RES_FIRE | ANIMAL | 
+F:BASH_DOOR | GRP_12 | NO_SLEEP | OPEN_DOOR | NO_CONF | RES_FIRE | ANIMAL | 
 F:RES_PLAS | HURT_COLD | CHAOS
 S:1_IN_5 | BR_PLAS
 D:The very air warps as pure elemental energy stalks towards you in the
@@ -5999,7 +5997,7 @@ B:HIT:TAINT:4d10
 B:HIT:TAINT:4d10
 B:HIT:LOSE_CON:10d2
 B:STING:POISON:5d5
-F:AETHER | BASH_DOOR | DEMON | DROP_1 | EVIL | GRP_18 | NO_SLEEP | ONLY_ITEM | 
+F:AETHER | BASH_DOOR | DEMON | DROP_1 | EVIL | GRP_12 | NO_SLEEP | ONLY_ITEM | 
 F:OPEN_DOOR | NO_CONF | RES_POIS
 S:1_IN_10 | SCARE | S_DEMON
 D:A foul, humanoid creature with a long tail, clawed hands and feet,
@@ -6036,7 +6034,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | NO_SLEEP | OPEN_DOOR | NO_CONF | ANIMAL | RES_NETH | AETHER
+F:BASH_DOOR | GRP_12 | NO_SLEEP | OPEN_DOOR | NO_CONF | ANIMAL | RES_NETH | AETHER
 S:1_IN_5 | BR_NETH
 D:You feel a soul-tearing chill upon viewing this beast, a ghostly form of
 D: darkness in the shape of a large dog.
@@ -6049,7 +6047,7 @@ B:CLAW:POISON:5d8
 B:CLAW:POISON:5d8
 B:BITE:POISON:5d6
 B:BITE:POISON:5d6
-F:THORNWILD | GRP_18 | GRP_ESCORT | OPEN_DOOR | BASH_DOOR | HURT_LITE | SMART | ANIMAL |
+F:THORNWILD | GRP_12 | GRP_ESCORT | OPEN_DOOR | BASH_DOOR | HURT_LITE | SMART | ANIMAL |
 F:EVIL | RES_FIRE | RES_POIS
 S:1_IN_6 SLOW | HOLD | DRAIN_MANA | MIND_BLAST | HEAL | BA_FIRE | BO_FIRE |
 S:CAUSE_3 | S_SPIDER | S_KIN
@@ -6090,7 +6088,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
-F:BASH_DOOR | GRP_18 | NO_SLEEP | OPEN_DOOR | NO_CONF | ANIMAL | RES_TIME | 
+F:BASH_DOOR | GRP_12 | NO_SLEEP | OPEN_DOOR | NO_CONF | ANIMAL | RES_TIME | 
 F:NO_TRAP | CHAOS
 S:1_IN_8 | BR_TIME
 D:You get a terrible sense of deja vu, or is it a premonition?  All at once
@@ -6105,7 +6103,7 @@ B:HIT:DISEASE:3d8
 B:HIT:DISEASE:3d8
 B:TOUCH:ROT:4d5
 F:SKULTGARD | BASH_DOOR | COLD_BLOOD | DROP_2 | EMPTY_MIND | EVIL | NO_BLIND | NO_FEAR |
-F:NO_SLEEP | OPEN_DOOR | RES_COLD | GRP_18 | GRP_ESCORT | NO_CONF | 
+F:NO_SLEEP | OPEN_DOOR | RES_COLD | GRP_12 | GRP_ESCORT | NO_CONF | 
 F:RES_DISEASE | RES_POIS | UNDEAD | SMART | PERSON
 S:1_IN_5 | CAUSE_3 
 D:A well-perserved undead creature, decorated with lavish jewelry.
@@ -6379,7 +6377,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
-F:GRP_18 | INVISIBLE | NO_SLEEP | PASS_WALL | NO_CONF | ANIMAL | RES_NETH | 
+F:GRP_12 | INVISIBLE | NO_SLEEP | PASS_WALL | NO_CONF | ANIMAL | RES_NETH | 
 F:NO_TRAP | FLYING | AETHER
 S:1_IN_5 | BR_NETH
 D:A pale green hound.  Pulsing red lines and strange fluorescent light
@@ -6411,7 +6409,7 @@ B:CLAW:PARALYZE:6d7
 B:CLAW:PARALYZE:6d7
 F:THORNWILD | BASH_DOOR | DROP_2 | DROP_80 | HAS_LITE | KILL_BODY | MALE | NO_CALM |
 F:NO_FEAR | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | NO_CONF | EVASIVE | NEVER_FAIL |
-F:GRP_18 | NO_TRAP  | FAERY | FLYING
+F:GRP_12 | NO_TRAP  | FAERY | FLYING
 S:1_IN_4 | HASTE | SCARE | BLINK | CAUSE_4 | BRAIN_SMASH | HOLD | BA_DARK |
 S:DRAIN_MANA | HEAL | TPORT | BLINK_TO | BO_NETH
 D:The host are among the most dreaded members of the Unseelie court. They 
@@ -6475,7 +6473,7 @@ B:HIT:DISEASE:4d8
 B:HIT:DISEASE:4d8
 B:TOUCH:ROT:4d7
 F:SKULTGARD | BASH_DOOR | COLD_BLOOD | DROP_2 | EMPTY_MIND | EVIL | NO_BLIND | NO_FEAR |
-F:NO_SLEEP | OPEN_DOOR | RES_COLD | GRP_18 | GRP_ESCORT | NO_CONF | 
+F:NO_SLEEP | OPEN_DOOR | RES_COLD | GRP_12 | GRP_ESCORT | NO_CONF | 
 F:RES_DISEASE | RES_POIS | UNDEAD | SMART | RES_ACID | KILL_WALL | KILL_BODY | 
 F:WIDE_BREATH | RES_FORCE | RES_DARK | RES_DISEASE | RES_NETH | PERSON
 S:1_IN_5 | CAUSE_4 | BO_NETH | BR_FORCE | BR_DARK | BR_DISEASE | S_KIN
@@ -6548,7 +6546,7 @@ W:56:2:20000
 B:BITE:COLD:3d10
 B:BITE:COLD:3d10
 B:BITE:COLD:3d10
-F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_18 | MOVE_BODY | RAND_25 | RES_COLD | 
+F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_12 | MOVE_BODY | RAND_25 | RES_COLD | 
 F:RES_SOUN | RES_ELEC | HURT_FIRE
 S:1_IN_5 | BO_ICEE | BR_COLD | BR_ELEC
 D:A white-furrer wolf as large as a horse, wherever it goes, a blizzard follows.
@@ -6568,7 +6566,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:ATTR_MULTI | BASH_DOOR | CHAOS | GRP_18 | NO_SLEEP | NO_CONF | ANIMAL | 
+F:ATTR_MULTI | BASH_DOOR | CHAOS | GRP_12 | NO_SLEEP | NO_CONF | ANIMAL | 
 F:RES_CHAO | NO_TRAP 
 S:1_IN_5 | BR_CHAO
 D:A constantly changing canine form, this hound rushes towards you as if
@@ -6829,7 +6827,7 @@ B:BITE:HURT:2d11
 B:BITE:HURT:2d11
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-F:BASH_DOOR | GRP_18 | HAS_LITE | NO_SLEEP | NO_CONF | ANIMAL | RES_MANA |
+F:BASH_DOOR | GRP_12 | HAS_LITE | NO_SLEEP | NO_CONF | ANIMAL | RES_MANA |
 F:NO_TRAP | CHAOS
 S:1_IN_5 | BR_MANA
 D:A canine shape formed from pure magical energy, its power obvious even from
@@ -6874,7 +6872,7 @@ W:64:2:50000
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
-F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_18 | MOVE_BODY | RAND_25 | RES_ACID | 
+F:THORNWILD | ANIMAL | BASH_DOOR | EVIL | GRP_12 | MOVE_BODY | RAND_25 | RES_ACID | 
 F:RES_FIRE | RES_PLAS | HURT_COLD
 S:1_IN_5 | BR_FIRE
 D:It is a red-furred wolf of tremendous proportions. Flame light up its breath.
@@ -6952,7 +6950,7 @@ B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
-F:AETHER | ATTR_MULTI | BASH_DOOR | GRP_18 | NO_SLEEP | ANIMAL | NO_TRAP | RES_ACID | 
+F:AETHER | ATTR_MULTI | BASH_DOOR | GRP_12 | NO_SLEEP | ANIMAL | NO_TRAP | RES_ACID | 
 F:RES_CHAO | RES_COLD | NO_CONF | RES_DARK | RES_DISE | RES_ELEC | RES_FIRE | 
 F:RES_FORCE | RES_GRAV | RES_INER | RES_LITE | RES_NETH | RES_DISEASE | 
 F:RES_NEXU | RES_PLAS | RES_POIS | RES_SHAR | RES_SOUN | RES_TIME | RES_WATER

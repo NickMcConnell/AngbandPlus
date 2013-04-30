@@ -354,6 +354,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->calmed);
 	rd_byte(&m_ptr->cursed);
 	rd_byte(&m_ptr->earthbound);
+	rd_byte(&m_ptr->mist);
 
 	rd_u16b(&m_ptr->sleep);
 	rd_u16b(&m_ptr->bleeding);
@@ -790,7 +791,6 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
-	rd_s16b(&p_ptr->monster_summon_power);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -835,6 +835,17 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->nexus_y);
 	rd_s16b(&p_ptr->nexus_x);
 
+	rd_s16b(&p_ptr->monster_counter);
+	rd_s16b(&p_ptr->stylea);
+	rd_s16b(&p_ptr->styleb);
+	rd_s16b(&p_ptr->stylec);
+	rd_s16b(&p_ptr->styled);
+	rd_s16b(&p_ptr->stylee);
+	rd_s16b(&p_ptr->stylef);
+
+	/* Read resistances */
+	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);
+
 	rd_s16b(&p_ptr->tim_see_invis_perm);
 	rd_s16b(&p_ptr->tim_invis_perm);
 	rd_s16b(&p_ptr->tim_infra_perm);
@@ -856,9 +867,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->sp_dur_perm);
 	rd_s16b(&p_ptr->tim_sp_dam_perm);
 	rd_s16b(&p_ptr->tim_sp_inf_perm);
-
-	/* Read resistances */
-	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);
+	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res_perm[i]);
 
 	rd_byte(&tmp8u);
 

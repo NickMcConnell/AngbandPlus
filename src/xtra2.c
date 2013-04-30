@@ -89,6 +89,9 @@ void check_experience(void)
 	while ((p_ptr->lev > 1) && 
 		(p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
 	{
+		/* Lose Mana for the level */
+		p_ptr->csp -= add_mana_for_level(p_ptr->lev);
+
 		/* Lose a level */
 		p_ptr->lev--;
 
@@ -111,6 +114,9 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
+
+		/* Gain Mana for the level */
+		p_ptr->csp += add_mana_for_level(p_ptr->lev);
 
 		/* Check if a "special" race */
 		if ((rp_ptr->special) && (p_ptr->lev > p_ptr->max_lev)) check_race_special();
@@ -234,9 +240,9 @@ void monster_death(int m_idx)
 	/* Hordes of non-unique Skultgard monsters often drop just gold */
 	if ((r_ptr->flags1 & (RF4_SKULTGARD)) && (r_ptr->flags1 & (RF1_UNIQUE)) && (do_gold) && (do_item) && (rand_int(100) < 50))
 	{
-		if ((r_ptr->flags1 & (RF1_GRP_27)) && (rand_int(100) < 50)) do_item = FALSE;
 		if ((r_ptr->flags1 & (RF1_GRP_18)) && (rand_int(100) < 50)) do_item = FALSE;
-		if ((r_ptr->flags1 & (RF1_GRP_9)) && (rand_int(100) < 25)) do_item = FALSE;
+		if ((r_ptr->flags1 & (RF1_GRP_12)) && (rand_int(100) < 50)) do_item = FALSE;
+		if ((r_ptr->flags1 & (RF1_GRP_6)) && (rand_int(100) < 25)) do_item = FALSE;
 	}
 
 	object_type *i_ptr;
@@ -558,8 +564,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
+		/* Mist creature deaths */
+		if (m_ptr->mist)
+		{
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s dissolves back into mist.", m_name);
+		}
+
 		/* Clone deaths */
-		if (m_ptr->mflag & MFLAG_CLON)
+		else if (m_ptr->mflag & MFLAG_CLON)
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "%^s clone melts into nothingness.", m_name);
 		}
@@ -588,46 +600,51 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
-		/* Calculate experience */
-		mon_exp(m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx, &new_exp, &new_exp_frac);
+		/* Non-mist creatures: experience and loot */
+		if (!m_ptr->mist)
+		{
+
+			/* Calculate experience */
+			mon_exp(m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx, &new_exp, &new_exp_frac);
 		
-		/* Handle fractional experience */
-		new_exp_frac = ((new_exp_frac * 0x10000L) / 1000L) + p_ptr->exp_frac;
+			/* Handle fractional experience */
+			new_exp_frac = ((new_exp_frac * 0x10000L) / 1000L) + p_ptr->exp_frac;
 
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
+			/* Keep track of experience */
+			if (new_exp_frac >= 0x10000L)
+			{
+				new_exp++;
+				p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+			}
+			else
+			{
+				p_ptr->exp_frac = (u16b)new_exp_frac;
+			}
 
-		/* Gain experience */
-		gain_exp(new_exp);
+			/* Gain experience */
+			gain_exp(new_exp);
 		
-		/* Generate treasure */
-		monster_death(m_idx);
+			/* Generate treasure */
+			monster_death(m_idx);
 
-		/* When the player kills a Unique, it stays dead */
-		if (m_ptr->u_idx) 
-		{
-			u_info[m_ptr->u_idx].dead = TRUE;
+			/* When the player kills a Unique, it stays dead, unless it was a mist creature */
+			if (m_ptr->u_idx) 
+			{
+				u_info[m_ptr->u_idx].dead = TRUE;
 
-			/* reputation bonus */
- 			if (u_info[m_ptr->u_idx].level) p_ptr->fame++;
-		}
+				/* reputation bonus */
+ 				if (u_info[m_ptr->u_idx].level) p_ptr->fame++;
+			}
 		
-		/* Recall even invisible uniques*/
-		if (m_ptr->ml || (m_ptr->u_idx))
-		{
-			/* Count kills this life */
-			lore_learn(m_ptr, LRN_MDEATH, 0, TRUE);
+			/* Recall even invisible uniques*/
+			if (m_ptr->ml || (m_ptr->u_idx))
+			{
+				/* Count kills this life */
+				lore_learn(m_ptr, LRN_MDEATH, 0, TRUE);
 
-			/* Hack -- Auto-recall */
-			monster_track(m_ptr->r_idx, m_ptr->u_idx);
+				/* Hack -- Auto-recall */
+				monster_track(m_ptr->r_idx, m_ptr->u_idx);
+			}
 		}
 
 		/* Delete the monster */
@@ -1235,6 +1252,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx, int skill, int range
 		else my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
+	if (m_ptr->mist) my_strcat(buf, ", mist", max);
 	if (m_ptr->sleep) my_strcat(buf, ", asleep", max);
 	if (m_ptr->bleeding) my_strcat(buf, ", bleeding", max);
 	if (m_ptr->poisoned) my_strcat(buf, ", poisoned", max);

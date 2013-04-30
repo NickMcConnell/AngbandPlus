@@ -1003,9 +1003,9 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
 		{
-			if (i_ptr->sval == SV_TORCH) i_ptr->timeout = FUEL_TORCH;
-			if (i_ptr->sval == SV_LANTERN) i_ptr->timeout = FUEL_ENCHANTED;
-			if (i_ptr->sval > SV_LANTERN) i_ptr->timeout = FUEL_EGO;
+			if (i_ptr->sval == SV_WOODEN_TORCH) i_ptr->timeout = FUEL_TORCH;
+			if (i_ptr->sval == SV_ENCHANTED_TORCH) i_ptr->timeout = FUEL_ENCHANTED;
+			if (i_ptr->sval > SV_ENCHANTED_TORCH) i_ptr->timeout = FUEL_EGO;
 		}
 
 		/* The object is fully "known" */

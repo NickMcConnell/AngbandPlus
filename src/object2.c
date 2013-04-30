@@ -1041,11 +1041,11 @@ static s32b object_value_real(const object_type *o_ptr)
 
 			/* Give credit for weird things */
 			if (f1 & (TR1_MELEE)) value += (o_ptr->pval * 1000L);
-			if (f1 & (TR1_ARCHERY)) value += (o_ptr->pval * 1000L);
+			if (f1 & (TR1_MISSILE_SKILL)) value += (o_ptr->pval * 1500L);
 			if (f1 & (TR1_ESCAPES)) value += (o_ptr->pval * 1000L);
-			if (f1 & (TR1_THROW_SKILL)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_POWDER_RADIUS)) value += (o_ptr->pval * 2000L);
 			if (f1 & (TR1_JUMPING)) value += (o_ptr->pval * 750L);
-			if (f1 & (TR1_MYSTIC_RANGE)) value += (o_ptr->pval * 750L);
+			if (f1 & (TR1_BOW_THROWN_RANGE)) value += (o_ptr->pval * 500L);
 			if (f1 & (TR1_AMBUSH)) value += (o_ptr->pval * 1000L);
 
 			/* Give credit for extra attacks */
@@ -1090,11 +1090,11 @@ static s32b object_value_real(const object_type *o_ptr)
 
 			/* Give credit for weird things */
 			if (f1 & (TR1_MELEE)) value += (o_ptr->pval * 500L);
-			if (f1 & (TR1_ARCHERY)) value += (o_ptr->pval * 500L);
+			if (f1 & (TR1_MISSILE_SKILL)) value += (o_ptr->pval * 750L);
 			if (f1 & (TR1_ESCAPES)) value += (o_ptr->pval * 500L);
-			if (f1 & (TR1_THROW_SKILL)) value += (o_ptr->pval * 300L);
+			if (f1 & (TR1_POWDER_RADIUS)) value += (o_ptr->pval * 300L);
 			if (f1 & (TR1_JUMPING)) value += (o_ptr->pval * 300L);
-			if (f1 & (TR1_MYSTIC_RANGE)) value += (o_ptr->pval * 300L);
+			if (f1 & (TR1_BOW_THROWN_RANGE)) value += (o_ptr->pval * 250L);
 			if (f1 & (TR1_AMBUSH)) value += (o_ptr->pval * 300L);
 
 			/* Give credit for extra attacks */
@@ -2377,7 +2377,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Searching */
 				case SV_RING_SEARCHING:
 				case SV_RING_AMBUSH:
-				case SV_RING_RANGE:
+				case SV_RING_WIND_CONTROL:
 				{
 					/* Bonus to searching */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -2589,19 +2589,19 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		case TV_LITE:
 		{
 			/* Torches */
-			if (o_ptr->sval == SV_TORCH)
+			if (o_ptr->sval == SV_WOODEN_TORCH)
 			{
 				if (!o_ptr->timeout) o_ptr->timeout = FUEL_TORCH;
 			}
 
 			/* Ego Torches */
-			if (o_ptr->sval == SV_LANTERN)
+			if (o_ptr->sval == SV_ENCHANTED_TORCH)
 			{
 				if (!o_ptr->timeout) o_ptr->timeout = FUEL_ENCHANTED;
 			}
 
 			/* Ego Torches */
-			if (o_ptr->sval > SV_LANTERN)
+			if (o_ptr->sval > SV_ENCHANTED_TORCH)
 			{
 				if (!o_ptr->timeout) o_ptr->timeout = FUEL_EGO;
 			}
@@ -2609,9 +2609,10 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				/* Lanterns of int/wis/thievery */
-				case SV_LANTERN_INT:
-				case SV_LANTERN_WIS:
-				case SV_LANTERN_INFRAVISION:
+				case SV_TORCH_THIEVERY:
+				case SV_TORCH_MEM:
+				case SV_TORCH_WIS:
+				case SV_TORCH_TRUTH:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -4086,7 +4087,7 @@ void place_chest(int y, int x)
 }
 
 /*
- * Place a random type of closed door at the given location.
+ * Place a quest chest at the given location.
  */
 void place_quest_chest(int y, int x)
 {
@@ -4095,6 +4096,7 @@ void place_quest_chest(int y, int x)
 
 	place_trap_chest(y, x);
 }
+
 /*
  * Describe an alchemical formula (place string in buf)
  */
@@ -4762,7 +4764,7 @@ void draw_circle(int y, int x, int type)
 	{
 		for (i = 0; i < randint(3) + randint(3); i++)
 		{
-			summon_specific(y + 1 + rand_int(2), x + 2 + rand_int(2), p_ptr->depth + randint(3), 0);
+			summon_specific(y + 1 + rand_int(2), x + 2 + rand_int(2), p_ptr->depth + randint(5), 0);
 		}
 	}
 
@@ -4892,7 +4894,11 @@ void inven_drop(int item, int amt)
 			}
 			case SV_POWDER_DARKNESS:
 			{
-				circle_type = 6;
+				switch(randint(2))
+				{
+					case 1: circle_type = 6; break;
+					case 2: circle_type = 7; break;
+				}
 				break;
 			}
 			case SV_POWDER_FIRE1:

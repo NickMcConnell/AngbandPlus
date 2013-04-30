@@ -2019,12 +2019,8 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons %s %s.", m_name, m_poss,
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates %s %s out of the mist.", m_name, m_poss,
 			                (m_ptr->u_idx ? "minions" : "kin"));
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
 
 			/* Hack -- Set the letter of the monsters to summon */
 			summon_kin_type = r_ptr->d_char;
@@ -2044,11 +2040,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons greater demons!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates greater demons out of the mist!", m_name);
 
 			for (k = 0; k < 4; k++)
 			{
@@ -2066,11 +2058,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons help!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates monsters ouf of the mist!", m_name);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2088,11 +2076,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons monsters!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates monsters out of the mist!", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2110,11 +2094,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons natural creatures.", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates natural creatures out of the mist.", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2132,11 +2112,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons spiders.", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates spiders out of the mist.", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2154,11 +2130,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons hounds.", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates hounds out of the mist.", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2176,11 +2148,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons faeries.", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates faeries out of the mist.", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2198,11 +2166,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons hydras.", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates hydras out of the mist.", m_name);
 
 			for (k = 0; k < 3; k++)
 			{
@@ -2220,11 +2184,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a nameless horror!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates a nameless horror out of the mist!", m_name);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2242,11 +2202,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a hellish adversary!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates a hellish adversary out of the mist!", m_name);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2264,11 +2220,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons an undead adversary!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates an undead adversary out of the mist!", m_name);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2286,12 +2238,8 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons a dragon!", m_name);
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates a dragon out of the mist!", m_name);
 			for (k = 0; k < 1; k++)
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
 
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
@@ -2308,11 +2256,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons greater undead!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates greater undead out of the mist!", m_name);
 
 			for (k = 0; k < 5; k++)
 			{
@@ -2330,11 +2274,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons ancient dragons!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates ancient dragons out of the mist!", m_name);
 
 			for (k = 0; k < 5; k++)
 			{
@@ -2352,11 +2292,7 @@ static bool make_attack_spell(int m_idx)
 		{
 			disturb(1);
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s mumbles.", m_name);
-			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically summons special opponents!", m_name);
-
-			/* Boost rlev by Monster Summon Power? Increase it by one. This prevents scumming summoners. */
-			if (rand_int(40) < p_ptr->monster_summon_power) rlev += p_ptr->monster_summon_power;
-			p_ptr->monster_summon_power++;
+			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s magically creates special opponents out of the mist!", m_name);
 
 			for (k = 0; k < 5; k++)
 			{
@@ -2992,8 +2928,8 @@ static bool get_moves(int m_idx, int mm[5])
 	/* Normal animal packs try to get the player out of corridors. */
 	if (adult_smart_packs && (r_ptr->flags4 & RF4_ANIMAL) &&
 	    !((r_ptr->flags2 & RF2_PASS_WALL) || (r_ptr->flags2 & RF2_KILL_WALL)) &&
-		((r_ptr->flags1 & RF1_GRP_9) || (r_ptr->flags1 & RF1_GRP_18) || 
-		 (r_ptr->flags1 & RF1_GRP_27)))
+		((r_ptr->flags1 & RF1_GRP_6) || (r_ptr->flags1 & RF1_GRP_12) || 
+		 (r_ptr->flags1 & RF1_GRP_18)))
 	{
 		int i, room = 0;
 
@@ -3045,8 +2981,8 @@ static bool get_moves(int m_idx, int mm[5])
 
 	/* Monster groups try to surround the player */
 	if (!done && adult_smart_packs && 
-		((r_ptr->flags1 & RF1_GRP_9) || (r_ptr->flags1 & RF1_GRP_18) || 
-		(r_ptr->flags1 & RF1_GRP_27)))
+		((r_ptr->flags1 & RF1_GRP_6) || (r_ptr->flags1 & RF1_GRP_12) || 
+		(r_ptr->flags1 & RF1_GRP_18)))
 	{
 		int i;
 
@@ -4358,7 +4294,7 @@ static void monster_action(int m_idx)
 								delete_monster_idx(cave_m_idx[ny][nx]);
 
 								/* Create a new monster (no groups) */
-								(void)place_monster_aux(ny, nx+0, tmp, 0, FALSE, FALSE, PLACE_NO_UNIQUE);
+								(void)place_monster_aux(ny, nx+0, tmp, 0, FALSE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
 								/* Hack -- Assume success XXX XXX XXX */
 
@@ -4570,7 +4506,8 @@ static void monster_action(int m_idx)
 					weapon_slays(o_ptr, slays);
 
 					/* React to objects that hurt the monster */
-					if (slays[SL_ANTI_HUMANOID])	flg4 |= (RF4_HUMANOID);
+					if (slays[SL_ANTI_HUMANOID])		flg4 |= (RF4_HUMANOID);
+					if (slays[SL_ANTI_LYCANTHROPE])		flg4 |= (RF4_LYCANTHROPE);
 					if (slays[SL_ANTI_DRAGON])		flg4 |= (RF4_DRAGON);
 					if (slays[SL_ANTI_PERSON])		flg4 |= (RF4_PERSON);
 					if (slays[SL_ANTI_UNDEAD])		flg4 |= (RF4_UNDEAD);
@@ -4908,6 +4845,52 @@ void process_monsters_status(void)
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
 			}
+		}
+
+		/* Handle creatures shaped out of the mist */
+		if (m_ptr->mist)
+		{
+			if ((p_ptr->dissolve_mist) && (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) <= 3) && (rand_int(100) < 30))
+			{
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s dissolves back into the mist.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+
+				/* Delete the monster */
+				delete_monster_idx(i);
+			}
+			else if (rand_int(100) < 3)
+			{
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s dissolves back into the mist.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+
+				/* Delete the monster */
+				delete_monster_idx(i);
+			}
+
 		}
 
 		/* Handle "bleeding" */

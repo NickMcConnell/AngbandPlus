@@ -1545,7 +1545,7 @@ static void do_cmd_wiz_named(int r_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, 0, TRUE, TRUE, 0)) break;
+		if (place_monster_aux(y, x, r_idx, 0, TRUE, FALSE, TRUE, 0)) break;
 	}
 }
 
@@ -1574,7 +1574,7 @@ static void do_cmd_wiz_named_unique(int u_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, u_idx, TRUE, TRUE, PLACE_UNIQUE)) break;
+		if (place_monster_aux(y, x, r_idx, u_idx, TRUE, FALSE, TRUE, PLACE_UNIQUE)) break;
 	}
 }
 

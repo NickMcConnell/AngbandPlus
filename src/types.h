@@ -744,6 +744,7 @@ struct monster_type
 	byte calmed;		/* Monster is calmed */  
 	byte cursed;		/* Monster is cursed */  
 	byte earthbound;	/* Monster is earthbound */  
+	byte mist;		/* Monster is a phantasmal creature shaped of the mist */  
 
 	u16b sleep;			/* Monster is asleep */
 	u16b bleeding;		/* Monster is bleeding */ 
@@ -1203,8 +1204,6 @@ struct player_type
 
 	s16b energy;		/* Current energy */
 
-	s16b monster_summon_power;	/* A percentage chance that monster summoners get to boost summoned monster levels by the same number */
-
 	s16b mapping_bonus;	/* Bonus to the next mapping attempt */
 	s16b phlogiston;	/* Torch is burning brighter than normal */
 	s16b fortification;	/* Ritual bonus to all resistances */
@@ -1218,6 +1217,14 @@ struct player_type
 	s16b recall_x;
 	s16b nexus_y;		/* Coordinates to Circle of Nexus */
 	s16b nexus_x;
+
+	s16b monster_counter;	/* The longer you stay on a dungeon level, the more mist creatures appear */
+	s16b stylea;		/* How many rooms of style o have been generated during the game */
+	s16b styleb;		/* How many rooms of style o have been generated during the game */
+	s16b stylec;		/* How many rooms of style o have been generated during the game */
+	s16b styled;		/* How many rooms of style o have been generated during the game */
+	s16b stylee;		/* How many rooms of style o have been generated during the game */
+	s16b stylef;		/* How many rooms of style o have been generated during the game */
 
 	s16b tim_see_invis_perm; /* These flags make effects permanent until leaving the level */
 	s16b tim_invis_perm;
@@ -1240,6 +1247,7 @@ struct player_type
 	s16b sp_dur_perm;
 	s16b tim_sp_dam_perm;
 	s16b tim_sp_inf_perm;
+	s16b tim_res_perm[RS_MAX]; /* Timed resistancs */
 
 	bool searching;		/* Currently searching */
 	bool hear_invis;	/* Currently hearing inivisible creatures */
@@ -1378,14 +1386,15 @@ struct player_type
 	bool pro_aether;	/* Protection from creatures from Aether */
 
 	bool mighty_throw;	/* Double thrown range and thrown weapon damage */
-	bool ffall;			/* Feather falling */
-	bool flying;			/* Flying */
-	bool lite;			/* Permanent light */
+	bool ffall;		/* Feather falling */
+	bool flying;		/* Flying */
+	bool lite;		/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
-	bool invis;			/* Invisible */
+	bool invis;		/* Invisible */
 	bool see_inv;		/* See invisible */
-	bool luck;			/* Luck */
+	bool luck;		/* Luck */
+	bool dissolve_mist;	/* A 30% chance of dissolving mist-creatures every game turn */
 
 	bool disrupt;		/* Disrupt spells */
 	bool aggravate;		/* Aggravate monsters */
@@ -1431,6 +1440,7 @@ struct player_type
 	s16b spell_range;	/* Range for spells and devices */
 	s16b range_bonus;	/* Range bonus to archery, throwing, spells, and devices */
 	s16b ambush_bonus;	/* Bonus to ambush */
+	s16b powder_radius;	/* Bonus to powder vial radius */
 
 	s16b pspeed;		/* Current speed */
 

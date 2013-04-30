@@ -109,7 +109,7 @@
  * Dungeon tunnel generation values
  */
 #define DUN_TUN_RND	0	/* Chance of random direction. */
-#define DUN_TUN_CHG	77	/* Chance of changing direction. */
+#define DUN_TUN_CHG	84	/* Chance of changing direction. */
 #define DUN_TUN_CON	0	/* Chance of extra tunneling */
 #define DUN_TUN_PEN	0	/* Chance of doors at room entrances */
 #define DUN_TUN_JCT	0	/* Chance of doors at tunnel junctions */
@@ -249,7 +249,6 @@ struct dun_data
 
 	/* Hack -- there is a pit/nest on this level */
 	bool crowded;
-
 };
 
 /*
@@ -852,7 +851,7 @@ static void vault_monsters(int y1, int x1, int num)
 		
 			for (xx = 0; xx < 999; xx++)	
 			{
-				if (place_monster(y, x)) break;
+				if (place_monster(y, x, FALSE)) break;
 			}
 
 			monster_level = p_ptr->depth;
@@ -1748,8 +1747,8 @@ static bool vault_aux_chaos(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1758,7 +1757,7 @@ static bool vault_aux_chaos(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -1784,8 +1783,8 @@ static bool vault_aux_aether(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1794,7 +1793,7 @@ static bool vault_aux_aether(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -1820,8 +1819,8 @@ static bool vault_aux_thornwild(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1830,7 +1829,7 @@ static bool vault_aux_thornwild(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -1862,8 +1861,8 @@ static bool vault_aux_thornwild_no_animal(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1872,7 +1871,7 @@ static bool vault_aux_thornwild_no_animal(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -1898,8 +1897,8 @@ static bool vault_aux_skultgard(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1908,7 +1907,7 @@ static bool vault_aux_skultgard(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -1940,8 +1939,8 @@ static bool vault_aux_skultgard_no_animal(int r_idx)
 	{
 		if (rand_int(100) < 50)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_27)) return (FALSE);
 			if (r_ptr->flags4 & (RF1_GRP_18)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_12)) return (FALSE);
 		}
 	}
 
@@ -1950,7 +1949,7 @@ static bool vault_aux_skultgard_no_animal(int r_idx)
 	{
 		if (rand_int(100) < 25)
 		{
-			if (r_ptr->flags4 & (RF1_GRP_9)) return (FALSE);
+			if (r_ptr->flags4 & (RF1_GRP_6)) return (FALSE);
 		}
 	}
 
@@ -2500,7 +2499,7 @@ static bool build_type123(int y0, int x0)
 
 	/* Determine extents of room (b) */
 	y1b = randint(3);
-	x1b = randint(9);
+	x1b = randint(8) + 1;
 	y2b = randint(4);
 	x2b = randint(13);
 
@@ -3002,7 +3001,7 @@ static void build_type5(int y0, int x0)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+			(void)place_monster_aux(y, x, r_idx, 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 		}
 	}
 }
@@ -3363,51 +3362,51 @@ static void build_type6(int y0, int x0)
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y0 + 2, x, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 - 2, x, what[0], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 + 2, x, what[0], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Middle columns */
 	for (y = y0 - 1; y <= y0 + 1; y++)
 	{
-		place_monster_aux(y, x0 - 9, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 9, what[0], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 9, what[0], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 9, what[0], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 8, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 8, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 8, what[1], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 8, what[1], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 7, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 7, what[1], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 7, what[1], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 7, what[1], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 6, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 6, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 6, what[2], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 6, what[2], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 5, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 5, what[2], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 5, what[2], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 5, what[2], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 4, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 4, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 4, what[3], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 4, what[3], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 3, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 3, what[3], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 3, what[3], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 3, what[3], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 2, what[4], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y, x0 + 2, what[4], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 - 2, what[4], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 2, what[4], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = x0 - 1; x <= x0 + 1; x++)
 	{
-		place_monster_aux(y0 + 1, x, what[5], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-		place_monster_aux(y0 - 1, x, what[5], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 + 1, x, what[5], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 - 1, x, what[5], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(y0, x0 + 1, what[6], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
-	place_monster_aux(y0, x0 - 1, what[6], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0 + 1, what[6], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0 - 1, what[6], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
 	/* Center monster */
-	place_monster_aux(y0, x0, what[7], 0, TRUE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0, what[7], 0, TRUE, FALSE, FALSE, PLACE_NO_UNIQUE);
 }
 
 /*
@@ -3512,7 +3511,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '&':
 				{
 					monster_level = p_ptr->depth + 5;
-					place_monster(y, x);
+					place_monster(y, x, FALSE);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -3521,7 +3520,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '@':
 				{
 					monster_level = p_ptr->depth + 11;
-					place_monster(y, x);
+					place_monster(y, x, FALSE);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -3530,7 +3529,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '9':
 				{
 					monster_level = p_ptr->depth + 9;
-					place_monster(y, x);
+					place_monster(y, x, FALSE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 7;
 					place_object(y, x, TRUE, FALSE);
@@ -3542,7 +3541,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '8':
 				{
 					monster_level = p_ptr->depth + 40;
-					place_monster(y, x);
+					place_monster(y, x, FALSE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 20;
 					place_object(y, x, TRUE, TRUE);
@@ -3556,7 +3555,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					if (rand_int(100) < 50)
 					{
 						monster_level = p_ptr->depth + 3;
-						place_monster(y, x);
+						place_monster(y, x, FALSE);
 						monster_level = p_ptr->depth;
 					}
 					if (rand_int(100) < 50)
@@ -3701,17 +3700,17 @@ static void place_locked_door(int y, int x)
 	int yy, xx;
 
 	/* Already a door nearby, don't generate another one */
-	for (yy = y - 7; yy < y + 8; yy++)
+	for (yy = y - 6; yy < y + 7; yy++)
 	{
-		for (xx = x - 7; xx < x + 8; xx++)
+		for (xx = x - 6; xx < x + 7; xx++)
 		{
 			if (cave_feat[yy][xx] == FEAT_CLOSED) return;
 		}
 	}
 
-	for (yy = y - 3; yy < y + 4; yy++)
+	for (yy = y - 2; yy < y + 3; yy++)
 	{
-		for (xx = x - 3; xx < x + 4; xx++)
+		for (xx = x - 2; xx < x + 3; xx++)
 		{
 			if ((cave_feat[yy][xx] == FEAT_WALL_OUTER) && (decoration(yy, xx))) return;
 			if ((cave_feat[yy][xx] == FEAT_FLOOR) && (!(cave_info[yy][xx] & (CAVE_ROOM)))) return;
@@ -4054,47 +4053,51 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			door_flag = FALSE;
 		}
 
-		/* Handle corridor intersections or overlaps */
-		else
-		{
-			/* Accept the location */
-			row1 = tmp_row;
-			col1 = tmp_col;
+		/* This seems to work better in Halls of Mist 1.3.0 */
+		else break;
 
+		/* Handle corridor intersections or overlaps */
+/*		{
+			break;
+*/
+			/* Accept the location */
+/*			row1 = tmp_row;
+			col1 = tmp_col;
+*/
 			/* Collect legal door locations */
-			if (!door_flag)
-			{
+/*			if (!door_flag)
+			{ */
 				/* Save the door location */
-				if (dun->door_n < DOOR_MAX)
+			/*	if (dun->door_n < DOOR_MAX)
 				{
 					dun->door[dun->door_n].y = row1;
 					dun->door[dun->door_n].x = col1;
 					dun->door_n++;
 				}
-
+*/
 				/* No door in next grid */
-				door_flag = TRUE;
+/*				door_flag = TRUE;
 			}
-
+*/
 			/* Hack -- allow pre-emptive tunnel termination */
-			if (rand_int(100) >= DUN_TUN_CON)
-			{
+/*			if (rand_int(100) >= DUN_TUN_CON)
+			{	*/
 				/* Distance between row1 and start_row */
-				tmp_row = row1 - start_row;
+/*				tmp_row = row1 - start_row;
 				if (tmp_row < 0) tmp_row = (-tmp_row);
-
+*/
 				/* Distance between col1 and start_col */
-				tmp_col = col1 - start_col;
+/*				tmp_col = col1 - start_col;
 				if (tmp_col < 0) tmp_col = (-tmp_col);
-
+*/
 				/* Terminate the tunnel */
-				if ((tmp_row > 10) || (tmp_col > 10))
+/*				if ((tmp_row > 10) || (tmp_col > 10))
 				{
 					no_join = 1;
 					break;
 				}
 			}
-		}
+		} */
 	}
 
 	/* Opportunistic locked door creation */
@@ -4638,8 +4641,50 @@ static bool room_build(int by0, int bx0, int typ)
 		}
 	}
 
-	/* Roll the style for the room */
-	if (dun->style[dun->cent_n] == 0) dun->style[dun->cent_n] = randint(6);
+	/* Roll the style for the room. If the room style has been used often lately, roll again. */
+	if (dun->style[dun->cent_n] == 0)
+	{
+		dun->style[dun->cent_n] = randint(6);
+
+		if ((dun->style[dun->cent_n] == 1) && (p_ptr->stylea > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->stylea = 0;
+		}
+		else if ((dun->style[dun->cent_n] == 2) && (p_ptr->styleb > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->styleb = 0;
+		}
+		else if ((dun->style[dun->cent_n] == 3) && (p_ptr->stylec > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->stylec = 0;
+		}
+		else if ((dun->style[dun->cent_n] == 4) && (p_ptr->styled > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->styled = 0;
+		}
+		else if ((dun->style[dun->cent_n] == 5) && (p_ptr->stylee > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->stylee = 0;
+		}
+		else if ((dun->style[dun->cent_n] == 6) && (p_ptr->stylef > randint(12)))
+		{
+			dun->style[dun->cent_n] = randint(6);
+			p_ptr->stylef = 0;
+		}
+	}
+
+	/* Remember the style */
+	if (dun->style[dun->cent_n] == 1) p_ptr->stylea ++;
+	if (dun->style[dun->cent_n] == 2) p_ptr->styleb ++;
+	if (dun->style[dun->cent_n] == 3) p_ptr->stylec ++;
+	if (dun->style[dun->cent_n] == 4) p_ptr->styled ++;
+	if (dun->style[dun->cent_n] == 5) p_ptr->stylee ++;
+	if (dun->style[dun->cent_n] == 6) p_ptr->stylef ++;
 
 	/* Build a room */
 	switch (typ)
@@ -4810,7 +4855,7 @@ bool alloc_typical_monster(int dis)
 	if (rand_int(3) < 1) vault_objects(y, x, number - rand_int(3));
 
 	/* Attempt to place the monster, allow groups
-	if (place_monster(y, x)) return (TRUE); */
+	if (place_monster(y, x, FALSE)) return (TRUE); */
 
 	/* Reset hook and prepare allocation table */
 	get_mon_num_hook = NULL;
@@ -5020,7 +5065,7 @@ static void cave_gen(void)
 	int joined1;
 	int closest1;
 	int zzz;
-	int room_distance = rand_int(8) + 46;
+	int room_distance = rand_int(9) + 44;
 	int modified_distance;
 
 	/* Partition rooms */
@@ -5154,6 +5199,17 @@ static void cave_gen(void)
                         adult_autoscum = TRUE;
                 }
         }
+
+	/* Make some extra connections */
+	int first;
+	int last;
+	for (i = 0; i < 5; i++)
+	{
+		first = rand_int(dun->cent_n);
+		last = rand_int(dun->cent_n);
+		if (first == last) continue;
+		connect_rooms(first, last);
+	}
 
 	/* Place intersection doors */
 	for (i = 0; i < dun->door_n; i++)
@@ -5334,7 +5390,7 @@ static void cave_gen(void)
 					}
 
 					/* Place the questor */
-					place_monster_aux(y, x, q_ptr->mon_idx, 0, TRUE, TRUE, 0);
+					place_monster_aux(y, x, q_ptr->mon_idx, 0, TRUE, FALSE, TRUE, 0);
 				}
 			}
 			else if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
@@ -5350,7 +5406,7 @@ static void cave_gen(void)
 
 				/* Place the questor */
 				place_monster_aux(y, x, u_info[q_ptr->mon_idx].r_idx, 
-					q_ptr->mon_idx, TRUE, TRUE, PLACE_UNIQUE);
+					q_ptr->mon_idx, TRUE, FALSE, TRUE, PLACE_UNIQUE);
 			}
 		}
 	}
@@ -5592,7 +5648,7 @@ static void town_gen(void)
 	for (i = 0; i < residents; i++)
 	{
 		/* Make a resident */
-		(void)alloc_monster(3);
+		(void)alloc_monster(3, FALSE);
 	}
 }
 

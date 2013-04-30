@@ -57,7 +57,7 @@ static byte stat_use[A_MAX];
  */
 static start_item start_kit[5] =
 {
-	{TV_LITE, SV_LANTERN, 1, 1},
+	{TV_LITE, SV_ENCHANTED_TORCH, 1, 1},
 	{TV_FLASK, SV_FLASK_LANTERN, 5, 5},
 	{TV_CLOAK, SV_CLOAK, 1, 1},
 	{TV_SCROLL, SV_SCROLL_PHASE_DOOR, 1, 1},
@@ -257,6 +257,9 @@ static void get_extra(void)
 
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
+
+	/* Give mana */
+	give_mana();
 
 	/* Old style, rolled hitpoints */
 	if (adult_random_hp)
@@ -574,7 +577,7 @@ static void player_wipe(void)
 	/* Roll for random religion bonuses */
 	get_religion_bonuses();
 
-	/* Reset proficiency uses */
+	/* Reset proficiency uses and Mana */
 	p_ptr->lore_uses = 0;
 	p_ptr->reserves_uses = 0;
 	p_ptr->escapes_uses = 0;
@@ -678,9 +681,6 @@ static void player_wipe(void)
 		lu_ptr->r_pkills = 0;
 	}
 
-	/* Reset monster summon power */
-	p_ptr->monster_summon_power = 0;
-
 	/* None of the spells have been learned yet */
 	for (i = 0;i < (SV_BOOK_MAX * MAX_BOOK_SPELLS); i++)
 	{
@@ -721,7 +721,7 @@ static void player_outfit(void)
 				object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
 
 				/* Hack - make sure that lanterns have some oil in them */
-				if ((e_ptr->tval == TV_LITE) && (e_ptr->sval == SV_LANTERN))
+				if ((e_ptr->tval == TV_LITE) && (e_ptr->sval == SV_ENCHANTED_TORCH))
 					i_ptr->timeout = 5000;
 
 				i_ptr->number = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
@@ -735,7 +735,7 @@ static void player_outfit(void)
 	else
 	{	
 		/* Hack -- Give the player some torches */
-		object_prep(i_ptr, lookup_kind(TV_LITE, SV_TORCH));
+		object_prep(i_ptr, lookup_kind(TV_LITE, SV_WOODEN_TORCH));
 		i_ptr->number = (byte)rand_range(2, 4);
 		i_ptr->timeout = FUEL_TORCH;
 		object_aware(i_ptr);
@@ -1440,9 +1440,8 @@ static bool player_birth_aux_2(void)
 
 		/* Fully healed and rested */
 		p_ptr->chp = p_ptr->mhp;
-		p_ptr->csp = p_ptr->msp;
 		
-		/* Reset wounds and proficiencies */
+		/* Reset wounds */
 		p_ptr->wound_vigor = 0;
 		p_ptr->wound_wit = 0;
 		p_ptr->wound_grace = 0;
@@ -1936,7 +1935,6 @@ static bool player_birth_aux_3(void)
 
 			/* Fully healed and rested */
 			p_ptr->chp = p_ptr->mhp;
-			p_ptr->csp = p_ptr->msp;
 
 			/* Display the player */
 			display_player(CSCREEN_BIRTH);
@@ -2211,8 +2209,8 @@ static bool player_birth_quick(void)
 	/* Fully healed */
 	p_ptr->chp = p_ptr->mhp;
 
-	/* Fully rested */
-	p_ptr->csp = p_ptr->msp;
+	/* Give mana */
+	give_mana();
 
 	/* Display the player */
 	display_player(CSCREEN_BIRTH);

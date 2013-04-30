@@ -973,29 +973,29 @@ byte adj_mag_study[A_RANGE] =
 	0		/* 4 */,
 	8		/* 5 */,
 	16		/* 6 */,
-	26		/* 7 */,
-	36		/* 8 */,
-	41		/* 9 */,
-	43		/* 10 */,
-	45		/* 11 */,
-	47		/* 12 */,
+	24		/* 7 */,
+	32		/* 8 */,
+	40		/* 9 */,
+	42		/* 10 */,
+	44		/* 11 */,
+	46		/* 12 */,
 	48		/* 13 */,
 	50		/* 14 */,
 	52		/* 15 */,
 	54		/* 16 */,
 	56		/* 17 */,
 	58		/* 18 */,
-	72		/* 19 */,
-	76		/* 20 */,
-	86		/* 21 */,
-	96		/* 22 */,
-	100		/* 23 */,
-	105		/* 24 */,
-	109		/* 25 */,
-	115		/* 26 */,
-	118		/* 27 */,
-	120		/* 28 */,
-	122		/* 29 */,
+	63		/* 19 */,
+	68		/* 20 */,
+	73		/* 21 */,
+	78		/* 22 */,
+	83		/* 23 */,
+	88		/* 24 */,
+	94		/* 25 */,
+	100		/* 26 */,
+	106		/* 27 */,
+	112		/* 28 */,
+	118		/* 29 */,
 	124		/* 30 */
 };
 
@@ -1536,13 +1536,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Esoteric Energies (sval 0) */
 		SBF_MAGIC,
 		{
-			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 1, -1, 22 },
-			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
-			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
-			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
-			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 26 },
-			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 2, -1, 29 },
-			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
+			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 1, -1, 28 },
+			{ POW_TELE_10,			"Phase Door",  				 1,  1, 30 },
+			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 32 },
+			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 29 },
+			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 32 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 2, -1, 35 },
+			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 33 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1550,13 +1550,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Winter Witchcraft (sval 1) */
 		SBF_MAGIC,
 		{
-			{ POW_BOLT_COLD_X,		"Frost Bolt",				 1, -1, 22 },
-			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
-			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
-			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
-			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 26 },
-			{ POW_BOLT_ACID_X,		"Acid Bolt",				 2, -1, 29 },
-			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
+			{ POW_BOLT_COLD_X,		"Frost Bolt",				 1, -1, 28 },
+			{ POW_TELE_10,			"Phase Door",  				 1,  1, 30 },
+			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 32 },
+			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 29 },
+			{ POW_SLEEP_MONSTER,		"Sleep Monster",			 2,  2, 32 },
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				 2, -1, 35 },
+			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 33 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1564,13 +1564,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Sorcerous Adjurations (sval 2) */
 		SBF_MAGIC,
 		{
-			{ POW_INFRAVISION,		"Infravision",				4,  2, 35 },
-			{ POW_CONFUSE_MONSTER,		"Confuse Monster",			4,  3, 26 },
-			{ POW_SHIELD,			"Shield",				5,  7, 60 },
-			{ POW_TELE_MAJOR,		"Teleport Self",			7,  6, 35 },
-			{ POW_BEAM_WEAK_LITE,		"Spear of Light",			7,  7, 35 },
-			{ POW_SLEEP_ALL,		"Sleep All",				8,  7, 45 },
-			{ POW_PHLOGISTON,		"Phlogiston",				9,  8, 45 },
+			{ POW_INFRAVISION,		"Infravision",				4,  2, 41 },
+			{ POW_CONFUSE_MONSTER,		"Confuse Monster",			4,  3, 32 },
+			{ POW_SHIELD,			"Shield",				5,  7, 66 },
+			{ POW_TELE_MAJOR,		"Teleport Self",			7,  6, 41 },
+			{ POW_BEAM_WEAK_LITE,		"Spear of Light",			7,  7, 41 },
+			{ POW_SLEEP_ALL,		"Sleep All",				8,  7, 51 },
+			{ POW_PHLOGISTON,		"Phlogiston",				9,  8, 51 },
 			/* { POW_BOLT_MISSILE_X,	"Magic Missile",			5, -2, 25 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 
@@ -1580,13 +1580,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Blaze of Thaumaturgy (sval 3) */
 		SBF_MAGIC,
 		{
-			{ POW_FLAMING_HANDS,		"Burning Hands",			10, 3, 36 },
-			{ POW_BOLT_ACID_X,		"Acid Bolt",				10, -1, 36 },
-			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50 },
-			{ POW_BALL_FIRE_X,		"Fire Ball",				11, -3, 31 },
-			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 31 },
-			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 90 },
-			{ POW_BALL_ELEC_X,		"Lightning Ball",			13, -3, 36 },
+			{ POW_FLAMING_HANDS,		"Burning Hands",			10, 3, 42 },
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				10, -1, 42 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 56 },
+			{ POW_BALL_FIRE_X,		"Fire Ball",				11, -3, 37 },
+			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 37 },
+			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 92 },
+			{ POW_BALL_ELEC_X,		"Lightning Ball",			13, -3, 42 },
 			/* { POW_CREATE_DOOR,		"Create Doors",				11, 12, 35 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1595,13 +1595,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Magick of the Rimewind (sval 4) */
 		SBF_MAGIC,
 		{
-			{ POW_ICY_HANDS,		"Claws of Winter",			10, 3, 36 },
-			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			10, -1, 36 },
-			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50 },
-			{ POW_BALL_COLD_X,		"Frost Ball",				11, -3, 31 },
-			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 31 },
-			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 90 },
-			{ POW_BALL_ACID_X,		"Acid Ball",				13, -3, 36 },
+			{ POW_ICY_HANDS,		"Claws of Winter",			10, 3, 42 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			10, -1, 42 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 56 },
+			{ POW_BALL_COLD_X,		"Frost Ball",				11, -3, 37 },
+			{ POW_RAY_MANA,			"Mana Ray",				12, 6, 37 },
+			{ POW_GLYPH_LESSER,		"Barrier",				12, 11, 92 },
+			{ POW_BALL_ACID_X,		"Acid Ball",				13, -3, 42 },
 			/* { POW_CREATE_DOOR,		"Create Doors",				11, 12, 35 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1610,13 +1610,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Evocations of Power (sval 5) */
 		SBF_MAGIC,
 		{
-			{ POW_EARTHBIND,		"Earthbind All",			16, 12, 45 },
-			{ POW_RECHARGE_1,		"Recharge Item",			17, 12, 75 },
-			{ POW_BLIND_MONSTER,		"Blind Monster",			19, 12, 60 },
-			{ POW_CURSE_ALL,		"Curse All",				21, 25, 50 },
-			{ POW_TELE_OTHER,		"Teleport Other",			23,  8, 60 },
-			{ POW_DRAGONSLAYER,		"Dragonslayer",				25, 12, 75 },
-			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
+			{ POW_EARTHBIND,		"Earthbind All",			16, 12, 51 },
+			{ POW_RECHARGE_1,		"Recharge Item",			17, 12, 81 },
+			{ POW_BLIND_MONSTER,		"Blind Monster",			19, 12, 66 },
+			{ POW_CURSE_ALL,		"Curse All",				21, 25, 56 },
+			{ POW_TELE_OTHER,		"Teleport Other",			23,  8, 66 },
+			{ POW_DRAGONSLAYER,		"Dragonslayer",				25, 12, 81 },
+			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 71 },
 			/* { POW_SLOW_ALL,		"Slow All",			19, 20, 33 }, */
 			/* { POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 }, */
 			/* { POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 }, */
@@ -1627,14 +1627,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* Resistance of Scarabtarices (sval 6) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_RES_FIRE,			"Resist Fire",				 5,  5, 50 },
-			{ POW_RES_COLD,			"Resist Cold",				 5,  5, 50 },
-			{ POW_RES_ACID,			"Resist Acid",				 5,  5, 50 },
+			{ POW_RES_FIRE,			"Resist Fire",				 5,  5, 56 },
+			{ POW_RES_COLD,			"Resist Cold",				 5,  5, 56 },
+			{ POW_RES_ACID,			"Resist Acid",				 5,  5, 56 },
 			{ POW_RES_ELEC,			"Resist Electricity",		 5,  5, 50 },
-			{ POW_RES_POISON,		"Resist Poison",			10, 10, 75 },
-			{ POW_RES_DISEASE,		"Resist Disease",			10, 10, 75 },
+			{ POW_RES_POISON,		"Resist Poison",			10, 10, 81 },
+			{ POW_RES_DISEASE,		"Resist Disease",			10, 10, 81 },
 			{ POW_RES_LITE_DARK,	"Resist Light & Darkness",	12, 15, 80 },
-			{ POW_RESISTANCE,		"Resistance",				20, 25, 85 },
+			{ POW_RESISTANCE,		"Resistance",				20, 25, 91 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1642,13 +1642,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Mordenkainen's Escapes (sval 7) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 25 },
-			{ POW_CREATE_STAIR,		"Create Stairs",			10, 15, 40 },
-			{ POW_TELE_LEVEL,		"Teleport Level",			15, 17, 60 },
-			{ POW_TELE_CONTROL,		"Dimension Door",			20, 25, 70 },
-			{ POW_CREATE_WALL,		"Create Walls",				30, 40, 80 },
+			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 31 },
+			{ POW_CREATE_STAIR,		"Create Stairs",			10, 15, 46 },
+			{ POW_TELE_LEVEL,		"Teleport Level",			15, 17, 66 },
+			{ POW_TELE_CONTROL,		"Dimension Door",			20, 25, 76 },
+			{ POW_CREATE_WALL,		"Create Walls",				30, 40, 86 },
 /*			{ POW_WORD_RECALL,		"Word of Recall",			35, 25, 75 },		*/
-			{ POW_DESTRUCTION,		"Word of Destruction",		40, 21, 80 },
+			{ POW_DESTRUCTION,		"Word of Destruction",		40, 21, 84 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1657,13 +1657,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Kelek's Grimoire of Power (sval 8) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50 },
-			{ POW_BLIGHT,			"Blight",					10, 13, 60 },
-			{ POW_POLY_MONSTER,		"Polymorph Other",			15,  7, 45 },
-			{ POW_PROBE_MONSTER,	"Probe Monster",			20, 12, 80 },
-			{ POW_GENOCIDE,			"Genocide",					35, 50, 70 },
-			{ POW_HYPERCHARGE,		"Hypercharge",				40,150, 80 },
-			{ POW_MASS_GENOCIDE,	"Mass Genocide",			45, 75, 80 },
+			{ POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 56 },
+			{ POW_BLIGHT,			"Blight",					10, 13, 66 },
+			{ POW_POLY_MONSTER,		"Polymorph Other",			15,  7, 51 },
+			{ POW_PROBE_MONSTER,	"Probe Monster",			20, 12, 86 },
+			{ POW_GENOCIDE,			"Genocide",					35, 50, 76 },
+			{ POW_HYPERCHARGE,		"Hypercharge",				40,150, 86 },
+			{ POW_MASS_GENOCIDE,	"Mass Genocide",			45, 75, 86 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
 		}
@@ -1672,15 +1672,15 @@ spell_book books[SV_BOOK_MAX] =
 		/* Raal's Tome of Destruction (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_BOLT_POISON_X,	"Poison Bolt",				 5, -4, 50 },
-			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 50 },
-			{ POW_BOLT_NEXUS_X,		"Nexus Bolt",				10, -5, 50 },
-			{ POW_BALL_POISON_X,	"Cloud Kill",				15, -3, 60 },
-			{ POW_BALL_COLD_ELEC_X,	"Blizzard",					25, -6, 85 },
-			{ POW_BALL_FIRE_ACID_X,	"Hell Storm",				30, -7, 85 },
-			{ POW_BALL_ELEM_X,		"Elemental Storm",			35, -8, 90 },
-			{ POW_BALL_MANA,		"Mana Storm",				40, 50, 95 },
-			{ POW_BALL_ANNIHILATION,"Sphere of Annihilation",	50, 75, 70 },
+			{ POW_BOLT_POISON_X,	"Poison Bolt",				 5, -4, 56 },
+			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 56 },
+			{ POW_BOLT_NEXUS_X,		"Nexus Bolt",				10, -5, 56 },
+			{ POW_BALL_POISON_X,	"Cloud Kill",				15, -3, 66 },
+			{ POW_BALL_COLD_ELEC_X,	"Blizzard",					25, -6, 91 },
+			{ POW_BALL_FIRE_ACID_X,	"Hell Storm",				30, -7, 87 },
+			{ POW_BALL_ELEM_X,		"Elemental Storm",			35, -8, 94 },
+			{ POW_BALL_MANA,		"Mana Storm",				40, 50, 97 },
+			{ POW_BALL_ANNIHILATION,"Sphere of Annihilation",	50, 75, 74 },
 			{ 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1688,11 +1688,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* Tenser's transformations (sval 10) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_HEROISM,			"Heroism",					 5,  5, 50 },
-			{ POW_STABILITY,		"Stability",				10, 18, 35 },
-			{ POW_INVIS_2,			"Temporary Invisibility",	20, 35, 60 },
-			{ POW_RES_CHAOS_NEXUS,	"Resist Chaos & Nexus",		30, 25, 35 },
-			{ POW_RESILIENCE,		"Globe of Resilience",		45, 70, 75 },
+			{ POW_HEROISM,			"Heroism",					 5,  5, 56 },
+			{ POW_STABILITY,		"Stability",				10, 18, 41 },
+			{ POW_INVIS_2,			"Temporary Invisibility",	20, 35, 66 },
+			{ POW_RES_CHAOS_NEXUS,	"Resist Chaos & Nexus",		30, 25, 41 },
+			{ POW_RESILIENCE,		"Globe of Resilience",		45, 70, 81 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1702,11 +1702,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Lore of the Hunter (sval 11) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_BRAND_AMMO_ANML,	"Hunter's Arrows",			18, 25, 60 },
-			{ POW_CALM_ANIMALS,		"Calm Animals",				23, 35, 55 },
-			{ POW_BRAND_AMMO_WOUND, "Sharpen Arrows",			28, 25, 70 },
-			{ POW_HASTE_SELF_1,		"Haste Self",				33, 12, 90 },
-			{ POW_BRAND_AMMO_ELMNT, "Elemental Arrows",			43, 40, 80 },
+			{ POW_BRAND_AMMO_ANML,	"Hunter's Arrows",			18, 25, 66 },
+			{ POW_CALM_ANIMALS,		"Calm Animals",				23, 35, 61 },
+			{ POW_BRAND_AMMO_WOUND, "Sharpen Arrows",			28, 25, 76 },
+			{ POW_HASTE_SELF_1,		"Haste Self",				33, 12, 92 },
+			{ POW_BRAND_AMMO_ELMNT, "Elemental Arrows",			43, 40, 86 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1716,13 +1716,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Novice's Handbook (sval 12) */
 		SBF_PRAYER,
 		{
-			{ POW_BLESS_1,			"Bless",			 1,  2, 20 },
-			{ POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15 },
-			{ POW_DETECT_EVIL,		"Detect Evil",			 2,  1, 10 },
-			{ POW_LIGHT_AREA_2,		"Call Light",			 3,  2, 25 },
-			{ POW_CALM_MONSTER,		"Calm Monster",			 3,  3, 27 },
-			{ POW_CURE_TAINT,		"Cleanse Taint",		 3,  1, 28 },
-			{ POW_TURN_UNLIFE,		"Turn Unlife",			 3,  1, 28 },
+			{ POW_BLESS_1,			"Bless",			 1,  2, 26 },
+			{ POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 21 },
+			{ POW_DETECT_EVIL,		"Detect Evil",			 2,  1, 16 },
+			{ POW_LIGHT_AREA_2,		"Call Light",			 3,  2, 31 },
+			{ POW_CALM_MONSTER,		"Calm Monster",			 3,  3, 33 },
+			{ POW_CURE_TAINT,		"Cleanse Taint",		 3,  1, 34 },
+			{ POW_TURN_UNLIFE,		"Turn Unlife",			 3,  1, 34 },
 			/* { POW_PHLOGISTON,		"Divine Flame",			 4,  4, 31 }, */
 			/* { POW_BOLDNESS,			"Boldness",			 2,  2, 25 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
@@ -1732,13 +1732,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Words of Wisdom (sval 13) */
 		SBF_PRAYER,
 		{
-			{ POW_CURE_POISON,		"Neutralize Poison",		 4,  3, 38 },
-			{ POW_SCARE_MONSTER,		"Scare Monster",		 5,  4, 29 },
-			{ POW_TELE_MINOR,		"Portal",			 5,  4, 30 },
-			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32 },
-			{ POW_BLESS_2,			"Chant",			 6,  5, 34 },
-			{ POW_RES_FIRE_COLD,		"Resist Heat and Cold",		 7,  5, 38 },
-			{ POW_REMOVE_CURSE_1,		"Remove Curse",			 7,  6, 38 },
+			{ POW_CURE_POISON,		"Neutralize Poison",		 4,  3, 44 },
+			{ POW_SCARE_MONSTER,		"Scare Monster",		 5,  4, 35 },
+			{ POW_TELE_MINOR,		"Portal",			 5,  4, 36 },
+			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 38 },
+			{ POW_BLESS_2,			"Chant",			 6,  4, 40 },
+			{ POW_RES_FIRE_COLD,		"Resist Heat and Cold",		 7,  5, 44 },
+			{ POW_REMOVE_CURSE_1,		"Remove Curse",			 7,  6, 44 },
 			/* { POW_SLEEP_ADJACENT,	"Sanctuary",			 6,  5, 36 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1747,13 +1747,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* Chants and Blessings (sval 14) */
 		SBF_PRAYER,
 		{
-			{ POW_BALL_HOLY_2,		"Orb of Draining",		 9,  8, 38 },
-			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40 },
-			{ POW_CURE_DISEASE,		"Cure Disease",			10,  7, 40 },
-			{ POW_GLYPH_HOLY,		"Holy Sigil",			10, 15, 50 },
-			{ POW_SEE_INVIS,		"Sense Invisible",		11,  8, 42 },
-			{ POW_PROT_EVIL_2,		"Protection from Evil",		11,  8, 42 },
-			{ POW_EARTHQUAKE,		"Earthquake",			13,  9, 55 },
+			{ POW_BALL_HOLY_2,		"Orb of Draining",		 9,  8, 44 },
+			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 46 },
+			{ POW_CURE_DISEASE,		"Cure Disease",			10,  7, 46 },
+			{ POW_GLYPH_HOLY,		"Holy Sigil",			10, 15, 56 },
+			{ POW_SEE_INVIS,		"Sense Invisible",		11,  8, 48 },
+			{ POW_PROT_EVIL_2,		"Protection from Evil",		11,  8, 48 },
+			{ POW_EARTHQUAKE,		"Earthquake",			13,  9, 61 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1761,13 +1761,13 @@ spell_book books[SV_BOOK_MAX] =
  		/* Exorcism and Dispelling (sval 15) */
 		SBF_PRAYER,
 		{
-			{ POW_CALM_NON_EVIL,		"Soothing Words",		16, 8, 80 },
-			{ POW_DISPEL_UNDEAD_1,		"Dispel Undead",		16, 10, 50 },
-			{ POW_DISPEL_DEMON,		"Dispel Demons",		17, 12, 55 },
-			{ POW_PROT_CHAOS_2,		"Protection from Chaos",	20,  8, 42 },
-			{ POW_DISPEL_EVIL_3,		"Dispel Evil",			25, 17, 70 },
-			{ POW_GLYPH_WARDING,		"Glyph of Warding",		33, 55, 90 },
-			{ POW_HOLY_2,			"Holy Word",			39, 32, 95 },
+			{ POW_CALM_NON_EVIL,		"Soothing Words",		16, 8, 86 },
+			{ POW_DISPEL_UNDEAD_1,		"Dispel Undead",		16, 10, 56 },
+			{ POW_DISPEL_DEMON,		"Dispel Demons",		17, 12, 61 },
+			{ POW_PROT_CHAOS_2,		"Protection from Chaos",	20,  8, 48 },
+			{ POW_DISPEL_EVIL_3,		"Dispel Evil",			25, 17, 76 },
+			{ POW_GLYPH_WARDING,		"Glyph of Warding",		33, 55, 92 },
+			{ POW_HOLY_2,			"Holy Word",			39, 32, 97 },
 			/* { POW_BLESS_3,		"Prayer",					15, 14, 50 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1776,12 +1776,12 @@ spell_book books[SV_BOOK_MAX] =
 		/* Ethereal openings (sval 16) */
 		(SBF_PRAYER | SBF_GOOD),
 		{ 
-			{ POW_TELE_10,			"Blink",					 3,  3, 50 },
-			{ POW_TELE_MAJOR,		"Teleport Self",			10, 10, 50 },
-			{ POW_TELE_OTHER,		"Teleport Other",			20, 15, 80 },
-			{ POW_TELE_LEVEL,		"Teleport Level",			30, 40, 75 },
+			{ POW_TELE_10,			"Blink",					 3,  3, 56 },
+			{ POW_TELE_MAJOR,		"Teleport Self",			10, 10, 56 },
+			{ POW_TELE_OTHER,		"Teleport Other",			20, 15, 86 },
+			{ POW_TELE_LEVEL,		"Teleport Level",			30, 40, 81 },
 /*			{ POW_WORD_RECALL,		"Word of Recall",			35, 50, 75 },		*/
-			{ POW_ALTER_REALITY,	"Alter Reality",			40, 60, 75 },
+			{ POW_ALTER_REALITY,	"Alter Reality",			40, 60, 79 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1791,10 +1791,10 @@ spell_book books[SV_BOOK_MAX] =
 		/* Godly Insights (sval 17) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 50 },
-			{ POW_DETECT_ALL,		"Detection",				10,  8, 80 },
-			{ POW_PROBE_ALL,		"Probing",					25, 20, 80 },
-			{ POW_MAP_2,			"Clairvoyance",				35, 50, 80 },
+			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 56 },
+			{ POW_DETECT_ALL,		"Detection",				10,  8, 86 },
+			{ POW_PROBE_ALL,		"Probing",					25, 20, 86 },
+			{ POW_MAP_2,			"Clairvoyance",				35, 50, 86 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
@@ -1804,11 +1804,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* Purifications and Healing (sval 18) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{ POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 60 },
-			{ POW_HEAL_5,			"Healing",					30, 50, 80 },
-			{ POW_RESTORE_STATS,	"Restoration",				35, 70, 90 },
-			{ POW_RESTORE_LEVEL,	"Remembrance",				35, 70, 90 },
-			{ POW_CALM_ALL,			"Holy Peace",				45, 50, 80 },
+			{ POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 66 },
+			{ POW_HEAL_5,			"Healing",					30, 50, 86 },
+			{ POW_RESTORE_STATS,	"Restoration",				35, 70, 92 },
+			{ POW_RESTORE_LEVEL,	"Remembrance",				35, 70, 92 },
+			{ POW_CALM_ALL,			"Holy Peace",				45, 50, 86 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1818,12 +1818,12 @@ spell_book books[SV_BOOK_MAX] =
 		/* Holy Infusions (sval 19) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{ POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 50 },
-			{ POW_RECHARGE_2,		"Recharging",				15, 20, 80 },
-			{ POW_REMOVE_CURSE_2,	"Dispel Curse",				25, 40, 80 },
-			{ POW_ENCHANT_WEAPON_2,	"Enchant Weapon",			35, 50, 80 },
-			{ POW_ENCHANT_ARMOR_2,	"Enchant Armour",			37, 60, 85 },
-			{ POW_BRAND_AMMO_HOLY,	"Sanctify Ammunition",		45, 95, 85 },
+			{ POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 56 },
+			{ POW_RECHARGE_2,		"Recharging",				15, 20, 86 },
+			{ POW_REMOVE_CURSE_2,	"Dispel Curse",				25, 40, 86 },
+			{ POW_ENCHANT_WEAPON_2,	"Enchant Weapon",			35, 50, 86 },
+			{ POW_ENCHANT_ARMOR_2,	"Enchant Armour",			37, 60, 91 },
+			{ POW_BRAND_AMMO_HOLY,	"Sanctify Ammunition",		45, 95, 91 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1832,11 +1832,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* Wrath of God (sval 20) */
 		(SBF_PRAYER | SBF_GOOD),
 		{  
-			{ POW_DISPEL_UNDEAD_2,	"Dispel Undead",			15,  7, 70 },
-			{ POW_DISPEL_EVIL_4,	"Dispel Evil",				20, 10, 75 },
-			{ POW_BANISH,			"Banishment",				25, 25, 80 },
-			{ POW_DESTRUCTION,		"Word of Destruction",		35, 35, 80 },
-			{ POW_DRAIN_LIFE_3,		"Annihilation",				45, 60, 75 },
+			{ POW_DISPEL_UNDEAD_2,	"Dispel Undead",			15,  7, 76 },
+			{ POW_DISPEL_EVIL_4,	"Dispel Evil",				20, 10, 81 },
+			{ POW_BANISH,			"Banishment",				25, 25, 86 },
+			{ POW_DESTRUCTION,		"Word of Destruction",		35, 35, 86 },
+			{ POW_DRAIN_LIFE_3,		"Annihilation",				45, 60, 81 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1846,13 +1846,13 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Seven steps to transcendence (sval 21) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{ POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 10 },
-			{ POW_TELE_CONTROL,		"Mastery of Space",			10, 25, 60 },
-			{ POW_RES_ELEMENTS,		"Power over Elements",		15, 30, 70 },
-			{ POW_DETECT_ALL,		"Purity of Vision",			20, 35, 80 },
-			{ POW_CURE_BODY,		"Control of the Body",		30, 40, 90 },
-			{ POW_RES_GREATER,		"One with the World",		40, 45,100 },
-			{ POW_RESILIENCE,		"Mind over Matter",			50, 50,110 },
+			{ POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 16 },
+			{ POW_TELE_CONTROL,		"Mastery of Space",			10, 25, 66 },
+			{ POW_RES_ELEMENTS,		"Power over Elements",		15, 30, 76 },
+			{ POW_DETECT_ALL,		"Purity of Vision",			20, 35, 86 },
+			{ POW_CURE_BODY,		"Control of the Body",		30, 40, 92 },
+			{ POW_RES_GREATER,		"One with the World",		40, 45,102 },
+			{ POW_RESILIENCE,		"Mind over Matter",			50, 50,112 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }
 		}
@@ -1861,15 +1861,15 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Teachings of the Ninth Master (sval 22) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 30 },
-			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 50 },
-			{ POW_INVIS_2,			"Vanish from Sight",		20, 20, 60 },
-			{ POW_BANISH,			"Banish Enemies",			25, 30, 80 },
-			{ POW_HEAL_4,			"Heal",						30, 20, 60 },
-			{ POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 50 },
-			{ POW_ALTER_REALITY,	"Alter Reality",			40, 80, 75 },
-			{ POW_GLYPH_WARDING,	"Glyph of Warding",			45, 60, 90 },
-			{ POW_BURST_ASTRAL,		"Astral Burst",				50, 80, 50 },
+			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 36 },
+			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 56 },
+			{ POW_INVIS_2,			"Vanish from Sight",		20, 20, 66 },
+			{ POW_BANISH,			"Banish Enemies",			25, 30, 86 },
+			{ POW_HEAL_4,			"Heal",						30, 20, 66 },
+			{ POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 56 },
+			{ POW_ALTER_REALITY,	"Alter Reality",			40, 80, 81 },
+			{ POW_GLYPH_WARDING,	"Glyph of Warding",			45, 60, 92 },
+			{ POW_BURST_ASTRAL,		"Astral Burst",				50, 80, 56 },
 			{ 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1877,9 +1877,9 @@ spell_book books[SV_BOOK_MAX] =
 			/* The Necronomicon (sval 23) */
 		(SBF_NECRONOM | SBF_GOOD | SBF_ARTIFACT),
 		{ 
-			{ POW_DARK_AREA,		"Unlight Area",				 1,  1, 15 },
-			{ POW_DISPEL_NON_EVIL,	"Wave of Evil",				25, 15,132 },
-			{ POW_BEAM_NETHER,		"Ray of Evil",				40, 50, 97 },
+			{ POW_DARK_AREA,		"Unlight Area",				 1,  1, 21 },
+			{ POW_DISPEL_NON_EVIL,	"Wave of Evil",				25, 15,134 },
+			{ POW_BEAM_NETHER,		"Ray of Evil",				40, 50, 99 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
@@ -1890,10 +1890,10 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Codex of Ultimate Wisdom (sval 24) */
 		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
 		{
-			{ POW_IDENTIFY,			"Perception",				 1, 15, 50 },
-			{ POW_IDENTIFY_PACK,	"Greater Perception",		20, 20, 90 },
-			{ POW_IDENTIFY_FULL,	"Revelation",				50,100, 72 },
-			{ POW_MAP_2,			"Clairvoyance",				50,100, 10 },
+			{ POW_IDENTIFY,			"Perception",				 1, 15, 56 },
+			{ POW_IDENTIFY_PACK,	"Greater Perception",		20, 20, 92 },
+			{ POW_IDENTIFY_FULL,	"Revelation",				50,100, 78 },
+			{ POW_MAP_2,			"Clairvoyance",				50,100, 16 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
@@ -1903,9 +1903,9 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Mathemagical Calculations (sval 25) */
 		(SBF_MATHEMAGIC | SBF_GOOD | SBF_ARTIFACT),
 		{
-			{ POW_SPELL_INFLUENCE,	"Enchance Influence",		20, 35, 80 },
-			{ POW_SPELL_DURATION,	"Optimize Duration",		30, 50, 80 },
-			{ POW_SPELL_DAMAGE,		"Augment Damage",			40, 75, 80 },
+			{ POW_SPELL_INFLUENCE,	"Enchance Influence",		20, 35, 82 },
+			{ POW_SPELL_DURATION,	"Optimize Duration",		30, 50, 82 },
+			{ POW_SPELL_DAMAGE,		"Augment Damage",			40, 75, 82 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
@@ -2190,7 +2190,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_floor,
 		OPT_verify_leave_quest,
 		OPT_spellbook_menu,
-		OPT_always_show_lists
+		OPT_always_show_lists,
+		OPT_NONE
 	},
 
 	/*** Display ***/

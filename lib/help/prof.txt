@@ -1,16 +1,36 @@
 === Proficiencies ===
 
-If you have any proficiency points (Lore, Reserves, or Escapes) you may use your
-proficiencies by pressing 'p' and choosing which proficiency you want to use.
-You can see your Reserves, Escapes, and Lore points on the left side of the
-screen below HPs and SPs. The proficiency points are refreshed each time you go
-down a staircase.
+If you have any proficiency points (identify, reserve or escape) you may use
+them by pressing 'p' and choosing which one you want to use. You can see your
+the points on the left side of the screen below HPs and SPs. The proficiency
+points are refreshed each time you go down a staircase.
+
+
+
+=== Identify ===
+
+Every character has exactly two identify points.
+
+To identify an item, you need to succeed in an Alchemy skill check.
+
+If you stand in a Circle of Knowledge, you may instead try to Identify Pack
+or to Fully Identify an item. For each identified object, you need to succeed
+in an Alchemy skill check.
+
+For potions, full identification includes learning what potions can be used to
+mix the potion, and which potions use the potion as one of their ingredients.
+
+Halls of Mist has an artifact memory -- information about fully identified
+artifacts is kept for future generations of player characters.
+
 
 
 === Reserves and Escapes ===
 
-Reserves accumulate as you gain levels. Escapes accumulate in the same way, but only for the faery races (Elf, Dwarf, Gnome). Non-faeries that are blessed by at least one goddess gain access to some Escapes points at higher levels.
-
+Reserve points accumulate as you gain levels. Escape points accumulate in the
+same way, but only for the faery races (Elf, Dwarf, Gnome). Non-faeries that
+are blessed by at least one goddess gain access to some Escapes points at
+higher levels.
 				ESCAPES    ESCAPES
 LEVEL	RESERVES	LEVEL   FAERY      BLESSED
 10	1		5	1
@@ -19,55 +39,17 @@ LEVEL	RESERVES	LEVEL   FAERY      BLESSED
 40	4		35	4          2
 50	5		45	5
 
+Recover is simply Cure Critical Wounds. You can use Recover even while blind or
+confused.
 
-Both Reserves and Escapes allow you to use one proficiency:
-
-  RECOVER, which uses a point of Reserves, is simply Cure Critical Wounds. You
-  can use Recover even when blind or confused.
-
-  ESCAPE, which uses a point of Escapes, is directed teleportation.  Choose a
-  direction, and Shift tries hard to teleport you in that direction, usually at
-  least 150 feet away if there are enough empty floor squares to land on in that
-  direction, and never further than 250 feet. You can use shift while blind or
-  confused. You can't choose a direction if you are confused.
+Escape is a directed teleportation. Choose a direction, and Shift tries hard to
+teleport you in that direction, usually at least 150 feet away if there are
+enough empty floor squares to land on in that direction, and never further than
+250 feet. You can use shift while blind or confused. You can't choose a
+direction if you are confused.
 
 The flavour of Escape is that the faery races are able to take shortcuts
 through the Faery Realm, which has a strong presence in the Halls of Mist. If
 you know where to look, you can find a small portal (a "mouse-hole") and enter
 through it to the Faery Realm. Then you shift back to the physical world, in
 a different location.
-
-
-=== Lore ===
-
-INT+WIS		LORE POINTS	AVAILABLE PROFICIENCIES
-20+		Lore 1		Alertness, Identify
-30+		*Lore* 1	Alertness, Identify Pack, Study Item
-40+		*Lore* 2
-50+		*Lore* 3
-60		*Lore* 4
-
-Lore points and available proficiencies are derived from your Intelligence and
-Wisdom. As you can see in the table, INT+WIS 20+ gives you access to Common
-Lore, with two proficiencies:
-
-  ALERTNESS grants +15 to saving throw and +30 to finding traps and runes and
-  to noticing invisible creatures next to you. The bonuses last until you leave
-  the dungeon level.
- 
-  IDENTIFY.
-
-You gain access to Greater Lore, also known as *Lore*, when your INT+WIS
-reaches 30+. At first, you don't get any extra Lore points.
-
-  ALERTNESS. It doesn't get any better at first. However, the effects cumulate
-  in case you spend multiple *Lore* points on Alertness.
-
-  IDENTIFY PACK.
-
-  STUDY ITEM. Make a skill check: Alchemy for potions, Perception otherwise. If
-  you succeed, you *Identify* the item fully. For potions, that also means
-  learning their ingredients and all potions that can be mixed using this
-  potion as one of the integrients. Note that Halls of Mist has an artifact
-  memory -- information about *Identified* artifacts is kept for future
-  generations of player characters.

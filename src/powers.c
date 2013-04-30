@@ -19,18 +19,18 @@
 info_entry power_info[POW_MAX] = 
 {
 	{0, NULL},
-	{POW_HEAL_1,			"reduces cuts and heals you a little"},
-	{POW_HEAL_2,			"reduces cuts and heals you a moderate amount"},
-	{POW_HEAL_3,			"reduces cuts and heals you a large amount"},
-	{POW_HEAL_4,			"heals you a very large amount, eliminates cuts and stunning"},
-	{POW_HEAL_5,			"heals you fully, eliminates cuts and stunning"},	
-	{POW_HEAL_CURE_1,		"heals some damage, cures stunning effects and reduces cuts"},	
-	{POW_HEAL_CURE_2,		"heals a moderate amount, cures negative effects"},	
-	{POW_HEAL_CURE_3,		"heals a large amount, cures negative effects"},	
-	{POW_HEAL_CURE_4,		"heals you a very large amount, cures negative effects"},	
+	{POW_HEAL_1,			"reduces cuts and heals you 15% of wounds + 5 hits"},
+	{POW_HEAL_2,			"reduces cuts and heals you 30% of wounds + 10 hits"},
+	{POW_HEAL_3,			"reduces cuts and heals you 45% of wounds + 15 hits"},
+	{POW_HEAL_4,			"heals you 60% of wounds + 20 hits, removes cuts and stunning"},
+	{POW_HEAL_5,			"heals you 75% of wounds + 25 hits, removes cuts and stunning"},	
+	{POW_HEAL_CURE_1,		"heals 15% of wounds + 5 hits, cures stunning and reduces cuts"},	
+	{POW_HEAL_CURE_2,		"heals 30% of wounds + 10 hits, cures negative effects"},	
+	{POW_HEAL_CURE_3,		"heals 45% of wounds + 15 hits, cures negative effects"},	
+	{POW_HEAL_CURE_4,		"heals 60% of wounds + 20 hits, cures negative effects"},	
 	{POW_LIFE,			"restores you to perfect health and condition"},	
-	{POW_RESTORE_MANA,		"restores mana to full level"},
-	{POW_RESTORE_MANA_INT,		"restores mana to full level, and also restores memory"},
+	{POW_RESTORE_MANA,		"restores 20% of your mana"},
+	{POW_RESTORE_MANA_INT,		"restores 20% of your mana and also restores memory"},
 	{POW_RESTORE_STR,		"restores your strength"},
 	{POW_RESTORE_INT,		"restores your memory"},
 	{POW_RESTORE_WIS,		"restores your wisdom"},		
@@ -59,7 +59,7 @@ info_entry power_info[POW_MAX] =
 	{POW_CURE_POISON,		"removes all poison from your body"},
 	{POW_CURE_POIS_DISE,		"removes all poison and disease from your body"},
 	{POW_CURE_FEAR_POIS,		"removes fear from your mind and poison from your body"},
-	{POW_CURE_TAINT,		"removes a temporary unholy taint from your soul"},
+	{POW_CURE_TAINT,		"removes an unholy taint from your soul, blesses you for a moment"},
 	{POW_CURE_ALL,			"removes all poison, disease, fear, cuts, stunning and confusion"},
 	{POW_CURE_BODY,			"restores all stats, cures poison, and fully feeds you"},
 	{POW_CLEAR_MIND,		"rids your mind of confusion and fear, cures blindness"},
@@ -319,8 +319,8 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRSTUPIDITY,		"lowers your memory"},
 	{POW_SHRAMNESIA,		"makes you forget things"},
 	{POW_SHRDISEASE,		"infects you with a disease"},
-	{POW_SHRCURE_POISON,		"removes all poison from your body"},
-	{POW_SHRCURE_DISEASE,		"rids your body of all disease"},
+	{POW_SHRANTIDOTE,		"removes all poison and disease from your body"},
+	{POW_SHRFORTIFICATION,		"raises all your resistances by one"},
 	{POW_SHRCURE_CONFUSION,		"removes any confusion you currently feel"},
 	{POW_SHRHEAL_1,			"reduces cuts and heals you a little"},
 	{POW_SHRHEAL_2,			"reduces cuts and heals you a moderate amount"},
@@ -330,7 +330,7 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRRESTORE_CON,		"restores your constitution"},
 	{POW_SHRRESTORE_DEX,		"restores your dexterity"},
 	{POW_SHRRESTORE_STATS,		"restores all stats"},
-	{POW_PHLOGISTON,		"makes your torch burn faster and brighter"},
+	{POW_PHLOGISTON,		"makes your torch burn brighter"},
 	{POW_RESTORE_VIGOR,		"restores your strength and constitution"},
 	{POW_RESTORE_WIT,		"restores your memory and wisdom"},
 	{POW_RESTORE_GRACE,		"restores your dexterity and presence"},
@@ -373,11 +373,11 @@ info_entry power_info[POW_MAX] =
 	{POW_EDEN,			"temporarily blesses you and protects from evil, fire and cold"},
 	{POW_STORM_SHIELD,		"increases armour class and protects from water, dark, light, electricity, sound"},
 	{POW_DETECT_FORCE,		"detects nearby magic circles, faery portals, runes, altars, and magical traps"},
-	{POW_DETECT_LIFE,		"detects nearby living creatures, trees, and vegetation"},
+	{POW_LORE,			"grants you one identify point"},
 	{POW_GROWTH,			"turns an open terrain into vegetation, or vegetation into a tree"},
 	{POW_DRYAD,			"turns vegetation into spikes, or a tree into a faery portal"},
 	{POW_CURSE_MONSTER,		"attempts to permanently curse the monster, reducing to-hit and armour class"},
-	{POW_SWAP_PLACES,		"makes you swap places with the monster"},
+	{POW_SWAP_PLACES,		"makes you exchange places with the monster"},
 	{POW_BALL_STUN,			"fires a ball of force that stuns monsters"},
 	{POW_HARPY_FORM,		"turns you into a harpy"},
 	{POW_ANGEL_FORM,		"turns you into an angel"},
@@ -386,8 +386,8 @@ info_entry power_info[POW_MAX] =
 	{POW_STATUE_FORM,		"turns you into a living statue"},
 	{POW_FAUN_FORM,			"turns you into a faun"},
 	{POW_GOBLIN_FORM,		"turns you into a goblin"},
-	{POW_GHOUL_FORM,		"turns you into a ghoul"},
-	{POW_FENCING,			"gives an extra sword blow against persons and humanoids"},
+	{POW_GHOUL_FORM,		"turns you into an icky thing"},
+	{POW_IDENTIFY_SKILL,		"allows you make an Alchemy skill check to identify an item"},
 	{POW_ARCHERY,			"increases bow might multiplier by two"},
 	{POW_FLAMING_HANDS,		"allows you to burn one or two monsters by touching them"},
 	{POW_ICY_HANDS,			"allows you to freeze one or two monsters by touching them"},
@@ -531,46 +531,51 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 	{
 		case POW_HEAL_1:
 		{
-			if (heal_player(5, 10)) *obvious = TRUE;
+			/* Priest spell: Cure Light Wounds */
+			if (heal_player(15, 5)) *obvious = TRUE;
 			if (set_cut(p_ptr->cut - 10)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_2:
 		{
-			if (heal_player(15, 20)) *obvious = TRUE;
+			/* Priest spell: Cure Medium Wounds */
+			if (heal_player(30, 10)) *obvious = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_3:
 		{
-			if (heal_player(30, 30)) *obvious = TRUE;
+			/* Priest spell: Cure Critical Wounds */
+			if (heal_player(45, 15)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_4:
 		{
-			if (heal_player(60, 40)) *obvious = TRUE;
+			/* Priest spell: Cure Mortal Wounds */
+			if (heal_player(60, 20)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_5:
 		{
-			if (heal_player(90, 100)) *obvious = TRUE;
+			/* Priest spell: Healing */
+			if (heal_player(75, 25)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_CURE_1:
 		{
-			if (heal_player(15, 20)) *obvious = TRUE;
+			if (heal_player(30, 10)) *obvious = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_HEAL_CURE_2:
 		{
-			if (heal_player(25, 30)) *obvious = TRUE;
+			if (heal_player(45, 15)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
@@ -579,7 +584,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_HEAL_CURE_3:
 		{
-			if (heal_player(60, 40)) *obvious = TRUE;
+			if (heal_player(60, 20)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_poisoned(0)) *obvious = TRUE;
@@ -590,7 +595,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_HEAL_CURE_4:
 		{
-			if (heal_player(90, 100)) *obvious = TRUE;
+			if (heal_player(75, 25)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
@@ -628,7 +633,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
+				/* Restore 20% of mana */
+				p_ptr->csp += p_ptr->msp / 5;
+				if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->csp;
+
 				p_ptr->csp_frac = 0;
 				message(MSG_EFFECT, 0, "Your feel your head clear.");
 				*obvious = TRUE;
@@ -642,6 +650,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (do_res_stat(A_INT)) *obvious = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
+				/* Restore 20% of mana */
+				p_ptr->csp += p_ptr->msp / 5;
+				if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->csp;
+
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 				message(MSG_EFFECT, 0, "Your feel your head clear.");
@@ -829,7 +841,16 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_FAIL, 0, "The taint on your soul is too powerful at the moment!");
 				*obvious = TRUE;
 			}
-			else if (set_taint(0)) *obvious = TRUE;
+			else if (set_taint(0))
+			{
+				*obvious = TRUE;
+				durat = randint(apply_sp_mod(3, mdur)) + apply_sp_mod(3, mdur);
+
+				if (durat > p_ptr->blessed)
+				{
+					set_blessed(durat);
+				}
+			}
 			break;
 		}
 		case POW_CURE_ALL:
@@ -937,9 +958,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				/* Reset alertness */
 				p_ptr->alertness = 0;
 
-				/* Reset monster summon power */
-				p_ptr->monster_summon_power = 0;
-
 				/* Reset permanent spells */
 				p_ptr->tim_see_invis_perm = 0;
 				p_ptr->tim_invis_perm = 0;
@@ -959,6 +977,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				p_ptr->sp_dur_perm = 0;
 				p_ptr->tim_sp_dam_perm = 0;
 				p_ptr->tim_sp_inf_perm = 0;
+				for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1644,7 +1663,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_BLESS_2:
 		{
-			durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod(30, mdur);
+			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
 
 			if (durat > p_ptr->blessed)
 			{
@@ -2617,7 +2636,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			for (i = 0; i < randint(4); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), 0))
 				{
 					*obvious = TRUE;
 				}
@@ -2628,7 +2647,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			for (i = 0; i < randint(3); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), SUMMON_UNDEAD))
 					*obvious = TRUE;
 			}
 			break;
@@ -2637,7 +2656,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 		for (i = 0; i < randint(3); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DRAGON))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), SUMMON_DRAGON))
 					*obvious = TRUE;
 			}
 			break;
@@ -3316,22 +3335,29 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			}
 			break;
 		}
-		case POW_SHRCURE_POISON:
+		case POW_SHRANTIDOTE:
 		{
 			if (cp_ptr->flags & CF_SHROOM_MAGIC)
 			{
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
 			}
 			if (set_poisoned(0)) *obvious = TRUE;
+			if (set_diseased(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_SHRCURE_DISEASE:
+		case POW_SHRFORTIFICATION:
 		{
 			if (cp_ptr->flags & CF_SHROOM_MAGIC)
 			{
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				message(MSG_EFFECT, 0, "Your skin tingles. You feel more secure against hostile forces.");
+				p_ptr->fortification += 2;
 			}
-			if (set_diseased(0)) *obvious = TRUE;
+			else
+			{
+				message(MSG_EFFECT, 0, "Your skin tingles. You feel more secure against hostile forces.");
+				p_ptr->fortification += 1;
+			}
 			break;
 		}
 		case POW_SHRCURE_CONFUSION:
@@ -3873,9 +3899,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (detect_force(1, 0, 0)) *obvious = TRUE;
 			break;
 		}
-		case POW_DETECT_LIFE:
+		case POW_LORE:
 		{
-			if (detect_life(1)) *obvious = TRUE;
+			message(MSG_EFFECT, 0, "The scroll contains pieces of arcane lore!");
+			p_ptr->lore_uses --;
 			break;
 		}
 		case POW_GROWTH:
@@ -4063,20 +4090,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			*obvious = TRUE;
 			break;
 		}
-		case POW_FENCING:
+		case POW_IDENTIFY_SKILL:
 		{
-			if (p_ptr->fencing == 0)
-			{
-				message(MSG_EFFECT, 0, "You focus your attention on swordplay.");
-			}
-			else
-			{
-				message(MSG_EFFECT, 0, "You recall advanced fencing techniques.");
-			}
-
-			p_ptr->fencing += 1;
-
 			*obvious = TRUE;
+			if (!ident_skill()) return (FALSE);
 			break;
 		}
 		case POW_ARCHERY:
@@ -4090,7 +4107,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "You recall advanced archery techniques.");
 			}
 
-			p_ptr->archery += 2;
+			p_ptr->archery += 1;
 
 			*obvious = TRUE;
 			break;

@@ -444,17 +444,19 @@ static void attack_special(int m_idx, byte special, int dam)
 	{
 		/* Blind the monster */
 		if (r_ptr->flags3 & (RF3_NO_BLIND)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_BLIND, FALSE);
-		else if (rand_int(50) >= r_ptr->level)
+		else if (rand_int(60) >= r_ptr->level)
 		{
-			/* Already partially blinded */
-			if (m_ptr->blinded) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears more blinded.", m_name);
-			/* Was not blinded */
-			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears blinded.", m_name);
+			if (rand_int(7) < 3)
+			{
+				/* Already partially blinded */
+				if (m_ptr->blinded) message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears more blinded.", m_name);
+				/* Was not blinded */
+				else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears blinded.", m_name);
 
-			tmp = m_ptr->blinded + 1 + dam/4 + rand_int(dam)/4;
+				tmp = m_ptr->blinded + 1 + dam/4 + rand_int(dam)/4;
 
-			m_ptr->blinded = (tmp < 200) ? tmp : 200;
-
+				m_ptr->blinded = (tmp < 200) ? tmp : 200;
+			}
 		}
 	}
 
@@ -510,6 +512,7 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Slays and brands */
 	switch (o_ptr->tval)
 	{
 		/* Flasks do fire damage */
@@ -813,8 +816,14 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 		}
 	}
 
+	/* Kill Mist */
+	if ((f2 & TR2_KILL_MIST) && (m_ptr->mist))
+	{
+		return (9999999);
+	}
+
 	/* Return the total damage (rounded up) */
-	return ((tdam * mult) + 9) / 10;
+	else return ((tdam * mult) + 9) / 10;
 }
 
 
@@ -966,6 +975,7 @@ void search(void)
 {
 	int x, y;
 	int skill;
+	bool confused_message = TRUE;
 
 	/* Search the nearby grids, which are always in bounds */
 	for (y = (p_ptr->py - 1); y <= (p_ptr->py + 1); y++)
@@ -990,7 +1000,7 @@ void search(void)
 				if ((!t_ptr->visible) && (t_ptr->spot_factor == 1) && (trap_detectable(y, x)))
 				{
 					/* Alertness helps when detecting traps and runes */
-					if (rand_int(100) < skill + (p_ptr->alertness * 30))
+					if (rand_int(100) < skill + (p_ptr->alertness * 15))
 					{
 						/* Discover invisible traps */
 
@@ -1026,7 +1036,7 @@ void search(void)
 				if (t_ptr->spot_factor == 1)
 				{
 					/* Alertness helps when detecting traps and runes */
-					if (rand_int(100) < skill + (p_ptr->alertness * 30))
+					if (rand_int(100) < skill + (p_ptr->alertness * 15))
 					{
 						place_decoration(y, x, t_list[cave_t_idx[y][x]].w_idx - 30);
 
@@ -1045,9 +1055,14 @@ void search(void)
 			{
 				/* Don't search for traps if the player is blind. */
 			}
-			else if (p_ptr->confused || p_ptr->image)
+			else if (((t_list[cave_t_idx[y][x]].w_idx >= WG_FOUNTAIN_HARPY) && (t_list[cave_t_idx[y][x]].w_idx <= WG_FOUNTAIN_REMOVE_CURSE)) && (p_ptr->confused || p_ptr->image))
 			{
-				/* Don't search for traps if the player is confused. */
+				if (confused_message)
+				{
+					/* Don't search for traps if the player is confused. */
+					message(MSG_GENERIC, 0, "You're too distracted to pay close attention to the fountain.");
+					confused_message = FALSE;
+				}
 			}
 			else if ((t_list[cave_t_idx[y][x]].w_idx >= WG_FOUNTAIN_HARPY) && (t_list[cave_t_idx[y][x]].w_idx <= WG_FOUNTAIN_REMOVE_CURSE))
 			{
@@ -1169,9 +1184,14 @@ void search(void)
 			{
 				/* Don't search for traps if the player is blind. */
 			}
-			else if (p_ptr->confused || p_ptr->image)
+			else if (((t_list[cave_t_idx[y][x]].w_idx == WG_RACK) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) && (p_ptr->confused || p_ptr->image))
 			{
-				/* Don't search for traps if the player is confused. */
+				if (confused_message)
+				{
+					/* Don't search for traps if the player is confused. */
+					message(MSG_GENERIC, 0, "You're too distracted to search the armoury rack.");
+					confused_message = FALSE;
+				}
 			}
 			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_RACK) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 			{
@@ -1203,9 +1223,14 @@ void search(void)
 			{
 				/* Don't search for traps if the player is blind. */
 			}
-			else if (p_ptr->confused || p_ptr->image)
+			else if (((t_list[cave_t_idx[y][x]].w_idx == WG_SHELF) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) && (p_ptr->confused || p_ptr->image))
 			{
-				/* Don't search for traps if the player is confused. */
+				if (confused_message)
+				{
+					/* Don't search for traps if the player is confused. */
+					message(MSG_GENERIC, 0, "You're too distracted to search the bookshelf.");
+					confused_message = FALSE;
+				}
 			}
 			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_SHELF) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 			{
@@ -1237,9 +1262,14 @@ void search(void)
 			{
 				/* Don't search for traps if the player is blind. */
 			}
-			else if (p_ptr->confused || p_ptr->image)
+			else if (((t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) && (p_ptr->confused || p_ptr->image))
 			{
-				/* Don't search for traps if the player is confused. */
+				if (confused_message)
+				{
+					/* Don't search for traps if the player is confused. */
+					message(MSG_GENERIC, 0, "You're too distracted to search the closet.");
+					confused_message = FALSE;
+				}
 			}
 			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_CLOSET) && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 			{
@@ -1271,9 +1301,14 @@ void search(void)
 			{
 				/* Don't search for traps if the player is blind. */
 			}
-			else if (p_ptr->confused || p_ptr->image)
+			else if ((t_list[cave_t_idx[y][x]].w_idx == WG_INTERESTING_VEGETATION) && (p_ptr->confused || p_ptr->image))
 			{
-				/* Don't search for traps if the player is confused. */
+				if (confused_message)
+				{
+					/* Don't search for traps if the player is confused. */
+					message(MSG_GENERIC, 0, "You're too distracted to search the area.");
+					confused_message = FALSE;
+				}
 			}
 			else if (t_list[cave_t_idx[y][x]].w_idx == WG_INTERESTING_VEGETATION)
 			{
@@ -1815,11 +1850,11 @@ void py_attack(int y, int x, bool show_monster_name, bool charge)
 	/* Number of blows */
 	int blows = p_ptr->num_blow;
 
-	/* Fencing proficiency gives an extra blows against visible person or humanoid (if not charging) */
-	if ((m_ptr->ml) && (o_ptr->tval == TV_SWORD))
+	/* Fencing gives an extra blow against visible person or humanoid (if not charging) */
+	if ((m_ptr->ml) && (o_ptr->tval == TV_SWORD) && (cp_ptr->flags & CF_FENCING))
 	{
-		if (r_ptr->flags4 & (RF4_PERSON)) blows += p_ptr->fencing;
-		if (r_ptr->flags4 & (RF4_HUMANOID)) blows += p_ptr->fencing;
+		if (r_ptr->flags4 & (RF4_PERSON)) blows ++;
+		if (r_ptr->flags4 & (RF4_HUMANOID)) blows ++;
 	}
 
 	/* You only get one attack if charging */
@@ -1862,6 +1897,28 @@ void py_attack(int y, int x, bool show_monster_name, bool charge)
 			else if (!m_ptr->ml)
 			{
 				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			}
+			/* Batman messages when hallucinating! */
+			if (p_ptr->image)
+			{
+				switch (randint(3))
+				{
+					case 1:
+					{
+						message_format(MSG_HIT, m_ptr->r_idx, "Pow!", m_name);
+						break;
+					}
+					case 2:
+					{
+						message_format(MSG_HIT, m_ptr->r_idx, "Bam!", m_name);
+						break;
+					}
+					case 3:
+					{
+						message_format(MSG_HIT, m_ptr->r_idx, "Zap!", m_name);
+						break;
+					}
+				}
 			}
 			/* Short message if this is the first attacked monster this round, or not a first blow */
 			else if (!show_monster_name)
@@ -3540,9 +3597,6 @@ void do_cmd_go_up(void)
 	p_ptr->fencing = 0;
 	p_ptr->archery = 0;
 
-	/* Reset monster summon power */
-	p_ptr->monster_summon_power = 0;
-
 	/* Reset permanent spells */
 	p_ptr->tim_see_invis_perm = 0;
 	p_ptr->tim_invis_perm = 0;
@@ -3565,6 +3619,9 @@ void do_cmd_go_up(void)
 	p_ptr->sp_dur_perm = 0;
 	p_ptr->tim_sp_dam_perm = 0;
 	p_ptr->tim_sp_inf_perm = 0;
+
+	int i;
+	for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -3599,10 +3656,10 @@ void do_cmd_go_down(void)
 			if (!get_check(out_val)) return;
 		}
 
-		/* Verify leaving with unused Lore points */
+		/* Verify leaving with unused identify points */
 		if (p_ptr->lore > p_ptr->lore_uses)
 		{
-			sprintf(out_val, "You haven't used all your Lore points yet. Are you sure? ");
+			sprintf(out_val, "You haven't used all your identify points yet. Are you sure? ");
 			if (!get_check(out_val)) return;
 		}
 
@@ -3851,10 +3908,11 @@ void do_cmd_go_down(void)
 		/* Hack -- take a turn */
 		p_ptr->energy_use = 100;
 		
-		/* Reset Proficiency uses */
+		/* Reset Proficiency uses and Mana */
 		p_ptr->lore_uses = 0;
 		p_ptr->reserves_uses = 0;
 		p_ptr->escapes_uses = 0;
+		give_mana();
 
 		/* Reset coordinates to Circle of Recall and Circle of Nexus */
 		p_ptr->recall_y = 0;
@@ -3866,9 +3924,6 @@ void do_cmd_go_down(void)
 		p_ptr->alertness = 0;
 		p_ptr->fencing = 0;
 		p_ptr->archery = 0;
-
-		/* Reset monster summon power */
-		p_ptr->monster_summon_power = 0;
 
 		/* Reset permanent spells */
 		p_ptr->tim_see_invis_perm = 0;
@@ -3892,6 +3947,9 @@ void do_cmd_go_down(void)
 		p_ptr->sp_dur_perm = 0;
 		p_ptr->tim_sp_dam_perm = 0;
 		p_ptr->tim_sp_inf_perm = 0;
+
+		int i;
+		for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
 
 		/* Handle temporary, non-recent blessings, and shapeshifting back to original form */
 		if ((p_ptr->shape_timer == 0) && (p_ptr->shape > 0) && (rand_int(100) < 50))
@@ -3965,7 +4023,6 @@ void do_cmd_go_down(void)
 		if (p_ptr->purity_status == 5) p_ptr->purity_status = 6;
 		if (p_ptr->transformation_status == 5) p_ptr->transformation_status = 6;
 		if (p_ptr->deceit_status == 5) p_ptr->deceit_status = 6;
-
 
 		/* Handle temporary, non-recent curses */
 		if ((p_ptr->obsession_status == 8) && (rand_int(100) < 50))
@@ -5130,7 +5187,8 @@ void do_cmd_throw(void)
 				{
 					aware = FALSE;
 
-					int spread = 0;
+					/* Some items increase powder vial radius */
+					int spread = p_ptr->powder_radius;
 
 					/* Critical hits only against visible monsters not in melee range */
 					if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x) > 1))
@@ -5141,33 +5199,53 @@ void do_cmd_throw(void)
 							ambush = TRUE;
 						}
 
-						spread = critical_powder(ambush, critical_hit_chance);
+						spread += critical_powder(ambush, critical_hit_chance);
 					}
 
 					switch (i_ptr->sval)
 					{
 						case SV_POWDER_SLEEP:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_SLEEP_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CONFUSE:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_CONF_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_STARTLE:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_SCARE_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FLASH:
 						{
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts in a bright flash of light.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_BLIND_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
 							(void)strike(GF_LITE_WEAK, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
@@ -5175,8 +5253,13 @@ void do_cmd_throw(void)
 						}
 						case SV_POWDER_DARKNESS:
 						{
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts into a sinister cloud of darkness.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_SCARE_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
 							(void)strike(GF_DARK_WEAK, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
@@ -5184,79 +5267,134 @@ void do_cmd_throw(void)
 						}
 						case SV_POWDER_FIRE1:
 						{
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts in a firey explosion.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_FIRE, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FIRE2:
 						{
+							if (spread < -2)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts in a firey inferno.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_FIRE, y, x, damroll(8 , 30), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD1:
 						{
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts into an icy mist.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_COLD, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD2:
 						{
+							if (spread < -2)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of frost.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_ICE , y, x, damroll(8 , 30), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_ENERGY:
 						{
+							if (spread < -2)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of pure energy.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_MANA, y, x, damroll(10 , 60), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POISON:
 						{
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
 							message(MSG_EFFECT, 0, "The powder bursts into noxius vapours.");
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							(void)strike(GF_POIS, y, x, damroll(3 , 14), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HASTE:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_SPEED_ALL, y, x, 0, spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HEAL:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_HEAL_ALL, y, x, damroll(4, 8), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_SLOW:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_SLOW_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CALM:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_CALM_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POLYMORPH:
 						{
-							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (spread < 0)
+							{
+								message(MSG_EFFECT, 0, "The crazy wind makes the powder ineffective.");
+								break;
+							}
+							if (spread > 0) message(MSG_EFFECT, 0, "The cloud spreads.");
 							if (strike(GF_POLY_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
@@ -5274,42 +5412,6 @@ void do_cmd_throw(void)
 					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 				}
 
-				else if	(i_ptr->tval == TV_FLASK)
-				{
-					aware = FALSE;
-					int spread = 0;
-					if (1 > rand_int(3)) spread = 1;
-
-					/* Critical hits only against visible monsters not in melee range */
-					if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x)))
-					{
-						/* Ambush criticals only against distracted monsters */
-						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
-						{
-							ambush = TRUE;
-						}
-
-						spread = critical_powder(ambush, critical_hit_chance);
-					}
-
-					switch (i_ptr->sval)
-					{
-						case SV_FLASK_LANTERN:
-						{
-							message(MSG_EFFECT, 0, "The oil ignites.");
-							if (spread) message(MSG_EFFECT, 0, "The oil slick spreads.");
-							(void)strike(GF_FIRE, y, x, damroll(2 , 4), spread);
-							break;
-						}
-						case SV_FLASK_BURNING:
-						{
-							message(MSG_EFFECT, 0, "The oil burns with intense flames.");
-							if (spread) message(MSG_EFFECT, 0, "The oil slick spreads.");
-							(void)strike(GF_FIRE, y, x, damroll(3 , 10), spread);
-							break;
-						}
-					}
-				}
 				else
 				{
 					/* Apply special damage XXX XXX XXX */

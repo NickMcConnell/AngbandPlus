@@ -13,19 +13,19 @@ Strength (STR)
 Memory (MEM)
    - The spellcasting stat for mages, spellswords, rangers and mystics. For
      these classes, this stat will affect the number of spells they may learn
-     each level, the number of spell points they receive, and the chance for
-     spells to fail.
+     each level, and the chance for spells to fail. (Mana depends solely on
+     class and level.)
    - Navigation skill.
    - Alchemy skill.
-   - Lore. (Lore proficiencies allow you to identify items, for example.)
+   - Ritual magic requires both MEM and WIS.
 
 Wisdom (WIS)
    - The spellcasting stat for priests, shamans and mystics. For these classes,
-     this stat will affect the number of spells they may learn each level, the
-     number of spell points they receive, and the chance for spells to fail.
+     this stat will affect the number of spells they may learn each level, and
+     the chance for spells to fail. (Mana depends solely on class and level.)
    - Saving Throw skill.
    - Perception skill.
-   - Lore.
+   - Ritual magic requires both MEM and WIS.
 
 Dexterity (DEX)
    - Bonuses to all combat skills. (Stat bonuses to combat skills also increase
@@ -93,23 +93,3 @@ internal maximum for every stat is 20 but bonuses from your race, your
 equipment, your deity, and your shapeshifted form may increase your stat score
 even higher than that. The game benefits from stats keep increasing until your
 score reaches 30.
-
-
-=== The sum of MEM + WIS is very important ===
-
-QUESTION: Why is MEM+WIS so important? It's used in both Lore calculations and
-          Ritual Magic?
-
-ANSWER:   This way spellcasters have a good reason not to use the other stat as
-          their dump stat.
-
-QUESTION: Shouldn't you always aim at having exactly 20 or 30 points in
-          MEM+WIS?
-
-ANSWER:   Bookshelves and Circles of Knowledge are designed to complicate
-          min-maxing. Lots of numbers, like 17, 23 and 27, work very well.
-          Besides, stats go up and down all the time.
-
-Read the help file prof.txt for a full description of Lore proficiencies.
-
-Read the help file circles.txt for a description of Ritual Magic.

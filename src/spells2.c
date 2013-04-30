@@ -357,8 +357,7 @@ void phlogiston(void)
 		return;
 	}
 
-	/* Phlogiston makes the torch brighter but consumes fuel */
-	o_ptr->timeout = (o_ptr->timeout * 3)/5;
+	/* Phlogiston makes the torch brighter */
 	p_ptr->phlogiston ++;
 
 	/* Message */
@@ -2697,16 +2696,63 @@ bool ident_spell(void)
 }
 
 /*
+ * Identify an object in the inventory (or on the floor)
+ * if you succeed in Alchemy skill check.
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified or if you
+ * failed the skill check, else FALSE.
+ */
+bool ident_skill(void)
+{
+	int item;
+
+	cptr q, s;
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown;
+
+	/* Get an item */
+	q = "Identify which item? ";
+	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return FALSE;
+
+	if (rand_int(100) < p_ptr->skill[SK_ALC])
+	{
+		/* Identify it */
+		ident_aux(item);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+	else
+	{
+		message(MSG_EFFECT, 0, "You fail the Alchemy skill test.");
+	}
+
+	/* Something happened */
+	return TRUE;
+}
+
+/*
  * Identify everything being carried.
  */
 void identify_pack(void)
 {
 	int i;
 
-	/* Simply identify and know every item */
+	/* Try to identify and know every item if you succeed in an Alchemy check */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		ident_aux(i);
+		if (rand_int(100) < p_ptr->skill[SK_ALC])
+		{
+			ident_aux(i);
+		}
 	}
 
 	/* Recalculate bonuses */
@@ -2897,21 +2943,16 @@ bool analyse_item(void)
 	}
 
 	/* If not potion, identify it fully */
-	else if ((!(o_ptr->tval == TV_POTION)) && (rand_int(40) < p_ptr->skill[SK_PER]))
+	else if ((!(o_ptr->tval == TV_POTION)) && (rand_int(40) < p_ptr->skill[SK_ALC]))
 	{
 		object_aware(o_ptr);
 		object_known(o_ptr);
 	}
 
 	/* Failed test */
-	else if (o_ptr->tval == TV_POTION)
-	{
-		message(MSG_EFFECT, 0, "You fail the Alchemy skill test.");
-		return TRUE;
-	}
 	else
 	{
-		message(MSG_EFFECT, 0, "You fail the Perception skill test.");
+		message(MSG_EFFECT, 0, "You fail the Alchemy skill test.");
 		return TRUE;
 	}
 

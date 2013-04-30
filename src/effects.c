@@ -48,30 +48,29 @@ bool hp_player(int num)
 }
 
 /*
- * Heal a player a percentage of his wounds.
+ * Heal a player a percentage of his wounds plus a set number of hits.
  */
-bool heal_player(int perc, int min)
+bool heal_player(int perc, int hits)
 {
 	int i;
-
-	/* Taint */
-	if (p_ptr->taint)
-	{
-		min = (3 * min) / 4;
-		perc = (4 * perc) / 5;
-	}
+	int taint_drain = 0;
 
 	/* No healing */
-	if ((perc <= 0) && (min <= 0)) return (FALSE);
+	if ((perc <= 0) && (hits <= 0)) return (FALSE);
 
 	/* No healing needed */
 	if (p_ptr->chp >= p_ptr->mhp) return (FALSE);
 
 	/* Figure healing level */
-	i = ((p_ptr->mhp - p_ptr->chp) * perc) / 100;
+	i = ((((p_ptr->mhp - p_ptr->chp) * perc) + 1) / 100) + hits;
 
-	/* Enforce minimums */
-	if (i < min) i = min;
+	/* Taint */
+	if (p_ptr->taint)
+	{
+		taint_drain = 0.4 * (i + 1);
+		message_format(MSG_EFFECT, 0, "(Taint drains %d points.)", taint_drain);
+		i -= taint_drain;
+	}
 
 	/* Actual healing */
 	return hp_player(i);
@@ -2692,6 +2691,9 @@ bool set_tim_res(int type, int v)
 				notice = TRUE;
 			}
 		}
+
+		/* If standing on Circle of Permanence, make the effect permanent until leaving the level */
+		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_PERMANENCE) p_ptr->tim_res_perm[type] = 1;
 	}
 
 	/* Shut */

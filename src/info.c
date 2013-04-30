@@ -161,57 +161,19 @@ static void display_player_xtra_info(void)
 		Term_putstr(col+8, 10, -1, attr, format("%4d /%4d", (int)p_ptr->csp, (int)p_ptr->msp));
 	}
 
-	/* Lore */
-	int temp_lore_bonus = 0;
+	/* identify */
+	Term_putstr(col, 11, -1, TERM_WHITE, "identify");
 
-	/* Temp Lore bonus when near a bookshelf & inside a room */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-	{
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-	}
-
-	/* Temp Lore bonus when on a Circle of Knowledge */
-	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
-
-	if (p_ptr->lore > 0)
-	{
-		if (p_stat(A_INT) + p_stat(A_WIS) + temp_lore_bonus >= 30)
-		{
-			Term_putstr(col, 11, -1, TERM_WHITE, "*Lore*");
-		}
-		else
-		{
-			Term_putstr(col, 11, -1, TERM_WHITE, "Lore");
-		}
-		if (current_lore >= p_ptr->lore) attr = TERM_L_GREEN;
-		else if (current_lore == 0) attr = TERM_RED;
-		else attr = TERM_YELLOW;
-		Term_putstr(col+8, 11, -1, attr, format("%4d /%4d", (int)current_lore, (int)p_ptr->lore));
-	}
+	if (p_ptr->lore_uses < 0) attr = TERM_VIOLET;
+	else if (current_lore >= p_ptr->lore) attr = TERM_L_GREEN;
+	else if (current_lore == 0) attr = TERM_RED;
+	else attr = TERM_YELLOW;
+	Term_putstr(col+8, 11, -1, attr, format("%4d /%4d", (int)current_lore, (int)p_ptr->lore));
 
 	/* Reserves */
 	if (p_ptr->reserves > 0)
 	{
-		Term_putstr(col, 12, -1, TERM_WHITE, "Reserves");
+		Term_putstr(col, 12, -1, TERM_WHITE, "recover");
 		if (current_reserves >= p_ptr->reserves) attr = TERM_L_GREEN;
 		else if (current_reserves == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
@@ -221,7 +183,7 @@ static void display_player_xtra_info(void)
 	/* Escapes */
 	if (p_ptr->escapes > 0)
 	{
-		Term_putstr(col, 13, -1, TERM_WHITE, "Escapes");
+		Term_putstr(col, 13, -1, TERM_WHITE, "escape");
 		if (current_escapes >= p_ptr->escapes) attr = TERM_L_GREEN;
 		else if (current_escapes == 0) attr = TERM_RED;
 		else attr = TERM_YELLOW;
@@ -671,7 +633,7 @@ static const c_flag_desc flag_list[3][13] =
 		{1, TR1_INFRA,				 0, "Infra-vsn:"},
 		{1, TR1_AMBUSH,				 0, "   Ambush:"},
 		{1, TR1_BLOWS,				 0, "    Blows:"},
-		{1, TR1_MYSTIC_RANGE,			 0, "    Range:"},
+		{1, TR1_BOW_THROWN_RANGE,			 0, "Msl Range:"},
 		{3, TR3_MIGHTY_THROW,			 0, "Mgt Throw:"},
 		{99,0, 0,						"          "}
 	},
@@ -1891,17 +1853,17 @@ static const o_flag_desc pval_flags1_desc[] =
 	{ TR1_BLOWS,      "attacks" },
 	{ TR1_SHOTS,      "shots" },
 	{ TR1_MIGHT,      "might" },
-	{ TR1_MANA,       "mana" },
+	{ TR1_MANA,       "the chance of casting spells without mana" },
 	{ TR1_SP_DUR,     "spell duration" },
 	{ TR1_SP_DAM,     "spell damage" },
 	{ TR1_SP_INF,     "spell influence" },
 	{ TR1_HEALTH,     "health" },
 	{ TR1_MELEE,     "melee" },
-	{ TR1_ARCHERY,     "archery skill" },
+	{ TR1_MISSILE_SKILL,     "archery and throwing skills" },
 	{ TR1_ESCAPES,     "escapes" },
-	{ TR1_THROW_SKILL,     "throwing" },
+	{ TR1_POWDER_RADIUS,     "powder radius" },
 	{ TR1_JUMPING,     "jumping" },
-	{ TR1_MYSTIC_RANGE,     "range with spells and weapons" },
+	{ TR1_BOW_THROWN_RANGE,     "range with archery and thrown weapons" },
 	{ TR1_AMBUSH,     "ambush chance" }
 };
 
@@ -1913,7 +1875,8 @@ static const o_flag_desc weapon_flags_desc[] =
 	{ TR2_WOUNDING,		"hit from this weapon can cause bleeding" },
 	{ TR2_TERROR,		"hit from this weapon can terrify the enemy" },
 	{ TR2_IMPACT,		"hit from this weapon can cause an earthquake" },
-	{ TR2_DEADLY_CRIT,	"critical hit from this weapon does triple damage" }
+	{ TR2_DEADLY_CRIT,	"critical hit from this weapon does triple damage" },
+	{ TR2_KILL_MIST,	"single hit from this weapon is enough to dissolve any mist-creature" }
 };
 
 /*
@@ -1989,6 +1952,7 @@ static const o_flag_desc misc_flags3_desc[] =
 	{ TR3_INVIS,		"invisibility" },
 	{ TR3_LUCK,		"luck finding items" },
 	{ TR3_MIGHTY_THROW,	"double thrown range and thrown weapon damage" },
+	{ TR3_DISSOLVE_MIST,	"a 30% chance per game turn of dissolving mist-critters within 3 squares" },
 };
 
 /*
@@ -2341,13 +2305,9 @@ void analyze_weapon(const object_type *o_ptr)
 
 	text_out("Using this weapon, you are, in your current condition, able to score ");
 	text_out_c(TERM_L_GREEN, format("%d ", blows));
-	if ((blows > 1) && (p_ptr->fencing) && (o_ptr->tval == TV_SWORD))
+	if ((blows > 1) && (cp_ptr->flags & CF_FENCING) && (o_ptr->tval == TV_SWORD))
 	{
-		text_out("blows per round, and ");
-		text_out_c(TERM_L_GREEN, format("%d ", p_ptr->fencing));
-		if (p_ptr->fencing == 1) text_out("extra blow ");
-		else text_out("extra blows ");
-		text_out("against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
+		text_out("blows per round, and one extra blow against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
 	}
 	else if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
 	else if ((p_ptr->fencing) && (o_ptr->tval == TV_SWORD))
@@ -3076,7 +3036,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out_c(TERM_L_GREEN, "3d16");
 					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Lifeforce or Knowledge, chosen at random.  ");
 					text_out("\n\nCircle of Lifeforce restores and sustains STR, DEX, CON, and experience points.  It also cures and protects from the effects of disease.  Undead and demons have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Lifeforce.  ");
-					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
 					break;
 				case POW_POWDER_DARKNESS:
 					text_out("Damage ");
@@ -3095,7 +3055,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "3d16");
 					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Knowledge.  ");
-					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
 					break;
 				case POW_POWDER_FREEZING:
 					text_out("Damage ");
@@ -3109,7 +3069,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("2"));
 					text_out(".  On a critical hit, the powder cloud will spread further.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Knowledge or Permanence, chosen at random.  ");
-					text_out("\n\nCircle of Knowledge gives +7 to Lore calculations.  When your MEM+WIS+bonus reaches 20, 30, 40, or 50, or 60 you gain either more Lore points or better proficiencies.  ");
+					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
 					text_out("\n\nCircle of Permanence will make any positive temporary status effects started inside the circle last until you leave the dungeon level.  ");
 					break;
 				case POW_POWDER_ICE_BLAST:
@@ -3411,7 +3371,7 @@ void list_object(const object_type *o_ptr, int mode)
 				case POW_SHRNAIVITY:
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
-						text_out("When eaten by a Shaman, it restores mana to full level.  ");
+						text_out("When eaten by a Shaman, it restores 20% of your mana.  ");
 					}
 					break;
 				case POW_SHRSTUPIDITY:
@@ -3424,6 +3384,18 @@ void list_object(const object_type *o_ptr, int mode)
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
 						text_out("When eaten by a Shaman, it makes you invisible.  ");
+					}
+					break;
+				case POW_SHRFORTIFICATION:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it raises all your resistances by two.  ");
+					}
+					break;
+				case POW_SHRSHIELD:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, the duration is doubled.  ");
 					}
 					break;
 				case POW_SHRDISEASE:

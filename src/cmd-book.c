@@ -98,7 +98,7 @@ static s16b spell_chance(int book, int spell, int sub, bool music)
 	else handicap = 0;
 	
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - (s_ptr->slevel + handicap));
+	chance -= 2 * (p_ptr->lev - (s_ptr->slevel + handicap));
 	
 	/* Reduce failure rate by stat adjustment */
 	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2)) / 2;
@@ -254,16 +254,6 @@ static void spell_info(char *p, int spell_index)
 	/* XXX XXX Analyze the spell */
 	switch (spell_index)
 	{
-		case POW_HEAL_1:
-			strcpy(p, " heal 5%"); break;
-		case POW_HEAL_2:
-			strcpy(p, " heal 15%"); break;
-		case POW_HEAL_3:
-			strcpy(p, " heal 30%"); break;
-		case POW_HEAL_4:
-			strcpy(p, " heal 60%, any cut"); break;
-		case POW_HEAL_5:
-			strcpy(p, " heal 90%, any cut"); break;
 		case POW_TELE_10: 
 			strcpy(p, " range 10"); break;
 		case POW_TELE_MINOR:
@@ -358,7 +348,7 @@ static void spell_info(char *p, int spell_index)
 		case POW_BLESS_1:
 			dur1 = 12; dur2 = 12; break;
 		case POW_BLESS_2:
-			dur1 = 30; dur2 = 30; break;
+			dur1 = 50; dur2 = 50; break;
 		case POW_BLESS_3:
 			dur1 = 75; dur2 = 75; break;
 		case POW_HEROISM: 
@@ -1734,8 +1724,14 @@ static void do_cast(int book, bool force_menu)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* A spell mastery item may sometimes provide the mana */
+	if (rand_int(100) < p_ptr->mana_add)
+	{
+		message(MSG_EFFECT, 0, "You cast it with mana from an object.");
+	}
+
 	/* Sufficient mana */
-	if (mana <= p_ptr->csp)
+	else if (mana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= mana;

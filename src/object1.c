@@ -340,7 +340,7 @@ static bool object_flavor(int k_idx)
 
 		case TV_LITE:
 		{
-			if (k_ptr->sval > SV_LANTERN)
+			if (k_ptr->sval > SV_ENCHANTED_TORCH)
 			{
 				return (0x10 + lantern_col[k_ptr->sval]);
 			}
@@ -1059,7 +1059,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->a_idx && aware) break;
 
 			/* Hack -- torches and brass lanterns */
-			if ((o_ptr->sval == SV_TORCH) || (o_ptr->sval == SV_LANTERN)) break;
+			if ((o_ptr->sval == SV_WOODEN_TORCH) || (o_ptr->sval == SV_ENCHANTED_TORCH)) break;
 
 			/* Color the object */
 			modstr = lantern_adj[o_ptr->sval];
@@ -1414,6 +1414,34 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_str_macro(t, (k_name + k_ptr->name));
 	}
 
+		/*
+		 * Display "charging" indicator for items with a timeout (other than fuelable lights)
+		 */
+	if ((!known) && (o_ptr->timeout && (o_ptr->tval != TV_LITE)))
+	{
+		/* Stacks of rods/talismans display an exact count of charging rods. */
+		if (o_ptr->number > 1)
+		{
+			/* 
+			 * Find out how many rods are charging, by dividing current timeout 
+			 * by each rod's maximum timeout.  Ensure that any remainder is rounded up.  
+			 */
+			int temp = (o_ptr->timeout + (o_ptr->pval - 1)) / o_ptr->pval;
+			if (temp > o_ptr->number) temp = o_ptr->number;
+
+			/* Display prettily. */
+			object_desc_str_macro(t, " (");
+			object_desc_num_macro(t, temp);
+			object_desc_str_macro(t, " charging)");
+		}
+
+		/* Single rods/talismans, and artifacts */
+		else
+		{
+			object_desc_str_macro(t, " (charging)");
+		}
+	}
+
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
 	{
@@ -1605,11 +1633,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 					case TR1_INFRA:		object_desc_str_macro(t, " infravision"); break;
 					case TR1_SPEED:		object_desc_str_macro(t, " speed"); break;
 					case TR1_MELEE:		object_desc_str_macro(t, " melee"); break;
-					case TR1_ARCHERY:	object_desc_str_macro(t, " archery"); break;
+					case TR1_MISSILE_SKILL:	object_desc_str_macro(t, " missile to hit"); break;
 					case TR1_ESCAPES:	object_desc_str_macro(t, " escapes"); break;
-					case TR1_THROW_SKILL:	object_desc_str_macro(t, " throwing"); break;
+					case TR1_POWDER_RADIUS:	object_desc_str_macro(t, " powder radius"); break;
 					case TR1_JUMPING:	object_desc_str_macro(t, " jumping"); break;
-					case TR1_MYSTIC_RANGE:	object_desc_str_macro(t, " range"); break;
+					case TR1_BOW_THROWN_RANGE:	object_desc_str_macro(t, " range"); break;
 					case TR1_AMBUSH:	object_desc_str_macro(t, " ambush"); break;
 					case TR1_BLOWS:
 					{

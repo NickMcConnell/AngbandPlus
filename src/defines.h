@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.2.3"
+#define VERSION_STRING	"1.3.0"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	2
-#define VERSION_PATCH	3
+#define VERSION_MINOR	3
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /*
@@ -316,7 +316,7 @@
  */
 #define FUEL_TORCH	2000	/* Maximum amount of fuel in a Wooden Torch */
 #define FUEL_ENCHANTED	3000	/* Maximum amount of fuel in an Enchanted Torch */
-#define FUEL_EGO	5000	/* Maximum amount of fuel in any ego torch */
+#define FUEL_EGO	4000	/* Maximum amount of fuel in any ego torch */
 
 /*
  * More maximum values
@@ -325,9 +325,9 @@
 #define MAX_RANGE	18	/* Maximum range (spells, etc) */
 
 /*
- * There is a 1/160 chance per round of creating a new monster
+ * There is a 1/30 chance per round of creating a new monster
  */
-#define MAX_M_ALLOC_CHANCE (adult_nightmare_mode ? 16 : 160)
+#define MAX_M_ALLOC_CHANCE (adult_nightmare_mode ? 16 : 30)
 
 /*
  * The town starts out with 4 residents during the day
@@ -1742,20 +1742,18 @@
 #define SV_DRAGON_POWER			14
 
 /* The sval codes for TV_LITE */
-#define SV_TORCH				0
-#define SV_LANTERN				1
-/* Magic Lanterns start here */
-#define SV_LANTERN_SHADOWS		2
-#define SV_LANTERN_INFRAVISION	3
-#define SV_LANTERN_BRIGHTNESS	4
-#define SV_LANTERN_SIGHT		5
-#define SV_LANTERN_FEARLESS		6
-#define SV_LANTERN_INT			7
-#define SV_LANTERN_WIS			8
-#define SV_LANTERN_TELEPATHY	9
-/* Artifact Lanterns */
-#define SV_LANTERN_TIME			10
-#define SV_LANTERN_CHERADENINE	11
+#define SV_WOODEN_TORCH			0
+#define SV_ENCHANTED_TORCH		1
+/* Ego torches start here */
+#define SV_TORCH_RES_FIRE_COLD		2
+#define SV_TORCH_THIEVERY		3
+#define SV_TORCH_BRIGHTNESS		4
+#define SV_TORCH_SIGHT			5
+#define SV_TORCH_FEARLESS		6
+#define SV_TORCH_MEM			7
+#define SV_TORCH_WIS			8
+#define SV_TORCH_TELEPATHY		9
+#define SV_TORCH_TRUTH			10
 
 /* "Sval" limit -- maximum amount of rechargable lights */
 #define SV_LANTERN_MAX			12
@@ -1803,7 +1801,7 @@
 #define SV_RING_AGGRAVATION			 1
 #define SV_RING_TELEPORTATION		 2
 #define SV_RING_MIGHTY_THROW		 3
-#define SV_RING_RANGE			 4
+#define SV_RING_WIND_CONTROL		 4
 #define SV_RING_SUSTAIN_STR_CHR		 5
 #define SV_RING_SUSTAIN_CON_DEX		 6
 #define SV_RING_SUSTAIN_INT_WIS		 7
@@ -1976,7 +1974,7 @@
 #define SV_SCROLL_TELEPORT_LEVEL		11
 #define SV_SCROLL_WORD_OF_RECALL		12
 #define SV_SCROLL_ALTER_REALITY			13
-#define SV_SCROLL_IDENTIFY				14
+#define SV_SCROLL_LORE				14
 #define SV_SCROLL_STAR_IDENTIFY			15
 #define SV_SCROLL_REMOVE_CURSE			16
 #define SV_SCROLL_STAR_REMOVE_CURSE		17
@@ -2605,7 +2603,7 @@
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
 #define TR1_MELEE			0x00000040L	/* Melee to-hit += "pval" */
-#define TR1_ARCHERY			0x00000080L	/* Archery to-hit += "pval" */
+#define TR1_MISSILE_SKILL		0x00000080L	/* Archery and Thrown to-hit += "pval" */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
 #define TR1_PERCEPTION		0x00000200L	/* Perception += "pval" */
 #define TR1_INFRA			0x00000400L	/* Infra += "pval" */
@@ -2615,12 +2613,12 @@
 #define TR1_SHOTS			0x00004000L	/* Shots += "pval" */
 #define TR1_MANA			0x00008000L	/* Mana += "pval * 10" (at least )*/  
 #define TR1_HEALTH			0x00010000L	/* Health += "pval * 10" (at least) */
-#define TR1_THROW_SKILL			0x00020000L	/* Throwing to-hit += "pval" */
+#define TR1_POWDER_RADIUS		0x00020000L	/* Powder radius += "pval" */
 #define TR1_SP_DUR			0x00040000L /* Increase spell duration */
 #define TR1_SP_DAM			0x00080000L	/* Increase spell damage */
 #define TR1_SP_INF			0x00100000L /* Increase spell influence */
 #define TR1_JUMPING			0x00200000L	/* Jumping += "pval * 5" */
-#define TR1_MYSTIC_RANGE		0x00400000L	/* Spell range, thrown range, archery range += "pval" */
+#define TR1_BOW_THROWN_RANGE		0x00400000L	/* Thrown range and archery range += "pval" */
 #define TR1_MIGHT			0x00800000L	/* Bow Might += "pval" */
 #define TR1_RANGE			0x01000000L /* Bow Range += "pval" */
 #define TR1_AMBUSH			0x02000000L	/* Ambush chance += "pval * 5" */
@@ -2657,7 +2655,7 @@
 #define TR2_XXX14			0x00800000L
 #define TR2_XXX15			0x01000000L
 #define TR2_XXX16			0x02000000L
-#define TR2_XXX17			0x04000000L
+#define TR2_KILL_MIST			0x04000000L	/* Dissolve mist-critters with a single hit */
 #define TR2_DEADLY_CRIT			0x08000000L	/* Critical hits have their damage tripled */
 #define TR2_BLESSED			0x10000000L	/* Weapon has been blessed */
 #define TR2_WOUNDING		0x20000000L	/* Weapon causes cuts */ 
@@ -2685,7 +2683,7 @@
 #define TR3_HIDE_TYPE		0x00040000L	/* Item hides description */
 #define TR3_PRO_SKULTGARD	0x00080000L	/* Protection from Skultgard */
 #define TR3_PRO_AETHER		0x00100000L	/* Protection from Aether */
-#define TR3_XXX1		0x00200000L
+#define TR3_DISSOLVE_MIST	0x00200000L	/* 30% chance of dissolving mist-critters within 3 squares */
 #define TR3_MIGHTY_THROW	0x00400000L	/* Double thrown weapon damage and range */
 #define TR3_TAINT			0x00800000L /* Item is tainted */
 #define TR3_DRAIN_ITEM		0x01000000L	/* Drains other items */ 
@@ -2704,8 +2702,8 @@
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR | \
 	 TR1_STEALTH | TR1_PERCEPTION | TR1_INFRA | TR1_MANA | \
-	 TR1_MELEE | TR1_ARCHERY | TR1_ESCAPES | TR1_THROW_SKILL | TR1_JUMPING | \
-	 TR1_MYSTIC_RANGE | TR1_AMBUSH | \
+	 TR1_MELEE | TR1_MISSILE_SKILL | TR1_ESCAPES | TR1_POWDER_RADIUS | TR1_JUMPING | \
+	 TR1_BOW_THROWN_RANGE | TR1_AMBUSH | \
 	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT | TR1_RANGE | \
 	 TR1_SP_DUR | TR1_SP_DAM )
 
@@ -2717,8 +2715,8 @@
 #define TR1_PVAL_DISPLAY_FLAG \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR | \
 	 TR1_STEALTH | TR1_PERCEPTION | TR1_INFRA | TR1_MANA | \
-	 TR1_MELEE | TR1_ARCHERY | TR1_ESCAPES | TR1_THROW_SKILL | TR1_JUMPING | \
-	 TR1_MYSTIC_RANGE | TR1_AMBUSH | \
+	 TR1_MELEE | TR1_MISSILE_SKILL | TR1_ESCAPES | TR1_POWDER_RADIUS | TR1_JUMPING | \
+	 TR1_BOW_THROWN_RANGE | TR1_AMBUSH | \
 	 TR1_HEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_SP_DUR | TR1_SP_DAM )
 
 /*
@@ -2839,9 +2837,9 @@
 #define RF1_MULTIPLY		0x00000400	/* Monster reproduces */
 #define RF1_XXX3			0x00000800	
 #define RF1_COMPANION		0x00001000	/* Arrive with a unique from same level */
-#define RF1_GRP_9			0x00002000	/* Arrive with a group of 9 */
-#define RF1_GRP_18			0x00004000	/* Arrive with a group of 18 */
-#define RF1_GRP_27			0x00008000	/* Arrive with a group of 24 */
+#define RF1_GRP_6			0x00002000	/* Arrive with a group of 6 */
+#define RF1_GRP_12			0x00004000	/* Arrive with a group of 12 */
+#define RF1_GRP_18			0x00008000	/* Arrive with a group of 18 */
 #define RF1_GRP_ESCORT		0x00010000	/* Arrive with a group of escorts */
 #define RF1_GRP_PEER		0x00020000	/* Arrive with a group of similar ego-type */
 #define RF1_RAND_25			0x00040000	/* Moves randomly (25%) */
@@ -4278,8 +4276,8 @@ extern int PlayerUID;
 #define POW_SHRSTUPIDITY		298
 #define POW_SHRAMNESIA			299
 #define POW_SHRDISEASE			300
-#define POW_SHRCURE_POISON		301
-#define POW_SHRCURE_DISEASE		302
+#define POW_SHRANTIDOTE			301
+#define POW_SHRFORTIFICATION		302
 #define POW_SHRCURE_CONFUSION		303
 #define POW_SHRHEAL_1			304
 #define POW_SHRHEAL_2			305
@@ -4332,7 +4330,7 @@ extern int PlayerUID;
 #define POW_EDEN			352
 #define POW_STORM_SHIELD		353
 #define POW_DETECT_FORCE		354
-#define POW_DETECT_LIFE			355
+#define POW_LORE			355
 #define POW_GROWTH			356
 #define POW_DRYAD			357
 #define POW_CURSE_MONSTER		358
@@ -4346,7 +4344,7 @@ extern int PlayerUID;
 #define POW_FAUN_FORM			366
 #define POW_GOBLIN_FORM			367
 #define POW_GHOUL_FORM			368
-#define POW_FENCING			369
+#define POW_IDENTIFY_SKILL		369
 #define POW_ARCHERY			370
 #define POW_FLAMING_HANDS		371
 #define POW_ICY_HANDS			372

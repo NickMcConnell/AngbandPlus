@@ -325,62 +325,55 @@ static void prt_proficiency(void)
 
 	offset = 9;
 
-	/* Temp Lore bonus when near a bookshelf & inside a room */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-	{
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-	}
-
-	/* Temp Lore bonus when on a Circle of Knowledge */
-	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
-
 	/* Lore */
-	if (p_ptr->lore)
+	if (p_ptr->lore_uses < 0)
 	{
-		if (p_ptr->lore_uses == 0)
-		{
-			color = TERM_L_GREEN;
-		}
-		else if (p_ptr->lore_uses < p_ptr->lore)
-		{
-			color = TERM_YELLOW;
-		}
-		else
-		{
-			color = TERM_RED;
-		}
-
-		if ((p_stat(A_INT) + p_stat(A_WIS) + temp_lore_bonus) >= 30)
-		{
-			put_str("*Lore*  ", ROW_LORE, COL_LORE);
-		}
-		else put_str("Lore  ", ROW_LORE, COL_LORE);
-
-		sprintf(tmp, "%d/%d", ((p_ptr->lore - p_ptr->lore_uses >= 0) ? p_ptr->lore - p_ptr->lore_uses : 0), p_ptr->lore);
-		c_put_str(color, tmp, ROW_LORE, COL_LORE + offset);
+		color = TERM_VIOLET;
+	}
+	else if (p_ptr->lore_uses == 0)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->lore_uses < p_ptr->lore)
+	{
+		color = TERM_YELLOW;
 	}
 	else
 	{
-		put_str("             ", ROW_LORE, COL_LORE);
+		color = TERM_RED;
+	}
+
+	put_str("identify", ROW_LORE, COL_LORE);
+
+	sprintf(tmp, "%d/%d", ((p_ptr->lore - p_ptr->lore_uses >= 0) ? p_ptr->lore - p_ptr->lore_uses : 0), p_ptr->lore);
+	c_put_str(color, tmp, ROW_LORE, COL_LORE + offset);
+
+	/* Does any goddess grant Berserk power? */
+	bool berserk = FALSE;
+	if (p_ptr->obsession_status >= 2)
+	{
+		if (p_ptr->obsession_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->obsession_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->conflict_status >= 2)
+	{
+		if (p_ptr->conflict_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->conflict_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->purity_status >= 2)
+	{
+		if (p_ptr->purity_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->purity_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->transformation_status >= 2)
+	{
+		if (p_ptr->transformation_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->transformation_bonus_b == DEITY_BERSERK) berserk = TRUE;
+	}
+	if (p_ptr->deceit_status >= 2)
+	{
+		if (p_ptr->deceit_bonus_a == DEITY_BERSERK) berserk = TRUE;
+		if (p_ptr->deceit_bonus_b == DEITY_BERSERK) berserk = TRUE;
 	}
 
 	/* Reserves */
@@ -399,7 +392,15 @@ static void prt_proficiency(void)
 			color = TERM_RED;
 		}
 
-		put_str("Reserves  ", ROW_RESERVES, COL_RESERVES);
+		if (berserk)
+		{
+			put_str("berserk   ", ROW_RESERVES, COL_RESERVES);
+		}
+		else
+		{
+			put_str("recover   ", ROW_RESERVES, COL_RESERVES);
+		}
+
 		/* sprintf(tmp, "%d/%d", p_ptr->chp); */
 		sprintf(tmp, "%d/%d", ((p_ptr->reserves - p_ptr->reserves_uses >= 0) ? p_ptr->reserves - p_ptr->reserves_uses : 0), p_ptr->reserves);
 		c_put_str(color, tmp, ROW_RESERVES, COL_RESERVES + offset);
@@ -425,7 +426,7 @@ static void prt_proficiency(void)
 			color = TERM_RED;
 		}
 
-		put_str("Escapes  ", ROW_ESCAPES, COL_ESCAPES);
+		put_str("escape   ", ROW_ESCAPES, COL_ESCAPES);
 		sprintf(tmp, "%d/%d", ((p_ptr->escapes - p_ptr->escapes_uses >= 0) ? p_ptr->escapes - p_ptr->escapes_uses : 0), p_ptr->escapes);
 		c_put_str(color, tmp, ROW_ESCAPES, COL_ESCAPES + offset);
 	}
@@ -1515,6 +1516,9 @@ static void calc_spells(void)
 	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
 	num_allowed = ((adj_mag_study[stat_factor] * 
 		levels) / ((cp_ptr->flags & CF_EXTRA_SPELL) ? 33: 50));
+
+	/* At minimum you get one spell */
+	if (num_allowed < 1) num_allowed = 1;
 		
 	max_available = 0;
 
@@ -1726,14 +1730,85 @@ static void calc_spells(void)
 }
 
 /*
+ * Add mana for one character level.
+ *
+ */
+int add_mana_for_level(int current_level)
+{
+	int h, bonus;
+	int msp = 0;
+	int levels = 0;
+
+	/* Hack -- Must be literate */
+	if (!spellcaster()) return;
+
+	/* Extract "effective" current level */
+	for (h = 0; h < SV_BOOK_MAX; h++)
+	{
+		/* Skip books we can't use */
+		if (!cp_ptr->spell_book[h]) continue;
+
+		if ((current_level - cp_ptr->spell_handicap[h] + 1)>levels) 
+			levels = (current_level - cp_ptr->spell_handicap[h] + 1);
+	}
+
+	/* Not yet any mana */
+	if (levels < 1) return (0);
+
+	/* The amount to add is 1.7 * level */
+	msp += 1.7 * levels;
+
+	/* Give +2 mana to everyone with any mana */
+	if (levels == 1) msp += 2;
+
+	/* Give +2 mana for the first four levels */
+	if (levels < 5) msp += 2;
+
+	/* Pure spellcasters get +2 per level. */
+	if (levels == current_level) msp += 2;
+	/* Ranger */
+	else if ((levels + 2 == current_level) && (levels > 4)) msp -= ((levels - 2) / 2);
+	/* Shaman, Spellsword */
+	else if (levels > 14) msp -= ((levels - 7) / 2);
+
+	/* Mystics get some bonus mana */
+	if (cp_ptr->flags & CF_EXTRA_MANA) msp += (levels / 4) + 1;
+
+	return (msp);
+}
+
+/* Give mana for each experience level */
+void give_mana(void)
+{
+	int clevel = 0;
+	p_ptr->csp = 0;
+
+	if (spellcaster())
+	{
+		for (clevel = 1; clevel <= p_ptr->lev; clevel ++)
+		{
+			p_ptr->csp +=  add_mana_for_level(clevel);
+		}
+	}
+
+	/* Display mana later */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/*
  * Calculate maximum mana.  You do not need to know any spells.
  *
  * This function induces status messages.
  */
 static void calc_mana(void)
 {
-	int h, msp, levels, bonus;
+	int h, levels, bonus;
+	int msp = 0;
 	int stat_factor;
+	int x;
 
 	/* Hack -- Must be literate */
 	if (!spellcaster()) return;
@@ -1753,37 +1828,48 @@ static void calc_mana(void)
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
-	/* Extract total mana */
-	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2))/2;
-	if (cp_ptr->flags & CF_EXTRA_MANA) 
-		msp = (adj_mag_mana[stat_factor] + adj_mag_extra_mana[stat_factor]) * levels / 25;
-	else msp = adj_mag_mana[stat_factor] * levels / 25;
-	
-	/* Hack -- usually add one mana */
-	if (msp) msp++;
-
-	/* Mana bonuses */
-	if (p_ptr->mana_add)
+	/* Add mana to the total for each level */
+	for (x = 1; x <= levels; x++)
 	{
-		/* Each point of bonus = 5% of hitpoint (note - redefinition of bonus) */
+		/* The amount to add is 1.7 * level */
+		msp += 1.7 * x;
+
+		/* Give +2 mana to everyone with any mana */
+		if (x == 1) msp += 2;
+
+		/* Give +2 mana for the first four levels */
+		if (x < 5) msp += 2;
+
+		/* Pure spellcasters get + 2 per level. */
+		if (levels == p_ptr->lev) msp += 2;
+		/* Ranger */
+		else if ((levels + 2 == p_ptr->lev) && (x > 4)) msp -= ((x - 2) / 2);
+		/* Shaman, Spellsword */
+		else if (x > 14) msp -= ((x - 7) / 2);
+
+		/* Mystics get some bonus mana */
+		if (cp_ptr->flags & CF_EXTRA_MANA) msp += (x / 4) + 1;
+	}
+
+	/* Mana bonuses
+	if (p_ptr->mana_add)
+	{ */
+		/* Each point of bonus = 5% of hitpoint (note - redefinition of bonus)
 		bonus = (p_ptr->mana_add * msp * 5) / 100;
 
 		if (p_ptr->mana_add > 0)
-		{
-			/* If the bonus is too low, increase */
+		{ */
+			/* If the bonus is too low, increase
 			if (bonus < (p_ptr->mana_add * 10)) bonus = p_ptr->mana_add * 10;
 		}
 		else
-		{
-			/* If the penalty is too low, increase */
+		{ */
+			/* If the penalty is too low, increase
 			if (bonus > (p_ptr->mana_add * 10)) bonus = p_ptr->mana_add * 10;
 		}
 
 		msp += bonus;
-	}
-
-	/* Mana can never be negative */
-	if (msp < 0) msp = 0;
+	} */
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1791,12 +1877,12 @@ static void calc_mana(void)
 		/* Save new limit */
 		p_ptr->msp = msp;
 
-		/* Enforce new limit */
+		/* Enforce new limit
 		if (p_ptr->csp >= msp)
 		{
 			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
-		}
+		} */
 
 		/* Display mana later */
 		p_ptr->redraw |= (PR_MANA);
@@ -2248,6 +2334,7 @@ static void calc_bonuses(void)
 	p_ptr->spell_range = 0;
 	p_ptr->range_bonus = 0;
 	p_ptr->ambush_bonus = 0;
+	p_ptr->powder_radius = 0;
 	p_ptr->digging = 0;
 	temp_lore_bonus = 0;
 
@@ -2277,6 +2364,7 @@ static void calc_bonuses(void)
 	p_ptr->bravery = FALSE;
 	p_ptr->no_blind = FALSE;
 	p_ptr->luck = FALSE;
+	p_ptr->dissolve_mist = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
@@ -2594,34 +2682,6 @@ static void calc_bonuses(void)
 		p_ptr->sustain_chr = TRUE;
 	}
 
-	/* Temp Lore bonus when near a bookshelf & inside a room */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-	{
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-	}
-
-	/* Temp Lore bonus when on a Circle of Knowledge */
-	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
-
 	/* Circle of Illusions */
 	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_ILLUSIONS)
 	{
@@ -2657,7 +2717,7 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
 		/* Affect mana and health */
-		if (f1 & (TR1_MANA)) p_ptr->mana_add += o_ptr->pval;
+		if (f1 & (TR1_MANA)) p_ptr->mana_add += 5 * o_ptr->pval;
 		if (f1 & (TR1_HEALTH)) p_ptr->hp_add += o_ptr->pval;
 
 		/* Affect stealth */
@@ -2679,16 +2739,11 @@ static void calc_bonuses(void)
 			p_ptr->dis_to_h_melee += o_ptr->pval;
 		}
 
-		/* Affect archery */
-		if (f1 & (TR1_ARCHERY))
+		/* Affect archery and throwing */
+		if (f1 & (TR1_MISSILE_SKILL))
 		{
 			p_ptr->to_h_shooting += o_ptr->pval;
 			p_ptr->dis_to_h_shooting += o_ptr->pval;
-		}
-
-		/* Affect throwing */
-		if (f1 & (TR1_THROW_SKILL))
-		{
 			p_ptr->to_h_throwing += o_ptr->pval;
 			p_ptr->dis_to_h_throwing += o_ptr->pval;
 		}
@@ -2696,8 +2751,8 @@ static void calc_bonuses(void)
 		/* Affect jumping */
 		if (f1 & (TR1_JUMPING)) p_ptr->skill[SK_MOB] += (o_ptr->pval * 5);
 
-		/* Affect bow, thrown, and spell range, plus archery and throwing to hit */
-		if (f1 & (TR1_MYSTIC_RANGE))
+		/* Affect bow and thrown weapon range */
+		if (f1 & (TR1_BOW_THROWN_RANGE))
 		{
 			p_ptr->range_bonus += o_ptr->pval;
 			p_ptr->spell_range += o_ptr->pval;
@@ -2705,6 +2760,9 @@ static void calc_bonuses(void)
 
 		/* Affect ambush chance */
 		if (f1 & (TR1_AMBUSH)) p_ptr->ambush_bonus += (o_ptr->pval * 5);
+
+		/* Affect powder radius */
+		if (f1 & (TR1_POWDER_RADIUS)) p_ptr->powder_radius += o_ptr->pval;
 
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
@@ -2733,6 +2791,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
 		if (f3 & (TR3_LUCK)) p_ptr->luck = TRUE;
+		if (f3 & (TR3_DISSOLVE_MIST)) p_ptr->dissolve_mist = TRUE;
 
 		/* "semi-immunities" */
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
@@ -2974,8 +3033,8 @@ static void calc_bonuses(void)
 	/* Alertness */
 	if (p_ptr->alertness)
 	{
-		/* Each point of Alertness also gives a +30 bonus to Perception when detecting traps & runes */
-		p_ptr->skill[SK_SAV] += p_ptr->alertness * 15;
+		/* Each point of Alertness also gives a +15 bonus to Perception when detecting traps & runes */
+		p_ptr->skill[SK_SAV] += p_ptr->alertness * 10;
 	}
 
 	/* Temporary "fast" */
@@ -3164,11 +3223,7 @@ static void calc_bonuses(void)
 	p_ptr->spell_range += adj_chr_range[p_stat(A_CHR)];
 
 	/* Calculate Lore */
-	if ((p_stat(A_INT) + p_stat(A_WIS)) + temp_lore_bonus >= 60) p_ptr->lore = 4;
-	else if ((p_stat(A_INT) + p_stat(A_WIS)) + temp_lore_bonus >= 50) p_ptr->lore = 3;
-	else if ((p_stat(A_INT) + p_stat(A_WIS)) + temp_lore_bonus >= 40) p_ptr->lore = 2;
-	else if ((p_stat(A_INT) + p_stat(A_WIS)) + temp_lore_bonus >= 20) p_ptr->lore = 1;
-	else p_ptr->lore = 0;
+	p_ptr->lore = 2;
 
 	/*** Analyze current bow ***/
 

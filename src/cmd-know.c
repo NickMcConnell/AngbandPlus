@@ -1590,7 +1590,7 @@ static void do_cmd_knowledge_alchemy(void)
 	/* Failure */
 	if (!fff)
 	{
-		msg_print("Could not open a temporary file to show the contents of your home.");
+		msg_print("Could not open a temporary file to show the alchemical combinations.");
 		return;
 	}
 
@@ -1611,6 +1611,102 @@ static void do_cmd_knowledge_alchemy(void)
 
 	/* Display the file contents */
 	show_file(file_name, "Known Alchemical Combinations", 0, 2);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);
+}
+
+static void show_deity_bonuses(int bonus1, int bonus2, FILE *fff)
+{
+	if (bonus1 == DEITY_STR) fprintf(fff, "STR++");
+	else if (bonus1 == DEITY_INT) fprintf(fff, "MEM++");
+	else if (bonus1 == DEITY_WIS) fprintf(fff, "WIS++");
+	else if (bonus1 == DEITY_DEX) fprintf(fff, "DEX++");
+	else if (bonus1 == DEITY_CON) fprintf(fff, "CON++");
+	else if (bonus1 == DEITY_CHR) fprintf(fff, "PRE++");
+	else if (bonus1 == DEITY_BERSERK) fprintf(fff, "Ber++");
+	else if (bonus1 == DEITY_ESCAPE) fprintf(fff, "Esc++");
+	else if (bonus1 == DEITY_AC) fprintf(fff, "Arm++");
+	else if (bonus1 == DEITY_RANGE) fprintf(fff, "Rng++");
+	else if (bonus1 == DEITY_STEALTH) fprintf(fff, "Ste++");
+
+	if (bonus1 == bonus2) fprintf(fff, "+\n\n");
+	else if (bonus2 == DEITY_STR) fprintf(fff, " STR+\n\n");
+	else if (bonus2 == DEITY_INT) fprintf(fff, " MEM+\n\n");
+	else if (bonus2 == DEITY_WIS) fprintf(fff, " WIS+\n\n");
+	else if (bonus2 == DEITY_DEX) fprintf(fff, " DEX+\n\n");
+	else if (bonus2 == DEITY_CON) fprintf(fff, " CON+\n\n");
+	else if (bonus2 == DEITY_CHR) fprintf(fff, " PRE+\n\n");
+	else if (bonus2 == DEITY_BERSERK) fprintf(fff, " Ber+\n\n");
+	else if (bonus2 == DEITY_ESCAPE) fprintf(fff, " Esc+\n\n");
+	else if (bonus2 == DEITY_AC) fprintf(fff, " Arm+\n\n");
+	else if (bonus2 == DEITY_RANGE) fprintf(fff, " Rng+\n\n");
+	else if (bonus2 == DEITY_STEALTH) fprintf(fff, " Ste+\n\n");
+}
+
+/*
+ * Display known alchemical combinations
+ */
+static void do_cmd_knowledge_goddesses(void)
+{
+	int i;
+
+	FILE *fff;
+
+	char line[80];
+	char file_name[1024];
+
+	/* Temporary file */
+	fff = my_fopen_temp(file_name, sizeof(file_name));
+ 
+	/* Failure */
+	if (!fff)
+	{
+		msg_print("Could not open a temporary file to show the goddesses.");
+		return;
+	}
+
+	/* Print a message */
+	fprintf(fff, "Beleth, the Queen of Hell (obsession)\n");
+	if (p_ptr->obsession_status > 0)
+	{
+		show_deity_bonuses(p_ptr->obsession_bonus_a, p_ptr->obsession_bonus_b, fff);
+	}
+	else fprintf(fff, "unknown\n\n");
+
+	fprintf(fff, "Discordia, the Warrior (conflict)\n");
+	if (p_ptr->conflict_status > 0)
+	{
+		show_deity_bonuses(p_ptr->conflict_bonus_a, p_ptr->conflict_bonus_b, fff);
+	}
+	else fprintf(fff, "unknown\n\n");
+
+	fprintf(fff, "Eostre, the Maiden of Spring (purity)\n");
+	if (p_ptr->purity_status > 0)
+	{
+		show_deity_bonuses(p_ptr->purity_bonus_a, p_ptr->purity_bonus_b, fff);
+	}
+	else fprintf(fff, "unknown\n\n");
+
+	fprintf(fff, "Cyrridven, the Crone (transformation)\n");
+	if (p_ptr->transformation_status > 0)
+	{
+		show_deity_bonuses(p_ptr->transformation_bonus_a, p_ptr->transformation_bonus_b, fff);
+	}
+	else fprintf(fff, "unknown\n\n");
+
+	fprintf(fff, "Laverna, the Mistress of the Underworld (secrets)\n");
+	if (p_ptr->deceit_status > 0)
+	{
+		show_deity_bonuses(p_ptr->deceit_bonus_a, p_ptr->deceit_bonus_b, fff);
+	}
+	else fprintf(fff, "unknown\n\n");
+
+	/* Close the file */
+	(void)my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "The Five Goddesses", 0, 2);
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
@@ -1696,11 +1792,12 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
-		prt("(4) Display known alchemical combinations", 7, 5);
-		prt("(5) Display contents of your home", 8, 5);
+		prt("(4) Display your knowledge about the goddesses", 7, 5);
+		prt("(5) Display known alchemical combinations", 8, 5);
+		prt("(6) Display contents of your home", 9, 5);
 
 		/* Prompt */
-		prt("Command: ", 10, 0);
+		prt("Command: ", 11, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -1729,15 +1826,22 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_objects();
 		}
 
-		/* Alchemy */
+		/* Goddesses */
 		else if (ch == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_goddesses();
+		}
+
+		/* Alchemy */
+		else if (ch == '5')
 		{
 			/* Spawn */
 			do_cmd_knowledge_alchemy();
 		}
 
-		/* Alchemy */
-		else if (ch == '5')
+		/* Home */
+		else if (ch == '6')
 		{
 			/* Spawn */
 			do_cmd_knowledge_home();

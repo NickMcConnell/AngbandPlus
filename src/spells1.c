@@ -536,13 +536,11 @@ void teleport_player_level(void)
 			p_ptr->depth--;
 			p_ptr->min_depth++;
 
-			/* Reset Proficiency uses */
+			/* Reset Proficiency uses and Mana */
 			p_ptr->lore_uses = 0;
 			p_ptr->reserves_uses = 0;
 			p_ptr->escapes_uses = 0;
-
-			/* Reset monster summoning power */
-			p_ptr->monster_summon_power = 0;
+			give_mana();
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -555,10 +553,11 @@ void teleport_player_level(void)
 
 		/* Reset some things */
 
-		/* Reset Proficiency uses */
+		/* Reset Proficiency uses and Mana */
 		p_ptr->lore_uses = 0;
 		p_ptr->reserves_uses = 0;
 		p_ptr->escapes_uses = 0;
+		give_mana();
 
 		/* Reset coordinates to Circle of Recall and Circle of Nexus */
 		p_ptr->recall_y = 0;
@@ -570,9 +569,6 @@ void teleport_player_level(void)
 		p_ptr->alertness = 0;
 		p_ptr->fencing = 0;
 		p_ptr->archery = 0;
-
-		/* Reset monster summon power */
-		p_ptr->monster_summon_power = 0;
 
 		/* Reset permanent spells */
 		p_ptr->tim_see_invis_perm = 0;
@@ -596,6 +592,9 @@ void teleport_player_level(void)
 		p_ptr->sp_dur_perm = 0;
 		p_ptr->tim_sp_dam_perm = 0;
 		p_ptr->tim_sp_inf_perm = 0;
+
+		int i;
+		for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
 	}
 
 	else if ((rand_int(100) < 50) && (p_ptr->depth > p_ptr->min_depth +1))
@@ -631,9 +630,6 @@ void teleport_player_level(void)
 	/* Reset alertness */
 	p_ptr->alertness = 0;
 
-	/* Reset monster summon power */
-	p_ptr->monster_summon_power = 0;
-
 	/* Reset permanent spells */
 	p_ptr->tim_see_invis_perm = 0;
 	p_ptr->tim_invis_perm = 0;
@@ -656,6 +652,9 @@ void teleport_player_level(void)
 	p_ptr->sp_dur_perm = 0;
 	p_ptr->tim_sp_dam_perm = 0;
 	p_ptr->tim_sp_inf_perm = 0;
+
+	int i;
+	for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
 }
 
 /*
@@ -3613,7 +3612,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				delete_monster_idx(cave_m_idx[y][x]);
 
 				/* Create a new monster (no groups) */
-				(void)place_monster_aux(y, x, tmp, 0, FALSE, FALSE, PLACE_NO_UNIQUE);
+				(void)place_monster_aux(y, x, tmp, 0, FALSE, FALSE, FALSE, PLACE_NO_UNIQUE);
 
 				/* Hack -- Assume success XXX XXX XXX */
 

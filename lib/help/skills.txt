@@ -65,14 +65,14 @@ are unmodified percentage rolls under skill score. Read on for details.
 You make Alchemy skills checks to:
 
 - find out one of the potion's ingredients when drinking it.
-- fully identify a potion, including both of its ingredients, with the Greater
-  Lore proficiency (a)nalyse item (you need MEM+WIS 30 or more to access
-  Greater Lore proficiencies)
-- mix a potion.
+- identify an item by using an identify point with the 'p'roficiency command
+- identify pack in a Circle of Knowledge, one check per item
+- fully identify an item in a Circle of Knowledge
+- mix a potion
 - complete an alchemical circle.
 - disarm a magical trap.
-- master a warding rune in a wall. Use the (D)isarm command. Mastering the rune
-  means that you can switch the rune on or off by (D)isarming it again.
+- master a warding rune in a wall. Use the 'D'isarm command. Mastering the rune
+  means that you can switch the rune on or off by 'D'isarming it again.
   (Read the chapter about Warding Runes below.)
 
 
@@ -85,7 +85,7 @@ You make Jumping skill checks to:
 - deal double damage when charging at a monster with a large weapon
 - dodge thrown weapons and missiles (but not magical bolts)
 - avoid theft
-- avoid some traps
+- avoid some traps (like the darts that drain stat points)
 
 Most monsters have Jumping at 40%. Some monsters, like golems and orcs, are bad
 at jumping -- their score is 20%. If you aren't wearing a too heavy armor for

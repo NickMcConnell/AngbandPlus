@@ -131,55 +131,6 @@ static void regenhp(int percent)
 }
 
 /*
- * Regenerate mana points
- */
-static void regenmana(int percent)
-{
-	s32b new_mana, new_mana_frac;
-	int old_csp;
-
-	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
-
-	/* Minimum */
-	if (new_mana < (PY_REGEN_MNBASE * 10)) new_mana = PY_REGEN_MNBASE * 10;
-
-	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
-	/* check for overflow */
-	if ((p_ptr->csp < 0) && (old_csp > 0))
-	{
-		p_ptr->csp = MAX_SHORT;
-	}
-	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
-	if (new_mana_frac >= 0x10000L)
-	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
-		p_ptr->csp++;
-	}
-	else
-	{
-		p_ptr->csp_frac = (u16b)new_mana_frac;
-	}
-
-	/* Must set frac to zero even if equal */
-	if (p_ptr->csp >= p_ptr->msp)
-	{
-		p_ptr->csp = p_ptr->msp;
-		p_ptr->csp_frac = 0;
-	}
-
-	/* Redraw mana */
-	if (old_csp != p_ptr->csp)
-	{
-		/* Redraw */
-		p_ptr->redraw |= (PR_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-	}
-}
-
-/*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -304,13 +255,24 @@ static void process_world(void)
 
 	/*** Process the monsters ***/
 
-	/* Check for creature generation */
-	/* No creature generation in FayAngband! */
-/*	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)					*/
-/*	{									*/
+	/* Decrease the monster generation counter */
+	if (randint(1000) < p_ptr->monster_counter)
+	{
+		p_ptr->monster_counter --;
+
+		if (p_ptr->monster_counter == 1)
+		{
+			message(MSG_EFFECT, 0, "The Mist has gone crazy... Mist-creatures are taking shape everywhere!");
+			disturb(0);
+		}
+	}
+
+	/* Check for creature generation -- in the dungeon monsters sometimes get shaped out of the mist. */
+	if ((randint(p_ptr->monster_counter) == 1) && (p_ptr->depth > 0))
+	{
 		/* Make a new monster */
-/*		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5);	*/
-/*	}									*/
+		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5, TRUE);
+	}
 
 	/*** Damage over Time ***/
 
@@ -381,11 +343,11 @@ static void process_world(void)
 	/* Resting
 	if (p_ptr->resting) regen_amount = regen_amount * 2; */
 
-	/* Regenerate the mana  - Stunning interferes with mana regeneration*/
+	/* Regenerate the mana  - Stunning interferes with mana regeneration
 	if ((p_ptr->csp < p_ptr->msp) && !p_ptr->stun)
 	{
 		regenmana(regen_amount);
-	}
+	} */
 
 	/* Various things interfere with healing */
 	if (p_ptr->poisoned) regen_amount = 0;
@@ -492,7 +454,7 @@ static void process_world(void)
 	/* Timed Resistances */
 	for (i = 0; i < RS_MAX; i++)
 	{
-		if (p_ptr->tim_res[i])	(void)set_tim_res(i, p_ptr->tim_res[i] - 1);
+		if ((p_ptr->tim_res[i]) && (!(p_ptr->tim_res_perm[i]))) (void)set_tim_res(i, p_ptr->tim_res[i] - 1);
 	}
 
 	/*** Stuff with CON-related healing ***/
@@ -1077,7 +1039,7 @@ static void process_player(void)
 		if (p_ptr->resting == -1)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp))
+			if (p_ptr->chp == p_ptr->mhp)
 			{
 				disturb(0);
 			}
@@ -1108,7 +1070,7 @@ static void process_player(void)
 			}
 
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp) &&
+			if ((p_ptr->chp == p_ptr->mhp) &&
 			    !p_ptr->blind && !confused && !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !cut && !p_ptr->slow && !p_ptr->paralyzed &&
 			    !hallu && !p_ptr->word_recall)
@@ -1125,14 +1087,14 @@ static void process_player(void)
 			}
 		}
 
-		/* Rest spell points */
+		/* Rest spell points
 		else if (p_ptr->resting == -4)
 		{
 			if (p_ptr->csp == p_ptr->msp)
 			{
 				disturb(0);
 			}
-		}
+		} */
 	}
 
 	/* Handle "abort" */
@@ -1595,6 +1557,9 @@ static void dungeon(void)
 
 	/* Refresh */
 	Term_fresh();
+
+	/* Reset the monster counter */
+	p_ptr->monster_counter = 250;
 
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;

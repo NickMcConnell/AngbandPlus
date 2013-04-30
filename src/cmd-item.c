@@ -435,7 +435,7 @@ void do_cmd_drop(void)
 	}
 
 	/* Is a religion specialist dropping a torch on an altar? */
-	else if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT) && ((o_ptr->sval == SV_TORCH) || (o_ptr->sval == SV_LANTERN)) && (cp_ptr->flags & CF_RELIGION_EXPERT))
+	else if ((t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx >= WG_ALTAR_OBSESSION) && (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx <= WG_ALTAR_DECEIT) && (o_ptr->tval == TV_LITE) && (cp_ptr->flags & CF_RELIGION_EXPERT))
 	{
 		amt = 1;
 	}

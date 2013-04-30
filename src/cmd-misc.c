@@ -1605,39 +1605,14 @@ void do_cmd_view_map(void)
  */
 void do_cmd_proficiency(void)
 {
-	int lore, reserves, escapes, superlore;
+	int lore, reserves, escapes;
 	bool ignore_me;
 	int use_charge = 0;
-	int temp_lore_bonus = 0;
+	bool knowledge = FALSE;
 	bool berserk = 0;
 
-	/* Temp Lore bonus when near a bookshelf & inside a room */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-	{
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_EMPTY) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_OPEN_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_CLOSED_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py + 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py - 1][p_ptr->px]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px + 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-		if (t_list[cave_t_idx[p_ptr->py][p_ptr->px - 1]].w_idx == WG_SHELF_SECRET_DOOR) temp_lore_bonus = 3;
-	}
-
-	/* Temp Lore bonus when on a Circle of Knowledge */
-	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) temp_lore_bonus += 7;
+	/* Different identify options in a Circle of Knowledge */
+	if (t_list[cave_t_idx[p_ptr->py][p_ptr->px]].w_idx == WG_CIRCLE_OF_KNOWLEDGE) knowledge = TRUE;
 
 	/* Does any goddess grant Berserk power? */
 	if (p_ptr->obsession_status >= 2)
@@ -1669,116 +1644,54 @@ void do_cmd_proficiency(void)
 	lore = p_ptr->lore - p_ptr->lore_uses;
 	reserves = p_ptr->reserves - p_ptr->reserves_uses;
 	escapes = p_ptr->escapes - p_ptr->escapes_uses;
-	superlore = 0;
-	if (p_stat(A_INT) + p_stat(A_WIS) + temp_lore_bonus >= 30) superlore = 1;
 
-	/* Templars have different Lore proficiencies */
-	if (cp_ptr->flags & CF_FENCING)
+	if ((lore > 0) && (knowledge))
 	{
-		if ((lore > 0) && (superlore))
+		if ((reserves > 0) && (berserk))
 		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Pick: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Pick: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Which one: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item, (e)scape?", 0, 0);
-			else prt ("Use which proficiency: (a)rchery, (f)encing, (i)dentify pack, (s)tudy item?", 0, 0);
+			if (escapes > 0) prt ("Use which proficiency: (i)dentify pack, (f)ully identify, (b)erserk, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (i)dentify pack, (f)ully identify, (b)erserk?", 0 , 0);
 		}
-		else if (lore > 0)
+		else if (reserves > 0)
 		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (f)encing, (i)dentify, (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (f)encing, (i)dentify, (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Use which proficiency: (f)encing, (i)dentify, (e)scape?", 0, 0);
-			else prt ("Use which proficiency: (f)encing, (i)dentify?", 0, 0);
+			if (escapes > 0) prt ("Use which proficiency: (i)dentify pack, (f)ully identify, (r)ecover, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (i)dentify pack, (f)ully identify, (r)ecover?", 0 , 0);
 		}
-		else
-		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Use which proficiency: (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Use which proficiency: (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Use which proficiency: (e)scape?", 0, 0);
-			else
-			{
-				prt ("You can't use any proficiencies right now.", 0, 0);
-				return;
-			}
-		}
-
-
+		else if (escapes > 0) prt ("Use which proficiency: (i)dentify pack, (f)ully identify, (e)scape?", 0, 0);
+		else prt ("Use which proficiency: (i)dentify pack, (f)ully identify?", 0, 0);
 	}
-
-	/* Non-Templars */
+	else if (lore > 0)
+	{
+		if ((reserves > 0) && (berserk))
+		{
+			if (escapes > 0) prt ("Use which proficiency: (i)dentify, (b)erserk, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (i)dentify, (b)erserk?", 0 , 0);
+		}
+		else if (reserves > 0)
+		{
+			if (escapes > 0) prt ("Use which proficiency: (i)dentify, (r)ecover, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (i)dentify, (r)ecover?", 0 , 0);
+		}
+		else if (escapes > 0) prt ("Use which proficiency: (i)dentify, (e)scape?", 0, 0);
+		else prt ("Use which proficiency: (i)dentify?", 0, 0);
+	}
 	else
 	{
-		if ((lore > 0) && (superlore))
+		if ((reserves > 0) && (berserk))
 		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Which one: (a)lertness, (i)dentify pack, (s)tudy item, (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Which one: (a)lertness, (i)dentify pack, (s)tudy item, (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Which proficiency: (a)lertness, (i)dentify pack, (s)tudy item, (e)scape?", 0, 0);
-			else prt ("Use which proficiency: (a)lertness, (i)dentify pack, (s)tudy item?", 0, 0);
+			if (escapes > 0) prt ("Use which proficiency: (b)erserk, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (b)erserk?", 0 , 0);
 		}
-		else if (lore > 0)
+		else if (reserves > 0)
 		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (a)lertness, (i)dentify, (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (a)lertness, (i)dentify, (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Use which proficiency: (a)lertness, (i)dentify, (e)scape?", 0, 0);
-			else prt ("Use which proficiency: (a)lertness, (i)dentify?", 0, 0);
+			if (escapes > 0) prt ("Use which proficiency: (r)ecover, (e)scape?", 0 , 0);
+			else prt ("Use which proficiency: (r)ecover?", 0 , 0);
 		}
+		else if (escapes > 0) prt ("Use which proficiency: (e)scape?", 0, 0);
 		else
 		{
-			if ((reserves > 0) && (berserk))
-			{
-				if (escapes > 0) prt ("Use which proficiency: (b)erserk, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (b)erserk?", 0 , 0);
-			}
-			else if (reserves > 0)
-			{
-				if (escapes > 0) prt ("Use which proficiency: (r)ecover, (e)scape?", 0 , 0);
-				else prt ("Use which proficiency: (r)ecover?", 0 , 0);
-			}
-			else if (escapes > 0) prt ("Use which proficiency: (e)scape?", 0, 0);
-			else
-			{
-				prt ("You can't use any proficiencies right now.", 0, 0);
-				return;
-			}
+			prt ("You can't use any proficiencies right now.", 0, 0);
+			return;
 		}
 	}
 
@@ -1789,38 +1702,8 @@ void do_cmd_proficiency(void)
 
 	/* Analyse the answer */
 
-	/* Archery */
-	if ((ch == 'a') && (lore > 0) && (superlore) && (cp_ptr->flags & CF_FENCING))
-	{
-		use_charge = do_power(POW_ARCHERY, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
-		if (use_charge) p_ptr->lore_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
-	}
-
-	/* Alertness */
-	else if ((ch == 'a') && (lore > 0) && (!(cp_ptr->flags & CF_FENCING)))
-	{
-		use_charge = do_power(POW_ALERTNESS, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
-		if (use_charge) p_ptr->lore_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
-	}
-
-	/* Fencing */
-	if ((ch == 'f') && (lore > 0) && (cp_ptr->flags & CF_FENCING))
-	{
-		use_charge = do_power(POW_FENCING, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
-		if (use_charge) p_ptr->lore_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
-	}
-
 	/* Identify Pack */
-	else if ((ch == 'i') && (lore > 0) && (superlore))
+	if ((ch == 'i') && (lore > 0) && (knowledge))
 	{
 		/* Check some conditions */
 		if (p_ptr->blind)
@@ -1840,14 +1723,15 @@ void do_cmd_proficiency(void)
 		}
 
 		use_charge = do_power(POW_IDENTIFY_PACK, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */
 		if (use_charge) p_ptr->energy_use = 100;
 	}
 
-	/* Study Item */
-	else if ((ch == 's') && (lore > 0) && (superlore))
+	/* Fully Identify */
+	else if ((ch == 'f') && (lore > 0) && (knowledge))
 	{
 		/* Check some conditions */
 		if (p_ptr->blind)
@@ -1893,7 +1777,7 @@ void do_cmd_proficiency(void)
 			return;
 		}
 
-		use_charge = do_power(POW_IDENTIFY, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		use_charge = do_power(POW_IDENTIFY_SKILL, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->lore_uses++;
 
 		/* Take a turn */

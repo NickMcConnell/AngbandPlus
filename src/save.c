@@ -182,6 +182,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->calmed);
 	wr_byte(m_ptr->cursed);
 	wr_byte(m_ptr->earthbound);
+	wr_byte(m_ptr->mist);
 
 	wr_u16b(m_ptr->sleep);
 	wr_u16b(m_ptr->bleeding);
@@ -537,7 +538,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
-	wr_s16b(p_ptr->monster_summon_power);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -582,6 +582,17 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->nexus_y);
 	wr_s16b(p_ptr->nexus_x);
 
+	wr_s16b(p_ptr->monster_counter);
+	wr_s16b(p_ptr->stylea);
+	wr_s16b(p_ptr->styleb);
+	wr_s16b(p_ptr->stylec);
+	wr_s16b(p_ptr->styled);
+	wr_s16b(p_ptr->stylee);
+	wr_s16b(p_ptr->stylef);
+
+	/* Write resistances */
+	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);
+
 	wr_s16b(p_ptr->tim_see_invis_perm);
 	wr_s16b(p_ptr->tim_invis_perm);
 	wr_s16b(p_ptr->tim_infra_perm);
@@ -603,9 +614,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->sp_dur_perm);
 	wr_s16b(p_ptr->tim_sp_dam_perm);
 	wr_s16b(p_ptr->tim_sp_inf_perm);
-
-	/* Write resistances */
-	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);
+	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res_perm[i]);
 
 	if (p_ptr->searching) tmp8u |= 0x01;
 	if (p_ptr->hear_invis) tmp8u |= 0x02;

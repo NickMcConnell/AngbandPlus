@@ -244,10 +244,10 @@ staircase before you can use it.
 Note that down staircases found inside the dungeon allows you to descend up
 to three levels -- that's one level faster than if you visit the town first.
 
-Each level has at least one down staircase and a 2/7 chance of an up
+Each level has at least one down staircase and a 30% chance for an up
 staircase. In addition, depending on your Mapping skill, you are sometimes
 able to map your way back to surface, which lets you start the dungeon level
-standing on an up stair. Stairs, like permanent walls, and shop entrances,
+standing on an up stair. Stairs, like permanent walls and shop entrances,
 cannot be destroyed by any means.
 
 As you walk around the dungeon, you are always keeping watch for traps. Your
@@ -256,12 +256,9 @@ You only get one chance to notice a given trap, and repeated searching won't
 help.
 
 Many secret doors are used within the dungeon to confuse and demoralize
-adventurers foolish enough to enter.  But with some luck, and lots of
-concentration, you can find these secret doors.  Secret doors will sometimes
-hide rooms or corridors, or even entire sections of that level of the
-dungeon.  Sometimes they simply hide small empty closets or even dead ends.
-Secret doors always look like granite walls, just like traps always look
-like normal floors.
+adventurers foolish enough to enter. Secret doors may only exist in special
+walls: closets, bookshelves, armoury racks, or cave paintings. Once you walk
+next to the secret door, you will automatically find it.
 
 Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass

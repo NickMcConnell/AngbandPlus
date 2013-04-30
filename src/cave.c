@@ -917,11 +917,63 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				c = PICT_C(i);
 			}
 
+			/* Mist */
+			else if (m_ptr->mist)
+			{
+				/* 6 = blue */
+				/* 10 = violet */
+				/* 14 = light blue */
+				switch (randint(3))
+				{
+					case 1:
+					{
+						a = 6;
+						break;
+					}
+					case 2:
+					{
+						a = 10;
+						break;
+					}
+					case 3:
+					{
+						a = 14;
+						break;
+					}
+				}
+
+				/* Normal char */
+				c = dc;
+			}
+
+
 			/* Ignore weird codes */
 			else if (avoid_other)
 			{
 				/* Use attr */
 				a = da;
+
+				/* Use char */
+				c = dc;
+			}
+
+			/* Creeping coins shine suspiciously */
+			else if (dc == '$')
+			{
+				/* Shine suspiciously */
+				switch (randint(2))
+				{
+					case 1:
+					{
+						a = da;
+						break;
+					}
+					case 2:
+					{
+						a = 1;
+						break;
+					}
+				}
 
 				/* Use char */
 				c = dc;

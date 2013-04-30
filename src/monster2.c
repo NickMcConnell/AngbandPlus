@@ -1557,7 +1557,7 @@ static void rogue_traps(int y, int x, int yd, int xd, int num)
  * Megahack - returns 0 if nothing was placed, -1 if a non-unique was 
  * placed, and 1 if a unique was placed.
  */
-static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte mode)
+static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, bool mist, byte mode)
 {
 	int i;
 	int j = 0;
@@ -1746,6 +1746,9 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep) n_ptr->sleep = ((r_ptr->sleep * 2) + randint(r_ptr->sleep * 10));
 
+	/* Make it a mist creature if needed */
+	if (mist) n_ptr->mist = 1;
+
 	/* Assign maximal hitpoints - uniques always get their life value */
 	if (unique)	n_ptr->maxhp = u_ptr->life;
 
@@ -1826,7 +1829,7 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	return TRUE;
 }
 
-#define GRP_SIZE_BASE	9
+#define GRP_SIZE_BASE	6
 
 /*
  * Attempt to place a "group" of monsters around the given location
@@ -1836,7 +1839,7 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
  * at any depth. The deeper you go, the more monsters likely to be in the group,
  * up to the max is 24 monsters, "big" groups double the size of the group.
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp, byte max_size, byte mode)
+static bool place_monster_group(int y, int x, int r_idx, bool slp, bool mist, byte max_size, byte mode)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1892,7 +1895,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, byte max_size
 			if (!cave_empty_bold(my, mx)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, 0, slp, mode))
+			if (place_monster_one(my, mx, r_idx, 0, slp, mist, mode))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -1939,7 +1942,7 @@ static bool place_peer_okay(int r_idx)
  * at any depth. The deeper you go, the more monsters likely to be in the group,
  * up to the max is 24 monsters, "big" groups double the size of the group.
  */
-static bool place_monster_peers(int y, int x, int r_idx, bool slp, bool max_size)
+static bool place_monster_peers(int y, int x, int r_idx, bool slp, bool mist, bool max_size)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -2004,7 +2007,7 @@ static bool place_monster_peers(int y, int x, int r_idx, bool slp, bool max_size
 			z = get_mon_num(r_ptr->level);
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, z, 0, slp, PLACE_LAST_EGO))
+			if (place_monster_one(my, mx, z, 0, slp, mist, PLACE_LAST_EGO))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -2093,7 +2096,7 @@ static bool place_companion_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, byte mode)
+bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool mist, bool grp, byte mode)
 {
 	int i;
 	u32b f1;
@@ -2103,7 +2106,7 @@ bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, b
 	monster_unique *u_ptr;
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, u_idx, slp, mode)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, u_idx, slp, mist, mode)) return (FALSE);
 
 	unique = (last_u_idx > 0 ? TRUE : FALSE);
 
@@ -2160,14 +2163,14 @@ bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, b
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, 0, slp, PLACE_UNIQUE);
+			(void)place_monster_one(ny, nx, z, 0, slp, mist, PLACE_UNIQUE);
 		}
 	}
 
 	/* Friends for certain monsters */
-	if ((f1 & RF1_GRP_9) || (f1 & RF1_GRP_18) || (f1 & RF1_GRP_27))
+	if ((f1 & RF1_GRP_6) || (f1 & RF1_GRP_12) || (f1 & RF1_GRP_18))
 	{
-		byte size = ((f1 & RF1_GRP_27) ? 3 : ((f1 & RF1_GRP_18) ? 2 : 1));
+		byte size = ((f1 & RF1_GRP_18) ? 3 : ((f1 & RF1_GRP_12) ? 2 : 1));
 
 		/* Escorts for certain monsters */
 		if (f1 & (RF1_GRP_ESCORT))
@@ -2214,14 +2217,14 @@ bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, b
 				if (!z) break;
 
 				/* Place a single escort */
-				(void)place_monster_one(ny, nx, z, 0, slp, PLACE_NO_UNIQUE);
+				(void)place_monster_one(ny, nx, z, 0, slp, mist, PLACE_NO_UNIQUE);
 
 				/* Place a "group" of escorts if needed */
-				if ((r_info[z].flags1 & RF1_GRP_9) || (r_info[z].flags1 & RF1_GRP_18) ||
-					(r_info[z].flags1 & RF1_GRP_27))
+				if ((r_info[z].flags1 & RF1_GRP_6) || (r_info[z].flags1 & RF1_GRP_12) ||
+					(r_info[z].flags1 & RF1_GRP_18))
 				{
 					/* Place a group of monsters */
-					(void)place_monster_group(ny, nx, z, slp, 1, PLACE_NO_UNIQUE);
+					(void)place_monster_group(ny, nx, z, slp, mist, 1, PLACE_NO_UNIQUE);
 				}
 			}
 		}
@@ -2229,11 +2232,11 @@ bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, b
 		else if (f1 & (RF1_GRP_PEER))
 		{
 			/* Attempt to place a group */
-			if (rand_int(8)) place_monster_peers(y, x, r_idx, slp, size);
-			else place_monster_group(y, x, r_idx, slp, size, PLACE_NO_UNIQUE);
+			if (rand_int(8)) place_monster_peers(y, x, r_idx, slp, mist, size);
+			else place_monster_group(y, x, r_idx, slp, mist, size, PLACE_NO_UNIQUE);
 		}
 		/* Attempt to place a normal group */
-		else (void)place_monster_group(y, x, r_idx, slp, size, PLACE_NO_UNIQUE);
+		else (void)place_monster_group(y, x, r_idx, slp, mist, size, PLACE_NO_UNIQUE);
 	}
 
 	/* Success */
@@ -2246,7 +2249,7 @@ bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool grp, b
  * Attempt to find a monster appropriate to the "monster_level",
  * allow sleeping monsters and groups.
  */
-bool place_monster(int y, int x)
+bool place_monster(int y, int x, bool mist)
 {
 	int r_idx;
 
@@ -2257,7 +2260,7 @@ bool place_monster(int y, int x)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, 0, TRUE, TRUE, 0)) return (TRUE);
+	if (place_monster_aux(y, x, r_idx, 0, TRUE, mist, TRUE, 0)) return (TRUE);
 
 	/* Oops */
 	return (FALSE);
@@ -2272,7 +2275,7 @@ bool place_monster(int y, int x)
  *
  * Use "monster_level" for the monster level
  */
-bool alloc_monster(int dis)
+bool alloc_monster(int dis, bool mist)
 {
 	int y, x;
 	int	attempts_left = 10000;
@@ -2302,7 +2305,7 @@ bool alloc_monster(int dis)
 	}
 
 	/* Attempt to place the monster, allow groups */
-	if (place_monster(y, x)) return (TRUE);
+	if (place_monster(y, x, mist)) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -2533,8 +2536,8 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		}
 	}
 
-	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, 0, FALSE, TRUE, mode)) return (FALSE);
+	/* Attempt to place the monster (awake, mist, allow groups) */
+	if (!place_monster_aux(y, x, r_idx, 0, FALSE, TRUE, TRUE, mode)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -2567,7 +2570,15 @@ bool multiply_monster(int m_idx, bool clone)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, 0, FALSE, FALSE, mode);
+		if (m_ptr->mist)
+		{
+			/* Mist creatures spawn mist creatures */
+			result = place_monster_aux(y, x, m_ptr->r_idx, 0, FALSE, TRUE, FALSE, mode);
+		}
+		else
+		{
+			result = place_monster_aux(y, x, m_ptr->r_idx, 0, FALSE, FALSE, FALSE, mode);
+		}
 
 		/* Done */
 		break;

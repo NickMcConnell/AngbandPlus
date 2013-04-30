@@ -32,16 +32,14 @@ Rogue
 ***** <Templar>
 Templar
     Templar is a deeply religious knight with a vow of poverty, meaning that he
-    only gets to keep 1/3 of the gold he finds. Templars are very interested in
-    mysteries and in the occult. They are the best alchemists in the game.
-    Templars are almost as good fighters as Warriors, and have almost as many
-    hit points. Unlike Warriors, they are just as good archers as melee
-    fighters. They have a superb saving throw. Templars practise ancient armed
-    martial arts with swords and bows. They can access the Lore proficiency
-    Fencing, which gives them an extra blow with a sword against persons and
-    humanoids until they leave the current dungeon level. With Greater Lore
-    (INT+WIS 30+) they gain access to Archery proficiency, which increases
-    their bow might multiplier by two. Just like Priests, Templars may offer
+    only gets to keep 1/3 of the gold he finds, giving the rest to charity.
+    Templars are very interested in mysteries and in the occult. They are the
+    best alchemists in the game.  Templars are almost as good fighters as
+    Warriors, and have almost as many hit points. Unlike Warriors, they are just
+    as good archers as melee fighters. They have a superb saving throw. Templars
+    practise ancient armed martial arts with swords and bows. Their fencing
+    skill gives them an extra sword blow against persons and humanoids. At level
+    25 they gain an extra shot with bows. Just like Priests, Templars may offer
     torches for the goddesses in place of ego items, and ego items in place of
     artifacts. (The class is inspired by both Rosicrucianism and the Knights
     Templar.)
@@ -81,11 +79,11 @@ Mage
     confuse, and escape. A mage is not really complete without an assortment of
     magical devices to use in addition to his spells. He can master the higher
     level magical devices far easier than anyone else, and has the best saving
-    throw to resist effects of spells cast at him. Intelligence is his primary
-    stat, and determines his spellcasting ability. Wearing heavy armor, or most
-    kinds of gloves, will severly damage his spellcasting abilities, so while
-    there is no rule that says a mage cannot become a good fighter, most mages
-    will prefer to rely on their spells. Depending on race, mages specialise in
+    throw to resist effects of spells cast at him. Memory is his primary stat,
+    and determines his spellcasting ability. Wearing heavy armor, or most kinds
+    of gloves, will severly damage his spellcasting abilities, so while there
+    is no rule that says a mage cannot become a good fighter, most mages will
+    prefer to rely on their spells. Depending on race, mages specialise in
     either fire or frost. This affects their resistances and the available
     magical books.
 
@@ -101,9 +99,9 @@ Spellsword
     magical studies tend tend to lack practical focus, and she learns her
     spells in random order. Spellsword is hopeless at stealth, perception,
     mapping, and at resisting harmful spells. Spellsword is also the slowest of
-    all classes to advance. Intelligence governs spellsword's spellcasting
-    prowess. Depending on race, spellswords specialise in either fire or frost.
-    This affects their resistances and the available magical books.
+    all classes to advance. Memory governs spellsword's spellcasting prowess.
+    Depending on race, spellswords specialise in either fire or frost. This
+    affects their resistances and the available magical books.
 
 ***** <Ranger>
 Ranger
@@ -116,9 +114,9 @@ Ranger
     sets of skills, more experience is required for him to advance in levels. A
     ranger has good stealth, good perception, good searching, a good saving
     throw, and is quite good with magical devices. Ranger is the best mapper in
-    the game. Intelligence determines his magical ability. Depending on race,
-    rangers specialise in either fire or frost. This affects their resistances
-    and the available magical books.
+    the game. Memory determines his magical ability. Depending on race, rangers
+    specialise in either fire or frost. This affects their resistances and the
+    available magical books.
 
 ***** <Mystic>
 Mystic
@@ -129,7 +127,7 @@ Mystic
     however, moderately skilled at throwing weapons at her enemies from afar.
     She also has a good stealth. There are said to be rare spellbooks in the
     dungeon that teach her discplines that lie beyond the scope of other
-    classes. Her primary stats are Wisdom and Intelligence, which combine to
+    classes. Her primary stats are Wisdom and Memory, which combine to
     determine her spellcasting power. Depending on race, mystics specialise in
     either fire or frost. This affects their resistances and the available
     magical books.

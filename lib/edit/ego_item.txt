@@ -57,7 +57,7 @@
 
 # Version stamp (required)
 
-V:1.2.3
+V:1.3.0
 
 ### Body Armor ###
 
@@ -435,7 +435,7 @@ X:10:0
 W:0:1:0:7500
 C:0:100:0:6
 T:31:0:99
-F:MELEE | THROW_SKILL | HIDE_TYPE
+F:MELEE | HIDE_TYPE
 
 N:50:of Agility
 X:10:0
@@ -473,12 +473,12 @@ C:6:100:0:2
 T:31:2:99
 F:STR | BLOWS | AGGRAVATE | DISRUPT | HIDE_TYPE 
 
-N:55:of Archery
+N:55:of Accuracy
 X:10:0
-W:0:1:0:4000
+W:0:1:0:7500
 C:0:100:0:6
 T:31:0:99
-F:ARCHERY | HIDE_TYPE
+F:MISSILE_SKILL | HIDE_TYPE
 
 N:56:of Mighty Throw
 X:10:0
@@ -992,13 +992,12 @@ N:109:of Reality
 X:20:3
 W:7:5:0:112500
 C:6:100:0:3
-M:0:100:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
 K:0:20:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 O:0:0:0:0:0:0:0:0:0:0:0:0:25:25:0:0:0
-F:INT | SEE_INVIS | NO_CONF
+F:INT | SEE_INVIS | NO_CONF | KILL_MIST
 
 N:110:of Slay Myth
 X:12:0
