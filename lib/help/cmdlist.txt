@@ -33,7 +33,7 @@ mation about any command, consult the help file "cmddesc.txt".
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
  p  Use a proficiency                    P  (unused)
- q  Quaff a potion                       Q  Quit (commit suicide)
+ q  Quaff a potion/drink from a fountain Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  (unused)                             S  (unused)
  t  Take off equipment                   T  Tunnel rubble/Topple a tree
@@ -92,7 +92,7 @@ mation about any command, consult the help file "cmddesc.txt".
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use racial ability
  p  Use a proficiency                    P  Browse a book
- q  Quaff a potion                       Q  Quit (commit suicide)
+ q  Quaff a potion/drink from a fountain Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  (unused)                             S  Invoke a Talisman
  t  Fire an item                         T  Take off equipment

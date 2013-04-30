@@ -699,13 +699,6 @@ static void prt_state(void)
 			text[7] = 'H';
 			text[8] = 'P';
 		}
-	
-		/* Rest for SPs */
-		else if (n == -4)
-		{
-			text[7] = 'S';
-			text[8] = 'P';
-		}
 	}
 
 	/* Repeating */
@@ -1965,7 +1958,7 @@ static void calc_hitpoints(void)
 	if (mhp < 1) mhp = 1;
 
 	/* The beginning of the game was too difficult, especially for races with low hitdie. Now everybody gets some bonus hitpoints! */
-	mhp += 3;
+	mhp += 5;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)

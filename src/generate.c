@@ -102,14 +102,13 @@
  * Dungeon generation values
  */
 #define DUN_UNUSUAL	220	/* Level/chance of unusual room */
-#define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
 
 /*
  * Dungeon tunnel generation values
  */
 #define DUN_TUN_RND	0	/* Chance of random direction. */
-#define DUN_TUN_CHG	84	/* Chance of changing direction. */
+#define DUN_TUN_CHG	77	/* Chance of changing direction. */
 #define DUN_TUN_CON	0	/* Chance of extra tunneling */
 #define DUN_TUN_PEN	0	/* Chance of doors at room entrances */
 #define DUN_TUN_JCT	0	/* Chance of doors at tunnel junctions */
@@ -160,8 +159,9 @@
  */
 #define CENT_MAX	100
 #define DOOR_MAX	200
-#define WALL_MAX	500
-#define TUNN_MAX	900
+#define WALL_MAX	4000
+#define TUNN_MAX	4000
+#define CUL_DE_SAC_MAX	200
 
 /*
  * Maximal number of room types
@@ -214,9 +214,21 @@ struct dun_data
 	int wall_n;
 	coord wall[WALL_MAX];
 
+	/* Array of long term memory piercing locations */
+	int mem_wall_n;
+	coord mem_wall[TUNN_MAX];
+
 	/* Array of tunnel grids */
 	int tunn_n;
 	coord tunn[TUNN_MAX];
+
+	/* Array of long term memory tunnel grids */
+	int mem_tunn_n;
+	coord mem_tunn[TUNN_MAX];
+
+	/* Array of cul-de-sacs */
+	int cul_de_sac_n;
+	coord cul_de_sac[CUL_DE_SAC_MAX];
 
 	/* Number of blocks along each axis */
 	int row_rooms;
@@ -358,7 +370,6 @@ static int next_to_walls(int y, int x)
 	if (cave_feat[y-1][x] >= FEAT_WALL_EXTRA) k++;
 	if (cave_feat[y][x+1] >= FEAT_WALL_EXTRA) k++;
 	if (cave_feat[y][x-1] >= FEAT_WALL_EXTRA) k++;
-
 	return (k);
 }
 
@@ -417,8 +428,58 @@ static int next_to_outer_walls(int y, int x)
  */
 static void place_rubble(int y, int x)
 {
+	bool place = FALSE;
+
+	/* Only place rubble if there's a wall on two opposite squares */
+	if ((cave_feat[y + 1][x] >= FEAT_WALL_EXTRA) && (cave_feat[y - 1][x] >= FEAT_WALL_EXTRA)) place = TRUE;
+	else if ((cave_feat[y][x + 1] >= FEAT_WALL_EXTRA) && (cave_feat[y][x - 1] >= FEAT_WALL_EXTRA)) place = TRUE;
+
 	/* Create rubble */
-	cave_set_feat(y, x, FEAT_RUBBLE);
+	if (place) cave_set_feat(y, x, FEAT_RUBBLE);
+}
+
+/*
+ * Places the player
+ */
+static void alloc_player()
+{
+	int y, x, i, j, flag;
+
+	for (flag = FALSE; !flag; )
+	{
+		/* Pick a random grid */
+		y = rand_int(p_ptr->cur_map_hgt);
+		x = rand_int(p_ptr->cur_map_wid);
+
+		/* Require "naked" floor grid */
+		if (!cave_naked_bold(y, x)) continue;
+
+		/* No placement near decorations */
+		if decoration(y,x) continue;
+		if decoration(y+1,x) continue;
+		if decoration(y,x+1) continue;
+		if decoration(y-1,x) continue;
+		if decoration(y,x-1) continue;
+		if decoration(y+1,x+1) continue;
+		if decoration(y-1,x-1) continue;
+		if decoration(y+1,x-1) continue;
+		if decoration(y-1,x+1) continue;
+
+		/* Require a certain number of adjacent walls */
+		if (next_to_walls(y, x) < 2) continue;
+
+		/* If only two stairs, they can't be on opposite sides */
+		if (next_to_walls(y, x) == 2)
+		{
+			if ((cave_feat[y + 1][x] >= FEAT_WALL_EXTRA) && (cave_feat[y - 1][x] >= FEAT_WALL_EXTRA)) continue;
+			if ((cave_feat[y][x + 1] >= FEAT_WALL_EXTRA) && (cave_feat[y][x - 1] >= FEAT_WALL_EXTRA)) continue;
+		}
+
+		player_place(y, x);
+
+		/* All done */
+		flag = TRUE;
+	}
 }
 
 /*
@@ -426,7 +487,8 @@ static void place_rubble(int y, int x)
  */
 static void alloc_stairs(int feat, int num, int walls)
 {
-	int y, x, i, j, flag;
+	int y, x, i, j, flag, yy, xx;
+	bool no_good;
 
 	/* Place "num" stairs */
 	for (i = 0; i < num; i++)
@@ -435,8 +497,10 @@ static void alloc_stairs(int feat, int num, int walls)
 		for (flag = FALSE; !flag; )
 		{
 			/* Try several times, then decrease "walls" */
-			for (j = 0; !flag && j <= 30000; j++)
+			for (j = 0; !flag && j <= 3000; j++)
 			{
+				no_good = FALSE;
+
 				/* Pick a random grid */
 				y = rand_int(p_ptr->cur_map_hgt);
 				x = rand_int(p_ptr->cur_map_wid);
@@ -458,17 +522,34 @@ static void alloc_stairs(int feat, int num, int walls)
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(y, x) < walls) continue;
 
+				/* If only two stairs, they can't be on opposite sides */
+				if (next_to_walls(y, x) == 2)
+				{
+					if ((cave_feat[y + 1][x] >= FEAT_WALL_EXTRA) && (cave_feat[y - 1][x] >= FEAT_WALL_EXTRA)) continue;
+					if ((cave_feat[y][x + 1] >= FEAT_WALL_EXTRA) && (cave_feat[y][x - 1] >= FEAT_WALL_EXTRA)) continue;
+				}
+
+				/* Don't put them too close to each other */
+				for (yy = y - 20; yy <= y + 20; yy ++)
+				{
+					for (xx = x - 30; xx <= x + 30; xx ++)
+					{
+						if (cave_feat[yy][xx] == feat) no_good = TRUE;
+					}
+				}
+				if (no_good) continue;
+
 				/* Town -- must go down */
-				if (!p_ptr->depth)
+				if ((!p_ptr->depth) && (feat == FEAT_LESS))
 				{
 					/* Clear previous contents, add down stairs */
 					cave_set_feat(y, x, FEAT_MORE);
 				}
 
 				/* Quest -- must go up */
-				else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
+				else if (((quest_check(p_ptr->depth) == QUEST_FIXED) ||
 						 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-						 (p_ptr->depth >= MAX_DEPTH-1))
+						 (p_ptr->depth >= MAX_DEPTH-1)) && (feat == FEAT_LESS))
 				{
 					/* Clear previous contents, add up stairs */
 					cave_set_feat(y, x, FEAT_LESS);
@@ -496,11 +577,14 @@ static void alloc_stairs(int feat, int num, int walls)
  */
 static void alloc_object(int set, int typ, int num)
 {
-	int y, x, k, i;
+	int y, x, k, i, xx, yy;
+	bool no_good;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
 	{
+		no_good = FALSE;
+
 		/* Pick a "legal" spot */
 		for (i = 0; i < 10000; i++)
 		{
@@ -528,6 +612,20 @@ static void alloc_object(int set, int typ, int num)
 
 			/* Require tiny room? */
 			if ((set == ALLOC_SET_TINY) && (room || !icky) && (rand_int(100) < 98)) continue;
+
+			/* Don't put them too close to each other? */
+			if (typ == ALLOC_TYP_FAERY_PORTAL)
+			{
+				for (yy = y - 10; yy <= y + 10; yy ++)
+				{
+					for (xx = x - 15; xx <= x + 15; xx ++)
+					{
+						if (t_list[cave_t_idx[yy][xx]].w_idx == WG_FAERY_PORTAL) no_good = TRUE;
+					}
+				}
+			}
+
+			if (no_good) continue;
 
 			/* Accept it */
 			break;
@@ -699,88 +797,6 @@ static int next_to_room_floor(int y, int x)
 
 	/* Return the number of floor grids */
 	return (k);
-}
-
-/*
- * Build a destroyed level
- */
-static void destroy_level(void)
-{
-	int y1, x1, y, x, k, t, n;
-
-	/* Note destroyed levels */
-	if (cheat_room) message(MSG_CHEAT, 0, "Destroyed Level");
-
-	/* Drop a few epi-centers (usually about two) */
-	for (n = 0; n < randint(5); n++)
-	{
-		/* Pick an epi-center */
-		x1 = rand_range(5, p_ptr->cur_map_hgt-1 - 5);
-		y1 = rand_range(5, p_ptr->cur_map_wid-1 - 5);
-
-		/* Big area of affect */
-		for (y = (y1 - 15); y <= (y1 + 15); y++)
-		{
-			for (x = (x1 - 15); x <= (x1 + 15); x++)
-			{
-				/* Skip illegal grids */
-				if (!in_bounds_fully(y, x)) continue;
-
-				/* Extract the distance */
-				k = distance(y1, x1, y, x);
-
-				/* Stay in the circle of death */
-				if (k >= 16) continue;
-
-				/* Delete the monster (if any) */
-				delete_monster(y, x);
-
-				/* Destroy valid grids */
-				if (cave_valid_bold(y, x))
-				{
-					/* Delete objects */
-					delete_object(y, x);
-
-					/* Wall (or floor) type */
-					t = rand_int(200);
-
-					/* Granite */
-					if (t < 20)
-					{
-						/* Create granite wall */
-						cave_set_feat(y, x, FEAT_WALL_EXTRA);
-					}
-
-					/* Quartz */
-					else if (t < 70)
-					{
-						/* Create quartz vein */
-						cave_set_feat(y, x, FEAT_QUARTZ);
-					}
-
-					/* Magma */
-					else if (t < 100)
-					{
-						/* Create magma vein */
-						cave_set_feat(y, x, FEAT_MAGMA);
-					}
-
-					/* Floor */
-					else
-					{
-						/* Create floor */
-						cave_set_feat(y, x, FEAT_FLOOR);
-					}
-
-					/* No longer part of a room or vault */
-					cave_info[y][x] &= ~(CAVE_ROOM | CAVE_ICKY);
-
-					/* No longer illuminated */
-					cave_info[y][x] &= ~(CAVE_GLOW);
-				}
-			}
-		}
-	}
 }
 
 /*
@@ -2499,8 +2515,9 @@ static bool build_type123(int y0, int x0)
 
 	/* Determine extents of room (b) */
 	y1b = randint(3);
-	x1b = randint(8) + 1;
-	y2b = randint(4);
+	x1b = randint(8);
+	/* y2b = randint(4); */
+	y2b = randint(3) + 1;
 	x2b = randint(13);
 
 	/* Sometimes express symetry */
@@ -3695,9 +3712,32 @@ static void build_type9(int y0, int x0)
 /*
  * Place a locked door at the given location
  */
-static void place_locked_door(int y, int x)
+static void place_locked_door(int y, int x, bool vertical_entrance, bool horizontal_entrance)
 {
 	int yy, xx;
+	int iiii, yyyy, xxxx;
+	int dist_y, dist_x;
+
+	/* First check that "official" room entrances aren't too close */
+	for (iiii = 0; iiii < dun->mem_wall_n; iiii++)
+	{
+		/* Get the grid */
+		yyyy = dun->mem_wall[iiii].y;
+		xxxx = dun->mem_wall[iiii].x;
+
+		if (distance(y, x, yyyy, xxxx) < 7) return;
+
+		if (yyyy > y) dist_y = yyyy - y;
+		else dist_y = y - yyyy;
+
+		if (xxxx > x) dist_x = xxxx - x;
+		else dist_x = x - xxxx;
+
+		if ((dist_x < 8) && (dist_y < 5))
+		{
+			return;
+		}
+	}
 
 	/* Already a door nearby, don't generate another one */
 	for (yy = y - 6; yy < y + 7; yy++)
@@ -3708,6 +3748,7 @@ static void place_locked_door(int y, int x)
 		}
 	}
 
+	/*
 	for (yy = y - 2; yy < y + 3; yy++)
 	{
 		for (xx = x - 2; xx < x + 3; xx++)
@@ -3715,6 +3756,18 @@ static void place_locked_door(int y, int x)
 			if ((cave_feat[yy][xx] == FEAT_WALL_OUTER) && (decoration(yy, xx))) return;
 			if ((cave_feat[yy][xx] == FEAT_FLOOR) && (!(cave_info[yy][xx] & (CAVE_ROOM)))) return;
 		}
+	} */
+
+	/* Make sure that the door would actually block passage to the room */
+	if (vertical_entrance)
+	{
+		if (!(cave_feat[y][x + 1] >= FEAT_WALL_EXTRA)) return;
+		if (!(cave_feat[y][x - 1] >= FEAT_WALL_EXTRA)) return;
+	}
+	if (horizontal_entrance)
+	{
+		if (!(cave_feat[y + 1][x] >= FEAT_WALL_EXTRA)) return;
+		if (!(cave_feat[y - 1][x] >= FEAT_WALL_EXTRA)) return;
 	}
 
 	/* Create locked door */
@@ -3727,9 +3780,30 @@ static void place_locked_door(int y, int x)
 /*
  * Place a secret door at the given location
  */
-static bool place_locked_door_longer(int y, int x)
+static bool place_locked_door_longer(int y, int x, bool vertical_entrance, bool horizontal_entrance)
 {
 	int yy, xx;
+	int iiii, yyyy, xxxx;
+	int dist_y, dist_x;
+
+	/* First check that "official" room entrances aren't too close */
+	for (iiii = 0; iiii < dun->mem_wall_n; iiii++)
+	{
+		/* Get the grid */
+		yyyy = dun->mem_wall[iiii].y;
+		xxxx = dun->mem_wall[iiii].x;
+
+		if (yyyy > y) dist_y = yyyy - y;
+		else dist_y = y - yyyy;
+
+		if (xxxx > x) dist_x = xxxx - x;
+		else dist_x = x - xxxx;
+
+		if ((dist_x < 8) && (dist_y < 5))
+		{
+			return (FALSE);
+		}
+	}
 
 	/* Already a door nearby, don't generate another one */
 	for (yy = y - 7; yy < y + 8; yy++)
@@ -3737,6 +3811,7 @@ static bool place_locked_door_longer(int y, int x)
 		for (xx = x - 7; xx < x + 8; xx++)
 		{
 			if (cave_feat[yy][xx] == FEAT_CLOSED) return (FALSE);
+			if (cave_feat[yy][xx] == FEAT_MORE) return (FALSE);
 		}
 	}
 
@@ -3749,12 +3824,26 @@ static bool place_locked_door_longer(int y, int x)
 		}
 	}
 
-	for (yy = y - 5; yy < y + 6; yy++)
+	/* No corridors in the way */
+	for (yy = y - 4; yy < y + 5; yy++)
 	{
-		for (xx = x - 5; xx < x + 6; xx++)
+		for (xx = x - 4; xx < x + 5; xx++)
 		{
 			if ((cave_feat[yy][xx] == FEAT_FLOOR) && (!(cave_info[yy][xx] & (CAVE_ROOM)))) return (FALSE);
+			if (cave_feat[yy][xx] == FEAT_MORE) return (FALSE);
 		}
+	}
+
+	/* Make sure that the door would actually block passage to the room */
+	if (vertical_entrance)
+	{
+		if (!(cave_feat[y][x + 1] >= FEAT_WALL_EXTRA)) return (FALSE);
+		if (!(cave_feat[y][x - 1] >= FEAT_WALL_EXTRA)) return (FALSE);
+	}
+	if (horizontal_entrance)
+	{
+		if (!(cave_feat[y + 1][x] >= FEAT_WALL_EXTRA)) return (FALSE);
+		if (!(cave_feat[y - 1][x] >= FEAT_WALL_EXTRA)) return (FALSE);
 	}
 
 	/* Create locked door */
@@ -3841,7 +3930,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		}
 
 		/* Allow bends in the tunnel */
-		if (rand_int(100) < DUN_TUN_CHG)
+		if ((rand_int(100) < DUN_TUN_CHG) || (main_loop_count < 4))
 		{
 			/* Get the correct direction */
 			correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
@@ -3883,57 +3972,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Avoid "solid" granite walls
 		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_SOLID) continue; */
 
-		/* Clean any nearby "opportunistic" locked doors before making "necessary" piercings */
-		for (yy = tmp_row - 5; yy < tmp_row + 6; yy++)
-		{
-			for (xx = tmp_col - 6; xx < tmp_col + 7; xx++)
-			{
-				/* Don't remove doors in vaults */
-				if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
-				{
-					delete_trap(yy, xx);
-					cave_set_feat(yy, xx, FEAT_WALL_OUTER);
-					if (cheat_room) message(MSG_CHEAT, 0, "Locked door removed.");
-
-					/* Also clear the tunnel leading to the door */
-					for (iii = 1; iii < 5; iii++)
-					{
-						if ((cave_feat[yy+iii][xx] == FEAT_FLOOR) && (!(cave_info[yy+iii][xx] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy+iii, xx) == 3)
-							{
-								cave_set_feat(yy+iii, xx, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy-iii][xx] == FEAT_FLOOR) && (!(cave_info[y-iii][x] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy-iii, xx) == 3)
-							{
-								cave_set_feat(yy-iii, xx, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy][xx+iii] == FEAT_FLOOR) && (!(cave_info[yy][xx+iii] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy, xx+iii) == 3)
-							{
-								cave_set_feat(yy, xx+iii, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy][xx-iii] == FEAT_FLOOR) && (!(cave_info[yy][xx-iii] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy, xx-iii) == 3)
-							{
-								cave_set_feat(yy, xx-iii, FEAT_WALL_EXTRA);
-							}
-						}
-					}
-				}
-			}
-		}
-
 		/* Pierce "outer" walls of rooms */
 		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_OUTER)
 		{
@@ -3943,56 +3981,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			/* Get the "next" location */
 			y = tmp_row + row_dir;
 			x = tmp_col + col_dir;
-
-			/* Clean any nearby "opportunistic" locked doors before making "necessary" piercings */
-			for (yy = y - 5; yy < y + 6; yy++)
-			{
-				for (xx = x - 6; xx < x + 7; xx++)
-				{
-					if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
-					{
-						delete_trap(yy, xx);
-						cave_set_feat(yy, xx, FEAT_WALL_OUTER);
-						if (cheat_room) message(MSG_CHEAT, 0, "Locked door removed.");
-
-						/* Also clear the tunnel leading to the door */
-						for (iii = 1; iii < 5; iii++)
-						{
-							if ((cave_feat[yy+iii][xx] == FEAT_FLOOR) && (!(cave_info[yy+iii][xx] & (CAVE_ROOM))))
-							{
-								if (next_to_walls_and_room(yy+iii, xx) == 3)
-								{
-									cave_set_feat(yy+iii, xx, FEAT_WALL_EXTRA);
-								}
-							}
-
-							if ((cave_feat[yy-iii][xx] == FEAT_FLOOR) && (!(cave_info[yy-iii][xx] & (CAVE_ROOM))))
-							{
-								if (next_to_walls_and_room(yy-iii, xx) == 3)
-								{
-									cave_set_feat(yy-iii, xx, FEAT_WALL_EXTRA);
-								}
-							}
-
-							if ((cave_feat[yy][xx+iii] == FEAT_FLOOR) && (!(cave_info[yy][xx+iii] & (CAVE_ROOM))))
-							{
-								if (next_to_walls_and_room(yy, xx+iii) == 3)
-								{
-									cave_set_feat(yy, xx+iii, FEAT_WALL_EXTRA);
-								}
-							}
-
-							if ((cave_feat[yy][xx-iii] == FEAT_FLOOR) && (!(cave_info[yy][xx-iii] & (CAVE_ROOM))))
-							{
-								if (next_to_walls_and_room(yy, xx-iii) == 3)
-								{
-									cave_set_feat(yy, xx-iii, FEAT_WALL_EXTRA);
-								}
-							}
-						}
-					}
-				}
-			}
 
 			/* Hack -- Avoid outer/solid permanent walls */
 			if (cave_feat[y][x] == FEAT_PERM_SOLID) adult_autoscum = TRUE;
@@ -4023,6 +4011,10 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				dun->wall[dun->wall_n].y = row1;
 				dun->wall[dun->wall_n].x = col1;
 				dun->wall_n++;
+
+				dun->mem_wall[dun->mem_wall_n].y = row1;
+				dun->mem_wall[dun->mem_wall_n].x = col1;
+				dun->mem_wall_n++;
 			}
 		}
 
@@ -4047,38 +4039,41 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				dun->tunn[dun->tunn_n].y = row1;
 				dun->tunn[dun->tunn_n].x = col1;
 				dun->tunn_n++;
+
+				dun->mem_tunn[dun->mem_tunn_n].y = row1;
+				dun->mem_tunn[dun->mem_tunn_n].x = col1;
+				dun->mem_tunn_n++;
 			}
 
 			/* Allow door in next grid */
 			door_flag = FALSE;
 		}
 
-		/* This seems to work better in Halls of Mist 1.3.0 */
-		else break;
-
 		/* Handle corridor intersections or overlaps */
-/*		{
-			break;
-*/
+		else
+		{
 			/* Accept the location */
-/*			row1 = tmp_row;
+			row1 = tmp_row;
 			col1 = tmp_col;
-*/
+
 			/* Collect legal door locations */
-/*			if (!door_flag)
-			{ */
+			if (!door_flag)
+			{
 				/* Save the door location */
-			/*	if (dun->door_n < DOOR_MAX)
+				if (dun->door_n < DOOR_MAX)
 				{
 					dun->door[dun->door_n].y = row1;
 					dun->door[dun->door_n].x = col1;
 					dun->door_n++;
 				}
-*/
+
 				/* No door in next grid */
-/*				door_flag = TRUE;
+				door_flag = TRUE;
 			}
-*/
+
+			/* This seems to produce tidier dungeons in Halls of Mist 1.3 */
+			break;
+
 			/* Hack -- allow pre-emptive tunnel termination */
 /*			if (rand_int(100) >= DUN_TUN_CON)
 			{	*/
@@ -4096,134 +4091,10 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 					no_join = 1;
 					break;
 				}
-			}
-		} */
-	}
-
-	/* Opportunistic locked door creation */
-	int yyyy, xxxx, iiii;
-	int dist_y, dist_x;
-	int deeper = 0;
-	int tunnel = 0;
-	bool ok;
-	for (i = 0; i < dun->tunn_n; i++)
-	{
-		ok = TRUE;
-
-		/* Get the grid */
-		y = dun->tunn[i].y;
-		x = dun->tunn[i].x;
-
-		for (iiii = 0; iiii < dun->wall_n; iiii++)
-		{
-			/* Get the grid */
-			yyyy = dun->wall[iiii].y;
-			xxxx = dun->wall[iiii].x;
-
-			if (yyyy > y) dist_y = yyyy - y;
-			else dist_y = y - yyyy;
-
-			if (xxxx > x) dist_x = xxxx - x;
-			else dist_x = x - xxxx;
-
-			if (distance(y, x, yyyy, xxxx) < 8)
-			{
-				if (dist_y < 5) ok = FALSE;
-			}
-		}
-
-		if (ok == FALSE) continue;
-
-		/* Clear previous contents, add a locked door */
-		if (cave_feat[y][x+1] == FEAT_WALL_OUTER) place_locked_door(y, x+1);
-		if (cave_feat[y][x-1] == FEAT_WALL_OUTER) place_locked_door(y, x-1);
-		if (cave_feat[y+1][x] == FEAT_WALL_OUTER) place_locked_door(y+1, x);
-		if (cave_feat[y-1][x] == FEAT_WALL_OUTER) place_locked_door(y-1, x);
-		if (cave_feat[y+1][x+1] == FEAT_WALL_OUTER) place_locked_door(y+1, x+1);
-		if (cave_feat[y-1][x-1] == FEAT_WALL_OUTER) place_locked_door(y-1, x-1);
-		if (cave_feat[y+1][x-1] == FEAT_WALL_OUTER) place_locked_door(y+1, x-1);
-		if (cave_feat[y-1][x+1] == FEAT_WALL_OUTER) place_locked_door(y-1, x+1);
-	}
-
-	/* Opportunistic locked door creation, part II */
-	for (i = 0; i < dun->tunn_n; i++)
-	{
-		ok = TRUE;
-
-		/* Get the grid */
-		y = dun->tunn[i].y;
-		x = dun->tunn[i].x;
-
-		for (deeper = 2; deeper < 7; deeper++)
-		{
-			for (iiii = 0; iiii < dun->wall_n; iiii++)
-			{
-				/* Get the grid */
-				yyyy = dun->wall[iiii].y;
-				xxxx = dun->wall[iiii].x;
-
-				if (yyyy > y) dist_y = yyyy - y;
-				else dist_y = y - yyyy;
-
-				if (xxxx > x) dist_x = xxxx - x;
-				else dist_x = x - xxxx;
-
-				if (distance(y, x, yyyy, xxxx) < 9)
-				{
-					if (dist_y < 6) ok = FALSE;
-				}
-			}
-
-			if (ok == FALSE) continue;
-
-			/* Clear previous contents, add a locked door */
-			if ((cave_feat[y][x+deeper] == FEAT_WALL_OUTER) && (!(cave_feat[y][x+deeper+1] == FEAT_WALL_OUTER)))
-			{
-				if (place_locked_door_longer(y, x+deeper))
-				{
-					for (tunnel = 1; tunnel < deeper; tunnel++)
-					{
-						cave_set_feat(y, x + tunnel, FEAT_FLOOR);
-					}
-				}
-			}
-			if ((cave_feat[y][x-deeper] == FEAT_WALL_OUTER) && (!(cave_feat[y][x-deeper-1] == FEAT_WALL_OUTER)))
-			{
-				if (place_locked_door_longer(y, x-deeper))
-				{
-					for (tunnel = 1; tunnel < deeper; tunnel++)
-					{
-						cave_set_feat(y, x-tunnel, FEAT_FLOOR);
-					}
-				}
-			}
-			/* Don't tunnel as deep in vertically */
-			if (deeper < 4)
-			{
-				if ((cave_feat[y+deeper][x] == FEAT_WALL_OUTER) && (!(cave_feat[y+deeper+1][x] == FEAT_WALL_OUTER)))
-				{
-					if (place_locked_door_longer(y+deeper, x))
-					{
-						for (tunnel = 1; tunnel < deeper; tunnel++)
-						{
-							cave_set_feat(y+tunnel, x, FEAT_FLOOR);
-						}
-					}
-				}
-
-				if ((cave_feat[y-deeper][x] == FEAT_WALL_OUTER) && (!(cave_feat[y-deeper-1][x] == FEAT_WALL_OUTER)))
-				{
-					if (place_locked_door_longer(y-deeper, x))
-					{
-						for (tunnel = 1; tunnel < deeper; tunnel++)
-						{
-							cave_set_feat(y-tunnel, x, FEAT_FLOOR);
-						}
-					}
-				}
-			}
+			} */
 		}
 	}
+
 
 	/* Turn the tunnel into corridor */
 	for (i = 0; i < dun->tunn_n; i++)
@@ -4243,56 +4114,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Get the grid */
 		y = dun->wall[i].y;
 		x = dun->wall[i].x;
-
-		/* Clean any nearby "opportunistic" locked doors before making "necessary" piercings */
-		for (yy = y - 5; yy < y + 6; yy++)
-		{
-			for (xx = x - 6; xx < x + 7; xx++)
-			{
-				if ((cave_feat[yy][xx] == FEAT_CLOSED) && (!(cave_info[yy][xx] & (CAVE_ICKY))))
-				{
-					delete_trap(yy, xx);
-					cave_set_feat(yy, xx, FEAT_WALL_OUTER);
-					if (cheat_room) message(MSG_CHEAT, 0, "Locked door removed.");
-
-					/* Also clear the tunnel leading to the door */
-					for (iii = 1; iii < 5; iii++)
-					{
-						if ((cave_feat[yy+iii][xx] == FEAT_FLOOR) && (!(cave_info[yy+iii][xx] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy+iii, xx) == 3)
-							{
-								cave_set_feat(yy+iii, xx, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy-iii][xx] == FEAT_FLOOR) && (!(cave_info[yy-iii][xx] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy-iii, xx) == 3)
-							{
-								cave_set_feat(yy-iii, xx, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy][xx+iii] == FEAT_FLOOR) && (!(cave_info[yy][xx+iii] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy, xx+iii) == 3)
-							{
-								cave_set_feat(yy, xx+iii, FEAT_WALL_EXTRA);
-							}
-						}
-
-						if ((cave_feat[yy][xx-iii] == FEAT_FLOOR) && (!(cave_info[yy][xx-iii] & (CAVE_ROOM))))
-						{
-							if (next_to_walls_and_room(yy, xx-iii) == 3)
-							{
-								cave_set_feat(yy, xx-iii, FEAT_WALL_EXTRA);
-							}
-						}
-					}
-				}
-			}
-		}
 
 		/* Join the parts */
 		end_room = room_idx_ignore_valid(y, x);
@@ -4354,7 +4175,11 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		}
 
 		/* Convert to floor grid */
-		else cave_set_feat(y, x, FEAT_FLOOR);
+		else
+		{
+			cave_set_feat(y, x, FEAT_FLOOR);
+			delete_trap(y, x);
+		}
 	}
 
 	/* Go through the piercings again, repairing any false starts */
@@ -4877,7 +4702,6 @@ static void cave_gen(void)
 
 	int by, bx;
 
-	bool destroyed = FALSE;
 	bool quest_vault = FALSE;
 
 	dun_data dun_body;
@@ -4915,9 +4739,6 @@ static void cave_gen(void)
 		}
 	}
 
-	/* Hack -- No destroyed "quest" levels */
-	if (quest_check(p_ptr->depth)) destroyed = FALSE;
-
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = p_ptr->cur_map_hgt / BLOCK_HGT;
 	dun->col_rooms = p_ptr->cur_map_wid / BLOCK_WID;
@@ -4933,6 +4754,10 @@ static void cave_gen(void)
 			dun->room_map[by][bx] = FALSE;
 		}
 	}
+
+	/* Reset the "long term memory" arrays */
+	dun->mem_tunn_n = 0;
+	dun->mem_wall_n = 0;
 
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
@@ -4958,16 +4783,6 @@ static void cave_gen(void)
 
 			/* Slide some rooms left */
 			if (((bx % 3) == 2) && (rand_int(2) < 1)) bx--;
-		}
-
-		/* Destroyed levels are boring */
-		if (destroyed)
-		{
-			/* Attempt a "trivial" room */
-			if (room_build(by, bx, 1)) continue;
-
-			/* Never mind */
-			continue;
 		}
 
 		/* Build a quest vault if needed */
@@ -5065,7 +4880,8 @@ static void cave_gen(void)
 	int joined1;
 	int closest1;
 	int zzz;
-	int room_distance = rand_int(9) + 44;
+	int yy, xx;
+	int room_distance = rand_int(14) + 44;
 	int modified_distance;
 
 	/* Partition rooms */
@@ -5203,7 +5019,7 @@ static void cave_gen(void)
 	/* Make some extra connections */
 	int first;
 	int last;
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < 12; i++)
 	{
 		first = rand_int(dun->cent_n);
 		last = rand_int(dun->cent_n);
@@ -5225,30 +5041,311 @@ static void cave_gen(void)
 		try_door(y + 1, x);
 	}
 
-	/* Hack -- Add some magma streamers
-	for (i = 0; i < DUN_STR_MAG; i++)
+	/* Opportunistic locked door creation */
+	int yyyy = 0, xxxx = 0, iiii = 0;
+	int dist_y, dist_x;
+	int deeper = 0;
+	int tunnel = 0;
+	int yc, xc;
+	bool break_it = FALSE;
+	int test;
+
+	for (i = 0; i < dun->mem_tunn_n; i++)
 	{
-		build_streamer(FEAT_MAGMA, DUN_STR_MC);
-	} */
+		/* Get the grid */
+		y = dun->mem_tunn[i].y;
+		x = dun->mem_tunn[i].x;
 
-	/* Hack -- Add some quartz streamers
-	for (i = 0; i < DUN_STR_QUA; i++)
+		/* Clear previous contents, add a locked door */
+		if (cave_feat[y][x + 1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y, x + 1, FALSE, TRUE);
+		}
+		if (cave_feat[y][x - 1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y, x - 1, FALSE, TRUE);
+		}
+		if (cave_feat[y + 1][x] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y + 1, x, TRUE, FALSE);
+		}
+		if (cave_feat[y - 1][x] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y - 1, x, TRUE, FALSE);
+		}
+		if (cave_feat[y+1][x+1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y + 1, x + 1, TRUE, TRUE);
+		}
+		if (cave_feat[y-1][x-1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y - 1, x - 1, TRUE, TRUE);
+		}
+		if (cave_feat[y+1][x-1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y + 1, x - 1, TRUE, TRUE);
+		}
+		if (cave_feat[y-1][x+1] == FEAT_WALL_OUTER)
+		{
+			place_locked_door(y - 1, x + 1, TRUE, TRUE);
+		}
+	}
+
+	bool make_tunnel;
+
+	/* Opportunistic locked door creation, part II */
+	for (i = 0; i < dun->mem_tunn_n; i++)
 	{
-		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
-	} */
+		break_it = FALSE;
 
-	/* Destroy the level if necessary */
-	if (destroyed) destroy_level();
+		/* Get the grid */
+		y = dun->mem_tunn[i].y;
+		x = dun->mem_tunn[i].x;
 
-	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(2, 2), 7);
+		/* Already a door  nearby, don't generate another one */
+		for (yc = y - 7; yc < y + 8; yc++)
+		{
+			for (xc = x - 7; xc < x + 8; xc++)
+			{
+				if (cave_feat[yc][xc] == FEAT_CLOSED) break_it = TRUE;
+			}
+		}
+
+		if (!(break_it)) for (deeper = 2; deeper < 7; deeper++)
+		{
+			make_tunnel = TRUE;
+
+			/* Clear previous contents, add a locked door */
+			if ((cave_feat[y][x + deeper] == FEAT_WALL_OUTER) && (cave_feat[y][x + deeper + 1] == FEAT_FLOOR))
+			{
+				for (test = 1; test < deeper; test ++)
+				{
+					if ((cave_feat[y][x + test] == FEAT_FLOOR) && (!(cave_info[y][x + test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+					if ((cave_feat[y + 1][x + test] == FEAT_FLOOR) && (!(cave_info[y + 1][x + test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+					if ((cave_feat[y - 1][x + test] == FEAT_FLOOR) && (!(cave_info[y - 1][x + test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+				}
+
+				if ((make_tunnel) && (place_locked_door_longer(y, x + deeper, FALSE, TRUE)))
+				{
+					for (tunnel = 1; tunnel < deeper; tunnel++)
+					{
+						cave_set_feat(y, x + tunnel, FEAT_FLOOR);
+						delete_trap(y, x + tunnel);
+
+						/* This shouldn't be necessary. But it fixes a bug for some reason
+						if (tunnel == deeper) cave_set_feat(y, x + deeper, FEAT_CLOSED); */
+					}
+				}
+			}
+
+			make_tunnel = TRUE;
+
+			if ((cave_feat[y][x - deeper] == FEAT_WALL_OUTER) && (cave_feat[y][x - deeper - 1] == FEAT_FLOOR))
+			{
+				for (test = 1; test < deeper; test ++)
+				{
+					if ((cave_feat[y][x - test] == FEAT_FLOOR) && (!(cave_info[y][x - test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+					if ((cave_feat[y + 1][x - test] == FEAT_FLOOR) && (!(cave_info[y + 1][x - test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+					if ((cave_feat[y - 1][x - test] == FEAT_FLOOR) && (!(cave_info[y - 1][x - test] & (CAVE_ROOM)))) make_tunnel = FALSE;
+				}
+
+				if ((make_tunnel) && (place_locked_door_longer(y, x - deeper, FALSE, TRUE)))
+				{
+					for (tunnel = 1; tunnel < deeper; tunnel++)
+					{
+						cave_set_feat(y, x - tunnel, FEAT_FLOOR);
+						delete_trap(y, x - tunnel);
+
+						/* This shouldn't be necessary. But it fixes a bug for some reason
+						if (tunnel == deeper) cave_set_feat(y, x - deeper, FEAT_CLOSED); */
+					}
+				}
+			}
+
+			/* Don't tunnel as deep vertically */
+			if (deeper < 6)
+			{
+				make_tunnel = TRUE;
+
+				if (cave_feat[y + deeper][x] == FEAT_WALL_OUTER)
+				{
+					if (cave_feat[y + deeper + 1][x] == FEAT_FLOOR) {}
+					else if (cave_feat[y + deeper + 1][x + 1] == FEAT_FLOOR) {}
+					else if (cave_feat[y + deeper + 1][x - 1] == FEAT_FLOOR) {}
+					else make_tunnel = FALSE;
+
+					for (test = 1; test < deeper; test ++)
+					{
+						if (test < 6)
+						{
+							if ((cave_feat[y + test][x] == FEAT_FLOOR) && (!(cave_info[y + test][x] & (CAVE_ROOM)))) make_tunnel = FALSE;
+							if ((cave_feat[y + test][x + 1] == FEAT_FLOOR) && (!(cave_info[y + test][x + 1] & (CAVE_ROOM)))) make_tunnel = FALSE;
+							if ((cave_feat[y + test][x - 1] == FEAT_FLOOR) && (!(cave_info[y + test][x - 1] & (CAVE_ROOM)))) make_tunnel = FALSE;
+						}
+					}
+
+					if ((make_tunnel) && (place_locked_door_longer(y + deeper, x, TRUE, FALSE)))
+					{
+						if (cave_feat[y + deeper + 1][x] == FEAT_FLOOR) {}
+						else if (cave_feat[y + deeper + 1][x + 1] == FEAT_FLOOR) {}
+						else if (cave_feat[y + deeper + 1][x - 1] == FEAT_FLOOR) {}
+						else break_it = TRUE;
+
+						for (tunnel = 1; tunnel <= deeper; tunnel++)
+						{
+							cave_set_feat(y + tunnel, x, FEAT_FLOOR);
+							delete_trap(y + tunnel, x);
+
+							/* This shouldn't be necessary. But it fixes a bug for some reason */
+							if (tunnel == deeper) cave_set_feat(y + deeper, x, FEAT_CLOSED);
+						}
+					}
+				}
+
+				make_tunnel = TRUE;
+
+				if ((cave_feat[y - deeper][x] == FEAT_WALL_OUTER) && (cave_feat[y - deeper - 1][x] == FEAT_FLOOR))
+				{
+					for (test = 1; test < deeper; test ++)
+					{
+						if (test < 6)
+						{
+							if ((cave_feat[y - test][x] == FEAT_FLOOR) && (!(cave_info[y - test][x] & (CAVE_ROOM)))) make_tunnel = FALSE;
+							if ((cave_feat[y - test][x + 1] == FEAT_FLOOR) && (!(cave_info[y - test][x + 1] & (CAVE_ROOM)))) make_tunnel = FALSE;
+							if ((cave_feat[y - test][x - 1] == FEAT_FLOOR) && (!(cave_info[y - test][x - 1] & (CAVE_ROOM)))) make_tunnel = FALSE;
+						}
+					}
+
+					if ((make_tunnel) && (place_locked_door_longer(y - deeper, x, TRUE, FALSE)))
+					{
+						for (tunnel = 1; tunnel <= deeper; tunnel++)
+						{
+							cave_set_feat(y - tunnel, x, FEAT_FLOOR);
+							delete_trap(y - tunnel, x);
+
+							/* This shouldn't be necessary. But it fixes a bug for some reason */
+							if (tunnel == deeper) cave_set_feat(y - deeper, x, FEAT_CLOSED);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	*   Spring cleaning
+	*/
+
+	/* Reset the arrays */
+	dun->cul_de_sac_n = 0;
+	int walls = 0;
+	int diagonal = 0;
+
+	for (yy = 0; yy <= p_ptr->cur_map_hgt ; yy++)
+	{
+		for (xx = 0; xx <= p_ptr->cur_map_wid; xx++)
+		{
+			/* Collect good places for stairs or faery portals */
+			if (cave_feat[yy][xx] == FEAT_FLOOR)
+			{
+				diagonal = 0;
+				walls = 0;
+
+				/* Count diagonal tunnels
+				if (!(cave_feat[yy + 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				if (!(cave_feat[yy - 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				if (!(cave_feat[yy + 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				if (!(cave_feat[yy - 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++; */
+
+				if (cave_feat[yy + 1][xx] >= FEAT_WALL_EXTRA) walls ++;
+				if (cave_feat[yy - 1][xx] >= FEAT_WALL_EXTRA) walls ++;
+				if (cave_feat[yy][xx + 1] >= FEAT_WALL_EXTRA) walls ++;
+				if (cave_feat[yy][xx - 1] >= FEAT_WALL_EXTRA) walls ++;
+
+				/* Don't allow certain combinations */
+				if (!(cave_feat[yy + 1][xx] >= FEAT_WALL_EXTRA))
+				{
+					if (!(cave_feat[yy - 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+					if (!(cave_feat[yy - 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				}
+				if (!(cave_feat[yy - 1][xx] >= FEAT_WALL_EXTRA))
+				{
+					if (!(cave_feat[yy + 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+					if (!(cave_feat[yy + 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				}
+				if (!(cave_feat[yy][xx + 1] >= FEAT_WALL_EXTRA))
+				{
+					if (!(cave_feat[yy + 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+					if (!(cave_feat[yy - 1][xx - 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				}
+				if (!(cave_feat[yy][xx - 1] >= FEAT_WALL_EXTRA))
+				{
+					if (!(cave_feat[yy + 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+					if (!(cave_feat[yy - 1][xx + 1] >= FEAT_WALL_EXTRA)) diagonal ++;
+				}
+
+				if ((walls > 2) && (diagonal == 0))
+				{
+					/* Save the cul-de-sac location */
+					if (dun->cul_de_sac_n < CUL_DE_SAC_MAX)
+					{
+						dun->cul_de_sac[dun->cul_de_sac_n].y = yy;
+						dun->cul_de_sac[dun->cul_de_sac_n].x = xx;
+						dun->cul_de_sac_n++;
+					}
+				}
+			}
+		}
+	}
+
+	int player = 1;
+	int up_stairs = 0;
+	int down_stairs = 2;
+	int cul_de_sacs = dun->cul_de_sac_n;
+
+	if (rand_int(10) < 3) up_stairs = 1;
+
+	/* Place stairs and faery portals to cul-de-sacs */
+	while (cul_de_sacs > 0)
+	{
+		i = (rand_int(dun->cul_de_sac_n + 1));
+
+		/* Get the grid */
+		y = dun->cul_de_sac[i].y;
+		x = dun->cul_de_sac[i].x;
+
+		if (cave_feat[y][x] != FEAT_FLOOR) continue;
+
+		cul_de_sacs --;
+
+		if (up_stairs)
+		{
+			cave_set_feat(y, x, FEAT_LESS);
+			up_stairs --;
+		}
+		else if (down_stairs)
+		{
+			cave_set_feat(y, x, FEAT_MORE);
+			down_stairs --;
+		}
+		else
+		{
+			place_decoration(y, x, WG_FAERY_PORTAL);
+		}
+	}
+
+	alloc_stairs(FEAT_LESS, up_stairs, 2);
+	alloc_stairs(FEAT_MORE, down_stairs, 2);
+
+	/* Place 2 down stairs near some walls
+	alloc_stairs(FEAT_MORE, rand_range(2, 2), 7); */
 
 	/* Place up stairs near some walls
-	   Less up stairs in Halls of Mist */
+	   Less up stairs in Halls of Mist
 	if ((3 > rand_int(10)) || ((quest_check(p_ptr->depth) == QUEST_FIXED) || (quest_check(p_ptr->depth) == QUEST_FIXED_U)))
 	{
 		alloc_stairs(FEAT_LESS, rand_range(1, 1), 7);
-	}
+	} */
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
@@ -5257,14 +5354,13 @@ static void cave_gen(void)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k)); */
 
 	/* Determine the character location */
-	new_player_spot();
+	alloc_player();
 
 	/* Put some faery portals in the corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_FAERY_PORTAL, Rand_normal(DUN_AMT_PORTAL, 3));
 
 	/* Create some tiny rooms with locked doors */
 	int tiny_rooms = 0;
-	int yy, xx;
 	int rows = 0;
 	int columns = 0;
 	bool valid;

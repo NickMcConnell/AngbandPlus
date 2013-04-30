@@ -536,7 +536,7 @@ extern s16b monster_place(int y, int x, const monster_type *n_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, int u_idx, bool slp, bool mist, bool grp, byte mode);
 extern bool place_monster(int y, int x, bool mist);
 extern bool alloc_monster(int dis, bool mist);
-extern bool summon_specific(int y1, int x1, int lev, int type);
+extern bool summon_specific(int y1, int x1, int lev, int type, bool mist);
 extern bool multiply_monster(int m_idx, bool clone);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);

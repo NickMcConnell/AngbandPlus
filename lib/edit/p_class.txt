@@ -88,7 +88,7 @@
 
 # Version stamp (required)
 
-V:1.3.0
+V:1.3.1
 
 N:0:Warrior
 S:3:-2:-1:2:1:-2
@@ -227,7 +227,7 @@ F:SHROOM_MAGIC | WEAPON_GOOD | CHOOSE_SPELLS
 
 N:5:Mage
 S:-3:2:0:1:-1:2
-C:27:20:28:2:20:3:0:2:25:35:20
+C:27:20:28:2:23:3:0:2:25:35:20
 X:5:9:9:0:0:2:2:3:0:0:0
 O:12:18:24:6:5:5:5:5:5:5:5:10:10:10:0:0:3
 I:1:25:1:1:250
@@ -275,7 +275,7 @@ B:7:5
 B:8:5
 B:9:5
 B:10:5
-# Hard Leather Armor, Wooden Shield, a Scroll of Identify
+# Hard Leather Armor, Wooden Shield, a Scroll of Lore
 E:34:1:1:1
 E:36:4:1:1
 E:70:14:1:1
@@ -355,7 +355,7 @@ F:EXTRA_MANA | EXTRA_SPELL | MYSTIC_CAST | CHOOSE_SPELLS | WEAPON_NONE
 
 N:9:Mage
 S:-3:2:0:1:-1:2
-C:27:20:28:2:20:3:0:2:25:35:20
+C:27:20:28:2:23:3:0:2:25:35:20
 X:5:9:9:0:0:2:2:3:0:0:0
 O:18:12:6:24:5:5:5:5:5:5:5:10:10:10:0:0:3
 I:1:25:1:1:250
@@ -403,7 +403,7 @@ B:7:5
 B:8:5
 B:9:5
 B:10:5
-# Hard Leather Armor, Wooden Shield, a Scrolls of Identify
+# Hard Leather Armor, Wooden Shield, a Scrolls of Lore
 E:34:1:1:1
 E:36:4:1:1
 E:70:14:1:1

@@ -1518,7 +1518,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0);
+		(void)summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0, FALSE);
 	}
 }
 

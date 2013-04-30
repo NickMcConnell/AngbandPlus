@@ -3105,7 +3105,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(".  "); break;
 				case POW_BOLT_MISSILE:
 					text_out("Damage ");
-					text_out_c(TERM_L_GREEN, format ("2d6"));
+					text_out_c(TERM_L_GREEN, format ("2d10"));
 					text_out(".  "); break;
 				case POW_BOLT_ELEC:
 					text_out("Damage ");
@@ -3186,7 +3186,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(".  "); break;
 				case POW_HARPOON:
 					text_out("Damage ");
-					text_out_c(TERM_L_GREEN, format ("%dd6", 1 + (dlev/4)));
+					text_out_c(TERM_L_GREEN, format ("%dd6", 2 + (dlev/4)));
 					text_out(".  "); break;
 				case POW_BALL_STUN:
 					text_out("Damage ");

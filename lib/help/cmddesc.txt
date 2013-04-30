@@ -146,10 +146,9 @@ Rest (R)
     conditions are met.  In any case, you always wake up when anything 
     disturbing happens, or when you press any key.  To rest, enter the Rest 
     command, followed by the number of turns you want to rest, 'H' to rest 
-    until your hitpoints are restored, 'S' to rest until your mana is restored,
-    '*' for both, and '&' to rest until you are fully "healed" of several ill
-    conditions.  This command may take an argument (used for the number of 
-    turns to rest), and takes some energy.
+    until your hitpoints are restored and '&' to rest until you are fully
+    "healed" of several ill conditions.  This command may take an argument
+    (used for the number of turns to rest), and takes some energy.
 
 --- Searching Commands ---
 
@@ -352,10 +351,9 @@ Invoke a talisman (y) or Invoke a talisman (S)
     Talismans are similar to rods, but have wand-like effects.  This command 
     requires a direction and can use a target.
 
-Quaff a potion (q)
-    Use this command to drink a potion.  Potions affect the player in various 
-    ways, but the effects are not always immediately obvious.  This command 
-    takes some energy.
+Quaff a potion or drink from a fountain (q)
+    Potions and fountains affect the player in various ways, but the effects are
+    not always immediately obvious.  This command takes some energy.
 
 Mix two potions (x) or mix two potions ($)
     Use this command to mix two potions, and generate a new one.  You have to

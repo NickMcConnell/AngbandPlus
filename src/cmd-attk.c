@@ -2114,7 +2114,7 @@ static void move_player(int dir, int jumping)
 			}
 			else
 			{
-				message(MSG_GENERIC, 0, "You hop over some bushes.");
+				message(MSG_GENERIC, 0, "You leap over some bushes.");
 			}
 
 			break;
@@ -2149,7 +2149,7 @@ static void move_player(int dir, int jumping)
 			}
 			else
 			{
-				message(MSG_GENERIC, 0, "You hop over spikes.");
+				message(MSG_GENERIC, 0, "You leap over spikes.");
 			}
 
 			break;
@@ -2181,11 +2181,11 @@ static void move_player(int dir, int jumping)
 			}
 			else if (t_list[cave_t_idx[y][x]].w_idx == WG_TABLE)
 			{
-				message(MSG_GENERIC, 0, "You hop on the table.");
+				message(MSG_GENERIC, 0, "You leap on the table.");
 			}
 			else if (t_list[cave_t_idx[y][x]].w_idx == WG_PLATFORM)
 			{
-				message(MSG_GENERIC, 0, "You hop on the platform.");
+				message(MSG_GENERIC, 0, "You leap on the platform.");
 			}
 
 			break;
@@ -4332,7 +4332,7 @@ void do_cmd_rest(void)
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, h for HP, s for SP, * HP/SP, & full): ";
+		cptr p = "Rest (0-9999, h for HP, & full): ";
 
 		char out_val[5];
 
@@ -4348,24 +4348,11 @@ void do_cmd_rest(void)
 			p_ptr->command_arg = (-2);
 		}
 
-		/* Rest hit points and spell points */
-		else if (out_val[0] == '*')
-		{
-			p_ptr->command_arg = (-1);
-		}
-
 		/* Rest hit points */
 		else if (out_val[0] == 'h')
 		{
 			p_ptr->command_arg = (-3);
 		}
-
-		/* Rest spell points */
-		else if (out_val[0] == 's')
-		{
-			p_ptr->command_arg = (-4);
-		}
-
 
 		/* Rest some */
 		else

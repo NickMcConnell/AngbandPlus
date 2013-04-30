@@ -256,19 +256,19 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Decrease the monster generation counter */
-	if (randint(1000) < p_ptr->monster_counter)
+	if (randint(900) < p_ptr->monster_counter)
 	{
 		p_ptr->monster_counter --;
 
 		if (p_ptr->monster_counter == 1)
 		{
-			message(MSG_EFFECT, 0, "The Mist has gone crazy... Mist-creatures are taking shape everywhere!");
+			message(MSG_EFFECT, 0, "The Mist has gone crazy... Phantasms are taking shape everywhere!");
 			disturb(0);
 		}
 	}
 
 	/* Check for creature generation -- in the dungeon monsters sometimes get shaped out of the mist. */
-	if ((randint(p_ptr->monster_counter) == 1) && (p_ptr->depth > 0))
+	if (((randint(p_ptr->monster_counter) == 1) || ((randint(p_ptr->monster_counter) == 1))) && (p_ptr->depth > 0))
 	{
 		/* Make a new monster */
 		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5, TRUE);
@@ -526,10 +526,17 @@ static void process_world(void)
 			}
 
 			/* The light is getting dim */
-			else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
+			else if (o_ptr->timeout == 100)
 			{
 				if (disturb_minor) disturb(0);
 				message(MSG_EFFECT, 0, "Your light is growing faint.");
+			}
+
+			/* The light is getting dim */
+			else if (o_ptr->timeout == 10)
+			{
+				if (disturb_minor) disturb(0);
+				message(MSG_EFFECT, 0, "Your light is running out.");
 			}
 		}
 		else if (p_ptr->depth)
@@ -1086,15 +1093,6 @@ static void process_player(void)
 				disturb(0);
 			}
 		}
-
-		/* Rest spell points
-		else if (p_ptr->resting == -4)
-		{
-			if (p_ptr->csp == p_ptr->msp)
-			{
-				disturb(0);
-			}
-		} */
 	}
 
 	/* Handle "abort" */

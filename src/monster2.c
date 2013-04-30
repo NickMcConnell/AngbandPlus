@@ -2455,7 +2455,7 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(int y1, int x1, int lev, int type, bool mist)
 {
 	int i, x, y, r_idx;
 	byte mode;
@@ -2537,7 +2537,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	}
 
 	/* Attempt to place the monster (awake, mist, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, 0, FALSE, TRUE, TRUE, mode)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, 0, FALSE, mist, TRUE, mode)) return (FALSE);
 
 	/* Success */
 	return (TRUE);

@@ -261,36 +261,15 @@ static void get_extra(void)
 	/* Give mana */
 	give_mana();
 
-	/* Old style, rolled hitpoints */
-	if (adult_random_hp)
-	{
-		/* Minimum/Maximum hitpoints at highest level */
-		int min_value = PY_MAX_LEVEL * (1 + (((p_ptr->hitdie - 1) * 3) / 8));
-		int max_value = PY_MAX_LEVEL * (1 + (((p_ptr->hitdie - 1) * 5) / 8));
-
-		/* Roll out the hitpoints */
-		do 
-		{
-			/* Roll the hitpoint values */
-			for (i = 1; i < PY_MAX_LEVEL; i++)
-			{
-				p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + randint(p_ptr->hitdie);
-			}
-		} while ((p_ptr->player_hp[PY_MAX_LEVEL - 1] < min_value) ||
-				 (p_ptr->player_hp[PY_MAX_LEVEL - 1] > max_value));
-	}
 	/* Non-random hp. Each level provides exactly average hitpoints. */
-	else
+	for (i = 1; i < PY_MAX_LEVEL; i++)
 	{
-		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + (p_ptr->hitdie + 1) / 2;
+		p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + (p_ptr->hitdie + 1) / 2;
 
-			/* If the average is a fraction, round every other level */
-            if (((p_ptr->hitdie % 2) == 0) && ((i % 2) == 1)) p_ptr->player_hp[i]++;
-		}
-
+		/* If the average is a fraction, round every other level */
+		if (((p_ptr->hitdie % 2) == 0) && ((i % 2) == 1)) p_ptr->player_hp[i]++;
 	}
+
 }
 
 /*

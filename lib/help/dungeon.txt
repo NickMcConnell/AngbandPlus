@@ -169,7 +169,8 @@ The Bookshop ("9")
 
 === Within The Dungeon ===
 
-Be sure to wield to torch before entering the dungeon! It's impossible to extinguish a torch. If you take off a torch, it's gone forever.
+Be sure to wield to torch before entering the dungeon! It's impossible to
+extinguish a torch. If you take off a torch, it's gone forever.
 
 Once your character is adequately supplied with light, armor, and weapons, he
 is ready to enter the dungeon.  Move on top of the `>' symbol and use the

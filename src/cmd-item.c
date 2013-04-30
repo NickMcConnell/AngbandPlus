@@ -1092,7 +1092,8 @@ void do_cmd_quaff_potion(void)
 
 					for (i = 0; i < randint(3) + randint(3); i++)
 					{
-						summon_specific(p_ptr->py + 1 + rand_int(2), p_ptr->px + 2 + rand_int(2), p_ptr->depth + randint(3), SUMMON_FAERY);
+						/* They're real, not phantasms */
+						summon_specific(p_ptr->py + 1 + rand_int(2), p_ptr->px + 2 + rand_int(2), p_ptr->depth + randint(3), SUMMON_FAERY, FALSE);
 					}
 					break;
 				}

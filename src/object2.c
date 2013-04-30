@@ -2075,7 +2075,7 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_HARPOON:			o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_TRAP_DOOR_DEST:		o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_STONE_TO_MUD:		o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_LITE:				o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_LITE:			o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_DRYAD:			o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_SLOW_MONSTER:		o_ptr->pval = randint(10) + 6; break;
 		case SV_WAND_CALM_MONSTER:		o_ptr->pval = randint(10) + 6; break;
@@ -2085,7 +2085,7 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_DRAIN_LIFE:		o_ptr->pval = randint(3)  + 3; break;
 		case SV_WAND_POLYMORPH:			o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_STINKING_CLOUD:		o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_MAGIC_MISSILE:		o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_MAGIC_MISSILE:		o_ptr->pval = randint(8) + 6; break;
 		case SV_WAND_ACID_BOLT:			o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_ELEC_BOLT:			o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_FIRE_BOLT:			o_ptr->pval = randint(8)  + 6; break;
@@ -4764,7 +4764,8 @@ void draw_circle(int y, int x, int type)
 	{
 		for (i = 0; i < randint(3) + randint(3); i++)
 		{
-			summon_specific(y + 1 + rand_int(2), x + 2 + rand_int(2), p_ptr->depth + randint(5), 0);
+			/* They are real, not mist-phantasms */
+			summon_specific(y + 1 + rand_int(2), x + 2 + rand_int(2), p_ptr->depth + randint(3), 0, FALSE);
 		}
 	}
 

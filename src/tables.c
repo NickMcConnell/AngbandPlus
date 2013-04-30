@@ -1750,7 +1750,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_BALL_HOLY_2,		"Orb of Draining",		 9,  8, 44 },
 			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 46 },
 			{ POW_CURE_DISEASE,		"Cure Disease",			10,  7, 46 },
-			{ POW_GLYPH_HOLY,		"Holy Sigil",			10, 15, 56 },
+			{ POW_GLYPH_HOLY,		"Holy Sigil",			10, 2, 56 },
 			{ POW_SEE_INVIS,		"Sense Invisible",		11,  8, 48 },
 			{ POW_PROT_EVIL_2,		"Protection from Evil",		11,  8, 48 },
 			{ POW_EARTHQUAKE,		"Earthquake",			13,  9, 61 },
@@ -1766,7 +1766,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DISPEL_DEMON,		"Dispel Demons",		17, 12, 61 },
 			{ POW_PROT_CHAOS_2,		"Protection from Chaos",	20,  8, 48 },
 			{ POW_DISPEL_EVIL_3,		"Dispel Evil",			25, 17, 76 },
-			{ POW_GLYPH_WARDING,		"Glyph of Warding",		33, 55, 92 },
+			{ POW_GLYPH_WARDING,		"Glyph of Warding",		33, 5, 92 },
 			{ POW_HOLY_2,			"Holy Word",			39, 32, 97 },
 			/* { POW_BLESS_3,		"Prayer",					15, 14, 50 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
@@ -2140,7 +2140,7 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_smart_cheat",		"Monsters exploit players weaknesses",		FALSE},
 	{"birth_flow_by_sound",		"Monsters chase current location",			TRUE },
 	{"birth_flow_by_smell",		"Monsters chase recent locations",			TRUE },
-	{"birth_random_hp",			"Generate hitpoints randomly",				TRUE },
+	{"birth_random_hp",			"Generate hitpoints randomly",				FALSE },
 	{"birth_force_small_lev",	"All levels will be generated as small",	TRUE},
 	{"birth_easy_mode",			"Easy mode",								FALSE},
 	{"birth_nightmare_mode",	"Nightmare mode",							FALSE},

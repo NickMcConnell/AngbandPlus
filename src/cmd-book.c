@@ -1686,7 +1686,7 @@ static void do_cast(int book, bool force_menu)
 				message(MSG_SPELL_FAIL, 0, 
 					"You lost your grasp on the evil powers that you had sought to control!");
 				/* Summon some horrors */
-				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+10, SUMMON_HORROR);
+				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+10, SUMMON_HORROR, TRUE);
 				/* Darkness */
 				if (!p_ptr->no_blind)
 				{

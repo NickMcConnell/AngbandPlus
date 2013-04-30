@@ -826,7 +826,8 @@ void hit_trap(int y, int x)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(y, x, p_ptr->depth, 0);
+				/* Mist phantasms */
+				(void)summon_specific(y, x, p_ptr->depth, 0, FALSE);
 			}
 			break;
 		}

@@ -2026,7 +2026,7 @@ static bool make_attack_spell(int m_idx)
 			summon_kin_type = r_ptr->d_char;
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_KIN);
+				count += summon_specific(y, x, rlev, SUMMON_KIN, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2044,7 +2044,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 4; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON);
+				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2062,7 +2062,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, 0);
+				count += summon_specific(y, x, rlev, 0, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2080,7 +2080,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, 0);
+				count += summon_specific(y, x, rlev, 0, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2098,7 +2098,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_ANIMALS);
+				count += summon_specific(y, x, rlev, SUMMON_ANIMALS, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2116,7 +2116,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
+				count += summon_specific(y, x, rlev, SUMMON_SPIDER, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2134,7 +2134,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HOUND);
+				count += summon_specific(y, x, rlev, SUMMON_HOUND, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2152,7 +2152,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_FAERY);
+				count += summon_specific(y, x, rlev, SUMMON_FAERY, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2170,7 +2170,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 3; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
+				count += summon_specific(y, x, rlev, SUMMON_HYDRA, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2188,7 +2188,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HORROR);
+				count += summon_specific(y, x, rlev, SUMMON_HORROR, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2206,7 +2206,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_DEMON);
+				count += summon_specific(y, x, rlev, SUMMON_DEMON, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2224,7 +2224,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
+				count += summon_specific(y, x, rlev, SUMMON_UNDEAD, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2242,7 +2242,7 @@ static bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 
 			{
-				count += summon_specific(y, x, rlev, SUMMON_DRAGON);
+				count += summon_specific(y, x, rlev, SUMMON_DRAGON, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2260,7 +2260,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 5; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
+				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2278,7 +2278,7 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 5; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
+				count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON, TRUE);
 			}
 			if (blind && count)
 			{
@@ -2296,12 +2296,12 @@ static bool make_attack_spell(int m_idx)
 
 			for (k = 0; k < 5; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
+				count += summon_specific(y, x, rlev, SUMMON_UNIQUE, TRUE);
 			}
 			for (k = 0; k < 5; k++)
 			{
 				/* Hack - summon hi demons, undead, or dragons */
-				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON + rand_int(3));
+				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON + rand_int(3), TRUE);
 			}
 			if (blind && count)
 			{
@@ -3753,7 +3753,7 @@ static void monster_action(int m_idx)
 				{
 					if (m_ptr->ml)
 					{
-						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over some bushes.", m_name);
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s leaps over some bushes.", m_name);
 					}
 				}
 				break;
@@ -3892,7 +3892,7 @@ static void monster_action(int m_idx)
 				{
 					if (m_ptr->ml)
 					{
-						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over spikes.", m_name);
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s leaps over spikes.", m_name);
 					}
 				}
 				break;
@@ -3950,14 +3950,14 @@ static void monster_action(int m_idx)
 				{
 					if (m_ptr->ml)
 					{
-						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the table.", m_name);
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s leaps on the table.", m_name);
 					}
 				}
 				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_PLATFORM) && (do_move))
 				{
 					if (m_ptr->ml)
 					{
-						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the platform.", m_name);
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s leaps on the platform.", m_name);
 					}
 				}
 

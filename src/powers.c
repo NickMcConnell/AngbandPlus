@@ -1144,7 +1144,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_BOLT_MISSILE:
 		{
 			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
-			(void)fire_bolt(GF_MISSILE, dir, calc_damage(2, 6, 0));
+			(void)fire_bolt(GF_MISSILE, dir, calc_damage(2, 9, 0));
 			*obvious = TRUE;
 			break;
 		}
@@ -2119,7 +2119,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_HARPOON:
 		{
 			if (!dir) if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return (FALSE);
-			if(fire_bolt(GF_HARPOON, dir, calc_damage(1 + (dlev / 4), 6, 0))) *obvious = TRUE;
+			if(fire_bolt(GF_HARPOON, dir, calc_damage(2 + (dlev / 4), 6, 0))) *obvious = TRUE;
 			break;
 		}
 		case POW_POLY_MONSTER:
@@ -2636,7 +2636,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			for (i = 0; i < randint(4); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), 0))
+				/* They are real, not mist-phantasm */
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0, FALSE))
 				{
 					*obvious = TRUE;
 				}
@@ -2647,7 +2648,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			for (i = 0; i < randint(3); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), SUMMON_UNDEAD))
+				/* They are real, not mist-phantasm */
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_UNDEAD, FALSE))
 					*obvious = TRUE;
 			}
 			break;
@@ -2656,7 +2658,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 		for (i = 0; i < randint(3); i++)
 			{
-				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(2), SUMMON_DRAGON))
+				/* They are real, not mist-phantasm */
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DRAGON, FALSE))
 					*obvious = TRUE;
 			}
 			break;
@@ -3903,6 +3906,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			message(MSG_EFFECT, 0, "The scroll contains pieces of arcane lore!");
 			p_ptr->lore_uses --;
+			*obvious = TRUE;
 			break;
 		}
 		case POW_GROWTH:
