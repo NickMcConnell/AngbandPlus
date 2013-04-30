@@ -1276,14 +1276,15 @@ A:10/1
 F:SUST_INT | SUST_WIS
 Y:17:1
 
-#Unused
-#N:158:Sustain Wisdom
-#G:=:w
-#I:45:12:0
-#W:10:0:2:250
-#A:10/1
-#F:SUST_WIS
-#Y:5:1
+# Created by Pete Mac.
+
+N:158:Perilous Summoning
+G:_:w
+I:55:33:0
+W:10:0:50:0
+A:10/1:50/1
+P:0:1d6:0:0:0
+Y:15:2
 
 N:159:Sustain Constitution and Charisma
 G:=:w
@@ -6349,21 +6350,21 @@ P:0:1d1:0:0:0
 N:868:& stylised scene~ of #
 G:9:o
 I:11:28:0
-W:55:0:1800:3000
+W:55:0:80:3000
 A:55/2
 P:0:1d1:0:0:0
 
 N:869:& grand oil painting~ of #
 G:9:G
 I:11:29:0
-W:65:0:400:5000
+W:65:0:200:5000
 A:65/2
 P:0:1d1:0:0:0
 
 N:870:& intimate potrait~ of #
 G:9:g
 I:11:30:0
-W:70:0:200:8000
+W:70:0:60:8000
 A:70/2
 P:0:1d1:0:0:0
 
@@ -6732,4 +6733,3 @@ I:8:7:0
 W:0:0:40:0
 A:11/1
 P:0:1d1:0:0:0
-

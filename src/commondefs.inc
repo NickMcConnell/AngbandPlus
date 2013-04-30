@@ -47,7 +47,7 @@ HDRS = \
 INCS = \
 	angband.h \
 	config.h defines.h \
-	types.h externs.h osx.h \
+	types.h externs.h osx/osx.h \
 	z-term.h z-rand.h \
 	z-util.h z-virt.h \
 	z-form.h $(HDRS)

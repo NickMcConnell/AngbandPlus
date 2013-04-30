@@ -583,6 +583,9 @@ void do_cmd_wield(void)
 	/* Increase the weight */
 	p_ptr->total_weight += i_ptr->weight * amt;
 
+	/* Important - clear this flag */
+	j_ptr->ident &= ~(IDENT_STORE);
+
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
 	{
@@ -725,10 +728,10 @@ void do_cmd_wield(void)
 
 	/* Hack --- also computationally expensive. But note we notice these only if we don't already */
 	/* have these abilities */
-	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(j_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
+	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->cur_flags3 & (TR3_TELEPATHY)))) object_can_flags(j_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
 	else object_not_flags(j_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
 
-	if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(j_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
+	if ((f3 & (TR3_SEE_INVIS)) && !(p_ptr->cur_flags3 & (TR3_SEE_INVIS)) && (!p_ptr->tim_invis)) object_can_flags(j_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
 	else object_not_flags(j_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
 #endif
 

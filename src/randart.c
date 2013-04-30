@@ -1028,7 +1028,6 @@ static s32b artifact_power(int a_idx)
 		if (a_ptr->flags1 & TR1_DEX) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += 4 * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_TUNNEL) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_SEARCH) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_INFRA) p += a_ptr->pval;

@@ -1875,6 +1875,8 @@ errr Term_keypress(int k)
 	/* Hack -- Refuse to enqueue non-keys */
 	if (!k) return (-1);
 
+	/* It is not a mouse event! */
+	Term->key_queue[Term->key_head].mousebutton = 0;
 	/* Store the char, advance the queue */
 	Term->key_queue[Term->key_head++].key = k;
 

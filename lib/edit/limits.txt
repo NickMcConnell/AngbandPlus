@@ -14,7 +14,7 @@
 V:0.6.2
 
 # Maximum number of feature types
-M:F:877
+M:F:893
 
 # Maximum number of room description lines
 M:D:800
@@ -59,7 +59,7 @@ M:C:11
 M:W:160
 
 # Maximum number of spells
-M:S:490
+M:S:491
 
 # Maximum number of runes
 M:Y:30

@@ -30,8 +30,11 @@
  */
 #include "config.h"
 #include "defines.h"
-/* OS X defines and externs. */
-#include "osx.h"
+/* OS-specific defines and externs. */
+
+#ifdef MACH_O_CARBON
+#include "osx/osx.h"
+#endif
 
 #include "types.h"
 

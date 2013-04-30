@@ -10,7 +10,7 @@
 # or possibly for "Atari" or "Amiga" computers with "Curses" ports,
 # see below for more information.
 #
-# Note that "main-mac.c", the visual module for the Macintosh,
+# Note that "main-crb.c", the visual module for the Mac OSX,
 # must be compiled in a special way, see elsewhere.
 #
 # Note that "main-win.c", the visual module for Windows,

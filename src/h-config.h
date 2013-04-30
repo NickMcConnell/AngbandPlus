@@ -15,13 +15,6 @@
 
 
 /*
- * OPTION: Compile on a Macintosh machine
- */
-#ifndef MACINTOSH
-/* #define MACINTOSH */
-#endif
-
-/*
  * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
@@ -84,7 +77,6 @@
 #ifndef ULTRIX
 /* #define ULTRIX */
 #endif
-
 
 
 /*
@@ -161,15 +153,6 @@
 # endif
 #endif
 
-/*
- * Remove the WINDOWS flag when using MACINTOSH
- */
-#ifdef MACINTOSH
-# ifdef WINDOWS
-#  undef WINDOWS
-# endif
-#endif
-
 
 
 /*
@@ -194,10 +177,9 @@
  * Basically, SET_UID should *only* be set for "Unix" machines,
  * or for the "Atari" platform which is Unix-like, apparently
  */
-#if !defined(MACINTOSH) && !defined(WINDOWS) && \
+#if !defined(MACH_O_CARBON) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(ACORN) && !defined(VM) && \
-	!defined(MACH_O_CARBON)
+    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
 #endif
 
@@ -230,10 +212,6 @@
  */
 #undef PATH_SEP
 #define PATH_SEP "/"
-#ifdef MACINTOSH
-# undef PATH_SEP
-# define PATH_SEP ":"
-#endif
 #if defined(WINDOWS) || defined(WINNT)
 # undef PATH_SEP
 # define PATH_SEP "\\"
@@ -257,15 +235,10 @@
 
 
 /*
- * The Macintosh allows the use of a "file type" when creating a file
+ *  Systems other than Macs don't use file types
  */
-#if defined(MACINTOSH) && !defined(applec)
-# define FILE_TYPE_TEXT 'TEXT'
-# define FILE_TYPE_DATA 'DATA'
-# define FILE_TYPE_SAVE 'SAVE'
-# define FILE_TYPE(X) (_ftype = (X))
-#else
-# define FILE_TYPE(X) ((void)0)
+#ifndef MACH_O_CARBON
+# define FILE_TYPE(X) ((void) 0)
 #endif
 
 

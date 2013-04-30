@@ -227,9 +227,18 @@
 #define ALLOW_TEMPLATES
 
 /*
+ * OPTION: Allow output of 'processed' ascii template files.
+ * This can be used to process an ascii template file using
+ * code within Unangband, and then emit a revised version.
+ */
+
+#define ALLOW_TEMPLATES_OUTPUT
+
+/*
  * OPTION: Expand object memory. This may be a performance hit on older
  * machines.
  */
+
 #define ALLOW_OBJECT_INFO_MORE
 
 

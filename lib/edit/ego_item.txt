@@ -194,7 +194,7 @@ T:34:5:99
 T:37:3:99
 F:IGNORE_ACID | IGNORE_FIRE | 
 F:FREE_ACT | 
-F:STR | CON | INFRA | DWARF
+F:INT | CON | INFRA | DWARF
 Y:9:4
 
 ### Shields/Robes/Cloaks ###
@@ -275,8 +275,8 @@ Y:19:3
 #Robes/Crown
 
 N:27:of the Magi
-X:33:15:3
-W:0:4:0:7500
+X:33:15:2
+W:0:4:0:8000
 C:0:0:0:3
 T:33:0:99
 T:36:2:2
@@ -285,24 +285,23 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 Y:17:3
 
-#Crown/Gauntlets/Instruments
+#Crown/Gauntlets
 
 N:28:of Might
-X:33:19:3
-W:0:4:0:7500
+X:33:15:3
+W:0:3:0:7000
 C:0:0:0:3
-T:24:0:99
 T:31:2:99
 T:33:0:99
-F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
+F:STR | SUST_STR | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 Y:23:3
 
 #Crown/Instruments
 
 N:29:of Lordliness
-X:33:17:3
-W:0:2:0:7500
+X:33:15:3
+W:0:2:0:6000
 C:0:0:0:3
 T:24:0:99
 T:33:0:99
@@ -439,14 +438,14 @@ Y:15:3
 ### Gloves/Boots ###
 
 N:51:of Power
-X:22:0:0
-W:0:6:0:2500
+X:22:20:0
+W:0:5:0:2500
 C:5:5:0:5
 T:31:0:99
 F:STR
 
 N:52:of Thievery
-X:34:22:0
+X:34:20:0
 W:30:12:0:5000
 C:8:3:0:5
 T:31:1:1
@@ -454,8 +453,8 @@ F:DEX | SEARCH | FEATHER | FREE_ACT | SILENT
 Y:16:3
 
 N:53:of Combat
-X:34:22:0
-W:50:12:0:7000
+X:34:25:0
+W:50:12:0:9000
 C:3:8:0:2
 T:24:0:99
 T:31:2:99
@@ -552,7 +551,7 @@ Y:23:5
 
 N:68:of Westernesse
 X:24:20:0
-W:30:10:0:20000
+W:30:15:0:30000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
@@ -957,6 +956,18 @@ T:39:1:1
 #F:LITE
 F:RES_DARK | LIGHT_CURSE
 Y:18:3
+
+#Crown/Instruments
+
+N:124:of Health
+X:33:17:2
+W:0:5:0:9000
+C:0:0:0:3
+T:24:0:99
+T:33:0:99
+F:WIS | CON | SUST_WIS | SUST_CON | RES_DISEASE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+Y:23:2
 
 ### Special Broken Items ###
 

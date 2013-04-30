@@ -2108,8 +2108,13 @@ void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_study]] *
-		       levels / 50);
+	num_allowed = adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_study]];
+
+	/* Scale down if below 'maximum' spell level */	
+	if (levels < adj_mag_study_max[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_study]])
+	{
+		num_allowed = num_allowed * levels / adj_mag_study_max[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat_study]];
+	}
 
 	/* Hack -- ensure minimum of 1 if sufficient level to cast spells */
 	if (levels) num_allowed++;
@@ -3720,7 +3725,7 @@ static void calc_bonuses(void)
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
-                        case TV_STAFF:
+			case TV_STAFF:
 			case TV_HAFTED:
 			{
 				p_ptr->cur_style |= (1L << WS_HAFTED);

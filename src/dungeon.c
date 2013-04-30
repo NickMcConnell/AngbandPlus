@@ -2327,7 +2327,7 @@ static void process_command(void)
 		/* Interact with options */
 		case '=':
 		{
-			do_cmd_options();
+			do_cmd_menu(MENU_OPTIONS, "options");
 			do_cmd_redraw();
 			break;
 		}
@@ -2423,7 +2423,7 @@ static void process_command(void)
 		/* Check knowledge */
 		case '~':
 		{
-			do_cmd_knowledge();
+			do_cmd_menu(MENU_KNOWLEDGE, "knowledge");
 			break;
 		}
 

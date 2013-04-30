@@ -717,6 +717,12 @@ static void attack_desc(int who, int target, int method, int damage, bool *do_cu
 			break;
 		}
 
+		case RBM_DAGGER:
+		{
+			prefix = "throws a dagger at ";
+			break;
+		}
+
 		default:
 		{
 			prefix = "casts a spell at ";
@@ -2136,7 +2142,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_PANEL: (void)project(who, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT | PROJECT_WALL, 0, 0);  break;
 				case RBM_LEVEL: (void)project(who, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT | PROJECT_WALL, 0, 0);  break;
 				case RBM_CROSS: mon_beam(who, y, x, effect, dam, 10, result); break;
-				case RBM_STRIKE: mon_ball(who, y, x, effect, dam, 1, TRUE, result); break;
+				case RBM_STRIKE: mon_ball(who, y, x, effect, dam, (rlev / 10) + 2, TRUE, result); break;
 				case RBM_EXPLODE: (void)project(0, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, damroll(5,8), GF_EXPLODE, FLG_MON_BALL, 0, 0); break;
 				case RBM_ARROW: mon_shot(who, y, x, effect, dam, hit, result); break;
 				case RBM_XBOLT: mon_shot(who, y, x, effect, dam, hit, result); break;
@@ -2153,6 +2159,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_8WAY_II: mon_8way(who, y, x, effect, dam, 3, result); break;
 				case RBM_8WAY_III: mon_8way(who, y, x, effect, dam, 4, result); break;
 				case RBM_SWARM: for (k = 0; k < (rlev / 20) + 2; k++) mon_ball_minor(who, y, x, effect, dam, 2, TRUE, result); break;
+				case RBM_DAGGER: mon_shot(who, y, x, effect, dam, hit, result); break;
 				default: mon_beam(who, y, x, effect, dam, 2, result); /* For all hurt huge attacks */
 			}
 

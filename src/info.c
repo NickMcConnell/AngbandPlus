@@ -1235,7 +1235,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_CLOUD: p = "creates a cloud"; t = "your enemies"; rad = 2; d3 += level/2; break;
 			case RBM_STORM: p = "creates a storm"; t = "your enemies"; rad = 3; break;
 			case RBM_BREATH: p = "breathes";  t = "your enemies"; break;
-			case RBM_AREA: p = "surrounds you with magic"; rad = (level/10)+2; break;
+			case RBM_AREA: p = "surrounds you with magic"; rad = (level/10)+1; break;
 			case RBM_LOS: t = "all your enemies in line of sight"; break;
 			case RBM_LINE: t = "one direction"; break;
 			case RBM_AIM: t = "one target"; break;
@@ -1243,7 +1243,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_LEVEL: t = "the current level"; break;
 			case RBM_ORB: p = "creates an orb"; t = "your enemies"; rad = (level < 30 ? 2 : 3); d3 += level/2; break;
 			case RBM_CROSS: p = "surrounds you with a cross"; t = "your enemies"; break;
-			case RBM_STRIKE: p = "strikes"; t = "an enemy"; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
+			case RBM_STRIKE: p = "strikes"; t = "your enemy"; rad = (level/10)+2; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
 			case RBM_STAR: p = "surrounds you with a star"; t = "your enemies"; break;
 			case RBM_SPHERE: p = "creates a sphere";  t = "your enemies";  rad = (level/10)+2;break;
 			case RBM_ARROW: p = "creates an arrow"; t="one target"; break;
@@ -2840,10 +2840,10 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode)
 		switch (mode)
 		{
 			case LIST_FLAGS_CAN:
-				anything |= outlist("It burdens you with", list, TERM_WHITE);
+				anything |= outlist("It burdens you with", list, TERM_ORANGE);
 				break;
 			case LIST_FLAGS_MAY:
-				anything |= outlist("It may burden you with", list, TERM_L_WHITE);
+				anything |= outlist("It may burden you with", list, TERM_YELLOW);
 				break;
 			case LIST_FLAGS_NOT:
 				anything |= outlist("It does not burden you with", list, TERM_SLATE);
@@ -2854,6 +2854,39 @@ bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int mode)
 	return (anything);
 
 }
+
+const cptr inscrip_info[] =
+{
+		NULL,
+		"It is a cursed artifact of some kind, that you may be able to enchant back to full strength.  ",
+		"It is a cursed ego item of some kind.  ",
+		"It is cursed, with negative effects if you attempt to use it.  ",
+		"It has been blasted by powerful magic.  ",
+		"It needs recharging.  ",
+		"It is of good quality, but with no additional powers.  ",
+		"It is a useful ego item.  ",
+		"It is a useful artifact.  ",
+		"It is an artifact that has resisted your destruction.  ",
+		"It is an ego item or artifact that resisted being picked up or used.  ",
+		"It is of average quality or better, and not cursed.  It may be an ego item or artifact.  ",
+		"It is of very good quality, but with no additional powers.  ",
+		"It is of great quality, but with no additonal powers.  ",
+		"It is a useful ego item, with a random hidden ability.  ",
+		"It is of average quality or worse, and may be cursed.  It may be an ego item or artifact.  ",
+		"It is better than average quality, and not cursed.  It may be an ego item or artifact.  ",
+		"It is an ego item or artifact.  ",
+		"It is an ego item, but may or may not be cursed.  ",
+		"It is an ego item, with a random hidden ability, but may or may not be cursed.  ",
+		"It is an artifact, but may or may not be cursed.  ",
+		"There are no runes on it.  ",
+		"There are runes on it.  It may be an ego item or artifact.  ",
+		"It is of average quality, but may be damaged by wear and tear.  ",
+		"It is valuable, but may or may not be cursed.  ",
+		"It is better than average quality, but may or may not be cursed.  It may be an ego item or artifact.  ",
+		"It is coated with a substance.  ",
+		"It has a magically applied enchantment.  "
+};
+
 
 /* 
  * Create a spoiler file entry for an artifact 
@@ -3161,6 +3194,7 @@ void list_object(const object_type *o_ptr, int mode)
 		cptr vp_activate = "When activated, it ";
 		cptr vp_activate_throw = "When inscribed with {=A} and attacking or thrown against an opponent, it ";
 		cptr vp_activate_attack = "When inscribed with {=A} and attacking an opponent, it ";
+		cptr vp_player_eat = "When eaten, it ";
 		cptr vp_monster_eat = "When eaten by monsters, it ";
 
 		vn = 0;
@@ -3201,11 +3235,12 @@ void list_object(const object_type *o_ptr, int mode)
 
 			case TV_BODY:
 			case TV_BONE:
+				vp[vn] = vp_player_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;
 				vp[vn] = vp_monster_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
 				break;
 
 			case TV_FOOD:
-				vp[vn] = "When eaten, it "; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;
+				vp[vn] = vp_player_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;
 				vp[vn] = vp_monster_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
 				if (o_ptr->sval < SV_FOOD_MIN_FOOD)
 				{
@@ -3253,6 +3288,10 @@ void list_object(const object_type *o_ptr, int mode)
 				vp[vn] = "When quaffed, it "; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;
 				/* Fall through */
 			case TV_FLASK:
+				if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_BLOOD))
+				{
+					vp[vn] = vp_player_eat; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_SELF;					
+				}
 				vp[vn] = vp_coating; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_COATED;
 				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_EXPLODE;
 				vp[vn] = vp_set_trap; vd[vn] = FALSE; vt[vn++] = SPELL_TARGET_AIMED;
@@ -3318,10 +3357,21 @@ void list_object(const object_type *o_ptr, int mode)
 				}
 
 				/* Hack -- food feeds player */
-				if (!(n) && (o_ptr->tval == TV_FOOD) && (o_ptr->charges))
+				if ((vp[n] == vp_player_eat) && (o_ptr->charges))
 				{
 					text_out(vp[n]);
-					text_out("provides nourishment");
+					text_out(k_info[o_ptr->k_idx].used >= 10 ? format("provides %d units of nourishment", o_ptr->charges * o_ptr->weight) : "provides nourishment");
+					switch (o_ptr->tval)
+					{
+						case TV_FOOD:
+							break;
+						case TV_EGG:
+							text_out(" to hungry players");
+							break;
+						default:
+							text_out(" to starving players");
+							break;
+					}
 					vd[n] = TRUE;
 					anything = TRUE;
 					powers = TRUE;
@@ -3378,6 +3428,36 @@ void list_object(const object_type *o_ptr, int mode)
 			text_out(format("It %s your armor class by %d.  ", armor > 0 ? "increases" : "decreases" , armor > 0 ? armor : -armor));
 
 			anything = TRUE;
+		}
+	}
+
+	/* Have sensed something about this item */
+	if ((o_ptr->feeling) || (object_known_p(o_ptr)))
+	{
+		int feeling = o_ptr->feeling;
+		if (!feeling) feeling = value_check_aux1(o_ptr);
+		
+		if (feeling)
+		{
+			if (feeling <= INSCRIP_COATED)
+			{
+				text_out(inscrip_info[feeling]);
+				anything = TRUE;
+			}
+			else if (feeling >= MAX_INSCRIP)
+			{
+				int bag = lookup_kind(TV_BAG, feeling - MAX_INSCRIP);
+
+				if (bag)
+				{
+					text_out(format("You sense it belongs with %s.  ",k_name + k_info[bag].name));
+					anything = TRUE;
+				}
+			}
+			else
+			{
+				text_out(inscrip_info[INSCRIP_COATED + 1]);
+			}
 		}
 	}
 
@@ -3716,6 +3796,8 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
+
+	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Success */
 	return (TRUE);

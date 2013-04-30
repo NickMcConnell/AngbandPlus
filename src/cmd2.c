@@ -3239,22 +3239,21 @@ int breakage_chance(object_type *o_ptr)
 		}
 
 		/* Sometimes break */
-		case TV_ARROW:
-		{
-			return (35);
-		}
-
-		/* Sometimes break */
 		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
 		case TV_BODY:
 		{
 			return (25);
 		}
+
+		/* Sometimes break: 10% of the time with max INT */
+		case TV_ARROW:
+		{
+		  return (41 - adj_int_break[p_ptr->stat_ind[A_INT]]);
+		}
 	}
 
-	/* Rarely break */
+	/* Rarely break: shots, bolts, weapons (throwing and regular);
+	   break 0% of the time with max INT */
 	return (31 - adj_int_break[p_ptr->stat_ind[A_INT]]);
 }
 

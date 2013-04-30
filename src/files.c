@@ -307,7 +307,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  */
 errr process_pref_file_command(char *buf)
 {
-	int i, j, n1, n2;
+	int i, j, n1, n2, n3;
 
 	char *zz[16];
 
@@ -370,25 +370,27 @@ errr process_pref_file_command(char *buf)
 	else if (buf[0] == 'F')
 	{
 		/* Mega-hack -- feat supports lighting 'yes' or 'no' */
-		if (tokenize(buf+2, 4, zz) == 4)
+		if (tokenize(buf+2, 5, zz) == 5)
 		{
 			feature_type *f_ptr;
 
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
+			n3 = strtol(zz[3], NULL, 0);
 			if ((i < 0) || (i >= z_info->f_max)) return (1);
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
+			if (n3) f_ptr->under = n3;
 
 			/* Clear current flags */
 			f_ptr->flags3 &= ~(FF3_ATTR_LITE | FF3_ATTR_ITEM | FF3_ATTR_DOOR | FF3_ATTR_WALL);
 
-			if (strstr("A", zz[3])) f_ptr->flags3 |= (FF3_ATTR_LITE);
-			else if (strstr("F", zz[3])) f_ptr->flags3 |= (FF3_ATTR_ITEM);
-			else if (strstr("D", zz[3])) f_ptr->flags3 |= (FF3_ATTR_DOOR);
-			else if (strstr("W", zz[3])) f_ptr->flags3 |= (FF3_ATTR_WALL);
+			if (strstr("A", zz[4])) f_ptr->flags3 |= (FF3_ATTR_LITE);
+			else if (strstr("F", zz[4])) f_ptr->flags3 |= (FF3_ATTR_ITEM);
+			else if (strstr("D", zz[4])) f_ptr->flags3 |= (FF3_ATTR_DOOR);
+			else if (strstr("W", zz[4])) f_ptr->flags3 |= (FF3_ATTR_WALL);
 
 			return (0);
 		}

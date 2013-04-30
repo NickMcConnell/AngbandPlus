@@ -197,6 +197,9 @@ enters the level (Requested by Matthias Rudolf).
 
 - Prevent flooding of open ground.
 
+- Added some low level priest spells and defined some pre-requisites for basic priest
+spells.
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -313,6 +316,9 @@ Konarski).
 - Fix infinite loop when shuffling shops when haven't entered a store.
 
 - Fix memory corruption bug when generating surface locations.
+
+- Fix bug causing guardian uniques to be accompanied by out of depth monsters (Reported
+by Matthias Rudolf).
 
 ### Build / Platform ###
 
@@ -2403,10 +2409,15 @@ prettier.
 - Added readdib.c and removed angband.res to allow compilation for 
 makefile.cyg
 
+- Revamped OS X version--no more QuickDraw, OS X support currently limited to
+   versions 10.3.x and later. Menu model is somewhat more 'Apple-compliant'.
+
+- Recovered graphics support in OSX.
 
 ### Bugfixes ### 
 
 - Fixed bug where archer, shaman, bard classes were getting too many 
+
 blows.
 
 - Fixed bug where ego items would be revealed if they were generated in
@@ -2445,3 +2456,4 @@ benefits, but only with throwing weapons.
 - Fixed bug where loading a deceased character would fail if it was
 carrying a random artifact numbered higher than the regular artifacts.
 (Reported by Adam Horowitz). This will load any affected save file.
+

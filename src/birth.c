@@ -936,7 +936,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		}
 		else if (ke.key == '=')
 		{
-                        do_cmd_options();
+			do_cmd_menu(MENU_OPTIONS, "options");
 		}
 		else if ((ke.key == '\n') || (ke.key == '\r'))
 		{

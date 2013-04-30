@@ -3363,7 +3363,7 @@ static void store_process_command(char *choice, int store_index)
 		/* Interact with options */
 		case '=':
 		{
-			do_cmd_options();
+			do_cmd_menu(MENU_OPTIONS, "options");
 			do_cmd_redraw();
 			display_store(store_index);
 			break;
@@ -3411,7 +3411,7 @@ static void store_process_command(char *choice, int store_index)
 		case '~':
 		case '|':
 		{
-			do_cmd_knowledge();
+			do_cmd_menu(MENU_KNOWLEDGE, "knowledge");
 			break;
 		}
 

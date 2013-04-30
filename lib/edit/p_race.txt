@@ -104,7 +104,7 @@ F:ELF | DEMON | REGEN_MANA
 #U:SHADOW --- just turning AGGRAVATE to -3 stealth would be nice
 C:0|1|2|3|4|6|7|8
 
-#Sum = -2; cool resistance; bad abilities
+#Sum = -2; cool resistance; mediocre abilities
 N:4:Dwarf
 S:2:3:2:-4:4:-3:-4:-2
 R:0:5:10:-1:2:5:0:20:0
@@ -115,9 +115,9 @@ W:150:120
 F:RES_BLIND | DWARF 
 C:0|2|5|7|9
 
-#Sum = 11; high exp
+#Sum = 6; high exp
 N:5:Dunadan
-S:1:2:2:1:2:1:1:1
+S:0:2:2:0:2:0:0:0
 R:5:5:5:2:3:0:10:20:10
 X:180:0
 I:1:50:20:19
@@ -126,11 +126,11 @@ W:190:180
 F:SUST_CON | MAN 
 C:0|1|2|3|4|5|6|7|8|9
 
-#Sum = 12; high exp
+#Sum = 9; high exp
 N:6:High-Elf
-S:1:4:-3:3:1:4:2:0
-R:4:20:15:3:0:0:0:10:20
-X:200:4
+S:0:4:-4:3:0:4:2:0
+R:4:25:10:3:0:0:0:10:20
+X:200:3
 I:7:100:30:18
 H:90:10:82:10
 W:190:180
@@ -152,7 +152,7 @@ C:0|1|2|3|4|5|6|7|8
 # Had tunnel + 8. Has Branches, Barkskin, Ent Roots.
 # We hack the understand plants ability as we do not have a plant flag.
 
-#Sum = 0; branches; bad abilities
+#Sum = 0; branches; mediocre abilities
 N:8:Ent
 S:4:0:0:-5:1:-2:-5:7
 R:-5:-5:5:1:-10:20:20:30:-20
@@ -169,7 +169,7 @@ C:0|2|4|6
 N:9:Druadan
 S:2:-5:3:-2:3:-4:0:-1
 R:-5:-10:7:3:10:3:20:10:0
-X:190:0
+X:160:0
 I:35:11:4:20
 H:66:1:62:1
 W:150:120
@@ -190,7 +190,7 @@ C:0|1|2|3|4|5|6|7|8|9
 #Sum = 0; magic toys
 N:11:Man of Dale
 S:0:0:0:0:0:0:0:0
-R:0:10:0:0:0:0:0:0:0
+R:0:15:0:0:0:0:0:0:0
 X:100:0
 I:1:14:6:52
 H:72:6:66:4
@@ -212,7 +212,7 @@ C:0|1|2|3|4|5|6|7|8|9
 #Sum = 0; noble
 N:13:Man of Gondor
 S:0:0:0:0:0:0:0:0
-R:0:0:10:0:0:0:0:0:0
+R:0:0:15:0:0:0:0:0:0
 X:100:0
 I:1:14:6:28
 H:72:6:66:4
@@ -231,9 +231,9 @@ W:180:150
 F:MAN | RES_FEAR
 C:0|1|2|3|4|5|6|7|8|9
 
-#Sum = -2; much higher without CHR; huge weight; throwing
+#Sum = -3; much higher without CHR; huge weight; throwing
 N:15:Forge Giant
-S:8:-3:-8:-4:3:-6:-5:13
+S:7:-3:-8:-4:3:-6:-5:13
 R:-10:13:-12:-10:0:5:40:20:-70
 X:120:3
 I:42:20:10:15
@@ -242,10 +242,10 @@ W:500:450
 F:GIANT | RES_ELEC
 C:0|2|7
 
-#Sum = -2; much higher without CHR; huge weight; devices
+#Sum = -3; much higher without CHR; huge weight; devices
 N:16:Fire Giant
-S:8:-3:-8:-4:3:-6:-5:13
-R:-10:18:-12:-10:0:5:30:20:-70
+S:7:-3:-8:-4:3:-6:-5:13
+R:-10:23:-12:-10:0:5:30:20:-70
 X:120:3
 I:42:20:10:15
 H:144:20:126:12
@@ -253,9 +253,9 @@ W:500:450
 F:GIANT | RES_FIRE
 C:0|2|7
 
-#Sum = -1; much higher without CHR; huge weight; cold thinking
+#Sum = -3; much higher without CHR; huge weight; cold thinking
 N:17:Frost Giant
-S:8:-1:-6:-4:3:-6:-8:13
+S:7:-1:-5:-4:3:-8:-8:13
 R:-10:13:-12:-10:0:5:30:20:-70
 X:120:3
 I:42:20:10:15
@@ -302,9 +302,9 @@ W:180:150
 F:ACTIVATE  | UNDEAD | HURT_LITE | REGEN_HP
 C:0|2|3|4|6
 
-#Sum = -2; cool resist
+#Sum = -3; cool resist
 N:21:Goblin
-S:-2:1:0:6:-6:-2:3:-2
+S:-2:1:0:5:-6:-2:3:-2
 R:5:5:0:4:7:0:0:0:20
 X:110:5
 I:23:15:10:3
@@ -313,9 +313,9 @@ W:70:60
 F:RES_POIS | ORC | DWARF | HURT_LITE
 C:0|2|3|4|5|6
 
-#Sum = -2; cool resist
+#Sum = -3; cool resist
 N:22:Goblin-Man
-S:-2:1:0:6:-6:0:-2:3:-2
+S:-2:1:0:5:-6:0:-2:3:-2
 R:5:5:0:4:7:0:0:0:20
 X:130:3
 I:41:15:10:34
@@ -324,9 +324,9 @@ W:70:60
 F:RES_POIS | ORC | DWARF | MAN
 C:0|2|3|4|5|6
 
-#Sum = -2; much higher without CHR
+#Sum = -4; much higher without CHR; bad abilities
 N:23:Orc
-S:4:-3:-1:1:2:-7:2:0
+S:3:-3:-1:0:2:-7:2:0
 R:-3:-6:-5:-2:0:2:0:20:0
 X:100:4
 I:37:11:4:34
@@ -335,9 +335,9 @@ W:150:120
 F:RES_DARK | ORC  | HURT_LITE
 C:0|2|3|6|7
 
-#Sum = -2; much higher without CHR
+#Sum = -4; much higher without CHR; bad abilities
 N:24:Half-Orc
-S:4:-3:-1:1:2:-7:2:0
+S:3:-3:-1:0:2:-7:2:0
 R:-3:-6:-5:-2:0:2:0:20:0
 X:120:2
 I:19:11:4:17
@@ -348,9 +348,9 @@ C:0|2|3|6|7
 
 # Has Stoneskin. Trolls are larger than Ents, smaller than Giants
 
-#Sum = -4; much higher without CHR; huge HP and weight
+#Sum = -5; much higher without INT and CHR; bad abilities; huge HP and weight
 N:25:Stone Troll
-S:7:-10:-7:-8:16:-9:-3:10
+S:5:-10:-4:-8:16:-10:-4:10
 R:-10:-15:-10:-3:-10:3:30:30:-50
 X:120:2
 I:44:20:10:39

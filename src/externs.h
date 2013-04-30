@@ -35,6 +35,7 @@ extern const byte side_dirs[20][8];
 extern const char hexsym[16];
 extern const byte stat_gains[PY_MAX_LEVEL];
 extern const byte adj_mag_study[];
+extern const byte adj_mag_study_max[];
 extern const s16b adj_mag_mana[];
 extern const byte adj_mag_fail_min[];
 extern const byte adj_mag_fail_rate[];
@@ -212,6 +213,10 @@ extern byte (*play_info)[256];
 extern s16b (*cave_feat)[DUNGEON_WID];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
+extern void (*modify_grid_adjacent_hook)(byte *a, char *c, int y, int x, byte adj_char[16]);
+extern void (*modify_grid_boring_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
+extern void (*modify_grid_unseen_hook)(byte *a, char *c);
+extern void (*modify_grid_interesting_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
 extern maxima *z_info;
@@ -361,12 +366,10 @@ extern bool cave_valid_bold(int y, int x);
 extern bool feat_supports_lighting(byte feat);
 extern byte lite_attr[16];
 extern byte dark_attr[16];
+extern void modify_grid_adjacent_view(byte *a, char *c, int y, int x, byte adj_char[16]);
 extern void modify_grid_boring_view(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
 extern void modify_grid_unseen_view(byte *a, char *c);
 extern void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
-extern void (*modify_grid_boring_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
-extern void (*modify_grid_unseen_hook)(byte *a, char *c);
-extern void (*modify_grid_interesting_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
 extern void move_cursor_relative(int y, int x);
 extern void big_putch(int x, int y, byte a, char c);
@@ -467,7 +470,7 @@ extern void do_cmd_redraw(void);
 extern void do_cmd_change_name(void);
 extern void do_cmd_message_one(void);
 extern void do_cmd_messages(void);
-extern void do_cmd_options(void);
+extern void do_cmd_menu(int menuID, const char *title);
 extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
@@ -484,7 +487,6 @@ extern void do_cmd_save_screen(void);
 extern void do_cmd_save_screen_html(void);
 extern const cptr feature_group_text[];
 extern int feat_order(int feat);
-extern void do_cmd_knowledge(void);
 
 /* cmd5.c */
 extern int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known);
@@ -583,8 +585,11 @@ extern void display_feature_roff(int f_idx);
 
 /* init2.c */
 extern void init_file_paths(char *path);
+extern void create_user_dirs(void);
 extern void init_angband(void);
 extern void cleanup_angband(void);
+void ang_atexit(void (*arg)(void));
+
 
 /* load.c */
 extern bool load_player(void);

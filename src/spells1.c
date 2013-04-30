@@ -140,6 +140,8 @@ void update_smart_save(int who)
 	/* Monster notices ability */
 	if (who > 0)
 	{
+		u32b smart = 0L;
+
 	 	monster_type *m_ptr = &m_list[who];
 	 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -150,8 +152,32 @@ void update_smart_save(int who)
  		if (!(r_ptr->flags2 & (RF2_SMART)) && (rand_int(100) < 50)) return;
 
 		/* Learn saving throw */
-		if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
-		if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+		if (p_ptr->skill_sav >= 75) smart |= (SM_GOOD_SAVE);
+		if (p_ptr->skill_sav >= 100) smart |= (SM_PERF_SAVE);
+
+		if (smart)
+		{
+			/* Learn the flags */
+			m_ptr->smart |= smart;
+
+			/* Tell the allies */
+			tell_allies_player_can(m_ptr->fy, m_ptr->fx, smart);
+			
+			/* Notice lack of perfect save */
+			if ((smart & (SM_PERF_SAVE)) == 0)
+			{
+				m_ptr->smart &= ~(SM_PERF_SAVE);
+				tell_allies_player_not(m_ptr->fy, m_ptr->fx, SM_PERF_SAVE);
+			}
+		}
+		else
+		{
+			/* Learn the flags */
+			m_ptr->smart &= ~(SM_GOOD_SAVE | SM_PERF_SAVE);
+
+			/* Tell the allies */
+			tell_allies_player_not(m_ptr->fy, m_ptr->fx, SM_GOOD_SAVE | SM_PERF_SAVE);			
+		}
 	}
 }
 
@@ -176,6 +202,9 @@ void update_smart_learn(int who, u32b flag)
 
 		/* Learn ability */
 		m_ptr->smart |= flag;
+		
+		/* Tell the allies */
+		tell_allies_player_can(m_ptr->fy, m_ptr->fx, flag);
 	}
 }
 
@@ -200,6 +229,9 @@ void update_smart_forget(int who, u32b flag)
 
 		/* Learn ability */
 		m_ptr->smart &= ~(flag);
+
+		/* Tell the allies */
+		tell_allies_player_not(m_ptr->fy, m_ptr->fx, flag);
 	}
 }
 
@@ -1194,7 +1226,6 @@ static bool hates_water(object_type *o_ptr)
 		case TV_SONG_BOOK:
 		case TV_INSTRUMENT:
 		case TV_FOOD:
-		case TV_STATUE:
 		{
 			return (TRUE);
 		}
@@ -2220,24 +2251,25 @@ static void water_dam(int who, int dam, cptr kb_str, bool inven)
 
 		object_flags(o_ptr,&f1,&f2,&f3,&f4);
 
-		/* Hack -- Use up fuel (except on artifacts and lites unaffected by water) */
+		/* Hack -- Douse light (except on artifacts and lites unaffected by water)
+		 * We no longer reduce the fuel as players found this annoying.
+		 */
 		if (!artifact_p(o_ptr) && (o_ptr->timeout > 0) && !(f2 & TR2_IGNORE_WATER))
 		{
+			/* Copy charges */
+			o_ptr->charges = o_ptr->timeout;
+			
 			/* Douse light */
 			o_ptr->timeout = 0;
 
 			disturb(0, 0);
 			msg_print("Your light has gone out!");
+			
+			/* Update torch */
+			p_ptr->update |= (PU_TORCH);
 
-			/* Destroy torch */
-			if (o_ptr->sval == SV_LITE_TORCH)
-			{
-				/* Adjust total weight */
-				p_ptr->total_weight -= o_ptr->weight * o_ptr->number;
-
-				/* Clear slot */
-				object_wipe(o_ptr);
-			}
+			/* Fully update the visuals */
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 		}
 	}
 
@@ -9962,9 +9994,6 @@ bool project_p(int who, int y, int x, int dam, int typ)
 			/* Damage (mana) */
 			if (p_ptr->csp)
 			{
-				/* Monster notices */
-				update_smart_forget(who, SM_IMM_MANA);
-
 				/* Drain depends on maximum mana */
 				drain = 2 + rand_int(p_ptr->msp / 10);
 
@@ -9983,6 +10012,9 @@ bool project_p(int who, int y, int x, int dam, int typ)
 				{
 					p_ptr->csp -= drain;
 					msg_print("Your mana drains away.");
+
+					/* Monster notices */
+					update_smart_forget(who, SM_IMM_MANA);
 				}
 
 				/* Redraw mana */

@@ -453,8 +453,35 @@ errr get_mon_num_prep(void)
 {
 	int i;
 
+	/* No ecology creatures valid yet */
+	cave_ecology.valid_hook = FALSE;
+		
 	/* Using the ecology model */
-	if (cave_ecology.ready) return (0);
+	for (i = 0; i < cave_ecology.num_races; i++)
+	{
+		/* Accept monsters which pass the restriction, if any */
+		if (!get_mon_num_hook || (*get_mon_num_hook)(cave_ecology.race[i]))
+		{
+			/* Accept this monster */
+			cave_ecology.get_mon[i] = TRUE;
+				
+			/* Have a valid monster */
+			cave_ecology.valid_hook = TRUE;
+		}
+
+		/* Do not use this monster */
+		else
+		{
+			/* Decline this monster */
+			cave_ecology.get_mon[i] = FALSE;
+		}
+	}
+		
+		/*
+		 * Have a valid choice -- we should uncomment this for efficiency if we are sure we don't change value of
+		 * cave_ecology.ready between calling get_mon_num_prep() and get_mon_num()
+		 */
+		/* if ((cave_ecology.ready) && (cave_ecology.valid_hook)) return (0); */	
 
 	/* Scan the allocation table */
 	for (i = 0; i < alloc_race_size; i++)
@@ -512,6 +539,8 @@ s16b get_mon_num(int level)
 	int i, j, p;
 
 	int r_idx;
+	int closest_miss_r_idx;
+	int closest_miss_level = 0;
 
 	long value, total;
 
@@ -519,9 +548,9 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+	bool surface = (level_flag & (LF1_SURFACE)) != 0;
 
-	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
+	bool daytime = (level_flag & (LF1_DAYLIGHT)) != 0;
 
 	/*
 	 * Use the ecology model
@@ -532,7 +561,7 @@ s16b get_mon_num(int level)
 	 * pick monsters from it. We ignore all rarity models and only accept
 	 * monsters from the table.
 	 */
-	if ((cave_ecology.ready) && (cave_ecology.num_races > 0))
+	if ((cave_ecology.ready) && (cave_ecology.valid_hook))
 	{
 		int choice = -1;
 
@@ -553,13 +582,14 @@ s16b get_mon_num(int level)
 			}
 
 			/* Can choose this monster? */
-			if ((!(get_mon_num_hook) || (*get_mon_num_hook)(i)) && !(rand_int(++j))) choice = i;
+			if ((cave_ecology.get_mon[i] != 0) && !(rand_int(++j))) choice = i;
 		}
 
 		/* Made a choice */
-		if (choice > 0)
+		if (choice >= 0)
 			return (cave_ecology.race[choice]);
 		else
+		/* Invalid choice only if our already only choice was an already created unique */
 			return (0);
 	}
 
@@ -616,13 +646,6 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Ensure minimum depth for monsters, except those that level up */
-		if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
-			&& ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) == 0)) continue;
-
-		/* Ensure hard minimum depth for monsters */
-		if (table[i].level < MIN(p_ptr->depth - 19, level - 18)) continue;
-
 		/* Hack -- "questor" monsters and guardians must be placed specifically */
 		if ((r_ptr->flags1 & (RF1_QUESTOR)) || (r_ptr->flags1 & (RF1_GUARDIAN))) continue;
 
@@ -637,6 +660,23 @@ s16b get_mon_num(int level)
 
 		/* Hack -- No HURT_LITE monsters on surface in daytime */
 		if (surface && daytime && (r_ptr->flags3 & (RF3_HURT_LITE))) continue;
+
+		/* Ensure minimum depth for monsters, except those that have friends or level up */
+		if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
+			&& ((r_ptr->flags1 & (RF1_FRIENDS)) == 0) 
+			&& ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) == 0)) continue;
+
+		/* Ensure hard minimum depth for monsters */
+		if (table[i].level < MIN(p_ptr->depth - 19, level - 18))
+		{
+			/* Allow a best effort choice in the event we can't find anything */
+			if (closest_miss_level < table[i].level)
+			{
+				closest_miss_r_idx = table[i].index;	
+			}
+			
+			continue;
+		}
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -672,15 +712,26 @@ s16b get_mon_num(int level)
 
 		/* Prefer monsters closer to the actual level */
 		if (table[i].level < level - 4) table[i].prob3 /= 2;
-		if (table[i].level < level - 9) table[i].prob3 /= 2;
-		if (table[i].level < level - 14) table[i].prob3 /= 2;
+		else if (table[i].level < level - 9) table[i].prob3 /= 3;
+		else if (table[i].level < level - 14) table[i].prob3 /= 4;
 
 		/* Total */
 		total += table[i].prob3;
 	}
 
 	/* No legal monsters */
-	if (total <= 0) return (0);
+	if (total <= 0)
+	{
+		/* We've found a near-miss */
+		if (closest_miss_level)
+		{
+			if (cheat_xtra) msg_format("Picking closest miss (%s).", r_name + r_info[closest_miss_r_idx].name);
+			
+			return (closest_miss_r_idx);
+		}
+		else
+			return (0);
+	}
 
 	/* Pick a monster */
 	value = rand_int(total);
@@ -745,6 +796,8 @@ s16b get_mon_num(int level)
 		if (table[i].level < table[j].level) i = j;
 	}
 
+	/* Oops */
+	if ((cave_ecology.ready) && (cheat_xtra)) msg_format("Picking non-ecology monster (%s).", r_name + r_info[table[i].index].name);
 
 	/* Result */
 	return (table[i].index);
@@ -2968,7 +3021,15 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 					ammo_sval = SV_POTION_DETONATIONS;
 				}
 				break;
+			}			
+			case RBM_DAGGER:
+			{
+				ammo_kind = 43;
+				ammo_tval = TV_SWORD;
+				ammo_sval = SV_DAGGER;
+				break;
 			}
+
 		}
 
 		/* Blow doesn't need ammo */
@@ -4747,9 +4808,10 @@ bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int number)
 		/* Have a good race */
 		if (r_idx)
 		{
-			cave_ecology.race[cave_ecology.num_races] = r_idx;
+			cave_ecology.get_mon[cave_ecology.num_races] = TRUE;
+			cave_ecology.race[cave_ecology.num_races++] = r_idx;
 
-			cave_ecology.num_races++;
+			if (cheat_xtra) msg_format("Ecology dependent monster (%s).",r_name + r_info[r_idx].name);
 
 			/* Is the current monster deeper */
 			if (r_info[cave_ecology.deepest_race].level < r_info[r_idx].level)
@@ -4777,11 +4839,11 @@ bool get_monster_ecology_aux(bool (*tmp_mon_num_hook)(int r_idx), int number)
 
 /*
  * Get a monster, and add it and its allies to the ecology for the level.
- *
- * If a race is passed to this routine, we assume it has been added already and only add its allies.
  */
 void get_monster_ecology(int r_idx)
 {
+	int i = cave_ecology.num_races;
+
 	/* Store old hook */
 	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
 
@@ -4797,18 +4859,32 @@ void get_monster_ecology(int r_idx)
 	if (!r_idx)
 	{
 		r_idx = get_mon_num(monster_level);
+		
+		if (cheat_xtra) msg_format("Ecology seed monster (%s).",r_name + r_info[r_idx].name);
+	}
 
-		/* Add the monster */
-		if (r_idx) cave_ecology.race[cave_ecology.num_races++] = r_idx;
+	/* Add the monster */
+	if (r_idx)
+	{
+		cave_ecology.get_mon[cave_ecology.num_races] = TRUE;
+		cave_ecology.race[cave_ecology.num_races++] = r_idx;
 	}
 
 	/* Have a good race */
-	if (r_idx)
+	for ( ; i < cave_ecology.num_races; i++)
 	{
-		monster_race *r_ptr = &r_info[r_idx];
-
 		/* Hack -- hack the ecology */
 		int hack_ecology = 0;
+
+		/* Monster race pointer */
+		monster_race *r_ptr;
+
+		/* Get the monster */
+		r_idx = cave_ecology.race[i];
+		r_ptr = &r_info[r_idx];
+
+		/* For first monster on a level, we force some related monsters to appear */
+		if (cave_ecology.num_races <= 1) hack_ecology = randint(5);
 
 		/* Is the current monster deeper */
 		if (r_info[cave_ecology.deepest_race].level < r_info[r_idx].level)
@@ -4825,10 +4901,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Try slightly lower monster level */
-		monster_level = r_ptr->level > 1 ? r_ptr->level - 1 : r_ptr->level;
-
-		/* For first monster, we force some related monsters to appear */
-		if (!cave_ecology.num_races) hack_ecology = randint(6);
+		monster_level = MIN(p_ptr->depth, r_ptr->level > 1 ? r_ptr->level - 1 : r_ptr->level);
 
 		/* Add escort races */
 		if (r_ptr->flags1 & (RF1_ESCORT | RF1_ESCORTS))
@@ -4840,7 +4913,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon kin */
-		if ((r_ptr->flags7 & (RF7_S_KIN)) || (hack_ecology == 1))
+		if ((r_ptr->flags7 & (RF7_S_KIN)) || (hack_ecology == 1) || ((level_flag & (LF1_STRONGHOLD)) != 0))
 		{
 			summon_specific_type = SUMMON_KIN;
 			summon_char_type = r_ptr->d_char;
@@ -4850,7 +4923,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon plant */
-		if ((r_ptr->flags7 & (RF7_S_PLANT)) || (hack_ecology == 2))
+		if (r_ptr->flags7 & (RF7_S_PLANT))
 		{
 			summon_specific_type = SUMMON_PLANT;
 
@@ -4868,7 +4941,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon animal */
-		if ((r_ptr->flags7 & (RF7_S_ANIMAL)) || (hack_ecology == 3))
+		if ((r_ptr->flags7 & (RF7_S_ANIMAL)) || (hack_ecology == 2) || ((level_flag & (LF1_SEWER)) != 0))
 		{
 			summon_specific_type = SUMMON_ANIMAL;
 
@@ -4912,7 +4985,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon class */
-		if ((r_ptr->flags7 & (RF7_S_CLASS)) || (hack_ecology == 4))
+		if ((r_ptr->flags7 & (RF7_S_CLASS)) || (((hack_ecology == 3) || ((level_flag & (LF1_DUNGEON)) != 0)) && ((r_ptr->flags2 & (RF2_CLASS_MASK)) != 0) ))
 		{
 			summon_specific_type = SUMMON_CLASS;
 
@@ -4924,7 +4997,8 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon race */
-		if ((r_ptr->flags7 & (RF7_S_RACE)) || (hack_ecology == 5))
+		if ((r_ptr->flags7 & (RF7_S_RACE)) || (((hack_ecology == 4) || ((level_flag & (LF1_CRYPT)) != 0)) && (((r_ptr->flags3 & (RF3_RACE_MASK)) != 0) ||
+															((r_ptr->flags3 & (RF3_RACE_MASK)) != 0))))
 		{
 			summon_specific_type = SUMMON_RACE;
 
@@ -4939,7 +5013,7 @@ void get_monster_ecology(int r_idx)
 		}
 
 		/* Add summon races -- summon group */
-		if ((r_ptr->flags7 & (RF7_S_GROUP)) || (hack_ecology == 6))
+		if ((r_ptr->flags7 & (RF7_S_GROUP)) || (((hack_ecology == 5) || ((level_flag & (LF1_CHAMBERS)) != 0)) && r_ptr->grp_idx))
 		{
 			summon_specific_type = SUMMON_GROUP;
 			summon_group_type = r_ptr->grp_idx;

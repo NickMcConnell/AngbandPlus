@@ -1350,10 +1350,8 @@ static bool save_player_aux(cptr name)
 	/* No file yet */
 	fff = NULL;
 
-
 	/* File type is "SAVE" */
 	FILE_TYPE(FILE_TYPE_SAVE);
-
 
 	/* Grab permissions */
 	safe_setuid_grab();

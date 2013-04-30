@@ -3132,8 +3132,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DEX:
 				case SV_RING_INT:
 				{
+				  /* Penalize double stat rings */
+				  int penalty = 2 * (o_ptr->sval == SV_RING_DEX) 
+				    + 3 * (o_ptr->sval == SV_RING_STR);
+
 					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5, level);
+					o_ptr->pval = 1 + m_bonus(5 - penalty, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3456,7 +3460,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				{
 					o_ptr->to_h = 1 + m_bonus(4, level);
 					o_ptr->to_d = 1 + m_bonus(4, level);
-					o_ptr->pval = 1 + m_bonus(2, level);
+					o_ptr->pval = 1 + m_bonus(1, level);
 
 					/* Boost the rating */
 					rating += 25;
@@ -3515,7 +3519,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of the Serpents --- no speed, so bigger pval */
 				case SV_AMULET_SERPENTS:
 				{
-					o_ptr->pval = 1 + m_bonus(7, level);
+					o_ptr->pval = 1 + m_bonus(4, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -5631,6 +5635,9 @@ bool make_feat(object_type *j_ptr, int y, int x)
 
 	/* Get the item */
 	k_idx = f_ptr->k_idx;
+
+	/* Paranoia */
+	if (!k_idx) return (FALSE);
 
 	/* Get existing item */
 	item = scan_feat(y,x);

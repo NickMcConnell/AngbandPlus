@@ -152,7 +152,7 @@ unangband_SOURCES = \
 
 EXTRA_unangband_SOURCES = \
   main-ros.c main-ami.c main-dos.c main-emx.c \
-  main-ibm.c main-lsl.c main-mac.c main-sla.c main-vme.c \
+  main-ibm.c main-lsl.c main-sla.c main-vme.c \
   main-xxx.c \
   Makefile.ros Makefile.ami Makefile.bcc Makefile.cyg \
   Makefile.dos Makefile.emx Makefile.gtk Makefile.ibm \
@@ -205,7 +205,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/main-dos.Po ./$(DEPDIR)/main-emx.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-gcu.Po ./$(DEPDIR)/main-gtk.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-ibm.Po ./$(DEPDIR)/main-lsl.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main-mac.Po ./$(DEPDIR)/main-ros.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/main-ros.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-sla.Po ./$(DEPDIR)/main-vcs.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-vme.Po ./$(DEPDIR)/main-win.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-x11.Po ./$(DEPDIR)/main-xaw.Po \
@@ -316,7 +316,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-gtk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-ibm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-lsl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-mac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-ros.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-sla.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-vcs.Po@am__quote@

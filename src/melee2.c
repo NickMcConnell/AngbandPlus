@@ -1076,7 +1076,7 @@ static void init_ranged_attack(monster_race *r_ptr)
 			case RBM_ARROW: mana = 0; range = 10; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_XBOLT: mana = 0; range = 12; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_SPIKE: mana = 0; range = 4; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
-			case RBM_DART: mana = 0; range = 8; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_DART: mana = 0; range = 6; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_SHOT: mana = 0; range = 8; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_ARC_20: mana = 6; range = 8; break;
 			case RBM_ARC_30: mana = 5; range = 6; break;
@@ -1088,6 +1088,7 @@ static void init_ranged_attack(monster_race *r_ptr)
 			case RBM_8WAY_II: mana = 5; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_8WAY_III: mana = 6; range = MAX_SIGHT; rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			case RBM_SWARM: mana = 6; range = MAX_SIGHT; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); rf4_ball_mask |= (RF4_BLOW_1 << ap_cnt); break;
+			case RBM_DAGGER: mana = 0; range = 6; rf4_archery_mask |= (RF4_BLOW_1 << ap_cnt); break;
 			default: mana = 0; range = 2; rf4_beam_mask |= (RF4_BLOW_1 << ap_cnt); break; /* For all hurt huge attacks */
 		}
 
@@ -3298,6 +3299,9 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
+		/* Ignore if monster knows already */
+		if ((flag & ~(n_ptr->smart)) == 0) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3324,12 +3328,12 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 	if (!vocal) return (FALSE);
 
 	/* Define saying */
-	if ((flag & (SM_OPP_ACID)) || (flag & (SM_RES_ACID))) saying = "& resists acid.";
-	else if ((flag & (SM_OPP_ELEC)) || (flag & (SM_RES_ELEC))) saying = "& resists electricity.";
-	else if ((flag & (SM_OPP_FIRE)) || (flag & (SM_RES_FIRE))) saying = "& resists fire.";
-	else if ((flag & (SM_OPP_COLD)) || (flag & (SM_RES_COLD))) saying = "& resists cold.";
-	else if ((flag & (SM_OPP_POIS)) || (flag & (SM_RES_POIS))) saying = "& resists poison.";
-	else if ((flag & (SM_OPP_FEAR)) || (flag & (SM_RES_FEAR))) saying = "& resists fear.";
+	if (((flag & (SM_OPP_ACID)) != 0) || ((flag & (SM_RES_ACID)) != 0)) saying = "& resists acid.";
+	else if (((flag & (SM_OPP_ELEC)) != 0) || ((flag & (SM_RES_ELEC)) != 0)) saying = "& resists electricity.";
+	else if (((flag & (SM_OPP_FIRE)) != 0) || ((flag & (SM_RES_FIRE)) != 0)) saying = "& resists fire.";
+	else if (((flag & (SM_OPP_COLD)) != 0) || ((flag & (SM_RES_COLD)) != 0)) saying = "& resists cold.";
+	else if (((flag & (SM_OPP_POIS)) != 0) || ((flag & (SM_RES_POIS)) != 0)) saying = "& resists poison.";
+	else if (((flag & (SM_OPP_FEAR)) != 0) || ((flag & (SM_RES_FEAR)) != 0)) saying = "& resists fear.";
 	else if (flag & (SM_SEE_INVIS)) saying = "& can see invisible.";
 	else if (flag & (SM_GOOD_SAVE)) saying = "& can easily resist magic.";
 	else if (flag & (SM_PERF_SAVE)) saying = "& can always resist magic.";
@@ -3384,6 +3388,9 @@ bool tell_allies_player_not(int y, int x, u32b flag)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
+		/* Ignore if monster doesn't know already */
+		if ((n_ptr->smart & (flag)) == 0) continue;
+
 		/* Ignore monsters who speak different language */
 		if (monster_language(n_ptr->r_idx) != language) continue;
 
@@ -3410,12 +3417,12 @@ bool tell_allies_player_not(int y, int x, u32b flag)
 	if (!vocal) return (FALSE);
 
 	/* Define saying */
-	if ((flag & (SM_OPP_ACID)) || (flag & (SM_RES_ACID))) saying = "& no longer resists acid.";
-	else if ((flag & (SM_OPP_ELEC)) || (flag & (SM_RES_ELEC))) saying = "& no longer resists electricity.";
-	else if ((flag & (SM_OPP_FIRE)) || (flag & (SM_RES_FIRE))) saying = "& no longer resists fire.";
-	else if ((flag & (SM_OPP_COLD)) || (flag & (SM_RES_COLD))) saying = "& no longer resists cold.";
-	else if ((flag & (SM_OPP_POIS)) || (flag & (SM_RES_POIS))) saying = "& no longer resists poison.";
-	else if ((flag & (SM_OPP_FEAR)) || (flag & (SM_RES_FEAR))) saying = "& no longer resists fear.";
+	if (((flag & (SM_OPP_ACID)) != 0) || ((flag & (SM_RES_ACID)) != 0)) saying = "& no longer resists acid.";
+	else if (((flag & (SM_OPP_ELEC)) != 0) || ((flag & (SM_RES_ELEC)) != 0)) saying = "& no longer resists electricity.";
+	else if (((flag & (SM_OPP_FIRE)) != 0) || ((flag & (SM_RES_FIRE)) != 0)) saying = "& no longer resists fire.";
+	else if (((flag & (SM_OPP_COLD)) != 0) || ((flag & (SM_RES_COLD)) != 0)) saying = "& no longer resists cold.";
+	else if (((flag & (SM_OPP_POIS)) != 0) || ((flag & (SM_RES_POIS)) != 0)) saying = "& no longer resists poison.";
+	else if (((flag & (SM_OPP_FEAR)) != 0) || ((flag & (SM_RES_FEAR)) != 0)) saying = "& no longer resists fear.";
 	else if (flag & (SM_SEE_INVIS)) saying = "& cannot see invisible.";
 	else if (flag & (SM_GOOD_SAVE)) saying = "& no longer easily resists magic.";
 	else if (flag & (SM_PERF_SAVE)) saying = "& no longer always resists magic.";

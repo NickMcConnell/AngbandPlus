@@ -1907,7 +1907,7 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 					}
 				}
 				/* Maybe pick if placing one */
-				else if ((flag & (RG1_ALLOC | RG1_SCATTER | RG1_8WAY)) != 0)
+				else if ((flag & (RG1_ALLOC | RG1_SCATTER | RG1_TRAIL | RG1_8WAY)) != 0)
 				{
 					if (rand_int(++choice) == 0)
 					{
@@ -1945,7 +1945,7 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 					/* Assign feature */
 					if (place_feat)
 					{
-						/* Preserve the 'solid' status of a wall */
+						/* Preserve the 'solid' status of a wall & ensure that at least 1 feature is placed */
 						if (cave_feat[y][x] == FEAT_WALL_SOLID)
 						{
 							/* Place solid wall now */
@@ -2049,6 +2049,11 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 					/* Assign feature */
 					if (place_feat)
 					{
+						/* Hack -- if we are placing one feature, we replace it with a solid wall to ensure that it
+						 * is not overwritten later on. We take advantage of the dun->next array to do this.
+						 */
+						if (k == 0) cave_feat[y][x] = FEAT_WALL_SOLID;
+
 						/* Preserve the 'solid' status of a wall */
 						if (cave_feat[y][x] == FEAT_WALL_SOLID)
 						{
@@ -2115,6 +2120,11 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 			/* Assign feature */
 			if (place_feat)
 			{
+				/* Hack -- if we are placing one feature, we replace it with a solid wall to ensure that it
+				 * is not overwritten later on. We take advantage of the dun->next array to do this.
+				 */
+				if (k == 0) cave_feat[y][x] = FEAT_WALL_SOLID;
+
 				/* Preserve the 'solid' status of a wall */
 				if (cave_feat[y][x] == FEAT_WALL_SOLID)
 				{
@@ -5326,7 +5336,7 @@ static u32b get_tunnel_style(void)
  */
 static void build_tunnel(int row1, int col1, int row2, int col2)
 {
-	int i, y, x;
+	int i, j, y, x;
 	int tmp_row = row1, tmp_col = col1;
 	int row_dir, col_dir;
 	int start_row, start_col;
@@ -5542,32 +5552,28 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			if (f_info[cave_feat[y][x]].flags1 & (FF1_OUTER)) continue;
 			if (f_info[cave_feat[y][x]].flags1 & (FF1_SOLID)) continue;
 
-			/* Accept this location */
-			row1 = tmp_row;
-			col1 = tmp_col;
-
 			/* Save the wall location */
 			if (dun->wall_n < WALL_MAX)
 			{
-				dun->wall[dun->wall_n].y = row1;
-				dun->wall[dun->wall_n].x = col1;
+				dun->wall[dun->wall_n].y = tmp_row;
+				dun->wall[dun->wall_n].x = tmp_col;
 				dun->wall_n++;
 			}
 
 			/* XXX Note that no bounds checking is required because of in_bounds_fully_tunnel above */
 			if (style & (TUNNEL_LARGE_L))
 			{
-				if (f_info[cave_feat[row1 + col_dir][col1 - row_dir]].flags1 & (FF1_OUTER))
+				if (f_info[cave_feat[tmp_row + col_dir][tmp_col - row_dir]].flags1 & (FF1_OUTER))
 				{
 					/* Save the wall location */
 					if (dun->wall_n < WALL_MAX)
 					{
-						dun->wall[dun->wall_n].y = row1 + col_dir;
-						dun->wall[dun->wall_n].x = col1 - row_dir;
+						dun->wall[dun->wall_n].y = tmp_row + col_dir;
+						dun->wall[dun->wall_n].x = tmp_col - row_dir;
 						dun->wall_n++;
 
 						/* Hack -- add regular pillars to some width 3 corridors */
-						if ((((row1 + col1) % ((style % 4) + 2)) == 0)
+						if ((((tmp_row + tmp_col) % ((style % 4) + 2)) == 0)
 							&& ((style & (TUNNEL_CRYPT_L | TUNNEL_CRYPT_R))== 0)) pillar = TRUE;
 					}
 				}
@@ -5580,15 +5586,15 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			/* XXX Note that no bounds checking is required because of in_bounds_fully_tunnel above */
 			if (style & (TUNNEL_LARGE_R))
 			{
-				if (f_info[cave_feat[row1 - col_dir][col1 + row_dir]].flags1 & (FF1_OUTER))
+				if (f_info[cave_feat[tmp_row - col_dir][tmp_col + row_dir]].flags1 & (FF1_OUTER))
 				{
 					/* Save the wall location */
 					if (dun->wall_n < WALL_MAX)
 					{
 						if (pillar) dun->wall_n -= 2;
 
-						dun->wall[dun->wall_n].y = row1 - col_dir;
-						dun->wall[dun->wall_n].x = col1 + row_dir;
+						dun->wall[dun->wall_n].y = tmp_row - col_dir;
+						dun->wall[dun->wall_n].x = tmp_col + row_dir;
 						dun->wall_n++;
 
 						if (pillar) dun->wall_n++;
@@ -5607,6 +5613,10 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				continue;
 			}
 
+			/* Accept this location */
+			row1 = tmp_row;
+			col1 = tmp_col;
+
 			/* Forbid re-entry near these piercings */
 			for (i = wall1; i < dun->wall_n; i++)
 			{
@@ -5614,6 +5624,18 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 				{
 					for (x = dun->wall[i].x - 1; x <= dun->wall[i].x + 1; x++)
 					{
+						bool doorway;
+						
+						doorway = FALSE;
+
+						/* Avoid solidifying areas where we'll end up placing doors */
+						for (j = wall1; j < dun->wall_n; j++)
+						{
+							if ((y == dun->wall[j].y) && (x == dun->wall[j].x)) doorway = TRUE; 
+						}
+
+						if (doorway) continue;
+
 						/* Convert adjacent "outer" walls as "solid" walls */
 						if (f_info[cave_feat[y][x]].flags1 & (FF1_OUTER))
 						{
@@ -5634,7 +5656,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 							cave_alter_feat(y, x, FS_SOLID);
 
 							/* Decorate next to the start and/or end of the tunnel with the starting room decorations */
-							if ((dun_room[by1][bx1]) && (dun_room[by1][bx1] < DUN_ROOMS) && (room_info[dun_room[by1][bx1]].solid) && (dun->next_n < NEXT_MAX))
+							if ((dun_room[by1][bx1]) && (dun_room[by1][bx1] < DUN_ROOMS) && ((room_info[dun_room[by1][bx1]].solid) || (dun_room[by1][bx1] == dun_room[by2][bx2]))
+									&& (dun->next_n < NEXT_MAX))
 							{
 								/* Overwrite with alternate terrain from starting room later */
 								dun->next[dun->next_n].y = y;
@@ -5648,11 +5671,16 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 							{
 								int j;
 
-								for (j = first_next; (j < dun->next_n) && (dun_room[by1][by2] == dun_room[dun->next[j].y][dun->next[j].x]); j++)
+								for (j = first_next; j < dun->next_n; j++)
 								{
 									/* Overwrite with alternate terrain from ending room later */
 									dun->next_feat[j] = room_info[dun_room[by2][bx2]].solid;
 								}
+							}
+							/* If ending room does not have decorations and neither does start, clear the above 'fake' decorations */
+							else if ((dun_room[by1][bx1]) && (dun_room[by1][bx1] < DUN_ROOMS) && !(room_info[dun_room[by1][bx1]].solid) && (dun_room[by1][bx1] != dun_room[by2][bx2]))
+							{
+								dun->next_n = first_next;
 							}
 						}
 					}
@@ -5683,7 +5711,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 					int part2 = dun->part[dun_room[by2][bx2]-1];
 
 					/* Merging successfully */
-					if (cheat_xtra) msg_format("Merging partition %d (room %d) with endpoint %d (room %d).", part1, dun_room[by1][bx1], part2, dun_room[by2][bx2]);
+					if (cheat_xtra) msg_format("Merging partition %d (room %d) with %d (room %d).", part1, dun_room[by1][bx1], part2, dun_room[by2][bx2]);
 
 					/* Merge partitions */
 					for (i = 0; i < dun->cent_n; i++)
@@ -6080,8 +6108,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Convert to doorway if an outer wall */
 		if ((f_info[cave_feat[y][x]].flags1 & (FF1_OUTER)) != 0)
 		{
-
-			msg_print("!");
 			cave_alter_feat(y, x, FS_DOOR);
 		}
 
@@ -7720,8 +7746,8 @@ static void init_ecology(int r_idx)
 	/* Count of different non-unique monsters in ecology */
 	k = MIN_ECOLOGY_RACES + rand_int(MIN_ECOLOGY_RACES);
 
-	/* Initialise ecolgy based on seed race */
-	if (r_idx)
+	/* Initialise ecology based on seed race */
+	if ((r_idx) && ((level_flag & (LF1_BATTLE)) == 0))
 	{
 		/* Get seed monster for ecology */
 		get_monster_ecology(r_idx);
@@ -7773,7 +7799,28 @@ static void init_ecology(int r_idx)
 		/* Not enough different monsters */
 		if ((k >= 0) && (cave_ecology.num_races < MAX_ECOLOGY_RACES))
 		{
+			/* Hack -- battlefield monsters continue to honour the same hook */
+			if ((level_flag & (LF1_BATTLE)) != 0)
+			{
+				/* Set monster hook */
+				get_mon_num_hook = dun_level_mon;
+
+				/* Prepare allocation table */
+				get_mon_num_prep();
+			}
+
+			/* Get seed monster for ecology */
 			get_monster_ecology(0);
+
+			/* Hack -- battlefield monsters continue to honour the same hook */
+			if ((level_flag & (LF1_BATTLE)) != 0)
+			{
+				/* Clear monster hook */
+				get_mon_num_hook = NULL;
+
+				/* Prepare allocation table */
+				get_mon_num_prep();
+			}
 		}
 		/* We are done */
 		else
@@ -7784,6 +7831,7 @@ static void init_ecology(int r_idx)
 
 	/* Start the ecology */
 	cave_ecology.ready = TRUE;
+	cave_ecology.valid_hook = TRUE;
 }
 
 /*
@@ -8928,7 +8976,7 @@ static bool town_gen(void)
 	{
 		/* Ensure wandering monsters suit the dungeon level */
 		get_mon_num_hook = dun_level_mon;
-	
+
 		/* Prepare allocation table */
 		get_mon_num_prep();
 

@@ -3235,7 +3235,7 @@ P:OUTER
 S:SEEN
 R:SMART
 
-N:117:102:107:123:25:2:0:128
+N:117:102:107:123:25:2:25:128
 A:painted
 B:
 D:Paintings cover 

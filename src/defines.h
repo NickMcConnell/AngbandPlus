@@ -286,6 +286,12 @@
  */
 #define MESSAGE_BUF	32768
 
+/*
+ * Menu identifiers for simple selectable menu lists (see cmd4.c, do_cmd_menu)
+ */
+#define MENU_OPTIONS 1
+#define MENU_KNOWLEDGE 2
+
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -2497,6 +2503,7 @@
 #define RBM_8WAY_II	72
 #define RBM_8WAY_III	73
 #define RBM_SWARM	74
+#define RBM_DAGGER	75
 
 #define RBM_MAX_NORMAL  23
 #define RBM_MIN_RANGED  15

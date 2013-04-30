@@ -525,7 +525,7 @@ void reset_visuals(bool unused)
  * assumed that a string such as "The" or "Your" will be pre-pended later.
  *
  * Modes ("pref" is TRUE):
- *   0 -- Chain Mail of Death
+ *   0 -- The Chain Mail of Death
  *   1 -- A Cloak of Death [1,+3]
  *   2 -- An Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- 5 Rings of Death [1,+3] (+2 to Stealth) {nifty}

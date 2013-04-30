@@ -6,6 +6,11 @@
 # Standard defines
 #
 
+#Name of the executable file
+EXE=unangband
+NAME=Unangband
+COPYRIGHT=2001-2006 Andrew Doull et al
+
 TOOLDIR = /Developer/Tools
 SETFILE = $(TOOLDIR)/SetFile
 REZ = $(TOOLDIR)/Rez
@@ -13,8 +18,8 @@ REZ = $(TOOLDIR)/Rez
 CC = gcc
 
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
-CFLAGS = -Wall -g -fpascal-strings -DMACH_O_CARBON \
-	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" -DUSE_PRIVATE_PATHS
+CFLAGS = -Wall -std=c99 -g -fpascal-strings -DMACH_O_CARBON \
+	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" -DPRIVATE_USER_PATHS
 
 default: all
 
@@ -28,6 +33,7 @@ OBJS = $(COMMONOBJS) \
 # 
 # Additional dependencies
 #
+main-crb.c: osx/osx_tables.h
 
 #
 # Targets
@@ -35,10 +41,10 @@ OBJS = $(COMMONOBJS) \
 
 all: install
 
-install: unangband $(RESSRCS) $(ICONFILES) $(PLIST) $(LIBFILES)
+install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
 
 clean:
-	rm *.o unangband
+	rm *.o $(EXE)
 
 
 #
@@ -49,7 +55,7 @@ clean:
 # Executable
 #
 
-unangband: $(OBJS)
+$(EXE): $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@  $(OBJS) $(LIBS)
 
 #
@@ -61,13 +67,18 @@ unangband: $(OBJS)
 
 
 
-# Installation
+#
+# Installation.
 # Application bundle -- a directory looking like an ordinary application
+#
 
 # Name of the game
 APPNAME = UnAngband.app
 # Bundle of the game (it must be a directory whose name ends in ".app")
 APPBNDL = ../$(APPNAME)
+
+# Version number (displayed)
+VERSION=0.6.2
 
 # A bundle must have these subdirectories
 APPCONT = $(APPBNDL)/Contents
@@ -86,60 +97,73 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-#
-# The graphics tiles have been moved out of the resource fork, but, again,
-# it isn't generally safe just to convert GIF or BMP files to PNG, because
-# the Mac OS takes dpi values stored in various images quite seriously.
-# Almost all tilesets for *band requires adjustment, with the sole exception
-# of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
-# the actual size of image.  When you have them ready, put them in the src
-# directory and "make install-tiles".
-ICONFILES = Angband.icns Save.icns Edit.icns Data.icns
-TILES = 8x8.png 16x16.png 32x32.png
-PLIST = Angband.xml
-RESSRCS = Angband.r
-SOUNDSRCS = Sound.r
+ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+PLIST = osx/Angband.xml
+
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
+GRAPHSRC=../lib/xtra/graf/
+TILES = $(GRAPHSRC)8x8.bmp $(GRAPHSRC)16x16.bmp $(GRAPHSRC)32x32.bmp
 
 LIBFILES = \
   ../lib/edit/*.txt \
   ../lib/file/*.txt \
   ../lib/help/*.txt \
   ../lib/help/*.hlp \
-  ../lib/pref/*.prf
+  ../lib/pref/*.prf \
 
-install: unangband $(RESSRCS) $(ICONFILES) $(PLIST) $(LIBFILES)
-	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
-	[ -d $(APPCONT) ] || mkdir $(APPCONT)
-	[ -d $(APPBIN) ] || mkdir $(APPBIN)
-	[ -d $(APPRES) ] || mkdir $(APPRES)
+install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
+	@echo making directories...
+	@mkdir -p $(APPBNDL)
+	@mkdir -p $(APPCONT)
+	@mkdir -p $(APPBIN)
+	@mkdir -p $(APPRES)
+	@mkdir -p $(APPRES)/English.lproj/main.nib 
+	@mkdir -p $(APPRES)/lib/edit
+	@mkdir -p $(APPRES)/lib/file
+	@mkdir -p $(APPRES)/lib/help
+	@mkdir -p $(APPRES)/lib/pref
+	@mkdir -p $(APPRES)/lib/script
+	@mkdir -p $(APPRES)/lib/xtra/graf
+	@mkdir -p $(APPRES)/lib/xtra/sound
 
-	[ -d $(APPRES)/lib ] || mkdir $(APPRES)/lib
-	[ -d $(APPRES)/lib/edit ] || mkdir $(APPRES)/lib/edit
-	[ -d $(APPRES)/lib/file ] || mkdir $(APPRES)/lib/file
-	[ -d $(APPRES)/lib/help ] || mkdir $(APPRES)/lib/help
-	[ -d $(APPRES)/lib/pref ] || mkdir $(APPRES)/lib/pref
-	[ -d $(APPRES)/lib/script ] || mkdir $(APPRES)/lib/script
-	[ -d $(APPRES)/lib/apex ] || mkdir $(APPRES)/lib/apex
-	[ -d $(APPRES)/lib/data ] || mkdir $(APPRES)/lib/data
+	@echo copying files...
+	@cp ../lib/edit/*.txt $(APPRES)/lib/edit
+	@cp ../lib/file/*.txt $(APPRES)/lib/file
+	@cp ../lib/help/*.txt $(APPRES)/lib/help
+	@cp ../lib/help/*.hlp $(APPRES)/lib/help
+	@cp ../lib/pref/*.prf $(APPRES)/lib/pref
 
-	cp ../lib/edit/*.txt $(APPRES)/lib/edit
-	cp ../lib/file/*.txt $(APPRES)/lib/file
-	cp ../lib/help/*.txt $(APPRES)/lib/help
-	cp ../lib/help/*.hlp $(APPRES)/lib/help
-	cp ../lib/pref/*.prf $(APPRES)/lib/pref
+	# 'optionally' install sound and graphics tiles, if present
+	-cp ../lib/xtra/graf/*.png $(APPRES)/lib/xtra/graf
+	-cp ../lib/xtra/sound/*.wav $(APPRES)/lib/xtra/sound
 
-	install -m 755 unangband $(APPBIN)
+	install -m 755 $(EXE) $(APPBIN)
 	install -m 644 $(ICONFILES) $(APPRES)
-
-	$(REZ) $(RFLAGS) -o $(APPRES)/unangband.rsrc $(RESSRCS)
-	install -m 644 $(PLIST) $(APPCONT)/Info.plist
+	cp osx/English.lproj/main.nib/*ib $(APPRES)/English.lproj/main.nib
+	sed -e 's/\$$VERSION\$$/$(VERSION)/' -e 's/\$$COPYRIGHT\$$/$(COPYRIGHT)/' \
+		-e 's/\$$NAME\$$/$(NAME)/' -e 's/\$$EXECUTABLE\$$/$(EXE)/' \
+		$(PLIST) > $(APPCONT)/Info.plist
 	$(SETFILE) -a B $(APPBNDL)
 
 
-install-tiles: $(TILES)
-	install -m 644 $(TILES) $(APPRES)
+#
+# Build the "Angband" program
+#
 
-install-sound: $(SOUNDSRCS)
-	$(REZ) $(RFLAGS) -append -o $(APPRES)/unangband.rsrc $(SOUNDSRCS)
 
+PACKAGE_NAME = $(NAME)-$(VERSION)
+
+# In the unlikely event that tar+zip isn't enough...
+
+dist: install
+	@rm -rf disttemp
+	mkdir -p disttemp/Docs
+	cp ../readme.txt ../changes.txt disttemp/Docs
+	cp -R -p "$(APPBNDL)" disttemp
+	$(SETFILE) -a B disttemp/$(APPNAME)
+
+	-rm ../"$(PACKAGE_NAME)-osx.dmg"
+
+	hdiutil create -fs HFS+ -volname $(PACKAGE_NAME) -srcfolder disttemp ../"$(PACKAGE_NAME)-osx.dmg"
+
+	rm -rf disttemp

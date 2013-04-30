@@ -134,8 +134,9 @@ Contact Robert Ruehlmann < rr9@angband.org > to report any bugs or to make
 any suggestions.  Use the newsgroup "rec.games.roguelike.angband" to ask
 any general questions about the game, including compilation questions.
 
-This version of Angband will run on Macintosh, Windows, Unix (X11/Curses), 
-Linux (X11/Curses), Acorn, Amiga, various DOS machines, and many others...
+This version of Angband will run on OS X (10.3 and later), Windows,
+Unix (X11/Curses), Linux (X11/Curses), Acorn, Amiga, various DOS machines,
+and many others...
 
 See compile.txt, the Makefiles, h-config.h, and config.h for details on
 compiling.
@@ -144,7 +145,7 @@ See "Makefile.xxx" and "main-xxx.c" for various supported systems.
 
 === Quick and dirty compilation instructions ===
 
-For many platforms (including Macintosh and Windows), a "pre-compiled"
+For many platforms (including OS X and Windows), a "pre-compiled"
 archive is available, which contains everything you need to install and
 play Angband.  For other platforms, including most UNIX systems, you must
 compile the source code yourself.  Try the following non-trivial steps:
@@ -171,16 +172,9 @@ of the "extra archive" designed for Angband 2.9.0.
 
 === Special instructions for certain platforms ===
 
-The Macintosh requires that the "lib" folder be in the same folder as
-the executable.  Also, note that System 7.5 (and perhaps others) are
-brain damaged, and may default to the incorrect folder for opening
-savefiles.  Make sure you keep all your savefiles in the proper place,
-and if you load a savefile from the wrong place, note that the game
-may decide to re-save your savefile in the proper place when you quit.
-If you move the "lib" folder (or any ancestor folder) while a game is
-in progress, you may not be able to save your game.  To use a savefile
-from another platform (or really old version of Angband) you must use
-the "Import..." menu command instead of the "Open..." menu command.
+This OS X version works on only for OS X versions 10.3 and later.
+For legacy OSX/Mac (QuickDraw), use main-crb.c or main-mac.c from Angband
+releases 3.0.x and earlier.
 
 Some archive generation programs refuse to handle empty directories,
 so special "fake" files with names like "DELETEME.TXT" may have been
