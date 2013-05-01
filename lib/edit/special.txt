@@ -44,11 +44,15 @@
 #
 # * Note that several special item types may share the same 'textual Name',
 #   such as with 'Armor of Protection' and 'Shield of Protection'.
+#
+# There should always be at least one valid special type at each depth for each
+# base item type. This is currently not true for Shovels, so any attempt to
+# generate a special shovel will just generate a fine one instead.
 
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.1.1
 
 
 
@@ -212,12 +216,12 @@ T:23:0:99
 F:VAMPIRIC | HUNGER | LIGHT_CURSE
 
 
-# Blades, glaives, and halberds
+# Blades and glaives
 
 N:26:(Defender)
 W:0:2:0:1000
 C:0:0:0:1:0:0:0
-T:22:4:5
+T:22:4:4
 T:23:0:99
 F:IGNORE_ALL
 
@@ -339,7 +343,7 @@ F:BRAND_FIRE | LIGHT
 ##### Digging Tools #####
 
 N:51:of Belegost
-W:5:1:0:1000
+W:0:1:0:1000
 C:0:0:0:0:0:0:1
 T:20:2:3
 F:TUNNEL
@@ -497,7 +501,6 @@ F:SHARPNESS
 
 ##### Boots #####
 
-
 # boots only
 
 N:111:of Softest Tread
@@ -508,7 +511,7 @@ F:STEALTH
 
 
 N:112:of Free Action
-W:7:2:0:2000
+W:0:2:0:2000
 C:0:0:0:0:0:0:0
 T:30:0:99
 F:FREE_ACT

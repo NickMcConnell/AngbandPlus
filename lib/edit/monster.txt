@@ -299,7 +299,7 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.1.1
 
 
 ##### Non-race (contains the player picture) #####
@@ -1062,7 +1062,7 @@ P:[+13,4d4]
 B:HIT:FIRE:(+18,2d12)
 B:WHIP:DISARM:(+14,3d6)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 D:The Valaraukar, demons of power, are among the mightiest
@@ -1216,7 +1216,7 @@ P:[+15,4d4]
 B:HIT:FIRE:(+20,3d10)
 B:WHIP:DISARM:(+16,3d8)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 S:SPELL_PCT_15
@@ -1401,7 +1401,7 @@ P:[+17,4d4]
 B:HIT:FIRE:(+22,2d14)
 B:WHIP:DISARM:(+18,3d8)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 D:A fell fiery figure, great wings of shadow unfolding around
@@ -1636,7 +1636,7 @@ P:[+19,5d4]
 B:HIT:FIRE:(+24,2d16)
 B:WHIP:DISARM:(+20,3d8)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:ESCORTS | NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 D:All of the Balrogs are held among the mighty of Angband and
@@ -1823,7 +1823,7 @@ P:[+21,5d4]
 B:HIT:FIRE:(+26,3d12)
 B:WHIP:DISARM:(+22,3d8)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 D:A huge man-like shape, cloaked in flame and darkness both. He swings
@@ -1973,7 +1973,7 @@ P:[+23,5d4]
 B:HIT:FIRE:(+28,2d18)
 B:WHIP:DISARM:(+24,3d10)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 S:SPELL_PCT_10 | POW_10
@@ -2070,7 +2070,7 @@ P:[+25,6d4]
 B:HIT:FIRE:(+30,3d14)
 B:WHIP:DISARM:(+26,3d10)
 F:UNIQUE | MALE | SMART | GLOW
-F:DROP_1D2 | DROP_GREAT
+F:DROP_1D2 | DROP_100 | DROP_GREAT
 F:NO_FEAR | BASH_DOOR
 F:RAUKO | RES_FIRE | HURT_COLD
 D:Gothmog is the High Captain of Angband and Morgoth's personal guard.  He is
@@ -2224,7 +2224,7 @@ F:UNIQUE | MALE
 N:302:Luthien Tinuviel
 W:30:5
 G:@:b
-F:UNIQUE | MALE
+F:UNIQUE | FEMALE
 
 
 N:303:Thingol, the Hidden King

@@ -108,12 +108,12 @@ RESSRCS = Sil.r
 # RESSRCS = Sil.r Sound.r
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
 
-install: sil $(RESSRCS) $(ICONFILES) $(PLIST)
+install: Sil $(RESSRCS) $(ICONFILES) $(PLIST)
 	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
 	[ -d $(APPCONT) ] || mkdir $(APPCONT)
 	[ -d $(APPBIN) ] || mkdir $(APPBIN)
 	[ -d $(APPRES) ] || mkdir $(APPRES)
-	install -m 755 sil $(APPBIN)
+	install -m 755 Sil $(APPBIN)
 	install -m 644 $(ICONFILES) $(APPRES)
 	$(REZ) $(RFLAGS) -o $(APPRES)/Sil.rsrc $(RESSRCS)
 	install -m 644 $(PLIST) $(APPCONT)/Info.plist
@@ -124,10 +124,10 @@ install-tiles: $(TILES)
 
 
 #
-# Build the "Angband" program
+# Build the "Sil" program
 #
 
-sil: $(OBJS)
+Sil: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o Sil $(OBJS) $(LIBS)
 
 

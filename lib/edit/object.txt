@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.1.1
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -244,7 +244,7 @@ N:27:Galvorn Armour~
 G:(:D
 I:36:11:0
 W:17:0:70:200
-P:0:0d0:-1:2d4
+P:0:0d0:-1:1d8
 A:17/20:22/4
 F:IGNORE_ALL | NO_SMITHING
 D:A suit of armour made of galvorn: a strange shining black metal 
@@ -262,7 +262,7 @@ D:A shirt of armour formed from linked rings.
 D: It comes down to the waist.
 
 
-N:31:& Long Corslet~
+N:31:& Hauberk~
 G:[:s1
 I:37:6:0
 W:7:0:350:900
@@ -337,6 +337,7 @@ I:23:7:0
 W:1:0:40:10
 P:-1:2d5:1:0d0
 A:1/2
+D:A crude blade, but better than none. It is curved in the orcish style.
 
 
 N:60:& Shortsword~
@@ -424,15 +425,6 @@ W:4:0:60:36
 P:-1:1d13:1:0d0
 A:4/2:12/2
 F:TWO_HANDED | POLEARM
-
-
-N:73:& Trident~
-G:/:y
-I:22:3:0
-W:7:0:50:120
-P:-1:1d9:1:0d0
-A:7/3
-F:THROWING | HAND_AND_A_HALF | POLEARM
 
 
 N:74:& Glaive~
@@ -634,7 +626,7 @@ N:111:& Longbow~
 G:}:U
 I:19:13:0
 W:7:0:30:120
-P:0:1d9:-1:0d0
+P:0:2d5:-1:0d0
 A:7/2:15/1
 
 
@@ -644,8 +636,8 @@ N:112:& Dragon-horn Longbow~
 G:}:U1
 I:19:14:0
 W:15:0:45:120
-P:0:2d7:-1:0d0
-A:15/15
+P:0:3d3:-1:0d0
+A:15/8
 F:NO_SMITHING
 
 
@@ -1005,9 +997,9 @@ D: open or destroy them.
 N:193:Light
 G:_:d
 I:55:3:0
-W:7:0:50:250
+W:5:0:50:250
 P:0:0d0:0:0d0
-A:7/2:15/1
+A:5/2
 D:It lights up an area with a radius of 7 squares, plus the entire room
 D: if you are currently in one.  This stuns
 D: any light-sensitive creatures within the area of effect.
@@ -1018,7 +1010,7 @@ G:_:d
 I:55:5:0
 W:6:0:50:400
 P:0:0d0:0:0d0
-A:6/2
+A:6/2:14/4
 D:It removes curses from the items in your possession.
 
 
@@ -1890,8 +1882,7 @@ D: extra side on each damage die for each point of Strength. Your
 D: strength is 2, so you do 2d7 damage with the curved sword instead
 D: of 2d5.                                             
 D: You only do 1d8 damage with the shortsword though, as you
-D: can get at most 1 extra point of damage for each lb the weapon
-D: weighs (or 1 per 1.5 lbs for two handed weapons).
+D: can get at most 1 extra side for each lb the weapon weighs.
 D: Your abilities with your current weapon/bow/armour are listed on the
 D: left of the screen too. Try switching weapons to see what happens.
 
@@ -2193,9 +2184,9 @@ D:40.
 N:500:& Lesser Jewel~
 G:*:B
 I:39:2:0
-W:7:0:2:1000
+W:3:20:2:1000
 P:0:0d0:0:0d0:0
-A:7/20
+A:3/20
 D:An enchanted glowing jewel, akin to a Silmaril, but much less
 D: powerful.
 D: You can equip it as a light source with a radius of 1 square.

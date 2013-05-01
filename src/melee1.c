@@ -57,15 +57,9 @@ static cptr desc_insult[MAX_DESC_INSULT] =
  * Determine whether there is a bonus die for an elemental attack that
  * the player doesn't resist
  */
-int elem_bonus(int method, int effect)
+int elem_bonus(int effect)
 {
 	int resistance = 1;
-
-	// spores are pure damage rather than mixed, so they get no bonus dice
-	if (method == RBM_SPORE)
-	{
-		return (0);
-	}
 
 	switch (effect)
 	{
@@ -702,7 +696,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			crit_bonus_dice = crit_bonus(hit_result, 20 * dd, &r_info[0], S_MEL, FALSE);
 
 			/* Determine elemental attack bonus dice (if any)  */
-			elem_bonus_dice = elem_bonus(method, effect);
+			elem_bonus_dice = elem_bonus(effect);
 			
 			/* certain attacks can't do criticals */
 			if (no_crit) crit_bonus_dice = 0;
@@ -2147,7 +2141,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			
 			if (allow_player_stun(m_ptr))
 			{
-				if (p_ptr->stun <= 100)
+				if (p_ptr->stun < 100)
 				{
 					msg_print("Your mind reels.");
 					
@@ -2899,8 +2893,9 @@ void display_combat_rolls(void)
 				else if (combat_rolls[round][i].att_type == COMBAT_ROLL_AUTO)
 				{
 					// shield etc protection and resistance
-					if (res > 0)	net_dam = (combat_rolls[round][i].dam / res) - combat_rolls[round][i].prot;
-					else			net_dam = (combat_rolls[round][i].dam * (-res)) - combat_rolls[round][i].prot;
+					if (combat_rolls[round][i].melee)	net_dam = combat_rolls[round][i].dam - combat_rolls[round][i].prot;
+					else if (res > 0)					net_dam = (combat_rolls[round][i].dam / res) - combat_rolls[round][i].prot;
+					else								net_dam = (combat_rolls[round][i].dam * (-res)) - combat_rolls[round][i].prot;
 					
 					if (net_dam > 0)
 					{
@@ -2943,15 +2938,18 @@ void display_combat_rolls(void)
 					// if a player is being hit, show protection range etc
 					else
 					{
-						if (res > 1)
+						if (!(combat_rolls[round][i].melee))
 						{
-							strnfmt(buf, sizeof (buf), "  1/%d then", res);
-							Term_addstr(-1, TERM_L_BLUE, buf);
-						}
-						else if (res < 0)
-						{
-							strnfmt(buf, sizeof (buf), "  x%d then", -res);
-							Term_addstr(-1, TERM_L_BLUE, buf);
+							if (res > 1)
+							{
+								strnfmt(buf, sizeof (buf), "  1/%d then", res);
+								Term_addstr(-1, TERM_L_BLUE, buf);
+							}
+							else if (res < 0)
+							{
+								strnfmt(buf, sizeof (buf), "  x%d then", -res);
+								Term_addstr(-1, TERM_L_BLUE, buf);
+							}
 						}
 
 						if (combat_rolls[round][i].ps < 10)

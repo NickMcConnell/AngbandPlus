@@ -307,7 +307,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 				msg_format("%^s falls asleep.", m_name);
 				
 				// Morgoth drops his iron crown if he falls asleep
-				if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
+				if (m_ptr->r_idx == R_IDX_MORGOTH)
 				{
 					drop_iron_crown(m_ptr, "His crown slips from off his brow and falls to the ground nearby.");
 				}
@@ -580,7 +580,7 @@ int total_player_evasion(monster_type *m_ptr, bool archery)
 		// penalise targets of archery attacks
 		if (archery) evn /= 2;
 
-		// penalise the player if (s)he is in a pit
+		// penalise the player if (s)he is in a pit or web
 		if (cave_pit(p_ptr->py,p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB))
 		{
 			evn /= 2;
@@ -2324,14 +2324,18 @@ extern void perceive(void)
 	{
 		for (x = (px - 4); x <= (px + 4); x++)
 		{
-			dist = distance(py, px, y, x);
-			/* Search only if adjacent, player lit or permanently lit */
-			if ((dist <= 1) || (p_ptr->cur_light >= dist) || (cave_info[y][x] & (CAVE_GLOW)))
+			if (in_bounds(y, x))
 			{
-				/* Search only if also within four grids and in line of sight*/
-				if ((dist <= 4) && los(py, px, y, x))
+				dist = distance(py, px, y, x);
+				
+				/* Search only if adjacent, player lit or permanently lit */
+				if ((dist <= 1) || (p_ptr->cur_light >= dist) || (cave_info[y][x] & (CAVE_GLOW)))
 				{
-					search_square(y, x, dist, FALSE);
+					/* Search only if also within four grids and in line of sight*/
+					if ((dist <= 4) && los(py, px, y, x))
+					{
+						search_square(y, x, dist, FALSE);
+					}
 				}
 			}
 		}
@@ -2664,6 +2668,9 @@ void hit_trap(int y, int x)
 			message_flush();
 			msg_print("...and land somewhere deeper in the Iron Hells.");
 			message_flush();
+
+			// add to the notes file
+			do_cmd_note("Fell through a false floor.", p_ptr->depth);
 						
 			// take some damage
 			falling_damage(FALSE);
@@ -3371,10 +3378,12 @@ void py_attack_aux(int y, int x, int attack_type)
 	char m_name[80];
 	char punctuation[20];
 
-	bool big_hit = FALSE;
-	bool stun = FALSE;
-	bool knock = FALSE;
+	bool knock_back_score = 0;
+	bool knock_back = FALSE;
+	bool knocked = FALSE;
 	bool charge = FALSE;
+	bool rapid_attack = FALSE;
+	bool off_hand_blow = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3477,6 +3486,7 @@ void py_attack_aux(int y, int x, int attack_type)
 	if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK])
 	{
 		blows++;
+		rapid_attack = TRUE;
 	}
 	if (p_ptr->mds2 > 0)
 	{
@@ -3492,18 +3502,24 @@ void py_attack_aux(int y, int x, int attack_type)
 		mds = total_mds(o_ptr, 0);
 		
 		// undo the dexterity adjustment to the attack (if any)
-		if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK]) attack_mod += 3;
+		if (rapid_attack)
+		{ 
+			rapid_attack = FALSE;
+			attack_mod += 3;
+		}
 	}
 
 	/* Attack once for each legal blow */
 	while (num++ < blows)
 	{
-		stun = FALSE;
-		knock = FALSE;
+		knock_back = FALSE;
+		knocked = FALSE;
 		
 		// adjust for off-hand weapon if it is being used
 		if ((num == blows) && (num != 1) && (p_ptr->mds2 > 0))
 		{
+			off_hand_blow = TRUE;
+			
 			attack_mod += p_ptr->offhand_mel_mod;
 			mdd = p_ptr->mdd2;
 			mds = p_ptr->mds2;
@@ -3517,7 +3533,7 @@ void py_attack_aux(int y, int x, int attack_type)
 		{
 			int str_adjustment = 3;
 			
-			if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK]) str_adjustment -= 3;
+			if (rapid_attack) str_adjustment -= 3;
 			
 			charge = TRUE;
 			attack_mod += 3;
@@ -3605,11 +3621,25 @@ void py_attack_aux(int y, int x, int attack_type)
 			
 			update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps, 
 			                     prt, prt_percent, GF_HURT, TRUE); 
-								 
-			if ((dam * weapon_weight >= 1000) && 
-			    (p_ptr->active_ability[S_MEL][MEL_STUN] || p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK]))
+			
+			// determine the player's score for knocking an opponent backwards if they have the ability
+			knock_back_score = p_ptr->stat_use[A_STR] * 2;
+			if (two_handed_melee()) knock_back_score += 4;
+			if (charge) knock_back_score += 6;
+			if (rapid_attack) knock_back_score -= 3;
+			if (off_hand_blow) knock_back_score -= 3;
+			
+			// check whether the effect triggers
+			if (p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK] && (attack_type != ATT_OPPORTUNIST) && !(r_ptr->flags1 & (RF1_NEVER_MOVE)) && 
+			    (skill_check(PLAYER, knock_back_score, monster_con(m_ptr) * 2, m_ptr) > 0))
 			{
-				big_hit = TRUE;
+				// remember this for later when the effect is applied
+				knock_back = TRUE;
+			}
+			
+			// use different colours depending on whether knock back triggered
+			if (knock_back)
+			{
 				display_hit(y, x, net_dam, GF_SOUND);
 			}
 			else
@@ -3653,89 +3683,55 @@ void py_attack_aux(int y, int x, int attack_type)
 			// if the monster didn't die...
 			else
 			{
-				if (big_hit)
+				// deal with knock back ability if it triggered
+				if (knock_back)
 				{					
-					if (p_ptr->active_ability[S_MEL][MEL_STUN])
+					int deltay = y - p_ptr->py;
+					int deltax = x - p_ptr->px;
+					
+					// first try to knock it straight back
+					if (cave_floor_bold(y + deltay, x + deltax))
 					{
-						/*some creatures are resistant to stunning*/
-						if (r_ptr->flags3 & RF3_NO_STUN)
-						{
-							monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-							/*mark the lore*/
-							if (m_ptr->ml) l_ptr->flags3 |= (RF3_NO_STUN);
-						}
+						// force the monster to  miss its next turn
+						m_ptr->skip_next_turn = TRUE;
 						
-						else
-						{
-							m_ptr->stunned = MIN(m_ptr->stunned + weapon_weight/10, 200);
-							stun = TRUE;
-						}
-					}
-					if (p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK] && (attack_type != ATT_OPPORTUNIST) &&
-					    !(r_ptr->flags1 & (RF1_NEVER_MOVE)))
-					{
-						int deltay = y - p_ptr->py;
-						int deltax = x - p_ptr->px;
-						
-						// first try to knock it straight back
-						if (cave_floor_bold(y + deltay, x + deltax))
-						{
-							// force the monster to  miss its next turn
-							m_ptr->skip_next_turn = TRUE;
-							
-							monster_swap(y, x, y + deltay, x + deltax);
-							knock = TRUE;
-						}
-						
-						// then try the adjacent directions
-						else 
-						{
-							int mod, d, i, y2, x2;
-							
-							// randomize clockwise or anticlockwise
-							if (one_in_(2)) mod = -1;
-							else			mod = +1;
-
-							// try both directions
-							for (i = 0; i < 2; i++)
-							{
-								d = cycle[chome[dir_from_delta(deltay, deltax)] + mod];
-								y2 = y + ddy[d];
-								x2 = x + ddx[d];
-								if (cave_floor_bold(y2, x2))
-								{
-									// force the monster to  miss its next turn
-									m_ptr->skip_next_turn = TRUE;
-									
-									monster_swap(y, x, y2, x2);
-									knock = TRUE;
-									break;
-								}
-								
-								// switch direction
-								mod *= -1;
-							}
-						}
+						monster_swap(y, x, y + deltay, x + deltax);
+						knocked = TRUE;
 					}
 					
-					// messages for big hits
-					if (stun && knock)
+					// then try the adjacent directions
+					else 
 					{
-					//	msg_format("Your blow stuns %s and knocks it back.", m_name); 
-					}
-					else if (stun)
-					{
-					//	msg_format("Your blow stuns %s.", m_name); 
-					}
-					else if (knock)
-					{
-					//	msg_format("Your blow knocks %s back.", m_name); 
+						int mod, d, i, y2, x2;
+						
+						// randomize clockwise or anticlockwise
+						if (one_in_(2)) mod = -1;
+						else			mod = +1;
+
+						// try both directions
+						for (i = 0; i < 2; i++)
+						{
+							d = cycle[chome[dir_from_delta(deltay, deltax)] + mod];
+							y2 = y + ddy[d];
+							x2 = x + ddx[d];
+							if (cave_floor_bold(y2, x2))
+							{
+								// force the monster to  miss its next turn
+								m_ptr->skip_next_turn = TRUE;
+								
+								monster_swap(y, x, y2, x2);
+								knocked = TRUE;
+								break;
+							}
+							
+							// switch direction
+							mod *= -1;
+						}
 					}
 				}
 
 				// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-				if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
+				if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 				{
 					if (net_dam >= 10)
 					{
@@ -3753,18 +3749,22 @@ void py_attack_aux(int y, int x, int attack_type)
 				}
 								
 				// Deal with cruel blow ability
-				if (p_ptr->active_ability[S_STL][STL_CRUEL_BLOW] && (crit_bonus_dice >= 3) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
+				if (p_ptr->active_ability[S_STL][STL_CRUEL_BLOW] && (crit_bonus_dice > 0) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
 				{
-					msg_format("%^s reels in pain!", m_name);
-
-					// confuse the monster (if possible)
-					if (!(r_ptr->flags3 & (RF3_NO_CONF)))
+					if (skill_check(PLAYER, crit_bonus_dice * 4, monster_will(m_ptr), m_ptr) > 0)
 					{
-						m_ptr->confused += crit_bonus_dice;
+						msg_format("%^s reels in pain!", m_name);
+						
+						// confuse the monster (if possible)
+						if (!(r_ptr->flags3 & (RF3_NO_CONF)))
+						{
+							// The +1 is needed as a turn of this wears off immediately
+							m_ptr->confused = MAX(m_ptr->confused, crit_bonus_dice + 1); 
+						}
+						
+						// cause a temporary morale penalty
+						scare_onlooking_friends(m_ptr, -20);
 					}
-
-					// cause a temporary morale penalty
-					scare_onlooking_friends(m_ptr, -20);
 				}
 			}
 		}
@@ -3793,7 +3793,7 @@ void py_attack_aux(int y, int x, int attack_type)
 		make_alert(m_ptr);
 		
 		// stop attacking if you displace the creature
-		if (knock) break;
+		if (knocked) break;
 	}
 
 	// Warning about fighting with silly weapons

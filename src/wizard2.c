@@ -126,6 +126,7 @@ void display_noise_map(void)
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
 			nd = get_noise_dist(FLOW_REAL_NOISE, y, x);
+			//nd = cave_cost[FLOW_PASS_DOORS][y][x] - 100; // switch this in to see another flow
 
 			if (nd == 0) continue;
 			else if (nd < 10) a = TERM_RED;

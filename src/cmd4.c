@@ -35,6 +35,15 @@ struct monster_list_entry
 	byte amount;
 };
 
+typedef struct object_list_entry object_list_entry;
+struct object_list_entry
+{
+    enum { OBJ_NONE, OBJ_NORMAL, OBJ_SPECIAL } type;
+    int idx;
+    int e_idx;
+    int tval, sval;
+};
+
 
 
 /*
@@ -8732,11 +8741,16 @@ static byte object_group_tval[] =
 
 /*
  * Build a list of objects indexes in the given group. Return the number
- * of objects in the group.
+ * of objects in the group. object_idx[] must be one element larger than the
+ * largest number of objects that will be collected.
+ *  (Incorporates some code from jdh)
  */
-static int collect_objects(int grp_cur, int object_idx[])
+static int collect_objects(int grp_cur, object_list_entry object_idx[])
 {
 	int i, j, k, object_cnt = 0;
+	int max_sval = -1;
+	int norm = 0;
+	bool known_sval[256] = {};
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
@@ -8770,15 +8784,64 @@ static int collect_objects(int grp_cur, int object_idx[])
 		/* Check for object in the group */
 		if (k_ptr->tval == group_tval)
 		{
-			/* Add the race */
-			object_idx[object_cnt++] = i;
+			known_sval[k_ptr->sval] = TRUE;
+
+			/* Save the highest sval in the group for later */
+			if (k_ptr->sval > max_sval)
+			{
+				max_sval = k_ptr->sval;
+			}
+
+			/* Add the object type */
+			if (object_idx)
+			{
+			    object_idx[object_cnt].type = OBJ_NORMAL;
+			    object_idx[object_cnt].idx = i;
+			}
+			
+			object_cnt++;
+		}
+	}
+
+	norm = object_cnt;
+
+	/* Add special items to the list */
+	/* Skip this part if we don't know any normal items */
+	for (i = 0; object_cnt > 0 && i < z_info->e_max; i++)
+	{
+		/* Access the object type */
+		ego_item_type *e_ptr = &e_info[i];
+
+		/* Skip empty objects */
+		if (!e_ptr->name) continue;
+
+		/* Require objects ever seen*/
+		if (!(e_ptr->everseen)) continue;
+
+		/* Check for object in the group */
+		for (j = 0; j < EGO_TVALS_MAX; j++)
+		{
+			if (e_ptr->tval[j] == group_tval)
+			{
+				if (object_idx)
+				{
+					object_idx[object_cnt].type = OBJ_SPECIAL;
+					object_idx[object_cnt].idx = -1;
+					object_idx[object_cnt].e_idx = i;
+					object_idx[object_cnt].tval = group_tval;
+					object_idx[object_cnt].sval = -1;
+				}
+				object_cnt++;
+
+				break;
+			}
 		}
 	}
 
 	/* Terminate the list */
-	object_idx[object_cnt] = 0;
+	if (object_idx) object_idx[object_cnt].type = OBJ_NONE;
 
-	/* Return the number of races */
+	/* Return the number of object types */
 	return object_cnt;
 }
 
@@ -9890,46 +9953,97 @@ static void desc_obj_fake(int k_idx)
 }
 
 /*
- * Display the objects in a group.
+ * Display the objects in a group. (Incorporates some code from jdh)
  */
-static void display_object_list(int col, int row, int per_page, int object_idx[],
+static void display_object_list(int col, int row, int per_page, object_list_entry object_idx[],
 	int object_cur, int object_top)
 {
 	int i;
 
 	/* Display lines until done */
-	for (i = 0; i < per_page && object_idx[i]; i++)
+	for (i = 0; i < per_page && object_idx[i].type != OBJ_NONE; i++)
 	{
 		char buf[80];
 
 		/* Get the object index */
-		int k_idx = object_idx[object_top + i];
+		int oidx = object_top + i;
+		object_list_entry *obj = &object_idx[oidx];
+		object_kind *k_ptr;
+		ego_item_type *e_ptr;
+		byte attr, cursor;
 
-		/* Access the object */
-		object_kind *k_ptr = &k_info[k_idx];
-
-		/* Choose a color */
-		byte attr = ((k_ptr->aware) ? TERM_WHITE : TERM_SLATE);
-		byte cursor = ((k_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
-		attr = ((i + object_top == object_cur) ? cursor : attr);
-
-		/* Acquire the basic "name" of the object*/
-	    strip_name(buf, k_idx);
-
-		/* Display the name */
-		c_prt(attr, buf, row + i, col);
-
-		if (cheat_know) c_prt(attr, format ("%d", k_idx), row + i, 70);
-
-		if (k_ptr->aware)
+		switch (obj->type)
 		{
+			case OBJ_NORMAL:
+				/* Access the object */
+				k_ptr = &k_info[obj->idx];
 
-			/* Obtain attr/char */
-			byte a = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_attr): k_ptr->d_attr;
-			byte c = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_char): k_ptr->d_char;
+				/* Choose a color */
+				attr = ((k_ptr->aware) ? TERM_WHITE : TERM_SLATE);
+				cursor = ((k_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
+				attr = ((oidx == object_cur) ? cursor : attr);
 
-			/* Display symbol */
-			Term_putch(76, row + i, a, c);
+				/* Acquire the basic "name" of the object*/
+				strip_name(buf, obj->idx);
+
+				/* Display the name */
+				c_prt(attr, buf, row + i, col);
+
+				if (cheat_know) c_prt(attr, format ("%d", obj->idx), row + i, 70);
+
+				if (k_ptr->aware)
+				{
+
+					/* Obtain attr/char */
+					byte a = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_attr): k_ptr->d_attr;
+					byte c = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_char): k_ptr->d_char;
+
+					/* Display symbol */
+					Term_putch(76, row + i, a, c);
+				}
+
+				break;
+
+			case OBJ_SPECIAL:
+				e_ptr = &e_info[obj->e_idx];
+
+				/* Choose a color */
+				attr = ((e_ptr->aware) ? TERM_WHITE : TERM_SLATE);
+				cursor = ((e_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
+				attr = ((oidx == object_cur) ? cursor : attr);
+
+				if (obj->sval == -1)
+				{
+					buf[0] = '\0';
+					strncat(buf, "  ", sizeof(buf));
+					strncat(buf, &e_name[e_ptr->name], sizeof(buf));
+				}
+				else
+				{
+					int j;
+
+					/* Find the specific type */
+					buf[0] = '\0';
+					for (j = 0; j < z_info->k_max; ++j)
+					{
+						if ((k_info[j].tval == obj->tval) && (k_info[j].sval == obj->sval))
+							{
+							strip_name(buf, j);
+							break;
+						}
+					}
+
+					strncat(buf, " ", sizeof(buf));
+					strncat(buf, &e_name[e_ptr->name], sizeof(buf));
+				}
+
+				c_prt(attr, buf, row + i, col);
+				
+				break;
+
+			case OBJ_NONE:
+			default:
+				break;
 		}
 	}
 
@@ -9947,20 +10061,18 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 void do_cmd_knowledge_objects(void)
 {
 	int i, len, max;
-	int grp_cur, grp_top;
+	int grp_cur, grp_top, grp_max;
 	int object_old, object_cur, object_top;
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
-	int *object_idx;
+	object_list_entry *object_idx;
 
 	int column = 0;
 	bool flag;
 	bool redraw;
 
-	/* Allocate the "object_idx" array */
-	C_MAKE(object_idx, z_info->k_max, int);
-
 	max = 0;
+	grp_max = 0;
 	grp_cnt = 0;
 
 	/* Check every group */
@@ -9973,15 +10085,21 @@ void do_cmd_knowledge_objects(void)
 		if (len > max) max = len;
 
 		/* See if any monsters are known */
-		if (collect_objects(i, object_idx))
+		object_cnt = collect_objects(i, NULL);
+		if (object_cnt)
 		{
 			/* Build a list of groups with known monsters */
 			grp_idx[grp_cnt++] = i;
 		}
+
+		if (object_cnt > grp_max) grp_max = object_cnt;
 	}
 
 	/* Terminate the list */
 	grp_idx[grp_cnt] = -1;
+
+	/* Allocate the "object_idx" array */
+	C_MAKE(object_idx, 1 + grp_max, object_list_entry);
 
 	grp_cur = grp_top = 0;
 	object_cur = object_top = 0;
@@ -10041,16 +10159,16 @@ void do_cmd_knowledge_objects(void)
 		Term_putstr(18, 23, -1, TERM_L_WHITE, "ESC");
 
 		/* Mega Hack -- track this monster race */
-		if (object_cnt) object_kind_track(object_idx[object_cur]);
+		if (object_cnt) object_kind_track(object_idx[object_cur].idx);
 
 		/* The "current" object changed */
-		if (object_old != object_idx[object_cur])
+		if (object_old != object_cur)
 		{
 			/* Hack -- handle stuff */
 			handle_stuff();
 
 			/* Remember the "current" object */
-			object_old = object_idx[object_cur];
+			object_old = object_cur;
 		}
 
 		if (!column)
@@ -10075,10 +10193,12 @@ void do_cmd_knowledge_objects(void)
 			case 'R':
 			case 'r':
 			{
-				if ((&k_info[object_idx[object_cur]])->aware)
+				object_list_entry *obj = &object_idx[object_cur];
+				if (obj->type == OBJ_NORMAL &&
+						k_info[obj->idx].aware)
 				{
 					/* Recall on screen */
-					desc_obj_fake(object_idx[object_cur]);
+					desc_obj_fake(obj->idx);
 					
 					redraw = TRUE;
 				}

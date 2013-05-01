@@ -570,6 +570,7 @@ extern void monster_desc_race(char *desc, size_t max, int r_idx);
 extern void lore_probe_aux(int r_idx);
 extern void lore_treasure(int m_idx, int num_item);
 extern int  monster_will(monster_type *m_ptr);
+extern int  monster_con(monster_type *m_ptr);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
 extern s16b monster_carry(int m_idx, object_type *j_ptr);
@@ -929,7 +930,7 @@ extern cptr get_ext_color_name(byte ext_color);
 
 /* xtra1.c */
 extern byte total_mdd(const object_type *o_ptr);
-extern byte strength_modified_ds(const object_type *o_ptr, bool wielded, int str_adjustment);
+extern byte strength_modified_ds(const object_type *o_ptr, int str_adjustment);
 extern byte total_mds(const object_type *o_ptr, int str_adjustment);
 extern bool two_handed_melee(void);
 extern int hand_and_a_half_bonus(const object_type *o_ptr);

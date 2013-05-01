@@ -3390,7 +3390,11 @@ void update_view(void)
 		object_flags(o_ptr, &f1, &f2, &f3);
 		
 		/* does this item glow? */
-		if ((f2 & TR2_LIGHT) && (o_ptr->tval != TV_LIGHT)) obj_light++;
+		if (f2 & TR2_LIGHT)
+		{ 
+			// objects with the Light flag glow on the ground unless they are torches or lanterns
+			if (!((o_ptr->tval == TV_LIGHT) && ((o_ptr->sval == SV_LIGHT_TORCH) || (o_ptr->sval == SV_LIGHT_LANTERN)))) obj_light++;
+		}
 
 		/* is it a glowing weapon? */
 		if (weapon_glows(o_ptr))
@@ -3819,9 +3823,9 @@ void update_noise(int cy, int cx, byte which_flow)
 			x = flow_table[this_cycle][1][i];
 			
 			// Some grids are not ready to process immediately.
-			// For now, this is just doors, which add 5 cost.
+			// For now, this is just doors, which add 5 cost to noise, 3 cost to movement.
 			// They keep getting put back on the queue until ready.
-			if (cave_cost[which_flow][y][x] > cost)
+			if (cave_cost[which_flow][y][x] >= cost)
 			{
 				/* Store this grid in the flow table */
 				flow_table[next_cycle][0][grid_count] = y;
@@ -3887,7 +3891,7 @@ void update_noise(int cy, int cx, byte which_flow)
 					// penalize doors by 5 when calculating the real noise
 					if (((which_flow == FLOW_REAL_NOISE) || (which_flow == FLOW_MON_NOISE)) && cave_closed_door(y2,x2))
 					{
-						cave_cost[which_flow][y2][x2] += 5 + 1;
+						cave_cost[which_flow][y2][x2] += 5;
 					}
 
 					// penalize doors by 3 when calculating the pass door flow

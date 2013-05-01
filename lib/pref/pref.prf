@@ -127,6 +127,9 @@ C:1:^U
 A:n
 C:1:^N
 
+A:L
+C:1:W
+
 
 ##### Angband-like Keyset Mappings #####
 
@@ -311,6 +314,9 @@ A:u
 C:3:^U
 A:n
 C:3:^N
+
+A:L
+C:3:W
 
 
 # Examine

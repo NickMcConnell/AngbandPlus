@@ -1229,8 +1229,9 @@ bool set_stun(int v)
 		if (old_aux == 3)
 		{
 			msg_print("You wake up.");
+			
 			// undo the temporary blinding if waking up from KO
-			p_ptr->blind = MAX(p_ptr->blind-1,0);//$$$
+			p_ptr->blind = MAX(p_ptr->blind-1,0);
 		}
 		
 		/* Describe the state */
@@ -1957,7 +1958,7 @@ void drop_loot(monster_type *m_ptr)
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
 		/* Drop Morgoth's treasures */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
+		if (m_ptr->r_idx == R_IDX_MORGOTH)
 		{
 			// create the Massive Hammer 'Grond'
 			create_chosen_artefact(ART_GROND, y, x, TRUE);
@@ -2169,7 +2170,7 @@ void monster_death(int m_idx)
 	 */
 
 	// Special message and flag setting for killing Morgoth
-	if (r_ptr->flags1 & (RF1_QUESTOR))
+	if (m_ptr->r_idx == R_IDX_MORGOTH)
 	{
 		p_ptr->morgoth_slain = TRUE;
 		msg_print("BUG: Morgoth has been defeated in combat.");
@@ -4680,6 +4681,7 @@ bool get_aim_dir(int *dp, int range)
 			/* Use current target, if set and legal, otherwise pick next target */
 			case 'f':
 			case 'F':
+			case 't':
 			case '5':
 			case 'z':
 			{

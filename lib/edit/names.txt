@@ -10,7 +10,7 @@
 # Format:
 # N:name
 
-V:1.1.0
+V:1.1.1
 
 N:adanedhel
 N:adurant

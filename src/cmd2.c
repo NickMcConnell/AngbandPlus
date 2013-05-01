@@ -169,6 +169,9 @@ void do_cmd_go_up(void)
 			message_flush();
 			msg_print("...and land somewhere deeper in the Iron Hells.");
 			message_flush();
+
+			// add to the notes file
+			do_cmd_note("Fell through a crumbling stair.", p_ptr->depth);
 			
 			// take some damage
 			falling_damage(FALSE);
@@ -237,6 +240,9 @@ void do_cmd_go_up(void)
 			message_flush();
 			msg_print("...and land somewhere deeper in the Iron Hells.");
 			message_flush();
+
+			// add to the notes file
+			do_cmd_note("Fell through a crumbling stair.", p_ptr->depth);
 			
 			// take some damage
 			falling_damage(FALSE);
@@ -367,6 +373,9 @@ void do_cmd_go_down(void)
 		message_flush();
 		msg_print("...and land somewhere deeper in the Iron Hells.");
 		message_flush();
+
+		// add to the notes file
+		do_cmd_note("Fell through a crumbling stair.", p_ptr->depth);
 		
 		// take some damage
 		falling_damage(FALSE);
@@ -823,9 +832,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		c = time((time_t *)0);
 		tp = localtime(&c);
 		
-		// cause problems opening presents before Christmas day in most parts of the world,
-		// and Christmas eve in Germany (represented by the CET time zone)
-		if ((tp->tm_mon == 11) && (tp->tm_mday < 25))// && !((tp->tm_mday == 24) && (strncmp(tp->tm_zone,"CET",4) == 0)))
+		// cause problems opening presents before Christmas day
+		if ((tp->tm_mon == 11) && (tp->tm_mday >= 20) && (tp->tm_mday < 25))// && !((tp->tm_mday == 24) && (strncmp(tp->tm_zone,"CET",4) == 0)))
 		{
 			if (get_check("Are you sure you wish to open your present before Christmas? "))
 			{
@@ -3031,8 +3039,8 @@ static int breakage_chance(const object_type *o_ptr, bool hit_wall)
 		/* Often break */
 		case TV_LIGHT:
 		{
-			/* Silmarils don't break */
-			if ((o_ptr->tval == TV_LIGHT) && (o_ptr->sval == SV_LIGHT_SILMARIL))
+			/* Jewels don't break */
+			if ((o_ptr->tval == TV_LIGHT) && ((o_ptr->sval == SV_LIGHT_SILMARIL) || (o_ptr->sval == SV_LIGHT_LESSER_JEWEL)))
 			{
 				p = 0;
 			}
@@ -3665,7 +3673,7 @@ void do_cmd_fire(int quiver)
 						}
 						
 						// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-						if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
+						if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 						{
 							if (net_dam >= 10)
 							{
@@ -3686,10 +3694,16 @@ void do_cmd_fire(int quiver)
 						message_pain(cave_m_idx[y][x], net_dam);
 						
 						// Deal with crippling shot ability
-						if (p_ptr->active_ability[S_ARC][ARC_CRIPPLING] && (crit_bonus_dice >= 2) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
+						if (p_ptr->active_ability[S_ARC][ARC_CRIPPLING] && (crit_bonus_dice >= 1) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
 						{
-							msg_format("Your shot cripples %^s!", m_name);
-							set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx], m_ptr->slowed + damroll(2, 4), FALSE);
+							if (skill_check(PLAYER, crit_bonus_dice * 4, monster_will(m_ptr), m_ptr) > 0)
+							{
+								msg_format("Your shot cripples %^s!", m_name);
+								
+								// slow the monster
+								// The +1 is needed as a turn of this wears off immediately
+								set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx], MAX(m_ptr->slowed, crit_bonus_dice + 1), FALSE);
+							}							
 						}
 					}
 					
@@ -4169,6 +4183,9 @@ void do_cmd_throw(void)
 	
 	// subtract out the melee weapon's bonus (as we had already accounted for it)
 	attack_mod -= (&inventory[INVEN_WIELD])->att;
+	attack_mod -= blade_bonus(&inventory[INVEN_WIELD]);
+	attack_mod -= axe_bonus(&inventory[INVEN_WIELD]);
+	attack_mod -= polearm_bonus(&inventory[INVEN_WIELD]);
 
 	/* Weapons that are not good for throwing are much less accurate */
 	if (!(f3 & (TR3_THROWING)))
@@ -4345,7 +4362,7 @@ void do_cmd_throw(void)
 
 				/* Calculate the damage from the thrown object */
 				total_bonus_dice = crit_bonus_dice + slay_bonus_dice;
-				total_ds = strength_modified_ds(i_ptr, FALSE, FALSE);
+				total_ds = strength_modified_ds(i_ptr, FALSE);
 
 				/* Penalise items that aren't made to be thrown */
 				if (!(f3 & (TR3_THROWING)))	total_ds /= 2;
@@ -4448,7 +4465,7 @@ void do_cmd_throw(void)
 					}
 					
 					// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-					if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
+					if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 					{
 						if (net_dam >= 10)
 						{

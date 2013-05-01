@@ -72,7 +72,7 @@ static void find_range(monster_type *m_ptr)
 	/* Now find preferred range */
 	m_ptr->best_range = m_ptr->min_range;
 
-	if ((r_ptr->freq_ranged > 15) && !(r_ptr->flags1 & (RF1_QUESTOR)))
+	if ((r_ptr->freq_ranged > 15) && (m_ptr->r_idx != R_IDX_MORGOTH))
 	{
 		/* Breathers like range 2  */
 		if ((r_ptr->flags4 & (RF4_BREATH_MASK)) &&
@@ -546,7 +546,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	int move_chance = 100;
 
 	int feat;
-
+	
 	/* Check Bounds */
 	if (!in_bounds(y, x)) return (0);
 
@@ -611,7 +611,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	if (feat == FEAT_GLYPH)
 	{
 		// a simulated Will check
-		int break_chance = success_chance(10, monster_will(m_ptr), 17);
+		int break_chance = success_chance(10, monster_will(m_ptr), 20);
 		
 		// can always attack the player if the player is standing on the glyph
 		if ((p_ptr->py == y) && (p_ptr->px == x)) break_chance = 100;
@@ -1106,7 +1106,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 		*tx = m_ptr->fx;
 		
 		// sometimes become unwary and wander back to its lair
-		////if (one_in_(10) && (m_ptr->alertness >= ALERTNESS_ALERT)) set_alertness(m_ptr, m_ptr->alertness - 1);
+		if (one_in_(10) && (m_ptr->alertness >= ALERTNESS_ALERT)) set_alertness(m_ptr, m_ptr->alertness - 1);
 
 		return;
 	}
@@ -1144,13 +1144,13 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 	/* Use target information if available */
 	if ((m_ptr->target_y) && (m_ptr->target_x))
 	{
-
 		*ty = m_ptr->target_y;
 		*tx = m_ptr->target_x;
 		return;
 	}
 
 	/* If we can hear noises, advance towards them */
+	
 
 	/*first choose the appropriate flow*/
 	if (((r_ptr->flags2 & (RF2_OPEN_DOOR)) || (r_ptr->flags2 & (RF2_BASH_DOOR)) || (r_ptr->flags2 & (RF2_PASS_DOOR))) &&
@@ -1158,6 +1158,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 	{
 		which_flow = FLOW_PASS_DOORS;
 	}
+	
 	/*Monsters who can't open up or bash down doors*/
 	else
 	{
@@ -4711,7 +4712,19 @@ static void process_monster(monster_type *m_ptr)
 					else										msg_format("%^s flees up the stairs.", m_name);
 				}
 				
-				delete_monster(m_ptr->fy, m_ptr->fx);
+				// if adjacent, you get a chance for an opportunist attack, which might kill them
+				if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !m_ptr->skip_next_turn && (m_ptr->alertness >= ALERTNESS_ALERT) && !p_ptr->truce &&
+					!p_ptr->confused && !p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
+				{
+					if ((distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) == 1))
+					{
+						py_attack_aux(m_ptr->fy, m_ptr->fx, ATT_OPPORTUNIST);
+					}
+				}
+
+				// removes the monster if it is still alive
+				delete_monster(ty, tx);
+				
 				return;
 			}
 		}
@@ -5018,12 +5031,6 @@ void calc_stance(monster_type *m_ptr)
 				// give the monster a temporary 'rally' bonus to its morale
 				m_ptr->tmp_morale += 60;
 				calc_morale(m_ptr);
-				
-				// if too far away from player at time of recovering, become unwary
-				////if (get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx) >= 20)
-				////{
-				////	set_alertness(m_ptr, rand_range(ALERTNESS_UNWARY, ALERTNESS_ALERT-1));
-				////}
 				
 				if (!p_ptr->truce)	sprintf(buf, "turns to fight!");
 				else				sprintf(buf, "recovers its composure.");

@@ -4654,7 +4654,7 @@ void sing(void)
 					if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
 
 					// Morgoth is not affected
-					if (r_ptr->flags1 & (RF1_QUESTOR))   resistance += 100;
+					if (m_ptr->r_idx == R_IDX_MORGOTH)   resistance += 100;
 					
 					// adjust difficulty by the distance to the monster
 					result = skill_check(PLAYER, score, resistance + get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);

@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.1.0"
+#define VERSION_STRING	"1.1.1"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	1
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -361,7 +361,7 @@
 
 /*
  * There is a 1/10 (10%) chance that special items with an inflated base-level are
- * generated when an object is turned into an special item (see make_ego_item()
+ * generated when an object is turned into an special item (see make_special_item()
  * in object2.c). As above, lower values yield better special items more often.
  */
 #define GREAT_EGO	10
@@ -448,7 +448,7 @@
 #define	MEL_FOLLOW_THROUGH			 5
 #define	MEL_ZONE_OF_CONTROL			 6
 #define	MEL_CONTROL					 7
-#define	MEL_STUN					 8
+#define	MEL_MOMENTUM				 8
 #define	MEL_RAPID_ATTACK			 9
 #define	MEL_TWO_WEAPON				10
 #define	MEL_KNOCK_BACK				11
@@ -562,9 +562,9 @@
 #define ATT_CONTROLLED_RETREAT	2
 #define ATT_ZONE_OF_CONTROL		3
 #define ATT_OPPORTUNIST			4
-#define ATT_POLEARM  			4
-#define ATT_FOLLOW_THROUGH		5
-#define ATT_RIPOSTE				6
+#define ATT_POLEARM  			5
+#define ATT_FOLLOW_THROUGH		6
+#define ATT_RIPOSTE				7
 #define ATT_WHIRLWIND			8
 #define ATT_RAGE				9
 
@@ -1074,8 +1074,7 @@
 #define SV_SPEAR				1	/* 1d11 */
 #define SV_GREAT_SPEAR			2	/* 1d14 */
 #define SV_TRIDENT				3	/* 1d8 */
-#define SV_GLAIVE				4	/* 2d8 */
-#define SV_HALBERD				5	/* 2d10 */
+#define SV_GLAIVE				4	/* 2d9 */
 #define SV_THROWING_AXE			11	/* 2d4 */
 #define SV_BATTLE_AXE			12	/* 3d4 */
 #define SV_GREAT_AXE			13	/* 4d4 */

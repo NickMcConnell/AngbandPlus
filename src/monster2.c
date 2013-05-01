@@ -1093,6 +1093,39 @@ int monster_will(monster_type *m_ptr)
 }
 
 
+/*
+ *  Calculates a Con score for a monster
+ */
+int monster_con(monster_type *m_ptr)
+{
+	int con = 0;
+	int mhp = m_ptr->maxhp;
+	int base = 20;
+	
+	if (mhp < base)
+	{
+		while (mhp < base)
+		{
+			con--;
+			base = (base * 10) / 12;
+		}
+	}
+	else if (mhp >= base)
+	{
+		con--;
+		while (mhp >= base)
+		{
+			con++;
+			base = (base * 12) / 10;
+		}
+	}
+	
+	//msg_format("%d => %d.", m_ptr->maxhp, con); // Sil-y: this seems slightly erroneous for extreme values
+	
+	return (con);
+}
+
+
 void listen(monster_type *m_ptr)
 {
 	byte a;
@@ -1482,6 +1515,21 @@ void update_mon(int m_idx, bool full)
 		l_ptr->psights++;
 		if (l_ptr->tsights < MAX_SHORT) l_ptr->tsights++;
 		
+		// If the player encounters a Unique for the first time, write a note.
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			char note2[120];
+			char real_name[120];
+			
+			/* Get the monster's real name for the notes file */
+			monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
+			
+			/* Write note */
+			my_strcpy(note2, format("Encountered %s", real_name), sizeof (note2));
+			
+			do_cmd_note(note2, p_ptr->depth);
+		}
+				
 		// if it was a wraith, possibly realise you are haunted
 		if ((r_ptr->flags3 & (RF3_UNDEAD)) && !(r_ptr->flags2 & (RF2_TERRITORIAL)))
 		{

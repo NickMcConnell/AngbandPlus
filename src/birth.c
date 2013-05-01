@@ -701,7 +701,7 @@ static void player_outfit(void)
 
 	// Christmas presents:
 	
-	/* Make sure it is Dec 24-26 */
+	/* Make sure it is Dec 20-31 */
 	c = time((time_t *)0);
 	tp = localtime(&c);
 	if ((tp->tm_mon == 11) && (tp->tm_mday >= 20) && (tp->tm_mday <= 31))

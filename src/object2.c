@@ -1584,7 +1584,7 @@ static void object_mention(const object_type *o_ptr)
  * If no legal ego item is found, this routine returns 0, resulting in
  * an unenchanted item.
  */
-static int make_ego_item(object_type *o_ptr, bool only_good)
+static int make_special_item(object_type *o_ptr, bool only_good)
 {
 	int i, j, level;
 
@@ -1675,8 +1675,11 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 		total += table[i].prob3;
 	}
 
-	/* enforce a true rarity if there are only one or a few rare ego items*/
-	if (!percent_chance(total)) return (0);
+	// If there aren't *any* valid items to choose from give up
+	if (total == 0)
+	{
+		return (0);
+	}
 
 	/* Pick an special item */
 	value = rand_int(total);
@@ -2580,7 +2583,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			{
 				int ego_power;
 
-				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+				ego_power = make_special_item(o_ptr, (bool)(good || great));
+				
+				// if we were unlucky enough to have no valid special types
+				// then at least let it be a fine item
+				if (ego_power == 0) fine = TRUE;
 			}
 
 			// deal with fine items
@@ -2612,7 +2619,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			{
 				int ego_power;
 
-				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+				ego_power = make_special_item(o_ptr, (bool)(good || great));
 				if (o_ptr->number > 1) o_ptr->number /= 2;
 				
 			}
@@ -2639,7 +2646,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			{
 				int ego_power;
 
-				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+				ego_power = make_special_item(o_ptr, (bool)(good || great));
+
+				// if we were unlucky enough to have no valid special types
+				// then at least let it be a fine item
+				if (ego_power == 0) fine = TRUE;
 			}
 
 			if (fine)
@@ -2661,7 +2672,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		{
 			if (special)
 			{
-				make_ego_item(o_ptr, (bool)(good || great));
+				make_special_item(o_ptr, (bool)(good || great));
 			}
 
 			/* Fuel it */
@@ -2766,23 +2777,9 @@ static bool kind_is_great(int k_idx)
 			return (TRUE);
 		}
 
-		/* Arrows -- not great */
-		case TV_ARROW:
-		{
-			// if ((object_generation_mode == OB_GEN_MODE_RANDART)) return (FALSE);
-			return (FALSE);
-		}
-
-		/* Rings -- Rings of Speed are great */
-		case TV_RING:
-		{
-			return (FALSE);
-		}
-
-		/* Chests -- Chests are great, except for randarts.*/
+		/* Chests -- great */
 		case TV_CHEST:
 		{
-			if ((object_generation_mode == OB_GEN_MODE_RANDART))  return (FALSE);
 			return (TRUE);
 		}
 

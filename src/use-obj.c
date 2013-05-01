@@ -689,6 +689,9 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
 					message_flush();
 					msg_print("...and land somewhere deeper in the Iron Hells.");
 					message_flush();
+
+					// add to the notes file
+					do_cmd_note("Fell through the floor with a trumpet blast.", p_ptr->depth);
 					
 					// take some damage
 					falling_damage(TRUE);

@@ -463,13 +463,13 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	}
 
 	/* Collect stuff which can't be categorized */
-	if (f2 & (TR2_SLOW_DIGEST)) good[gc++] = "reduces your need for food";
 	if (((o_ptr->tval == TV_LIGHT) && artefact_p(o_ptr)) || ((o_ptr->tval != TV_LIGHT) && (f2 & (TR2_LIGHT))))
 		good[gc++] = "lights the dungeon around you";
-	if ((o_ptr->tval == TV_LIGHT) && (f2 & (TR2_LIGHT)))
-		good[gc++] = "burns brightly, increasing your light radius by an additional square";
-	if (f2 & (TR2_RADIANCE))	good[gc++] = "fires shining arrows";
-	if (f2 & (TR2_REGEN))       good[gc++] = "speeds your regeneration (which also increases your hunger)";
+	if ((f2 & (TR2_LIGHT)) && (o_ptr->tval == TV_LIGHT))	good[gc++] = "burns brightly, increasing your light radius by an additional square";
+	if (f2 & (TR2_SLOW_DIGEST))								good[gc++] = "reduces your need for food";
+	if ((f2 & (TR2_RADIANCE)) && (o_ptr->tval == TV_BOW))	good[gc++] = "fires shining arrows";
+	if ((f2 & (TR2_RADIANCE)) && (o_ptr->tval == TV_BOOTS))	good[gc++] = "lights your path behind you";
+	if (f2 & (TR2_REGEN))									good[gc++] = "speeds your regeneration (which also increases your hunger)";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);

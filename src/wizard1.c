@@ -912,11 +912,7 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[r_idx];
 
 		/* Prefix */
-		if (r_ptr->flags1 & RF1_QUESTOR)
-		{
-			text_out("[Q] ");
-		}
-		else if (r_ptr->flags1 & RF1_UNIQUE)
+		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
 			text_out("[U] ");
 		}

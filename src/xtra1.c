@@ -38,7 +38,7 @@ byte total_mdd(const object_type *o_ptr)
  * Determines the strength modified damage sides for a melee or thrown weapon
  * Includes factors for strength and weight, but not bonuses from ring of damage etc
  */
- extern byte strength_modified_ds(const object_type *o_ptr, bool wielded, int str_adjustment)
+ extern byte strength_modified_ds(const object_type *o_ptr, int str_adjustment)
 {
 	byte mds;
 	int int_mds; /* to allow negative values in the intermediate stages */
@@ -58,13 +58,9 @@ byte total_mdd(const object_type *o_ptr)
 	{
 		int_mds = o_ptr->ds;
 		
-		if (!wielded)
+		if (two_handed_melee())
 		{
-			divisor = 5;
-		}
-		else if (two_handed_melee())
-		{
-			divisor = 15;
+			divisor = 10;
 
 			/* Bonus for 'hand and a half' weapons like the bastard sword when used with two hands */
 			int_mds += hand_and_a_half_bonus(o_ptr);
@@ -73,6 +69,9 @@ byte total_mdd(const object_type *o_ptr)
 		{
 			divisor = 10;
 		}
+		
+		// apply the Momentum ability
+		if (p_ptr->active_ability[S_MEL][MEL_MOMENTUM]) divisor /= 2;
 		
 		/* limit the strength sides bonus by weapon weight */
 		if ((str_to_mds > 0) && (str_to_mds > (o_ptr->weight / divisor)))
@@ -115,7 +114,7 @@ extern byte total_mds(const object_type *o_ptr, int str_adjustment)
 	byte mds;
 	int int_mds; /* to allow negative values in the inetermediate stages */
 	
-	int_mds = strength_modified_ds(o_ptr, TRUE, str_adjustment);
+	int_mds = strength_modified_ds(o_ptr, str_adjustment);
 	
 	/* make sure the total is non-negative */
 	mds = (int_mds < 0) ? 0 : int_mds;
@@ -1547,15 +1546,34 @@ int light_up_to(int base_radius, object_type *o_ptr)
 }
 
 /*
+ *  Determines how much an enemy in a given location should make the sword glow
+ */
+int hate_level(int y, int x, int multiplier)
+{
+	int dist;
+	
+	// check distance of monster from player (by noise)
+	dist = get_noise_dist(FLOW_MON_NOISE, y, x);
+	
+	// Avoid a division by zero
+	if (dist == 0) dist = 1;
+	
+	// determine the danger level
+	return ((50 * multiplier) / dist);
+}
+
+/*
  * Determine whether a melee weapon is glowing in response to nearby enemies
  */
 bool weapon_glows(object_type *o_ptr)
 {
 	int total_hate = 0;
 	int i;
-	int dist;
-	int y = o_ptr->iy;
-	int x = o_ptr->ix;
+	int iy = o_ptr->iy; // weapon location
+	int ix = o_ptr->ix;
+	int py = p_ptr->py; // player location
+	int px = p_ptr->px;
+	int y, x;			// generic location
 	u32b f1, f2, f3;
 	bool viewable = FALSE;
 	
@@ -1567,37 +1585,36 @@ bool weapon_glows(object_type *o_ptr)
 	if (wield_slot(o_ptr) != INVEN_WIELD)	return (FALSE);
 
 	// use the player's position where needed
-	if ((y == 0) && (x == 0))
+	if ((iy == 0) && (ix == 0))
 	{
-		y = p_ptr->py;
-		x = p_ptr->px;
+		iy = py;
+		ix = px;
 	}
 	
 	// out of LOS objects don't glow (or it can't be seen)
-	if (cave_info[y-1][x-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y-1][x] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y-1][x+1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y][x-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y][x] & (CAVE_VIEW))		viewable = TRUE;
-	if (cave_info[y][x+1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y+1][x-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y+1][x] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[y+1][x+1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[iy-1][ix-1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[iy-1][ix] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[iy-1][ix+1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[iy][ix-1] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[iy][ix] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[iy][ix+1] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[iy+1][ix-1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[iy+1][ix] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[iy+1][ix+1] & (CAVE_VIEW))	viewable = TRUE;
 	
 	if (!viewable) return (FALSE);
 	
 	// create a 'flow' around the object
-	update_noise(y, x, FLOW_MON_NOISE);
+	update_noise(iy, ix, FLOW_MON_NOISE);
 		
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-	
+		
 	/* Add up the total of creatures vulnerable to the weapon's slays */
 	for (i = 1; i < mon_max; i++)
 	{
-		int hate = 0;
-		int base = 50;
 		bool target = FALSE;
+		int multiplier = 1;
 		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		
@@ -1616,24 +1633,34 @@ bool weapon_glows(object_type *o_ptr)
 		// skip inapplicable monsters
 		if (!target) continue;
 		
-		// check distance of monster from player (by noise)
-		dist = get_noise_dist(FLOW_MON_NOISE, m_ptr->fy, m_ptr->fx);
-		
-		// Paranoia
-		if (dist == 0) continue;
-		
 		// increase the effect for uniques
-		if (r_ptr->flags1 & (RF1_UNIQUE)) base *= 2;
-
+		if (r_ptr->flags1 & (RF1_UNIQUE)) multiplier *= 2;
+		
 		// increase the effect for individually occuring creatures
 		if (!(r_ptr->flags1 & (RF1_FRIENDS)) && !(r_ptr->flags1 & (RF1_FRIEND)) && 
-		    !(r_ptr->flags1 & (RF1_ESCORTS)) && !(r_ptr->flags1 & (RF1_ESCORT)))	base *= 2;
-				
-		// determine the danger level
-		hate = base / dist;
-		
+		    !(r_ptr->flags1 & (RF1_ESCORTS)) && !(r_ptr->flags1 & (RF1_ESCORT)))	multiplier *= 2;
+
 		// add up the 'hate'
-		total_hate += hate;
+		total_hate += hate_level(m_ptr->fy, m_ptr->fx, multiplier);
+	}
+	
+	/* Add a similar effect for very nearby webs for spider slaying wearpons */
+	if (f1 & (TR1_SLAY_SPIDER))
+	{
+		for (y = (iy - 2); y <= (iy + 2); y++)
+		{
+			for (x = (ix - 2); x <= (ix + 2); x++)
+			{
+				if (in_bounds(y, x))
+				{
+					// skip inapplicable squares
+					if (cave_feat[y][x] != FEAT_TRAP_WEB)	continue;
+					
+					// add up the 'hate'
+					total_hate += hate_level(y, x, 1);
+				}
+			}
+		}	
 	}
 	
 	if (total_hate >= 15) glows = TRUE;
@@ -1858,6 +1885,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			case SNG_ESTE:
 			{
 				bonus = skill / 4;
+				if (bonus < 2) bonus = 2;
 				break;
 			}
 			case SNG_SHARPNESS:
@@ -1872,6 +1900,9 @@ int ability_bonus(int skilltype, int abilitynum)
 				break;
 			}
 		}
+		
+		// these bonuses are never negative
+		if (bonus < 0) bonus = 0;
 	}
 	
 	return (bonus);

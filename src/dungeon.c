@@ -2099,6 +2099,9 @@ static void process_player(void)
 		amount = (p_ptr->staircasiness + 999) / 1000;
 	
 		p_ptr->staircasiness -= amount;
+		
+		// double the rate of decrease in the endgame
+		if (p_ptr->on_the_run && (p_ptr->staircasiness > 0)) p_ptr->staircasiness -= amount;
 	}
 	
 	/* Increase the time since the last forge */
@@ -2316,6 +2319,38 @@ static void process_player(void)
 	{
 		p_ptr->consecutive_attacks = 0;
 		p_ptr->last_attack_m_idx = 0;
+	}
+	
+	// boots of radiance
+	if (inventory[INVEN_FEET].k_idx)
+	{
+		u32b f1, f2, f3;
+		object_type *o_ptr = &inventory[INVEN_FEET];
+		
+		/* Extract the flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		if (f2 & (TR2_RADIANCE))
+		{
+			if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)))
+			{
+				if (!object_known_p(o_ptr) && one_in_(10) && ident_by_use_perception_check(5))
+				{
+					char o_short_name[80];
+					char o_full_name[80];
+					
+					object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+					object_aware(o_ptr);
+					object_known(o_ptr);
+					object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+					
+					msg_print("Your footsteps leave a trail of light!");
+					msg_format("You recognize your %s to be %s", o_short_name, o_full_name);
+				}
+				
+				cave_info[p_ptr->py][p_ptr->px] |= CAVE_GLOW;
+			}
+		}
 	}
 	
 	playerturn++;

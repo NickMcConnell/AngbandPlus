@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.1.1
 
 # Melee ---------------------------------------------
 
@@ -58,7 +58,7 @@ T:31:0:99  # Gloves
 
 N:3:Polearm Mastery
 I:0:3:4
-D:Gives you +1 to attack with polearms (spears, glaives, halberds)
+D:Gives you +1 to attack with polearms (spears, tridents, glaives)
 D: and lets you set them to receive free attacks on advancing enemies
 D: when you wait (z or 5).
 T:31:0:99  # Gloves
@@ -105,11 +105,11 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:8:Stun
+N:8:Momentum
 I:0:8:9
-P:0/0
-D:When your attacks do enough raw damage, they stun your opponent
-D: (damage * weight must be 100 or higher).
+P:0/4:0/5
+D:Doubles the upper limit on the amount of strength bonus you can get
+D: with a weapon of a given weight. It becomes 1 point per 0.5 lbs.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -138,8 +138,8 @@ T:31:0:99  # Gloves
 N:11:Knock Back
 I:0:11:12
 P:0/0:0/4
-D:When your attacks do enough raw damage, they knock your opponent
-D: back a square (damage * weight must be 100 or higher).
+D:You have a chance to knock enemies back a square in melee depending
+D: upon your strength and your opponent's constitution.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -193,8 +193,8 @@ T:31:1:1   # Gloves (leather gloves only)
 N:24:Crippling Shot
 I:1:4:6
 P:1/1
-D:If you score a double-critical or better, the target
-D: is slowed for 2d4 turns.
+D:Your critical hits sometimes temporarily slow monsters
+D: (depending on the level of critical and the monster's Will).
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 
@@ -320,8 +320,8 @@ T:31:0:99  # Gloves
 N:62:Cruel Blow
 I:3:2:5
 P:3/1
-D:When you score a triple-critical or better against an opponent
-D: in melee, it becomes confused with pain for a short time.
+D:Your critical hits sometimes confuse monsters with the pain
+D: (depending on the level of critical and the monster's Will).
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords

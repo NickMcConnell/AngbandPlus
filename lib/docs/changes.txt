@@ -1,3 +1,115 @@
+- Sil 1.1.1 ----------------------------------------------------------------------------------------------
+
+- abilities
+	- Stun has been removed
+		- it was the least interesting melee ability and makes way for a new one:
+	- Momentum is a new Melee ability
+		- it allows you to use your strength to full effect on lighter melee weapons
+		- it works by doubling the effective weapon weight for the purposes of capping the str bonus
+	- Cruel Blow and Crippling Shot now allow the monster to make a Will check to avoid the effect
+		- the difficulty is 4 times your level of critical hit
+		- you can now trigger these on a level one critical hit, but have more chance for higher levels
+		- it is a lot easier to trigger these against low Will enemies
+	- Knock Back now has a different trigger
+		- you now roll a skill roll of your strength*2 vs your opponents con*2
+			- you get the effective strength modifiers from charge, rapid attack etc
+			- you get a +4 bonus for wielding you weapon with two hands
+		- Giants, Morgoth etc are now quite a bit harder to knock back, and small things are easy
+	- Opportunist now lets you have one last blow as an enemy tries to flee through the stairs
+		- very satisfying if you slay them and get their items
+
+- combat system
+	- simplified the limits on how many damage sides your strength can add
+		- now it is always a limit equal to the weapon weight in pounds
+			- so any 4 lb item can have up to 4 bonus damage sides from strength
+		- used to be a side per 0.5 lb for thrown weapons and per 1.5 lb for two handed weapons
+
+- display
+	- renamed "Long Corslets" to "Hauberks" (a term used occasionally in the works of Tolkien)
+	- fixed some minor anachronisms in artefact and monster descriptions
+		- including renaming Earendil's bow as he didn't have it at the time of Sil
+	- new automatic notes for
+		- falling through false floors
+		- falling through trapped stairs
+		- encountering uniques for the first time
+	- {special} item types you know about are now displayed in the object knowledge menu
+		- useful for narrowing down the options when you find a new {special} item
+
+- interface
+	- allowed 't' to select closest/target when aiming
+		- makes throwing a little bit easier as you can leave a finger on the 't' key
+		- just as you can with 'f' and firing
+		- (note for keypad users: '5' also works)
+
+- dungeon
+	- decreased the chance of trapped stairs during the ascent
+	- made Glyphs of Warding harder for monsters to break
+		- they used to require a successful monster Will check against difficulty 17
+		- now against difficulty 20
+			- this is very hard
+			- the first creature that can break it at all is Delthaur at 700 ft
+		- I encourage people to try to exploit these and see if they are too good
+
+- monsters
+	- Silent Watchers can no longer keep you permanently knocked out
+		- the maximum amount of time they will knock you out for is 5 turns
+		- this is how it was always meant to be
+		- sorry to those who never regained consciousness! 
+	- Balrogs now drop an extra item when slain
+	- Shadow mold spores were treated as mixed elemental (dark) damage in some parts of the code and pure in others
+		- this resulted in some misleading info in the hit rolls window
+		- I've moved them to simply do mixed elemental damage
+			- i.e. an extra die when you are not-resistant
+			- it would have been much harder to make them the only melee pure elemental attack
+
+- songs
+	- bonuses from songs can now never be negative
+	- the Song of Este now always at least doubles your regeneration
+
+- items
+	- changed bow damage from (1d7), (1d9), (2d7) into (1d7), (2d5), (3d3)
+		- now very similar to the swords
+		- should make extreme archery against Morgoth less powerful
+	- made Dragon-horn Longbows twice as common as before
+	- staffs of light appear earlier, where they might be a bit more useful
+	- staffs of sanctity are a touch more likely to appear deeper in the dungeon
+	- lesser jewels appear earlier and no longer break when thrown
+	- moved Galvorn Armour from [-1, 2d4] to [-1, 1d8] to be more different to Mithril Corslets
+
+- {special} items
+	- spider-slaying weapons now also glow if a web is (very) near
+
+- artefacts
+	- added:
+		- The Mithril Helm of Ecthelion (for Psi)
+		- The Kite Shield of the Swan
+		- The Hauberk of Nevrast
+		- The Boots of Irime
+		- The Mail Corslet of Gundor
+	- modified:
+		- The Shortbow of Celegorm
+		- The Spear of Ogbar
+		- The Great Axe of Nogrod
+	- made some artefacts about 50% rarer:
+		- The Corslet of Fingon
+		- The Robe of Idril
+		- The Hauberk of Maedhros
+
+- removed tridents
+	- they weren't useful and weren't really used in combat in Beleriand
+
+- bug fixes
+	- many monsters were having occasional trouble with doors due to a subtle off by one error
+	- the Polearm Mastery bonus attack couldn't trigger Knock Back properly
+		- this should now be a powerful combination
+	- sometimes guaranteed good or great items (particularly greaves) were failing to become {special}
+	- feanorian lamps of brightness and lesser jewels of brightness didn't glow enough on the ground
+	- wielding a proficient weapon (e.g. axes for dwarves) used to give a bonus to throwing a different weapon
+
+- platform specific
+	- linux version
+		- changing the fonts or gamma in the silx file should now work properly in X11
+
 - Sil 1.1 ----------------------------------------------------------------------------------------------
 
 - broke savefile compatibility

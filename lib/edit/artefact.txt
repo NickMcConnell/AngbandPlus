@@ -76,7 +76,7 @@
 #
 # Elves
 # * Feanor		(crown - smithing, fire, will, aggravate)
-#   * Maedhros		(long corslet - combat bonuses, res fire, res poison)
+#   * Maedhros		(hauberk - combat bonuses, res fire, res poison)
 #   * Maglor		(cloak - song, restore voice)
 #   * Celegorm		(bow - will, slay wolf/spider)
 #   * Caranthir		(leather - stealth, dark, rage)
@@ -145,26 +145,21 @@
 # - Khazad-Dum
 #
 #
-# The following are from First Age Angband and could be incorporated:
-#
-# The Kite Shield of the Swan (Set Item)
-#
-#D:A long tapering shield of elven design, wrought of wood overlaid with plates 
-#D:of metal and bearing the design of a swan's wing on a blue field.  
-#D:Untarnished by long years waiting in Turgon's deserted halls of Vinyamar, 
-#D:it conveys the same powers of endurance to its bearer.
+# The following is from First Age Angband and could be incorporated:
 #
 # The Iron Helm of Vinyamar (Set Item)
 #
 #D:The helm left by Turgon in Vinyamar for the messenger of Ulmo.  Crowned by 
 #D:three swan's feathers, it greatens the heart and clarifies the purpose of 
 #D:the one who wears it.
+#
+# Also, a Shadow Cloak of Ulmo could be added to complete the Vinyamar set
 
 
 
 # Version stamp (required)
 
-V:1.1.0
+V:1.1.1
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -311,7 +306,7 @@ D: finest white cloth and hemmed with silver thread.
 
 N:22:of Idril Celebrindal
 I:36:2:0
-W:16:12:30:25000
+W:16:18:30:25000
 P:0:0d0:0:1d0
 F:SPEED
 D:A robe of the only child of Turgon, and light of Gondolin.
@@ -397,7 +392,7 @@ D: It lends its wearer determination and sureness of heart.
 N:32:of Maeglin
 I:36:11:3
 W:15:1:70:45000
-P:0:0d0:-1:2d4
+P:0:0d0:-1:1d8
 F:SMITHING | RES_POIS
 F:HUNGER
 F:INSTA_ART
@@ -415,7 +410,7 @@ D: and given as a gift to his son, Maeglin.
 
 N:35:of Fingon
 I:37:4:1
-W:8:15:260:105000
+W:8:25:260:105000
 P:0:0d0:-3:2d4
 F:RES_FEAR | CON | GRA
 D:A bright mail corslet worn by Fingon, the eldest son of Fingolfin.
@@ -434,12 +429,12 @@ D: and his wealth almost without equal. This is one of his
 D: exquisite suits of mail, armour to protect a King.
 
 
-## The Long Corslet of Maedhros
+## The Hauberk of Maedhros
 ## 1st age namesake
 
 N:38:of Maedhros
 I:37:6:0
-W:13:8:330:105000
+W:13:12:330:105000
 P:-2:0d0:-3:2d6
 F:RES_FIRE | RES_POIS
 D:A suit of mail once worn by Maedhros, eldest son of Feanor.
@@ -448,7 +443,7 @@ D: and hung by his right hand from Thangorodrim, his armour was
 D: stripped from him and stored in Morgoth's iron vaults.
 
 
-## The Long Corslet of Amon Rudh
+## The Hauberk of Amon Rudh
 ## 1st age namesake
 ## (ability 5/8 is Critical Resistance)
 
@@ -459,6 +454,34 @@ P:-1:0d0:-4:2d6
 B:5/8
 D:Hard are the people who live around the hill Amon
 D: Rudh, and hard is the armour they wear.
+
+
+## The Mail Corslet of Gundor
+## 1st age
+## (ability 2/3 is Crowd Fighting)
+
+N:40:of Gundor
+I:37:4:1
+W:5:30:350:25000
+P:-1:0d0:-1:2d4
+F:STR
+B:2/3
+D:The mail of Gundor, son of Hador. It gives the wearer
+D: strength to walk among a host of foes.
+
+
+## The Hauberk of Nevrast
+## 1st age (Vinyamar set)
+
+N:41:of Nevrast
+I:37:6:0
+W:11:18:500:25000
+P:-2:0d0:-4:2d8
+F:SUST_GRA | SUST_STR
+D:When Turgon departed Vinyamar in Nevrast, he left this armour, and
+D: strange destiny has led it far from those halls. Its is crafted with a
+D: double layer of mail, which makes it too heavy for many, but turns
+D: many a blow that might cleave through a lesser suit.
 
 
 ##### Shields #####
@@ -528,6 +551,21 @@ P:0:0d0:1:1d6
 F:LIGHT | GRA
 D:Shining like the full moon, this shield bears the device of
 D: the Blessed Realm. It gladdens your heart.
+
+
+## The Kite Shield of the Swan
+## 1st age (Vinyamar set)
+
+N:48:of the Swan
+G:):b
+I:34:5:4
+W:10:15:70:25000
+P:-2:0d0:0:1d7
+F:WILL | SUST_CON | SUST_DEX
+D:A long tapering shield of elven design, wrought of wood overlaid with plates
+D: of metal and bearing the design of a swan's wing on a blue field.
+D: Untarnished by long years waiting in Turgon's deserted halls of Vinyamar,
+D: it conveys the same powers of endurance to its bearer.
 
 
 ##### Edged Weapons #####
@@ -831,7 +869,7 @@ N:89:of Ogbar
 I:22:2:0
 W:10:30:60:60000
 P:1:1d13:1:0d0
-F:SHARPNESS
+F:SHARPNESS | SLAY_SPIDER
 D:A long spear, with a point like a sharp thorn of steel.
 
 
@@ -858,9 +896,9 @@ I:22:12:0
 W:12:15:50:21000
 P:-2:3d5:0:0d0
 F:SLAY_RAUKO | SLAY_ORC | SLAY_TROLL
-D:A heavy axe that would one day be wielded by Tuor in
-D: defence of Gondolin. Its name is 'Thudder-sharp' for
-D: it strikes with the force of a club but cuts like a sword.
+D:A heavy axe wrought in the forges of Gondolin. Its name
+D: is 'Thudder-sharp' for it strikes with the force of a club
+D: but cuts like a sword.
 
 
 ## The Battle Axe of Hurin
@@ -887,12 +925,12 @@ N:95:of Nogrod
 I:22:13:1
 W:18:15:110:150000
 P:-4:4d5:0:0d0
-F:SLAY_ORC | SLAY_TROLL
+F:SLAY_RAUKO
 F:STR | RES_FIRE
 D:Forged by Gamil Zirak in days long gone, this giant axe
 D: was for many years an heirloom of the dwarven city of Nogrod.
 D: It grants its wielder strength to wield it and the power to
-D: resist the great enemies of the dwarves.
+D: fight some of Morgoth's foulest servants.
 
 
 ## The Glaive of Gaurin
@@ -1054,6 +1092,22 @@ D: It makes you determined
 D: to fight on, no matter the circumstances.
 
 
+## Mithril Helm of Ecthelion
+## 1st age
+## added for Psi -- our first great smith
+## (ability 7/6 is Song of Staying)
+
+N:123:of Ecthelion
+G:]:w
+I:32:8:2
+W:16:12:40:25000
+P:1:0d0:-1:1d3
+F:SONG | RES_FIRE | RES_FEAR
+B:7/6
+D:A beautiful helm, wrought of mithril and inlaid with white stones.
+D: It rises gracefully to a tall point as sharp as any spear. 
+
+
 ## The Crown of Daeron
 ## 1st age
 
@@ -1187,8 +1241,8 @@ D: let you pass as a messenger journeying to Morgoth?
 N:142:of Celegorm
 I:19:12:-1
 W:7:10:20:9000
-P:1:1d8:0:0d0
-F:SLAY_WOLF | SLAY_SPIDER | SLAY_ORC | SLAY_TROLL | GRA
+P:1:1d9:0:0d0
+F:SLAY_WOLF | GRA
 D:The bow of Celegorm the great huntsman, third son of Feanor,
 D: who in days of old hunted with Orome himself.
 
@@ -1214,7 +1268,7 @@ N:145:'Belthronding'
 G:}:D
 I:19:13:1
 W:14:10:30:35000
-P:1:1d11:-1:0d0
+P:1:2d7:-1:0d0
 F:PERCEPTION
 D:The great bow of Beleg Cuthalion, made of black yew and strung with
 D: elven hair that faintly shimmers a pale clear gold.
@@ -1227,19 +1281,20 @@ D: elven hair that faintly shimmers a pale clear gold.
 N:146:'Wyrm's End'
 I:19:13:0
 W:16:25:60:35000
-P:0:1d11:-2:0d0
+P:0:2d7:-2:0d0
 B:1/5
 D:A massive longbow, almost too large to draw. But when it does
 D: release an arrow it flies with great force -- and with fire.
 
 
-## The Dragon-horn Bow of Earendil
+## The Dragon-horn Bow of Avernien
 ## 1st age
+## Avernien was where Earendil was equipped (after the events of Sil)
 
-N:148:of Earendil
+N:148:of Avernien
 I:19:14:0
 W:20:3:45:35000
-P:1:2d7:-1:0d0
+P:1:3d3:-1:0d0
 F:RADIANCE | SLAY_DRAGON
 D:A large exquisite bow fashioned from a single horn of a slain
 D: dragon. Many are the blessings of the Eldar are laid over it.
@@ -1289,7 +1344,20 @@ D:These boots have helped more than one escape from the
 D: dread forest of Taur-nu-Fuin.
 
 
-## The Pair of Steel Greaves of Orodreth
+## The Pair of Boots of Irime
+## 1st age namesake
+
+N:156:of Irime
+I:30:1:0
+W:5:20:15:25000
+P:0:0d0:1:1d1
+F:RADIANCE | SUST_DEX
+D:Made in Valinor for Irime, sister of Fingolfin and Finarfin, these fine boots
+D: are woven with a unique enchantment that causes the wearer's very footsteps to
+D: glow with a clear white light for hours after they pass by.
+
+
+## The Pair of Greaves of Orodreth
 ## 1st age namesake
 
 N:158:of Orodreth
@@ -1447,7 +1515,8 @@ F:INDESTRUCTIBLE
 F:INSTA_ART 
 D:Containing much of the power of he who is the mightiest among the
 D: Ainur, this plain iron crown has mounted upon it the three
-D: Silmarils, greatest treasures of Middle-Earth.
+D: Silmarils, greatest treasures of Middle-Earth. To attempt to cut
+D: a Silmaril from the crown, stand over it and press (k).
 
 
 ## The Mighty Hammer 'Grond'
