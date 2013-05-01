@@ -568,7 +568,7 @@ static void process_world(void)
 	/* While on the surface */
 	if (p_ptr->depth == 0)
 	{
-		if (one_in_(10))
+		if (percent_chance(10))
 		{
 			/* Make a new monster */
 			(void)alloc_monster(TRUE);
@@ -581,8 +581,20 @@ static void process_world(void)
 	/* Hack - see if there is already a player ghost on the level */
 	if (bones_selector) was_ghost = TRUE;
 
-	/* Check for creature generation */
-	if (one_in_(MAX_M_ALLOC_CHANCE))
+	/* Vastly more wandering monsters during the endgame when you have 2 or 3 Silmarils */
+	if (silmarils_possessed() >= 2) ////
+	{
+		int percent = (p_ptr->cur_map_hgt * p_ptr->cur_map_wid) / (PANEL_HGT * PANEL_WID_FIXED);
+		
+		if (percent_chance(percent))
+		{
+			/* Make a new monster */
+			(void)alloc_monster(TRUE);
+		}
+	}
+	
+	/* Check for normal wandering monster generation */
+	else if (one_in_(MAX_M_ALLOC_CHANCE))
 	{
 		/* Make a new monster */
 		(void)alloc_monster(TRUE);
@@ -604,8 +616,8 @@ static void process_world(void)
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LIGHT)
 	{
-		/* Hack -- Use some fuel (except on artefacts) */
-		if (!artefact_p(o_ptr) && (o_ptr->timeout > 0))
+		/* Hack -- Use some fuel */
+		if (o_ptr->timeout > 0)
 		{
 			/* Decrease life-span */
 			o_ptr->timeout--;
@@ -1676,7 +1688,7 @@ static void process_player(void)
 		p_ptr->energy_use = 0;
 
 		// Reset number of attacks this turn
-		combat_number = 0;
+		new_combat_round();
 
 		// get base stealth score for the round
 		// this will get modified by the type of action
@@ -2004,7 +2016,17 @@ static void process_player(void)
 	/* Reduce the wrath counter */
 	if (p_ptr->wrath)
 	{
-		p_ptr->wrath -= (p_ptr->wrath / 100) * (p_ptr->wrath / 100);
+		amount = (p_ptr->wrath / 100) * (p_ptr->wrath / 100);
+		
+		// half as fast if still singing the song
+		if (singing(SNG_SLAYING))
+		{
+			p_ptr->wrath -= MAX(amount/2, 1);
+		}
+		else
+		{
+			p_ptr->wrath -= MAX(amount, 1);
+		}
 		p_ptr->update |= (PU_BONUS);
 		p_ptr->redraw |= (PR_SONG);
 	}
@@ -2715,6 +2737,7 @@ void play_game(bool new_game)
 	(void)Term_set_cursor(FALSE);
 
 	character_loaded = FALSE;
+	character_loaded_dead = FALSE;
 
 	/* Attempt to load */
 	if (!load_player())
@@ -2723,7 +2746,7 @@ void play_game(bool new_game)
 		quit("broken savefile");
 	}
 
-	/* Nothing loaded */
+	/* Nothing loaded (and living) */
 	if (!character_loaded)
 	{
 		/* Make new player */
@@ -2869,6 +2892,9 @@ void play_game(bool new_game)
 	update_noise(p_ptr->py, p_ptr->px, FLOW_PASS_DOORS);
 	update_noise(p_ptr->py, p_ptr->px, FLOW_NO_DOORS); 
 	update_noise(p_ptr->py, p_ptr->px, FLOW_REAL_NOISE);
+
+	// reset combat roll info
+	turns_since_combat = 0;
 	
 	/* Process */
 	while (TRUE)
@@ -2973,6 +2999,7 @@ void play_game(bool new_game)
 			death_knowledge();
 
 			do_cmd_wiz_unhide(255);
+			update_view();////
 			mini_screenshot();
 			detect_all_doors_traps();
 		}

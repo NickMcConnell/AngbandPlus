@@ -573,11 +573,16 @@ s16b get_mon_num(int level, bool special, bool allow_non_smart, bool vault)
 	int generation_level;
 
 	bool pursuing_monster = FALSE;
+	
+	bool allow24 = FALSE;
 
 	// determine the effective level:
 	
 	// default
 	generation_level = level;
+	
+	// level 24 monsters can only be generated if especially asked for
+	if (level == MORGOTH_DEPTH + 4) allow24 = TRUE;
 		
 	// if generating escorts or similar, just use the level (which will be the captain's level)
 	// this will function as the *maximum* level for generation
@@ -588,13 +593,13 @@ s16b get_mon_num(int level, bool special, bool allow_non_smart, bool vault)
 	else
 	{
 		// deal with 'danger' items
-		if (p_ptr->danger) generation_level++;
+		generation_level += p_ptr->danger;
 
 		// various additional modifications when not created as part of a vault
 		if (!vault)
 		{
-			// if on the run from Morgoth, then there is an 50% chance that level 20 is used instead
-			if (p_ptr->on_the_run && one_in_(2))
+			// if on the run from Morgoth, then level 20 is used for all forced smart monsters and half of others
+			if (p_ptr->on_the_run && (one_in_(2) || !allow_non_smart))
 			{
 				pursuing_monster = TRUE;
 				generation_level = 20;		
@@ -625,7 +630,14 @@ s16b get_mon_num(int level, bool special, bool allow_non_smart, bool vault)
 	
 	// final bounds checking
 	if (generation_level < 1) generation_level = 1;
-	if (generation_level > MORGOTH_DEPTH + 4) generation_level = MORGOTH_DEPTH + 4;
+	if (allow24)
+	{
+		if (generation_level > MORGOTH_DEPTH + 4) generation_level = MORGOTH_DEPTH + 4;
+	}
+	else
+	{
+		if (generation_level > MORGOTH_DEPTH + 3) generation_level = MORGOTH_DEPTH + 3;
+	}
 
 	/* Reset total */
 	total = 0L;
@@ -1754,7 +1766,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-		if (p_ptr->active_ability[S_MEL][MEL_ZONE_OF_CONTROL] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid)
+		if (p_ptr->active_ability[S_MEL][MEL_ZONE_OF_CONTROL] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid && !p_ptr->paralyzed && (p_ptr->stun <= 100))
 		{
 			if ((distance(y1, x1, p_ptr->py, p_ptr->px) == 1) && (distance(y2, x2, p_ptr->py, p_ptr->px) == 1))
 			{
@@ -1762,7 +1774,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 				py_attack_aux(y1,x1,ATT_ZONE_OF_CONTROL);
 			}
 		}
-		if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid)
+		if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid && !p_ptr->paralyzed && (p_ptr->stun <= 100))
 		{
 			if ((distance(y1, x1, p_ptr->py, p_ptr->px) == 1) && (distance(y2, x2, p_ptr->py, p_ptr->px) > 1))
 			{

@@ -1,7 +1,11 @@
 - Sil 1.0.2 ----------------------------------------------------------------------------------------------
 
 - linux version
-
+	- X11, GCU & CAP should work now
+		- GCU & CAP are fairly unplayable though (mainly due to lack of decent colours)
+	- fixed Makefile.std
+	- removed a crash straight after launching due to a default filename being set
+	- fixed colours for X11 (no more green dungeon walls!)
 
 - races/houses
 	- adjusted the dwarven race/houses slightly
@@ -16,36 +20,84 @@
 	- daggers of accompaniment
 		- no longer go into your off-hand before being identified
 		- can no longer be switched out leaving two weapons without the ability
+	- handles artefact lanterns better
+	- made some artefacts a bit less common:
+		- knife of Nargil
+		- Orcrist
+		- Axe of Hurin
+	- wrath now stacks
+	- danger now stacks
+	- danger now affects you even from your inventory
+		- this is odd, but otherwise it is so clearly best to remove the item
+		  for one turn when descending the stairs
 
-- fear
-	- trying to attack while afraid no longer costs you a turn
-	- throwing items now also fails when afraid
+- status effects
+	- fear
+		- trying to attack while afraid no longer costs you a turn
+		- throwing items now also fails when afraid
+	- stunning
+		- now capped at 105 for all causes
+		- so at most 5 turns knocked out before you can act again
+		- fixed bug where knock out / entrancement wasn't setting evasion to [-5]
 
 - monsters
 	- made uniques who were famous only in later ages less common
+	- made crebain much less damaging 1d5 -> 1d3
+	- Morgoth is now immune to Elbereth
+	- 'auras' of Ancient Serpents
+		- now damage monsters as well as you
+		- now explained better in monster recall
 
 - smithing
+	- difficulty of forging things in the 'minor slots' is increased by 20%
+		- rings, light, cloak, gloves, boots, arrows
+		- the 'major slots' are:
+			- weapon, bow, amulet, body armour, shield, helmet
+	- difficulty is no longer reduced for two handed weapons
+	- the time taken is now proportional to the difficulty
+	- the bonus from Song of Aule is reduced from Song/3 to Song/5
 	- fixed bug where display of experience wasn't changed when it was used up
 	- changed light source radius to not depend on the special value (pval)
 		- now can make Feanorian Lamp of Grace <+1> without reducing its radius
-	- the bonus from Song of Aule is reduced from Song/3 to Song/5
 
 - interface
 	- changed key for options in creation menu from (=) to (O) to match normal play
+
+- display
+	- added a 'previous round' of rolls to the combat rolls window
+	- fixed the bug with deleting the hunger display on minimum height terminal windows
+	- added the . for empty floors on the mini screenshot when you die
 
 - notes
 	- stopped saying you have 'found' the further versions of the iron crown
 	- 'subdued' deathblades instead of 'destroyed'
 
 - endgame
+	- monsters now get a +5 bonus to perception during the escape as they are vigilant
+	- Morgoth will no longer leave the Throne Room
+	- The monsters coming through the stairs during the pursuit are now always powerful ones
+	- There are now many more monsters in the pursuit when carrying 2 or 3 Silmarils
+	- minor changes to the method for knocking off the crown 
+		- (now takes two, slightly smaller hits)
 	- fixed bug where you used to get the curse message even when failing to get the silmaril
 
 - dungeon
 	- fixed a bug where an up-shaft was incorrectly created for you when stairs crumbled
+	- rubble can now be cleared by staffs of freedom and song of freedom
 
 - abilities
 	- Lore-master now correctly displays monster Will and Perception in the monster memory
+	- the bonus from Song of Slaying now decays more slowly
+		- it now decays at the old speed when not being sung
+		- and half that speed when being sung
+	- monsters that are resistant to criticals are now immune to Cruel Blow
 
+- skills
+	- easier to spot dungeon traps
+		- -5 difficulty compared with version 1.0.1
+
+- misc
+	- interacting with your own square when there is nothing there no longer takes a turn
 
 - Sil 1.0.1 ----------------------------------------------------------------------------------------------
 

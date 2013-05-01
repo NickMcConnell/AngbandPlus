@@ -785,6 +785,9 @@ int bane_bonus(monster_type *m_ptr)
 	
 	// entranced players don't get the bonus
 	if (p_ptr->paralyzed) return (0);
+
+	// knocked out players don't get the bonus
+	if (p_ptr->stun > 100) return (0);
 	
 	r_ptr = &r_info[m_ptr->r_idx];
 	
@@ -2686,10 +2689,27 @@ int object_difficulty(object_type *o_ptr)
 	// Set the overall difficulty
 	dif = dif_inc - dif_dec;
 	
-	// Lower difficulties for two-handed items
-	if (k_ptr->flags3 & (TR3_TWO_HANDED))
+	// Increased difficulties for minor slots
+	switch (wield_slot(o_ptr))
 	{
-		dif = 2 * dif / 3;
+		//case INVEN_WIELD:
+		//case INVEN_BOW:
+		case INVEN_LEFT:
+		case INVEN_RIGHT:
+		//case INVEN_NECK:
+		case INVEN_LITE:
+		//case INVEN_BODY:
+		case INVEN_OUTER:
+		//case INVEN_ARM:
+		//case INVEN_HEAD:
+		case INVEN_HANDS:
+		case INVEN_FEET:
+		case INVEN_QUIVER1:
+		case INVEN_QUIVER2:
+		{
+			dif = 12 * dif / 10;
+			break;
+		}
 	}
 	
 	// Deal with masterpiece
@@ -2964,10 +2984,16 @@ void prt_object_difficulty(void)
 		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
 		costs++;
 	}
-	if (costs == 0)
-	{
-		Term_putstr(COL_SMT4 + 2, 10 + costs, -1, TERM_SLATE, "-");
-	}
+	
+	attr = TERM_SLATE;
+	sprintf(buf, "%d Turns", dif * 10);
+	Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
+	costs++;
+	
+	//if (costs == 0)
+	//{
+	//	Term_putstr(COL_SMT4 + 2, 10 + costs, -1, TERM_SLATE, "-");
+	//}
 	
 	// display cost title
 	if (affordable)	attr = TERM_SLATE;
@@ -5154,8 +5180,8 @@ void do_cmd_smithing_screen(void)
 		}
 		else
 		{
-			// Set smithing counter to a random value
-			p_ptr->smithing = damroll(40, 4);
+			// Set smithing counter
+			p_ptr->smithing = MAX(10, object_difficulty(smith_o_ptr) * 10);
 			
 			// Also set the smithing leftover counter (to allow you to resume if interrupted)
 			p_ptr->smithing_leftover = p_ptr->smithing;

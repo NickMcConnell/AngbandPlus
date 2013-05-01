@@ -3,7 +3,8 @@ Compiling Instructions
 ================================================================================
 
 Compiling Sil is not very difficult, and has been tested on Macintosh,
-Windows and Linux. It may also work on a variety of older systems.
+Windows and Linux.
+
 If you do compile Sil with a method marked "(untested)" or on a new system,
 then send an email to sil@amirrorclear.net and I will update this file with your
 method.
@@ -22,6 +23,33 @@ this file for advice on your specific system.
 
 
 ==========================================================
+Linux or Unix with gcc  (tested with Sil)
+==========================================================
+
+   There are several different unix setups for Sil:
+
+   X11: Allows multiple windows, has correct colours.
+   GCU: Works in a terminal using 'curses', has only 16 or 8 colours.
+   CAP: Works even in old terminals, but is monochrome.
+
+1. Mess with the Makefile:
+
+   Edit Makefile.std in the src directory. 
+   Look for the section listing multiple "Variations".
+   Choose the variation that you like best.
+   Remove the # comments from that section's code.
+   Comment out the default section.
+
+2. Compile Sil:
+
+   Run "make -f Makefile.std install" in the src directory.
+
+3. Run Sil:
+
+   Go back to the Sil folder and start Sil with "sil".
+
+
+==========================================================
 Mac OS X   (tested with Sil)
 ==========================================================
 
@@ -32,7 +60,7 @@ Mac OS X   (tested with Sil)
    Run "make -f Makefile.crb install". 
    Sil should now be compiled and installed into the Sil folder.  
    (Alternatively you could try the Sil.xcodeproj file,
-   which may also work)
+   which may also work -- it is what the main developer uses)
 
 2. Run Sil: 
 
@@ -233,32 +261,5 @@ DOS + DJGPP  (untested)
    be set to DOS line-endings '\r\n'. Either use a tool to do this (there are
    many available) or download a precompiled Windows version and take the lib
    folder from that. The affected files are .txt .hlp & .prf
-
-
-==========================================================
-Linux or Unix with gcc [GTK version]  (untested)
-==========================================================
-
-1. Compile Sil:
-
-   Run "make -f Makefile.gtk install" in the src directory.
-
-2. Run Sil:
-
-   Go back to the Sil folder and start Sil with "sil".
-
-
-==========================================================
-Linux or Unix with gcc [X11 version]  (untested)
-==========================================================
-
-1. Compile Sil:
-
-   Run "make -f Makefile.std install" in the src directory.
-
-2. Run Sil:
-
-   Go back to the Sil folder and start Sil with "sil".
-
 
 

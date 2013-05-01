@@ -2176,7 +2176,7 @@ void bell(cptr reason)
 	}
 
 	/* Make a bell noise (if allowed) */
-	if (beep) Term_xtra(TERM_XTRA_NOISE, 0);
+	if (system_beep) Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
 	flush();

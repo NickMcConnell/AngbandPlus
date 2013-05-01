@@ -1681,6 +1681,41 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 
 			}
 
+			if (cave_feat[y][x] == FEAT_RUBBLE)
+			{
+				int result = skill_check(who_ptr, dif, 0, NULL);
+
+				if (result <= 0)
+				{
+					/* Do nothing */
+					
+					if (cave_info[y][x] & (CAVE_SEEN))
+					{
+						msg_print("The rubble shakes a little.");
+					}
+				} 
+				
+				else
+				{
+					/* Disburse the rubble */
+					cave_set_feat(y, x, FEAT_FLOOR);
+					
+					obvious = TRUE;
+					
+					/* Update the flow code */
+					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
+					
+					if (cave_info[y][x] & (CAVE_SEEN))
+					{
+						msg_print("The rubble is scattered across the floor.");
+					}
+					else
+					{
+						msg_print("You hear a loud rumbling.");
+					}				
+				}
+			}
+
 			break;
 		}
 
@@ -4223,7 +4258,6 @@ void add_wrath(void)
 	p_ptr->redraw |= (PR_SONG);
 
 	p_ptr->wrath += new_wrath;
-	//if (p_ptr->wrath > new_wrath * 10) p_ptr->wrath = new_wrath * 10;
 }
 
 int slaying_song_bonus(void)
@@ -4300,10 +4334,10 @@ void change_song(int song)
 	}
 	
 	// Reset wrath counter if stopping singing of slaying
-	if (old_song == SNG_SLAYING)
-	{
-		p_ptr->wrath = 0;
-	}
+	////if (old_song == SNG_SLAYING)
+	////{
+	////	p_ptr->wrath = 0;
+	////}
 
 	// Reset the song duration counter if changing major theme
 	if (song_to_change == 1)
@@ -4577,7 +4611,7 @@ void sing(void)
 		{
 			case SNG_ELBERETH:
 			{
-				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
+				cost += 1;
 				
 				/* Scan all other monsters */
 				for (i = mon_max - 1; i >= 1; i--)
@@ -4596,10 +4630,13 @@ void sing(void)
 					
 					// only intelligent monsters are affected
 					if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
+
+					// Morgoth is not affected
+					if (r_ptr->flags1 & (RF1_QUESTOR))  resistance += 100;
 					
 					// adjust difficulty by the distance to the monster
 					result = skill_check(PLAYER, score, resistance + get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
-					
+										
 					/* If successful, cause fear in the monster */
 					if (result > 0)
 					{
@@ -4742,6 +4779,32 @@ void sing(void)
 								
 								cave_feat[y][x] = new_feat;
 							}
+						}
+						
+						/* Rubble */
+						else if (cave_feat[y][x] == FEAT_RUBBLE)
+						{
+							int noise_dist = 100;
+							int d, dir;
+							
+							// check adjacent squares for valid noise distances, since rubble is impervious to sound
+							for (d = 0; d < 8; d++)
+							{
+								dir = cycle[d];
+								noise_dist = MIN(noise_dist, get_noise_dist(FLOW_REAL_NOISE, y + ddy[dir], x + ddx[dir]));
+							}
+							noise_dist++;
+														
+							difficulty = base_difficulty + 5 + noise_dist;
+							result = skill_check(PLAYER, score, difficulty, NULL);
+							if (result > 0)
+							{
+								/* Disburse the rubble */
+								cave_set_feat(y, x, FEAT_FLOOR);
+																
+								/* Update the flow code */
+								p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
+							} 
 						}
 					}
 				}

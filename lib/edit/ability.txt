@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 # Melee ---------------------------------------------
 
@@ -66,8 +66,8 @@ T:31:0:99  # Gloves
 
 N:4:Charge
 I:0:4:5
-D:Gives a large damage bonus if you attack immediately after
-D: moving towards your target.
+D:Gives a large damage bonus if you attack an opponent
+D: immediately after moving towards it.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -76,7 +76,7 @@ T:30:0:99  # Boots
 N:5:Follow-Through
 I:0:5:6
 P:0/0:0/1
-D:Allows you to continue your attack if you kill your target,
+D:Allows you to continue your attack if you kill an opponent,
 D: moving onto the next adjacent enemy.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
@@ -257,8 +257,9 @@ T:30:0:99  # Boots
 N:45:Flanking
 I:2:5:8
 P:2/0
-D:Gives you a free attack on your target if you step between
-D: two squares which are both adjacent to it.
+D:Gives you a free attack on an opponent if you step from a square
+D: which is adjacent to it, to another square which is adjacent
+D: to it.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -286,8 +287,8 @@ T:31:0:99  # Gloves
 N:48:Controlled Retreat
 I:2:8:11
 P:2/5
-D:Gives you a free attack on your target when you step away from it,
-D: but only if you did not move the previous round.
+D:Gives you a free attack on an opponent when you step away
+D: from it, but only if you did not move the previous round.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords

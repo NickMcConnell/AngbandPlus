@@ -2649,6 +2649,9 @@ void do_cmd_alter(void)
 	{
 		/* Oops */
 		msg_print("There is nothing here to use.");
+
+		// don't take a turn...
+		p_ptr->energy_use = 0;
 	}
 	
 	/* Oops */
@@ -3604,18 +3607,22 @@ void do_cmd_fire(int quiver)
 							make_alert(m_ptr);
 						}
 						
-						// Morgoth drops his iron crown if he is hit for 20 or more raw damage
+						// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
 						if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
 						{
-							if (net_dam > 10)
+							if (net_dam >= 10)
 							{
-								////////////$$$$$$
+								if (p_ptr->morgoth_hits == 0)
+								{
+									msg_print("The force of your shot knocks the Iron Crown off balance.");
+									p_ptr->morgoth_hits++;
+								}
+								else if (p_ptr->morgoth_hits == 1)
+								{
+									drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+									p_ptr->morgoth_hits++;
+								}
 							}
-							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
-						}
-						if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
-						{
-							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
 						}
 
 						/* Message */
@@ -4380,12 +4387,24 @@ void do_cmd_throw(void)
 						make_alert(m_ptr);
 					}
 					
-					// Morgoth drops his iron crown if he is hit for 20 or more raw damage
-					if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
+					// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
+					if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
 					{
-						drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+						if (net_dam >= 10)
+						{
+							if (p_ptr->morgoth_hits == 0)
+							{
+								msg_print("The force of your blow knocks the Iron Crown off balance.");
+								p_ptr->morgoth_hits++;
+							}
+							else if (p_ptr->morgoth_hits == 1)
+							{
+								drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+								p_ptr->morgoth_hits++;
+							}
+						}
 					}
-										
+					
 					/* Message if applicable*/
 					if ((!potion_effect) || (pdam > 0))
 						message_pain(cave_m_idx[y][x],  (pdam ? pdam : net_dam));

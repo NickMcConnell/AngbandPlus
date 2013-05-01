@@ -78,6 +78,7 @@ extern bool arg_force_roguelike;
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
+extern bool character_loaded_dead;
 extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
@@ -207,8 +208,10 @@ extern char *flavor_name;
 extern char *flavor_text;
 extern names_type *n_info;
 
-extern combat_roll combat_rolls[MAX_COMBAT_ROLLS];
+extern combat_roll combat_rolls[2][MAX_COMBAT_ROLLS];
 extern int combat_number;
+extern int combat_number_old;
+extern int turns_since_combat;
 extern char combat_roll_special_char;
 extern byte combat_roll_special_attr;
 
@@ -522,6 +525,7 @@ extern bool make_attack_ranged(monster_type *m_ptr, int attack);
 extern void mon_cloud(int m_idx, int typ, int dd, int ds, int dif, int rad);
 extern void cloud_surround(int r_idx, int *typ, int *dd, int *ds, int *rad);
 extern void shriek(monster_type *m_ptr);
+extern void new_combat_round(void);
 extern void update_combat_rolls1(const monster_type *m_ptr1, const monster_type *m_ptr2, bool vis, int att, int att_roll, int evn, int evn_roll);
 extern void update_combat_rolls1b(const monster_type *m_ptr1, const monster_type *m_ptr2, bool vis);
 extern void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int prt_percent, int dam_type);

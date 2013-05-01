@@ -909,6 +909,7 @@ struct player_type
 	byte cursed;			/* Player has been cursed by taking a third Silmaril */
 	byte on_the_run;		/* Player is on the run from Angband */
 	byte morgoth_slain;		/* Player has slain Morgoth */
+	byte morgoth_hits;		/* Number of big hits against Morgoth */
 	u16b escaped;			/* Player has escaped Angband */
 	u16b panic_save;		/* Panic save */
 
@@ -1029,8 +1030,8 @@ struct player_type
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 
-	bool danger;		/* Dangerous monster creation */
-	bool aggravate;		/* Aggravate monsters */
+	s16b danger;		/* Dangerous monster creation */
+	s16b aggravate;		/* Aggravate monsters */
 
 	s16b to_mdd;		/* Bonus to melee damage dice */
 	s16b mdd;			/* Total melee damage dice */
@@ -1108,7 +1109,7 @@ typedef struct combat_roll combat_roll;
 
 struct combat_roll
 {
-	int att_type;			/* The type of attack (ROLL or AUTO) */
+	int att_type;			/* The type of attack (COMBAT_ROLL_NONE or COMBAT_ROLL_ROLL or COMBAT_ROLL_AUTO) */
 	int dam_type;			/* The type of damage (GF_HURT, GF_FIRE etc) */
 
 	char attacker_char;		/* The symbol of the attacker */

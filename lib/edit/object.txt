@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 
 ##### Non-kind (contains the 'pile' picture) #####

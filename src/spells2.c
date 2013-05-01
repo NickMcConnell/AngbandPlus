@@ -378,6 +378,8 @@ void self_knowledge(void)
 
 	char buf[10][80];
 	cptr info[128];
+	char tmp1[80];
+	char tmp2[80];
 		
 	int resistance;
 
@@ -456,13 +458,23 @@ void self_knowledge(void)
 		info[i++] = "You are hallucinating.";
 	}
 
+	// This is a hack, but I couldn't find a neater way...
 	if (p_ptr->danger)
 	{
-		info[i++] = "You draw powerful creatures to your level.";
+		sprintf(tmp1, "You draw powerful creatures to your level (+%d ft).", p_ptr->danger * 50);
+		info[i++] = tmp1;
 	}
 	if (p_ptr->aggravate)
-	{
-		info[i++] = "You enrage nearby creatures.";
+	{		
+		if (p_ptr->aggravate == 1)
+		{
+			info[i++] = "You enrage nearby creatures.";
+		}
+		else
+		{
+			sprintf(tmp2, "You enrage nearby creatures (x%d).", p_ptr->aggravate);
+			info[i++] = tmp2;
+		}
 	}
 	if (p_ptr->rage)
 	{

@@ -991,8 +991,8 @@ static bool get_move_wander(monster_type *m_ptr, int *ty, int *tx)
 	else
 	{
 		// smart monsters who are at the stairs they are aiming for leave the level
-		if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags2 & (RF2_TERRITORIAL))
-		     && cave_stair_bold(m_ptr->fy, m_ptr->fx) && (m_ptr->wandering_dist == 0))
+		if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags2 & (RF2_TERRITORIAL)) && (p_ptr->depth != MORGOTH_DEPTH) &&
+		     cave_stair_bold(m_ptr->fy, m_ptr->fx) && (m_ptr->wandering_dist == 0))
 		{
 			char m_name[80];
 			
@@ -1942,7 +1942,7 @@ static int calc_vulnerability(int fy, int fx)
 
 	// Take player's conditions into account
 	if (p_ptr->blind || p_ptr->image || p_ptr->confused ||
-		p_ptr->afraid || p_ptr->paralyzed || p_ptr->slow)
+		p_ptr->afraid || p_ptr->paralyzed || (p_ptr->stun > 50) || p_ptr->slow)
 	{
 		vulnerability += 2;
 	}
@@ -4645,7 +4645,7 @@ static void process_monster(monster_type *m_ptr)
 	// If the monster thinks its location is optimal...
 	if ((ty == m_ptr->fy) && (tx == m_ptr->fx))
 	{
-		// intelligent monsters that are fleeing can try to use stairs
+		// intelligent monsters that are fleeing can try to use stairs (but not territorial ones)
 		if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags2 & (RF2_TERRITORIAL)) && (m_ptr->stance == STANCE_FLEEING))
 		{
 			if (cave_stair_bold(m_ptr->fy, m_ptr->fx))
@@ -4707,13 +4707,11 @@ extern void produce_cloud(monster_type *m_ptr)
 
 		int typ, dd, ds, rad;
 
-	  	rad = (r_ptr->flags2 & (RF2_POWERFUL) ? 2 : 1);
-
 		/* Get information */
 		cloud_surround(m_ptr->r_idx, &typ, &dd, &ds, &rad);
 
 		/* Monsters wait for the character to approach and in line of sight */
-		if ((m_ptr->cdis <= 5) && (player_can_fire_bold(m_ptr->fy, m_ptr->fx))) affect = TRUE;
+		if ((m_ptr->cdis <= 5) && (player_can_see_bold(m_ptr->fy, m_ptr->fx))) affect = TRUE;
 
 		/* Affect surroundings if appropriate */
 		if (affect)
@@ -5329,12 +5327,18 @@ void monster_perception(bool player_centered, bool main_roll, int difficulty)
 			// penalise stunning
 			if (m_ptr->stunned) m_perception -= 2;
 			
+			// monsters are looking more carefully during the escape
+			if (p_ptr->on_the_run) m_perception += 5;
+			
 			// monsters that are already alert get a penalty to the roll to stop them getting *too* alert
 			if (m_ptr->alertness >= ALERTNESS_ALERT) m_perception -= m_ptr->alertness;
 			
 			// aggravation makes non-sleeping monsters much more likely to notice you
 			if (p_ptr->aggravate && (m_ptr->alertness >= ALERTNESS_UNWARY) && 
-				!(r_ptr->flags2 & (RF2_MINDLESS))) m_perception += 10;
+				!(r_ptr->flags2 & (RF2_MINDLESS))) 
+			{
+				m_perception += p_ptr->aggravate * 10;
+			}
 							
 			// awake creatures who have line of sight on player get a bonus
 			if (los(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) && (m_ptr->alertness >= ALERTNESS_UNWARY))

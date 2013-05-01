@@ -482,7 +482,7 @@ static void player_wipe(void)
 	int weight = 0;
 		
 	// only save the old information if there was a character loaded
-	if (character_loaded)
+	if (character_loaded_dead)
 	{
 		/* Backup the player choices */
 		psex = p_ptr->psex;
@@ -502,7 +502,7 @@ static void player_wipe(void)
 	(void)WIPE(p_ptr, player_type);
 
 	// only save the old information if there was a character loaded
-	if (character_loaded)
+	if (character_loaded_dead)
 	{
 		/* Restore the choices */
 		p_ptr->psex = psex;

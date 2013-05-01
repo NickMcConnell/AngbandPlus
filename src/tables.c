@@ -280,7 +280,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx show_weights */
 	NULL,						/* xxx show_choices */
 	NULL,						/* xxx show_details */
-	"beep",						/* OPT_beep */
+	"beep",						/* OPT_system_beep */
 	NULL,						/* xxx flavors */
 	NULL,						/* xxx run_ignore_stairs */
 	NULL,						/* xxx run_ignore_doors */
@@ -544,7 +544,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx show_weights */
 	NULL,										/* xxx show_choices */
 	NULL,										/* xxx show_details */
-	"Audible beep (on errors/warnings)",		/* OPT_beep */
+	"Audible beep (on errors/warnings)",		/* OPT_system_beep */
 	NULL,										/* xxx show_flacors */
 	NULL,										/* xxx run_ignore_stairs */
 	NULL,										/* xxx run_ignore_doors */
@@ -808,7 +808,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx show_weights */
 	FALSE,		/* xxx show_choices */
 	FALSE,		/* xxx show_details */
-	TRUE,		/* OPT_beep */
+	TRUE,		/* OPT_system_beep */
 	FALSE,		/* xxx show_flavors */
 	FALSE,		/* xxx run_ignore_stairs */
 	FALSE,		/* xxx run_ignore_doors */
@@ -1064,7 +1064,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_always_pickup,
 		OPT_carry_query,
 		OPT_stop_singing_on_rest,
-		OPT_beep,
+		OPT_system_beep,
 		OPT_quick_messages,
 		OPT_hjkl_movement,
 		OPT_angband_keyset,

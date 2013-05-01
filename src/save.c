@@ -855,8 +855,12 @@ static void wr_extra(void)
 	wr_byte(p_ptr->stealth_mode);
 	wr_byte(p_ptr->self_made_arts);
 
-	// 8 spare bytes
-	wr_u32b(0L);
+	wr_byte(p_ptr->morgoth_hits);
+
+	// 7 spare bytes
+	wr_byte(0);
+	wr_byte(0);
+	wr_byte(0);
 	wr_u32b(0L);
 		
 	/* Save item-quality squelch sub-menu */

@@ -1132,13 +1132,13 @@ bool set_stun(int v)
 
 	bool notice = FALSE;
 	
-	/*  Don't increase stunning if stunning value is 99 already or more.
+	/*  Don't increase stunning if stunning value is 100 already or more.
 	 *  this is an effort to eliminate the "knocked out" instadeath.
 	 */
 	if ((p_ptr->stun >= 100) && (v > p_ptr->stun)) return (FALSE);
 
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	/* Hack -- Force sane values */
+	v = (v > 105) ? 105 : (v < 0) ? 0 : v;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -1167,6 +1167,7 @@ bool set_stun(int v)
 	/* Knocked out */
 	if (v > 100)
 	{
+		p_ptr->blind = MAX(p_ptr->blind,2);////$$$$
 		new_aux = 3;
 	}
 
@@ -1220,9 +1221,17 @@ bool set_stun(int v)
 		notice = TRUE;
 	}
 
-	/* Decrease cut */
+	/* Decrease stun */
 	else if (new_aux < old_aux)
 	{
+		// waking up from Knock Out
+		if (old_aux == 3)
+		{
+			msg_print("You wake up.");
+			// undo the temporary blinding if waking up from KO
+			p_ptr->blind = MAX(p_ptr->blind-1,0);//$$$
+		}
+		
 		/* Describe the state */
 		switch (new_aux)
 		{

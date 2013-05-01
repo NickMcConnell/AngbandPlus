@@ -651,6 +651,44 @@ static void prt_afraid(void)
 	}
 }
 
+/*
+ *  Displays the amount of bleeding.
+ *  This is a bit tricky as it is in the same row as poison, *unless* you have both.
+ *  In which case it is the row above.
+ */
+
+static void prt_cut(void)
+{
+	int c = p_ptr->cut;
+	char buf[20];
+	
+	int r = ROW_CUT;
+	
+	if (p_ptr->poisoned) r--;
+	
+	put_str("            ", ROW_CUT - 1, COL_CUT);
+
+	if (c > 100)
+	{
+		c_put_str(TERM_RED, "Mortal wound", r, COL_CUT);
+	}
+	else if (c > 20)
+	{
+		sprintf(buf, "Bleeding %-2d", c);
+		c_put_str(TERM_RED, buf, r, COL_CUT);
+	}
+	else if (c > 0)
+	{
+		sprintf(buf, "Bleeding %-2d", c);
+		c_put_str(TERM_L_RED, buf, r, COL_CUT);
+	}
+	else
+	{
+		put_str("            ", r, COL_CUT);
+	}
+}
+
+
 
 /*
  * Prints Poisoned status
@@ -689,7 +727,6 @@ static void prt_state(void)
 	byte attr = TERM_WHITE;
 
 	char text[16];
-
 
 	/* Paralysis */
 	if (p_ptr->paralyzed)
@@ -826,32 +863,6 @@ static void prt_speed(void)
 
 	/* Display the speed */
 	c_put_str(attr, format("%-4s", buf), ROW_SPEED, COL_SPEED);
-}
-
-
-static void prt_cut(void)
-{
-	int c = p_ptr->cut;
-	char buf[20];
-
-	if (c > 100)
-	{
-		c_put_str(TERM_RED, "Mortal wound", ROW_CUT, COL_CUT);
-	}
-	else if (c > 20)
-	{
-		sprintf(buf, "Bleeding %-2d", c);
-		c_put_str(TERM_RED, buf, ROW_CUT, COL_CUT);
-	}
-	else if (c > 0)
-	{
-		sprintf(buf, "Bleeding %-2d", c);
-		c_put_str(TERM_L_RED, buf, ROW_CUT, COL_CUT);
-	}
-	else
-	{
-		put_str("            ", ROW_CUT, COL_CUT);
-	}
 }
 
 
@@ -1684,7 +1695,6 @@ void calc_torch(void)
 			if (o_ptr->sval == SV_LIGHT_LESSER_JEWEL)		p_ptr->cur_light += RADIUS_LESSER_JEWEL;
 			else if (o_ptr->sval == SV_LIGHT_FEANORIAN)		p_ptr->cur_light += RADIUS_FEANORIAN;
 			else if (o_ptr->sval == SV_LIGHT_SILMARIL)		p_ptr->cur_light += RADIUS_SILMARIL;
-			else if (artefact_p(o_ptr))						p_ptr->cur_light += RADIUS_ARTEFACT;
 
 			/* Torches (with fuel) provide some light */
 			else if ((o_ptr->sval == SV_LIGHT_TORCH) && (o_ptr->timeout > 0))
@@ -2074,8 +2084,8 @@ static void calc_bonuses(void)
 
 	/* Clear all the flags */
 	p_ptr->hunger = 0;
-	p_ptr->danger = FALSE;
-	p_ptr->aggravate = FALSE;
+	p_ptr->danger = 0;
+	p_ptr->aggravate = 0;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
 	p_ptr->regenerate = FALSE;
@@ -2114,6 +2124,10 @@ static void calc_bonuses(void)
 	{
 		o_ptr = &inventory[i];
 		p_ptr->total_weight += o_ptr->number * o_ptr->weight;
+		
+		// *all* carried objects still cause danger
+		object_flags(o_ptr, &f1, &f2, &f3);
+		if (f2 & (TR2_DANGER)) p_ptr->danger += 1;
 	}
 
 	/*** Analyze equipment ***/
@@ -2180,8 +2194,10 @@ static void calc_bonuses(void)
 		/* Bad flags */
 		if (f2 & (TR2_HUNGER)) p_ptr->hunger += 1;
 		if (f2 & (TR2_SLOWNESS)) p_ptr->pspeed -= 1;
-		if (f2 & (TR2_DANGER)) p_ptr->danger = TRUE;
-		if (f2 & (TR2_AGGRAVATE)) p_ptr->aggravate = TRUE;
+		if (f2 & (TR2_AGGRAVATE)) p_ptr->aggravate += 1;
+
+		// danger has already been handled in the general inventory
+		//if (f2 & (TR2_DANGER)) p_ptr->danger += 1;
 		
 		// darkness and light are handled later...
 
@@ -2611,11 +2627,11 @@ static void calc_bonuses(void)
 		p_ptr->mds2 = total_mds(o_ptr, TRUE);
 	}
 
-	/* Paralysis sets total evasion score to -5 */
-	if (p_ptr->paralyzed)
+	/* Entrancement or being knocked out sets total evasion score to -5 */
+	if (p_ptr->paralyzed || (p_ptr->stun > 100))
 	{
 		p_ptr->skill_misc_mod[S_EVN] = -5 - (p_ptr->skill_base[S_EVN] + p_ptr->skill_equip_mod[S_EVN] + 
-										     p_ptr->skill_stat_mod[S_EVN] + p_ptr->skill_misc_mod[S_EVN]);
+										     p_ptr->skill_stat_mod[S_EVN]);
 	}
 	
 	

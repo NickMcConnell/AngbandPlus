@@ -123,13 +123,13 @@
 # Typical Giant:   30d4
 # Typical Dragon:  30d4 - 50d4
 # Unrelenting H:  100d4
-#       Morgoth:  100d4
+#       Morgoth:  200d4
 # 
 # Will:
 #
-# Default value:  dungeon level * 2/3
-# Unique:         +1
-# Dragons:        +0, +1, or +2
+# Typical value:  dungeon level * 2/3
+# Normally higher: horrors, people, dragons, raukar, uniques
+# Normally lower: cats, serpents, insects
 #
 # Letters:
 #
@@ -165,7 +165,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 
 ##### Non-race (contains the player picture) #####
@@ -298,7 +298,7 @@ N:41:White wolf
 W:4:1
 G:C:w
 I:3:9d4:0:0
-A:20:5:3:2
+A:20:5:3:1
 P:[+5,1d4]
 B:BITE:HURT:(+4,2d5)
 F:FRIENDS | RAND_25 | WOLF | RES_COLD
@@ -311,7 +311,7 @@ G:b:s
 I:4:1d4:30:0
 A:15:6:4:2
 P:[+9]
-B:PECK:WOUND:(+10,1d5)
+B:PECK:WOUND:(+10,1d3)
 F:FRIENDS
 S:SPELL_PCT_15
 S:SHRIEK
@@ -391,7 +391,7 @@ N:55:Gorgol, the Butcher
 W:5:10
 G:o:G
 I:2:12d4:0:0
-A:15:4:1:4
+A:15:4:1:5
 P:[+4,3d4]
 B:HIT:HURT:(+6,3d7)
 F:UNIQUE | MALE | ESCORT | SMART
@@ -421,7 +421,7 @@ N:62:Gorcrow
 W:6:2
 G:b:D
 I:4:1d4:2:0
-A:15:4:3:4
+A:15:4:3:3
 P:[+11]
 B:PECK:BLIND:(+12,1d5)
 F:FRIEND | RAND_25
@@ -433,7 +433,7 @@ N:63:Clear worm mass
 W:6:4
 G:w:W
 I:1:6d4:0:0
-A:10:2:5:4
+A:10:2:5:3
 P:[+1]
 B:CRAWL:POISON:(+6,1d5)
 F:ATTR_CLEAR | RAND_25 | RAND_50 | MINDLESS | INVISIBLE
@@ -448,7 +448,7 @@ N:64:Mewlip
 W:6:3
 G:H:u
 I:2:14d4:20:0
-A:15:5:3:4
+A:15:5:3:6
 P:[+4,2d4]
 B:CLAW:WOUND:(+8,3d4)
 F:DROP_100 | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR | SMART
@@ -491,7 +491,7 @@ N:73:Metallic red centipede
 W:7:1
 G:c:r
 I:3:3d4:0:0
-A:10:3:3:4
+A:10:3:3:2
 P:[7,4d4]
 B:BITE:HURT:(+8,2d6)
 F:RAND_25 | ATTR_MULTI | TERRITORIAL
@@ -505,7 +505,7 @@ N:74:Easterling spy
 W:7:3
 G:@:D
 I:2:6d4:20:1
-A:15:7:7:4
+A:15:7:7:7
 P:[+8,1d4]
 B:HIT:HURT:(+7,1d8)
 F:MALE | DROP_33 | OPEN_DOOR | UNLOCK_DOOR
@@ -567,7 +567,7 @@ N:84:Grave wight
 W:8:2
 G:W:U
 I:2:4d4:20:0
-A:10:5:5:5
+A:10:7:5:5
 P:[+6,2d4]
 B:HIT:HURT:(+10,2d9)
 B:TOUCH:SLOW:(+10)
@@ -584,7 +584,7 @@ N:85:Easterling warrior
 W:8:2
 G:@:W
 I:2:10d4:0:1
-A:15:4:1:5
+A:15:4:1:7
 P:[+5,3d4]
 B:HIT:HURT:(+7,2d8)
 F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIENDS
@@ -600,7 +600,7 @@ N:86:Boldog, the Merciless
 W:8:20
 G:o:y
 I:2:13d4:0:0
-A:15:5:1:5
+A:15:5:1:6
 P:[+7,3d4]
 B:HIT:HURT:(+12,1d14)
 F:UNIQUE | MALE | ESCORTS
@@ -636,7 +636,7 @@ N:92:Distended spider
 W:9:1
 G:M:u
 I:2:18d4:0:0
-A:15:5:3:6
+A:15:5:3:5
 P:[+6]
 B:BITE:POISON:(+6,2d11)
 F:BASH_DOOR | SPIDER | RES_POIS | TERRITORIAL
@@ -658,7 +658,7 @@ N:94:Easterling archer
 W:9:5
 G:@:u
 I:2:9d4:0:1
-A:15:5:3:6
+A:15:5:3:7
 P:[+8,2d4]
 B:HIT:HURT:(+8,1d7)
 F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIENDS
@@ -679,7 +679,7 @@ N:101:Shadow worm mass
 W:10:1
 G:w:s
 I:1:6d4:0:-1
-A:10:3:5:6
+A:10:3:5:5
 P:[+5]
 B:CRAWL:DARK:(+6,2d5)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
@@ -706,7 +706,7 @@ N:103:Barrow wight
 W:10:100
 G:W:W
 I:2:12d4:20:0
-A:10:6:5:6
+A:10:8:5:6
 P:[+7,2d4]
 B:HIT:HURT:(+12,2d9)
 B:TOUCH:PARALYZE:(+12)
@@ -734,7 +734,7 @@ N:105:Uldor, the Accursed
 W:10:10
 G:@:U1
 I:2:14d4:0:1
-A:15:6:1:6
+A:15:6:1:9
 P:[+8,5d4]
 B:HIT:HURT:(+14,2d8)
 F:UNIQUE | MALE | DROP_100 | ESCORT | SMART
@@ -790,7 +790,7 @@ N:113:Lurking horror
 W:11:5
 G:H:D
 I:2:10d4:20:-2
-A:1:7:3:7
+A:1:7:3:9
 P:[+11,1d4]
 B:BITE:PARALYZE:(+10,2d9)
 F:BASH_DOOR | SHORT_SIGHTED | NO_FEAR | HURT_LITE
@@ -819,7 +819,7 @@ N:115:Ulfang the Black
 W:11:10
 G:@:s
 I:2:15d4:43:1
-A:15:6:1:8
+A:15:6:1:10
 P:[+12,4d4]
 B:HIT:HURT:(+17,2d8)
 F:UNIQUE | MALE | DROP_2D2 | ESCORT | SMART
@@ -866,7 +866,7 @@ N:122:Shadow bat
 W:12:4
 G:b:D1
 I:4:4d4:0:-2
-A:15:5:4:8
+A:15:5:4:7
 P:[+19,1d4]
 B:BITE:HURT:(+17,2d5)
 F:RAND_50 | TERRITORIAL | HURT_LITE
@@ -877,7 +877,7 @@ N:123:Sulrauko
 W:12:2
 G:R:W
 I:2:5d4:0:0
-A:10:6:5:8
+A:10:6:5:10
 P:[+15,3d4]
 B:HIT:BATTER:(+14,3d5)
 F:BASH_DOOR | INVISIBLE | RES_CRIT | RES_POIS | RAND_50
@@ -889,7 +889,7 @@ N:124:Fire-drake hatchling
 W:12:6
 G:d:R
 I:2:10d4:20:0
-A:30:5:2:10
+A:30:5:2:8
 P:[+11,1d4]
 B:BITE:FIRE:(+13,2d5)
 F:BASH_DOOR | DRAGON | RAND_25 | FRIEND | TERRITORIAL
@@ -937,7 +937,7 @@ N:132:Shadow spider
 W:13:1
 G:M:D
 I:3:13d4:0:-2
-A:15:6:3:8
+A:15:6:3:7
 P:[+13,1d4]
 B:BITE:BLIND:(+12,2d9)
 F:BASH_DOOR | SPIDER | RES_POIS
@@ -949,7 +949,7 @@ N:133:Shadow
 W:13:3
 G:W:d
 I:2:3d4:35:0
-A:0:6:10:8
+A:0:8:10:8
 P:[+13,3d4]
 B:TOUCH:DARK:(+16,2d5)
 F:INVISIBLE | RAND_25
@@ -963,7 +963,7 @@ N:134:Sapphire serpent
 W:13:3
 G:s:b
 I:2:8d4:30:0
-A:15:6:3:8
+A:15:6:3:6
 P:[+9,5d4]
 B:BITE:COLD:(+13,2d6)
 F:SERPENT
@@ -1011,7 +1011,7 @@ N:142:Ruby serpent
 W:14:3
 G:s:r
 I:2:8d4:30:0
-A:15:6:3:9
+A:15:6:3:7
 P:[+10,5d4]
 B:BITE:FIRE:(+14,2d6)
 F:RES_FIRE | ATTR_MULTI | SERPENT | HURT_COLD
@@ -1025,7 +1025,7 @@ N:143:Creeping horror
 W:14:4
 G:H:g
 I:1:14d4:20:-2
-A:10:6:5:9
+A:10:6:5:11
 P:[+13,2d4]
 B:CLAW:ACID:(+18,3d10)
 F:BASH_DOOR | NO_FEAR | HURT_LITE
@@ -1039,7 +1039,7 @@ N:144:Ringrauko
 W:14:1
 G:R:B
 I:2:10d4:0:0
-A:10:6:3:9
+A:10:6:3:11
 P:[+14,2d4]
 B:HIT:COLD:(+15,2d8)
 F:BASH_DOOR | SMART
@@ -1055,7 +1055,7 @@ N:151:Emerald serpent
 W:15:3
 G:s:g
 I:2:8d4:30:0
-A:15:7:3:10
+A:15:7:3:8
 P:[+11,5d4]
 B:BITE:POISON:(+15,2d6)
 F:SERPENT
@@ -1070,7 +1070,7 @@ N:152:Oathwraith
 W:15:4
 G:W:D
 I:2:12d4:30:0
-A:10:8:10:10
+A:10:10:10:10
 P:[+14,3d4]
 B:TOUCH:HUNGER:(+19)
 F:UNDEAD | DROP_100 | RES_COLD | SMART | HURT_LITE
@@ -1132,7 +1132,7 @@ N:162:Amethyst serpent
 W:16:3
 G:s:v1
 I:2:8d4:30:-2
-A:15:7:3:10
+A:15:7:3:8
 P:[+12,5d4]
 B:BITE:DARK:(+16,2d6)
 F:HURT_LITE | SERPENT
@@ -1146,7 +1146,7 @@ N:163:Kemenrauko
 W:16:2
 G:R:s
 I:2:10d4:0:0
-A:10:7:0:10
+A:10:7:0:12
 P:[+14,4d4]
 B:HIT:SHATTER:(+11,4d8)
 F:BASH_DOOR | KILL_WALL | STONE | RAUKO | SMART
@@ -1247,7 +1247,7 @@ N:173:Adamant serpent
 W:17:3
 G:s:v
 I:2:8d4:30:0
-A:15:8:3:11
+A:15:8:3:9
 P:[+13,5d4]
 B:BITE:WOUND:(+17,3d6)
 F:ATTR_MULTI | SERPENT
@@ -1352,7 +1352,7 @@ N:182:Darting horror
 W:18:5
 G:H:r
 I:4:8d4:20:0
-A:10:8:3:12
+A:10:8:3:14
 P:[+20,2d4]
 B:BITE:HALLU:(+22,2d9)
 F:BASH_DOOR | RAND_25 | NO_FEAR
@@ -1368,7 +1368,7 @@ N:183:Unmourned
 W:18:6
 G:W:v1
 I:1:12d4:0:0
-A:10:9:10:12
+A:10:13:10:12
 P:[+17,3d4]
 B:TOUCH:HUNGER:(+22)
 F:UNDEAD | PASS_WALL | RES_COLD | SMART | FRIENDS
@@ -1382,7 +1382,7 @@ N:184:Ururauko
 W:18:1
 G:R:R
 I:2:4d4:0:3
-A:10:8:2:12
+A:10:8:2:14
 P:[+15,2d4]
 B:HIT:FIRE:(+26,4d10)
 F:BASH_DOOR | SMART
@@ -1432,7 +1432,7 @@ N:191:Ancient sapphire serpent
 W:19:6
 G:S:b
 I:2:10d4:30:0
-A:15:8:2:12
+A:15:8:2:10
 P:[+15,7d4]
 B:BITE:COLD:(+19,2d9)
 F:SERPENT
@@ -1487,7 +1487,7 @@ N:195:Maeglin, Betrayer of Gondolin
 W:19:100
 G:@:D1
 I:2:15d4:0:2
-A:15:8:5:13
+A:15:8:5:18
 P:[+21,5d4]
 B:HIT:HURT:(+31,2d8)
 F:UNIQUE | MALE | DROP_1D2 | UNLOCK_DOOR | DROP_CHOSEN
@@ -1509,7 +1509,7 @@ N:201:Ancient ruby serpent
 W:20:3
 G:S:r
 I:2:10d4:30:0
-A:15:8:2:13
+A:15:8:2:11
 P:[+16,7d4]
 B:BITE:FIRE:(+20,2d9)
 F:SERPENT
@@ -1567,7 +1567,7 @@ N:204:Gwathrauko
 W:20:1
 G:R:D
 I:2:8d4:0:-3
-A:10:8:5:13
+A:10:8:5:15
 P:[+18,3d4]
 B:HIT:DARK:(+18,2d8)
 F:BASH_DOOR | SMART
@@ -1613,7 +1613,7 @@ N:212:Ancient emerald serpent
 W:21:3
 G:S:g
 I:2:10d4:30:0
-A:15:9:2:14
+A:15:9:2:12
 P:[+17,7d4]
 B:BITE:POISON:(+21,2d9)
 F:SERPENT
@@ -1645,7 +1645,7 @@ N:214:Lungorthin, the Balrog of White Fire
 W:21:5
 G:R:w
 I:2:30d4:0:-2
-A:10:10:1:15
+A:10:10:1:18
 P:[+23,4d4]
 B:HIT:FIRE:(+27,2d12)
 B:WHIP:DISARM:(+22,3d6)
@@ -1665,10 +1665,11 @@ N:221:Ancient amethyst serpent
 W:22:3
 G:S:v1
 I:2:10d4:30:-3
-A:15:9:2:14
+A:15:9:2:12
 P:[+18,7d4]
 B:BITE:DARK:(+22,2d9)
 F:HURT_LITE | SERPENT
+F:CLOUD_SURROUND
 S:SPELL_PCT_20 | POW_8
 S:BRTH_DARK
 D:A vast serpentine form encrusted with scales of amethyst.
@@ -1698,7 +1699,7 @@ N:223:Hithrauko
 W:22:2
 G:R:B1
 I:3:4d4:0:0
-A:10:9:3:14
+A:10:9:3:16
 P:[+17,4d4]
 B:ENGULF:HALLU:(+27,4d5)
 F:BASH_DOOR | INVISIBLE | RES_CRIT | RES_POIS | RAND_50
@@ -1749,7 +1750,7 @@ N:231:Ancient adamant serpent
 W:23:3
 G:S:v
 I:2:10d4:30:0
-A:15:9:2:15
+A:15:9:2:13
 P:[+19,7d4]
 B:BITE:WOUND:(+23,3d9)
 F:ATTR_MULTI | SERPENT
@@ -1809,7 +1810,7 @@ B:CLAW:WOUND:(+35,3d7)
 B:BITE:LOSE_ALL:(+29,2d9)
 F:UNIQUE | FEMALE
 F:DROP_2D2 | DROP_GOOD | DROP_CHOSEN | SMART | RAND_25
-F:REGENERATE | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
+F:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
 F:HURT_LITE
 D:Chief messenger between Sauron and Morgoth, she is surely the most
 D: deadly of her vampire race.  At first she is charming to meet, but
@@ -1825,7 +1826,7 @@ N:241:Gothmog, High Captain of Balrogs
 W:24:3
 G:R:r
 I:2:35d4:190:-2
-A:10:10:1:17
+A:10:10:1:20
 P:[+24,5d4]
 B:HIT:FIRE:(+30,3d12)
 B:WHIP:DISARM:(+25,3d8)
@@ -1889,7 +1890,7 @@ N:244:Gorthaur, Servant of Morgoth
 W:24:3
 G:C:u
 I:3:25d4:30:0
-A:10:13:5:17
+A:10:13:5:21
 P:[+27,3d4]
 B:CLAW:WOUND:(+32,3d9)
 B:BITE:POISON:(+26,2d15)
@@ -1898,8 +1899,8 @@ F:DROP_2D2
 F:DROP_GREAT | SMART
 F:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
 F:WOLF | ESCORT
-S:SPELL_PCT_10
-S:SCARE
+S:SPELL_PCT_15
+S:SCARE | HOLD
 D:He is Morgoth's most powerful servant.  His eyes glow with power and
 D: his gaze seeks to destroy your soul.  He has many servants, and
 D: rarely fights without them.

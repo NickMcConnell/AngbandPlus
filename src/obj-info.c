@@ -466,8 +466,8 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	if (f2 & (TR2_HUNGER))	   bad[bc++] = "increases your hunger";
 	if (f2 & (TR2_DARKNESS))   bad[bc++] = "creates an unnatural darkness";
 	if (f2 & (TR2_SLOWNESS))   bad[bc++] = "slows your movement";
-	if (f2 & (TR2_DANGER))	   bad[bc++] = "draws powerful creatures to your level";
 	if (f2 & (TR2_AGGRAVATE))  bad[bc++] = "enrages nearby creatures";
+	if (f2 & (TR2_DANGER))	   bad[bc++] = "draws powerful creatures to your level (even when not worn)";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))

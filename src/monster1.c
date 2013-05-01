@@ -617,21 +617,21 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 			(r_ptr->flags4 & (RF4_BRTH_DARK)) &&
 			(r_ptr->flags4 & (RF4_BRTH_COLD)))
 			{
-				text_out(format("%^s is surrounded by an ever-changing cloud of elements.  ", wd_he[msex]));
+				text_out(format("%^s is surrounded by shimmering haze of ever changing elements (%dd%d).  ", wd_he[msex], dd, ds));
 			}
 
 
 		/* We emit something */
 		else if (typ)
 		{
-			text_out(format("%^s is surrounded by ", wd_he[msex]));
+			text_out(format("%^s is surrounded by a shimmering haze of ", wd_he[msex]));
 
 			/* Describe cloud */
-			if (typ == GF_FIRE)           text_out("fire");
-			else if (typ == GF_COLD)      text_out("frost");
-			else if (typ == GF_POIS)      text_out("noxious gases");
-			else if (typ == GF_DARK)      text_out("purest darkness");
-			text_out(".  ");
+			if (typ == GF_FIRE)           text_out_c(TERM_L_RED, "fire");
+			else if (typ == GF_COLD)      text_out_c(TERM_L_RED, "frost");
+			else if (typ == GF_POIS)      text_out_c(TERM_L_RED, "poison");
+			else if (typ == GF_DARK)      text_out_c(TERM_L_RED, "darkness");
+			text_out(format(" (%dd%d).  ", dd, ds));
 		}
 	}
 

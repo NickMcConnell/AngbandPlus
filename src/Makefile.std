@@ -110,26 +110,44 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
+
+##
+## Standard -- "main-x11.c" & "main-gcu.c"
+##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
 #LIBS = -lX11 -lcurses -ltermcap
 
 
 ##
-## Variation -- Only support "main-x11.c" (not "main-gcu.c")
+## Variation -- "main-x11.c" & "main-gcu.c" (for Mac OS X)
 ##
-CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
-LIBS = -lX11
+CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+LIBS = -L/usr/X11/lib -lX11 -lcurses -ltermcap
 
 
 ##
-## Variation -- Only support "main-gcu.c" (not "main-x11.c")
+## Variation -- "main-x11.c"
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
+#LIBS = -lX11
+
+
+##
+## Variation -- "main-x11.c" (for Mac OS X)
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
+#LIBS = -L/usr/X11/lib -lX11
+
+
+##
+## Variation -- "main-gcu.c"
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
 #LIBS = -lcurses -ltermcap
 
 
 ##
-## Variation -- Use "main-gtk.c" instead of "main-x11.c"
+## Variation -- "main-gtk.c" & "main-gcu.c"
 ## Note: gtk-config adds GTK and X11 includes and libraries as appropriate.
 ##
 #CFLAGS = -Wall -O `gtk-config --cflags` -g -D"USE_GTK" -D"USE_GCU"
@@ -137,14 +155,14 @@ LIBS = -lX11
 
 
 ##
-## Variation -- Use "main-cap.c" instead of "main-gcu.c"
+## Variation -- "main-x11.c" & "main-cap.c
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
 #LIBS = -lX11 -ltermcap
 
 
 ##
-## Variation -- Only work on simple vt100 terminals
+## Variation -- "main-cap.c" (works on simple vt100 terminals)
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_CAP" -D"USE_HARDCODE"
 

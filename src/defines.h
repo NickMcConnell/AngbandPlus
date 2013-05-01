@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.1"
+#define VERSION_STRING	"1.0.2"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -277,8 +277,9 @@
 #define MAX_COMBAT_ROLLS		50
 
 // Types of combat roll storage
-#define ROLL   0
-#define AUTO   1
+#define COMBAT_ROLL_NONE   1
+#define COMBAT_ROLL_ROLL   1
+#define COMBAT_ROLL_AUTO   2
 
 /*
  * Action types (for remembering what the player did)
@@ -702,10 +703,10 @@
 #define ROW_CUT			20
 #define COL_CUT			0	/* "Bleeding XX" */
 
-#define ROW_POISONED	21
+#define ROW_POISONED	20
 #define COL_POISONED	0	/* "Poisoned XX" */
 
-#define ROW_SONG		22
+#define ROW_SONG		21
 #define COL_SONG		0	/* <song> */
 
 #define ROW_STEALTH		24
@@ -2455,7 +2456,7 @@
 // xxx show_weights	
 // xxx show_choices		
 // xxx show_details	
-#define OPT_beep					14
+#define OPT_system_beep				14
 // xxx show_flavors	
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
@@ -2598,7 +2599,7 @@
 // xxx show_labels	
 // xxx show_choices
 #define show_details			op_ptr->opt[OPT_show_details]
-#define beep					op_ptr->opt[OPT_beep]
+#define system_beep				op_ptr->opt[OPT_system_beep]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]

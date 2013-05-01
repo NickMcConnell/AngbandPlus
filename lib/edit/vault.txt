@@ -86,7 +86,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 ### The Gates of Angband (type 10) -- maximum size 66x44 ??? ###
 ### This must be the first vault record

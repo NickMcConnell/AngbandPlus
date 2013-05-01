@@ -1639,6 +1639,8 @@ bool make_attack_normal(monster_type *m_ptr)
 							(p_ptr->ripostes < 1) &&
 							!p_ptr->afraid &&
 							!p_ptr->confused &&
+							!p_ptr->paralyzed &&
+							(p_ptr->stun <= 100) &&
 							m_ptr->ml &&
 							(hit_result <= -10 - (((&inventory[INVEN_WIELD])->weight + 9) / 10)))
 						{
@@ -1776,7 +1778,8 @@ void mon_cloud(int m_idx, int typ, int dd, int ds, int dif, int rad)
 	
 	bool notice;
 
-	u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_HIDE;
+	////u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_HIDE;
+	u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_KILL | PROJECT_HIDE;
 
 	/* Surround the monster with a cloud */
 	notice = project(m_idx, rad, fy, fx, fy, fx, dd + 2, ds, dif, typ, flg, 0, 0);
@@ -2124,7 +2127,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				{
 					msg_print("Your mind reels.");
 					
-					set_stun(MIN(p_ptr->stun + 20, 105));
+					set_stun(p_ptr->stun + 20);
 				}
 			}
 			
@@ -2289,12 +2292,6 @@ void cloud_surround(int r_idx, int *typ, int *dd, int *ds, int *rad)
 	*ds = 4;
 	*rad = 1;
 
-	/* Unique monsters have especially strong effects */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		*rad += 1;
-	}
-
 	/*** Determine the kind of cloud we're supposed to be giving off ***/
 
 	/* If breaths and attrs match, the choice is clear. */
@@ -2330,6 +2327,39 @@ void cloud_surround(int r_idx, int *typ, int *dd, int *ds, int *rad)
 		else if (r_ptr->flags4 & (RF4_BRTH_DARK)) *typ = GF_DARK;
 	}
 
+}
+
+void new_combat_round(void)
+{
+	int i;
+	
+	if (combat_number != 0) combat_number_old = combat_number;
+	combat_number = 0;
+	turns_since_combat++;
+
+	// reset new round's rolls
+	for (i = 0; i < MAX_COMBAT_ROLLS; i++)
+	{
+		combat_rolls[0][i].att_type = COMBAT_ROLL_NONE;
+	}
+	
+	if (turns_since_combat == 1)
+	{
+		// copy previous round's rolls into old round's rolls
+		for (i = 0; i < MAX_COMBAT_ROLLS; i++)
+		{
+			COPY(&combat_rolls[1][i], &combat_rolls[0][i], combat_roll);
+		}
+	}
+	else if (turns_since_combat == 11)
+	{
+		// reset old round's rolls
+		combat_number_old = 0;
+		for (i = 0; i < MAX_COMBAT_ROLLS; i++)
+		{
+			combat_rolls[1][i].att_type = COMBAT_ROLL_NONE;
+		}
+	}
 }
 
 
@@ -2379,63 +2409,64 @@ void update_combat_rolls1(const monster_type *m_ptr1, const monster_type *m_ptr2
 		
 	if (combat_number < MAX_COMBAT_ROLLS)
 	{
-		combat_rolls[combat_number].att_type = ROLL;
+		combat_rolls[0][combat_number].att_type = COMBAT_ROLL_ROLL;
 		
 		if (m_ptr1 == NULL)
 		{
-			combat_rolls[combat_number].attacker_char = combat_roll_special_char;
-			combat_rolls[combat_number].attacker_attr = combat_roll_special_attr;
+			combat_rolls[0][combat_number].attacker_char = combat_roll_special_char;
+			combat_rolls[0][combat_number].attacker_attr = combat_roll_special_attr;
 		}
 		else if (vis || (m_ptr1 == PLAYER))
 		{
-			combat_rolls[combat_number].attacker_char = r_ptr1->d_char;
+			combat_rolls[0][combat_number].attacker_char = r_ptr1->d_char;
 
 			if (p_ptr->rage && (m_ptr1 != PLAYER))
 			{
-				combat_rolls[combat_number].attacker_attr = TERM_RED;
+				combat_rolls[0][combat_number].attacker_attr = TERM_RED;
 			}
 			else
 			{
-				combat_rolls[combat_number].attacker_attr = r_ptr1->d_attr;
+				combat_rolls[0][combat_number].attacker_attr = r_ptr1->d_attr;
 			}
 		}
 		else
 		{
-			combat_rolls[combat_number].attacker_char = '?';
-			combat_rolls[combat_number].attacker_attr = TERM_SLATE;
+			combat_rolls[0][combat_number].attacker_char = '?';
+			combat_rolls[0][combat_number].attacker_attr = TERM_SLATE;
 		}
 
 		// hack for Iron Crown
 		if (m_ptr2 == NULL)
 		{
-			combat_rolls[combat_number].defender_char = ']';
-			combat_rolls[combat_number].defender_attr = TERM_L_DARK;
+			combat_rolls[0][combat_number].defender_char = ']';
+			combat_rolls[0][combat_number].defender_attr = TERM_L_DARK;
 		}
 		else if (vis || (m_ptr2 == PLAYER))
 		{
-			combat_rolls[combat_number].defender_char = r_ptr2->d_char;
+			combat_rolls[0][combat_number].defender_char = r_ptr2->d_char;
 			
 			if (p_ptr->rage && (m_ptr2 != PLAYER))
 			{
-				combat_rolls[combat_number].defender_attr = TERM_RED;
+				combat_rolls[0][combat_number].defender_attr = TERM_RED;
 			}
 			else
 			{
-				combat_rolls[combat_number].defender_attr = r_ptr2->d_attr;
+				combat_rolls[0][combat_number].defender_attr = r_ptr2->d_attr;
 			}
 		}
 		else
 		{
-			combat_rolls[combat_number].defender_char = '?';
-			combat_rolls[combat_number].defender_attr = TERM_SLATE;
+			combat_rolls[0][combat_number].defender_char = '?';
+			combat_rolls[0][combat_number].defender_attr = TERM_SLATE;
 		}
 
-		combat_rolls[combat_number].att = att;
-		combat_rolls[combat_number].att_roll = att_roll;
-		combat_rolls[combat_number].evn = evn;
-		combat_rolls[combat_number].evn_roll = evn_roll;
+		combat_rolls[0][combat_number].att = att;
+		combat_rolls[0][combat_number].att_roll = att_roll;
+		combat_rolls[0][combat_number].evn = evn;
+		combat_rolls[0][combat_number].evn_roll = evn_roll;
 		
 		combat_number++;
+		turns_since_combat = 0;
 	}
 	
 	/* Window stuff */
@@ -2483,52 +2514,53 @@ void update_combat_rolls1b(const monster_type *m_ptr1, const monster_type *m_ptr
 	
 	if (combat_number < MAX_COMBAT_ROLLS)
 	{
-		combat_rolls[combat_number].att_type = AUTO;
+		combat_rolls[0][combat_number].att_type = COMBAT_ROLL_AUTO;
 		
 		if (m_ptr1 == NULL)
 		{
-			combat_rolls[combat_number].attacker_char = combat_roll_special_char;
-			combat_rolls[combat_number].attacker_attr = combat_roll_special_attr;
+			combat_rolls[0][combat_number].attacker_char = combat_roll_special_char;
+			combat_rolls[0][combat_number].attacker_attr = combat_roll_special_attr;
 		}
 		else if (vis || (m_ptr1 == PLAYER))
 		{
-			combat_rolls[combat_number].attacker_char = r_ptr1->d_char;
+			combat_rolls[0][combat_number].attacker_char = r_ptr1->d_char;
 			
 			if (p_ptr->rage && (m_ptr1 != PLAYER))
 			{
-				combat_rolls[combat_number].attacker_attr = TERM_RED;
+				combat_rolls[0][combat_number].attacker_attr = TERM_RED;
 			}
 			else
 			{
-				combat_rolls[combat_number].attacker_attr = r_ptr1->d_attr;
+				combat_rolls[0][combat_number].attacker_attr = r_ptr1->d_attr;
 			}
 		}
 		else
 		{
-			combat_rolls[combat_number].attacker_char = '?';
-			combat_rolls[combat_number].attacker_attr = TERM_SLATE;
+			combat_rolls[0][combat_number].attacker_char = '?';
+			combat_rolls[0][combat_number].attacker_attr = TERM_SLATE;
 		}
 		
 		if (vis || (m_ptr2 == PLAYER))
 		{
-			combat_rolls[combat_number].defender_char = r_ptr2->d_char;
+			combat_rolls[0][combat_number].defender_char = r_ptr2->d_char;
 			
 			if (p_ptr->rage && (m_ptr2 != PLAYER))
 			{
-				combat_rolls[combat_number].defender_attr = TERM_RED;
+				combat_rolls[0][combat_number].defender_attr = TERM_RED;
 			}
 			else
 			{
-				combat_rolls[combat_number].defender_attr = r_ptr2->d_attr;
+				combat_rolls[0][combat_number].defender_attr = r_ptr2->d_attr;
 			}
 		}
 		else
 		{
-			combat_rolls[combat_number].defender_char = '?';
-			combat_rolls[combat_number].defender_attr = TERM_SLATE;
+			combat_rolls[0][combat_number].defender_char = '?';
+			combat_rolls[0][combat_number].defender_attr = TERM_SLATE;
 		}
 		
 		combat_number++;
+		turns_since_combat = 0;
 	}
 	
 	/* Window stuff */
@@ -2543,14 +2575,14 @@ void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int
 {
 	if (combat_number-1 < MAX_COMBAT_ROLLS)
 	{
-		combat_rolls[combat_number-1].dam_type = dam_type;
-		combat_rolls[combat_number-1].dd = dd;
-		combat_rolls[combat_number-1].ds = ds;
-		combat_rolls[combat_number-1].dam = dam;
-		combat_rolls[combat_number-1].pd = pd;
-		combat_rolls[combat_number-1].ps = ps;
-		combat_rolls[combat_number-1].prot = prot;
-		combat_rolls[combat_number-1].prt_percent = prt_percent;
+		combat_rolls[0][combat_number-1].dam_type = dam_type;
+		combat_rolls[0][combat_number-1].dd = dd;
+		combat_rolls[0][combat_number-1].ds = ds;
+		combat_rolls[0][combat_number-1].dam = dam;
+		combat_rolls[0][combat_number-1].pd = pd;
+		combat_rolls[0][combat_number-1].ps = ps;
+		combat_rolls[0][combat_number-1].prot = prot;
+		combat_rolls[0][combat_number-1].prt_percent = prt_percent;
 	}
 }
 
@@ -2577,9 +2609,14 @@ void display_combat_rolls(void)
 	int b_min = 0;
 	int b_max = 0;
 	
+	int round;
+	int combat_num_for_round = combat_number;
+	
 	int total_player_attacks = 0;
 	int player_attacks = 0;
 	int monster_attacks = 0;
+	
+	int line_jump = 0;
 	
 	int res = 1;   // a default value to soothe compilation warnings
 	
@@ -2592,325 +2629,329 @@ void display_combat_rolls(void)
 		b_min += (&inventory[INVEN_ARM])->pd;
 		b_max += (&inventory[INVEN_ARM])->ps;
 	}
-	
-	
+		
 	/* Clear the window */
 	for (i = 0; i < Term->hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
-		//if (i == 6)
-		//{
-		//	Term_putstr(0, i, 80, TERM_L_DARK, "_______________________________|_______________________________________________");
-		//}
-		//else
-		//{
-		//	Term_putstr(0, i, 32, TERM_L_DARK, "                               |");
-		//}
 	}	
 	
-	for (i = 0; i < combat_number; i++)
+	for (round = 0; round < 2; round++)
 	{
-		if ((combat_rolls[i].attacker_char == r_info[0].d_char) &&
-		    (combat_rolls[i].attacker_attr == r_info[0].d_attr))
+		// initialise some things
+		if (round == 1)
 		{
-			total_player_attacks++;
-		}
-	}
-
-	for (i = 0; i < combat_number; i++)
-	{
-		// default values:
-		a_net_dam = TERM_L_RED;
-		res = 1;
-		
-		// determine the appropriate resistance if the player was attacked
-		if ((combat_rolls[i].defender_char == r_info[0].d_char) &&
-			(combat_rolls[i].defender_attr == r_info[0].d_attr))
-		{
-			switch (combat_rolls[i].dam_type)
+			combat_num_for_round = combat_number_old;
+			line_jump = player_attacks + monster_attacks + 2;
+			if (player_attacks > 0) line_jump++;
+			if (monster_attacks > 0) line_jump++;
+			if (combat_number + combat_number_old > 0)
 			{
-				case GF_FIRE:
-					res = resist_fire();
-					break;
-				case GF_COLD:
-					res = resist_cold();
-					break;
-				case GF_ELEC:
-					res = p_ptr->resist_elec;
-					break;
-				case GF_POIS:
-					res = resist_pois();
-					a_net_dam = TERM_GREEN;
-					break;
-				case GF_DARK:
-					res = resist_dark();
-					break;
+				Term_putstr(0, line_jump-1, 80, TERM_L_DARK, "_______________________________________________________________________________");
 			}
 		}
-				
-		if ((combat_rolls[i].attacker_char == r_info[0].d_char) &&
-		    (combat_rolls[i].attacker_attr == r_info[0].d_attr))
-		{
-			player_attacks++;
+		total_player_attacks = 0;
+		player_attacks = 0;
+		monster_attacks = 0;		
 
-			// Can only display the first four player attacks
-			//if (player_attacks <= 4)
-			//{
+		for (i = 0; i < combat_num_for_round; i++)
+		{
+			if ((combat_rolls[round][i].attacker_char == r_info[0].d_char) &&
+				(combat_rolls[round][i].attacker_attr == r_info[0].d_attr))
+			{
+				total_player_attacks++;
+			}
+		}
+		
+		for (i = 0; i < combat_num_for_round; i++)
+		{
+			// default values:
+			a_net_dam = TERM_L_RED;
+			res = 1;
+			
+			// determine the appropriate resistance if the player was attacked
+			if ((combat_rolls[round][i].defender_char == r_info[0].d_char) &&
+				(combat_rolls[round][i].defender_attr == r_info[0].d_attr))
+			{
+				switch (combat_rolls[round][i].dam_type)
+				{
+					case GF_FIRE:
+						res = resist_fire();
+						break;
+					case GF_COLD:
+						res = resist_cold();
+						break;
+					case GF_ELEC:
+						res = p_ptr->resist_elec;
+						break;
+					case GF_POIS:
+						res = resist_pois();
+						a_net_dam = TERM_GREEN;
+						break;
+					case GF_DARK:
+						res = resist_dark();
+						break;
+				}
+			}
+			
+			if ((combat_rolls[round][i].attacker_char == r_info[0].d_char) &&
+				(combat_rolls[round][i].attacker_attr == r_info[0].d_attr))
+			{
+				player_attacks++;
+				
 				a_att = TERM_L_BLUE;
 				a_evn = TERM_WHITE;
 				a_hit = TERM_L_RED;
 				a_dam_roll = TERM_L_BLUE;
-				if (combat_rolls[i].prt_percent >= 100)
+				if (combat_rolls[round][i].prt_percent >= 100)
 					a_prot_roll = TERM_WHITE;
-				else if (combat_rolls[i].prt_percent >= 1)
+				else if (combat_rolls[round][i].prt_percent >= 1)
 					a_prot_roll = TERM_SLATE;
 				else
 					a_prot_roll = TERM_DARK;
 				
-				line = player_attacks;
-			//}
-			//else
-			//{
-			//	line = player_attacks;
-			//	Term_putstr(0, 5, 6, TERM_WHITE, "   ...");
-			//	continue;
-			//}
-		}
-		else
-		{
-			monster_attacks++;
-
-			a_att = TERM_WHITE;
-			a_evn = TERM_L_BLUE;
-			a_hit = TERM_L_RED;
-			a_dam_roll = TERM_WHITE;
-			if (combat_rolls[i].prt_percent >= 100)
-				a_prot_roll = TERM_L_BLUE;
-			else if (combat_rolls[i].prt_percent >= 1)
-				a_prot_roll = TERM_BLUE;
-			else
-				a_prot_roll = TERM_DARK;
-						
-			line = 1 + total_player_attacks + monster_attacks;
-		}
-	
-		/* Display the entry itself */
-		Term_putstr(0, line, 1, TERM_WHITE, " ");
-		Term_addch(combat_rolls[i].attacker_attr, combat_rolls[i].attacker_char);
-
-
-		// First display the attack side of the roll
-
-		// don't print attack info if there isn't any (i.e. if it is a breath or other elemental attack)
-		if (combat_rolls[i].att_type == ROLL)
-		{
-			if (combat_rolls[i].att < 10)
-			{
-				strnfmt(buf, sizeof (buf), "  (%+d)", combat_rolls[i].att);
+				line = player_attacks + line_jump;
 			}
 			else
 			{
-				strnfmt(buf, sizeof (buf), " (%+d)", combat_rolls[i].att);
+				monster_attacks++;
+				
+				a_att = TERM_WHITE;
+				a_evn = TERM_L_BLUE;
+				a_hit = TERM_L_RED;
+				a_dam_roll = TERM_WHITE;
+				if (combat_rolls[round][i].prt_percent >= 100)
+					a_prot_roll = TERM_L_BLUE;
+				else if (combat_rolls[round][i].prt_percent >= 1)
+					a_prot_roll = TERM_BLUE;
+				else
+					a_prot_roll = TERM_DARK;
+				
+				line = 1 + total_player_attacks + monster_attacks + line_jump;
+				if (total_player_attacks == 0) line--;
 			}
-			Term_addstr(-1, a_att, buf);
-
-			strnfmt(buf, sizeof (buf), "%4d", combat_rolls[i].att + combat_rolls[i].att_roll);
-			Term_addstr(-1, a_att, buf);
-
-			net_att =   combat_rolls[i].att_roll + combat_rolls[i].att
-					  - combat_rolls[i].evn_roll - combat_rolls[i].evn;
-			if (net_att > 0)
-			{
-				strnfmt(buf, sizeof (buf), "%4d", net_att);
-				Term_addstr(-1, a_hit, buf);
-			}
-			else
-			{
-				Term_addstr(-1, TERM_SLATE, "   -");
-			}
-
-			strnfmt(buf, sizeof (buf), "%4d", combat_rolls[i].evn + combat_rolls[i].evn_roll);
-			Term_addstr(-1, a_evn, buf);
-
-			if (combat_rolls[i].evn < 10)
-			{
-				strnfmt(buf, sizeof (buf), "   [%+d]", combat_rolls[i].evn);
-			}
-			else
-			{
-				strnfmt(buf, sizeof (buf), "  [%+d]", combat_rolls[i].evn);
-			}
-			Term_addstr(-1, a_evn, buf);
 			
-			// add the defender char
-			Term_addch(TERM_WHITE, ' ');
-			Term_addch(combat_rolls[i].defender_attr, combat_rolls[i].defender_char);
-		}
-		else
-		{
-			Term_addstr(-1, TERM_L_DARK, "                         ");
 			
-			// add the defender char
-			Term_addch(TERM_WHITE, ' ');
-			Term_addch(combat_rolls[i].defender_attr, combat_rolls[i].defender_char);
-		}
-		
-		// Now display the damage side of the roll
-		
-		if ((net_att > 0) || (combat_rolls[i].att_type == AUTO))
-		{
-			Term_addstr(-1, TERM_L_DARK, "  ->");
-
-			if (combat_rolls[i].ds < 10)
+			
+			/* Display the entry itself */
+			Term_putstr(0, line, 1, TERM_WHITE, " ");
+			Term_addch(combat_rolls[round][i].attacker_attr, combat_rolls[round][i].attacker_char);
+			
+			
+			// First display the attack side of the roll
+			
+			// don't print attack info if there isn't any (i.e. if it is a breath or other elemental attack)
+			if (combat_rolls[round][i].att_type == COMBAT_ROLL_ROLL)
 			{
-				strnfmt(buf, sizeof (buf), "   (%dd%d)", combat_rolls[i].dd, combat_rolls[i].ds);
-			}
-			else
-			{
-				strnfmt(buf, sizeof (buf), "  (%dd%d)", combat_rolls[i].dd, combat_rolls[i].ds);
-			}
-			Term_addstr(-1, a_dam_roll, buf);
-
-			strnfmt(buf, sizeof (buf), "%4d", combat_rolls[i].dam);
-			Term_addstr(-1, a_dam_roll, buf);
-
-			if (combat_rolls[i].att_type == ROLL)
-			{
-				net_dam =   combat_rolls[i].dam - combat_rolls[i].prot;
-
-				if (net_dam > 0)
+				if (combat_rolls[round][i].att < 10)
 				{
-					strnfmt(buf, sizeof (buf), "%4d", net_dam);
-					Term_addstr(-1, a_net_dam, buf);
+					strnfmt(buf, sizeof (buf), "  (%+d)", combat_rolls[round][i].att);
+				}
+				else
+				{
+					strnfmt(buf, sizeof (buf), " (%+d)", combat_rolls[round][i].att);
+				}
+				Term_addstr(-1, a_att, buf);
+				
+				strnfmt(buf, sizeof (buf), "%4d", combat_rolls[round][i].att + combat_rolls[round][i].att_roll);
+				Term_addstr(-1, a_att, buf);
+				
+				net_att =   combat_rolls[round][i].att_roll + combat_rolls[round][i].att
+				- combat_rolls[round][i].evn_roll - combat_rolls[round][i].evn;
+				if (net_att > 0)
+				{
+					strnfmt(buf, sizeof (buf), "%4d", net_att);
+					Term_addstr(-1, a_hit, buf);
 				}
 				else
 				{
 					Term_addstr(-1, TERM_SLATE, "   -");
 				}
 				
-				strnfmt(buf, sizeof (buf), "%4d", combat_rolls[i].prot);
-				Term_addstr(-1, a_prot_roll, buf);
-
-				// if monster is being hit, show protection dice
-				if ((combat_rolls[i].defender_char != r_info[0].d_char) || (combat_rolls[i].defender_attr != r_info[0].d_attr))
+				strnfmt(buf, sizeof (buf), "%4d", combat_rolls[round][i].evn + combat_rolls[round][i].evn_roll);
+				Term_addstr(-1, a_evn, buf);
+				
+				if (combat_rolls[round][i].evn < 10)
 				{
-					if ((combat_rolls[i].ps < 1) || (combat_rolls[i].pd < 1))
+					strnfmt(buf, sizeof (buf), "   [%+d]", combat_rolls[round][i].evn);
+				}
+				else
+				{
+					strnfmt(buf, sizeof (buf), "  [%+d]", combat_rolls[round][i].evn);
+				}
+				Term_addstr(-1, a_evn, buf);
+				
+				// add the defender char
+				Term_addch(TERM_WHITE, ' ');
+				Term_addch(combat_rolls[round][i].defender_attr, combat_rolls[round][i].defender_char);
+			}
+			else if (combat_rolls[round][i].att_type == COMBAT_ROLL_AUTO)
+			{
+				Term_addstr(-1, TERM_L_DARK, "                         ");
+				
+				// add the defender char
+				Term_addch(TERM_WHITE, ' ');
+				Term_addch(combat_rolls[round][i].defender_attr, combat_rolls[round][i].defender_char);
+			}
+			
+			// Now display the damage side of the roll
+			
+			if ((net_att > 0) || (combat_rolls[round][i].att_type == COMBAT_ROLL_AUTO))
+			{
+				Term_addstr(-1, TERM_L_DARK, "  ->");
+				
+				if (combat_rolls[round][i].ds < 10)
+				{
+					strnfmt(buf, sizeof (buf), "   (%dd%d)", combat_rolls[round][i].dd, combat_rolls[round][i].ds);
+				}
+				else
+				{
+					strnfmt(buf, sizeof (buf), "  (%dd%d)", combat_rolls[round][i].dd, combat_rolls[round][i].ds);
+				}
+				Term_addstr(-1, a_dam_roll, buf);
+				
+				strnfmt(buf, sizeof (buf), "%4d", combat_rolls[round][i].dam);
+				Term_addstr(-1, a_dam_roll, buf);
+				
+				if (combat_rolls[round][i].att_type == COMBAT_ROLL_ROLL)
+				{
+					net_dam =   combat_rolls[round][i].dam - combat_rolls[round][i].prot;
+					
+					if (net_dam > 0)
 					{
-						my_strcpy(buf, "        ", sizeof (buf));
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-					else if (combat_rolls[i].ps < 10)
-					{
-						strnfmt(buf, sizeof (buf), "   [%dd%d]", combat_rolls[i].pd, combat_rolls[i].ps);
-						Term_addstr(-1, a_prot_roll, buf);
+						strnfmt(buf, sizeof (buf), "%4d", net_dam);
+						Term_addstr(-1, a_net_dam, buf);
 					}
 					else
 					{
-						strnfmt(buf, sizeof (buf), "  [dd%d]", combat_rolls[i].pd, combat_rolls[i].ps);
-						Term_addstr(-1, a_prot_roll, buf);
+						Term_addstr(-1, TERM_SLATE, "   -");
 					}
-					if ((combat_rolls[i].prt_percent > 0) && (combat_rolls[i].prt_percent < 100))
-					{
-						strnfmt(buf, sizeof (buf), " (%d%%)", combat_rolls[i].prt_percent);
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-				}
-				
-				// if player is being hit, show protection *range*
-				else
-				{
-					strnfmt(buf, sizeof (buf), "  [%d-%d]", ((p_min(GF_HURT) + b_min) * combat_rolls[i].prt_percent) / 100,
-															((p_max(GF_HURT) + b_max) * combat_rolls[i].prt_percent) / 100);
+					
+					strnfmt(buf, sizeof (buf), "%4d", combat_rolls[round][i].prot);
 					Term_addstr(-1, a_prot_roll, buf);
-				}
-				
-			}
-			
-			// display attacks that don't use hit rolls
-			else
-			{
-				// shield etc protection and resistance
-				net_dam = (combat_rolls[i].dam - combat_rolls[i].prot) / res;
-				if (net_dam > 0)
-				{
-					strnfmt(buf, sizeof (buf), "%4d", net_dam);
-					Term_addstr(-1, a_net_dam, buf);
-				}
-				else
-				{
-					Term_addstr(-1, TERM_SLATE, "   -");
-				}
-				
-				strnfmt(buf, sizeof (buf), "%4d", combat_rolls[i].prot);
-				Term_addstr(-1, a_prot_roll, buf);
-				
-				// if monster is being hit, show protection dice
-				if ((combat_rolls[i].defender_char != r_info[0].d_char) || (combat_rolls[i].defender_attr != r_info[0].d_attr))
-				{
-					if ((combat_rolls[i].ps < 1) || (combat_rolls[i].pd < 1))
-					{
-						my_strcpy(buf, "        ", sizeof (buf));
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-					else if (combat_rolls[i].ps < 10)
-					{
-						strnfmt(buf, sizeof (buf), "   [%dd%d]", combat_rolls[i].pd, combat_rolls[i].ps);
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-					else
-					{
-						strnfmt(buf, sizeof (buf), "  [dd%d]", combat_rolls[i].pd, combat_rolls[i].ps);
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-					if ((combat_rolls[i].prt_percent > 0) && (combat_rolls[i].prt_percent < 100))
-					{
-						strnfmt(buf, sizeof (buf), " (%d%%)", combat_rolls[i].prt_percent);
-						Term_addstr(-1, a_prot_roll, buf);
-					}
-				}
 					
-				// if a player is being hit, show protection range etc
-				else
-				{
-					if (p_max(combat_rolls[i].dam_type) + b_max < 10)
+					// if monster is being hit, show protection dice
+					if ((combat_rolls[round][i].defender_char != r_info[0].d_char) || (combat_rolls[round][i].defender_attr != r_info[0].d_attr))
 					{
-						strnfmt(buf, sizeof (buf), "   [%d-%d]", p_min(combat_rolls[i].dam_type) + b_min, 
-								p_max(combat_rolls[i].dam_type) + b_max);
-						Term_addstr(-1, a_prot_roll, buf);
+						if ((combat_rolls[round][i].ps < 1) || (combat_rolls[round][i].pd < 1))
+						{
+							my_strcpy(buf, "        ", sizeof (buf));
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						else if (combat_rolls[round][i].ps < 10)
+						{
+							strnfmt(buf, sizeof (buf), "   [%dd%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						else
+						{
+							strnfmt(buf, sizeof (buf), "  [dd%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						if ((combat_rolls[round][i].prt_percent > 0) && (combat_rolls[round][i].prt_percent < 100))
+						{
+							strnfmt(buf, sizeof (buf), " (%d%%)", combat_rolls[round][i].prt_percent);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
 					}
+					
+					// if player is being hit, show protection *range*
 					else
 					{
-						strnfmt(buf, sizeof (buf), "  [%d-%d]", p_min(combat_rolls[i].dam_type) + b_min, 
-								p_max(combat_rolls[i].dam_type) + b_max);
+						strnfmt(buf, sizeof (buf), "  [%d-%d]", ((p_min(GF_HURT) + b_min) * combat_rolls[round][i].prt_percent) / 100,
+								((p_max(GF_HURT) + b_max) * combat_rolls[round][i].prt_percent) / 100);
 						Term_addstr(-1, a_prot_roll, buf);
 					}
 					
-					if (res > 1)
-					{
-						strnfmt(buf, sizeof (buf), " then /%d", res);
-						Term_addstr(-1, TERM_L_BLUE, buf);
-					}
-					/*
-					 // no protection, only resistance
-					 else
-					 {
-					 net_dam = combat_rolls[i].dam / res;
-					 strnfmt(buf, sizeof (buf), "%4d", net_dam);
-					 Term_addstr(-1, a_net_dam, buf);
-					 
-					 if (res > 1)
-					 {
-					 strnfmt(buf, sizeof (buf), "  /%d", res);
-					 Term_addstr(-1, TERM_L_BLUE, buf);
-					 }
-					 }
-					 */
 				}
-			}
+				
+				// display attacks that don't use hit rolls
+				else if (combat_rolls[round][i].att_type == COMBAT_ROLL_AUTO)
+				{
+					// shield etc protection and resistance
+					net_dam = (combat_rolls[round][i].dam - combat_rolls[round][i].prot) / res;
+					if (net_dam > 0)
+					{
+						strnfmt(buf, sizeof (buf), "%4d", net_dam);
+						Term_addstr(-1, a_net_dam, buf);
+					}
+					else
+					{
+						Term_addstr(-1, TERM_SLATE, "   -");
+					}
+					
+					strnfmt(buf, sizeof (buf), "%4d", combat_rolls[round][i].prot);
+					Term_addstr(-1, a_prot_roll, buf);
+					
+					// if monster is being hit, show protection dice
+					if ((combat_rolls[round][i].defender_char != r_info[0].d_char) || (combat_rolls[round][i].defender_attr != r_info[0].d_attr))
+					{
+						if ((combat_rolls[round][i].ps < 1) || (combat_rolls[round][i].pd < 1))
+						{
+							my_strcpy(buf, "        ", sizeof (buf));
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						else if (combat_rolls[round][i].ps < 10)
+						{
+							strnfmt(buf, sizeof (buf), "   [%dd%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						else
+						{
+							strnfmt(buf, sizeof (buf), "  [dd%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						if ((combat_rolls[round][i].prt_percent > 0) && (combat_rolls[round][i].prt_percent < 100))
+						{
+							strnfmt(buf, sizeof (buf), " (%d%%)", combat_rolls[round][i].prt_percent);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+					}
+					
+					// if a player is being hit, show protection range etc
+					else
+					{
+						if (p_max(combat_rolls[round][i].dam_type) + b_max < 10)
+						{
+							strnfmt(buf, sizeof (buf), "   [%d-%d]", p_min(combat_rolls[round][i].dam_type) + b_min, 
+									p_max(combat_rolls[round][i].dam_type) + b_max);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						else
+						{
+							strnfmt(buf, sizeof (buf), "  [%d-%d]", p_min(combat_rolls[round][i].dam_type) + b_min, 
+									p_max(combat_rolls[round][i].dam_type) + b_max);
+							Term_addstr(-1, a_prot_roll, buf);
+						}
+						
+						if (res > 1)
+						{
+							strnfmt(buf, sizeof (buf), " then /%d", res);
+							Term_addstr(-1, TERM_L_BLUE, buf);
+						}
+						/*
+						 // no protection, only resistance
+						 else
+						 {
+						 net_dam = combat_rolls[round][i].dam / res;
+						 strnfmt(buf, sizeof (buf), "%4d", net_dam);
+						 Term_addstr(-1, a_net_dam, buf);
+						 
+						 if (res > 1)
+						 {
+						 strnfmt(buf, sizeof (buf), "  /%d", res);
+						 Term_addstr(-1, TERM_L_BLUE, buf);
+						 }
+						 }
+						 */
+					}
+				}
+			}	
 		}
-		
 	}
+		
+	
 
 }
 

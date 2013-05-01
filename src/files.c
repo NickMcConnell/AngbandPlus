@@ -3113,6 +3113,13 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
+	// clear the cheat flags
+	//if (p_ptr->noscore)
+	//{
+	//	msg_print("Removed the mark saying you have used debug mode.");
+	//	p_ptr->noscore = 0x0000;
+	//}
+
 	/* Disturb the player */
 	disturb(1, 0);
 

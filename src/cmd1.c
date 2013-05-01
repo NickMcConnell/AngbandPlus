@@ -49,8 +49,8 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 	else
 	{
 		// sometimes intelligent monsters want to pick a staircase and leave the level
-		if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags2 & (RF2_TERRITORIAL))
-		    && one_in_(5) && random_stair_location(&y, &x) && (cave_m_idx[y][x] >= 0) && !(cave_info[y][x] & (CAVE_ICKY)))
+		if ((r_ptr->flags2 & (RF2_SMART)) && !(r_ptr->flags2 & (RF2_TERRITORIAL)) && (p_ptr->depth != MORGOTH_DEPTH) &&
+		    one_in_(5) && random_stair_location(&y, &x) && (cave_m_idx[y][x] >= 0) && !(cave_info[y][x] & (CAVE_ICKY)))
 		{
 			// update the flow
 			update_noise(y, x, wandering_idx);
@@ -2124,7 +2124,7 @@ void search_square(int y, int x, int dist, int searching)
 		if (dist == 2)										difficulty +=  5;   // distance 2
 		if (dist == 3)										difficulty += 10;   // distance 3
 		if (dist == 4)										difficulty += 15;   // distance 4
-		if cave_trap_bold(y,x)								difficulty += 10;   // dungeon trap
+		if cave_trap_bold(y,x)								difficulty +=  5;   // dungeon trap
 		if (cave_feat[y][x] == FEAT_SECRET)					difficulty += 10;   // secret door
 		if (chest_trap_present)								difficulty += 15;   // chest trap
 		//if (cave_info[y][x] & (CAVE_ICKY))				difficulty +=  2;   // inside least/lesser/greater vaults
@@ -3603,14 +3603,26 @@ void py_attack_aux(int y, int x, int attack_type)
 					}
 				}
 
-				// Morgoth drops his iron crown if he is hit for 25 or more raw damage
-				if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && (dam >= 25))
+				// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
+				if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
 				{
-					drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+					if (net_dam >= 10)
+					{
+						if (p_ptr->morgoth_hits == 0)
+						{
+							msg_print("The force of your blow knocks the Iron Crown off balance.");
+							p_ptr->morgoth_hits++;
+						}
+						else if (p_ptr->morgoth_hits == 1)
+						{
+							drop_iron_crown(m_ptr, "You knock his crown from off his brow, and it falls to the ground nearby.");
+							p_ptr->morgoth_hits++;
+						}
+					}
 				}
 								
 				// Deal with cruel blow ability
-				if (p_ptr->active_ability[S_STL][STL_CRUEL_BLOW] && (crit_bonus_dice >= 3) && (net_dam > 0))
+				if (p_ptr->active_ability[S_STL][STL_CRUEL_BLOW] && (crit_bonus_dice >= 3) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
 				{
 					msg_format("%^s reels in pain!", m_name);
 

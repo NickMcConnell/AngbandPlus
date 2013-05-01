@@ -844,8 +844,11 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->stealth_mode);
 	rd_byte(&p_ptr->self_made_arts);
 
-	// 8 spare bytes
-	strip_bytes(8);
+	rd_byte(&p_ptr->morgoth_hits); // Sil-x: move this a bit further down at the next savefile-compatibility break
+
+	// 7 spare bytes
+	strip_bytes(7);
+
 		
 	/* Read item-quality squelch sub-menu */
  	for (i = 0; i < SQUELCH_BYTES; i++) rd_byte(&squelch_level[i]);
@@ -2027,7 +2030,7 @@ bool load_player(void)
 		/* Player is dead */
 		if (p_ptr->is_dead)
 		{
-			/*note, add or_true to the arg wixard if statement to resurrect character*/
+			/*note, add or_true to the arg wizard if statement to resurrect character*/
 			/* Cheat death (unless the character retired) */
 			if (arg_wizard)
 			{
@@ -2053,6 +2056,9 @@ bool load_player(void)
 			/* Forget turns */
 			turn = 0;
 			playerturn = 0;
+
+			/* A dead character was loaded */
+			character_loaded_dead = TRUE;////
 
 			/* Done */
 			return (TRUE);

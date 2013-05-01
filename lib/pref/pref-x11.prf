@@ -374,91 +374,87 @@ P:^_S_FF9A\r
 P:\[Shift-mod2-KP_Page_Up]
 P:\[Shift-KP_9]
 
+
 ###########################
 #
-# Option-Keypad -- Directed firing of the last available arrow type
+# Option-Numkeys -- Directed firing from the 1st quiver
 # 
 # 789
 # 4 6  - these fire in the specified direction
 # 123
 #
-#  5   - picks the closest monster and fires at it
-#
-#  0   - fires at the existing target
+# 5/0   - picks the target or closest monster and fires at it
 
-A:\a\\f]5
+A:\a\\ff
 P:\[alt-KP_Insert]
 
-A:\a\\f]1
+A:\a\\f1
 P:\[alt-mod2-KP_1]
 P:\[alt-KP_End]
 
-A:\a\\f]2
+A:\a\\f2
 P:\[alt-Down]
 P:\[alt-mod2-Down]
 P:\[alt-mod2-KP_2]
 P:\[alt-KP_Down]
 
-A:\a\\f]3
+A:\a\\f3
 P:\[alt-mod2-KP_3]
 P:\[alt-KP_Page_Down]
 
-A:\a\\f]4
+A:\a\\f4
 P:\[alt-Left]
 P:\[alt-mod2-Left]
 P:\[alt-mod2-KP_4]
 P:\[alt-KP_Left]
 
-A:\a\\f]*t
+A:\a\\ff
 P:\[alt-mod2-KP_5]
 P:\[alt-KP_Begin]
 
-A:\a\\f]6
+A:\a\\f6
 P:\[alt-Right]
 P:\[alt-mod2-Right]
 P:\[alt-mod2-KP_6]
 P:\[alt-KP_Right]
 
-A:\a\\f]7
+A:\a\\f7
 P:\[alt-mod2-KP_7]
 P:\[alt-KP_Home]
 
-A:\a\\f]8
+A:\a\\f8
 P:\[alt-Up]
 P:\[alt-mod2-Up]
 P:\[alt-mod2-KP_8]
 P:\[alt-KP_Up]
 
-A:\a\\f]9
+A:\a\\f9
 P:\[alt-mod2-KP_9]
 P:\[alt-KP_Page_Up]
 
+
 ###########################
 #
-# Control-Keypad -- Directed firing of the first available arrow type
+# Control-Keypad -- Interact with terrain in chosen direction
 # 
 # 789
-# 4 6  - these fire in the specified direction
+# 456
 # 123
-#
-#  5   - picks the closest monster and fires at it
-#
-#  0   - fires at the existing target
 
-A:\a\\f[5
+A:\a\\/5
 P:^_N_FFB0\r
 P:^_N_FF63\r
 P:^_N_????\r
 P:\[control-KP_Insert]
 
-A:\a\\f[1
+A:\a\\/1
 P:^_N_FFB1\r
 P:^_N_FF57\r
 P:^_N_FFDE\r
 P:\[control-mod2-KP_1]
 P:\[control-KP_End]
 
-A:\a\\f[2
+A:\a\\/2
 P:^_N_FFB2\r
 P:^_N_FFDF\r
 P:\[control-Down]
@@ -466,14 +462,14 @@ P:\[control-mod2-Down]
 P:\[control-mod2-KP_2]
 P:\[control-KP_Down]
 
-A:\a\\f[3
+A:\a\\/3
 P:^_N_FFB3\r
 P:^_N_FF56\r
 P:^_N_FFE0\r
 P:\[control-mod2-KP_3]
 P:\[control-KP_Page_Down]
 
-A:\a\\f[4
+A:\a\\/4
 P:^_N_FFB4\r
 P:^_N_FFDB\r
 P:\[control-Left]
@@ -481,14 +477,14 @@ P:\[control-mod2-Left]
 P:\[control-mod2-KP_4]
 P:\[control-KP_Left]
 
-A:\a\\f[*t
+A:\a\\/5
 P:^_N_FFB5\r
 P:^_N_FF80\r
 P:^_N_FFDC\r
 P:\[control-mod2-KP_5]
 P:\[control-KP_Begin]
 
-A:\a\\f[6
+A:\a\\/6
 P:^_N_FFB6\r
 P:^_N_FFDD\r
 P:\[control-Right]
@@ -496,14 +492,14 @@ P:\[control-mod2-Right]
 P:\[control-mod2-KP_6]
 P:\[control-KP_Right]
 
-A:\a\\f[7
+A:\a\\/7
 P:^_N_FFB7\r
 P:^_N_FF50\r
 P:^_N_FFD8\r
 P:\[control-mod2-KP_7]
 P:\[control-KP_Home]
 
-A:\a\\f[8
+A:\a\\/8
 P:^_N_FFB8\r
 P:^_N_FFD9\r
 P:\[control-Up]
@@ -511,7 +507,7 @@ P:\[control-mod2-Up]
 P:\[control-mod2-KP_8]
 P:\[control-KP_Up]
 
-A:\a\\f[9
+A:\a\\/9
 P:^_N_FFB9\r
 P:^_N_FF55\r
 P:^_N_FFDA\r
