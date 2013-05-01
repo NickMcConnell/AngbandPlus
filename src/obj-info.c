@@ -168,7 +168,6 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_SNG))     descs[cnt++] = "song";
 	if (f1 & (TR1_TUNNEL))  descs[cnt++] = "tunneling";
 	if (f1 & (TR1_DAMAGE_SIDES))  descs[cnt++] = "damage sides";
-	if (f1 & (TR1_DAMAGE_DICE))  descs[cnt++] = "melee damage dice";
 
 	/* Skip */
 	if (!cnt) return (FALSE);
@@ -328,6 +327,29 @@ static bool describe_resist(const object_type *o_ptr, u32b f2)
 	return (vn ? TRUE : FALSE);
 }
 
+/*
+ * Describe resistances granted by an object.
+ */
+static bool describe_vulnerability(const object_type *o_ptr, u32b f2)
+{
+	cptr vp[17];
+	int vn = 0;
+	
+	/* Unused parameter */
+	(void)o_ptr;
+	
+	/* Collect vaulnerabilities */
+	if (f2 & (TR2_VUL_COLD))	vp[vn++] = "cold";
+	if (f2 & (TR2_VUL_FIRE))	vp[vn++] = "fire";
+	if (f2 & (TR2_VUL_POIS))	vp[vn++] = "poison";
+		
+	/* Describe resistances */
+	output_desc_list("It makes you more vulnerable to ", vp, vn);
+	
+	/* We are done here */
+	return (vn ? TRUE : FALSE);
+}
+
 
 /*
  * Describe the 'handedness' of a weapon
@@ -459,15 +481,16 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	gc = 0;
 	if (f2 & (TR2_SPEED))     good[gc++] = "great speed";
 	if (f2 & (TR2_FREE_ACT))  good[gc++] = "freedom of movement";
-	if (f2 & (TR2_TELEPATHY)) good[gc++] = "the power of telepathy";
 	if (f2 & (TR2_SEE_INVIS)) good[gc++] = "the ability to see invisible creatures";
 
 	/* Collect penalties */
+	if (f2 & (TR2_DANGER))	   bad[bc++] = "makes you encounter more dangerous creatures (even when not worn)";
+	if (f2 & (TR2_FEAR))	   bad[bc++] = "causes you to panic in combat";
 	if (f2 & (TR2_HUNGER))	   bad[bc++] = "increases your hunger";
 	if (f2 & (TR2_DARKNESS))   bad[bc++] = "creates an unnatural darkness";
 	if (f2 & (TR2_SLOWNESS))   bad[bc++] = "slows your movement";
 	if (f2 & (TR2_AGGRAVATE))  bad[bc++] = "enrages nearby creatures";
-	if (f2 & (TR2_DANGER))	   bad[bc++] = "draws powerful creatures to your level (even when not worn)";
+	if (f2 & (TR2_HAUNTED))	   bad[bc++] = "draws wraiths to your level";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))
@@ -757,6 +780,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_brand(o_ptr, f1))						something = TRUE;
 	if (describe_misc_weapon_attributes(o_ptr, f1))		something = TRUE;
 	if (describe_resist(o_ptr, f2))						something = TRUE;
+	if (describe_vulnerability(o_ptr, f2))				something = TRUE;
 	if (describe_sustains(o_ptr, f2))					something = TRUE;
 	if (describe_misc_magic(o_ptr, f2, f3))				something = TRUE;
 	if (describe_activation(o_ptr, f3))					something = TRUE;

@@ -474,6 +474,8 @@ struct vault_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
+
+	byte forge;			/* Is there a forge in it? */
 };
 
 
@@ -858,7 +860,7 @@ struct player_type
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
-	s16b paralyzed;		/* Timed -- Paralysis */
+	s16b entranced;		/* Timed -- Entrancement */
 	s16b confused;		/* Timed -- Confusion */
 	s16b afraid;		/* Timed -- Fear */
 	s16b image;			/* Timed -- Hallucination */
@@ -874,11 +876,9 @@ struct player_type
 	s16b tmp_gra;		/* Timed -- Grace */
 	s16b tim_invis;		/* Timed -- See Invisible */
 
-	s16b oppose_elec;	/* Timed -- oppose lightning */
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
-
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -888,6 +888,9 @@ struct player_type
 
 	u16b stairs_taken;	/* The number of times stairs have been used */
 	u16b staircasiness;	/* Gets higher when stairs are taken and slowly decays */
+
+	u16b forge_drought;	/* The number of turns since the last forge was generated */
+	u16b forge_count;	/* The number of forges that have been generated */
 
 	byte stealth_mode;	/* Stealth mode */
 
@@ -928,6 +931,8 @@ struct player_type
 	/*** Temporary fields ***/
 	
 	byte ripostes;			// number of ripostes since your last turn (should have a max of one)
+
+	byte was_entranced;		// stores whether you have just woken up from entrancement
 
 	byte have_ability[S_MAX][ABILITIES_MAX];	/* Whether or not you have each ability (including from items) */
 
@@ -1000,6 +1005,8 @@ struct player_type
 	s16b stat_use[A_MAX];	/* Current modified stats --  includes equipment and temporary mods */
 	s16b skill_use[S_MAX];	/* Current modified skills -- includes all mods */
 
+	bool force_forge;		/* Force the generation of a forge on this level */
+
 	/*** Extracted fields ***/
 
 	s16b stat_equip_mod[A_MAX];		/* Equipment stat bonuses */
@@ -1011,7 +1018,6 @@ struct player_type
 
 	int resist_cold;	/* Resist cold */
 	int resist_fire;	/* Resist fire */
-	int resist_elec;	/* Resist lightning */
 	int resist_pois;	/* Resist poison */
 
 	bool resist_fear;	/* Resist fear */
@@ -1032,6 +1038,8 @@ struct player_type
 
 	s16b danger;		/* Dangerous monster creation */
 	s16b aggravate;		/* Aggravate monsters */
+	s16b cowardice;		/* Occasionally become afraid on taking damage */
+	s16b haunted;		/* Occasionally attract wraiths to your level */
 
 	s16b to_mdd;		/* Bonus to melee damage dice */
 	s16b mdd;			/* Total melee damage dice */
@@ -1129,6 +1137,7 @@ struct combat_roll
 	int prot;				/* The total protection rolled */
 
 	int prt_percent;		/* The percentage of protection that is effective (eg 100 normally) */
+	bool melee;				/* Was it a melee attack? (used for working out if blocking is effective) */
 };
 
 struct flavor_type

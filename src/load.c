@@ -816,10 +816,12 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->song_duration);
 	rd_s16b(&p_ptr->wrath);
 	rd_s16b(&p_ptr->blind);
-	rd_s16b(&p_ptr->paralyzed);
+	rd_s16b(&p_ptr->entranced);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
 	rd_u16b(&p_ptr->stairs_taken);
+	rd_u16b(&p_ptr->forge_drought);
+	rd_u16b(&p_ptr->forge_count);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -838,16 +840,13 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->darkened);
 	rd_s16b(&p_ptr->oppose_fire);
 	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
 
 	rd_byte(&p_ptr->stealth_mode);
 	rd_byte(&p_ptr->self_made_arts);
 
-	rd_byte(&p_ptr->morgoth_hits); // Sil-x: move this a bit further down at the next savefile-compatibility break
-
-	// 7 spare bytes
-	strip_bytes(7);
+	// 20 spare bytes
+	strip_bytes(20);
 
 		
 	/* Read item-quality squelch sub-menu */
@@ -918,6 +917,7 @@ static errr rd_extra(void)
 	/* Special stuff */
 	rd_u16b(&p_ptr->panic_save);
 	rd_byte(&p_ptr->truce);
+	rd_byte(&p_ptr->morgoth_hits);
 	rd_byte(&p_ptr->crown_hint);
 	rd_byte(&p_ptr->crown_shatter);
 	rd_byte(&p_ptr->cursed);
@@ -1082,43 +1082,25 @@ static bool rd_notes(void)
 {
 	int alive = (!p_ptr->is_dead || arg_wizard);
 	char tmpstr[100];
+	int i;
+
+	// reset the notes buffer
+	for (i = 0; i < NOTES_LENGTH; i++)
+	{
+		notes_buffer[i] = '\0';
+	}
 
 	if (alive)
 	{
-		/* Create the tempfile (notes_file & notes_fname are global) */
-		notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
-
-		// if the file was created...
-		if (notes_file)
+		/* Append the notes in the savefile to the buffer */
+		while (TRUE)
 		{
-			/* Append the notes in the savefile to the tempfile*/
-			while (TRUE)
-			{
-				
-				rd_string(tmpstr, sizeof(tmpstr));
-				/* Found the end? */
-				if (strstr(tmpstr, NOTES_MARK))
-					break;
-				fprintf(notes_file, "%s\n", tmpstr);
-			}
+			rd_string(tmpstr, sizeof(tmpstr));
+			/* Found the end? */
+			if (strstr(tmpstr, NOTES_MARK))
+				break;
+			my_strcat(notes_buffer, format("%s\n", tmpstr), sizeof(notes_buffer));
 		}
-		// if not...
-		else
-		{
-			// strip out the notes
-			while (TRUE)
-			{
-				rd_string(tmpstr, sizeof(tmpstr));
-				
-				/* Found the end? */
-				if (strstr(tmpstr, NOTES_MARK))
-				{
-					break;
-				}
-			}
-		}
-
-
 	}
 	/* Ignore the notes */
 	else
@@ -1839,11 +1821,12 @@ bool load_player(void)
 	if (fd < 0)
 	{
 		/* Give a message */
-		msg_print("Savefile does not exist.");
+		msg_format("Savefile \"%s\" does not exist.", savefile);
 		message_flush();
 
 		/* Allow this */
-		return (TRUE);
+		p_ptr->restoring = FALSE;
+		return (FALSE);////
 	}
 
 	/* Close the file */
@@ -2027,10 +2010,19 @@ bool load_player(void)
 			message_flush();
 		}
 
+		// if Morgoth has lost his crown...
+		if ((&a_info[ART_MORGOTH_3])->cur_num == 1)
+		{
+			// lower Morgoth's protection, remove his light source, increase his will and perception
+			(&r_info[R_IDX_MORGOTH])->pd -= 1;
+			(&r_info[R_IDX_MORGOTH])->light = 0;
+			(&r_info[R_IDX_MORGOTH])->wil += 5;
+			(&r_info[R_IDX_MORGOTH])->per += 5;
+		}
+			
 		/* Player is dead */
 		if (p_ptr->is_dead)
 		{
-			/*note, add or_true to the arg wizard if statement to resurrect character*/
 			/* Cheat death (unless the character retired) */
 			if (arg_wizard)
 			{
@@ -2042,6 +2034,12 @@ bool load_player(void)
 
 				/* A character was loaded */
 				character_loaded = TRUE;
+
+				// put the character somewhere sensible
+				p_ptr->depth = min_depth();
+
+				// Mark savefile
+				p_ptr->noscore |= 0x0001;
 
 				/* Done */
 				return (TRUE);

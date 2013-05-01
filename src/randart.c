@@ -612,7 +612,7 @@ static long eval_max_dam(int r_idx)
 				case RBE_DARK:
 				case RBE_BLIND:
 				case RBE_CONFUSE:
-				case RBE_PARALYZE:
+				case RBE_ENTRANCE:
 				case RBE_DISEASE:
 				case RBE_LOSE_STR:
 				case RBE_LOSE_DEX:
@@ -1226,7 +1226,6 @@ s32b artefact_power(int a_idx)
 		if (a_ptr->flags2 & TR2_RADIANCE) 		{p += 3;	abilities++;}
 		if (a_ptr->flags2 & TR2_LIGHT) 			{p += 3;	abilities++;}
 		if (a_ptr->flags2 & TR2_REGEN) 			{p += 4;	abilities++;}
-		if (a_ptr->flags2 & TR2_TELEPATHY) 		{p += 8;	abilities++;}
 		if (a_ptr->flags2 & TR2_SEE_INVIS) 		{p += 5;	abilities++;}
 		if (a_ptr->flags2 & TR2_FREE_ACT) 		{p += 7;	abilities++;}
 		if (a_ptr->flags2 & TR2_SPEED)			{p += 12;	abilities++;}
@@ -1427,7 +1426,7 @@ static bool add_ability(artefact_type *a_ptr)
 	if (abil_freq_total == 0) return FALSE;
 
 	/* Generate a random number between 1 and current ability total */
-	abil_selector = randint(abil_freq_total);
+	abil_selector = dieroll(abil_freq_total);
 
 	flag = OBJECT_XTRA_BASE_POWER;
 
@@ -1499,7 +1498,7 @@ static bool add_sustain(artefact_type *a_ptr)
 	if (stat_freq_total == 0) return FALSE;
 
 	/* Generate a random number between 1 and current stat total */
-	stat_selector = randint(stat_freq_total);
+	stat_selector = dieroll(stat_freq_total);
 
 	sust_flag = OBJECT_XTRA_BASE_STAT_ADD;
 
@@ -1550,7 +1549,7 @@ static bool add_stat(artefact_type *a_ptr)
 	if (stat_freq_total == 0) return (FALSE);
 
 	/* Generate a random number between 1 and current stat total */
-	stat_selector = randint(stat_freq_total);
+	stat_selector = dieroll(stat_freq_total);
 
 	flag_stat_add = OBJECT_XTRA_BASE_STAT_ADD;
 	flag_sustain = OBJECT_XTRA_BASE_SUSTAIN;
@@ -1620,7 +1619,7 @@ static bool add_one_resist(artefact_type *a_ptr, u32b avail_flags)
 	if (number_of_flags == 0) return (FALSE);
 
 	/*select a flag*/
-	counter = randint(number_of_flags);
+	counter = dieroll(number_of_flags);
 
 	/*re-set some things*/
 	number_of_flags = 0;
@@ -1739,7 +1738,7 @@ static bool add_slay(artefact_type *a_ptr)
 	if (slay_freq_total == 0) return (FALSE);
 
 	/* Generate a random number between 1 and current stat total */
-	slay_selector = randint(slay_freq_total);
+	slay_selector = dieroll(slay_freq_total);
 
 	flag_slay_add = OBJECT_XTRA_BASE_SLAY;
 
@@ -1815,7 +1814,7 @@ static void add_att(artefact_type *a_ptr, int fixed, int random)
 	else if (a_ptr->att > 15)
 	{
 		/* Weakly inhibit */
-		if (one_in_(INHIBIT_WEAK))	a_ptr->att +=randint(2);
+		if (one_in_(INHIBIT_WEAK))	a_ptr->att +=dieroll(2);
 		return;
 	}
 	else if (a_ptr->att > 5)
@@ -2102,7 +2101,7 @@ static byte get_theme(void)
 	}
 
 	/* Generate a random number between 1 and current frequency total */
-	theme_selector = randint(theme_freq_total);
+	theme_selector = dieroll(theme_freq_total);
 
 	/* Find the entry in the table that this number represents. */
 
@@ -2220,7 +2219,7 @@ static int choose_power_type (void)
 	}
 
 	/* Generate a random number between 1 and current frequency total */
-	cat_selector = randint(art_freq_total);
+	cat_selector = dieroll(art_freq_total);
 
 	/* Find the entry in the table that this number represents. */
 	counter = 0;
@@ -2252,7 +2251,7 @@ static void add_feature_aux(artefact_type *a_ptr, int choice)
 		case CAT_STATS:
 		{
 			/*add a stat, or if all stats are taken and sustained, don't try again*/
-			byte choice = randint(((a_ptr->level > 30) ? 30 : a_ptr->level));
+			byte choice = dieroll(((a_ptr->level > 30) ? 30 : a_ptr->level));
 
 			/*2/3 of the time, try to add a stat, except at low levels*/
 			if (choice <=10)
@@ -2309,7 +2308,7 @@ static void add_feature_aux(artefact_type *a_ptr, int choice)
 			while (one_in_(10)) highest += 3;
 
 			/*make the selection*/
-			choice = randint(highest);
+			choice = dieroll(highest);
 
 			/*add resists, the power of which depends on artefact depth*/
 			if (choice <= 18)

@@ -94,7 +94,7 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 
 	// many monsters don't get wandering destinations:
 	if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (r_ptr->flags1 & (RF1_HIDDEN_MOVE)) 
-	    || !((r_ptr->flags2 & (RF2_SMART)) || (r_ptr->flags4 & (RF4_SHRIEK))))
+		|| !((r_ptr->flags2 & (RF2_SMART)) || (r_ptr->flags4 & (RF4_SHRIEK))))
 	{
 		return;
 	}
@@ -179,8 +179,8 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 		// choose a nearby location, but not his own square
 		for (i = 0; i < 1000; i++)
 		{
-			near_y = m_ptr->fy - 1 + rand_int(3);
-			near_x = m_ptr->fx - 1 + rand_int(3);
+			near_y = m_ptr->fy + rand_range(-1,1);
+			near_x = m_ptr->fx + rand_range(-1,1);
 			
 			if (((near_y != m_ptr->fy) || (near_x != m_ptr->fx)) && cave_floor_bold(near_y, near_x)) break;					
 		}
@@ -188,10 +188,12 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 		// drop it there
 		create_chosen_artefact(ART_MORGOTH_3, near_y, near_x, TRUE);
 		
-		// change Morgoth into the uncrowned version
-		m_ptr->r_idx = R_IDX_MORGOTH_UNCROWNED;
-		(&r_info[R_IDX_MORGOTH_UNCROWNED])->cur_num++;
-		(&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights++;
+		// lower Morgoth's protection, remove his light source, increase his will and perception
+		(&r_info[R_IDX_MORGOTH])->pd -= 1;
+		(&r_info[R_IDX_MORGOTH])->light = 0;
+		(&r_info[R_IDX_MORGOTH])->wil += 5;
+		(&r_info[R_IDX_MORGOTH])->per += 5;
+
 	}
 }
 
@@ -207,6 +209,7 @@ void make_alert(monster_type *m_ptr)
 void set_alertness(monster_type *m_ptr, int alertness)
 {
 	char m_name[80];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	bool redisplay = FALSE;
 	
 	// Nothing to be done...
@@ -325,7 +328,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 				redisplay = TRUE;
 
 				// give the monster a new place to wander towards
-				new_wandering_flow(m_ptr, p_ptr->py, p_ptr->px);
+				if (!(r_ptr->flags2 & (RF2_TERRITORIAL))) new_wandering_flow(m_ptr, p_ptr->py, p_ptr->px);
 				
 			}
 		}
@@ -412,12 +415,12 @@ int skill_check(monster_type *m_ptr1, int skill, int difficulty, monster_type *m
 	if ((m_ptr2 == PLAYER) && (m_ptr1 != NULL)) difficulty += bane_bonus(m_ptr1);
 	
 	// the basic rolls
-	skill_total = randint(10) + skill;
-	difficulty_total = randint(10) + difficulty;
+	skill_total = dieroll(10) + skill;
+	difficulty_total = dieroll(10) + difficulty;
 
 	// alternate rolls for dealing with the curse
-	skill_total_alt = randint(10) + skill;
-	difficulty_total_alt = randint(10) + difficulty;
+	skill_total_alt = dieroll(10) + skill;
+	difficulty_total_alt = dieroll(10) + difficulty;
 	
 	// player curse?
 	if (p_ptr->cursed)
@@ -485,10 +488,10 @@ int hit_roll(int att, int evn, const monster_type *m_ptr1, const monster_type *m
 	}
 
 	// roll the dice...
-	attack_score = randint(20) + att;
-	attack_score_alt = randint(20) + att;
-	evasion_score = randint(20) + evn;
-	evasion_score_alt = randint(20) + evn;
+	attack_score = dieroll(20) + att;
+	attack_score_alt = dieroll(20) + att;
+	evasion_score = dieroll(20) + evn;
+	evasion_score_alt = dieroll(20) + evn;
 
 	// take the worst of two rolls for cursed players
 	if (p_ptr->cursed)
@@ -1034,24 +1037,6 @@ extern void ident_on_wield(object_type *o_ptr)
 			msg_print("You feel less forceful in melee.");
 		}
 	}
-	else if (f1 & (TR1_DAMAGE_DICE))
-	{
-		// can identify <+0> items if you already know the flavour
-		if ((k_info[o_ptr->k_idx].flavor) && object_aware_p(o_ptr))
-		{
-			notice = TRUE;
-		}
-		else if (o_ptr->pval > 0)
-		{
-			notice = TRUE;
-			msg_print("You are filled with wrath.");
-		}
-		else if (o_ptr->pval < 0)
-		{
-			notice = TRUE;
-			msg_print("You feel much less forceful in melee.");
-		}
-	}
 	else if ((f1 & (TR1_STR)) || (f1 & (TR1_NEG_STR)))
 	{
 		int bonus = (f1 & (TR1_STR)) ? o_ptr->pval : -(o_ptr->pval);
@@ -1394,6 +1379,21 @@ extern void ident_resist(u32b flag)
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s partly protects you from the poison.", o_short_name);
 			}
+			else if ((flag == TR2_RES_COLD) && (f2 & (TR2_VUL_COLD)) && ident_by_use_perception_check(5))
+			{
+				notice = TRUE;
+				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the chill.", o_short_name);
+			}
+			else if ((flag == TR2_RES_FIRE) && (f2 & (TR2_VUL_FIRE)) && ident_by_use_perception_check(5))
+			{
+				notice = TRUE;
+				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the flame.", o_short_name);
+			}
+			else if ((flag == TR2_RES_POIS) && (f2 & (TR2_VUL_POIS)) && ident_by_use_perception_check(5))
+			{
+				notice = TRUE;
+				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the poison.", o_short_name);
+			}
 			else if ((flag == TR2_RES_FEAR) && (f2 & (TR2_RES_FEAR)) && ident_by_use_perception_check(5))
 			{
 				notice = TRUE;
@@ -1557,7 +1557,7 @@ extern void ident_see_invisible(const monster_type *m_ptr)
 	char o_short_name[80];
 	
 	object_type *o_ptr;
-		
+	
 	/* Scan the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -1581,7 +1581,7 @@ extern void ident_see_invisible(const monster_type *m_ptr)
 		{
 			/* Get the monster name */
 			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
+			
 			/* Short, pre-identification object description */
 			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
 			
@@ -1593,6 +1593,114 @@ extern void ident_see_invisible(const monster_type *m_ptr)
 			
 			/* Print the messages */
 			msg_format("You notice that you can see %s very clearly.", m_name);
+			msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+			
+			return;
+		}		
+	}
+	
+	return;
+}
+
+extern void ident_haunted(void)
+{
+	u32b f1, f2, f3;
+	
+	int i;
+	
+	bool notice = FALSE;
+	
+	char o_full_name[80];
+	char o_short_name[80];
+	
+	object_type *o_ptr;
+	
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+		
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (!object_known_p(o_ptr))
+		{
+			if ((f2 & (TR2_HAUNTED)) && ident_by_use_perception_check(10))
+			{
+				notice = TRUE;
+			}
+		}
+		
+		if (notice)
+		{
+			/* Short, pre-identification object description */
+			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+			
+			/* identify the object */
+			ident(o_ptr);
+			
+			/* Full object description */
+			object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+			
+			/* Print the messages */
+			msg_print("You notice that wraiths are being drawn to you.");
+			msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+			
+			return;
+		}		
+	}
+	
+	return;
+}
+
+
+extern void ident_cowardice(void)
+{
+	u32b f1, f2, f3;
+	
+	int i;
+	
+	bool notice = FALSE;
+	
+	char o_full_name[80];
+	char o_short_name[80];
+	
+	object_type *o_ptr;
+		
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+		
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		if (!object_known_p(o_ptr))
+		{
+			if ((f2 & (TR2_FEAR)) && ident_by_use_perception_check(5))
+			{
+				notice = TRUE;
+			}
+		}
+		
+		if (notice)
+		{
+			/* Short, pre-identification object description */
+			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+			
+			/* identify the object */
+			ident(o_ptr);
+			
+			/* Full object description */
+			object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+			
+			/* Print the message */
 			msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
 			
 			return;
@@ -2537,7 +2645,6 @@ void hit_trap(int y, int x)
 
 	cptr name = "a trap";
 
-
 	/* Disturb the player */
 	disturb(0, 0);
 
@@ -2581,7 +2688,7 @@ void hit_trap(int y, int x)
 			dam = damroll(2, 4);
 
 			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(2, 4, dam, -1, -1, 0, 0, GF_HURT);
+			update_combat_rolls2(2, 4, dam, -1, -1, 0, 0, GF_HURT, FALSE);
 
 			/* Take the damage */
 			take_hit(dam, name);
@@ -2600,7 +2707,7 @@ void hit_trap(int y, int x)
 			dam = damroll(2, 4);
 
 			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(2, 4, dam, -1, -1, 0, 0, GF_HURT);
+			update_combat_rolls2(2, 4, dam, -1, -1, 0, 0, GF_HURT, FALSE);
 
 			/* Take the damage */
 			take_hit(dam, name);
@@ -2609,12 +2716,12 @@ void hit_trap(int y, int x)
 			dam = damroll(4, 5);
 
 			/* Protection */
-			prt = protection_roll(GF_HURT);
+			prt = protection_roll(GF_HURT, TRUE);
 			
 			net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
 			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(4, 5, dam, -1, -1, prt, 100, GF_HURT);
+			update_combat_rolls2(4, 5, dam, -1, -1, prt, 100, GF_HURT, TRUE);
 			
 			if (net_dam > 0)
 			{
@@ -2623,7 +2730,7 @@ void hit_trap(int y, int x)
 				/* Take the damage */
 				take_hit(net_dam, name);
 				
-				(void)set_cut(p_ptr->cut + randint(net_dam) + 1);
+				(void)set_cut(p_ptr->cut + dieroll(net_dam) + 1);
 			}
 			else
 			{				
@@ -2641,7 +2748,7 @@ void hit_trap(int y, int x)
 			if (check_hit(15, TRUE))
 			{
 				dam = damroll(1,15);
-				prt = protection_roll(GF_HURT);
+				prt = protection_roll(GF_HURT, FALSE);
 				
 				if (dam > prt)
 				{
@@ -2650,7 +2757,7 @@ void hit_trap(int y, int x)
 					// do a tiny amount of damage
 					take_hit(1, name);
 					
-					update_combat_rolls2(1, 15, prt+1, -1, -1, prt, 100, GF_HURT);
+					update_combat_rolls2(1, 15, prt+1, -1, -1, prt, 100, GF_HURT, FALSE);
 
 					(void)do_dec_stat(A_STR, NULL);
 				}
@@ -2658,7 +2765,7 @@ void hit_trap(int y, int x)
 				{
 					msg_print("A small dart hits you, but is deflected by your armour.");
 
-					update_combat_rolls2(1, 15, dam, -1, -1, prt, 100, GF_HURT);
+					update_combat_rolls2(1, 15, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 				}
 			}
 			else
@@ -2742,12 +2849,12 @@ void hit_trap(int y, int x)
 			dam = damroll(4, 4);
 			
 			/* Protection */
-			prt = protection_roll(GF_HURT);
+			prt = protection_roll(GF_HURT, FALSE);
 			
 			net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 			
 			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(4, 4, dam, -1, -1, prt, 100, GF_HURT);
+			update_combat_rolls2(4, 4, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 
 			acid_dam(net_dam, "an acid trap");
 
@@ -2787,7 +2894,7 @@ void hit_trap(int y, int x)
 				dam = damroll(1, 4);
 				
 				update_combat_rolls1b(NULL, PLAYER, TRUE);
-				update_combat_rolls2(1, 4, dam, -1, -1, 0, 0, GF_HURT);
+				update_combat_rolls2(1, 4, dam, -1, -1, 0, 0, GF_HURT, TRUE);
 				
 				take_hit(dam, name);
 				
@@ -2886,12 +2993,12 @@ void hit_trap(int y, int x)
 				dam = damroll(6, 8);
 
 				/* Protection */
-				prt = protection_roll(GF_HURT);
+				prt = protection_roll(GF_HURT, FALSE);
 				
 				net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
 				update_combat_rolls1b(NULL, PLAYER, TRUE);
-				update_combat_rolls2(6, 8, dam, -1, -1, prt, 100, GF_HURT);
+				update_combat_rolls2(6, 8, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 				
 				if (allow_player_stun(NULL))
 				{ 
@@ -2909,9 +3016,9 @@ void hit_trap(int y, int x)
 					dam = damroll(4, 8);
 					
 					/* Protection */
-					prt = protection_roll(GF_HURT);
+					prt = protection_roll(GF_HURT, FALSE);
 					
-					update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT);
+					update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 
 					net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
@@ -3085,15 +3192,14 @@ void display_hit(int y, int x, int net_dam, int dam_type)
  *  Determines the multiplier for charge attacks if any
  */
 
-int charging_modifier(int fy, int fx, int attack_type)
+bool valid_charge(int fy, int fx, int attack_type)
 {
-	int mod = 1;
 	int d, i;
 	
 	int deltay = fy - p_ptr->py;
 	int deltax = fx - p_ptr->px;
 	
-	if (p_ptr->active_ability[S_MEL][MEL_CHARGE] && 
+	if (p_ptr->active_ability[S_MEL][MEL_CHARGE] && (p_ptr->pspeed > 1) &&
 	    ((attack_type == ATT_MAIN) || (attack_type == ATT_FLANKING) || (attack_type == ATT_CONTROLLED_RETREAT)))
 	{ 
 		// try all three directions
@@ -3103,12 +3209,12 @@ int charging_modifier(int fy, int fx, int attack_type)
 						
 			if (p_ptr->previous_action[1] == d)
 			{
-				mod = 2;
+				return (TRUE);
 			}		
 		}
 	}
 	
-	return (mod);
+	return (FALSE);
 }
 
 
@@ -3251,7 +3357,6 @@ void py_attack_aux(int y, int x, int attack_type)
 	int prt_percent = 100;
 	int hits = 0;
 	int weapon_weight;
-	int charge_mod;
 	int total_dice;
 	int blows;
 	int mdd, mds;
@@ -3269,6 +3374,7 @@ void py_attack_aux(int y, int x, int attack_type)
 	bool big_hit = FALSE;
 	bool stun = FALSE;
 	bool knock = FALSE;
+	bool charge = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3360,27 +3466,12 @@ void py_attack_aux(int y, int x, int attack_type)
 
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	// multiply the damage sides with charging
-	charge_mod = charging_modifier(y, x, attack_type);
-
 	// determine the base for the attack_mod
 	attack_mod = p_ptr->skill_use[S_MEL];
-	
-	// reward melee attacks on sleeping monsters by characters with the asssassination ability
-	// (only when a main, flanking, or controlled retreat attack and not charging)
-	if (((attack_type == ATT_MAIN) || (attack_type == ATT_FLANKING) || (attack_type == ATT_CONTROLLED_RETREAT)) &&
-	    (charge_mod == 1))
-	{
-		stealth_bonus = stealth_melee_bonus(m_ptr);
-		attack_mod += stealth_bonus;
-	}
-	
-	/* Determine the monster's evasion after all modifiers */
-	total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 		
-	/* Mark the monster as attacked */
-	m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
-	
+	/* Monsters might notice */
+	player_attacked = TRUE;
+		
 	// Determine the number of attacks
 	blows = 1;
 	if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK])
@@ -3398,7 +3489,7 @@ void py_attack_aux(int y, int x, int attack_type)
 		blows = 1;
 		
 		// undo strength adjustment to the attack (if any)
-		mds = total_mds(o_ptr, FALSE);
+		mds = total_mds(o_ptr, 0);
 		
 		// undo the dexterity adjustment to the attack (if any)
 		if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK]) attack_mod += 3;
@@ -3421,11 +3512,44 @@ void py_attack_aux(int y, int x, int attack_type)
 			object_flags(o_ptr, &f1, &f2, &f3);
 		}
 
-		// Determine the player's attack score after all modifiers
-		total_attack_mod = total_player_attack(m_ptr, attack_mod);
+		// +3 Str/Dex on first blow when charging
+		if ((num == 1) && valid_charge(y, x, attack_type))
+		{
+			int str_adjustment = 3;
+			
+			if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK]) str_adjustment -= 3;
+			
+			charge = TRUE;
+			attack_mod += 3;
 
-		/* Monsters might notice */
-		player_attacked = TRUE;
+			// undo strength adjustment to the attack (if any)
+			mds = total_mds(o_ptr, str_adjustment);
+		}
+		
+		// undo the charge effects for later blows
+		else if (charge)
+		{
+			charge = FALSE;
+			attack_mod -= 3;
+			mds = p_ptr->mds;
+		}
+
+		// reward melee attacks on sleeping monsters by characters with the asssassination ability
+		// (only when a main, flanking, or controlled retreat attack, and not charging)
+		if (((attack_type == ATT_MAIN) || (attack_type == ATT_FLANKING) || (attack_type == ATT_CONTROLLED_RETREAT)) && !charge)
+		{
+			stealth_bonus = stealth_melee_bonus(m_ptr);
+		}
+		else
+		{
+			stealth_bonus = 0;
+		}
+
+		// Determine the player's attack score after all modifiers
+		total_attack_mod = total_player_attack(m_ptr, attack_mod + stealth_bonus);
+
+		// Determine the monster's evasion score after all modifiers
+		total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 				
 		/* Test for hit */
 		hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
@@ -3435,10 +3559,16 @@ void py_attack_aux(int y, int x, int attack_type)
 		{
 			hits++;
 
+			/* Mark the monster as attacked */
+			m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
+			
+			/* Mark the monster as charged */
+			if (charge) m_ptr->mflag |= (MFLAG_CHARGED);
+			
 			/* Calculate the damage */
 			crit_bonus_dice = crit_bonus(hit_result, weapon_weight, r_ptr, S_MEL, FALSE);
 			slay_bonus_dice = slay_bonus(o_ptr, m_ptr, &noticed_flag);
-			total_dice = ((mdd + slay_bonus_dice) * charge_mod) + crit_bonus_dice;
+			total_dice = mdd + slay_bonus_dice + crit_bonus_dice;
 			
 			dam = damroll(total_dice, mds);
 			prt = damroll(r_ptr->pd, r_ptr->ps);
@@ -3462,7 +3592,7 @@ void py_attack_aux(int y, int x, int attack_type)
 			else
 			{
 				/* Message */
-				if (charge_mod > 1)
+				if (charge)
 				{
 					message_format(MSG_HIT, m_ptr->r_idx, "You charge %s%s", m_name, punctuation);
 				}
@@ -3474,7 +3604,7 @@ void py_attack_aux(int y, int x, int attack_type)
 			}
 			
 			update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps, 
-			                     prt, prt_percent, GF_HURT); 
+			                     prt, prt_percent, GF_HURT, TRUE); 
 								 
 			if ((dam * weapon_weight >= 1000) && 
 			    (p_ptr->active_ability[S_MEL][MEL_STUN] || p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK]))
@@ -3492,6 +3622,7 @@ void py_attack_aux(int y, int x, int attack_type)
 			if (noticed_flag)
 			{
 				ident_weapon_by_use(o_ptr, m_ptr, noticed_flag);
+				noticed_flag = FALSE;
 			}
 						
 			/* Damage, check for death */
@@ -3550,6 +3681,9 @@ void py_attack_aux(int y, int x, int attack_type)
 						// first try to knock it straight back
 						if (cave_floor_bold(y + deltay, x + deltax))
 						{
+							// force the monster to  miss its next turn
+							m_ptr->skip_next_turn = TRUE;
+							
 							monster_swap(y, x, y + deltay, x + deltax);
 							knock = TRUE;
 						}
@@ -3571,6 +3705,9 @@ void py_attack_aux(int y, int x, int attack_type)
 								x2 = x + ddx[d];
 								if (cave_floor_bold(y2, x2))
 								{
+									// force the monster to  miss its next turn
+									m_ptr->skip_next_turn = TRUE;
+									
 									monster_swap(y, x, y2, x2);
 									knock = TRUE;
 									break;
@@ -3579,12 +3716,6 @@ void py_attack_aux(int y, int x, int attack_type)
 								// switch direction
 								mod *= -1;
 							}
-						}
-						
-						if (knock)
-						{
-							// Hack: set the skip_next_turn flag to make monster miss its next turn
-							m_ptr->skip_next_turn = TRUE;
 						}
 					}
 					
@@ -3604,7 +3735,7 @@ void py_attack_aux(int y, int x, int attack_type)
 				}
 
 				// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-				if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
+				if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 				{
 					if (net_dam >= 10)
 					{
@@ -3663,9 +3794,6 @@ void py_attack_aux(int y, int x, int attack_type)
 		
 		// stop attacking if you displace the creature
 		if (knock) break;
-		
-		// only get charging bonus on the first blow
-		charge_mod = 1;
 	}
 
 	// Warning about fighting with silly weapons
@@ -3785,21 +3913,25 @@ void flanking_or_retreat(int y, int x)
 		fy = p_ptr->target_row;
 		fx = p_ptr->target_col;
 		
-		if ((cave_m_idx[fy][fx] > 0) && !p_ptr->confused && !p_ptr->afraid)
+		if ((cave_m_idx[fy][fx] > 0) && !p_ptr->confused && !p_ptr->afraid && !p_ptr->truce)
 		{
 			m_ptr = &mon_list[cave_m_idx[fy][fx]];
 			
-			// try a flanking attack
-			if (flanking && m_ptr->ml && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
+			// base conditions for an attack
+			if (m_ptr->ml && (m_ptr->alertness >= ALERTNESS_ALERT))
 			{
-				py_attack(fy, fx, ATT_FLANKING);
-				return;
-			}
-			// try a controlled retreat attack
-			if (controlled_retreat && m_ptr->ml && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) > 1))
-			{
-				py_attack(fy, fx, ATT_CONTROLLED_RETREAT);
-				return;
+				// try a flanking attack
+				if (flanking && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
+				{
+					py_attack(fy, fx, ATT_FLANKING);
+					return;
+				}
+				// try a controlled retreat attack
+				if (controlled_retreat && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) > 1))
+				{
+					py_attack(fy, fx, ATT_CONTROLLED_RETREAT);
+					return;
+				}
 			}
 		}
 		
@@ -3815,21 +3947,25 @@ void flanking_or_retreat(int y, int x)
 			/* Check Bounds */
 			if (!in_bounds(fy, fx)) continue;
 			
-			if ((cave_m_idx[fy][fx] > 0) && !p_ptr->confused && !p_ptr->afraid)
+			if ((cave_m_idx[fy][fx] > 0) && !p_ptr->confused && !p_ptr->afraid && !p_ptr->truce)
 			{
 				m_ptr = &mon_list[cave_m_idx[fy][fx]];
 				
-				// try a flanking attack
-				if (flanking && m_ptr->ml && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
+				// base conditions for an attack
+				if (m_ptr->ml && (m_ptr->alertness >= ALERTNESS_ALERT))
 				{
-					py_attack(fy, fx, ATT_FLANKING);
-					return;
-				}
-				// try a controlled retreat attack
-				if (controlled_retreat && m_ptr->ml && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) > 1))
-				{
-					py_attack(fy, fx, ATT_CONTROLLED_RETREAT);
-					return;
+					// try a flanking attack
+					if (flanking && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
+					{
+						py_attack(fy, fx, ATT_FLANKING);
+						return;
+					}
+					// try a controlled retreat attack
+					if (controlled_retreat && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) > 1))
+					{
+						py_attack(fy, fx, ATT_CONTROLLED_RETREAT);
+						return;
+					}
 				}
 			}
 		}
@@ -4072,29 +4208,19 @@ void move_player(int dir, int jumping)
 			lite_spot(y, x);
 		}
 		
-		/* Discover hidden traps */
-		if (cave_trap_bold(y,x) && (cave_info[y][x] & (CAVE_HIDDEN)))
+		/* Set off traps */
+		if (cave_trap_bold(y,x))
 		{
-			/* Reveal the trap */
-			reveal_trap(y, x);
+			// If it is hidden
+			if (cave_info[y][x] & (CAVE_HIDDEN))
+			{
+				/* Reveal the trap */
+				reveal_trap(y, x);
+			}
 			
-			/* Disturb */
-			disturb(0, 0);
-
 			/* Hit the trap */
 			hit_trap(y, x);
 		}
-
-		/* Set off an visible trap */
-		else if (cave_trap_bold(y,x))
-		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Hit the trap */
-			hit_trap(y, x);
-		}
-		
 		
 		// read any notes the player stumbles upon
 		if ((cave_o_idx[p_ptr->py][p_ptr->px] != 0))

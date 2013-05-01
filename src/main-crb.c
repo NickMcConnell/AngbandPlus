@@ -1200,7 +1200,7 @@ static void update_colour_info(void)
 static void term_data_color(term_data *td, int a)
 {
 	/* Activate the color */
-	if ((td->last != a) || (a > MAX_COLORS))
+	if ((td->last != a) || (a >= MAX_COLORS))
 	{
 		/* Activate the color */
 		RGBForeColor(&color_info[a % MAX_COLORS]);
@@ -2783,6 +2783,7 @@ static errr Term_curs_mac(int x, int y)
 	term_data *td = (term_data*)(Term->data);
 
 	/* Set the color */
+	// Sil-y: changed to blue
 	term_data_color(td, TERM_BLUE);
 
 	/* Frame the grid */
@@ -2813,6 +2814,7 @@ static errr Term_bigcurs_mac(int x, int y)
 	term_data *td = (term_data*)(Term->data);
 
 	/* Set the color */
+	// Sil-y: changed to blue
 	term_data_color(td, TERM_BLUE);
 
 	/* Frame the grid */
@@ -6606,7 +6608,7 @@ int main(void)
 						do_menu_file_new();
 						break;
 					case 3:
-						do_menu_file_open(FALSE);
+						do_menu_file_open(TRUE);
 						break;
 					case 4:
 						quit(NULL);

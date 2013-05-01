@@ -784,7 +784,7 @@ int bane_bonus(monster_type *m_ptr)
 	if (m_ptr == NULL) return (0);
 	
 	// entranced players don't get the bonus
-	if (p_ptr->paralyzed) return (0);
+	if (p_ptr->entranced) return (0);
 
 	// knocked out players don't get the bonus
 	if (p_ptr->stun > 100) return (0);
@@ -1622,7 +1622,6 @@ static const smithing_flag_desc smithing_flag_types[] =
 	{ CAT_SKILL,	TR1_WIL,			1,	"Will"			},
 	{ CAT_SKILL,	TR1_SMT,			1,	"Smithing"		},
 	{ CAT_SKILL,	TR1_SNG,			1,	"Song"			},
-	// TR1_DAMAGE_DICE
 	{ CAT_MISC,		TR1_DAMAGE_SIDES,	1,	"Damage bonus"			},
 	{ CAT_MISC,		TR2_LIGHT,			2,	"Light"					},
 	{ CAT_MISC,		TR2_SLOW_DIGEST,	2,	"Sustenance"			},
@@ -1656,12 +1655,17 @@ static const smithing_flag_desc smithing_flag_types[] =
 	{ CAT_RES,		TR2_RES_CONFU,		2,	"Resist Confusion"		},
 	{ CAT_RES,		TR2_RES_STUN,		2,	"Resist Stunning"		},
 	{ CAT_RES,		TR2_RES_HALLU,		2,	"Resist Hallucination"	},
-	{ CAT_CURSE,	TR3_LIGHT_CURSE,	3,	"Cursed"				},
+	{ CAT_CURSE,	TR2_DANGER,			2,	"Danger"				},
+	{ CAT_CURSE,	TR2_FEAR,			2,	"Terror"				},
 	{ CAT_CURSE,	TR2_HUNGER,			2,	"Hunger"				},
 	{ CAT_CURSE,	TR2_DARKNESS,		2,	"Darkness"				},
-	{ CAT_CURSE,	TR2_DANGER,			2,	"Danger"				},
 	{ CAT_CURSE,	TR2_AGGRAVATE,		2,	"Wrath"				    },
-	{ CAT_CURSE,	TR2_SLOWNESS,		2,	"Slow"					},
+	{ CAT_CURSE,	TR2_HAUNTED,		2,	"Haunted"			    },
+//	{ CAT_CURSE,	TR2_SLOWNESS,		2,	"Slow"					},
+	{ CAT_CURSE,	TR2_VUL_COLD,		2,	"Cold Vulnerability"	},
+	{ CAT_CURSE,	TR2_VUL_FIRE,		2,	"Fire Vulnerability"	},
+	{ CAT_CURSE,	TR2_VUL_POIS,		2,	"Poison Vulnerability"	},
+	{ CAT_CURSE,	TR3_LIGHT_CURSE,	3,	"Cursed"				},
 	{ 0,			0,					0,	""						}
 };
 
@@ -2166,7 +2170,14 @@ int pval_max(void)
 	// special items have pvals that are limited by their 'special.txt' entries
 	if (smith_o_ptr->name2)
 	{
-		pval += e_ptr->max_pval;
+		if (cursed_p(smith_o_ptr))
+		{
+			if (e_ptr->max_pval > 0) pval -= 1;
+		}
+		else
+		{
+			pval += e_ptr->max_pval;
+		}
 	}
 	
 	return (pval);
@@ -2179,6 +2190,7 @@ int pval_max(void)
 int pval_min(void)
 {
 	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
+	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
 	u32b f1, f2, f3;
 	int pval = 0;
 	
@@ -2202,7 +2214,14 @@ int pval_min(void)
 	// special items have pvals that are limited by their 'special.txt' entries
 	if (smith_o_ptr->name2)
 	{
-		if ((&e_info[smith_o_ptr->name2])->max_pval > 0) pval += 1;
+		if (cursed_p(smith_o_ptr))
+		{
+			if (e_ptr->max_pval > 0) pval -= e_ptr->max_pval;
+		}
+		else
+		{
+			if (e_ptr->max_pval > 0) pval += 1;
+		}
 	}
 	
 	return (pval);
@@ -2249,6 +2268,24 @@ int wgt_min(void)
 	
 	return ((k_ptr->weight + 1) / 2);
 }
+
+
+/*
+ * Moves the light blue highlighted letter.
+ */
+void move_displayed_highlight(int old_highlight, byte old_attr, int new_highlight, int col)
+{
+	char buf[80];
+	
+	// remove highlight from the old label
+	strnfmt(buf, 80, "%c)", (char) 'a' + old_highlight - 1);
+	Term_putstr(col, old_highlight + 1, -1, old_attr, buf);
+	
+	// highlight the new label
+	strnfmt(buf, 80, "%c)", (char) 'a' + new_highlight - 1);
+	Term_putstr(col, new_highlight + 1, -1, TERM_L_BLUE, buf);
+}
+
 
 
 bool melt_mithril_item(int item_num)
@@ -2466,12 +2503,10 @@ int forge_bonus(int y, int x)
 /*
  * Determines the difficulty modifier for pvals.
  *
- * The difficulty reduction from negative pvals uses a different (smaller) base to that of positive.
- *
  * The marginal difficulty of increasing a pval increases by 1 each time, if the base is up to 5,
  * by 2 each time if the base is 6--10, and so on.
  */
-void dif_mod(int value, int positive_base, int negative_base, int *dif_inc, int *dif_dec)
+void dif_mod(int value, int positive_base, int *dif_inc)
 {
 	int mod = 1 + ((positive_base-1) / 5);
 	
@@ -2479,21 +2514,6 @@ void dif_mod(int value, int positive_base, int negative_base, int *dif_inc, int 
 	if (value > 0)
 	{
 		*dif_inc += positive_base * value + mod * (value * (value - 1) / 2);
-	}
-
-	// deal with negative values in a exponentially declining way
-	if (value < 0)
-	{
-		int i;
-		int x = 0;
-		
-		for (i = 0; i < -value; i++)
-		{
-			x += negative_base;
-			negative_base /= 2;
-		}
-		
-		*dif_dec += x;
 	}
 }
 
@@ -2512,6 +2532,7 @@ int object_difficulty(object_type *o_ptr)
 	int weight_factor;
 	u32b f1, f2, f3;
 	int brands = 0;
+	int dif_mult = 100;
 		
 	// reset smithing costs
 	smithing_cost.str = 0;
@@ -2558,45 +2579,45 @@ int object_difficulty(object_type *o_ptr)
 	{	
 		int old_di = dif_inc;
 		
-		dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+		dif_mod(x, 5, &dif_inc);
 		dif_inc = (dif_inc - old_di) / 2;
 	}
 	
 	// other items
 	else
 	{
-		dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+		dif_mod(x, 5, &dif_inc);
 	}
 	
 	// evasion bonus
 	x = o_ptr->evn - k_ptr->evn;
-	dif_mod(x, 5, 2, &dif_inc, &dif_dec);
+	dif_mod(x, 5, &dif_inc);
 	
 	// damage bonus
 	x = (o_ptr->ds - k_ptr->ds);
-	dif_mod(x, 8 + o_ptr->dd, 2, &dif_inc, &dif_dec);
+	dif_mod(x, 8 + o_ptr->dd, &dif_inc);
 
 	// protection bonus
 	base = (k_ptr->ps > 0) ? ((k_ptr->ps + 1) * k_ptr->pd) : 0;
 	new = (o_ptr->ps > 0) ? ((o_ptr->ps + 1) * o_ptr->pd) : 0;
 	x = new - base;
-	dif_mod(x, 4, 2, &dif_inc, &dif_dec);
+	dif_mod(x, 4, &dif_inc);
 
 	// weapon modifiers
-	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 4;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 4;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 5;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 5;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 6;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 6;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 6;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 7;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 7;	smithing_cost.str += 1;	}
 	
-	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 12;	smithing_cost.str += 2;	brands++; }
-	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 10;	smithing_cost.str += 2;	brands++; }
-	if (f1 & TR1_BRAND_POIS)		{	dif_inc += 8;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 24;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 20;	smithing_cost.str += 2;	brands++; }
+	if (f1 & TR1_BRAND_POIS)		{	dif_inc += 16;	smithing_cost.str += 2;	brands++; }
 	if (brands > 1)					{	dif_inc += (brands-1) * 20;						  }
 	
-	if (f1 & TR1_SHARPNESS)			{	dif_inc += 15;	smithing_cost.str += 2;	}
+	if (f1 & TR1_SHARPNESS)			{	dif_inc += 20;	smithing_cost.str += 2;	}
 	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 5;	} // not available in smithing
 	if (f1 & TR1_VAMPIRIC)			{	dif_inc += 10;	smithing_cost.str += 2;	}
 	
@@ -2604,29 +2625,32 @@ int object_difficulty(object_type *o_ptr)
 	if (f1 & TR1_TUNNEL)
 	{
 		x = o_ptr->pval - k_ptr->pval;
-		dif_mod(x, 10, 0, &dif_inc, &dif_dec);
+		dif_mod(x, 10, &dif_inc);
 		smithing_cost.str += (x > 0) ? x : 0;
 	}
 	if (o_ptr->pval != 0)
 	{
-		x = o_ptr->pval;
+		x = (o_ptr->pval > 0) ? o_ptr->pval : 0;
 		
-		if (f1 & TR1_DAMAGE_SIDES)	{	dif_mod(x, 12, 0, &dif_inc, &dif_dec);	smithing_cost.str += x;		}
-		if (f1 & TR1_STR)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.str += x;		}
-		if (f1 & TR1_DEX)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.dex += x;		}
-		if (f1 & TR1_CON)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.con += x;		}
-		if (f1 & TR1_GRA)			{	dif_mod(x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.gra += x;		}
-		if (f1 & TR1_NEG_STR)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.str -= x;		}
-		if (f1 & TR1_NEG_DEX)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.dex -= x;		}
-		if (f1 & TR1_NEG_CON)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.con -= x;		}
-		if (f1 & TR1_NEG_GRA)		{	dif_mod(-x, 10, 4, &dif_inc, &dif_dec);	smithing_cost.gra -= x;		}
-		if (f1 & TR1_MEL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_ARC)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_STL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_PER)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_WIL)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_SMT)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_SNG)			{	dif_mod(x, 4, 0, &dif_inc, &dif_dec);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_DAMAGE_SIDES)	{	dif_mod(x, 15, &dif_inc);	smithing_cost.str += x;		}
+		if (f1 & TR1_STR)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.str += x;		}
+		if (f1 & TR1_DEX)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.dex += x;		}
+		if (f1 & TR1_CON)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.con += x;		}
+		if (f1 & TR1_GRA)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.gra += x;		}
+		if (f1 & TR1_MEL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_ARC)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_STL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_PER)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_WIL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_SMT)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_SNG)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+
+		x = (o_ptr->pval < 0) ? o_ptr->pval : 0;
+
+		if (f1 & TR1_NEG_STR)		{	dif_mod(-x, 12, &dif_inc);	smithing_cost.str -= x;		}
+		if (f1 & TR1_NEG_DEX)		{	dif_mod(-x, 12, &dif_inc);	smithing_cost.dex -= x;		}
+		if (f1 & TR1_NEG_CON)		{	dif_mod(-x, 12, &dif_inc);	smithing_cost.con -= x;		}
+		if (f1 & TR1_NEG_GRA)		{	dif_mod(-x, 12, &dif_inc);	smithing_cost.gra -= x;		}
 	}
 	
 	// Sustains
@@ -2642,7 +2666,7 @@ int object_difficulty(object_type *o_ptr)
 	if (f2 & TR2_REGEN) 		{	dif_inc += 8;	smithing_cost.con += 1;	}
 	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 8;							}
 	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 8;							}
-	if (f2 & TR2_SPEED)			{	dif_inc += 25;	smithing_cost.con += 5;	}
+	if (f2 & TR2_SPEED)			{	dif_inc += 30;	smithing_cost.con += 5;	}
 	
 	// Elemental Resistances
 	if (f2 & TR2_RES_COLD)		{	dif_inc += 8;	smithing_cost.con += 1;	}
@@ -2658,17 +2682,16 @@ int object_difficulty(object_type *o_ptr)
 	if (f2 & TR2_RES_HALLU)		{	dif_inc += 3;							}
 
 	// Penalty Flags
-	if (f2 & TR2_HUNGER)		{	dif_dec += 2;	}
-	if (f2 & TR2_DARKNESS)		{	dif_dec += 2;	}
-	if (f2 & TR2_SLOWNESS)		{	dif_dec += 5;	}
-	if (f2 & TR2_DANGER)		{	dif_dec += 2;	}
-	if (f2 & TR2_AGGRAVATE)		{	dif_dec += 2;	}
+	if (f2 & TR2_FEAR)			{	dif_dec += 0;	}
+	if (f2 & TR2_HUNGER)		{	dif_dec += 0;	}
+	if (f2 & TR2_DARKNESS)		{	dif_dec += 0;	}
+	if (f2 & TR2_DANGER)		{	dif_dec += 5;	} // only Danger counts
+	if (f2 & TR2_AGGRAVATE)		{	dif_dec += 0;	}
+	if (f2 & TR2_HAUNTED)		{	dif_dec += 0;	}
+	if (f2 & TR2_VUL_COLD)		{	dif_dec += 0;	}
+	if (f2 & TR2_VUL_FIRE)		{	dif_dec += 0;	}
+	if (f2 & TR2_VUL_POIS)		{	dif_dec += 0;	}
 	
-	// Unimplemented Flags
-	if (f1 & TR1_DAMAGE_DICE)	{	dif_inc += 0;	}
-	if (f2 & TR2_TELEPATHY)		{	dif_inc += 0;	}
-	if (f2 & TR2_LIFE_SAVING)	{	dif_inc += 0;	}
-	if (f3 & TR3_DETECT_ORC)	{	dif_inc += 0;	}
 
 	// Abilities
 	for (i = 0; i < o_ptr->abilities; i++)
@@ -2707,25 +2730,25 @@ int object_difficulty(object_type *o_ptr)
 		case INVEN_QUIVER1:
 		case INVEN_QUIVER2:
 		{
-			dif = 12 * dif / 10;
+			dif_mult += 20;
 			break;
 		}
 	}
+	
+	// Decreased difficulties for easily enchatable items
+	if (k_ptr->flags3 & (TR3_ENCHANTABLE))
+	{
+		dif_mult -= 20;
+	}
+	
+	// Apply the difficulty multiplier
+	dif = dif * dif_mult / 100;
 	
 	// Deal with masterpiece
 	if ((dif > p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px)) && p_ptr->active_ability[S_SMT][SMT_MASTERPIECE])
 	{
 		smithing_cost.drain += dif - (p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px));
 	}
-	
-	// Arrows don't cost ability points
-	//if (o_ptr->tval == TV_ARROW)
-	//{
-	//	smithing_cost.str = 0;
-	//	smithing_cost.dex = 0;
-	//	smithing_cost.con = 0;
-	//	smithing_cost.gra = 0;
-	//}
 	
 	return (dif);
 }
@@ -2986,7 +3009,7 @@ void prt_object_difficulty(void)
 	}
 	
 	attr = TERM_SLATE;
-	sprintf(buf, "%d Turns", dif * 10);
+	sprintf(buf, "%d Turns", MAX(10, dif * 10));
 	Term_putstr(COL_SMT4 + 2, 10 + costs, -1, attr, buf);
 	costs++;
 	
@@ -3087,10 +3110,8 @@ int create_sval_menu_aux(int tval, int *highlight)
 	int i, num;
 	char buf[80];
 	bool valid[20];
-	int choice[20];
-	
-	int sval = 0; // default to soothe compiler warnings
-	
+	int sval[20];
+		
 	// clear the right of the screen
 	wipe_screen_from(COL_SMT4);
 
@@ -3123,11 +3144,8 @@ int create_sval_menu_aux(int tval, int *highlight)
 			strnfmt(buf, 80, "%c) %s", (char) 'a' + num, name);
 			Term_putstr(COL_SMT3, num + 2, -1, valid[num] ? TERM_WHITE : TERM_SLATE, buf);
 			
-			// note the sval
-			if (*highlight-1 == num) sval = k_ptr->sval;
-			
-			/* Remember the object index */
-			choice[num] = i;
+			/* Remember the object sval */
+			sval[num] = k_ptr->sval;
 			
 			// count the applicable items
 			num++;
@@ -3139,7 +3157,7 @@ int create_sval_menu_aux(int tval, int *highlight)
 	Term_putstr(COL_SMT3, *highlight + 1, -1, TERM_L_BLUE, buf);
 		
 	// make a simple version of the object
-	create_base_object(tval, sval);
+	create_base_object(tval, sval[*highlight - 1]);
 	
 	// display the object description
 	prt_object_description();
@@ -3162,8 +3180,8 @@ int create_sval_menu_aux(int tval, int *highlight)
 	{
 		*highlight = (int) ch - 'a' + 1;
 		
-		// run this function again to display the highlight on the right choice
-		create_sval_menu_aux(tval, highlight);
+		// make a simple version of the object
+		create_base_object(tval, sval[*highlight - 1]);
 		
 		return (*highlight);
 	}
@@ -3295,11 +3313,13 @@ int create_tval_menu_aux(int *highlight)
 	// choose an option by letter
 	if ((ch >= 'a') && (ch <= (char) 'a' + MAX_SMITHING_TVALS - 1))
 	{
+		int old_highlight = *highlight;
+	
 		*highlight = (int) ch - 'a' + 1;
 		
-		// run this function again to display the highlight on the right choice
-		create_tval_menu_aux(highlight);
-
+		// move the light blue highlight
+		move_displayed_highlight(old_highlight, valid[old_highlight] ? TERM_WHITE : TERM_L_DARK, *highlight, COL_SMT2);
+		
 		if (valid[*highlight-1])	return (*highlight);
 		else						bell("Invalid choice.");
 	}
@@ -3488,9 +3508,12 @@ int numbers_menu_aux(int *highlight)
 	// choose an option by letter
 	if ((ch >= 'a') && (ch <= (char) 'a' + SMT_NUM_MENU_MAX - 1))
 	{
+		int old_highlight = *highlight;
+		
 		*highlight = (int) ch - 'a' + 1;
 		
-		numbers_menu_aux(highlight);
+		// move the light blue highlight
+		move_displayed_highlight(old_highlight, attr[old_highlight], *highlight, COL_SMT2);
 		
 		if (valid[*highlight-1])	return (*highlight);
 		else						bell("Invalid choice.");
@@ -3615,10 +3638,10 @@ int enchant_menu_aux(int *highlight)
 		bool acceptable = FALSE;
 		
 		/* Don't create cursed */
-		if (e_ptr->flags3 & TR3_LIGHT_CURSE) continue;
+		//if (e_ptr->flags3 & TR3_LIGHT_CURSE) continue;
 		
 		/* Don't create useless */
-		if (e_ptr->cost == 0) continue;
+		//if (e_ptr->cost == 0) continue;
 		
 		/* Test if this is a legal special item type for this object */
 		for (j = 0; j < EGO_TVALS_MAX; j++)
@@ -3691,9 +3714,13 @@ int enchant_menu_aux(int *highlight)
 	hide_cursor = FALSE;
 	
 	/* Choose by letter */
-	if ((ch >= 'a') && (ch <= (char) 'a' + MAX_SMITHING_TVALS - 1))
+	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
 	{
 		*highlight = (int) ch - 'a' + 1;
+
+		// make a 'special' version of the object
+		create_special(choice[*highlight-1]);
+		
 		return (*highlight);
 	}
 	
@@ -4601,10 +4628,12 @@ int artefact_menu_aux(int *highlight)
 	/* Choose by letter */
 	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
 	{
+		int old_highlight = *highlight;
+		
 		*highlight = (int) ch - 'a' + 1;
 
-		// run this function again to display the highlight on the right choice
-		artefact_menu_aux(highlight);
+		// move the light blue highlight
+		move_displayed_highlight(old_highlight, TERM_WHITE, *highlight, COL_SMT2);
 		
 		return (*highlight);
 	}
@@ -4678,8 +4707,11 @@ void artefact_menu(void)
 	}
 
 	// set the backup artefact name to the player character's name
-	sprintf(buf, "of %s", op_ptr->full_name);
-	my_strcpy(smith2_a_ptr->name, buf, MAX_LEN_ART_NAME);
+	if (strlen(smith2_a_ptr->name) == 0)
+	{
+		sprintf(buf, "of %s", op_ptr->full_name);
+		my_strcpy(smith2_a_ptr->name, buf, MAX_LEN_ART_NAME);
+	}
 	
 	// retrieve a backup of the artefact
 	artefact_copy(smith_a_ptr, smith2_a_ptr);
@@ -4788,10 +4820,12 @@ int melt_menu_aux(int *highlight)
 	// choose an option by letter
 	if ((ch >= 'a') && (ch <= (char) 'a' + num - 1))
 	{
+		int old_highlight = *highlight;
+		
 		*highlight = (int) ch - 'a' + 1;
 		
-		// run this function again to display the highlight on the right choice
-		melt_menu_aux(highlight);
+		// move the light blue highlight
+		move_displayed_highlight(old_highlight, TERM_WHITE, *highlight, COL_SMT2);
 		
 		return (*highlight);
 	}
@@ -4860,7 +4894,6 @@ void melt_menu(void)
 	/* Load screen */
 	screen_load();
 }
-
 
 /*
  * Performs the interface and selection work for the smithing screen.
@@ -4969,11 +5002,13 @@ int smithing_menu_aux(int *highlight)
 	// choose an option by letter
 	if ((ch >= 'a') && (ch <= (char) 'a' + SMT_MENU_MAX - 1))
 	{
+		int old_highlight = *highlight;
+		
 		*highlight = (int) ch - 'a' + 1;
 		
-		// run this function again to display the highlight on the right choice
-		smithing_menu_aux(highlight);
-		
+		// move the light blue highlight
+		move_displayed_highlight(old_highlight, valid[old_highlight] ? TERM_WHITE : TERM_L_DARK, *highlight, COL_SMT1);
+				
 		if (valid[*highlight-1])	return (*highlight);
 		else						bell("Invalid choice.");
 	}
@@ -5150,6 +5185,14 @@ void do_cmd_smithing_screen(void)
 			}
 			case SMT_MENU_ACCEPT:
 			{
+				if (smithing_cost.drain > 0)
+				{
+					char buf[80];
+					
+					sprintf(buf, "This will drain your smithing skill by %d points. Proceed? ", smithing_cost.drain);
+					if (!get_check(buf)) break;
+				}
+				
 				create = TRUE;				
 				leave_menu = TRUE;
 				break;
@@ -5225,8 +5268,6 @@ void create_smithing_item(void)
 	int slot;
 	object_type *o_ptr;
 	char o_name[80];
-	char note[60];
-	char shorter_desc[40];
 		
 	// pay the ability/experience costs of smithing
 	pay_costs();
@@ -5245,17 +5286,8 @@ void create_smithing_item(void)
 			smith_o_ptr->ident |= (IDENT_CURSED);
 		}
 		
-		/* Get a shorter description to fit the notes file */
-		object_desc(shorter_desc, sizeof(shorter_desc), smith_o_ptr, TRUE, 0);
-		
-		/* Build note and write */
-		sprintf(note, "Made %s", shorter_desc);
-		
 		// Store the depth at which it was created
-		smith_o_ptr->xtra1 = p_ptr->depth;
-		
-		/* Record the depth where the artefact was created */
-		do_cmd_note(note, smith_o_ptr->xtra1);
+		smith_o_ptr->xtra1 = p_ptr->depth;		
 	}
 	
 	// remove the spoiler ident flag
@@ -5264,6 +5296,16 @@ void create_smithing_item(void)
 	// identify the object
 	ident(smith_o_ptr);
 
+	// create description
+	object_desc(o_name, sizeof(o_name), smith_o_ptr, TRUE, 3);
+	
+	// Record the depth where the object was created
+	do_cmd_note(format("Made %s  %d.%d lb", 
+	                    o_name, 
+						(smith_o_ptr->weight * smith_o_ptr->number) / 10, 
+						(smith_o_ptr->weight * smith_o_ptr->number) % 10),
+				p_ptr->depth);
+	
 	// Get the slot of the forged item
 	slot = inven_carry(smith_o_ptr);
 	
@@ -5276,9 +5318,251 @@ void create_smithing_item(void)
 	// Message
 	if (slot >= 0)	msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
-	/* Wipe the smithing object */
+	// Wipe the smithing object
 	object_wipe(smith_o_ptr);	
 }
+
+#define MAIN_MENU_RETURN			 1
+#define MAIN_MENU_CHARACTER			 2
+#define MAIN_MENU_OPTIONS			 3
+#define MAIN_MENU_MAP				 4
+#define MAIN_MENU_SCORES			 5
+#define MAIN_MENU_KNOWN_OBJECTS      6
+#define MAIN_MENU_KNOWN_ARTEFACTS    7
+#define MAIN_MENU_KNOWN_MONSTERS     8
+#define MAIN_MENU_SLAIN_MONSTERS     9
+#define MAIN_MENU_NOTE				10
+#define MAIN_MENU_SCREENSHOT		11
+#define MAIN_MENU_MACROS			12
+#define MAIN_MENU_COLORS			13
+#define MAIN_MENU_MESSAGES			14
+#define MAIN_MENU_VERSION			15
+#define MAIN_MENU_ABORT				16
+#define MAIN_MENU_SAVE				17
+#define MAIN_MENU_SAVE_QUIT			18
+
+#define MAIN_MENU_MAX				18
+
+#define	COL_MAIN					30
+
+
+/*
+ * Performs the interface and selection work for the main menu.
+ */
+int main_menu_aux(int *highlight)
+{
+	char ch;
+	int i;
+	
+	for (i = 0; i < MAIN_MENU_MAX + 3; i++)
+	{
+		Term_putstr(COL_MAIN - 2, i, -1, TERM_WHITE, "                           ");
+	}
+
+	Term_putstr(COL_MAIN, 2, -1, (*highlight == 1) ? TERM_L_BLUE : TERM_WHITE, "a) Return to game");
+	Term_putstr(COL_MAIN, 3, -1, (*highlight == 2) ? TERM_L_BLUE : TERM_WHITE, "b) Character sheet");
+	Term_putstr(COL_MAIN, 4, -1, (*highlight == 3) ? TERM_L_BLUE : TERM_WHITE, "c) Options");
+	Term_putstr(COL_MAIN, 5, -1, (*highlight == 4) ? TERM_L_BLUE : TERM_WHITE, "d) Map");
+	Term_putstr(COL_MAIN, 6, -1, (*highlight == 5) ? TERM_L_BLUE : TERM_WHITE, "e) Names of the fallen");
+	Term_putstr(COL_MAIN, 7, -1, (*highlight == 6) ? TERM_L_BLUE : TERM_WHITE, "f) Known objects");
+	Term_putstr(COL_MAIN, 8, -1, (*highlight == 7) ? TERM_L_BLUE : TERM_WHITE, "g) Known artefacts");
+	Term_putstr(COL_MAIN, 9, -1, (*highlight == 8) ? TERM_L_BLUE : TERM_WHITE, "h) Known monsters");
+	Term_putstr(COL_MAIN,10, -1, (*highlight == 9) ? TERM_L_BLUE : TERM_WHITE, "i) Slain monsters");
+	Term_putstr(COL_MAIN,11, -1, (*highlight ==10) ? TERM_L_BLUE : TERM_WHITE, "j) Write a note");
+	Term_putstr(COL_MAIN,12, -1, (*highlight ==11) ? TERM_L_BLUE : TERM_WHITE, "k) Take HTML screenshot");
+	Term_putstr(COL_MAIN,13, -1, (*highlight ==12) ? TERM_L_BLUE : TERM_WHITE, "l) Set macros");
+	Term_putstr(COL_MAIN,14, -1, (*highlight ==13) ? TERM_L_BLUE : TERM_WHITE, "m) Set colours");
+	Term_putstr(COL_MAIN,15, -1, (*highlight ==14) ? TERM_L_BLUE : TERM_WHITE, "n) Show old messages");
+	Term_putstr(COL_MAIN,16, -1, (*highlight ==15) ? TERM_L_BLUE : TERM_WHITE, "o) Sil version info");
+	Term_putstr(COL_MAIN,17, -1, (*highlight ==16) ? TERM_L_BLUE : TERM_WHITE, "p) Abort current game");
+	Term_putstr(COL_MAIN,18, -1, (*highlight ==17) ? TERM_L_BLUE : TERM_WHITE, "q) Save game");
+	Term_putstr(COL_MAIN,19, -1, (*highlight ==18) ? TERM_L_BLUE : TERM_WHITE, "r) Save and quit");
+		
+	/* Flush the prompt */
+	Term_fresh();
+	
+	/* Place cursor at current choice */
+	Term_gotoxy(COL_MAIN, 1 + *highlight);
+	
+	/* Get key (while allowing menu commands) */
+	hide_cursor = TRUE;
+	ch = inkey();
+	hide_cursor = FALSE;
+	
+	// choose an option by letter
+	if ((ch >= 'a') && (ch <= (char) 'a' + MAIN_MENU_MAX - 1))
+	{
+		*highlight = (int) ch - 'a' + 1;
+		
+		return (*highlight);
+	}
+	
+	/* Choose current  */
+	if ((ch == '\r') || (ch == '\n') || (ch == ' ') || (ch == '6'))
+	{
+		return (*highlight);
+	}
+	
+	/* Prev item */
+	if (ch == '8')
+	{
+		if (*highlight > 1) (*highlight)--;
+		else if (*highlight == 1) *highlight = MAIN_MENU_MAX;
+	}
+	
+	/* Next item */
+	if (ch == '2')
+	{
+		if (*highlight < MAIN_MENU_MAX) (*highlight)++;
+		else if (*highlight == MAIN_MENU_MAX) *highlight = 1;
+	}
+	
+	/* Leave menu */
+	if ((ch == ESCAPE) || (ch == '4'))
+	{
+		return (-1);
+	}
+	
+	return (0);
+} 
+
+/*
+ * Brings up a menu for choosing some of the game's more abstruse options.
+ */
+void do_cmd_main_menu(void)
+{
+	int actiontype = -1;
+	int highlight = 1;
+	bool leave_menu = FALSE;
+	bool take_screen_shot = FALSE;
+	
+	/* Save screen */
+	screen_save();
+	
+	/* Process Events until "Return to Game" is selected */
+	while (!leave_menu)
+	{
+		actiontype = main_menu_aux(&highlight);
+		leave_menu = TRUE;
+		
+		// if an action has been selected...
+		switch (actiontype)
+		{
+			case MAIN_MENU_RETURN:
+			{
+				break;
+			}
+			case MAIN_MENU_CHARACTER:
+			{
+				do_cmd_character_sheet();
+				break;
+			}
+			case MAIN_MENU_OPTIONS:
+			{
+				do_cmd_options();
+				break;
+			}
+			case MAIN_MENU_MAP:
+			{
+				do_cmd_view_map();
+				break;
+			}
+			case MAIN_MENU_SCORES:
+			{
+				show_scores();
+				break;
+			}
+			case MAIN_MENU_KNOWN_OBJECTS:
+			{
+				do_cmd_knowledge_objects();
+				break;
+			}
+			case MAIN_MENU_KNOWN_ARTEFACTS:
+			{
+				do_cmd_knowledge_artefacts();
+				break;
+			}
+			case MAIN_MENU_KNOWN_MONSTERS:
+			{
+				do_cmd_knowledge_monsters();
+				break;
+			}
+			case MAIN_MENU_SLAIN_MONSTERS:
+			{
+				do_cmd_knowledge_kills();
+				break;
+			}
+			case MAIN_MENU_NOTE:
+			{
+				do_cmd_note("",  p_ptr->depth);
+				break;
+			}
+			case MAIN_MENU_SCREENSHOT:
+			{
+				// have to do this later to avoid taking a shot of this very menu
+				take_screen_shot = TRUE;
+				break;
+			}
+			case MAIN_MENU_MACROS:
+			{
+				do_cmd_macros();
+				break;
+			}
+			case MAIN_MENU_COLORS:
+			{
+				do_cmd_colors();
+				break;
+			}
+			case MAIN_MENU_MESSAGES:
+			{
+				do_cmd_messages();
+				break;
+			}
+			case MAIN_MENU_VERSION:
+			{
+				do_cmd_version();
+				break;
+			}
+			case MAIN_MENU_ABORT:
+			{
+				do_cmd_suicide();
+				break;
+			}
+			case MAIN_MENU_SAVE:
+			{
+				do_cmd_save_game();
+				break;
+			}
+			case MAIN_MENU_SAVE_QUIT:
+			{
+				/* Stop playing */
+				p_ptr->playing = FALSE;
+				
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+				break;
+			}
+			case -1:
+			{
+				break;
+			}
+			default:
+			{
+				leave_menu = FALSE;
+			}
+		}
+	}
+		
+	/* Load screen */
+	screen_load();
+	
+	if (take_screen_shot)
+	{
+		do_cmd_save_screen();
+	}
+}
+
+
 
 /*
  * Recall the most recent message
@@ -8130,9 +8414,6 @@ void do_cmd_note(char *note, int what_depth)
 	char info_note[40];
 	char depths[10];
 
-	// exit if there is no notes file
-	if (!notes_file) return;
-
  	/* Default */
  	my_strcpy(buf, "", sizeof (buf));
 
@@ -8175,7 +8456,7 @@ void do_cmd_note(char *note, int what_depth)
 	strnfmt(info_note, sizeof(info_note), "%8s  %s    ", turn_string, depths);
 
 	/*write the info note*/
-	fputs(info_note, notes_file);
+	my_strcat(notes_buffer, info_note, sizeof(notes_buffer));
 	
 	/*get the length of the notes*/
 	length_info = strlen(info_note);
@@ -8221,7 +8502,7 @@ void do_cmd_note(char *note, int what_depth)
 			}
 
 			/*make a continued note if applicable*/
-			if (startpoint) fprintf(notes_file, "                      ");
+			if (startpoint) my_strcat(notes_buffer, "                      ", sizeof(notes_buffer));
 
 			/* Write that line to file */
 			for (n = startpoint; n <= endpoint; n++)
@@ -8232,12 +8513,12 @@ void do_cmd_note(char *note, int what_depth)
 				ch = (isprint(buf[n]) ? buf[n] : ' ');
 
 				/* Write out the character */
-				fprintf(notes_file, "%c", ch);
+				my_strcat(notes_buffer, format("%c", ch), sizeof(notes_buffer));
 
 			}
 
 			/*break the line*/
-			fprintf(notes_file, "\n");
+			my_strcat(notes_buffer, "\n", sizeof(notes_buffer));
 
 			/*prepare for the next line*/
 			startpoint = endpoint + 1;
@@ -8248,10 +8529,7 @@ void do_cmd_note(char *note, int what_depth)
 	/* Add note to buffer */
 	else
 	{
-		fprintf(notes_file, "%s", buf);
-
-		/*break the line*/
-		fprintf(notes_file, "\n");
+		my_strcat(notes_buffer, format("%s\n", buf), sizeof(notes_buffer));
 	}
 
 }
@@ -8370,23 +8648,9 @@ static const char hack[17] = "dwsorgbuDWvyRGBU";
 
 
 /*display the notes file*/
-extern void do_cmd_knowledge_notes(void)
+void do_cmd_knowledge_notes(void)
 {
-	if (notes_file)
-	{
-		/*close the notes file for writing*/
-		my_fclose(notes_file);
-		
-		show_file(notes_fname, "Notes", 0);
-		
-		/*re-open for appending*/
-		notes_file = my_fopen(notes_fname, "a");
-	}
-	else
-	{
-		msg_print("Sorry, but there doesn't appear to be a notes file associated with this character.");
-		msg_print("If you really want notes, you may need to launch Sil with administrator priveleges.");
-	}
+	show_buffer(notes_buffer, "Notes", 0);
 }
 
 /*
@@ -8399,7 +8663,7 @@ void do_cmd_save_screen(void)
 	/* Ask for a file */
 	sprintf(tmp_val, "%s.html", op_ptr->base_name);
 	if (!term_get_string("File: ", tmp_val, sizeof(tmp_val))) return;
-
+	
 	html_screenshot(tmp_val);
 	msg_print("HTML screenshot saved.");
 }
@@ -8500,7 +8764,8 @@ static int collect_objects(int grp_cur, int object_idx[])
 		if (!(k))  continue;
 
 		/* Require objects ever seen*/
-		if (!(k_ptr->aware && k_ptr->everseen)) continue;
+		//if (!(k_ptr->aware && k_ptr->everseen)) continue;
+		if (!(k_ptr->everseen)) continue;
 
 		/* Check for object in the group */
 		if (k_ptr->tval == group_tval)
@@ -8552,6 +8817,9 @@ static int collect_artefacts(int grp_cur, int object_idx[])
 
 		/* Skip "ungenerated" artefacts, unless with Lore Mastery or cheating */
 		if (!know_all && !a_ptr->cur_num) continue;
+
+		/* Skip the later versions of the Iron Crown */
+		if ((i == ART_MORGOTH_0) || (i == ART_MORGOTH_1) || (i == ART_MORGOTH_2)) continue;
 
 		/* Skip the special smithing template artefacts */
 		if ((i >= ART_ULTIMATE) && (i <= z_info->art_norm_max)) continue;
@@ -8849,7 +9117,7 @@ static void display_artefact_list(int col, int row, int per_page, int object_idx
 /*
  * Display known artefacts
  */
-static void do_cmd_knowledge_artefacts(void)
+void do_cmd_knowledge_artefacts(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top;
@@ -9164,12 +9432,6 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 		// Ignore monsters that can't be generated
 		if (r_ptr->level > 25) continue;
 
-		// Don't display the uncrowned version of Morgoth via Lore-mastery
-		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights == 0) && (i == R_IDX_MORGOTH_UNCROWNED)) continue;
-
-		// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
-		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (i == R_IDX_MORGOTH)) continue;
-
 		/* Check for race in the group */
 		if ((grp_unique) || (strchr(group_char, r_ptr->d_char)))
 		{
@@ -9213,9 +9475,6 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		/* Require non-unique monsters */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
-			if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (mon_idx[i].r_idx == R_IDX_MORGOTH)) continue;
-
 			/*Count if we have seen the unique*/
 			if (l_ptr->tsights)
 			{
@@ -9255,11 +9514,8 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 
 		char race_name[80];
 
-		// Don't count the crowned version of Morgoth after the uncrowned Morgoth is seen
-		if (((&l_list[R_IDX_MORGOTH_UNCROWNED])->tsights > 0) && (mon_idx[i].r_idx == R_IDX_MORGOTH)) continue;
-
 		/* Get the monster race name (singular)*/
-		else monster_desc_race(race_name, sizeof(race_name), r_idx);
+		monster_desc_race(race_name, sizeof(race_name), r_idx);
 
 		/* Choose a color */
 		attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
@@ -9311,7 +9567,7 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 /*
  * Display known monsters.
  */
-static void do_cmd_knowledge_monsters(void)
+void do_cmd_knowledge_monsters(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top;
@@ -9688,7 +9944,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 /*
  * Display known objects
  */
-static void do_cmd_knowledge_objects(void)
+void do_cmd_knowledge_objects(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top;
@@ -9819,10 +10075,13 @@ static void do_cmd_knowledge_objects(void)
 			case 'R':
 			case 'r':
 			{
-				/* Recall on screen */
-				desc_obj_fake(object_idx[object_cur]);
-
-				redraw = TRUE;
+				if ((&k_info[object_idx[object_cur]])->aware)
+				{
+					/* Recall on screen */
+					desc_obj_fake(object_idx[object_cur]);
+					
+					redraw = TRUE;
+				}
 				break;
 			}
 
@@ -9843,7 +10102,7 @@ static void do_cmd_knowledge_objects(void)
 /*
  * Display kill counts
  */
-static void do_cmd_knowledge_kills(void)
+void do_cmd_knowledge_kills(void)
 {
 	int n, i;
 

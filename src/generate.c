@@ -164,6 +164,12 @@ struct dun_data
  */
 static dun_data *dun;
 
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID]. 
+ * Each corridor square it is marked for each room that it connects.
+ */
+int cave_corridor1[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
+int cave_corridor2[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
 
 
 /* determines whether the player can pass through a given feature */
@@ -266,7 +272,7 @@ int dungeon_pieces(void)
 	for (piece_num = 1; piece_num <= dun->cent_n; piece_num++)
 	{
 		// find the next room that doesn't belong to a piece
-		for (i = 0; (dun->piece[i] != 0) && (i < dun->cent_n); i++);
+		for (i = 0; (i < dun->cent_n) && (dun->piece[i] != 0); i++);
 		
 		if (i == dun->cent_n)
 		{
@@ -288,7 +294,7 @@ int dungeon_pieces(void)
 static void place_rubble(int y, int x)
 {
 	/* Create rubble */
-	cave_set_feat(y, x, FEAT_RUBBLE);
+	if (p_ptr->depth >= 4) cave_set_feat(y, x, FEAT_RUBBLE);
 }
 
 
@@ -741,6 +747,17 @@ static bool h_tunnel_ok(int x1, int x2, int y, bool tentative, int desired_chang
 			return (FALSE);
 		}
 
+		/* abort if the tunnel would go from an outside wall to a door */
+		if ((x > x_lo) && (cave_feat[y][x-1] == FEAT_WALL_OUTER) && (cave_feat[y][x] == FEAT_DOOR_HEAD))
+		{
+			return (FALSE);
+		}
+		/* abort if the tunnel would go from a door to an outside wall */
+		if ((x > x_lo) && (cave_feat[y][x] == FEAT_WALL_OUTER) && (cave_feat[y][x-1] == FEAT_DOOR_HEAD))
+		{
+			return (FALSE);
+		}
+		
 		/* abort if the tunnel would go from an outside wall into an inside wall */
 		if ((x > x_lo) && (cave_feat[y][x-1] == FEAT_WALL_OUTER) && ((cave_feat[y][x] == FEAT_WALL_INNER) || (cave_feat[y][x] == FEAT_PERM_INNER)))
 		{
@@ -788,7 +805,9 @@ static bool h_tunnel_ok(int x1, int x2, int y, bool tentative, int desired_chang
 		return (FALSE);
 	}
 	else
+	{
 		return (TRUE);
+	}
 }
 
 static bool v_tunnel_ok(int y1, int y2, int x, bool tentative, int desired_changes)
@@ -839,6 +858,17 @@ static bool v_tunnel_ok(int y1, int y2, int x, bool tentative, int desired_chang
 			return (FALSE);
 		}
 
+		/* abort if the tunnel would go from an outside wall to a door */
+		if ((y > y_lo) && (cave_feat[y-1][x] == FEAT_WALL_OUTER) && (cave_feat[y][x] == FEAT_DOOR_HEAD))
+		{
+			return (FALSE);
+		}
+		/* abort if the tunnel would go from a door to an outside wall */
+		if ((y > y_lo) && (cave_feat[y][x] == FEAT_WALL_OUTER) && (cave_feat[y-1][x] == FEAT_DOOR_HEAD))
+		{
+			return (FALSE);
+		}
+		
 		/* abort if the tunnel would go from an outside wall into an inside wall */
 		if ((y > y_lo) && (cave_feat[y-1][x] == FEAT_WALL_OUTER) && ((cave_feat[y][x] == FEAT_WALL_INNER) || (cave_feat[y][x] == FEAT_PERM_INNER)))
 		{
@@ -876,7 +906,7 @@ static bool v_tunnel_ok(int y1, int y2, int x, bool tentative, int desired_chang
 		}
 		
 		/* abort if the tunnel would have floor beside it at some point outside a room */
-		if (((cave_feat[y][x+1] == FEAT_FLOOR) || (cave_feat[y][x+1] == FEAT_FLOOR)) && !(cave_info[y][x] & (CAVE_ROOM)))
+		if (((cave_feat[y][x+1] == FEAT_FLOOR) || (cave_feat[y][x-1] == FEAT_FLOOR)) && !(cave_info[y][x] & (CAVE_ROOM)))
 		{
 			return (FALSE);
 		}
@@ -886,10 +916,12 @@ static bool v_tunnel_ok(int y1, int y2, int x, bool tentative, int desired_chang
 		return (FALSE);
 	}
 	else
+	{
 		return (TRUE);
+	}
 }
 
-static void build_h_tunnel(int x1, int x2, int y)
+static void build_h_tunnel(int r1, int r2, int x1, int x2, int y)
 {
 	int x, x_lo, x_hi;
 	
@@ -906,11 +938,14 @@ static void build_h_tunnel(int x1, int x2, int y)
 		else if (cave_feat[y][x] == FEAT_WALL_EXTRA)
 		{
 			cave_set_feat(y, x, FEAT_FLOOR);
+			cave_corridor1[y][x] = r1;
+			cave_corridor2[y][x] = r2;
 		}
+
 	}
 }
 
-static void build_v_tunnel(int y1, int y2, int x)
+static void build_v_tunnel(int r1, int r2, int y1, int y2, int x)
 {
 	int y, y_lo, y_hi;
 	
@@ -927,12 +962,14 @@ static void build_v_tunnel(int y1, int y2, int x)
 		else if (cave_feat[y][x] == FEAT_WALL_EXTRA)
 		{
 			cave_set_feat(y, x, FEAT_FLOOR);
+			cave_corridor1[y][x] = r1;
+			cave_corridor2[y][x] = r2;
 		}
 	}
 }
 
 
-static bool build_tunnel(int y1, int x1, int y2, int x2, bool tentative)
+static bool build_tunnel(int r1, int r2, int y1, int x1, int y2, int x2, bool tentative)
 {
 	/* build a vertical tunnel */
 	if (x1 == x2)
@@ -941,7 +978,7 @@ static bool build_tunnel(int y1, int x1, int y2, int x2, bool tentative)
 		{
 			return (FALSE);
 		}
-		build_v_tunnel(y1,y2,x1);
+		build_v_tunnel(r1,r2,y1,y2,x1);
 	}
 	
 	/* build a horizontal tunnel */
@@ -951,7 +988,7 @@ static bool build_tunnel(int y1, int x1, int y2, int x2, bool tentative)
 		{
 			return (FALSE);
 		}
-		build_h_tunnel(x1,x2,y1);
+		build_h_tunnel(r1,r2,x1,x2,y1);
 	}
 
 	/* build an L-shaped tunnel */
@@ -964,8 +1001,8 @@ static bool build_tunnel(int y1, int x1, int y2, int x2, bool tentative)
 			{
 				return (FALSE);
 			}
-			build_h_tunnel(x1, x2, y1);
-			build_v_tunnel(y1, y2, x2);
+			build_h_tunnel(r1, r2, x1, x2, y1);
+			build_v_tunnel(r1, r2, y1, y2, x2);
 		}
 		
 		/* build a v-h tunnel */
@@ -975,8 +1012,8 @@ static bool build_tunnel(int y1, int x1, int y2, int x2, bool tentative)
 			{
 				return (FALSE);
 			}
-			build_v_tunnel(y1, y2, x1);
-			build_h_tunnel(x1, x2, y2);
+			build_v_tunnel(r1, r2, y1, y2, x1);
+			build_h_tunnel(r1, r2, x1, x2, y2);
 		}
 	}
 
@@ -1044,16 +1081,16 @@ static bool connect_two_rooms(int r1, int r2, bool tentative, bool desperate)
 		{
 			return (FALSE);
 		}
-		x = rand_range(MAX(r1x1,r2x1), MIN(r1x2,r2x2));
+		x = rand_range(MAX(r1x1,r2x1), MIN(r1x2,r2x2));  // Sil-x: one of these two lines has somehow caused a crash: http://angband.oook.cz/ladder-show.php?id=13070
 
-		success = build_tunnel(r1y, x, r2y, x, tentative);
+		success = build_tunnel(r1, r2, r1y, x, r2y, x, tentative);
 	}
 	/* if horizontal overlap */
 	else if ((r1y1 <= r2y2) && (r2y1 <= r1y2))
 	{
-		y = rand_range(MAX(r1y1,r2y1), MIN(r1y2,r2y2));
+		y = rand_range(MAX(r1y1,r2y1), MIN(r1y2,r2y2));  // Sil-x: one of these two lines has somehow caused a crash
 		
-		success = build_tunnel(y, r1x, y, r2x, tentative);
+		success = build_tunnel(r1, r2, y, r1x, y, r2x, tentative);
 	}
 	
 	/* otherwise, make an L shaped corridor between their centres */
@@ -1065,7 +1102,7 @@ static bool connect_two_rooms(int r1, int r2, bool tentative, bool desperate)
 		if (MIN(ABS(r2y - r1y1), ABS(r2y - r1y2)) > distance_limity - 2) return (FALSE);
 		if (MIN(ABS(r1y - r2y1), ABS(r1y - r2y2)) > distance_limity - 2) return (FALSE);
 		
-		success = build_tunnel(r1y, r1x, r2y, r2x, tentative);
+		success = build_tunnel(r1, r2, r1y, r1x, r2y, r2x, tentative);
 	}
 	
 	if (success)
@@ -1076,6 +1113,114 @@ static bool connect_two_rooms(int r1, int r2, bool tentative, bool desperate)
 	
 	return (success);
 }
+
+
+
+static bool connect_room_to_corridor(int r)
+{
+	int length = 10;
+	int x;
+	int y;
+	int delta;
+	int ry, rx, r1, r2;
+	bool success = FALSE;
+	bool done = FALSE;
+		
+	ry  = dun->cent[r].y;
+	rx  = dun->cent[r].x;
+	
+	y = ry;
+	x = rx;
+	
+	// go down/right half the time, up/left the other half
+	if (one_in_(2)) delta = 1;
+	else			delta = -1;
+	
+	// go horizontal half the time, vertical the other half
+	if (one_in_(2))
+	{
+		while (!done)
+		{
+			y += delta;
+			
+			// abort if the tunnel leaves the map or passes through a door
+			if (!in_bounds(y,x) || (ABS(y - ry) > length) || ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_HEAD)))
+			{
+				success = FALSE;
+				done = TRUE;
+			}
+			
+			// it has intercepted a tunnel!
+			else if ((cave_feat[y][x] == FEAT_FLOOR) && !(cave_info[y][x] & (CAVE_ROOM)))
+			{
+				r1 = cave_corridor1[y][x];
+				r2 = cave_corridor2[y][x];
+				
+				// make sure that the tunnel intercepts only connects rooms that aren't connected to this room
+				if ((r1 < 0) || (r2 < 0) || (!(dun->connection[r][r1]) && !(dun->connection[r][r2])))
+				{
+					if (v_tunnel_ok(ry, y-(delta*2), x, TRUE, 1))
+					{
+						build_v_tunnel(r, r1, ry, y, x);
+						
+						// mark the new room connections
+						dun->connection[r][r1] = TRUE;
+						dun->connection[r1][r] = TRUE;
+						dun->connection[r][r2] = TRUE;
+						dun->connection[r2][r] = TRUE;
+						success = TRUE;
+					}
+				}
+				
+				done = TRUE;
+			}
+		}
+	}
+	
+	// do the vertical case (very similar to the horizontal one!)
+	else
+	{
+		while (!done)
+		{
+			x += delta;
+			
+			// abort if the tunnel leaves the map or passes through a door
+			if (!in_bounds(y,x) || (ABS(x - rx) > length) || ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_HEAD)))
+			{
+				success = FALSE;
+				done = TRUE;
+			}
+			
+			// it has intercepted a tunnel!
+			else if ((cave_feat[y][x] == FEAT_FLOOR) && !(cave_info[y][x] & (CAVE_ROOM)))
+			{
+				r1 = cave_corridor1[y][x];
+				r2 = cave_corridor2[y][x];
+				
+				// make sure that the tunnel intercepts only connects rooms that aren't connected to this room
+				if ((r1 < 0) || (r2 < 0) || (!(dun->connection[r][r1]) && !(dun->connection[r][r2])))
+				{
+					if (h_tunnel_ok(rx, x-(delta*2), y, TRUE, 1))
+					{
+						build_h_tunnel(r, r1, rx, x, y);
+						
+						// mark the new room connections
+						dun->connection[r][r1] = TRUE;
+						dun->connection[r1][r] = TRUE;
+						dun->connection[r][r2] = TRUE;
+						dun->connection[r2][r] = TRUE;
+						success = TRUE;
+					}
+				}
+				
+				done = TRUE;
+			}
+		}		
+	}
+
+	return (success);
+}
+
 
 
 
@@ -1203,8 +1348,8 @@ static bool place_traps_rubble_player(void)
 	
 	panels = (p_ptr->cur_map_hgt / PANEL_HGT) * (p_ptr->cur_map_wid / PANEL_WID);
 	
-	r = randint(panels / 3); 
-	t = randint((p_ptr->depth + 10) * panels / 40);
+	r = dieroll(panels / 3); 
+	t = dieroll((p_ptr->depth + 10) * panels / 40);
 
 	// occasionally produce much more rubble on deep levels
 	if ((p_ptr->depth >= 10) && one_in_(10)) r += panels * 2;
@@ -1285,6 +1430,26 @@ bool check_connectivity(void)
 }
 
 
+/*
+ *  Check if there are two adjacent doors on the level.
+ */
+bool doubled_doors(void)
+{
+	int y, x;
+	
+	// Check each grid within boundary
+	for (y = 0; y < p_ptr->cur_map_hgt - 1; y++)	
+		for (x = 0; x < p_ptr->cur_map_wid - 1; x++)
+			if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+			{
+				if ((cave_feat[y+1][x] >= FEAT_DOOR_HEAD) && (cave_feat[y+1][x] <= FEAT_DOOR_TAIL)) return (TRUE);
+				if ((cave_feat[y][x+1] >= FEAT_DOOR_HEAD) && (cave_feat[y][x+1] <= FEAT_DOOR_TAIL)) return (TRUE);
+			}
+	
+	return (FALSE);
+}
+
+
 static bool connect_rooms_stairs(void)
 {
 	int i;
@@ -1337,12 +1502,19 @@ static bool connect_rooms_stairs(void)
 	
 	for (i = 0; i < corridor_attempts; i++)
 	{
-		r1 = randint(dun->cent_n);
-		r2 = randint(dun->cent_n);
+		r1 = rand_int(dun->cent_n);
+		r2 = rand_int(dun->cent_n);
 		if ((r1 != r2) && !(dun->connection[r1][r2]))
 		{
 			(void) connect_two_rooms(r1, r2, TRUE, FALSE);
 		}
+	}
+
+	// add some T-intersections in the corridors
+	for (i = 0; i < corridor_attempts; i++)
+	{
+		r1 = rand_int(dun->cent_n);
+		(void) connect_room_to_corridor(r1);
 	}
 	
 	// Phase 3:
@@ -1443,16 +1615,16 @@ static bool build_type1(int y0, int x0)
 	
 	// Occasional light - chance of darkness starts very small and
 	// increases quadratically until always dark at 950 ft
-	if ((p_ptr->depth < randint(MORGOTH_DEPTH - 1)) || (p_ptr->depth < randint(MORGOTH_DEPTH - 1)))
+	if ((p_ptr->depth < dieroll(MORGOTH_DEPTH - 1)) || (p_ptr->depth < dieroll(MORGOTH_DEPTH - 1)))
 	{
 		light = TRUE;
 	}
 
 	/* Pick a room size */
-	y1 = y0 - randint(3);
-	x1 = x0 - randint(5);
-	y2 = y0 + randint(3);
-	x2 = x0 + randint(4)+1;
+	y1 = y0 - dieroll(3);
+	x1 = x0 - dieroll(5);
+	y2 = y0 + dieroll(3);
+	x2 = x0 + dieroll(4)+1;
 
 	/* Sil: bounds checking */
 	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
@@ -1537,20 +1709,20 @@ static bool build_type2(int y0, int x0)
 	int light = FALSE;
 	
 	/* Occasional light - always at level 1 through to never at Morgoth's level */
-	if (p_ptr->depth < randint(MORGOTH_DEPTH)) light = TRUE;
+	if (p_ptr->depth < dieroll(MORGOTH_DEPTH)) light = TRUE;
 
 	/* Pick a room size */
 	
 	h_hgt = 1;               /* 3 */
-	h_wid = 5 + rand_int(3); /* 11, 13, 15 */
+	h_wid = rand_range(5,7); /* 11, 13, 15 */
 	
 	y1h = y0 - h_hgt;
 	x1h = x0 - h_wid;
 	y2h = y0 + h_hgt;
 	x2h = x0 + h_wid;
 
-	v_hgt = 3 + rand_int(4); /* 7, 9, 11, 13 */
-	v_wid = 1 + rand_int(2); /* 3, 5 */
+	v_hgt = rand_range(3,6); /* 7, 9, 11, 13 */
+	v_wid = rand_range(1,2); /* 3, 5 */
 
 	y1v = y0 - v_hgt;
 	x1v = x0 - v_wid;
@@ -1600,7 +1772,7 @@ static bool build_type2(int y0, int x0)
 
 	/* Hack -- Occasional pillar room */
 	
-	switch (randint(7))
+	switch (dieroll(7))
 	{
 		case 1:
 		{
@@ -1662,7 +1834,7 @@ static bool build_type2(int y0, int x0)
  *  (eg RF3_DRAGON) at (y,x). It is goverened by a maximum depth and tries
  *  100 times at this depth and each depth below it.
  */
-void place_monster_by_kind(int y, int x, u32b f3, bool allow_unique, int max_depth)
+extern void place_monster_by_kind(int y, int x, u32b f3, bool allow_unique, int max_depth)
 {
 	bool got_r_idx = FALSE;
 	int tries = 0;
@@ -1957,7 +2129,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* An object from 1-4 levels deeper */
 				case '*':
 				{
-					object_level = p_ptr->depth + randint(4);
+					object_level = p_ptr->depth + dieroll(4);
 					place_object(y, x, FALSE, FALSE, DROP_TYPE_NOT_USELESS);
 					object_level = original_object_level;
 					break;
@@ -1966,7 +2138,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* A good object from 1-4 levels deeper */
 				case '&':
 				{
-					object_level = p_ptr->depth + randint(4);
+					object_level = p_ptr->depth + dieroll(4);
 					place_object(y, x, TRUE, FALSE, DROP_TYPE_NOT_USELESS);
 					object_level = original_object_level;
 					break;
@@ -2014,7 +2186,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Monster and/or object from 1 level deeper */
 				case '?':
 				{
-					int r = randint(3);
+					int r = dieroll(3);
 					
 					if (r <= 2)
 					{
@@ -2196,41 +2368,23 @@ static bool build_type6(int y0, int x0)
 	int tries = 0;
 	int y1, x1, y2, x2;
 
-	// choose a guaranteed forge on the second level
-	if (p_ptr->stairs_taken == 1)
+	/* Pick an interesting room */
+	while (TRUE)
 	{
-		int forge;
-		
-		switch (randint(6))
-		{
-			case 1: forge = VAULT_FORGE1; break;
-			case 2: forge = VAULT_FORGE2; break;
-			case 3: forge = VAULT_FORGE3; break;
-			case 4: forge = VAULT_FORGE4; break;
-			case 5: forge = VAULT_FORGE5; break;
-			default: forge = VAULT_FORGE6; break;
-		}
 		/* Get a random vault record */
-		v_ptr = &v_info[forge];
-	}
-	
-	else
-	{
-		/* Pick an interesting room */
-		while (TRUE)
+		v_ptr = &v_info[rand_int(z_info->v_max)];
+		
+		// if forcing a forge, then skip vaults without forges in them
+		if (p_ptr->force_forge && !v_ptr->forge) continue;
+				
+		/* Accept the first interesting room */
+		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
+		
+		tries++;
+		if (tries > 1000)
 		{
-			/* Get a random vault record */
-			v_ptr = &v_info[rand_int(z_info->v_max)];
-			
-			/* Accept the first interesting room */
-			if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
-			
-			tries++;
-			if (tries > 1000)
-			{
-				msg_format("Bug: Could not find a record for an Interesting Room in vault.txt");
-				return (FALSE);
-			}
+			msg_format("Bug: Could not find a record for an Interesting Room in vault.txt");
+			return (FALSE);
 		}
 	}
 
@@ -2256,7 +2410,7 @@ static bool build_type6(int y0, int x0)
 	{
 		return (FALSE);
 	}
-	
+
 	/* save the corner locations */
 	dun->corner[dun->cent_n].y1 = y1 + 1;
 	dun->corner[dun->cent_n].x1 = x1 + 1;
@@ -2271,12 +2425,8 @@ static bool build_type6(int y0, int x0)
 	/* Message */
 	//if (cheat_room) msg_format("Interesting Room (%s)", v_name + v_ptr->name);
 
-	/* (Sometimes) Cause a special feeling */
-	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
-	{
-		good_item_flag = TRUE;
-	}
+	/* Cause a special feeling */
+	good_item_flag = TRUE;
 
 	return (TRUE);
 }
@@ -2344,12 +2494,8 @@ static bool build_type7(int y0, int x0)
 	/* Message */
 	if (cheat_room) msg_format("LV (%s).", v_name + v_ptr->name);
 
-	/* (Sometimes) Cause a special feeling */
-	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
-	{
-		good_item_flag = TRUE;
-	}
+	/* Cause a special feeling */
+	good_item_flag = TRUE;
 	
 	return (TRUE);
 }
@@ -2686,6 +2832,10 @@ static void basic_granite(void)
 		{
 			/* Create granite wall */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
+			
+			// initialise the corridor id array
+			cave_corridor1[y][x] = -1;
+			cave_corridor2[y][x] = -1;
 		}
 	}
 }
@@ -2719,7 +2869,7 @@ static bool cave_gen(void)
 	/* note: Panel height and width is 1/6 of max height/width*/
 	
 	// between 3x3 and 5x5
-	l = 3 + ((p_ptr->depth + randint(5)) / 10);
+	l = 3 + ((p_ptr->depth + dieroll(5)) / 10);
 
 	p_ptr->cur_map_hgt = l * (PANEL_HGT);
 	p_ptr->cur_map_wid = l * (PANEL_WID_FIXED);
@@ -2741,21 +2891,30 @@ static bool cave_gen(void)
 	/* No rooms yet */
 	dun->cent_n = 0;
 
-	// guarantee a forge on the second ever level
-	if (p_ptr->stairs_taken == 1)
+	// guarantee a forge if one hasn't been generated in a while
+	if (cheat_room) msg_format("Forge Drought = %d.", p_ptr->forge_drought);
+	if ((p_ptr->forge_drought >= rand_range(2000, 5000)) && (playerturn > 0))
 	{
+		if (cheat_room) msg_format("Trying to force a forge.");
+		p_ptr->force_forge = TRUE;
+		
 		if (!room_build(6))
 		{
+			p_ptr->force_forge = FALSE;
+
 			if (cheat_room) msg_format("failed to place guaranteed forge");
+
 			return (FALSE);
 		}
-	}
 
+		if (cheat_room) msg_format("Succeeded.");
+		p_ptr->force_forge = FALSE;
+	}
+	
 	/* Build some rooms */
 	for (i = 0; i < room_attempts; i++)
 	{
-		//r = damroll(2, p_ptr->depth + 10);
-		r = randint(p_ptr->depth + 5);
+		r = dieroll(p_ptr->depth + 5);
 		
 		// choose a room type based on the level
 		if ((r < 5) || one_in_(2) || (p_ptr->depth == 1))
@@ -2805,7 +2964,7 @@ static bool cave_gen(void)
 		if (cheat_room) msg_format("Couldn't connect the rooms.");
 		return (FALSE);
 	}
-
+	
 	/* randomise the doors (except those in vaults) */
 	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
@@ -2841,13 +3000,13 @@ static bool cave_gen(void)
 	else
 	{
 		// pick some number of monsters (between 0.5 per room and 1 per room)
-		mon_gen = (dun->cent_n + randint(dun->cent_n)) / 2;
+		mon_gen = (dun->cent_n + dieroll(dun->cent_n)) / 2;
 	}
 
 	/* Put some monsters in the dungeon */
 	for (i = mon_gen; i > 0; i--)
 	{
-		(void)alloc_monster(FALSE);
+		(void)alloc_monster(FALSE, FALSE);
 	}
 	
 	// place Morgoth if on the run
@@ -2861,7 +3020,7 @@ static bool cave_gen(void)
 			
 			if (cave_naked_bold(y, x) && !los(p_ptr->py, p_ptr->px, y, x) && !(cave_info[y][x] & (CAVE_ICKY)))
 			{
-				place_monster_one(y, x, R_IDX_MORGOTH_UNCROWNED, FALSE, TRUE, NULL);
+				place_monster_one(y, x, R_IDX_MORGOTH, FALSE, TRUE, NULL);
 				break;
 			}
 		}
@@ -3326,6 +3485,21 @@ void generate_cave(void)
 
 	/* Reset the number of traps on the level. */
 	num_trap_on_level = 0;
+
+	/* Note any forges generated -- have to do this here in case generation fails earlier */
+	for (y = 0; y < MAX_DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < MAX_DUNGEON_WID; x++)
+		{
+			if (cave_forge_bold(y,x))
+			{
+				// reset the time since the last forge when an interesting room with a forge is generated
+				p_ptr->forge_drought = 0;
+				p_ptr->forge_count++;
+			}
+		}
+	}
+	
 
 }
 

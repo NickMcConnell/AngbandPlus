@@ -21,6 +21,10 @@
 
 #include "main.h"
 
+/*
+ * Sil-y: game in progress
+ */
+bool game_in_progress = FALSE;
 
 /*
  * List of the available modules in the order they are tried.
@@ -478,6 +482,9 @@ int main(int argc, char *argv[])
 			case 'n':
 			{
 				new_game = TRUE;
+				
+				// Sil-y:
+				game_in_progress = TRUE;
 				break;
 			}
 
@@ -539,6 +546,9 @@ int main(int argc, char *argv[])
 
 				/* Get the savefile name */
 				my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
+
+				// Sil-y:
+				game_in_progress = TRUE;
 				continue;
 			}
 
@@ -606,7 +616,7 @@ int main(int argc, char *argv[])
 
 
 	/* Process the player name */
-	process_player_name(TRUE);
+	////process_player_name(TRUE);
 
 
 	/* Install "quit" hook */
@@ -628,7 +638,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Make sure we have a display! */
-	if (!done) quit("Unable to prepare any 'display module'!");
+	if (!done) quit("Unable to prepare any 'display module' (such as 'x11' or 'gcu')!");
 
 	/* Catch nasty signals */
 	signals_init();
@@ -640,11 +650,94 @@ int main(int argc, char *argv[])
 	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
-	pause_line(Term->hgt - 1);
+	//pause_line(Term->hgt - 1);
 
 	/* Play the game */
-	play_game(new_game);
+	//play_game(new_game);
 
+	// Sil-y: There is now a text menu that can play repeated games
+	while (1)
+	{
+		/* Let the player choose a savefile or start a new game */
+		if (!game_in_progress)
+		{
+			int choice = 0;
+			int highlight = 1;
+			char buf[80];
+			
+			if (p_ptr->is_dead) highlight = 4;
+			
+			/* Process Events until "new" or "open" is selected */
+			while (!game_in_progress)
+			{
+				choice = initial_menu(&highlight);
+				
+				switch (choice)
+				{
+					case 1:
+						path_build(savefile, sizeof(buf), ANGBAND_DIR_APEX, "tutorial");
+						game_in_progress = TRUE;
+						new_game = FALSE;
+						break;
+					case 2:
+						game_in_progress = TRUE;
+						new_game = TRUE;
+						break;
+					case 3:
+						game_in_progress = TRUE;
+						new_game = FALSE;
+						
+						/* Prompt for a new name */
+						if (1)
+						{
+							char tmp[14];
+							bool name_selected = FALSE;
+							
+							// Default name
+							my_strcpy(tmp, "<name>", sizeof(tmp));
+
+							Term_gotoxy(50, 21);
+							
+							while (!name_selected)
+							{
+								if (askfor_aux(tmp, sizeof(tmp)))
+								{
+									my_strcpy(op_ptr->full_name, tmp, sizeof(op_ptr->full_name));
+								}
+								
+								if (tmp[0] != '\0')	name_selected = TRUE;
+								else				bell("You must choose a name.");
+							}
+						}
+						process_player_name(TRUE);
+						break;
+					case 4:
+						cleanup_angband();
+						quit(NULL);
+						break;
+				}
+			}
+		}
+		
+		/* Handle pending events (most notably update) and flush input */
+		Term_flush();
+		
+		/*
+		 * Play a game -- "new_game" is set by "new", "open" or the open document
+		 * even handler as appropriate
+		 */
+		play_game(new_game);
+		
+		// rerun the first initialization routine
+		init_stuff();
+		
+		// do some more between-games initialization
+		re_init_some_things();
+		
+		// game no longer in progress
+		game_in_progress = FALSE;
+	}
+	
 	/* Free resources */
 	cleanup_angband();
 

@@ -1354,7 +1354,7 @@ void display_player_xtra_info(int mode)
 	}
 	
 	/* Total Armor */
-	strnfmt(buf, sizeof(buf), " [%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT), p_max(GF_HURT));
+	strnfmt(buf, sizeof(buf), " [%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT, TRUE), p_max(GF_HURT, TRUE));
 	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armor");
 	Term_putstr(col+5, 7+attacks+shots, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1965,6 +1965,147 @@ static void string_lower(char *buf)
 
 
 /*
+ * Show the contents of a char buffer on the screen and allow scrolling.
+ * Based on show_file.
+ */
+bool show_buffer(cptr main_buffer, cptr what, int line)
+{
+	int i, j, k;
+	
+	char ch;
+	
+	int next = 0;
+	int size = 0;
+	
+	char buf[1024];
+	
+	int wid, hgt;
+	
+	// hack to soothe compiler warnings since 'what' is unused
+	if (what) {}
+	
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+	
+	/* Count the lines in the buffer */
+	for (j = 0; TRUE; j++)
+	{
+		if (main_buffer[j] == '\n')	next++;
+		if (main_buffer[j] == '\0')	break;
+	}
+	
+	// store the number of lines
+	size = next;
+	
+	/* Display the file */
+	while (TRUE)
+	{
+		/* Clear screen */
+		Term_clear();
+		
+		/* Restrict the visible range */
+		if (line > (size - (hgt - 5))) line = size - (hgt - 5);
+		if (line < 0) line = 0;
+
+		/* Goto the selected line */
+		next = 0;
+		for (j = 0; TRUE; j++)
+		{
+			if (main_buffer[j] == '\n') next++;
+			
+			if ((next == line) || (main_buffer[j] == '\0')) break;
+		}
+		
+		// hack: need to step forward a character when not starting with the first line
+		if (main_buffer[j] == '\n')	j++;
+
+		/* Dump the next lines of the file */
+		for (i = 0; i < hgt - 5; )
+		{
+			/* Get a line of the file or stop */
+			k = 0;
+			while (TRUE)
+			{
+				ch = main_buffer[j];
+				
+				if (ch == '\0')
+				{
+					break;
+				}
+				
+				if (ch == '\n')
+				{
+					j++;
+					break;
+				}
+
+				buf[k] = ch;
+				
+				k++;
+				j++;			
+			}
+			buf[k] = '\0';
+			
+			/* Dump the line */
+			Term_putstr(0, i+2, -1, TERM_WHITE, buf);
+						
+			/* Count the printed lines */
+			i++;
+		}
+		
+		/* Prompt -- small files */
+		if (size <= hgt - 5)
+		{
+			/* Wait for it */
+			Term_putstr(1, hgt - 2, -1, TERM_SLATE, "(press ESC to exit)");
+			Term_putstr(8, hgt - 2, -1, TERM_L_WHITE, "ESC");
+			Term_putstr(20, hgt - 2, -1, TERM_L_WHITE, "");
+		}
+		
+		/* Prompt -- large files */
+		else
+		{
+			/* Wait for it */
+			Term_putstr(1, hgt - 2, -1, TERM_SLATE, "(press ESC to exit, Space for next page, Arrows/Keypad to scroll)");
+			Term_putstr(8, hgt - 2, -1, TERM_L_WHITE, "ESC");
+			Term_putstr(21, hgt - 2, -1, TERM_L_WHITE, "Space");
+			Term_putstr(42, hgt - 2, -1, TERM_L_WHITE, "Arrows");
+			Term_putstr(49, hgt - 2, -1, TERM_L_WHITE, "Keypad");
+			Term_putstr(67, hgt - 2, -1, TERM_L_WHITE, "");
+		}
+		
+		/* Get a keypress */
+		ch = inkey();
+		
+		/* Back up one line */
+		if ((ch == '8') || (ch == '='))
+		{
+			line = line - 1;
+			if (line < 0) line = 0;
+		}
+		
+		/* Advance one line */
+		if ((ch == '2') || (ch == '\n') || (ch == '\r'))
+		{
+			line = line + 1;
+		}
+		
+		/* Advance one full page */
+		if ((ch == '3') || (ch == ' '))
+		{
+			line = line + (hgt - 5);
+		}
+		
+		/* Exit on escape */
+		if (ch == ESCAPE) break;
+	}
+	
+	/* Done */
+	return (TRUE);
+}
+
+
+/*
  * Recursive file perusal.
  *
  * Return FALSE on "?", otherwise TRUE.
@@ -2513,18 +2654,18 @@ void show_help_screen(int i)
 			c_put_str(TERM_SLATE, "look (around dungeon)",   row, col + 3);
 			row++;		
 			c_put_str(TERM_WHITE, " M",                      row, col);
-			c_put_str(TERM_SLATE, "display map of level",   row, col + 3);
+			c_put_str(TERM_SLATE, "display map of level",    row, col + 3);
 			row++;		
 			row++;		
+			c_put_str(TERM_WHITE, " m",                      row, col);
+			c_put_str(TERM_SLATE, "main menu",               row, col + 3);
+			row++;
 			c_put_str(TERM_WHITE, "Tab",                     row, col-1);
 			c_put_str(TERM_SLATE, "display ability screen",  row, col + 3);
 			row++;
 			if (angband_keyset)	c_put_str(TERM_WHITE, " C",  row, col);
 			else				c_put_str(TERM_WHITE, " @",  row, col);
 			c_put_str(TERM_SLATE, "display character sheet", row, col + 3);
-			row++;
-			c_put_str(TERM_WHITE, " ~",                      row, col);
-			c_put_str(TERM_SLATE, "display knowledge",       row, col + 3);
 			row++;
 			if (angband_keyset)	c_put_str(TERM_WHITE, " =",  row, col);
 			else				c_put_str(TERM_WHITE, " O",  row, col);
@@ -3037,28 +3178,25 @@ void do_cmd_escape(void)
 	(void)strftime(long_day, 40, "%d %B %Y", localtime(&ct));
 	
 	/* Add note */
-	if (notes_file)
+	my_strcat(notes_buffer, "\n", sizeof(notes_buffer));
+
+	/*killed by */
+	sprintf(buf, "You escaped the Iron Hells on %s.", long_day);
+	
+	/* Write message */
+	do_cmd_note(buf,  p_ptr->depth);
+	
+	// make a note
+	switch (silmarils_possessed())
 	{
-		fprintf(notes_file, "\n");
-		
-		/*killed by */
-		sprintf(buf, "You escaped the Iron Hells on %s.", long_day);
-		
-		/* Write message */
-		do_cmd_note(buf,  p_ptr->depth);
-		
-		// make a note
-		switch (silmarils_possessed())
-		{
-			case 0:		do_cmd_note("You returned empty handed.", p_ptr->depth); break;
-			case 1:		do_cmd_note("You brought back a Silmaril from Morgoth's crown!", p_ptr->depth); break;
-			case 2:		do_cmd_note("You brought back two Silmarils from Morgoth's crown!", p_ptr->depth); break;
-			case 3:		do_cmd_note("You brought back all three Silmarils from Morgoth's crown!", p_ptr->depth); break;
-			default:	do_cmd_note("You brought back so many Silmarils that people should be suspicious!", p_ptr->depth); break;
-		}
-		
-		fprintf(notes_file, "\n");
+		case 0:		do_cmd_note("You returned empty handed.", p_ptr->depth); break;
+		case 1:		do_cmd_note("You brought back a Silmaril from Morgoth's crown!", p_ptr->depth); break;
+		case 2:		do_cmd_note("You brought back two Silmarils from Morgoth's crown!", p_ptr->depth); break;
+		case 3:		do_cmd_note("You brought back all three Silmarils from Morgoth's crown!", p_ptr->depth); break;
+		default:	do_cmd_note("You brought back so many Silmarils that people should be suspicious!", p_ptr->depth); break;
 	}
+	
+	my_strcat(notes_buffer, "\n", sizeof(notes_buffer));
 
 	
 	/* Cause of death */
@@ -3113,13 +3251,6 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
-	// clear the cheat flags
-	//if (p_ptr->noscore)
-	//{
-	//	msg_print("Removed the mark saying you have used debug mode.");
-	//	p_ptr->noscore = 0x0000;
-	//}
-
 	/* Disturb the player */
 	disturb(1, 0);
 
@@ -3725,7 +3856,6 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return;
 
-
 	/* Assume we will show the first 10 */
 	if (from < 0) from = 0;
 	if (to < 0) to = 10;
@@ -4007,7 +4137,14 @@ static errr enter_score(high_score *the_score)
 		score_idx = -1;
 		return (0);
 	}
-
+	
+	// People who cheated death are not scored
+	if (p_ptr->noscore & 0x0001)
+	{
+		Term_putstr(15, 8, -1, TERM_L_DARK, "(no high score when cheating)");
+		score_idx = -1;
+		return (0);
+	}
 #endif /* SCORE_CHEATERS */
 
 
@@ -4443,37 +4580,25 @@ errr file_character(cptr name, bool full)
 	}
 	fprintf(fff, "\n");
 	
-	if (notes_file)
+	fprintf(fff, "\n  [Notes]\n\n");
+	
+	/*dump notes to character file*/
+	i = 0;
+	holder = notes_buffer[i];
+
+	while (holder != '\0')
 	{
-		fprintf(fff, "\n  [Notes]\n\n");
+		/*get a character from the notes buffer*/
+		holder = notes_buffer[i];
+					
+		/*output it to the character dump*/
+		if (holder != '\0') fprintf(fff, "%c", holder);
 		
-		/*dump notes to character file*/
-		/*close the notes file for writing*/
-		my_fclose(notes_file);
-		
-		/*get the path for the notes file*/
-		notes_file = my_fopen(notes_fname, "r");
-		
-		do
-		{
-			
-			/*get a character from the notes file*/
-			holder = getc(notes_file);
-			
-			/*output it to the character dump, unless end of file char*/
-			if (holder != EOF) fprintf(fff, "%c", holder);
-			
-		}
-		while (holder != EOF);
-		
-		fprintf(fff, "\n");
-		
-		/*close it for reading*/
-		my_fclose(notes_file);
-		
-		/*re-open for appending*/
-		notes_file = my_fopen(notes_fname, "a");
+		// increment location in notes buffer
+		i++;
 	}
+	
+	fprintf(fff, "\n");
 	
 	/* Count options */
 	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
@@ -4502,7 +4627,7 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 	
-	// display a "sco
+	// display a "score"
 	create_score(&the_score);
 	fprintf(fff, "  ['Score' %.9d]\n\n", score_points(&the_score));
 	
@@ -4518,6 +4643,11 @@ errr file_character(cptr name, bool full)
 static int final_menu(int *highlight)
 {
 	char ch;
+	char buf[80];
+	
+	if (p_ptr->noscore & 0x0008) sprintf(buf, "Debugging info: %d forges generated", p_ptr->forge_count);
+	
+	Term_putstr(15, 21, -1, TERM_WHITE, buf);
 	
 	Term_putstr( 3, 10, -1, TERM_L_DARK, "____________________________________________________");
 	Term_putstr(15, 12, -1, (*highlight == 1) ? TERM_L_BLUE : TERM_WHITE, "a) View scores");
@@ -4920,15 +5050,6 @@ void close_game(void)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
-	if (notes_file)
-	{
-		/* Close the notes file */
-		my_fclose(notes_file);
-		
-		/* Delete the notes file */
-		fd_kill(notes_fname);
-	}
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;

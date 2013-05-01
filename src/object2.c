@@ -1453,7 +1453,7 @@ int random_k_idx(void)
 	
 	while (1)
 	{
-		kind_idx = randint(z_info->k_max);
+		kind_idx = rand_int(z_info->k_max);
 		k_ptr = &k_info[kind_idx];
 		if (k_ptr->tval != 0) return(kind_idx);
 	}
@@ -1675,8 +1675,8 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 		total += table[i].prob3;
 	}
 
-	/*enforce a true rarity if there are only one or a few rare ego items*/
-	if (randint(100) > total) return (0);
+	/* enforce a true rarity if there are only one or a few rare ego items*/
+	if (!percent_chance(total)) return (0);
 
 	/* Pick an special item */
 	value = rand_int(total);
@@ -1914,23 +1914,6 @@ static void charge_staff(object_type *o_ptr)
  */
 static int choose_chest_contents(void)
 {
-	int chest_theme; /*the returned chest theme*/
-
-	int minlevel; /*helps keep low level themes from appearing at higher levels*/
-
-	int chestlevel; /* random number which determines type of chest theme*/
-
-	int num; /*number used in random section*/
-
-	/*keep weaker themes out of deeper levels*/
-	minlevel = object_level / 4;
-
-	num = object_level;
-
-	chestlevel = randint(num) + minlevel;
-
-	/*now determine the chest theme*/
-
 	/*
 	 * chest theme # 1 is potions  (+ herbs of restoring)
 	 * chest theme # 2 is staffs
@@ -1944,21 +1927,10 @@ static int choose_chest_contents(void)
 	 * chest theme #10 is edged weapons
 	 * chest theme #11 is polearms
 	 * chest theme #12 is helms and crowns
-	 */
-	if (chestlevel <=10) chest_theme = (randint (12));
-
- 	/*
-	 * Now all themes are available, with
-	 * jewlery (rings of speed, amulets, and crowns) added.
-	 * Equal probability for all themes.
-	 *
 	 * chest theme #13 is jewelry
 	 */
 
-	else chest_theme = (randint (13));
-
-
-return(chest_theme);
+	return (dieroll(13));
 }
 
 /*
@@ -2097,7 +2069,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_RING_DEX:
 				{
 					/* Stat bonus */
-					o_ptr->pval = (level + randint(10)) / 10 - 1;
+					o_ptr->pval = (level + dieroll(10)) / 10 - 1;
 					
 					// maximum of +1
 					//if (o_ptr->pval > 1) o_ptr->pval = 1;
@@ -2119,7 +2091,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage sides */
-					o_ptr->pval = (level + randint(10)) / 10 - 1;
+					o_ptr->pval = (level + dieroll(10)) / 10 - 1;
 					
 					// can't be zero
 					if (o_ptr->pval == 0)
@@ -2144,7 +2116,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to attack */
-					o_ptr->att = (level + randint(10)) / 7 - 1;
+					o_ptr->att = (level + dieroll(10)) / 7 - 1;
 					
 					// can't be zero
 					if (o_ptr->att == 0)
@@ -2170,7 +2142,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				{
 					/* Bonus to protection */
 					o_ptr->pd = 1;
-					o_ptr->ps = (level + randint(10)) / 14 + 1;
+					o_ptr->ps = (level + dieroll(10)) / 14 + 1;
 			
 					break;
 				}
@@ -2179,7 +2151,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_RING_EVASION:
 				{
 					/* Bonus to evasion */
-					o_ptr->evn = (level + randint(10)) / 7 - 1;
+					o_ptr->evn = (level + dieroll(10)) / 7 - 1;
 					
 					// can't be zero
 					if (o_ptr->evn == 0)
@@ -2204,7 +2176,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_RING_PERCEPTION:
 				{
 					/* Bonus to perception */
-					o_ptr->pval = (level + randint(10)) / 5 - 1;
+					o_ptr->pval = (level + dieroll(10)) / 5 - 1;
 					
 					// can't be zero
 					if (o_ptr->pval == 0)
@@ -2239,7 +2211,7 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				case SV_AMULET_GRA:
 				{
 					/* Stat bonus */
-					o_ptr->pval = (level + randint(10)) / 10 - 1;
+					o_ptr->pval = (level + dieroll(10)) / 10 - 1;
 					
 					// maximum of +1
 					//if (o_ptr->pval > 1) o_ptr->pval = 1;
@@ -2295,7 +2267,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, bool fine, bool special)
 			{
 				if (one_in_(3))
 				{
-					o_ptr->timeout = 500 + randint(FUEL_TORCH / 2);
+					o_ptr->timeout = rand_range(500, 2000);
 				}
 				else
 				{
@@ -2308,7 +2280,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, bool fine, bool special)
 			{
 				if (one_in_(3))
 				{
-					o_ptr->timeout = 500 + randint(FUEL_LAMP / 2);
+					o_ptr->timeout = rand_range(500, 3000);
 				}
 				else
 				{
@@ -2433,50 +2405,38 @@ void object_into_special(object_type *o_ptr, int lev, bool smithing)
 	/* Hack -- acquire "cursed" flag */
 	if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 	
-	/* Hack -- apply extra penalties if needed */
-	if (cursed_p(o_ptr) || broken_p(o_ptr))
+	/* Hack -- apply extra bonuses if needed */
+	if (smithing)
 	{
 		/* Hack -- obtain bonuses */
-		if (e_ptr->max_att > 0) o_ptr->att -= randint(e_ptr->max_att);
-		if (e_ptr->max_evn > 0) o_ptr->evn -= randint(e_ptr->max_evn);
-		o_ptr->dd -= e_ptr->to_dd;
-		o_ptr->ds -= e_ptr->to_ds;
-		o_ptr->pd -= e_ptr->to_pd;
-		o_ptr->ps -= e_ptr->to_ps;
+		if (e_ptr->max_att > 0) o_ptr->att += 1;
+		if (e_ptr->max_evn > 0) o_ptr->evn += 1;
+		if (e_ptr->to_dd > 0) o_ptr->dd += 1;
+		if (e_ptr->to_ds > 0) o_ptr->ds += 1;
+		if (e_ptr->to_pd > 0) o_ptr->pd += 1;
+		if (e_ptr->to_ps > 0) o_ptr->ps += 1;
 		
-		/* Hack -- obtain pval, unless one has already been assigned */
-		if ((e_ptr->max_pval > 0) && (o_ptr->pval == 0))
-			o_ptr->pval -= randint(e_ptr->max_pval);
+		/* Hack -- obtain pval */
+		if (e_ptr->max_pval > 0) o_ptr->pval += 1;
 	}
-	
-	/* Hack -- apply extra bonuses if needed */
 	else
 	{
-		if (smithing)
+		/* Hack -- obtain bonuses */
+		if (e_ptr->max_att > 0) o_ptr->att += dieroll(e_ptr->max_att);
+		if (e_ptr->max_evn > 0) o_ptr->evn += dieroll(e_ptr->max_evn);
+		if (e_ptr->to_dd > 0) o_ptr->dd += dieroll(e_ptr->to_dd);
+		if (e_ptr->to_ds > 0) o_ptr->ds += dieroll(e_ptr->to_ds);
+		if (e_ptr->to_pd > 0) o_ptr->pd += dieroll(e_ptr->to_pd);
+		if (e_ptr->to_ps > 0) o_ptr->ps += dieroll(e_ptr->to_ps);
+		
+		/* Hack -- obtain pval */
+		if (cursed_p(o_ptr))
 		{
-			/* Hack -- obtain bonuses */
-			if (e_ptr->max_att > 0) o_ptr->att += 1;
-			if (e_ptr->max_evn > 0) o_ptr->evn += 1;
-			if (e_ptr->to_dd > 0) o_ptr->dd += 1;
-			if (e_ptr->to_ds > 0) o_ptr->ds += 1;
-			if (e_ptr->to_pd > 0) o_ptr->pd += 1;
-			if (e_ptr->to_ps > 0) o_ptr->ps += 1;
-			
-			/* Hack -- obtain pval */
-			if (e_ptr->max_pval > 0) o_ptr->pval += 1;
+			if (e_ptr->max_pval > 0) o_ptr->pval -= dieroll(e_ptr->max_pval);
 		}
 		else
 		{
-			/* Hack -- obtain bonuses */
-			if (e_ptr->max_att > 0) o_ptr->att += randint(e_ptr->max_att);
-			if (e_ptr->max_evn > 0) o_ptr->evn += randint(e_ptr->max_evn);
-			if (e_ptr->to_dd > 0) o_ptr->dd += randint(e_ptr->to_dd);
-			if (e_ptr->to_ds > 0) o_ptr->ds += randint(e_ptr->to_ds);
-			if (e_ptr->to_pd > 0) o_ptr->pd += randint(e_ptr->to_pd);
-			if (e_ptr->to_ps > 0) o_ptr->ps += randint(e_ptr->to_ps);
-			
-			/* Hack -- obtain pval */
-			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
+			if (e_ptr->max_pval > 0) o_ptr->pval += dieroll(e_ptr->max_pval);
 		}
 	}
 	
@@ -3971,6 +3931,9 @@ void place_trap(int y, int x)
 				// 5-18
 				if (p_ptr->depth < 5) continue;
 				if (p_ptr->depth > 18) continue;
+
+				// skip half the time as they are otherwise too common
+				if (one_in_(2)) continue;
 				break;
 			}
 			case FEAT_TRAP_PIT:
@@ -4034,8 +3997,20 @@ void place_trap(int y, int x)
 			}
 			case FEAT_TRAP_WEB:
 			{
+				int d, dir, floor_count = 0;
+
 				// 8-
 				if (p_ptr->depth < 8) continue;
+				
+				// make sure there are at least two adjacent floor squares
+				for (d = 0; d < 8; d++)
+				{
+					dir = cycle[d];
+					
+					if (cave_floor_bold(y + ddy[dir], x + ddx[dir])) floor_count++;
+				}
+				if (floor_count < 2) continue;
+				
 				break;
 			}
 			case FEAT_TRAP_DEADFALL:
@@ -4121,7 +4096,7 @@ void place_closed_door(int y, int x)
 		else if (tmp < 96)
 		{
 			/* Create locked door */
-			power = (10 + p_ptr->depth + randint(15)) / 5;
+			power = (10 + p_ptr->depth + dieroll(15)) / 5;
 			power = MIN(7, power);
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + power);
 		}
@@ -4130,7 +4105,7 @@ void place_closed_door(int y, int x)
 		else
 		{
 			/* Create jammed door */
-			power = (10 + p_ptr->depth + randint(15)) / 5;
+			power = (10 + p_ptr->depth + dieroll(15)) / 5;
 			power = MIN(7, power);
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + power);
 		}
@@ -4150,7 +4125,7 @@ void place_closed_door(int y, int x)
 		else if (tmp < 99)
 		{
 			/* Create locked door */
-			power = (p_ptr->depth + randint(15)) / 5;
+			power = (p_ptr->depth + dieroll(15)) / 5;
 			power = MIN(7, power);
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + power);
 		}
@@ -4159,7 +4134,7 @@ void place_closed_door(int y, int x)
 		else
 		{
 			/* Create jammed door */
-			power = (p_ptr->depth + randint(15)) / 5;
+			power = (p_ptr->depth + dieroll(15)) / 5;
 			power = MIN(7, power);
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + power);
 		}
@@ -4220,12 +4195,19 @@ void place_forge(int y, int x)
 	// roll once per level of depth and keep the best roll
 	for (i = 0; i < effective_depth; i++)
 	{
-		p = randint(1000);
+		p = dieroll(1000);
 		
 		power = MAX(power, p);
 	}
 
 	uses = damroll(2,2);
+
+	// to prevent start-scumming on the initial forge
+	if (p_ptr->depth <= 2)
+	{
+		uses = 3;
+		power = 0;
+	}
 	
 	// unique forge
 	if ((power >= 1000) && !p_ptr->unique_forge_made) 
@@ -4251,6 +4233,7 @@ void place_forge(int y, int x)
 		cave_set_feat(y, x, FEAT_FORGE_NORMAL_HEAD + uses);
 		if (cheat_room) msg_print("Forge.");
 	}
+	
 }
 
 

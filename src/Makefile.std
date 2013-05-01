@@ -14,7 +14,7 @@
 # for use with Unix machines running X11, gtk, (n)curses, termcap,
 # or VT100, or SVGA library.
 #
-# Note that "main-mac.c", the visual module for the Macintosh,
+# Note that "main-crb.c", the visual module for the Macintosh,
 # must be compiled in a special way, see elsewhere.
 #
 # Note that "main-win.c", the visual module for Windows,
@@ -100,8 +100,6 @@ CC = gcc
 # You may have to add various X11 include/library directories to the
 # "CFLAGS", if your machine places files in a weird location.
 #
-# You may be able to remove "-ltermcap" on some machines (ex: Solaris).
-#
 # You may have to replace "-lcurses" with "-lncurses" to use the
 # "new curses" library instead of the "old curses" library, and
 # you may have to add "-I/usr/include/ncurses" to the "CFLAGS".
@@ -114,15 +112,15 @@ CC = gcc
 ##
 ## Standard -- "main-x11.c" & "main-gcu.c"
 ##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-#LIBS = -lX11 -lcurses -ltermcap
+CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+LIBS = -lX11 -lncurses
 
 
 ##
 ## Variation -- "main-x11.c" & "main-gcu.c" (for Mac OS X)
 ##
-CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-LIBS = -L/usr/X11/lib -lX11 -lcurses -ltermcap
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+#LIBS = -L/usr/X11/lib -lX11 -lcurses
 
 
 ##
@@ -143,7 +141,7 @@ LIBS = -L/usr/X11/lib -lX11 -lcurses -ltermcap
 ## Variation -- "main-gcu.c"
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
-#LIBS = -lcurses -ltermcap
+#LIBS = -lcurses
 
 
 ##
@@ -151,14 +149,14 @@ LIBS = -L/usr/X11/lib -lX11 -lcurses -ltermcap
 ## Note: gtk-config adds GTK and X11 includes and libraries as appropriate.
 ##
 #CFLAGS = -Wall -O `gtk-config --cflags` -g -D"USE_GTK" -D"USE_GCU"
-#LIBS = `gtk-config --libs` -lcurses -ltermcap
+#LIBS = `gtk-config --libs` -lcurses
 
 
 ##
 ## Variation -- "main-x11.c" & "main-cap.c
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
-#LIBS = -lX11 -ltermcap
+#LIBS = -lX11
 
 
 ##

@@ -337,17 +337,17 @@ bool set_afraid(int v)
 }
 
 
-/* Players with free action or who make their saving throw don't get paralyzed */
-bool allow_player_paralysis(monster_type *m_ptr)
+/* Players with free action or who make their saving throw don't get entranced */
+bool allow_player_entrancement(monster_type *m_ptr)
 {
 	return (allow_player_aux(m_ptr, p_ptr->free_act, TR2_FREE_ACT));
 }
 
 
 /*
- * Set "p_ptr->paralyzed", notice observable changes
+ * Set "p_ptr->entranced", notice observable changes
  */
-bool set_paralyzed(int v)
+bool set_entranced(int v)
 {
 	bool notice = FALSE;
 
@@ -357,7 +357,7 @@ bool set_paralyzed(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->paralyzed)
+		if (!p_ptr->entranced)
 		{
 			msg_print("You fall into a deep trance!");
 			notice = TRUE;
@@ -367,15 +367,16 @@ bool set_paralyzed(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->paralyzed)
+		if (p_ptr->entranced)
 		{
 			msg_print("The trance is broken!");
+			p_ptr->was_entranced = TRUE;
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->paralyzed = v;
+	p_ptr->entranced = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1132,10 +1133,10 @@ bool set_stun(int v)
 
 	bool notice = FALSE;
 	
-	/*  Don't increase stunning if stunning value is 100 already or more.
+	/*  Don't increase stunning if stunning value is greater than 100.
 	 *  this is an effort to eliminate the "knocked out" instadeath.
 	 */
-	if ((p_ptr->stun >= 100) && (v > p_ptr->stun)) return (FALSE);
+	if ((p_ptr->stun > 100) && (v > p_ptr->stun)) return (FALSE);
 
 	/* Hack -- Force sane values */
 	v = (v > 105) ? 105 : (v < 0) ? 0 : v;
@@ -1167,7 +1168,7 @@ bool set_stun(int v)
 	/* Knocked out */
 	if (v > 100)
 	{
-		p_ptr->blind = MAX(p_ptr->blind,2);////$$$$
+		p_ptr->blind = MAX(p_ptr->blind,2);
 		new_aux = 3;
 	}
 
@@ -1466,6 +1467,7 @@ bool set_food(int v)
 			case 5:
 			{
 				msg_print("You have gorged yourself!");
+				msg_print("You can't eat or drink any more until you recover.");
 				break;
 			}
 		}
@@ -1570,7 +1572,7 @@ void falling_damage(bool stun)
 	{
 		// update the combat rolls window
 		update_combat_rolls1b(PLAYER, PLAYER, TRUE);
-		update_combat_rolls2(dice, 4, dam, -1, -1, 0, 0, GF_HURT);
+		update_combat_rolls2(dice, 4, dam, -1, -1, 0, 0, GF_HURT, FALSE);
 		
 		/* Take the damage */
 		take_hit(dam, "a collapsing floor");
@@ -1845,6 +1847,9 @@ extern void create_chosen_artefact(byte name1, int y, int x, bool identify)
 	// Don't generate it if one has already been generated
 	if (a_ptr->cur_num > 0) return;
 	
+	// Don't generate it in no-artefact games, with one obvious exception
+	if (birth_no_artefacts && (name1 != ART_MORGOTH_3)) return;
+	
 	/* Get local object */
 	i_ptr = &object_type_body;
 		
@@ -1910,7 +1915,7 @@ void drop_loot(monster_type *m_ptr)
 	x = m_ptr->fx;
 	
 	/* Stone creatures turn into rubble */
-	if (r_ptr->flags3 & (RF3_STONE))
+	if ((r_ptr->flags3 & (RF3_STONE)) && !cave_stair_bold(y, x))
 	{
 		cave_set_feat(y, x, FEAT_RUBBLE);
 	}
@@ -1964,7 +1969,7 @@ void drop_loot(monster_type *m_ptr)
 		// Drop Deathblade treasures
 		else if (r_ptr->d_char == '|')
 		{
-			if (r_ptr->flags1 & (RF1_UNIQUE))
+			if (!birth_no_artefacts && (r_ptr->flags1 & (RF1_UNIQUE)))
 			{
 				// create the Deathblade 'Delmereth'
 				create_chosen_artefact(ART_DELMERETH, y, x, TRUE);
@@ -2006,8 +2011,8 @@ void drop_loot(monster_type *m_ptr)
 		// Drop Wolf-Hame of Drauglin
 		else if (r_ptr->d_char == 'C')
 		{
-			// create the Wolf-Hame of Drauglin
-			create_chosen_artefact(ART_DRAUGLIN, y, x, FALSE);
+			// create the Wolf-Hame of Draugluin
+			create_chosen_artefact(ART_DRAUGLUIN, y, x, FALSE);
 		}
 		// Drop Bat-Fell of Thuringwethil
 		else if (r_ptr->d_char == 'v')
@@ -2026,7 +2031,7 @@ void drop_loot(monster_type *m_ptr)
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 	
 	// Favoured drops 1: arrows from archers
-	if ((number > 0) && ((r_ptr->flags4 & (RF4_ARROW1)) || (r_ptr->flags4 & (RF4_ARROW2))) && (rand_int(200) < r_ptr->freq_ranged))
+	if ((number > 0) && ((r_ptr->flags4 & (RF4_ARROW1)) || (r_ptr->flags4 & (RF4_ARROW2))) && percent_chance(r_ptr->freq_ranged / 2))
 	{
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -3746,7 +3751,7 @@ static int draw_path(u16b *path, int range, char *c, byte *a,
 
 		/* Choose a colour. */
 		/* Visible monsters are red. */
-		if (cave_m_idx[y][x] && mon_list[cave_m_idx[y][x]].ml)
+		if ((cave_m_idx[y][x] > 0) && mon_list[cave_m_idx[y][x]].ml)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 
@@ -3920,8 +3925,9 @@ bool target_set_interactive(int mode, int range)
 				(void) draw_path(path, adjusted_range, path_char, path_attr, py, px, y, x);
 								
 			// Check whether the target location is valid (ie within the path)
-			if ((((GRID_Y(path[max-1]) <= y) && (y <= py)) || ((GRID_Y(path[max-1]) >= y) && (y >= py))) &&
-			    (((GRID_X(path[max-1]) <= x) && (x <= px)) || ((GRID_X(path[max-1]) >= x) && (x >= px))))
+			if ((max == 0) ||
+				((((GRID_Y(path[max-1]) <= y) && (y <= py)) || ((GRID_Y(path[max-1]) >= y) && (y >= py))) &&
+			     (((GRID_X(path[max-1]) <= x) && (x <= px)) || ((GRID_X(path[max-1]) >= x) && (x >= px)))))
 			{
 				valid_target = TRUE;
 			}
@@ -4097,8 +4103,9 @@ bool target_set_interactive(int mode, int range)
 				(void) draw_path(path, adjusted_range, path_char, path_attr, py, px, y, x);
 
 			// Check whether the target location is valid (ie within the path)
-			if ((((GRID_Y(path[max-1]) <= y) && (y <= py)) || ((GRID_Y(path[max-1]) >= y) && (y >= py))) &&
-			    (((GRID_X(path[max-1]) <= x) && (x <= px)) || ((GRID_X(path[max-1]) >= x) && (x >= px))))
+			if ((max == 0) ||
+				((((GRID_Y(path[max-1]) <= y) && (y <= py)) || ((GRID_Y(path[max-1]) >= y) && (y >= py))) &&
+			     (((GRID_X(path[max-1]) <= x) && (x <= px)) || ((GRID_X(path[max-1]) >= x) && (x >= px)))))
 			{
 				valid_target = TRUE;
 			}

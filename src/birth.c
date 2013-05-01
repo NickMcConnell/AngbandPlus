@@ -92,7 +92,7 @@ static void get_history_aux(void)
 		i = 0;
 
 		/* Roll for nobility */
-		roll = randint(100);
+		roll = dieroll(100);
 
 		/* Get the proper entry in the table */
 		while ((chart != h_info[i].chart))  i++;
@@ -591,9 +591,16 @@ static void player_wipe(void)
 	/*No current player ghosts*/
 	bones_selector = 0;
 
+	// give the player the most food possible without a message showing
 	p_ptr->food = PY_FOOD_FULL - 1;
+	
+	// reset the stair info
 	p_ptr->stairs_taken = 0;
 	p_ptr->staircasiness = 0;
+
+	// reset the forge info
+	p_ptr->forge_drought = 5000;
+	p_ptr->forge_count = 0;
 
 	/*re-set the thefts counter*/
 	recent_failed_thefts = 0;
@@ -1924,7 +1931,13 @@ static bool player_birth_aux(void)
  */
 void player_birth()
 {
+	int i;
 
+	char raw_date[25];
+	char clean_date[25];
+	char month[4];
+	time_t ct = time((time_t*)0);
+	
 	/* Create a new character */
 	while (1)
 	{
@@ -1935,50 +1948,31 @@ void player_birth()
 		if (player_birth_aux()) break;
 	}
 
-	/* Open the file (notes_file and notes_fname are global) */
-	notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+	for (i = 0; i < NOTES_LENGTH; i++)
+	{
+		notes_buffer[i] = '\0';
+	}
 
-	if (notes_file)
-	{
-		/* Make a note file */
-		/* Variables */
-		char raw_date[25];
-		char clean_date[25];
-		char month[4];
-		
-		time_t ct = time((time_t*)0);
-		
-		/* Get date */
-		(void)strftime(raw_date, sizeof(raw_date), "@%Y%m%d", localtime(&ct));
-		
-		sprintf(month,"%.2s", raw_date + 5);
-		atomonth(atoi(month), month);
-		
-		if (*(raw_date + 7) == '0')		sprintf(clean_date, "%.1s %.3s %.4s", raw_date + 8, month, raw_date + 1);
-		else							sprintf(clean_date, "%.2s %.3s %.4s", raw_date + 7, month, raw_date + 1);
-		
-		/* Add in "character start" information */
-		fprintf(notes_file, "%s of the %s\n", op_ptr->full_name,
-				p_name + rp_ptr->name);
-		fprintf(notes_file, "Entered Angband on %s\n", clean_date);
-		fprintf(notes_file, "\n");
-		fprintf(notes_file, "    Turn     Depth    Note\n");
-		fprintf(notes_file, "\n");
-		
-		/* Note player birth in the message recall */
-		message_add(" ", MSG_GENERIC);
-		message_add("  ", MSG_GENERIC);
-		message_add("====================", MSG_GENERIC);
-		message_add("  ", MSG_GENERIC);
-		message_add(" ", MSG_GENERIC);
-	}
-	else
-	{
-		msg_print("Error: Sorry, but Sil could not create a file to store notes about the character.");
-		msg_print("The game will continue, but you won't be able to use this minor feature.");
-		msg_print("If you really want notes, you may need to launch Sil with administrator priveleges.");
-		message_flush();
-	}
+	/* Get date */
+	(void)strftime(raw_date, sizeof(raw_date), "@%Y%m%d", localtime(&ct));
+	
+	sprintf(month,"%.2s", raw_date + 5);
+	atomonth(atoi(month), month);
+	
+	if (*(raw_date + 7) == '0')		sprintf(clean_date, "%.1s %.3s %.4s", raw_date + 8, month, raw_date + 1);
+	else							sprintf(clean_date, "%.2s %.3s %.4s", raw_date + 7, month, raw_date + 1);
+	
+	/* Add in "character start" information */
+	my_strcat(notes_buffer, format("%s of the %s\n", op_ptr->full_name, p_name + rp_ptr->name), sizeof(notes_buffer));
+	my_strcat(notes_buffer, format("Entered Angband on %s\n", clean_date), sizeof(notes_buffer));
+	my_strcat(notes_buffer, "\n    Turn     Depth    Note\n\n", sizeof(notes_buffer));
+	
+	/* Note player birth in the message recall */
+	message_add(" ", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add("====================", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add(" ", MSG_GENERIC);
 
 
 	/* Hack -- outfit the player */

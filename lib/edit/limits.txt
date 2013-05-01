@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.1.0
 
 
 # Maximum number of feature types
@@ -36,7 +36,7 @@ M:B:240
 #
 # changing these numbers will almost always break savefile compatibility
 #
-M:A:20:130:50:50
+M:A:20:180:1:50
 
 # Maximum number of special item types
 M:E:145

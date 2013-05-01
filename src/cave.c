@@ -492,7 +492,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 	}
 
 	/* Monsters with no ranged attacks can be any color */
-	if (!r_ptr->freq_ranged) return (randint(15));
+	if (!r_ptr->freq_ranged) return (dieroll(15));
 
 	/* Check breaths */
 	for (i = 0; i < 32; i++)
@@ -509,14 +509,14 @@ static byte multi_hued_attr(monster_race *r_ptr)
 		if (first_color == 0) continue;
 
 		/* Monster can be of any color */
-		if (first_color == 255) return (randint(15));
+		if (first_color == 255) return (dieroll(15));
 
 
 		/* Increment the number of breaths */
 		breaths++;
 
 		/* Monsters with lots of breaths may be any color. */
-		if (breaths == 6) return (randint(15));
+		if (breaths == 6) return (dieroll(15));
 
 
 		/* Always store the first color */
@@ -542,7 +542,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 	}
 
 	/* Monsters with no breaths may be of any color. */
-	if (breaths == 0) return (randint(15));
+	if (breaths == 0) return (dieroll(15));
 
 	/* If monster has one breath, store the second color too. */
 	if (breaths == 1)
@@ -574,7 +574,7 @@ static u16b image_monster(void)
 	c = image_monster_hack[rand_int(sizeof(image_monster_hack) - 1)];
 
 	/* Random color */
-	a = randint(15);
+	a = dieroll(15);
 
 	/* Encode */
 	return (PICT(a,c));
@@ -599,7 +599,7 @@ static u16b image_object(void)
 	c = image_object_hack[rand_int(sizeof(image_object_hack) - 1)];
 
 	/* Random color */
-	a = randint(15);
+	a = dieroll(15);
 
 	/* Encode */
 	return (PICT(a,c));
@@ -980,7 +980,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	{
 		int i;
 
-		image_count = randint(200);
+		image_count = dieroll(200);
 
 		if (player_can_see_bold(y, x))
 		{
@@ -1535,7 +1535,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
-				a = randint(15);
+				a = dieroll(15);
 
 				/* Normal char */
 				c = dc;
@@ -3414,14 +3414,22 @@ void update_view(void)
 		if (o_ptr->tval == TV_LIGHT)
 		{
 			/* Some items provide permanent, bright, light */
-			if ((o_ptr->sval == SV_LIGHT_FEANORIAN) || (o_ptr->sval == SV_LIGHT_LESSER_JEWEL) || (o_ptr->sval == SV_LIGHT_SILMARIL))
+			if (o_ptr->sval == SV_LIGHT_FEANORIAN)
 			{
-				obj_light += o_ptr->pval;
+				obj_light += RADIUS_FEANORIAN;
+			}
+			if (o_ptr->sval == SV_LIGHT_LESSER_JEWEL)
+			{
+				obj_light += RADIUS_LESSER_JEWEL;
+			}
+			if (o_ptr->sval == SV_LIGHT_SILMARIL)
+			{
+				obj_light += RADIUS_SILMARIL;
 			}
 		}
 		
 		// The Iron Crown also glows
-		if ((o_ptr->name1 >= ART_MORGOTH_0) && (o_ptr->name1 <= ART_MORGOTH_3))
+		if ((o_ptr->name1 >= ART_MORGOTH_1) && (o_ptr->name1 <= ART_MORGOTH_3))
 		{ 
 			obj_light += o_ptr->pval;
 		}
@@ -3860,9 +3868,16 @@ void update_noise(int cy, int cx, byte which_flow)
 					// Ignore immoveable monsters for the pathfinding flows
 					if ((which_flow != FLOW_REAL_NOISE) && (which_flow != FLOW_MON_NOISE))
 					{
-						if ((&r_info[(&mon_list[cave_m_idx[y2][x2]])->r_idx])->flags1 & (RF1_NEVER_MOVE))
+						int m_idx = cave_m_idx[y2][x2];
+						
+						// if it is a monster
+						if (m_idx > 0)
 						{
-							continue;
+							// if it is immoveable
+							if ((&r_info[(&mon_list[cave_m_idx[y2][x2]])->r_idx])->flags1 & (RF1_NEVER_MOVE))
+							{
+								continue;
+							}
 						}
 					}
 					

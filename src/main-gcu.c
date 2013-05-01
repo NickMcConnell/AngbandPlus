@@ -1134,6 +1134,33 @@ errr init_gcu(int argc, char **argv)
 	/* No big screen -- create as many term windows as possible */
 	else
 	{
+		/*
+		 * If we have a REALLY big screen, try to put any
+		 * extra real estate into the upper-left window.
+		 * Hack -- these constants rely on a-priori knowledge
+		 * of the sort of things that go in the windows.
+		 *
+		 * This patch is by 'bron' from the Angband Forum
+		 * under the directions: 'Feel free to use this (or not) as you see fit.'
+		 */
+
+		/* Minimum size for UpperLeft window */
+		const int ul_min_rows = 24;
+		const int ul_min_cols = 80;
+
+		/* Maximum (useful) columns for UpperRight window */
+		const int ur_max_cols = 80;
+
+		/* Maximum (useful) rows for LowerLeft window */
+		const int ll_max_rows = 26;
+
+
+		/* Actual size of UpperLeft window */
+		int ul_rows = MAX(ul_min_rows, LINES - (ll_max_rows + 1));
+		int ul_cols = MAX(ul_min_cols, COLS - (ur_max_cols + 1));
+
+
+
 		/* Create several terms */
 		for (i = 0; i < num_term; i++)
 		{
@@ -1145,8 +1172,8 @@ errr init_gcu(int argc, char **argv)
 				/* Upper left */
 				case 0:
 				{
-					rows = 24;
-					cols = 80;
+					rows = ul_rows;
+					cols = ul_cols;
 					y = x = 0;
 					break;
 				}
@@ -1154,9 +1181,9 @@ errr init_gcu(int argc, char **argv)
 				/* Lower left */
 				case 1:
 				{
-					rows = LINES - 25;
-					cols = 80;
-					y = 25;
+					rows = LINES - (ul_rows + 1);
+					cols = ul_cols;
+					y = ul_rows + 1;
 					x = 0;
 					break;
 				}
@@ -1164,20 +1191,20 @@ errr init_gcu(int argc, char **argv)
 				/* Upper right */
 				case 2:
 				{
-					rows = 24;
-					cols = COLS - 81;
+					rows = ul_rows;
+					cols = COLS - (ul_cols + 1);
 					y = 0;
-					x = 81;
+					x = ul_cols + 1;
 					break;
 				}
 
 				/* Lower right */
 				case 3:
 				{
-					rows = LINES - 25;
-					cols = COLS - 81;
-					y = 25;
-					x = 81;
+					rows = LINES - (ul_rows + 1);
+					cols = COLS - (ul_cols + 1);
+					y = ul_rows + 1;
+					x = ul_cols + 1;
 					break;
 				}
 

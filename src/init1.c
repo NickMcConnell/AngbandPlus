@@ -108,7 +108,7 @@ static cptr r_info_blow_effect[] =
 	"BLIND",
 	"CONFUSE",
 	"TERRIFY",
-	"PARALYZE",
+	"ENTRANCE",
 	"HALLU",
 	"DISEASE",
 	"LOSE_STR",
@@ -216,7 +216,7 @@ static flag_name info_flags[] =
 	{"EVASIVE", RF2, RF2_EVASIVE},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
-	{"RF2XXX6", RF2, RF2_RF2XXX6},
+	{"PASS_DOOR", RF2, RF2_PASS_DOOR},
 	{"UNLOCK_DOOR", RF2, RF2_UNLOCK_DOOR},
 	{"OPEN_DOOR", RF2, RF2_OPEN_DOOR},
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
@@ -340,7 +340,7 @@ static flag_name info_flags[] =
 	{"WILL", TR1, TR1_WIL},
 	{"SMITHING", TR1, TR1_SMT},
 	{"SONG", TR1, TR1_SNG},
-	{"DAMAGE_DICE",	TR1, TR1_DAMAGE_DICE},
+	{"TR1XXX1",	TR1, TR1_TR1XXX1},
 	{"DAMAGE_SIDES", TR1, TR1_DAMAGE_SIDES},
 	{"TUNNEL", TR1, TR1_TUNNEL},
 	{"SHARPNESS", TR1, TR1_SHARPNESS},
@@ -385,18 +385,18 @@ static flag_name info_flags[] =
 	{"REGEN", TR2, TR2_REGEN},
 	{"SEE_INVIS", TR2, TR2_SEE_INVIS},
 	{"FREE_ACT", TR2, TR2_FREE_ACT},
-	{"TELEPATHY", TR2, TR2_TELEPATHY},
+	{"TR2XXX1", TR2, TR2_TR2XXX1},
 	{"SPEED", TR2, TR2_SPEED},
-	{"LIFE_SAVING", TR2, TR2_LIFE_SAVING},
+	{"FEAR", TR2, TR2_FEAR},
 	{"HUNGER", TR2, TR2_HUNGER},
 	{"DARKNESS", TR2, TR2_DARKNESS},
 	{"SLOWNESS", TR2, TR2_SLOWNESS},
 	{"DANGER", TR2, TR2_DANGER},
 	{"AGGRAVATE", TR2, TR2_AGGRAVATE},
-	{"TR2XXX16", TR2, TR2_TR2XXX16},
-	{"TR2XXX17", TR2, TR2_TR2XXX17},
-	{"TR2XXX18", TR2, TR2_TR2XXX18},
-	{"TR2XXX19", TR2, TR2_TR2XXX19},
+	{"HAUNTED", TR2, TR2_HAUNTED},
+	{"VUL_COLD", TR2, TR2_VUL_COLD},
+	{"VUL_FIRE", TR2, TR2_VUL_FIRE},
+	{"VUL_POIS", TR2, TR2_VUL_POIS},
 
 	/*TR2 Uber-flags*/
 	{"SUST_STATS", TR2, TR2_SUST_STATS},
@@ -410,7 +410,7 @@ static flag_name info_flags[] =
 	{"TR3XXX2", TR3, TR3_TR3XXX2},
 	{"TR3XXX3", TR3, TR3_TR3XXX3},
 	{"TR3XXX4", TR3, TR3_TR3XXX4},
-	{"DETECT_ORC", TR3, TR3_DETECT_ORC},
+	{"TR3XXX14", TR3, TR3_TR3XXX14},
 	{"TR3XXX13", TR3, TR3_TR3XXX13},
 	{"TR3XXX5", TR3, TR3_TR3XXX5},
 	{"TR3XXX6", TR3, TR3_TR3XXX6},
@@ -427,7 +427,7 @@ static flag_name info_flags[] =
 	{"IGNORE_FIRE", TR3, TR3_IGNORE_FIRE},
 	{"IGNORE_COLD", TR3, TR3_IGNORE_COLD},
 	{"THROWING", TR3, TR3_THROWING},
-	{"TR3XXX10", TR3, TR3_TR3XXX10},
+	{"ENCHANTABLE", TR3, TR3_ENCHANTABLE},
 	{"ACTIVATE", TR3, TR3_ACTIVATE},
 	{"INSTA_ART", TR3, TR3_INSTA_ART},
 	{"EASY_KNOW", TR3, TR3_EASY_KNOW},
@@ -985,13 +985,16 @@ errr parse_v_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&v_ptr->text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
+
+		// Note if there is a forge in the vault
+		if (strchr(buf, '0')) v_ptr->forge = TRUE;
 	}
 
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
 		int typ, depth, rarity, hgt, wid;
-
+		
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 

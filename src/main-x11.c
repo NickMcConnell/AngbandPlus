@@ -2240,7 +2240,8 @@ static errr Term_xtra_x11(int n, int v)
  */
 static errr Term_curs_x11(int x, int y)
 {
-	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+	// Sil-y: changed to blue from xor
+	XDrawRectangle(Metadpy->dpy, Infowin->win, clr[TERM_BLUE]->gc,
 			 x * Infofnt->wid + Infowin->ox,
 			 y * Infofnt->hgt + Infowin->oy,
 			 Infofnt->wid - 1, Infofnt->hgt - 1);
@@ -2255,7 +2256,8 @@ static errr Term_curs_x11(int x, int y)
  */
 static errr Term_bigcurs_x11(int x, int y)
 {
-	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+	// Sil-y: changed to blue from xor
+	XDrawRectangle(Metadpy->dpy, Infowin->win, clr[TERM_BLUE]->gc,
 			 x * Infofnt->wid + Infowin->ox,
 			 y * Infofnt->hgt + Infowin->oy,
 			 Infofnt->twid - 1, Infofnt->hgt - 1);
@@ -2438,7 +2440,7 @@ static errr term_data_init(term_data *td, int i)
 	cptr str;
 
 	int val;
-
+	
 	XClassHint *ch;
 
 	char res_name[20];
@@ -2449,24 +2451,26 @@ static errr term_data_init(term_data *td, int i)
 	/* Get default font for this term */
 	font = get_default_font(i);
 
+	// Sil-y: changed all 'ANGBAND' to 'SIL'
+
 	/* Window specific location (x) */
-	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
+	sprintf(buf, "SIL_X11_AT_X_%d", i);
 	str = getenv(buf);
 	x = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific location (y) */
-	sprintf(buf, "ANGBAND_X11_AT_Y_%d", i);
+	sprintf(buf, "SIL_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific cols */
-	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	sprintf(buf, "SIL_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	sprintf(buf, "SIL_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -2479,18 +2483,17 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Window specific inner border offset (ox) */
-	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
+	sprintf(buf, "SIL_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
+	sprintf(buf, "SIL_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
-
-
+	
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
@@ -2727,17 +2730,49 @@ errr init_x11(int argc, char **argv)
 		pixel = ((i == 0) ? Metadpy->bg : Metadpy->fg);
 
 		/* Handle color */
+		// Sil-y: this block of code has added support for background colours
 		if (Metadpy->color)
 		{
+			Pixell backpixel;
+			use_background_colors = TRUE;
+
 			/* Create pixel */
 			pixel = create_pixel(Metadpy->dpy,
-			                     color_table[i][1],
-			                     color_table[i][2],
-			                     color_table[i][3]);
+			                     color_table[i % MAX_COLORS][1],
+			                     color_table[i % MAX_COLORS][2],
+			                     color_table[i % MAX_COLORS][3]);
+								 
+			switch (i / MAX_COLORS)
+			{
+				case BG_BLACK:
+					/* Default Background */
+					Infoclr_init_ppn(pixel, Metadpy->bg, "cpy", 0);
+					break;
+				case BG_SAME:
+					/* Background same as foreground*/
+					backpixel = create_pixel(Metadpy->dpy,
+											 color_table[i % MAX_COLORS][1],
+											 color_table[i % MAX_COLORS][2],
+											 color_table[i % MAX_COLORS][3]);
+					Infoclr_init_ppn(pixel, backpixel, "cpy", 0);
+					break;
+				case BG_DARK:
+					/* Highlight Background */
+					backpixel = create_pixel(Metadpy->dpy,
+											 color_table[16][1],
+											 color_table[16][2],
+											 color_table[16][3]);
+					Infoclr_init_ppn(pixel, backpixel, "cpy", 0);
+					break;
+			}
+		}
+		
+		// Sil-y: handle monochrome
+		else
+		{
+			Infoclr_init_ppn(pixel, Metadpy->bg, "cpy", 0);
 		}
 
-		/* Initialize the color */
-		Infoclr_init_ppn(pixel, Metadpy->bg, "cpy", 0);
 	}
 
 

@@ -23,7 +23,7 @@ static bool monster_cut_or_stun(int crit_bonus_dice, int net_dam, int effect)
 	/* Special case -- wounding/battering attack */
 	if ((effect == RBE_WOUND) || (effect == RBE_BATTER))
 	{
-		if (crit_bonus_dice >= randint(2)) return (TRUE);
+		if (crit_bonus_dice >= dieroll(2)) return (TRUE);
 	}
 
 	/* Standard attack */
@@ -31,7 +31,7 @@ static bool monster_cut_or_stun(int crit_bonus_dice, int net_dam, int effect)
  	{
 		if (one_in_(10))
 		{
-			if (crit_bonus_dice >= randint(2)) return (TRUE);
+			if (crit_bonus_dice >= dieroll(2)) return (TRUE);
 		}
 	}
 
@@ -59,7 +59,7 @@ static cptr desc_insult[MAX_DESC_INSULT] =
  */
 int elem_bonus(int method, int effect)
 {
-	int resistance;
+	int resistance = 1;
 
 	// spores are pure damage rather than mixed, so they get no bonus dice
 	if (method == RBM_SPORE)
@@ -71,22 +71,22 @@ int elem_bonus(int method, int effect)
 	{
 		case RBE_FIRE:
 			resistance = resist_fire();
-			if (resistance <= 1) return (1);
 			break;
 		case RBE_COLD:
 			resistance = resist_cold();
-			if (resistance <= 1) return (1);
 			break;
 		case RBE_POISON:
 			resistance = resist_pois();
-			if (resistance <= 1) return (1);
 			break;
 		case RBE_DARK:
 			resistance = resist_dark();
-			if (resistance <= 1) return (1);
 			break;
+		default:
+			return (0);
 	}
 	
+	if (resistance == 1) return (1);
+	if (resistance < 0)  return (-resistance);
 	
 	return (0);
 }
@@ -94,7 +94,7 @@ int elem_bonus(int method, int effect)
 /*
  * Roll the protection dice for all parts of the player's armour
  */
-extern int protection_roll(int typ)
+extern int protection_roll(int typ, bool melee)
 {
 	int i;
 	object_type *o_ptr;
@@ -126,7 +126,7 @@ extern int protection_roll(int typ)
 		{
 			if ((typ == GF_HURT) || (typ == GF_FIRE) || (typ == GF_COLD))
 			{
-				if (p_ptr->active_ability[S_EVN][EVN_BLOCKING] && (p_ptr->previous_action[0] == 5))
+				if (p_ptr->active_ability[S_EVN][EVN_BLOCKING] && (!melee || (p_ptr->previous_action[0] == 5)))
 				{
 					mult = 2;
 				}
@@ -160,12 +160,13 @@ extern int protection_roll(int typ)
 /*
  * Roll the protection dice for all parts of the player's armour
  */
-extern int p_min(int typ)
+extern int p_min(int typ, bool melee)
 {
 	int i;
 	object_type *o_ptr;
 	int prt = 0;
 	int armour_weight = 0;
+	int mult = 1;
 	
 	// things that always count:
 	
@@ -194,9 +195,14 @@ extern int p_min(int typ)
 		{
 			if ((typ == GF_HURT) || (typ == GF_FIRE) || (typ == GF_COLD))
 			{
+				if (p_ptr->active_ability[S_EVN][EVN_BLOCKING] && 
+				    (!melee || ((p_ptr->previous_action[0] == 5) || ((p_ptr->previous_action[0] == ACTION_NOTHING) && (p_ptr->previous_action[1] == 5)))))
+				{
+					mult = 2;
+				}
 				if (o_ptr->pd > 0)
 				{
-					prt += o_ptr->pd;
+					prt += o_ptr->pd * mult;
 				}
 			}
 		}
@@ -224,12 +230,13 @@ extern int p_min(int typ)
 /*
  * Roll the protection dice for all parts of the player's armour
  */
-extern int p_max(int typ)
+extern int p_max(int typ, bool melee)
 {
 	int i;
 	object_type *o_ptr;
 	int prt = 0;
 	int armour_weight = 0;
+	int mult = 1;
 	
 	// things that always count:
 	
@@ -255,9 +262,14 @@ extern int p_max(int typ)
 		{
 			if ((typ == GF_HURT) || (typ == GF_FIRE) || (typ == GF_COLD))
 			{
+				if (p_ptr->active_ability[S_EVN][EVN_BLOCKING] && 
+				    (!melee || ((p_ptr->previous_action[0] == 5) || ((p_ptr->previous_action[0] == ACTION_NOTHING) && (p_ptr->previous_action[1] == 5)))))
+				{
+					mult = 2;
+				}
 				if (o_ptr->pd > 0)
 				{
-					prt += o_ptr->pd * o_ptr->ps;
+					prt += o_ptr->pd * mult * o_ptr->ps;
 				}
 			}
 		}
@@ -558,7 +570,7 @@ bool make_attack_normal(monster_type *m_ptr)
 				}
 				case RBM_ENGULF:
 				{
-					if (dam >= randint(50)) act = "envelops you";
+					if (dam >= 20) act = "envelops you";
 					else                    act = "engulfs you";
 
 					// stopped by armor
@@ -700,7 +712,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			
 			/* Determine the armour based damage-reduction for the player */
 			/* Note that some attack types should ignore this             */
-			prt = protection_roll(GF_HURT);
+			prt = protection_roll(GF_HURT, TRUE);
 
 			// now calculate net_dam, taking (modified) protection into account
 			prt = (prt * prt_percent) / 100;
@@ -997,7 +1009,7 @@ bool make_attack_normal(monster_type *m_ptr)
 							msg_print("You resist the effects!");
 							obvious = TRUE;
 						}
-						else if (set_slow(p_ptr->slow + 4 + randint(4)))
+						else if (set_slow(p_ptr->slow + 4 + dieroll(4)))
 						{
 							obvious = TRUE;
 						}
@@ -1319,26 +1331,23 @@ bool make_attack_normal(monster_type *m_ptr)
 					break;
 				}
 
-				/* Hit to paralyze (never cumulative) */
-				case RBE_PARALYZE:
+				/* Hit to entrance (never cumulative) */
+				case RBE_ENTRANCE:
 				{
-					/* Hack -- Prevent perma-paralysis via damage */
-					if (p_ptr->paralyzed && (net_dam < 1)) net_dam = 1;
-
 					/* Take damage */
 					take_hit(net_dam, ddesc);
 
-					/* Increase "paralyzed" */
+					/* Increase "entranced" */
 					if (net_dam > 0 || dam == 0)
 					{
-						if (!allow_player_paralysis(m_ptr))
+						if (!allow_player_entrancement(m_ptr))
 						{
 							msg_print("You are unaffected!");
 							obvious = TRUE;
 						}
-						else if (!p_ptr->paralyzed)
+						else if (!p_ptr->entranced && !p_ptr->was_entranced)
 						{
-							if (set_paralyzed(damroll(5, 4)))
+							if (set_entranced(damroll(5, 4)))
 							{
 								obvious = TRUE;
 							}
@@ -1473,8 +1482,8 @@ bool make_attack_normal(monster_type *m_ptr)
 
 						for (i=0; i < 1000; i++)
 						{
-							near_y = p_ptr->py - 1 + rand_int(3);
-							near_x = p_ptr->px - 1 + rand_int(3);
+							near_y = p_ptr->py + rand_range(-1,1);
+							near_x = p_ptr->px + rand_range(-1,1);
 							
 							if (cave_floor_bold(near_y,near_x)) break;					
 						}
@@ -1512,7 +1521,7 @@ bool make_attack_normal(monster_type *m_ptr)
 				}
 			}
 
-			update_combat_rolls2(dd + crit_bonus_dice + elem_bonus_dice, ds, dam, -1, -1, prt, prt_percent, dam_type); 
+			update_combat_rolls2(dd + crit_bonus_dice + elem_bonus_dice, ds, dam, -1, -1, prt, prt_percent, dam_type, TRUE); 
 		
 			display_hit(p_ptr->py, p_ptr->px, net_dam, dam_type);
 
@@ -1526,6 +1535,21 @@ bool make_attack_normal(monster_type *m_ptr)
 
 				/* Leave immediately */
 				return (TRUE);
+			}
+
+			// Deal with cowardice
+			if ((p_ptr->cowardice > 0) && (net_dam >= 10))
+			{
+				if (allow_player_fear(m_ptr))
+				{
+					int fear_amount = damroll(10,4);
+					
+					set_afraid(MAX(p_ptr->afraid, fear_amount));
+					set_fast(p_ptr->fast + damroll(5,4));
+					
+					// give the player a chance to identify what is causing it
+					ident_cowardice();
+				}
 			}
 
 			/* Hack -- only one of cut or stun */
@@ -1621,7 +1645,7 @@ bool make_attack_normal(monster_type *m_ptr)
 							msg_print("You leap aside as its stony fist slams into the floor.");
 							msg_print("The ground shakes violently with the force of the blow!");
 
-							/* Radius 5 earthquake centered on the monster */
+							/* Radius 4 earthquake centered on the monster */
 							earthquake(m_ptr->fy, m_ptr->fx, -1, -1, 4, cave_m_idx[m_ptr->fy][m_ptr->fx]);
 						}
 						
@@ -1639,7 +1663,7 @@ bool make_attack_normal(monster_type *m_ptr)
 							(p_ptr->ripostes < 1) &&
 							!p_ptr->afraid &&
 							!p_ptr->confused &&
-							!p_ptr->paralyzed &&
+							!p_ptr->entranced &&
 							(p_ptr->stun <= 100) &&
 							m_ptr->ml &&
 							(hit_result <= -10 - (((&inventory[INVEN_WIELD])->weight + 9) / 10)))
@@ -1778,7 +1802,7 @@ void mon_cloud(int m_idx, int typ, int dd, int ds, int dif, int rad)
 	
 	bool notice;
 
-	////u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_HIDE;
+	//u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_HIDE;
 	u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_PLAY | PROJECT_KILL | PROJECT_HIDE;
 
 	/* Surround the monster with a cloud */
@@ -2232,14 +2256,14 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			if (blind) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s stares deep into your eyes!", m_name);
 				
-			if (!allow_player_paralysis(m_ptr))
+			if (!allow_player_entrancement(m_ptr))
 			{
-				if (!p_ptr->paralyzed) msg_print("You stare back unafraid!");
+				if (!p_ptr->entranced) msg_print("You stare back unafraid!");
 			}
-			// Must not already be paralyzed, as stacking paralysis is too nasty
-			else if (!p_ptr->paralyzed)
+			// Must not already be entranced or entranced last round, as chaining entrancement is too nasty
+			else if (!p_ptr->entranced && !p_ptr->was_entranced)
 			{
-				(void)set_paralyzed(damroll(5, 4));
+				(void)set_entranced(damroll(5, 4));
 			}
 			break;
 		}
@@ -2303,7 +2327,7 @@ void cloud_surround(int r_idx, int *typ, int *dd, int *ds, int *rad)
 			(r_ptr->flags4 & (RF4_BRTH_COLD)) &&
 			(r_ptr->flags4 & (RF4_BRTH_DARK)))
 		{
-			int rand_num = randint(4);
+			int rand_num = dieroll(4);
 			
 			switch (rand_num)
 			{
@@ -2337,12 +2361,6 @@ void new_combat_round(void)
 	combat_number = 0;
 	turns_since_combat++;
 
-	// reset new round's rolls
-	for (i = 0; i < MAX_COMBAT_ROLLS; i++)
-	{
-		combat_rolls[0][i].att_type = COMBAT_ROLL_NONE;
-	}
-	
 	if (turns_since_combat == 1)
 	{
 		// copy previous round's rolls into old round's rolls
@@ -2360,6 +2378,14 @@ void new_combat_round(void)
 			combat_rolls[1][i].att_type = COMBAT_ROLL_NONE;
 		}
 	}
+	
+	// reset new round's rolls
+	for (i = 0; i < MAX_COMBAT_ROLLS; i++)
+	{
+		combat_rolls[0][i].att_type = COMBAT_ROLL_NONE;
+	}
+	
+	
 }
 
 
@@ -2571,7 +2597,7 @@ void update_combat_rolls1b(const monster_type *m_ptr1, const monster_type *m_ptr
 /*
  * Update combat roll table part 2 (the damage rolls)
  */
-void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int prt_percent, int dam_type)
+void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int prt_percent, int dam_type, bool melee)
 {
 	if (combat_number-1 < MAX_COMBAT_ROLLS)
 	{
@@ -2583,6 +2609,25 @@ void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int
 		combat_rolls[0][combat_number-1].ps = ps;
 		combat_rolls[0][combat_number-1].prot = prot;
 		combat_rolls[0][combat_number-1].prt_percent = prt_percent;
+		combat_rolls[0][combat_number-1].melee = melee;
+		
+		// deal with protection for the player
+		// this hackishly uses the pd and ps to store the min and max prot for the player
+		if (pd == -1)
+		{
+			// use the protection values for pure elemental types if there was no attack roll
+			if (combat_rolls[0][combat_number-1].att_type == COMBAT_ROLL_AUTO)
+			{
+				combat_rolls[0][combat_number-1].pd = p_min(dam_type, melee);
+				combat_rolls[0][combat_number-1].ps = p_max(dam_type, melee);
+			}
+			// otherwise use the normal protection values 
+			else
+			{
+				combat_rolls[0][combat_number-1].pd = p_min(GF_HURT, melee);
+				combat_rolls[0][combat_number-1].ps = p_max(GF_HURT, melee);
+			}
+		}
 	}
 }
 
@@ -2606,9 +2651,6 @@ void display_combat_rolls(void)
 	int a_prot_roll;
 	int a_net_dam;
 	
-	int b_min = 0;
-	int b_max = 0;
-	
 	int round;
 	int combat_num_for_round = combat_number;
 	
@@ -2619,16 +2661,6 @@ void display_combat_rolls(void)
 	int line_jump = 0;
 	
 	int res = 1;   // a default value to soothe compilation warnings
-	
-	// determine the blocking bonuses (which are not updated each turn)
-	// have to check previous_action[1] as well as [0] as they may have been moved along by now
-	if (p_ptr->active_ability[S_EVN][EVN_BLOCKING] && 
-	    (((p_ptr->previous_action[0] == ACTION_NOTHING) && (p_ptr->previous_action[1] == 5)) ||
-		  (p_ptr->previous_action[0] == 5)))
-	{
-		b_min += (&inventory[INVEN_ARM])->pd;
-		b_max += (&inventory[INVEN_ARM])->ps;
-	}
 		
 	/* Clear the window */
 	for (i = 0; i < Term->hgt; i++)
@@ -2681,9 +2713,6 @@ void display_combat_rolls(void)
 						break;
 					case GF_COLD:
 						res = resist_cold();
-						break;
-					case GF_ELEC:
-						res = p_ptr->resist_elec;
 						break;
 					case GF_POIS:
 						res = resist_pois();
@@ -2859,8 +2888,8 @@ void display_combat_rolls(void)
 					// if player is being hit, show protection *range*
 					else
 					{
-						strnfmt(buf, sizeof (buf), "  [%d-%d]", ((p_min(GF_HURT) + b_min) * combat_rolls[round][i].prt_percent) / 100,
-								((p_max(GF_HURT) + b_max) * combat_rolls[round][i].prt_percent) / 100);
+						strnfmt(buf, sizeof (buf), "  [%d-%d]", (combat_rolls[round][i].pd * combat_rolls[round][i].prt_percent) / 100,
+								(combat_rolls[round][i].ps * combat_rolls[round][i].prt_percent) / 100);
 						Term_addstr(-1, a_prot_roll, buf);
 					}
 					
@@ -2870,7 +2899,9 @@ void display_combat_rolls(void)
 				else if (combat_rolls[round][i].att_type == COMBAT_ROLL_AUTO)
 				{
 					// shield etc protection and resistance
-					net_dam = (combat_rolls[round][i].dam - combat_rolls[round][i].prot) / res;
+					if (res > 0)	net_dam = (combat_rolls[round][i].dam / res) - combat_rolls[round][i].prot;
+					else			net_dam = (combat_rolls[round][i].dam * (-res)) - combat_rolls[round][i].prot;
+					
 					if (net_dam > 0)
 					{
 						strnfmt(buf, sizeof (buf), "%4d", net_dam);
@@ -2912,24 +2943,28 @@ void display_combat_rolls(void)
 					// if a player is being hit, show protection range etc
 					else
 					{
-						if (p_max(combat_rolls[round][i].dam_type) + b_max < 10)
+						if (res > 1)
 						{
-							strnfmt(buf, sizeof (buf), "   [%d-%d]", p_min(combat_rolls[round][i].dam_type) + b_min, 
-									p_max(combat_rolls[round][i].dam_type) + b_max);
+							strnfmt(buf, sizeof (buf), "  1/%d then", res);
+							Term_addstr(-1, TERM_L_BLUE, buf);
+						}
+						else if (res < 0)
+						{
+							strnfmt(buf, sizeof (buf), "  x%d then", -res);
+							Term_addstr(-1, TERM_L_BLUE, buf);
+						}
+
+						if (combat_rolls[round][i].ps < 10)
+						{
+							strnfmt(buf, sizeof (buf), "  [%d-%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);
 						}
 						else
 						{
-							strnfmt(buf, sizeof (buf), "  [%d-%d]", p_min(combat_rolls[round][i].dam_type) + b_min, 
-									p_max(combat_rolls[round][i].dam_type) + b_max);
+							strnfmt(buf, sizeof (buf), " [%d-%d]", combat_rolls[round][i].pd, combat_rolls[round][i].ps);
 							Term_addstr(-1, a_prot_roll, buf);
 						}
 						
-						if (res > 1)
-						{
-							strnfmt(buf, sizeof (buf), " then /%d", res);
-							Term_addstr(-1, TERM_L_BLUE, buf);
-						}
 						/*
 						 // no protection, only resistance
 						 else

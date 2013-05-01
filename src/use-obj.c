@@ -62,7 +62,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_HEALING:
 		{
-			if (hp_player(25, TRUE, TRUE)) *ident = TRUE;
+			if (set_cut(p_ptr->cut / 2)) *ident = TRUE;
+			if (hp_player(50, TRUE, TRUE)) *ident = TRUE;
 			break;
 		}
 
@@ -99,11 +100,11 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_PARALYSIS:
+		case SV_FOOD_ENTRANCEMENT:
 		{
-			if (allow_player_paralysis(NULL))
+			if (allow_player_entrancement(NULL))
 			{
-				if (set_paralyzed(damroll(10,4)))
+				if (set_entranced(damroll(10,4)))
 				{
 					*ident = TRUE;
 				}
@@ -540,7 +541,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			// summon 1d4 creatures on the stairs
 			for (k = 0; k < monsters; k++)
 			{
-				if (alloc_monster(TRUE)) *ident = TRUE;
+				if (alloc_monster(TRUE, FALSE)) *ident = TRUE;
 				//random_unseen_floor(&ry, &rx);
 				//(void) summon_specific(ry, rx, p_ptr->depth, 0);
 			}
@@ -617,7 +618,7 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
 	if (p_ptr->csp < 20)
 	{
 		flush();
-		msg_print("You fail to sound a note.");
+		msg_print("You are out of breath.");
 		return (FALSE);
 	}
 	
@@ -657,14 +658,17 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
 			if (dir == DIRECTION_UP)
 			{
 				int dam = damroll(4,8);
-				int prt = protection_roll(GF_HURT);
+				int prt = protection_roll(GF_HURT, FALSE);
 				int net_dam = dam - prt;
+				
+				// no negative damage
+				if (net_dam < 0) net_dam = 0;
 				
 				msg_print("The ceiling cracks and rock rains down upon you!");
 				earthquake(p_ptr->py, p_ptr->px, -1, -1, 3, -1);
 				
 				update_combat_rolls1b(PLAYER, PLAYER, TRUE);
-				update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT);
+				update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 				
 				take_hit(net_dam, "a collapsing ceiling");
 				
@@ -822,7 +826,7 @@ static bool activate_object(object_type *o_ptr)
 				msg_format("The %s glows brightly...", o_name);
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint(75) + 75);
+					(void)set_fast(dieroll(75) + 75);
 				}
 				else
 				{
@@ -870,7 +874,7 @@ static bool activate_object(object_type *o_ptr)
 
 			case ACT_RAGE_BLESS_RESIST:
 			{
-				int act_time = randint(50) + 50;
+				int act_time = dieroll(50) + 50;
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(25, TRUE, TRUE);
 				(void)set_afraid(0);
@@ -930,7 +934,7 @@ static bool activate_object(object_type *o_ptr)
 
 			case ACT_RESIST:
 			{
-				int act_time = randint(20) + 20;
+				int act_time = dieroll(20) + 20;
 				msg_format("Your %s glows many colours...", o_name);
 				(void)set_oppose_fire(p_ptr->oppose_fire + act_time);
 				(void)set_oppose_cold(p_ptr->oppose_cold + act_time);
@@ -1015,7 +1019,7 @@ static bool activate_object(object_type *o_ptr)
 				msg_format("Your %s glows bright green...", o_name);
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint(20) + 20);
+					(void)set_fast(dieroll(20) + 20);
 				}
 				else
 				{
@@ -1169,19 +1173,19 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_RES_FIRE:
 			{
 				msg_format("Your %s glows light red...", o_name);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_oppose_fire(p_ptr->oppose_fire + dieroll(20) + 20);
 				break;
 			}
 			case ACT_RES_COLD:
 			{
 				msg_format("Your %s glows bright white...", o_name);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_oppose_cold(p_ptr->oppose_cold + dieroll(20) + 20);
 				break;
 			}
 			case ACT_RES_POIS:
 			{
 				msg_format("Your %s glows light green...", o_name);
-				(void)set_oppose_cold(p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_oppose_cold(p_ptr->oppose_pois + dieroll(20) + 20);
 				break;
 			}
 
@@ -1196,7 +1200,7 @@ static bool activate_object(object_type *o_ptr)
 
 			/* Set the recharge time */
 			if (a_ptr->randtime)
-				o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
+				o_ptr->timeout = a_ptr->time + (byte)dieroll(a_ptr->randtime);
 			else o_ptr->timeout = a_ptr->time;
 
 			/* Window stuff */

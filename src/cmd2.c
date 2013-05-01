@@ -118,7 +118,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Ironman */
-	if (adult_ironman && (silmarils_possessed() == 0))
+	if (birth_ironman && (silmarils_possessed() == 0))
 	{
 		msg_print("You have vowed to not to return until you hold a Silmaril.");
 		return;
@@ -260,6 +260,9 @@ void do_cmd_go_up(void)
 	p_ptr->stairs_taken++;
 	p_ptr->staircasiness += 1000;
 
+	/* Remember disconnected stairs */
+	if (birth_discon_stair)	p_ptr->create_stair = FALSE;
+	
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -387,6 +390,9 @@ void do_cmd_go_down(void)
 	// another staircase has been used...
 	p_ptr->stairs_taken++;
 	p_ptr->staircasiness += 1000;
+
+	/* Remember disconnected stairs */
+	if (birth_discon_stair)	p_ptr->create_stair = FALSE;
 		
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -518,7 +524,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	 *
 	 * Small chests get 2-3 objects */
 
-	number = 1 + randint(2);
+	number = rand_range(2,3);
 
 	/* large chests get 4 */
 	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number = 4;
@@ -555,7 +561,8 @@ static void chest_death(int y, int x, s16b o_idx)
 		/*used to determine quality of item, gets more likely
 	 	 *to be great as you get deeper.
 	 	 */
-		quality = randint(object_level);
+		if (object_level > 0)	quality = dieroll(object_level);
+		else					quality = 0;
 		
 		if ((o_ptr->sval == SV_CHEST_SMALL_STEEL) || (o_ptr->sval == SV_CHEST_LARGE_STEEL))
 		{
@@ -694,15 +701,15 @@ static void chest_trap(int y, int x, s16b o_idx)
 		}
 	}
 
-	/* Needle - Paralysis */
-	if (trap & (CHEST_NEEDLE_PARALYZE))
+	/* Needle - Entrancement */
+	if (trap & (CHEST_NEEDLE_ENTRANCE))
 	{
 		if (skill_check(NULL, 2, p_ptr->stat_use[A_DEX] * 2, PLAYER) > 0)
 		{
 			msg_print("A small needle has pricked you!");
-			if (allow_player_paralysis(NULL))
+			if (allow_player_entrancement(NULL))
 			{
-				set_paralyzed(damroll(10, 4));
+				set_entranced(damroll(10, 4));
 			}
 			else
 			{
@@ -754,7 +761,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			dam = damroll(3,4);
 			
 			update_combat_rolls1b(NULL, PLAYER, TRUE);
-			update_combat_rolls2(3, 4, dam, -1, -1, 0, 0, GF_HURT);
+			update_combat_rolls2(3, 4, dam, -1, -1, 0, 0, GF_HURT, FALSE);
 			
 			take_hit(dam, "a trapped chest");
 			
@@ -1512,12 +1519,42 @@ void do_cmd_exchange(void)
 	/* Get location */
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
+
+	// deal with overburdened characters
+	if (p_ptr->total_weight > weight_limit()*3/2)
+	{
+		/* Abort */
+		msg_print("You are too burdened to move.");
+		
+		/* Disturb the player */
+		disturb(0, 0);
+		
+		// don't take a turn...
+		p_ptr->energy_use = 0;
+		
+		return;
+	}
 	
-	/* Monster */
-	if (cave_m_idx[y][x] <= 0)
+	// Can't exchange from within pits
+	if (cave_pit(p_ptr->py,p_ptr->px))
 	{
 		/* Message */
-		msg_print("There is no monster there.");
+		msg_print("You would have to escape the pit before being able to exchange places.");
+		
+		return;
+	}
+	// Can't exchange from within webs
+	else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB)
+	{
+		/* Message */
+		msg_print("You would have to escape the web before being able to exchange places.");
+		
+		return;
+	}
+	else if ((cave_m_idx[y][x] <= 0) || !(&mon_list[cave_m_idx[y][x]])->ml)
+	{
+		/* Message */
+		msg_print("You cannot see a monster there to exchange places with.");
 		
 		return;
 	}
@@ -1563,7 +1600,7 @@ void do_cmd_exchange(void)
 
 	// store the action type
 	p_ptr->previous_action[0] = ACTION_MISC;
-
+	
 	/* Apply confusion */
 	if (confuse_dir(&dir))
 	{
@@ -1572,7 +1609,16 @@ void do_cmd_exchange(void)
 		x = p_ptr->px + ddx[dir];
 	}
 	
-	if (cave_wall_bold(y, x))
+	// re-check for a visible monster (in case confusion changed the move)
+	if ((cave_m_idx[y][x] <= 0) || !(&mon_list[cave_m_idx[y][x]])->ml)
+	{
+		/* Message */
+		msg_print("You cannot see a monster there to exchange places with.");
+		
+		return;
+	}
+
+	else if (cave_wall_bold(y, x))
 	{
 		/* Message */
 		msg_print("There is a wall in the way.");
@@ -1593,7 +1639,7 @@ void do_cmd_exchange(void)
 		
 		return;
 	} 
-
+	
 	// recalculate the monster info (in case confusion changed the move)
 	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
@@ -1614,6 +1660,21 @@ void do_cmd_exchange(void)
 
 	// Swap positions with the monster
 	monster_swap(p_ptr->py, p_ptr->px, y, x);
+	
+	/* Set off traps */
+	if (cave_trap_bold(y,x))
+	{
+		// If it is hidden
+		if (cave_info[y][x] & (CAVE_HIDDEN))
+		{
+			/* Reveal the trap */
+			reveal_trap(y, x);
+		}
+		
+		/* Hit the trap */
+		hit_trap(y, x);
+	}
+		
 }
 
 
@@ -1734,35 +1795,35 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	{
 		difficulty = 10;
 		my_strcpy(success_message, "You somehow break the iron.", sizeof (success_message));
-		my_strcpy(failure_message, "You fail to break the iron.", sizeof (failure_message));
+		my_strcpy(failure_message, "You are unable to break the iron.", sizeof (failure_message));
 	}
 	/* Granite */
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
 		difficulty = 3;
 		my_strcpy(success_message, "You break through the granite.", sizeof (success_message));
-		my_strcpy(failure_message, "You fail to break the granite.", sizeof (failure_message));
+		my_strcpy(failure_message, "You are unable to break the granite with this weapon.", sizeof (failure_message));
 	}
 	/* Quartz */
 	else if (cave_feat[y][x] >= FEAT_QUARTZ)
 	{
 		difficulty = 2;
 		my_strcpy(success_message, "You shatter the quartz.", sizeof (success_message));
-		my_strcpy(failure_message, "You fail to break the quartz.", sizeof (failure_message));
+		my_strcpy(failure_message, "You are unable to break the quartz with this weapon.", sizeof (failure_message));
 	}
 	/* Rubble */
 	else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
 		difficulty = 1;
 		my_strcpy(success_message, "You clear the rubble.", sizeof (success_message));
-		my_strcpy(failure_message, "You fail to shift the rubble.", sizeof (failure_message));
+		my_strcpy(failure_message, "You are unable to shift the rubble with this weapon.", sizeof (failure_message));
 	}
 	/* Secret doors */
 	else
 	{
 		difficulty = 3;
 		my_strcpy(success_message, "You smash through a secret door.", sizeof (success_message));
-		my_strcpy(failure_message, "You fail to break the granite.", sizeof (failure_message));
+		my_strcpy(failure_message, "You are unable to break the granite with this weapon.", sizeof (failure_message));
 	}
 
 
@@ -1770,7 +1831,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	// need strength +2 to wield the average mattock 
 	if (o_ptr->weight > (9 + p_ptr->stat_use[A_STR] * 2) * 10)
 	{
-		msg_print("You have trouble wielding such a heavy item.");
+		msg_print("You have trouble digging with such a heavy item.");
 		difficulty++;
 	}
 
@@ -2635,13 +2696,16 @@ void do_cmd_alter(void)
 		/* Use forge */
 		do_cmd_smithing_screen();
 		more = TRUE;
+
+		// don't take a turn...
+		p_ptr->energy_use = 0;
 	}
 
 	/* Pick up items */
-	else if ((dir == 5) && (cave_o_idx[y][x] != 0))
+	else if ((dir == 5) && (cave_o_idx[y][x]))
 	{
 		/* Get item */
-		do_cmd_stay();
+		do_cmd_pickup();
 	}
 	
 	/* Oops */
@@ -2831,75 +2895,65 @@ void do_cmd_run(void)
 }
 
 
-
 /*
- * Stay still.
- * Pick up treasure if "pickup" is true.
+ * Hold still
  */
-static void do_cmd_hold_or_stay(int pickup)
+void do_cmd_hold(void)
 {
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
 		/* Set repeat count */
 		p_ptr->command_rep = p_ptr->command_arg - 1;
-
+		
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
-
+		
 		/* Cancel the arg */
 		p_ptr->command_arg = 0;
 	}
-
+	
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+	
+	// store the action type
+	p_ptr->previous_action[0] = 5;
+	
+	// store the 'focus' attribute
+	p_ptr->focused = TRUE;
+	
+	// make less noise if you did nothing at all
+	// (+7 in total whether or not stealth mode is used)
+	if (p_ptr->stealth_mode) stealth_score += 2;
+	else					 stealth_score += 7;
+	
+	/* Searching */ 
+	search();
+}
 
-	if (pickup)
+
+/*
+ * Get items
+ */
+void do_cmd_pickup(void)
+{
+	// Usually pickup if there is an object here
+	if (cave_o_idx[p_ptr->py][p_ptr->px])
 	{
 		// store the action type
 		p_ptr->previous_action[0] = ACTION_MISC;
+
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+				
+		/* Handle "objects" */
+		py_pickup(TRUE);
 	}
 	
 	else
 	{
-		// store the action type
-		p_ptr->previous_action[0] = 5;
-		
-		// store the 'focus' attribute
-		p_ptr->focused = TRUE;
-
-		// make less noise if you did nothing at all
-		// (+7 in total whether or not stealth mode is used)
-		if (p_ptr->stealth_mode) stealth_score += 2;
-		else					 stealth_score += 7;
+		msg_print("There is nothing here to get.");
 	}
-
-	/* Searching */ 
-	search();
-		
-	/* Handle "objects" */
-	py_pickup(pickup);
-
-}
-
-
-/*
- * Hold still (usually pickup)
- */
-void do_cmd_hold(void)
-{
-	/* Hold still (usually pickup) */
-	do_cmd_hold_or_stay(always_pickup);
-}
-
-
-/*
- * Stay still (usually do not pickup)
- */
-void do_cmd_stay(void)
-{
-	/* Stay still (usually do not pickup) */
-	do_cmd_hold_or_stay(!always_pickup);
 }
 
 
@@ -3548,6 +3602,9 @@ void do_cmd_fire(int quiver)
 					prt = (prt * prt_percent) / 100;
 					
 					net_dam = dam - prt;
+
+					// no negative damage
+					if (net_dam < 0) net_dam = 0;
 					
 					/* Handle unseen monster */
 					if (!(m_ptr->ml))
@@ -3581,7 +3638,7 @@ void do_cmd_fire(int quiver)
 					/* No negative damage */
 					if (net_dam < 0) net_dam = 0;
 					
-					update_combat_rolls2(total_dd, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT); 
+					update_combat_rolls2(total_dd, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT, FALSE); 
 					display_hit(y, x, net_dam, GF_HURT);
 					
 					/* Hit the monster, check for death */
@@ -3608,7 +3665,7 @@ void do_cmd_fire(int quiver)
 						}
 						
 						// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-						if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
+						if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 						{
 							if (net_dam >= 10)
 							{
@@ -3629,7 +3686,7 @@ void do_cmd_fire(int quiver)
 						message_pain(cave_m_idx[y][x], net_dam);
 						
 						// Deal with crippling shot ability
-						if (p_ptr->active_ability[S_ARC][ARC_CRIPPLING] && (crit_bonus_dice >= 2) && (net_dam > 0))
+						if (p_ptr->active_ability[S_ARC][ARC_CRIPPLING] && (crit_bonus_dice >= 2) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
 						{
 							msg_format("Your shot cripples %^s!", m_name);
 							set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx], m_ptr->slowed + damroll(2, 4), FALSE);
@@ -4253,15 +4310,15 @@ void do_cmd_throw(void)
 			// Determine the monster's evasion after all modifiers
 			total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 			
-			/* Note the collision */
-			hit_body = TRUE;
-
 			/* Test for hit */
 			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
 
 			/* If it hit... */
 			if (hit_result > 0) 
 			{
+				/* Note the collision */
+				hit_body = TRUE;
+				
 				/* Assume a default death */
 				cptr note_dies = " dies.";
 
@@ -4303,6 +4360,9 @@ void do_cmd_throw(void)
 				prt = (prt * prt_percent) / 100;
 
 				net_dam = dam - prt;
+
+				// no negative damage
+				if (net_dam < 0) net_dam = 0;
 
 				/* Handle unseen monster */
 				if (!(m_ptr->ml))
@@ -4362,7 +4422,7 @@ void do_cmd_throw(void)
 				/* No negative net damage */
 				if (net_dam < 0) net_dam = 0;
 
-				update_combat_rolls2(i_ptr->dd + total_bonus_dice, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT); 
+				update_combat_rolls2(i_ptr->dd + total_bonus_dice, total_ds, dam, r_ptr->pd, r_ptr->ps, prt, prt_percent, GF_HURT, FALSE); 
 				display_hit(y, x, net_dam, GF_HURT);
 
 				/* Hit the monster, unless a potion effect has already been done */
@@ -4388,7 +4448,7 @@ void do_cmd_throw(void)
 					}
 					
 					// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
-					if ((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR))
+					if (((&r_info[m_ptr->r_idx])->flags1 & (RF1_QUESTOR)) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
 					{
 						if (net_dam >= 10)
 						{
@@ -4416,9 +4476,6 @@ void do_cmd_throw(void)
 			{
 				/* we have missed a target, but could still hit something (with a penalty) */
 				missed_monsters++;
-				
-				// need to print this message even if the potion missed
-				if (i_ptr->tval == TV_POTION) msg_print("The bottle breaks.");
 			}
 
 		}		

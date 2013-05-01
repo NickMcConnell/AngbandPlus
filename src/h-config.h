@@ -194,6 +194,11 @@
  * Basically, SET_UID should *only* be set for "Unix" machines,
  * or for the "Atari" platform which is Unix-like, apparently
  */
+ 
+// Sil-x: Adding the Carbon port as one that doesn't use SET_UID
+//        Seemed to help get rid of annoying dialogue boxes asking for admin passwords
+//        But caused some other odd problems such as the highscores not working properly
+
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
     !defined(AMIGA) && !defined(RISCOS) && !defined(VM)

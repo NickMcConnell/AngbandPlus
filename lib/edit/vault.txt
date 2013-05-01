@@ -86,7 +86,7 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.1.0
 
 ### The Gates of Angband (type 10) -- maximum size 66x44 ??? ###
 ### This must be the first vault record
@@ -229,7 +229,7 @@ D:       $$$$$$
 
 
 N:17:Forge Maze
-X:6:10:3:10:16
+X:6:10:6:10:16
 D:$$$$$$$$$$$$$$$$
 D:$#.?.........#.$
 D:$..####.####.#.$
@@ -273,7 +273,7 @@ D:$$$$$$$$$$$$$$$$$$$$$$$
 
 
 N:22:Courtyard Rooms 3
-X:6:3:3:12:19
+X:6:3:6:12:19
 D:$$$$$$$$$$$$$$$$$$$
 D:$...#.#..?.#......$
 D:$...#.#....#...?..$
@@ -416,10 +416,8 @@ D:  ##.....##
 D:    $$$$$    
 
 
-# leave this forge at number 42, or update VAULT_FORGE1
-
 N:42:Small Round Forge
-X:6:2:4:7:7
+X:6:1:8:7:7
 D: $$$$$ 
 D:$$...$$
 D:$.....$
@@ -429,10 +427,8 @@ D:$$...$$
 D: $$$$$ 
 
 
-# leave this forge at number 43, or update VAULT_FORGE2
-
 N:43:Small Cross Forge
-X:6:2:4:9:9
+X:6:1:8:9:9
 D:  $$$$$  
 D:  $...$  
 D:$$$...$$$
@@ -729,10 +725,8 @@ D:  ##.....##
 D:   #$$$$$#   
 
 
-# leave this forge at number 86, or update VAULT_FORGE3
-
 N:86:Hexagon Forge
-X:6:2:4:9:13
+X:6:1:8:9:13
 D:   #$$$$$#   
 D:  ##.....##  
 D: ##.......## 
@@ -805,10 +799,8 @@ D:$$..$$
 D: $$$$ 
 
 
-# leave this forge at number 92, or update VAULT_FORGE4
-
 N:92:Small Square Forge
-X:6:2:6:5:5
+X:6:1:12:5:5
 D:$$$$$
 D:$...$
 D:$.0.$
@@ -862,10 +854,8 @@ D:$.......$
 D:$$$$$$$$$
 
 
-# leave this forge at number 98, or update VAULT_FORGE5
-
 N:98:Brackets Forge
-X:6:5:6:9:9
+X:6:5:12:9:9
 D:$$$$$$$$$
 D:$.......$
 D:$.##.##.$
@@ -905,10 +895,8 @@ D:   ##.##
 D:    #$#    
 
 
-# leave this forge at number 102, or update VAULT_FORGE6
-
 N:102:Diamond Forge
-X:6:4:8:11:11
+X:6:4:16:11:11
 D:    #$#    
 D:   ##.##   
 D:  ##...##  
@@ -988,7 +976,7 @@ D:  #$$$$$#
 
 
 N:113:Special Cross 2
-X:6:13:5:11:11
+X:6:13:10:11:11
 D:  #$$$$$#  
 D:  $.....$  
 D:#$#.#.#.#$#
@@ -1033,7 +1021,7 @@ D:###$$$$$$$$$###
 
 
 N:121:Hidden Oval Forge
-X:6:10:10:11:15
+X:6:10:20:11:15
 D:###$$$$$$$$$###
 D:###....+....###
 D:##....%%%....##
@@ -1125,7 +1113,7 @@ D:  ##$##
 
 
 N:140:Round
-X:7:10:2:12:20
+X:7:10:4:12:20
 D:       $$$$$$       
 D:    $$#......#$$    
 D:  $#....####....#$  

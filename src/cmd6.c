@@ -495,6 +495,9 @@ void do_cmd_activate_staff(object_type *default_o_ptr, int default_item)
 	/* Use a single charge */
 	o_ptr->pval--;
 
+	// mark times used
+	o_ptr->xtra1++;
+
 	/* Describe charges in the pack */
 	if (item >= 0)
 	{

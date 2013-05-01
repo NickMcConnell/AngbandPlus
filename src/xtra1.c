@@ -38,18 +38,15 @@ byte total_mdd(const object_type *o_ptr)
  * Determines the strength modified damage sides for a melee or thrown weapon
  * Includes factors for strength and weight, but not bonuses from ring of damage etc
  */
- 
-extern byte strength_modified_ds(const object_type *o_ptr, bool wielded, bool weaken)
+ extern byte strength_modified_ds(const object_type *o_ptr, bool wielded, int str_adjustment)
 {
 	byte mds;
 	int int_mds; /* to allow negative values in the intermediate stages */
 	int str_to_mds;
 	int divisor;
 	
-	str_to_mds = p_ptr->stat_use[A_STR];
-	
-	if (weaken) str_to_mds -= 3;
-	
+	str_to_mds = p_ptr->stat_use[A_STR] + str_adjustment;
+		
 	/* if no weapon, use 1d1 and don't limit strength bonus */
 	if (o_ptr->tval == 0)  
 	{
@@ -113,13 +110,12 @@ extern byte strength_modified_ds(const object_type *o_ptr, bool wielded, bool we
  *
  * This function seems rather unnecessary these days...
  */
- 
-extern byte total_mds(const object_type *o_ptr, bool weaken)
+extern byte total_mds(const object_type *o_ptr, int str_adjustment)
 {
 	byte mds;
 	int int_mds; /* to allow negative values in the inetermediate stages */
 	
-	int_mds = strength_modified_ds(o_ptr, TRUE, weaken);
+	int_mds = strength_modified_ds(o_ptr, TRUE, str_adjustment);
 	
 	/* make sure the total is non-negative */
 	mds = (int_mds < 0) ? 0 : int_mds;
@@ -405,7 +401,7 @@ static void prt_evn(void)
 	char buf[32];
 
 	/* Total Armor */
-	strnfmt(buf, sizeof(buf), "[%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT), p_max(GF_HURT));
+	strnfmt(buf, sizeof(buf), "[%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT, TRUE), p_max(GF_HURT, TRUE));
 	Term_putstr(COL_EVN, ROW_EVN, -1, TERM_SLATE, format("%12s", buf));
 	
 }
@@ -716,7 +712,7 @@ static void prt_poisoned(void)
 
 
 /*
- * Prints Searching, Resting, Paralysis, Smithing, or 'count' status
+ * Prints Searching, Resting, Entrancement, Smithing, or 'count' status
  * Display is always exactly 10 characters wide (see below)
  *
  * This function was a major bottleneck when resting, so a lot of
@@ -728,8 +724,8 @@ static void prt_state(void)
 
 	char text[16];
 
-	/* Paralysis */
-	if (p_ptr->paralyzed)
+	/* Entrancement */
+	if (p_ptr->entranced)
 	{
 		attr = TERM_RED;
 
@@ -1578,15 +1574,15 @@ bool weapon_glows(object_type *o_ptr)
 	}
 	
 	// out of LOS objects don't glow (or it can't be seen)
-	if (cave_info[p_ptr->py-1][p_ptr->px-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py-1][p_ptr->px] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py-1][p_ptr->px+1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py][p_ptr->px-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_VIEW))		viewable = TRUE;
-	if (cave_info[p_ptr->py][p_ptr->px+1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py+1][p_ptr->px-1] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py+1][p_ptr->px] & (CAVE_VIEW))	viewable = TRUE;
-	if (cave_info[p_ptr->py+1][p_ptr->px+1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y-1][x-1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y-1][x] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y-1][x+1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y][x-1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y][x] & (CAVE_VIEW))		viewable = TRUE;
+	if (cave_info[y][x+1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y+1][x-1] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y+1][x] & (CAVE_VIEW))	viewable = TRUE;
+	if (cave_info[y+1][x+1] & (CAVE_VIEW))	viewable = TRUE;
 	
 	if (!viewable) return (FALSE);
 	
@@ -1645,13 +1641,6 @@ bool weapon_glows(object_type *o_ptr)
 	return (glows);
 }
 
-
-#define RADIUS_TORCH		1
-#define RADIUS_LESSER_JEWEL	1
-#define RADIUS_LANTERN		2
-#define RADIUS_FEANORIAN	3
-#define RADIUS_ARTEFACT		3
-#define RADIUS_SILMARIL		7
 
 /*
  * Extract and set the current "lite radius"
@@ -1853,7 +1842,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			}
 			case SNG_AULE:
 			{
-				bonus = skill / 5;
+				bonus = skill / 4;
 				break;
 			}
 			case SNG_STAYING:
@@ -1984,15 +1973,13 @@ static void calc_bonuses(void)
 	int old_add = p_ptr->add;
 	int old_ads = p_ptr->ads;
 	
-	int new_p_min = p_min(GF_HURT);
-	int new_p_max = p_max(GF_HURT);
+	int new_p_min = p_min(GF_HURT, TRUE);
+	int new_p_max = p_max(GF_HURT, TRUE);
 		
 	int old_stat_use[A_MAX];
 	int old_stat_tmp_mod[A_MAX];
 
 	int old_skill_use[S_MAX];
-
-	bool old_heavy_wield;
 
 	object_type *o_ptr;
 
@@ -2042,8 +2029,6 @@ static void calc_bonuses(void)
 		old_skill_use[i] = p_ptr->skill_use[i];
 	}
 
-	old_heavy_wield = p_ptr->heavy_wield;
-
 	/*** Reset ***/
 
 	/* Reset player speed */
@@ -2086,6 +2071,8 @@ static void calc_bonuses(void)
 	p_ptr->hunger = 0;
 	p_ptr->danger = 0;
 	p_ptr->aggravate = 0;
+	p_ptr->cowardice = 0;
+	p_ptr->haunted = 0;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
 	p_ptr->regenerate = FALSE;
@@ -2094,7 +2081,6 @@ static void calc_bonuses(void)
 	p_ptr->sustain_con = FALSE;
 	p_ptr->sustain_dex = FALSE;
 	p_ptr->sustain_gra = FALSE;
-	p_ptr->resist_elec = 1;
 	p_ptr->resist_fire = 1;
 	p_ptr->resist_cold = 1;
 	p_ptr->resist_pois = 1;
@@ -2172,13 +2158,9 @@ static void calc_bonuses(void)
 			p_ptr->to_ads += o_ptr->pval;
 		}
 		
-		/* Affect Damage Dice */
-		if (f1 & (TR1_DAMAGE_DICE)) p_ptr->to_mdd += o_ptr->pval;
-
 		/* Good flags */
 		if (f2 & (TR2_SLOW_DIGEST)) p_ptr->hunger -= 1;
 		if (f2 & (TR2_REGEN)) p_ptr->regenerate = TRUE;
-		if (f2 & (TR2_TELEPATHY)) p_ptr->telepathy = TRUE;
 				
 		if (f2 & (TR2_SEE_INVIS)) 
 		{
@@ -2195,6 +2177,8 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_HUNGER)) p_ptr->hunger += 1;
 		if (f2 & (TR2_SLOWNESS)) p_ptr->pspeed -= 1;
 		if (f2 & (TR2_AGGRAVATE)) p_ptr->aggravate += 1;
+		if (f2 & (TR2_FEAR)) p_ptr->cowardice += 1;
+		if (f2 & (TR2_HAUNTED)) p_ptr->haunted += 1;
 
 		// danger has already been handled in the general inventory
 		//if (f2 & (TR2_DANGER)) p_ptr->danger += 1;
@@ -2204,9 +2188,12 @@ static void calc_bonuses(void)
 		/* Resistance flags */
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold += 1;
 		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire += 1;
-		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec += 1;
 		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois += 1;
 
+		if (f2 & (TR2_VUL_COLD)) p_ptr->resist_cold -= 1;
+		if (f2 & (TR2_VUL_FIRE)) p_ptr->resist_fire -= 1;
+		if (f2 & (TR2_VUL_POIS)) p_ptr->resist_pois -= 1;
+		
 		if (f2 & (TR2_RES_FEAR))  p_ptr->resist_fear = TRUE;
 		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
 		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
@@ -2593,9 +2580,6 @@ static void calc_bonuses(void)
 	/* Examine the "current melee weapon" */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Assume not heavy */
-	p_ptr->heavy_wield = FALSE;
-
 	// add the weapon's attack mod
 	p_ptr->skill_equip_mod[S_MEL] += o_ptr->att;
 	
@@ -2610,7 +2594,7 @@ static void calc_bonuses(void)
 	
 	/* generate the melee dice/sides from weapon, to_mdd, to_mds and strength */
 	p_ptr->mdd = total_mdd(o_ptr);
-	p_ptr->mds = total_mds(o_ptr, p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK]);
+	p_ptr->mds = total_mds(o_ptr, p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK] ? -3 : 0);
 	
 	if (p_ptr->active_ability[S_MEL][MEL_TWO_WEAPON] && 
 	    (((&inventory[INVEN_ARM])->tval != TV_SHIELD) && ((&inventory[INVEN_ARM])->tval != 0)))
@@ -2624,11 +2608,11 @@ static void calc_bonuses(void)
 		p_ptr->offhand_mel_mod += o_ptr->att + blade_bonus(o_ptr) + axe_bonus(o_ptr) + polearm_bonus(o_ptr) - 2;	
 
 		p_ptr->mdd2 = total_mdd(o_ptr);
-		p_ptr->mds2 = total_mds(o_ptr, TRUE);
+		p_ptr->mds2 = total_mds(o_ptr, -3);
 	}
 
 	/* Entrancement or being knocked out sets total evasion score to -5 */
-	if (p_ptr->paralyzed || (p_ptr->stun > 100))
+	if (p_ptr->entranced || (p_ptr->stun > 100))
 	{
 		p_ptr->skill_misc_mod[S_EVN] = -5 - (p_ptr->skill_base[S_EVN] + p_ptr->skill_equip_mod[S_EVN] + 
 										     p_ptr->skill_stat_mod[S_EVN]);
@@ -2650,12 +2634,6 @@ static void calc_bonuses(void)
 	{
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
-
-		/* Penalize diggers that can scarcely be lifted */
-		if (p_ptr->heavy_wield)
-		{
-			p_ptr->dig -= 1;
-		}
 	}
 
 
@@ -2756,24 +2734,6 @@ static void calc_bonuses(void)
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
-
-	/* Take note when "heavy weapon" changes */
-	if (old_heavy_wield != p_ptr->heavy_wield)
-	{
-		/* Message */
-		if (p_ptr->heavy_wield)
-		{
-			msg_print("You have trouble wielding such a heavy weapon.");
-		}
-		else if (inventory[INVEN_WIELD].k_idx)
-		{
-			msg_print("You have no trouble wielding your weapon.");
-		}
-		else
-		{
-			msg_print("You feel relieved to put down your heavy weapon.");
-		}
-	}
 
 	if (p_ptr->active_ability[S_PER][PER_LORE1])
 	{

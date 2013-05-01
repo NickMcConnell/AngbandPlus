@@ -440,7 +440,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_BLIND:         q = "blind"; break;
 			case RBE_CONFUSE:       q = "confuse"; break;
 			case RBE_TERRIFY:       q = "terrify"; break;
-			case RBE_PARALYZE:      q = "entrace"; break;
+			case RBE_ENTRANCE:      q = "entrance"; break;
 			case RBE_HALLU:         q = "induce hallucinations"; break;
 			case RBE_DISEASE:       q = "cause disease"; break;
 
@@ -551,6 +551,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (r_ptr->light < 0) vp[vn++] = "produce an unnatural darkness";
 	if (l_ptr->flags2 & RF2_EVASIVE) vp[vn++] = "dodge attacks";
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
+	if (l_ptr->flags2 & RF2_PASS_DOOR) vp[vn++] = "pass through doors";
 	if (l_ptr->flags2 & RF2_UNLOCK_DOOR) vp[vn++] = "unlock doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";

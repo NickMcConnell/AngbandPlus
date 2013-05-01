@@ -2878,15 +2878,18 @@ static void msg_flush(int x)
 	if (hilite_player) move_cursor_relative(p_ptr->py, p_ptr->px);
 	if (hilite_target && target_sighted()) move_cursor_relative(p_ptr->target_row, p_ptr->target_col);
 
-	/* Get an acceptable keypress */
-	while (1)
+	if (!auto_more)
 	{
-		char ch;
-		ch = inkey();
-		if (quick_messages) break;
-		if ((ch == ESCAPE) || (ch == ' ')) break;
-		if ((ch == '\n') || (ch == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			char ch;
+			ch = inkey();
+			if (quick_messages) break;
+			if ((ch == ESCAPE) || (ch == ' ')) break;
+			if ((ch == '\n') || (ch == '\r')) break;
+			bell("Illegal response to a 'more' prompt!");
+		}
 	}
 
 	/* Clear the line */
@@ -4374,7 +4377,7 @@ int damroll(int num, int sides)
 	/* Roll the dice */
 	for (i = 0; i < num; i++)
 	{
-		sum += randint(sides);
+		sum += dieroll(sides);
 	}
 
 	return (sum);

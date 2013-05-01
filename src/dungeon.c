@@ -571,7 +571,7 @@ static void process_world(void)
 		if (percent_chance(10))
 		{
 			/* Make a new monster */
-			(void)alloc_monster(TRUE);
+			(void)alloc_monster(TRUE, FALSE);
 		}
 	}
 	
@@ -582,14 +582,14 @@ static void process_world(void)
 	if (bones_selector) was_ghost = TRUE;
 
 	/* Vastly more wandering monsters during the endgame when you have 2 or 3 Silmarils */
-	if (silmarils_possessed() >= 2) ////
+	if (silmarils_possessed() >= 2)
 	{
 		int percent = (p_ptr->cur_map_hgt * p_ptr->cur_map_wid) / (PANEL_HGT * PANEL_WID_FIXED);
 		
 		if (percent_chance(percent))
 		{
 			/* Make a new monster */
-			(void)alloc_monster(TRUE);
+			(void)alloc_monster(TRUE, FALSE);
 		}
 	}
 	
@@ -597,7 +597,14 @@ static void process_world(void)
 	else if (one_in_(MAX_M_ALLOC_CHANCE))
 	{
 		/* Make a new monster */
-		(void)alloc_monster(TRUE);
+		(void)alloc_monster(TRUE, FALSE);
+	}
+	
+	// Players with the haunted curse attract wraiths
+	if (percent_chance(p_ptr->haunted))
+	{
+		/* Make a new wraith */
+		(void)alloc_monster(TRUE, TRUE);
 	}
 
 	/* Hack - if there is a ghost now, and there was not before,
@@ -644,8 +651,11 @@ static void process_world(void)
 			}
 
 			/* The light is getting dim */
-			else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
+			else if ((o_ptr->timeout <= 100) && (!(o_ptr->timeout % 20)))
 			{
+				// disturb the first time
+				if (o_ptr->timeout == 100)	disturb(0, 0);
+				
 				msg_print("Your light is growing faint.");
 			}
 		}
@@ -840,10 +850,8 @@ static void process_command(void)
 	switch (p_ptr->command_cmd)
 	{
 		/* Ignore */
-		case ESCAPE:
 		case ' ':
 		case '\n':
-		case '\r':
 		case '\a':
 		{
 			break;
@@ -963,7 +971,7 @@ static void process_command(void)
 			do_cmd_smithing_screen();
 			break;
 		}
-			
+
 		/*** Various commands ***/
 
 		/* Examine an object */
@@ -1043,10 +1051,10 @@ static void process_command(void)
 			break;
 		}
 			
-		/* Stay still */
+		/* Get */
 		case 'g':
 		{
-			do_cmd_stay();
+			do_cmd_pickup();
 			break;
 		}
 			
@@ -1246,6 +1254,18 @@ static void process_command(void)
 			break;
 		}
 
+		/* Main menu */
+		case 'm':
+		{
+			do_cmd_main_menu();
+			break;
+		}
+		case ESCAPE:
+		{
+			if (easy_main_menu) do_cmd_main_menu();
+			break;
+		}
+			
 		/* Identify symbol */
 		//case '/':
 		//{
@@ -1499,6 +1519,9 @@ static void process_player(void)
 		
 	// reset the number of times you have riposted since last turn
 	p_ptr->ripostes = 0;
+	
+	// reset whether you have just woken up from entrancement
+	p_ptr->was_entranced = FALSE;
 
 	// update the player's torch radius
 	calc_torch();
@@ -1532,7 +1555,7 @@ static void process_player(void)
 					!p_ptr->blind && !p_ptr->confused &&
 					!p_ptr->poisoned && !p_ptr->afraid &&
 					!p_ptr->stun && !p_ptr->cut &&
-					!p_ptr->slow && !p_ptr->paralyzed)
+					!p_ptr->slow && !p_ptr->entranced)
 				{
 					disturb(0, 0);
 				}
@@ -1596,6 +1619,9 @@ static void process_player(void)
 				/* Extract adjacent (legal) location */
 				yy = p_ptr->py + ddy_ddd[d];
 				xx = p_ptr->px + ddx_ddd[d];
+								
+				// paranoia
+				if (cave_m_idx[yy][xx] < 0) continue;
 				
 				m_ptr = &mon_list[cave_m_idx[yy][xx]];
 				
@@ -1623,7 +1649,6 @@ static void process_player(void)
 					do_cmd_note(format("Challenge: %s", option_desc[option_number]), p_ptr->depth);
 				}
 			}
-				 
 		}
 
 		// shuffle along the array of previous actions
@@ -1704,8 +1729,8 @@ static void process_player(void)
 			}
 		}
 				
-		/* Paralyzed or Knocked Out */
-		if ((p_ptr->paralyzed) || (p_ptr->stun > 100))
+		/* Entranced or Knocked Out */
+		if ((p_ptr->entranced) || (p_ptr->stun > 100))
 		{
 			// stop singing
 			change_song(SNG_NOTHING);
@@ -2052,7 +2077,7 @@ static void process_player(void)
 	}
 	
 	/* Digest quickly when gorged */
-	if (p_ptr->food >= PY_FOOD_MAX) i *= 3;
+	if (p_ptr->food >= PY_FOOD_MAX) i *= 9;
 		
 	/* Digest some food */
 	(void)set_food(p_ptr->food - i);
@@ -2076,6 +2101,9 @@ static void process_player(void)
 		p_ptr->staircasiness -= amount;
 	}
 	
+	/* Increase the time since the last forge */
+	p_ptr->forge_drought++;
+	
 	/* Default regeneration multiplier */
 	regen_multiplier = 1;
 
@@ -2092,14 +2120,14 @@ static void process_player(void)
 		//if (p_ptr->food < PY_FOOD_FAINT)
 		//{
 			/* Faint occasionally */
-		//	if (!p_ptr->paralyzed && percent_chance(10))
+		//	if (!p_ptr->entranced && percent_chance(10))
 		//	{
 				/* Message */
 		//		msg_print("You faint from the lack of food.");
 		//		disturb(1, 0);
 
 				/* Hack -- faint (bypass free action) */
-		//		(void)set_paralyzed(damroll(5, 4));
+		//		(void)set_entranced(damroll(5, 4));
 		//	}
 		//}
 	}
@@ -2160,10 +2188,10 @@ static void process_player(void)
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
 	}
 
-	/* Paralysis */
-	if (p_ptr->paralyzed)
+	/* Entranced */
+	if (p_ptr->entranced)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - amount);
+		(void)set_entranced(p_ptr->entranced - amount);
 	}
 
 	/* Confusion */
@@ -2283,14 +2311,8 @@ static void process_player(void)
 		p_ptr->focused = FALSE;
 	}
 	
-	// increase the number of consecutive attacks
-	if (player_attacked)
-	{
-		p_ptr->consecutive_attacks++;
-	}
-	
 	// if the player didn't attack or 'pass' then the consecutive attacks needs to be reset
-	else if (p_ptr->previous_action[0] != 5)
+	if (!player_attacked && (p_ptr->previous_action[0] != 5))
 	{
 		p_ptr->consecutive_attacks = 0;
 		p_ptr->last_attack_m_idx = 0;
@@ -2368,8 +2390,8 @@ static void dungeon(void)
 		p_ptr->max_depth = p_ptr->depth;
 	}
 
-	/* No stairs from the surface or if not allowed */
-	if ((!p_ptr->depth) || (adult_discon_stair))
+	/* No stairs from the surface */
+	if (!p_ptr->depth)
 	{
 		p_ptr->create_stair = FALSE;
 	}
@@ -2743,7 +2765,9 @@ void play_game(bool new_game)
 	if (!load_player())
 	{
 		/* Oops */
-		quit("broken savefile");
+		character_icky--;
+		return;
+	////	quit("broken savefile");
 	}
 
 	/* Nothing loaded (and living) */
@@ -2966,7 +2990,7 @@ void play_game(bool new_game)
 				(void)set_confused(0);
 				(void)set_poisoned(0);
 				(void)set_afraid(0);
-				(void)set_paralyzed(0);
+				(void)set_entranced(0);
 				(void)set_image(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
@@ -2999,7 +3023,7 @@ void play_game(bool new_game)
 			death_knowledge();
 
 			do_cmd_wiz_unhide(255);
-			update_view();////
+			update_view();
 			mini_screenshot();
 			detect_all_doors_traps();
 		}

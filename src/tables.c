@@ -112,8 +112,8 @@ const byte chest_traps[25+1] =
 	(CHEST_GAS_POISON),
 	(CHEST_GAS_POISON),
 	0,
-	(CHEST_NEEDLE_PARALYZE),
-	(CHEST_NEEDLE_PARALYZE),
+	(CHEST_NEEDLE_ENTRANCE),
+	(CHEST_NEEDLE_ENTRANCE),
 	(CHEST_FLAME),
 	0,
 	(CHEST_FLAME),
@@ -122,9 +122,9 @@ const byte chest_traps[25+1] =
 	0,
 	(CHEST_NEEDLE_LOSE_STR),
 	(CHEST_NEEDLE_LOSE_STR),
-	(CHEST_GAS_POISON | CHEST_NEEDLE_PARALYZE),
+	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),
 	0,
-	(CHEST_GAS_POISON | CHEST_NEEDLE_PARALYZE),
+	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),
 	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
 	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
 	0,
@@ -337,10 +337,10 @@ cptr option_text[OPT_MAX] =
 	"center_player",			/* OPT_center_player */
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	NULL,						/* xxx scroll_target */
-	NULL,						/* xxx auto_more */
+	"auto_more",				/* OPT_auto_more */
 	NULL,						/* xxx toggle_exp*/
-	"always_show_list",			/* xxx */
-	NULL,						/* xxx hp_changes_color*/
+	"always_show_list",			/* OPT_always_show_list */
+	"easy_main_menu",			/* OPT_easy_main_menu */
 	NULL,						/* xxx verify_leave_quests*/
 	NULL,						/* xxx mark_squelch_items */
 	"display_hits",				/* OPT_display_hits */
@@ -601,10 +601,10 @@ cptr option_desc[OPT_MAX] =
 	"Center map continuously (very slow)",		/* OPT_center_player */
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	NULL,										/* xxx scroll_target */
-	NULL,										/* xxx auto_more */
+	"Automatically dismiss '-more-' messages",	/* OPT_auto_more */
 	NULL,										/* xxx toggle_xp */
 	"Automatically display drop-down lists",	/* OPT_auto_display_lists */
-	NULL,										/* xxx hp_changes_color */
+	"Use the Escape key to access the main menu",	/* OPT_easy_main_menu */
 	NULL,										/* xxx verify_leave_quest */
 	NULL,										/* xxx mark_squelch_items */
 	"Display a mark when something gets hit",	/* OPT_display_hits */
@@ -865,10 +865,10 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_center_player */
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* xxx scroll_target */
-	FALSE,		/* xxx auto_more */
+	FALSE,		/* OPT_auto_more */
 	FALSE,		/* xxx toggle_xp */
 	FALSE,		/* OPT_auto_display_lists */
-	FALSE,		/* xxx hp_changes_color */
+	TRUE,		/* OPT_easy_main_menu */
 	FALSE,		/* xxx verify_quest_leave */
 	FALSE,		/* xxx mark_squelch_items */
 	TRUE,		/* OPT_display_hits */
@@ -1066,11 +1066,11 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stop_singing_on_rest,
 		OPT_system_beep,
 		OPT_quick_messages,
+		OPT_auto_more,
+		OPT_easy_main_menu,
 		OPT_hjkl_movement,
 		OPT_angband_keyset,
 		OPT_hitpoint_warning,
-		OPT_NONE,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

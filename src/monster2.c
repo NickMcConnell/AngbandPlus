@@ -1339,9 +1339,7 @@ void update_mon(int m_idx, bool full)
 
 					/* See invisible */
 					if (p_ptr->see_inv)
-					{						
-						ident_see_invisible(m_ptr);
-						
+					{												
 						// makes things much easier
 						difficulty -= 10;
 					}
@@ -1408,6 +1406,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
+			
+			// identify see invisible items
+			if ((r_ptr->flags2 & (RF2_INVISIBLE)) && p_ptr->see_inv)	ident_see_invisible(m_ptr);
 		}
 	}
 
@@ -1480,6 +1481,12 @@ void update_mon(int m_idx, bool full)
 		m_ptr->encountered = TRUE;
 		l_ptr->psights++;
 		if (l_ptr->tsights < MAX_SHORT) l_ptr->tsights++;
+		
+		// if it was a wraith, possibly realise you are haunted
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) && !(r_ptr->flags2 & (RF2_TERRITORIAL)))
+		{
+			ident_haunted();
+		}
 	}
 }
 
@@ -1653,11 +1660,9 @@ static s16b get_mimic_k_idx(const monster_race *r_ptr)
 		/*chests*/
 		case '~':
 		{
-			i = randint(10);
-
 			/* Look for textual clues */
-			if (i <  7) return (lookup_kind(TV_CHEST, (SV_CHEST_MIN_SMALL + rand_int (3))));
-			else        return (lookup_kind(TV_CHEST, (SV_CHEST_MIN_LARGE + rand_int (3))));
+			if (percent_chance(70)) return (lookup_kind(TV_CHEST, (SV_CHEST_MIN_SMALL + rand_int(3))));
+			else					return (lookup_kind(TV_CHEST, (SV_CHEST_MIN_LARGE + rand_int(3))));
 
 			}
 
@@ -1766,7 +1771,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-		if (p_ptr->active_ability[S_MEL][MEL_ZONE_OF_CONTROL] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid && !p_ptr->paralyzed && (p_ptr->stun <= 100))
+		if (p_ptr->active_ability[S_MEL][MEL_ZONE_OF_CONTROL] && m_ptr->ml && !m_ptr->skip_next_turn && (m_ptr->alertness >= ALERTNESS_ALERT) && !p_ptr->truce &&
+		    !p_ptr->confused && !p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
 		{
 			if ((distance(y1, x1, p_ptr->py, p_ptr->px) == 1) && (distance(y2, x2, p_ptr->py, p_ptr->px) == 1))
 			{
@@ -1774,7 +1780,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 				py_attack_aux(y1,x1,ATT_ZONE_OF_CONTROL);
 			}
 		}
-		if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !p_ptr->confused && !p_ptr->afraid && !p_ptr->paralyzed && (p_ptr->stun <= 100))
+		if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !m_ptr->skip_next_turn && (m_ptr->alertness >= ALERTNESS_ALERT) && !p_ptr->truce &&
+		    !p_ptr->confused && !p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
 		{
 			if ((distance(y1, x1, p_ptr->py, p_ptr->px) == 1) && (distance(y2, x2, p_ptr->py, p_ptr->px) > 1))
 			{
@@ -1961,11 +1968,14 @@ void calc_monster_speed(int y, int x)
 	int speed;
 
 	/*point to the monster at the given location & the monster race*/
-	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_type *m_ptr;
+	monster_race *r_ptr;
 
 	/* Paranoia XXX XXX */
-	if (cave_m_idx[y][x] == 0) return;
+	if (cave_m_idx[y][x] <= 0) return;
+
+	m_ptr = &mon_list[cave_m_idx[y][x]];
+	r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Get the monster base speed */
 	speed = r_ptr->speed;
@@ -2083,7 +2093,7 @@ int random_r_idx(void)
 	
 	while (1)
 	{
-		race_idx = randint(z_info->r_max);
+		race_idx = rand_int(z_info->r_max);
 		r_ptr = &r_info[race_idx];
 		if ((r_ptr->rarity != 0) && one_in_(r_ptr->rarity)) return(race_idx);
 	}
@@ -2157,7 +2167,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool ignore_depth, mon
 	n_ptr->r_idx = r_idx;
 
 	/* Save the hallucinatory race */
-	if ((r_idx == R_IDX_MORGOTH) || (r_idx == R_IDX_MORGOTH_UNCROWNED))
+	if (r_idx == R_IDX_MORGOTH)
 	{
 		n_ptr->image_r_idx = R_IDX_MORGOTH_HALLU;
 	}
@@ -2176,7 +2186,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool ignore_depth, mon
 		int amount;
 		
 		if (r_ptr->sleep == 0)  amount = 0;
-		else					amount = randint(r_ptr->sleep);
+		else					amount = dieroll(r_ptr->sleep);
 		
 		// if there is a lead monster, copy its value
 		if (m_ptr != NULL)
@@ -2588,7 +2598,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	//             +2  |  100%
 
 	friend_amount = 1;
-	if (randint(4) <= monster_level - r_ptr->level + 2) friend_amount++;
+	if (dieroll(4) <= monster_level - r_ptr->level + 2) friend_amount++;
 
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp, FALSE, NULL)) return (FALSE);
@@ -2666,7 +2676,7 @@ bool place_monster(int y, int x, bool slp, bool grp, bool vault)
  *
  * Returns TRUE if the player sees it happen
  */
-bool alloc_monster(bool on_stairs)
+bool alloc_monster(bool on_stairs, bool force_undead)
 {
 	int y, x;
 	int sy, sx;
@@ -2788,7 +2798,19 @@ bool alloc_monster(bool on_stairs)
 				// correct deviant monster levels
 				if (monster_level < 1)	monster_level = 1;	
 
-				placed = place_monster(sy, sx, FALSE, TRUE, FALSE);
+				// sometimes only wraiths are allowed
+				if (force_undead)
+				{
+					place_monster_by_kind(sy, sx, RF3_UNDEAD, TRUE, MAX(monster_level + 3, 13));
+					placed = TRUE;
+				}
+				
+				// but usually allow most monsters
+				else
+				{
+					placed = place_monster(sy, sx, FALSE, TRUE, FALSE);
+				}
+				
 				tries++;
 			}
 		}

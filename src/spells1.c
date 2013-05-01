@@ -335,7 +335,7 @@ void teleport_player_level()
 	bool go_up = FALSE;
 	bool go_down = FALSE;
 
-	if (adult_ironman)
+	if (birth_ironman)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -575,24 +575,21 @@ void take_hit(int dam, cptr kb_str)
 		(void)strftime(long_day, 40, "%d %B %Y", localtime(&ct));
 
 		/* Add note */
-		if (notes_file)
-		{
-			fprintf(notes_file, "\n");
-			
-			/*killed by */
-			sprintf(buf, "Slain by %s.", p_ptr->died_from);
-			
-			/* Write message */
-			do_cmd_note(buf,  p_ptr->depth);
-			
-			/* date and time*/
-			sprintf(buf, "Died on %s.", long_day);
-			
-			/* Write message */
-			do_cmd_note(buf,  p_ptr->depth);
-			
-			fprintf(notes_file, "\n");
-		}
+		my_strcat(notes_buffer, "\n", sizeof(notes_buffer));
+		
+		/*killed by */
+		sprintf(buf, "Slain by %s.", p_ptr->died_from);
+		
+		/* Write message */
+		do_cmd_note(buf,  p_ptr->depth);
+		
+		/* date and time*/
+		sprintf(buf, "Died on %s.", long_day);
+		
+		/* Write message */
+		do_cmd_note(buf,  p_ptr->depth);
+		
+		my_strcat(notes_buffer, "\n", sizeof(notes_buffer));
 
 		/* Dead */
 		return;
@@ -612,8 +609,8 @@ void take_hit(int dam, cptr kb_str)
 		message_flush();
 	}
 
-	// Cancel paralysis
-	set_paralyzed(0);
+	// Cancel entrancement
+	set_entranced(0);
 	
 }
 
@@ -854,7 +851,7 @@ static int inven_damage(inven_func typ, int perc, int resistance)
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
 			{
-				if (percent_chance(perc) && one_in_(resistance)) amt++;
+				if (percent_chance(perc) && ((resistance < 0) || one_in_(resistance))) amt++;
 			}
 
 			/* Some casualities */
@@ -929,7 +926,7 @@ static int damage_armour(void)
 	int item = INVEN_BODY; // a default value to soothe compilation warnings
 
 	/* Pick a (possibly empty) inventory slot */
-	switch (randint(6))
+	switch (dieroll(6))
 	{
 		case 1: item = INVEN_BODY; break;
 		case 2: item = INVEN_ARM; break;
@@ -1040,7 +1037,12 @@ void elec_dam(int dam, cptr kb_str)
  */
 extern int resist_fire(void)
 {
-	int res = (p_ptr->oppose_fire) ? (p_ptr->resist_fire + 1) : p_ptr->resist_fire;
+	int res = p_ptr->resist_fire;
+	
+	if (p_ptr->oppose_fire) res++;
+	
+	// represent overall vulnerabilities as negatives of the normal range
+	if (res < 1) res -= 2;
 	
 	return (res);
 }
@@ -1050,8 +1052,13 @@ extern int resist_fire(void)
  */
 extern int resist_cold(void)
 {
-	int res = (p_ptr->oppose_cold) ? (p_ptr->resist_cold + 1) : p_ptr->resist_cold;
+	int res = p_ptr->resist_cold;
 	
+	if (p_ptr->oppose_cold) res++;
+	
+	// represent overall vulnerabilities as negatives of the normal range
+	if (res < 1) res -= 2;
+		
 	return (res);
 }
 
@@ -1060,7 +1067,12 @@ extern int resist_cold(void)
  */
 extern int resist_pois(void)
 {
-	int res = (p_ptr->oppose_pois) ? (p_ptr->resist_pois + 1) : p_ptr->resist_pois;
+	int res = p_ptr->resist_pois;
+	
+	if (p_ptr->oppose_pois) res++;
+	
+	// represent overall vulnerabilities as negatives of the normal range
+	if (res < 1) res -= 2;
 	
 	return (res);
 }
@@ -1106,18 +1118,20 @@ void fire_dam_pure(int dd, int ds, bool update_rolls, cptr kb_str)
 {
 	int dam = damroll(dd, ds);
 	int net_dam;
-	int prt = protection_roll(GF_FIRE);
+	int prt = protection_roll(GF_FIRE, FALSE);
 	int inv;
 	int resistance = resist_fire();
 			
-	net_dam = dam > prt ? dam - prt : 0;
-	net_dam /= resistance;
+	if (resistance > 0) net_dam = dam / resistance;
+	else				net_dam = dam * (-resistance);
+
+	net_dam = net_dam > prt ? net_dam - prt : 0;
 
 	inv = (dam < 10) ? 1 : (dam < 20) ? 2 : 3;
 	
 	if (update_rolls)
 	{
-		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_FIRE);
+		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_FIRE, FALSE);
 	}
 	
 	/* Abort if no damage to receive */
@@ -1161,18 +1175,20 @@ void cold_dam_pure(int dd, int ds, bool update_rolls, cptr kb_str)
 {
 	int dam = damroll(dd, ds);
 	int net_dam;
-	int prt = protection_roll(GF_COLD);
+	int prt = protection_roll(GF_COLD, FALSE);
 	int inv;
 	int resistance = resist_cold();
 		
-	net_dam = dam > prt ? dam - prt : 0;
-	net_dam /= resistance;
+	if (resistance > 0) net_dam = dam / resistance;
+	else				net_dam = dam * (-resistance);
+
+	net_dam = net_dam > prt ? net_dam - prt : 0;
 	
 	inv = (dam < 10) ? 1 : (dam < 20) ? 2 : 3;
 	
 	if (update_rolls)
 	{
-		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_COLD);
+		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_COLD, FALSE);
 	}
 	
 	/* Abort if no damage to receive */
@@ -1208,21 +1224,21 @@ void dark_dam_pure(int dd, int ds, bool update_rolls, cptr kb_str)
 {
 	int dam = damroll(dd, ds);
 	int net_dam;
-	int prt = protection_roll(GF_DARK);
+	int prt = protection_roll(GF_DARK, FALSE);
 	int resistance = resist_dark();
 	
-	net_dam = dam > prt ? dam - prt : 0;
-	net_dam /= resistance;
+	net_dam = dam / resistance;
+	net_dam = net_dam > prt ? net_dam - prt : 0;
 	
 	if (update_rolls)
 	{
-		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_DARK);
+		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_DARK, FALSE);
 	}
 
 	// 'pure' darkness attacks can also blind
 	if (one_in_(resistance) && allow_player_blind(NULL))
 	{  
-		(void)set_blind(p_ptr->blind + randint(5) + 2);
+		(void)set_blind(p_ptr->blind + 4 + dieroll(4));
 	}
 	
 	/* Abort if no damage to receive */
@@ -1256,15 +1272,17 @@ void pois_dam_pure(int dd, int ds, bool update_rolls)
 {
 	int dam = damroll(dd, ds);
 	int net_dam;
-	int prt = protection_roll(GF_POIS);
+	int prt = protection_roll(GF_POIS, FALSE);
 	int resistance = resist_pois();
 	
-	net_dam = dam > prt ? dam - prt : 0;
-	net_dam /= resistance;
+	if (resistance > 0) net_dam = dam / resistance;
+	else				net_dam = dam * (-resistance);
+
+	net_dam = net_dam > prt ? net_dam - prt : 0;
 	
 	if (update_rolls)
 	{
-		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_POIS);
+		update_combat_rolls2(dd, ds, dam, -1, -1, prt, 100, GF_POIS, FALSE);
 	}
 	
 	/* Abort if no damage to receive */
@@ -1472,7 +1490,7 @@ bool apply_disenchant(int mode)
 	(void)mode;
 
 	/* Pick a random slot */
-	switch (randint(8))
+	switch (dieroll(8))
 	{
 		case 1: t = INVEN_WIELD; break;
 		case 2: t = INVEN_BOW; break;
@@ -2691,7 +2709,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 	}
 
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-	else if (do_poly && (randint(90) > r_ptr->level))
+	else if (do_poly && (dieroll(90) > r_ptr->level))
 	{
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
@@ -2831,7 +2849,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 	if ((dam > 0) && m_ptr->ml)
 	{
 		update_combat_rolls1b(who_ptr, m_ptr, who_vis);
-		update_combat_rolls2(dd, ds, dam, -1, -1, 0, 0, typ);
+		update_combat_rolls2(dd, ds, dam, -1, -1, 0, 0, typ, FALSE);
 	}
 	
 	/* If another monster did the damage, hurt the monster by hand */
@@ -3107,7 +3125,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 		
 		if ((typ != GF_FIRE) && (typ != GF_COLD) && (typ != GF_POIS) && (typ != GF_DARK))
 		{ 
-			update_combat_rolls2(dd, ds, dam, -1, -1, 0, 0, typ);
+			update_combat_rolls2(dd, ds, dam, -1, -1, 0, 0, typ, FALSE);
 		}
 	}
 
@@ -3205,7 +3223,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 				dam = damroll(total_dd, total_ds);
 				
 				// armour is effective against GF_ARROW
-				prt = protection_roll(GF_HURT);
+				prt = protection_roll(GF_HURT, FALSE);
 				net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
 				if (blind)
@@ -3227,7 +3245,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 					}
 				}
 
-				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT);
+				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT);
 
 				if (net_dam)
@@ -3270,7 +3288,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 				dam = damroll(total_dd, total_ds);
 				
 				// armour is effective against GF_BOULDER
-				prt = protection_roll(GF_HURT);
+				prt = protection_roll(GF_HURT, FALSE);
 				net_dam = (dam - prt > 0) ? (dam - prt) : 0;
 
 				if (blind)
@@ -3292,7 +3310,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 					}
 				}
 
-				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT);
+				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT, FALSE);
 				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT);
 
 				if (net_dam)
@@ -4334,10 +4352,10 @@ void change_song(int song)
 	}
 	
 	// Reset wrath counter if stopping singing of slaying
-	////if (old_song == SNG_SLAYING)
-	////{
-	////	p_ptr->wrath = 0;
-	////}
+	//if (old_song == SNG_SLAYING)
+	//{
+	//	p_ptr->wrath = 0;
+	//}
 
 	// Reset the song duration counter if changing major theme
 	if (song_to_change == 1)
@@ -4586,7 +4604,11 @@ void sing(void)
 	if (p_ptr->song1 == SNG_NOTHING)
 		return;
 		
-	if (p_ptr->csp < 1)
+	// abort song if out of voice, lost the ability to weave themes, or lost either song ability
+	if ((p_ptr->csp < 1) || 
+	    ((p_ptr->song2 != SNG_NOTHING) && !p_ptr->active_ability[S_SNG][SNG_WOVEN_THEMES]) ||
+	    (!p_ptr->active_ability[S_SNG][p_ptr->song1]) ||
+	    ((p_ptr->song2 != SNG_NOTHING) && !p_ptr->active_ability[S_SNG][p_ptr->song2]))
 	{
 		/* Stop singing */
 		change_song(SNG_NOTHING);
@@ -4632,7 +4654,7 @@ void sing(void)
 					if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
 
 					// Morgoth is not affected
-					if (r_ptr->flags1 & (RF1_QUESTOR))  resistance += 100;
+					if (r_ptr->flags1 & (RF1_QUESTOR))   resistance += 100;
 					
 					// adjust difficulty by the distance to the monster
 					result = skill_check(PLAYER, score, resistance + get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);

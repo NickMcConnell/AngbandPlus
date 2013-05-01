@@ -516,7 +516,7 @@ static void wr_item(const object_type *o_ptr)
  */
 #define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_ALWAYS_CAST | \
 						MFLAG_AGGRESSIVE | \
-						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE)
+						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_CHARGED)
 
 
 /*
@@ -827,10 +827,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->song_duration);
 	wr_s16b(p_ptr->wrath); 
 	wr_s16b(p_ptr->blind);
-	wr_s16b(p_ptr->paralyzed);
+	wr_s16b(p_ptr->entranced);
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
 	wr_u16b(p_ptr->stairs_taken);
+	wr_u16b(p_ptr->forge_drought);
+	wr_u16b(p_ptr->forge_count);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -849,18 +851,19 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->darkened);
 	wr_s16b(p_ptr->oppose_fire);
 	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
 
 	wr_byte(p_ptr->stealth_mode);
 	wr_byte(p_ptr->self_made_arts);
 
-	wr_byte(p_ptr->morgoth_hits);
-
-	// 7 spare bytes
+	// 20 spare bytes
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
+	wr_byte(0);
+	wr_u32b(0L);
+	wr_u32b(0L);
+	wr_u32b(0L);
 	wr_u32b(0L);
 		
 	/* Save item-quality squelch sub-menu */
@@ -913,6 +916,7 @@ static void wr_extra(void)
 	/* Special stuff */
 	wr_u16b(p_ptr->panic_save);
 	wr_byte(p_ptr->truce);
+	wr_byte(p_ptr->morgoth_hits);
 	wr_byte(p_ptr->crown_hint);
 	wr_byte(p_ptr->crown_shatter);
 	wr_byte(p_ptr->cursed);
@@ -995,39 +999,45 @@ static void wr_randarts(void)
 static void wr_notes(void)
 {
 	char end_note[80];
+	char tmpstr[100];
+	char ch;
+	bool done = FALSE;
 
-	/* Paranoia */
-	if (notes_file)
+	int i = 0;
+	int j = 0;
+	
+	// Sil: I've had to re-do this with the removal of the notes file
+	//      The code below is pretty verbose and surely there was a better way!
+	while (!done)
 	{
-    	char tmpstr[100];
+		j = 0;
+		
+		while (TRUE)
+		{
+			ch = notes_buffer[i];
+			
+			tmpstr[j] = ch;
+			
+			i++;
+			j++;
 
-    	my_fclose(notes_file);
-
-      	/* Re-open for readding */
-    	notes_file = my_fopen(notes_fname, "r");
-
-    	while (TRUE)
-    	{
-			/* Read the note from the tempfile */
-			if (my_fgets(notes_file, tmpstr, sizeof(tmpstr)))
+			if (ch == '\n')
 			{
-				/* Found the end */
+				tmpstr[j-1] = '\0';
+				
+				wr_string(tmpstr);
 				break;
 			}
-
-			/* Paranoia */
-			if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
-
-      		/* Write it into the savefile */
-      		wr_string(tmpstr);
-    	}
-
-    	my_fclose(notes_file);
-
-    	/* Re-open for appending */
-    	notes_file = my_fopen(notes_fname, "a");
-  	}
-
+			
+			if (ch == '\0')
+			{
+				done = TRUE;
+				break;
+			}
+		}
+	}
+		
+	// copy the special notes marker into a string
 	my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
 
   	/* Always write NOTES_MARK */
@@ -1429,6 +1439,12 @@ bool save_player(void)
 
 	char safe[1024];
 
+	// in final deployment versions, you cannot save in the tutorial
+	if (DEPLOYMENT && p_ptr->game_type != 0)
+	{
+		return (FALSE);
+	}
+	
 	/* New savefile */
 	my_strcpy(safe, savefile, sizeof(safe));
 	my_strcat(safe, ".new", sizeof(safe));

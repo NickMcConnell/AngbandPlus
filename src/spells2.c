@@ -458,10 +458,20 @@ void self_knowledge(void)
 		info[i++] = "You are hallucinating.";
 	}
 
+	if (p_ptr->cowardice > 0)
+	{
+		info[i++] = "You occasionally become terrified in combat.";
+	}
+
+	if (p_ptr->haunted > 0)
+	{
+		info[i++] = "You are haunted by wraiths.";
+	}
+	
 	// This is a hack, but I couldn't find a neater way...
 	if (p_ptr->danger)
 	{
-		sprintf(tmp1, "You draw powerful creatures to your level (+%d ft).", p_ptr->danger * 50);
+		sprintf(tmp1, "You encounter more dangerous creatures (+%d ft).", p_ptr->danger * 50);
 		info[i++] = tmp1;
 	}
 	if (p_ptr->aggravate)
@@ -522,7 +532,20 @@ void self_knowledge(void)
 	}
 
 	resistance = resist_cold();
-	if (resistance == 2)
+	if (resistance <= -4)
+	{
+		info[i++] = "You are exceptionally vulnerable to cold.";
+	}
+	else if (resistance == -3)
+	{
+		info[i++] = "You are very vulnerable to cold.";
+	}
+	else if (resistance == -2)
+	{
+		info[i++] = "You are vulnerable to cold.";
+	}
+	
+	else if (resistance == 2)
 	{
 		info[i++] = "You are resistant to cold.";
 	}
@@ -536,7 +559,20 @@ void self_knowledge(void)
 	}
 
 	resistance = resist_fire();
-	if (resistance == 2)
+	if (resistance <= -4)
+	{
+		info[i++] = "You are exceptionally vulnerable to fire.";
+	}
+	else if (resistance == -3)
+	{
+		info[i++] = "You are very vulnerable to fire.";
+	}
+	else if (resistance == -2)
+	{
+		info[i++] = "You are vulnerable to fire.";
+	}
+	
+	else if (resistance == 2)
 	{
 		info[i++] = "You are resistant to fire.";
 	}
@@ -549,22 +585,21 @@ void self_knowledge(void)
 		info[i++] = "You are exceptionally resistant to fire.";
 	}
 
-	resistance = (p_ptr->oppose_elec) ? (p_ptr->resist_elec + 1) : p_ptr->resist_elec;
-	if (resistance == 2)
-	{
-		info[i++] = "You are resistant to lightning.";
-	}
-	else if (resistance == 3)
-	{
-		info[i++] = "You are very resistant to lightning.";
-	}
-	else if (resistance >= 4)
-	{
-		info[i++] = "You are exceptionally resistant to lightning.";
-	}
-
 	resistance = resist_pois();
-	if (resistance == 2)
+	if (resistance <= -4)
+	{
+		info[i++] = "You are exceptionally vulnerable to poison.";
+	}
+	else if (resistance == -3)
+	{
+		info[i++] = "You are very vulnerable to poison.";
+	}
+	else if (resistance == -2)
+	{
+		info[i++] = "You are vulnerable to poison.";
+	}
+	
+	else if (resistance == 2)
 	{
 		info[i++] = "You are resistant to poison.";
 	}
@@ -634,10 +669,6 @@ void self_knowledge(void)
 	if (f1 & (TR1_DAMAGE_SIDES))
 	{
 		info[i++] = "Your melee/archery damage sides are specially affected by your equipment.";
-	}
-	if (f1 & (TR1_DAMAGE_DICE))
-	{
-		info[i++] = "Your melee damage dice are specially affected by your equipment.";
 	}
 	if (f1 & (TR1_MEL))
 	{
@@ -758,6 +789,80 @@ void self_knowledge(void)
 		}
 	}
 
+	// *******************************************
+	// Do some analysis just on the off-hand weapon (if any)
+	
+	/* Get the current weapon */
+	o_ptr = &inventory[INVEN_ARM];
+	
+	/* Analyze the weapon */
+	if (o_ptr->k_idx && (p_ptr->mds2 > 0))
+	{
+		// get the flags just for the wielded weapon
+		object_flags(o_ptr, &f1, &f2, &f3);
+		
+		/* Special "Attack Bonuses" */
+		if (f1 & (TR1_SHARPNESS))
+		{
+			info[i++] = "Your off-hand weapon cuts easily through armour.";
+		}
+		if (f1 & (TR1_SHARPNESS2))
+		{
+			info[i++] = "Your off-hand weapon cuts exceptionally easily through armour.";
+		}
+		if (f1 & (TR1_VAMPIRIC))
+		{
+			info[i++] = "Your off-hand weapon drains life from your enemies.";
+		}
+		
+		if (f1 & (TR1_BRAND_ELEC))
+		{
+			info[i++] = "Your off-hand weapon shocks your foes.";
+		}
+		if (f1 & (TR1_BRAND_FIRE))
+		{
+			info[i++] = "Your off-hand weapon burns your foes.";
+		}
+		if (f1 & (TR1_BRAND_COLD))
+		{
+			info[i++] = "Your off-hand weapon freezes your foes.";
+		}
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your off-hand weapon poisons your foes.";
+		}
+		
+		/* Special "slay" flags */
+		if (f1 & (TR1_SLAY_WOLF))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against wolves.";
+		}
+		if (f1 & (TR1_SLAY_SPIDER))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against spiders.";
+		}
+		if (f1 & (TR1_SLAY_UNDEAD))
+		{
+			info[i++] = "Your off-hand weapon is especially effective against the undead.";
+		}
+		if (f1 & (TR1_SLAY_RAUKO))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against raukar.";
+		}
+		if (f1 & (TR1_SLAY_ORC))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against orcs.";
+		}
+		if (f1 & (TR1_SLAY_TROLL))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against trolls.";
+		}
+		if (f1 & (TR1_SLAY_DRAGON))
+		{
+			info[i++] = "Your off-hand weapon is especially deadly against dragons.";
+		}
+	}
+	
 	// *******************************************
 	// Do some analysis just on the wielded bow
 
@@ -2297,7 +2402,7 @@ bool banishment(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(4), "the strain of casting Banishment");
+		take_hit(dieroll(4), "the strain of casting Banishment");
 
 	}
 
@@ -2336,7 +2441,7 @@ bool mass_banishment(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(3), "the strain of casting Mass Banishment");
+		take_hit(dieroll(3), "the strain of casting Mass Banishment");
 
 		/* Note effect */
 		result = TRUE;
@@ -2449,7 +2554,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		if (allow_player_blind(NULL))
 		{
 			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint(10));
+			(void)set_blind(p_ptr->blind + 10 + dieroll(10));
 		}
 	}
 
@@ -2625,7 +2730,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 				msg_print("You are pummeled with debris!");
 
 				// apply protection
-				prt = protection_roll(GF_HURT);
+				prt = protection_roll(GF_HURT, FALSE);
 				net_dam = damage - prt;
 				
 				// take the damage
@@ -2639,7 +2744,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 				
 				// update the combat rolls to display this later
 				update_combat_rolls1b(creator_m_ptr, PLAYER, creator_vis);
-				update_combat_rolls2(dd, ds, damage, -1, -1, prt, 100, GF_HURT);
+				update_combat_rolls2(dd, ds, damage, -1, -1, prt, 100, GF_HURT, FALSE);
 			}
 			
 			// If a monster is on the square...
@@ -2670,7 +2775,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 					if (m_ptr->ml)
 					{
 						update_combat_rolls1b(creator_m_ptr, m_ptr, creator_vis);
-						update_combat_rolls2(dd, ds, damage, r_ptr->pd, r_ptr->ps, prt, 100, GF_HURT);
+						update_combat_rolls2(dd, ds, damage, r_ptr->pd, r_ptr->ps, prt, 100, GF_HURT, FALSE);
 					}
 					
 					// do the damage and check for death
@@ -2763,7 +2868,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 		damage = damroll(2, 4);
 
 		update_combat_rolls1b(NULL, PLAYER, TRUE);
-		update_combat_rolls2(2, 4, damage, -1, -1, 0, 0, GF_HURT);
+		update_combat_rolls2(2, 4, damage, -1, -1, 0, 0, GF_HURT, FALSE);
 		
 		/* Take the damage */
 		take_hit(damage, "falling into a pit");
@@ -3245,7 +3350,7 @@ bool curse_armor(void)
 		/* Blast the armor */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_BLASTED;
-		o_ptr->evn = 0 - randint(5) - randint(5);
+		o_ptr->evn = 0 - dieroll(5) - dieroll(5);
 		o_ptr->att = 0;
 		o_ptr->pd = 1;
 		o_ptr->ps = 1;
@@ -3309,7 +3414,7 @@ bool curse_weapon(void)
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_SHATTERED;
-		o_ptr->att = 0 - randint(5) - randint(5);
+		o_ptr->att = 0 - dieroll(5) - dieroll(5);
 		o_ptr->evn = 0;
 		o_ptr->dd = 1;
 		o_ptr->ds = 1;

@@ -48,14 +48,14 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.1.0
 
 
 
 ##### Armor #####
 
 
-# includes shields and cloaks
+# Includes shields and cloaks
 
 N:1:of Protection
 W:0:1:0:1000
@@ -67,16 +67,7 @@ T:37:0:99
 F:IGNORE_ALL
 
 
-# soft armour only
-
-N:2:of Stealth
-W:0:1:0:1000
-C:0:0:0:0:0:0:3
-T:36:0:99
-F:STEALTH
-
-
-N:3:of Venom's End
+N:2:of Venom's End
 W:0:2:0:1000
 C:0:0:0:0:0:0:0
 T:36:0:99
@@ -84,17 +75,8 @@ T:37:0:99
 F:RES_POIS
 
 
-N:4:of Permanence
-W:5:3:0:1000
-C:0:0:0:0:0:0:0
-T:36:0:99
-T:37:0:99
-F:SUST_STR | SUST_DEX
-F:IGNORE_ALL
-
-
-N:5:of Resilience
-W:10:5:0:1000
+N:3:of Resilience
+W:10:4:0:1000
 C:0:0:0:0:0:0:1
 T:36:0:99
 T:37:0:99
@@ -102,21 +84,46 @@ F:CON
 F:IGNORE_ALL
 
 
+# Soft armour only
+
+N:5:of Stealth
+W:0:1:0:1000
+C:0:0:0:0:0:0:3
+T:36:0:99
+F:STEALTH
+
+
+# robes only
+
+N:6:of Permanence
+W:0:1:0:1000
+C:0:0:0:0:0:0:0
+T:36:2:2
+F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
+F:IGNORE_ALL
+
+
+# robes only
+# (ability 5/9 is Majesty)
+
+N:7:of Majesty
+W:10:1:0:3000
+C:0:0:0:0:0:0:0
+T:36:2:2
+B:5/9
+
+
 
 ###
 
-# includes shields
 
-N:9:of Wrath
-W:0:2:10:0
+N:9:of Blight
+W:0:6:0:0
 C:0:0:0:0:0:0:0
-T:34:0:99
 T:36:0:99
 T:37:0:99
-F:AGGRAVATE
+F:VUL_POIS
 
-
-# armour with res_stun?
 
 
 ##### Shields #####
@@ -140,70 +147,136 @@ F:RES_FIRE
 
 ###
 
-# 'of Attention' is already defined above
+N:15:of Wrath
+W:0:2:10:0
+C:0:0:0:0:0:0:0
+T:34:0:99
+F:AGGRAVATE
 
 
 
 ##### Weapons #####
 
+# Includes bows
 
-N:21:of Orc Slaying
+N:21:of Gondolin
 W:0:2:10:1000
 C:0:0:0:0:0:0:0
-T:21:0:99
+T:19:0:99
+T:21:0:8
 T:22:0:99
 T:23:0:99
-F:SLAY_ORC
+F:SLAY_ORC | SLAY_TROLL
 
 
-N:22:of Wolf Slaying
-W:0:2:0:1000
+# Includes bows
+
+N:22:of Doriath
+W:0:2:0:2000
 C:0:0:0:0:0:0:0
-T:21:0:99
+T:19:0:99
+T:21:0:8
 T:22:0:99
 T:23:0:99
-F:SLAY_WOLF
+F:SLAY_SPIDER | SLAY_WOLF
 
 
-N:23:of Spider Slaying
-W:4:2:0:2000
+# Includes bows
+
+N:23:of Nargothrond
+W:9:2:0:2000
 C:0:0:0:0:0:0:0
-T:21:0:99
+T:19:0:99
+T:21:0:8
 T:22:0:99
 T:23:0:99
-F:SLAY_SPIDER
+F:SLAY_RAUKO | SLAY_DRAGON
 
 
 N:24:of Final Rest
-W:7:1:0:2000
+W:7:2:0:2000
 C:0:0:0:0:0:0:0
-T:21:0:99
+T:21:0:8
 T:22:0:99
 T:23:0:99
-F:SLAY_UNDEAD
+F:SLAY_UNDEAD | FREE_ACT
 
 
-N:25:of Rauko Slaying
-W:9:1:0:2000
+# Blades, axes, and polearms
+
+N:25:(Vampiric)
+W:7:4:0:3000
 C:0:0:0:0:0:0:0
-T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_RAUKO
+F:VAMPIRIC | HUNGER | LIGHT_CURSE
 
 
-N:26:of Dragon Slaying
-W:12:1:0:2000
-C:0:0:0:0:0:0:0
-T:21:0:99
-T:22:0:99
+# Blades, glaives, and halberds
+
+N:26:(Defender)
+W:0:2:0:1000
+C:0:0:0:1:0:0:0
+T:22:4:5
 T:23:0:99
-F:SLAY_DRAGON
+F:IGNORE_ALL
+
+
+# All but broken swords, daggers, curved swords, quarterstaves, sceptres
+# (ability 0/5 is Follow-Through)
+
+N:27:of Hador's House
+W:8:3:0:3000
+C:0:0:1:0:0:0:0
+T:21:8:8
+T:22:0:99
+T:23:10:99
+B:0/5
+
+
+# All but broken swords, daggers, curved swords, quarterstaves, sceptres
+# (ability 0/12 is Whirlwind Attack)
+
+N:28:of Fury
+W:10:2:0:2000
+C:0:0:1:0:0:0:0
+T:21:8:8
+T:22:0:99
+T:23:10:99
+B:0/12
+F:AGGRAVATE | LIGHT_CURSE
+
+
+# Blades only
+
+#N:29:of Brilliance
+#W:0:3:0:1000
+#C:0:0:0:0:0:0:0
+#T:23:0:99
+#F:LIGHT
+
+
+# Blades only
+
+N:30:of Shadows
+W:6:5:0:1000
+C:0:0:0:0:0:0:3
+T:23:0:99
+F:DARKNESS | SONG
+
+
+# Blades only
+
+N:31:of the Feanorians
+W:11:5:0:1000
+C:0:0:0:0:0:0:1
+T:23:0:99
+F:GRA | DEX | DANGER
 
 
 # Daggers only
 
-N:27:(Poisoned)
+N:33:(Poisoned)
 W:0:1:0:2000
 C:0:0:0:0:0:0:0
 T:23:4:4
@@ -211,9 +284,9 @@ F:BRAND_POIS
 
 
 # Daggers only
-# Ability 3/1 is 'assassination'
+# (ability 3/1 is Assassination)
 
-N:28:of Murder
+N:34:of Murder
 W:0:1:0:2000
 C:0:0:0:0:0:0:0
 T:23:4:4
@@ -221,126 +294,46 @@ B:3/1
 
 
 # Daggers only
-# Ability 0/10 is 'two weapon fighting'
+# (ability 0/10 is Two Weapon Fighting)
 
-N:29:of Accompaniment
+N:35:of Accompaniment
 W:0:1:0:2000
 C:0:0:0:0:0:0:0
 T:23:4:4
 B:0/10
 
 
-# Edged weapons, glaives and halberds
-
-N:30:(Defender)
-W:0:1:0:1000
-C:0:0:0:1:0:0:0
-T:22:4:5
-T:23:0:99
-F:IGNORE_ALL
-
-
-# All weapons except light blades
-# Ability 0/5 is Follow-Through
-
-N:31:of Hador's House
-W:8:3:0:3000
-C:0:0:0:0:0:0:1
-T:21:0:99
-T:22:0:99
-T:23:17:99
-B:0/5
-F:STR
-
-
-# Edged weapons, glaives and halberds
-
-#N:32:of Sharpness
-#W:8:2:0:1000
-#C:0:0:0:0:0:0:0
-#T:22:13:15
-#T:23:0:99
-#F:SHARPNESS
-
-
 # Spears only
 
-N:33:of the Vanyar
+N:36:of the Vanyar
 W:10:1:0:3000
 C:0:0:0:0:0:0:1
 T:22:1:2
 F:GRA | LIGHT
 
 
-# Edged weapons
-# Ability 0/12 is Whirlwind Attack
+# Sceptres only
 
-N:34:of Fury
-W:10:2:0:2000
+N:37:of Power
+W:0:1:0:3000
+C:0:0:0:0:0:0:3
+T:21:9:9
+F:WILL | SONG
+
+
+# Sceptres only
+
+N:38:of Fire
+W:0:1:0:3000
 C:0:0:0:0:0:0:0
-T:23:0:99
-B:0/12
-F:AGGRAVATE
-
-
-# edged weapons, axes, polearms
-
-N:35:(Vampiric)
-W:12:2:0:3000
-C:0:0:0:0:0:0:1
-T:22:0:99
-T:23:0:99
-F:VAMPIRIC | HUNGER
-
-
-N:36:of Gondolin
-W:15:3:0:3000
-C:0:0:0:0:0:0:1
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_RAUKO | SLAY_DRAGON | DEX
-
-
-# blades only
-
-N:37:of Brilliance
-W:0:3:0:1000
-C:0:0:0:0:0:0:0
-T:23:0:99
-F:LIGHT
-
-
-# blades only
-# Ability 2/7 is riposte
-
-N:38:(Avenger)
-W:10:3:0:1000
-C:0:0:0:0:0:0:0
-T:23:0:99
-B:2/7
-
-
-# throwing items only
-
-#N:39:(Balanced)
-#W:2:1:0:1000
-#C:0:0:0:0:0:0:0
-#T:23:4:4
-#T:22:1:1
-#T:22:3:3
-#T:22:11:11
-#F:PERFECT_BALANCE
+T:21:9:9
+F:BRAND_FIRE | LIGHT
 
 
 ###
 
-#N:40:of Morgul
-#W:7:3:10:0
-#C:0:0:0:0:0:0:-1
-#T:23:0:99
-#F:GRA | DANGER | LIGHT_CURSE
-
+# While there are no obviously bad melee weapons, 'of Fury' and '(Vampiric)'
+# are cursed and are enough to add danger to wielding.
 
 
 ##### Digging Tools #####
@@ -356,7 +349,7 @@ F:TUNNEL
 
 
 N:71:of Brilliance
-W:0:3:0:1000
+W:0:1:0:1000
 C:0:0:0:0:0:0:0
 T:32:0:99
 T:33:0:99
@@ -371,16 +364,19 @@ T:33:0:99
 F:WILL | RES_FEAR
 
 
+# Includes light sources
+
 N:73:of True Sight
-W:5:1:0:2000
-C:0:0:0:0:0:0:3
+W:0:1:0:2000
+C:0:0:0:0:0:0:0
 T:32:0:99
 T:33:0:99
-F:PERCEPTION | RES_BLIND | SEE_INVIS | RES_HALLU
+T:39:1:8
+F:RES_BLIND | SEE_INVIS | RES_HALLU
 
 
 N:74:of Clarity
-W:7:2:0:2000
+W:0:1:0:2000
 C:0:0:0:0:0:0:0
 T:32:0:99
 T:33:0:99
@@ -390,7 +386,7 @@ F:RES_CONFU | RES_STUN | RES_HALLU
 # crowns (and lesser jewels) only
 
 N:75:of Grace
-W:10:2:0:3000
+W:0:1:0:3000
 C:0:0:0:0:0:0:1
 T:33:0:99
 T:39:2:2
@@ -398,18 +394,23 @@ F:GRA
 
 
 # crowns only
-# Ability 5/9 is Majesty
+# (ability 7/10 is Song of Mastery)
 
-N:76:of Majesty
-W:14:4:0:3000
+N:76:of Command
+W:0:2:0:3000
 C:0:0:0:0:0:0:0
 T:33:0:99
-B:5/9
+B:7/10
 
 
 ###
 
-# a helm of blindness?
+N:80:of Terror
+W:0:4:0:3000
+C:0:0:0:0:0:0:0
+T:32:0:99
+T:33:0:99
+F:FEAR
 
 # a helm that lowers perception?
 
@@ -438,39 +439,39 @@ F:RES_COLD
 
 ###
 
-# a cursed cloak?
+N:86:of Winter's Chill
+W:0:3:0:0
+C:0:0:0:0:0:0:0
+T:35:0:99
+F:VUL_COLD
 
 
 ##### Bows #####
 
+# 'of Gondolin' is already defined above
 
-N:91:of Himring
-W:0:1:10:1000
-C:0:0:0:0:0:0:0
-T:19:0:99
-F:SLAY_ORC | SLAY_TROLL
+# 'of Doriath' is already defined above
+
+# 'of Nargothrond' is already defined above
 
 
-N:92:of Radiance
+N:91:of Radiance
 W:0:1:0:1000
 C:0:0:0:0:0:0:0
 T:19:0:99
 F:RADIANCE
 
 
-N:93:of Doriath
-W:7:1:0:2000
-C:0:0:0:0:0:0:0
-T:19:0:99
-F:SLAY_WOLF | SLAY_SPIDER
-
-
-N:94:of Quickness
+N:92:of Quickness
 W:10:3:0:3000
 C:0:0:0:0:0:0:0
 T:19:0:99
 B:1/6
 
+###
+
+# A cursed bow would be good. This is currently the only slot without a
+# perilous item to add danger to wielding
 
 ##### Arrows #####
 
@@ -488,12 +489,16 @@ C:0:0:0:0:0:0:0
 T:17:0:99
 F:SHARPNESS
 
+###
+
+# We don't need any perilous arrows
+
 
 
 ##### Boots #####
 
 
-# leather boots only
+# boots only
 
 N:111:of Softest Tread
 W:0:1:0:1000
@@ -509,11 +514,11 @@ T:30:0:99
 F:FREE_ACT
 
 
-# leather boots only
-# Sprinting is ability 2/4
+# boots only
+# (ability 2/4 is Sprinting)
 
 N:113:of Speed
-W:10:5:0:5000
+W:10:4:0:5000
 C:0:0:0:0:0:0:10
 T:30:1:1
 B:2/4
@@ -521,11 +526,12 @@ B:2/4
 
 ###
 
-N:114:of Slowness
-W:14:3:18:0
+
+N:115:of Treacherous Paths
+W:5:3:18:0
 C:0:0:0:0:0:0:0
 T:30:0:99
-F:SLOWNESS | LIGHT_CURSE
+F:DANGER
 
 
 
@@ -548,36 +554,34 @@ T:31:0:99
 F:SMITHING
 
 
-N:122:of Power
-W:10:1:0:3000
+# (ability 2/2 is Parry)
+
+N:122:of Swordplay
+W:0:2:0:2000
+C:0:0:0:0:0:0:0
+T:31:0:99
+B:2/2
+
+
+N:123:of Strength
+W:10:2:0:3000
 C:0:0:0:0:0:0:1
 T:31:0:99
 F:STR
 
 
-# gloves only
-
-N:123:of Dexterity
-W:12:1:0:3000
-C:0:0:0:0:0:0:1
-T:31:1:1
-F:DEX
-
-
 ###
 
-N:125:of Weakness
-W:0:1:13:0
+
+# (ability 3/3 is Opportunist)
+
+N:126:of Treachery
+W:0:4:13:0
 C:0:0:0:0:0:0:1
 T:31:0:99
 F:STR | LIGHT_CURSE
+B:3/3
 
-
-N:126:of Clumsiness
-W:0:1:13:0
-C:0:0:0:0:0:0:1
-T:31:0:99
-F:DEX | LIGHT_CURSE
 
 
 ##### Light sources (but not torches) #####
@@ -590,19 +594,15 @@ T:39:1:8
 F:LIGHT
 
 
-N:131:of True Sight
-W:0:1:0:2000
-C:0:0:0:0:0:0:0
-T:39:1:8
-F:SEE_INVIS | RES_BLIND | RES_HALLU
+# 'of True Sight' is already defined above
 
 
-# lesser jewels also have "of Grace" in crown section
+# 'of Grace' is already defined above (for Lesser Jewels)
 
 
 # Lanterns only
 
-N:135:of Shadows
+N:135:of Flickering Shadow
 W:0:1:11:0
 C:0:0:0:0:0:0:0
 T:39:1:1

@@ -1796,6 +1796,17 @@ extern int initial_menu(int *highlight)
 {
 	int ch;
 
+	if (arg_wizard)
+	{
+		Term_putstr(15, 15, 80, TERM_BLUE, "Resurrecting a character is a form of cheating.");
+		Term_putstr(15, 16, 80, TERM_BLUE, "You cannot get a high score with this character.");
+	}
+	else
+	{
+		Term_putstr(15, 15, 80, TERM_BLUE, "                                                ");
+		Term_putstr(15, 16, 80, TERM_BLUE, "                                                ");
+	}
+
 	Term_putstr(15, 17, 60, TERM_L_DARK, "________________________________________");
 	Term_putstr(20, 19, 25, (*highlight == 1) ? TERM_L_BLUE : TERM_WHITE, "a) Tutorial");
 	Term_putstr(20, 20, 25, (*highlight == 2) ? TERM_L_BLUE : TERM_WHITE, "b) New character");
@@ -1857,7 +1868,13 @@ extern int initial_menu(int *highlight)
 	{
 		if (*highlight < 4) (*highlight)++;
 	}
-
+	
+	/* Set wizard flag for resurrecting dead characters */
+	if (ch == KTRL('W'))
+	{
+		arg_wizard = !arg_wizard;
+	}
+	
 	return (0);
 } 
 

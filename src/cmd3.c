@@ -415,7 +415,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 		return;
 	}
 	
-	/* Deal with wielding of two-handed weapons when already using a cursed shield */
+	/* Deal with wielding of two-handed weapons when already using a shield */
 	if ((k_info[o_ptr->k_idx].flags3 & (TR3_TWO_HANDED)) && (inventory[INVEN_ARM].k_idx))
 	{
 		if (cursed_p(&inventory[INVEN_ARM]))
@@ -432,7 +432,9 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 			/* Cancel the command */
 			return;			
 		}
-		if ((&inventory[INVEN_PACK-1])->tval)
+		
+		// warn about dropping item in left hand
+		if ((item < 0) && (&inventory[INVEN_PACK-1])->tval)
 		{
 			/* Flush input */
 			flush();
@@ -466,6 +468,31 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 			
 			/* Cancel the command */
 			return;
+		}
+
+		// warn about dropping item in left hand
+		if ((item < 0) && (&inventory[INVEN_PACK-1])->tval)
+		{
+			/* Flush input */
+			flush();
+			
+			if (inventory[INVEN_ARM].tval == TV_SHIELD)
+			{
+				if (!get_check("This would require removing (and dropping) your weapon. Proceed? "))
+				{
+					/* Cancel the command */
+					return;
+				}
+			}
+			else
+			{
+				msg_print("This would require removing (and dropping) your weapon.");
+				if (!get_check("Proceed? "))
+				{
+					/* Cancel the command */
+					return;
+				}
+			}
 		}
 	}
 	
@@ -584,8 +611,8 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 	
-	// Special effects when picking up all the items from the floor
-	if (item < 0 && (i_ptr->number == original_quantity))
+	// Deal with wielding from the floor
+	if (item < 0)
 	{
 		/* Forget monster */
 		o_ptr->held_m_idx = 0;
@@ -593,11 +620,15 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 		/* Forget location */
 		o_ptr->iy = o_ptr->ix = 0;
 		
-		/* No longer marked */
-		o_ptr->marked = FALSE;
-		
 		// Break the truce if picking up an item from the floor
 		break_truce(FALSE);
+
+		// Special effects when picking up all the items from the floor
+		if (i_ptr->number == original_quantity)
+		{
+			/* No longer marked */
+			o_ptr->marked = FALSE;
+		}
 	}
 	
 	/* Cursed! */
@@ -823,6 +854,49 @@ static bool item_tester_hook_destroy(const object_type *o_ptr)
 	return (TRUE);
 }
 
+/*
+ *  Shatter the player's wielded weapon.
+ */
+void shatter_weapon(int silnum)
+{
+	int i;
+	object_type   *w_ptr = &inventory[INVEN_WIELD];
+	char w_name[80];
+	
+	p_ptr->crown_shatter = TRUE;
+			
+	/* Get the basic name of the object */
+	object_desc(w_name, sizeof(w_name), w_ptr, FALSE, 0);
+	
+	if (silnum == 2)	msg_print("You strive to free a second Silmaril, but it is not fated to be.");
+	else				msg_print("You strive to free a third Silmaril, but it is not fated to be.");
+	
+	msg_format("As you strike the crown, your %s shatters into innumerable pieces.", w_name);
+	
+	// make more noise
+	stealth_score -= 5;
+	
+	inven_item_increase(INVEN_WIELD, -1);
+	inven_item_optimize(INVEN_WIELD);
+	
+	/* Process monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		
+		/* If Morgoth, then anger him */
+		if (m_ptr->r_idx == R_IDX_MORGOTH)
+		{
+			if ((m_ptr->cdis <= 5) && los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx))
+			{
+				msg_print("A shard strikes Morgoth upon his cheek.");
+				set_alertness(m_ptr, ALERTNESS_VERY_ALERT);
+			}
+		}
+	}
+	
+}
+
 void prise_silmaril(void)
 {
 	object_type   *o_ptr;
@@ -846,6 +920,9 @@ void prise_silmaril(void)
 	int pd = 0;
 	int noise = 0;
 	u32b dummy_noticed_flag;
+	
+	int mds = p_ptr->mds;
+	int attack_mod = p_ptr->skill_use[S_MEL];
 
 	char o_name[80];
 
@@ -856,7 +933,7 @@ void prise_silmaril(void)
 	{
 		case ART_MORGOTH_3:
 		{
-			pd = 20;
+			pd = 15;
 			noise = 5;
 			freed_msg = "You have freed a Silmaril!";
 			break;
@@ -865,13 +942,17 @@ void prise_silmaril(void)
 		{
 			pd = 25;
 			noise = 10;
-			freed_msg = "The fates be damned! You free a second Silmaril.";
+						
+			if (p_ptr->crown_shatter)	freed_msg = "The fates be damned! You free a second Silmaril.";
+			else						freed_msg = "You free a second Silmaril.";
+			
 			break;
 		}
 		case ART_MORGOTH_1:
 		{
 			pd = 30;
 			noise = 15;
+			
 			freed_msg = "You free the final Silmaril. You have a very bad feeling about this.";
 			
 			msg_print("Looking into the hallowed light of the final Silmaril, you are filled with a strange dread.");
@@ -884,8 +965,18 @@ void prise_silmaril(void)
 	/* Get the weapon */
 	w_ptr = &inventory[INVEN_WIELD];
 
+	// undo rapid attack penalties
+	if (p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK])
+	{
+		// undo strength adjustment to the attack
+		mds = total_mds(w_ptr, 0);
+		
+		// undo the dexterity adjustment to the attack
+		attack_mod += 3;
+	}
+	
 	/* Test for hit */
-	hit_result = hit_roll(p_ptr->skill_use[S_MEL], 0, PLAYER, NULL, TRUE);
+	hit_result = hit_roll(attack_mod, 0, PLAYER, NULL, TRUE);
 	
 	/* Make some noise */
 	stealth_score -= noise;
@@ -895,7 +986,7 @@ void prise_silmaril(void)
 	{
 		crit_bonus_dice = crit_bonus(hit_result, w_ptr->weight, &r_info[R_IDX_MORGOTH], S_MEL, FALSE);
 		
-		dam = damroll(p_ptr->mdd + crit_bonus_dice, p_ptr->mds);
+		dam = damroll(p_ptr->mdd + crit_bonus_dice, mds);
 		prt = damroll(pd, 4);
 		
 		prt_percent = prt_after_sharpness(w_ptr, &dummy_noticed_flag);
@@ -906,7 +997,7 @@ void prise_silmaril(void)
 		if (net_dam < 0) net_dam = 0;
 		
 		//update_combat_rolls1b(PLAYER, TRUE);
-		update_combat_rolls2(p_ptr->mdd + crit_bonus_dice, p_ptr->mds, dam, pd, 4, prt, prt_percent, GF_HURT);
+		update_combat_rolls2(p_ptr->mdd + crit_bonus_dice, mds, dam, pd, 4, prt, prt_percent, GF_HURT, TRUE);
 	}
 	
 	
@@ -923,48 +1014,24 @@ void prise_silmaril(void)
 			}
 			case ART_MORGOTH_2:
 			{
-				if (!p_ptr->crown_shatter)
+				if (!p_ptr->crown_shatter && one_in_(2))
 				{
-					char w_name[80];
-					int i;
-					
-					p_ptr->crown_shatter = TRUE;
-					
+					shatter_weapon(2);
 					freed = FALSE;
-					
-					/* Get the basic name of the object */
-					object_desc(w_name, sizeof(w_name), w_ptr, FALSE, 0);
-					
-					msg_print("You strive to free a second Silmaril, but it is not fated to be.");
-					msg_format("As you strike the crown, your %s shatters into innumerable pieces.", w_name);
-					
-					// make more noise
-					stealth_score -= 5;
-					
-					inven_item_increase(INVEN_WIELD, -1);
-					inven_item_optimize(INVEN_WIELD);
-					
-					/* Process monsters */
-					for (i = 1; i < mon_max; i++)
-					{
-						monster_type *m_ptr = &mon_list[i];
-						
-						/* If Morgoth, then anger him */
-						if (m_ptr->r_idx == R_IDX_MORGOTH_UNCROWNED)
-						{
-							if ((m_ptr->cdis <= 5) && los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx))
-							{
-								msg_print("A shard strikes Morgoth upon his cheek.");
-								set_alertness(m_ptr, ALERTNESS_VERY_ALERT);
-							}
-						}
-					}
 				}
 				break;
 			}
 			case ART_MORGOTH_1:
 			{
-				p_ptr->cursed = TRUE;
+				if (!p_ptr->crown_shatter)
+				{
+					shatter_weapon(3);
+					freed = FALSE;
+				}
+				else
+				{
+					p_ptr->cursed = TRUE;
+				}
 				break;
 			}
 		}
@@ -1014,6 +1081,8 @@ void prise_silmaril(void)
 	{
 		msg_print("Try though you might, you were unable to free a Silmaril.");
 		msg_print("Perhaps you should try again or use a different weapon.");
+
+		if (pd == 15) msg_print("(The combat rolls window shows what is happening.)");
 
 		// Break the truce if creatures see
 		break_truce(FALSE);
@@ -1588,6 +1657,9 @@ void do_cmd_refuel_lamp(object_type *default_o_ptr, int default_item)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP);
+	
+	// get another chance to identify the lamp
+	ident_on_wield(j_ptr);
 }
 
 
@@ -1694,6 +1766,9 @@ void do_cmd_refuel_torch(object_type *default_o_ptr, int default_item)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP);
+	
+	// get another chance to identify the torch
+	ident_on_wield(j_ptr);
 }
 
 

@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.1.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -113,9 +113,29 @@ P:0:0d0:0:0d0
 F:INSTA_ART
 
 
+# The Ring of Melian
+
+N:2:& Ring~
+G:=:D
+I:45:30:0
+W:1:0:1:65000
+P:0:0d0:0:0d0
+F:INSTA_ART
+
+
+# The Amulet of Tinfang Gelion
+
+N:3:& Amulet~
+G:":D
+I:40:10:0
+W:1:0:1:65000
+P:0:0d0:0:0d0
+F:INSTA_ART
+
+
 # The Pearl 'Nimphelos'
 
-N:2:& Pearl~
+N:4:& Pearl~
 G:":w
 I:40:13:1
 W:1:0:3:100000
@@ -125,7 +145,7 @@ F:INSTA_ART
 
 # The Jewel 'Elessar'
 
-N:3:& Jewel~
+N:5:& Jewel~
 G:":g
 I:40:16:1
 W:1:0:3:50000
@@ -135,7 +155,7 @@ F:INSTA_ART
 
 # The Necklace of the Dwarves
 
-N:4:& Necklace~
+N:6:& Necklace~
 G:":y
 I:40:12:1
 W:1:0:3:75000
@@ -198,9 +218,10 @@ A:1/2
 N:22:& Robe~
 G:(:b
 I:36:2:0
-W:1:0:30:4
+W:5:0:30:4
 P:0:0d0:0:1d0
-A:1/3
+A:5/3:10/10
+F:ENCHANTABLE
 
 
 N:23:Leather Armour~
@@ -329,6 +350,9 @@ A:2/1:12/1
 # Deathblades get bonuses in a different way to most items.
 # A coin is flipped until it comes up tails. It gets +1 melee
 # for each time it came up heads.
+#
+# They are not very Tolkienian, but are a homage to Dungeons of Doom
+# (an ancient roguelike for Mac)
 
 N:63:& Deathblade~
 G:|:D
@@ -415,17 +439,8 @@ N:74:& Glaive~
 G:/:s
 I:22:4:0
 W:9:0:70:363
-P:-1:2d8:1:0d0
+P:-2:2d9:1:0d0
 A:9/2
-F:TWO_HANDED | POLEARM
-
-
-N:75:& Halberd~
-G:/:W
-I:22:5:0
-W:11:0:60:430
-P:-3:2d10:1:0d0
-A:11/3
 F:TWO_HANDED | POLEARM
 
 
@@ -477,6 +492,15 @@ A:5/3
 F:HAND_AND_A_HALF
 
 
+N:90:& Sceptre~
+G:\:y1
+I:21:9:0
+W:6:0:40:1000
+P:-1:2d3:0:0d0
+A:6/10:13/3
+F:ENCHANTABLE
+
+
 ##### Digging Tools #####
 
 
@@ -487,8 +511,10 @@ W:5:0:60:10
 P:-3:2d2:0:0d0
 A:5/3:12/3
 F:TUNNEL | TWO_HANDED
-D:It is equippable as a weapon and helps somewhat with digging.
+D:It can be equipped as a weapon and allows you to dig through rubble.
 
+
+# Mattocks are canonically used as weapons by the dwarves
 
 N:98:& Mattock~
 G:\:D
@@ -497,7 +523,8 @@ W:10:0:130:700
 P:-5:5d2:0:0d0
 A:10/3
 F:TUNNEL | TWO_HANDED
-D:It is equippable as a weapon and greatly helps with digging.
+D:It can be equipped as a weapon and (usually) allows you to dig through
+D: rubble or quartz.
 
 
 
@@ -533,8 +560,8 @@ D:A full faced helm, wrought in a fearsome visage.
 N:103:& Mithril Helm~
 G:]:B
 I:32:8:0
-W:10:0:25:500
-P:0:0d0:-1:1d2
+W:10:0:35:500
+P:0:0d0:-1:1d3
 A:10/10
 F:IGNORE_ALL | MITHRIL
 
@@ -542,19 +569,19 @@ F:IGNORE_ALL | MITHRIL
 N:104:& Crown~
 G:]:y
 I:33:11:0
-W:14:0:30:1000
+W:7:0:30:1000
 P:0:0d0:0:1d0
-A:14/2
-F:IGNORE_ALL
+A:7/10:14/2
+F:IGNORE_ALL | ENCHANTABLE
 
 
 N:105:& Jewelled Crown~
 G:]:v
 I:33:12:0
-W:16:0:30:2000
+W:8:0:30:2000
 P:0:0d0:0:1d0
-A:16/2
-F:IGNORE_ALL
+A:8/10:16/2
+F:IGNORE_ALL | ENCHANTABLE
 
 
 
@@ -634,7 +661,7 @@ A:2/1:6/1:11/1:17/1
 
 ##### Boots #####
 
-N:122:& Pair~ of Leather Boots
+N:122:& Pair~ of Boots
 G:]:U
 I:30:1:0
 W:1:0:20:7
@@ -642,7 +669,7 @@ P:0:0d0:0:1d1
 A:1/2:10/1
 
 
-N:123:& Pair~ of Steel Greaves
+N:123:& Pair~ of Greaves
 G:]:s
 I:30:2:0
 W:4:0:80:19
@@ -655,14 +682,14 @@ N:124:& Pair~ of Mithril Greaves
 G:]:B
 I:30:3:0
 W:12:0:40:50
-P:0:0d0:-1:1d2
+P:0:0d0:0:1d2
 A:12/10
 F:IGNORE_ALL | MITHRIL
 
 
 ##### Gloves #####
 
-N:125:& Set~ of Leather Gloves
+N:125:& Set~ of Gloves
 G:]:U
 I:31:1:0
 W:1:0:5:3
@@ -799,14 +826,16 @@ A:16/6
 F:GRA | SUST_GRA | LIGHT
 
 
+##
 
-N:138:Danger
+
+N:138:Haunted Dreams
 G:":d
 I:40:6:0
 W:9:0:3:0
 P:0:0d0:0:0d0
 A:9/3
-F:DANGER | EASY_KNOW
+F:HAUNTED | SEE_INVIS | EASY_KNOW
 
 
 ##### Rings #####
@@ -911,13 +940,13 @@ A:13/3
 F:DAMAGE_SIDES
 
 
-N:161:True Sight
-G:=:d
-I:45:11:0
-W:13:0:1:340
-P:0:0d0:0:0d0
-A:13/3
-F:SEE_INVIS | RES_BLIND | RES_HALLU | EASY_KNOW
+#N:161:True Sight
+#G:=:d
+#I:45:11:0
+#W:13:0:1:340
+#P:0:0d0:0:0d0
+#A:13/3
+#F:SEE_INVIS | RES_BLIND | RES_HALLU | EASY_KNOW
 
 
 N:162:Venom's End
@@ -929,6 +958,8 @@ A:14/3
 F:RES_POIS | EASY_KNOW
 
 
+##
+
 
 N:171:Hunger
 G:=:d
@@ -939,13 +970,13 @@ A:6/2
 F:HUNGER | EASY_KNOW
 
 
-N:172:Wrath
-G:=:d
-I:45:22:0
-W:10:0:1:0
-P:0:0d0:0:0d0
-A:10/2
-F:AGGRAVATE | EASY_KNOW
+#N:172:Wrath
+#G:=:d
+#I:45:22:0
+#W:10:0:1:0
+#P:0:0d0:0:0d0
+#A:10/2
+#F:AGGRAVATE | EASY_KNOW
 
 
 
@@ -1292,6 +1323,9 @@ D:It grants a bonus of +3 to grace for 20d4 turns,
 D: restoring grace in the process.
 
 
+##
+
+
 N:343:Slowness
 G:!:d
 I:75:22:100
@@ -1466,7 +1500,8 @@ W:7:0:1:75
 P:0:0d0:0:0d0
 A:7/2:17/1
 F:EASY_KNOW
-D:It cures a quarter of your health.  Herbs provide nourishment for
+D:It cures all cuts and heals half of your health.
+D:  Herbs provide nourishment for
 D: about 250 turns under normal conditions. 
 
 
@@ -1815,7 +1850,7 @@ P:0:0d0:0:0d0
 F:EASY_KNOW
 D:If you were wielding the shortsword, you would have noticed it glow
 D: brightly in the presence of the orc, indicating to the perceptive player
-D: that it is a weapon of orc-slaying. This also means that it does an
+D: that it is bears an enchantment against orcs. This means that it does an
 D: extra die of damage against orcs, making its 1d7 into 2d7: a large bonus.
 
 
@@ -1902,9 +1937,10 @@ I:2:21:0
 W:0:1:1:0
 P:0:0d0:0:0d0
 F:EASY_KNOW
-D:To have a look at your character sheet, press @. This will show
-D: all of your Skills and much more. To exit just press Escape
-D: (which exits any menu in Sil).
+D:To have a look at your character sheet, press (Escape) to bring up the
+D: main menu then choose the second option. This will show
+D: all of your Skills and much more. To exit just press (Escape)
+D: (which exits any menu or screen in Sil).
 
 
 N:472:& Note~
@@ -1946,7 +1982,7 @@ W:0:1:1:0
 P:0:0d0:0:0d0
 F:EASY_KNOW
 D:Sometimes you will forget which key does what, or need a new command.
-D: You can see a list of all the key commands by pressing (?).
+D: You can see a list of all the key commands by pressing (?). 
 
 
 N:476:& Note~
@@ -2028,10 +2064,11 @@ P:0:0d0:0:0d0
 F:EASY_KNOW
 D:It looks like there has been a cave-in here. To get through
 D: you will need to move diagonally. This is easy with a keypad, but harder on
-D: a laptop computer. To move diagonally, use the 1 3 7 9 keys at the top of the
+D: a laptop. To move diagonally, use the 1 3 7 9 keys at the top of the
 D: keyboard. This can be a little tricky to learn, but it is often convenient and
 D: sometimes essential. If you are very familiar with the hjkl movement keys,
-D: there is an option to use them instead in the options menu (O).
+D: there is an option to use them instead in the options menu (find it from the
+D: main menu).
 
 
 N:482:& Note~

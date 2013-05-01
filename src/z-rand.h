@@ -43,7 +43,7 @@
  *
  * Note that the behaviour for M < 1 is undefined.
  */
-#define randint(M) \
+#define dieroll(M) \
 	(rand_int(M) + 1)
 
 /*

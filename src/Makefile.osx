@@ -176,17 +176,6 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h
 load.o: load.c $(INCS)  init.h
-maid-x11.o: maid-x11.c $(INCS) maid-x11.h
-main-cap.o: main-cap.c $(INCS) main.h
-main-gcu.o: main-gcu.c $(INCS) main.h
-main-gtk.o: main-gtk.c $(INCS) main.h maid-x11.h
-main-lsl.o: main-lsl.c $(INCS) main.h
-main-sla.o: main-sla.c $(INCS) main.h
-main-vcs.o: main-vcs.c $(INCS) main.h
-main-x11.o: main-x11.c $(INCS) main.h maid-x11.h
-main-xaw.o: main-xaw.c $(INCS) main.h maid-x11.h
-main-xpj.o: main-xpj.c $(INCS) main.h maid-x11.h
-main.o: main.c $(INCS) main.h
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 monster1.o: monster1.c $(INCS)

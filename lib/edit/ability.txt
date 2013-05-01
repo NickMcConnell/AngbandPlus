@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.0.2
+V:1.1.0
 
 # Melee ---------------------------------------------
 
@@ -66,8 +66,9 @@ T:31:0:99  # Gloves
 
 N:4:Charge
 I:0:4:5
-D:Gives a large damage bonus if you attack an opponent
-D: immediately after moving towards it.
+D:When you attack an opponent immediately after moving towards it,
+D: your attack is calculated as if you you had 3 points more
+D: strength and dexterity.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -227,8 +228,8 @@ T:30:0:99  # Boots
 
 N:41:Blocking
 I:2:1:4
-D:Doubles the protection roll for your shield if you waited
-D: last turn (z or 5).
+D:Doubles the protection roll for your shield against all ranged
+D: attacks, and against melee as well if you waited last turn (z or 5).
 T:34:0:99  # Shields
 
 N:42:Parry
@@ -286,7 +287,7 @@ T:31:0:99  # Gloves
 
 N:48:Controlled Retreat
 I:2:8:11
-P:2/5
+P:2/1:2/5
 D:Gives you a free attack on an opponent when you step away
 D: from it, but only if you did not move the previous round.
 T:21:0:99  # Hafted
@@ -346,8 +347,8 @@ T:30:0:99  # Boots
 N:65:Vanish
 I:3:5:8
 P:3/0
-D:Enemies will slowly become unwary again while you are out
-D: of their line of sight. (Doesn't work while they are fleeing).
+D:Gives a +10 stealth bonus towards making enemies become unwary
+D: when you are out of their line of sight.
 T:35:0:99  # Cloak
 T:36:0:99  # Soft Armour
 
@@ -594,7 +595,7 @@ T:40:0:99  # Amulet
 
 N:145:Song of Aule
 I:7:5:6
-D:Gives you a bonus of +1 to Smithing per 5 points
+D:Gives you a bonus of +1 to Smithing per 4 points
 D: of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet

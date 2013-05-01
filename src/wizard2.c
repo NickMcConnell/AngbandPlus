@@ -1122,7 +1122,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_confused(0);
 	(void)set_poisoned(0);
 	(void)set_afraid(0);
-	(void)set_paralyzed(0);
+	(void)set_entranced(0);
 	(void)set_image(0);
 	(void)set_stun(0);
 	(void)set_cut(0);

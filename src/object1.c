@@ -97,7 +97,7 @@ static void flavor_assign_random(byte tval)
 	}
 }
 
-// Is the current day Easter Sunday?
+// Is the current day between Easter Sunday?
 // if so, herbs become easter eggs
 bool easter_time(void)
 {
@@ -1013,7 +1013,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 					tail = " (Poison Needle)";
 					break;
 				}
-				case CHEST_NEEDLE_PARALYZE:
+				case CHEST_NEEDLE_ENTRANCE:
 				{
 					tail = " (Poison Needle)";
 					break;
@@ -1130,21 +1130,40 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (mode < 2) goto object_desc_done;
 
 	/* Hack -- Staffs have charges */
-	if ((known || p_ptr->active_ability[S_WIL][WIL_CHANNELING]) &&
-	    (o_ptr->tval == TV_STAFF))
+	if (o_ptr->tval == TV_STAFF)
 	{
-		/* Dump " (N charges)" */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
-
-		/*write out the word charge(s) as appropriate*/
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " charge");
-		if (o_ptr->pval != 1)
+		if ((known || p_ptr->active_ability[S_WIL][WIL_CHANNELING]))
 		{
-			object_desc_chr_macro(t, 's');
+			/* Dump " (N charges)" */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, p1);
+			
+			/*write out the word charge(s) as appropriate*/
+			object_desc_num_macro(t, o_ptr->pval);
+			object_desc_str_macro(t, " charge");
+			if (o_ptr->pval != 1)
+			{
+				object_desc_chr_macro(t, 's');
+			}
+			object_desc_chr_macro(t, p2);
 		}
-		object_desc_chr_macro(t, p2);
+		
+		else if ((o_ptr->xtra1 > 0) && !(o_ptr->ident & (IDENT_EMPTY)))
+		{
+			/* Dump " (used N times)" */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, p1);
+			
+			/*write out the word charge(s) as appropriate*/
+			object_desc_str_macro(t, "used ");
+			object_desc_num_macro(t, o_ptr->xtra1);
+			object_desc_str_macro(t, " time");
+			if (o_ptr->xtra1 != 1)
+			{
+				object_desc_chr_macro(t, 's');
+			}
+			object_desc_chr_macro(t, p2);
+		}
 	}
 
 	/* Hack -- Process Lanterns/Torches */
@@ -1791,17 +1810,6 @@ cptr describe_use(int i)
 		case INVEN_QUIVER1:  p = "carrying in your quiver"; break;
 		case INVEN_QUIVER2:  p = "carrying in your quiver"; break;
 		default:          p = "carrying in your pack"; break;
-	}
-
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (p_ptr->heavy_wield)
-		{
-			p = "just lifting";
-		}
 	}
 
 	/* Return the result */

@@ -39,7 +39,7 @@
  */
 
 
-#define DEPLOYMENT	1	// 1 if the game being built for deployment, 0 for development
+#define DEPLOYMENT	1	//// 1 if the game being built for deployment, 0 for development
 
 /*
  * Name of the version/variant
@@ -50,15 +50,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.2"
+#define VERSION_STRING	"1.1.0"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	0
-#define VERSION_PATCH	2
+#define VERSION_MINOR	1
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
@@ -66,7 +66,7 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR	1
-#define OLD_VERSION_MINOR	0
+#define OLD_VERSION_MINOR	1
 #define OLD_VERSION_PATCH	0
 
 
@@ -148,6 +148,11 @@
 #define ANGBAND_TERM_MAX 8
 
 /*
+ * Maximum length of the character's notes (for notes_buffer).
+ */
+#define NOTES_LENGTH 100000
+
+/*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            2
@@ -227,7 +232,6 @@
 #define R_IDX_GLAURUNG			243	// the location of Glaurung
 #define R_IDX_GORTHAUR			244	// the location of Gorthaur
 #define R_IDX_MORGOTH			251	// the location of Morgoth
-#define R_IDX_MORGOTH_UNCROWNED	252	// the location of Morgoth (uncrowned)
 #define R_IDX_CARCHAROTH		253 // the location of Carcharoth
 #define R_IDX_MORGOTH_HALLU		401	// the location of Morgoth's hallucination image
 
@@ -405,7 +409,7 @@
  * Player "food" crucial values
  */
  
-#define PY_FOOD_MAX		7000	/* Food value (Full) */
+#define PY_FOOD_MAX		8000	/* Food value (Full) */
 #define PY_FOOD_FULL	5000	/* Food value (Normal) */
 #define PY_FOOD_ALERT	2000	/* Food value (Hungry) */
 #define PY_FOOD_WEAK	1000	/* Food value (Weak) */
@@ -946,31 +950,24 @@
 #define FEAT_FORGE_UNIQUE_TAIL		0x4F /*  */
 
 // Vaults
-#define VAULT_FORGE1			 42
-#define VAULT_FORGE2			 43
-#define VAULT_FORGE3			 86
-#define VAULT_FORGE4			 92
-#define VAULT_FORGE5			 98
-#define VAULT_FORGE6			102
-
 #define MAX_GREATER_VAULTS		  8
 
 /*** Important artefact indexes (see "lib/edit/artefact.txt") ***/
 
-#define ART_MAEGLIN			25
-#define ART_GLEND			52
-#define ART_DELMERETH		57
-#define ART_BOLDOG			60
-#define ART_DRAUGLIN		98
-#define ART_THURINGWETHIL	99
+#define ART_MAEGLIN			32
+#define ART_GLEND			74
+#define ART_DELMERETH		84
+#define ART_BOLDOG			86
+#define ART_DRAUGLUIN		137
+#define ART_THURINGWETHIL	138
 
-#define ART_MORGOTH_0		120
-#define ART_MORGOTH_1		121
-#define ART_MORGOTH_2		122
-#define ART_MORGOTH_3		123
-#define ART_GROND			124
+#define ART_MORGOTH_0		175
+#define ART_MORGOTH_1		176
+#define ART_MORGOTH_2		177
+#define ART_MORGOTH_3		178
+#define ART_GROND			179
 
-#define ART_ULTIMATE		125
+#define ART_ULTIMATE		182
 
 
 /*
@@ -1068,8 +1065,9 @@
 #define SV_MATTOCK			7
 
 /* The "sval" values for TV_HAFTED */
-#define SV_QUARTERSTAFF			3	/* 2d4 */
-#define SV_WAR_HAMMER			8	/* 3d2 */
+#define SV_QUARTERSTAFF			3	/* 2d3 */
+#define SV_WAR_HAMMER			8	/* 4d1 */
+#define SV_SCEPTRE				9	/* 2d3 */
 #define SV_GROND				50	/* 5d5 */
 
 /* The "sval" values for TV_POLEARM */
@@ -1145,6 +1143,14 @@
 #define SV_LIGHT_FEANORIAN		8
 #define SV_LIGHT_SILMARIL		9
 
+/* The radii for lights */
+#define RADIUS_TORCH		1
+#define RADIUS_LESSER_JEWEL	1
+#define RADIUS_LANTERN		2
+#define RADIUS_FEANORIAN	3
+#define RADIUS_ARTEFACT		3
+#define RADIUS_SILMARIL		7
+
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_ADORNMENT			0
 #define SV_AMULET_CON				1
@@ -1154,6 +1160,7 @@
 #define SV_AMULET_BLESSED_REALM		5
 #define SV_AMULET_DANGER			6
 
+#define SV_AMULET_TINFANG_GELION	10
 #define SV_AMULET_DWARVES			12
 #define SV_AMULET_NIMPHELOS			13
 #define SV_AMULET_ELESSAR			16
@@ -1177,6 +1184,7 @@
 #define SV_RING_HUNGER				21
 #define SV_RING_ATTENTION			22
 
+#define SV_RING_MELIAN			30
 #define SV_RING_BARAHIR			32
 #define SV_RING_SELF_MADE		40
 
@@ -1238,7 +1246,7 @@
 #define SV_FOOD_RESTORATION		4
 #define SV_FOOD_HUNGER			5
 #define SV_FOOD_VISIONS			6
-#define SV_FOOD_PARALYSIS		7
+#define SV_FOOD_ENTRANCEMENT	7
 #define SV_FOOD_WEAKNESS		8
 #define SV_FOOD_SICKNESS		9
 
@@ -1552,7 +1560,7 @@
 #define CHEST_GAS_STUN         0x02
 #define CHEST_GAS_POISON       0x04
 #define CHEST_NEEDLE_HALLU     0x08
-#define CHEST_NEEDLE_PARALYZE  0x10
+#define CHEST_NEEDLE_ENTRANCE  0x10
 #define CHEST_NEEDLE_LOSE_STR  0x20
 #define CHEST_FLAME            0x40
  
@@ -1690,7 +1698,7 @@
 #define TR1_WIL             0x00001000L /* WIL += "pval" */
 #define TR1_SMT             0x00002000L /* SMT += "pval" */
 #define TR1_SNG             0x00004000L /* SNG += "pval" */
-#define TR1_DAMAGE_DICE     0x00008000L /* damage dice += "pval" */
+#define TR1_TR1XXX1         0x00008000L /* xxx */
 #define TR1_DAMAGE_SIDES	0x00010000L /* damage sides += "pval" */
 #define TR1_TUNNEL          0x00020000L /* Tunnel += "pval" */
 #define TR1_SHARPNESS       0x00040000L /* Weapon ignores half of protection */
@@ -1734,18 +1742,18 @@
 #define TR2_REGEN           0x00020000L /* Regeneration */
 #define TR2_SEE_INVIS       0x00040000L /* See Invis */
 #define TR2_FREE_ACT        0x00080000L /* Free action */
-#define TR2_TELEPATHY       0x00100000L /* Telepathy */
+#define TR2_TR2XXX1         0x00100000L /* xxx */
 #define TR2_SPEED           0x00200000L /* Speed += 1 */
-#define TR2_LIFE_SAVING     0x00400000L /* Saves your life */
+#define TR2_FEAR            0x00400000L /* Causes fear when you take damage */
 #define TR2_HUNGER          0x00800000L /* Hunger */
 #define TR2_DARKNESS        0x01000000L /* Darkness */
 #define TR2_SLOWNESS        0x02000000L /* Slowness */
 #define TR2_DANGER          0x04000000L	/* Danger (+1 level monster generation) */
 #define TR2_AGGRAVATE       0x08000000L /* Enrage monsters */
-#define TR2_TR2XXX16        0x10000000L /* (reserved) */
-#define TR2_TR2XXX17        0x20000000L /* (reserved) */
-#define TR2_TR2XXX18        0x40000000L /* (reserved) */
-#define TR2_TR2XXX19        0x80000000L /* (reserved) */
+#define TR2_HAUNTED          0x10000000L /* Draws undead to your level */
+#define TR2_VUL_COLD        0x20000000L /* Lowers your resistance to cold */
+#define TR2_VUL_FIRE        0x40000000L /* Lowers your resistance to fire */
+#define TR2_VUL_POIS        0x80000000L /* Lowers your resistance to poison */
 
 /*TR2 Uber-Flags*/
 #define TR2_SUST_STATS	(TR2_SUST_STR | TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_GRA)
@@ -1756,7 +1764,7 @@
 #define TR3_TR3XXX2         0x00000002L /* xxx */
 #define TR3_TR3XXX3         0x00000004L /* xxx */
 #define TR3_TR3XXX4         0x00000008L /* xxx */
-#define TR3_DETECT_ORC      0x00000010L /* Detects Orcs */
+#define TR3_TR3XXX14        0x00000010L /* xxx */
 #define TR3_TR3XXX13        0x00000020L /* xxx */
 #define TR3_TR3XXX5         0x00000040L /* xxx */
 #define TR3_TR3XXX6			0x00000080L	/* xxx */
@@ -1773,7 +1781,7 @@
 #define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
 #define TR3_THROWING        0x00100000L /* Made for throwing (doesn't get -5 to hit) */
-#define TR3_TR3XXX10	    0x00200000L /* xxx  */
+#define TR3_ENCHANTABLE	    0x00200000L /* Easier to enchant  */
 #define TR3_ACTIVATE        0x00400000L /* Item can be activated */
 #define TR3_INSTA_ART       0x00800000L /* Item makes an artefact */
 #define TR3_EASY_KNOW       0x01000000L /* Item is known if aware */
@@ -1797,7 +1805,7 @@
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_DEX | TR1_CON | TR1_GRA | \
 	 TR1_NEG_STR | TR1_NEG_DEX | TR1_NEG_CON | TR1_NEG_GRA | \
-	 TR1_DAMAGE_DICE | TR1_DAMAGE_SIDES | \
+	 TR1_DAMAGE_SIDES | \
 	 TR1_MEL | TR1_ARC | TR1_STL | \
 	 TR1_PER | TR1_WIL | \
 	 TR1_SMT | TR1_SNG | TR1_TUNNEL)
@@ -1886,7 +1894,7 @@
 	(0L)
 
 #define TR2_HIGH_ABILITIES_MASK \
-	(TR2_REGEN | TR2_SEE_INVIS | TR2_FREE_ACT | TR2_TELEPATHY)
+	(TR2_REGEN | TR2_SEE_INVIS | TR2_FREE_ACT)
 
 #define TR3_HIGH_ABILITIES_MASK \
 	(0L)
@@ -2095,7 +2103,7 @@
 #define RBE_BLIND     18
 #define RBE_CONFUSE   19
 #define RBE_TERRIFY   20
-#define RBE_PARALYZE  21
+#define RBE_ENTRANCE  21
 #define RBE_HALLU     22
 #define RBE_DISEASE   23
 
@@ -2142,7 +2150,7 @@
 #define MFLAG_MFLAGXXX10    0x00001000	/* previously: Monster is slightly slower than normal */
 #define MFLAG_MFLAGXXX11    0x00002000  /* previously: Monster is slightly faster than normal */
 #define MFLAG_ALWAYS_CAST	0x00004000  /* Monster will cast a spell first opportunity */
-#define MFLAG_MFLAGXXX12	0x00008000  /* previously: Monster has been sneakily attacked */
+#define MFLAG_CHARGED		0x00008000  /* Monster was just charged by player last turn */
 #define MFLAG_AGGRESSIVE	0x00010000  /* Monster will be Aggressive instead of Confident */
 #define MFLAG_HIT_BY_RANGED	0x00020000  /* Monster has been hit with a spell */
 #define MFLAG_HIT_BY_MELEE	0x00040000	/* Monster was just meleed by player last turn */
@@ -2209,7 +2217,7 @@
 #define RF2_EVASIVE			0x00000800	/* Monster often avoids blows */
 #define RF2_CLOUD_SURROUND	0x00001000	/* Surrounded by gas/spores/darkness */
 #define RF2_RF2XXX5			0x00002000	/* (?) */
-#define RF2_RF2XXX6			0x00004000	/* (?) */
+#define RF2_PASS_DOOR		0x00004000	/* Monster can flow under doors */
 #define RF2_UNLOCK_DOOR		0x00008000	/* Monster can unlock doors */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
@@ -2510,10 +2518,10 @@
 #define OPT_center_player			68
 #define OPT_run_avoid_center		69
 // xxx scroll_target
-// xxx auto_more
+#define OPT_auto_more				71
 // xxx toggle_xp
 #define OPT_auto_display_lists		73
-// xxx hp_changes_color
+#define OPT_easy_main_menu			74
 // xxx verify_leave_quest
 #define OPT_mark_squelch_items		76
 #define OPT_display_hits			77
@@ -2655,9 +2663,10 @@
 #define center_player			op_ptr->opt[OPT_center_player]
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
 // xxx scroll_target
-// xxx auto_more	
+#define auto_more				op_ptr->opt[OPT_auto_more]
 // xxx toggle_xp
 #define auto_display_lists		op_ptr->opt[OPT_auto_display_lists]
+#define easy_main_menu			op_ptr->opt[OPT_easy_main_menu]
 #define display_hits			op_ptr->opt[OPT_display_hits]
 // xxx
 // xxx

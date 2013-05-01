@@ -22,15 +22,15 @@ type SilSignature as 'STR ';
 
 resource SilSignature(0, "Owner resource", purgeable)
 {
-	"Sil 1.0.2"
+	"Sil 1.1.0"
 };
 
 /*
  * For Finder (File--Get Info)
  */
 resource 'vers' (1) {
-	/* Version 1.0.2 */
-	0x01, 0x00,
+	/* Version 1.1.0 */
+	0x01, 0x01,
 
 	/* final release, in which case the following # is irrelevant */
 	release, 0x00,
@@ -39,16 +39,16 @@ resource 'vers' (1) {
 	verUS,
 
 	/* Short version string */
-	"1.0.2",
+	"1.1.0",
 
 	/* What really gets displayed as version info */
-	"1.0.2"
+	"1.1.0"
 };
 
 
 resource 'vers' (2) {
-	/* Version 1.0.2*/
-	0x01, 0x00,
+	/* Version 1.1.0*/
+	0x01, 0x01,
 
 	/* final release, in which case the following # is irrelevant */
 	release, 0x00,
@@ -57,7 +57,7 @@ resource 'vers' (2) {
 	verUS,
 
 	/* Short version string */
-	"1.0.2",
+	"1.1.0",
 
 	/* What really gets displayed just below the icon */
 	/* Say whatever you like here, for example, "It ROCKS!" :) */
@@ -598,7 +598,7 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"Sil  1.0.2"
+			"Sil  1.1.0"
 		},
 
 		/** item #3 **/
