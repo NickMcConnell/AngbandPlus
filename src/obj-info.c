@@ -263,7 +263,6 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
 	return (cnt ? TRUE : FALSE);
 }
 
-
 /*
  * Describe resistances granted by an object.
  */
@@ -309,258 +308,511 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 
 
-/*return the number of blows a player gets with a weapon*/
-int get_num_blows(const object_type *o_ptr, u32b f1, int str_add, int dex_add)
-{
-
-	int i, str_index, dex_index, blows, div_weight;
-
-	int str = 0;
-	int dex = 0;
-
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		u32b wf1, wf2, wf3, wfn;
-		object_type *i_ptr = &inventory[i];
-
-		/* Hack -- do not apply wielded "weapon" bonuses */
-		if (i == INVEN_WIELD) continue;
-
-		/* Skip non-objects */
-		if (!i_ptr->k_idx) continue;
-
-		/* Extract the item flags */
-		object_flags_known(i_ptr, &wf1, &wf2, &wf3, &wfn);
-
-		/* Affect stats */
-		if (wf1 & (TR1_STR)) str_add += i_ptr->pval;
-		if (wf1 & (TR1_DEX)) dex_add += i_ptr->pval;
-	}
-
-	/* add in the strength of the examined weapon*/
-	if (f1 & (TR1_STR)) str_add += o_ptr->pval;
-
-	/* add in the dex of the examined weapon*/
-	if (f1 & (TR1_DEX)) dex_add += o_ptr->pval;
-
-	/* Calculate stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		int add, use, ind;
-
-		/*stat modifiers from equipment later*/
-		if 		(i == A_STR) add = str_add;
-		else if (i == A_DEX) add = dex_add;
-		/*only do dex and strength*/
-		else continue;
-
-		/* Maximize mode */
-		if (adult_maximize)
-		{
-			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + p_ptr->stat_quest_add[i] + cp_ptr->c_adj[i]);
-		}
-
-		/* Extract the new "stat_use" value for the stat */
-		use = modify_stat_value(p_ptr->stat_cur[i], add);
-
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
-
-		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-		/* Range: 18/220+ */
-		else ind = (37);
-
-		/*record the values*/
-		if (i == A_STR) str = ind;
-		else dex = ind;
-	}
-
-	/* Enforce a minimum "weight" (tenth pounds) */
-	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-	/* Get the strength vs weight */
-	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
-
-	/* Maximal value */
-	if (str_index > 11) str_index = 11;
-	if (str_index < 0) str_index = 0;
-
-	/* Index by dexterity */
-	dex_index = (adj_dex_blow[dex]);
-
-	/* Maximal value */
-	if (dex_index > 11) dex_index = 11;
-	if (dex_index < 0) dex_index = 0;
-
-	/* Use the blows table */
-	blows = blows_table[str_index][dex_index];
-
-	/* Maximal value */
-	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
-
-	/* Add in the "bonus blows"*/
-	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
-
-	/* Require at least one blow */
-	if (blows < 1) blows = 1;
-
-	/*add extra attack for those who have the flag*/
-	if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
-	{
-		blows += 1;
-	}
-
-	return(blows);
-}
-
 /*
- * Describe 'number of attacks recieved with a weapon
+ * Describe details of a weapon
  */
-static bool describe_attacks (const object_type *o_ptr, u32b f1, bool extra_info)
+static bool describe_weapon(const object_type *o_ptr, u32b f1, bool extra_info)
 {
-
-	int old_blows, new_blows, i;
-	int n = o_ptr->tval;
+	u16b i;
+	int old_blows, new_blows, old_str, old_dex;
 	int str_plus = 0;
 	int dex_plus = 0;
 	int str_done = -1;
-	int average;
-	int percent;
+	int dd, ds, plus, crit_hit_percent, average;
+	u32b reported_brands = 0L;
+	char plus_minus = '+';
 
-	/* Obtain the "hold" value */
-	int hold = adj_str_hold[p_ptr->state.stat_ind[A_STR]];
-
-	/* Calculate str and dex adjustments */
-	int to_dam = ((int)(adj_str_td[p_ptr->state.stat_ind[A_STR]]) - 128);
-
-	int to_hit = ((int)(adj_dex_th[p_ptr->state.stat_ind[A_DEX]]) - 128);
-	to_hit 	  += ((int)(adj_str_th[p_ptr->state.stat_ind[A_STR]]) - 128);
+	/* The player's hypothetical state, were they to wield this item */
+	player_state object_state;
+	object_type object_inven[ALL_INVEN_TOTAL];
 
 	/* First check if we need this function */
-	if ((n != TV_DIGGING) && (n != TV_HAFTED) &&
-		(n != TV_POLEARM) && (n != TV_SWORD))
-	{
-		return (FALSE);
-	}
+	if (!obj_is_weapon(o_ptr)) return (FALSE);
 
 	/* No descriptions of quest items */
 	if (o_ptr->ident & IDENT_QUEST) return (FALSE);
 
-	/*get the number of blows*/
-	n = get_num_blows(o_ptr, f1, 0, 0);
+	memcpy(object_inven, inventory, sizeof(object_inven));
+
+	/* Now replace the first slot with the weapon */
+	object_inven[INVEN_WIELD] = *o_ptr;
+
+	/* Get the player state */
+	calc_bonuses(object_inven, & object_state, TRUE);
 
 	/*print out the number of attacks*/
-	if (n == 1) text_out("It gives you one attack per turn.  ");
-	else text_out(format("It gives you %d attacks per turn.  ", n));
-
-	old_blows = n;
+	if (object_state.num_blow == 1) text_out("   It gives you one attack per turn.  ");
+	else text_out(format("   It gives you %d attacks per turn.  ", object_state.num_blow));
 
 	text_out("\n");
+
+	if (object_state.heavy_wield)
+	{
+		text_out_c(TERM_RED, "   You have trouble wielding such a heavy weapon.\n\n");
+	}
+
+	/* Message */
+	if (object_state.icky_wield)
+	{
+		text_out_c(TERM_RED, "   You do not feel comfortable with this weapon.\n\n");
+	}
 
 	if (!extra_info) return (TRUE);
 
-	/* Apply the mental bonuses tp hit/damage, if known */
 	if (object_known_p(o_ptr))
 	{
-		to_dam += o_ptr->to_d;
-		to_hit += o_ptr->to_h;
+		dd = o_ptr->dd;
+		ds = o_ptr->ds;
 	}
-
-	/* Scan the equipment, skipping the weapon and bow slot */
-	for (i = INVEN_LEFT; i < INVEN_TOTAL; i++)
+	else
 	{
-		object_type *j_ptr = &inventory[i];
-		u32b jf1, jf2, jf3, jfn;
-
-		/* Skip non-objects */
-		if (!j_ptr->k_idx) continue;
-
-		/* Only known */
-		if (!object_known_p(o_ptr)) continue;
-
-		/* Extract the item flags */
-		object_flags(j_ptr, &jf1, &jf2, &jf3, &jfn);
-
-		/* Apply the bonuses to hit/damage */
-		to_dam += j_ptr->to_d;
-		to_hit += j_ptr->to_h;
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		dd = k_ptr->dd;
+		ds = k_ptr->ds;
 	}
-
-	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->state.bless_blade) &&
-		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
-	{
-		text_out("You are uncomfortable wielding this weapon.  ");
-
-		to_dam -= 2;
-		to_hit -= 2;
-	}
-
-	text_out("\n\n");
-
-	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
-	{
-		text_out("You have trouble wielding this weapon.  ");
-		to_hit += 2 * (hold - o_ptr->weight / 10);
-	}
+	plus = object_state.dis_to_d + (object_known_p(o_ptr) ? o_ptr->to_d : 0);
+	crit_hit_percent = critical_hit_chance(o_ptr, object_state, FALSE) / (CRIT_HIT_CHANCE / 100);
+	average = (dd * ds) / 2 + plus;
 
 	text_out("\n");
 
+	if (plus < 0)
+	{
+		plus_minus = '-';
+		plus *= -1;
+	}
+
 	/* Now calculate and print out average damage */
-	text_out("Average base damage/hit: ");
+	text_out(format("   This weapon does %dd%d%c%d damage (%d avg) per attack, with a critical hit chance of %d percent.\n",
+			              dd, ds, plus_minus, plus, average, crit_hit_percent));
 
-	average = (o_ptr->dd * o_ptr->ds) / 2 + to_dam;
+	text_out("\n");
 
-	if (average < 0) text_out_c(TERM_L_RED, "%d", 0);
-	else text_out_c(TERM_L_GREEN, "%d", average);
-	text_out(" based on a damage calculation of %dd%d", o_ptr->dd, o_ptr->ds);
-
-	if (to_dam < 0) text_out_c(TERM_L_RED, " - %d", (0 - to_dam));
-	else if (to_dam > 0)text_out_c(TERM_L_GREEN, " + %d", to_dam);
-	text_out(" damage.");
-
-	text_out("\n\n");
-
-	if (f1 & (TR1_KILL_MASK | TR1_SLAY_MASK))
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(slays_info); i++)
 	{
-		text_out("This damage calculation can be increased due to its special slaying abilities.");
-		text_out("\n\n");
-	}
-	if (f1 & (TR1_BRAND_MASK))
-	{
-		text_out("This damage calculation can be increased due to elemental branding.");
-		text_out("\n\n");
+		const slays_structure *si = &slays_info[i];
+		if (f1 & (si->slay_flag))
+		{
+			int new_dd = dd * si->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   This weapon does %dd%d%c%d damage (%d avg) against %s each hit.\n", new_dd, ds, plus_minus, plus, average, si->slay_race));
+		}
 	}
 
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(brands_info); i++)
+	{
+		const brands_structure *bi = &brands_info[i];
 
-	percent = ((o_ptr->weight + ((to_hit + o_ptr->to_h) * 5) + (p_ptr->lev * 3)) * 100) / 5000;
-	text_out("You have a %d%% chance of inflicting extra damage with each hit from this weapon.", percent);
-	text_out("\n\n");
+		/* We already checked this one, there are multiple entries for each flag */
+		if (reported_brands & (bi->brand_flag)) continue;
+
+		/* Remember this one so we don't repeat it */
+		reported_brands |= (bi->brand_flag);
+
+		if (f1 & (bi->brand_flag))
+		{
+			int new_dd = dd * bi->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   This weapon does %dd%d%c%d damage (%d avg) against creatures who do not %s.\n", new_dd, ds, plus_minus, plus, average, bi->brand_resist));
+		}
+	}
+
+	/* Check for increased damage due to monster susceptibility */
+	for (i = 0; i < N_ELEMENTS(mon_suscept); i++)
+	{
+		const mon_susceptibility_struct *ms = &mon_suscept[i];
+		if (f1 & (ms->brand_flag))
+		{
+			average = (dd * ds) / 2;
+
+			text_out(format("   This weapon does an additional %dd%d (%d avg) damage against creatures who are susceptible to %s.\n", dd, ds, average, ms->brand_susceptibility));
+		}
+	}
+
+	/* Describe how quickly the player can get additional attacks */
+	old_blows = object_state.num_blow;
+
+	/* Record current strength and dex */
+	old_str = object_state.stat_ind[A_STR];
+	old_dex = object_state.stat_ind[A_DEX];
 
 	/* Then we check for extra "real" blows */
 	for (dex_plus = 0; dex_plus < 8; dex_plus++)
 	{
 		for (str_plus = 0; str_plus < 8; str_plus++)
 		{
+			object_state.stat_ind[A_STR] = old_str + str_plus;
+			object_state.stat_ind[A_DEX] = old_dex + dex_plus;
 
-			new_blows = get_num_blows(o_ptr, f1, str_plus, dex_plus);
+			new_blows = calc_blows(o_ptr, &object_state);
 
-			/* Test to make sure that this extra blow is a
+			/* Calc blows doesn't factor in extra attacks */
+			if (f1 & (TR1_BLOWS)) new_blows += o_ptr->pval;
+
+			/*
+			 * Test to make sure that this extra blow is a
 			 * new str/dex combination, not a repeat
 			 */
 			if ((new_blows > old_blows) &&
 				((str_plus < str_done) || (str_done == -1)))
 			{
-				text_out("With an additional %d str and %d dex it gives you %d attacks per turn.\n",
+				text_out("   With +%d str and +%d dex you would get %d attacks per turn.\n",
 						str_plus, dex_plus, new_blows);
 				str_done = str_plus;
 				break;
 			}
+		}
+	}
+
+	return (TRUE);
+}
+
+/*
+ * Describe details of a weapon
+ */
+static bool describe_bow_slot(const object_type *o_ptr, u32b f1, u32b f3, bool extra_info)
+{
+	int dd, ds, plus, crit_hit_percent, mult, average;
+	object_type object_type_body;
+	object_type *j_ptr = &object_type_body;
+	char j_name[120];
+	char plus_minus = '+';
+
+	/* default: SV_SHORT_BOW or SV_LONG_BOW	*/
+	cptr launcher = "bow";
+
+	/* The player's hypothetical state, were they to wield this item */
+	player_state object_state;
+	object_type object_inven[ALL_INVEN_TOTAL];
+
+	/* First check if we need this function */
+	if (!obj_is_bow(o_ptr)) return (FALSE);
+
+	/* No descriptions of quest items */
+	if (o_ptr->ident & IDENT_QUEST) return (FALSE);
+
+	/* Make sure we are calling the launcher by the right name */
+	if (o_ptr->sval == SV_SLING) launcher = "sling";
+	else if ((o_ptr->sval == SV_LIGHT_XBOW) ||
+			 (o_ptr->sval == SV_HEAVY_XBOW)) launcher = "crossbow";
+
+	memcpy(object_inven, inventory, sizeof(object_inven));
+
+	/* Now replace the bow slot with the one being examined */
+	object_inven[INVEN_BOW] = *o_ptr;
+
+	/* Get the player state */
+	calc_bonuses(object_inven, &object_state, TRUE);
+
+	/* Assume a standard piece of ammunition for reporting purposes. */
+	object_prep(j_ptr, lookup_kind(object_state.ammo_tval, SV_AMMO_NORMAL));
+	object_aware(j_ptr);
+	object_known(j_ptr);
+
+	object_desc(j_name, sizeof (j_name), j_ptr, ODESC_FULL | ODESC_PLURAL);
+
+	/*print out the number of attacks*/
+	if (object_state.num_fire > 1)
+	{
+		if (object_state.num_fire == 2) text_out(format("\n   You can fire this %s twice as quickly as an ordinary %s.\n", launcher, launcher));
+
+		else text_out(format("\n   You can fire this %s %d times more quickly than an ordinary %s.\n", launcher, object_state.num_fire, launcher));
+	}
+
+	if (object_state.heavy_shoot)
+	{
+		text_out_c(TERM_RED, format("\n   You have trouble aiming such a heavy %s.\n", launcher));
+	}
+
+	if (!extra_info) return (TRUE);
+
+	mult = object_state.ammo_mult;
+	dd = j_ptr->dd;
+	ds = j_ptr->ds;
+	plus = (object_known_p(o_ptr) ? o_ptr->to_d : 0) + (object_known_p(j_ptr) ? j_ptr->to_d : 0);
+
+	/* Check for extra damage with a sling for a rogue */
+	mult += rogue_shot(j_ptr, &plus, object_state);
+
+	dd *= mult;
+	plus *= mult;
+	crit_hit_percent = critical_shot_chance(o_ptr, object_state, FALSE, TRUE, f3) / (CRIT_HIT_CHANCE / 100);
+
+	text_out("\n");
+
+	if (plus < 0)
+	{
+		plus_minus = '-';
+		plus *= -1;
+	}
+
+	average = (dd * ds) / 2 + plus;
+
+	/* Now calculate and print out average damage */
+	text_out(format("   Firing %s from this %s does %dd%d%c%d damage (%d avg), with a critical hit chance of %d percent.\n", j_name, launcher, dd, ds, plus_minus, plus, average, crit_hit_percent));
+
+	text_out("\n");
+
+	return (TRUE);
+}
+
+/*
+ * Describe details of a weapon
+ */
+static bool describe_ammo(const object_type *o_ptr, u32b f1, u32b f3, bool extra_info)
+{
+	u16b i;
+	int dd, ds, plus, crit_hit_percent, mult, average;
+	object_type object_type_body;
+	object_type *j_ptr = &object_type_body;
+	char j_name[120];
+	u32b reported_brands = 0L;
+	char plus_minus = '+';
+
+
+	/* The player's hypothetical state, were they to wield this item */
+	player_state object_state;
+	object_type object_inven[ALL_INVEN_TOTAL];
+
+	/* First check if we need this function */
+	if (!obj_is_ammo(o_ptr)) return (FALSE);
+
+	/* No descriptions of quest items */
+	if (o_ptr->ident & IDENT_QUEST) return (FALSE);
+
+	memcpy(object_inven, inventory, sizeof(object_inven));
+
+	j_ptr = &object_inven[INVEN_BOW];
+
+	/* Get the player state */
+	calc_bonuses(object_inven, &object_state, TRUE);
+
+	/* Make sure we are working with the right launcher type */
+	if (o_ptr->tval != object_state.ammo_tval)
+	{
+		/* Make a dummy launcher for ammo evaluation purposes */
+		byte sval = SV_LONG_BOW;
+		if (o_ptr->tval == TV_SHOT) sval = SV_SLING;
+		else if (o_ptr->tval == TV_BOLT) sval = SV_LIGHT_XBOW;
+
+		object_wipe(j_ptr);
+
+		/* Assume a standard piece of ammunition for reporting purposes. */
+		object_prep(j_ptr, lookup_kind(TV_BOW, sval));
+		object_aware(j_ptr);
+		object_known(j_ptr);
+
+		/* Re-do the player state */
+		calc_bonuses(object_inven, &object_state, TRUE);
+	}
+
+	object_desc(j_name, sizeof (j_name), j_ptr, ODESC_PREFIX | ODESC_FULL);
+
+	if (!extra_info) return (TRUE);
+
+	text_out("\n");
+
+	mult = object_state.ammo_mult;
+
+	if (object_known_p(o_ptr))
+	{
+		dd = o_ptr->dd;
+		ds = o_ptr->ds;
+	}
+	else
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		dd = k_ptr->dd;
+		ds = k_ptr->ds;
+	}
+	plus = (object_known_p(o_ptr) ? o_ptr->to_d : 0) + (object_known_p(j_ptr) ? j_ptr->to_d : 0);
+
+	/* Check for extra damage with a sling for a rogue */
+	mult += rogue_shot(j_ptr, &plus, object_state);
+
+	dd *= mult;
+	plus *= mult;
+	crit_hit_percent = critical_shot_chance(o_ptr, object_state, FALSE, TRUE, f3) / (CRIT_HIT_CHANCE / 100);
+
+	text_out("\n");
+
+	if (plus < 0)
+	{
+		plus_minus = '-';
+		plus *= -1;
+	}
+
+	average = (dd * ds) / 2 + plus;
+
+	/* Now calculate and print out average damage */
+	text_out(format("   Firing this ammunition from %s does %dd%d%c%d damage (%d avg), with a critical hit chance of %d percent.\n", j_name, dd, ds, plus_minus, plus, average, crit_hit_percent));
+
+	text_out("\n");
+
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(slays_info); i++)
+	{
+		const slays_structure *si = &slays_info[i];
+		if (f1 & (si->slay_flag))
+		{
+			int new_dd = dd * si->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   This ammunition does %dd%d%c%d damage (%d avg) against %s each hit.\n", new_dd, ds, plus_minus, plus, average, si->slay_race));
+		}
+	}
+
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(brands_info); i++)
+	{
+		const brands_structure *bi = &brands_info[i];
+
+		/* We already checked this one, there are multiple entries for each flag */
+		if (reported_brands & (bi->brand_flag)) continue;
+
+		/* Remember this one so we don't repeat it */
+		reported_brands |= (bi->brand_flag);
+
+		if (f1 & (bi->brand_flag))
+		{
+			int new_dd = dd * bi->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   This ammunition does %dd%d%c%d damage (%d avg) against creatures who do not %s.\n", new_dd, ds, plus_minus, plus, average, bi->brand_resist));
+		}
+	}
+
+	/* Check for increased damage due to monster susceptibility */
+	for (i = 0; i < N_ELEMENTS(mon_suscept); i++)
+	{
+		const mon_susceptibility_struct *ms = &mon_suscept[i];
+		if (f1 & (ms->brand_flag))
+		{
+			average = (dd * ds) / 2;
+
+			text_out(format("   This ammunition does an additional %dd%d damage (%d avg) against creatures who are susceptible to %s.\n", dd, ds, average, ms->brand_susceptibility));
+		}
+	}
+
+	return (TRUE);
+}
+
+/*
+ * Describe details of a weapon
+ */
+static bool describe_throwing_weapon(const object_type *o_ptr, u32b f1, u32b f3, bool extra_info)
+{
+	u16b i;
+	int dd, ds, plus, crit_hit_percent, mult, average;
+	u32b reported_brands = 0L;
+	char plus_minus = '+';
+
+	/* The player's hypothetical state, were they to throw this item */
+	player_state object_state;
+	object_type object_inven[ALL_INVEN_TOTAL];
+
+	/* First check if we need this function */
+	if (!is_throwing_weapon(o_ptr)) return (FALSE);
+
+	/* No descriptions of quest items */
+	if (o_ptr->ident & IDENT_QUEST) return (FALSE);
+
+	memcpy(object_inven, inventory, sizeof(object_inven));
+
+	/* Get the player state */
+	calc_bonuses(object_inven, &object_state, TRUE);
+
+	text_out("\n");
+
+	if (!extra_info) return (TRUE);
+
+	if (object_known_p(o_ptr))
+	{
+		dd = o_ptr->dd;
+		ds = o_ptr->ds;
+	}
+	else
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		dd = k_ptr->dd;
+		ds = k_ptr->ds;
+	}
+	plus = (object_known_p(o_ptr) ? o_ptr->to_d : 0) + p_ptr->state.dis_to_d; ;
+
+	/* Apply the throwing weapon bonus. */
+	mult = weapon_throw_adjust(o_ptr, f3, &plus, TRUE);
+
+	dd *= mult;
+
+	crit_hit_percent = critical_shot_chance(o_ptr, object_state, TRUE, TRUE, f3) / (CRIT_HIT_CHANCE / 100);
+
+	text_out("\n");
+
+	if (plus < 0)
+	{
+		plus_minus = '-';
+		plus *= -1;
+	}
+
+	average = (dd * ds) / 2 + plus;
+
+	/* Now calculate and print out average damage */
+	text_out(format("   Throwing this weapon does %dd%d%c%d damage (%d avg), with a critical hit chance of %d percent.\n", dd, ds, plus_minus, plus, average, crit_hit_percent));
+
+	text_out("\n");
+
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(slays_info); i++)
+	{
+		const slays_structure *si = &slays_info[i];
+		if (f1 & (si->slay_flag))
+		{
+			int new_dd = dd * si->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   Throwing this weapon does %dd%d%c%d damage (%d avg) against %s each hit.\n", new_dd, ds, plus_minus, plus, average, si->slay_race));
+		}
+	}
+
+	/* Go through each brand and specify the applicable brand multiplier */
+	for (i = 0; i < N_ELEMENTS(brands_info); i++)
+	{
+		const brands_structure *bi = &brands_info[i];
+
+		/* We already checked this one, there are multiple entries for each flag */
+		if (reported_brands & (bi->brand_flag)) continue;
+
+		/* Remember this one so we don't repeat it */
+		reported_brands |= (bi->brand_flag);
+
+		if (f1 & (bi->brand_flag))
+		{
+			int new_dd = dd * bi->multiplier;
+
+			average = (new_dd * ds) / 2 + plus;
+
+			text_out(format("   Throwing this weapon does %dd%d%c%d damage (%d avg) against creatures who do not %s.\n", new_dd, ds, plus_minus, plus, average, bi->brand_resist));
+		}
+	}
+
+	/* Check for increased damage due to monster susceptibility */
+	for (i = 0; i < N_ELEMENTS(mon_suscept); i++)
+	{
+		const mon_susceptibility_struct *ms = &mon_suscept[i];
+		if (f1 & (ms->brand_flag))
+		{
+			average = (dd * ds) / 2;
+
+			text_out(format("   Throwing this weapon does an additional %dd%d damage (%d avg) against creatures who are susceptible to %s.\n", dd, ds, average, ms->brand_susceptibility));
 		}
 	}
 
@@ -1055,7 +1307,6 @@ bool object_info_out(const object_type *o_ptr,  bool extra_info)
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
-
 	if (describe_secondary(o_ptr, f1)) something = TRUE;
 	if (describe_slay(o_ptr, f1)) something = TRUE;
 	if (describe_brand(o_ptr, f1)) something = TRUE;
@@ -1066,7 +1317,10 @@ bool object_info_out(const object_type *o_ptr,  bool extra_info)
 	if (describe_nativity(o_ptr, fn)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
-	if (describe_attacks(o_ptr, f1, extra_info)) something = TRUE;
+	if (describe_weapon(o_ptr, f1, extra_info)) something = TRUE;
+	if (describe_bow_slot(o_ptr, f1, f3, extra_info)) something = TRUE;
+	if (describe_ammo(o_ptr, f1, f3, extra_info)) something = TRUE;
+	if (describe_throwing_weapon(o_ptr, f1, f3, extra_info)) something = TRUE;
 
 	/* Unknown extra powers (artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -1149,9 +1403,12 @@ bool screen_out_head(const object_type *o_ptr)
 void object_info_screen(const object_type *o_ptr)
 {
 	bool has_description, has_info;
+	int old_text_out_indent = text_out_indent;
 
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
+
+	text_out_indent = 0;
 
 	/* Save the screen */
 	screen_save();
@@ -1219,6 +1476,8 @@ void object_info_screen(const object_type *o_ptr)
 		/* Wait for input */
 		(void)inkey_ex();
 	}
+
+	text_out_indent = old_text_out_indent;
 
 	/* Load the screen */
 	screen_load();
@@ -1317,7 +1576,7 @@ bool format_object_history(char *buf, size_t max, const object_type *o_ptr)
 		case ORIGIN_DROP_KNOWN:
 		{
 			monster_race *r_ptr = &r_info[o_ptr->origin_r_idx];
-			cptr name = r_name + r_ptr->name;
+			cptr name = r_ptr->name_full;
 			cptr article = "";
 
 			/* Get an article for non-uniques */

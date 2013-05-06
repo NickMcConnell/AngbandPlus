@@ -434,7 +434,7 @@ static long eval_max_dam(int r_idx)
 	u32b melee_dam, atk_dam, spell_dam;
 	byte rlev;
 	monster_race *r_ptr;
-	u32b flag, breath_mask, attack_mask;
+	u32b flag, breath_mask, attack_mask, ball_mask, beam_mask;
 	u32b flag_counter;
 
 	r_ptr = &r_info[r_idx];
@@ -460,6 +460,8 @@ static long eval_max_dam(int r_idx)
 		 		flag = r_ptr->flags4;
 				attack_mask = RF4_ATTACK_MASK;
 				breath_mask = RF4_BREATH_MASK;
+				ball_mask 	= RF4_BALL_MASK;
+				beam_mask 	= RF4_BEAM_MASK;
 				break;
 			}
 			case 1:
@@ -467,6 +469,8 @@ static long eval_max_dam(int r_idx)
 		 		flag = r_ptr->flags5;
 				attack_mask = RF5_ATTACK_MASK;
 				breath_mask = RF5_BREATH_MASK;
+				ball_mask 	= RF5_BALL_MASK;
+				beam_mask 	= RF5_BEAM_MASK;
 				break;
 			}
 			case 2:
@@ -474,6 +478,8 @@ static long eval_max_dam(int r_idx)
 		 		flag = r_ptr->flags6;
 				attack_mask = RF6_ATTACK_MASK;
 				breath_mask = RF6_BREATH_MASK;
+				ball_mask 	= RF6_BALL_MASK;
+				beam_mask 	= RF6_BEAM_MASK;
 				break;
 			}
 			case 3:
@@ -482,6 +488,8 @@ static long eval_max_dam(int r_idx)
 		 		flag = r_ptr->flags7;
 				attack_mask = RF7_ATTACK_MASK;
 				breath_mask = RF7_BREATH_MASK;
+				ball_mask 	= RF7_BALL_MASK;
+				beam_mask 	= RF7_BEAM_MASK;
 				break;
 			}
 		}
@@ -499,6 +507,8 @@ static long eval_max_dam(int r_idx)
 			/* First make sure monster has the flag*/
 			if (flag & flag_counter)
 			{
+				bool powerful = (r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE);
+
 				/*Is it a breath? Should only be flag 4*/
 				if (breath_mask & flag_counter)
 				{
@@ -606,8 +616,7 @@ static long eval_max_dam(int r_idx)
 
 					if (which_gf)
 					{
-						this_dam = get_breath_dam(hp, which_gf,
-									(r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE));
+						this_dam = get_breath_dam(hp, which_gf, powerful);
 
 						/* handle elemental breaths*/
 						switch (which_gf)
@@ -634,7 +643,79 @@ static long eval_max_dam(int r_idx)
 					}
 				}
 
-				/*Is it an arrow, bolt, beam, or ball?*/
+				/*Is it a ball spell? Should only be flag 5*/
+				else if (ball_mask & flag_counter)
+				{
+					int which_gf = 0;
+
+					if (flag_counter == RF5_BALL_ACID) 		which_gf = GF_ACID;
+					else if (flag_counter == RF5_BALL_ELEC) which_gf = GF_ELEC;
+					else if (flag_counter == RF5_BALL_FIRE) which_gf = GF_FIRE;
+					else if (flag_counter == RF5_BALL_COLD) which_gf = GF_COLD;
+					else if (flag_counter == RF5_BALL_POIS)	which_gf = GF_POIS;
+					else if (flag_counter == RF5_BALL_LIGHT)which_gf = GF_LIGHT;
+					else if (flag_counter == RF5_BALL_DARK) which_gf = GF_DARK;
+					else if (flag_counter == RF5_BALL_CONFU)which_gf = GF_CONFUSION;
+					else if (flag_counter == RF5_BALL_SOUND)which_gf = GF_SOUND;
+					else if (flag_counter == RF5_BALL_SHARD)which_gf = GF_SHARD;
+					else if (flag_counter == RF5_BALL_METEOR)which_gf = GF_METEOR;
+					else if (flag_counter == RF5_BALL_STORM) which_gf = GF_WATER;
+					else if (flag_counter == RF5_BALL_NETHR)which_gf = GF_NETHER;
+					else if (flag_counter == RF5_BALL_CHAOS)which_gf = GF_CHAOS;
+					else if (flag_counter == RF5_BALL_MANA) which_gf = GF_MANA;
+					else if (flag_counter == RF5_BALL_WATER)which_gf = GF_WATER;
+
+					if (which_gf)
+					{
+						int attack = 96 + (x * 32) + i;
+
+						this_dam = get_ball_beam_dam(r_ptr, attack, which_gf, powerful);
+
+						/* handle elemental breaths*/
+						switch (which_gf)
+						{
+							case GF_ACID:
+							case GF_FIRE:
+							case GF_COLD:
+							case GF_ELEC:
+							case GF_POIS:
+							{
+								/* Lets just pretend the player has the right base resist*/
+								this_dam /= 3;
+								break;
+							}
+
+							default: break;
+						}
+
+						/*slight bonus for cloud_surround*/
+						if (r_ptr->flags2 & RF2_CLOUD_SURROUND) this_dam = this_dam * 11 / 10;
+					}
+				}
+
+				/*Is it a beam spell? Should only be flag 5*/
+				else if (beam_mask & flag_counter)
+				{
+					int which_gf = 0;
+
+					if (flag_counter == RF5_BEAM_ELEC) 		which_gf = GF_ELEC;
+					else if (flag_counter == RF5_BEAM_ICE) 	which_gf = GF_ICE;
+					else if (flag_counter == RF5_BEAM_NETHR)which_gf = GF_NETHER;
+					else if (flag_counter == RF5_BEAM_LAVA)	which_gf = GF_LAVA;
+
+					if (which_gf)
+					{
+						int attack = 96 + (x * 32) + i;
+
+						this_dam = get_ball_beam_dam(r_ptr, attack, which_gf, powerful);
+					}
+
+					/*slight bonus for cloud_surround*/
+					if (r_ptr->flags2 & RF2_CLOUD_SURROUND) this_dam = this_dam * 11 / 10;
+				}
+
+
+				/*Is it an arrow, bolt, or beam?*/
 				else if (attack_mask & flag_counter)
 				{
 					switch (x)
@@ -1846,7 +1927,7 @@ static bool add_ability(artifact_type *a_ptr)
 		flag = flag << 1;
 	}
 
-	/*Wee have the flag to add*/
+	/*We have the flag to add*/
 	a_ptr->a_flags3 |= flag;
 
 	return (TRUE);
@@ -1918,7 +1999,7 @@ static bool add_sustain(artifact_type *a_ptr)
 		sust_flag = sust_flag << 1;
 	}
 
-	/*Wee have the flag to add*/
+	/*We have the flag to add*/
 	a_ptr->a_flags2 |= sust_flag;
 
 	return (TRUE);
@@ -1971,7 +2052,7 @@ static bool add_stat(artifact_type *a_ptr)
 		flag_sustain = flag_sustain << 1;
 	}
 
-	/*Wee have the flag to add*/
+	/*We have the flag to add*/
 	a_ptr->a_flags1 |= flag_stat_add;
 
 	/*50% of the time, add the sustain as well*/
@@ -2123,11 +2204,11 @@ static bool add_slay(artifact_type *a_ptr)
 	{
 
 		/*hack - don't add a slay when we already have a more powerful flag*/
-		if ((a_ptr->a_flags1 && TR1_KILL_UNDEAD) &&
+		if ((a_ptr->a_flags1 & TR1_KILL_UNDEAD) &&
 			(flag_slay_add == TR1_SLAY_UNDEAD)) art_slay_freq[slay_counter] = 0;
-		else if ((a_ptr->a_flags1 && TR1_KILL_DEMON) &&
+		else if ((a_ptr->a_flags1 & TR1_KILL_DEMON) &&
 			(flag_slay_add == TR1_SLAY_DEMON)) art_slay_freq[slay_counter] = 0;
-		else if ((a_ptr->a_flags1 && TR1_KILL_DRAGON) &&
+		else if ((a_ptr->a_flags1 & TR1_KILL_DRAGON) &&
 			(flag_slay_add == TR1_SLAY_DRAGON)) art_slay_freq[slay_counter] = 0;
 
 		/*We already have this one*/
@@ -2168,7 +2249,7 @@ static bool add_slay(artifact_type *a_ptr)
 		flag_slay_add = flag_slay_add << 1;
 	}
 
-	/*Wee have the flag to add*/
+	/*We have the flag to add*/
 	a_ptr->a_flags1 |= flag_slay_add;
 
 	/*try to add some of the complimentary pairs of slays*/
@@ -3148,16 +3229,22 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 				case TV_BOOTS:
 				case TV_GLOVES:
 				{
-					/* Hack -- Super-charge the damage sides */
+					int super = 0;
+
+					/* Hack -- Super-charge the armor class */
 					while ((a_ptr->ac > 0) &&
 					       (one_in_(15)))
 					{
 						/*extra bonus at higher values*/
-						a_ptr->ac += (1 + (a_ptr->ac / 10));
+						super += (1 + (a_ptr->ac / 10));
 					}
 
-					/* Hack -- Limit the damage sides to max of 9*/
-					if (a_ptr->ac > 9) a_ptr->ac = 9;
+					/* Hack -- Limit the ac supercharge to max of 9*/
+					if (super > 9) super = 9;
+
+					/* Supercharge the ac. */
+					a_ptr->ac += super;
+
 					break;
 				}
 				/* we are correcting reaching this by mistake*/
@@ -3818,7 +3905,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 			theme = get_theme();
 
 			/*hack - we con't need any more artifact digging tools*/
-			if (theme == DROP_TYPE_DIGGING) continue;
+			if (theme != DROP_TYPE_DIGGING) break;
 		}
 
 		/*prepare the object generation level for a specific theme*/

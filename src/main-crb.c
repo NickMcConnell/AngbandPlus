@@ -3616,8 +3616,8 @@ static OSStatus ResumeCommand (EventHandlerCallRef inCallRef,
 	term_data *td;
 
 	hibernate();
-	Cursor tempCursor;
-	SetCursor(GetQDGlobalsArrow(&tempCursor));
+/*	Cursor tempCursor;*/
+/*	SetCursor(GetQDGlobalsArrow(&tempCursor));*/
 
 	/* Redraw all visible terms */
 	for (int i = 0; i < MAX_TERM_DATA; i++ )
@@ -3923,7 +3923,7 @@ int main(void)
 	update_color_info();
 
 	/* Show the "watch" cursor */
-	SetCursor(*(GetCursor(watchCursor)));
+	/*SetCursor(*(GetCursor(watchCursor)));*/
 
 	/* Prepare the menubar */
 	init_menubar();
@@ -3950,8 +3950,8 @@ int main(void)
 	install_handlers(0);
 
 	/* Reset the cursor */
-	Cursor tempCursor;
-	SetCursor(GetQDGlobalsArrow(&tempCursor));
+	/*	Cursor tempCursor;
+	SetCursor(GetQDGlobalsArrow(&tempCursor));*/
 
 
 	/* Quicktime -- Load sound effect resources */

@@ -177,7 +177,8 @@ Resist Fire:
      You take one-thirds damage from fire.
 
 Resist Poison:
-     You take one thirds damage from poison.
+     You take one thirds damage from poison, and 
+     the player is immune from getting poisoned.
 
 Resist Light:
      The damage you take from light is reduced.  You cannot be blinded by bright

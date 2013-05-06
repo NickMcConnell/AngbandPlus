@@ -1892,7 +1892,7 @@ option_entry options[OPT_MAX] =
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{"auto_scum",			"Auto-scum for good levels",			FALSE},		/* OPT_auto_scum */
-	{"allow_themed_levels","Allow the generation of themed levels",TRUE},		/* OPT_allow_themed_levels */
+	{"allow_themed_levels","Allow the generation of themed levels",  TRUE},		/* OPT_allow_themed_levels */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
@@ -1922,18 +1922,18 @@ option_entry options[OPT_MAX] =
 	{"view_bright_light",	"Use special colors for field of view",	FALSE},	/* OPT_view_bright_light */
 	{"view_granite_light",	"Use special colors for wall grids",	FALSE},	/* OPT_view_granite_light */
 	{"view_special_light",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_light */
-	{"easy_open",			"Open/Disarm/Close without direction",	FALSE},	/* OPT_easy_open */
-	{"easy_alter",			"Open/Disarm doors/traps on movement",	FALSE},	/* OPT_easy_alter */
+	{"easy_open",			"Open/Disarm/Close without direction",	TRUE},	/* OPT_easy_open */
+	{"easy_alter",			"Open/Disarm doors/traps on movement",	TRUE},	/* OPT_easy_alter */
 	{NULL,				NULL,								FALSE},/* xxx */
 	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
 	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
-	{"animate_flicker",    	"Shimmer multi-colored things",  		FALSE}, /* OPT_animate_flicker */
+	{"animate_flicker",    	"Shimmer multi-colored things",  		TRUE}, /* OPT_animate_flicker */
 	{"xchars_to_file",		"Allow accents in output files",		FALSE},	/* OPT_xchars_to_file */
 	{"auto_more",			"Automatically clear '-more-' prompts",	FALSE},	/* OPT_auto_more */
 	{NULL,				NULL,								FALSE},/* xxx */
-	{"auto_display_lists",	"Automatically display drop-down lists",FALSE},	/* OPT_auto_display_lists */
+	{"auto_display_lists",	"Automatically display drop-down lists", TRUE},	/* OPT_auto_display_lists */
 	{"hp_changes_color",	"Player color indicates low hit points",FALSE},	/* OPT_hp_changes_color*/
-	{"verify_leave_quests",	"Verify before descending from quest level",TRUE},/* OPT_verify_leave_quests*/
+	{"verify_leave_quest",	"Verify before leaving a quest level",TRUE},/* OPT_verify_leave_quest*/
 	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* OPT_mark_squelch_items */
 	{"mouse_movement",      "Allow mouse clicks to move the player",       TRUE }, /*OPT_mouse_movement*/
 	{"mouse_buttons",       "Show mouse status line buttons",              TRUE }, /*OPT_mouse_buttons*/
@@ -2351,7 +2351,7 @@ byte spell_info_RF5[32][5]=
 	{6,     3,     1,     6,     6},        /* RF5_BEAM_ELEC */
 	{6,     4,     1,     6,     6},        /* RF5_BEAM_ICE */
 	{6,     3,     1,     6,     6},        /* RF5_BEAM_NETHR */
-	{6,     5,     2,     0,     0},        /* RF5_BEAM_LAVA */
+	{6,     5,     2,     6,     6},        /* RF5_BEAM_LAVA */
 	{5,     5,     2,     8,     8}         /* RF5_HOLY_ORB */
 };
 
@@ -3003,3 +3003,40 @@ cptr roguelike_home_letters =  "acfhmnoqruvyz13456790ABD";
 cptr standard_equip_letters =  "abcdefghijklmnopqrstuvw";
 cptr roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
 
+
+const slays_structure slays_info[11] =
+{
+	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
+	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
+	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
+	{TR1_SLAY_DEMON, 3, RF3_DEMON, 		"demons"},
+	{TR1_SLAY_ORC, 3, RF3_ORC, 			"orcs"},
+	{TR1_SLAY_TROLL, 3, RF3_TROLL, 		"trolls"},
+	{TR1_SLAY_GIANT, 3, RF3_GIANT, 		"giants"},
+	{TR1_SLAY_DRAGON, 3, RF3_DRAGON, 	"dragons"},
+	{TR1_KILL_DRAGON, 5, RF3_DRAGON, 	"dragons"},
+	{TR1_KILL_DEMON, 5, RF3_DEMON, 		"demons"},
+	{TR1_KILL_UNDEAD, 5, RF3_UNDEAD,	"the undead"},
+
+};
+
+
+const brands_structure brands_info[10] =
+{
+	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
+	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
+	{TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+};
+
+const mon_susceptibility_struct mon_suscept[2] =
+{
+	{TR1_BRAND_FIRE, RF3_HURT_FIRE, "fire"},
+	{TR1_BRAND_COLD, RF3_HURT_COLD, "cold"},
+};

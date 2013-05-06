@@ -402,7 +402,7 @@ void autoinscribe_pack(void)
 }
 
 /* Convert the values returned by squelch_itemp to string */
-char *squelch_to_label(int squelch)
+const char *squelch_to_label(int squelch)
 {
   	if (squelch == SQUELCH_YES) return ("(Squelched)");
 
@@ -509,7 +509,6 @@ int squelch_itemp(const object_type *o_ptr, byte feelings, bool fullid)
 		case SQUELCH_NONE:
 		{
 			return result;
-			break;
 		}
 
 		case SQUELCH_CURSED:

@@ -181,7 +181,7 @@ static void pref_footer(ang_file *fff, const char *mark)
 /*
  * Save autoinscription data to a pref file.
  */
-void autoinsc_dump(ang_file *fff)
+static void autoinsc_dump(ang_file *fff)
 {
 	int i;
 	if (!inscriptions) return;
@@ -204,7 +204,7 @@ void autoinsc_dump(ang_file *fff)
 /*
  * Save squelch data to a pref file.
  */
-void squelch_dump(ang_file *fff)
+static void squelch_dump(ang_file *fff)
 {
 
 
@@ -384,9 +384,9 @@ void dump_monsters(ang_file *fff)
 		byte chr = r_ptr->x_char;
 
 		/* Skip non-entries */
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
-		file_putf(fff, "# Monster: %s\n", (r_name + r_ptr->name));
+		file_putf(fff, "# Monster: %s\n", r_ptr->name_full);
 		file_putf(fff, "R:%d:0x%02X:0x%02X\n", i, attr, chr);
 	}
 }
@@ -434,7 +434,7 @@ void dump_flavors(ang_file *fff)
 {
 	int i;
 
-	for (i = 0; i < z_info->flavor_max; i++)
+	for (i = 1; i < z_info->flavor_max; i++)
 	{
 		flavor_type *x_ptr = &flavor_info[i];
 		byte attr = x_ptr->x_attr;

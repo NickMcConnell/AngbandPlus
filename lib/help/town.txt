@@ -218,9 +218,31 @@ result in a diminished reputation in the guild and a significant
 decrease in the quality of future quest rewards. 
 
 ***** <Make Spell Book Fireproof[price varies]>
+Make Spell Book Fireproof
 Make one spellbook invulnerable to fire attacks.
 			
-***** <Receive Your Quest Reward!>
-Receive Your Quest Reward!			
-Inform the Guild you completed their assigned quest and receive Your Reward!
+***** <Defer Quest Reward>
+Defer Quest Reward			
+Elect not to receive a quest reward in exchange for a slightly
+improved chance at better quest rewards the next time you 
+complete a quest.  Deferring several quest rewards in a row 
+cumulatively increases the chance of better quest rewards.
+
+***** <Permanent Hit Point Increase Reward>
+Permanent Hit Point Increase Reward			
+Permanently increases your max hit points by 25.
 	
+***** <Permanent Stat Increase Reward>
+Permanent Stat Increase Reward			
+Permanently increase a stat by 1.  This is the equvilent to wearing a ring of
+<stat>  (+1), without using an inventory slot. The increase is reflected in the 
+racial stat modifier.
+	
+***** <Permanent Stats Augmentation Reward>
+Permanent Stats Augmentation Reward			
+Permanently increase all of your stats by 1.  This is the equvilent to wearing six
+rings of <stat>  (+1), without using any inventory slots. These increases are 
+reflected in the racial stat modifier.
+	
+
+

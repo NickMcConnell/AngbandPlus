@@ -597,7 +597,7 @@ static const tval_desc tvals[] =
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
-	{ TV_LIGHT,              "Lite"                 },
+	{ TV_LIGHT,              "Lite"                },
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
@@ -1572,7 +1572,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(py, px, p_ptr->depth, 0, 0L);
 	}
 }
 
@@ -1590,7 +1590,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	int i, x, y;
 
 	/* Prepare the place_monster flags */
-	byte mp_flags = MPLACE_GROUP;
+	byte mp_flags = (MPLACE_GROUP | MPLACE_OVERRIDE);
 	if (slp) mp_flags |= MPLACE_SLEEP;
 
 	/* Paranoia */
@@ -1804,7 +1804,7 @@ static void do_cmd_wiz_know_quests(void)
 		quest_type *q_ptr = &q_info[i];
 
 		msg_print(format("quest #%d, name is %s, type is %d", i, q_name + q_ptr->name, q_ptr->q_type));
-		msg_print(format("quest #%d, level is %d, mon_race is %d, theme is %d", i, q_ptr->base_level, q_ptr->mon_idx, q_ptr->theme));
+		msg_print(format("quest #%d, level is %d, mon_race is %d, theme is %d", i, q_ptr->base_level, q_ptr->mon_idx, q_ptr->q_theme));
 		msg_print(format("quest #%d, max num is is %d, num killed is %d, ", i, q_ptr->q_max_num, q_ptr->q_num_killed));
 		if (q_ptr->q_flags & (QFLAG_STARTED)) msg_print(format("quest #%d is started", i));
 		if (q_ptr->q_flags & (QFLAG_COMPLETED)) msg_print(format("quest #%d is completed", i));
@@ -1839,7 +1839,7 @@ static void do_cmd_wiz_monster(void)
 	r_ptr = &r_info[r_idx];
 
 	/* Check sanity */
-	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->name))
+	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->speed))
 	{
 		msg_print("Invalid monster number");
 
@@ -2144,7 +2144,7 @@ void do_cmd_debug(void)
 		/* Phase Door */
 		case 'p':
 		{
-			teleport_player(10);
+			teleport_player(10, FALSE);
 			break;
 		}
 
@@ -2173,7 +2173,7 @@ void do_cmd_debug(void)
 		/* Teleport */
 		case 't':
 		{
-			teleport_player(100);
+			teleport_player(100, FALSE);
 			break;
 		}
 

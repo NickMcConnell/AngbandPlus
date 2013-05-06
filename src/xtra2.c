@@ -193,7 +193,7 @@ void lose_exp(s32b amount)
  */
 int get_coin_type(const monster_race *r_ptr)
 {
-	cptr name = (r_name + r_ptr->name);
+	cptr name = r_ptr->name_full;
 
 	/* Analyze "coin" or golem monsters */
 	if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
@@ -444,7 +444,7 @@ static void mon_drop_loot(int m_idx)
 		if (one_in_(5)) this_good = TRUE;
 		if ((!this_good) && (!this_great) && (!this_chest))
 		{
-			object_level += 2;
+			object_level += 5;
 			if (object_level > MAX_DEPTH) object_level = MAX_DEPTH;
 			interesting = TRUE;
 		}
@@ -499,19 +499,30 @@ static void process_quest_monster_death(int i, int m_idx, bool *writenote)
 		if (q_ptr->mon_idx != m_ptr->r_idx) return;
 	}
 
+	/* Not a quest that counts monster deaths */
 	else if (quest_multiple_r_idx(q_ptr))
 	{
 		if (!(m_ptr->mflag & (MFLAG_QUEST))) return;
 	}
 
-	/* Not a quest that counts monster deaths */
+	else if (quest_timed(q_ptr))
+	{
+		if (m_ptr->mflag & (MFLAG_QUEST))
+		{
+			q_ptr->q_num_killed++;
+			p_ptr->redraw |= (PR_QUEST_ST);
+			p_ptr->notice |= PN_QUEST_REMAIN;
+		}
+		return;
+	}
+
 	else return;
 
 	/* Mark kills */
 	q_ptr->q_num_killed++;
 
 	/* Completed quest? */
-	if (q_ptr->q_num_killed == q_ptr->q_max_num)
+	if (q_ptr->q_num_killed >= q_ptr->q_max_num)
 	{
 		/* Mark complete */
 		quest_finished(q_ptr);
@@ -625,6 +636,14 @@ void monster_death(int m_idx, int who)
 		/*write note for player ghosts*/
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
+			/*paranoia*/
+			/* Check there is a name/ghost first */
+			if (player_ghost_name[0] == '\0')
+			{
+				/*Make sure the name has been created*/
+				prepare_ghost_name();
+			}
+
 			my_strcpy(note2, format("Destroyed %^s", player_ghost_name), sizeof (note2));
 		}
 
@@ -790,7 +809,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 	s32b new_exp, new_exp_frac;
 
 	/* Redraw (later) if needed */
-	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+	if ((p_ptr->health_who == m_idx) || (m_ptr->sidebar)) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Allow the debugging of damage done. */
 	if ((dam > 0) && (p_ptr->wizard))
@@ -804,7 +823,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 	}
 
 	/* Wake it up */
-	mon_clear_timed(m_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+	wake_monster_attack(m_ptr, MON_TMD_FLG_NOMESSAGE);
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -1419,7 +1438,27 @@ bool get_aim_dir(int *dp, bool target_trap)
 			/* Mouse aiming */
 			case DEFINED_XFF:
 			{
-				if (target_set_interactive(TARGET_KILL, KEY_GRID_X(ke), KEY_GRID_Y(ke)))
+
+				if (click_area(ke) == SIDEBAR_MON_MIN)
+				{
+
+					int m_idx = find_sidebar_mon_idx(ke);
+
+					if (m_idx)
+					{
+						monster_type *m_ptr = &mon_list[m_idx];
+
+						if (m_ptr->project)
+						{
+							health_track(m_idx);
+							target_set_monster(m_idx);
+							dir = 5;
+							break;
+						}
+					}
+				}
+
+				else if (target_set_interactive(TARGET_KILL, KEY_GRID_X(ke), KEY_GRID_Y(ke)))
 					dir = 5;
 
 				break;

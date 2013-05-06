@@ -55,7 +55,7 @@ Command Summary -- Original keyset
      =  Set options                         ^R  Redraw the screen
      ;  Walk (normal pickup)                ^S  Save and don't quit
      :  Take notes                          ^T  (unused)
-     '  (unused)                            ^U  (unused)
+     '  Target closest monster              ^U  (unused)
      "  Enter a user pref command           ^V  Repeat last command
      ,  Stay still (normal pickup)          ^W  (special - wizard mode)
      <  Go up staircase                     ^X  Save and quit
@@ -125,7 +125,7 @@ Command Summary -- Roguelike keyset
      =  Set options                         ^R  Redraw the screen
      ;  Walk (normal pickup)                ^S  Save and don't quit
      :  Take notes                          ^T  Dig a Tunnel
-     '  Repeat last command                 ^U  (alter - north east)
+     '  Target closest monster              ^U  (alter - north east)
      "  Enter a user pref command           ^V  Repeat last command
      ,  Run                                 ^W  (special - wizard mode)
      <  Go up staircase                     ^X  Save and quit

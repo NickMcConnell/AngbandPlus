@@ -161,7 +161,6 @@ void delete_monster_idx(int i)
 		}
 	}
 
-
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
@@ -205,6 +204,7 @@ void delete_monster_idx(int i)
 	/* Count monsters */
 	mon_cnt--;
 
+	p_ptr->redraw |= PR_MONLIST;
 
 	/* Visual update */
 	light_spot(y, x);
@@ -907,6 +907,208 @@ static void get_mon_name(char *output_name, size_t max, int r_idx, int in_los)
 	my_strcat(output_name, race_name, max);
 }
 
+/* Figure out which monsters to display in the sidebar */
+void update_mon_sidebar_list(void)
+{
+	monster_type *m_ptr;
+	monster_type *m2_ptr;
+	monster_race *r_ptr;
+	monster_race *r2_ptr;
+	int i;
+	int sidebar_count = 0;
+	int adj_count = 0;
+	int los_count = 0;
+	int vis_count = 0;
+	int adjacent_monsters[8];
+	int *line_of_sight_monsters;
+	int *visible_monsters;
+
+	/* Allocate the arrays */
+	line_of_sight_monsters = C_ZNEW(mon_max, int);
+	visible_monsters = C_ZNEW(mon_max, int);
+
+	/* First clear the old list */
+	C_WIPE(sidebar_monsters, SIDEBAR_MONSTER_MAX, int);
+
+	/* First list the targeted monster, if there is one */
+	if (p_ptr->health_who)
+	{
+		sidebar_monsters[sidebar_count] = p_ptr->health_who;
+		sidebar_count++;
+
+		/* We are tracking this one */
+		mon_list[p_ptr->health_who].sidebar = TRUE;
+	}
+
+	/* Scan the list of monsters on the level */
+	for (i = 1; i < mon_max; i++)
+	{
+		m_ptr = &mon_list[i];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Only consider visible monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Hack - ignore lurkers and trappers */
+		if (r_ptr->d_char == '.') continue;
+
+		/* Already recorded target monster */
+		if (i == p_ptr->health_who) continue;
+
+		/* Now decide which list to include them in first adjacent monsters*/
+		if ((GET_SQUARE((p_ptr->py - m_ptr->fy)) + GET_SQUARE((p_ptr->px - m_ptr->fx))) < 2)
+		{
+			adjacent_monsters[adj_count] = i;
+			adj_count++;
+			continue;
+		}
+		/* Projectable ones next */
+		if (m_ptr->project)
+		{
+			line_of_sight_monsters[los_count] = i;
+			los_count++;
+			continue;
+		}
+
+		/* Visible, not projectable last */
+		visible_monsters[vis_count] = i;
+		vis_count++;
+		continue;
+	}
+
+	/* Sort the lists by monster power using bubble sort */
+	/*  First do adjacent monsters */
+	for (i = 0; i < adj_count; i++)
+	{
+		int j;
+
+		for (j = i + 1; j < adj_count; j++)
+		{
+			m_ptr = &mon_list[adjacent_monsters[i]];
+			r_ptr = &r_info[m_ptr->r_idx];
+			m2_ptr = &mon_list[adjacent_monsters[j]];
+			r2_ptr = &r_info[m2_ptr->r_idx];
+
+			if (r_ptr->mon_power < r2_ptr->mon_power)
+			{
+				int temp = adjacent_monsters[i];
+				adjacent_monsters[i] = adjacent_monsters[j];
+				adjacent_monsters[j] = temp;
+			}
+		}
+	}
+
+	/* Now add them to the list */
+	for (i = 0; i < adj_count; i++)
+	{
+		sidebar_monsters[sidebar_count] = adjacent_monsters[i];
+
+		/* We are tracking this one */
+		mon_list[sidebar_monsters[sidebar_count]].sidebar = TRUE;
+
+		sidebar_count++;
+
+		/* paranoia - would only happen if SIDEBAR_MONSTER_MAX was less than 10*/
+		if (sidebar_count >= SIDEBAR_MONSTER_MAX)
+		{
+			/* Release the arrays */
+			FREE(line_of_sight_monsters);
+			FREE(visible_monsters);
+			return;
+		}
+	}
+
+	/*  Next do projectable monsters */
+	for (i = 0; i < los_count; i++)
+	{
+		int j;
+
+		for (j = i + 1; j < los_count; j++)
+		{
+			m_ptr = &mon_list[line_of_sight_monsters[i]];
+			r_ptr = &r_info[m_ptr->r_idx];
+			m2_ptr = &mon_list[line_of_sight_monsters[j]];
+			r2_ptr = &r_info[m2_ptr->r_idx];
+
+			if (r_ptr->mon_power < r2_ptr->mon_power)
+			{
+				int temp = line_of_sight_monsters[i];
+				line_of_sight_monsters[i] = line_of_sight_monsters[j];
+				line_of_sight_monsters[j] = temp;
+			}
+		}
+	}
+
+	/* Now add them to the list */
+	for (i = 0; i < los_count; i++)
+	{
+		sidebar_monsters[sidebar_count] = line_of_sight_monsters[i];
+
+		/* We are tracking this one */
+		mon_list[sidebar_monsters[sidebar_count]].sidebar = TRUE;
+
+		sidebar_count++;
+
+		/* Check to see if the list is full */
+		if (sidebar_count >= SIDEBAR_MONSTER_MAX)
+		{
+			/* Release the arrays */
+			FREE(line_of_sight_monsters);
+			FREE(visible_monsters);
+
+			return;
+		}
+	}
+
+	/*  Finally to other viewable monsters monsters */
+	for (i = 0; i < vis_count; i++)
+	{
+		int j;
+
+		for (j = i + 1; j < vis_count; j++)
+		{
+			m_ptr = &mon_list[visible_monsters[i]];
+			r_ptr = &r_info[m_ptr->r_idx];
+			m2_ptr = &mon_list[visible_monsters[j]];
+			r2_ptr = &r_info[m2_ptr->r_idx];
+
+			if (r_ptr->mon_power < r2_ptr->mon_power)
+			{
+				int temp = visible_monsters[i];
+				visible_monsters[i] = visible_monsters[j];
+				visible_monsters[j] = temp;
+			}
+		}
+	}
+
+	/* Now add them to the list */
+	for (i = 0; i < vis_count; i++)
+	{
+		sidebar_monsters[sidebar_count] = visible_monsters[i];
+
+		/* We are tracking this one */
+		mon_list[sidebar_monsters[sidebar_count]].sidebar = TRUE;
+
+		sidebar_count++;
+
+		/* Check to see if the list is full */
+		if (sidebar_count >= SIDEBAR_MONSTER_MAX)
+		{
+			/* Release the arrays */
+			FREE(line_of_sight_monsters);
+			FREE(visible_monsters);
+			return;
+		}
+	}
+
+	/* Release the arrays */
+	FREE(line_of_sight_monsters);
+	FREE(visible_monsters);
+}
+
 
 /*
  * Display visible monsters in a window
@@ -1334,7 +1536,7 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	cptr name = (r_name + r_ptr->name);
+	cptr name = r_ptr->name_full;
 
 	bool seen, pron;
 
@@ -1491,7 +1693,7 @@ void monster_desc_race(char *desc, size_t max, int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	cptr name = (r_name + r_ptr->name);
+	cptr name = r_ptr->name_full;
 
 	/* Write the name */
 	my_strcpy(desc, name, max);
@@ -1757,6 +1959,9 @@ void update_mon(int m_idx, bool full)
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	/* Seen at all */
 	bool is_visible = FALSE;
 
@@ -1766,9 +1971,6 @@ void update_mon(int m_idx, bool full)
 	/* Compute distance and projection status */
 	if (full)
 	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
 		/* Distance components */
 		int dy = (py > fy) ? (py - fy) : (fy - py);
 		int dx = (px > fx) ? (px - fx) : (fx - px);
@@ -1781,17 +1983,6 @@ void update_mon(int m_idx, bool full)
 
 		/* Save the distance */
 		m_ptr->cdis = d;
-
-		/* Update projectable status */
-		m_ptr->project = FALSE;
-
-		if (m_ptr->cdis < MAX_SIGHT)
-		{
-			if(projectable(py, px, fy, fx, PROJECT_NONE))
-			{
-				m_ptr->project = TRUE;
-			}
-		}
 
 	}
 
@@ -1808,6 +1999,17 @@ void update_mon(int m_idx, bool full)
 	/* Nearby */
 	if (d <= MAX_SIGHT)
 	{
+		/* Update projectable status */
+		m_ptr->project = FALSE;
+
+		if (m_ptr->cdis < MAX_SIGHT)
+		{
+			if(projectable(py, px, fy, fx, PROJECT_NONE))
+			{
+				m_ptr->project = TRUE;
+			}
+		}
+
 		/* Basic telepathy */
 		if (p_ptr->state.telepathy)
 		{
@@ -1938,7 +2140,7 @@ void update_mon(int m_idx, bool full)
 			light_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
+			if ((p_ptr->health_who == m_idx)  || (m_ptr->sidebar)) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
@@ -1977,7 +2179,7 @@ void update_mon(int m_idx, bool full)
 			light_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
+			if ((p_ptr->health_who == m_idx)  || (m_ptr->sidebar)) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 			/* Disturb on visibility change */
 			if (disturb_move)
@@ -2082,7 +2284,7 @@ static s16b get_mimic_k_idx(int r_idx)
 
 		case '$':
 		{
-			cptr name = (r_name + r_ptr->name);
+			cptr name = r_ptr->name_full;
 
 			/* Look for textual clues */
 			if (strstr(name, " copper "))     	return (lookup_kind(TV_GOLD, SV_GOLD_COPPER));
@@ -2109,7 +2311,7 @@ static s16b get_mimic_k_idx(int r_idx)
 		case '?':
 		case '[':
 		{
-			cptr name = (r_name + r_ptr->name);
+			cptr name = r_ptr->name_full;
 
 			/* 	Handle scrolls first */
 			if (strstr(name, "Scroll"))
@@ -2328,7 +2530,7 @@ static s16b get_mimic_k_idx(int r_idx)
 		/*rods and wands*/
 		case '-':
 		{
-			cptr name = (r_name + r_ptr->name);
+			cptr name = r_ptr->name_full;
 
 			if (strstr(name, "Wand mimic"))
 			{
@@ -2730,8 +2932,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/*Automatically track the feature the player is on unless player is tracking a feature*/
 		if ((!p_ptr->target_set) || (p_ptr->target_who != 0)) feature_kind_track(cave_feat[y1][x1]);
 
-		/* Update the trap detection status */
-		p_ptr->redraw |= (PR_DTRAP | PR_ITEMLIST);
+		/* Update the trap detection status, itemlist and monlist */
+		p_ptr->redraw |= (PR_DTRAP | PR_ITEMLIST | PR_MONLIST);
 
 		/* Update the panel and player stealth */
 		p_ptr->update |= (PU_PANEL | PU_STEALTH);
@@ -2752,11 +2954,11 @@ void monster_swap(int y1, int x1, int y2, int x2)
 /*
  * Place the player in the dungeon XXX XXX
  */
-s16b player_place(int y, int x)
+bool player_place(int y, int x)
 {
 
 	/* Paranoia XXX XXX */
-	if (cave_m_idx[y][x] != 0) return (0);
+	if (cave_m_idx[y][x] != 0) return (FALSE);
 
 	/* Save player location */
 	p_ptr->py = y;
@@ -2772,7 +2974,7 @@ s16b player_place(int y, int x)
 	p_ptr->redraw |= (PR_FEATURE);
 
 	/* Success */
-	return (-1);
+	return (TRUE);
 }
 
 /*
@@ -3108,12 +3310,8 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* No new monsters on labyrinth, themed and wilderness levels */
-	if (((p_ptr->dungeon_type == DUNGEON_TYPE_THEMED_LEVEL) ||
-		 (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH) ||
-		 (p_ptr->dungeon_type == DUNGEON_TYPE_WILDERNESS)) &&
-		(character_dungeon == TRUE))
+	if ((!(*dun_cap->allow_level_repopulation)()) && (character_dungeon == TRUE))
 	{
-
 		/* Unless we are revealing a mimic or replacing a missing quest monster */
 		if (!(mp_flags & (MPLACE_OVERRIDE))) return (FALSE);
 	}
@@ -3137,7 +3335,7 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	if (!cave_exist_mon(r_ptr, y, x, FALSE, FALSE, FALSE)) return (FALSE);
 
 	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
+	if (!r_ptr->speed) return (FALSE);
 
 	/* Limit the population */
 	if (r_ptr->cur_num >= r_ptr->max_num)
@@ -3146,7 +3344,7 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	}
 
 	/* Name */
-	name = (r_name + r_ptr->name);
+	name = r_ptr->name_full;
 
 	/* Hack -- "unique" monsters must be "unique" */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -3252,34 +3450,10 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
 
-	/* Hack -- in the dungeon, aggravate every monster as long as there
-	 * are too many recent thefts
-	 */
-	if ((p_ptr->depth) && (recent_failed_thefts > 30)
-		&& ((randint(5) + 30) > recent_failed_thefts))
-	{
-		/*make them all awake.....*/
-		n_ptr->m_timed[MON_TMD_SLEEP] = 0;
 
-		/*and wary*/
-		n_ptr->mflag |= (MFLAG_WARY);
-
-		/*Everybody but uniques are always hasted*/
-		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-		{
-			n_ptr->mflag |= (MFLAG_FASTER);
-		}
-
-		/*make all monster's faster*/
-		n_ptr->m_timed[MON_TMD_FAST] = (recent_failed_thefts * 10) + rand_int(10);
-
-
-		/* If it just woke up, update the monster list */
-		p_ptr->redraw |= PR_MONLIST;
-	}
 
 	/* 75% non-unique monsters vary their speed*/
-	else if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
 	{
 		if (!(one_in_(4)))
 		{
@@ -3840,7 +4014,6 @@ static bool summon_specific_okay(int r_idx)
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
 
-
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
@@ -3966,9 +4139,9 @@ static bool summon_specific_okay(int r_idx)
 		{
 			okay = ((r_ptr->d_char == 'T') &&
 				(r_ptr->flags1 & (RF1_UNIQUE)) &&
-				  ((strstr((r_name + r_ptr->name), "Bert")) ||
-				   (strstr((r_name + r_ptr->name), "Bill")) ||
-				   (strstr((r_name + r_ptr->name), "Tom" ))));
+				  ((strstr(r_ptr->name_full, "Bert")) ||
+				   (strstr(r_ptr->name_full, "Bill")) ||
+				   (strstr(r_ptr->name_full, "Tom" ))));
 			break;
 		}
 
@@ -3999,6 +4172,86 @@ static bool summon_specific_okay(int r_idx)
 	return (okay);
 }
 
+/*
+ * Attempt to summon creatures who are already on the level.
+ *
+ */
+static bool summon_from_level(int y1, int x1, int lev, int type)
+{
+	int i, x, y;
+	u16b *monster_list;
+	u16b mon_count = 0;
+	monster_type *m_ptr;
+
+	monster_list = C_ZNEW(mon_max, u16b);
+
+	/* Look for a location */
+	for (i = 0; i < 75; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Hack -- no summon on glyph of warding */
+		if (cave_player_glyph_bold(y, x)) continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 75)
+	{
+		FREE(monster_list);
+		return (FALSE);
+	}
+
+	/* Save the "summon" type */
+	summon_specific_type = type;
+
+	for (i = 1; i < mon_max; i++)
+	{
+		/* Check the i'th monster */
+		m_ptr = &mon_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		if (!summon_specific_okay(m_ptr->r_idx)) continue;
+
+		/* Already in line of sight of the player */
+		if (m_ptr->project) continue;
+
+		/* Record this one */
+		monster_list[mon_count] = i;
+		mon_count++;
+	}
+
+	/* No eligible monsters */
+	if (!mon_count)
+	{
+		FREE(monster_list);
+		return (FALSE);
+	}
+
+	/* Select one, and summon it */
+	i = randint0(mon_count);
+	m_ptr = &mon_list[monster_list[i]];
+	monster_swap(m_ptr->fy, m_ptr->fx, y, x);
+
+	/* Wake it up, make it active, and give the player time to react */
+	wake_monster_attack(m_ptr, MON_TMD_FLG_NOMESSAGE);
+	m_ptr->mflag |= (MFLAG_ACTV);
+
+	FREE(monster_list);
+	return (TRUE);
+}
+
 
 /*
  * Place a monster (of the specified "type") near the given
@@ -4017,17 +4270,22 @@ static bool summon_specific_okay(int r_idx)
  * monsters, making this function much faster and more reliable.
  *
  * Note that this function may not succeed, though this is very rare.
+ * For levels that forbid summoning, we try to bring over other monsters from the same level.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(int y1, int x1, int lev, int type, byte mp_flags)
 {
 	int i, x, y, r_idx;
 
-	/*hack - no summoning on labyrinth, arena, themed or wilderness levels*/
-	/* Also includes DUNGEON_TYPE_WILDERNESS DUNGEON_TYPE_LABYRINTH DUNGEON_TYPE_ARENA*/
-	if (p_ptr->dungeon_type >= DUNGEON_TYPE_THEMED_LEVEL)
+	/* No summoning on verious levels, unless the override flag is present
+	 * Override is used for actions such as for reading scrolls of summon monster or wands of polymorph
+	 */
+	if ((*dun_cap->limited_level_summoning)())
 	{
-		return (FALSE);
+		if (!(mp_flags & (MPLACE_OVERRIDE))) return (summon_from_level(y1, x1, lev, type));
 	}
+
+	/* Allow the monster to be placed */
+	else mp_flags |= MPLACE_OVERRIDE;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -4070,10 +4328,14 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	get_mon_num_prep();
 
 	/* Handle failure */
-	if (!r_idx) return (FALSE);
+	if (!r_idx)
+	{
+		/* First try to call other creatures on the same level */
+		return (summon_from_level(y1, x1, lev, type));
+	}
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, MPLACE_GROUP | MPLACE_NO_MIMIC)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, MPLACE_GROUP | MPLACE_NO_MIMIC | mp_flags)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -4085,11 +4347,15 @@ bool summon_specific(int y1, int x1, int lev, int type)
  * Let the given monster attempt to reproduce.
  *
  * Note that "reproduction" REQUIRES empty space.
+ *
+ * Override is to ensure that the cloning happens on levels where multipication is restricted
  */
-bool multiply_monster(int m_idx)
+bool multiply_monster(int m_idx, bool override)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	byte mon_flags = 0L;
 
  	int i, y, x;
 
@@ -4125,8 +4391,11 @@ bool multiply_monster(int m_idx)
 	y = GRID_Y(grid[i]);
 	x = GRID_X(grid[i]);
 
+	if (override) mon_flags |= MPLACE_OVERRIDE;
+	else if ((*dun_cap->allow_monster_multiply)()) mon_flags |= MPLACE_OVERRIDE;
+
 	/* Create a new monster (awake, no groups) */
-	result = place_monster_aux(y, x, m_ptr->r_idx, 0L);
+	result = place_monster_aux(y, x, m_ptr->r_idx, mon_flags);
 
  	/* Result */
  	return (result);
@@ -4143,7 +4412,7 @@ bool multiply_monster(int m_idx)
  * string as a whole message, not as a part of a larger message. This
  * is useful to display Moria-like death messages.
  */
-static char *msg_repository[MAX_MON_MSG + 1] =
+static const char *msg_repository[MAX_MON_MSG + 1] =
 {
 	/* Dummy action */
 	"[is|are] hurt.",    		/* MON_MSG_NONE */
@@ -4505,7 +4774,7 @@ void message_pain(int m_idx, int dam)
 static char *get_mon_msg_action(byte msg_code, bool do_plural)
 {
 	static char buf[200];
-	char *action;
+	const char *action;
 
 	u16b n = 0;
 	/* Regular text */
@@ -4635,7 +4904,7 @@ static bool redundant_monster_message(int m_idx, int msg_code)
  * different monster descriptions for the same race.
  * Return TRUE on success.
  */
-bool add_monster_message(char *mon_name, int m_idx, int msg_code)
+bool add_monster_message(const char *mon_name, int m_idx, int msg_code)
 {
 	int i;
 	byte mon_flags = 0;
@@ -4763,7 +5032,7 @@ void flush_monster_messages(void)
 			char race_name[80];
 
 			/* Get the race name */
-			my_strcpy(race_name, r_name + r_ptr->name, sizeof(buf));
+			my_strcpy(race_name, r_ptr->name_full, sizeof(buf));
 
 			/* Special case. Player ghosts */
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
@@ -4779,7 +5048,7 @@ void flush_monster_messages(void)
 			else if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				/* Just copy the race name */
-				my_strcpy(buf, (r_name + r_ptr->name), sizeof(buf));
+				my_strcpy(buf, r_ptr->name_full, sizeof(buf));
 			}
 			/* We have more than one monster */
 			else if (count > 1)

@@ -97,6 +97,8 @@ void search(void)
 					/* Skip non-trapped chests */
 					if (!chest_traps[o_ptr->pval]) continue;
 
+					if (o_ptr->ident & (IDENT_QUEST)) continue;
+
 					/* Identify once */
 					if (!object_known_p(o_ptr))
 					{
@@ -237,6 +239,15 @@ static bool put_object_in_quiver(object_type *o_ptr)
 		/* Warn the player */
 		sound(MSG_CURSED);
 		msg_print("Oops! It feels deathly cold!");
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
 	}
 
 	/* Combine / Reorder the pack */
@@ -256,6 +267,8 @@ static bool put_object_in_quiver(object_type *o_ptr)
  * Assumes the decision to put in inventory or quiver has already been made.
  * Does NOT Delete the object afterwards.
  * Prints out a message.
+ * Assumes a check for mimic objects has already been made, and they
+ * have been revealed.
  */
 bool put_object_in_inventory(object_type *o_ptr)
 {
@@ -270,6 +283,13 @@ bool put_object_in_inventory(object_type *o_ptr)
 
 	/* Handle errors (paranoia) */
 	if (slot < 0) return (FALSE);
+
+	/* Update the quest counter */
+	if (o_ptr->ident & (IDENT_QUEST))
+	{
+		p_ptr->notice |= (PN_QUEST_REMAIN);
+		p_ptr->redraw |= (PR_QUEST_ST);
+	}
 
 	/* Get the object again */
 	o_ptr = &inventory[slot];
@@ -361,7 +381,7 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 		handle_stuff();
 
 		/* Scan for floor objects */
-		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x01);
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x03);
 
 		/* No pile */
 		if (floor_num < 1) break;
@@ -370,7 +390,7 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 		item_tester_hook = inven_carry_okay;
 
 		/* re-test to see if we can pick any of them up */
-		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x01);
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x03);
 
 		pickup_num = count_possible_pickups();
 
@@ -534,7 +554,12 @@ void py_pickup(bool pickup)
 	/* Are we allowed to pick up anything here? */
 	if (!(f_info[cave_feat[py][px]].f_flags1 & (FF1_DROP))) return;
 
-	/* As a precaution, first, check for mimics, and reveal them.  */
+	/*
+	 * As a precaution, first, check for mimics, and reveal them.
+	 * This is important, as IDENT_QUEST can be either a quest mimic monster,
+	 * or a quest object to be picked up.  o_ptr->mimic_r_idx distinguishes it
+	 * as a mimic.
+	 */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
 
@@ -720,9 +745,14 @@ void py_pickup(bool pickup)
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		objects_left++;
+		/* Only marked objects */
+		if (!o_ptr->marked) continue;
 
+		objects_left++;
 	}
+
+	/* Nothing else to report */
+	if (!objects_left) return;
 
 	/* Only one object */
 	if (objects_left == 1)
@@ -734,14 +764,18 @@ void py_pickup(bool pickup)
 
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
-		msg_c_format(msgt, "You see %s.", o_name);
+		if (p_ptr->timed[TMD_BLIND]) msg_c_format(msgt, "You are aware of %s.", o_name);
+
+		else msg_c_format(msgt, "You see %s.", o_name);
 	}
 
 	/* Multiple objects */
 	else
 	{
+		if (p_ptr->timed[TMD_BLIND]) msg_format("You are aware of a pile of %d objects.", objects_left);
+
 		/* Message */
-		msg_format("You see a pile of %d objects.", objects_left);
+		else msg_format("You see a pile of %d objects.", objects_left);
 	}
 
 	/* Done */

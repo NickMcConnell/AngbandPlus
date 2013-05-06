@@ -16,7 +16,6 @@ typedef enum game_event_type
 	EVENT_PLAYERTITLE,	/* Player's title has changed */
 	EVENT_GOLD,		/* Player's gold amount. */
 	EVENT_MONSTERHEALTH,	/* Observed monster's health level. */
-	EVENT_MONSTERMANA,	/* Observed monster's health level. */
 	EVENT_DUNGEONLEVEL,	/* Dungeon depth */
 	EVENT_QUEST_TICKER, /* Update status of quest */
 	EVENT_FEELING, /* Update status of quest */

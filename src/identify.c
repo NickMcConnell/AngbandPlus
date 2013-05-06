@@ -179,7 +179,6 @@ bool can_be_pseudo_ided(const object_type *o_ptr)
 		case TV_DRAG_SHIELD:
       	{
 			return (TRUE);
-			break;
       	}
     	case TV_LIGHT:
       	{

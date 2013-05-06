@@ -492,7 +492,7 @@
 #define RF6_BLINK          0x00000010  /* Teleport Short */
 #define RF6_TPORT          0x00000020  /* Teleport Long */
 #define RF6_RF6XXX1        0x00000040  /*  */
-#define RF6_TELE_SELF_TO   0x00000080  /* Teleport Selt to Player */
+#define RF6_TELE_SELF_TO   0x00000080  /* Teleport Self to Player */
 #define RF6_TELE_TO        0x00000100  /* Move player to monster */
 #define RF6_TELE_AWAY      0x00000200  /* Move player far away */
 #define RF6_TELE_LEVEL     0x00000400  /* Move player vertically */
@@ -836,9 +836,14 @@
 #define RF6_INNATE_MASK \
 	(0L)
 
-	/*
- * Monster macros
- */
+/* Max long and short monster name lengths */
+
+#define MAX_MON_LONG_NAME   38
+#define MAX_MON_SHORT_NAME  14
+
+ /*
+  * Monster macros
+  */
 
 /*
  * Determine if a given monster is "non-living"
@@ -1038,7 +1043,7 @@ enum
 /* XXX */
 
 /*
- * Maximum length of artifact names
+ * Maximum length of ghost names
  */
 #define MAX_GHOST_NAME_LEN 32
 

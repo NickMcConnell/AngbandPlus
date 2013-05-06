@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:6.1.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -2666,7 +2666,7 @@ W:25:0:15:2500
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
-D:It shoots a frost bolt that inflicts 10d8 points of damage, with a 10%
+D:It shoots a frost bolt that inflicts 10d8 points of damage, with a 10
 D: percent chance of getting a frost beam. 
 
 
@@ -2796,7 +2796,7 @@ G:?:w
 I:70:6:0
 W:25:0:5:0
 P:0:0d0:0:0:0
-A:25/8
+A:25/4
 F:EASY_KNOW
 D:It summons 1 unique on the current dungeon level.   If the unique
 D: normally has escorts, it will appear with escorts.
@@ -4689,4 +4689,13 @@ P:0:1d1:0:0:0
 A:70/16
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
+N:453:& Faded Scroll Fragment~
+G:?:y
+I:71:1:0
+W:40:0:5:200
+P:0:0d0:0:0:0
+F:EASY_KNOW
+D:A torn, faded scrap of paper with several mysterious symbols and
+D: lines on it.  Only the Guild understands their true meaning
+D: and value.
 

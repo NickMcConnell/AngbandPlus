@@ -125,10 +125,15 @@ s16b Rand_normal(int mean, int stand);
  */
 u32b Rand_simple(u32b m);
 
-/**
+/*
  * Emulate a number `num` of dice rolls of dice with `sides` sides.
  */
 extern int damroll(int num, int sides);
+
+/*
+ * Do damroll #tries times, return the best result.
+ */
+extern int max_damroll(int num, int sides, int tries);
 
 /**
  * Calculation helper function for damroll

@@ -670,7 +670,7 @@ static void wr_extra(void)
 	wr_s16b(player_ghost_num);
 
 	/* Store the number of thefts on the level. -LM- */
-	wr_byte(recent_failed_thefts);
+	wr_byte(0);
 
 	/* Store number of monster traps on this level. -LM- */
 	wr_byte(num_trap_on_level);
@@ -678,8 +678,8 @@ static void wr_extra(void)
 	/* Future use */
 	for (i = 0; i < 13; i++) wr_byte(0);
 
-	/* Unused space */
-	wr_u32b(0L);
+	/* Save the current dungeon summon mask */
+	wr_u32b (dungeon_summon_mask_f7);
 
 	/* Random artifact seed */
 	wr_u32b(seed_randart);
@@ -1116,9 +1116,9 @@ static bool wr_savefile_new(void)
 		wr_u16b(q_ptr->q_reward);
 		wr_u16b(q_ptr->q_fame_inc);
 		wr_byte(q_ptr->base_level);
-		wr_byte(q_ptr->theme);
+		wr_byte(q_ptr->q_theme);
 		wr_s16b(q_ptr->mon_idx);
-		wr_s32b(q_ptr->start_turn);
+		wr_s32b(q_ptr->turn_counter);
 		wr_s16b(q_ptr->q_num_killed);
 		wr_s16b(q_ptr->q_max_num);
 		wr_byte(q_ptr->q_flags);

@@ -228,7 +228,8 @@ static cptr quest_title[QUEST_SLOT_MAX] =
   	"Level Quest",				/* QUEST_THEMED_LEVEL*/
 	"Vault Quest",				/* QUEST_VAULT*/
 	"Arena Quest",				/* QUEST_ARENA_LEVEL */
-	"Labyrinth Quest"			/* QUEST_LABYRINTH_LEVEL */
+	"Labyrinth Quest",			/* QUEST_LABYRINTH_LEVEL */
+	"Greater Vault Quest"		/* QUEST_SLOT_GREATER_VAULT */
 };
 
 
@@ -421,7 +422,6 @@ static int stats_menu(int service)
 	/* Set up the menu */
 	WIPE(&menu, menu);
 	menu.count = count;
-	menu.title = "abcdef+-\n\r";
 	menu.title = "              Self RB CB  EB   Best";
 	menu.menu_data = stats;
 	if (service == SERVICE_RESTORE_STAT)
@@ -727,6 +727,8 @@ static void init_services_and_quests(int store_num)
 			if (guild_quest_complete()) continue;
 
 			if (q_ptr->q_type == QUEST_VAULT) continue;
+			if (q_ptr->q_type == QUEST_GREATER_VAULT) continue;
+			if (quest_type_collection(q_ptr)) continue;
 			if (quest_multiple_r_idx(q_ptr)) continue;
 		}
 
@@ -1645,7 +1647,7 @@ static bool store_service_aux(int store_num, s16b choice)
 			/* Ask confirmation */
 			if (!get_check(format("Really defer your reward, %s?", title))) return (FALSE);
 
-			p_ptr->deferred_rewards += (q_ptr->q_fame_inc / 2);
+			p_ptr->deferred_rewards += (q_ptr->q_fame_inc * 3) / 2;
 
 			guild_quest_wipe(FALSE);
 
@@ -2389,35 +2391,19 @@ static int store_carry(int st, object_type *o_ptr)
 			break;
 		}
 
-		/* Possibly recharge wands and staves */
+		/* recharge wands and staves */
 		case TV_STAFF:
 		case TV_WAND:
 		{
-			bool recharge = FALSE;
+			int charges = o_ptr->pval;
 
-			/* Recharge without fail if the store normally carries that type */
-			for (i = 0; i < st_ptr->table_num; i++)
-			{
-				if (st_ptr->table[i] == o_ptr->k_idx)
-					recharge = TRUE;
-			}
+			o_ptr->pval = 0;
 
-			if (recharge)
-			{
-				int charges = o_ptr->pval;
+			/* Calculate the recharged number of charges */
+			for (i = 0; i < o_ptr->number; i++) recharge_staff_wand(o_ptr, 60);
 
-				o_ptr->pval = 0;
-
-				/* Calculate the recharged number of charges */
-				for (i = 0; i < o_ptr->number; i++)
-					recharge_staff_wand(o_ptr, 60);
-
-				/* Use recharged value only if greater */
-				if (charges > o_ptr->pval)
-					o_ptr->pval = charges;
-			}
-
-			break;
+			/* Use recharged value only if greater */
+			if (charges > o_ptr->pval) o_ptr->pval = charges;
 		}
 	}
 
@@ -2452,6 +2438,12 @@ static int store_carry(int st, object_type *o_ptr)
 	{
 		/* Get that object */
 		j_ptr = &st_ptr->stock[slot];
+
+		/* Hack -- readable books always come first */
+		if ((o_ptr->tval == cp_ptr->spell_book) &&
+		    (j_ptr->tval != cp_ptr->spell_book)) break;
+		if ((j_ptr->tval == cp_ptr->spell_book) &&
+		    (o_ptr->tval != cp_ptr->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -2490,7 +2482,7 @@ static int store_carry(int st, object_type *o_ptr)
  * Increase, by a 'num', the number of an item 'item' in store 'st'.
  * This can result in zero items.
  */
-static void store_item_increase(int st, int item, int num)
+void store_item_increase(int st, int item, int num)
 {
 	int cnt;
 	object_type *o_ptr;
@@ -2520,7 +2512,7 @@ static void store_item_increase(int st, int item, int num)
 /*
  * Remove a slot if it is empty, in store 'st'.
  */
-static void store_item_optimize(int st, int item)
+void store_item_optimize(int st, int item)
 {
 	int j;
 	object_type *o_ptr;
@@ -2803,7 +2795,7 @@ void store_delete_index(int st, int what)
  * Delete a random object from store 'st', or, if it is a stack, perhaps only
  * partially delete it.
  *
- * This function is used when store maintainance occurs, and is designed to
+ * This function is used when store maintenance occurs, and is designed to
  * imitate non-PC purchasers making purchases from the store.
  */
 static void store_delete_random(int st)
@@ -3361,6 +3353,9 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 		/* Redundant, but it avoids compiler warnings */
 		object_type *o_ptr = &st_ptr->stock[entry_num];
 
+		/* Make sure long inscriptions aren't mixed up in the weight */
+		Term_erase(row, scr_places_x[LOC_WEIGHT]-1, 20);
+
 		strnfmt(out_val, sizeof out_val, "%3d.%d lb", o_ptr->weight / 10, o_ptr->weight % 10);
 		c_put_str(curs_attrs[CURS_KNOWN][(int)cursor], out_val, row, scr_places_x[LOC_WEIGHT]);
 	}
@@ -3410,6 +3405,9 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 	{
 		colour = curs_attrs[CURS_UNKNOWN][(int)cursor];
 	}
+
+	/* Make sure long inscriptions aren't mixed up in the price */
+	Term_erase(row, scr_places_x[LOC_PRICE]-1, 20);
 
 	/* Actually draw the price */
 	c_put_str(colour, out_val, row, scr_places_x[LOC_PRICE]);
@@ -4731,12 +4729,20 @@ static void store_examine(int oid)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[entry_num];
 
-	text_out_hook = text_out_to_screen;
-
 	/* Show full info in most stores, but normal info in player home */
 	object_info_screen(o_ptr);
 
 	screen_load();
+
+	/* Process artifact lore */
+	if (ARTIFACT_EASY_MENTAL(o_ptr))
+	{
+		/* Get the lore entry */
+		artifact_lore *a_l_ptr = &a_l_list[o_ptr->art_num];
+
+		/* Remember this artifact from now on */
+		a_l_ptr->was_fully_identified = TRUE;
+	}
 
 	/* Hack -- Browse book, then prompt for a command */
 	if (o_ptr->tval == cp_ptr->spell_book)
@@ -5109,10 +5115,17 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	/* See if we are holding a quest item */
 	if (this_store == STORE_GUILD)
 	{
+
+
 		if ((q_ptr->q_type == QUEST_VAULT) && (!guild_quest_complete()))
 		{
 			/* The artifact has been returned, the quest is a success */
 			if (quest_item_slot() > -1) quest_finished(q_ptr);
+		}
+
+		if ((quest_type_collection(q_ptr)) && (!guild_quest_complete()))
+		{
+			if (quest_item_count() >= quest_collection_num(q_ptr)) quest_finished(q_ptr);
 		}
 	}
 

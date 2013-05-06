@@ -113,7 +113,8 @@ static struct
 	{ "k",        "Kobolds" },
 	{ "L",        "Lichs" },
 	{ "tp",		  "Men" },
-	{ "'$!?=._-"")[|,",  "Mimics" },
+/* Note some special handling of mimics in the code below since there are so many different symbols */
+	{ "$!?",  	  "Mimics" },
 	{ "m",        "Molds" },
 	{ ",",        "Mushroom Patches" },
 	{ "n",        "Nagas" },
@@ -1061,7 +1062,7 @@ static void display_monster(int col, int row, bool cursor, int oid)
 	{
 		c_prt(attr, player_ghost_name, row, col);
 	}
-	else c_prt(attr, r_name + r_ptr->name, row, col);
+	else c_prt(attr, r_ptr->name_full, row, col);
 
 	/* Display symbol */
 	big_pad(66, row, a, c);
@@ -1096,7 +1097,7 @@ static int m_cmp_race(const void *a, const void *b)
 	c = r_a->level - r_b->level;
 	if (c) return c;
 
-	return strcmp(r_name + r_a->name, r_name + r_b->name);
+	return strcmp(r_a->name_full, r_b->name_full);
 }
 
 static char *m_xchar(int oid) { return &r_info[default_join[oid].oid].x_char; }
@@ -1166,7 +1167,7 @@ static int count_known_monsters(void)
 	{
 		monster_race *r_ptr = &r_info[i];
 		if ((!cheat_know) && !l_list[i].sights) continue;
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
 		if (r_ptr->flags1 & RF1_UNIQUE) m_count++;
 
@@ -1174,6 +1175,11 @@ static int count_known_monsters(void)
 		{
 			const char *pat = monster_group[j].chars;
 			if (strchr(pat, r_ptr->d_char)) m_count++;
+			/* Special hack to count all of the mimics */
+			else if (r_ptr->flags1 & (RF1_CHAR_MIMIC))
+			{
+				if (strchr(pat, '!')) m_count++;
+			}
 		}
 	}
 
@@ -1202,14 +1208,20 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 	{
 		monster_race *r_ptr = &r_info[i];
 		if ((!cheat_know) && !l_list[i].sights) continue;
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
-		if (r_ptr->flags1 & RF1_UNIQUE) m_count++;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) m_count++;
 
 		for (j = 1; j < N_ELEMENTS(monster_group) - 1; j++)
 		{
 			const char *pat = monster_group[j].chars;
 			if (strchr(pat, r_ptr->d_char)) m_count++;
+
+			/* Special hack to count all of the mimics */
+			else if (r_ptr->flags1 & (RF1_CHAR_MIMIC))
+			{
+				if (strchr(pat, '!')) m_count++;
+			}
 		}
 	}
 
@@ -1221,15 +1233,21 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 	{
 		monster_race *r_ptr = &r_info[i];
 		if ((!cheat_know) && !l_list[i].sights) continue;
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
 		for (j = 0; j < N_ELEMENTS(monster_group)-1; j++)
 		{
 			const char *pat = monster_group[j].chars;
-			if (j == 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-				continue;
-			else if (j > 0 && !strchr(pat, r_ptr->d_char))
-				continue;
+			if (j == 0 && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+			else if (j > 0)
+			{
+				if (strchr(pat, '!'))
+				{
+					if (!(r_ptr->flags1 & (RF1_CHAR_MIMIC))) continue;
+				}
+				else if (!strchr(pat, r_ptr->d_char)) continue;
+			}
 
 			monsters[m_count] = m_count;
 			default_join[m_count].oid = i;
@@ -2466,7 +2484,7 @@ static void do_cmd_knowledge_kills(void *obj, const char *name)
 
 		/* Print a message */
 		file_putf(fff, "     %-40s  %5d\n",
-		        (r_name + r_ptr->name), l_ptr->pkills);
+		        r_ptr->name_full, l_ptr->pkills);
 	}
 
 	/* Free the "who" array */

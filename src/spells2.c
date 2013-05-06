@@ -1234,13 +1234,32 @@ void self_knowledge(void)
 /*
  * Set word of recall as appropriate
  */
-void set_recall(void)
+bool set_recall(void)
 {
 	/* Ironman */
 	if (adult_ironman && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
-		return;
+		return (FALSE);
+	}
+
+	/* Verify leaving normal quest level */
+	if (verify_leave_quest)
+	{
+		char out_val[160];
+
+		if (quest_might_fail_if_leave_level())
+		{
+			sprintf(out_val, "Really risk failing your quest? ");
+			if (!get_check(out_val)) return (FALSE);
+		}
+
+		/* Verify leaving normal quest level */
+		else if (quest_shall_fail_if_leave_level())
+		{
+			sprintf(out_val, "Really fail your quest? ");
+			if (!get_check(out_val)) return (FALSE);
+		}
 	}
 
 	/* Activate recall */
@@ -1271,6 +1290,8 @@ void set_recall(void)
 	/* Redraw status line */
 	p_ptr->redraw = PR_STATUS;
 	handle_stuff();
+
+	return (TRUE);
 }
 
 
@@ -2400,10 +2421,12 @@ bool identify_fully(void)
 		artifact_lore *a_l_ptr = &a_l_list[o_ptr->art_num];
 
 		/* Message, keep commented out for now */
+#if 0
 		if (FALSE && !a_l_ptr->was_fully_identified)
 		{
 			msg_print("You will always remember this artifact.");
 		}
+#endif
 
 		/* Remember that we *identified* this artifact */
 		a_l_ptr->was_fully_identified = TRUE;
@@ -3255,8 +3278,7 @@ void mass_aggravate_monsters(int who)
 		}
 
 		/*possibly update the monster health bar*/
-		if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-
+		if ((p_ptr->health_who == i)  || (m_ptr->sidebar)) p_ptr->redraw |= (PR_HEALTH);
 	}
 
 	/* If it just woke up, update the monster list */
@@ -3447,7 +3469,7 @@ void destroy_area(int y1, int x1, int r)
 	bool flag = FALSE;
 
 	/* No effect in town */
-	if (!p_ptr->depth)
+	if ((*dun_cap->prevent_destruction)())
 	{
 		msg_print("The ground shakes for a moment.");
 		return;
@@ -3569,7 +3591,7 @@ void destroy_area(int y1, int x1, int r)
 	add_wakeup_chance = 10000;
 
 	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_DOORS | PU_FLOW_NO_DOORS);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP | PR_MONLIST | PR_ITEMLIST);
@@ -3608,7 +3630,7 @@ void earthquake(int cy, int cx, int r, bool kill_vault)
 	bool map[32][32];
 
 	/* No effect in town */
-	if (!p_ptr->depth)
+	if ((*dun_cap->prevent_destruction)())
 	{
 		msg_print("The ground shakes for a moment.");
 		return;
@@ -3826,7 +3848,7 @@ void earthquake(int cy, int cx, int r, bool kill_vault)
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
 
 					/* Monster is certainly awake */
-					mon_clear_timed(m_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+					wake_monster_attack(m_ptr, MON_TMD_FLG_NOMESSAGE);
 
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
@@ -3928,7 +3950,7 @@ void earthquake(int cy, int cx, int r, bool kill_vault)
 	add_wakeup_chance = MAX(add_wakeup_chance, 8000);
 
 	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_DOORS | PU_FLOW_NO_DOORS);
 
 	/* Update the health bar */
 	p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
@@ -4005,10 +4027,10 @@ static void cave_temp_room_light(void)
 			if ((m_ptr->m_timed[MON_TMD_SLEEP]) && (rand_int(100) < chance))
 			{
 				/* Wake up! */
-				mon_clear_timed(m_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+				wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
 
 				/*possibly update the monster health bar*/
-				if (p_ptr->health_who == m_idx)
+				if ((p_ptr->health_who == m_idx)  || (m_ptr->sidebar))
 					p_ptr->redraw |= (PR_HEALTH);
 			}
 		}
@@ -4362,7 +4384,7 @@ bool fire_arc(int typ, int dir, int dam, int rad, int degrees)
 /*
  * Character casts an arc spell.
  */
-bool fire_arc_special(int typ, int dir, int dam, int rad, int degrees, u32b flg)
+static bool fire_arc_special(int typ, int dir, int dam, int rad, int degrees, u32b flg)
 {
 	int y1, x1;
 
@@ -4799,7 +4821,7 @@ bool slow_monster(int dir)
 bool sleep_monster(int dir)
 {
 	u32b flg = PROJECT_STOP;
-	return (fire_bolt_beam_special(GF_OLD_SLEEP, dir, damroll (2, p_ptr->lev), MAX_RANGE, flg));
+	return (fire_bolt_beam_special(GF_OLD_SLEEP, dir, damroll (3, p_ptr->lev), MAX_RANGE, flg));
 }
 
 bool confuse_monster(int dir, int plev)
@@ -4871,7 +4893,7 @@ bool sleep_monsters_touch(void)
 	int px = p_ptr->px;
 
 	u32b flg = PROJECT_BOOM | PROJECT_KILL | PROJECT_HIDE;
-	return (project(SOURCE_PLAYER, 1, py, px, py, px, damroll(2, p_ptr->lev), GF_OLD_SLEEP, flg, 0, 20));
+	return (project(SOURCE_PLAYER, 1, py, px, py, px, damroll(3, p_ptr->lev), GF_OLD_SLEEP, flg, 0, 20));
 }
 
 
@@ -5498,7 +5520,7 @@ int do_ident_item(int item, object_type *o_ptr)
 		&& a_l_list[o_ptr->art_num].was_fully_identified)
 	{
 		/* Message */
-		msg_c_format(MSG_NOTICE, "You remember this artifact from a previous game.");
+		msg_c_format(MSG_NOTICE, "You are already familiar with this artifact.");
 
 		/* Fully identify the artifact for free */
 		o_ptr->ident |= (IDENT_MENTAL);
@@ -5526,7 +5548,7 @@ void get_spell_type_from_feature(int f_idx, int *gf_type, cptr *action)
 	{
 		u32b element;
 		int gf_type;
-		char *action;
+		const char *action;
 	} spell_info[] =
 	{
 		{ELEMENT_BWATER, GF_BWATER, "burns"},
@@ -5646,7 +5668,7 @@ bool read_minds(void)
 			if ((m_ptr->m_timed[MON_TMD_SLEEP]) && (rand_int(100) < p_ptr->lev))
 			{
 				/* No more sleeping */
-				mon_clear_timed(m_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+				wake_monster_attack(m_ptr, MON_TMD_FLG_NOMESSAGE);
 
 				/* Remember this */
 				++count;

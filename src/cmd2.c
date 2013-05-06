@@ -319,6 +319,9 @@ static s16b chest_check(int y, int x, bool check_locked)
 		/* Check for chest */
 		if (o_ptr->tval != TV_CHEST) continue;
 
+		/* Don't count special quest items */
+		if (o_ptr->ident & (IDENT_QUEST)) continue;
+
 		/* Handle the option to check if it is locked*/
 		if (check_locked)
 		{
@@ -541,7 +544,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		sound(MSG_SUM_MONSTER);
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			(void)summon_specific(y, x, p_ptr->depth, 0, MPLACE_OVERRIDE);
 		}
 	}
 
@@ -582,6 +585,12 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	if (o_ptr->tval != TV_CHEST)
 	{
 		msg_print("This object is not a chest!");
+		return (FALSE);
+	}
+
+	if (o_ptr->ident & (IDENT_QUEST))
+	{
+		msg_print("This chest cannot be opened!");
 		return (FALSE);
 	}
 
@@ -808,7 +817,7 @@ static int count_traps(int *y, int *x, bool known)
 		/* Count it */
 		++count;
 
-		/* Remember the location of the last chest found */
+		/* Remember the location of the last trap found */
 		*y = yy;
 		*x = xx;
 	}
@@ -846,6 +855,9 @@ int count_chests(int *y, int *x, bool trapped)
 
 		/* Hack - Don't open mimic chests */
 		if (o_ptr->mimic_r_idx) continue;
+
+		/* Don't count special quest items */
+		if (o_ptr->ident & (IDENT_QUEST)) continue;
 
 		/* No (known) traps here */
 		if (trapped &&
@@ -950,7 +962,7 @@ static bool do_cmd_open_aux(int y, int x)
 			cave_alter_feat(y, x, FS_OPEN);
 
 			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_DOORS | PU_FLOW_NO_DOORS);
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_DOORS | PU_FLOW_NO_DOORS);
 
 			/* Experience */
 			gain_exp(1);
@@ -977,7 +989,7 @@ static bool do_cmd_open_aux(int y, int x)
 		cave_alter_feat(y, x, FS_OPEN);
 
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
 
 		/* Sound */
 		sound(MSG_OPENDOOR);
@@ -1076,7 +1088,7 @@ void do_cmd_open(cmd_code code, cmd_arg args[])
 			s = "There are no chests in that direction!";
 
 			/*clear the restriction*/
-			item_tester_hook = obj_is_chest;
+			item_tester_hook = obj_is_openable_chest;
 
 			/*player chose escape*/
 			if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
@@ -1155,7 +1167,7 @@ static bool do_cmd_close_aux(int y, int x)
 		find_secret(y,x);
 
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
 	}
 
 	/* Open door */
@@ -1169,7 +1181,7 @@ static bool do_cmd_close_aux(int y, int x)
 		cave_alter_feat(y, x, FS_CLOSE);
 
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_NO_DOORS | PU_FLOW_DOORS);
 
 		/* Sound */
 		sound(MSG_SHUTDOOR);
@@ -1331,7 +1343,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			cave_alter_feat(y, x, FS_TUNNEL);
 
 			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
 
@@ -1587,24 +1599,24 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 void do_cmd_disarm(cmd_code code, cmd_arg args[])
 {
 	int dir = args[0].direction;
-	int y, x, cy, cx;
+	int dir_y, dir_x, chest_y, chest_x, trap_y, trap_x;
 
 	int num_traps, o_idx, num_chests;
 
 	bool more = FALSE;
 
 	/* Get location */
-	cy = y = p_ptr->py + ddy[dir];
-	cx = x = p_ptr->px + ddx[dir];
+	chest_y = trap_y = dir_y = p_ptr->py + ddy[dir];
+	chest_x = trap_x = dir_x = p_ptr->px + ddx[dir];
 
 	/* Count visible traps */
-	num_traps = count_traps(&y, &x, TRUE);
+	num_traps = count_traps(&trap_y, &trap_x, TRUE);
 
 	/* Count chests (trapped) */
-	num_chests = count_chests(&y, &x, TRUE);
+	num_chests = count_chests(&chest_y, &chest_x, TRUE);
 
 	/* Check for trapped chests */
-	o_idx = chest_check(cy, cx, TRUE);
+	o_idx = chest_check(chest_y, chest_x, TRUE);
 
 	/* Verify legality */
 	if (!num_traps && !num_chests) return;
@@ -1615,7 +1627,18 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 		/* See if only one target */
 		if ((num_traps + num_chests) == 1)
 		{
-			p_ptr->command_dir = coords_to_dir(y, x);
+			if (num_traps)
+			{
+				dir_y = trap_y;
+				dir_x = trap_x;
+			}
+			else  /* (num_chests) */
+			{
+				dir_y = chest_y;
+				dir_x = chest_x;
+			}
+
+			p_ptr->command_dir = coords_to_dir(dir_y, dir_x);
 		}
 	}
 
@@ -1626,16 +1649,45 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		cy = y = p_ptr->py + ddy[dir];
-		cx = x = p_ptr->px + ddx[dir];
+		chest_y = trap_y = dir_y = p_ptr->py + ddy[dir];
+		chest_x = trap_x = dir_x = p_ptr->px + ddx[dir];
 
 		/* re-count the chests and traps */
-		num_traps = count_traps(&y, &x, TRUE);
+		num_traps = count_traps(&trap_y, &trap_x, TRUE);
 
-		num_chests= count_chests(&y, &x, TRUE);
-		o_idx = chest_check(cy, cx, TRUE);
+		num_chests= count_chests(&chest_y, &chest_x, TRUE);
+		o_idx = chest_check(chest_y, chest_x, TRUE);
+
+		/* Verify legality */
+		if (!num_traps && !num_chests)
+		{
+			msg_print("You are too confused!");
+			return;
+		}
+
+		if (num_chests)
+		{
+			dir_y = chest_y;
+			dir_x = chest_x;
+		}
+		else  /* (num_traps) */
+		{
+			dir_y = trap_y;
+			dir_x = trap_x;
+		}
 	}
+	/* One final check to see if we are opening a chest or a trap, if both are present */
+	else if ((num_chests) && (num_traps))
+	{
+		/* Did the player initially specify a trap or a chest? */
+		if (cave_any_trap_bold(dir_y, dir_x))
+		{
+			num_chests = 0;
+			trap_y = dir_y;
+			trap_x = dir_x;
 
+		}
+	}
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1651,13 +1703,13 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	}
 
 	/* Monster */
-	if (cave_m_idx[y][x] > 0)
+	if (cave_m_idx[dir_y][dir_x] > 0)
 	{
 		/* Message */
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
+		py_attack(dir_y, dir_x);
 	}
 
 	/* Chest */
@@ -1665,7 +1717,10 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	{
 
 		/* Disarm the chest if confused, or only one */
-		if ((p_ptr->timed[TMD_CONFUSED]) || (num_chests == 1))  more = do_cmd_disarm_chest(y, x, o_idx);
+		if ((p_ptr->timed[TMD_CONFUSED]) || (num_chests == 1))
+		{
+			more = do_cmd_disarm_chest(chest_y, chest_x, o_idx);
+		}
 
 		/* More than one */
 		else
@@ -1681,10 +1736,10 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 			item_tester_hook = chest_requires_disarming;
 
 			/*player chose escape*/
-			if (!get_item_beside(&o_idx, q, s, cy, cx)) more = 0;
+			if (!get_item_beside(&o_idx, q, s, chest_y, chest_x)) more = 0;
 
 			/* Disarm the chest */
-			else more = do_cmd_disarm_chest(cy, cx, -o_idx);
+			else more = do_cmd_disarm_chest(chest_y, chest_x, -o_idx);
 		}
 	}
 
@@ -1692,7 +1747,7 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	else
 	{
 		/* Disarm the trap */
-		more = do_cmd_disarm_aux(cy, cx, TRUE);
+		more = do_cmd_disarm_aux(trap_y, trap_x, TRUE);
 	}
 
 	/* Cancel repeat unless told not to */
@@ -1776,7 +1831,7 @@ static bool do_cmd_bash_aux(int y, int x)
 		feat = cave_feat[y][x];
 
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 	}
 
 	/* Hack -- Bash power based on strength */
@@ -1823,7 +1878,7 @@ static bool do_cmd_bash_aux(int y, int x)
 		}
 
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 	}
 
 	/* Take a hit from the feature, sometimes */

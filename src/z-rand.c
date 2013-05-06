@@ -373,6 +373,23 @@ int damroll(int num, int sides)
 	return (sum);
 }
 
+/*
+ * Generates damage for "2d6" style dice rolls
+ */
+int max_damroll(int num, int sides, int tries)
+{
+	int best_sum = 0;
+	int i;
+
+	for (i = 0; i < tries; i++)
+	{
+		int sum = damroll(num, sides);
+
+		if (sum > best_sum) best_sum = sum;
+	}
+
+	return (best_sum);
+}
 
 
 /*

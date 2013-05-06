@@ -2009,6 +2009,9 @@ K:451:0x8C/0x96
 # [Nature's Fury]
 K:452:0x8C/0x97
 
+#  Faded Scroll Fragment
+K:453:0x83:0x9D
+
 
 ##### Monster attr/char definitions #####
 

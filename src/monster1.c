@@ -300,7 +300,7 @@ static bool mon_set_timed(int m_idx, int idx, int v, u16b flag)
 	}
 
 	/*possibly update the monster health bar*/
-	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+	if ((p_ptr->health_who == m_idx)  || (m_ptr->sidebar))p_ptr->redraw |= (PR_HEALTH);
 
 	if ((idx == MON_TMD_FAST) || (idx == MON_TMD_SLOW))
 	{
@@ -430,12 +430,61 @@ bool mon_clear_timed(int m_idx, int idx, u16b flag)
 	flag |= MON_TMD_FLG_NOFAIL;
 
 	/* Check we have a valid effect */
-	if ((idx < 0) || (idx > MON_TMD_MAX)) return FALSE;
+	if ((idx < 0) || (idx > MON_TMD_MAX)) return (FALSE);
 
 	return mon_set_timed(m_idx, idx, 0, flag);
 }
 
+/* Helper function to wake monsters who are asleep */
+void wake_monster_attack(monster_type *m_ptr, u16b flag)
+{
+	int m_idx = get_mon_idx(m_ptr);
 
+	/* Already Awake */
+	if (!m_ptr->m_timed[MON_TMD_SLEEP]) return;
+
+	/* Disturb the monster */
+	mon_clear_timed(m_idx, MON_TMD_SLEEP, flag);
+
+	/* Make the monster a little slow to wake up */
+	if (m_ptr->m_energy > BASE_ENERGY_MOVE /2) m_ptr->m_energy = BASE_ENERGY_MOVE /2;
+}
+
+static bool mon_fully_healthy(const monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Monster is wounded */
+	if (m_ptr->hp < m_ptr->maxhp) return (FALSE);
+	if (m_ptr->mana < r_ptr->mana) return (FALSE);
+	if (m_ptr->m_timed[MON_TMD_STUN]) return (FALSE);
+	if (m_ptr->m_timed[MON_TMD_FEAR]) return (FALSE);
+	if (m_ptr->m_timed[MON_TMD_CONF]) return (FALSE);
+
+	/* Fully healthy */
+	return (TRUE);
+}
+
+/* Helper function to sleep monsters who are awake */
+bool sleep_monster_spell(monster_type *m_ptr, int v, u16b flag)
+{
+	int m_idx = get_mon_idx(m_ptr);
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Already Asleep */
+	if (m_ptr->m_timed[MON_TMD_SLEEP]) return (FALSE);
+
+	/* Monster is eligible for a full sleep */
+	if (mon_fully_healthy(m_ptr))
+	{
+		int new_v = rand_range((r_ptr->sleep + 1) / 2, r_ptr->sleep);
+
+		if (v < new_v) v = new_v;
+	}
+
+	/* Disturb the monster */
+	return (mon_inc_timed(m_idx, MON_TMD_SLEEP, v, flag));
+}
 
 
 
@@ -701,64 +750,120 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_ACID))
 	{
-		if (spower < 40) vp[vn++] = "produce acid balls";
+		if (r_ptr->flags4 & (RF4_BRTH_ACID))
+		{
+			if (spower < 40)	vp[vn++] = "breathe acid balls";
+			else 				vp[vn++] = "breathe enormous acid balls";
+		}
+		else if (spower < 10) vp[vn++] = "produce small acid balls";
+		else if (spower < 40) vp[vn++] = "produce acid balls";
 		else vp[vn++] = "produce acid storms";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_ELEC))
 	{
-		if (spower < 40) vp[vn++] = "produce lightning balls";
+		if (r_ptr->flags4 & (RF4_BRTH_ELEC))
+		{
+			if (spower < 40)	vp[vn++] = "breathe lightning balls";
+			else 				vp[vn++] = "breathe enormous lightning balls";
+		}
+		else if (spower < 10) vp[vn++] = "produce small lightning balls";
+		else if (spower < 40) vp[vn++] = "produce lightning balls";
 		else vp[vn++] = "produce lightning storms";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_FIRE))
 	{
-		if (spower < 40) vp[vn++] = "produce fire balls";
+		if (r_ptr->flags4 & (RF4_BRTH_FIRE))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of flames";
+			else 				vp[vn++] = "breathe enormous balls of flames";
+		}
+		else if (spower < 10) vp[vn++] = "produce small fire balls";
+		else if (spower < 40) vp[vn++] = "produce fire balls";
 		else vp[vn++] = "produce fire storms";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_COLD))
 	{
-		if (spower < 40) vp[vn++] = "produce frost balls";
+		if (r_ptr->flags4 & (RF4_BRTH_COLD))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of frost";
+			else 				vp[vn++] = "breathe enormous balls of frost";
+		}
+		else if (spower < 10) vp[vn++] = "produce small frost balls";
+		else if (spower < 40) vp[vn++] = "produce frost balls";
 		else vp[vn++] = "produce frost storms";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_POIS))
 	{
-		if (spower < 10) vp[vn++] = "produce stinking clouds";
+		if (r_ptr->flags4 & (RF4_BRTH_POIS))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of poison";
+			else 				vp[vn++] = "breathe enormous balls of poison";
+		}
+		else if (spower < 10) vp[vn++] = "produce stinking clouds";
 		else if (spower < 40) vp[vn++] = "produce poison balls";
 		else vp[vn++] = "produce storms of poison";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_LIGHT))
 	{
-		if (spower < 10) vp[vn++] = "produce spheres of light";
+		if (r_ptr->flags4 & (RF4_BRTH_LIGHT))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of light";
+			else 				vp[vn++] = "breathe brilliant balls of light";
+		}
+		else if (spower < 10) vp[vn++] = "produce spheres of light";
 		else if (spower < 40) vp[vn++] = "produce explosions of light";
-		else vp[vn++] = "invoke starbursts";
+		else vp[vn++] = "produce powerful explosions of light";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_DARK))
 	{
-		if (spower < 40) vp[vn++] = "produce balls of darkness";
-		else vp[vn++] = "produce storms of darkness";
+		if (r_ptr->flags4 & (RF4_BRTH_DARK))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of darkness";
+			else 				vp[vn++] = "breathe enormous balls of darkness";
+		}
+		else if (spower < 20) vp[vn++] = "produce balls of darkness";
+		else if (spower < 70) vp[vn++] = "produce storms of darkness";
+		else vp[vn++] = "produce powerful storms of darkness";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_CONFU))
 	{
-		if (spower < 40) vp[vn++] = "produce confusion balls";
-		else vp[vn++] = "produce storms of confusion";
+		if (r_ptr->flags4 & (RF4_BRTH_CONFU))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of confusion";
+			else 				vp[vn++] = "breathe massive balls of confusion";
+		}
+		else if (spower < 10) vp[vn++] = "produce balls of confusion";
+		else if (spower < 40) vp[vn++] = "produce storms of confusion";
+		else vp[vn++] = "produce powerful storms of confusion";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_SOUND))
 	{
-		if (spower < 10) vp[vn++] = "produce explosions of sound";
+		if (r_ptr->flags4 & (RF4_BRTH_SOUND))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of noise";
+			else 				vp[vn++] = "breathe ear-splitting balls of noise";
+		}
+		else if (spower < 10) vp[vn++] = "produce blasts of sound";
 		else if (spower < 40) vp[vn++] = "produce thunderclaps";
 		else vp[vn++] = "unleash storms of sound";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_SHARD))
 	{
-		if (spower < 10) vp[vn++] = "produce blasts of shards";
+		if (r_ptr->flags4 & (RF4_BRTH_SHARD))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of shards";
+			else 				vp[vn++] = "breathe enormous balls of shards";
+		}
+		else if (spower < 10) vp[vn++] = "produce blasts of shards";
 		else if (spower < 50) vp[vn++] = "produce whirlwinds of shards";
 		else vp[vn++] = "call up storms of knives";
 	}
@@ -778,14 +883,24 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_NETHR))
 	{
-		if (spower < 22) vp[vn++] = "produce nether orbs";
+		if (r_ptr->flags4 & (RF4_BRTH_NETHR))
+		{
+			if (spower < 40)	vp[vn++] = "breathe nether balls";
+			else 				vp[vn++] = "breathe enormous nether balls";
+		}
+		else if (spower < 22) vp[vn++] = "produce nether orbs";
 		else if (spower < 40) vp[vn++] = "produce nether balls";
 		else vp[vn++] = "invoke nether storms";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_CHAOS))
 	{
-		if (spower < 13) vp[vn++] = "produce spheres of chaos";
+		if (r_ptr->flags4 & (RF4_BRTH_CHAOS))
+		{
+			if (spower < 40)	vp[vn++] = "breathe balls of chaos";
+			else 				vp[vn++] = "breathe enormous balls of chaos";
+		}
+		else if (spower < 13) vp[vn++] = "produce spheres of chaos";
 		else if (spower < 40) vp[vn++] = "produce explosions of chaos";
 		else vp[vn++] = "call up maelstroms of raw chaos";
 	}
@@ -821,33 +936,56 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags5 & (RF5_BOLT_WATER))	vp[vn++] = "produce water bolts";
 	if (l_ptr->r_l_flags5 & (RF5_BOLT_NETHR))
 	{
-		if (spower < 40) vp[vn++] = "casts a nether bolt";
+		if (spower < 40) vp[vn++] = "produces a nether bolt";
 		else vp[vn++] = "hurls black bolts of nether";
 	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BOLT_MANA))
 	{
-		if (spower < 5) vp[vn++] = "casts magic missiles";
-		else vp[vn++] = "cast mana bolts";
+		if (spower < 5) vp[vn++] = "fire magic missiles";
+		else vp[vn++] = "fire mana bolts";
 	}
 	if (l_ptr->r_l_flags5 & (RF5_BOLT_GRAV))
 	{
 		if (spower < 5) vp[vn++] = "fires gravity bolts";
-		else vp[vn++] = "casts powerful bolts of gravity";
+		else vp[vn++] = "shoots powerful bolts of gravity";
 	}
 
-	if (l_ptr->r_l_flags5 & (RF5_BEAM_ELEC))	vp[vn++] = "shoot sparks of lightning";
-	if (l_ptr->r_l_flags5 & (RF5_BEAM_ICE))		vp[vn++] = "cast lances of ice";
+	if (l_ptr->r_l_flags5 & (RF5_BEAM_ELEC))
+	{
+		if (r_ptr->flags4 & (RF4_BRTH_ELEC))
+		{
+			vp[vn++] = "breathe lightning bolts";
+		}
+		else vp[vn++] = "shoot sparks of lightning";
+	}
+	if (l_ptr->r_l_flags5 & (RF5_BEAM_ICE))
+	{
+		if (r_ptr->flags4 & (RF4_BRTH_ELEC))
+		{
+			vp[vn++] = "breathe spears of ice";
+		}
+		else 	vp[vn++] = "shoot lances of ice";
+	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BEAM_NETHR))
 	{
-		if (spower < 25) vp[vn++] = "cast beams of nether";
+		if (r_ptr->flags4 & (RF4_BRTH_NETHR))
+		{
+			vp[vn++] = "breathe beams of nether";
+		}
+		else if (spower < 25) vp[vn++] = "shoot beams of nether";
 		else if (spower < 50) vp[vn++] = "hurl lances of nether";
 		else vp[vn++] = "shoot rays of death";
 	}
 	if (l_ptr->r_l_flags5 & (RF5_BEAM_LAVA))
 	{
-		if (spower < 25) vp[vn++] = "shoots beams of molten magma";
+		/* SLightly different message for breathers */
+		if (r_ptr->flags4 & (RF4_BRTH_ALL))
+		{
+			vp[vn++] = "breathe streams of fiery lava";
+		}
+		else if (spower < 25) vp[vn++] = "shoots beams of molten magma";
 		else if (spower < 50) vp[vn++] = "shoots jets of lava";
 		else vp[vn++] = "shoots searing jets of lava";
 	}
@@ -2177,7 +2315,7 @@ void roff_top(int r_idx)
 	}
 
 	/* Dump the name */
-	else Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	else Term_addstr(-1, TERM_WHITE, (r_ptr->name_full));
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
@@ -2464,14 +2602,17 @@ static void process_ghost_race(int ghost_race, int r_idx)
 
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
-			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+			/* Skip non-attacks */
+			if (!r_ptr->blow[n].method) continue;
+
+			if (one_in_(2)) r_ptr->blow[n].d_side += 1 + r_ptr->blow[n].d_side / 5;
+			else r_ptr->blow[n].d_dice += 1 * r_ptr->blow[n].d_dice / 6;
 
 			/* Sometimes make it extra tough */
-			if (one_in_(3))
+			if (one_in_(4))
 			{
-				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-				r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+				if (one_in_(2)) r_ptr->blow[n].d_side += 1+ r_ptr->blow[n].d_side / 5;
+				else r_ptr->blow[n].d_dice += 1+ r_ptr->blow[n].d_dice / 6;
 			}
 		}
 
@@ -2484,15 +2625,17 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	/*bottom quartile gets less fighting ability*/
 	else if(p_info[ghost_race].r_thn < race_min)
 	{
-
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
-			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+			/* Skip non-attacks */
+			if (!r_ptr->blow[n].method) continue;
+
+			r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 6;
 
 			/* Sometimes make it extra weak */
-			if (one_in_(3))
+			if (one_in_(4))
 			{
-				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+				r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 6;
 			}
 		}
 
@@ -2774,14 +2917,17 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
-			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+			/* Skip non-attacks */
+			if (!r_ptr->blow[n].method) continue;
+
+			if (one_in_(2)) r_ptr->blow[n].d_side += 1 + r_ptr->blow[n].d_side / 5;
+			else r_ptr->blow[n].d_dice += 1 + r_ptr->blow[n].d_dice / 6;
 
 			/* Sometimes make it extra tough */
-			if (one_in_(3))
+			if (one_in_(4))
 			{
-				r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 4;
-				r_ptr->blow[n].d_dice = 6 * r_ptr->blow[n].d_dice / 5;
+				if (one_in_(2)) r_ptr->blow[n].d_side += 1 + r_ptr->blow[n].d_side / 5;
+				else r_ptr->blow[n].d_dice += 1 + r_ptr->blow[n].d_dice / 6;
 			}
 		}
 
@@ -2797,12 +2943,15 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
-			r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+			/* Skip non-attacks */
+			if (!r_ptr->blow[n].method) continue;
+
+			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
 
 			/* Sometimes make it extra weak */
-			if (one_in_(3))
+			if (one_in_(4))
 			{
-				r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 4;
+				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
 			}
 		}
 
@@ -2894,7 +3043,7 @@ void prepare_ghost_name(void)
 
 	t_ptr = &t_info[player_ghost_num];
 
-	my_strcat(player_ghost_name, format("%^s, the %^s", t_ptr->t_name, r_name + r_ptr->name), sizeof(player_ghost_name));
+	my_strcat(player_ghost_name, format("%^s, the %^s", t_ptr->t_name, r_ptr->name_full), sizeof(player_ghost_name));
 }
 
 /*
@@ -3038,9 +3187,74 @@ bool prepare_ghost(int r_idx)
 	return (TRUE);
 }
 
+#define NUM_GHOST_CHALLENGES	26
+
+/*
+ * Array of feeling strings
+ */
+static cptr do_cmd_challenge_text[NUM_GHOST_CHALLENGES] =
+{
+	"challenges you from beyond the grave!",
+	"thunders 'Prove worthy of your traditions - or die ashamed!'.",
+	"desires to test your mettle!",
+	"has risen from the dead to test you!",
+	"roars 'Fight, or know yourself for a coward!'.",
+	"summons you to a duel of life and death!",
+	"desires you to know that you face a mighty champion of yore!",
+	"demands that you prove your worthiness in combat!",
+	"calls you unworthy of your ancestors!",
+	"challenges you to a deathmatch!",
+	"walks Middle-Earth once more!",
+	"challenges you to demonstrate your prowess!",
+	"demands you prove yourself here and now!",
+	"asks 'Can ye face the best of those who came before?'.",
+	"challenges you to a fight to the death!",
+	"wails 'These halls shall claim your life as well!'",
+	"begs you 'Free me from this cursed form!'.",
+	"whispers 'Those who perish here shall find no rest'.",
+	"boasts 'You won't leave this level alive!",
+	"wishes to claim your soul!",
+	"declares 'You will join me in this tortured afterlife!'",
+	"proclaims 'Prepare to fight your last battle'",
+	"bellows 'Your adventures will end here!'",
+	"dares you to proceed further!",
+	"wants to collect your bones!",
+	"yells 'Now you shall meet your undoing!'"
+};
+
+
+/*
+ * Personalize, randomize, and announce the challenge of a player ghost.
+ */
+void ghost_challenge(void)
+{
+	size_t i;
+
+	/* No active player ghost template */
+	if (!ghost_r_idx) return;
+
+	/*paranoia*/
+	/* Check there is a name/ghost first */
+	if (player_ghost_name[0] == '\0')
+	{
+		/*Make sure the name has been created*/
+		prepare_ghost_name();
+	}
+
+	i = randint0(NUM_GHOST_CHALLENGES);
+
+	msg_format("%^s %s", player_ghost_name, do_cmd_challenge_text[i]);
+
+	message_flush();
+}
+
+
+
+/* Remove the ghost. Make sure each one only shows up once per game */
 void remove_player_ghost(void)
 {
 	monster_lore *l_ptr;
+	monster_race *r_ptr;
 
 	/* Paranoia */
 	if ((player_ghost_num < 0) || (player_ghost_num >= z_info->ghost_template_max))
@@ -3058,6 +3272,8 @@ void remove_player_ghost(void)
 	l_ptr->tkills = 0;
 
 	/* No current player ghosts, set up a new random entry */
+	r_ptr = &r_info[ghost_r_idx];
+	r_ptr->max_num = 0;
 	player_ghost_num = -1;
 	ghost_r_idx = 0;
 	player_ghost_name[0] = '\0';

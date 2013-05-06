@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:6.1.0
 
 
 
@@ -21,7 +21,7 @@ V:0.6.0
 M:F:207
 
 # Maximum number of object kinds
-M:K:453
+M:K:454
 
 # 
 # Maximum number of total artifacts (special + normal + pre-made random + in-game random)
@@ -48,7 +48,7 @@ M:X:750
 M:G:24:20
 
 # Maximum number of vaults
-M:V:69
+M:V:61
 
 # Maximum number of player races
 M:P:11

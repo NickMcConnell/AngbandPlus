@@ -53,14 +53,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.6.0 WIP1"
+#define VERSION_STRING	"6.1.2"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	0
-#define VERSION_MINOR	6
+#define VERSION_MAJOR	6
+#define VERSION_MINOR	1
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -136,6 +136,8 @@
  */
 #define MAX_DUNGEON_WID		198
 
+#define MAX_DUNGEON_AREA	(MAX_DUNGEON_HGT * MAX_DUNGEON_WID)
+
 /*
  * Number of rooms to attempt to generate in dungeon.
  *
@@ -161,14 +163,16 @@
 #define SIDEBAR_AC			9
 #define SIDEBAR_HP			10
 #define SIDEBAR_MANA		11
-#define SIDEBAR_MON_HP		12
-#define SIDEBAR_MON_MANA	13
+#define SIDEBAR_MON_MIN		12
+#define SIDEBAR_MON_MAX		13
 #define SIDEBAR_SPEED		14
 #define SIDEBAR_DEPTH		15
 #define SIDEBAR_QUEST		16
 #define SIDEBAR_FEELING		17
 
 #define SIDEBAR_MAX_TYPES	18
+
+#define SIDEBAR_MONSTER_MAX	25
 
 /*
  * Mouse click region names
@@ -1293,6 +1297,7 @@ enum
 #define DUNGEON_TYPE_WILDERNESS		4
 #define DUNGEON_TYPE_ARENA			5
 #define DUNGEON_TYPE_LABYRINTH		6
+#define DUNGEON_TYPE_GREATER_VAULT	7
 
 /** Constants for the various patterns of pits */
 #define MAX_PIT_PATTERNS	3

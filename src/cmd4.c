@@ -132,7 +132,6 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	/* Redraw everything */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_INVEN | PR_EQUIP |
 	                  PR_MESSAGE | PR_MONSTER | PR_OBJECT |
 					  PR_MONLIST | PR_ITEMLIST | PR_FEATURE);
@@ -1588,7 +1587,7 @@ static int find_next_race(int r_idx, int increment)
 		if (next_r_idx == r_idx) return (r_idx);
 
 		/* Skip non-entries */
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
 		return (next_r_idx);
 	}
@@ -1746,7 +1745,7 @@ static void change_monster_visuals(void *unused, const char *title)
 
 		/* Label the object */
 		Term_putstr(5, 2, -1, TERM_WHITE,
-				format("Monster = %d, Name = %-40.40s", r_idx, (r_name + r_ptr->name)));
+				format("Monster = %d, Name = %-40.40s", r_idx, r_ptr->name_full));
 
 		/* Label the Default values */
 		Term_putstr(10, 4, -1, TERM_WHITE,
@@ -3381,6 +3380,7 @@ static cptr do_cmd_feeling_text[LEV_THEME_HEAD] =
  */
 void do_cmd_feeling(void)
 {
+	bool is_quest_level = quest_check(p_ptr->depth);
 
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
@@ -3398,12 +3398,19 @@ void do_cmd_feeling(void)
 
 	if (p_ptr->dungeon_type == DUNGEON_TYPE_WILDERNESS)
 	{
-		msg_print("You have entered an area of near pristine wilderness.");
+		if (is_quest_level) 	msg_print("You have entered a wilderness level on the verge of destruction!.");
+		else 					msg_print("You have entered an area of near pristine wilderness.");
+	}
+
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_GREATER_VAULT)
+	{
+		msg_print("You have discovered a gigantic vault of great treasures guarded by dangerous creatures.");
 	}
 
 	else if (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH)
 	{
-		msg_print("You have entered a complex labyrinth of dungeon hallways.");
+		if (is_quest_level) msg_print("You have entered a tiny, closely guarded labyrinth.");
+		else msg_print("You have entered a complex labyrinth of dungeon hallways.");
 	}
 
 	else if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA)
@@ -3436,68 +3443,7 @@ void do_cmd_feeling(void)
 	p_ptr->redraw |= (PR_FEELING);
 }
 
-#define NUM_GHOST_CHALLENGES	26
 
-/*
- * Array of feeling strings
- */
-static cptr do_cmd_challenge_text[NUM_GHOST_CHALLENGES] =
-{
-	"challenges you from beyond the grave!",
-	"thunders 'Prove worthy of your traditions - or die ashamed!'.",
-	"desires to test your mettle!",
-	"has risen from the dead to test you!",
-	"roars 'Fight, or know yourself for a coward!'.",
-	"summons you to a duel of life and death!",
-	"desires you to know that you face a mighty champion of yore!",
-	"demands that you prove your worthiness in combat!",
-	"calls you unworthy of your ancestors!",
-	"challenges you to a deathmatch!",
-	"walks Middle-Earth once more!",
-	"challenges you to demonstrate your prowess!",
-	"demands you prove yourself here and now!",
-	"asks 'Can ye face the best of those who came before?'.",
-	"challenges you to a fight to the death!",
-	"wails 'These halls shall claim your life as well!'",
-	"begs you 'Free me from this cursed form!'.",
-	"whispers 'Those who perish here shall find no rest'.",
-	"boasts 'You won't leave this level alive!",
-	"wishes to claim your soul!",
-	"declares 'You will join me in this tortured afterlife!'",
-	"proclaims 'Prepare to fight your last battle'",
-	"bellows 'Your adventures will end here!'",
-	"dares you to proceed further!",
-	"wants to collect your bones!",
-	"yells 'Now you shall meet your undoing!'"
-};
-
-
-
-
-/*
- * Personalize, randomize, and announce the challenge of a player ghost.
- */
-void ghost_challenge(void)
-{
-	size_t i;
-
-	/* No active player ghost template */
-	if (player_ghost_num < 0) return;
-
-	/*paranoia*/
-	/* Check there is a name/ghost first */
-	if (player_ghost_name[0] == '\0')
-	{
-		/*Make sure the name has been created*/
-		prepare_ghost_name();
-	}
-
-	i = randint0(NUM_GHOST_CHALLENGES);
-
-	msg_format("%^s %s", player_ghost_name, do_cmd_challenge_text[i]);
-
-	message_flush();
-}
 
 
 /*
@@ -3510,8 +3456,7 @@ void do_cmd_quest(void)
 	/* Check if you're on a quest */
 	if (guild_quest_level() > 0)
 	{
-
-		/* Completed quest */
+ 		/* Completed quest */
 		if (guild_quest_complete())
 		{
 			msg_print("Collect your reward at the guild!");
@@ -3533,7 +3478,6 @@ void do_cmd_quest(void)
 	}
 	/* No quest at all */
 	else msg_print("You are not currently undertaking a quest.");
-
 }
 /*
  * Encode the screen colors

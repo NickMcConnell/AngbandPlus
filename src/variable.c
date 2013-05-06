@@ -760,7 +760,6 @@ char *e_text;
  * The monster race arrays
  */
 monster_race *r_info;
-char *r_name;
 char *r_text;
 
 
@@ -971,12 +970,16 @@ ang_file *notes_file;
  /* Two variables that limit rogue stealing and creation of traps.
  * Cleared when a level is created. {From Oangband} -JG
  */
-byte recent_failed_thefts;
 byte num_trap_on_level;
 u16b altered_inventory_counter;
 bool allow_altered_inventory;
 
 
+/*
+ * For summon spells, which summon spells have failed on levels where summoning is restricted
+ * to current level monsters and respawning is prohibited.
+ */
+u32b dungeon_summon_mask_f7;
 
 autoinscription* inscriptions = 0;
 u16b inscriptionsCount = 0;
@@ -1070,6 +1073,12 @@ u16b quest_indicator_timer = 0;
  * Remember what is being displayed on each row on the side of the screen.
  */
 int sidebar_details[SIDEBAR_MAX_TYPES];
+
+
+/*
+ * Remember what is being displayed on each row on the side of the screen.
+ */
+int sidebar_monsters[SIDEBAR_MONSTER_MAX];
 
 /*
  * It's TRUE if the player won a quest.

@@ -4055,6 +4055,9 @@ K:451:0x86:0xA2
 #  [Nature's Fury]
 K:452:0x86:0xA3
 
+#  Faded Scroll Fragment
+K:453:0x87:0xcc
+
 #  S:{Color #}:{Ball row}:{Ball Col}:{Bolt row}:{Bolt Col}
 
 #  TERM_DARK

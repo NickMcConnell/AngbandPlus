@@ -348,7 +348,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -527,7 +527,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (desc_short) return (format(""));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -540,7 +540,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Spear of Light");
 			if (desc) return (format("Fires a line of weak light.  %dd%d hp damage for light-hating creatures.", dice, sides));
-			if (desc_short) return (format("dam %dd%d.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				msg_print("A line of blue shimmering light appears.");
@@ -679,7 +679,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				(void)sleep_monsters(damroll (2, p_ptr->lev));
+				(void)sleep_monsters(damroll (3, p_ptr->lev));
 			}
 
 			break;
@@ -885,7 +885,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				teleport_player_level(SOURCE_PLAYER);
+				if(!teleport_player_level(SOURCE_PLAYER)) return (NULL);
 			}
 
 			break;
@@ -913,7 +913,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				set_recall();
+				if (!set_recall()) return (NULL);
 			}
 
 			break;
@@ -992,7 +992,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 			if (name) return ("Plasma Bolt");
 			if (desc) return (format("Fires a bolt or beam of plasma for %dd%d hp damage.", dice, sides));
-			if (desc) return (format("dam %dd%d", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)
 			{
 				fire_bolt_or_beam(beam, GF_PLASMA, dir, damroll(dice, sides));
@@ -1311,7 +1311,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dam = 280 + (plev * 4);
 			rad = 3;
 
-			if (name) return ("Darness Storm");
+			if (name) return ("Darkness Storm");
 			if (desc) return (format("Fires a radius %d explosion of powerful darkness for %d hp damage.", rad, dam));
 			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
@@ -1568,7 +1568,7 @@ cptr do_druid_incantation(int mode, int spell, int dir)
 			if (cast)
 			{
 				/* Teleport */
-				if (!native_teleport_player(dam)) return (NULL);
+				if (!teleport_player(dam, TRUE)) return (NULL);
 			}
 
 			break;
@@ -1877,15 +1877,13 @@ cptr do_druid_incantation(int mode, int spell, int dir)
 		case DRUID_ELEMENTAL_BRAND:
 		{
 			cptr extra = "";
-			dur1 = 5;
 			dur = 10 + p_ptr->lev / 2;
 
-			if (!p_ptr->timed[TMD_SLAY_ELEM])
+			if (p_ptr->timed[TMD_SLAY_ELEM])
 			{
 				dur = 5;
 				extra = " extra";
 			}
-
 
 			if (name) return ("Elemental Weapon");
 			if (desc) return (format("Temporarily makes your weapon glow with elemental brands for %d%s turns.", dur, extra));
@@ -2140,7 +2138,7 @@ cptr do_druid_incantation(int mode, int spell, int dir)
 			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -2154,7 +2152,7 @@ cptr do_druid_incantation(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				set_recall();
+				if (!set_recall()) return (NULL);
 			}
 
 			break;
@@ -2674,7 +2672,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -3355,7 +3353,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -3371,7 +3369,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc_short) return (format("range %d", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				teleport_player(dam, FALSE);
 			}
 
 			break;
@@ -3397,7 +3395,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				teleport_player_level(SOURCE_PLAYER);
+				if(!teleport_player_level(SOURCE_PLAYER)) return (NULL);
 			}
 
 			break;
@@ -3411,7 +3409,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (desc_short) return ("");
 			if (cast)
 			{
-				set_recall();
+				if (!set_recall()) return (NULL);
 			}
 
 			break;

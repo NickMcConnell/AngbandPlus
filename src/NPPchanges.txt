@@ -1,0 +1,1455 @@
+
+NPP 6.1.0 changes:
+Special artifacts are no longer offered as quest rewards.
+Increase the potential bonus from deferred rewards by 50%.
+Added help file descriptions for the new quest rewards.
+Adjusted Ancient blue, green, and white dragons to 65 spellower (down from 100).
+Added more appropriate messages for when breathing monsters use beam attacks.
+The object selection menu now includes object weight.
+Revised the scale for guild reputation and player titles based on new quest system.
+Bugfix: Typos on the mage darkness storm name and plasma bolt spell short description.
+BUgfix: The druid spell elemental weapon only lasted for 5 turns.
+Bugfix: The guild sometimes offered dungeon spellbooks the player already has seen.
+Bugfix: Objects created and rejected as potential guild rewards still counted towards the total rewards offered.
+Bugfix: Removed obsolete reference to old store inventory system.
+Bugfix: The guild sometimes overwrite bookstore inventory when generating rewards for players 
+        with a very high flayer fame, causing the game to crash when the bookshop inventory was shuffled. 
+Bugfix: Fix inconcistencies of telling players about objects theyare not aware of yet.
+Bugfix: Unidentified flavored special artifacts were not dislaying thier flavors.
+Bugfix: The game sometimes set up a quest below max depth (6400').
+Bugfix: Monster messages were sometimes coming in the wrong order (The monster attacks you.  The  monste wakes up.)
+
+NPP 6.0.0 Changes: 
+Broke savecompatibility with NPP 0.5.4.
+Changed numbering system to indicate from 0.6.0 to 6.0.0, to indicate NPP is a finished and fully playable game.
+Revised Mimic Code
+Changes to the savefile structure.
+Player ghosts can only appear at dungeon creation.
+In Wizard mode, editing a character now gives lets the player to edit player fame as well.
+New mimic monsters.
+Changed some of morgoth's flags : removed teleport_to, added teleport_away and native_water.
+Multiplied the scale of player fame by a factor of 10.
+Added Servants of the valar pits, nests, and themed levels.
+Made "wakes up" and "stirs a blended monster message.
+Removed redundant save of the "call hourns" timer to the savefile.
+Completey revised player ghost code - should eliminate the savefile issue with Macintosh savefiles with an active player ghost.
+Added Rob Fiala as a permanent player ghost template (drew countless NPP unique tiles for the 32x32 tileset).
+Bugfix: The player ghost name was cut short to 3 letters.
+Scrolls names are now made by the random name generator rather than the old "scroll syllable" table.
+Added new wizard mode command to know everything about every object kind, monster race, and feature.
+Updated DVG tileset to Rob Fiala (buzzkill)'s U32 Tileset.
+Sorted flavors.txt, along with the corresponding flvr pref files.
+Eliminated function from util.c that did not work properly on the MAC port.
+Wilderness level quests.
+Arena Level quests.
+Major cleanup of the quest code.
+Potions, scrolls, and food, including mushrooms, now have a chance of appearing in multiple quantities.
+Two new quest rewards - permanent stat increase and permanent stat augmentation.
+New wizard command to give information on quest status (more info than cheat).
+Quest rewards are now generated when the quest is chosen in the guild, and the player chooses their quest reward from a menu after they complete the quest, rather than the game trying to figure out the best reward for the player.
+The player may defer their quest reward if they don't see anything good, and instead enhance thier next quest reward choices.
+Bugfix: The character screen was not properly showing object resistance and immunitiy flags for the player equipment and home.
+Bugfix: Normally rings and amulets were cursed too frequently.
+Added 3 new spells:  Meteor ball, Gravity bolt, and Lava Beam.
+Added 8x8 tiles for all servants of the valar, adamantite, and all mimics.
+Added two more patterns for the monster in the "pit" rooms.
+Eliminate GTK and X11 ports
+Added labrynth levels (from Angband 3.4).
+Added labrynth quests.
+Bugfix: Fix html screenshots so they wrint default ASCII when when in tiles mode.
+Monsters now can be summoned on levels where it was previously restricted, but limited to monsters currently on the level.
+Added greater vault levels.
+Added greater vault quests.
+New makefile.osx.
+Made cloaks of aman more common (rarity of 16 to rarity of 8).
+When studying or casting, the player is now only offered books with spells they can cast or study.
+Fix multiple bugs in the randart code (reported and fixed by "runningaway")
+New function for teleporting the player and teleporting away monsters.
+Added new object, Faded Scroll Fragment, for use in labrynth quests. 
+Stat gain potions can be good or great quest rewards at the lower depths.
+Added message for when a putrid flower the player cannot see fires at a player.
+Bugfix:  Fixed a misspelled word in the descriptions for the Servant of Tulkas and Greater Servant of Tulkas.
+Bugfix: Traps couldnt be disarmed if the player was standing on a disarmed chest.
+Bugfix:  Non-spellcasters were sometimes getting spellpoints.
+The message verifying a command now specified the action (eg really quaff that potion?)
+Add monster character to targeted monster display. (patch by Runningaway).
+Fixed some instances of functions that, when searching all squares around a certain square,
+was referencing the wrong table, causing it to ignore the down direction and downard-left direction.
+Quest monsters standing in dangerous terrain get teleported off.
+Bugfix:  Player sometimes regenerated hp after dying.
+
+
+NPP 0.5.4 changes:
+The edges of the detected trap areas now show up onscreen.
+DVG tileset - added tiles for many objects, flavors, terrains, monsters, allspells, and bolt spells (by Buzzkill, Jeff Greene, and Thacker).
+Expanded colors are now used when spells are cast by the monsters and player.
+During targeting, modified how the path is drawn.
+DVG tileset - epanded tile support for ball spells and bolt spells.
+Deleted files supporting Nintento DS, Amiga, and RISC-OS operating sytems.
+Changed the message a player gets regarding the weight of armor reducing the player's mana.
+Changed the message a player gets when they are holding a sling/bow/crossbow that is too heavy.
+Added birth option for simple, Vanilla Angband dungeon generation.
+Added FAAngband-style mouse support.
+Rename fixed monster quests to Guardian quests.
+Increase Morgoth's spellpower and percentage.
+Give Morgoth the teleport_self_to spell.
+Removed Potions of Heroism and Scrolls of Holy Chant from the "infinite stock" list.
+In the object knowledge menu, the categories now have plural names.
+For the druid "clear area" spell, the cleared area and borderinging walls now light up during casting. 
+The druid spell stone to mud is now 4 mana to cast.
+The druid spell clear area is now 9 mana to cast. 
+Change the colors of some spells (electric bursts, spores).
+Made most of the lizards, frogs, and snakes cold-blooded.
+Made the spirit troll cold-blooded.
+Add terrain for a town floor.
+Many files added to assist compiling in Linux.
+Modify colors in the GCU port
+Moved the menu for picking up items off the floor to the standard mouse dirven menu.
+Additional mapping for the 8x8 and 16x16 tilesets.
+Modify the colors for the drawn target path inside the targeting menu.
+Firing cursed ammo now has a 70% chance to hurt the player.
+Added buzzkill as a shopkeeper in the black market.
+Changes to how compact objects works.
+When holding, the game only picks up everything if the always_pickup option is true.
+Bugfix: Equipment and itemlist windows were not updating properly when the player was in a store.
+Bugfix: There was a playtesting message when examining a store service.
+Bugfix: Player ghost templates were not saving properly when a player died.
+Bugfix: Several of the player ghost templates were defective.
+Bugfix: Teleport level allowed the player to bypass a guardian (fixed monster) quest.
+Bugfix: The player was allowed to keep a never ending supply of magic books in the home.
+Bugfix: A throwing weapon that had been in the quiver couldn't be wielded again.
+Bugfix: The jet black amulet was being shown with a blue colored tile.
+Bugfix: Fixed several bugs regarding replacing a quest monster that has not been killed by the player.
+Bugfix: In the object knowledge menu, Dragon shields and Druid spellbooks now appear in the right order.
+Bugfix: In the object knowledge menu, a section has been added for chests.
+Bugfix: The druid spell "create elements" now creates native terrain below the player as well.
+Bugfix: Stunned and confused monsters were prevented from walking into terrain that caused them damage.
+Bugfix: Keyboard navigation in the windows submenu was broken.
+Bugfix: The tombstone screen was not centered properly.
+Bugfix: The game could crash with more than 256 objects laying on the floor.
+Bugfix: When opening or disarming 2 chests in a stack, the first one was automatically picked instead of giving the player a choice.
+
+NPP 0.5.3 changes:
+Reinstated the menus allowing the player to edit visuals and tilesets for monsters, terrain, flavors, and objects.
+Many updates to the help files.
+Bugfix:  The store help file incorrectly indicated you could purchase an item using the enter key.
+Incorporated changes from current Angband that should get the extended characters working on MAC compiles.
+Object weight is shown when an object is examined.
+Vault quests are now available 1/3 of the time.
+Bugfix:  Vault quests were still not working.  This should be fixed.
+Casting mass identify now squelches the whole pile, instead of just items set for a quality squelch.
+Items in a store marked to "keep in stock" now always have a quantity of 99, even when some are purchased.
+In order to trigger a buyout of store inventory, items that are permanently kept in stock don't have to be purchased.
+Fixed a typo in the no_player_ghosts option on the option screen.
+When targeting, the list of floor items displays automatically with the auto_show_lists option on.
+Wizard mode:  Added a command "M" to create 15 random items.
+Wizard mode:  The 'i' command is now mass_identify instead of identify.
+Added descriptions for store services to the help documentation. 
+While in the guild, when the player examines a quest or service, the appropriate section of the help documentation will load onscreen.
+A message now displays when all forms of the remove curse spell is cast. 
+Removed all references and code related to the Angband borg.
+Bugfix:  Sometimes a single object was being picked up regardless of the pickup and quelch settings.
+Bugfix:  The quest status indicator was displaying Morgoth at level 100 as the active quest insteat of the current guild quest.
+Bugfix: the store_no_selling option where gold in the town was incorrectly calculated.
+Added birth_connected_stairs option for people who don't want connected stairs.
+Added store_no_selling option where all items purchased by stores are for 0 gold, and gold drops are 5 times more valuable.
+Rogues no longer have the cure light wounds spell.
+Allows the player to run through more types of terrains without being interrupted.
+Monsters waking up from sleep are also cleared of hasting, slowing, confusion, stunning, and fear.
+Themed levels are limited to 3 uniques per level.
+Added the run command to several more floor terrains.
+Bugfix: birth_no_store_services and birth_no_quests weren't working.
+Bugfix: The flag that marked a quest as active wasn't working properly.
+Bugfix: Some deep pit and nest quests were using easy room themes for their depth.
+Bugfix: The help files gave the wrong command for rogues and brigands setting traps.
+Bugfix: DUring targeting, sometimes a nonsense path was being drawn.
+Bugfix: Fixed a memory leak with the temp_y and temp_x arrays.
+Updated creates elements spell provided (Diego).
+Bugfix: The previous commit corrupted savefiles and made them unplayable after the first use.
+Bugfix: In several instances in the source code, the monster list window wasn't being re-drawn due to a typo.
+Changed the color of monsters who breathe time to pink.
+Added the flicker_monsters option to shimmer monster color with attr_multi when game is idle.
+Bugfix:  Artifacts printed in the notes file did not have the appropriate prefix (ex. "The").
+Added the ATTR_MULTI flag to most of the great wyrms.
+Added some of the new vaults from Angband 3.2.
+Updated a couple of the file handling functions to the new ones in ANgband 3.2 to eliminate a compiler warning.
+Increased the number of shades a monster can flicker with the ATTR_MULTI flag.
+Bugfix:  A mushroom of blindness poisoned instead of blinds.
+Bugfix:  When the player left a monster quest level, quest failure was happening far too frequently.
+Bugfix:  The player could duplicate ammunition with certain inscriptions.
+Bugfix:  The note that a player left a level without entering a greater vault
+         gave the wrong depth (The depth was only correct if the player was using word-of-recall).
+Gave Azathoth the teleport_to and teleport_player_to spells again, changed its color to violet.
+Added fixed monster quests as a guild quest option.
+Vault quests are now available 25% of the time. Previously it was when the player fame is equally divisible by 7.
+Changed p_ptr->depth to a function call effective_depth to help quickband stay current with the NPP codebase.
+Added the druid spell "create elements".
+Added files by Brian Bull that assist in compiling with Visual C++ 2008.
+Bugfix: Savefiles were prevented from loading properly on the Mac OS when a player ghost was active.
+Bugfix: Savefiles did not properly save some of the quest status flags.
+Bugfix: The game could crash if a new character goes into a shop, views an ego-weapon, leaves the shop, 
+        starts the knowledge menu, and looks at the ego. (fixed by Brian BUll)
+Bugfix: The detect_monsters_evil function returned "true" if there isn't a monster on the square. (fixed by Brian BUll)
+Bugfix: The sleep monster spell only worked for one turn.    (fixed by Brian BUll)
+Bugfix:  Squelch settings could be used to identify objects. (fixed by Brian BUll)
+Bugfix: Monster breath damage sometimes incorrectly determined monsters were the same race or similar.
+Bugfix: Monsters in pit/nest quests killed that aren't killed by the player are now replenished somewhere on the level
+        Also, the replacement monster can't be a unique.
+
+
+NPP 0.5.2 changes:
+Added a flag to monster_type "project" to indicate when the monster is in projectable los to the player.
+Fixed a typo in the message when the player gets their constitution drained by a GF_TIME attack.
+Fixed a bug causing memory leak when a savefile is loaded.
+Fixed a bug that caused probing not to work.
+Fixed a bug that prevented the disturb_near option from working.
+Changed monster AI so monsters will have the option to breathe when the player is in line of sight.  Previously they
+only breathed with clear LOS and with no other monsters in the way.
+Reduced the amount monster breaths dissipate with distance.  100% damage now goes out about 8 squares (instead of 5), 
+and it dissipates at a lower rate.  20 squares away, the damage is around 40% and was previously around 25%.
+Added checks to reduce or eliminate splash damage from monster breaths and ball spells for uniques, quest monsters,
+monsters of the same race, or of the similar race, or for monsters who breathe the same types of breaths.
+Slightly changed how monsters handle being attacked when damaged by the player when the 
+player is out of LOS.
+Made changes to the makefiles to make it easier to compile for MAC.
+Added a routine that ensures there are always enough monsters on a themed level quest.
+Added project files for MS Visual C++ Express (Created by Brian Bull)
+
+
+NPPAngband 0.5.1 changes:
+
+When killing a quest monster, the update of how many creaturess remain to be killed occurs after the notification that the creature was killed.
+Slightly changed the chances of gold and good quest rewards.
+Made digging easier, so it is roughly the same probability of success as vanilla.
+TO eliminate unfair deaths, the minimum size quest level is roughly 2/3 the size of a full size dungeon.
+Player Ghost mummy template now has the resist cold flag.
+Weak Pdeudo-id now senses average items.
+Pseudo-id now identifies average items.
+Implemented the new Angband monster list window format.
+Implemented the new Angband monster object window format, and separated the items the player
+is standing on to appear first.
+Examining a weapon gives a more detailed description of the damage per attack.
+Detection is now based on a set circular range rather than screen size.
+The monster health bar now indicates whether the monster is hasted, slowed, or afraid.
+For both players and monsters, being native to certain terrains can reduce the damage and side effects from magic attacks.
+When a glyph of warding spell fails, the message now specifies the reason the plyph can't be created.
+Morgoth has more monster mana.
+The the first possible quest is available at 100' instead of 50'.
+Monsters are mure succeptable to sleeping, stunning, confusion, and it should be more useful.
+The minimum depth for a nest/pit quest is now 400'.  The minimum depth for a level quest is 800'.
+The recharge amount on rods and wands are proportional to the amount of charges on a wand/staff at creation.
+Smart traps are created with their timer set to a minimum of 3, to give the player time to react.
+Re-named Medium dragon armor and shields to "mature" to be more consistent with the dragon names.
+Changed how player fame is scored and scaled to quest rewards and guild titles, as well as the likelihood of quest reward types.
+When the player is on a stronghold level, to avoid player instadeath the monster spells "teleport player to" and "teleport player away" are disabled.
+Increased extra randarts power, as well as their rarity.
+Monster list is no longer hallucination-proof
+Changed frequency of various powers on randarts.
+Reduced frequency of lingering cloud effects (smoke, nexus clouds, etc)
+Added a store service to purchase a scroll of mass banishment.
+For undead themed levels, cut the number of monsters in half, and reduced the max_depth of the monsters by 2.
+Greatly reduced the amount of monsters that have the cloud_surround feature.
+For the druid spell clear_area, the cleared area is now considered a room, so the light area spell will light the entire cleared area.
+Knowledge screen and character screen now indicate whether the player is native to boiling mud and boiling water.
+Status screen indicated whether the player is hasted or slowed, and if they are native or non-native to terrains.
+The character screen now gives numberical values for saving throw, searching, searching frequency, magic device usage, and disarming.
+Slightly reduced combat abilities of the rogue class.
+Made the following changes for calculating critical hits from fighting:
+*Replaced character level with fighting ability as a factor in calculating their frequency and severity.  
+(In general, the three pure spellcasting classes (priest, druid, mage) will get less of them, and the other 5 will get more.)
+*Critical hit multipliers now increase the damage dice and sides of the weapon, before the damage is calculated.
+*For Combat Critical hits, the damage is calculated twice, and the higher value used.
+Removed the teleport_to and teleport_self_to flags from Azathoth.
+teleport_to and teleport_to_player now use 150 monster energy instead of the standard 100.
+Increased fame boost for level quests.
+Increased the rewards for level quests.
+Increased number of items generated for tailored and great quest rewards.
+Greatly increased the drops from monsters in stronghold levels (including quests).
+Gold stolen by monsters is now stored in their inventory.  
+Changed the way the possibility for store altered inventory is calculated.
+Player gets fame increase for all uniques killed, not just out-of-depth ones.
+No energy is used When the player fails to attack due to being scared. 
+Bugfix:All Servants of valar now have treasure drops. (reported by Anssi Ramela)
+Bugfix:  The temporary chance of the stores selling unusual inventory now saved in the player savefile.
+Frequency of unusual inventory in the stores increased.
+Fixed a type in the quests helpfile (reported by cameron)
+Druid haste spell, when player is already hasted, property adds 5 to the counter instead of 1d5. (bug reported by Pete Mack)
+Certain mimics now have suceptabilities to cold and fire.
+added some more flavors for rods/wands/staves/potions/jewlery
+reduced chance for a randart to aggravate
+Fixed a bug that caused the game to crash occasionally when a light red rune cast a nexus ball.
+divided up the defines.h into several sub-files, such as object.h, player.h, terrain.h.
+On the sidebar, separated quest indicator from the depth indicator.
+Made the quest indicator more detailed.
+Added a level feeling indicator.
+Updated the NPP code base from Angband 3.0.6 to Angband 3.1.2v2.  
+Reduced power of the druid spell "Ulmo's wrath".
+Removed many unused options.
+Added itemlist window (from Angband).
+All items viewed in stores, including flavored items, become identified.  This means players learn the flavor of potions/scrolls, etc...from viewing the item in a store.
+Added a separate quality squelch setting for the best items (maces of disruption, mithril armor, etc)
+Fixed a bug that gave the player less fame than intended for level, pit, and nest quests.
+Player no longer gets a fame increase if a unique is killed by another monster.
+
+
+Other changes from Angband versions 3.0.7 through 3.1.2v2 include:
+
+Player's starting equipment and inventory marked as seen.
+New splash screen
+experience to next level always displayed until clev50 
+Mouse support a la FAangband added, but nowhere near as advanced or useful. Most of the menus you encounter can be selected using the mouse now, as well as using keypresses. Clicking somewhere on the map will now "walk" there, within certain constraints. It's a tad bizarre in the town, but seems to work OK otherwise. 
+Sangband-style object handling, which makes it much easier to sift through things in the dungeon. 
+get 'h' work in stores with the roguelike keyset. 
+Allow use of objects from the floor when blind. 
+Fix obviously wrong code in main-gcu. (William McBrine) 
+Aways cast to (unsigned char) for the islower(), isdigit(), etc functions 
+Fixed Windows bug where you can't move one of the font files after having played a game this reboot. (Thanks to Leon Marrick.) 
+Modernize Mac support; now works on OS X 10.3 onwards, but the old main-mac has been removed, as has the MPW makefile. (Pete Mack) 
+Remove hardcoded values for p_ptr->noscore. 
+Use tables of commands instead of a big switch, to allow doing thing like the new command menu easily without duplication. (See cmd0.c.) 
+Use C99 types where appropriate (for bools and ints). 
+Replace various magic numbers with constants or N_ELEMENTS(). (Hallvard Furuseth) 
+Move lots of things out of defines.h to more appropriate places, like h-basic.h and config.h. 
+Use the safer string handling functions much more; the only use of the "unsafe" built-ins are in the various main-* files. 
+Clean up file locking, move file handling functions into z-file.c, remove usleep() function, add a "portable" directory scanning interface (works on Windows and Unixes at the moment), and my_fexists(). 
+Combine the various h-*.h files into a single header file; remove a lot of cruft, use C99 types when available, 
+Removed trivial-to-hack-around or non-functional compile-time options (VERIFY_SAVEFILE, _TIMESTAMP, and _HONOR, CHECK_TIME).
+Considerably simplify and speed up main-gcu.c. (Thanks to Christer Nyfalt.) 
+Use a new autoconf/automake system, called OMK. 
+Timed player modifiers (blind, confused, etc.) are now kept in an array, rather than being seperate variables in p_ptr. This simplifies a lot of code, and makes it trivial to add new effects. The majority of the work was done using sed scripts.
+The status line, sidebar, and term window update code is much more streamlined. 
+Nuked a lot of old ports: cap, lsl, sla, xpj, ibm, dos, vcs, lfb, ami, emx, vme. 
+As a result of the above, makefiles considerably simplified. As many makefiles as possible use a common list of source files in "Makefile.src", which simplifies maintainance. Makefile.std has also been rewritten and contains much less cruft. 
+A powerful generic menu interface has been added and used throughout the code. It reduces code duplication and makes it much much easier to create menus in various styles; e.g. scrolling or multicolumn. See ui.c. 
+Event handler added. (Menus can listen to each other, etc.) 
+Lots and lots of code duplication removed: 
+Major code cleanup 
+Most of the cleanup has been related to removing ancient or non-functional cruft. 
+"Enter" key brings up a little window in the middle of the screen, from which you can select what command you would like to use. This is inspired by (but not derived from) Hengband. Don't like it? Macro "Enter" to " ". 
+Semi-rewrite of the store code; now uses a scrolling menu with a slightly more streamlined interface. Bigscreen support in stores. Ammo is treated in more aesthetically pleasing quantities. General Store always stocks what it stocks now, and doesn't buy anything back off the player. 
+Resizing the game window automatically updates its contents, on platforms which support this. 
+Mouse support a la FAangband added, but nowhere near as advanced or useful. Most of the menus you encounter can be selected using the mouse now, as well as using keypresses. Clicking somewhere on the map will now "walk" there, within certain constraints. It's a tad bizarre in the town, but seems to work OK otherwise. 
+Score code moved to score.c and extensively refactored. 
+Move to using randint0() and randint1() for random numbers. 
+Use header file guards in all header files, and use a consistent naming scheme for them ("Elly") 
+"make -f Makefile.inc depgen" will output "Makefile.new", which then contains up-to-date dependencies for the project. 
+Remove a whole load of useless or unused configuration options from config.h. 
+Set up an event system for UI display updates, where the game communicates with the UI by sending messages saying that something's changed that the UI might be interested in, rather than deciding that specific things should be redraw. The main screen updates all use this system now. Amongst other things, this system should help things like the borg and graphical frontends, because they can hook right into changes in state. (#348) 
+Additionally, a new file API has been introduced which combines the previous mishmash of fd_*() and my_f*() calls into a simpler, better documented interface. (#137) 
+"Elly" rewrote the message and quark packages, previously in util.c, and in the process split them out into their own z- files. The z-msg package is now much more understandable but marginally less "efficient", and certainly less "optimised". 
+Memory handling has been reviewed. Now, all code should assume that allocation will succeed, just like it did already. There is also a realloc()-style function along with its own hook. string_make() has been modified to no longer return a "const char *", and so all the code now only uses "const" when it means "const". Some macros have been removed. 
+A lot of code-level cleanup has been applied to this release, much of it still in flux. Many new files have been split out of existing files, which should now have much more self-explanitory names. 
+OS X: the OS X version is now a universal binary, and runs faster, better, quicker, and with more sound than before. (Rowan Beentje) 
+Code-level 
+Rewrite the rules for shopkeepers 
+Remove individual-shopkeeper and race-based price changes from the store code, to make it easier to balance pricing. 
+?Adjust adj_chr_gold[] values upwards to represent the average-110% inflation usually applied by the individual-shopkeeper greed values. This should really be applied to the object.txt file instead, though. 
+Make point-based points worth less gold. 
+Minimum starting gold is 200AU. 
+Add an option to start the character with 500AU but no equipment. 
+Point-based character generation is now equivalent to best available from the autoroller. (Eddie Grove)
+Windows versions now use hashes and percent signs for walls until there's time to sort out all existing fonts to be Vista-compatible. (#232) 
+Tell the payer when timed effects increase or decrease as the result of effects. (idea by Eddie Grove) 
+Death menu now uses a scrolly menu. 
+Ensure that store-bought and birth-given torches have the same number of turns for stacking purposes. 
+Remove the "depth_in_feet" option, instead displaying both the dungeon level and the depth everywhere. 
+Add how many items the player already has when buying something at the store. (closes #151) 
+Add a trap detection indicator. Also, colour the edges of trap- detected areas green. (#19) 
+Add EyAngband-style quickstart option. 
+Significant work on making the game more command-based than keypress-based 
+Add Word of Recall status to the status line. 
+Remove the autoroller 
+Stop displaying two highscore entries for dead characters. 
+Reset social status to original value with quickstart 
+Fix inventory/equipment and message update in store. 
+Throughout the source code, changed the spelling of "lite" to "light".
+
+
+NPP050
+
+New features:
+New Mage spellset by Anssi Ramela
+Implemented UnAngband terrain system, including many different terrain types, 
+dynamic terrain that changes over time, effects (temporary dungeon events that
+can last more than one turn).
+Themed terrain dungeon levels.
+Implemented new monster movement code.
+Added support for monsters to be susceptible to fire and cold.
+Made many monsters susceptible to fire and cold.
+Added 6 new vaults (5 designed by Roger Barnett)
+The symbol for Azathoth is now a jelly “J” instead of a demon “U”.
+Explosion and poison traps can affect the player as well.  The damage for these 
+   traps has been doubled.
+Oangband Quiver System
+A new player class, the druid, that emphasizes nature based attacks and defense.
+The ranger now uses spells from the druid class spellbooks.
+5 user interface patches provided by Pav (of angbang.oook.cz).
+A new book shop where magic and prayer books are sold.
+Removed hydra pits and nests.
+Updated 'graf-dvg.prf' tileset provided by "Damaniel" from the NPP Fan site.
+The latest of Leon Marrick's Project spells from Sangband.
+Updated and more sophisticaned monster movement code, in order that the monsters
+can move through all this new terrain in a sensible manner.
+Terrain lore and memory, to help the player understand all the new terrain types.
+8-bit character patch so non-ascii characters may be displayed.
+Fractal rooms and pools.
+Big-screen support for stores, knowledge screens and squelch menus
+Messages in color
+Monster messages from projection spells displayed by race.
+Stat sustains and hold life causes information to be displayed in different shade of green on main screen.
+Wall inscriptions for the player to read.
+2 new types of quest rewards - increase in max hit tpionts and increase to permanent speed.
+Certain Monsters can fly through the dungeon.
+Player can fly with the right type of magic.
+Object generation history displayed with the object description (taken from EYAngband).
+Better autoinscription support
+Some code cleanup in squelch.c
+Pattern substitution for inscriptions and autoinscriptions. Patterns are :all: and :random:
+Wall inscriptions and messages (suggested by Andrew Doull)
+Improved disturbance for monsters who can pass through or kill walls
+Added a quest indicator
+Monster list window is sorted by monster depth now
+Improved disturbance when monsters dig walls or bash/open doors
+Darkness effect on the dungeon floor (example: Nazgul aura) now disturbs the player (only in LOS)
+Code cleanup in project_m (removed duplicated code and mimicry code)
+Increased the frequency of iron shots.
+Gave the ring of tulkas combat bonuses for to-hit and to-damage.
+Improved how monsters act right after they are scared.
+Gold can merge with other gold while being dropped.
+Updated Monster list (by Anssi Ramela)
+New Druid class
+Imported the UNangband terrain system.
+Effects (spells that can last for a set duration)
+
+
+Added most changes from Angband 3.0.6, namely:
+- Renamed the artifact short sword 'Gilettar' to 'Dagmor' since that
+  name is mentioned for the sword of Beren in Tolkien's notes.
+  (suggested by Tyler Witter)
+- Added a new type of subwindow for displaying the dungeon area around
+  the player.
+- Added a new subwindow type "Display player (compact)" that displays
+  the left-hand-side of the main term (player stats, hitpoints, gold,
+  ...) in a separate window.
+- Added a new window type that displays the info from the status line.
+- Turned the "scroll map while targetting" option permanently on.
+- Identified scrolls can now look different from unidentified ones.
+  This allows the use of the individual scroll tiles created by David
+  Gervais.
+- Use actual monster and object symbols instead of a list of hardcoded
+  symbols when hallucinating.
+- Added Craig Oliver's Sound FX Patch version 1.1 that adds about 120
+  new sound events to the game.  COding Support for this feature only.  
+  The actual sound files are not included as the origin and conditions 
+  of use for these sound files were not certain.
+  (see also http://www.chambrook.org/angband/soundfx.php)
+- Scroll the map when the player is 1/4th of the visible grids away from
+  the edge of the map display.
+- Allow the OS X version to be started from a read-only medium, for
+  example from a disk image or a central installation under
+  'Applications'.  All user-specific files like savefiles, scores,
+  char-dumps, and saved preferences are stored in
+  'Library/Preferences/Angband/' and its subfolders inside the user's
+  home directory.
+- The Mac OS X application bundle now includes all the necessary files
+  from the lib folder.  The separate lib folder in the distribution is
+  no longer necessary.  This means that the OS X version can now be
+  installed by simply dragging the application icon to the target
+  directory.
+- The OS X version would crash when changing the sound or graphics
+  options before a character was created or loaded. (reported by Patrick
+  Hughes)
+- Don't save the Mac OS X preferences on exit if the game hasn't been
+  initialized properly to prevent corruption of the preference file in
+  case of an error at startup.  Skip loading the preference file if it
+  is broken. (problem reported by Matt Stone)
+- Include the basic Angband sound files per default in the OS X version.
+- Made the tile size independent of the font size in the X11 version.
+  Store various window settings like the window size between sessions.
+- Don't add a hardcoded 'games' subdirectory to the installation path on
+  multi-user machines.
+- Allow all user created files to be saved in subdirectories under
+  ~/.angband/Angband/ when PRIVATE_USER_PATH is defined.
+- Allow the use of the 'vcs' display module on systems with devfs-style
+  '/dev/vc/*' terminals.
+- The virtual console (vcs) front-end does now implement cursor
+  visibility and bigscreen support.  (Alexander Ulyanov)
+- Enable cursor visibility in the "gcu" front-end on Linux systems.
+  (Alexander Ulyanov)
+- Fixed a bug in the Xaw frontend, which made Angband crash if the main
+  window geometry was specified as an X resource. (Alexander Ulyanov)
+- Make X11 frontends show floors as centered dots, walls as blocks, and
+  treasures as diamonds. (Alexander Ulyanov)
+- Removed the restriction of bigtile mode to the main window in the X11
+  version.
+- Added Alexander Ulyanov's Linux framebuffer display module from:
+  http://posband.earthsea.org/misc/angband-lfb-20050220.tar.gz
+- Added compile instructions for MinGW/MSYS on Windows. (Tuomas
+  Härkönen)
+- Added compile instructions for gcc on Mac OS X.
+- Fixed a stupid bug that could cause the game to hang or crash when
+  killing quest monsters near the edge of the dungeon. (Ivan Tuckwell
+  and Dr. Andrew White)
+- Added missing tiles and tile assignments for the 32x32 tiles. (Ivan
+  Jekic and David Gervais)
+- Refresh the list of visible monsters after (Mass) Banishment,
+  Earthquake, and Destruction spells, when using the 'delete nearby
+  monsters' function in debug mode, as well as when pressing Ctrl-R.
+  ("Twilight")
+- Don't try to write zero-length blocks when saving the lib/data/*.raw
+  files. (suggested by Juha Niemimaki)
+- Fixed a Angband 3.0.6 alpha 1 specific crash with the Mac OS X 10.4
+  (Tiger) caused by releasing a reference that should not be released.
+  (reported by Harry Erwin)
+- The experience loss as a result of one of the One Ring's activations
+  is now 1/4 of both max and current experience instead of the
+  unintended reduction of max exp by 3/16 of the current experience.
+  (Hugo Kornelis)
+- Cleaned up the handling of experience draining when the player has
+  Hold Life. The fixed part of the exp drain by nether breaths is now
+  also reduced by Hold Life. (Hugo Kornelis)
+- The object description for the 'cure wounds' activation reads
+  "activates for cure wounds (4d7)", but it actually cures 4d8 points of
+  damage.  The description has been fixed. (Hugo Kornelis)
+- The "recharge item" artifact activation can now be canceled at the
+  "Recharge which item" prompt without draining the artifact's charge.
+  (Hugo Kornelis)
+- The symbol for the Shield of Deflection was a light blue [ instead of
+  a ) like all other shields. (Hugo Kornelis)
+- Reduced the price for "Raal's Tome of Destruction". (Hugo Kornelis and
+  Timo Pietila)
+
+
+
+Bugs:
+Fixed an error in calculating fractional experience
+Some hydras did not have the animal flag.
+Evil Iggy did not have the evil flag
+Azathoth could be summoned by the summon demon spells.
+Fixed bug where disconnected rooms can be generated.
+Dragon ARmor and Shields could not be chosen to be made into an artifact. 
+Corrected the description to the Palintir of Westernesse, since it no longer aggravates.
+
+
+NPPAngband 0.4.1
+
+New features:
+Player speed display color changes color if slowed or hasted.
+Rogue/Brigand player ghosts only get the summon/thief spell if they are over level 50.
+The study notification tells the player how many spells they can gain (by Diego Gonzalez).
+Temporary resists are displayed on screen.  (by Diego Gonzalez).
+Added a prompt to confirm prices for potions of healing and life.
+Slightly changed the price of some services.
+With XP_Toggle option on, display says "next instead of "exp".
+Made a player ghost template for Kurt Tannert.
+Lessened the maximum depth enforcement for certain nests/pits.  Came up 
+with a new way to enforce quests for nests/pits contain challenging types of monsters.
+Made the nests/pit quests slightly less difficult.
+Changed the configuration of a couple vaults.
+Monsters on level quests are marked as quest monsters, so they don't get 
+affected by destruction/banishment just like other quest monsters.
+On occasions where the player is prompted to enter a name for a random 
+artifact and does not enter anything, a random one is assigned.
+Made it a little harder for randarts to have immunities.
+Made randart quest rewards a little less powerful and more rare.
+Made most "in-game" randarts a little less powerful.
+Made the "order dungeon spellbook" service more expensive.
+Only 50% of the monsters on themed quest levels are asleep.
+Increased the possibility of stores carrying unusual items.
+Increased the possibility of generating themed dungeon levels.
+Fixed some instances where the monster list was not updated properly.
+Raised the price to fireproof spellbooks.
+Reduced the number of treasure drops for hydras.
+Added an item "autoinscribe" feature coded by David Vestal.
+Items only show up on the squelch and knowledge screens after the player 
+has actually seen them.
+Made custom artifact rewards less likely, as well as making artifacts as 
+quest rewards a little less likely to be created.
+Added a new, rare *Paur gauntlet with all 5 temporary elemental resists.
+Made the following changes to themed levels:
+-smaller levels
+-less monsters
+-monsters more consistently challenging
+Elemental dragon armor and shields now also activate for temporary elemental 
+resists as well as elemental breath.
+Added a color patch that supports up to 128 different colors in the game.
+Added an additional 16 base colors.
+Made the custom artifact quest reward less common.
+Changes the number of artifact rarity rolls from 4 to 2 when doing quest 
+rewards (this makes artifact rewards less common as quest rewards).
+Chaos resist prevents a player from getting confused.
+The temple now sells identify scrolls.
+Added mass identify staff, plus mass identify spell and prayer.
+Added a rod of *identify* and rod of mass identify.
+Assigned the stairs tilesets to up and down shafts
+Changes the frequency of the various dragon scale armor ego-types.
+Monster information now displays in the monster sub-window and the 
+player scrolls through monsters in the knowledge screens (patch provided by Cyrus Dolph)
+Added new player birth options, birth_no_store_services, birth_no_player_ghosts, birth_no_xtra_artifacts, and 
+birth_no_quests for people who want a more “4gai Vanilla Angband-ish” game.
+Added Eytan Zwieg’s increase hp when player gains levels patch.
+Experience gain from monster death is re-calculated and reduces when the increase causes the player to gain
+a level (to limit a low-level player jumping many levels when killing a quest or OOD monster).
+Made monster missile attacks (arrows, shots, bolts, boulders) 
+occasionally miss or bounce off the shield, and AC helps reduce damage from these attacks.
+
+Fixed bugs:
+Monsters were casting spells after every melee attack.
+The player ghost names of Pedro Gomez-Esteban and Diego Gonzalez were 
+not displaying properly.
+Confused monsters who never move occasionally moved.
+Potions of resistance were not giving player all 5 temporary resists.
+Cleaned up the service display for purchasing dungeon spellbooks and 
+added the price of each book.
+Hidden mimics no longer are counted in the monster display list.
+Corrected the spelling of "sapphire"
+Corrected the pluralized form of "swordsman" to "Swordsmen".
+Themed levels had more monsters than intended due to a formula error.
+Monster display window was listing hidden mimics.
+Monsters holding Quest artifacts can no longer be killed by monsters 
+with the RF2_KILL_BODY flag.
+Fixed the Tiles/graphics modes.
+Re-named creeping sapphires, rubies, opals, and diamonds to fix the plural form.
+Some objects without activations was displaying "It activates for " when they were inspected.
+Spaces with monster traps were being counted as "empty" floor spaces.
+Monsters pushed into a new space what had a trap on it were not being 
+checked to set off the trap.
+In the IBM build, dead character savefiles would not load.
+When the player left a vault quest level with the artifact, they could 
+return to the same depth before they visited the guild, and the game would generate a new quest vault with a copy of the artifact.
+Fixed a bug that occasionally shortened a monster name (code fix provided by David Vestal).
+The cause-hunger spell was missing from monster lore.
+The number of attacks indicated when inspecting a weapon was still 
+occasionally different than the actual blows with the weapon in some obscure situations.
+Fixed a typo in the description of the nightwalker.
+Reduced the amount of some of the higher level coins.
+Fixed a bug in the monster flow code that was causing the game to 
+crash on RISC-OS ports.
+Resist Poison Activation was activating for resist cold.
+Notetaking feature was using one file for all characters on UNIX 
+systems. 
+Down shafts were still occasionally being built one level above quest levels.
+The messages about "fleeing in terror" are followed by a message that 
+makes sense if they keep heading straight for the player.
+Fixed the description for probing to indicate it requires a target.
+Made the damage for staves and rods of light 6d8, consistent with the descriptions.
+Fixed some inconsistent words in the quest help file.
+Rings of poison and nether resistance had the same TVAL/SVAL combination.
+Some of the tilesets in the Windows version were obsolete files.
+Corrected the written note for when player ghosts were killed.
+The object level during store object creation was wrong, mmaking
+some items harder to find than they should have been.
+
+
+NPPAngband 0.4.0
+
+New features
+Re-did dragon scale mail objects are dragon, medium dragon, ancient, 
+and great wyrn.  Added dragon scale shields in addition to dragon scale mail.  
+The different types of dragon scale mail & shields are ego items rather than objects.
+Add themed levels of creatures, and quests to clear them out.
+Added a quest type to clear out a pit or nest.
+Modified the way quest monsters are selected.
+Added a new class, brigand, with rogue combat abilities, close to warrior fighting, 
+but no spellcasting abilities. (done by Diego Gonzalez)
+Add Randarts into standard play
+Built item, artifact, and ego-item databases.
+Added Player Ghosts.
+Add starburst rooms from Sangband. (done by Diego Gonzalez)
+Added Ego item lanterns (From EYAngband, coded by done by Diego Gonzalez).
+Added various store services that should hopefully help eliminate some 
+necessary store scumming and make gold more relevant later in the game.
+Added advanced knowledge screens (from EYAngband).
+Add poison immunity support in code, and poison immunity to The One Ring.
+Quest level generator now factors in player level when determining monster 
+depth (so a level 10 character can’t get a quest at 150’ for a level 5 monster)
+In the activation for the cloak “Colluin” (res acid, pois, cold, fire, elec), 
+and potions of resistance, now activates all temporary resists for the same 
+amount of same time.
+Autosquelch pseudo-ID now has different settings between weak pseudo-id and strong 
+pseudo-id/identified for “good” items.
+Added ego-item squelching submenu (Coded by Haran Pilpel and Diego Gonzalez).
+Made boots, shields cloaks, helms slightly less common, increased the rarity on the 
+corresponding artifacts.  (I made them more common in an earlier version, but I overdid it.)
+Made potions of Life and healing slightly less common, increased object level 
+where they are “good” items to 85. (same reason)
+Added 2 squelch settings, never_pickup and always_pickup that override pickup settings.
+Added option when verifying to destroy an item to set item type to squelch.
+Added Monster speed counters to control monster speed (slow, fast).
+Monsters can get temporarily slowed by gravity and inertia attacks.
+Monster shrieks work in line-of-light of monster, not player.
+Added support for several new artifact activation types.
+Made tunneling a much louder activity.
+Changed the way quests reward types is determined, player fame is calculated, 
+and quest rewards are decided.
+Tried to improve the teleportation spell - make it somewhat more random.
+Added support for ego-items to have random immunities, random stat adds, random 
+slays, random kills, random low resists and random elemental brands.
+Level feelings only shows up after player has been on the level for a while, 
+dependent on searching ability.
+Known Level feelings are indicated in color of the onscreen “depth” indicator.
+Good and regular weapons now also have a chance of boosted damage dice.
+Stores gradually have better items as the player increases level.
+Spell books, oil, torches, rations of food, ammunition, and certain potions/scrolls 
+are never removed from the store inventory, unless the player buys them.
+Stores occasionally stock out of the ordinary items.
+Higher chance of out-of-depth monsters with autoscummer on.
+A little more variety in the size of the small levels.
+The cheat_room option no longer gives a message for every small level if the 
+always_small_rooms option is on.
+Changed quest failure penalty to account the difficulty of the quest.  The easier 
+the quest, the more of a reduction in fame.
+Made the interface for the auto-roller feature more user-friendly.
+You can now use either 'm' or 'p' to cast spells or pray.
+Added “toggle_xp” display option so player can se how many experience points they 
+have left to gain the next level.
+Added “always_show_list” option that can have spell lists, inventory, equipment, and 
+floor items automatically display.
+The adventurer’s guild displays the monster symbol & color when describing a quest.
+Make boots of speed more rare.
+Unless you are teleported off a level, there is a chance to fail a guild quest 
+when you leave a quest level (to prevent quest level scumming).
+Player aggravation causes a monster to use ranged attacks a little more often.
+In a vault, when creature and object are created on the same square, the monster 
+is now holding the object instead of standing on it.  In addition, the player can’t 
+see what the object is until they kill the monster unless they have the cheat_peak 
+option on or are in wizard mode.
+Added hydra pit/nests, creeping coin pits/nests.
+Added more types of hydras, creeping coins.
+Added a diamond golem.
+Added farmer maggots other dog, Wolf.
+Made Liches more dangerous
+Added targeting LOS code from ScTHAngband.
+Added a new option to disturb whenever monster wakes up (for characters who have 
+telepathy and aggravate who don’t want all those messages).
+Added Scrolls of Summon Unique, Rod of stone-to-mud, Scroll of *recharging*.
+Players can no longer be teleported inside of nests/pits.
+Messages for greater vault are not written until the player actually enters the 
+vault or leaves the level. (by Diego Gonzalez)
+Made Cubragal a heavy crossbow and Umbar crossbow a light crossbow.
+Made ego items with random abilities (sustain, resist) occasionally have more 
+than one random ability (sustain, resist).
+
+Made some minor AI changes, including:
+-	monsters who are teleported away sometimes wandered back and forth trying to 
+      find a path to an obsolete target.
+-	Monsters can cast recovery spells if they are out of max spell range.
+-	Monsters become more aggressive when hit by spells with player out of sight or
+      when hack-n-back or pillar dance feature is used.
+-	Added another monster flow path.  There is one for creatures who can pass/bash 
+      doors, and one for creatures who can’t.
+-	Monsters can fire ball spells to squares next to player when player is out of sight.
+-	Equipment that aggravates causes monsters to cast spells more often.
+Added a new flag of s_hi_unique that onlyl summons high level uniques.  Gave that 
+flag to Sauron and Morgoth.
+Made the player notes file part of the savefile. (done by Diego Gonzalez)
+dded an artifact sling and an artifact robe, and a special artifact gem..
+Made some ego items use the new random types (immunity, stat add, slay, etc…)
+Made and used some more useful activations for artifacts (temporary resist, identify)
+Make cloaks of aman have random immunities.
+Removed staff of remove curse and a couple other useless items.
+Made 2 spellbooks only available in ironman-only games. (done by Diego Gonzalez)
+Made a scroll of create randart, available only in artifact games.
+Re-Arranged the monster, ego item, artifact, and object list so things are in some order again.
+The game tries harder to put the player in a safe spot when entering a new 
+level. (done by Diego Gonzalez)
+You can no longer teleport inside a pit/nest. . (done by Diego Gonzalez)
+The notes for greater vaults are not written until the player either enters 
+the vault, or leaves the level. (done by Diego Gonzalez)
+
+
+
+Added most changes from Angband 3.0.5, including:
+
+Changes in Angband 3.0.5:
+- Summoned creatures appear near the caster now instead of near the
+  player.
+- Made rods of detection invulnerable to electric attacks.
+- Restored the old behavior of the Glyph of Warding to protect against
+  direct melee attacks when standing on it.
+- The minor vault "Interlock" had switched height and width definitions,
+  causing it to be created in a chaotic state. (Werner Baer)
+- Spells that prompt the user for an item (identify, enchantment,
+  recharging) or an monster letter (banishment) no longer use mana if
+  canceled.
+- Removed the “book” system of storing the spell order.
+- Give energy to monsters and the player at the end of the game turn
+  instead of at the start.  This prevents various odd effects when
+  loading a saved game. (reported by Phil)
+- Removed the autoroller delay.
+- Cleaned up the paragraph handling in the object descriptions.
+  (Hallvard B Furuseth)
+- "It cannot be harmed by acid and fire" should be "... acid *or* fire".
+  (Hallvard B Furuseth)
+- Piles of wands, staves, and rods can be used from the ground without
+  picking them up first.
+- Fixed a problem in the Unix/Linux makefiles.  The POSIX standard
+  doesn't allow a dot instead of a colon as separator for the chown
+  parameters.
+- Removed an accidental use of floating point code that prevented
+  Angband from running on old machines without an FPU.
+- The "pseudo graphics" used by the (n)curses version didn't support
+  terrain lightning correctly.
+- The window resize control was sometimes overwritten with a black tile
+  in the OS X version.
+- Removed the warning message about missing preferences from the OS X
+  version.  The first thing a new player sees after starting Angband
+  shouldn't be a "scary" message.
+- Added project files for building Angband with MS Visual C++ 7.1.
+  (Tasha Jessup)
+
+
+
+
+Bugfixes (already fixed)
+Not failing a guild quest if a monster teleports the player off the level no 
+longer shows the player as not undertaking a quest until the game is re-started.
+A couple of the monster names weren't being changed to plural correctly.
+Fixed the description for the boots of Avarri.
+The descriptions for the Chain Mail of Arvedui and the Dagger 'Angrist were missing.
+Fixed the makefile.bcc. (code fix provided by KUSUNOSE Toru)
+*Identify*ing a wand/staff wasn’t permanently making changes known.
+Fixed a bug where rods, wands, and staffs didn’t always drain properly when a 
+monster touched to reduce charges.
+Uniques marked for a quest can no longer appear at any other depth but the quest depth.
+Monsters were doing cloud surround when on the other side of walls, and it 
+was appearing in the wall.
+Removed a reference to “talents” in the help files.
+Poison brand was missing from Randart Code.
+Piles display properly when one of the items in the pile is the same color as 
+the squelch “purple dot”.
+The note when failing a vault quest was wrong when the player Word of Recalled from the quest level.
+Writing a note with a “%” in it could cause a nonsense note to be written.
+Monsters, when teleporting-to-player, can no longer appear on glyphs of warding.
+When throwing certain potions and killing a creature, it wasn’t noted if the 
+monster died, leading to strange and extraneous messages. 
+Corrected numerous typos in NPP monster, object descriptions, and option 
+descriptions pointed out by Haran Pilpel.
+Starburst spells now work (although they are still unused.  They will be used soon)
+HTML screen dumps work again.
+During character dumps, the “equippy” printout now uses default character symbols, 
+and no longer displays custom player symbols or garbage when graphics are used.
+Vault quests should have been always on small levels, instead they were always on 
+regular size levels.
+Cloud surround “darkness” effect now works properly.
+Monster’s spell power or spell casting percentage wasn’t being displayed properly.
+The random name generator eventually would start all names with an “A” because it 
+was adding probabilities to the probability tables every time it generated a new name.
+Added command (‘]’) to pickup items from the floor regardless of squelch settings.
+The damage for the “bolt of draining” spell now is displayed when the prayerbook is browsed.
+Fixed several inconsistencies with the player stealing calculations (code provided by Thomas).
+
+
+Version 0.3.4
+
+New features:
+Start menu accepts lowercase 'q' and 's' at final screen before finishing player birth.
+Eliminated the Lua files.
+Rogue bonuses from slings are now shown on the character screen. (code provided by James Graves)
+Added Ancient dragon pits and young dragon nests.  
+Weaker nests/pits no longer appear below certain levels.
+Made it a little easier to get potions of augmentation (before stat gain)
+	 and dungeon spellbooks as quest rewards.
+Made all shields, boots, cloaks, and helms a little more common.
+Increased damage for various dragon scale mail activations, and all dragon scale mail now
+generate cone/arc shaped breaths instead of fireballs.
+A couple new files to help compiling under MAC-OS created by Thomas Castiglione.
+Lowered the damage from thrown boulders 25%.
+There are no longer cursed non-artifact items in chests.
+The player won't fail a guild quest if a monster teleports the player off the level.
+The monsters are smarter about not summoning if there is no room to summon monsters.
++ some miscellaneous code cleanup.
+Eliminated the "winds" spell attacks (they really didn't add anything to the game).
+Added an updated font file by Kurt Tannert.
+
+
+
+Incorporated almost all changes from Angband 3.0.4, specifically:
+
+Changes in Angband 3.0.4:
+- Chaos resistance protects against confusion by chaos based attacks.
+- Smoothed out the tables for extra mana-points per level, hitpoint
+  bonus from constitution, "spells per level" vs. "spell stat", and
+  INT/WIS dependent failure rate adjustment.  The old steps have been
+  replaced by a steady increase, so small stat improvements are more
+  useful.  Please note that this will also affect characters imported
+  from older versions, so these might gain or lose some spells, mana,
+  and hitpoints when imported into Angband 3.0.4 (or NPP 0.4.0).
+- Gave the 'thanc daggers a 2d4 damage dice instead of 1d4 and made them
+  more common. (Jonathan Ellis)
+- Gave each of the Paur* gauntlets a single minor power (slow-digestion,
+  regeneration, permanent light, feather fall) and made them more
+  common. (Jonathan Ellis)
+- Rods of Recall, Perception, Curing, Healing, Restoration, and Speed
+  will not be destroyed by electricity.
+- Made Raal's Tome of Destruction more, and Kelek's Grimoire of Power
+  less common. (Timo Pietilä)
+- Removed fire brand from ammo 'of Holy Might'. (Timo Pietilä)
+- Give the short range teleport effect from gravity attacks on monsters
+  an additional 1 in 3 chance to teleport the monster away.  This should
+  make abusing the Rift spell a bit harder.
+- Added a level dependent chance to resist the teleportation effect of
+  gravity attacks for monsters and the player. (suggested by Jonathan
+  Ellis)
+- Junk items like broken sticks, empty bottles, and rodent skeletons are
+  no longer generated in the dungeon.
+- Added support for artifact and ego-item descriptions. (with help from
+  Hallvard B Furuseth)
+- Added artifact descriptions.  The texts are mainly taken from OAngband
+  and other variants. (Jonathan Ellis)
+- Added object descriptions assembled by Hallvard B Furuseth.  The
+  descriptions are mostly copied from obj-long.spo version 3.0.2 by Hugo
+  Kornelis, Stephen S. Lee, Leonard Dickens and Craig Lewis.
+- Added ego item descriptions for some ego types. (Hallvard B Furuseth)
+- "Easy open" ignores broken doors now when trying to close doors.
+- Added new 8x8 tiles and tile definitions provided by "Dawnmist".
+- Removed several broken tile definitions for the 32x32 tiles.
+- Allow direct melee attacks on visible monsters in walls.  You still
+  have to tunnel into the wall if you are trying to attack an invisible
+  monster. (suggested by Greg Stark)
+- Show infos like "It cannot be harmed by the elements." when
+  'Inspecting' books, just as for other item types.
+- Changed the behavior of the 'auto_more' option, so that it
+  automatically skips '-more-' prompts instead of not displaying
+  messages on the top line. (Tom Houser)
+- Changed the "Do you really want to quit?" prompt to "Do you really
+  want to commit suicide?".
+- Added a 'show scores' command to the knowledge menu.
+- Changed the wording for the scores display a bit.
+- Added the kill count of non-unique monsters to the knowledge menu.
+- Added a modified version of Mogami's macro trigger patch. This patch
+  modifies how macro trigger keys are displayed on screen and written in
+  .prf files.  The trigger keys are no longer displayed in ugly key code
+  style, such like ^__FFBE\r or ^_O_FF53\r, but in more smart style,
+  such like \[F1] or \[alt-Right].
+- Select the sex, race, and class choices from a dead character as
+  defaults for a new character.
+- Added a stripped down version of Takeshi Mogami's "auto_dump" feature
+  from Hengband.  Automatic pref file dumps from the game are now
+  marked, so that they can be replaced when dumping to the same
+  pref-file again.
+- Allow the banishment spell to be aborted at the "Choose a monster race
+  to banish" prompt without using up a scroll or charge.
+- Added John Rauser's monster list patch that allows the user to display
+  a list of the visible monsters in a window.
+- Recharging wands or staves that have been fully *identified* before
+  will now automatically reveal the new number of charges in the device.
+  This fixes a bug where an already *ID'ed* wand or staff couldn't be
+  *ID'ed* again after recharging (but plain ID works), despite the
+  number of charges being unknown. (bug reported by Eddie Grove)
+- text_to_ascii() didn't check that the characters used in \xAB
+  sequences represent real hex characters.  Invalid hex sequences are
+  now converted to the '?' character. (reported by Kieron Dunbar)
+- Improved the handling of incomplete '\x' sequences in macros.  The old
+  code could skip the final NUL-byte of the string if it ended with
+  '\x', leading to a potential buffer overflow.
+- Fixed a typo in the description of the "wild cat". (Jay McAbee)
+- Rods and staves of probing are no longer automatically identified when
+  used without a monster nearby. (reported by "someog")
+- Prevent the player from being hit multiple times by area effect spells
+  and breaths that can blink the player (nexus, gravity).
+- The player can now get a level feeling when entering level 1 without
+  spending 1000 game turns in town first. (Tom Houser)
+- Branding ammo or weapons will now automatically try to combine and
+  reorder the resulting objects, even if the enchantment of to-hit and
+  to-dam fails. (reported by John D. Goulden)
+- Try to output minor warning messages (such as "illegal option choice"
+  when selecting a non existing item for a command) as soon as possible.
+  (reported by "Mogami")
+- Show all minor error messages immediately in the message window.
+- The effects of light spells are only obvious if you aren't blind.
+- Wands and rods of light don't give a message and aren't automatically
+  identified when using them while blind. (reported by Steve Kroon)
+- Refilling a latern from a stack of laterns will now only use the oil
+  from one latern, not from the whole stack. (reported by Jay McAbee)
+- Prevent earthquake/destruction spells from working in town.  This
+  prevents inappropriate messages (like "The cave ceiling collapses!").
+- Automatically try to load the "Kobold.prf" file at startup if the
+  player is a Kobold.
+- Improved the output of item and monster descriptions in spoilers and
+  character dumps.  In some cases punctuation and spaces were wrapped to
+  the next line.
+- The basic object spoilers only reported the prices for unidentified
+  items.  (reported by Hugo Kornelis)
+- The cursor keys in the X11 ports behave the same way now, no matter if
+  num-lock is on or off.
+- Change colors in main-gcu.c. This is Dominik Grzelak's patch to change
+  bright white from blue back to bright white. (Ed Cogburn)
+- Added a workaround for a bug in the curses version with USE_GETCH.
+  The news.txt screen was erased by the first call to the getch()
+  function. (Frank Palazzolo)
+- Angband consumed 100% of the cpu while waiting for a keypress in the
+  GTK port. (Sheldon Simms)
+- Allow text to be copied from the game window in the X11 port.
+  (modified version of the code in Kieron Dunbar's sCthangband 1.0.10)
+- Added transparency support to the 32x32 tiles in the Windows port.
+  This requires a modified tiles bitmap and a new transparency mask
+  originally created by Andrew Doull:
+  ftp://clockwork.dementia.org/angband/Extra/graf-32x32-304.zip
+- Removed the hackish 'Show scores' menu entry from the Windows version.
+  Use the new knowledge menu entry instead.
+- Applied lots of Mac specific patches by "pelpel".
+- Allow initialization of the game to continue, even if the
+  lib/data/*.raw files can't be written.  In that case the data parsed
+  from the lib/edit/*.txt files stays in memory and is used instead of
+  the *.raw data.  This currently wastes some memory, since the text
+  arrays are not resized to the minimum required length.
+- Added a performance tweak for the Angband Borg.
+- Increased the data-type of the shopkeeper purse limit from signed
+  16 bit to signed 32 bit.  This will allow shopkeepers with a higher
+  limit than 32768 gold to be added.
+- Added a compile time option to store the savefiles and scores in the
+  player's home directory (under ~/.angband/Angband/) on multi-user
+  machines.
+- Use a different delay function in the DOS version that works around
+  the restricted 55ms resolution on Windows 2000 and XP.
+
+Bugfixes:
+Bugfix: A player could be in maximize mode with a stat greater than 3, but the stat is 3 due to racial, class deduction.  If the stat is drained, it didn't appear in the color yellow right away.
+Bugfix: Some of the irregular shaped vaults were coming out distorted.
+Bugfix: The number of attacks being given when inspecting a weapon was wrong sometimes (again).
+Bugfix: The show_piles, easy_floor, and mark_squelch_items display options all cooperate now.
+Bugfix: Put all the mage spells back in the proper order in the spellbooks, although this means that 
+	mages, rogues, and rangers have to re-learn all their spells.
+
+Version 0.3.3
+New features:
+Rogues may no longer steal using the alter command.
+Mana breathers no longer resist mana attacks.
+
+
+Bugfixes:
+
+Bugfix: Made some changes to make sure "&nothing" isn't produced, and if it is 	produced, doesn't take up a player inventory slot if they walk over it.
+Bugfix: The teleport-other spell beams again.
+Bugfix: "Lash" ranged attack descriptions are properly capitalized.
+Bugfix: Project_arc function now works properly (it was unused before).
+Bugfix: The insult attack was givng two messages, and the punctuation was wrong.
+	(code fix provided by KUSUNOSE Toru)
+Bufix: Gravity breaths could occasionally instakill a player.
+Bugfix: Pressing "?" to view help file for birth options didn't take the player directly
+	to the actual option.
+
+
+Version 0.3.2
+
+New features:
+In addition to '+' & '-', using 'h' & 'l' can navigate through the character screens.
+Pressing ? during chracter race/class selection takes you to information about the specific race/class 
+ 	in the helpfile.
+Evasive Monsters can no longer dodge magical spells and attacks.
+Infravision now starts beyond the player's current lite radius.
+Double resistance helps protect inventory from damage.
+changed rogue dispel monsters trap to Line-of-site damage from an explosion. 
+Made Anssi Ramela's first winner of NPP 0.3.x, Brother Steadfast, a temple shopkeeper.
+When Rods/Wands/Staffs are drained by monster melee attack, they are usually only partially drained.
+Monsters can also heal their mana when draining Rods/Wands/Staffs by monster melee attack
+
+Bugfixes:
+
+Bugfix: Fixed an inconsistency in the quest generation code when making a unique quest (code fix provided by KUSUNOSE Toru)
+Bugfix: Fixed a typo in makefile.BCC (code fix provided by KUSUNOSE Toru)
+Bugfix: Monsters were getting a free haste spell after they casted orb of draining (code fix provided by KUSUNOSE Toru)
+Bugfix: Fix an error in the new project_los_not_player function that allowed monsters
+	not in LOS to be affected.
+Bugfix: fixed a bug in wizard mode where all rods, staves and wands are listed with the
+price of an unidentified rod, stave of wand (patch by Robert Ruehlmann)
+Bugfix: Wands of disarming work properly again.
+Bugfix: Monster attacks stop after earthquake moves player to a non-adjascent square from monster.
+Bugfix: (OS Port only) doing a character dump with note taking option on no longer causes game to lock up.
+Bugfix: Pressing ? in the options menu takes you to the specific option in the "options" help file again.
+Bugfix: In monster description, "seeker shots" is properly pluralized.
+Bugfix: There is proper spacing after describing number of player attacks.
+Bugfix: Failed unique quests are now described properly.
+Bugfix: When examing a weapon, the number of attacks was occasionally incorrect.
+Bugfix:  When accessing the character screen, player speed was being unfairly reduced by 10 if 
+they were slowed at the time.  This meant instadeath to anyone with a window open permanently 
+displaying the character screen.
+Bugfix: Wand and Rod mimics now hide properly.
+
+
+Version 0.3.1
+
+New features:
+Notices of failed quests are written to the notes file.
+Potions of life and *healing* can occasionally be good items if the 
+	object level is greater than 80.
+Made objects in inventory slightly harder to destroy, to compensate
+	for all the extra chances they have to get 
+	destroyed with the 4gai changes.
+Changed the probability of monster description displaying spell frequency.
+Re-charging a stack of wands doesn't destroy the whole stack as frequently.
+Failing to steal too much only makes newly generated monsters slightly hasted (since
+4gai has code to slow down completely hasted monsters).  It also now makes them wary.
+(I)nspecting a weapon now also reveals how many attacks per round the 
+	character would get with that weapon.
+Made potions of augmentation and dungeon spellbooks slightly more
+	probable as tailored quest rewards.
+Added new icon, made by Kurt Tannert.
+Using '~' to view home inventory gives object description as well.
+
+
+Fixed Bugs:
+
+Bugfix: Sleeping, evasive monsters no longer get a chance to evade a blow.
+Bugfix: Shafts can appear above level 5 now.
+Bugfix: Boosted damage sides no longer get erased when a savefile is loaded.
+Bugfix: Monsters killed by other monsters don't count towards quest tallys.
+Bugfix: Monsters no longer fire arrows at player if not a clear path.
+Bugfix: Looking at a monster shows messages like ("Asleep", "stunned") again.
+Bugfix: A rogue can no longer modify a monster trap if a monster is on it.
+Bugfix: Monsters were getting occasional double moves on faster players
+Bugfix:	Monster hit points were getting regenerated twice per turn.
+
+
+
+
+Version 0.3.0
+
+New features:
+
+Added Demoband/Sangband 4gai, which includes (as done by Leon Marrick):
+- The "basic code":  4GAI monster ranges, spellcasting, learning, 
+  mana and spellpower, movement, flow, processing, terrain-handling.
+- The "associated code":  Oangband-style noise, monster spells, multi-hued 
+  monsters, fewer wimpy monsters, monster polymorphing, compacting, etc.
+- EyAngband-style monster lifepoint ratings  (by Eytan Zwieg)
+- Sangband-style monster melee attack code and town monsters, 
+  various Sangband updates to the above, 
+- Some changes to randomizing functions to accomodate the above, more correct rounding
+- New and more varied monster attack messages, some from Moria and early Angband
+- smaller monster groups and escorts, careful control of nests, pits, and similar
+- new limits on summoning level, much fewer monsters summoned
+- new limits on OoD monsters, whether randomly generated, summoned, or placed in vaults.
+- arc spells and breaths for the monsters.
+- Sangband project functions (this means no more hockey-stick corridors)
+- Sangband update_view and line-of-sight functions
+- many new types of monster resistances
+- Evasive Monsters (Sangband, EYAngband)
+- monsters surrounded by clouds (UnAngband, Sangband)
+- True "Mimics" (Zangband, Sangband)
+
+
+Note: The breath spells still do Angband-type damage, based on hitpoints rather than spell power.
+And have about the same maximums as Angband.  I made some minor changes to some breaths, such as 
+gravity, inertia, and time.  Example:  depending on whether the creature breathes powerfully or 
+not, gravity breath has different maximum HP damage, and the breath damage-per-hp is also different.
+This allows gravity wyrms to do some real damage while slightly reducing the danger from gravity hounds.
+Instead of reducing HP and armor class as Sangband/Oangband do, the monsters have a smaller
+amount of max_mana, and spell power is adjusted so the damage is similar to that by Angband
+Monsters.  They do more damage in some spells than Angband, but I made the sources of healing
+a little more common and just a little more powerful to compensate.
+
+Other minor new features:
+Player given chance to add last words to notes file upon dying.
+Made most sources healing a little more powerful and common.
+Made scrolls of mass banishment and banishment more common.
+Limited the types of creatures available for quests (no insects, flies, rodents, etc...)
+The "make monsters wary" code now works better, as it is based on the project functions.
+Got rid of the monster.pkg and associated monster-lua files.  
+   The other lua files are still working.
+Added monster mana bar to go with the monster hit-point bar.
+Changed name of staffs and rods of enlightenment to magic mapping.
+Added several new potions and potion flavors.
+Added separate commands for stealing (P) and setting traps (O)
+aborting the alter trap command no longer takes a turn
+slightly revised character screen
+removed unused monster options
+Made monster spell frequency based on straight percentages rather than the one_in_X scheme
+Removed option to occasionally go down another flight of stairs
+Added shafts in addition to stairs, which take the player up or down 2 levels.
+Made some of the more valuable rods immune to destruction by electricity.
+When re-charging, a single rod can no longer be destroyed.
+In the knowledge screen, player can now view notes file 
+	and home inventory (code provided by Jean-Pierre Hamel)
+Made it slightly more likely to sleep, confuse, and slow monsters.
+Some potions have affect the monster when thrown (ex. potion of confusion confuses monster)
+Two prayer changes in beginners handbook:
+1)  Combined find traps and detect doors/stairs into one spell.
+2)  Added a weak, low-level attack spell, bolt of draining.
+
+
+
+Bugfix: Guild rewards that are chests no longer have traps on them
+Bugfix: The guild should no longer give & nothing as a quest reward
+Bugfix: Trap doors were being allowed at the bottom of dungeon, quest levels.
+Bugfix: Stairs and walls were being treated as walls in wiz_lite.
+Bugfix: Cursed artifacts are no longer given as quest rewards.
+Bugfix: Deaths of quest uniques were having 2 notes written to the notes file.
+Bugfix: Notes written to the notes file now "wrap" to next line with formatting if too long.
+Bugfix: Fixed potential buffer overflow problems with note taking.
+Bugfix: Upon completing special quests, a note was written to file if take notes option was not on.
+Bugfix: Quest chests cannot be autosquelched.
+Bugfix: Player no longer gets ammunition as a quest reward
+Bugfix: Player now can get shots in a ammunition themed chest.
+Bugfix: Monster traps can now kill uniques.
+Bugfix: The dungeon stair option was being negated by some changed level generation code.
+Bugfix: The "show squelched item as dot" option was overriding the "show piles with special character" option.
+Bugfix: The counter that tracked failed thefts was not cleared with a new game.
+Bugfix: 3 of the source code files had a capital C as the extension.
+Bugfix: Player can now access the help files from the birth menu.
+Bugfix: Darkness was causing player to forget stairs.
+Bugfix: Quest descriptions now say "destroy" instead of "kill" for undead and 
+	other non-living monsters.
+
+
+
+Version 0.2.2
+
+New features:
+
+Added an option to retain squelch settings on new character.
+Made it an option for a to-be-squelched item to appear as a purple dot.
+Made the chests lighter
+Changed the message when monsters see a playet trap or theft.
+Changed the messages that describe the special quests.
+Updated all makefiles to include the proper files.
+
+
+Bugfix:  ability to modify traps based on rogue_combat flag, should have
+	 been set_traps flag.
+Bugfix:  The option smart_packs was not showing up in the character dump option.
+Bugfix:  Calling the change player name command erased the old name.
+Bugfix:  The home equipment display mode was displaying if the home was empty.
+Bugfix:  Quest reward generation code was using last space in home to store generated objects.
+Bugfix:  Tailored Quest rewards needed further fixing.
+Bugfix:  Chests were occasionally having sustains, abilities, and high
+	 resists attached to them.
+Bugfix:  Reading a make monster trap scroll locked up if not pointed to an
+	 empty floor space.
+Bugfix:  Trap/Door destruction wasn't destroying doors, just unlocking them.
+Bugfix:  The quest reward code was causing to much gold to be produced.
+Bugfix:  re-set # of items generated in quest reward code.
+Bugfix:  Ammunition was being given out as quest reward.
+Bugfix:  Level generation was wrong when in bigtile mode.
+Bugfix:  Damage calculations from thrown weapons was wrong (Tony Holmes fixed this).
+Bugfix:  Player Dump was list cheat options instead of score options.
+Bugfix:  Adult_force_small_lev was pointing to wrong option
+
+
+plus some misc. code cleanup.....
+
+
+Version 0.2.1
+
+New feature:
+
+Quest rewards are now handed directly to the player, rather than
+      dropped on the floor outside the Guild.
+
+Fixed Bugs:
+
+Bugfix:  The startup screen referred to a help file that no longer existed.
+Bugfix:  Separated recall depth from max depth.  This was messing
+         up the quest generation code.
+Bugfix:  Fixed the quest reward code, which had numerous bugs.
+Bugfix:  Updated tiles to reflect the monsters and items I added.
+	(Although all the tilesets are still incomplete from V 3.0.3).
+Bugfix:  The game would crash when a charging rod was dropped in the home.
+Bugfix:  The name of a monster wasn't properly capitalized when they
+         set off a trap.	
+Bugfix:  Corrected the number of monsters generated on a small level.
+Bugfix:  One of the birth options wasn't formatted correctly on-screen.
+Bugfix:  Fixed the spacing when generating the player history.
+Bugfix:  Unique quests correctly display in notes patch upon completion.
+Bugfix:  Special quests now are written to notes file upon completion.
+Bugfix:	 When a monster destroyed a trap, the square was staying lit.
+
+
+Version 0.2.0 
+
+New features:
+
+Added EYAngband-style quests.
+Added EYAngband small levels and option to always have small levels
+All classes get better chance to hit sleeping monster
+
+Rogues get new abilities (from Oangband):
+extra shot with sling at level 26
+unusually gifted with slings, better to-hit and to-dam
+get additional to-hit and to-dam when throwing well-balanced weapons
+unusually higher chance to hit sleeping monster
+ability to set traps, set advanced monster traps, and steal items
+from monsters. (one trap to begin, and second trap at level 26)
+/*warning, failing to steal has some very negative consequences*/
+
+Made the JLE ego items and amulets a little weaker.
+Added Leon Marrick's modified help files and re-edited them for NPPAngband.
+Added throwing weapons and well balanced weapons.  They are easier to hit with & 
+they do extra damage.
+Players start with equipment wielded.
+Took interactive startup menus from EYAngband.
+Added minimum depth for monsters during creation.  Weaker monsters don't appear 
+deeper.
+Added a new trap (dagger pit).
+Players don't use full energy if they use less than max# of attacks
+to kill a monster.
+Modified the file dump to include a chart of resist flags, stat increases and 
+sustains due to equipment.
+Added additional player screens which show chart of resist flags, stat
+Increases and sustains due to home inventory.
+Changed "A" monsters from Angels to "Ainur", and modified a couple other 
+monsters.
+Adjusted speeds of some monsters to +5, +15, or +25.
+Made probing more informative.
+Added "Create Monster Trap" scroll.
+Rangers only get one extra shot with bow, at level 26.
+Warriors get an extra attack at level 26(but a max of 5 from the weapon, for a 
+total of 6).
+Made "young_dragon" nests more common, humaniod nests deeper, & animal pits 
+rarer.
+Some nests will occasionally use the highest level monsters
+rather than every other monster out of 16 chosen. 
+Some pits will occasionally use only the harder half of the 64 chosen monsters. 
+Chance of avoiding theft not 100% until dex is 18/180.
+Rods may be recharged, with a chance of destroying them.
+Messages for temporary resists now factor in the appropriate permanant resist
+(ex. a player who is immune to cold will not get message "you feel more
+ resistant to cold" when they quaff a potion of resist cold)
+Altered parsing routine to allow for uber-flags (ex. resist_all), from 
+SCthAngband.
+Added some uber-flags (ex...im_elem, no_charm, drop_up_to_14 items)
+Staffs now stack like the wands/rods.
+The stun counter stops increasing when a player is knocked out, so players 
+have a much better chance of avoiding the "knocked out" instadeath.
+Adjusted the way chest themes are derived, and made larger chests
+have more great items than smaller chests.
+Smaller chests are now more common.
+Large jeweled chests replace ruined chests, and have more items.
+Many Greater Vaults how have chests in them.
+Chests with potions, scrolls, rods/wands/staffs now more common.
+Tweaked the items that can be in a chest.
+Players are now much more likely to enter a dungeon next in a corner or hallway
+rather than a room.
+Removed debug information from executable file. Executable file is now
+three times smaller, and much quicker.
+Changed all references of "Multi-Hued" to "Chromatic"
+Added random name generator as option for character during birth.
+Randarts are less likely to aggravate.
+Made the first winner's (Matthias Kurzke) character, (Tim, a hobbit rogue) into 
+a black market shopkeeper.
+
+bugfixes:
+fixed: several typos in the options menu
+fixed: partially destroying stacks of wands, rods, and staffs now shows the 
+proper amount
+	of charges by which the stack is being reduced.
+fixed: notes patch could be turned on & off in mid-game, should be birth option
+fixed: buffer problems in writing messages to a file with the birth_take_notes 
+option
+fixed: Special note wasn't written to notes file when a player was dead, or when 
+Morgoth killed
+fixed: The HTML screenshot meta tag indicated an Angband 3.0.3 screen dump. HTML 
+file now indicates an NPPAngband screen dump.
+fixed: The name of greater vaults wasn't showing up right in the notes file.
+
+
+
+Version 0.1.1 (all bugfixes)
+
+fixed: names of killed uniques didn't appear in notes file if player was blind, 
+unique was invisible 
+	or out of LOS when killed
+fixed: player notes didn't properly indicate player depth
+fixed: artifacts made it to the notes patch multiple times, and
+ after the first time the depth is indicated as "255"
+fixed: when using tiles, the player was shown as a blank square
+fixed: the notes file identified a greater vault redundantly
+fixed: the player options were not properly aligned
+fixed: the lite radius around creatures didn't always update correctly
+
+
+Version 0.1.0 
+
+*	Added support for describing monsters speed at +5 (somewhat quickly), +15 
+(exceedingly quickly), and +25 (extremely quickly). 
+*	Added patch to change player's color as their hit-points drop. This is an 
+option 
+found under "display options". 
+*	Increased chance of increased damage dice and to hit dice on weapons, and 
+increased changes in increased damage dice on ammunition. 
+*	Decreased level boost from dragon scale mail to +10. 
+*	Reduced level boost from powerful amulets to +10. 
+*	Amulets & spell books are generated as a guaranteed "good" only if out of 
+depth. 
+*	Added option to go up or down additional flight of stairs some of the time 
+(from 
+Oangband). 
+*	Added "themed chests", similar to Oangband. There are 16 themes, and may 
+frequently contain guaranteed good or great objects. 
+*	Chests now increase level rating by +5. 
+*	Added different templates for "great items" rather than good items. There 
+are 
+several things in the good list aren't in the great list (such as spellbooks).   
+*	Changed the object generation code so that the "great" flag no longer 
+needs the 
+"good" flag to produce a great item. The "great" flag without the "good" flag 
+will 
+produce a great item, but it only gets one chance instead of four to become an 
+artifact. This was done as a way to keep the new style chests from becoming too 
+powerful. 
+*	Added Dr. Whites Monster Lite patch. 
+*	Added Eytan Zwieg's vault flipping patch. 
+*	Added a note taking patch, this is a birth option (birth_take_notes), and 
+needs to be 
+specified before the character is started. I did a significant re-write of this 
+patch. 
+Comments can be written to a file, and they will automatically print out in a 
+character dump. In addition, it automatically records the turn, level of char, 
+and 
+dungeon level of certain events, such as: the killing of uniques, finding of 
+artifacts, 
+and greater vaults created, when a player is killed or wins the game, and every 
+time 
+the character gains a new level, but only if it is divisible by 5 (level 5, 10, 
+15, 20, 
+etc...). These notes automatically print out with the character dump. The 
+formatting 
+on this feature isn't perfect yet, but I plan on finishing it after I 
+incorporate 
+EYAngband's resistance system. 
+*	Added rod-wand-stacking based on Oangband 0.6.0. 
+*	Reduced delay when using the autoroller to create a character. Should be 
+10 times 
+faster. 
+*	Added DarkGod's html screen dump patch. 
+*	Dropped Items may now be specified by theme. Code is mostly in place to 
+create 
+themed monster drops. Currently, the themed drops are used in chest opening & 
+vault creation (chests w/ monster 40 levels OOD).  
+*	Added the autosquelch patch. I made some minor changes to the sub-quality 
+squelching menu. For rings and amulets, there are only three levels (none, 
+cursed, 
+and all but artifact). I also added in the option to automatically squelch 
+chests after 
+they are opened.
+ 
+*	I deliberately made almost no changes to the edit files, so the first 
+version will give 
+almost the the exact same playability as Angband v 3.0.3. with some nice options 
+that Angband, IMHO, should contain, such as rod/wand stacking, screen dumps 
+and autosquelch. The only changes in the edit files are:
+*  Added rods re-charge time to the PVAL flag (without this updated file, the 
+game WILL crash almost instantly due to divide by zero errors) 
+*  Increased the rarity of chests, to compensate for them being loaded with 
+so many good & great items 
+*  Added the has_lite flag to the appropriate creatures, so the Lite Patch will 
+work 
+*  Removed the good flag from many of the creatures who have the great 
+flag, to balance out all the great items that are now in the chests. Mostly only 
+those who got the great flag added in the JLE-patch. 
+*  Modified some of the greater vaults so they include chests in certain areas. 
+*  Five new types of monster vaults and pits. The ogre pits are a little bland 
+right now. I plan on adding more types of Ogres, but I am deliberately 
+holding that until the next version of NPP Angband so this one keeps as 
+close as possible to 100% Angband 3.0.3 playability. 
+
+*  Six new types of monster vaults and pits. The ogre pits are a little bland 
+right 
+now. I plan on adding more types of Ogres, but I am deliberately holding that 
+until 
+the next version of NPP Angband so this one keeps as close as possible to 100% 
+Angband 3.0.3 playability. 
+*  There is a minimum depth enforcer when selecting the type of Monster Pit or 
+Next, so the weaker ones, such as Jelly Pits, don't appear at higher depths. 
+.

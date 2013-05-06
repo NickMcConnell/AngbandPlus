@@ -366,7 +366,6 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 		case MODE_WRITE:  f->fh = fopen(buf, "wb"); break;
 		case MODE_READ:   f->fh = fopen(buf, "rb"); break;
 		case MODE_APPEND: f->fh = fopen(buf, "a+"); break;
-		default:          f->fh = fopen(buf, "__");
 	}
 
 	if (f->fh == NULL)

@@ -332,6 +332,8 @@ void target_set_monster(int m_idx)
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
 	}
+
+	p_ptr->redraw |= (PR_HEALTH);
 }
 
 
@@ -360,6 +362,8 @@ void target_set_location(int y, int x)
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
 	}
+
+	p_ptr->redraw |= (PR_HEALTH);
 }
 
 
@@ -690,8 +694,8 @@ static bool adjust_panel(int y, int x)
  */
 static void coords_desc(char *buf, int size, int y, int x) {
 
-	char *east_or_west;
-	char *north_or_south;
+	const char *east_or_west;
+	const char *north_or_south;
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1062,6 +1066,9 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 							my_strcat(out_val, format(" (%d:%d)", y, x),
 								sizeof(out_val));
 						}
+
+						/* Hack -- handle stuff */
+						handle_stuff();
 
 						prt(out_val, 0, 0);
 
@@ -2005,8 +2012,9 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
-				case '\xff':
+				case DEFINED_XFF:
 				{
+
 					/* We only target if we click somewhere where the cursor
 					   is already (i.e. a double-click without a time limit) */
 					if (KEY_GRID_X(query) == x && KEY_GRID_Y(query) == y)

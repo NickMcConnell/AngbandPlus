@@ -295,9 +295,9 @@ Notify on object recharge                     [notify_recharge]      (off) :
 re-charging.
 
 ***** <verify_leave_quest>
-Verify before descending from quest level     [verify_leave_quest]     (on) :
-    Asks for confirmation when you try to leave a quest level using down 
-stairs (thereby risking quest failure).
+Verify before leaving a quest level     [verify_leave_quest]     (on) :
+    Asks for confirmation when you enter a command to leave a quest level
+ (thereby risking quest failure).
 
 ***** <birth_opt_menu>
 --- Option Set #4:  Birth ---

@@ -721,12 +721,12 @@ void apply_monster_trap(int f_idx, int y, int x, byte mode)
 
 				if (mode == MODE_ACTION)
 				{
-
-					/*give message if in LOS*/
-					if (m_ptr->ml) msg_format("%^s is teleported.", m_name);
-
 					/*teleport the monster*/
-					teleport_away(cave_m_idx[y][x], 5 + (trap_power / 10));
+					if (teleport_away(cave_m_idx[y][x], 5 + (trap_power / 10)))
+					{
+						/*give message if in LOS*/
+						if (m_ptr->ml) msg_format("%^s is teleported.", m_name);
+					}
 				}
 
 				break;
@@ -1726,20 +1726,31 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA)
 	{
 		f6 &= ~(RF6_TELE_LEVEL | RF6_TELE_AWAY);
-		f7 &= ~(RF7_SUMMON_MASK);
+		f7 &= ~(dungeon_summon_mask_f7);
 	}
 	/*hack - some spells are pointless or unfair on labyrinth levels*/
 	else if (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH)
 	{
 		f6 &= ~(RF6_TELE_LEVEL);
-		f7 &= ~(RF7_SUMMON_MASK);
+		f7 &= ~(dungeon_summon_mask_f7);
 	}
-	/*hack - some spells are unfair on themed and wilderness levels*/
-	/* Also includes DUNGEON_TYPE_WILDERNESS */
-	else if (p_ptr->dungeon_type >= DUNGEON_TYPE_THEMED_LEVEL)
+	/*hack - some spells are unfair on themed levels */
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_THEMED_LEVEL)
 	{
 		f6 &= ~(RF6_TELE_TO | RF6_TELE_LEVEL | RF6_TELE_AWAY);
-		f7 &= ~(RF7_SUMMON_MASK);
+		f7 &= ~(dungeon_summon_mask_f7);
+	}
+	/*hack - some spells are unfair on wilderness levels */
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_WILDERNESS)
+	{
+		f6 &= ~(RF6_TELE_LEVEL);
+		f7 &= ~(dungeon_summon_mask_f7);
+	}
+	/*hack - some spells are unfair on greater_vault levels*/
+	else if (p_ptr->dungeon_type >= DUNGEON_TYPE_GREATER_VAULT)
+	{
+		f6 &= ~(RF6_TELE_LEVEL);
+		f7 &= ~(dungeon_summon_mask_f7);
 	}
 
 
@@ -3994,7 +4005,7 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 		}
 
 		/*possibly update the monster health bar*/
-		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
+		if ((p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])  || (m_ptr->sidebar))
 					p_ptr->redraw |= (PR_HEALTH);
 	}
 
@@ -4903,7 +4914,6 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
 			monster_race *nr_ptr = &r_info[n_ptr->r_idx];
 
-
 			/* XXX - Kill (much) weaker monsters */
 			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
 			    (!(nr_ptr->flags1 & (RF1_UNIQUE))) &&
@@ -5117,7 +5127,7 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 				if (f1 & (TR1_SLAY_EVIL))    flg3 |= (RF3_EVIL);
 
 				/* The object (or quest related mimic) cannot be picked up by the monster */
-				if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) || (o_ptr->ident & (IDENT_QUEST)) ||
+				if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) ||
  				   (f3 & (TR3_NEVER_PICKUP)))
 				{
 					/* Only give a message for "take_item" */
@@ -5454,7 +5464,7 @@ static s16b process_monster(monster_type *m_ptr)
 	if (m_ptr->using_flow == NEED_FLOW) find_best_flow(m_ptr);
 
 	/* Hack -- Always redraw the current target monster health bar */
-	if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
+	if ((p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])  || (m_ptr->sidebar))
 		p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 	/* Attempt to multiply if able to and allowed */
@@ -5479,7 +5489,7 @@ static s16b process_monster(monster_type *m_ptr)
 		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(cave_m_idx[m_ptr->fy][m_ptr->fx]))
+			if (multiply_monster(cave_m_idx[m_ptr->fy][m_ptr->fx], FALSE))
 			{
 				/* Make a sound */
 				sound(MSG_MULTIPLY);
@@ -5495,6 +5505,9 @@ static s16b process_monster(monster_type *m_ptr)
 			}
 		}
 	}
+
+	/* Make sure messages such as wakes up, etc. come before attack messages */
+	if (size_mon_msg) flush_monster_messages();
 
 	/*** Ranged attacks ***/
 
@@ -5982,7 +5995,7 @@ static void recover_monster(monster_type *m_ptr)
 	}
 
 	/* Hack -- Update the health and mana bar (always) */
-	if (p_ptr->health_who == m_idx)
+	if ((p_ptr->health_who == m_idx)  || (m_ptr->sidebar))
 		p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 }

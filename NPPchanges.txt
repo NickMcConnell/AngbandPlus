@@ -1,5 +1,78 @@
-NPP 0.6.0. BETA 1 Changes: 
+
+NPP6.1.2 changes:
+Misc code cleanup, provided by levind on Github ("runningaway") on the NPP forums.
+Fix many compiler warnings when compiling with clang and gcc (Bardur Arantsson)
+Bugfix: Fix missing break statement in generate_stats. 
+Bugfix: Fix a bug that could cause the game to freeze while generating randarts.
+Bugfix: Fix bug that made game unplayable on 64 bit machines. (fix by Bardur Arantsson)
+Bugfix: Fix several other instances of code using C_WIPE similar to the one that caused crashes on 64 bit machines.
+Bugfix: Sometimes examining an item in the store, the description was intented wrong.
+
+Bugfix: Made max monster name longer, as some names were cut off.
+Bugfix: Player's weren't prompted to pick up unidentified items that whose squelch settings were set to "never pickup".
+Bugfix: The shortened name for a young blue dragon was for a white dragon. (by levind aka "runningaway")
+Bugfix: Fixed bug that caused the game to crash on 64 bit machines when examining a throwing weapon.
+Bugfix: Fixed but where cursor dissappeared when a monster was targeted.
+
+NPP 6.1.1 changes:
+Bugfix:  Fixed a bug where the game could crash when inspecting a weapon.
+Bugfix:  Fixed 2 bugs regarding the description of the firing speed of a missile launcher.
+Bugfix:  Remove undefined variable when describing a throwing object (potentially causing crash).
+
+NPP 6.1.0 Changes:
+Special artifacts are no longer offered as quest rewards.
+Increase the potential bonus from deferred rewards by 50%.
+Added help file descriptions for the new quest rewards.
+Adjusted Ancient blue, green, and white dragons to 65 spellower (down from 100).
+Added more appropriate messages for when breathing monsters use beam attacks.
+The object selection menu now includes object weight.
+verify_leave_quest now verifies before casting word of recall spell on quest level.
+change default setting for some options.
+Revised the scale for guild reputation and player titles based on new quest system.
+Helpfiles now specify that poison resistance prevents the player from getting poisoned.
+Various tweaks to wilderness and labyrinth quests.
+Changed rarity of scrolls of summon unique from 8 to 4.
+Revised combat - slays/weapon branding now increases the amount of damage dice
+before damage calculation rather than multiplying the damage afterwards.
+Slightly revised calculations for critical hits, throwing and shooting.
+Much more detailed descriptions of weapon damage when (I)nspected.
+Unusual terrains now only appear on 25% of the regular dungeon levels.
+The hp/mana information appears on the sidebar for multiple monsters if there is room.
+The monster name now appears on the sidebar.
+Clicking on the monster name on the sidebar brings up the monster race information.
+Player can taret a monster by clicking on the sidebar while attacking or casting.
+In the bookshop, readable books will always come first.
+Added Cameron Browne as a permanent player ghost template.
+Artifacts examined as potential quest rewards are now *identified* when later found in the dungeon.
+Made the sleep spells much more effective (hopefully).
+Monsters woken up from physical attacks take a half-turn to fully wake up.
+Redid of stealing system, eliminated the counter that hasted the entire dungeon.
+Bugfix: Typos on the mage darkness storm name and plasma bolt spell short description.
+BUgfix: The druid spell elemental weapon only lasted for 5 turns.
+Bugfix: The guild sometimes offered dungeon spellbooks the player has used before.
+Bugfix: Objects created and rejected as potential guild rewards still counted towards the total rewards offered.
+Bugfix: Removed obsolete reference to old store inventory system.
+Bugfix: The guild sometimes overwrite bookstore inventory when generating rewards for players 
+        with a very high flayer fame, causing the game to crash when the bookshop inventory was shuffled. 
+Bugfix: Fix inconcistencies of telling players about objects theyare not aware of yet.
+Bugfix: Unidentified flavored special artifacts were not dislaying thier flavors.
+Bugfix: The game sometimes set up a quest below max depth (6400').
+Bugfix: Monster messages were sometimes coming in the wrong order (The monster attacks you.  The  monster wakes up.)
+Bugfix: Fix multiple grammar issues of spells being described as "casts spells which cast....".
+Bugfix: A shopkeeper's race was describes as "Dundan".
+Bugfix: Fixed typos in the brigand and rogue descriptions in te helpfiles.
+Bugfix: Verify using the !* inscription wasn't working.
+Bugfix: The mac binary now includes the NPPAngband icon.
+Bugfix: Cursed items were not getting the cursed inscription when wielded.
+Bugfix: Monster "wakes up" messages were happening after they make an attack.
+Bugfix: Hopefully prevent duplicate quest artifacts from being generated.
+Bugfix: Specify the "target closest" command in the cmdlist helpfile.
+Bugfix: Fix some issues with some things not being updated (visuals, line of sight, movement paths)
+BUgfix: In stores, long inscriptions are sometimes mixed up in the weight and price.
+
+NPP 6.0.0 Changes: 
 Broke savecompatibility with NPP 0.5.4.
+Changed numbering system to indicate from 0.6.0 to 6.0.0, to indicate NPP is a finished and fully playable game.
 Revised Mimic Code
 Changes to the savefile structure.
 Player ghosts can only appear at dungeon creation.
@@ -33,6 +106,29 @@ Added 8x8 tiles for all servants of the valar, adamantite, and all mimics.
 Added two more patterns for the monster in the "pit" rooms.
 Eliminate GTK and X11 ports
 Added labrynth levels (from Angband 3.4).
+Added labrynth quests.
+Bugfix: Fix html screenshots so they wrint default ASCII when when in tiles mode.
+Monsters now can be summoned on levels where it was previously restricted, but limited to monsters currently on the level.
+Added greater vault levels.
+Added greater vault quests.
+New makefile.osx.
+Made cloaks of aman more common (rarity of 16 to rarity of 8).
+When studying or casting, the player is now only offered books with spells they can cast or study.
+Fix multiple bugs in the randart code (reported and fixed by "runningaway")
+New function for teleporting the player and teleporting away monsters.
+Added new object, Faded Scroll Fragment, for use in labrynth quests. 
+Stat gain potions can be good or great quest rewards at the lower depths.
+Added message for when a putrid flower the player cannot see fires at a player.
+Bugfix:  Fixed a misspelled word in the descriptions for the Servant of Tulkas and Greater Servant of Tulkas.
+Bugfix: Traps couldnt be disarmed if the player was standing on a disarmed chest.
+Bugfix:  Non-spellcasters were sometimes getting spellpoints.
+The message verifying a command now specified the action (eg really quaff that potion?)
+Add monster character to targeted monster display. (patch by Runningaway).
+Fixed some instances of functions that, when searching all squares around a certain square,
+was referencing the wrong table, causing it to ignore the down direction and downard-left direction.
+Quest monsters standing in dangerous terrain get teleported off.
+Bugfix:  Player sometimes regenerated hp after dying.
+
 
 NPP 0.5.4 changes:
 The edges of the detected trap areas now show up onscreen.

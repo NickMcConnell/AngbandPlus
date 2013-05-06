@@ -152,6 +152,7 @@
 #define TV_WAND         65
 #define TV_ROD          66
 #define TV_SCROLL       70
+#define TV_PARCHMENT    71  /* Scrap of a scroll collected by the adventurer's guild */
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
@@ -160,6 +161,8 @@
 #define TV_DRUID_BOOK	92
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
+/* The "sval" codes for TV_JUNK */
+#define SV_SKELETON_BROKEN_BONE		2
 
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
@@ -535,6 +538,8 @@
 #define SV_SCROLL_MASS_BANISHMENT		45
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
+
+#define SV_PARCHMENT_FRAGMENT			1
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -1123,7 +1128,7 @@
 /*Slay weapon types*/
 
 #define TR1_SLAY_MASK \
-	(TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | \
+	(TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | \
          TR1_SLAY_GIANT | TR1_SLAY_DRAGON)
 
 #define TR2_SLAY_MASK \

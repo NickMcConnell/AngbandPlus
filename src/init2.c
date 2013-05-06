@@ -228,6 +228,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"too many allocations",
 	"too many arguments",
 	"too many non sequential quests",
+	"name too long",
 };
 
 
@@ -539,7 +540,6 @@ static errr init_r_info(void)
 
 	/* Set the global variables */
 	r_info = r_head.info_ptr;
-	r_name = r_head.name_ptr;
 	r_text = r_head.text_ptr;
 
 	return (err);
@@ -748,7 +748,7 @@ static void autoinscribe_clean(void)
 	inscriptionsCount = 0;
 }
 
-void autoinscribe_init(void)
+static void autoinscribe_init(void)
 {
 	/* Paranoia */
 	autoinscribe_clean();

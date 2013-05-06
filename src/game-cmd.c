@@ -180,7 +180,7 @@ errr cmd_get(cmd_context c, game_command *cmd, bool wait)
 	return 1;
 }
 
-int cmd_idx(cmd_code code)
+static int cmd_idx(cmd_code code)
 {
 	size_t i;
 

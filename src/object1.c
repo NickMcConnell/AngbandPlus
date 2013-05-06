@@ -78,6 +78,7 @@ static const char *obj_desc_get_modstr(const object_type *o_ptr)
 			return (flavor_text + flavor_info[k_ptr->flavor].text);
 
 		case TV_SCROLL:
+		case TV_PARCHMENT:
 			return scroll_adj[o_ptr->sval];
 
 		case TV_MAGIC_BOOK:
@@ -102,7 +103,10 @@ static const char *obj_desc_get_basename(const object_type *o_ptr, bool aware)
 
 	/* Known artifacts get special treatment */
 	if (artifact_p(o_ptr) && aware)
-		return (k_name + k_ptr->name);
+	{
+		/* An exception for unidentified special artifacts */
+		if (!k_ptr->flavor || object_is_known(o_ptr)) return (k_name + k_ptr->name);
+	}
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -132,6 +136,7 @@ static const char *obj_desc_get_basename(const object_type *o_ptr, bool aware)
 		case TV_DRAG_ARMOR:
 		case TV_DRAG_SHIELD:
 		case TV_LIGHT:
+		case TV_PARCHMENT:
 			return (k_name + k_ptr->name);
 
 		case TV_AMULET:
@@ -428,7 +433,6 @@ static bool obj_desc_show_armor(const object_type *o_ptr)
 		case TV_DRAG_SHIELD:
 		{
 			return TRUE;
-			break;
 		}
 	}
 
@@ -442,9 +446,11 @@ static size_t obj_desc_chest(const object_type *o_ptr, char *buf, size_t max, si
 	if (o_ptr->tval != TV_CHEST) return end;
 	if (!known) return end;
 
+	/* Special label for quest chests */
+	if (o_ptr->ident & (IDENT_QUEST)) strnfcat(buf, max, &end, " (special)");
+
 	/* May be "empty" */
-	if (!o_ptr->pval)
-		strnfcat(buf, max, &end, " (empty)");
+	else if (!o_ptr->pval) strnfcat(buf, max, &end, " (empty)");
 
 	/* May be "disarmed" */
 	else if (o_ptr->pval < 0)
@@ -843,284 +849,6 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail
 	}
 
 	return end;
-
-}
-
-
-/*
- * An ugly hack - for mimics - take a k_idx and return the object name/flavor
- */
-void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
-{
-
-	cptr basenm;
-	cptr modstr;
-
-	bool aware;
-
-	bool flavor;
-
-	bool append_name;
-
-	char *t;
-
-	cptr s;
-
-	char tmp_buf[128];
-
-	object_kind *k_ptr = &k_info[mimic_k_idx];
-
-	/* Extract some flags */
-
-	/* See if the object is "aware" */
-	aware = (k_ptr->aware ? TRUE : FALSE);
-
-	/* See if the object is "flavored" */
-	flavor = (k_ptr->flavor ? TRUE : FALSE);
-
-	/* Allow flavors to be hidden when aware */
-	if (aware && !show_flavors) flavor = FALSE;
-
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Extract default "base" string */
-	basenm = (k_name + k_ptr->name);
-
-	/* Assume no "modifier" string */
-	modstr = "";
-
-
-	/* Analyze the object */
-	switch (k_ptr->tval)
-	{
-		/* No flavor for these...*/
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_FLASK:
-		case TV_CHEST:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
-		case TV_LIGHT:
-		{
-			break;
-		}
-
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
-
-			break;
-		}
-
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
-
-			break;
-		}
-
-		/* Staffs */
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
-
-			break;
-		}
-
-		/* Wands */
-		case TV_WAND:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Wand~" : "& Wand~");
-
-			break;
-		}
-
-		/* Rods */
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Rod~" : "& Rod~");
-
-			break;
-		}
-
-		/* Scrolls */
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[k_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
-
-			break;
-		}
-
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
-
-			break;
-		}
-
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (k_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
-
-			break;
-		}
-
-		/* Magic Books */
-		case TV_MAGIC_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Book~ of Mage Spells #";
-			break;
-		}
-
-		/* Druid Books */
-		case TV_DRUID_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Book~ of Druid Spells #";
-			break;
-		}
-
-		/* Prayer Books */
-		case TV_PRAYER_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Holy Book~ of Prayers #";
-			break;
-		}
-
-		/* Hack -- Gold/Gems */
-		case TV_GOLD:
-		{
-			my_strcpy(buf, basenm, max);
-			return;
-		}
-
-		/* Hack -- Default -- Used in the "inventory" routine */
-		default:
-		{
-			my_strcpy(buf, "(nothing)", max);
-			return;
-		}
-	}
-
-
-	/* Start dumping the result */
-	t = tmp_buf;
-
-	/* Begin */
-	s = basenm;
-
-	/* Handle objects which sometimes use "a" or "an" */
-	if (*s == '&')
-	{
-
-		/* Skip the ampersand and the following space */
-		s += 2;
-
-		/* Hack -- A single one, and next character will be a vowel */
-		if ((*s == '#') ? my_is_vowel(modstr[0]) : my_is_vowel(*s))
-		{
-			object_desc_str_macro(t, "an ");
-		}
-
-		/* A single one, and next character will be a non-vowel */
-		else
-		{
-			object_desc_str_macro(t, "a ");
-		}
-	}
-
-	/* Copy the string */
-	for (; *s; s++)
-	{
-		/* Pluralizer */
-		if (*s == '~')
-		{
-			 /*nothing*/
-		}
-
-		/* Modifier */
-		else if (*s == '#')
-		{
-			/* Append the modifier */
-			object_desc_str_macro(t, modstr);
-		}
-
-		/* Normal */
-		else
-		{
-			/* Copy */
-			*t++ = *s;
-		}
-	}
-
-
-	/* Append the "kind name" to the "base name" */
-	if (append_name)
-	{
-		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
-	}
-
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Copy the string over */
-	my_strcpy(buf, tmp_buf, max);
 
 }
 

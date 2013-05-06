@@ -123,7 +123,7 @@ static void load_roller_data(birther *player, birther *prev_player)
 {
 	int i;
 
-    /* The initialisation is just paranoia - structure assignment is
+	/* The initialisation is just paranoia - structure assignment is
 	   (perhaps) not strictly defined to work with uninitialised parts
 	   of structures. */
 	birther temp;
@@ -211,11 +211,8 @@ static int adjust_stat(int value, int amount)
 	return (value);
 }
 
-
-
-
 /*
- * Roll for a characters stats
+ * Roll for a character's stats
  *
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
@@ -343,13 +340,11 @@ static void get_history(void)
 	/* Clear the previous history strings */
 	p_ptr->history[0] = '\0';
 
-
 	/* Initial social class */
 	social_class = randint1(4);
 
 	/* Starting place */
 	chart = rp_ptr->hist;
-
 
 	/* Process the history */
 	while (chart)
@@ -375,8 +370,6 @@ static void get_history(void)
 		/* Enter the next chart */
 		chart = h_info[i].next;
 	}
-
-
 
 	/* Verify social class */
 	if (social_class > 75) social_class = 75;
@@ -411,8 +404,6 @@ static void get_ahw(void)
 }
 
 
-
-
 /*
  * Get the player's starting money
  */
@@ -428,7 +419,6 @@ static void get_money(int stat_use[A_MAX])
 		p_ptr->au = p_ptr->au_birth = 200;
 	}
 }
-
 
 
 /*
@@ -463,11 +453,10 @@ static void player_wipe(void)
 		/* Reset level */
 		if (quest_fixed(q_ptr))
 		{
-			q_info[i].q_flags = 0L;
+			q_ptr->q_flags = 0L;
 			q_ptr->q_num_killed = 0;
 		}
 	}
-
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -480,7 +469,6 @@ static void player_wipe(void)
 		/* Reset "aware" */
 		k_ptr->aware = FALSE;
 	}
-
 
 	/* Reset the "monsters" */
 	for (i = 1; i < z_info->r_max; i++)
@@ -508,18 +496,14 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
-	/*re-set the thefts counter*/
-	recent_failed_thefts = 0;
-
 	/*re-set the altered inventory counter*/
 	allow_altered_inventory = FALSE;
 	altered_inventory_counter = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
-
-
 }
+
 
 /**
  * Try to wield everything in the inventory.
@@ -534,6 +518,7 @@ static void wield_all(void)
 	int item;
 	int num;
 	bool is_ammo;
+
 
 	/* Scan through the slots backwards */
 	for (item = INVEN_PACK - 1; item >= 0; item--)
@@ -634,7 +619,6 @@ static void player_outfit(void)
 		}
 	}
 
-
 	/* Hack -- give the player hardcoded equipment XXX */
 
 	/* Get local object */
@@ -674,10 +658,12 @@ static void player_outfit(void)
 /*
  * Cost of each "point" of a stat.
  */
-static const int birth_stat_costs[18 + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4 };
+static const int birth_stat_costs[18 + 1] =
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4 };
 
 /* It was feasible to get base 17 in 3 stats with the autoroller */
 #define MAX_BIRTH_POINTS 24 /* 3 * (1+1+1+1+1+1+2) */
+
 
 static void recalculate_stats(int *stats, int points_left)
 {
@@ -744,7 +730,8 @@ static void reset_stats(int stats[A_MAX], int points_spent[A_MAX], int *points_l
 	event_signal_birthpoints(points_spent, *points_left);
 }
 
-static bool buy_stat(int choice, int stats[A_MAX], int points_spent[A_MAX], int *points_left)
+static bool buy_stat(int choice, int stats[A_MAX], int points_spent[A_MAX],
+					 int *points_left)
 {
 	/* Must be a valid stat, and have a "base" of below 18 to be adjusted */
 	if (!(choice >= A_MAX || choice < 0) &&	(stats[choice] < 18))
@@ -877,6 +864,8 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 				}
 
 				step++;
+
+				break;
 			}
 
 			/*
@@ -984,6 +973,7 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 		}
 	}
 }
+
 
 /*
  * This fleshes out a full player based on the choices currently made,
@@ -1095,14 +1085,13 @@ void player_birth(bool quickstart_allowed)
 
 	if (buf)
 	{
-		/* Try to increment the roman suffix */
+		/* Try to increment the Roman suffix */
 		success = int_to_roman((roman_to_int(buf) + 1), buf,
 			(sizeof(op_ptr->full_name) - (buf -
 			(char *)&op_ptr->full_name)));
 
 		if (!success) msg_print("Sorry, could not deal with suffix");
 	}
-
 
 	/* We're ready to start the interactive birth process. */
 	event_signal_flag(EVENT_ENTER_BIRTH, quickstart_allowed);
@@ -1279,9 +1268,15 @@ void player_birth(bool quickstart_allowed)
 			case TV_DRUID_BOOK:
 			{
 				k_info[i].squelch = NO_SQUELCH_NEVER_PICKUP;
+
 				break;
 			}
-			default: k_info[i].squelch = SQUELCH_NEVER;
+			default:
+			{
+				k_info[i].squelch = SQUELCH_NEVER;
+
+				break;
+			}
 		}
 	}
 
@@ -1297,27 +1292,27 @@ void player_birth(bool quickstart_allowed)
 	}
 
 	/* Make a note file if that option is set */
- 	if (adult_take_notes)
- 	{
+	if (adult_take_notes)
+	{
 
- 	  	/* Variables */
- 	  	char long_day[25];
- 	  	time_t ct = time((time_t*)0);
+		/* Variables */
+		char long_day[25];
+		time_t ct = time((time_t*)0);
 
- 	  	/* Open the file (notes_file and notes_fname are global) */
- 	  	create_notes_file();
+		/* Open the file (notes_file and notes_fname are global) */
+		create_notes_file();
 
 		if (!notes_file) quit("Can't create the notes file");
 
- 	  	/* Get date */
- 	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+		/* Get date */
+		(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
 
- 	  	/* Add in "character start" information */
- 	  	file_putf(notes_file, "{{full_character_name}} the %s %s\n",
+		/* Add in "character start" information */
+		file_putf(notes_file, "{{full_character_name}} the %s %s\n",
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
- 	  	file_putf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
- 	  	file_putf(notes_file, "============================================================\n");
+		file_putf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+		file_putf(notes_file, "============================================================\n");
 		file_putf(notes_file, "                   CHAR.  \n");
 		file_putf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
 		file_putf(notes_file, "============================================================\n");
@@ -1357,5 +1352,4 @@ void player_birth(bool quickstart_allowed)
 	event_signal(EVENT_LEAVE_BIRTH);
 	event_signal(EVENT_REMOVE_STATUSLINE);
 }
-
 

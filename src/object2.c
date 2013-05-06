@@ -462,6 +462,9 @@ static bool make_artifact_special(object_type *o_ptr)
 	if ((object_generation_mode >= OB_GEN_STORE_HEAD) &&
 		(object_generation_mode <= OB_GEN_STORE_TAIL)) return (FALSE);
 
+	/*no special artifacts as quest rewards */
+	if (object_generation_mode == OB_GEN_MODE_QUEST) return (FALSE);
+
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
@@ -2646,6 +2649,31 @@ static bool kind_is_great(int k_idx)
 			return (FALSE);
 		}
 
+		/*
+		 * Stat gain potions can be great at the lower levels.
+		 */
+
+		case TV_POTION:
+		{
+			switch (k_ptr->sval)
+			{
+				case SV_POTION_INC_STR:
+				case SV_POTION_INC_INT:
+				case SV_POTION_INC_WIS:
+				case SV_POTION_INC_CON:
+				case SV_POTION_INC_DEX:
+				case SV_POTION_AUGMENTATION:
+				{
+					if (object_generation_mode != OB_GEN_MODE_QUEST) return (FALSE);
+
+					if (object_level < (k_ptr->k_level - 5)) return (TRUE);
+					return (FALSE);
+				}
+				default: break;
+			}
+			return (FALSE);
+		}
+
 		/* Chests -- Chests are great, except for quests.*/
 		case TV_CHEST:
 		{
@@ -2653,7 +2681,7 @@ static bool kind_is_great(int k_idx)
 			    (object_generation_mode == OB_GEN_MODE_RANDART))  return (FALSE);
 			return (TRUE);
 		}
-
+		default:  break;
 	}
 
 	/* Assume not great */
@@ -3019,7 +3047,7 @@ static bool kind_is_polearm(int k_idx)
 /*
  * Hack -- determine if a template is a weapon.
  */
-bool kind_is_weapon(int k_idx)
+static bool kind_is_weapon(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
@@ -3361,15 +3389,34 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/*the very powerful healing potions can be good*/
+		/*
+		 * The very powerful healing potions can be good.
+		 * Stat gain potions can be good at the lower levels.
+		 */
 		case TV_POTION:
 		{
-			if ((k_ptr->sval == SV_POTION_STAR_HEALING) ||
-				(k_ptr->sval == SV_POTION_LIFE))
-		   	{
-			    if (object_level > 85)
+			switch (k_ptr->sval)
+			{
+				case SV_POTION_STAR_HEALING:
+				case SV_POTION_LIFE:
+				{
+					if (object_level > 85) return (TRUE);
+					return (FALSE);
+				}
+				case SV_POTION_INC_STR:
+				case SV_POTION_INC_INT:
+				case SV_POTION_INC_WIS:
+				case SV_POTION_INC_CON:
+				case SV_POTION_INC_DEX:
+				case SV_POTION_AUGMENTATION:
+				{
+					if (object_generation_mode != OB_GEN_MODE_QUEST) return (FALSE);
 
-				return (TRUE);
+					if (object_level < (k_ptr->k_level - 5)) return (TRUE);
+					return (FALSE);
+				}
+				default: break;
+
 			}
 			return (FALSE);
 		}
@@ -3829,7 +3876,7 @@ void place_object(int y, int x, bool good, bool great, int droptype)
 		if (!make_object(i_ptr, good, great, droptype, FALSE)) continue;
 
 		/* Check compatibility with terrain */
-		if (hates_location(y, x, i_ptr))
+		if (object_hates_location(y, x, i_ptr))
 		{
 			/* Hack -- Preserve artifacts */
 			a_info[i_ptr->art_num].a_cur_num = 0;
@@ -3855,21 +3902,21 @@ void place_object(int y, int x, bool good, bool great, int droptype)
 }
 
 /*
- * Attempt to place a quest_chest at the given location.
+ * Attempt to place a quest artifact at the given location.
  */
-void place_quest_artifact(int y, int x)
+bool place_quest_artifact(int y, int x)
 {
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;;
 
 	/* Paranoia */
-	if (!in_bounds(y, x)) return;
+	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Hack -- clean floor space */
-	if (!cave_clean_bold(y, x)) return;
+	if (!cave_clean_bold(y, x)) return (FALSE);
 
-	/* Get local object */
-	i_ptr = &object_type_body;
+	/* Already created */
+	if (a_info[QUEST_ART_SLOT].a_cur_num) return (FALSE);
 
 	/* Wipe the object */
 	object_wipe(i_ptr);
@@ -3878,7 +3925,10 @@ void place_quest_artifact(int y, int x)
 	create_quest_artifact(i_ptr);
 
 	/* Give it to the floor */
-	floor_carry(y, x, i_ptr);
+	if (!floor_carry(y, x, i_ptr)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
 
 }
 
@@ -4005,7 +4055,7 @@ void steal_object_from_monster(int y, int x)
 		else while (!make_object(i_ptr, good, great,DROP_TYPE_UNTHEMED, FALSE)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_BASE);
+		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/*update the monster lore*/
 		lore_treasure(cave_m_idx[y][x], 1, 0);
@@ -4440,7 +4490,7 @@ void expand_inscription(const object_type *o_ptr, const char *src, char dest[], 
 		{
 			char temp[200];
 			/* The supported patterns */
-			char *pattern_list[] = {":all:", ":random:"};
+			const char *pattern_list[] = {":all:", ":random:"};
 			/* Info of each pattern */
 			bool mode_list[] = {FALSE, TRUE};
 			int found = -1;

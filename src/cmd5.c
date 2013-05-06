@@ -63,7 +63,7 @@ s16b spell_chance(int spell)
 	}
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
-	if (p_ptr->icky_wield)
+	if (p_ptr->state.icky_wield)
 	{
 		chance += 25;
 	}
@@ -746,6 +746,10 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
 	}
 	else
 	{
+		/* Remember we have used this book */
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		k_ptr->tried = TRUE;
+
 		spell_learn(spell);
 		p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 	}
@@ -774,7 +778,7 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_format("You do not have enough mana to %s this %s.", noun, verb);
+		msg_format("You do not have enough mana to %s this %s.", verb, noun);
 
 		/* Flush input */
 		flush();

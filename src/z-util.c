@@ -261,13 +261,16 @@ void quit(cptr str)
 	if (quit_aux) (*quit_aux)(str);
 
 	/* Success */
-	if (!str) (void)(exit(EXIT_SUCCESS));
+	if (!str)
+	{
+		exit(EXIT_SUCCESS);
+	}
 
 	/* Send the string to plog() */
 	plog(str);
 
 	/* Failure */
-	(void)(exit(EXIT_FAILURE));
+	exit(EXIT_FAILURE);
 }
 
 
@@ -286,7 +289,7 @@ void (*ang_sort_swap)(void *u, void *v, int a, int b);
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort_aux(void *u, void *v, int p, int q)
+static void ang_sort_aux(void *u, void *v, int p, int q)
 {
 	int z, a, b;
 

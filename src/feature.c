@@ -25,7 +25,7 @@
  */
 void feature_desc(char *buf, size_t max, u16b feat, bool add_prefix, bool get_mimic)
 {
-	char *pref = "";
+	const char *pref = "";
 	char *name;
 	char *pbuf;
 
@@ -236,9 +236,6 @@ void find_secret(int y, int x)
 
 	/* Change the location */
 	cave_alter_feat(y, x, FS_SECRET);
-
-
-	/*p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);*/
 
 	/* Disturb */
 	disturb(0, 0);
@@ -957,7 +954,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 				num = sum_base + randint(sum_plus);
 				for (i = 0; i < num; i++)
 				{
-					(void)summon_specific(y, x, p_ptr->depth, 0);
+					(void)summon_specific(y, x, p_ptr->depth, 0, MPLACE_OVERRIDE);
 				}
 			}
 			break;
@@ -976,7 +973,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			{
 
 				msg_print("You hit a teleport trap!");
-				teleport_player(dist);
+				teleport_player(dist, FALSE);
 			}
 			break;
 		}
@@ -1645,13 +1642,10 @@ s16b get_feat_num(int level)
 		 * labyrinth levels, wilderness levels or arena levels
 		 */
 		if (feat_ff2_match(f_idx, FF2_TRAP_PASSIVE) &&
-			(f_info[f_idx].f_power == 5) &&
-			/* Also includes DUNGEON_TYPE_WILDERNESS, DUNGEON_TYPE_ARENA DUNGEON_TYLE_LABYRINTH*/
-			(p_ptr->dungeon_type >= DUNGEON_TYPE_THEMED_LEVEL))
-			{
-				continue;
-			}
-
+			(f_info[f_idx].f_power == 5) && (*dun_cap->limited_level_summoning)())
+		{
+			continue;
+		}
 
 		/* Hack -- no up stairs on certain levels */
 		if (feat_ff1_match(f_idx, FF1_LESS))
@@ -3539,7 +3533,7 @@ static void collect_dynamic_terrain(void)
  * We mark the terrain lore if the dynamic terrain change is observed.
  * This function should be consistent with describe_terrain_dynamic in the feature description.
  */
-void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
+static void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 {
 
 	/* Get coordinates */
@@ -3819,6 +3813,19 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 			f_l_ptr->f_l_flags3 |= (FF3_DYNAMIC);
 		}
 
+		/* Message for when the player can't see */
+		else
+		{
+			if (gf_type == GF_ARROW)
+			{
+				msg_print("It aims at you with spikes!");
+			}
+			else if (gf_type == GF_POIS)
+			{
+				msg_print("It spits poison in your face!");
+			}
+		}
+
 		/* Tell the player */
 		disturb(0, 0);
 
@@ -4073,7 +4080,7 @@ s16b select_powerful_race(void)
 			r_ptr = &r_info[r_idx];
 
 			/* Ignore empty races */
-			if (!r_ptr->name) continue;
+			if (!r_ptr->speed) continue;
 
 			/* Ignore player ghosts (no name) */
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
@@ -4498,7 +4505,7 @@ bool hit_wall(int y, int x, bool do_action)
 			}
 
 			/* Teleport */
-			teleport_player(100 + rand_int(effective_depth(p_ptr->depth)));
+			teleport_player(100 + rand_int(effective_depth(p_ptr->depth)), FALSE);
 		}
 
 		return (TRUE);
@@ -4653,7 +4660,7 @@ u32b get_level_flag_from_race(monster_race *r_ptr)
 void describe_one_level_flag(char *buf, size_t max, u32b flag)
 {
 	/* Default name */
-	char *name = "unknown";
+	const char *name = "unknown";
 
 	/* Analyze the flag */
 	switch (flag)

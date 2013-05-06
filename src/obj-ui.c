@@ -788,10 +788,10 @@ void show_floor(const int *floor_list, int floor_num, olist_detail_t mode)
  *
  * The item can be negative to mean "item on floor".
  */
-static bool verify_item(cptr prompt, int item)
+static bool verify_item(int item)
 {
 	char o_name[80];
-
+	cptr prompt;
 	char out_val[160];
 
 	object_type *o_ptr;
@@ -806,6 +806,49 @@ static bool verify_item(cptr prompt, int item)
 	else
 	{
 		o_ptr = &o_list[0 - item];
+	}
+
+	/* Get the possible command prompts */
+	switch (p_ptr->command_cmd)
+	{
+		case 'a':	{prompt = "Really aim";		break;}
+		case 'A':	{prompt = "Really activate";break;}
+		case 'd':	{prompt = "Really drop";	break;}
+		case 'D':	{prompt = "Really disarm";	break;}
+		case 'E':	{prompt = "Really eat";		break;}
+		case 'f':	{prompt = "Really fire";	break;}
+		case 'F':	{prompt = "Really fuel";	break;}
+		case 'h':	{prompt = "Really fire";	break;}
+		case 'k':	{prompt = "Really destroy";	break;}
+		case 'o':	{prompt = "Really open";	break;}
+		case 'q':	{prompt = "Really quaff";	break;}
+		case 'r':	{prompt = "Really read";	break;}
+		case 't':	{prompt = "Really take off";break;}
+		case 'u':	{prompt = "Really use";		break;}
+		case 'v':	{prompt = "Really throw";	break;}
+		case 'w':
+		{
+			int slot = wield_slot(o_ptr);
+
+			/* Where would the item go? */
+			if (slot == INVEN_WIELD) 		prompt = "Really wield";
+			else if (slot == INVEN_BOW) 	prompt = "Really shoot with";
+			else if ((slot == INVEN_LIGHT)	|| (slot == INVEN_ARM))
+			{
+				prompt = "Really hold";
+			}
+			else if ((slot == INVEN_LEFT) || (slot == INVEN_RIGHT) || (slot == INVEN_NECK))
+			{
+				prompt = "Really put on";
+			}
+			else if (slot >= QUIVER_START) prompt = "Really place in quiver";
+			else prompt = "Really wear";
+
+			break;
+
+		}
+		case 'z':	{prompt = "Really zap";		break;}
+		default: 	{prompt = "Really try"; 	break;}
 	}
 
 	/* Describe */
@@ -849,7 +892,7 @@ static bool get_item_allow(int item, bool is_harmless)
 
 	while (n--)
 	{
-		if (!verify_item("Really try", item))
+		if (!verify_item(item))
 			return (FALSE);
 	}
 
@@ -889,7 +932,7 @@ static void item_prompt(menu_type *menu, int mode, cptr pmt)
 	if (p_ptr->command_wrk == (USE_INVEN))
 	{
 		/* Begin the prompt */
-    	sprintf(out_val, "Inven:");
+    	sprintf(out_val, "    Inven:");
 
     	/* Indicate lack of inventory choices. */
     	if (i1 > i2)
@@ -1044,12 +1087,17 @@ static char get_item_tag(menu_type *menu, int oid)
 
 }
 
+#define POUND_LENGTH   15
+
 static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
 {
 	const int *choice = menu->menu_data;
 	int idx = choice[oid];
-	char o_name[120];
+	char o_name[200];
 	char label;
+	int weight;
+	char tmp_val[30];
+	u16b i, length, o_length;
 
 	byte attr = TERM_WHITE;
 
@@ -1084,10 +1132,23 @@ static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int
 
 	/* Get the object description */
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
-	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
-	/* Hack -- enforce max length */
-	o_name[width - 3] = '\0';
+	/* Boundary control.  Ensure no memory leaks below during the for loop*/
+	length = strlen(o_name);
+	o_length = width - POUND_LENGTH;
+
+	/* Terminate the string */
+	o_name[o_length] = '\0';
+
+	/* add spaces to o_mname, ensuring memory leaks */
+	for (i = length; i < o_length; i++)
+	{
+		my_strcat(o_name," ", sizeof(o_name));
+	}
+
+	weight = o_ptr->weight * o_ptr->number;
+	strnfmt(tmp_val, sizeof(tmp_val), "%4d.%1d lb", weight / 10, weight % 10);
+	my_strcat(o_name, tmp_val, sizeof(o_name));
 
 	/* Hack - re-print the label with the right color, code taken from get_item_tag above*/
 	label = get_item_tag(menu, oid);
@@ -1095,7 +1156,9 @@ static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int
 	c_put_str(attr, format("%c)",label), row, (col-3));
 
 	/* Now print the object  */
-	c_put_str(attr, format("%s", o_name), row, col);
+	c_put_str(attr, o_name, row, col);
+
+
 }
 
 
@@ -1304,7 +1367,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 	if (mode & (USE_FLOOR))
 	{
 		/* Scan all objects in the grid */
-		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, sq_y, sq_x, 0x01);
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, sq_y, sq_x, 0x03);
 	}
 
 	/* Full floor */
@@ -1589,7 +1652,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 					k = 0 - floor_list[0];
 
 					/* Allow player to "refuse" certain actions */
-					if (!get_item_allow(k, TRUE))
+					if (!get_item_allow(k, FALSE))
 					{
 						done = TRUE;
 						break;
@@ -1735,7 +1798,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 				}
 
 				/* Verify the item */
-				if (verify && !verify_item("Try", k))
+				if (verify && !verify_item(k))
 				{
 					done = TRUE;
 					evt.type = EVT_ESCAPE;
@@ -1865,7 +1928,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Check validity */
 	if (item)
 	{
-		if (!get_item_allow(*cp, TRUE))
+		if (!get_item_allow(*cp, FALSE))
 		{
 			item = FALSE;
 			msg_print(NULL);

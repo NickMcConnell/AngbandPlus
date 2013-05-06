@@ -1,6 +1,6 @@
 === Version Information ===
 
-This file was last updated for Angband 3.1.2. and NPPAngband 0.5.3
+This file was last updated for Angband 3.1.2. and NPPAngband 6.0.0
 
 Make sure to read the newsgroup ("http://angband.oook.cz/"), and to visit
 
@@ -231,7 +231,7 @@ or the addition of the other attack forms such as shards, sound, chaos,
 nexus and so on (even before Ben.) 
 
 
-The Official Angband Home Page ("http://www.thangorodrim.net/") serves
+The Official Angband Home Page ("http://www.rephial.net/") serves
 not only as the most up to date description of Angband, but also lists
 changes made between versions, and changes planned for upcoming versions,
 and lists various email addresses and web sites related to Angband.

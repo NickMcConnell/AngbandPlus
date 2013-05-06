@@ -59,44 +59,6 @@ static byte encode_to_xchar(char *encode)
  	return (0);
 }
 
-/*
- * Read an encode.  Return the Latin-1 character position if successful.
- */
-bool get_encode(char *str, char *c)
-{
- 	int n = 0;
- 	char *s;
- 	char encode[80];
-
- 	/* Assume empty char */
- 	*c = '\0';
-
- 	/* An encode must start with a '[' */
- 	if (str[0] != '[') return (FALSE);
-
- 	/* Copy the encode (between brackets) */
- 	for (s = str + 1; ((n < 80) && (*s) && (*s != ']')); n++)
- 	{
- 		encode[n] = *s++;
- 	}
-
- 	/* End the encode */
- 	encode[n] = '\0';
-
- 	/* We have a trailing bracket */
- 	if (*s == ']')
- 	{
- 		/* Look up extended character */
- 		*c = (char)encode_to_xchar(encode);
-
- 		/* Encode is legal -- return the char */
- 		if (*c) return (TRUE);
- 	}
-
- 	/* Illegal encode */
- 	return (FALSE);
-}
-
 
 
 /*

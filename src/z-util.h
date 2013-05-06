@@ -77,6 +77,7 @@ extern void quit(cptr str);
 /* TODO: make ang_sort() take comp and swap hooks rather than use globals */
 extern bool (*ang_sort_comp)(const void *u, const void *v, int a, int b);
 extern void (*ang_sort_swap)(void *u, void *v, int a, int b);
+extern void ang_sort(void *u, void *v, int n);
 
 /* Mathematical functions */
 int mean(int *nums, int size);

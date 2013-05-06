@@ -1392,7 +1392,7 @@ static errr grab_one_flag(u32b **flag, cptr errstr, cptr what)
 static errr grab_one_feature_flag(feature_type *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[FF1] = &(ptr->f_flags1);
 	f[FF2] = &(ptr->f_flags2);
 	f[FF3] = &(ptr->f_flags3);
@@ -1757,7 +1757,7 @@ errr parse_f_info(char *buf, header *head)
 static errr grab_one_kind_flag(object_kind *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[TR1] = &(ptr->k_flags1);
 	f[TR2] = &(ptr->k_flags2);
 	f[TR3] = &(ptr->k_flags3);
@@ -2081,7 +2081,7 @@ errr parse_t_info(char *buf, header *head)
 static errr grab_one_artifact_flag(artifact_type *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[TR1] = &(ptr->a_flags1);
 	f[TR2] = &(ptr->a_flags2);
 	f[TR3] = &(ptr->a_flags3);
@@ -2158,6 +2158,8 @@ errr parse_a_info(char *buf, header *head)
 
 		/* Point at the "info" */
 		a_ptr = (artifact_type*)head->info_ptr + i;
+
+		if (strlen(s) > MAX_LEN_ART_NAME) return (PARSE_ERROR_NAME_TOO_LONG);
 
 		/* Store the name */
 		my_strcpy(a_ptr->name, s, MAX_LEN_ART_NAME);
@@ -2398,7 +2400,7 @@ errr parse_n_info(char *buf, header *head)
 static bool grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[TR1] = &(ptr->flags1);
 	f[TR2] = &(ptr->flags2);
 	f[TR3] = &(ptr->flags3);
@@ -2596,7 +2598,7 @@ errr parse_e_info(char *buf, header *head)
 static errr grab_one_basic_flag(monster_race *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[RN1] = &(ptr->r_native);
 	f[RF1] = &(ptr->flags1);
 	f[RF2] = &(ptr->flags2);
@@ -2612,7 +2614,7 @@ static errr grab_one_basic_flag(monster_race *ptr, cptr what)
 static errr grab_one_spell_flag(monster_race *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[RF4] = &(ptr->flags4);
 	f[RF5] = &(ptr->flags5);
 	f[RF6] = &(ptr->flags6);
@@ -2664,12 +2666,34 @@ errr parse_r_info(char *buf, header *head)
 		/* Save the index */
 		error_idx = i;
 
+		if (strlen(s) > MAX_MON_LONG_NAME) return (PARSE_ERROR_NAME_TOO_LONG);
+
 		/* Point at the "info" */
 		r_ptr = (monster_race*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(r_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		my_strcpy(r_ptr->name_full, s, MAX_MON_LONG_NAME);
+	}
+
+	/* Process 'A' for "Abbreviated Name" */
+	else if (buf[0] == 'A')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		if (strlen(s) > MAX_MON_SHORT_NAME) return (PARSE_ERROR_NAME_TOO_LONG);
+
+		/* Store the name */
+		my_strcpy(r_ptr->name_short, s, MAX_MON_SHORT_NAME);
 	}
 
 	/* Process 'D' for "Description" */
@@ -2932,7 +2956,7 @@ errr parse_r_info(char *buf, header *head)
 static errr grab_one_racial_flag(player_race *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[RN1] = &(ptr->pr_native);
 	f[TR1] = &(ptr->pr_flags1);
 	f[TR2] = &(ptr->pr_flags2);
@@ -3190,7 +3214,7 @@ errr parse_p_info(char *buf, header *head)
 static errr grab_one_class_flag(player_class *ptr, cptr what)
 {
 	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	C_WIPE(f, MAX_FLAG_SETS, u32b);
 	f[RN1] = &(ptr->c_native);
 	f[CF1] = &(ptr->flags);
 	return grab_one_flag(f, "player", what);

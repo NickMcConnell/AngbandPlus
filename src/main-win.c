@@ -2426,7 +2426,7 @@ static void windows_map_aux(void)
 		{
 
 			/* Determine what is there */
-			map_info(y, x, &a, &c, &ta, &tc);
+			map_info(y, x, &a, &c, &ta, &tc, FALSE);
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))

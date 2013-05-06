@@ -547,7 +547,7 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[n++] = (u16b)i;
+		if (r_ptr->speed) who[n++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -562,7 +562,7 @@ static void spoil_mon_desc(cptr fname)
 	{
 		monster_race *r_ptr = &r_info[who[i]];
 
-		cptr name = (r_name + r_ptr->name);
+		cptr name = (r_ptr->name_full);
 
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
@@ -679,7 +679,7 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[count++] = (u16b)i;
+		if (r_ptr->speed) who[count++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -712,7 +712,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		text_out("%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		text_out("%s  (", (r_ptr->name_full));	/* ---)--- */
 
 		/* Color */
 		text_out(attr_to_text(r_ptr->d_attr));

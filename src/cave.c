@@ -626,7 +626,7 @@ static u16b image_monster(bool use_default)
 		r_ptr = &r_info[rand_int(z_info->r_max)];
 
 		/* Skip non-entries */
-		if (!r_ptr->name) continue;
+		if (!r_ptr->speed) continue;
 
 		/* Retrieve attr/char */
 		if (use_default)
@@ -714,7 +714,7 @@ static u16b image_random(bool use_default)
 /*
  * Specify which of the 32x32 tiles support lighting
  */
-bool feat_supports_lighting_dvg(u16b feat)
+static bool feat_supports_lighting_dvg(u16b feat)
 {
 	/* ALl the walls and floor support lighting*/
 	if (f_info[feat].f_flags1 & (FF1_WALL | FF1_FLOOR))
@@ -1251,10 +1251,10 @@ static void get_dtrap_edge_char(byte *a, char *c)
 
 #define GRAF_BROKEN_BONE 440
 
-void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
+void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, bool use_default)
 {
-	byte a;
-	char c;
+	byte a, default_a;
+	char c, default_c;
 
 	u16b feat;
 	u16b info;
@@ -1296,6 +1296,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 		a = PICT_A(i);
 		c = PICT_C(i);
+
+		i = image_random(FALSE);
+		default_a = PICT_A(i);
+		default_c = PICT_C(i);
+
 	}
 
 	/* Boring grids (floors, etc) */
@@ -1318,14 +1323,17 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 				/* Normal attr */
 			a = f_ptr->x_attr;
+			default_a = f_ptr->d_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
+			default_c = f_ptr->d_char;
 
 			/* Special lighting effects */
 			if (view_special_light)
 			{
 				special_lighting_floor(&a, &c, info);
+				special_lighting_floor(&default_a, &default_c, info);
 			}
 		}
 
@@ -1337,9 +1345,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
+			default_a = f_ptr->d_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
+			default_c = f_ptr->d_char;
 		}
 	}
 
@@ -1360,12 +1370,18 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
+			default_a = f_ptr->d_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
+			default_c = f_ptr->d_char;
 
 			/* Special lighting effects (walls only) */
-			if (view_granite_light) special_lighting_wall(&a, &c, feat, info);
+			if (view_granite_light)
+			{
+				special_lighting_wall(&a, &c, feat, info);
+				special_lighting_wall(&default_a, &default_c, feat, info);
+			}
 		}
 
 		/* Unknown */
@@ -1379,9 +1395,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
+			default_a = f_ptr->d_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
+			default_c = f_ptr->d_char;
 		}
 	}
 
@@ -1390,7 +1408,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	{
 		if (cheat_xtra)
 		{
-			a = TERM_L_BLUE;
+			a = default_a = TERM_L_BLUE;
 		}
 	}
 
@@ -1399,7 +1417,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	(*tcp) = c;
 
 	/* Now add the dtrap edge characteristic as an overlay*/
-	if ((do_dtrap) && (det_trap_edge)) get_dtrap_edge_char(&a, &c);
+	if ((do_dtrap) && (det_trap_edge))
+	{
+		get_dtrap_edge_char(&a, &c);
+		default_a = TERM_L_GREEN;
+		default_c = '*';
+	}
 
 	/* Objects */
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
@@ -1418,6 +1441,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				a = PICT_A(i);
 				c = PICT_C(i);
 
+				i = image_object(TRUE);
+				default_a = PICT_A(i);
+				default_c = PICT_C(i);
+
 				break;
 			}
 
@@ -1430,9 +1457,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Normal attr */
 				a = object_attr(o_ptr);
+				default_a = object_attr_default(o_ptr);
 
 				/* Normal char */
 				c = object_char(o_ptr);
+				default_c = object_char_default(o_ptr);
 
 				/*found a non-squelchable item, unless showing piles, display this one*/
 				if (!show_piles) break;
@@ -1469,8 +1498,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 					/* Special squelch character HACK */
 					/* Colour of Blade of Chaos */
 					a = TERM_VIOLET;
+					default_a = a;
 					/* Symbol of floor */
 					c = f_info[1].x_char;
+					default_c = f_info[1].d_char;
 				}
 			}
 
@@ -1492,9 +1523,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 					/* Normal attr */
 					a = k_ptr->x_attr;
+					default_a = k_ptr->d_attr;
 
 					/* Normal char */
 					c = k_ptr->x_char;
+					default_c = k_ptr->d_char;
 				}
 				break;
 			}
@@ -1611,37 +1644,44 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 					/* Use the color of that feature */
 					a = shimmer_color(f_info[feat2].x_attr);
+					default_a = shimmer_color(f_info[feat2].d_attr);
 				}
 				/* Harmless terrain */
 				else
 				{
 					/* Use the default color of the cloud */
 					a = gf_color(f_ptr->x_gf_type);
+					default_a = a;
 				}
 			}
 			/* Lingering clouds */
 			else if (x_ptr->x_type == EFFECT_LINGERING_CLOUD)
 			{
 				a = gf_color(f_ptr->x_gf_type);
+				default_a = a;
 			}
 			/* Smart traps */
 			else if (x_ptr->x_type == EFFECT_TRAP_SMART)
 			{
 				a = shimmer_color(f_ptr->x_attr);
+				default_a = shimmer_color(f_ptr->d_attr);
 			}
 			/* Glacier */
 			else if (x_ptr->x_type == EFFECT_GLACIER)
 			{
 				a = shimmer_color(f_ptr->x_attr);
+				default_a = shimmer_color(f_ptr->d_attr);
 			}
 			/* Traps, glyphs, etc. */
 			else
 			{
 				a = f_ptr->x_attr;
+				default_a = f_ptr->d_attr;
 			}
 
 			/* Normal char */
 			c = f_ptr->x_char;
+			default_c = f_ptr->d_char;
 		}
 	}
 
@@ -1655,14 +1695,16 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			byte da;
-			char dc;
+			byte da, default_da;
+			char dc, default_dc;
 
 			/* Desired attr */
 			da = r_ptr->x_attr;
+			default_da = r_ptr->d_attr;
 
 			/* Desired char */
 			dc = r_ptr->x_char;
+			default_dc = r_ptr->d_char;
 
 			/* Hack -- monster hallucination */
 			if (image)
@@ -1671,6 +1713,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 				a = PICT_A(i);
 				c = PICT_C(i);
+
+				i = image_monster(TRUE);
+				default_a = PICT_A(i);
+				default_c = PICT_C(i);
 			}
 
 			/* Special attr/char codes */
@@ -1678,9 +1724,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Use attr */
 				a = da;
+				default_a = default_da;
 
 				/* Use char */
 				c = dc;
+				default_c = default_dc;
 			}
 
 			/* Multi-hued monster */
@@ -1688,9 +1736,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Multi-hued attr */
 				a = m_ptr->m_attr ? m_ptr->m_attr : 1;
+				default_a = default_da;
 
 				/* Normal char */
 				c = dc;
+				default_c = default_dc;
 			}
 
 			/* Normal monster (not "clear" in any way) */
@@ -1698,9 +1748,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Use attr */
 				a = da;
+				default_a = default_da;
 
 				/* Use char */
 				c = dc;
+				default_c = default_dc;
 			}
 
 			/* Hack -- Bizarre grid under monster */
@@ -1708,9 +1760,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Use attr */
 				a = da;
+				default_a = default_da;
 
 				/* Use char */
 				c = dc;
+				default_c = default_dc;
 			}
 
 			/* Normal char, Clear attr, monster */
@@ -1718,6 +1772,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Normal char */
 				c = dc;
+				default_c = default_dc;
 			}
 
 			/* Normal attr, Clear char, monster */
@@ -1725,6 +1780,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			{
 				/* Normal attr */
 				a = da;
+				default_a = default_da;
 			}
 
 			/* Hack -- hidden monsters */
@@ -1733,6 +1789,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			if (((m_ptr->mflag & (MFLAG_MARK | MFLAG_HIDE)) == (MFLAG_HIDE)) && (!image))
 			{
 				map_hidden_monster(m_ptr, &a, &c);
+				default_a = a;
+				default_c = c;
 			}
 		}
 	}
@@ -1773,17 +1831,32 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				case  0:	a = TERM_RED    ;	break;
 				default:	a = TERM_WHITE  ;	break;
 			}
+
+			default_a = a;
 		}
 
-		else a = r_ptr->x_attr;
+		else
+		{
+			a = r_ptr->x_attr;
+			default_a = r_ptr->d_attr;
+		}
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
+		default_c = r_ptr->d_char;
 	}
 
-	/* Result */
-	(*ap) = a;
-	(*cp) = c;
+	if (use_default)
+	{
+		(*ap) = default_a;
+		(*cp) = default_c;
+	}
+	else
+	{
+		/* Result */
+		(*ap) = a;
+		(*cp) = c;
+	}
 }
 
 
@@ -2133,7 +2206,7 @@ static void light_spot_map(int y, int x)
 		if ((kx < 0) || (kx >= t->wid)) continue;
 
 		/* Hack -- redraw the grid */
-		map_info(y, x, &a, &c, &ta, &tc);
+		map_info(y, x, &a, &c, &ta, &tc, FALSE);
 
 		/* Hack -- Queue it */
 		Term_queue_char(t, kx, ky, a, c, ta, tc);
@@ -2199,7 +2272,7 @@ void light_spot(int y, int x)
 	if (use_bigtile) vx += kx;
 
 	/* Hack -- redraw the grid */
-	map_info(y, x, &a, &c, &ta, &tc);
+	map_info(y, x, &a, &c, &ta, &tc, FALSE);
 
 	/* Hack -- Queue it */
 	Term_queue_char(Term, vx, vy, a, c, ta, tc);
@@ -2264,7 +2337,7 @@ static void prt_map_aux(void)
 				if (use_bigtile && (vx + 1 >= t->wid)) continue;
 
 				/* Determine what is there */
-				map_info(y, x, &a, &c, &ta, &tc);
+				map_info(y, x, &a, &c, &ta, &tc, FALSE);
 
 				/* Hack -- Queue it */
 				Term_queue_char(t, vx, vy, a, c, ta, tc);
@@ -2321,7 +2394,7 @@ void prt_map(void)
 			if (!in_bounds(y, x)) continue;
 
 			/* Determine what is there */
-			map_info(y, x, &a, &c, &ta, &tc);
+			map_info(y, x, &a, &c, &ta, &tc, FALSE);
 
 			/* Hack -- Queue it */
 			Term_queue_char(Term, vx, vy, a, c, ta, tc);
@@ -2475,7 +2548,7 @@ void display_map(int *cy, int *cx)
 				col = col & ~1;
 
 			/* Get the attr/char at that map location */
-			map_info(y, x, &ta, &tc, &ta, &tc);
+			map_info(y, x, &ta, &tc, &ta, &tc, FALSE);
 
 			/* Get the priority of that attr/char */
 			tp = priority(ta, tc);
@@ -3379,13 +3452,13 @@ void update_view(void)
 	fire_n = 0;
 
 	/* Extract "radius" value */
-	radius = p_ptr->cur_light;
+	radius = p_ptr->state.cur_light;
 
 	/* Handle real light */
 	if (radius > 0) ++radius;
 
 	/* Scan monster list and add monster lites */
-	for ( k = 1; k < z_info->m_max; k++)
+	for ( k = 1; k < mon_max; k++)
 	{
 		/* Check the k'th monster */
 		monster_type *m_ptr = &mon_list[k];
@@ -5261,7 +5334,7 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
 	/* This is a generated dungeon*/
 	if (character_dungeon)
 	{
-                /* Hack -- Forget most of the new features */
+		/* Hack -- Forget most of the new features */
 		/*
                 if (!_feat_ff1_match(f2_ptr, FF1_DOOR))
                 {
@@ -5439,8 +5512,7 @@ void cave_set_feat(int y, int x, u16b feat)
 		/* Fully update the visuals */
 		if (player_has_los_bold(y, x))
 		{
-			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW |
-				PU_MONSTERS);
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW |	PU_MONSTERS);
 		}
 	}
 
@@ -5514,8 +5586,7 @@ void cave_set_feat(int y, int x, u16b feat)
 		/* Fully update the visuals */
 		if (player_has_los_bold(y, x))
 		{
-			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW |
-				PU_MONSTERS);
+			p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW |	PU_MONSTERS);
 		}
 	}
 

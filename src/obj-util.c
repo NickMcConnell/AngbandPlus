@@ -30,7 +30,7 @@ static void flavor_assign_fixed(void)
 {
 	int i, j;
 
-	for (i = 0; i < z_info->flavor_max; i++)
+	for (i = 1; i < z_info->flavor_max; i++)
 	{
 		flavor_type *flavor_ptr = &flavor_info[i];
 
@@ -53,9 +53,12 @@ static void flavor_assign_fixed(void)
 
 static void flavor_assign_random(byte tval)
 {
-	int i, j;
-	int flavor_count = 0;
-	int choice;
+	u16b i, choice;
+	u16b flavor_count = 0;
+	u16b *flavor;
+
+	/* Allocate the "who" array */
+	flavor = C_ZNEW(z_info->flavor_max, u16b);
 
 	/* Count the random flavors for the given tval */
 	for (i = 0; i < z_info->flavor_max; i++)
@@ -63,53 +66,48 @@ static void flavor_assign_random(byte tval)
 		if ((flavor_info[i].tval == tval) &&
 		    (flavor_info[i].sval == SV_UNKNOWN))
 		{
+			flavor[flavor_count] = i;
 			flavor_count++;
 		}
 	}
 
 	for (i = 0; i < z_info->k_max; i++)
 	{
+		u16b slot;
+
 		/* Skip other object types */
 		if (k_info[i].tval != tval) continue;
 
 		/* Skip objects that already are flavored */
 		if (k_info[i].flavor != 0) continue;
 
-		/* HACK - Ordinary food is "boring" */
+			/* HACK - Ordinary food is "boring" */
 		if ((tval == TV_FOOD) && (k_info[i].sval > SV_FOOD_MIN_FOOD))
 			continue;
 
-		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
+		if (!flavor_count)
+		{
+			FREE(flavor);
+			quit_fmt("Not enough flavors for tval %d.", tval);
+		}
 
 		/* Select a flavor */
-		choice = randint0(flavor_count);
+		slot = randint0(flavor_count);
+		choice = flavor[slot];
 
-		/* Find and store the flavor */
-		for (j = 0; j < z_info->flavor_max; j++)
-		{
-			/* Skip other tvals */
-			if (flavor_info[j].tval != tval) continue;
+		/* Store the flavor index */
+		k_info[i].flavor = choice;
 
-			/* Skip assigned svals */
-			if (flavor_info[j].sval != SV_UNKNOWN) continue;
+		/* Mark the flavor as used */
+		flavor_info[choice].sval = k_info[i].sval;
 
-			if (choice == 0)
-			{
-				/* Store the flavor index */
-				k_info[i].flavor = j;
-
-				/* Mark the flavor as used */
-				flavor_info[j].sval = k_info[i].sval;
-
-				/* One less flavor to choose from */
-				flavor_count--;
-
-				break;
-			}
-
-			choice--;
-		}
+		/* One less flavor to choose from */
+		flavor_count--;
+		flavor[slot] = flavor[flavor_count];
 	}
+
+	/* Free the array */
+	FREE(flavor);
 }
 
 
@@ -332,7 +330,7 @@ void reset_visuals(bool unused)
 	}
 
 	/* Extract default attr/char code for flavors */
-	for (i = 0; i < z_info->flavor_max; i++)
+	for (i = 1; i < z_info->flavor_max; i++)
 	{
 		flavor_type *flavor_ptr = &flavor_info[i];
 
@@ -1361,6 +1359,8 @@ void delete_object(int y, int x)
 	/* Objects are gone */
 	cave_o_idx[y][x] = 0;
 
+	p_ptr->redraw |= PR_ITEMLIST;
+
 	/* Visual update */
 	light_spot(y, x);
 }
@@ -1761,7 +1761,11 @@ int count_floor_items(int y, int x, bool pickup_only)
 		/* Factor in whether the player wants to be prompted first */
 		if (pickup_only)
 		{
-			if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) continue;
+			if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
+			{
+				/* Only known items */
+				if (object_known_p(o_ptr)) continue;
+			}
 		}
 
 		count++;
@@ -2241,7 +2245,10 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		/* Chests */
 		case TV_CHEST:
 		{
-			/* Never okay */
+			/* Quest chests are okay to stack */
+			if ((o_ptr->ident & (IDENT_QUEST)) && (j_ptr->ident & (IDENT_QUEST))) return (TRUE);
+
+			/* Otherwise, never okay */
 			return (0);
 		}
 
@@ -2249,6 +2256,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
+		case TV_PARCHMENT:
 		{
 			/* Assume okay */
 			break;
@@ -2707,7 +2715,7 @@ static bool find_similar_object_or_empty_grid(object_type *j_ptr, int *oy, int *
 			 */
 			if ((d <= max_dist) && generic_los(*oy, *ox, y, x, CAVE_PROJECT) &&
 				cave_ff1_match(y, x, FF1_DROP) && cave_passable_bold(y, x) &&
-				!cave_any_trap_bold(y, x) && !hates_location(y, x, j_ptr))
+				!cave_any_trap_bold(y, x) && !object_hates_location(y, x, j_ptr))
 			{
 				/* Get the first object index in that grid */
 				int o_idx = cave_o_idx[y][x];
@@ -2847,8 +2855,11 @@ bool drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (character_dungeon)
+		{
+			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+		}
+
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (breakage).");
@@ -2909,7 +2920,7 @@ bool drop_near(object_type *j_ptr, int chance, int y, int x)
 				if (cave_any_trap_bold(ty, tx)) continue;
 
 				/* Ignore dangerous locations */
-				if (hates_location(ty, tx, j_ptr)) continue;
+				if (object_hates_location(ty, tx, j_ptr)) continue;
 
 				/* No objects */
 				k = 0;
@@ -2962,8 +2973,10 @@ bool drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!flag && !artifact_p(j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (character_dungeon)
+		{
+			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+		}
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
@@ -3008,8 +3021,10 @@ bool drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!floor_carry(by, bx, j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (character_dungeon)
+		{
+			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
+		}
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
@@ -5323,15 +5338,33 @@ bool obj_is_spellbook(const object_type *o_ptr)
 
 
 /* Basic tval testers */
+bool obj_is_bow(const object_type *o_ptr)   { return o_ptr->tval == TV_BOW; }
 bool obj_is_staff(const object_type *o_ptr)  { return o_ptr->tval == TV_STAFF; }
 bool obj_is_wand(const object_type *o_ptr)   { return o_ptr->tval == TV_WAND; }
 bool obj_is_rod(const object_type *o_ptr)    { return o_ptr->tval == TV_ROD; }
 bool obj_is_potion(const object_type *o_ptr) { return o_ptr->tval == TV_POTION; }
 bool obj_is_scroll(const object_type *o_ptr) { return o_ptr->tval == TV_SCROLL; }
+bool obj_is_parchment(const object_type *o_ptr) { return o_ptr->tval == TV_PARCHMENT; }
 bool obj_is_food(const object_type *o_ptr)   { return o_ptr->tval == TV_FOOD; }
 bool obj_is_light(const object_type *o_ptr)   { return o_ptr->tval == TV_LIGHT; }
 bool obj_is_ring(const object_type *o_ptr)   { return o_ptr->tval == TV_RING; }
 bool obj_is_chest(const object_type *o_ptr)   { return o_ptr->tval == TV_CHEST; }
+
+/**
+ * Determine whether an object is a chest
+ *
+ * \param o_ptr is the object to check
+ */
+bool obj_is_openable_chest(const object_type *o_ptr)
+{
+	if (!obj_is_chest(o_ptr)) return FALSE;
+
+	/* Don't open special quest items */
+	if (o_ptr->ident & (IDENT_QUEST)) return FALSE;
+
+	return (TRUE);
+}
+
 
 /**
  * Determine whether an object is a chest
@@ -5344,6 +5377,9 @@ bool chest_requires_disarming(const object_type *o_ptr)
 
 	/* We don't know if it is trapped or not */
 	if (!object_known_p(o_ptr)) return FALSE;
+
+	/* Don't count special quest items */
+	if (o_ptr->ident & (IDENT_QUEST)) return FALSE;
 
 	/* Already disarmed. */
 	if (o_ptr->pval <= 0) return FALSE;
@@ -5416,7 +5452,7 @@ bool ammo_can_fire(const object_type *o_ptr, int item)
 	if (!item_is_available(item, NULL, (USE_INVEN | USE_FLOOR | USE_EQUIP | USE_QUIVER))) return (FALSE);
 
 	/* Cursed quiver */
-	if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver && !cursed_p(o_ptr)) return (FALSE);
+	if (IS_QUIVER_SLOT(item) && p_ptr->state.cursed_quiver && !cursed_p(o_ptr)) return (FALSE);
 
 	/* Wrong ammo type */
 	if (o_ptr->tval != p_ptr->state.ammo_tval) return (FALSE);
@@ -5476,6 +5512,43 @@ bool obj_can_browse(const object_type *o_ptr)
 {
 	if (o_ptr->tval != cp_ptr->spell_book) return FALSE;
 	return TRUE;
+}
+
+bool obj_can_study(const object_type *o_ptr)
+{
+	int i;
+	if (o_ptr->tval != cp_ptr->spell_book) return FALSE;
+
+	for (i = 0;  i < SPELLS_PER_BOOK; i++)
+	{
+		int spell = get_spell_index(o_ptr, i);
+
+		/* Not a spell */
+		if (spell == -1) continue;
+
+		/* Is there a spell we can learn? */
+		if (spell_okay(spell, FALSE)) return (TRUE);
+	}
+	return (FALSE);
+
+}
+
+bool obj_can_cast(const object_type *o_ptr)
+{
+	int i;
+	if (o_ptr->tval != cp_ptr->spell_book) return FALSE;
+
+	for (i = 0;  i < SPELLS_PER_BOOK; i++)
+	{
+		int spell = get_spell_index(o_ptr, i);
+
+		/* Not a spell */
+		if (spell == -1) continue;
+
+		/* Is there a spell we can learn? */
+		if (spell_okay(spell, TRUE)) return (TRUE);
+	}
+	return (FALSE);
 }
 
 /* Can only take off non-cursed items */

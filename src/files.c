@@ -1285,7 +1285,7 @@ static void display_home_equipment_info(int mode, bool onscreen)
 /* Array of element pairs (name + feature flags) */
 static struct
 {
-       char *name;
+       const char *name;
        u32b flags;
 } element_table[] =
 {
@@ -1311,10 +1311,10 @@ static struct
 static void display_special_abilities(int row, int col)
 {
        int i;
-       char *msg;
+       const char *msg;
        int old_row;
        int col2;       /* The current column */
-       char *items[22];
+       const char *items[22];
        int n;
 
        /* Print the title */
@@ -3208,6 +3208,79 @@ static void write_html_escape_char(ang_file *htm, char c)
 	}
 }
 
+/*
+ * Get the default (ASCII) tile for a given screen location
+ */
+static void get_default_tile(int row, int col, byte *a_def, char *c_def)
+{
+	byte a, ta;
+	char c, tc;
+
+	int wid, hgt;
+	int screen_wid, screen_hgt;
+
+	int x;
+	int y = row - ROW_MAP + Term->offset_y;
+
+	/* Retrieve current screen size */
+	Term_get_size(&wid, &hgt);
+
+	/* Calculate the size of dungeon map area (ignoring bigscreen) */
+	screen_wid = wid - (COL_MAP + 1);
+	screen_hgt = hgt - (ROW_MAP + 1);
+
+	/* Get the tile from the screen */
+	a = Term->scr->a[row][col];
+	c = Term->scr->c[row][col];
+
+	/* Skip bigtile placeholders */
+	if (use_bigtile && (a == 255) && (c == -1))
+	{
+		/* Replace with "white space" */
+		a = TERM_WHITE;
+		c = ' ';
+	}
+	/* Convert the map display to the default characters */
+	else if (!character_icky &&
+	    ((col - COL_MAP) >= 0) && ((col - COL_MAP) < screen_wid) &&
+	    ((row - ROW_MAP) >= 0) && ((row - ROW_MAP) < screen_hgt))
+	{
+		/* Bigtile uses double-width tiles */
+		if (use_bigtile)
+			x = (col - COL_MAP) / 2 + Term->offset_x;
+		else
+			x = col - COL_MAP + Term->offset_x;
+
+		/* Convert dungeon map into default attr/chars */
+		if (in_bounds(y, x))
+		{
+			/* Retrieve default attr/char */
+			map_info(y, x, &a, &c, &ta, &tc, TRUE);
+		}
+		else
+		{
+			/* "Out of bounds" is empty */
+			a = TERM_WHITE;
+			c = ' ';
+		}
+
+		if (c == '\0') c = ' ';
+	}
+
+	/* Filter out remaining graphics */
+	if (a & 0x80)
+	{
+		/* Replace with "white space" */
+		a = TERM_WHITE;
+		c = ' ';
+	}
+
+	/* Return the default tile */
+	*a_def = a;
+	*c_def = c;
+}
+
+
 
 
 /* Take an html screenshot */
@@ -3266,7 +3339,7 @@ void html_screenshot(cptr name, int mode)
 		for (x = 0; x < wid; x++)
 		{
 			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
+			get_default_tile(y, x, &a, &c);
 
 			/* Color change */
 			if (oa != a && c != ' ')
@@ -3341,7 +3414,7 @@ void fill_template(char buf[], int max_buf)
 	char *start;
 	bool changed = FALSE;
 	/* List of recognized patterns */
-	static char *escapes[] =
+	static const char *escapes[] =
 	{
 		"{{full_character_name}}",
 		NULL

@@ -374,7 +374,7 @@ void do_cmd_drop(cmd_code code, cmd_arg args[])
 	}
 
 	/* Cursed quiver */
-	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	else if (IS_QUIVER_SLOT(item) && p_ptr->state.cursed_quiver)
 	{
 		/* Oops */
 		msg_print("Your quiver is cursed!");
@@ -1343,7 +1343,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, MPLACE_OVERRIDE))
 				{
 					*ident = TRUE;
 				}
@@ -1356,7 +1356,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_UNDEAD);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD, MPLACE_OVERRIDE))
 				{
 					*ident = TRUE;
 				}
@@ -1367,7 +1367,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_SUMMON_UNIQUE:
 		{
 
-			if (summon_specific(py, px, p_ptr->depth, SUMMON_UNIQUE))
+			if (summon_specific(py, px, p_ptr->depth, SUMMON_UNIQUE, MPLACE_OVERRIDE))
 			{
 				*ident = TRUE;
 			}
@@ -1383,28 +1383,28 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_PHASE_DOOR:
 		{
-			teleport_player(10);
+			teleport_player(10, FALSE);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_TELEPORT:
 		{
-			teleport_player(100);
+			teleport_player(100, FALSE);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level(SOURCE_PLAYER);
+			if (!teleport_player_level(SOURCE_PLAYER)) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
-			set_recall();
+			if (!set_recall()) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1730,7 +1730,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, p_ptr->depth, 0, MPLACE_OVERRIDE))
 				{
 					*ident = TRUE;
 				}
@@ -1740,7 +1740,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			teleport_player(100, FALSE);
 			*ident = TRUE;
 			break;
 		}
@@ -1853,7 +1853,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters(damroll(2, p_ptr->lev))) *ident = TRUE;
+			if (sleep_monsters(damroll(3, p_ptr->lev))) *ident = TRUE;
 			break;
 		}
 
@@ -2255,7 +2255,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_ROD_RECALL:
 		{
-			set_recall();
+			if (!set_recall()) used_charge = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -2615,7 +2615,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_PHASE:
 			{
 				msg_format("Your %s twists space around you...", o_name);
-				teleport_player(10);
+				teleport_player(10, FALSE);
 				break;
 			}
 
@@ -2679,7 +2679,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_TELEPORT:
 			{
 				msg_format("Your %s twists space around you...", o_name);
-				teleport_player(100);
+				teleport_player(100, FALSE);
 				break;
 			}
 
@@ -2829,7 +2829,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
-				set_recall();
+				if (!set_recall()) return (FALSE);
 				break;
 			}
 
@@ -3588,13 +3588,13 @@ static item_act_t item_actions[] =
 
 	  /* ACTION_STUDY */
 	{ obj_study, CMD_NULL, "study",
-	  "Study which book? ", "You have no books that you can read.",
-	  obj_can_browse, (USE_INVEN | USE_FLOOR), player_can_study },
+	  "Study which book? ", "You have no books that you can study.",
+	  obj_can_study, (USE_INVEN | USE_FLOOR), player_can_study },
 
 	  /* ACTION_CAST */
 	{ obj_cast, CMD_NULL, "cast",
-	  "Use which book? ", "You have no books that you can read.",
-	  obj_can_browse, (USE_INVEN | USE_FLOOR), player_can_cast },
+	  "Use which book? ", "You have no books that you can cast from.",
+	  obj_can_cast, (USE_INVEN | USE_FLOOR), player_can_cast },
 
 	/* ACTION_USE_STAFF */
 	{ NULL, CMD_USE_STAFF, "use",
