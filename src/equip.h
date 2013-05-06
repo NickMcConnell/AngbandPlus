@@ -68,7 +68,6 @@ typedef struct equip_template_s {
 } equip_template_t, *equip_template_ptr;
 
 typedef void (*object_fn)(object_type *o_ptr);
-typedef bool (*object_p)(object_type *o_ptr);
 typedef void (*slot_fn)(int slot);
 
 extern void               equip_wield(void); 

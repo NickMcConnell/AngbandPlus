@@ -2018,9 +2018,15 @@ static bool detect_feat_flag(int range, int flag, bool known)
 				/* Mark as detected */
 				if (dist <= range && known)
 				{
-					if (dist <= range - 1) c_ptr->info |= (CAVE_IN_DETECT);
+					if (dist <= range - 1) 
+					{
+						c_ptr->info &= ~CAVE_DETECT_EDGE;
+						c_ptr->info |= CAVE_IN_DETECT;
+					}
+					else if (!(c_ptr->info & CAVE_IN_DETECT)) /* overlapping regions */
+						c_ptr->info |= CAVE_DETECT_EDGE;
 
-					c_ptr->info &= ~(CAVE_UNSAFE);
+					c_ptr->info &= ~CAVE_UNSAFE;
 
 					/* Redraw */
 					lite_spot(y, x);
@@ -2044,6 +2050,9 @@ static bool detect_feat_flag(int range, int flag, bool known)
 			}
 		}
 	}
+
+	if (flag == FF_TRAP && !view_unsafe_grids)
+		p_ptr->redraw |= PR_STATUS;
 
 	/* Result */
 	return detect;

@@ -614,13 +614,8 @@ void do_cmd_observe(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Get an item */
-#ifdef JP
-	q = "どのアイテムを調べますか? ";
-	s = "調べられるアイテムがない。";
-#else
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-#endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
@@ -637,36 +632,23 @@ void do_cmd_observe(void)
 	}
 
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & IDENT_MENTAL))
+	/* Note, descriptions for potions, scrolls, wands, staves and rods all spoil 
+	   the object's effects. Some of the light and jewelry descriptions are also TMI.
+	   Descriptions for weapons and armor should always be displayed. */
+	if (!object_is_weapon_armour_ammo(o_ptr) && !object_is_known(o_ptr))
 	{
-#ifdef JP
-		msg_print("このアイテムについて特に知っていることはない。");
-#else
 		msg_print("You have no special knowledge about that item.");
-#endif
-
 		return;
 	}
-
 
 	/* Description */
 	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
-#ifdef JP
-	msg_format("%sを調べている...", o_name);
-#else
 	msg_format("Examining %s...", o_name);
-#endif
 
 	/* Describe it fully */
-#ifdef JP
-	if (!screen_object(o_ptr, SCROBJ_FORCE_DETAIL)) msg_print("特に変わったところはないようだ。");
-#else
 	if (!screen_object(o_ptr, SCROBJ_FORCE_DETAIL)) msg_print("You see nothing special.");
-#endif
-
 }
 
 

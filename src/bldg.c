@@ -3293,8 +3293,6 @@ static bool _gamble_shop(const _gamble_shop_t *choices)
 	return _gamble_shop_aux(&forge);
 }
 
-typedef bool (*object_p)(object_type *o_ptr);
-
 static bool _gamble_shop_object(object_p pred)
 {
 	object_type forge = {0};

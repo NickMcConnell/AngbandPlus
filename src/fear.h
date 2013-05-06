@@ -1,8 +1,6 @@
 #ifndef INCLUDE_FEAR_H
 #define INCLUDE_FEAR_H
 
-typedef struct monster_type monster_type;
-
 #define FEAR_BOLD           0
 #define FEAR_UNEASY         1
 #define FEAR_NERVOUS       30

@@ -213,9 +213,19 @@ static void sense_inventory_aux(int slot, bool heavy)
 static int _adj_pseudo_id(int num)
 {
 	int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+	int lev = p_ptr->lev;
 	int slot;
 
 	result = result * (625 - virtue_current(VIRTUE_KNOWLEDGE)) / 625;
+
+	/* Hack: Pseudo-id becomes instantaneous at CL35 */
+	if (lev >= 35) return 0;
+	for (;;)
+	{
+		lev -= 5;
+		if (lev < 0) break;
+		result /= 2;
+	}
 
 	/* TODO: p_ptr->enhanced_psuedo_id ... */
 	for (slot = equip_find_first(object_is_helmet);

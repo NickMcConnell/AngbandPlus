@@ -1800,6 +1800,66 @@ void autopick_alter_item(int item, bool destroy)
 		auto_destroy_item(o_ptr, idx);
 }
 
+static bool _can_sense_object(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+	case TV_SHOT:
+	case TV_ARROW:
+	case TV_BOLT:
+	case TV_BOW:
+	case TV_DIGGING:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_BOOTS:
+	case TV_GLOVES:
+	case TV_HELM:
+	case TV_CROWN:
+	case TV_SHIELD:
+	case TV_CLOAK:
+	case TV_SOFT_ARMOR:
+	case TV_HARD_ARMOR:
+	case TV_DRAG_ARMOR:
+	case TV_CARD:
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static byte _get_object_feeling(object_type *o_ptr)
+{
+	if (object_is_artifact(o_ptr))
+	{
+		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
+		return FEEL_SPECIAL;
+	}
+
+	if (object_is_ego(o_ptr))
+	{
+		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_WORTHLESS;
+		return FEEL_EXCELLENT;
+	}
+
+	if (object_is_cursed(o_ptr)) return FEEL_CURSED;
+	if (object_is_broken(o_ptr)) return FEEL_BROKEN;
+	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return FEEL_AVERAGE;
+
+	if (o_ptr->to_a > 0) return FEEL_GOOD;
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+
+	return FEEL_AVERAGE;
+}
+
+static void _sense_object_floor(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_SENSE) return;
+	if (object_is_known(o_ptr)) return;
+	if (!_can_sense_object(o_ptr)) return;
+	
+	o_ptr->ident |= IDENT_SENSE;
+	o_ptr->feeling = _get_object_feeling(o_ptr);
+}
 
 /*
  * Automatically pickup/destroy items in this grid.
@@ -1807,6 +1867,8 @@ void autopick_alter_item(int item, bool destroy)
 void autopick_pickup_items(cave_type *c_ptr)
 {
 	s16b this_o_idx, next_o_idx = 0;
+	bool auto_lore = equip_find_artifact(ART_STONE_LORE);
+	bool auto_sense = p_ptr->lev >= 35;
 	
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1818,6 +1880,15 @@ void autopick_pickup_items(cave_type *c_ptr)
 		
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
+
+		/* Identify or Pseudo-Identify before applying pickup rules */
+		if (o_ptr->tval != TV_GOLD)
+		{
+			if (auto_lore)
+				identify_item(o_ptr);
+			if (auto_sense)
+				_sense_object_floor(o_ptr);
+		}
 
 		idx = is_autopick(o_ptr);
 

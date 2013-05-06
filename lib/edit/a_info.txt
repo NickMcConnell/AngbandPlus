@@ -394,7 +394,7 @@ E:of Lore
 I:39:7:0
 W:15:12:15:20000
 P:0:1d1:0:0:0
-F:ACTIVATE | INSTA_ART
+F:INSTA_ART
 D:$A great emerald that fills your mind with images of knowledge and dreadful 
 D:$understanding as you stare into its depths.
 D:この大きなエメラルドの中の緑の深淵をのぞき込む時、

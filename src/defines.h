@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 21
+#define VER_PATCH 22
 #define VER_EXTRA 0
 
 
@@ -2696,13 +2696,13 @@
 #define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID | CAVE_VAULT)
 
 /* Used only after cave generation */
-#define CAVE_XXXX1      0x0200
+#define CAVE_DETECT_EDGE 0x0200
 #define CAVE_NOTE       0x0400    /* Flag for delayed visual update (needs note_spot()) */
 #define CAVE_REDRAW     0x0800    /* Flag for delayed visual update (needs lite_spot()) */
 #define CAVE_OBJECT     0x1000    /* Mirror, glyph, etc. */
 #define CAVE_UNSAFE     0x2000    /* Might have trap */
 #define CAVE_IN_DETECT  0x4000    /* trap detected area (inner circle only) */
-
+/* NOTE: 0x8000 is used above, listed out of sequence!!!! Also note we are now out of bits ... :( */
 
 /*
  * Bit flags for the "project()" function

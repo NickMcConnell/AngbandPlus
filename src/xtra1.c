@@ -437,6 +437,8 @@ static void prt_stat(int stat)
 #define BAR_MYSTIC_OFFENSE 158
 #define BAR_MYSTIC_DEFENSE 159
 #define BAR_BLINK 160
+#define BAR_DTRAP 161
+#define BAR_DTRAP_EDGE 162
 
 static struct {
 	byte attr;
@@ -606,6 +608,8 @@ static struct {
 	{TERM_L_BLUE, "Of", "Offense"},
 	{TERM_L_BLUE, "Df", "Defense"},
 	{TERM_L_BLUE, "Bl", "Blink"},
+	{TERM_L_GREEN, "DT", "DTrap"},
+	{TERM_YELLOW, "DT", "DTrap"},
 	{0, NULL, NULL}
 };
 
@@ -631,6 +635,14 @@ static void prt_status(void)
 
 	for (i = 0; i < 7; i++)
 		bar_flags[i] = 0L;
+
+	if (!view_unsafe_grids && in_bounds(py, px))
+	{
+		if (cave[py][px].info & CAVE_DETECT_EDGE)
+			ADD_FLG(BAR_DTRAP_EDGE);
+		else if (cave[py][px].info & CAVE_IN_DETECT)
+			ADD_FLG(BAR_DTRAP);
+	}
 
 	/* Tsuyoshi  */
 	if (p_ptr->tsuyoshi) ADD_FLG(BAR_TSUYOSHI);
@@ -4074,10 +4086,15 @@ void calc_bonuses(void)
 		if (robj && lobj)
 		{
 			int pct, to_d, w1, w2;
+			int w_div = 8;
 			int skill = p_ptr->skill_exp[GINOU_NITOURYU];
 
 			if (p_ptr->tim_genji && skill < 7000)
 				skill = 7000;
+
+			/* Berserkers don't mind dual wielding with heavy weapons */
+			if (p_ptr->pclass == CLASS_BERSERKER)
+				w_div = 24;
 
 			if (robj->name1 == ART_QUICKTHORN && lobj->name1 == ART_TINYTHORN)
 			{
@@ -4092,6 +4109,7 @@ void calc_bonuses(void)
 			w2 = lobj->weight;
 
 			pct = 550 * skill/WEAPON_EXP_MASTER;
+
 			if (p_ptr->weapon_info[rhand].genji)
 			{
 				pct += 150;
@@ -4113,8 +4131,8 @@ void calc_bonuses(void)
 				pct += 50;
 			}
 
-			p_ptr->weapon_info[rhand].dual_wield_pct = pct + 10 * (130 - w1) / 8;
-			p_ptr->weapon_info[lhand].dual_wield_pct = pct + 10 * (130 - w2) / 8;
+			p_ptr->weapon_info[rhand].dual_wield_pct = pct + 10 * (130 - w1) / w_div;
+			p_ptr->weapon_info[lhand].dual_wield_pct = pct + 10 * (130 - w2) / w_div;
 
 			if (robj->tval == TV_POLEARM && robj->weight > 100)
 				p_ptr->weapon_info[rhand].dual_wield_pct -= 50;

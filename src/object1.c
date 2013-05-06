@@ -1733,14 +1733,6 @@ return "この階にいるユニークモンスターを表示 : 200ターン毎";
 			return "list of the uniques on the level every 200 turns";
 #endif
 		}
-		case ART_STONE_LORE:
-		{
-#ifdef JP
-return "危険を伴う鑑定 : いつでも";
-#else
-			return "perilous identify every turn";
-#endif
-		}
 		case ART_FARAMIR:
 		{
 #ifdef JP
@@ -2493,7 +2485,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
 	int trivial_info = 0;
 
 	/* Extract the flags */
-	object_flags(o_ptr, flgs);
+	object_flags_known(o_ptr, flgs);
 
 	/* Extract the description */
 	if (object_is_device(o_ptr))
@@ -2501,16 +2493,19 @@ bool screen_object(object_type *o_ptr, u32b mode)
 		char temp2[70 * 20];
 		cptr res = do_device(o_ptr->tval, o_ptr->sval, SPELL_DESC);
 		strcpy(temp2, res);
-		res = do_device(o_ptr->tval, o_ptr->sval, SPELL_INFO);
-		if (res && strlen(res))
-		{   /* Here is a classic case where calling format() leads to bugs ... sigh */
-			strcat(temp2, "\nInfo: ");
-			strcat(temp2, res);
-		}   /* But format() here is fine ... Obvious, huh? */
-		if (o_ptr->tval != TV_POTION)
+		if (o_ptr->ident & IDENT_MENTAL)
 		{
-			int fail = device_calc_fail_rate(o_ptr);
-			strcat(temp2, format("\nFail: %d.%d%%", fail/10, fail%10));	
+			res = do_device(o_ptr->tval, o_ptr->sval, SPELL_INFO);
+			if (res && strlen(res))
+			{   /* Here is a classic case where calling format() leads to bugs ... sigh */
+				strcat(temp2, "\nInfo: ");
+				strcat(temp2, res);
+			}   /* But format() here is fine ... Obvious, huh? */
+			if (o_ptr->tval != TV_POTION)
+			{
+				int fail = device_calc_fail_rate(o_ptr);
+				strcat(temp2, format("\nFail: %d.%d%%", fail/10, fail%10));	
+			}
 		}
 		roff_to_buf(temp2, 77-15, temp, sizeof(temp));
 		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
@@ -4070,6 +4065,12 @@ info[i++] = "それはあなたの魔力を吸い取る。";
 	{
 		sprintf(replacement_name, "It reminds you of the artifact %s.", a_name + a_info[o_ptr->name3].name);
 		info[i++] = replacement_name;
+	}
+
+	if (!(o_ptr->ident & IDENT_MENTAL))
+	{
+		if (i) info[i++] = "";
+		info[i++] = "This object may have additional powers.";
 	}
 
 	if (mode & SCROBJ_FORCE_DETAIL) trivial_info = 0;

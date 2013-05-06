@@ -1518,7 +1518,6 @@ void carry(bool pickup)
 	/* Automatically pickup/destroy/inscribe items */
 	autopick_pickup_items(c_ptr);
 
-
 #ifdef ALLOW_EASY_FLOOR
 
 	if (easy_floor)
@@ -4701,6 +4700,9 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_DISTANCE);
+
+		if (!view_unsafe_grids)
+			p_ptr->redraw |= PR_STATUS;
 
 		{
 			class_t *class_ptr = get_class_t();
