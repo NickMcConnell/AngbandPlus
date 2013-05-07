@@ -62,7 +62,7 @@
  */
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.3.2 (" BUILD_ID ")"
+#define VERSION_STRING	"1.3.3 (" BUILD_ID ")"
 #endif
 */
 
@@ -71,7 +71,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	3
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /**
@@ -325,11 +325,6 @@
  */
 
 #define GRAPHICS_NONE           0
-#define GRAPHICS_ORIGINAL       1
-#define GRAPHICS_ADAM_BOLT      2
-#define GRAPHICS_DAVID_GERVAIS  3
-#define GRAPHICS_PSEUDO         4
-#define GRAPHICS_NOMAD          5
 
 
 /* player_type.noscore flags */

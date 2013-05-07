@@ -2198,7 +2198,7 @@ void object_absorb(object_type * o_ptr, const object_type * j_ptr)
 	o_ptr->discount = j_ptr->discount;
 
     /* Hack -- blend "feelings" */
-    if (j_ptr->feel)
+    if (o_ptr->feel && j_ptr->feel)
 	o_ptr->feel = j_ptr->feel;
 
     /* Hack -- if rods are stacking, re-calculate the timeouts */
@@ -4586,6 +4586,18 @@ bool obj_can_wear(const object_type * o_ptr)
 bool obj_can_fire(const object_type * o_ptr)
 {
     return o_ptr->tval == p_ptr->state.ammo_tval;
+}
+
+/* Can only fire an item with the right tval */
+bool obj_can_throw(const object_type *o_ptr)
+{
+    int i;
+
+    for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	if (o_ptr == &p_ptr->inventory[i])
+	    return FALSE;
+
+    return TRUE;
 }
 
 /* Can has inscrip pls */

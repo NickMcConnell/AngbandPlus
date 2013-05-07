@@ -481,9 +481,11 @@ s16b get_mon_num(int level)
 
 
     /* Sometimes, monsters in the dungeon can be out of depth */
-    if (p_ptr->depth != 0) {
+    if (p_ptr->depth != 0) 
+    {
 	/* Occasional boost to maximum level */
-	if (randint0(NASTY_MON) == 0) {
+	if (randint0(NASTY_MON) == 0) 
+	{
 	    /* Pick a level bonus */
 	    d = level / 10 + 1;
 
@@ -491,13 +493,19 @@ s16b get_mon_num(int level)
 	    temp_level += ((d < 5) ? d : 5);
 
 	    /* Occasional second boost */
-	    if (randint0(NASTY_MON) == 0) {
+	    if (randint0(NASTY_MON) == 0) 
+	    {
 		/* Pick a level bonus */
 		d = level / 10 + 1;
 
 		/* Boost the level */
 		temp_level += ((d < 5) ? d : 5);
 	    }
+	}
+	/* Hard mode wilderness is hard */
+	if (OPT(hard_mode) && (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE))
+	{
+	    temp_level += 5;
 	}
     }
 
@@ -586,7 +594,7 @@ s16b get_mon_num(int level)
 
 	    /* Tol-In-Gaurhoth is full of wolves and undead */
 	    if (stage_map[p_ptr->stage][LOCALITY] == TOL_IN_GAURHOTH) {
-		if ((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z'))
+		if (r_ptr->d_char == 'C')
 		    table[i].prob3 *= 4;
 		else if (rf_has(r_ptr->flags, RF_UNDEAD))
 		    table[i].prob3 *= 2;
@@ -907,8 +915,10 @@ typedef struct
 {
 	u16b count;		/* total number of this type visible */
 	u16b asleep;		/* number asleep (not in LOS) */
+	u16b neutral;		/* number neutral (not in LOS) */
 	u16b los;		/* number in LOS */
 	u16b los_asleep;	/* number asleep and in LOS */
+	u16b los_neutral;	/* number neutral and in LOS */
 	byte attr; /* attr to use for drawing */
 } monster_vis;
 
@@ -969,10 +979,10 @@ void display_monlist(void)
 
 		m_ptr = &m_list[ii];
 		r_ptr = &r_info[m_ptr->r_idx];
-
+		
 		/* Only consider visible, known monsters */
 		if (!m_ptr->ml) continue;
-
+		
 		/* Take a pointer to this monster visibility entry */
 		v = &list[m_ptr->r_idx];
 
@@ -986,20 +996,26 @@ void display_monlist(void)
 		 * targetable, so we cheat and use projectable() instead
 		 */
 		if (projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx,
-		PROJECT_CHCK))
+				PROJECT_CHCK))
 		{
 			/* Increment the total number of in-LOS monsters */
 			los_count++;
 
 			/* Increment the LOS count for this monster type */
 			v->los++;
-
+			
 			/* Check if asleep or neutral and increment */
-			if (m_ptr->csleep || (m_ptr->hostile >= 0))
+			if (m_ptr->hostile >= 0)
+			    v->los_neutral++;
+			else if (m_ptr->csleep)
 			    v->los_asleep++;
 		}
 		/* Not in LOS so increment if asleep */
-		else if (m_ptr->csleep || (m_ptr->hostile >= 0)) v->asleep++;
+		else 
+		{
+		    if (m_ptr->hostile >= 0) v->neutral++;
+		    else if (m_ptr->csleep) v->asleep++;
+		}
 
 		/* Bump the count for this race, and the total count */
 		v->count++;
@@ -1095,11 +1111,37 @@ void display_monlist(void)
 
 		/* Build the monster name */
 		if (list[order[i]].los == 1)
-			strnfmt(buf, sizeof(buf), (list[order[i]].los_asleep ==
-			1 ? "%s (asleep or neutral) " : "%s "), m_name);
-		else strnfmt(buf, sizeof(buf), (list[order[i]].los_asleep > 0 ?
-			"%s (%d asleep or neutral) " : "%s"), m_name,
-			     list[order[i]].los_asleep);
+		{
+		    if (list[order[i]].los_asleep == 1)
+			strnfmt(buf, sizeof(buf), "%s (asleep) ", m_name);
+		    else if (list[order[i]].los_neutral == 1)
+			strnfmt(buf, sizeof(buf), "%s (neutral) ", m_name);
+		    else
+			strnfmt(buf, sizeof(buf), "%s ", m_name);
+		    
+		}
+		else
+		{
+		    if (list[order[i]].los_asleep == 0)
+		    {
+			if (list[order[i]].los_neutral == 0)
+			    strnfmt(buf, sizeof(buf), "%s", m_name);
+			else
+			    strnfmt(buf, sizeof(buf), "%s (%d neutral) ", 
+				    m_name, list[order[i]].los_neutral);
+		    }
+		    else
+		    {
+			if (list[order[i]].los_neutral == 0)
+			    strnfmt(buf, sizeof(buf), "%s (%d asleep) ", 
+				    m_name, list[order[i]].los_asleep);
+			else
+			    strnfmt(buf, sizeof(buf), 
+				    "%s (%d asleep, %d neutral) ", m_name,
+				    list[order[i]].los_asleep,
+				    list[order[i]].los_neutral);
+		    }
+		}
 
 		/* Display the pict */
 		if ((tile_width == 1) && (tile_height == 1)) {
@@ -1167,12 +1209,38 @@ void display_monlist(void)
 
 		/* Build the monster name */
 		if (out_of_los == 1)
-			strnfmt(buf, sizeof(buf), (list[order[i]].asleep ==
-			1 ? "%s (asleep or neutral) " : "%s "), m_name);
-		else strnfmt(buf, sizeof(buf), (list[order[i]].asleep > 0 ?
-			"%s (%d asleep or neutral) " : "%s"), m_name,
-			list[order[i]].asleep);
-
+		{
+		    if (list[order[i]].asleep == 1)
+			strnfmt(buf, sizeof(buf), "%s (asleep) ", m_name);
+		    else if (list[order[i]].neutral == 1)
+			strnfmt(buf, sizeof(buf), "%s (neutral) ", m_name);
+		    else
+			strnfmt(buf, sizeof(buf), "%s ", m_name);
+		    
+		}
+		else
+		{
+		    if (list[order[i]].asleep == 0)
+		    {
+			if (list[order[i]].neutral == 0)
+			    strnfmt(buf, sizeof(buf), "%s", m_name);
+			else
+			    strnfmt(buf, sizeof(buf), "%s (%d neutral) ", 
+				    m_name, list[order[i]].neutral);
+		    }
+		    else
+		    {
+			if (list[order[i]].neutral == 0)
+			    strnfmt(buf, sizeof(buf), "%s (%d asleep) ", 
+				    m_name, list[order[i]].asleep);
+			else
+			    strnfmt(buf, sizeof(buf), 
+				    "%s (%d asleep, %d neutral) ", m_name,
+				    list[order[i]].asleep,
+				    list[order[i]].neutral);
+		    }
+		}
+		
 		/* Display the pict */
 		if ((tile_width == 1) && (tile_height == 1)) {
 	        Term_putch(cur_x++, line, list[order[i]].attr, r_ptr->x_char);
@@ -1207,18 +1275,18 @@ void display_monlist(void)
 
 	/* Print "and others" message if we've run out of space */
 	if (disp_count != total_count) {
-		strnfmt(buf, sizeof buf, "  ...and %d others.",
-			total_count - disp_count);
-		c_prt(TERM_WHITE, buf, line, x);
+	    strnfmt(buf, sizeof buf, "  ...and %d others.",
+		    total_count - disp_count);
+	    c_prt(TERM_WHITE, buf, line, x);
 	}
 
 	/* Otherwise clear a line at the end, for main-term display */
 	else
-		prt("", line, x);
+	    prt("", line, x);
 
 	if (!in_term)
-		Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
-
+	    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
+	
 	/* Free the arrays */
 	FREE(list);
 	FREE(order);
