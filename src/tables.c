@@ -2285,7 +2285,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 };
 
 
+#ifdef EFG
+/* EFGchange code cleaning */
+cptr inscrip_text[INSCRIP_MAX] =
+#else
 cptr inscrip_text[MAX_INSCRIP] =
+#endif
 {
 	NULL,
 	"terrible",
@@ -2297,7 +2302,15 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"excellent",
 	"special",
 	"uncursed",
+#ifdef EFG
+	/* EFGchange remember when you have "tried" on a wieldable */
+	/* EFGchange new pseudo level SPLENDID */
+	"indestructible",
+	"tried",
+	"splendid",
+#else
 	"indestructible"
+#endif
 };
 
 const grouper object_text_order [] =
@@ -2380,7 +2393,12 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
 
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
+#ifdef EFG
+		/* EFGchange Armory sells good cloaks since general store does not */
+		{ TV_CLOAK,		SV_CLOAK },
+#else
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+#endif
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },

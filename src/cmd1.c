@@ -144,7 +144,12 @@ int critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
+#ifdef EFG
+/* EFGchange can learn awareness by throwing for damage */
+int tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
+#else
 int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
+#endif
 {
 	int mult = 1;
 
@@ -399,6 +404,12 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 	}
 
 
+#ifdef EFG
+	/* EFGchange can learn awareness by throwing for damage */
+	if ((tdam * mult > 0) && (!object_aware_p(o_ptr)))
+		object_aware(o_ptr);
+	/* ??? and if it does no damage, should we remember "thrown" aka "tried" ? */
+#endif
 	/* Return the total damage */
 	return (tdam * mult);
 }
@@ -540,7 +551,12 @@ static void py_pickup_gold(void)
 		treasure[gold_type]++;
 
 		/* Increment total value */
+#ifdef EFG
+		/* EFGchange allow larger gold values */
+		total_gold += o_ptr->number * o_ptr->pval;
+#else
 		total_gold += (s32b)o_ptr->pval;
+#endif
 
 		/* Delete the gold */
 		delete_object_idx(this_o_idx);

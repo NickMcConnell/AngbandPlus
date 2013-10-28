@@ -1349,7 +1349,11 @@ static errr rd_randarts(void)
 			for (i = 0; i < z_info->a_max; i++)
 			{
 				artifact_type *a_ptr = &a_info[i];
+#ifdef EFG
+				/* EFGchange keep randart names the same */
+#else
 				a_ptr->name = 0;
+#endif
 				a_ptr->tval = 0;
 				a_ptr->sval = 0;
 			}
@@ -1950,7 +1954,13 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE : FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE : FALSE;
+#ifdef EFG
+		/* EFGchange allow squelching unaware objects */
+		k_ptr->squelch = (tmp8u & 0x04) >> 2;
+		if (tmp8u & 0x10) k_ptr->squelch |= 0x02;
+#else
 		k_ptr->squelch = (tmp8u & 0x04) ? TRUE : FALSE;
+#endif
 		k_ptr->everseen = (tmp8u & 0x08) ? TRUE : FALSE;
 
 		/* Read the (old) squelch bit */

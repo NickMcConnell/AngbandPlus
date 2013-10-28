@@ -379,7 +379,12 @@ void compact_objects(int size)
 			if (!o_ptr->k_idx) continue;
 
 			/* Hack -- High level objects start out "immune" */
+#ifdef EFG
+			/* EFGchange code cleaning */
+			if (k_ptr->level > cur_lev && !(squelch_item_ok(o_ptr)))
+#else
 			if (k_ptr->level > cur_lev && !k_ptr->squelch)
+#endif
 				continue;
 
 			/* Monster */
@@ -395,7 +400,12 @@ void compact_objects(int size)
 				x = m_ptr->fx;
 
 				/* Monsters protect their objects */
+#ifdef EFG
+				/* EFGchange code cleaning */
+				if ((rand_int(100) < 90) && !(squelch_item_ok(o_ptr)))
+#else
 				if ((rand_int(100) < 90) && !k_ptr->squelch)
+#endif
 					continue;
 			}
 
@@ -408,7 +418,12 @@ void compact_objects(int size)
 			}
 
 			/* Nearby objects start out "immune" */
+#ifdef EFG
+			/* EFGchange code cleaning */
+			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis) && !(squelch_item_ok(o_ptr)))
+#else
 			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis) && !k_ptr->squelch)
+#endif
 				continue;
 
 			/* Saving throw */
@@ -794,6 +809,12 @@ void object_known(object_type *o_ptr)
 
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
+#ifdef EFG
+	/* EFGchange no hidden powers with standard artifacts */
+/* ??? Should also add flag to artifacts like Grond unchanged under randarts */
+	if ((o_ptr->name1) && (!adult_randarts))
+		o_ptr->ident |= IDENT_MENTAL;
+#endif
 }
 
 
@@ -805,8 +826,26 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
+#ifdef EFG
+	/* EFGchange auto-inscribe objects learned by testing */
+	bool was_aware = k_info[o_ptr->k_idx].aware;
+
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
+
+	/* EFGchange bugfix squelching when gain awareness */
+	p_ptr->notice |= PN_SQUELCH;
+
+	/* need to autoinscribe rods etc when learn via use */
+	/* ??? perhaps this should not be done on a single consumable about to vanish */
+	if (!was_aware)
+	{
+		apply_autoinscription(o_ptr);
+	}
+#else
+	/* Fully aware of the effects */
+	k_info[o_ptr->k_idx].aware = TRUE;
+#endif
 
 	/* Scrolls can change the graphics when becoming aware */
 	if (o_ptr->tval == TV_SCROLL)
@@ -1217,11 +1256,15 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
+#ifdef EFG
+			/* EFGchange merge unided wands and staves */
+#else
 			/* Require either knowledge or known empty for both wands/staves */
 			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
 				!object_known_p(o_ptr)) ||
 				(!(j_ptr->ident & (IDENT_EMPTY)) &&
 				!object_known_p(j_ptr))) return(0);
+#endif
 
 			/* Assume okay */
 			break;
@@ -1258,8 +1301,12 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_AMULET:
 		case TV_LITE:
 		{
+#ifdef EFG
+			/* EFGchange stack identical objects even when not identified */
+#else
 			/* Require both items to be known */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+#endif
 
 			/* Fall through */
 		}
@@ -1269,8 +1316,12 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_ARROW:
 		case TV_SHOT:
 		{
+#ifdef EFG
+			/* EFGchange stack identical objects even when not identified */
+#else
 			/* Require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
+#endif
 
 			/* Require identical "bonuses" */
 			if (o_ptr->to_h != j_ptr->to_h) return (FALSE);
@@ -1334,9 +1385,14 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	}
 
 
+#ifdef EFG
+	/* EFGchange stack identical objects even when not identified */
+	/* Removed code prevents merging a "tried" item with untried item. */
+#else
 	/* Different pseudo-ID statuses preclude combination */
 	if (o_ptr->pseudo != j_ptr->pseudo)
 		return (0);
+#endif
 
 
 	/* Maximal "stacking" limit */
@@ -1374,7 +1430,20 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
 	/* Hack -- Blend "known" status */
+#ifdef EFG
+	/* EFGchange merge unided wands and staves */
+	/* I hate to do this, but so long as #charges is hidden until identify */
+	bool forget = (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) && 
+		       ((!object_known_p(o_ptr) || !object_known_p(j_ptr))));
 	if (object_known_p(j_ptr)) object_known(o_ptr);
+	if (forget)
+	{
+		o_ptr->ident |= (IDENT_KNOWN);
+		o_ptr->ident ^= (IDENT_KNOWN);
+	}
+#else
+	if (object_known_p(j_ptr)) object_known(o_ptr);
+#endif
 
 	/* Hack -- Blend store status */
 	if (j_ptr->ident & (IDENT_STORE)) o_ptr->ident |= (IDENT_STORE);
@@ -1386,7 +1455,13 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
 
 	/* Mega-Hack -- Blend "discounts" */
+#ifdef EFG
+	/* do not want to get identified objects with "tried" pseudo */
+	if (!object_known_p(o_ptr) && (!o_ptr->pseudo || object_known_p(j_ptr)))
+		o_ptr->pseudo = j_ptr->pseudo;
+#else
 	o_ptr->pseudo = j_ptr->pseudo;
+#endif
 
 	/*
 	 * Hack -- if rods are stacking, re-calculate the
@@ -2605,6 +2680,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
+#ifdef EFG
+		if (!obviously_excellent(o_ptr, FALSE, NULL))
+		{
+			/* would be better to do this at birth */
+			a_ptr->flags3 |= TR3_LITE;
+printf("adding lite to artifact %d\n", o_ptr->name1);
+		}
+#endif
 
 		/* Hack -- extract the "broken" flag */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -3031,6 +3114,19 @@ bool make_gold(object_type *j_ptr)
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
+#ifdef EFG
+	/* EFGchange no selling to stores */
+#define GOLD_DROP_MULT	4
+	int gold_mult;
+	if (object_level < GOLD_DROP_MULT)
+		gold_mult = object_level + 1;
+	else
+		gold_mult = GOLD_DROP_MULT;
+	/* avoid overflow */
+	if ((j_ptr->pval + 1)* gold_mult >= 0)
+		j_ptr->pval = j_ptr->pval * gold_mult + randint(gold_mult);
+	/* ??? should have an else */
+#endif
 
 	/* Success */
 	return (TRUE);
@@ -4099,6 +4195,10 @@ s16b inven_takeoff(int item, int amt)
 	sound(MSG_WIELD);
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
+#ifdef EFG
+	/* EFGchange drop squelched wielded items immediately items when taken off */
+	p_ptr->notice |= PN_SQUELCH;
+#endif
 	/* Return slot */
 	return (slot);
 }
@@ -4204,7 +4304,12 @@ void combine_pack(void)
 		{
 			/* Count the gold */
 			slide = TRUE;
+#ifdef EFG
+			/* EFGchange larger money objects */
+			p_ptr->au += o_ptr->number * ((long) o_ptr->pval);
+#else
 			p_ptr->au += o_ptr->pval;
+#endif
 		}
 
 		/* Scan the items above that item */

@@ -75,7 +75,12 @@ extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
+#ifdef EFG
+/* EFGchange code cleaning */
+extern cptr inscrip_text[INSCRIP_MAX];
+#else
 extern cptr inscrip_text[MAX_INSCRIP];
+#endif
 extern const grouper object_text_order[];
 extern const byte store_choices[MAX_STORES-2][STORE_CHOICES][2];
 
@@ -299,7 +304,11 @@ extern bool is_quest(int level);
 extern bool test_hit(int chance, int ac, int vis);
 extern int critical_shot(int weight, int plus, int dam);
 extern int critical_norm(int weight, int plus, int dam);
+#ifdef EFG
+extern int tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr);
+#else
 extern int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr);
+#endif
 extern void search(void);
 extern byte py_pickup(int pickup);
 extern void hit_trap(int y, int x);
@@ -307,6 +316,12 @@ extern void py_attack(int y, int x);
 extern void move_player(int dir);
 extern void run_step(int dir);
 bool do_cmd_walk_test(int y, int x);
+#ifdef EFG
+/* cmd3.c */
+/* EFGchange notice obvious effects */
+/* ??? prob will move to a different file */
+extern bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name);
+#endif
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -598,6 +613,10 @@ int remove_autoinscription(s16b kind);
 int add_autoinscription(s16b kind, cptr inscription);
 void autoinscribe_ground(void);
 void autoinscribe_pack(void);
+#ifdef EFG
+void squelch_clear(s16b k_idx);
+void squelch_kind(s16b k_idx, bool aware);
+#endif
 
 bool squelch_tval(int tval);
 bool squelch_item_ok(const object_type *o_ptr);

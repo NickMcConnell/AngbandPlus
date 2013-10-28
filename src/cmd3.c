@@ -120,6 +120,75 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 }
 
 
+#ifdef EFG
+/* EFGchange notice obvious effects */
+typedef struct {u32b flag; char *name;} flagname;
+static flagname boostconv[] =
+{
+	{ TR1_STR,      "strength" },
+	{ TR1_INT,      "intelligence" },
+	{ TR1_WIS,      "wisdom" },
+	{ TR1_DEX,      "dexterity" },
+	{ TR1_CON,      "constitution" },
+	{ TR1_CHR,      "charisma" },
+	{ TR1_STEALTH,  "stealth" },
+	{ TR1_SPEED,    "speed" },
+	{ TR1_BLOWS,    "blows" },
+	{ TR1_SHOTS,    "shots" },
+	{ TR1_INFRA,    "infravision" },
+};
+
+/* perhaps this belongs in a different file */
+bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
+{
+	bool ret = FALSE;
+
+	/* the player should be informed of items that obviously boost */
+	/* ??? should check for tried, print this when "I"nspecting a tried object */
+
+	int i;
+	u32b f1, f2, f3;
+	object_flags(o_ptr, &f1, &f2, &f3);
+	char *desc = (o_ptr->pval >= 0) ? "boosts" : "reduces";
+	for (i = 0; i < sizeof(boostconv)/sizeof(flagname); i++)
+	{
+		if (f1 & boostconv[i].flag)
+		{
+			if (o_ptr->pval > 0) 
+			{
+				ret = TRUE;
+			}
+			if (to_print)
+				msg_format("%s %s your %s by %d.", o_name, desc, boostconv[i].name, abs(o_ptr->pval));
+		}
+	}
+	if (f3 & (TR3_ACTIVATE))
+	{
+		ret = TRUE;
+		if (to_print)
+			msg_format("%s can be activated.", o_name);
+	}
+	if (f3 & (TR3_TELEPATHY))
+	{
+		ret = TRUE;
+		if (to_print)
+			msg_format("%s provides ESP.", o_name);
+	}
+	if (f3 & (TR3_LITE))
+	{
+		ret = TRUE;
+		if (to_print)
+			msg_format("%s provides permanent light.", o_name);
+	}
+	if (f3 & (TR3_DRAIN_EXP))
+	{
+		if (to_print)
+			msg_format("%s drains experience.", o_name);
+	}
+	return ret;
+}
+
+#endif
 /*
  * Wield or wear a single item from the pack or floor
  */
@@ -281,6 +350,76 @@ void do_cmd_wield(void)
 	sound(MSG_WIELD);
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
+#ifdef EFG
+	/* EFGchange notice obvious effects */
+	bool is_splendid = FALSE;
+	if (!object_known_p(o_ptr))
+		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
+	/* EFGchange some jewelry should self-id */
+	/* ??? should this be in a table somewhere? */
+	/* ??? should we id unaware weakness/stupidity for neg pval when
+		matching strength/int is aware? */
+	/* ??? should be a separate function, so can be called upon pseudo? */
+	switch(o_ptr->tval)
+	{
+		case TV_AMULET:
+			switch(o_ptr->sval)
+			{
+				case SV_AMULET_WISDOM:
+				case SV_AMULET_CHARISMA:
+				case SV_AMULET_DEVOTION:
+				case SV_AMULET_TRICKERY:
+				/* no weaponmastery until +hit/+dam is apparent */
+				case SV_AMULET_INFRAVISION:
+					object_aware(o_ptr);
+					object_known(o_ptr);
+				break;
+			}
+			break;
+		case TV_RING:
+			switch(o_ptr->sval)
+			{
+				/* ??? MAGIC NUMBERS */
+				case SV_RING_WEAKNESS:
+					if (k_info[132].aware)
+					{
+						object_aware(o_ptr);
+						object_known(o_ptr);
+					}
+					break;
+				case SV_RING_STUPIDITY:
+					if (k_info[135].aware)
+					{
+						object_aware(o_ptr);
+						object_known(o_ptr);
+					}
+					break;
+				case SV_RING_STR:
+					if ((o_ptr->pval > 0) || (k_info[145].aware))
+					{
+						object_aware(o_ptr);
+						object_known(o_ptr);
+					}
+					break;
+				case SV_RING_INT:
+					if ((o_ptr->pval > 0) || (k_info[150].aware))
+					{
+						object_aware(o_ptr);
+						object_known(o_ptr);
+					}
+					break;
+
+				case SV_RING_WOE:
+				case SV_RING_DEX:
+				case SV_RING_CON:
+				case SV_RING_SPEED:
+					object_aware(o_ptr);
+					object_known(o_ptr);
+				break;
+			}
+			break;
+	}
+#endif
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
@@ -294,9 +433,36 @@ void do_cmd_wield(void)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+#ifdef EFG
+		/* EFGchange remove need for identify wrto preserving artifacts */
+		/* since cannot sense for pseudo, learn artifact now */
+		if (o_ptr->name1)
+			/* ??? should print message, make a function */
+			object_known(o_ptr);
+
+/* EFGchange bugfix */
+/* you cannot squelch what you are wearing! */
+#else
 		/* Set squelched status */
 		p_ptr->notice |= PN_SQUELCH;
+#endif
 	}
+#ifdef EFG
+	/* EFGchange notice obvious effects */
+	else 
+	{
+		/* keep track if you have tried something on, know not cursed */
+		if (!object_known_p(o_ptr) && !(o_ptr->ident & IDENT_SENSE))
+		{
+			/* ??? this is not pseudoed, inscrip might confuse that 
+			if (is_splendid)
+				o_ptr->pseudo = INSCRIP_SPLENDID;
+			else
+			*/
+				o_ptr->pseudo = INSCRIP_TRIED;
+		}
+	}
+#endif
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -490,6 +656,9 @@ void do_cmd_destroy(void)
 	if (!get_check(out_val)) return; 
 
 	/* Artifacts cannot be destroyed */
+#ifdef EFG
+/* ??? why not?  do_cmd_destroy is about ignoring, not actual destruction */
+#endif
 	if (artifact_p(o_ptr))
 	{
 		/* Message */
@@ -505,12 +674,22 @@ void do_cmd_destroy(void)
 			if (cursed_p(o_ptr) || broken_p(o_ptr))
 				o_ptr->pseudo = INSCRIP_TERRIBLE;
 			else
+#ifdef EFG
+				/* EFGchange failed destruction ids artifacts */
+				object_known(o_ptr);
+#else
 				o_ptr->pseudo = INSCRIP_SPECIAL;
+#endif
 		}
 		else
 		{
 			/* Mark the object as indestructible */
+#ifdef EFG
+			/* EFGchange failed destruction ids artifacts */
+			object_known(o_ptr);
+#else
 			o_ptr->pseudo = INSCRIP_INDESTRUCTIBLE;
+#endif
 		}
 
 		/* Combine the pack */

@@ -1,4 +1,5 @@
 /* File: defines.h */
+#define EFG
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -36,7 +37,11 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "Angband"
-#define VERSION_STRING "3.0.9b"
+#ifdef EFG
+#define VERSION_STRING "3.0.9e"
+#else
+#define VERSION_STRING "3.0.9"
+#endif
 
 
 /*
@@ -669,6 +674,11 @@ enum
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
 
+#ifdef EFG
+#define ART_NARYA			10
+#define ART_NENYA			11
+#define ART_VILYA			12
+#endif
 #define ART_POWER			13
 #define ART_MORGOTH			34
 #define ART_GROND			111
@@ -1402,7 +1412,11 @@ enum
 /*** Squelch stuff ***/
 
 /* Number of bytes used in squelch sub-quality array */
+#ifdef EFG
+#define SQUELCH_BYTES    15
+#else
 #define SQUELCH_BYTES    6
+#endif
 
 
 
@@ -1411,7 +1425,7 @@ enum
 /*
  * Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 32
+#define MONSTER_FLOW_DEPTH 3
 
 
 
@@ -1701,6 +1715,26 @@ enum
 /*
  * The special inscriptions.
  */
+#ifdef EFG
+enum
+{
+	INSCRIP_NULL,
+	INSCRIP_TERRIBLE,
+	INSCRIP_WORTHLESS,
+	INSCRIP_CURSED,
+	INSCRIP_BROKEN,
+	INSCRIP_AVERAGE,
+	INSCRIP_GOOD,
+	INSCRIP_EXCELLENT,
+	INSCRIP_SPECIAL,
+	INSCRIP_UNCURSED,
+	INSCRIP_INDESTRUCTIBLE,
+	INSCRIP_TRIED,
+	INSCRIP_SPLENDID,
+
+	INSCRIP_MAX,
+};
+#else
 #define INSCRIP_NULL            0
 #define INSCRIP_TERRIBLE        1
 #define INSCRIP_WORTHLESS       2
@@ -1717,6 +1751,7 @@ enum
  * Number of special inscriptions, plus one.
  */
 #define MAX_INSCRIP			11
+#endif
 
 
 /*
@@ -3102,6 +3137,17 @@ enum
 
 #define ACT_MAX                 50
 
+#ifdef EFG
+#define NUM_PVALS		10
+
+/* special rest values must be negative */
+/* the only other requirement is that they be unique, any values will do */
+#define REST_BOTH		-1
+#define REST_FULL		-2
+#define REST_EITHER		-3
+
+#define object_splendid_p(o_ptr)	obviously_excellent(o_ptr, FALSE, NULL)
+#endif
 
 
 /* player_type.noscore flags */

@@ -85,6 +85,10 @@ static errr init_names(void)
 	}
 
 	C_MAKE(a_base, name_size, char);
+#ifdef EFG
+	/* EFGchange keep old name on randarts */
+	FREE(a_base);
+#else
 
 	a_next = a_base + 1;	/* skip first char */
 
@@ -98,6 +102,7 @@ static errr init_names(void)
 
 	/* Free the old names */
 	FREE(a_name);
+#endif
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -107,10 +112,14 @@ static errr init_names(void)
 	/* Free the "names" array */
 	FREE(names);
 
+#ifdef EFG
+	/* EFGchange keep old name on randarts */
+#else
 	/* Store the names */
 	a_name = a_base;
 	a_head.name_ptr = a_base;
 	a_head.name_size = name_size;
+#endif
 
 	/* Success */
 	return (0);
@@ -1158,6 +1167,11 @@ static void scramble_artifact(int a_idx)
 
 	/* XXX XXX XXX Special cases -- don't randomize these! */
 	if ((a_idx == ART_POWER) ||
+#ifdef EFG
+	    (a_idx == ART_NARYA) ||
+	    (a_idx == ART_NENYA) ||
+	    (a_idx == ART_VILYA) ||
+#endif
 	    (a_idx == ART_GROND) ||
 	    (a_idx == ART_MORGOTH))
 		return;
@@ -1263,6 +1277,32 @@ static void scramble_artifact(int a_idx)
 			remove_contradictory(a_ptr);
 			ap = artifact_power(a_idx);
 		}
+#ifdef EFG
+		/* EFGchange remove aggravation from randarts */
+		a_ptr->flags3 |= TR3_AGGRAVATE;
+		a_ptr->flags3 ^= TR3_AGGRAVATE;
+
+		/* ??? should add plite if not splendid */
+/*
+this does not work
+                int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+        	object_type object_type_body;
+        	object_type *i_ptr = &object_type_body;
+
+                object_wipe(i_ptr);
+
+                object_prep(i_ptr, k_idx);
+
+                i_ptr->name1 = a_idx;
+		if (!obviously_excellent(i_ptr, FALSE, NULL))
+		{
+			a_ptr->flags3 |= TR3_LITE;
+			printf ("adding plite to artifact %d\n", a_idx);
+		}
+*/
+
+#endif
 	}
 
 	a_ptr->cost = ap * 1000L;

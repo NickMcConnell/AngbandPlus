@@ -1,4 +1,4 @@
-Angband 3.0.9b
+Angband 3.0.9
 =============
 
 Angband is a graphical dungeon adventure game that uses textual characters
@@ -11,6 +11,9 @@ Sidwell.  Please see the "thanks.txt" file for a full listing of credits.
   Report bugs here:     bugs@rephial.org       
   The Angband website:  http://rephial.org/
   Angband forums:       http://angband.oook.cz/forum/
+
+  32x32 graphics for X11 and Windows:
+    http://angband.oook.cz/download/extra/graf-32x32-306.zip
 
   When upgrading, please read changes.txt!
 

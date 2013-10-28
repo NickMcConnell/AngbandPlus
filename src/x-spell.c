@@ -1035,6 +1035,9 @@ static bool cast_priest_spell(int spell)
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_HOLY_ORB, dir,
 			          (damroll(3, 6) + plev +
+#ifdef EFG
+/* ??? should be a macro, this code is duplicated */
+#endif
 			           (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
 			          ((plev < 30) ? 2 : 3));
 			break;

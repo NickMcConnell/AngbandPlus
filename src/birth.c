@@ -846,7 +846,11 @@ static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
+#ifdef EFG
+	/* EFGchange unified character generation */
+#else
 	{ 0, 0, 0, display_roller, roller_handler },
+#endif
 };
 
 /* Menu display and selector */
@@ -1001,9 +1005,17 @@ static bool player_birth_aux_1(bool start_at_end)
 	for (i = OPT_CHEAT; i < OPT_ADULT; i++)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 
+#ifdef EFG
+	/* EFGchange code cleaning */
+	/* there should be no references to [].squelch outside of squelch.c */
+	/* Reset squelch bits */
+	for (i = 0; i < z_info->k_max; i++)
+		squelch_clear(i);
+#else
 	/* Reset squelch bits */
 	for (i = 0; i < z_info->k_max; i++)
 		k_info[i].squelch = FALSE;
+#endif
 
 	/* Clear the squelch bytes */
 	for (i = 0; i < SQUELCH_BYTES; i++)
@@ -1019,7 +1031,12 @@ static bool player_birth_aux_1(bool start_at_end)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
+#ifdef EFG
+/* EFGchange unified character generation */
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 3, 4, 5, 6, 8, 12 };
+#else
 static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+#endif
 
 
 /*
@@ -1110,7 +1127,14 @@ static int player_birth_aux_2(bool start_at_end)
 		}
 
 		/* Restrict cost */
+#ifdef EFG
+		/* EFGchange unified character generation */
+		/* It is feasible to get base 17 in 3 stats with the autoroller */
+#define		MAX_BIRTH_COST	(3 * birth_stat_costs[7])
+		if (cost > MAX_BIRTH_COST)
+#else
 		if (cost > 48)
+#endif
 		{
 			/* Warning */
 			bell("Excessive stats!");
@@ -1123,7 +1147,12 @@ static int player_birth_aux_2(bool start_at_end)
 		}
 
 		/* Gold is inversely proportional to cost */
+#ifdef EFG
+		/* EFGchange unified character generation */
+		p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 500;
+#else
 		p_ptr->au = (100 * (48 - cost)) + 100;
+#endif
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1153,7 +1182,12 @@ static int player_birth_aux_2(bool start_at_end)
 
 
 		/* Prompt XXX XXX XXX */
+#ifdef EFG
+		/* EFGchange unified character generation */
+		strnfmt(buf, sizeof(buf), "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost, MAX_BIRTH_COST);
+#else
 		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
+#endif
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */

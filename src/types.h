@@ -203,7 +203,11 @@ struct object_kind
 	bool aware;		/* The player is "aware" of the item's effects */
 	bool tried;		/* The player has "tried" one of the items */
 
+#ifdef EFG
+	byte squelch;		/* Squelch this item? */
+#else
 	bool squelch;		/* Squelch this item? */
+#endif
 	bool everseen;		/* Used to despoilify squelch menus */
 };
 

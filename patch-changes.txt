@@ -1,0 +1,59 @@
+3.0.9e contains a number of changes, roughly in 4 categories.
+
+Tedium and Notetaking
+* Note temp resists under '@' on status screen
+* Change !selfKnowledge to *IDENTIFY all items wielded
+* Give description of artifact activations without IDENT_MENTAL
+* Learn flavor when scroll of trap creation is read
+* Treat NO_FUEL as permanent lite on status screen
+* Point-based character generation equivalent to best available from autoroller
+* Mark items for sale that are unaware
+* New command to restock a store for the cost of all items for sale
+* Apply autoinscriptions to items learned by testing
+* Show charges on aware wands and staves without identify
+* Failed destruction of artifact identifies it
+* Give free identify on non-jewelry that pseudos as average
+
+Show the Rules
+* Show raw numbers rather than ratings on 'C' page
+* Realize non-pseudoed wielded items average when anything pseudos
+* Keep original names for randarts
+* Pseudo of artifact identifies it
+* Show energy rather than speed on 'C' page
+
+Remove Gameplay Effects from Identify
+* Allow activation without identify
+* Merge unidentified wands and staves
+* Stack identical objects even when not identified
+
+Misc
+* Learn flavors that damage when thrown
+* Rest with '|' to wait until either mana or hp are max
+* Narya, Nenya, and Vilya unchanged in randarts
+* Remove aggravation from randarts
+* Armory sells cloaks
+* Add ACTIVATE flag to objects that activate when omitted in artifact.txt
+* Stores restock max items faster
+* Stolen gold is carried by thief
+* Disallow selling items to stores
+* Increase gold drops in the dungeon to partially mitigate no money from selling
+
+Squelch
+* Allow squelching of unaware flavors
+* Notice obvious effects when wielding unidentified objects
+* New pseudo level "Splendid" meaning obvious bonuses when wielded
+* Keep track of items that have been wielded with "tried"
+* Treat uncursed the same as cursed for quality squelch purposes
+* Sort by name rather than SVAL in some squelch menus
+* Unsquelch flavors bought from a store
+* Add permanent light to artifacts that otherwise would not be splendid
+* Differentiate quality squelch into subcategories
+* Allow quality squelching of lights
+* Squelch oil like spikes
+* Minor changes to a few standard artifacts to make them splendid
+* Treat weapons with base damage >= 15 as excellent when squelching by quality
+* Allow pseudo on jewelry
+    Splendid: obvious bonuses when wielded
+    Excellent: elemental resists, FA, SI, regen
+    Good: plusses to hit/dam/AC
+

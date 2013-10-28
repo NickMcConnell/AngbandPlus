@@ -2814,7 +2814,12 @@ static void squelch_dump(FILE *fff)
 {
 	int i;
 	int tval, sval;
+#ifdef EFG
+	/* EFGchange allow squelching unaware objects */
+	byte squelch;
+#else
 	bool squelch;
+#endif
 
 	/* Start dumping */
 	fprintf(fff, "\n\n");
@@ -3529,7 +3534,7 @@ static void dump_colors(FILE *fff)
 
 		/* Dump a comment */
 		fprintf(fff, "# Color '%s'\n", name);
-		fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n", i, kv, rv, gv, bv);
+
 	}
 }
 
