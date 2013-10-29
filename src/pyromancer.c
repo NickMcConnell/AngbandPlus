@@ -218,14 +218,14 @@ void do_cmd_pyro()
 			{
 				p_ptr->csp -= pyro_spell_info[A2I(choice)].cost;
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->energy_use = 100;
 			}
 		}
 		else
 		{
 			msg_print("You failed to get the spell off!");
 		}
-		
+
+		p_ptr->energy_use = 100;
 		return;
 	}
 

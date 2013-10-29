@@ -2901,7 +2901,26 @@ void monster_death(int m_idx)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
+	
+	/* Hack - regen some HP and SP if the player is a Reaper */
+	if (player_has(PF_CAST_REAPER))
+	{
+		if (p_ptr->csp < p_ptr->msp)
+		{
+			p_ptr->csp += randint1(r_ptr->level);
+			if (p_ptr->csp > p_ptr->msp)
+				p_ptr->csp = p_ptr->msp;
+			p_ptr->redraw |= (PR_MANA);
+		}
+		if (p_ptr->chp < p_ptr->mhp)
+		{
+			p_ptr->chp += randint1(r_ptr->level);
+			if (p_ptr->chp > p_ptr->mhp)
+				p_ptr->chp = p_ptr->mhp;
+			p_ptr->redraw |= (PR_HP);
+		}
+		msg_print("You absorb the dying creature's life force.");
+	}
 
 	/* Get the location */
 	y = m_ptr->fy;

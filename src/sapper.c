@@ -214,8 +214,8 @@ void do_cmd_sapper(void)
 		{
 			p_ptr->csp -= sapper_spell_info[A2I(choice)].cost;
 			p_ptr->redraw |= (PR_MANA);
-			p_ptr->energy_use = 100;
 		}
+		p_ptr->energy_use = 100;
 		return;
 	}
 	

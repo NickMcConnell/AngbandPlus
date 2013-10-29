@@ -11,7 +11,7 @@ COPYRIGHT = (c) 1995-2010 Angband contributors
 HEADERS = \
 	angband.h \
 	birth.h \
-	bookles.h \
+	bookless.h \
 	cmds.h \
 	config.h \
 	defines.h \
@@ -105,6 +105,7 @@ ANGFILES = \
 	player/timed.o \
 	player/util.o \
 	pyromancer.o \
+	reaper.o \
 	sapper.o \
 	score.o \
 	signals.o \
