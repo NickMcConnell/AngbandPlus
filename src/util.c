@@ -2958,8 +2958,8 @@ static char request_command_buffer[256];
 /*
  * Request a command from the user.
  *
- * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
- * p_ptr->command_arg.  May modify p_ptr->command_new.
+ * Sets p_ptr->command_cmd, p_ptr->command_arg.  
+ * May modify p_ptr->command_new.
  *
  * Note that "caret" ("^") is treated specially, and is used to
  * allow manual input of control characters.  This can be used
@@ -2995,7 +2995,6 @@ void request_command(void)
 	/* Reset command/argument/direction */
 	p_ptr->command_cmd = 0;
 	p_ptr->command_arg = 0;
-	p_ptr->command_dir = 0;
 
 
 	/* Get command */

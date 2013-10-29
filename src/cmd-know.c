@@ -3,6 +3,7 @@
  * Purpose: Knowledge screen stuff.
  *
  * Copyright (c) 2000-2007 Eytan Zweig, Andrew Doull, Pete Mack.
+ * (c) 2010 Peter Denison, Chris Carr.
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,7 +20,7 @@
 #include "object/tvalsval.h"
 #include "ui.h"
 #include "ui-menu.h"
-
+#include "store.h"
 
 /* Flag value for missing array entry */
 #define MISSING -17
@@ -999,7 +1000,7 @@ static void display_monster(int col, int row, bool cursor, int oid)
 	big_pad(66, row, a, c);
 
 	/* Display kills */
-	if (r_ptr->flags[0] & (RF0_UNIQUE))
+	if (rf_has(r_ptr->flags, RF_UNIQUE))
 		put_str(format("%s", (r_ptr->max_num == 0)?  " dead" : "alive"), row, 70);
 	else
 		put_str(format("%5d", l_ptr->pkills), row, 70);
@@ -1072,7 +1073,7 @@ static void mon_summary(int gid, const int *object_list, int n, int top, int row
 	}
 
 	/* Different display for the first item if we've got uniques to show */
-	if (gid == 0 && ((&r_info[default_join[object_list[0]].oid])->flags[0] & (RF0_UNIQUE)))
+	if (gid == 0 && rf_has((&r_info[default_join[object_list[0]].oid])->flags, RF_UNIQUE))
 	{
 		c_prt(TERM_L_BLUE, format("%d known uniques, %d slain.", n, kills),
 					row, col);
@@ -1081,7 +1082,7 @@ static void mon_summary(int gid, const int *object_list, int n, int top, int row
 	{
 		int tkills = 0;
 
-		for (i = 0; i < z_info->r_max; i++) 
+		for (i = 0; i < z_info->r_max; i++)
 			tkills += l_list[i].pkills;
 
 		c_prt(TERM_L_BLUE, format("Creatures slain: %d/%d (in group/in total)", kills, tkills), row, col);
@@ -1100,7 +1101,7 @@ static int count_known_monsters(void)
 		if (!OPT(cheat_know) && !l_list[i].sights) continue;
 		if (!r_ptr->name) continue;
 
-		if (r_ptr->flags[0] & RF0_UNIQUE) m_count++;
+		if (rf_has(r_ptr->flags, RF_UNIQUE)) m_count++;
 
 		for (j = 1; j < N_ELEMENTS(monster_group) - 1; j++)
 		{
@@ -1136,7 +1137,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 		if (!OPT(cheat_know) && !l_list[i].sights) continue;
 		if (!r_ptr->name) continue;
 
-		if (r_ptr->flags[0] & RF0_UNIQUE) m_count++;
+		if (rf_has(r_ptr->flags, RF_UNIQUE)) m_count++;
 
 		for (j = 1; j < N_ELEMENTS(monster_group) - 1; j++)
 		{
@@ -1158,7 +1159,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 		for (j = 0; j < N_ELEMENTS(monster_group)-1; j++)
 		{
 			const char *pat = monster_group[j].chars;
-			if (j == 0 && !(r_ptr->flags[0] & RF0_UNIQUE))
+			if (j == 0 && !rf_has(r_ptr->flags, RF_UNIQUE))
 				continue;
 			else if (j > 0 && !strchr(pat, r_ptr->d_char))
 				continue;
@@ -1271,7 +1272,11 @@ static void desc_art_fake(int a_idx)
 	{
 		make_fake_artifact(o_ptr, a_idx);
 		o_ptr->ident |= IDENT_NAME;
-		mode = OINFO_FULL;
+
+		/* Check the history entry, to see if it was fully known before it
+		 * was lost */
+		if (history_is_artifact_known(a_idx))
+			mode = OINFO_FULL;
 	}
 
 	/* Hack -- Handle stuff */
@@ -1328,14 +1333,14 @@ static bool artifact_is_known(int a_idx)
 	{
 		int a = o_list[i].name1;
 
-		/* If we haven't actually identified the artifact yet */
-		if (a && a == a_idx && !object_is_known(&o_list[i]))
+		/* If we haven't actually sensed the artifact yet */
+		if (a && a == a_idx && !object_is_known_artifact(&o_list[i]))
 		{
 			return FALSE;
 		}
 	}
 
-        /* Check inventory for the same */
+    /* Check inventory for the same */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		object_type *o_ptr = &inventory[i];
@@ -1343,9 +1348,8 @@ static bool artifact_is_known(int a_idx)
 		/* Ignore non-objects */
 		if (!o_ptr->k_idx) continue;
 
-
 		if (o_ptr->name1 && o_ptr->name1 == a_idx &&
-		    !object_is_known(o_ptr))
+		    !object_is_known_artifact(o_ptr))
 		{
 			return FALSE;
 		}
@@ -1432,7 +1436,7 @@ static void desc_ego_fake(int oid)
 	/* Hack: dereference the join */
 	const char *cursed[] = { "permanently cursed", "heavily cursed", "cursed" };
 	const char *xtra[] = { "sustain", "higher resistance", "ability" };
-	u32b f2, i;
+	int i;
 
 	int e_idx = default_join[oid].oid;
 	ego_item_type *e_ptr = &e_info[e_idx];
@@ -1470,13 +1474,16 @@ static void desc_ego_fake(int oid)
 	if (e_ptr->xtra)
 		text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
 
-	for (i = 0, f2 = TR2_PERMA_CURSE; i < 3 ; f2 >>= 1, i++)
+	if (flags_test(e_ptr->flags, OF_SIZE, OF_CURSE_MASK, FLAG_END))
 	{
-		if (e_ptr->flags[2] & f2)
-		{
-			text_out_c(TERM_RED, format("It is %s.", cursed[i]));
-			break;
-		}
+		if (of_has(e_ptr->flags, OF_PERMA_CURSE))
+			i = 0;
+		else if (of_has(e_ptr->flags, OF_PERMA_CURSE))
+			i = 1;
+		else
+			i = 2;
+
+		text_out_c(TERM_RED, format("It is %s.", cursed[i]));
 	}
 
 	text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
@@ -1533,7 +1540,7 @@ static void do_cmd_knowledge_ego_items(void *obj, const char *name)
 
 				egoitems[e_count] = e_count;
 				default_join[e_count].oid = i;
-				default_join[e_count++].gid = gid; 
+				default_join[e_count++].gid = gid;
 			}
 		}
 	}
@@ -1556,7 +1563,7 @@ static int get_artifact_from_kind(object_kind *k_ptr)
 {
 	int i;
 
-	assert(k_ptr->flags[2] & TR2_INSTA_ART);
+	assert(of_has(k_ptr->flags, OF_INSTA_ART));
 
 	/* Look for the corresponding artifact */
 	for (i = 0; i < z_info->a_max; i++)
@@ -1595,7 +1602,7 @@ static void display_object(int col, int row, bool cursor, int oid)
 	byte c = use_flavour ? flavor_info[k_ptr->flavor].x_char : k_ptr->x_char;
 
 	/* Display known artifacts differently */
-	if ((k_ptr->flags[2] & TR2_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
+	if (of_has(k_ptr->flags, OF_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
 	{
 		get_artifact_display_name(o_name, sizeof(o_name), get_artifact_from_kind(k_ptr));
 	}
@@ -1612,9 +1619,12 @@ static void display_object(int col, int row, bool cursor, int oid)
 	c_prt(attr, o_name, row, col);
 
 	/* Show squelch status */
-	if ((aware && kind_is_squelched_aware(k_ptr)) || 
+	if ((aware && kind_is_squelched_aware(k_ptr)) ||
 		(!aware && kind_is_squelched_unaware(k_ptr)))
 		c_put_str(attr, "Yes", row, 46);
+	else if (aware && OPT(squelch_worthless) && !k_ptr->cost)
+		c_put_str(attr, "Yes*", row, 46);
+
 
 	/* Show autoinscription if around */
 	if (aware && inscrip)
@@ -1640,7 +1650,7 @@ static void desc_obj_fake(int k_idx)
 	object_type *o_ptr = &object_type_body;
 
 	/* Check for known artifacts, display them as artifacts */
-	if ((k_ptr->flags[2] & TR2_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
+	if (of_has(k_ptr->flags, OF_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
 	{
 		desc_art_fake(get_artifact_from_kind(k_ptr));
 		return;
@@ -1861,7 +1871,7 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		if ((k_info[i].everseen || k_info[i].flavor || OPT(cheat_xtra)) &&
-				!(k_info[i].flags[2] & TR2_INSTA_ART))
+				!of_has(k_info[i].flags, OF_INSTA_ART))
 		{
 			int c = obj_group_order[k_info[i].tval];
 			if (c >= 0) objects[o_count++] = i;
@@ -1959,6 +1969,13 @@ static void do_cmd_knowledge_features(void *obj, const char *name)
 
 /* =================== END JOIN DEFINITIONS ================================ */
 
+static void do_cmd_knowledge_store(void *obj, const char *name)
+{
+	(void)name;
+	store_knowledge = (int)obj;
+	do_cmd_store_knowledge();
+	store_knowledge = STORE_NONE;
+}
 
 static void do_cmd_knowledge_scores(void *obj, const char *name)
 {
@@ -1981,13 +1998,29 @@ static void do_cmd_knowledge_history(void *obj, const char *name)
  */
 static menu_item knowledge_actions[] =
 {
-{ {0, "Display object knowledge",   do_cmd_knowledge_objects,   0}, 'a', 0 },
-{ {0, "Display artifact knowledge", do_cmd_knowledge_artifacts, 0}, 'b', 0 },
-{ {0, "Display ego item knowledge", do_cmd_knowledge_ego_items, 0}, 'c', 0 },
-{ {0, "Display monster knowledge",  do_cmd_knowledge_monsters,  0}, 'd', 0 },
-{ {0, "Display feature knowledge",  do_cmd_knowledge_features,  0}, 'e', 0 },
-{ {0, "Display hall of fame",       do_cmd_knowledge_scores,    0}, 'f', 0 },
-{ {0, "Display character history",  do_cmd_knowledge_history,   0}, 'g', 0 },
+{ {0, "Display object knowledge",   	   do_cmd_knowledge_objects,   0}, 'a', 0 },
+{ {0, "Display artifact knowledge", 	   do_cmd_knowledge_artifacts, 0}, 'b', 0 },
+{ {0, "Display ego item knowledge", 	   do_cmd_knowledge_ego_items, 0}, 'c', 0 },
+{ {0, "Display monster knowledge",  	   do_cmd_knowledge_monsters,  0}, 'd', 0 },
+{ {0, "Display feature knowledge",  	   do_cmd_knowledge_features,  0}, 'e', 0 },
+{ {0, "Display contents of general store", do_cmd_knowledge_store,
+	(void*)STORE_GENERAL}, 'f', 0 },
+{ {0, "Display contents of armourer",      do_cmd_knowledge_store,
+	(void*)STORE_ARMOR}, 'g', 0 },
+{ {0, "Display contents of weaponsmith",   do_cmd_knowledge_store,
+	(void*)STORE_WEAPON}, 'h', 0 },
+{ {0, "Display contents of temple",   	   do_cmd_knowledge_store,
+	(void*)STORE_TEMPLE}, 'i', 0 },
+{ {0, "Display contents of alchemist",     do_cmd_knowledge_store,
+	(void*)STORE_ALCHEMY}, 'j', 0 },
+{ {0, "Display contents of magic shop",    do_cmd_knowledge_store,
+	(void*)STORE_MAGIC}, 'k', 0 },
+{ {0, "Display contents of black market",  do_cmd_knowledge_store,
+	(void*)STORE_B_MARKET}, 'l', 0 },
+{ {0, "Display contents of home",   	   do_cmd_knowledge_store,
+	(void*)STORE_HOME}, 'm', 0 },
+{ {0, "Display hall of fame",       	   do_cmd_knowledge_scores,    0}, 'n', 0 },
+{ {0, "Display character history",  	   do_cmd_knowledge_history,   0}, 'o', 0 },
 };
 
 static menu_type knowledge_menu;
@@ -2004,7 +2037,7 @@ static void cleanup_cmds(void)
 }
 
 void init_cmd_know(void)
-{	
+{
 	/* Initialize the menus */
 	menu_type *menu = &knowledge_menu;
 	WIPE(menu, menu_type);
@@ -2012,20 +2045,20 @@ void init_cmd_know(void)
 	menu->menu_data = knowledge_actions;
 	menu->count = N_ELEMENTS(knowledge_actions),
 	menu_init(menu, MN_SKIN_SCROLL, find_menu_iter(MN_ITER_ITEMS), &SCREEN_REGION);
-	
+
 	/* initialize other static variables */
 	if (!obj_group_order)
 	{
 		int i;
 		int gid = -1;
-		
+
 		obj_group_order = C_ZNEW(TV_GOLD + 1, int);
 		atexit(cleanup_cmds);
-		
+
 		/* Allow for missing values */
 		for (i = 0; i <= TV_GOLD; i++)
 			obj_group_order[i] = -1;
-		
+
 		for (i = 0; 0 != object_text_order[i].tval; i++)
 		{
 			if (object_text_order[i].name) gid = i;
@@ -2045,14 +2078,14 @@ void do_cmd_knowledge(void)
 	int cursor = 0;
 	int i;
 	ui_event_data c = EVENT_EMPTY;
-	region knowledge_region = { 0, 0, -1, 11 };
-	
+	region knowledge_region = { 0, 0, -1, 18 };
+
 	/* Grey out menu items that won't display anything */
 	if (collect_known_artifacts(NULL, 0) > 0)
 		knowledge_actions[1].flags = 0;
 	else
 		knowledge_actions[1].flags = MN_GREYED;
-	
+
 	knowledge_actions[2].flags = MN_GREYED;
 	for (i = 0; i < z_info->e_max; i++)
 	{
@@ -2062,21 +2095,21 @@ void do_cmd_knowledge(void)
 			break;
 		}
 	}
-	
+
 	if (count_known_monsters() > 0)
 		knowledge_actions[3].flags = 0;
 	else
 		knowledge_actions[3].flags = MN_GREYED;
-	
+
 	screen_save();
 	menu_layout(&knowledge_menu, &knowledge_region);
-	
+
 	while (c.key != ESCAPE)
 	{
 		clear_from(0);
 		c = menu_select(&knowledge_menu, &cursor, 0);
 	}
-	
+
 	screen_load();
 }
 

@@ -208,7 +208,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 	/* Mage spells */
 	if (tval == TV_MAGIC_BOOK)
 	{
-		int plev = p_ptr->lev;
+		int plev = p_get_lev();
 
 		/* Analyze the spell */
 		switch (spell)
@@ -312,7 +312,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 	/* Priest spells */
 	if (tval == TV_PRAYER_BOOK)
 	{
-		int plev = p_ptr->lev;
+		int plev = p_get_lev();
 
 		/* Analyze the spell */
 		switch (spell)
@@ -340,7 +340,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 				break;
 			case PRAYER_ORB_OF_DRAINING:
 				strnfmt(p, len, " %d+3d6", plev +
-				        (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
+				        (plev / (player_has(PF_BLESS_WEAPON) ? 2 : 4)));
 				break;
 			case PRAYER_CURE_CRITICAL_WOUNDS:
 				my_strcpy(p, " heal 25%", len);
@@ -402,8 +402,8 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 
 static int beam_chance(void)
 {
-	int plev = p_ptr->lev;
-	return ((cp_ptr->flags & CF_BEAM) ? plev : (plev / 2));
+	int plev = p_get_lev();
+	return (player_has(PF_BEAM) ? plev : (plev / 2));
 }
 
 
@@ -415,7 +415,7 @@ static void spell_wonder(int dir)
    This eliminates the worst effects later on, while
    keeping the results quite random.  It also allows
    some potent effects only at high level. */
-	effect_wonder(dir, randint1(100) + p_ptr->lev / 5, beam_chance());
+	effect_wonder(dir, randint1(100) + p_get_lev() / 5, beam_chance());
 }
 
 
@@ -480,7 +480,7 @@ static bool cast_mage_spell(int spell, int dir)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int plev = p_ptr->lev;
+	int plev = p_get_lev();
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	int beam = beam_chance();
@@ -897,7 +897,7 @@ static bool cast_priest_spell(int spell, int dir)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int plev = p_ptr->lev;
+	int plev = p_get_lev();
 
 	int amt;
 
@@ -1011,7 +1011,7 @@ static bool cast_priest_spell(int spell, int dir)
 		{
 			fire_ball(GF_HOLY_ORB, dir,
 			          (damroll(3, 6) + plev +
-			           (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
+			           (plev / (player_has(PF_BLESS_WEAPON) ? 2 : 4))),
 			          ((plev < 30) ? 2 : 3));
 			break;
 		}
@@ -1036,7 +1036,7 @@ static bool cast_priest_spell(int spell, int dir)
 
 		case PRAYER_PROTECTION_FROM_EVIL:
 		{
-			(void)inc_timed(TMD_PROTEVIL, randint1(25) + 3 * p_ptr->lev, TRUE);
+			(void)inc_timed(TMD_PROTEVIL, randint1(25) + 3 * p_get_lev(), TRUE);
 			break;
 		}
 
@@ -1084,7 +1084,7 @@ static bool cast_priest_spell(int spell, int dir)
 
 		case PRAYER_HEAL:
 		{
-			amt = (p_ptr->mhp * 35) / 100;
+			amt = (p_get_mhp() * 35) / 100;
                         if (amt < 300) amt = 300;
 			
 			(void)hp_player(amt);

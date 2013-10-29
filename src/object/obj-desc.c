@@ -233,6 +233,9 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
 
 	bool pluralise = (mode & ODESC_PLURAL) ? TRUE : FALSE;
 
+	if (aware && !k_ptr->everseen)
+		k_ptr->everseen = TRUE;
+
 	if (o_ptr->number > 1)
 		pluralise = TRUE;
 	if (mode & ODESC_SINGULAR)
@@ -411,10 +414,11 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
  */
 static bool obj_desc_show_weapon(const object_type *o_ptr)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
+
 	object_flags(o_ptr, f);
 
-	if (f[2] & TR2_SHOW_MODS) return TRUE;
+	if (of_has(f, OF_SHOW_MODS)) return TRUE;
 	if (o_ptr->to_h && o_ptr->to_d) return TRUE;
 
 	/* You need to list both to_h and to_d for things like unaware rings of accuracy and damage e.g. to differentiate (+8) */
@@ -532,8 +536,8 @@ static size_t obj_desc_combat(const object_type *o_ptr, char *buf, size_t max,
 		size_t end, bool spoil)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	u32b flags[OBJ_FLAG_N];
-	u32b flags_known[OBJ_FLAG_N];
+	bitflag flags[OF_SIZE];
+	bitflag flags_known[OF_SIZE];
 
 	object_flags(o_ptr, flags);
 	object_flags_known(o_ptr, flags_known);
@@ -562,7 +566,8 @@ static size_t obj_desc_combat(const object_type *o_ptr, char *buf, size_t max,
 		case TV_BOW:
 		{
 			/* Display shooting power as part of the multiplier */
-			if ((flags[0] & TR0_MIGHT) && (spoil || (flags_known[0] & TR0_MIGHT)))
+			if (of_has(flags, OF_MIGHT) &&
+			    (spoil || object_flag_is_known(o_ptr, OF_MIGHT)))
 				strnfcat(buf, max, &end, " (x%d)", (o_ptr->sval % 10) + o_ptr->pval);
 			else
 				strnfcat(buf, max, &end, " (x%d)", o_ptr->sval % 10);
@@ -608,11 +613,12 @@ static size_t obj_desc_combat(const object_type *o_ptr, char *buf, size_t max,
 
 static size_t obj_desc_light(const object_type *o_ptr, char *buf, size_t max, size_t end)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
+
 	object_flags(o_ptr, f);
 
 	/* Fuelled light sources get number of remaining turns appended */
-	if ((o_ptr->tval == TV_LIGHT) && !(f[2] & TR2_NO_FUEL))
+	if ((o_ptr->tval == TV_LIGHT) && !of_has(f, OF_NO_FUEL))
 		strnfcat(buf, max, &end, " (%d turns)", o_ptr->timeout);
 
 	return end;
@@ -620,24 +626,25 @@ static size_t obj_desc_light(const object_type *o_ptr, char *buf, size_t max, si
 
 static size_t obj_desc_pval(const object_type *o_ptr, char *buf, size_t max, size_t end)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
+
 	object_flags(o_ptr, f);
 
-	if (!(f[0] & TR0_PVAL_MASK)) return end;
+	if (!flags_test(f, OF_SIZE, OF_PVAL_MASK, FLAG_END)) return end;
 
 	strnfcat(buf, max, &end, " (%+d", o_ptr->pval);
 
-	if (!(f[2] & TR2_HIDE_TYPE))
+	if (!of_has(f, OF_HIDE_TYPE))
 	{
-		if (f[0] & TR0_STEALTH)
+		if (of_has(f, OF_STEALTH))
 			strnfcat(buf, max, &end, " stealth");
-		else if (f[0] & TR0_SEARCH)
+		else if (of_has(f, OF_SEARCH))
 			strnfcat(buf, max, &end, " searching");
-		else if (f[0] & TR0_INFRA)
+		else if (of_has(f, OF_INFRA))
 			strnfcat(buf, max, &end, " infravision");
-		else if (f[0] & TR0_SPEED)
+		else if (of_has(f, OF_SPEED))
 			strnfcat(buf, max, &end, " speed");
-		else if (f[0] & TR0_BLOWS)
+		else if (of_has(f, OF_BLOWS))
 			strnfcat(buf, max, &end, " attack%s", PLURAL(o_ptr->pval));
 	}
 
@@ -694,9 +701,9 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 	const char *u[4] = { 0, 0, 0, 0 };
 	int n = 0;
 	int feel = object_pseudo(o_ptr);
+	bitflag flags_known[OF_SIZE];
 
-	u32b flags[OBJ_FLAG_N];
-	object_flags(o_ptr, flags);
+	object_flags_known(o_ptr, flags_known);
 
 	/* Get inscription */
 	if (o_ptr->note)
@@ -715,8 +722,8 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 		u[n++] = "empty";
 	else if (!object_is_known(o_ptr) && object_was_worn(o_ptr))
 	{
-		if (wield_slot(o_ptr) == INVEN_WIELD || wield_slot(o_ptr) ==
-		INVEN_BOW) u[n++] = "wielded";
+		if (wield_slot(o_ptr) == INVEN_WIELD || wield_slot(o_ptr) == INVEN_BOW)
+			u[n++] = "wielded";
 		else u[n++] = "worn";
 	}
 	else if (!object_is_known(o_ptr) && object_was_fired(o_ptr))
@@ -725,7 +732,7 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 		u[n++] = "tried";
 
 	/* Note curses */
-	if (o_ptr->known_flags[2] & flags[2] & TR2_CURSE_MASK)
+	if (flags_test(flags_known, OF_SIZE, OF_CURSE_MASK, FLAG_END))
 		u[n++] = "cursed";
 
 	/* Note squelch */
@@ -755,10 +762,10 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 static size_t obj_desc_aware(const object_type *o_ptr, char *buf, size_t max,
 	size_t end)
 {
-        if (!object_flavor_is_aware(o_ptr)) strnfcat(buf, max, &end,
-		" {unseen}");
+	if (!object_flavor_is_aware(o_ptr))
+		strnfcat(buf, max, &end, " {unseen}");
 
-        return end;
+	return end;
 }
 
 
@@ -785,26 +792,11 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr,
 
 	bool prefix = mode & ODESC_PREFIX;
 	bool spoil = (mode & ODESC_SPOIL);
-	bool aware = object_flavor_is_aware(o_ptr) ||
-			(o_ptr->ident & IDENT_STORE) || spoil;
 	bool known = object_is_known(o_ptr) ||
 			(o_ptr->ident & IDENT_STORE) || spoil;
 
 	size_t end = 0;
 
-
-	/** Horrible, horrible squelch **/
-
-	/* Hack -- mark-to-squelch worthless items XXX */
-	if (aware && !k_ptr->everseen)
-	{
-		k_ptr->everseen = TRUE;
-		if (OPT(squelch_worthless) && k_ptr->cost == 0)
-		{
-			k_ptr->squelch = TRUE;
-			p_ptr->notice |= PN_SQUELCH;
-		}
-	}
 
 	/* We've seen it at least once now we're aware of it */
 	if (known && o_ptr->name2) e_info[o_ptr->name2].everseen = TRUE;
@@ -813,8 +805,9 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr,
 	/*** Some things get really simple descriptions ***/
 
 	if (o_ptr->tval == TV_GOLD)
-		return strnfmt(buf, max, "%d gold pieces worth of %s",
-				o_ptr->pval, k_name + k_ptr->name);
+		return strnfmt(buf, max, "%d gold pieces worth of %s%s",
+				o_ptr->pval, k_name + k_ptr->name,
+				squelch_item_ok(o_ptr) ? " {squelch}" : "");
 	else if (!o_ptr->tval)
 		return strnfmt(buf, max, "(nothing)");
 

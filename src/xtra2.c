@@ -27,101 +27,104 @@ void verify_panel_int(bool centered);
  */
 void check_experience(void)
 {
-	/* Hack -- lower limit */
-	if (p_ptr->exp < 0) p_ptr->exp = 0;
-
-	/* Hack -- lower limit */
-	if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
-
-	/* Hack -- upper limit */
-	if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
-
-	/* Hack -- upper limit */
-	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
-
-
-	/* Hack -- maintain "max" experience */
-	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
-
-	/* Redraw experience */
-	p_ptr->redraw |= (PR_EXP);
-
-	/* Handle stuff */
-	handle_stuff();
-
-
-	/* Lose levels while possible */
-	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-	                      p_ptr->expfact / 100L)))
+	int i;
+	for (i = 0; i < PY_MAX_CLASSES; i++)
 	{
-		/* Lose a level */
-		p_ptr->lev--;
+		/* Hack -- lower limit */
+		if (pc_array[i].exp < 0) pc_array[i].exp = 0;
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		/* Hack -- lower limit */
+		if (pc_array[i].max_exp < 0) pc_array[i].max_exp = 0;
 
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+		/* Hack -- upper limit */
+		if (pc_array[i].exp > PY_MAX_EXP) pc_array[i].exp = PY_MAX_EXP;
+
+		/* Hack -- upper limit */
+		if (pc_array[i].max_exp > PY_MAX_EXP) pc_array[i].max_exp = PY_MAX_EXP;
+
+
+		/* Hack -- maintain "max" experience */
+		if (pc_array[i].exp > pc_array[i].max_exp) pc_array[i].max_exp = pc_array[i].exp;
+
+		/* Redraw experience */
+		p_ptr->redraw |= (PR_EXP);
 
 		/* Handle stuff */
 		handle_stuff();
-	}
 
 
-	/* Gain levels while possible */
-	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-	                       p_ptr->expfact / 100L)))
-	{
-		char buf[80];
-
-		/* Gain a level */
-		p_ptr->lev++;
-
-		/* Save the highest level */
-		if (p_ptr->lev > p_ptr->max_lev)
+		/* Lose levels while possible */
+		while ((pc_array[i].lev > 1) &&
+			   (pc_array[i].exp < (player_exp[pc_array[i].lev-2] *
+							  pc_array[i].expfact / 100L)))
 		{
-			p_ptr->max_lev = p_ptr->lev;
+			/* Lose a level */
+			pc_array[i].lev--;
 
-			/* Log level updates (TODO: perhaps only every other level or every 5) */
-			strnfmt(buf, sizeof(buf), "Reached level %d", p_ptr->lev);
-			history_add(buf, HISTORY_GAIN_LEVEL, 0);
+			/* Update some stuff */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+			/* Redraw some stuff */
+			p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+
+			/* Handle stuff */
+			handle_stuff();
 		}
 
-		/* Message */
-		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
-		/* Add to social class */
-		p_ptr->sc += randint1(2);
-		if (p_ptr->sc > 150) p_ptr->sc = 150;
+		/* Gain levels while possible */
+		while ((pc_array[i].lev < PY_MAX_LEVEL) &&
+			   (pc_array[i].exp >= (player_exp[pc_array[i].lev-1] *
+							   pc_array[i].expfact / 100L)))
+		{
+			char buf[80];
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+			/* Gain a level */
+			pc_array[i].lev++;
 
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+			/* Save the highest level */
+			if (pc_array[i].lev > p_ptr->max_lev) p_ptr->max_lev = pc_array[i].lev;
 
-		/* Handle stuff */
-		handle_stuff();
-	}
+			/* Log level updates */
+			strnfmt(buf, sizeof(buf), "Reached level %d", pc_array[i].lev);
+			history_add(buf, HISTORY_GAIN_LEVEL, 0);
 
-	/* Gain max levels while possible */
-	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
-	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
-	                           p_ptr->expfact / 100L)))
-	{
-		/* Gain max level */
-		p_ptr->max_lev++;
+			/* Message */
+			// TODO - specify which class levels up
+			message_format(MSG_LEVEL, pc_array[i].lev, "Welcome to level %d!",
+				pc_array[i].lev);
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+			/* Add to social class */
+			p_ptr->sc += randint1(2);
+			if (p_ptr->sc > 150) p_ptr->sc = 150;
 
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+			/* Update some stuff */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-		/* Handle stuff */
-		handle_stuff();
+			/* Redraw some stuff */
+			p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+
+			/* Handle stuff */
+			handle_stuff();
+		}
+
+		/* Gain max levels while possible */
+		while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+			   (pc_array[i].max_exp >= (player_exp[p_ptr->max_lev-1] *
+								   pc_array[i].expfact / 100L)))
+		{
+			/* Gain max level */
+			p_ptr->max_lev++;
+
+			/* Update some stuff */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+			/* Redraw some stuff */
+			p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+
+			/* Handle stuff */
+			handle_stuff();
+		}
 	}
 }
 
@@ -129,33 +132,41 @@ void check_experience(void)
 /*
  * Gain experience
  */
-void gain_exp(s32b amount)
+void gain_exp(s32b amount, int classidx)
 {
 	/* Gain some experience */
-	p_ptr->exp += amount;
+	pc_array[classidx].exp += amount;
 
 	/* Slowly recover from experience drainage */
-	if (p_ptr->exp < p_ptr->max_exp)
+	if (pc_array[classidx].exp < pc_array[classidx].max_exp)
 	{
 		/* Gain max experience (10%) */
-		p_ptr->max_exp += amount / 10;
+		pc_array[classidx].max_exp += amount / 10;
 	}
 
 	/* Check Experience */
 	check_experience();
 }
 
+// gain xp in all classes
+void gain_exp_all(s32b amount)
+{
+	int i;
+	for (i = 0; i < PY_MAX_CLASSES; i++)
+		gain_exp(amount, i);
+}
+
 
 /*
  * Lose experience
  */
-void lose_exp(s32b amount)
+void lose_exp(s32b amount, int classidx)
 {
 	/* Never drop below zero experience */
-	if (amount > p_ptr->exp) amount = p_ptr->exp;
+	if (amount > pc_array[classidx].exp) amount = pc_array[classidx].exp;
 
 	/* Lose some experience */
-	p_ptr->exp -= amount;
+	pc_array[classidx].exp -= amount;
 
 	/* Check Experience */
 	check_experience();
@@ -513,7 +524,7 @@ int dir_transitions[10][10] =
 bool get_aim_dir(int *dp)
 {
 	/* Global direction */
-	int dir = p_ptr->command_dir;
+	int dir = 0;
 	
 	ui_event_data ke;
 
@@ -613,8 +624,8 @@ bool get_aim_dir(int *dp)
 	/* No direction */
 	if (!dir) return (FALSE);
 
-	/* Save the direction */
-	p_ptr->command_dir = dir;
+	/* Save direction */
+	(*dp) = dir;
 
 	/* Check for confusion */
 	if (p_ptr->timed[TMD_CONFUSED])
@@ -624,7 +635,7 @@ bool get_aim_dir(int *dp)
 	}
 
 	/* Notice confusion */
-	if (p_ptr->command_dir != dir)
+	if ((*dp) != dir)
 	{
 		/* Warn the user */
 		msg_print("You are confused.");
@@ -655,15 +666,12 @@ bool get_aim_dir(int *dp)
  */
 bool get_rep_dir(int *dp)
 {
-	int dir;
+	int dir = 0;
 
 	ui_event_data ke;
 
 	/* Initialize */
 	(*dp) = 0;
-
-	/* Global direction */
-	dir = p_ptr->command_dir;
 
 	/* Get a direction */
 	while (!dir)
@@ -758,9 +766,6 @@ bool get_rep_dir(int *dp)
 
 	/* Clear the prompt */
 	prt("", 0, 0);
-
-	/* Save desired direction */
-	p_ptr->command_dir = dir;
 
 	/* Save direction */
 	(*dp) = dir;

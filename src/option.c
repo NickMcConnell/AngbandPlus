@@ -47,7 +47,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_hp_changes_color,
 		OPT_highlight_player,
- 		OPT_center_player,
+ 		  OPT_center_player,
 		OPT_show_piles,
 		OPT_show_flavors,
 		OPT_show_labels,
@@ -57,7 +57,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_special_light,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
-		OPT_NONE,
+		OPT_animate_flicker,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -87,7 +87,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_maximize,
 		OPT_birth_randarts,
-		OPT_birth_money,
 		OPT_birth_ai_sound,
 		OPT_birth_ai_smell,
 		OPT_birth_ai_packs,
@@ -100,7 +99,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stacking,
 		OPT_birth_no_preserve,
 		OPT_birth_no_stairs,
-		OPT_birth_feelings
+		OPT_birth_feelings,
+		OPT_NONE
 	},
 
 	/* Cheat */
@@ -200,7 +200,7 @@ static option_entry options[OPT_MAX] =
 { "view_special_light",  "Use special colors for floor grids",          TRUE },  /* 63 */
 { "easy_open",           "Open/Disarm/Close without direction",         FALSE }, /* 64 */
 { "easy_alter",          "Open/Disarm doors/traps on movement",         FALSE }, /* 65 */
-{ NULL,                  NULL,                                          FALSE }, /* 66 */
+{ "animate_flicker",     "Animate multi-colored monsters and items",    FALSE }, /* 66 */
 { "show_piles",          "Show stacks using special attr/char",         FALSE }, /* 67 */
 { "center_player",       "Center map continuously",                     FALSE }, /* 68 */
 { NULL,                  NULL,                                          FALSE }, /* 69 */
@@ -210,7 +210,7 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 73 */
 { "hp_changes_color",    "Player color indicates low hit points",       FALSE }, /* 74 */
 { "hide_squelchable",    "Hide items set as squelchable",               FALSE }, /* 75 */
-{ "squelch_worthless",   "Automatically squelch worthless items",       FALSE }, /* 76 */
+{ "squelch_worthless",   "Squelch worthless item kinds",                FALSE }, /* 76 */
 { "mouse_movement",      "Allow mouse clicks to move the player",       FALSE }, /* 77 */
 { "mouse_buttons",        "Show mouse status line buttons",             FALSE }, /* 78 */
 { "notify_recharge",     "Notify on object recharge",                   FALSE }, /* 79 */
@@ -264,7 +264,7 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 127 */
 { "birth_maximize",      "Maximise effect of race/class bonuses",       TRUE },  /* 128 */
 { "birth_randarts",      "Randomise the artifacts (except a very few)", FALSE }, /* 129 */
-{ "birth_money",         "Start with more money instead of equipment",  FALSE }, /* 130 */
+{ NULL,                  NULL,                                          FALSE }, /* 130 */
 { "birth_ironman",       "Restrict the use of stairs/recall",           FALSE }, /* 131 */
 { "birth_no_stores",     "Restrict the use of stores/home",             FALSE }, /* 132 */
 { "birth_no_artifacts",  "Restrict creation of artifacts",              FALSE }, /* 133 */

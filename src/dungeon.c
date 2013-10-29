@@ -28,7 +28,47 @@ void dungeon_change_level(int dlev)
 {
 	/* New depth */
 	p_ptr->depth = dlev;
-	
+
+	/* If we're returning to town, update the store contents
+	   according to how long we've been away */
+	if (!dlev && daycount)
+	{
+		if (OPT(cheat_xtra)) msg_print("Updating Shops...");
+		while (daycount--)
+		{
+			int n;
+
+			/* Maintain each shop (except home) */
+			for (n = 0; n < MAX_STORES; n++)
+			{
+				/* Skip the home */
+				if (n == STORE_HOME) continue;
+
+				/* Maintain */
+				store_maint(n);
+			}
+
+			/* Sometimes, shuffle the shop-keepers */
+			if (one_in_(STORE_SHUFFLE))
+			{
+				/* Message */
+				if (OPT(cheat_xtra)) msg_print("Shuffling a Shopkeeper...");
+
+				/* Pick a random shop (except home) */
+				while (1)
+				{
+					n = randint0(MAX_STORES);
+					if (n != STORE_HOME) break;
+				}
+
+				/* Shuffle it */
+				store_shuffle(n);
+			}
+		}
+		daycount = 0;
+		if (OPT(cheat_xtra)) msg_print("Done.");
+	}
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
@@ -49,7 +89,7 @@ static void regenhp(int percent)
 	old_chp = p_ptr->chp;
 
 	/* Extract the new hitpoints */
-	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
+	new_chp = ((long)p_get_mhp()) * percent + PY_REGEN_HPBASE;
 	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
 
 	/* check for overflow */
@@ -66,9 +106,9 @@ static void regenhp(int percent)
 	}
 
 	/* Fully healed */
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (p_ptr->chp >= p_get_mhp())
 	{
-		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp = p_get_mhp();
 		p_ptr->chp_frac = 0;
 	}
 
@@ -77,8 +117,8 @@ static void regenhp(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-		wieldeds_notice_flag(2, TR2_REGEN);
-		wieldeds_notice_flag(2, TR2_IMPAIR_HP);
+		wieldeds_notice_flag(OF_REGEN);
+		wieldeds_notice_flag(OF_IMPAIR_HP);
 	}
 }
 
@@ -92,7 +132,7 @@ static void regenmana(int percent)
 	int old_csp;
 
 	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+	new_mana = ((long)p_get_msp()) * percent + PY_REGEN_MNBASE;
 	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
@@ -111,9 +151,9 @@ static void regenmana(int percent)
 	}
 
 	/* Must set frac to zero even if equal */
-	if (p_ptr->csp >= p_ptr->msp)
+	if (p_ptr->csp >= p_get_msp())
 	{
-		p_ptr->csp = p_ptr->msp;
+		p_ptr->csp = p_get_msp();
 		p_ptr->csp_frac = 0;
 	}
 
@@ -122,8 +162,8 @@ static void regenmana(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
-		wieldeds_notice_flag(2, TR2_REGEN);
-		wieldeds_notice_flag(2, TR2_IMPAIR_MANA);
+		wieldeds_notice_flag(OF_REGEN);
+		wieldeds_notice_flag(OF_IMPAIR_MANA);
 	}
 }
 
@@ -161,7 +201,7 @@ static void regen_monsters(void)
 			if (!frac) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags[1] & (RF1_REGENERATE)) frac *= 2;
+			if (rf_has(r_ptr->flags, RF_REGENERATE)) frac *= 2;
 
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
@@ -376,13 +416,13 @@ static void play_ambient_sound(void)
 	}
 
 	/* Dungeon level 61-80 */
-	else if (p_ptr->depth <= 80) 
+	else if (p_ptr->depth <= 80)
 	{
 		sound(MSG_AMBIENT_DNG4);
 	}
 
 	/* Dungeon level 80- */
-	else  
+	else
 	{
 		sound(MSG_AMBIENT_DNG5);
 	}
@@ -435,6 +475,7 @@ static void process_world(void)
 	int i;
 
 	int regen_amount;
+	int pcidx;
 
 	object_type *o_ptr;
 
@@ -480,46 +521,10 @@ static void process_world(void)
 	/* While in the dungeon */
 	else
 	{
-		/*** Update the Stores ***/
-
-		/* Update the stores once a day (while in dungeon) */
-		if (!(turn % (10L * STORE_TURNS)))
-		{
-			int n;
-
-			/* Message */
-			if (OPT(cheat_xtra)) msg_print("Updating Shops...");
-
-			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES; n++)
-			{
-				/* Skip the home */
-				if (n == STORE_HOME) continue;
-
-				/* Maintain */
-				store_maint(n);
-			}
-
-			/* Sometimes, shuffle the shop-keepers */
-			if (one_in_(STORE_SHUFFLE))
-			{
-				/* Message */
-				if (OPT(cheat_xtra)) msg_print("Shuffling a Shopkeeper...");
-
-				/* Pick a random shop (except home) */
-				while (1)
-				{
-					n = randint0(MAX_STORES);
-					if (n != STORE_HOME) break;
-				}
-
-				/* Shuffle it */
-				store_shuffle(n);
-			}
-
-			/* Message */
-			if (OPT(cheat_xtra)) msg_print("Done.");
-		}
+		/* Update the stores once a day (while in the dungeon).
+		   The changes are not actually made until return to town,
+		   to avoid giving details away in the knowledge menu. */
+		if (!(turn % (10L * STORE_TURNS))) daycount++;
 	}
 
 
@@ -652,7 +657,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if (p_ptr->chp < p_get_mhp())
 		regenhp(regen_amount);
 
 
@@ -672,7 +677,7 @@ static void process_world(void)
 		regen_amount /= 2;
 
 	/* Regenerate mana */
-	if (p_ptr->csp < p_ptr->msp)
+	if (p_ptr->csp < p_get_msp())
 		regenmana(regen_amount);
 
 
@@ -691,7 +696,7 @@ static void process_world(void)
 	/* Burn some fuel in the current light */
 	if (o_ptr->tval == TV_LIGHT)
 	{
-		u32b f[OBJ_FLAG_N];
+		bitflag f[OF_SIZE];
 		bool burn_fuel = TRUE;
 
 		/* Get the object flags */
@@ -702,7 +707,7 @@ static void process_world(void)
 			burn_fuel = FALSE;
 
 		/* If the light has the NO_FUEL flag, well... */
-		if (f[2] & TR2_NO_FUEL)
+		if (of_has(f, OF_NO_FUEL))
 		    burn_fuel = FALSE;
 
 		/* Use some fuel (except on artifacts, or during the day) */
@@ -750,14 +755,17 @@ static void process_world(void)
 	/* Handle experience draining */
 	if (p_ptr->state.exp_drain)
 	{
-		if ((p_ptr->exp > 0) && one_in_(10))
+		for (pcidx = 0; pcidx < PY_MAX_CLASSES; pcidx++)
 		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
-			check_experience();
+			if ((pc_array[pcidx].exp > 0) && one_in_(10 * PY_MAX_CLASSES))
+			{
+				pc_array[pcidx].exp--;
+				pc_array[pcidx].max_exp--;
+				check_experience();
+			}
 		}
 
-		wieldeds_notice_flag(2, TR2_DRAIN_EXP);
+		wieldeds_notice_flag(OF_DRAIN_EXP);
 	}
 
 	/* Recharge activatable objects and rods */
@@ -772,7 +780,7 @@ static void process_world(void)
 	/* Random teleportation */
 	if (p_ptr->state.teleport && one_in_(100))
 	{
-		wieldeds_notice_flag(2, TR2_TELEPORT);
+		wieldeds_notice_flag(OF_TELEPORT);
 		teleport_player(40);
 		disturb(0, 0);
 	}
@@ -789,18 +797,15 @@ static void process_world(void)
 			/* Disturbing! */
 			disturb(0, 0);
 
-			/* Sound */
-			sound(MSG_TPLEVEL);
-
 			/* Determine the level */
 			if (p_ptr->depth)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				message_format(MSG_TPLEVEL, 0, "You feel yourself yanked upwards!");
 				dungeon_change_level(0);
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				message_format(MSG_TPLEVEL, 0, "You feel yourself yanked downwards!");
 
 				/* New depth - back to max depth or 1, whichever is deeper */
 				dungeon_change_level(p_ptr->max_depth < 1 ? 1: p_ptr->max_depth);
@@ -824,15 +829,13 @@ static void process_player_aux(void)
 	bool changed = FALSE;
 
 	static int old_monster_race_idx = 0;
-
-	static u32b old_flags[RACE_FLAG_STRICT_UB] = { 0L, 0L, 0L };
-	static u32b old_spell_flags[RACE_FLAG_SPELL_STRICT_UB] = { 0L, 0L, 0L };
+	static bitflag old_flags[RF_SIZE];
+	static bitflag old_spell_flags[RSF_SIZE];
 
 	static byte old_blows[MONSTER_BLOW_MAX];
 
 	static byte	old_cast_innate = 0;
 	static byte	old_cast_spell = 0;
-
 
 	/* Tracking a monster */
 	if (p_ptr->monster_race_idx)
@@ -852,8 +855,8 @@ static void process_player_aux(void)
 		/* Check for change of any kind */
 		if (changed ||
 		    (old_monster_race_idx != p_ptr->monster_race_idx) ||
-		    race_flags_differ(old_flags, l_ptr->flags) ||
-		    race_flags_differ_spell(old_spell_flags, l_ptr->spell_flags) ||
+		    !rf_is_equal(old_flags, l_ptr->flags) ||
+		    !rsf_is_equal(old_spell_flags, l_ptr->spell_flags) ||
 		    (old_cast_innate != l_ptr->cast_innate) ||
 		    (old_cast_spell != l_ptr->cast_spell))
 		{
@@ -861,8 +864,8 @@ static void process_player_aux(void)
 			old_monster_race_idx = p_ptr->monster_race_idx;
 
 			/* Memorize flags */
-			race_flags_assign(old_flags, l_ptr->flags);
-			race_flags_assign_spell(old_spell_flags, l_ptr->spell_flags);
+			rf_copy(old_flags, l_ptr->flags);
+			rsf_copy(old_spell_flags, l_ptr->spell_flags);
 
 			/* Memorize blows */
 			memmove(old_blows, l_ptr->blows, sizeof(byte)*MONSTER_BLOW_MAX);
@@ -907,22 +910,22 @@ static void process_player(void)
 	if (p_ptr->resting < 0)
 	{
 		/* Basic resting */
-		if (p_ptr->resting == -1)
+		if (p_ptr->resting == REST_ALL_POINTS)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp))
+			if ((p_ptr->chp == p_get_mhp()) &&
+			    (p_ptr->csp == p_get_msp()))
 			{
 				disturb(0, 0);
 			}
 		}
 
 		/* Complete resting */
-		else if (p_ptr->resting == -2)
+		else if (p_ptr->resting == REST_COMPLETE)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
+			if ((p_ptr->chp == p_get_mhp()) &&
+			    (p_ptr->csp == p_get_msp()) &&
 			    !p_ptr->timed[TMD_BLIND] && !p_ptr->timed[TMD_CONFUSED] &&
 			    !p_ptr->timed[TMD_POISONED] && !p_ptr->timed[TMD_AFRAID] &&
 			    !p_ptr->timed[TMD_TERROR] &&
@@ -935,11 +938,11 @@ static void process_player(void)
 		}
 		
 		/* Rest until HP or SP are filled */
-		else if (p_ptr->resting == -3)
+		else if (p_ptr->resting == REST_SOME_POINTS)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) ||
-			    (p_ptr->csp == p_ptr->msp))
+			if ((p_ptr->chp == p_get_mhp()) ||
+			    (p_ptr->csp == p_get_msp()))
 			{
 				disturb(0, 0);
 			}
@@ -948,7 +951,7 @@ static void process_player(void)
 
 	/* Check for "player abort" */
 	if (p_ptr->running ||
-	    p_ptr->command_rep ||
+	    cmd_get_nrepeats() > 0 ||
 	    (p_ptr->resting && !(turn & 0x7F)))
 	{
 		/* Do not wait */
@@ -1000,7 +1003,7 @@ static void process_player(void)
 		p_ptr->energy_use = 0;
 
 		/* Dwarves detect treasure */
-		if (rp_ptr->new_racial_flags & NRF_SEE_ORE)
+		if (player_has(PF_SEE_ORE))
 		{
 			/* Only if they are in good shape */
 			if (!p_ptr->timed[TMD_IMAGE] &&
@@ -1055,7 +1058,7 @@ static void process_player(void)
 		}
 
 		/* Repeated command */
-		else if (p_ptr->command_rep)
+		else if (cmd_get_nrepeats() > 0)
 		{
 			/* Hack -- Assume messages were seen */
 			msg_flag = FALSE;
@@ -1065,16 +1068,6 @@ static void process_player(void)
 
 			/* Process the command */
 			process_command(CMD_GAME, TRUE);
-
-			/* Count this execution */
-			if (p_ptr->command_rep)
-			{
-				/* Count this execution */
-				p_ptr->command_rep--;
-
-				/* Redraw the state */
-				p_ptr->redraw |= (PR_STATE);
-			}
 		}
 
 		/* Normal command */
@@ -1137,7 +1130,7 @@ static void process_player(void)
 					r_ptr = &r_info[m_ptr->r_idx];
 
 					/* Skip non-multi-hued monsters */
-					if (!(r_ptr->flags[0] & (RF0_ATTR_MULTI))) continue;
+					if (!rf_has(r_ptr->flags, RF_ATTR_MULTI)) continue;
 
 					/* Reset the flag */
 					shimmer_monsters = TRUE;
@@ -1238,6 +1231,95 @@ static void process_player(void)
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 }
 
+byte flicker = 0;
+byte color_flicker[MAX_COLORS][3] = 
+{
+	{TERM_DARK, TERM_L_DARK, TERM_L_RED},
+	{TERM_WHITE, TERM_L_WHITE, TERM_L_BLUE},
+	{TERM_SLATE, TERM_WHITE, TERM_L_DARK},
+	{TERM_ORANGE, TERM_YELLOW, TERM_L_RED},
+	{TERM_RED, TERM_L_RED, TERM_L_PINK},
+	{TERM_GREEN, TERM_L_GREEN, TERM_L_TEAL},
+	{TERM_BLUE, TERM_L_BLUE, TERM_SLATE},
+	{TERM_UMBER, TERM_L_UMBER, TERM_MUSTARD},
+	{TERM_L_DARK, TERM_SLATE, TERM_L_VIOLET},
+	{TERM_WHITE, TERM_SLATE, TERM_L_WHITE},
+	{TERM_L_PURPLE, TERM_PURPLE, TERM_L_VIOLET},
+	{TERM_YELLOW, TERM_L_YELLOW, TERM_MUSTARD},
+	{TERM_L_RED, TERM_RED, TERM_L_PINK},
+	{TERM_L_GREEN, TERM_L_TEAL, TERM_GREEN},
+	{TERM_L_BLUE, TERM_DEEP_L_BLUE, TERM_BLUE_SLATE},
+	{TERM_L_UMBER, TERM_UMBER, TERM_MUD},
+	{TERM_PURPLE, TERM_VIOLET, TERM_MAGENTA},
+	{TERM_VIOLET, TERM_L_VIOLET, TERM_MAGENTA},
+	{TERM_TEAL, TERM_L_TEAL, TERM_L_GREEN},
+	{TERM_MUD, TERM_YELLOW, TERM_UMBER},
+	{TERM_L_YELLOW, TERM_WHITE, TERM_L_UMBER},
+	{TERM_MAGENTA, TERM_L_PINK, TERM_L_RED},
+	{TERM_L_TEAL, TERM_L_WHITE, TERM_TEAL},
+	{TERM_L_VIOLET, TERM_L_PURPLE, TERM_VIOLET},
+	{TERM_L_PINK, TERM_L_RED, TERM_L_WHITE},
+	{TERM_MUSTARD, TERM_YELLOW, TERM_UMBER},
+	{TERM_BLUE_SLATE, TERM_BLUE, TERM_SLATE},
+	{TERM_DEEP_L_BLUE, TERM_L_BLUE, TERM_BLUE},
+};
+
+byte get_flicker(byte a)
+{
+	switch(flicker % 3)
+	{
+		case 1: return color_flicker[a][1];
+		case 2: return color_flicker[a][2];
+	}
+	return a;
+}
+
+/*
+ * This animates monsters and/or items as necessary.
+ */
+void do_animation(void)
+{
+	int i;
+
+	for (i = 1; i < mon_max; i++)
+	{
+		byte attr;
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		if (!m_ptr || !m_ptr->ml)
+			continue;
+		else if (rf_has(r_ptr->flags, RF_ATTR_MULTI))
+			attr = randint1(BASIC_COLORS - 1);
+		else if (rf_has(r_ptr->flags, RF_ATTR_FLICKER))
+			attr = get_flicker(r_ptr->x_attr);
+		else
+			continue;
+
+		m_ptr->attr = attr;
+		p_ptr->redraw |= (PR_MAP | PR_MONLIST);
+	}
+	flicker++;
+}
+
+
+/*
+ * This is used when the user is idle to allow for simple animations.
+ * Currently the only thing it really does is animate shimmering monsters.
+ */
+void idle_update(void)
+{
+	if (!character_dungeon) return;
+
+	if (!OPT(animate_flicker)) return;
+
+	/* Animate and redraw if necessary */
+	do_animation();
+	redraw_stuff();
+
+	/* Refresh the main screen */
+	Term_fresh();
+}
 
 
 /*
@@ -1250,6 +1332,7 @@ static void dungeon(void)
 {
 	monster_type *m_ptr;
 	int i;
+	int pcidx;
 
 
 
@@ -1265,9 +1348,7 @@ static void dungeon(void)
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
 	p_ptr->command_new = 0;
-	p_ptr->command_rep = 0;
 	p_ptr->command_arg = 0;
-	p_ptr->command_dir = 0;
 
 
 	/* Cancel the target */
@@ -1292,9 +1373,12 @@ static void dungeon(void)
 
 
 	/* Track maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev)
+	for (pcidx = 0; pcidx < PY_MAX_CLASSES; pcidx++)
 	{
-		p_ptr->max_lev = p_ptr->lev;
+		if (pc_array[pcidx].max_lev < pc_array[pcidx].lev)
+		{
+			pc_array[pcidx].max_lev = pc_array[pcidx].lev;
+		}
 	}
 
 
@@ -1395,8 +1479,9 @@ static void dungeon(void)
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
 
-	/* Player gets to go first */
-	p_ptr->energy = 100;
+	/* Give player minimum energy to start a new level, but do not reduce higher value from savefile for level in progress */
+	if (p_ptr->energy < INITIAL_DUNGEON_ENERGY)
+		p_ptr->energy = INITIAL_DUNGEON_ENERGY;
 
 
 	/*** Process this dungeon level ***/
@@ -1417,10 +1502,12 @@ static void dungeon(void)
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
-
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
+    		/* Do any necessary animations */
+    		do_animation(); 
+
 			/* process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
 
@@ -1616,9 +1703,6 @@ void play_game(void)
 
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
-
-		/* XXX This is the place to add automatic character
-		   numbering (i.e. Rocky IV, V, etc.) Probably. */
 	}
 
 	/* Hack -- Default base_name */
@@ -1810,11 +1894,11 @@ void play_game(void)
 				p_ptr->is_dead = FALSE;
 
 				/* Restore hit points */
-				p_ptr->chp = p_ptr->mhp;
+				p_ptr->chp = p_get_mhp();
 				p_ptr->chp_frac = 0;
 
 				/* Restore spell points */
-				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp = p_get_msp();
 				p_ptr->csp_frac = 0;
 
 				/* Hack -- Healing */

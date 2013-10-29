@@ -33,6 +33,8 @@ static int rd_item(object_type *o_ptr)
 	byte tmp8u;
 	u16b tmp16u;
 
+	size_t i;
+
 	object_kind *k_ptr;
 
 	char buf[128];
@@ -101,16 +103,19 @@ static int rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->origin_depth);
 	rd_u16b(&o_ptr->origin_xtra);
 
-	rd_u32b(&o_ptr->flags[0]);
-	rd_u32b(&o_ptr->flags[1]);
-	rd_u32b(&o_ptr->flags[2]);
+	/* Hack - XXX - MarbleDice - Maximum saveable flags = 96 */
+	for (i = 0; i < 12 && i < OF_SIZE; i++)
+		rd_byte(&o_ptr->flags[i]);
+	if (i < 12) strip_bytes(12 - i);
+	
 
 	memset(&o_ptr->known_flags, 0, sizeof(o_ptr->known_flags));
 	if (ver > 4)
 	{
-		rd_u32b(&o_ptr->known_flags[0]);
-		rd_u32b(&o_ptr->known_flags[1]);
-		rd_u32b(&o_ptr->known_flags[2]);
+		/* Hack - XXX - MarbleDice - Maximum saveable flags = 96 */
+		for (i = 0; i < 12 && i < OF_SIZE; i++)
+			rd_byte(&o_ptr->known_flags[i]);
+		if (i < 12) strip_bytes(12 - i);
 	}
 	else if (ver > 2)
 	{
@@ -245,7 +250,7 @@ static int rd_item(object_type *o_ptr)
 		}
 
 		/* Hack -- enforce legal pval */
-		if (e_ptr->flags[0] & (TR0_PVAL_MASK))
+		if (flags_test(e_ptr->flags, OF_SIZE, OF_PVAL_MASK, FLAG_END))
 		{
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
@@ -452,22 +457,22 @@ int rd_monster_memory(u32b version)
 	/* Read the available records */
 	for (r_idx = 0; r_idx < tmp16u; r_idx++)
 	{
-		int i;
+		size_t i;
 
 		monster_race *r_ptr = &r_info[r_idx];
 		monster_lore *l_ptr = &l_list[r_idx];
-			
-			
+
+
 		/* Count sights/deaths/kills */
 		rd_s16b(&l_ptr->sights);
 		rd_s16b(&l_ptr->deaths);
 		rd_s16b(&l_ptr->pkills);
 		rd_s16b(&l_ptr->tkills);
-		
+
 		/* Count wakes and ignores */
 		rd_byte(&l_ptr->wake);
 		rd_byte(&l_ptr->ignore);
-			
+
 		/* Count drops */
 		rd_byte(&l_ptr->drop_gold);
 		rd_byte(&l_ptr->drop_item);
@@ -481,21 +486,26 @@ int rd_monster_memory(u32b version)
 			rd_byte(&l_ptr->blows[i]);
 
 		/* Memorize flags */
-		for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
-			rd_u32b(&l_ptr->flags[i]);
-		for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
-			rd_u32b(&l_ptr->spell_flags[i]);
-			
-			
+
+		/* Hack - XXX - MarbleDice - Maximum saveable flags = 96 */
+		for (i = 0; i < 12 && i < RF_SIZE; i++)
+			rd_byte(&l_ptr->flags[i]);
+		if (i < 12) strip_bytes(12 - i);
+
+		/* Hack - XXX - MarbleDice - Maximum saveable flags = 96 */
+		for (i = 0; i < 12 && i < RSF_SIZE; i++)
+			rd_byte(&l_ptr->spell_flags[i]);
+		if (i < 12) strip_bytes(12 - i);
+
+
 		/* Read the "Racial" monster limit per level */
 		rd_byte(&r_ptr->max_num);
-			
+
 		/* XXX */
 		strip_bytes(3);
 
 		/* Repair the spell lore flags */
-		for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
-			l_ptr->spell_flags[i] &= r_ptr->spell_flags[i];
+		rsf_inter(l_ptr->spell_flags, r_ptr->spell_flags);
 	}
 	
 	return 0;
@@ -664,6 +674,10 @@ int rd_player(u32b version)
 	int i;
 
 	byte num;
+	byte dummy;
+	s32b dummys32b;
+	u16b dummyu16b;
+	s16b dummys16b;
 
 
 	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
@@ -702,8 +716,8 @@ int rd_player(u32b version)
 	rd_byte(&op_ptr->name_suffix);
 
 	/* Special Race/Class info */
-	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	rd_byte(&dummy);
+	rd_byte(&dummy);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -724,35 +738,35 @@ int rd_player(u32b version)
 
 	rd_s32b(&p_ptr->au);
 
-	rd_s32b(&p_ptr->max_exp);
-	rd_s32b(&p_ptr->exp);
-	rd_u16b(&p_ptr->exp_frac);
+	rd_s32b(&dummys32b);
+	rd_s32b(&dummys32b);
+	rd_u16b(&dummyu16b);
 
-	rd_s16b(&p_ptr->lev);
+	rd_s16b(&dummys16b);
 
 	/* Verify player level */
-	if ((p_ptr->lev < 1) || (p_ptr->lev > PY_MAX_LEVEL))
+	/*if ((p_get_lev() < 1) || (p_get_lev() > PY_MAX_LEVEL))
 	{
-		note(format("Invalid player level (%d).", p_ptr->lev));
+		note(format("Invalid player level (%d).", p_get_lev()));
 		return (-1);
-	}
+	}*/
 
-	rd_s16b(&p_ptr->mhp);
+	rd_s16b(&dummys16b);
 	rd_s16b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);
 
-	rd_s16b(&p_ptr->msp);
+	rd_s16b(&dummys16b);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
-	rd_s16b(&p_ptr->max_lev);
+	rd_s16b(&dummys16b);
 	rd_s16b(&p_ptr->max_depth);
 
 	/* Hack -- Repair maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
+	//if (p_curclass.max_lev < p_get_lev()) p_curclass.max_lev = p_get_lev();
 
 	/* Hack -- Repair maximum dungeon level */
-	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+	//if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
 	strip_bytes(8);
@@ -906,6 +920,7 @@ int rd_player_hp(u32b version)
 {
 	int i;
 	u16b tmp16u;
+	s16b dummy;
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
@@ -917,9 +932,9 @@ int rd_player_hp(u32b version)
 		return (-1);
 	}
 
-	/* Read the player_hp array */
+	/* Read the player_hp array (stored in pc_array now!) */
 	for (i = 0; i < tmp16u; i++)
-		rd_s16b(&p_ptr->player_hp[i]);
+		rd_s16b(&dummy);
 
 	return 0;
 }
@@ -958,7 +973,7 @@ int rd_player_spells(u32b version)
  */
 int rd_randarts(u32b version)
 {
-	int i;
+	size_t i, j;
 	byte tmp8u;
 	s16b tmp16s;
 	u16b tmp16u;
@@ -1037,9 +1052,10 @@ int rd_randarts(u32b version)
 
 				rd_s32b(&a_ptr->cost);
 
-				rd_u32b(&a_ptr->flags[0]);
-				rd_u32b(&a_ptr->flags[1]);
-				rd_u32b(&a_ptr->flags[2]);
+				/* Hack - XXX - MarbleDice - Maximum saveable flags = 96 */
+				for (j = 0; j < 12 && j < OF_SIZE; j++)
+					rd_byte(&a_ptr->flags[j]);
+				if (j < 12) strip_bytes(OF_SIZE - j);
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
@@ -1056,8 +1072,8 @@ int rd_randarts(u32b version)
 				a_ptr->time.sides = time_sides;
 			}
 
-		/* Initialize only the randart names */
-		do_randart(seed_randart, FALSE);
+			/* Initialize only the randart names */
+			do_randart(seed_randart, FALSE);
 		}
 		else
 		{
@@ -1252,11 +1268,11 @@ int rd_stores(u32b version)
 				(i_ptr->k_idx))
 			{
 				int k = st_ptr->stock_num++;
-				
+
 				/* Accept the item */
 				object_copy(&st_ptr->stock[k], i_ptr);
 			}
-		}	
+		}
 	}
 
 	return 0;
@@ -1303,7 +1319,7 @@ int rd_dungeon(u32b version)
 
 	/* Header info */
 	rd_s16b(&depth);
-	rd_u16b(&tmp16u);
+	rd_u16b(&daycount);
 	rd_s16b(&py);
 	rd_s16b(&px);
 	rd_s16b(&ymax);
@@ -1431,16 +1447,16 @@ int rd_dungeon(u32b version)
 	}
 
 	/*** Success ***/
-	
+
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-	
+
 #if 0
 	/* Regenerate town in old versions */
 	if (p_ptr->depth == 0)
 		character_dungeon = FALSE;
 #endif
-	
+
 	return 0;
 }
 
@@ -1652,5 +1668,26 @@ int rd_history(u32b version)
 		history_add_full(type, art_name, dlev, clev, turn, text);
 	}
 
+	return 0;
+}
+
+// Reads player class info. Changing PY_MAX_CLASSES or PY_MAX_LEVEL will break savefiles!
+int rd_classes(u32b version)
+{
+	size_t i, j;
+	for (i = 0; i < PY_MAX_CLASSES; i++)
+	{
+		rd_byte(&pc_array[i].hitdie);
+		rd_byte(&pc_array[i].expfact);
+		rd_s16b(&pc_array[i].max_lev);
+		rd_s16b(&pc_array[i].lev);
+		rd_s32b(&pc_array[i].max_exp);
+		rd_s32b(&pc_array[i].exp);
+		rd_u16b(&pc_array[i].exp_frac);
+		rd_s16b(&pc_array[i].mhp);
+		rd_s16b(&pc_array[i].msp);
+		for (j = 0; j < PY_MAX_LEVEL; j++)
+			rd_s16b(&pc_array[i].player_hp[j]);
+	}
 	return 0;
 }

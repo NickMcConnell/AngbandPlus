@@ -25,6 +25,8 @@
  */
 void do_cmd_inven(void)
 {
+	int diff = weight_remaining();
+
 	/* Hack -- Start in "inventory" mode */
 	p_ptr->command_wrk = (USE_INVEN);
 
@@ -41,9 +43,11 @@ void do_cmd_inven(void)
 	item_tester_full = FALSE;
 
 	/* Prompt for a command */
-	prt(format("(Inventory) Burden %d.%dlb (%d%% capacity). Command: ",
-	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-	    (10 * p_ptr->total_weight) / (6 * adj_str_wgt[p_ptr->state.stat_ind[A_STR]])), 0, 0);
+	prt(format("(Inventory) Burden %d.%d lb (%d.%d lb %s). Command: ",
+		        p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+		        abs(diff) / 10, abs(diff) % 10,
+		        (diff < 0 ? "overweight" : "remaining")),
+	    0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -195,15 +199,13 @@ void wield_item(object_type *o_ptr, int item, int slot)
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Message */
-	sound(MSG_WIELD);
-	msg_format(fmt, o_name, index_to_label(slot));
+	message_format(MSG_WIELD, 0, fmt, o_name, index_to_label(slot));
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-		sound(MSG_CURSED);
-		msg_print("Oops! It feels deathly cold!");
+		message_format(MSG_CURSED, 0, "Oops! It feels deathly cold!");
 
 		/* Sense the object */
 		object_notice_curses(o_ptr);
@@ -216,6 +218,7 @@ void wield_item(object_type *o_ptr, int item, int slot)
 	pack_overflow();
 
 	/* Recalculate bonuses, torch, mana */
+	p_ptr->notice |= PN_SORT_QUIVER;
 	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA);
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 }
@@ -355,7 +358,7 @@ void textui_cmd_destroy(void)
 	else if (result == 's' && squelch_interactive(o_ptr))
 	{
 		p_ptr->notice |= PN_SQUELCH;
-		
+
 		/* If the item is not equipped, we can rely on it being dropped and */
 		/* ignored, otherwise we should continue on to check if we should */
 		/* still destroy it. */
@@ -454,11 +457,25 @@ void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 
 void refuel_torch(object_type *j_ptr, object_type *o_ptr, int item)
 {
+	bitflag f[OF_SIZE];
+	bitflag g[OF_SIZE];
+
 	/* Refuel */
 	j_ptr->timeout += o_ptr->timeout + 5;
 
 	/* Message */
 	msg_print("You combine the torches.");
+
+	/* Transfer the LIGHT flag if refuelling from a torch with it to one
+	   without it */
+	object_flags(o_ptr, f);
+	object_flags(j_ptr, g);
+	if (of_has(f, OF_LIGHT) && !of_has(g, OF_LIGHT))
+	{
+		of_on(j_ptr->flags, OF_LIGHT);
+		if (!j_ptr->name2) j_ptr->name2 = EGO_BRIGHTNESS;
+		msg_print("Your torch shines further!");
+	}
 
 	/* Over-fuel message */
 	if (j_ptr->timeout >= FUEL_TORCH)
@@ -902,10 +919,10 @@ void do_cmd_query_symbol(void)
 		if (!OPT(cheat_know) && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
-		if (norm && (r_ptr->flags[0] & (RF0_UNIQUE))) continue;
+		if (norm && rf_has(r_ptr->flags, RF_UNIQUE)) continue;
 
 		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags[0] & (RF0_UNIQUE))) continue;
+		if (uniq && !rf_has(r_ptr->flags, RF_UNIQUE)) continue;
 
 		/* Collect "appropriate" monsters */
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;

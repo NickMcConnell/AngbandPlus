@@ -21,7 +21,9 @@
 #include "object/tvalsval.h"
 
 
-#ifdef ALLOW_DEBUG
+//#ifdef ALLOW_DEBUG
+// HACK - disabled wizmode due to funkiness with player classes
+#if 0
 
 /*
  * This is a nice utility function; it determines if a (NULL-terminated)
@@ -101,17 +103,16 @@ static void do_cmd_wiz_hack_ben(void)
 
 
 /*
- * Output a long int in binary format.
+ * Output part of a bitflag set in binary format.
  */
-static void prt_binary(u32b flags, int row, int col, char ch, int num)
+static void prt_binary(const bitflag *flags, int offset, int row, int col, char ch, int num)
 {
-	int i;
-	u32b bitmask;
+	int flag;
 
 	/* Scan the flags */
-	for (i = bitmask = 1; i <= num; i++, bitmask *= 2)
+	for (flag = FLAG_START + offset; flag < FLAG_START + offset + num; flag++)
 	{
-		if (flags & bitmask)
+		if (of_has(flags, flag))
 			Term_putch(col++, row, TERM_BLUE, ch);
 		else
 			Term_putch(col++, row, TERM_WHITE, '-');
@@ -192,7 +193,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_ptr->exp));
+	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_curclass.exp));
 
 	/* Query */
 	if (!get_string("Experience: ", tmp_val, 10)) return;
@@ -204,13 +205,13 @@ static void do_cmd_wiz_change_aux(void)
 	if (tmp_long < 0) tmp_long = 0L;
 
 	/* Save */
-	p_ptr->exp = tmp_long;
+	p_curclass.exp = tmp_long;
 
 	/* Update */
 	check_experience();
 
 	/* Default */
-	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_ptr->max_exp));
+	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(p_curclass.max_exp));
 
 	/* Query */
 	if (!get_string("Max Exp: ", tmp_val, 10)) return;
@@ -222,7 +223,7 @@ static void do_cmd_wiz_change_aux(void)
 	if (tmp_long < 0) tmp_long = 0L;
 
 	/* Save */
-	p_ptr->max_exp = tmp_long;
+	p_curclass.max_exp = tmp_long;
 
 	/* Update */
 	check_experience();
@@ -299,7 +300,7 @@ static void wiz_display_item(const object_type *o_ptr, bool all)
 {
 	int j = 0;
 
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
 
 	char buf[256];
 
@@ -334,8 +335,8 @@ static void wiz_display_item(const object_type *o_ptr, bool all)
 	prt("siwdcc  ssidsasmnvudotgddduoclio", 11, j);
 	prt("tnieoh  trnipthgiinmrrnrrmniierl", 12, j);
 	prt("rtsxna..lcfgdkttmldncltggndsdced", 13, j);
-	prt_binary(f[0], 14, j, '*', 32);
-	prt_binary(o_ptr->known_flags[0], 15, j, '+', 32);
+	prt_binary(f, 0, 14, j, '*', 32);
+	prt_binary(o_ptr->known_flags, 0, 15, j, '+', 32);
 
 	prt("+------------FLAGS1------------+", 16, j);
 	prt("SUST........IMM.RESIST.........", 17, j);
@@ -343,8 +344,8 @@ static void wiz_display_item(const object_type *o_ptr, bool all)
 	prt("siwdcc      cilocliooeialoshnecd", 19, j);
 	prt("tnieoh      irelierliatrnnnrethi", 20, j);
 	prt("rtsxna......decddcedsrekdfddxhss", 21, j);
-	prt_binary(f[1], 22, j, '*', 32);
-	prt_binary(o_ptr->known_flags[1], 23, j, '+', 32);
+	prt_binary(f, 32, 22, j, '*', 32);
+	prt_binary(o_ptr->known_flags, 32, 23, j, '+', 32);
 
 	prt("+------------FLAGS2------------+", 8, j+34);
 	prt("s   ts hn    tadiiii   aiehs  hp", 9, j+34);
@@ -355,8 +356,8 @@ static void wiz_display_item(const object_type *o_ptr, bool all)
 	prt("ghigavail   aoveclio  saanyo rrr", 14, j+34);
 	prt("seteticf    craxierl  etropd sss", 15, j+34);
 	prt("trenhste    tttpdced  detwes eee", 16, j+34);
-	prt_binary(f[2], 17, j+34, '*', 32);
-	prt_binary(o_ptr->known_flags[2], 18, j+34, '+', 32);
+	prt_binary(f, 64, 17, j + 34, '*', 32);
+	prt_binary(o_ptr->known_flags, 64, 18, j + 34, '+', 32);
 
 	prt("o_ptr->ident:", 20, j+34);
 	prt(format("sense  %c  worn   %c  empty   %c  known   %c",
@@ -497,7 +498,7 @@ static int wiz_create_itemtype(void)
 		if (k_ptr->tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags[2] & (TR2_INSTA_ART)) continue;
+			if (of_has(k_ptr->flags, OF_INSTA_ART)) continue;
 
 			/* Prepare it */
 			row = 2 + (num % 20);
@@ -546,29 +547,20 @@ static void wiz_tweak_item(object_type *o_ptr)
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
 
-	p = "Enter new 'pval' setting: ";
-	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 6)) return;
-	o_ptr->pval = atoi(tmp_val);
-	wiz_display_item(o_ptr, TRUE);
+#define WIZ_TWEAK(attribute) do {\
+	p = "Enter new '" #attribute "' setting: ";\
+	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->attribute);\
+	if (!get_string(p, tmp_val, 6)) return;\
+	o_ptr->attribute = atoi(tmp_val);\
+	wiz_display_item(o_ptr, TRUE);\
+} while (0)
 
-	p = "Enter new 'to_a' setting: ";
-	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 6)) return;
-	o_ptr->to_a = atoi(tmp_val);
-	wiz_display_item(o_ptr, TRUE);
-
-	p = "Enter new 'to_h' setting: ";
-	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 6)) return;
-	o_ptr->to_h = atoi(tmp_val);
-	wiz_display_item(o_ptr, TRUE);
-
-	p = "Enter new 'to_d' setting: ";
-	strnfmt(tmp_val, sizeof(tmp_val), "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 6)) return;
-	o_ptr->to_d = atoi(tmp_val);
-	wiz_display_item(o_ptr, TRUE);
+	WIZ_TWEAK(pval);
+	WIZ_TWEAK(to_a);
+	WIZ_TWEAK(to_h);
+	WIZ_TWEAK(to_d);
+	WIZ_TWEAK(name1);
+	WIZ_TWEAK(name2);
 }
 
 
@@ -892,15 +884,15 @@ static void wiz_tweak_curse(object_type *o_ptr)
 	if (cursed_p(o_ptr))
 	{
 		msg_print("Resetting existing curses.");
-		o_ptr->flags[2] &= ~TR2_CURSE_MASK;
+		flags_clear(o_ptr->flags, OF_SIZE, OF_CURSE_MASK, FLAG_END);
 	}
 
 	if (get_check("Set light curse? "))
-		o_ptr->flags[2] |= TR2_LIGHT_CURSE;
+		flags_set(o_ptr->flags, OF_SIZE, OF_LIGHT_CURSE, FLAG_END);
 	else if (get_check("Set heavy curse? "))
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE);
+		flags_set(o_ptr->flags, OF_SIZE, OF_LIGHT_CURSE, OF_HEAVY_CURSE, FLAG_END);
 	else if (get_check("Set permanent curse? "))
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE | TR2_PERMA_CURSE);
+		flags_set(o_ptr->flags, OF_SIZE, OF_LIGHT_CURSE, OF_HEAVY_CURSE, OF_PERMA_CURSE, FLAG_END);
 }
 
 
@@ -1112,7 +1104,12 @@ static void wiz_create_artifact(int a_idx)
 
 	/* Hack -- extract the "cursed" flags */
 	if (cursed_p(a_ptr))
-		i_ptr->flags[2] |= (a_ptr->flags[2] & TR2_CURSE_MASK);
+	{
+		bitflag curse_flags[OF_SIZE];
+		of_copy(curse_flags, a_ptr->flags);
+		flags_mask(curse_flags, OF_SIZE, OF_CURSE_MASK, FLAG_END);
+		of_union(i_ptr->flags, curse_flags);
+	}
 
 	/* Mark that the artifact has been created. */
 	a_ptr->created = TRUE;
@@ -1148,11 +1145,11 @@ static void do_cmd_wiz_cure_all(void)
 	(void)restore_level();
 
 	/* Heal the player */
-	p_ptr->chp = p_ptr->mhp;
+	p_ptr->chp = p_get_mhp();
 	p_ptr->chp_frac = 0;
 
 	/* Restore mana */
-	p_ptr->csp = p_ptr->msp;
+	p_ptr->csp = p_get_msp();
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
@@ -1255,13 +1252,13 @@ static void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
+	min_value = (PY_MAX_LEVEL * 3 * (p_curclass.hitdie - 1)) / 8;
 	min_value += PY_MAX_LEVEL;
 
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
+	max_value = (PY_MAX_LEVEL * 5 * (p_curclass.hitdie - 1)) / 8;
 	max_value += PY_MAX_LEVEL;
 
-	p_ptr->player_hp[0] = p_ptr->hitdie;
+	p_curclass.player_hp[0] = p_curclass.hitdie;
 
 	/* Rerate */
 	while (1)
@@ -1269,17 +1266,17 @@ static void do_cmd_rerate(void)
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			p_ptr->player_hp[i] = randint1(p_ptr->hitdie);
-			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
+			p_curclass.player_hp[i] = randint1(p_curclass.hitdie);
+			p_curclass.player_hp[i] += p_curclass.player_hp[i - 1];
 		}
 
 		/* Legal values */
-		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+		if ((p_curclass.player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
+		    (p_curclass.player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
 	}
 
-	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+	percent = (int)(((long)p_curclass.player_hp[PY_MAX_LEVEL - 1] * 200L) /
+	                (p_curclass.hitdie + ((PY_MAX_LEVEL - 1) * p_curclass.hitdie)));
 
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
@@ -1827,7 +1824,7 @@ void do_cmd_debug(void)
 			}
 			else
 			{
-				gain_exp(p_ptr->exp + 1);
+				gain_exp(p_curclass.exp + 1);
 			}
 			break;
 		}

@@ -326,7 +326,7 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags[2] & (TR2_INSTA_ART)) continue;
+			if (of_has(k_ptr->flags, OF_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -420,14 +420,14 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->weight = a_ptr->weight;
 
 	/* Hack -- extract the "cursed" flags */
-	if (a_ptr->flags[2] & (TR2_LIGHT_CURSE))
-		o_ptr->flags[2] |= TR2_LIGHT_CURSE;
+	if (of_has(a_ptr->flags, OF_LIGHT_CURSE))
+		of_on(o_ptr->flags, OF_LIGHT_CURSE);
 
-	if (a_ptr->flags[2] & TR2_HEAVY_CURSE)
-		o_ptr->flags[2] |= TR2_HEAVY_CURSE;
+	if (of_has(a_ptr->flags, OF_HEAVY_CURSE))
+		of_on(o_ptr->flags, OF_HEAVY_CURSE);
 
-	if (a_ptr->flags[2] & TR2_PERMA_CURSE)
-		o_ptr->flags[2] |= TR2_PERMA_CURSE;
+	if (of_has(a_ptr->flags, OF_PERMA_CURSE))
+		of_on(o_ptr->flags, OF_PERMA_CURSE);
 
 	/* Success */
 	return (TRUE);
@@ -506,12 +506,14 @@ static void spoil_artifact(cptr fname)
 			object_info_spoil(i_ptr);
 
 			/*
-			 * Determine the minimum depth an artifact can appear, its rarity,
-			 * its weight, and its value in gold pieces.
+			 * Determine the minimum and maximum depths an
+			 * artifact can appear, its rarity, its weight, and
+			 * its power rating.
 			 */
-			text_out("\nMin Level %u, Max Level %u, Generation chance %u, %d.%d lbs\n",
+			text_out("\nMin Level %u, Max Level %u, Generation chance %u, Power %u, %d.%d lbs\n",
 				a_ptr->alloc_min, a_ptr->alloc_max,
-				a_ptr->alloc_prob, (a_ptr->weight / 10),
+				a_ptr->alloc_prob, object_power(i_ptr, FALSE,
+				NULL, TRUE), (a_ptr->weight / 10),
 				(a_ptr->weight % 10));
 
 			/* Terminate the entry */
@@ -604,11 +606,11 @@ static void spoil_mon_desc(cptr fname)
 		cptr name = (r_name + r_ptr->name);
 
 		/* Get the "name" */
-		if (r_ptr->flags[0] & (RF0_QUESTOR))
+		if (rf_has(r_ptr->flags, RF_QUESTOR))
 		{
 			strnfmt(nam, sizeof(nam), "[Q] %s", name);
 		}
-		else if (r_ptr->flags[0] & (RF0_UNIQUE))
+		else if (rf_has(r_ptr->flags, RF_UNIQUE))
 		{
 			strnfmt(nam, sizeof(nam), "[U] %s", name);
 		}
@@ -734,11 +736,11 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[r_idx];
 
 		/* Prefix */
-		if (r_ptr->flags[0] & RF0_QUESTOR)
+		if (rf_has(r_ptr->flags, RF_QUESTOR))
 		{
 			text_out("[Q] ");
 		}
-		else if (r_ptr->flags[0] & RF0_UNIQUE)
+		else if (rf_has(r_ptr->flags, RF_UNIQUE))
 		{
 			text_out("[U] ");
 		}

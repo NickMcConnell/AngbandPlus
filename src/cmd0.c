@@ -38,7 +38,7 @@ typedef void do_cmd_type(void);
 
 
 /* Forward declare these, because they're really defined later */
-static do_cmd_type do_cmd_wizard, do_cmd_try_debug,
+static do_cmd_type do_cmd_wizard, /*do_cmd_try_debug,*/
             do_cmd_mouseclick, do_cmd_port,
 			do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_itemlist;
 
@@ -146,7 +146,9 @@ static command_type cmd_util[] =
 	{ "Redraw the screen",    KTRL('R'), CMD_NULL, do_cmd_redraw },
 
 	{ "Load \"screen dump\"",       '(', CMD_NULL, do_cmd_load_screen },
-	{ "Save \"screen dump\"",       ')', CMD_NULL, do_cmd_save_screen }
+	{ "Save \"screen dump\"",       ')', CMD_NULL, do_cmd_save_screen },
+
+	{ "Switch character class",       'H', CMD_CHOOSE_CLASS, do_cmd_choose_class }
 };
 
 /* Commands that shouldn't be shown to the user */ 
@@ -171,7 +173,8 @@ static command_type cmd_hidden[] =
 	{ "Toggle wizard mode",  KTRL('W'), CMD_NULL, do_cmd_wizard },
 	{ "Repeat previous command",  KTRL('V'), CMD_REPEAT, NULL },
 
-#ifdef ALLOW_DEBUG
+#if 0 // HACK - disabled wizmode
+//#ifdef ALLOW_DEBUG
 	{ "Debug mode commands", KTRL('A'), CMD_NULL, do_cmd_try_debug },
 #endif
 #ifdef ALLOW_BORG
@@ -249,7 +252,8 @@ static void do_cmd_wizard(void)
 
 
 
-#ifdef ALLOW_DEBUG
+//#ifdef ALLOW_DEBUG
+#if 0 // HACK - disabled wizmode for now, funky classes
 
 /*
  * Verify use of "debug" mode
@@ -666,7 +670,7 @@ void textui_process_command(bool no_request)
 		assert(p_ptr->command_cmd >= CHAR_MIN && p_ptr->command_cmd <= CHAR_MAX);
 		/* Execute the command */
 		if (converted_list[(unsigned char) p_ptr->command_cmd].cmd != CMD_NULL)
-			cmd_insert(converted_list[(unsigned char) p_ptr->command_cmd].cmd);
+			cmd_insert_repeated(converted_list[(unsigned char) p_ptr->command_cmd].cmd, p_ptr->command_arg);
 
 		else if (converted_list[(unsigned char) p_ptr->command_cmd].hook)
 			converted_list[(unsigned char) p_ptr->command_cmd].hook();

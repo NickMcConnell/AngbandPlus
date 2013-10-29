@@ -39,7 +39,7 @@ s16b spell_chance(int spell)
 	chance = s_ptr->sfail;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+	chance -= 3 * (p_get_lev() - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= adj_mag_stat[p_ptr->state.stat_ind[cp_ptr->spell_stat]];
@@ -54,9 +54,9 @@ s16b spell_chance(int spell)
 	minfail = adj_mag_fail[p_ptr->state.stat_ind[cp_ptr->spell_stat]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if (!(cp_ptr->flags & CF_ZERO_FAIL))
+	if (!player_has(PF_ZERO_FAIL) && minfail < 5)
 	{
-		if (minfail < 5) minfail = 5;
+		minfail = 5;
 	}
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
@@ -95,6 +95,10 @@ s16b spell_chance(int spell)
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
  * When browsing a book, all legible spells are okay.
+ *               known   browse
+ * cast/recite    TRUE    FALSE
+ * study         FALSE    FALSE
+ * browse         TRUE     TRUE
  */
 bool spell_okay(int spell, bool known, bool browse)
 {
@@ -103,27 +107,21 @@ bool spell_okay(int spell, bool known, bool browse)
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
-	/* Spell is illegible */
+	/* Spell is illegible - never ok */
 	if (s_ptr->slevel >= 99) return (FALSE);
 
-	/* Spell is too hard */
-	if (s_ptr->slevel > p_ptr->lev) return (browse);
+	/* Spell is too hard - browse ok, no cast/study */
+	if (s_ptr->slevel > p_get_lev()) return (browse);
 
-	/* Spell is forgotten */
+	/* Spell is forgotten - browse ok, no cast/study */
 	if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
-	{
-		/* Never okay */
-		return (!browse);
-	}
+		return (browse);
 
-	/* Spell is learned */
+	/* Spell is learned - cast/browse ok, no study */
 	if (p_ptr->spell_flags[spell] & PY_SPELL_LEARNED)
-	{
-		/* Okay to cast or browse, not to study */
 		return (known || browse);
-	}
 
-	/* Okay to study or browse, not to cast */
+	/* Spell has never been learned - study/browse ok, no cast */
 	return (!known || browse);
 }
 
@@ -181,7 +179,7 @@ static void print_spells(const byte *spells, int num, int y, int x)
 		}
 		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
 		{
-			if (s_ptr->slevel <= p_ptr->lev)
+			if (s_ptr->slevel <= p_get_lev())
 			{
 				comment = " unknown";
 				line_attr = TERM_L_BLUE;
@@ -429,7 +427,7 @@ static void browse_spell(int spell)
 	}
 	else if (!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
 	{
-		if (s_ptr->slevel <= p_ptr->lev)
+		if (s_ptr->slevel <= p_get_lev())
 		{
 			comment = " unknown";
 			line_attr = TERM_L_BLUE;
@@ -739,8 +737,8 @@ bool spell_cast(int spell, int dir)
 			/* The spell worked */
 			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
 
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
+			/* Don't Gain experience */
+			//gain_exp(e * s_ptr->slevel);
 
 			/* Redraw object recall */
 			p_ptr->redraw |= (PR_OBJECT);
@@ -786,4 +784,19 @@ bool spell_cast(int spell, int dir)
 	p_ptr->redraw |= (PR_MANA);
 
 	return TRUE;
+}
+
+/* Lets the player change class */
+void do_cmd_choose_class(void)
+{
+	p_ptr->pclass++;
+	if (p_ptr->pclass >= z_info->c_max)
+		p_ptr->pclass = 0;
+	
+	/* Set class according to p_ptr->class */
+	cp_ptr = &c_info[p_ptr->pclass];
+	mp_ptr = &cp_ptr->spells;
+
+	// refresh!!!
+	do_cmd_redraw();
 }

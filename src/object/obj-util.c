@@ -315,59 +315,54 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b flags[OBJ_FLAG_N])
+void object_flags(const object_type *o_ptr, bitflag flags[OF_SIZE])
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	flags[0] = k_ptr->flags[0];
-	flags[1] = k_ptr->flags[1];
-	flags[2] = (k_ptr->flags[2] & ~TR2_CURSE_MASK);
+	of_wipe(flags);
 
+	/* Obtain kind flags */
+	of_union(flags, k_ptr->flags);
+
+	/* Obtain artifact flags */
 	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-		flags[0] = a_ptr->flags[0];
-		flags[1] = a_ptr->flags[1];
-		flags[2] = (a_ptr->flags[2] & ~TR2_CURSE_MASK);
+		of_union(flags, a_ptr->flags);
 	}
 
+	/* Obtain ego flags */
 	if (o_ptr->name2)
 	{
 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-		flags[0] |= e_ptr->flags[0];
-		flags[1] |= e_ptr->flags[1];
-		flags[2] |= (e_ptr->flags[2] & ~TR2_CURSE_MASK);
+		of_union(flags, e_ptr->flags);
 	}
 
-	flags[0] |= o_ptr->flags[0];
-	flags[1] |= o_ptr->flags[1];
-	flags[2] |= o_ptr->flags[2];
+	/* Remove curse flags (use only the object's curse flags) */
+	flags_clear(flags, OF_SIZE, OF_CURSE_MASK, FLAG_END);
+
+	/* Obtain the object's flags */
+	of_union(flags, o_ptr->flags);
 }
 
 
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b flags[])
+void object_flags_known(const object_type *o_ptr, bitflag flags[OF_SIZE])
 {
-	u32b f[OBJ_FLAG_N];
-	int i;
-	bool aware = object_flavor_is_aware(o_ptr);
+	object_flags(o_ptr, flags);
 
-	object_flags(o_ptr, f);
+	of_inter(flags, o_ptr->known_flags);
 
-	for (i = 0; i < OBJ_FLAG_N; i++)
-	{
-		flags[i] = o_ptr->known_flags[i] & f[i];
-		if (aware)
-			flags[i] |= k_info[o_ptr->k_idx].flags[i];
-		if (o_ptr->name2 && easy_know(o_ptr))
-			flags[i] |= e_info[o_ptr->name2].flags[i];
-	}
+	if (object_flavor_is_aware(o_ptr))
+		of_union(flags, k_info[o_ptr->k_idx].flags);
+
+	if (o_ptr->name2 && easy_know(o_ptr))
+		of_union(flags, e_info[o_ptr->name2].flags);
 }
-
 
 
 /*
@@ -1181,7 +1176,7 @@ void compact_objects(int size)
 	compact_objects(0);
 }
 
-/* 
+/*
  * Mention artifact preservation for peeking wizards
  */
 static void mention_preserve(const object_type *o_ptr)
@@ -1213,28 +1208,27 @@ void wipe_o_list(void)
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];
+		artifact_type *a_ptr = artifact_of(o_ptr);
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Preserve artifacts */
-		if (!character_dungeon || !OPT(adult_no_preserve))
-		{
-			artifact_type *a_ptr = artifact_of(o_ptr);
-
-			/* Preserve only artifacts not known to be unique */
-			if (a_ptr && !object_was_sensed(o_ptr))
+		/* Preserve artifacts or mark them as lost in the history */
+		if (a_ptr) {
+			/* Preserve if dungeon creation failed, or preserve mode, and only artifacts not seen */
+			if ((!character_dungeon || !OPT(adult_no_preserve)) && !object_was_sensed(o_ptr))
 			{
 				a_ptr->created = FALSE;
 
 				/* Cheat -- Mention preserving */
 				if (OPT(cheat_peek)) mention_preserve(o_ptr);
 			}
+			else
+			{
+				/* Mark artifact as lost in logs */
+				history_lose_artifact(o_ptr->name1);
+			}
 		}
-
-		/* Mark artifacts as lost in logs */
-		if (artifact_p(o_ptr))
-			history_lose_artifact(o_ptr->name1);
 
 		/* Monster */
 		if (o_ptr->held_m_idx)
@@ -1359,13 +1353,13 @@ object_type *get_next_object(const object_type *o_ptr)
  */
 bool is_blessed(const object_type *o_ptr)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
 
 	/* Get the flags */
 	object_flags(o_ptr, f);
 
 	/* Is the object blessed? */
-	return ((f[2] & TR2_BLESSED) ? TRUE : FALSE);
+	return (of_has(f, OF_BLESSED) ? TRUE : FALSE);
 }
 
 
@@ -1419,8 +1413,6 @@ static s32b object_value_real(const object_type *o_ptr, int qty, int verbose,
 {
 	s32b value, total_value;
 
-	u32b f[OBJ_FLAG_N];
-
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	s32b power;
@@ -1434,7 +1426,7 @@ static s32b object_value_real(const object_type *o_ptr, int qty, int verbose,
 		ang_file *log_file = NULL;
 
 		if (verbose)
-		{                
+		{
 			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, 					"pricing.log");
                 	log_file = file_open(buf, pricing_mode, FTYPE_TEXT);
                 	if (!log_file)
@@ -1479,9 +1471,6 @@ static s32b object_value_real(const object_type *o_ptr, int qty, int verbose,
 
 	/* Base cost */
 	value = k_ptr->cost;
-
-	/* Extract some flags */
-	object_flags(o_ptr, f);
 
 	/* Analyze the item type and quantity*/
 	switch (o_ptr->tval)
@@ -1586,7 +1575,6 @@ s32b object_value(const object_type *o_ptr, int qty, int verbose)
  */
 bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
-	int i;
 	int total = o_ptr->number + j_ptr->number;
 
 
@@ -1711,9 +1699,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 
 	/* Different flags */
-	for (i = 0; i < OBJ_FLAG_N; i++)
-		if (o_ptr->flags[i] != j_ptr->flags[1])
-			return FALSE;
+	if (!of_is_equal(o_ptr->flags, j_ptr->flags))
+		return FALSE;
 
 
 	/* Maximal "stacking" limit */
@@ -1743,7 +1730,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
  */
 void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
-	int i;
 	int total = o_ptr->number + j_ptr->number;
 
 	/* Add together the item counts */
@@ -1751,8 +1737,7 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 
 	/* Blend all knowledge */
 	o_ptr->ident |= (j_ptr->ident & ~IDENT_EMPTY);
-	for (i = 0; i < OBJ_FLAG_N; i++)
-		o_ptr->known_flags[i] |= j_ptr->known_flags[i];
+	of_union(o_ptr->known_flags, j_ptr->known_flags);
 
 	/* Hack -- Blend "notes" */
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
@@ -1787,8 +1772,8 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 			monster_race *r_ptr = &r_info[o_ptr->origin_xtra];
 			monster_race *s_ptr = &r_info[j_ptr->origin_xtra];
 
-			bool r_uniq = (r_ptr->flags[0] & RF0_UNIQUE) ? TRUE : FALSE;
-			bool s_uniq = (s_ptr->flags[0] & RF0_UNIQUE) ? TRUE : FALSE;
+			bool r_uniq = rf_has(r_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
+			bool s_uniq = rf_has(s_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
 
 			if (r_uniq && !s_uniq) act = 0;
 			else if (s_uniq && !r_uniq) act = 1;
@@ -2426,8 +2411,10 @@ void sort_quiver(void)
 	for (i=0; i < QUIVER_SIZE; i++)
 	{
 		k = i;
-		for (j=i + 1; j < QUIVER_SIZE; j++) if (compare_ammo(k, j) > 0) k = j;
-		if (k != i) swap_quiver_slots(i, k);
+		if (!locked[k])
+			for (j = i + 1; j < QUIVER_SIZE; j++)
+				if (!locked[j] && compare_ammo(k, j) > 0)
+					swap_quiver_slots(j, k);
 	}
 }
 
@@ -2849,14 +2836,13 @@ s16b inven_carry(object_type *o_ptr)
 	/* Hobbits ID mushrooms on pickup, gnomes ID wands and staffs on pickup */
 	if (!object_is_known(j_ptr))
 	{
-		if ((rp_ptr->new_racial_flags & NRF_KNOW_MUSHROOM) &&
-			j_ptr->tval == TV_FOOD)
+		if (player_has(PF_KNOW_MUSHROOM) && j_ptr->tval == TV_FOOD)
 		{
 			do_ident_item(i, j_ptr);
 			msg_print("Mushrooms for breakfast!");
 		}
 
-		if ((rp_ptr->new_racial_flags & NRF_KNOW_ZAPPER) &&
+		if (player_has(PF_KNOW_ZAPPER) &&
 			(j_ptr->tval == TV_WAND || j_ptr->tval == TV_STAFF))
 		{
 			do_ident_item(i, j_ptr);
@@ -2948,8 +2934,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Message */
-	sound(MSG_WIELD);
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	message_format(MSG_WIELD, 0, "%s %s (%c).", act, o_name, index_to_label(slot));
 
 	p_ptr->notice |= PN_SQUELCH;
 
@@ -3237,13 +3222,14 @@ void reorder_pack(void)
  */
 int get_use_device_chance(const object_type *o_ptr)
 {
-	int lev, skill, fail;
+	int lev, fail, numerator, denominator;
 
-	/* these could be globals if desired, calculated rather than stated */
+	int skill = p_ptr->state.skills[SKILL_DEVICE];
+
 	int skill_min = 10;
 	int skill_max = 141;
-	int diff_min = 1;
-	int diff_max = 100;
+	int diff_min  = 1;
+	int diff_max  = 100;
 
 	/* Extract the item level, which is the difficulty rating */
 	if (artifact_p(o_ptr))
@@ -3251,14 +3237,17 @@ int get_use_device_chance(const object_type *o_ptr)
 	else
 		lev = k_info[o_ptr->k_idx].level;
 
-	/* Chance of failure */
-	skill = p_ptr->state.skills[SKILL_DEVICE];
+	/* TODO: maybe use something a little less convoluted? */
+	numerator   = (skill - lev) - (skill_max - diff_min);
+	denominator = (lev - skill) - (diff_max - skill_min);
 
-	fail = 100 * ((skill - lev) - (skill_max - diff_min))
-		/ ((lev - skill) - (diff_max - skill_min));
+	/* Make sure that we don't divide by zero */
+	if (denominator == 0) denominator = numerator > 0 ? 1 : -1;
 
-	/* Limit range */
-	if (fail > 950) fail = 950;
+	fail = (100 * numerator) / denominator;
+
+	/* Ensure failure rate is between 1% and 75% */
+	if (fail > 750) fail = 750;
 	if (fail < 10) fail = 10;
 
 	return fail;
@@ -3719,6 +3708,7 @@ void display_itemlist(void)
 
 	object_type *types[MAX_ITEMLIST];
 	int counts[MAX_ITEMLIST];
+	int dx[MAX_ITEMLIST], dy[MAX_ITEMLIST];
 	unsigned counter = 0;
 
 	int dungeon_hgt = p_ptr->depth == 0 ? TOWN_HGT : DUNGEON_HGT;
@@ -3765,6 +3755,11 @@ void display_itemlist(void)
 					if (object_similar(o_ptr, types[j]))
 					{
 						counts[j] += o_ptr->number;
+						if ((my - p_ptr->py) * (my - p_ptr->py) + (mx - p_ptr->px) * (mx - p_ptr->px) < dy[j] * dy[j] + dx[j] * dx[j])
+						{
+							dy[j] = my - p_ptr->py;
+							dx[j] = mx - p_ptr->px;
+						}
 						break;
 					}
 				}
@@ -3776,14 +3771,22 @@ void display_itemlist(void)
 				{
 					types[counter] = o_ptr;
 					counts[counter] = o_ptr->number;
+					dy[counter] = my - p_ptr->py;
+					dx[counter] = mx - p_ptr->px;
 
 					while (j > 0 && compare_items(types[j - 1], types[j]) > 0)
 					{
 						object_type *tmp_o = types[j - 1];
 						int tmpcount;
+						int tmpdx = dx[j-1];
+						int tmpdy = dy[j-1];
 
 						types[j - 1] = types[j];
 						types[j] = tmp_o;
+						dx[j-1] = dx[j];
+						dx[j] = tmpdx;
+						dy[j-1] = dy[j];
+						dy[j] = tmpdy;
 						tmpcount = counts[j - 1];
 						counts[j - 1] = counts[j];
 						counts[j] = tmpcount;
@@ -3829,9 +3832,13 @@ void display_itemlist(void)
 
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_FULL);
 		if (counts[i] > 1)
-			strnfmt(o_desc, sizeof(o_desc), "%s (x%d)", o_name, counts[i]);
+			strnfmt(o_desc, sizeof(o_desc), "%s (x%d) %d %c, %d %c", o_name, counts[i],
+				(dy[i] > 0) ? dy[i] : -dy[i], (dy[i] > 0) ? 'S' : 'N',
+				(dx[i] > 0) ? dx[i] : -dx[i], (dx[i] > 0) ? 'E' : 'W');
 		else
-			strnfmt(o_desc, sizeof(o_desc), "%s", o_name);
+			strnfmt(o_desc, sizeof(o_desc), "%s  %d %c %d %c", o_name,
+				(dy[i] > 0) ? dy[i] : -dy[i], (dy[i] > 0) ? 'S' : 'N',
+				(dx[i] > 0) ? dx[i] : -dx[i], (dx[i] > 0) ? 'E' : 'W');
 
 		/* Reset position */
 		cur_x = x;
@@ -3991,7 +3998,7 @@ bool obj_can_activate(const object_type *o_ptr)
 
 bool obj_can_refill(const object_type *o_ptr)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
 	const object_type *j_ptr = &inventory[INVEN_LIGHT];
 
 	/* Get flags */
@@ -4007,7 +4014,7 @@ bool obj_can_refill(const object_type *o_ptr)
 	if ((o_ptr->tval == TV_LIGHT) &&
 	    (o_ptr->sval == j_ptr->sval) &&
 	    (o_ptr->timeout > 0) &&
-		!(f[2] & TR2_NO_FUEL))
+	    !of_has(f, OF_NO_FUEL))
 	{
 		return (TRUE);
 	}

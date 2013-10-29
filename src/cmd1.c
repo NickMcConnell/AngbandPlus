@@ -61,12 +61,6 @@ bool search(bool verbose)
 		return FALSE;
 	}
 
-	if (chance >= 100)
-	{
-		/* Repeat is unnecessary */
-		disturb(0, 0);
-	}
-
 	/* Search the nearby grids, which are always in bounds */
 	for (y = (py - 1); y <= (py + 1); y++)
 	{
@@ -166,6 +160,7 @@ static void py_pickup_gold(void)
 	object_type *o_ptr;
 
 	int sound_msg;
+	bool verbal = FALSE;
 
 	/* Allocate an array of ordinary gold objects */
 	treasure = C_ZNEW(SV_GOLD_MAX, byte);
@@ -186,6 +181,10 @@ static void py_pickup_gold(void)
 
 		/* Note that we have this kind of treasure */
 		treasure[o_ptr->sval]++;
+
+		/* Remember whether feedback message is in order */
+		if (!squelch_item_ok(o_ptr))
+			verbal = TRUE;
 
 		/* Increment total value */
 		total_gold += (s32b)o_ptr->pval;
@@ -248,7 +247,8 @@ static void py_pickup_gold(void)
 		else                       sound_msg = MSG_MONEY3;
 
 		/* Display the message */
-		message(sound_msg, 0, buf);
+		if (verbal)
+			message(sound_msg, 0, buf);
 
 		/* Add gold to purse */
 		p_ptr->au += total_gold;
@@ -315,7 +315,7 @@ static void py_pickup_aux(int o_idx, bool msg)
 
 	/* Log artifacts if found */
 	if (artifact_p(o_ptr))
-		history_add_artifact(o_ptr->name1, object_was_sensed(o_ptr));
+		history_add_artifact(o_ptr->name1, object_is_known(o_ptr), TRUE);
 
 	/* Optionally, display a message */
 	if (msg && !quiver_slot)
@@ -620,13 +620,8 @@ void move_player(int dir)
 			(cave_feat[y][x] <= FEAT_DOOR_TAIL))
 	{
 		/* Auto-repeat if not already repeating */
-		if (!p_ptr->command_rep && (p_ptr->command_arg <= 0))
-		{
-			p_ptr->command_rep = 99;
-
-			/* Reset the command count */
-			p_ptr->command_arg = 0;
-		}
+		if (cmd_get_nrepeats() == 0)
+			cmd_set_repeat(99);
 
 		do_cmd_alter_aux(dir);
 	}

@@ -112,11 +112,6 @@ s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
 
-/*
- * TRUE if process_command() is a repeated call.
- */
-bool command_repeating = FALSE;
-
 
 /*
  * Dungeon variables
@@ -576,6 +571,11 @@ quest *q_list;
 store_type *store;
 
 /*
+ * Flag to override which store is selected if in a knowledge menu
+ */
+int store_knowledge = STORE_NONE;
+
+/*
  * Array[RANDNAME_NUM_TYPES][num_names] of random names
  */
 cptr** name_sections;
@@ -643,7 +643,7 @@ char *keymap_act[KEYMAP_MODES][256];
  */
 const player_sex *sp_ptr;
 const player_race *rp_ptr;
-const player_class *cp_ptr;
+player_class *cp_ptr;
 const player_magic *mp_ptr;
 
 /*
@@ -666,6 +666,7 @@ static player_type player_type_body;
  */
 player_type *p_ptr = &player_type_body;
 
+player_class_type pc_array[PY_MAX_CLASSES];
 
 /*
  * Structure (not array) of size limits
@@ -883,3 +884,8 @@ u16b inscriptions_count = 0;
 /* Delay in centiseconds before moving to allow another keypress */
 /* Zero means normal instant movement. */
 u16b lazymove_delay = 0;
+
+
+/* Number of days passed on the current dungeon trip -
+  - used for determining store updates on return to town */
+u16b daycount = 0;

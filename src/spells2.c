@@ -25,15 +25,15 @@
 bool hp_player(int num)
 {
 	/* Healing needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if (p_ptr->chp < p_get_mhp())
 	{
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
 		/* Enforce maximum */
-		if (p_ptr->chp >= p_ptr->mhp)
+		if (p_ptr->chp >= p_get_mhp())
 		{
-			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp = p_get_mhp();
 			p_ptr->chp_frac = 0;
 		}
 
@@ -74,10 +74,10 @@ bool heal_player(int perc, int min)
 
 
 	/* No healing needed */
-	if (p_ptr->chp >= p_ptr->mhp) return (FALSE);
+	if (p_ptr->chp >= p_get_mhp()) return (FALSE);
 
 	/* Figure healing level */
-	i = ((p_ptr->mhp - p_ptr->chp) * perc) / 100;
+	i = ((p_get_mhp() - p_ptr->chp) * perc) / 100;
 
 	/* Enforce minimums */
 	if (i < min) i = min;
@@ -149,16 +149,31 @@ bool do_dec_stat(int stat, bool perma)
 	/* Get the "sustain" */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->state.sustain_str) sust = TRUE; break;
-		case A_INT: if (p_ptr->state.sustain_int) sust = TRUE; break;
-		case A_WIS: if (p_ptr->state.sustain_wis) sust = TRUE; break;
-		case A_DEX: if (p_ptr->state.sustain_dex) sust = TRUE; break;
-		case A_CON: if (p_ptr->state.sustain_con) sust = TRUE; break;
-		case A_CHR: if (p_ptr->state.sustain_chr) sust = TRUE; break;
+		case A_STR:
+			if (p_ptr->state.sustain_str) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_STR);
+			break;
+		case A_INT:
+			if (p_ptr->state.sustain_int) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_INT);
+			break;
+		case A_WIS:
+			if (p_ptr->state.sustain_wis) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_WIS);
+			break;
+		case A_DEX:
+			if (p_ptr->state.sustain_dex) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_DEX);
+			break;
+		case A_CON:
+			if (p_ptr->state.sustain_con) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_CON);
+			break;
+		case A_CHR:
+			if (p_ptr->state.sustain_chr) sust = TRUE;
+			wieldeds_notice_flag(OF_SUST_CHR);
+			break;
 	}
-
-	assert(TR1_SUST_STR == (1<<A_STR));
-	wieldeds_notice_flag(1, 1<<stat);
 
 	/* Sustain */
 	if (sust && !perma)
@@ -293,7 +308,7 @@ static const int enchant_table[16] =
 static void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
-	o_ptr->flags[2] &= ~(TR2_CURSE_MASK);
+	flags_clear(o_ptr->flags, OF_SIZE, OF_CURSE_MASK, FLAG_END);
 }
 
 
@@ -309,7 +324,7 @@ static int remove_curse_aux(bool heavy)
 	int i, cnt = 0;
 
 	/* Attempt to uncurse items being worn */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < ALL_INVEN_TOTAL; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -317,10 +332,10 @@ static int remove_curse_aux(bool heavy)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Heavily cursed items need a special spell */
-		if ((o_ptr->flags[2] & TR2_HEAVY_CURSE) && !heavy) continue;
+		if (of_has(o_ptr->flags, OF_HEAVY_CURSE) && !heavy) continue;
 
 		/* Perma-cursed items can never be removed */
-		if (o_ptr->flags[2] & TR2_PERMA_CURSE) continue;
+		if (of_has(o_ptr->flags, OF_PERMA_CURSE)) continue;
 
 		/* Uncurse, and update things */
 		uncurse_object(o_ptr);
@@ -360,14 +375,17 @@ bool remove_all_curse(void)
  */
 bool restore_level(void)
 {
+			int i;
 	/* Restore experience */
-	if (p_ptr->exp < p_ptr->max_exp)
+	//if (p_curclass.exp < p_curclass.max_exp)
 	{
 		/* Message */
 		msg_print("You feel your life energies returning.");
-
-		/* Restore the experience */
-		p_ptr->exp = p_ptr->max_exp;
+		for (i = 0; i < PY_MAX_CLASSES; i++)
+		{
+			/* Restore the experience */
+			pc_array[i].exp = pc_array[i].max_exp;
+		}
 
 		/* Check the experience */
 		check_experience();
@@ -920,7 +938,7 @@ bool detect_monsters_normal(bool aware)
 		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
 
 		/* Detect all non-invisible monsters */
-		if (!(r_ptr->flags[1] & (RF1_INVISIBLE)))
+		if (!rf_has(r_ptr->flags, RF_INVISIBLE))
 		{
 			/* Optimize -- Repair flags */
 			repair_mflag_mark = repair_mflag_show = TRUE;
@@ -984,10 +1002,10 @@ bool detect_monsters_invis(bool aware)
 		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
 
 		/* Detect invisible monsters */
-		if (r_ptr->flags[1] & (RF1_INVISIBLE))
+		if (rf_has(r_ptr->flags, RF_INVISIBLE))
 		{
 			/* Take note that they are invisible */
-			l_ptr->flags[1] |= (RF1_INVISIBLE);
+			rf_on(l_ptr->flags, RF_INVISIBLE);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1058,10 +1076,10 @@ bool detect_monsters_evil(bool aware)
 		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
 
 		/* Detect evil monsters */
-		if (r_ptr->flags[2] & (RF2_EVIL))
+		if (rf_has(r_ptr->flags, RF_EVIL))
 		{
 			/* Take note that they are evil */
-			l_ptr->flags[2] |= (RF2_EVIL);
+			rf_on(l_ptr->flags, RF_EVIL);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1263,13 +1281,13 @@ bool enchant_score(s16b *score, bool is_artifact)
  */
 bool enchant_curse(object_type *o_ptr, bool is_artifact)
 {
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
 
 	/* Extract the flags */
 	object_flags(o_ptr, f);
 
 	/* If the item isn't cursed (or is perma-cursed) this doesn't work */
-	if (!cursed_p(o_ptr) || f[2] & TR2_PERMA_CURSE) return FALSE;
+	if (!cursed_p(o_ptr) || of_has(f, OF_PERMA_CURSE)) return FALSE;
 
 	/* Artifacts resist enchanting curses away half the time */
 	if (is_artifact && randint0(100) < 50) return FALSE;
@@ -1604,7 +1622,7 @@ bool project_los(int typ, int dam, bool obvious)
  */
 bool speed_monsters(void)
 {
-	return (project_los(GF_OLD_SPEED, p_ptr->lev, FALSE));
+	return (project_los(GF_OLD_SPEED, p_get_lev(), FALSE));
 }
 
 /*
@@ -1612,7 +1630,7 @@ bool speed_monsters(void)
  */
 bool slow_monsters(void)
 {
-	return (project_los(GF_OLD_SLOW, p_ptr->lev, FALSE));
+	return (project_los(GF_OLD_SLOW, p_get_lev(), FALSE));
 }
 
 /*
@@ -1620,7 +1638,7 @@ bool slow_monsters(void)
  */
 bool sleep_monsters(bool aware)
 {
-	return (project_los(GF_OLD_SLEEP, p_ptr->lev, aware));
+	return (project_los(GF_OLD_SLEEP, p_get_lev(), aware));
 }
 
 /*
@@ -1628,7 +1646,7 @@ bool sleep_monsters(bool aware)
  */
 bool confuse_monsters(bool aware)
 {
-	return (project_los(GF_OLD_CONF, p_ptr->lev, aware));
+	return (project_los(GF_OLD_CONF, p_get_lev(), aware));
 }
 
 
@@ -1646,7 +1664,7 @@ bool banish_evil(int dist)
  */
 bool turn_undead(bool aware)
 {
-	return (project_los(GF_TURN_UNDEAD, p_ptr->lev, aware));
+	return (project_los(GF_TURN_UNDEAD, p_get_lev(), aware));
 }
 
 
@@ -1757,7 +1775,7 @@ bool banishment(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags[0] & (RF0_UNIQUE)) continue;
+		if (rf_has(r_ptr->flags, RF_UNIQUE)) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -1801,7 +1819,7 @@ bool mass_banishment(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags[0] & (RF0_UNIQUE)) continue;
+		if (rf_has(r_ptr->flags, RF_UNIQUE)) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -2202,7 +2220,7 @@ void earthquake(int cy, int cx, int r)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags[1] & (RF1_KILL_WALL | RF1_PASS_WALL)))
+				if (!flags_test(r_ptr->flags, RF_SIZE, RF_KILL_WALL, RF_PASS_WALL, FLAG_END))
 				{
 					char m_name[80];
 
@@ -2210,7 +2228,7 @@ void earthquake(int cy, int cx, int r)
 					sn = 0;
 
 					/* Monster can move to escape the wall */
-					if (!(r_ptr->flags[0] & (RF0_NEVER_MOVE)))
+					if (!rf_has(r_ptr->flags, RF_NEVER_MOVE))
 					{
 						/* Look for safety */
 						for (i = 0; i < 8; i++)
@@ -2417,10 +2435,10 @@ static void cave_temp_room_light(void)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags[1] & (RF1_STUPID)) chance = 10;
+			if (rf_has(r_ptr->flags, RF_STUPID)) chance = 10;
 
 			/* Smart monsters always wake up */
-			if (r_ptr->flags[1] & (RF1_SMART)) chance = 100;
+			if (rf_has(r_ptr->flags, RF_SMART)) chance = 100;
 
 			/* Sometimes monsters wake up */
 			if (m_ptr->csleep && (randint0(100) < chance))
@@ -2846,20 +2864,20 @@ bool heal_monster(int dir)
 bool speed_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SPEED, dir, p_get_lev(), flg));
 }
 
 bool slow_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, p_get_lev(), flg));
 }
 
 bool sleep_monster(int dir, bool aware)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	if(aware) flg |= PROJECT_AWARE;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, p_get_lev(), flg));
 }
 
 bool confuse_monster(int dir, int plev, bool aware)
@@ -2872,7 +2890,7 @@ bool confuse_monster(int dir, int plev, bool aware)
 bool poly_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_POLY, dir, p_get_lev(), flg));
 }
 
 bool clone_monster(int dir)
@@ -2934,7 +2952,7 @@ bool sleep_monsters_touch(bool aware)
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	if (aware) flg |= PROJECT_AWARE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, py, px, p_get_lev(), GF_OLD_SLEEP, flg));
 }
 
 
@@ -2976,7 +2994,7 @@ bool curse_armor(void)
 		o_ptr->to_a -= randint1(3);
 
 		/* Curse it */
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE);
+		flags_set(o_ptr->flags, OF_SIZE, OF_LIGHT_CURSE, OF_HEAVY_CURSE, FLAG_END);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3031,7 +3049,7 @@ bool curse_weapon(void)
 		o_ptr->to_d = 0 - randint1(3);
 
 		/* Curse it */
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE);
+		flags_set(o_ptr->flags, OF_SIZE, OF_LIGHT_CURSE, OF_HEAVY_CURSE, FLAG_END);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3217,6 +3235,7 @@ bool brand_bolts(void)
  */
 void ring_of_power(int dir)
 {
+				int i;
 	/* Pick a random effect */
 	switch (randint1(10))
 	{
@@ -3235,8 +3254,11 @@ void ring_of_power(int dir)
 			(void)dec_stat(A_CHR, TRUE);
 
 			/* Lose some experience (permanently) */
-			p_ptr->exp -= (p_ptr->exp / 4);
-			p_ptr->max_exp -= (p_ptr->max_exp / 4);
+			for (i = 0; i < PY_MAX_CLASSES; i++)
+			{
+				pc_array[i].exp -= (pc_array[i].exp / 4);
+				pc_array[i].max_exp -= (pc_array[i].max_exp / 4);
+			}
 			check_experience();
 
 			break;
@@ -3288,6 +3310,8 @@ void do_ident_item(int item, object_type *o_ptr)
 {
 	char o_name[80];
 
+	u32b msg_type = 0;
+
 	/* Identify it */
 	object_flavor_aware(o_ptr);
 	object_notice_everything(o_ptr);
@@ -3310,40 +3334,44 @@ void do_ident_item(int item, object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
-	/* Possibly play a sound depending on object quality. */
+	/* Determine the message type. */
 	if (o_ptr->pval < 0)
 	{
 		/* This is a bad item. */
-		sound(MSG_IDENT_BAD);
+		msg_type = MSG_IDENT_BAD;
 	}
 	else if (o_ptr->name1 != 0)
 	{
 		/* We have a good artifact. */
-		sound(MSG_IDENT_ART);
+		msg_type = MSG_IDENT_ART;
 	}
 	else if (o_ptr->name2 != 0)
 	{
 		/* We have a good ego item. */
-		sound(MSG_IDENT_EGO);
+		msg_type = MSG_IDENT_EGO;
+	}
+	else
+	{
+		msg_type = MSG_GENERIC;
 	}
 
 	/* Log artifacts to the history list. */
 	if (artifact_p(o_ptr))
-		history_add_artifact(o_ptr->name1, TRUE);
+		history_add_artifact(o_ptr->name1, TRUE, TRUE);
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
 	{
-		msg_format("%^s: %s (%c).",
+		message_format(msg_type, 0, "%^s: %s (%c).",
 			  describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
+		message_format(msg_type, 0, "In your pack: %s (%c).",
 			  o_name, index_to_label(item));
 	}
 	else
 	{
-		msg_format("On the ground: %s.", o_name);
+		message_format(msg_type, 0, "On the ground: %s.", o_name);
 	}
 }

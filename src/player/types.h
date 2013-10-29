@@ -92,6 +92,27 @@ typedef struct
 	bool bless_blade;	/* Blessed blade */
 } player_state;
 
+/*
+	Player class info.
+	This stores class-specific player info.
+*/
+typedef struct
+{
+	byte hitdie;		/* Hit dice (sides) */
+	byte expfact;		/* Experience factor */
+
+	s16b max_lev;		/* Max level */
+	s16b lev;			/* Cur level */
+
+	s32b max_exp;		/* Max experience */
+	s32b exp;			/* Cur experience */
+	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+
+	s16b mhp;			/* Max hit pts */
+	s16b msp;			/* Max mana pts */
+
+	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
+} player_class_type;
 
 /*
  * Most of the "player" information goes here.
@@ -111,7 +132,7 @@ typedef struct
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
-	byte pclass;		/* Class index */
+	byte pclass;		/* Class index (unused except in calculations) */
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
@@ -213,8 +234,6 @@ typedef struct
 
 	s16b command_cmd;		/* Gives identity of current command */
 	s16b command_arg;		/* Gives argument of current command */
-	s16b command_rep;		/* Gives repetition of current command */
-	s16b command_dir;		/* Gives direction of current command */
 	int  command_inv;		/* Gives item of current command */
 	ui_event_data command_cmd_ex; /* Gives additional information of current command */
 
@@ -251,8 +270,8 @@ typedef struct
 	u16b quiver_remainder;
 } player_type;
 
-
-
+/* get current class info */
+//#define p_curclass pc_array[p_ptr->pclass]
 
 /*
  * Player sex info
@@ -298,8 +317,8 @@ typedef struct
 	
 	s16b hist;			/* Starting history index */
 	
-	u32b flags[OBJ_FLAG_N];	/* Racial flags */
-	u32b new_racial_flags; /* New Racial flags */
+	bitflag flags[OF_SIZE];   /* Racial (object) flags */
+	bitflag pflags[PF_SIZE];  /* Racial (player) flags */
 } player_race;
 
 
@@ -343,33 +362,33 @@ typedef struct
  */
 typedef struct
 {
-	u32b name;			/* Name (offset) */
+	u32b name;         /* Name (offset) */
 	
-	u32b title[10];		/* Titles - offset */
+	u32b title[10];    /* Titles - offset */
 	
-	s16b c_adj[A_MAX];	/* Class stat modifier */
+	s16b c_adj[A_MAX]; /* Class stat modifier */
 	
 	s16b c_skills[SKILL_MAX];	/* class skills */
 	s16b x_skills[SKILL_MAX];	/* extra skills */
 	
-	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_exp;			/* Class experience factor */
+	s16b c_mhp;        /* Class hit-dice adjustment */
+	s16b c_exp;        /* Class experience factor */
 	
-	u32b flags;			/* Class Flags */
+	bitflag pflags[PF_SIZE]; /* Class (player) flags */
 	
-	u16b max_attacks;	/* Maximum possible attacks */
-	u16b min_weight;	/* Minimum weapon weight for calculations */
-	u16b att_multiply;	/* Multiplier for attack calculations */
+	u16b max_attacks;  /* Maximum possible attacks */
+	u16b min_weight;   /* Minimum weapon weight for calculations */
+	u16b att_multiply; /* Multiplier for attack calculations */
 	
-	byte spell_book;	/* Tval of spell books (if any) */
-	u16b spell_stat;	/* Stat for spells (if any) */
-	u16b spell_first;	/* Level of first spell */
-	u16b spell_weight;	/* Weight that hurts spells */
+	byte spell_book;   /* Tval of spell books (if any) */
+	u16b spell_stat;   /* Stat for spells (if any) */
+	u16b spell_first;  /* Level of first spell */
+	u16b spell_weight; /* Weight that hurts spells */
 	
-	u32b sense_base;	/* Base pseudo-id value */
-	u16b sense_div;		/* Pseudo-id divisor */
+	u32b sense_base;   /* Base pseudo-id value */
+	u16b sense_div;    /* Pseudo-id divisor */
 	
-	start_item start_items[MAX_START_ITEMS];/**< The starting inventory */
+	start_item start_items[MAX_START_ITEMS]; /**< The starting inventory */
 	
 	player_magic spells; /* Magic spells */
 } player_class;

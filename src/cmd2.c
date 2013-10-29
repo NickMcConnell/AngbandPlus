@@ -279,7 +279,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		if (!(p_ptr->state.resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			(void)inc_timed(TMD_POISONED, 10 + randint1(20), TRUE);
 		else if (p_ptr->state.resist_pois)
-			wieldeds_notice_flag(1, TR1_RES_POIS);
+			wieldeds_notice_flag(OF_RES_POIS);
 	}
 
 	/* Paralyze */
@@ -289,7 +289,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		if (!p_ptr->state.free_act)
 			(void)inc_timed(TMD_PARALYZED, 10 + randint1(20), TRUE);
 		else
-			wieldeds_notice_flag(2, TR2_FREE_ACT);
+			wieldeds_notice_flag(OF_FREE_ACT);
 	}
 
 	/* Summon monsters */
@@ -356,7 +356,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (randint0(100) < j)
 		{
 			message(MSG_LOCKPICK, 0, "You have picked the lock.");
-			gain_exp(1);
+			gain_exp_all(1);
 			flag = TRUE;
 		}
 
@@ -442,7 +442,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else if (randint0(100) < j)
 	{
 		message(MSG_DISARM, 0, "You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
+		gain_exp_all(o_ptr->pval / PY_MAX_CLASSES);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
@@ -686,7 +686,7 @@ static bool do_cmd_open_aux(int y, int x)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Experience */
-			gain_exp(1);
+			gain_exp_all(1);
 		}
 
 		/* Failure */
@@ -818,7 +818,7 @@ void textui_cmd_open(void)
 		}
 	}
 
-	cmd_insert(CMD_OPEN, dir);
+	cmd_insert_repeated(CMD_OPEN, p_ptr->command_arg, dir);
 }
 
 
@@ -967,7 +967,7 @@ void textui_cmd_close(void)
 			return;
 	}
 
-	cmd_insert(CMD_CLOSE, dir);
+	cmd_insert_repeated(CMD_CLOSE, p_ptr->command_arg, dir);
 }
 
 
@@ -1289,7 +1289,7 @@ void textui_cmd_tunnel(void)
 {
 	int dir;
 	if (!get_rep_dir(&dir)) return;
-	cmd_insert(CMD_TUNNEL, dir);
+	cmd_insert_repeated(CMD_TUNNEL, p_ptr->command_arg, dir);
 }
 
 
@@ -1372,7 +1372,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 		message_format(MSG_DISARM, 0, "You have disarmed the %s.", name);
 
 		/* Reward */
-		gain_exp(power);
+		gain_exp_all(power);
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);
@@ -1511,7 +1511,7 @@ void textui_cmd_disarm(void)
 			return;
 	}
 
-	cmd_insert(CMD_DISARM, dir);
+	cmd_insert_repeated(CMD_DISARM, p_ptr->command_arg, dir);
 }
 
 /*
@@ -1603,7 +1603,7 @@ static bool do_cmd_bash_aux(int y, int x)
 
 	/* Saving throw against stun */
 	else if (randint0(100) < adj_dex_safe[p_ptr->state.stat_ind[A_DEX]] +
-	         p_ptr->lev)
+	         p_get_lev())
 	{
 		/* Message */
 		msg_print("The door holds firm.");
@@ -1700,7 +1700,7 @@ void textui_cmd_bash(void)
 	if (!get_rep_dir(&dir))
 		return;
 
-	cmd_insert(CMD_BASH, dir);
+	cmd_insert_repeated(CMD_BASH, p_ptr->command_arg, dir);
 }
 
 
@@ -1810,7 +1810,7 @@ void textui_cmd_alter(void)
 	if (!get_rep_dir(&dir))
 		return;
 
-	cmd_insert(CMD_ALTER, dir);
+	cmd_insert_repeated(CMD_ALTER, p_ptr->command_arg, dir);
 }
 
 /*
@@ -1963,7 +1963,7 @@ void textui_cmd_spike(void)
 	if (!get_rep_dir(&dir))
 		return;
 
-	cmd_insert(CMD_JAM, dir);
+	cmd_insert_repeated(CMD_JAM, p_ptr->command_arg, dir);
 }
 
 
@@ -2086,7 +2086,7 @@ void textui_cmd_walk(void)
 	if (!get_rep_dir(&dir))
 		return;
 
-	cmd_insert(CMD_WALK, dir);
+	cmd_insert_repeated(CMD_WALK, p_ptr->command_arg, dir);
 }
 
 
@@ -2250,38 +2250,26 @@ void do_cmd_pickup(cmd_code code, cmd_arg args[])
  */
 void do_cmd_rest(cmd_code code, cmd_arg args[])
 {
-	/* Save the rest code */
-	switch (args[0].choice)
+	/* 
+	 * A little sanity checking on the input - only the specified negative 
+	 * values are valid. 
+	 */
+	if ((args[0].choice < 0) &&
+		((args[0].choice != REST_COMPLETE) &&
+		 (args[0].choice != REST_ALL_POINTS) &&
+		 (args[0].choice != REST_SOME_POINTS))) 
 	{
-		case REST_ALL:
-		{
-			p_ptr->resting = -2;
-			break;
-		}
-
-		case REST_ALL_POINTS:
-		{
-			p_ptr->resting = -1;
-			break;
-		}
-
-		case REST_SOME_POINTS:
-		{
-			p_ptr->resting = -3;
-			break;
-		}
-
-		default:
-		{
-			p_ptr->resting = p_ptr->command_arg;
-		}
+		return;
 	}
 
+	/* Save the rest code */
+	p_ptr->resting = args[0].choice;
+	
+	/* Truncate overlarge values */
+	if (p_ptr->resting > 9999) p_ptr->resting = 9999;
+	
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
-
-	/* Cancel the arg */
-	p_ptr->command_arg = 0;
 
 	/* Cancel searching */
 	p_ptr->searching = FALSE;
@@ -2315,7 +2303,7 @@ void textui_cmd_rest(void)
 		/* Rest until done */
 		if (out_val[0] == '&')
 		{
-			cmd_insert(CMD_REST, REST_ALL);
+			cmd_insert(CMD_REST, REST_COMPLETE);
 		}
 
 		/* Rest a lot */
@@ -2333,11 +2321,11 @@ void textui_cmd_rest(void)
 		/* Rest some */
 		else
 		{
-			p_ptr->command_arg = atoi(out_val);
-			if (p_ptr->command_arg <= 0) return;
-			if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
+			int turns = atoi(out_val);
+			if (turns <= 0) return;
+			if (turns > 9999) turns = 9999;
 			
-			cmd_insert(CMD_REST, REST_TURNS);
+			cmd_insert(CMD_REST, turns);
 		}
 	}
 }

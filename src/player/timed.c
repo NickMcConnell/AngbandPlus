@@ -175,7 +175,7 @@ bool set_timed(int idx, int v, bool notify)
 			message(effect->msg, 0, effect->on_decrease);
 
 		/* Incrementing */
-		else if (v > p_ptr->timed[idx] && effect->on_decrease)
+		else if (v > p_ptr->timed[idx] && effect->on_increase)
 			message(effect->msg, 0, effect->on_increase);
 	}
 
@@ -753,40 +753,35 @@ bool set_food(int v)
 			/* Fainting / Starving */
 			case 0:
 			{
-				sound(MSG_NOTICE);
-				msg_print("You are getting faint from hunger!");
+				message_format(MSG_NOTICE, 0, "You are getting faint from hunger!");
 				break;
 			}
 
 			/* Weak */
 			case 1:
 			{
-				sound(MSG_NOTICE);
-				msg_print("You are getting weak from hunger!");
+				message_format(MSG_NOTICE, 0, "You are getting weak from hunger!");
 				break;
 			}
 
 			/* Hungry */
 			case 2:
 			{
-				sound(MSG_HUNGRY);
-				msg_print("You are getting hungry.");
+				message_format(MSG_HUNGRY, 0, "You are getting hungry.");
 				break;
 			}
 
 			/* Normal */
 			case 3:
 			{
-				sound(MSG_NOTICE);
-				msg_print("You are no longer full.");
+				message_format(MSG_NOTICE, 0, "You are no longer full.");
 				break;
 			}
 
 			/* Full */
 			case 4:
 			{
-				sound(MSG_NOTICE);
-				msg_print("You are no longer gorged.");
+				message_format(MSG_NOTICE, 0, "You are no longer gorged.");
 				break;
 			}
 		}

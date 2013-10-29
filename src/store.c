@@ -205,13 +205,13 @@ static void prt_welcome(const owner_type *ot_ptr)
 	const char *owner_name = &b_name[ot_ptr->owner_name];
 
 	/* We go from level 1 - 50  */
-	size_t i = ((unsigned)p_ptr->lev - 1) / 5;
+	size_t i = ((unsigned)p_get_lev() - 1) / 5;
 
 	/* Sanity check in case we increase the max level carelessly */
 	i = MIN(i, N_ELEMENTS(comment_welcome) - 1);
 
 	/* Only show the message one in four times to stop it being irritating. */
-	if (one_in_(4)) return;
+	if (!one_in_(4)) return;
 
 	/* Welcome the character */
 	if (i)
@@ -227,7 +227,7 @@ static void prt_welcome(const owner_type *ot_ptr)
 
 
 		/* Get a title for the character */
-		if ((i % 2) && randint0(2)) player_name = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		if ((i % 2) && randint0(2)) player_name = c_text + cp_ptr->title[(p_get_lev() - 1) / 5];
 		else if (randint0(2))       player_name = op_ptr->full_name;
 		else                        player_name = (p_ptr->psex == SEX_MALE ? "sir" : "lady");
 
@@ -363,7 +363,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 				case TV_SWORD:
 				{
 					/* Known blessed blades are accepted too */
-					if (is_blessed(o_ptr) && object_is_known(o_ptr)) break;
+					if (object_is_known_blessed(o_ptr)) break;
 				}
 
 				default:
@@ -419,11 +419,15 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 }
 
 
-#define STORE_NONE -1
-
 /* Get the current store number, or STORE_NONE if not in a store */
 static int current_store()
 {
+	/* If we're displaying store knowledge whilst not in a store,
+	 * override the value returned
+	 */
+	if (store_knowledge != STORE_NONE)
+		return store_knowledge;
+
 	if ((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
 		(cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
 		return (cave_feat[p_ptr->py][p_ptr->px] - FEAT_SHOP_HEAD);
@@ -667,9 +671,8 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->tval == TV_CHEST) return (0);
 
 	/* Different flags */
-	if (o_ptr->flags[0] != j_ptr->flags[0] ||
-		o_ptr->flags[1] != j_ptr->flags[1] ||
-		o_ptr->flags[2] != j_ptr->flags[2]) return FALSE;
+	if (!of_is_equal(o_ptr->flags, j_ptr->flags))
+		return FALSE;
 
 	/* They match, so they must be similar */
 	return (TRUE);
@@ -707,8 +710,8 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 			monster_race *r_ptr = &r_info[o_ptr->origin_xtra];
 			monster_race *s_ptr = &r_info[j_ptr->origin_xtra];
 
-			bool r_uniq = (r_ptr->flags[0] & RF0_UNIQUE) ? TRUE : FALSE;
-			bool s_uniq = (s_ptr->flags[0] & RF0_UNIQUE) ? TRUE : FALSE;
+			bool r_uniq = rf_has(r_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
+			bool s_uniq = rf_has(s_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
 
 			if (r_uniq && !s_uniq) act = 0;
 			else if (s_uniq && !r_uniq) act = 1;
@@ -824,7 +827,6 @@ static int home_carry(object_type *o_ptr)
 	/* No space? */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return (-1);
 
-
 	/* Determine the "value" of the object */
 	value = object_value(o_ptr, 1, FALSE);
 
@@ -916,10 +918,10 @@ static int store_carry(int st, object_type *o_ptr)
 		/* Refuel lights to the standard amount */
 		case TV_LIGHT:
 		{
-			u32b f[OBJ_FLAG_N];
+			bitflag f[OF_SIZE];
 			object_flags(o_ptr, f);
-			
-			if (!(f[2] & TR2_NO_FUEL))
+
+			if (!of_has(f, OF_NO_FUEL))
 			{
 				if (o_ptr->sval == SV_LIGHT_TORCH)
 					o_ptr->timeout = DEFAULT_TORCH;
@@ -987,7 +989,6 @@ static int store_carry(int st, object_type *o_ptr)
 
 	/* No space? */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return (-1);
-
 
 	/* Check existing slots to see if we must "slide" */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -1829,22 +1830,39 @@ static void store_display_help(void)
 	else
 		text_out_c(TERM_L_GREEN, "l");
 
-	text_out("' examines and '");
-	text_out_c(TERM_L_GREEN, "p");
+	text_out("' examines");
+	if (store_knowledge == STORE_NONE)
+	{
+		text_out(" and '");
+		text_out_c(TERM_L_GREEN, "p");
 
-	if (current_store() == STORE_HOME) text_out("' picks up");
-	else text_out("' purchases");
-
+		if (current_store() == STORE_HOME) text_out("' picks up");
+		else text_out("' purchases");
+	}
 	text_out(" the selected item. '");
 
-	text_out_c(TERM_L_GREEN, "d");
-	if (current_store() == STORE_HOME) text_out("' drops");
-	else text_out("' sells");
-
+	if (store_knowledge == STORE_NONE)
+	{
+		text_out_c(TERM_L_GREEN, "d");
+		if (current_store() == STORE_HOME) text_out("' drops");
+		else text_out("' sells");
+	}
+	else
+	{
+		text_out_c(TERM_L_GREEN, "I");
+		text_out("' inspects");
+	}
 	text_out(" an item from your inventory. ");
 
 	text_out_c(TERM_L_GREEN, "ESC");
-	text_out(" exits the building.");
+	if (store_knowledge == STORE_NONE)
+	{
+		text_out(" exits the building.");
+	}
+	else
+	{
+		text_out(" exits this screen.");
+	}
 
 	text_out_indent = 0;
 }
@@ -2031,9 +2049,7 @@ static int find_inven(const object_type *o_ptr)
 
 
 		/* Different flags */
-		if (o_ptr->flags[0] != j_ptr->flags[0] ||
-			o_ptr->flags[1] != j_ptr->flags[1] ||
-			o_ptr->flags[2] != j_ptr->flags[2])
+		if (!of_is_equal(o_ptr->flags, j_ptr->flags))
 			continue;
 
 		/* They match, so add up */
@@ -2105,7 +2121,7 @@ void do_cmd_buy(cmd_code code, cmd_arg args[])
 	object_notice_everything(i_ptr);
 
 	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER | PN_SQUELCH);
 
 	/* The object no longer belongs to the store */
 	i_ptr->ident &= ~(IDENT_STORE);
@@ -2373,7 +2389,7 @@ static bool store_purchase(int item)
 static bool store_will_buy_tester(const object_type *o_ptr)
 {
 	int this_store = current_store();
-	
+
 	if (this_store == STORE_NONE) return FALSE;
 
 	return store_will_buy(this_store, o_ptr);
@@ -2389,63 +2405,63 @@ void do_cmd_sell(cmd_code code, cmd_arg args[])
 	object_type sold_item;
 	int price, dummy, value;
 	char o_name[120];
-	
+
 	/* Get the item */
 	object_type *o_ptr = object_from_item_idx(item);
-	
+
 	/* Cannot remove cursed objects */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
 		msg_print("Hmmm, it seems to be cursed.");
 		return;
-	}	
-	
+	}
+
 	/* Check we are somewhere we can sell the items. */
 	if (current_store() == STORE_NONE)
 	{
 		msg_print("You cannot sell items when not in a store.");
 		return;
 	}
-	
+
 	/* Check the store wants the items being sold */
 	if (!store_will_buy(current_store(), o_ptr))
 	{
 		msg_print("I do not wish to purchase this item.");
 		return;
 	}
-	
+
 	/* Get a copy of the object representing the number being sold */
 	object_copy_amt(&sold_item, o_ptr, amt);
-	
+
 	/* Check if the store has space for the items */
 	if (!store_check_num(current_store(), &sold_item))
 	{
 		msg_print("I have not the room in my store to keep it.");
 		return;
 	}
-	
+
 	price = price_item(&sold_item, TRUE, amt);
-	
+
 	/* Get some money */
 	p_ptr->au += price;
-	
+
 	/* Update the display */
 	store_flags |= STORE_GOLD_CHANGE;
-	
+
 	/* Update the auto-history if selling an artifact that was previously un-IDed. (Ouch!) */
 	if (artifact_p(o_ptr))
-		history_add_artifact(o_ptr->name1, TRUE);
-	
+		history_add_artifact(o_ptr->name1, TRUE, TRUE);
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
-	
+
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
-	
+
 	/* Get the "apparent" value */
-	dummy = object_value(&sold_item, amt, TRUE);
+	dummy = object_value(&sold_item, amt, FALSE);
 /*	msg_format("Dummy is %d", dummy); */
-	
+
 	/* Identify original object */
 	object_notice_everything(o_ptr);
 
@@ -2454,37 +2470,37 @@ void do_cmd_sell(cmd_code code, cmd_arg args[])
 
 	/* The item belongs to the store now */
 	sold_item.ident |= IDENT_STORE;
-	   
+
 	/*
 	* Hack -- Allocate charges between those wands, staves, or rods
 	* sold and retained, unless all are being sold.
 	 */
 	distribute_charges(o_ptr, &sold_item, amt);
-	
+
 	/* Get the "actual" value */
-	value = object_value(&sold_item, amt, TRUE);
+	value = object_value(&sold_item, amt, FALSE);
 /*	msg_format("Value is %d", value); */
 
 	/* Get the description all over again */
 	object_desc(o_name, sizeof(o_name), &sold_item, ODESC_PREFIX | ODESC_FULL);
-	
+
 	/* Describe the result (in message buffer) */
 	msg_format("You sold %s (%c) for %ld gold.",
-			   o_name, index_to_label(item), (long)price);
-	
+		o_name, index_to_label(item), (long)price);
+
 	/* Analyze the prices (and comment verbally) */
 	purchase_analyze(price, value, dummy);
-	
+
 	/* Set squelch flag */
 	p_ptr->notice |= PN_SQUELCH;
-	
+
 	/* Take the object from the player */
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
-	
+
 	/* Handle stuff */
 	handle_stuff();
-	
+
 	/* The store gets that (known) object */
 	store_carry(current_store(), &sold_item);
 
@@ -2530,7 +2546,7 @@ void do_cmd_stash(cmd_code code, cmd_arg args[])
 	distribute_charges(o_ptr, &dropped_item, amt);
 	
 	/* Describe */
-	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+	object_desc(o_name, sizeof(o_name), &dropped_item, ODESC_PREFIX | ODESC_FULL);
 
 	/* Message */
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -2828,6 +2844,14 @@ static bool store_process_command(char cmd, void *db, int oid)
 			break;
 		}
 
+		// Change class
+		case 'H':
+		{
+			// TODO - figure out why this command doesn't work here!
+			do_cmd_choose_class();
+			break;
+		}
+
 
 		/* Redraw */
 		case KTRL('R'):
@@ -3022,6 +3046,110 @@ static bool store_process_command(char cmd, void *db, int oid)
 	return command_processed;
 }
 
+/*
+ * Display contents of a store from knowledge menu
+ *
+ * The only allowed actions are 'I' to inspect an item
+ */
+void do_cmd_store_knowledge(void)
+{
+	bool leave = FALSE;
+
+	static region items_region = { 1, 4, -1, -1 };
+	static const menu_iter store_menu = { NULL, NULL, store_display_entry, store_process_command };
+	const menu_iter *cur_menu = &store_menu;
+
+	menu_type menu;
+	ui_event_data evt = EVENT_EMPTY;
+	int cursor = 0;
+
+	store_type *st_ptr = &store[current_store()];
+
+	/* Wipe the menu and set it up */
+	WIPE(&menu, menu);
+	menu.flags = MN_DBL_TAP;
+
+	/* Calculate the positions of things and redraw */
+	store_flags = STORE_INIT_CHANGE;
+	store_display_recalc();
+	store_redraw();
+
+	/* Loop */
+	while (!leave)
+	{
+		/* As many rows in the menus as there are items in the store */
+		menu.count = st_ptr->stock_num;
+
+		/* Roguelike */
+		if (OPT(rogue_like_commands))
+		{
+			/* These two can't intersect! */
+			menu.cmd_keys = "\n\r?Ieilx\x8B\x8C";
+			menu.selections = "abcdfghjkmnopqrstuvwyz134567";
+		}
+
+		/* Original */
+		else
+		{
+			/* These two can't intersect! */
+			menu.cmd_keys = "\n\r?Ieil\x8B\x8C";
+			menu.selections = "abcdfghjkmnopqrstuvwxyz13456";
+		}
+
+		/* Keep the cursor in range of the stock */
+		if (cursor < 0 || cursor >= menu.count)
+			cursor = menu.count - 1;
+
+		items_region.page_rows = scr_places_y[LOC_MORE] - scr_places_y[LOC_ITEMS_START];
+
+		/* Init the menu structure */
+		menu_init(&menu, MN_SKIN_SCROLL, cur_menu, &items_region);
+
+		if (menu.count > items_region.page_rows)
+			menu.prompt = "  -more-";
+		else
+			menu.prompt = NULL;
+
+		menu_layout(&menu, &menu.boundary);
+
+		evt.type = EVT_MOVE;
+
+		/* Get a selection/action */
+		while (evt.type == EVT_MOVE)
+		{
+			evt = menu_select(&menu, &cursor, EVT_MOVE);
+			if (store_flags & STORE_KEEP_PROMPT)
+			{
+				/* Unset so that the prompt is cleared next time */
+				store_flags &= ~STORE_KEEP_PROMPT;
+			}
+			else
+			{
+				/* Clear the prompt */
+				prt("", 0, 0);
+			}
+		}
+
+		if (evt.key == ESCAPE || evt.type == EVT_BACK)
+		{
+			leave = TRUE;
+		}
+		else
+		{
+			/* Display the store */
+			store_display_recalc();
+			store_redraw();
+		}
+
+		msg_flag = FALSE;
+	}
+
+	/* Hack -- Cancel automatic command */
+	p_ptr->command_new = 0;
+
+	/* Flush messages XXX XXX XXX */
+	message_flush();
+}
 
 /*
  * Enter a store, and interact with it.
@@ -3057,7 +3185,6 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 
 	/* Reset the command variables */
 	p_ptr->command_arg = 0;
-	p_ptr->command_rep = 0;
 	p_ptr->command_new = 0;
 
 
@@ -3112,8 +3239,8 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 		else
 		{
 			/* These two can't intersect! */
-			menu.cmd_keys = "\n\x010\r?={}~CEIbdegiklpstw\x8B\x8C"; /* \x10 = ^p */
-			menu.selections = "acfhmnoqruvxyz13456790ABDFGH";
+			menu.cmd_keys = "\n\x010\r?={}~CEIbdegiklpstwx\x8B\x8C"; /* \x10 = ^p */
+			menu.selections = "acfhjmnoqruvyz13456790ABDFGH";
 		}
 
 		/* Keep the cursor in range of the stock */

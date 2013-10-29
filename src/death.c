@@ -58,6 +58,8 @@ static void print_tomb(void)
 	ang_file *fp;
 	char buf[1024];
 	int line = 0;
+	int pcidx;
+	int exp = 0;
 
 
 	Term_clear();
@@ -81,13 +83,17 @@ static void print_tomb(void)
 	if (p_ptr->total_winner)
 		put_str_centred(line++, 8, 8+31, "Magnificent");
 	else
-		put_str_centred(line++, 8, 8+31, "%s", c_text + cp_ptr->title[(p_ptr->lev - 1) / 5]);
+		put_str_centred(line++, 8, 8+31, "%s", c_text + cp_ptr->title[(p_get_lev() - 1) / 5]);
 
 	line++;
 
 	put_str_centred(line++, 8, 8+31, "%s", c_name + cp_ptr->name);
-	put_str_centred(line++, 8, 8+31, "Level: %d", (int)p_ptr->lev);
-	put_str_centred(line++, 8, 8+31, "Exp: %d", (int)p_ptr->exp);
+	put_str_centred(line++, 8, 8+31, "Level: %d(%d)", (int)p_get_lev(), (int)p_get_best_lev());
+	for (pcidx = 0; pcidx < PY_MAX_CLASSES; pcidx++)
+	{
+		exp += pc_array[pcidx].exp;
+	}
+	put_str_centred(line++, 8, 8+31, "Exp: %d", exp);
 	put_str_centred(line++, 8, 8+31, "AU: %d", (int)p_ptr->au);
 	put_str_centred(line++, 8, 8+31, "Killed on Level %d", p_ptr->depth);
 	put_str_centred(line++, 8, 8+31, "by %s.", p_ptr->died_from);
@@ -125,6 +131,8 @@ static void death_knowledge(void)
 		object_flavor_aware(o_ptr);
 		object_notice_everything(o_ptr);
 	}
+
+	history_unmask_unknown();
 
 	/* Hack -- Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -448,8 +456,9 @@ void death_screen(void)
 	{
 		p_ptr->depth = 0;
 		my_strcpy(p_ptr->died_from, "Ripe Old Age", sizeof(p_ptr->died_from));
-		p_ptr->exp = p_ptr->max_exp;
-		p_ptr->lev = p_ptr->max_lev;
+		// TODO - see if we should actually set exp and lev to max for all classes on win?!
+		//p_curclass.exp = p_curclass.max_exp;
+		//p_get_lev() = p_curclass.max_lev;
 		p_ptr->au += 10000000L;
 
 		display_winner();

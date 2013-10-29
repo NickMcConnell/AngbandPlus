@@ -63,7 +63,7 @@ typedef struct
  */
 static long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	return (p_get_exp() + (100 * p_ptr->max_depth));
 }
 
 
@@ -387,9 +387,9 @@ static void build_score(high_score *entry, const char *died_from, time_t *death_
 	strnfmt(entry->p_c, sizeof(entry->p_c), "%2d", p_ptr->pclass);
 
 	/* Save the level and such */
-	strnfmt(entry->cur_lev, sizeof(entry->cur_lev), "%3d", p_ptr->lev);
+	strnfmt(entry->cur_lev, sizeof(entry->cur_lev), "%3d", p_get_lev());
 	strnfmt(entry->cur_dun, sizeof(entry->cur_dun), "%3d", p_ptr->depth);
-	strnfmt(entry->max_lev, sizeof(entry->max_lev), "%3d", p_ptr->max_lev);
+	strnfmt(entry->max_lev, sizeof(entry->max_lev), "%3d", p_get_max_lev());
 	strnfmt(entry->max_dun, sizeof(entry->max_dun), "%3d", p_ptr->max_depth);
 
 	/* No cause of death */

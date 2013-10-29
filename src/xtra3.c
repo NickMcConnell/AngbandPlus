@@ -148,7 +148,7 @@ static void prt_title(int row, int col)
 	}
 
 	/* Winner */
-	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	else if (p_ptr->total_winner || (p_get_lev() > PY_MAX_LEVEL))
 	{
 		p = "***WINNER***";
 	}
@@ -156,7 +156,7 @@ static void prt_title(int row, int col)
 	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = c_text + cp_ptr->title[(p_get_lev() - 1) / 5];
 	}
 
 	prt_field(p, row, col);
@@ -170,9 +170,9 @@ static void prt_level(int row, int col)
 {
 	char tmp[32];
 
-	strnfmt(tmp, sizeof(tmp), "%6d", p_ptr->lev);
+	strnfmt(tmp, sizeof(tmp), "%2d(%2d)", p_get_lev(), p_get_best_lev());
 
-	if (p_ptr->lev >= p_ptr->max_lev)
+	if (p_get_lev() >= p_get_max_lev())
 	{
 		put_str("LEVEL ", row, col);
 		c_put_str(TERM_L_GREEN, tmp, row, col + 6);
@@ -191,20 +191,26 @@ static void prt_level(int row, int col)
 static void prt_exp(int row, int col)
 {
 	char out_val[32];
-	bool lev50 = (p_ptr->lev == 50);
+	bool lev50 = (p_get_lev() == 50);
 
-	long xp = (long)p_ptr->exp;
+	long xp = (long)p_get_exp();
 
 
 	/* Calculate XP for next level */
 	if (!lev50)
-		xp = (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp;
+	{
+		int i;
+		for (i = 0; i < PY_MAX_CLASSES; i++)
+		{
+			xp = MIN(xp, (long)(player_exp[pc_array[i].lev - 1] * pc_array[i].expfact / 100L) - pc_array[i].exp);
+		}
+	}
 
 	/* Format XP */
 	strnfmt(out_val, sizeof(out_val), "%8ld", (long)xp);
 
 
-	if (p_ptr->exp >= p_ptr->max_exp)
+	if (p_get_exp() >= p_get_max_exp())
 	{
 		put_str((lev50 ? "EXP" : "NXT"), row, col);
 		c_put_str(TERM_L_GREEN, out_val, row, col + 4);
@@ -286,9 +292,9 @@ byte player_hp_attr(void)
 {
 	byte attr;
 	
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (p_ptr->chp >= p_get_mhp())
 		attr = TERM_L_GREEN;
-	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+	else if (p_ptr->chp > (p_get_mhp() * op_ptr->hitpoint_warn) / 10)
 		attr = TERM_YELLOW;
 	else
 		attr = TERM_RED;
@@ -306,7 +312,7 @@ static void prt_hp(int row, int col)
 
 	put_str("HP ", row, col);
 
-	strnfmt(max_hp, sizeof(max_hp), "%4d", p_ptr->mhp);
+	strnfmt(max_hp, sizeof(max_hp), "%4d", p_get_mhp());
 	strnfmt(cur_hp, sizeof(cur_hp), "%4d", p_ptr->chp);
 	
 	c_put_str(color, cur_hp, row, col + 3);
@@ -321,9 +327,9 @@ byte player_sp_attr(void)
 {
 	byte attr;
 	
-	if (p_ptr->csp >= p_ptr->msp)
+	if (p_ptr->csp >= p_get_msp())
 		attr = TERM_L_GREEN;
-	else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+	else if (p_ptr->csp > (p_get_msp() * op_ptr->hitpoint_warn) / 10)
 		attr = TERM_YELLOW;
 	else
 		attr = TERM_RED;
@@ -339,12 +345,12 @@ static void prt_sp(int row, int col)
 	char cur_sp[32], max_sp[32];
 	byte color = player_sp_attr();
 
-	/* Do not show mana unless it matters */
-	if (!cp_ptr->spell_book) return;
+	/* Do not show mana unless we have some */
+	if (!p_get_msp()) return;
 
 	put_str("SP ", row, col);
 
-	strnfmt(max_sp, sizeof(max_sp), "%4d", p_ptr->msp);
+	strnfmt(max_sp, sizeof(max_sp), "%4d", p_get_msp());
 	strnfmt(cur_sp, sizeof(cur_sp), "%4d", p_ptr->csp);
 
 	/* Show mana */
@@ -873,12 +879,14 @@ static size_t prt_state(int row, int col)
 	}
 
 	/* Repeating */
-	else if (p_ptr->command_rep)
+	else if (cmd_get_nrepeats())
 	{
-		if (p_ptr->command_rep > 999)
-			strnfmt(text, sizeof(text), "Rep. %3d00", p_ptr->command_rep / 100);
+		int nrepeats = cmd_get_nrepeats();
+
+		if (nrepeats > 999)
+			strnfmt(text, sizeof(text), "Rep. %3d00", nrepeats / 100);
 		else
-			strnfmt(text, sizeof(text), "Repeat %3d", p_ptr->command_rep);
+			strnfmt(text, sizeof(text), "Repeat %3d", nrepeats);
 	}
 
 	/* Searching */

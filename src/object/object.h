@@ -38,13 +38,13 @@ typedef enum
 typedef enum
 {
 	OLIST_NONE   = 0x00,   /* No options */
-   OLIST_WINDOW = 0x01,   /* Display list in a sub-term (left-align) */
-   OLIST_QUIVER = 0x02,   /* Display quiver lines */
-   OLIST_GOLD   = 0x04,   /* Include gold in the list */
+   	OLIST_WINDOW = 0x01,   /* Display list in a sub-term (left-align) */
+   	OLIST_QUIVER = 0x02,   /* Display quiver lines */
+   	OLIST_GOLD   = 0x04,   /* Include gold in the list */
 	OLIST_WEIGHT = 0x08,   /* Show item weight */
 	OLIST_PRICE  = 0x10,   /* Show item price */
 	OLIST_FAIL   = 0x20    /* Show device failure */
-	
+
 } olist_detail_t;
 
 
@@ -57,7 +57,7 @@ typedef enum
 	OINFO_TERSE  = 0x01, /* Keep descriptions brief, e.g. for dumps */
 	OINFO_SUBJ   = 0x02, /* Describe object from the character's POV */
 	OINFO_FULL   = 0x04, /* Treat object as if fully IDd */
-	OINFO_DUMMY  = 0x08 /* Object does not exist (e.g. knowledge menu) */
+	OINFO_DUMMY  = 0x08  /* Object does not exist (e.g. knowledge menu) */
 } oinfo_detail_t;
 
 
@@ -87,7 +87,9 @@ extern s32b object_last_wield;
 
 bool object_is_known(const object_type *o_ptr);
 bool object_is_known_artifact(const object_type *o_ptr);
-bool object_is_not_artifact(const object_type *o_ptr);
+bool object_is_known_cursed(const object_type *o_ptr);
+bool object_is_known_blessed(const object_type *o_ptr);
+bool object_is_known_not_artifact(const object_type *o_ptr);
 bool object_is_not_known_consistently(const object_type *o_ptr);
 bool object_was_worn(const object_type *o_ptr);
 bool object_was_fired(const object_type *o_ptr);
@@ -99,7 +101,7 @@ bool object_pval_is_visible(const object_type *o_ptr);
 bool object_ego_is_visible(const object_type *o_ptr);
 bool object_attack_plusses_are_visible(const object_type *o_ptr);
 bool object_defence_plusses_are_visible(const object_type *o_ptr);
-bool object_flag_is_known(const object_type *o_ptr, int idx, u32b flag);
+bool object_flag_is_known(const object_type *o_ptr, int flag);
 bool object_high_resist_is_possible(const object_type *o_ptr);
 void object_flavor_aware(object_type *o_ptr);
 void object_flavor_tried(object_type *o_ptr);
@@ -109,21 +111,24 @@ void object_notice_ego(object_type *o_ptr);
 void object_notice_sensing(object_type *o_ptr);
 void object_sense_artifact(object_type *o_ptr);
 void object_notice_effect(object_type *o_ptr);
-void object_notice_slays(object_type *o_ptr, u32b known_f0);
+void object_notice_slay(object_type *o_ptr, int flag);
 void object_notice_attack_plusses(object_type *o_ptr);
-bool object_notice_flags(object_type *o_ptr, int flagset, u32b flags);
+bool object_notice_flag(object_type *o_ptr, int flag);
+bool object_notice_flags(object_type *o_ptr, bitflag flags[OF_SIZE]);
 bool object_notice_curses(object_type *o_ptr);
 void object_notice_on_defend(void);
 void object_notice_on_wield(object_type *o_ptr);
 void object_notice_on_firing(object_type *o_ptr);
-void wieldeds_notice_flag(int flagset, u32b flag);
+void wieldeds_notice_flag(int flag);
 void wieldeds_notice_on_attack(void);
 void object_repair_knowledge(object_type *o_ptr);
+bool object_FA_would_be_obvious(const object_type *o_ptr);
 obj_pseudo_t object_pseudo(const object_type *o_ptr);
 void sense_inventory(void);
 bool easy_know(const object_type *o_ptr);
 bool object_check_for_ident(object_type *o_ptr);
 bool object_name_is_visible(const object_type *o_ptr);
+void object_know_all_flags(object_type *o_ptr);
 
 /* obj-desc.c */
 void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know);
@@ -147,12 +152,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
 bool make_object(object_type *j_ptr, int lev, bool good, bool great);
 void make_gold(object_type *j_ptr, int lev, int coin_type);
 
-unsigned ego_xtra_sustain_idx(void);
-u32b ego_xtra_sustain_list(void);
-unsigned ego_xtra_resist_idx(void);
-u32b ego_xtra_resist_list(void);
-unsigned ego_xtra_power_idx(void);
-u32b ego_xtra_power_list(void);
+void set_ego_xtra_sustain(bitflag flags[OF_SIZE]);
+void set_ego_xtra_resist(bitflag flags[OF_SIZE]);
+void set_ego_xtra_power(bitflag flags[OF_SIZE]);
 
 
 /* obj-ui.c */
@@ -165,8 +167,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode);
 /* obj-util.c */
 void flavor_init(void);
 void reset_visuals(bool unused);
-void object_flags(const object_type *o_ptr, u32b flags[OBJ_FLAG_N]);
-void object_flags_known(const object_type *o_ptr, u32b flags[OBJ_FLAG_N]);
+void object_flags(const object_type *o_ptr, bitflag flags[OF_SIZE]);
+void object_flags_known(const object_type *o_ptr, bitflag flags[OF_SIZE]);
 char index_to_label(int i);
 s16b label_to_inven(int c);
 s16b label_to_equip(int c);
@@ -269,9 +271,9 @@ s32b object_power(const object_type *o_ptr, int verbose, ang_file *log_file, boo
  * (a stack of this many equals a weapon of the same damage output)
  */
 #define INHIBIT_POWER       20000
-#define HIGH_TO_AC             21
-#define VERYHIGH_TO_AC         31
-#define INHIBIT_AC             51
+#define HIGH_TO_AC             26
+#define VERYHIGH_TO_AC         36
+#define INHIBIT_AC             56
 #define HIGH_TO_HIT            16
 #define VERYHIGH_TO_HIT        26
 #define HIGH_TO_DAM            16

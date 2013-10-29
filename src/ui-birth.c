@@ -50,7 +50,7 @@ enum birth_stage
 	BIRTH_QUICKSTART,
 	BIRTH_SEX_CHOICE,
 	BIRTH_RACE_CHOICE,
-	BIRTH_CLASS_CHOICE,
+	//BIRTH_CLASS_CHOICE,
 	BIRTH_ROLLER_CHOICE,
 	BIRTH_POINTBASED,
 	BIRTH_ROLLER,
@@ -65,7 +65,7 @@ enum birth_questions
 	BQ_METHOD = 0,
 	BQ_SEX,
 	BQ_RACE,
-	BQ_CLASS,
+	//BQ_CLASS,
 	BQ_ROLLER,
 	MAX_BIRTH_QUESTIONS
 };
@@ -855,7 +855,7 @@ errr get_birth_command(bool wait)
 		}
 
 		case BIRTH_SEX_CHOICE:
-		case BIRTH_CLASS_CHOICE:
+		//case BIRTH_CLASS_CHOICE:
 		case BIRTH_RACE_CHOICE:
 		case BIRTH_ROLLER_CHOICE:
 		{
@@ -875,17 +875,10 @@ errr get_birth_command(bool wait)
 			if (current_stage > BIRTH_RACE_CHOICE)
 			{
 				menu_refresh(&race_menu);
-				menu = &class_menu;
-				command = CMD_CHOOSE_CLASS;
-			}
-
-			if (current_stage > BIRTH_CLASS_CHOICE)
-			{
-				menu_refresh(&class_menu);
 				menu = &roller_menu;
 				command = CMD_NULL;
 			}
-			
+
 			next = menu_question(current_stage, menu, command);
 
 			if (next == BIRTH_BACK)

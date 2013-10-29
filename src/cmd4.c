@@ -249,6 +249,12 @@ void do_cmd_change_name(void)
 			mode = (mode - 1) % INFO_SCREENS;
 		}
 
+		// Change class
+		else if (ke.key == 'H')
+		{
+			do_cmd_choose_class();
+		}
+
 
 		/* Oops */
 		else

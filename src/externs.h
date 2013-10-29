@@ -135,6 +135,7 @@ extern s32b tot_mon_power;
 extern monster_lore *l_list;
 extern quest *q_list;
 extern store_type *store;
+extern int store_knowledge;
 extern cptr** name_sections;
 extern object_type *inventory;
 extern s16b alloc_ego_size;
@@ -148,7 +149,8 @@ extern char macro_buffer[1024];
 extern char *keymap_act[KEYMAP_MODES][256];
 extern const player_sex *sp_ptr;
 extern const player_race *rp_ptr;
-extern const player_class *cp_ptr;
+extern player_class *cp_ptr;
+extern player_class_type pc_array[PY_MAX_CLASSES];
 extern const player_magic *mp_ptr;
 extern player_other *op_ptr;
 extern player_type *p_ptr;
@@ -227,6 +229,8 @@ extern u16b inscriptions_count;
 
 extern flag_cache *slay_cache;
 
+extern u16b daycount;
+
 /* history.c */
 extern history_info *history_list;
 
@@ -301,6 +305,9 @@ extern bool search(bool verbose);
 extern byte py_pickup(int pickup);
 extern void move_player(int dir);
 
+/* cmd4.c */
+extern void do_cmd_redraw(void);
+
 /* cmd5.c */
 s16b spell_chance(int spell);
 bool spell_okay(int spell, bool known, bool browse);
@@ -317,10 +324,11 @@ void death_screen(void);
 extern void dungeon_change_level(int dlev);
 extern void play_game(void);
 extern int value_check_aux1(const object_type *o_ptr);
+extern void idle_update(void);
 
 /* files.c */
 extern void html_screenshot(cptr name, int mode);
-extern void player_flags(u32b f[OBJ_FLAG_N]);
+extern void player_flags(bitflag f[OF_SIZE]);
 extern void display_player(int mode);
 extern void display_player_stat_info(void);
 extern void display_player_xtra_info(void);
@@ -348,11 +356,12 @@ void history_clear(void);
 size_t history_get_num(void);
 bool history_add_full(u16b type, byte a_idx, s16b dlev, s16b clev, s32b turn, const char *text);
 bool history_add(const char *event, u16b type, byte a_idx);
-bool history_add_artifact(byte a_idx, bool known);
+bool history_add_artifact(byte a_idx, bool known, bool found);
 void history_unmask_unknown(void);
 bool history_lose_artifact(byte a_idx);
 void history_display(void);
 void dump_history(ang_file *file);
+bool history_is_artifact_known(byte a_idx);
 
 /* init2.c */
 extern void init_file_paths(const char *configpath, const char *libpath, const char *datapath);
@@ -406,7 +415,7 @@ extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
 void monster_death(int m_idx);
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
-extern void monster_flags_known(const monster_race *r_ptr, const monster_lore *l_ptr, u32b flags[]);
+extern void monster_flags_known(const monster_race *r_ptr, const monster_lore *l_ptr, bitflag flags[RF_SIZE]);
 
 /* pathfind.c */
 extern bool findpath(int y, int x);
@@ -572,6 +581,9 @@ void squelch_drop(void);
 void do_cmd_options_item(void *unused, cptr title);
 bool squelch_interactive(const object_type *o_ptr);
 
+/* store.c */
+void do_cmd_store_knowledge(void);
+
 /* target.c */
 bool target_able(int m_idx);
 bool target_okay(void);
@@ -654,8 +666,9 @@ extern bool spell_needs_aim(int tval, int spell);
 
 /* xtra2.c */
 void check_experience(void);
-void gain_exp(s32b amount);
-void lose_exp(s32b amount);
+void gain_exp_all(s32b amount);
+void gain_exp(s32b amount, int classidx);
+void lose_exp(s32b amount, int classidx);
 bool modify_panel(term *t, int wy, int wx);
 bool adjust_panel(int y, int x);
 bool change_panel(int dir);
@@ -677,6 +690,14 @@ void subwindows_set_flags(u32b *new_flags, size_t n_subwindows);
 /* wiz-spoil.c */
 bool make_fake_artifact(object_type *o_ptr, byte name1);
 
+/* calcs.c */
+s16b p_get_mhp(void);
+s16b p_get_msp(void);
+s16b p_get_lev(void);
+s16b p_get_best_lev(void);
+s16b p_get_max_lev(void);
+s32b p_get_exp(void);
+s32b p_get_max_exp(void);
 
 
 /* borg.h */

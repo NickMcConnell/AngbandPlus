@@ -18,6 +18,7 @@ void wr_s16b(s16b v);
 void wr_u32b(u32b v);
 void wr_s32b(s32b v);
 void wr_string(cptr str);
+void pad_bytes(int n);
 
 /* Reading bits */
 void rd_byte(byte *ip);
@@ -51,6 +52,7 @@ int rd_objects(u32b version);
 int rd_monsters(u32b version);
 int rd_ghost(u32b version);
 int rd_history(u32b version);
+int rd_classes(u32b version);
 
 /* save.c */
 void wr_randomizer(void);
@@ -73,6 +75,7 @@ void wr_objects(void);
 void wr_monsters(void);
 void wr_ghost(void);
 void wr_history(void);
+void wr_classes(void);
 
 
 #endif /* INCLUDED_SAVEFILE_H */

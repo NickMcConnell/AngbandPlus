@@ -122,6 +122,7 @@ extern void init_cmd4_c(void);
 /* cmd5.c */
 void do_cmd_study_spell(cmd_code code, cmd_arg args[]);
 void do_cmd_study_book(cmd_code code, cmd_arg args[]);
+void do_cmd_choose_class(void);
 
 /* cmd-know.c */
 extern void do_cmd_knowledge_objects(void *obj, const char *name);

@@ -57,6 +57,7 @@ static const struct
 	{ "monsters", rd_monsters, wr_monsters, 1, 1 },
 	{ "ghost", rd_ghost, wr_ghost, 1, 1 },
 	{ "history", rd_history, wr_history, 1, 1 },
+	{ "player classes", rd_classes, wr_classes, 1, 1 },
 };
 
 
@@ -83,13 +84,13 @@ static u32b buffer_check;
 void note(cptr msg)
 {
 	static int y = 2;
-	
+
 	/* Draw the message */
 	prt(msg, y, 0);
-	
+
 	/* Advance one line (wrap if needed) */
 	if (++y >= 24) y = 2;
-	
+
 	/* Flush it */
 	Term_fresh();
 }
@@ -109,7 +110,7 @@ static void sf_put(byte v)
 		buffer_size += BUFFER_BLOCK_INCREMENT;
 		buffer = mem_realloc(buffer, buffer_size);
 	}
-	
+
 	assert(buffer_pos < buffer_size);
 
 	buffer[buffer_pos++] = v;
@@ -221,6 +222,11 @@ void strip_bytes(int n)
 	while (n--) rd_byte(&tmp8u);
 }
 
+void pad_bytes(int n)
+{
+	while (n--) wr_byte(0);
+}
+
 
 
 
@@ -249,19 +255,19 @@ static bool try_save(ang_file *file)
 				sizeof savefile_head);
 		while (pos < 16)
 			savefile_head[pos++] = 0;
-		
+
 		/* 4-byte block version */
 		savefile_head[pos++] = (savefile_blocks[i].cur_ver & 0xFF);
 		savefile_head[pos++] = ((savefile_blocks[i].cur_ver >> 8) & 0xFF);
 		savefile_head[pos++] = ((savefile_blocks[i].cur_ver >> 16) & 0xFF);
 		savefile_head[pos++] = ((savefile_blocks[i].cur_ver >> 24) & 0xFF);
-		
+
 		/* 4-byte block size */
 		savefile_head[pos++] = (buffer_pos & 0xFF);
 		savefile_head[pos++] = ((buffer_pos >> 8) & 0xFF);
 		savefile_head[pos++] = ((buffer_pos >> 16) & 0xFF);
 		savefile_head[pos++] = ((buffer_pos >> 24) & 0xFF);
-		
+
 		/* 4-byte block checksum */
 		savefile_head[pos++] = (buffer_check & 0xFF);
 		savefile_head[pos++] = ((buffer_check >> 8) & 0xFF);
@@ -269,8 +275,9 @@ static bool try_save(ang_file *file)
 		savefile_head[pos++] = ((buffer_check >> 24) & 0xFF);
 
 		assert(pos == SAVEFILE_HEAD_SIZE);
-		
+
 		file_write(file, (char *)savefile_head, SAVEFILE_HEAD_SIZE);
+
 		file_write(file, (char *)buffer, buffer_pos);
 
 		/* pad to 4 byte multiples */
@@ -279,7 +286,7 @@ static bool try_save(ang_file *file)
 	}
 
 	mem_free(buffer);
-	
+
 	return TRUE;
 }
 
@@ -288,7 +295,7 @@ static bool try_load(ang_file *file)
 {
 	byte savefile_head[SAVEFILE_HEAD_SIZE];
 	u32b block_version, block_size, block_checksum;
-	
+
 	while (TRUE)
 	{
 		size_t i;
@@ -302,7 +309,7 @@ static bool try_load(ang_file *file)
 		if (size == 0) break;
 
 		assert(size == SAVEFILE_HEAD_SIZE);
-		
+
 		/* 16-byte block name, null-terminated */
 		assert(savefile_head[15] == '\0');
 
@@ -316,19 +323,19 @@ static bool try_load(ang_file *file)
 		}
 		assert(i < N_ELEMENTS(savefile_blocks));
 
-		
+
 		/* 4-byte block version */
 		block_version = ((u32b) savefile_head[16]) |
 				((u32b) savefile_head[17] << 8) |
 				((u32b) savefile_head[18] << 16) |
 				((u32b) savefile_head[19] << 24);
-		
+
 		/* 4-byte block size */
 		block_size = ((u32b) savefile_head[20]) |
 				((u32b) savefile_head[21] << 8) |
 				((u32b) savefile_head[22] << 16) |
 				((u32b) savefile_head[23] << 24);
-		
+
 		/* 4-byte block checksum */
 		block_checksum = ((u32b) savefile_head[24]) |
 				((u32b) savefile_head[25] << 8) |
@@ -355,7 +362,7 @@ static bool try_load(ang_file *file)
 /*		assert(buffer_check == block_checksum); */
 		mem_free(buffer);
 	}
-	
+
 	return 0;
 }
 
@@ -371,17 +378,17 @@ bool old_save(void)
 
 	char new_savefile[1024];
 	char old_savefile[1024];
-	
+
 	/* New savefile */
 	strnfmt(new_savefile, sizeof(new_savefile), "%s.new", savefile);
 	strnfmt(old_savefile, sizeof(old_savefile), "%s.old", savefile);
-	
+
 	/* Make sure that the savefile doesn't already exist */
 	safe_setuid_grab();
 	file_delete(new_savefile);
 	file_delete(old_savefile);
 	safe_setuid_drop();
-	
+
 	/* Open the savefile */
 	safe_setuid_grab();
 	file = file_open(new_savefile, MODE_WRITE, FTYPE_SAVE);
@@ -399,33 +406,33 @@ bool old_save(void)
 	if (character_saved)
 	{
 		bool err = FALSE;
-		
+
 		safe_setuid_grab();
-		
+
 		if (file_exists(savefile) && !file_move(savefile, old_savefile))
 			err = TRUE;
-		
+
 		if (!err)
 		{
 			if (!file_move(new_savefile, savefile))
 				err = TRUE;
-			
+
 			if (err)
 				file_move(old_savefile, savefile);
 			else
 				file_delete(old_savefile);
 		}
-		
+
 		safe_setuid_drop();
-		
+
 		return err ? FALSE : TRUE;
 	}
-	
+
 	/* Delete temp file */
 	safe_setuid_grab();
 	file_delete(new_savefile);
 	safe_setuid_drop();
-	
+
 	return FALSE;
 }
 
@@ -449,21 +456,21 @@ bool old_load(void)
 {
 	ang_file *fh;
 	byte head[8];
-	
+
 	cptr what = "generic";
 	errr err = 0;
 
 	/* Clear screen */
 	Term_clear();
 
-	
+
 	fh = file_open(savefile, MODE_READ, -1);
 	if (!fh)
 	{
 		err = -1;
 		what = "Cannot open savefile";
 	}
-	
+
 	/* Process file */
 	if (!err)
 	{
@@ -514,18 +521,18 @@ bool old_load(void)
 			err = -1;
 		}
 	}
-	
+
 	/* Paranoia */
 	if (!err)
 	{
 		/* Invalid turn */
 		if (!turn) err = -1;
-		
+
 		/* Message (below) */
 		if (err) what = "Broken savefile";
 	}
-	
-	
+
+
 	/* Okay */
 	if (!err)
 	{
@@ -535,7 +542,7 @@ bool old_load(void)
 			/* Reset cause of death */
 			my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
 		}
-		
+
 		/* Success */
 		return (TRUE);
 	}
@@ -544,7 +551,7 @@ bool old_load(void)
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
 	           what, sf_major, sf_minor, sf_patch);
 	message_flush();
-	
+
 	/* Oops */
 	return (FALSE);
 }

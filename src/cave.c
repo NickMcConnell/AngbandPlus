@@ -18,6 +18,7 @@
 #include "angband.h"
 #include "object/tvalsval.h"
 #include "game-event.h"
+#include "game-cmd.h"
 
 /*
  * Support for Adam Bolt's tileset, lighting and transparency effects
@@ -35,14 +36,12 @@
  */
 int distance(int y1, int x1, int y2, int x2)
 {
-	int ay, ax;
-
 	/* Find the absolute y/x distance components */
-	ay = (y1 > y2) ? (y1 - y2) : (y2 - y1);
-	ax = (x1 > x2) ? (x1 - x2) : (x2 - x1);
+	int ay = abs(y2 - y1);
+	int ax = abs(x2 - x1);
 
-	/* Hack -- approximate the distance */
-	return ((ay > ax) ? (ay + (ax>>1)) : (ax + (ay>>1)));
+	/* Approximate the distance */
+	return ay > ax ? ay + (ax>>1) : ax + (ay>>1);
 }
 
 
@@ -758,17 +757,19 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 			
 			/* Multi-hued monster */
-			else if (r_ptr->flags[0] & (RF0_ATTR_MULTI))
+			else if (rf_has(r_ptr->flags, RF_ATTR_MULTI) ||
+					 rf_has(r_ptr->flags, RF_ATTR_FLICKER))
 			{
 				/* Multi-hued attr */
-				a = randint1(15);
+				a = m_ptr->attr ? m_ptr->attr : 1;
 				
 				/* Normal char */
 				c = dc;
 			}
 			
 			/* Normal monster (not "clear" in any way) */
-			else if (!(r_ptr->flags[0] & (RF0_ATTR_CLEAR | RF0_CHAR_CLEAR)))
+			else if (!flags_test(r_ptr->flags, RF_SIZE, RF_ATTR_CLEAR,
+			                           RF_CHAR_CLEAR, FLAG_END))
 			{
 				/* Use attr */
 				a = da;
@@ -792,18 +793,21 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 			
 			/* Normal char, Clear attr, monster */
-			else if (!(r_ptr->flags[0] & (RF0_CHAR_CLEAR)))
+			else if (!rf_has(r_ptr->flags, RF_CHAR_CLEAR))
 			{
 				/* Normal char */
 				c = dc;
 			}
 				
 			/* Normal attr, Clear char, monster */
-			else if (!(r_ptr->flags[0] & (RF0_ATTR_CLEAR)))
+			else if (!rf_has(r_ptr->flags, RF_ATTR_CLEAR))
 			{
 				/* Normal attr */
-					a = da;
+				a = da;
 			}
+
+			/* Store the drawing attr so we can use it other places too */
+			m_ptr->attr = a;
 		}
 	}
 
@@ -816,7 +820,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 		a = r_ptr->x_attr;
 		if ((OPT(hp_changes_color)) && (arg_graphics == GRAPHICS_NONE))
 		{
-			switch(p_ptr->chp * 10 / p_ptr->mhp)
+			switch(p_ptr->chp * 10 / p_get_mhp())
 			{
 				case 10:
 				case  9: 
@@ -2717,7 +2721,7 @@ void update_view(void)
 
 	int pg = GRID(py,px);
 
-	int i, g, o2;
+	int i, j, k, g, o2;
 
 	int radius;
 
@@ -2771,6 +2775,48 @@ void update_view(void)
 
 	/* Handle real light */
 	if (radius > 0) ++radius;
+
+	/* Scan monster list and add monster lites */
+	for (k = 1; k < z_info->m_max; k++)
+	{
+		/* Check the k'th monster */
+		monster_type *m_ptr = &mon_list[k];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Access the location */
+		int fx = m_ptr->fx;
+		int fy = m_ptr->fy;
+		
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip monsters not carrying lite */
+		if (!rf_has(r_ptr->flags, RF_HAS_LITE)) continue;
+		
+		/* Light a 3x3 box centered on the monster */
+		for (i = -1; i <= 1; i++)
+		{
+			for (j = -1; j <= 1; j++)
+			{
+				int sy = fy + i;
+				int sx = fx + j;
+				
+				/* Make sure the square is close enough and is in LOS */
+				if (distance(p_ptr->py, p_ptr->px, sy, sx) > MAX_SIGHT)
+					continue;
+				else if (!los(p_ptr->py, p_ptr->px, sy, sx))
+					continue;
+				
+				g = GRID(sy, sx);
+
+				/* Mark the square lit and seen */
+				fast_cave_info[g] |= (CAVE_VIEW | CAVE_SEEN);
+				
+				/* Save in array */
+				fast_view_g[fast_view_n++] = g;
+			}
+		}
+	}
 
 
 	/*** Step 1 -- player grid ***/
@@ -3876,14 +3922,7 @@ void disturb(int stop_search, int unused_flag)
 	/* p_ptr->command_new = 0; */
 
 	/* Cancel repeated commands */
-	if (p_ptr->command_rep)
-	{
-		/* Cancel */
-		p_ptr->command_rep = 0;
-
-		/* Redraw the state (later) */
-		p_ptr->redraw |= (PR_STATE);
-	}
+	cmd_cancel_repeat();
 
 	/* Cancel Resting */
 	if (p_ptr->resting)

@@ -317,14 +317,14 @@ void do_cmd_wield(cmd_code code, cmd_arg args[])
 		return;
 	}
 
-		/* "!t" checks for taking off */
-		n = check_for_inscrip(equip_o_ptr, "!t");
-		while (n--)
-		{
-			/* Prompt */
-			object_desc(o_name, sizeof(o_name), equip_o_ptr,
-						ODESC_PREFIX | ODESC_FULL);
-
+	/* "!t" checks for taking off */
+	n = check_for_inscrip(equip_o_ptr, "!t");
+	while (n--)
+	{
+		/* Prompt */
+		object_desc(o_name, sizeof(o_name), equip_o_ptr,
+					ODESC_PREFIX | ODESC_FULL);
+		
 		/* Forget it */
 		if (!get_check(format("Really take off %s? ", o_name))) return;
 	}
@@ -411,7 +411,7 @@ static void obj_study(object_type *o_ptr, int item)
 	track_object(item);
 
 	/* Mage -- Choose a spell to study */
-	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
+	if (player_has(PF_CHOOSE_SPELLS))
 	{
 		int spell = get_spell(o_ptr, "study", FALSE, FALSE);
 		if (spell >= 0)
@@ -517,7 +517,7 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 		}
 
 		use = USE_CHARGE;
-		snd = MSG_ZAP_ROD;
+		snd = MSG_USE_STAFF;
 		items_allowed = USE_INVEN | USE_FLOOR;
 	}
 	else if (obj_is_food(o_ptr))
@@ -635,13 +635,18 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 	{
 		/* Object level */
 		int lev = k_info[o_ptr->k_idx].level;
+		
+		int i;
 
 		object_flavor_aware(o_ptr);
 		if (o_ptr->tval == TV_ROD) object_notice_everything(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		for (i = 0; i < PY_MAX_CLASSES; i++)
+		{
+			gain_exp((lev + (pc_array[i].lev / 2)) / pc_array[i].lev / PY_MAX_CLASSES, i);
+		}
 		p_ptr->notice |= PN_SQUELCH;
 	}
-	else
+	else if (used)
 	{
 		object_flavor_tried(o_ptr);
 	}
@@ -698,16 +703,17 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 	if (cave_feat[py][px] == FEAT_GLYPH)
 	{
 		/* Shift any objects to further away */
-		for (o_ptr = get_first_object(py, px); o_ptr; o_ptr = get_next_object(o_ptr))
+		for (o_ptr = get_first_object(py, px); o_ptr; o_ptr =
+			get_next_object(o_ptr))
 		{
 			drop_near(o_ptr, 0, py, px, FALSE);
 		}
-		
+
 		/* Delete the "moved" objects from their original position */
 		delete_object(py, px);
 	}
 
-	
+
 }
 
 
@@ -715,7 +721,7 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 void do_cmd_refill(cmd_code code, cmd_arg args[])
 {
 	object_type *j_ptr = &inventory[INVEN_LIGHT];
-	u32b f[OBJ_FLAG_N];
+	bitflag f[OF_SIZE];
 
 	int item = args[0].item;
 	object_type *o_ptr = object_from_item_idx(item);
@@ -735,7 +741,7 @@ void do_cmd_refill(cmd_code code, cmd_arg args[])
 		return;
 	}
 
-	else if (f[2] & TR2_NO_FUEL)
+	else if (of_has(f, OF_NO_FUEL))
 	{
 		msg_print("Your light cannot be refilled.");
 		return;
