@@ -22,6 +22,7 @@
 #include "object/object.h"
 #include "spells.h"
 #include "target.h"
+#include "bookless.h"
 
 errr (*cmd_get_hook)(cmd_context c, bool wait);
 
@@ -99,6 +100,7 @@ static struct
 	{ CMD_STUDY_SPELL, { arg_CHOICE }, do_cmd_study_spell, FALSE, 0 },
 	{ CMD_STUDY_BOOK, { arg_ITEM }, do_cmd_study_book, FALSE, 0 },
 	{ CMD_CAST, { arg_CHOICE, arg_TARGET }, do_cmd_cast, FALSE, 0 },
+	{ CMD_BOOKLESS, { arg_NONE }, do_cmd_bookless, FALSE, 0 },
 	{ CMD_SELL, { arg_ITEM, arg_NUMBER }, do_cmd_sell, FALSE, 0 },
 	{ CMD_STASH, { arg_ITEM, arg_NUMBER }, do_cmd_stash, FALSE, 0 },
 	{ CMD_BUY, { arg_ITEM, arg_NUMBER }, do_cmd_buy, FALSE, 0 },
@@ -544,6 +546,7 @@ void process_command(cmd_context ctx, bool no_request)
 			/* This takes a choice and a direction. */
 			case CMD_CAST:
 			{
+				
 				bool get_target = FALSE;
 
 				if (spell_needs_aim(cp_ptr->spell_book, cmd->arg[0].choice))
@@ -563,6 +566,12 @@ void process_command(cmd_context ctx, bool no_request)
 
 				cmd->arg_present[1] = TRUE;
 				
+				break;
+			}
+			
+			case CMD_BOOKLESS:
+			{
+				do_cmd_bookless();
 				break;
 			}
 

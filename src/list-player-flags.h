@@ -19,3 +19,7 @@ PF(PSEUDO_ID_IMPROV, "get better at psudo id with experience")
 PF(KNOW_MUSHROOM,    "easily recognize mushrooms")
 PF(KNOW_ZAPPER,      "easily recognize magic devices")
 PF(SEE_ORE,          "can sense ore in the walls")
+
+/* For bookless casters */
+PF(CASTER,           "can use use magical powers")
+PF(CAST_PYRO,        "can cast Pyromantic spells")

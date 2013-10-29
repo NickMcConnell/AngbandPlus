@@ -11,6 +11,7 @@ COPYRIGHT = (c) 1995-2010 Angband contributors
 HEADERS = \
 	angband.h \
 	birth.h \
+	bookles.h \
 	cmds.h \
 	config.h \
 	defines.h \
@@ -57,6 +58,7 @@ GTKMAINFILES = \
 ANGFILES = \
 	attack.o \
 	birth.o \
+	bookless.o \
 	button.o \
 	cave.o \
 	cmd0.o \
@@ -101,6 +103,7 @@ ANGFILES = \
 	player/spell.o \
 	player/timed.o \
 	player/util.o \
+	pyromancer.o \
 	score.o \
 	signals.o \
 	save.o \

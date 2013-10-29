@@ -36,6 +36,7 @@ depgen:
   player/player.h store.h parser.h ui.h z-type.h externs.h cmds.h \
   game-cmd.h game-event.h history.h object/inventory.h object/tvalsval.h \
   ui-menu.h
+./bookless.o: bookless.c bookless.h defines.h
 ./button.o: button.c angband.h h-basic.h z-bitflag.h z-form.h z-virt.h \
   z-file.h z-util.h z-rand.h defines.h list-blow-methods.h \
   list-blow-effects.h list-object-flags.h list-player-flags.h \
@@ -61,7 +62,7 @@ depgen:
   z-quark.h z-rand.h object/object.h angband.h monster/types.h \
   player/types.h object/types.h option.h ui-event.h player/player.h \
   store.h parser.h ui.h z-type.h externs.h cave.h cmds.h game-cmd.h \
-  monster/monster.h monster/types.h ui-menu.h wizard.h
+  monster/monster.h monster/types.h ui-menu.h wizard.h bookless.h
 ./cmd1.o: cmd1.c angband.h h-basic.h z-bitflag.h z-form.h z-virt.h z-file.h \
   z-util.h z-rand.h defines.h list-blow-methods.h list-blow-effects.h \
   list-object-flags.h list-player-flags.h list-mon-flags.h \
@@ -179,7 +180,7 @@ depgen:
   z-bitflag.h z-quark.h z-rand.h object/object.h angband.h \
   monster/types.h player/types.h object/types.h option.h ui-event.h \
   player/player.h store.h parser.h ui.h z-type.h externs.h game-cmd.h \
-  cmds.h
+  cmds.h bookless.h
 ./game-event.o: game-event.c z-virt.h h-basic.h game-event.h
 ./generate.o: generate.c angband.h h-basic.h z-bitflag.h z-form.h z-virt.h \
   z-file.h z-util.h z-rand.h defines.h list-blow-methods.h \
@@ -397,6 +398,8 @@ depgen:
   monster/types.h player/types.h object/types.h option.h ui-event.h \
   player/player.h store.h parser.h ui.h z-type.h externs.h cave.h \
   object/tvalsval.h
+./pyromancer.o: pyromancer.c angband.h cave.h effects.h spells.h \
+  bookless.h target.h
 ./score.o: score.c angband.h h-basic.h z-bitflag.h z-form.h z-virt.h \
   z-file.h z-util.h z-rand.h defines.h list-blow-methods.h \
   list-blow-effects.h list-object-flags.h list-player-flags.h \

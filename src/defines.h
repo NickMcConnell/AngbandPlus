@@ -36,13 +36,13 @@
 /*
  * Name of the version/variant and its version string
  */
-#define VERSION_NAME   "Angband"
-#define SAVEFILE_NAME  "VNLA"
+#define VERSION_NAME   "Neoband"
+#define SAVEFILE_NAME  "NBND"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "3.2.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.0.1 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "3.2.0"
+# define VERSION_STRING "0.0.1"
 #endif
 
 
@@ -269,9 +269,9 @@ typedef enum
 #define MAX_M_ALLOC_CHANCE	160
 
 /*
- * Normal levels get at least 14 monsters
+ * Normal levels get at least 50 monsters
  */
-#define MIN_M_ALLOC_LEVEL	14
+#define MIN_M_ALLOC_LEVEL	50
 
 /*
  * The town starts out with 4 residents during the day

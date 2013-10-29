@@ -25,6 +25,7 @@
 #include "monster/monster.h"
 #include "ui-menu.h"
 #include "wizard.h"
+#include "bookless.h"
 
 /*
  * This file contains (several) big lists of commands, so that they can be
@@ -149,7 +150,7 @@ static struct generic_command cmd_info[] =
 	{ "Browse a book", 'b', CMD_BROWSE_SPELL, textui_spell_browse, NULL },
 	{ "Gain new spells", 'G', CMD_STUDY_BOOK, textui_obj_study, player_can_study },
 	{ "Cast a spell", 'm', CMD_CAST, textui_obj_cast, player_can_cast },
-	{ "Cast a spell", 'p', CMD_CAST, textui_obj_cast, player_can_cast },
+	{ "Use a power", 'p', CMD_BOOKLESS, do_cmd_bookless, NULL },
 	{ "Full dungeon map",             'M', CMD_NULL, do_cmd_view_map },
 	{ "Display visible item list",    ']', CMD_NULL, do_cmd_itemlist },
 	{ "Display visible monster list", '[', CMD_NULL, do_cmd_monlist },

@@ -112,6 +112,9 @@ void place_trap(int y, int x)
 
 	/* Place an invisible trap */
 	cave_set_feat(y, x, FEAT_INVIS);
+
+	/* Set the trap type and make the trap visible */
+	pick_trap(y, x);
 }
 
 
