@@ -182,7 +182,7 @@ void do_cmd_avatar()
 		}
 
 		/* Ignore nonsensical input */
-		else if (A2I(choice) < 0 || A2I(choice) >= AV_DELUGE)
+		else if (A2I(choice) < 0 || A2I(choice) > AV_DELUGE)
 		{
 			continue;
 		}
