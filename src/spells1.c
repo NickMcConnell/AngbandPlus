@@ -324,7 +324,19 @@ void teleport_player_level(void)
 	}
 }
 
+/*
+ * Teleport the player 1-2 levels past their deepest level so far
+ */
+void deep_descent(void)
+{
+	   message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
+	   /* New depth */
+	   p_ptr->depth = p_ptr->max_depth + randint(2);
+
+	   /* Leaving */
+	   p_ptr->leaving = TRUE;
+}
 
 
 
@@ -2413,12 +2425,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             }
 
 			if (seen) obvious = TRUE;
+
 			if (r_ptr->flags3 & (RF3_IM_POIS))
 			{
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->flags3 |= (RF3_IM_POIS);
 			}
+			/* poison has different effect on light fairies */
+            else if ((r_ptr->d_char == 'y') && (r_ptr->flags3 & (RF3_HURT_DARK)))
+            {
+            	do_conf = (6 + randint(15) + r) / (r + 1);
+            	dam /= 2;
+            }
             
 			break;
 		}
@@ -2822,10 +2841,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Heal Monster (use "dam" as amount of healing) */
 		case GF_OLD_HEAL:
 		{
+            /* don't heal undead */
+            if (r_ptr->flags3 & (RF3_UNDEAD)) break;
+
 			if (seen) obvious = TRUE;
 
 			/* Wake up */
-			m_ptr->csleep = 0;
+			if ((p_ptr->nice == TRUE) && 
+			   (!r_ptr->flags3 & (RF3_EVIL)) &&
+               (goodluck > 0) && (randint(100) < 50) &&
+		       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		       (r_ptr->flags3 & (RF3_ANIMAL))))
+		    {
+               /* don't wake up */
+            }   
+			else if (goodluck < 14) m_ptr->csleep = 0;
 
 			/* Heal */
 			m_ptr->hp += dam;
@@ -4254,6 +4284,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)inc_timed(TMD_STUN, k);
 			}
+			/* feather fall gives partial resist */
+			if (p_ptr->ffall) dam = (dam * 9) / 10;
 			take_hit(dam, killer);
 			break;
 		}

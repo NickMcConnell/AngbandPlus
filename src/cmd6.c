@@ -381,7 +381,7 @@ void do_cmd_use_staff(void)
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -404,6 +404,9 @@ void do_cmd_use_staff(void)
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
+
+    /* Staff of striking is easy to use for its level */
+	if (o_ptr->sval == SV_STAFF_STRIKING) lev -= 5;
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];

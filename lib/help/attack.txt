@@ -290,6 +290,12 @@ Robes of Permanence.
      you from a good deal of all experience draining.  Also like Elvenkind
      armor, they have one random resistance.
 
+Armor of Lightness.
+	This ego armor type applies to armor which is normally heavy and makes
+	it ten pounds lighter, making it much more feasible to use for low-strength
+	characters and spellcasters whose magic is inhibited by heavy armor.
+	It also makes you fall like a feather.
+
 Dragon Scale Mails.
      These extremely rare pieces of armour come in many different colors,
      each protecting you against the relevant dragons.  Naturally they are
@@ -327,12 +333,9 @@ Helm/Crown of Seeing.
      locate traps and secret doors.  It is also rumored that the wearer of 
      such a helm will not be able to be blinded.
 
-Helm of Infravision.
-     This helmet allows the character to see monsters even in total 
-     darkness, with the ability to see heat. Note that spellbooks are the 
-     same temperature as the surroundings, and so cannot be read unless 
-     some real light is present. (Some monsters which are invisible to 
-     normal vision can be seen under infravision.)
+Helm of Alertness.
+     This helmet raises a characters alertness to stealthy monsters, making
+	him less likely to be surprised by something creeping up on him..
 
 Helm of Light.
      In addition to providing a permanent light source for the wearer, this 
@@ -405,6 +408,9 @@ Gauntlets of Power.
      These spiked gauntlets will boost the wearer's strength as well as the 
      wearer's  to-hit and to-dam numbers.
 
+Gauntlets of Magic Mastery.
+	These gauntlets will raise your skill with using magic devices.
+
 Gauntlets of Weakness.
      These gauntlets sap your strength.
 
@@ -425,10 +431,6 @@ Boots of Free Action.
 
 Boots of Speed.
      The wearer of these boots will become unnaturally fast.
-
-Boots of Noise.
-     The wearer of these boots will make great echoing stamps as he walks 
-     around the dungeon, waking up and aggravating all monsters.
 
 Boots of Slowness.
      They seem to be stuck to the ground, and you can hardly move at all 

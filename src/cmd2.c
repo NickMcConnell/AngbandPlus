@@ -2413,7 +2413,6 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_POTION:
 		case TV_BOTTLE:
 		case TV_FOOD:
-		case TV_JUNK:
 		{
 			return (100);
 		}
@@ -2421,18 +2420,13 @@ static int breakage_chance(const object_type *o_ptr)
 		/* Often break */
 		case TV_LITE:
 		case TV_SCROLL:
+		case TV_JUNK:
 		{
 			return (50);
 		}
 		
-		/* Less Often break*/
-		case TV_SKELETON:
-		{
-			return (40);
-		}
-
-
 		/* Sometimes break */
+		case TV_SKELETON: /* tusks as spears */
 		case TV_ARROW:
 		{
 			return (35);
@@ -2468,7 +2462,7 @@ static int breakage_chance(const object_type *o_ptr)
  *
  * Objects are more likely to break if they "attempt" to hit a monster.
  *
- * Rangers (with Bows) and Anyone (with "Extra Shots") get extra shots.
+ * Archers (with Bows) and Anyone (with "Extra Shots") get extra shots.
  *
  * The "extra shot" code works by decreasing the amount of energy
  * required to make each shot, spreading the shots out over time.
@@ -2592,14 +2586,12 @@ void do_cmd_fire(void)
 	/* Sound */
 	sound(MSG_SHOOT);
 
-
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
-
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
@@ -2614,16 +2606,21 @@ void do_cmd_fire(void)
 	/* Assume a base multiplier */
 	tmul = p_ptr->ammo_mult;
 
-	/* Boost the damage */
-	tdam *= tmul;
+	/* Boost the damage (but not by as much as before) */
+	/* multiplier is now (tmul * .875) based on x2 to x1.75 */
+	if (tmul == 2) tdam = ((tdam * 7) / 4);       /* (x1.75) */
+	else if (tmul == 3) tdam = ((tdam * 21) / 8); /* (x2.625) */
+	else if (tmul == 4) tdam = ((tdam * 7) / 2);  /* (x3.5) */
+	else if (tmul == 5) tdam = ((tdam * 35) / 8); /* (x4.375) */
+	else if (tmul > 5) tdam = ((tdam * 21) / 4);  /* (x5.25) */
+	
+    /* tdam *= tmul; */
 
-	/* Base range XXX XXX */
-	tdis = 10 + 5 * tmul;
-
+	/* Base range XXX XXX (DJA: 2 less than it was) */
+	tdis = 8 + 5 * tmul;
 
 	/* Take a (partial) turn */
 	p_ptr->energy_use = (100 / thits);
-
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -2739,10 +2736,22 @@ void do_cmd_fire(void)
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
-
+				
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, FALSE);
+				
+                /* DJA: for races / classes who like slings, */
+				/* slings get strength bonus to damage */
+				/* (rogues, druids, barbarians, hobbits, and ghouls) */
+				if ((p_ptr->pclass == 3) || (p_ptr->pclass == 10) || (p_ptr->pclass == 18) ||
+				   (p_ptr->prace == 3) || (p_ptr->prace == 14))
+				{
+				   if ((p_ptr->ammo_tval == TV_SHOT) && (tmul < 3))
+				   {
+                       tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                   }
+                }
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3025,9 +3034,18 @@ void do_cmd_throw(void)
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
 
+                /* DJA: add strength bonus for barbarians */
+                /* class 0 will always be warrior so no need for a flag in that case */
+                if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
+                   (p_ptr->pclass == 0))
+                {
+                   tdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                }
+
 				/* Apply special damage XXX XXX XXX */
+				/* criticals less likely when weapon is thrown */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, TRUE);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;

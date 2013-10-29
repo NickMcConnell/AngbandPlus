@@ -2203,24 +2203,44 @@ static void store_sell(void)
 
 	/* Get an item */
 	if (!get_item(&item, prompt, reject, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-// #ifdef EFG
-    if (adult_cansell == FALSE)
-    {
-	   /* EFGchange no selling to stores */
-  	   if (store_current != STORE_HOME)
-	   {
-		  msg_print("I do the selling and you do the buying.");
-		  store_flags |= STORE_KEEP_PROMPT;
-		  return;
-	   }
-    }
-// #endif
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
 		o_ptr = &inventory[item];
  	else
 		o_ptr = &o_list[0 - item];
+		
+// #ifdef EFG
+bool aware;
+	/* See if the object is "aware" */
+	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
+
+    if (adult_cansell == FALSE)
+    {
+	   /* EFGchange no selling to stores */
+  	   if (store_current != STORE_HOME)
+	   {
+          if (aware)
+          {               
+		     msg_print("I do the selling and you do the buying.");
+		     store_flags |= STORE_KEEP_PROMPT;
+		     return;
+          }
+          else if (((o_ptr->tval > 39) && (o_ptr->tval < 77)) || 
+                  (o_ptr->tval == 80))
+          {
+             /* allow donating to shops for ID */
+		     msg_print("I'll identify that for you if you'll give it to me for free..");
+          }
+          else
+          {               
+		     msg_print("I do the selling and you do the buying.");
+		     store_flags |= STORE_KEEP_PROMPT;
+		     return;
+          }
+	   }
+    }
+// #endif
 
 	/* Hack -- Cannot remove cursed objects */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
@@ -2290,6 +2310,9 @@ static void store_sell(void)
 		price = price_item(i_ptr, TRUE) * amt;
 
 		screen_save();
+
+        /* DJ: allow donating to shops for ID */
+	    if (adult_cansell == FALSE) price = 0;
 
 		/* Show price */
 		prt(format("Price: %d", price), 1, 0);

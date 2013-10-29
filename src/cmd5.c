@@ -93,7 +93,8 @@ s16b spell_chance(int spell)
 	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += 1 + (badweap*2);
 	   else if (goodweap > 1) chance -= (3 + (goodweap*2));
     }
-	else if ((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->flags & CF_POWER_SHIELD))
+	else if ((cp_ptr->spell_book == TV_DARK_BOOK) ||
+             ((cp_ptr->flags & CF_POWER_SHIELD) && (cp_ptr->spell_book == TV_MAGIC_BOOK)))
 	{
 	   if ((badweap > 0) && (goodweap > 0))
 	   {
@@ -130,6 +131,9 @@ s16b spell_chance(int spell)
     {
        chance += 4 + randint(6);
     }
+
+    /* 1st sight strengthen natural sight and inhibits unnatural stuff */
+	if (p_ptr->timed[TMD_2ND_THOUGHT]) chance += 10;
 
 	/* Amnesia makes spells fail half the time */
 	if (p_ptr->timed[TMD_AMNESIA]) chance *= 2;

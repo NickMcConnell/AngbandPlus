@@ -1,23 +1,37 @@
 
 
 Thanks to:
-First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for hosting the files and maintaining a great *band website, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, those on oook who gave coding/variant making advice, and anyone else who gives comments or suggestions or just plays DaJAngband.
+First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for hosting the files and maintaining a great *band website, Pete Mack for some valuable help with the code, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, those on oook who gave coding/variant making advice, and anyone else who gives comments or suggestions or just plays DaJAngband.
 
 ------------------------------------------------------------------------------------------
-	DaJAngband version 1.0.96 (pre 1.1.0)
+	DaJAngband version 1.0.97 (pre 1.1.0)
+
+changes since 1.0.96:
+	Some improvements from vanilla 3.1: treasure and object detection combined, characters start wielding their equipment, elemental rings add branding damage to melee blows.
+	Most race flags are displayed on the birth screen.
+	Magic staffs are now wieldable and can get most of the minor weapon egos.
+	A few new various egos were added, including a couple new possible drawbacks. Darkvision is added to the list of random special abilities. Also, a few new mixed blessing mushrooms to replace some of the old ones.
+	My attempt at weapon balancing range weapons: Slightly nerfed bow damage (x2 multiplier multiplies damage by 1.75, etc). Got rid of the useless x1 launchers I had added earlier. Rogues, druids, barbarians, hobbits, and living ghouls get strength bonus added to slings, and barbarians also get strength bonus to thrown weapons.
+	My attempt at weapon balancing melee: Light weapons (4lb or less) get no strength bonus. Heavy weapons (more than 15lb) get double strength bonus. Strength bonus is now added before multipliers (brands & slays). Weapon weight is a bigger factor in the likeliness of critical hits than before (and player level is less).
+	Done away with infravision: it is now completely replaced by monster stealth and character alertness. Most monsters which used to be warm-blooded and invisible are now visible but stealthy, but there is a new monster spell which lets them temporarily turn invisibile. (The illusionist monster has spells which are more appropriate for an illusionist now: can temporarily turn invisible, but doesn't have the hold spell). Each class and race have an alertness rating like with other skills. Dwarves are the least alert race, but to make up for it, they have darkvision, meaning they don't need light to see monsters.
+	Humans, hobbits, and fairy gnomes now have a NICE flag, meaning non-evil animals and light fairies are less aggressive towards them. (I wanted to give something good to humans, this probably isn't enough).
+	Monster breath damage has been slightly nerfed.
+	Class changes: The war mage class now starts with a new type of magic staff as a weapon. The rogue spell list has been improved. Note: Several of the classes are kindof experimental, but the war mage especially is not finished and needs more testing & balancing. The problem is that I prefer to play with other classes, so I don't get around to testing it.
+	feather falling gives slight resistance to gravity damage (but not other effects of gravity).
+	a couple more new mushroom types replacing a couple old boring ones.
+	several other small changes that I didn't even keep track of
 
 changes since 1.0.95:
 	added FORCE_SLEEP flag to several monsters which needed it, also added POWERFUL flag to some monsters, and reduced the group size for some very tough monsters which come in groups
 	POWERFUL flag now affects more things: reduces your saving throw against most melee and spell effects including cause wounds spells, also gives about a 6% chance for stat draining to bypass sustains, and POWERFUL monsters still do slight damage with an element you are immune to (because if you're immune to fire, the smoke from it can still do damage, if you're immune to cold, the ice can still do damage, etc..)
-	A couple race/class restrictions have been removed (specifically, a dunadan can now be a druid,
-and a half-orc can now be a priest or paladin.)
+	A couple race/class restrictions have been removed (specifically, a dunadan can now be a druid,and a half-orc can now be a priest or paladin.)
 	weapons that give light now usually do slight extra damage to HURT_LITE monsters
 	birth.txt help file updated to include new races and class (but it doesn't have the war mage yet)
 	monster stealth implemented.  How well you notice steathy monsters is based primarily on distance between you and the monster and your perception/searching skills.  A couple other factors also make a small difference.  Stealth level ranges from 0 to 6 and take up the previously unused slot in the monster entries of monster.txt.  (stealth of 0 has no stealth effect, stealth of 6 is nearly invisible because of stealth).  Most stealthy monsters are: felines, higher level thief-types, higher-level dark elves, and the ranger and ranger chieftain (instead of invisibility). Most very small monsters (white rats, mushroom patches) have a stealth of 2 which means you might not notice it from a distance.  Most other monsters have a stealth level of 0 or 1.
 	The assassin class now gets a couple more useful spells. (It previously lacked any detection spells in the town books.)
 	More tweaks with artifacts, egos, and items including the addition of gloves of magic mastery and some other ideas borrowed from FA/O. Also descriptions for a lot of objects borrowed from OAngband.
-	Necromancers' summon demonic aid spell now works. Added a couple spells to the wizardry realm.
-	War Mage character class added. This is supposed to be a class where you can actually use magic as your primary offence and (in theory) not need to attack with weapons at all. At this stage, it is barely tested and not finished, suggestions for improvement are encouraged.
+	Necromancers' "summon demonic aid" spell now works. Added a couple spells to the wizardry realm.
+	War age character class added. This is supposed to be a class where you can actually use magic as your primary offence and (in theory) not need to attack with weapons at all. At this stage, it is barely tested and not finished, suggestions for improvement are encouraged.
 	Social class has an effect on starting gold even when using point-based stats.
 	a few misc. minor bugs fixed.
 
@@ -70,7 +84,6 @@ code changes:
 
 some more specific notes:
 	suggested artifacts like The Axe of Gimli and the Dagger of Westeresse of Merry. (Axe of Gimli is just 'Lotharang' renamed and tweaked).
-	Sting, Orcrist, and Glamdring have detect orc activation (not very useful, but appropriate. ..maybe they should have detect evil instead.) (not implemented yet for 1.0.91)
 	there are a couple new monsters that have melee effects that are helpful instead of harmful (all helpful monsters either appear only when summoned by the appropriate spell or are extremely rare, some also have an experience penalty if you kill them).
 	much less monsters are considered evil, for example: kobolds are not evil, mindless undead monsters are not evil (just being controlled by evil), not all thieves are evil, etc. (I don't remember whether I implemented this yet or not.)
 	Probing now has a 1/3 chance to give you knowledge of monster spells (it never does in V).  The explosion spell now has a 10% chance of destroying walls.
@@ -98,16 +111,8 @@ new description of classes & races:
 	tourist: A unique class.  The idea is from Nethack, but don't think of the Nethack tourist because this isn't much like it.  His skills are all pretty bad except for searching.  He specializes in two types of spells: detection/perception type spells, and chance/random outcome type spells (He has one spellbook called 'The Lottery').  He is one of only a couple classes in DaJAngband who have weak pseudo-ID, but he gets the identify spell earlier even than the mage.
 	war mage: <not implemented yet>
 	barbarian: Similar to the warrior except that it is much harder for him to get multiple attacks. Instead, he gets a significant bonus when wielding heavy weapons. He also gets a few nature spells (including an 'extra attacks' spell in the last spellbook).  His skills are generally worse than the warrior, but he has higher strength and hit die than any other class.
-	fighter wizard: <not implemented yet and might not bother. If I do, it'll have a better name>
-	sage: <not implemented yet>
-	witch/warlock: <not implemented yet>
-	holy rogue: <not implemented yet>
-		novelty classes:
-	mystic: <not implemented yet>
-	loser: <not implemented yet>
-	stone slinger:  <not implemented yet> cross between archer and new ranger except gets extra shots with a sling and penatly with a bow or crossbow.
+	stone slinger:  <not implemented yet> cross between archer and new ranger except gets extra shots with a sling and penalty with a bow or crossbow.
 	chaos warrior: <not implemented yet>
-	meditation ninja: <not implemented yet>
 
 spell realms:
 	#1 Wizardry: mostly the same as mage spells in V with the two rogue spells removed, and wizard lock added. (will tweak it more later)
@@ -185,24 +190,6 @@ ego_item.txt:
 
 artifact.txt:
 	There are changes for the late see invisible idea as well as a couple new artifacts, and a couple old ones removed.  (I haven't found any of the new artifacts in my testing as of yet.)
-
-p_class.txt:
-Original classes are unchanged.  All new classes have heavy pseudo-ID, I really don't like not having heavy pseudoID.
-
-		Descriptions of new classes:
-
-	An Alchemist is like a mage who learns spells with a lot of trial and error.  Because of this he cannot chose which spells he learns, has higher fail rates, and generally learns spells slower than the mage.  To make up for this, his specialty spells include some powerful early spells including stinking cloud (at level 1!), and his spellcasting is not hindered by gloves. (An alchemist needs his gloves!)  His skills tend to be worse than the mage, but he has noticably more strength than the mage and is not as bad a fighter.
-
-	The Archer is a hard class to play because archery is his only strength.  He's a decent melee fighter but not as good as the paladin or ranger.  Starting at level 32, he learns a few spells (8 in total) which include shield and, of course, elemental brand for his ammo. At very high levels he does have two powerful attack spells.  One other strength is that he advances in level faster than any except the warrior.
-
-	A Knight is a warrior with a few prayers and high charisma.  He learns prayers very slowly, but has a few specialty prayers which include turn undead, remove curse, and elemental brand for his weapon which he learns earlier than most (if not all) other classes who pray. He starts with excellent armor and weapon, and can handle more armor weight without hindering prayer (or spells) than any other class. He tends to have lower skills than a warrior, so I think he'll be a rather hard class to play. His only healing prayer is cure mortal wounds which is a play on the "I got better" when people recovered from mortal wounds in Monty Python's holy grail.  Of course, a mortal wound, by definition, is one you die from, so I think "cure mortal wounds" sounds kindof silly.
-
-	Another hard class to play, the Healer specializes in healing prayers and starts out with the deep dungeon spellbook which specializes in healing. He has low strength, and his fighting is only barely better than the mage.  He can learn prayers other than healing ones on later levels, but he's very bad at combat spells and teleporting spells.  Two unique things about him is that (1)his gods let him choose which prayer to learn next, and (2)he uses his intelligence stat for prayers rather than using wisdom, which makes him more fitting for the elf and (old) gnome races which are more likely to be healers than dwarves are.
-
-	The Druid, as the monster description says, is a priest of nature. Though you can call him a priest, it would seem silly to pray to nature, so he casts spells instead and is almost as good at it as the mage.  He is the only one besides the mage who can cast spells at 0% fail. Being powerful in magic, a halfway-decent fighter, and having good skills, he needs some drawbacks, so he is both encumbered by gloves and penalized for edged weapons, and he advances at the same somewhat slow rate of the mage.  He starts with unique new armor (good) and a unique new weapon (mediocure), and a mushroom (because he knows his mushrooms).  Another unique thing about him is that he uses wisdom to cast spells.
-
-There is also an p_classalt file which is going to have alternate versions of the original classes, but currently only has alternate versions of the ranger and paladin (and I'm not sure I finished doing the alternate paladin).
-	The Stealth Ranger is my idea of what a ranger should be.  He no longer has extra shots, because a ranger is not the same as an archer.  His stats are almost the same as the old ranger.  He has a little less hps, and higher stealth (of course).  The notable differance in skills is that the Stealth Ranger has noticably better disarming and noticably worse magic devices.  He is not much better or worse at spellcasting than the original ranger, just different.  He is noticably worse with combat spells as the original ranger, but some other spells he is better at.  The rapier is his starting weapon.
 
 p_race.txt:
 Only changes to the original races are that I made infravision less common (except that the dunadan now has 1 infra), high elves no longer have SI (I gave them sustain INT instead).  I didn't want one of the easiest classes to also have SI which is supposed to be very rare in my semi-variant. Also, I renamed the old gnome to Gnome 1 (because I added an alternate gnome).  
@@ -308,6 +295,10 @@ Originally Posted by Djabanete
 It means you'll always be safe from certain attacks. Not exactly sure which attacks allow a saving throw (I know that cursing does, and maybe blindness/confusion/fear spells?), but I know you don't need FA if you have perfect save.  
 
 You get a saving throw against cursing spells, blindness, confusion, fear, slowing and paralysis spells, and against melee paralysis attacks. (I'm not sure if saving throw protects against blindness/confusion/fear melee attacks - I'm pretty certain it doesn't protect against blindness/confusion from breaths). So a perfect saving throw does replace Free Action, though it requires quite a bit of courage to rely on that!]
+
+----------------
+elemental rings adding branding damage as in Vanilla 3.1
+
 ------------------------------------------------------------------------------------------
 
 		Spoiler monster changes:	(might not want to read further)

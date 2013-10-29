@@ -123,7 +123,11 @@ int goodweap = 0;      /* magic modifiers for sentient objects */
 int badweap = 0;       /* magic modifiers for sentient objects */
 int magicmod = 5;      /* magic modifiers for sentient objects */
 int palert = 0;
-
+int qSTR;           /* strength modifier (like in DND), defined in xtra1.c */
+int cotval = 0;     /* class object tval */
+int cosval = 0;     /* class object sval */
+int cotvalb = 0;     /* class object tval */
+int cosvalb = 0;     /* class object sval */
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -901,6 +905,15 @@ u16b inscriptions_count = 0;
  * 24 = for telekinesis
  *  spellswitch resets at the end of the project() function which is used in
  * every bolt/beam/ball/breath spell.
+ * 25 = makes the light from camera flash and burst of light not stay
+ * 26 = for beam of destruction spell
+ * 27 = makes GF_OLD_DRAIN not affect silver for the dispel life spell
+ * 28 = target self
+ * 29 = makes GF_OLD_SLEEP more powerful (ignoring NO_SLEEP flags)
+ * 30 = for gravity effect on nether ball, also used for bizzare effects spell
+ * 91-95 = palert searching bonus
+ *   spellswitch resets at the end of the project() function
+ *   which is used in every bolt/beam/ball/breath spell.
  * 
  *  sentient weapons:
  *    goodweap counts good weapons

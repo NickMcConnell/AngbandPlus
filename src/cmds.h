@@ -75,6 +75,9 @@ extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_castnew(void);
+extern void do_cmd_castluck(void);
+extern void do_cmd_castchem(void);
+extern void do_cmd_castblack(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);

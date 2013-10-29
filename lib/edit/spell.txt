@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -1296,7 +1296,7 @@ D:Possible effects include: (the first 5 effects are equal in how often they
 D: happen, and the others each have a small chance to happen.)
 D: 1) heal 20 hps, cure fear and charm, and give you heroism for 26-50 turns.
 D: 2) heal hps = to your clvl, cure blindness and poison, and give you blessing
-D: for 26-94 turns and extra infravision for 26-50 turns.
+D: for 26-94 turns and extra alertness for 26-50 turns.
 D: 3) heal 30 hps, cure fear and charm, and give you berserk rage for 21-64 turns.
 D: 4) give you blessing for 12-58 turns.
 D: 5) heals about 50 hps, cures all poison, cuts and stunning, gives you +20ac and
@@ -1402,14 +1402,14 @@ D: have resistance to blindness or light.
 D:  This spell has no effect when used in the town.
 
 N:252:Turn Stone To Mud
-I:93:2:6
+I:93:2:7
 D:Produces a beam that destroys the first section of wall it hits,
 D: unless it is a permanent wall.  Each monster caught in the beam that
 D: is susceptible to rock remover takes 20+1d30 points of damage.
 
 #25
 N:253:Sense Surroundings
-I:93:2:7
+I:93:7:2
 D:Maps out a portion of the level around you.
 
 N:254:Detect Enchantment
@@ -1484,27 +1484,23 @@ I:93:4:0
 D:Fires a low damage magic bolt and then teleports you up to 10 spaces away.
 
 N:265:Teleport Self
-I:93:4:1
+I:93:4:2
 D:Teleports you randomly within the current level.
 
 N:266:Teleport Other
-I:93:4:2
+I:93:4:3
 D:Produces a beam that teleports each monster in its path
 D: up to 100 squares away.
 
 N:267:Slow Monsters
-I:93:4:3
+I:93:4:4
 D:It attempts to slow down all monsters within line of sight.
 D:  Uniques are unaffected.
 
 #40
-N:268:Earthquake
-I:93:4:4
-D:Causes a 10-square radius earthquake around you.
-D:  Earthquakes may damage monsters and destroy items in some
-D: squares in the area of effect.
-D:  Artifacts will not be destroyed by this prayer.
-D:  This spell has no effect when used in the town.
+N:268:Extra Melee Attack
+I:93:8:3
+D:Raises your attack speed by one for a short duration.
 
 N:269:Mass Sleep
 I:93:4:5
@@ -1513,9 +1509,9 @@ D:  Uniques and monsters that resist sleep are not affected.
 
 N:270:Slip Into the Shadows
 I:93:4:6
-D:Doubles your stealth, and gives you +2 infravision and ac for
-D: 30 + d(clvl) turns. Usually has no effect if you are currently
-D: aggravating monsters.
+D:Doubles your stealth, gives you a slight bonus to alertness, and
+D: +2 ac for 30 + d(clvl) turns. Usually has no effect if you are
+D: currently aggravating monsters.
 
 N:271:Haste Self
 I:93:4:7
@@ -1556,7 +1552,6 @@ I:93:5:4
 D:This spell will do something random to the monsters and/or the
 D: dungeon around you.
 D: (You will get a good effect more than half the time)
-D: (not implemented yet)
 
 N:277:Potluck Stats
 I:93:5:5
@@ -1573,31 +1568,31 @@ D: same time.  The more drastic the good effect, the more
 D: drastic the bad effect.)
 
 N:279:Blink Monster
-I:93:6:0
+I:93:4:1
 D:Produces a limited-range beam that teleports each monster in its
 D: path up to a maximum of 23 squares away (usually less).
 
 N:280:Door Creation
-I:93:6:1
+I:93:6:0
 D:A door is created on each empty floor space that is directly
 D: adjacent to you.  These doors are closed, but not locked
 
 N:281:Stair Creation
-I:93:6:2
+I:93:6:1
 D:A stair (going up or down, chosen at random) is created on the space
 D: where you are standing.  This will destroy any terrain feature that
 D: was there before.  It will also destroy all items currently on the
 D: floor where the spell is cast.
 
 N:282:Teleport Level
-I:93:6:3
+I:93:6:2
 D:Teleports you 1 level up or 1 level down (chosen at random).
 D:  This spell has no effect when the option to restrict the use of
 D: stairs and recall is set.
 
 #55
 N:283:Word of Destruction
-I:93:6:4
+I:93:6:3
 D:Destroys everything in a 15-square radius circle around you.
 D:  All monsters, objects, and terrain features in the area of
 D: effect are destroyed, except stairs, permanent walls and
@@ -1607,7 +1602,7 @@ D: have resistance to blindness or light.
 D:  This spell has no effect when used in the town.
 
 N:284:Word of Recall
-I:93:6:5
+I:93:6:4
 D:Teleports you from the dungeon to the town or from the town to the
 D: deepest level you have visited in the dungeon.
 D:  The recall effect is not immediate; it is delayed by 14+1d20 turns.
@@ -1618,7 +1613,7 @@ D: stairs and recall is set, unless Morgoth is dead.
 D: Has a small chance of making the recall effect happen much quicker.
 
 N:285:Rune of Protection
-I:93:6:6
+I:93:6:5
 D:Inscribes a glyph of warding beneath you.
 D:  Summoned monsters can't appear on the glyph.
 D:  If a monster attempts to move onto the glyph or melee you while you
@@ -1631,14 +1626,14 @@ N:286:Resist Heat and Lightning
 I:93:7:0
 D:Gives you temporary resistance to electricity and fire, for 10+1d10 turns each.
 
-N:287:Turn Undead
+N:287:Satisfy Hunger
 I:93:7:1
-D:Attempts to scare each undead monster within line of sight,
-D: causing it to flee in terror for a level-dependant duration.
+D:Magically renders you well-fed (but not satiated).
+D:  This will also cure a bloated stomach.
 
 #60
 N:288:Burst of Light
-I:93:7:2
+I:93:2:6
 D:Activates a burst of light to stun any monsters in line of sight
 D: and do damage to light-sensitive monsters.
 
@@ -1648,16 +1643,19 @@ D:It cures all stunning, heals all cut damage, neutralizes poison, and
 D: cures amnesia, charm, blindness and confusion. (not that you
 D: can cast spells while confused or blind..)
 
-N:290:unused (was remove curse)
-D:
-D:
+N:290:Extreme Roguishness
+I:93:7:4
+D:It temporarily raises your alertness, and stealth, and gives a small
+D: temporary boost to armor class (for dodging blows) and speed.
+D: Also has a small chance of raising your luck. (and the duration
+D: largely depends on luck).
 
 N:291:Restore Cleverness
-I:93:7:4
+I:93:7:6
 D:Restores your intelligence, dexterity and charisma to maximum
 D: if it has been lowered.
 
-N:292:Resistance
+N:292:Rogue's Resistance
 I:93:7:5
 D:Grants you resistance to acid, cold, fire, lightning, and poison for
 D: 20+1d20 turns.  
@@ -1683,7 +1681,7 @@ D: damage but has a chance to confuse each monster in the area of effect.
 D:  Uniques or monsters that resist confusion are not affected.
 
 N:296:Chaos Strike
-I:93:8:3
+I:93:8:4
 D:Fires a chaos bolt that always hits its target.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
@@ -1691,17 +1689,17 @@ D:  The chance to get a beam goes up with your character level.
 D: (Not as powerful as the mage spell of the same name.)
 
 N:297:Rift
-I:93:8:4
+I:93:8:5
 D:Fires a gravity beam that hurts each monster in its path
 D: and has a chance of teleporting it away.
 D: (just as powerful as mage spell.)
 
 N:298:Breathe Chaos
-I:93:8:5
+I:93:8:6
 D: (not done yet)
 
 N:299:Mass Chaos
-I:93:8:6
+I:93:8:7
 D:Spreads mass chaos to every monster in line of sight:
 D:Attempts to confuse and does chaos damage (which attempts
 D: to confuse again). Additionally has a good chance of doing
@@ -1715,10 +1713,10 @@ D: 6) attempt to scare all monsters in line of sight.
 D: (There is a possibility of having ALL of the possible effects.)
 
 N:300:Bizzare effects
-I:93:8:7
+I:93:8:8
 D:Has bizzare effects similar to those of Sauron's
 D: One Ring, but not quite as extreme. Plus some additional
-D: bizzare effects. (not implemented yet)
+D: bizzare effects.
 
 #    chance spells (301-303) unused <75+1>
 # start alchemy spells with #304 because Max spells is 76
@@ -1768,10 +1766,9 @@ N:312:Acid Arrow
 I:94:0:8
 D:Fires an arrow of acid damage slightly more powerful than the mage's magic missile.
 
-N:313:Extend Infravision
+N:313:Extra Alertness
 I:94:1:0
-D:It extends the radius of your infravision by 50 feet for
-D: 10 + (clvl*2) + 1d100 turns.
+D:It increases your alertness for 10 + (clvl*2) + 1d100 turns.
 
 #10
 N:314:Resist Acid
@@ -2021,9 +2018,10 @@ N:355:Ice Storm
 I:94:5:8
 D:Shoots a radius-3 cold ball which also attempts to stun affected monsters.
 
-N:356:Wonder (just after sleep monster in book)
+# (just after sleep monster in book)
+N:356:Wonder
 I:94:5:2
-D:Invokes a random want effect with a very small chance of more
+D:Invokes a random wand effect with a very small chance of more
 D: powerful good effects than are available with wands.
 
 N:357:Cloudkill
@@ -2081,9 +2079,9 @@ D:Fires a low damage magic bolt and then teleports you up to 10 spaces away.
 
 N:366:Slip Into the Shadows
 I:94:7:1
-D:Doubles your stealth, and gives you +2 infravision and ac for
-D: 30 + d(clvl) turns. Usually has no effect if you are currently
-D: aggravating monsters.
+D:Doubles your stealth, gives you a slight bonus to alertness, and
+D: +2 ac for 30 + d(clvl) turns. Usually has no effect if you are
+D: currently aggravating monsters.
 
 N:367:Poison Bolt
 I:94:7:2
@@ -2168,10 +2166,9 @@ I:95:0:1
 D:Detects all evil monsters in the immediate area,
 D: for one turn only.
 
-N:381:Enhanced Infravision
+N:381:Extra Alertness
 I:95:0:3
-D:Extends the radius of your infravision by 50 feet (5 spaces) for
-D: 10 + (clvl*3) + 1d(clvl) turns.
+D:Increases your alertness for 10 + (clvl*3) + 1d(clvl) turns.
 
 N:382:Call Darkness
 I:95:0:2
@@ -2180,7 +2177,8 @@ D: the monsters in the area.  Damage is 2d(clvl/2) + d(radius of the spell*2+1).
 D: (At clvl 2 it will do 3 to 7 damage)
 D: (radius is between 1 and 8 depending on your character level)
 D: Creatures of light take double damage.
-D: Also raises your infravision by 10 feet (1 space) for a short time.
+D: Also gives you short-lasting darkvision (allows you to see monsters without light).
+D: If you already have darkvision, then it temporarily raises your alertness.
 
 N:383:Horrify Monster
 I:95:0:4
@@ -2233,7 +2231,10 @@ D:Allows you to heal yourself by draining the charges from a wand or staff
 D: of your choice.  If you are lower than clvl 30, amount healed is equal to
 D: (amount drained+1) * (clvl/3).
 D: (At clvl 12, you will get 44 hps if you drain 10 charges from a wand or staff.)
-D: At clvl 30 or above, amount healed is equal to (amount drained+1) * (clvl/4).
+D: At clvl 30 or above, amount healed is equal to (amount drained+1) * (clvl/4).  
+D:At higher levels it will also allow you to drain the extra to-hit, damage, and ac
+D: bonuses from some other magic items to convert into healing.
+D: (A good use for that (+9 +10) whip of uselessness!)
 
 N:393:Turn Undead
 I:95:1:7
@@ -2302,7 +2303,7 @@ D:  The chance to get a beam goes up with your character level.
 
 N:402:Slip Into the Shadows
 I:95:2:5
-D:Doubles your stealth, and gives you +2 infravision and ac for
+D:Doubles your stealth, and gives you a slight bonus to alertness and ac for
 D: 30 + d(clvl) turns. Usually has no effect if you are currently
 D: aggravating monsters.
 
@@ -2629,8 +2630,8 @@ D: ending the game.  This is an even rarer and more difficult spell, which
 D: temporarily makes you seem undead, banishing the life from your body
 D: in a way that will make it come back after a while.  There are several
 D: effects of this which include: curing when first cast, resistance to
-D: fear, charm, dark, and nether, and immunity to cold, increases
-D: infravision by 30 feet (3 spaces).  Drawbacks include: taking extra
+D: fear, charm, dark, and nether, and immunity to cold, and increases
+D: alertness.  Drawbacks include: taking extra
 D: damage from light attacks, aggravation of animals and creatures of light,
 D: cancellation of temporary fire resistance, chance of drained luck,
 D: wisdom or charisma when first cast, and halved hp regeneration rate.

@@ -1,5 +1,5 @@
 # File: monster.txt
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/monster.raw" file, which is
@@ -134,14 +134,14 @@ N:3:scrawny cat
 G:f:U
 I:110:1d2:30:1:40
 W:0:3:3:0
-B:CLAW:HURT:1d1
+B:CLAWB:HURT:1d1
 F:RAND_25 |
 F:ANIMAL
 D:A skinny little furball with sharp claws and a menacing look.
 
 N:4:scruffy little dog
 G:C:U
-I:110:1d3:20:1:15
+I:110:1d3:20:2:15
 W:0:3:1:0
 B:BITE:HURT:1d1
 F:RAND_25 |
@@ -788,11 +788,11 @@ D:As this young age, the naga's serpentine form is especially ugly.
 N:66:clear worm mass
 G:w:w
 I:100:4d4:7:2:10
-W:3:2:3:4
+W:3:2:4:4
 B:CRAWL:POISON:1d2
 F:ATTR_CLEAR
 F:RAND_50 | RAND_25
-F:STUPID | WEIRD_MIND | INVISIBLE | MULTIPLY
+F:STUPID | WEIRD_MIND | MULTIPLY
 F:IM_POIS | HURT_LITE | NO_FEAR
 D:It is a disgusting mass of poisonous worms.
 
@@ -847,11 +847,11 @@ D: a big wild dog with a reddish brown coat.
 N:72:clear cat
 G:f:w
 I:117:3d7:9:12:42
-W:4:4:5:12
+W:4:4:6:12
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d2
 F:ATTR_CLEAR
-F:ANIMAL | INVISIBLE
+F:ANIMAL
 D:a see-through cat, you can barely notice it.
 
 N:73:kestral
@@ -985,7 +985,7 @@ D:It appears to be a pile of copper coins.
 N:85:Ted Sandyman, the Miller
 G:h:U
 I:110:22d2:14:24:16
-W:3:3:1:32
+W:3:3:1:30
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:UNIQUE | MALE | FORCE_MAXHP
@@ -1023,8 +1023,8 @@ G:l:s
 I:120:3d5:15:30:6
 W:6:2:0:8
 B:CLAW:HURT:1d3
-B:BITE:HURT:1d5
-F:ANIMAL | FRIENDS | HURT_DARK
+B:BITE:HURT:1d4
+F:ANIMAL | FRIENDS
 D:a vicious flying lizard, the size and shape of a bat.
 D: It is the smallest type of zhelung lizard.
 
@@ -1119,7 +1119,7 @@ D:A large black serpent with a woman's head and arms. It has an acidic spit.
 N:97:Bill Ferny, agent of Saruman
 G:p:U
 I:111:31d2:10:24:24
-W:5:3:1:80
+W:5:3:1:76
 B:HIT:HURT:2d5
 B:TOUCH:EAT_GOLD:1d3
 F:UNIQUE | MALE | FORCE_MAXHP
@@ -1217,10 +1217,10 @@ D:Yum!  It looks quite tasty. Isn't purple a fruit?
 N:105:clear eye
 G:e:w
 I:102:4d7:2:6:11
-W:6:4:2:20
+W:6:4:4:20
 B:GAZE:PARALYZE:1d2
 F:ATTR_CLEAR
-F:NEVER_MOVE | INVISIBLE
+F:NEVER_MOVE
 F:HURT_LITE | NO_FEAR | RES_DISE
 S:1_IN_14
 S:SLOW
@@ -1543,18 +1543,18 @@ F:WEIRD_MIND
 F:BUG | IM_POIS
 D:a large hairy spider with a paralyzing poison.
 
+#needs POWERFUL flag or else its shards breath will do barely any damage.
 N:134:glass cat
 G:f:B
 I:114:6d6:7:30:90
 W:8:3:4:27
-B:CLAW:HURT:1d3
+B:CLAWB:HURT:1d3
 B:BITE:HURT:2d3
 F:ATTR_CLEAR | BASH_DOOR
 F:ANIMAL | POWERFUL
 S:1_IN_9
 S:BR_SHAR
 D:a magical cat made of glass with very sharp claws and teeth.
-#needs POWERFUL flag or else its shards breath will do barely any damage.
 
 N:135:wolf
 G:C:u
@@ -1609,12 +1609,13 @@ D:only the lesser gnomes lower themselves to thievery.
 N:139:clear sprite
 G:y:W
 I:127:3d7:14:40:30
-W:8:4:3:14
+W:8:4:4:14
 B:HIT:HURT:1d3
 B:KICK:HURT:1d3
 F:ATTR_CLEAR
 F:OPEN_DOOR | RAND_50 | HURT_DARK
-F:NO_SLEEP | INVISIBLE
+F:NO_SLEEP
+S:1_IN_11 | INVIS
 D:Sprites are somewhat silly, small, fast flying fairies a little bigger than the pixie.
 D: Less intelligent and less powerful than pixies, they are also less friendly.
 
@@ -1833,10 +1834,11 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 F:IM_POIS | COLD_BLOOD | NON_LIVING
 D:an animated humanoid figure made from wood
 
+#made slightly weaker than it was
 N:158:The Boar of Everholt
 G:q:G
-I:118:29d5:10:28:18
-W:9:6:1:75
+I:118:26d5:10:24:18
+W:9:6:1:85
 B:BUTT:HURT:4d4
 B:BUTT:HURT:8d2
 F:UNIQUE | FORCE_MAXHP
@@ -2075,7 +2077,7 @@ D:A cross between orc and bear, it's mouth somewhat resembles that of a bug.
 N:175:dark elf warrior
 G:@:u
 I:110:10d11:20:33:18
-W:10:1:3:50
+W:10:1:3:45
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:MALE
@@ -2091,7 +2093,7 @@ B:HIT:HURT:1d8
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | DEMON | IM_FIRE | RES_NEXUS | NO_FEAR
 S:1_IN_3
-S:BLINK | TELE_TO
+S:BLINK | TELE_TO | INVIS
 D:It is a fast-moving demon that blinks quickly in and out of existence; no
 D: other demon matches its teleporting mastery.
 
@@ -2177,7 +2179,7 @@ B:HIT:HURT:2d2
 F:MALE | DROP_1D2
 F:SMART | OPEN_DOOR | BASH_DOOR
 S:1_IN_4
-S:SCARE | BLIND | BLINK | DARKNESS | SLOW | CONF
+S:SCARE | BLIND | BLINK | DARKNESS | SLOW | CONF | INVIS
 D:A deceptive spell caster. Don't trust your eyes while he's around.
 
 N:184:potion mimmic
@@ -2561,8 +2563,8 @@ B:TOUCH:HALLU:0d0
 F:RAND_50 | ATTR_CLEAR | SILVER
 F:WEIRD_MIND | COLD_BLOOD | PASS_WALL
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_6
-S:SCARE | BLIND | BLINK | CONF
+S:1_IN_5
+S:SCARE | BLIND | BLINK | CONF | INVIS
 D:It is real or are you seeing things?
 
 N:215:mine mirage
@@ -2574,13 +2576,13 @@ B:TOUCH:EAT_GOLD:1d2
 F:RAND_50 | CHAR_MULTI | SILVER
 F:WEIRD_MIND | COLD_BLOOD | PASS_WALL
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_8
-S:DARKNESS | BLIND | BLINK | CONF
+S:1_IN_6
+S:DARKNESS | BLIND | BLINK | CONF | INVIS
 D:It that real treasure or has your greed gone to your head?
 
 N:216:zhang
 G:l:u
-I:118:9d9:8:35:10
+I:116:9d8:8:35:10
 W:13:2:1:31
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
@@ -2829,7 +2831,7 @@ D: effects of normal scrolls found in the dungeon.
 N:235:warg
 G:C:s
 I:120:8d8:20:28:40
-W:14:2:1:40
+W:14:1:1:40
 B:CLAW:HURT:1d6
 B:BITE:HURT:1d6
 F:RAND_25 | BASH_DOOR
@@ -2868,12 +2870,12 @@ D: a strange light and feeding off of negative thoughts.
 
 N:238:gold golem
 G:g:y
-I:110:14d10:12:30:15
-W:14:3:0:50
+I:110:14d10:12:31:15
+W:14:4:0:50
 B:HIT:HURT:2d3
 B:HIT:HURT:4d2
 F:EMPTY_MIND | BASH_DOOR | COLD_BLOOD
-F:ONLY_GOLD | DROP_90 | DROP_1D2
+F:ONLY_GOLD | DROP_60 | DROP_1D2
 F:IM_ELEC | IM_POIS | IM_ACID
 F:NO_CONF | NO_SLEEP | NO_FEAR | NON_LIVING
 D:an animated humanoid figure made out of gold.
@@ -2898,7 +2900,7 @@ W:14:3:6:80
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:CHAR_CLEAR | ATTR_CLEAR | FORCE_MAXHP
-F:EMPTY_MIND | INVISIBLE | COLD_BLOOD
+F:EMPTY_MIND | COLD_BLOOD
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A strange creature that merges with the dungeon floor, trapping its
 D: victims by enveloping them within its perfectly disguised form.
@@ -2967,7 +2969,7 @@ B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d8
 F:FORCE_SLEEP | BASH_DOOR
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 S:1_IN_5
 S:BR_LITE
 D:A brilliant canine form whose light hurts your eyes, even at this distance.
@@ -2980,7 +2982,7 @@ B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d8
 F:FORCE_SLEEP | BASH_DOOR
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 S:1_IN_5
 S:BR_DARK
 D:A hole in the air in the shape of a huge hound.  No light falls upon its
@@ -3111,7 +3113,7 @@ D: stupid.
 N:258:black ogre
 G:O:D
 I:109:43d4:20:33:30
-W:18:2:1:75
+W:18:2:1:72
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 F:DROP_60 | FRIENDS
@@ -3182,7 +3184,7 @@ D: of certain green-skinned witches..
 N:264:elete winged monkey
 G:A:v
 I:115:9d7:13:31:19
-W:18:4:1:53
+W:18:4:1:63
 B:HIT:HURT:1d5
 B:HIT:HURT:1d6
 B:TOUCH:EAT_ITEM:1d1
@@ -3398,12 +3400,12 @@ D:That stinger looks a lot more menacing when it's a giant one aimed at you.
 N:281:imp
 G:i:R
 I:116:6d6:20:36:20
-W:17:2:2:55
+W:17:2:3:55
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 F:RAND_25
 F:ONLY_ITEM | DROP_1D2
-F:SMART | INVISIBLE | BASH_DOOR
+F:SMART | BASH_DOOR
 F:EVIL | DEMON | IM_FIRE
 S:1_IN_9
 S:TELE_TO | SCARE | BLIND | CONF | SLOW | BLINK | BA_POIS | MISSILE
@@ -3412,10 +3414,10 @@ D:Small flying devils which are often servants of wizards. Its skin is dark red 
 N:282:dark elf ranger
 G:@:g
 I:117:9d13:20:32:23
-W:19:2:4:67
+W:19:2:5:67
 B:HIT:HURT:2d6
 B:HIT:HURT:2d7
-F:MALE | INVISIBLE
+F:MALE
 F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_POIS | HURT_LITE
@@ -3587,11 +3589,11 @@ D: stench, waking all it nears.
 
 N:295:null
 G:N:u
-I:100:36d4:10:28:61
-W:18:3:1:68
+I:101:36d4:10:28:61
+W:18:2:1:68
 B:HIT:HURT:1d3
 B:HIT:HURT:1d3
-B:BITE:ACID:2d7
+B:BITE:ACID:2d8
 F:RAND_25 | IM_ACID | IM_POIS | IM_WATER
 F:WEIRD_MIND | BASH_DOOR | ANIMAL
 D:A null is a tentacled swamp monster with acid under its skin. This one is about 6-7 feet
@@ -3605,7 +3607,7 @@ B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
 B:BITE:COLD:2d6
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | IM_COLD
 S:1_IN_10
 S:BR_COLD
@@ -3620,7 +3622,7 @@ B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
 B:BITE:ELEC:2d6
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | IM_ELEC
 S:1_IN_10
 S:BR_ELEC
@@ -3635,7 +3637,7 @@ B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
 B:BITE:FIRE:2d6
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | IM_FIRE
 S:1_IN_10
 S:BR_FIRE
@@ -3712,7 +3714,7 @@ D: who are worshipped by the black dwarves.
 N:304:Gollum
 G:h:W
 I:120:20d18:20:24:15
-W:19:3:3:333
+W:19:3:4:333
 B:HIT:HURT:1d6
 B:BITE:HURT:1d9
 B:TOUCH:EAT_ITEM:1d4
@@ -3720,10 +3722,10 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP | FORCE_SLEEP
 F:RAND_50 | ONLY_ITEM
 F:DROP_1D2 | DROP_GOOD | DROP_GREAT | 
-F:INVISIBLE | TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL
-S:1_IN_19
-S:S_SPIDER
+S:1_IN_9
+S:S_SPIDER | INVIS | THROW
 D:He used to be a hobbit named Smeagul, but everyone forgot his name (including himself)
 D: when he wore the One Ring too long which turned him into the currupted thing he is
 D: now. He has aquired unnatural long life and strength from the ring. He grew quite
@@ -3877,13 +3879,13 @@ N:316:pink elephant
 G:.:R
 I:106:18d20:9:3:19
 W:20:11:2:199
-B:BUTT:HURT:2d9
+B:BUTT:HURT:2d8
 B:TOUCH:HALLU:1d6
 F:ATTR_MULTI | SILVER
 F:COLD_BLOOD | WEIRD_MIND | BASH_DOOR
 F:IM_POIS | HURT_LITE | FORCE_SLEEP
-S:1_IN_8
-S:CONF | FORGET | S_KIN | HASTE
+S:1_IN_7
+S:CONF | FORGET | S_KIN | HASTE | INVIS
 D:What have you been drinking?  Someone must've spiked that apple juice, or maybe drugged
 D: that last food ration.
 
@@ -3913,7 +3915,7 @@ D:Known as 'bigfoot', it's about a 7-foot tall ape-man of cold forests.
 N:319:paladin
 G:p:w
 I:110:15d11:20:40:40
-W:20:1:1:55
+W:20:1:1:70
 B:HIT:HURT:4d5
 B:HIT:HURT:4d5
 F:MALE | DROP_1D2
@@ -3925,7 +3927,7 @@ D:a warrior chosen and empowered by his god, but his god is not yours.
 N:320:ranger
 G:p:g
 I:110:15d11:20:40:40
-W:20:1:3:55
+W:20:1:3:75
 B:HIT:HURT:4d5
 B:HIT:HURT:5d5
 F:MALE | DROP_1D2
@@ -4037,6 +4039,7 @@ S:1_IN_5
 S:BR_DARK | BR_NETH | DRAIN_MANA | SCARE | BLINK | DARKNESS | S_UNDEAD
 D:A feline undead which appears as a cat shaped shadow.
 
+# removed cause_3
 N:328:skull vendor
 G:p:y
 I:110:13d11:20:32:30
@@ -4048,7 +4051,7 @@ F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:SMART | IM_POIS | IM_ELEC | NO_SLEEP
 F:EVIL
 S:1_IN_6
-S:SCARE | CAUSE_2 | CAUSE_3 | BA_POIS | SLOW
+S:SCARE | CAUSE_2 | BA_POIS | SLOW
 D:This guy sells human skulls to sorcerers for spells, or to demons or undead who just
 D: like to play with human skulls.  He wants yours for his collection.
 
@@ -4061,7 +4064,7 @@ B:CLAW:HURT:3d3
 B:BITE:HURT:1d8
 B:BITE:HURT:1d8
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR
 S:1_IN_10 | BR_SHAR
 D:A beautiful crystalline shape does not disguise the danger this hound
@@ -4076,7 +4079,7 @@ B:CLAW:HURT:3d3
 B:BITE:POISON:1d8
 B:BITE:POISON:1d8
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | IM_POIS
 S:1_IN_10 | BR_POIS
 D:Swirling vapours surround this beast as it floats towards you, seemingly
@@ -4091,7 +4094,7 @@ B:CLAW:HURT:3d3
 B:BITE:ACID:1d8
 B:BITE:ACID:1d8
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | IM_ACID
 S:1_IN_10 | BR_ACID
 D:An acrid smell of acid rises from the hound's pelt.
@@ -4114,7 +4117,7 @@ N:333:werewolf
 G:C:y
 I:110:22d13:15:38:10
 W:21:2:2:165
-B:CLAW:HURT:2d6
+B:CLAWB:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:EXP_10:2d10
 F:ONLY_GOLD | DROP_60
@@ -4263,7 +4266,7 @@ D:an animated humanoid figure made out of iron.
 N:344:skull wisp
 G:G:w
 I:106:3d15:13:90:46
-W:23:5:2:64
+W:23:5:3:64
 B:TOUCH:COLD:1d6
 B:GAZE:TERRIFY:1d4
 F:OPEN_DOOR | FRIENDS
@@ -4387,8 +4390,8 @@ N:353:gory ghost
 G:G:r
 I:113:6d11:13:32:9
 W:23:3:2:136
-B:CLAW:HURT:6d2
-B:CLAW:LOSE_CON:2d3
+B:CLAWB:HURT:6d2
+B:CLAWB:LOSE_CON:2d3
 F:DROP_90 | FORCE_SLEEP
 F:INVISIBLE | COLD_BLOOD | POWERFUL
 F:EVIL | UNDEAD | NON_LIVING
@@ -4991,7 +4994,7 @@ D: mad and deranged wizard who worshipped evil gods.
 N:395:pooka
 G:i:G
 I:117:14d12:30:47:9
-W:27:5:2:203
+W:27:5:3:203
 B:CLAW:HURT:1d9
 B:BITE:HURT:1d9
 B:KICK:HURT:2d5
@@ -4999,7 +5002,7 @@ B:BUTT:HURT:5d2
 F:DROP_60 | MOVE_BODY | FORCE_SLEEP
 F:TAKE_ITEM | BASH_DOOR | SMART
 F:IM_ELEC | IM_COLD | NO_SLEEP | NO_FEAR | NO_CONF
-F:EVIL | DEMON | RES_NEXUS | INVISIBLE
+F:EVIL | DEMON | RES_NEXUS
 S:1_IN_4
 S:SCARE | CONF | TRAPS | HASTE | BLINK | DARKNESS | TELE_AWAY | TELE_LEVEL | BLIND
 D:A dark fairy which can take several shapes. Most commonly, it takes the shape of a
@@ -5007,7 +5010,7 @@ D: dark horse. It likes to give people chaotic midnight rides which end by throw
 D: the rider into a muddy ditch or bog. (..A giant invisible bunny is NOT one of
 D: its preferred shapes.)
 
-N:396:grave ghoul
+N:396:living ghoul
 G:z:U
 I:110:13d11:30:32:20
 W:27:5:2:96
@@ -5019,8 +5022,8 @@ F:EVIL | HURT_LITE | FORCE_SLEEP
 S:1_IN_9
 S:SCARE | DARKNESS | SLOW | S_KIN
 D:Often mistaken for a ghoul, this living creature was once human, but through 
-D: generations of hating light and eating rotting corpses, it has formed a kinship
-D: with the undead.
+D: generations of hating light, eating rotting corpses, and/or suffering the side
+D: effects of necromantic magic, it has formed a kinship with the undead.
 
 N:397:ogre shaman
 G:O:v
@@ -5047,7 +5050,7 @@ B:CLAW:HURT:3d3
 B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 F:FORCE_SLEEP | RES_NEXUS
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_NEXU
 D:A locus of conflicting points coalesce to form the vague shape of a huge
@@ -5062,7 +5065,7 @@ B:CLAW:HURT:3d3
 B:BITE:HURT:2d8
 B:BITE:HURT:2d8
 F:FORCE_SLEEP
-F:FRIENDS | ANIMAL
+F:FRIEND1 | ANIMAL
 F:BASH_DOOR | NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_SOUN
 D:A blurry canine form which seems to be moving as fast as the eye can
@@ -5146,8 +5149,8 @@ D: been hunted nearly to extinction by the High Elves.
 
 N:405:Draebor, the Imp
 G:i:g
-I:120:52d10:20:46:20
-W:27:5:2:750
+I:120:46d10:20:46:20
+W:27:5:3:750
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:HURT:3d4
@@ -5156,12 +5159,12 @@ F:UNIQUE | ESCORT
 F:FORCE_MAXHP | FORCE_SLEEP
 F:RAND_25
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD
-F:SMART | INVISIBLE | POWERFUL
+F:SMART | POWERFUL
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | DEMON | IM_FIRE
 S:1_IN_5
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND
-S:CONF | SCARE | S_DEMON
+S:CONF | SCARE | S_DEMON | INVIS
 D:An intensely irritating git of a monster.  Now with NEW irritating types of escorts!
 
 #		level 28
@@ -5364,7 +5367,7 @@ N:419:killer slicer beetle
 G:a:y
 I:110:27d8:14:64:30
 W:29:2:1:190
-B:BITE:HURT:7d5
+B:CLAWB:HURT:7d5
 B:BITE:HURT:7d5
 F:WEIRD_MIND | BASH_DOOR
 F:ANIMAL
@@ -5646,13 +5649,13 @@ N:440:glass golem
 G:g:w
 I:110:33d31:12:44:15
 W:30:3:0:930
-B:CLAW:HURT:6d3
-B:CLAW:HURT:6d3
+B:CLAWB:HURT:6d3
+B:CLAWB:HURT:6d3
 F:ATTR_CLEAR | FORCE_SLEEP
 F:EMPTY_MIND | BASH_DOOR | COLD_BLOOD
 F:IM_ELEC | IM_POIS | IM_ACID | IM_FIRE
 F:NO_CONF | NO_SLEEP | NO_FEAR | NON_LIVING
-S:1_IN_5 | BR_SHAR
+S:1_IN_6 | BR_SHAR
 D:A magically animated statue of sharp-edged glass.
 
 N:441:chimaera
@@ -5953,15 +5956,15 @@ D: Can you guess who he's sent to kill?
 N:460:windigo
 G:h:g
 I:133:16d12:27:38:12
-W:32:3:5:322
+W:32:3:6:322
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-B:CLAW:HURT:3d3
+B:CLAWB:HURT:3d3
 B:BITE:HURT:3d6
 F:OPEN_DOOR | BASH_DOOR | DROP_90
 F:IM_COLD | NO_FEAR
-F:EVIL | INVISIBLE | RAND_25
-D:A hunter in cold forests who moves faster than the wind and completely silent.
+F:EVIL | RAND_25
+D:A stealthy hunter in cold forests who moves faster than the wind and completely silent.
 D: You have a feeling you're being followed..
 
 N:461:giant zombie
@@ -6011,20 +6014,7 @@ S:DARKNESS | BR_FEAR
 D:A mad alchemist with a specialty in bad dreams. He summons nightmares from smoking
 D: vials of mysterious liquids.
 
-#N:464:ape templar knight (removed)
-#G:K:w
-#I:117:26d10:20:58:10
-#W:32:6:0:368
-#B:HIT:HURT:4d5
-#B:HIT:HURT:4d5
-#B:HIT:HURT:4d5
-#F:MALE
-#F:FORCE_SLEEP | DROP_1D2
-#F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-#S:1_IN_4
-#S:HEAL | CAUSE_2 | CAUSE_3 | BLIND | S_ANGEL
-#D:He was in training to be a knight templar, but he kept summoning apes instead
-#D: of angels..
+#N:464: (unused)
 
 N:465:Ulbandi the Ogre Chieftain
 G:O:B
@@ -6166,13 +6156,13 @@ D: pain.
 N:474:shadow drake
 G:D:s
 I:110:31d10:20:70:70
-W:33:3:0:1100
+W:33:3:3:1100
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:EXP_10:3d6
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR
 F:NO_SLEEP | IM_FIRE | RES_NETH
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_7
@@ -6184,7 +6174,7 @@ D: the soul rather than the body.
 N:475:crystal drake
 G:D:W
 I:110:31d14:20:70:70
-W:33:3:0:1300
+W:33:3:2:1300
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:HURT:6d3
@@ -6201,13 +6191,13 @@ D: your eyes with spectrums of colour.
 N:476:ethereal drake
 G:D:o
 I:110:31d13:20:70:70
-W:33:3:0:1200
+W:33:3:3:1200
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:HURT:3d6
 F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR
 F:ONLY_ITEM | DROP_3D2
-F:INVISIBLE | PASS_WALL
+F:PASS_WALL
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_6
 S:SLOW | CONF | BR_LITE | BR_DARK
@@ -6307,7 +6297,7 @@ D: fists.
 
 N:483:black skeleton
 G:s:D
-I:106:48d4:31:93:23
+I:106:46d4:31:93:23
 W:34:4:1:496
 B:TOUCH:LOSE_DEX:1d9
 B:HIT:HURT:2d13
@@ -6317,7 +6307,7 @@ F:WEIRD_MIND | IM_POIS | IM_COLD | IM_FIRE
 F:NO_FEAR | NO_SLEEP | NO_CONF | COLD_BLOOD
 F:EVIL | UNDEAD | NON_LIVING
 S:1_IN_6
-S:BO_NETH | DARKNESS | BR_FEAR | CAUSE_3 | S_UNDEAD | S_KIN
+S:BO_NETH | DARKNESS | BR_FEAR | CAUSE_3 | S_UNDEAD | S_KIN | INVIS
 D:The skeleton of a witch or warlock who was burnt at the stake but refused to die, it
 D: is one step away from being a lich.
 
@@ -6610,7 +6600,7 @@ B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
 B:BITE:HURT:2d8
 B:BITE:HURT:2d8
-F:FORCE_SLEEP | FRIENDS | ANIMAL
+F:FORCE_SLEEP | FRIEND1 | ANIMAL
 F:BASH_DOOR | NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_INER
 D:Bizarrely, this hound seems to be hardly moving at all, yet it approaches
@@ -6624,7 +6614,7 @@ B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
 B:BITE:HURT:2d8
 B:BITE:HURT:2d8
-F:FORCE_SLEEP | FRIENDS | ANIMAL
+F:FORCE_SLEEP | FRIEND1 | ANIMAL
 F:BASH_DOOR | NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_GRAV
 D:Unfettered by the usual constraints of gravity, these unnatural creatures
@@ -6639,7 +6629,7 @@ B:CLAW:HURT:2d8
 B:CLAW:HURT:2d8
 B:BITE:HURT:2d8
 B:BITE:HURT:2d8
-F:FORCE_SLEEP | FRIENDS | ANIMAL
+F:FORCE_SLEEP | FRIEND1 | ANIMAL
 F:BASH_DOOR | NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_WALL
 D:This canine form strikes you with an almost physical force.  The dungeon floor
@@ -6670,14 +6660,14 @@ D:A 7 or 8 foot tall winged humanoid with stone skin weilding a huge axe.
 N:508:master assassin
 G:K:R
 I:122:11d26:20:61:8
-W:35:3:5:550
+W:35:3:6:550
 B:HIT:POISON:6d3
 B:HIT:POISON:4d3
 B:HIT:LOSE_STR:3d8
 B:HIT:LOSE_CON:3d9
 F:MALE | DROP_1D2
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:IM_POIS | INVISIBLE
+F:IM_POIS
 F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_6
 S:BO_ACID | BO_POIS | ARROW_2 | ARROW_3 | TRAPS
@@ -6794,14 +6784,14 @@ D:Another lesser relative of the beholder, this six-eyed creature feeds on magic
 N:516:trapper
 G:.:w
 I:120:60d10:30:75:10
-W:36:3:4:580
+W:36:3:6:580
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:PARALYZE:8d2
 B:HIT:PARALYZE:9d2
 F:CHAR_CLEAR | ATTR_CLEAR
 F:NEVER_MOVE | FORCE_MAXHP
-F:INVISIBLE | EMPTY_MIND | COLD_BLOOD
+F:EMPTY_MIND | COLD_BLOOD
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A larger cousin of the lurker, this creature traps unsuspecting victims
 D: and paralyzes them, to be slowly digested later.
@@ -7022,12 +7012,12 @@ D:It is a towering glacier of ice.
 N:531:static mushroom patch
 G:,:W
 I:115:3d1:2:33:0
-W:37:3:2:33
+W:37:3:4:33
 B:SPORE:CHARM:1d5
 B:SPORE:ELEC:1d7
 B:SPORE:UN_POWER:1d10
 B:SPORE:UN_POWER:1d10
-F:NEVER_MOVE | INVISIBLE
+F:NEVER_MOVE
 F:STUPID | EMPTY_MIND
 F:IM_POIS | IM_ELEC
 F:NO_CONF | NO_SLEEP | NO_FEAR
@@ -7067,7 +7057,8 @@ N:534:shardstorm
 G:v:W
 I:121:32d10:40:12:0
 W:37:1:1:800
-B:ENGULF:HURT:6d6
+B:CLAWB:HURT:1d6
+B:ENGULF:HURT:6d5
 F:FORCE_SLEEP | RAND_50 | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
 F:NO_FEAR | NO_CONF | NO_SLEEP | IM_POIS
@@ -7208,12 +7199,12 @@ D:Once a powerful ruler, now an even more powerful undead menace.
 N:543:will o' the wisp
 G:X:W
 I:130:19d10:30:160:0
-W:38:4:2:500
+W:38:4:4:500
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 B:HIT:HALLU:1d9
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_50
-F:SMART | EMPTY_MIND | INVISIBLE
+F:SMART | EMPTY_MIND
 F:PASS_WALL | POWERFUL | SILVER | NON_LIVING
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
@@ -7223,7 +7214,6 @@ D:A strange ball of glowing light.  It disappears and reappears and seems to
 D: draw you to it.  You seem somehow compelled to stand still and watch its
 D: strange dancing motion.
 
-# test hunger effect
 N:544:hungry ghost
 G:G:y
 I:114:20d13:21:99:18
@@ -7399,7 +7389,7 @@ D:It's a fairy who has lost its mind and wants to make you lose yours.
 N:555:furie
 G:u:R
 I:126:13d23:30:96:2
-W:39:3:2:491
+W:39:3:3:491
 B:CLAW:POISON:3d7
 B:CLAW:POISON:3d7
 B:BITE:POISON:7d3
@@ -7407,7 +7397,7 @@ B:TOUCH:LOSE_CON:3d3
 F:OPEN_DOOR | BASH_DOOR | FRIEND1 | FORCE_SLEEP
 F:NO_SLEEP | NO_STUN | RES_NETH | POWERFUL
 F:IM_POIS | IM_FIRE | IM_ACID | IM_ELEC
-F:EVIL | DEMON | FEMALE | INVISIBLE
+F:EVIL | DEMON | FEMALE
 S:1_IN_5
 S:BR_SHAR | BR_FEAR | BR_DARK | CAUSE_2
 D:A female demon whose form is darkness dripping blood. Its purpose is torture.
@@ -7633,15 +7623,15 @@ B:HIT:PARALYZE:1d10
 B:HIT:BLIND:1d10
 F:EMPTY_MIND | COLD_BLOOD | NON_LIVING | FORCE_SLEEP
 F:NO_FEAR | NO_CONF | NO_SLEEP | IM_COLD | IM_POIS
-S:1_IN_7
-S:S_MONSTER | S_MONSTERS | MIND_BLAST | DRAIN_MANA
+S:1_IN_6
+S:S_MONSTER | S_MONSTERS | MIND_BLAST
 D:You see a staff on the floor but don't recognise its type. Then you are quite
 D: alarmed when it floats up in the air and starts activating itself.
 
 N:570:wendigo
 G:G:g
 I:133:18d12:28:46:8
-W:40:6:3:768
+W:40:6:5:768
 B:WAIL:TERRIFY:1d9
 B:CLAW:COLD:3d4
 B:CLAW:LOSE_DEX:3d4
@@ -7649,9 +7639,9 @@ B:BITE:PARALYZE:4d6
 F:DROP_1D2 | RAND_25 | PASS_WALL | POWERFUL
 F:NO_FEAR | NO_SLEEP | NO_CONF | RES_NEXUS
 F:IM_POIS | IM_ELEC | IM_COLD | IM_ACID
-F:EVIL | DEMON | INVISIBLE | NON_LIVING | FORCE_SLEEP
-S:1_IN_9
-S:HOLD | BR_FEAR | BLIND | MIND_BLAST | DARKNESS | BR_SOUN
+F:EVIL | DEMON | NON_LIVING | FORCE_SLEEP
+S:1_IN_8
+S:HOLD | BR_FEAR | BLIND | MIND_BLAST | DARKNESS | BR_SOUN | INVIS
 D:This is the spirit of the windigo; it is a demon of fear native to cold places.  Its
 D: howl alone is enough to cause most people to be paralyzed from fear.
 D: You have a feeling you're being followed..
@@ -7927,29 +7917,30 @@ D: look for prey, but each with its own deadly breath weapon.
 N:588:giant static toadstool
 G:,:W
 I:130:11d7:2:33:0
-W:41:3:1:143
+W:41:3:3:143
 B:SPORE:CHARM:1d6
 B:SPORE:ELEC:1d11
 B:SPORE:UN_POWER:2d6
 B:SPORE:UN_POWER:2d6
-F:NEVER_MOVE | INVISIBLE | FORCE_SLEEP
+F:NEVER_MOVE | FORCE_SLEEP
 F:STUPID | EMPTY_MIND | RES_DISE
 F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
 S:1_IN_6
 S:TELE_TO | BLINK | SHRIEK | DRAIN_MANA | BO_MANA
+D:A giant transparent mushroom with sparks flying around it when you get near.
 D:You'd hate to think what would happen if you eat this. It makes your hair stand on
 D: end and your magical items feel powerless.
 
 N:589:scyllis
 G:u:G
 I:126:113d1:30:133:0
-W:41:5:1:813
+W:41:5:3:813
 B:BITE:POISON:9d7
 B:BITE:POISON:9d7
 B:BITE:PARALYZE:6d6
 B:BITE:LOSE_CON:6d6
-F:COLD_BLOOD | WEIRD_MIND | INVISIBLE | FORCE_SLEEP
+F:WEIRD_MIND | FORCE_SLEEP
 F:IM_POIS | IM_ELEC | IM_ACID | IM_FIRE | IM_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
 F:RES_NEXUS | RES_NETH | REGENERATE | FORCE_MAXHP
@@ -8093,13 +8084,13 @@ D: the extreme heat surrounding it makes you gasp for breath.
 N:598:trooping fairy
 G:i:U
 I:117:76d10:26:73:19
-W:41:3:2:716
+W:41:3:3:716
 B:HIT:HURT:3d7
 B:HIT:EXP_10:4d4
 F:ONLY_ITEM | DROP_60 | FORCE_SLEEP | POWERFUL
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:RES_DISE | IM_ACID | IM_POIS | IM_COLD | IM_FIRE | IM_ELEC
-F:EVIL | FRIEND1 | INVISIBLE | SMART
+F:EVIL | FRIEND1 | SMART
 S:1_IN_4
 S:BLIND | SCARE | CONF | TELE_TO | BLINK | TPORT | HOLD | CAUSE_2 | BR_DARK
 D:Also known as the "sidhe" (pronounced "shee") in their native language, they are
@@ -8294,7 +8285,7 @@ B:CLAW:HURT:2d8
 B:BITE:HURT:4d4
 B:BITE:HURT:4d4
 F:FORCE_SLEEP
-F:FRIENDS | BASH_DOOR | ATTR_MULTI
+F:FRIEND1 | BASH_DOOR | ATTR_MULTI
 F:NO_CONF | NO_SLEEP | ANIMAL
 F:IM_ELEC | IM_POIS | IM_ACID | IM_FIRE | IM_COLD
 S:1_IN_5
@@ -8311,7 +8302,7 @@ B:CLAW:POISON:3d7
 B:CLAW:POISON:3d7
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | FORCE_SLEEP
 F:IM_POIS | IM_COLD | HURT_LITE
-F:EVIL | DEMON | FRIENDS | NON_LIVING
+F:EVIL | DEMON | FRIEND1 | NON_LIVING
 S:1_IN_6
 S:BR_NETH | CAUSE_2 | CAUSE_3 | BR_FEAR | DARKNESS | CONF
 D:A weaker form of the black reaper who fill the dungeons with their screaming.
@@ -8772,13 +8763,13 @@ D: these are only mindless minions controlled by the will of a powerful evil.
 N:639:ethereal dragon
 G:D:o
 I:120:21d100:25:100:80
-W:46:2:0:10000
+W:46:2:3:10000
 B:CLAW:HURT:4d10
 B:CLAW:HURT:4d10
 B:BITE:HURT:7d10
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2
-F:INVISIBLE | ATTR_CLEAR
+F:ATTR_CLEAR
 F:SMART | PASS_WALL | POWERFUL | MOVE_BODY
 F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
 S:1_IN_5
@@ -8791,9 +8782,9 @@ N:640:great crystal drake
 G:D:W
 I:120:21d100:25:100:80
 W:46:2:0:10000
-B:CLAW:HURT:4d10
-B:CLAW:HURT:4d10
-B:BITE:HURT:7d10
+B:CLAWB:HURT:4d10
+B:CLAWB:HURT:4d10
+B:BITE:HURT:6d11
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY
@@ -8824,13 +8815,13 @@ D: your equipment as this dragon approaches.
 N:642:death drake
 G:D:r
 I:120:21d100:25:100:80
-W:46:2:0:10000
+W:46:2:3:10000
 B:CLAW:HURT:4d10
 B:CLAW:HURT:4d10
 B:BITE:EXP_80:7d10
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2
-F:INVISIBLE | TAKE_ITEM
+F:TAKE_ITEM
 F:SMART | PASS_WALL | POWERFUL | MOVE_BODY
 F:EVIL | DRAGON | RES_NETH | NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5
@@ -8953,7 +8944,7 @@ D: related to the salamander.  Between its nine heads, it breathes a veriety of 
 N:650:dark fairy king
 G:i:b
 I:120:200d30:26:73:19
-W:47:5:2:7500
+W:47:5:4:7500
 B:HIT:HURT:6d7
 B:HIT:EXP_20:4d7
 B:HIT:LOSE_CON:4d7
@@ -8961,7 +8952,7 @@ B:TOUCH:PARALYZE:4d4
 F:ONLY_ITEM | DROP_1D2 | DROP_60 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL
 F:RES_DISE | IM_ACID | IM_POIS | IM_COLD | IM_FIRE | IM_ELEC
-F:EVIL | INVISIBLE | SMART | FORCE_SLEEP
+F:EVIL | SMART | FORCE_SLEEP
 S:1_IN_3
 S:BLIND | SCARE | MIND_BLAST | TELE_TO | BLINK | TPORT | HOLD | CAUSE_3 | BR_DARK
 S:S_MONSTER | S_KIN | DRAIN_MANA
@@ -9099,7 +9090,7 @@ D: wiped out his family, and he never recovered.
 N:658:erinyes
 G:&:U
 I:121:23d10:30:96:32
-W:49:2:1:8600
+W:49:2:3:8600
 B:CLAW:POISON:5d7
 B:BITE:POISON:6d7
 B:TOUCH:LOSE_STR:3d4
@@ -9109,7 +9100,7 @@ F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR | POWERFUL
 F:NO_SLEEP | NO_STUN | RES_NETH
 F:IM_FIRE | IM_POIS | NO_CONF | IM_ACID | IM_ELEC
-F:EVIL | DEMON | INVISIBLE
+F:EVIL | DEMON
 S:1_IN_6
 S:CONF | BR_FEAR | BO_ELEC | CAUSE_3 | BR_SHAR | S_DEMON
 D:A female major demon who is the source of the furies.
@@ -9162,7 +9153,7 @@ F:RES_DISE | RES_NEXUS | RES_NETH | REGENERATE
 F:EVIL | SMART | POWERFUL | SILVER | FORCE_SLEEP
 S:1_IN_4
 S:BR_INER | BLINK | DRAIN_MANA | BLIND | MIND_BLAST | BRAIN_SMASH | FORGET | BR_TIME
-S:SHRIEK | S_KIN
+S:SHRIEK | S_KIN | INVIS
 D:a lord among vyrms, it tries to blank your mind..
 
 N:662:Harowen the Black Hand
@@ -9207,14 +9198,14 @@ D: Aredhel of Gondolin.
 N:664:master mystic
 G:p:v
 I:130:11d100:30:60:5
-W:50:3:2:6000
+W:50:3:4:6000
 B:KICK:HURT:10d2
 B:KICK:HURT:10d2
 B:HIT:POISON:20d1
 B:HIT:PARALYZE:15d1
 F:MALE | FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3
 S:S_ANIMAL | HEAL
@@ -9267,7 +9258,7 @@ B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
-F:FORCE_SLEEP | FRIENDS
+F:FORCE_SLEEP | FRIEND1
 F:OPEN_DOOR | BASH_DOOR
 F:IM_FIRE | IM_ELEC | IM_ACID | NO_SLEEP | RES_PLAS
 S:1_IN_5 | BR_PLAS
@@ -9282,7 +9273,7 @@ B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
-F:FORCE_SLEEP | FRIENDS
+F:FORCE_SLEEP | FRIEND1
 F:OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP
 S:1_IN_5 | BR_TIME
@@ -9298,7 +9289,7 @@ B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
-F:FORCE_SLEEP | FRIENDS
+F:FORCE_SLEEP | FRIEND1
 F:OPEN_DOOR | BASH_DOOR | NON_LIVING
 F:NO_CONF | NO_SLEEP | RES_NETH
 S:1_IN_5 | BR_NETH
@@ -9324,7 +9315,7 @@ D: thinking up the most terrible methods of torture.
 N:671:Artemis Entreri, the Master Assassin
 G:K:R
 I:130:21d100:30:81:0
-W:51:3:5:13000
+W:51:3:6:13000
 B:HIT:POISON:6d7
 B:HIT:POISON:6d7
 B:HIT:LOSE_STR:6d10
@@ -9332,7 +9323,7 @@ B:TOUCH:EAT_ITEM:3d9
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_60 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:IM_POIS | NO_CONF | NO_SLEEP | INVISIBLE
+F:IM_POIS | NO_CONF | NO_SLEEP
 F:EVIL | SMART
 S:1_IN_6
 S:TPORT | SLOW | BO_POIS | ARROW_2 | ARROW_3 | S_MONSTER | S_KIN
@@ -9478,7 +9469,7 @@ D:accumulated some of their magic.
 N:680:dark fairy queen
 G:i:r
 I:125:200d35:26:79:14
-W:54:4:3:9000
+W:54:4:5:9000
 B:HIT:HURT:7d7
 B:HIT:EXP_40:5d7
 B:HIT:LOSE_CON:5d7
@@ -9486,10 +9477,10 @@ B:TOUCH:PARALYZE:4d4
 F:ONLY_ITEM | DROP_2D2 | DROP_90 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL
 F:RES_DISE | IM_ACID | IM_POIS | IM_COLD | IM_FIRE | IM_ELEC
-F:EVIL | INVISIBLE | SMART | FORCE_SLEEP
+F:EVIL | SMART | FORCE_SLEEP
 S:1_IN_3
 S:BLIND | BR_FEAR | MIND_BLAST | TELE_TO | BLINK | TPORT | HOLD | CAUSE_4 | BR_DARK
-S:S_MONSTERS | S_KIN | DRAIN_MANA
+S:S_MONSTERS | S_KIN | DRAIN_MANA | INVIS
 D:Among the dark fairies, the queen is both higher ranked and more powerful than the king.
 
 N:681:chaos vortex
@@ -9753,11 +9744,11 @@ D:Dwar had a special affinity for dogs in life, and can still command them
 D: at will.  He howls maniacally as he reaches out to destroy you.
 
 #		level 57
-#	(maybe take out)
+#	(remove S_hound,  maybe take out)
 N:697:grand master mystic
 G:K:v
-I:130:20d100:30:75:5
-W:57:3:2:14000
+I:130:20d100:30:70:5
+W:57:3:4:14000
 B:KICK:HURT:20d2
 B:KICK:HURT:10d2
 B:HIT:POISON:20d1
@@ -9765,10 +9756,10 @@ B:HIT:PARALYZE:15d1
 F:MALE | ATTR_MULTI
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_4D2
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3
-S:HEAL | MIND_BLAST | S_SPIDER | S_HOUND | S_ANIMAL
+S:HEAL | MIND_BLAST | S_SPIDER | S_ANIMAL | INVIS
 D:He is one of the few true masters of the art, being extremely skillful in
 D: all forms of unarmed combat and controlling the world's natural creatures
 D: with ease.
@@ -9875,13 +9866,13 @@ D: merely blast you with mighty magic as it speaks the words of power.
 N:704:ethereal hound
 G:Z:G
 I:120:60d15:30:91:0
-W:59:3:1:7000
+W:59:3:3:7000
 B:CLAW:HURT:2d12
 B:CLAW:HURT:2d12
 B:BITE:HURT:2d14
 B:BITE:HURT:2d14
-F:FORCE_SLEEP | FRIENDS
-F:INVISIBLE | PASS_WALL | ATTR_CLEAR
+F:FORCE_SLEEP | FRIEND1
+F:PASS_WALL | ATTR_CLEAR
 F:NO_CONF | NO_SLEEP
 S:1_IN_6
 S:BR_LITE | BR_DARK | BR_NEXU
@@ -10010,7 +10001,7 @@ D: ever experienced.
 N:712:dark fairy fool
 G:i:W
 I:130:299d31:27:97:19
-W:63:4:4:12746
+W:64:4:5:12746
 B:HIT:TERRIFY:8d9
 B:HIT:EXP_80:5d8
 B:HIT:LOSE_CON:5d8
@@ -10020,10 +10011,10 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL
 F:IM_ACID | IM_POIS | IM_COLD | IM_FIRE | IM_ELEC
 F:RES_DISE | IM_WATER | RES_PLAS | RES_NETH
 F:NO_FEAR | NO_SLEEP | NO_STUN | FORCE_SLEEP
-F:EVIL | INVISIBLE | SMART | REGENERATE
+F:EVIL | SMART | REGENERATE
 S:1_IN_3
 S:BRAIN_SMASH | TELE_TO | BLINK | TPORT | CAUSE_4 | BR_DARK | BO_MANA | BR_DISE | BR_CHAO
-S:S_MONSTERS | S_KIN | S_DEMON | S_ANIMAL | DRAIN_MANA
+S:S_MONSTERS | S_KIN | S_DEMON | S_ANIMAL | DRAIN_MANA | INVIS
 D:The most powerful of the dark fairies, if he wants you dead, you die.
 
 #		level 62
@@ -10166,7 +10157,7 @@ B:CLAW:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 F:FORCE_SLEEP
-F:FRIENDS | BASH_DOOR
+F:FRIEND1 | BASH_DOOR
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5
 S:BR_CHAO
@@ -10193,7 +10184,7 @@ F:RES_DISE | IM_WATER | RES_PLAS | RES_NETH
 S:1_IN_3
 S:TELE_TO | TELE_AWAY | TPORT | HEAL | BLIND | SHRIEK | DRAIN_MANA | HOLD
 S:TRAPS | FORGET | BR_LITE | BR_SOUN | BR_TIME | BR_INER | BR_GRAV
-S:BO_ICEE | BO_PLAS | BA_MANA | MIND_BLAST | TELE_LEVEL
+S:BO_ICEE | BO_PLAS | BA_MANA | MIND_BLAST | TELE_LEVEL | INVIS
 S:S_SPIDER | S_HYDRA | S_ANGEL | S_HOUND | S_KIN | S_MONSTER | S_ANIMAL | S_DRAGON
 D:A extremely powerful fairy who loves randomness and has a very wide selection
 D: of magical abilities. Not quite on the side of chaos, but more inclined toward
@@ -10282,7 +10273,7 @@ I:130:49d99:100:119:9
 W:66:3:4:30000
 B:CLAW:CONFUSE:12d12
 B:CLAW:LOSE_DEX:2d12
-B:CLAW:BLIND:10d5
+B:CLAWB:BLIND:10d5
 B:BITE:PARALYZE:15d1
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD
@@ -10296,14 +10287,14 @@ D:Owned by a scheming Queen of Gondor, he rules over the black cats.
 N:729:The Mouth of Sauron
 G:p:r
 I:130:70d100:60:100:10
-W:66:3:1:38000
+W:66:3:3:38000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_POWER:5d5
 B:HIT:UN_POWER:5d5
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | SMART
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_2
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS
@@ -10616,7 +10607,7 @@ B:CLAW:HURT:3d12
 B:BITE:HURT:3d12
 B:BITE:HURT:3d12
 F:ATTR_MULTI | FORCE_SLEEP
-F:FRIENDS | BASH_DOOR
+F:FRIEND1 | BASH_DOOR
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | RES_PLAS | RES_NEXUS | RES_DISE
 S:1_IN_5
@@ -10822,7 +10813,7 @@ D: of Morgoth's greatest servants answer to his call.
 N:758:Pazuzu, Lord of Air
 G:U:B
 I:140:55d100:40:125:10
-W:80:2:1:30000
+W:80:2:4:30000
 B:HIT:ELEC:12d12
 B:HIT:ELEC:12d12
 B:HIT:ELEC:12d12
@@ -10830,7 +10821,7 @@ B:HIT:ELEC:12d12
 F:UNIQUE | MALE
 F:FORCE_SLEEP | FORCE_MAXHP | POWERFUL
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR
 F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3
@@ -10880,24 +10871,23 @@ S:BR_FEAR | S_MONSTERS | S_HOUND
 D:Draugluin provides Sauron with a fearsome personal guard.  He is an
 D: enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
+#slightly weakened
 N:761:The Tarrasque
 G:l:v
-I:130:85d100:50:185:20
+I:130:75d100:50:185:20
 W:84:2:0:35000
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
 B:TOUCH:UN_POWER
-B:TOUCH:UN_POWER
-F:UNIQUE | ATTR_MULTI
-F:FORCE_SLEEP | FORCE_MAXHP
+F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY
 F:ANIMAL | IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
 F:RES_DISE
-S:1_IN_2
+S:1_IN_3
 S:BR_FIRE | BR_COLD | BR_DISE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable
-D: and immune to magic.  Fear its anger, for its devastation is unmatched!
+D: and immune to magic.
 
 N:762:Ancalagon the Black
 G:D:D
@@ -10997,7 +10987,7 @@ B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 B:BITE:FIRE:3d12
 F:FORCE_SLEEP | FORCE_MAXHP
-F:RAND_25 | FRIENDS
+F:RAND_25 | FRIEND1
 F:BASH_DOOR | MOVE_BODY
 F:ANIMAL | EVIL | IM_FIRE
 S:1_IN_5
@@ -11201,27 +11191,27 @@ D: the air, you....
 #	the nine black cats of Berúthiel #1   ("ú" character doesn't work in game)
 N:781:black cat of Beruthiel
 G:f:D
-I:123:49d9:30:91:9
-W:52:5:4:6199
+I:123:46d9:30:81:9
+W:49:5:4:6009
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
 B:GAZE:UNLUCKY
 F:IM_ELEC | RES_DISE | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP
-F:FORCE_MAXHP | UNIQUE | POWERFUL
+F:FORCE_MAXHP | UNIQUE
 F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #2
 N:782:black cat of Beruthiel
 G:f:D
-I:123:49d9:30:91:9
-W:52:6:4:6199
+I:123:47d9:30:81:9
+W:51:6:4:6099
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
@@ -11233,14 +11223,14 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #3
 N:783:black cat of Beruthiel
 G:f:D
-I:123:49d9:30:91:9
-W:53:5:4:6199
+I:123:48d9:30:81:9
+W:52:5:4:6109
 B:CLAW:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
@@ -11252,7 +11242,7 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #4
@@ -11269,9 +11259,9 @@ F:NO_FEAR | NO_CONF | NO_SLEEP
 F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
-S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
+S:BLIND | DRAIN_MANA | BLINK | INVIS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #5
@@ -11279,7 +11269,7 @@ N:785:black cat of Beruthiel
 G:f:D
 I:123:49d9:30:91:9
 W:56:5:5:6199
-B:CLAW:HURT:3d4
+B:CLAWB:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
 B:GAZE:UNLUCKY:1d1
@@ -11290,7 +11280,7 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #6
@@ -11307,9 +11297,9 @@ F:NO_FEAR | NO_CONF | NO_SLEEP
 F:FORCE_MAXHP | UNIQUE | POWERFUL
 F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
-S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
+S:INVIS | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #7
@@ -11328,7 +11318,7 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #8
@@ -11347,15 +11337,15 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #	the nine black cats of Berúthiel #9
 N:789:black cat of Beruthiel
 G:f:D
-I:123:49d9:30:91:9
-W:63:3:5:6199
-B:CLAW:HURT:3d4
+I:123:51d9:30:91:9
+W:63:3:5:6239
+B:CLAWB:HURT:3d4
 B:BITE:EXP_20:3d8
 B:TOUCH:UN_BONUS:1d6
 B:GAZE:UNLUCKY:1d3
@@ -11366,7 +11356,7 @@ F:EVIL | ANIMAL | OPEN_DOOR | FORCE_SLEEP
 S:1_IN_4
 S:BLIND | DRAIN_MANA | BLINK | DARKNESS | CAUSE_3 |
 S:S_UNDEAD
-D:One of the nine magical black cats belonging to Queen Berúthiel.
+D:One of the nine magical black cats belonging to Queen Beruthiel.
 D:It's crossing your path..
 
 #		monsters which appear after Level 100
@@ -11397,7 +11387,7 @@ B:CLAW:TERRIFY:3d12
 B:CLAW:EXP_40:3d12
 B:CLAW:EXP_80:3d12
 B:BITE:LOSE_ALL:6d12
-F:FORCE_SLEEP | FRIENDS | BASH_DOOR | POWERFUL
+F:FORCE_SLEEP | FRIEND1 | BASH_DOOR | POWERFUL
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | RES_PLAS | RES_NEXUS | RES_DISE
 S:1_IN_4
@@ -11412,7 +11402,7 @@ B:KICK:HURT:40d1
 B:KICK:HURT:40d1
 B:BITE:PARALYZE:4d12
 B:BITE:PARALYZE:4d12
-F:FORCE_SLEEP | FRIENDS | BASH_DOOR | NO_STUN | POWERFUL
+F:FORCE_SLEEP | FRIEND1 | BASH_DOOR | NO_STUN | POWERFUL
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | RES_PLAS | RES_NEXUS | RES_DISE
 S:1_IN_4
@@ -11427,7 +11417,7 @@ B:CLAW:UN_POWER:3d12
 B:CLAW:UN_POWER:3d12
 B:BITE:UN_BONUS:4d12
 B:BITE:HALLU:5d12
-F:FORCE_SLEEP | FRIENDS | BASH_DOOR | POWERFUL
+F:FORCE_SLEEP | FRIEND1 | BASH_DOOR | POWERFUL
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | RES_PLAS | RES_NEXUS | RES_DISE
 S:1_IN_4
@@ -11512,7 +11502,7 @@ B:SPIT:SLIME:9d13
 B:SPIT:ACID:9d13
 F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | KILL_ITEM
 F:IM_POIS | IM_ACID | FORCE_SLEEP | POWERFUL
-F:MULTIPLY | FRIENDS
+F:MULTIPLY | FRIEND1
 S:1_IN_4 | S_KIN | TELE_TO | BR_POIS
 D:An huge acidic slime that spreads worse than a plague, and that also
 D: happens to be what it spreads: plagues.
@@ -11568,6 +11558,7 @@ S:1_IN_1
 S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON | S_HYDRA
 S:S_HOUND | S_SPIDER | S_UNIQUE | CAUSE_4 | BA_DARK | BR_NETH | TPORT
 D:This box contains evil of every kind and it's unleashing it all on you.
+D:Better hope you can close it before you die.
 
 N:802:seed-sowing ent
 G:E:w
@@ -11639,7 +11630,7 @@ B:BEG:CONFUSE:1d62
 B:SPORE:EXP_10:1d50
 F:OPEN_DOOR | BASH_DOOR | FORCE_DEPTH | ATTR_MULTI
 F:TAKE_ITEM | RAND_25 | REGENERATE | DROP_90
-F:FRIENDS | STUPID | WEIRD_MIND | FORCE_SLEEP
+F:FRIEND1 | STUPID | WEIRD_MIND | FORCE_SLEEP
 S:1_IN_3
 S:BLINK | TPORT | HEAL | HASTE | DRAIN_MANA | DARKNESS
 S:FORGET | S_MONSTER | MISSILE | CAUSE_2
@@ -11721,10 +11712,10 @@ D:A rather cute ball of dust that refuses to be swept up.
 N:812:clear dust bunny
 G:.:w
 I:101:3d4:5:43:70
-W:19:21:2:21
+W:19:21:5:21
 B:TOUCH:HURT:1d1
 F:RAND_50 | RAND_25 | SILVER
-F:COLD_BLOOD | WEIRD_MIND | MULTIPLY | INVISIBLE
+F:COLD_BLOOD | WEIRD_MIND | MULTIPLY
 F:CHAR_MULTI | ATTR_CLEAR | CHAR_CLEAR
 F:NO_FEAR | IM_POIS | HURT_LITE | FRIEND
 D:A wisp of dust which will evade the brooms of the most meticulous sweepers by
@@ -11733,7 +11724,7 @@ D: being impossible to see.
 N:813:Scroll of Aquirement
 G:?:y
 I:95:20d5:3:5:210
-W:0:10:1:0
+W:0:14:1:0
 F:RAND_25
 F:CHAR_MULTI | REGENERATE | NON_LIVING
 F:TAKE_ITEM | NEVER_BLOW
@@ -11745,7 +11736,7 @@ D:A valuble thing to find in the town.  wait.. did it just move on its own?
 N:814:Potion of Experience
 G:!:y
 I:99:22d3:3:5:210
-W:0:13:1:0
+W:0:16:1:0
 B:SPIT:HALLU:1d1
 B:SPIT:HALLU:1d1
 F:RAND_25
@@ -11794,7 +11785,7 @@ D: being, full of mischief.
 N:817:Alatar the Blue
 G:p:B
 I:115:20d100:25:60:25
-W:40:4:1:2500
+W:42:4:1:2500
 B:HIT:HURT:4d7
 B:HIT:HURT:4d7
 B:HIT:UN_BONUS:4d4
@@ -11811,7 +11802,7 @@ D: turned to the side of evil.
 N:818:Pallando the Blue
 G:p:B
 I:115:20d100:25:60:25
-W:40:4:1:2500
+W:42:4:1:2500
 B:HIT:HURT:4d7
 B:HIT:HURT:4d7
 B:HIT:UN_BONUS:4d4
@@ -11911,7 +11902,7 @@ W:54:4:2:23000
 B:TOUCH:EXP_20:4d7
 B:HIT:HURT:7d7
 B:HIT:HURT:7d7
-B:TOUCH:UN_POWER:3d11
+B:TOUCH:UN_POWER:3d10
 F:EVIL | UNDEAD | UNIQUE | FORCE_MAXHP | FORCE_SLEEP
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | COLD_BLOOD | NON_LIVING
@@ -11947,7 +11938,7 @@ D: trap him into betraying Barahir and the outlaws of Dorthonion.
 
 N:826:Lord of the Shadow Host
 G:W:G
-I:130:50d100:20:90:50
+I:130:49d100:20:90:50
 W:76:2:2:30000
 B:TOUCH:EXP_80:6d12
 B:HIT:HURT:9d9
@@ -11966,30 +11957,11 @@ D: allegiance to Isildur in the War of the Last Alliance. For breaking his oath,
 D: his people were cursed to walk the Paths of the Dead until they find a chance to
 D: redeem themselves.
 
-N:827:Khufu, the Mummified King
-G:z:v
-I:126:73d100:60:110:60
-W:81:2:1:30000
-B:HIT:EXP_80:8d8
-B:HIT:EXP_80:8d8
-B:CLAW:POISON:6d6
-B:CLAW:LOSE_CON:6d6
-F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP
-F:ONLY_ITEM | DROP_4D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
-F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE
-F:EVIL | UNDEAD | ESCORT | NON_LIVING | POWERFUL
-F:NO_CONF | NO_SLEEP | NO_FEAR | IM_ACID | IM_COLD | IM_POIS
-S:1_IN_2
-S:BR_FEAR | TELE_TO | CAUSE_4 | BRAIN_SMASH | BO_ICEE
-S:BO_MANA | BR_NETH | BA_NETH | S_HI_UNDEAD
-D:The king who build the Great Pyramid is back to get revenge on those
-D: who have desecrated his tomb.
-
 N:828:Carcharoth, the Jaws of Thirst
 G:C:r
-I:130:75d100:50:82:10
+I:130:65d100:50:82:10
 W:75:2:2:35000
-B:CLAW:FIRE:9d11
+B:CLAWB:HURT:9d11
 B:CLAW:FIRE:9d11
 B:BITE:FIRE:9d11
 B:BITE:FIRE:9d11
@@ -12005,9 +11977,9 @@ D: deadly opponent in combat.
 
 N:829:Huan, Wolfhound of the Valar
 G:C:w
-I:130:75d100:50:82:10
+I:130:65d100:50:82:10
 W:75:2:2:35000
-B:CLAW:COLD:9d11
+B:CLAWB:HURT:9d11
 B:CLAW:COLD:9d11
 B:BITE:COLD:9d11
 B:BITE:COLD:9d11
@@ -12023,13 +11995,16 @@ D: Celegorm son of Feanor to Beren son of Barahir: but now he runs wild and
 D: acknowledges no master save himself, as he hunts alone for his nemesis -
 D: Carcharoth, the terrible wolf of Angband.
 
-#should never appear
-N:830:dummy
-G:c:b
-I:110:2d5:6:16:40
-W:1:0:0:3
-F:ANIMAL
-D:Dummy monster to keep from braking savefiles again (hopefully)
+N:830:blood diamond
+G:$:w
+I:104:21d12:5:50:15
+W:21:9:2:59
+B:CLAWB:HURT:1d6
+B:CLAWB:HURT:3d7
+F:ONLY_GOLD | DROP_90 | DROP_1D2
+F:COLD_BLOOD | BASH_DOOR | NON_LIVING
+F:IM_POIS | IM_ELEC | IM_ACID | NO_CONF | NO_SLEEP
+D:It appears to be a large diamond, but you seem to see reflections of bloody wounds.
 
 #should never appear
 N:831:dummy
@@ -12075,8 +12050,9 @@ F:NO_FEAR | NO_CONF | IM_POIS
 F:EVIL | DEMON | SILVER | HELPER
 S:1_IN_4
 S:HOLD | CONF
-D:A devil from the domain of the grepse.  It appears to be trying to help you, but it's silver poison
-D: may still be harmful to you.
+D:A devil from the domain of the grepse.
+D: It appears to be trying to help you, but it's silver poison may still be harmful
+D: to you.
 
 N:991:barbazu familiar
 G:U:U
@@ -12093,7 +12069,7 @@ N:992:cursebound lich
 G:L:G
 I:126:30d100:20:160:0
 W:56:0:0:-6000
-B:TOUCH:HATELIFE
+B:TOUCH:HATELIFE:1d10
 B:TOUCH:EXP_10
 F:FORCE_MAXHP | SMART | NON_LIVING
 F:COLD_BLOOD | OPEN_DOOR | PASS_WALL | RAND_50

@@ -458,7 +458,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 	
     /* radius 1 for stink bombs */
-	if (bomb = 1) rad = 1;
+	if (bomb == 1) rad = 1;
 	bomb = 0;
 
     /* shorter range for BR_WEAK) */
@@ -880,7 +880,7 @@ bool make_attack_spell(int m_idx)
     int surround = 0;
 	if (cp_ptr->flags & CF_POWER_SHIELD) surround = p_ptr->lev + 5;
 	else if ((cp_ptr->flags & CF_ZERO_FAIL) && (p_ptr->lev > 20)) surround = p_ptr->lev/3 + 3;
-	if (p_ptr->timed[TMD_BRAIL]) surround += 10 + (goodluck/3);
+	if (p_ptr->timed[TMD_BRAIL]) surround += 10 + (goodluck/2);
 	/* extremely high luck can also have this effect */
 	if ((goodluck == 17) && (randint(100) < 70)) surround += 9;
 	if ((goodluck > 17) && (randint(100) < 75)) surround += 10 + randint((goodluck-17)*5);
@@ -889,6 +889,9 @@ bool make_attack_spell(int m_idx)
 
     int dir;
     int damage;
+    int basebr = (m_ptr->hp * 9)/10;
+    if (randint(100) < 20) basebr = (m_ptr->maxhp * 4)/5;
+    if (basebr < 6) basebr = 6;
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -907,6 +910,7 @@ bool make_attack_spell(int m_idx)
 		/* RF4_XXX2X4 */
 		case RF4_OFFSET+1:
 		{
+			/* XXX XXX XXX */
 			break;
 		}
 
@@ -989,7 +993,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_ACID);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes acid.", m_name);
-			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 1500 ? 1500 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_ACID, damage);
@@ -1010,10 +1014,10 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 #ifdef ALTDJA
 			else msg_format("%^s breathes stench.", m_name);
-			damage = ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4));
+			damage = ((basebr / 5) > 600 ? 600 : (basebr / 5));
 #else
 			else msg_format("%^s breathes lightning.", m_name);
-			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 1500 ? 1500 : (basebr / 4));
 #endif
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
@@ -1036,10 +1040,10 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s breathes fire.", m_name);
 			if (r_ptr->flags3 & (RF3_HELPER)) 
 			{
-			   fire_ball(GF_FIRE, 0, m_ptr->hp / 3, 4);
+			   fire_ball(GF_FIRE, 0, basebr / 3, 4);
 			   break;
             }
-			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 1500 ? 1500 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_FIRE, damage);
@@ -1059,7 +1063,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_FROST);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes frost.", m_name);
-			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 1500 ? 1500 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_COLD, damage);
@@ -1079,7 +1083,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_GAS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gas.", m_name);
-			damage = ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 750 ? 750 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_POIS, damage);
@@ -1099,7 +1103,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_NETHER);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nether.", m_name);
-			damage = ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 500 ? 500 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_NETHER, damage);
@@ -1119,7 +1123,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_LIGHT);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes light.", m_name);
-			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 300 ? 300 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_LITE, damage);
@@ -1139,7 +1143,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_DARK);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes darkness.", m_name);
-			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 300 ? 300 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_DARK, damage);
@@ -1159,7 +1163,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_CONF);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes confusion.", m_name);
-			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 350 ? 350 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_CONFUSION, damage);
@@ -1179,7 +1183,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_SOUND);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes sound.", m_name);
-			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 450 ? 450 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_SOUND, damage);
@@ -1199,7 +1203,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_CHAOS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes chaos.", m_name);
-			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 460 ? 460 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_CHAOS, damage);
@@ -1219,7 +1223,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_DISENCHANT);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes disenchantment.", m_name);
-			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 450 ? 450 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_DISENCHANT, damage);
@@ -1239,7 +1243,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_NEXUS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nexus.", m_name);
-			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 350 ? 350 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_NEXUS, damage);
@@ -1259,7 +1263,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_TIME);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes time.", m_name);
-			damage = ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 150 ? 150 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_TIME, damage);
@@ -1282,7 +1286,7 @@ bool make_attack_spell(int m_idx)
 #else
 			else msg_format("%^s breathes inertia.", m_name);
 #endif			
-			damage = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 160 ? 160 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_INERTIA, damage);
@@ -1301,7 +1305,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_GRAVITY);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gravity.", m_name);
-			damage = ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3));
+			damage = ((basebr / 4) > 190 ? 190 : (basebr / 4));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_GRAVITY, damage);
@@ -1320,7 +1324,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_SHARDS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes shards.", m_name);
-			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 400 ? 400 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_SHARD, damage);
@@ -1340,7 +1344,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_PLASMA);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes plasma.", m_name);
-			damage = ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 200 ? 200 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_PLASMA, damage);
@@ -1359,7 +1363,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_BR_FORCE);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes force.", m_name);
-			damage = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+			damage = ((basebr / 6) > 200 ? 200 : (basebr / 6));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_FORCE, damage);
@@ -1400,7 +1404,7 @@ bool make_attack_spell(int m_idx)
             {
                if (die < 33) inc_timed(TMD_AFRAID, rand_int(5) + 1);
             }
-			damage = ((m_ptr->hp / 6) > 190 ? 190 : (m_ptr->hp / 6));
+			damage = ((basebr / 8) > 190 ? 190 : (basebr / 8));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_BRFEAR, damage);
@@ -1518,7 +1522,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a nether ball.", m_name);
-			damage = 50 + damroll(10, 10) + rlev;
+			damage = 50 + damroll(9, 10) + rlev;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_NETHER, damage);
@@ -1533,7 +1537,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s gestures fluidly.", m_name);
 			msg_print("You are engulfed in a whirlpool.");
-			damage = randint(rlev * 5 / 2) + 50;
+			damage = randint(rlev * 5 / 2) + 40;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_WATER, damage);
@@ -1546,7 +1550,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a mana storm.", m_name);
-			damage = (rlev * 5) + damroll(10, 10);
+			damage = (rlev * 4) + damroll(10, 10);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_MANA, damage);
@@ -1559,7 +1563,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a darkness storm.", m_name);
-			damage = (rlev * 5) + damroll(10, 10);
+			damage = (rlev * 4) + damroll(10, 10);
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			breath(m_idx, GF_DARK, damage);
@@ -1607,6 +1611,18 @@ bool make_attack_spell(int m_idx)
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
 				{
+                    /* Barbarians and knights have weak mana */
+/* ..I heard a mind flayer rampaged your family reunion and starved */
+                    if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT))
+                    {
+					   if (seen)
+					   {
+						   msg_format("%^s seems unsatisfied.", m_name);
+					   }
+			           update_smart_learn(m_idx, DRS_MANA);
+			           break; /* (monster doesn't get healed) */
+                    }
+                    
 					/* Heal */
 					m_ptr->hp += (6 * r1);
 					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
@@ -1681,7 +1697,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				damage = damroll(12, 15);
+				damage = damroll(11, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround > 0) damage -= (damage * (surround / 250));
 				take_hit(damage, ddesc);
@@ -1737,7 +1753,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				damage = damroll(8, 8);
+				damage = damroll(7, 8);
 		        /* extra damage reduction from surrounding magic */
 				if (surround > 0) damage -= (damage * (surround / 250));
 				take_hit(damage, ddesc);
@@ -1760,7 +1776,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				damage = damroll(10, 15);
+				damage = damroll(9, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround > 0) damage -= (damage * (surround / 250));
 				take_hit(damage, ddesc);
@@ -1788,7 +1804,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				damage = damroll(15, 15);
+				damage = damroll(14, 15);
 		        /* extra damage reduction from surrounding magic */
 				if (surround > 0) damage -= (damage * (surround / 250));
 				take_hit(damage, ddesc);
@@ -1910,7 +1926,7 @@ bool make_attack_spell(int m_idx)
                }
 	        else 
                {
-			      damage = damroll(10, 10) + (rlev);
+			      damage = damroll(10, 8) + (rlev);
                }
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
@@ -1931,7 +1947,7 @@ bool make_attack_spell(int m_idx)
             }
 			if (blind) msg_format("%^s exerts magic power.", m_name);
 			else msg_format("%^s casts a mana bolt.", m_name);
-			damage = randint(rlev * 7 / 2) + 50;
+			damage = randint(rlev * 3) + 50;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_MANA, damage);
@@ -1957,7 +1973,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts an ice bolt.", m_name);
-			damage = damroll(6, 6) + (rlev);
+			damage = damroll(6, 6) + (rlev/2 + randint(rlev/2));
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 250));
 			bolt(m_idx, GF_ICE, damage);
@@ -2307,9 +2323,13 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX3X6 */
+		/* RF6_XXX3X6 - RF6_INVIS */
 		case RF6_OFFSET+6:
 		{
+			disturb(1, 0);
+			if ((!blind) && (m_ptr->monseen) && (!p_ptr->see_inv)) msg_format("%^s dissapears!", m_name);
+			m_ptr->monseen = FALSE;
+			m_ptr->tinvis = randint(5) + 2;
 			break;
 		}
 
@@ -3855,6 +3875,16 @@ static void process_monster(int m_idx)
 			/* Wake up faster near the player */
 			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
 
+            /* niceness */
+			if ((p_ptr->nice == TRUE) && 
+			   (!r_ptr->flags3 & (RF3_EVIL)) &&
+		       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		       (r_ptr->flags3 & (RF3_ANIMAL))))
+            {
+               if (d > 1) d = (d/2);
+               else if (d == 1) return;
+            }
+
 			/* Still asleep */
 			if (m_ptr->csleep > d)
 			{
@@ -3871,6 +3901,16 @@ static void process_monster(int m_idx)
 					}
 				}
 			}
+
+            /* monster might feel nice and go back to sleep */
+			else if ((p_ptr->nice == TRUE) && 
+			   (!r_ptr->flags3 & (RF3_EVIL)) &&
+               (goodluck > 0) && (randint(100) < 33) &&
+		       ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		       (r_ptr->flags3 & (RF3_ANIMAL))))
+            {
+                  m_ptr->csleep += (goodluck * 20) + 20;
+            }
 
 			/* Just woke up */
 			else
@@ -3992,7 +4032,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->monfear)
 	{
 		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 10 + 1);
+		int d = randint(r_ptr->level / 11 + 1);
 
 		/* Still afraid */
 		if (m_ptr->monfear > d)
@@ -4088,6 +4128,9 @@ static void process_monster(int m_idx)
        if (ridx == 728) m_ptr->charmed = FALSE; /* The White Cat of B. */
        if (ridx == 742) m_ptr->charmed = FALSE; /* Achrya */
        if (ridx == 753) m_ptr->charmed = FALSE; /* Ungoliant */
+       if (ridx == 691) m_ptr->charmed = FALSE; /* Shelob */
+       if (ridx == 828) m_ptr->charmed = FALSE; /* Carcharoth */
+       if (ridx == 829) m_ptr->charmed = FALSE; /* Huan */
        if ((ridx > 780) && (ridx < 790)) m_ptr->charmed = FALSE; /* black cats of B */
 
        /* some animals are almost (but not quite) impossible to charm */
@@ -4095,15 +4138,11 @@ static void process_monster(int m_idx)
        if ((ridx == 327) && (goodluck < 15)) m_ptr->charmed = FALSE; /* shadow cat */
        if ((ridx == 338) && (goodluck < 20)) m_ptr->charmed = FALSE; /* xan */
        if ((ridx == 548) && (goodluck < 16)) m_ptr->charmed = FALSE; /* aranea */
-       if ((ridx == 609) && (goodluck < 21)) m_ptr->charmed = FALSE; /* drider of Achrya */
-       if ((ridx == 691) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Shelob */
-       if ((ridx == 760) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Draugluin */
-       if ((ridx == 828) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Carcharoth */
-       if ((ridx == 829) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Huan */
+       if ((ridx == 609) && (goodluck < 20)) m_ptr->charmed = FALSE; /* drider of Achrya */
+       if ((ridx == 760) && (goodluck < 20)) m_ptr->charmed = FALSE; /* Draugluin */
 
        /* some animals can only be m_ptr->charmed with luck */
        if ((ridx == 109) && (badluck > 5)) m_ptr->charmed = FALSE; /* rabid rat */
-       if ((ridx == 192) && (badluck > 5)) m_ptr->charmed = FALSE; /* hippogriff */
        if ((ridx == 212) && (badluck > 6)) m_ptr->charmed = FALSE; /* killer bee */
        if ((ridx == 220) && (goodluck < 7)) m_ptr->charmed = FALSE; /* grim */
        if ((ridx == 230) && (badluck > 4)) m_ptr->charmed = FALSE; /* mosquito */
@@ -4111,30 +4150,44 @@ static void process_monster(int m_idx)
        if ((ridx == 233) && (badluck > 5)) m_ptr->charmed = FALSE; /* wererat */
        if ((ridx == 235) && (badluck > 5)) m_ptr->charmed = FALSE; /* warg */
        if ((ridx == 249) && (badluck > 5)) m_ptr->charmed = FALSE; /* mirkwood spider */
-       if ((ridx == 263) && (badluck > 6)) m_ptr->charmed = FALSE; /* winged monkey */
-       if ((ridx == 264) && (badluck > 5)) m_ptr->charmed = FALSE; /* e.winged monkey */
+       if ((ridx == 263) && (badluck > 4)) m_ptr->charmed = FALSE; /* winged monkey */
+       if ((ridx == 264) && (badluck > 1)) m_ptr->charmed = FALSE; /* e.winged monkey */
        if ((ridx == 277) && (badluck > 5)) m_ptr->charmed = FALSE; /* rabid wolf */
        if ((ridx == 333) && (badluck > 5)) m_ptr->charmed = FALSE; /* werewolf */
-       if ((ridx == 352) && (badluck > 12)) m_ptr->charmed = FALSE; /* camel-dog */
-       if ((ridx == 359) && (badluck > 12)) m_ptr->charmed = FALSE; /* vampire bat */
        if ((ridx == 373) && (badluck > 5)) m_ptr->charmed = FALSE; /* werebear */
        if ((ridx == 389) && (badluck > 5)) m_ptr->charmed = FALSE; /* wolf chieftain */
        if ((ridx == 401) && (goodluck < 7)) m_ptr->charmed = FALSE; /* wild unicorn */
        if ((ridx == 407) && (badluck > 5)) m_ptr->charmed = FALSE; /* bat gorgoroth */
-       if ((ridx == 415) && (badluck > 12)) m_ptr->charmed = FALSE; /* basilisk */
+       if ((ridx == 415) && (badluck > 5)) m_ptr->charmed = FALSE; /* basilisk */
        if ((ridx == 436) && (badluck > 5)) m_ptr->charmed = FALSE; /* doombat */
        if ((ridx == 490) && (badluck > 0)) m_ptr->charmed = FALSE; /* grey unicorn */
        if ((ridx == 509) && (badluck > 5)) m_ptr->charmed = FALSE; /* hellhound */
        if ((ridx == 604) && (badluck > 0)) m_ptr->charmed = FALSE; /* black unicorn */
        if ((ridx == 626) && (badluck > 0)) m_ptr->charmed = FALSE; /* the Cerberus */
-       if ((ridx == 644) && (badluck > 5)) m_ptr->charmed = FALSE; /* G.basilisk */
+       if ((ridx == 644) && (badluck > 0)) m_ptr->charmed = FALSE; /* G.basilisk */
        if ((ridx == 645) && (badluck > 0)) m_ptr->charmed = FALSE; /* Humbaba */
-       if ((ridx == 652) && (badluck > 5)) m_ptr->charmed = FALSE; /* winged horror */
-       if ((ridx == 655) && (badluck > 12)) m_ptr->charmed = FALSE; /* kracken */
+       if ((ridx == 652) && (badluck > 1)) m_ptr->charmed = FALSE; /* winged horror */
        if ((ridx == 665) && (badluck > 0)) m_ptr->charmed = FALSE; /* white unicorn */
-       if ((ridx == 700) && (badluck > 4)) m_ptr->charmed = FALSE; /* The Phoenix */
+       if ((ridx == 700) && (badluck > 3)) m_ptr->charmed = FALSE; /* The Phoenix */
        if ((ridx == 725) && (badluck > 0)) m_ptr->charmed = FALSE; /* Jabberwock */
-       if ((ridx == 767) && (badluck > 5)) m_ptr->charmed = FALSE; /* hellhound */
+       if ((ridx == 767) && (badluck > 3)) m_ptr->charmed = FALSE; /* hellhound */
+       
+       /* charmed and nice monsters might go back to sleep */
+	   if ((p_ptr->nice == TRUE) && 
+	      (m_ptr->charmed == TRUE) &&
+		  (!r_ptr->flags3 & (RF3_EVIL)) &&
+          (goodluck > 0) && (randint(100) < 16) &&
+		  ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+		  (r_ptr->flags3 & (RF3_ANIMAL))))
+	   {
+		  /* Get the monster name */
+		  char m_name[80];
+		  monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		  
+          m_ptr->csleep += (goodluck * 25) + 50;
+          msg_format("%^s goes back to sleep.", m_name);
+          return;
+       }                  
     }
     
 	/* Attempt to cast a spell */
@@ -4202,6 +4255,16 @@ static void process_monster(int m_idx)
 	if (((m_ptr->charmed == TRUE) || (r_ptr->flags3 & (RF3_HELPER)))
          && (rand_int(100) < 20)) stagger = TRUE;
 
+    /* nice monsters stagger sometimes */
+    if ((p_ptr->nice == TRUE) && 
+	   (!r_ptr->flags3 & (RF3_EVIL)) &&
+       (goodluck > 0) && (randint(100) < 16) && 
+	   ((r_ptr->flags3 & (RF3_HURT_DARK)) ||
+	   (r_ptr->flags3 & (RF3_ANIMAL))))
+     {
+        stagger = TRUE;
+     }
+
 	/* Normal movement */
 	if (!stagger)
 	{
@@ -4246,7 +4309,8 @@ static void process_monster(int m_idx)
 		/* Permanent wall */
 		else if (cave_feat[ny][nx] >= FEAT_PERM_EXTRA)
 		{
-			/* Nothing */
+            /* don't just keep running into the wall */
+			if (randint(100) < 25) stagger = TRUE;
 		}
 
 		/* Monster moves through walls (and doors) */
@@ -4618,6 +4682,48 @@ static void process_monster(int m_idx)
 				}
 			}
 		}
+		
+		if ((p_ptr->timed[TMD_ZAPPING]) && (m_ptr->cdis < 4))
+        {
+           if (randint(4) == 1)
+           {
+		      /* Get the monster name */
+		      /* ..again. why does it forget it? It's in the same function. */
+		      char m_name[80];
+		      monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		      bool fear = FALSE;
+
+                          
+              msg_format("%^s is zapped with electricity.", m_name);
+              int zap;
+              if (p_ptr->lev > 14) zap = randint(p_ptr->lev/3);
+              else zap = randint(4);
+              if (p_ptr->resist_elec) zap += randint(p_ptr->lev/3);
+              if (cp_ptr->flags & CF_POWER_SHIELD) zap += (goodluck/2) + (p_ptr->lev/10);
+              
+              /* Prepare death note */
+	          cptr note_dies = " dies.";
+	          /* Some monsters get "destroyed" */
+	          if ((r_ptr->flags3 & (RF3_DEMON)) ||
+	          (r_ptr->flags2 & (RF2_STUPID)) ||
+	          (strchr("gpruvzO.#", r_ptr->d_char)))
+	          {
+		         /* Special note at death */
+		         note_dies = " is destroyed.";
+	          }
+	          if (r_ptr->flags3 & (RF3_IM_ELEC))
+	          {
+                  if (m_ptr->ml)
+                  {
+                     msg_format("%^s resists.", m_name);
+                     l_ptr->flags3 |= (RF3_IM_ELEC);
+                  } 
+                  zap = zap/3;
+              }                  
+
+              if (mon_take_hit(m_idx, zap, &fear, note_dies)) return;
+           }
+        }   
 
 		/* Stop when done */
 		if (do_turn) break;

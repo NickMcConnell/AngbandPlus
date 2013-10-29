@@ -1,5 +1,5 @@
 # File: p_class.txt
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -16,12 +16,13 @@
 # S:str:int:wis:dex:con:chr
 # C:dis:dev:sav:stl:srh:fos:thn:thb
 # X:dis:dev:sav:stl:srh:fos:thn:thb
-# I:mhp:exp:sense_base:sense_div
+# I:mhp:exp:sense_base:alertness
 # A:max_attacks:min_weight:att_multiply
 # M:spellbook tval:spell-stat:first-level:max weight
 # B:spell number:level:mana:fail:exp
 # T:title
 # E:tval:sval:min:max
+# O:tval:sval
 # F:class flags
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -58,6 +59,11 @@
 # 'E' is for starting equipment - tval of the item, sval of the item,
 # minimum amount, maximum amount.
 
+# 'O' is for the class object - tval and sval. The character does not start with this
+# object, but this object is more common to find in the dungeons than it is for other
+# classes. There is only one class object per class (only the first one will be read if
+# there are more than one). (This doesn't work, this line currently does nothing.)
+
 # 'F' is for class flags.
 
 
@@ -70,11 +76,13 @@ N:0:Warrior
 S:5:-2:-2:2:2:0
 C:27:18:17:1:14:2:70:56
 X:11:8:10:0:0:0:45:42
-I:9:0:8500:40
+I:9:0:8500:15
 A:6:30:5
 M:0:0:0:0
 E:23:18:1:1
 E:37:4:1:1
+#Class objects: Rod of detection or ring of slaying
+O:66:6:45:30
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30
 T:Rookie
 T:Fighter
@@ -92,13 +100,15 @@ N:1:Wizard
 S:-3:3:0:1:-1:1
 C:24:36:25:2:15:10:39:21
 X:8:13:10:0:0:0:16:15
-I:1:30:120000:40
+I:1:30:90000:8
 A:4:5:3
 M:90:1:1:300
 E:90:0:1:1
 E:21:3:1:1
 E:70:11:1:2
 E:36:2:1:1
+#Class object: Potion of Restore Mana or Potion of Enlightenment
+O:75:40:75:56
 F:CUMBER_GLOVE | ZERO_FAIL | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
 T:Novice Wizard
 T:Apprentice
@@ -186,25 +196,27 @@ N:2:Necromancer
 S:-5:2:-2:2:-2:-2
 C:29:33:30:2:14:12:35:24
 X:7:14:9:0:0:0:21:14
-I:3:21:28000:40
+I:3:21:28000:6
 A:4:35:3
 M:95:1:1:320
 E:95:0:1:1
 E:23:4:1:1
 E:70:30:1:3
 E:75:40:1:1
+#Class objects: Potion of Restore Mana or Mysteries of Shadow book
+O:75:40:95:4
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
 F:CUMBER_GLOVE
 T:Graverobber
 T:BoneCollector
-T:VampireGeek
-T:CorpseRiser
-T:ZombieTamer
+T:SkullVendor
+T:Shadowcaller
 T:Conjurer
 T:Spellbinder
 T:Sorcerer
 T:Necromancer
-T:Master of Undead
+T:Shadowmancer
+T:Shadow Master
 B:0:1:1:15:4	#detect evil			1
 B:1:2:3:20:4	#infravision			2
 B:2:1:2:15:3	#call dark				1
@@ -212,14 +224,14 @@ B:3:3:3:30:3	#scare monster			3
 B:4:3:3:33:3	#noxious fumes			3
 B:5:5:5:35:4	#cure poison			5
 B:6:6:5:40:4	#sleep monster			6
-B:7:6:9:60:6	#wither foe				6 (in 4th book)
+B:7:6:9:55:6	#wither foe				6 (in 4th book)
 B:8:9:6:35:6	#see invisible			9
 B:9:3:3:30:2	#find traps	(2nd book)		3
 B:10:3:3:25:2	#detect doors/stairs		3
 B:11:2:2:24:2	#shadow shift			2
 B:12:7:6:35:4	#drain charges			7
-B:13:13:15:50:5	#turn undead			13
-B:14:8:8:60:4	#death bolt				8
+B:13:13:9:40:5	#turn undead			13
+B:14:8:8:55:4	#death bolt				8
 B:15:99:0:0:0	#stink				/ assassin only
 B:16:15:14:60:7	#dispel undead x3			15
 B:17:99:0:0:0	#cause light wounds (3rd book)/
@@ -234,9 +246,9 @@ B:25:99:0:0:0	#breathe withering		/
 B:26:21:8:41:20	#scare monsters (4th book)	21
 B:27:7:6:45:4	#spear of dark			7
 B:28:9:9:45:6	#ice spear				9
-B:29:26:19:65:13	#stench of death			26
-B:30:17:10:65:8	#beam of destruction		17
-B:31:23:16:70:12	#destruction ball			23
+B:29:26:19:60:13	#stench of death			26
+B:30:17:10:60:8	#beam of destruction		17
+B:31:23:16:65:12	#destruction ball			23
 B:32:39:35:86:35	#chaos strike			39
 B:33:7:6:33:5	#shadow warp (5th book)		7
 B:34:10:6:50:9	#wizard lock			10
@@ -245,7 +257,7 @@ B:36:15:10:40:30	#break curse			15
 B:37:28:11:76:80	#probing				28
 B:38:23:19:80:21	#identify				23
 B:39:30:18:71:50	#summon demonic aid		30 (in 6th book)
-B:40:21:18:66:16	#exorcize demons			21
+B:40:21:18:56:16	#exorcize demons			21
 B:41:33:15:65:35	#detect enchantment		33
 B:42:5:3:30:6	#boldness (6th book)		5
 B:43:10:9:43:8	#tourniquet				10
@@ -264,12 +276,12 @@ B:55:24:16:80:40	#hold life				24
 B:56:30:46:88:50	#genocide				30
 B:57:16:22:81:25	#recharging	(8th book)		16
 B:58:99:0:0:0	#cure mortal wounds		/
-B:59:99:0:0:0	#detect living			29 (in 2nd book)
+B:59:11:3:50:3	#detect living			29 (in 2nd book)
 B:60:32:28:67:140	#spirit of the balrog		32
 B:61:26:14:60:40	#haste				26
 B:62:99:0:0:0	#bloodwrath				/
 B:63:34:60:90:160	#poison ammo			34
-B:64:38:55:75:190	#see all foes			38 (telepathy for necromancer)
+B:64:38:55:75:190	#see all foes			38 (telepathy & seeinv)
 B:65:10:1:55:15	#draw mana (9th book)		10
 B:66:31:22:76:60	#word of destruction		31
 B:67:29:20:66:50	#hold					29
@@ -286,12 +298,14 @@ N:3:Rogue
 S:2:1:-2:3:1:-1
 C:45:31:23:3:30:15:60:66
 X:15:10:11:0:0:0:40:30
-I:6:25:21000:40
+I:6:25:21000:18
 A:5:30:4
 M:93:1:6:360
 #E:93:0:1:1
 E:23:12:1:1
 E:36:4:1:1
+#Class objects: Heavy crossbow or Quick Getaways book
+O:19:24:93:4
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
 T:Vagabond
 T:Petty Outlaw
@@ -313,7 +327,7 @@ B:6:99:0:0:0	#door creation 			/ (tourist version)
 B:7:99:0:0:0	#word of recall			/ (tourist version)
 B:8:99:0:0:0	#stair creation			/ (tourist version)
 B:9:11:4:60:1	#cure light wounds (B2)		11
-B:10:27:16:76:4	#extra luck				27
+B:10:17:14:80:3	#extra luck				17
 B:11:15:11:50:2	#resist cold			15
 B:12:28:15:96:3	#extra batteries			28
 B:13:16:8:60:1	#bug spray				16
@@ -328,7 +342,7 @@ B:21:9:4:54:2	#detect traps and objects	9
 B:22:26:18:70:4	#slow monster			26
 B:23:22:14:60:4	#mini destruction			22
 B:24:24:12:70:3	#stone to mud			24
-B:25:29:20:75:5	#sense surroundings		29
+B:25:29:20:75:5	#sense surroundings		29 (moved to book 8)
 B:26:27:10:50:10	#detect enchantment		27
 B:27:99:0:0:0	#detect traps (B4)		/ (tourist only book)
 B:28:99:0:0:0	#detect objects			/
@@ -343,7 +357,7 @@ B:36:8:5:66:3	#hit and run (B5)			8
 B:37:21:9:50:3	#teleport self			21
 B:38:31:25:65:5	#teleport other			31
 B:39:29:16:80:11	#slow monsters			29
-B:40:25:20:80:6	#earthquake				25
+B:40:42:45:90:75	#extra melee blow			42 (in book 9)
 B:41:24:15:70:10	#mass sleep				24
 B:42:19:9:45:9	#slip into the shadows		19
 B:43:32:25:70:16	#haste self				32
@@ -354,27 +368,27 @@ B:47:99:0:0:0	#affect self			/
 B:48:99:0:0:0	#affect surroundings		/
 B:49:33:27:39:19	#potluck stats			33
 B:50:99:0:0:0	#aquirement				/
-B:51:12:13:55:6	#blink monster (B7)		12
+B:51:12:13:55:6	#blink monster (B7)		12 (moved to book 5)
 B:52:17:7:35:17	#door creation2			17
 B:53:25:13:44:25	#stair creation2			25
 B:54:26:21:60:25	#teleport level			26
 B:55:45:30:95:35	#word of destruction		45
 B:56:36:35:85:20	#word of recall2			36
 B:57:49:75:99:90	#rune of protection		49 (very high mana & fail)
-B:58:19:12:50:23	#resist heat and elec (B8)	19
-B:59:99:0:0:0	#turn undead			/
-B:60:23:16:75:26	#burst of light			23
+B:58:19:11:50:23	#resist heat and elec (B8)	19
+B:59:20:18:60:6	#satisfy hunger			20
+B:60:23:16:75:26	#burst of light			23 (moved to book 3)
 B:61:34:21:80:45	#curing				34
-B:62:99:0:0:0	#remove curse			/ (remove, I think no class gets this)
+B:62:37:50:30:50	#extreme roguishness		37
 B:63:43:41:91:60	#restore cleverness		43
-B:64:31:30:85:55	#resistance				31
+B:64:32:30:85:55	#resistance				32
 B:65:21:16:61:30	#stink (B9)				21
 B:66:28:20:60:60	#berserker				28
 B:67:30:20:70:30	#bedlam				30
-B:68:44:33:90:66	#chaos strike			44
+B:68:47:33:90:80	#chaos strike			47
 B:69:99:0:0:0	#rift					/
 B:70:99:0:0:0	#breathe chaos			/
-B:71:41:31:80:65	#mass chaos				41
+B:71:42:31:80:66	#mass chaos				42
 B:72:99:0:0:0	#bizzare effects			/
 
 #(done), possibly raise weapon speed modifier to 4
@@ -382,13 +396,15 @@ N:4:Ranger
 S:2:2:1:1:1:1
 C:40:23:29:4:22:25:63:60
 X:11:9:10:0:0:0:33:41
-I:3:27:30000:40
+I:3:27:30000:20
 A:5:32:3
 M:92:1:2:375
 E:92:0:1:1
 E:36:4:1:1
 E:19:12:1:1
 E:17:1:12:24
+#Class objects: Staff of detect evil or Elven Cloak
+O:55:15:35:5
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
 T:Hunter
 T:Strider
@@ -464,19 +480,25 @@ B:60:99:0:0:0	#
 B:61:99:0:0:0	#
 B:62:99:0:0:0	#
 B:63:99:0:0:0	#
+B:64:99:0:0:0	#
+B:65:99:0:0:0	#
+B:66:99:0:0:0	#
+B:67:49:60:100:50	#extra melee attack		46 (in 8th book)
 
 #(done)
 N:5:Paladin
 S:3:-2:1:0:1:2
 C:21:20:27:1:12:10:62:42
 X:12:9:12:0:0:0:37:30
-I:4:35:55000:40
+I:4:35:55000:10
 A:5:35:5
 M:91:2:1:420
 E:91:0:1:1
 E:23:10:1:1
 E:70:37:1:1
 E:37:2:1:1
+#Class objects: partial plate armour or Potion of Healing
+O:37:12:75:37
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
 T:Lightmaker
 T:Lightkeeper
@@ -562,13 +584,15 @@ B:69:99:0:0:0	#annihilation			/
 #done
 N:6:Archer
 S:2:0:-1:2:1:0
-C:29:17:23:3:15:11:50:75
-X:9:10:9:0:0:0:28:45
-I:5:18:15000:40
+C:29:17:23:3:15:11:48:75
+X:9:10:9:0:0:0:26:45
+I:5:18:15000:17
 A:5:35:3
 M:94:1:5:350
 E:19:13:1:1
 E:17:1:15:30
+#Class objects: Missile Magic book or mithril arrows
+O:94:4:17:3
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXTRA_SHOT | CHOOSE_SPELLS
 T:Hot Shot
 T:Flinger
@@ -580,10 +604,10 @@ T:Sharp Shooter
 T:Marksman
 T:Elete Archer
 T:Master Marksman
-B:0:9:5:35:1	#disinfectant			9
+B:0:8:5:35:1	#disinfectant			8
 B:1:7:3:40:1	#cure light wounds		7
-B:2:12:4:45:1	#light area				12
-B:3:20:10:65:2	#stinking cloud			20
+B:2:12:4:40:1	#light area				12
+B:3:18:8:65:2	#stinking cloud			18
 B:4:17:4:42:1	#phase door				17
 B:5:9:3:50:1	#find traps/doors			9
 B:6:6:2:50:1	#detect monsters			6
@@ -659,13 +683,15 @@ N:7:Alchemist
 S:-1:2:-1:0:-1:-1
 C:21:22:20:1:18:16:39:32
 X:9:12:12:0:0:0:20:16
-I:1:29:16500:40
+I:1:29:16500:6
 A:4:34:3
 M:94:1:1:335
 E:94:0:1:1
 E:31:1:1:2
 E:75:36:1:1
 E:75:40:1:1
+#Class objects: amulet of alertness or staff of speed
+O:40:21:55:22
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
 T:Mixer
 T:Tester
@@ -756,13 +782,15 @@ N:8:Priest
 S:-2:-1:3:-1:1:2
 C:20:28:31:2:16:9:45:32
 X:8:10:12:0:0:0:20:20
-I:2:20:75000:40
+I:2:20:75000:8
 A:4:35:3
 M:91:2:1:340
 E:91:0:1:1
 E:36:2:1:1
 E:75:34:3:6
 E:75:23:1:1
+#Class objects: Potion of Restore Mana or ring of see invisible
+O:75:40:45:22
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BLESS_WEAPON | ZERO_FAIL
 T:Believer
 T:Acolyte
@@ -774,7 +802,7 @@ T:Canon
 T:Bishop
 T:Prophet
 T:High Priest
-B:0:1:2:15:3	#clw					1 HERE for writing the spoiler
+B:0:1:2:15:3	#clw					1
 B:1:1:1:10:2	#detect evil			1
 B:2:1:2:20:4	#bless				1
 B:3:1:2:25:3	#boldness				1
@@ -836,7 +864,7 @@ B:58:12:10:80:20	#detection				12
 B:59:40:44:90:90	#full identify			40
 B:60:99:0:0:0	#Wo destruction			/
 B:61:37:52:85:230 #telepathy				37
-B:62:40:60:75:250 #alter reality			40
+B:62:41:60:75:250 #alter reality			41
 B:63:13:10:58:23	#earthquake (B9)			13
 B:64:99:0:0:0	#holy lance				/
 B:65:21:9:68:26	#dispel silver x4			21
@@ -850,13 +878,15 @@ N:9:Healer
 S:-3:2:1:0:2:1
 C:27:21:32:2:12:9:37:28
 X:8:8:9:0:0:1:16:21
-I:1:12:27000:40
+I:1:12:27000:11
 A:4:40:2
 M:91:1:1:340
 E:91:4:1:1   		#healing spellbook
 E:36:2:1:1
 E:80:12:1:3
 E:75:37:1:1
+#Class objects: Potion of Healing or Staff of Dispel Evil (since they need some offence)
+O:75:37:55:24
 F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL
 T:Bandager
 T:Wound Dresser
@@ -945,13 +975,15 @@ N:10:Druid
 S:-2:1:2:1:-1:0
 C:32:27:26:4:18:19:44:38
 X:11:10:11:0:1:0:23:23
-I:3:30:35000:40
+I:3:30:35000:16
 A:4:40:3
 M:92:2:1:320
 E:92:0:1:1
 E:36:8:1:1
 E:21:3:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
+#Class objects: Amulet of alertness or Staff or Striking
+O:40:21:55:31
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS
 F:BLESS_WEAPON | ZERO_FAIL | BEAM
 T:Gardener
 T:Student of Plants
@@ -965,7 +997,7 @@ T:Kuakgan
 T:Learned Elder
 B:0:1:1:22:1	#detect animal			1
 B:1:1:1:23:1	#call light				1
-B:2:3:2:30:2	#slow poison			3
+B:2:2:2:30:2	#slow poison			3
 B:3:3:1:25:2	#blink				3
 B:4:5:4:24:2	#foraging				5
 B:5:4:2:25:3	#lightning spark			4
@@ -975,7 +1007,7 @@ B:8:9:6:40:4	#stone to mud			9
 B:9:9:5:33:4	#cure poison (B2)			9
 B:10:7:5:35:4	#frost bolt				7
 B:11:9:5:30:4	#sleep creature			9
-B:12:7:5:34:5	#frighten creature		7
+B:12:6:5:34:5	#frighten creature		7
 B:13:11:4:30:5	#find traps/doors			11
 B:14:99:0:0:0	#stun monster (mystic only)	/
 B:15:11:6:35:6	#bug spray				11
@@ -984,7 +1016,7 @@ B:17:13:9:45:7	#remove curse (B3)		13
 B:18:16:7:40:8	#resist heat & cold		16
 B:19:19:9:50:9	#resist acid & elec		19
 B:20:7:3:22:2	#detect life			7
-B:21:11:2:40:8	#natural vitality			11 (in book 2)
+B:21:10:2:40:8	#natural vitality			11 (in book 2)
 B:22:21:10:44:9	#resist poison			21
 B:23:19:9:70:9	#earthquake				19
 B:24:25:17:55:11	#identify				25
@@ -1041,13 +1073,15 @@ N:13:Assassin
 S:2:1:-2:1:0:-1
 C:31:29:21:3:16:13:53:65
 X:10:10:11:0:0:0:33:31
-I:5:30:26000:40
+I:5:25:26000:13
 A:5:32:4
 M:95:1:2:360
 E:95:1:1:1
 E:23:8:1:1
 E:19:22:1:1
 E:18:1:10:19
+#Class objects: Heavy Crossbow or ring of slaying
+O:19:24:45:30
 F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ASSASSIN
 T:Thug
 T:Cutthroat
@@ -1066,7 +1100,7 @@ B:3:99:0:0:0	#scare monster			/
 B:4:99:0:0:0	#noxious fumes			/
 B:5:99:0:0:0	#cure poison			/
 B:6:99:0:0:0	#sleep monster			/
-B:7:23:19:67:8	#wither foe				/ (in 4th book)
+B:7:23:15:60:8	#wither foe				23 (in 4th book)
 B:8:99:0:0:0	#see invisible			/
 B:9:6:4:40:1	#find traps	(2nd book)		6
 B:10:7:3:45:2	#detect doors/stairs		7
@@ -1086,7 +1120,7 @@ B:23:41:30:80:18	#cause mortal wounds		40
 B:24:36:26:70:16	#venom bolt				36 (in 4th book)
 B:25:99:0:0:0	#breathe withering		/
 B:26:99:0:0:0	#scare monsters (4th book)	/
-B:27:21:11:55:6	#spear of dark			21
+B:27:21:10:50:6	#spear of dark			21
 B:28:99:0:0:0	#ice spear				/
 B:29:36:24:80:13	#stench of death			36
 B:30:26:16:76:9	#beam of destruction		26
@@ -1133,20 +1167,22 @@ B:70:99:0:0:0	#nether ball			/
 B:71:99:0:0:0	#darkness storm			/
 B:72:99:0:0:0	#become lich			/
 B:73:29:25:74:14	#resist poison			29 (assassin only version, in book 3)
-B:74:47:37:91:100	#wall of hellfire			47
+B:74:47:37:91:100	#wall of hellfire			47 (maybe should be higher mana cost)
 B:75:99:0:0:0	#shadow sting			/ (necromancer only)
 
 N:14:Thief
 S:1:2:-1:3:-1:1
-C:34:27:28:5:26:24:42:41
+C:34:27:28:5:26:24:41:43
 X:14:8:10:0:1:0:30:33
-I:2:22:34000:40
+I:2:22:34000:12
 A:5:30:3
 M:94:1:2:330
 E:94:3:1:1
-E:23:4:1:1
+E:23:5:1:1
 E:30:2:1:1
-E:70:26:1:3
+E:70:27:1:3
+#Class objects: Wand of Teleport Other or rod of recall
+O:65:3:66:3
 F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CLASS_SPEED
 T:Robber
 T:Pickpocket
@@ -1238,7 +1274,7 @@ N:15:Tourist
 S:0:2:-2:1:0:2
 C:21:20:21:1:21:14:34:30
 X:7:10:8:0:0:1:21:21
-I:1:5:50000:40
+I:1:5:50000:10
 A:4:32:3
 M:93:1:1:400
 E:93:0:1:1
@@ -1246,6 +1282,8 @@ E:35:3:1:1
 E:70:25:1:3
 E:16:0:7:18
 E:19:1:1:1
+#Class objects: Potion of Four-Leaf clover Juice or The Lottery book
+O:75:14:93:5
 F:PSEUDO_ID_IMPROV | CHOOSE_SPELLS
 T:Rambler
 T:Sightseer
@@ -1332,16 +1370,20 @@ B:71:41:30:90:125	#mass chaos				41
 B:72:50:90:76:200 #bizzare effects			50
 
 #(tentatively done, give him a staff, once you figure out fighting with staffs)
+#(increased mana for non-offensive spells, may need to adjust more)
+#(gets 1.5x mana with POWER_SHIELD)
 N:16:War Mage
 S:-4:3:-1:1:-2:-1
-C:20:38:30:1:16:5:45:16
-X:9:13:9:0:0:0:25:16
-I:0:26:70000:40
-A:4:4:2
+C:20:38:30:1:16:5:45:15
+X:9:13:9:0:0:0:25:15
+I:0:26:70000:12
+A:4:40:2
 M:90:1:1:300
-E:90:0:1:1 # equipment still same as wizard, needs to be changed
-E:22:7:1:1 # should start with enhance magic potions
+E:90:0:1:1
+E:55:10:1:1
 E:75:54:1:3
+#Class objects: Tome of Destruction of ring of Constitution
+O:90:5:45:27
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
 F:CUMBER_GLOVE | POWER_SHIELD
 T:Novice Mage
@@ -1355,14 +1397,14 @@ T:War Mage
 T:Destroyer
 T:Master of Blue Flame
 B:0:1:1:20:1	#magic missile
-B:1:1:1:25:3	#detect monsters
+B:1:1:1:30:3	#detect monsters
 B:2:1:2:24:3	#phase door
 B:3:3:3:30:3	#light
-B:4:5:4:45:2	#find traps&doors
-B:5:11:3:40:2	#clw
-B:6:15:10:40:10	#mana defence (war mage version, Tenser's)
-B:7:30:11:50:11	#wizard lock
-B:8:23:10:67:6	#identify
+B:4:5:5:45:2	#find traps&doors
+B:5:99:0:0:0	#clw
+B:6:15:11:40:10	#mana defence (war mage version, Tenser's)
+B:7:30:14:50:11	#wizard lock
+B:8:23:11:67:6	#identify
 B:9:15:6:40:4	#detect invisible
 B:10:99:0:0:0	#detect enchantment
 B:11:2:3:25:3	#stinking cloud
@@ -1370,25 +1412,25 @@ B:12:3:4:26:3	#bo-elec
 B:13:4:4:33:3	#confuse monster
 B:14:6:5:30:4	#sleep m
 B:15:5:10:50:5	#wonder
-B:16:5:5:30:5	#bo-cold
-B:17:13:8:45:7	#bo-acid
-B:18:8:6:45:6	#bo-fire
-B:19:7:7:45:6	#trap/door destruction
-B:20:99:0:0:0	#spear of light
-B:21:15:11:50:6	#stone to mud
-B:22:17:11:60:12	#door creation
-B:23:21:20:56:20	#earthquake
-B:24:28:23:70:20	#stair creation
-B:25:10:8:46:4	#cure poison
-B:26:17:14:55:7	#satisfy hunger
+B:16:5:3:30:4	#bo-cold (reduced mana cost should make it more effective (maybe 4mana))
+B:17:14:8:45:7	#bo-acid (does extra damage for a war mage)
+B:18:9:6:45:6	#bo-fire (does extra damage for a war mage)
+B:19:7:9:45:6	#trap/door destruction
+B:20:10:8:60:5	#spear of light (war mage not as good at it, because he's bad alignment)
+B:21:15:13:50:6	#stone to mud
+B:22:17:14:60:12	#door creation
+B:23:21:21:56:20	#earthquake
+B:24:28:26:70:20	#stair creation
+B:25:10:10:46:4	#cure poison
+B:26:17:15:55:7	#satisfy hunger
 B:27:17:14:55:9	#heroism
 B:28:23:17:64:11	#berserker
 B:29:24:14:67:10	#haste
 B:30:8:8:40:5	#teleport
 B:31:15:8:65:7	#slow m
 B:32:28:18:75:8	#teleother
-B:33:40:22:80:14	#tele lvl
-B:34:36:31:80:12	#WoR
+B:33:40:23:80:14	#tele lvl
+B:34:36:35:80:12	#WoR
 B:35:12:11:60:12	#polymorph
 B:36:15:9:38:7	#shock wave
 B:37:19:20:45:11	#explosion
@@ -1396,7 +1438,7 @@ B:38:17:9:46:8	#cloudkill
 B:39:25:8:55:6	#mass sleep
 B:40:23:15:55:26	#bedlam
 B:41:25:30:80:30	#rend soul
-B:42:33:23:75:36	#WoDestruction
+B:42:33:25:75:36	#WoDestruction
 B:43:38:35:88:42	#chaos strike
 B:44:99:0:0:0	#Rcold
 B:45:99:0:0:0	#Rfire
@@ -1404,10 +1446,10 @@ B:46:99:0:0:0	#Rpois
 B:47:99:0:0:0	#resistance
 B:48:99:0:0:0	#shield
 B:49:40:70:79:40	#rune of protection
-B:50:10:8:80:11	#recharging1
+B:50:10:9:80:11	#recharging1
 B:51:36:50:90:40	#enchant armor
 B:52:34:50:90:50	#enchant weapon
-B:53:38:30:94:80	#recharging2
+B:53:38:33:94:80	#recharging2
 B:54:28:58:92:30	#elemental brand
 B:55:15:11:55:8	#ba-cold
 B:56:19:14:65:21	#ba-acid
@@ -1421,7 +1463,7 @@ B:63:41:34:75:200	#mana storm
 B:64:36:21:80:45	#summon demonic aid (war mage only, escapes book)
 B:65:99:0:0:0	#mana defence (WSHIELD +1-2 slight stealth, resistace book)
 B:66:99:0:0:0	#sphere of charm (escape book, for wizards)
-B:67:22:20:70:12	#sphere of charm (Tenser's, for war mage)
+B:67:22:22:70:12	#sphere of charm (Tenser's, for war mage)
 B:68:35:40:85:70	#elemental melee strike (like spirit of the balrog) (Tenser's)
 B:69:36:30:70:100	#dragonfire (Tenser's)
 
@@ -1430,14 +1472,16 @@ B:69:36:30:70:100	#dragonfire (Tenser's)
 #tentatively done
 N:18:Barbarian
 S:6:-3:-1:1:2:-1
-C:24:12:18:2:12:5:75:56
+C:24:12:18:2:12:5:75:53
 X:8:9:11:0:1:1:44:44
-I:10:5:14000:40
+I:10:5:14000:16
 A:3:80:3
 M:92:2:5:400
+E:1:1:2:3
 E:22:12:1:1
 E:34:3:1:1
-E:1:1:2:3
+#Class objects: Ring of Slaying or Staff of Charm Animal
+O:45:30:55:30
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | HEAVY_BONUS
 T:Brute
 T:Pillager
@@ -1518,6 +1562,106 @@ B:65:99:0:0:0	#
 B:66:99:0:0:0	#
 B:67:45:33:67:20	#extra melee attack		45 (in 8th book)
 
+#tentatively done
+N:19:Chaos Warrior
+S:4:-1:-3:0:2:-2
+C:15:17:14:0:13:6:67:39
+X:16:11:14:0:0:0:43:33
+I:7:25:43000:9
+A:5:35:5
+M:93:1:6:415
+#E:93:0:1:1
+E:22:10:1:1
+E:70:36:1:2
+E:75:33:1:1
+E:1:1:1:2
+#Class objects: Wand of Wonder or Spreading of Chaos book
+O:65:24:93:8
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BEAM | KNIGHT
+T:Jester
+T:Confuddler
+T:Anarchist
+T:Disrupter of Peace
+T:Laughing Barbarian
+T:Rampager
+T:Disrupter of Order
+T:Chaos Warrior
+T:Chaos Knight
+T:Arch Anarchist
+#Arch Anarchist, Arch Anarchist, Arch Anarchist, ..that's fun to say
+B:0:99:0:0:0	#illumination			/
+B:1:99:0:0:0	#detect doors/stairs		/
+B:2:99:0:0:0	#detect $$				/
+B:3:99:0:0:0	#trap/door destruction		/
+B:4:99:0:0:0	#camera flash			/
+B:5:99:0:0:0	#identify				/
+B:6:99:0:0:0	#door creation 			/ (tourist version)
+B:7:99:0:0:0	#word of recall			/ (tourist version)
+B:8:99:0:0:0	#stair creation			/ (tourist version)
+B:9:11:4:60:1	#cure light wounds (B2)		11
+B:10:13:8:67:2	#extra luck				13
+B:11:18:10:67:2	#resist cold			18
+B:12:31:16:96:6	#extra batteries			31
+B:13:9:8:75:1	#bug spray				9
+B:14:24:9:60:2	#detect invisible			24
+B:15:35:21:80:4	#resist poison			35 (not done)
+B:16:20:12:55:3	#curing or causing		20
+B:17:14:9:70:5	#wonder				14
+B:18:10:3:55:1	#blink (B3)				10
+B:19:6:2:75:1	#confuse monster			6
+B:20:12:4:55:1	#detect monsters			12
+B:21:99:0:0:0	#detect traps and objects	/ (gets other version)
+B:22:16:10:80:2	#slow monster			16
+B:23:19:13:75:4	#mini destruction			19
+B:24:26:14:70:3	#stone to mud			26
+B:25:99:0:0:0	#sense surroundings		/ (in book 8)
+B:26:99:0:0:0	#detect enchantment		/
+B:27:8:4:55:1	#detect traps (B4)		8 (tourist only book)
+B:28:19:6:65:2	#detect objects			19
+B:29:34:20:75:0	#map of the area			34
+B:30:22:16:55:3	#adjust curse			22
+B:31:30:15:67:4	#telekinesis2			30
+B:32:36:18:67:4	#detect enchantment2		36
+B:33:99:0:0:0	#probing				/
+B:34:44:30:75:10	#map of the level			44
+B:35:41:35:85:5	#full identify			41
+B:36:16:6:70:3	#hit and run (B5)			16
+B:37:23:10:55:3	#teleport self			23
+B:38:37:23:67:16	#teleport other			37
+B:39:31:16:80:12	#slow monsters			31
+B:40:39:32:90:65	#extra melee blow			39 (in book 9)
+B:41:28:16:67:10	#mass sleep				28
+B:42:99:0:0:0	#slip into the shadows		/
+B:43:27:26:75:15	#haste self				27
+B:44:15:9:80:6	#polymorph (B6)			15
+B:45:17:11:67:9	#adjust speed			17
+B:46:30:28:80:21	#banish or summon			30
+B:47:29:19:55:17	#affect self			29
+B:48:32:21:57:19	#affect surroundings		32
+B:49:38:25:55:24	#potluck stats			38
+B:50:45:60:90:30	#aquirement				45
+B:51:21:7:67:9	#blink monster (B7)		21 (moved to book 5)
+B:52:24:14:65:16	#door creation2			24
+B:53:31:16:75:23	#stair creation2			31
+B:54:44:34:55:30	#teleport level			44
+B:55:41:32:67:28	#word of destruction		41
+B:56:99:0:0:0	#word of recall2			/
+B:57:99:0:0:0	#rune of protection		/
+B:58:19:11:50:23	#resist heat and elec (B8)	/
+B:59:20:18:60:6	#satisfy hunger			/
+B:60:17:11:67:3	#burst of light			17 (moved to book 3)
+B:61:34:21:80:45	#curing				/
+B:62:37:50:30:50	#extreme roguishness		/
+B:63:43:41:91:60	#restore cleverness		/
+B:64:32:30:85:55	#resistance				/
+B:65:10:20:75:25	#stink (B9)				10
+B:66:15:21:67:30	#berserker				15
+B:67:21:19:67:35	#bedlam				21
+B:68:43:26:75:75	#chaos strike			43
+B:69:46:31:80:80	#rift					46
+B:70:40:33:67:70	#breathe chaos			40
+B:71:45:35:75:99	#mass chaos				45
+B:72:49:40:90:101	#bizzare effects			49
 
 #N:20:Sage (mind)
 
@@ -1532,8 +1676,6 @@ B:67:45:33:67:20	#extra melee attack		45 (in 8th book)
 #N:23:Witch/Warlock (black)
 
 #N:24:Stone Slinger (nature)
-
-#N:25:Chaos Warrior (chance)
 
 #N:26:Meditation Ninja (mind)
 
@@ -1552,7 +1694,7 @@ N:32:Hulk
 S:3:-2:-1:1:2:-3
 C:18:23:24:0:4:3:66:30
 X:10:6:14:0:0:1:38:10
-I:6:25:60000:40
+I:6:25:60000:8
 A:6:50:4
 M:0:0:0:0
 E:1:2:1:1

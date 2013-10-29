@@ -242,6 +242,14 @@ bool make_attack_normal(int m_idx)
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
+			/* if you are hit by a monster, you should notice that it's there */
+			if ((!m_ptr->monseen) && (!r_ptr->flags2 & (RF2_INVISIBLE)))
+			{
+               m_ptr->monseen = TRUE;
+               m_ptr->ml = TRUE;
+               visible = FALSE;
+            }
+                                
 			/* Always disturbing */
 			disturb(1, 0);
 
@@ -374,6 +382,15 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+                /* sharper claws */
+				case RBM_CLAWB:
+				{
+					act = "claws you.";
+					do_cut = 2;
+					sound_msg = MSG_MON_CLAW;
+					break;
+				}
+
 				case RBM_BITE:
 				{
 					act = "bites you.";
@@ -420,11 +437,11 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX2:
+				/* case RBM_XXX2:
 				{
 					act = "XXX2's you.";
 					break;
-				}
+				} */
 
 				case RBM_CRAWL:
 				{
@@ -1170,19 +1187,28 @@ bool make_attack_normal(int m_idx)
 				
 				case RBE_HUNGER:
                 {
+					/* Obvious */
+					obvious = TRUE;
+					
+					/* hunger */
+					if (p_ptr->slow_digest) /* partial resistance */
+					{
+			            if (p_ptr->food > PY_FOOD_ALERT + 200) (void)set_food(PY_FOOD_ALERT);
+			            else if ((p_ptr->food < PY_FOOD_WEAK + 400) && (p_ptr->food > PY_FOOD_WEAK + 200)) (void)set_food(PY_FOOD_WEAK);
+			            else p_ptr->food = p_ptr->food - (220 + randint(damage * 4));
+                    }
+                    else
+                    {
+			            if (p_ptr->food > PY_FOOD_WEAK + 240) (void)set_food(PY_FOOD_WEAK);
+			            else p_ptr->food = p_ptr->food - (240 + randint(damage * 5));
+                    }
+					msg_print("you feel unsatisfied.");
+
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
-					/* Obvious */
-					obvious = TRUE;
-
 					/* Take damage */
 					take_hit(damage, ddesc);
-					
-					/* hunger */
-			        if (p_ptr->food > PY_FOOD_WEAK + 240) (void)set_food(PY_FOOD_WEAK);
-			        else p_ptr->food = p_ptr->food - (240 + randint(damage * 5));
-					msg_print("you feel unsatisfied.");
 
 					break;
                 }
@@ -1518,8 +1544,8 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Increase "confused" */
-					if (!p_ptr->resist_charm)
+					/* Increase "frenzy" */
+					if ((!p_ptr->resist_charm) && (!p_ptr->peace))
 					{
 						if (inc_timed(TMD_FRENZY, 4 + randint((rlev / 2))))
 						{
@@ -1537,7 +1563,7 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d10>  */
-
+					
 					if (damage < 2)
 					{
                        int time = randint(5);
@@ -1577,16 +1603,18 @@ bool make_attack_normal(int m_idx)
 
 					if (damage < 3)
 					{
-                       int die = randint(damage*2);
+                               
+                       int die = damroll(3, 10);
                        (void)dispel_life(die);
                        if (p_ptr->timed[TMD_BECOME_LICH])
                        {
-                          (void)hp_player(die*10);
+                          (void)hp_player(die*3);
                        }
                        else 
                        {
 					      /* Take damage */
-					      take_hit(die + (goodweap*5), ddesc);
+					      if (goodweap > 0) die = die * 2;
+					      take_hit(die, ddesc);
 					      if (goodweap>0) msg_format("%^s casts its spell on you because you are wielding a good item!", m_name);
                           else msg_format("%^s's magic affects you!", m_name);
                        }
@@ -1621,7 +1649,7 @@ bool make_attack_normal(int m_idx)
                         (void)inc_timed(TMD_OPP_NETHR, time);
                         if ((randint(100) < 3 + (goodluck/2)) && (goodluck > 3))
                         {
-                           msg_format("%^s temporarily turns you into a lich!", m_name);
+                           msg_format("%^s temporarily turns you into a semi-lich!", m_name);
                            (void)inc_timed(TMD_BECOME_LICH, time*randint(time)*randint(time-2));
                         }
                     }
@@ -1639,6 +1667,14 @@ bool make_attack_normal(int m_idx)
                 {
 					/* conspicuous lack of damage */
 					/* <1d10>  */
+
+					/* Take damage */
+					if (p_ptr->peace)
+                    {
+                       take_hit((damage*3), ddesc);
+                       msg_format("%^s hits you because it hates the enchantment of peace.", m_name);
+                       break;
+                    }
 
                     (void)clear_timed(TMD_AFRAID);
 					if (damage < 4)
@@ -1956,6 +1992,16 @@ bool make_attack_normal(int m_idx)
 
 				/* Critical hit (zero if non-critical) */
 				tmp = monster_critical(d_dice, d_side, damage);
+				
+				/* sharper claws have more chance to cut */
+				if ((tmp < 4) && (do_cut > 1))
+				{
+                   if (randint(100) < 4 + (badluck/2 * (badluck/3 + 1))) tmp += 1;
+                }
+                else if (do_cut > 1)
+				{
+                   if (randint(100) < (badluck/2 + 2)) tmp += 1;
+                }
 
 				/* Roll for damage */
 				switch (tmp)
@@ -1969,6 +2015,10 @@ bool make_attack_normal(int m_idx)
 					case 6: k = 300; break;
 					default: k = 500; break;
 				}
+				if ((k > 0) && (k < 50) && (do_cut > 1))
+				{
+                   k += 2 + randint(6);
+                }
 
 				/* Apply the cut */
 				if (k) (void)inc_timed(TMD_CUT, k);
@@ -1981,6 +2031,16 @@ bool make_attack_normal(int m_idx)
 
 				/* Critical hit (zero if non-critical) */
 				tmp = monster_critical(d_dice, d_side, damage);
+				
+				/* butts have more chance to stun */
+				if ((tmp < 4) && (do_stun > 1))
+				{
+                   if (randint(100) < 5 + badluck/2) tmp += 1;
+                }
+                else if (do_stun > 1)
+				{
+                   if (randint(100) < 3 + badluck/3) tmp += 1;
+                }
 
 				/* Roll for damage */
 				switch (tmp)
@@ -2011,13 +2071,14 @@ bool make_attack_normal(int m_idx)
 				case RBM_PUNCH:
 				case RBM_KICK:
 				case RBM_CLAW:
+				case RBM_CLAWB:
 				case RBM_BITE:
 				case RBM_STING:
 				case RBM_TAIL:
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:
-				case RBM_XXX2:
+				/* case RBM_XXX2: */
 
 				/* Visible monsters */
 				if (m_ptr->ml)

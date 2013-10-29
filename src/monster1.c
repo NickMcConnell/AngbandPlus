@@ -254,7 +254,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_XXX2)        vp[vn++] = "do something";
 	if (l_ptr->flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
-	if (l_ptr->flags6 & RF6_XXX3)        vp[vn++] = "do something";
 	if (l_ptr->flags6 & RF6_XXX4)        vp[vn++] = "do something";
 	if (l_ptr->flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
@@ -263,6 +262,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
 	if (l_ptr->flags6 & RF6_FORGET)      vp[vn++] = "cause amnesia";
+	if (l_ptr->flags6 & RF6_INVIS)       vp[vn++] = "temporarily turn itself invisible";
 	if (l_ptr->flags6 & RF6_XXX6)        vp[vn++] = "do something";
 	if (l_ptr->flags6 & RF6_S_KIN)       vp[vn++] = "summon similar monsters";
 	if (l_ptr->flags6 & RF6_S_MONSTER)   vp[vn++] = "summon a monster";
@@ -507,13 +507,14 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_PUNCH:	p = "punch"; break;
 			case RBM_KICK:	p = "kick"; break;
 			case RBM_CLAW:	p = "claw"; break;
+			case RBM_CLAWB:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
 			case RBM_TAIL:	p = "swing its tail"; break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
+			/* case RBM_XXX2:	break; */
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;
@@ -725,6 +726,12 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		text_out(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
 
+    if (r_ptr->stealth == 2) text_out(format("%^s is slightly stealthy.  ", wd_he[msex]));
+    else if (r_ptr->stealth == 3) text_out(format("%^s is moderately stealthy.  ", wd_he[msex]));
+    else if (r_ptr->stealth == 4) text_out(format("%^s is very stealthy.  ", wd_he[msex]));
+    else if (r_ptr->stealth == 5) text_out(format("%^s is extremely stealthy.  ", wd_he[msex]));
+    else if (r_ptr->stealth > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
+    else text_out(format("%^s is not very stealthy.  ", wd_he[msex]));
 
 	/* Collect susceptibilities */
 	vn = 0;

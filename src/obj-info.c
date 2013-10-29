@@ -125,7 +125,7 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	/* Collect */
 	if (f1 & (TR1_STEALTH)) descs[cnt++] = "stealth";
 	if (f1 & (TR1_SEARCH))  descs[cnt++] = "searching";
-	if (f1 & (TR1_INFRA))   descs[cnt++] = "infravision";
+/*	if (f1 & (TR1_INFRA))   descs[cnt++] = "alertness"; */
 	if (f1 & (TR1_TUNNEL))  descs[cnt++] = "tunneling";
 	if (f1 & (TR1_SPEED))   descs[cnt++] = "speed";
 	if (f1 & (TR1_BLOWS))   descs[cnt++] = "attack speed";
@@ -133,16 +133,26 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_MIGHT))   descs[cnt++] = "shooting power";
 
 	/* Skip */
-	if (!cnt) return (FALSE);
+	if ((!cnt) && (!f1 & (TR1_INFRA))) return (FALSE);
 
 	/* Start */
-	p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
+	if (cnt)
+    {
+       p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
 
-	/* Output list */
-	output_list(descs, cnt);
+	   /* Output list */
+	   output_list(descs, cnt);
 
-	/* Output end */
-	p_text_out(format(" by %i.  ", pval));
+	   /* Output end */
+	   p_text_out(format(" by %i.  ", pval));
+    }
+
+    /* handle alertness factor */
+	if (f1 & (TR1_INFRA))
+	{
+	   text_out(format("It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
+	   text_out(format(" by %i.  ", (pval * 5)));
+    } /* needs to be tested */
 
 	/* We found something */
 	return (TRUE);
@@ -243,7 +253,8 @@ static bool describe_brand(const object_type *o_ptr, u32b f1, u32b f2)
 	if (f2 & (TR2_COAT_ACID)) output_desc_list("It is coated with acid", descs, cnt);
 
 	/* Describe brands */
-	output_desc_list("It is branded with ", descs, cnt);
+	if (o_ptr->tval == TV_RING) output_desc_list("It brands your melee blows with ", descs, cnt);
+	else output_desc_list("It is branded with ", descs, cnt);
 
 	/* We are done here */
 	return (cnt ? TRUE : FALSE);
@@ -284,7 +295,7 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
 /*
  * Describe resistances granted by an object.
  */
-static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
+static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3, u32b f4)
 {
 	cptr vp[17];
 	int vn = 0;
@@ -306,20 +317,20 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
 		vp[vn++] = "cold";
 
-	if (f2 & (TR2_RES_POIS))  vp[vn++] = "poison";
-	if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
-	if (f2 & (TR2_RES_LITE))  vp[vn++] = "light";
-	if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
-	if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
-	if (f2 & (TR2_RES_CONFU)) vp[vn++] = "confusion";
-	if (f2 & (TR2_RES_SOUND)) vp[vn++] = "sound";
-	if (f2 & (TR2_RES_SHARD)) vp[vn++] = "shards";
-	if (f2 & (TR2_RES_NEXUS)) vp[vn++] = "nexus" ;
-	if (f2 & (TR2_RES_NETHR)) vp[vn++] = "nether";
-	if (f2 & (TR2_RES_CHAOS)) vp[vn++] = "chaos";
-	if (f2 & (TR2_RES_DISEN)) vp[vn++] = "disenchantment";
+	if (f4 & (TR4_RES_POIS))  vp[vn++] = "poison";
+	if (f4 & (TR4_RES_FEAR))  vp[vn++] = "fear";
+	if (f4 & (TR4_RES_LITE))  vp[vn++] = "light";
+	if (f4 & (TR4_RES_DARK))  vp[vn++] = "dark";
+	if (f4 & (TR4_RES_BLIND)) vp[vn++] = "blindness";
+	if (f4 & (TR4_RES_CONFU)) vp[vn++] = "confusion";
+	if (f4 & (TR4_RES_SOUND)) vp[vn++] = "sound";
+	if (f4 & (TR4_RES_SHARD)) vp[vn++] = "shards";
+	if (f4 & (TR4_RES_NEXUS)) vp[vn++] = "nexus" ;
+	if (f4 & (TR4_RES_NETHR)) vp[vn++] = "nether";
+	if (f4 & (TR4_RES_CHAOS)) vp[vn++] = "chaos";
+	if (f4 & (TR4_RES_DISEN)) vp[vn++] = "disenchantment";
 	if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
-	if (f3 & (TR3_RES_CHARM)) vp[vn++] = "charming";
+	if (f4 & (TR4_RES_CHARM)) vp[vn++] = "charming";
 
 	/* Describe resistances */
 	output_desc_list("It provides resistance to ", vp, vn);
@@ -395,7 +406,7 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  * Describe miscellaneous powers such as see invisible, free action,
  * permanent light, etc; also note curses and penalties.
  */
-static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
+static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b f4)
 {
 	cptr good[6], bad[4];
 	int gc = 0, bc = 0;
@@ -411,7 +422,15 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 		if (artifact)
 			rad = 3;
 		else if (o_ptr->tval == TV_LITE)
+		{
 			rad = 2;
+
+		   if ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN))
+		   {
+              if (f3 & TR3_DARKVIS)
+              rad--;
+           }
+        }
 
 		if (f3 & TR3_LITE) rad++;
 
@@ -428,27 +447,30 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 
 	/* Collect stuff which can't be categorized */
 	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
+	if (f2 & (TR2_LIGHTNESS))   good[gc++] = "is lighter than most armor of its type";
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
+	if (f2 & (TR2_EXTRA_CRIT))  good[gc++] = "increases likelihood of critical hits";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
+	if (f2 & (TR2_NICE))        good[gc++] = "makes animals and light fairies less aggresive";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
 	if (f2 & (TR2_MAGIC_MASTERY))  good[gc++] = "raises your magic device skill";
 	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
 	{
-       good[gc++] = "is good and hates your black magic.";
+       good[gc++] = "is good and hates your black magic";
     }
 	else if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
 	{
-       good[gc++] = "is good and assists in your prayers.";
+       good[gc++] = "is good and assists in your prayers";
     }
 	else if (f3 & (TR3_GOOD_WEAP))   good[gc++] = "is good and hates evil";
 	if ((f3 & (TR3_BAD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
 	{
-       good[gc++] = "is evil and assists in casting your black magic.";
+       good[gc++] = "is evil and assists in your black magic";
     }
 	else if ((f3 & (TR3_BAD_WEAP)) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
 	{
-       good[gc++] = "is evil and hinders your prayers.";
+       good[gc++] = "is evil and hinders your prayers";
     }
 	else if (f3 & (TR3_BAD_WEAP))    good[gc++] = "is evil and hates good";
 	if (f3 & (TR3_CORRUPT))     good[gc++] = "corrupts those who wield it for too long";
@@ -468,6 +490,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	gc = 0;
 	if (f3 & (TR3_FREE_ACT))  good[gc++] = "immunity to paralysis";
 	if (f3 & (TR3_TELEPATHY)) good[gc++] = "the power of telepathy";
+	if (f3 & (TR3_DARKVIS))   good[gc++] = "darkvision";
 	if (f3 & (TR3_SEE_INVIS)) good[gc++] = "the ability to see invisible things";
 
 	/* Collect penalties */
@@ -475,6 +498,8 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
  	if (f3 & (TR3_STOPREGEN)) bad[bc++] = "prevents hit point regeneration";
+	if (f2 & (TR2_DANGER))    bad[bc++] = "sometimes hits yourself";
+	if (f2 & (TR2_PEACE))     bad[bc++] = "makes you less aggresive in combat";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))
@@ -558,12 +583,12 @@ bool object_info_out(const object_type *o_ptr)
     /* partial poison resistance */
 	if (f2 & (TR2_RES_POISB))
     {
-       p_text_out("It provides partial resistance to poison.");
+       p_text_out("It provides partial resistance to poison. ");
        something = TRUE;
     }
-	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
+	if (describe_resist(o_ptr, f2, f3, f4)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
-	if (describe_misc_magic(o_ptr, f2, f3)) something = TRUE;
+	if (describe_misc_magic(o_ptr, f2, f3, f4)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 

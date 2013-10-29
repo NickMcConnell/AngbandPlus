@@ -409,7 +409,7 @@ static void get_ahw(void)
 
 /*
  * Get the player's starting money
- * (this function has no effect with normal character generation)
+ * (this function has no effect with point-based character generation)
  */
 static void get_money(void)
 {
@@ -418,16 +418,19 @@ static void get_money(void)
 	int gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
+	/* (start with less if selling to stores is turned on) */
+    if (adult_cansell) gold = (p_ptr->sc * 3) + randint(110) + 140;
+    else gold = (p_ptr->sc  * 4) + randint(120) + 280;
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
+		/* much less reduction than before */
+		if (stat_use[i] >= 18+50) gold -= 100;
+		else if (stat_use[i] >= 18+20) gold -= 50;
+		else if (stat_use[i] > 18) gold -= 25;
+		else gold -= (stat_use[i] - 8);
 	}
 	
 	/* Minimum 100 gold */
@@ -539,14 +542,81 @@ static void player_wipe(bool really_wipe)
 	p_ptr->food = PY_FOOD_FULL - 1;
 
     /* Player is free of slime and silver poison */
-    p_ptr->silver > PY_SILVER_HEALTHY;
-    p_ptr->slime > PY_SLIME_HEALTHY;
+    p_ptr->silver = PY_SILVER_HEALTHY;
+    p_ptr->slime = PY_SLIME_HEALTHY;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
 
 }
 
+/*
+ * Try to wield everything wieldable in the inventory.
+ */
+static void wield_all(void)
+{
+	object_type *o_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	int slot;
+	int item;
+
+	/* Scan through the slots backwards */
+	for (item = INVEN_PACK - 1; item >= 0; item--)
+	{
+		o_ptr = &inventory[item];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+        /* Charge staffs and wands */
+		if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
+        {
+           o_ptr->pval = 4 + randint(3);
+        }
+
+		/* Make sure we can wield it and that there's nothing else in that slot */
+		slot = wield_slot(o_ptr);
+		if (slot < INVEN_WIELD) continue;
+		if (inventory[slot].k_idx) continue;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+		/* Decrease the item (from the pack) */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_optimize(item);
+		}
+
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_optimize(0 - item);
+		}
+
+		/* Get the wield slot */
+		o_ptr = &inventory[slot];
+
+		/* Wear the new stuff */
+		object_copy(o_ptr, i_ptr);
+
+		/* Increase the weight */
+		p_ptr->total_weight += i_ptr->weight;
+
+		/* Increment the equip counter by hand */
+		p_ptr->equip_cnt++;
+	}
+
+	return;
+}
 
 
 /*
@@ -591,7 +661,6 @@ static void player_outfit(void)
 		}
 	}
 
-
 	/* Hack -- give the player hardcoded equipment XXX */
 
 	/* Get local object */
@@ -617,6 +686,9 @@ static void player_outfit(void)
 	object_known(i_ptr);
         k_info[i_ptr->k_idx].everseen = TRUE;
 	(void)inven_carry(i_ptr);
+	
+	/* Now try wielding everything */
+	wield_all();
 }
 
 
@@ -671,8 +743,25 @@ static void race_aux_hook(int race, void *db, const region *reg)
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 	strnfmt(s, sizeof(s), "Experience: %d%% ", p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	strnfmt(s, sizeof(s), "Infravision: %d ft ", p_info[race].infra * 10);
+	strnfmt(s, sizeof(s), "Racial Alertness: %d  ", p_info[race].infra);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	if (p_info[race].b_age == 24) strnfmt(s, sizeof(s), "has sustained dexterity.                           ");
+	else if (p_info[race].b_age == 14) strnfmt(s, sizeof(s), "creatures of light are less aggressive to humans.  ");
+	else if (p_info[race].b_age == 75) strnfmt(s, sizeof(s), "has sustained dexterity and resistance to light.   ");
+	else if (p_info[race].b_age == 21) strnfmt(s, sizeof(s), "has hold life.                                     ");
+	else if (p_info[race].b_age == 50) strnfmt(s, sizeof(s), "has free action.                                   ");
+	else if (p_info[race].b_age == 35) strnfmt(s, sizeof(s), "has resistance to blindness and darkvision.        ");
+	else if (p_info[race].b_age == 11) strnfmt(s, sizeof(s), "has resistance to darkness.                        ");
+	else if (p_info[race].b_age == 20) strnfmt(s, sizeof(s), "has sustained strength and regeneration.           ");
+	else if (p_info[race].b_age == 45) strnfmt(s, sizeof(s), "has sustained constitution.                       ");
+	else if (p_info[race].b_age == 100) strnfmt(s, sizeof(s), "has sustained intellgence and resistance to light.");
+	else if (p_info[race].b_age == 15) strnfmt(s, sizeof(s), "has partial resistance to poison.                  ");
+	else if (p_info[race].b_age == 30) strnfmt(s, sizeof(s), "has partial resistance to poison.                  ");
+	else if (p_info[race].b_age == 80) strnfmt(s, sizeof(s), "has sustained wisdom and resistance to chaos.      ");
+	else if (p_info[race].b_age == 16) strnfmt(s, sizeof(s), "has resistance to nether and can see invisible     ");
+	else strnfmt(s, sizeof(s), "                                                    ");
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	/* ugly hack using base age to identify race, but I couldn't figure out how to do it by index number */
 }
 
 
@@ -1008,12 +1097,12 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 8) text_out_c(TERM_L_RED, "Sorry, a dunadan cannot be the class you chose.");
 	if (clash == 9) text_out_c(TERM_L_RED, "Sorry, a high elf cannot be the class you chose.");
 	if (clash == 10) text_out_c(TERM_L_RED, "Sorry, a kobold cannot be a mystic or a red knight.");
-	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be an alchemist, rogue, healer, or necromancer.");
+	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, a hobglib cannot be the class you chose.");
     if (clash == 12) text_out_c(TERM_L_RED, "Sorry, a fairy gnome cannot be the class you chose.");
 	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin or tourist.");
-	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a grave ghoul cannot be the class you chose.");
+	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a living ghoul cannot be the class you chose.");
 	if (clash == 15) text_out_c(TERM_L_RED, "Sorry, a power sprite cannot be the class you chose.");
-	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk can only be the hulk class.");
+	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk must be the hulk class.");
 	if (clash == 40) text_out_c(TERM_L_RED, "Sorry, only an uber umber hulk can be the hulk class.");
 
 	/* Reset text_out() indentation */
@@ -1798,18 +1887,21 @@ for (;clash < 50;)
 	
 				    /* restrict certain race/class combos */
                     clash = 51;
-                    /* hobligb can only be rogue, alchemist, healer, necromancer or chaos warrior */
+                    /* hobglib can only be rogue, alchemist, healer, necromancer or chaos warrior */
+                    /* can now also be: archer, assassin, thief, war mage */
                     if (p_ptr->prace == 11)
                       {
                          if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) &&
-                            (p_ptr->pclass != 9) && (p_ptr->pclass != 2))
+                            (p_ptr->pclass != 6) && (p_ptr->pclass != 13) &&
+                            (p_ptr->pclass != 9) && (p_ptr->pclass != 2) &&
+                            (p_ptr->pclass != 16) && (p_ptr->pclass != 19) && (p_ptr->pclass != 14))
                          clash = 11;
                       }
                     /* hobbit cannot be necromancer, druid, war mage, barbarian, fighter wizard, mystic, or red or yellow knight */
                     if (p_ptr->prace == 3)
                       {
                          if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10) || 
-                            (p_ptr->pclass == 18))
+                            (p_ptr->pclass == 18) || (p_ptr->pclass == 16))
                          clash = 3;
                       }
                     /* magic gnome cannot be a paladin, priest, or white, grey, blue, or yellow knight */
@@ -1829,13 +1921,13 @@ for (;clash < 50;)
                          if (p_ptr->pclass == 9)
                          clash = 6;
                       }
-                    /* half troll cannot be a war mage, mystic, ninja, or white, green or yellow knight
+                    /* half troll cannot be a war mage, mystic, ninja, or white, green or yellow knight */
                     if (p_ptr->prace == 7)
                       {
-                         if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5))
+                         if (p_ptr->pclass == 16)
                          clash = 7;
                       }
-                    /* dunadan cannot be a witch, war mage, thief, loser or chaos warrior */
+                    /* dunadan cannot be a witch, war mage, thief, or chaos warrior */
                     if (p_ptr->prace == 8)
                       {
                          if (p_ptr->pclass == 14) clash = 8; /* only thief so far */
@@ -1851,7 +1943,7 @@ for (;clash < 50;)
                       {
                          if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
                          clash = 10;
-                      }
+                      } */
                     /* fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch, loser, chaos warrior, or any kind of knight */
                     if (p_ptr->prace == 12)
                       {
@@ -1861,15 +1953,20 @@ for (;clash < 50;)
                     /* dark elf cannot be a paladin or tourist */
                     if (p_ptr->prace == 13)
                       {
-                         if (p_ptr->pclass == 5) clash = 13;
+                         if ((p_ptr->pclass == 8) || (p_ptr->pclass == 15))
+                         {
+                            clash = 13;
+                         }
                       }
-                    /* grave ghoul cannot be a priest, sage, mystic, ninja, or white, blue, or yellow knight */
+                    /* grave ghoul cannot be a tourist, ninja, or white, blue, or yellow knight */
                     if (p_ptr->prace == 14)
                       {
-                         if (p_ptr->pclass == 8)
-                         clash = 14;
+                         if (p_ptr->pclass == 15)
+                         {
+                            clash = 14;
+                         }
                       }    
-                    /* power sprite cannot be a wizard, necromancer, druid, alchemist, sage, or loser */
+                    /* power sprite cannot be a wizard, necromancer, druid, alchemist, or sage */
                     if (p_ptr->prace == 15)
                       {
                          if ((p_ptr->pclass == 1) || (p_ptr->pclass == 2))
@@ -1883,7 +1980,7 @@ for (;clash < 50;)
 
    /* luck settings, base luck is 20 (below 20 is bad luck) */
 p_ptr->luck = 20;
-if (p_ptr->prace == 0) p_ptr->luck += randint(6) - 2; /* human 19 to 24 */
+if (p_ptr->prace == 0) p_ptr->luck += randint(7) - 2; /* human 19 to 25 */
 if (p_ptr->prace == 1) p_ptr->luck += randint(5) - 2; /* half-elf 19 to 23 */
 if (p_ptr->prace == 2) p_ptr->luck += randint(5) - 2; /* elf 19 to 23 */
 if (p_ptr->prace == 3) p_ptr->luck += randint(4) - 1; /* hobbit 20 to 23 */
@@ -1897,7 +1994,7 @@ if (p_ptr->prace == 10) p_ptr->luck += randint(7) - 3; /* kobold 18 to 24 */
 if (p_ptr->prace == 11) p_ptr->luck += randint(5) - 2; /* hobglib 19 to 23 */
 if (p_ptr->prace == 12) p_ptr->luck += randint(4) - 1; /* fairy gnome 20 to 23 */
 if (p_ptr->prace == 13) p_ptr->luck += randint(6) - 3; /* dark elf 18 to 23 */
-/* if (p_ptr->prace == 14) p_ptr->luck += 0; /* grave ghoul 20 */
+/* if (p_ptr->prace == 14) p_ptr->luck += 0;   living ghoul 20 */
 if (p_ptr->prace == 15) p_ptr->luck += randint(4) - 1; /* power sprite 20 to 23 */
 if (p_ptr->prace == 16) p_ptr->luck += randint(2) - 1; /* maia 20 to 21 */
 if (p_ptr->prace == 17) p_ptr->luck += randint(4) - 2; /* hulk 19 to 22 */
@@ -1906,8 +2003,9 @@ if (p_ptr->pclass == 3) p_ptr->luck += (randint(2) - 1); /* rogue +0 to +1 */
 if (p_ptr->pclass == 8) p_ptr->luck -= (randint(2) - 1); /* priest +0 to -1 */
 if (p_ptr->pclass == 18) p_ptr->luck += (randint(2) - 1); /* barbarian +0 to +1 */
 if (p_ptr->pclass == 15) p_ptr->luck += 2; /* tourist +2 */
+ /* human tourists are especially lucky tourist +2 */
+if ((p_ptr->pclass == 15) && (p_ptr->prace == 0)) p_ptr->luck += 3;
 if (p_ptr->pclass == 14) p_ptr->luck += (randint(2) - 1); /* thief +0 to +1 */
-if (p_ptr->pclass == 21) p_ptr->luck -= (randint(3) - 1); /* loser +0 to -2 */
     goodluck = 0;
     if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
     badluck = 0;

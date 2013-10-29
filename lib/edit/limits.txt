@@ -1,5 +1,5 @@
 # File: limits.txt (DJA 1.1.0)
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/limits.raw" file, which is
@@ -22,10 +22,10 @@ M:F:64
 M:K:600
 
 # Maximum number of artifacts
-M:A:139
+M:A:160
 
 # Maximum number of ego-item types
-M:E:135
+M:E:160
 
 # Maximum number of monster races
 M:R:999

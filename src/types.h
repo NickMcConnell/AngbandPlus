@@ -278,6 +278,7 @@ struct ego_item_type
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
 	byte rating;		/* Level rating boost */
+	byte weight;		/* Extra weight */
 
 	byte tval[EGO_TVALS_MAX]; /* Legal tval */
 	byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
@@ -541,6 +542,7 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	s16b tinvis;        /* temporary invisibility */
 	bool monseen;       /* monster has been seen */
 	bool charmed;       /* monster is charmed */
 
@@ -716,6 +718,8 @@ struct player_race
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
+	s16b infra;			/* Racial alertness */
+
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
 
@@ -728,8 +732,6 @@ struct player_race
 	byte f_m_ht;		/* mod height (females) */
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
-
-	byte infra;			/* Infra-vision	range */
 
 	byte choice;		/* Legal class choices */
 
@@ -786,6 +788,8 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+	
+	s16b calert;        /* DJA: class alertness */
 
 	u32b flags;			/* Class Flags */
 
@@ -1042,7 +1046,18 @@ struct player_type
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
+	bool darkvis;       /* darkvision */
+	bool nice;          /* nice */
+	bool peace;         /* less agressive */
 
+         /* branding damage from elemental rings: */
+	bool brand_cold;	/* */
+	bool brand_acid;	/* */
+	bool brand_elec;	/* */
+	bool brand_fire;	/* */
+	bool brand_pois;	/* */
+
+	bool accident;      /* accidents happen with your weapon */
     bool stopregen;     /* Prevents HP regeneration */
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
@@ -1063,7 +1078,7 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-	s16b see_infra;		/* Infravision range */
+	s16b see_infra;		/* Alertness */
 
 	s16b skills[SKILL_MAX];	/* Skills */
 

@@ -133,9 +133,6 @@ static int bow_multiplier(int sval)
 {
 	switch (sval)
 	{
-        case SV_SMALL_BOW:
-        case SV_SLINGSHOT:
-            return (1);
 		case SV_SLING:
 		case SV_SHORT_BOW:
         case SV_MINI_XBOW:
@@ -365,26 +362,29 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
 	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
 	if (a_ptr->flags2 & TR2_RES_POISB) p += 4;
-	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
-	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
-	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
-	if (a_ptr->flags3 & TR3_RES_CHARM) p += 6;
-	if (a_ptr->flags2 & TR2_RES_BLIND) p += 10;
-	if (a_ptr->flags2 & TR2_RES_CONFU) p += 8;
-	if (a_ptr->flags2 & TR2_RES_SOUND) p += 10;
-	if (a_ptr->flags2 & TR2_RES_SHARD) p += 8;
-	if (a_ptr->flags2 & TR2_RES_NETHR) p += 12;
-	if (a_ptr->flags2 & TR2_RES_NEXUS) p += 10;
-	if (a_ptr->flags2 & TR2_RES_CHAOS) p += 12;
-	if (a_ptr->flags2 & TR2_RES_DISEN) p += 12;
+	if (a_ptr->flags2 & TR2_EXTRA_CRIT) p += 6;
+	if (a_ptr->flags4 & TR4_RES_POIS) p += 12;
+	if (a_ptr->flags4 & TR4_RES_LITE) p += 8;
+	if (a_ptr->flags4 & TR4_RES_DARK) p += 10;
+	if (a_ptr->flags4 & TR4_RES_CHARM) p += 6;
+	if (a_ptr->flags4 & TR4_RES_BLIND) p += 10;
+	if (a_ptr->flags4 & TR4_RES_CONFU) p += 8;
+	if (a_ptr->flags4 & TR4_RES_SOUND) p += 10;
+	if (a_ptr->flags4 & TR4_RES_SHARD) p += 8;
+	if (a_ptr->flags4 & TR4_RES_NETHR) p += 12;
+	if (a_ptr->flags4 & TR4_RES_NEXUS) p += 10;
+	if (a_ptr->flags4 & TR4_RES_CHAOS) p += 12;
+	if (a_ptr->flags4 & TR4_RES_DISEN) p += 12;
 
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
+	if (a_ptr->flags3 & TR3_DARKVIS) p += 2;
 	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 8;
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
 	if (a_ptr->flags3 & TR3_REGEN) p += 8;
-	if (a_ptr->flags3 & TR3_TELEPORT) p -= 20;
+	if (a_ptr->flags2 & TR2_DANGER) p -= 10;
+	if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
 	if (a_ptr->flags3 & TR3_STOPREGEN) p -= 20;
 	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 8;
@@ -440,8 +440,7 @@ static void choose_item(int a_idx)
 		/* Create a missile weapon. */
 		tval = TV_BOW;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 3) sval = SV_SLING;
-		else if (r2 < 4) sval = SV_SMALL_BOW;
+		if (r2 < 4) sval = SV_SLING;
 		else if (r2 < 10) sval = SV_SHORT_BOW;
 		else if (r2 < 29) sval = SV_LONG_BOW;
 		else if (r2 < 31) sval = SV_MINI_XBOW;
@@ -550,9 +549,8 @@ static void choose_item(int a_idx)
 		/* Hard stuff. */
 		else if (r2 < 55) sval = SV_RUSTY_CHAIN_MAIL;
 		else if (r2 < 65) sval = SV_METAL_SCALE_MAIL;
-		else if (r2 < 75) sval = SV_CHAIN_MAIL;
-		else if (r2 < 85) sval = SV_AUGMENTED_CHAIN_MAIL;
-		else if (r2 < 90) sval = SV_DOUBLE_CHAIN_MAIL;
+		else if (r2 < 77) sval = SV_CHAIN_MAIL;
+		else if (r2 < 87) sval = SV_AUGMENTED_CHAIN_MAIL;
 		else if (r2 < 97) sval = SV_BAR_CHAIN_MAIL;
 		else if (r2 < 105) sval = SV_METAL_BRIGANDINE_ARMOUR;
 		else if (r2 < 115) sval = SV_PARTIAL_PLATE_ARMOUR;
@@ -585,7 +583,7 @@ static void choose_item(int a_idx)
 	{
 		/* Make headgear. */
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 50) tval = TV_HELM; else tval = TV_CROWN;
+		if (r2 < 60) tval = TV_HELM; else tval = TV_CROWN;
 
 		if (r2 < 9) sval = SV_HARD_LEATHER_CAP;
 		else if (r2 < 20) sval = SV_METAL_CAP;
@@ -645,7 +643,7 @@ static void choose_item(int a_idx)
 	a_ptr->flags1 = k_ptr->flags1;
 	a_ptr->flags2 = k_ptr->flags2;
 	a_ptr->flags3 = k_ptr->flags3;
-	/* a_ptr->flags4 = k_ptr->flags4; */
+	a_ptr->flags4 = k_ptr->flags4;
 
 	/* Artifacts ignore everything */
 	a_ptr->flags3 |= TR3_IGNORE_MASK;
@@ -922,7 +920,7 @@ static void add_ability(artifact_type *a_ptr)
 			case TV_HELM:
 			case TV_CROWN:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_BLIND;
+				if (r < 20) a_ptr->flags4 |= TR4_RES_BLIND;
 				else if (r < 45) a_ptr->flags3 |= TR3_TELEPATHY;
 				else if (r < 65) a_ptr->flags3 |= TR3_SEE_INVIS;
 				else if (r < 75)
@@ -987,6 +985,7 @@ static void add_ability(artifact_type *a_ptr)
 	else			/* Pick something universally useful. */
 	{
 		r = rand_int(44);
+        int teleordarkv = rand_int(3);
 		switch (r)
 		{
 			case 0:
@@ -1120,35 +1119,38 @@ static void add_ability(artifact_type *a_ptr)
 			case 25: a_ptr->flags2 |= TR2_RES_COLD; break;
 
 			case 26:
-                 if (randint(100) < 85) a_ptr->flags2 |= TR2_RES_POIS;
+                 if (randint(100) < 85) a_ptr->flags4 |= TR4_RES_POIS;
                  else a_ptr->flags2 |= TR2_RES_POISB;
                  break;
-			case 27: a_ptr->flags2 |= TR2_RES_LITE; break;
-			case 28: a_ptr->flags2 |= TR2_RES_DARK; break;
-			case 29: a_ptr->flags2 |= TR2_RES_BLIND; break;
-			case 30: a_ptr->flags2 |= TR2_RES_CONFU; break;
-			case 31: a_ptr->flags2 |= TR2_RES_SOUND; break;
-			case 32: a_ptr->flags2 |= TR2_RES_SHARD; break;
+			case 27: a_ptr->flags4 |= TR4_RES_LITE; break;
+			case 28: a_ptr->flags4 |= TR4_RES_DARK; break;
+			case 29: a_ptr->flags4 |= TR4_RES_BLIND; break;
+			case 30: a_ptr->flags4 |= TR4_RES_CONFU; break;
+			case 31: a_ptr->flags4 |= TR4_RES_SOUND; break;
+			case 32: a_ptr->flags4 |= TR4_RES_SHARD; break;
 			case 33:
 				if (rand_int(2) == 0)
-					a_ptr->flags2 |= TR2_RES_NETHR;
+					a_ptr->flags4 |= TR4_RES_NETHR;
 				break;
-			case 34: a_ptr->flags2 |= TR2_RES_NEXUS; break;
-			case 35: a_ptr->flags2 |= TR2_RES_CHAOS; break;
+			case 34: a_ptr->flags4 |= TR4_RES_NEXUS; break;
+			case 35: a_ptr->flags4 |= TR4_RES_CHAOS; break;
 			case 36:
 				if (rand_int(2) == 0)
-					a_ptr->flags2 |= TR2_RES_DISEN;
+					a_ptr->flags4 |= TR4_RES_DISEN;
+				else a_ptr->flags2 |= TR2_EXTRA_CRIT;
 				break;
 			case 37: a_ptr->flags3 |= TR3_FEATHER; break;
 			case 38: a_ptr->flags3 |= TR3_LITE; break;
 			case 39: a_ptr->flags3 |= TR3_SEE_INVIS; break;
 			case 40:
-				if (rand_int(3) == 0)
+				if (teleordarkv == 0)
 					a_ptr->flags3 |= TR3_TELEPATHY;
+				else if (teleordarkv == 1)
+					a_ptr->flags3 |= TR3_DARKVIS;
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
-			case 43: a_ptr->flags3 |= TR3_RES_CHARM; break;
+			case 43: a_ptr->flags4 |= TR4_RES_CHARM; break;
 		}
 	}
 
@@ -1162,12 +1164,14 @@ static void add_ability(artifact_type *a_ptr)
  */
 static void do_curse(artifact_type *a_ptr)
 {
-	if (rand_int(3) == 0)
+	if (rand_int(5) == 0)
 		a_ptr->flags3 |= TR3_AGGRAVATE;
 	if (rand_int(5) == 0)
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
 	if (rand_int(7) == 0)
 		a_ptr->flags3 |= TR3_TELEPORT;
+	if (rand_int(5) == 0)
+		a_ptr->flags2 |= TR2_DANGER;
 	if (rand_int(9) == 0)
 		a_ptr->flags3 |= TR3_STOPREGEN;
 

@@ -927,7 +927,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * This function updates the monster record of the given monster
  *
  * This involves extracting the distance to the player (if requested),
- * and then checking for visibility (natural, infravision, see-invis,
+ * and then checking for visibility (natural, stealth, see-invis,
  * telepathy), updating the monster visibility flag, redrawing (or
  * erasing) the monster when its visibility changes, and taking note
  * of any interesting monster flags (cold-blooded, invisible, etc).
@@ -950,7 +950,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * monster, and update the distance, and the visibility.  Every time
  * the player moves, we must call this function for every monster, and
  * update the distance, and the visibility.  Whenever the player "state"
- * changes in certain ways ("blindness", "infravision", "telepathy",
+ * changes in certain ways ("blindness", "telepathy",
  * and "see invisible"), we must call this function for every monster,
  * and update the visibility.
  *
@@ -969,8 +969,11 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * by the player, (2) it is close to the player and the player has
  * telepathy, or (3) it is close to the player, and in line of sight
  * of the player, and it is "illuminated" by some combination of
- * infravision, torch light, or permanent light (invisible monsters
+ * torch light, or permanent light (invisible monsters
  * are only affected by "light" if the player can see invisible).
+ *
+ * Stealthy monsters who are visible and in line of sight can still 
+ * escape notice.
  *
  * Monsters which are not on the current panel may be "visible" to
  * the player, and their descriptions will include an "offscreen"
@@ -984,6 +987,8 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  */
 void update_mon(int m_idx, bool full)
 {
+			bool do_invisible = FALSE;
+
 	monster_type *m_ptr = &mon_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1038,6 +1043,7 @@ void update_mon(int m_idx, bool full)
 	/* Nearby */
 	if (d <= MAX_SIGHT)
 	{
+
 		/* Basic telepathy */
 		if (p_ptr->telepathy)
 		{
@@ -1051,8 +1057,8 @@ void update_mon(int m_idx, bool full)
 			/* Weird mind, occasional telepathy */
 			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 			{
-				/* One in ten individuals are detectable */
-				if ((m_idx % 10) == 5)
+				/* One in nine individuals are detectable */
+				if ((m_idx % 9) == 5)
 				{
 					/* Detectable */
 					flag = TRUE;
@@ -1081,26 +1087,7 @@ void update_mon(int m_idx, bool full)
 		/* Normal line of sight, and not blind */
 		if (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND])
 		{
-			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
-
-			/* Use "infravision" */
-			if (d <= p_ptr->see_infra)
-			{
-				/* Handle "cold blooded" monsters */
-				if (r_ptr->flags2 & (RF2_COLD_BLOOD))
-				{
-					/* Take note */
-					do_cold_blood = TRUE;
-				}
-
-				/* Handle "warm blooded" monsters */
-				else
-				{
-					/* Easy to see */
-					easy = TRUE;
-				}
-			}
 
 			/* Use "illumination" */
 			if (player_can_see_bold(fy, fx))
@@ -1132,71 +1119,127 @@ void update_mon(int m_idx, bool full)
 			{
 				/* Memorize flags */
 				if (do_invisible) l_ptr->flags2 |= (RF2_INVISIBLE);
-				if (do_cold_blood) l_ptr->flags2 |= (RF2_COLD_BLOOD);
 			}
+			
+			/* Temporary invisibility */
+			if ((easy) && (m_ptr->tinvis > 0))
+			{
+                m_ptr->tinvis -= 1;
+				do_invisible = TRUE;
+
+				/* See invisible */
+				if (!p_ptr->see_inv)
+				{
+					/* dissapears! */
+					easy = FALSE;
+				}
+            }
 		}
 	}
 	
+    /* Darkvision: If monster is in line of sight, the player is not blind, */ 
+    /* and the monster is not invisible, then the player can see it */
+    /* (even if the space is not lit) */
+    if (((p_ptr->darkvis) || (p_ptr->timed[TMD_DARKVIS])) &&
+	   (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND]))
+	{   
+       easy = TRUE;
+
+       /* but don't see invisibile monsters */
+       if (!p_ptr->see_inv)
+       {
+          if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis)) easy = FALSE;
+       }
+    }   
+
 	/* if a monster would otherwise be seen easily, check monster stealth */
 	/* palert is evaluated in xtra1.c */
 	if (easy)
 	{
         int mstealth = (r_ptr->stealth * 11);
-        if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
-        else if (goodluck == 4) mstealth -= 1;
-        if (badluck > 4) mstealth += (badluck/5 + rand_int(badluck/4));
-        if ((!r_ptr->flags2 & (RF2_COLD_BLOOD)) && (p_ptr->see_infra > 3))
-        {
-           int msmod = 5 - d;
-           if (msmod < 0) msmod = 0;
-           mstealth -= (5 + p_ptr->see_infra + randint(msmod));
-        }
-        else if ((!r_ptr->flags2 & (RF2_COLD_BLOOD)) && (p_ptr->see_infra > 1))
-        {
-           int msmod = 3 - d;
-           if (msmod < 0) msmod = 0;
-           mstealth -= (randint(2 + p_ptr->see_infra + msmod) + 1);
-        }
+        if ((r_ptr->stealth > 1) && (d < 15)) mstealth += d * 2; /* distance */
+        if (goodluck > 5) mstealth -= (goodluck/2);
+        else if (goodluck > 3) mstealth -= 1;
+        if (badluck > 3) mstealth += (badluck/2);
         
-        if ((d > 12) && (r_ptr->stealth > 4)) mstealth += 30;
-        else if ((d > 12) && (r_ptr->stealth > 2)) mstealth += 20;
-        else if (d > 12) mstealth += 10;
-        else if ((d > 3) && (r_ptr->stealth > 4)) mstealth += (d-3) * (2 + randint(2));
-        else if ((d > 3) && (r_ptr->stealth > 2)) mstealth += (d-3) * 2;
+        if ((d > 14) && (r_ptr->stealth > 2)) mstealth += (r_ptr->stealth*10);
+        else if ((d > 14) && (r_ptr->stealth == 2)) mstealth += 30;
+        else if (d > 14) mstealth += 16;
+        else if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * (r_ptr->stealth - 2);
         else if (d > 3) mstealth += (d-3);
-        else if (d < 2) mstealth -= 10;
-        if ((d < 7) && (m_ptr->monseen) && (!m_ptr->monfear)) mstealth -= 15;
-        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 15;
+        else if (d < 2) mstealth -= 16;
+
+        if ((m_ptr->stunned) || (m_ptr->confused) || (m_ptr->charmed)) mstealth -= 16;
+        if (p_ptr->depth == 0) mstealth -= 16;
+                
+        /* much easier to notice if you've noticed it before */
+        if ((!m_ptr->monseen) && (r_ptr->stealth > 1)) mstealth += 15;
+        if ((m_ptr->monseen) && (d < 7) && (!m_ptr->monfear)) mstealth -= 50;
+        else if (m_ptr->monseen) mstealth -= 15;
+        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 32;
 
         /* prevent randint(negative mstealth) because that makes it crash */
         if (mstealth < 1) mstealth = 1;
 
-        /* cold-blooded examples assume monseen is 0*/
-        /* monster of stealth 1 at a distance of 13 now has mstealth of 21 */
-        /* monster of stealth 3 at a distance of 13 now has mstealth of 53 */
-        /* monster of stealth 2 at a distance of 9 now has mstealth of 28 */
-        /* monster of stealth 3 at a distance of 7 now has mstealth of 41 */
-        /* monster of stealth 4 at a distance of 6 now has mstealth of 50 */
-        /* monster of stealth 5 at a distance of 5 now has mstealth of 61 */
-        /* monster of stealth 6 at a distance of 4 now has mstealth of 72 */
-        /* monster of stealth 5 at a distance of 1 now has mstealth of 45 */
-        /* monster of stealth 6 at a distance of 8 now has mstealth of 81 */
-/* warm blooded monster of stealth 5 at a distance of 3 has mstealth of 54 at most */
+        /* examples which assume monseen is FALSE and luck is 0: */
+        /* monster of stealth 1 at a distance of 8 now has mstealth of 16 */
+        /* monster of stealth 1 at a distance of 15 now has mstealth of 27 */
+        /* monster of stealth 3 at a distance of 15 now has mstealth of 71 */
+        /* monster of stealth 5 at a distance of 15 now has mstealth of 113 */
+        /* monster of stealth 2 at a distance of 9 now has mstealth of 54 */
+        /* monster of stealth 3 at a distance of 7 now has mstealth of 59 */
+        /* monster of stealth 4 at a distance of 6 now has mstealth of 70 */
+        /* monster of stealth 5 at a distance of 5 now has mstealth of 79 */
+        /* monster of stealth 6 at a distance of 4 now has mstealth of 86 */
+        /* monster of stealth 5 at a distance of 1 now has mstealth of 53 */
+        /* monster of stealth 6 at a distance of 8 now has mstealth of 110 */
         /* does the player notice the monster? */
         if (d > 2)
         {
+              /* give monsters a few chances to avoid being noticed */
               if ((mstealth > (palert + 50)) && (!m_ptr->monseen)) easy = FALSE;
+              if ((mstealth > (palert * 2)) && (randint(mstealth) > palert + 4)) easy = FALSE;
               if (randint(mstealth) > palert) easy = FALSE;
-              if (randint(mstealth) > palert + 8) easy = FALSE;
+              if (randint(mstealth) > palert + rp_ptr->infra) easy = FALSE;
               if ((palert > mstealth) && (r_ptr->stealth > 1) && 
-                  (randint(1200) < (mstealth + d + badluck - goodluck))) easy = FALSE;
+                  (randint(palert * 25) < (mstealth + d + badluck - goodluck))) easy = FALSE;
+                   /* originally 1200 instead of palert * 25 */
         }
         else if (d <= 2)
         {
-              if (randint(mstealth) > (palert + 5)) easy = FALSE;
+              /* only one chance to escape notice when very close */
+              if (randint(mstealth) > palert) easy = FALSE;
+        }        
+    }
+    /* an extremely alert character may notice signs of an invisible monster */
+    else if ((!p_ptr->see_inv) && (r_ptr->flags2 & (RF2_INVISIBLE)))
+    {
+        int mstealth = 50 + (r_ptr->stealth * 5) + (d * 2);
+        if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
+        else if (goodluck == 4) mstealth -= 1;
+        if (badluck > 4) mstealth += (badluck/4 + rand_int(badluck/3));
+        if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_SILVER)))
+        {
+           mstealth += 24;
         }
-        if (randint(200) < goodluck) easy = TRUE;
-        
+
+        if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * 2;
+        else if (d > 3) mstealth += (d-3);
+        else if (d < 2) mstealth -= 10;
+        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 10;
+
+        /* minimum stealth for invisibile monsters */
+        if (mstealth < 30) mstealth = 30;
+
+        /* impossible to notice invisible monsters further than 6 spaces away */
+        if ((d < 7) && (r_ptr->stealth < 5))
+        {
+              if (randint(palert) > mstealth)
+              {
+                  easy = TRUE;
+                  msg_format("You notice the signs of an invisible monster!");
+              }    
+        }
     }
 
     /* is it still visible after monster stealth is checked? */
@@ -1769,17 +1812,19 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	if (total > GROUP_MAX) total = GROUP_MAX;
 
 	/* Pairs */
-	if ((r_ptr->flags1 & RF1_FRIEND) && (total > 1))
+	if ((r_ptr->flags1 & RF1_FRIEND) && (total > 2))
 	{
-       	if ((extra = 12) && (randint(100) < 60)) total = 4;
+       	if ((extra == 12) && (randint(100) < 60)) total = 4;
+       	else if ((extra > 7) && (randint(100) < 20)) total = 3;
        	else total = 2;
     }
 
 	/* small groups */
-	if ((r_ptr->flags2 & RF2_FRIEND1) && (total > 5))
+	if ((r_ptr->flags2 & RF2_FRIEND1) && (total > 7))
 	{
-       	if ((extra > 10) && (randint(100) < 50)) total = ((total * 2) / 3);
-       	else total = total / 2;
+       	if ((extra > 8) && (randint(100) < 50)) total = ((total * 3) / 4);
+       	else total = ((total * 2) / 3);
+	    if ((r_ptr->level > p_ptr->depth) && (total > 8)) total = 8;
     }
 
 	/* Save the rating */

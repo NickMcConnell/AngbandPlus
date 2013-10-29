@@ -1,5 +1,5 @@
 # File: object.txt
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -71,6 +71,7 @@
 # ends or the beginning of the next line to prevent words from running
 # together.
 
+# NOTE: INFRA flag is now for alertness. I have done away with infravision.
 
 
 # Version stamp (required)
@@ -90,7 +91,7 @@ G:&:w
 N:1:Second Sight
 G:,:d
 I:80:1:500
-W:5:0:1:0
+W:5:0:1:60
 A:5/1
 F:EASY_KNOW
 D:It causes blindness that lasts for 200+1d200 turns, or if you have
@@ -106,7 +107,7 @@ W:5:0:1:0
 A:5/1
 F:EASY_KNOW
 D:It induces charm that keeps you from attacking for 9+1d10 turns,
-D: unless you have resistance to charm (which is currently unavailable).
+D: unless you have resistance to charm.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -144,33 +145,39 @@ D:It neutralizes poison.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:6:Cure Blindness
+#replaces cure blindess
+N:6:First Sight and Second Thoughts
 G:,:d
 I:80:13:500
 W:10:0:1:50
-A:10/1
+A:6/6:50/8
 F:EASY_KNOW
-D:It cures blindness.
+D:It cures blindness, gives you resistance to blindness, strengthens your
+D: natural sight (alertness) and your second thoughts (saving throw), but
+D: it also supresses second sight (telepathy) and most divination magic
+D: (detection spells/items and see invisible).
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:7:Cure Paranoia
+#replaces cure paranoia
+N:7:Fast Attacks
 G:,:d
 I:80:14:500
-W:10:0:1:25
-A:10/1
+W:10:0:1:1500
+A:10/10:80/10
 F:EASY_KNOW
-D:It removes your fear.
+D:It increases your attack speed by 1.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:8:Cure Confusion
+#replaces cure confusion
+N:8:Extreme Irritation
 G:,:d
 I:80:15:500
-W:10:0:1:50
-A:10/1
+W:10:0:1:0
+A:8/2
 F:EASY_KNOW
-D:It cures confusion.
+D:It drives you into a mad, careless frenzy.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -189,7 +196,7 @@ D: conditions.
 
 N:10:Unhealth
 G:,:d
-I:80:10:500
+I:80:10:250
 W:15:0:1:50
 A:15/1
 P:0:10d10:0:0:0
@@ -221,31 +228,34 @@ D: Also cures 2 points of silver poison.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:13:Stupidity
+N:13:Potluck
 G:,:d
-I:80:8:500
-W:15:0:1:0
-A:15/1
+I:80:8:444
+W:15:0:1:107
+A:11/3:61/11
 F:EASY_KNOW
-D:It inflicts 8d8 points of damage, and also reduces intelligence unless
-D: you have sustain intelligence.
+D:Has a random effect, may be good or bad.  Luck may have an effect on
+D: what it does.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:14:Naivety
+N:14:Unlucky Munchkin
 G:,:d
-I:80:9:500
-W:15:0:1:0
-A:15/1
+I:80:9:413
+W:15:0:1:400
+A:6/8:66/6
 F:EASY_KNOW
-D:It inflicts 8d8 points of damage, and also reduces wisdom unless you
-D: have sustain wisdom.
+D:If you are a primary spellcaster, it gives you see invisibile
+D: and enchanced spellcasting, including the ability to read scrolls and books
+D: while blind. If not, it gives you multiple combat buffs (heroism, berserker,
+D: and blessing).
+D: Either way, it lowers your luck by 2 or 3.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
 N:15:Poison
 G:,:d
-I:80:0:500
+I:80:0:250
 W:5:0:1:0
 A:10/1
 P:0:3d9:0:0:0
@@ -256,14 +266,14 @@ D:  It may also be thrown to inflict 6d6 points of damage.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:16:Sickness
+#replaces sickness
+N:16:Pricy Luckfinding
 G:,:d
-I:80:7:500
-W:10:0:1:0
-A:10/1
+I:80:7:477
+W:10:0:1:400
+A:7/7:77/7
 F:EASY_KNOW
-D:It inflicts 6d6 points of damage, and also reduces constitution unless
-D: you have sustain constitution.
+D:It raises your luck by 1d3 and lowers one of your stats, ignoring sustains.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -290,7 +300,7 @@ D: conditions.
 N:19:Silver Slime
 G:,:d
 I:80:11:2
-W:20:0:1:50
+W:20:0:1:0
 A:20/1
 P:0:10d10:0:0:0
 F:EASY_KNOW
@@ -318,7 +328,7 @@ N:21:& ration~ of food
 G:,:U
 I:80:35:5000
 W:0:0:10:3
-A:0/1:5/1:10/1
+A:0/1:10/1
 F:EASY_KNOW
 D:It provides nourishment for about 2500 turns under normal conditions.
 
@@ -341,7 +351,7 @@ N:24:& slime mold~
 G:,:g
 I:80:36:3000
 W:1:0:5:2
-A:1/1
+A:3/1
 F:EASY_KNOW
 D:It provides nourishment for about 1500 turns under normal conditions.
 
@@ -349,7 +359,7 @@ N:25:& piece~ of elvish waybread
 G:,:B
 I:80:37:7500
 W:5:0:3:120
-A:10/2:20/2
+A:10/2:25/2
 F:EASY_KNOW
 D:It cures 4d8 points of damage, neutralizes poison, cures 5 points
 D: of silver poison, and 3 points of sliming.
@@ -365,7 +375,7 @@ D:It provides nourishment for about 250 turns under normal conditions.
 
 N:27:& pint~ of fine wine
 G:,:r
-I:80:39:1000
+I:80:39:900
 W:0:0:10:2
 F:EASY_KNOW
 D:It provides nourishment for about 500 turns under normal conditions.
@@ -397,7 +407,6 @@ D:Also known as a hand-and-a-half sword, it is larger than the long sword, but
 D: smaller than the two-handed sword.
 
 # cannot be holy avenger, blessed, gondolin, or westernese
-# rarity should be 6 after black magic classes are added
 N:32:& athame~
 G:|:D
 I:23:29:0
@@ -405,7 +414,7 @@ W:13:6:50:366
 A:13/6
 P:0:1d4:0:0:0
 F:SHOW_MODS | BAD_WEAP
-F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 D:A magical stone dagger used in rites of witchcraft.
 
 # was 200 (same as old Tulwar)
@@ -595,14 +604,14 @@ F:SHOW_MODS
 D:The head of a spiked mace attached to a chain with a handle. It can be used almost
 D: as effectively by a blind person.
 
-# was 590, should have a chance of damaging yourself.
+# was 590, has a chance of damaging yourself.
 N:51:& multi-chained flail~
 G:\:y
 I:22:14:0
 W:30:0:170:710
 A:25/5
 P:0:2d7:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | DANGER
 D:A flail with multiple chained heads attached to one handle, a dangerous weapon for
 D: the wielder as well as for the opponent.
 
@@ -630,7 +639,7 @@ D:A studded metal ball at the end of a handle, it is basically a metal club.
 N:54:& quarterstaff~
 G:\:U
 I:21:6:0
-W:10:0:130:270
+W:10:0:125:270
 A:9/1
 P:0:1d9:0:0:0
 F:SHOW_MODS
@@ -668,15 +677,18 @@ P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS | BLESSED
 D:A powerful and heavy mace, blessed for priests against undead.
 
-# was lucerne hammer
-N:58:& Staff of Striking~
+# #58 was lucerne hammer
+#was I:21:30:0, tval is now staff but symbol is still weapon.
+N:58:Striking
 G:\:B
-I:21:30:0
-W:45:4:150:2000
-A:42/4
+I:55:31:0
+W:45:4:140:2000
+A:44/4
 P:0:3d9:0:0:0
+C:2+d5
 F:SHOW_MODS
-D:A magic staff which adds magical damage to physical damage with each blow.
+D:A magic staff meant as a weapon, magically multiplying its damage.
+D: May also fire a magic missile doing 3d9 damage.
 
 ##### Polearms and Axes tval 22 #####
 
@@ -694,7 +706,7 @@ D:A small axe not primarily made for fighting.
 N:60:& glaive~
 G:/:s
 I:22:13:0
-W:20:0:190:686
+W:20:0:190:706
 A:20/2
 P:0:2d7:0:0:0
 F:SHOW_MODS
@@ -765,7 +777,7 @@ D:A very long and heavy spear-like weapon made for jousting.
 N:67:& great axe~
 G:/:s
 I:22:23:0
-W:40:0:230:744
+W:40:0:230:754
 A:35/2
 P:0:4d4:0:0:0
 F:SHOW_MODS
@@ -774,7 +786,7 @@ F:SHOW_MODS
 N:68:& battle axe~
 G:/:s
 I:22:18:0
-W:15:0:170:700
+W:15:0:170:720
 A:22/1
 P:0:2d8:0:0:0
 F:SHOW_MODS
@@ -783,7 +795,7 @@ F:SHOW_MODS
 N:69:& lochaber axe~
 G:/:D
 I:22:25:0
-W:45:0:250:815
+W:45:0:250:835
 A:40/2
 P:0:3d8:0:0:0
 F:SHOW_MODS
@@ -1166,7 +1178,7 @@ D:are stiff and weakened.
 N:111:augmented chain mail~
 G:[:s
 I:37:6:0
-W:30:0:270:900
+W:30:0:250:900
 A:30/1
 P:16:1d4:-2:0:0
 D:A hauberk, leggings, and sleeves of interlocking steel rings, 
@@ -1454,28 +1466,28 @@ F:LIGHT_CURSE | INT | WIS | CHR | DRAIN_EXP | RES_FEAR | HIDE_TYPE
 N:146:Flames
 G:=:d
 I:45:18:0
-W:50:0:2:3000
+W:50:0:2:6000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | 
+F:RES_FIRE | IGNORE_FIRE | BRAND_FIRE
 F:ACTIVATE
 
 N:147:Acid
 G:=:d
 I:45:17:0
-W:50:0:2:3000
+W:50:0:2:7000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | 
+F:RES_ACID | IGNORE_ACID | BRAND_ACID
 F:ACTIVATE
 
 N:148:Ice
 G:=:d
 I:45:19:0
-W:50:0:2:3000
+W:50:0:2:6000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | 
+F:RES_COLD | IGNORE_COLD | BRAND_COLD
 F:ACTIVATE
 
 N:149:Woe
@@ -1483,12 +1495,12 @@ G:=:d
 I:45:0:-5
 W:50:0:2:0
 A:50/1
-F:HEAVY_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
+F:HEAVY_CURSE | TELEPORT | WIS | CHR | INFRA | HIDE_TYPE
 
 N:150:Nether Resistance
 G:=:d
 I:45:13:0
-W:56:0:2:4000
+W:56:6:2:4000
 A:56/6
 F:RES_NETHR | EASY_KNOW
 D:it provides resistance to nether forces.
@@ -1525,7 +1537,7 @@ N:155:See Invisible
 G:=:d
 I:45:22:0
 W:30:0:2:1400
-A:42/2
+A:45/2
 F:SEE_INVIS | EASY_KNOW
 
 N:156:Sustain Brawn
@@ -1558,8 +1570,8 @@ F:SUST_DEX | SUST_CHR | EASY_KNOW
 N:162:Slaying
 G:=:d
 I:45:30:0
-W:39:0:2:1000
-A:39/1
+W:40:0:2:1000
+A:40/1
 F:SHOW_MODS
 D:It boosts your to-hit and to-dam values.
 
@@ -1689,7 +1701,14 @@ D:  (The spell may be aborted without using up the scroll.)
 
 ## XXX 178 XXX ##
 
-## XXX 179 XXX ##
+N:179:Deep Descent
+G:?:w
+I:70:40:0
+W:10:0:5:250
+A:10/1
+F:EASY_KNOW
+D:Teleports you 1 or 2 levels past the deepest level you've been to
+D: in the dungeon.
 
 N:180:Remove Curse
 G:?:w
@@ -1792,21 +1811,22 @@ F:EASY_KNOW
 D:It removes all ordinary and heavy curses from all equipped objects.
 D:  Permanent curses are unaffected.
 
-N:192:Treasure Detection
-G:?:w
-I:70:26:0
-W:0:0:5:46
-A:0/1
-F:EASY_KNOW
-D:It detects all treasure in the immediate area.
+#(combined with object detection)
+#N:192:Treasure Detection
+#G:?:w
+#I:70:26:0
+#W:0:0:5:46
+#A:0/1
+#F:EASY_KNOW
+#D:It detects all treasure in the immediate area.
 
-N:193:Object Detection
+N:193:Object and Treasure Detection
 G:?:w
 I:70:27:0
 W:0:0:5:15
 A:0/1
 F:EASY_KNOW
-D:It detects all objects in the immediate area.
+D:It detects all objects and treasure in the immediate area.
 
 N:194:Trap Detection
 G:?:w
@@ -2052,7 +2072,7 @@ D: unless you have resistance to either blindness or light.
 
 N:222:Pepsi
 G:!:d
-I:75:2:400
+I:75:2:300
 W:0:0:4:2
 A:0/2:45/4
 P:0:1d1:0:0:0
@@ -2087,7 +2107,7 @@ N:225:Strength
 G:!:d
 I:75:48:25
 W:30:0:4:8000
-A:22/5
+A:22/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Strength, then permanently
@@ -2095,7 +2115,7 @@ D: increases strength.
 
 N:226:Weakness
 G:!:d
-I:75:16:0
+I:75:16:5
 W:3:0:4:0
 A:3/1
 P:0:1d1:0:0:0
@@ -2115,7 +2135,7 @@ N:228:Intelligence
 G:!:d
 I:75:49:25
 W:30:0:4:8000
-A:22/5
+A:22/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Intelligence, then permanently
@@ -2123,7 +2143,7 @@ D: increases intelligence.
 
 N:229:Stupidity
 G:!:d
-I:75:17:0
+I:75:17:5
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
@@ -2143,7 +2163,7 @@ N:231:Wisdom
 G:!:d
 I:75:50:25
 W:30:0:4:8000
-A:22/5
+A:22/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Wisdom, then permanently
@@ -2151,7 +2171,7 @@ D: increases wisdom.
 
 N:232:Naivety
 G:!:d
-I:75:18:0
+I:75:18:5
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
@@ -2171,7 +2191,7 @@ N:234:Charisma
 G:!:d
 I:75:53:25
 W:20:0:4:1000
-A:17/5
+A:17/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Charisma, then permanently
@@ -2209,7 +2229,7 @@ D: conditions.
 
 N:238:Clumsiness
 G:!:d
-I:75:19:0
+I:75:19:5
 W:5:0:4:0
 A:5/1
 P:0:1d1:0:0:0
@@ -2251,7 +2271,7 @@ D: conditions.
 
 N:242:Healing
 G:!:d
-I:75:37:550
+I:75:37:500
 W:15:0:4:300
 A:15/1:60/1
 P:0:1d1:0:0:0
@@ -2266,7 +2286,7 @@ N:243:Constitution
 G:!:d
 I:75:52:25
 W:30:0:4:8000
-A:22/5
+A:22/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Constitution, then permanently
@@ -2352,7 +2372,7 @@ N:251:Dexterity
 G:!:d
 I:75:51:25
 W:30:0:4:8000
-A:22/5
+A:22/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It first acts as a Potion of Restore Dexterity, then permanently
@@ -2507,19 +2527,18 @@ F:EASY_KNOW
 D:It restores mana points to maximum if they are currently below
 D: maximum.
 
-N:267:Infravision
+N:267:Alertness
 G:!:d
 I:75:24:25
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:It extends the radius of your infravision by 50 feet for 100+1d100
-D: turns.
+D:It temporarily increases your alertness for stealthy monsters.
 
 N:268:Super Spellcasting
 G:!:d
-I:75:54:25
+I:75:54:10
 W:15:0:4:1000
 A:15/6:75/6
 P:0:1d1:0:0:0
@@ -2535,7 +2554,7 @@ D: blind.  This potion's effect lasts 75 + 1d75 turns.
 N:269:Light
 G:-:d
 I:65:7:0
-W:3:0:10:200
+W:3:0:10:250
 A:3/1
 P:0:1d1:0:0:0
 C:6+d10
@@ -2616,7 +2635,7 @@ D:It hastes a single monster.
 N:277:Slow Monster
 G:-:d
 I:65:9:0
-W:5:0:10:500
+W:5:0:10:400
 A:5/1
 P:0:1d1:0:0:0
 C:6+d10
@@ -2626,7 +2645,7 @@ D:  Uniques are unaffected.
 N:278:Confuse Monster
 G:-:d
 I:65:10:0
-W:5:0:10:500
+W:5:0:10:400
 A:5/1
 P:0:1d1:0:0:0
 C:6+d12
@@ -2686,7 +2705,7 @@ D: be created.
 N:284:Scare Monster
 G:-:d
 I:65:11:0
-W:10:0:10:500
+W:10:0:10:400
 A:10/4
 P:0:1d1:0:0:0
 C:3+d5
@@ -2706,7 +2725,7 @@ D: squares away.
 N:286:Disarming
 G:-:d
 I:65:4:0
-W:20:0:10:700
+W:20:0:10:650
 A:20/1
 P:0:1d1:0:0:0
 C:4+d5
@@ -2853,26 +2872,30 @@ G:_:d
 I:55:12:0
 W:10:0:50:350
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d5
+F:SHOW_MODS
 D:It detects all traps in the immediate area.
 
-N:301:Treasure Location
+N:301:Zapping
 G:_:d
 I:55:10:0
-W:5:0:50:200
-A:5/1
-P:0:1d2:0:0:0
-C:8+d20
-D:It detects all treasure in the immediate area.
+W:7:0:50:200
+A:7/5
+P:0:1d5:0:0:0
+C:4+d5
+F:SHOW_MODS
+D:It creates an electrical field around you which zaps nearby monsters
+D: for minor damage.
 
-N:302:Object Location
+N:302:Treasure & Object Location
 G:_:d
 I:55:11:0
-W:5:0:50:200
+W:5:0:50:500
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d15
+F:SHOW_MODS
 D:It detects all objects in the immediate area.
 
 N:303:Teleportation
@@ -2880,8 +2903,9 @@ G:_:d
 I:55:4:0
 W:20:0:50:2000
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:5+d4
+F:SHOW_MODS
 D:It teleports you randomly with a maximum range of 100 squares.
 
 N:304:Earthquakes
@@ -2889,8 +2913,9 @@ G:_:d
 I:55:28:0
 W:40:0:50:350
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:3+d5
+F:SHOW_MODS
 D:It causes an earthquake centered on you that has a 10-square radius;
 D: this randomly places new walls and floor space.  Monsters can be
 D: caught by a newly created wall; this does not affect monsters that
@@ -2903,8 +2928,9 @@ G:_:d
 I:55:3:0
 W:10:0:50:0
 A:10/1:50/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:1+d4
+F:SHOW_MODS
 D:It summons 1d4 monsters that are generated at the current dungeon
 D: level.
 D:  If a monster normally appears in groups, a whole group will appear.
@@ -2915,8 +2941,9 @@ G:_:d
 I:55:8:0
 W:5:0:50:250
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d20
+F:SHOW_MODS
 D:It lights up an area with a radius of 2 squares, plus the entire room
 D: if you are currently in one.
 D:  This inflicts 2d8 points of damage on any light-sensitive creatures
@@ -2927,8 +2954,9 @@ G:_:d
 I:55:29:0
 W:50:0:50:2500
 A:50/1:70/1
-P:0:1d2:0:0:0
+P:0:2d4:0:0:0
 C:1+d3
+F:SHOW_MODS
 D:It destroys a circular area centered at you with a radius of 15
 D: squares, randomly placing new walls and floor space (stairs are
 D: immune).  All monsters and objects (excluding artifacts) are removed
@@ -2941,8 +2969,9 @@ G:_:d
 I:55:7:0
 W:20:0:50:800
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d5
+F:SHOW_MODS
 D:It fires a line of light in all eight cardinal directions;
 D: light-sensitive monsters caught in one of the lines take 6d8 points
 D: of damage.
@@ -2952,8 +2981,9 @@ G:_:d
 I:55:2:0
 W:10:0:50:0
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d8
+F:SHOW_MODS
 D:It hastes all monsters within line of sight.
 
 N:310:Slow Monsters
@@ -2961,8 +2991,9 @@ G:_:d
 I:55:21:0
 W:10:0:50:800
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d5
+F:SHOW_MODS
 D:It attempts to slow down all monsters within line of sight.
 D:  Uniques are unaffected.
 
@@ -2971,8 +3002,9 @@ G:_:d
 I:55:20:0
 W:10:0:50:700
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d5
+F:SHOW_MODS
 D:It attempts to put all monsters within line of sight to sleep.
 D:  Uniques are unaffected.
 
@@ -2981,8 +3013,9 @@ G:_:d
 I:55:16:0
 W:5:0:50:310
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d6
+F:SHOW_MODS
 D:It cures 1d8 points of damage.
 
 N:313:Detect Invisible
@@ -2990,8 +3023,9 @@ G:_:d
 I:55:14:0
 W:5:0:50:200
 A:5/1:22/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d15
+F:SHOW_MODS
 D:It detects all invisible monsters in the immediate area.
 
 N:314:Speed
@@ -2999,8 +3033,9 @@ G:_:d
 I:55:22:0
 W:40:0:50:1000
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:4+d3
+F:SHOW_MODS
 D:It hastes you (+10 to speed) for 15+1d30 turns (or 5 additional turns
 D: if you already are under the effect of a temporary haste
 D: enchantment).
@@ -3010,8 +3045,9 @@ G:_:d
 I:55:1:0
 W:40:0:50:0
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d8
+F:SHOW_MODS
 D:It slows you down (-10 to speed) for 15+1d30 turns; this duration is
 D: cumulative with other temporary slowing enchantments.
 
@@ -3020,8 +3056,9 @@ G:_:d
 I:55:13:0
 W:10:0:50:350
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:6+d8
+F:SHOW_MODS
 D:It detects all doors and stairs in the immediate area.
 
 N:317:Remove Curse
@@ -3029,8 +3066,9 @@ G:_:d
 I:55:6:0
 W:40:0:50:500
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:4+d3
+F:SHOW_MODS
 D:It removes all ordinary curses from all equipped items.
 D:  Heavy or permanent curses are unaffected.
 
@@ -3039,8 +3077,9 @@ G:_:d
 I:55:15:0
 W:20:0:50:350
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d15
+F:SHOW_MODS
 D:It detects all evil monsters in the immediate area.
 
 N:319:Curing
@@ -3048,8 +3087,9 @@ G:_:d
 I:55:17:0
 W:25:0:50:1000
 A:25/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:4+d3
+F:SHOW_MODS
 D:It cures all stunning, heals all cut damage, neutralizes poison, and
 D: cures blindness and confusion.
 
@@ -3058,8 +3098,9 @@ G:_:d
 I:55:24:0
 W:50:0:50:1200
 A:50/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:4+d3
+F:SHOW_MODS
 D:It inflicts 60 points of damage on all evil monsters within line of
 D: sight.
 
@@ -3068,8 +3109,9 @@ G:_:d
 I:55:23:0
 W:30:0:50:2000
 A:30/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:2+d7
+F:SHOW_MODS
 D:It probes all monsters within line of sight, giving information both
 D: on the current hit points of the monsters and many of their
 D: characteristics and abilities (excluding melee, spellcasting, and
@@ -3080,8 +3122,9 @@ G:_:d
 I:55:0:0
 W:5:0:50:0
 A:5/1:50/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:8+d8
+F:SHOW_MODS
 D:It darkens all squares within 3 squares of you, plus the entire room
 D: if you are currently in one; and blinds you for 3+1d5 turns, unless
 D: you have resistance to blindness.
@@ -3091,8 +3134,9 @@ G:_:d
 I:55:27:0
 W:70:0:50:3500
 A:70/4
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:1+d3
+F:SHOW_MODS
 D:It removes all monsters represented by a chosen symbol from the level.
 D:  Uniques are unaffected.
 D:  You take 1d4 points of damage for every monster removed.
@@ -3102,8 +3146,9 @@ G:_:d
 I:55:25:0
 W:70:0:50:4000
 A:70/2
-P:0:1d2:0:0:0
+P:0:2d4:0:0:0
 C:1+d3
+F:SHOW_MODS
 D:It inflicts 120 points of damage on all monsters within line of sight.
 
 N:325:the Magi
@@ -3111,8 +3156,9 @@ G:_:d
 I:55:19:0
 W:70:0:50:4500
 A:70/2
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:2+d2
+F:SHOW_MODS
 D:It restores both intelligence and mana points to maximum if either or
 D: both are currently below maximum.
 
@@ -3121,8 +3167,9 @@ G:_:d
 I:55:5:0
 W:10:0:50:400
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:5+d15
+F:SHOW_MODS
 D:It reveals all normal (magical but non-hidden) powers of one object.
 D:  (The spell may be aborted without using up a charge.)
 
@@ -3131,8 +3178,9 @@ G:_:d
 I:55:26:0
 W:70:0:50:4500
 A:70/2
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:2+d2
+F:SHOW_MODS
 D:It inflicts 120 points of damage on all evil monsters within line of
 D: sight, cures 50 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, removes fear, and also grants you the
@@ -3144,8 +3192,9 @@ G:_:d
 I:55:9:0
 W:20:0:50:750
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:5+d5
+F:SHOW_MODS
 D:It maps out a portion of the level centered on you.
 
 N:329:Healing
@@ -3153,8 +3202,9 @@ G:_:d
 I:55:18:0
 W:70:0:50:5000
 A:70/2
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:1+d2
+F:SHOW_MODS
 D:It cures 300 points of damage, cures all stunning, and heals all cut
 D: damage.
 
@@ -3337,6 +3387,7 @@ W:0:0:0:0
 A:2/21:13/8:23/12:60/14
 P:0:0d0:0:0:0
 F:EASY_KNOW
+D:A floppy-eared furball-tailed dustball who eats dust carrots.
 
 N:350:& docile silver dust bunny
 G:.:W
@@ -3345,6 +3396,7 @@ W:0:0:0:0
 A:6/21:19/9:40/13:75/15
 P:0:0d0:0:0:0
 F:EASY_KNOW
+D:A rather cute ball of dust that refuses to be swept up.
 
 ##### Here are the Rods #####
 
@@ -3711,8 +3763,8 @@ D:This spellbook is not readable by paladins
 N:388:[Wrath of God]
 G:?:g
 I:91:8:0
-W:100:0:30:100000
-A:100/4
+W:95:0:30:100000
+A:95/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -3740,23 +3792,23 @@ F:EASY_KNOW
 
 ##### Skeletons #####
 
-#tusks can be wielded and used as weapons, but they never get an ego or enchantment
+#tusks can now be wielded and used as weapons
 
 N:391:& rothe tusk~
 G:~:w
 I:1:1:0
-W:8:4:80:20
-A:8/4
+W:4:4:80:20
+A:4/4
 P:0:1d5:0:0:0
-F:EASY_KNOW
+F:EASY_KNOW | SHOW_MODS
 
 N:392:& mumak tusk~
 G:~:w
 I:1:2:0
-W:40:4:160:1400
-A:40/4
+W:35:4:160:1400
+A:35/4
 P:0:1d9:0:0:0
-F:EASY_KNOW
+F:EASY_KNOW | SHOW_MODS
 
 N:393:& masodon tusk~
 G:~:w
@@ -3764,7 +3816,7 @@ I:1:4:0
 W:50:6:330:6000
 A:50/6
 P:0:2d8:-2:0:0
-F:EASY_KNOW
+F:EASY_KNOW | SHOW_MODS
 
 # Skeleton items are no longer generated (no 'A'llocation lines)
 # Keep the entries for savefile compatibility
@@ -4093,7 +4145,7 @@ A:70/8
 F:DEX | SUST_DEX | STEALTH | SPEED | SEARCH | INFRA | 
 F:RES_NEXUS | RES_POIS | HIDE_TYPE
 
-N:429:Infravision
+N:429:Alertness
 G:":d
 I:40:21:0
 W:10:0:3:200
@@ -4112,9 +4164,9 @@ F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
 N:431:Lightning
 G:=:d
 I:45:38:0
-W:50:0:2:5000
+W:50:0:2:6500
 A:50/2
-F:RES_ELEC | IGNORE_ELEC | ACTIVATE
+F:RES_ELEC | IGNORE_ELEC | BRAND_ELEC | ACTIVATE
 
 ### Items 432-436 unused ###
 
@@ -4219,30 +4271,34 @@ G:$:b
 I:100:13:0
 W:1:0:0:20
 
+# was 24
 N:493:rubies
 G:$:R
 I:100:14:0
-W:1:0:0:24
+W:1:0:0:23
 
+# was 28
 N:494:diamonds
 G:$:w
 I:100:15:0
-W:1:0:0:28
+W:1:0:0:27
 
 N:495:emeralds
 G:$:g
-I:100:16:0
+I:100:17:0
 W:1:0:0:32
 
+# was 40
 N:496:mithril
 G:$:B
-I:100:17:0
-W:1:0:0:40
+I:100:18:0
+W:1:0:0:38
 
+# was 80
 N:497:adamantite
 G:$:G
-I:100:18:0
-W:1:0:0:80
+I:100:19:0
+W:1:0:0:75
 
 
 ##### Objects 498 and 499 are the "Morgoth Artifacts" #####
@@ -4430,10 +4486,11 @@ F:SHOW_MODS
 N:516:& walking staff~
 G:\:u
 I:21:3:0
-W:4:8:80:20
+W:4:8:60:20
 A:2/2
 P:0:1d5:0:0:0
 F:SHOW_MODS
+D:A sturdy wooden staff not made for fighting.
 
 # was 42
 N:517:& elven leather cap~
@@ -4469,12 +4526,11 @@ W:0:75:15:25
 A:0/75
 P:2:0d0:0:0:0
 
-# maybe make more rare
 N:521:& light club~
 G:\:U
 I:21:4:0
-W:3:5:36:84
-A:3/5
+W:3:6:36:84
+A:3/6
 P:0:2d2:1:0:0
 F:SHOW_MODS
 
@@ -4549,26 +4605,26 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+#No one can use this book yet. (mystic not implemented yet)
 N:530:[Power of Enlightenment]
 G:?:v
 I:92:8:0
 W:5:0:30:75000
-A:90/1
+#A:90/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This spellbook is only readable by mystics.
 
-#priestly weapon, shouldn't be as good at tunneling as it is
 N:531:& walking stick~
 G:\:u
 I:21:1:0
-W:1:0:50:2
+W:1:0:40:2
 A:0/2
 P:0:1d2:0:0:0
 F:SHOW_MODS
+D:A stick good enough to lean against a little, but of little use as a weapon.
 
-#axe
 N:532:& giant axe~
 G:/:W
 I:22:28:0
@@ -4577,39 +4633,29 @@ A:50/8
 P:0:5d5:0:0:0
 F:SHOW_MODS
 
-#some added bows
-N:533:slingshot
-G:{:u
-I:19:1:0
-W:0:1:10:4
-A:0/2
-F:SHOW_MODS
+#N:533
 
+#a few added launchers
 N:534:handheld catapult
 G:{:D
 I:19:3:0
-W:30:5:60:160
-A:30/5:70/10
+W:30:6:60:160
+A:30/6:70/10
 F:SHOW_MODS
 
-N:535:small bow
-G:{:U
-I:19:11:0
-W:2:2:26:30
-A:0/2
-F:SHOW_MODS
+#N:535:
 
 N:536:mini crossbow
 G:{:s
 I:19:22:0
-W:8:2:60:145
+W:7:2:60:145
 A:7/2
 F:SHOW_MODS
 
 #cannot get extra shots or extra might egos
 N:537:great bow
 G:{:g
-I:19:35:0
+I:19:34:0
 W:70:5:140:3700
 A:70/5
 F:SHOW_MODS
@@ -4623,6 +4669,7 @@ W:5:0:30:25
 A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:This spellbook is not for chaos warriors.
 
 N:539:[Minor Charms for Vacationers]
 G:?:U
@@ -4648,13 +4695,13 @@ W:20:0:30:1000
 A:20/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
-D:This spellbook is only for tourists.
+D:This spellbook is not for rogues.
 
 N:542:[Quick Getaways]
 G:?:u
 I:93:4:0
 W:20:0:30:2100
-A:21/1
+A:25/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4663,8 +4710,8 @@ D:This spellbook is not for tourists.
 N:543:[The Lottery]
 G:?:u
 I:93:5:0
-W:40:0:30:17777
-A:40/1
+W:45:0:30:17777
+A:45/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4672,28 +4719,28 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:544:[Mordenkainen's Escapes: Rogue's Edition]
 G:?:u
 I:93:6:0
-W:55:0:30:30000
-A:55/2
+W:60:0:30:30000
+A:60/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This spellbook is not for tourists.
 
-N:545:[Rogue's Defences]
+N:545:[Rogue's Buffs and Defences]
 G:?:u
 I:93:7:0
-W:55:0:30:30000
-A:55/2
+W:65:0:30:30000
+A:65/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for tourists.
+D:This spellbook is for rogues only.
 
 N:546:[The Spreading of Chaos]
 G:?:u
 I:93:8:0
 W:80:0:30:46000
-A:65/2
+A:85/3
 P:0:1d3:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4727,8 +4774,8 @@ F:EASY_KNOW
 N:550:[Quick Getaways: Thieves' edition]
 G:?:W
 I:94:3:0
-W:20:0:30:1000
-A:20/1
+W:24:0:30:1000
+A:24/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
@@ -4806,7 +4853,7 @@ N:558:[Handbook of Curses and Poisons]
 G:?:s
 I:95:2:0
 W:5:0:30:135
-A:10/1
+A:13/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:This spellbook is not for necromancers.
@@ -4815,7 +4862,7 @@ N:559:[Mysteries of Shadow]
 G:?:s
 I:95:4:0
 W:5:0:30:5000
-A:20/1
+A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
@@ -4823,7 +4870,7 @@ N:560:[Frightful Realms]
 G:?:D
 I:95:3:0
 W:5:0:30:1000
-A:23/1
+A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4832,7 +4879,7 @@ N:561:[Unholy Protection]
 G:?:D
 I:95:5:0
 W:5:0:30:16000
-A:35/1
+A:45/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4842,7 +4889,7 @@ N:562:[Life Force Mastery]
 G:?:D
 I:95:6:0
 W:5:0:30:30000
-A:56/1
+A:58/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4852,7 +4899,7 @@ N:563:[Metamorphoses]
 G:?:D
 I:95:7:0
 W:5:0:30:50000
-A:70/1
+A:70/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4861,7 +4908,7 @@ N:564:[Necronomicon]
 G:?:D
 I:95:8:0
 W:5:0:30:75000
-A:90/1
+A:90/3
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4945,7 +4992,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#when you add parital resistances, give this partial rst-fire
+#when/if you add parital resistances, give this partial rst-fire
 N:574:& dragonscale shield~
 G:):r
 I:34:7:0
@@ -4965,7 +5012,7 @@ N:576:Four-Leaf Clover Juice
 G:!:d
 I:75:14:0
 W:10:0:4:777
-A:10/77
+A:10/37
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:Raises your luck by 1d2.
@@ -4973,7 +5020,7 @@ D:Raises your luck by 1d2.
 N:577:& barbut~
 G:]:s
 I:32:4:0
-W:25:0:45:60
+W:25:0:45:90
 A:25/1:75/5
 P:4:1d2:0:0:0
 D:A metal helmet with a t-shaped face slit that offers protection down to the 
@@ -4991,7 +5038,7 @@ D:to toe, emblazoned with heraldic symbols.
 N:579:& set~ of steel gauntlets
 G:]:W
 I:31:3:0
-W:32:0:35:60
+W:32:0:35:70
 A:32/1
 P:3:1d1:0:0:0
 D:A set of gloves that completely covers the hand and wrist in steel plating.
@@ -5000,7 +5047,7 @@ N:580:& elven cloak~
 G:(:G
 I:35:5:2
 W:35:0:7:400
-A:35/3
+A:35/4
 P:2:0d0:0:0:0
 F:STEALTH
 D:A mantle made of curious silken material by the Galadrim that wondrously 
@@ -5041,7 +5088,7 @@ G:_:d
 I:55:30:0
 W:20:0:50:1800
 A:20/4
-P:0:1d2:0:0:0
+P:0:1d5:0:0:0
 C:3+d4
 D:It casts sphere of charm animals. While this spell is in effect, most 
 D: animals or bugs within two spaces of you will not breathe or use any 
@@ -5051,3 +5098,22 @@ D: cannot be charmed, and a couple other animals require very high luck.
 D: If you have bad luck, some evil or more violent animals might not be
 D: affected. If you have a luck of -15 or worse, this spell has no effect.
 D: If you attack and hit any charmed animal, the effects end immediately.
+
+#tval 4 is unused
+#>>doesn't work yet (?)
+N:585:the class object (should never appear)
+G:*:r
+I:4:1:0
+W:23:0:100:900
+A:23/2
+P:0:1d7:0:0:0
+D:This object should never appear.
+D: It has an A: line because the code checks for the generation of this object and
+D: turns it into something else (a certain (sometimes rare) object made more common
+D: for each class).
+
+# new treasure type (..wish I could put it with the other treasures..)
+N:586:jade
+G:$:g
+I:100:16:0
+W:1:0:0:30

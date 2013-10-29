@@ -135,7 +135,7 @@ static flagname boostconv[] =
 	{ TR1_SPEED,    "speed" },
 	{ TR1_BLOWS,    "blows" },
 	{ TR1_SHOTS,    "shots" },
-	{ TR1_INFRA,    "infravision" },
+	{ TR1_INFRA,    "alertness" },
 };
 
 /* perhaps this belongs in a different file */

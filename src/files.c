@@ -1106,7 +1106,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 
 	if (cp_ptr->flags & CF_BRAVERY_30)
 	{
-		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->lev >= 30) (*f4) |= (TR4_RES_FEAR);
 	}
 	if (cp_ptr->flags & CF_HULK_CONF)
     {
@@ -1162,21 +1162,21 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ " Elec",	2, TR2_RES_ELEC,	TR2_IM_ELEC },
 	{ " Fire",	2, TR2_RES_FIRE,	TR2_IM_FIRE },
 	{ " Cold",	2, TR2_RES_COLD,	TR2_IM_COLD },
-	{ " Pois",	2, TR2_RES_POIS,	0 },	/* TR2_IM_POIS */
-/* 	{ "1.2Po",  2, TR3_RES_POISB,   0 },   /* partial poison resist */
-	{ " Fear",	2, TR2_RES_FEAR,	0 },
-	{ " Lite",	2, TR2_RES_LITE,	0 },
-	{ " Dark",	2, TR2_RES_DARK,	0 },
+	{ " Pois",	4, TR4_RES_POIS,	0 },	/* TR4_IM_POIS */
+/* 	{ "1.2Po",  2, TR3_RES_POISB,   0 },    partial poison resist */
+	{ " Fear",	4, TR4_RES_FEAR,	0 },
+	{ " Lite",	4, TR4_RES_LITE,	0 },
+	{ " Dark",	4, TR4_RES_DARK,	0 },
 
-	{ "Blind",	2, TR2_RES_BLIND,	0 },
-	{ "Confu",	2, TR2_RES_CONFU,	0 },
-	{ "Sound",	2, TR2_RES_SOUND,	0 },
-	{ "Shard",	2, TR2_RES_SHARD,	0 },
-	{ "Nexus",	2, TR2_RES_NEXUS,	0 },
-	{ "Nethr",	2, TR2_RES_NETHR,	0 },
-	{ "Chaos",	2, TR2_RES_CHAOS,	0 },
-	{ "Disen",	2, TR2_RES_DISEN,	0 },
-/* 	{ "Charm",  2, TR3_RES_CHARM,   0 }, */
+	{ "Blind",	4, TR4_RES_BLIND,	0 },
+	{ "Confu",	4, TR4_RES_CONFU,	0 },
+	{ "Sound",	4, TR4_RES_SOUND,	0 },
+	{ "Shard",	4, TR4_RES_SHARD,	0 },
+	{ "Nexus",	4, TR4_RES_NEXUS,	0 },
+	{ "Nethr",	4, TR4_RES_NETHR,	0 },
+	{ "Chaos",	4, TR4_RES_CHAOS,	0 },
+	{ "Disen",	4, TR4_RES_DISEN,	0 },
+/* 	{ "Charm",  4, TR4_RES_CHARM,   0 }, */
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
@@ -1194,7 +1194,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 
 	{ "Stea.",	1, TR1_STEALTH,		0 },
 	{ "Sear.",	1, TR1_SEARCH,		0 },
-	{ "Infra",	1, TR1_INFRA,		0 },
+	{ "Alrt.",	1, TR1_INFRA,		0 },
 	{ "Tunn.",	1, TR1_TUNNEL,		0 },
 	{ "Speed",	1, TR1_SPEED,		0 },
 	{ "Blows",	1, TR1_BLOWS,		0 },
@@ -1238,7 +1238,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			{
 				player_flags(&f[1], &f[2], &f[3], &f[4]);
 				/* hack -- these really belong on a status line */
-				/* things out to be set up so this is a loop */
+				/* things ought to be set up so this is a loop */
 				if (p_ptr->timed[TMD_SINFRA])
 					f[1] |= TR1_INFRA;
 				if (p_ptr->timed[TMD_FAST])
@@ -1256,20 +1256,20 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 				else if (p_ptr->timed[TMD_OPP_COLD])
 					f[2] |= TR2_RES_COLD;
 				if (p_ptr->timed[TMD_OPP_POIS])
-					f[2] |= TR2_RES_POIS;
+					f[4] |= TR4_RES_POIS;
 				if (p_ptr->timed[TMD_WOPP_POIS])
 					f[2] |= TR2_RES_POISB;
 				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]) || 
                    (p_ptr->timed[TMD_BECOME_LICH]))
-					f[2] |= TR2_RES_FEAR;
+					f[4] |= TR4_RES_FEAR;
 				if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_BECOME_LICH]))
-					f[3] |= TR3_RES_CHARM;
+					f[4] |= TR4_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
 				if ((p_ptr->timed[TMD_OPP_NETHR]) || (p_ptr->timed[TMD_BECOME_LICH]))
-					f[2] |= TR2_RES_NETHR;
+					f[4] |= TR4_RES_NETHR;
 				if ((p_ptr->timed[TMD_OPP_DARK]) || (p_ptr->timed[TMD_BECOME_LICH]))
-					f[2] |= TR2_RES_DARK;
+					f[4] |= TR4_RES_DARK;
 				if (p_ptr->timed[TMD_HOLDLIFE])
 					f[3] |= TR3_HOLD_LIFE;
 			    /* maybe add something here about whether spells are being inhibited */
@@ -1676,7 +1676,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Shoot", "%y",			s2u(show_missile_weapon(&inventory[INVEN_BOW])), END  );
 	P_I(TERM_L_BLUE, "Blows", "%y/turn",	i2u(p_ptr->num_blow), END  );
 	P_I(TERM_L_BLUE, "Shots", "%y/turn",	i2u(p_ptr->num_fire), END  );
-	P_I(TERM_L_BLUE, "Infra", "%y ft",		i2u(p_ptr->see_infra * 10), END  );
+	P_I(TERM_L_BLUE, "Alertness", "%y",	    i2u(p_ptr->see_infra), END  );
 #ifdef EFG
 	/* EFGchange show energy rather than speed on 'C' screen */
 	/* showing energy is more useful and saves player from looking at tables.c */

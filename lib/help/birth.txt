@@ -59,14 +59,14 @@ intrinsic limits: the stats may go as high as they like, with the right choice
 of equipment, but the effects of having higher stats largely stop at 18/200.
 
 Each character also has several primary "skills", disarming, magic devices,
-saving throws, stealth, searching ability, searching frequency, fighting skill,
-and shooting skill, which are derived from the character's race, class, level,
-stats, and current equipment.  These skills have rather obvious effects, but
-will be described more completely below.
+saving throws, stealth, searching ability, searching frequency, alertness,
+fighting skill,and shooting skill, which are derived from the character's race,
+class, level, stats, and current equipment.  These skills have rather obvious
+effects, but will be described more completely below.
 
 Each character may have one or more "racially intrinsic skills", based on
 the race of the character.  These may include special resistances, or even
-abilities such as infravision.
+abilities such as darkvision.
 
 Each character has experience, which increases as the character becomes more
 experienced, and a level, which is based on experience, and also on race and
@@ -134,10 +134,10 @@ first level, just as with constitution and hit points.
 
 === Races ===
 
-There are seventeen different normal races that you can choose from in 
-DaJAngband, plus one novelty race which has its own required class.  Some
-races are restricted as to what profession they may be, and each race has
-its own adjustments to a character's stats and abilities. Most races also
+There are seventeen different races that you can choose from in DaJAngband,
+plus one novelty race which has its own required class.  Some races are
+restricted as to what profession they may be, and each race has its own
+adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
 
 ***** <Human>
@@ -146,7 +146,8 @@ have intrinsic abilities.
 		compared to them.  Humans can choose any class and are average
 		at everything.  Humans tend to go up levels faster than any
 		other race because of their shorter life spans.  No racial
-		adjustments or intrinsics occur to characters choosing human.
+		adjustments or intrinsics occur to characters choosing human, but
+		the light fairies in the dungeon are less aggressive towards them.
 
 ***** <Half-Elf>
           Half-Elf
@@ -188,11 +189,10 @@ have intrinsic abilities.
 		end up with low hit points), and have very good saving throws.  
 		They are good at searching, disarming, magic devices, and 
 		stealth.  They have lower strength than humans so they are not 
-		very good at fighting with hand weapons.  Gnomes have fair 
-		infravision, so they can detect warm-blooded creatures at a 
-		distance.  Gnomes are intrinsically protected against paralysis 
-		and some slowing effects.  A magic gnome cannot be a paladin or 
-		priest because their magic conflicts with prayers.  
+		very good at fighting with hand weapons.  Gnomes are intrinsically 
+		protected against paralysis and some slowing effects.  A magic 
+		gnome cannot be a paladin or 	priest because their magic conflicts 
+		with prayers.  
 
 ***** <Dwarf>
           Dwarf
@@ -203,13 +203,14 @@ have intrinsic abilities.
 		stronger and tougher but slower and less intelligent than
 		humans.  Because they are so headstrong and are somewhat wise,
 		they have a good saving throw against spells which are cast 
-		on them.  Dwarves also have very good infravision because they 
-		live underground.  They do have one big drawback, though.  
-		Dwarves are loudmouthed and proud, singing in loud voices, 
-		arguing with themselves for no good reason, screaming out 
-		challenges at imagined foes.  In other words, dwarves have a 
-		miserable stealth.  They can never be blinded.  Dwarves have 
-		very few restrictions to their class, but are just not cut 
+		on them.  Dwarves also have darkvision, meaning they need no 
+		light to see monsters because they live underground.  They 
+		do have one big drawback, though.  Dwarves are loudmouthed and 
+		proud, singing in loud voices, arguing with themselves for no 
+		good reason, screaming out challenges at imagined foes.  In 
+		other words, dwarves have a miserable stealth and are not very 
+		alert to stealthy monsters.  They can never be blinded.  Dwarves 
+		have very few restrictions to their class, but are just not cut 
 		out for being a ranger.
 
 ***** <Half-Orc>
@@ -222,8 +223,8 @@ have intrinsic abilities.
 		reason that Half-Orcs tend to have great constitution and lots 
 		of hit points.  Because of their preference to living 
 		underground to on the surface, Half-orcs resist darkness 
-		attacks, and have good infravision.  A Half-orc's intelligence
-		is not up to being a healer, but they can chose any other race.
+		attacks.  A Half-orc's intelligence	and attitude is not fitting 
+		for being a healer, but they can chose any other class.
 
 ***** <Half-Troll>
           Half-Troll
@@ -265,15 +266,14 @@ have intrinsic abilities.
 ***** <Kobold>
           Kobold
                Kobolds are a race of small dog-headed humanoids that dwell 
-		underground.  They can see in the dark better than almost any other 
-		race, and are intrinsically resistant to most poison.  They have a 
-		good dexterity and constitution.  However, they are weaker than 
-		humans, and also not noted for great intelligence.  Furthermore, 
-		they are ugly, and not trusted in town.  And while their 
-		constitution makes them tough, it still cannot prevent the fact 
-		that they are not the biggest of creatures, and have few hit points.  
-		They have no class restrictions, but are not suited well for the
-		wizard or necromancer classes.
+		underground.  They are intrinsically resistant to most poison.  
+		They have a good dexterity and constitution.  However, they are 
+		weaker than humans, and also not noted for great intelligence.  
+		Furthermore, they are ugly, and not trusted in town.  And while 
+		their constitution makes them tough, it still cannot prevent the 
+		fact that they are not the biggest of creatures, and have few 
+		hit points.  They have no class restrictions, but are not suited 
+		well for the wizard or necromancer classes.
 
 ***** <Hobglib>
           Hobglib
@@ -288,11 +288,11 @@ have intrinsic abilities.
 		decent searching, but otherwise their skills are only just barely 
 		better than the average human.  Like the kobold, they have some
 		intrinsic resistance to poison.  Hobglibs are not interested in much
-		besides magic, but they lack the discapline to become wizards, so
+		besides magic and they lack the discipline to become wizards, so
 		they have more class restrictions than any other race.  Their 
 		personality fits perfectly with the alchemist class, and they can
-		also be rogues, assassins, or healers, which is an odd combination
-		but that's hobglibs for you.
+		also be rogues, assassins, healers, archers, thieves, or necromancers, 
+		which is an odd combination but that's hobglibs for you.
 
 ***** <Fairy Gnome>
           Fairy Gnome
@@ -326,30 +326,32 @@ have intrinsic abilities.
 		sustained.  They are ideal for the ranger, thief, and assassin 	
 		classes, but they cannot be a paladin or tourist.
 
-***** <Grave Ghoul>
-          Grave Ghoul
-		   Grave Ghouls are former humans, but have dwelt for generations
+***** <Living Ghoul>
+          Living Ghoul
+		   Living Ghouls are former humans, but have dwelt for generations
 		around tombs and dungeons and formed a kinship with the undead,
-		though they are not undead themselves.  Their wisdom and charisma
-		are both even worse than that of a half-orc.  In addition, they
-		are sickly and not known for their intelligence.  Their stealth is
-		good, but otherwise their skills are only average, and they are bad
-		as using range weapons.  Due to their kinship with the undead, they
-		can see invisible monsters and have developed a resistance to nether
-		attacks.  Grave ghouls cannot be priests.
+		though they are not undead themselves.  They are outcasts and are
+		usually driven away when they come into civilization.  In addition, 
+		they have grown sickly from prolonged exposure to necromantic 
+		effects.  Their stealth is good, but otherwise their skills are 
+		only average, and they are bad as using range weapons.  Due to 
+		their kinship with the undead, they	can see invisible monsters and 
+		have developed a resistance to nether attacks.  Grave ghouls cannot 
+		be tourists.
 
 ***** <Power Sprite>
           Power Sprite
-		   Power Sprites are fairies no more than a few inches tall, but
-		they have troll-sized strength.  They are fast, but lacking in
-		intelligence and wisdom.  They are terrible with magic and disarming, 
-		but have a high saving throw due simply to being a fairy.  Their 
-		melee power	is second only to the half-troll.  Their primary drawback
-		is their size which results in significantly less hit points.  They
-		resist light because of being a light fairy, they have feather falling
-		because of being able to fly, and they resist fear because of their
-		attitude.  Because of their lack in magical ability, Power sprites
-		cannot be wizards, necromancers, druids, or alchemists.
+		   Only a novelty race to play, Power Sprites are fairies no more 
+		than a few inches tall, butthey have troll-sized strength.  They 
+		are fast, but lacking in intelligence and wisdom.  They are terrible 
+		with magic and disarming, but have a high saving throw due simply to 
+		being a fairy.  Their melee power	is second only to the half-troll.  
+		Their primary drawback is their size which results in significantly 
+		less hit points.  They resist light because of being a light fairy, 
+		they have feather falling because of being able to fly, and they 
+		resist fear because of their attitude.  Because of their lack in 
+		magical ability, Power sprites cannot be wizards, necromancers, 
+		druids, or alchemists.
 
 ***** <Maia>
           Maia
@@ -385,7 +387,7 @@ have intrinsic abilities.
  
           Once a race has been chosen, you will need to pick a class.  Some
           classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  
+          Half-Orc cannot become a Paladin.  
 
 ***** <Warrior>
           Warrior
@@ -399,19 +401,20 @@ have intrinsic abilities.
 
 ***** <Wizard>
           Wizard
-               	   A Wizard must survive by his wits.  Though not as frail as the 
-		vanilla mage, he cannot hope to simply hack his way through the 
-		dungeon, and so must therefore use his magic to defeat, deceive, 
-		confuse, and escape.  A wizard is not really complete without an 
-		assortment of magical devices to use in addition to his spells.  
-		He can master the higher level magical devices far easier than 
-		anyone else.  Intelligence and Dexterity are his primary stats.
-		There is no rule that says a wizard cannot become a good fighter, 
-		but spells are his true realm. Magic realm- Wizardry.
+               	 A Wizard must survive by his wits.  Though not as frail as 
+		the mage of vanilla Angband, he cannot hope to simply hack his 
+		way through the dungeon, and so must therefore use his magic to 
+		defeat, deceive, confuse, and escape.  A wizard is not really 
+		complete without an assortment of magical devices to use in 
+		addition to his spells.  He can master the higher level magical 
+		devices far easier than anyone else.  Intelligence and Dexterity 
+		are his primary stats.	There is no rule that says a wizard cannot 
+		become a good fighter, but spells are his true realm. 
+		Magic realm- Wizardry.
 
 ***** <Necromancer>
           Necromancer
-		   Similar in many ways to the wizard, a necromancer is weaker 
+		       Similar in many ways to the wizard, a necromancer is weaker 
 		than the wizard, and foolishly tries to control demonic and undead 
 		forces.  Though he can aquire devastating powers of destruction 
 		and unnatural protection from these forces, there is usually a cost
@@ -448,7 +451,7 @@ have intrinsic abilities.
 		melee fighter, but not very good at missile weapons.  He learns 
 		prayers at a slower pace then the priest, but can use all but the 
 		most powerful prayers including a few powerful ones which the priest
-		cannot learn. Because a paladin is  really a dual class character, it
+		cannot learn. Because a paladin is really a dual class character, it
 		requires more experience to advance him.  A paladin lacks much in the 
 		way of skills. He is poor at stealth, perception, searching, and 
 		magical devices.  He has a good saving throw due to his divine 
@@ -470,7 +473,7 @@ have intrinsic abilities.
 	  Alchemist
 		  The Alchemist is an experiementer with potions, metals, and magic.
 		The alchemist is familiar with the elements of acid and poison 
-		because of dealing with chemicals and potions. Due, to learning by
+		because of dealing with chemicals and potions. Due to learning by
 		trial and error, they do not chose which magic recipe they will learn
 		next. They are not strong, have bad stealth, and are mediocure 
 		fighters.  Their skills are all around average, but they do learn 
@@ -488,7 +491,7 @@ have intrinsic abilities.
 		deity, and therefore do not choose which spells they will learn.  
 		They are familiar with magical devices, but are not as good as a 
 		mage in their use.  Priests have good saving throws, and not 
-		horrible, at fighting, but they are not as good at using sharp 
+		horrible at fighting, but they are not as good at using sharp 
 		weapons (swords and polearms) owing to the Church's strictures about 
 		shedding blood: so they are better off using blunt weapons such as 
 		staffs.  Wisdom is the priest's primary stat. 'Magic' Realm- Prayer.
@@ -498,7 +501,7 @@ have intrinsic abilities.
 		  The healer starts out with the dungeon prayerbook which specializes
 		in healing.  Though he is a master at healing and curing his own
 		wounds, he is completely at a loss as to inflicting them on his 
-		enemies. At least, he does not have the restriction on edged weapons
+		enemies. At least he does not have the restriction on edged weapons
 		which the priest has. In most areas, his skills are average, but his 
 		saving throw along with the priest is better than any other class.
 		Being an extremely specialized class, he advances faster than most
@@ -519,9 +522,9 @@ have intrinsic abilities.
 		  The lover of shadows and death, the assassin is a cross between the
 		rogue and necromancer.  His skills are very similar to the rogue's,
 		except he is not nearly as good with disarming and searching.  Though
-		not as good with melee as the rogue, he is quite skilled with the 
-		crossbow and he can learn some of the necromancer's spells of
-		destruction. His primary stats are strength and dexterity. 
+		not quite as good with melee as the rogue, he is quite skilled with 
+		the crossbow and he can learn some of the necromancer's spells of
+		destruction. His primary stats are dexterity and intelligence. 
 		Magic Realm- black magic.
 
 ***** <Thief>
@@ -537,7 +540,17 @@ have intrinsic abilities.
 		He advances in levels faster than any class except the warrior. The
 		Tourist starts with a useful camera flash spell which can stun monsters
 		and he learns spells from the chance realm which has many random-
-		effect spells. 
+		effect spells.
+
+***** <War Mage>
+	  War Mage
+			The War mage, as you'd guess, is a wizard who is especially 
+		good at attack spells and combat buffs, while not quite as good at 
+		other	areas of magic as the wizard. In most ways he is very similar 
+		to the wizard, being even more weak and frail but a little more 
+		skilled in melee combat.  His magic device skill is the best of all 
+		classes and his saving throw and alertness are also better than the 
+		wizards'.
 
 ***** <Barbarian>
 	  Barbarian
@@ -612,22 +625,11 @@ have intrinsic abilities.
           race and class.  Abilities may be adjusted by high or low stats,
           and may increase with the level of the character.
 
-          Infra-vision
-               Infra-vision is the ability to see heat sources. Since  most
-               of the dungeon is cool or cold, infra-vision will not allow
-               the player to see walls and objects.  Infra-vision will allow
-               a  character  to see any warm-blooded creatures up to a cer-
-               tain distance.  This ability works equally well with or with
-               out a light source.  However, many of Angband's creatures are
-               cold-blooded, and will not be detected unless lit up by a
-               light source. All non human races have innate infra-vision
-               ability.  Humans (including Dunedain) cannot gain infra-vision 
-               unless it is magically enhanced. Infravision does not increase
-               with character level, and is purely dependent on race and on 
-               magical equipment. Dunadan get the equivelent of 1 space worth
-		of infravision because of their hightened alertness of hearing
-		and smelling nearby monsters.
- 
+	    Alertness
+		   Alertness is how well you notice stealthy monsters. Characters
+		   who are not very alert may not notice a stealthy monster until 
+		   he is right next to it.  Alertness does not increase with level.
+
           Fighting
                Fighting is the ability to hit and do damage with weapons or
                fists.  Normally a character gets a single blow from any
@@ -679,10 +681,10 @@ have intrinsic abilities.
                and increases with the level of the character.
 
           Searching Frequency (Perception)
-               Perception is the ability to notice something without
-               actively seeking it out.  This skill is based entirely upon
-               race and class, and will never improve unless magically
-               enhanced.
+               Perception is the ability to notice hidden traps and doors 
+		   without actively seeking it out.  This skill is based 
+               entirely upon race and class, and will never improve unless 
+               magically enhanced.
 
           Searching Ability (Searching)
                To search is to actively look for secret doors, floor traps,
@@ -702,43 +704,45 @@ Dwarf Priest has a hit die of 11+2=13 (i.e. he will get 1d13 hit points per
 level, adjusted for constitution) and an XP modifier of 20+20=40%.
 
  
-                  STR  INT  WIS  DEX  CON  CHR  HD (base)   XP/level  Infra
-      Human        0    0    0    0    0    0      10          +0%    None
-      Half-Elf     0   +1    0   +1   -1    0      10         +10%   10 feet (adjacent)
-      Elf         -1   +2   +1   +1   -1   +1       9         +20%   20 feet
-      Hobbit      -2   +2   +1   +3   +3   +1       7         +10%   20 feet
-      Gnome       -1   +2    0   +2   +1   -2       8         +25%   30 feet
-      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%   50 feet
-      Half-Orc    +2   -1   -1    0   +1   -4      10         +10%   40 feet
-      Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%   30 feet
-      Dunadan     +1   +2   +2   +2   +3   +2      10         +75%   10 feet (adjacent)
-      High-Elf    +1   +3   -1   +3   +1   +5      10         +90%   30 feet
-      Kobold      -1   -1    0   +2   +2   -2       8         +15%   40 feet
-      Hobglib     +1   +1   -2    0   +2   -3      10         +25%   20 feet
-      Fairy Gnome -2   +1   +4   +2    0   -1       7         +60%   30 feet
-      Dark Elf     0   +2   -2   +2   -1   -3       9         +25%   50 feet
-      Grave Ghoul +1   -1   -3    0   -2   -5      10         +15%   40 feet
-     Power Sprite +5   -3   -1   +2   +1    0       4         +40%   20 feet
-	Maia      +2   +3   +3   +2   +4   +3      12         +50%   10 feet (adjacent)
-      Umber Hulk  +5   -4   -3    0   +1   -6      15	      +55%   40 feet (race)
+                  STR  INT  WIS  DEX  CON  CHR  HD (base)   XP/level  Alertness
+      Human        0    0    0    0    0    0      10          +0%	5
+      Half-Elf     0   +1    0   +1   -1    0      10         +10%   	10
+      Elf         -1   +2   +1   +1   -1   +1       9         +20%   	14
+      Hobbit      -2   +2   +1   +3   +3   +1       7         +11%   	7
+      Gnome       -1   +2    0   +2   +1   -2       8         +25%   	9
+      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%   	1 (but has darkv)
+      Half-Orc    +2   -1   -1    0   +1   -4      10         +10%   	6
+      Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%   	3
+      Dunadan     +1   +2   +2   +2   +3   +2      10         +75%   	12
+      High-Elf    +1   +3   -1   +3   +1   +5      10         +90%   	15
+      Kobold      -1   -1    0   +2   +2   -2       8         +15%   	12
+      Hobglib     +1   +1   -2    0   +2   -3      10         +25%   	4
+      Fairy Gnome -2   +1   +4   +2    0   -1       7         +40%	11
+      Dark Elf     0   +2   -2   +2   -1   -3       9         +25%   	13
+     Living Ghoul  0    0   +2    0   -3   -4      10         +15%   	7
+     Power Sprite +5   -3   -1   +2   +1    0       4         +30%   	9
+	Maia        +2   +3   +3   +2   +4   +3      12         +50%   	10
+      Umber Hulk  +5   -4   -3    0   +1   -6      15	        +55%   	8
 
-                  STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level
-      Warrior     +5   -2   -2   +2   +2    0       9          +0%
-      Wizard      -3   +3    0   +1   -1   +1       1         +30%
-      Necromancer -5   +2   -2   +2   -2   -2       3         +21%
-      Rogue       +2   +1   -2   +3   +1   -1       6         +25%
-      Ranger      +2   +2   +1   +1   +1   +1       3         +27%
-      Paladin     +3   -2   +1    0   +1   +2       4         +35%
-      Archer      +2    0   -1   +2   +1    0       5         +18%
-      Alchemist   -1   +2   -1    0   -1   -1       1         +29%
-      Priest      -2   -1   +3   -1   +1   +2       2         +20%
-      Healer      -3   +2   +1    0   +2   +1       1         +12%
-      Druid       -2   +1   +2   +1   -1    0       3         +30%
-      Assassin    +2   +1   -2   +1    0   -1       5         +30%
-      Thief       +1   +2   -1   +3   -1   +1       2         +22%
-      Tourist     +1   +2   -2   +1    0   +2       1          +5%
-      Barbarian   +6   -3   -1   +1   +2   -1      10          +5%
-      Umber Hulk  +3   -2   -1   +1   +2   -3       6         +25% (class)
+                  STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level	   Alertness
+      Warrior     +5   -2   -2   +2   +2    0       9          +0%	-	15
+      Wizard      -3   +3    0   +1   -1   +1       1         +30%	-	8
+      Necromancer -5   +2   -2   +2   -2   -2       3         +21%	-	6
+      Rogue       +2   +1   -2   +3   +1   -1       6         +25%	-	18
+      Ranger      +2   +2   +1   +1   +1   +1       3         +27%	-	20
+      Paladin     +3   -2   +1    0   +1   +2       4         +35%	-	10
+      Archer      +2    0   -1   +2   +1    0       5         +18%	-	17
+      Alchemist   -1   +2   -1    0   -1   -1       1         +29%	-	6
+      Priest      -2   -1   +3   -1   +1   +2       2         +20%	-	8
+      Healer      -3   +2   +1    0   +2   +1       1         +12%	-	12
+      Druid       -2   +1   +2   +1   -1    0       3         +30%	-	16
+      Assassin    +2   +1   -2   +1    0   -1       5         +30%	-	13
+      Thief       +1   +2   -1   +3   -1   +1       2         +22%	-	11
+      Tourist     +1   +2   -2   +1    0   +2       1          +5%	-	10
+	War Mage	-4   +3   -1   +1   -2   -1       0		  +26%	-	12
+      Barbarian   +6   -3   -1   +1   +2   -1      10          +5%	-	16
+    Chaos Warrior +4    0   -3   +1   +2   -2       7		  +25%	-	9
+      Umber Hulk  +3   -2   -1   +1   +2   -3       6         +25% (class)	8
  
  
 === Ability Tables ===
@@ -758,29 +762,32 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
 
              Disarm  Device   Save  Stealth  Search  Percep   Fight  Missiles
  
-  Warrior    27(+11) 18(+8)  17(+10)  1(+0)  14(+0)   2(+0)  70(+45) 56(+42)
+  Warrior    27(+11) 18(+8)  17(+10)  1(+0)  14(+0)   2(+0)  71(+45) 56(+42)
   Wizard     24(+8)  36(+13) 25(+10)  2(+0)  15(+0)  10(+0)  39(+16) 21(+15)
  Necromancer 29(+7)  33(+14) 26(+11)  2(+0)  14(+0)  12(+0)  36(+21) 18(+17)
   Rogue      45(+15) 31(+10) 23(+11)  3(+0)  30(+0)  15(+0)  60(+40) 66(+30)
-  Ranger     40(+11) 23(+9)  29(+10)  3(+0)  22(+0)  25(+0)  63(+33) 60(+41)
+  Ranger     40(+11) 23(+9)  29(+10)  4(+0)  22(+0)  25(+0)  63(+33) 60(+41)
   Paladin    21(+12) 20(+9)  27(+12)  1(+0)  12(+0)  10(+0)  62(+37) 42(+30)
-  Archer     29(+9)  17(+10) 23(+9)   3(+0)  15(+0)  11(+0)  50(+28) 75(+45)
-  Alchemist  21(+9)  22(+12) 29(+12)  1(+0)  18(+0)  16(+0)  39(+20) 32(+16)
+  Archer     29(+9)  17(+10) 23(+9)   3(+0)  15(+0)  11(+0)  48(+26) 75(+45)
+  Alchemist  21(+9)  22(+12) 20(+12)  1(+0)  18(+0)  16(+0)  39(+20) 32(+16)
   Priest     20(+8)  28(+10) 31(+12)  2(+0)  16(+0)   9(+0)  45(+20) 32(+20)
   Healer     27(+8)  21(+8)  32(+9)   2(+0)  12(+0)   9(+1)  37(+16) 28(+21)
   Druid      32(+11) 27(+10) 26(+11)  4(+0)  18(+1)  19(+0)  44(+23) 38(+23)
-  Assassin   31(+10) 29(+10) 21(+11)  3(+0)  16(+0)  13(+0)  51(+34) 65(+31)
+  Assassin   31(+10) 29(+10) 21(+11)  3(+0*) 16(+0)  13(+0)  51(+34) 65(+31)
   Thief      34(+14) 27(+8)  28(+10)  5(+0)  26(+0)  24(+0)  42(+30) 41(+33)
   Tourist    21(+7)  20(+10) 21(+8)   1(+0)  21(+0)  14(+1)  34(+21) 30(+21)
+  War Mage	 20(+9)  38(+13) 30(+9)   1(+0)  16(+0)   5(+0)  45(+25) 15(+15)
   Barbarian  24(+8)  12(+9)  18(+11)  2(+0)  12(+1)   5(+1)  75(+44) 56(+44)
+Chaos Warrior15(+16) 17(+11) 14(+14)  0(+0)  13(+0)   6(+0)  67(+43) 43(+33)
 
+*Assassins get +1 to stealth at character level 26.
 
 For character classes, there are two figures: the first figure is the base 
 level of the ability, while the second figure (in parentheses) is the bonus
 that the character gains to this skill every ten levels. So, to find out the
 total skill value of any character's skills, add the "race" value to the
 "class" value, and then the bonus once for every ten levels that the character
-has.  
+has.
 
 (Please note, however, that these numbers are only good for comparing 
 characters to each other in the absence of other bonuses from high stats 
@@ -821,6 +828,3 @@ your character - you can choose which one to use from the birth screen.
               harder characters to play than the other two methods as
               you are less likely to have high values in the stats that might
               be most useful to you.
-   
-    
-

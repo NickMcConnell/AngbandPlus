@@ -470,7 +470,7 @@ void self_knowledge(bool spoil)
 	}
 	if (p_ptr->timed[TMD_BRAIL])
 	{
-		info[i++] = "You can read brail (can read while blind).";
+		info[i++] = "You can spellcasting bonuses (and can read while blind).";
 	}
 	if (p_ptr->timed[TMD_CONFUSED])
 	{
@@ -532,6 +532,18 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are in a battle rage.";
 	}
+	if (p_ptr->timed[TMD_SANCTIFY])
+	{
+		info[i++] = "You strike with holy wrath.";
+	}
+	if (p_ptr->timed[TMD_BALROG])
+	{
+		info[i++] = "You stike with a balrog's shadow and flame.";
+	}
+	if (p_ptr->timed[TMD_BECOME_LICH])
+	{
+		info[i++] = "You are a semi-lich (temporarily undead).";
+    }
 	if (p_ptr->timed[TMD_PROTDEAD])
 	{
 		info[i++] = "You are protected from lifeless monsters.";
@@ -560,6 +572,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are temporarily invulnerable.";
 	}
+	if (p_ptr->timed[TMD_WITCH])
+	{
+		info[i++] = "Your black magic is aggravating demons.";
+	}
 	if (p_ptr->confusing)
 	{
 		info[i++] = "Your hands are glowing dull red.";
@@ -576,9 +592,18 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You will soon be recalled.";
 	}
-	if (rp_ptr->infra || f1 & TR1_INFRA)
+
+	if (p_ptr->timed[TMD_TSIGHT])
 	{
-		info[i++] = "Your eyes are sensitive to infrared light.";
+		info[i++] = "You see everything that is really there.";
+	}
+	else if (p_ptr->timed[TMD_SINFRA])
+	{
+		info[i++] = "You have enhanced alertness.";
+	}
+	else if (p_ptr->timed[TMD_WSINFRA])
+	{
+		info[i++] = "Your alertness is slightly enhanced.";
 	}
 
 	if (f3 & TR3_SLOW_DIGEST)
@@ -593,10 +618,27 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You regenerate quickly.";
 	}
-	if (f3 & TR3_TELEPATHY)
+    if (p_ptr->timed[TMD_2ND_THOUGHT])
+	{
+		info[i++] = "You have first sight and second thoughts.";
+	}
+    if ((f3 & TR3_TELEPATHY) && (p_ptr->timed[TMD_2ND_THOUGHT]))
+	{
+		info[i++] = "Your second sight is being supressed by your first sight.";
+	}
+	else if (f3 & TR3_TELEPATHY)
 	{
 		info[i++] = "You have ESP.";
 	}
+	if (p_ptr->darkvis || (p_ptr->timed[TMD_DARKVIS]))
+	{
+		info[i++] = "You have darkvision.";
+	}
+	if (p_ptr->timed[TMD_SUPER_ROGUE])
+	{
+		info[i++] = "You have enhanced roguish skills.";
+    }
+	
 	if (f3 & TR3_SEE_INVIS)
 	{
 		info[i++] = "You can see invisible creatures.";
@@ -605,9 +647,26 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You have free action.";
 	}
-	if (f3 & TR3_HOLD_LIFE)
+	if ((f3 & TR3_HOLD_LIFE) || (p_ptr->timed[TMD_HOLDLIFE]))
 	{
 		info[i++] = "You have a firm hold on your life force.";
+	}
+
+	if (p_ptr->timed[TMD_XATTACK])
+	{
+		info[i++] = "You have temporarily enhanced attack speed.";
+	}
+	if (p_ptr->timed[TMD_SUST_SPEED])
+	{
+		info[i++] = "Your speed is sustained.";
+	}
+	if (p_ptr->timed[TMD_SPHERE_CHARM])
+	{
+		info[i++] = "You have a sphere of charm animals around you.";
+	}
+	if (p_ptr->timed[TMD_ZAPPING])
+	{
+		info[i++] = "You have an electrical field around you, zapping monsters.";
 	}
 
 	if (f2 & TR2_IM_ACID)
@@ -636,7 +695,7 @@ void self_knowledge(bool spoil)
 		info[i++] = "You are resistant to lightning.";
 	}
 
-	if (f2 & TR2_IM_FIRE)
+	if ((f2 & TR2_IM_FIRE) || (p_ptr->timed[TMD_IMM_FIRE]))
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
@@ -649,7 +708,7 @@ void self_knowledge(bool spoil)
 		info[i++] = "You are resistant to fire.";
 	}
 
-	if (f2 & TR2_IM_COLD)
+	if ((f2 & TR2_IM_COLD) || (p_ptr->timed[TMD_BECOME_LICH]))
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
@@ -662,66 +721,86 @@ void self_knowledge(bool spoil)
 		info[i++] = "You are resistant to cold.";
 	}
 
-	if ((f2 & TR2_RES_POIS) && (p_ptr->timed[TMD_OPP_POIS]))
+	if ((f4 & TR4_RES_POIS) && (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((f2 & TR2_RES_POIS) || (p_ptr->timed[TMD_OPP_POIS]))
+	else if ((f4 & TR4_RES_POIS) || (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You are resistant to poison.";
 	}
-	else if (f2 & TR2_RES_POISB)
+	else if ((f2 & TR2_RES_POISB) || (p_ptr->timed[TMD_WOPP_POIS]))
 	{
 		info[i++] = "You are somewhat resistant to poison.";
 	}
 
-	if (f2 & TR2_RES_FEAR)
+	if (f2 & TR2_EXTRA_CRIT)
+	{
+		info[i++] = "You inflict critical hits extra often.";
+	}
+	
+	if ((p_ptr->accident) || (f2 & TR2_DANGER))
+	{
+		info[i++] = "Your weapon is easy to hurt yourself with.";
+	}
+
+	if (f4 & TR4_RES_FEAR)
 	{
 		info[i++] = "You are completely fearless.";
 	}
 	
-	if (f3 & TR3_RES_CHARM)
+	if (f4 & TR4_RES_CHARM)
 	{
 		info[i++] = "You are resistant to charm.";
 	}	
 
-	if (f2 & TR2_RES_LITE)
+	if (f2 & TR2_PEACE)
+	{
+		info[i++] = "You are not agressive in combat.";
+	}
+
+	if (f2 & TR2_NICE)
+	{
+		info[i++] = "Animals and light fairies are less aggresive towards you.";
+	}
+
+	if (f4 & TR4_RES_LITE)
 	{
 		info[i++] = "You are resistant to bright light.";
 	}
-	if (f2 & TR2_RES_DARK)
+	if ((f4 & TR4_RES_DARK) || (p_ptr->timed[TMD_OPP_DARK]))
 	{
 		info[i++] = "You are resistant to darkness.";
 	}
-	if (f2 & TR2_RES_BLIND)
+	if (f4 & TR4_RES_BLIND)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
-	if (f2 & TR2_RES_CONFU)
+	if (f4 & TR4_RES_CONFU)
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
-	if (f2 & TR2_RES_SOUND)
+	if (f4 & TR4_RES_SOUND)
 	{
 		info[i++] = "You are resistant to sonic attacks.";
 	}
-	if (f2 & TR2_RES_SHARD)
+	if (f4 & TR4_RES_SHARD)
 	{
 		info[i++] = "You are resistant to blasts of shards.";
 	}
-	if (f2 & TR2_RES_NEXUS)
+	if (f4 & TR4_RES_NEXUS)
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if ((f2 & TR2_RES_NETHR) || (p_ptr->timed[TMD_OPP_NETHR]))
+	if ((f4 & TR4_RES_NETHR) || (p_ptr->timed[TMD_OPP_NETHR]))
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
-	if (f2 & TR2_RES_CHAOS)
+	if (f4 & TR4_RES_CHAOS)
 	{
 		info[i++] = "You are resistant to chaos.";
 	}
-	if (f2 & TR2_RES_DISEN)
+	if (f4 & TR4_RES_DISEN)
 	{
 		info[i++] = "You are resistant to disenchantment.";
 	}
@@ -786,7 +865,7 @@ void self_knowledge(bool spoil)
 	}
 	if (f1 & (TR1_INFRA))
 	{
-		info[i++] = "Your infravision is affected by your equipment.";
+		info[i++] = "Your alertness is affected by your equipment.";
 	}
 	if (f1 & (TR1_TUNNEL))
 	{
@@ -796,7 +875,7 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_BLOWS))
+	if (f1 & (TR1_BLOWS)) 
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
 	}
@@ -854,25 +933,46 @@ void self_knowledge(bool spoil)
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if (f2 & (TR2_COAT_ACID))
+		else if (p_ptr->brand_acid)
+		{
+			info[i++] = "Your ring adds caustic damage to your blows.";
+		}
+		/* For some reason it was always saying this so I turned it off */
+/* 		if (f2 & (TR2_COAT_ACID))
 		{
 			info[i++] = "Your weapon corrodes your foes.";
-		}
+		} */
 		if (f1 & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
+		}
+		else if (p_ptr->brand_elec)
+		{
+			info[i++] = "Your ring adds lightning to your blows.";
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
+		else if (p_ptr->brand_fire)
+		{
+			info[i++] = "Your ring adds fire to your blows.";
+		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
+		else if (p_ptr->brand_cold)
+		{
+			info[i++] = "Your ring adds a freezing chill to your blows.";
+		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
+		}
+		else if (p_ptr->brand_pois) /* may add a ring of poison */
+		{
+			info[i++] = "Your ring adds poison to your blows.";
 		}
 
 		/* Special "slay" flags */
@@ -1625,7 +1725,6 @@ bool detect_monsters_life(void)
 	{
 		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1816,6 +1915,8 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_SHOT:
+		case TV_STAFF:
+		case TV_SKELETON:
 		{
 			return (TRUE);
 		}
@@ -1834,7 +1935,7 @@ static bool item_tester_hook_archer(const object_type *o_ptr)
 		case TV_BOW:
         {
             if ((o_ptr->sval == SV_LONG_BOW) || (o_ptr->sval == SV_SHORT_BOW) ||
-               (o_ptr->sval == SV_SMALL_BOW) || (o_ptr->sval == SV_GREAT_BOW))
+               (o_ptr->sval == SV_GREAT_BOW))
             {
                return (TRUE);
             }
@@ -2064,7 +2165,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	cptr q, s;
 
 
-	/* Archers can enchant only bows or arrows */
+	/* The archer spell can enchant only bows or arrows */
 	if (spellswitch == 18)
     {
         item_tester_hook = item_tester_hook_archer;
@@ -2099,7 +2200,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 
 	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
 
 	/* Describe */
 	msg_format("%s %s glow%s brightly!",
@@ -2269,7 +2370,7 @@ bool recharge(int num)
 	/* Get an item */
 	q = "Recharge which item? ";
 	s = "You have nothing to recharge.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3969,7 +4070,8 @@ bool curse_weapon(void)
 		           "terrible black aura", "surround your weapon", o_name);
 	}
 	
-	if (artifact_p(o_ptr) && (spellswitch == 3) || (spellswitch == 2))
+	/* weaker curses never work on artifacts */
+	if (artifact_p(o_ptr) && ((spellswitch == 3) || (spellswitch == 2)))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",

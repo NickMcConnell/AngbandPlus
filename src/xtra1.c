@@ -743,9 +743,13 @@ static void prt_blind(int row, int col)
 	{
 		c_put_str(TERM_YELLOW, "Brail", row, col);
 	}
-	if (p_ptr->timed[TMD_BLIND])
+	else if (p_ptr->timed[TMD_BLIND])
 	{
 		c_put_str(TERM_ORANGE, "Blind", row, col);
+	}
+	else if (p_ptr->timed[TMD_ZAPPING])
+	{
+		c_put_str(TERM_BLUE, " ZAP ", row, col);
 	}
 	else
 	{
@@ -1599,7 +1603,7 @@ static void calc_mana(void)
 	msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 100;
 	
 	/* war mages get 1.5x mana */
-	if (cp_ptr->flags & CF_POWER_SHIELD)
+	if ((cp_ptr->flags & CF_POWER_SHIELD) && (cp_ptr->spell_book == TV_MAGIC_BOOK))
     {
        if (msp < 4) msp += 2;
        else msp = (msp*3)/2;
@@ -1815,7 +1819,7 @@ static void calc_torch(void)
 
 			/* Artifact Lites provide permanent bright light */
 			if (artifact_p(o_ptr))
-				amt = 3 + flag_inc;
+			 	amt = 3 + flag_inc;
 
 			/* Non-artifact lights and those without fuel provide no light */
 			else if (!burn_light || o_ptr->timeout == 0)
@@ -1829,6 +1833,13 @@ static void calc_torch(void)
 				/* Torches below 1500 fuel provide less light */
 				if (o_ptr->sval == SV_LITE_TORCH && o_ptr->timeout < (FUEL_TORCH / 4))
 				    amt--;
+				
+				/* Lights of darkvision give less light */
+				if ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN))
+				{
+                   if ((amt > 1) && (f3 & TR3_DARKVIS))
+                   amt--;
+                }
 			}
 		}
 
@@ -1994,6 +2005,9 @@ static void calc_bonuses(void)
 	p_ptr->regenerate = FALSE;
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
+	p_ptr->darkvis = FALSE;
+	p_ptr->nice = FALSE;
+	p_ptr->peace = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -2024,13 +2038,20 @@ static void calc_bonuses(void)
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
+    p_ptr->brand_cold = FALSE;
+    p_ptr->brand_fire = FALSE;
+    p_ptr->brand_acid = FALSE;
+    p_ptr->brand_elec = FALSE;
+    p_ptr->brand_pois = FALSE;
+    p_ptr->accident = FALSE;
     goodweap = 0;
     badweap = 0;
 
 	/*** Extract race/class info ***/
 
-	/* Base infravision (purely racial) */
-	p_ptr->see_infra = rp_ptr->infra;
+	/* Base alertness (racial still uses infra variable name) */
+	/* alertness not infravision anymore */
+ 	p_ptr->see_infra = rp_ptr->infra + cp_ptr->calert;
 
 	/* Base skill -- disarming */
 	p_ptr->skills[SKILL_DIS] = rp_ptr->r_dis + cp_ptr->c_dis;
@@ -2075,11 +2096,15 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+	if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
+	if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
+	if (f2 & (TR2_PEACE)) p_ptr->peace = TRUE;
 
 	/* wierd flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
+	if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 	if (f3 & (TR3_AGGRAVATE))
     {
@@ -2107,20 +2132,20 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
 	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
-	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	if (f4 & (TR4_RES_POIS)) p_ptr->resist_pois = TRUE;
 	else if (f2 & (TR2_RES_POISB)) p_ptr->weakresist_pois = TRUE;
-	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
-	if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
-	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
-	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
-	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
-	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
-	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
-	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
-	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
-	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
-	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+	if (f4 & (TR4_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f4 & (TR4_RES_CHARM)) p_ptr->resist_charm = TRUE;
+	if (f4 & (TR4_RES_LITE)) p_ptr->resist_lite = TRUE;
+	if (f4 & (TR4_RES_DARK)) p_ptr->resist_dark = TRUE;
+	if (f4 & (TR4_RES_BLIND)) p_ptr->resist_blind = TRUE;
+	if (f4 & (TR4_RES_CONFU)) p_ptr->resist_confu = TRUE;
+	if (f4 & (TR4_RES_SOUND)) p_ptr->resist_sound = TRUE;
+	if (f4 & (TR4_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f4 & (TR4_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+	if (f4 & (TR4_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+	if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+	if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
 	/* Sustain flags */
 	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2157,23 +2182,21 @@ static void calc_bonuses(void)
 
 		/* Affect searching ability (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_SRH] += (o_ptr->pval * 5);
-		if (f1 & (TR1_SEARCH)) spellswitch = 90 + o_ptr->pval;
-		if (spellswitch > 95) spellswitch = 95;
 		
 		/* affect magic device mastery */
 		if (f2 & (TR2_MAGIC_MASTERY))
 		{
-			if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 12;
-			else if (p_ptr->skills[SKILL_DEV] < 32) p_ptr->skills[SKILL_DEV] += 10;
-			else if (p_ptr->skills[SKILL_DEV] < 42) p_ptr->skills[SKILL_DEV] += 8;
+			if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 15;
+			else if (p_ptr->skills[SKILL_DEV] < 32) p_ptr->skills[SKILL_DEV] += 12;
+			else if (p_ptr->skills[SKILL_DEV] < 42) p_ptr->skills[SKILL_DEV] += 9;
 			else p_ptr->skills[SKILL_DEV] += 6;
         }
 
 		/* Affect searching frequency (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_FOS] += (o_ptr->pval * 5);
 
-		/* Affect infravision */
-		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
+		/* Affect alertness */
+		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval * 5;
 
 		/* Affect digging (factor of 20) */
 		if (f1 & (TR1_TUNNEL)) p_ptr->skills[SKILL_DIG] += (o_ptr->pval * 20);
@@ -2198,6 +2221,15 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+	    if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
+	    if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
+
+        /* DJA: melee branding from elemental rings */	    
+	    if (f1 & (TR1_BRAND_POIS)) p_ptr->brand_pois = TRUE;
+	    if (f1 & (TR1_BRAND_FIRE)) p_ptr->brand_fire = TRUE;
+	    if (f1 & (TR1_BRAND_ACID)) p_ptr->brand_acid = TRUE;
+	    if (f1 & (TR1_BRAND_ELEC)) p_ptr->brand_elec = TRUE;
+	    if (f1 & (TR1_BRAND_COLD)) p_ptr->brand_cold = TRUE;
 
 	    /* Sentient Object & BLESSED flags */
 	    if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
@@ -2210,11 +2242,11 @@ static void calc_bonuses(void)
         {
 	      if (cp_ptr->flags & CF_CLASS_SPEED)
 	      {
-          p_ptr->skills[SKILL_STL] -= 5;
+             p_ptr->skills[SKILL_STL] -= 5;
           }
           else
           {
-          p_ptr->aggravate = TRUE;
+             p_ptr->aggravate = TRUE;
           }
         }
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
@@ -2232,20 +2264,20 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
 		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
-		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+		if (f4 & (TR4_RES_POIS)) p_ptr->resist_pois = TRUE;
 	    else if (f2 & (TR2_RES_POISB)) p_ptr->weakresist_pois = TRUE;
-		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
-		if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
-		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
-		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
-		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
-		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
-		if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
-		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
-		if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
-		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
-		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+		if (f4 & (TR4_RES_FEAR)) p_ptr->resist_fear = TRUE;
+		if (f4 & (TR4_RES_CHARM)) p_ptr->resist_charm = TRUE;
+		if (f4 & (TR4_RES_LITE)) p_ptr->resist_lite = TRUE;
+		if (f4 & (TR4_RES_DARK)) p_ptr->resist_dark = TRUE;
+		if (f4 & (TR4_RES_BLIND)) p_ptr->resist_blind = TRUE;
+		if (f4 & (TR4_RES_CONFU)) p_ptr->resist_confu = TRUE;
+		if (f4 & (TR4_RES_SOUND)) p_ptr->resist_sound = TRUE;
+		if (f4 & (TR4_RES_SHARD)) p_ptr->resist_shard = TRUE;
+		if (f4 & (TR4_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+		if (f4 & (TR4_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+		if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+		if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
 		/* Sustain flags */
 		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2254,6 +2286,13 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+	    /* check niceness */
+	    if ((cp_ptr->spell_book == TV_DARK_BOOK) ||
+	    (f3 & (TR3_BAD_WEAP)))
+	    {
+           p_ptr->nice = FALSE;
+        }
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -2361,6 +2400,29 @@ static void calc_bonuses(void)
 		p_ptr->stat_ind[i] = ind;
 	}
 
+	/*** Luck check ***/
+	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
+	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
+	/* black magic users have a lower max luck */
+    /* and those who pray don't rely on luck as much */
+	if (((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK)) && 
+       (p_ptr->luck > PY_LUCKCHECK_MAX - 2))
+	{
+       p_ptr->luck = PY_LUCKCHECK_MAX - 2;
+    }
+    /* further hit for black magic users*/
+    if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
+       (randint(1000) < 2))
+	{
+       p_ptr->luck -= 1;
+    }
+
+    /* reset goodluck and badluck */
+    goodluck = 0;
+    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
+    badluck = 0;
+    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+
 
 	/*** Temporary flags ***/
 
@@ -2371,6 +2433,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h -= 20;
 		p_ptr->to_d -= 20;
 		p_ptr->dis_to_d -= 20;
+		p_ptr->see_infra -= 4;
 	}
 	else if (p_ptr->timed[TMD_STUN])
 	{
@@ -2378,6 +2441,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h -= 5;
 		p_ptr->to_d -= 5;
 		p_ptr->dis_to_d -= 5;
+		p_ptr->see_infra -= 2;
 	}
 
 	/* Invulnerability */
@@ -2406,6 +2470,29 @@ static void calc_bonuses(void)
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
         p_ptr->resist_frenzy = TRUE;
+		p_ptr->see_infra += 2;
+		goodluck += 1;
+	}
+
+	/* Temporary enhanced roguishness */
+	if (p_ptr->timed[TMD_SUPER_ROGUE])
+	{
+        p_ptr->resist_frenzy = TRUE;
+		p_ptr->to_a += 4;
+		p_ptr->dis_to_a += 4;
+		goodluck += 2;
+        if (goodluck < 12)
+        {
+           p_ptr->pspeed += 2;
+           p_ptr->skills[SKILL_STL] += 1;
+		   p_ptr->see_infra += 10;
+        }
+        else
+        {
+           p_ptr->pspeed += goodluck / 4;
+           p_ptr->skills[SKILL_STL] += goodluck / 6;
+		   p_ptr->see_infra += goodluck - 2;
+        }
 	}
 
 	/* Temporary shield */
@@ -2440,15 +2527,16 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 24;
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
+	    p_ptr->see_infra -= 2;
 	}
 
 	/* Temporary "Slip into the Shadows" (extra stealth) */
 	if (p_ptr->timed[TMD_SHADOW])
 	{
        p_ptr->skills[SKILL_STL] = (p_ptr->skills[SKILL_STL] * 2);
-	   p_ptr->see_infra += 2;
 	   p_ptr->to_a += 2;
 	   p_ptr->dis_to_a += 2;
+	   p_ptr->see_infra += 4;
 	}
 
 	/* Temporary "Frenzy" */
@@ -2460,6 +2548,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h -= 6;
 		p_ptr->to_a -= 12;
 		p_ptr->dis_to_a -= 12;
+	    p_ptr->see_infra -= 5;
         p_ptr->skills[SKILL_SAV] = p_ptr->skills[SKILL_SAV] - 4;
     }
 
@@ -2489,6 +2578,7 @@ static void calc_bonuses(void)
 		p_ptr->pspeed += 11;
 		p_ptr->to_a += 30;
 		p_ptr->dis_to_a += 27;
+	    p_ptr->see_infra -= 2;
 	}
 
 	/* Temporary speed adjustment (not always positive) */
@@ -2499,18 +2589,22 @@ static void calc_bonuses(void)
 
 	/* sustain speed: resist slowing, inertia, and hasting */
 	/* (undecided if it should affect TMD_ADJUST, it does for now */
+	/* allows the other effects of TMD_TERROR */
 	if (p_ptr->timed[TMD_SUST_SPEED])
 	{
 		if (p_ptr->timed[TMD_FAST]) (void)clear_timed(TMD_FAST);
 		if (p_ptr->timed[TMD_SLOW]) (void)clear_timed(TMD_SLOW);
 		if (p_ptr->timed[TMD_ADJUST]) (void)clear_timed(TMD_ADJUST);
+		if (p_ptr->timed[TMD_TERROR]) p_ptr->pspeed -= 11;
 	}
 
 	/* Temporary see invisible */
 	if (p_ptr->timed[TMD_SINVIS])
 	{
 		p_ptr->see_inv = TRUE;
-		if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->lev > 32)) p_ptr->skills[SKILL_SRH] += 10;
+
+		/* this part for 'see all foes' spell: */
+		if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->lev > 32)) p_ptr->see_infra += 16;
 	}
 
 	/* Timed "True Sight" */
@@ -2521,6 +2615,7 @@ static void calc_bonuses(void)
         p_ptr->resist_blind = TRUE;
 		p_ptr->to_h += 1;
 		p_ptr->dis_to_h += 1;
+	    p_ptr->see_infra += 20;
 	}
 	
 	/* timed "sanctify for battle " */
@@ -2565,10 +2660,11 @@ static void calc_bonuses(void)
 	{
 		p_ptr->resist_fear = TRUE;
 		p_ptr->resist_charm = TRUE;
-	    p_ptr->see_infra += 3;
 	    p_ptr->skills[SKILL_SAV] += 3;
 		p_ptr->to_a += 3;
 		p_ptr->dis_to_a += 3;
+	    p_ptr->see_infra += 6;
+	    badluck += 1;
 	    
 	    if ((goodweap > 1) && (randint(3) == 1))
 	    {
@@ -2608,21 +2704,56 @@ static void calc_bonuses(void)
         p_ptr->telepathy = TRUE;
 	}
 
-	/* timed mind sight (telepathy only while blind) */
+	/* timed second sight (telepathy only while blind) */
 	if ((p_ptr->timed[TMD_MESP]) && (p_ptr->timed[TMD_BLIND]))
 	{
         p_ptr->telepathy = TRUE;
 	}
 
-	/* Temporary infravision boost */
+	/* "1st sight and 2nd thoughts" */
+	/* (strengthens alertness and saves and inhibits magic and telepathy) */
+	if (p_ptr->timed[TMD_2ND_THOUGHT])
+	{
+        (void)clear_timed(TMD_BLIND);
+        p_ptr->resist_blind = TRUE;
+	    p_ptr->see_infra += 15;
+	    p_ptr->skills[SKILL_SAV] += 12;
+        if ((p_ptr->timed[TMD_ESP]) || (p_ptr->timed[TMD_SINVIS]))
+        {
+           msg_print("The first sight blocks your second sight.");
+           (void)clear_timed(TMD_ESP);
+           (void)clear_timed(TMD_SINVIS);
+        }
+        (void)clear_timed(TMD_MESP);
+        p_ptr->see_inv = FALSE;
+        p_ptr->telepathy = FALSE;
+	}
+
+	/* Temporary alertness boost */
 	if (p_ptr->timed[TMD_SINFRA])
 	{
-		p_ptr->see_infra += 5;
+		p_ptr->see_infra += 15;
 	}
 	else if (p_ptr->timed[TMD_WSINFRA])
 	{
-		p_ptr->see_infra += 1;
+		p_ptr->see_infra += 5;
 	}
+	
+    /* Peace reduces number of blows by 1, makes criticals less likely */
+    /* and prevents heroism, berserker, and frenzy */
+    if (p_ptr->peace)
+    {
+	   (void)clear_timed(TMD_HERO);
+	   (void)clear_timed(TMD_SHERO);
+	   (void)clear_timed(TMD_FRENZY);
+	   if (badluck > 0) badluck -= 1;
+	   else goodluck += 1;
+	   p_ptr->skills[SKILL_SAV] += 4;
+       p_ptr->dis_to_h -= 2;
+       p_ptr->to_h -= 2;
+       if ((p_ptr->aggravate) && (goodluck > 6)) p_ptr->aggravate = FALSE;
+       if (randint(12000) < goodluck * 2) inc_timed(TMD_SPHERE_CHARM, randint(10 + goodluck) + 15);
+    }
 
 	/*** Special flags ***/
 	
@@ -2656,31 +2787,28 @@ static void calc_bonuses(void)
 		p_ptr->resist_charm = TRUE;
 	}
 
-	/*** Luck check & some effects of luck ***/
-	
-	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
-	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
-	/* black magic users have a lower max luck */
-    /* and those who pray don't rely on luck as much */
-	if ((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK) && 
-       (p_ptr->luck > PY_LUCKCHECK_MAX - 2))
-	{
-       p_ptr->luck = PY_LUCKCHECK_MAX - 2;
+    /* side effects of halucenation */
+	if (p_ptr->timed[TMD_IMAGE])
+    {
+       p_ptr->see_infra -= 8; /* less alertness */
+	   goodluck += 2; /* temporary luck*/
     }
-    /* further hit for black magic users*/
-    if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
-       (randint(1000) < 2))
-	{
-       p_ptr->luck -= 1;
+   
+    /* side effects of being charmed */
+	if (p_ptr->timed[TMD_CHARM])
+    {
+       p_ptr->see_infra -= 3;
+	   goodluck += 1;
     }
 
-    /* reset goodluck and badluck */
-    goodluck = 0;
-    if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
-    badluck = 0;
-    if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+    /* possible side effects of some black magic */
+	if (p_ptr->timed[TMD_WITCH])
+    {
+       p_ptr->see_infra -= 2;
+	   badluck += 1;
+    }
 
-    /* some effects of luck */
+    /*** some Effects of Luck ***/
     /* this will cause these things to possibly change every time */
     /* this function is called */
 /* (spellswitch9999 prevents skill numbers from changing on birth screen) */
@@ -2692,10 +2820,22 @@ static void calc_bonuses(void)
        if (randint(100) < 50) p_ptr->skills[SKILL_THT] -= badluck / 3;
 	   if ((goodluck > 10) || (badluck > 10) && (randint(100) < 66))
        {
-          p_ptr->skills[SKILL_DEV] += goodluck / 9;
-          p_ptr->skills[SKILL_DEV] -= badluck / 9;
+          p_ptr->skills[SKILL_DEV] += 1 + goodluck / 6;
+          p_ptr->skills[SKILL_DEV] -= 1 + badluck / 6;
        }
     }
+
+    /*** Player alertness to monsters (palert) ***/
+    /* how alert to monsters is the player? */
+    if (p_ptr->timed[TMD_CONFUSED]) p_ptr->see_infra -= 4;
+    if (p_ptr->searching) p_ptr->see_infra -= 2;
+	
+    if (p_ptr->see_infra < 1) p_ptr->see_infra = 1;
+    palert = p_ptr->see_infra + randint(goodluck/2);
+	if (p_ptr->silver >= PY_SILVER_LEVELTWO) palert -= 6;
+	else if (p_ptr->silver >= PY_SILVER_LEVELONE) palert -= 3;
+	if ((spellswitch > 90) && (spellswitch < 96)) palert += (spellswitch - 90) * 2;
+	if (palert < 2) palert = 2;
 
 	/*** Analyze weight ***/
 
@@ -2731,7 +2871,6 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-
 
 	/*** Modify skills ***/
 
@@ -2791,29 +2930,7 @@ static void calc_bonuses(void)
 
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
-
-    /* Player alertness to monsters */
-    /* how alert to monsters is the player? */
-    palert = (p_ptr->skills[SKILL_SRH] / 2) + (p_ptr->skills[SKILL_FOS]/4) + 10 + randint(goodluck/2);
-    /* if (palert > 50) palert = 50; */
-    /* if (p_ptr->stat_use[A_INT] > p_ptr->stat_use[A_WIS]) palert += p_ptr->stat_use[A_INT];
-    else palert += p_ptr->stat_use[A_WIS]; */
-    if (p_ptr->timed[TMD_CONFUSED]) palert -= 2;
-    if (p_ptr->timed[TMD_STUN]) palert -= 1;
-	if (p_ptr->timed[TMD_IMAGE]) palert -= 8;
-	if (p_ptr->timed[TMD_FRENZY]) palert -= 5;
-	if (p_ptr->timed[TMD_TERROR]) palert -= 4;
-	if (p_ptr->timed[TMD_CHARM]) palert -= 3;
-	if (p_ptr->timed[TMD_WITCH]) palert -= 1;
-	if (p_ptr->silver >= PY_SILVER_LEVELTWO) palert -= 6;
-	else if (p_ptr->silver >= PY_SILVER_LEVELONE) palert -= 3;
-    if (p_ptr->searching) palert += 6;
-	if ((spellswitch > 90) && (spellswitch < 96)) palert += (spellswitch - 90) + 1;
-	if (p_ptr->timed[TMD_BLESSED]) palert += 2;
-	if (p_ptr->timed[TMD_SHADOW]) palert += 2;
-    if (p_ptr->pclass == 4) palert += 2; /* small bonus for rangers */
-	if (p_ptr->timed[TMD_TSIGHT]) palert += 15;
-
+    
 	/*** Analyze current bow ***/
 
 	/* Examine the "current bow" */
@@ -2852,13 +2969,6 @@ static void calc_bonuses(void)
 				break;
 			}
 			
-			case SV_SLINGSHOT:
-			{
-				p_ptr->ammo_tval = TV_SHOT;
-				p_ptr->ammo_mult = 1;
-				break;
-			}
-			
 			case SV_HANDHELDC:
 			{
 				p_ptr->ammo_tval = TV_SHOT;
@@ -2874,13 +2984,6 @@ static void calc_bonuses(void)
 				break;
 			}
 			
-			case SV_SMALL_BOW:
-			{
-				p_ptr->ammo_tval = TV_ARROW;
-				p_ptr->ammo_mult = 1;
-				break;
-			}
-
 			/* Long Bow and Arrow */
 			case SV_LONG_BOW:
 			{
@@ -2921,60 +3024,45 @@ static void calc_bonuses(void)
 		}
 
 	/* certain classes are better at using certain types of weapons */
-    if ((p_ptr->pclass == 3) || (p_ptr->pclass == 23) && (p_ptr->ammo_tval == TV_ARROW))
-    { /* rogues not as good with bows */
-	      p_ptr->to_h -= 2;
-	      p_ptr->dis_to_h -= 2;
-    }
-    if ((p_ptr->pclass == 3) && (p_ptr->ammo_tval == TV_BOLT))
-    { /* rogue */
-	      p_ptr->to_h += 1;
-	      p_ptr->dis_to_h += 1;
-    }
     if ((p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_ARROW))
     { /* rangers don't get extra shots but still good with bows */
-	      p_ptr->to_h += 2;
-	      p_ptr->dis_to_h += 2;
+	      p_ptr->to_h += 5;
+	      p_ptr->dis_to_h += 5;
     }
-    if ((p_ptr->pclass == 6) || (p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_BOLT) || (p_ptr->ammo_tval == TV_SHOT))
-    { /* archers and rangers not as good with slings or crossbows */
-	      p_ptr->to_h -= 2;
-	      p_ptr->dis_to_h -= 2;
+    if ((p_ptr->pclass == 6) && (p_ptr->ammo_tval == TV_BOLT) || (p_ptr->ammo_tval == TV_SHOT))
+    { /* archers not as good with slings or crossbows */
+	      p_ptr->to_h -= 5;
+	      p_ptr->dis_to_h -= 5;
     }
     if ((p_ptr->pclass == 5) || (p_ptr->pclass == 13) || (p_ptr->prace == 13) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* paladins and assassins don't have much in common but neither use slings */
+    { /* paladins and assassin don't like slings */
 	      p_ptr->to_h -= 2;
 	      p_ptr->dis_to_h -= 2;
     }
-    if ((p_ptr->pclass == 8) || (p_ptr->pclass == 9) || (p_ptr->pclass == 10) && (p_ptr->ammo_tval == TV_BOLT))
-    { /* crossbow not a priestly weapon, nor a healery weapon, nor druidy weapon */
-	      p_ptr->to_h -= 2;
-	      p_ptr->dis_to_h -= 2;
-    }
-    if ((p_ptr->pclass == 8) || (p_ptr->pclass == 18) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* sling kindof is a priestly weapon (also barbarian) */
+    if ((p_ptr->pclass == 8) || (p_ptr->pclass == 10) && (p_ptr->ammo_tval == TV_SHOT))
+    { /* sling kindof is a priestly weapon */
 	      p_ptr->to_h += 2;
 	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->pclass == 18) || (p_ptr->prace == 3) || (p_ptr->prace == 14) && (p_ptr->ammo_tval == TV_SHOT))
+    { /* barbarians and hobbits like slings */
+	      p_ptr->to_h += 4;
+	      p_ptr->dis_to_h += 4;
     }
     if ((p_ptr->pclass == 13) && (p_ptr->ammo_tval == TV_BOLT))
     { /* assassins like crossbows */
 	      p_ptr->to_h += 2;
 	      p_ptr->dis_to_h += 2;
     }
-    if ((p_ptr->prace == 9) || (p_ptr->prace == 12) && (p_ptr->ammo_tval == TV_BOLT))
-    { /* high elves and fairies don't */
+    if ((p_ptr->prace == 9) || (p_ptr->prace == 12) || (p_ptr->pclass == 18) && (p_ptr->ammo_tval == TV_BOLT))
+    { /* barbarians, high elves and fairies don't */
 	      p_ptr->to_h -= 2;
 	      p_ptr->dis_to_h -= 2;
-    }
-    if ((p_ptr->prace == 3) || (p_ptr->prace == 14) && (p_ptr->ammo_tval == TV_SHOT))
-    { /* hobbits like slings */
-	      p_ptr->to_h += 2;
-	      p_ptr->dis_to_h += 2;
     }
     if ((p_ptr->prace == 17) && (p_ptr->ammo_tval == TV_ARROW))
     { /* umber hulks don't use bows */
-	      p_ptr->to_h -= 2;
-	      p_ptr->dis_to_h -= 2;
+	      p_ptr->to_h -= 8;
+	      p_ptr->dis_to_h -= 8;
     }
 
 		/* Apply special flags */
@@ -3064,6 +3152,9 @@ static void calc_bonuses(void)
 		{
 		   p_ptr->num_blow += 1;
         }
+		
+		/* peace */
+        if (p_ptr->peace) p_ptr->num_blow -= 1;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -3078,12 +3169,7 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 	
 	/* certain classes are better at using certain types of weapons */
-    if ((p_ptr->pclass == 0) && (o_ptr->tval == TV_HAFTED))
-    { /* warrior */
-	      p_ptr->to_h -= 2;
-	      p_ptr->dis_to_h -= 2;
-    }
-    if ((p_ptr->pclass == 6) && (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+    if ((p_ptr->pclass == 6) && (o_ptr->tval == TV_POLEARM))
     { /* archer */
 	      p_ptr->to_h -= 1;
 	      p_ptr->dis_to_h -= 1;
@@ -3098,20 +3184,31 @@ static void calc_bonuses(void)
 	      p_ptr->to_h -= 1;
 	      p_ptr->dis_to_h -= 1;
     }
+    if (((p_ptr->pclass == 16) || (p_ptr->pclass == 10)) && (o_ptr->tval == TV_STAFF))
+    { /* war mages and druids get bonus with magic staffs */
+	      p_ptr->to_d += 1;
+	      p_ptr->dis_to_d += 1;
+	      p_ptr->to_h += 1;
+	      p_ptr->dis_to_h += 1;
+    }
     if (p_ptr->pclass == 8) /* barbarians */
     {
-         /* barbarians fight with spears and axes */
+         /* barbarians fight with spears and axes (also bonus with tusks) */
          if (o_ptr->tval == TV_SWORD)
          {
             p_ptr->to_h -= 2;
 	        p_ptr->dis_to_h -= 2;
-
          }
-         if (o_ptr->tval == TV_POLEARM)
+         if ((o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_SKELETON))
          {
 	        p_ptr->to_h += 2;
 	        p_ptr->dis_to_h += 2;
          }
+    }
+    if ((p_ptr->pclass == 19) && (o_ptr->tval == TV_SKELETON))
+    { /* chaos warrios */
+	      p_ptr->to_h += 1;
+	      p_ptr->dis_to_h += 1;
     }
     if ((p_ptr->pclass == 32) && (o_ptr->tval == TV_SWORD))
     { /* umber hulks not good with swords */
@@ -3122,16 +3219,18 @@ static void calc_bonuses(void)
 	/* Barbarians like heavy weapons */
     if (cp_ptr->flags & CF_HEAVY_BONUS)
     {
-       if (o_ptr->weight > 90)
+       if (o_ptr->weight > 99)
        {
           int hbonus = ((o_ptr->weight - 100) / 50) + 1;
 	      p_ptr->to_d += hbonus;
 	      p_ptr->dis_to_d += hbonus;
        }
-       if (o_ptr->weight < 52)
+       if (o_ptr->weight < 51) /* not as good with light weapons */
        {
 	      p_ptr->to_d -= 1;
 	      p_ptr->dis_to_d -= 1;
+	      p_ptr->to_h -= 1;
+	      p_ptr->dis_to_h -= 1;
        }
     }
     
@@ -3161,14 +3260,14 @@ static void calc_bonuses(void)
              p_ptr->icky_wield = TRUE;
         }
 	}
-	/* Priest weapon penalty goes for avy evil weapons also */
+	/* Priest weapon penalty goes for any evil weapons also */
 	/* (even if it's a hafted weapon) */
 	/* It should never happen that an object has both BLESSED and BAD_WEAP */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (f3 & (TR3_BAD_WEAP)))
     {
 		/* Icky weapon */
         p_ptr->icky_wield = TRUE;                       
-    }	
+    }
 
 
 	/*** Notice changes ***/

@@ -65,18 +65,18 @@ something you are more comfortable with.
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   Ant           	A   Ape
-            b   Bat           	B   Bird
-            c   Centipede     	C   Canine (Dog)
+            a   Ant           	    A   Ape
+            b   Bat           	    B   Bird
+            c   Centipede     	    C   Canine (Dog)
             d   Dragon              D   Ancient Dragon
             e   Floating Eye        E   Ent or other Tree Monster
             f   Feline (Cat)        F   Dragonfly
             g   Golem               G   Ghost
             h   Humanoids           H   Hybrid
-     		i   Imp or Dark Fairy	I   Insect
+     	    i   Imp or Dark Fairy   I   Insect
             j   Jelly               J   Snake
             k   Kobold              K   Knight or other Mystic Warrior
-            l   Lizard         	L   Lich
+            l   Lizard         	    L   Lich
             m   Mold                M   Multi-Headed Hydra
             n   Naga                N   Null
             o   Orc                 O   Ogre
@@ -91,7 +91,7 @@ something you are more comfortable with.
             x   Gargoyle            X   Xorn or other Minor Elemental
             y   Light Fairy         Y   Unicorn or Centaur
             z   Zombie/Mummy        Z   Zephyr Hound
-		%   Elemental		&   Major Demon
+	    %   Elemental	    &   Major Demon
 
 
 

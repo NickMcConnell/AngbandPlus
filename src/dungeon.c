@@ -980,17 +980,21 @@ static void process_world(void)
                        
     }
     
-    if ((p_ptr->timed[TMD_WITCH]) && (randint(666) == 1))
+    if (((p_ptr->timed[TMD_WITCH]) || (badluck > 18)) && (randint(666) == 1))
     {
        if (cp_ptr->spell_book == TV_DARK_BOOK)
        {
           msg_print("Demons are attracted to your black magic.");
        }
+       else if (badluck > 18)
+       {
+          msg_print("Demons like to pick on the unlucky.");
+       }
        else
        {
           msg_print("Demons are attracted to the nether power you summoned.");
        }
-       if (randint(100) < 33) do_call_help(560, TRUE);
+       if (randint(100) < 20) do_call_help(560, TRUE);
        else summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DEMON);
     }
     

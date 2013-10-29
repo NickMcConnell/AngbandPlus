@@ -55,7 +55,7 @@ static timed_effect effects[] =
 	{ "A powerful mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD }, /* TMD_SHIELD */
 	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_BLESSED */
 	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS }, /* TMD_SINVIS */
-	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_SINFRA */
+	{ "You feel very alert.", "You no longer feel extra alert.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_SINFRA */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_ACID -- handled seperately */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_ELEC -- handled seperately */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_OPP_FIRE -- handled seperately */
@@ -74,7 +74,7 @@ static timed_effect effects[] =
 	{ "You magic is enhanced and you can read runes with your hands!", "Your magic no longer seems more powerful than normal.", PR_BLIND, 0, PU_BONUS, MSG_SEE_INVIS }, /* TMD_BRAIL */
 	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_STONESKIN */
 	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID }, /* TMD_TERROR */
-	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* TMD_MESP: (mind sight) telepathy only while blind */
+	{ "", "", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* TMD_MESP: (mind sight) telepathy only while blind */
 	{ "You feel slightly resistant to poison.", "You feel less resistant to poison.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_WOPP_POIS */
 	{ "You feel resistant to nether forces!", "You feel less resistant to nether.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_OPP_NETHR */
 	{ "You feel safe from lifeless monsters!", "You no longer feel safe from lifeless monsters.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTDEAD */
@@ -89,6 +89,10 @@ static timed_effect effects[] =
 	{ "You feel like nothing can slow you down!", "Your speed is no longer sustained.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUST_SPEED */
 	{ "A sphere of green light surrounds you!", "The sphere of charm dissapears.", 0, 0, 0, MSG_GENERIC }, /* TMD_SPHERE_CHARM */
 	{ "Your attacks are reinforced by the elements.", "You no longer strike with the elements.", 0, 0, 0, MSG_GENERIC }, /* TMD_HIT_ELEMENT */
+	{ "You can see monsters without light!", "You can no longer see without light.", PR_OPPOSE_ELEMENTS, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
+	{ "You feel very sneaky.", "You no longer feel especially sneaky.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SUPER_ROGUE */
+	{ "Are electrical field surrounds you.", "The electric field dissapates.", PR_BLIND, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ZAPPING */
+	{ "You have first sight and second thoughts", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
 };
 
 /*
@@ -1115,21 +1119,23 @@ static int get_coin_type(const monster_race *r_ptr)
 	cptr name = (r_name + r_ptr->name);
 
 	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
+	if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
 	{
 		/* Look for textual clues */
 		if (strstr(name, " copper ")) return (3);
 		if (strstr(name, " silver ")) return (6);
 		if (strstr(name, " gold ")) return (11);
-		if (strstr(name, " mithril ")) return (17);
-		if (strstr(name, " adamantite ")) return (18);
+		if (strstr(name, "gold ")) return (11);
+		if (strstr(name, " mithril ")) return (18);
+		if (strstr(name, " adamantite ")) return (19);
+		if (strstr(name, " diamond")) return (15);
 
 		/* Look for textual clues */
 		if (strstr(name, "Copper ")) return (3);
 		if (strstr(name, "Silver ")) return (6);
 		if (strstr(name, "Gold ")) return (11);
-		if (strstr(name, "Mithril ")) return (17);
-		if (strstr(name, "Adamantite ")) return (18);
+		if (strstr(name, "Mithril ")) return (18);
+		if (strstr(name, "Adamantite ")) return (19);
 	}
 
 	/* Assume nothing */

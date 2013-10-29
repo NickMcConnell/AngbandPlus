@@ -43,12 +43,16 @@ bool test_hit(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-int critical_shot(int weight, int plus, int dam)
+int critical_shot(int weight, int plus, int dam, bool thrown)
 {
 	int i, k;
 
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	if (p_ptr->peace) i = ((i * 9) / 10);
+
+	/* critical less likely when thrown */
+	if (thrown) i = ((i * 9) / 10);
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -82,12 +86,18 @@ int critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-int critical_norm(int weight, int plus, int dam)
+int critical_norm(int weight, int plus, int dam, int excrit)
 {
 	int i, k;
 
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	if (weight > 150) excrit += 2;
+	else if (weight > 90) excrit += 1;
+	if (excrit > 0) i += excrit * (10 + (goodluck/2));
+	i += (goodluck * 3);
+	i -= (badluck * 3);
+	if (p_ptr->peace) i -= 50;
 
 	/* Chance */
 	if (randint(5000) <= i)
@@ -146,31 +156,29 @@ int critical_norm(int weight, int plus, int dam)
  */
 #ifdef EFG
 /* EFGchange can learn awareness by throwing for damage */
-int tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
+int tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+/* int tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr) */
 #else
 int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 #endif
 {
 	int mult = 1;
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
 	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
 	{
+        /* range weapons don't brand with elemental rings */
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -392,7 +400,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+ 			if (f1 & (TR1_BRAND_ELEC))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -411,7 +419,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+ 			if (f1 & (TR1_BRAND_FIRE))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -430,7 +438,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+ 			if (f1 & (TR1_BRAND_COLD))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -449,7 +457,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
+ 			if (f1 & (TR1_BRAND_POIS))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_POIS))
@@ -459,6 +467,334 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 						l_ptr->flags3 |= (RF3_IM_POIS);
 					}
 				}
+			    /* poison has different effect on light fairies */
+                else if ((r_ptr->d_char == 'y') && (r_ptr->flags3 & (RF3_HURT_DARK)))
+                {
+            	    if ((tdam/2) > 29) m_ptr->confused = 22 + randint(29);
+                    else m_ptr->confused = 20 + randint(tdam);
+					if (mult < 2) mult = 2;
+                }
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+			
+			if ((f3 & (TR3_LITE)) && (r_ptr->flags3 & (RF3_HURT_LITE)))
+			{
+				if ((tdam < 20) && (mult < 2)) tdam += randint(2);
+				else if (p_ptr->timed[TMD_SANCTIFY]) tdam += 1;
+            }
+        }    
+
+        /* allows branding from elemental rings */
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_SKELETON:
+		case TV_STAFF:
+		{
+			/* Slay Animal */
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_ANIMAL);
+				}
+
+				if (mult < 2) mult = 2;
+			}
+
+			/* Slay Evil */
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_EVIL);
+				}
+
+				if (mult < 2) mult = 2;
+			}
+
+			/* Slay Undead */
+			if ((f1 & (TR1_SLAY_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_UNDEAD);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Demon */
+			if ((f1 & (TR1_SLAY_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_DEMON);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+            /* Holy Wrath (Sanctify for battle) */
+            if (p_ptr->timed[TMD_SANCTIFY])
+            {
+               /* maybe should also include undead */
+               if (r_ptr->flags3 & (RF3_DEMON))
+               {
+				  if (m_ptr->ml)
+				  {
+		   	         l_ptr->flags3 |= (RF3_DEMON);
+				  }
+				  if (mult < 3) mult = 3;
+               }
+               
+               if (r_ptr->flags3 & (RF3_EVIL))
+               {
+                  if (m_ptr->ml)
+				  {
+					 l_ptr->flags3 |= (RF3_EVIL);
+				  }
+
+				  if (mult < 2) mult = 2;
+               }
+
+            }
+
+			/* Slay Orc */
+			if ((f1 & (TR1_SLAY_ORC)) &&
+			    (r_ptr->flags3 & (RF3_ORC)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_ORC);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Troll */
+			if ((f1 & (TR1_SLAY_TROLL)) &&
+			    (r_ptr->flags3 & (RF3_TROLL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_TROLL);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Giant */
+			if ((f1 & (TR1_SLAY_GIANT)) &&
+			    (r_ptr->flags3 & (RF3_GIANT)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_GIANT);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Dragon */
+			if ((f1 & (TR1_SLAY_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_DRAGON);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Silver */
+			if ((f2 & (TR2_SLAY_SILVER)) &&
+			    (r_ptr->flags3 & (RF3_SILVER)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_SILVER);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay bug */
+			if ((f2 & (TR2_SLAY_BUG)) &&
+			    (r_ptr->flags3 & (RF3_BUG)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_BUG);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_DRAGON);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+			/* Execute demon */
+			if ((f1 & (TR1_KILL_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_DEMON);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+			/* Execute undead */
+			if ((f1 & (TR1_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_UNDEAD);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+			/* Brand (Acid) */
+/*			if (f1 & (TR1_BRAND_ACID)) */
+			if (p_ptr->brand_acid)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_ACID);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Acid Coating */
+			if (f2 & (TR2_COAT_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_ACID);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 2) mult = 2;
+				}
+			}
+
+			/* Brand (Elec) */
+/* 			if (f1 & (TR1_BRAND_ELEC)) */
+			if (p_ptr->brand_elec)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_ELEC);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Fire) */
+/* 			if (f1 & (TR1_BRAND_FIRE)) */
+			if (p_ptr->brand_fire)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Cold) */
+/* 			if (f1 & (TR1_BRAND_COLD)) */
+			if (p_ptr->brand_cold)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Poison) */
+/* 			if (f1 & (TR1_BRAND_POIS)) */
+			if (p_ptr->brand_pois)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_POIS);
+					}
+				}
+			    /* poison has different effect on light fairies */
+                else if ((r_ptr->d_char == 'y') && (r_ptr->flags3 & (RF3_HURT_DARK)))
+                {
+            	    if ((tdam/2) > 29) m_ptr->confused = 20 + randint(29);
+                    else m_ptr->confused = 16 + randint(tdam);
+					if (mult < 2) mult = 2;
+                }
 
 				/* Otherwise, take the damage */
 				else
@@ -480,13 +816,86 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 #ifdef EFG
 	/* EFGchange can learn awareness by throwing for damage */
-	if ((tdam * mult > 0) && (!object_aware_p(o_ptr)))
-		object_aware(o_ptr);
+ 	if ((tdam * mult > 0) && (!object_aware_p(o_ptr)))
+ 	{
+        /* DJA: prevent IDing wands/rods and stuff this way */
+ 	    if (o_ptr->tval < 30) object_aware(o_ptr);
+    }
 	/* ??? and if it does no damage, should we remember "thrown" aka "tried" ? */
 #endif
+
 	/* Return the total damage */
 	return (tdam * mult);
 }
+
+int self_dam_aux(object_type *o_ptr, int tdam)
+{
+	int mult = 1;
+
+	u32b f1, f2, f3, f4;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+    /* brands */
+	if ((p_ptr->brand_acid) && (!p_ptr->immune_acid) && (!p_ptr->resist_acid))
+	{
+       if (mult < 3) mult = 3;
+    }
+	else if ((p_ptr->brand_acid) && (!p_ptr->immune_acid))
+	{
+       tdam += 2; /* resistant */
+    }
+
+	if ((p_ptr->brand_fire) && (!p_ptr->immune_fire) && (!p_ptr->resist_fire))
+	{
+       if (mult < 3) mult = 3;
+    }
+	else if ((p_ptr->brand_fire) && (!p_ptr->immune_fire))
+	{
+       tdam += 2; /* resistant */
+    }
+
+	if ((p_ptr->brand_cold) && (!p_ptr->immune_cold) && (!p_ptr->resist_cold))
+	{
+       if (mult < 3) mult = 3;
+    }
+	else if ((p_ptr->brand_cold) && (!p_ptr->immune_cold))
+	{
+       tdam += 2; /* resistant */
+    }
+
+	if ((p_ptr->brand_elec) && (!p_ptr->immune_elec) && (!p_ptr->resist_elec))
+	{
+       if (mult < 3) mult = 3;
+    }
+	else if ((p_ptr->brand_elec) && (!p_ptr->immune_elec))
+	{
+       tdam += 2; /* resistant */
+    }
+
+    /* these things add to the multiplier */
+    if ((f1 & (TR1_SLAY_EVIL)) && (cp_ptr->spell_book == TV_DARK_BOOK))
+    {
+       mult += 1;
+    }
+    else if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
+    {
+       mult += 1;
+    }
+
+    if ((f3 & (TR3_BAD_WEAP)) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
+    {
+       mult += 1;
+    }
+    
+	/* Return the total damage (not true multipliers when hitting yourself) */
+	if (mult == 2) return ((tdam * 3) / 2); /* 1.5x */
+	else if (mult == 3) return (tdam * 2); /* 2x */
+	else if (mult > 3) return ((tdam * 5) / 2); /* 2.5x */
+	else return tdam; /* mult < 2 */
+}
+
 
 
 /*
@@ -1093,7 +1502,7 @@ void hit_trap(int y, int x)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			if ((p_ptr->ffall) && (randint(100) < (goodluck * 3) + randint(goodluck-2) + 2))
+			if ((p_ptr->ffall) && (randint(100) < (goodluck * 4)))
 			{
                 msg_print("You almost fall through a trap door..");
 				msg_print("You catch hold of the edge of the trap door!");
@@ -1204,7 +1613,7 @@ void hit_trap(int y, int x)
 					{
 						msg_print("You partially resist the poison.");
                         dam = (dam * 4) / 3;
-						(void)inc_timed(TMD_POISONED, randint(dam/3));
+						(void)inc_timed(TMD_POISONED, randint(dam/2));
                     }
 					else
 					{
@@ -1227,6 +1636,7 @@ void hit_trap(int y, int x)
 			cave_info[y][x] &= ~(CAVE_MARK);
 			cave_set_feat(y, x, FEAT_FLOOR);
 			num = 2 + randint(3);
+			if (randint(100) < goodluck*2) num -= 1;
 			for (i = 0; i < num; i++)
 			{
 				(void)summon_specific(y, x, p_ptr->depth, 0);
@@ -1387,7 +1797,6 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
-
 	/* Get the monster */
 	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
@@ -1437,6 +1846,13 @@ void py_attack(int y, int x)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skills[SKILL_THN] + (bonus * BTH_PLUS_ADJ));
 
+	u32b f1, f2, f3, f4;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	
+	int excrit = 0;
+	if (f2 & TR2_EXTRA_CRIT) excrit = 10;
 
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
@@ -1444,6 +1860,17 @@ void py_attack(int y, int x)
 		/* Test for hit */
 		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
 		{
+			/* if you hit a monster, you should notice that it's there */
+			if ((!m_ptr->monseen) && (!r_ptr->flags2 & (RF2_INVISIBLE)))
+			{
+               m_ptr->monseen = TRUE;
+               m_ptr->ml = TRUE;
+
+	           /* Start tracking the monster if it was previously unnoticed. */
+	           monster_race_track(m_ptr->r_idx);
+	           health_track(cave_m_idx[y][x]);            
+            }
+
 			/* Message */
 			message_format(MSG_GENERIC, m_ptr->r_idx, "You hit %s.", m_name);
 			
@@ -1455,16 +1882,34 @@ void py_attack(int y, int x)
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
+			
+            /* barbarians and hulks to more damage with bare hands */
+			if ((!o_ptr->k_idx) && (cp_ptr->flags & CF_HEAVY_BONUS))
+			{
+				k += 1 + randint(p_ptr->lev/5);
+                excrit += 1;
+			}
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
+
+                /* DJA: add strength bonus to damage before multipliers */
+                /* (no strength bonus for very light weapons) */
+	            if ((o_ptr->weight / 10) > 4)
+	            {
+                   k += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                   
+                   /* double strength bonus for very heavy weapons (heavier than 15 lb) */
+                   if ((o_ptr->weight / 10) > 15) k += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+                }  
+
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 40) && (randint(100) < 66)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, excrit);
 			}
-			
+
 			/* spirit of the balrog (after multipliers) */
 			if (p_ptr->timed[TMD_BALROG])
 			{
@@ -1574,17 +2019,18 @@ void py_attack(int y, int x)
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
-            /* barbarians and hulks to more damage with bare hands */
-			if ((!o_ptr->k_idx) && (cp_ptr->flags & CF_HEAVY_BONUS))
-			{
-				k += 1 + randint(p_ptr->lev/5);
-			}
+            /* remove strength bonus */
+/* (because I added it separatly from other to-dam bonuses before multipliers) */
+        	if (o_ptr->k_idx)
+            {
+               k -= ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+            }
 
 			/* No negative damage */
 			if (k < 0) k = 0;
 
 			/* Complex message */
-			if (p_ptr->wizard)
+			if ((p_ptr->wizard) || (p_ptr->noscore & NOSCORE_DEBUG))
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
@@ -1598,11 +2044,10 @@ void py_attack(int y, int x)
                 /* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
 
-
                 /* umber hulk always has glowing hands */
-				if (cp_ptr->flags & CF_HULK_CONF)
+	            if (cp_ptr->flags & CF_HULK_CONF)
                 {
-	            	p_ptr->confusing = TRUE;
+       	           p_ptr->confusing = TRUE;
                 }
 
 				/* Message */
@@ -1638,6 +2083,48 @@ void py_attack(int y, int x)
 		{
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+
+            /* damage to self */
+            int badchance = 1100 - (badluck * 5);
+            if (goodluck > 10) badchance += (goodluck * 5);
+            if ((p_ptr->accident) && (randint(badchance) < 10))
+            {
+               msg_format("..and accidently hit yourself with your weapon!");
+               int ouch;
+
+               ouch = damroll(o_ptr->dd, o_ptr->ds);
+			   ouch = self_dam_aux(o_ptr, ouch);
+
+               /* object damage bonus after semi-multipliers */
+			   if (o_ptr->k_idx) ouch += o_ptr->to_d;
+			   /* not all damage bonuses apply */
+
+			   /* Confusion attack */
+			   if ((p_ptr->confusing) && (randint(30) < (badluck+5)))
+			   {
+                  /* Cancel glowing hands */
+				  p_ptr->confusing = FALSE;
+
+                  /* umber hulk always has glowing hands */
+	              if (cp_ptr->flags & CF_HULK_CONF)
+                  {
+       	             p_ptr->confusing = TRUE;
+                  }
+
+				  /* Message */
+				  if (p_ptr->confusing == FALSE)
+                  {
+                      msg_print("Your hands stop glowing.");
+                  }
+
+			      if (!p_ptr->resist_confu)
+			      {
+				     inc_timed(TMD_CONFUSED, randint(badluck+2) + (ouch/3));
+				  }
+               }
+
+               take_hit((ouch/2), "your own weapon");
+            }
 		}
 	}
 

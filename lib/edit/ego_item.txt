@@ -1,5 +1,5 @@
 # File: ego_item.txt
-# DaJAngband 1.0.96
+# DaJAngband 1.0.97
 
 
 # This file is used to initialize the "lib/data/ego_item.raw" file, which is
@@ -54,13 +54,26 @@
 
 V:3.0.10
 
-# 1 (unused)
+N:1:of Darkvision
+X:4:0
+W:2:20:0:1800
+T:39:0:1
+F:DARKVIS
 
 # 2 (unused)
 
 # 3 (unused)
 
 ### Body Armor ###
+
+#Heavy armor or Dragon scale
+N:3:of Lightness
+X:10:0
+W:0:3:110:2000
+C:1:0:7:0
+T:37:0:99
+T:38:0:99
+F:FEATHER | LIGHTNESS
 
 N:4:of Resist Acid
 X:16:0
@@ -133,13 +146,13 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # added metal shod boots
 N:12:(Dwarven)
 X:18:0
-W:0:2:0:5000
+W:0:2:0:6000
 C:0:0:15:2
 T:37:3:99
 T:30:6:6
 F:IGNORE_ACID | IGNORE_FIRE |
-F:FREE_ACT |
-F:STR | CON | INFRA | HIDE_TYPE |
+F:FREE_ACT | DARKVIS
+F:STR | CON | HIDE_TYPE |
 
 ### N:13:
 
@@ -270,7 +283,7 @@ T:33:0:99
 T:32:5:99
 F:SEARCH | RES_BLIND | SEE_INVIS
 
-N:31:of Infravision
+N:31:of Alertness
 X:11:0
 W:0:2:0:500
 C:0:0:0:5
@@ -317,7 +330,7 @@ C:0:0:0:5
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
-F:INT | WIS | CHR | LIGHT_CURSE
+F:INT | WIS | CHR | INFRA | LIGHT_CURSE
 
 N:39:of Sickliness
 X:0:0
@@ -336,14 +349,26 @@ C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
 
+#Made a little less common since I added elven cloaks which always raise stealth.
 N:41:of Stealth
 X:10:0
-W:0:2:0:500
+W:0:3:0:500
 C:0:0:0:3
 T:35:0:99
 F:STEALTH
 
-### N:42:
+N:42:of Peace
+X:12:2
+W:0:9:0:1200
+C:0:0:4:1
+T:35:0:5
+F:NICE | WIS | RES_CHAOS | FEATHER
+F:GOOD_WEAP | LITE | PEACE | BLESSED
+D:The peace enchantment has several effects: 
+D:It reduces your number of blows by 1, makes criticals less likely,
+D: and prevents heroism, berserker, and frenzy.
+D: It also raises your saving throw,
+D: and if you're lucky, it may nullify aggravation.
 
 N:43:of the Magi
 X:15:3
@@ -361,24 +386,24 @@ F:SHOW_MODS | LIGHT_CURSE
 
 N:45:of Vulnerability
 X:0:0
-W:0:1:0:0
+W:0:2:0:0
 C:0:0:50:0
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
 
 N:46:of Irritation
 X:0:0
-W:0:1:0:0
+W:0:2:0:0
 C:15:15:0:0
 T:35:0:99
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
 N:47:of Dungeon Sight
 X:20:0
-W:8:3:0:4000
+W:25:3:0:4000
 C:2:0:8:6
 T:35:0:99
-F:INFRA | RES_BLIND
+F:RES_BLIND | DARKVIS
 F:IGNORE_ACID
 
 ### Gloves ###
@@ -437,7 +462,7 @@ X:0:0
 W:0:2:0:0
 C:0:0:0:10
 T:31:0:99
-F:DEX | LIGHT_CURSE | HIDE_TYPE
+F:DEX | LIGHT_CURSE | HIDE_TYPE | DANGER
 
 
 ### Boots ###
@@ -525,6 +550,7 @@ N:66:(Blessed)
 X:20:3
 W:0:10:0:5000
 C:0:0:0:3
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:28
@@ -561,22 +587,21 @@ T:22:0:99
 T:23:0:99
 F:BLOWS | HIDE_TYPE
 
-# formerly "of Fury"
-N:70:of Bloodlust
+N:70:of Fury
 X:30:0
 W:40:23:0:20000
 T:21:12:99
 T:22:4:10
 T:23:16:99
 C:0:11:0:3
-F:STR | BLOWS | AGGRAVATE | RES_FEAR | RES_CHARM
-F:IGNORE_ACID | IGNORE_FIRE | BAD_WEAP | HIDE_TYPE
+F:STR | BLOWS | AGGRAVATE | RES_FEAR | RES_CHARM | 
+F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 # main gauche only
 N:71:of Shielding
 X:12:1
 C:4:0:20:1
-W:0:8:2:6000
+W:0:6:2:6000
 T:23:3:3
 F:IGNORE_ACID | IGNORE_FIRE | BLESSED | SPEED
 
@@ -585,6 +610,7 @@ F:IGNORE_ACID | IGNORE_FIRE | BLESSED | SPEED
 N:72:of Acid
 X:20:0
 W:0:10:0:5000
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -593,6 +619,7 @@ F:BRAND_ACID | RES_ACID | IGNORE_ACID
 N:73:of Lightning
 X:20:0
 W:0:10:0:4500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -609,6 +636,7 @@ F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 N:75:of Frost
 X:15:0
 W:0:8:0:3000
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -617,6 +645,7 @@ F:BRAND_COLD | RES_COLD | IGNORE_COLD
 N:76:of Venom
 X:15:0
 W:0:8:0:4000
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:3:99
@@ -632,12 +661,13 @@ F:BRAND_FIRE | BRAND_ACID | BRAND_ELEC | BRAND_POIS | BRAND_COLD
 F:DRAIN_EXP | HEAVY_CURSE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# broken dagger or broken sword only
+# broken dagger, broken sword, or broken pick only
 N:78:of Rust
 X:4:0
 C:4:8:-3:-2
 W:0:8:0:60
 T:23:1:2
+T:20:8:8
 F:CON | TUNNEL | BRAND_POIS | SLAY_ANIMAL | LIGHT_CURSE
 F:IGNORE_ACID | IGNORE_ELEC
 
@@ -647,7 +677,7 @@ X:5:1
 C:3:3:0:2
 W:13:2:0:3000
 T:23:29:29
-F:INT | INFRA | STEALTH | RES_DARK | SEE_INVIS | SLAY_ANIMAL
+F:INT | STEALTH | RES_DARK | SEE_INVIS | SLAY_ANIMAL
 F:BAD_WEAP | DRAIN_EXP | CORRUPT | HIDE_TYPE
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 
@@ -656,6 +686,7 @@ F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 N:80:of Slay Animal
 X:18:0
 W:0:6:0:3000
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -664,6 +695,7 @@ F:SLAY_ANIMAL
 N:81:of Slay Evil
 X:18:0
 W:0:6:0:3000
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -672,6 +704,7 @@ F:SLAY_EVIL
 N:82:of Slay Undead
 X:18:0
 W:0:6:0:3500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -680,6 +713,7 @@ F:SLAY_UNDEAD
 N:83:of Slay Demon
 X:14:0
 W:0:6:0:3500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -688,6 +722,7 @@ F:SLAY_DEMON
 N:84:of Slay Orc
 X:10:0
 W:0:6:0:2500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -696,6 +731,7 @@ F:SLAY_ORC
 N:85:of Slay Troll
 X:10:0
 W:0:6:0:2500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -704,6 +740,7 @@ F:SLAY_TROLL
 N:86:of Slay Giant
 X:14:0
 W:0:6:0:2500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -712,6 +749,7 @@ F:SLAY_GIANT
 N:87:of Slay Dragon
 X:18:0
 W:0:6:0:3500
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -726,6 +764,7 @@ N:89:of *Slay Evil*
 X:20:3
 W:0:20:0:5000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:28
@@ -735,6 +774,7 @@ N:90:of *Slay Undead*
 X:24:0
 W:0:20:0:8000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:28
@@ -744,6 +784,7 @@ N:91:of *Slay Demon*
 X:16:0
 W:0:20:0:8000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:28
@@ -753,6 +794,7 @@ N:92:of *Slay Orc*
 X:14:0
 W:0:20:0:4000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -762,6 +804,7 @@ N:93:of *Slay Troll*
 X:14:0
 W:0:20:0:4000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -771,6 +814,7 @@ N:94:of *Slay Giant*
 X:16:0
 W:0:20:0:4000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -780,25 +824,22 @@ N:95:of *Slay Dragon*
 X:24:0
 W:0:20:0:8000
 C:0:0:0:2
+T:55:0:99
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:CON | KILL_DRAGON | RES_FEAR
 
-# 96 (unused)
+N:96:of Critical Weight
+X:8:0
+W:0:12:50:1500
+C:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:EXTRA_CRIT
 
-### a launcher
-
-# only applies to x1 range weapons (slingshot & small bow), has a random resist
-N:97:of Surprising Quality
-X:20:2
-W:15:4:0:12000
-C:9:9:0:2
-T:19:1:1
-T:19:11:11
-F:MIGHT | HIDE_TYPE | SUST_DEX
-D:You find a label which reads "Enchanted by Quality Improvers Inc: taking the worst
-D: of range weapons and making them formidable."
+#N:97 unused
 
 ### Digging Tools
 
@@ -814,7 +855,7 @@ X:4:0
 W:0:2:0:500
 C:1:0:3:3
 T:20:2:99
-F:TUNNEL | INFRA | RES_DARK
+F:TUNNEL | RES_DARK | DARKVIS
 
 N:100:of Digging
 X:4:0
@@ -881,10 +922,10 @@ T:19:11:13
 F:DEX | MIGHT | FREE_ACT | LITE | RES_LITE | GOOD_WEAP
 F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
-#maybe make it slightly earlier or change rarity to 4
+#maybe make it slightly earlier or change rarity to 4 (was 5)
 N:107:of Steady Aim
-X:15:0
-W:40:5:0:14000
+X:15:2
+W:40:4:0:17500
 C:20:4:0:1
 T:19:0:99
 F:INFRA | RES_CONFU | RES_CHARM | HIDE_TYPE
@@ -1061,7 +1102,7 @@ X:10:0
 W:0:0:0:20
 F:COAT_ACID | IGNORE_ACID
 
-#ego rings
+#ego rings (not sure if this works)
 N:129:of Eregion
 X:21:2
 W:30:9:0:8000
@@ -1084,9 +1125,174 @@ T:45:8:21
 T:45:25:27
 T:45:31:31
 
+#Ego Gloves (increase magic device skill)
 N:132:of Magic Mastery
 X:11:0
 W:0:5:0:1000
 C:0:0:0:0
 T:31:0:99
 F:MAGIC_MASTERY
+
+#weapon
+N:133:of Bloodlust
+X:30:0
+W:30:30:10:20000
+T:21:12:99
+T:22:4:10
+T:23:16:99
+C:10:11:0:1
+F:BLOWS | EXTRA_CRIT | RES_CHARM | 
+F:DANGER | BAD_WEAP
+F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
+
+#A few pseudo-randarts with drawbacks:
+
+N:134:of Randomness
+X:30:1
+W:0:42:1:15642
+T:1:0:99
+T:20:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:9:9:0:1
+F:BLOWS | BRAND_ELEC | RES_CHARM | SEARCH | STEALTH
+F:CHR | SUST_CHR
+F:FEATHER | STOPREGEN
+F:IGNORE_ELEC | HIDE_TYPE
+
+N:135:of Randomness
+X:30:2
+W:0:42:1:15642
+T:1:0:99
+T:20:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:9:9:0:1
+F:LITE | EXTRA_CRIT | SLAY_BUG | SLAY_TROLL | RES_CHAOS | TUNNEL
+F:SUST_INT | INT | CON
+F:DRAIN_EXP | SLOW_DIGEST
+F:IGNORE_COLD | HIDE_TYPE
+
+N:136:of Randomness
+X:30:3
+W:0:42:1:15642
+T:1:0:99
+T:20:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:9:9:0:1
+F:SLAY_ANIMAL | SLAY_UNDEAD | MAGIC_MASTERY | RES_LITE | INFRA
+F:SUST_WIS | DEX | WIS
+F:DANGER | FREE_ACT
+F:IGNORE_FIRE | HIDE_TYPE
+
+N:137:of Randomness
+X:30:2
+W:9:60:1:28649
+T:1:0:99
+T:20:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:9:9:0:2
+F:SLAY_DEMON | SLAY_GIANT | BRAND_COLD | REGEN | HOLD_LIFE | RES_CHAOS | SPEED
+F:SUST_STR | STR
+F:AGGRAVATE | DANGER | TELEPATHY
+F:IGNORE_ACID | HIDE_TYPE
+
+N:138:of Randomness
+X:30:3
+W:9:60:1:28649
+T:1:0:99
+T:20:0:99
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:9:9:0:3
+F:EXTRA_CRIT | SLAY_ORC | SLAY_SILVER | RES_POISB | SEE_INVIS | RES_DISEN | SPEED
+F:SUST_STR | SUST_CHR | SUST_DEX
+F:STOPREGEN | DRAIN_EXP | DARKVIS
+F:IGNORE_FIRE | IGNORE_ELEC | HIDE_TYPE
+
+#Heavy armor ego
+N:139:of Immunity
+X:30:0
+W:30:88:1:45000
+T:37:6:99
+C:20:0:0:3
+F:IM_FIRE | IM_COLD | RES_BLIND | HOLD_LIFE | FEATHER
+F:STOPREGEN | DRAIN_EXP | DANGER | TELEPORT | LIGHT_CURSE | HEAVY_CURSE | CON
+F:IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | HIDE_TYPE
+
+#Heavy armor ego
+N:140:of Immunity
+X:30:0
+W:30:88:1:45000
+T:37:6:99
+C:20:0:0:3
+F:IM_ELEC | IM_ACID | FREE_ACT
+F:SUST_STR | SUST_CON | SUST_DEX | SUST_INT | SUST_WIS | SUST_CHR
+F:STOPREGEN | DRAIN_EXP | DANGER | TELEPORT | LIGHT_CURSE | HEAVY_CURSE | WIS | INT
+F:IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | HIDE_TYPE
+
+#ego tusks
+N:141:of Goring
+X:5:0
+W:0:5:0:6500
+T:1:0:99
+C:4:8:0:1
+F:SUST_CON | SLAY_DRAGON | EXTRA_CRIT | SLAY_GIANT
+F:TUNNEL | RES_ACID | RES_COLD | RES_POISB
+
+N:142:of Natural Battle
+X:5:0
+W:0:5:0:14000
+T:1:0:99
+T:21:1:1
+T:21:3:3
+C:6:8:0:1
+F:SUST_STR | BLOWS | RES_FEAR | SLAY_TROLL | SLAY_ORC
+F:RES_NEXUS | RES_SHARD
+
+N:143:of Natural Magic
+X:5:0
+W:0:5:0:14000
+T:1:0:99
+T:21:1:1
+T:21:3:3
+C:4:4:0:1
+F:SUST_WIS | SUST_INT | SLAY_UNDEAD | MAGIC_MASTERY | INT
+F:RES_DISEN | RES_CHAOS
+
+N:144:of Natural Instincts
+X:5:0
+W:0:5:0:14000
+T:1:0:99
+T:21:1:1
+T:21:3:3
+C:8:4:0:2
+F:SUST_DEX | INFRA | STEALTH | SLOW_DIGEST | SLAY_ANIMAL
+F:RES_CONFU | RES_SOUND
+
+N:145:of Natural Light
+X:5:0
+W:0:5:0:14000
+T:1:0:99
+T:21:1:1
+T:21:3:3
+C:7:3:0:2
+F:SUST_CHR | LITE | SEARCH | BLESSED | SEE_INVIS | SLAY_DEMON
+F:RES_DARK | RES_NETHR
+
+N:146:of Ups and Downs
+X:5:0
+W:0:9:0:13000
+T:1:0:99
+T:21:1:1
+T:21:3:3
+C:0:0:10:2
+F:FEATHER | BRAND_COLD | EXTRA_CRIT | DARKVIS | REGEN | RES_CHARM
+F:DANGER | TELEPORT | LIGHT_CURSE

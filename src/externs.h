@@ -257,7 +257,7 @@ extern u16b inscriptions_count;
 
 /* DJA */
 extern int range;
-extern int spellswitch; /* for hacking */
+extern int spellswitch; /* for hacking, see comment at bottom of variable.c */
 extern int spadjust;
 extern int losesave;
 extern int goodluck;
@@ -266,6 +266,12 @@ extern int goodweap;
 extern int badweap;
 extern int magicmod;
 extern int palert;
+extern int qSTR;
+extern int cotval;
+extern int cosval;
+extern int cotvalb;
+extern int cosvalb;
+extern void do_telekinesis(void);
 
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];
@@ -314,10 +320,10 @@ extern bool is_quest(int level);
 
 /* cmd1.c */
 extern bool test_hit(int chance, int ac, int vis);
-extern int critical_shot(int weight, int plus, int dam);
-extern int critical_norm(int weight, int plus, int dam);
+extern int critical_shot(int weight, int plus, int dam, bool thrown);
+extern int critical_norm(int weight, int plus, int dam, int excrit);
 #ifdef EFG
-extern int tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr);
+extern int tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr);
 #else
 extern int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr);
 #endif
@@ -524,6 +530,7 @@ extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
+extern void deep_descent(void);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
@@ -570,10 +577,16 @@ extern bool recharge(int num);
 extern bool speed_monsters(void);
 extern bool slow_monsters(void);
 extern bool sleep_monsters(void);
+extern bool scare_monsters(void);
 extern bool hold_monsters(void);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);
+extern bool dispel_demon(int dam);
+extern bool dispel_bug(int dam);
+extern bool dispel_silver(int dam);
+extern bool dispel_unnatural(int dam);
+extern bool dispel_life(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
 extern void aggravate_monsters(int who);

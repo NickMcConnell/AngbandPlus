@@ -38,9 +38,9 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		case SV_FOOD_SECOND_SIGHT:
 		{
             (void)inc_timed(TMD_MESP, randint(580) + 400);
-			if (inc_timed(TMD_BLIND, randint(200) + 200))
+			if (inc_timed(TMD_BLIND, randint(240) + 240))
 			{
-                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 200);
+                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 250);
 				*ident = TRUE;
 			}
 			break;
@@ -75,7 +75,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			if (die < 10)
             {
                p_ptr->luck = p_ptr->luck + 1;
-               msg_print("This stuff is groovy, man!");
+               msg_print("like this stuff is groovy, man!");
             }
 
 			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
@@ -109,26 +109,166 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_SICKNESS:
+		case SV_FOOD_LUCKFINDING:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
-			(void)do_dec_stat(A_CON);
+            if (p_ptr->luck > 40)
+            {
+               msg_print("This tastes rather bland.");
+               break;
+            }
+            if ((p_ptr->luck > 37) && (randint(100) < 50))
+            {
+                  p_ptr->luck += 1;
+            }
+            else if (p_ptr->luck > 37)
+            {
+               msg_print("This tastes rather bland.");
+               break;
+            }
+            else if (p_ptr->luck < 39)
+            {
+                  p_ptr->luck += randint(3);
+            }
+            msg_print("This is good stuff.");
+            int price = randint(6);
+			if (price == 1) (void)dec_stat(A_STR, 10, FALSE);
+			if (price == 2) (void)dec_stat(A_DEX, 10, FALSE);
+			if (price == 3) (void)dec_stat(A_CON, 10, FALSE);
+			if (price == 4) (void)dec_stat(A_INT, 10, FALSE);
+			if (price == 5) (void)dec_stat(A_WIS, 10, FALSE);
+			if (price == 6) (void)dec_stat(A_CHR, 20, FALSE);
+            msg_print("..but it must have been poisonous.");
+			take_hit(damroll(3, 6), "poisonous clover");
 			*ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_STUPIDITY:
+		case SV_FOOD_MUNCHKIN: /* unlucky munchkin */
 		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_INT);
+            if ((p_ptr->luck < 3) && (randint(100) < 50))
+            {
+                  p_ptr->luck -= 1;
+            }
+            else if (p_ptr->luck < 3)
+            {
+               msg_print("You suddenly have a forboding feeling.");
+               inc_timed(TMD_WITCH, randint(213) + 113);
+               break;
+            }
+            else if (p_ptr->luck > 2)
+            {
+                  p_ptr->luck -= randint(2) + 1;
+            }
+            msg_print("..That didn't taste so good.");
 			*ident = TRUE;
+			int time = randint(113) + 100;
+			if (cp_ptr->flags & CF_ZERO_FAIL)
+			{
+               inc_timed(TMD_BRAIL, time);
+               inc_timed(TMD_SINVIS, time);
+            }
+            else
+            {
+               inc_timed(TMD_HERO, time);
+               inc_timed(TMD_SHERO, time);
+               inc_timed(TMD_BLESSED, time);
+            }
 			break;
 		}
 
-		case SV_FOOD_NAIVETY:
+		case SV_FOOD_POTLUCK:
 		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_WIS);
+            int die = randint(100);
+            if (randint(100) < 50)
+            {
+               die += goodluck * 2;
+               die -= badluck * 2;
+            }
+            if (die < 1)
+            {
+               inc_timed(TMD_STUN, randint(20) + 20 + badluck);
+               inc_timed(TMD_TERROR, randint(30) + 30 + badluck);
+               inc_timed(TMD_AMNESIA, randint(50) + 50 + badluck);
+               inc_timed(TMD_BLIND, randint(60) + 30 + badluck);
+			   take_hit(damroll(3, 6), "poisonous food");
+            }
+            else if (die < 10) inc_timed(TMD_SLOW, randint(100) + 100);
+            else if (die < 20)
+            {
+               inc_timed(TMD_CUT, randint(20) + 20 + badluck);
+               if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+               {
+                  inc_timed(TMD_POISONED, randint(20) + 20 + badluck);
+               }
+            }
+            else if (die < 30) inc_timed(TMD_AMNESIA, randint(100) + 100);
+            else if (die < 40)
+            {
+               int time = randint(150) + 150;
+               inc_timed(TMD_WOPP_POIS, time);
+               inc_timed(TMD_SUST_SPEED, time);
+               if (!p_ptr->resist_blind) inc_timed(TMD_BLIND, time);
+            }
+            else if (die < 50)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_ZAPPING, time);
+               inc_timed(TMD_SPHERE_CHARM, time);
+               if (!p_ptr->resist_confu) inc_timed(TMD_CONFUSED, (time/3));
+            }
+            else if (die < 60)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_SINFRA, time);
+               inc_timed(TMD_WSHIELD, time);
+            }
+            else if (die < 70)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_DARKVIS, time);
+               inc_timed(TMD_OPP_DARK, time);
+               inc_timed(TMD_HOLDLIFE, time);
+            }
+            else if (die < 80)
+            {
+			   clear_timed(TMD_BLIND);
+			   clear_timed(TMD_POISONED);
+			   clear_timed(TMD_CONFUSED);
+			   clear_timed(TMD_STUN);
+			   clear_timed(TMD_CUT);
+			   clear_timed(TMD_AMNESIA);
+			   clear_timed(TMD_SLOW);
+			   hp_player(damroll(3, 9));
+               inc_timed(TMD_OPP_POIS, randint(150) + 150);
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
+               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+            }
+            else if (die < 90)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_PROTEVIL, time);
+               inc_timed(TMD_SANCTIFY, time);
+            }
+            else if (die < 95)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_SHADOW, time);
+               inc_timed(TMD_FAST, time);
+            }
+            else if (die < 100)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_HIT_ELEMENT, time);
+               inc_timed(TMD_PROTEVIL2, time);
+               inc_timed(TMD_ESP, time);
+            }
+            else if (die > 99)
+            {
+               int time = randint(200) + 200;
+               inc_timed(TMD_SHIELD, time);
+               inc_timed(TMD_XATTACK, time);
+               inc_timed(TMD_TSIGHT, time);
+            }
 			*ident = TRUE;
 			break;
 		}
@@ -144,8 +284,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		case SV_FOOD_SILVER_SLIME:
 		{
 			take_hit(damroll(3, 11), "poisonous food");
-			p_ptr->silver = p_ptr->silver + 3;
-			p_ptr->slime = p_ptr->slime + 5;
+			p_ptr->silver += 3;
+			p_ptr->slime += 5;
 			*ident = TRUE;
 			break;
 		}
@@ -156,21 +296,21 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_CURE_BLINDNESS:
+		case SV_FOOD_FIRST_SIGHT:
 		{
-			if (clear_timed(TMD_BLIND)) *ident = TRUE;
+			if (inc_timed(TMD_2ND_THOUGHT, randint(150) + 150)) *ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_PARANOIA:
+		case SV_FOOD_FAST_ATTACKS:
 		{
-			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
+			if (inc_timed(TMD_XATTACK, randint(115) + 75)) *ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_CONFUSION:
+		case SV_FOOD_MAD_FRENZY:
 		{
-			if (clear_timed(TMD_CONFUSED)) *ident = TRUE;
+			if (inc_timed(TMD_FRENZY, randint(100) + 100)) *ident = TRUE;
 			break;
 		}
 
@@ -244,6 +384,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
+
+    /* Waybread is supposed to be the perfect food and shouldn't satiate */
+    if ((o_ptr->sval == SV_FOOD_WAYBREAD) && (goodluck > 0))
+    {
+       if (p_ptr->food > PY_FOOD_MAX) p_ptr->food = PY_FOOD_MAX;
+    }
 	
     /* notice changes of slime and silver poison levels */
     p_ptr->redraw |= (PR_SILVER);
@@ -262,13 +408,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_APPLE_JUICE:
 		{
 			msg_print("You feel less thirsty.");
+	        (void)set_food(p_ptr->food + o_ptr->pval);
 			*ident = TRUE;
 			break;
 		}
 		
 		case SV_POTION_SLIME_MOLD: /* Pepsi */
 		{
-            if ((randint(100) < 3) && (p_ptr->luck < 15))
+            if ((randint(100) < 4) && (p_ptr->luck < 15))
             {
                p_ptr->luck += 1;
                msg_print("This is good stuff.");
@@ -319,9 +466,19 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-				if (inc_timed(TMD_POISONED, rand_int(15) + 10))
+                if (p_ptr->weakresist_pois)
+                {
+                   if (inc_timed(TMD_POISONED, rand_int(7) + 5)) *ident = TRUE;
+                }
+				else if (inc_timed(TMD_POISONED, rand_int(15) + 10))
 				{
-                    if (p_ptr->weakresist_pois) (void)dec_timed(TMD_POISONED, randint(7) + 5);
+                    if (badluck > 2)
+                    {
+                       int sick = randint(6);
+                       if (sick == 1) (void)do_dec_stat(A_STR);
+                       if (sick == 2) (void)do_dec_stat(A_CON);
+                       if (sick == 3) (void)do_dec_stat(A_DEX);
+                    }
 					*ident = TRUE;
 				}
 			}
@@ -330,13 +487,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_BLINDNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if ((p_ptr->resist_blind) && (!p_ptr->timed[TMD_BLIND]))
 			{
-				if (inc_timed(TMD_BLIND, randint(200) + 100))
-				{
-					*ident = TRUE;
-				}
+                msg_print("Your vision dims for a moment and then clears.");
+			    *ident = TRUE;
 			}
+			else if (!p_ptr->resist_blind)
+			{
+				inc_timed(TMD_BLIND, randint(200) + 100);
+			    *ident = TRUE;
+            }
 			break;
 		}
 
@@ -354,13 +514,15 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SLEEP:
 		{
-			if (!p_ptr->free_act)
+			if (p_ptr->free_act)
 			{
-				if (inc_timed(TMD_PARALYZED, rand_int(4) + 4))
-				{
-					*ident = TRUE;
-				}
+                msg_print("You feel sleepy for a moment, but the feeling passes.");
+            }
+			else
+			{
+				inc_timed(TMD_PARALYZED, rand_int(4) + 4);
 			}
+			*ident = TRUE;
 			break;
 		}
 
@@ -456,7 +618,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_INFRAVISION:
+		case SV_POTION_INFRAVISION: /* alertness */
 		{
 			if (inc_timed(TMD_SINFRA, 100 + randint(100)))
 			{
@@ -476,6 +638,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DETECT_INVIS:
 		{
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+               break;
+            }
 			if (inc_timed(TMD_SINVIS, 12 + randint(12)))
 			{
 				*ident = TRUE;
@@ -552,6 +720,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (hp_player(10)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
+            if (p_ptr->peace)
+        	   {
+                 msg_print("The peaceful magic prevents you from becoming heroic.");
+                 *ident = TRUE;
+                 break;
+               }
 			if (inc_timed(TMD_HERO, randint(25) + 25)) *ident = TRUE;
 			break;
 		}
@@ -560,9 +734,15 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
-        	if (p_ptr->timed[TMD_CHARM])
+            if (p_ptr->peace)
+        	   {
+                 msg_print("The peaceful magic prevents you from going into a rage.");
+                 *ident = TRUE;
+               }
+        	else if (p_ptr->timed[TMD_CHARM])
         	   {
                  msg_print("you're in too good a mood to go into a battle rage.");
+                 *ident = TRUE;
                }
             else
                {
@@ -820,6 +1000,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		}
 	}
 
+	/* Most potions also give slight nourishment */
+	(void)set_food(p_ptr->food + o_ptr->pval);
+
     /* notice changes of slime and silver poison levels */
     p_ptr->redraw |= (PR_SILVER);
     p_ptr->redraw |= (PR_SLIME);
@@ -853,8 +1036,15 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
-			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(0);
+            if ((p_ptr->peace) && (randint(20) < (goodluck * 2)))
+            {
+               msg_print("There is a muffled high pitched squeak.");
+            }
+            else
+            {
+			   msg_print("There is a high pitched humming noise.");
+			   aggravate_monsters(0);
+            }
 			*ident = TRUE;
 			break;
 		}
@@ -1022,36 +1212,78 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+		
+		case SV_SCROLL_DEEP_DESCENT:
+		{
+			(void)deep_descent();
+			*ident = TRUE;
+			break;
+        }
 
-		case SV_SCROLL_DETECT_GOLD:
+        /* detect gold removed */
+/*		case SV_SCROLL_DETECT_GOLD:
 		{
 			if (detect_treasure()) *ident = TRUE;
 			if (detect_objects_gold()) *ident = TRUE;
 			break;
-		}
+		} */
 
 		case SV_SCROLL_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_treasure()) *ident = TRUE;
+			  if (detect_objects_gold()) *ident = TRUE;
+			  if (detect_objects_normal()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
-			if (detect_traps()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			   if (detect_traps()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_SCROLL_DETECT_DOOR:
 		{
-			if (detect_doors()) *ident = TRUE;
-			if (detect_stairs()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_doors()) *ident = TRUE;
+			  if (detect_stairs()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_SCROLL_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_monsters_invis()) *ident = TRUE;
+            }
 			break;
 		}
 
@@ -1161,7 +1393,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int k;
+	int k, dir;
 
 	bool use_charge = TRUE;
 
@@ -1178,9 +1410,27 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_STAFF_STRIKING:
+		{
+			*ident = TRUE;
+  	        if (!get_aim_dir(&dir))
+  	        {
+	           use_charge = FALSE;
+               return (FALSE);
+            }
+			fire_bolt(GF_MISSILE, dir, damroll(3, 9));
+			break;
+        }
+
 		case SV_STAFF_SLOWNESS:
 		{
 			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
+			break;
+		}
+
+		case SV_STAFF_ZAPPING:
+		{
+			if (inc_timed(TMD_ZAPPING, randint(15) + 30 + (goodluck/2))) *ident = TRUE;
 			break;
 		}
 		
@@ -1255,46 +1505,93 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_MAPPING:
 		{
-			map_area();
+            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            {
+               msg_print("Your first sight supresses detection.");
+            }
+            else
+            {
+			  map_area();
+            }
 			*ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_GOLD:
+/*		case SV_STAFF_DETECT_GOLD:
 		{
-			if (detect_treasure()) *ident = TRUE;
-			if (detect_objects_gold()) *ident = TRUE;
 			break;
-		}
+		} combined with object detection */
 
 		case SV_STAFF_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_objects_normal()) *ident = TRUE;
+			  if (detect_treasure()) *ident = TRUE;
+			  if (detect_objects_gold()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_STAFF_DETECT_TRAP:
 		{
-			if (detect_traps()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_traps()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_STAFF_DETECT_DOOR:
 		{
-			if (detect_doors()) *ident = TRUE;
-			if (detect_stairs()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_doors()) *ident = TRUE;
+			  if (detect_stairs()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_STAFF_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_monsters_invis()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_STAFF_DETECT_EVIL:
 		{
-			if (detect_monsters_evil()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_monsters_evil()) *ident = TRUE;
+            }
 			break;
 		}
 
@@ -1472,7 +1769,6 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_INVEN);
 		return (FALSE);
 	}
-
 
 	/* Sound */
 	/* TODO: Create wand sound?  Do the individual effects have sounds? */
@@ -1809,14 +2105,30 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
-			if (detect_traps()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_traps()) *ident = TRUE;
+            }
 			break;
 		}
 
 		case SV_ROD_DETECT_DOOR:
 		{
-			if (detect_doors()) *ident = TRUE;
-			if (detect_stairs()) *ident = TRUE;
+            if (p_ptr->timed[TMD_2ND_THOUGHT])
+            {
+               msg_print("Your first sight supresses detection.");
+               *ident = TRUE;
+            }
+            else
+            {
+			  if (detect_doors()) *ident = TRUE;
+			  if (detect_stairs()) *ident = TRUE;
+            }
 			break;
 		}
 
@@ -1842,14 +2154,28 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_MAPPING:
 		{
-			map_area();
+            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 12))
+            {
+               msg_print("Your first sight supresses detection.");
+            }
+            else
+            {
+			  map_area();
+            }
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DETECTION:
 		{
-			detect_all();
+            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            {
+               msg_print("Your first sight supresses detection.");
+            }
+            else
+            {
+			  detect_all();
+            }
 			*ident = TRUE;
 			break;
 		}
@@ -2056,6 +2382,12 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				lite_area(damroll(2, 15), 3);
 				break;
 			}
+			
+			case ACT_CHARM_ANIMAL:
+            {
+			   inc_timed(TMD_SPHERE_CHARM, randint(60 + goodluck) + 60);
+			   break;
+            }
 
 			case ACT_MAGIC_MAP:
 			{
@@ -2150,7 +2482,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				(void)clear_timed(TMD_AFRAID);
 				(void)clear_timed(TMD_CHARM);
 				(void)clear_timed(TMD_FRENZY);
-				(void)inc_timed(TMD_SHERO, randint(50) + 50);
+	            if (p_ptr->peace)
+                {
+                   /* prevents rage */
+                }
+	            else (void)inc_timed(TMD_SHERO, randint(50) + 50);
 				(void)inc_timed(TMD_BLESSED, randint(50) + 50);
 				(void)inc_timed(TMD_OPP_ACID, randint(50) + 50);
 				(void)inc_timed(TMD_OPP_ELEC, randint(50) + 50);
@@ -2464,6 +2800,11 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 
 			case ACT_BERSERKER:
 			{
+                if (p_ptr->peace)
+        	    {
+                   msg_print("The peaceful magic prevents you from going into a rage.");
+                   return FALSE; /* don't make it have to recharge */
+                }
 				msg_format("Your %s glows in anger...", o_name);
 				(void)clear_timed(TMD_CHARM);
 			    inc_timed(TMD_SHERO, randint(50) + 50);

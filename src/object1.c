@@ -412,7 +412,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
-			/* (*f4) = a_ptr->flags4; */
+			(*f4) = a_ptr->flags4;
 
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
@@ -746,13 +746,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	char tmp_buf[128];
 
 	u32b f1, f2, f3, f4;
-	/* u32b f1, f2, f3, f4; NEWTR4*/
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	/* object_flags(o_ptr, &f1, &f2, &f3, &f4); */
 
 
 	/* See if the object is "aware" */
@@ -820,13 +818,20 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_SKELETON:
+/* 		case TV_SKELETON: */
 		case TV_BOTTLE:
 		case TV_JUNK:
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
 		{
+			break;
+		}
+		
+		/* only show as weapon if it has bonuses */
+		case TV_SKELETON:
+		{
+	        if (o_ptr->to_h || o_ptr->to_d) show_weapon = TRUE;
 			break;
 		}
 
@@ -900,6 +905,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
+	        if (o_ptr->to_h || o_ptr->to_d) show_weapon = TRUE;
 
 			break;
 		}
@@ -1010,13 +1016,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
-/*		/* Black Magic realm *
+#if 0 /* */
+		/* Mind Magic realm */
 		case TV_MIND_BOOK:
 		{
 			modstr = basenm;
 			basenm = "& Book~ of Mind Powers #";
 			break;
-		} */
+		}
+#endif
 
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
@@ -1355,6 +1363,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
+		case TV_SKELETON: /* tusks */
+		case TV_STAFF: /* staffs are weapons now */
 		{
 			/* Append a "damage" string */
 			object_desc_chr_macro(t, ' ');
@@ -1501,11 +1511,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			tail = " to searching";
 		}
 
-		/* Infravision */
+		/* Alertness */
 		else if (f1 & (TR1_INFRA))
 		{
-			/* Dump " to infravision" */
-			tail = " to infravision";
+			/* Dump " to alertness" */
+			tail = " to alertness";
 		}
 
 #if 0
@@ -1838,6 +1848,7 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
         case TV_SKELETON:  /* to wield tusks */
+        case TV_STAFF:     /* magic staffs */
 		{
 			return (INVEN_WIELD);
 		}

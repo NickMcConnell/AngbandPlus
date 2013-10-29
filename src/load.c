@@ -1190,11 +1190,14 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
 		rd_s16b(&p_ptr->timed[TMD_ESP]);
 		rd_s16b(&p_ptr->timed[TMD_MESP]);
-		rd_s16b(&p_ptr->timed[TMD_SUST_SPEED]);
+		rd_s16b(&p_ptr->timed[TMD_2ND_THOUGHT]);
+		rd_s16b(&p_ptr->timed[TMD_ZAPPING]);
 		rd_s16b(&p_ptr->timed[TMD_SPHERE_CHARM]);
 		rd_s16b(&p_ptr->timed[TMD_BECOME_LICH]);
 		rd_s16b(&p_ptr->timed[TMD_WITCH]);
 		rd_s16b(&p_ptr->timed[TMD_XATTACK]);
+		rd_s16b(&p_ptr->timed[TMD_DARKVIS]);
+		rd_s16b(&p_ptr->timed[TMD_SUPER_ROGUE]);
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
 		rd_s16b(&p_ptr->silver);
@@ -1450,7 +1453,7 @@ static errr rd_randarts(void)
 				rd_u32b(&tmp32u); /* a_ptr->flags1 */
 				rd_u32b(&tmp32u); /* a_ptr->flags2 */
 				rd_u32b(&tmp32u); /* a_ptr->flags3 */
-				/* rd_u32b(&tmp32u); /* a_ptr->flags4 */
+				/* rd_u32b(&tmp32u);    a_ptr->flags4 */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
 				rd_byte(&tmp8u); /* a_ptr->rarity */

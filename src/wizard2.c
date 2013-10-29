@@ -357,6 +357,8 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("seteticf    craxierl  etropd sss", 17, j+32);
 	prt("trenhste    tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
+	
+	/* flags4 ?? */
 }
 
 
@@ -410,6 +412,7 @@ static const tval_desc tvals[] =
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+	{ TV_SPECIAL,           "Class Special"        },
 	{ TV_SKELETON,          "Skeletons"            },
 	{ TV_BOTTLE,            "Empty bottle"         },
 	{ TV_JUNK,              "Junk"                 },

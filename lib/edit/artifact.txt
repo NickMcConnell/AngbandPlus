@@ -1,6 +1,6 @@
 
 # File: artifact.txt
-# for DaJAngband 1.0.96
+# for DaJAngband 1.0.97
 
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
@@ -147,8 +147,8 @@ D:of evil could stand.
 N:6:of the Dwarves
 I:40:12:3
 W:70:50:3:75000
-F:STR | CON | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | RES_FEAR
+F:STR | CON | HIDE_TYPE | 
+F:SEE_INVIS | FREE_ACT | REGEN | DARKVIS | RES_FEAR
 F:INSTA_ART
 D:The Nauglamir; a carencet of gold set with a multitude of shining gems of 
 D:Valinor, accenting a radiant Silmaril.  The sturdy spirits of Dwarvish 
@@ -578,7 +578,7 @@ P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | 
-F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | RES_CHARM | 
+F:DARKVIS | SEE_INVIS | TELEPATHY | RES_FEAR | RES_CHARM | 
 F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE | BAD_WEAP
 F:INSTA_ART
 D:Containing much of the power of he who once was mightiest among the Ainur, 
@@ -803,13 +803,14 @@ D:of hostile eyes.
 ### Gloves and Gauntlets ###
 
 # New Artifact (51): The Gauntlets of Eol 
-# used to have AGGRAVATE, but I figured it didn't need it with the combat penalties
+# used to have AGGRAVATE
 
 N:51:of Eol
 I:31:2:3
 W:55:35:25:40000
 P:2:1d1:-5:-5:15
-F:INT | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_POIS | BAD_WEAP
+F:INT | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | RES_POIS
+F:MAGIC_MASTERY | BAD_WEAP | DRAIN_EXP
 F:ACTIVATE
 A:MANA_BOLT:30:30
 D:The iron-shod gauntlets of the Dark Elven smith Eol, tingling with magics 
@@ -890,7 +891,7 @@ I:31:2:-3
 W:10:20:25:0
 P:2:1d1:-12:-12:0
 F:STR | DEX | HIDE_TYPE | 
-F:RES_FIRE | RES_DISEN | FREE_ACT | DRAIN_EXP | 
+F:RES_FIRE | RES_DISEN | FREE_ACT | DANGER
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 D:A pair of gauntlets that sap combat ability, named after the empty hand 
 D:of Beren that once clasped a Silmaril.
@@ -902,7 +903,7 @@ N:59:of Fingolfin
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
-F:DEX | HIDE_TYPE | 
+F:DEX | HIDE_TYPE
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 A:ARROW:30:30
 D:The hand-sheathing of Fingolfin, warrior-king of Elves and Men, who dealt 
@@ -958,7 +959,7 @@ N:63:of Wormtongue
 I:30:2:3
 W:10:15:20:17000
 P:2:1d1:-8:-8:0
-F:INT | DEX | STEALTH | SPEED | FEATHER | LIGHT_CURSE | HIDE_TYPE
+F:INT | DEX | STEALTH | SPEED | FEATHER | DANGER | HIDE_TYPE
 F:ACTIVATE
 A:PHASE:20:0
 D:A pair of running shoes once used by the treacherous Grima son of 
@@ -1133,9 +1134,9 @@ N:76:'Gurthang'
 I:23:28:2
 W:30:30:230:100000
 P:0:4d5:13:17:0
-F:STR | HIDE_TYPE | RES_FIRE | RES_POIS | 
+F:STR | HIDE_TYPE | RES_FIRE | RES_POIS | RES_FEAR
 F:BRAND_FIRE | BRAND_POIS | 
-F:KILL_DRAGON | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
+F:KILL_DRAGON | FREE_ACT | REGEN | SHOW_MODS
 D:A giant sword once wielded by mighty Turin, and an even greater dragonbane; 
 D:for what wyrm could stand against the blade that bathed in Glaurung's 
 D:blood?
@@ -1149,10 +1150,10 @@ W:30:180:210:200000
 P:0:4d6:19:21:0
 # F:DRAIN_MANA | 
 F:STR | CHR | INFRA | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | 
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | EXTRA_CRIT | 
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | RES_CHARM |
-F:AGGRAVATE | SHOW_MODS | BAD_WEAP |
+F:DANGER | SHOW_MODS | BAD_WEAP |
 D:Runes dark and deadly stand stark against the naked steel of this awesome 
 D:weapon, and you feel a wrathful power of slaying and rending as you 
 D:slowly approach.
@@ -1172,28 +1173,17 @@ D:Flower of Gondolin.
 
 # The Cutlass 'Gondricam'
 
-#		taken out, at least for now
-#N:79:'Gondricam'
-#I:23:12:3
-#W:20:8:100:26000
-#P:0:1d6:10:12:0
-#F:DEX | STEALTH | HIDE_TYPE | 
-#F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-#F:SUST_DEX | REGEN | SHOW_MODS
-#D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
-#D:with a perfect edge shining cleanly in the sun, an object of hate to the 
-#D:men of Umbar who met it in combat.
-
-# The Set of Steel Gauntlets of Maeglin (in place of Gondricam)
-
-N:79:of Maeglin
-I:31:3:0
-W:55:34:25:30000
-P:3:1d1:0:0:15
-F:MAGIC_MASTERY | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | ACTIVATE
-A:MANA_BOLT:50:50
-D:The iron-shod gauntlets of Maeglin son of Eol, tingling with magics 
-D:that he could channel in battle.
+#		taken out and put back in, at least for now
+N:79:'Gondricam'
+I:23:12:3
+W:20:8:100:26000
+P:0:1d6:10:12:0
+F:DEX | STEALTH | HIDE_TYPE | EXTRA_CRIT
+F:RES_ACID | RES_FIRE | RES_COLD | FEATHER | 
+F:SUST_DEX | REGEN | SHOW_MODS
+D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
+D:with a perfect edge shining cleanly in the sun, an object of hate to the 
+D:men of Umbar who met it in combat.
 
 
 # The Executioner's Sword 'Crisdurian' (great sword)
@@ -1204,19 +1194,19 @@ I:23:28:0
 W:40:25:260:100000
 P:0:4d5:18:19:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
-F:SLAY_ORC | SEE_INVIS | SHOW_MODS
+F:SLAY_ORC | SEE_INVIS | SHOW_MODS | EXTRA_CRIT | DANGER
 D:A giant's weapon, with a long blade tall and straight thrusting out from a 
 D:massive double-pronged hilt.  On its blade are written doomspells against 
 D:both the living and undead.
 
 
-# The Katana 'Aglarang  (now a sabre)
+# The Katana 'Aglarang'  (now a sabre)
 
 N:81:'Aglarang'
 I:23:11:5
 W:30:25:50:40000
 P:0:5d7:0:0:0
-F:DEX | SPEED | HIDE_TYPE | RES_CHARM |
+F:DEX | SPEED | INFRA | HIDE_TYPE | RES_CHARM |
 F:SUST_DEX | SHOW_MODS
 D:An utterly perfect, cleanly chiseled sword, with a edge that effortlessly 
 D:slices rock and bone and spells to render the wearer lithe and nimble.  It 
@@ -1268,16 +1258,29 @@ D:Forged of black galvorn by the Dark-Elven smith Eol, and as deadly as any
 D:other blade he forged.
 
 
+# (taken out)
 # The Long Sword 'Elvagil'
 
-N:85:'Elvagil'
-I:23:17:2
-W:20:8:130:26000
-P:0:2d5:2:7:0
-F:DEX | CHR | STEALTH | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | FEATHER | SEARCH | SHOW_MODS
-D:The "Singing Blade", whose wearer can slay Orcs and Trolls in the hidden 
-D:and secret places of the earth.
+#N:85:'Elvagil'
+#I:23:17:2
+#W:20:8:130:26000
+#P:0:2d5:2:7:0
+#F:DEX | CHR | STEALTH | HIDE_TYPE | 
+#F:SLAY_TROLL | SLAY_ORC | FEATHER | SEARCH | SHOW_MODS
+#D:The "Singing Blade", whose wearer can slay Orcs and Trolls in the hidden 
+#D:and secret places of the earth.
+
+
+# The Set of Steel Gauntlets of Maeglin
+
+N:85:of Maeglin
+I:31:3:0
+W:55:34:25:30000
+P:3:1d1:0:0:15
+F:MAGIC_MASTERY | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | ACTIVATE
+A:MANA_BOLT:50:50
+D:The iron-shod gauntlets of Maeglin son of Eol, tingling with magics 
+D:that he could channel in battle.
 
 
 # The Rapier 'Forasgil'
@@ -1383,7 +1386,7 @@ D:himself as he came to Valinor in wrath. Its envenomed bite pierced
 D:the Two Trees with wounds that would not heal.
 
 
-# The Beaked Axe of Theoden (now broad axe (was flail in 3.0.90))
+# The Beaked Axe of Theoden (now broad axe)
 
 N:93:of Theoden
 I:22:12:3
@@ -1405,7 +1408,7 @@ P:0:8d7:0:30:0
 F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE | BAD_WEAP
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
-D:down, but it's not good for you to take pleasure in the pain of others.
+D:down, but it's an evil thing to take pleasure in the pain of others.
 
 
 # The Halberd 'Osondir'
@@ -1494,9 +1497,9 @@ D:and dire wolves.
 #		maybe take out
 N:101:You Can't Handle
 I:22:23:-2
-W:30:30:650:80000
+W:30:30:700:80000
 P:0:5d6:-10:11:2
-F:DEX | SPEED | STEALTH | SLAY_GIANT
+F:DEX | SPEED | STEALTH | SLAY_GIANT | EXTRA_CRIT
 F:RES_LITE | RES_ELEC | RES_COLD | BRAND_ELEC | BRAND_COLD |
 F:LIGHT_CURSE
 D:It's name says it all
@@ -1540,7 +1543,7 @@ N:104:of Gimli
 I:22:18:1
 W:30:15:170:30000
 P:0:2d8:6:6:0
-F:STR | DEX | INFRA | HIDE_TYPE | RES_NEXUS | BRAND_ACID
+F:STR | DEX | HIDE_TYPE | RES_NEXUS | BRAND_ACID
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
 A:BERSERKER:90:90
 D:The axe wielded by the heroic Gimli son of Gloin, 'Elf-Friend'. It has slain countless
@@ -1552,9 +1555,9 @@ D: with Legolas over who killed more orcs.
 
 N:105:'Mundwine'
 I:22:25:0
-W:30:8:250:30000
+W:30:8:260:30000
 P:0:3d8:12:17:0
-F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | 
+F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | EXTRA_CRIT
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
 D:A massive axe with twin razor-sharp heads, so large that it usually 
 D:requires two hands to wield, with spells to ward off the elements 
@@ -1565,10 +1568,10 @@ D:intricately engraved upon its surface in filleted gold.
 
 N:106:'Barukkheled'
 I:22:12:3
-W:20:8:160:50000
+W:20:8:160:30000
 P:0:2d6:13:19:0
 F:CON | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
+F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | 
 F:RES_POIS | SHOW_MODS
 D:A royal heirloom of the southern coast, strong in combat against the evil 
 D:creatures of earth.
@@ -1636,7 +1639,7 @@ D:dead about him, his axe smoking in the black blood of Gothmog's
 D:troll-guard.  No less than seventy times, as he slew his foes, 
 D:did he utter his mighty war-cry: "Aure entuluva!" - "Day shall 
 D:come again!"
-
+#I like this weapon's description
 
 ### Blunt Weapons ###
 
@@ -1671,7 +1674,7 @@ D:becomes a fiery comet as you bring it down.
 
 N:113:'Thunderfist'
 I:22:11:4
-W:45:33:260:160000
+W:45:30:260:160000
 P:0:4d6:5:18:0
 F:STR | CON | HIDE_TYPE | RES_FEAR | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
@@ -1696,15 +1699,15 @@ D:this weapon bears around and bathe it in the blood of your foes.
 
 # The Morning Star 'Firestar'
 
-#		maybe take out
-N:115:'Firestar'
-I:22:11:0
-W:20:15:140:35000
-P:0:2d6:5:7:2
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
-A:FIRE2:20:0
-D:A famed battle-lord of old with a ruddy head, coloured as embers are that 
-D:can yet rise up in wrath.
+#		(taken out)
+#N:115:'Firestar'
+#I:22:11:0
+#W:20:15:140:35000
+#P:0:2d6:5:7:2
+#F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+#A:FIRE2:20:0
+#D:A famed battle-lord of old with a ruddy head, coloured as embers are that 
+#D:can yet rise up in wrath.
 
 
 # The Mace 'Taratol'
@@ -1741,7 +1744,7 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 #		maybe take out
 N:118:'Silver Dollar'
 I:21:6:3
-W:15:64:180:65555
+W:15:68:180:65564
 P:0:1d9:20:1:0
 F:BLOWS | CHR |
 F:BRAND_COLD | RES_COLD | SHOW_MODS
@@ -1837,7 +1840,7 @@ D:even Ungoliant to heel.
 
 N:124:'Belthronding'
 I:19:35:1
-W:40:20:140:37000
+W:40:25:140:37000
 P:0:0d0:12:12:0
 F:DEX | SPEED | STEALTH | SHOTS | HIDE_TYPE | 
 F:RES_DISEN | SHOW_MODS
@@ -1861,7 +1864,7 @@ D: many battles against Sauron's host alongside Aragorn and Gimli.
 
 N:126:'Cubragol'
 I:19:23:10
-W:46:22:110:50000
+W:50:24:110:50000
 P:0:0d0:10:14:0
 F:SPEED | HIDE_TYPE | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
@@ -1873,7 +1876,7 @@ D:shoot bolts that blaze with flame unquenchable.
 # The Heavy Crossbow of Unstoppable Cannonballs
 
 N:127:of Unstoppable Cannonballs
-I:19:24:4
+I:19:24:2
 W:22:18:220:41000
 P:0:2d2:5:23:0
 F:STR | MIGHT |
@@ -1881,7 +1884,7 @@ F:RES_LITE | RES_DARK | RES_ELEC | RES_ACID | RES_NEXUS |
 F:HIDE_TYPE | ACTIVATE | SHOW_MODS | AGGRAVATE
 A:STONE_TO_MUD:40:10
 D:These cannonballs will go through a lot...
-
+# Originally had +4 to might! What was I thinking?
 
 # The Short Bow of Amrod
 
@@ -1917,9 +1920,9 @@ N:130:of Nain
 I:20:6:6
 W:60:7:250:30000
 P:0:2d8:12:18:0
-F:TUNNEL | INFRA | SEARCH | STR | 
+F:TUNNEL | INFRA | STR | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | 
-F:RES_DARK | RES_DISEN |
+F:RES_DARK | RES_DISEN | DARKVIS
 F:ACTIVATE | 
 A:STONE_TO_MUD:2:0
 D:A mighty Dwarven mattock, as good for hewing orc-necks as for hewing 
@@ -1987,7 +1990,6 @@ D:kin, and was at first believed to be mortally wounded.
 #D:Its wielder will fear nothing and fight with unnatural strength, but 
 #D:also draw attention to himself.
 
-
 # The Broken Dagger 'Quickslash'
 
 N:135:'Quickslash'
@@ -2023,11 +2025,33 @@ D:A shield for a dragonslaying hero.
 # Sling of Snowballs
 
 N:138:of Snowballs
-I:19:2:2
-W:2:6:5:10400
+I:19:2:1
+W:2:6:5:12400
 P:0:1d1:2:3:2
 F:MIGHT | CON | SLOW_DIGEST | BRAND_COLD
 F:RES_COLD | ACTIVATE | SHOW_MODS
 A:SNOWBALL:900:99
 D:This sling hurls rocks and magical snowballs, so you can
 D:turn fighting monsters into a fun snowball fight!
+
+# The Elven Leaf-Cloak of the fairies
+
+N:139:of the Fairies
+I:35:5:3
+W:9:45:5:18000
+P:1:0d0:0:0:4
+F:SPEED | INFRA | LITE | NICE | PEACE | HIDE_TYPE | GOOD_WEAP
+F:RES_CHARM | RES_CHAOS | RES_CONFU | RES_DARK | ACTIVATE
+A:CHARM_ANIMAL:45:45
+D:A cloak made of magically treated leaves which carries the peace of the light fairies
+D: wherever it goes.
+
+# an artifact tusk
+N:140:'Harakil'
+I:1:2:2
+W:40:14:170:21000
+P:0:2d9:8:12:0
+F:EXTRA_CRIT | CON | INFRA | REGEN | RES_POIS | FREE_ACT | BRAND_FIRE | SLAY_EVIL
+D:A mumak's tusk which can be used as a great spear. Within it lives the spirit of many 
+D: mumaks which died while enslaved by the haradrim. They seek to empower a hero to bring
+D: down their oppressors.

@@ -701,18 +701,63 @@ s16b get_obj_num(int level)
 	    if ((k_ptr->tval >= TV_MAGIC_BOOK) && (k_ptr->tval < TV_GOLD))
 	    {
            /* is it an appropriate spell book? */
-           if (!(k_ptr->tval == cp_ptr->spell_book))
+           /* (occationally let them find a foreign book for flavor) */
+           if ((!(k_ptr->tval == cp_ptr->spell_book)) && (randint(100) < 93))
            {
-              /* if not, reject it most of the time */
-              if (randint(100) < 80) continue;
+              /* reject it outright a lot of the time */
+              /* (was 90% before I got replacement to work) */
+              if (randint(100) < 77) continue;
+              
+              /* always reject alchemy books */
+/* do not convert them to correct book because depths are very different */
+              if (k_ptr->tval == TV_CHEM_BOOK) continue;
+              
+              /* Pete said this was bad */
+              /* k_ptr->tval = cp_ptr->spell_book; */
 
-              /* (old code that didn't work)
-              if (randint(100) < 75) k_ptr->tval = cp_ptr->spell_book;
-          
-              /* for testing purposes always make it appropriate for now 
-              k_ptr->tval = cp_ptr->spell_book; */
+              /* Change it into the correct spellbook */
+              k_idx = lookup_kind(cp_ptr->spell_book, k_ptr->sval);
+              
+              /* change the index */
+              table[i].index = k_idx;
+              
+		      /* Get the actual kind */
+		      k_ptr = &k_info[k_idx];
            }
         }
+
+        /* The class object (hard to tell if it works or not) */
+	    if ((k_ptr->tval == TV_SPECIAL) && (k_ptr->sval == SV_CLASS_OBJ))
+	    {
+           /* change it into something appropriate for each class */
+           int die = randint(45 + goodluck*2);
+           
+           if (cotval < 1) continue;
+			  /* Get the object_kind */
+           if (die < 30)
+           {
+			  k_idx = lookup_kind(cotval, cosval);
+           }   
+           else
+           {
+              if (cotvalb < 1) continue;
+			  k_idx = lookup_kind(cotvalb, cosvalb);
+           }
+           if ((k_ptr->tval == TV_STAFF) || (k_ptr->tval == TV_WAND))
+           {
+              k_ptr->pval = 4 + randint(3);
+           }
+           else if (k_ptr->tval == TV_RING) k_ptr->pval = randint(3);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+            /* change the index */
+            table[i].index = k_idx;
+
+		    /* Get the actual kind */
+		    k_ptr = &k_info[k_idx];
+        }        
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -1057,7 +1102,7 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
-			/* Give credit for infra-vision and tunneling */
+			/* Give credit for alertness and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
 
@@ -2381,10 +2426,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma/infravision */
+				/* Amulet of wisdom/charisma */
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_CHARISMA:
-				case SV_AMULET_INFRAVISION:
+   			    case SV_AMULET_INFRAVISION:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
 
@@ -2626,18 +2671,18 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-
+       /* increased odds */
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+	f1 = lev + 11 + (goodluck/2);
 
 	/* Maximal chance of being "good" */
-	if (f1 > 75) f1 = 75;
+	if (f1 > 80) f1 = 80;
 
 	/* Base chance of being "great" */
-	f2 = f1 / 2;
+	f2 = (f1 / 2) + (goodluck/3) + 2;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	if (f2 > 25) f2 = 25;
 
 
 	/* Assume normal */
@@ -2870,6 +2915,10 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			/* Hack -- obtain pval */
 			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
 		}
+
+            /* Hack for ego "of lightness" armor */
+            if (e_ptr->flags2 & (TR2_LIGHTNESS)) o_ptr->weight -= e_ptr->weight;
+			else if (e_ptr->weight > 0) o_ptr->weight += e_ptr->weight;
 
 		/* Hack -- apply rating bonus */
 		rating += e_ptr->rating;
@@ -3139,10 +3188,11 @@ bool make_gold(object_type *j_ptr)
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
+	if (j_ptr->pval > 12) j_ptr->pval -= badluck/2;
 // #ifdef EFG
         if (adult_cansell)
         {
-        return (TRUE);        
+           return (TRUE);        
         }
         else
         {

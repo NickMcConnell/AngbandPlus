@@ -92,15 +92,15 @@ I:11:21000:111
 
 # Black Market
 N:6:0:Lo-Hak the Awful
-I:7:15000:150
+I:7:15000:146
 N:6:1:Histor the Goblin
-I:10:20000:150
+I:10:20000:146
 N:6:2:Durwin the Shifty
-I:6:25000:150
+I:6:25000:146
 N:6:3:Drago the Fair
-I:2:30000:150
+I:2:30000:146
 N:6:4:Unghunit the Smelly
-I:14:21000:149
+I:14:21000:145
 
 # Home
 N:7:0:Your home

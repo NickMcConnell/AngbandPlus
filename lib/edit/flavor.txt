@@ -1206,21 +1206,21 @@ G:?:w
 # more staffs
 
 N:303:55
-G:_:d
+G:_:U
 D:Knotted
 
 N:304:55
-G:_:d
+G:_:U
 D:Scorched
 
 N:305:55
-G:_:d
+G:_:U
 D:Carved
 
 N:306:55
-G:_:d
+G:_:U
 D:Cherry
 
 N:307:55
-G:_:d
+G:_:U
 D:Sapling

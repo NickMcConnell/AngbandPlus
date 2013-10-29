@@ -66,7 +66,7 @@ static cptr r_info_blow_method[] =
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"XXX2",
+	"CLAWB",
 	"CRAWL",
 	"DROOL",
 	"SPIT",
@@ -343,7 +343,7 @@ static cptr r_info_flags6[] =
 	"XXX2X6",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
+	"INVIS",
 	"XXX4X6",
 	"TELE_TO",
 	"TELE_AWAY",
@@ -436,18 +436,18 @@ static cptr k_info_flags2[] =
 	"RES_ELEC",
 	"RES_FIRE",
 	"RES_COLD",
-	"RES_POIS",
-	"RES_FEAR",
-	"RES_LITE",
-	"RES_DARK",
-	"RES_BLIND",
-	"RES_CONFU",
-	"RES_SOUND",
-	"RES_SHARD",
-	"RES_NEXUS",
-	"RES_NETHR",
-	"RES_CHAOS",
-	"RES_DISEN"
+	"EXTRA_CRIT",
+	"DANGER",
+	"XXX82",
+	"XXX83",
+	"XXX84",
+	"XXX85",
+	"XXX86",
+	"XXX87",
+	"XXX88",
+	"LIGHTNESS",
+	"PEACE",
+	"NICE"
 };
 
 /*
@@ -463,9 +463,9 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
+	"DARKVIS",
 	"NO_FUEL",
-	"RES_CHARM",
-	"XXX3",
+	"UNDEAD",
     "STOPREGEN",              /* was XXX4 */
 	"IMPACT",
 	"TELEPORT",
@@ -494,38 +494,38 @@ static cptr k_info_flags3[] =
  */
 static cptr k_info_flags4[] =
 {
-	"SLOW_DIGEST",
-	"FEATHER",
-	"LITE",
-	"REGEN",
-	"TELEPATHY",
-	"SEE_INVIS",
-	"FREE_ACT",
-	"HOLD_LIFE",
-	"NO_FUEL",
+	"RES_POIS",
+	"RES_FEAR",
+	"RES_LITE",
+	"RES_DARK",
+	"RES_BLIND",
+	"RES_CONFU",
+	"RES_SOUND",
+	"RES_SHARD",
+	"RES_NEXUS",
+	"RES_NETHR",
+	"RES_CHAOS",
+	"RES_DISEN",
 	"RES_CHARM",
-	"XXX3",
-    "STOPREGEN",              /* was XXX4 */
-	"IMPACT",
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
-	"IGNORE_ACID",
-	"IGNORE_ELEC",
-	"IGNORE_FIRE",
-	"IGNORE_COLD",
-	"GOOD_WEAP",
-	"BAD_WEAP",
-	"BLESSED",
-	"ACTIVATE",
-	"INSTA_ART",
-	"EASY_KNOW",
-	"HIDE_TYPE",
-	"SHOW_MODS",
-	"CORRUPT",
-	"LIGHT_CURSE",
-	"HEAVY_CURSE",
-	"PERMA_CURSE"
+	"XXX14",
+	"XXX15",
+	"XXX16",
+	"XXX17",
+	"XXX18",
+	"XXX19",
+	"XXX20",
+	"XXX21",
+	"XXX22",
+	"XXX23",
+	"XXX24",
+	"XXX25",
+	"XXX26",
+	"XXX27",
+	"XXX28",
+	"XXX29",
+	"XXX30",
+	"XXX31",
+	"XXX32",
 };
 
 
@@ -589,7 +589,8 @@ static cptr a_info_act[ACT_MAX] =
 	"STARLIGHT",
 	"MANA_BOLT",
 	"BERSERKER",
-	"SNOWBALL"
+	"SNOWBALL",
+	"CHARM_ANIMAL"
 };
 
 
@@ -612,7 +613,7 @@ static cptr c_info_flags[] =
 	"CLASS_SPEED",
 	"ASSASSIN",
 	"POWER_SHIELD",
-	"XXX15",
+	"KNIGHT",
 	"XXX16",
 	"XXX17",
 	"XXX18",
@@ -1891,7 +1892,7 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, pad2;
+		int level, rarity, wgt;
 		long cost;
 
 		/* There better be a current e_ptr */
@@ -1899,12 +1900,12 @@ errr parse_e_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &pad2, &cost)) return (PARSE_ERROR_GENERIC);
+			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		e_ptr->level = level;
 		e_ptr->rarity = rarity;
-		/* e_ptr->weight = wgt; */
+		e_ptr->weight = wgt;
 		e_ptr->cost = cost;
 	}
 
@@ -2514,6 +2515,7 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
+        /* DJA: infra is now alertness but I didn't change the variable name */
 		int mhp, exp, infra;
 
 		/* There better be a current pr_ptr */
@@ -2802,7 +2804,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div;
+		int mhp, exp, alertness;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
@@ -2810,14 +2812,15 @@ errr parse_c_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &sense_div))
+			            &mhp, &exp, &sense_base, &alertness))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_mhp = mhp;
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
-		pc_ptr->sense_div = sense_div;
+		pc_ptr->sense_div = 40;
+        pc_ptr->calert = alertness;
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
@@ -2942,6 +2945,25 @@ errr parse_c_info(char *buf, header *head)
 		/* Limit number of starting items */
 		if (cur_equip > MAX_START_ITEMS)
 			return (PARSE_ERROR_GENERIC);
+	}
+	
+	/* Process 'O' for "Class Objects" */
+	else if (buf[0] == 'O')
+	{
+		int tval, sval, tvalb, svalb;
+
+		/* There better be a current pc_ptr */
+		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &tval, &sval, &tvalb, &svalb)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		cotval = tval;
+		cosval = sval;
+		cotvalb = tvalb;
+		cosvalb = svalb;
 	}
 
 	/* Process 'F' for flags */
