@@ -558,10 +558,10 @@
 /* Metamorphoses 7*/
 #define DARK_SLIP_INTO_SHADOWS         22
 #define DARK_DARKVISION                25
-#define DARK_CURE_MORTAL_WOUNDS        58
 #define DARK_SEE_ALL_FOES              64 /* see invisible */
 #define DARK_RESIST_POISON             73
 #define DARK_BLOODWRATH                62
+#define DARK_SNIPER_EYE                58
 #define DARK_POISON_AMMO               63
 
 /* Necronomicon (not for assassin) 8*/
@@ -1253,10 +1253,8 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case DARK_ORB_OF_DEATH:
 			    strnfmt(p, len, " dam 3d6 + %d", plev+(plev/2));
 			    break;
-			case DARK_CURE_MORTAL_WOUNDS:
-				curep = (p_ptr->mhp * (25 + (plev / 5))) / 100; /* 26% - 35% */
-				curehp = 5 + (plev / 10);
-				strnfmt(p, len, " heal 10d%d, min%d", curehp, curep);
+			case DARK_SNIPER_EYE:
+				strnfmt(p, len, " dur 20+d%d", plev-10);
 				break;
 			case DARK_VAMPIRIC_DRAIN:
 			    strnfmt(p, len, " dam %dd11", plev / 3);
@@ -2431,7 +2429,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_METEOR_SWARM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev / 2, 1);
+			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/2), 1);
 			break;
 		}
 
@@ -6107,6 +6105,7 @@ static bool cast_chem_spell(int spell)
 			if (plev > 39) manya = 50;
 			if (plev > 49) manya = 60;
 			if (randint(100) < 34) fire_ball(GF_KILL_WALL, dir, damroll((plev/2), 2), 2);
+			else if ((plev >= 30) && (goodluck)) (void)blast_a_wall(dir);
 			fire_ball(GF_SHARD, dir, manya + randint(plev/5) + damroll((plev/2), 2), 2);
 			break;
             /* 50-60 at L20, 55-70 at L30, 70-90 at L40, 85-110 at L50 */
@@ -6548,7 +6547,7 @@ static bool cast_chem_spell(int spell)
 		case CHEM_METEOR_SWARM:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev / 2, 1);
+			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev/2 + randint(plev/3), 1);
 			break;
 		}
 
@@ -6764,6 +6763,10 @@ static bool cast_dark_spell(int spell)
         case DARK_DRAIN_CHARGES:
         {
 			drained = 0;
+			int healthis;
+			int oldhp = p_ptr->chp;
+			int maxhp = p_ptr->mhp;
+			if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 
             /* Restrict choices to staves or wands */
             item_tester_hook = item_tester_hook_drainable;
@@ -6793,14 +6796,20 @@ static bool cast_dark_spell(int spell)
 					drained = o_ptr->pval;
    						/* Uncharge */
 					o_ptr->pval = 0;
+					/* higher value for higher level devices drained (1.5x) */
+					if (k_info[o_ptr->k_idx].level >= 48)
+                        drained = (drained * 3) / 2;
 				}
+				else if (((o_ptr->to_h > 0) || (o_ptr->to_d > 0) || (o_ptr->to_a > 0)) &&
+				         (o_ptr->tval == TV_STAFF)) /* fall through */;
 				else
 				{
                     msg_print("That has no charges to drain.");
                     break;
                 }
 			}
-			else if ((o_ptr->to_h > 0) || (o_ptr->to_d > 0) || (o_ptr->to_a > 0))
+			/* can't drain a staff's charges and combat bonuses at the same time */
+			if ((!drained) && ((o_ptr->to_h > 0) || (o_ptr->to_d > 0) || (o_ptr->to_a > 0)))
 			{
                 /* drain & break other stuff */
                 drained = o_ptr->to_h + o_ptr->to_d + o_ptr->to_a + 1;
@@ -6808,10 +6817,20 @@ static bool cast_dark_spell(int spell)
                 if (o_ptr->to_d > 0) o_ptr->to_d = 0 - 1;
                 if (o_ptr->to_a > 0) o_ptr->to_a = 0 - 1;
             }
-
-			if (plev < 30) (void)hp_player((drained) * (plev/3));
-			else if (plev < 40) (void)hp_player((drained+1) * (8 + randint(2)));
-            else (void)hp_player((drained+2) * (plev/4));
+            /* heal based on amount drained */
+			if (plev < 30) healthis = drained * (plev/3);
+			else if (plev < 40) healthis = (drained+1) * (8 + randint(2));
+            else healthis = (drained+2) * (plev/4);
+            (void)hp_player(healthis);
+            /* possible nourishment if you didn't need much healing */
+            if ((maxhp - oldhp < healthis) && (p_ptr->food + 2000 < PY_FOOD_MAX))
+            {
+                healthis -= (maxhp - oldhp);
+                if (healthis < 5) healthis = 5;
+                if (healthis > 82) healthis = 80 + (healthis-80)/3;
+                healthis = healthis * (3 + rand_int(8));
+                (void)set_food(p_ptr->food + healthis);
+            }
             if (randint(100) + badluck > 84 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 10 + randint(plev));
@@ -6843,8 +6862,7 @@ static bool cast_dark_spell(int spell)
             else if (die < 50) fire_ball(GF_POIS, dir, 11 + (plev / 2) + randint(goodluck), 2);
             else if (die < 60)
             {
-               fire_bolt_or_beam(beam-10, GF_POIS, dir,
-                                 damroll(5 + (plev / 2), 3));
+               fire_bolt_or_beam(beam, GF_POIS, dir, damroll(5 + (plev / 2), 3));
                fire_ball(GF_POIS, dir, 2 + randint(31), 3);
             }
 			else if (die < 80) fire_ball(GF_POIS, dir, 15 + (plev), plev / 12);
@@ -6927,7 +6945,8 @@ static bool cast_dark_spell(int spell)
 			int dam = 31 + ((plev+2)/4) + randint((plev*9)/4);
 			int rad = 5;
 			if (plev >= 40) rad += 1;
-			if (!get_aim_dir(&dir)) return (FALSE);
+			/* spread effect doesn't need a direction */
+			/* if (!get_aim_dir(&dir)) return (FALSE); */
 			fire_spread(GF_FIRE, dam, rad);
             if (randint(100) + badluck > 80 + goodluck)
             {
@@ -7162,6 +7181,9 @@ static bool cast_dark_spell(int spell)
                else if (plev > 38) fire_ball(GF_ACID, dir, 1 + damroll((plev-37)/2, 9), 2);
                else fire_ball(GF_ACID, dir, damroll(randint(3), 7), 2);
             }
+            /* L25 for necromancers, L35 for assassins */
+            if ((goodluck) && ((cp_ptr->flags & CF_BEAM) && (plev >= 25)) || (plev >= 35))
+                (void)blast_a_wall(dir);
             spellswitch = 11;  /* activates earthquake in project() */
             range = 21; /* small earthquake */
 			fire_ball(GF_SHARD, dir, 24 + plev + damroll(plev/10, 11), 1 + plev/21);
@@ -7385,15 +7407,12 @@ static bool cast_dark_spell(int spell)
 			return recharge(5 + plev);
 		}
 
-		case DARK_CURE_MORTAL_WOUNDS: /* min 26% - 35% */
+		case DARK_SNIPER_EYE:
 		{
-			int cure = damroll(10, 5 + plev/10);
-			int curep = (p_ptr->mhp * (25 + (plev / 5))) / 100;
-			if (cure < curep) cure = curep;
-			(void)hp_player(cure);
-			(void)clear_timed(TMD_STUN);
-			(void)clear_timed(TMD_CUT);
-			break;
+			/* doesn't get this spell until ~plev 30, but make sure of this */
+            if (plev < 15) plev = 15;
+            (void)inc_timed(TMD_SNIPER, 20 + randint(plev-5));
+            break;
 		}
         		
 		case DARK_SPIRIT_OF_BALROG:
@@ -7591,7 +7610,7 @@ static bool cast_dark_spell(int spell)
         case DARK_DARKNESS_STORM: /* black equivelent of mana storm */
         {
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_DARK, dir, 270 + (plev * 2) + randint(plev+15), 3);
+			fire_ball(GF_DARK, dir, 270 + (plev * 2) + randint(plev+16), 3);
             if (randint(100) + badluck > 75 + goodluck)
             {
                 (void)inc_timed(TMD_WITCH, 200 + randint(200-plev));

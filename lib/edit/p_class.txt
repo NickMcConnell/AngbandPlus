@@ -1,5 +1,5 @@
 # File: p_class.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 
 # This file is used to initialize the "lib/data/p_class.raw" file, which is
@@ -189,7 +189,7 @@ B:59:30:45:95:25	#banishment
 B:60:30:25:85:34	#meteor swarm
 B:61:35:75:90:100	#mass banishment
 B:62:36:31:62:25	#rift
-B:63:42:31:95:200	#mana storm
+B:63:42:30:95:200	#mana storm
 B:64:99:0:0:0	#summon demonic aid (war mage only, escapes book)
 B:65:14:8:40:8	#mana defence (WSHIELD +1-2 slight stealth, resistace book)
 B:66:21:12:55:10	#sphere of charm (escape book, for wizards)
@@ -211,7 +211,7 @@ E:95:0:1:1
 E:23:4:1:1
 E:70:30:1:3
 E:75:40:1:1
-#Class objects: Potion of Restore Mana or Mysteries of Shadow book
+#Class objects: Potion of Restore Mana or Advanced Necromancy book
 O:75:40:95:4
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | ZERO_FAIL | BEAM
 F:CUMBER_GLOVE
@@ -296,7 +296,7 @@ B:67:29:20:66:50	#hold					29
 B:68:18:12:70:35	#dispel undead2			18
 B:69:27:19:66:46	#breathe fear and confusion	27
 B:70:35:30:65:25	#nether ball			35
-B:71:40:31:96:150	#darkness storm			40
+B:71:40:30:95:150	#darkness storm			40
 B:72:41:40:90:200	#become lich			41
 B:73:99:0:0:0	#resist poison (assassin only version) /	(in 3rd book)
 B:74:41:35:93:180	#wall of hellfire			41
@@ -1353,7 +1353,7 @@ B:21:14:8:50:3	#poison bolt			14 (in B4)
 B:22:18:13:38:31	#slip into the shadows		18 (in B8)
 B:23:15:8:40:3	#shadow step			15 (short-lasting version of slip into the shadows, B2)
 B:24:35:24:70:16	#venom bolt  (B4)			35
-B:25:23:14:46:23	#darkvision				23
+B:25:23:18:46:23	#darkvision				23
 B:26:99:0:0:0	#scare monsters			/ (in B5)
 B:27:18:10:60:6	#spear of dark			18
 B:28:99:0:0:0	#ice spear				/
@@ -1386,7 +1386,7 @@ B:54:99:0:0:0	#vampiric drain			/
 B:55:99:0:0:0	#hold life				/
 B:56:99:0:0:0	#genocide				/
 B:57:26:15:95:8	#recharging				26
-B:58:27:18:60:17	#cure mortal wounds  (B8)	27
+B:58:32:22:50:17	#sniper's eye			32
 B:59:11:4:30:3	#detect living			11 (B2)
 B:60:99:0:0:0	#spirit of the balrog		/ (in B6)
 B:61:99:0:0:0	#haste				/ (in B6)
@@ -1701,7 +1701,7 @@ B:59:32:50:95:22	#banishment				32
 B:60:28:24:80:35	#meteor swarm			28
 B:61:42:80:90:80	#mass banishment			42
 B:62:34:31:60:26	#rift					34
-B:63:41:34:75:150	#mana storm				41
+B:63:41:30:75:150	#mana storm				41
 B:64:36:21:80:45	#summon demonic aid		36 (war mage only, escapes book)
 B:65:99:0:0:0	#mana defence			/ (WSHIELD +1-2 slight stealth, resistace book)
 B:66:99:0:0:0	#sphere of charm			/ (escape book, for wizards)

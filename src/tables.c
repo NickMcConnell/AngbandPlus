@@ -1115,7 +1115,7 @@ const byte blows_table[12][12] =
 	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
 
 	/* 5  */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
+	{  2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
 
 	/* 6  */
 	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
@@ -2579,6 +2579,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_HEROISM },
 
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
+		/*{ TV_POTION, SV_POTION_PURITY },*/
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },

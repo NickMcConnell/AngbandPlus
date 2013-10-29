@@ -143,7 +143,7 @@ static command_type cmd_util[] =
 
 	{ "Save and don't quit",  KTRL('S'), do_cmd_save_game },
 	{ "Save and quit",        KTRL('X'), do_cmd_quit },
-	{ "Quit",                 'Q', do_cmd_suicide },
+	{ "Quit",                 'Q', do_cmd_quitendgame },
 	{ "Redraw the screen",    KTRL('R'), do_cmd_redraw },
 
 	{ "Load \"screen dump\"",       '(', do_cmd_load_screen },
@@ -153,7 +153,7 @@ static command_type cmd_util[] =
 /* Commands that shouldn't be shown to the user */ 
 static command_type cmd_hidden[] =
 {
-	{ "Take notes",               ':', do_cmd_note },
+	{ "Take notes",               ':', do_cmd_note_old },
 	{ "Version info",             'V', do_cmd_version },
 	{ "Load a single pref line",  '"', do_cmd_pref },
 	{ "Mouse click",           '\xff', do_cmd_mouseclick },
@@ -424,7 +424,7 @@ static void do_cmd_monlist(void)
 }
 
 /*
- * Display the main-screen monster list.
+ * Display the main-screen object list.
  */
 static void do_cmd_itemlist(void)
 {

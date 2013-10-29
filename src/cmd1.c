@@ -384,7 +384,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
-					if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_FIRE);
+					if (m_ptr->ml) l_ptr->flags3 |= (RF3_IM_FIRE);
 				}
 
 				/* Otherwise, take the damage */
@@ -406,7 +406,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
-					if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_COLD);
+					if (m_ptr->ml) l_ptr->flags3 |= (RF3_IM_COLD);
 				}
 				if (r_ptr->flags3 & (RF3_HURT_COLD))
 				{
@@ -463,8 +463,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 			}
 
 			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-			    (m_ptr->evil))
+			if ((f1 & (TR1_SLAY_EVIL)) && (m_ptr->evil))
 			{
 				if (m_ptr->ml)
 				{
@@ -477,8 +476,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 			}
 
 			/* Silver damage (SLAY_WERE, different from slay silver) */
-			if ((f2 & (TR2_SLAY_WERE)) &&
-			    (r_ptr->flags3 & (RF3_HURT_SILV)))
+			if ((f2 & (TR2_SLAY_WERE)) && (r_ptr->flags3 & (RF3_HURT_SILV)))
 			{
 				if (m_ptr->ml)
 				{
@@ -491,8 +489,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 			}
 
 			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) &&
-			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml) l_ptr->flags3 |= (RF3_UNDEAD);
 
@@ -502,8 +499,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 			}
 
 			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) &&
-			    (r_ptr->flags3 & (RF3_DEMON)))
+			if ((f1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
 			{
 				if (m_ptr->ml) l_ptr->flags3 |= (RF3_DEMON);
 				if (mult < 3) mult = 3;
@@ -740,7 +736,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
-					if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_FIRE);
+					if (m_ptr->ml) l_ptr->flags3 |= (RF3_IM_FIRE);
 				}
 				if (r_ptr->flags3 & (RF3_HURT_FIRE))
 				{
@@ -763,7 +759,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, int strd, const monster_type
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
-					if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_COLD);
+					if (m_ptr->ml) l_ptr->flags3 |= (RF3_IM_COLD);
 				}
 				if (r_ptr->flags3 & (RF3_HURT_COLD))
 				{
@@ -3022,6 +3018,7 @@ void move_player(int dir)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
@@ -3158,6 +3155,40 @@ void move_player(int dir)
         moveit = TRUE;
     }
 
+
+	/* held by a monster */
+	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx) && (moveit))
+	{
+		monster_type *m_ptr = &mon_list[p_ptr->held_m_idx];
+		char m_name[80];
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
+		/* (only when moving away from the monster) */
+		if (distance(y, x, m_ptr->fy, m_ptr->fx) > m_ptr->cdis)
+		{
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			int wrestle, holdfast, rlev;
+			rlev = ((r_ptr->level >= 6) ? r_ptr->level : 6);
+
+			if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast = rlev * 3;
+			else holdfast = (rlev * 5) / 2 + randint(rlev/2); /* (x2.5 +dx0.5) */
+			wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
+			wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
+			if (p_ptr->free_act) wrestle += 20;
+	
+			/* attempt to pull free */
+			if (randint(wrestle) > holdfast)
+			{
+				p_ptr->held_m_idx = 0;
+				clear_timed(TMD_BEAR_HOLD);
+			}
+			else
+			{
+				msg_format("You are being held by %s!", m_name);
+				return;
+			}
+		}
+	}
+
     if (rubble)
     {
         if (get_check("Try to climb over the rubble? "))
@@ -3176,6 +3207,8 @@ void move_player(int dir)
             climbstr = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 9);
             climbstr += (adj_str_wgt[p_ptr->stat_ind[A_DEX]] * 2);
             climbdif = 68 + (p_ptr->depth/4); /* was 95 + (p_ptr->depth/4) */
+            /* cap difficulty */
+            if (climbdif > 90 - goodluck) climbdif -= (climbdif-90-goodluck)/2;
 			/* harder to climb onto rubble from inside a pit */
 			if (openpit) climbdif += 12;
 			/* always succeed with MIGHTY_HURL */
@@ -3213,6 +3246,10 @@ void move_player(int dir)
                   }
                }
             }
+        }
+        else /* decide not to climb the rubble so no movement */
+        {
+           p_ptr->energy_use = 0;
         }
     }
 	/* don't climb out of one pit into another -assumed to be the same pit */

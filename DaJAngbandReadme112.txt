@@ -1,11 +1,32 @@
 
 
 Thanks to:
-First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Fizzix for finding bugs and other helpful feedback, Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, and anyone else who gives comments or suggestions or just plays DaJAngband.
-
+Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for maintaining a great *band website, those on oook who gave coding/variant making advice, reported bugs, and/or other helpful feedback, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, and anyone else who gives comments or suggestions or just plays DaJAngband.
 ------------------------------------------------------------------------------------------
-Readme for DaJAngband 1.1.1
-		Changes since original 1.1.0
+
+Readme for DaJAngband 1.1.2
+		bugfixes since 1.1.1
+  declining to climb rubble no longer takes a turn.
+  fixed bug: sometimes an ego with a random power with get throwing might (which uses a pval) as a random power, but not get a pval. (I think it's fixed)
+  fixed bug: if a monster is immune to fire/cold, you learn that it is hurt by fire/cold
+  fixed bug: the game lets you chose the blank classes at birth
+  fixed bug: !temporary boost doesn't wear off when it boosts strength. It should work correctly now. It also appears in self knowledge now.
+  fixed bug: garnets are sometimes invisible in tiles mode (assigned to wrong tile -a blank one)
+  fixed bug: cannot do anything with squelched items in inventory with hide squelchable turned on
+
+		other changes since 1.1.1
+  quality squelch of jewelry. Also, squelch (non-splendid) ego staffs if blunt is set to squelch all but splendid.
+  added character history / notetaking from NPP
+  can now see any traps in the space when (l)ooking at a space with an object
+  PASS_WALL & KILL_WALL monsters are now smart enough to go around permanent walls.
+  couple more improvements to necromancy magic realm
+  !super spellcasting now partially restores mana (up to 1/10 of max mana +1) as well as their usual effect
+  elven cloaks and elven leather caps only pseudo as splendid if they have something other than stealth (because they always have a stealth bonus).
+  significant tweaks on empty vault generation & puddle generation
+  always recognise egos on aware jewelry without ID (I thought this was already the case, but it seems I was wrong)
+  some other tweaks as usual..
+
+		Changes since 1.1.0
   telekinesis bugs fixed. It works the way it should now: must be either in line of sight or within max distance (usually about 8).
   removing curses with enchant scrolls is no longer dependant on the success of the enchantment
   monsters can no longer pick up (or destroy) the special vault chests.
@@ -15,9 +36,9 @@ Readme for DaJAngband 1.1.1
   home inventory is now in knowledge menu
   more changes to black magic realm: witch's disinfectant strengthened, demon summoning lessened (never in groups and only appear next to the PC about half the time, otherwise appear about 20 spaces away. Also less likely that the evil spells trigger the demon summoning effect), assassin spells modified.
 
-		Changes since 1.0.99 (9/9/99 update)
+		Changes since 1.0.99
 
-	Fixed bugs since 1.0.99 (9/9/99 update):
+	Fixed bugs since 1.0.99:
   fixed: hidden attributes on randarts (I consider that a bug anyway)
   fixed: power sprite character history is sometimes messed up
   fixed: see invisible doesn't let you see monsters which are temporarily invisible.
@@ -78,7 +99,7 @@ which still used all nine books in its realm).
  - magic staffs don't always reveal (+0 +0) when they pseudo as average.
  - "tried" inscription dissapears from magic staffs when you get a pseudo-ID. (supposed to do this for weapons, but for magic staffs, you want to remember whether you tried (Z)apping it yet.)
 
-		Fixed bugs between 1.0.98 and 1.0.99 (9/9/99 update) :
+		Fixed bugs between 1.0.98 and 1.0.99:
  - fixed: sometimes crashes when an earthquake happens.
  - fixed: earthquake works in vaults.
  - fixed: Darkvision STILL lets you see invisible. (thought it was fixed before, but now it's really fixed..)
@@ -91,7 +112,7 @@ which still used all nine books in its realm).
  - fixed: multiple attack throwing weapons work now
  - fixed: burst of light spell now works as it should
 
-		Notable changes between 1.0.98 and 1.0.99 (9/9/99 update):
+		Notable changes between 1.0.98 and 1.0.99:
  - graphics tiles done for old tileset.
  - detection radius is now fixed (like in new V, but not as big an area as new V).
  - probing now reveals everything that cheak_peak reveals except doesn't always reveal spells.
@@ -111,7 +132,7 @@ http://www.geocities.com/will_asher/MonsterDictionary/DaJAngbandmain.htm
 ------------------------------------------------------------------------------------------
 
 	The in-game help file "DJA110", has more details about differences from vanilla. Please read it
-if you are not familiar with DaJAngband.
+if you are not familiar with DaJAngband or if you want more details about stuff.
 
 	More in-depth explaination of a couple DaJAngband effects:
 

@@ -893,6 +893,17 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
 	{'v', TERM_ORANGE},
 };
 
+#ifdef yes_c_history
+/*
+ * File for taking notes
+ */
+FILE *notes_file;
+/*
+ * Buffer to hold the current notes file name
+ */
+char notes_fname[1024];
+#endif
+
 /* 
  *  explaination of spellswitches:
  * 1  = map_area maps much bigger area.

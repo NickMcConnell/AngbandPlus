@@ -37,9 +37,10 @@ void do_cmd_go_up(void)
 		monster_type *m_ptr = &mon_list[p_ptr->held_m_idx];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		char m_name[80];
-		int wrestle;
-		int holdfast = r_ptr->level * 3;
-		if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += r_ptr->level / 2;
+		int wrestle, holdfast = r_ptr->level * 3;
+		
+		/* wrestle to pull free of the hold */
+        if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += r_ptr->level / 2;
 		wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 		wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 		if (p_ptr->free_act) wrestle += 25;
@@ -53,7 +54,7 @@ void do_cmd_go_up(void)
 		}
 		else
 		{
-			msg_format("You are being held by %^s!", m_name);
+			msg_format("You are being held by %s!", m_name);
 			return;
 		}
 	}
@@ -93,8 +94,9 @@ void do_cmd_go_down(void)
 		monster_type *m_ptr = &mon_list[p_ptr->held_m_idx];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		char m_name[80];
-		int wrestle;
-		int holdfast = (r_ptr->level * 5) / 2; /* (x2.5) */
+		int wrestle, holdfast = (r_ptr->level * 5) / 2; /* (x2.5) */
+		
+		/* wrestle to pull free of the hold */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += r_ptr->level / 2;
 		wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 		wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
@@ -109,7 +111,7 @@ void do_cmd_go_down(void)
 		}
 		else
 		{
-			msg_format("You are being held by %^s!", m_name);
+			msg_format("You are being held by %s!", m_name);
 			return;
 		}
 	}
@@ -2188,40 +2190,6 @@ bool do_cmd_walk_test(int y, int x)
 		return TRUE;
 	}
 
-	/* held by a monster */
-	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx))
-	{
-		monster_type *m_ptr = &mon_list[p_ptr->held_m_idx];
-		char m_name[80];
-		/* int curd = distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx); */
-		/* int newd = distance(y, x, m_ptr->fy, m_ptr->fx); */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
-		if (distance(y, x, m_ptr->fy, m_ptr->fx) > m_ptr->cdis)
-		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			int wrestle, holdfast, rlev;
-			rlev = ((r_ptr->level >= 6) ? r_ptr->level : 6);
-
-			if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast = rlev * 3;
-			else holdfast = (rlev * 5) / 2 + randint(rlev/2); /* (x2.5 +dx0.5) */
-			wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
-			wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
-			if (p_ptr->free_act) wrestle += 20;
-	
-			/* attempt to pull free */
-			if (randint(wrestle) > holdfast)
-			{
-				p_ptr->held_m_idx = 0;
-				clear_timed(TMD_BEAR_HOLD);
-			}
-			else
-			{
-				msg_format("You are being held by %^s!", m_name);
-				return (FALSE);
-			}
-		}
-	}
-
 	/* Require open space */
 	if ((!cave_floor_bold(y, x)) || (cave_feat[y][x] == FEAT_OPEN_PIT))
 	{
@@ -2284,7 +2252,6 @@ void do_cmd_walk(void)
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
 
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -2296,10 +2263,8 @@ void do_cmd_walk(void)
 		x = p_ptr->px + ddx[dir];
 	}
 
-
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2352,14 +2317,12 @@ void do_cmd_run(void)
 {
 	int y, x, dir;
 
-
 	/* Hack XXX XXX XXX */
 	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		msg_print("You are too confused!");
 		return;
 	}
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -2371,7 +2334,6 @@ void do_cmd_run(void)
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
 
 	/* Start run */
 	run_step(dir);
@@ -2556,9 +2518,8 @@ bool do_telekinesis(int maxd)
 		fire_beam(GF_THROW, dir, 0);
 	}
 
-	 return TRUE;
+	return TRUE;
 }
-
 
 
 /*
@@ -3033,6 +2994,9 @@ void do_cmd_fire(void)
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
 			int visible = m_ptr->ml;
+			
+			/* sniper's eye assassin spell */
+            if ((visible) && (p_ptr->timed[TMD_SNIPER])) chance2 += 20;
 
 			/* hard to hit an invisible (or very stealthy) monster */
 			if ((!visible) && (player_can_see_bold(y, x))) 
@@ -3083,6 +3047,9 @@ void do_cmd_fire(void)
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
+			
+				/* sniper's eye assassin spell */
+            	if ((visible) && (p_ptr->timed[TMD_SNIPER])) excrit += 3;
 				
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, 1, m_ptr);
@@ -3618,6 +3585,15 @@ void do_cmd_throw(void)
 			chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
 			visible = m_ptr->ml;
+			
+			/* sniper's eye assassin spell */
+            if ((visible) && (p_ptr->timed[TMD_SNIPER])) chance2 += 20;
+
+			/* hard to hit an invisible (or very stealthy) monster */
+			if ((!visible) && (player_can_see_bold(y, x))) 
+				chance2 = (chance2 * 3) / 4;
+			/* slightly hard to hit a monster outside of your light range */
+			else if (!visible) chance2 = (chance2 * 8) / 9;
 
 			/* Note the collision */
 			hit_body = TRUE;
@@ -3702,6 +3678,9 @@ void do_cmd_throw(void)
 				   /* unless weapon is meant for throwing */
 				   if ((f2 & TR2_THROWN) || (f2 & TR2_PTHROW))
                    {
+			           /* sniper's eye assassin spell */
+                       if ((visible) && (p_ptr->timed[TMD_SNIPER])) excrit += 3;
+                       
                        tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, 0, excrit);
                    }
                    /* weapons not meant for throwing get to-hit bonus halved for crit chance */

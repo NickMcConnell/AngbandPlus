@@ -371,7 +371,7 @@ static bool summon_possible(int y1, int x1)
  *
  * Then we should perhaps instead supply a flag to "projectable()".  XXX XXX
  */
-static bool clean_shot(int y1, int x1, int y2, int x2)
+bool clean_shot(int y1, int x1, int y2, int x2, bool okwall)
 {
 	int y, x;
 
@@ -389,7 +389,7 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 	x = GRID_X(grid_g[grid_n-1]);
 
 	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+	if ((!okwall) && (!cave_floor_bold(y, x))) return (FALSE);
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);
@@ -857,7 +857,7 @@ bool make_attack_spell(int m_idx)
 		if ((f4 & (RF4_BOLT_MASK) ||
 			 f5 & (RF5_BOLT_MASK) ||
 			 f6 & (RF6_BOLT_MASK)) &&
-			!clean_shot(m_ptr->fy, m_ptr->fx, py, px))
+			!clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
 		{
 			/* Remove spells that will only hurt friends */
 			f4 &= ~(RF4_BOLT_MASK);
@@ -2294,7 +2294,8 @@ bool make_attack_spell(int m_idx)
             }
 			if (blind) msg_format("%^s exerts magic power.", m_name);
 			else msg_format("%^s casts a mana bolt.", m_name);
-			damage = randint(rlev * 3) + 50;
+			if (rlev < 50) damage = randint(rlev * 3) + 30;
+			else damage = randint(rlev * 3) + 50;
 	        /* extra damage reduction from surrounding magic */
 			if (surround > 0) damage -= (damage * (surround / 350));
 			bolt(m_idx, GF_MANA, damage);
@@ -2728,6 +2729,12 @@ bool make_attack_spell(int m_idx)
 			/* if monster is afraid, then is doesn't want to bring the player closer */
 			if (m_ptr->monfear) break;
 			if (!direct) break;
+			/* demon ward spell protects from TELE_TO from demons */
+			if ((r_ptr->flags3 & (RF3_DEMON)) && (p_ptr->timed[TMD_DEMON_WARD]))
+			{
+			    msg_format("%^s attempts to cast a spell, but fails.", m_name);
+			    break;
+            }
 			disturb(1, 0);
 			msg_format("%^s commands you to return.", m_name);
 			teleport_player_to(m_ptr->fy, m_ptr->fx);
@@ -3052,7 +3059,7 @@ bool make_attack_spell(int m_idx)
 			sound(MSG_SUM_HYDRA);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hydras.", m_name);
-			if (randint(100) < (goodluck + 1) * 2) samt -= 1;
+			if (randint(100) < (goodluck + 5) * 2) samt -= randint(2);
 			for (k = 0; k < samt; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
@@ -3348,8 +3355,34 @@ static int mon_will_run(int m_idx)
 	return (FALSE);
 }
 
-
-
+/* finds whether a monster is near a permanent wall
+ * this decides whether PASS_WALL & KILL_WALL monsters 
+ * use the monster flow code
+ */
+static bool near_permwall(const monster_type *m_ptr)
+{
+	int y, x;
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+	
+	/* if PC is in LOS, there's no need to go around walls */
+    if (projectable(my, mx, p_ptr->py, p_ptr->px)) return FALSE;
+    
+    /* PASS_WALL & KILL_WALL monsters occationally flow for a turn anyway */
+    if (rand_int(100) < 2) return TRUE;
+    
+	/* Search the nearby grids, which are always in bounds */
+	for (y = (my - 2); y <= (my + 2); y++)
+	{
+		for (x = (mx - 2); x <= (mx + 2); x++)
+		{
+            if (!in_bounds_fully(y, x)) continue;
+            /* vault walls are always FEAT_PERM_INNER */
+            if ((cave_feat[y][x] == FEAT_PERM_INNER)) return TRUE;
+		}
+	}
+	return FALSE;
+}
 
 #ifdef MONSTER_FLOW
 
@@ -3399,8 +3432,12 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	if ((!adult_ai_sound) && (!m_ptr->roaming)) return (FALSE);
 
 	/* Monster can go through rocks */
-	if (r_ptr->flags2 & (RF2_PASS_WALL)) return (FALSE);
-	if (r_ptr->flags2 & (RF2_KILL_WALL)) return (FALSE);
+	if ((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL)))
+	{
+         /* still have to go around permanent walls */
+         if (near_permwall(m_ptr)) return (TRUE);
+         else return (FALSE);
+    }
 
 	/* Monster location */
 	y1 = m_ptr->fy;
@@ -3846,7 +3883,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 			if (!cave_can_occupy_bold(y, x)) continue;
 
 			/* Check for hidden, available grid */
-			if (!player_has_los_bold(y, x) && (clean_shot(fy, fx, y, x)))
+			if (!player_has_los_bold(y, x) && (clean_shot(fy, fx, y, x, FALSE)))
 			{
 				/* Calculate distance from player */
 				dis = distance(y, x, py, px);
@@ -4688,7 +4725,8 @@ static bool wakeup_friends(int m_idx, bool dowake)
 		/* message appropriate to type */
 		if (strchr("hiknoptuxyKOPTUVY@&", r_ptr->d_char))
 		{
-			msg_format("%^s yells for its friends to wake up!", m_name);
+		    if (leader) msg_format("%^s yells for its escorts to wake up!", m_name);
+		    else msg_format("%^s yells for its friends to wake up!", m_name);
 		}
 		else if (strchr("CZ", r_ptr->d_char))
 		{
@@ -4696,7 +4734,8 @@ static bool wakeup_friends(int m_idx, bool dowake)
 		}
 		else 
 		{
-			msg_format("%^s wakes up its friends!", m_name);
+		    if (leader) msg_format("%^s wakes up its escorts!", m_name);
+		    else msg_format("%^s wakes up its friends!", m_name);
 		}
 	}
 
@@ -5670,7 +5709,7 @@ static void process_monster(int m_idx)
             	int py = p_ptr->py;
               	int px = p_ptr->px;
                 int stopodd = 20;
-			    if (clean_shot(oy, ox, py, px)) stopodd += 19;
+			    if (clean_shot(oy, ox, py, px, FALSE)) stopodd += 19;
 				if (openpit) stopodd = stopodd/2;
 			    if ((randint(100) < stopodd) && (projectable(oy, ox, py, px)))
                 {

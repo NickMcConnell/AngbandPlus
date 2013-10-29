@@ -2371,7 +2371,7 @@ static void store_sell(void)
 
 		/* Update the display */
 		store_flags |= STORE_GOLD_CHANGE;
-
+	
 		/* Identify original object */
 		object_aware(o_ptr);
 		object_known(o_ptr);
@@ -2666,6 +2666,13 @@ static bool store_process_command(char cmd, void *db, int oid)
 		case 'I':
 		{
 			do_cmd_observe();
+			break;
+		}
+
+		/* Take notes */
+		case ':':
+		{
+			do_cmd_note("",  p_ptr->depth);
 			break;
 		}
 

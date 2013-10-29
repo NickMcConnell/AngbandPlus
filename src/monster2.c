@@ -391,6 +391,11 @@ errr get_mon_num_prep(void)
  * Choose an especially appropriate monster for the theme.
  * because certain monsters should be significantly more common
  * in their home.
+ * Changed for 1.1.1 update to make sure no monsters appear more
+ * than 10 levels out of depth on the early levels.
+ * On the shallow levels, this will now occationally pick a monster 
+ * that isn't normally considered theme-appropriate to prevent other
+ * monsters appearing grossly out of depth.
  */
 s16b get_mon_force_theme(int level)
 {
@@ -403,8 +408,8 @@ s16b get_mon_force_theme(int level)
 	if (rand_int(100) < 15) level = (level + randlevel)/2;
 
 	/* randomize even more */
-	if (die < 6) level -= randint(15);
-	if (die > 95) level += randint(15);
+	if (die < 6) level -= randint(11);
+	if (die > 95) level += randint(11);
 	die = rand_int(100);
 
 	switch (p_ptr->theme)
@@ -419,7 +424,9 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 28)
 			{
-				if (level < 41) choose = 190; /* gnome(11) */
+				if ((level < 22) && (randint(100) < 93)) choose = 190; /* gnome(11) */
+				else if (level < 27) choose = 952; /* naiad(21) */
+				else if (level < 39) choose = 849; /* dryad(30) */
 				else choose = 845; /* gnoyem (44, theme only) */
 			}
 			else if (die < 43)
@@ -432,7 +439,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 57)
 			{
-				if (level < 33) choose = 239; /* white gnome(15) */
+				if (level < 5) choose = 27; /* confused baby bright sprite(1) */
+				else if (level < 33) choose = 239; /* white gnome(15) */
 				else if (level < 54) choose = 554; /* extril(39) */
 				else choose = 680; /* dark fairy queen(56) */
 			}
@@ -475,13 +483,15 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 28)
 			{
-				if (level < 15) choose = 116; /* kobold lord(6) */
+				if (level < 4) choose = 26; /* small kobold(1) */
+				else if (level < 15) choose = 116; /* kobold lord(6) */
 				else if (level < 30) choose = 283; /* forest troll(17) */
 				else choose = 468; /* ice troll(33) */
 			}
 			else if (die < 42)
 			{
-				if (level < 25) choose = 154; /* yeti(9) */
+				if (level < 5) choose = 79; /* kobold archer(4) */
+				else if (level < 25) choose = 154; /* yeti(9) */
 				else if (level < 75) choose = 387; /* owlbear(26) */
 				else choose = 718; /* great ice wyrm(63) */
 			}
@@ -492,7 +502,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 71)
 			{
-				if (level < 11) choose = 273; /* hill orc(8) */
+				if (level < 4) choose = 92; /* goblin(5) */
+				else if (level < 11) choose = 273; /* hill orc(8) */
 				else if (level < 33) choose = 273; /* uruk(16) */
 				else choose = 530; /* ice elemental(37) */
 			}
@@ -503,7 +514,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else /* (die > 85) */
 			{
-				if (level < 65) choose = 318; /* sasquatch(20) */
+				if (level < 10) choose = 108; /* wood spider(6) */
+				else if (level < 65) choose = 318; /* sasquatch(20) */
 				else choose = 570; /* wendigo(40) */
 			}
 		}
@@ -529,22 +541,26 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 55)
 			{
-				choose = 837; /* blue icky thing(16, theme only) */
+				if (level < 6) choose = 835; /* bubbering icky thing(3, theme only) */
+				else choose = 837; /* blue icky thing(16, theme only) */
 			}
 			else if (die < 71)
 			{
-				if (level < 39) choose = 201; /* slime blob(12) */
+				if (level < 4) choose = 112; /* small slime(6) */
+				else if (level < 39) choose = 201; /* slime blob(12) */
 				else choose = 603; /* giant ameoba slime(42) */
 			}
 			else if (die < 85)
 			{
-				if (level < 36) choose = 254; /* grey ooze(15) */
+				if (level < 5) choose = 25; /* disgusting worm(1) */
+				else if (level < 36) choose = 254; /* grey ooze(15) */
 				else choose = 535; /* black pudding(37) */
 			}
 			else /* (die > 85) */
 			{
-				if ((level < 9) && (randint(100) < 50)) choose = 59; /* photoplasm(3) */
+				if ((level < 9) && (randint(100) < 46)) choose = 59; /* photoplasm(3) */
 				else if ((level < 10) && (randint(100) < 85)) choose = 119; /* rot jelly(6) */
+				else if (level < 6) choose = 59; /* photoplasm(3) */
 				else if (level < 30) choose = 219; /* ochre jelly(13) */
 				else choose = 470; /* ooze elemental(33) */
 			}
@@ -553,7 +569,7 @@ s16b get_mon_force_theme(int level)
 		{
 			if (die < 14)
 			{
-				if ((level < 16) && (randint(100) < 51)) choose = 65; /* naga hatchling(3) */
+				if ((level < 16) && (randint(100) < 36)) choose = 65; /* naga hatchling(3) */
 				else if (level < 19) choose = 70; /* black naga(4) */
 				else if (level < 30) choose = 358; /* giant firefly(24) */
 				else if (level < 43) choose = 436; /* doombat(30) */
@@ -573,26 +589,35 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 56)
 			{
-				if (level < 27) choose = 222; /* mordor orc(13) */
+				if (level < 6) choose = 65; /* naga hatchling(3) */
+				else if (level < 27) choose = 222; /* mordor orc(13) */
+				else if (level < 27) choose = 222; /* mordor orc(13) */
 				else if (level < 38) choose = 438; /* ifrit(30) */
 				else choose = 562; /* fire elemental(39) */
 			}
 			else if (die < 71)
 			{
-				if (level < 28) choose = 335; /* salamander(21) */
+				if (level < 7) choose = 87; /* red worm mass(5) */
+				else if ((level < 14) && (randint(100) < 56)) choose = 163; /* baby red(9) */
+				else if (level < 10) choose = 121; /* baby salamander(7) */
+				else if (level < 28) choose = 335; /* salamander(21) */
 				else if (level < 36) choose = 441; /* chimaera(30) */
 				else choose = 529; /* magma elemental(37) */
 			}
 			else if (die < 85)
 			{
-				if (level < 28) choose = 121; /* baby salamander(7) */
+				if (level < 16) choose = 121; /* baby salamander(7) */
+				else if (level < 27) choose = 321; /* 3-headed hydra(20) */
 				else if (level < 34) choose = 335; /* salamander(21) */
+				else if ((level > 37) && (level < 56) && (randint(100) < 46)) 
+                        choose = 576; /* 9-headed hydra(40) */
 				else if (level < 75) choose = 509; /* hellhound(35) */
 				else choose = 767; /* hellhound in groups(78) */
 			}
 			else /* (die > 85) */
 			{
-				if (level < 30) choose = 337; /* red dragon bat(22) */
+				if (level < 10) choose = 87; /* baby salamander(7) */
+				else if (level < 30) choose = 337; /* red dragon bat(22) */
 				else if (level < 81) choose = 478; /* fire giant(33) */
 				else choose = 731; /* great hell wyrm(67) */
 			}
@@ -615,7 +640,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 43)
 			{
-				if (level < 25) choose = 240; /* lurker(14) */
+				if (level < 5) choose = 68; /* rock lizard(4) */
+				else if (level < 25) choose = 240; /* lurker(14) */
 				else if (level < 63) choose = 412; /* stone giant(28) */
 				else choose = 717; /* greater earth elemental(62) */
 			}
@@ -627,19 +653,22 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 71)
 			{
-				if (level < 25) choose = 278; /* merret(17) */
+				if (level < 7) choose = 88; /* rasti(6) */
+				else if (level < 25) choose = 278; /* merret(17) */
 				else if (level < 35) choose = 279; /* merret in groups(30) */
 				else choose = 565; /* earth elemental(39) */
 			}
 			else if (die < 85)
 			{
-				if (level < 31) choose = 245; /* rubble mimmic(18) */
+				if (level < 8) choose = 93; /* rock mole(5) */
+				else if (level < 31) choose = 245; /* rubble mimmic(18) */
 				else if (level < 45) choose = 475; /* crystal drake(33) */
 				else choose = 640; /* great crystal drake(49) */
 			}
 			else /* (die >= 85) */
 			{
-				if ((level < 34) || (level == 64)) choose = 309; /* stone golem(19) */
+				if (level < 9) choose = 103; /* large brown bat(6) */
+				else if ((level < 34) || (randint(100) < 3)) choose = 309; /* stone golem(19) */
 				else choose = 529; /* magma elemental(37) */
 			}
 		}
@@ -668,7 +697,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 65)
 			{
-				if ((level < 60) || (randint(100) < 8)) choose = 176; /* tengu(10) */
+				if (level < 5) choose = 73; /* kestral(4) */
+				else if ((level < 60) || (randint(100) < 8)) choose = 176; /* tengu(10) */
 				else choose = 716; /* greater air elemental(62) */
 			}
 			else if (die < 82)
@@ -688,7 +718,8 @@ s16b get_mon_force_theme(int level)
 		{
 			if (die < 14)
 			{
-				if (level < 19) choose = 120; /* raven(7) */
+				if (level < 9) choose = 41; /* crow(2) */
+				else if (level < 19) choose = 120; /* raven(7) */
 				else if (level < 43) choose = 327; /* shadow cat(21) */
 				else choose = 616; /* wereraven(46) */
 			}
@@ -700,24 +731,28 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 42)
 			{
-				if (level < 38) choose = 233; /* wererat(14) */
+				if (level < 6) choose = 109; /* rabid rat(6) */
+				else if (level < 38) choose = 233; /* wererat(14) */
 				else choose = 843; /* weremumak(39, theme only) */
 			}
 			else if (die < 57)
 			{
-				if (level < 45) choose = 333; /* werewolf(22) */
+				if (level < 12) choose = 120; /* raven(7) */
+				else if (level < 45) choose = 333; /* werewolf(22) */
 				else if ((level < 55) && (randint(100) < 90-level)) choose = 333; /* werewolf(22) */
 				else choose = 844; /* greater werewolf(50, theme only) */
 			}
 			else if (die < 71)
 			{
-				if ((level < 16) && (randint(100) > level)) choose = 40; /* alleycat(2) */
+				if ((level < 5) || ((level < 16) && (randint(100) < 10))) 
+                    choose = 40; /* alleycat(2) */
+				else if (level < 12) choose = 34; /* glass cat(8) */
 				else if ((level > 23) && (randint(100) < level+52)) choose = 373; /* werebear(25) */
 				else choose = 275; /* black cat(16) */
 			}
 			else if (die < 85)
 			{
-				if (level < 16) choose = 46; /* novice rogue(2) */
+				if (level < 12) choose = 46; /* novice rogue(2) */
 				else if (level < 19) choose = 100; /* novice rogue groups(6) */
 				else if (level < 30) choose = 354; /* lightning rogue(23) */
 				else if ((level < 40) && (randint(100) < 95-(level-25))) choose = 459; /* assassin(32) */
@@ -735,59 +770,69 @@ s16b get_mon_force_theme(int level)
 		{
 			if (die < 12)
 			{
-				if (level < 24) choose = 81; /* grey skeleton(4) */
-				else if (level < 34) choose = 393; /* yellow skeleton(27) */
+				if (level < 23) choose = 81; /* grey skeleton(4) */
+				else if (level < 33) choose = 393; /* yellow skeleton(27) */
 				else if (level < 55) choose = 510; /* lich(35) */
 				else if (level < 70) choose = 685; /* demilich(54) */
 				else choose = 726; /* archlich(65) */
 			}
 			else if (die < 24)
 			{
-				if ((level < 14) && (randint(100) < 108-(level*4))) choose = 172; /* goyley(9) */
+				if ((level < 14) && (randint(100) < 108-(level*3))) choose = 172; /* goyley(9) */
 				else if (level < 16) choose = 199; /* groyle(12) */
 				else if (level < 46) choose = 287; /* guardian naga(17) */
 				else choose = 659; /* gorgon(49) */
 			}
 			else if (die < 36)
 			{
-				if (level < 20) choose = 299; /* gargoyle(18) */
+				if (level < 7) choose = 81; /* grey skeleton(4) */
+				else if (level < 9) choose = 126; /* lost soul(7) */
+				else if (level < 20) choose = 299; /* gargoyle(18) */
 				else if ((level < 35) && (randint(100) < 150-(level*2))) choose = 300; /* gargoyle in groups(23) */
 				else choose = 507; /* margoyle(35) */
 			}
 			else if (die < 48)
 			{
-				if (level < 30) choose = 353; /* gory ghost(23) */
+				if (level < 13) choose = 111; /* human zombie(6) */
+				else if (level < 30) choose = 353; /* gory ghost(23) */
 				else if (level < 36) choose = 467; /* crypt wight(33) */
 				else choose = 549; /* barrow wight(38) */
 			}
 			else if (die < 60)
 			{
-				if (level < 35) choose = 381; /* white wraith(26) */
+				if (level < 14) choose = 184; /* potion mimmic(11) */
+				else if (level < 35) choose = 381; /* white wraith(26) */
 				else if (level < 90) choose = 559; /* black wraith(39) */
 				else choose = 586; /* nether wraith(40) */
 			}
 			else if (die < 72)
 			{
-				if (level < 40) choose = 402; /* vampire(27) */
+				if (level < 16) choose = 236; /* flesh golem(14) */
+				else if (level < 32) choose = 402; /* vampire(27) */
 				else if (level < 55) choose = 601; /* vampire lord(42) */
 				else choose = 686; /* elder vampire(54) */
 			}
 			else if (die < 82)
 			{
-				if (level < 11) choose = 126; /* lost soul(7) */
-				else if (level < 98) choose = 411; /* ghost(28) */
+				if (level < 14) choose = 126; /* lost soul(7) */
+				else if (level < 18) choose = 339; /* human mummy(22) */
+				else if ((level < 56) && (randint(100) < 7)) choose = 359; /* vampire bat(24) */
+				else if (level < 96) choose = 411; /* ghost(28) */
 				else if (randint(100) < 55) choose = 706; /* armored death(60) */
 				else choose = 703; /* skull druj(59) */
 			}
 			else if (die < 91)
 			{
-				if (level < 36) choose = 364; /* green knight(24) */
+				if (level < 9) choose = 77; /* kobold skeleton(4) */
+				else if (level < 18) choose = 339; /* human mummy(22) */
+				else if (level < 36) choose = 364; /* green knight(24) */
 				else if (level < 87) choose = 557; /* death knight(39) */
 				else choose = 737; /* titan(70) */
 			}
 			else
 			{
-				if (level < 16) choose = 234; /* scroll mimmic(14) */
+				if (level < 6) choose = 64; /* poltergeist(3) */
+				else if (level < 16) choose = 234; /* scroll mimmic(14) */
 				else if (level < 21) choose = 307; /* warhorse(19) */
 				else if (level < 50) choose = 414; /* black knight(28) */
 				else if (level < 115) choose = 692; /* lesser titan(56) */
@@ -806,7 +851,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 28)
 			{
-				if (level < 24) choose = 217; /* large spotted frog(13) */
+				if (level < 5) choose = 38; /* large orange frog(2) */
+				else if (level < 24) choose = 217; /* large spotted frog(13) */
 				else if (level < 41) choose = 420; /* giant python(27) */
 				else choose = 841; /* marsh corpse(41, theme only) */
 			}
@@ -818,7 +864,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 57)
 			{
-				if (level < 45) choose = 241; /* crockodile(14) */
+				if (level < 6) choose = 94; /* harpy(5) */
+				else if (level < 45) choose = 241; /* crockodile(14) */
 				else choose = 674; /* nulfraz(50) */
 			}
 			else if (die < 71)
@@ -829,13 +876,15 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 84)
 			{
-				if (level < 62) choose = 295; /* null(18) */
+				if (level < 8) choose = 122; /* acid blob(7) */
+				else if (level < 62) choose = 295; /* null(18) */
 				else if (level < 64) choose = 563; /* water elemental(39) */
 				else choose = 715; /* greater water elemental(62) */
 			}
 			else
 			{
 				if (level < 23) choose = 94; /* harpy(5) */
+				else if (randint(100) < 26) choose = 950; /* water moccasin(14) */
 				else if (level < 86) choose = 421; /* hag(29) */
 				else if (level < 118) choose = 765; /* young behemoth(90) */
 				else choose = 804; /* giant behemoth(120) */
@@ -867,25 +916,29 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 57)
 			{
-				if (level < 28) choose = 215; /* mine mirage(13) */
+				if (level < 5) choose = 55; /* scruffy looking hobbit(3) */
+				else if (level < 28) choose = 215; /* mine mirage(13) */
 				else if (level < 66) choose = 486; /* mithril golem(34) */
 				else choose = 727; /* silver idol(66) */
 			}
 			else if (die < 71)
 			{
-				if (level < 48) choose = 237; /* mine vyrm(14) */
+				if (level < 6) choose = 103; /* large brown bat(6) */
+				else if (level < 48) choose = 237; /* mine vyrm(14) */
 				else choose = 666; /* lesser balrog(50) */
 			}
 			else if (die < 85)
 			{
-				if (level < 29) choose = 833; /* black dwarf miner(18) */
+				if (level < 7) choose = 93; /* rock mole(5) */
+				else if ((level < 40) && (randint(100) < 11)) choose = 851; /* waiting dark(28) */
+				else if (level < 29) choose = 833; /* black dwarf miner(18) */
 				else choose = 839; /* grag high priest(32) */
 			}
 			else 
 			{
 				if (level < 8) choose = 60; /* cave vossar(3) */
 				else if ((level < 22) || (randint(100) > level+65)) choose = 303; /* black dwarf priest(19) */
-				else if (level < 89) choose = 350; /* black dwarf grag(24) */
+				else if (level < 84) choose = 350; /* black dwarf grag(24) */
 				else choose = 756; /* greater balrog(79) */
 			}
 		}
@@ -906,7 +959,8 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 42)
 			{
-				if (level < 40) choose = 226; /* drider(13) */
+				if (level < 6) choose = 39; /* cave spider(2) */
+				else if (level < 40) choose = 226; /* drider(13) */
 				else choose = 609; /* drider of Achrya(43) */
 			}
 			else if (die < 56)
@@ -924,7 +978,9 @@ s16b get_mon_force_theme(int level)
 			}
 			else if (die < 85)
 			{
-				if (level < 26) choose = 280; /* giant scorpion(17) */
+				if ((level < 5) && (randint(100) < 85)) choose = 56; /* giant black ant(3) */
+				else if (level < 8) choose = 75; /* multi-hued centipede(4) */
+				else if (level < 26) choose = 280; /* giant scorpion(17) */
 				else if (randint(100) < 100-level) choose = 434; /* soldier ant(30) */
 				else choose = 501; /* fire ant(35) */
 			}
@@ -1087,7 +1143,7 @@ static bool temple_okay(int r_idx)
 
 /*
  * Return if a monster is appropriate for the current themed level
- * mode 1 has a chance to allow any monster.
+ * mode 1 has a chance to allow (almost) any monster.
  * mode 0 always forces appropriate monsters.
  */
 bool theme_okay(int r_idx, int mode, bool vault)
@@ -1144,7 +1200,8 @@ bool theme_okay(int r_idx, int mode, bool vault)
 	/* THEME_ONLY always requires correct theme for its flag */
 	if (r_ptr->flags7 & (RF7_THEME_ONLY)) return FALSE;
 
-	if (mode == 1)
+	/* mode 0 never accepts out of theme monsters */
+    if (mode == 1)
 	{
 			/* theme conflicts */
 		/* volcano monsters never in cold forest */
@@ -1158,14 +1215,17 @@ bool theme_okay(int r_idx, int mode, bool vault)
 		if ((p_ptr->theme == 14) && (r_ptr->flags3 & (RF3_HURT_DARK))) return FALSE;
 		/* no light fairies in the domain of the grepse */
 		if ((p_ptr->theme == 12) && (strchr("y", r_ptr->d_char))) return FALSE;
+		/* no trees or centaurs in earth cave or volcano */
+		if (((p_ptr->theme == 5) || (p_ptr->theme == 4)) && 
+           (strchr("EY", r_ptr->d_char))) return FALSE;
 
-		/* don't accept if out of theme and more than 2 levels out of depth */
+		/* don't accept if out of theme and more than 3 levels out of depth */
 		/* (unless we are chosing a monster for a vault) */
-		if ((!vault) && (r_ptr->level > p_ptr->depth + 2)) return FALSE;
+		if ((!vault) && (r_ptr->level > p_ptr->depth + 3)) return FALSE;
 
-		force = 14;
+		force = 15;
 		/* (some themes have different odds to accept non-theme monsters) */
-		if (p_ptr->theme == 10) force = 11; /* DWARF_MINE */
+		if (p_ptr->theme == 10) force = 13; /* DWARF_MINE */
 		/* if no conflicts, then doesn't always require correct theme flag */
 		if (rand_int(100) < force) return TRUE;
 	}
@@ -1173,6 +1233,176 @@ bool theme_okay(int r_idx, int mode, bool vault)
 	/* don't accept */
 	return FALSE;
 }
+
+
+/*
+ * Hack -- help pick an escort type
+ * These were moved here from further down in the file.
+ */
+static int place_monster_idx = 0;
+
+/*
+ * Hack -- help pick an escort type
+ */
+static bool place_monster_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[place_monster_idx];
+
+	monster_race *z_ptr = &r_info[r_idx];
+
+	/* Require similar "race" */
+	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
+
+	/* Skip more advanced monsters */
+	if (z_ptr->level > r_ptr->level) return (FALSE);
+
+	/* Skip unique monsters */
+	if (z_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Paranoia -- Skip identical monsters */
+	if (place_monster_idx == r_idx) return (FALSE);
+
+	/* NEVER_MOVE monsters don't make good escorts */
+	if ((z_ptr->flags1 & (RF1_NEVER_MOVE)) && (randint(100) < 85)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- the "type" of the current "summon specific"
+ */
+static int summon_specific_type = 0;
+
+/*
+ * Hack -- help decide if a monster race is "okay" to summon
+ */
+static bool summon_specific_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	bool okay = FALSE;
+
+
+	/* Hack -- no specific type specified */
+	if (!summon_specific_type) return (TRUE);
+
+
+	/* Check our requirements */
+	switch (summon_specific_type)
+	{
+		case SUMMON_ANIMAL:
+		{
+			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_SPIDER:
+		{
+			okay = ((r_ptr->d_char == 'S') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HOUND:
+		{
+			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HYDRA:
+		{
+			okay = ((r_ptr->d_char == 'M') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_ANGEL: /* (ape) */
+		{
+			okay = ((r_ptr->d_char == 'A') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_DEMON:
+		{
+			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_UNDEAD: 
+		{
+			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_DRAGON:
+		{
+			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_SILVER:
+		{
+			okay = ((r_ptr->flags3 & (RF3_SILVER)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_KIN:
+		{
+			okay = ((r_ptr->d_char == summon_kin_type) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HI_UNDEAD:
+		{
+			okay = ((r_ptr->d_char == 'L') ||
+			        (r_ptr->d_char == 'V') ||
+			        (r_ptr->d_char == 'W'));
+			break;
+		}
+
+		case SUMMON_HI_DRAGON:
+		{
+			okay = (r_ptr->d_char == 'D');
+			break;
+		}
+
+		case SUMMON_HI_DEMON:
+		{
+			okay = ((r_ptr->d_char == 'U') ||
+			        (r_ptr->d_char == '&'));
+			break;
+		}
+
+		/* require correct color becuase there are now other unique 'W's */
+		case SUMMON_WRAITH:
+		{
+			okay = ((r_ptr->d_char == 'W') &&
+					(r_ptr->d_attr == TERM_RED) &&
+			        (r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_UNIQUE:
+		{
+			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
+			break;
+		}
+	}
+
+	/* Result */
+	return (okay);
+}
+
 
 /*
  * Choose a monster race that seems "appropriate" to the given level
@@ -1201,9 +1431,11 @@ s16b get_mon_num(int level, bool vault)
 	int i, j, p, ood;
 	int r_idx;
 	long value, total;
+	bool boosted = FALSE;
+	bool summoned;
+	int levelb = level; /* level before boost */
 
 	monster_race *r_ptr;
-
 	alloc_entry *table = alloc_race_table;
 
 
@@ -1218,6 +1450,8 @@ s16b get_mon_num(int level, bool vault)
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
+			
+			boosted = TRUE;
 		}
 
 		/* Occasional "nasty" monster */
@@ -1226,11 +1460,27 @@ s16b get_mon_num(int level, bool vault)
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
 
+			/* occationally allow way out of depth monsters */
+            if (d > 5)
+			{
+			    d = 2 + randint(d-2);
+			    /* 1/NASTY_MON to withdrawl cap on d */
+			    if ((d > 5) && (rand_int(NASTY_MON) > 0)) d = 5;
+            }
+
 			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+			level += d;
+			
+			boosted = TRUE;
 		}
 	}
-
+	
+	/* (allow deeper monsters on themed levels) */
+	/* vault monsters are already boosted */
+    if ((!boosted) && (!vault) && (p_ptr->theme)) level += 4 + randint(4);
+    
+    /* don't boost off the scales */
+    if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
 	/* Reset total */
 	total = 0L;
@@ -1238,18 +1488,31 @@ s16b get_mon_num(int level, bool vault)
 	/* Process probabilities */
 	for (i = 0; i < alloc_race_size; i++)
 	{
-		/* Monsters are sorted by depth (allow deeper monsters with a themed level) */
-		if ((table[i].level > level + 8) && (p_ptr->theme)) break;
 		/* Monsters are sorted by depth */
-		if ((table[i].level > level) && (!p_ptr->theme)) break;
-
-		/* mark this entry as out of depth */
-		if (table[i].level > level) ood = table[i].level - (p_ptr->depth+2);
-		else if (table[i].level > p_ptr->depth+4) ood = table[i].level - (p_ptr->depth+2);
-		else ood = 0;
+		if (table[i].level > level) break;
 
 		/* Default */
 		table[i].prob3 = 0;
+		
+		/* I'm still getting way out of depth stuff on themed levels, so add this: */
+        /* don't allow out of depth non-theme appropriate monsters */
+        if ((table[i].level > p_ptr->depth+5) && (!vault) && (!theme_okay(r_idx, 0, vault)))
+        {
+            continue;
+        }
+		/* don't allow too out of depth except in a vault */
+        else if ((table[i].level > levelb+2) && (!vault) && (p_ptr->theme) && 
+                 (p_ptr->depth < 99))
+        {
+            if ((rand_int(11) < table[i].level - levelb) &&
+                (rand_int(500) > 80 - p_ptr->depth/2)) continue;
+        }
+        /* sometimes reject monsters which are too easy for the level */
+        /* not common unless the monster is way out of depth */
+        else if ((table[i].level < p_ptr->depth - 30) && 
+                (rand_int(100) < p_ptr->depth - table[i].level - 29)) continue;
+        /* very shallow monsters never in deep vaults */
+        else if ((table[i].level < p_ptr->depth/9) && (levelb >= 50) && (vault)) continue;
 
 
 		/* Get the "r_idx" of the chosen monster */
@@ -1263,7 +1526,7 @@ s16b get_mon_num(int level, bool vault)
 		if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault))) /* okay */;
 		else if ((level > 0) && (table[i].level <= 0)) continue;
 
-		/* HELPER monsters can occationally be randomly generated on themed levels */
+		/* HELPER monsters can be randomly generated on themed levels */
 		/* but don't allow HELPER monsters in vaults */
 		if ((vault) && (r_ptr->flags3 & (RF3_HELPER))) continue;
 
@@ -1283,31 +1546,27 @@ s16b get_mon_num(int level, bool vault)
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
+		/* check theme for escorts and summoned monsters */
+        if ((get_mon_num_hook == place_monster_okay) || 
+            (get_mon_num_hook == summon_specific_okay))
+            summoned = TRUE;
 		/* don't check themed level when there's a get_mon_num_hook */
 		/* (but don't summon theme-only monsters) */
-		if ((!get_mon_num_hook) || (r_ptr->flags7 & (RF7_THEME_ONLY)))
+		if ((!get_mon_num_hook) || ((r_ptr->flags7 & (RF7_THEME_ONLY)) && (summoned)))
 		{
 			/* always common when appropriate for current themed level */
 			/* prob is defined as 100/r_ptr->rarity in init2.c */
 			/* so common monsters have a prob of 100(1) or 50(2) */
 			if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault)))
 			{
-				if (table[i].prob3 < 75) table[i].prob3 = 90 - (r_ptr->rarity*5);
+				int minus = (r_ptr->rarity*5);
+                if (minus > 89) minus = 89;
+                if (table[i].prob3 < 75) table[i].prob3 = 90 - minus;
 				/* else prob3 is 100 */
 			}
 			/* don't allow if not appropriate */
 			/* can't just say 'continue' because prob3 has already been set */
 			else if (!theme_okay(r_idx, 1, vault)) table[i].prob3 = 0;
-		}
-
-		/* themed levels allow out of depth monsters much easier, */
-		/* but don't make them too common (especially on early levels) */
-		if ((ood) && (p_ptr->theme) && (table[i].prob3))
-		{
-			if (p_ptr->depth < 12) table[i].prob3 = table[i].prob3/3 - (ood+1)/2;
-			else table[i].prob3 = table[i].prob3/2 - (ood*2);
-
-			if (table[i].prob3 < 5) table[i].prob3 = 4;
 		}
 
 		/* Total */
@@ -1331,10 +1590,12 @@ s16b get_mon_num(int level, bool vault)
 		value = value - table[i].prob3;
 	}
 
+	/* on a themed level: if it's already out of depth or very close to equal depth, */
+    /* then don't try for a deeper monster */
+	if ((p_ptr->theme) && (table[i].level >= levelb - 2)) return (table[i].index);
 
 	/* Power boost (less likely if on a themed level) */
 	p = rand_int(100);
-	if (p_ptr->theme) p = rand_int(160);
 
 	/* Try for a "harder" monster once (50%) or twice (10%) */
 	if (p < 60)
@@ -1381,7 +1642,6 @@ s16b get_mon_num(int level, bool vault)
 		/* Keep the "best" one */
 		if (table[i].level < table[j].level) i = j;
 	}
-
 
 	/* Result */
 	return (table[i].index);
@@ -2242,9 +2502,13 @@ void update_mon(int m_idx, bool full)
 			/* Weird mind, occasional telepathy */
 			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 			{
-				/* One in ten individuals are detectable */
+				int dchance = 3 + (goodluck/2);
+				if (r_ptr->flags2 & (RF2_SMART)) dchance += 1;
+				if (r_ptr->flags2 & (RF2_STUPID)) dchance -= 1;
+				
+                /* One in ten individuals are detectable */
 				/* or any detectable rarely */
-				if (((m_idx % 10) == 5) || (rand_int(100) < 3 + (goodluck/2)))
+				if (((m_idx % 10) == 5) || (rand_int(100) < dchance))
 				{
 					/* Detectable */
 					flag = TRUE;
@@ -2293,7 +2557,6 @@ void update_mon(int m_idx, bool full)
 						easy = TRUE;
 					}
 				}
-
 				/* Handle "normal" monsters */
 				else
 				{
@@ -2367,7 +2630,7 @@ void update_mon(int m_idx, bool full)
 		/* distance factor */
         if ((r_ptr->stealth > 1) && (d < 15)) mstealth += d * 2;
         if ((d > 14) && (r_ptr->stealth > 2)) mstealth += (r_ptr->stealth*10);
-        else if ((d > 14) && (r_ptr->stealth == 2)) mstealth += 30;
+        else if ((d > 14) && (r_ptr->stealth == 2)) mstealth += 28;
         else if (d > 14) mstealth += 16;
         else if ((d > 3) && (r_ptr->stealth > 3)) mstealth += (d-3) * (r_ptr->stealth - 2);
         else if (d > 3) mstealth += (d-3);
@@ -2380,11 +2643,11 @@ void update_mon(int m_idx, bool full)
         /* darkvision makes it hard to hide in the shadows */
         /* this helps dwarves who have darkvision but horrible alertness */
         if ((!m_ptr->monseen) && (r_ptr->stealth > 2) && (!darkvs)) mstealth += 20;
-		else if ((!m_ptr->monseen) && (r_ptr->stealth > 2)) mstealth += 8;
+		else if ((!m_ptr->monseen) && (r_ptr->stealth > 2)) mstealth += 9;
 
         /* much easier to notice if you've noticed it before */
         if ((m_ptr->monseen > 3) && (d < 5) && (!m_ptr->monfear)) mstealth -= m_ptr->monseen * 15;
-        else if ((m_ptr->monseen > 0) && (d < 7) && (!m_ptr->monfear)) mstealth -= 60;
+        else if ((m_ptr->monseen > 0) && (d < 7) && (!m_ptr->monfear)) mstealth -= 45;
         else if (m_ptr->monseen > 2) mstealth -= m_ptr->monseen * 4;
         else if ((m_ptr->monseen > 0) || (m_ptr->heard)) mstealth -= 12;
         
@@ -2541,8 +2804,9 @@ void update_mon(int m_idx, bool full)
         /* you heard it, now you're watching for it */
         if (m_ptr->monseen < 1) m_ptr->monseen = 1;
 
-		/* can't target or examine the monster */
+		/* can't examine the monster */
     }
+    /* don't hear it anymore */
     else if ((full) && (m_ptr->heard))
 	{
 		m_ptr->heard = FALSE;
@@ -3166,7 +3430,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group)
 {
 	int i;
 	byte isroam;
-	bool roamflag;
+	bool roamflag, spawnroam = FALSE;
 	int evilchance;
 
 	monster_race *r_ptr;
@@ -3281,12 +3545,18 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group)
 	else if (r_ptr->flags3 & (RF3_NO_SLEEP)) isroam += 5;
 	/* townspeople shouldn't just stand there (shouldn't have ROAM2) */
 	if (r_ptr->level == 0) isroam += 55;
+    /* spawned smonsters shouldn't always automatically be aware of the player */
+    else if ((!slp) && (rand_int(100) < 33))
+    {
+        isroam += 20;
+        spawnroam = TRUE;
+    }
 	/* some types of monsters rarely roam */
 	if ((strchr("eglLsVwWXz$.", r_ptr->d_char)) && (!roamflag)) isroam = isroam/3;
 	/* some types of monsters never roam */
 	if ((!r_ptr->sleep) && (!roamflag)) isroam = 0;
 	if ((strchr(",dDEjmQvZ%?!=_~", r_ptr->d_char)) && (!roamflag)) isroam = 0;
-
+	
 	/* water monsters never roam when in water */
 	if (((r_ptr->flags7 & (RF7_WATER_ONLY)) || (r_ptr->flags7 & (RF7_WATER_HIDE))) &&
 		(cave_feat[y][x] == FEAT_WATER))
@@ -3294,12 +3564,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool group)
 		isroam = 0;
 	}
 
+
 	/* is it roaming? */
 	if (randint(100) < isroam)
     {
         n_ptr->roaming = 1;
         /* roams as part of a group */
         if (group) n_ptr->roaming = 11;
+        /* spawned smonsters shouldn't always automatically be aware of the player */
+        if (spawnroam) slp = TRUE;
     }
 	else n_ptr->roaming = 0;
 
@@ -3553,40 +3826,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 
 /*
- * Hack -- help pick an escort type
- */
-static int place_monster_idx = 0;
-
-/*
- * Hack -- help pick an escort type
- */
-static bool place_monster_okay(int r_idx)
-{
-	monster_race *r_ptr = &r_info[place_monster_idx];
-
-	monster_race *z_ptr = &r_info[r_idx];
-
-	/* Require similar "race" */
-	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
-
-	/* Skip more advanced monsters */
-	if (z_ptr->level > r_ptr->level) return (FALSE);
-
-	/* Skip unique monsters */
-	if (z_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-
-	/* Paranoia -- Skip identical monsters */
-	if (place_monster_idx == r_idx) return (FALSE);
-
-	/* NEVER_MOVE monsters don't make good escorts */
-	if ((z_ptr->flags1 & (RF1_NEVER_MOVE)) && (randint(100) < 85)) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
  * Attempt to place a monster of the given race at the given location
  *
  * Note that certain monsters are now marked as requiring "friends".
@@ -3708,7 +3947,7 @@ bool place_monster(int y, int x, bool slp, bool grp, bool vault)
 		/* occationally force an especially appropriate themed monster */
 		/* this will rarely cause an unusually out-of-depth monster */
 		/* or very low level monster in a deep depth */
-		if ((p_ptr->theme) && (rand_int(100) < 5))
+		if ((p_ptr->theme) && (rand_int(100) < 6))
 		{
 			r_idx = get_mon_force_theme(monster_level);
 		}
@@ -3727,8 +3966,11 @@ bool place_monster(int y, int x, bool slp, bool grp, bool vault)
 		if ((r_ptr->flags7 & (RF7_WATER_ONLY)) &&
 			(!(cave_feat[y][x] == FEAT_WATER)))
 		{
-			/* try again */
-			continue;
+			/* (this would be naiads in an FFOREST or water moccasins in a SWAMP only) */
+            if ((p_ptr->theme) && (theme_okay(r_idx, 0, vault)) && (randint(100) < 34))
+               place_puddle(y, x, vault);
+            /* try again */
+			else continue;
 		}
 
 		/* otherwise accept */
@@ -3828,6 +4070,10 @@ bool alloc_monster(int dis, bool slp)
 
 		/* Require "naked" floor grid */
 		if (!cave_can_occupy_bold(y, x)) continue;
+		
+		/* don't place monsters in shop doorways (need this when we have trees as monsters) */
+        if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) && (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+           continue;
 
 		/* Accept far away grids */
 		if (distance(y, x, py, px) > dis) break;
@@ -3850,142 +4096,6 @@ bool alloc_monster(int dis, bool slp)
 	return (FALSE);
 }
 
-
-
-
-/*
- * Hack -- the "type" of the current "summon specific"
- */
-static int summon_specific_type = 0;
-
-
-/*
- * Hack -- help decide if a monster race is "okay" to summon
- */
-static bool summon_specific_okay(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	bool okay = FALSE;
-
-
-	/* Hack -- no specific type specified */
-	if (!summon_specific_type) return (TRUE);
-
-
-	/* Check our requirements */
-	switch (summon_specific_type)
-	{
-		case SUMMON_ANIMAL:
-		{
-			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_SPIDER:
-		{
-			okay = ((r_ptr->d_char == 'S') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HOUND:
-		{
-			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HYDRA:
-		{
-			okay = ((r_ptr->d_char == 'M') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_ANGEL: /* (ape) */
-		{
-			okay = ((r_ptr->d_char == 'A') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_DEMON:
-		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_UNDEAD: 
-		{
-			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_DRAGON:
-		{
-			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_SILVER:
-		{
-			okay = ((r_ptr->flags3 & (RF3_SILVER)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_KIN:
-		{
-			okay = ((r_ptr->d_char == summon_kin_type) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HI_UNDEAD:
-		{
-			okay = ((r_ptr->d_char == 'L') ||
-			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
-			break;
-		}
-
-		case SUMMON_HI_DRAGON:
-		{
-			okay = (r_ptr->d_char == 'D');
-			break;
-		}
-
-		case SUMMON_HI_DEMON:
-		{
-			okay = ((r_ptr->d_char == 'U') ||
-			        (r_ptr->d_char == '&'));
-			break;
-		}
-
-		/* require correct color becuase there are now other unique 'W's */
-		case SUMMON_WRAITH:
-		{
-			okay = ((r_ptr->d_char == 'W') &&
-					(r_ptr->d_attr == TERM_RED) &&
-			        (r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_UNIQUE:
-		{
-			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
-			break;
-		}
-	}
-
-	/* Result */
-	return (okay);
-}
 
 
 /*
@@ -4340,7 +4450,8 @@ void update_smart_learn(int m_idx, int what)
 
 		case DRS_MANA:
 		{
-			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
+			if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) || (!p_ptr->msp))
+			   m_ptr->smart |= (SM_IMM_MANA);
 			break;
 		}
 

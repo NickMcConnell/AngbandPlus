@@ -729,6 +729,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	bool aware, known, flavor;
 	bool append_name;
 	bool show_weapon, show_armour;
+	bool knowego = FALSE;
 	bool haspval = FALSE;
 	bool hidepotion = FALSE;
 
@@ -878,6 +879,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
+			/* recognise egos on all aware jewelry without ID */
+			if (aware) knowego = TRUE;
 
 			/* Color the object */
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
@@ -892,6 +895,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
+			/* recognise egos on all aware jewelry without ID */
+			if (aware) knowego = TRUE;
 
 			/* Color the object */
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
@@ -1264,7 +1269,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	/* knowego: recognise egos on all aware jewelry without ID */
+	if ((known) || (knowego))
 	{
 		/* Grab any artifact name */
 		if (o_ptr->name1)
@@ -1287,7 +1293,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if ((o_ptr->tval == TV_HARD_ARMOR) && (!(o_ptr->name2 == EGO_LIGHTNESS)) &&
 				(o_ptr->weight < k_ptr->weight))
 			{
-				object_desc_str_macro(t, " of lightness");
+				object_desc_str_macro(t, " of Lightness");
 			}
 
 			/* Hack - Now we know about the ego-item type */
@@ -2222,9 +2228,6 @@ bool item_tester_okay(const object_type *o_ptr)
 
 	/* Require an item */
 	if (!o_ptr->k_idx) return (FALSE);
-
-	/* squelched or hidden items should be as good as non-existant */
-	if (squelch_hide_item(o_ptr)) return (FALSE);
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
@@ -3232,6 +3235,10 @@ static bool get_item_okay(int item)
 	else
 	{
 		o_ptr = &o_list[0 - item];
+		
+	    /* squelched or hidden items should be as good as non-existant */
+	    /* this was in item_tester_okay, but shouldn't apply to items in inventory */
+	    if (squelch_hide_item(o_ptr)) return (FALSE);
 	}
 
 	/* Verify the item */
@@ -4263,8 +4270,10 @@ void display_itemlist(void)
 				unsigned j;
 
 				/* Skip gold/squelched */
-				if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
-					continue;
+				if (o_ptr->tval == TV_GOLD)	continue;
+					
+				/* skep squelched only if hide_squelchable is on */
+                if ((squelch_item_ok(o_ptr)) && (hide_squelchable)) continue;
 
 				/* See if we've already seen a similar item; if so, just add */
 				/* to its count */

@@ -1,6 +1,9 @@
 /* File: defines.h */
 #define EFG
 
+/* character history copied from NPP (breaks savefiles) */
+/* #define yes_c_history */
+
 /* do not define, alternate version is not ready: */
 /* #define ALTDJA */
 
@@ -43,7 +46,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "version 1.1.1"
+#define VERSION_STRING "v1.1.2"
 #endif
 
 
@@ -227,6 +230,21 @@
  */
 #define AUTOINSCRIPTIONS_MAX 216
 
+
+#if historyblah
+/* History message types */
+#define HISTORY_PLAYER_BIRTH     0x0001	/* Player was born */
+#define HISTORY_ARTIFACT_UNKNOWN 0x0002	/* Player found but not IDd an artifact */
+#define HISTORY_ARTIFACT_KNOWN   0x0004	/* Player has IDed an artifact */
+#define HISTORY_ARTIFACT_LOST    0x0008	/* Player had an artifact and lost it */
+#define HISTORY_PLAYER_DEATH     0x0010	/* Player has been slain */
+#define HISTORY_SLAY_UNIQUE      0x0020	/* Player has slain a unique monster */
+#define HISTORY_USER_INPUT       0x0040	/* User-added note */
+#define HISTORY_SAVEFILE_IMPORT  0x0080	/* Added when an older version savefile is imported */
+#define HISTORY_GAIN_LEVEL       0x0100	/* Player gained a level */
+#define HISTORY_GENERIC          0x0200	/* Anything else not covered here (unused) */
+#endif
+
 /*
  * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
@@ -285,6 +303,13 @@
  */
 #define NASTY_MON	50		/* 1/chance of inflated monster level */
 
+
+#ifdef yes_c_history
+/*
+ * Special note used to mark the end of the notes section in the savefile
+ */
+#define NOTES_MARK "@@@@@@@ No more notes @@@@@@@"
+#endif
 
 
 /*
@@ -511,7 +536,7 @@ enum
     TMD_DARKVIS, TMD_SUPER_ROGUE, TMD_ZAPPING, TMD_2ND_THOUGHT,
     TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
 	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT, TMD_OPP_SILV,
-	TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST,
+	TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST, TMD_SNIPER,
 
 	TMD_MAX
 };
@@ -1153,6 +1178,7 @@ enum
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
+#define SV_LEAFY_CROWN          14  /* has NICE flag */
 #define SV_MORGOTH				50
 
 /* The "sval" codes for TV_BOOTS */
@@ -2085,7 +2111,7 @@ enum
 #define TR2_SUST_DEX        0x00000008L /* Sustain DEX */
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
-#define TR2_MAGIC_MASTERY   0x00000040L /* Magic Mastery (mostly done) */
+#define TR2_MAGIC_MASTERY   0x00000040L /* Magic Mastery */
 #define TR2_COAT_ACID       0x00000080L /* Weapon coated with acid (weaker than brand) */
 #define TR2_SLAY_SILVER     0x00000100L /* was XXX3 */
 #define TR2_SLAY_BUG        0x00000200L /* was XXX4 NOWD */

@@ -103,7 +103,7 @@ void teleport_away(int m_idx, int dis, int mode)
 		p_ptr->held_m_idx = 0;
 		clear_timed(TMD_BEAR_HOLD);
 	}
-	/* monster takes the player with it */
+	/* monster takes the player with it (only when mode == 0) */
 	else if ((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))
 	{
 		warppull = TRUE;
@@ -421,10 +421,17 @@ void teleport_player_level(void)
  */
 void deep_descent(void)
 {
-	   message(MSG_TPLEVEL, 0, "You sink through the floor.");
+	   if ((p_ptr->depth >= MAX_DEPTH-2) || (is_quest(p_ptr->depth)))
+	   {
+		   msg_print("Nothing happens.");
+		   return;
+       }
+       
+       message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 	   /* New depth */
-	   p_ptr->depth = p_ptr->max_depth + randint(2);
+	   if ((adult_ironman) || (p_ptr->depth > 96)) p_ptr->depth = p_ptr->max_depth + 1;
+	   else p_ptr->depth = p_ptr->max_depth + randint(2);
 
 	   /* Leaving */
 	   p_ptr->leaving = TRUE;
@@ -442,13 +449,10 @@ bool control_tport(int resistcrtl, int enforcedist)
  
 	 /* paranoia */
      if (!p_ptr->telecontrol) return FALSE;
-     
-     /* timed modifiers */
+
+     /* negative timed modifiers */
      if (p_ptr->timed[TMD_CURSE]) resistcrtl += 25;
      if ((p_ptr->timed[TMD_FRENZY]) || (p_ptr->timed[TMD_CONFUSED])) resistcrtl += 100;
-     if ((resistcrtl >= 25) && ((p_ptr->timed[TMD_BRAIL]) || (p_ptr->timed[TMD_SKILLFUL]))) 
-        resistcrtl -= 25;
-     if ((resistcrtl >= 10) && (p_ptr->timed[TMD_BLESSED])) resistcrtl -= 10;
 
      /* save old location */
      opy = p_ptr->py;
@@ -460,12 +464,20 @@ bool control_tport(int resistcrtl, int enforcedist)
      /* cap magic device factor */
      /* learning telecontrol must be risky or else it'd be overpowered */
      if (controlchance > 50) controlchance = 50;
+     
+     /* positive timed modifiers */
+     if ((p_ptr->timed[TMD_BRAIL]) || (p_ptr->timed[TMD_SKILLFUL])) controlchance += 20;
+     if (p_ptr->timed[TMD_BLESSED]) controlchance += 10;
 
      /* luck factor */
-     controlchance += (goodluck/2) - (badluck / 2);
+     controlchance += (goodluck+1)/2 - (badluck+1)/2;
 
      /* learned skill from experience with teleport control */
      if (p_ptr->learnedcontrol) controlchance += p_ptr->learnedcontrol;
+     
+     /* minimum chance */
+     if ((controlchance < 18 + p_ptr->learnedcontrol) && (controlchance < 30))
+        controlchance = 18 + p_ptr->learnedcontrol;
 
      /* attempt to gain control */
      if (randint(150 + resistcrtl) > controlchance) return FALSE;
@@ -475,7 +487,9 @@ bool control_tport(int resistcrtl, int enforcedist)
      spellswitch = 13;
             
      /* prompt and get destination */
-     msg_print(format("Where do you want to teleport to? (Max distance %d)", enforcedist));
+     msg_print(format("Where do you want to teleport to? (Max distance %d) -more-", enforcedist));
+     if (inkey() == ESCAPE) /* do nothing (just a -more-) */;
+
      if (get_aim_dir(&dir))
      {
          /* enforce blinking distance */
@@ -495,14 +509,23 @@ bool control_tport(int resistcrtl, int enforcedist)
      /* teleport control worked */
      if ((p_ptr->py == p_ptr->target_row) && (p_ptr->px == p_ptr->target_col))
      {
+         bool learn = FALSE;
          /* gain skill (usually) (prevent scumming for skill on L0-2) */
-         if (rand_int(100) < 85 + goodluck - badluck)
+         if ((rand_int(100) < 85 + goodluck - badluck) && (p_ptr->depth > 2))
          {
-            if ((p_ptr->learnedcontrol < 50) && (p_ptr->depth > 2)) 
-               p_ptr->learnedcontrol += 1;
+            if (p_ptr->learnedcontrol < 50) learn = TRUE;
+            else if ((p_ptr->learnedcontrol < 75) &&
+                    (rand_int(100) < 25 - (p_ptr->learnedcontrol/4))) learn = TRUE;
+         }
+         /* first bit of skill is easy to get */
+         else if (p_ptr->learnedcontrol < 2) learn = TRUE;
 
-			/* message for testing purposes only */
-			msg_print("You feel slightly more in control.");
+         if (learn)
+         {
+             p_ptr->learnedcontrol += 1;
+
+ 		     /* message for testing purposes only */
+	         msg_print("You feel slightly more in control.");
          }
 
 		 /* Handle objects (later) */
@@ -712,6 +735,37 @@ void take_hit(int dam, cptr kb_str)
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
+
+#ifdef yes_c_history
+        if (1) /* always true, just wanted to keep the declarations within this #ifdef */
+        {
+		   /* Write a note */
+			time_t ct = time((time_t*)0);
+			char long_day[25];
+			char buf[120];
+
+ 		  	/* Get time */
+ 		  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+
+ 		  	/* Add note */
+
+		  	fprintf(notes_file, "============================================================\n");
+
+			/*killed by */
+ 		  	sprintf(buf, "Killed by %s.", p_ptr->died_from);
+
+			/* Write message */
+            do_cmd_note(buf,  p_ptr->depth);
+
+			/* date and time*/
+			sprintf(buf, "Killed on %s.", long_day);
+
+			/* Write message */
+            do_cmd_note(buf,  p_ptr->depth);
+
+			fprintf(notes_file, "============================================================\n");
+        }
+#endif
 
 		/* Dead */
 		return;
@@ -990,8 +1044,10 @@ static int inven_damage(inven_func typ, int perc)
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
 		{
-			/* Scale the destruction chance up */
+            /* Scale the destruction chance up */
 			int chance = perc * 100;
+			/* stuff has been damaged, so less likely to damage more */
+			if (k) chance -= (k+1);
 
 			damage = FALSE;
 
@@ -1895,11 +1951,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* (rarely) creates pits or melts rubble */
 		case GF_ACID:
 		{
-			int meltchance = 1000;
+			int meltchance = 2000;
 			/* may damage the dungeon floor */
-			if (cave_feat[y][x] == FEAT_FLOOR) meltchance = 150;
+			if (cave_feat[y][x] == FEAT_FLOOR) meltchance = 205;
 			/* may destroy rubble */
-			if (cave_feat[y][x] == FEAT_RUBBLE) meltchance = 125;
+			if (cave_feat[y][x] == FEAT_RUBBLE) meltchance = 150;
 			if (randint(dam) > meltchance)
 			{
 				if (cave_feat[y][x] == FEAT_FLOOR)
@@ -2929,7 +2985,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				if (seen) l_ptr->flags3 |= (RF3_IM_FIRE);
 			}
 			else if ((r_ptr->flags3 & (RF3_HURT_FIRE)) && 
-				(randint(100) < 30 + (goodluck+1)/2))
+				(randint(100) < 50 + (goodluck+1)/2))
 			{
 				note = " is badly burned.";
 				dam += dam/4;
@@ -2949,7 +3005,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 				if (seen) l_ptr->flags3 |= (RF3_IM_COLD);
 			}
 			else if ((r_ptr->flags3 & (RF3_HURT_COLD)) && 
-				(randint(100) < 30 + (goodluck+1)/2))
+				(randint(100) < 50 + (goodluck+1)/2))
 			{
 				note = " is frostbitten.";
 				dam += dam/4;
@@ -6305,6 +6361,9 @@ bool get_nearby(int dy, int dx, int *toy, int *tox, int mode)
 		{
 			/* allow monsters & objects to be in a puddle */
 			if (!cave_floor_bold(y, x)) okay = FALSE;
+			/* don't flood the stairs (but can flood traps) */
+			if ((cave_feat[y][x] == FEAT_LESS) || (cave_feat[y][x] == FEAT_MORE))
+			    okay = FALSE;
 		}
 		if (okay) /* (still) */
 		{
@@ -6347,6 +6406,9 @@ bool get_nearby(int dy, int dx, int *toy, int *tox, int mode)
 			{
 				/* allow monsters & objects to be in a puddle */
 				if (!cave_floor_bold(y, x)) continue;
+    			/* don't flood the stairs (but can flood traps) */
+	   		    if (((cave_feat[y][x] == FEAT_LESS) || (cave_feat[y][x] == FEAT_MORE)) &&
+	   		        (mode == 2)) continue;
 			}
 			/* Require empty floor space */
 			else

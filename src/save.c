@@ -531,7 +531,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
-	wr_s16b(p_ptr->see_infra); /* unused */
+	wr_s16b(p_ptr->see_infra);
 	wr_byte(p_ptr->confusing);
 	wr_byte(p_ptr->searching);
 
@@ -648,6 +648,55 @@ static void wr_randarts(void)
 		wr_u16b(a_ptr->randtime);
 	}
 }
+
+
+#ifdef yes_c_history
+/*
+ * Write the notes into the savefile. Every savefile has at least NOTES_MARK.
+ */
+static void wr_notes(void)
+{
+	char end_note[80];
+
+	/* Paranoia */
+	/* if (adult_take_notes && notes_file) */
+	if (notes_file)
+	{
+    	char tmpstr[100];
+
+    	my_fclose(notes_file);
+
+      	/* Re-open for readding */
+    	notes_file = my_fopen(notes_fname, "r");
+
+    	while (TRUE)
+    	{
+			/* Read the note from the tempfile */
+			if (my_fgets(notes_file, tmpstr, sizeof(tmpstr)))
+			{
+				/* Found the end */
+				break;
+			}
+
+			/* Paranoia */
+			if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
+
+      		/* Write it into the savefile */
+      		wr_string(tmpstr);
+    	}
+
+    	my_fclose(notes_file);
+
+    	/* Re-open for appending */
+    	notes_file = my_fopen(notes_fname, "a");
+  	}
+
+	my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
+
+  	/* Always write NOTES_MARK */
+  	wr_string(end_note);
+}
+#endif
 
 
 /*
@@ -960,6 +1009,11 @@ static bool wr_savefile_new(void)
 	}
 
 
+#ifdef yes_c_history
+	/*Copy the notes file into the savefile*/
+	wr_notes();
+#endif
+
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -985,8 +1039,7 @@ static bool wr_savefile_new(void)
 
 	/* Dump the stores */
 	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
-
+	
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)
 	{

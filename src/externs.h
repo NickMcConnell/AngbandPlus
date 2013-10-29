@@ -258,6 +258,16 @@ extern autoinscription *inscriptions;
 extern u16b inscriptions_count;
 extern quiver_group_type quiver_group[MAX_QUIVER_GROUPS];
 
+#ifdef yes_c_history
+extern char notes_fname[1024];
+extern FILE *notes_file;
+extern FILE *create_notes_file(char name[], size_t max);
+extern void delete_notes_file(void);
+#endif
+#if doweneedthis
+extern void fill_template(char buf[], int max_buf);
+#endif
+
 /* DJA */
 extern int range;
 extern int spellswitch; /* for hacking, see comment at bottom of variable.c */
@@ -374,7 +384,7 @@ extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
 extern void process_player_name(bool sf);
 extern bool get_name(bool sf);
-extern void do_cmd_suicide(void);
+extern void do_cmd_quitendgame(void);
 extern void do_cmd_save_game(void);
 extern long total_points(void);
 extern void show_scores(void);
@@ -394,12 +404,16 @@ extern void cleanup_angband(void);
 /* load.c */
 extern bool load_player(bool *character_loaded, bool *reusing_savefile);
 
+/* generate.c */
+extern void place_puddle(int y, int x, bool vault);
+
 /* melee1.c */
 extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(byte minimum_energy);
+extern bool clean_shot(int y1, int x1, int y2, int x2, bool okwall);
 
 /* monster1.c */
 extern void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr);

@@ -1821,6 +1821,10 @@ void cleanup_angband(void)
 {
 	int i;
 
+#ifdef yes_c_history
+    /* character history stuff */
+    delete_notes_file();
+#endif
 
 	/* Free the macros */
 	macro_free();

@@ -1162,7 +1162,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->food);
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->word_recall);
-	rd_s16b(&p_ptr->see_infra); /* no longer used */
+	rd_s16b(&p_ptr->see_infra);
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&p_ptr->searching);
 	
@@ -1487,6 +1487,62 @@ static errr rd_inventory(void)
 	return (0);
 }
 
+
+#ifdef yes_c_history
+/*
+ * Read the notes. Every new savefile has at least NOTES_MARK.
+ */
+static bool rd_notes(void)
+{
+	int alive = (!p_ptr->is_dead || arg_wizard);
+	char tmpstr[100];
+
+	/* if (alive && adult_take_notes) */
+	if (alive)
+	{
+		/* Create the tempfile (notes_file & notes_fname are global) */
+		notes_file = create_notes_file(notes_fname, sizeof(notes_fname));
+
+		if (!notes_file)
+		{
+			note("Can't create a temporary file for notes");
+			return (-1);
+		}
+
+		/* Append the notes in the savefile to the tempfile*/
+		while (TRUE)
+		{
+
+			rd_string(tmpstr, sizeof(tmpstr));
+			/* Found the end? */
+			if (strstr(tmpstr, NOTES_MARK))
+			break;
+			fprintf(notes_file, "%s\n", tmpstr);
+		}
+
+		/* Paranoia. Remove the notes from memory */
+		fflush(notes_file);
+
+	}
+	/* Ignore the notes */
+	else
+	{
+		while (TRUE)
+		{
+
+			rd_string(tmpstr, sizeof(tmpstr));
+
+			/* Found the end? */
+			if (strstr(tmpstr, NOTES_MARK))
+			{
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
+#endif
 
 
 /*
@@ -2001,6 +2057,12 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
+#ifdef yes_c_history
+	if (rd_notes()) return (-1);
+	if (arg_fiddle) note("Loaded Notes");
+#endif
+
+
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
@@ -2042,7 +2104,6 @@ static errr rd_savefile_new_aux(void)
 		/* Read the ghost info */
 		rd_ghost();
 	}
-
 
 	/* Save the checksum */
 	n_v_check = v_check;
@@ -2114,17 +2175,17 @@ static errr rd_savefile(void)
 
 
 /*
- * Attempt to Load a "savefile"
+ * Attempt to Load a savefile
  *
- * On multi-user systems, you may only "read" a savefile if you will be
- * allowed to "write" it later, this prevents painful situations in which
+ * On multi-user systems, you may only read a savefile if you will be
+ * allowed to write it later, this prevents painful situations in which
  * the player loads a savefile belonging to someone else, and then is not
  * allowed to save his game when he quits.
  *
  * We return "TRUE" if the savefile was usable, and we set the
  * flag "character_loaded" if a real, living, character was loaded.
  *
- * Note that we always try to load the "current" savefile, even if
+ * Note that we always try to load the current savefile, even if
  * there is no such file, so we must check for "empty" savefile names.
  */
 bool load_player(bool *character_loaded, bool *reusing_savefile)
@@ -2315,3 +2376,4 @@ bool load_player(bool *character_loaded, bool *reusing_savefile)
 	/* Oops */
 	return (FALSE);
 }
+

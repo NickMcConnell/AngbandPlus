@@ -665,7 +665,8 @@ static void choose_item(int a_idx)
 		else if (r2 < 55) sval = SV_STEEL_HELM;
 
 		else if (r2 < 65) sval = SV_IRON_CROWN;
-		else if (r2 < 90) sval = SV_GOLDEN_CROWN;
+		else if (r2 < 68) sval = SV_LEAFY_CROWN;
+		else if (r2 < 91) sval = SV_GOLDEN_CROWN;
 		else sval = SV_JEWELED_CROWN;
 	}
 	else if (r < 94)
@@ -1204,8 +1205,11 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 46) a_ptr->flags2 |= TR2_RES_ELEC;
 				else if (r < 58) a_ptr->flags2 |= TR2_RES_FIRE;
 				else if (r < 70) a_ptr->flags2 |= TR2_RES_COLD;
-				else if (r < 80)
-					a_ptr->weight = (a_ptr->weight * 9) / 10;
+				else if (r < 79)
+					if ((ftval == TV_HARD_ARMOR) || (randint(100) < 10))
+					{
+                        a_ptr->weight = (a_ptr->weight * 9) / 10;
+                    }
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
@@ -1329,7 +1333,7 @@ static void add_ability(artifact_type *a_ptr)
 			}
 			case 18:
 			{
-				if (rand_int(4) == 0) a_ptr->flags2 |= TR2_IM_FIRE;
+				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_FIRE;
 				break;
 			}
 			case 19:
@@ -1376,8 +1380,26 @@ static void add_ability(artifact_type *a_ptr)
 			case 39:
 				if (teleordarkv == 0)
 				{
-					a_ptr->flags3 |= TR3_THROWMULT;
-					do_pval(a_ptr);
+                    if (ftval == TV_BOW)
+					{
+      					/* bows don't often get slays, so give them a chance to */
+                        if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
+						if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
+						if (rand_int(6) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
+						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
+						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+						if (rand_int(5) == 0) a_ptr->flags1 |= TR1_SLAY_DRAGON;
+						if (rand_int(8) == 0) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_SILVER;
+						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_LITE;
+						if (rand_int(16) == 0) a_ptr->flags2 |= TR2_SLAY_BUG;
+                    }
+                    else
+                    {
+					   /* (bows shouldn't increase throwing power) */
+                       a_ptr->flags3 |= TR3_THROWMULT;
+					   do_pval(a_ptr);
+                    }
 				}
 				else a_ptr->flags3 |= TR3_SEE_INVIS;
 				break;
@@ -1391,6 +1413,7 @@ static void add_ability(artifact_type *a_ptr)
 				    a_ptr->flags1 |= TR1_EQLUCK;
 				    do_pval(a_ptr);
                 }
+                else a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;

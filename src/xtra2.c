@@ -109,6 +109,7 @@ static timed_effect effects[] =
 	{ "You begin to give off a disgusting smell.", "You no longer smell any worse than usual..", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_STINKY */
 	{ "You make a symbol to ward off demons.", "The demon-warding symbol dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_DEMON_WARD */
 	{ "", "", 0, 0, 0, 0 },  /* TMD_TMPBOOST -- handled seperately */
+	{ "Your aim is especially good.", "The sniper's eye effect has worn off.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DARKVIS */
 };
 
 /*
@@ -504,13 +505,12 @@ static bool set_shortboost(int v)
 	/* Shut */
 	else
 	{
-		if ((p_ptr->timed[TMD_TMPBOOST]) && (p_ptr->see_infra))
+		if (p_ptr->timed[TMD_TMPBOOST])
 		{
 			if (dec_set_stat(wstat, 4))
 			{
 				msg_format("You're no longer any more %s than usual.", act);
 				notice = TRUE;
-				p_ptr->see_infra = 0;
 			}
 		}
 	}
@@ -1168,7 +1168,24 @@ void check_experience(void)
 		p_ptr->lev++;
 
 		/* Save the highest level */
-		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
+		if (p_ptr->lev > p_ptr->max_lev)
+        {
+            p_ptr->max_lev = p_ptr->lev;
+
+#ifdef yes_c_history
+			/* If auto-note taking enabled, write a note to the file every 5th level. */
+            if ((p_ptr->lev % 5) == 0)
+			{
+                char buf[120];
+
+                /* Build the message */
+                sprintf(buf, "Reached level %d", p_ptr->lev);
+
+                /* Write message */
+                do_cmd_note(buf,  p_ptr->depth);
+           	}
+#endif
+        }
 
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
@@ -1563,6 +1580,7 @@ void monster_death(int m_idx)
 	/* Nothing left, game over... */
 	if (total == 0)
 	{
+	    const char *player_name;
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
 
@@ -1573,6 +1591,22 @@ void monster_death(int m_idx)
 		msg_print("*** CONGRATULATIONS ***");
 		msg_print("You have won the game!");
 		msg_print("You may retire when you are ready.");
+
+#ifdef yes_c_history
+ 		/* Write a note */
+  		if (1)
+ 		{
+	 		/* Variable for the date */
+ 			time_t ct = time((time_t*)0);
+ 			char long_day[25];
+			fprintf(notes_file, "============================================================\n");
+  		    (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+			fprintf(notes_file, "%s slew Morgoth on %s.\n", op_ptr->full_name, long_day);
+ 			fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
+ 		    fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
+			fprintf(notes_file, "============================================================\n");
+      	}
+#endif
 	}
 }
 
@@ -1625,10 +1659,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	s32b div, new_exp, new_exp_frac;
-	bool wakemon;
+	s32b div, new_exp, new_exp_frac, racexp;
+	bool wakemon, seen;
 	int estl;
+	char m_name[80];
 
+	seen = ((m_ptr->ml) || (r_ptr->flags1 & RF1_UNIQUE));
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1636,26 +1672,40 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
+	/* Extract monster name */
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[80];
-
 		/* Assume normal death sound */
 		int soundfx = MSG_KILL;
 
-		/* Play a special sound if the monster was unique */
+		/* Uniques */
 		if (r_ptr->flags1 & RF1_UNIQUE) 
 		{
+#ifdef yes_c_history
+		    char note2[120];
+
+			/* Write note */
+		    if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+		         (r_ptr->flags2 & (RF2_STUPID)))
+		    {
+       		    my_strcpy(note2, format("Destroyed %s", m_name), sizeof (note2));
+            }
+			else
+            {
+                my_strcpy(note2, format("Killed %s", m_name), sizeof (note2));
+            }
+ 		    do_cmd_note(note2, p_ptr->depth);
+#endif
+
 			/* Mega-Hack -- Morgoth -- see monster_death() */
 			if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 				soundfx = MSG_KILL_KING;
-			else
+			else /* Play a special sound if the monster was unique */
 				soundfx = MSG_KILL_UNIQUE;
 		}
-
-		/* Extract monster name */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -1685,9 +1735,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Player level */
 		div = p_ptr->lev;
+		/* racial xp award */
+		racexp = r_ptr->mexp;
+		
+		/* out of depth non-unique monsters have their to-hit lowered */
+		/* so lower their xp a little too */
+		if ((p_ptr->depth < r_ptr->level - 8) && (!(r_ptr->flags1 & (RF1_UNIQUE))))
+        {
+            racexp = (racexp * 24) / 25; /* (only slightly) */
+        }
 
 		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+		new_exp = ((long)racexp * r_ptr->level) / div;
 
 		/* Handle fractional experience */
 		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
@@ -2137,7 +2196,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
-	/* asleep or awake is irrevelent for ordinary trees */
+	/* status stuff is irrevelent for ordinary trees */
 	if (m_ptr->r_idx == 834) return;
 
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
@@ -2149,6 +2208,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
 	if (m_ptr->charmed) my_strcat(buf, ", charmed", max);
+	if (m_ptr->mspeed > r_ptr->speed + 5)  my_strcat(buf, ", hasted", max);
+	if (m_ptr->mspeed < r_ptr->speed - 5)  my_strcat(buf, ", slowed", max);
 }
 
 
@@ -2587,10 +2648,8 @@ static bool target_set_interactive_accept(int y, int x)
 	/* Player grids are always interesting */
 	if (cave_m_idx[y][x] < 0) return (TRUE);
 
-
 	/* Handle hallucination */
 	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
-
 
 	/* Visible monsters */
 	if (cave_m_idx[y][x] > 0)
@@ -2825,6 +2884,12 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				if (m_ptr->ml)
 				{
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+
+				    /* Hack -- track this monster race */
+				    monster_race_track(m_ptr->r_idx);
+
+				    /* Hack -- health bar for this monster */
+				    health_track(cave_m_idx[y][x]);
 				}
 				/* Get the type name (not the exact race for unseen monsters) */
 				else
@@ -2834,12 +2899,6 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Change the intro */
 					s1 = "You hear ";
 				}
-
-				/* Hack -- track this monster race */
-				monster_race_track(m_ptr->r_idx);
-
-				/* Hack -- health bar for this monster */
-				health_track(cave_m_idx[y][x]);
 
 				/* Hack -- handle stuff */
 				handle_stuff();
@@ -2998,19 +3057,23 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (floor_num > 1) while (1)
 			{
 				floored = TRUE;
+				
+				/* objects can now be in the same space as a trap */
+                if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
 
 				/* Describe the pile */
 				if (p_ptr->wizard)
 				{
 					strnfmt(out_val, sizeof(out_val),
-					        "%s%s%sa pile of %d objects [r,%s] (%d:%d)",
-					        s1, s2, s3, floor_num, info, y, x);
+					        "%s%sa pile of %d objects [r,%s] (%d:%d)%s",
+					        s1, s2, floor_num, info, y, x, s3);
 				}
 				else
 				{
 					strnfmt(out_val, sizeof(out_val),
-					        "%s%s%sa pile of %d objects [r,%s]",
-					        s1, s2, s3, floor_num, info);
+					        "%s%sa pile of %d objects [r,%s]%s",
+					        s1, s2, floor_num, info, s3);
 				}
 
 				prt(out_val, 0, 0);
@@ -3043,7 +3106,6 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Only one object to display */
 			else
 			{
-
 				char o_name[80];
 
 				/* Get the single object in the list */
@@ -3054,18 +3116,22 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 				/* Obtain an object description */
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+				
+				/* objects can now be in the same space as a trap */
+                if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		         (cave_feat[y][x] <= FEAT_TRAP_TAIL)) s3 = ", and a trap.";
 
 				/* Describe the object */
 				if (p_ptr->wizard)
 				{
 					strnfmt(out_val, sizeof(out_val),
-					        "%s%s%s%s [%s] (%d:%d)",
-					        s1, s2, s3, o_name, info, y, x);
+					        "%s%s%s [%s] (%d:%d)%s",
+					        s1, s2, o_name, info, y, x, s3);
 				}
 				else
 				{
 					strnfmt(out_val, sizeof(out_val),
-					        "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					        "%s%s%s [%s]%s", s1, s2, o_name, info, s3);
 				}
 
 				prt(out_val, 0, 0);
@@ -3115,6 +3181,14 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65) &&
 				(!(cave_info[y][x] & (CAVE_ICKY))))
 				name = "earthquake trap";
+				
+			/* differenciate locked or jammed doors from unlocked doors */
+            if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+			   (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+			{
+               if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08) name = "jammed door";
+               else if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) name = "locked door";
+            }
 
 			/* Pick a prefix */
 			if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";

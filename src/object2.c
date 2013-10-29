@@ -719,7 +719,7 @@ s16b get_obj_num(int level)
            {
               /* reject it most of the time */
 			  /* I decided it's probably better not to replace them */
-              if (randint(100) < 91) continue;
+              if (randint(100) < 92) continue;
 #if blaho
               /* always reject alchemy books */
 /* do not convert them to correct book because depths are very different */
@@ -2910,6 +2910,18 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		/* Cheat -- peek at the item */
 		if (cheat_peek) object_mention(o_ptr);
 
+#ifdef yes_c_history
+		/* Hack - mark the depth of artifact creation for the notes function
+		 * probably a bad idea to use this flag.  It is used when making ego-items,
+		 * which currently fails when an item is an artifact.  If this was changed
+		 * this would be the cause of some major bugs.
+		 */
+		if (p_ptr->depth)
+		{
+			o_ptr->xtra1 = p_ptr->depth;
+		}
+#endif
+
 		/* Done */
 		return;
 	}
@@ -3168,6 +3180,16 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				/* a lot of egos with random powers usually have no pval */
 				if ((!o_ptr->pval) && (o_ptr->tval != TV_STAFF)) o_ptr->pval = 1 + randint(2);
 			}
+			/* I found an ego with throwmult as a random power, but it had no pval */
+			/* so the above code doesn't do what I thought it would do. Let's try this: */
+			/* if ((!o_ptr->pval) && (o_ptr->xtra2 == TR3_THROWMULT)) o_ptr->pval = 1 + randint(2); */
+			/* ..that doesn't work either */
+			/* (get a compiler message saying comparison is always false due to limited range of data type) */
+			/* how about this: */
+	        /* update flags to get random power flag (hopefully..) */
+            object_flags(o_ptr, &f1, &f2, &f3, &f4);
+			if ((!o_ptr->pval) && (f3 & TR3_THROWMULT)) o_ptr->pval = 1 + randint(2);
+			
 			/* Magic Mastery (now uses pval so make sure it has one) */
 			if (e_ptr->flags2 & (TR2_MAGIC_MASTERY))
 			{
@@ -3350,7 +3372,12 @@ static bool kind_is_good(int k_idx)
 		case TV_DARK_BOOK:
 		/* case TV_MIND_BOOK: */
 		{
-			if ((k_ptr->sval >= SV_BOOK_MIN_GOOD) && (k_ptr->tval == cp_ptr->spell_book)) return (TRUE);
+			if (k_ptr->tval == cp_ptr->spell_book)
+			{
+				if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+				/* book 4 considered good in ironman games */
+				if ((adult_ironman) && (k_ptr->sval >= SV_BOOK_MIN_GOOD-1)) return (TRUE);
+            }
 			return (FALSE);
 		}
 
@@ -3614,7 +3641,7 @@ bool make_gold(object_type *j_ptr, int good)
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
 	if (j_ptr->pval > 12) j_ptr->pval -= badluck/2;
-// #ifdef EFG
+/* #ifdef EFG */
         if (adult_cansell)
         {
            return (TRUE);        
@@ -3630,11 +3657,20 @@ bool make_gold(object_type *j_ptr, int good)
 		gold_mult = GOLD_DROP_MULT;
 	/* DROP_GREAT gold */
 	if (good == 2) gold_mult += 1;
+	/* luck factor */
+	if ((badluck > 2) && (gold_mult > 2))
+    {
+        if (rand_int(100) < badluck) gold_mult -= 1;
+    }
+	else if ((goodluck < 8) && (gold_mult > 2))
+    {
+        if (rand_int(400 + (goodluck*5)) < 1 + badluck) gold_mult -= 1;
+    }
 	/* avoid overflow */
 	if ((j_ptr->pval + 1)* gold_mult >= 0)
 		j_ptr->pval = j_ptr->pval * gold_mult + randint(gold_mult);
 	/* ??? should have an else */
-// #endif
+/* #endif */
          }
 
 	/* Success */
@@ -5691,7 +5727,7 @@ bool is_throwing_weapon(const object_type *o_ptr)
  */
 int quiver_space_per_unit(const object_type *o_ptr)
 {
-	/* weight * 2 (throwing dagger- 3, throwing axe- 5, javelin- 8) */
+	/* weight * 2 (throwing dagger- 2, throwing axe- 4, javelin- 8) */
 	int mass = (((o_ptr->weight > 10) ? o_ptr->weight : 10) / 10) * 2;
 	
 	return (ammo_p(o_ptr) ? 1: mass);

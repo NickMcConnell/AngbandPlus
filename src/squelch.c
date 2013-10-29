@@ -46,8 +46,6 @@
  * still needs some design.  XXX
  */
 
-#ifdef EFG
-/* EFGchange allow squelching unaware objects */
 
 /* aware flag must be 1 to match legacy savefiles */
 #define SQUELCH_AWARE_FLAG	0x01
@@ -58,14 +56,12 @@ typedef struct
 	s16b idx;
 	bool aware;
 } squelch_choice;
-#endif
 
 /*
  * List of kinds of item, for pseudo-id squelch.
  */
 enum
 {
-#ifdef EFG
 	/* EFGchange differentiate squelch into subcategories */
 	TYPE_WEAPON_POINTY,
 	TYPE_WEAPON_BLUNT,
@@ -85,14 +81,6 @@ enum
 	TYPE_LITE,
 	/* jewelry should come last because dropdown menu is shortest */
 	TYPE_JEWELRY,
-#else
-	TYPE_WEAPON,
-	TYPE_SHOOTER,
-	TYPE_MISSILE,
-	TYPE_ARMOR,
-	TYPE_JEWELRY,
-	TYPE_DIGGER,
-#endif
 
 	TYPE_MAX
 };
@@ -102,7 +90,6 @@ enum
  */
 static const char *type_names[TYPE_MAX] =
 {
-#ifdef EFG
 /* ??? need redundant check for right TYPE order */
 	"Pointy Melee Weapons",
 	"Blunt Melee Weapons",
@@ -122,20 +109,11 @@ static const char *type_names[TYPE_MAX] =
 	/* EFGchange add lights to quality squelch menus */
 	"Lights",
 	"Jewelry",
-#else
-	"Melee weapons",
-	"Missile weapons",
-	"Ammunition",
-	"Armor",
-	"Jewelry",
-	"Diggers",
-#endif
 };
 
 /* Mapping of tval -> type */
 static int type_tvals[][2] =
 {
-#ifdef EFG
 	/* EFGchange differentiate squelch into subcategories */
 	{ TYPE_WEAPON_POINTY,	TV_SWORD },
 	{ TYPE_WEAPON_POINTY,	TV_POLEARM },
@@ -154,38 +132,14 @@ static int type_tvals[][2] =
 	{ TYPE_ARMOR_HEAD,	TV_CROWN },
 	{ TYPE_ARMOR_HANDS,	TV_GLOVES },
 	{ TYPE_ARMOR_FEET,	TV_BOOTS },
-#else
-	{ TYPE_WEAPON,	TV_SWORD },
-	{ TYPE_WEAPON,	TV_POLEARM },
-	{ TYPE_WEAPON,	TV_HAFTED },
-	{ TYPE_SHOOTER,	TV_BOW },
-	{ TYPE_MISSILE, TV_ARROW },
-	{ TYPE_MISSILE,	TV_BOLT },
-	{ TYPE_MISSILE,	TV_SHOT },
-	{ TYPE_ARMOR,	TV_SHIELD },
-	{ TYPE_ARMOR,	TV_HELM },
-	{ TYPE_ARMOR,	TV_GLOVES },
-	{ TYPE_ARMOR,	TV_BOOTS },
-	{ TYPE_ARMOR,	TV_DRAG_ARMOR },
-	{ TYPE_ARMOR,	TV_HARD_ARMOR },
-	{ TYPE_ARMOR,	TV_SOFT_ARMOR },
-	{ TYPE_ARMOR,	TV_CLOAK },
-	{ TYPE_ARMOR,	TV_CROWN },
-#endif
 	{ TYPE_JEWELRY,	TV_RING },
 	{ TYPE_JEWELRY,	TV_AMULET },
 	{ TYPE_DIGGER,	TV_DIGGING },
-#ifdef EFG
 	/* EFGchange add lights to quality squelch menus */
 	{ TYPE_LITE,	TV_LITE },
 };
 
 byte squelch_level[TYPE_MAX];
-#else
-};
-
-byte squelch_level[TYPE_MAX];
-#endif
 size_t squelch_size = TYPE_MAX;
 
 
@@ -194,7 +148,6 @@ size_t squelch_size = TYPE_MAX;
  */
 enum
 {
-#ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
 	SQUELCH_NONE,
 	SQUELCH_CURSED,
@@ -203,18 +156,10 @@ enum
 	SQUELCH_BORING,
 	SQUELCH_NONEGO,
 	SQUELCH_UNSPLENDID,
-#else
-	SQUELCH_NONE,
-	SQUELCH_CURSED,
-	SQUELCH_AVERAGE,
-	SQUELCH_GOOD_STRONG,
-	SQUELCH_GOOD_WEAK,
-	SQUELCH_ALL,
-#endif
 
 	SQUELCH_MAX
 };
-#ifdef EFG
+
 /* EFGchange add lights to quality squelch menus */
 enum
 {
@@ -226,7 +171,18 @@ enum
 
 	SQUELCH_LITE_MAX
 };
-#endif
+
+/* choose whether to squelch ego jewelry of a squelched sval 
+ */
+enum
+{
+	SQUELCH_JEWELRY_NONEGO,
+	SQUELCH_JEWELRY_CURSED,
+	SQUELCH_JEWELRY_CURSED_EGO,
+	SQUELCH_JEWELRY_ALL_OF_THIS_TYPE,
+
+	SQUELCH_JEWELRY_MAX
+};
 
 /*
  * The names for the various kinds of quality
@@ -236,13 +192,22 @@ static const char *quality_names[SQUELCH_MAX] =
 	"none",							/* SQUELCH_NONE */
 	"cursed",						/* SQUELCH_CURSED */
 	"average",						/* SQUELCH_AVERAGE */
-#ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
 	"good",					/* SQUELCH_GOOD_STRONG */
 	"average (keep worthless)",		/* SQUELCH_BORING */
 	"good    (keep worthless)",		/* SQUELCH_NONEGO */
 	"all but splendid",			/* SQUELCH_UNSPLENDID */
 };
+
+/* ..and jewelry */
+static const char *quality_jewelry[SQUELCH_JEWELRY_MAX] =
+{
+	"nonego of squelched type",	/* SQUELCH_JEWELRY_NONEGO */
+	"all cursed except egos",	/* SQUELCH_JEWELRY_CURSED */
+	"all cursed (including egos)", /* SQUELCH_JEWELRY_CURSED_EGO */
+	"all cursed and all of squelched types",	/* SQUELCH_JEWELRY_ALL_OF_THIS_TYPE */
+};
+
 
 /* EFGchange add lights to quality squelch menus */
 static const char *quality_lights[SQUELCH_LITE_MAX] =
@@ -253,12 +218,6 @@ static const char *quality_lights[SQUELCH_LITE_MAX] =
 	"all average lights",			/* SQUELCH_LITE_AVERAGE_ALL */
 	"all but artifacts",			/* SQUELCH_LITE_EXCELLENT */
 };
-#else
-        "good (strong pseudo-ID)",              /* SQUELCH_GOOD_STRONG */
-        "good (weak pseudo-ID)",                /* SQUELCH_GOOD_WEAK */
-        "everything except artifacts",  /* SQUELCH_ALL */
-};
-#endif
 
 
 /* Structure to describe tval/description pairings. */
@@ -287,13 +246,9 @@ static tval_desc sval_dependent[] =
 	{ TV_DARK_BOOK,	    "Books of Black Magic" },
 	/*{ TV_MIND_BOOK,	    "Books of Mind Powers" },*/
 	{ TV_SPIKE,			"Spikes" },
-#ifdef EFG
 	/* EFGchange squelch oil like spikes */
 	/* ??? we need some sort of misc option */
 	{ TV_FLASK,			"Oil" },
-#else
-	{ TV_LITE,			"Lights" },
-#endif
 };
 
 
@@ -485,7 +440,6 @@ bool squelch_item_ok(const object_type *o_ptr)
 	/* fake kind for the potion of multi-hued poison */
 	object_kind *fk_ptr;
 
-#ifdef EFG
 	/* EFGchange treat big 3 weapons as excellent when squelching */
 	switch(o_ptr->tval)
 	{
@@ -494,7 +448,7 @@ bool squelch_item_ok(const object_type *o_ptr)
         	case TV_SWORD:
         	case TV_POLEARM:
         	case TV_HAFTED:
-			if (o_ptr->dd * o_ptr->ds < 30)
+			if (o_ptr->dd * o_ptr->ds < 28)
 				break;
 			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_CURSED))
 				feel = INSCRIP_WORTHLESS;
@@ -504,7 +458,6 @@ bool squelch_item_ok(const object_type *o_ptr)
 				/* ??? should we allow uncursed? */
 				feel = INSCRIP_EXCELLENT;
 	}
-#endif
 
 
 	/* Don't squelch artifacts */
@@ -513,19 +466,17 @@ bool squelch_item_ok(const object_type *o_ptr)
 /* ??? Need to mark preserved artifacts not to be regenerated after pseudoed or tried on */
 #endif
 	if (artifact_p(o_ptr)) return FALSE;
-	
-	/* DJA: don't squelch ego rings or amulets */
-	/* (amulet of teleporation of teleport control is very different */
-	/*  from normal amulet of teleporation) */
-	/* (this makes it easy to know that it's an ego, but that's not so bad) */
-    if ((ego_item_p(o_ptr)) && ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
-	   return FALSE;
 
     /* DJA: don't squelch staffs which are obviously egos */
+    /* (unless blunt weapons are set to squelch all but splendid) */
+    /* (staff ego 'natural light' is considered splendid because of permanent light) */
     if (o_ptr->tval == TV_STAFF)
     {
-	   if ((ego_item_p(o_ptr)) && (sensed)) return FALSE;
 	   if (object_splendid_p(o_ptr)) return FALSE;
+	   else if (!(squelch_level[TYPE_WEAPON_BLUNT] == SQUELCH_UNSPLENDID))            
+       {
+          if ((ego_item_p(o_ptr)) && (sensed)) return FALSE;
+       }
     }
 
 	/* Don't squelch stuff inscribed not to be destroyed (!k) */
@@ -539,9 +490,9 @@ bool squelch_item_ok(const object_type *o_ptr)
 		return TRUE;
 
 	/* don't squelch if disguised (multihued poison disguises itself) */
-	/* (Rchaos prevents it from disguising itself) */
+	/* (Rchaos & true sight prevent it from disguising itself) */
 	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_MULTIHUED_POISON) &&
-		(!p_ptr->resist_chaos))
+		(!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 	{
 		fk_ptr = &k_info[o_ptr->pval];
 
@@ -557,35 +508,29 @@ bool squelch_item_ok(const object_type *o_ptr)
 		}
 	}
 
-	/* Do squelching by sval, if we 'know' the flavour. */
+	/* don't squelch jewelry yet (wait till quality squelch) */
+    if (!((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+	{
+    	/* Do squelching by sval, if we 'know' the flavour. */
 #ifdef EFG
 /* ???  awareness should cancel SQUELCH_UNAWARE, set SQUELCH_AWARE */
 /* ???  buying squelched item should be inscribed !d!k */
 /* ??? what is this k_ptr->flavor of 0 ? */
-	if (squelch_tval(k_info[o_ptr->k_idx].tval))
-	{
-		if ((k_ptr->squelch & SQUELCH_AWARE_FLAG) && (k_ptr->aware))
-			return TRUE;
-		if ((k_ptr->squelch & SQUELCH_UNAWARE_FLAG) && (!k_ptr->aware))
-			return TRUE;
-	}
+	    if (squelch_tval(k_info[o_ptr->k_idx].tval))
+    	{
+	    	if ((k_ptr->squelch & SQUELCH_AWARE_FLAG) && (k_ptr->aware))
+    			return TRUE;
+		    if ((k_ptr->squelch & SQUELCH_UNAWARE_FLAG) && (!k_ptr->aware))
+	    		return TRUE;
+    	}
 #else
-	if (k_ptr->squelch && (k_ptr->flavor == 0 || k_ptr->aware))
-	{
-		if (squelch_tval(k_info[o_ptr->k_idx].tval))
-			return TRUE;
-	}
+	    if (k_ptr->squelch && (k_ptr->flavor == 0 || k_ptr->aware))
+    	{
+		    if (squelch_tval(k_info[o_ptr->k_idx].tval))
+	    		return TRUE;
+    	}
 #endif
-
-
-#ifdef EFG
-	/* EFGchange remember when you have "tried" on a wieldable */
-#else
-	/* Don't check pseudo-ID for nonsensed things */
-	if (!sensed) return FALSE;
-#endif
-
-
+    }
 
 	/* Find the appropriate squelch group */
 	for (i = 0; i < N_ELEMENTS(type_tvals); i++)
@@ -597,12 +542,13 @@ bool squelch_item_ok(const object_type *o_ptr)
 		}
 	}
 
-	/* Never squelched */
-	if (num == -1)
-		return FALSE;
+	if (!((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+	{
+		/* Never squelched */
+		if (num == -1) return FALSE;
+    }
 
 
-#ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
 	if ((feel == INSCRIP_TRIED) && (o_ptr->tval != TV_LITE) &&
 	    (squelch_level[num] == SQUELCH_UNSPLENDID) &&
@@ -614,7 +560,9 @@ bool squelch_item_ok(const object_type *o_ptr)
 		feel = INSCRIP_GOOD;
 	}
 
-	if (!sensed) return FALSE;
+    /* make sure you can squelch unIDed, unsensed, aware jewelry */
+	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) /* okay */;
+    else if (!sensed) return FALSE;
 
 	if (o_ptr->tval == TV_LITE) switch (squelch_level[num])
 	{
@@ -646,11 +594,57 @@ bool squelch_item_ok(const object_type *o_ptr)
 				return TRUE;
 		}
 	}
+	else if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) switch (squelch_level[num])
+	{
+		/* all cursed except egos and non-ego of squelched types */
+        case SQUELCH_JEWELRY_CURSED:
+		{
+            /* don't squelch amulet of teleportation of teleport control */
+            if (ego_item_p(o_ptr)) return FALSE;
+            /* fall through if not ego */
+		}
+		/* all cursed (including egos) and all other non-ego of squelched types */
+        case SQUELCH_JEWELRY_CURSED_EGO:
+		{
+            /* (do squelch amulet of teleportation of teleport control) */
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_UNCURSED) ||
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED))
+			{
+				return TRUE;
+			}
+            /* fall through if not cursed or worthless */
+		}
+		/* only squelch nonegos of squelched types */
+		case SQUELCH_JEWELRY_NONEGO:
+        {
+            /* don't squelch egos */
+            if (ego_item_p(o_ptr)) return FALSE;
+		    /* do sval squelch */
+    		if ((k_ptr->squelch & SQUELCH_AWARE_FLAG) && (k_ptr->aware))
+   				return TRUE;
+		    if ((k_ptr->squelch & SQUELCH_UNAWARE_FLAG) && (!k_ptr->aware))
+	    		return TRUE;
+    		break;
+        }
+        /* all cursed and all of squelched types */
+        case SQUELCH_JEWELRY_ALL_OF_THIS_TYPE:
+        {
+            /* (do squelch amulet of teleportation of teleport control) */
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_UNCURSED) ||
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED))
+			{
+				return TRUE;
+			}
+			/* do sval squelch (egos along with others) */
+			if ((k_ptr->squelch & SQUELCH_AWARE_FLAG) && (k_ptr->aware))
+				return TRUE;
+			if ((k_ptr->squelch & SQUELCH_UNAWARE_FLAG) && (!k_ptr->aware))
+				return TRUE;
+        }
+    }
 	else switch (squelch_level[num])
-#else
-	/* Get result based on the feeling and the squelch_level */
-	switch (squelch_level[num])
-#endif
 	{
 		case SQUELCH_CURSED:
 		{
@@ -785,8 +779,7 @@ bool squelch_hide_item(const object_type *o_ptr)
 		(cp_ptr->flags & CF_HEAVY_BONUS)) mighty = TRUE;
 
 	/* Bigs rocks are always hidden unless you are "mighty" */
-	if (((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK)) &&
-		(!mighty))
+	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_BIG_ROCK) && (!mighty))
 	{
 		return TRUE;
 	}
@@ -899,6 +892,7 @@ void squelch_drop(void)
 /* ??? need to redo submenus to do this consistently */
 /* We need to keep track for different entries in the lights submenu. */
 static bool doing_lights = FALSE;
+static bool do_jewelry = FALSE;
 #endif
 
 /*
@@ -911,15 +905,20 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row, int 
 
 	byte level = squelch_level[oid];
 	const char *level_name = quality_names[level];
-#ifdef EFG
+	if (oid == TYPE_JEWELRY)
+	{
+		level_name = quality_jewelry[level];
+	}
 	/* EFGchange add lights to quality squelch menus */
 	if (oid == TYPE_LITE)
 	{
 		level_name = quality_lights[level];
 	}
 	if (cursor)
+	{
 		doing_lights = (oid == TYPE_LITE);
-#endif
+		do_jewelry = (oid == TYPE_JEWELRY);
+    }
 
 	attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
 
@@ -935,13 +934,19 @@ static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, i
 {
 	const char *name = quality_names[oid];
 	byte attr;
-#ifdef EFG
+
 	/* EFGchange add lights to quality squelch menus */
 	if (doing_lights)
 	{
 		name = quality_lights[oid];
 	}
-#endif
+
+	/* ..and jewelry */
+	if (do_jewelry)
+	{
+		name = quality_jewelry[oid];
+	}
+
 	attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
 
 	c_put_str(attr, name, row, col);
@@ -978,13 +983,13 @@ static bool quality_action(char cmd, void *db, int oid)
 	WIPE(&menu, menu);
 	menu.cmd_keys = "\n\r";
 	menu.count = SQUELCH_MAX;
+	/* */
 	if (oid == TYPE_JEWELRY)
-		menu.count = area.page_rows = SQUELCH_CURSED + 1;
-#ifdef EFG
+		menu.count = area.page_rows = SQUELCH_JEWELRY_MAX;
+
 	/* EFGchange add lights to quality squelch menus */
 	if (oid == TYPE_LITE)
 		menu.count = area.page_rows = SQUELCH_LITE_MAX;
-#endif
 
 	menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
 	window_make(area.col - 2, area.row - 1, area.col + area.width + 2, area.row + area.page_rows);

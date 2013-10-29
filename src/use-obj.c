@@ -680,9 +680,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			cptr act = NULL;
 
 			/* message to let the player know why he didn't get the effect he was expecting.. */
-			/* (only mimmics another potion if aware and unIDed) */
-			if ((object_aware_p(o_ptr)) && (!object_known_p(o_ptr)))
-				msg_print("Ack! It's a potion of Multi-hued Poison disguised as another potion!");
+            msg_print("Ack! It's a potion of Multi-hued Poison disguised as another potion! -more-");
 
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
@@ -856,7 +854,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_AUTO_BRAIL:
 		{
-			if (inc_timed(TMD_BRAIL, 75 + randint(75)))
+			/* partially restores mana also */
+            if (p_ptr->csp + (p_ptr->msp/10) + 1 < p_ptr->msp)
+			{
+                p_ptr->csp += randint(1 + (p_ptr->msp/10));
+				msg_print("Your feel your head clear a little bit.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				*ident = TRUE;
+			}
+            if (inc_timed(TMD_BRAIL, 75 + randint(75)))
 			{
 				*ident = TRUE;
 			}
@@ -1512,12 +1519,10 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) *ident = TRUE;
-#ifdef EFG
 			/* EFGchange learn flavor of trap creation */
 			/* I have never ever seen that return true */
 			msg_print("You hear the floor shifting.");
 			*ident = TRUE;
-#endif
 			break;
 		}
 
@@ -2666,7 +2671,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Get the item diffuculty (now separated from item level) */
+	/* Get the item difficulty (now separated from item level) */
 	lev = k_info[o_ptr->k_idx].extra;
 
 	/* cursed wands are harder to use */

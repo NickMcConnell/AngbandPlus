@@ -133,7 +133,8 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 	if (f1 & (TR1_MIGHT))   descs[cnt++] = "shooting power";
 
 	/* Skip */
-	if ((!cnt) && (!f1 & (TR1_INFRA)) && (!f2 & (TR2_MAGIC_MASTERY)) && (!f3 & (TR3_THROWMULT))) 
+	if ((!cnt) && (!f1 & (TR1_INFRA)) && (!f2 & (TR2_MAGIC_MASTERY)) && (!f3 & (TR3_THROWMULT)) &&
+       (!f1 & (TR1_EQLUCK)))
 		return (FALSE);
 
 	/* Start */
@@ -158,10 +159,10 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 		int tpval = pval;
 		if (tpval == 1) tpval += 1;
 		p_text_out(format("It %s your throwing power", (o_ptr->pval > 0 ? "increases" : "decreases")));
-		p_text_out(format("by %i.  ", (tpval - 1)));
+		p_text_out(format(" by %i.  ", (tpval - 1)));
 
-		/* message about gauntlets of throwing */
-		if (wield_slot(o_ptr) == INVEN_HANDS)
+		/* message about gauntlets of throwing (or randart gloves with THROWMULT) */
+		if ((wield_slot(o_ptr) == INVEN_HANDS) && (o_ptr->to_d))
 		{
 			p_text_out("It also applies its damage bonus to throwing weapons instead of melee.  ");
 		}
@@ -171,14 +172,14 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 	if (f1 & (TR1_EQLUCK))
     {
 		p_text_out(format("It increases your %s", (o_ptr->pval > 0 ? "good luck" : "bad luck")));
-		p_text_out(format("by %i.  ", pval));
+		p_text_out(format(" by %i.  ", pval));
     }
 
     /* handle alertness factor */
 	if (f1 & (TR1_INFRA))
 	{
 		p_text_out(format("It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
-		p_text_out(format("by %i.  ", (pval * 5)));
+		p_text_out(format(" by %i.  ", (pval * 5)));
     }
 
 	/* magic mastery (factor of 8 unless pval is 1) */
@@ -491,7 +492,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	if (f2 & (TR2_THROWN))      good[gc++] = "is balanced for throwing and can't be used for melee";
 	/* not as good as primary throwing weapons, but can be wielded for melee (spear, dagger..) */
 	else if ((weapon) && (f2 & (TR2_PTHROW))) good[gc++] = "is better for throwing than most melee weapons";
-	else if (f2 & (TR2_PTHROW)) good[gc++] = "can be thrown for damage";
+	/* else if (f2 & (TR2_PTHROW)) good[gc++] = "can be thrown for damage"; (redundant) */
 	if (f2 & (TR2_RTURN))       good[gc++] = "(usually) returns to your hand when thrown";
 	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
 	{
@@ -734,6 +735,9 @@ static int critshot_chance(const object_type *o_ptr, u32b f2)
 	   bonus = p_ptr->to_h + o_ptr->to_h + j_ptr->to_h;
 	   if ((bonus + p_ptr->skills[SKILL_THB])-1 > 12) excrit += ((bonus + p_ptr->skills[SKILL_THB])-1)/12;
     }
+		
+	/* sniper's eye: only happens if target is visible, but we'll include it here anyway */
+    if (p_ptr->timed[TMD_SNIPER]) excrit += 3;
 
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + o_ptr->to_h) * 4) + (p_ptr->lev * 2));
@@ -824,8 +828,8 @@ static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b 
 	/* Collect slays */
 	if (f1 & TR1_SLAY_ANIMAL) { mult[cnt] = 2; desc[cnt++] = "animals"; exslay = TRUE; }
 	if (f1 & TR1_SLAY_EVIL)   { mult[cnt] = 2; desc[cnt++] = "evil creatures"; exslay = TRUE; }
-	if (f2 & TR2_SLAY_WERE)   { mult[cnt] = 2; desc[cnt++] = "creatures vulnerable to silver"; }
 
+	if (f2 & TR2_SLAY_WERE)   { mult[cnt] = 3; desc[cnt++] = "creatures vulnerable to silver"; hasslay = TRUE; }
 	if (f1 & TR1_SLAY_ORC)    { mult[cnt] = 3; desc[cnt++] = "orcs"; hasslay = TRUE; }
 	if (f1 & TR1_SLAY_TROLL)  { mult[cnt] = 3; desc[cnt++] = "trolls"; hasslay = TRUE; }
 	if (f1 & TR1_SLAY_GIANT)  { mult[cnt] = 3; desc[cnt++] = "giants"; hasslay = TRUE; }
@@ -1032,7 +1036,7 @@ void describe_attack(const object_type *o_ptr)
 	   if (o_ptr->sbdd)
 	   {
 			object_type *oarm_ptr;
-			int str_index, dex_index, div;
+			int str_index, dex_index, div, maxblows;
 			bool yshield = FALSE;
 			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 			oarm_ptr = &inventory[INVEN_ARM];
@@ -1050,10 +1054,12 @@ void describe_attack(const object_type *o_ptr)
 			dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
 			if (dex_index > 11) dex_index = 11;
 			tmpblow = blows_table[str_index][dex_index];
-			if (tmpblow > cp_ptr->max_attacks) tmpblow = cp_ptr->max_attacks;
+			if (p_ptr->peace) tmpblow -= 1;
+			if (yshield) maxblows = cp_ptr->max_attacks;
+			else maxblows = cp_ptr->max_attacks + 1;
+			if (tmpblow > maxblows) tmpblow = maxblows;
 			tmpblow += p_ptr->extra_blows;
 			if (p_ptr->timed[TMD_XATTACK]) tmpblow += 1;
-			if (p_ptr->peace) tmpblow -= 1;
 			if (tmpblow < 1) tmpblow = 1;
 			if ((yshield) && (p_ptr->num_blow != tmpblow))
 			{

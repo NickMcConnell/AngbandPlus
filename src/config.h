@@ -251,6 +251,22 @@
  */
 /* #define ANGBAND_LITE */
 
+/*  this copied from NPP for character history */
+/*
+ * OPTION: The notes files are created as temporary files
+ */
+#define TEMPORARY_NOTES_FILES
+
+/*
+ * Hack -- Windows stuff
+ */
+#ifdef WINDOWS
+
+/* Windows Vista can't create temporary files */
+# undef TEMPORARY_NOTES_FILES
+#endif
+/*  end copied from NPP for character history */
+
 
 /*
  * Hack -- React to the "ANGBAND_LITE" flag

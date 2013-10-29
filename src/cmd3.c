@@ -152,6 +152,7 @@ static flagname boostconv[] =
 bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 {
 	bool ret = FALSE;
+	bool once = FALSE;
 
 	/* the player should be informed of items that obviously boost */
 	/* ??? should check for tried, print this when "I"nspecting a tried object */
@@ -168,6 +169,14 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 			if (o_ptr->pval > 0) 
 			{
 				ret = TRUE;
+				/* elven cloaks & helms always boost stealth */
+				/* only return true if they boost more than one thing (or if pval >= 3) */
+				if ((!once) && (((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)) ||
+				   ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_ELVEN_LEATHER_CAP))))
+				{
+					if (o_ptr->pval < 3) ret = FALSE;
+					once = TRUE;
+				}
 			}
 			if (to_print)
 				msg_format("%s %s your %s by %d.", o_name, desc, boostconv[i].name, abs(o_ptr->pval));

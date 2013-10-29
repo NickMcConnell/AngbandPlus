@@ -1858,6 +1858,9 @@ errr file_character(cptr name, bool full)
 	char o_name[80];
 
 	char buf[1024];
+#ifdef yes_c_history
+	char line[1024];
+#endif
 
 
 	/* Unused parameter */
@@ -2074,6 +2077,44 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n\n");
 	}
 
+#ifdef yes_c_history
+    /*** character history stuff ***/
+	/*close the notes file for writing*/
+	my_fclose(notes_file);
+
+	/*get the path for the notes file*/
+	notes_file = my_fopen(notes_fname, "r");
+
+	/* Write the contents of the notes file to the dump file line-by-line */
+	while (!my_fgets(notes_file, line, sizeof(line)))
+	{
+#if doweneedthis
+		/* Replace escape secuences in template */
+		fill_template(line, sizeof(line));
+
+		/* Translate the note to the desired encoding */
+		xstr_trans(line, encoding);
+#endif /* doweneedthis */
+
+		/* Write the note */
+		fputs(line, fff);
+
+		/* Put a new line character */
+		putc('\n', fff);
+
+	}
+
+	/*aesthetics*/
+	fprintf(fff, "============================================================\n");
+
+	fprintf(fff, "\n\n");
+
+	/*close it for reading*/
+	my_fclose(notes_file);
+
+	/*re-open for appending*/
+	notes_file = my_fopen(notes_fname, "a");
+#endif
 
 	/* Dump options */
 	fprintf(fff, "  [Options]\n\n");
@@ -2681,9 +2722,9 @@ void process_player_name(bool sf)
 
 
 /*
- * Hack -- commit suicide
+ * Hack -- Quit the game (run back home to your momma)
  */
-void do_cmd_suicide(void)
+void do_cmd_quitendgame(void)
 {
 	/* Flush input */
 	flush();
@@ -2695,7 +2736,7 @@ void do_cmd_suicide(void)
 		if (!get_check("Do you want to retire? ")) return;
 	}
 
-	/* Verify Suicide */
+	/* Verify Cowardice / Retirement */
 	else
 	{
 		char ch;
@@ -2703,7 +2744,7 @@ void do_cmd_suicide(void)
 		/* Verify */
 		if (!get_check("Do you really want to abort the quest? ")) return;
 
-		/* Special Verification for suicide */
+		/* Special Verification for quitting */
 		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
 		flush();
 		ch = inkey();
@@ -2711,7 +2752,7 @@ void do_cmd_suicide(void)
 		if (ch != '@') return;
 	}
 
-	/* Commit suicide */
+	/* mark as dead to be able to start new character */
 	p_ptr->is_dead = TRUE;
 
 	/* Stop playing */
@@ -2817,7 +2858,7 @@ static void make_bones(void)
 {
 	FILE *fp;
 
-‰	char str[1024];
+	char str[1024];
 
 
 	/* Ignore wizards and borgs */
@@ -2940,7 +2981,6 @@ static void print_tomb(void)
 	center_string(buf, sizeof(buf), p);
 	put_str(buf, 8, 11);
 
-
 	center_string(buf, sizeof(buf), c_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
@@ -2963,7 +3003,6 @@ static void print_tomb(void)
 	strnfmt(tmp, sizeof(tmp), "by %s.", p_ptr->died_from);
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 15, 11);
-
 
 	strnfmt(tmp, sizeof(tmp), "%-.24s", ctime(&death_time));
 	center_string(buf, sizeof(buf), tmp);
@@ -3872,7 +3911,12 @@ static void close_game_aux(void)
 	/* Loop */
 	while (!wants_to_quit)
 	{
-		/* Describe options */
+#ifdef yes_c_history
+		/* last words option */
+        Term_putstr(1, 22, -1, TERM_WHITE, "[(a)dd a comment to the notes file]");
+#endif
+        
+        /* Describe options */
 		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
@@ -3996,6 +4040,15 @@ static void close_game_aux(void)
 
 				break;
 			}
+#ifdef yes_c_history
+			/* Last words to notes file */
+			case 'a':
+			case 'A':
+			{
+				do_cmd_note("",  p_ptr->depth);
+				break;
+			}
+#endif
 		}
 	}
 
@@ -4272,3 +4325,100 @@ void html_screenshot(cptr name, int mode)
 	/* Close it */
 	my_fclose(htm);
 }
+
+
+/* #ifdef yes_c_history */
+#if doweneedthis
+/*
+ * Finds text patterns in the given text and replaces them with some content determined
+ * by the kind of pattern.
+ * A pattern has this form: {{pattern_name}}
+ * The text is replaced in place.
+ * See the escapes array for the supported patterns.
+ */
+void fill_template(char buf[], int max_buf)
+{
+	char local[1024] = "";
+	char *end_local = local;
+	char *buf_ptr = buf;
+	char *start;
+	bool changed = FALSE;
+	/* List of recognized patterns */
+	static char *escapes[] =
+	{
+		"{{full_character_name}}",
+		NULL
+	};
+
+	/* Find ocurrences of the patterns */
+	/* First we look for the pattern's start */
+	while ((start = strstr(buf_ptr, "{{")) != NULL)
+	{
+		int i = 0;
+		int id = -1;
+
+		/* Search the pattern */
+		while (escapes[i] != NULL)
+		{
+			/* Found? */
+			if (prefix(start, escapes[i]))
+			{
+				id = i;
+				break;
+			}
+		}
+
+		/* Found a pattern */
+		if (id != -1)
+		{
+			/* Remember this */
+			changed = TRUE;
+
+			/* Copy the previous text */
+			if (start > buf_ptr)
+			{
+				/* End the previous text */
+				*start = '\0';
+
+				/* Concat the previous text to the result text */
+				end_local = my_fast_strcat(local, end_local, buf_ptr, sizeof(local));
+			}
+
+			/* Process pattern actions */
+			switch (id)
+			{
+				/* Display current character name */
+				case 0:
+				{
+					end_local = my_fast_strcat(local, end_local, op_ptr->full_name,
+						sizeof(local));
+					 
+					break;
+				}
+			}
+
+			/* Start again at the end of the pattern */
+			buf_ptr = start + strlen(escapes[id]);
+		}
+		/* Not found */
+		else
+		{
+			/* Just ignore the pattern prefix */
+			buf_ptr = start + 2;
+		}
+	}
+
+	/* Something happened */
+	if (changed)
+	{
+		/* Copy the remaining text if necessary */
+		if (*buf_ptr)
+		{
+			end_local = my_fast_strcat(local, end_local, buf_ptr, sizeof(local));
+		}
+
+		/* Overwrite the original text */
+		my_strcpy(buf, local, max_buf);
+	}
+}
+#endif

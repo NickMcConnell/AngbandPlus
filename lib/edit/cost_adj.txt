@@ -1,5 +1,5 @@
 # File: cost_adj.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 # This file is used to initialize the "lib/data/cost_adj.raw" file, which is
 # used to initialize the "racial price adjustment" information for the

@@ -1,5 +1,5 @@
 # File: limits.txt (DJA 1.1.0)
-# DaJAngband 1.1.0
+# DaJangband 1.1.2
 
 
 # This file is used to initialize the "lib/data/limits.raw" file, which is
@@ -31,7 +31,7 @@ M:E:200
 M:R:999
 
 # Maximum number of vault designs
-M:V:100
+M:V:200
 
 # Maximum number of player races
 M:P:18

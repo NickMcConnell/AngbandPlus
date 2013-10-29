@@ -587,6 +587,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your skills are boosted.";
 	}
+	if (p_ptr->timed[TMD_SNIPER])
+	{
+		info[i++] = "Your ranged weapon aim is enhanced.";
+	}
 	if (p_ptr->timed[TMD_BLESSED])
 	{
 		info[i++] = "You feel righteous.";
@@ -651,9 +655,9 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your black magic is aggravating demons.";
 	}
-	if (p_ptr->timed[TMD_STINKY])
+	if (p_ptr->timed[TMD_STINKY]) /* accidently had 'you spell disgusting'.. */
 	{
-		info[i++] = "You spell disgusting.";
+		info[i++] = "You smell disgusting.";
 	}
 	if (p_ptr->timed[TMD_BEAR_HOLD])
 	{
@@ -729,6 +733,16 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You have darkvision.";
 	}
+	if (p_ptr->timed[TMD_TMPBOOST])
+	{
+		if (p_ptr->see_infra == A_STR) info[i++] = "Your strength is temporarily boosted.";
+		if (p_ptr->see_infra == A_DEX) info[i++] = "Your dexterity is temporarily boosted.";
+		if (p_ptr->see_infra == A_CON) info[i++] = "Your constitution is temporarily boosted.";
+		if (p_ptr->see_infra == A_INT) info[i++] = "Your intelligence is temporarily boosted.";
+		if (p_ptr->see_infra == A_WIS) info[i++] = "Your wisdom is temporarily boosted.";
+		if (p_ptr->see_infra == A_CHR) info[i++] = "Your charisma is temporarily boosted.";
+    }
+
 	if (p_ptr->timed[TMD_SUPER_ROGUE])
 	{
 		info[i++] = "You have enhanced roguish skills.";
@@ -4929,13 +4943,13 @@ static void cave_temp_room_lite(void)
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
-
 			/* Smart monsters always wake up */
 			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
-			
-			if (m_ptr->roaming) chance += 25;
+
+			/* Stupid monsters rarely wake up */
+			if ((r_ptr->flags2 & (RF2_STUPID)) && (m_ptr->roaming)) chance = 20;
+			else if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+			else if (m_ptr->roaming) chance += 25;
 
 			/* Sometimes monsters wake up */
 			if (m_ptr->csleep && (rand_int(100) < chance))
@@ -5078,6 +5092,9 @@ void lite_room(int y1, int x1)
 
 		/* Walls get lit, but stop light */
 		if (!cave_floor_bold(y, x)) continue;
+		
+		/* don't light distant grids in case of a huge vault counted as one room */
+        if (distance(y1, x1, y, x) >= MAX_SIGHT) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
@@ -5514,6 +5531,31 @@ bool wall_to_mud(int dir)
 	int dam = 25 + randint(25);
 	if (spellswitch == 31) dam = 40 + randint(40);
 	return (project_hook(GF_KILL_WALL, dir, dam, flg));
+}
+
+/* calls stone to mud only if the spell is targetting a wall and there is nothing in between.
+ * This is a side effect of certain spells: ball of destruction and rocket blast
+ * (I'm currently not using the return bool value, but I thought I might later)
+ */
+bool blast_a_wall(int dir)
+{
+	int tx, ty;
+	bool do_blast = FALSE;
+	ty = p_ptr->target_row;
+	tx = p_ptr->target_col;
+	/* doors */
+	if ((cave_feat[ty][tx] >= FEAT_DOOR_HEAD) && (cave_feat[ty][tx] <= FEAT_DOOR_TAIL))
+	    do_blast = TRUE;
+	/* non-permanent walls */
+	if ((cave_feat[ty][tx] >= FEAT_SECRET) && (cave_feat[ty][tx] <= FEAT_WALL_SOLID))
+	    do_blast = TRUE;
+	
+	/* this makes sure there's nothing in the way */
+    if ((clean_shot(p_ptr->py, p_ptr->px, ty, tx, TRUE)) && (do_blast))
+	{
+	    return wall_to_mud(dir);
+	}
+	else return FALSE;
 }
 
 bool destroy_door(int dir)
@@ -6417,6 +6459,37 @@ void do_ident_item(int item, object_type *o_ptr)
 	{
 		msg_format("On the ground: %s.", o_name);
 	}
+
+#ifdef yes_c_history
+	/*
+	 * If the item was an artifact, write a message.
+	 */
+    if ((artifact_p(o_ptr)) && (o_ptr->xtra1 >= 1))
+	{
+		int artifact_depth;
+       	char note[120];
+		char shorter_desc[120];
+
+		/* Get a shorter description to fit the notes file */
+		object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
+
+		/* Build note and write */
+       	sprintf(note, "Found %s", shorter_desc);
+
+		/* Record the depth where the artifact was created */
+		artifact_depth = o_ptr->xtra1;
+
+       	do_cmd_note(note, artifact_depth);
+
+		/*
+		 * Mark item creation depth 0, which will indicate the artifact
+		 * has been previously identified.  This prevents an artifact
+		 * from showing up on the notes list twice ifthe artifact had
+		 * been previously identified.  JG
+		 */
+		o_ptr->xtra1 = 0 ;
+	}
+#endif
 }
 
 /*
@@ -6660,7 +6733,7 @@ bool mimmic_wand(void)
 	/* Get an item */
 	if (p_ptr->lev < 30) q = "Mimmic which wand? ";
 	else q = "Mimmic which wand or rod? ";
-	s = "You have nothing to enhance.";  
+	s = "You have nothing that this spell can mimmic.";  
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */

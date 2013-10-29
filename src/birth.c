@@ -76,7 +76,7 @@ static void save_prev_data(void)
 		prev.stat[i] = p_ptr->stat_max[i];
 	}
 
-	/* Save the history */
+	/* Save the history (from p_hist.txt) */
 	my_strcpy(prev.history, p_ptr->history, sizeof(prev.history));
 }
 
@@ -1210,6 +1210,8 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 16) text_out_c(TERM_L_RED, "Sorry, a golem cannot be the class you chose.");
 	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk must be the hulk class.");
 	if (clash == 40) text_out_c(TERM_L_RED, "Sorry, only an uber umber hulk can be the hulk class.");
+	/* chose a blank class */
+	if (clash == -5) text_out_c(TERM_L_RED, "Please choose a class.");
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
@@ -1996,6 +1998,12 @@ static void player_birth_aux(void)
  */
 void player_birth(void)
 {
+#ifdef yes_c_history
+  	/* Variables */
+ 	char long_day[25];
+ 	time_t ct = time((time_t*)0);
+#endif
+
 spellswitch = 9999;
     /* DAJ: yes I know, this is incredibly crude programming */
 for (;clash < 50;)
@@ -2103,6 +2111,9 @@ for (;clash < 50;)
                     if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;
                     /* no other race can be hulk class */
                     if ((p_ptr->pclass == 32) && (p_ptr->prace != 17)) clash = 40;
+
+                    /* make sure the player doesn't choose a blank class */
+                    if (c_info[p_ptr->pclass].max_attacks < 2) clash = -5;
 	}
 
    /* luck settings, base luck is 20 (below 20 is bad luck) */
@@ -2146,6 +2157,29 @@ spellswitch = 0;
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
 
+
+#ifdef yes_c_history
+  	/* Open the file (notes_file and notes_fname are global) */
+  	notes_file = create_notes_file(notes_fname, sizeof(notes_fname));
+
+	if (!notes_file) quit("Can't create the notes file");
+
+  	/* Get date */
+  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+
+  	/* Add in "character start" information */
+  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
+							p_name + rp_ptr->name,
+							c_name + cp_ptr->name);
+  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+  	fprintf(notes_file, "============================================================\n");
+    fprintf(notes_file, "                   CHAR.  \n");
+	fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
+	fprintf(notes_file, "============================================================\n");
+
+	/* Paranoia. Remove the notes from memory */
+	fflush(notes_file);
+#endif
 
 	/* Hack -- outfit the player */
 	player_outfit();

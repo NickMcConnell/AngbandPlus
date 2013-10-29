@@ -1169,7 +1169,7 @@ static void process_world(void)
        {
           msg_print("Demons are attracted to those who are very unlucky.");
        }
-       else
+       else /* summon demonic aid or rend soul in wizardry realm */
        {
           msg_print("Demons are attracted to the nether power you summoned.");
        }

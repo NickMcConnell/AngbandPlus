@@ -1017,4 +1017,3 @@ void my_dclose(ang_dir *dir)
 }
 
 #endif /* HAVE_DIRENT_H */
-

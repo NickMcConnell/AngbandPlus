@@ -1826,13 +1826,29 @@ static void do_cmd_knowledge_features(void *obj, const char *name)
 	FREE(features);
 }
 
+
+#ifdef yes_c_history
+static void do_cmd_knowledge_history(void *obj, const char *name)
+{
+	(void)obj;
+	(void)name;
+	/*close the notes file for writing*/
+	my_fclose(notes_file);
+
+	show_file(notes_fname, "Notes", 0, 0);
+
+	/*re-open for appending*/
+	notes_file = my_fopen(notes_fname, "a");
+}
+#endif
+
+
 /* =================== HOMES AND STORES ==================================== */
 
 
 /* just call do_cmd_store_reallynow() with fakehoome = TRUE */
 void do_cmd_knowledge_home() 
 {
-	/* TODO */
 	p_ptr->fakehome = TRUE;
     do_cmd_store_reallynow();
     p_ptr->fakehome = FALSE;
@@ -4195,6 +4211,9 @@ static menu_item knowledge_actions[] =
 	{{0, "Display self-knowledge", do_cmd_self_knowledge, 0}, '6'},
 	{{0, "Display hall of fame", do_cmd_knowledge_scores, 0}, '7'},
 	{{0, "Display home inventory", do_cmd_knowledge_home, 0}, '8'},
+#ifdef yes_c_history
+    {{0, "Display character history", do_cmd_knowledge_history, 0}, '9'},
+#endif
 };
 
 static menu_type knowledge_menu;
@@ -4349,32 +4368,214 @@ void init_cmd4_c(void)
 
 
 
-
-
-
-
-
 /*** Non-knowledge/option stuff ***/
+
+
+#ifdef yes_c_history
+#define LINEWRAP	75
+
+/*
+ * Create and return an empty file in writing mode to append notes.
+ * It returns a copy of the file name in "path".
+ * "max" must be the maximum size in bytes of "path".
+ * Returns NULL on failure
+ */
+FILE *create_notes_file(char path[], size_t max)
+{
+	FILE *fp;
+
+#ifdef TEMPORARY_NOTES_FILES
+	/* Create a temporary file */
+	fp = my_fopen_temp(path, max);
+
+#else
+
+	/* Create the notes file in the lib/save folder */
+	char name[80];
+
+	/* Hack -- No base name yet */
+	if (!op_ptr->base_name[0]) process_player_name(FALSE);
+
+	/* Format the name of the notes file */
+	strnfmt(name, sizeof(name), "%s.nte", op_ptr->base_name);
+
+	/* Build the full path to the notes file */
+	path_build(path, max, ANGBAND_DIR_FILE, name);
+
+	/* Create it */
+	fp = my_fopen(path, "w");
+
+#endif /* TEMPORARY_NOTES_FILES */
+
+	return (fp);
+}
+#endif /* yes_c_history */
+
 
 /*
  * Note something in the message recall
  */
-void do_cmd_note(void)
+void do_cmd_note(char *note, int what_depth)
 {
-	char tmp[80];
+	char tmp[120];
+#ifdef yes_c_history
+	int length, length_info;
+    char info_note[40];
+  	char depths[10];
+#endif
 
 	/* Default */
 	my_strcpy(tmp, "", sizeof(tmp));
 
-	/* Input */
-	if (!get_string("Note: ", tmp, 80)) return;
+ 	/* If a note is passed, use that, otherwise accept user input. */
+ 	if (streq(note, ""))
+	{
+        /* Input */
+	    if (!get_string("Note: ", tmp, 70)) return;
+    }
+   	else my_strcpy(tmp, note, sizeof(tmp));
 
 	/* Ignore empty notes */
 	if (!tmp[0] || (tmp[0] == ' ')) return;
 
 	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
+	/* (not if it's the final words) */
+	if (!p_ptr->is_dead) msg_format("Note: %s", tmp);
+
+#ifdef yes_c_history
+	/*Artifacts use depth artifact created.  All others
+ 	 *use player depth.
+ 	 */
+
+	/*get depth for recording\
+	 *mark if item is a quest reward or a chest item
+	 */
+    if (what_depth == 0)
+    {
+		strcpy(depths, " Town");
+    }
+	else if (depth_in_feet)
+    {
+		strnfmt(depths, sizeof(depths), " %4d", what_depth * 50);
+    }
+	else
+    {
+	    strnfmt(depths, sizeof(depths), " %4d", what_depth);
+	}
+
+  	/* Make preliminary part of note */
+   	strnfmt(info_note, sizeof(info_note), "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
+
+	/*write the info note*/
+	fprintf(notes_file, info_note);
+
+	/*get the length of the notes*/
+	length_info = strlen(info_note);
+	length = strlen(tmp);
+
+	/*break up long notes*/
+	if ((length + length_info) > LINEWRAP)
+	{
+		bool keep_going = TRUE;
+		int startpoint = 0;
+		int endpoint, n;
+
+		while (keep_going)
+		{
+			/*don't print more than the set linewrap amount*/
+			endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
+
+			/*find a breaking point*/
+			while (TRUE)
+			{
+				/*are we at the end of the line?*/
+				if (endpoint >= length)
+				{
+					/*print to the end*/
+					endpoint = length;
+					keep_going = FALSE;
+					break;
+				}
+
+				/* Mark the most recent space or dash in the string */
+				else if ((tmp[endpoint] == ' ') ||
+			    		 (tmp[endpoint] == '-')) break;
+
+				/*no spaces in the line, so break in the middle of text*/
+				else if (endpoint == startpoint)
+				{
+					endpoint = startpoint + LINEWRAP - strlen(info_note) + 1;
+					break;
+				}
+
+				/* check previous char */
+				endpoint--;
+			}
+
+			/*make a continued note if applicable*/
+			if (startpoint) fprintf(notes_file, "|  continued...   |     |  ");
+
+			/* Write that line to file */
+			for (n = startpoint; n <= endpoint; n++)
+			{
+				char ch;
+
+				/* Ensure the character is printable */
+				ch = (isprint(tmp[n]) ? tmp[n] : ' ');
+
+				/* Write out the character */
+				fprintf(notes_file, "%c", ch);
+			}
+
+			/*break the line*/
+			fprintf(notes_file, "\n");
+
+			/*prepare for the next line*/
+			startpoint = endpoint + 1;
+		}
+	}
+ 	/* Add note to buffer */
+ 	else
+	{
+		fprintf(notes_file, "%s", tmp);
+
+		/*break the line*/
+		fprintf(notes_file, "\n");
+	}
+#endif
 }
+
+
+/* just calls do_cmd_note with parameters */
+do_cmd_note_old(void)
+{
+    do_cmd_note("", p_ptr->depth);
+}
+
+
+#ifdef yes_c_history
+/*
+ * Close and destroy the notes file. notes_file and notes_fname variables are cleared
+ */
+void delete_notes_file(void)
+{
+	/* Close the notes file */
+	if (notes_file)
+	{
+		my_fclose(notes_file);
+
+		notes_file = NULL;
+	}
+
+	/* Delete the notes file */
+	if (notes_fname[0])
+	{
+		fd_kill(notes_fname);
+
+		notes_fname[0] = '\0';
+	}
+}
+#endif
 
 
 /*

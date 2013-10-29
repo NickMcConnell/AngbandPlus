@@ -1,5 +1,5 @@
 # File: monster.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 
 # This file is used to initialize the "lib/data/monster.raw" file, which is
@@ -297,7 +297,7 @@
 # BO_NETH - nether bolt for 30 + 5d5(av15) + (monster level / 1.5) damage
 # BO_WATE - water bolt for 10d8(av45) + monster level damage OR (8d8(av36) + monster level/2)
 #  damage if monster level < 35.
-# BO_MANA - mana bolt for 50 + d(monster level x 3) damage
+# BO_MANA - mana bolt for 50 + d(monster level x 3) damage (or 30 + d(monster level x 3) damage if monster level is less #  than 50).
 # BO_PLAS - plasma bolt for (10 + 8d7(av31.5) + monster level) damage
 # BO_ICEE - ice bolt for (6d6(av21) + monster level/2 + d(monster level/2)) damage + stunning
 # BA_ACID - acid ball for 15 + d(monster level x 3) damage
@@ -634,7 +634,7 @@ F:FLY | ROAM2 | BR_STRONG | FFOREST
 S:1_IN_19
 S:BR_LITE
 D:This baby sprite likes to kick people but is isn't strong enough to do any damage.
-D:It flies around so fast, you can barely see it except for the light it gives off.
+D: It flies around so fast, you can barely see it except for the light it gives off.
 
 N:28:fruit bat
 G:b:o
@@ -799,8 +799,7 @@ G:p:o
 I:110:7d4:20:10:10
 W:2:1:0:6
 B:HIT:HURT:1d5
-F:MALE
-F:FORCE_SLEEP
+F:MALE | FORCE_SLEEP
 F:DROP_60 | ROAM2
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
@@ -812,15 +811,14 @@ G:p:r
 I:110:6d4:20:9:5
 W:2:1:0:6
 B:HIT:HURT:1d4
-F:MALE | S_EVIL1 |
-F:FORCE_SLEEP
+F:MALE | S_EVIL1 | FORCE_SLEEP
 F:DROP_60 | ROAM2 | HELL_HALL
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12
 S:BLINK | BLIND | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
 
-# maybe take now now that me have S_EVIL flags
+# probably remove now that we have S_EVIL flags
 # (main purpose of this novice rogue was to have some evil and some not,
 #  but the S_EVIL flags do that without needing this.)
 N:46:novice rogue
@@ -840,8 +838,7 @@ G:C:U
 I:120:5d5:30:30:0
 W:2:1:0:25
 B:BITE:BHOLD:1d4
-F:UNIQUE
-F:FORCE_MAXHP | RAND_25
+F:UNIQUE | FORCE_MAXHP | RAND_25
 F:BASH_DOOR | ROAM1 | FFOREST
 F:ANIMAL | NO_CONF | NO_SLEEP
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are
@@ -864,8 +861,7 @@ G:C:U
 I:120:13d2:30:28:0
 W:2:1:0:25
 B:BITE:HURT:1d5
-F:UNIQUE
-F:FORCE_MAXHP | RAND_25
+F:UNIQUE | FORCE_MAXHP | RAND_25
 F:BASH_DOOR | ROAM2 | CFOREST
 F:ANIMAL | NO_CONF | NO_SLEEP
 D:A rather vicious dog belonging to Farmer Maggot who has a particularly painful bite. 
@@ -5063,7 +5059,7 @@ B:BITE:POISON:4d4
 F:CHAR_MULTI | DROP_2D2 | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | IM_POIS | IM_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | FORCE_SLEEP
-F:CASTLE
+F:CASTLE | DWARF_MINE
 S:1_IN_5
 S:CONF | SCARE | ARROW_3 | BA_POIS | HASTE | S_MONSTER
 D:A strange creature that disguises itself as a chest to lure
@@ -5078,11 +5074,10 @@ I:105:80d12:12:70:10
 W:25:4:0:600
 B:HIT:HURT:1d12
 B:HIT:HURT:3d6
-F:FORCE_SLEEP
-F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR
+F:FORCE_SLEEP | EMPTY_MIND | BASH_DOOR
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-F:HURT_ROCK | NON_LIVING
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CASTLE
+F:HURT_ROCK | NON_LIVING | CASTLE
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
 S:1_IN_4
 S:SLOW | CONF | BO_ACID
 D:Grotesque statues, they once stood lifeless by a road in Rohan,
@@ -5307,10 +5302,11 @@ S:1_IN_9
 S:S_KIN | CAUSE_2 | SLOW | BR_DARK | SCARE
 D:A powerful undead spirit occupying the yellowed bones of one of its victims.
 
+#was L27 speed 101
 N:394:glarx
 G:g:v
-I:101:11d19:9:41:19
-W:27:3:0:191
+I:103:11d19:9:41:19
+W:26:3:0:191
 B:CLAW:POISON:2d6
 B:HIT:HURT:2d7
 B:GAZE:PARALYZE:2d8
@@ -5369,11 +5365,9 @@ W:27:3:0:290
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
-F:FORCE_SLEEP
-F:ONLY_ITEM | DROP_90
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | GIANT | ROAM1
-F:CASTLE | CFOREST
+F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR
+F:ONLY_ITEM | DROP_90 | ROAM1
+F:EVIL | GIANT | CASTLE | CFOREST
 S:1_IN_5
 S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE | HEAL_KIN
 S:S_MONSTER
@@ -5544,7 +5538,7 @@ I:110:28d8:9:6:10
 W:28:5:1:126
 B:BUTT:BLIND:8d3
 B:GAZE:CONFUSE:1d3
-F:NEVER_MOVE | EVIL | FORCE_SLEEP
+F:NEVER_MOVE | EVIL | FORCE_SLEEP | NIGHTMARE
 F:HURT_LITE | NO_FEAR | NO_SLEEP | FULL_MOON
 S:1_IN_6
 S:CAUSE_2 | SCARE | TELE_TO | BLINK
@@ -5577,7 +5571,7 @@ B:BITE:HURT:2d8
 F:FRIENDS | DROP_30
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | TROLL | REGENERATE
-F:EARTHY_CAVE
+F:EARTHY_CAVE | DWARF_MINE
 D:A powerful troll with poisonous claws.
 
 N:411:ghost
@@ -6873,7 +6867,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | MOVE_BODY
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | REGENERATE
 F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-F:CFOREST
+F:CFOREST | DWARF_MINE
 S:1_IN_7
 S:BOULDER
 D:Big, brawny, powerful and with a taste for hobbit.  He has friends called
@@ -7140,8 +7134,7 @@ B:HIT:HURT:5d5
 B:HIT:BHOLD:8d2
 B:HIT:PARALYZE:9d2
 F:CHAR_CLEAR | ATTR_CLEAR
-F:NEVER_MOVE | FORCE_MAXHP
-F:EMPTY_MIND | COLD_BLOOD
+F:NEVER_MOVE | FORCE_MAXHP | EMPTY_MIND
 F:NO_CONF | NO_SLEEP | NO_FEAR | EARTHY_CAVE
 D:A larger cousin of the lurker, this creature traps unsuspecting victims
 D: and paralyzes them, to be slowly digested later.
@@ -7171,8 +7164,8 @@ B:HIT:FIRE:4d6
 B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:EVIL | DEMON | FORCE_SLEEP
-F:IM_FIRE | IM_POIS | NO_SLEEP | HELL_HALL | HATE_WATER
+F:EVIL | DEMON | FORCE_SLEEP | HELL_HALL | DWARF_MINE
+F:IM_FIRE | IM_POIS | NO_SLEEP | HATE_WATER
 S:1_IN_4
 S:BO_FIRE | BA_FIRE
 D:It is a humanoid form composed of flames and hatred.
@@ -7577,7 +7570,7 @@ B:DROOL:EXP_40:2d6
 B:BITE:EAT_FOOD:3d6
 B:BITE:HUNGER:3d6
 F:INVISIBLE | PASS_WALL | RAND_25
-F:COLD_BLOOD | IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC
+F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID | IM_ELEC
 F:NO_FEAR | NO_SLEEP | RES_NETH | FORCE_SLEEP
 F:EVIL | DEMON | FLY | GREPSE | TEMPLE
 S:1_IN_3
@@ -8003,7 +7996,7 @@ D: alarmed when it floats up in the air and starts activating itself.
 
 N:570:wendigo
 G:G:g
-I:136:18d12:28:46:8
+I:136:19d12:28:49:8
 W:40:6:6:768
 B:WAIL:TERRIFY:1d9
 B:CLAW:COLD:3d4
@@ -8014,7 +8007,7 @@ F:NO_FEAR | NO_SLEEP | NO_CONF | RES_NEXUS
 F:IM_POIS | IM_ELEC | IM_COLD | IM_ACID
 F:EVIL | DEMON | NON_LIVING | FORCE_SLEEP
 F:CFOREST | HELL_HALL | TEMPLE
-S:1_IN_8
+S:1_IN_7
 S:HOLD | BR_FEAR | BLIND | MIND_BLAST | DARKNESS | BR_SOUN | INVIS
 D:This is the spirit of the windigo; it is a demon of fear native to cold places.  Its
 D: howl alone is enough to cause most people to be paralyzed from fear.
@@ -8074,7 +8067,7 @@ B:HIT:HURT:3d10
 B:BITE:HURT:4d6
 B:BITE:HURT:4d6
 F:FORCE_MAXHP | OPEN_DOOR | DROP_90 | ROAM1
-F:SMART | BASH_DOOR
+F:SMART | BASH_DOOR | DWARF_MINE
 F:EVIL | TROLL | IM_POIS | NO_FEAR | REGENERATE
 D:It is a massive intelligent troll (intelligent for a troll anyway) with
 D: needle-sharp fangs.
@@ -8294,7 +8287,7 @@ D: look for prey, but each with its own deadly breath weapon.
 #		level 41
 N:588:giant static toadstool
 G:,:W
-I:130:11d7:2:33:0
+I:130:21d4:2:33:0
 W:41:3:2:143
 B:SPORE:CHARM:1d6
 B:SPORE:ELEC:1d11
@@ -8493,7 +8486,7 @@ B:HIT:EXP_80:4d6
 B:HIT:EXP_80:4d6
 F:UNIQUE | MALE | FORCE_MAXHP | NON_LIVING | FORCE_SLEEP
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | ROAM1
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 F:CASTLE
 S:1_IN_9 | SCARE
@@ -8631,9 +8624,8 @@ B:HIT:HURT:6d7
 B:HIT:HURT:6d7
 B:BITE:HURT:4d10
 B:SPIT:ACID:4d8
-F:UNIQUE | MALE
-F:FORCE_MAXHP
-F:ESCORT | MOVE_BODY
+F:UNIQUE | MALE | FORCE_MAXHP
+F:ESCORT | MOVE_BODY | DWARF_MINE
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:EVIL | TROLL | IM_COLD | IM_POIS | REGENERATE
@@ -8896,7 +8888,7 @@ B:CLAW:HURT:3d10
 B:BITE:POISON:5d10
 B:BITE:POISON:5d10
 F:FORCE_SLEEP | FORCE_MAXHP | NON_LIVING
-F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:EMPTY_MIND | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_FEAR
 F:DRAGON | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:CASTLE
@@ -9304,7 +9296,7 @@ B:BITE:FIRE:4d14
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | BR_STRONG
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | HELL_HALL | TEMPLE
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | VOLCANO | TEMPLE
 S:1_IN_5
 S:CONF | BR_FIRE
 D:A mighty ancient dragon, Itangast's atmosphere scorches your flesh.  Wisps of
@@ -9477,7 +9469,7 @@ F:UNIQUE | MALE
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | BR_STRONG
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | VOLCANO | TEMPLE
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | DWARF_MINE | TEMPLE
 S:1_IN_5
 S:CONF | BR_FIRE
 D:The greatest dragon of the Third Age.  In his own words, "My armour is like tenfold
@@ -9506,12 +9498,12 @@ D: volcano god.  At an early age his sanity was destroyed by a plague that
 D: wiped out his family, and he never recovered.
 
 #		level 49
-# possibly take S_DEMON away from it, maybe replace with S_MONSTER
+# possibly take S_DEMON away from it, added S_MONSTER
 N:658:erinyes
 G:&:U
-I:121:24d10:30:96:32
-W:49:2:2:7600
-B:CLAWB:POISON:5d7
+I:121:26d10:30:91:32
+W:49:2:2:6400
+B:CLAWB:POISON:6d7
 B:BITE:POISON:6d7
 B:TOUCH:LOSE_STR:3d4
 B:TOUCH:LOSE_CON:3d4
@@ -9522,7 +9514,7 @@ F:NO_SLEEP | NO_STUN | RES_NETH
 F:IM_FIRE | IM_POIS | NO_CONF | IM_ACID | IM_ELEC
 F:EVIL | DEMON | HELL_HALL | NIGHTMARE | TEMPLE
 S:1_IN_6
-S:CONF | BR_FEAR | BO_ELEC | CAUSE_3 | BR_SHAR | S_DEMON
+S:CONF | BR_FEAR | BO_POIS | CAUSE_3 | BR_SHAR | S_DEMON | S_MONSTER
 D:A female major demon who is the source of the furies.
 
 N:659:gorgon
@@ -9547,7 +9539,7 @@ D: and eyes you're bound to lose yourself in and never turn your head again.
 N:660:horned devil
 G:U:r
 I:111:210d5:20:55:25
-W:49:1:1:1500
+W:49:1:1:1800
 B:BUTT:HURT:5d8
 B:HIT:FIRE:6d5
 B:HIT:FIRE:6d5
@@ -10373,7 +10365,7 @@ G:z:D
 I:110:383d2:20:200:50
 W:60:6:0:10000
 B:HIT:HURT:10d10
-B:HIT:HURT:10d8
+B:HIT:HURT:10d6
 F:ONLY_ITEM | DROP_90 | BASH_DOOR | FORCE_SLEEP
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR | STUPID
@@ -10631,7 +10623,7 @@ D: great heat.  It is a god made by man and possessed by a demon lord.
 
 N:721:greater hungry ghost
 G:G:y
-I:126:22d43:21:110:9
+I:126:22d43:21:119:9
 W:68:6:0:8630
 B:DROOL:LOSE_WIS:2d8
 B:BITE:EAT_FOOD:2d8
@@ -11945,7 +11937,7 @@ D: into its gigantic mouth.
 
 N:791:hound of life draining
 G:Z:R
-I:130:65d40:30:95:0
+I:130:42d61:30:95:0
 W:102:3:0:11000
 B:CLAW:TERRIFY:3d12
 B:CLAW:EXP_40:3d12
@@ -11961,7 +11953,7 @@ D:It sucks the life out of the very air.
 
 N:792:physics hound
 G:Z:g
-I:130:65d40:30:95:0
+I:130:42d61:30:95:0
 W:102:3:0:11000
 B:KICK:HURT:40d1
 B:KICK:HURT:40d1
@@ -11977,7 +11969,7 @@ D:It defies the laws of science in every way.
 
 N:793:static hound
 G:Z:w
-I:130:65d40:30:95:0
+I:130:42d61:30:95:0
 W:102:3:0:11000
 B:CLAW:UN_POWER:3d12
 B:CLAW:UN_POWER:3d12
@@ -12028,37 +12020,35 @@ D:A ridiculously big and intimidating elemental of air and water.
 
 N:796:giant xreek
 G:X:o
-I:131:100d50:20:85:10
+I:131:250d20:20:85:10
 W:105:3:0:15000
 B:HIT:HURT:25d4
 B:HIT:HURT:25d5
 B:HIT:HURT:7d8
 B:HIT:HURT:7d8
-F:FORCE_MAXHP | FORCE_SLEEP
-F:WEIRD_MIND | BASH_DOOR | NO_STUN
+F:FORCE_SLEEP | WEIRD_MIND | BASH_DOOR | NO_STUN
 F:ONLY_GOLD | DROP_3D2 | POWERFUL | RES_PLAS
 F:NO_SLEEP | NO_FEAR | NO_CONF | KILL_ITEM | MOVE_BODY
 F:IM_COLD | IM_POIS | IM_FIRE | HURT_ROCK
 F:EARTHY_CAVE | DWARF_MINE
-S:1_IN_3
+S:1_IN_4
 S:BOULDER
 D:A giant relative of the xorn, the giant xreeks toss boulders to each other in the
 D: centre of the earth.
 
 N:797:giant ifrit
 G:X:R
-I:131:100d50:20:79:10
+I:131:250d20:20:79:10
 W:105:3:0:15000
 B:HIT:FIRE:25d4
 B:HIT:FIRE:25d5
 B:HIT:FIRE:7d8
 B:SPIT:FIRE:7d7
-F:FORCE_MAXHP | FORCE_SLEEP
-F:WEIRD_MIND | BASH_DOOR | POWERFUL
+F:FORCE_SLEEP | WEIRD_MIND | BASH_DOOR | POWERFUL
 F:NO_SLEEP | NO_FEAR | NO_CONF | KILL_ITEM | KILL_BODY
 F:NO_STUN | IM_ACID | IM_ELEC | IM_FIRE | IM_POIS | RES_PLAS
 F:VOLCANO | HELL_HALL | HATE_WATER
-S:1_IN_3
+S:1_IN_4
 S:BA_FIRE
 D:A giant vaguely humanoid fire elemental, the giant ifrits toss balls of fire and
 D: plasma to each other at the centre of the earth.
@@ -12069,11 +12059,11 @@ I:113:100d33:16:30:13
 W:106:5:0:634
 B:SPIT:POISON:6d16
 B:SPIT:LOSE_ALL:6d16
-B:SPIT:SLIME:9d13
+B:SPIT:SLIME:9d12
 B:SPIT:ACID:9d13
-F:PASS_DOOR | COLD_BLOOD | EMPTY_MIND | KILL_ITEM
+F:PASS_DOOR | EMPTY_MIND | KILL_ITEM
 F:IM_POIS | IM_ACID | FORCE_SLEEP | POWERFUL | NO_STUN
-F:MULTIPLY | FRIEND1 | SWAMP | ICKY_PLACE
+F:MULTIPLY | FRIEND1 | SWAMP | ICKY_PLACE | NIGHTMARE
 S:1_IN_5 | S_KIN | TELE_TO | BR_POIS | BR_SLIME | BR_ACID
 D:An huge acidic slime that spreads worse than a plague, and that also
 D: happens to be what it spreads: plagues.
@@ -12101,11 +12091,11 @@ N:799:spreading silver vines
 G:E:W
 I:122:90d21:16:42:42
 W:108:7:1:929
-B:CRUSH:SILVER:11d6
+B:CRUSH:SILVER:6d11
 B:CRUSH:SILVER:11d6
 B:CRUSH:BHOLD:6d7
 B:SPORE:CHARM
-F:FORCE_MAXHP | WEIRD_MIND | HATE_WATER
+F:FORCE_MAXHP | WEIRD_MIND
 F:NO_FEAR | NO_CONF | NO_STUN | HURT_DARK | RES_NEXUS
 F:IM_POIS | MULTIPLY | FRIEND1 | GREPSE | CFOREST
 S:1_IN_3
@@ -12120,12 +12110,12 @@ B:TOUCH:UN_BONUS:8d8
 B:TOUCH:LOSE_ALL:8d8
 B:TOUCH:EXP_80:8d8
 F:CHAR_MULTI | FORCE_SLEEP | NON_LIVING
-F:EMPTY_MIND | COLD_BLOOD | POWERFUL | REGENERATE
+F:EMPTY_MIND | POWERFUL | REGENERATE
 F:IM_COLD | IM_FIRE | IM_POIS | IM_ACID | IM_ELEC
 F:RES_DISE | RES_NEXUS | IM_WATER | RES_NETH | RES_PLAS
 F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | CASTLE
 S:1_IN_2
-S:S_MONSTERS | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | TELE_TO
+S:S_MONSTERS | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_WRAITH | TELE_TO
 S:BA_MANA | BO_MANA | TPORT | BR_NETH | BR_TIME
 D:You see a plain gold ring. As you reach to pick it up, you feel your
 D: life force dissolve and you realize this isn't Sauron's ring.
@@ -12133,16 +12123,16 @@ D: life force dissolve and you realize this isn't Sauron's ring.
 N:801:Pandora's Box
 G:~:v
 I:160:100d15:80:190:5
-W:111:2:1:25000
+W:121:2:1:25000
 F:UNIQUE | FORCE_DEPTH
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW
-F:EMPTY_MIND | COLD_BLOOD | POWERFUL | REGENERATE
+F:EMPTY_MIND | POWERFUL | REGENERATE
 F:IM_COLD | IM_FIRE | IM_POIS | IM_ACID | IM_ELEC
 F:RES_DISE | IM_WATER | RES_NETH | NON_LIVING
 F:EVIL | NO_CONF | NO_FEAR | NO_STUN | NIGHTMARE | TEMPLE
 S:1_IN_1
 S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON | S_HYDRA
-S:S_HOUND | S_SPIDER | S_UNIQUE | S_SILVER | CAUSE_4 | BA_DARK | TPORT
+S:S_HOUND | S_SPIDER | S_UNIQUE | S_SILVER | CAUSE_4 | BA_DARK | BLINK
 D:This box contains evil of every kind and it's unleashing it all on you.
 D:Better hope you can close it or escape before all hope is gone.
 
@@ -12154,7 +12144,7 @@ F:FORCE_MAXHP | FORCE_SLEEP | RANGE | ROAM1
 F:WEIRD_MIND | NEVER_BLOW | RAND_50 | RAND_25 | RES_NEXUS
 F:NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | RES_DISE | IM_WATER
 F:BASH_DOOR | IM_COLD | IM_ACID | IM_POIS | ESCORTS | 
-F:HURT_DARK | HURT_FIRE | FFOREST | BLOCK_LOS
+F:HURT_DARK | HURT_FIRE | FFOREST | CFOREST | BLOCK_LOS
 S:1_IN_2 | S_KIN | HEAL | HASTE | HEAL_KIN
 D:This ent isn't interested in attacking you, just in planting more trees.
 
@@ -12163,7 +12153,7 @@ G:g:o
 I:120:4000d2:12:150:10
 W:114:6:0:28000
 F:FORCE_MAXHP | WEIRD_MIND | NEVER_BLOW | FORCE_SLEEP | ROAM1
-F:COLD_BLOOD | RAND_50 | RAND_25 | NON_LIVING | RANGE
+F:RAND_50 | RAND_25 | NON_LIVING | RANGE
 F:NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | NO_STUN | IM_WATER | RES_NETH
 F:BASH_DOOR | IM_COLD | IM_POIS | IM_FIRE | IM_ELEC | ESCORTS
 F:CASTLE
@@ -12173,13 +12163,13 @@ D: and the graven images of gods.
 
 N:804:giant behemoth
 G:R:b
-I:110:200d160:20:70:100
+I:110:800d40:20:70:100
 W:120:3:0:40000
-B:DROOL:BLIND:9d8
+B:DROOL:BLIND:8d9
 B:HIT:SHATTER:11d11
 B:CRUSH:LOSE_CHR:11d10
-B:BITE:ACID:12d10
-F:BASH_DOOR | RAND_25 | REGENERATE | POWERFUL | FORCE_SLEEP
+B:BITE:ACID:10d12
+F:BASH_DOOR | RAND_50 | REGENERATE | POWERFUL | FORCE_SLEEP
 F:DROP_1D2 | DROP_GREAT | BLOCK_LOS
 F:IM_ACID | IM_COLD | IM_POIS
 F:IM_WATER | NO_STUN | NO_CONF | NO_FEAR | STUPID
@@ -12198,11 +12188,11 @@ D: a fart of titanic proportions.
 N:805:walls closing in
 G:#:D
 I:120:1000d5:6:100:25
-W:122:2:0:9999
+W:122:2:0:9800
 B:GAZE:TERRIFY
 B:HIT:HURT:4d20
 F:FORCE_MAXHP | NON_LIVING | FORCE_SLEEP
-F:COLD_BLOOD | EMPTY_MIND | MOVE_BODY | KILL_ITEM | CHAR_MULTI
+F:EMPTY_MIND | MOVE_BODY | KILL_ITEM | CHAR_MULTI
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_FEAR | NO_STUN
 F:RES_DISE | RES_NEXUS | IM_WATER | RES_PLAS | RES_NETH | HURT_ROCK
 F:MULTIPLY | FRIENDS | REGENERATE | BASH_DOOR
@@ -12222,7 +12212,7 @@ F:OPEN_DOOR | BASH_DOOR | FORCE_DEPTH | ATTR_MULTI
 F:TAKE_ITEM | RAND_25 | REGENERATE | DROP_90 | DROP_30
 F:FRIEND1 | STUPID | WEIRD_MIND | FORCE_SLEEP | ROAM1
 F:FULL_MOON | NIGHTMARE | CASTLE | GREPSE | SWAMP | BUG_CAVE
-F:WINDY_CAVE | EARTHY_CAVE | VOLCANO | CFOREST | FFOREST | DWARF_MINE
+F:WINDY_CAVE | EARTHY_CAVE | VOLCANO | CFOREST | FFOREST
 S:1_IN_3
 S:BLINK | TPORT | HEAL | HASTE | DRAIN_MANA | DARKNESS
 S:FORGET | S_MONSTER | MISSILE | CAUSE_2
@@ -12235,9 +12225,9 @@ I:125:200d100:50:100:0
 W:126:3:1:500666
 B:GAZE:TERRIFY
 B:GAZE:PARALYZE
-B:HIT:EXP_80:200d25
-B:HIT:EXP_80:200d25
-F:FORCE_MAXHP | UNIQUE | FORCE_DEPTH | POWERFUL | FORCE_SLEEP
+B:HIT:EXP_80:250d20
+B:HIT:EXP_80:250d20
+F:FORCE_MAXHP | UNIQUE | FORCE_DEPTH | POWERFUL
 F:WEIRD_MIND | KILL_BODY | PASS_WALL | LUCKY_KILL
 F:SMART | INVISIBLE | DEMON | NON_LIVING | ROAM1
 F:RES_DISE | RES_NEXUS | IM_WATER | RES_PLAS | RES_NETH
@@ -12251,15 +12241,15 @@ D: to the underworld without being dead yourself.
 D: ..You'd better run away.
 
 #was unique, but then it couldn't multiply or come in groups
-#was 200d200 but that didn't work
 N:808:The End of the Dungeon
 G:#:D
-I:130:200d100:10:200:0
+I:130:100d100:10:200:0
 W:127:1:0:1000000
 B:GAZE:TERRIFY
 B:BUTT:HURT:20d4
+B:BUTT:HURT:20d4
 F:FORCE_MAXHP | FORCE_DEPTH | NON_LIVING | FORCE_SLEEP
-F:COLD_BLOOD | EMPTY_MIND | MOVE_BODY | KILL_ITEM | CHAR_MULTI
+F:EMPTY_MIND | MOVE_BODY | KILL_ITEM | CHAR_MULTI
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_FEAR | NO_STUN
 F:RES_DISE | RES_NEXUS | IM_WATER | RES_PLAS | RES_NETH | HURT_ROCK
 F:MULTIPLY | FRIENDS | ESCORT | REGENERATE | BASH_DOOR | BLOCK_LOS
@@ -12287,8 +12277,7 @@ W:14:6:2:13
 B:TOUCH:HURT:1d2
 B:TOUCH:HURT:1d2
 F:RAND_50 | RAND_25 | SILVER
-F:COLD_BLOOD | EMPTY_MIND
-F:MULTIPLY | CHAR_MULTI | HATE_WATER
+F:EMPTY_MIND | MULTIPLY | CHAR_MULTI | HATE_WATER
 F:NO_FEAR | IM_POIS | HURT_LITE | NIGHTMARE | GREPSE
 D:A floppy-eared furball-tailed dustball who eats dust carrots.
 
@@ -12298,8 +12287,7 @@ I:103:3d5:5:43:65
 W:17:7:3:16
 B:TOUCH:HURT:1d3
 F:RAND_50 | RAND_25 | SILVER
-F:COLD_BLOOD | WEIRD_MIND
-F:MULTIPLY | CHAR_MULTI | HATE_WATER
+F:WEIRD_MIND | MULTIPLY | CHAR_MULTI | HATE_WATER
 F:NO_FEAR | IM_POIS | HURT_LITE | NIGHTMARE | GREPSE
 D:A rather cute ball of dust that refuses to be swept up.
 
@@ -12309,7 +12297,7 @@ I:101:3d4:5:43:70
 W:19:21:5:21
 B:TOUCH:HURT:1d1
 F:RAND_50 | RAND_25 | SILVER
-F:COLD_BLOOD | WEIRD_MIND | MULTIPLY | HATE_WATER
+F:WEIRD_MIND | MULTIPLY | HATE_WATER
 F:CHAR_MULTI | ATTR_CLEAR | CHAR_CLEAR
 F:NO_FEAR | IM_POIS | HURT_LITE | FRIEND | NIGHTMARE | GREPSE
 D:A wisp of dust which will evade the brooms of the most meticulous sweepers by
@@ -12317,7 +12305,7 @@ D: being impossible to see.
 
 N:813:Scroll of Aquirement
 G:?:y
-I:95:20d5:3:5:210
+I:100:20d5:5:5:210
 W:0:14:1:0
 F:RAND_25 | TAKE_ITEM | NEVER_BLOW |
 F:CHAR_MULTI | REGENERATE | NON_LIVING |
@@ -12328,7 +12316,7 @@ D:A valuble thing to find in the town.  wait.. did it just move on its own?
 
 N:814:Potion of Experience
 G:!:y
-I:99:22d3:3:5:210
+I:101:22d3:6:5:210
 W:0:16:1:0
 B:SPIT:HALLU:1d1
 B:SPIT:HALLU:1d1
@@ -12601,16 +12589,15 @@ W:21:9:2:59
 B:CLAWB:HURT:4d2
 B:CLAWB:HURT:5d3
 F:ONLY_GOLD | DROP_90 | DROP_1D2
-F:COLD_BLOOD | BASH_DOOR | NON_LIVING
+F:BASH_DOOR | NON_LIVING | DWARF_MINE
 F:IM_POIS | IM_ELEC | IM_ACID | NO_CONF | NO_SLEEP
-F:DWARF_MINE
 D:It appears to be a large diamond, but you seem to see reflections of bloody wounds.
 
 N:831:damage tester dummy
 G:Q:s
-I:101:1000d5:6:160:40
+I:101:1000d6:6:160:40
 W:40:0:0:1
-F:FORCE_MAXHP | NEVER_BLOW | BASH_DOOR | RAND_50
+F:NEVER_BLOW | BASH_DOOR | RAND_50
 F:DROP_3D2 | DROP_GREAT
 #For testing targeting monsters in walls:
 F:PASS_WALL | HURT_LITE
@@ -12663,7 +12650,7 @@ D:This is an ordinary tree.  There's no reason to kill it, really.
 
 N:835:blubbering icky thing
 G:j:W
-I:110:7d6:14:31:10
+I:110:6d7:14:31:10
 W:3:1:2:11
 B:CRAWL:POISON:1d4
 B:CRAWL:EAT_FOOD
@@ -12678,7 +12665,7 @@ I:110:7d8:14:33:20
 W:9:2:0:24
 B:TOUCH:SLIME:1d4
 B:CRAWL:ACID:2d4
-F:RAND_50 | WEIRD_MIND | IM_ACID | IM_POIS
+F:RAND_50 | DROP_60 | WEIRD_MIND | IM_ACID | IM_POIS
 F:THEME_ONLY | ICKY_PLACE | WATER_HIDE | PASS_DOOR
 S:1_IN_11
 S:DRAIN_MANA
@@ -12703,7 +12690,7 @@ N:838:ironwood tree
 G:E:W
 I:100:70d25:10:150:100
 W:48:6:0:800
-B:HIT:HURT:10d8
+B:HIT:HURT:8d10
 B:HIT:HURT:10d8
 F:ONLY_GOLD | DROP_4D2 | DROP_1D2
 F:NEVER_MOVE | FORCE_MAXHP | EMPTY_MIND | STUPID | RES_NEXUS
@@ -12771,7 +12758,7 @@ D:A filthy bat, spreading sickness with its bite.
 
 N:843:weremumak
 G:q:R
-I:108:80d16:20:60:76
+I:110:80d16:20:58:76
 W:39:4:0:1600
 B:BUTT:HURT:5d6
 B:BUTT:HURT:5d6
@@ -12787,10 +12774,10 @@ N:844:greater werewolf
 G:C:g
 I:115:31d36:18:38:9
 W:50:2:2:6000
-B:WAIL:TERRIFY:2d8
-B:CLAWB:HURT:9d3
+B:WAIL:TERRIFY:2d6
 B:CLAWB:HURT:3d9
-B:BITE:EXP_40:3d12
+B:CLAWB:HURT:9d3
+B:BITE:EXP_40:6d6
 F:ONLY_GOLD | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | FORCE_SLEEP
 F:REGENERATE | IM_ELEC | IM_ACID | NO_FEAR
@@ -12867,7 +12854,7 @@ B:CLAWB:LOSE_CHR:2d6
 B:BITE:EXP_10:2d4
 B:GAZE:UNLUCKY
 F:IM_ELEC | IM_FIRE | IM_ACID | RES_DISE | RES_NEXUS | RES_NETH
-F:NO_FEAR | NO_CONF | NO_SLEEP | ROAM1 | HURT_SILV
+F:NO_FEAR | NO_CONF | NO_SLEEP | ROAM2 | HURT_SILV
 F:PASS_DOOR | FORCE_SLEEP | FORCE_MAXHP | LUCKY_KILL
 F:EVIL | ANIMAL | FULL_MOON | TEMPLE | THEME_ONLY | HATE_WATER
 S:1_IN_4

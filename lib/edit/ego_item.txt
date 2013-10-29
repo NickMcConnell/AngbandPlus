@@ -1,5 +1,5 @@
 # File: ego_item.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 
 # This file is used to initialize the "lib/data/ego_item.raw" file, which is
@@ -278,7 +278,7 @@ N:28:of Might
 X:19:0
 W:0:4:0:7500
 C:0:0:0:3
-T:33:0:99
+T:33:0:13
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -351,7 +351,7 @@ F:RES_SOUND | RES_CONFU | RES_FEAR | RES_CHARM
 # no longer restricted to crowns (it's now weaker than true sight)
 N:37:of Night and Day
 X:14:0
-W:0:3:0:3200
+W:0:3:0:3400
 T:33:0:99
 T:32:0:99
 F:RES_BLIND | RES_LITE | RES_DARK | LITE | IGNORE_ACID

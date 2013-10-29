@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -2143,6 +2143,9 @@ N:342:Rocket Blast
 I:94:4:6
 D:Shoots a radius-2 shards ball which also has a chance of destroying walls.
 D: (less damage than than the explosion spell)
+D: If you are at least character level 30, have positive luck, and are
+D: targetting a (non-permanent) wall space with nothing between you and the wall,
+D: then this spell will also have the effect of stone-to-mud.
 
 N:343:Enchant Missile To-Hit
 I:94:4:3
@@ -2529,10 +2532,13 @@ N:392:Drain Charges
 I:95:1:4
 D:Allows you to heal yourself by draining the charges from a wand or staff
 D: of your choice.  If you are lower than clvl 30, amount healed is equal to
-D: (amount drained+1) * (clvl/3).
+D: (amount of charges drained) * (clvl/3).
 D: (At clvl 12, you will get 44 hps if you drain 10 charges from a wand or staff.)
-D: At clvl 30 or above, amount healed is equal to (amount drained+1) * (clvl/4).  
-D:At higher levels it will also allow you to drain the extra to-hit, damage, and ac
+D: At clvl 30 or above, amount healed is equal to (amount drained+2) * (clvl/4).
+D:  If you don't need (much) healing, this spell may also give minor nourishment
+D: (but will never cause you to be satiated).
+D:  Charges drained from devices native to level 50 or deeper count 50% more.
+D:  At higher levels it will also allow you to drain the extra to-hit, damage, and ac
 D: bonuses from some other magic items to convert into healing.
 D: (A good use for that (+9 +10) whip of uselessness!)
 
@@ -2674,6 +2680,10 @@ D:Fires a radius 2-3 ball of shards and causes a radius 3-4
 D: earthquake centered at its target.
 D: Has a chance of additionally firing a weak radius-2 acid ball.
 D: (Damage noted in spellbook is not including acid)
+D:  If you are at least character level 25 (for necromancers) or 
+D: level 35 (for assassins), have positive luck, and are targetting a
+D: (non-permanent) wall space with nothing between you and the wall,
+D: then this spell will also have the effect of stone-to-mud.
 
 N:412:Chaos Strike
 I:95:3:8
@@ -2840,10 +2850,12 @@ D:  Chance of success and number of charges gained increase with your
 D: level and decrease with level of wand or staff and number of charges.
 D:  A failed attempt to recharge destroys one wand or staff from the stack.
 
-N:438:Cure Mortal Wounds
-I:95:7:1
-D:Cures all cuts and stunning, and heals you 10d(5+(clvl/10)) hit points.
-D: (Minimum healing is 26% of your max hit points)
+#(cure mortal wounds removed: drain charges is good enough to be the assassin's only healing spell)
+N:438:Sniper's Eye
+I:95:7:5
+D:Temporarily raises your missile weapon and throwing weapon to-hit
+D: by 20, also increasing critical shot chance. The to-hit bonus only
+D: applies if you can see the monster you're shooting at.
 
 N:439:Detect Living
 I:95:1:6
@@ -2872,7 +2884,7 @@ D: bonus).
 D: (plus to speed calculation is 4 + d(1 + (clvl/10)).    )
 
 N:443:Poison Ammo
-I:95:7:5
+I:95:7:6
 D:Brands one stack of ammunition with poison and at the same time
 D: attempts to improve the to-hit bonus and the to-dam bonus of
 D: the same ammunition. (less enchanting than elemental brand spell)

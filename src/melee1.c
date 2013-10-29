@@ -53,12 +53,42 @@ static int monster_critical(int dice, int sides, int dam)
 /*
  * Determine if a monster attack against the player succeeds.
  */
-static bool check_hit(int power, int level)
+static bool check_hit(int power, int level, const monster_race *r_ptr)
 {
-	int chance, ac;
+	int chance, ac, fdep = p_ptr->depth;
+	/* modified level */
+    int levelb = level;
+    bool uniq = FALSE;
+	if (r_ptr->flags1 & (RF1_UNIQUE)) uniq = TRUE;
+    if (fdep > 40) fdep = 40;
+	
+	/* sometimes modify the level if its a shallow monster */
+    if (p_ptr->depth > level + 4)
+	{
+		/* shallow uniques shouldn't be too weak if they appear deep */
+		if ((uniq) && (levelb < 33) && (p_ptr->depth > level+10))
+            levelb += (fdep - levelb)/3;
+        /* shallow monsters appearing deep are tougher than most of their race */
+        else if ((levelb < 31) && (p_ptr->depth > level+20)) levelb += (p_ptr->depth - levelb - 10)/5;
+        else if (p_ptr->depth > level+40) levelb += (p_ptr->depth - levelb - 20)/5;
 
-	/* Calculate the "attack quality" */
-	chance = (power + (level * 3));
+		/* hard for walls and vortexes to miss.. */
+		if ((strchr("v#%", r_ptr->d_char)) && (levelb < 60)) levelb += (60-levelb)/4;
+		/* certain animals better at hitting */
+		if ((strchr("CIJfr", r_ptr->d_char)) && (levelb < 52)) levelb += (52-levelb)/4;
+	}
+	/* xp award for out of depth non-uniques is (very) slightly reduced because of this */
+	if ((p_ptr->depth < levelb - 4) && (!uniq))
+	{
+	/* out of depth monsters in the shallows are slightly less tough than most of their race */
+		if (p_ptr->depth < levelb - 8) levelb -= (levelb - p_ptr->depth)/4;
+		
+		/* some races don't hit as well */
+		if ((strchr("Ogjz", r_ptr->d_char)) && (levelb > 25)) levelb -= (levelb-24)/4;
+	}
+
+	/* Calculate the "attack quality" (levelb instead of level * 3) */
+	chance = (power + (levelb * 2) + level);
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -68,8 +98,7 @@ static bool check_hit(int power, int level)
 }
 
 
-#define MAX_DESC_INSULT 8
-
+#define MAX_DESC_INSULT 9
 
 /*
  * Hack -- possible "insult" messages
@@ -83,15 +112,16 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 	"defiles you!",
 	"dances around you!",
 	"makes obscene gestures!",
+	"makes faces at you!",
 	"moons you!!!"
 };
 
 
 #define MAX_DESC_MOAN 8
 
-
 /*
  * Hack -- possible "moaning" messages
+ * Currently these are set for Foul Ol' Ron, a unique from Discworld planned for DJA ALT
  */
 static cptr desc_moan[MAX_DESC_MOAN] =
 {
@@ -250,8 +280,8 @@ bool make_attack_normal(int m_idx)
         /* make temporary effective monster level */
         /* affected by confusion and stunning */
         trlev = rlev;
-        if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/10;
-        else if (m_ptr->stunned) trlev = trlev/3;
+        if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/5;
+        else if (m_ptr->stunned) trlev = trlev/2;
         else if (m_ptr->confused) trlev = (trlev*4)/5;
 
         /* monster has been caught off guard */
@@ -268,7 +298,7 @@ bool make_attack_normal(int m_idx)
 		if (trlev < 1) trlev = 1;
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, trlev))
+		if (!effect || check_hit(power, trlev, r_ptr))
 		{
 #if irrevelentnow
 			/* if you are hit by a monster, you should notice that it's there */
@@ -389,8 +419,7 @@ bool make_attack_normal(int m_idx)
 			/* always repels lower level demons */
 			if ((p_ptr->timed[TMD_DEMON_WARD]) &&
 			    (r_ptr->flags3 & (RF3_DEMON)) &&
-			    ((p_ptr->lev >= rlev) || ((randint(protpwr) >= rlev) &&
-			    (rand_int(98 + adj_chr_charm[p_ptr->stat_ind[A_INT]]) + p_ptr->lev - rlev > 50))))
+			    ((p_ptr->lev >= rlev) || (randint(protpwr) >= rlev)))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -798,11 +827,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-					long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
-					long maxnum = 99;
-					long maxgold = maxnum * maxpval;
-					object_type object_type_body;
-					object_type *i_ptr = &object_type_body;
+					int catchthief;
 
 					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
@@ -812,11 +837,20 @@ bool make_attack_normal(int m_idx)
 
 					/* Obvious */
 					obvious = TRUE;
+					
+					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
+					/* thieves don't want to be near you if you're stinky or zapping */
+					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
+                        catchthief += 10;
+					if ((p_ptr->timed[TMD_STUN]) || (p_ptr->timed[TMD_BLIND])) 
+                        catchthief -= 10;
+                    if ((p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_CURSE]))
+                        catchthief -= 10;
+					if (p_ptr->timed[TMD_PARALYZED]) catchthief = 0;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->timed[TMD_PARALYZED] &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					if (rand_int(100) < catchthief)
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -828,6 +862,12 @@ bool make_attack_normal(int m_idx)
 					/* Eat gold */
 					else
 					{
+						long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
+						long maxnum = 99;
+						long maxgold = maxnum * maxpval;
+						object_type object_type_body;
+						object_type *i_ptr = &object_type_body;
+
 						gold = (p_ptr->au / 10) + randint(25);
 						if (gold < 2) gold = 2;
 						if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
@@ -848,13 +888,6 @@ bool make_attack_normal(int m_idx)
 							msg_print("All of your coins were stolen!");
 						}
 						/* EFGchange stolen gold does not evaporate */
-#if movedup
-						long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
-						long maxnum = 99;
-						long maxgold = maxnum * maxpval;
-						object_type object_type_body;
-						object_type *i_ptr = &object_type_body;
-#endif
 						while (gold > 0)
 						{
         						object_wipe(i_ptr);
@@ -891,16 +924,26 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
+					int catchthief;
 			        /* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+					
+					catchthief = adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev;
+					if (p_ptr->timed[TMD_SUPER_ROGUE]) catchthief += 10;
+					/* thieves don't want to be near you if you're stinky or zapping */
+					if ((p_ptr->timed[TMD_ZAPPING]) || (p_ptr->timed[TMD_STINKY])) 
+                        catchthief += 10;
+					if ((p_ptr->timed[TMD_STUN]) || (p_ptr->timed[TMD_BLIND])) 
+                        catchthief -= 10;
+                    if ((p_ptr->timed[TMD_CHARM]) || (p_ptr->timed[TMD_CURSE]))
+                        catchthief -= 10;
+					if (p_ptr->timed[TMD_PARALYZED]) catchthief = 0;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->timed[TMD_PARALYZED] &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					if (rand_int(100) < catchthief)
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -1253,7 +1296,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
-			        int savechance;
+			        int savedie;
 					/* extra damage reduction from surrounding magic */
 					if (surround > 0) damage -= (damage * (surround / 250));
 
@@ -1263,14 +1306,17 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					savechance = 100 + (badluck/2) - (goodluck/5);
+					savedie = 100 + (badluck/2) - (goodluck/4);
+					/* less likely to work if already paralyzed */
+					if (p_ptr->timed[TMD_PARALYZED]) savedie -= 25;
+
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(savechance) < p_ptr->skills[SKILL_SAV]) 
+					else if (rand_int(savedie) < p_ptr->skills[SKILL_SAV])
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1278,7 +1324,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						int hold = 3 + randint(rlev);
-						if (p_ptr->timed[TMD_PARALYZED] > 3) inc_timed(TMD_PARALYZED, hold/2 + 1);
+						if (p_ptr->timed[TMD_PARALYZED] > 3) inc_timed(TMD_PARALYZED, hold/2);
                         else if (inc_timed(TMD_PARALYZED, hold))
 						{
 							obvious = TRUE;
@@ -1309,12 +1355,12 @@ bool make_attack_normal(int m_idx)
 					{
 			            if (p_ptr->food > PY_FOOD_ALERT + 200) (void)set_food(PY_FOOD_ALERT);
 			            else if ((p_ptr->food < PY_FOOD_WEAK + 400) && (p_ptr->food > PY_FOOD_WEAK + 200)) (void)set_food(PY_FOOD_WEAK);
-			            else p_ptr->food = p_ptr->food - (220 + randint(damage * 4));
+			            else p_ptr->food -= (220 + randint(damage * 4));
                     }
                     else
                     {
 			            if (p_ptr->food > PY_FOOD_WEAK + 240) (void)set_food(PY_FOOD_WEAK);
-			            else p_ptr->food = p_ptr->food - (240 + randint(damage * 5));
+			            else p_ptr->food -= (240 + randint(damage * 5));
                     }
 					msg_print("you feel unsatisfied.");
 

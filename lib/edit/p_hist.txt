@@ -1,5 +1,5 @@
 # File: p_hist.txt
-# DaJAngband 1.1.0
+# DaJAngband 1.1.2
 
 # This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.

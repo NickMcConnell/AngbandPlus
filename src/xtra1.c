@@ -2639,12 +2639,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		int unluck = badluck + 2;
 		p_ptr->to_a -= 5;
 		p_ptr->dis_to_a -= 5;
-		p_ptr->to_h -= 10;
-		p_ptr->dis_to_h -= 10;
 		/* temporary bad luck */
 		if (badluck < 19) badluck += 2;
 		if (unluck > 15) unluck = (unluck*3)/5;
 		else if (unluck > 9) unluck = 9;
+		p_ptr->to_h -= (10 + (unluck+1)/2);
+		p_ptr->dis_to_h -= (10 + (unluck+1)/2);
 		p_ptr->skills[SKILL_DEV] -= unluck + 1;
 	    p_ptr->skills[SKILL_DIS] -= unluck + 2;
 	    p_ptr->skills[SKILL_SAV] -= unluck + 1;
@@ -2730,9 +2730,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->dis_to_h -= 5;
 		p_ptr->to_a -= 12;
 		p_ptr->dis_to_a -= 12;
-	    p_ptr->skills[SKILL_FOS] -= 5;
 	    p_ptr->accident = TRUE;
-        p_ptr->skills[SKILL_SAV] = p_ptr->skills[SKILL_SAV] - 4;
+	    p_ptr->skills[SKILL_FOS] -= 5;
+        p_ptr->skills[SKILL_SAV] -= 4;
         if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= 1;
     }
 
@@ -3439,8 +3439,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
 		/* Maximal value (+1 when using a double weapon with no shield) */
-		if ((o_ptr->sbdd) && (!yshield) && (p_ptr->num_blow > cp_ptr->max_attacks + 1)) p_ptr->num_blow = cp_ptr->max_attacks + 1;
-		else if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
+		if ((o_ptr->sbdd) && (!yshield))
+        {
+            if (p_ptr->num_blow > cp_ptr->max_attacks + 1) 
+                p_ptr->num_blow = cp_ptr->max_attacks + 1;
+        }
+		else if (p_ptr->num_blow > cp_ptr->max_attacks)
+                 p_ptr->num_blow = cp_ptr->max_attacks;
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += p_ptr->extra_blows;
