@@ -317,6 +317,8 @@ static void prt_sp(int row, int col)
 
 	/* Do not show mana unless it matters */
 	if (!cp_ptr->spell_book) return;
+	/* if max spell points is 0 then mana doesn't matter yet */
+	if (p_ptr->msp < 1) return;
 
 	put_str("SP ", row, col);
 
@@ -780,7 +782,7 @@ static void prt_afraid(int row, int col)
 {
 	if (p_ptr->timed[TMD_TERROR])
 	{
-		c_put_str(TERM_ORANGE, "Terror", row, col);
+		c_put_str(TERM_RED, "Terror", row, col);
 	}
 	else if (p_ptr->timed[TMD_FRENZY])
 	{
@@ -788,7 +790,7 @@ static void prt_afraid(int row, int col)
 	}
 	else if (p_ptr->timed[TMD_BECOME_LICH])
 	{
-		c_put_str(TERM_ORANGE, " Lich ", row, col);
+		c_put_str(TERM_SLATE, " Lich ", row, col);
 	}
 	else if (p_ptr->timed[TMD_AFRAID])
 	{
@@ -796,7 +798,7 @@ static void prt_afraid(int row, int col)
 	}
 	else if (p_ptr->timed[TMD_CHARM])
 	{
-		c_put_str(TERM_ORANGE, "Charmd", row, col);
+		c_put_str(TERM_YELLOW, "Charmd", row, col);
 	}
 	else
 	{
@@ -954,13 +956,20 @@ static void prt_speed(int row, int col)
 		attr = TERM_L_GREEN;
 		type = "Fast";
 	}
-
+    
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
 		type = "Slow";
 	}
+
+    /* sustained speed */
+    else if (p_ptr->timed[TMD_SUST_SPEED])
+    {
+		attr = TERM_SLATE;
+		type = "SSPD";
+    }
 
 	if (type)
 		strnfmt(buf, sizeof(buf), "%s (%+d)", type, (i - 110));
@@ -1588,6 +1597,13 @@ static void calc_mana(void)
 
 	/* Extract total mana */
 	msp = (long)adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 100;
+	
+	/* war mages get 1.5x mana */
+	if (cp_ptr->flags & CF_POWER_SHIELD)
+    {
+       if (msp < 4) msp += 2;
+       else msp = (msp*3)/2;
+    }
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1595,7 +1611,7 @@ static void calc_mana(void)
 	/* Process gloves for those disturbed by them */
 	if (cp_ptr->flags & CF_CUMBER_GLOVE)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -1604,11 +1620,12 @@ static void calc_mana(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
 		    !(f3 & (TR3_FREE_ACT)) &&
+		    !(f2 & (TR2_MAGIC_MASTERY)) &&
 		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
@@ -1774,7 +1791,7 @@ static void calc_torch(void)
 	/* Examine all wielded objects, use the brightest */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 
 		int amt = 0;
 		object_type *o_ptr = &inventory[i];
@@ -1783,7 +1800,7 @@ static void calc_torch(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Cursed objects emit no light */
 		if (o_ptr->ident & IDENT_CURSED)
@@ -1908,7 +1925,7 @@ static void calc_bonuses(void)
 
 	object_type *o_ptr;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 
 	/*** Memorize ***/
@@ -2048,7 +2065,7 @@ static void calc_bonuses(void)
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Good flags */
 	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -2125,7 +2142,7 @@ static void calc_bonuses(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -2140,6 +2157,17 @@ static void calc_bonuses(void)
 
 		/* Affect searching ability (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_SRH] += (o_ptr->pval * 5);
+		if (f1 & (TR1_SEARCH)) spellswitch = 90 + o_ptr->pval;
+		if (spellswitch > 95) spellswitch = 95;
+		
+		/* affect magic device mastery */
+		if (f2 & (TR2_MAGIC_MASTERY))
+		{
+			if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 12;
+			else if (p_ptr->skills[SKILL_DEV] < 32) p_ptr->skills[SKILL_DEV] += 10;
+			else if (p_ptr->skills[SKILL_DEV] < 42) p_ptr->skills[SKILL_DEV] += 8;
+			else p_ptr->skills[SKILL_DEV] += 6;
+        }
 
 		/* Affect searching frequency (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_FOS] += (o_ptr->pval * 5);
@@ -2359,6 +2387,17 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 100;
 	}
 
+	/* enhanced magic (most of its effects are elsewhere) */
+	/* allows reading while blind and enhances spellcasting */
+	/* less effect than magic mastery in the area of devices */
+	if (p_ptr->timed[TMD_BRAIL])
+	{
+		if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 10;
+		else if (p_ptr->skills[SKILL_DEV] < 35) p_ptr->skills[SKILL_DEV] += 8;
+		else if (p_ptr->skills[SKILL_DEV] < 45) p_ptr->skills[SKILL_DEV] += 6;
+		else p_ptr->skills[SKILL_DEV] += 4;
+    }
+
 	/* Temporary blessing */
 	if (p_ptr->timed[TMD_BLESSED])
 	{
@@ -2375,13 +2414,17 @@ static void calc_bonuses(void)
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
 	}
-
-	/* Temporary shield */
-	if (p_ptr->timed[TMD_WSHIELD])
+	/* Temporary 'mana defence' (weaker shield) */
+	else if (p_ptr->timed[TMD_WSHIELD])
 	{
 		p_ptr->to_a += 20;
 		p_ptr->dis_to_a += 20;
 	}
+    /* ac doesn't stack with shield, but it always gives +1 stealth. */ 
+	if (p_ptr->timed[TMD_WSHIELD])
+    {
+        p_ptr->skills[SKILL_STL] += 1;
+    }
 
 	/* Temporary "Hero" */
 	if (p_ptr->timed[TMD_HERO])
@@ -2454,10 +2497,20 @@ static void calc_bonuses(void)
 		p_ptr->pspeed += spadjust;
 	}
 
+	/* sustain speed: resist slowing, inertia, and hasting */
+	/* (undecided if it should affect TMD_ADJUST, it does for now */
+	if (p_ptr->timed[TMD_SUST_SPEED])
+	{
+		if (p_ptr->timed[TMD_FAST]) (void)clear_timed(TMD_FAST);
+		if (p_ptr->timed[TMD_SLOW]) (void)clear_timed(TMD_SLOW);
+		if (p_ptr->timed[TMD_ADJUST]) (void)clear_timed(TMD_ADJUST);
+	}
+
 	/* Temporary see invisible */
 	if (p_ptr->timed[TMD_SINVIS])
 	{
 		p_ptr->see_inv = TRUE;
+		if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->lev > 32)) p_ptr->skills[SKILL_SRH] += 10;
 	}
 
 	/* Timed "True Sight" */
@@ -2571,7 +2624,6 @@ static void calc_bonuses(void)
 		p_ptr->see_infra += 1;
 	}
 
-
 	/*** Special flags ***/
 	
     /* thieves' extra speed */
@@ -2617,7 +2669,7 @@ static void calc_bonuses(void)
     }
     /* further hit for black magic users*/
     if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
-       (randint(100) < 3))
+       (randint(1000) < 2))
 	{
        p_ptr->luck -= 1;
     }
@@ -2719,6 +2771,7 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- combat (normal) (Level, by Class) */
 	p_ptr->skills[SKILL_THN] += (cp_ptr->x_thn * p_ptr->lev / 10);
+	p_ptr->skills[SKILL_THN] += 2;
 
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
 	p_ptr->skills[SKILL_THB] += (cp_ptr->x_thb * p_ptr->lev / 10);
@@ -2739,6 +2792,27 @@ static void calc_bonuses(void)
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
+    /* Player alertness to monsters */
+    /* how alert to monsters is the player? */
+    palert = (p_ptr->skills[SKILL_SRH] / 2) + (p_ptr->skills[SKILL_FOS]/4) + 10 + randint(goodluck/2);
+    /* if (palert > 50) palert = 50; */
+    /* if (p_ptr->stat_use[A_INT] > p_ptr->stat_use[A_WIS]) palert += p_ptr->stat_use[A_INT];
+    else palert += p_ptr->stat_use[A_WIS]; */
+    if (p_ptr->timed[TMD_CONFUSED]) palert -= 2;
+    if (p_ptr->timed[TMD_STUN]) palert -= 1;
+	if (p_ptr->timed[TMD_IMAGE]) palert -= 8;
+	if (p_ptr->timed[TMD_FRENZY]) palert -= 5;
+	if (p_ptr->timed[TMD_TERROR]) palert -= 4;
+	if (p_ptr->timed[TMD_CHARM]) palert -= 3;
+	if (p_ptr->timed[TMD_WITCH]) palert -= 1;
+	if (p_ptr->silver >= PY_SILVER_LEVELTWO) palert -= 6;
+	else if (p_ptr->silver >= PY_SILVER_LEVELONE) palert -= 3;
+    if (p_ptr->searching) palert += 6;
+	if ((spellswitch > 90) && (spellswitch < 96)) palert += (spellswitch - 90) + 1;
+	if (p_ptr->timed[TMD_BLESSED]) palert += 2;
+	if (p_ptr->timed[TMD_SHADOW]) palert += 2;
+    if (p_ptr->pclass == 4) palert += 2; /* small bonus for rangers */
+	if (p_ptr->timed[TMD_TSIGHT]) palert += 15;
 
 	/*** Analyze current bow ***/
 
@@ -2935,7 +3009,7 @@ static void calc_bonuses(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;

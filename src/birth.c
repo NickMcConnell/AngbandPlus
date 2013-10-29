@@ -409,6 +409,7 @@ static void get_ahw(void)
 
 /*
  * Get the player's starting money
+ * (this function has no effect with normal character generation)
  */
 static void get_money(void)
 {
@@ -428,7 +429,7 @@ static void get_money(void)
 		else if (stat_use[i] > 18) gold -= 150;
 		else gold -= (stat_use[i] - 8) * 10;
 	}
-
+	
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
 
@@ -1180,8 +1181,16 @@ static int player_birth_aux_2(bool start_at_end)
 #else
 		p_ptr->au = (100 * (48 - cost)) + 320;
 #endif
+        /* DJA social class should still affect starting gold */
+        if ((p_ptr->sc == 1) && (adult_cansell)) p_ptr->au -= 19 + randint(35);
+        else if (p_ptr->sc == 1) p_ptr->au -= 34 + randint(50);
+        if (p_ptr->sc < 4) p_ptr->au -= (4-p_ptr->sc)*5 + randint(10);
+        else if (p_ptr->sc > 19) p_ptr->au += p_ptr->sc/2 + randint(p_ptr->sc/2);
+        else if (p_ptr->sc > 9) p_ptr->au += randint(p_ptr->sc-4);
+        if (p_ptr->sc > 50) p_ptr->au += p_ptr->sc/4 + randint(p_ptr->sc/2);
+
         /* hulks start with less gold because they can mine extremely easily */
-        if ((p_ptr->prace == 17) && (p_ptr->au > 100)) p_ptr->au = 100;
+        if ((p_ptr->prace == 17) && (p_ptr->au > 100)) p_ptr->au -= 120 + randint(90);
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1792,78 +1801,79 @@ for (;clash < 50;)
                     /* hobligb can only be rogue, alchemist, healer, necromancer or chaos warrior */
                     if (p_ptr->prace == 11)
                       {
-                      if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) &&
-                         (p_ptr->pclass != 9) && (p_ptr->pclass != 2))
-                      clash = 11;
+                         if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) &&
+                            (p_ptr->pclass != 9) && (p_ptr->pclass != 2))
+                         clash = 11;
                       }
                     /* hobbit cannot be necromancer, druid, war mage, barbarian, fighter wizard, mystic, or red or yellow knight */
                     if (p_ptr->prace == 3)
                       {
-                      if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
-                      clash = 3;
+                         if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10) || 
+                            (p_ptr->pclass == 18))
+                         clash = 3;
                       }
                     /* magic gnome cannot be a paladin, priest, or white, grey, blue, or yellow knight */
                     if (p_ptr->prace == 4)
                       {
-                      if ((p_ptr->pclass == 5) || (p_ptr->pclass == 8))
-                      clash = 4;
+                         if ((p_ptr->pclass == 5) || (p_ptr->pclass == 8))
+                         clash = 4;
                       }
                     /* dwarf cannot be a ranger, witch, stone slinger, or chaos warrior */
                     if (p_ptr->prace == 5)
                       {
-                      if (p_ptr->pclass == 4) clash = 5;
+                         if (p_ptr->pclass == 4) clash = 5;
                       }
-                    /* half orc cannot be a healer, paladin, priest, sage, or white or yellow knight */
+                    /* half orc cannot be a healer, sage, or white or yellow knight */
                     if (p_ptr->prace == 6)
                       {
-                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5) || (p_ptr->pclass == 8))
-                      clash = 6;
+                         if (p_ptr->pclass == 9)
+                         clash = 6;
                       }
-                    /* half troll cannot be a war mage, escape artist, mystic, ninja, or white, green or yellow knight
+                    /* half troll cannot be a war mage, mystic, ninja, or white, green or yellow knight
                     if (p_ptr->prace == 7)
                       {
-                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5))
-                      clash = 7;
+                         if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5))
+                         clash = 7;
                       }
-                    /* dunadan cannot be a witch, war mage, thief, loser or chaos warrior 
+                    /* dunadan cannot be a witch, war mage, thief, loser or chaos warrior */
                     if (p_ptr->prace == 8)
                       {
-                      if (p_ptr->pclass == 10) clash = 8;
+                         if (p_ptr->pclass == 14) clash = 8; /* only thief so far */
                       }
-                    /* high elf cannot be a barbarian, tourist, rogue, loser, holy rogue, escape artist, stone slinger or green knight */
+                    /* high elf cannot be a barbarian, tourist, rogue, loser, holy rogue, stone slinger or green knight */
                     if (p_ptr->prace == 9)
                       {
-                      if (p_ptr->pclass == 3)
-                      clash = 9;
+                         if ((p_ptr->pclass == 3) || (p_ptr->pclass == 18) || (p_ptr->pclass == 15))
+                         clash = 9;
                       }
                     /* kobold cannot be a mystic or red knight
                     if (p_ptr->prace == 10)
                       {
-                      if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
-                      clash = 10;
+                         if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
+                         clash = 10;
                       }
                     /* fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch, loser, chaos warrior, or any kind of knight */
                     if (p_ptr->prace == 12)
                       {
-                      if ((p_ptr->pclass == 0) || (p_ptr->pclass == 2))
-                      clash = 12;
+                         if ((p_ptr->pclass == 0) || (p_ptr->pclass == 2) || (p_ptr->pclass == 13))
+                         clash = 12;
                       }
                     /* dark elf cannot be a paladin or tourist */
                     if (p_ptr->prace == 13)
                       {
-                      if (p_ptr->pclass == 5) clash = 13;
+                         if (p_ptr->pclass == 5) clash = 13;
                       }
                     /* grave ghoul cannot be a priest, sage, mystic, ninja, or white, blue, or yellow knight */
                     if (p_ptr->prace == 14)
                       {
-                      if (p_ptr->pclass == 8)
-                      clash = 14;
+                         if (p_ptr->pclass == 8)
+                         clash = 14;
                       }    
                     /* power sprite cannot be a wizard, necromancer, druid, alchemist, sage, or loser */
                     if (p_ptr->prace == 15)
                       {
-                      if ((p_ptr->pclass == 1) || (p_ptr->pclass == 2))
-                      clash = 15;
+                         if ((p_ptr->pclass == 1) || (p_ptr->pclass == 2))
+                         clash = 15;
                       }    
                     /* umber hulk must be hulk class */
                     if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;

@@ -432,13 +432,15 @@ static void breath(int m_idx, int typ, int dam_hp)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
     	
 	    /* POWERFUL flag should raise breath damage for low hp monsters */
-	    if ((r_ptr->flags2 & (RF2_POWERFUL)) && dam_hp < 50)
+	    /* will never go over a cap: only has effect if damage is low */
+	    if ((r_ptr->flags2 & (RF2_POWERFUL)) && (dam_hp < 50) &&
+	       (!r_ptr->flags2 & (RF2_BR_WEAK)))
 	       {
-           int die = randint(100);
-           if (die < 5) dam_hp = dam_hp * 3;
-           else if (die < 52) dam_hp = dam_hp * 2;
-           else if (die < 76) dam_hp = dam_hp * 1.4;
-           else if (die < 92) dam_hp = dam_hp + 2;
+               int die = randint(100) + (goodluck/3) - (badluck/3);
+               if (die < 5) dam_hp = dam_hp * 3;
+               else if (die < 52) dam_hp = dam_hp * 2;
+               else if (die < 76) dam_hp = dam_hp * 1.4;
+               else if (die < 92) dam_hp = dam_hp + 2;
            }
            
 	    /* BR_WEAK flag lowers breath damage */
@@ -873,6 +875,20 @@ bool make_attack_spell(int m_idx)
 		return (TRUE);
 	}
 #endif /* MONSTER_AI */
+            
+    /* primary spellcasters get slight damage reduction from surrounding magic */
+    int surround = 0;
+	if (cp_ptr->flags & CF_POWER_SHIELD) surround = p_ptr->lev + 5;
+	else if ((cp_ptr->flags & CF_ZERO_FAIL) && (p_ptr->lev > 20)) surround = p_ptr->lev/3 + 3;
+	if (p_ptr->timed[TMD_BRAIL]) surround += 10 + (goodluck/3);
+	/* extremely high luck can also have this effect */
+	if ((goodluck == 17) && (randint(100) < 70)) surround += 9;
+	if ((goodluck > 17) && (randint(100) < 75)) surround += 10 + randint((goodluck-17)*5);
+	if ((surround > 0) && (badluck > 15)) surround -= badluck/2;
+	if ((surround > 0) && (surround < 5)) surround = 0; /* minimum positive is 5 */
+
+    int dir;
+    int damage;
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -941,7 +957,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(5, 6));
+			damage = damroll(5, 6);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ARROW, damage);
 			break;
 		}
 
@@ -951,19 +970,29 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(7, 6));
+			damage = damroll(7, 6);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ARROW, damage);
 			break;
 		}
 
 		/* RF4_BR_ACID */
 		case RF4_OFFSET+8:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_ACID);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes acid.", m_name);
-			breath(m_idx, GF_ACID,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_ACID, damage);
 			update_smart_learn(m_idx, DRS_RES_ACID);
 			break;
 		}
@@ -971,18 +1000,24 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_ELEC */
 		case RF4_OFFSET+9:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_ELEC);
 			if (blind) msg_format("%^s breathes.", m_name);
 #ifdef ALTDJA
 			else msg_format("%^s breathes stench.", m_name);
-			breath(m_idx, GF_ELEC,
-			       ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)));
+			damage = ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4));
 #else
 			else msg_format("%^s breathes lightning.", m_name);
-			breath(m_idx, GF_ELEC,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
 #endif
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_ELEC, damage);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -990,12 +1025,24 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_FIRE */
 		case RF4_OFFSET+10:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_FIRE);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes fire.", m_name);
-			breath(m_idx, GF_FIRE,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+			   fire_ball(GF_FIRE, 0, m_ptr->hp / 3, 4);
+			   break;
+            }
+			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_FIRE, damage);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			break;
 		}
@@ -1003,12 +1050,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_COLD */
 		case RF4_OFFSET+11:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_FROST);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes frost.", m_name);
-			breath(m_idx, GF_COLD,
-			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_COLD, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
@@ -1016,12 +1070,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_POIS */
 		case RF4_OFFSET+12:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_GAS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gas.", m_name);
-			breath(m_idx, GF_POIS,
-			       ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_POIS, damage);
 			update_smart_learn(m_idx, DRS_RES_POIS);
 			break;
 		}
@@ -1029,12 +1090,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_NETH */
 		case RF4_OFFSET+13:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_NETHER);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nether.", m_name);
-			breath(m_idx, GF_NETHER,
-			       ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_NETHER, damage);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
 			break;
 		}
@@ -1042,12 +1110,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_LITE */
 		case RF4_OFFSET+14:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_LIGHT);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes light.", m_name);
-			breath(m_idx, GF_LITE,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_LITE, damage);
 			update_smart_learn(m_idx, DRS_RES_LITE);
 			break;
 		}
@@ -1055,12 +1130,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_DARK */
 		case RF4_OFFSET+15:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_DARK);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes darkness.", m_name);
-			breath(m_idx, GF_DARK,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_DARK, damage);
 			update_smart_learn(m_idx, DRS_RES_DARK);
 			break;
 		}
@@ -1068,12 +1150,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_CONF */
 		case RF4_OFFSET+16:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_CONF);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes confusion.", m_name);
-			breath(m_idx, GF_CONFUSION,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_CONFUSION, damage);
 			update_smart_learn(m_idx, DRS_RES_CONFU);
 			break;
 		}
@@ -1081,12 +1170,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_SOUN */
 		case RF4_OFFSET+17:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_SOUND);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes sound.", m_name);
-			breath(m_idx, GF_SOUND,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_SOUND, damage);
 			update_smart_learn(m_idx, DRS_RES_SOUND);
 			break;
 		}
@@ -1094,12 +1190,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_CHAO */
 		case RF4_OFFSET+18:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_CHAOS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes chaos.", m_name);
-			breath(m_idx, GF_CHAOS,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_CHAOS, damage);
 			update_smart_learn(m_idx, DRS_RES_CHAOS);
 			break;
 		}
@@ -1107,12 +1210,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_DISE */
 		case RF4_OFFSET+19:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_DISENCHANT);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes disenchantment.", m_name);
-			breath(m_idx, GF_DISENCHANT,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_DISENCHANT, damage);
 			update_smart_learn(m_idx, DRS_RES_DISEN);
 			break;
 		}
@@ -1120,12 +1230,19 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_NEXU */
 		case RF4_OFFSET+20:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_NEXUS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nexus.", m_name);
-			breath(m_idx, GF_NEXUS,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_NEXUS, damage);
 			update_smart_learn(m_idx, DRS_RES_NEXUS);
 			break;
 		}
@@ -1133,18 +1250,30 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_TIME */
 		case RF4_OFFSET+21:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_TIME);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes time.", m_name);
-			breath(m_idx, GF_TIME,
-			       ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_TIME, damage);
 			break;
 		}
 
 		/* RF4_BR_INER */
 		case RF4_OFFSET+22:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_INERTIA);
 			if (blind) msg_format("%^s breathes.", m_name);
@@ -1153,32 +1282,48 @@ bool make_attack_spell(int m_idx)
 #else
 			else msg_format("%^s breathes inertia.", m_name);
 #endif			
-			breath(m_idx, GF_INERTIA,
-			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_INERTIA, damage);
 			break;
 		}
 
 		/* RF4_BR_GRAV */
 		case RF4_OFFSET+23:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_GRAVITY);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gravity.", m_name);
-			breath(m_idx, GF_GRAVITY,
-			       ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)));
+			damage = ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_GRAVITY, damage);
 			break;
 		}
 
 		/* RF4_BR_SHAR */
 		case RF4_OFFSET+24:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_SHARDS);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes shards.", m_name);
-			breath(m_idx, GF_SHARD,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_SHARD, damage);
 			update_smart_learn(m_idx, DRS_RES_SHARD);
 			break;
 		}
@@ -1186,24 +1331,38 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_PLAS */
 		case RF4_OFFSET+25:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
 			disturb(1, 0);
 			sound(MSG_BR_PLASMA);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes plasma.", m_name);
-			breath(m_idx, GF_PLASMA,
-			       ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_PLASMA, damage);
 			break;
 		}
 
 		/* RF4_BR_WALL */
 		case RF4_OFFSET+26:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3))
+            {
+                msg_format("%^s breathes away from you.", m_name);
+                break;
+            }
             disturb(1, 0);
 			sound(MSG_BR_FORCE);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes force.", m_name);
-			breath(m_idx, GF_FORCE,
-			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_FORCE, damage);
 			break;
 		}
 
@@ -1217,13 +1376,15 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_FEAR Breathe fear */
 		case RF4_OFFSET+28:
 		{
+            if ((m_ptr->charmed == TRUE) && (m_ptr->cdis < 3)) break;
 			disturb(1, 0);
 			sound(MSG_BR_FORCE);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes fear.", m_name);
 			int die = randint(100);
-            if (r_ptr->flags2 & (RF2_POWERFUL)) die = die - 15;
-            if (p_ptr->timed[TMD_FRENZY]) die = die + 10;
+            if (r_ptr->flags2 & (RF2_POWERFUL)) die -= 15;
+            if (p_ptr->timed[TMD_FRENZY]) die += 10;
+            if (p_ptr->resist_charm) die += 2 + randint(8);
 			if (!p_ptr->resist_fear)
             {
                if (die < 99)
@@ -1239,8 +1400,10 @@ bool make_attack_spell(int m_idx)
             {
                if (die < 33) inc_timed(TMD_AFRAID, rand_int(5) + 1);
             }
-			breath(m_idx, GF_BRFEAR,
-			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
+			damage = ((m_ptr->hp / 6) > 190 ? 190 : (m_ptr->hp / 6));
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_BRFEAR, damage);
 			break;
 		}
 
@@ -1269,7 +1432,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("You hear something grunt with exertion.", m_name);
 			else msg_format("%^s hurls a boulder at you!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(1 + r_ptr->level / 7, 12));
+			damage = damroll(1 + r_ptr->level / 7, 12);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ARROW, damage);
 			break;
 		}
 
@@ -1280,8 +1446,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts an acid ball.", m_name);
-			breath(m_idx, GF_ACID,
-			       randint(rlev * 3) + 15);
+			damage = randint(rlev * 3) + 15;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_ACID, damage);
 			update_smart_learn(m_idx, DRS_RES_ACID);
 			break;
 		}
@@ -1296,8 +1464,10 @@ bool make_attack_spell(int m_idx)
 #else
 			else msg_format("%^s casts a lightning ball.", m_name);
 #endif
-			breath(m_idx, GF_ELEC,
-			       randint(rlev * 3 / 2) + 8);
+			damage = randint(rlev * 3 / 2) + 8;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_ELEC, damage);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -1308,8 +1478,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire ball.", m_name);
-			breath(m_idx, GF_FIRE,
-			       randint(rlev * 7 / 2) + 10);
+			damage = randint(rlev * 7 / 2) + 10;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_FIRE, damage);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			break;
 		}
@@ -1320,8 +1492,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost ball.", m_name);
-			breath(m_idx, GF_COLD,
-			       randint(rlev * 3 / 2) + 10);
+			damage = randint(rlev * 3 / 2) + 10;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_COLD, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
@@ -1344,8 +1518,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a nether ball.", m_name);
-			breath(m_idx, GF_NETHER,
-			       (50 + damroll(10, 10) + rlev));
+			damage = 50 + damroll(10, 10) + rlev;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_NETHER, damage);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
 			break;
 		}
@@ -1357,8 +1533,10 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s gestures fluidly.", m_name);
 			msg_print("You are engulfed in a whirlpool.");
-			breath(m_idx, GF_WATER,
-			       randint(rlev * 5 / 2) + 50);
+			damage = randint(rlev * 5 / 2) + 50;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_WATER, damage);
 			break;
 		}
 
@@ -1368,8 +1546,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a mana storm.", m_name);
-			breath(m_idx, GF_MANA,
-			       (rlev * 5) + damroll(10, 10));
+			damage = (rlev * 5) + damroll(10, 10);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_MANA, damage);
 			break;
 		}
 
@@ -1379,8 +1559,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a darkness storm.", m_name);
-			breath(m_idx, GF_DARK,
-			       (rlev * 5) + damroll(10, 10));
+			damage = (rlev * 5) + damroll(10, 10);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_DARK, damage);
 			update_smart_learn(m_idx, DRS_RES_DARK);
 			break;
 		}
@@ -1469,7 +1651,10 @@ bool make_attack_spell(int m_idx)
 				{
 					(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
 				}
-				take_hit(damroll(8, 8), ddesc);
+				damage = damroll(8, 8);
+		        /* extra damage reduction from surrounding magic */
+				if (surround > 0) damage -= (damage * (surround / 250));
+				take_hit(damage, ddesc);
 			}
 			break;
 		}
@@ -1496,7 +1681,10 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				take_hit(damroll(12, 15), ddesc);
+				damage = damroll(12, 15);
+		        /* extra damage reduction from surrounding magic */
+				if (surround > 0) damage -= (damage * (surround / 250));
+				take_hit(damage, ddesc);
 				if (!p_ptr->resist_blind)
 				{
 					(void)inc_timed(TMD_BLIND, 8 + rand_int(8));
@@ -1509,7 +1697,7 @@ bool make_attack_spell(int m_idx)
 				{
 					(void)inc_timed(TMD_PARALYZED, rand_int(4) + 4);
 				}
-				(void)inc_timed(TMD_SLOW, rand_int(4) + 4);
+				if (!p_ptr->timed[TMD_SUST_SPEED]) (void)inc_timed(TMD_SLOW, rand_int(4) + 4);
 			}
 			break;
 		}
@@ -1521,7 +1709,8 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			int savechance = 105 + badluck - (goodluck/5);
+			int savechance = 105 + (badluck/2) - (goodluck/3);
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 20;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
@@ -1540,14 +1729,18 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses horribly.", m_name);
-			int savechance = 104 + badluck - (goodluck/5);
+			int savechance = 104 + (badluck/2) - (goodluck/2);
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				take_hit(damroll(8, 8), ddesc);
+				damage = damroll(8, 8);
+		        /* extra damage reduction from surrounding magic */
+				if (surround > 0) damage -= (damage * (surround / 250));
+				take_hit(damage, ddesc);
 			}
 			break;
 		}
@@ -1560,13 +1753,17 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles loudly.", m_name);
 			else msg_format("%^s points at you, incanting terribly!", m_name);
 			int savechance = 101 + (badluck/2) - (goodluck/4);
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				take_hit(damroll(10, 15), ddesc);
+				damage = damroll(10, 15);
+		        /* extra damage reduction from surrounding magic */
+				if (surround > 0) damage -= (damage * (surround / 250));
+				take_hit(damage, ddesc);
 			}
 			break;
 		}
@@ -1579,6 +1776,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			else msg_format("%^s points at you, screaming the word DIE!", m_name);
 			int savechance = 101 + (badluck/2) - (goodluck/4);
+			if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 25;
 			if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 			{
 				if (badluck > 1)
@@ -1586,11 +1784,14 @@ bool make_attack_spell(int m_idx)
 				msg_print("You mostly resist the effects!");
 				(void)inc_timed(TMD_CUT, damroll(6, 6));
                 }
-				msg_print("You resist the effects!");
+				else msg_print("You resist the effects!");
 			}
 			else
 			{
-				take_hit(damroll(15, 15), ddesc);
+				damage = damroll(15, 15);
+		        /* extra damage reduction from surrounding magic */
+				if (surround > 0) damage -= (damage * (surround / 250));
+				take_hit(damage, ddesc);
 				(void)inc_timed(TMD_CUT, damroll(10, 10));
 			}
 			break;
@@ -1602,8 +1803,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a acid bolt.", m_name);
-			bolt(m_idx, GF_ACID,
-			     damroll(7, 8) + (rlev / 3));
+			damage = damroll(7, 8) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ACID, damage);
 			update_smart_learn(m_idx, DRS_RES_ACID);
 			break;
 		}
@@ -1616,12 +1819,16 @@ bool make_attack_spell(int m_idx)
 #ifdef ALTDJA
 			else msg_format("%^s casts stink bomb.", m_name);
 			bomb = 1;
-			breath(m_idx, GF_ELEC,
-			     damroll(4, 8) + (rlev / 3));
+			damage = damroll(4, 8) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			breath(m_idx, GF_ELEC, damage);
 #else
 			else msg_format("%^s casts a lightning bolt.", m_name);
-			bolt(m_idx, GF_ELEC,
-			     damroll(4, 8) + (rlev / 3));
+			damage = damroll(4, 8) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ELEC, damage);
 #endif
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
@@ -1633,8 +1840,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a fire bolt.", m_name);
-			bolt(m_idx, GF_FIRE,
-			     damroll(9, 8) + (rlev / 3));
+			damage = damroll(9, 8) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_FIRE, damage);
 			update_smart_learn(m_idx, DRS_RES_FIRE);
 			break;
 		}
@@ -1643,10 +1852,20 @@ bool make_attack_spell(int m_idx)
 		case RF5_OFFSET+19:
 		{
 			disturb(1, 0);
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+               msg_format("%^s gives you a frost bolt to throw as a free action.", m_name);
+			   if (!get_aim_dir(&dir)) break;
+			   fire_bolt_or_beam(10 + (goodluck*2), GF_COLD, dir, 
+                                 damroll(6, 8) + (rlev / 3));
+			   break;
+            }
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost bolt.", m_name);
-			bolt(m_idx, GF_COLD,
-			     damroll(6, 8) + (rlev / 3));
+			damage = damroll(6, 8) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_COLD, damage);			     
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
@@ -1657,8 +1876,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a poison bolt.", m_name);
-			bolt(m_idx, GF_POIS,
-			     3 + damroll(7, 6) + (rlev / 3));
+			damage = 3 + damroll(7, 6) + (rlev / 3);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_POIS, damage);
 			update_smart_learn(m_idx, DRS_RES_POIS);
 			break;
    		}
@@ -1669,8 +1890,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a nether bolt.", m_name);
-			bolt(m_idx, GF_NETHER,
-			     30 + damroll(5, 5) + (rlev * 3) / 2);
+			damage = 30 + damroll(5, 5) + (rlev * 3) / 2;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_NETHER, damage);
 			update_smart_learn(m_idx, DRS_RES_NETHR);
 			break;
 		}
@@ -1683,14 +1906,15 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a water bolt.", m_name);
 			if (rlev < 35)
 			   {
-			   bolt(m_idx, GF_WATER,
-			   damroll(8, 8) + (rlev / 2));
+			      damage = damroll(8, 8) + (rlev/2);
                }
 	        else 
                {
-			   bolt(m_idx, GF_WATER,
-               damroll(10, 10) + (rlev));
+			      damage = damroll(10, 10) + (rlev);
                }
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+		    bolt(m_idx, GF_WATER, damage);
 			break;
 		}
 
@@ -1698,10 +1922,19 @@ bool make_attack_spell(int m_idx)
 		case RF5_OFFSET+23:
 		{
 			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+               msg_format("%^s asks you to to fire a mana bolt at.", m_name);
+			   if (!get_aim_dir(&dir)) break;
+			   fire_ball(GF_MANA, dir, damroll(50, 3) + randint(25), 1);
+			   break;
+            }
+			if (blind) msg_format("%^s exerts magic power.", m_name);
 			else msg_format("%^s casts a mana bolt.", m_name);
-			bolt(m_idx, GF_MANA,
-			     randint(rlev * 7 / 2) + 50);
+			damage = randint(rlev * 7 / 2) + 50;
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_MANA, damage);
 			break;
 		}
 
@@ -1711,8 +1944,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a plasma bolt.", m_name);
-			bolt(m_idx, GF_PLASMA,
-			     10 + damroll(8, 7) + (rlev));
+			damage = 10 + damroll(8, 7) + (rlev);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_PLASMA, damage);
 			break;
 		}
 
@@ -1722,8 +1957,10 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts an ice bolt.", m_name);
-			bolt(m_idx, GF_ICE,
-			     damroll(6, 6) + (rlev));
+			damage = damroll(6, 6) + (rlev);
+	        /* extra damage reduction from surrounding magic */
+			if (surround > 0) damage -= (damage * (surround / 250));
+			bolt(m_idx, GF_ICE, damage);
 			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
@@ -1742,12 +1979,20 @@ bool make_attack_spell(int m_idx)
 		/* RF5_SCARE */
 		case RF5_OFFSET+27:
 		{
-			if (!direct) break;
 			disturb(1, 0);
 			sound(MSG_CAST_FEAR);
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+			   if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
+			   else msg_format("%^s casts a fearful illusion.", m_name);
+			   scare_monsters();
+			   break;
+            }
+			if (!direct) break;
             int die = randint(100);
             if (r_ptr->flags2 & (RF2_POWERFUL)) die = die + 25;
             if (p_ptr->timed[TMD_FRENZY]) die = die - 10;
+            if (p_ptr->resist_charm) die = die - 5;
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 			if (p_ptr->resist_fear)
@@ -1811,6 +2056,22 @@ bool make_attack_spell(int m_idx)
 		/* RF5_CONF */
 		case RF5_OFFSET+29:
 		{
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+               if (randint(10) < 3)
+               {
+                  msg_format("%^s casts confuse monsters.", m_name);
+			      if (!get_aim_dir(&dir)) break;
+			      fire_ball(GF_OLD_CONF, 0, 30 + randint(30), 4);
+               }
+               else
+               {
+                  msg_format("%^s asks which monster you want it to confuse.", m_name);
+			      if (!get_aim_dir(&dir)) break;
+			      (void)confuse_monster(dir, 25 + randint(35));
+               }
+               break;
+            } 
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
@@ -1848,7 +2109,7 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			disturb(1, 0);
 			msg_format("%^s drains power from your muscles!", m_name);
-			if (p_ptr->free_act)
+			if ((p_ptr->free_act) || (p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				msg_print("You are unaffected!");
 			}
@@ -1878,6 +2139,12 @@ bool make_attack_spell(int m_idx)
 		/* RF5_HOLD */
 		case RF5_OFFSET+31:
 		{
+			if (r_ptr->flags3 & (RF3_HELPER)) 
+			{
+               msg_format("%^s casts sleep monsters.", m_name);
+               (void)sleep_monsters();
+               break;
+            } 
 			if (!direct) break;
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
@@ -2008,7 +2275,11 @@ bool make_attack_spell(int m_idx)
 				/* Message */
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 			}
-
+			if (r_ptr->flags3 & (RF3_HELPER))
+			{
+               msg_format("%^s heals you also.", m_name);
+               (void)hp_player(20 + randint(30));
+            } 
 			break;
 		}
 
@@ -3466,6 +3737,8 @@ static void process_monster(int m_idx)
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	
+	int ridx = m_ptr->r_idx;
 
 	int i, d, oy, ox, ny, nx;
 
@@ -3795,7 +4068,75 @@ static void process_monster(int m_idx)
 		}
 	}
 
+    /* sphere of charm */
+	m_ptr->charmed = FALSE;
+	
+    if ((p_ptr->timed[TMD_SPHERE_CHARM] > 0) && (badluck < 16))
+    {
+       if ((r_ptr->flags3 & (RF3_ANIMAL)) || (r_ptr->flags3 & (RF3_BUG)))
+       {
+          m_ptr->charmed = TRUE;     /* charmed, doesn't attack */
+       }
+       
+       /* certain animals can't be charmed */
+       /* (some uniques can be charmed including the Terrasque) */
+       if (ridx == 275) m_ptr->charmed = FALSE; /* black cat */
+       if (ridx == 418) m_ptr->charmed = FALSE; /* Beorn */       
+       if (ridx == 653) m_ptr->charmed = FALSE; /* elder aranea */
+       if (ridx == 654) m_ptr->charmed = FALSE; /* high priest of achrya */
+       if (ridx == 677) m_ptr->charmed = FALSE; /* Leviathon */
+       if (ridx == 728) m_ptr->charmed = FALSE; /* The White Cat of B. */
+       if (ridx == 742) m_ptr->charmed = FALSE; /* Achrya */
+       if (ridx == 753) m_ptr->charmed = FALSE; /* Ungoliant */
+       if ((ridx > 780) && (ridx < 790)) m_ptr->charmed = FALSE; /* black cats of B */
 
+       /* some animals are almost (but not quite) impossible to charm */
+       if ((ridx == 226) && (goodluck < 16)) m_ptr->charmed = FALSE; /* drider */
+       if ((ridx == 327) && (goodluck < 15)) m_ptr->charmed = FALSE; /* shadow cat */
+       if ((ridx == 338) && (goodluck < 20)) m_ptr->charmed = FALSE; /* xan */
+       if ((ridx == 548) && (goodluck < 16)) m_ptr->charmed = FALSE; /* aranea */
+       if ((ridx == 609) && (goodluck < 21)) m_ptr->charmed = FALSE; /* drider of Achrya */
+       if ((ridx == 691) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Shelob */
+       if ((ridx == 760) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Draugluin */
+       if ((ridx == 828) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Carcharoth */
+       if ((ridx == 829) && (goodluck < 21)) m_ptr->charmed = FALSE; /* Huan */
+
+       /* some animals can only be m_ptr->charmed with luck */
+       if ((ridx == 109) && (badluck > 5)) m_ptr->charmed = FALSE; /* rabid rat */
+       if ((ridx == 192) && (badluck > 5)) m_ptr->charmed = FALSE; /* hippogriff */
+       if ((ridx == 212) && (badluck > 6)) m_ptr->charmed = FALSE; /* killer bee */
+       if ((ridx == 220) && (goodluck < 7)) m_ptr->charmed = FALSE; /* grim */
+       if ((ridx == 230) && (badluck > 4)) m_ptr->charmed = FALSE; /* mosquito */
+       if ((ridx == 231) && (badluck > 4)) m_ptr->charmed = FALSE; /* mosquito */
+       if ((ridx == 233) && (badluck > 5)) m_ptr->charmed = FALSE; /* wererat */
+       if ((ridx == 235) && (badluck > 5)) m_ptr->charmed = FALSE; /* warg */
+       if ((ridx == 249) && (badluck > 5)) m_ptr->charmed = FALSE; /* mirkwood spider */
+       if ((ridx == 263) && (badluck > 6)) m_ptr->charmed = FALSE; /* winged monkey */
+       if ((ridx == 264) && (badluck > 5)) m_ptr->charmed = FALSE; /* e.winged monkey */
+       if ((ridx == 277) && (badluck > 5)) m_ptr->charmed = FALSE; /* rabid wolf */
+       if ((ridx == 333) && (badluck > 5)) m_ptr->charmed = FALSE; /* werewolf */
+       if ((ridx == 352) && (badluck > 12)) m_ptr->charmed = FALSE; /* camel-dog */
+       if ((ridx == 359) && (badluck > 12)) m_ptr->charmed = FALSE; /* vampire bat */
+       if ((ridx == 373) && (badluck > 5)) m_ptr->charmed = FALSE; /* werebear */
+       if ((ridx == 389) && (badluck > 5)) m_ptr->charmed = FALSE; /* wolf chieftain */
+       if ((ridx == 401) && (goodluck < 7)) m_ptr->charmed = FALSE; /* wild unicorn */
+       if ((ridx == 407) && (badluck > 5)) m_ptr->charmed = FALSE; /* bat gorgoroth */
+       if ((ridx == 415) && (badluck > 12)) m_ptr->charmed = FALSE; /* basilisk */
+       if ((ridx == 436) && (badluck > 5)) m_ptr->charmed = FALSE; /* doombat */
+       if ((ridx == 490) && (badluck > 0)) m_ptr->charmed = FALSE; /* grey unicorn */
+       if ((ridx == 509) && (badluck > 5)) m_ptr->charmed = FALSE; /* hellhound */
+       if ((ridx == 604) && (badluck > 0)) m_ptr->charmed = FALSE; /* black unicorn */
+       if ((ridx == 626) && (badluck > 0)) m_ptr->charmed = FALSE; /* the Cerberus */
+       if ((ridx == 644) && (badluck > 5)) m_ptr->charmed = FALSE; /* G.basilisk */
+       if ((ridx == 645) && (badluck > 0)) m_ptr->charmed = FALSE; /* Humbaba */
+       if ((ridx == 652) && (badluck > 5)) m_ptr->charmed = FALSE; /* winged horror */
+       if ((ridx == 655) && (badluck > 12)) m_ptr->charmed = FALSE; /* kracken */
+       if ((ridx == 665) && (badluck > 0)) m_ptr->charmed = FALSE; /* white unicorn */
+       if ((ridx == 700) && (badluck > 4)) m_ptr->charmed = FALSE; /* The Phoenix */
+       if ((ridx == 725) && (badluck > 0)) m_ptr->charmed = FALSE; /* Jabberwock */
+       if ((ridx == 767) && (badluck > 5)) m_ptr->charmed = FALSE; /* hellhound */
+    }
+    
 	/* Attempt to cast a spell */
 	if (make_attack_spell(m_idx)) return;
 
@@ -3855,6 +4196,11 @@ static void process_monster(int m_idx)
 			}
 		}
 	}
+	
+	/* make monster stagger sometimes if charmed or HELPER */
+	/* so it doesn't just keep bumping into the player */
+	if (((m_ptr->charmed == TRUE) || (r_ptr->flags3 & (RF3_HELPER)))
+         && (rand_int(100) < 20)) stagger = TRUE;
 
 	/* Normal movement */
 	if (!stagger)
@@ -3878,7 +4224,6 @@ static void process_monster(int m_idx)
 	did_kill_body = FALSE;
 	did_pass_wall = FALSE;
 	did_kill_wall = FALSE;
-
 
 	/* Process moves */
 	for (i = 0; i < 5; i++)
@@ -4061,9 +4406,8 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 		}
 
-
 		/* The player is in the way.  Attack him. */
-		if (do_move && (cave_m_idx[ny][nx] < 0))
+		if ((do_move && (cave_m_idx[ny][nx] < 0)) && (m_ptr->charmed == FALSE))
 		{
 			/* Do the attack */
 			(void)make_attack_normal(m_idx);
@@ -4144,8 +4488,8 @@ static void process_monster(int m_idx)
 			/* Take a turn */
 			do_turn = TRUE;
 
-			/* Move the monster */
-			monster_swap(oy, ox, ny, nx);
+			/* Move the monster (don't swap with the player) */
+			if (cave_m_idx[ny][nx] >= 0) monster_swap(oy, ox, ny, nx);
 
 			/* Possible disturb */
 			if (m_ptr->ml &&
@@ -4176,7 +4520,7 @@ static void process_monster(int m_idx)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
 				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
 				{
-					u32b f1, f2, f3;
+					u32b f1, f2, f3, f4;
 
 					u32b flg3 = 0L;
 
@@ -4184,7 +4528,7 @@ static void process_monster(int m_idx)
 					char o_name[80];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 					/* Get the object name */
 					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);

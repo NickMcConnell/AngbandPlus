@@ -1093,15 +1093,16 @@ static cptr likert(int x, int y, byte *attr)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-void player_flags(u32b *f1, u32b *f2, u32b *f3)
+void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Add racial flags */
 	(*f1) |= rp_ptr->flags1;
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
+	(*f4) |= rp_ptr->flags4;
 
 	if (cp_ptr->flags & CF_BRAVERY_30)
 	{
@@ -1230,12 +1231,12 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			bool res, imm;
 			char sym;
 			if(j < INVEN_TOTAL)
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
 			else
 #ifdef EFG
 			/* EFGchange note temp resists on status screen */
 			{
-				player_flags(&f[1], &f[2], &f[3]);
+				player_flags(&f[1], &f[2], &f[3], &f[4]);
 				/* hack -- these really belong on a status line */
 				/* things out to be set up so this is a loop */
 				if (p_ptr->timed[TMD_SINFRA])
@@ -1274,7 +1275,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			    /* maybe add something here about whether spells are being inhibited */
 			}
 #else
-				player_flags(&f[1], &f[2], &f[3]);
+				player_flags(&f[1], &f[2], &f[3], &f[4]);
 #endif
 
 			res = (0 != (f[resists[i].set] & resists[i].res_flag));
@@ -1398,8 +1399,8 @@ static void display_player_sust_info(void)
 	int i, row, col, stat;
 
 	object_type *o_ptr;
-	u32b f1, f2, f3;
-	u32b ignore_f2, ignore_f3;
+	u32b f1, f2, f3, f4;
+	u32b ignore_f2, ignore_f3, ignore_f4;
 
 	byte a;
 	char c;
@@ -1421,10 +1422,10 @@ static void display_player_sust_info(void)
 		o_ptr = &inventory[i];
 
 		/* Get the "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Hack -- assume stat modifiers are known */
-		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
+		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
@@ -1479,7 +1480,7 @@ static void display_player_sust_info(void)
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; ++stat)

@@ -1,6 +1,6 @@
 
 # File: artifact.txt
-# for DaJAngband
+# for DaJAngband 1.0.96
 
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
@@ -721,13 +721,13 @@ D:A cape worn by a hero from Valinor, a land utterly beyond the strife
 D:of Elements.
 
 
-# The Cloak 'Holcolleth'
+# The Elven Cloak 'Holcolleth'  (elven cloaks always give stealth)
 
 N:45:'Holcolleth'
-I:35:1:2
-W:5:25:10:18000
+I:35:5:2
+W:5:15:10:18000
 P:1:0d0:0:0:4
-F:INT | WIS | SPEED | STEALTH | HIDE_TYPE | 
+F:INT | WIS | SPEED | HIDE_TYPE | 
 F:RES_ACID | ACTIVATE
 A:SLEEP:55:0
 D:This elven-grey mantle possesses great powers of tranquility and of 
@@ -1042,19 +1042,19 @@ D:A large stiletto dagger that glistens with odorless poison, to which the
 D:wearer seems oddly immune.
 
 
-# maybe take out (there is already a frost dagger with Nimthanc)
-# The Dagger 'Belangil'
+# The Robe of Ratagast
 
-N:70:'Belangil'
-I:23:4:2
-W:10:40:12:40000
-P:0:2d4:6:9:0
-F:DEX | HIDE_TYPE | 
-F:BRAND_COLD | RES_COLD | INFRA | SLOW_DIGEST | REGEN | ACTIVATE | 
-F:SHOW_MODS
-A:FROST2:5:5
-D:A frosty dagger wreathed in a nimbus of ice with a hilt of elk horn and 
-D:an edge to wound the wind.
+N:70:of Ratagast
+I:36:2:2
+W:36:33:24:14000
+P:2:1d1:0:0:12
+F:WIS | INT | SEARCH | INFRA
+F:RES_BLIND | RES_DISEN | RES_CONFU | SEE_INVIS
+F:SUST_WIS | SUST_CON | SUST_STR | SUST_INT | ACTIVATE
+A:IDENTIFY:25:25
+#A:IDENTIFY:100:50  (switch to this line when it becomes *identify* )
+D:The cloak belonging to the wizard Ratagast the brown.  He was the first to discover
+D: that Saruman was a traitor and warned Gandalf of it.
 
 
 # The Bastard Sword 'Calris'
@@ -1158,34 +1158,42 @@ D:weapon, and you feel a wrathful power of slaying and rending as you
 D:slowly approach.
 
 
-# The Two-Handed Sword 'Mormegil'
-# 	maybe take out
-N:78:'Mormegil'
-I:23:25:-2
-W:30:15:210:10000
-P:0:3d6:-15:15:-20
-# F:DRAIN_HP | DRAIN_MANA
-F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL | 
-F:SPEED | HIDE_TYPE | SEE_INVIS | HOLD_LIFE | SHOW_MODS | 
-F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE | STOPREGEN | BAD_WEAP
-D:A foul, twisted sword with blackened spines and knobs, whose very name is 
-D:a curse upon the lips of Elves and Men. It is said that it will drink the 
-D:very lifeblood of its wielder.
+# The Ethereal Cloak of Glorfindel (replacing 'Mormegil')
+
+N:78:of Glorfindel
+I:35:7:3
+W:10:60:0:50000
+P:0:0d0:0:0:20
+F:STR | WIS | CHR | HIDE_TYPE | 
+F:RES_FIRE | RES_FEAR | HOLD_LIFE 
+D:The golden cloak of Glorfindel the Valiant, lord of the House of the Golden 
+D:Flower of Gondolin.  
 
 
 # The Cutlass 'Gondricam'
 
-#		maybe take out
-N:79:'Gondricam'
-I:23:12:3
-W:20:8:100:26000
-P:0:1d6:10:12:0
-F:DEX | STEALTH | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SUST_DEX | REGEN | SHOW_MODS
-D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
-D:with a perfect edge shining cleanly in the sun, an object of hate to the 
-D:men of Umbar who met it in combat.
+#		taken out, at least for now
+#N:79:'Gondricam'
+#I:23:12:3
+#W:20:8:100:26000
+#P:0:1d6:10:12:0
+#F:DEX | STEALTH | HIDE_TYPE | 
+#F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
+#F:SUST_DEX | REGEN | SHOW_MODS
+#D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
+#D:with a perfect edge shining cleanly in the sun, an object of hate to the 
+#D:men of Umbar who met it in combat.
+
+# The Set of Steel Gauntlets of Maeglin (in place of Gondricam)
+
+N:79:of Maeglin
+I:31:3:0
+W:55:34:25:30000
+P:3:1d1:0:0:15
+F:MAGIC_MASTERY | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | ACTIVATE
+A:MANA_BOLT:50:50
+D:The iron-shod gauntlets of Maeglin son of Eol, tingling with magics 
+D:that he could channel in battle.
 
 
 # The Executioner's Sword 'Crisdurian' (great sword)
@@ -1274,12 +1282,13 @@ D:and secret places of the earth.
 
 # The Rapier 'Forasgil'
 
-#		maybe take out (don't take out both this and the extra frost dagger)
+#		taken out extra frost dagger, added slow_digest and regen to this instead
 N:86:'Forasgil'
 I:23:7:0
-W:15:8:40:15000
+W:15:9:40:19000
 P:0:2d5:12:9:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
+F:SLOW_DIGEST | REGEN
 D:A slender, tapered needle of ice that coldly grips its impaled prey.
 
 
@@ -1965,18 +1974,18 @@ D:kin, and was at first believed to be mortally wounded.
 
 
 # The Large Leather Shield of the Haradrim
-#			maybe take out
-N:134:of the Haradrim
-I:34:4:2
-W:33:12:120:25000
-P:4:1d2:0:0:15
-F:ACTIVATE | 
-F:STR | CON | SUST_STR | SUST_CON | HIDE_TYPE | 
-F:RES_FEAR | RES_BLIND | RES_POIS | AGGRAVATE
-A:BERSERKER:50:0
-D:The painted shield of a chieftain of Far Harad, gaudy and barbaric.  
-D:Its wielder will fear nothing and fight with unnatural strength, but 
-D:also draw attention to himself.
+#			taken out, at least for now
+#N:134:of the Haradrim
+#I:34:4:2
+#W:33:12:120:25000
+#P:4:1d2:0:0:15
+#F:ACTIVATE | 
+#F:STR | CON | SUST_STR | SUST_CON | HIDE_TYPE | 
+#F:RES_FEAR | RES_BLIND | RES_POIS | AGGRAVATE
+#A:BERSERKER:50:0
+#D:The painted shield of a chieftain of Far Harad, gaudy and barbaric.  
+#D:Its wielder will fear nothing and fight with unnatural strength, but 
+#D:also draw attention to himself.
 
 
 # The Broken Dagger 'Quickslash'
@@ -2002,7 +2011,14 @@ D:The blade of the legendary Shieldmaiden of Rohan, who struck a
 D:mighty blow against the Morgul-lord whom no mortal Man could hinder, 
 D:and also slew his foul steed.
 
-# N:137 unused
+# dragonscale shield of the Dragonslayer Knight
+N:137:of the Dragonslayer Knight
+I:34:7:2
+W:60:35:90:45000
+P:9:1d4:0:0:15
+F:SPEED
+F:IM_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS | RES_FEAR
+D:A shield for a dragonslaying hero.
 
 # Sling of Snowballs
 

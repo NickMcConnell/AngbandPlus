@@ -1141,7 +1141,7 @@ static void process_world(void)
 	}
 
 	/* Various things interfere with healing */
-	if (p_ptr->timed[TMD_PARALYZED]) regen_amount = 0;
+	if (p_ptr->timed[TMD_PARALYZED]) regen_amount /= 3;
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
@@ -1169,11 +1169,11 @@ static void process_world(void)
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 		bool burn_fuel = TRUE;
 
 		/* Get the object flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Turn off the wanton burning of light during the day in the town */
 		if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))

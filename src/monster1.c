@@ -574,6 +574,12 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_CHARM:     q = "charm"; break;
 			case RBE_FRENZY:    q = "put you in a mad careless frenzy"; break;
 			case RBE_PIXIEKISS: q = "bless you"; break;
+			case RBE_FIREDARK:  q = "sometimes give you its powers"; break;
+			case RBE_HATELIFE:  q = "cast dispel living"; break;
+			case RBE_BLOODWRATH: q = "give you berserk rage"; break;
+			case RBE_STUDY:     q = "restore your magical abilities"; break;
+/*			case RBE_SPHCHARM:  q = ""; break; (no description) */
+/*			case RBE_ZIMPKISS:  q = ""; break; (no description) */
 			case RBE_ENTHELP:   q = "give you entdraught"; break;
 			case RBE_PURIFY:    q = "purify you"; break;
 			case RBE_UNLUCKY:   q = "drain luck"; break;

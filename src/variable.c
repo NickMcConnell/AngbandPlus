@@ -115,12 +115,14 @@ int range = 0;         /* shortened range of some spell/breaths */
 int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
 int spadjust = 0;      /* speed adjustment by a nonstandard amount */
 int goodluck = 0;
+int losesave = 0;       /* POWERFUL flag: sometimes ignore sustains */
 /* if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20; */
 int badluck = 0;
 /* if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck; */
 int goodweap = 0;      /* magic modifiers for sentient objects */
 int badweap = 0;       /* magic modifiers for sentient objects */
 int magicmod = 5;      /* magic modifiers for sentient objects */
+int palert = 0;
 
 
 /*
@@ -821,7 +823,7 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
-void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 
 
 /*

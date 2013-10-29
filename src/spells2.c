@@ -147,6 +147,12 @@ bool do_dec_stat(int stat)
 		case A_CON: if (p_ptr->sustain_con) sust = TRUE; break;
 		case A_CHR: if (p_ptr->sustain_chr) sust = TRUE; break;
 	}
+	
+	/* monsters with powerful flag have a chance to get past sustains */
+	if ((losesave > 0) && (goodluck < 21))
+	{
+       if (randint(100) < losesave) sust = FALSE;
+    }
 
 	/* Sustain */
 	if (sust)
@@ -307,7 +313,7 @@ static int remove_curse_aux(int all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -318,7 +324,7 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -407,9 +413,9 @@ void self_knowledge(bool spoil)
 {
 	int i = 0, j, k;
 
-	u32b t1, t2, t3;
+	u32b t1, t2, t3, t4;
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
 
 	object_type *o_ptr;
 
@@ -437,23 +443,25 @@ void self_knowledge(bool spoil)
 #endif
 		/* Extract the flags */
 		if (spoil)
-			object_flags(o_ptr, &t1, &t2, &t3);
+			object_flags(o_ptr, &t1, &t2, &t3, &t4);
 		else 
-			object_flags_known(o_ptr, &t1, &t2, &t3);
+			object_flags_known(o_ptr, &t1, &t2, &t3, &t4);
 
 		/* Extract flags */
 		f1 |= t1;
 		f2 |= t2;
 		f3 |= t3;
+		f4 |= t4;
 	}
 
 	/* And flags from the player */
-	player_flags(&t1, &t2, &t3);
+	player_flags(&t1, &t2, &t3, &t4);
 
 	/* Extract flags */
 	f1 |= t1;
 	f2 |= t2;
 	f3 |= t3;
+	f4 |= t4;
 
 
 	if (p_ptr->timed[TMD_BLIND])
@@ -813,6 +821,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are lucky.";
 	}
+	else if (goodluck > 0)
+	{
+		info[i++] = "You are somewhat lucky.";
+	}
 	if (badluck > 15)
 	{
 		info[i++] = "You are extremely unlucky.";
@@ -824,6 +836,10 @@ void self_knowledge(bool spoil)
 	else if (badluck > 4)
 	{
 		info[i++] = "You are unlucky.";
+	}
+	else if (badluck > 0)
+	{
+		info[i++] = "You are somewhat unlucky.";
 	}
 
 
@@ -1623,7 +1639,7 @@ bool detect_monsters_life(void)
 
 		/* Detect living monsters */
 		if (!(r_ptr->flags3 & (RF3_NON_LIVING)) &&
-		   !(r_ptr->flags3 & (RF3_DEMON)))
+		   !(r_ptr->flags3 & (RF3_UNDEAD)))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1905,10 +1921,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	bool a = artifact_p(o_ptr);
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Large piles resist enchantment */
@@ -3076,6 +3092,16 @@ void earthquake(int cy, int cx, int r)
 			monster_swap(py, px, sy, sx);
 		}
 
+        /* extra damage reduction from surrounding magic */
+		if (cp_ptr->flags & CF_POWER_SHIELD)
+        {
+           damage -= (damage * ((p_ptr->lev + 5) / 250));
+        }
+		else if (goodluck > 16)
+        {
+           damage -= (damage * (goodluck + 3 / 250));
+        }
+            
 		/* Take some damage */
 		if (damage) take_hit(damage, "an earthquake");
 	}

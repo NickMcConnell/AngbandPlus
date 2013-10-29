@@ -71,7 +71,7 @@ static timed_effect effects[] =
 	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD }, /* TMD_WSHIELD */
 	{ "You slip into the shadows.", "The shadows don't conceal you so much anymore.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SHADOW */
 	{ "You feel yourself moving at a different speed.", "You move at more normal speed now.", 0, 0, PU_BONUS, MSG_SPEED }, /* TMD_ADJUST */
-	{ "You can read runes with your hands.", "You forget how to read brail.", PR_BLIND, 0, 0, MSG_SEE_INVIS }, /* TMD_BRAIL */
+	{ "You magic is enhanced and you can read runes with your hands!", "Your magic no longer seems more powerful than normal.", PR_BLIND, 0, PU_BONUS, MSG_SEE_INVIS }, /* TMD_BRAIL */
 	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_STONESKIN */
 	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID }, /* TMD_TERROR */
 	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* TMD_MESP: (mind sight) telepathy only while blind */
@@ -84,8 +84,11 @@ static timed_effect effects[] =
 	{ "You feel completely immune to fire!", "You no longer feel immune to fire.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_FIRE }, /* TMD_IMM_FIRE */
 	{ "You stop breathing but continue to live as an undead.", "The lifebreath returns to you.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_BECOME_LICH */
 	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_WSINFRA */
-	{ "You sense demons stirring", "You no longer aggrvate demons", 0, 0, 0, MSG_GENERIC }, /* TMD_WITCH */
-	{ "You gain extra speed in melee!", "Your melee is back to normal speed", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
+	{ "You sense demons stirring", "You no longer aggravate demons.", 0, 0, 0, MSG_GENERIC }, /* TMD_WITCH */
+	{ "You gain extra speed in melee!", "Your melee is back to normal speed.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_XATTACK */
+	{ "You feel like nothing can slow you down!", "Your speed is no longer sustained.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_SUST_SPEED */
+	{ "A sphere of green light surrounds you!", "The sphere of charm dissapears.", 0, 0, 0, MSG_GENERIC }, /* TMD_SPHERE_CHARM */
+	{ "Your attacks are reinforced by the elements.", "You no longer strike with the elements.", 0, 0, 0, MSG_GENERIC }, /* TMD_HIT_ELEMENT */
 };
 
 /*
@@ -245,7 +248,11 @@ static bool set_oppose_elec(int v)
 	{
 		if (!p_ptr->timed[TMD_OPP_ELEC] && !p_ptr->immune_elec)
 		{
+#ifdef ALTDJA
 			message(MSG_RES_ELEC, 0, "You feel resistant to stench!");
+#else
+			message(MSG_RES_ELEC, 0, "You feel resistant to electricity!");
+#endif
 			notice = TRUE;
 		}
 	}
@@ -255,7 +262,11 @@ static bool set_oppose_elec(int v)
 	{
 		if (p_ptr->timed[TMD_OPP_ELEC] && !p_ptr->immune_elec)
 		{
+#ifdef ALTDJA
+			message(MSG_RECOVER, 0, "You feel less resistant to stench.");
+#else
 			message(MSG_RECOVER, 0, "You feel less resistant to electricity.");
+#endif
 			notice = TRUE;
 		}
 	}

@@ -1,4 +1,5 @@
-# File: object.txt (DJA 1.1.0)
+# File: object.txt
+# DaJAngband 1.0.96
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -709,15 +710,16 @@ P:0:3d5:0:0:0
 F:SHOW_MODS
 D:It has a very long handle whose head is a wide axe on one side and a hook on the other.
 
-# was awl pike
-N:62:& hand axe~
+# was awl pike, then hand axe
+N:62:& maul~
 G:/:u
 I:22:3:0
 W:10:0:110:245
 A:6/2
 P:0:1d8:0:0:0
 F:SHOW_MODS
-D:Chop wood or limbs with the same weapon.
+D:A sledgehammer axe normally used for chopping wood, can also be used to chop limbs
+D: off of a monster.
 
 # was 358
 N:63:& pike~
@@ -926,6 +928,7 @@ W:1:0:60:10
 A:5/2
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
+D:A compact and sturdy spade.
 
 N:85:& gnomish shovel~
 G:\:G
@@ -934,6 +937,7 @@ W:20:0:60:100
 A:20/3
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
+#D:A small spade forged of steel with gnomish craftmanship.
 
 N:86:& dwarven shovel~
 G:\:B
@@ -942,6 +946,7 @@ W:40:0:120:200
 A:40/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
+D:A broad shovel, fit for the strong shoulders of a dwarf.
 
 N:87:& pick~
 G:\:s
@@ -950,6 +955,8 @@ W:5:0:150:50
 A:10/2
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
+D:A heavy mining tool with a long, slightly curved head that tapers 
+D:to chisel points on both ends.
 
 N:88:& orcish pick~
 G:\:g
@@ -958,14 +965,18 @@ W:30:0:180:300
 A:30/3
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
+D:A crude, ugly but effective pickaxe.  Made in enormous quantities for 
+D:the slave-mines of Durthang.
 
 N:89:& dwarven mattock~
 G:\:b
-I:20:6:3
+I:20:6:4
 W:50:0:250:700
 A:46/3
 P:0:1d8:0:0:0
 F:SHOW_MODS | TUNNEL
+D:A short but heavy pick, like those that delved deep Moria, with runes to 
+D:break the sinews of mountains.
 
 N:90:& broken pick~
 G:\:s
@@ -981,15 +992,17 @@ N:91:& pair~ of soft leather boots
 G:]:U
 I:30:2:0
 W:3:0:20:7
-A:3/1
+A:3/1:30/2
 P:2:1d1:0:0:0
+D:These are calf-high boots of flexible leather, laced from heel to calf.
 
 N:92:& pair~ of hard leather boots
 G:]:U
 I:30:3:0
 W:5:0:40:12
-A:5/1
+A:5/1:40/2
 P:3:1d1:0:0:0
+D:A set of sturdy leather boots that will last many weary miles.
 
 N:93:& pair~ of metal shod boots
 G:]:s
@@ -997,57 +1010,69 @@ I:30:6:0
 W:20:0:80:50
 A:20/1
 P:6:1d2:0:0:0
+D:A set of double-lined leather boots, with toes and heels reinforced with iron.
 
 N:94:& hard leather cap~
 G:]:u
 I:32:2:0
 W:3:0:15:12
-A:3/1
+A:3/1:35/2
 P:2:0d0:0:0:0
+D:A padded skullcap of boiled leather.
 
 N:95:& metal cap~
 G:]:s
 I:32:3:0
 W:10:0:20:30
-A:10/1
+A:10/1:45/2
 P:3:1d1:0:0:0
+D:A pot-helm of steel that protects the skull.
 
 N:96:& iron helm~
 G:]:s
 I:32:5:0
-W:20:0:75:75
-A:20/1
+W:40:0:75:75
+A:40/1
 P:5:1d3:0:0:0
+D:A mighty helmet of heavy iron, completely enclosing the head.
 
 N:97:& steel helm~
 G:]:W
 I:32:6:0
-W:40:0:60:200
-A:40/1
+W:50:0:60:200
+A:50/1
 P:6:1d3:0:0:0
+D:This great helm covers the head and shoulders with plates of steel and a 
+D:curtain of mail.
 
 N:98:& iron crown~
 G:]:s
 I:33:10:0
-W:45:0:20:500
+W:45:0:20:600
 A:45/1
-P:0:1d2:0:0:0
+P:0:1d2:0:0:2
+D:A plain band of iron, crowned with iron spikes.  It is a tyrant's 
+D:symbol.
 
 N:99:& golden crown~
 G:]:y
 I:33:11:0
-W:45:0:30:1000
-A:45/1
-P:0:1d1:0:0:0
+W:52:0:30:1200
+A:52/1
+P:0:1d1:0:0:4
 F:IGNORE_ACID
+D:An elegant golden circlet, with slender spines thrusting upward. 
+D:It looks like it should be resting over the brow of a king.
 
 N:100:& jewel encrusted crown~
 G:]:v
 I:33:12:0
-W:50:0:40:2000
-A:50/1
-P:0:1d1:0:0:0
+W:60:0:40:2500
+A:60/3
+P:0:1d1:0:0:6
 F:IGNORE_ACID
+D:An elaboratedly decorated crown of massive gold, studded with a rainbow 
+D:of gems and jewels; worthy of a High King.
 
 ###  	body armor
 
@@ -1057,6 +1082,7 @@ I:36:2:0
 W:1:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
+D:A practical garment of thick wool or velvet, draping from neck to heels.
 
 N:102:& filthy rag~
 G:(:D
@@ -1064,6 +1090,8 @@ I:36:1:0
 W:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
+D:This tattered rag appears to once have been a robe, but has been patched 
+D:and re-patched so many times that you can't be sure.
 
 N:103:soft leather armour~
 G:(:U
@@ -1071,6 +1099,7 @@ I:36:4:0
 W:3:0:80:18
 A:3/1
 P:4:0d0:0:0:0
+D:A cuirass of pliable leather, with a thicker leather jack.
 
 N:104:soft studded leather~
 G:(:U
@@ -1078,6 +1107,7 @@ I:36:5:0
 W:3:0:90:35
 A:3/1
 P:5:1d1:0:0:0
+D:A cuirass of pliable leather studded with metal rivets.
 
 N:105:hard leather armour~
 G:(:U
@@ -1085,6 +1115,7 @@ I:36:6:0
 W:5:0:100:150
 A:5/1
 P:6:1d1:-1:0:0
+D:A boiled leather cuirass and shoulder plates.
 
 N:106:hard studded leather~
 G:(:U
@@ -1092,6 +1123,9 @@ I:36:7:0
 W:10:0:110:200
 A:10/1
 P:7:1d2:-1:0:0
+D:A strong leather breastplate and shoulder guards over a shirt, 
+D:sleeves, and leggings of cured leather, covered with widely-spaced 
+D:iron studs.
 
 N:107:leather scale mail~
 G:(:U
@@ -1099,6 +1133,8 @@ I:36:11:0
 W:15:0:140:450
 A:15/1
 P:11:1d1:-1:0:0
+D:A tunic and skirt sewn with thick, overlapping scales of hardened 
+D:leather.
 
 N:108:metal scale mail~
 G:[:s
@@ -1106,6 +1142,8 @@ I:37:3:0
 W:25:0:250:550
 A:25/1
 P:13:1d4:-2:0:0
+D:A heavy shirt of overlapping steel scales backed by leather, with 
+D:matching skirt and sleeves.
 
 N:109:chain mail~
 G:[:s
@@ -1113,6 +1151,8 @@ I:37:4:0
 W:25:0:220:750
 A:25/1
 P:14:1d4:-2:0:0
+D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
+D:with leather.
 
 N:110:rusty chain mail~
 G:[:r
@@ -1120,6 +1160,8 @@ I:37:1:0
 W:25:0:200:550
 A:25/1
 P:14:1d4:-5:0:-8
+D:Each link of this suit is brittle with rust, and the corroded rings 
+D:are stiff and weakened.
 
 N:111:augmented chain mail~
 G:[:s
@@ -1127,6 +1169,9 @@ I:37:6:0
 W:30:0:270:900
 A:30/1
 P:16:1d4:-2:0:0
+D:A hauberk, leggings, and sleeves of interlocking steel rings, 
+D:strategically reinforced at vital locations with a second layer 
+D:of chain, all over a layer of heavy padding.
 
 N:112:bar chain mail~
 G:[:s
@@ -1134,6 +1179,9 @@ I:37:8:0
 W:35:0:280:950
 A:35/1
 P:18:1d4:-2:0:0
+D:A hauberk, leggings, and sleeves of interlocking steel rings, 
+D:reinforced around the shoulders with segmented plates of steel, 
+D:all over a layer of heavy padding.
 
 N:113:metal brigandine armour~
 G:[:s
@@ -1141,6 +1189,9 @@ I:37:9:0
 W:35:0:290:1100
 A:35/1
 P:19:1d4:-3:0:0
+D:A stiff suit of armour composed of small metal plates sewn to an 
+D:inner layer of heavy canvas, and covered with a second layer of 
+D:cloth.
 
 N:114:partial plate armour~
 G:[:W
@@ -1148,6 +1199,7 @@ I:37:12:0
 W:45:0:260:1200
 A:45/1
 P:22:1d6:-3:0:0
+D:A steel corselet and vambraces over a skirt and leggings of chain.
 
 N:115:metal lamellar armour~
 G:[:W
@@ -1155,6 +1207,7 @@ I:37:13:0
 W:45:0:340:1250
 A:45/1
 P:23:1d6:-3:0:0
+D:a suit of laced and overlapping metal plates.
 
 N:116:full plate armour~
 G:[:W
@@ -1162,6 +1215,8 @@ I:37:15:0
 W:45:0:380:1350
 A:45/1
 P:25:2d4:-3:0:0
+D:A full suit of carefully fitted plates, with hinged joints backed 
+D:by chain, and light padding underneath.
 
 N:117:ribbed plate armour~
 G:[:W
@@ -1169,6 +1224,8 @@ I:37:18:0
 W:50:0:380:1500
 A:50/1
 P:28:2d4:-3:0:0
+D:A full suit of finely fitted metal armour consisting of steel plates 
+D:reinforced ridging.
 
 N:118:adamantite plate mail~
 G:[:G
@@ -1177,6 +1234,7 @@ W:75:0:420:20000
 A:75/4
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
+D:An exquisite suit of nearly impenetrable adamantite.
 
 N:119:mithril plate mail~
 G:[:B
@@ -1185,6 +1243,8 @@ W:60:0:300:15000
 A:60/3
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
+D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
+D:legend.  It gleams with purest white as you gaze upon it.
 
 N:120:mithril chain mail~
 G:[:B
@@ -1193,6 +1253,7 @@ W:55:0:150:7000
 A:55/3
 P:28:1d4:-1:0:0
 F:IGNORE_ACID
+D:This wondrous suit of fine-linked chain shimmers as though of pure silver.
 
 N:121:double chain mail~
 G:[:s
@@ -1200,6 +1261,8 @@ I:37:7:0
 W:30:0:250:850
 A:30/1
 P:16:1d4:-2:0:0
+D:A suit of chainmail with a full second layer of reinforcement. It 
+D:weighs heavily on the shoulders.
 
 
 # This shield does not belong here
@@ -1207,9 +1270,9 @@ P:16:1d4:-2:0:0
 N:122:& Shield~ of Deflection
 G:):B
 I:34:10:0
-W:70:0:100:10000
+W:70:0:80:10000
 A:70/4
-P:10:1d1:0:0:10
+P:12:1d5:0:0:10
 F:IGNORE_ACID
 
 
@@ -1221,13 +1284,15 @@ I:35:1:0
 W:1:0:10:3
 A:1/1:20/1
 P:1:0d0:0:0:0
+D:A traveller's sturdy outer garment.
 
 N:124:& shadow cloak~
 G:(:D
 I:35:6:0
-W:60:0:5:4000
-A:60/2
-P:6:0d0:0:0:4
+W:55:0:5:2100
+A:55/2
+P:6:0d0:0:0:1
+D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 
 ### The Gloves ###
 
@@ -1237,13 +1302,15 @@ I:31:1:0
 W:1:0:5:3
 A:1/1
 P:1:0d0:0:0:0
+D:Leather hand protection, with an open palm for gripping weapons.
 
-N:126:& set~ of gauntlets
+N:126:& set~ of mail gauntlets
 G:]:U
 I:31:2:0
 W:10:0:25:35
 A:10/1
 P:2:1d1:0:0:0
+D:A set of sturdy leather gloves, sewn with linked iron rings.
 
 N:127:& set~ of cestus
 G:]:W
@@ -1251,6 +1318,7 @@ I:31:5:0
 W:50:0:40:100
 A:50/1
 P:5:1d1:0:0:0
+D:A massive set of hand sheathings, bound with steel and thrice-cured leather.
 
 
 ### The shields ###
@@ -1274,21 +1342,20 @@ G:):s
 I:34:3:0
 W:10:0:65:50
 A:10/1
-P:3:1d2:0:0:0
+P:3:1d3:0:0:0
 
 N:131:& large metal shield~
 G:):s
 I:34:5:0
-W:30:0:120:200
+W:30:0:125:200
 A:30/1
-P:5:1d3:0:0:0
-
+P:6:1d5:0:0:0
 
 ##### Rings #####
 
 N:132:Strength
 G:=:d
-I:45:24:0
+I:45:25:0
 W:30:0:2:500
 A:30/1
 F:STR | SUST_STR | HIDE_TYPE
@@ -1309,7 +1376,7 @@ F:CON | SUST_CON | HIDE_TYPE
 
 N:135:Intelligence
 G:=:d
-I:45:25:0
+I:45:24:0
 W:30:0:2:500
 A:30/1
 F:INT | SUST_INT | HIDE_TYPE
@@ -1418,7 +1485,13 @@ W:50:0:2:0
 A:50/1
 F:HEAVY_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
-### N:150:
+N:150:Nether Resistance
+G:=:d
+I:45:13:0
+W:56:0:2:4000
+A:56/6
+F:RES_NETHR | EASY_KNOW
+D:it provides resistance to nether forces.
 
 N:151:Damage
 G:=:d
@@ -1451,7 +1524,7 @@ F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
 N:155:See Invisible
 G:=:d
 I:45:22:0
-W:30:0:2:340
+W:30:0:2:1400
 A:42/2
 F:SEE_INVIS | EASY_KNOW
 
@@ -1471,7 +1544,7 @@ F:SUST_INT | SUST_WIS | EASY_KNOW
 
 N:158:Sustain Sneakiness
 G:=:d
-I:45:14:0
+I:45:12:0
 W:20:0:2:400
 A:20/3
 F:SUST_DEX | SUST_CHR | EASY_KNOW
@@ -1722,7 +1795,7 @@ D:  Permanent curses are unaffected.
 N:192:Treasure Detection
 G:?:w
 I:70:26:0
-W:0:0:5:15
+W:0:0:5:46
 A:0/1
 F:EASY_KNOW
 D:It detects all treasure in the immediate area.
@@ -2444,14 +2517,18 @@ F:EASY_KNOW
 D:It extends the radius of your infravision by 50 feet for 100+1d100
 D: turns.
 
-N:268:Auto-Brail
+N:268:Super Spellcasting
 G:!:d
 I:75:54:25
-W:15:0:4:280
-A:15/6
+W:15:0:4:1000
+A:15/6:75/6
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:It lets you be able to read scrolls and cast spells while blind for a limited time.
+D:It lowers your fail rate by 5% for all spells and your spells have an effect
+D: based on +10 to your character level wherever a spell's effect depends on your
+D: clvl, and for most spell realms, it raises the chance of a bolt/beam spell to have
+D: a beam effect.  It also lets you be able to read scrolls and cast spells while
+D: blind.  This potion's effect lasts 75 + 1d75 turns.
 
 ##### Wands #####
 
@@ -2758,7 +2835,15 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It inflicts 250 points of damage on a single monster that is not
 D: undead, a demon, an elemental, a golem, or a vortex.
 
-## XXX 299 XXX ##
+N:299:Storms
+G:-:d
+I:65:29:0
+W:50:0:10:2500
+A:50/5
+P:0:1d1:0:0:0
+C:1+d3
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Unleashes powerful water and lightning balls at your foes.
 
 
 ##### Staffs #####
@@ -3547,6 +3632,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
+D:This spellbook is not readable by war mages.
 
 N:380:[Raal's Tome of Destruction]
 G:?:r
@@ -3566,7 +3652,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:382:[More Enchantments Of War]
+N:382:[Tenser's Transformations]
 G:?:r
 I:90:7:0
 W:70:0:30:50000
@@ -3574,6 +3660,7 @@ A:70/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
+D:This spellbook is not readable by wizards.
 
 N:383:[Kelek's Grimoire of Power]
 G:?:r
@@ -3808,7 +3895,7 @@ G:[:B
 I:38:12:5
 W:70:0:170:80000
 A:70/16
-P:25:2d4:-1:0:10
+P:26:2d4:-1:0:10
 F:RES_NEXUS | RES_SHARD | EASY_KNOW
 F:SPEED | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3824,10 +3911,10 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:411:Wyvern Scale Mail~
 G:[:B
 I:38:12:1
-W:60:0:200:80000
-A:60/8
+W:50:0:200:40000
+A:50/7
 P:40:2d4:-2:0:10
-F:RES_POIS | INFRA | EASY_KNOW
+F:RES_POISB | INFRA | EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:412:Ethereal Dragon Scale Mail
@@ -4442,6 +4529,7 @@ A:45/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This book is not readable by rangers.
 
 N:528:[Bombadil's Songs]
 G:?:b
@@ -4471,7 +4559,7 @@ F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This spellbook is only readable by mystics.
 
-#priestly weapon
+#priestly weapon, shouldn't be as good at tunneling as it is
 N:531:& walking stick~
 G:\:u
 I:21:1:0
@@ -4507,7 +4595,7 @@ F:SHOW_MODS
 N:535:small bow
 G:{:U
 I:19:11:0
-W:2:2:26:35
+W:2:2:26:30
 A:0/2
 F:SHOW_MODS
 
@@ -4777,7 +4865,6 @@ A:90/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:This spellbook is not for assassins.
 
 ##### Mind Power Books (MIND) ##### (mind realm not added yet)
 
@@ -4857,3 +4944,110 @@ W:5:0:30:75000
 P:0:1d1:0:0:0
 F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#when you add parital resistances, give this partial rst-fire
+N:574:& dragonscale shield~
+G:):r
+I:34:7:0
+W:50:0:80:5000
+A:50/3
+P:9:1d3:0:0:0
+F:IGNORE_ACID | IGNORE_FIRE
+
+N:575:ring mail~
+G:[:s
+I:37:2:0
+W:25:0:200:250
+A:10/30
+P:10:1d4:-2:0:0
+
+N:576:Four-Leaf Clover Juice
+G:!:d
+I:75:14:0
+W:10:0:4:777
+A:10/77
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:Raises your luck by 1d2.
+
+N:577:& barbut~
+G:]:s
+I:32:4:0
+W:25:0:45:60
+A:25/1:75/5
+P:4:1d2:0:0:0
+D:A metal helmet with a t-shaped face slit that offers protection down to the 
+D:neck.
+
+N:578:& knight shield~
+G:):W
+I:34:6:0
+W:55:0:160:300
+A:55/2
+P:11:1d7:0:0:0
+D:A kite-shaped shield with rounded corners that covers the wearer from chest 
+D:to toe, emblazoned with heraldic symbols.
+
+N:579:& set~ of steel gauntlets
+G:]:W
+I:31:3:0
+W:32:0:35:60
+A:32/1
+P:3:1d1:0:0:0
+D:A set of gloves that completely covers the hand and wrist in steel plating.
+
+N:580:& elven cloak~
+G:(:G
+I:35:5:2
+W:35:0:7:400
+A:35/3
+P:2:0d0:0:0:0
+F:STEALTH
+D:A mantle made of curious silken material by the Galadrim that wondrously 
+D:takes on the hues and shapes of its surroundings.
+
+N:581:& ethereal cloak~
+G:(:W
+I:35:7:0
+W:50:0:0:2500
+A:66/7
+P:0:0d0:0:0:10
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
+D:This unearthly, completely transparent body mantle folds and drapes in 
+D:iridescent patterns around you.  It weighs absolutely nothing.
+
+N:582:& pair~ of leather sandals
+G:]:U
+I:30:1:0
+W:0:0:16:4
+A:0/1:15/5
+P:1:1d1:0:0:0
+D:
+
+N:583:Resist Acid and Electricity
+G:!:d
+I:75:12:20
+W:4:0:4:55
+A:6/3
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:It grants you temporary resistance to acid and electricity for 10+1d10 turns.
+D:  Temporary resistance is cumulative with permanent resistance, if one
+D: of your equipped items provides that.  The duration is cumulative
+D: with other magic providing temporary acid or electricity resistance.
+
+N:584:Charm Animals
+G:_:d
+I:55:30:0
+W:20:0:50:1800
+A:20/4
+P:0:1d2:0:0:0
+C:3+d4
+D:It casts sphere of charm animals. While this spell is in effect, most 
+D: animals or bugs within two spaces of you will not breathe or use any 
+D: melee attack against you. (but they may cast other spells)
+D: Some uniques can be affected by this spell, some can't. Also, black cats 
+D: cannot be charmed, and a couple other animals require very high luck.
+D: If you have bad luck, some evil or more violent animals might not be
+D: affected. If you have a luck of -15 or worse, this spell has no effect.
+D: If you attack and hit any charmed animal, the effects end immediately.

@@ -244,7 +244,7 @@ static errr rd_item(object_type *o_ptr)
 	byte old_dd;
 	byte old_ds;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr;
 
@@ -257,6 +257,7 @@ static errr rd_item(object_type *o_ptr)
 	/* Paranoia */
 	if ((o_ptr->k_idx < 0) || (o_ptr->k_idx >= z_info->k_max))
 		return (-1);
+		
 
 	/* Location */
 	rd_byte(&o_ptr->iy);
@@ -375,7 +376,7 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Paranoia */
@@ -1189,6 +1190,8 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
 		rd_s16b(&p_ptr->timed[TMD_ESP]);
 		rd_s16b(&p_ptr->timed[TMD_MESP]);
+		rd_s16b(&p_ptr->timed[TMD_SUST_SPEED]);
+		rd_s16b(&p_ptr->timed[TMD_SPHERE_CHARM]);
 		rd_s16b(&p_ptr->timed[TMD_BECOME_LICH]);
 		rd_s16b(&p_ptr->timed[TMD_WITCH]);
 		rd_s16b(&p_ptr->timed[TMD_XATTACK]);
@@ -1200,6 +1203,7 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
 		rd_s16b(&p_ptr->timed[TMD_WSINFRA]);
 		rd_s16b(&p_ptr->timed[TMD_BALROG]);
+		rd_s16b(&p_ptr->timed[TMD_HIT_ELEMENT]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
@@ -1412,6 +1416,7 @@ static errr rd_randarts(void)
 				rd_u32b(&a_ptr->flags1);
 				rd_u32b(&a_ptr->flags2);
 				rd_u32b(&a_ptr->flags3);
+				/* rd_u32b(&a_ptr->flags4); */
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
@@ -1445,6 +1450,7 @@ static errr rd_randarts(void)
 				rd_u32b(&tmp32u); /* a_ptr->flags1 */
 				rd_u32b(&tmp32u); /* a_ptr->flags2 */
 				rd_u32b(&tmp32u); /* a_ptr->flags3 */
+				/* rd_u32b(&tmp32u); /* a_ptr->flags4 */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
 				rd_byte(&tmp8u); /* a_ptr->rarity */

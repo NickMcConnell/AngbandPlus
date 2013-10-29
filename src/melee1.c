@@ -190,7 +190,6 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Extract the attack "power" */
-		/* what does this do? */
 		switch (effect)
 		{
 			case RBE_HURT:      power = 60; break;
@@ -223,14 +222,20 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_80:    power =  5; break;
 			case RBE_HALLU:     power = 10; break;
 			case RBE_SILVER:    power = 11; break;
-			case RBE_SLIME:     power = 11; break;
-			case RBE_CHARM:     power =  2; break;
-			case RBE_FRENZY:    power = 11; break;
-            case RBE_HUNGER:    power =  2; break;
-			case RBE_PIXIEKISS: power =  0; break;
-			case RBE_ENTHELP:   power =  0; break;
-			case RBE_PURIFY:    power =  0; break;
-			case RBE_UNLUCKY:   power =  2; break;
+			case RBE_SLIME:     power = 12; break;
+			case RBE_CHARM:     power = 20; break;
+			case RBE_FRENZY:    power = 15; break;
+            case RBE_HUNGER:    power = 20; break;
+			case RBE_PIXIEKISS: power = 50; break;
+			case RBE_ENTHELP:   power = 50; break;
+			case RBE_PURIFY:    power = 70; break;
+			case RBE_UNLUCKY:   power = 20; break;
+			case RBE_ZIMPKISS:  power = 50; break;
+			case RBE_FIREDARK:  power = 65; break;
+			case RBE_HATELIFE:  power = 65; break;
+			case RBE_BLOODWRATH: power = 65; break;
+			case RBE_SPHCHARM:  power = 50; break;
+			case RBE_STUDY:     power = 50; break;
 		}
 
 
@@ -243,7 +248,7 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- Apply "protection from lifeless" */
 			if ((p_ptr->timed[TMD_PROTDEAD] > 0) &&
 			    (r_ptr->flags3 & (RF3_NON_LIVING)) &&
-			    (p_ptr->lev >= (rlev-1) + randint(15)) &&
+			    (p_ptr->lev + randint(goodluck/2) >= rlev-1 + randint(5)) &&
 			    ((rand_int(100) + p_ptr->lev) > 40))
 			{
 				/* Remember the lifelessness */
@@ -296,6 +301,7 @@ bool make_attack_normal(int m_idx)
 				/* Hack -- Next attack */
 				continue;
 			}
+
 			/* can affect monsters higher than the player's level */
 			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
@@ -512,6 +518,28 @@ bool make_attack_normal(int m_idx)
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+			
+			if (r_ptr->flags2 & (RF2_POWERFUL))
+            {
+               losesave = randint(10);
+               if ((losesave < 4) && (rlev > 50) && (randint(100) < (66-(goodluck/2))))
+               {
+                  if (badluck > 12) losesave += 1;
+                  losesave += randint(2);
+               }
+               p_ptr->skills[SKILL_SAV] -= losesave;
+            }
+            
+            /* primary spellcasters get slight damage reduction from surrounding magic */
+            int surround = 0;
+			if (cp_ptr->flags & CF_POWER_SHIELD) surround = p_ptr->lev + 5;
+			else if ((cp_ptr->flags & CF_ZERO_FAIL) && (p_ptr->lev > 20)) surround = p_ptr->lev/3 + 3;
+			if (p_ptr->timed[TMD_BRAIL]) surround += 10 + (goodluck/3);
+			/* extremely high luck can also have this effect */
+			if ((goodluck == 17) && (randint(100) < 70)) surround += 9;
+			if ((goodluck > 17) && (randint(100) < 75)) surround += 10 + randint((goodluck-17)*5);
+			if ((surround > 0) && (badluck > 15)) surround -= badluck/2;
+			if ((surround > 0) && (surround < 5)) surround = 0; /* minimum positive is 5 */
 
 			/* Apply appropriate damage */
 			switch (effect)
@@ -534,6 +562,9 @@ bool make_attack_normal(int m_idx)
 
 					/* Hack -- Player armor reduces total damage */
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+					
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
@@ -543,6 +574,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_POISON:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -564,6 +598,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_UN_BONUS:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -583,6 +620,9 @@ bool make_attack_normal(int m_idx)
 				case RBE_UN_POWER:
 				{
 					int drained = 0;
+
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
@@ -647,6 +687,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -731,6 +774,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -815,6 +861,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_FOOD:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -857,14 +906,17 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					u32b f1, f2, f3; 
+					u32b f1, f2, f3, f4; 
+
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
 
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Get the lite, and its flags */
 					o_ptr = &inventory[INVEN_LITE];
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 					/* Drain fuel where applicable */
 					if (!(f3 & TR3_NO_FUEL) && (o_ptr->timeout > 0))
@@ -889,6 +941,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_ACID:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -906,6 +961,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_ELEC:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -927,6 +985,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_FIRE:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -944,6 +1005,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_COLD:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -981,6 +1045,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_CONFUSE:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1001,6 +1068,9 @@ bool make_attack_normal(int m_idx)
                      
 				case RBE_TERRIFY:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1063,6 +1133,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Hack -- Prevent perma-paralysis via damage */
 					if (p_ptr->timed[TMD_PARALYZED] && (damage < 1)) damage = 1;
 
@@ -1097,6 +1170,9 @@ bool make_attack_normal(int m_idx)
 				
 				case RBE_HUNGER:
                 {
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1130,6 +1206,9 @@ bool make_attack_normal(int m_idx)
                 
                 case RBE_SLIME:
                 {
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1235,6 +1314,9 @@ bool make_attack_normal(int m_idx)
 					/* Hack -- Reduce damage based on the player armor class */
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1256,6 +1338,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_10:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1285,6 +1370,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_20:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1315,6 +1403,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_40:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1345,6 +1436,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_80:
 				{
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1399,7 +1493,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 					
                     int savechance = 111 + badluck - (goodluck/2);
-                    if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 20;
+                    if (r_ptr->flags2 & (RF2_POWERFUL)) savechance += 9 + randint(4);
 			        if (rand_int(savechance) < p_ptr->skills[SKILL_SAV])
 					{
                        msg_print("You resist the effects.");
@@ -1418,6 +1512,9 @@ bool make_attack_normal(int m_idx)
 
                 case RBE_FRENZY:
                 {
+			        /* extra damage reduction from surrounding magic */
+					if (surround > 0) damage -= (damage * (surround / 250));
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1435,6 +1532,261 @@ bool make_attack_normal(int m_idx)
 
 					break;
 				}
+
+				case RBE_FIREDARK: /* balrog ally */
+                {
+					/* conspicuous lack of damage */
+					/* <1d10>  */
+
+					if (damage < 2)
+					{
+                       int time = randint(5);
+                       (void)inc_timed(TMD_IMM_FIRE, time);
+                    }
+					else if (damage < 5)
+					{
+                       spellswitch = 21; /* uses GF_DARK instead of DARK_WEAK */
+                       int ifrad = randint(9);
+                       if ((badluck > 0) && (ifrad > 3)) ifrad -= randint(2);
+			           (void)unlite_area(damroll(2, 15 + randint(ifrad*2 + 1)), ifrad);
+                       spellswitch = 0;
+                    }
+					else if (damage < 8)
+					{
+                       /* Message */
+					   msg_print("You are enveloped in flames!");
+                       
+                       int die = damage-1 + randint(damage);
+					   /* Take damage (special) */
+					   fire_dam(die, ddesc);
+                    }
+                    else
+                    {
+                       msg_format("%^s imparts its essence to you!", m_name);
+                       int time = 25 + randint(25);
+                       (void)inc_timed(TMD_IMM_FIRE, time);
+                       (void)inc_timed(TMD_BALROG, time);
+                    }
+					break;
+                }
+				
+				case RBE_HATELIFE: /* cursebound lich */
+                {
+					/* conspicuous lack of damage */
+					/* <1d10>  */
+
+					if (damage < 3)
+					{
+                       int die = randint(damage*2);
+                       (void)dispel_life(die);
+                       if (p_ptr->timed[TMD_BECOME_LICH])
+                       {
+                          (void)hp_player(die*10);
+                       }
+                       else 
+                       {
+					      /* Take damage */
+					      take_hit(die + (goodweap*5), ddesc);
+					      if (goodweap>0) msg_format("%^s casts its spell on you because you are wielding a good item!", m_name);
+                          else msg_format("%^s's magic affects you!", m_name);
+                       }
+                    }
+					else if (damage < 5)
+					{
+                        if (badweap>0)
+                        {
+                            (void)hp_player(damage*10 + randint(20));
+			                if (p_ptr->csp < p_ptr->msp)
+			                {
+				               p_ptr->csp += p_ptr->msp/(damage);
+				               if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+				               msg_print("Your feel your head clear.");
+				               p_ptr->redraw |= (PR_MANA);
+				               p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			                }
+                        }
+                        else if (p_ptr->csp < p_ptr->msp) 
+                        {
+				            p_ptr->csp += p_ptr->msp/10;
+				            if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+				            msg_print("Your head feels slightly clearer.");
+				            p_ptr->redraw |= (PR_MANA);
+				            p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			            }
+                    }
+					else if (damage < 8)
+					{
+                        int time = 5 + randint(6);
+                        (void)inc_timed(TMD_BRAIL, time);
+                        (void)inc_timed(TMD_OPP_NETHR, time);
+                        if ((randint(100) < 3 + (goodluck/2)) && (goodluck > 3))
+                        {
+                           msg_format("%^s temporarily turns you into a lich!", m_name);
+                           (void)inc_timed(TMD_BECOME_LICH, time*randint(time)*randint(time-2));
+                        }
+                    }
+                    else
+                    {
+                        if ((goodluck > 16) && (randint(10) < 5)) (void)dispel_life(10 + randint(50));
+                        else if ((goodluck > 6) && (randint(10) < 4)) (void)dispel_life(4 + randint(41));
+                        else if (goodluck > 0) (void)dispel_life(2 + randint(33));
+                        else (void)dispel_life(randint(30));
+                    }
+					break;
+                }
+				
+				case RBE_BLOODWRATH: /* barbazu familiar */
+                {
+					/* conspicuous lack of damage */
+					/* <1d10>  */
+
+                    (void)clear_timed(TMD_AFRAID);
+					if (damage < 4)
+					{
+                       spadjust = 3 + randint(2 + (p_ptr->lev/10));
+                       (void)inc_timed(TMD_ADJUST, randint(4));
+                       if (damage == 1) (void)inc_timed(TMD_FRENZY, 2 + randint(6));
+                    }
+					else if (damage < 7)
+					{
+                       (void)clear_timed(TMD_CHARM);
+                       spadjust = 4 + randint(1 + (p_ptr->lev/10));
+                       int time = 15 + randint(35);
+                       (void)inc_timed(TMD_ADJUST, time - (time/4));
+                       (void)inc_timed(TMD_SHERO, time);
+                    }
+					else if (damage < 9)
+					{
+                       msg_format("%^s accidently hits you in its frenzy.", m_name);
+			           (void)clear_timed(TMD_CHARM);
+					   /* Take damage */
+					   take_hit(damage, ddesc);
+			           if (p_ptr->timed[TMD_FRENZY])
+			           {
+                           (void)inc_timed(TMD_SHERO, p_ptr->timed[TMD_FRENZY] + randint(6));
+                           (void)clear_timed(TMD_FRENZY);
+                       }
+                    }
+                    else
+                    {
+			           (void)clear_timed(TMD_CHARM);
+			           p_ptr->csp -= 1;
+                    }
+					break;
+                }
+
+	            case RBE_SPHCHARM: /* grepse devil familiar */
+                {
+					/* conspicuous lack of damage */
+					/* <1d10>  */
+
+					if (damage < 2)
+					{
+                       /* silver poison */
+                       p_ptr->silver = p_ptr->silver + 1;
+                    }
+					else if (damage < 5)
+					{
+                       (void)inc_timed(TMD_SPHERE_CHARM, 3 + randint(5));
+                    }
+					else if (damage < 8)
+					{
+                       (void)inc_timed(TMD_SPHERE_CHARM, 20 + randint(40));
+                    }
+                    else
+                    {
+			           (void)clear_timed(TMD_IMAGE);
+			           (void)clear_timed(TMD_AMNESIA);
+                    }
+					break;
+                }
+				
+				case RBE_STUDY: /* sorcery professor demon */
+                {
+					/* conspicuous lack of damage */
+					/* <1d20>  */
+
+                    (void)hp_player(damage);
+					if (damage < 8)
+					{
+                       (void)do_res_stat(A_INT);
+			           (void)clear_timed(TMD_CONFUSED);
+                       (void)inc_timed(TMD_BRAIL, 60 + randint(60));
+                    }
+					else if (damage < 12)
+					{
+                       (void)do_res_stat(A_CHR);
+			           (void)clear_timed(TMD_AMNESIA);
+                    }
+					else if (damage < 18)
+					{
+                       (void)do_res_stat(A_WIS);
+			           (void)clear_timed(TMD_IMAGE);
+                    }
+                    else
+                    {
+                       (void)do_res_stat(A_INT);
+                       (void)do_res_stat(A_CHR);
+                       (void)do_res_stat(A_WIS);
+			           (void)clear_timed(TMD_CONFUSED);
+			           (void)clear_timed(TMD_IMAGE);
+			           (void)clear_timed(TMD_AMNESIA);
+			           (void)clear_timed(TMD_WITCH);
+                       (void)inc_timed(TMD_BRAIL, 100 + randint(100));
+                    }
+                    if (damage < 2) damage = 1 + randint(4);
+                    if (damage > 9) damage = 4 + randint(5);
+			        if (p_ptr->csp < p_ptr->msp)
+			        {
+                                   
+				       p_ptr->csp += p_ptr->msp/(damage);
+				       if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+				       msg_print("Your feel your head clear.");
+				       p_ptr->redraw |= (PR_MANA);
+				       p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			        }
+					break;
+                }
+				
+				case RBE_ZIMPKISS:
+				{
+					/* conspicuous lack of damage */
+					/* <1d10>  */
+
+					if (damage < 4)
+					{
+           				if (p_ptr->resist_charm)
+           				{
+                           (void)hp_player(3);
+                           (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] - 2);
+                           (void)inc_timed(TMD_BLESSED, 3);
+                        }
+                        else
+                        {
+                            (void)inc_timed(TMD_CHARM, randint(14));
+                            (void)inc_timed(TMD_WSHIELD, 7 + randint(7));
+                        }
+                    }
+					else if (damage < 8)
+					{
+			           (void)hp_player(20 + randint(p_ptr->lev));
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] - 2);
+                       if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
+                       if (dispel_silver(randint(damage * (damage-1)))) msg_print("The zimp dispels grepse magic!");
+                       (void)inc_timed(TMD_BLESSED, 3);
+				       (void)clear_timed(TMD_FRENZY);
+				       (void)clear_timed(TMD_SHERO);
+                    }
+                    else
+                    {
+                       (void)hp_player(20 + randint(p_ptr->lev));
+                       int time = damage * (7 + randint(5)) + randint(20);
+                       (void)inc_timed(TMD_HOLDLIFE, time);
+                       (void)inc_timed(TMD_OPP_NETHR, time);
+				       (void)clear_timed(TMD_FRENZY);
+				       (void)clear_timed(TMD_IMAGE);
+                    }
+                }
 
 				case RBE_PIXIEKISS:
 				{
@@ -1511,6 +1863,10 @@ bool make_attack_normal(int m_idx)
 					/* conspicuous lack of damage */
 					/* <1d25>  */
 
+                    if (damage < 6)
+                    {
+                       (void)inc_timed(TMD_SPHERE_CHARM, damage + randint(p_ptr->lev));
+                    }
 					if (damage < 10)
 					{
                        (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 3);
@@ -1524,18 +1880,18 @@ bool make_attack_normal(int m_idx)
                     }
 					else if (damage < 20)
 					{
-                       (void)hp_player(damage);
+                       (void)hp_player(damage * randint(3));
                        (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
                        if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
                        spadjust = 1;
                        (void)inc_timed(TMD_ADJUST, randint(4) + 3);
                        (void)inc_timed(TMD_OPP_POIS, randint(10) + 10);
-                       (void)inc_timed(TMD_SANCTIFY, randint(14) + 8);
-   			           msg_print("You feel purified.");
+                       (void)inc_timed(TMD_SANCTIFY, randint(16) + 8);
+   			           msg_print("You feel purified and ready to fight evil.");
                     }
 					else if (damage < 23)
 					{
-                       (void)hp_player(damage / 2);
+                       (void)hp_player(damage);
                        (void)do_res_stat(A_CON);
                        (void)do_res_stat(A_WIS);
 				       (void)clear_timed(TMD_IMAGE);
@@ -1572,6 +1928,10 @@ bool make_attack_normal(int m_idx)
 				}
 			}
 
+			if (r_ptr->flags2 & (RF2_POWERFUL))
+            {
+               p_ptr->skills[SKILL_SAV] -= losesave;
+            }
 
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)

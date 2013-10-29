@@ -472,7 +472,7 @@ enum
 	TMD_ADJUST, TMD_BRAIL, TMD_STONESKIN, TMD_TERROR, TMD_MESP,
     TMD_WOPP_POIS, TMD_OPP_NETHR, TMD_PROTDEAD, TMD_OPP_DARK, TMD_HOLDLIFE,
     TMD_BALROG, TMD_IMM_FIRE, TMD_BECOME_LICH, TMD_WSINFRA, TMD_WITCH,
-    TMD_XATTACK,
+    TMD_XATTACK, TMD_SUST_SPEED, TMD_SPHERE_CHARM, TMD_HIT_ELEMENT,
 
 	TMD_MAX
 };
@@ -742,6 +742,7 @@ enum
 /* xxx */
 
 /* Shields */
+#define EGO_HOLY_PROT       15          /* DJA, can also be a cloak */
 #define EGO_ENDURE_ACID		16
 #define EGO_ENDURE_ELEC		17
 #define EGO_ENDURE_FIRE		18
@@ -764,20 +765,20 @@ enum
 #define EGO_TELEPATHY		33
 #define EGO_REGENERATION	34
 #define EGO_TELEPORTATION	35
-#define EGO_STUPIDITY		36
-#define EGO_NAIVETY			37
-#define EGO_UGLINESS		38
+#define EGO_SERENITY		36
+/* #define EGO_NAIVETY			37  (removed) */
+#define EGO_DULLNESS		38
 #define EGO_SICKLINESS		39
 
 /* Cloaks */
 #define EGO_PROTECTION		40
 #define EGO_STEALTH			41
-#define EGO_AMAN			42
+/* #define EGO_AMAN			42  (removed) */
 #define EGO_CLOAK_MAGI		43
 #define EGO_ENVELOPING		44
 #define EGO_VULNERABILITY	45
 #define EGO_IRRITATION		46
-/* xxx */
+#define EGO_DUNGEON_SIGHT   47   /* DJA */
 
 /* Gloves */
 #define EGO_FREE_ACTION		48
@@ -788,14 +789,15 @@ enum
 #define EGO_GAUNTLETS_COMBAT	53
 #define EGO_WEAKNESS		54
 #define EGO_CLUMSINESS		55
+#define EGO_MAGIC_MASTERY   132
 
 /* Boots */
-#define EGO_SLOW_DESCENT	56
+#define EGO_MESSENGER	    56
 #define EGO_QUIET			57
 #define EGO_MOTION			58
 #define EGO_SPEED			59
 #define EGO_STABILITY		60
-#define EGO_NOISE			61
+#define EGO_NOISE			61  /* elvenkind */
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
 
@@ -806,16 +808,16 @@ enum
 #define EGO_GONDOLIN		67
 #define EGO_WEST			68
 #define EGO_ATTACKS			69
-#define EGO_FURY			70
-/* xxx */
+#define EGO_FURY			70   /* DJA: changed to Bloodlust */
+#define EGO_SHIELDING       71   /* DJA, main gauche only */
 #define EGO_BRAND_ACID		72
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
 #define EGO_BRAND_POIS		76
-/* xxx */
-/* xxx */
-/* xxx */
+#define EGO_RAGING_ELEMENTS 77
+#define EGO_RUST            78   /* DJA */
+#define EGO_WITCHCRAFT      79   /* DJA, badweapon */
 #define EGO_SLAY_ANIMAL		80
 #define EGO_SLAY_EVIL		81
 #define EGO_SLAY_UNDEAD		82
@@ -824,28 +826,28 @@ enum
 #define EGO_SLAY_TROLL		85
 #define EGO_SLAY_GIANT		86
 #define EGO_SLAY_DRAGON		87
-#define EGO_KILL_ANIMAL		88
+/* #define EGO_KILL_ANIMAL		88  (removed */
 #define EGO_KILL_EVIL		89
 #define EGO_KILL_UNDEAD		90
-#define EGO_KILL_DEMON		83
-#define EGO_KILL_ORC		84
-#define EGO_KILL_TROLL		85
-#define EGO_KILL_GIANT		86
+#define EGO_KILL_DEMON		91 /* 83?? */
+#define EGO_KILL_ORC		92 /* 84?? */
+#define EGO_KILL_TROLL		93 /* 85?? */
+#define EGO_KILL_GIANT		94 /* 86?? */
 #define EGO_KILL_DRAGON		95
 /* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
+#define EGO_SURPRISING_Q    97   /* DJA, for weak launchers */
+#define EGO_MINER_FURY      98
+#define EGO_MINING          99
 #define EGO_DIGGING			100
 #define EGO_DIGGER_EARTHQUAKE		101
 #define EGO_MORGUL			102
-/* xxx */
+#define EGO_DEMON_MIGHT     103
 
 /* Bows */
 #define EGO_ACCURACY		104
 #define EGO_VELOCITY		105
 #define EGO_BOW_LORIEN		106
-#define EGO_CROSSBOW_HARAD	107
+#define EGO_STEADY_AIM  	107
 #define EGO_EXTRA_MIGHT		108
 #define EGO_EXTRA_SHOTS		109
 #define EGO_SLING_BUCKLAND	110
@@ -856,7 +858,7 @@ enum
 #define EGO_HURT_EVIL		113
 #define EGO_HURT_UNDEAD		114
 #define EGO_HURT_DEMON		115
-#define EGO_HURT_ORC		116
+#define EGO_AMMO_ACID		116
 #define EGO_AMMO_ELEC		117
 #define EGO_HURT_GIANT		118
 #define EGO_HURT_DRAGON		119
@@ -869,7 +871,9 @@ enum
 #define EGO_SHATTERED		126
 #define EGO_BLASTED			127
 #define EGO_ACID_COAT       128
-
+#define EGO_EREGION1        129   /* rings, extra resist */
+#define EGO_EREGION2        130   /* rings, extra ability */
+#define EGO_WARFARE         131   /* rings */
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -926,7 +930,7 @@ enum
 #define TV_LUCK_BOOK    93  /* chance/escape realm */
 #define TV_CHEM_BOOK    94  /* alchemy realm */
 #define TV_DARK_BOOK    95  /* black magic realm */
-/* #define TV_MIND_BOOK    96  /* black magic realm */
+/* #define TV_MIND_BOOK    96  /* mind powers realm */
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -955,8 +959,7 @@ enum
 #define SV_PICK				4
 #define SV_ORCISH_PICK		5
 #define SV_DWARVEN_MATTOCK	6
-#define SV_MATTOCK			7
-  /* sval7 is unused, actually I think it's the broken shovel now */
+#define SV_BROKEN_PICK		7
 
 /* The "sval" values for TV_HAFTED (21) */
 #define SV_WALKING_STICK        1   /* 1d2 */
@@ -1019,11 +1022,14 @@ enum
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_KNIGHT_SHIELD            6
+#define SV_DRAGONSCALE_SHIELD       7
 #define SV_SHIELD_OF_DEFLECTION		10
 
 /* The "sval" codes for TV_HELM */
 #define SV_HARD_LEATHER_CAP		2
 #define SV_METAL_CAP			3
+#define SV_BARBUT               4
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
 #define SV_ELVEN_LEATHER_CAP    7
@@ -1033,6 +1039,7 @@ enum
 #define SV_MORGOTH				50
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_PAIR_OF_LEATHER_SANDALS      1
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
 #define SV_PAIR_OF_METAL_SHOD_BOOTS		6
@@ -1041,11 +1048,14 @@ enum
 #define SV_CLOAK					1
 #define SV_FUR_CLOAK                2
 #define SV_TRAVELLING_CLOAK         3
+#define SV_ELVEN_CLOAK              5
 #define SV_SHADOW_CLOAK				6
+#define SV_ETHEREAL_CLOAK           7
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
 #define SV_SET_OF_GAUNTLETS			2
+#define SV_SET_OF_STEEL_GAUNTLETS   3
 #define SV_SET_OF_CESTI				5
 
 /* The "sval" codes for TV_SOFT_ARMOR */
@@ -1060,6 +1070,7 @@ enum
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
+#define SV_RING_MAIL                2   /* 10 */
 #define SV_METAL_SCALE_MAIL			3	/* 13 */
 #define SV_CHAIN_MAIL				4	/* 14 */
 #define SV_AUGMENTED_CHAIN_MAIL		6	/* 16 */
@@ -1136,9 +1147,9 @@ enum
 #define SV_RING_RESIST_COLD		9
 #define SV_RING_SUSTAIN_STR		10  //sustain brawn
 #define SV_RING_SUSTAIN_INT		11  //sustain intellect
+#define SV_RING_SUSTAIN_CON		12  //sustain sneakiness
 /* xxx */
 /* xxx */
-#define SV_RING_SUSTAIN_CON		14  //sustain sneakiness
 /* xxx */
 #define SV_RING_PROTECTION		16
 #define SV_RING_ACID			17
@@ -1196,6 +1207,7 @@ enum
 #define SV_STAFF_BANISHMENT		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
+#define SV_STAFF_CHARM_ANIMAL   30
 
 
 /* The "sval" codes for TV_WAND */
@@ -1228,6 +1240,7 @@ enum
 #define SV_WAND_DRAGON_FIRE		26
 #define SV_WAND_DRAGON_COLD		27
 #define SV_WAND_DRAGON_BREATH	28
+#define SV_WAND_STORMS          29
 
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP		0
@@ -1324,9 +1337,9 @@ enum
 #define SV_POTION_CONFUSION			9
 /* xxx */
 #define SV_POTION_SLEEP				11
-/* xxx */
+#define SV_POTION_RESIST_ELEC_ACID  12
 #define SV_POTION_LOSE_MEMORIES		13
-/* xxx */
+#define SV_POTION_FOUR_LEAF         14
 #define SV_POTION_RUINATION			15
 #define SV_POTION_DEC_STR			16
 #define SV_POTION_DEC_INT			17
@@ -1543,13 +1556,19 @@ enum
 #define RBE_HALLU		29
 #define RBE_SILVER      30 /* silver poison */
 #define RBE_SLIME       31 /* sliming */
-#define RBE_CHARM       32 /* not used much yet (except with the muchroom) */
+#define RBE_CHARM       32 /* not used much yet (except with the mushroom) */
 #define RBE_FRENZY      33 /* not used much yet (maybe use a mushroom) */
 #define RBE_HUNGER      34 /* for hungry ghost */
 #define RBE_PIXIEKISS   35 /* for call help nature spell */
 #define RBE_ENTHELP     36 /* for call help nature spell */
 #define RBE_PURIFY      37 /* for call help nature spell */
 #define RBE_UNLUCKY     38 /* for black cat */
+#define RBE_ZIMPKISS    39 /* for call help nature spell */
+#define RBE_FIREDARK    40 /* for summon demonic aid spell */
+#define RBE_HATELIFE    41 /* for summon demonic aid spell */
+#define RBE_BLOODWRATH  42 /* for summon demonic aid spell */
+#define RBE_SPHCHARM    43 /* for summon demonic aid spell */
+#define RBE_STUDY       44 /* for summon demonic aid spell */
 
 /*** Function flags ***/
 
@@ -1866,6 +1885,7 @@ enum
  * Note that "flags3" contains everything else (including eight good flags,
  * seven unused flags, four bad flags, four damage ignoring flags, six weird
  * flags, and three cursed flags).
+ * curses must be in flags3
  */
 
 #define TR1_STR             0x00000001L /* STR += "pval" */
@@ -1907,11 +1927,11 @@ enum
 #define TR2_SUST_DEX        0x00000008L /* Sustain DEX */
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
-#define TR2_XXX1            0x00000040L /* (reserved) */
+#define TR2_MAGIC_MASTERY   0x00000040L /* Magic Mastery (not done) */
 #define TR2_COAT_ACID       0x00000080L /* Weapon coated with acid (weaker than brand) */
 #define TR2_SLAY_SILVER     0x00000100L /* was XXX3 */
-#define TR2_SLAY_BUG        0x00000200L /* was XXX4 */
-#define TR2_XXX5            0x00000400L /* (reserved) */
+#define TR2_SLAY_BUG        0x00000200L /* was XXX4 NOWD */
+#define TR2_SLAY_LITE       0x00000400L /* slay lite (will affect HURT_DARK monsters) */
 #define TR2_RES_POISB       0x00000800L /* partial poison resistance */
 #define TR2_IM_ACID         0x00001000L /* Immunity to acid */
 #define TR2_IM_ELEC         0x00002000L /* Immunity to elec */
@@ -1943,9 +1963,10 @@ enum
 #define TR3_FREE_ACT        0x00000040L /* Free action */
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
 #define TR3_NO_FUEL         0x00000100L /* Light source uses no fuel */
+/* RES_CHARM should be included with random resists */
 #define TR3_RES_CHARM       0x00000200L /* Resist charm */
-#define TR3_XXX3            0x00000400L
-#define TR3_STOPREGEN       0x00000800L /* STOPREGEN stops regeneration */
+#define TR3_UNDEAD          0x00000400L /* for amulet of undead (not done)*/
+#define TR3_STOPREGEN       0x00000800L /* stops regeneration */
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
@@ -1967,6 +1988,40 @@ enum
 #define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
 
+/* one of these days I'll have to figure out how to add TR4 */
+/* put all random resist flags here */
+#define TR4_SLOW_DIGEST     0x00000001L /* */
+#define TR4_FEATHER         0x00000002L /* */ 
+#define TR4_LITE            0x00000004L /*  */
+#define TR4_REGEN           0x00000008L /*  */
+#define TR4_TELEPATHY       0x00000010L /*  */
+#define TR4_SEE_INVIS       0x00000020L /*  */
+#define TR4_FREE_ACT        0x00000040L /*  */
+#define TR4_HOLD_LIFE       0x00000080L /*  */
+#define TR4_NO_FUEL         0x00000100L /*  */
+#define TR4_RES_CHARM       0x00000200L /*  */
+#define TR4_XXX3            0x00000400L 
+#define TR4_STOPREGEN       0x00000800L /*  */
+#define TR4_IMPACT          0x00001000L /*  */
+#define TR4_TELEPORT        0x00002000L /*  */
+#define TR4_AGGRAVATE       0x00004000L /*  */
+#define TR4_DRAIN_EXP       0x00008000L /*  */
+#define TR4_IGNORE_ACID     0x00010000L /*  */
+#define TR4_IGNORE_ELEC     0x00020000L /*  */
+#define TR4_IGNORE_FIRE     0x00040000L /*  */
+#define TR4_IGNORE_COLD     0x00080000L /*  */
+#define TR4_GOOD_WEAP       0x00100000L /*  */
+#define TR4_BAD_WEAP        0x00200000L /*  */
+#define TR4_BLESSED         0x00400000L /*  */
+#define TR4_ACTIVATE        0x00800000L /*  */
+#define TR4_INSTA_ART       0x01000000L /*  */
+#define TR4_EASY_KNOW       0x02000000L /*  */
+#define TR4_HIDE_TYPE       0x04000000L /*  */
+#define TR4_SHOW_MODS       0x08000000L /*  */
+#define TR4_CORRUPT         0x10000000L /*  */
+#define TR4_LIGHT_CURSE     0x20000000L /*  */
+#define TR4_HEAVY_CURSE     0x40000000L /*  */
+#define TR4_PERMA_CURSE     0x80000000L /* */
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
@@ -2030,7 +2085,7 @@ enum
 #define CF_HULK_CONF		0x00000400L /* always confuse monsters -also easydigging */
 #define CF_CLASS_SPEED		0x00000800L /* extra speed -also resists aggravation */
 #define CF_ASSASSIN			0x00001000L /* bonus against sleeping monsters & stealth */
-#define CF_XXX14			0x00002000L
+#define CF_POWER_SHIELD		0x00002000L /* war mage's defence & power bonus */
 #define CF_XXX15			0x00004000L
 #define CF_XXX16			0x00008000L
 #define CF_XXX17			0x00010000L

@@ -1,17 +1,29 @@
 
 
-
 Thanks to:
-First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Pav for hosting the files and maintaining a great *band website, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, Nick for the Phantom of Eilenel, CunningGabe for new names of a couple jellies, those on oook who gave coding/variant making advice, and anyone else who gives comments or suggestions or just plays DaJAngband.
+First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch (although I'm using a very old version of it), Pav for hosting the files and maintaining a great *band website, Bahman Rabii (and Pat Tracy) for bits taken from OAngband (a couple spells and descriptions for a lot of objects), Nick for a few spells from FAAngband and the Phantom of Eilenel, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, CunningGabe for new names of a couple jellies, those on oook who gave coding/variant making advice, and anyone else who gives comments or suggestions or just plays DaJAngband.
 
 ------------------------------------------------------------------------------------------
-	DaJAngband version 1.0.95 (pre 1.1.0)
-(1.0.94 was never released)
-some changes are listed which are planned for 1.1.0 but are not implemented yet for 1.0.95.
+	DaJAngband version 1.0.96 (pre 1.1.0)
+
+changes since 1.0.95:
+	added FORCE_SLEEP flag to several monsters which needed it, also added POWERFUL flag to some monsters, and reduced the group size for some very tough monsters which come in groups
+	POWERFUL flag now affects more things: reduces your saving throw against most melee and spell effects including cause wounds spells, also gives about a 6% chance for stat draining to bypass sustains, and POWERFUL monsters still do slight damage with an element you are immune to (because if you're immune to fire, the smoke from it can still do damage, if you're immune to cold, the ice can still do damage, etc..)
+	A couple race/class restrictions have been removed (specifically, a dunadan can now be a druid,
+and a half-orc can now be a priest or paladin.)
+	weapons that give light now usually do slight extra damage to HURT_LITE monsters
+	birth.txt help file updated to include new races and class (but it doesn't have the war mage yet)
+	monster stealth implemented.  How well you notice steathy monsters is based primarily on distance between you and the monster and your perception/searching skills.  A couple other factors also make a small difference.  Stealth level ranges from 0 to 6 and take up the previously unused slot in the monster entries of monster.txt.  (stealth of 0 has no stealth effect, stealth of 6 is nearly invisible because of stealth).  Most stealthy monsters are: felines, higher level thief-types, higher-level dark elves, and the ranger and ranger chieftain (instead of invisibility). Most very small monsters (white rats, mushroom patches) have a stealth of 2 which means you might not notice it from a distance.  Most other monsters have a stealth level of 0 or 1.
+	The assassin class now gets a couple more useful spells. (It previously lacked any detection spells in the town books.)
+	More tweaks with artifacts, egos, and items including the addition of gloves of magic mastery and some other ideas borrowed from FA/O. Also descriptions for a lot of objects borrowed from OAngband.
+	Necromancers' summon demonic aid spell now works. Added a couple spells to the wizardry realm.
+	War Mage character class added. This is supposed to be a class where you can actually use magic as your primary offence and (in theory) not need to attack with weapons at all. At this stage, it is barely tested and not finished, suggestions for improvement are encouraged.
+	Social class has an effect on starting gold even when using point-based stats.
+	a few misc. minor bugs fixed.
 
 changes since 1.0.93:
-	a few minor monster tweaks as usual (one not so minor: The Static drake is no longer invisible -I didn't intend it to be invisible in the first place. Sorry to any one who meets a static drake in an earlier version..)
 	fixed/updated some stuff about monster recall and monster symbols in the help file.
+	a few minor monster tweaks as usual (one not so minor: The Static drake is no longer invisible -I didn't intend it to be invisible in the first place. Sorry to any one who meets a static drake in an earlier version..)
 	added HURT_DARK flag to make the necromancer's darkness spells more interesting. (most light fairies, unicorns, tree monsters and zhelung lizards are hurt by dark).
 	Four more classes are added: Necromancer, Assassin, Tourist, and Barbarian. Wizards now start out with the weapon I meant them to start out with. (didn't catch that until now because I rarely be that type of class).
 	implemented the telekinesis spell (for tourists and thieves). Also, the 'Slip into the Shadows' spell works now. (if you cast it in an earlier version, the game will crash -at least it did on my computer).  ..I really should've noticed that and fixed it before releasing 1.0.93.
@@ -22,7 +34,7 @@ changes since 1.0.93:
 	fixed a bug which sometimes gave you extra slime or silver poison or makes you confuse monsters when you load a saved game.  (This bug might still happen in savefiles from 1.0.93. other than this, savefiles are not broken)
 	added partial poison resistance for kobolds and hobglibs. They are now less resistant to poison than they used to be, and still have a use for permanent resist poison items.
 	added three somewhat experimental new monsters: gnawing bug (got the idea from part of Psi's ent ranger story) and two silver monsters. All three new monsters are pretty deep and rare, so I probably won't be meeting them very often myself.
-	implemented sentient items, good and bad.  good sentient items give slight bonuses to prayer and will give penalty to black magic (black magic realm will be in next release). Bad sentient items do the opposite. Good sentient weapons also count as blessed for priests. There will probably be other minor effects of good and bad sentient items in the future.  There is also a corrupt flag on the One Ring now, but it doesn't do anything yet.
+	implemented sentient items, good and bad.  good sentient items give slight bonuses to prayer and will give penalty to black magic. Bad sentient items do the opposite. Good sentient weapons also count as blessed for priests. There will probably be other minor effects of good and bad sentient items in the future.  There is also a corrupt flag on the One Ring now, but it doesn't do anything yet.
 
 changes since 1.0.92:
 	waybread isn't quite so expensive and cures 3 points of slime instead of 2.

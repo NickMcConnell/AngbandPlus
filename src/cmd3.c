@@ -147,8 +147,8 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 	/* ??? should check for tried, print this when "I"nspecting a tried object */
 
 	int i;
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	char *desc = (o_ptr->pval >= 0) ? "boosts" : "reduces";
 	for (i = 0; i < sizeof(boostconv)/sizeof(flagname); i++)
 	{
@@ -905,10 +905,10 @@ void do_cmd_inscribe(void)
  */
 static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
@@ -1060,10 +1060,10 @@ static void do_cmd_refill_lamp(void)
  */
 static bool item_tester_refill_torch(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
@@ -1169,13 +1169,13 @@ static void do_cmd_refill_torch(void)
 void do_cmd_refill(void)
 {
 	object_type *o_ptr;
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get the light */
 	o_ptr = &inventory[INVEN_LITE];
 
 	/* Get flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* It is nothing */

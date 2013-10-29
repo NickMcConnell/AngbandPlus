@@ -1098,7 +1098,7 @@ void update_mon(int m_idx, bool full)
 				else
 				{
 					/* Easy to see */
-					easy = flag = TRUE;
+					easy = TRUE;
 				}
 			}
 
@@ -1115,7 +1115,7 @@ void update_mon(int m_idx, bool full)
 					if (p_ptr->see_inv)
 					{
 						/* Easy to see */
-						easy = flag = TRUE;
+						easy = TRUE;
 					}
 				}
 
@@ -1123,12 +1123,12 @@ void update_mon(int m_idx, bool full)
 				else
 				{
 					/* Easy to see */
-					easy = flag = TRUE;
+					easy = TRUE;
 				}
 			}
 
 			/* Visible */
-			if (flag)
+			if ((flag) || (easy))
 			{
 				/* Memorize flags */
 				if (do_invisible) l_ptr->flags2 |= (RF2_INVISIBLE);
@@ -1136,7 +1136,73 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 	}
+	
+	/* if a monster would otherwise be seen easily, check monster stealth */
+	/* palert is evaluated in xtra1.c */
+	if (easy)
+	{
+        int mstealth = (r_ptr->stealth * 11);
+        if (goodluck > 4) mstealth -= (goodluck/4 + randint(goodluck/2));
+        else if (goodluck == 4) mstealth -= 1;
+        if (badluck > 4) mstealth += (badluck/5 + rand_int(badluck/4));
+        if ((!r_ptr->flags2 & (RF2_COLD_BLOOD)) && (p_ptr->see_infra > 3))
+        {
+           int msmod = 5 - d;
+           if (msmod < 0) msmod = 0;
+           mstealth -= (5 + p_ptr->see_infra + randint(msmod));
+        }
+        else if ((!r_ptr->flags2 & (RF2_COLD_BLOOD)) && (p_ptr->see_infra > 1))
+        {
+           int msmod = 3 - d;
+           if (msmod < 0) msmod = 0;
+           mstealth -= (randint(2 + p_ptr->see_infra + msmod) + 1);
+        }
+        
+        if ((d > 12) && (r_ptr->stealth > 4)) mstealth += 30;
+        else if ((d > 12) && (r_ptr->stealth > 2)) mstealth += 20;
+        else if (d > 12) mstealth += 10;
+        else if ((d > 3) && (r_ptr->stealth > 4)) mstealth += (d-3) * (2 + randint(2));
+        else if ((d > 3) && (r_ptr->stealth > 2)) mstealth += (d-3) * 2;
+        else if (d > 3) mstealth += (d-3);
+        else if (d < 2) mstealth -= 10;
+        if ((d < 7) && (m_ptr->monseen) && (!m_ptr->monfear)) mstealth -= 15;
+        if ((m_ptr->monseen) && (r_ptr->flags1 & (RF1_NEVER_MOVE))) mstealth -= 15;
 
+        /* prevent randint(negative mstealth) because that makes it crash */
+        if (mstealth < 1) mstealth = 1;
+
+        /* cold-blooded examples assume monseen is 0*/
+        /* monster of stealth 1 at a distance of 13 now has mstealth of 21 */
+        /* monster of stealth 3 at a distance of 13 now has mstealth of 53 */
+        /* monster of stealth 2 at a distance of 9 now has mstealth of 28 */
+        /* monster of stealth 3 at a distance of 7 now has mstealth of 41 */
+        /* monster of stealth 4 at a distance of 6 now has mstealth of 50 */
+        /* monster of stealth 5 at a distance of 5 now has mstealth of 61 */
+        /* monster of stealth 6 at a distance of 4 now has mstealth of 72 */
+        /* monster of stealth 5 at a distance of 1 now has mstealth of 45 */
+        /* monster of stealth 6 at a distance of 8 now has mstealth of 81 */
+/* warm blooded monster of stealth 5 at a distance of 3 has mstealth of 54 at most */
+        /* does the player notice the monster? */
+        if (d > 2)
+        {
+              if ((mstealth > (palert + 50)) && (!m_ptr->monseen)) easy = FALSE;
+              if (randint(mstealth) > palert) easy = FALSE;
+              if (randint(mstealth) > palert + 8) easy = FALSE;
+              if ((palert > mstealth) && (r_ptr->stealth > 1) && 
+                  (randint(1200) < (mstealth + d + badluck - goodluck))) easy = FALSE;
+        }
+        else if (d <= 2)
+        {
+              if (randint(mstealth) > (palert + 5)) easy = FALSE;
+        }
+        if (randint(200) < goodluck) easy = TRUE;
+        
+    }
+
+    /* is it still visible after monster stealth is checked? */
+    if (easy) flag = TRUE;
+    /* once it's noticed by the player it's easier to see afterwords */
+    if (easy) m_ptr->monseen = TRUE;
 
 	/* The monster is now visible */
 	if (flag)

@@ -174,6 +174,7 @@ struct object_kind
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
+	u32b flags4;		/* Flags, set 4 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -245,6 +246,7 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b flags4;		/* Flags, set 4 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -271,6 +273,7 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+	u32b flags4;		/* Flags, set 4 */
 
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
@@ -345,7 +348,8 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b power;				/* Monster power */
+	s16b power;				/* Monster power (this is the unused spot) */
+	s16b stealth;           /* (DAJ) ..which is replaced by this */
 	
 #ifdef ALLOW_TEMPLATES_PROCESS
 
@@ -537,6 +541,8 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	bool monseen;       /* monster has been seen */
+	bool charmed;       /* monster is charmed */
 
 	byte cdis;			/* Current dis from player */
 
@@ -729,9 +735,11 @@ struct player_race
 
 	s16b hist;			/* Starting history index */
 
+                 /* this uses object flags */
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
+	u32b flags4;		/* Flags, set 4 */
 };
 
 

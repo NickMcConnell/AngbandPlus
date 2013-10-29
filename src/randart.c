@@ -358,6 +358,7 @@ static s32b artifact_power(int a_idx)
 	if (immunities > 2) p += 16;
 	if (immunities > 3) p += 20000;		/* inhibit */
 	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
+	if (a_ptr->flags2 & TR2_MAGIC_MASTERY) p += 6;
 	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
 	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
@@ -367,7 +368,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
 	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
-/*	if (a_ptr->flags3 & TR3_RES_CHARM) p += 8; */
+	if (a_ptr->flags3 & TR3_RES_CHARM) p += 6;
 	if (a_ptr->flags2 & TR2_RES_BLIND) p += 10;
 	if (a_ptr->flags2 & TR2_RES_CONFU) p += 8;
 	if (a_ptr->flags2 & TR2_RES_SOUND) p += 10;
@@ -644,6 +645,7 @@ static void choose_item(int a_idx)
 	a_ptr->flags1 = k_ptr->flags1;
 	a_ptr->flags2 = k_ptr->flags2;
 	a_ptr->flags3 = k_ptr->flags3;
+	/* a_ptr->flags4 = k_ptr->flags4; */
 
 	/* Artifacts ignore everything */
 	a_ptr->flags3 |= TR3_IGNORE_MASK;
@@ -907,7 +909,8 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags1 |= TR1_DEX;
 					do_pval(a_ptr);
 				}
-				else if (r < 75) a_ptr->to_a += (s16b)(3 + rand_int(3));
+				else if (r < 55) a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+				else if (r < 77) a_ptr->to_a += (s16b)(3 + rand_int(3));
 				else
 				{
 					a_ptr->to_h += (s16b)(2 + rand_int(3));
@@ -983,7 +986,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
+		r = rand_int(44);
 		switch (r)
 		{
 			case 0:
@@ -1106,6 +1109,7 @@ static void add_ability(artifact_type *a_ptr)
 			case 19:
 			{
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
+				else a_ptr->flags2 |= TR2_MAGIC_MASTERY;
 				break;
 			}
 			case 20: a_ptr->flags3 |= TR3_FREE_ACT; break;
@@ -1144,7 +1148,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
-			/* case 43: a_ptr->flags3 |= TR3_RES_CHARM; break; */
+			case 43: a_ptr->flags3 |= TR3_RES_CHARM; break;
 		}
 	}
 

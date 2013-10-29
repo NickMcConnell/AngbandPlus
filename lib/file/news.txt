@@ -7,8 +7,8 @@
                       \____|               |___/
 
 				
-		   David A. Justiss (Will_Asher on angband.oook.cz)
-		report bug reports on oook (private or public, whichever)
+		          David A. Justiss (aka Will_Asher)
+			report bug reports on angband.oook.cz
 				DJA v1.0.95 (pre 1.1.0)
                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 

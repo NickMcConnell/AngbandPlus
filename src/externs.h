@@ -245,7 +245,7 @@ extern bool (*ang_sort_comp)(const void *u, const void *v, int a, int b);
 extern void (*ang_sort_swap)(void *u, void *v, int a, int b);
 extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
-extern void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 extern FILE *text_out_file;
 extern void (*text_out_hook)(byte a, cptr str);
 extern int text_out_wrap;
@@ -259,12 +259,13 @@ extern u16b inscriptions_count;
 extern int range;
 extern int spellswitch; /* for hacking */
 extern int spadjust;
+extern int losesave;
 extern int goodluck;
 extern int badluck;
 extern int goodweap;
 extern int badweap;
 extern int magicmod;
-
+extern int palert;
 
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];
@@ -345,7 +346,7 @@ extern void safe_setuid_grab(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);
 extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
-extern void player_flags(u32b *f1, u32b *f2, u32b *f3);
+extern void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);
@@ -419,8 +420,8 @@ extern void object_info_screen(const object_type *o_ptr);
 extern void flavor_init(void);
 extern void reset_visuals(bool prefs);
 extern void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know);
-extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
+extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4);
 extern void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode);
 extern void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref, int mode);
 extern void describe_item_activation(const object_type *o_ptr);

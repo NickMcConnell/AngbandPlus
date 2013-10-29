@@ -324,14 +324,14 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	object_kind *k_ptr;
 
 	if (mode != OBJECT_FLAGS_FULL)
 	{
 		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
+		(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
@@ -345,6 +345,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		(*f1) = k_ptr->flags1;
 		(*f2) = k_ptr->flags2;
 		(*f3) = k_ptr->flags3;
+		(*f4) = k_ptr->flags4;
 
 		if (mode == OBJECT_FLAGS_FULL)
 		{
@@ -356,6 +357,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 				(*f1) = a_ptr->flags1;
 				(*f2) = a_ptr->flags2;
 				(*f3) = a_ptr->flags3;
+				(*f4) = a_ptr->flags4;
 			}
 		}
 
@@ -367,6 +369,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f1) |= e_ptr->flags1;
 			(*f2) |= e_ptr->flags2;
 			(*f3) |= e_ptr->flags3;
+			(*f4) |= e_ptr->flags4;
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -409,6 +412,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
+			/* (*f4) = a_ptr->flags4; */
 
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
@@ -535,9 +539,9 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
 }
 
 
@@ -545,9 +549,9 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
 #ifdef EFG
 	/* EFGchange give description of artifact activations without IDENT_MENTAL */
 	if (object_known_p(o_ptr) && o_ptr->name1 && a_info[o_ptr->name1].flags3 & TR3_ACTIVATE)
@@ -692,7 +696,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * and we would not handle "box"/"boxes", or "knife"/"knives", correctly.
  * Of course, it would be easy to add rules for these forms.
  *
- * If "pref" is true then a "numeric" prefix will be pre-pended, else is is
+ * If "pref" is true then a "numeric" prefix will be pre-pended, else it is
  * assumed that a string such as "The" or "Your" will be pre-pended later.
  *
  * Modes ("pref" is TRUE):
@@ -741,13 +745,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	char tmp_buf[128];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
+	/* u32b f1, f2, f3, f4; NEWTR4*/
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	/* object_flags(o_ptr, &f1, &f2, &f3, &f4); */
 
 
 	/* See if the object is "aware" */

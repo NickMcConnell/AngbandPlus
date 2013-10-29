@@ -693,24 +693,12 @@ static bool hates_cold(const object_type *o_ptr)
  */
 static int set_acid_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
-
-/*
- * Moth damage
-static int set_moth_destroy(const object_type *o_ptr)
-{
-	u32b f1, f2, f3;
-	if (!hates_moth(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & (TR3_IGNORE_MOTH)) return (FALSE);
-	return (TRUE);
-}
- */
 
 
 /*
@@ -718,9 +706,9 @@ static int set_moth_destroy(const object_type *o_ptr)
  */
 static int set_elec_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
@@ -731,9 +719,9 @@ static int set_elec_destroy(const object_type *o_ptr)
  */
 static int set_fire_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
@@ -744,9 +732,9 @@ static int set_fire_destroy(const object_type *o_ptr)
  */
 static int set_cold_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
@@ -856,13 +844,18 @@ static int inven_damage(inven_func typ, int perc)
 					break;
 				}
 
-				/* Stench doesn't destroy things as often */
+				/* Stench/elec doesn't destroy things as often */
+#ifdef ALTDJA
+				case TV_FOOD:
+#endif
 				case TV_WAND:
 				case TV_RING:
-				case TV_FOOD:
 				{
+#ifdef ALTDJA
 					chance = (chance / 2);
-			
+#else
+					chance = ((chance * 4) / 5);
+#endif			
 					break;
 				}
 			}
@@ -944,7 +937,7 @@ static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	char o_name[80];
 
@@ -971,7 +964,7 @@ static int minus_ac(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Object resists */
 	if (f3 & (TR3_IGNORE_ACID))
@@ -1005,15 +998,21 @@ void acid_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0)) return;
-
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->timed[TMD_OPP_ACID]) dam = (dam + 2) / 3;
 
 	/* If any armor gets hit, defend the player */
-	if (minus_ac()) dam = (dam + 1) / 2;
+	if ((goodluck > 6) && (minus_ac())) dam = (dam + 1) / 2;
+	else if (minus_ac()) dam = (dam * 2) / 3;
+
+	/* Total Immunity */
+	/* powerful monsters have a chance of still doing slight damage */
+	if ((p_ptr->immune_acid) && (losesave > 1) && (randint(100) < 33))
+	{
+       take_hit(dam / (4 + randint(6)), kb_str);
+    }
+	if (p_ptr->immune_acid || (dam <= 0)) return;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1031,6 +1030,11 @@ void elec_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Total immunity */
+	/* powerful monsters have a chance of still doing slight damage */
+	if ((p_ptr->immune_elec) && (losesave > 1) && (randint(100) < 33))
+	{
+       take_hit(dam / (4 + randint(6)), kb_str);
+    }
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
 	/* Resist the damage */
@@ -1055,6 +1059,11 @@ void fire_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Totally immune */
+	/* powerful monsters have a chance of still doing slight damage */
+	if ((p_ptr->immune_fire) && (losesave > 1) && (randint(100) < 33))
+	{
+       take_hit(dam / (4 + randint(6)), kb_str);
+    }
 	if (p_ptr->immune_fire || (dam <= 0)) return;
 
 	/* Resist the damage */
@@ -1077,6 +1086,11 @@ void cold_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Total immunity */
+	/* powerful monsters have a chance of still doing slight damage */
+	if ((p_ptr->immune_cold) && (losesave > 1) && (randint(100) < 33))
+	{
+       take_hit(dam / (4 + randint(6)), kb_str);
+    }
 	if (p_ptr->immune_cold || (dam <= 0)) return;
 
 	/* Resist the damage */
@@ -1441,7 +1455,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 			/* Pick a pair of stats */
 			ii = rand_int(A_MAX);
-			for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
+			for (jj = ii; jj == ii; jj = rand_int(A_MAX)); /* loop */
 
 			max1 = p_ptr->stat_max[ii];
 			cur1 = p_ptr->stat_cur[ii];
@@ -1899,7 +1913,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	bool obvious = FALSE;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	char o_name[80];
 
@@ -1934,7 +1948,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Get the "plural"-ness */
 		if (o_ptr->number > 1) plural = TRUE;
@@ -3448,7 +3462,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			note = " shudders.";
 			note_dies = " dissolves!";
 			
-			if ((spellswitch == 10) && (r_ptr->d_char == 'g'))
+			if ((spellswitch == 10) &&
+			   ((r_ptr->d_char == 'g') || (r_ptr->d_char == 'v') || 
+			   (r_ptr->d_char == 'X') || (r_ptr->d_char == '%')))
 			{
 			   note = " is unaffected.";
 			   dam = 0;
@@ -3659,6 +3675,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	else
 	{
 		bool fear = FALSE;
+		
+		/* if you hit a charmed animal, the sphere of charm dissapears */
+		if (m_ptr->charmed)
+		{
+           (void)clear_timed(TMD_SPHERE_CHARM);
+        }
 
 		/* Hurt the monster, check for fear and death */
 		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies))
@@ -4101,7 +4123,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_INERTIA:
 		{
 			if (blind) msg_print("You are hit by something strange!");
-			(void)inc_timed(TMD_SLOW, rand_int(4) + 4);
+			if (!p_ptr->timed[TMD_SUST_SPEED]) (void)inc_timed(TMD_SLOW, rand_int(4) + 4);
 			take_hit(dam, killer);
 			break;
 		}
@@ -4226,7 +4248,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (randint(127) > p_ptr->lev)
 				teleport_player(5);
 
-			(void)inc_timed(TMD_SLOW, rand_int(4) + 4);
+			if (!p_ptr->timed[TMD_SUST_SPEED]) (void)inc_timed(TMD_SLOW, rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));

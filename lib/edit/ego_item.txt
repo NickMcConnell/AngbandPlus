@@ -1,4 +1,5 @@
 # File: ego_item.txt
+# DaJAngband 1.0.96
 
 
 # This file is used to initialize the "lib/data/ego_item.raw" file, which is
@@ -337,7 +338,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
 
 N:41:of Stealth
 X:10:0
-W:0:1:0:500
+W:0:2:0:500
 C:0:0:0:3
 T:35:0:99
 F:STEALTH
@@ -374,8 +375,8 @@ F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
 N:47:of Dungeon Sight
 X:20:0
-W:10:4:0:4000
-C:2:0:8:8
+W:8:3:0:4000
+C:2:0:8:6
 T:35:0:99
 F:INFRA | RES_BLIND
 F:IGNORE_ACID
@@ -563,7 +564,7 @@ F:BLOWS | HIDE_TYPE
 # formerly "of Fury"
 N:70:of Bloodlust
 X:30:0
-W:40:26:0:20000
+W:40:23:0:20000
 T:21:12:99
 T:22:4:10
 T:23:16:99
@@ -643,11 +644,11 @@ F:IGNORE_ACID | IGNORE_ELEC
 # looks too common, but is restricted to the athame only which is already rare
 N:79:of Witchcraft
 X:5:1
-C:6:6:0:2
-W:13:3:0:3000
+C:3:3:0:2
+W:13:2:0:3000
 T:23:29:29
 F:INT | INFRA | STEALTH | RES_DARK | SEE_INVIS | SLAY_ANIMAL
-F:BAD_WEAP | DRAIN_EXP | CORRUPT | LIGHT_CURSE | HIDE_TYPE
+F:BAD_WEAP | DRAIN_EXP | CORRUPT | HIDE_TYPE
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
 
 # The "Slay" weapons (8)
@@ -716,7 +717,8 @@ T:22:0:99
 T:23:0:99
 F:SLAY_DRAGON
 
-# 88 unused
+# 88 unused, reserved for 'slay light' which might be a version of
+# *slay animal* which would slay both animals and creatures of light.
 
 # The *Slay* weapons (8)
 
@@ -785,13 +787,24 @@ F:CON | KILL_DRAGON | RES_FEAR
 
 # 96 (unused)
 
-# 97 (unused)
+### a launcher
+
+# only applies to x1 range weapons (slingshot & small bow), has a random resist
+N:97:of Surprising Quality
+X:20:2
+W:15:4:0:12000
+C:9:9:0:2
+T:19:1:1
+T:19:11:11
+F:MIGHT | HIDE_TYPE | SUST_DEX
+D:You find a label which reads "Enchanted by Quality Improvers Inc: taking the worst
+D: of range weapons and making them formidable."
 
 ### Digging Tools
 
 N:98:of Miner's Fury
 X:11:0
-W:54:3:0:6500
+W:40:3:0:6500
 C:6:20:0:1
 T:20:6:6
 F:STR | BLOWS | SLAY_ORC | HIDE_TYPE
@@ -832,8 +845,8 @@ F:HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD | BRAND_POIS | BAD_WEAP
 # add slay_lite once it's implemented
 N:103:of Demon Might
 X:6:0
-C:6:13:0:-4
-W:39:33:0:3000
+C:6:13:0:4
+W:39:16:0:3000
 T:23:8:8
 T:23:29:29
 T:22:14:14
@@ -868,6 +881,7 @@ T:19:11:13
 F:DEX | MIGHT | FREE_ACT | LITE | RES_LITE | GOOD_WEAP
 F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
+#maybe make it slightly earlier or change rarity to 4
 N:107:of Steady Aim
 X:15:0
 W:40:5:0:14000
@@ -1047,13 +1061,32 @@ X:10:0
 W:0:0:0:20
 F:COAT_ACID | IGNORE_ACID
 
-#N:129:(new ego)
-#X:20:0
-#W:0:10:0:10000
-#C:5:5:0:2
-#T:21:0:99
-#T:22:0:99
-#T:23:0:28
-#F:
-#F:
-#F:
+#ego rings
+N:129:of Eregion
+X:21:2
+W:30:9:0:8000
+C:0:0:0:2
+T:45:1:31
+F:SPEED
+
+N:130:of Eregion
+X:21:3
+W:30:9:0:8000
+C:0:0:0:2
+T:45:1:31
+F:SPEED
+
+N:131:of Warfare
+X:20:0
+W:30:6:0:7500
+C:8:8:0:0
+T:45:8:21
+T:45:25:27
+T:45:31:31
+
+N:132:of Magic Mastery
+X:11:0
+W:0:5:0:1000
+C:0:0:0:0
+T:31:0:99
+F:MAGIC_MASTERY

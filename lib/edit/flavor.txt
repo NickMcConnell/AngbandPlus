@@ -1203,3 +1203,24 @@ G:?:w
 N:302:70
 G:?:w
 
+# more staffs
+
+N:303:55
+G:_:d
+D:Knotted
+
+N:304:55
+G:_:d
+D:Scorched
+
+N:305:55
+G:_:d
+D:Carved
+
+N:306:55
+G:_:d
+D:Cherry
+
+N:307:55
+G:_:d
+D:Sapling

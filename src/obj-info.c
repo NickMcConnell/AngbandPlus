@@ -395,7 +395,7 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  * Describe miscellaneous powers such as see invisible, free action,
  * permanent light, etc; also note curses and penalties.
  */
-static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
+static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 {
 	cptr good[6], bad[4];
 	int gc = 0, bc = 0;
@@ -432,6 +432,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if (f2 & (TR2_MAGIC_MASTERY))  good[gc++] = "raises your magic device skill";
 	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
 	{
        good[gc++] = "is good and hates your black magic.";
@@ -542,11 +543,11 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
  */
 bool object_info_out(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3);
+	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
@@ -562,7 +563,7 @@ bool object_info_out(const object_type *o_ptr)
     }
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
-	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
+	if (describe_misc_magic(o_ptr, f2, f3)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 

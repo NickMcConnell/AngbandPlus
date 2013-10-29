@@ -268,7 +268,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		
 		case SV_POTION_SLIME_MOLD: /* Pepsi */
 		{
-            if (randint(100) < 3)
+            if ((randint(100) < 3) && (p_ptr->luck < 15))
             {
                p_ptr->luck += 1;
                msg_print("This is good stuff.");
@@ -281,6 +281,23 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+        case SV_POTION_FOUR_LEAF:
+        {
+            if ((p_ptr->luck == 39) && (randint(100) < 50))
+            {
+                  p_ptr->luck += 1;
+                  msg_print("This is good stuff.");
+			      *ident = TRUE;
+            }
+            else if (p_ptr->luck < 39)
+            {
+                  p_ptr->luck += randint(2);
+                  msg_print("This is good stuff.");
+			      *ident = TRUE;
+            }
+            else msg_print("You feel less thirsty.");
+			break;
+        }
 
 		case SV_POTION_SLOWNESS:
 		{
@@ -450,7 +467,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_AUTO_BRAIL:
 		{
-			if (inc_timed(TMD_BRAIL, 50 + randint(100)))
+			if (inc_timed(TMD_BRAIL, 75 + randint(75)))
 			{
 				*ident = TRUE;
 			}
@@ -486,15 +503,29 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SPEED:
 		{
-			if (!p_ptr->timed[TMD_FAST])
+			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(25) + 15)) *ident = TRUE;
 				(void)set_food(p_ptr->food - 600);
 			}
-			else
+			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
 				(void)set_food(p_ptr->food - 200);
+			}
+			break;
+		}
+
+		case SV_POTION_RESIST_ELEC_ACID:
+		{
+            int time = randint(10) + 10;
+			if (inc_timed(TMD_OPP_ACID, time))
+			{
+				*ident = TRUE;
+			}
+			if (inc_timed(TMD_OPP_ELEC, time))
+			{
+				*ident = TRUE;
 			}
 			break;
 		}
@@ -1152,6 +1183,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
 			break;
 		}
+		
+		case SV_STAFF_CHARM_ANIMAL:
+        {
+			if (inc_timed(TMD_SPHERE_CHARM, randint(60 + goodluck) + 40)) *ident = TRUE;
+			break;
+        }
 
 		case SV_STAFF_HASTE_MONSTERS:
 		{
@@ -1314,12 +1351,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SPEED:
 		{
-			if (!p_ptr->timed[TMD_FAST])
+			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
 				(void)set_food(p_ptr->food - 600);
 			}
-			else
+			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
 				(void)set_food(p_ptr->food - 200);
@@ -1446,7 +1483,14 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	sval = o_ptr->sval;
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
-	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
+	if (sval == SV_WAND_WONDER)
+	{
+        sval = rand_int(SV_WAND_WONDER);
+        if ((goodluck > 9) && (randint(100) < 3)) sval += 1;
+        if ((goodluck > 14) && (randint(2550 - (goodluck*105)) == 3)) sval += randint(4);
+        if ((goodluck > 9) && (sval < SV_WAND_CLONE_MONSTER)) sval += randint(15);
+        if (sval >= SV_WAND_WONDER) msg_print("You feel a lucky surge of power!");
+    }
 
 	/* Analyze the wand */
 	switch (sval)
@@ -1609,7 +1653,27 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_WONDER:
 		{
-			msg_print("Oops.  Wand of wonder activated.");
+            /* only activates with high luck, and rarely then */
+            int die = randint(10);
+			lite_line(dir);
+			fire_ball(GF_POIS, dir, goodluck * randint(6), 4);
+			sleep_monster(dir);
+			if (die < 7) teleport_monster(dir);
+			else if ((die == 7) || (die == 8)) slow_monster(dir);
+			else if (die == 9) poly_monster(dir);
+			else if (die == 10) drain_life(dir, 120 + randint(goodluck));
+			fear_monster(dir, 10);
+			sleep_monster(dir);
+			*ident = TRUE;
+			/* msg_print("Oops.  Wand of wonder activated."); */
+			break;
+		}
+		
+		case SV_WAND_STORMS:
+		{
+			fire_ball(GF_ELEC, dir, 50 + randint(p_ptr->skills[SKILL_DEV] + 15), 3);
+			fire_ball(GF_WATER, dir, 50 + randint(p_ptr->skills[SKILL_DEV] + 15), 3);
+			*ident = TRUE;
 			break;
 		}
 
@@ -1657,7 +1721,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 120, 3);
+					fire_ball(GF_POIS, dir, 120, 4);
 					break;
 				}
 			}
@@ -1829,13 +1893,15 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_SPEED:
 		{
-			if (!p_ptr->timed[TMD_FAST])
+			if ((!p_ptr->timed[TMD_FAST]) && (!p_ptr->timed[TMD_SUST_SPEED]))
 			{
 				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
+				(void)set_food(p_ptr->food - 600);
 			}
-			else
+			else if (!p_ptr->timed[TMD_SUST_SPEED])
 			{
 				(void)inc_timed(TMD_FAST, 5);
+				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}
@@ -2751,10 +2817,10 @@ static cptr act_description[ACT_MAX] =
  */
 void describe_item_activation(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return;

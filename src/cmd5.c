@@ -47,11 +47,20 @@ s16b spell_chance(int spell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
-	/* Non mage/priest characters never get better than 5 percent */
+	/* Non primary spellcasters never get better than 5 percent */
 	if (!(cp_ptr->flags & CF_ZERO_FAIL))
 	{
 		if (minfail < 5) minfail = 5;
 	}
+	
+	/* spellcasting bonus */
+	if (p_ptr->timed[TMD_BRAIL])
+    {
+       chance -= 5;
+       if (goodluck > 5) minfail -= randint((goodluck/6) + 1); /* - 1 to 4 */
+       else if (goodluck > 0) minfail -= (randint(3) - 1); /* - 1 or 2 */
+       else minfail -= (randint(2) - 1); /* - 0 or 1 */
+    }
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
 	/* was +25 fail */
@@ -84,7 +93,7 @@ s16b spell_chance(int spell)
 	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += 1 + (badweap*2);
 	   else if (goodweap > 1) chance -= (3 + (goodweap*2));
     }
-	else if (cp_ptr->spell_book == TV_DARK_BOOK)
+	else if ((cp_ptr->spell_book == TV_DARK_BOOK) || (cp_ptr->flags & CF_POWER_SHIELD))
 	{
 	   if ((badweap > 0) && (goodweap > 0))
 	   {

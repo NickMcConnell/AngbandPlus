@@ -156,10 +156,10 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -196,7 +196,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 2) mult = 2;
 			}
 
-			/* Slay Undead (nightmare) */
+			/* Slay Undead */
 			if ((f1 & (TR1_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
@@ -223,7 +223,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
             /* Holy Wrath (Sanctify for battle) */
             if (p_ptr->timed[TMD_SANCTIFY])
             {
-               /* this should also include undead in normal DJA */
+               /* maybe should also include undead */
                if (r_ptr->flags3 & (RF3_DEMON))
                {
 				  if (m_ptr->ml)
@@ -245,9 +245,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
             }
 
-            
-
-			/* Slay Orc (ugmruten) */
+			/* Slay Orc */
 			if ((f1 & (TR1_SLAY_ORC)) &&
 			    (r_ptr->flags3 & (RF3_ORC)))
 			{
@@ -259,7 +257,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Troll (fairy) */
+			/* Slay Troll */
 			if ((f1 & (TR1_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & (RF3_TROLL)))
 			{
@@ -271,7 +269,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Giant (slime) */
+			/* Slay Giant */
 			if ((f1 & (TR1_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & (RF3_GIANT)))
 			{
@@ -283,7 +281,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Dragon (lethkel) */
+			/* Slay Dragon */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
@@ -468,6 +466,12 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
+			
+			if ((f3 & (TR3_LITE)) && (r_ptr->flags3 & (RF3_HURT_LITE)))
+			{
+				if ((tdam < 20) && (mult < 2)) tdam += randint(2);
+				else if (p_ptr->timed[TMD_SANCTIFY]) tdam += 1;
+            }
 
 			break;
 		}
@@ -1089,13 +1093,28 @@ void hit_trap(int y, int x)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			msg_print("You fall through a trap door!");
-			if (p_ptr->ffall)
+			if ((p_ptr->ffall) && (randint(100) < (goodluck * 3) + randint(goodluck-2) + 2))
 			{
+                msg_print("You almost fall through a trap door..");
+				msg_print("You catch hold of the edge of the trap door!");
+                if (get_check("Fall down to next level?"))
+                {
+				   msg_print("You float gently down to the next level.");
+                }
+                else
+                {
+				   msg_print("You pull yourself back up.");
+			       break;
+                }
+			}
+			else if (p_ptr->ffall)
+			{
+                msg_print("You fall through a trap door!");
 				msg_print("You float gently down to the next level.");
 			}
 			else
 			{
+                msg_print("You fall through a trap door!");
 				dam = damroll(2, 8);
 				take_hit(dam, name);
 			}
@@ -1427,6 +1446,12 @@ void py_attack(int y, int x)
 		{
 			/* Message */
 			message_format(MSG_GENERIC, m_ptr->r_idx, "You hit %s.", m_name);
+			
+			/* if you hit a charmed animal, the sphere of charm dissapears */
+			if (m_ptr->charmed)
+			{
+               (void)clear_timed(TMD_SPHERE_CHARM);
+            }
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1449,6 +1474,7 @@ void py_attack(int y, int x)
 					if (m_ptr->ml)
 					{
 						l_ptr->flags3 |= (RF3_IM_FIRE);
+						msg_format("%^s resists your fire.", m_name);
 					}
 				}
 				/* Otherwise, take fire damage */
@@ -1463,31 +1489,82 @@ void py_attack(int y, int x)
 					{
 				       if (r_ptr->flags3 & (RF3_DEMON)) l_ptr->flags3 |= (RF3_DEMON);
 				       if (r_ptr->flags3 & (RF3_UNDEAD)) l_ptr->flags3 |= (RF3_UNDEAD);
+				       msg_format("%^s is immune to your darkness.", m_name);
 					}
 				}
 				/* Otherwise, take darkness damage */
 				else if (r_ptr->flags4 & (RF4_BR_DARK))
 				{
                     k += (k/5) + randint(k/4);
+                    msg_format("%^s resists your darkness.", m_name);
                 }
 				else if (r_ptr->flags3 & (RF3_HURT_DARK))
 				{
                     if (m_ptr->ml) l_ptr->flags3 |= (RF3_HURT_DARK);
                     k += (k/3) + randint(k/2);
+                    msg_format("%^s cringes.", m_name);
                 }
 				else
 				{
                     k += (k/4) + randint(k/3);
 				}
 			}
-			
+
+			/* Elemental Strike (after multipliers) */
+			if (p_ptr->timed[TMD_HIT_ELEMENT])
+			{
+                int die = randint(60);
+                int element;
+                if (die < 20) element = 1; /* fire */
+                else if (die < 40) element = 2; /* cold */
+                else if (die < 50) element = 3; /* acid */
+                else element = 4; /* elec */
+                                              
+				/* Notice immunity */
+				if (((element == 1) && (r_ptr->flags3 & (RF3_IM_FIRE))) ||
+				   ((element == 2) && (r_ptr->flags3 & (RF3_IM_COLD))) ||
+				   ((element == 3) && (r_ptr->flags3 & (RF3_IM_ACID))) ||
+				   ((element == 4) && (r_ptr->flags3 & (RF3_IM_ELEC))))
+				{
+					if (m_ptr->ml)
+					{
+                        if (element == 1)
+                        {
+						   l_ptr->flags3 |= (RF3_IM_FIRE);
+						   msg_format("%^s resists your fire strike.", m_name);
+                        }
+                        if (element == 2)
+                        {
+						   l_ptr->flags3 |= (RF3_IM_COLD);
+						   msg_format("%^s resists your frost strike.", m_name);
+                        }
+                        if (element == 3)
+                        {
+						   l_ptr->flags3 |= (RF3_IM_ACID);
+						   msg_format("%^s resists your acid strike.", m_name);
+                        }
+                        if (element == 4)
+                        {
+						   l_ptr->flags3 |= (RF3_IM_ELEC);
+						   msg_format("%^s resists your lightning strike.", m_name);
+                        }
+					}
+				}
+				/* Otherwise, take elemental damage */
+				else
+				{
+                    if (k < 12) k += 2 + randint(4);
+                    else k += (k/4) + randint(k/4);
+				}
+            }	
+            
 			/* assassin bonus against sleeping monsters */
             if ((m_ptr->csleep > 0) && (cp_ptr->flags & CF_ASSASSIN))
             {
                if (k/5 > 1) k += (k/5) + randint(k/2);
    			   else k += 1 + randint(k/2);
             }
-            
+
             /* object damage bonus after semi-multipliers */
 			if (o_ptr->k_idx) 
 			{

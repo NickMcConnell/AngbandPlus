@@ -895,10 +895,10 @@ void object_tried(object_type *o_ptr)
  */
 bool is_blessed(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Is the object blessed? */
 	return ((f3 & TR3_BLESSED) ? TRUE : FALSE);
@@ -974,7 +974,7 @@ static s32b object_value_real(const object_type *o_ptr)
 {
 	s32b value;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -987,7 +987,7 @@ static s32b object_value_real(const object_type *o_ptr)
 
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Artifact */

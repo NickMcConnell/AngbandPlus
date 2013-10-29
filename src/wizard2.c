@@ -298,13 +298,13 @@ static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	char buf[256];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Clear screen */
 	Term_clear();

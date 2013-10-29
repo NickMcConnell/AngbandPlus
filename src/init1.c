@@ -127,6 +127,12 @@ static cptr r_info_blow_effect[] =
 	"ENTHELP",
 	"PURIFY",
 	"UNLUCKY",
+	"ZIMPKISS",
+	"FIREDARK",
+	"HATELIFE",
+	"BLOODWRATH",
+	"SPHCHARM",
+	"STUDY",
 	NULL
 };
 
@@ -416,7 +422,7 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
+	"MAGIC_MASTERY",
 	"COAT_ACID",
 	"SLAY_SILVER",
 	"SLAY_BUG",
@@ -482,6 +488,46 @@ static cptr k_info_flags3[] =
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
 };
+
+/*
+ * Object flags
+ */
+static cptr k_info_flags4[] =
+{
+	"SLOW_DIGEST",
+	"FEATHER",
+	"LITE",
+	"REGEN",
+	"TELEPATHY",
+	"SEE_INVIS",
+	"FREE_ACT",
+	"HOLD_LIFE",
+	"NO_FUEL",
+	"RES_CHARM",
+	"XXX3",
+    "STOPREGEN",              /* was XXX4 */
+	"IMPACT",
+	"TELEPORT",
+	"AGGRAVATE",
+	"DRAIN_EXP",
+	"IGNORE_ACID",
+	"IGNORE_ELEC",
+	"IGNORE_FIRE",
+	"IGNORE_COLD",
+	"GOOD_WEAP",
+	"BAD_WEAP",
+	"BLESSED",
+	"ACTIVATE",
+	"INSTA_ART",
+	"EASY_KNOW",
+	"HIDE_TYPE",
+	"SHOW_MODS",
+	"CORRUPT",
+	"LIGHT_CURSE",
+	"HEAVY_CURSE",
+	"PERMA_CURSE"
+};
+
 
 #ifdef EFG
 /* EFGchange add ACTIVATE flag when missing in artifact.txt */
@@ -565,7 +611,7 @@ static cptr c_info_flags[] =
 	"HULK_CONF",
 	"CLASS_SPEED",
 	"ASSASSIN",
-	"XXX14",
+	"POWER_SHIELD",
 	"XXX15",
 	"XXX16",
 	"XXX17",
@@ -1198,6 +1244,9 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 	if (grab_one_flag(&k_ptr->flags3, k_info_flags3, what) == 0)
 		return (0);
 
+	if (grab_one_flag(&k_ptr->flags4, k_info_flags4, what) == 0)
+		return (0);
+
 	/* Oops */
 	msg_format("Unknown object flag '%s'.", what);
 
@@ -1517,6 +1566,9 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	if (grab_one_flag(&a_ptr->flags3, k_info_flags3, what) == 0)
 		return (0);
 
+	if (grab_one_flag(&a_ptr->flags4, k_info_flags4, what) == 0)
+		return (0);
+
 	/* Oops */
 	msg_format("Unknown artifact flag '%s'.", what);
 
@@ -1768,6 +1820,9 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&e_ptr->flags3, k_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&e_ptr->flags4, k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -2149,7 +2204,8 @@ errr parse_r_info(char *buf, header *head)
 		/* Save the values */
 		r_ptr->level = lev;
 		r_ptr->rarity = rar;
-		r_ptr->power = pad;
+		r_ptr->stealth = pad;
+/*		r_ptr->power = pad; */
 		r_ptr->mexp = exp;
 	}
 
@@ -2335,6 +2391,9 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&pr_ptr->flags3, k_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&pr_ptr->flags4, k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
