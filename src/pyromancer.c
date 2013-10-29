@@ -78,7 +78,7 @@ bool cast_pyro_spell(int spell)
 		case PYRO_PHOENIX:
 		{
 			(void)hp_player(500);
-			fire_ball(GF_FIRE, 0, 4 * plev, 24);
+			(void)project_los(GF_FIRE, 4 * plev, FALSE);
 			break;
 		}
 	}
@@ -118,12 +118,12 @@ void print_pyro_menu(void)
 	int y = 1;
 	int x = 0;
 	
-	prt(" Lv    Mana    Fail    Info    Desc ", y, x);
+	prt("Name    Lv    Mana    Fail    Desc ", y, x);
 	for (i = 0; i <= PYRO_PHOENIX; i++)
 	{
 		if (pyro_spell_info[i].level <= p_ptr->lev)
 		{
-			prt(format("%c) %s    %d    %d    %d%%    %s",
+			prt(format("%c) %16s %4d %4d %4d%% %s",
 				I2A(i),
 				pyro_spell_info[i].name,
 				pyro_spell_info[i].level,
@@ -165,7 +165,7 @@ void print_pyro_stat(int spell)
 		}
 		case PYRO_PHOENIX:
 		{
-			msg_format("heal 500 radius 24 damage %d", 4 * plev);
+			msg_format("heal 500 damage %d", 4 * plev);
 			break;
 		}
 		default:

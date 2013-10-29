@@ -147,12 +147,12 @@ void print_sapper_menu(void)
 	int y = 1;
 	int x = 0;
 	
-	prt(" Lv    Mana    Fail    Info ", y, x);
+	prt("Name    Lv    Mana    Fail    Info ", y, x);
 	for (i = 0; i <= SAP_CONCUSSOR; i++)
 	{
 		if (sapper_spell_info[i].level <= p_ptr->lev)
 		{
-			prt(format("%c) %s    %d    %d    %d%%    %s",
+			prt(format("%c) %16s %4d %4d %4d%% %s",
 				I2A(i),
 				sapper_spell_info[i].name,
 				sapper_spell_info[i].level,

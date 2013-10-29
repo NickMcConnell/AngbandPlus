@@ -81,7 +81,7 @@ bool cast_avatar_spell(int spell)
 			break;
 		case AV_DELUGE:
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_WATER, dir, 9 * plev, plev / 2);
+			fire_ball(GF_WATER, dir, 9 * plev, 14);
 			break;
 	}
 
@@ -93,12 +93,12 @@ void print_avatar_menu(void)
 	int i;
 	int y = 1;
 	int x = 0;
-	prt(" Lv    Mana    Desc ", y, x);
+	prt("Name    Lv    Mana    Desc ", y, x);
 	for (i = 0; i <= AV_DELUGE; i++)
 	{
 		if (avatar_spell_info[i].level <= p_ptr->lev)
 		{
-			prt(format("%c) %s    %d    %d    %s",
+			prt(format("%c) %16s %4d %4d %s",
 				I2A(i),
 				avatar_spell_info[i].name,
 				avatar_spell_info[i].level,
@@ -132,7 +132,7 @@ void print_avatar_stat(int spell)
 			msg_format("damage %d * 2", 3 * plev);
 			break;
 		case AV_DELUGE:
-			msg_format("damage %d radius %d", 9 * plev, plev / 2);
+			msg_format("damage %d radius 14", 9 * plev);
 			break;
 		default:
 			break;
