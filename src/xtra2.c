@@ -1986,7 +1986,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         m_ptr->roaming = 0;
         m_ptr->csleep = 0;
     }
-    else /* (this estl is always positive) */
+    else if (m_ptr->csleep) /* (this estl is always positive) */
     {
         m_ptr->csleep -= estl;
     }

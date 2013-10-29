@@ -2804,7 +2804,8 @@ int check_rtelep(int m_idx)
 				
 			if (rand_int(100) < dchance)
 			{
-				if (!rtr) rtr = 16;
+				if (los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) rtr = 19;
+				else if (!rtr) rtr = 16;
 				else rtr += 2;
 				/* Memorize mental flags */
 				l_ptr->flags2 |= (RF2_WEIRD_MIND);
@@ -2814,7 +2815,8 @@ int check_rtelep(int m_idx)
 		}
 		else /* normal mind */
 		{
-			if (!rtr) rtr = 18;
+			if (los(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) rtr = 20;
+            else if (!rtr) rtr = 18;
 			else rtr += 2;
 		}
 	}

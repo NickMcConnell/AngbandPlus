@@ -11,6 +11,7 @@ version 1.2.1 fixes the following bugs:
   pseudo and stacking for grenades doesn't work correctly
   possible to randomly teleport onto a trap door
   sleep monster wakes up sleeping monsters that resist
+  also, that bug that a bunch of effects put monsters to sleep should be fixed now.
 
 Changelist for DaJAngband 1.2.0
 
