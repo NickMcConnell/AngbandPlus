@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([Angband], [3.2.0], [bugs@rephial.org], [angband])
+AC_INIT([Neoband], [0.5.0], [angband.oook.cz], [neoband])
 AC_PREREQ([2.59])
 
 AC_CONFIG_HEADER(src/autoconf.h)
@@ -322,7 +322,7 @@ echo "  var path:                               ${displayedvardatadir}"
 if test "x$wsetgid" = "xyes"; then
 	echo "  (as group ${SETEGID})"
 elif test "x$with_private_dirs" = "xyes"; then
-	echo "  (with private save and score files in ~/.angband/Angband/)"
+	echo "  (with private save and score files in ~/.neoband/Neoband/)"
 fi
 
 echo

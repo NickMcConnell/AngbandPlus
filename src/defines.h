@@ -40,9 +40,9 @@
 #define SAVEFILE_NAME  "NBND"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.4.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.5.0 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.4.0"
+# define VERSION_STRING "0.5.0"
 #endif
 
 
@@ -269,9 +269,9 @@ typedef enum
 #define MAX_M_ALLOC_CHANCE	160
 
 /*
- * Normal levels get at least 50 monsters
+ * Normal levels get at least 100 monsters
  */
-#define MIN_M_ALLOC_LEVEL	50
+#define MIN_M_ALLOC_LEVEL	100
 
 /*
  * The town starts out with 4 residents during the day

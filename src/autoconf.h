@@ -11,7 +11,7 @@
 #define DEFAULT_LIB_PATH "./lib/"
 
 /* Define to 1 if you have the `can_change_color' function. */
-/* #undef HAVE_CAN_CHANGE_COLOR */
+#define HAVE_CAN_CHANGE_COLOR 1
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -74,28 +74,28 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `use_default_colors' function. */
-/* #undef HAVE_USE_DEFAULT_COLORS */
+#define HAVE_USE_DEFAULT_COLORS 1
 
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
 /* Name of package */
-#define PACKAGE "angband"
+#define PACKAGE "neoband"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "bugs@rephial.org"
+#define PACKAGE_BUGREPORT "angband.oook.cz"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "Angband"
+#define PACKAGE_NAME "Neoband"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Angband 3.2.0"
+#define PACKAGE_STRING "Neoband 0.5.0"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "angband"
+#define PACKAGE_TARNAME "neoband"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.2.0"
+#define PACKAGE_VERSION "0.5.0"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -110,13 +110,13 @@
 /* #undef USE_CURSES */
 
 /* Define to 1 if using the Curses frontend. */
-/* #undef USE_GCU */
+#define USE_GCU 1
 
 /* Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found. */
 /* #undef USE_GTK */
 
 /* Define to 1 if NCurses is found. */
-/* #undef USE_NCURSES */
+#define USE_NCURSES 1
 
 /* Define to use private save and score paths. */
 /* #undef USE_PRIVATE_PATHS */
@@ -128,10 +128,10 @@
 /* #undef USE_TEST */
 
 /* Define to 1 if using the X11 frontend and X11 libraries are found. */
-/* #undef USE_X11 */
+#define USE_X11 1
 
 /* Version number of package */
-#define VERSION "3.2.0"
+#define VERSION "0.5.0"
 
 /* Define to 1 if the X Window System is missing or not being used. */
 /* #undef X_DISPLAY_MISSING */

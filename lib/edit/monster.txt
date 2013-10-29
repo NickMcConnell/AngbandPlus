@@ -11,6 +11,7 @@
 # N: serial number : monster name
 # G: symbol : color
 # I: speed : hit points : vision : armor class : alertness
+# I: speed : hit points : vision : armor class : alertness
 # W: depth : rarity : unused (always 0) : experience for kill
 # B: attack method : attack effect : damage
 # S: spell frequency |
@@ -9975,3 +9976,65 @@ S:1_IN_5
 S:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
 D:Shimmering in rainbow hues, this hound is beautiful and deadly.
 
+### Mutant orcs ###
+
+N:617:Orc mutant
+G:o:i
+I:110:30:20:10:20
+W:10:1:0:40
+B:HIT:ACID:1d8
+B:HIT:ACID:1d8
+F:MALE | ORC | EVIL
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR
+F:HURT_LIGHT | IM_ACID
+F:FORCE_SLEEP
+S:1_IN_6
+S:BR_ACID
+D:A slightly shrunken-looking orc with glistening skin.
+
+N:618:Orc mutant
+G:o:i
+I:110:60:20:20:20
+W:14:1:0:70
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
+F:MALE | ORC | EVIL
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR
+F:HURT_LIGHT
+F:FORCE_SLEEP
+S:1_IN_5
+S:BR_FIRE
+D:An orc with wild eyes, disheveled hair, and slightly charred armor.
+
+N:619:Orc mutant
+G:o:i
+I:120:80:20:20:20
+W:18:1:0:100
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+F:MALE | ORC | EVIL
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR
+F:HURT_LIGHT
+F:FORCE_SLEEP
+S:1_IN_4
+S:HASTE
+D:This orc looks nervous and fidgets a lot. He's probably a wimp...
+
+N:620:Orc mutant
+G:o:i
+I:105:150:20:10:40
+W:22:1:0:150
+B:HIT:PARALYZE:1d2
+F:MALE | ORC | EVIL | NO_SLEEP | SMART | WEIRD_MIND
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR
+F:HURT_LIGHT
+F:FORCE_SLEEP
+S:1_IN_2
+S:CAUSE_1 | CONF | SCARE | BLIND | SHRIEK
+D:An slack-jawed, drooling orc who stumbles along behind his comrades.
+D:He looks harmless.
