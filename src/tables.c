@@ -197,7 +197,7 @@ const byte adj_mag_fail[] =
 /*
  * Stat Table (INT/WIS) -- failure rate adjustment
  */
-const int adj_mag_stat[] =
+const s16b adj_mag_stat[] =
 {
 	-5	/* 3 */,
 	-4	/* 4 */,
@@ -1417,12 +1417,12 @@ const grouper object_text_order[] =
 	{TV_AMULET,			"Amulet"		},
 	{TV_POTION,			"Potion"		},
 	{TV_SCROLL,			"Scroll"		},
+	{TV_SPELL,			"Spell"		},
 	{TV_WAND,			"Wand"			},
 	{TV_STAFF,			"Staff"			},
 	{TV_ROD,			"Rod"			},
 	{TV_FOOD,			"Food"			},
-	{TV_PRAYER_BOOK,	"Priest Book"	},
-	{TV_MAGIC_BOOK,		"Magic Book"	},
+	{TV_BOOK,	        "Book"	        },
 	{TV_LITE,			"Light"			},
 	{TV_FLASK,			"Flask"			},
 	{TV_SWORD,			"Sword"			},
@@ -1445,4 +1445,33 @@ const grouper object_text_order[] =
 	{TV_DIGGING,		"Digger"		},
 	{TV_JUNK,			"Junk"			},
 	{0,					NULL			}
+};
+
+/* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
+tactic_info_type tactic_info[9] =
+{
+/*     hit  dam   ac stl  dis  sav */
+     { -14, -13, +15, +3, +15, +14, "coward"},           /* 4-4 */
+     {  -8,  -8, +11, +2,  +9,  +9, "meek"},             /* 4-3 */
+     {  -4,  -4,  +7, +1,  +5,  +5, "wary"},             /* 4-2 */
+     {  -2,  -2,  +3, +1,  +2,  +2, "careful"},          /* 4-1 */
+     {   0,   0,   0,  0,   0,   0, "normal"},           /* 4+0 */
+     {   2,   3,  -2, -1,  -2,  -3, "confident"},        /* 4+1 */
+     {   3,   5,  -5, -2,  -5,  -7, "aggressive"},       /* 4+2 */
+     {   5,   7, -10, -3, -11, -12, "furious"},          /* 4+3 */
+     {   8,  12, -25, -5, -18, -18, "berserker"}         /* 4+4 */
+};
+
+move_info_type move_info[9] =
+{
+/*    speed, searching, stealth, perception */
+    { -10,     17,        8,      28, "crawling"},  /* 4-4 */
+    {  -8,     12,        6,      21, "very slow"}, /* 4-3 */
+    {  -6,      8,        5,      15, "slow"},      /* 4-2 */
+    {  -3,      4,        3,       8, "leisurely"}, /* 4-1 */
+    {   0,      0,        0,       0, "normal"},    /* 4+0 */
+    {   1,     -4,       -1,      -4, "brisk"},     /* 4+1 */
+    {   2,     -6,       -2,      -8, "fast"},      /* 4+2 */
+    {   3,    -10,       -3,     -14, "very fast"}, /* 4+3 */ 
+    {   4,    -16,       -5,     -20, "running"}    /* 4+4 */
 };

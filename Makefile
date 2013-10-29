@@ -1,5 +1,7 @@
 MKPATH=mk/
-include $(MKPATH)buildsys.mk
+
+include $(MKPATH)rules.mk
+include $(MKPATH)objective.mk
 
 SUBDIRS = src lib
 

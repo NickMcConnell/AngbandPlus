@@ -53,13 +53,13 @@ typedef void (*action_f)(void *object, const char *name);
  * Member function for "menu_iter" VTAB
  */
 typedef void (*display_row_f) (menu_type *menu, int pos,
-			       bool cursor, int row, int col, int width);
+			       bool cursor, s16b row, s16b col, s16b width);
 
 /* 
  * Driver function for displaying a page of rows.
  * Member function of "menu_skin" VTAB
  */
-typedef void (*display_list_f)(menu_type *menu, int cursor, int *top, region *);
+typedef void (*display_list_f)(menu_type *menu, s16b cursor, s16b *top, region *);
 
 
 /* Primitive menu item with bound action */
@@ -138,7 +138,7 @@ typedef enum
 struct menu_skin
 {
 	/* Determines the cursor index given a (mouse) location */
-	int (*get_cursor)(int row, int col, int n, int top, region *loc);
+	s16b (*get_cursor)(s16b row, s16b col, s16b n, s16b top, region *loc);
 	/* Displays the current list of visible menu items */
 	display_list_f display_list;
 	/* Specifies the relative menu item given the state of the menu */
@@ -201,10 +201,10 @@ struct menu_type
 	const char *selections; 
 
 	int flags;              /* Flags specifying the behavior of this menu. */
-	int filter_count;       /* number of rows in current view */
+	s16b filter_count;       /* number of rows in current view */
 	const int *filter_list;       /* optional filter (view) of menu objects */
 
-	int count;              /* number of rows in underlying data set */
+	s16b count;              /* number of rows in underlying data set */
 	void *menu_data;  /* the data used to access rows. */
 
   	/* auxiliary browser help function */
@@ -216,8 +216,8 @@ struct menu_type
 
 
 	/* State variables for the menu */
-	int cursor;             /* Currently selected row */
-	int top;                /* Position in list for partial display */
+	s16b cursor;             /* Currently selected row */
+	s16b top;                /* Position in list for partial display */
 	region active;          /* Subregion actually active for selection */
 
 	/* helper functions for layout information. */
@@ -236,13 +236,13 @@ struct menu_type
  * (This is a stand-in for a menu event)
  * reserved commands are 0xff for selection and ESCAPE for escape.
  */
-ui_event_data menu_select(menu_type *menu, int *cursor, int no_handle);
+ui_event_data menu_select(menu_type *menu, s16b *cursor, int no_handle);
 
 /* TODO: This belongs in the VTAB */
 bool menu_layout(menu_type *menu, const region *loc);
 
 /* accessor & utility functions */
-void menu_set_filter(menu_type *menu, const int object_list[], int n);
+void menu_set_filter(menu_type *menu, const int object_list[], s16b n);
 void menu_release_filter(menu_type *menu);
 
 

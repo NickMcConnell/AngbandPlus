@@ -11,23 +11,26 @@
 
 # Version stamp (required)
 
-V:3.0.11
+V:0.0.1
 
 
 # Maximum number of feature types
+# See terrain.txt
 M:F:64
 
 # Maximum number of object kinds
-M:K:570
+# See object.txt
+M:K:558
 
 # Maximum number of artifacts
-M:A:137
+# See artifact.txt
+M:A:150
 
 # Maximum number of ego-item types
-M:E:128
+M:E:123
 
 # Maximum number of monster races
-M:R:618
+M:R:595
 
 # Maximum number of vaults
 M:V:51
@@ -36,22 +39,22 @@ M:V:51
 M:P:11
 
 # Maximum number of player classes
-M:C:6
+M:C:9
 
 # Maximum number of player history lines
-M:H:165
+M:H:192
 
 # Maximum number of owners per store
 M:B:4
 
 # Maximum number of flavors
-M:L:313
+M:L:435
 
 # Maximum number of spells
-M:S:122
+M:S:121
 
 # Maximum number of objects on the level
-M:O:1024
+M:O:2048
 
 # Maximum number of monsters on the level
 M:M:1024
@@ -67,4 +70,3 @@ M:N:20480
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
 M:T:61440
-

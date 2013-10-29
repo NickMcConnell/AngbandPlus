@@ -10,7 +10,7 @@
 
 # N: serial number : & object name~
 # G: symbol : color
-# I: tval : sval : pval
+# I: tval : sval : pval : p2val
 # W: depth : rarity : weight : cost
 # P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
 # A: commonness : min " to " max
@@ -43,7 +43,9 @@
 # 'I' is for basic information. The tval is for the type of item, the
 # sval identifies the subtype and the pval indicates the amount of
 # effect the item has, if applicable (a fixed value: variable pvals
-# are currently hard-coded.) 
+# are currently hard-coded.). p2val is the same for secondary
+# bonus.  Note that all p2val entries are zero for objects.txt
+# but it is used in other files (artifact.txt, ego_item.txt).
 
 # 'W' is for extra information. Depth defines what "level" the object is,
 # when determining how easy it is to use a wand, staff or rod; rarity
@@ -71,3644 +73,4078 @@
 # ends or the beginning of the next line to prevent words from running
 # together.
 
+# If you add or remove items from this file be sure to update limits.txt
 
+# === Notes on Spells ===
+
+# The sval of spells is identical to the serial number in spell.txt
+
+# Spells all have a 'spell flag' (although it is not used at present)
+
+# Spells are in alphabetical order by 'spell flag' here and in spell.txt
+
+# The name of spells and spell flag values are unique.
 
 # Version stamp (required)
 
-V:3.1.0
+V:0.0.1
 
+# This file is used to initialize the "lib/raw/k_info.raw" file, which is
+# used to initialize the "object kind" information for the Angband game.
 
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/k_info.raw" file.
+
+# Note that major changes are planned for Angband 2.8.0
+
+# Available slots (?):
+#   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
+#   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
+
+# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+
+# The old "MULTI_HUED" objects are now "violet", and no other object
+# is violet, so all six violet objects can be made "multi-hued", though
+# this would be a heinous hack.  XXX XXX
+
+# A: locale / chance
+# locale is measurement of "how good" an item is
+# chance : randint(chance) == 0 means item is generated
+
+# spell cost = scale * level * 100 *
+# (1 (nat/item/self/world) or 2 (drk / escape / sense / other) or 3 (heal))
+# this is done in init2.c
+#G:char:color
+
+# N: DONE
+# G: DONE
+# I: DONE
+# W: DONE (bar separately ticketed items)
+# P: DONE
+# A: DONE (bar separately ticketed items)
+# C: DONE
+# M: N/A
+# E: DONE (bar separately ticketed items)
+# F: DONE (bar separately ticketed items)
+# D: DONE (bar separately ticketed items)
 
 ##### Non-kind (contains the "pile" picture) #####
 
 N:0:<pile>
 G:&:w
 
+N:1:corpse
+G:&:r
+I:101:0:0:0
 
+# The old "notice_seams" option is currently unused, but much of its
+# old functionality can be obtained by clever use of 'F' commands in
+# a pref file which define "quartz" and "magma" to look like "granite".
 
-##### Various Stuff #####
+# Note that the "player" picture does not really fit in anywhere, and I
+# have no idea how to go about allowing "redefinition" of that picture.
+# Perhaps by using "monster 0" or "object 0" or "feature 0" or even a
+# special "player picture" which might yield a simple way to show the
+# player in different colors or whatever for different "states", or even
+# a different picture for various "class" or "race" choices.
 
-N:1:& Iron Spike~
-G:~:W
-I:5:0:0
-W:1:0:10:1
-M:100:6d7
-A:75:1 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-D:These can be placed in doors to make them harder to open.  Multiple
-D: spikes may be used on a single door.  Each of the first 7 spikes will
-D: increase the door's resistance to bashing.  Placing more than 7
-D: spikes in one door will not have any further effect.
+##### And here starts the gold/gems #####
 
-N:2:& Wooden Torch~
-G:~:u
-I:39:0:0
-W:1:0:12:2
-A:140:1 to 40
-P:0:1d1:0:0:0
-F:EASY_KNOW | BRAND_FIRE
+N:2:copper
+G:$:u
+I:100:0:0:0
+W:1:0:0:3
 
-N:3:& Lantern~
-G:~:U
-I:39:1:0
-W:3:0:50:35
-A:140:5 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_FIRE
+N:3:silver
+G:$:s
+I:100:1:0:0
+W:1:0:0:6
 
-N:4:& Flask~ of oil
-G:!:y
-I:77:0:7500
-W:1:0:10:3
-A:100:1 to 100
-P:0:2d6:0:0:0
-F:EASY_KNOW | BRAND_FIRE
-D:It can be used to fuel a lantern with 7500 turns of light, up to
-D: a maximum of 15000 turns of light.
-D:  When thrown, it is considered lit, so it does more than nominal
-D: damage (which occurs even against creatures resistant to fire).
+N:4:garnet
+G:$:r
+I:100:2:0:0
+W:1:0:0:9
 
+N:5:gold
+G:$:y
+I:100:3:0:0
+W:1:0:0:12
 
+N:6:opal
+G:$:W
+I:100:4:0:0
+W:1:0:0:18
 
-##### Food #####
+N:7:sapphire
+G:$:b
+I:100:5:0:0
+W:1:0:0:20
 
-### Normal Food ###
+N:8:ruby
+G:$:r
+I:100:6:0:0
+W:1:0:0:24
 
-N:10:& Ration~ of Food
-G:,:U
-I:80:1:6000
-W:0:0:8:3
-A:100:0 to 50
-M:100:1d5
-F:EASY_KNOW
-E:FOOD_GOOD
-D:This nutritious but fairly bland food is familiar to anyone contemplating
-D: long journeys.
+N:9:diamond
+G:$:w
+I:100:7:0:0
+W:1:0:0:28
 
-N:11:& Slime Mold~
-G:,:g
-I:80:2:2500
-W:1:0:2:2
-A:110:5 to 60
-M:100:2d3
-F:EASY_KNOW
-E:FOOD_GOOD
-D:A strange fungal growth, prone to moving if not observed.  Not very tasty
-D: but quite filling.
+N:10:emerald
+G:$:g
+I:100:8:0:0
+W:1:0:0:32
 
-N:12:& Piece~ of Elvish Waybread
-G:,:B
-I:80:3:7500
-W:5:0:3:10
-A:90:30 to 100
-F:EASY_KNOW
-E:FOOD_WAYBREAD
-D:Food of the elves is always good; their waybread is no exception.  These
-D: thin cakes are wrapped in leaves and keep their tastiness for months.
+N:11:mithril
+G:$:B
+I:100:9:0:0
+W:1:0:0:40
 
-# 13
-# 14
-# 15
+N:12:adamantite
+G:$:G
+I:100:10:0:0
+W:1:0:0:80
 
-### The shrooms, an interesting collection ###
+N:13:pearl
+G:$:w
+I:100:11:0:0
+W:1:0:0:20
 
-N:16:Second Sight
-G:,:d
-I:80:6:200
-W:0:0:1:200
-A:10:1 to 100
-F:EASY_KNOW
-E:TMD_ESP
+# spell books
+N:14:Small Book
+G:?:B
+I:85:1:0:0
+W:3:0:50:750
+# A:<locale>3/<chance>1
+D:A small book to hold spells.
 
-N:17:Fast Recovery
-G:,:d
-I:80:7:500
-W:0:0:1:200
-A:10:1 to 100
-M:70:1d4
-F:EASY_KNOW
-E:CURE_BODY
+N:15:Book
+G:?:B
+I:85:2:0:0
+W:20:0:60:5000
+# A:<locale>20/<chance>4
+D:A normal book to hold spells.
 
-N:18:Vigor
-G:,:d
-I:80:8:500
-W:0:0:1:200
-A:10:1 to 100
-F:EASY_KNOW
+N:16:Large Book
+G:?:B
+I:85:3:0:0
+W:80:0:100:25000
+# A:<locale>40/<chance>4
+D:A large book to hold spells.
+
+N:17:Poison
+G:,:u
+I:80:0:500:0
+W:5:0:1:0
+# A:<locale>5/<chance>5:<locale>5/<chance>1
+D:It is poisonous.
+E:POISON
+
+##### Mushrooms #####
+
+N:18:Blindness
+G:,:u
+I:80:1:500:0
+W:5:0:1:0
+# A:<locale>5/<chance>1
+D:It induces Blindness.
+E:BLIND
+
+N:19:Paranoia
+G:,:u
+I:80:2:500:0
+W:5:0:1:0
+# A:<locale>5/<chance>1
+D:It causes Paranoia.
+E:SCARE
+
+N:20:Confusion
+G:,:u
+I:80:3:500:0
+W:5:0:1:0
+# A:<locale>5/<chance>1
+D:It causes Confusion.
+E:CONFUSE
+
+N:21:Hallucination
+G:,:u
+I:80:4:500:0
+W:10:0:1:0
+# A:<locale>10/<chance>1
+D:It causes Hallucination.
+E:HALLUC
+
+N:22:Paralysis
+G:,:u
+I:80:5:500:0
+W:20:0:1:0
+# A:<locale>20/<chance>1
+D:It paralyzes you.
+E:PARALYZE
+
+N:23:Weakness
+G:,:u
+I:80:6:500:0
+W:10:0:1:0
+# A:<locale>10/<chance>1
+D:It reduces your strength.
+E:LOSE_STR
+
+N:24:Sickness
+G:,:u
+I:80:7:500:0
+W:10:0:1:0
+# A:<locale>10/<chance>1
+D:It reduces your constitution and is poisonous.
+E:LOSE_CON2
+
+N:25:Stupidity
+G:,:u
+I:80:8:500:0
+W:15:0:1:0
+# A:<locale>15/<chance>1
+D:It reduces your intelligence and is poisonous.
+E:LOSE_INT
+
+N:26:Naivety
+G:,:u
+I:80:9:500:0
+W:15:0:1:0
+# A:<locale>15/<chance>1
+D:It reduces your wisdom and is poisonous.
+E:LOSE_WIS
+
+N:27:Unhealth
+G:,:u
+I:80:10:500:0
+W:15:0:1:50
+# A:<locale>15/<chance>1
+P:0:10d10:0:0:0
+D:It reduces you health, and can also be thrown for 10d10 damage.
+E:LOSE_CON2
+
+N:28:Disease
+G:,:u
+I:80:11:500:0
+W:20:0:1:50
+# A:<locale>20/<chance>1
+P:0:10d10:0:0:0
+D:It decreases your strength, but can also be thrown for 10d10 damage.
+E:LOSE_STR
+
+N:29:Cure Poison
+G:,:u
+I:80:12:500:0
+W:10:0:1:60
+# A:<locale>10/<chance>1
+D:It cures poisoning.
+E:CURE_POISON
+
+N:30:Cure Blindness
+G:,:u
+I:80:13:500:0
+W:10:0:1:50
+# A:<locale>10/<chance>1
+D:It cures blindness.
+E:CURE_BLINDNESS
+
+N:31:Cure Paranoia
+G:,:u
+I:80:14:500:0
+W:10:0:1:25
+# A:<locale>10/<chance>1
+D:It cures paranoia.
+E:CURE_PARANOIA
+
+N:32:Cure Confusion
+G:,:u
+I:80:15:500:0
+W:10:0:1:50
+# A:<locale>10/<chance>1
+D:It cures confusion.
+E:CURE_CONFUSION
+
+N:33:Cure Serious Wounds
+G:,:u
+I:80:16:500:0
+W:15:0:2:75
+# A:<locale>15/<chance>1
+D:It heals 4d8 hitpoints.
+E:CURE_SERIOUS
+
+N:34:Restore Strength
+G:,:u
+I:80:17:500:0
+W:20:0:1:350
+# A:<locale>10/<chance>1
+D:It restores your strength.
+E:RESTORE_STR
+
+N:35:Restore Constitution
+G:,:u
+I:80:18:500:0
+W:20:0:1:350
+# A:<locale>10/<chance>1
+D:It restores your constitution.
+E:RESTORE_CON
+
+N:36:Restoring
+G:,:u
+I:80:19:500:0
+W:20:0:1:1000
+# A:<locale>20/<chance>4:<locale>30/<chance>2:<locale>40/<chance>1
+D:It restores all of your stats.
 E:RESTORE_ALL
 
-N:19:Clear Mind
-G:,:d
-I:80:9:500
-W:0:0:1:200
-A:10:1 to 100
-M:100:1d4
+##### Normal Food #####
+
+N:37:& Hard Biscuit~
+G:,:U
+I:80:32:500:0
+W:0:0:2:1
+# A:<locale>0/<chance>1
+D:It is very hard, but some describe it as crispy.
+E:FOOD_GOOD
 F:EASY_KNOW
-E:CURE_MIND
 
-N:20:Emergency
-G:,:d
-I:80:10:500
-W:0:0:1:60
-A:10:1 to 100
-M:100:1d4
+N:38:& Strip~ of Beef Jerky
+G:,:u
+I:80:33:1500:0
+W:0:0:2:2
+# A:<locale>0/<chance>1
+D:It is a bit salty, but very nourishing.
 F:EASY_KNOW
-E:SHROOM_EMERGENCY
+E:FOOD_GOOD
 
-N:21:Terror
-G:,:d
-I:80:11:500
-W:0:0:1:60
-A:10:1 to 100
-M:100:1d4
+N:39:& Ration~ of Food
+G:,:U
+I:80:35:5000:0
+W:0:0:10:3
+# A:<locale>0/<chance>1:<locale>5/<chance>1:<locale>10/<chance>1
+D:It is a non-descript item of food.
 F:EASY_KNOW
-E:SHROOM_TERROR
+E:FOOD_GOOD
+A:100:0 to 50
+M:100:1d5
 
-N:22:Stoneskin
-G:,:d
-I:80:12:500
-W:0:0:1:60
-A:10:1 to 100
-M:70:1d4
+N:40:& Slime Mold~
+G:,:g
+I:80:36:3000:0
+W:1:0:5:2
+# A:<locale>1/<chance>1
+D:Don't look at it, just eat it!
 F:EASY_KNOW
-E:SHROOM_STONE
-D:Its poison turns your skin to stone, albeit briefly.
+E:FOOD_GOOD
+A:110:5 to 60
+M:100:2d3
 
-N:23:Turbulence
-G:,:d
-I:80:13:500
-W:0:0:1:60
-#A:10:1 to 100
-M:70:1d4
+N:41:& Piece~ of Elvish Waybread
+G:,:B
+I:80:37:7500:0
+W:5:0:3:10
+# A:<locale>5/<chance>1:<locale>10/<chance>1:<locale>20/<chance>1
+D:Wafers wrapped in leaves, these are the fabled Food of the Elves.
 F:EASY_KNOW
-#E:SHROOM_TURB
+E:FOOD_WAYBREAD
+A:90:30 to 100
 
-N:24:Debility
-G:,:d
-I:80:14:500
-W:0:0:1:20
-A:10:1 to 100
-M:70:1d4
+N:42:& Pint~ of Fine Ale
+G:,:y
+I:80:38:500:0
+W:0:0:5:1
+# A:<locale>0/<chance>1
+D:It is brown and foaming.
 F:EASY_KNOW
-E:SHROOM_DEBILITY
+E:FOOD_GOOD
 
-N:25:Sprinting
-G:,:d
-I:80:15:500
-W:0:0:1:100
-A:1:10 to 100
-M:70:1d4
+N:43:& Pint~ of Fine Wine
+G:,:r
+I:80:39:1000:0
+W:0:0:10:2
+# A:<locale>0/<chance>1
+D:It is dark red and very old.
 F:EASY_KNOW
-E:SHROOM_SPRINTING
-
-N:26:Purging
-G:,:d
-I:80:16:0
-W:0:0:1:60
-A:1:10 to 100
-M:70:1d4
-F:EASY_KNOW
-E:SHROOM_PURGING
-
-
-##### Weapons #####
-
-### Swords ###
-
-N:30:& Dagger~
-G:|:W
-I:23:1:0
-W:0:0:12:30
-A:100:0 to 100
-P:0:1d4:0:0:0
-D:A short two-edged blade perfect for thrusting.
-
-N:31:& Main Gauche~
-G:|:W
-I:23:2:0
-W:3:0:30:45
-A:100:3 to 100
-P:0:1d5:0:0:0
-
-N:32:& Rapier~
-G:|:W
-I:23:3:0
-W:5:0:40:70
-A:100:5 to 100
-P:0:1d6:0:0:0
-
-N:33:& Short Sword~
-G:|:W
-I:23:4:0
-W:5:0:80:90
-A:100:5 to 100
-P:0:1d7:0:0:0
-
-N:34:& Cutlass~
-G:|:W
-I:23:5:0
-W:5:0:110:120
-A:100:5 to 100
-P:0:1d8:0:0:0
-D:A thicker and slightly longer dagger, the sabre is a slashing sword.  It
-D: possesses a slight curve and only one side is sharp.
-
-N:35:& Tulwar~
-G:|:W
-I:23:6:0
-W:5:0:100:170
-A:100:5 to 100
-P:0:2d4:0:0:0
-D:A wider-bladed cousin of the shamshir, with less of a curve.
-
-N:36:& Scimitar~
-G:|:W
-I:23:7:0
-W:10:0:150:300
-A:100:10 to 100
-P:0:4d2:0:0:0
-D:A long sabre with an extreme curve to the blade.
-
-
-N:37:& Long Sword~
-G:|:W
-I:23:8:0
-W:10:0:130:300
-A:50:10 to 100
-P:0:2d5:0:0:0
-
-N:38:& Broad Sword~
-G:|:W
-I:23:9:0
-W:10:0:150:300
-A:50:10 to 100
-P:0:2d5:0:0:0
-
-
-N:39:& Bastard Sword~
-G:|:W
-I:23:10:0
-W:15:0:140:400
-A:100:15 to 100
-P:0:3d4:0:0:0
-
-N:40:& Katana~
-G:|:W
-I:23:11:0
-W:20:0:120:600
-A:100:20 to 100
-P:0:3d5:0:0:0
-
-N:41:& Zweihander~
-G:|:W
-I:23:12:0
-W:30:0:200:700
-A:100:30 to 100
-P:0:3d6:0:0:0
-D:A sword requring two hands to wield.
-
-N:42:& Executioner's Sword~
-G:|:r
-I:23:13:0
-W:40:0:260:850
-A:100:40 to 100
-P:0:4d5:0:0:0
-
-N:43:& Blade~ of Chaos
-G:|:v
-I:23:14:0
-W:70:0:180:4000
-A:20:70 to 100
-P:0:6d5:0:0:0
-F:RES_CHAOS
-
-
-
-### Whips ###
-
-N:50:& Whip~
-G:\:D
-I:21:1:0
-W:3:0:30:30
-A:100:3 to 100
-P:0:1d3:0:0:0
-
-N:51:& Ball-and-Chain~
-G:\:D
-I:21:2:0
-W:20:0:150:200
-A:100:20 to 100
-P:0:2d4:0:0:0
-
-N:52:& Morning Star~
-G:\:D
-I:21:3:0
-W:10:0:150:396
-A:100:10 to 100
-P:0:2d6:0:0:0
-
-N:53:& Flail~
-G:\:D
-I:21:4:0
-W:10:0:150:353
-A:100:10 to 100
-P:0:2d6:0:0:0
-
-N:54:& Two-Handed Great Flail~
-G:\:y
-I:21:5:0
-W:45:0:280:590
-A:100:45 to 100
-P:0:3d6:0:0:0
-
-
-### Clubs ###
-
-N:55:& Mace~
-G:\:D
-I:21:10:0
-W:5:0:120:130
-A:100:5 to 100
-P:0:2d4:0:0:0
-
-N:56:& Lead-Filled Mace~
-G:\:D
-I:21:11:0
-W:15:0:180:502
-A:100:15 to 100
-P:0:4d3:0:0:0
-
-N:57:& Quarterstaff~
-G:\:U
-I:21:12:0
-W:10:0:150:200
-A:100:10 to 100
-P:0:1d9:0:0:0
-
-N:58:& War Hammer~
-G:\:D
-I:21:13:0
-W:5:0:120:225
-A:100:5 to 100
-P:0:3d3:0:0:0
-
-N:59:& Maul~
-G:\:D
-I:21:14:0
-W:5:0:200:130
-A:100:5 to 100
-P:0:4d4:0:0:0
-
-N:60:& Great Hammer~
-G:\:D
-I:21:15:0
-W:5:0:180:500
-A:100:20 to 100
-P:0:8d1:0:0:0
-
-
-N:61:& Mace~ of Disruption
-G:\:v
-I:21:20:0
-W:80:0:400:4300
-A:20:80 to 100
-P:0:5d8:0:0:0
-F:SLAY_UNDEAD
-
-
-
-
-### Spears ###
-
-N:65:& Spear~
-G:/:s
-I:22:1:0
-W:5:0:50:36
-A:100:5 to 100
-P:0:1d6:0:0:0
-
-N:66:& Awl-Pike~
-G:/:s
-I:22:2:0
-W:10:0:160:340
-A:100:10 to 100
-P:0:1d8:0:0:0
-
-N:67:& Trident~
-G:/:y
-I:22:3:0
-W:5:0:70:120
-A:100:5 to 100
-P:0:1d10:0:0:0
-
-N:68:& Halberd~
-G:/:s
-I:22:4:0
-W:25:0:190:430
-A:100:25 to 100
-P:0:3d5:0:0:0
-
-N:69:& Pike~
-G:/:s
-I:22:5:0
-W:15:0:160:358
-A:100:15 to 100
-P:0:2d5:0:0:0
-
-
-### Axes ###
-
-N:70:& Beaked Axe~
-G:/:s
-I:22:10:0
-W:15:0:180:408
-A:100:15 to 100
-P:0:2d6:0:0:0
-
-N:71:& Broad Axe~
-G:/:s
-I:22:11:0
-W:15:0:160:304
-A:100:15 to 100
-P:0:2d6:0:0:0
-
-N:72:& Battle Axe~
-G:/:s
-I:22:12:0
-W:15:0:170:334
-A:100:15 to 100
-P:0:2d8:0:0:0
-
-N:73:& Lochaber Axe~
-G:/:D
-I:22:13:0
-W:45:0:250:750
-A:100:45 to 100
-P:0:3d8:0:0:0
-
-N:74:& Great Axe~
-G:/:s
-I:22:14:0
-W:40:0:230:500
-A:100:40 to 100
-P:0:4d4:0:0:0
-
-
-### Other misc polearms ###
-
-N:75:& Scythe~
-G:/:s
-I:22:20:0
-W:45:0:250:800
-A:100:45 to 100
-P:0:5d3:0:0:0
-
-N:76:& Glaive~
-G:/:s
-I:22:21:0
-W:20:0:190:363
-A:100:20 to 100
-P:0:2d6:0:0:0
-
-N:77:& Lance~
-G:/:s
-I:22:22:0
-W:10:0:300:230
-A:100:10 to 100
-P:0:2d8:0:0:0
-
-N:78:& Scythe~ of Slicing
-G:/:r
-I:22:23:0
-W:60:0:250:3500
-A:33:60 to 100
-P:0:8d4:0:0:0
-
-N:79:& Lucerne Hammer~
-G:/:B
-I:22:24:0
-W:10:0:120:376
-A:100:10 to 100
-P:0:2d5:0:0:0
-
-
-
-##### Bows, Crossbows, Slings #####
-
-N:90:& Sling~
-G:}:u
-I:19:2:0
-W:1:0:5:5
-A:100:1 to 100
-
-N:91:& Short Bow~
-G:}:U
-I:19:12:0
-W:3:0:30:50
-A:100:3 to 100
-
-N:92:& Long Bow~
-G:}:U
-I:19:13:0
-W:10:0:40:120
-A:100:10 to 100
-
-N:93:& Light Crossbow~
-G:}:s
-I:19:23:0
-W:15:0:110:140
-A:100:15 to 100
-
-N:94:& Heavy Crossbow~
-G:}:s
-I:19:24:0
-W:30:0:200:300
-A:100:30 to 100
-
-
-##### Missiles #####
-
-N:100:& Arrow~
-G:{:U
-I:17:1:0
-W:3:0:2:1
-M:100:6d7
-A:100:3 to 100
-P:0:1d4:0:0:0
-D:It can be shot with a bow.
-
-N:101:& Seeker Arrow~
-G:{:G
-I:17:2:0
-W:55:0:2:20
-A:50:55 to 100
-M:100:6d7
-P:0:4d4:0:0:0
-D:It can be shot with a bow.
-
-N:102:& Mithril Arrow~
-G:{:B
-I:17:3:0
-W:55:0:2:25
-M:100:6d7
-A:25:50 to 100
-P:0:3d4:0:0:0
-F:IGNORE_ACID | IGNORE_FIRE
-D:It can be shot with a bow.
-
-
-N:105:& Bolt~
-G:{:s
-I:18:1:0
-W:3:0:3:2
-M:100:6d7
-A:100:3 to 100
-P:0:1d5:0:0:0
-D:It can be shot with a crossbow.
-
-N:106:& Seeker Bolt~
-G:{:g
-I:18:2:0
-W:65:0:3:25
-M:100:6d7
-A:50:65 to 100
-P:0:4d5:0:0:0
-D:It can be shot with a crossbow.
-
-N:107:& Mithril Bolt~
-G:{:B
-I:18:3:0
-W:50:0:2:30
-M:100:6d7
-A:25:60 to 100
-P:0:3d5:0:0:0
-F:IGNORE_ACID | IGNORE_FIRE
-D:It can be shot with a crossbow.
-
-
-N:110:& Rounded Pebble~
-G:{:s
-I:16:0:0
-W:0:0:4:1
-M:100:6d7
-A:100:0 to 100
-P:0:1d2:0:0:0
-D:It can be shot with a sling.
-
-N:111:& Iron Shot~
-G:{:s
-I:16:1:0
-W:3:0:5:2
-M:100:6d7
-A:100:3 to 100
-P:0:1d4:0:0:0
-D:It can be shot with a sling.
-
-N:112:& Mithril Shot~
-G:{:B
-I:16:2:0
-W:40:0:4:20
-M:100:6d7
-A:25:40 to 100
-P:0:2d4:5:5:0
-F:IGNORE_ACID
-D:It can be shot with a sling.
-
-
-##### Digging Tools #####
-
-N:120:& Shovel~
-G:\:s
-I:20:1:1
-W:1:0:60:10
-A:50:5 to 100
-P:0:1d2:0:0:0
-F:TUNNEL
-
-N:121:& Pick~
-G:\:g
-I:20:2:2
-W:30:0:180:300
-A:33:30 to 100
-P:0:1d3:0:0:0
-F:TUNNEL
-
-N:122:& Mattock~
-G:\:D
-I:20:3:3
-W:50:0:250:700
-A:50:50 to 100
-P:0:1d8:0:0:0
-F:TUNNEL
-
-
-##### Armor #####
-
-N:130:& Pair~ of Leather Sandals
-G:]:U
-I:30:1:0
-W:0:0:15:4
-A:100:1 to 20
-P:1:1d1:0:0:0
-D:A set of open-topped footgear with soft calfskin lacings and a sturdy 
-D:cured leather base.
-
-N:131:& Pair~ of Leather Boots
-G:]:U
-I:30:2:0
-W:3:0:20:7
-A:110:3 to 100
-P:2:1d1:0:0:0
-
-N:132:& Pair~ of Iron Shod Boots
-G:]:U
-I:30:3:0
-W:5:0:40:12
-A:110:5 to 100
-P:3:1d1:0:0:0
-
-N:133:& Pair~ of Steel Shod Boots
-G:]:s
-I:30:4:0
-W:20:0:80:50
-A:110:20 to 100
-P:6:1d1:0:0:0
-
-N:134:& Pair~ of Mithril Shod Boots
-G:]:B
-I:30:5:0
-W:60:0:40:500
-A:33:60 to 100
-P:7:1d1:0:0:0
-F:IGNORE_ACID
-
-N:135:& Pair~ of Ethereal Slippers
-G:]:U
-I:30:6:0
-W:0:0:0:4
-A:20:30 to 100
-P:0:0d0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-
-
-
-### Headgear ###
-
-N:140:& Hard Leather Cap~
-G:]:u
-I:32:2:0
-W:3:0:15:12
-A:100:3 to 100
-P:2:0d0:0:0:0
-
-N:141:& Metal Cap~
-G:]:s
-I:32:3:0
-W:10:0:20:30
-A:100:10 to 100
-P:3:1d1:0:0:0
-
-N:142:& Iron Helm~
-G:]:s
-I:32:5:0
-W:20:0:75:75
-A:100:20 to 100
-P:5:1d3:0:0:0
-
-N:143:& Steel Helm~
-G:]:W
-I:32:6:0
-W:40:0:60:200
-A:100:40 to 100
-P:6:1d3:0:0:0
-
-N:144:& Iron Crown~
-G:]:s
-I:33:10:0
-W:45:0:20:500
-A:100:45 to 100
-P:0:1d1:0:0:0
-
-N:145:& Golden Crown~
-G:]:y
-I:33:11:0
-W:45:0:30:1000
-A:100:45 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID
-
-N:146:& Jewel Encrusted Crown~
-G:]:v
-I:33:12:0
-W:50:0:40:2000
-A:100:50 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID
-
-
-### Body armours ###
-
-N:150:& Robe~
-G:(:b
-I:36:2:0
-W:1:0:20:4
-A:100:1 to 100
-P:2:0d0:0:0:0
-
-N:151:Soft Leather Armour~
-G:(:U
-I:36:4:0
-W:3:0:80:20
-A:100:1 to 100
-P:4:0d0:0:0:0
-
-N:152:Studded Leather Armour~
-G:(:U
-I:36:7:0
-W:10:0:100:100
-A:100:5 to 100
-P:6:1d1:-1:0:0
-
-N:153:Hard Leather Armour~
-G:(:U
-I:36:6:0
-W:5:0:120:150
-A:100:10 to 100
-P:8:1d2:-1:0:0
-
-N:154:Leather Scale Mail~
-G:(:U
-I:36:11:0
-W:15:0:140:370
-A:100:15 to 100
-P:10:1d1:-1:0:0
-
-N:155:Metal Scale Mail~
-G:[:s
-I:37:1:0
-W:25:0:250:550
-A:100:20 to 100
-P:12:1d4:-2:0:0
-
-N:156:Chain Mail~
-G:[:s
-I:37:2:0
-W:25:0:220:750
-A:100:25 to 100
-P:14:1d4:-2:0:0
-
-N:157:Augmented Chain Mail~
-G:[:s
-I:37:3:0
-W:30:0:270:900
-A:100:30 to 100
-P:16:1d4:-2:0:0
-
-N:158:Bar Chain Mail~
-G:[:s
-I:37:4:0
-W:35:0:280:950
-A:100:35 to 100
-P:18:1d4:-2:0:0
-
-N:159:Metal Brigandine Armour~
-G:[:s
-I:37:5:0
-W:35:0:290:1100
-A:100:40 to 100
-P:20:1d4:-3:0:0
-
-N:160:Partial Plate Armour~
-G:[:W
-I:37:6:0
-W:45:0:260:1200
-A:100:45 to 100
-P:22:1d6:-3:0:0
-
-N:161:Metal Lamellar Armour~
-G:[:W
-I:37:7:0
-W:45:0:340:1250
-A:100:45 to 100
-P:24:1d6:-3:0:0
-
-N:162:Full Plate Armour~
-G:[:W
-I:37:8:0
-W:45:0:380:1350
-A:100:45 to 100
-P:26:2d4:-3:0:0
-
-N:163:Ribbed Plate Armour~
-G:[:W
-I:37:9:0
-W:50:0:380:1500
-A:100:50 to 100
-P:28:2d4:-3:0:0
-
-N:164:Mithril Chain Mail~
-G:[:B
-I:37:10:0
-W:55:0:150:7000
-A:33:55 to 100
-P:28:1d4:-1:0:0
-F:IGNORE_ACID
-
-N:165:Mithril Plate Mail~
-G:[:B
-I:37:11:0
-W:60:0:300:15000
-A:33:60 to 100
-P:35:2d4:-3:0:0
-F:IGNORE_ACID
-
-N:166:Adamantite Plate Mail~
-G:[:G
-I:37:12:0
-W:75:0:420:20000
-A:18:75 to 100
-P:40:2d4:-4:0:0
-F:IGNORE_ACID
-
-
-
-### The Cloaks ###
-
-N:170:& Cloak~
-G:(:g
-I:35:1:0
+E:FOOD_GOOD
+
+N:44:& Flask~ of oil
+G:!:y
+I:77:0:7500:0
 W:1:0:10:3
+# A:<locale>1/<chance>1
+P:0:2d6:0:0:0
+D:A flask of oil. It can fuel your lantern, but can also be thrown at monsters with a piece
+D:of wick in it, making a fiery surprise.
 A:100:1 to 100
-P:1:0d0:0:0:0
-D:A traveller's sturdy outer garment.
-
-N:171:& Fur Cloak~
-G:(:o
-I:35:2:0
-W:1:0:40:600
-A:50:20 to 100
-P:3:0d0:0:0:0
-D:A heavy cloak made from fur and lined with leather; a luxury.
-
-N:172:& Elven Cloak~
-G:(:D
-I:35:3:2
-W:60:0:5:2000
-A:50:40 to 100
-P:6:0d0:0:0:0
-F:STEALTH
-D:A mantle made of curious silken material by the Galadrim that wondrously 
-D:takes on the hues and shapes of its surroundings.
-
-N:173:& Ethereal Cloak~
-G:(:W
-I:35:4:0
-W:50:0:0:4500
-A:25:70 to 100
-P:0:0d0:0:0:10
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-D:This unearthly, completely transparent body mantle folds and drapes in 
-D:iridescent patterns around you.  It weighs absolutely nothing.
-
-
-### The Gloves ###
-
-N:174:& Set~ of Leather Gloves
-G:]:lightbrown
-I:31:1:0
-W:0:0:5:5
-A:100:1 to 100
-P:1:0d0:0:0:0
-
-N:175:& Set~ of Gauntlets
-G:]:gray
-I:31:2:0
-W:0:0:25:45
-A:100:10 to 100
-P:3:1d1:0:0:0
-
-N:176:& Set~ of Mithril Gauntlets
-G:]:lightblue
-I:31:3:0
-W:0:0:20:700
-A:100:40 to 100
-P:5:1d1:0:0:0
-F:IGNORE_ACID
-
-N:177:& Set~ of Caestus
-G:]:lightbrown
-I:31:4:0
-W:0:0:40:100
-A:50:20 to 100
-P:2:1d1:0:3:0
-D:An ancient battle glove designed for hand-to-hand fighting.  Its layered
-D: leather thongs are enhanced for combat by bloody-looking spikes.
-
-N:178:& Set~ of Alchemist's Gloves
-G:]:lightred
-I:31:5:0
-W:0:0:5:500
-A:50:50 to 100
-P:0:1d1:0:0:2
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:Highly protective gloves designed for an alchemist's elemental magics.
-
-#N:179:& Set~ of Mining Gloves
-#G:]:lightbrown
-#I:31:6:0
-#W:0:0:5:500 
-#A:50:50 to 100
-#P:0:1d1:0:0:2
-#F:DIGGING
-
-
-### The shields ###
-
-#N:180:& Buckler~
-#G:):lightbrown
-#I:34:1:0
-#W:3:0:20:30
-#A:100:3 to 100
-#P:1:1d1:0:0:0
-#D:A small round shield designed to be useful in deflecting enemy swords.
-
-N:181:& Wicker Shield~
-G:):U
-I:34:2:0
-W:1:0:30:20
-A:100:1 to 100
-P:2:1d1:0:0:0
-D:A light circular frame of wood surrounding fine-grained wickerwork.
-
-N:182:& Small Metal Shield~
-G:):gray
-I:34:3:0
-W:10:0:60:80
-A:100:15 to 100
-P:4:1d2:0:0:0
-
-N:183:& Leather Shield~
-G:):lightbrown
-I:34:4:0
-W:15:0:100:200
-A:100:10 to 100
-P:6:1d3:0:0:0
-
-N:184:& Large Metal Shield~
-G:):gray
-I:34:5:0
-W:30:0:150:500
-A:100:30 to 100
-P:8:1d5:0:0:0
-
-N:185:& Mithril Shield~
-G:):lightblue
-I:34:10:0
-W:70:0:100:10000
-A:20:70 to 100
-P:10:1d4:0:0:10
-F:IGNORE_ACID
-
-
-
-
-##### Rings #####
-
-### Stat rings ###
-
-N:190:Strength
-G:=:d
-I:45:1:0
-W:30:0:2:500
-A:100:10 to 100
-F:STR | SUST_STR | HIDE_TYPE
-
-N:191:Intelligence
-G:=:d
-I:45:2:0
-W:30:0:2:500
-A:100:30 to 100
-F:INT | SUST_INT | HIDE_TYPE
-
-N:192:Dexterity
-G:=:d
-I:45:3:0
-W:30:0:2:500
-A:100:30 to 100
-F:DEX | SUST_DEX | HIDE_TYPE
-
-N:193:Constitution
-G:=:d
-I:45:4:0
-W:30:0:2:500
-A:100:30 to 100
-F:CON | SUST_CON | HIDE_TYPE
-
-N:194:Speed
-G:=:d
-I:45:5:0
-W:75:0:2:100000
-A:100:75 to 100
-F:SPEED | HIDE_TYPE
-
-N:195:Searching
-G:=:d
-I:45:6:0
-W:5:0:2:250
-A:100:5 to 100
-F:SEARCH | HIDE_TYPE
-
-### 196, sval 7
-### 197, sval 8
-
-### Stat sustain rings ###
-
-N:198:Bodykeeping
-G:=:d
-I:45:9:0
-W:30:0:2:750
-A:100:30 to 100
-F:SUST_STR | SUST_DEX | SUST_CON | EASY_KNOW
-
-N:199:Soulkeeping
-G:=:d
-I:45:10:0
-W:30:0:2:600
-A:100:30 to 100
-F:SUST_STR | SUST_INT | SUST_WIS | EASY_KNOW
-
-N:200:Sustain Charisma
-G:=:d
-I:45:11:0
-W:30:0:2:500
-A:100:30 to 100
-F:SUST_CHR | EASY_KNOW
-
-
-### Resistance rings ###
-
-N:201:Resist Poison
-G:=:d
-I:45:12:0
-W:40:0:2:16000
-A:50:40 to 100
-F:RES_POIS | EASY_KNOW
-
-N:202:Resist Fire
-G:=:d
-I:45:13:0
-W:10:0:2:250
-A:100:10 to 100
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
-
-N:203:Resist Cold
-G:=:d
-I:45:14:0
-W:10:0:2:250
-A:100:10 to 100
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
-
-### 204, sval 15
-
-### Elemental rings ###
-
-# Light gets a pval in code for searching
-N:205:Light
-G:=:d
-I:45:16:0
-W:0:0:2:400
-A:100:25 to 100
-F:RES_LITE | SEARCH | LITE
-
-# Waiting for un_lite to be implemented
-#N:206:Dark
-#G:=:d
-#I:45:17:0
-#W:0:0:2:400
-#A:100:25 to 100
-#F:RES_DARK | SEARCH | UN_LITE
-
-N:207:Flames
-G:=:d
-I:45:18:0
-W:50:0:2:3000
-A:100:50 to 100
-P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | BRAND_FIRE |
-F:ACTIVATE
-E:RING_FLAMES:50+d50
-
-N:208:Acid
-G:=:d
-I:45:19:0
-W:50:0:2:3000
-A:100:50 to 100
-P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | BRAND_ACID |
-F:ACTIVATE
-E:RING_ACID:50+d50
-
-N:209:Ice
-G:=:d
-I:45:20:0
-W:50:0:2:3000
-A:100:50 to 100
-P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | BRAND_COLD |
-F:ACTIVATE
-E:RING_ICE:50+d50
-
-N:210:Lightning
-G:=:d
-I:45:21:0
-W:50:0:2:5000
-A:50:50 to 100
-F:RES_ELEC | IGNORE_ELEC | BRAND_ELEC |
-F:ACTIVATE
-E:RING_LIGHTNING:50+d50
-
-### 211, sval 22
-
-### Combat rings ###
-
-N:212:Damage
-G:=:d
-I:45:23:0
-W:20:0:2:500
-A:100:20 to 100
-D:It boosts your to-dam value.
-
-N:213:Accuracy
-G:=:d
-I:45:24:0
-W:20:0:2:500
-A:100:20 to 100
-D:It boosts your to-hit value.
-
-N:214:Slaying
-G:=:d
-I:45:25:0
-W:40:0:2:1000
-A:100:40 to 100
-D:It boosts your to-hit and to-dam values.
-
-N:215:Protection
-G:=:d
-I:45:26:0
-W:10:0:2:500
-A:100:10 to 100
-D:It increases your armor class.
-
-
-### Mixed blessings ###
-
-N:216:Teleportation
-G:=:d
-I:45:27:2
-W:5:0:2:0
-A:100:5 to 100
-F:TELEPORT | SPEED | EASY_KNOW
-
-# Reckless Attacks gets +x tohit/+x todam/-(x*4) AC in the code
-N:217:Reckless Attacks
-G:=:d
-I:45:28:0
-W:0:0:2:200
-A:100:10 to 100
-
-N:218:Open Wounds
-G:=:d
-I:45:29:0
-W:0:0:2:700
-A:100:30 to 100
-F:IMPAIR_HP | ACTIVATE | EASY_KNOW
-E:CURE_SERIOUS:10+5d8
-
-N:219:Escaping
-G:=:d
-I:45:30:4
-W:30:0:2:0
-A:100:15 to 100
-F:AFRAID | SPEED | EASY_KNOW
-
-# of the Mouse gets +pval/-to-dam in code
-N:220:the Mouse
-G:=:d
-I:45:31:0
-W:30:0:2:500
-A:100:15 to 100
-F:DEX
-
-N:221:the Dog
-G:=:d
-I:45:32:-4
-W:0:0:2:600
-A:40:10 to 100
-P:0:0d0:0:0:-10
-F:RES_FEAR | STEALTH | EASY_KNOW
-
-### 222, sval 33
-
-### Misc rings ###
-
-N:223:Slow Digestion
-G:=:d
-I:45:34:0
-W:5:0:2:250
-A:100:5 to 100
-F:SLOW_DIGEST | EASY_KNOW
-
-N:224:Feather Falling
-G:=:d
-I:45:35:0
-W:5:0:2:200
-A:100:5 to 100
-F:FEATHER | EASY_KNOW
-
-N:225:Free Action
-G:=:d
-I:45:36:0
-W:20:0:2:1500
-A:100:20 to 100
-F:FREE_ACT | EASY_KNOW
-
-N:226:See Invisible
-G:=:d
-I:45:37:0
-W:30:0:2:340
-A:100:30 to 100
-F:SEE_INVIS | EASY_KNOW
-
-# Delving gets +3/4/5 tunneling in the code
-N:227:Delving
-G:=:d
-I:45:38:0
-W:0:0:2:800
-A:100:30 to 100
-F:ACTIVATE | TUNNEL
-E:STONE_TO_MUD:15+2d10
-
-
-
-##### Amulets #####
-
-### Stat boosts ###
-
-N:230:Wisdom
-G:":d
-I:40:1:0
-W:30:0:3:500
-A:100:20 to 100
-F:WIS | SUST_WIS | HIDE_TYPE
-
-N:231:Charisma
-G:":d
-I:40:2:0
-W:30:0:3:500
-A:100:20 to 100
-F:CHR | SUST_CHR | HIDE_TYPE
-
-### Resistances ###
-
-N:232:Resist Lightning
-G:":d
-I:40:3:0
-W:10:0:3:300
-A:100:10 to 100
-F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
-
-N:233:Resist Acid
-G:":d
-I:40:4:0
-W:10:0:3:300
-A:100:10 to 100
-F:RES_ACID | IGNORE_ACID | EASY_KNOW
-
-N:234:Resistance
-G:":d
-I:40:5:0
-W:60:0:3:20000
-A:12:60 to 100
-F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | EASY_KNOW |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-### JLE amulets ###
-
-N:235:Sustenance
-G:":d
-I:40:6:0
-W:60:0:3:20000
-A:16:60 to 100
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
-F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:236:the Magi
-G:":d
-I:40:7:0
-W:70:0:3:30000
-A:12:70 to 100
-P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH | SUST_INT | INT | RES_CONFU |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
-F:HIDE_TYPE
-
-N:237:ESP
-G:":d
-I:40:8:0
-W:50:0:3:25000
-A:12:60 to 100
-F:TELEPATHY | SEARCH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | 
-F:HIDE_TYPE
-
-N:238:Devotion
-G:":d
-I:40:9:0
-W:70:0:3:30000
-A:12:70 to 100
-F:WIS | CHR | SUST_WIS | SUST_CHR | LITE | 
-F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE | 
-F:HIDE_TYPE
-
-N:239:Weaponmastery
-G:":d
-I:40:10:0
-W:70:0:3:30000
-P:0:0d0:0:0:0
-A:12:70 to 100
-F:STR | SUST_STR | SUST_CON | FREE_ACT | 
-F:RES_FEAR | RES_DISEN | HIDE_TYPE
-
-N:240:Trickery
-G:":d
-I:40:11:1
-W:70:0:3:30000
-A:12:70 to 100
-F:DEX | SUST_DEX | STEALTH | SPEED | SEARCH | INFRA | 
-F:RES_NEXUS | RES_POIS | HIDE_TYPE
-
-# 241
-# 242
-# 243
-
-### Ability boosts ###
-
-N:244:Regeneration
-G:":d
-I:40:15:0
-W:30:0:3:600
-A:33:30 to 100
-F:REGEN | EASY_KNOW
-
-N:245:Infravision
-G:":d
-I:40:16:0
-W:10:0:3:200
-A:50:10 to 100
-F:INFRA | HIDE_TYPE
-
-N:246:Searching
-G:":d
-I:40:17:0
-W:15:0:3:600
-A:100:15 to 100
-F:SEARCH | HIDE_TYPE
-
-### Powers ###
-
-N:247:Teleportation
-G:":d
-I:40:18:0
-W:10:0:3:0
-A:100:10 to 100
-F:TELEPORT | EASY_KNOW
-
-N:248:Slow Digestion
-G:":d
-I:40:19:0
-W:15:0:3:200
-A:100:15 to 100
-F:SLOW_DIGEST | EASY_KNOW
-
-N:249:Adornment
-G:":d
-I:40:20:0
-W:10:0:3:20
-A:30:10 to 100
 F:EASY_KNOW
 
-
-### Mixed ###
-
-N:250:Inertia
-G:":d
-I:40:21:-3
-W:15:0:3:1300
-A:80:15 to 100
-F:FREE_ACT | SPEED | EASY_KNOW
-
-
-
-
-
-##### Scrolls #####
-
-### Teleportation ###
-
-N:260:Phase Door
-G:?:w
-I:70:1:0
-W:1:0:5:15
-A:100:1 to 100
-M:100:1d3
+N:45:Water
+G:!:B
+I:75:0:200:0
+W:0:0:4:1
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:Crystal-clear and sparkling water.
+E:DRINK_GOOD
 F:EASY_KNOW
-E:TELE_PHASE
 
-N:261:Teleportation
-G:?:w
-I:70:2:0
-W:10:0:5:40
-A:100:10 to 100
+N:46:Apple Juice
+G:!:y
+I:75:1:250:0
+W:0:0:4:1
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It has a wonderfull deep golden colour, and a tart taste.
+E:DRINK_GOOD
 F:EASY_KNOW
-E:TELE_LONG
-
-N:262:Teleport Level
-G:?:w
-I:70:3:0
-W:20:0:5:50
-A:100:20 to 100
-F:EASY_KNOW
-E:TELE_LEVEL
-
-
-### Detection ###
-
-N:263:Magic Mapping
-G:?:w
-I:70:4:0
-W:5:0:5:65
-A:100:5 to 100
-M:70:1d3
-F:EASY_KNOW
-E:MAPPING
-
-N:264:Treasure Detection
-G:?:w
-I:70:5:0
-W:0:0:5:30
-A:100:0 to 100
-M:70:1d3
-F:EASY_KNOW
-E:DETECT_TREASURE
-
-N:265:Trap Detection
-G:?:w
-I:70:6:0
-W:5:0:5:35
-A:100:0 to 100
-M:70:1d3
-F:EASY_KNOW
-E:DETECT_TRAP
-
-N:266:Door/Stair Location
-G:?:w
-I:70:7:0
-W:5:0:5:50
-A:100:5 to 100
-M:70:1d3
-F:EASY_KNOW
-E:DETECT_DOORSTAIR
-
-N:267:Detect Invisible
-G:?:w
-I:70:8:0
-W:1:0:5:15
-A:100:1 to 100
-M:70:1d3
-F:EASY_KNOW
-E:DETECT_INVIS
-
-### 268
-### 269
-
-### Enchantments ###
-
-N:270:Enchant Weapon To-Hit
-G:?:w
-I:70:11:0
-W:15:0:5:125
-A:100:15 to 100
-F:EASY_KNOW
-E:ENCHANT_TOHIT
-
-N:271:Enchant Weapon To-Dam
-G:?:w
-I:70:12:0
-W:15:0:5:125
-A:100:15 to 100
-F:EASY_KNOW
-E:ENCHANT_TODAM
-
-N:272:Enchant Armour
-G:?:w
-I:70:13:0
-W:15:0:5:125
-A:100:15 to 100
-F:EASY_KNOW
-E:ENCHANT_ARMOR
-
-N:273:*Enchant Weapon*
-G:?:w
-I:70:14:0
-W:50:0:5:500
-A:100:50 to 100
-F:EASY_KNOW
-E:ENCHANT_WEAPON
-
-N:274:*Enchant Armour*
-G:?:w
-I:70:15:0
-W:50:0:5:500
-A:100:50 to 100
-F:EASY_KNOW
-E:ENCHANT_ARMOR2
-
-N:275:Remove Curse
-G:?:w
-I:70:16:0
-W:10:0:5:100
-A:100:10 to 100
-F:EASY_KNOW
-E:REMOVE_CURSE
-
-N:276:*Remove Curse*
-G:?:w
-I:70:17:0
-W:50:0:5:8000
-A:50:50 to 100
-F:EASY_KNOW
-E:REMOVE_CURSE2
-
-# 277
-
-### Summoning ###
-
-N:278:Summon Monster
-G:?:w
-I:70:19:0
-W:1:0:5:0
-A:100:1 to 100
-M:70:1d3
-F:EASY_KNOW
-E:SUMMON_MON
-
-N:279:Summon Undead
-G:?:w
-I:70:20:0
-W:15:0:5:0
-A:100:15 to 100
-M:70:1d3
-F:EASY_KNOW
-E:SUMMON_UNDEAD
-
-N:280:Acquirement
-G:?:w
-I:70:21:0
-W:20:0:5:100000
-A:12:20 to 100
-F:EASY_KNOW
-E:ACQUIRE
-
-N:281:*Acquirement*
-G:?:w
-I:70:22:0
-W:60:0:5:200000
-A:6:60 to 100
-F:EASY_KNOW
-E:ACQUIRE2
-
-
-### Killing scrolls ###
-
-N:282:Dispel Undead
-G:?:w
-I:70:23:0
-W:40:0:5:200
-A:100:40 to 100
-F:EASY_KNOW
-E:DISPEL_UNDEAD
-
-N:283:Banishment
-G:?:w
-I:70:24:0
-W:40:0:5:750
-A:25:40 to 100
-F:EASY_KNOW
-E:BANISHMENT
-
-N:284:Mass Banishment
-G:?:w
-I:70:25:0
-W:50:0:5:1000
-A:20:50 to 100
-F:EASY_KNOW
-E:LOSKILL
-
-
-### Utility ###
-
-N:285:Satisfy Hunger
-G:?:w
-I:70:26:0
-W:5:0:5:10
-A:100:5 to 100
-M:100:1d10
-F:EASY_KNOW
-E:SATISFY
-
-N:286:Identify
-G:?:w
-I:70:27:0
-W:1:0:5:100
-A:100:5 to 100
-M:100:1d8
-F:EASY_KNOW
-E:IDENTIFY
-
-N:289:Light
-G:?:w
-I:70:28:0
-W:0:0:5:15
-M:70:1d3
-A:100:0 to 100
-F:EASY_KNOW
-E:LIGHT
-
-N:290:Word of Recall
-G:?:w
-I:70:29:0
-W:5:0:5:125
-M:70:1d3
-A:100:5 to 100
-F:EASY_KNOW
-E:RECALL
-
-N:291:Recharging
-G:?:w
-I:70:30:0
-W:40:0:5:200
-A:100:40 to 100
-F:EASY_KNOW
-E:RECHARGE
-
-N:292:Trap/Door Destruction
-G:?:w
-I:70:31:0
-W:10:0:5:50
-A:100:10 to 100
-F:EASY_KNOW
-E:DESTROY_TDOORS
-
-N:293:Deep Descent
-G:?:w
-I:70:32:0
-W:10:0:5:50
-A:50:1 to 100
-F:EASY_KNOW
-E:DEEP_DESCENT
-
-
-### "Holy" spells ###
-
-N:294:Blessing
-G:?:w
-I:70:33:0
-W:1:0:5:15
-A:100:1 to 100
-M:70:1d3
-F:EASY_KNOW
-E:BLESSING
-
-N:295:Holy Chant
-G:?:w
-I:70:34:0
-W:10:0:5:40
-A:100:10 to 100
-F:EASY_KNOW
-E:BLESSING2
-
-N:296:Holy Prayer
-G:?:w
-I:70:35:0
-W:25:0:5:80
-A:100:25 to 100
-F:EASY_KNOW
-E:BLESSING3
-
-N:297:Protection from Evil
-G:?:w
-I:70:36:0
-W:30:0:5:50
-A:100:30 to 100
-F:EASY_KNOW
-E:PROTEVIL
-
-
-### Misc. ###
-
-N:298:Monster Confusion
-G:?:w
-I:70:37:0
-W:5:0:5:30
-A:100:5 to 100
-F:EASY_KNOW
-E:CONFUSING
-
-N:299:Rune of Protection
-G:?:w
-I:70:38:0
-W:60:0:5:500
-A:50:70 to 100
-F:EASY_KNOW
-E:RUNE
-
-N:300:*Destruction*
-G:?:w
-I:70:39:0
-W:40:0:5:250
-A:100:40 to 100
-F:EASY_KNOW
-E:DESTRUCTION2
-
-
-### Bad scrolls ###
-
-N:301:Aggravate Monster
-G:?:w
-I:70:40:0
-W:5:0:5:0
-A:100:5 to 100
-M:70:1d3
-F:EASY_KNOW
-E:ANNOY_MON
-
-N:302:Curse Weapon
-G:?:w
-I:70:41:0
-W:50:0:5:0
-A:100:50 to 100
-M:70:1d3
-F:EASY_KNOW
-E:CURSE_WEAPON
-
-N:303:Curse Armour
-G:?:w
-I:70:42:0
-W:50:0:5:0
-A:100:50 to 100
-M:70:1d3
-F:EASY_KNOW
-E:CURSE_ARMOR
-
-N:304:Darkness
-G:?:w
-I:70:43:0
-W:1:0:5:0
-A:100:1 to 100
-M:70:1d3
-F:EASY_KNOW
-E:DARKNESS
-
-N:305:Trap Creation
-G:?:w
-I:70:44:0
-W:10:0:5:0
-A:100:10 to 100
-M:70:1d3
-F:EASY_KNOW
-E:CREATE_TRAP
-
-
-
 
 ##### Potions #####
 
-### Statgain ###
-
-N:310:Strength
-G:!:d
-I:75:1:0
-W:30:0:4:8000
-A:90:30 to 100
-F:EASY_KNOW
-E:GAIN_STR
-
-N:311:Intelligence
-G:!:d
-I:75:2:0
-W:30:0:4:8000
-A:90:30 to 100
-F:EASY_KNOW
-E:GAIN_INT
-
-N:312:Wisdom
-G:!:d
-I:75:3:0
-W:30:0:4:8000
-A:90:30 to 100
-F:EASY_KNOW
-E:GAIN_WIS
-
-N:313:Dexterity
-G:!:d
-I:75:4:0
-W:30:0:4:8000
-A:90:30 to 100
-F:EASY_KNOW
-E:GAIN_DEX
-
-N:314:Constitution
-G:!:d
-I:75:5:0
-W:30:0:4:8000
-A:90:30 to 100
-F:EASY_KNOW
-E:GAIN_CON
-
-N:315:Charisma
-G:!:d
-I:75:6:0
-W:20:0:4:1000
-A:90:15 to 100
-F:EASY_KNOW
-E:GAIN_CHR
-
-N:316:Augmentation
-G:!:d
-I:75:7:0
-W:40:0:4:60000
-A:20:40 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:GAIN_ALL
-
-N:317:Experience
-G:!:d
-I:75:8:0
-W:65:0:4:25000
-A:100:65 to 100
-F:EASY_KNOW
-E:GAIN_EXP
-
-
-### Healings ###
-
-N:318:Cure Light Wounds
-G:!:d
-I:75:9:150
-W:0:0:4:30
-A:100:1 to 15
-M:100:2d3
-F:EASY_KNOW
-E:CURE_LIGHT
-
-N:319:Cure Serious Wounds
-G:!:d
-I:75:10:150
-W:3:0:4:70
-A:100:4 to 40
-M:85:2d3
-F:EASY_KNOW
-E:CURE_SERIOUS
-
-N:320:Cure Critical Wounds
-G:!:d
-I:75:11:150
-W:5:0:4:200
-A:105:12 to 100
-M:75:2d3
-F:EASY_KNOW
-E:CURE_CRITICAL
-
-N:321:Healing
-G:!:d
-I:75:12:200
-W:15:0:4:300
-A:100:15 to 100
-F:EASY_KNOW
-E:CURE_FULL
-
-N:322:*Healing*
-G:!:d
-I:75:13:0
-W:40:0:4:300
-A:35:40 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:CURE_FULL2
-
-N:323:Life
-G:!:d
-I:75:14:0
-W:60:0:4:5000
-A:40:60 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:CURE_NONORLYBIG
-
-N:324:Neutralize Poison
-G:!:d
-I:75:15:0
-W:5:0:4:75
-A:100:1 to 35
-F:EASY_KNOW
-E:CURE_POISON
-
-N:325:Restore Mana
-G:!:d
-I:75:16:0
-W:25:0:4:350
-A:100:25 to 100
-F:EASY_KNOW
-E:RESTORE_MANA
-
-
-### Stat restore ###
-
-N:326:Restore Strength
-G:!:d
-I:75:17:0
-W:25:0:4:300
-A:75:19 to 60
-F:EASY_KNOW
-E:RESTORE_STR
-
-N:327:Restore Intelligence
-G:!:d
-I:75:18:0
-W:50:0:4:300
-A:75:19 to 60
-F:EASY_KNOW
-E:RESTORE_INT
-
-N:328:Restore Wisdom
-G:!:d
-I:75:19:0
-W:25:0:4:300
-A:75:20 to 60
-F:EASY_KNOW
-E:RESTORE_WIS
-
-N:329:Restore Dexterity
-G:!:d
-I:75:20:0
-W:25:0:4:300
-A:75:20 to 60
-F:EASY_KNOW
-E:RESTORE_DEX
-
-N:330:Restore Constitution
-G:!:d
-I:75:21:0
-W:25:0:4:300
-A:75:21 to 60
-F:EASY_KNOW
-E:RESTORE_CON
-
-N:331:Restore Charisma
-G:!:d
-I:75:22:0
-W:20:0:4:300
-A:75:10 to 60
-F:EASY_KNOW
-E:RESTORE_CHR
-
-N:332:Restore Life Levels
-G:!:d
-I:75:23:0
-W:40:0:4:400
-A:100:40 to 100
-F:EASY_KNOW
-E:RESTORE_EXP
-
-
-### Gain one/lose one potions ###
-
-N:333:Brawn
-G:!:d
-I:75:24:0
-W:3:0:4:1000
-A:20:10 to 20
-F:EASY_KNOW
-E:BRAWN
-
-N:334:Intellect
-G:!:d
-I:75:25:0
-W:20:0:4:1000
-A:20:10 to 20
-F:EASY_KNOW
-E:INTELLECT
-
-N:335:Contemplation
-G:!:d
-I:75:26:0
-W:20:0:4:1000
-A:20:10 to 20
-F:EASY_KNOW
-E:CONTEMPLATION
-
-N:336:Nimbleness
-G:!:d
-I:75:27:0
-W:5:0:4:1000
-A:20:10 to 20
-F:EASY_KNOW
-E:NIMBLENESS
-
-N:337:Toughness
-G:!:d
-I:75:28:0
-W:10:0:4:1000
-A:20:10 to 20
-F:EASY_KNOW
-E:TOUGHNESS
-
-
-### Knowledge ###
-
-N:341:Enlightenment
-G:!:d
-I:75:30:0
-W:25:0:4:800
-A:100:25 to 100
-F:EASY_KNOW
-E:ENLIGHTENMENT
-
-N:342:*Enlightenment*
-G:!:d
-I:75:31:0
-W:70:0:4:80000
-A:20:70 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:ENLIGHTENMENT2
-
-
-### Buffs ###
-
-N:343:Speed
-G:!:d
-I:75:32:0
-W:1:0:4:75
-A:100:1 to 100
-F:EASY_KNOW
-E:HASTE
-
-N:344:Heroism
-G:!:d
-I:75:33:0
-W:1:0:4:25
-A:100:1 to 100
-F:EASY_KNOW
-E:HERO
-
-N:345:Berserk Strength
-G:!:d
-I:75:34:0
-W:3:0:4:100
-A:100:3 to 100
-F:EASY_KNOW
-E:SHERO
-
-N:346:Boldness
-G:!:d
-I:75:35:0
-W:1:0:4:8
-A:100:1 to 100
-F:EASY_KNOW
-E:CURE_PARANOIA
-
-N:347:Resist Heat
-G:!:d
-I:75:36:0
-W:1:0:4:30
-A:100:1 to 100
-F:EASY_KNOW
-E:RESIST_FIRE
-
-N:348:Resist Cold
-G:!:d
-I:75:37:0
-W:1:0:4:30
-A:100:1 to 100
-F:EASY_KNOW
-E:RESIST_COLD
-
-N:349:Resist Poison
-G:!:d
-I:75:38:0
-W:1:0:4:30
-A:70:8 to 100
-F:EASY_KNOW
-E:RESIST_POIS
-
-N:350:True Seeing
-G:!:d
-I:75:39:0
-W:3:0:4:50
-A:100:3 to 25
-F:EASY_KNOW
-E:TMD_SINVIS
-
-N:351:Infravision
-G:!:d
-I:75:49:0
-W:3:0:4:20
-A:100:3 to 25
-F:EASY_KNOW
-E:TMD_INFRA
-
-
-### Useless buggers ###
-
-N:355:Slime Mold Juice
-G:!:d
-I:75:50:1000
+N:47:Slime Mold Juice
+G:!:g
+I:75:2:400:0
 W:0:0:4:2
-A:50:1 to 10
-M:55:2d3
-F:EASY_KNOW
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It is a thick liquid, with unsavory globs of something in it. If you close your eyes,
+D:it's smell is delicious.
 E:DRINK_GOOD
-
-N:356:Sleep
-G:!:d
-I:75:51:100
-W:0:0:4:0
-A:50:0 to 10
-M:70:2d3
-P:0:3d4:0:0:0
+A:50:1 to 10
 F:EASY_KNOW
-E:PARALYZE
+M:55:2d3
 
-N:357:Blindness
-G:!:d
-I:75:52:0
-W:0:0:4:0
-M:70:2d3
-A:50:0 to 10
-P:0:3d4:0:0:0
-F:EASY_KNOW
-E:BLIND
-
-N:358:Confusion
-G:!:d
-I:75:53:50
-W:0:0:4:0
-M:70:2d3
-A:50:0 to 10
-P:0:3d4:0:0:0
-F:EASY_KNOW
-E:CONFUSE
-
-N:359:Poison
-G:!:d
-I:75:54:0
-W:3:0:4:0
-M:70:2d3
-A:50:0 to 10
-P:0:3d4:0:0:0
-F:EASY_KNOW
-E:POISON
-
-N:360:Slowness
-G:!:d
-I:75:55:50
+N:48:Slowness
+G:!:v
+I:75:4:50:0
 W:1:0:4:0
-M:70:2d3
-A:50:0 to 10
-P:0:3d4:0:0:0
-F:EASY_KNOW
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:It will cause you to slow down for some turns.
 E:SLOW
-
-N:361:Lose Memories
-G:!:d
-I:75:56:0
-W:10:0:4:0
-A:50:10 to 15
+A:50:0 to 10
 F:EASY_KNOW
-E:LOSE_EXP
+M:70:2d3
 
-N:362:Salt Water
-G:!:d
-I:75:57:0
+N:49:Salt Water
+G:!:v
+I:75:5:0:0
 W:0:0:4:0
-M:100:1d2
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It tastes very vile, making you throw up. It will remove any poison
+D:from your body in this way.
+E:DRINK_SALT
 A:20:3 to 15
 F:EASY_KNOW
-E:DRINK_SALT
-
-
-### Weird one ###
-
-N:363:Dragon Breath
-G:!:d
-I:75:58:0
-W:0:0:4:0
 M:100:1d2
-A:10:40 to 100
+
+N:50:Poison
+G:!:v
+I:75:6:0:0
+W:3:0:4:0
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:It will poison you.
+E:POISON
+A:50:0 to 10
 F:EASY_KNOW
-E:DRINK_BREATH
+M:70:2d3
 
+N:51:Blindness
+G:!:v
+I:75:7:0:0
+W:0:0:4:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It will induce blindness.
+E:BLIND
+A:50:0 to 10
+F:EASY_KNOW
+M:70:2d3
 
+N:52:Fire
+G:!:v
+I:75:8:50:0
+W:0:0:4:50
+# A:<locale>0/<chance>1:<locale>1/<chance>1:<locale>3/<chance>1
+P:0:5d10:0:0:0
+F:BRAND_FIRE
+D:It will induce fire from your fingertips, sometimes branding your weapon.
+D:It does a lot of damage when thrown.
+E:FIRE_HAND
+
+N:53:Confusion
+G:!:v
+I:75:9:50:0
+W:0:0:4:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It will induce confusion.
+E:CONFUSE
+A:50:0 to 10
+F:EASY_KNOW
+M:70:2d3
+
+N:54:Cold
+G:!:v
+I:75:10:50:0
+W:0:0:4:50
+# A:<locale>0/<chance>1:<locale>1/<chance>1:<locale>3/<chance>1
+P:0:5d12:0:0:0
+F:BRAND_COLD
+D:It will induce cold from your fingertips, sometimes branding your weapon.
+D:It does a lot of damage when thrown.
+E:FROST_HAND
+
+N:55:Sleep
+G:!:v
+I:75:11:100:0
+W:0:0:4:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It will induce sleep.
+E:PARALYZE
+A:50:0 to 10
+F:EASY_KNOW
+M:70:2d3
+
+N:56:Acid
+G:!:v
+I:75:12:50:0
+W:0:0:4:50
+# A:<locale>0/<chance>1:<locale>1/<chance>1:<locale>3/<chance>1
+P:0:5d16:0:0:0
+F:BRAND_ACID
+D:It will induce acid from your fingertips, sometimes branding your weapon.
+D:It does a lot of damage when thrown.
+E:ACID_HAND
+
+N:57:Lose Memories
+G:!:v
+I:75:13:0:0
+W:10:0:4:0
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:You will lose carefully collected experiences with and knowledge about items.
+E:LOSE_EXP
+A:50:10 to 15
+F:EASY_KNOW
+
+N:58:Sparks
+G:!:v
+I:75:14:50:0
+W:0:0:4:50
+# A:<locale>0/<chance>1:<locale>1/<chance>1:<locale>3/<chance>1
+P:0:8d16:0:0:0
+F:BRAND_ELEC
+D:It will induce sparks from your fingertips, sometimes branding your weapon.
+D:It does a lot of damage when thrown.
+E:FIRE_HAND
+
+N:59:Ruination
+G:!:v
+I:75:15:0:0
+W:40:0:4:0
+# A:<locale>40/<chance>8
+P:0:1d1:0:0:0
+D:This potion will wither you and drain all your stats.
+E:DRINK_RUIN
+
+N:60:Weakness
+G:!:v
+I:75:16:0:0
+W:3:0:4:0
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your strength.
+E:LOSE_STR
+
+N:61:Stupidity
+G:!:v
+I:75:17:0:0
+W:20:0:4:0
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your intelligence.
+E:LOSE_INT
+
+N:62:Naivety
+G:!:v
+I:75:18:0:0
+W:20:0:4:0
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your wisdom.
+E:LOSE_WIS
+
+N:63:Clumsiness
+G:!:v
+I:75:19:0:0
+W:5:0:4:0
+# A:<locale>5/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your dexterity.
+E:LOSE_DEX
+
+N:64:Sickliness
+G:!:v
+I:75:20:0:0
+W:10:0:4:0
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your constitution.
+E:LOSE_CON
+
+N:65:Ugliness
+G:!:v
+I:75:21:0:0
+W:20:0:4:0
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:It will decrease your charisma.
+E:LOSE_CHR
+
+N:66:Detonations
+G:!:v
+I:75:22:0:0
+W:60:0:4:10000
+# A:<locale>60/<chance>8
+P:0:25d25:0:0:0
+D:This potion will let you explode from the inside. It also works that way when thrown.
+E:DRINK_DETONATE
+
+##### Extra potions #####
+
+N:67:Death
+G:!:v
+I:75:23:0:0
+W:55:0:4:0
+# A:<locale>55/<chance>4
+P:0:1d1:0:0:0
+D:This potion will kill you in an instant.
+E:DRINK_DEATH
+
+N:68:Infra-vision
+G:!:v
+I:75:24:0:0
+W:3:0:4:20
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This potion will make your eyes sensitive towards warm-blooded creatures, allowing you
+D:to detect them from afar.
+E:TMD_INFRA
+A:100:3 to 25
+
+N:69:Detect Invisible
+G:!:v
+I:75:25:0:0
+W:3:0:4:50
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This potion will cause you to detect invisible monsters for quite some time.
+E:TMD_SINVIS
+
+N:70:Slow Poison
+G:!:v
+I:75:26:0:0
+W:1:0:4:25
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:This potion will try to slow down any effects from poisonous residues lingering in your body.
+E:SLOW_POISON
+
+N:71:Neutralize Poison
+G:!:v
+I:75:27:0:0
+W:5:0:4:75
+# A:<locale>5/<chance>1
+P:0:1d1:0:0:0
+D:This potion will try to remove any poisonous residues lingering in your body.
+E:CURE_POISON
+A:100:1 to 35
+F:EASY_KNOW
+
+N:72:Boldness
+G:!:v
+I:75:28:0:0
+W:1:0:4:10
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:This potion will cause you to forget any fears lingering in your soul.
+E:CURE_PARANOIA
+A:100:1 to 100
+F:EASY_KNOW
+
+N:73:Speed
+G:!:v
+I:75:29:0:0
+W:1:0:4:75
+# A:<locale>1/<chance>40:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:It will speed you up for a while.
+E:HASTE
+A:100:1 to 100
+F:EASY_KNOW
+
+N:74:Resist Heat
+G:!:v
+I:75:30:0:0
+W:1:0:4:30
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:This potion will cause you to resist heat for quite some time.
+E:RESIST_FIRE
+A:100:1 to 100
+F:EASY_KNOW
+
+N:75:Resist Cold
+G:!:v
+I:75:31:0:0
+W:1:0:4:30
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+E:RESIST_COLD
+F:EASY_KNOW | RES_COLD | IGNORE_COLD
+D:This potion will cause you to resist cold for quite some time.
+A:100:1 to 100
+
+N:76:Heroism
+G:!:v
+I:75:32:0:0
+W:1:0:4:35
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:This potion will transform you into a hero for a few turns.
+E:HERO
+A:100:1 to 100
+F:EASY_KNOW
+
+N:77:Berserk Strength
+G:!:v
+I:75:33:0:0
+W:3:0:4:100
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This potions will induce you to attack without fear and regard
+D:for your own health for some time.
+E:SHERO
+A:100:3 to 100
+F:EASY_KNOW
+
+N:78:Cure Light Wounds
+G:!:v
+I:75:34:50:0
+W:0:0:4:15
+# A:<locale>0/<chance>1:<locale>1/<chance>1:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:It will cure light wounds.
+E:CURE_LIGHT
+A:100:1 to 15
+F:EASY_KNOW
+M:100:2d3
+
+N:79:Cure Serious Wounds
+G:!:v
+I:75:35:100:0
+W:3:0:4:40
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:It will cure serious wounds.
+E:CURE_SERIOUS
+A:100:4 to 40
+F:EASY_KNOW
+M:85:2d3
+
+N:80:Cure Critical Wounds
+G:!:v
+I:75:36:100:0
+W:5:0:4:100
+# A:<locale>5/<chance>1
+P:0:1d1:0:0:0
+D:It will cure critical wounds.
+E:CURE_CRITICAL
+A:105:12 to 100
+F:EASY_KNOW
+M:75:2d3
+
+N:81:Healing
+G:!:v
+I:75:37:200:0
+W:15:0:4:300
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:It will cure life-threatening wounds.
+E:CURE_FULL
+A:100:15 to 100
+F:EASY_KNOW
+
+N:82:*Healing*
+G:!:v
+I:75:38:0:0
+W:40:0:4:1500
+# A:<locale>40/<chance>4
+P:0:1d1:0:0:0
+D:This potion will bring you back from the brink of leaving this world,
+D:removing blindness, cuts, stunning, confusion and poison as well.
+E:CURE_FULL2
+A:35:40 to 100
+F:EASY_KNOW
+
+N:83:Life
+G:!:v
+I:75:39:0:0
+W:60:0:4:5000
+# A:<locale>60/<chance>4
+P:0:1d1:0:0:0
+D:This potion will bring you back from the brink of leaving this world,
+D:removing blindness, cuts, stunning, confusion and poison as well.
+D:It will also restore all your stats and your experience.
+E:CURE_NONORLYBIG
+A:40:60 to 100
+F:EASY_KNOW
+
+N:84:Restore Mana
+G:!:v
+I:75:40:0:0
+W:25:0:4:350
+# A:<locale>25/<chance>1
+P:0:1d1:0:0:0
+D:This potion will refresh you by bringing your mana back to it's maximum.
+E:RESTORE_MANA
+A:100:25 to 100
+F:EASY_KNOW
+
+N:85:Restore Life Levels
+G:!:v
+I:75:41:0:0
+W:40:0:4:400
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:This potion will restore any experience you may have lost in contact with
+D:life-draining creatures.
+E:RESTORE_EXP
+A:100:40 to 100
+F:EASY_KNOW
+
+N:86:Restore Strength
+G:!:v
+I:75:42:0:0
+W:25:0:4:300
+# A:<locale>12/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your strength.
+E:RESTORE_STR
+A:75:19 to 60
+F:EASY_KNOW
+
+N:87:Restore Intelligence
+G:!:v
+I:75:43:0:0
+W:25:0:4:300
+# A:<locale>12/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your intelligence.
+E:RESTORE_INT
+A:75:19 to 60
+F:EASY_KNOW
+
+N:88:Restore Wisdom
+G:!:v
+I:75:44:0:0
+W:25:0:4:300
+# A:<locale>12/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your wisdom.
+E:RESTORE_WIS
+A:75:20 to 60
+F:EASY_KNOW
+
+N:89:Restore Dexterity
+G:!:v
+I:75:45:0:0
+W:25:0:4:300
+# A:<locale>25/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your dexterity.
+E:RESTORE_DEX
+A:75:20 to 60
+F:EASY_KNOW
+
+N:90:Restore Constitution
+G:!:v
+I:75:46:0:0
+W:25:0:4:300
+# A:<locale>25/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your constitution.
+E:RESTORE_CON
+A:75:21 to 60
+F:EASY_KNOW
+
+N:91:Restore Charisma
+G:!:v
+I:75:47:0:0
+W:20:0:4:300
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:It will restore your charisma.
+E:RESTORE_CHR
+A:75:10 to 60
+F:EASY_KNOW
+
+N:92:Strength
+G:!:v
+I:75:48:0:0
+W:30:0:4:8000
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your strength.
+E:GAIN_STR
+A:90:30 to 100
+F:EASY_KNOW
+
+N:93:Intelligence
+G:!:v
+I:75:49:0:0
+W:30:0:4:8000
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your intelligence.
+E:GAIN_INT
+A:90:30 to 100
+F:EASY_KNOW
+
+N:94:Wisdom
+G:!:v
+I:75:50:0:0
+W:30:0:4:8000
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your wisdom.
+E:GAIN_WIS
+A:90:30 to 100
+F:EASY_KNOW
+
+N:95:Dexterity
+G:!:v
+I:75:51:0:0
+W:30:0:4:8000
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your dexterity.
+E:GAIN_DEX
+A:90:30 to 100
+F:EASY_KNOW
+
+N:96:Constitution
+G:!:v
+I:75:52:0:0
+W:30:0:4:8000
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your constitution.
+E:GAIN_CON
+F:EASY_KNOW
+
+N:97:Charisma
+G:!:v
+I:75:53:0:0
+W:20:0:4:1000
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your charisma.
+E:GAIN_CHR
+A:90:15 to 100
+F:EASY_KNOW
+
+N:98:Augmentation
+G:!:v
+I:75:55:0:0
+W:40:0:4:60000
+# A:<locale>40/<chance>16
+P:0:1d1:0:0:0
+D:This potion will try to increase all of your stats.
+E:GAIN_ALL
+A:20:40 to 100
+F:EASY_KNOW
+
+N:99:Enlightenment
+G:!:v
+I:75:56:0:0
+W:25:0:4:800
+# A:<locale>25/<chance>1
+P:0:1d1:0:0:0
+D:You will learn the layout of the entire level, lighting up every room
+D:and tunnel.
+E:ENLIGHTENMENT
+A:100:25 to 100
+F:EASY_KNOW
+
+N:100:*Enlightenment*
+G:!:v
+I:75:57:0:0
+W:70:0:4:80000
+# A:<locale>70/<chance>4
+P:0:1d1:0:0:0
+D:This potion will magically light up the entire level, revealing its layout to you,
+D:increase your intelligence and wisdom, detect traps, doors, stairs, treasure and
+D:other objects, identify everything you are carrying and reveal all your intrinsic
+D:qualities.
+E:ENLIGHTENMENT2
+A:20:70 to 100
+F:EASY_KNOW
+
+N:101:Self Knowledge
+G:!:v
+I:75:58:0:0
+W:40:0:4:2000
+# A:<locale>40/<chance>1
+P:0:1d1:0:0:0
+D:This potion will reveal all your intrinsic qualities.
+E:SELF_KNOW
+A:50:40 to 100
+F:EASY_KNOW
+
+N:102:Experience
+G:!:v
+I:75:59:0:0
+W:65:0:4:25000
+# A:<locale>65/<chance>1
+P:0:1d1:0:0:0
+D:It will increase your experience.
+E:GAIN_EXP
+A:100:65 to 100
+F:EASY_KNOW
+
+N:103:Mule Legs
+G:!:v
+I:75:60:0:0
+W:1:0:4:250
+# A:<locale>1/<chance>40:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:It will make able to carry heavy loads for a while.
+E:MULE_LEGS
+F:EASY_KNOW
+
+### Spell Pages ###
+
+N:104:Acid Ball
+# F:ACID_BALL
+G:?:b
+I:71:0:0:0
+W:40:0:5:0
+# A:<locale>62/<chance>5
+D:This spell will let you cast a large ball of acid at your enemies.
+
+#book Raal's Tome of Destruction - about 100/4
+# somewhat more common here!
+N:105:Acid Bolt
+# F:ACID_BOLT
+G:?:b
+I:71:1:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>5
+D:This spell will let you cast a powerful bolt of acid at your enemies.
+
+N:106:Alter Reality
+# F:ALTER_REALITY
+G:?:b
+I:71:2:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>2
+D:This spell will cause the current level to be rebuild around you.
+
+N:107:Annihilation
+# F:ANNIHILATION
+G:?:b
+I:71:3:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>5
+D:This spell will directly drain life-energy from a creature of your choice. Undead and
+D:Demons have no life to drain, however.
+
+N:108:Banishment
+# F:BANISHMENT
+G:?:b
+I:71:4:0:0
+W:40:0:5:0
+# A:<locale>74/<chance>5
+D:This spell will try to move evil monsters surrounding you to another place in the dungeon.
+
+N:109:Berserker
+# F:BERSERKER
+G:?:b
+I:71:5:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will enrage you like a true berserker for a while.
+
+N:110:Bless
+# F:BLESS
+G:?:b
+I:71:6:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:This spell will let you walk in the shadow of your God for a time.
+
+#book Ethereal Openings - about 40/1
+N:111:Blink
+# F:BLINK
+G:?:b
+I:71:7:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:This spell will teleport you some short distance away.
+
+N:112:Call Light
+# F:CALL_LIGHT
+G:?:b
+I:71:8:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>2
+D:This spell will call on your God to light up your surroundings.
+
+N:113:Chant
+# F:CHANT
+G:?:b
+I:71:9:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will offer a Chant to your God, thus ensuring your continued
+D:blessing from Above.
+
+N:114:Clairvoyance
+# F:CLAIRVOYANCE
+G:?:b
+I:71:10:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>2
+D:This spell will let holy light fill the entire level, lighting every room and tunnel.
+
+N:115:Cloud Kill
+# F:CLOUD_KILL
+G:?:b
+I:71:11:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>5
+D:This spell will let you cast a large ball of poison at your enemies.
+
+N:116:Create Complex Trap
+# F:CREATE_COMPLEX_TRAP
+G:?:b
+I:71:12:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>2
+D:This spell will allow you to create an high level trap, if you know the trap.
+
+N:117:Create Confusion
+# F:CREATE_CONFUSION
+G:?:b
+I:71:13:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>4
+D:This spell will allow you to create an very high level trap, if you know the trap.
+
+#book Conjuring and Tricks - about 10/1
+N:118:Create Dangerous Trap
+# F:CREATE_DANGEROUS_TRAP
+G:?:b
+I:71:14:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:The spell will let you confuse a specific monster with dreams, visions and strange realities.
+
+N:119:Create Death Trap
+# F:CREATE_DEATH_TRAP
+G:?:b
+I:71:15:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:This spell will allow you to create an higher level trap, if you know the trap.
+
+N:120:Create Effective Trap
+# F:CREATE_EFFECTIVE_TRAP
+G:?:b
+I:71:16:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>3
+D:This spell will allow you to create a complex trap, consisting of more traps,
+D:provided you know these traps.
+
+N:121:Create Simple Trap
+# F:CREATE_SIMPLE_TRAP
+G:?:b
+I:71:17:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will allow you to create a simple trap, if you know the trap.
+
+N:122:Cure Critical Wounds I
+# F:CURE_CRITICAL_WOUNDS
+G:?:b
+I:71:18:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will heal critical wounds and cuts. It will refresh stunned players.
+
+N:123:Cure Critical wounds II
+# F:CURE_CRITICAL_WOUNDS_II
+G:?:b
+I:71:19:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>1
+D:This spell will cure critical wounds and cuts in an easy way.
+
+N:124:Cure Light Wounds
+# F:CURE_LIGHT_WOUNDS
+G:?:b
+I:71:20:0:0
+W:40:0:5:250
+# A:<locale>5/<chance>1
+D:The spell will heal up to 2d8 hitpoints, and try to heal cuts as well.
+
+N:126:Cure Minor Wounds
+# F:CURE_MINOR_WOUNDS
+G:?:b
+I:71:22:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:This spell will heal small injuries and cuts.
+
+N:127:Cure Poison
+# F:CURE_POISON
+G:?:b
+I:71:23:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:The spell will let you purge yourself of poisonous residues.
+
+N:128:Cure Serious wounds I
+# F:CURE_SER_WOUNDS
+G:?:b
+I:71:24:0:0
+W:20:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will heal serious wounds and cuts.
+
+N:129:Cure Serious wounds II
+# F:CURE_SER_WOUNDS_II
+G:?:b
+I:71:25:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:This spell will heal serious wounds and cuts.
+
+N:130:Detect Doors Stairs
+# F:DETECT_DOORS_STAIRS
+G:?:b
+I:71:26:0:0
+W:40:0:5:100
+# A:<locale>5/<chance>1
+D:This spell will let your God reveal doors and stairs to you.
+
+N:131:Detect Enchantment
+# F:DETECT_ENCHANTMENT
+G:?:b
+I:71:27:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>1
+D:This spell will learn you the location of all enchanted items around you.
+
+N:132:Detect Evil
+# F:DETECT_EVIL
+G:?:b
+I:71:28:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:This spell will let your God show you the location of evil monsters lurking nearby.
+
+N:133:Detect Monsters
+# F:DETECT_MONSTERS
+G:?:b
+I:71:29:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:The spell will let you detect nearby monsters.
+
+N:134:Detection
+# F:DETECTION
+G:?:b
+I:71:30:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:This spell will learn you the location of treasure, objects, doors and traps.
+
+N:135:Dispel Curse
+# F:DISPEL_CURSE
+G:?:b
+I:71:31:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will remove curses on any item you are carrying or wielding.
+
+N:136:Dispel Evil I
+# F:DISPEL_EVIL
+G:?:b
+I:71:32:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:This spell will damage evil monsters surrounding you.
+
+N:137:Dispel Evil II
+# F:DISPEL_EVIL_II
+G:?:b
+I:71:33:0:0
+W:40:0:5:0
+# A:<locale>72/<chance>5
+D:This spell will severely damage evil monsters surrounding you.
+
+N:138:Dispel Undead I
+# F:DISPEL_UNDEAD
+G:?:b
+I:71:34:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:This spell will damage undead monsters surrounding you.
+
+#book Wrath of God - about 100/4
+#more common here
+N:139:Dispel Undead II
+# F:DISPEL_UNDEAD_II
+G:?:b
+I:71:35:0:0
+W:40:0:5:0
+# A:<locale>70/<chance>5
+D:This spell will severely damage undead monsters surrounding you.
+
+N:140:Divine Satiation
+# F:DIVINE_SATIATION
+G:?:b
+I:71:36:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will nourish you with heavenly food.
+
+#book Mordenkainen's Escapes - about 50/1
+N:141:Door Creation
+# F:DOOR_CREATION
+G:?:b
+I:71:37:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:The spell will create doors around you, shutting your enemies off.
+
+N:142:Earthquake
+# F:EARTHQUAKE
+G:?:b
+I:71:38:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:The spell will let you unleash an intense earthquake. Its center will be where you are.
+
+N:143:Elemental Brand
+# F:ELEMENTAL_BRAND
+G:?:b
+I:71:39:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>3
+D:This spell will try to enhance a weapon of your choice by granting it an elemental attack.
+
+N:144:Enchant Armor
+# F:ENCHANT_ARM
+G:?:b
+I:71:40:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will try to enhance a piece of armor of your choice in some way.
+
+N:145:Enchant Weapon
+# F:ENCHANT_WEAP
+G:?:b
+I:71:41:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>3
+D:This spell will try to enhance a weapon of your choice in some way.
+
+# Alternative name
+N:146:Escape Level
+# F:ESCAPE_LEVEL
+G:?:b
+I:71:42:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:This spell will cause you to instantly appear in another level of the dungeon.
+
+N:147:Essence of Speed
+# F:ESSENCE_OF_SPEED
+G:?:b
+I:71:43:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will speed up your actions, so you can do more in less time, for some short while.
+
+N:148:Find Traps
+# F:FIND_TRAPS
+G:?:b
+I:71:44:0:0
+W:40:0:5:70
+# A:<locale>5/<chance>2
+D:This spell will let your God reveal hidden traps to you.
+
+N:149:Find Traps/Doors
+# F:FIND_TRAPS_DOORS
+G:?:b
+I:71:45:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:The spell will let you detect nearby traps and doors, be they hidden or no.
+
+N:150:Fire Ball
+# F:FIRE_BALL
+G:?:b
+I:71:46:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:The spell will let you hurl a fiery ball at your enemies.
+
+N:151:Fire Bolt
+# F:FIRE_BOLT
+G:?:b
+I:71:47:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:The spell will let you cast a fiery bolt at a monster of your choice.
+
+#book Sorcery and Evocations - about 30/1
+N:152:Frost Ball
+# F:FROST_BALL
+G:?:b
+I:71:48:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:The spell will let you hurl a ball of cold at your enemies.
+
+N:153:Frost Bolt
+# F:FROST_BOLT
+G:?:b
+I:71:49:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:The spell will let you cast a ball of intense cold, to stop your enemies where they stand.
+
+N:154:Genocide
+# F:GENOCIDE
+G:?:b
+I:71:50:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>3
+D:The spell will let you wipe one race in this dungeon level, at a cost of up to 10% of
+D:monster level in hitpoints per monster.
+
+N:155:Glyph of Warding
+# F:GLYPH_OF_WARDING
+G:?:b
+I:71:51:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:It will inscibe a magic rune on the floor where you are standing that no monster
+D:will lightly pass.
+
+N:156:Haste Self
+# F:HASTE_SELF
+G:?:b
+I:71:52:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>2
+D:The spell will let you do more in less time, but beware of the addictive
+D:effects of this spell.
+
+N:157:Heal
+# F:HEAL
+G:?:b
+I:71:53:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>2
+D:This spell will heal majour wounds and cuts. If will completely refresh stunned players.
+
+N:158:Healing
+# F:HEALING
+G:?:b
+I:71:54:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>1
+D:This spell will completely heal even life-threatening wounds and cuts, and also
+D:relieve you of the effects of any stunning you may have.
+
+# Alternative name was Word of Destruction
+N:159:Heaven's Wrath
+# F:HEAVENS_WRATH
+G:?:b
+I:71:55:0:0
+W:40:0:5:0
+# A:<locale>76/<chance>5
+D:This spell will destroy the dungeon around you, pulling down walls and ceilings alike.
+
+N:160:Hell Fire
+# F:HELLFIRE
+G:?:b
+I:71:56:0:0
+W:40:0:5:0
+# A:<locale>70/<chance>5
+D:This spell will let you cast a large ball of pure energy at your enemies.
+
+#book Tenser's Transformations - about 80/2
+N:161:Heroism
+# F:HEROISM
+G:?:b
+I:71:57:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will transform you into a valorous hero for a short while.
+
+N:162:Holy Word
+# F:HOLY_WORD
+G:?:b
+I:71:58:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:This spell will let you invoke your God to damage evil monsters around you,
+D:completely heal even life-threatening wounds and cuts, remove any stunning
+D:effects you may have, remove any poisonous residues from your system and also
+D:remove fear if you are so afflicted.
+
+N:163:Ice Storm
+# F:ICE_STORM
+G:?:b
+I:71:59:0:0
+W:40:0:5:0
+# A:<locale>64/<chance>5
+D:This spell will let you cast a large ball of intense cold at your enemies.
+
+N:164:Identify
+# F:IDENTIFY
+G:?:b
+I:71:60:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:The spell will let you identify one item.
+
+N:165:Invulnerability
+# F:INVULNERABILITY
+G:?:b
+I:71:61:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>3
+D:This spell will create a magic shell around you, that your enemies must break down before
+D:they can strike at you in melee combat.
+
+N:166:Light Area
+# F:LIGHT_AREA
+G:?:b
+I:71:62:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:The spell will brighten up the area, doing damage do light-fearing creatures.
+
+N:167:Lightning Bolt
+# F:LIGHTNING_BOLT
+G:?:b
+I:71:63:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:The spell will let you cast a powerful lightning bolt to fry your foe.
+
+#
+# PAGES
+#
+
+# A: locale / chance
+# locale is measurement of "how good" an item is
+# chance : randint(chance) == 0 means item is generated
+
+# spell cost = scale * level * 100 * (1 (nat/item/self/world) or 2 (drk / escape / sense / other) or 3 (heal))
+# this is done in init2.c
+#G:char:color
+
+#book Magic for Beginners - about 5/1
+N:168:Magic Missile
+# F:MAGIC_MISSILE
+G:?:b
+I:71:64:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:The spell will create a magic missile.
+
+#book new spells
+N:169:Magic Reflection
+# F:MAGIC_REFLECTION
+G:?:b
+I:71:65:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>5
+D:This spell will create a magic shell around you, that will cause your enemies
+D:to strike themselves when they intended to dismember you in melee combat.
+
+N:170:Mass Genocide
+# F:MASS_GENOCIDE
+G:?:b
+I:71:66:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>3
+D:This spell will let you kill all monsters surrounding you, at a cost of up to 2
+D:times your player level per monster.
+
+N:171:Meteor Swarm
+# F:METEOR_SWARM
+G:?:b
+I:71:67:0:0
+W:40:0:5:0
+# A:<locale>66/<chance>5
+D:This spell will let you cast a large magic missile at your enemies.
+
+#book Chants and Blessings - about 20/1
+N:172:Neutralize Poison
+# F:NEUTRALIZE_POISON
+G:?:b
+I:71:68:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will remove any poisonous residues in your system.
+
+N:173:Object Detection
+# F:OBJECT_DETECTION
+G:?:b
+I:71:69:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:The spell will let you detect nearby objects.
+
+N:174:Orb of Draining
+# F:ORB_OF_DRAINING
+G:?:b
+I:71:70:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:This spell will strike a bolt of Divine Energy at a target of your choice. Both enemies and
+D:Items are affected.
+
+N:175:Perception
+# F:PERCEPTION
+G:?:b
+I:71:71:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:This spell will let you identify one object.
+
+N:176:Phase Door
+# F:PHASE_DOOR
+G:?:b
+I:71:72:0:0
+W:40:0:5:30
+# A:<locale>5/<chance>1
+D:The spell will let you teleport some short distance away.
+
+N:177:Polymorph Other
+# F:POLYMORPH_OTHER
+G:?:b
+I:71:73:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:The spell will allow you to transform a bothersome creature into something that
+D:is less bothersome.
+
+N:178:Portal
+# F:PORTAL
+G:?:b
+I:71:74:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will magically teleport you some short distance away.
+
+#book Exorcism & Dispelling - about 30/1
+N:179:Prayer
+# F:PRAYER
+G:?:b
+I:71:75:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:This spell will grant you a lot of goodwill from your God, making you blessed for
+D:quite some time.
+
+N:180:Probing
+# F:PROBING
+G:?:b
+I:71:76:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:This spell will reveal the current hitpoints and other information about a monster
+D:you see.
+
+N:181:Protection from Evil
+# F:PROTECTION_FROM_EVIL
+G:?:b
+I:71:77:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will keep evil monsters from attacking you in melee combat.
+
+# Alternative name
+N:182:Recharge Item I
+# F:RECHARGE_ITEM_I
+G:?:b
+I:71:78:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:The spell will let you recharge an item.
+
+N:183:Recharge Item II
+# F:RECHARGE_ITEM_II
+G:?:b
+I:71:79:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:The spell will let you recharge an item with a high chance of success.
+
+N:184:Recharge Item III
+# F:RECHARGE_ITEM_III
+G:?:b
+I:71:80:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>1
+D:The spell will let you recharge an item with a very high chance of success.
+
+N:185:Recharging
+# F:RECHARGING
+G:?:b
+I:71:81:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will recharge an item.
+
+N:186:Remembrance
+# F:REMEMBRANCE
+G:?:b
+I:71:82:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>2
+D:This spell will recall any experience you may have lost in contact with life-draining
+D:creatures.
+
+N:187:Remove Curse
+# F:REMOVE_CURSE
+G:?:b
+I:71:83:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will let your God lift a curse from one item.
+
+N:188:Remove Fear
+# F:REMOVE_FEAR
+G:?:b
+I:71:84:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>1
+D:This spell will let you fear nothing.
+
+N:189:Resist Acid
+# F:RESIST_ACID
+G:?:b
+I:71:85:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:The spell will cause you to resist acid for a short while.
+
+N:190:Resist Cold
+# F:RESIST_COLD
+G:?:b
+I:71:86:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:The spell will cause you to resist cold for a short while.
+
+#book Resistances and Scarabtarices - about 40/1
+N:191:Resist Fire
+# F:RESIST_FIRE
+G:?:b
+I:71:87:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:The spell will cause you to resist fire for a short while.
+
+N:192:Resist Heat/Cold
+# F:RESIST_HEAT_COLD
+G:?:b
+I:71:88:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:This spell will cause you to be protected from extreme cold as well as extreme heat for some time.
+
+N:193:Resist Poison
+# F:RESIST_POISON
+G:?:b
+I:71:89:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>1
+D:The spell will cause you to resist poison for a short while.
+
+N:194:Resistance
+# F:RESISTANCE
+G:?:b
+I:71:90:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>2
+D:The spell will cause you to resist fire, acid, cold and poison for a short while.
+A:12:60 to 100
+F:RES_FIRE | RES_ACID | RES_ELEC | RES_COLD | EASY_KNOW | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:195:Restoration
+# F:RESTORATION
+G:?:b
+I:71:91:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>2
+D:This spell will restore all of your stats to their normal values.
+
+N:196:Sanctuary
+# F:SANCTUARY
+G:?:b
+I:71:92:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:This spell will put to sleep any monster touching you at the moment.
+
+#book Incantations and Illusions - about 20/1
+N:197:Satisfy Hunger
+# F:SATISFY_HUNGER
+G:?:b
+I:71:93:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:The spell will feed you for quite some time.
+
+#book Kelek's Grimoire of Power - about 60/1
+# Alternative name
+N:198:Sense Evil
+# F:SENSE_EVIL
+G:?:b
+I:71:94:0:0
+W:40:0:5:0
+# A:<locale>60/<chance>1
+D:This spell will learn you the location of all evil monsters in the vicinity.
+
+N:199:Sense Invisible
+# F:SENSE_INVISIBLE
+G:?:b
+I:71:95:0:0
+W:40:0:5:30
+# A:<locale>20/<chance>1
+D:This spell will reveal all invisible monsters to your blessed eyes for a time.
+
+#book Godly Insights - about 50/1
+# Alternative name
+N:200:Sense Monsters
+# F:SENSE_MONSTERS
+G:?:b
+I:71:96:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:This spell will reveal the location of all monsters surrounding you.
+
+N:201:Sense Surroundings
+# F:SENSE_SURROUNDINGS
+G:?:b
+I:71:97:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:This spell will reveal the layout of the dungeon around you.
+
+N:202:Shake Ground
+# F:SHAKE_GROUND
+G:?:b
+I:71:98:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will cause an earthquake, with yourself in the center.
+
+N:203:Shield
+# F:SHIELD
+G:?:b
+I:71:99:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will magically enhance your armor for some short time.
+
+N:204:Sleep I
+# F:SLEEP_I
+G:?:b
+I:71:100:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:The spell will let try to let you put a nearby monster to sleep.
+
+N:205:Sleep II
+# F:SLEEP_II
+G:?:b
+I:71:101:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:The spell will let try hard to let you put a nearby monster to sleep.
+
+N:206:Sleep III
+# F:SLEEP_III
+G:?:b
+I:71:102:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:The spell will let try very hard to let you put a nearby monster to sleep.
+
+N:207:Slow Monster
+# F:SLOW_MONSTER
+G:?:b
+I:71:103:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>2
+D:The spell will slow down a monster of your choice.
+
+N:208:Slow Poison
+# F:SLOW_POISON
+G:?:b
+I:71:104:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>2
+D:This spell will try to reduce any poisonous residues in your system.
+
+N:209:Spear Of Light
+# F:SPEAR_OF_LIGHT
+G:?:b
+I:71:105:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:The spell will let you cast a ray of intense light in a direction of your choice,
+D:doing damage to light-fearing creatures.
+
+N:210:Stair Creation
+# F:STAIR_CREATION
+G:?:b
+I:71:106:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:The spell will create a stair on the spot, allowing you an easy escape route.
+
+N:211:Stinking Cloud
+# F:STINKING_CLOUD
+G:?:b
+I:71:107:0:0
+W:40:0:5:0
+# A:<locale>5/<chance>2
+D:The spell will let you cast a poisonous cloud to your foes.
+
+N:212:Teleport
+# F:TELEPORT
+G:?:b
+I:71:108:0:0
+W:40:0:5:80
+# A:<locale>40/<chance>1
+D:This spell will teleport you across the dungeon in an instant.
+
+N:213:Teleport Away
+# F:TELEPORT_AWAY
+G:?:b
+I:71:109:0:0
+W:40:0:5:0
+# A:<locale>40/<chance>2
+D:This spell will let your God magically move a monster of your choice to another place in the dungeon.
+
+N:214:Teleport Level
+# F:TELEPORT_LEVEL
+G:?:b
+I:71:110:0:0
+W:40:0:5:100
+# A:<locale>50/<chance>1
+D:This spell will transport you to another level in the dungeon.
+
+N:215:Teleport Other
+# F:TELEPORT_OTHER
+G:?:b
+I:71:111:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>2
+D:The spell will let you remove a monster from your sight.
+
+N:216:Teleport Self
+# F:TELEPORT_SELF
+G:?:b
+I:71:112:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:The spell will let you teleport to another location in the dungeon instantly.
+
+#book Word of Wisdom - about 10/1
+N:217:Terrify Creature
+# F:TERRIFY_CREATURE
+G:?:b
+I:71:113:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:This spell will inflict fear in a monster of your choice.
+
+N:218:Destruct Trap / Door
+# F:TRAP_DOOR_DESTRUCTION
+G:?:b
+I:71:114:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>1
+D:The spell will destroy any traps and doors surrounding you.
+
+N:219:Treasure Detection
+# F:TREASURE_DETECTION
+G:?:b
+I:71:115:0:0
+W:40:0:5:60
+# A:<locale>5/<chance>1
+D:The spell will let you detect nearby treasure.
+
+N:220:Turn Stone to Mud
+# F:TURN_STONE_TO_MUD
+G:?:b
+I:71:116:0:0
+W:40:0:5:0
+# A:<locale>10/<chance>2
+D:The spell will let you transform a wall into a puddle of mud, thus allowing you to
+D:boldy go where no one has gone before.
+
+N:221:Turn Undead
+# F:TURN_UNDEAD
+G:?:b
+I:71:117:0:0
+W:40:0:5:0
+# A:<locale>20/<chance>1
+D:This spell will let you try to return any visible undead to their rightfull place.
+
+#book Holy Infusions - about 80/2
+N:222:Unbarring Ways
+# F:UNBARRING_WAYS
+G:?:b
+I:71:118:0:0
+W:40:0:5:0
+# A:<locale>80/<chance>2
+D:This spell will destroy all doors you are currently touching.
+
+N:223:Word of Destruction
+# F:WORD_OF_DESTRUCTION
+G:?:b
+I:71:119:0:0
+W:40:0:5:0
+# A:<locale>30/<chance>1
+D:The spell will let you unleash a small earthquake. Its center will be where you are.
+
+N:224:Word of Recall
+# F:WORD_OF_RECALL
+G:?:b
+I:71:120:0:0
+W:40:0:5:0
+# A:<locale>50/<chance>1
+D:This spell will cause you to be magically recalled to the town some short time from now.
+
+### Scrolls ###
+
+N:225:Darkness
+G:?:w
+I:70:0:0:0
+W:1:0:5:0
+# A:<locale>1/<chance>1
+D:It will darken the area surrounding you.
+E:DARKNESS
+A:100:1 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:226:Aggravate Monster
+G:?:w
+I:70:1:0:0
+W:5:0:5:0
+# A:<locale>5/<chance>1
+D:You will aggravate nearby monsters after reading this for quite some time.
+E:ANNOY_MON
+A:100:5 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:227:Curse Armor
+G:?:w
+I:70:2:0:0
+W:50:0:5:0
+# A:<locale>50/<chance>1
+D:It curses your armor.
+E:CURSE_ARMOR
+F:EASY_KNOW
+
+N:228:Curse Weapon
+G:?:w
+I:70:3:0:0
+W:50:0:5:0
+# A:<locale>50/<chance>1
+D:It curses your weapon.
+E:CURSE_WEAPON
+A:100:50 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:229:Summon Monster
+G:?:w
+I:70:4:0:0
+W:1:0:5:0
+# A:<locale>1/<chance>1
+D:It will summon a monster.
+E:SUMMON_MON
+A:100:1 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:230:Summon Undead
+G:?:w
+I:70:5:0:0
+W:15:0:5:0
+# A:<locale>15/<chance>1
+D:It will let you summon an undead monster.
+E:SUMMON_UNDEAD
+A:100:15 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:231:Treasure Creation
+G:?:w
+I:70:6:0:0
+W:20:0:5:50
+# A:<locale>20/<chance>1
+D:It will create treasure right in front of you.
+E:CREATE_TREASURE
+F:EASY_KNOW
+
+N:232:Trap Creation
+G:?:w
+I:70:7:0:0
+W:10:0:5:15
+# A:<locale>10/<chance>1
+D:If allows you to create traps on any floor surrounding you.
+E:CREATE_TRAP
+A:100:10 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:233:Phase Door
+G:?:w
+I:70:8:0:0
+W:1:0:5:15
+# A:<locale>1/<chance>1
+D:It will let you teleport a short way off.
+E:TELE_PHASE
+A:100:1 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:234:Teleportation
+G:?:w
+I:70:9:0:0
+W:10:0:5:40
+# A:<locale>10/<chance>1
+D:It will instantly transport you to another location in the dungeon.
+E:TELE_LONG
+A:100:10 to 100
+F:EASY_KNOW
+
+N:235:Teleport Level
+G:?:w
+I:70:10:0:0
+W:20:0:5:50
+# A:<locale>20/<chance>1
+D:It will instantly transport you to another level in the dungeon.
+E:TELE_LEVEL
+A:100:20 to 100
+F:EASY_KNOW
+
+N:236:Word of Recall
+G:?:w
+I:70:11:0:0
+W:5:0:5:150
+# A:<locale>5/<chance>1
+D:You will be magically recalled to the town some short time from now.
+E:RECALL
+A:100:5 to 100
+F:EASY_KNOW
+
+N:237:Identify
+G:?:w
+I:70:12:0:0
+W:1:0:5:50
+# A:<locale>1/<chance>1:<locale>5/<chance>1:<locale>10/<chance>1:<locale>30/<chance>1
+D:It will let you identify one item.
+E:IDENTIFY
+A:100:5 to 100
+F:EASY_KNOW
+
+N:239:Remove Curse
+G:?:w
+I:70:14:0:0
+W:10:0:5:100
+# A:<locale>10/<chance>1
+D:It will remove a curse from one item.
+E:REMOVE_CURSE
+A:100:10 to 100
+F:EASY_KNOW
+
+N:240:*Remove Curse*
+G:?:w
+I:70:15:0:0
+W:50:0:5:8000
+# A:<locale>50/<chance>2
+D:It will remove a *curse* from an item.
+E:REMOVE_CURSE2
+A:50:50 to 100
+F:EASY_KNOW
+
+N:241:Enchant Armor
+G:?:w
+I:70:16:0:0
+W:15:0:5:125
+# A:<locale>15/<chance>1
+D:It lets you enhance the ac bonus of armor, some rings and some amulets.
+E:ENCHANT_ARMOR
+F:EASY_KNOW
+
+##### Scrolls #####
+
+N:242:Enchant Weapon To-Hit
+G:?:w
+I:70:17:0:0
+W:15:0:5:125
+# A:<locale>15/<chance>1
+D:It lets you enhance the to-hit bonus of weapons, rings and some armor types.
+E:ENCHANT_TOHIT
+A:100:15 to 100
+F:EASY_KNOW
+
+N:243:Enchant Weapon To-Dam
+G:?:w
+I:70:18:0:0
+W:15:0:5:125
+# A:<locale>15/<chance>1
+D:It lets you enhance the to-dam bonus of weapons, rings and some armor types.
+E:ENCHANT_TODAM
+A:100:15 to 100
+F:EASY_KNOW
+
+N:244:*Enchant Armor*
+G:?:w
+I:70:20:0:0
+W:50:0:5:500
+# A:<locale>50/<chance>50:<locale>50/<chance>1
+D:It lets you greatly enhance the ac bonus of armor, some rings and some amulets.
+E:ENCHANT_ARMOR2
+F:EASY_KNOW
+
+N:245:*Enchant Weapon*
+G:?:w
+I:70:21:0:0
+W:50:0:5:500
+# A:<locale>50/<chance>1
+D:It lets you greatly enhance the to-dam bonus of weapons, rings and some armor types.
+E:ENCHANT_WEAPON
+A:100:50 to 100
+F:EASY_KNOW
+
+## XXX 205 XXX ##
+
+N:246:Recharging
+G:?:w
+I:70:22:0:0
+W:40:0:5:200
+# A:<locale>40/<chance>1
+D:It will let you recharge one item, staff, wand or rod.
+E:RECHARGE
+A:100:40 to 100
+F:EASY_KNOW
+
+N:247:Magic Mapping
+G:?:w
+I:70:25:0:0
+W:5:0:5:40
+# A:<locale>5/<chance>1
+D:You will learn the layout of the surrounding dungeons.
+E:MAPPING
+A:100:5 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:248:Treasure Detection
+G:?:w
+I:70:26:0:0
+W:0:0:5:15
+# A:<locale>0/<chance>1
+D:It will let you know if there is any treasure in the dungeon around you.
+E:DETECT_TREASURE
+A:100:0 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:249:Object Detection
+G:?:w
+I:70:27:0:0
+W:0:0:5:15
+# A:<locale>0/<chance>1
+D:It will let you know if there are any objects in the dungeon around you.
+E:DETECT_OBJECT
+F:EASY_KNOW
+
+N:250:Light
+G:?:w
+I:70:24:0:0
+W:0:0:5:15
+# A:<locale>0/<chance>1:<locale>3/<chance>1:<locale>10/<chance>1
+D:It will lighten up your surroundings, doing damage do light-fearing creatures.
+E:LIGHT
+A:100:0 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:251:Trap Detection
+G:?:w
+I:70:28:0:0
+W:5:0:5:35
+# A:<locale>5/<chance>10:<locale>5/<chance>1
+D:It will let you know if there are any (hidden) traps in the dungeon around you.
+E:DETECT_TRAP
+A:100:0 to 100
+F:EASY_KNOW
+M:70:1d3
+
+## XXX 195 XXX ##
+
+## XXX 196 XXX ##
+
+N:252:Door/Stair Location
+G:?:w
+I:70:29:0:0
+W:5:0:5:35
+# A:<locale>5/<chance>1:<locale>10/<chance>1:<locale>15/<chance>1
+D:It will learn you the location of doors and stairs in the vicinity.
+E:DETECT_DOORSTAIR
+A:100:5 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:253:Detect Invisible
+G:?:w
+I:70:30:0:0
+W:1:0:5:15
+# A:<locale>1/<chance>1
+D:It will let you see invisible monsters for a while.
+E:DETECT_INVIS
+A:100:1 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:254:Satisfy Hunger
+G:?:w
+I:70:32:0:0
+W:5:0:5:10
+# A:<locale>5/<chance>1
+D:It will keep you nourished for quite some time.
+E:SATISFY
+A:100:5 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:255:Blessing
+G:?:w
+I:70:33:0:0
+W:1:0:5:15
+# A:<locale>1/<chance>1
+D:You will walk with the favor of your God for a while.
+E:BLESSING
+A:100:1 to 100
+F:EASY_KNOW
+M:70:1d3
+
+N:256:Holy Chant
+G:?:w
+I:70:34:0:0
+W:10:0:5:40
+# A:<locale>10/<chance>1
+D:You will walk with the favor of your God for some time.
+E:BLESSING2
+A:100:10 to 100
+F:EASY_KNOW
+
+N:257:Holy Prayer
+G:?:w
+I:70:35:0:0
+W:25:0:5:80
+# A:<locale>25/<chance>1
+D:You will walk with the favor of your God for quite some time.
+E:BLESSING3
+A:100:25 to 100
+F:EASY_KNOW
+
+N:258:Monster Confusion
+G:?:w
+I:70:36:0:0
+W:5:0:5:30
+# A:<locale>5/<chance>1
+D:The next monster you touch will have a high chance of being confused for a while.
+E:CONFUSING
+A:100:5 to 100
+F:EASY_KNOW
+
+N:259:Protection from Evil
+G:?:w
+I:70:37:0:0
+W:30:0:5:50
+# A:<locale>30/<chance>1
+D:It will keep evil monsters from attacking you in melee combat.
+E:PROTEVIL
+A:100:30 to 100
+F:EASY_KNOW
+
+N:260:Rune of Protection
+G:?:w
+I:70:38:0:0
+W:60:0:5:500
+# A:<locale>60/<chance>90:<locale>60/<chance>4
+D:It will inscibe a magic rune on the floor where you are standing that no monster
+D:will lightly pass.
+E:RUNE
+A:50:70 to 100
+F:EASY_KNOW
+
+N:261:Trap/Door Destruction
+G:?:w
+I:70:39:0:0
+W:10:0:5:50
+# A:<locale>10/<chance>1
+D:It will destruct all doors and traps next to you.
+E:DESTROY_TDOORS
+A:100:10 to 100
+F:EASY_KNOW
+
+N:262:*Destruction*
+G:?:w
+I:70:41:0:0
+W:40:0:5:250
+# A:<locale>40/<chance>1
+D:This spell will destroy the dungeon around you, pulling down walls and ceilings alike.
+E:DESTRUCTION2
+A:100:40 to 100
+F:EASY_KNOW
+
+N:263:Dispel Undead
+G:?:w
+I:70:42:0:0
+W:40:0:5:200
+# A:<locale>40/<chance>1
+D:It will damage undead monsters surrounding you.
+E:DISPEL_UNDEAD
+A:100:40 to 100
+F:EASY_KNOW
+
+N:264:Genocide
+G:?:w
+I:70:44:0:0
+W:40:0:5:750
+# A:<locale>40/<chance>4
+D:It will let you wipe one race in this dungeon level, at a cost of up to 10% of
+D:monster level in hitpoints per monster.
+E:BANISHMENT
+F:EASY_KNOW
+
+N:265:Mass Genocide
+G:?:w
+I:70:45:0:0
+W:50:0:5:1000
+# A:<locale>50/<chance>4
+D:It will let you kill all monsters surrounding you, at a cost of up to 2
+D:times your player level per monster.
+E:LOSKILL
+F:EASY_KNOW
+
+N:266:Acquirement
+G:?:w
+I:70:46:0:0
+W:20:0:5:100000
+# A:<locale>20/<chance>8
+D:It will create an exclusive object right in front of you.
+E:ACQUIRE
+A:12:20 to 100
+F:EASY_KNOW
+
+N:267:*Acquirement*
+G:?:w
+I:70:47:0:0
+W:60:0:5:200000
+# A:<locale>60/<chance>16
+D:It will create some exclusive objects right in front of you.
+E:ACQUIRE2
+A:6:60 to 100
+F:EASY_KNOW
+
+##### Here are the Rods #####
+
+## XXX 350 XXX ##
+
+N:268:Trap Location
+G:-:D
+I:66:0:0:0
+W:5:0:15:100
+# A:<locale>5/<chance>1
+P:0:1d1:0:0:0
+D:This rod will reveal the location of traps around you.
+E:DETECT_TRAP:50
+A:100:8 to 100
+F:EASY_KNOW
+
+N:269:Door/Stair Location
+G:-:D
+I:66:1:0:0
+W:15:0:15:1000
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:This rod will reveal the location of doors and stairs around you.
+E:DETECT_DOORSTAIR:70
+A:100:8 to 100
+F:EASY_KNOW
+
+N:270:Perception
+G:-:D
+I:66:2:0:0
+W:50:0:15:13000
+# A:<locale>50/<chance>8
+P:0:1d1:0:0:0
+D:This rod will let you identify one item.
+E:IDENTIFY
+F:EASY_KNOW
+
+N:271:Recall
+G:-:D
+I:66:3:0:0
+W:30:0:15:4000
+# A:<locale>30/<chance>4
+P:0:1d1:0:0:0
+D:This rod will magically recall you to the town some short time from now.
+E:RECALL:60
+A:25:30 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:272:Illumination
+G:-:D
+I:66:4:0:0
+W:20:0:15:1000
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:This rod will light up the area around you, doing damage to light-sensitive creatures.
+E:LIGHT:30
+A:100:20 to 100
+F:EASY_KNOW
+
+N:273:Enlightenment
+G:-:D
+I:66:5:0:0
+W:65:0:15:10000
+# A:<locale>65/<chance>4
+P:0:1d1:0:0:0
+D:This rod will light up the entire level, revealing it's layout to you.
+E:ENLIGHTENMENT
+F:EASY_KNOW
+
+N:274:Detection
+G:-:D
+I:66:6:0:0
+W:30:0:15:5000
+# A:<locale>30/<chance>8
+P:0:1d1:0:0:0
+D:This rod will learn you the location of treasure, objects, doors and traps.
+E:DETECT_ALL:100
+A:12:30 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:275:Probing
+G:-:D
+I:66:7:0:0
+W:40:0:15:4000
+# A:<locale>40/<chance>4
+P:0:1d1:0:0:0
+D:This rod will reveal the current hitpoints and other information about a monster
+D:you see.
+E:PROBING:100
+A:50:35 to 100
+F:EASY_KNOW
+
+N:276:Curing
+G:-:D
+I:66:8:0:0
+W:65:0:15:15000
+# A:<locale>65/<chance>8
+P:0:1d1:0:0:0
+D:This rod will not heal wounds, but will cure stunning, cuts, blindness, confusion
+D:and poison.
+E:CURE_TEMP:100
+A:35:20 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:277:Healing
+G:-:D
+I:66:9:0:0
+W:80:0:15:20000
+# A:<locale>80/<chance>8
+P:0:1d1:0:0:0
+D:This staff will heal life-threatening wounds, and will also cure stunning and cuts.
+E:HEAL3:1000
+A:12:80 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:278:Restoration
+G:-:D
+I:66:10:0:0
+W:80:0:15:25000
+# A:<locale>80/<chance>16
+P:0:1d1:0:0:0
+D:This rod will restore all of your stats to their normal values, and also restore
+D:your experience if necessary.
+E:RESTORE_ST_LEV:1000
+A:6:80 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:279:Speed
+G:-:D
+I:66:11:0:0
+W:95:0:15:50000
+# A:<locale>95/<chance>16
+P:0:1d1:0:0:0
+D:This rod will grant you a temporary speed bonus.
+E:HASTE:100
+A:12:95 to 100
+F:EASY_KNOW | IGNORE_ELEC
+
+N:280:Polymorph
+G:-:D
+I:66:26:0:0
+W:35:0:15:1200
+# A:<locale>35/<chance>1
+P:0:1d1:0:0:0
+D:This rod will transform a monster into another, perhaps more peaceful, monster.
+E:POLYMORPH:25
+A:100:35 to 100
+F:EASY_KNOW
+
+N:281:Teleport Other
+G:-:D
+I:66:20:0:0
+W:45:0:15:1400
+# A:<locale>45/<chance>2
+P:0:1d1:0:0:0
+D:This rod will teleport a bothersome creature to another, random, location in the dungeon.
+E:TELE_OTHER:25
+A:50:45 to 100
+F:EASY_KNOW
+
+N:282:Disarming
+G:-:D
+I:66:21:0:0
+W:35:0:15:2100
+# A:<locale>35/<chance>1
+P:0:1d1:0:0:0
+D:This rod will disarm a trap of your choice.
+E:DISARMING:30
+A:100:35 to 100
+F:EASY_KNOW
+
+N:283:Sleep Monster
+G:-:D
+I:66:23:0:0
+W:30:0:15:1500
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:This rod try to put a monster of your choice to sleep.
+E:MON_SLEEP:18
+A:100:30 to 100
+F:EASY_KNOW
+
+N:284:Light
+G:-:D
+I:66:22:0:0
+W:10:0:15:500
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful ray of light, doing damage to light-sensitive creatures.
+E:LIGHT_LINE:9
+A:100:8 to 100
+F:EASY_KNOW
+
+N:285:Slow Monster
+G:-:D
+I:66:24:0:0
+W:30:0:15:1500
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:This rod will slow down a monster of your choice.
+E:MON_SLOW:20
+A:100:30 to 100
+F:EASY_KNOW
+
+N:286:Drain Life
+G:-:D
+I:66:25:0:0
+W:75:0:15:3600
+# A:<locale>75/<chance>4
+P:0:1d1:0:0:0
+D:This rod will drain pure life-energy from a monster, but Undead and Demons
+D:have no life energy to drain.
+E:DRAIN_LIFE3:23
+A:25:75 to 100
+F:EASY_KNOW
+
+N:287:Acid Bolts
+G:-:D
+I:66:27:0:0
+W:40:0:15:3500
+# A:<locale>40/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful bolt of lightning.
+E:ACID_BOLT3:12
+A:100:40 to 100
+F:EASY_KNOW
+
+N:288:Lightning Bolts
+G:-:D
+I:66:28:0:0
+W:20:0:15:2000
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful bolt of lightning.
+E:ELEC_BOLT:11
+A:100:20 to 100
+F:EASY_KNOW
+
+N:289:Fire Bolts
+G:-:D
+I:66:29:0:0
+W:30:0:15:3000
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful bolt of fire.
+E:FIRE_BOLT2:15
+A:100:30 to 100
+F:EASY_KNOW
+
+N:290:Frost Bolts
+G:-:D
+I:66:30:0:0
+W:25:0:15:2500
+# A:<locale>25/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful bolt of cold.
+E:COLD_BOLT2:13
+A:100:25 to 100
+F:EASY_KNOW
+
+N:291:Acid Balls
+G:-:D
+I:66:31:0:0
+W:70:0:15:5500
+# A:<locale>70/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful ball of acid.
+E:ACID_BALL:27
+A:100:70 to 100
+F:EASY_KNOW
+
+N:292:Lightning Balls
+G:-:D
+I:66:32:0:0
+W:55:0:15:4000
+# A:<locale>55/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful ball of lightning.
+E:ELEC_BALL:23
+A:100:55 to 100
+F:EASY_KNOW
+
+N:293:Fire Balls
+G:-:D
+I:66:33:0:0
+W:75:0:15:5000
+# A:<locale>75/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful ball of fire.
+E:FIRE_BALL:30
+A:100:75 to 100
+F:IGNORE_FIRE | EASY_KNOW
+
+N:294:Cold Balls
+G:-:D
+I:66:34:0:0
+W:60:0:15:4500
+# A:<locale>60/<chance>1
+P:0:1d1:0:0:0
+D:This rod will emit a powerful ball of cold.
+E:COLD_BALL100:25
+A:100:60 to 100
+F:EASY_KNOW
+
+# JK - rod of trap identification
+#
+N:295:Trap Identification
+G:-:D
+I:66:35:0:0
+W:65:0:15:10000
+# A:<locale>65/<chance>4
+P:0:1d1:0:0:0
+D:This rod will identify one trap-type for you, making it much easier to avoid it
+D:the next time.
+E:IDENTIFY_TRAP
+F:EASY_KNOW
+
+# the Rod of Clear Thinking
+N:296:& Ancient Rod~
+G:-:r
+I:66:45:0:0
+W:50:0:2:45000
+F:INSTA_ART
+
+# the Rod of Dreams
+N:297:& Ancient Rod~
+G:-:r
+I:66:46:0:0
+W:50:0:2:45000
+F:INSTA_ART
+
+# the Rod of Escape
+N:298:& Ancient Rod~
+G:-:r
+I:66:47:0:0
+W:50:0:2:45000
+F:INSTA_ART
+
+# the Rod of Plenty
+N:299:& Ancient Rod~
+G:-:r
+I:66:48:0:0
+W:50:0:2:45000
+F:INSTA_ART
+
+# the Rod of Knowledge
+N:300:& Ancient Rod~
+G:-:r
+I:66:49:0:0
+W:50:0:2:45000
+F:INSTA_ART
+
+N:301:Heal Monster
+G:-:D
+I:65:0:0:0
+W:3:0:10:0
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This wand will restore the hitpoints of a monster to their maximum.
+E:MON_HEAL
+C:8+d20
+A:50:3 to 13
+F:EASY_KNOW
+
+N:302:Haste Monster
+G:-:D
+I:65:1:0:0
+W:3:0:10:0
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This wand will speed up a monster.
+E:MON_HASTE
+C:8+d20
+A:50:3 to 13
+F:EASY_KNOW
+
+N:303:Clone Monster
+G:-:D
+I:65:2:0:0
+W:15:0:10:0
+# A:<locale>15/<chance>50:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:This wand will duplicate a monster.
+E:MON_CLONE
+C:3+d5
+A:100:15 to 100
+F:EASY_KNOW
+
+N:304:Teleport Other
+G:-:D
+I:65:3:0:0
+W:20:0:10:350
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:This wand will magically teleport one monster to another spot in the dungeon.
+E:TELE_OTHER
+C:6+d5
+A:100:20 to 100
+F:EASY_KNOW
+
+N:305:Disarming
+G:-:D
+I:65:4:0:0
+W:20:0:10:700
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:This wand will disarm one trap.
+E:DISARMING
+C:4+d5
+A:100:20 to 100
+F:EASY_KNOW
+
+N:306:Trap/Door Destruction
+G:-:D
+I:65:5:0:0
+W:10:0:10:100
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:This wand will destroy a door or trap of your choice.
+E:TDOOR_DEST
+C:6+d8
+A:100:10 to 100
+F:EASY_KNOW
+
+N:307:Stone to Mud
+G:-:D
+I:65:6:0:0
+W:10:0:10:300
+# A:<locale>10/<chance>1
+P:0:1d1:0:0:0
+D:This wand will turn almost any wall into a puddle of mud.
+E:STONE_TO_MUD
+C:3+d4
+A:100:10 to 100
+F:EASY_KNOW
 
 ##### Wands #####
 
-### Bolts ###
-
-N:370:Magic Missile
-G:-:d
-I:65:1:0
+N:308:Light
+G:-:D
+I:65:7:0:0
 W:3:0:10:200
-A:100:3 to 100
+# A:<locale>3/<chance>1
 P:0:1d1:0:0:0
-C:6+d10
-F:EASY_KNOW
-E:MISSILE
-
-N:371:Lightning Bolts
-G:-:d
-I:65:2:0
-W:15:0:10:600
-A:100:15 to 100
-P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:ELEC_BOLT
-
-N:372:Frost Bolts
-G:-:d
-I:65:3:0
-W:20:0:10:800
-A:100:20 to 100
-P:0:1d1:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:COLD_BOLT
-
-N:373:Fire Bolts
-G:-:d
-I:65:4:0
-W:30:0:10:1000
-A:100:30 to 100
-P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:FIRE_BOLT2
-
-N:374:Acid Bolts
-G:-:d
-I:65:5:0
-W:30:0:10:950
-A:100:30 to 100
-P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:ACID_BOLT2
-
-
-### Balls ###
-
-N:375:Stinking Cloud
-G:-:d
-I:65:6:0
-W:5:0:10:400
-A:100:5 to 100
-P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:STINKING_CLOUD
-
-N:376:Lightning Balls
-G:-:d
-I:65:7:0
-W:35:0:10:1200
-A:100:35 to 100
-P:0:1d1:0:0:0
-C:4+d8
-F:IGNORE_ELEC | EASY_KNOW
-E:ELEC_BALL
-
-N:377:Cold Balls
-G:-:d
-I:65:8:0
-W:40:0:10:1500
-A:100:40 to 100
-P:0:1d1:0:0:0
-C:2+d6
-F:IGNORE_COLD | EASY_KNOW
-E:COLD_BALL100
-
-N:378:Fire Balls
-G:-:d
-I:65:9:0
-W:50:0:10:1800
-A:100:50 to 100
-P:0:1d1:0:0:0
-C:2+d4
-F:IGNORE_FIRE | EASY_KNOW
-E:FIRE_BALL
-
-N:379:Acid Balls
-G:-:d
-I:65:10:0
-W:50:0:10:1650
-A:100:50 to 100
-P:0:1d1:0:0:0
-C:2+d5
-F:IGNORE_ACID | EASY_KNOW
-E:ACID_BALL
-
-
-### Monster status changing ###
-
-N:380:Slow Monster
-G:-:d
-I:65:11:0
-W:5:0:10:500
-A:100:5 to 100
-P:0:1d1:0:0:0
-C:6+d10
-F:EASY_KNOW
-E:MON_SLOW
-
-N:381:Confuse Monster
-G:-:d
-I:65:12:0
-W:5:0:10:500
-A:100:5 to 100
-P:0:1d1:0:0:0
-C:6+d12
-F:EASY_KNOW
-E:MON_CONFUSE
-
-N:382:Sleep Monster
-G:-:d
-I:65:13:0
-W:5:0:10:500
-A:100:5 to 100
-P:0:1d1:0:0:0
-C:8+d15
-F:EASY_KNOW
-E:MON_SLEEP
-
-N:383:Scare Monster
-G:-:d
-I:65:14:0
-W:10:0:10:500
-A:25:10 to 100
-P:0:1d1:0:0:0
-C:3+d5
-F:EASY_KNOW
-E:MON_SCARE
-
-
-### Utility ###
-
-N:384:Light
-G:-:d
-I:65:15:0
-W:3:0:10:200
-A:100:3 to 20
-P:0:1d1:0:0:0
-C:6+d10
-F:EASY_KNOW
+D:This wand will shoot out a ray of powerful light.
 E:LIGHT_LINE
-
-N:385:Stone to Mud
-G:-:d
-I:65:16:0
-W:10:0:10:300
-A:100:10 to 100
-P:0:1d1:0:0:0
-C:3+d4
+C:6+d10
+A:100:3 to 20
 F:EASY_KNOW
-E:STONE_TO_MUD
 
-N:386:Polymorph
-G:-:d
-I:65:17:0
-W:20:0:10:400
-A:100:20 to 100
+N:309:Sleep Monster
+G:-:D
+I:65:8:0:0
+W:5:0:10:500
+# A:<locale>5/<chance>1
 P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:POLYMORPH
-
-N:387:Trap/Door Destruction
-G:-:d
-I:65:18:0
-W:10:0:10:100
-A:100:10 to 100
-P:0:1d1:0:0:0
-C:6+d8
-F:EASY_KNOW
-E:TDOOR_DEST
-
-N:388:Clone Monster
-G:-:d
-I:65:19:0
-W:15:0:10:0
-A:100:15 to 100
-P:0:1d1:0:0:0
-C:3+d5
-F:EASY_KNOW
-E:MON_CLONE
-
-N:389:Teleport Other
-G:=:d
-I:65:20:0
-W:20:0:10:350
-A:100:20 to 100
-P:0:1d1:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:TELE_OTHER
-
-N:390:Disarming
-G:-:d
-I:65:21:0
-W:20:0:10:700
-A:100:20 to 100
-P:0:1d1:0:0:0
-C:4+d5
-F:EASY_KNOW
-E:DISARMING
-
-N:391:Wonder
-G:-:d
-I:65:22:0
-W:3:0:10:250
-A:100:3 to 100
-P:0:1d1:0:0:0
+D:This wand will try to put a monster to sleep.
+E:MON_SLEEP
 C:8+d15
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-E:WONDER
+A:100:5 to 100
+F:EASY_KNOW
 
-
-
-### Dragons' wands ###
-
-N:392:Dragon's Flame
-G:-:d
-I:65:23:0
-W:50:0:10:2400
-A:25:50 to 100
+N:310:Slow Monster
+G:-:D
+I:65:9:0:0
+W:5:0:10:500
+# A:<locale>5/<chance>1
 P:0:1d1:0:0:0
-C:1+d3
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-E:FIRE_BALL200
+D:This wand will slow down a monster.
+E:MON_SLOW
+C:6+d10
+A:100:5 to 100
+F:EASY_KNOW
 
-N:393:Dragon's Frost
-G:-:d
-I:65:24:0
-W:50:0:10:2400
-A:25:50 to 100
+N:311:Confuse Monster
+G:-:D
+I:65:10:0:0
+W:5:0:10:500
+# A:<locale>5/<chance>1
 P:0:1d1:0:0:0
-C:1+d3
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-E:COLD_BALL160
+D:This wand will confuse a monster.
+E:MON_CONFUSE
+C:6+d12
+A:100:5 to 100
+F:EASY_KNOW
 
-N:394:Dragon's Breath
-G:-:d
-I:65:25:0
-W:60:0:10:2400
-A:25:60 to 100
+N:312:Scare Monster
+G:-:D
+I:65:11:0:0
+W:10:0:10:500
+# A:<locale>10/<chance>4
 P:0:1d1:0:0:0
-C:1+d3
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-E:WAND_BREATH
+D:This wand will make one monster fear you.
+E:MON_SCARE
+C:3+d5
+A:25:10 to 100
+F:EASY_KNOW
 
-
-### Drain lifes ###
-
-N:395:Drain Life
-G:-:d
-I:65:26:0
+N:313:Drain Life
+G:-:D
+I:65:12:0:0
 W:50:0:10:1200
-A:100:50 to 100
+# A:<locale>50/<chance>1
 P:0:1d1:0:0:0
-C:3+d3
-F:EASY_KNOW
+D:This wand will drain pure life-energy from a monster, but Undead and Demons
+D:have no life energy to drain.
 E:DRAIN_LIFE3
+C:3+d3
+A:100:50 to 100
+F:EASY_KNOW
 
-N:396:Annihilation
-G:-:d
-I:65:27:0
-W:60:0:10:3000
-A:25:60 to 100
+N:314:Polymorph
+G:-:D
+I:65:13:0:0
+W:20:0:10:400
+# A:<locale>20/<chance>1
 P:0:1d1:0:0:0
-C:1+d2
+D:This wand will transform a monster into another, perhaps more peaceful, monster.
+E:POLYMORPH
+C:6+d8
+A:100:20 to 100
+F:EASY_KNOW
+
+N:315:Stinking Cloud
+G:-:D
+I:65:14:0:0
+W:5:0:10:400
+# A:<locale>5/<chance>1
+P:0:1d1:0:0:0
+D:This wand will emit a small cloud of poisonous gasses.
+E:STINKING_CLOUD
+C:6+d8
+A:100:5 to 100
+F:EASY_KNOW
+
+N:316:Magic Missile
+G:-:D
+I:65:15:0:0
+W:3:0:10:200
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+D:This wand will emit a magical missile.
+E:MISSILE
+C:6+d10
+A:100:3 to 100
+F:EASY_KNOW
+
+N:317:Acid Bolts
+G:-:D
+I:65:16:0:0
+W:30:0:10:950
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+D:This wand will emit a powerful acid bolt.
+E:ACID_BOLT2
+C:6+d8
+A:100:30 to 100
+F:EASY_KNOW
+
+N:318:Lightning Bolts
+G:-:D
+I:65:17:0:0
+W:15:0:10:600
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+D:This wand will emit a bolt of pure lightning.
+E:ELEC_BOLT
+C:6+d8
+A:100:15 to 100
+F:EASY_KNOW
+
+N:319:Fire Bolts
+G:-:D
+I:65:18:0:0
+W:30:0:10:1000
+# A:<locale>30/<chance>1
+P:0:1d1:0:0:0
+F:EASY_KNOW | RES_FIRE | IGNORE_FIRE
+D:This wand will fire a bolt of pure fire.
+E:FIRE_BOLT2
+C:6+d8
+A:100:30 to 100
+
+N:320:Frost Bolts
+G:-:D
+I:65:19:0:0
+W:20:0:10:800
+# A:<locale>20/<chance>1
+P:0:1d1:0:0:0
+D:This wand will fire a frosty bolt.
+E:COLD_BOLT
+C:6+d5
+A:100:20 to 100
+F:EASY_KNOW
+
+N:321:Acid Balls
+G:-:D
+I:65:20:0:0
+W:50:0:10:1650
+# A:<locale>50/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | EASY_KNOW
+D:This wand will emit a large ball of acidic matter.
+E:ACID_BALL
+C:2+d5
+A:100:50 to 100
+
+N:322:Lightning Balls
+G:-:D
+I:65:21:0:0
+W:35:0:10:1200
+# A:<locale>35/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_ELEC | EASY_KNOW
+D:This wand will emit a powerful ball of lightning.
+E:ELEC_BALL
+C:4+d8
+A:100:35 to 100
+
+N:323:Fire Balls
+G:-:D
+I:65:22:0:0
+W:50:0:10:1800
+# A:<locale>50/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_FIRE | EASY_KNOW
+D:This wand will emit a powerful ball of fire.
+E:FIRE_BALL
+C:2+d4
+A:100:50 to 100
+
+N:324:Cold Balls
+G:-:D
+I:65:23:0:0
+W:40:0:10:1500
+# A:<locale>40/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_COLD | EASY_KNOW
+D:This wand will emit a powerful ball of cold energy.
+E:COLD_BALL100
+C:2+d6
+A:100:40 to 100
+
+N:325:Wonder
+G:-:D
+I:65:24:0:0
+W:3:0:10:250
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+D:This wand will do something at random.
+E:WONDER
+C:8+d15
+A:100:3 to 100
+
+N:326:Annihilation
+G:-:D
+I:65:25:0:0
+W:60:0:10:3000
+# A:<locale>60/<chance>4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+D:This wand will directly drain life-energy from a creature of your choice. Undead and
+D:Demons have no life to drain, however.
 E:DRAIN_LIFE4
+C:1+d2
+A:25:60 to 100
 
-
-### Rubbish ###
-
-N:397:Heal Monster
-G:-:d
-I:65:28:0
-W:3:0:10:0
-A:50:3 to 13
+N:327:Dragon's Flame
+G:-:D
+I:65:26:0:0
+W:50:0:10:2400
+# A:<locale>50/<chance>4
 P:0:1d1:0:0:0
-C:8+d20
-F:EASY_KNOW
-E:MON_HEAL
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+D:This wand will emit a very large ball of fire.
+E:FIRE_BALL200
+C:1+d3
+A:25:50 to 100
 
-N:398:Haste Monster
-G:-:d
-I:65:29:0
-W:3:0:10:0
-A:50:3 to 13
+N:328:Dragon's Frost
+G:-:D
+I:65:27:0:0
+W:50:0:10:2400
+# A:<locale>50/<chance>4
 P:0:1d1:0:0:0
-C:8+d20
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+D:This wand will emit a very large ball of cold.
+E:COLD_BALL160
+C:1+d3
+A:25:50 to 100
+
+N:329:Dragon's Breath
+G:-:D
+I:65:28:0:0
+W:60:0:10:2400
+# A:<locale>60/<chance>4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+D:This wand will emit a very large elemental or poison ball.
+E:WAND_BREATH
+C:1+d3
+A:25:60 to 100
+
+N:330:Darkness
+G:_:D
+I:55:0:0:0
+W:5:0:50:0
+# A:<locale>5/<chance>50:<locale>5/<chance>1
+P:0:1d2:0:0:0
+D:This staff will emit a cloud of darkness, darkening the area around you and also doing
+D:damage to certain creatures.
+E:DARKNESS
+C:8+d8
+A:80:5 to 10
 F:EASY_KNOW
-E:MON_HASTE
 
+N:331:Slowness
+G:_:D
+I:55:1:0:0
+W:40:0:50:0
+# A:<locale>40/<chance>1
+P:0:1d2:0:0:0
+D:This staff will slow you down, making you an easy target for your enemies.
+E:SLOW
+C:8+d8
+F:EASY_KNOW
 
+N:332:Haste Monsters
+G:_:D
+I:55:2:0:0
+W:10:0:50:0
+# A:<locale>10/<chance>1
+P:0:1d2:0:0:0
+D:This staff will haste a monster.
+E:LOSHASTE
+C:8+d8
+A:100:10 to 20
+F:EASY_KNOW
 
+N:333:Summoning
+G:_:D
+I:55:3:0:0
+W:10:0:50:0
+# A:<locale>10/<chance>50:<locale>10/<chance>1
+P:0:1d2:0:0:0
+D:This staff will summon another creature.
+E:SUMMON_MON
+C:2d3
+A:20:10 to 100
+F:EASY_KNOW
+
+N:334:Teleportation
+G:_:D
+I:55:4:0:0
+W:20:0:50:2000
+# A:<locale>20/<chance>1
+P:0:1d2:0:0:0
+D:This staff will instantly transport you to another location in the dungeon.
+E:TELE_LONG
+C:5+d4
+A:100:20 to 100
+F:EASY_KNOW
+
+N:335:Perception
+G:_:D
+I:55:5:0:0
+W:10:0:50:400
+# A:<locale>10/<chance>1
+P:0:1d2:0:0:0
+D:This staff will allow you to identify one item.
+E:IDENTIFY
+C:2d6
+F:EASY_KNOW
+
+N:336:Remove Curse
+G:_:D
+I:55:6:0:0
+W:40:0:50:500
+# A:<locale>40/<chance>1
+P:0:1d2:0:0:0
+D:This staff will remove a curse from an item of your choice.
+E:REMOVE_CURSE
+C:4+d3
+A:100:40 to 100
+F:EASY_KNOW
+
+N:337:Starlight
+G:_:D
+I:55:7:0:0
+W:20:0:50:800
+# A:<locale>20/<chance>1
+P:0:1d2:0:0:0
+D:This staff will emit powerful rays of light in all directions,
+D:thus doing damage to light-sensitive creatures.
+E:STARLIGHT
+C:6+d5
+A:100:20 to 100
+F:EASY_KNOW
+
+N:338:Light
+G:_:D
+I:55:8:0:0
+W:5:0:50:250
+# A:<locale>5/<chance>1
+P:0:1d2:0:0:0
+D:This staff will light up the area around you, doing damage to light-sensitive creatures.
+E:LIGHT
+C:8+d20
+A:100:5 to 100
+F:EASY_KNOW
+
+N:339:Enlightenment
+G:_:D
+I:55:9:0:0
+W:20:0:50:750
+# A:<locale>20/<chance>1
+P:0:1d2:0:0:0
+D:This staff will magically light up the entire level, and reveal the layout to you.
+E:ENLIGHTENMENT
+F:EASY_KNOW
+
+N:340:Treasure Location
+G:_:D
+I:55:10:0:0
+W:5:0:50:200
+# A:<locale>5/<chance>1
+P:0:1d2:0:0:0
+D:This staff will show you the location of nearby treasure.
+E:DETECT_TREASURE
+C:8+d8
+F:EASY_KNOW
+
+N:341:Object Location
+G:_:D
+I:55:11:0:0
+W:5:0:50:200
+# A:<locale>5/<chance>1
+P:0:1d2:0:0:0
+D:This staff will show you the location of nearby objects.
+E:DETECT_OBJECT
+C:8+d8
+F:EASY_KNOW
 
 ##### Staffs #####
 
-### Bad staffs ###
-
-N:400:Summoning
-G:_:d
-I:55:1:0
-W:10:0:50:0
-A:20:10 to 100
+N:342:Trap Location
+G:_:D
+I:55:12:0:0
+W:10:0:50:350
+# A:<locale>10/<chance>1
 P:0:1d2:0:0:0
-C:2d3
-F:EASY_KNOW
-E:SUMMON_MON
-
-N:401:Haste Monsters
-G:_:d
-I:55:2:0
-W:10:0:50:0
-A:100:10 to 20
-P:0:1d2:0:0:0
+D:This staff will show you the location of nearby traps.
+E:DETECT_TRAP
 C:8+d8
 F:EASY_KNOW
-E:LOSHASTE
 
-N:402:Darkness
-G:_:d
-I:55:3:0
-W:5:0:50:0
-A:80:5 to 10
+N:343:Door/Stair Location
+G:_:D
+I:55:13:0:0
+W:10:0:50:350
+# A:<locale>10/<chance>1
 P:0:1d2:0:0:0
+D:This staff will learn you the locations of doors and traps around you.
+E:DETECT_DOORSTAIR
 C:8+d8
 F:EASY_KNOW
-E:DARKNESS
 
-
-### Destruction ###
-
-N:403:Earthquakes
-G:_:d
-I:55:4:0
-W:40:0:50:350
-A:100:40 to 100
-P:0:1d2:0:0:0
-C:3+d5
-F:EASY_KNOW
-E:EARTHQUAKES
-
-N:404:*Destruction*
-G:_:d
-I:55:5:0
-W:50:0:50:2500
-A:100:50 to 100
-P:0:1d2:0:0:0
-C:1+d3
-F:EASY_KNOW
-E:DESTRUCTION2
-
-
-### Monster-affecting ###
-
-N:405:Confuse Monsters
-G:_:d
-I:55:6:0
-W:10:0:50:800
-A:100:10 to 100
-P:0:1d2:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:LOSCONF
-
-N:406:Slow Monsters
-G:_:d
-I:55:7:0
-W:10:0:50:800
-A:100:10 to 100
-P:0:1d2:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:LOSSLOW
-
-N:407:Sleep Monsters
-G:_:d
-I:55:8:0
-W:10:0:50:700
-A:100:10 to 100
-P:0:1d2:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:LOSSLEEP
-
-
-### Detect ###
-
-N:408:Detect Invisible
-G:_:d
-I:55:9:0
+N:344:Detect Invisible
+G:_:D
+I:55:14:0:0
 W:5:0:50:200
-A:100:5 to 100 
+# A:<locale>5/<chance>1
 P:0:1d2:0:0:0
-C:8+d15
-F:EASY_KNOW
+D:This staff will allow you to see invisible monsters for a while.
 E:DETECT_INVIS
-
-N:409:Detect Evil
-G:_:d
-I:55:10:0
-W:20:0:50:350
-A:100:20 to 100
-P:0:1d2:0:0:0
 C:8+d15
+A:100:5 to 100 
 F:EASY_KNOW
+
+N:345:Detect Evil
+G:_:D
+I:55:15:0:0
+W:20:0:50:350
+# A:<locale>20/<chance>1
+P:0:1d2:0:0:0
+D:This staff will detect evil monsters in the area.
 E:DETECT_EVIL
-
-N:410:Mapping
-G:_:d
-I:55:11:0
-W:20:0:50:750
+C:8+d15
 A:100:20 to 100
-P:0:1d2:0:0:0
-C:5+d5
 F:EASY_KNOW
-E:MAPPING
 
-
-### Healing ###
-
-N:411:Curing
-G:_:d
-I:55:12:0
-W:25:0:50:1000
-A:100:15 to 100
-P:0:1d2:0:0:0
-C:4+d3
-F:EASY_KNOW
-E:CURE_TEMP
-
-N:412:Cure Light Wounds
-G:_:d
-I:55:13:0
+N:346:Cure Light Wounds
+G:_:D
+I:55:16:0:0
 W:5:0:50:350
-A:100:5 to 100
+# A:<locale>5/<chance>1
 P:0:1d2:0:0:0
-C:6+d5
-F:EASY_KNOW
+D:This staff will heal minor wounds and cuts.
 E:CURE_LIGHT
-
-N:413:Healing
-G:_:d
-I:55:14:0
-W:70:0:50:5000
-A:50:70 to 100
-P:0:1d2:0:0:0
-C:1+d2
+C:6+d5
+A:100:5 to 100
 F:EASY_KNOW
-E:CURE_FULL
 
-
-### Killing staffs ###
-
-N:414:Dispel Evil
-G:_:d
-I:55:15:0
-W:50:0:50:1200
-A:100:50 to 100
+N:347:Curing
+G:_:D
+I:55:17:0:0
+W:25:0:50:1000
+# A:<locale>25/<chance>1
 P:0:1d2:0:0:0
+D:This staff will not heal wounds, but will cure stunning, cuts, blindness, confusion
+D:and poison.
+E:CURE_TEMP
 C:4+d3
+A:100:15 to 100
 F:EASY_KNOW
-E:DISPEL_EVIL60
 
-N:415:Banishment
-G:_:d
-I:55:16:0
-W:70:0:50:3500
-A:25:70 to 100
+N:348:Healing
+G:_:D
+I:55:18:0:0
+W:70:0:50:5000
+# A:<locale>70/<chance>2
 P:0:1d2:0:0:0
+D:This staff will heal life-threatening wounds, and also cure cuts and stunning.
+E:CURE_FULL
 C:1+d2
-F:EASY_KNOW
-E:BANISHMENT
-
-N:416:Power
-G:_:d
-I:55:17:0
-W:70:0:50:4000
 A:50:70 to 100
-P:0:1d2:0:0:0
-C:1+d3
 F:EASY_KNOW
-E:DISPEL_ALL
 
-N:417:Holiness
-G:_:d
-I:55:18:0
+N:349:the Magi
+G:_:D
+I:55:19:0:0
 W:70:0:50:4500
-A:50:70 to 100
+# A:<locale>70/<chance>2
 P:0:1d2:0:0:0
+D:This staff will restore your intelligence if needed, and then
+D:replenish your mana.
+E:STAFF_MAGI
+C:2+1d2
+A:50:70 to 100
+F:EASY_KNOW
+
+N:350:Sleep Monsters
+G:_:D
+I:55:20:0:0
+W:10:0:50:700
+# A:<locale>10/<chance>1
+P:0:1d2:0:0:0
+D:This staff will try to put a monster to sleep.
+E:LOSSLEEP
+C:6+d5
+A:100:10 to 100
+F:EASY_KNOW
+
+N:351:Slow Monsters
+G:_:D
+I:55:21:0:0
+W:10:0:50:800
+# A:<locale>10/<chance>1
+P:0:1d2:0:0:0
+D:This staff will slow down a monster.
+E:LOSSLOW
+C:6+d5
+A:100:10 to 100
+F:EASY_KNOW
+
+N:352:Speed
+G:_:D
+I:55:22:0:0
+W:40:0:50:1000
+# A:<locale>40/<chance>1
+P:0:1d2:0:0:0
+D:This staff will speed you up, allowing you to do more in less time.
+E:HASTE
+C:4+d3
+A:100:40 to 100
+F:EASY_KNOW
+
+N:353:Probing
+G:_:D
+I:55:23:0:0
+W:30:0:50:2000
+# A:<locale>30/<chance>1
+P:0:1d2:0:0:0
+D:This staff will reveal the current hitpoints and other information about a monster
+D:you see.
+E:PROBING
+C:6+d6
+F:EASY_KNOW
+
+N:354:Dispel Evil
+G:_:D
+I:55:24:0:0
+W:50:0:50:1200
+# A:<locale>50/<chance>1
+P:0:1d2:0:0:0
+D:This staff will damage evil monsters surrounding you.
+E:DISPEL_EVIL60
+C:4+d3
+A:100:50 to 100
+F:EASY_KNOW
+
+N:355:Power
+G:_:D
+I:55:25:0:0
+W:70:0:50:4000
+# A:<locale>70/<chance>2
+P:0:1d2:0:0:0
+D:It will damage all monsters surrounding you.
+E:DISPEL_ALL
+C:1+d3
+A:50:70 to 100
+F:EASY_KNOW
+
+N:356:Holiness
+G:_:D
+I:55:26:0:0
+W:70:0:50:4500
+# A:<locale>70/<chance>2
+P:0:1d2:0:0:0
+D:This staff will damage evil monsters surrounding you, protect you from melee
+D:attacks by evil monsters for a time, and heal some of your wounds.
+E:STAFF_HOLY
+C:2d2
+A:50:70 to 100
+F:EASY_KNOW
+
+N:357:Genocide
+G:_:D
+I:55:27:0:0
+W:70:0:50:3500
+# A:<locale>70/<chance>4
+P:0:1d2:0:0:0
+D:This staff will let you wipe one race in this dungeon level, at a cost of up to 10% of
+D:monster level in hitpoints per monster.
+E:BANISHMENT
 C:2d2
 F:EASY_KNOW
-E:STAFF_HOLY
 
+N:358:Earthquakes
+G:_:D
+I:55:28:0:0
+W:40:0:50:350
+# A:<locale>40/<chance>1
+P:0:1d2:0:0:0
+D:This staff will cause an earthquake with you in the center.
+E:EARTHQUAKES
+C:3+d5
+A:100:40 to 100
+F:EASY_KNOW
 
-### Utility ###
+N:359:*Destruction*
+G:_:D
+I:55:29:0:0
+W:50:0:50:2500
+# A:<locale>50/<chance>70:<locale>50/<chance>1
+P:0:1d2:0:0:0
+D:This staff will destroy the dungeon around you, pulling down walls and ceilings alike.
+E:DESTRUCTION2
+C:1+d3
+A:100:50 to 100
+F:EASY_KNOW
 
-N:418:Light
-G:_:d
-I:55:19:0
-W:5:0:50:250
+N:360:Woe
+G:=:r
+I:45:0:-5:0
+W:50:0:2:0
+# A:<locale>50/<chance>1
+F:LIGHT_CURSE | TELEPORT | WIS1 | CHR1 | HIDE_TYPE
+
+N:361:Aggravate Monster
+G:=:r
+I:45:1:0:0
+W:5:0:2:0
+# A:<locale>5/<chance>1
+F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
+
+N:362:Weakness
+G:=:r
+I:45:2:-5:0
+W:5:0:2:0
+# A:<locale>5/<chance>1
+F:LIGHT_CURSE | STR1 | HIDE_TYPE
+
+N:363:Stupidity
+G:=:r
+I:45:3:-5:0
+W:5:0:2:0
+# A:<locale>5/<chance>1
+F:LIGHT_CURSE | INT1 | HIDE_TYPE
+
+##### Rings #####
 A:100:5 to 100
-P:0:1d2:0:0:0
-C:8+d20
-F:EASY_KNOW
-E:LIGHT
 
-N:419:Starlight
-G:_:d
-I:55:20:0
-W:20:0:50:800
-A:100:20 to 100
-P:0:1d2:0:0:0
-C:6+d5
-F:EASY_KNOW
-E:STARLIGHT
+N:364:Teleportation
+G:=:r
+I:45:4:0:0
+W:5:0:2:0
+# A:<locale>5/<chance>1
+F:LIGHT_CURSE | TELEPORT | EASY_KNOW
+A:100:5 to 100
 
-N:420:Teleportation
-G:_:d
-I:55:21:0
-W:20:0:50:2000
-A:100:20 to 100
-P:0:1d2:0:0:0
-C:5+d4
-F:EASY_KNOW
-E:TELE_LONG
+N:365:Telepathy
+G:=:d
+I:45:5:0:0
+W:80:0:2:35000
+# A:<locale>80/<chance>6
+F:TELEPATHY | HIDE_TYPE
 
-N:421:Speed
-G:_:d
-I:55:22:0
-W:40:0:50:1000
-A:100:40 to 100
-P:0:1d2:0:0:0
-C:4+d3
-F:EASY_KNOW
-E:HASTE
+N:366:Slow Digestion
+G:=:r
+I:45:6:0:0
+W:5:0:2:250
+# A:<locale>5/<chance>1
+F:SLOW_DIGEST | EASY_KNOW
+A:100:5 to 100
 
-N:422:Remove Curse
-G:_:d
-I:55:23:0
-W:40:0:50:500
-A:100:40 to 100
-P:0:1d2:0:0:0
-C:4+d3
-F:EASY_KNOW
-E:REMOVE_CURSE
+N:367:Feather Falling
+G:=:r
+I:45:7:0:0
+W:5:0:2:200
+# A:<locale>5/<chance>1
+F:FEATHER | EASY_KNOW
+A:100:5 to 100
 
-N:423:the Magi
-G:_:d
-I:55:24:0
-W:70:0:50:4500
-A:50:70 to 100
-P:0:1d2:0:0:0
-C:2+1d2
-F:EASY_KNOW
-E:STAFF_MAGI
+N:368:Resist Fire
+G:=:r
+I:45:8:0:0
+W:10:0:2:250
+# A:<locale>10/<chance>1
+F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+A:100:10 to 100
 
-N:424:Identify
-G:_:d
-I:55:25:0
-W:10:0:50:600
-A:80:10 to 100
-P:0:1d2:0:0:0
-C:5+d15
-F:EASY_KNOW
-E:IDENTIFY
+N:369:Resist Cold
+G:=:r
+I:45:9:0:0
+W:10:0:2:250
+# A:<locale>10/<chance>1
+F:RES_COLD | IGNORE_COLD | EASY_KNOW
+A:100:10 to 100
 
+N:370:Sustain Strength
+G:=:r
+I:45:10:0:0
+W:30:0:2:750
+# A:<locale>30/<chance>1
+F:SUST_STR | EASY_KNOW
 
+N:371:Sustain Intelligence
+G:=:r
+I:45:11:0:0
+W:30:0:2:600
+# A:<locale>30/<chance>1
+F:SUST_INT | EASY_KNOW
 
-##### Rods #####
+N:372:Sustain Wisdom
+G:=:r
+I:45:12:0:0
+W:30:0:2:600
+# A:<locale>30/<chance>1
+F:SUST_WIS | EASY_KNOW
 
-### Detection ###
+N:373:Sustain Constitution
+G:=:r
+I:45:13:0:0
+W:30:0:2:750
+# A:<locale>30/<chance>1
+F:SUST_CON | EASY_KNOW
 
-N:430:Treasure Location
-G:-:d
-I:66:1:0
-W:5:0:15:1000
-A:100:8 to 100
-F:EASY_KNOW
-E:DETECT_TREASURE:50
+N:374:Sustain Dexterity
+G:=:r
+I:45:14:0:0
+W:30:0:2:750
+# A:<locale>30/<chance>1
+F:SUST_DEX | EASY_KNOW
 
-N:431:Door/Stair Location
-G:-:d
-I:66:2:0
-W:15:0:15:1000
-A:100:8 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:DETECT_DOORSTAIR:70
-
-N:432:Trap Location
-G:-:d
-I:66:3:0
-W:5:0:15:1000
-A:100:8 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:DETECT_TRAP:50
-
-N:433:Detection
-G:-:d
-I:66:4:0
-W:30:0:15:5000
-A:12:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:DETECT_ALL:100
-
-N:434:Magic Mapping
-G:-:d
-I:66:5:0
-W:65:0:15:10000
-A:25:65 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:MAPPING:100
-
-N:435:Probing
-G:-:d
-I:66:6:0
-W:35:0:15:4000
-A:50:35 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:PROBING:100
-
-
-### Bolts ###
-
-N:436:Fire Bolts
-G:-:d
-I:66:7:0
-W:30:0:15:3000
+N:375:Sustain Charisma
+G:=:r
+I:45:15:0:0
+W:30:0:2:500
+# A:<locale>30/<chance>1
+F:SUST_CHR | EASY_KNOW
 A:100:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:FIRE_BOLT2:15
 
-N:437:Frost Bolts
-G:-:d
-I:66:8:0
-W:25:0:15:2500
-A:100:25 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:COLD_BOLT2:13
+N:376:Protection
+G:=:r
+I:45:16:0:0
+W:10:0:2:500
+# A:<locale>10/<chance>1
+D:It makes you hard to hit in melee combat.
+A:100:10 to 100
 
-N:438:Lightning Bolts
-G:-:d
-I:66:9:0
-W:20:0:15:2000
+N:377:Acid
+G:=:r
+I:45:17:0:0
+W:50:0:2:3000
+# A:<locale>50/<chance>1
+P:0:0d0:0:0:15
+F:RES_ACID | IGNORE_ACID | BRAND_ACID | ACTIVATE | EASY_KNOW
+D:It also allows you to attack your enemies aided by acid once in a while.
+D:It helps with acid-based spells.
+E:RING_ACID:50+d50
+A:100:50 to 100
+
+N:378:Flames
+G:=:r
+I:45:18:0:0
+W:50:0:2:3000
+# A:<locale>50/<chance>1
+P:0:0d0:0:0:15
+F:RES_FIRE | IGNORE_FIRE | BRAND_FIRE | ACTIVATE | EASY_KNOW
+D:It also allows you to attack your enemies aided by fire once in a while.
+D:It helps with fire-based spells.
+E:RING_FLAMES:50+d50
+A:100:50 to 100
+
+N:379:Ice
+G:=:r
+I:45:19:0:0
+W:50:0:2:3000
+# A:<locale>50/<chance>1
+P:0:0d0:0:0:15
+F:RES_COLD | IGNORE_COLD | BRAND_COLD | ACTIVATE | EASY_KNOW
+D:It also allows you to attack your enemies aided by cold once in a while.
+D:It helps with ice-based spells.
+E:RING_ICE:50+d50
+A:100:50 to 100
+
+N:380:Poison Resistance
+G:=:r
+I:45:20:0:0
+W:60:0:2:16000
+# A:<locale>60/<chance>2
+F:RES_POIS | EASY_KNOW
+
+N:381:Free Action
+G:=:r
+I:45:21:0:0
+W:20:0:2:1500
+# A:<locale>20/<chance>1
+F:FREE_ACT | EASY_KNOW
 A:100:20 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:ELEC_BOLT:11
 
-N:439:Acid Bolts
-G:-:d
-I:66:10:0
-W:40:0:15:3500
+N:382:See Invisible
+G:=:r
+I:45:22:0:0
+W:30:0:2:340
+# A:<locale>30/<chance>1
+F:SEE_INVIS | EASY_KNOW
+A:100:30 to 100
+
+N:383:Searching
+G:=:r
+I:45:23:0:0
+W:5:0:2:250
+# A:<locale>5/<chance>1
+F:SEARCH1 | HIDE_TYPE
+A:100:5 to 100
+
+N:384:Strength
+G:=:r
+I:45:24:0:0
+W:30:0:2:500
+# A:<locale>30/<chance>1
+F:STR1 | SUST_STR | HIDE_TYPE
+A:100:10 to 100
+
+N:385:Intelligence
+G:=:r
+I:45:25:0:0
+W:30:0:2:500
+# A:<locale>30/<chance>1
+F:INT1 | SUST_INT | HIDE_TYPE
+A:100:30 to 100
+
+N:386:Dexterity
+G:=:r
+I:45:26:0:0
+W:30:0:2:500
+# A:<locale>30/<chance>1
+F:DEX1 | SUST_DEX | HIDE_TYPE
+A:100:30 to 100
+
+N:387:Constitution
+G:=:r
+I:45:27:0:0
+W:30:0:2:500
+# A:<locale>30/<chance>1
+F:CON1 | SUST_CON | HIDE_TYPE
+A:100:30 to 100
+
+N:388:Accuracy
+G:=:r
+I:45:28:0:0
+W:20:0:2:500
+# A:<locale>20/<chance>1
+D:It allows you a higher chance of hitting your enemies, and hitting them hard.
+A:100:20 to 100
+
+N:389:Damage
+G:=:r
+I:45:29:0:0
+W:20:0:2:500
+# A:<locale>20/<chance>1
+D:It allows you to attack with extra damage once in a while.
+A:100:20 to 100
+
+N:390:Slaying
+G:=:r
+I:45:30:0:0
+W:40:0:2:1000
+D:It affects both of your combat qualities.
 A:100:40 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:ACID_BOLT3:12
 
-
-### Balls ###
-
-N:440:Fire Balls
-G:-:d
-I:66:11:0
-W:75:0:15:5000
+N:391:Speed
+G:=:r
+I:45:31:0:0
+W:80:0:2:100000
+F:SPEED1
+# F:SPEED1 | HIDE_TYPE
 A:100:75 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:FIRE_BALL:30
 
-N:441:Cold Balls
-G:-:d
-I:66:12:0
-W:60:0:15:4500
-A:100:60 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:COLD_BALL100:25
+# The Ring of Barahir -- see artifact list
 
-N:442:Lightning Balls
-G:-:d
-I:66:13:0
-W:55:0:15:4000
-A:100:55 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:ELEC_BALL:23
+N:392:& Ring~
+G:=:r
+I:45:32:0:0
+W:50:0:2:65000
+F:INSTA_ART
 
-N:443:Acid Balls
-G:-:d
-I:66:14:0
-W:70:0:15:5500
-A:100:70 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:ACID_BALL:27
+# The Ring of Tulkas -- see artifact list
 
+N:393:& Ring~
+G:=:r
+I:45:33:0:0
+W:90:0:2:150000
+F:INSTA_ART
 
-### Status-affecting ###
+# The Ring of Power (Narya) -- see artifact list
 
-N:444:Slow Monster
-G:-:d
-I:66:15:0
-W:30:0:15:1500
-A:100:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:MON_SLOW:20
+N:394:& Ring~
+G:=:r
+I:45:34:0:0
+W:80:0:2:100000
+F:INSTA_ART
 
-N:445:Sleep Monster
-G:-:d
-I:66:16:0
-W:30:0:15:1500
-A:100:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:MON_SLEEP:18
+# The Ring of Power (Nenya) -- see artifact list
 
+N:395:& Ring~
+G:=:r
+I:45:35:0:0
+W:90:0:2:200000
+F:INSTA_ART
 
-### Healing ###
+# The Ring of Power (Vilya) -- see artifact list
 
-N:446:Curing
-G:-:d
-I:66:17:0
-W:65:0:15:15000
-A:35:20 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:CURE_TEMP:100
+N:396:& Ring~
+G:=:r
+I:45:36:0:0
+W:100:0:2:300000
+F:INSTA_ART
 
-N:447:Healing
-G:-:d
-I:66:18:0
-W:80:0:15:20000
-A:12:80 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:HEAL3:1000
+# The Ring of Power (The One Ring) -- see artifact list
 
-N:448:Restoration
-G:-:d
-I:66:19:0
-W:80:0:15:25000
-A:6:80 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:RESTORE_ST_LEV:1000
+N:397:& Ring~
+G:=:y
+I:45:37:0:0
+W:110:0:2:5000000
+F:INSTA_ART
 
+N:398:Sparks
+G:=:r
+I:45:38:0:0
+W:50:0:2:3000
+# A:<locale>50/<chance>1
+P:0:0d0:0:0:15
+F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
+D:It also allows you to attack your enemies aided by lightning once in a while.
+D:It helps with electricity-based spells.
 
-### Other ###
+# The Ring of Duilin -- see artifact list
 
-N:449:Polymorph
-G:-:d
-I:66:20:0
-W:35:0:15:1200
-A:100:35 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:POLYMORPH:25
+N:399:& Ring~
+G:=:r
+I:45:38:0:0
+W:50:0:2:65000
+F:INSTA_ART
 
-N:450:Drain Life
-G:-:d
-I:66:21:0
-W:75:0:15:3600
-A:25:75 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:DRAIN_LIFE3:23
+# The ring of Voronwe
 
-N:451:Teleport Other
-G:-:d
-I:66:22:0
-W:45:0:15:1400
-A:50:45 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:TELE_OTHER:25
+N:400:& Ring~
+G:=:r
+I:45:39:0:0
+W:50:0:2:50000
+F:INSTA_ART
 
-N:452:Disarming
-G:-:d
-I:66:23:0
-W:35:0:15:2100
-A:100:35 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:DISARMING:30
+N:401:& Iron Ring~
+G:=:s
+I:45:42:0:0
+W:5:0:2:50
+# A:<locale>5/<chance>1
+P:0:0d0:0:0:0
+F:INSTA_EGO
 
-N:453:Light
-G:-:d
-I:66:24:0
-W:10:0:15:500
-A:100:8 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:LIGHT_LINE:9
+N:402:& Silver Ring~
+G:=:w
+I:45:43:0:0
+W:5:0:2:1000
+# A:<locale>15/<chance>1
+P:0:0d0:0:0:0
+F:INSTA_EGO
 
-N:454:Illumination
-G:-:d
-I:66:25:0
-W:20:0:15:1000
-A:100:20 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-E:LIGHT:30
+N:403:& Gold Ring~
+G:=:y
+I:45:44:0:0
+W:5:0:2:5000
+# A:<locale>30/<chance>1
+P:0:0d0:0:0:0
+F:INSTA_EGO
 
-N:455:Recall
-G:-:d
-I:66:26:0
-W:30:0:15:4000
-A:25:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:RECALL:60
+N:404:& Mithril Ring~
+G:=:B
+I:45:45:0:0
+W:5:0:2:15000
+# A:<locale>45/<chance>1
+P:0:0d0:0:0:0
+F:INSTA_EGO
 
-N:456:Identify
-G:-:d
-I:66:27:0
-W:50:0:15:30000
-A:25:50 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:IDENTIFY:10
+N:405:DOOM
+G:":o
+I:40:0:-5:0
+W:50:0:3:0
+# A:<locale>50/<chance>1
+F:LIGHT_CURSE | STR1 | INT1 | WIS1 | DEX1 | CON1 | CHR1 | HIDE_TYPE
 
-N:457:Speed
-G:-:d
-I:66:28:0
-W:95:0:15:50000
-A:12:95 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_ELEC
-E:HASTE:100
-
-
-
-##### Basic Books #####
-
-N:460:[Magic for Beginners]
-G:?:R
-I:90:0:0
-W:5:0:30:25
-A:100:5 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:461:[Conjurings and Tricks]
-G:?:R
-I:90:1:0
-W:10:0:30:100
+N:406:Teleportation
+G:":o
+I:40:1:0:0
+W:15:0:3:0
+# A:<locale>15/<chance>1
+F:LIGHT_CURSE | TELEPORT | EASY_KNOW
 A:100:10 to 100
-P:0:1d1:0:0:0
+
+N:407:Adornment
+G:":o
+I:40:2:0:0
+W:15:0:3:20
+# A:<locale>15/<chance>1
 F:EASY_KNOW
+D:It is a very nice amulet, made from multiple kinds of metal, with a nice leather
+D:strip to bind it around your neck. You will surely look very smart with it.
+A:30:10 to 100
 
-N:462:[Incantations and Illusions]
-G:?:R
-I:90:2:0
-W:20:0:30:400
-A:100:20 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:463:[Sorcery and Evocations]
-G:?:R
-I:90:3:0
-W:30:0:30:800
-A:100:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:464:[Beginners Handbook]
-G:?:G
-I:91:0:0
-W:5:0:30:25
-A:100:5 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:465:[Words of Wisdom]
-G:?:G
-I:91:1:0
-W:10:0:30:100
-A:100:10 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:466:[Chants and Blessings]
-G:?:G
-I:91:2:0
-W:20:0:30:300
-A:100:20 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:467:[Exorcism and Dispelling]
-G:?:G
-I:91:3:0
-W:30:0:30:900
-A:100:30 to 100
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-
-
-##### Special Books (note resistances) #####
-
-N:468:[Resistances of Scarabtarices]
-G:?:r
-I:90:4:0
-W:40:0:30:10000
-A:100:40 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:469:[Raal's Tome of Destruction]
-G:?:r
-I:90:5:0
-W:50:0:30:20000
-A:100:50 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:470:[Mordenkainen's Escapes]
-G:?:r
-I:90:6:0
-W:60:0:30:30000
-A:100:60 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:471:[Tenser's Transformations]
-G:?:r
-I:90:7:0
-W:70:0:30:50000
-A:50:70 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:472:[Kelek's Grimoire of Power]
-G:?:r
-I:90:8:0
-W:80:0:30:90000
-A:25:80 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:473:[Ethereal Openings]
-G:?:g
-I:91:4:0
-W:40:0:30:5000
-A:100:40 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:474:[Godly Insights]
-G:?:g
-I:91:5:0
-W:50:0:30:10000
-A:100:50 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:475:[Purifications and Healing]
-G:?:g
-I:91:6:0
-W:60:0:30:30000
-A:100:60 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:476:[Holy Infusions]
-G:?:g
-I:91:7:0
-W:80:0:30:50000
-A:50:80 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:477:[Wrath of God]
-G:?:g
-I:91:8:0
-W:100:0:30:100000
-A:25:100 to 100
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-
-
-##### Chests #####
-
-N:480:& Small wooden chest~
-G:~:s
-I:7:1:0
-W:5:0:250:20
-A:100:5 to 100
-P:0:2d3:0:0:0
-
-N:481:& Large wooden chest~
-G:~:s
-I:7:5:0
-W:15:0:500:60
+N:408:Slow Digestion
+G:":o
+I:40:3:0:0
+W:15:0:3:200
+# A:<locale>15/<chance>1
+F:SLOW_DIGEST | EASY_KNOW
 A:100:15 to 100
-P:0:2d5:0:0:0
 
-N:482:& Small iron chest~
-G:~:s
-I:7:2:0
-W:25:0:300:100
-A:100:25 to 100
-P:0:2d4:0:0:0
+N:409:Resist Acid
+G:":o
+I:40:4:0:0
+W:20:0:3:300
+# A:<locale>20/<chance>1
+F:RES_ACID | IGNORE_ACID | EASY_KNOW
+A:100:10 to 100
 
-N:483:& Large iron chest~
-G:~:s
-I:7:6:0
-W:35:0:1000:150
-A:100:35 to 100
-P:0:2d6:0:0:0
+N:410:Searching
+G:":o
+I:40:5:0:0
+W:30:0:3:600
+# A:<locale>30/<chance>4
+F:SEARCH1 | HIDE_TYPE
+A:100:15 to 100
 
-N:484:& Small steel chest~
-G:~:s
-I:7:3:0
-W:45:0:500:200
-A:100:45 to 100
-P:0:2d4:0:0:0
+##### Amulets #####
 
-N:485:& Large steel chest~
-G:~:s
-I:7:7:0
-W:55:0:1000:250
-A:100:55 to 100
-P:0:2d6:0:0:0
+N:411:Wisdom
+G:":o
+I:40:6:0:0
+W:20:0:3:500
+# A:<locale>20/<chance>1
+F:WIS1 | SUST_WIS | HIDE_TYPE
+A:100:20 to 100
 
-N:486:& Ruined chest~
-G:~:s
-I:7:0:0
-W:0:0:250:0
-A:100:75 to 100
+N:412:Charisma
+G:":o
+I:40:7:0:0
+W:20:0:3:500
+# A:<locale>20/<chance>1
+F:CHR1 | SUST_CHR | HIDE_TYPE
+A:100:20 to 100
 
+N:413:the Magi
+G:":o
+I:40:8:0:0
+W:50:0:3:30000
+# A:<locale>50/<chance>4
+P:0:0d0:0:0:3
+F:FREE_ACT | SEE_INVIS | SEARCH1 | SUST_INT | INT1 | RES_CONFU | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDE_TYPE
+A:12:70 to 100
 
+# The Amulet of Carlammas -- see artifact list
 
-##### Junk #####
-
-N:490:& Empty Bottle~
-G:!:w
-I:2:1:0
-W:0:0:2:0
-F:EASY_KNOW
-
-N:491:& Shard~ of Pottery
-G:~:r
-I:3:3:0
-W:0:0:5:0
-F:EASY_KNOW
-
-N:492:& Broken Stick~
-G:~:r
-I:3:6:0
-W:0:0:3:0
-F:EASY_KNOW
-
-N:493:& Broken Skull~
-G:~:w
-I:1:1:0
-W:0:0:2:0
-F:EASY_KNOW
-
-N:494:& Broken Bone~
-G:~:w
-I:1:2:0
-W:0:0:2:0
-F:EASY_KNOW
-
-N:495:& Canine Skeleton~
-G:~:w
-I:1:4:0
-W:1:0:10:0
-F:EASY_KNOW
-
-N:496:& Rodent Skeleton~
-G:~:w
-I:1:3:0
-W:1:0:10:0
-F:EASY_KNOW
-
-N:497:& Human Skeleton~
-G:~:w
-I:1:8:0
-W:5:0:60:0
-F:EASY_KNOW
-
-N:498:& Dwarf Skeleton~
-G:~:w
-I:1:7:0
-W:5:0:50:0
-F:EASY_KNOW
-
-N:499:& Elf Skeleton~
-G:~:w
-I:1:6:0
-W:5:0:40:0
-F:EASY_KNOW
-
-
-
-##### Dragon Scale Mail #####
-
-N:500:Black Dragon Scale Mail~
-G:[:s
-I:38:1:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_ACID |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:ACID_BALL:450+1d450
-
-N:501:Blue Dragon Scale Mail~
-G:[:b
-I:38:2:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_ELEC |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_BLUE:450+1d450
-
-N:502:White Dragon Scale Mail~
-G:[:w
-I:38:3:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_COLD |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:COLD_BALL100:450+1d450
-
-N:503:Red Dragon Scale Mail~
-G:[:r
-I:38:4:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_FIRE |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_RED:450+1d450
-
-N:504:Green Dragon Scale Mail~
-G:[:g
-I:38:5:0
-W:60:0:200:60000
-A:12:60 to 100
-P:30:2d4:-2:0:10
-F:RES_POIS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_GREEN:450+1d450
-
-N:505:Multi-Hued Dragon Scale Mail~
-G:[:v
-I:38:6:0
-W:90:0:200:150000
-A:3:90 to 100
-P:30:2d4:-2:0:10
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_MULTIHUED:25+1d225
-
-N:506:Pseudo-Dragon Scale Mail~
-G:[:o
-I:38:10:0
-W:65:0:200:60000
-A:6:65 to 100
-P:30:2d4:-2:0:10
-F:RES_LITE | RES_DARK |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_SHINING:300+1d300
-
-N:507:Law Dragon Scale Mail~
-G:[:B
-I:38:12:0
-W:80:0:200:80000
-A:6:80 to 100
-P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_LAW:300+1d300
-
-N:508:Bronze Dragon Scale Mail~
-G:[:U
-I:38:14:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_CONFU |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_BRONZE:450+1d450
-
-N:509:Gold Dragon Scale Mail~
-G:[:y
-I:38:16:0
-W:50:0:200:40000
-A:12:50 to 100
-P:30:2d4:-2:0:10
-F:RES_SOUND |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_GOLD:450+1d450
-
-N:510:Chaos Dragon Scale Mail~
-G:[:v
-I:38:18:0
-W:80:0:200:80000
-A:6:80 to 100
-P:30:2d4:-2:0:10
-F:RES_CHAOS | RES_DISEN |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_CHAOS:300+1d300
-
-N:511:Balance Dragon Scale Mail~
-G:[:v
-I:38:20:0
-W:95:0:200:100000
-A:3:95 to 100
-P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_BALANCE:300+1d300
-
-N:512:Power Dragon Scale Mail~
-G:[:v
-I:38:30:0
-W:100:0:200:300000
-A:1:100 to 100
-P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
-F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD |
-F:RES_LITE | RES_DARK | RES_CHAOS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-E:DRAGON_POWER:300+1d300
-
-
-
-##### Gold/gems #####
-
-N:520:copper
-G:$:u
-I:100:0:0
-
-N:521:silver
-G:$:s
-I:100:1:0
-
-N:522:garnets
-G:$:r
-I:100:2:0
-
-N:523:gold
-G:$:y
-I:100:3:0
-
-N:524:opals
-G:$:W
-I:100:4:0
-
-N:525:sapphires
-G:$:b
-I:100:5:0
-
-N:526:rubies
-G:$:r
-I:100:6:0
-
-N:527:diamonds
-G:$:w
-I:100:7:0
-
-N:528:emeralds
-G:$:g
-I:100:8:0
-
-N:529:mithril
-G:$:B
-I:100:9:0
-
-N:530:adamantite
-G:$:G
-I:100:10:0
-
-
-##### "Morgoth Artifacts" #####
-
-# These objects, like other INSTA_ARTs are never created without being
-# turned into artifacts.  This simplifies the code for "killing the
-# winner monster".
-
-N:540:& Mighty Hammer~
-G:\:D
-I:21:50:0
-W:15:0:200:1000
-P:0:3d9:0:0:0
+N:414:& Amulet~
+G:":o
+I:40:10:0:0
+W:50:0:3:60000
 F:INSTA_ART
 
-N:542:& Massive Iron Crown~
-G:]:D
-I:33:50:0
-W:44:0:20:1000
+# The Amulet of Ingwe -- see artifact list
+
+N:415:& Amulet~
+G:":o
+I:40:11:0:0
+W:60:0:3:90000
+F:INSTA_ART
+
+# The Necklace of the Dwarves -- see artifact list
+
+N:416:& Necklace~
+G:":o
+I:40:12:0:0
+W:70:0:3:75000
+F:INSTA_ART
+
+N:417:& Wooden Torch~
+G:~:u
+I:39:0:4000:0
+W:1:0:30:2
+# A:<locale>1/<chance>1
 P:0:1d1:0:0:0
-F:INSTA_ART
+F:EASY_KNOW
+D:It is a stout piece of wood, with oil-dripping cloth wound around the top.
+A:140:1 to 40
 
+N:418:& Brass Lantern~
+G:~:U
+I:39:1:7500:0
+W:3:0:50:35
+# A:<locale>3/<chance>1
+P:0:1d1:0:0:0
+F:EASY_KNOW | IGNORE_FIRE
+D:It is a lantern, made of brass, fueled by oil.
 
-##### Objects 500 to 514 are the "Special Artifacts" #####
+N:419:& Lamp~ of the Noldor
+G:~:b
+I:39:2:7500:0
+W:3:0:50:3500
+# A:<locale>15/<chance>1
+P:0:1d1:0:0:0
+F:EASY_KNOW | IGNORE_FIRE
+D:It is a lantern, with a precious jewel, made by the Noldor in ages past, inside.
+D:The jewel shines with a powerful, faintly bluish light.
+
+##### Objects 500 to 511 are the "Special Artifacts" #####
 
 # These objects do not specify "full names" because the artifact name
 # is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
@@ -3728,132 +4164,1361 @@ F:INSTA_ART
 # being created without also turning them into artifacts.  This flag
 # must be specified both here and in the artifact template.
 #
-# The reason for having six different "ring" templates and three
+# The only reason for having six different "ring" templates and three
 # different "amulet" templates is to allow each "special artifact" to
 # have a different "color" and "flavor", and also to allow the use of
 # special "base names" (such as "Necklace").
 
-
 # The Phial of Galadriel -- see artifact list
 
-N:550:& Phial~
+N:420:& Phial~
 G:~:y
-I:39:4:0
-W:5:0:10:10000
+I:39:4:0:0
+W:1:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
 # The Star of Elendil -- see artifact list
 
-N:551:& Star~
+N:421:& Star~
 G:~:y
-I:39:5:0
+I:39:5:0:0
 W:30:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
 # The Arkenstone of Thrain -- see artifact list
 
-N:552:& Arkenstone~
+N:422:& Arkenstone~
 G:~:y
-I:39:6:0
-W:50:0:5:50000
+I:39:6:0:0
+W:60:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Amulet of Carlammas -- see artifact list
+## XXX 399 XXX ##
 
-N:553:& Amulet~
-G:":d
-I:40:50:0
-W:50:0:3:60000
+##### Dragon Scale Mail #####
+
+N:423:Black Dragon Scale Mail~
+G:[:s
+I:38:1:0:0
+W:60:0:200:30000
+# A:<locale>60/<chance>8
+P:30:2d4:-2:0:10
+F:RES_ACID | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming black scales, held together by pure energy, create this awesome armor.
+E:ACID_BALL:450+1d450
+A:12:50 to 100
+
+N:424:Blue Dragon Scale Mail~
+G:[:b
+I:38:2:0:0
+W:40:0:200:35000
+# A:<locale>40/<chance>8
+P:30:2d4:-2:0:10
+F:RES_ELEC | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming blue scales, held together by pure energy, create this awesome armor.
+E:DRAGON_BLUE:450+1d450
+A:12:50 to 100
+
+N:425:White Dragon Scale Mail~
+G:[:w
+I:38:3:0:0
+W:50:0:200:40000
+# A:<locale>50/<chance>8
+P:30:2d4:-2:0:10
+F:RES_COLD | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming white scales, held together by pure energy, create this awesome armor.
+E:COLD_BALL100:450+1d450
+A:12:50 to 100
+
+N:426:Red Dragon Scale Mail~
+G:[:r
+I:38:4:0:0
+W:80:0:200:100000
+# A:<locale>80/<chance>8
+P:30:2d4:-2:0:10
+F:RES_FIRE | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming red scales, held together by pure energy, create this awesome armor.
+E:DRAGON_RED:450+1d450
+A:12:50 to 100
+
+N:427:Green Dragon Scale Mail~
+G:[:g
+I:38:5:0:0
+W:70:0:200:80000
+# A:<locale>70/<chance>8
+P:30:2d4:-2:0:10
+F:RES_POIS | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming green scales, held together by pure energy, create this awesome armor.
+E:DRAGON_GREEN:450+1d450
+A:12:60 to 100
+
+N:428:Multi-Hued Dragon Scale Mail~
+G:[:v
+I:38:6:0:0
+W:100:0:200:150000
+# A:<locale>100/<chance>16
+P:30:2d4:-2:0:10
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming scales, whose colour seems to switch between red, white, blue, green and black
+D:in a moment, held together by pure energy, create this awesome armor.
+E:DRAGON_MULTIHUED:25+1d225
+A:3:90 to 100
+
+N:429:Shining Dragon Scale Mail~
+G:[:o
+I:38:10:0:0
+W:65:0:200:60000
+# A:<locale>65/<chance>16
+P:30:2d4:-2:0:10
+F:RES_LITE | RES_DARK | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming glass-like scales, held together by pure energy, create this awesome armor.
+
+N:430:Law Dragon Scale Mail~
+G:[:B
+I:38:12:0:0
+W:80:0:200:80000
+# A:<locale>80/<chance>16
+P:30:2d4:-2:0:10
+F:RES_SOUND | RES_SHARD | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming purple scales, held together by pure energy, create this awesome armor.
+E:DRAGON_LAW:300+1d300
+A:6:80 to 100
+
+N:431:Bronze Dragon Scale Mail~
+G:[:U
+I:38:14:0:0
+W:55:0:200:30000
+# A:<locale>55/<chance>8
+P:30:2d4:-2:0:10
+F:RES_CONFU | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming bronze-colored scales, held together by pure energy, create this awesome armor.
+D:There seems to be some very fine design on the scales.
+E:DRAGON_BRONZE:450+1d450
+A:12:50 to 100
+
+N:432:Gold Dragon Scale Mail~
+G:[:y
+I:38:16:0:0
+W:65:0:200:40000
+# A:<locale>65/<chance>8
+P:30:2d4:-2:0:10
+F:RES_SOUND | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming golden-hued scales, held together by pure energy, create this awesome armor.
+D:A slight vibration seems to blurs the outlines of this armor.
+E:DRAGON_GOLD:450+1d450
+A:12:50 to 100
+
+N:433:Chaos Dragon Scale Mail~
+G:[:v
+I:38:18:0:0
+W:75:0:200:70000
+# A:<locale>75/<chance>16
+P:30:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming grey scales, held together by pure energy, create this awesome armor.
+D:The colour of the scales seems to change constantly, and the armor itself
+D:seems almost alive.
+E:DRAGON_CHAOS:300+1d300
+A:6:80 to 100
+
+N:434:Balance Dragon Scale Mail~
+G:[:v
+I:38:20:0:0
+W:90:0:200:100000
+# A:<locale>90/<chance>16
+P:30:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARD | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming pure white scales, held together by pure energy, create this awesome armor.
+D:You sense a waft of soothing communion coming from the armor.
+E:DRAGON_BALANCE:300+1d300
+A:3:95 to 100
+
+N:435:Power Dragon Scale Mail~
+G:[:v
+I:38:30:0:0
+W:110:0:200:300000
+# A:<locale>110/<chance>64
+P:40:2d4:-3:0:15
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK | ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Gleaming scales, with multiple colors on each scale in many variants, held together by
+D:pure energy, create this awesome armor. The hairs on your skin stand up just looking
+D:at it.
+E:DRAGON_POWER:300+1d300
+A:1:100 to 100
+
+N:436:& Rusty Chain Mail~
+G:[:r
+I:37:1:-1:0
+W:25:0:200:550
+# A:<locale>25/<chance>1
+P:14:1d4:-5:0:-8
+F:STEALTH1
+D:It is made from small metal ringlets, each linked to each other.
+D:It is quite rusty, and creaks as you move.
+
+# hard armor
+
+N:437:& Metal Scale Mail~
+G:[:s
+I:37:3:0:0
+W:25:0:250:550
+# A:<locale>25/<chance>1
+P:13:1d4:-2:0:0
+D:It is an armor made of metal scales, riveted on a soft leather base, padded on the inside.
+
+N:438:& Chain Mail~
+G:[:s
+I:37:4:0:0
+W:25:0:220:750
+# A:<locale>25/<chance>1
+P:14:1d4:-2:0:0
+D:It is made from small metal ringlets, each linked to each other.
+
+N:439:& Augmented Chain Mail~
+G:[:s
+I:37:6:0:0
+W:30:0:270:900
+# A:<locale>30/<chance>1
+P:16:1d4:-2:0:0
+D:It is made from small metal ringlets, each linked to each other. Underneath
+D:is a hard leather armor, padded on the inside.
+
+N:440:& Double Chain Mail~
+G:[:s
+I:37:7:0:0
+W:30:0:250:850
+# A:<locale>30/<chance>1
+P:16:1d4:-2:0:0
+D:It is made from two layers of small metal ringlets, each linked to each other.
+
+N:441:& Bar Chain Mail~
+G:[:s
+I:37:8:0:0
+W:35:0:280:950
+# A:<locale>35/<chance>1
+P:18:1d4:-2:0:0
+D:It is made from small metal bars, each linked to each other. Underneath
+D:is a hard leather armor, padded on the inside.
+
+N:442:& Metal Brigandine Armor~
+G:[:s
+I:37:9:0:0
+W:35:0:290:1100
+# A:<locale>35/<chance>1
+P:19:1d4:-3:0:0
+D:It is a chain-mail with extra plates at critical spots.
+
+N:443:& Partial Plate Armor~
+G:[:W
+I:37:12:0:0
+W:45:0:260:1200
+# A:<locale>45/<chance>1
+P:22:1d6:-3:0:0
+D:It is an armor made of metal plates, overlapping each other, protecting your
+D:upper body.
+
+N:444:& Metal Lamellar Armor~
+G:[:W
+I:37:13:0:0
+W:45:0:340:1250
+# A:<locale>45/<chance>1
+P:23:1d6:-3:0:0
+D:It is an armor made of metal strips, overlapping each other, protecting your
+D:upper body.
+
+N:445:& Full Plate Armor~
+G:[:W
+I:37:15:0:0
+W:45:0:380:1350
+# A:<locale>45/<chance>1
+P:25:2d4:-3:0:0
+D:It is an armor made of metal plates, overlapping each other, protecting your
+D:entire body.
+
+N:446:& Ribbed Plate Armor~
+G:[:W
+I:37:18:0:0
+W:50:0:380:1500
+# A:<locale>50/<chance>1
+P:28:2d4:-3:0:0
+D:It is an armor made of metal plates, overlapping each other, protecting your
+D:entire body. Each metal plate is reinfoced by thick ridges at the center.
+
+N:447:& Mithril Chain Mail~
+G:[:B
+I:37:20:0:0
+W:55:0:150:7000
+# A:<locale>55/<chance>4
+P:28:1d4:-1:0:0
+F:IGNORE_ACID
+D:It is made from small metal ringlets, each linked to each other.
+D:The plates are made of Mithril, delved from the deep mines of Moria
+D:before the waking of Durin's Bane.
+
+N:448:& Mithril Plate Mail~
+G:[:B
+I:37:25:0:0
+W:60:0:300:15000
+# A:<locale>60/<chance>4
+P:35:2d4:-3:0:0
+F:IGNORE_ACID
+D:It is an armor made of metal plates, overlapping each other, protecting your
+D:entire body. The plates are made of Mithril, delved from the deep mines
+D:of Moria before the waking of Durin's Bane.
+
+N:449:& Adamantite Plate Mail~
+G:[:G
+I:37:30:0:0
+W:75:0:420:20000
+# A:<locale>75/<chance>8
+P:40:2d4:-4:0:0
+F:IGNORE_ACID
+D:It is an armor made of metal plates, overlapping each other, protecting your
+D:entire body. The plates are made of Adamantite, that priceless metal
+D:which no acid can dissolve.
+
+N:450:& Filthy Rag~
+G:(:D
+I:36:1:0:0
+W:0:0:20:1
+# A:<locale>0/<chance>1
+P:1:0d0:0:0:-1
+D:It is a piece of clothing from before Second Age, if you see the state of it.
+
+# soft armor
+
+N:451:& Robe~
+G:(:b
+I:36:2:0:0
+W:1:0:20:4
+# A:<locale>1/<chance>50:<locale>1/<chance>1
+P:2:0d0:0:0:0
+D:It is a robe, made from black cloth.
+A:100:1 to 100
+
+N:452:& Soft Leather Armor~
+G:(:U
+I:36:4:0:0
+W:3:0:80:18
+# A:<locale>3/<chance>1
+P:4:0d0:0:0:0
+D:It is a leather armor, made from multiple layers of soft leather.
+
+N:453:& Soft Studded Leather~
+G:(:U
+I:36:5:0:0
+W:3:0:90:35
+# A:<locale>3/<chance>1
+P:5:1d1:0:0:0
+D:It is a leather armor, made from multiple layers of soft leather. It has padding on the
+D:inside.
+
+N:454:& Hard Leather Armor~
+G:(:U
+I:36:6:0:0
+W:5:0:100:150
+# A:<locale>5/<chance>1
+P:6:1d1:-1:0:0
+D:It is a leather armor, made from multiple layers of hardened leather.
+
+N:455:& Hard Studded Leather~
+G:(:U
+I:36:7:0:0
+W:10:0:110:200
+# A:<locale>10/<chance>1
+P:7:1d2:-1:0:0
+D:It is a leather armor, made from multiple layers of hardened leather. It has padding on the
+D:inside.
+
+N:456:& Leather Scale Mail~
+G:(:U
+I:36:11:0:0
+W:15:0:140:450
+# A:<locale>15/<chance>1
+P:11:1d1:-1:0:0
+D:It is a leather armor, made from scales of hardened leather stitched onto a soft leather
+D:base. It is padded on the inside.
+
+### The Cloaks ###
+
+N:457:& Cloak~
+G:(:g
+I:35:1:0:0
+W:1:0:10:3
+# A:<locale>1/<chance>20:<locale>1/<chance>1
+P:1:0d0:0:0:0
+D:It is a cloak, made from tough fabric.
+A:100:1 to 100
+
+N:458:& Shadow Cloak~
+G:(:D
+I:35:6:1:0
+W:60:0:5:4000
+# A:<locale>60/<chance>4
+F:STEALTH1
+P:6:0d0:0:0:4
+D:It is a cloak, made from elven fabric. Its color seems to change with your surroundings.
+
+N:459:& Small Leather Shield~
+G:):U
+I:34:2:0:0
+W:3:0:50:30
+# A:<locale>3/<chance>1
+P:2:1d1:0:0:0
+D:It is a small shield, made from multiple layers of hardened leather.
+
+N:460:& Small Metal Shield~
+G:):s
+I:34:3:0:0
+W:10:0:65:50
+# A:<locale>10/<chance>1
+P:3:1d2:0:0:0
+D:It is a small shield, made from multiple layers of tough metal.
+A:100:15 to 100
+
+N:461:& Large Leather Shield~
+G:):U
+I:34:4:0:0
+W:15:0:100:120
+# A:<locale>15/<chance>1
+P:4:1d2:0:0:0
+D:It is a large shield, made from multiple layers of hardened leather.
+
+N:462:& Large Metal Shield~
+G:):s
+I:34:5:0:0
+W:30:0:120:200
+# A:<locale>30/<chance>1
+P:5:1d3:0:0:0
+D:It is a large, made from multiple layers of tough metal.
+A:100:30 to 100
+
+### The shields ###
+
+N:463:& Shield~ of Deflection
+G:[:B
+I:34:10:0:0
+W:70:0:100:10000
+# A:<locale>70/<chance>8
+P:10:1d1:0:0:10
+F:IGNORE_ACID
+D:It is a large shield, made of Mithril, delved from the deep mines of Moria
+D:before the waking of Durin's Bane. It stays polished under the worst
+D:circumstances.
+
+N:464:& Iron Crown~
+G:]:s
+I:33:10:0:0
+W:45:0:20:500
+# A:<locale>45/<chance>1
+P:0:1d1:0:0:0
+D:It is an iron crown, adorned with valorous runes and etchings.
+A:100:45 to 100
+
+N:465:& Golden Crown~
+G:]:y
+I:33:11:0:0
+W:45:0:30:1000
+# A:<locale>45/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+D:It is a golden crown, adorned with valorous runes and inspiring etchings.
+A:100:45 to 100
+
+N:466:& Jewel Encrusted Crown~
+G:]:v
+I:33:12:0:0
+W:50:0:40:2000
+# A:<locale>50/<chance>1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+D:It is a golden crown, adorned with runes and encrusted with large and small gems.
+A:100:50 to 100
+
+N:467:& Massive Iron Crown~
+G:]:D
+I:33:50:0:0
+W:44:0:20:1000
+P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Amulet of Ingwe -- see artifact list
+N:468:& Hard Leather Cap~
+G:]:u
+I:32:2:0:0
+W:3:0:15:12
+# A:<locale>3/<chance>1
+P:2:0d0:0:0:0
+D:It is a cap, made from multiple layers of hardened leather.
+A:100:3 to 100
 
-N:554:& Amulet~
-G:":d
-I:40:51:0
-W:65:0:3:90000
+N:469:& Metal Cap~
+G:]:s
+I:32:3:0:0
+W:10:0:20:30
+# A:<locale>10/<chance>1
+P:3:1d1:0:0:0
+D:It is a conical, metal cap.
+A:100:10 to 100
+
+N:470:& Iron Helm~
+G:]:s
+I:32:5:0:0
+W:20:0:75:75
+# A:<locale>20/<chance>1
+P:5:1d3:0:0:0
+D:It is a helmet, made from iron, in a classical shape.
+A:100:20 to 100
+
+N:471:& Steel Helm~
+G:]:W
+I:32:6:0:0
+W:40:0:60:200
+# A:<locale>40/<chance>1
+P:6:1d3:0:0:0
+D:It is a large helmet, made from steel, with a face-plate.
+A:100:40 to 100
+
+### The Gloves ###
+
+N:472:& Set~ of Leather Gloves
+G:]:U
+I:31:1:0:0
+W:1:0:5:3
+# A:<locale>1/<chance>1
+P:1:0d0:0:0:0
+D:It is a set of gloves, made from thick leather.
+A:100:1 to 100
+
+N:473:& Set~ of Gauntlets
+G:]:U
+I:31:2:0:0
+W:10:0:25:35
+# A:<locale>10/<chance>1
+P:2:1d1:0:0:0
+D:It is a set of gauntlets made from metal.
+A:100:10 to 100
+
+N:474:& Set~ of Cesti
+G:]:W
+I:31:5:0:0
+W:50:0:40:100
+# A:<locale>50/<chance>1
+P:5:1d1:0:0:0
+D:It is a set of leather gloves, equipped with iron ridges and rivets designed
+D:to deal crushing blows to your enemies.
+
+##### Armor #####
+
+N:475:& Pair~ of Soft Leather Boots
+G:]:U
+I:30:2:0:0
+W:3:0:20:7
+# A:<locale>3/<chance>1
+P:2:1d1:0:0:0
+D:It is a pair of boots, made from soft leather.
+
+N:476:& Pair~ of Hard Leather Boots
+G:]:U
+I:30:3:0:0
+W:5:0:40:12
+# A:<locale>5/<chance>1
+P:3:1d1:0:0:0
+D:It is a pair of boots, made from hard leather.
+
+N:477:& Pair~ of Metal Shod Boots
+G:]:s
+I:30:6:0:0
+W:20:0:80:50
+# A:<locale>20/<chance>1
+P:6:1d1:0:0:0
+D:It is a pair of boots, made from hard leather, and reinfoced with steel.
+
+##### Edged Weapons #####
+
+N:478:& Broken Dagger~
+G:|:D
+I:23:1:0:0
+W:0:0:5:1
+# A:<locale>0/<chance>1
+P:0:1d1:-2:-4:0
+D:It is a dagger with a broken blade.
+
+N:479:& Broken Sword~
+G:|:D
+I:23:2:0:0
+W:0:0:30:2
+# A:<locale>0/<chance>1
+P:0:1d2:-2:-4:0
+D:It is a sword with about half of the blade left.
+
+N:480:& Dagger~
+G:|:W
+I:23:4:0:0
+W:0:0:12:10
+# A:<locale>0/<chance>1:<locale>5/<chance>1:<locale>10/<chance>1:<locale>20/<chance>1
+P:0:1d4:0:0:0
+A:100:0 to 100
+
+N:481:& Main Gauche~
+G:|:W
+I:23:5:0:0
+W:3:0:30:25
+# A:<locale>3/<chance>1
+P:0:1d5:0:0:0
+D:It is somewhat larger than a dagger, yet not as large as a sword.
+A:100:3 to 100
+
+N:482:& Rapier~
+G:|:W
+I:23:7:0:0
+W:5:0:40:42
+# A:<locale>5/<chance>1
+P:0:1d6:0:0:0
+D:It has no edges, but a very sharp point.
+A:100:5 to 100
+
+N:483:& Small Sword~
+G:|:W
+I:23:8:0:0
+W:5:0:75:48
+# A:<locale>5/<chance>1
+P:0:1d6:0:0:0
+D:It is a plain but small sword.
+
+N:484:& Short Sword~
+G:|:W
+I:23:10:0:0
+W:5:0:80:90
+# A:<locale>5/<chance>1
+P:0:1d7:0:0:0
+D:It is a plain but small sword.
+A:100:5 to 100
+
+N:485:& Sabre~
+G:|:W
+I:23:11:0:0
+W:5:0:50:50
+# A:<locale>5/<chance>1
+P:0:1d7:0:0:0
+D:It is a thin, curved sword.
+
+N:486:& Cutlass~
+G:|:W
+I:23:12:0:0
+W:5:0:110:85
+# A:<locale>5/<chance>1
+P:0:1d7:0:0:0
+D:It is a thin, curved sword.
+A:100:5 to 100
+
+N:487:& Tulwar~
+G:|:W
+I:23:15:0:0
+W:5:0:100:200
+# A:<locale>5/<chance>1
+P:0:2d4:0:0:0
+D:It is a short, curved sword.
+A:100:5 to 100
+
+N:488:& Broad Sword~
+G:|:W
+I:23:16:0:0
+W:10:0:150:255
+# A:<locale>10/<chance>15:<locale>10/<chance>1
+P:0:2d5:0:0:0
+D:It is a plain but large sword.
+A:50:10 to 100
+
+N:489:& Long Sword~
+G:|:W
+I:23:17:0:0
+W:10:0:130:300
+# A:<locale>10/<chance>20:<locale>10/<chance>1
+P:0:2d5:0:0:0
+D:It is a plain and normal-sized sword.
+A:50:10 to 100
+
+N:490:& Scimitar~
+G:|:W
+I:23:18:0:0
+W:10:0:130:250
+# A:<locale>10/<chance>1
+P:0:2d5:0:0:0
+D:It is a broad, curved blade with a plain handle.
+A:100:10 to 100
+
+N:491:& Katana~
+G:|:W
+I:23:20:0:0
+W:20:0:120:400
+# A:<locale>20/<chance>1
+P:0:3d4:0:0:0
+F:COULD2H
+D:It is a long, thin and razor-sharp sword.
+A:100:20 to 100
+
+N:492:& Bastard Sword~
+G:|:W
+I:23:21:0:0
+W:15:0:140:350
+# A:<locale>15/<chance>1
+P:0:3d4:0:0:0
+F:COULD2H
+D:A sword meant for use in one hand or both hands.
+A:100:15 to 100
+
+N:493:& Two-Handed Sword~
+G:|:W
+I:23:25:0:0
+W:30:0:200:775
+# A:<locale>30/<chance>40:<locale>30/<chance>1
+P:0:3d6:0:0:0
+F:MUST2H
+D:It is a plain but very large sword.
+
+N:494:& Executioner's Sword~
+G:|:r
+I:23:28:0:0
+W:40:0:260:850
+# A:<locale>40/<chance>1
+P:0:4d5:0:0:0
+F:MUST2H
+D:It is a very large sword with an ornamental handle.
+A:100:40 to 100
+
+N:495:& Blade~ of Chaos
+G:|:v
+I:23:30:0:0
+W:70:0:180:4000
+# A:<locale>70/<chance>8
+P:0:6d5:0:0:0
+F:RES_CHAOS
+D:It is a sword with an intricate design written on it. The blade doesn't
+D:seem quite straight, but it is difficult to see where it is bent. The outlines
+D:shimmer if you look at it.
+A:20:70 to 100
+
+N:496:& Spear~
+G:/:s
+I:22:2:0:0
+W:5:0:50:36
+# A:<locale>5/<chance>1
+P:0:1d6:0:0:0
+D:It is a light spear, with a sharp point.
+A:100:5 to 100
+
+N:497:& Awl-Pike~
+G:/:s
+I:22:4:0:0
+W:10:0:160:340
+# A:<locale>10/<chance>1
+P:0:1d8:0:0:0
+F:COULD2H
+D:It is a smaller polearm, adorned with a sharp blade.
+A:100:10 to 100
+
+N:498:& Trident~
+G:/:y
+I:22:5:0:0
+W:5:0:70:120
+# A:<locale>5/<chance>1
+P:0:1d8:0:0:0
+F:COULD2H
+D:It is a large spear, with a triple blade at the top.
+A:100:5 to 100
+
+N:499:& Pike~
+G:/:s
+I:22:8:0:0
+W:15:0:160:358
+# A:<locale>15/<chance>1
+P:0:2d5:0:0:0
+F:COULD2H
+D:It is a full-sized polearm, with a sharp blade at the end.
+A:100:15 to 100
+
+##### Polearms #####
+
+N:500:& Beaked Axe~
+G:/:s
+I:22:10:0:0
+W:15:0:180:408
+# A:<locale>15/<chance>1
+P:0:2d6:0:0:0
+F:COULD2H
+D:It is a large axe, with an inwardly-curved head.
+A:100:15 to 100
+
+N:501:& Broad Axe~
+G:/:s
+I:22:11:0:0
+W:15:0:160:304
+# A:<locale>15/<chance>1
+P:0:2d6:0:0:0
+F:COULD2H
+D:It is an axe with a large blade.
+A:100:15 to 100
+
+N:502:& Glaive~
+G:/:s
+I:22:13:0:0
+W:20:0:190:363
+# A:<locale>20/<chance>1
+P:0:2d6:0:0:0
+F:COULD2H
+D:It is a broad-bladed polearm, in which the edges curve backwards near the point.
+A:100:20 to 100
+
+N:503:& Halberd~
+G:/:s
+I:22:15:0:0
+W:25:0:190:430
+# A:<locale>25/<chance>1
+P:0:3d5:0:0:0
+F:COULD2H
+D:It is a polearm with an axe-blade (spiked on the back) and a spear point at the top.
+A:100:25 to 100
+
+N:504:& Scythe~
+G:/:s
+I:22:17:0:0
+W:45:0:250:800
+# A:<locale>45/<chance>1
+P:0:5d3:0:0:0
+F:COULD2H
+D:It is a scythe with a large and sharp blade at the end.
+A:100:45 to 100
+
+N:505:& Lance~
+G:/:s
+I:22:20:0:0
+W:10:0:300:230
+# A:<locale>10/<chance>1
+P:0:2d8:0:0:0
+F:MUST2H
+D:It is a very large and very heavy spear, with a sharp point.
+D:Because of it's size, it is difficult to wield.
+A:100:10 to 100
+
+N:506:& Battle Axe~
+G:/:s
+I:22:22:0:0
+W:15:0:170:334
+# A:<locale>15/<chance>1
+P:0:2d8:0:0:0
+F:COULD2H
+D:It is an axe made for killing, with a large double blade at the top.
+D:A favorite weapon of dwarves.
+A:100:15 to 100
+
+N:507:& Great Axe~
+G:/:s
+I:22:25:0:0
+W:40:0:230:500
+# A:<locale>40/<chance>1
+P:0:4d4:0:0:0
+F:MUST2H
+D:It is a full-sized axe, with a heavy and sharp double blade.
+D:Only the greatest warriors can wield it well, since it requires a lot of strength.
+A:100:40 to 100
+
+N:508:& Lochaber Axe~
+G:/:D
+I:22:28:0:0
+W:45:0:250:750
+# A:<locale>45/<chance>1
+P:0:3d8:0:0:0
+F:COULD2H
+D:It is a somewhat short but very sharp axe. It has a nice balance.
+A:100:45 to 100
+
+N:509:& Scythe~ of Slicing
+G:/:r
+I:22:30:0:0
+W:60:0:250:3500
+# A:<locale>60/<chance>4
+P:0:8d4:0:0:0
+F:MUST2H
+D:It is a large and intimidating scythe, the shaft is inscribed with various runes.
+A:33:60 to 100
+
+N:510:& Whip~
+G:\:D
+I:21:2:0:0
+W:3:0:30:30
+# A:<locale>3/<chance>1
+P:0:1d6:0:0:0
+D:Multiple thick leather strips attached to a short woorden staff.
+A:100:3 to 100
+
+N:511:& Quarterstaff~
+G:\:U
+I:21:3:0:0
+W:10:0:150:200
+# A:<locale>10/<chance>1
+P:0:1d9:0:0:0
+F:COULD2H
+D:It is a stout stick, hard yet resilient and somewhat longer than yourself.
+A:100:10 to 100
+
+N:512:& Mace~
+G:\:D
+I:21:5:0:0
+W:5:0:120:130
+# A:<locale>5/<chance>1
+P:0:2d4:0:0:0
+F:COULD2H
+D:It is a wooden handle with an iron weight at the end.
+A:100:5 to 100
+
+##### Hafted Weapons #####
+
+N:513:& Ball-and-Chain~
+G:\:D
+I:21:6:0:0
+W:20:0:150:200
+# A:<locale>20/<chance>1
+P:0:2d4:0:0:0
+F:COULD2H
+D:It is a spiked ball attached to a wooden handle by a length of chain.
+A:100:20 to 100
+
+N:514:& War Hammer~
+G:\:D
+I:21:8:0:0
+W:5:0:120:225
+# A:<locale>5/<chance>1
+P:0:3d3:0:0:0
+F:COULD2H
+D:It is a heavy hammer.
+A:100:5 to 100
+
+N:515:& Lucerne Hammer~
+G:\:B
+I:21:10:0:0
+W:10:0:120:376
+# A:<locale>10/<chance>1
+P:0:2d5:0:0:0
+F:COULD2H
+D:It is a large hammer, but with nasty-looking spikes at the head.
+A:100:10 to 100
+
+N:516:& Morning Star~
+G:\:D
+I:21:12:0:0
+W:10:0:150:396
+# A:<locale>10/<chance>1
+P:0:2d6:0:0:0
+F:COULD2H
+D:It is a wooden handle with a spiked ball of iron at the end.
+A:100:10 to 100
+
+N:517:& Flail~
+G:\:D
+I:21:13:0:0
+W:10:0:150:353
+# A:<locale>10/<chance>1
+P:0:2d6:0:0:0
+F:COULD2H
+D:It is a large handle, with a short chain and a iron cilinder attached at the end.
+A:100:10 to 100
+
+N:518:& Lead-Filled Mace~
+G:\:D
+I:21:15:0:0
+W:15:0:180:502
+# A:<locale>15/<chance>1
+P:0:3d4:0:0:0
+F:COULD2H
+D:It is a wooden handle with an iron weight, filled with lead, at the end.
+A:100:15 to 100
+
+N:519:& Two-Handed Flail~
+G:\:y
+I:21:18:0:0
+W:45:0:280:590
+# A:<locale>45/<chance>1
+P:0:3d6:0:0:0
+F:MUST2H
+D:It is a large handle, with a short chain and a heavy iron cilinder attached at the end.
+
+N:520:& Mace~ of Disruption
+G:\:v
+I:21:20:0:0
+W:80:0:400:4300
+# A:<locale>80/<chance>8
+P:0:5d8:0:0:0
+F:SLAY_UNDEAD | MUST2H
+D:It is a heavy mace, the staff is inscribed with many runes. When wielding
+D:it, you seem strangely eager to bash undead creatures with it.
+A:20:80 to 100
+
+##### "Morgoth Artifacts" #####
+
+# These objects, like objects are never created
+# without being turned into artifacts.  This simplifies the
+# code for "killing the winner monster".
+
+N:521:& Mighty Hammer~
+G:\:D
+I:21:50:0:0
+W:15:0:200:1000
+P:0:3d9:0:0:0
 F:INSTA_ART
 
-# The Necklace of the Dwarves -- see artifact list
+##### Shovels and Picks #####
 
-N:555:& Necklace~
-G:":y
-I:40:52:0
-W:70:0:3:75000
-F:INSTA_ART
+N:522:& Shovel~
+G:\:s
+I:20:1:1:0
+W:1:0:60:10
+# A:<locale>5/<chance>16
+P:0:1d2:0:0:0
+F:TUNNEL1
+D:It is a normal-looking shovel.
+A:50:5 to 100
 
-# The Ring of Barahir -- see artifact list
+N:523:& Gnomish Shovel~
+G:\:G
+I:20:2:2:0
+W:20:0:60:100
+# A:<locale>20/<chance>4
+P:0:1d2:0:0:0
+F:TUNNEL1
+D:It is a larger than usual shovel.
 
-N:556:& Ring~
-G:=:d
-I:45:50:0
-W:50:0:2:65000
-F:INSTA_ART
+N:524:& Dwarven Shovel~
+G:\:B
+I:20:3:3:0
+W:40:0:120:200
+# A:<locale>40/<chance>1
+P:0:1d3:0:0:0
+F:TUNNEL1
+D:It is a strange shovel: the handle is shorter than usual, but the blade is much larger.
+D:You can see its made for a short, strong worker.
 
-# The Ring of Tulkas -- see artifact list
+N:525:& Pick~
+G:\:s
+I:20:4:1:0
+W:5:0:150:50
+# A:<locale>10/<chance>16
+P:0:1d3:0:0:0
+F:TUNNEL1 | COULD2H
+D:It is a normal pick.
+A:33:30 to 100
 
-N:557:& Ring~
-G:=:d
-I:45:51:0
-W:70:0:2:150000
-F:INSTA_ART
+N:526:& Orcish Pick~
+G:\:g
+I:20:5:2:0
+W:30:0:150:300
+# A:<locale>30/<chance>4
+P:0:1d3:0:0:0
+F:TUNNEL1 | COULD2H
+D:It is a larger than usual pick.
 
-# The Ring of Power 'Narya' -- see artifact list
+N:527:& Dwarven Pick~
+G:\:b
+I:20:6:3:0
+W:50:0:200:600
+# A:<locale>50/<chance>1
+P:0:1d4:0:0:0
+F:TUNNEL1 | COULD2H
+D:It is a strange pick: the handle is shorter than usual, but the head is much heavier.
+D:You can see its made for a short, strong worker.
 
-N:558:& Ring~
-G:=:d
-I:45:52:0
-W:70:0:2:100000
-F:INSTA_ART
+##### Bows, Crossbows, Slings #####
 
-# The Ring of Power 'Nenya' -- see artifact list
+N:528:& Sling~
+G:}:u
+I:19:2:0:0
+W:1:0:5:5
+# A:<locale>1/<chance>1
+D:It is a sling consisting of a strip of leather.
+A:100:1 to 100
 
-N:559:& Ring~
-G:=:d
-I:45:53:0
-W:80:0:2:200000
-F:INSTA_ART
+N:529:& Short Bow~
+G:}:U
+I:19:12:0:0
+W:3:0:30:50
+# A:<locale>3/<chance>1
+D:It is a small bow.
+A:100:3 to 100
 
-# The Ring of Power 'Vilya' -- see artifact list
+N:530:& Long Bow~
+G:}:U
+I:19:13:0:0
+W:10:0:40:120
+# A:<locale>10/<chance>1
+D:It is a large and powerful bow.
+A:100:10 to 100
 
-N:560:& Ring~
-G:=:d
-I:45:54:0
-W:90:0:2:300000
-F:INSTA_ART
+N:531:& Light Crossbow~
+G:}:s
+I:19:23:0:0
+W:15:0:110:140
+# A:<locale>15/<chance>1
+D:It is a small crossbow, with heavy wooden arms.
+A:100:15 to 100
 
-# The Ring of Power 'The One Ring' -- see artifact list
+N:532:& Heavy Crossbow~
+G:}:s
+I:19:24:0:0
+W:30:0:200:300
+# A:<locale>30/<chance>1
+D:It is a large crossbow, with heavy iron arms.
+A:100:30 to 100
 
-N:561:& Ring~
-G:=:y
-I:45:55:0
-W:100:0:2:5000000
-F:INSTA_ART
+N:533:& Hobbit Sling~
+G:}:u
+I:19:33:0:0
+W:1:0:5:1000
+# A:<locale>2/<chance>5
+D:It is a sling consisting of a finely crafted piece of leather, with some
+D:hobbit inscriptions upon it.
 
-# The Palantir of Westernesse -- see artifact list
+N:534:& Elven Long Bow~
+G:}:U
+I:19:34:0:0
+W:10:0:20:12000
+# A:<locale>40/<chance>4
+D:This is the fabled bow of the Elves, a large bow, made of deep brown wood, with
+D:runes inscribed lightly upon it.
 
-N:562:& Palantir~
+N:535:& Broken Bolt~
+G:{:s
+I:18:0:0:0
+W:1:0:2:1
+# A:<locale>1/<chance>15:<locale>1/<chance>1
+P:0:1d3:0:0:0
+D:It is a crossbow-bolt with the point broken off.
+
+N:536:& Bolt~
+G:{:s
+I:18:1:0:0
+W:3:0:3:2
+# A:<locale>3/<chance>25:<locale>3/<chance>1
+P:0:1d5:0:0:0
+D:It is a crossbow-bolt, with a metal point.
+A:100:3 to 100
+M:100:6d7
+
+N:537:& Seeker Bolt~
+G:{:B
+I:18:2:0:0
+W:65:0:3:25
+# A:<locale>65/<chance>4
+P:0:4d5:0:0:0
+D:It is a large crossbow-bolt, with a nasty-looking barbed metal point.
+A:50:65 to 100
+M:100:6d7
+
+##### Missiles #####
+
+N:538:& Crooked Arrow~
+G:{:U
+I:17:0:0:0
+W:1:0:1:1
+# A:<locale>1/<chance>5:<locale>1/<chance>1
+P:0:1d2:0:0:0
+D:It is a long arrow, but some of the fletching seems loose.
+
+N:539:& Arrow~
+G:{:U
+I:17:1:0:0
+W:3:0:2:1
+# A:<locale>3/<chance>15:<locale>3/<chance>1
+P:0:1d4:0:0:0
+D:It is a long arrow, with feather fletching, and a small metal point.
+A:100:3 to 100
+M:100:6d7
+
+#G:char:color
+#I:tval:sval:pval
+#W:level:extra:wgt:cost
+#A:chance
+#P:ac:dam dice:dam sides:hit:dam:to ac
+N:540:& Seeker Arrow~
+G:{:G
+I:17:2:0:0
+W:55:0:2:20
+# A:<locale>55/<chance>2
+P:0:4d4:0:0:0
+D:It is a very long arrow, with fletching, and a large, hooked, point.
+A:50:55 to 100
+M:100:6d7
+
+N:541:& Rounded Pebble~
+G:{:s
+I:16:0:0:0
+W:0:0:4:1
+# A:<locale>0/<chance>1
+P:0:1d2:0:0:0
+D:It is a smooth, rounded piece of rock.
+A:100:0 to 100
+M:100:6d7
+
+N:542:& Iron Shot~
+G:{:s
+I:16:1:0:0
+W:3:0:5:2
+# A:<locale>3/<chance>1
+P:0:1d3:0:0:0
+D:It is a small, dense iron ball.
+A:100:3 to 100
+M:100:6d7
+
+N:543:& Lead Shot~
+G:{:s
+I:16:2:0:0
+W:3:0:6:4
+# A:<locale>12/<chance>2
+P:0:1d5:0:0:0
+D:It is a small, dense iron ball. It feels heavy, since it is weightened with a lead core.
+
+N:544:& Ruined chest~
 G:~:y
-I:39:7:0
-W:75:0:200:100000
-P:0:10d10:0:0:0
-F:INSTA_ART
+I:7:0:0:0
+W:0:0:250:0
+# A:<locale>75/<chance>1
+D:It is a heavy, small chest of steel, with reinforced edges.
+D:It seems to have been blown up from the inside, and there are
+D:multiple jagged, gaping holes in the sides and top. Needless to
+D:say it is quite empty.
+A:100:75 to 100
 
-# The Elfstone 'Elessar' -- see artifact list
+##### Chests #####
 
-N:563:& Elfstone~
-G:":g
-I:40:53:0
-W:60:0:3:50000
-F:INSTA_ART
+N:545:& Small wooden chest~
+G:~:y
+I:7:1:0:0
+W:5:0:250:20
+# A:<locale>5/<chance>1
+P:0:2d3:0:0:0
+D:It is a heavy, small chest of dense, dark brown wood with reinforced edges.
+A:100:5 to 100
 
-# The Jewel 'Evenstar' -- see artifact list
+N:546:& Small iron chest~
+G:~:y
+I:7:2:0:0
+W:25:0:300:100
+# A:<locale>25/<chance>1
+P:0:2d4:0:0:0
+D:It is a heavy, small chest of iron, with reinforced edges.
+A:100:25 to 100
 
-N:564:& Jewel~
-G:":w
-I:40:54:0
-W:40:0:3:25000
-F:INSTA_ART
+N:547:& Small steel chest~
+G:~:y
+I:7:3:0:0
+W:45:0:500:200
+# A:<locale>45/<chance>1
+P:0:2d4:0:0:0
+D:It is a heavy, small chest of steel, with reinforced edges.
+D:It is decorated with diverse incisions.
+A:100:45 to 100
+
+N:548:& Large wooden chest~
+G:~:y
+I:7:5:0:0
+W:15:0:500:60
+# A:<locale>15/<chance>1
+P:0:2d5:0:0:0
+D:It is a heavy, very large chest of dense, dark brown wood with reinforced edges
+D:and strip running around it.
+A:100:15 to 100
+
+N:549:& Large iron chest~
+G:~:y
+I:7:6:0:0
+W:35:0:1000:150
+# A:<locale>35/<chance>1
+P:0:2d6:0:0:0
+D:It is a heavy, large chest of iron, with reinforced edges.
+A:100:35 to 100
+
+N:550:& Large steel chest~
+G:~:y
+I:7:7:0:0
+W:55:0:1000:250
+# A:<locale>55/<chance>1
+P:0:2d6:0:0:0
+D:It is a heavy, large chest of steel, with reinforced edges.
+D:It is decorated with diverse incisions.
+A:100:55 to 100
+
+##### Various Stuff #####
+
+N:551:& Iron Spike~
+G:~:W
+I:5:0:0:0
+W:1:0:10:1
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:A small piece of metal, pointed at one end. It can be used to jam a lock in a door.
+A:75:1 to 100
+F:EASY_KNOW
+M:100:6d7
+
+# reserved for artifact rods:
+# sval 45 and up
+
+##### Junk #####
+
+N:552:& Shard~ of Pottery
+G:~:r
+I:3:3:0:0
+W:0:0:5:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:This may have belonged to a hero's commerative Vase, a deceased hero's urn, or
+D:to a beggar's mug. It is not recognizable anymore.
+F:EASY_KNOW
+
+N:553:& Broken Stick~
+G:~:r
+I:3:6:0:0
+W:0:0:3:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:Nobody can tell if this was bow, quarterstaff or firewood.
+F:EASY_KNOW
+
+N:554:& Empty Bottle~
+G:!:w
+I:2:1:0:0
+W:0:0:2:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:It is a bottle. No trace of the contents remains.
+F:EASY_KNOW
+
+##### Skeletons #####
+
+N:555:& Broken Skull~
+G:~:w
+I:1:1:0:0
+W:0:0:1:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:Empty eyes stare back at you, and ants resent your disturbance.
+F:EASY_KNOW
+
+N:556:& Broken Bone~
+G:~:w
+I:1:2:0:0
+W:0:0:2:0
+# A:<locale>0/<chance>1
+P:0:1d1:0:0:0
+D:Its broken end is scoured clean.
+F:EASY_KNOW
+
+N:557:& Skeleton~
+G:~:w
+I:1:3:0:0
+W:1:0:10:0
+# A:<locale>1/<chance>1
+P:0:1d1:0:0:0
+D:You cannot really see if this is complete, and if so, what it was.
+F:EASY_KNOW

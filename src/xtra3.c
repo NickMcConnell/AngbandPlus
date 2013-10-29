@@ -20,7 +20,7 @@
 #include "angband.h"
 
 #include "game-event.h"
-#include "game-cmd.h"
+#include "game-cmd.h" 
 
 #include "textui.h"
 #include "ui-birth.h"
@@ -54,10 +54,11 @@ game_event_type player_events[] =
 game_event_type statusline_events[] =
 {
 	EVENT_STUDYSTATUS,
-	EVENT_STATUS,
+	EVENT_STATUS, /* TODO Can EVENT_STATUS go? */
 	EVENT_DETECTIONSTATUS,
 	EVENT_STATE,
-	EVENT_MOUSEBUTTONS
+	EVENT_MOUSEBUTTONS,
+	EVENT_READING
 };
 
 
@@ -93,7 +94,7 @@ void cnv_stat(int val, char *out_val, size_t out_len)
 /*
  * Print character info at given row, column in a 13 char field
  */
-static void prt_field(cptr info, int row, int col)
+static void prt_field(cptr info, s16b row, s16b col)
 {
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", row, col);
@@ -106,7 +107,7 @@ static void prt_field(cptr info, int row, int col)
 /*
  * Print character stat in given row, column
  */
-static void prt_stat(int stat, int row, int col)
+static void prt_stat(int stat, s16b row, s16b col)
 {
 	char tmp[32];
 
@@ -137,7 +138,7 @@ static void prt_stat(int stat, int row, int col)
 /*
  * Prints "title", including "wizard" or "winner" as needed.
  */
-static void prt_title(int row, int col)
+static void prt_title(s16b row, s16b col)
 {
 	cptr p;
 
@@ -166,7 +167,7 @@ static void prt_title(int row, int col)
 /*
  * Prints level
  */
-static void prt_level(int row, int col)
+static void prt_level(s16b row, s16b col)
 {
 	char tmp[32];
 
@@ -188,7 +189,7 @@ static void prt_level(int row, int col)
 /*
  * Display the experience
  */
-static void prt_exp(int row, int col)
+static void prt_exp(s16b row, s16b col)
 {
 	char out_val[32];
 	bool lev50 = (p_ptr->lev == 50);
@@ -220,7 +221,7 @@ static void prt_exp(int row, int col)
 /*
  * Prints current gold
  */
-static void prt_gold(int row, int col)
+static void prt_gold(s16b row, s16b col)
 {
 	char tmp[32];
 
@@ -233,9 +234,9 @@ static void prt_gold(int row, int col)
 /*
  * Equippy chars
  */
-static void prt_equippy(int row, int col)
+static void prt_equippy(s16b row, s16b col)
 {
-	int i;
+	s16b i;
 
 	byte a;
 	char c;
@@ -270,7 +271,7 @@ static void prt_equippy(int row, int col)
 /*
  * Prints current AC
  */
-static void prt_ac(int row, int col)
+static void prt_ac(s16b row, s16b col)
 {
 	char tmp[32];
 
@@ -299,7 +300,7 @@ byte player_hp_attr(void)
 /*
  * Prints Cur hit points
  */
-static void prt_hp(int row, int col)
+static void prt_hp(s16b row, s16b col)
 {
 	char cur_hp[32], max_hp[32];
 	byte color = player_hp_attr();
@@ -334,13 +335,13 @@ byte player_sp_attr(void)
 /*
  * Prints players max/cur spell points
  */
-static void prt_sp(int row, int col)
+static void prt_sp(s16b row, s16b col)
 {
 	char cur_sp[32], max_sp[32];
 	byte color = player_sp_attr();
 
 	/* Do not show mana unless it matters */
-	if (!cp_ptr->spell_book) return;
+	if (!cp_ptr->spell_stat) return;
 
 	put_str("SP ", row, col);
 
@@ -423,7 +424,7 @@ byte monster_health_attr(void)
  * is being tracked, we clear the health bar.  If the monster being
  * tracked is not currently visible, a special health bar is shown.
  */
-static void prt_health(int row, int col)
+static void prt_health(s16b row, s16b col)
 {
 	byte attr = monster_health_attr();
 	
@@ -446,7 +447,8 @@ static void prt_health(int row, int col)
 	/* Tracking a visible monster */
 	else
 	{
-		int pct, len;
+		s16b pct;
+		s16b len;
 
 		monster_type *m_ptr = &mon_list[p_ptr->health_who];
 
@@ -468,7 +470,7 @@ static void prt_health(int row, int col)
 /*
  * Prints the speed of a character.
  */
-static void prt_speed(int row, int col)
+static void prt_speed(s16b row, s16b col)
 {
 	int i = p_ptr->state.speed;
 
@@ -504,7 +506,7 @@ static void prt_speed(int row, int col)
 /*
  * Prints depth in stat area
  */
-static void prt_depth(int row, int col)
+static void prt_depth(s16b row, s16b col)
 {
 	char depths[32];
 
@@ -526,14 +528,14 @@ static void prt_depth(int row, int col)
 
 
 /* Some simple wrapper functions */
-static void prt_str(int row, int col) { prt_stat(A_STR, row, col); }
-static void prt_dex(int row, int col) { prt_stat(A_DEX, row, col); }
-static void prt_wis(int row, int col) { prt_stat(A_WIS, row, col); }
-static void prt_int(int row, int col) { prt_stat(A_INT, row, col); }
-static void prt_con(int row, int col) { prt_stat(A_CON, row, col); }
-static void prt_chr(int row, int col) { prt_stat(A_CHR, row, col); }
-static void prt_race(int row, int col) { prt_field(p_name + rp_ptr->name, row, col); }
-static void prt_class(int row, int col) { prt_field(c_name + cp_ptr->name, row, col); }
+static void prt_str(s16b row, s16b col) { prt_stat(A_STR, row, col); }
+static void prt_dex(s16b row, s16b col) { prt_stat(A_DEX, row, col); }
+static void prt_wis(s16b row, s16b col) { prt_stat(A_WIS, row, col); }
+static void prt_int(s16b row, s16b col) { prt_stat(A_INT, row, col); }
+static void prt_con(s16b row, s16b col) { prt_stat(A_CON, row, col); }
+static void prt_chr(s16b row, s16b col) { prt_stat(A_CHR, row, col); }
+static void prt_race(s16b row, s16b col) { prt_field(p_name + rp_ptr->name, row, col); }
+static void prt_class(s16b row, s16b col) { prt_field(c_name + cp_ptr->name, row, col); }
 
 
 /*
@@ -541,7 +543,7 @@ static void prt_class(int row, int col) { prt_field(c_name + cp_ptr->name, row, 
  */
 static const struct side_handler_t
 {
-	void (*hook)(int, int);	 /* int row, int col */
+	void (*hook)(s16b, s16b);	 
 	int priority;		 /* 1 is most important (always displayed) */
 	game_event_type type;	 /* PR_* flag this corresponds to */
 } side_handlers[] =
@@ -582,10 +584,11 @@ static const struct side_handler_t
  */
 static void update_sidebar(game_event_type type, game_event_data *data, void *user)
 {
-	int x, y, row;
+	s16b x, y, row;
 	int max_priority;
-	size_t i;
-
+	s16b i;
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
 
 	Term_get_size(&x, &y);
 
@@ -631,6 +634,10 @@ static void hp_colour_change(game_event_type type, game_event_data *data, void *
 	 * using this command when graphics mode is on
 	 * causes the character to be a black square.
 	 */
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
+	UNREFERENCED_PARAMETER(user);
+
 	if ((OPT(hp_changes_color)) && (arg_graphics == GRAPHICS_NONE))
 	{
 		lite_spot(p_ptr->py, p_ptr->px);
@@ -653,7 +660,7 @@ struct state_info
 {
 	int value;
 	const char *str;
-	size_t len;
+	s16b len;
 	byte attr;
 };
 
@@ -706,6 +713,11 @@ static const struct state_info effects[] =
 	{ TMD_SHERO,     S("Berserk"),    TERM_L_GREEN },
 	{ TMD_STONESKIN, S("Stone"),      TERM_L_GREEN },
 	{ TMD_SHIELD,    S("Shield"),     TERM_L_GREEN },
+	{ TMD_REFLECT,   S("Reflct"),     TERM_L_GREEN },
+	{ TMD_FIRE,   S("Fire"),     TERM_L_GREEN }, /* Temporary brands from potions */
+	{ TMD_COLD,   S("Cold"),     TERM_L_GREEN },
+	{ TMD_ACID,   S("Acid"),     TERM_L_GREEN },
+	{ TMD_ELEC,   S("Elec"),     TERM_L_GREEN },
 	{ TMD_BLESSED,   S("Blssd"),      TERM_L_GREEN },
 	{ TMD_SINVIS,    S("SInvis"),     TERM_L_GREEN },
 	{ TMD_SINFRA,    S("Infra"),      TERM_L_GREEN },
@@ -743,7 +755,7 @@ static const struct state_info effects[] =
 /*
  * Print recall status.
  */
-static size_t prt_recall(int row, int col)
+static size_t prt_recall(s16b row, s16b col)
 {
 	if (p_ptr->word_recall)
 	{
@@ -758,7 +770,7 @@ static size_t prt_recall(int row, int col)
 /*
  * Print cut indicator.
  */
-static size_t prt_cut(int row, int col)
+static size_t prt_cut(s16b row, s16b col)
 {
 	PRINT_STATE(>, cut_data, p_ptr->timed[TMD_CUT], row, col);
 	return 0;
@@ -768,7 +780,7 @@ static size_t prt_cut(int row, int col)
 /*
  * Print stun indicator.
  */
-static size_t prt_stun(int row, int col)
+static size_t prt_stun(s16b row, s16b col)
 {
 	PRINT_STATE(>, stun_data, p_ptr->timed[TMD_STUN], row, col);
 	return 0;
@@ -778,7 +790,7 @@ static size_t prt_stun(int row, int col)
 /*
  * Prints status of hunger
  */
-static size_t prt_hunger(int row, int col)
+static size_t prt_hunger(s16b row, s16b col)
 {
 	PRINT_STATE(<, hunger_data, p_ptr->food, row, col);
 	return 0;
@@ -793,7 +805,7 @@ static size_t prt_hunger(int row, int col)
  * This function was a major bottleneck when resting, so a lot of
  * the text formatting code was optimized in place below.
  */
-static size_t prt_state(int row, int col)
+static size_t prt_state(s16b row, s16b col)
 {
 	byte attr = TERM_WHITE;
 
@@ -897,7 +909,7 @@ static size_t prt_state(int row, int col)
 /*
  * Prints trap detection status
  */
-static size_t prt_dtrap(int row, int col)
+static size_t prt_dtrap(s16b row, s16b col)
 {
 	byte info = cave_info2[p_ptr->py][p_ptr->px];
 
@@ -921,7 +933,7 @@ static size_t prt_dtrap(int row, int col)
 /*
  * Print whether a character is studying or not.
  */
-static size_t prt_study(int row, int col)
+static size_t prt_study(s16b row, s16b col)
 {
 	if (p_ptr->new_spells)
 	{
@@ -938,9 +950,9 @@ static size_t prt_study(int row, int col)
 /*
  * Print all timed effects.
  */
-static size_t prt_tmd(int row, int col)
+static size_t prt_tmd(s16b row, s16b col)
 {
-	size_t i, len = 0;
+	s16b i, len = 0;
 
 	for (i = 0; i < N_ELEMENTS(effects); i++)
 	{
@@ -957,7 +969,7 @@ static size_t prt_tmd(int row, int col)
 /*
  * Print mouse buttons
  */
-static size_t prt_buttons(int row, int col)
+static size_t prt_buttons(s16b row, s16b col)
 {
 	if (OPT(mouse_buttons))
 		return button_print(row, col);
@@ -967,7 +979,7 @@ static size_t prt_buttons(int row, int col)
 
 
 /* Useful typedef */
-typedef size_t status_f(int row, int col);
+typedef size_t status_f(s16b row, s16b col);
 
 status_f *status_handlers[] =
 { prt_recall, prt_state, prt_cut, prt_stun, prt_hunger, prt_study, prt_tmd,
@@ -979,16 +991,19 @@ status_f *status_handlers[] =
  */
 static void update_statusline(game_event_type type, game_event_data *data, void *user)
 {
-	int row = Term->hgt - 1;
-	int col = 13;
+	s16b row = Term->hgt - 1;
+	s16b col = 13;
 	size_t i;
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Clear the remainder of the line */
 	prt("", row, col);
 
 	/* Display those which need redrawing */
 	for (i = 0; i < N_ELEMENTS(status_handlers); i++)
-		col += status_handlers[i](row, col);
+		col += (s16b) status_handlers[i](row, col);
 }
 
 
@@ -1012,6 +1027,7 @@ static void trace_map_updates(game_event_type type, game_event_data *data, void 
 static void update_maps(game_event_type type, game_event_data *data, void *user)
 {
 	term *t = user;
+	UNREFERENCED_PARAMETER(type);
 
 	/* This signals a whole-map redraw. */
 	if (data->point.x == -1 && data->point.y == -1)
@@ -1026,7 +1042,7 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 		char c, tc;
 		
 		int ky, kx;
-		int vy, vx;
+		byte vy, vx;
 		
 		/* Location relative to panel */
 		ky = data->point.y - t->offset_y;
@@ -1041,10 +1057,13 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 			if ((kx < 0) || (kx >= SCREEN_WID)) return;
 			
 			/* Location in window */
-			vy = ky + ROW_MAP;
-			vx = kx + COL_MAP;
+			ISBYTE(ky + ROW_MAP);
+			vy = (byte) (ky + ROW_MAP);
+			ISBYTE(kx + COL_MAP);
+			vx = (byte) (kx + COL_MAP);
 
-			if (use_bigtile) vx += kx;
+			ISBYTE(vx + kx);
+			if (use_bigtile) vx += (byte) kx;
 		}
 		else
 		{
@@ -1059,8 +1078,10 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 			if ((kx < 0) || (kx >= t->wid)) return;
 			
 			/* Location in window */
-			vy = ky;
-			vx = kx;
+			ISBYTE(ky);
+			vy = (byte) ky;
+			ISBYTE(kx);
+			vx = (byte) kx;
 		}
 
 		
@@ -1101,6 +1122,8 @@ static void update_inven_subwindow(game_event_type type, game_event_data *data,
 {
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1109,6 +1132,7 @@ static void update_inven_subwindow(game_event_type type, game_event_data *data,
 		display_inven();
 	else
 		display_equip();
+
 
 	Term_fresh();
 	
@@ -1121,6 +1145,8 @@ static void update_equip_subwindow(game_event_type type, game_event_data *data,
 {
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1141,44 +1167,48 @@ static void update_equip_subwindow(game_event_type type, game_event_data *data,
  */
 void toggle_inven_equip(void)
 {
-	term *old = Term;
-	int i;
+	term *old = Term; 
+	int i; 
 
-	/* Change the actual setting */
+	/* Change the actual setting */ 
+	
 	flip_inven = !flip_inven;
+	
+	/* Redraw any subwindows showing the inventory/equipment lists */ 
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) 
+	{ 
+		Term_activate(angband_term[i]);  
 
-	/* Redraw any subwindows showing the inventory/equipment lists */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
-	{
-		Term_activate(angband_term[i]); 
+		if (op_ptr->window_flag[i] & PW_INVEN) 
+		{ 
+			if (!flip_inven) 
+				display_inven(); 
+			else 
+				display_equip(); 
 
-		if (op_ptr->window_flag[i] & PW_INVEN)
-		{
-			if (!flip_inven)
-				display_inven();
-			else
-				display_equip();
-			
-			Term_fresh();
-		}
-		else if (op_ptr->window_flag[i] & PW_EQUIP)
-		{
-			if (!flip_inven)
-				display_equip();
-			else
-				display_inven();
-			
-			Term_fresh();
-		}
-	}
+			Term_fresh(); 
+		} 
+		else if (op_ptr->window_flag[i] & PW_EQUIP) 
+		{ 
+			if (!flip_inven) 
+				display_equip(); 
+			else 
+				display_inven(); 
 
-	Term_activate(old);
+			Term_fresh(); 
+		} 
+	} 
+
+	Term_activate(old); 
 }
 
 static void update_itemlist_subwindow(game_event_type type, game_event_data *data, void *user)
 {
 	term *old = Term;
 	term *inv_term = user;
+
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1194,6 +1224,8 @@ static void update_monlist_subwindow(game_event_type type, game_event_data *data
 {
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1210,6 +1242,8 @@ static void update_monster_subwindow(game_event_type type, game_event_data *data
 {
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1225,35 +1259,19 @@ static void update_monster_subwindow(game_event_type type, game_event_data *data
 }
 
 
-static void update_object_subwindow(game_event_type type, game_event_data *data, void *user)
-{
-	term *old = Term;
-	term *inv_term = user;
-	
-	/* Activate */
-	Term_activate(inv_term);
-	
-	if (p_ptr->object_idx)
-		display_object_idx_recall(p_ptr->object_idx);
-	else if(p_ptr->object_kind_idx)
-		display_object_kind_recall(p_ptr->object_kind_idx);
-	Term_fresh();
-	
-	/* Restore */
-	Term_activate(old);
-}
-
-
 static void update_messages_subwindow(game_event_type type, game_event_data *data, void *user)
 {
 	term *old = Term;
 	term *inv_term = user;
 
-	int i;
-	int w, h;
-	int x, y;
+	s16b i;
+	s16b w, h;
+	s16b x, y;
 
 	const char *msg;
+
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1264,7 +1282,7 @@ static void update_messages_subwindow(game_event_type type, game_event_data *dat
 	/* Dump messages */
 	for (i = 0; i < h; i++)
 	{
-		byte color = message_color(i);
+		byte color = message_color(i); /* TODO Should this function return int? */
 		u16b count = message_count(i);
 		const char *str = message_str(i);
 
@@ -1301,9 +1319,9 @@ static void update_minimap_subwindow(game_event_type type, game_event_data *data
 
 	if (type == EVENT_MAP)
 	{
-		/* Set flag if whole-map redraw. */
-		if (data->point.x == -1 && data->point.y == -1)
-			flags->needs_redraw = TRUE;
+		/* Set flag if whole-map redraw. */ 
+		if (data->point.x == -1 && data->point.y == -1) 
+			flags->needs_redraw = TRUE; 
 	}
 	else if (type == EVENT_END)
 	{
@@ -1312,11 +1330,11 @@ static void update_minimap_subwindow(game_event_type type, game_event_data *data
 		
 		/* Activate */
 		Term_activate(t);
-
-		/* If whole-map redraw, clear window first. */
-		if (flags->needs_redraw)
-			Term_clear();
-
+		
+		/* If whole-map redraw, clear window first. */ 
+		if (flags->needs_redraw) 
+			Term_clear(); 
+		
 		/* Redraw map */
 		display_map(NULL, NULL);
 		Term_fresh();
@@ -1337,6 +1355,9 @@ static void update_player0_subwindow(game_event_type type, game_event_data *data
 	term *old = Term;
 	term *inv_term = user;
 
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
+
 	/* Activate */
 	Term_activate(inv_term);
 
@@ -1356,6 +1377,8 @@ static void update_player1_subwindow(game_event_type type, game_event_data *data
 {
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1375,12 +1398,14 @@ static void update_player1_subwindow(game_event_type type, game_event_data *data
  */
 static void update_player_compact_subwindow(game_event_type type, game_event_data *data, void *user)
 {
-	int row = 0;
-	int col = 0;
+	s16b row = 0;
+	s16b col = 0;
 	int i;
 
 	term *old = Term;
 	term *inv_term = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(inv_term);
@@ -1431,6 +1456,8 @@ static void flush_subwindow(game_event_type type, game_event_data *data, void *u
 {
 	term *old = Term;
 	term *t = user;
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Activate */
 	Term_activate(t);
@@ -1547,14 +1574,6 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 			break;
 		}
 
-		case PW_OBJECT:
-		{
-			register_or_deregister(EVENT_OBJECTTARGET,
-						   update_object_subwindow,
-						   angband_term[win_idx]);
-			break;
-		}
-
 		case PW_MONLIST:
 		{
 			register_or_deregister(EVENT_MONSTERLIST,
@@ -1654,6 +1673,9 @@ static void init_angband_aux(cptr why)
  */
 static void splashscreen_note(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	Term_erase(0, 23, 255);
 	Term_putstr(20, 23, -1, TERM_WHITE, format("[%s]", data->string));
 	Term_fresh();
@@ -1664,6 +1686,9 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 	ang_file *fp;
 
 	char buf[1024];
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(type);
 
 	/*** Verify the "news" file ***/
 
@@ -1694,7 +1719,7 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 		/* Dump the file to the screen */
 		while (file_getl(fp, buf, sizeof(buf)))
 		{
-			text_out_e("%s", buf);
+			text_out_e(buf);
 			text_out("\n");
 		}
 
@@ -1711,6 +1736,9 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
  * ------------------------------------------------------------------------ */
 static void check_panel(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	verify_panel();
 }
 
@@ -1729,12 +1757,19 @@ static void ui_enter_init(game_event_type type, game_event_data *data, void *use
 
 static void ui_leave_init(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	/* Remove our splashscreen handlers */
 	event_remove_handler(EVENT_INITSTATUS, splashscreen_note, NULL);
 }
 
 static void ui_enter_game(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
+
 	/* Because of the "flexible" sidebar, all these things trigger
 	   the same function. */
 	event_add_handler_set(player_events, N_ELEMENTS(player_events),
@@ -1759,6 +1794,10 @@ static void ui_enter_game(game_event_type type, game_event_data *data, void *use
 
 static void ui_leave_game(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
+
 	/* Because of the "flexible" sidebar, all these things trigger
 	   the same function. */
 	event_remove_handler_set(player_events, N_ELEMENTS(player_events),
@@ -1781,17 +1820,14 @@ static void ui_leave_game(game_event_type type, game_event_data *data, void *use
 	event_remove_handler(EVENT_PLAYERMOVED, check_panel, NULL);
 }
 
-errr textui_get_cmd(cmd_context context, bool wait)
-{
-	if (context == CMD_BIRTH)
-		return get_birth_command(wait);
-	else if (context == CMD_GAME)
-		textui_process_command(!wait);
+errr textui_get_cmd(cmd_context context, bool wait) 
+{ 
+	if (context == CMD_BIRTH) 
+		return get_birth_command(wait); 
 
-	/* If we've reached here, we haven't got a command. */
-	return 1;
+	/* If we've reached here, we haven't got a command. */ 
+ 	return 1;
 }
-
 
 void init_display(void)
 {

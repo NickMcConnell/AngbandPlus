@@ -20,22 +20,20 @@
 #include "cmds.h"
 #include "game-event.h"
 
-
 /*
  * Change dungeon level - e.g. by going up stairs or with WoR.
  */
-void dungeon_change_level(int dlev)
+void dungeon_change_level(s16b dlev)
 {
 	/* New depth */
 	p_ptr->depth = dlev;
-	
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
 	/* Save the game when we arrive on the new level. */
 	p_ptr->autosave = TRUE;
 }
-
 
 /*
  * Regenerate hit points
@@ -77,8 +75,6 @@ static void regenhp(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-		wieldeds_notice_flag(2, TR2_REGEN);
-		wieldeds_notice_flag(2, TR2_IMPAIR_HP);
 	}
 }
 
@@ -122,8 +118,6 @@ static void regenmana(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
-		wieldeds_notice_flag(2, TR2_REGEN);
-		wieldeds_notice_flag(2, TR2_IMPAIR_MANA);
 	}
 }
 
@@ -164,7 +158,7 @@ static void regen_monsters(void)
 			if (r_ptr->flags[1] & (RF1_REGENERATE)) frac *= 2;
 
 			/* Hack -- Regenerate */
-			m_ptr->hp += frac;
+			m_ptr->hp += INT2S16B(frac);
 
 			/* Do not over-regenerate */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
@@ -294,7 +288,7 @@ static void recharge_objects(void)
 			if (temp > o_ptr->number) temp = o_ptr->number;
 
 			/* Decrease timeout by that number */
-			o_ptr->timeout -= temp;
+			o_ptr->timeout -= INT2S16B(temp);
 
 			/* Boundary control */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
@@ -407,7 +401,7 @@ static void decrease_timeouts(void)
 	int i;
 
 	/* Decrement all effects that can be done simply */
-	for (i = 0; i < TMD_MAX; i++)
+	for (i = 0; i < TMD_MAX; i++) /* TODO Check TMD_MAX, it is probably wrong */
 	{
 		int decr = 1;
 		if (!p_ptr->timed[i])
@@ -452,7 +446,7 @@ static void process_world(void)
 	if (turn % 10) return;
 
 
-	/*** Check the Time ***/
+	/*** Check the Time and Load ***/
 
 	/* Play an ambient sound at regular intervals. */
 	if (!(turn % ((10L * TOWN_DAWN) / 4)))
@@ -507,7 +501,8 @@ static void process_world(void)
 				if (n == STORE_HOME) continue;
 
 				/* Maintain */
-				store_maint(n);
+				if(!store_maint(n))
+					msg_print("Store maintenance failed!");
 			}
 
 			/* Sometimes, shuffle the shop-keepers */
@@ -703,6 +698,9 @@ static void process_world(void)
 	{
 		u32b f[OBJ_FLAG_N];
 		bool burn_fuel = TRUE;
+		
+		if(!HAS_FUEL(o_ptr))
+			burn_fuel = FALSE;
 
 		/* Get the object flags */
 		object_flags(o_ptr, f);
@@ -711,8 +709,13 @@ static void process_world(void)
 		if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 			burn_fuel = FALSE;
 
-		/* If the light has the NO_FUEL flag, well... */
-		if (f[2] & TR2_NO_FUEL)
+/*
+ * Only lanterns, torches and noldor lanterns burn fuel.
+ * Artifacts also don't need fuel.
+ *
+ * TODO Check this works 
+ */
+		if (!HAS_FUEL(o_ptr) && !o_ptr->name1)
 		    burn_fuel = FALSE;
 
 		/* Use some fuel (except on artifacts, or during the day) */
@@ -767,7 +770,7 @@ static void process_world(void)
 			check_experience();
 		}
 
-		wieldeds_notice_flag(2, TR2_DRAIN_EXP);
+		object_notice_flag(3, TR3_DRAIN_EXP);
 	}
 
 	/* Recharge activatable objects and rods */
@@ -782,7 +785,7 @@ static void process_world(void)
 	/* Random teleportation */
 	if (p_ptr->state.teleport && one_in_(100))
 	{
-		wieldeds_notice_flag(2, TR2_TELEPORT);
+		object_notice_flag(3, TR3_TELEPORT);
 		teleport_player(40);
 		disturb(0, 0);
 	}
@@ -818,9 +821,6 @@ static void process_world(void)
 		}
 	}
 }
-
-
-
 
 
 /*
@@ -1061,12 +1061,10 @@ static void process_player(void)
 		}
 
 		/* Picking up objects */
-		else if (p_ptr->notice & PN_PICKUP)
+		else if (p_ptr->notice & (PN_PICKUP))
 		{
 			/* Recursively call the pickup function, use energy */
 			p_ptr->energy_use = py_pickup(0) * 10;
-			if (p_ptr->energy_use > 100)
-				p_ptr->energy_use = 100;
 			p_ptr->notice &= ~(PN_PICKUP);
 		}
 
@@ -1104,7 +1102,7 @@ static void process_player(void)
 			prt("", 0, 0);
 
 			/* Process the command */
-			process_command(CMD_GAME, TRUE);
+			process_command(TRUE);
 
 			/* Count this execution */
 			if (p_ptr->command_rep)
@@ -1127,7 +1125,7 @@ static void process_player(void)
 			move_cursor_relative(p_ptr->py, p_ptr->px);
 
 			/* Get and process a command */
-			process_command(CMD_GAME, FALSE);
+			process_command(FALSE);
 		}
 
 
@@ -1282,16 +1280,12 @@ static void dungeon(void)
 	monster_type *m_ptr;
 	int i;
 
-
-
 	/* Hack -- enforce illegal panel */
 	Term->offset_y = DUNGEON_HGT;
 	Term->offset_x = DUNGEON_WID;
 
-
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
-
 
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
@@ -1338,10 +1332,9 @@ static void dungeon(void)
 	/* If autosave is pending, do it now. */
 	if (p_ptr->autosave)
 	{
-		save_game();
+		do_cmd_save_game();
 		p_ptr->autosave = FALSE;
 	}
-
 
 	/* Choose panel */
 	verify_panel();
@@ -1426,9 +1419,8 @@ static void dungeon(void)
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
 
-	/* Player gets to go first */
-	p_ptr->energy = 100;
-
+	/* Player gets to go first */ 
+ 	p_ptr->energy = 100;
 
 	/*** Process this dungeon level ***/
 
@@ -1664,7 +1656,7 @@ void play_game(void)
 		u32b seed;
 
 		/* Basic seed */
-		seed = (time(NULL));
+		seed = (u32b) (time(NULL));
 
 #ifdef SET_UID
 

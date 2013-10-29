@@ -1,6 +1,28 @@
 #ifndef INCLUDED_H_BASIC_H
 #define INCLUDED_H_BASIC_H
 
+#ifndef NDEBUG
+# define INT2S16B(P) int2s16b(P)
+# define INT2U16B(P) int2u16b(P)
+# define ISBYTE(P) assert((P) >= 0); assert((P) <= 255);
+# define ISCHAR(P) assert(P >= CHAR_MIN); assert(P <= CHAR_MAX);
+# define ISU16B(P) assert(P >= 0); assert(P <= 65535);
+# define ISS16B(P) assert(P >= -32768); assert(P <= 32767);
+# define INT2SCHR(P) int2schr(P)
+# define INT2CHR(P) int2chr(P)
+# define INT2SHRT(P) int2shrt(P)
+#else
+# define INT2S16B(P) (s16b) (P)
+# define INT2U16B(P) (u16b) (P)
+# define ISBYTE(P) NULL
+# define ISCHAR(P) NULL
+# define ISU16B(P) NULL
+# define ISS16B(P) NULL
+# define INT2SCHR(P) (signed char) (P)
+# define INT2CHR(P) (char) (P)
+# define INT2SHRT(P) (short) (P)
+#endif
+
 /*
  * Include autoconf autodetections, otherwise try to autodetect ourselves
  */
@@ -57,6 +79,17 @@
 # define HAVE_FCNTL_H
 # define HAVE_STAT
 #endif
+
+/*** Adjust VC++ compiler warnings ***/
+
+/*
+ * 4127 is 'conditional expression is constant'.  while(1) and similar are used
+ * all over the code and re-writing them would probably produce more clumsy 
+ * looking code.
+ */
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+# pragma warning( disable : 4127)
+#endif /* _MSC_VER and >= 2008 Edition */
 
 #endif /* HAVE_CONFIG_H */
 
@@ -180,8 +213,6 @@ typedef int errr;
 
 #endif
 
-
-
 /*
  * Use guaranteed-size ints where possible
  */
@@ -268,10 +299,11 @@ typedef int errr;
  * all "digits" must be "digits".  Control characters can be made
  * from any legal characters.  XXX XXX XXX
  */
-#define A2I(X)	((X) - 'a')
-#define I2A(X)	((X) + 'a')
+
+#define A2I(X)	((s16b)((X) - 'a'))/* TODO implement bounds checking? */
+#define I2A(X)	((char)((X) + 'a')) /* TODO implement bounds checking? */
 #define D2I(X)	((X) - '0')
-#define I2D(X)	((X) + '0')
+#define I2D(X)	((char) (X) + '0') 
 #define KTRL(X)	((X) & 0x1F)
 #define UN_KTRL(X)	((X) + 64)
 #define ESCAPE	'\033'
@@ -290,3 +322,4 @@ typedef int errr;
 
 
 #endif /* INCLUDED_H_BASIC_H */
+

@@ -36,10 +36,10 @@
 #include "option.h"
 #include "types.h"
 #include "object/constants.h"
-#include "object/types.h"
+#include "object/o-types.h"
 #include "object/object.h"
-#include "monster/types.h"
-#include "player/types.h"
+#include "monster/m-types.h"
+#include "player/p-types.h"
 #include "player/player.h"
 #include "store.h"
 

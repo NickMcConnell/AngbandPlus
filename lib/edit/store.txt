@@ -3,34 +3,70 @@
 # S: store number : number of slots for this store
 # I: slots taken up by this item : textual tval : textual name
 #
+#/* jk - what objects are allowable in what store */
+#/* pairs of tval, sval, chance. sval == -1 means all svals acceptable */
+#/*                              sval == -2 only of priestly flavor    */
+#/*                              sval == -3 only of mage flavor        */
+#/*                              sval == -4 only Holy Avenger/Blessed  */
+#/* chance: chance of x in 100 that such an item must be present       */
+# tval of -1 = any object
 
-# V:3.1.0
+# Version stamp
 
-# Armoury
+V:0.0.1
+
+# General
+# S:1:33
+#      { TV_FOOD, SV_FOOD_RATION,         90 },
+#      { TV_FOOD, SV_FOOD_BISCUIT,         0 },
+#      { TV_FOOD, SV_FOOD_JERKY,           0 },
+#      { TV_FOOD, SV_FOOD_PINT_OF_WINE,    0 },
+#      { TV_FOOD, SV_FOOD_PINT_OF_ALE,     0 },
+#      { TV_FOOD, SV_FOOD_WAYBREAD,        0 },
+#      { TV_DIGGING, -1,                  10 },
+#      { TV_CLOAK, -1,                    40 },
+#      { TV_POTION, SV_POTION_WATER,       0 },
+#      { TV_POTION, SV_POTION_APPLE_JUICE, 0 },
+#      { TV_SPIKE, -1,                     0 },
+# What does '0' as an SVAL mean?
+#      { TV_FLASK, 0,                     90 }, 
+#      { TV_LITE, -1,                     90 },
+
+# Armory
+#      { TV_BOOTS, -1,                     0 },
+#      { TV_HELM, -1,                      0 },
+#      { TV_CROWN, -1,                     0 },
+#      { TV_SOFT_ARMOR, -1,                0 },
+#      { TV_HARD_ARMOR, -1,                0 },
+#      { TV_DRAG_ARMOR, -1,                0 },
+#      { TV_GLOVES, -1,                    0 },
+#      { TV_SHIELD, -1,                    0 },
+
 S:2:33
-I:2:boots:Pair~ of Leather Sandals
-I:2:boots:Pair~ of Leather Boots
-I:1:boots:Pair~ of Iron Shod Boots
-I:2:helm:Hard Leather Cap~
-I:1:helm:Metal Cap~
-I:1:helm:Iron Helm~
-I:2:soft armour:Robe~
-I:4:soft armour:Soft Leather Armour~
-I:2:soft armour:Studded Leather Armour~
-I:2:soft armour:Leather Scale Mail~
-I:1:hard armour:Metal Scale Mail~
-I:2:hard armour:Chain Mail~
-I:2:hard armour:Augmented Chain Mail~
-I:1:hard armour:Bar Chain Mail~
-I:1:hard armour:Metal Brigandine Armour~
+I:3:helm:Hard Leather Cap~
+I:2:helm:Metal Cap~
+I:2:helm:Iron Helm~
+I:3:soft armor:Robe~
+I:4:soft armor:Soft Leather Armor~
+I:3:soft armor:Leather Scale Mail~
+I:2:hard armor:Metal Scale Mail~
+I:3:hard armor:Chain Mail~
+I:3:hard armor:Augmented Chain Mail~
+I:2:hard armor:Bar Chain Mail~
+I:1:hard armor:Metal Brigandine Armor~
 I:2:gloves:Set~ of Leather Gloves
 I:1:gloves:Set~ of Gauntlets
-I:1:shield:Wicker Shield~
-I:1:shield:Small Metal Shield~
-I:2:shield:Leather Shield~
+I:2:shield:Small Metal Shield~
 
 # Weaponsmith
 S:3:33
+#      { TV_SWORD, -1,                     0 },
+#      { TV_POLEARM, -1,                   0 },
+#      { TV_HAFTED, -1,                    0 },
+#      { TV_BOW, -1,                       0 },
+#      { TV_SHOT, -1,                      0 },
+#      { TV_ARROW, -1,                    50 },
+#      { TV_BOLT, -1,                     50 },
 I:1:sword:Dagger~
 I:1:sword:Main Gauche~
 I:1:sword:Rapier~
@@ -50,7 +86,7 @@ I:1:polearm:Beaked Axe~
 I:1:polearm:Broad Axe~
 I:1:polearm:Battle Axe~
 I:1:polearm:Lance~
-I:1:polearm:Lucerne Hammer~
+I:1:hafted:Lucerne Hammer~
 I:1:hafted:Whip~
 I:1:bow:Sling~
 I:1:bow:Short Bow~
@@ -61,41 +97,53 @@ I:2:arrow:Arrow~
 I:2:bolt:Bolt~
 
 # Temple
-S:4:36
-I:1:hafted:Whip~
-I:1:hafted:Quarterstaff~
+S:4:29
+#      { TV_HAFTED, -1,                    0 },
+#      { TV_SWORD, -4,                     0 },
+#      { TV_POLEARM, -4,                   0 },
+#      { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL,     50 },
+#      { TV_SCROLL, -1,                    0 },
+#      { TV_POTION, -1,                    0 },
+#      { TV_SPELL, -2,                     0 },
+#      { TV_BOOK, -1,                    100 },
+I:2:hafted:Whip~
+I:2:hafted:Quarterstaff~
 I:2:hafted:Mace~
-I:1:hafted:Ball-and-Chain~
-I:1:hafted:War Hammer~
-I:1:hafted:Morning Star~
+I:2:hafted:Ball-and-Chain~
+I:2:hafted:War Hammer~
+I:2:hafted:Morning Star~
 I:2:hafted:Flail~
 I:1:hafted:Lead-Filled Mace~
 I:1:scroll:Remove Curse
 I:1:scroll:Blessing
 I:1:scroll:Holy Chant
+I:1:spell:Bless
+I:1:spell:Detect Evil
+I:1:spell:Cure Light Wounds
+I:1:spell:Find Traps
+I:1:book:Small Book
 I:1:potion:Boldness
 I:1:potion:Heroism
-I:2:potion:Cure Light Wounds
-I:4:potion:Cure Serious Wounds
-I:4:potion:Cure Critical Wounds
-I:3:potion:Restore Life Levels
-I:3:prayer book:[Beginners Handbook]
-I:2:prayer book:[Words of Wisdom]
-I:2:prayer book:[Chants and Blessings]
-I:1:prayer book:[Exorcism and Dispelling]
+I:1:potion:Cure Light Wounds
+I:1:potion:Cure Serious Wounds
+I:1:potion:Cure Critical Wounds
+I:1:potion:Restore Life Levels
 
 # Alchemist
-S:5:32
-I:4:scroll:Word of Recall
-I:4:scroll:Identify
-I:3:scroll:Phase Door
+S:5:23
+#      { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL,     50 },
+#      { TV_SCROLL, -1,                    0 },
+#      { TV_POTION, -1,                    0 },
+I:1:scroll:Word of Recall
+I:1:scroll:Identify
+I:1:scroll:Phase Door
 I:1:scroll:Enchant Weapon To-Hit
 I:1:scroll:Enchant Weapon To-Dam
-I:1:scroll:Enchant Armour
+I:1:scroll:Enchant Armor
 I:1:scroll:Light
 I:1:scroll:Monster Confusion
 I:1:scroll:Magic Mapping
-I:2:scroll:Treasure Detection
+I:1:scroll:Treasure Detection
 I:1:scroll:Trap Detection
 I:1:scroll:Door/Stair Location
 I:1:scroll:Detect Invisible
@@ -111,29 +159,194 @@ I:1:potion:Restore Constitution
 I:1:potion:Restore Charisma
 
 # Magic-user's
-S:6:29
-I:1:ring:Searching
-I:1:ring:Feather Falling
-I:1:ring:Protection
-I:1:amulet:Charisma
+#      { TV_RING,-1,                       0 },
+#      { TV_AMULET, -1,                    0 },
+#      { TV_WAND, -1,                      0 },
+#      { TV_STAFF, -1,                     0 },
+#      { TV_SPELL, -3,                     0 },
+#      { TV_BOOK, -1,                     50 },
+#      { TV_ROD, -1,                      50 },
+S:6:27
+I:2:ring:Searching
+I:2:ring:Feather Falling
+I:2:ring:Protection
+I:2:amulet:Charisma
 I:1:amulet:Slow Digestion
 I:1:amulet:Resist Acid
-#I:1:rod:Trap Location
-#I:1:rod:Door/Stair Location
-#I:2:rod:Treasure Location
+I:1:book:Small Book
+I:1:book:Book
+I:1:spell:Magic Missile
+I:1:spell:Detect Monsters
+I:1:spell:Phase Door
+I:1:spell:Create Simple Trap
+# I:1:rod:Trap Location
+# I:1:rod:Door/Stair Location
+# I:1:rod:Treasure Location
 I:1:wand:Slow Monster
 I:1:wand:Confuse Monster
 I:1:wand:Sleep Monster
 I:1:wand:Magic Missile
 I:1:wand:Stinking Cloud
 I:1:wand:Wonder
-I:2:staff:Teleportation
-I:2:staff:Identify
+I:1:staff:Teleportation
+I:1:staff:Perception
 I:1:staff:Light
-I:1:staff:Mapping
 I:1:staff:Detect Invisible
 I:1:staff:Detect Evil
-I:3:magic book:[Magic for Beginners]
-I:2:magic book:[Conjurings and Tricks]
-I:2:magic book:[Incantations and Illusions]
-I:1:magic book:[Sorcery and Evocations]
+
+#      /* 6 Black Market */
+#      { -1, -1, 0 },
+#      { 0, 0, 0 }
+#   },
+#
+#   {
+#      /* 7 Home */
+#      { -1, -1, 0 },
+#      { 0, 0, 0 }
+#   },
+#
+#   {
+#      /* 8 unused */
+#      { -1, -1, 0 },
+#      { 0, 0, 0 }
+#   },
+#
+#   {
+#      /* 9 unused */
+#      { -1, -1, 0 },
+#      { 0, 0, 0 }
+#   },
+#
+#   {
+#      /* 10 General Digger Store */
+#      { TV_DIGGING, -1,                   0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 11 General Light Store */
+#      { TV_FLASK, -1,                     0 },
+#      { TV_LITE, -1,                      0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 12 General Food Store */
+#      { TV_FOOD, -1,                      0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 13 General Cloaks Store */
+#      { TV_CLOAK, -1,                     0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 14 Armory Boots Store */
+#      { TV_BOOTS, -1,                     0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 15 Armory Gloves & Shields Store */
+#      { TV_GLOVES, -1,                    0 },
+#      { TV_SHIELD, -1,                    0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 16 Armory Crowns and Helmets Store */
+#      { TV_HELM, -1,                      0 },
+#      { TV_CROWN, -1,                     0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 17 Armory Soft Armor Store */
+#      { TV_SOFT_ARMOR, -1,                0 },
+#      { TV_CLOAK, -1,                     0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 18 Armory Hard Armor Store */
+#      { TV_HARD_ARMOR, -1,                0 },
+#      { TV_DRAG_ARMOR, -1,                0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 19 Weapon Shot Store */
+#      { TV_ARROW, -1,                     0 },
+#      { TV_BOLT, -1,                      0 },
+#      { TV_SHOT, -1,                      0 },
+#      { TV_BOW, -1,                       0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 20 Weapon Hafted Store */
+#      { TV_HAFTED, -1,                    0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 21 Weapon Sword Store */
+#      { TV_SWORD, -1,                     0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 22 Weapon Polearm Store */
+#      { TV_POLEARM, -1,                   0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 23 Temple Spell Store */
+#      { TV_SPELL, -2,                     0 },
+#      { TV_BOOK, -1,                      0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 24 Temple Hafted Store */
+#      { TV_HAFTED, -1,                    0 },
+#      { TV_SWORD, -4,                     0 },
+#      { TV_POLEARM, -4,                   0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 25 Alchemist Scroll Store */
+#      { TV_SCROLL, -1,                    0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 26 Alchemist Potion Store */
+#      { TV_POTION, -1,                    0 },
+#      { 0, 0, 0 }
+#   },
+#
+#   {
+#      /* 27 Magic Spell Store */
+#      { TV_SPELL, -3,                     0 },
+#      { TV_BOOK, -1,                      0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 28 Magic Ring Store */
+#      { TV_RING, -1,                      0 },
+#      { TV_AMULET, -1,                    0 },
+#      { 0, 0 }
+#   },
+#
+#   {
+#      /* 29 Magic Wand Store */
+#      { TV_WAND, -1,                      0 },
+#      { TV_STAFF, -1,                     0 },
+#      { TV_ROD, -1,                       0 },
+#      { 0, 0 }

@@ -10,7 +10,7 @@ typedef enum game_event_type
 	EVENT_STATS,  		/* One or more of the stats. */
 	EVENT_HP,	   	/* HP or MaxHP. */
 	EVENT_MANA,		/* Mana or MaxMana. */
-	EVENT_AC,		/* Armour Class. */
+	EVENT_AC,		/* Armor Class. */
 	EVENT_EXPERIENCE,	/* Experience or MaxExperience. */
 	EVENT_PLAYERLEVEL,	/* Player's level has changed */
 	EVENT_PLAYERTITLE,	/* Player's title has changed */
@@ -25,6 +25,7 @@ typedef enum game_event_type
 	EVENT_STATE,		/* The three 'R's: Resting, Repeating and
 				   Searching */
 	EVENT_MOUSEBUTTONS,     /* Displayed mouse buttons need changing */
+	EVENT_READING, /* Player is reading a spell page */
 
 	EVENT_PLAYERMOVED,
 
@@ -33,10 +34,10 @@ typedef enum game_event_type
 	EVENT_ITEMLIST,
 	EVENT_MONSTERLIST,
 	EVENT_MONSTERTARGET,
-	EVENT_OBJECTTARGET,
 	EVENT_MESSAGE,
 
 	EVENT_INITSTATUS,	/* New status message for initialisation */
+
 	EVENT_BIRTHPOINTS,	/* Change in the birth points */
 
 	/* Changing of the game state/context. */
@@ -60,8 +61,8 @@ typedef union
 {
 	struct 
 	{
-		int x;
-		int y;
+		s16b x;
+		s16b y;
 	} point;
 		
 	const char *string;
@@ -85,6 +86,7 @@ typedef union
 		int remaining;
 	} birthstats;
 
+
 } game_event_data;
 
 
@@ -103,7 +105,7 @@ void event_remove_handler_set(game_event_type *type, size_t n_types, game_event_
 
 void event_signal_birthpoints(int stats[6], int remaining);
 
-void event_signal_point(game_event_type, int x, int y);
+void event_signal_point(game_event_type, s16b x, s16b y);
 void event_signal_string(game_event_type, const char *s);
 void event_signal_flag(game_event_type type, bool flag);
 void event_signal(game_event_type);

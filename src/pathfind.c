@@ -32,22 +32,22 @@ static int terrain[MAX_PF_RADIUS][MAX_PF_RADIUS];
 char pf_result[MAX_PF_LENGTH];
 int pf_result_index;
 
-static int ox, oy, ex, ey;
+static s16b ox, oy, ex, ey;
 
 
 
-static bool is_valid_pf(int y, int x)
+static bool is_valid_pf(s16b y, s16b x)
 {
 	/* Unvisited means allowed */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
 	/* Require open space */
-	return (cave_floor_bold(y, x));
+	return (cave_floor(y, x));
 }
 
 static void fill_terrain_info(void)
 {
-	int i, j;
+	s16b i, j;
 
 	ox = MAX(p_ptr->px - MAX_PF_RADIUS / 2, 0);
 	oy = MAX(p_ptr->py - MAX_PF_RADIUS / 2, 0);
@@ -68,7 +68,7 @@ static void fill_terrain_info(void)
 
 #define MARK_DISTANCE(c,d) if ((c <= MAX_PF_LENGTH) && (c > d)) { c = d; try_again = (TRUE); }
 
-bool findpath(int y, int x)
+bool findpath(s16b y, s16b x)
 {
 	int i, j, dir;
 	bool try_again;
@@ -258,10 +258,10 @@ byte get_angle_to_grid[41][41] =
  * Note:  If a compass direction is supplied, we ignore any target.
  * Note:  We supply the angle divided by 2.
  */
-int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
+int get_angle_to_target(s16b y0, s16b x0, s16b y1, s16b x1, int dir)
 {
-	int ny, nx;
-	int dist_conv;
+	s16b ny, nx;
+	s16b dist_conv;
 
 	/* No valid compass direction given */
 	if ((dir == 0) || (dir == 5) || (dir > 9))
@@ -270,8 +270,8 @@ int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
 		if ((y1) && (x1))
 		{
 			/* Get absolute distance between source and target */
-			int dy = ABS(y1 - y0);
-			int dx = ABS(x1 - x0);
+			s16b dy = ABS(y1 - y0);
+			s16b dx = ABS(x1 - x0);
 
 			/* Calculate distance conversion factor */
 			if ((dy > 20) || (dx > 20))
@@ -327,10 +327,10 @@ int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
  * character is adjacent to the outer wall of the dungeon and the projection
  * heads towards it.
  */
-void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
+void get_grid_using_angle(int angle, s16b y0, s16b x0, s16b *ty, s16b *tx)
 {
-	int y, x;
-	int best_y = 0, best_x = 0;
+	s16b y, x;
+	s16b best_y = 0, best_x = 0;
 
 	int diff;
 	int this_angle;
@@ -556,7 +556,7 @@ static const byte chome[] =
 /*
  * Hack -- Check for a "known wall" (see below)
  */
-static int see_wall(int dir, int y, int x)
+static int see_wall(int dir, s16b y, s16b x)
 {
 	/* Get the new location */
 	y += ddy[dir];
@@ -592,20 +592,20 @@ static int see_wall(int dir, int y, int x)
  */
 static void run_init(int dir)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int i, row, col;
+	s16b i, row, col;
 
 	bool deepleft, deepright;
 	bool shortleft, shortright;
 
 
 	/* Save the direction */
-	p_ptr->run_cur_dir = dir;
+	p_ptr->run_cur_dir = INT2S16B(dir);
 
 	/* Assume running straight */
-	p_ptr->run_old_dir = dir;
+	p_ptr->run_old_dir = INT2S16B(dir);
 
 	/* Assume looking for open area */
 	p_ptr->run_open_area = TRUE;
@@ -695,14 +695,14 @@ static void run_init(int dir)
  */
 static bool run_test(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int prev_dir;
 	int new_dir;
 	int check_dir = 0;
 
-	int row, col;
+	s16b row, col;
 	int i, max, inv;
 	int option, option2;
 
@@ -804,7 +804,7 @@ static bool run_test(void)
 		}
 
 		/* Analyze unknown grids and floors */
-		if (inv || cave_floor_bold(row, col))
+		if (inv || cave_floor(row, col))
 		{
 			/* Looking for open area */
 			if (p_ptr->run_open_area)
@@ -867,26 +867,6 @@ static bool run_test(void)
 	}
 
 
-	/* Look at every soon to be newly adjacent square. */
-	for (i = -max; i <= max; i++)
-	{		
-		/* New direction */
-		new_dir = cycle[chome[prev_dir] + i];
-		
-		/* New location */
-		row = py + ddy[prev_dir] + ddy[new_dir];
-		col = px + ddx[prev_dir] + ddx[new_dir];
-		
-		/* Visible monsters abort running */
-		if (cave_m_idx[row][col] > 0)
-		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[row][col]];
-			
-			/* Visible monster */
-			if (m_ptr->ml) return (TRUE);			
-		}
-	}
-
 	/* Looking for open area */
 	if (p_ptr->run_open_area)
 	{
@@ -899,7 +879,7 @@ static bool run_test(void)
 			col = px + ddx[new_dir];
 
 			/* Unknown grid or non-wall */
-			/* Was: cave_floor_bold(row, col) */
+			/* Was: cave_floor(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
 			    (cave_feat[row][col] < FEAT_SECRET))
 			{
@@ -930,7 +910,7 @@ static bool run_test(void)
 			col = px + ddx[new_dir];
 
 			/* Unknown grid or non-wall */
-			/* Was: cave_floor_bold(row, col) */
+			/* Was: cave_floor(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
 			    (cave_feat[row][col] < FEAT_SECRET))
 			{
@@ -967,20 +947,20 @@ static bool run_test(void)
 		else if (!option2)
 		{
 			/* Primary option */
-			p_ptr->run_cur_dir = option;
+			p_ptr->run_cur_dir = INT2S16B(option);
 
 			/* No other options */
-			p_ptr->run_old_dir = option;
+			p_ptr->run_old_dir = INT2S16B(option);
 		}
 
 		/* Two options, examining corners */
 		else
 		{
 			/* Primary option */
-			p_ptr->run_cur_dir = option;
+			p_ptr->run_cur_dir = INT2S16B(option);
 
 			/* Hack -- allow curving */
-			p_ptr->run_old_dir = option2;
+			p_ptr->run_old_dir = INT2S16B(option2);
 		}
 	}
 
@@ -1006,7 +986,7 @@ static bool run_test(void)
  */
 void run_step(int dir)
 {
-	int x, y;
+	s16b x, y;
 
 	/* Start run */
 	if (dir)
@@ -1054,7 +1034,7 @@ void run_step(int dir)
 				x = p_ptr->px + ddx[pf_result[pf_result_index] - '0'];
 
 				/* Known wall */
-				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor_bold(y, x))
+				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor(y, x))
 				{
 					disturb(0,0);
 					p_ptr->running_withpathfind = FALSE;
@@ -1079,7 +1059,7 @@ void run_step(int dir)
 				x = p_ptr->px + ddx[pf_result[pf_result_index] - '0'];
 
 				/* Known wall */
-				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor_bold(y, x))
+				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor(y, x))
 				{
 					disturb(0,0);
 					p_ptr->running_withpathfind = FALSE;
@@ -1091,7 +1071,7 @@ void run_step(int dir)
 				x = x + ddx[pf_result[pf_result_index-1] - '0'];
 
 				/* Known wall */
-				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor_bold(y, x))
+				if ((cave_info[y][x] & (CAVE_MARK)) && !cave_floor(y, x))
 				{
 					p_ptr->running_withpathfind = FALSE;
 

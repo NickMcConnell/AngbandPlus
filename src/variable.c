@@ -70,6 +70,9 @@ bool character_saved;		/* The character was just saved to a savefile */
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
+/* jk */
+s16b max_reading; /* TODO Check what this should do */
+
 u32b seed_randart;		/* Hack -- consistent random artifacts */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
@@ -441,6 +444,9 @@ byte (*cave_when)[DUNGEON_WID];
  */
 object_type *o_list;
 
+/* TODO Should be s_info? */
+spell_set_type *s_list;
+
 /*
  * Array[z_info->m_max] of dungeon monsters
  */
@@ -647,13 +653,6 @@ char *s_text;
 
 
 /*
- * The spell_list is built from s_info to facilitate a quick lookup
- * of the spell when realm, book and position in book are known.
- */
-s16b spell_list[MAX_REALMS][BOOKS_PER_REALM][SPELLS_PER_BOOK];
-
-
-/*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
@@ -727,7 +726,7 @@ bool (*get_mon_num_hook)(int r_idx);
 /*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
-bool (*get_obj_num_hook)(int k_idx);
+bool (*get_obj_num_hook)(s16b k_idx);
 
 
 
@@ -748,13 +747,13 @@ void (*text_out_hook)(byte a, cptr str);
  * Hack -- Where to wrap the text when using text_out().  Use the default
  * value (for example the screen width) when 'text_out_wrap' is 0.
  */
-int text_out_wrap = 0;
+s16b text_out_wrap = 0;
 
 
 /*
  * Hack -- Indentation for the text when using text_out().
  */
-int text_out_indent = 0;
+s16b text_out_indent = 0;
 
 
 /*

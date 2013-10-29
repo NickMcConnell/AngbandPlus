@@ -20,7 +20,6 @@
 #include "ui-birth.h"
 #include "game-event.h"
 #include "game-cmd.h"
-#include "cmds.h"
 
 /*
  * Overview
@@ -46,8 +45,8 @@
 enum birth_stage
 {
 	BIRTH_BACK = -1,
-	BIRTH_RESET = 0,
-	BIRTH_QUICKSTART,
+	BIRTH_RESET = 0, 
+ 	BIRTH_QUICKSTART,
 	BIRTH_SEX_CHOICE,
 	BIRTH_RACE_CHOICE,
 	BIRTH_CLASS_CHOICE,
@@ -84,34 +83,33 @@ static bool quickstart_allowed = FALSE;
 /* ------------------------------------------------------------------------
  * Quickstart? screen.
  * ------------------------------------------------------------------------ */
-static enum birth_stage get_quickstart_command(void)
-{
-	const char *prompt = "['Y' to use this character, 'N' to start afresh, 'C' to change name]";
+static enum birth_stage get_quickstart_command(void) 
+{ 
+	const char *prompt = "['Y' to use this character, 'N' to start afresh, 'C' to change name]"; 
 	ui_event_data ke;
 
-	enum birth_stage next = BIRTH_QUICKSTART;
+	enum birth_stage next = BIRTH_QUICKSTART; 
 
-	/* Prompt for it */
-	prt("New character based on previous one:", 0, 0);
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	/* Prompt for it */ 
+	prt("New character based on previous one:", 0, 0); 
+	prt(prompt, Term->hgt - 1, Term->wid / 2 - (s16b) strlen(prompt) / 2); 
+
+	/* Buttons */ 
+	button_kill_all(); 
+	button_add("[Y]", 'y'); 
+	button_add("[N]", 'n'); 
+	button_add("[C]", 'c'); 
+	redraw_stuff(); 
 	
-	/* Buttons */
-	button_kill_all();
-	button_add("[Y]", 'y');
-	button_add("[N]", 'n');
-	button_add("[C]", 'c');
-	redraw_stuff();
-	
-	do
-	{
-		/* Get a key */
-		ke = inkey_ex();
-		
-		if (ke.key == 'N' || ke.key == 'n')
-		{
-			cmd_insert(CMD_BIRTH_RESET, TRUE);
-			next = BIRTH_SEX_CHOICE;
-		}
+	do 
+	{ 
+		/* Get a key */ 
+		ke = inkey_ex(); 
+		if (ke.key == 'N' || ke.key == 'n') 
+		{ 
+			cmd_insert(CMD_BIRTH_RESET, TRUE); 
+			next = BIRTH_SEX_CHOICE; 
+		} 
 		else if (ke.key == KTRL('X'))
 		{
 			cmd_insert(CMD_QUIT);
@@ -121,22 +119,23 @@ static enum birth_stage get_quickstart_command(void)
 		{
 			next = BIRTH_NAME_CHOICE;
 		}
-		else if (ke.key == 'Y' || ke.key == 'y')
-		{
-			cmd_insert(CMD_ACCEPT_CHARACTER);
-			next = BIRTH_COMPLETE;
-		}
-	} while (next == BIRTH_QUICKSTART);
-	
-	/* Buttons */
-	button_kill_all();
-	redraw_stuff();
+		else if (ke.key == 'Y' || ke.key == 'y') 
+		{ 
+			cmd_insert(CMD_ACCEPT_CHARACTER); 
+			next = BIRTH_COMPLETE; 
+		} 
+	} while (next == BIRTH_QUICKSTART); 
 
-	/* Clear prompt */
-	clear_from(23);
+	/* Buttons */ 
+	button_kill_all(); 
+	redraw_stuff(); 
+
+	/* Clear prompt */ 
+	clear_from(23); 
 
 	return next;
 }
+
 
 /* ------------------------------------------------------------------------
  * The various "menu" bits of the birth process - namely choice of sex,
@@ -183,19 +182,23 @@ struct birthmenu_data
    text from our stored data in a different colour if it's currently
    selected. */
 static void birthmenu_display(menu_type *menu, int oid, bool cursor,
-			      int row, int col, int width)
+			      s16b row, s16b col, s16b width)
 {
 	struct birthmenu_data *data = menu->menu_data;
 
 	byte attr = curs_attrs[CURS_KNOWN][0 != cursor];
+	UNREFERENCED_PARAMETER(width);
 	c_put_str(attr, data->items[oid], row, col);
 }
 
 /* We defer the choice of actual actions until outside of the menu API 
    in menu_question(), so this can be a reasonably simple function
    for when a menu "command" is activated. */
-static bool birthmenu_handler(char cmd, void *db, int oid)
+static bool birthmenu_handler(char cmd, void *db, int oid) /* TODO To be implemented? */
 {
+	UNREFERENCED_PARAMETER(cmd);
+	UNREFERENCED_PARAMETER(db);
+	UNREFERENCED_PARAMETER(oid);
 	return TRUE;
 }
 
@@ -207,6 +210,10 @@ static const menu_iter birth_iter = { NULL, NULL, birthmenu_display, birthmenu_h
 static void race_help(int i, void *db, const region *l)
 {
 	int j;
+
+	UNREFERENCED_PARAMETER(i);
+	UNREFERENCED_PARAMETER(l);
+	UNREFERENCED_PARAMETER(db);
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -232,6 +239,10 @@ static void class_help(int i, void *db, const region *l)
 {
 	int j;
 
+	UNREFERENCED_PARAMETER(i);
+	UNREFERENCED_PARAMETER(l);
+	UNREFERENCED_PARAMETER(db);
+
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
 	
@@ -253,7 +264,7 @@ static void class_help(int i, void *db, const region *l)
 
 /* Set up one of our menus ready to display choices for a birth question.
    This is slightly involved. */
-static void init_birth_menu(menu_type *menu, int n_choices, int initial_choice, const region *reg, bool allow_random, browse_f aux)
+static void init_birth_menu(menu_type *menu, s16b n_choices, s16b initial_choice, const region *reg, bool allow_random, browse_f aux)
 {
 	struct birthmenu_data *menu_data;
 
@@ -347,7 +358,7 @@ static void free_birth_menu(menu_type *menu)
 
 	if (data)
 	{
-		mem_free(data->items);
+		mem_free((char **)data->items);
 		mem_free(data);
 	}
 }
@@ -366,7 +377,7 @@ static void free_birth_menus()
  */
 static void clear_question(void)
 {
-	int i;
+	s16b i;
 
 	for (i = QUESTION_ROW; i < TABLE_ROW; i++)
 	{
@@ -410,7 +421,7 @@ static void print_menu_instructions(void)
 static enum birth_stage menu_question(enum birth_stage current, menu_type *current_menu, cmd_code choice_command)
 {
 	struct birthmenu_data *menu_data = current_menu->menu_data;
-	int cursor = current_menu->cursor;
+	s16b cursor = current_menu->cursor;
 	ui_event_data cx;
 
 	enum birth_stage next = BIRTH_RESET;
@@ -466,7 +477,7 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 		/* '*' chooses an option at random from those the game's provided. */
 		else if (cx.key == '*' && menu_data->allow_random) 
 		{
-			current_menu->cursor = randint0(current_menu->count);
+			current_menu->cursor = (s16b) randint0(current_menu->count);
 			cmd_insert(choice_command, current_menu->cursor);
 
 			menu_refresh(current_menu);
@@ -474,7 +485,7 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 		}
 		else if (cx.key == '=') 
 		{
-			do_cmd_options();
+			cmd_insert(CMD_OPTIONS);
 			next = current;
 		}
 		else if (cx.key == KTRL('X')) 
@@ -530,7 +541,7 @@ static enum birth_stage roller_command(bool first_call)
 	strnfcat(prompt, sizeof (prompt), &promptlen, " or 'Enter' to accept]");
 
 	/* Prompt for it */
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - promptlen / 2);
+	prt(prompt, Term->hgt - 1, Term->wid / 2 - (s16b) promptlen / 2);
 	
 	/* Prompt and get a command */
 	ke = inkey_ex();
@@ -605,6 +616,9 @@ static enum birth_stage roller_command(bool first_call)
    redisplay them all using the standard function. */
 static void point_based_stats(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	display_player_stat_info();
 }
 
@@ -613,6 +627,9 @@ static void point_based_stats(game_event_type type, game_event_data *data, void 
    but redisplay everything because it's easier. */
 static void point_based_misc(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	display_player_xtra_info();
 }
 
@@ -622,9 +639,11 @@ static void point_based_misc(game_event_type type, game_event_data *data, void *
    are available. */
 static void point_based_points(game_event_type type, game_event_data *data, void *user)
 {
-	int i;
+	s16b i;
 	int sum = 0;
 	int *stats = data->birthstats.stats;
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(type);
 
 	/* Display the costs header */
 	put_str("Cost", COSTS_ROW - 1, COSTS_COL);
@@ -651,7 +670,7 @@ static void point_based_start(void)
 	display_player_xtra_info();
 	display_player_stat_info();
 
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	prt(prompt, Term->hgt - 1, Term->wid / 2 - (s16b) strlen(prompt) / 2);
 
 	/* Register handlers for various events - cheat a bit because we redraw
 	   the lot at once rather than each bit at a time. */
@@ -669,7 +688,7 @@ static void point_based_stop(void)
 
 static enum birth_stage point_based_command(void)
 {
-	static int stat = 0;
+	static s16b stat = 0;
 	char ch;
 	enum birth_stage next = BIRTH_POINTBASED;
 
@@ -705,7 +724,7 @@ static enum birth_stage point_based_command(void)
 	}
 	else
 	{
-		ch = target_dir(ch);
+		ch = INT2CHR(target_dir(ch));
 		
 		/* Prev stat, looping round to the bottom when going off the top */
 		if (ch == 8)
@@ -741,7 +760,7 @@ static enum birth_stage get_name_command(void)
 
 	if (get_name(name, sizeof(name)))
 	{	
-		cmd_insert(CMD_NAME_CHOICE, name);
+		cmd_insert(CMD_NAME_CHOICE, string_make(name));
 		next = BIRTH_FINAL_CONFIRM;
 	}
 	else
@@ -763,7 +782,7 @@ static enum birth_stage get_confirm_command(void)
 	enum birth_stage next;
 
 	/* Prompt for it */
-	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+	prt(prompt, Term->hgt - 1, Term->wid / 2 - (s16b) strlen(prompt) / 2);
 	
 	/* Buttons */
 	button_kill_all();
@@ -829,29 +848,28 @@ errr get_birth_command(bool wait)
 	static enum birth_stage prev;
 	static enum birth_stage roller = BIRTH_RESET;
 	enum birth_stage next = current_stage;
+	UNREFERENCED_PARAMETER(wait);
 
 	switch (current_stage)
 	{
-		case BIRTH_RESET:
-		{
-			cmd_insert(CMD_BIRTH_RESET, TRUE);
-			roller = BIRTH_RESET;
+		case BIRTH_RESET: 
+		{ 
+			cmd_insert(CMD_BIRTH_RESET, TRUE); 
+			roller = BIRTH_RESET; 
 			
-			if (quickstart_allowed)
+			if (quickstart_allowed) 
 				next = BIRTH_QUICKSTART;
-			else
+			else 
 				next = BIRTH_SEX_CHOICE;
 
 			break;
 		}
-
-		case BIRTH_QUICKSTART:
-		{
-			display_player(0);
-			next = get_quickstart_command();
-			break;
+		case BIRTH_QUICKSTART: 
+		{ 
+			display_player(0); 
+			next = get_quickstart_command(); 
+			break; 
 		}
-
 		case BIRTH_SEX_CHOICE:
 		case BIRTH_CLASS_CHOICE:
 		case BIRTH_RACE_CHOICE:
@@ -889,10 +907,9 @@ errr get_birth_command(bool wait)
 			if (next == BIRTH_BACK)
 				next = current_stage - 1;
 
-			/* Make sure that the character gets reset before quickstarting */
-			if (next == BIRTH_QUICKSTART) 
+			/* Make sure that the character gets reset before quickstarting */ 
+			if (next == BIRTH_QUICKSTART)  
 				next = BIRTH_RESET;
-
 			break;
 		}
 
@@ -966,14 +983,21 @@ errr get_birth_command(bool wait)
  */
 static void ui_enter_birthscreen(game_event_type type, game_event_data *data, void *user)
 {
-	/* Set the ugly static global that tells us if quickstart's available. */
-	quickstart_allowed = data->flag;
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
+
+	/* Set the ugly static global that tells us if quickstart's available. */ 
+ 	quickstart_allowed = data->flag;
 
 	setup_menus();
 }
 
 static void ui_leave_birthscreen(game_event_type type, game_event_data *data, void *user)
 {
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(data);
+	UNREFERENCED_PARAMETER(type);
 	free_birth_menus();
 }
 

@@ -18,17 +18,17 @@
 #include "angband.h"
 #include "object/tvalsval.h"
 #include "ui-menu.h"
-#include "game-cmd.h"
 #include "cmds.h"
 #include "option.h"
 
 #define MAX_PANEL 12
 
+
 /*
  * Returns a "rating" of x depending on y, and sets "attr" to the
  * corresponding "attribute".
  */
-static cptr likert(int x, int y, byte *attr)
+static cptr likert(s16b x, s16b y, byte *attr)
 {
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -104,24 +104,33 @@ static cptr likert(int x, int y, byte *attr)
 
 /*
  * Obtain the "flags" for the player as if he was an item
+ * TODO Check how this works with extra flags
  */
-void player_flags(u32b f[OBJ_FLAG_N])
+void player_flags(u32b *f0, u32b *f1, u32b *f2, u32b *f3)
 {
+	/* Clear */
+	(*f0) = (*f1) = (*f2) = (*f3) = 0L;
+
 	/* Add racial flags */
-	memcpy(f, rp_ptr->flags, sizeof(rp_ptr->flags));
+	(*f0) |= rp_ptr->flags0; /* TODO : Check if these work.  (I think they don't). */
+	(*f1) |= rp_ptr->flags1;
+	(*f2) |= rp_ptr->flags2;
+	(*f3) |= rp_ptr->flags3;
 
 	/* Some classes become immune to fear at a certain plevel */
-	if ((cp_ptr->flags & CF_BRAVERY_30) && p_ptr->lev >= 30)
-		f[1] |= TR1_RES_FEAR;
+	if (cp_ptr->flags & CF_BRAVERY_25)
+	{
+		if (p_ptr->lev >= 25) (*f2) |= (TR2_RES_FEAR);
+	}
 }
 
 
 /*
  * Equippy chars
  */
-static void display_player_equippy(int y, int x)
+static void display_player_equippy(s16b y, s16b x)
 {
-	int i;
+	s16b i;
 
 	byte a;
 	char c;
@@ -157,50 +166,53 @@ struct player_flag_record
 	byte set;				/* Which field this resistance is in { 1 2 3 } */
 	u32b res_flag;			/* resistance flag bit */
 	u32b im_flag;			/* corresponding immunity bit, if any */
-	u32b vuln_flag;			/* corresponding vulnerability flag, if any */
+	u32b vuln_flag;	 		/* corresponding vulnerability flag, if any */
 };
 
-static const struct player_flag_record player_flag_table[RES_ROWS*4] =
+static const struct player_flag_record player_flag_table[RES_ROWS*4] = 
 {
-	{ "rAcid",	1, TR1_RES_ACID,	TR1_IM_ACID,	TR1_VULN_ACID },
-	{ "rElec",	1, TR1_RES_ELEC,	TR1_IM_ELEC,	TR1_VULN_ELEC },
-	{ "rFire",	1, TR1_RES_FIRE,	TR1_IM_FIRE,	TR1_VULN_FIRE },
-	{ "rCold",	1, TR1_RES_COLD,	TR1_IM_COLD,	TR1_VULN_COLD },
-	{ "rPois",	1, TR1_RES_POIS,	0, 0 },
-	{ "rFear",	1, TR1_RES_FEAR,	0, 0 },
-	{ "rLite",	1, TR1_RES_LITE,	0, 0 },
-	{ "rDark",	1, TR1_RES_DARK,	0, 0 },
-	{ "rBlnd",	1, TR1_RES_BLIND,	0, 0 },
+	{ " Acid",	2, TR2_RES_ACID,	TR2_IM_ACID, TR2_VULN_ACID },
+	{ " Elec",	2, TR2_RES_ELEC,	TR2_IM_ELEC, TR2_VULN_ELEC },
+	{ " Fire",	2, TR2_RES_FIRE,	TR2_IM_FIRE, TR2_VULN_FIRE },
+	{ " Cold",	2, TR2_RES_COLD,	TR2_IM_COLD, TR2_VULN_COLD },
+	{ " Pois",	2, TR2_RES_POIS,	0, 0 },
+	{ " Fear",	2, TR2_RES_FEAR,	0, 0 },
+	{ " Lite",	2, TR2_RES_LITE,	0, 0 },
+	{ " Dark",	2, TR2_RES_DARK,	0, 0 },
+	{ "Blind",	2, TR2_RES_BLIND,	0, 0 },
 
-	{ "rConf",	1, TR1_RES_CONFU,	0, 0 },
-	{ "Sound",	1, TR1_RES_SOUND,	0, 0 },
-	{ "Shard",	1, TR1_RES_SHARD,	0, 0 },
-	{ "Nexus",	1, TR1_RES_NEXUS,	0, 0 },
-	{ "Nethr",	1, TR1_RES_NETHR,	0, 0 },
-	{ "Chaos",	1, TR1_RES_CHAOS,	0, 0 },
-	{ "Disen",	1, TR1_RES_DISEN,	0, 0 },
-	{ "S.Dig",	2, TR2_SLOW_DIGEST,	0, 0 },
-	{ "Feath",	2, TR2_FEATHER, 	0, 0 },
+	{ "Confu",	2, TR2_RES_CONFU,	0, 0 },
+	{ "Sound",	2, TR2_RES_SOUND,	0, 0 },
+	{ "Shard",	2, TR2_RES_SHARD,	0, 0 },
+	{ "Nexus",	2, TR2_RES_NEXUS,	0, 0 },
+	{ "Nethr",	2, TR2_RES_NETHR,	0, 0 },
+	{ "Chaos",	2, TR2_RES_CHAOS,	0, 0 },
+	{ "Disen",	2, TR2_RES_DISEN,	0, 0 },
+	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0, 0 },
+	{ "Feath",	3, TR3_FEATHER, 	0, 0 },
 
-	{ "PLite",	2, TR2_LITE, 		0, 0 },
-	{ "Regen",	2, TR2_REGEN, 		0, 0 },
-	{ "  ESP",	2, TR2_TELEPATHY, 	0, 0 },
-	{ "Invis",	2, TR2_SEE_INVIS, 	0, 0 },
-	{ "FrAct",	2, TR2_FREE_ACT, 	0, 0 },
+	{ "PLite",	3, TR3_SOMELITE, 		0, 0 },
+	{ "BLite",	3, TR3_BIGLITE, 		0, 0 },
+	{ "Regen",	3, TR3_REGEN, 		0, 0 },
+	{ "Telep",	3, TR3_TELEPATHY, 	0, 0 },
+	{ "Invis",	3, TR3_SEE_INVIS, 	0, 0 },
+	{ "FrAct",	3, TR3_FREE_ACT, 	0, 0 },
 	{ "HLife",	2, TR2_HOLD_LIFE, 	0, 0 },
-	{ "ImpHP",	2, TR2_IMPAIR_HP,	0, 0 },
-	{ "ImpSP",	2, TR2_IMPAIR_MANA,	0, 0 },
-	{ " Fear",      2, TR2_AFRAID,          0, 0 },
+	{ " Fear",      3, TR3_AFRAID,          0, 0 },
 
-	{ "Aggrv",      2, TR2_AGGRAVATE,       0, 0 },
-	{ "Stea.",	0, TR0_STEALTH,		0, 0 },
-	{ "Sear.",	0, TR0_SEARCH,		0, 0 },
-	{ "Infra",	0, TR0_INFRA,		0, 0 },
-	{ "Tunn.",	0, TR0_TUNNEL,		0, 0 },
-	{ "Speed",	0, TR0_SPEED,		0, 0 },
-	{ "Blows",	0, TR0_BLOWS,		0, 0 },
-	{ "Shots",	0, TR0_SHOTS,		0, 0 },
-	{ "Might",	0, TR0_MIGHT,		0, 0 },
+	{ "Aggrv",      3, TR3_AGGRAVATE,       0, 0 },
+/*
+ * TODO : Add support for p2val versions.
+ * Check if any are missing (VAMPIRE?) 
+ */
+	{ "Stea.",	0, TR0_STEALTH1,	0, 0 }, 
+	{ "Sear.",	0, TR0_SEARCH1,		0, 0 },
+	{ "Infra",	0, TR0_INFRA1,		0, 0 },
+	{ "Tunn.",	0, TR0_TUNNEL1,		0, 0 },
+	{ "Speed",	0, TR0_SPEED1,		0, 0 },
+	{ "Blows",	0, TR0_BLOWS1,		0, 0 },
+	{ "Shots",	0, TR0_SHOTS1,		0, 0 },
+	{ "Might",	0, TR0_MIGHT1,		0, 0 },
 };
 
 #define RES_COLS (5 + 2 + INVEN_TOTAL - INVEN_WIELD)
@@ -216,8 +228,8 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 									size_t size, const region *bounds) 
 {
 	size_t i, j;
-	int col = bounds->col;
-	int row = bounds->row;
+	s16b col = bounds->col;
+	s16b row = bounds->row;
 	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      abcdefghijkl@");
 	for (i = 0; i < size-3; i++, row++)
 	{
@@ -235,29 +247,32 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			bool res, imm, vuln;
 
 			if (j < INVEN_TOTAL)
+			{
 				object_flags_known(o_ptr, f);
+			}
 			else
 			{
-				player_flags(f);
+				player_flags(&f[0], &f[1], &f[2], &f[3]);
 
 				/* If the race has innate infravision, force the corresponding flag
 				   here.  If we set it in player_flags(), then all callers of that
 				   function will think the infravision is caused by equipment. */
 				if (rp_ptr->infra > 0)
-					f[0] |= (TR0_INFRA);
+				{
+					f[0] |= (TR0_INFRA1);
+				}
 			}
 
 			res = (0 != (f[resists[i].set] & resists[i].res_flag));
 			imm = (0 != (f[resists[i].set] & resists[i].im_flag));
-			vuln = (0 != (f[resists[i].set] & resists[i].vuln_flag));
+ 			vuln = (0 != (f[resists[i].set] & resists[i].vuln_flag));
 
 			if (imm) name_attr = TERM_GREEN;
 			else if (res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
 
 			if (vuln) sym = '-';
 			else if (imm) sym = '*';
-			else if (res) sym = '+';
-			else if ((!object_flag_is_known(o_ptr, resists[i].set, resists[i].res_flag)) && (j < INVEN_TOTAL) && (o_ptr->k_idx)) sym = '?';
+			else if (res) sym = '+';		
 			Term_addch(attr, sym);
 		}
 		Term_putstr(col, row, 6, name_attr, format("%5s:", resists[i].name));
@@ -283,7 +298,7 @@ static void display_player_flag_info(void)
  */
 void display_player_stat_info(void)
 {
-	int i, row, col;
+	s16b i, row, col;
 
 	char buf[80];
 
@@ -367,7 +382,7 @@ void display_player_stat_info(void)
  */
 static void display_player_sust_info(void)
 {
-	int i, row, col, stat;
+	s16b i, row, col, stat;
 
 	object_type *o_ptr;
 	u32b f[OBJ_FLAG_N];
@@ -383,19 +398,19 @@ static void display_player_sust_info(void)
 	col = 26;
 
 	/* low-level dependencies */
-	assert(TR0_STR == (1<<A_STR));
-	assert(TR0_INT == (1<<A_INT));
-	assert(TR0_WIS == (1<<A_WIS));
-	assert(TR0_DEX == (1<<A_DEX));
-	assert(TR0_CON == (1<<A_CON));
-	assert(TR0_CHR == (1<<A_CHR));
+	assert(TR0_STR1 == (1<<A_STR)); /* TODO Add support for p2val versions (if needed) */
+	assert(TR0_INT1 == (1<<A_INT));
+	assert(TR0_WIS1 == (1<<A_WIS));
+	assert(TR0_DEX1 == (1<<A_DEX));
+	assert(TR0_CON1 == (1<<A_CON));
+	assert(TR0_CHR1 == (1<<A_CHR));
 
-	assert(TR1_SUST_STR == (1<<A_STR));
-	assert(TR1_SUST_INT == (1<<A_INT));
-	assert(TR1_SUST_WIS == (1<<A_WIS));
-	assert(TR1_SUST_DEX == (1<<A_DEX));
-	assert(TR1_SUST_CON == (1<<A_CON));
-	assert(TR1_SUST_CHR == (1<<A_CHR));
+	assert(TR2_SUST_STR == (1<<A_STR));
+	assert(TR2_SUST_INT == (1<<A_INT));
+	assert(TR2_SUST_WIS == (1<<A_WIS));
+	assert(TR2_SUST_DEX == (1<<A_DEX));
+	assert(TR2_SUST_CON == (1<<A_CON));
+	assert(TR2_SUST_CHR == (1<<A_CHR));
 
 	/* Header */
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
@@ -409,7 +424,7 @@ static void display_player_sust_info(void)
 		/* Get the "known" flags */
 		object_flags_known(o_ptr, f);
 
-		/* Initialize color based of sign of pval. */
+		/* Initialize color based on sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
 		{
 			/* Default */
@@ -425,7 +440,7 @@ static void display_player_sust_info(void)
 				/* Good */
 				if (o_ptr->pval > 0)
 				{
-					/* Good */
+			 		/* Good */
 					a = TERM_L_GREEN;
 
 					/* Label boost */
@@ -453,9 +468,6 @@ static void display_player_sust_info(void)
 				if (c == '.') c = 's';
 			}
 
-			if ((c == '.') && o_ptr->k_idx && !object_flag_is_known(o_ptr, 1, (1 << stat)))
-				c = '?';
-
 			/* Dump proper character */
 			Term_putch(col, row+stat, a, c);
 		}
@@ -465,7 +477,7 @@ static void display_player_sust_info(void)
 	}
 
 	/* Player flags */
-	player_flags(f);
+	player_flags(&f[0], &f[1], &f[2], &f[3]);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; ++stat)
@@ -502,10 +514,10 @@ static void display_panel(const data_panel *panel, int count, bool left_adj, con
 {
 	int i;
 	char buffer[50];
-	int col = bounds->col;
-	int row = bounds->row;
-	int w = bounds->width;
-	int offset = 0;
+	s16b col = bounds->col;
+	s16b row = bounds->row;
+	s16b w = bounds->width;
+	s16b offset = 0, len;
 
 	region_erase(bounds);
 
@@ -513,7 +525,7 @@ static void display_panel(const data_panel *panel, int count, bool left_adj, con
 	{
 		for (i = 0; i < count; i++)
 		{
-			int len = panel[i].label ? strlen(panel[i].label) : 0;
+			len = panel[i].label ? (s16b) strlen(panel[i].label) : 0;
 			if (offset < len) offset = len;
 		}
 		offset += 2;
@@ -521,13 +533,12 @@ static void display_panel(const data_panel *panel, int count, bool left_adj, con
 
 	for (i = 0; i < count; i++, row++)
 	{
-		int len;
 		if (!panel[i].label) continue;
-		Term_putstr(col, row, strlen(panel[i].label), TERM_WHITE, panel[i].label);
+		Term_putstr(col, row, (s16b) strlen(panel[i].label), TERM_WHITE, panel[i].label);
 
 		strnfmt(buffer, sizeof(buffer), panel[i].fmt, panel[i].value[0], panel[i].value[1]);
 
-		len = strlen(buffer);
+		len = (s16b) strlen(buffer);
 		len = len < w - offset ? len : w - offset - 1;
 		if (left_adj)
 			Term_putstr(col+offset, row, len, panel[i].color, buffer);
@@ -602,7 +613,7 @@ static const char *show_melee_weapon(const object_type *o_ptr)
 	int hit = p_ptr->state.dis_to_h;
 	int dam = p_ptr->state.dis_to_d;
 
-	if (object_attack_plusses_are_visible(o_ptr))
+	if (object_known_p(o_ptr))
 	{
 		hit += o_ptr->to_h;
 		dam += o_ptr->to_d;
@@ -618,7 +629,7 @@ static const char *show_missile_weapon(const object_type *o_ptr)
 	int hit = p_ptr->state.dis_to_h;
 	int dam = 0;
 
-	if (object_attack_plusses_are_visible(o_ptr))
+	if (object_known_p(o_ptr))
 	{
 		hit += o_ptr->to_h;
 		dam += o_ptr->to_d;
@@ -696,147 +707,143 @@ static const byte colour_table[] =
 	TERM_L_BLUE
 };
 
-static int get_panel(int oid, data_panel *panel, size_t size)
+static s16b get_panel(int oid, data_panel *panel, s16b size)
 {
-	int ret = (s32b) size;
+	s16b ret = size;
 	switch(oid)
 	{
-  case 1:
-  {
-	int i = 0;
-	assert( size >= (u32b) boundaries[1].page_rows);
-	ret = boundaries[1].page_rows;
-	P_I(TERM_L_BLUE, "Name",	"%y",	s2u(op_ptr->full_name), END  );
-	P_I(TERM_L_BLUE, "Sex",		"%y",	s2u(sp_ptr->title), END  );
-	P_I(TERM_L_BLUE, "Race",	"%y",	s2u(p_name + rp_ptr->name), END  );
-	P_I(TERM_L_BLUE, "Class",	"%y",	s2u(c_name + cp_ptr->name), END  );
-	P_I(TERM_L_BLUE, "Title",	"%y",	s2u(show_title()), END  );
-	P_I(TERM_L_BLUE, "HP",	"%y/%y",	i2u(p_ptr->chp), i2u(p_ptr->mhp)  );
-	P_I(TERM_L_BLUE, "SP",	"%y/%y",	i2u(p_ptr->csp), i2u(p_ptr->msp)  );
-	P_I(TERM_L_BLUE, "Level",	"%y",	i2u(p_ptr->lev), END  );
-	assert(i == boundaries[1].page_rows);
-	return ret;
-  }
-  case 2:
-  {
-	int i = 0;
-	assert( ret >= boundaries[2].page_rows);
-	ret = boundaries[2].page_rows;
-	P_I(max_color(p_ptr->lev, p_ptr->max_lev), "Level", "%y", i2u(p_ptr->lev), END  );
-	P_I(max_color(p_ptr->exp, p_ptr->max_exp), "Cur Exp", "%y", i2u(p_ptr->exp), END  );
-	P_I(TERM_L_GREEN, "Max Exp",	"%y",	i2u(p_ptr->max_exp), END  );
-	P_I(TERM_L_GREEN, "Adv Exp",	"%y",	s2u(show_adv_exp()), END  );
-	P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth()), END  );
-	P_I(TERM_L_GREEN, "Turns",		"%y",	i2u(turn), END  );
-	P_I(TERM_L_GREEN, "Gold",		"%y",	i2u(p_ptr->au), END  );
-	P_I(TERM_L_GREEN, "Burden",	"%.1y lbs",	f2u(p_ptr->total_weight/10.0), END  );
-	assert(i == boundaries[2].page_rows);
-	return ret;
-  }
-  case 3:
-  {
-	int i = 0;
-	assert(ret >= boundaries[3].page_rows);
-	ret = boundaries[3].page_rows;
-	P_I(TERM_L_BLUE, "Armor", "[%y,%+y]",	i2u(p_ptr->state.dis_ac), i2u(p_ptr->state.dis_to_a)  );
-	P_I(TERM_L_BLUE, "Fight", "(%+y,%+y)",	i2u(p_ptr->state.dis_to_h), i2u(p_ptr->state.dis_to_d)  );
-	P_I(TERM_L_BLUE, "Melee", "%y",			s2u(show_melee_weapon(&inventory[INVEN_WIELD])), END  );
-	P_I(TERM_L_BLUE, "Shoot", "%y",			s2u(show_missile_weapon(&inventory[INVEN_BOW])), END  );
-	P_I(TERM_L_BLUE, "Blows", "%y/turn",	i2u(p_ptr->state.num_blow), END  );
-	P_I(TERM_L_BLUE, "Shots", "%y/turn",	i2u(p_ptr->state.num_fire), END  );
-	P_I(TERM_L_BLUE, "Infra", "%y ft",		i2u(p_ptr->state.see_infra * 10), END  );
-	P_I(TERM_L_BLUE, "Speed", "%y",			s2u(show_speed()), END );
-	assert(i == boundaries[3].page_rows);
-	return ret;
-  }
-  case 4:
-  {
-	static struct {
-		const char *name;
-		int skill;
-		int div;
-	} skills[] =
-	{
-		{ "Saving Throw", SKILL_SAVE, 6 },
-		{ "Stealth", SKILL_STEALTH, 1 },
-		{ "Fighting", SKILL_TO_HIT_MELEE, 12 },
-		{ "Shooting", SKILL_TO_HIT_BOW, 12 },
-		{ "Disarming", SKILL_DISARM, 8 },
-		{ "Magic Device", SKILL_DEVICE, 6 },
-		{ "Perception", SKILL_SEARCH_FREQUENCY, 6 },
-		{ "Searching", SKILL_SEARCH, 6 }
-	};
-	int i;
-	assert(N_ELEMENTS(skills) == boundaries[4].page_rows);
-	ret = N_ELEMENTS(skills);
-	if ((u32b) ret > size) ret = size;
-	for (i = 0; i < ret; i++)
-	{
-		s16b skill = p_ptr->state.skills[skills[i].skill];
-		panel[i].color = TERM_L_BLUE;
-		panel[i].label = skills[i].name;
-		if (skills[i].skill == SKILL_SAVE ||
-				skills[i].skill == SKILL_SEARCH)
+		case 1:
 		{
-			if (skill > 100) skill = 100;
-			panel[i].fmt = "%y%%";
-			panel[i].value[0] = i2u(skill);
-			panel[i].color = colour_table[skill / 10];
+			int i = 0;
+			assert( size >= boundaries[1].page_rows);
+			ret = boundaries[1].page_rows;
+			P_I(TERM_L_BLUE, "Name",	"%y",	s2u(op_ptr->full_name), END  );
+			P_I(TERM_L_BLUE, "Sex",		"%y",	s2u(sp_ptr->title), END  );
+			P_I(TERM_L_BLUE, "Race",	"%y",	s2u(p_name + rp_ptr->name), END  );
+			P_I(TERM_L_BLUE, "Class",	"%y",	s2u(c_name + cp_ptr->name), END  );
+			P_I(TERM_L_BLUE, "Title",	"%y",	s2u(show_title()), END  );
+			P_I(TERM_L_BLUE, "HP",	"%y/%y",	i2u(p_ptr->chp), i2u(p_ptr->mhp)  );
+			P_I(TERM_L_BLUE, "SP",	"%y/%y",	i2u(p_ptr->csp), i2u(p_ptr->msp)  );
+			P_I(TERM_L_BLUE, "Level",	"%y",	i2u(p_ptr->lev), END  );
+			assert(i == boundaries[1].page_rows);
+			return ret;
 		}
-		else if (skills[i].skill == SKILL_SEARCH_FREQUENCY)
+		case 2:
 		{
-			if (skill <= 0) skill = 1;
-			if (skill >= 50)
+			int i = 0;
+			assert( ret >= boundaries[2].page_rows);
+			ret = boundaries[2].page_rows;
+			P_I(max_color(p_ptr->lev, p_ptr->max_lev), "Level", "%y", i2u(p_ptr->lev), END  );
+			P_I(max_color(p_ptr->exp, p_ptr->max_exp), "Cur Exp", "%y", i2u(p_ptr->exp), END  );
+			P_I(TERM_L_GREEN, "Max Exp",	"%y",	i2u(p_ptr->max_exp), END  );
+			P_I(TERM_L_GREEN, "Adv Exp",	"%y",	s2u(show_adv_exp()), END  );
+			P_I(TERM_L_GREEN, "MaxDepth",	"%y",	s2u(show_depth()), END  );
+			P_I(TERM_L_GREEN, "Turns",		"%y",	i2u(turn), END  );
+			P_I(TERM_L_GREEN, "Gold",		"%y",	i2u(p_ptr->au), END  );
+			P_I(TERM_L_GREEN, "Burden",	"%.1y lbs",	f2u(p_ptr->total_weight/10.0f), END  );
+			assert(i == boundaries[2].page_rows);
+			return ret;
+		}
+		case 3:
+		{
+			int i = 0;
+			assert(ret >= boundaries[3].page_rows);
+			ret = boundaries[3].page_rows;
+			P_I(TERM_L_BLUE, "Armor", "[%y,%+y]",	i2u(p_ptr->state.dis_ac), i2u(p_ptr->state.dis_to_a)  );
+			P_I(TERM_L_BLUE, "Fight", "(%+y,%+y)",	i2u(p_ptr->state.dis_to_h), i2u(p_ptr->state.dis_to_d)  );
+			P_I(TERM_L_BLUE, "Melee", "%y",			s2u(show_melee_weapon(&inventory[INVEN_WIELD])), END  );
+			P_I(TERM_L_BLUE, "Shoot", "%y",			s2u(show_missile_weapon(&inventory[INVEN_BOW])), END  );
+			P_I(TERM_L_BLUE, "Blows", "%y/turn",	i2u(p_ptr->state.num_blow), END  );
+			P_I(TERM_L_BLUE, "Shots", "%y/turn",	i2u(p_ptr->state.num_fire), END  );
+			P_I(TERM_L_BLUE, "Infra", "%y ft",		i2u(p_ptr->state.see_infra * 10), END  );
+			P_I(TERM_L_BLUE, "Speed", "%y",			s2u(show_speed()), END );
+			assert(i == boundaries[3].page_rows);
+			return ret;
+		}
+		case 4:
+		{
+			static struct {
+				const char *name;
+				s16b skill;
+				s16b div;
+			} skills[] =
 			{
-				panel[i].fmt = "1 in 1";
-				panel[i].color = colour_table[10];
-			}
-			else
+				{ "Saving Throw", SKILL_SAVE, 6 },
+				{ "Stealth", SKILL_STEALTH, 1 },
+				{ "Fighting", SKILL_TO_HIT_MELEE, 12 },
+				{ "Shooting", SKILL_TO_HIT_BOW, 12 },
+				{ "Disarming", SKILL_DISARM, 8 },
+				{ "Magic Device", SKILL_DEVICE, 6 },
+				{ "Perception", SKILL_SEARCH_FREQUENCY, 6 },
+				{ "Searching", SKILL_SEARCH, 6 }
+			};
+			int i;
+			assert(N_ELEMENTS(skills) == boundaries[4].page_rows);
+			ret = N_ELEMENTS(skills);
+			if (ret > size) ret = (s16b) size;
+			for (i = 0; i < ret; i++)
 			{
-				/* convert to % chance of searching */
-				skill = 50 - skill;
-				panel[i].fmt = "1 in %y";
-				panel[i].value[0] = i2u(skill);
-				panel[i].color =
-					colour_table[(100 - skill*2) / 10];
+				s16b skill = p_ptr->state.skills[skills[i].skill];
+				panel[i].color = TERM_L_BLUE;
+				panel[i].label = skills[i].name;
+				if (skills[i].skill == SKILL_SAVE ||
+						skills[i].skill == SKILL_SEARCH)
+				{
+					if (skill > 100) skill = 100;
+					panel[i].fmt = "%y%%";
+					panel[i].value[0] = i2u(skill);
+					panel[i].color = colour_table[skill / 10];
+				}
+				else if (skills[i].skill == SKILL_SEARCH_FREQUENCY)
+				{
+					if (skill <= 0) skill = 1;
+					if (skill >= 50)
+					{
+						panel[i].fmt = "1 in 1";
+						panel[i].color = colour_table[10];
+					}
+					else
+					{
+						/* convert to % chance of searching */
+						skill = 50 - skill;
+						panel[i].fmt = "1 in %y";
+						panel[i].value[0] = i2u(skill);
+						panel[i].color =
+							colour_table[(100 - skill*2) / 10];
+					}
+				}
+				else if (skills[i].skill == SKILL_DISARM)
+				{
+					/* assume disarming a dungeon trap */
+					skill -= 5;
+					if (skill > 100) skill = 100;
+					if (skill < 2) skill = 2;
+					panel[i].fmt = "%y%%";
+					panel[i].value[0] = i2u(skill);
+					panel[i].color = colour_table[skill / 10];
+				}
+				else
+				{
+					panel[i].fmt = "%y";
+					panel[i].value[0] = s2u(likert(skill, skills[i].div, &panel[i].color));
+				}
 			}
+			return ret;
 		}
-		else if (skills[i].skill == SKILL_DISARM)
+		case 5:
 		{
-			/* assume disarming a dungeon trap */
-			skill -= 5;
-			if (skill > 100) skill = 100;
-			if (skill < 2) skill = 2;
-			panel[i].fmt = "%y%%";
-			panel[i].value[0] = i2u(skill);
-			panel[i].color = colour_table[skill / 10];
-		}
-		else
-		{
-			panel[i].fmt = "%y";
-			panel[i].value[0] = s2u(likert(skill, skills[i].div, &panel[i].color));
+			int i = 0;
+			assert(ret >= boundaries[5].page_rows);
+			ret = boundaries[5].page_rows;
+			P_I(TERM_L_BLUE, "Age",			"%y",	i2u(p_ptr->age), END );
+			P_I(TERM_L_BLUE, "Height",		"%y",	i2u(p_ptr->ht), END  );
+			P_I(TERM_L_BLUE, "Weight",		"%y",	i2u(p_ptr->wt), END  );
+			P_I(TERM_L_BLUE, "Social",		"%y",	s2u(show_status()), END  );
+			P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(OPT(adult_maximize) ? 'Y' : 'N'), END);
+			assert(i == boundaries[5].page_rows);
+			return ret;
 		}
 	}
-	return ret;
-  }
-  case 5:
-  {
-	int i = 0;
-	assert(ret >= boundaries[5].page_rows);
-	ret = boundaries[5].page_rows;
-	P_I(TERM_L_BLUE, "Age",			"%y",	i2u(p_ptr->age), END );
-	P_I(TERM_L_BLUE, "Height",		"%y",	i2u(p_ptr->ht), END  );
-	P_I(TERM_L_BLUE, "Weight",		"%y",	i2u(p_ptr->wt), END  );
-	P_I(TERM_L_BLUE, "Social",		"%y",	s2u(show_status()), END  );
-	P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(OPT(adult_maximize) ? 'Y' : 'N'), END);
-#if 0
-	/* Preserve mode deleted */
-	P_I(TERM_L_BLUE, "Preserve",	"%y",	c2u(adult_preserve ? 'Y' : 'N'), END);
-#endif
-	assert(i == boundaries[5].page_rows);
-	return ret;
-  }
- }
 	/* hopefully not reached */
 	return 0;
 }
@@ -851,7 +858,7 @@ void display_player_xtra_info(void)
 	for (i = 0; i < (int)N_ELEMENTS(panels); i++)
 	{
 		int oid = panels[i];
-		int rows = get_panel(oid, data, N_ELEMENTS(data));
+		s16b rows = get_panel(oid, data, N_ELEMENTS(data));
 
 		/* Hack:  Don't show 'Level' in the name, class ...  panel */
 		if (oid == 1) rows -= 1;
@@ -894,7 +901,7 @@ void display_player(int mode)
 	if (mode)
 	{
 		data_panel data[MAX_PANEL];
-		int rows = get_panel(1, data, N_ELEMENTS(data));
+		s16b rows = get_panel(1, data, N_ELEMENTS(data));
 
 		display_panel(data, rows, 1, &boundaries[1]);
 
@@ -922,7 +929,8 @@ void display_player(int mode)
  */
 errr file_character(const char *path, bool full)
 {
-	int i, x, y;
+	s16b x, y;
+	int i;
 
 	byte a;
 	char c;
@@ -1046,7 +1054,7 @@ errr file_character(const char *path, bool full)
 		file_putf(fp, "  [Last Messages]\n\n");
 		while (i-- > 0)
 		{
-			file_putf(fp, "> %s\n", message_str((s16b)i));
+			file_putf(fp, "> %s\n", message_str((u32b)i));
 		}
 		file_putf(fp, "\nKilled by %s.\n\n", p_ptr->died_from);
 	}
@@ -1106,9 +1114,6 @@ errr file_character(const char *path, bool full)
 
 	text_out_indent = text_out_wrap = 0;
 
-	/* Dump character history */
-	dump_history(fp);
-	file_putf(fp, "\n\n");
 
 	/* Dump options */
 	file_putf(fp, "  [Options]\n\n");
@@ -1144,9 +1149,8 @@ static void string_lower(char *buf)
 	char *s;
 
 	/* Lowercase the string */
-	for (s = buf; *s != 0; s++) *s = tolower((unsigned char)*s);
+	for (s = buf; *s != 0; s++) *s = (unsigned char) tolower((unsigned char)*s);
 }
-
 
 /*
  * Recursive file perusal.
@@ -1156,21 +1160,23 @@ static void string_lower(char *buf)
  * This function could be made much more efficient with the use of "seek"
  * functionality, especially when moving backwards through a file, or
  * forwards through a file by less than a page at a time.  XXX XXX XXX
+ *
  */
-bool show_file(cptr name, cptr what, int line, int mode)
+bool show_file(cptr name, cptr what, s16b line, int mode)
 {
-	int i, k, n;
+	int k, n;
+	s16b i;
 
 	char ch;
 
 	/* Number of "real" lines passed by */
-	int next = 0;
+	s16b next = 0;
 
 	/* Number of "real" lines in the file */
-	int size;
+	s16b size;
 
 	/* Backup value for "line" */
-	int back = 0;
+	s16b back = 0;
 
 	/* This screen has sub-screens */
 	bool menu = FALSE;
@@ -1211,7 +1217,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Sub-menu information */
 	char hook[26][32];
 
-	int wid, hgt;
+	s16b wid, hgt;
 
 
 
@@ -1404,7 +1410,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			find = NULL;
 
 			/* Dump the line */
-			Term_putstr(0, i+2, -1, TERM_WHITE, buf);
+			Term_putstr(0, i + 2, -1, TERM_WHITE, buf);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -1414,10 +1420,10 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				/* Display matches */
 				while ((str = strstr(str, shower)) != NULL)
 				{
-					int len = strlen(shower);
+					s16b len = (s16b) strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-lc_buf, i+2, len, TERM_YELLOW, &buf[str-lc_buf]);
+					Term_putstr((s16b) (str - lc_buf), i + 2, len, TERM_YELLOW, &buf[str-lc_buf]);
 
 					/* Advance */
 					str += len;
@@ -1514,7 +1520,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 			prt("Goto Line: ", hgt - 1, 0);
 			if (askfor_aux(tmp, sizeof(tmp), NULL))
-				line = atoi(tmp);
+				line = (s16b) atoi(tmp);
 		}
 
 		/* Go to a specific file */
@@ -1617,13 +1623,11 @@ void do_cmd_help(void)
  * Some platforms (Windows, Macintosh, Amiga) leave the "savefile" empty
  * when a new character is created, and then when the character is done
  * being created, they call this function to choose a new savefile name.
- *
- * This also now handles the turning on and off of the automatic
- * sequential numbering of character names with Roman numerals.  
  */
 void process_player_name(bool sf)
 {
 	int i;
+
 
 	/* Process the player name */
 	for (i = 0; op_ptr->full_name[i]; i++)
@@ -1681,9 +1685,55 @@ void process_player_name(bool sf)
 
 
 /*
+ * Hack -- commit suicide
+ */
+void do_cmd_suicide(void)
+{
+	/* Flush input */
+	flush();
+
+	/* Verify Retirement */
+	if (p_ptr->total_winner)
+	{
+		/* Verify */
+		if (!get_check("Do you want to retire? ")) return;
+	}
+
+	/* Verify Suicide */
+	else
+	{
+		char ch;
+
+		/* Verify */
+		if (!get_check("Do you really want to commit suicide? ")) return;
+
+		/* Special Verification for suicide */
+		prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
+		flush();
+		ch = inkey();
+		prt("", 0, 0);
+		if (ch != '@') return;
+	}
+
+	/* Commit suicide */
+	p_ptr->is_dead = TRUE;
+
+	/* Stop playing */
+	p_ptr->playing = FALSE;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+
+	/* Cause of death */
+	my_strcpy(p_ptr->died_from, "Quitting", sizeof(p_ptr->died_from));
+}
+
+
+
+/*
  * Save the game
  */
-void save_game(void)
+void do_cmd_save_game(void)
 {
 	/* Disturb the player */
 	disturb(1, 0);
@@ -1768,7 +1818,7 @@ void close_game(void)
 	else
 	{
 		/* Save the game */
-		save_game();
+		do_cmd_save_game();
 
 		if (Term->mapped_flag)
 		{
@@ -1859,8 +1909,8 @@ static void write_html_escape_char(ang_file *fp, char c)
 /* Take an html screenshot */
 void html_screenshot(cptr name, int mode)
 {
-	int y, x;
-	int wid, hgt;
+	s16b y, x;
+	s16b wid, hgt;
 
 	byte a = TERM_WHITE;
 	byte oa = TERM_WHITE;

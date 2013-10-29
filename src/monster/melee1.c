@@ -70,10 +70,6 @@ bool check_hit(int power, int level)
 	/* Total armor */
 	ac = p_ptr->state.ac + p_ptr->state.to_a;
 
-	/* if the monster checks vs ac, the player learns ac bonuses */
-	/* XXX Eddie should you only learn +ac on miss, -ac on hit?  who knows */
-	object_notice_on_defend();
-
 	/* Check if the player was hit */
 	return test_hit(chance, ac, TRUE);
 }
@@ -123,29 +119,20 @@ static cptr desc_moan[MAX_DESC_MOAN] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
 	int ap_cnt;
-
-	int i, k, tmp, ac, rlev;
+	int i, k, tmp, ac;
+	s16b rlev;
 	int do_cut, do_stun;
-
 	s32b gold;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	char m_name[80];
-
 	char ddesc[80];
-
 	bool blinked;
-	
-	int sound_msg;
+	bool do_reflect = FALSE;
+	u16b sound_msg;
 
 
 	/* Not allowed to attack */
@@ -178,7 +165,7 @@ bool make_attack_normal(int m_idx)
 		int power = 0;
 		int damage = 0;
 
-		cptr act = NULL;
+		cptr act = NULL, method_str = NULL;
 
 		/* Extract the attack infomation */
 		int effect = r_ptr->blow[ap_cnt].effect;
@@ -186,10 +173,8 @@ bool make_attack_normal(int m_idx)
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
-
 		/* Hack -- no more attacks */
 		if (!method) break;
-
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -197,8 +182,6 @@ bool make_attack_normal(int m_idx)
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
-
-
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -234,13 +217,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_HALLU:     power = 10; break;
 		}
 
-
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
-
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
@@ -261,7 +242,6 @@ bool make_attack_normal(int m_idx)
 				continue;
 			}
 
-
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
 
@@ -274,167 +254,156 @@ bool make_attack_normal(int m_idx)
 				case RBM_HIT:
 				{
 					act = "hits you.";
+					method_str = "hit";
 					do_cut = do_stun = 1;
 					sound_msg = MSG_MON_HIT;
 					break;
 				}
-
 				case RBM_TOUCH:
 				{
 					act = "touches you.";
 					sound_msg = MSG_MON_TOUCH;
 					break;
 				}
-
 				case RBM_PUNCH:
 				{
 					act = "punches you.";
+					method_str = "punch";
 					do_stun = 1;
 					sound_msg = MSG_MON_PUNCH;
 					break;
 				}
-
 				case RBM_KICK:
 				{
 					act = "kicks you.";
+					method_str = "kick";
 					do_stun = 1;
 					sound_msg = MSG_MON_KICK;
 					break;
 				}
-
 				case RBM_CLAW:
 				{
 					act = "claws you.";
+					method_str = "claw";
 					do_cut = 1;
 					sound_msg = MSG_MON_CLAW;
 					break;
 				}
-
 				case RBM_BITE:
 				{
 					act = "bites you.";
+					method_str = "bite";
 					do_cut = 1;
 					sound_msg = MSG_MON_BITE;
 					break;
 				}
-
 				case RBM_STING:
 				{
 					act = "stings you.";
+					method_str = "sting";
 					sound_msg = MSG_MON_STING;
 					break;
 				}
-
 				case RBM_XXX1:
 				{
 					act = "XXX1's you.";
 					break;
 				}
-
 				case RBM_BUTT:
 				{
 					act = "butts you.";
+					method_str = "butt";
 					do_stun = 1;
 					sound_msg = MSG_MON_BUTT;
 					break;
 				}
-
 				case RBM_CRUSH:
 				{
 					act = "crushes you.";
+					method_str = "crush";
 					do_stun = 1;
 					sound_msg = MSG_MON_CRUSH;
 					break;
 				}
-
 				case RBM_ENGULF:
 				{
 					act = "engulfs you.";
+					method_str = "engulf";
 					sound_msg = MSG_MON_ENGULF;
 					break;
 				}
-
 				case RBM_XXX2:
 				{
 					act = "XXX2's you.";
 					break;
 				}
-
 				case RBM_CRAWL:
 				{
-					act = "crawls on you.";
+					act = "crawls on you."; /* TODO Suspect this sounds odd */
+					method_str = "crawl";
 					sound_msg = MSG_MON_CRAWL;
 					break;
 				}
-
 				case RBM_DROOL:
 				{
 					act = "drools on you.";
+					method_str = "drool";
 					sound_msg = MSG_MON_DROOL;
 					break;
 				}
-
 				case RBM_SPIT:
 				{
 					act = "spits on you.";
+					method_str = "spit";
 					sound_msg = MSG_MON_SPIT; 
 					break;
 				}
-
 				case RBM_XXX3:
 				{
 					act = "XXX3's on you.";
 					break;
 				}
-
 				case RBM_GAZE:
 				{
 					act = "gazes at you.";
 					sound_msg = MSG_MON_GAZE; 
 					break;
 				}
-
 				case RBM_WAIL:
 				{
 					act = "wails at you.";
 					sound_msg = MSG_MON_WAIL; 
 					break;
 				}
-
 				case RBM_SPORE:
 				{
 					act = "releases spores at you.";
 					sound_msg = MSG_MON_SPORE; 
 					break;
 				}
-
 				case RBM_XXX4:
 				{
 					act = "projects XXX4's at you.";
 					break;
 				}
-
 				case RBM_BEG:
 				{
 					act = "begs you for money.";
 					sound_msg = MSG_MON_BEG;
 					break;
 				}
-
 				case RBM_INSULT:
 				{
 					act = desc_insult[randint0(MAX_DESC_INSULT)];
 					sound_msg = MSG_MON_INSULT; 
 					break;
 				}
-
 				case RBM_MOAN:
 				{
 					act = desc_moan[randint0(MAX_DESC_MOAN)];
 					sound_msg = MSG_MON_MOAN; 
 					break;
 				}
-
 				case RBM_XXX5:
 				{
 					act = "XXX5's you.";
@@ -442,9 +411,34 @@ bool make_attack_normal(int m_idx)
 				}
 			}
 
-			/* Message */
-			if (act) message_format(sound_msg, 0, "%^s %s", m_name, act);
+			if (p_ptr->timed[TMD_REFLECT] && (randint1(5)!=1) && (
+				(method==RBM_HIT)   || (method==RBM_SPORE) || (method==RBM_PUNCH) ||
+				(method==RBM_KICK)  || (method==RBM_CLAW)  || (method==RBM_BITE)  ||
+				(method==RBM_STING) || (method==RBM_BUTT)  || (method==RBM_CRUSH) ||
+				(method==RBM_CRAWL) || (method==RBM_DROOL) || (method==RBM_SPIT)))
+			{
 
+				static cptr reflect_str[] =
+				{ 
+					"stumble","stagger","jerk","convulse","obey an inner need",
+					"fall", "shudder", "twist in pain", "be confused", "be dizzy",
+					"blink", "doze off"
+                };
+				s16b msgnum = (s16b) randint0(12);
+				char reflex[80];
+
+				do_reflect = TRUE;
+
+				monster_desc(reflex, sizeof(reflex), m_ptr, 0x23); /* TODO Check 0x23 is correct */
+
+				msg_format("%^s tries to %s you, but seems to %s and %s %s.",
+						m_name, method_str, reflect_str[msgnum], method_str, reflex);
+			}
+			else
+			{
+				/* Message */
+				if (act) message_format(sound_msg, 0, "%^s %s", m_name, act);
+			}
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
@@ -496,6 +490,10 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 						}
 					}
+					else if (p_ptr->state.resist_pois) 
+					{ 
+						object_notice_flag(2, TR2_RES_POIS); 
+					} 
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_POIS);
@@ -514,6 +512,10 @@ bool make_attack_normal(int m_idx)
 						/* Apply disenchantment */
 						if (apply_disenchant(0)) obvious = TRUE;
 					}
+					else 
+					{ 
+						object_notice_flag(2, TR2_RES_DISEN);
+					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_DISEN);
@@ -523,7 +525,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_UN_POWER:
 				{
-					int drained = 0;
+					s16b drained = 0;
 
 					/* Take damage */
 					take_hit(damage, ddesc);
@@ -556,7 +558,7 @@ bool make_attack_normal(int m_idx)
 
 						if (drained)
 						{
-							int heal = rlev * drained;
+							s16b heal = rlev * drained;
 
 							msg_print("Energy drains from your pack!");
 
@@ -617,33 +619,16 @@ bool make_attack_normal(int m_idx)
 						if (gold <= 0)
 						{
 							msg_print("Nothing was stolen.");
-							break;
 						}
-
-						/* Let the player know they were robbed */
-						msg_print("Your purse feels lighter.");
-						if (p_ptr->au)
-							msg_format("%ld coins were stolen!", (long)gold);
-						else
-							msg_print("All of your coins were stolen!");
-
-						/* While we have gold, put it in objects */
-						while (gold > 0)
+						else if (p_ptr->au)
 						{
-							int amt;
-
-							/* Create a new temporary object */
-							object_type o;
-							object_wipe(&o);
-							object_prep(&o, lookup_kind(TV_GOLD, SV_GOLD));
-
-							/* Amount of gold to put in this object */
-							amt = gold > MAX_PVAL ? MAX_PVAL : gold;
-							o.pval = amt;
-							gold -= amt;
-
-							/* Give the gold to the monster */
-							monster_carry(m_idx, &o);
+							msg_print("Your purse feels lighter.");
+							msg_format("%ld coins were stolen!", (long)gold);
+						}
+						else
+						{
+							msg_print("Your purse feels lighter.");
+							msg_print("All of your coins were stolen!");
 						}
 
 						/* Redraw gold */
@@ -784,20 +769,17 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					u32b f[OBJ_FLAG_N];
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Get the lite, and its flags */
 					o_ptr = &inventory[INVEN_LITE];
-					object_flags(o_ptr, f);
 
 					/* Drain fuel where applicable */
-					if (!(f[2] & TR2_NO_FUEL) && (o_ptr->timeout > 0))
+					if (HAS_FUEL(o_ptr) && (o_ptr->timeout > 0)) /* Only torch, lantern, noldor lantern */
 					{
 						/* Reduce fuel */
-						o_ptr->timeout -= (250 + randint1(250));
+						o_ptr->timeout -= (250 + (s16b) randint1(250)); /* RHS Max is 500 */
 						if (o_ptr->timeout < 1) o_ptr->timeout = 1;
 
 						/* Notice */
@@ -895,6 +877,10 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 						}
 					}
+					else 
+					{ 
+						object_notice_flag(2, TR2_RES_BLIND); 
+					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_BLIND);
@@ -915,6 +901,10 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 						}
 					}
+					else 
+					{ 
+						object_notice_flag(2, TR2_RES_CONFU); 
+					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_CONFU);
@@ -931,6 +921,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->state.resist_fear)
 					{
 						msg_print("You stand your ground!");
+						object_notice_flag(2, TR2_RES_FEAR);
 						obvious = TRUE;
 					}
 					else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
@@ -962,6 +953,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->state.free_act)
 					{
 						msg_print("You are unaffected!");
+						object_notice_flag(3, TR3_FREE_ACT);
 						obvious = TRUE;
 					}
 					else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
@@ -1077,7 +1069,7 @@ bool make_attack_normal(int m_idx)
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23)
 					{
-						int px_old = p_ptr->px;
+						s16b px_old = p_ptr->px;
 						int py_old = p_ptr->py;
 						
 						earthquake(m_ptr->fy, m_ptr->fx, 8);
@@ -1098,12 +1090,10 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* XXX Eddie need a DRS for HOLD_LIFE */
-					wieldeds_notice_flag(2, TR2_HOLD_LIFE);
-
 					if (p_ptr->state.hold_life && (randint0(100) < 95))
 					{
 						msg_print("You keep hold of your life force!");
+						object_notice_flag(2, TR2_HOLD_LIFE);
 					}
 					else
 					{
@@ -1112,6 +1102,7 @@ bool make_attack_normal(int m_idx)
 						{
 							msg_print("You feel your life slipping away!");
 							lose_exp(d/10);
+							object_notice_flag(2, TR2_HOLD_LIFE);
 						}
 						else
 						{
@@ -1130,11 +1121,10 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					wieldeds_notice_flag(2, TR2_HOLD_LIFE);
-
 					if (p_ptr->state.hold_life && (randint0(100) < 90))
 					{
 						msg_print("You keep hold of your life force!");
+						object_notice_flag(2, TR2_HOLD_LIFE);
 					}
 					else
 					{
@@ -1143,6 +1133,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->state.hold_life)
 						{
 							msg_print("You feel your life slipping away!");
+							object_notice_flag(2, TR2_HOLD_LIFE);
 							lose_exp(d / 10);
 						}
 						else
@@ -1162,11 +1153,10 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					wieldeds_notice_flag(2, TR2_HOLD_LIFE);
-
 					if (p_ptr->state.hold_life && (randint0(100) < 75))
 					{
 						msg_print("You keep hold of your life force!");
+						object_notice_flag(2, TR2_HOLD_LIFE);
 					}
 					else
 					{
@@ -1175,6 +1165,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->state.hold_life)
 						{
 							msg_print("You feel your life slipping away!");
+							object_notice_flag(2, TR2_HOLD_LIFE);
 							lose_exp(d / 10);
 						}
 						else
@@ -1194,10 +1185,9 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					wieldeds_notice_flag(2, TR2_HOLD_LIFE);
-
 					if (p_ptr->state.hold_life && (randint0(100) < 50))
 					{
+						object_notice_flag(2, TR2_HOLD_LIFE);
 						msg_print("You keep hold of your life force!");
 					}
 					else
@@ -1207,6 +1197,7 @@ bool make_attack_normal(int m_idx)
 						if (p_ptr->state.hold_life)
 						{
 							msg_print("You feel your life slipping away!");
+							object_notice_flag(2, TR2_HOLD_LIFE);
 							lose_exp(d / 10);
 						}
 						else
@@ -1231,7 +1222,10 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 						}
 					}
-
+					else 
+					{ 
+						object_notice_flag(2, TR2_RES_CHAOS);
+					}
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_CHAOS);
 

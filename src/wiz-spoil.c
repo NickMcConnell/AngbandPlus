@@ -1,5 +1,5 @@
 /*
- * File: wiz-spoil.c
+ * File: wizard1.c
  * Purpose: Spoiler generation
  *
  * Copyright (c) 1997 Ben Harrison, and others
@@ -52,7 +52,7 @@ static void spoiler_blanklines(int n)
  */
 static void spoiler_underline(cptr str, char c)
 {
-	text_out("%s", str);
+	text_out(str);
 	text_out("\n");
 	spoiler_out_n_chars(strlen(str), c);
 	text_out("\n");
@@ -81,11 +81,11 @@ static const grouper group_item[] =
 	{ TV_HAFTED,	  NULL },
 	{ TV_DIGGING,	  NULL },
 
-	{ TV_SOFT_ARMOR,	"Armour (Body)" },
+	{ TV_SOFT_ARMOR,	"Armor (Body)" },
 	{ TV_HARD_ARMOR,	  NULL },
 	{ TV_DRAG_ARMOR,	  NULL },
 
-	{ TV_CLOAK,		"Armour (Misc)" },
+	{ TV_CLOAK,		"Armor (Misc)" },
 	{ TV_SHIELD,	  NULL },
 	{ TV_HELM,		  NULL },
 	{ TV_CROWN,		  NULL },
@@ -96,6 +96,7 @@ static const grouper group_item[] =
 	{ TV_RING,		"Rings" },
 
 	{ TV_SCROLL,	"Scrolls" },
+	{ TV_SPELL,	    "Spells" },
 	{ TV_POTION,	"Potions" },
 	{ TV_FOOD,		"Food" },
 
@@ -103,8 +104,7 @@ static const grouper group_item[] =
 	{ TV_WAND,		"Wands" },
 	{ TV_STAFF,		"Staffs" },
 
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_BOOK,  	"Books" }, /* TODO: Book conversion */
 
 	{ TV_CHEST,		"Chests" },
 
@@ -140,13 +140,14 @@ static void kind_info(char *buf, size_t buf_len,
 	i_ptr = &object_type_body;
 
 	/* Prepare a fake item */
-	object_prep(i_ptr, k);
+	object_prep(i_ptr, INT2S16B(k));
 
 	/* Obtain the "kind" info */
 	k_ptr = &k_info[i_ptr->k_idx];
 
 	/* Cancel bonuses */
 	i_ptr->pval = 0;
+	i_ptr->p2val = 0;
 	i_ptr->to_a = 0;
 	i_ptr->to_h = 0;
 	i_ptr->to_d = 0;
@@ -156,10 +157,10 @@ static void kind_info(char *buf, size_t buf_len,
 	(*lev) = k_ptr->level;
 
 	/* Make known */
-	object_notice_everything(i_ptr);
+	i_ptr->ident |= (IDENT_KNOWN);
 
 	/* Value */
-	(*val) = object_value(i_ptr, 1, FALSE);
+	(*val) = object_value(i_ptr, 1);
 
 
 
@@ -208,7 +209,7 @@ static void kind_info(char *buf, size_t buf_len,
 			break;
 		}
 
-		/* Armour */
+		/* Armor */
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -289,7 +290,7 @@ static void spoil_obj_desc(cptr fname)
 					{
 						int tmp = who[i1];
 						who[i1] = who[i2];
-						who[i2] = tmp;
+						who[i2] = INT2U16B(tmp);
 					}
 				}
 			}
@@ -327,10 +328,10 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags[2] & (TR2_INSTA_ART)) continue;
+			if (k_ptr->flags[3] & (TR3_INSTA_ART)) continue;
 
 			/* Save the index */
-			who[n++] = k;
+			who[n++] = INT2U16B(k);
 		}
 	}
 
@@ -390,7 +391,7 @@ static const grouper group_artifact[] =
  */
 bool make_fake_artifact(object_type *o_ptr, byte name1)
 {
-	int i;
+	s16b i;
 
 	artifact_type *a_ptr = &a_info[name1];
 
@@ -412,6 +413,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
+	o_ptr->p2val = a_ptr->p2val;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
@@ -421,8 +423,8 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->weight = a_ptr->weight;
 
 	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->flags[2] & (TR2_LIGHT_CURSE))
-		o_ptr->flags[2] |= TR2_LIGHT_CURSE;
+	if (a_ptr->flags[3] & (TR3_LIGHT_CURSE))
+		o_ptr->flags[3] |= TR3_LIGHT_CURSE;
 
 	/* Success */
 	return (TRUE);
@@ -504,9 +506,9 @@ static void spoil_artifact(cptr fname)
 			 * Determine the minimum depth an artifact can appear, its rarity,
 			 * its weight, and its value in gold pieces.
 			 */
-			text_out("\nLevel %u, Rarity %u, %d.%d lbs, %ld AU\n",
-					 a_ptr->level, a_ptr->rarity, (a_ptr->weight / 10),
-					 (a_ptr->weight % 10), ((long)a_ptr->cost));
+			text_out(format("\nLevel %u, Rarity %u, %d.%d lbs, %ld AU\n",
+			                a_ptr->level, a_ptr->rarity, (a_ptr->weight / 10),
+			                (a_ptr->weight % 10), ((long)a_ptr->cost)));
 
 			/* Terminate the entry */
 			spoiler_blanklines(2);
@@ -696,8 +698,9 @@ static void spoil_mon_info(cptr fname)
 	text_out_file = fh;
 
 	/* Dump the header */
-	text_out("Monster Spoilers for %s Version %s\n",
+	strnfmt(buf, sizeof(buf), "Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
+	text_out(buf);
 	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
@@ -742,45 +745,54 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		text_out("%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		strnfmt(buf, sizeof(buf), "%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		text_out(buf);
 
 		/* Color */
 		text_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
-		text_out(" '%c')\n", r_ptr->d_char);
+		strnfmt(buf, sizeof(buf), " '%c')\n", r_ptr->d_char);
+		text_out(buf);
 
 
 		/* Indent */
 		text_out("=== ");
 
 		/* Number */
-		text_out("Num:%d  ", r_idx);
+		strnfmt(buf, sizeof(buf), "Num:%d  ", r_idx);
+		text_out(buf);
 
 		/* Level */
-		text_out("Lev:%d  ", r_ptr->level);
+		strnfmt(buf, sizeof(buf), "Lev:%d  ", r_ptr->level);
+		text_out(buf);
 
 		/* Rarity */
-		text_out("Rar:%d  ", r_ptr->rarity);
+		strnfmt(buf, sizeof(buf), "Rar:%d  ", r_ptr->rarity);
+		text_out(buf);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
-			text_out("Spd:+%d  ", (r_ptr->speed - 110));
+			strnfmt(buf, sizeof(buf), "Spd:+%d  ", (r_ptr->speed - 110));
 		}
 		else
 		{
-			text_out("Spd:-%d  ", (110 - r_ptr->speed));
+			strnfmt(buf, sizeof(buf), "Spd:-%d  ", (110 - r_ptr->speed));
 		}
+		text_out(buf);
 
 		/* Hitpoints */
-		text_out("Hp:%d  ", r_ptr->avg_hp);
+		strnfmt(buf, sizeof(buf), "Hp:%d  ", r_ptr->avg_hp);
+		text_out(buf);
 
 		/* Armor Class */
-		text_out("Ac:%d  ", r_ptr->ac);
+		strnfmt(buf, sizeof(buf), "Ac:%d  ", r_ptr->ac);
+		text_out(buf);
 
 		/* Experience */
-		text_out("Exp:%ld\n", (long)(r_ptr->mexp));
+		strnfmt(buf, sizeof(buf), "Exp:%ld\n", (long)(r_ptr->mexp));
+		text_out(buf);
 
 		/* Describe */
 		describe_monster(r_idx, TRUE);

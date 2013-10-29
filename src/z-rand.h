@@ -74,7 +74,7 @@ u32b Rand_div(u32b m);
  * Generate a signed random integer within `stand` standard deviations of
  * `mean`, following a normal distribution.
  */
-s16b Rand_normal(int mean, int stand);
+s16b Rand_normal(s16b mean, int stand);
 
 /**
  * Generate a semi-random number from 0 to m-1, in a way that doesn't affect

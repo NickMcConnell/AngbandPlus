@@ -28,7 +28,7 @@ bool hp_player(int num)
 	if (p_ptr->chp < p_ptr->mhp)
 	{
 		/* Gain hitpoints */
-		p_ptr->chp += num;
+		p_ptr->chp += INT2S16B(num);
 
 		/* Enforce maximum */
 		if (p_ptr->chp >= p_ptr->mhp)
@@ -95,8 +95,8 @@ bool heal_player(int perc, int min)
  */
 void warding_glyph(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	if (cave_feat[py][px] != FEAT_FLOOR)
 	{
@@ -142,7 +142,7 @@ static cptr desc_stat_neg[] =
 /*
  * Lose a "point"
  */
-bool do_dec_stat(int stat, bool perma)
+bool do_dec_stat(s16b stat, bool perma)
 {
 	bool sust = FALSE;
 
@@ -157,9 +157,6 @@ bool do_dec_stat(int stat, bool perma)
 		case A_CHR: if (p_ptr->state.sustain_chr) sust = TRUE; break;
 	}
 
-	assert(TR1_SUST_STR == (1<<A_STR));
-	wieldeds_notice_flag(1, 1<<stat);
-
 	/* Sustain */
 	if (sust && !perma)
 	{
@@ -167,6 +164,8 @@ bool do_dec_stat(int stat, bool perma)
 		msg_format("You feel very %s for a moment, but the feeling passes.",
 		           desc_stat_neg[stat]);
 
+		assert(TR2_SUST_STR == (1<<A_STR)); 
+			object_notice_flag(2, 1<<stat);
 
 		/* Notice effect */
 		return (TRUE);
@@ -260,7 +259,7 @@ void identify_pack(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Aware and Known */
-		if (object_is_known(o_ptr)) continue;
+		if (object_known_p(o_ptr)) continue;
 
 		/* Identify it */
 		do_ident_item(i, o_ptr);
@@ -293,7 +292,10 @@ static const int enchant_table[16] =
 static void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
-	o_ptr->flags[2] &= ~(TR2_CURSE_MASK);
+	o_ptr->flags[3] &= ~(TR3_CURSE_MASK);
+
+	/* Mark as uncursed */
+	o_ptr->known_flags[3] &= ~(TR3_CURSE_MASK);
 }
 
 
@@ -301,7 +303,6 @@ static void uncurse_object(object_type *o_ptr)
  * Removes curses from items in inventory.
  *
  * \param heavy removes heavy curses if true
- *
  * \returns number of items uncursed
  */
 static int remove_curse_aux(bool heavy)
@@ -314,18 +315,20 @@ static int remove_curse_aux(bool heavy)
 		object_type *o_ptr = &inventory[i];
 
 		if (!o_ptr->k_idx) continue;
+
 		if (!cursed_p(o_ptr)) continue;
 
-		/* Heavily cursed items need a special spell */
-		if ((o_ptr->flags[2] & TR2_HEAVY_CURSE) && !heavy) continue;
-
-		/* Perma-cursed items can never be removed */
-		if (o_ptr->flags[2] & TR2_PERMA_CURSE) continue;
+		/* Heavily cursed items need a special spell */ 
+		if ((o_ptr->flags[3] & TR3_HEAVY_CURSE) && !heavy) continue; 
+ 	
+		/* Perma-cursed items can never be removed */ 
+		if (o_ptr->flags[3] & TR3_PERMA_CURSE) continue; 
 
 		/* Uncurse, and update things */
 		uncurse_object(o_ptr);
 
 		p_ptr->update |= (PU_BONUS);
+
 		p_ptr->redraw |= (PR_EQUIP);
 
 		/* Count the uncursings */
@@ -342,7 +345,7 @@ static int remove_curse_aux(bool heavy)
  */
 bool remove_curse(void)
 {
-	return (remove_curse_aux(FALSE));
+	return ((bool) remove_curse_aux(FALSE)); /* TODO Check why returns int */
 }
 
 /*
@@ -350,7 +353,7 @@ bool remove_curse(void)
  */
 bool remove_all_curse(void)
 {
-	return (remove_curse_aux(TRUE));
+	return ((bool) remove_curse_aux(TRUE));
 }
 
 
@@ -397,16 +400,19 @@ bool restore_level(void)
  */
 void self_knowledge(bool spoil)
 {
-	int i = 0, j, k;
+	int i = 0, j;
+	s16b k;
 	int max_x = Term->hgt - 2;
 
 	u32b t[OBJ_FLAG_N];
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f[OBJ_FLAG_N];
 
 	object_type *o_ptr;
 
 	cptr info[128];
+
+	f[0] = f[1] = f[2] = f[3] = 0L;
 
 
 	/* Get item flags from equipment */
@@ -424,326 +430,282 @@ void self_knowledge(bool spoil)
 			object_flags_known(o_ptr, t);
 
 		/* Extract flags */
-		f1 |= t[0];
-		f2 |= t[1];
-		f3 |= t[2];
+		f[0] |= t[0];
+		f[1] |= t[1];
+		f[2] |= t[2];
+		f[3] |= t[3];
 	}
 
 	/* And flags from the player */
-	player_flags(t);
+	player_flags(&t[0], &t[1], &t[2], &t[3]);
 
 	/* Extract flags */
-	f1 |= t[0];
-	f2 |= t[1];
-	f3 |= t[2];
+	f[0] |= t[0];
+	f[1] |= t[1];
+	f[2] |= t[2];
+	f[3] |= t[3];
 
 
 	if (p_ptr->timed[TMD_BLIND])
-	{
 		info[i++] = "You cannot see.";
-	}
-	if (p_ptr->timed[TMD_CONFUSED])
-	{
-		info[i++] = "You are confused.";
-	}
-	if (p_ptr->timed[TMD_AFRAID])
-	{
-		info[i++] = "You are terrified.";
-	}
-	if (p_ptr->timed[TMD_TERROR])
-	{
-		info[i++] = "You are terrified and feel the need to run away.";
-	}
-	if (p_ptr->timed[TMD_CUT])
-	{
-		info[i++] = "You are bleeding.";
-	}
-	if (p_ptr->timed[TMD_STUN])
-	{
-		info[i++] = "You are stunned.";
-	}
-	if (p_ptr->timed[TMD_POISONED])
-	{
-		info[i++] = "You are poisoned.";
-	}
-	if (p_ptr->timed[TMD_IMAGE])
-	{
-		info[i++] = "You are hallucinating.";
-	}
 
-	if (f3 & TR2_AGGRAVATE)
-	{
+	if (p_ptr->timed[TMD_CONFUSED])
+		info[i++] = "You are confused.";
+
+	if (p_ptr->timed[TMD_AFRAID])
+		info[i++] = "You are terrified.";
+
+	if (p_ptr->timed[TMD_TERROR])
+		info[i++] = "You are terrified and feel the need to run away.";
+
+	if (p_ptr->timed[TMD_CUT])
+		info[i++] = "You are bleeding.";
+
+	if (p_ptr->timed[TMD_STUN])
+		info[i++] = "You are stunned.";
+
+	if (p_ptr->timed[TMD_POISONED])
+		info[i++] = "You are poisoned.";
+
+	if (p_ptr->timed[TMD_IMAGE])
+		info[i++] = "You are hallucinating.";
+
+	if (f[3] & TR3_AGGRAVATE)
 		info[i++] = "You aggravate monsters.";
-	}
-	if (f3 & TR2_TELEPORT)
-	{
+
+	if (f[3] & TR3_TELEPORT)
 		info[i++] = "Your position is very uncertain.";
-	}
 
 	if (p_ptr->timed[TMD_BLESSED])
-	{
 		info[i++] = "You feel righteous.";
-	}
+
 	if (p_ptr->timed[TMD_HERO])
-	{
 		info[i++] = "You feel heroic.";
-	}
+
 	if (p_ptr->timed[TMD_SHERO])
-	{
 		info[i++] = "You are in a battle rage.";
-	}
+
 	if (p_ptr->timed[TMD_PROTEVIL])
-	{
 		info[i++] = "You are protected from evil.";
-	}
+
 	if (p_ptr->timed[TMD_SHIELD])
-	{
 		info[i++] = "You are protected by a mystic shield.";
-	}
+
+	if (p_ptr->timed[TMD_REFLECT])
+		info[i++] = "You reflect most physical attacks.";
+
+	if (p_ptr->timed[TMD_FIRE]) /* Check wording */
+		info[i++] = "Fire flares from your hands.";
+
+	if (p_ptr->timed[TMD_COLD])
+		info[i++] = "Moisture freezes from the air around you.";
+
+	if (p_ptr->timed[TMD_ACID])
+		info[i++] = "Acide drips fom your hands.";
+
+	if (p_ptr->timed[TMD_ELEC])
+		info[i++] = "Sparks fly from your fingers.";
+
 	if (p_ptr->timed[TMD_INVULN])
-	{
 		info[i++] = "You are temporarily invulnerable.";
-	}
+
 	if (p_ptr->confusing)
-	{
 		info[i++] = "Your hands are glowing dull red.";
-	}
+
 	if (p_ptr->searching)
-	{
 		info[i++] = "You are looking around very carefully.";
-	}
+
 	if (p_ptr->new_spells)
-	{
-		info[i++] = "You can learn some spells/prayers.";
-	}
+		info[i++] = "You can learn some spells/prayers."; /* TODO : Say which */
+
 	if (p_ptr->word_recall)
-	{
 		info[i++] = "You will soon be recalled.";
-	}
-	if (rp_ptr->infra || f1 & TR0_INFRA)
-	{
+
+	if (rp_ptr->infra || f[0] & TR0_INFRA1 || f[0] & TR0_INFRA2)
 		info[i++] = "Your eyes are sensitive to infrared light.";
-	}
 
-	if (f3 & TR2_SLOW_DIGEST)
-	{
+	if (f[3] & TR3_SLOW_DIGEST)
 		info[i++] = "Your appetite is small.";
-	}
-	if (f3 & TR2_FEATHER)
-	{
-		info[i++] = "You land gently.";
-	}
-	if (f3 & TR2_REGEN)
-	{
-		info[i++] = "You regenerate quickly.";
-	}
-	if (f3 & TR2_TELEPATHY)
-	{
-		info[i++] = "You have ESP.";
-	}
-	if (f3 & TR2_SEE_INVIS)
-	{
-		info[i++] = "You can see invisible creatures.";
-	}
-	if (f3 & TR2_FREE_ACT)
-	{
-		info[i++] = "You have free action.";
-	}
-	if (f3 & TR2_HOLD_LIFE)
-	{
-		info[i++] = "You have a firm hold on your life force.";
-	}
 
-	if (f2 & TR1_IM_ACID)
+	if (f[3] & TR3_FEATHER)
+		info[i++] = "You land gently.";
+
+	if ((f[3] & TR3_REGEN) || ((f[1] & TR1_REGEN25) && (p_ptr->lev >= 25)))
+		info[i++] = "You regenerate quickly.";
+
+	if (f[3] & TR3_TELEPATHY)
+		info[i++] = "You have ESP.";
+
+	if (f[3] & TR3_SEE_INVIS)
+		info[i++] = "You can see invisible creatures.";
+
+	if (f[3] & TR3_FREE_ACT)
+		info[i++] = "You have free action.";
+
+	if (f[2] & TR2_HOLD_LIFE)
+		info[i++] = "You have a firm hold on your life force.";
+
+	if (f[2] & TR2_IM_ACID)
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((f2 & TR1_RES_ACID) && (p_ptr->timed[TMD_OPP_ACID]))
+	else if ((f[2] & TR2_RES_ACID) && (p_ptr->timed[TMD_OPP_ACID]))
 	{
 		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((f2 & TR1_RES_ACID) || (p_ptr->timed[TMD_OPP_ACID]))
+	else if ((f[2] & TR2_RES_ACID) || (p_ptr->timed[TMD_OPP_ACID]))
 	{
 		info[i++] = "You are resistant to acid.";
 	}
 
-	if (f2 & TR1_IM_ELEC)
+	if (f[2] & TR2_IM_ELEC)
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((f2 & TR1_RES_ELEC) && (p_ptr->timed[TMD_OPP_ELEC]))
+	else if ((f[2] & TR2_RES_ELEC) && (p_ptr->timed[TMD_OPP_ELEC]))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((f2 & TR1_RES_ELEC) || (p_ptr->timed[TMD_OPP_ELEC]))
+	else if ((f[2] & TR2_RES_ELEC) || (p_ptr->timed[TMD_OPP_ELEC]))
 	{
 		info[i++] = "You are resistant to lightning.";
 	}
 
-	if (f2 & TR1_IM_FIRE)
+	if (f[2] & TR2_IM_FIRE)
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((f2 & TR1_RES_FIRE) && (p_ptr->timed[TMD_OPP_FIRE]))
+	else if ((f[2] & TR2_RES_FIRE) && (p_ptr->timed[TMD_OPP_FIRE]))
 	{
 		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((f2 & TR1_RES_FIRE) || (p_ptr->timed[TMD_OPP_FIRE]))
+	else if ((f[2] & TR2_RES_FIRE) || (p_ptr->timed[TMD_OPP_FIRE]))
 	{
 		info[i++] = "You are resistant to fire.";
 	}
 
-	if (f2 & TR1_IM_COLD)
+	if (f[2] & TR2_IM_COLD)
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((f2 & TR1_RES_COLD) && (p_ptr->timed[TMD_OPP_COLD]))
+	else if ((f[2] & TR2_RES_COLD) && (p_ptr->timed[TMD_OPP_COLD]))
 	{
 		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((f2 & TR1_RES_COLD) || (p_ptr->timed[TMD_OPP_COLD]))
+	else if ((f[2] & TR2_RES_COLD) || (p_ptr->timed[TMD_OPP_COLD]))
 	{
 		info[i++] = "You are resistant to cold.";
 	}
 
-	if ((f2 & TR1_RES_POIS) && (p_ptr->timed[TMD_OPP_POIS]))
+	if ((f[2] & TR2_RES_POIS) && (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((f2 & TR1_RES_POIS) || (p_ptr->timed[TMD_OPP_POIS]))
+	else if ((f[2] & TR2_RES_POIS) || (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You are resistant to poison.";
 	}
 
-	if (f2 & TR1_RES_FEAR)
-	{
+	if (f[2] & TR2_RES_FEAR)
 		info[i++] = "You are completely fearless.";
-	}
 
-	if (f2 & TR1_RES_LITE)
-	{
+	if (f[2] & TR2_RES_LITE)
 		info[i++] = "You are resistant to bright light.";
-	}
-	if (f2 & TR1_RES_DARK)
-	{
+
+	if (f[2] & TR2_RES_DARK)
 		info[i++] = "You are resistant to darkness.";
-	}
-	if (f2 & TR1_RES_BLIND)
-	{
+
+	if (f[2] & TR2_RES_BLIND)
 		info[i++] = "Your eyes are resistant to blindness.";
-	}
-	if (f2 & TR1_RES_CONFU)
-	{
+
+	if (f[2] & TR2_RES_CONFU)
 		info[i++] = "You are resistant to confusion.";
-	}
-	if (f2 & TR1_RES_SOUND)
-	{
+
+	if (f[2] & TR2_RES_SOUND)
 		info[i++] = "You are resistant to sonic attacks.";
-	}
-	if (f2 & TR1_RES_SHARD)
-	{
+
+	if (f[2] & TR2_RES_SHARD)
 		info[i++] = "You are resistant to blasts of shards.";
-	}
-	if (f2 & TR1_RES_NEXUS)
-	{
+
+	if (f[2] & TR2_RES_NEXUS)
 		info[i++] = "You are resistant to nexus attacks.";
-	}
-	if (f2 & TR1_RES_NETHR)
-	{
+
+	if (f[2] & TR2_RES_NETHR)
 		info[i++] = "You are resistant to nether forces.";
-	}
-	if (f2 & TR1_RES_CHAOS)
-	{
+
+	if (f[2] & TR2_RES_CHAOS)
 		info[i++] = "You are resistant to chaos.";
-	}
-	if (f2 & TR1_RES_DISEN)
-	{
+
+	if (f[2] & TR2_RES_DISEN)
 		info[i++] = "You are resistant to disenchantment.";
-	}
 
-	if (f2 & TR1_SUST_STR)
-	{
+	if (f[2] & TR2_SUST_STR)
 		info[i++] = "Your strength is sustained.";
-	}
-	if (f2 & TR1_SUST_INT)
-	{
+
+	if (f[2] & TR2_SUST_INT)
 		info[i++] = "Your intelligence is sustained.";
-	}
-	if (f2 & TR1_SUST_WIS)
-	{
+
+	if (f[2] & TR2_SUST_WIS)
 		info[i++] = "Your wisdom is sustained.";
-	}
-	if (f2 & TR1_SUST_DEX)
-	{
+
+	if (f[2] & TR2_SUST_DEX)
 		info[i++] = "Your dexterity is sustained.";
-	}
-	if (f2 & TR1_SUST_CON)
-	{
+
+	if (f[2] & TR2_SUST_CON)
 		info[i++] = "Your constitution is sustained.";
-	}
-	if (f2 & TR1_SUST_CHR)
-	{
+
+	if (f[2] & TR2_SUST_CHR)
 		info[i++] = "Your charisma is sustained.";
-	}
 
-	if (f1 & (TR0_STR))
-	{
+	if ((f[0] & TR0_STR1) || (f[0] & TR0_STR2)) 
 		info[i++] = "Your strength is affected by your equipment.";
-	}
-	if (f1 & (TR0_INT))
-	{
+
+	if ((f[0] & TR0_INT1) || (f[0] & TR0_INT2))
 		info[i++] = "Your intelligence is affected by your equipment.";
-	}
-	if (f1 & (TR0_WIS))
-	{
+
+	if ((f[0] & TR0_WIS1) || (f[0] & TR0_WIS2))
 		info[i++] = "Your wisdom is affected by your equipment.";
-	}
-	if (f1 & (TR0_DEX))
-	{
+
+	if ((f[0] & TR0_DEX1) || (f[0] & TR0_DEX2))
 		info[i++] = "Your dexterity is affected by your equipment.";
-	}
-	if (f1 & (TR0_CON))
-	{
+
+	if ((f[0] & TR0_CON1) || (f[0] & TR0_CON2))
 		info[i++] = "Your constitution is affected by your equipment.";
-	}
-	if (f1 & (TR0_CHR))
-	{
+
+	if ((f[0] & TR0_CHR1) || (f[0] & TR0_CHR2))
 		info[i++] = "Your charisma is affected by your equipment.";
-	}
 
-	if (f1 & (TR0_STEALTH))
-	{
+	if ((f[0] & TR0_STEALTH1) || (f[0] & TR0_STEALTH2))
 		info[i++] = "Your stealth is affected by your equipment.";
-	}
-	if (f1 & (TR0_SEARCH))
-	{
-		info[i++] = "Your searching ability is affected by your equipment.";
-	}
-	if (f1 & (TR0_INFRA))
-	{
-		info[i++] = "Your infravision is affected by your equipment.";
-	}
-	if (f1 & (TR0_TUNNEL))
-	{
-		info[i++] = "Your digging ability is affected by your equipment.";
-	}
-	if (f1 & (TR0_SPEED))
-	{
-		info[i++] = "Your speed is affected by your equipment.";
-	}
-	if (f1 & (TR0_BLOWS))
-	{
-		info[i++] = "Your attack speed is affected by your equipment.";
-	}
-	if (f1 & (TR0_SHOTS))
-	{
-		info[i++] = "Your shooting speed is affected by your equipment.";
-	}
-	if (f1 & (TR0_MIGHT))
-	{
-		info[i++] = "Your shooting might is affected by your equipment.";
-	}
 
+	if ((f[0] & TR0_SEARCH1) || (f[0] & TR0_SEARCH2))
+		info[i++] = "Your searching ability is affected by your equipment.";
+
+	if ((f[0] & TR0_INFRA1) || (f[0] & TR0_INFRA2))
+		info[i++] = "Your infravision is affected by your equipment.";
+
+	if ((f[0] & TR0_TUNNEL1) || (f[0] & TR0_TUNNEL2))
+		info[i++] = "Your digging ability is affected by your equipment.";
+
+	if (f[1] & TR1_SLOW5)
+		info[i++] = "You are naturally slow.";
+
+	if (f[1] & TR1_GOOD_SAVE)
+		info[i++] = "You seem to be lucky in resisting spells and attacks.";
+
+	if ((f[0] & TR0_SPEED1) || (f[0] & TR0_SPEED2))
+		info[i++] = "Your speed is affected by your equipment.";
+
+	if ((f[0] & TR0_BLOWS1) || (f[0] & TR0_BLOWS2))
+		info[i++] = "Your attack speed is affected by your equipment.";
+
+	if ((f[0] & TR0_SHOTS1) || (f[0] & TR0_SHOTS2))
+		info[i++] = "Your shooting speed is affected by your equipment.";
+
+	if (f[0] & TR0_MIGHT1) /* HACK There is no MIGHT2 */
+		info[i++] = "Your shooting might is affected by your equipment.";
+
+	/* TODO Don't forget to check for new flags (e.g. VAMPIRE) */
 
 	/* Get the current weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -752,50 +714,59 @@ void self_knowledge(bool spoil)
 	if (o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
-		if (f1 & TR0_BRAND_ACID)
+		if (f[1] & TR1_BRAND_ACID)
 			info[i++] = "Your weapon melts your foes.";
-		if (f1 & TR0_BRAND_ELEC)
+		if (f[1] & TR1_BRAND_ELEC)
 			info[i++] = "Your weapon shocks your foes.";
-		if (f1 & TR0_BRAND_FIRE)
+		if (f[1] & TR1_BRAND_FIRE)
 			info[i++] = "Your weapon burns your foes.";
-		if (f1 & TR0_BRAND_COLD)
+		if (f[1] & TR1_BRAND_COLD)
 			info[i++] = "Your weapon freezes your foes.";
-		if (f1 & TR0_BRAND_POIS)
-			info[i++] = "Your weapon poisons your foes.";
 
 		/* Special "slay" flags */
-		if (f1 & TR0_SLAY_ANIMAL)
+		if (f[1] & TR1_SLAY_ANIMAL)
 			info[i++] = "Your weapon strikes at animals with extra force.";
-		if (f1 & TR0_SLAY_EVIL)
+		if (f[1] & TR1_SLAY_EVIL)
 			info[i++] = "Your weapon strikes at evil with extra force.";
-		if (f1 & TR0_SLAY_UNDEAD)
+		if (f[1] & TR1_SLAY_UNDEAD)
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
-		if (f1 & TR0_SLAY_DEMON)
+		if (f[1] & TR1_SLAY_DEMON)
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
-		if (f1 & TR0_SLAY_ORC)
+		if (f[1] & TR1_SLAY_ORC)
 			info[i++] = "Your weapon is especially deadly against orcs.";
-		if (f1 & TR0_SLAY_TROLL)
+		if (f[1] & TR1_SLAY_TROLL)
 			info[i++] = "Your weapon is especially deadly against trolls.";
-		if (f1 & TR0_SLAY_GIANT)
+		if (f[1] & TR1_SLAY_GIANT)
 			info[i++] = "Your weapon is especially deadly against giants.";
-		if (f1 & TR0_SLAY_DRAGON)
+		if (f[1] & TR1_SLAY_DRAGON)
 			info[i++] = "Your weapon is especially deadly against dragons.";
 
 		/* Special "kill" flags */
-		if (f1 & TR0_KILL_DRAGON)
+		if (f[1] & TR1_KILL_DRAGON) /* TODO Don't forget to add the new flags */
 			info[i++] = "Your weapon is a great bane of dragons.";
-		if (f1 & TR0_KILL_DEMON)
+		if (f[1] & TR1_KILL_DEMON)
 			info[i++] = "Your weapon is a great bane of demons.";
-		if (f1 & TR0_KILL_UNDEAD)
+		if (f[1] & TR1_KILL_UNDEAD)
 			info[i++] = "Your weapon is a great bane of undead.";
+		if (f[1] & (TR1_KILL_DEMON))
+			info[i++] = "Your weapon is a great bane of demons.";
+		if (f[1] & (TR1_KILL_ORC))
+			info[i++] = "Your weapon is a great bane of orcs.";
+		if (f[1] & (TR1_KILL_TROLL))
+			info[i++] = "Your weapon is a great bane of trolls.";
+		if (f[1] & (TR1_KILL_GIANT))
+			info[i++] = "Your weapon is a great bane of giants.";
+		if (f[1] & (TR1_KILL_DRAGON))
+			info[i++] = "Your weapon is a great bane of dragons.";
 
 		/* Indicate Blessing */
-		if (f3 & TR2_BLESSED)
+		if (f[3] & TR3_BLESSED)
 			info[i++] = "Your weapon has been blessed by the gods.";
 
-		/* Hack */
-		if (f3 & TR2_IMPACT)
+		/* Hack */ /* Why is this 'hackish' ? */
+		if (f[3] & TR3_IMPACT)
 			info[i++] = "Your weapon can induce earthquakes.";
+
 	}
 
 
@@ -869,7 +840,7 @@ void set_recall(void)
 				p_ptr->max_depth = p_ptr->depth;
 		}
 
-		p_ptr->word_recall = randint0(20) + 15;
+		p_ptr->word_recall = (s16b) randint0(20) + 15;
 		msg_print("The air about you becomes charged...");
 	}
 
@@ -905,8 +876,8 @@ void set_recall(void)
  */
 void map_area(void)
 {
-	int i, x, y;
-	int x1, x2, y1, y2;
+	s16b i, x, y;
+	s16b x1, x2, y1, y2;
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - DETECT_DIST_Y;
@@ -938,8 +909,8 @@ void map_area(void)
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
-					int yy = y + ddy_ddd[i];
-					int xx = x + ddx_ddd[i];
+					s16b yy = y + ddy_ddd[i];
+					s16b xx = x + ddx_ddd[i];
 
 					/* Memorize walls (etc) */
 					if (cave_feat[yy][xx] >= FEAT_SECRET)
@@ -961,8 +932,8 @@ void map_area(void)
  */
 bool detect_traps(bool aware)
 {
-	int y, x;
-	int x1, x2, y1, y2;
+	s16b y, x;
+	s16b x1, x2, y1, y2;
 
 	bool detect = FALSE;
 
@@ -1043,8 +1014,8 @@ bool detect_traps(bool aware)
  */
 bool detect_doorstairs(bool aware)
 {
-	int y, x;
-	int x1, x2, y1, y2;
+	s16b y, x;
+	s16b x1, x2, y1, y2;
 
 	bool doors = FALSE, stairs = FALSE;
 
@@ -1120,8 +1091,8 @@ bool detect_doorstairs(bool aware)
 bool detect_treasure(bool aware)
 {
 	int i;
-	int y, x;
-	int x1, x2, y1, y2;
+	s16b y, x;
+	s16b x1, x2, y1, y2;
 
 	bool gold_buried = FALSE;
 	bool objects = FALSE;
@@ -1209,6 +1180,158 @@ bool detect_treasure(bool aware)
 	return gold_buried || objects;
 }
 
+/*
+ * Detect gold around the player.
+ */
+bool detect_gold(bool aware)
+{
+	int i;
+	s16b y, x;
+	s16b x1, x2, y1, y2;
+
+	bool gold = FALSE;
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+
+	/* Scan the dungeon */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
+		{
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Notice embedded gold */
+			if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
+			    (cave_feat[y][x] == FEAT_QUARTZ_H))
+			{
+				/* Expose the gold */
+				cave_feat[y][x] += 0x02;
+			}
+
+			/* Magma/Quartz + Known Gold */
+			if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
+			    (cave_feat[y][x] == FEAT_QUARTZ_K))
+			{
+				/* Hack -- Memorize */
+				cave_info[y][x] |= (CAVE_MARK);
+
+				/* Redraw */
+				lite_spot(y, x);
+
+				/* Detect */
+				gold = TRUE;
+			}
+		}
+	}
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Skip anything that isn't gold */
+		if (o_ptr->tval != TV_GOLD)
+			continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+
+		/* Hack -- memorize it */
+		o_ptr->marked = TRUE;
+
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		gold = TRUE;
+	}
+
+	if (gold)
+		msg_print("You sense the presence of buried treasure!");
+
+	if (aware && !gold)
+		msg_print("You sense no treasure.");
+
+	return gold;
+}
+
+/*
+ * Detect objects around the player.
+ */
+bool detect_objects(bool aware)
+{
+	int i;
+	s16b y, x;
+	s16b x1, x2, y1, y2;
+
+	bool objects = FALSE;
+
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+
+		/* Hack -- memorize it */
+		o_ptr->marked = TRUE;
+
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		if (!squelch_hide_item(o_ptr))
+			objects = TRUE;
+	}
+
+	if (objects)
+		msg_print("You sense the presence of objects!");
+
+	if (aware && !objects)
+		msg_print("You sense no objects.");
+
+	return objects;
+}
+
 
 /*
  * Detect "magic" objects around the player.
@@ -1221,8 +1344,8 @@ bool detect_treasure(bool aware)
  */
 bool detect_objects_magic(bool aware)
 {
-	int i, y, x, tv;
-	int x1, x2, y1, y2;
+	s16b i, y, x, tv;
+	s16b x1, x2, y1, y2;
 
 	bool detect = FALSE;
 
@@ -1259,12 +1382,12 @@ bool detect_objects_magic(bool aware)
 		/* Examine the tval */
 		tv = o_ptr->tval;
 
-		/* Artifacts, misc magic items, or enchanted wearables */
+		/* Artifacts, misc magic items, or enchanted wearables */ /* TODO: Book conversion */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_SCROLL) || (tv == TV_SPELL) ||
+			(tv == TV_POTION) || (tv == TV_BOOK) || 
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1293,8 +1416,8 @@ bool detect_objects_magic(bool aware)
  */
 bool detect_monsters_normal(bool aware)
 {
-	int i, y, x;
-	int x1, x2, y1, y2;
+	s16b i, y, x;
+	s16b x1, x2, y1, y2;
 
 	bool flag = FALSE;
 
@@ -1358,8 +1481,8 @@ bool detect_monsters_normal(bool aware)
  */
 bool detect_monsters_invis(bool aware)
 {
-	int i, y, x;
-	int x1, x2, y1, y2;
+	s16b i, y, x;
+	s16b x1, x2, y1, y2;
 
 	bool flag = FALSE;
 
@@ -1432,8 +1555,8 @@ bool detect_monsters_invis(bool aware)
  */
 bool detect_monsters_evil(bool aware)
 {
-	int i, y, x;
-	int x1, x2, y1, y2;
+	s16b i, y, x;
+	s16b x1, x2, y1, y2;
 
 	bool flag = FALSE;
 
@@ -1526,8 +1649,8 @@ bool detect_all(bool aware)
  */
 void stair_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	/* XXX XXX XXX */
 	if (!cave_valid_bold(py, px))
@@ -1586,9 +1709,9 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 
 
 /*
- * Hook to specify "armour"
+ * Hook to specify "armor"
  */
-static bool item_tester_hook_armour(const object_type *o_ptr)
+static bool item_tester_hook_armor(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1612,7 +1735,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
-	if (object_is_known(o_ptr))
+	if (object_known_p(o_ptr))
 		return FALSE;
 	else
 		return TRUE;
@@ -1682,7 +1805,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f[2] & (TR2_PERMA_CURSE))) &&
+				    (!(f[3] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_h >= 0) && (randint0(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -1710,7 +1833,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f[2] & (TR2_PERMA_CURSE))) &&
+				    (!(f[3] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_d >= 0) && (randint0(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -1738,7 +1861,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f[2] & (TR2_PERMA_CURSE))) &&
+				    (!(f[3] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_a >= 0) && (randint0(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -1770,7 +1893,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 /*
  * Enchant an item (in the inventory or on the floor)
- * Note that "num_ac" requires armour, else weapon
+ * Note that "num_ac" requires armor, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
 bool enchant_spell(int num_hit, int num_dam, int num_ac)
@@ -1789,14 +1912,24 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	item_tester_hook = item_tester_hook_weapon;
 
 	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	if (num_ac) item_tester_hook = item_tester_hook_armor;
 
 	/* Get an item */
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	o_ptr = object_from_item_idx(item);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 
 	/* Description */
@@ -1848,7 +1981,17 @@ bool ident_spell(void)
 	s = "You have nothing to identify.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	o_ptr = object_from_item_idx(item);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 
 	/* Identify the object */
@@ -1908,7 +2051,17 @@ bool recharge(int num)
 	s = "You have nothing to recharge.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	o_ptr = object_from_item_idx(item);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 
 	/* Extract the object "level" */
@@ -1949,7 +2102,7 @@ bool recharge(int num)
 		t = (num / (lev + 2)) + 1;
 
 		/* Recharge based on the power */
-		if (t > 0) o_ptr->pval += 2 + randint1(t);
+		if (t > 0) o_ptr->pval += 2 + (s16b) randint1(t);
 
 		/* We no longer think the item is empty */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -1979,7 +2132,8 @@ bool recharge(int num)
  */
 bool project_los(int typ, int dam)
 {
-	int i, x, y;
+	int i;
+	s16b x, y;
 
 	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 
@@ -2002,7 +2156,7 @@ bool project_los(int typ, int dam)
 		if (!player_has_los_bold(y, x)) continue;
 
 		/* Jump directly to the target monster */
-		if (project(-1, 0, y, x, dam, typ, flg)) obvious = TRUE;
+		if (project(WHO_PLAYER, 0, y, x, dam, typ, flg)) obvious = TRUE;
 	}
 
 	/* Result */
@@ -2194,7 +2348,7 @@ bool banishment(void)
 /*
  * Delete all nearby (non-unique) monsters
  */
-bool mass_banishment(void)
+bool mass_banishment(void) /* aka Mass genocide */
 {
 	int i;
 	unsigned dam = 0;
@@ -2301,9 +2455,9 @@ bool probing(void)
  * Later we may use one function for both "destruction" and
  * "earthquake" by using the "full" to select "destruction".
  */
-void destroy_area(int y1, int x1, int r, bool full)
+void destroy_area(s16b y1, s16b x1, s16b r, bool full)
 {
-	int y, x, k, t;
+	s16b y, x, k, t;
 
 	bool flag = FALSE;
 
@@ -2365,7 +2519,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 				delete_object(y, x);
 
 				/* Wall (or floor) type */
-				t = randint0(200);
+				t = (s16b) randint0(200);
 
 				/* Granite */
 				if (t < 20)
@@ -2436,16 +2590,17 @@ void destroy_area(int y1, int x1, int r, bool full)
  * Note that players and monsters (except eaters of walls and passers
  * through walls) will never occupy the same grid as a wall (or door).
  */
-void earthquake(int cy, int cx, int r)
+void earthquake(s16b cy, s16b cx, s16b r)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int i, t, y, x, yy, xx, dy, dx;
+	int i, t;
+	s16b y, x, sy = 0, sx = 0, yy, xx, dy, dx;
 
 	int damage = 0;
 
-	int sn = 0, sy = 0, sx = 0;
+	int sn = 0;
 
 	bool hurt = FALSE;
 
@@ -2512,11 +2667,13 @@ void earthquake(int cy, int cx, int r)
 		for (i = 0; i < 8; i++)
 		{
 			/* Get the location */
-			y = py + ddy_ddd[i];
-			x = px + ddx_ddd[i];
+			ISBYTE(py + ddy_ddd[i]);
+			y = (byte) (py + ddy_ddd[i]);
+			ISBYTE(px + ddx_ddd[i]);
+			x = (byte) (px + ddx_ddd[i]);
 
 			/* Skip non-empty grids */
-			if (!cave_empty_bold(y, x)) continue;
+			if (!cave_empty(y, x)) continue;
 
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
@@ -2627,11 +2784,13 @@ void earthquake(int cy, int cx, int r)
 						for (i = 0; i < 8; i++)
 						{
 							/* Get the grid */
-							y = yy + ddy_ddd[i];
-							x = xx + ddx_ddd[i];
+							ISBYTE(yy + ddy_ddd[i]);
+							y = (byte) (yy + ddy_ddd[i]);
+							ISBYTE(xx + ddx_ddd[i]);
+							x = (byte) (xx + ddx_ddd[i]);
 
 							/* Skip non-empty grids */
-							if (!cave_empty_bold(y, x)) continue;
+							if (!cave_empty(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
 							if (cave_feat[y][x] == FEAT_GLYPH) continue;
@@ -2661,7 +2820,7 @@ void earthquake(int cy, int cx, int r)
 					wake_monster(m_ptr);
 
 					/* Apply damage directly */
-					m_ptr->hp -= damage;
+					m_ptr->hp -= INT2S16B(damage);
 
 					/* Delete (not kill) "dead" monsters */
 					if (m_ptr->hp < 0)
@@ -2680,7 +2839,9 @@ void earthquake(int cy, int cx, int r)
 					if (sn)
 					{
 						/* Move the monster */
-						monster_swap(yy, xx, sy, sx);
+						ISBYTE(yy);
+						ISBYTE(xx);
+						monster_swap((byte) yy, (byte) xx, sy, sx);
 					}
 				}
 			}
@@ -2721,7 +2882,7 @@ void earthquake(int cy, int cx, int r)
 			{
 				int feat = FEAT_FLOOR;
 
-				bool floor = cave_floor_bold(yy, xx);
+				bool floor = cave_floor(yy, xx);
 
 				/* Delete objects */
 				delete_object(yy, xx);
@@ -2794,8 +2955,8 @@ static void cave_temp_room_lite(void)
 	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
+		s16b y = temp_y[i];
+		s16b x = temp_x[i];
 
 		/* No longer in the array */
 		cave_info[y][x] &= ~(CAVE_TEMP);
@@ -2813,8 +2974,8 @@ static void cave_temp_room_lite(void)
 	/* Process the grids */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
+		s16b y = temp_y[i];
+		s16b x = temp_x[i];
 
 		/* Redraw the grid */
 		lite_spot(y, x);
@@ -2876,8 +3037,8 @@ static void cave_temp_room_unlite(void)
 	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
+		s16b y = temp_y[i];
+		s16b x = temp_x[i];
 
 		/* No longer in the array */
 		cave_info[y][x] &= ~(CAVE_TEMP);
@@ -2902,8 +3063,8 @@ static void cave_temp_room_unlite(void)
 	/* Process the grids */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
+		s16b y = temp_y[i];
+		s16b x = temp_x[i];
 
 		/* Redraw the grid */
 		lite_spot(y, x);
@@ -2919,7 +3080,7 @@ static void cave_temp_room_unlite(void)
 /*
  * Aux function -- see below
  */
-static void cave_temp_room_aux(int y, int x)
+static void cave_temp_room_aux(s16b y, s16b x)
 {
 	/* Avoid infinite recursion */
 	if (cave_info[y][x] & (CAVE_TEMP)) return;
@@ -2934,8 +3095,10 @@ static void cave_temp_room_aux(int y, int x)
 	cave_info[y][x] |= (CAVE_TEMP);
 
 	/* Add it to the "seen" set */
-	temp_y[temp_n] = y;
-	temp_x[temp_n] = x;
+	ISBYTE(y);
+	temp_y[temp_n] = (byte) y;
+	ISBYTE(x);
+	temp_x[temp_n] = (byte) x;
 	temp_n++;
 }
 
@@ -2945,9 +3108,9 @@ static void cave_temp_room_aux(int y, int x)
 /*
  * Illuminate any room containing the given location.
  */
-void lite_room(int y1, int x1)
+void lite_room(s16b y1, s16b x1)
 {
-	int i, x, y;
+	s16b i, x, y;
 
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
@@ -2958,7 +3121,7 @@ void lite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get lit, but stop light */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_floor(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
@@ -2981,9 +3144,9 @@ void lite_room(int y1, int x1)
 /*
  * Darken all rooms containing the given location
  */
-void unlite_room(int y1, int x1)
+void unlite_room(s16b y1, s16b x1)
 {
-	int i, x, y;
+	s16b i, x, y;
 
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
@@ -2994,7 +3157,7 @@ void unlite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get dark, but stop darkness */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_floor(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
@@ -3021,8 +3184,8 @@ void unlite_room(int y1, int x1)
  */
 bool lite_area(int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -3033,7 +3196,7 @@ bool lite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(WHO_PLAYER, rad, py, px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
 	lite_room(py, px);
@@ -3049,8 +3212,8 @@ bool lite_area(int dam, int rad)
  */
 bool unlite_area(int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -3080,16 +3243,18 @@ bool unlite_area(int dam, int rad)
  */
 bool fire_ball(int typ, int dir, int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	s16b ty, tx;
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
+	ISBYTE(py + 99 * ddy[dir]); /* TODO : This looks dodgy */
+	ty = (byte) (py + 99 * ddy[dir]);
+	ISBYTE(px + 99 * ddx[dir]);
+	tx = (byte) (px + 99 * ddx[dir]);
 
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
@@ -3100,7 +3265,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(-1, rad, ty, tx, dam, typ, flg));
+	return (project(WHO_PLAYER, rad, ty, tx, dam, typ, flg));
 }
 
 
@@ -3114,16 +3279,18 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 {
 	bool noticed = FALSE;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	s16b ty, tx;
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
+	ISBYTE(py + 99 * ddy[dir]); /* TODO : This looks dodgy */
+	ty = (byte) (py + 99 * ddy[dir]);
+	ISBYTE(px + 99 * ddx[dir]);
+	tx = (byte) (px + 99 * ddx[dir]);
 
 	/* Hack -- Use an actual "target" (early detonation) */
 	if ((dir == 5) && target_okay())
@@ -3132,7 +3299,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 	while (num--)
 	{
 		/* Analyze the "dir" and the "target".  Hurt items on floor. */
-		if (project(-1, rad, ty, tx, dam, typ, flg)) noticed = TRUE;
+		if (project(WHO_PLAYER, rad, ty, tx, dam, typ, flg)) noticed = TRUE;
 	}
 
 	return noticed;
@@ -3144,8 +3311,8 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
  */
 static bool project_hook(int typ, int dir, int dam, int flg)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	s16b ty, tx;
 
@@ -3153,15 +3320,17 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	flg |= (PROJECT_THRU);
 
 	/* Use the given direction */
-	ty = py + ddy[dir];
-	tx = px + ddx[dir];
+	ISBYTE(py + ddy[dir]); /* TODO : This looks dodgy */
+	ty = (byte) (py + ddy[dir]);
+	ISBYTE(px + ddx[dir]);
+	tx = (byte) (px + ddx[dir]);
 
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
 		target_get(&tx, &ty);
 
 	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(-1, 0, ty, tx, dam, typ, flg));
+	return (project(WHO_PLAYER, 0, ty, tx, dam, typ, flg));
 }
 
 
@@ -3297,46 +3466,44 @@ bool teleport_monster(int dir)
 	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
 }
 
-
-
 /*
  * Hooks -- affect adjacent grids (radius 1 ball attack)
  */
 
 bool door_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(WHO_PLAYER, 1, py, px, 0, GF_MAKE_DOOR, flg));
 }
 
 bool trap_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(WHO_PLAYER, 1, py, px, 0, GF_MAKE_TRAP, flg));
 }
 
 bool destroy_doors_touch(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
+	return (project(WHO_PLAYER, 1, py, px, 0, GF_KILL_DOOR, flg));
 }
 
 bool sleep_monsters_touch(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(WHO_PLAYER, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
 
 
@@ -3375,10 +3542,10 @@ bool curse_armor(void)
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
 		/* Take down bonus a wee bit */
-		o_ptr->to_a -= randint1(3);
+		o_ptr->to_a -= (s16b) randint1(3);
 
 		/* Curse it */
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE);
+		o_ptr->flags[3] |= (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3429,11 +3596,11 @@ bool curse_weapon(void)
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
 		/* Hurt it a bit */
-		o_ptr->to_h = 0 - randint1(3);
-		o_ptr->to_d = 0 - randint1(3);
+		o_ptr->to_h = 0 - (s16b) randint1(3);
+		o_ptr->to_d = 0 - (s16b) randint1(3);
 
 		/* Curse it */
-		o_ptr->flags[2] |= (TR2_LIGHT_CURSE | TR2_HEAVY_CURSE);
+		o_ptr->flags[3] |= (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3476,10 +3643,6 @@ void brand_object(object_type *o_ptr, byte brand_type)
 			case EGO_BRAND_COLD:
 			case EGO_FROST:
 				act = "frosty";
-				break;
-			case EGO_BRAND_POIS:
-			case EGO_AMMO_VENOM:
-				act = "sickly";
 				break;
 		}
 
@@ -3565,17 +3728,25 @@ bool brand_ammo(void)
 	s = "You have nothing to brand.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	o_ptr = object_from_item_idx(item);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
 
-	r = randint0(100);
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	r = (s16b) randint0(100);
 
 	/* Select the brand */
-	if (r < 33)
+	if (r < 50)
 		brand_type = EGO_FLAME;
-	else if (r < 67)
+	else 
 		brand_type = EGO_FROST;
-	else
-		brand_type = EGO_AMMO_VENOM;
 
 	/* Brand the ammo */
 	brand_object(o_ptr, brand_type);
@@ -3603,7 +3774,17 @@ bool brand_bolts(void)
 	s = "You have no bolts to brand.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	o_ptr = object_from_item_idx(item);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 	/* Brand the bolts */
 	brand_object(o_ptr, EGO_FLAME);
@@ -3690,8 +3871,8 @@ void do_ident_item(int item, object_type *o_ptr)
 	char o_name[80];
 
 	/* Identify it */
-	object_flavor_aware(o_ptr);
-	object_notice_everything(o_ptr);
+	object_aware(o_ptr);
+	object_known(o_ptr);
 
 	/* Apply an autoinscription, if necessary */
 	apply_autoinscription(o_ptr);
@@ -3711,7 +3892,7 @@ void do_ident_item(int item, object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
-	/* Possibly play a sound depending on object quality. */
+	/* Possibly play a sound depending on object quality. */ /* TODO Does not check p2val */
 	if (o_ptr->pval < 0)
 	{
 		/* This is a bad item. */

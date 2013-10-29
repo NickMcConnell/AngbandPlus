@@ -37,7 +37,7 @@ static bool trap_check_hit(int power)
  * Actually, it is not this routine, but the "trap instantiation"
  * code, which should also check for "trap doors" on quest levels.
  */
-void pick_trap(int y, int x)
+void pick_trap(s16b y, s16b x)
 {
 	int feat;
 
@@ -98,13 +98,13 @@ void pick_trap(int y, int x)
  * when they are "discovered" (by detecting them or setting them off),
  * the trap is "instantiated" as a visible, "typed", trap.
  */
-void place_trap(int y, int x)
+void place_trap(s16b y, s16b x)
 {
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 	/* Require empty, clean, floor grid */
-	if (!cave_naked_bold(y, x)) return;
+	if (!cave_naked(y, x)) return;
 
 	/* Place an invisible trap */
 	cave_set_feat(y, x, FEAT_INVIS);
@@ -116,7 +116,7 @@ void place_trap(int y, int x)
 /*
  * Handle player hitting a real trap
  */
-void hit_trap(int y, int x)
+void hit_trap(s16b y, s16b x)
 {
 	int i, num, dam;
 
@@ -135,15 +135,14 @@ void hit_trap(int y, int x)
 			if (p_ptr->state.ffall)
 			{
 				msg_print("You float gently down to the next level.");
+				object_notice_flag(3, TR3_FEATHER);
 			}
 			else
 			{
 				dam = damroll(2, 8);
 				take_hit(dam, name);
 			}
-			wieldeds_notice_flag(2, TR2_FEATHER);
 
-			/* New depth */
 			dungeon_change_level(p_ptr->depth + 1);
 			
 			break;
@@ -155,13 +154,13 @@ void hit_trap(int y, int x)
 			if (p_ptr->state.ffall)
 			{
 				msg_print("You float gently to the bottom of the pit.");
+				object_notice_flag(3, TR3_FEATHER);
 			}
 			else
 			{
 				dam = damroll(2, 6);
 				take_hit(dam, name);
 			}
-			wieldeds_notice_flag(2, TR2_FEATHER);
 			break;
 		}
 
@@ -173,6 +172,7 @@ void hit_trap(int y, int x)
 			{
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
+				object_notice_flag(3, TR3_FEATHER);
 			}
 			else
 			{
@@ -191,7 +191,6 @@ void hit_trap(int y, int x)
 				/* Take the damage */
 				take_hit(dam, name);
 			}
-			wieldeds_notice_flag(2, TR2_FEATHER);
 			break;
 		}
 
@@ -203,6 +202,7 @@ void hit_trap(int y, int x)
 			{
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
+				object_notice_flag(3, TR3_FEATHER);
 			}
 			else
 			{
@@ -226,14 +226,13 @@ void hit_trap(int y, int x)
 						dam = dam * 2;
 						(void)inc_timed(TMD_POISONED, randint1(dam), TRUE);
 					}
-
-					wieldeds_notice_flag(1, TR1_RES_POIS);
+					if (p_ptr->state.resist_pois) 
+						object_notice_flag(2, TR2_RES_POIS);
 				}
-
+				
 				/* Take the damage */
 				take_hit(dam, name);
 			}
-			wieldeds_notice_flag(2, TR2_FEATHER);
 
 			break;
 		}
@@ -247,7 +246,7 @@ void hit_trap(int y, int x)
 			num = 2 + randint1(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(y, x, p_ptr->depth, 0, 1);
+				(void)summon_specific(y, x, p_ptr->depth, 0);
 			}
 			break;
 		}
@@ -344,7 +343,8 @@ void hit_trap(int y, int x)
 			msg_print("You are surrounded by a black gas!");
 			if (!p_ptr->state.resist_blind)
 				(void)inc_timed(TMD_BLIND, randint0(50) + 25, TRUE);
-			wieldeds_notice_flag(1, TR1_RES_BLIND);
+			else 
+				object_notice_flag(2, TR2_RES_BLIND);
 
 			break;
 		}
@@ -354,7 +354,8 @@ void hit_trap(int y, int x)
 			msg_print("You are surrounded by a gas of scintillating colors!");
 			if (!p_ptr->state.resist_confu)
 				(void)inc_timed(TMD_CONFUSED, randint0(20) + 10, TRUE);
-			wieldeds_notice_flag(1, TR1_RES_CONFU);
+			else 
+				object_notice_flag(2, TR2_RES_CONFU); 
 
 			break;
 		}
@@ -363,9 +364,9 @@ void hit_trap(int y, int x)
 		{
 			msg_print("You are surrounded by a pungent green gas!");
 			if (!p_ptr->state.resist_pois && !p_ptr->timed[TMD_OPP_POIS])
+			{
 				(void)inc_timed(TMD_POISONED, randint0(20) + 10, TRUE);
-			wieldeds_notice_flag(1, TR1_RES_POIS);
-
+			}
 			break;
 		}
 
@@ -374,7 +375,8 @@ void hit_trap(int y, int x)
 			msg_print("You are surrounded by a strange white mist!");
 			if (!p_ptr->state.free_act)
 				(void)inc_timed(TMD_PARALYZED, randint0(10) + 5, TRUE);
-			wieldeds_notice_flag(2, TR2_FREE_ACT);
+			else 
+				object_notice_flag(3, TR3_FREE_ACT);
 
 			break;
 		}

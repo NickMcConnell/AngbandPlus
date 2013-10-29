@@ -12,8 +12,5 @@ bool dec_timed(int idx, int v, bool notify);
 bool clear_timed(int idx, bool notify);
 bool set_food(int v);
 
-/* util.c */
+/* plyr-util.c */
 s16b modify_stat_value(int value, int amount);
-bool player_can_cast(void);
-bool player_can_study(void);
-bool player_can_read(void);

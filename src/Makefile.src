@@ -5,8 +5,8 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 3.1.1
-COPYRIGHT = (c) 1995-2009 Angband contributors
+VERSION = 0.0.1
+COPYRIGHT = (c) 1995-2008 Angband contributors, 2009 Angband/65 contributors
 
 HEADERS = \
 	angband.h \
@@ -62,6 +62,7 @@ ANGFILES = \
 	cmd3.o \
 	cmd4.o \
 	cmd5.o \
+	cmd6.o \
 	cmd-know.o \
 	cmd-obj.o \
 	death.o \
@@ -95,7 +96,7 @@ ANGFILES = \
 	prefs.o \
 	player/calcs.o \
 	player/timed.o \
-	player/util.o \
+	player/plyr-util.o \
 	score.o \
 	signals.o \
 	save.o \

@@ -91,7 +91,7 @@ void check_experience(void)
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Add to social class */
-		p_ptr->sc += randint1(2);
+		p_ptr->sc += (s16b) randint1(2);
 		if (p_ptr->sc > 150) p_ptr->sc = 150;
 
 		/* Update some stuff */
@@ -171,13 +171,13 @@ void lose_exp(s32b amount)
  * As a total hack, whenever the current panel changes, we assume that
  * the "overhead view" window should be updated.
  */
-bool modify_panel(term *t, int wy, int wx)
+bool modify_panel(term *t, s16b wy, s16b wx)
 {
-	int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
-	int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+	s16b dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+	s16b dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
 
-	int screen_hgt = (t == Term) ? (t->hgt - ROW_MAP - 1) : t->hgt;
-	int screen_wid = (t == Term) ? (t->wid - COL_MAP - 1) : t->wid;
+	s16b screen_hgt = (t == Term) ? (t->hgt - ROW_MAP - 1) : t->hgt;
+	s16b screen_wid = (t == Term) ? (t->wid - COL_MAP - 1) : t->wid;
 
 	/* Bigtile panels only have half the width */
 	if (use_bigtile) screen_wid = screen_wid / 2;
@@ -194,8 +194,10 @@ bool modify_panel(term *t, int wy, int wx)
 	if ((t->offset_y != wy) || (t->offset_x != wx))
 	{
 		/* Save wy, wx */
-		t->offset_y = wy;
-		t->offset_x = wx;
+		ISBYTE(wy);
+		t->offset_y = (byte) wy;
+		ISBYTE(wx);
+		t->offset_x = (byte) wx;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -214,7 +216,7 @@ bool modify_panel(term *t, int wy, int wx)
  * location is contained inside the current panel, and return TRUE if any
  * such adjustment was performed.
  */
-bool adjust_panel(int y, int x)
+bool adjust_panel(s16b y, s16b x)
 {
 	bool changed = FALSE;
 
@@ -223,8 +225,8 @@ bool adjust_panel(int y, int x)
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
-		int wx, wy;
-		int screen_hgt, screen_wid;
+		s16b wx, wy;
+		s16b screen_hgt, screen_wid;
 
 		term *t = angband_term[j];
 
@@ -272,8 +274,8 @@ bool change_panel(int dir)
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
-		int screen_hgt, screen_wid;
-		int wx, wy;
+		s16b screen_hgt, screen_wid;
+		s16b wx, wy;
 
 		term *t = angband_term[j];
 
@@ -314,13 +316,13 @@ bool change_panel(int dir)
  */
 void verify_panel(void)
 {
-	int wy, wx;
-	int screen_hgt, screen_wid;
+	s16b wy, wx;
+	s16b screen_hgt, screen_wid;
 
-	int panel_wid, panel_hgt;
+	s16b panel_wid, panel_hgt;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int j;
 
@@ -380,7 +382,7 @@ void verify_panel(void)
  *
  * We return "5" if no motion is needed.
  */
-int motion_dir(int y1, int x1, int y2, int x2)
+int motion_dir(s16b y1, s16b x1, s16b y2, s16b x2)
 {
 	/* No movement required */
 	if ((y1 == y2) && (x1 == x2)) return (5);
@@ -405,9 +407,9 @@ int motion_dir(int y1, int x1, int y2, int x2)
 /*
  * Extract a direction (or zero) from a character
  */
-int target_dir(char ch)
+s16b target_dir(char ch)
 {
-	int d = 0;
+	s16b d = 0;
 
 	int mode;
 
@@ -510,6 +512,21 @@ bool get_aim_dir(int *dp)
 	/* Initialize */
 	(*dp) = 0;
 
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			/* Use the direction */
+			dir = *dp;
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
+		}
+	}
+
 	/* Hack -- auto-target if requested */
 	if (OPT(use_old_target) && target_okay() && !dir) dir = 5;
 
@@ -599,7 +616,7 @@ bool get_aim_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save the direction */
-	p_ptr->command_dir = dir;
+	p_ptr->command_dir = INT2S16B(dir);
 
 	/* Check for confusion */
 	if (p_ptr->timed[TMD_CONFUSED])
@@ -614,6 +631,9 @@ bool get_aim_dir(int *dp)
 		/* Warn the user */
 		msg_print("You are confused.");
 	}
+
+	/* Remember the direction if it is new */
+	if (!repeat_pull(dp)) repeat_push(dir);
 
 	/* Save direction */
 	(*dp) = dir;
@@ -643,6 +663,11 @@ bool get_rep_dir(int *dp)
 	int dir;
 
 	ui_event_data ke;
+
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
 
 	/* Initialize */
 	(*dp) = 0;
@@ -675,8 +700,8 @@ bool get_rep_dir(int *dp)
 		{
 			/*if (ke.button) */
 			{
-				int y = KEY_GRID_Y(ke);
-				int x = KEY_GRID_X(ke);
+				s16b y = KEY_GRID_Y(ke);
+				s16b x = KEY_GRID_X(ke);
 
 				/* Calculate approximate angle */
 				int angle = get_angle_to_target(p_ptr->py, p_ptr->px, y, x, 0);
@@ -745,10 +770,12 @@ bool get_rep_dir(int *dp)
 	prt("", 0, 0);
 
 	/* Save desired direction */
-	p_ptr->command_dir = dir;
+	p_ptr->command_dir = INT2S16B(dir);
 
 	/* Save direction */
 	(*dp) = dir;
+
+	repeat_push(dir);
 
 	/* Success */
 	return (TRUE);

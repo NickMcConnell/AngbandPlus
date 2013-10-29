@@ -17,13 +17,10 @@
  */
 #include "z-util.h"
 
-
-
 /*
  * Convenient storage of the program name
  */
 cptr argv0 = NULL;
-
 
 /*
  * Case insensitive comparison between two strings
@@ -43,8 +40,8 @@ int my_stricmp(const char *s1, const char *s2)
 			return (0);
 		}
 
-		ch1 = toupper((unsigned char) *s1);
-		ch2 = toupper((unsigned char) *s2);
+		ch1 = (char) toupper((unsigned char) *s1);
+		ch2 = (char) toupper((unsigned char) *s2);
 
 		/* If the characters don't match */
 		if (ch1 != ch2)
@@ -71,8 +68,8 @@ int my_strnicmp(cptr a, cptr b, int n)
 	/* Scan the strings */
 	for (s1 = a, s2 = b; n > 0; s1++, s2++, n--)
 	{
-		z1 = toupper((unsigned char)*s1);
-		z2 = toupper((unsigned char)*s2);
+		z1 = (char) toupper((unsigned char)*s1);
+		z2 = (char) toupper((unsigned char)*s2);
 		if (z1 < z2) return (-1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
@@ -96,7 +93,7 @@ char *my_stristr(const char *string, const char *pattern)
       {
             /* find start of pattern in string */
             for ( ; ((*start != 0) &&
-			        (toupper((unsigned char)*start) != toupper((unsigned char)*pattern))); start++)
+			        (toupper((unsigned char)*start) != (char) toupper((unsigned char)*pattern))); start++)
                   ;
             if (*start == 0)
                   return NULL;
@@ -104,7 +101,7 @@ char *my_stristr(const char *string, const char *pattern)
             pptr = (const char *)pattern;
             sptr = (const char *)start;
 
-            while (toupper((unsigned char)*sptr) == toupper((unsigned char)*pptr))
+            while (toupper((unsigned char)*sptr) == (char) toupper((unsigned char)*pptr))
             {
                   sptr++;
                   pptr++;

@@ -235,8 +235,8 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 {
 	char ch;
 
-	int j, k, n, place;
-	int count;
+	s16b n;
+	int place, count, j, k;
 
 
 	/* Assume we will show the first 10 */
@@ -256,7 +256,7 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 
 
 	/* Show 5 per page, until "done" */
-	for (k = from, j = from, place = k+1; k < count; k += 5)
+	for (k = from, j = from, place = k + 1; k < count; k += 5)
 	{
 		char out_val[160];
 		char tmp_val[160];
@@ -313,7 +313,7 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 			if (mlev > clev) my_strcat(out_val, format(" (Max %d)", mlev), sizeof(out_val));
 
 			/* Dump the first line */
-			c_put_str(attr, out_val, n*4 + 2, 0);
+			c_put_str(attr, out_val, n * 4 + 2, 0);
 
 
 			/* Died where? */
@@ -357,6 +357,7 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 
 static void build_score(high_score *entry, const char *died_from, time_t *death_time)
 {
+	struct tm * timeinfo=NULL;
 	WIPE(entry, high_score);
 
 	/* Save the version */
@@ -373,7 +374,14 @@ static void build_score(high_score *entry, const char *died_from, time_t *death_
 
 	/* Time of death */
 	if (death_time)
-		strftime(entry->day, sizeof(entry->day), "@%Y%m%d", localtime(death_time));
+	{
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+		localtime_s(timeinfo, death_time);
+#else
+		timeinfo = localtime(death_time);
+#endif
+		strftime(entry->day, sizeof(entry->day), "@%Y%m%d", timeinfo);
+	}
 	else
 		my_strcpy(entry->day, "TODAY", sizeof(entry->day));
 

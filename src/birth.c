@@ -73,7 +73,7 @@ struct birther
 
 	s16b stat[A_MAX];
 
-	char history[250];
+	char history[420];
 };
 
 
@@ -87,6 +87,8 @@ static void save_roller_data(birther *player)
 
 	/* Save the data */
 	player->sex = p_ptr->psex;
+/*	player->tactic = p_ptr->tactic; */ /* TODO Is this needed? If so, get it to work */
+/*	player->movement = p_ptr->movement; */ /* TODO Is this needed? If so, get it to work */
 	player->race = p_ptr->prace;
 	player->class = p_ptr->pclass;
 	player->age = p_ptr->age;
@@ -132,17 +134,15 @@ static void load_roller_data(birther *player, birther *prev_player)
 
 	/* Load the data */
 	p_ptr->psex = player->sex;
+/*	p_ptr->tactic = player->tactic; */ /* TODO Is this needed? If so get it to work */
+/*	p_ptr->movement = player->movement; */ /* TODO Is this needed? If so get it to work */
 	p_ptr->prace = player->race;
 	p_ptr->pclass = player->class;
 	p_ptr->age = player->age;
 	p_ptr->wt = p_ptr->wt_birth = player->wt;
 	p_ptr->ht = p_ptr->ht_birth = player->ht;
 	p_ptr->sc = p_ptr->sc_birth = player->sc;
-	p_ptr->au_birth = player->au;
-	if (OPT(birth_money))
-		p_ptr->au = 500;
-	else
-		p_ptr->au = p_ptr->au_birth;
+	p_ptr->au = p_ptr->au_birth = player->au;
 
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -247,7 +247,7 @@ static void get_stats(int stat_use[A_MAX])
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 
 		/* Save that value */
-		p_ptr->stat_max[i] = j;
+		p_ptr->stat_max[i] = INT2S16B(j);
 
 		/* Obtain a "bonus" for "race" and "class" */
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
@@ -269,7 +269,7 @@ static void get_stats(int stat_use[A_MAX])
 			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus);
 
 			/* Save the resulting stat maximum */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = INT2S16B(stat_use[i]);
 		}
 
 		p_ptr->stat_birth[i] = p_ptr->stat_max[i];
@@ -296,7 +296,7 @@ static void roll_hp(void)
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
 			j = randint1(p_ptr->hitdie);
-			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + INT2S16B(j);
 		}
 
 		/* XXX Could also require acceptable "mid-level" hitpoints */
@@ -330,7 +330,7 @@ static void get_bonuses(void)
 /*
  * Get the racial history, and social class, using the "history charts".
  */
-static void get_history(void)
+static void get_history(bool boost_social)
 {
 	int i, chart, roll, social_class;
 
@@ -353,7 +353,10 @@ static void get_history(void)
 		i = 0;
 
 		/* Roll for nobility */
-		roll = randint1(100);
+		if (boost_social)
+			roll = 30+randint1(70);
+		else
+			roll = randint1(100);
 
 		/* Get the proper entry in the table */
 		while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
@@ -375,7 +378,10 @@ static void get_history(void)
 	else if (social_class < 1) social_class = 1;
 
 	/* Save the social class */
-	p_ptr->sc = p_ptr->sc_birth = social_class;
+	p_ptr->sc = p_ptr->sc_birth = INT2S16B(social_class);
+
+	if (boost_social)
+		my_strcat(p_ptr->history, " Your family is poor but well-connected.",sizeof(p_ptr->history));
 }
 
 
@@ -385,7 +391,7 @@ static void get_history(void)
 static void get_ahw(void)
 {
 	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
+	p_ptr->age = rp_ptr->b_age + (s16b) randint1(rp_ptr->m_age); /* RHS Max is 130 */
 
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
@@ -407,18 +413,23 @@ static void get_ahw(void)
 
 /*
  * Get the player's starting money
+ *
+ * NOTE There are other factors considered in /64 but I'm not
+ * sure I want to include them.
  */
-static void get_money(int stat_use[A_MAX])
+static void get_money(bool boost_social)
 {
-	if (OPT(birth_money))
-	{
-		p_ptr->au_birth = 200;
-		p_ptr->au = 500;
-	}
+	s16b gold;
+
+	if (boost_social)
+		gold = (p_ptr->sc * 4) + (s16b) randint1(50) + 100; /* RHS Max is 450 */
 	else
-	{
-		p_ptr->au = p_ptr->au_birth = 200;
-	}
+		gold = (p_ptr->sc * 6) + (s16b) randint1(100) + 300; /* RHS Max is 850 */
+
+	if (OPT(birth_money))
+		p_ptr->au = p_ptr->au_birth = gold+300;
+	else
+		p_ptr->au = p_ptr->au_birth = gold;
 }
 
 
@@ -444,8 +455,7 @@ static void player_wipe(void)
 	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		a_ptr->created = FALSE;
-		a_ptr->seen = FALSE;
+		a_ptr->cur_num = 0;
 	}
 
 
@@ -590,7 +600,7 @@ static void player_outfit(void)
 		if (e_ptr->tval > 0)
 		{
 			/* Get the object_kind */
-			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+			s16b k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
 
 			/* Valid item? */
 			if (!k_idx) continue;
@@ -600,8 +610,8 @@ static void player_outfit(void)
 			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 			i_ptr->origin = ORIGIN_BIRTH;
 
-			object_flavor_aware(i_ptr);
-			object_notice_everything(i_ptr);
+			object_aware(i_ptr);
+			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
 			k_info[k_idx].everseen = TRUE;
 		}
@@ -617,8 +627,8 @@ static void player_outfit(void)
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 	i_ptr->number = (byte)rand_range(3, 7);
 	i_ptr->origin = ORIGIN_BIRTH;
-	object_flavor_aware(i_ptr);
-	object_notice_everything(i_ptr);
+	object_aware(i_ptr);
+	object_known(i_ptr);
 	k_info[i_ptr->k_idx].everseen = TRUE;
 	(void)inven_carry(i_ptr);
 
@@ -631,8 +641,8 @@ static void player_outfit(void)
 	i_ptr->number = (byte)rand_range(3, 7);
 	i_ptr->timeout = FUEL_TORCH;
 	i_ptr->origin = ORIGIN_BIRTH;
-	object_flavor_aware(i_ptr);
-	object_notice_everything(i_ptr);
+	object_aware(i_ptr);
+	object_known(i_ptr);
         k_info[i_ptr->k_idx].everseen = TRUE;
 	(void)inven_carry(i_ptr);
 
@@ -661,7 +671,7 @@ static void recalculate_stats(int *stats, int points_left)
 		if (OPT(adult_maximize))
 		{
 			/* Reset stats */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = p_ptr->stat_birth[i] = stats[i];
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = p_ptr->stat_birth[i] = INT2S16B(stats[i]);
 		}
 		
 		/* Fixed stat maxes */
@@ -677,12 +687,12 @@ static void recalculate_stats(int *stats, int points_left)
 	}
 	
 	/* Gold is inversely proportional to cost */
-	if (OPT(birth_money))
+	if (OPT(birth_money)) /* TODO Shouldn't that be 500 + (50 * points_left) ? */
 		p_ptr->au = 500;
 	else
 		p_ptr->au = 200 + (50 * points_left);
 
-	p_ptr->au_birth = 200 + (50 * points_left);
+	/* if (boost_social) p_ptr->au -= (p_ptr->sc * 4 + 225); */
 
 	/* Update bonuses, hp, etc. */
 	get_bonuses();
@@ -795,7 +805,7 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 	bool pure = FALSE;
 
 	/* Determine whether the class is "pure" */
-	if (cp_ptr->spell_stat == 0 || cp_ptr-> max_attacks < 5)
+	if (!(cp_ptr->spell_stat) || cp_ptr-> max_attacks < 5)
 	{
 		pure = TRUE;
 	}
@@ -836,19 +846,19 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
 				break;
 			}
 
-			/* If we can't get 18/10 dex, sell it back. */
-			case 2:
-			{
-				if (p_ptr->state.stat_top[A_DEX] < 18+10)
-				{
-					while (stats[A_DEX] > 10)
-						sell_stat(A_DEX, stats, points_spent, points_left);
+			/* If we can't get 18/10 dex, sell it back. */ 
+			case 2: 
+			{ 
+				if (p_ptr->state.stat_top[A_DEX] < 18+10) 
+				{ 
+					while (stats[A_DEX] > 10) 
+						sell_stat(A_DEX, stats, points_spent, points_left); 
 
-					maxed[A_DEX] = FALSE;
-				}
-				
-				step++;
-			}
+					maxed[A_DEX] = FALSE; 
+				} 
+
+				step++; 
+			} 
 
 			/* 
 			 * Spend up to half remaining points on each of spell-stat and 
@@ -952,8 +962,14 @@ static void generate_stats(int stats[A_MAX], int points_spent[A_MAX],
  */
 static void generate_player()
 {
+	bool boost_social;
+
 	/* Set sex according to p_ptr->sex */
 	sp_ptr = &sex_info[p_ptr->psex];
+
+	/* Set default tactic and movement values */
+	p_ptr->tactic = 4;
+	p_ptr->movement = 4;
 
 	/* Set class according to p_ptr->class */
 	cp_ptr = &c_info[p_ptr->pclass];
@@ -969,7 +985,7 @@ static void generate_player()
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+	p_ptr->hitdie = rp_ptr->r_mhp + (byte) cp_ptr->c_mhp; /* TODO c_mhp might as well be byte */
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -980,7 +996,9 @@ static void generate_player()
 	/* Roll for age/height/weight */
 	get_ahw();					
 
-	get_history();
+	/* once in 4 times, boost social class */
+	boost_social = (randint1(4)==1);
+	get_history(boost_social);
 }
 
 
@@ -997,9 +1015,8 @@ static void do_birth_reset(bool use_quickstart, birther *quickstart_prev)
 	generate_player();
 
 	/* Update stats with bonuses, etc. */
-	get_bonuses();
+ 	get_bonuses();
 }
-
 
 /*
  * Create a new character.
@@ -1010,15 +1027,14 @@ static void do_birth_reset(bool use_quickstart, birther *quickstart_prev)
 void player_birth(bool quickstart_allowed)
 {
 	int i;
-	game_command cmd = { CMD_NULL, 0, {{0}} };
+	game_command cmd = { CMD_NULL, 0, {0} };
 
 	int stats[A_MAX];
 	int points_spent[A_MAX];
 	int points_left;
-	char *buf;
-	int success;
 
 	bool rolled_stats = FALSE;
+	bool boost_social;
 
 	/*
 	 * The last character displayed, to allow the user to flick between two.
@@ -1034,36 +1050,24 @@ void player_birth(bool quickstart_allowed)
 	 */
 	birther quickstart_prev = {0, 0, 0, 0, 0, 0, 0, 0, {0}, "" };
 
-	/* 
-	 * If there's a quickstart character, store it for later use. 
-	 * If not, default to whatever the first of the choices is.
-	 */
+	/*  
+	 * If there's a quickstart character, store it for later use.  
+	 * If not, default to whatever the first of the choices is. 
+	 */ 
 	if (quickstart_allowed)
-		save_roller_data(&quickstart_prev);
-	else
 	{
-		p_ptr->psex = 0;
-		p_ptr->pclass = 0;
-		p_ptr->prace = 0;
-		generate_player();
+		save_roller_data(&quickstart_prev);
 	}
+	else 
+ 	{ 
+ 		p_ptr->psex = 0; 
+		p_ptr->pclass = 0; 
+		p_ptr->prace = 0; 
+		generate_player(); 
+	} 
 
 	reset_stats(stats, points_spent, &points_left);
 	do_birth_reset(quickstart_allowed, &quickstart_prev);
-
-	/* Handle incrementing name suffix */
-	buf = find_roman_suffix_start(op_ptr->full_name);
-
-	if (buf)
-	{
-		/* Try to increment the roman suffix */
-		success = int_to_roman((roman_to_int(buf) + 1), buf,
-			(sizeof(op_ptr->full_name) - (buf -
-			(char *)&op_ptr->full_name)));
-			
-		if (!success) msg_print("Sorry, could not deal with suffix");
-	}
-	
 
 	/* We're ready to start the interactive birth process. */
 	event_signal_flag(EVENT_ENTER_BIRTH, quickstart_allowed);
@@ -1075,7 +1079,8 @@ void player_birth(bool quickstart_allowed)
 	while (cmd.command != CMD_ACCEPT_CHARACTER)
 	{
 		/* Grab a command from the queue - we're happy to wait for it. */
-		if (cmd_get(CMD_BIRTH, &cmd, TRUE) != 0) continue;
+		if (cmd_get(CMD_BIRTH, &cmd, TRUE) != 0) 
+			continue;
 
 		if (cmd.command == CMD_BIRTH_RESET)
 		{
@@ -1085,12 +1090,12 @@ void player_birth(bool quickstart_allowed)
 		}
 		else if (cmd.command == CMD_CHOOSE_SEX)
 		{
-			p_ptr->psex = cmd.args[0].choice; 
+			p_ptr->psex = (byte) cmd.params.choice; 
 			generate_player();
 		}
 		else if (cmd.command == CMD_CHOOSE_RACE)
 		{
-			p_ptr->prace = cmd.args[0].choice;
+			p_ptr->prace = (byte) cmd.params.choice;
 			generate_player();
 
 			reset_stats(stats, points_spent, &points_left);
@@ -1099,7 +1104,7 @@ void player_birth(bool quickstart_allowed)
 		}
 		else if (cmd.command == CMD_CHOOSE_CLASS)
 		{
-			p_ptr->pclass = cmd.args[0].choice;
+			p_ptr->pclass = (byte) cmd.params.choice;
 			generate_player();
 
 			reset_stats(stats, points_spent, &points_left);
@@ -1110,20 +1115,20 @@ void player_birth(bool quickstart_allowed)
 		{
 			/* .choice is the stat to buy */
 			if (!rolled_stats)
-				buy_stat(cmd.args[0].choice, stats, points_spent, &points_left);
+				buy_stat(cmd.params.choice, stats, points_spent, &points_left);
 		}
 		else if (cmd.command == CMD_SELL_STAT)
 		{
 			/* .choice is the stat to sell */
 			if (!rolled_stats)
-				sell_stat(cmd.args[0].choice, stats, points_spent, &points_left);
+				sell_stat(cmd.params.choice, stats, points_spent, &points_left);
 		}
 		else if (cmd.command == CMD_RESET_STATS)
 		{
 			/* .choice is whether to regen stats */
 			reset_stats(stats, points_spent, &points_left);
 
-			if (cmd.args[0].choice)
+			if (cmd.params.choice)
 				generate_stats(stats, points_spent, &points_left);
 
 			rolled_stats = FALSE;
@@ -1136,16 +1141,22 @@ void player_birth(bool quickstart_allowed)
 
 			/* Get a new character */
 			get_stats(stats);
-			
+
+			/* Roll for social class */
+			/* once in 4 times, boost social class */
+			boost_social = (randint1(4)==1);
+
+
 			/* Roll for gold */
-			get_money(stats);
+			get_money(boost_social);
 
 			/* Update stats with bonuses, etc. */
 			get_bonuses();
 
 			/* There's no real need to do this here, but it's tradition. */
 			get_ahw();
-			get_history();
+			
+			get_history(boost_social);
 
 			event_signal(EVENT_GOLD);
 			event_signal(EVENT_AC);
@@ -1167,7 +1178,7 @@ void player_birth(bool quickstart_allowed)
 		else if (cmd.command == CMD_PREV_STATS)
 		{
 			/* Only switch to the stored "previous"
-			   character if we've actually got one to load. */
+			character if we've actually got one to load. */
 			if (prev.age)
 			{
 				load_roller_data(&prev, &prev);
@@ -1182,16 +1193,23 @@ void player_birth(bool quickstart_allowed)
 		else if (cmd.command == CMD_NAME_CHOICE)
 		{
 			/* Set player name */
-			my_strcpy(op_ptr->full_name, cmd.args[0].string, 
+			my_strcpy(op_ptr->full_name, cmd.params.string, 
 					  sizeof(op_ptr->full_name));
 			
-			string_free((void *) cmd.args[0].string);
+			string_free((void *) cmd.params.string);
 			
 			/* Don't change savefile name.  If the UI
 			   wants it changed, they can do it. XXX (Good idea?) */
 			process_player_name(FALSE);
 		}
 		/* Various not-specific-to-birth commands. */
+		else if (cmd.command == CMD_OPTIONS) 
+		{
+			/* TODO: Change this to use whatever sort of message passing
+			   system we eventually decide on for options.  That might
+			   still be calling do_cmd_option. :) */
+			do_cmd_options();
+		}
 		else if (cmd.command == CMD_HELP)
 		{
 			char buf[80];
@@ -1221,14 +1239,17 @@ void player_birth(bool quickstart_allowed)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 	}
 
-	squelch_birth_init();
+	/* Reset squelch bits */
+	for (i = 0; i < z_info->k_max; i++)
+		k_info[i].squelch = FALSE;
+
+	/* Clear the squelch bytes */
+	for (i = 0; i < SQUELCH_BYTES; i++)
+		squelch_level[i] = 0;
 
 	/* Clear old messages, add new starting message */
 	history_clear();
 	history_add("Began the quest to destroy Morgoth.", HISTORY_PLAYER_BIRTH, 0);
-
-	/* Reset message prompt (i.e. no extraneous -more-s) */
-	msg_flag = TRUE;
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

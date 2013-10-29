@@ -83,7 +83,7 @@ u32b Rand_state[RAND_DEG];
  */
 void Rand_state_init(u32b seed)
 {
-	int i, j;
+	u16b i, j;
 
 	/* Seed the table */
 	Rand_state[0] = seed;
@@ -154,7 +154,7 @@ u32b Rand_div(u32b m)
 		/* Wait for it */
 		while (1)
 		{
-			int j;
+			u16b j;
 
 			/* Acquire the next index */
 			j = Rand_place + 1;
@@ -254,7 +254,7 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
  *
  * Note that the binary search takes up to 16 quick iterations.
  */
-s16b Rand_normal(int mean, int stand)
+s16b Rand_normal(s16b mean, int stand)
 {
 	s16b tmp;
 	s16b offset;
@@ -271,7 +271,7 @@ s16b Rand_normal(int mean, int stand)
 	/* Binary Search */
 	while (low < high)
 	{
-		int mid = (low + high) >> 1;
+		s16b mid = (low + high) >> 1;
 
 		/* Move right if forced */
 		if (Rand_normal_table[mid] < tmp)
@@ -286,8 +286,11 @@ s16b Rand_normal(int mean, int stand)
 		}
 	}
 
+	assert((stand * low / RANDNOR_STD) <= 32767); /* TODO These probably aren't needed */
+	assert((stand * low / RANDNOR_STD) >= -32768);
+
 	/* Convert the index into an offset */
-	offset = (long)stand * (long)low / RANDNOR_STD;
+	offset = (s16b) ((long)stand * (long)low / RANDNOR_STD);
 
 	/* One half should be negative */
 	if (randint0(100) < 50) return (mean - offset);
@@ -328,7 +331,7 @@ u32b Rand_simple(u32b m)
 	else
 	{
 		/* Initialize with new seed */
-		Rand_value = time(NULL);
+		Rand_value = (u32b) time(NULL);
 		initialized = TRUE;
 	}
 
@@ -354,13 +357,13 @@ u32b Rand_simple(u32b m)
 int damroll(int num, int sides)
 {
 	int i;
-	int sum = 0;
+	u16b sum = 0;
 
-/*	assert(sides > 0); */
+	assert(sides > 0);
 	if (sides <= 0) return (0);
 
 	for (i = 0; i < num; i++)
-		sum += randint1(sides);
+		sum += (u16b) randint1(sides);
 
 	return (sum);
 }

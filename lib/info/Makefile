@@ -1,6 +1,6 @@
 MKPATH=../../mk/
-include $(MKPATH)buildsys.mk
+include $(MKPATH)rules.mk
+include $(MKPATH)objective.mk
 
-DATA = delete.me
-PACKAGE = ${PACKAGE_NAME}/info
-
+OBJECTIVE_DATA = \
+	delete.me:${DATA_PATH}/info

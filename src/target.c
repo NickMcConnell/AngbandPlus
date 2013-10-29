@@ -16,8 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
-#include "game-cmd.h"
-/*#include "cmds.h"*/
+#include "cmds.h"
 
 
 /*** File-wide variables ***/
@@ -96,8 +95,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
  */
 bool target_able(int m_idx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	monster_type *m_ptr;
 
@@ -179,7 +178,7 @@ void target_set_monster(int m_idx)
 
 		/* Save target info */
 		target_set = TRUE;
-		target_who = m_idx;
+		target_who = INT2U16B(m_idx);
 		target_y = m_ptr->fy;
 		target_x = m_ptr->fx;
 	}
@@ -199,7 +198,7 @@ void target_set_monster(int m_idx)
 /*
  * Set the target to a location
  */
-void target_set_location(int y, int x)
+void target_set_location(s16b y, s16b x)
 {
 	/* Legal target */
 	if (in_bounds_fully(y, x))
@@ -207,8 +206,8 @@ void target_set_location(int y, int x)
 		/* Save target info */
 		target_set = TRUE;
 		target_who = 0;
-		target_y = y;
-		target_x = x;
+		target_y = INT2S16B(y);
+		target_x = INT2S16B(x);
 	}
 
 	/* Clear target */
@@ -232,8 +231,8 @@ void target_set_location(int y, int x)
  */
 static bool ang_sort_comp_distance(const void *u, const void *v, int a, int b)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	const byte *x = u;
 	const byte *y = v;
@@ -288,11 +287,11 @@ static void ang_sort_swap_distance(void *u, void *v, int a, int b)
 /*
  * Hack -- help "select" a location (see below)
  */
-static s16b target_pick(int y1, int x1, int dy, int dx)
+static s16b target_pick(s16b y1, s16b x1, int dy, int dx)
 {
 	int i, v;
 
-	int x2, y2, x3, y3, x4, y4;
+	s16b x2, y2, x3, y3, x4, y4;
 
 	int b_i = -1, b_v = 9999;
 
@@ -333,14 +332,14 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 	}
 
 	/* Result */
-	return (b_i);
+	return (INT2S16B(b_i));
 }
 
 
 /*
  * Hack -- determine if a given location is "interesting"
  */
-static bool target_set_interactive_accept(int y, int x)
+static bool target_set_interactive_accept(s16b y, s16b x)
 {
 	object_type *o_ptr;
 
@@ -415,7 +414,7 @@ static bool target_set_interactive_accept(int y, int x)
  */
 static void target_set_interactive_prepare(int mode)
 {
-	int y, x;
+	s16b y, x;
 
 	/* Reset "temp" array */
 	temp_n = 0;
@@ -442,8 +441,10 @@ static void target_set_interactive_prepare(int mode)
 			}
 
 			/* Save the location */
-			temp_x[temp_n] = x;
-			temp_y[temp_n] = y;
+			ISBYTE(x);
+			temp_x[temp_n] = (byte) x;
+			ISBYTE(y);
+			temp_y[temp_n] = (byte) y;
 			temp_n++;
 		}
 	}
@@ -478,7 +479,7 @@ static void target_set_interactive_prepare(int mode)
  *
  * This function must handle blindness/hallucination.
  */
-static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr info)
+static ui_event_data target_set_interactive_aux(s16b y, s16b x, int mode, cptr info)
 {
 	s16b this_o_idx = 0, next_o_idx = 0;
 
@@ -490,7 +491,7 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 
 	int feat;
 
-	int floor_list[MAX_FLOOR_STACK];
+	s16b floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
 	ui_event_data query;
@@ -720,9 +721,6 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 			/* Not boring */
 			boring = FALSE;
 
-			track_object(-floor_list[0]);
-			handle_stuff();
-
 			/* If there is more than one item... */
 			if (floor_num > 1) while (1)
 			{
@@ -749,36 +747,21 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 				/* Display objects */
 				if (query.key == 'r')
 				{
-					int rdone = 0;
-					int pos;
-					while (!rdone)
-					{
-						/* Save screen */
-						screen_save();
+					/* Save screen */
+					screen_save();
 
-						/* Display */
-						show_floor(floor_list, floor_num, TRUE);
+					/* Display */
+					show_floor(floor_list, floor_num, TRUE);
 
-						/* Describe the pile */
-						prt(out_val, 0, 0);
-						query = inkey_ex();
+					/* Describe the pile */
+					prt(out_val, 0, 0);
+					query = inkey_ex();
 
-						/* Load screen */
-						screen_load();
+					/* Load screen */
+					screen_load();
 
-						pos = query.key - 'a';
-						if (0 <= pos && pos < floor_num)
-						{
-							track_object(-floor_list[pos]);
-							handle_stuff();
-							continue;
-						}
-						rdone = 1;
-					}
-
-					/* Now that the user's done with the display loop, let's */
-					/* the outer loop over again */
-					continue;
+					/* Continue on 'r' only */
+					if (query.key == 'r') continue;
 				}
 
 				/* Done */
@@ -945,7 +928,7 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
  * or -1 if no location is specified.
  * Returns TRUE if a target has been successfully set, FALSE otherwise.
  */
-bool target_set_interactive(int mode, int x, int y)
+bool target_set_interactive(int mode, s16b x, s16b y)
 {
 	int i, d, m, t, bd;
 
@@ -1105,7 +1088,7 @@ bool target_set_interactive(int mode, int x, int y)
 
 				case 'g':
 				{
-					cmd_insert(CMD_PATHFIND, y, x);
+					do_cmd_pathfind(y, x);
 					done = TRUE;
 					break;
 				}
@@ -1125,8 +1108,8 @@ bool target_set_interactive(int mode, int x, int y)
 			/* Hack -- move around */
 			if (d)
 			{
-				int old_y = temp_y[m];
-				int old_x = temp_x[m];
+				s16b old_y = temp_y[m];
+				s16b old_x = temp_x[m];
 
 				/* Find a new monster */
 				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
@@ -1134,8 +1117,8 @@ bool target_set_interactive(int mode, int x, int y)
 				/* Scroll to find interesting grid */
 				if (i < 0)
 				{
-					int old_wy = Term->offset_y;
-					int old_wx = Term->offset_x;
+					s16b old_wy = Term->offset_y;
+					s16b old_wx = Term->offset_x;
 
 					/* Change if legal */
 					if (change_panel(d))
@@ -1286,7 +1269,7 @@ bool target_set_interactive(int mode, int x, int y)
 
 				case 'g':
 				{
-					cmd_insert(CMD_PATHFIND, y, x);
+					do_cmd_pathfind(y,x);
 					done = TRUE;
 					break;
 				}
@@ -1365,8 +1348,10 @@ void target_get(s16b *col, s16b *row)
 	assert(col);
 	assert(row);
 
-	*col = target_x;
-	*row = target_y;
+	ISBYTE(target_x);
+	*col = (byte) target_x;
+	ISBYTE(target_y);
+	*row = (byte) target_y;
 }
 
 

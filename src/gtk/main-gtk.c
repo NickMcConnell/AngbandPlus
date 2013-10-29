@@ -170,12 +170,12 @@ static int max_win_height(term_data *td)
 	return(255 * td->font.h);
 }
 
-static int row_in_pixels(term_data *td, int x)
+static int row_in_pixels(term_data *td, s16b x)
 {
 	return(x * td->font.w);
 }
 
-static int col_in_pixels(term_data *td, int y)
+static int col_in_pixels(term_data *td, s16b y)
 {
 	return(y * td->font.h);
 }
@@ -183,7 +183,7 @@ static int col_in_pixels(term_data *td, int y)
 /*
  * Find the square a particular pixel is part of.
  */
-static void pixel_to_square(int * const x, int * const y, const int ox, const int oy)
+static void pixel_to_square(s16b * const x, s16b * const y, const s16b ox, const s16b oy)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -249,8 +249,8 @@ static void invalidate_drawing_area(GtkWidget *widget, cairo_rectangle_t r)
 
 void set_row_and_cols(term_data *td)
 {
-	int cols = td->cols;
-	int rows = td->rows;
+	s16b cols = td->cols;
+	s16b rows = td->rows;
 	
 	td->cols = td->size.w / td->font.w;
 	td->rows= td->size.h / td->font.h;
@@ -656,7 +656,7 @@ static bool save_game_gtk(void)
 		msg_flag = FALSE;
 		
 		/* Save the game */
-		save_game();
+		do_cmd_save_game();
 	}
 	
 	return(TRUE);
@@ -935,7 +935,7 @@ gboolean save_event_handler(GtkWidget *widget, GdkEvent *event, gpointer user_da
 	bool accepted;
 	
 	if (game_saved)
-		save_game();
+		do_cmd_save_game();
 	else
 	{
 		accepted = save_dialog_box(TRUE);
@@ -2033,15 +2033,15 @@ static errr get_init_cmd()
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
 	CheckEvent(FALSE);
-
+	
 	return 0;
 }
 
-static void handle_leave_init(game_event_type type, game_event_data *data, void *user) 
+static void handle_leave_init(game_event_type type, game_event_data *data, void *user)  
 {
-	/* Disable New and Open menu items - to do */
-	game_in_progress = TRUE;
-}
+	/* Disable New and Open menu items - to do */ 
+	game_in_progress = TRUE; 
+} 
 
 /*
  * Set up color tags for all the angband colors.
@@ -2616,15 +2616,14 @@ static void handle_end(game_event_type type, game_event_data *data, void *user){
 static void handle_splash(game_event_type type, game_event_data *data, void *user){}
 static void handle_statusline(game_event_type type, game_event_data *data, void *user) {}
 
-
-/* Command dispatcher for gtk builds */
-static errr gtk_get_cmd(cmd_context context, bool wait)
-{
-	if (context == CMD_INIT) 
-		return get_init_cmd();
-	else 
-		return textui_get_cmd(context, wait);
-}
+/* Command dispatcher for gtk builds */ 
+static errr gtk_get_cmd(cmd_context context, bool wait) 
+{ 
+	if (context == CMD_INIT)  
+		return get_init_cmd(); 
+	else  
+		return textui_get_cmd(context, wait); 
+} 
 
 void init_handlers()
 {
@@ -2649,7 +2648,7 @@ void init_handlers()
 	event_add_handler(EVENT_PLAYERMOVED, handle_moved, NULL);
 	event_add_handler(EVENT_MONSTERTARGET, handle_mons_target, NULL);
 	event_add_handler(EVENT_INITSTATUS, handle_init_status, NULL);
-	
+
 	event_add_handler(EVENT_LEAVE_INIT, handle_leave_init, NULL);
 	event_add_handler(EVENT_ENTER_BIRTH, handle_birth, NULL);
 	event_add_handler(EVENT_ENTER_STORE, handle_store, NULL);

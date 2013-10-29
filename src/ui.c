@@ -21,9 +21,9 @@
 
 void region_erase(const region *loc)
 {
-	int i = 0;
-	int w = loc->width;
-	int h = loc->page_rows;
+	s16b i = 0;
+	s16b w = loc->width;
+	s16b h = loc->page_rows;
 
 	if (loc->width <= 0 || loc->page_rows <= 0)
 	{
@@ -53,9 +53,9 @@ bool region_inside(const region *loc, const ui_event_data *key)
 /*
  * A Hengband-like 'window' function, that draws a surround box in ASCII art.
  */
-void window_make(int origin_x, int origin_y, int end_x, int end_y)
+void window_make(s16b origin_x, s16b origin_y, s16b end_x, s16b end_y)
 {
-	int n;
+	s16b n;
 	region to_clear;
 
 	to_clear.col = origin_x;

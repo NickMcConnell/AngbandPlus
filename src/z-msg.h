@@ -187,7 +187,7 @@ void messages_free(void);
 /**
  * Return the current number of messages stored.
  */
-u16b messages_num(void);	
+u32b messages_num(void);	
 
 
 /** Individual message handling **/
@@ -210,7 +210,7 @@ void message_add(const char *str, u16b type);
  * Returns the empty string if the no messages of the age specified are
  * available.
  */
-const char *message_str(u16b age);
+const char *message_str(u32b age);
 
 /**
  * Returns the number of times the message of age `age` was saved. The age of
@@ -220,7 +220,7 @@ const char *message_str(u16b age);
  * with the message "The orc sets your hair on fire.", then the text will only
  * have one age (age = 0), but will have a count of 5.
  */
-u16b message_count(u16b age);
+u16b message_count(u32b age);
 
 /**
  * Returns the type of the message of age `age`.  The age of the most recently
@@ -228,7 +228,7 @@ u16b message_count(u16b age);
  *
  * The type is one of the MSG_ constants, defined above.
  */
-u16b message_type(u16b age);
+u16b message_type(u32b age);
 
 /**
  * Returns the display colour of the message memorised `age` messages ago.

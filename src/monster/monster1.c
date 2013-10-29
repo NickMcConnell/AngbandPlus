@@ -85,7 +85,7 @@ static void output_desc_list(int msex, cptr intro, cptr list[], int n, byte attr
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx, const monster_lore *l_ptr)
+static bool know_armor(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
 
@@ -441,7 +441,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* We need to be careful not to reveal the nature of the object
 		 * here.  Assume the player is conservative with unknown items.
 		 */
-		known = object_is_known(o_ptr);
+		known = object_known_p(o_ptr);
 
 		/* Can only be hurt by disenchantment with an enchanted item */
 		if (m >= INVEN_WIELD && (!known || (o_ptr->to_a >= 0) ||
@@ -462,15 +462,14 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		if (m < INVEN_PACK && o_ptr->tval == TV_FOOD)
 			color_special[RBE_EAT_FOOD] = TERM_YELLOW;
 
-		/* A fueled lite is needed for eat light */
-		if (m == INVEN_LITE && !(f[2] & TR2_NO_FUEL) &&
-				(o_ptr->timeout > 0))
+		/* A fueled lite is needed for eat light */ 
+		if ((m == INVEN_LITE) && (o_ptr->timeout > 0) && HAS_FUEL(o_ptr))
 			color_special[RBE_EAT_LITE] = TERM_YELLOW;
 
 		/* With corrodable equipment, acid is much worse */
 		if (m >= INVEN_BODY && m <= INVEN_FEET &&
 				(!known || o_ptr->ac + o_ptr->to_a > 0)
-				&& !(f[2] & TR2_IGNORE_ACID) && !st.immune_acid)
+				&& !(f[3] & TR3_IGNORE_ACID) && !st.immune_acid)
 			color_special[RBE_ACID] = TERM_L_RED;
 	}
 
@@ -661,7 +660,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		{
 			/* Describe the attack type */
 			text_out(" to ");
-			text_out_c(color_special[effect], "%s", q);
+			ISBYTE(color_special[effect]);
+			text_out_c((byte) color_special[effect], "%s", q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, l_ptr, m))
@@ -969,7 +969,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 	
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, l_ptr))
+	if (know_armor(r_idx, l_ptr))
 	{
 		/* Armor */
 		text_out("%^s has an armor rating of ", wd_he[msex]);
@@ -1341,7 +1341,7 @@ void screen_roff(int r_idx)
  */
 void display_roff(int r_idx)
 {
-	int y;
+	s16b y;
 
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)

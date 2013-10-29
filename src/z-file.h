@@ -39,8 +39,6 @@ void safe_setuid_drop(void);
  */
 size_t path_build(char *buf, size_t len, const char *base, const char *leaf);
 
-
-
 /*** File access code ***/
 
 /** Data types **/

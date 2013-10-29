@@ -20,216 +20,6 @@
 #include "game-event.h"
 #include "object/tvalsval.h"
 
-
-
-/*
- * Calculate number of spells player should have, and forget,
- * or remember, spells until that number is properly reflected.
- *
- * Note that this function induces various "status" messages,
- * which must be bypasses until the character is created.
- */
-static void calc_spells(void)
-{
-	int i, j, k, levels;
-	int num_allowed, num_known;
-	int percent_spells;
-
-	const magic_type *s_ptr;
-
-	s16b old_spells;
-
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
-
-	/* Hack -- must be literate */
-	if (!cp_ptr->spell_book) return;
-
-	/* Hack -- wait for creation */
-	if (!character_generated) return;
-
-	/* Hack -- handle "xtra" mode */
-	if (character_xtra) return;
-
-	/* Save the new_spells value */
-	old_spells = p_ptr->new_spells;
-
-
-	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - cp_ptr->spell_first + 1;
-
-	/* Hack -- no negative spells */
-	if (levels < 0) levels = 0;
-
-	/* Number of 1/100 spells per level */
-	percent_spells = adj_mag_study[p_ptr->state.stat_ind[cp_ptr->spell_stat]];
-
-	/* Extract total allowed spells (rounded up) */
-	num_allowed = (((percent_spells * levels) + 50) / 100);
-
-	/* Assume none known */
-	num_known = 0;
-
-	/* Count the number of spells we know */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
-	{
-		/* Count known spells */
-		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
-		{
-			num_known++;
-		}
-	}
-
-	/* See how many spells we must forget or may learn */
-	p_ptr->new_spells = num_allowed - num_known;
-
-
-
-	/* Forget spells which are too hard */
-	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
-	{
-		/* Get the spell */
-		j = p_ptr->spell_order[i];
-
-		/* Skip non-spells */
-		if (j >= 99) continue;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we are allowed to know */
-		if (s_ptr->slevel <= p_ptr->lev) continue;
-
-		/* Is it known? */
-		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
-		{
-			/* Mark as forgotten */
-			p_ptr->spell_flags[j] |= PY_SPELL_FORGOTTEN;
-
-			/* No longer known */
-			p_ptr->spell_flags[j] &= ~PY_SPELL_LEARNED;
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-			           get_spell_name(cp_ptr->spell_book, j));
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Forget spells if we know too many spells */
-	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
-	{
-		/* Stop when possible */
-		if (p_ptr->new_spells >= 0) break;
-
-		/* Get the (i+1)th spell learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) continue;
-
-		/* Forget it (if learned) */
-		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
-		{
-			/* Mark as forgotten */
-			p_ptr->spell_flags[j] |= PY_SPELL_FORGOTTEN;
-
-			/* No longer known */
-			p_ptr->spell_flags[j] &= ~PY_SPELL_LEARNED;
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-			           get_spell_name(cp_ptr->spell_book, j));
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Check for spells to remember */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		/* None left to remember */
-		if (p_ptr->new_spells <= 0) break;
-
-		/* Get the next spell we learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) break;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* First set of spells */
-		if (p_ptr->spell_flags[j] & PY_SPELL_FORGOTTEN)
-		{
-			/* No longer forgotten */
-			p_ptr->spell_flags[j] &= ~PY_SPELL_FORGOTTEN;
-
-			/* Known once more */
-			p_ptr->spell_flags[j] |= PY_SPELL_LEARNED;
-
-			/* Message */
-			msg_format("You have remembered the %s of %s.",
-			           p, get_spell_name(cp_ptr->spell_book, j));
-
-			/* One less can be learned */
-			p_ptr->new_spells--;
-		}
-	}
-
-
-	/* Assume no spells available */
-	k = 0;
-
-	/* Count spells that can be learned */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
-	{
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember or don't exist */
-		if (s_ptr->slevel > p_ptr->lev || s_ptr->slevel == 0) continue;
-
-		/* Skip spells we already know */
-		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
-		{
-			continue;
-		}
-
-		/* Count it */
-		k++;
-	}
-
-	/* Cannot learn more spells than exist */
-	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-	/* Spell count changed */
-	if (old_spells != p_ptr->new_spells)
-	{
-		/* Message if needed */
-		if (p_ptr->new_spells)
-		{
-			/* Message */
-			msg_format("You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
-		}
-
-		/* Redraw Study Status */
-		p_ptr->redraw |= (PR_STUDY | PR_OBJECT);
-	}
-}
-
-
 /*
  * Calculate maximum mana.  You do not need to know any spells.
  * Note that mana is lowered by heavy (or inappropriate) armor.
@@ -246,8 +36,8 @@ static void calc_mana(void)
 	bool old_cumber_armor = p_ptr->cumber_armor;
 
 	/* Hack -- Must be literate */
-	if (!cp_ptr->spell_book) return;
-
+	if (!cp_ptr->spell_stat) 
+		return;
 
 	/* Extract "effective" player level */
 	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
@@ -278,9 +68,10 @@ static void calc_mana(void)
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-		    !(f[2] & TR2_FREE_ACT) &&
-		    !((f[0] & TR0_DEX) && (o_ptr->pval > 0)) &&
-		    !(o_ptr->sval == SV_SET_OF_ALCHEMISTS_GLOVES))
+		    !(f[3] & (TR3_FREE_ACT)) &&
+		    !((f[0] & (TR0_DEX1)) && (o_ptr->pval > 0)) && 
+			!((f[0] & (TR0_DEX2)) && (o_ptr->p2val > 0)) && 
+			!(o_ptr->sval == SV_SET_OF_ALCHEMISTS_GLOVES))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -288,12 +79,9 @@ static void calc_mana(void)
 			/* Reduce mana */
 			msp = (3 * msp) / 4;
 		}
-
-		/* XXX Eddie this will have to change with alchemist's gloves */
-		if (!(f[0] & TR0_DEX))
-		{
-			/* If no dex bonus, know whether gloves provide FA */
-			object_notice_flags(o_ptr, 2, TR2_FREE_ACT);
+		else if (f[3] & TR3_FREE_ACT) 
+		{ 
+			o_ptr->known_flags[3] |= TR3_FREE_ACT;
 		}
 	}
 
@@ -332,12 +120,12 @@ static void calc_mana(void)
 	if (p_ptr->msp != msp)
 	{
 		/* Save new limit */
-		p_ptr->msp = msp;
+		p_ptr->msp = (s16b) msp;
 
 		/* Enforce new limit */
 		if (p_ptr->csp >= msp)
 		{
-			p_ptr->csp = msp;
+			p_ptr->csp = (s16b) msp;
 			p_ptr->csp_frac = 0;
 		}
 
@@ -403,12 +191,12 @@ static void calc_hitpoints(void)
 	if (p_ptr->mhp != mhp)
 	{
 		/* Save new limit */
-		p_ptr->mhp = mhp;
+		p_ptr->mhp = INT2S16B(mhp);
 
 		/* Enforce new limit */
 		if (p_ptr->chp >= mhp)
 		{
-			p_ptr->chp = mhp;
+			p_ptr->chp = INT2S16B(mhp);
 			p_ptr->chp_frac = 0;
 		}
 
@@ -435,8 +223,8 @@ static void calc_torch(void)
 
 	s16b new_lite = 0;
 	int extra_lite = 0;
-
-
+	
+	int bonus_lite = 0;
 
 	/* Ascertain lightness if in the town */
 	if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
@@ -444,6 +232,7 @@ static void calc_torch(void)
 
 
 	/* Examine all wielded objects, use the brightest */
+	/* TODO Check how 'use the brightest' works with artifacts with BIGLITE */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		u32b f[OBJ_FLAG_N];
@@ -458,14 +247,12 @@ static void calc_torch(void)
 		object_flags(o_ptr, f);
 
 		/* Cursed objects emit no light */
-		if (f[2] & TR2_LIGHT_CURSE)
+		if (f[3] & TR3_LIGHT_CURSE)
 			amt = 0;
-
-		/* Examine actual lites */
-		else if (o_ptr->tval == TV_LITE)
+		else if (o_ptr->tval == TV_LITE) /* Examine actual lites */ /* TODO Never have BIGLITE on TV_LITE objects */
 		{
-			int flag_inc = (f[2] & TR2_LITE) ? 1 : 0;
-
+			int flag_inc = (f[3] & TR3_SOMELITE) ? 1 : 0;
+			
 			/* Artifact Lites provide permanent bright light */
 			if (artifact_p(o_ptr))
 				amt = 3 + flag_inc;
@@ -484,20 +271,27 @@ static void calc_torch(void)
 				    amt--;
 			}
 		}
-
 		else
 		{
 			/* LITE flag on an non-cursed non-lights always increases radius */
-			if (f[2] & TR2_LITE) extra_lite++;
+			if (f[3] & TR3_SOMELITE) 
+			{
+				extra_lite++;
+			} 
+			else if (f[3] & TR3_BIGLITE)
+			{
+				extra_lite += 3;
+			}
 		}
 
 		/* Alter p_ptr->cur_lite if reasonable */
 		if (new_lite < amt)
-		    new_lite = amt;
+		    new_lite = INT2S16B(amt);
 	}
 
 	/* Add bonus from LITE flags */
-	new_lite += extra_lite;
+	new_lite += INT2S16B(extra_lite);
+	new_lite += INT2S16B(bonus_lite);
 
 	/* Limit light */
 	new_lite = MIN(new_lite, 5);
@@ -585,7 +379,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 
 	int extra_blows = 0;
 	int extra_shots = 0;
-	int extra_might = 0;
+	byte extra_might = 0;
 
 	object_type *o_ptr;
 
@@ -611,11 +405,16 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	for (i = 0; i < SKILL_MAX; i++)
 		state->skills[i] = rp_ptr->r_skills[i] + cp_ptr->c_skills[i];
 
+	/* Mages and Priests get a special melee penalty */ /* TODO Probably should be class flag, not explicitly CLASS_MAGE, CLASS_PRIEST */
+	if ((p_ptr->pclass==CLASS_MAGE) && (p_ptr->lev>8))
+		state->skills[SKILL_TO_HIT_MELEE] -= ((p_ptr->lev-8)/2);
+	if ((p_ptr->pclass==CLASS_PRIEST) && (p_ptr->lev>9))
+		state->skills[SKILL_TO_HIT_MELEE] -= ((p_ptr->lev-9)/3);
 
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
-	player_flags(collect_f);
+	player_flags(&collect_f[0], &collect_f[1], &collect_f[2], &collect_f[3]);
 
 
 	/*** Analyze equipment ***/
@@ -637,41 +436,77 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		collect_f[0] |= f[0];
 		collect_f[1] |= f[1];
 		collect_f[2] |= f[2];
+		collect_f[3] |= f[3];
 
 		/* Affect stats */
-		if (f[0] & TR0_STR) state->stat_add[A_STR] += o_ptr->pval;
-		if (f[0] & TR0_INT) state->stat_add[A_INT] += o_ptr->pval;
-		if (f[0] & TR0_WIS) state->stat_add[A_WIS] += o_ptr->pval;
-		if (f[0] & TR0_DEX) state->stat_add[A_DEX] += o_ptr->pval;
-		if (f[0] & TR0_CON) state->stat_add[A_CON] += o_ptr->pval;
-		if (f[0] & TR0_CHR) state->stat_add[A_CHR] += o_ptr->pval;
+		if (f[0] & TR0_STR1) state->stat_add[A_STR] += o_ptr->pval; 
+		if (f[0] & TR0_INT1) state->stat_add[A_INT] += o_ptr->pval;
+		if (f[0] & TR0_WIS1) state->stat_add[A_WIS] += o_ptr->pval;
+		if (f[0] & TR0_DEX1) state->stat_add[A_DEX] += o_ptr->pval;
+		if (f[0] & TR0_CON1) state->stat_add[A_CON] += o_ptr->pval;
+		if (f[0] & TR0_CHR1) state->stat_add[A_CHR] += o_ptr->pval;
+
+		if (f[0] & TR0_STR2) state->stat_add[A_STR] += o_ptr->p2val; 
+		if (f[0] & TR0_INT2) state->stat_add[A_INT] += o_ptr->p2val;
+		if (f[0] & TR0_WIS2) state->stat_add[A_WIS] += o_ptr->p2val;
+		if (f[0] & TR0_DEX2) state->stat_add[A_DEX] += o_ptr->p2val;
+		if (f[0] & TR0_CON2) state->stat_add[A_CON] += o_ptr->p2val;
+		if (f[0] & TR0_CHR2) state->stat_add[A_CHR] += o_ptr->p2val;
+
 
 		/* Affect stealth */
-		if (f[0] & TR0_STEALTH) state->skills[SKILL_STEALTH] += o_ptr->pval;
+		if (f[0] & TR0_STEALTH1) state->skills[SKILL_STEALTH] += o_ptr->pval;
+		if (f[0] & TR0_STEALTH2) state->skills[SKILL_STEALTH] += o_ptr->p2val;
 
 		/* Affect searching ability (factor of five) */
-		if (f[0] & TR0_SEARCH) state->skills[SKILL_SEARCH] += (o_ptr->pval * 5);
+		if (f[0] & TR0_SEARCH1) state->skills[SKILL_SEARCH] += (o_ptr->pval * 5);
+		if (f[0] & TR0_SEARCH2) state->skills[SKILL_SEARCH] += (o_ptr->p2val * 5);
 
 		/* Affect searching frequency (factor of five) */
-		if (f[0] & TR0_SEARCH) state->skills[SKILL_SEARCH_FREQUENCY] += (o_ptr->pval * 5);
+		if (f[0] & TR0_SEARCH1) state->skills[SKILL_SEARCH_FREQUENCY] += (o_ptr->pval * 5);
+		if (f[0] & TR0_SEARCH2) state->skills[SKILL_SEARCH_FREQUENCY] += (o_ptr->p2val * 5);
 
 		/* Affect infravision */
-		if (f[0] & TR0_INFRA) state->see_infra += o_ptr->pval;
+		if (f[0] & TR0_INFRA1) state->see_infra += o_ptr->pval;
+		if (f[0] & TR0_INFRA2) state->see_infra += o_ptr->p2val;
 
 		/* Affect digging (factor of 20) */
-		if (f[0] & TR0_TUNNEL) state->skills[SKILL_DIGGING] += (o_ptr->pval * 20);
+		if (f[0] & TR0_TUNNEL1) state->skills[SKILL_DIGGING] += (o_ptr->pval * 20);
+		if (f[0] & TR0_TUNNEL2) state->skills[SKILL_DIGGING] += (o_ptr->p2val * 20);
 
 		/* Affect speed */
-		if (f[0] & TR0_SPEED) state->speed += o_ptr->pval;
+		if (f[0] & TR0_SPEED1) state->speed += o_ptr->pval;
+		if (f[0] & TR0_SPEED2) state->speed += o_ptr->p2val;
 
 		/* Affect blows */
-		if (f[0] & TR0_BLOWS) extra_blows += o_ptr->pval;
+		if (f[0] & TR0_BLOWS1) extra_blows += o_ptr->pval;
+		if (f[0] & TR0_BLOWS2) extra_blows += o_ptr->p2val;
 
 		/* Affect shots */
-		if (f[0] & TR0_SHOTS) extra_shots += o_ptr->pval;
+		if (f[0] & TR0_SHOTS1) extra_shots += o_ptr->pval;
+		if (f[0] & TR0_SHOTS2) extra_shots += o_ptr->p2val;
 
 		/* Affect Might */
-		if (f[0] & TR0_MIGHT) extra_might += o_ptr->pval;
+		if (f[0] & TR0_MIGHT1)
+		{
+			ISBYTE(o_ptr->pval);
+			extra_might += (byte) o_ptr->pval;
+		}
+#if 0 /* There is no MIGHT2! */
+		/*		if (f[0] & TR0_MIGHT2) 
+		{
+			ISBYTE(o_ptr->p2val);
+			extra_might += (byte) o_ptr->p2val;
+		} */ 
+#endif
+		/* affect magic devices skill */
+		if (f[0] & TR0_MAGIC1) state->skills[SKILL_DEVICE] += o_ptr->pval*12; 
+		if (f[0] & TR0_MAGIC2) state->skills[SKILL_DEVICE] += o_ptr->p2val*12;
+		
+/* TODO support VAMPIRE at some point */	
+
+		/* affect lite radius */
+		/* This is covered by calling calc_torch (later?) */
 
 		/* Modify the base armor class */
 		state->ac += o_ptr->ac;
@@ -680,13 +515,13 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		state->dis_ac += o_ptr->ac;
 
 		/* Apply the bonuses to armor class */
-		if (!id_only || object_is_known(o_ptr))
+		if (!id_only || object_known_p(o_ptr))
 			state->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_defence_plusses_are_visible(o_ptr))
-			state->dis_to_a += o_ptr->to_a;
-
+		if (object_known_p(o_ptr) || o_ptr->ident & IDENT_DEFENCE) 
+		   state->dis_to_a += o_ptr->to_a; 
+ 	
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
 
@@ -694,82 +529,80 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		if (i == INVEN_BOW) continue;
 
 		/* Apply the bonuses to hit/damage */
-		if (!id_only || object_is_known(o_ptr))
+		if (!id_only || object_known_p(o_ptr))
 		{
 			state->to_h += o_ptr->to_h;
 			state->to_d += o_ptr->to_d;
 		}
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_attack_plusses_are_visible(o_ptr))
-		{
-			state->dis_to_h += o_ptr->to_h;
-			state->dis_to_d += o_ptr->to_d;
-		}
+		if (object_known_p(o_ptr) || (o_ptr->ident & IDENT_ATTACK)) 
+		{ 
+			state->dis_to_h += o_ptr->to_h; 
+			state->dis_to_d += o_ptr->to_d; 
+		} 
 	}
-
 
 	/*** Update all flags ***/
 
 	/* Good flags */
-	if (collect_f[2] & TR2_SLOW_DIGEST) state->slow_digest = TRUE;
-	if (collect_f[2] & TR2_FEATHER) state->ffall = TRUE;
-	if (collect_f[2] & TR2_REGEN) state->regenerate = TRUE;
-	if (collect_f[2] & TR2_TELEPATHY) state->telepathy = TRUE;
-	if (collect_f[2] & TR2_SEE_INVIS) state->see_inv = TRUE;
-	if (collect_f[2] & TR2_FREE_ACT) state->free_act = TRUE;
-	if (collect_f[2] & TR2_HOLD_LIFE) state->hold_life = TRUE;
+	if (collect_f[3] & TR3_SLOW_DIGEST) state->slow_digest = TRUE;
+	if (collect_f[3] & TR3_FEATHER) state->ffall = TRUE;
+	if ( (collect_f[3] & TR3_REGEN) || 
+			((rp_ptr->flags1 & TR1_REGEN25) && (p_ptr->lev >= 25)) ) 
+		state->regenerate = TRUE;
+	if (collect_f[3] & TR3_TELEPATHY) state->telepathy = TRUE;
+	if (collect_f[3] & TR3_SEE_INVIS) state->see_inv = TRUE;
+	if (collect_f[3] & TR3_FREE_ACT) state->free_act = TRUE;
 
 	/* Weird flags */
-	if (collect_f[2] & TR2_BLESSED) state->bless_blade = TRUE;
+	if (collect_f[3] & TR3_BLESSED) state->bless_blade = TRUE;
 
 	/* Bad flags */
-	if (collect_f[2] & TR2_IMPACT) state->impact = TRUE;
-	if (collect_f[2] & TR2_AGGRAVATE) state->aggravate = TRUE;
-	if (collect_f[2] & TR2_TELEPORT) state->teleport = TRUE;
-	if (collect_f[2] & TR2_DRAIN_EXP) state->exp_drain = TRUE;
-	if (collect_f[2] & TR2_IMPAIR_HP) state->impair_hp = TRUE;
-	if (collect_f[2] & TR2_IMPAIR_MANA) state->impair_mana = TRUE;
-	if (collect_f[2] & TR2_AFRAID) state->afraid = TRUE;
+	if (collect_f[3] & TR3_IMPACT) state->impact = TRUE;
+	if (collect_f[3] & TR3_AGGRAVATE) state->aggravate = TRUE;
+	if (collect_f[3] & TR3_TELEPORT) state->teleport = TRUE;
+	if (collect_f[3] & TR3_DRAIN_EXP) state->exp_drain = TRUE;
+	if (collect_f[3] & TR3_AFRAID) state->afraid = TRUE;
 
-	/* Vulnerability flags */
-	if (collect_f[1] & TR1_VULN_FIRE) state->vuln_fire = TRUE;
-	if (collect_f[1] & TR1_VULN_ACID) state->vuln_acid = TRUE;
-	if (collect_f[1] & TR1_VULN_COLD) state->vuln_cold = TRUE;
-	if (collect_f[1] & TR1_VULN_ELEC) state->vuln_elec = TRUE;
+	/* Vulnerability flags */ /* TODO Check this is handled properly */
+	if (collect_f[2] & TR2_VULN_FIRE) state->vuln_fire = TRUE;
+	if (collect_f[2] & TR2_VULN_ACID) state->vuln_acid = TRUE;
+	if (collect_f[2] & TR2_VULN_COLD) state->vuln_cold = TRUE;
+	if (collect_f[2] & TR2_VULN_ELEC) state->vuln_elec = TRUE;
 
 	/* Immunity flags */
-	if (collect_f[1] & TR1_IM_FIRE) state->immune_fire = TRUE;
-	if (collect_f[1] & TR1_IM_ACID) state->immune_acid = TRUE;
-	if (collect_f[1] & TR1_IM_COLD) state->immune_cold = TRUE;
-	if (collect_f[1] & TR1_IM_ELEC) state->immune_elec = TRUE;
+	if (collect_f[2] & TR2_IM_FIRE) state->immune_fire = TRUE;
+	if (collect_f[2] & TR2_IM_ACID) state->immune_acid = TRUE;
+	if (collect_f[2] & TR2_IM_COLD) state->immune_cold = TRUE;
+	if (collect_f[2] & TR2_IM_ELEC) state->immune_elec = TRUE;
 
 	/* Resistance flags */
-	if (collect_f[1] & TR1_RES_ACID) state->resist_acid = TRUE;
-	if (collect_f[1] & TR1_RES_ELEC) state->resist_elec = TRUE;
-	if (collect_f[1] & TR1_RES_FIRE) state->resist_fire = TRUE;
-	if (collect_f[1] & TR1_RES_COLD) state->resist_cold = TRUE;
-	if (collect_f[1] & TR1_RES_POIS) state->resist_pois = TRUE;
-	if (collect_f[1] & TR1_RES_FEAR) state->resist_fear = TRUE;
-	if (collect_f[1] & TR1_RES_LITE) state->resist_lite = TRUE;
-	if (collect_f[1] & TR1_RES_DARK) state->resist_dark = TRUE;
-	if (collect_f[1] & TR1_RES_BLIND) state->resist_blind = TRUE;
-	if (collect_f[1] & TR1_RES_CONFU) state->resist_confu = TRUE;
-	if (collect_f[1] & TR1_RES_SOUND) state->resist_sound = TRUE;
-	if (collect_f[1] & TR1_RES_SHARD) state->resist_shard = TRUE;
-	if (collect_f[1] & TR1_RES_NEXUS) state->resist_nexus = TRUE;
-	if (collect_f[1] & TR1_RES_NETHR) state->resist_nethr = TRUE;
-	if (collect_f[1] & TR1_RES_CHAOS) state->resist_chaos = TRUE;
-	if (collect_f[1] & TR1_RES_DISEN) state->resist_disen = TRUE;
+	if (collect_f[2] & TR2_RES_ACID) state->resist_acid = TRUE;
+	if (collect_f[2] & TR2_RES_ELEC) state->resist_elec = TRUE;
+	if (collect_f[2] & TR2_RES_FIRE) state->resist_fire = TRUE;
+	if (collect_f[2] & TR2_RES_COLD) state->resist_cold = TRUE;
+	if (collect_f[2] & TR2_RES_POIS) state->resist_pois = TRUE;
+	if (collect_f[2] & TR2_RES_FEAR) state->resist_fear = TRUE;
+	if (collect_f[2] & TR2_RES_LITE) state->resist_lite = TRUE;
+	if (collect_f[2] & TR2_RES_DARK) state->resist_dark = TRUE;
+	if (collect_f[2] & TR2_RES_BLIND) state->resist_blind = TRUE;
+	if (collect_f[2] & TR2_RES_CONFU) state->resist_confu = TRUE;
+	if (collect_f[2] & TR2_RES_SOUND) state->resist_sound = TRUE;
+	if (collect_f[2] & TR2_RES_SHARD) state->resist_shard = TRUE;
+	if (collect_f[2] & TR2_RES_NEXUS) state->resist_nexus = TRUE;
+	if (collect_f[2] & TR2_RES_NETHR) state->resist_nethr = TRUE;
+	if (collect_f[2] & TR2_RES_CHAOS) state->resist_chaos = TRUE;
+	if (collect_f[2] & TR2_RES_DISEN) state->resist_disen = TRUE;
 
 	/* Sustain flags */
-	if (collect_f[1] & TR1_SUST_STR) state->sustain_str = TRUE;
-	if (collect_f[1] & TR1_SUST_INT) state->sustain_int = TRUE;
-	if (collect_f[1] & TR1_SUST_WIS) state->sustain_wis = TRUE;
-	if (collect_f[1] & TR1_SUST_DEX) state->sustain_dex = TRUE;
-	if (collect_f[1] & TR1_SUST_CON) state->sustain_con = TRUE;
-	if (collect_f[1] & TR1_SUST_CHR) state->sustain_chr = TRUE;
-
+	if (collect_f[2] & TR2_SUST_STR) state->sustain_str = TRUE;
+	if (collect_f[2] & TR2_SUST_INT) state->sustain_int = TRUE;
+	if (collect_f[2] & TR2_SUST_WIS) state->sustain_wis = TRUE;
+	if (collect_f[2] & TR2_SUST_DEX) state->sustain_dex = TRUE;
+	if (collect_f[2] & TR2_SUST_CON) state->sustain_con = TRUE;
+	if (collect_f[2] & TR2_SUST_CHR) state->sustain_chr = TRUE;
+	if (collect_f[2] & TR2_HOLD_LIFE) state->hold_life = TRUE;
 
 
 	/*** Handle stats ***/
@@ -789,17 +622,23 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
 		}
 
+		/* jk - if we have mule legs, we can carry more but DEX suffers */
+		if (p_ptr->timed[TMD_LIFT])
+		{
+			state->stat_add[A_DEX] -= 5;
+		}
+
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);
 
 		/* Save the new value */
-		state->stat_top[i] = top;
+		state->stat_top[i] = INT2S16B(top);
 
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], add);
 
 		/* Save the new value */
-		state->stat_use[i] = use;
+		state->stat_use[i] = INT2S16B(use);
 
 		/* Values: 3, 4, ..., 17 */
 		if (use <= 18) ind = (use - 3);
@@ -811,9 +650,8 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		else ind = (37);
 
 		/* Save the new index */
-		state->stat_ind[i] = ind;
+		state->stat_ind[i] = INT2S16B(ind);
 	}
-
 
 	/*** Temporary flags ***/
 
@@ -832,6 +670,25 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		state->to_d -= 5;
 		state->dis_to_d -= 5;
 	}
+
+/* jk - add in the tactics */
+	p_ptr->state.dis_to_h += tactic_info[p_ptr->tactic].to_hit;
+	p_ptr->state.to_h += tactic_info[p_ptr->tactic].to_hit;
+	p_ptr->state.dis_to_d += tactic_info[p_ptr->tactic].to_dam;
+	p_ptr->state.to_d += tactic_info[p_ptr->tactic].to_dam;
+	p_ptr->state.dis_to_a += tactic_info[p_ptr->tactic].to_ac;
+	p_ptr->state.to_a += tactic_info[p_ptr->tactic].to_ac;
+
+	p_ptr->state.skills[SKILL_STEALTH] += tactic_info[p_ptr->tactic].to_stealth;
+	p_ptr->state.skills[SKILL_DISARM] += tactic_info[p_ptr->tactic].to_disarm;
+	p_ptr->state.skills[SKILL_SAVE] += tactic_info[p_ptr->tactic].to_saving;
+
+/* Apply movement type */
+
+	p_ptr->state.speed += move_info[p_ptr->movement].to_speed;
+	p_ptr->state.skills[SKILL_SEARCH] += move_info[p_ptr->movement].to_search;
+	p_ptr->state.skills[SKILL_SEARCH_FREQUENCY] += move_info[p_ptr->movement].to_percep;
+	p_ptr->state.skills[SKILL_STEALTH] += move_info[p_ptr->movement].to_stealth;
 
 	/* Invulnerability */
 	if (p_ptr->timed[TMD_INVULN])
@@ -854,6 +711,13 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	{
 		state->to_a += 50;
 		state->dis_to_a += 50;
+	}
+
+	/* Temporary reflect */
+	if (p_ptr->timed[TMD_REFLECT])
+	{
+		state->to_a += 50; /* ????? */
+		state->dis_to_a += 50; /* ????? */
 	}
 
 	/* Temporary stoneskin */
@@ -924,7 +788,6 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		state->dis_to_a += 8;
 	}
 
-
 	/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
@@ -933,14 +796,26 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit(state);
 
+	/* jk - if we have mule legs, we can carry more */
+	/* but stealth suffers! */
+	if (p_ptr->timed[TMD_LIFT])
+	{
+		i = 3 * i;
+		state->skills[SKILL_STEALTH] -= 5;
+	}
+
 	/* Apply "encumbrance" from weight */
-	if (j > i / 2) state->speed -= ((j - (i / 2)) / (i / 10));
+	if (j > i / 2) state->speed -= INT2S16B((j - (i / 2)) / (i / 10));
 
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) state->speed -= 10;
 
 	/* Searching slows the player down */
 	if (p_ptr->searching) state->speed -= 10;
+
+	/* Certain races are slow */ /* TODO check this works */
+	if (rp_ptr->flags1 & TR1_SLOW5)
+		state->speed -= 5;
 
 	/* Sanity check on extreme speeds */
 	if (state->speed < 0) state->speed = 0;
@@ -960,7 +835,6 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	state->dis_to_h += ((int)(adj_dex_th[state->stat_ind[A_DEX]]) - 128);
 	state->dis_to_h += ((int)(adj_str_th[state->stat_ind[A_STR]]) - 128);
 
-
 	/*** Modify skills ***/
 
 	/* Affect Skill -- stealth (bonus one) */
@@ -975,6 +849,10 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 
 	/* Affect Skill -- saving throw (WIS) */
 	state->skills[SKILL_SAVE] += adj_wis_sav[state->stat_ind[A_WIS]];
+
+	/* Some races get better saving throws */
+	if (rp_ptr->flags1 & TR1_GOOD_SAVE)
+		state->skills[SKILL_SAVE] += (p_ptr->lev / 3);
 
 	/* Affect Skill -- digging (STR) */
 	state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[A_STR]];
@@ -996,7 +874,6 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[state->stat_ind[A_STR]];
 
-
 	/*** Analyze current bow ***/
 
 	/* Examine the "current bow" */
@@ -1005,12 +882,12 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	/* Assume not heavy */
 	state->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to hold a heavy bow */
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy bow */
-		state->to_h += 2 * (hold - o_ptr->weight / 10);
-		state->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		state->to_h += INT2S16B(2 * (hold - o_ptr->weight / 10));
+		state->dis_to_h += INT2S16B(2 * (hold - o_ptr->weight / 10));
 
 		/* Heavy Bow */
 		state->heavy_shoot = TRUE;
@@ -1070,11 +947,11 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		if (o_ptr->k_idx && !state->heavy_shoot)
 		{
 			/* Extra shots */
-			state->num_fire += extra_shots;
+			state->num_fire += INT2S16B(extra_shots);
 
 			/* Extra might */
 			state->ammo_mult += extra_might;
-
+			
 			/* Hack -- Rangers love Bows */
 			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
 			    (state->ammo_tval == TV_ARROW))
@@ -1091,7 +968,6 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		if (state->num_fire < 1) state->num_fire = 1;
 	}
 
-
 	/*** Analyze weapon ***/
 
 	/* Examine the "current weapon" */
@@ -1104,8 +980,8 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy weapon */
-		state->to_h += 2 * (hold - o_ptr->weight / 10);
-		state->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		state->to_h += INT2S16B(2 * (hold - o_ptr->weight / 10));
+		state->dis_to_h += INT2S16B(2 * (hold - o_ptr->weight / 10));
 
 		/* Heavy weapon */
 		state->heavy_wield = TRUE;
@@ -1115,7 +991,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	if (o_ptr->k_idx && !state->heavy_wield)
 	{
 		/* Calculate number of blows */
-		state->num_blow = calc_blows(o_ptr, state) + extra_blows;
+		state->num_blow = INT2S16B(calc_blows(o_ptr, state) + extra_blows);
 
 		/* Boost digging skill by weapon weight */
 		state->skills[SKILL_DIGGING] += (o_ptr->weight / 10);
@@ -1208,7 +1084,6 @@ static void update_bonuses(void)
 		}
 	}
 
-
 	/* Hack -- Telepathy Change */
 	if (state->telepathy != old.telepathy)
 	{
@@ -1293,10 +1168,8 @@ static void update_bonuses(void)
 			msg_print("You feel more comfortable after removing your weapon.");
 		}
 	}
+	/* TODO Is this the point to handle COULD2H and MUST2H ? */
 }
-
-
-
 
 /*** Generic "deal with" functions ***/
 
@@ -1372,12 +1245,11 @@ void update_stuff(void)
 		calc_mana();
 	}
 
+/* TODO Is PU_SPELLS needed now? */
 	if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
-		calc_spells();
 	}
-
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
@@ -1412,7 +1284,6 @@ void update_stuff(void)
 		update_flow();
 	}
 
-
 	if (p_ptr->update & (PU_DISTANCE))
 	{
 		p_ptr->update &= ~(PU_DISTANCE);
@@ -1426,7 +1297,6 @@ void update_stuff(void)
 		update_monsters(FALSE);
 	}
 
-
 	if (p_ptr->update & (PU_PANEL))
 	{
 		p_ptr->update &= ~(PU_PANEL);
@@ -1434,15 +1304,11 @@ void update_stuff(void)
 	}
 }
 
-
-
 struct flag_event_trigger
 {
 	u32b flag;
 	game_event_type event;
 };
-
-
 
 /*
  * Events triggered by the various flags.
@@ -1463,17 +1329,17 @@ static const struct flag_event_trigger redraw_events[] =
 	{ PR_SPEED,   EVENT_PLAYERSPEED },
 	{ PR_STATE,   EVENT_STATE },
 	{ PR_STATUS,  EVENT_STATUS },
-	{ PR_STUDY,   EVENT_STUDYSTATUS },
+	{ PR_STUDY,   EVENT_STUDYSTATUS }, /* TODO Is this needed? */
 	{ PR_DTRAP,   EVENT_DETECTIONSTATUS },
 	{ PR_BUTTONS, EVENT_MOUSEBUTTONS },
-
-	{ PR_INVEN,   EVENT_INVENTORY },
-	{ PR_EQUIP,   EVENT_EQUIPMENT },
-	{ PR_MONLIST, EVENT_MONSTERLIST },
+	{ PR_READ,    EVENT_READING },
+	
+	{ PR_INVEN,    EVENT_INVENTORY },
+	{ PR_EQUIP,    EVENT_EQUIPMENT },
+	{ PR_MONLIST,  EVENT_MONSTERLIST },
 	{ PR_ITEMLIST, EVENT_ITEMLIST },
-	{ PR_MONSTER, EVENT_MONSTERTARGET },
-	{ PR_OBJECT, EVENT_OBJECTTARGET },
-	{ PR_MESSAGE, EVENT_MESSAGE },
+	{ PR_MONSTER,  EVENT_MONSTERTARGET },
+	{ PR_MESSAGE,  EVENT_MESSAGE },
 };
 
 /*
@@ -1517,7 +1383,6 @@ void redraw_stuff(void)
 	event_signal(EVENT_END);
 }
 
-
 /*
  * Handle "p_ptr->update" and "p_ptr->redraw"
  */
@@ -1529,4 +1394,3 @@ void handle_stuff(void)
 	/* Redraw stuff */
 	if (p_ptr->redraw) redraw_stuff();
 }
-

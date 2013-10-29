@@ -32,7 +32,7 @@ const char upper_case[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /* forward declarations */
 static void display_menu_row(menu_type *menu, int pos, int top,
-			     bool cursor, int row, int col, int width);
+			     bool cursor, s16b row, s16b col, s16b width);
 
 /* ------------------------------------------------------------------------
  * MN_ACTIONS HELPER FUNCTIONS
@@ -42,7 +42,7 @@ static void display_menu_row(menu_type *menu, int pos, int top,
  * ------------------------------------------------------------------------ */
 
 /* Display an event, with possible preference overrides */
-static void display_action_aux(menu_action *act, byte color, int row, int col, int wid)
+static void display_action_aux(menu_action *act, byte color, s16b row, s16b col, s16b wid)
 {
 	/* TODO: add preference support */
 	/* TODO: wizard mode should show more data */
@@ -52,7 +52,7 @@ static void display_action_aux(menu_action *act, byte color, int row, int col, i
 		Term_putstr(col, row, wid, color, act->name);
 }
 
-static void display_action(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+static void display_action(menu_type *menu, int oid, bool cursor, s16b row, s16b col, s16b width)
 {
 	menu_action *acts = (menu_action *) menu->menu_data;
 	byte color = curs_attrs[CURS_KNOWN][0 != cursor];
@@ -109,7 +109,7 @@ static char tag_menu_item(menu_type *menu, int oid)
 	return items[oid].sel;
 }
 
-static void display_menu_item(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+static void display_menu_item(menu_type *menu, int oid, bool cursor, s16b row, s16b col, s16b width)
 {
 	menu_item *items = (menu_item *)menu->menu_data;
 	byte color = curs_attrs[!(items[oid].flags & (MN_GRAYED))][0 != cursor];
@@ -165,7 +165,7 @@ const menu_iter menu_iter_items =
  * strings - no action is associated, as selection will just return the index.
  * ------------------------------------------------------------------------ */
 static void display_string(menu_type *menu, int oid, bool cursor,
-               int row, int col, int width)
+               s16b row, s16b col, s16b width)
 {
 	const char **items = (const char **)menu->menu_data;
 	byte color = curs_attrs[CURS_KNOWN][0 != cursor];
@@ -189,9 +189,10 @@ const menu_iter menu_iter_strings =
 
 /* Scrolling menu */
 /* Find the position of a cursor given a screen address */
-static int scrolling_get_cursor(int row, int col, int n, int top, region *loc)
+static s16b scrolling_get_cursor(s16b row, s16b col, s16b n, s16b top, region *loc)
 {
-	int cursor = row - loc->row + top;
+	s16b cursor = row - loc->row + top;
+	UNREFERENCED_PARAMETER(col);
 	if (cursor >= n) cursor = n - 1;
 
 	return cursor;
@@ -199,13 +200,13 @@ static int scrolling_get_cursor(int row, int col, int n, int top, region *loc)
 
 
 /* Display current view of a skin */
-static void display_scrolling(menu_type *menu, int cursor, int *top, region *loc)
+static void display_scrolling(menu_type *menu, s16b cursor, s16b *top, region *loc)
 {
-	int col = loc->col;
-	int row = loc->row;
-	int rows_per_page = loc->page_rows;
-	int n = menu->filter_count;
-	int i;
+	s16b col = loc->col;
+	s16b row = loc->row;
+	s16b rows_per_page = loc->page_rows;
+	s16b n = (s16b) menu->filter_count;
+	s16b i;
 
 	/* Keep a certain distance from the top when possible */
 	if ((cursor <= *top) && (*top > 0))
@@ -250,11 +251,12 @@ const menu_skin menu_skin_scroll =
 
 /* Multi-column menu */
 /* Find the position of a cursor given a screen address */
-static int columns_get_cursor(int row, int col, int n, int top, region *loc)
+static s16b columns_get_cursor(s16b row, s16b col, s16b n, s16b top, region *loc)
 {
-	int rows_per_page = loc->page_rows;
-	int colw = loc->width / (n + rows_per_page - 1) / rows_per_page;
-	int cursor = row + rows_per_page * (col - loc->col) / colw;
+	s16b rows_per_page = loc->page_rows;
+	s16b colw = loc->width / (n + rows_per_page - 1) / rows_per_page;
+	s16b cursor = row + rows_per_page * (col - loc->col) / colw;
+	UNREFERENCED_PARAMETER(top);
 
 	if (cursor < 0) cursor = 0;	/* assert: This should never happen */
 	if (cursor >= n) cursor = n - 1;
@@ -262,16 +264,17 @@ static int columns_get_cursor(int row, int col, int n, int top, region *loc)
 	return cursor;
 }
 
-static void display_columns(menu_type *menu, int cursor, int *top, region *loc)
+static void display_columns(menu_type *menu, s16b cursor, s16b *top, region *loc)
 {
-	int c, r;
-	int w, h;
-	int n = menu->filter_count;
-	int col = loc->col;
-	int row = loc->row;
-	int rows_per_page = loc->page_rows;
-	int cols = (n + rows_per_page - 1) / rows_per_page;
-	int colw = 23;
+	s16b c, r;
+	s16b w, h;
+	s16b n = (s16b) menu->filter_count;
+	s16b col = loc->col;
+	s16b row = loc->row;
+	s16b rows_per_page = loc->page_rows;
+	s16b cols = (n + rows_per_page - 1) / rows_per_page;
+	s16b colw = 23;
+	UNREFERENCED_PARAMETER(top);
 
 	Term_get_size(&w, &h);
 
@@ -322,20 +325,21 @@ static bool is_valid_row(menu_type *menu, int cursor)
 	if (!menu->row_funcs->valid_row)
 		return TRUE;
 
-	return menu->row_funcs->valid_row(menu, oid);
+	return (0 != menu->row_funcs->valid_row(menu, oid)); /* TODO Does this work? */
 }
 
 /* 
  * Return a new position in the menu based on the key
  * pressed and the flags and various handler functions.
  */
-static int get_cursor_key(menu_type *menu, int top, char key)
+static s16b get_cursor_key(menu_type *menu, s16b top, char key)
 {
-	int i;
-	int n = menu->filter_count;
+	s16b i;
+	s16b n = menu->filter_count;
+	UNREFERENCED_PARAMETER(top);
 
 	if (menu->flags & MN_CASELESS_TAGS)
-		key = toupper((unsigned char) key);
+		key = INT2CHR(toupper((unsigned char) key));
 
 	if (menu->flags & MN_NO_TAGS)
 	{
@@ -348,7 +352,7 @@ static int get_cursor_key(menu_type *menu, int top, char key)
 			char c = menu->skin->get_tag(menu, i);
 
 			if ((menu->flags & MN_CASELESS_TAGS) && c)
-				c = toupper((unsigned char) c);
+				c = INT2CHR(toupper((unsigned char) c));
 
 			if (c && c == key)
 				return i + menu->top;
@@ -361,7 +365,7 @@ static int get_cursor_key(menu_type *menu, int top, char key)
 			char c = menu->selections[i];
 
 			if (menu->flags & MN_CASELESS_TAGS)
-				c = toupper((unsigned char) c);
+				c = INT2CHR(toupper((unsigned char) c));
 
 			if (c == key)
 				return i;
@@ -375,7 +379,7 @@ static int get_cursor_key(menu_type *menu, int top, char key)
 			char c = menu->row_funcs->get_tag(menu, oid);
 
 			if ((menu->flags & MN_CASELESS_TAGS) && c)
-				c = toupper((unsigned char) c);
+				c = INT2CHR(toupper((unsigned char) c));
 
 			if (c && c == key)
 				return i;
@@ -408,7 +412,7 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
 		ui_event_data ke;
 		ke.type = EVT_SELECT;
 		ke.key = cmd;
-		ke.index = cursor;
+		ke.index = INT2SHRT(cursor);
 		Term_event_push(&ke);
 		return TRUE;
 	}
@@ -418,11 +422,12 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
 
 /* Modal display of menu */
 static void display_menu_row(menu_type *menu, int pos, int top,
-                             bool cursor, int row, int col, int width)
+                             bool cursor, s16b row, s16b col, s16b width)
 {
 	int flags = menu->flags;
 	char sel = 0;
 	int oid = pos;
+	UNREFERENCED_PARAMETER(top);
 
 	if (menu->filter_list)
 		oid = menu->filter_list[oid];
@@ -479,8 +484,8 @@ void menu_refresh(menu_type *menu)
 static bool menu_handle_event(void *object, const ui_event_data *in)
 {
 	menu_type *menu = object;
-	int n = menu->filter_count;
-	int *cursor = &menu->cursor;
+	s16b n = menu->filter_count;
+	s16b *cursor = &menu->cursor;
 	ui_event_data out;
 
 	out.key = '\xff';
@@ -489,7 +494,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 	{
 		case EVT_MOUSE:
 		{
-			int m_curs;
+			s16b m_curs;
 
 			if (!region_inside(&menu->active, in))
 			{
@@ -516,7 +521,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 			if (!is_valid_row(menu, m_curs))
 				return TRUE;
 
-			out.index = m_curs;
+			out.index = INT2SHRT(m_curs);
 
 			if (*cursor == m_curs || !(menu->flags & MN_DBL_TAP))
 			{
@@ -539,7 +544,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 
 		case EVT_KBRD:
 		{
-			int c, dir;
+			s16b c, dir;
 
 			/* could install handle_menu_key as a handler */
 			if ((menu->cmd_keys && strchr(menu->cmd_keys, in->key))
@@ -562,7 +567,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 			/* Valid selection */
 			else if (c >= 0)
 			{
-				out.index = c;
+				out.index = INT2SHRT(c);
 
 				if (*cursor == c || !(menu->flags & MN_DBL_TAP))
 				{
@@ -589,8 +594,8 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 
 			if (in->key == ' ')
 			{
-				int rows = menu->active.page_rows;
-				int total = menu->filter_count;
+				s16b rows = menu->active.page_rows;
+				s16b total = menu->filter_count;
 
 				/* Ignore it if there's a page or less to show */
 				if (rows >= total) return FALSE;
@@ -602,7 +607,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 
 				/* Set the out event type */
 				out.type = EVT_MOVE;
-				out.index = *cursor;
+				out.index = INT2SHRT(*cursor);
 
 				break;
 			}
@@ -614,7 +619,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 			if (in->key == '\n' || in->key == '\r')
 			{
 				out.type = EVT_SELECT;
-				out.index = *cursor;
+				out.index = INT2SHRT(*cursor);
 			}
 
 			/* Reject diagonals */
@@ -627,14 +632,14 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 			else if (ddx[dir])
 			{
 				out.type = ddx[dir] < 0 ? EVT_BACK : EVT_SELECT;
-				out.index = *cursor;
+				out.index = INT2SHRT(*cursor);
 			}
 
 			/* Move up or down to the next valid & visible row */
 			else if (ddy[dir])
 			{
-				int dy = ddy[dir];
-				int ind = *cursor + dy;
+				s16b dy = ddy[dir];
+				s16b ind = *cursor + dy;
 
 				/* Duck out here for 0-entry lists */
 				if (n == 0) return FALSE;
@@ -653,7 +658,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
 
 				/* Set the "out" event information */
 				out.type = EVT_MOVE;
-				out.index = ind;
+				out.index = INT2SHRT(ind);
 			}
 			else
 			{
@@ -708,7 +713,7 @@ static bool menu_handle_event(void *object, const ui_event_data *in)
  *  EVT_ESCAPE - Abandon modal interaction
  *  EVT_KBRD - An unhandled keyboard event
  */
-ui_event_data menu_select(menu_type *menu, int *cursor, int no_handle)
+ui_event_data menu_select(menu_type *menu, s16b *cursor, int no_handle)
 {
 	ui_event_data ke;
 
@@ -821,7 +826,7 @@ static const menu_skin *find_menu_skin(skin_id id)
 /*
  * Set the filter to a new value.
  */
-void menu_set_filter(menu_type *menu, const int filter_list[], int n)
+void menu_set_filter(menu_type *menu, const int filter_list[], s16b n)
 {
 	menu->filter_list = filter_list;
 	menu->filter_count = n;
@@ -846,7 +851,7 @@ bool menu_layout(menu_type *menu, const region *loc)
 
 	if (active.width <= 0 || active.page_rows <= 0)
 	{
-		int w, h;
+		s16b w, h;
 		Term_get_size(&w, &h);
 		if (active.width <= 0)
 			active.width = w + active.width - active.col;
@@ -869,7 +874,7 @@ bool menu_layout(menu_type *menu, const region *loc)
 			active.page_rows--;
 		else
 		{
-			int offset = strlen(menu->prompt) + 2;
+			s16b offset = (s16b) strlen(menu->prompt) + 2;
 			active.col += offset;
 			active.width -= offset;
 		}

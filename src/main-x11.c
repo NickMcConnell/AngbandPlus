@@ -1732,8 +1732,8 @@ static void react_keypress(XKeyEvent *ev)
 /*
  * Find the square a particular pixel is part of.
  */
-static void pixel_to_square(int * const x, int * const y,
-                            const int ox, const int oy)
+static void pixel_to_square(s16b * const x, s16b * const y,
+                            const s16b ox, const s16b oy)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1807,8 +1807,8 @@ static errr CheckEvent(bool wait)
 			int z = 0;
 
 			/* Where is the mouse */
-			int x = xev->xbutton.x;
-			int y = xev->xbutton.y;
+			s16b x = (s16b) xev->xbutton.x;
+			s16b y = (s16b) xev->xbutton.y;
 
 			/* Which button is involved */
 			if (xev->xbutton.button == Button1) z = 1;
@@ -1887,10 +1887,10 @@ static errr CheckEvent(bool wait)
 		/* Move and/or Resize */
 		case ConfigureNotify:
 		{
-			int cols, rows, wid, hgt;
+			s16b cols, rows, wid, hgt;
 
-			int ox = Infowin->ox;
-			int oy = Infowin->oy;
+			s16b ox = Infowin->ox;
+			s16b oy = Infowin->oy;
 
 			/* Save the new Window Parms */
 			Infowin->x = xev->xconfigure.x;
@@ -2056,7 +2056,7 @@ static errr Term_xtra_x11(int n, int v)
 /*
  * Draw the cursor as a rectangular outline
  */
-static errr Term_curs_x11(int x, int y)
+static errr Term_curs_x11(s16b x, s16b y)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2073,7 +2073,7 @@ static errr Term_curs_x11(int x, int y)
 /*
  * Draw the double width cursor as a rectangular outline
  */
-static errr Term_bigcurs_x11(int x, int y)
+static errr Term_bigcurs_x11(s16b x, s16b y)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2090,7 +2090,7 @@ static errr Term_bigcurs_x11(int x, int y)
 /*
  * Erase some characters.
  */
-static errr Term_wipe_x11(int x, int y, int n)
+static errr Term_wipe_x11(s16b x, s16b y, int n)
 {
 	/* Erase (use black) */
 	Infoclr_set(clr[TERM_DARK]);
@@ -2106,7 +2106,7 @@ static errr Term_wipe_x11(int x, int y, int n)
 /*
  * Draw some textual characters.
  */
-static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
+static errr Term_text_x11(s16b x, s16b y, int n, byte a, cptr s)
 {
 	/* Draw the text */
 	Infoclr_set(clr[a]);
@@ -2203,16 +2203,16 @@ static errr term_data_init(term_data *td, int i)
 
 	cptr font;
 
-	int x = 0;
-	int y = 0;
+	s16b x = 0;
+	s16b y = 0;
 
-	int cols = 80;
-	int rows = 24;
+	s16b cols = 80;
+	s16b rows = 24;
 
-	int ox = 1;
-	int oy = 1;
+	s16b ox = 1;
+	s16b oy = 1;
 
-	int wid, hgt, num;
+	s16b wid, hgt, num;
 
 	cptr str;
 

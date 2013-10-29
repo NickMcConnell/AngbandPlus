@@ -1,0 +1,16 @@
+This project is based on the Angband 3.1.1 development code in its SVN repository.  Major changes from that code are noted below.
+
+0.0.1 (preAlpha) Apr 10 2009
+
+* Basic support for Angband/64 races.
+* Basic support for Angband/64 classes.
+* Monster list made compatible with Angband/64 monsters.
+* Item list made compatible with Angband/64 items.
+* 'History' values and tables (character background) set up for Angband/64 races.
+* Second 'bonus value' system applied (this allows, for example, Ring of Brute Force +3 str, -1 wis, -1 int)
+* Initial equipment matched to Angband/64
+* Updating Artifact.txt content.
+* Ego items have low and high resistances.
+* Magic devices skill bonuses possible on ego items and artifacts.
+* Now as many KILL_foo flags as there were SLAY_foo flags. (e.g. Can now have Broad Sword of Kill Animal)
+* Item flag system redone to allow many more flags.

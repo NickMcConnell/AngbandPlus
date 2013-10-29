@@ -22,6 +22,7 @@
 #include "option.h"
 #include "game-event.h"
 #include "game-cmd.h"
+#include "object/tvalsval.h"
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -45,8 +46,6 @@
  * "ALLOW_TEMPLATES", saving about 20K by removing "init1.c".  Note
  * that the binary image files are extremely system dependant.
  */
-
-
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -77,6 +76,7 @@
  * this function to be called multiple times, for example, to
  * try several base "path" values until a good one is found.
  */
+
 void init_file_paths(const char *path)
 {
 #ifdef PRIVATE_USER_PATH
@@ -130,7 +130,7 @@ void init_file_paths(const char *path)
 #ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_PATH);
 	ANGBAND_DIR_USER = string_make(buf);
 
 #else /* PRIVATE_USER_PATH */
@@ -169,7 +169,6 @@ void init_file_paths(const char *path)
 #endif /* USE_PRIVATE_PATHS */
 }
 
-
 #ifdef PRIVATE_USER_PATH
 
 /*
@@ -191,7 +190,7 @@ void create_user_dirs(void)
 	mkdir(dirpath, 0700);
 
 	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_PATH);
 
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
@@ -225,15 +224,11 @@ void create_user_dirs(void)
 
 #endif /* PRIVATE_USER_PATH */
 
-
-
-
 /*
  * Hack -- help give useful error messages
  */
 int error_idx;
 int error_line;
-
 
 /*
  * Standard error message text
@@ -262,7 +257,6 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"vault too big",
 };
 
-
 /*
  * File headers
  */
@@ -281,10 +275,7 @@ header g_head;
 header flavor_head;
 header s_head;
 
-
-
 /*** Initialize from binary image files ***/
-
 
 /*
  * Initialize a "*_info" array, by parsing a binary "image" file
@@ -294,7 +285,8 @@ static bool init_info_raw(const char *fname, header *head)
 	header test;
 	ang_file *fh = file_open(fname, MODE_READ, -1);
 
-	if (!fh) return FALSE;
+	if (!fh) 
+		return FALSE;
 
 	/* Read and verify the header */
 	if (!file_read(fh, (char *)(&test), sizeof(header)) ||
@@ -311,14 +303,13 @@ static bool init_info_raw(const char *fname, header *head)
 		return FALSE;
 	}
 
-
-	/* 
-	 * Accept the header - these are the only parts we need to copy
-	 * from the saved structure, as the rest is either identical (see
-	 * above test), or not restorable (function hooks, data pointers).
-	 */
-	head->name_size = test.name_size;
-	head->text_size = test.text_size;
+	/*  
+	 * Accept the header - these are the only parts we need to copy 
+	 * from the saved structure, as the rest is either identical (see 
+	 * above test), or not restorable (function hooks, data pointers). 
+	 */ 
+	head->name_size = test.name_size; 
+	head->text_size = test.text_size; 
 
 	/* Allocate and read the "*_info" array */
 	head->info_ptr = C_RNEW(head->info_size, char);
@@ -342,11 +333,10 @@ static bool init_info_raw(const char *fname, header *head)
 	return TRUE;
 }
 
-
 /*
  * Initialize the header of an *_info.raw file.
  */
-static void init_header(header *head, int num, int len)
+static void init_header(header *head, u16b num, u16b len)
 {
 	/* Save the "version" */
 	head->v_major = VERSION_MAJOR;
@@ -370,7 +360,6 @@ static void init_header(header *head, int num, int len)
 	head->emit_info_txt_always = NULL;
 }
 
-
 /*
  * Display a parser error message.
  */
@@ -391,7 +380,6 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 	quit_fmt("Error in '%s.txt' file.", filename);
 }
 
-
 /*
  * Initialize a "*_info" array
  *
@@ -409,11 +397,9 @@ static errr init_info(cptr filename, header *head)
 
 	char buf[1024];
 
-
 	/* Build the filenames */
 	path_build(raw_file, sizeof(raw_file), ANGBAND_DIR_DATA, format("%s.raw", filename));
 	path_build(txt_file, sizeof(txt_file), ANGBAND_DIR_EDIT, format("%s.txt", filename));
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -426,7 +412,6 @@ static errr init_info(cptr filename, header *head)
 		return 0;
 	}
 
-
 	/*** Make the fake arrays ***/
 
 	/* Allocate the "*_info" array */
@@ -438,7 +423,6 @@ static errr init_info(cptr filename, header *head)
 		head->name_ptr = C_ZNEW(z_info->fake_name_size, char);
 		head->text_ptr = C_ZNEW(z_info->fake_text_size, char);
 	}
-
 
 	/*** Load the ascii template file ***/
 
@@ -950,40 +934,7 @@ static errr init_s_info(void)
 	return (err);
 }
 
-/*
- * Initialize the "spell_list" array
- */
-static void init_books(void)
-{
-	byte realm, sval, snum;
-	u16b spell;
-
-	/* Since not all slots in all books are used, initialize to -1 first */
-	for (realm = 0; realm < MAX_REALMS; realm++)
-	{
-		for (sval = 0; sval < BOOKS_PER_REALM; sval++)
-		{
-			for (snum = 0; snum < SPELLS_PER_BOOK; snum++)
-			{
-				spell_list[realm][sval][snum] = -1;
-			}
-		}
-	}
-
-	/* Place each spell in its own book */
-	for (spell = 0; spell < z_info->s_max; spell++)
-	{
-		/* Get the spell */
-		spell_type *s_ptr = &s_info[spell];
-
-		/* Put it in the book */
-		spell_list[s_ptr->realm][s_ptr->sval][s_ptr->snum] = spell;
-	}
-}
-
-
-/*
- * Initialise stores, from the edit file.
+/* * Initialise stores, from the edit file.
  */
 static void init_stores(void)
 {
@@ -1008,7 +959,6 @@ static void init_stores(void)
 	return;
 }
 
-
 /*** Initialize others ***/
 
 static void autoinscribe_init(void)
@@ -1022,6 +972,55 @@ static void autoinscribe_init(void)
 	inscriptions = C_ZNEW(AUTOINSCRIPTIONS_MAX, autoinscription);
 }
 
+/*
+ * spells get a cost based on their qualities
+ */
+void make_spell_costs(void)
+{
+	s16b         i;
+	object_kind *k_ptr;
+
+	/* give the spells their cost */
+	for (i = 1; i < z_info->k_max; i++)
+	{
+		/* Get the i'th object */
+		k_ptr = &k_info[i];
+
+		/* if we come accross a spell, give that spell the correct value */
+		/* basically, this could be in k_info.txt, but this is a quicker 'hack' */
+		if (k_ptr->tval == TV_SPELL)
+      {
+         spell_type *s_ptr = &s_info[k_ptr->sval];
+         switch(s_ptr->type)
+         {
+            case SP_TYP_ATTACK_NAT:
+            case SP_TYP_CHANGE_ITEM:
+            case SP_TYP_CHANGE_WORLD:
+			{
+				k_ptr->cost = (s32b) (s_ptr->level) * (s32b) (s_ptr->scale) * 300L; 
+                if (!k_ptr->cost) k_ptr->cost = 300L;
+                break;
+			}
+            case SP_TYP_ESCAPE:
+            case SP_TYP_SEEK:
+            case SP_TYP_CHANGE_OTHER:
+			{
+				k_ptr->cost = (s32b) (s_ptr->level) * (s32b) (s_ptr->scale) * 500L;
+                if (!k_ptr->cost) k_ptr->cost = 500L;
+				break;
+			}
+            case SP_TYP_CHANGE_SELF:
+            case SP_TYP_ATTACK_DRK:
+            case SP_TYP_HEAL:
+			{
+				k_ptr->cost = (s32b) (s_ptr->level) * (s32b) (s_ptr->scale) * 800L;
+                if (!k_ptr->cost) k_ptr->cost = 800L;
+                break;
+			}
+         }
+      }
+   }
+}
 
 /*
  * Initialize some other arrays
@@ -1041,7 +1040,6 @@ static errr init_other(void)
 
 	/* Initialize squelch things */
 	autoinscribe_init();
-	squelch_init();
 	init_cmd_know();
 
 	/* Initialize the "message" package */
@@ -1086,6 +1084,9 @@ static errr init_other(void)
 
 	/*** Prepare entity arrays ***/
 
+	/* Allocate and Wipe the spell-sets list */
+	s_list = C_ZNEW(z_info->s_max, spell_set_type);
+
 	/* Objects */
 	o_list = C_ZNEW(z_info->o_max, object_type);
 
@@ -1115,7 +1116,8 @@ static errr init_other(void)
 	/* Allocate it */
 	inventory = C_ZNEW(INVEN_TOTAL, object_type);
 
-
+	/* Intialize 'cost' on spell pages */
+	make_spell_costs();
 
 	/*** Prepare the options ***/
 	option_set_defaults();
@@ -1145,7 +1147,7 @@ static errr init_other(void)
  */
 static errr init_alloc(void)
 {
-	int i;
+	s16b i;
 
 	monster_race *r_ptr;
 
@@ -1217,7 +1219,8 @@ static errr init_alloc(void)
 		/* Count valid pairs */
 		if (r_ptr->rarity)
 		{
-			int p, x, y, z;
+			byte x, p;
+			s16b y, z;
 
 			/* Extract the base level */
 			x = r_ptr->level;
@@ -1295,7 +1298,8 @@ static errr init_alloc(void)
 		/* Count valid pairs */
 		if (e_ptr->rarity)
 		{
-			int p, x, y, z;
+			byte x, p;
+			s16b y, z;
 
 			/* Extract the base level */
 			x = e_ptr->level;
@@ -1388,71 +1392,87 @@ bool init_angband(void)
 
 	/* Initialize size info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing array sizes...");
-	if (init_z_info()) quit("Cannot initialize sizes");
+	if (init_z_info())
+		quit("Cannot initialize sizes");
 
 	/* Initialize feature info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (features)");
-	if (init_f_info()) quit("Cannot initialize features");
+	if (init_f_info())
+		quit("Cannot initialize features");
 
 	/* Initialize object info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (objects)");
-	if (init_k_info()) quit("Cannot initialize objects");
+	if (init_k_info())
+		quit("Cannot initialize objects");
 
 	/* Initialize ego-item info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (ego-items)");
-	if (init_e_info()) quit("Cannot initialize ego-items");
+	if (init_e_info())
+		quit("Cannot initialize ego-items");
 
 	/* Initialize monster info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (monsters)");
-	if (init_r_info()) quit("Cannot initialize monsters");
+	if (init_r_info())
+		quit("Cannot initialize monsters");
 
 	/* Initialize artifact info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (artifacts)");
-	if (init_a_info()) quit("Cannot initialize artifacts");
+	if (init_a_info())
+		quit("Cannot initialize artifacts");
 
 	/* Initialize feature info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (vaults)");
-	if (init_v_info()) quit("Cannot initialize vaults");
+	if (init_v_info())
+		quit("Cannot initialize vaults");
 
 	/* Initialize history info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (histories)");
-	if (init_h_info()) quit("Cannot initialize histories");
+	if (init_h_info())
+		quit("Cannot initialize histories");
 
 	/* Initialize race info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (races)");
-	if (init_p_info()) quit("Cannot initialize races");
+	if (init_p_info())
+		quit("Cannot initialize races");
 
 	/* Initialize class info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (classes)");
-	if (init_c_info()) quit("Cannot initialize classes");
+	if (init_c_info())
+		quit("Cannot initialize classes");
 
 	/* Initialize owner info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (owners)");
-	if (init_b_info()) quit("Cannot initialize owners");
+	if (init_b_info())
+		quit("Cannot initialize owners");
 
 	/* Initialize flavor info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (flavors)");
-	if (init_flavor_info()) quit("Cannot initialize flavors");
+	if (init_flavor_info())
+		quit("Cannot initialize flavors");
 
+/* TODO This code is obsolete, need to replace it */
 	/* Initialize spell info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (spells)");
 	if (init_s_info()) quit("Cannot initialize spells");
 
+#if 0 /* TODO This code is obsolete, need to replace it */
 	/* Initialize spellbook info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (spellbooks)");
 	init_books();
-
+#endif 
 	/* Initialise store stocking data */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (store stocks)");
 	init_stores();
 
 	/* Initialize some other arrays */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (other)");
-	if (init_other()) quit("Cannot initialize other stuff");
+	if (init_other())
+		quit("Cannot initialize other stuff");
 
 	/* Initialize some other arrays */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (alloc)");
-	if (init_alloc()) quit("Cannot initialize alloc stuff");
+	if (init_alloc())
+		quit("Cannot initialize alloc stuff");
 
 	/*** Load default user pref files ***/
 

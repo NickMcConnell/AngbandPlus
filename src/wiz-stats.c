@@ -257,7 +257,7 @@ void stats_collect(void)
  */
 static void print_dun(void)
 {
-	int y, x;
+	s16b y, x;
 
 	/* Get stats on objects */
 	for (y = 1; y < DUNGEON_HGT - 1; y++)

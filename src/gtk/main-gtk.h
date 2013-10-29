@@ -65,8 +65,8 @@ struct term_data
 	int number;
 	
 	bool visible, initialized;
-	int rows;
-	int cols;
+	s16b rows;
+	s16b cols;
 	point location;
 	measurements size; /* of the window */
 	measurements tile, actual;
@@ -166,15 +166,16 @@ static game_event_type my_player_events[] =
 	EVENT_MONSTERHEALTH,
 
 	EVENT_PLAYERSPEED, 
-	EVENT_DUNGEONLEVEL,
+	EVENT_DUNGEONLEVEL
 };
 
 static game_event_type my_statusline_events[] =
 {
-	EVENT_STUDYSTATUS,
+	EVENT_STUDYSTATUS, /* TODO Is this needed? */
 	EVENT_STATUS,
 	EVENT_DETECTIONSTATUS,
 	EVENT_STATE,
+	EVENT_READING
 };
 
 /*  Various variables  */
@@ -201,7 +202,7 @@ static int max_win_height(term_data *td);
 /*
  * Find the square a particular pixel is part of.
  */
-static void pixel_to_square(int * const x, int * const y, const int ox, const int oy);
+static void pixel_to_square(s16b * const x, s16b * const y, const s16b ox, const s16b oy);
 
 void set_term_matrix(term_data *td);
 /* Cairo's rect type to Gdks */

@@ -17,11 +17,11 @@
 typedef struct region region;
 
 struct region {
-	int col;	/* x-coordinate of upper right corner */
-	int row;	/* y-coord of upper right coordinate */
-	int width;	/* width of display area. 1 - use system default. */
+	s16b col;	/* x-coordinate of upper right corner */
+	s16b row;	/* y-coord of upper right coordinate */
+	s16b width;	/* width of display area. 1 - use system default. */
 			/* non-positive - rel to right of screen */
-	int page_rows;	/* non-positive value is relative to the bottom of the screen */
+	s16b page_rows;	/* non-positive value is relative to the bottom of the screen */
 };
 
 /* Region that defines the full screen */
@@ -36,7 +36,7 @@ bool region_inside(const region *loc, const ui_event_data *key);
 
 /*** Misc ***/
 
-void window_make(int origin_x, int origin_y, int end_x, int end_y);
+void window_make(s16b origin_x, s16b origin_y, s16b end_x, s16b end_y);
 
 
 #endif /* INCLUDED_UI_H */

@@ -246,7 +246,7 @@ void button_init(button_add_f add, button_kill_f kill)
  * Return the character represented by a button at screen position (x, y),
  * or 0.
  */
-char button_get_key(int x, int y)
+char button_get_key(s16b x, s16b y)
 {
 	int i;
 
@@ -266,14 +266,14 @@ char button_get_key(int x, int y)
 /**
  * Print the current button list at the specified `row` and `col`umn.
  */
-size_t button_print(int row, int col)
+size_t button_print(s16b row, s16b col)
 {
 	int j;
 
 	button_start = col;
 
 	for (j = 0; j < button_num; j++)
-		c_put_str(TERM_SLATE, button_mse[j].label, row, col + button_mse[j].left);
+		c_put_str(TERM_SLATE, button_mse[j].label, row, col + (s16b) button_mse[j].left);
 
 	return button_length;
 }

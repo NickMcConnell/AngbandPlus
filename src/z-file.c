@@ -27,6 +27,10 @@
 #ifdef WINDOWS
 # include <windows.h>
 # include <io.h>
+#else
+# define _fileno fileno
+# define _read read
+# define _write write
 #endif
 
 #ifdef MACH_O_CARBON
@@ -232,8 +236,6 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 	return cur_len;
 }
 
-
-
 /*** File-handling API ***/
 
 /* On Windows, fwrite() and fread() are broken. */
@@ -343,8 +345,10 @@ bool file_newer(const char *first, const char *second)
 	 * If the first doesn't exist, the first is not newer;
 	 * If the second doesn't exist, the first is always newer.
 	 */
-	if (!first_exists)  return FALSE;
-	if (!second_exists) return TRUE;
+	if (!first_exists)  
+		return FALSE;
+	if (!second_exists) 
+		return TRUE;
 
 	if (first_stat.st_mtime >= second_stat.st_mtime)
 		return TRUE;
@@ -401,7 +405,11 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 			break;
 	}
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	fopen_s(&f->fh, buf, modestr);
+#else
 	f->fh = fopen(buf, modestr);
+#endif
 
 	if (f->fh == NULL)
 	{
@@ -466,8 +474,10 @@ void file_lock(ang_file *f)
 	lock.l_start = 0;
 	lock.l_len = 0;
 	lock.l_pid = 0;
-	fcntl(fileno(f->fh), F_SETLKW, &lock);
-#endif /* HAVE_FCNTL_H && SET_UID */
+	fcntl(_fileno(f->fh), F_SETLKW, &lock);
+#else
+	UNREFERENCED_PARAMETER(f);
+#endif/* HAVE_FCNTL_H && SET_UID */
 }
 
 /*
@@ -482,7 +492,9 @@ void file_unlock(ang_file *f)
 	lock.l_start = 0;
 	lock.l_len = 0;
 	lock.l_pid = 0;
-	fcntl(fileno(f->fh), F_SETLK, &lock);
+	fcntl(_fileno(f->fh), F_SETLK, &lock);
+#else
+	UNREFERENCED_PARAMETER(f);
 #endif /* HAVE_FCNTL_H && SET_UID */
 }
 
@@ -531,7 +543,7 @@ bool file_writec(ang_file *f, byte b)
 
 int file_read(ang_file *f, char *buf, size_t n)
 {
-	int fd = fileno(f->fh);
+	int fd = _fileno(f->fh);
 	int ret;
 	int n_read = 0;
 
@@ -539,7 +551,7 @@ int file_read(ang_file *f, char *buf, size_t n)
 
 	while (n >= READ_BUF_SIZE)
 	{
-		ret = read(fd, buf, READ_BUF_SIZE);
+		ret = _read(fd, buf, READ_BUF_SIZE);
 		n_read += ret;
 
 		if (ret == -1)
@@ -553,7 +565,7 @@ int file_read(ang_file *f, char *buf, size_t n)
 
 #endif /* !SET_UID */
 
-	ret = read(fd, buf, n);
+	ret = _read(fd, buf, n);
 	n_read += ret;
 
 	if (ret == -1)
@@ -589,13 +601,13 @@ int file_read(ang_file *f, char *buf, size_t n)
 
 bool file_write(ang_file *f, const char *buf, size_t n)
 {
-	int fd = fileno(f->fh);
+	int fd = _fileno(f->fh);
 
 #ifndef SET_UID
 
 	while (n >= WRITE_BUF_SIZE)
 	{
-		if (write(fd, buf, WRITE_BUF_SIZE) != WRITE_BUF_SIZE)
+		if (_write(fd, buf, WRITE_BUF_SIZE) != WRITE_BUF_SIZE)
 			return FALSE;
 
 		buf += WRITE_BUF_SIZE;
@@ -604,7 +616,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 
 #endif /* !SET_UID */
 
-	if (write(fd, buf, n) != (int)n)
+	if (_write(fd, buf, n) != (int)n)
 		return FALSE;
 
 	return TRUE;
@@ -617,7 +629,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 	return (fwrite(buf, 1, n, f->fh) == n);
 }
 
-#endif 
+#endif
 
 
 /** Line-based IO **/

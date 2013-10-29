@@ -124,8 +124,8 @@ struct term_win
  *	- Keypress Queue -- pending keys
  *
  *
- *	- Window Width (max 255)
- *	- Window Height (max 255)
+ *	- Window Width
+ *	- Window Height
  *
  *	- Minimum modified row
  *	- Maximum modified row
@@ -192,18 +192,18 @@ struct term
 	u16b key_xtra;
 	u16b key_size;
 
-	byte wid;
-	byte hgt;
+	s16b wid;
+	s16b hgt;
 
-	byte y1;
-	byte y2;
+	s16b y1;
+	s16b y2;
 
-	byte *x1;
-	byte *x2;
+	s16b *x1;
+	s16b *x2;
 
 	/* Offsets used by the map subwindows */
-	byte offset_x;
-	byte offset_y;
+	s16b offset_x; /* To change to s16b as can be greater than 256 */
+	s16b offset_y; /* To change to s16b as can be greater than 256 */
 
 	term_win *old;
 	term_win *scr;
@@ -218,15 +218,15 @@ struct term
 
 	errr (*xtra_hook)(int n, int v);
 
-	errr (*curs_hook)(int x, int y);
+	errr (*curs_hook)(s16b x, s16b y);
 
-	errr (*bigcurs_hook)(int x, int y);
+	errr (*bigcurs_hook)(s16b x, s16b y);
 
-	errr (*wipe_hook)(int x, int y, int n);
+	errr (*wipe_hook)(s16b x, s16b y, s16b n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+	errr (*text_hook)(s16b x, s16b y, s16b n, byte a, cptr s);
 
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+	errr (*pict_hook)(s16b x, s16b y, s16b n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
 };
 
 
@@ -307,29 +307,29 @@ extern term *Term;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
-extern void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc);
-extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
+extern void Term_queue_char(term *t, s16b x, s16b y, byte a, char c, byte ta, char tc);
+extern void Term_queue_chars(s16b x, s16b y, s16b n, byte a, cptr s);
 
 extern errr Term_fresh(void);
 extern errr Term_set_cursor(bool v);
-extern errr Term_gotoxy(int x, int y);
-extern errr Term_draw(int x, int y, byte a, char c);
+extern errr Term_gotoxy(s16b x, s16b y);
+extern errr Term_draw(s16b x, s16b y, byte a, char c);
 extern errr Term_addch(byte a, char c);
-extern errr Term_addstr(int n, byte a, cptr s);
-extern errr Term_putch(int x, int y, byte a, char c);
-extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
-extern errr Term_erase(int x, int y, int n);
+extern errr Term_addstr(s16b n, byte a, cptr s);
+extern errr Term_putch(s16b x, s16b y, byte a, char c);
+extern errr Term_putstr(s16b x, s16b y, s16b n, byte a, cptr s);
+extern errr Term_erase(s16b x, s16b y, s16b n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);
-extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
+extern errr Term_redraw_section(s16b x1, s16b y1, s16b x2, s16b y2);
 
 extern errr Term_get_cursor(bool *v);
-extern errr Term_get_size(int *w, int *h);
-extern errr Term_locate(int *x, int *y);
-extern errr Term_what(int x, int y, byte *a, char *c);
+extern errr Term_get_size(s16b *w, s16b *h);
+extern errr Term_locate(s16b *x, s16b *y);
+extern errr Term_what(s16b x, s16b y, byte *a, char *c);
 
 extern errr Term_flush(void);
-extern errr Term_mousepress(int x, int y, char button);
+extern errr Term_mousepress(s16b x, s16b y, char button);
 extern errr Term_keypress(int k);
 extern errr Term_key_push(int k);
 extern errr Term_event_push(const ui_event_data *ke);
@@ -338,12 +338,12 @@ extern errr Term_inkey(ui_event_data *ch, bool wait, bool take);
 extern errr Term_save(void);
 extern errr Term_load(void);
 
-extern errr Term_resize(int w, int h);
+extern errr Term_resize(s16b w, s16b h);
 
 extern errr Term_activate(term *t);
 
 extern errr term_nuke(term *t);
-extern errr term_init(term *t, int w, int h, int k);
+extern errr term_init(term *t, s16b w, s16b h, int k);
 
 
 #endif

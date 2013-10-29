@@ -15,11 +15,16 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
+
+/*
+ * Disabling load-old until we have older versions that we want to be 
+ * able to load from.
+ */
+
 #include "angband.h"
 #include "object/tvalsval.h"
 
-
-
+#if 0
 
 static ang_file *fff;
 
@@ -36,7 +41,7 @@ static u32b	x_check = 0L;
  */
 static void note(cptr msg)
 {
-	static int y = 2;
+	static s16b y = 2;
 
 	/* Draw the message */
 	prt(msg, y, 0);
@@ -175,6 +180,7 @@ static int rd_item(object_type *o_ptr)
 {
 	byte old_dd;
 	byte old_ds;
+
 	byte tmp8u;
 
 	object_kind *k_ptr;
@@ -197,6 +203,7 @@ static int rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 	rd_s16b(&o_ptr->pval);
+	rd_s16b(&o_ptr->p2val);
 
 	/* Pseudo-ID bit */
 	rd_byte(&tmp8u);
@@ -218,17 +225,51 @@ static int rd_item(object_type *o_ptr)
 	rd_byte(&old_dd);
 	rd_byte(&old_ds);
 
-	rd_byte(&tmp8u);
+	{ 
+		byte old_ident;
+		rd_byte(&old_ident); 
+		o_ptr->ident = old_ident; 
+	}
 
 	rd_byte(&o_ptr->marked);
 
 	rd_byte(&o_ptr->origin);
-	rd_byte(&o_ptr->origin_depth);
+	rd_s16b(&o_ptr->origin_depth); /* Was byte */
 	rd_u16b(&o_ptr->origin_xtra);
 
 	rd_u32b(&o_ptr->flags[0]);
 	rd_u32b(&o_ptr->flags[1]);
 	rd_u32b(&o_ptr->flags[2]);
+	rd_u32b(&o_ptr->flags[3]);
+
+	{ 
+		u32b f[OBJ_FLAG_N]; 
+		object_flags(o_ptr, f); 
+
+		memset(&o_ptr->known_flags, 0, sizeof(o_ptr->known_flags)); 
+
+		if (object_known_p(o_ptr)) 
+		{ 
+			memcpy(&o_ptr->known_flags, f, sizeof(f)); 
+		} 
+		else if (o_ptr->ident & IDENT_TRIED) 
+		{ 
+			o_ptr->known_flags[0] = 
+					(f[0] & TR0_OBVIOUS_MASK); 
+			o_ptr->known_flags[1] = 
+					(f[1] & TR1_OBVIOUS_MASK); 
+			/* No TR2_** is obvious */
+			o_ptr->known_flags[3] = 
+					(f[3] & TR3_OBVIOUS_MASK); 
+		} 
+
+		/* tmp8u is the old pseudo marker, 1-3 are the old cursed markers */ 
+		if (tmp8u >= 1 && tmp8u <= 3) 
+		{ 
+			/* Know whatever curse flags there are to know */ 
+			o_ptr->known_flags[3] |= (f[3] & TR3_CURSE_MASK); 
+		} 
+	}
 
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
@@ -240,7 +281,7 @@ static int rd_item(object_type *o_ptr)
 
 
 	/* Lookup item kind */
-	o_ptr->k_idx = lookup_kind(o_ptr->tval, o_ptr->sval);
+	o_ptr->k_idx = INT2S16B(lookup_kind(o_ptr->tval, o_ptr->sval));
 
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -275,7 +316,6 @@ static int rd_item(object_type *o_ptr)
 		/* All done */
 		return (0);
 	}
-
 
 
 	/* Paranoia */
@@ -329,6 +369,9 @@ static int rd_item(object_type *o_ptr)
 		/* Get the new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
 
+		/* Get the new artifact "p2val" */
+		o_ptr->p2val = a_ptr->p2val;
+
 		/* Get the new artifact fields */
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
@@ -359,6 +402,13 @@ static int rd_item(object_type *o_ptr)
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
+		/* Hack -- enforce legal p2val */
+		if (e_ptr->flags[0] & TR0_P2VAL_MASK)
+		{
+			/* Force a meaningful p2val */
+			if (!o_ptr->p2val) o_ptr->p2val = 1;
+		}
+
 	}
 
 
@@ -516,14 +566,14 @@ static int rd_options(void)
  */
 static int rd_messages(void)
 {
-	int i;
+	u32b i;
 	char buf[128];
 	u16b tmp16u;
 	
-	s16b num;
+	u32b num;
 	
 	/* Total */
-	rd_s16b(&num);
+	rd_u32b(&num);
 	
 	/* Read the messages */
 	for (i = 0; i < num; i++)
@@ -638,10 +688,8 @@ static int rd_object_memory(void)
 		
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE : FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE : FALSE;
+		k_ptr->squelch = (tmp8u & 0x04) ? TRUE : FALSE;
 		k_ptr->everseen = (tmp8u & 0x08) ? TRUE : FALSE;
-
-		if (tmp8u & 0x04) kind_squelch_when_aware(k_ptr);
-		if (tmp8u & 0x10) kind_squelch_when_unaware(k_ptr);
 	}
 	
 	return 0;
@@ -700,66 +748,12 @@ static int rd_artifacts(void)
 		byte tmp8u;
 		
 		rd_byte(&tmp8u);
-		a_info[i].created = tmp8u;
+		a_info[i].cur_num = tmp8u;
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
-	}
-
-
-
-	/* For old versions, we need to go through objects and update */
-	{
-		size_t i;
-		object_type *o_ptr = NULL;
-
-		bool *anywhere;
-		anywhere = C_ZNEW(z_info->a_max, bool);
-
-		/* All inventory/home artifacts need to be marked as seen */
-		for (i = 0; i < INVEN_TOTAL; i++)
-		{
-			o_ptr = &o_list[i];
-			if (object_is_known_artifact(o_ptr))
-				artifact_of(o_ptr)->seen = TRUE;
-			anywhere[o_ptr->name1] = TRUE;
-		}
-
-		for (i = 0; i < (size_t)o_max; i++)
-		{
-			o_ptr = &o_list[i];
-			if (object_is_known_artifact(o_ptr))
-				artifact_of(o_ptr)->seen = TRUE;
-			anywhere[o_ptr->name1] = TRUE;
-		}
-
-		for (i = 0; i < MAX_STORES; i++)
-		{
-			int j = 0;
-			for (j = 0; j < store[i].stock_num; j++)
-			{
-				o_ptr = &store[i].stock[j];
-				if (object_is_known_artifact(o_ptr))
-					artifact_of(o_ptr)->seen = TRUE;
-				anywhere[o_ptr->name1] = TRUE;
-			}
-		}
-
-		/* Now update the seen flags correctly */
-		for (i = 0; i < z_info->a_max; i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-
-			/* If it isn't present anywhere, but has been created,
-			 * then it has been lost, and thus seen */
-			if (a_ptr->created && !anywhere[i])
-				a_ptr->seen = TRUE;
-		}
-
-		FREE(anywhere);
 	}
 	
-
 	return 0;
 }
 
@@ -809,12 +803,11 @@ static int rd_player(void)
 	rd_byte(&p_ptr->psex);
 	sp_ptr = &sex_info[p_ptr->psex];
 
-	/* Numeric name suffix */
-	rd_byte(&op_ptr->name_suffix);
+	strip_bytes(1);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	rd_s16b(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -913,20 +906,20 @@ static int rd_player(void)
  */
 static int rd_squelch(void)
 {
-	size_t i;
+	int i;
 	byte tmp8u = 24;
 	
 	/* Read how many squelch bytes we have */
 	rd_byte(&tmp8u);
 	
 	/* Check against current number */
-	if (tmp8u != squelch_size)
+	if (tmp8u != SQUELCH_BYTES)
 	{
 		strip_bytes(tmp8u);
 	}
 	else
 	{
-		for (i = 0; i < squelch_size; i++)
+		for (i = 0; i < SQUELCH_BYTES; i++)
 			rd_byte(&squelch_level[i]);
 	}
 	
@@ -965,7 +958,7 @@ static int rd_squelch(void)
 		rd_s16b(&inscriptions[i].kind_idx);
 		rd_string(tmp, sizeof(tmp));
 		
-		inscriptions[i].inscription_idx = quark_add(tmp);
+		inscriptions[i].inscription_idx = (s16b) quark_add(tmp);
 	}
 	
 	return 0;
@@ -1135,6 +1128,7 @@ static int rd_randarts(void)
 				rd_byte(&a_ptr->tval);
 				rd_byte(&a_ptr->sval);
 				rd_s16b(&a_ptr->pval);
+				rd_s16b(&a_ptr->p2val);
 
 				rd_s16b(&a_ptr->to_h);
 				rd_s16b(&a_ptr->to_d);
@@ -1151,6 +1145,7 @@ static int rd_randarts(void)
 				rd_u32b(&a_ptr->flags[0]);
 				rd_u32b(&a_ptr->flags[1]);
 				rd_u32b(&a_ptr->flags[2]);
+				rd_u32b(&a_ptr->flags[3]);
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
@@ -1160,9 +1155,8 @@ static int rd_randarts(void)
 				rd_u16b(&a_ptr->time_dice);
 				rd_u16b(&a_ptr->time_sides);
 			}
-		
-		/* Initialize only the randart names */
-		do_randart(seed_randart, FALSE);
+			/* Initialize only the randart names */
+			do_randart(seed_randart, FALSE);
 		}
 		else
 		{
@@ -1172,6 +1166,7 @@ static int rd_randarts(void)
 				rd_byte(&tmp8u); /* a_ptr->tval */
 				rd_byte(&tmp8u); /* a_ptr->sval */
 				rd_s16b(&tmp16s); /* a_ptr->pval */
+				rd_s16b(&tmp16s); /* a_ptr->p2val */
 
 				rd_s16b(&tmp16s); /* a_ptr->to_h */
 				rd_s16b(&tmp16s); /* a_ptr->to_d */
@@ -1185,9 +1180,10 @@ static int rd_randarts(void)
 
 				rd_s32b(&tmp32s); /* a_ptr->cost */
 
-				rd_u32b(&tmp32u); /* a_ptr->flags1 */
-				rd_u32b(&tmp32u); /* a_ptr->flags2 */
-				rd_u32b(&tmp32u); /* a_ptr->flags3 */
+				rd_u32b(&tmp32u); /* a_ptr->flags[0] */
+				rd_u32b(&tmp32u); /* a_ptr->flags[1] */
+				rd_u32b(&tmp32u); /* a_ptr->flags[2] */
+				rd_u32b(&tmp32u); /* a_ptr->flags[3] */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
 				rd_byte(&tmp8u); /* a_ptr->rarity */
@@ -1198,10 +1194,13 @@ static int rd_randarts(void)
 				rd_u16b(&tmp16u); /* a_ptr->time_sides */
 			}
 		}
+
 	}
 
 	return (0);
 }
+
+
 
 
 
@@ -1213,7 +1212,7 @@ static int rd_randarts(void)
  */
 static int rd_inventory(void)
 {
-	int slot = 0;
+	u16b slot = 0;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1344,8 +1343,6 @@ static int rd_stores(void)
 				note("Error reading item");
 				return (-1);
 			}
-
-			i_ptr->ident |= IDENT_STORE;
 			
 			/* Accept any valid items */
 			if ((st_ptr->stock_num < STORE_INVEN_MAX) &&
@@ -1385,10 +1382,10 @@ static int rd_stores(void)
  */
 static int rd_dungeon(void)
 {
-	int i, y, x;
+	s16b i, y, x;
 
 	s16b depth;
-	s16b py, px;
+	byte py, px;
 	s16b ymax, xmax;
 
 	byte count;
@@ -1404,8 +1401,8 @@ static int rd_dungeon(void)
 	/* Header info */
 	rd_s16b(&depth);
 	rd_u16b(&tmp16u);
-	rd_s16b(&py);
-	rd_s16b(&px);
+	rd_byte(&py);
+	rd_byte(&px);
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
 	rd_u16b(&tmp16u);
@@ -1428,8 +1425,7 @@ static int rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= DUNGEON_WID) ||
-	    (py < 0) || (py >= DUNGEON_HGT))
+	if ((px >= DUNGEON_WID) || (py >= DUNGEON_HGT)) /* (px < 0) || (py < 0) */
 	{
 		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
@@ -1535,12 +1531,6 @@ static int rd_dungeon(void)
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
 	
-#if 0
-	/* Regenerate town in old versions */
-	if (p_ptr->depth == 0)
-		character_dungeon = FALSE;
-#endif
-	
 	return 0;
 }
 
@@ -1605,8 +1595,8 @@ static int rd_objects(void)
 		/* Dungeon floor */
 		if (!i_ptr->held_m_idx)
 		{
-			int x = i_ptr->ix;
-			int y = i_ptr->iy;
+			s16b x = i_ptr->ix;
+			s16b y = i_ptr->iy;
 
 			/* ToDo: Verify coordinates */
 
@@ -1624,7 +1614,7 @@ static int rd_objects(void)
 
 static int rd_monsters(void)
 {
-	int i;
+	s16b i;
 	u16b limit;
 
 	/* Only if the player's alive */
@@ -1786,10 +1776,6 @@ static int rd_savefile_new_aux(void)
 	strip_bytes(20);
 
 
-	if (!get_check("If you import this savefile, object memory will be lost.  Is that OK? [y/n]"))
-		return -1;
-
-
 
         if (rd_randomizer()) return -1;
         if (rd_options()) return -1;
@@ -1877,3 +1863,5 @@ int rd_savefile_old(void)
 	/* Result */
 	return (err);
 }
+
+#endif

@@ -25,40 +25,39 @@
 #include "externs.h"
 #include "ui-menu.h"
 
+static void dump_pref_file(void (*dump)(ang_file *), const char *title, s16b row) 
+{ 
+	char ftmp[80]; 
+	char buf[1024]; 
 
-static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row)
-{
-	char ftmp[80];
-	char buf[1024];
+	/* Prompt */ 
+	prt(format("%s to a pref file", title), row, 0); 
 
-	/* Prompt */
-	prt(format("%s to a pref file", title), row, 0);
-	
-	/* Prompt */
-	prt("File: ", row + 2, 0);
-	
-	/* Default filename */
-	strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name);
-	
-	/* Get a filename */
-	if (!askfor_aux(ftmp, sizeof ftmp, NULL)) return;
+	/* Prompt */ 
+	prt("File: ", row + 2, 0); 
 
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
-	
-	if (!prefs_save(buf, dump, title))
-	{
-		prt("", 0, 0);
-		msg_print("Failed");
-		return;
-	}
+	/* Default filename */ 
+	strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name); 
 
-	/* Message */
-	prt("", 0, 0);
-	msg_print(format("Dumped %s", strstr(title, " ")+1));
+	/* Get a filename */ 
+	if (!askfor_aux(ftmp, sizeof ftmp, NULL)) return; 
+
+	/* Build the filename */ 
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp); 
+
+	if (!prefs_save(buf, dump, title)) 
+	{ 
+		prt("", 0, 0); 
+		msg_print("Failed"); 
+		return; 
+	} 
+
+	/* Message */ 
+	prt("", 0, 0); 
+	msg_print(format("Dumped %s", strstr(title, " ")+1)); 
 }
 
-static void do_cmd_pref_file_hack(long row);
+static void do_cmd_pref_file_hack(s16b row);
 
 
 
@@ -85,7 +84,6 @@ static void do_cmd_pref_file_hack(long row);
 
 
 #define INFO_SCREENS 2 /* Number of screens in character info mode */
-
 
 
 /*
@@ -170,6 +168,48 @@ void do_cmd_redraw(void)
 	}
 }
 
+void do_cmd_change_movement(bool up)
+{
+   char c;
+   if (up)
+   {
+      p_ptr->movement++;
+      if (p_ptr->movement>8) p_ptr->movement = 0;
+   }
+   else
+   {
+      if (p_ptr->movement==0) p_ptr->movement = 9;
+      p_ptr->movement--;
+   }
+   prt(format("During your adventures in Angband, you explore %s. -- more --",
+              move_info[p_ptr->movement].name),0,0);
+   c = inkey();
+   p_ptr->update |= (PU_BONUS); /* TODO Correct update stuff */
+   update_stuff();
+   prt("",0,0);
+}
+
+
+void do_cmd_change_tactic(bool up)
+{
+	char c;
+	if (up)
+	{
+		p_ptr->tactic++;
+		if (p_ptr->tactic>8) p_ptr->tactic = 0;
+	}
+	else
+	{
+		if (p_ptr->tactic==0) p_ptr->tactic = 9;
+		p_ptr->tactic--;
+	}
+	prt(format("During your adventures in Angband, you behave %s. -- more --",
+		tactic_info[p_ptr->tactic].name),0,0);
+	c = inkey();
+	p_ptr->update |= (PU_BONUS); /* TODO Correct update stuff */
+	update_stuff();
+	prt("",0,0);
+}
 
 /*
  * Hack -- change name
@@ -182,15 +222,18 @@ void do_cmd_change_name(void)
 
 	cptr p;
 
-	/* Prompt */
-	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
-
 	/* Save screen */
 	screen_save();
 
 	/* Forever */
 	while (1)
 	{
+		/* Prompt */
+		if(mode == 0)
+			p = "[change <n>ame/<tT>actic/<m>ode/<eE>xploration, dump <f>ile or ESC to leave]";
+		else
+			p = "[<c>hange name, dump to <f>ile, change <m>ode or ESC to leave]";
+
 		/* Display the player */
 		display_player(mode);
 
@@ -204,7 +247,7 @@ void do_cmd_change_name(void)
 		if (ke.key == ESCAPE) break;
 
 		/* Change name */
-		if ((ke.key == 'c') || ((ke.key == '\xff') && (ke.mousey == 2) && (ke.mousex < 26)))
+		if ((ke.key == 'n') || ((ke.key == '\xff') && (ke.mousey == 2) && (ke.mousex < 26)))
 		{
 			char namebuf[32] = "";
 
@@ -236,8 +279,8 @@ void do_cmd_change_name(void)
 			}
 		}
 
-		/* Toggle mode */
-		else if ((ke.key == 'h') || (ke.key == '\xff') ||
+		/* Toggle mode */ /* TODO Handle extra modes when 'cheat'ing */
+		else if ((ke.key == 'm') || (ke.key == '\xff') ||
 		         (ke.key == ARROW_LEFT) || (ke.key == ' '))
 		{
 			mode = (mode + 1) % INFO_SCREENS;
@@ -249,6 +292,17 @@ void do_cmd_change_name(void)
 			mode = (mode - 1) % INFO_SCREENS;
 		}
 
+		/* Do tactics */
+		else if ((ke.key == 't') || (ke.key == 'T'))
+		{
+			if (mode == 0) do_cmd_change_tactic(ke.key == 't');
+		}
+
+		/* Do movement (Exploration) */
+		else if ((ke.key == 'e') || (ke.key == 'E'))
+		{
+			if (mode == 0) do_cmd_change_movement(ke.key == 'e');
+		}
 
 		/* Oops */
 		else
@@ -264,7 +318,6 @@ void do_cmd_change_name(void)
 	screen_load();
 }
 
-
 /*
  * Recall the most recent message
  */
@@ -273,7 +326,6 @@ void do_cmd_message_one(void)
 	/* Recall one message XXX XXX XXX */
 	c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
 }
-
 
 /*
  * Show previous messages to the user
@@ -293,9 +345,9 @@ void do_cmd_message_one(void)
 void do_cmd_messages(void)
 {
 	ui_event_data ke;
-
-	int i, j, n, q;
-	int wid, hgt;
+	s16b i, j;
+	int n, q;
+	s16b wid, hgt;
 
 	char shower[80] = "";
 
@@ -349,10 +401,10 @@ void do_cmd_messages(void)
 				/* Display matches */
 				while ((str = my_stristr(str, shower)) != NULL)
 				{
-					int len = strlen(shower);
+					s16b len = (s16b) strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, hgt - 3 - j, len, TERM_YELLOW, str);
+					Term_putstr((s16b) (str - msg), hgt - 3 - j, len, TERM_YELLOW, str);
 
 					/* Advance */
 					str += len;
@@ -498,7 +550,7 @@ void do_cmd_messages(void)
  * Displays an option entry.
  */
 static void display_option(menu_type *menu, int oid,
-							bool cursor, int row, int col, int width)
+							bool cursor, s16b row, s16b col, s16b width)
 {
 	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
 	(void)menu;
@@ -569,8 +621,8 @@ static void do_cmd_options_aux(void *vpage, cptr info)
 {
 	int page = (int)vpage;
 	int opt[OPT_PAGE_PER];
-	int i, n = 0;
-	int cursor_pos = 0;
+	s16b i, n = 0;
+	s16b cursor_pos = 0;
 
 	menu_type *menu = &option_toggle_menu;
 	menu->title = info;
@@ -626,10 +678,10 @@ static void do_cmd_options_aux(void *vpage, cptr info)
  */
 static void do_cmd_options_win(void)
 {
-	int i, j, d;
-
-	int y = 0;
-	int x = 0;
+	int d;
+	s16b i, j;
+	s16b y = 0;
+	s16b x = 0;
 
 	ui_event_data ke;
 
@@ -663,7 +715,7 @@ static void do_cmd_options_win(void)
 			if (j == x) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
-			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
+			Term_putstr(35 + j * 5 - (s16b) strlen(s) / 2, 2 + j % 2, -1, a, s);
 		}
 
 		/* Display the options */
@@ -712,8 +764,8 @@ static void do_cmd_options_win(void)
 		/* Mouse interaction */
 		if (ke.key == '\xff')
 		{
-			int choicey = ke.mousey - 5;
-			int choicex = (ke.mousex - 35)/5;
+			s16b choicey = ke.mousey - 5;
+			s16b choicex = (ke.mousex - 35)/5;
 
 			if ((choicey >= 0) && (choicey < PW_MAX_FLAGS)
 				&& (choicex > 0) && (choicex < ANGBAND_TERM_MAX)
@@ -773,7 +825,6 @@ static void do_cmd_options_win(void)
 	subwindows_set_flags(new_flags, ANGBAND_TERM_MAX);
 }
 
-
 #ifdef ALLOW_MACROS
 
 /*
@@ -789,7 +840,7 @@ static void do_cmd_macro_aux(char *buf)
 	char ch;
 
 	int n = 0;
-	int curs_x, curs_y;
+	s16b curs_x, curs_y;
 
 	char tmp[1024] = "";
 
@@ -847,12 +898,15 @@ static void do_cmd_macro_aux_keymap(char *buf)
 {
 	char tmp[1024];
 
+
 	/* Flush */
 	flush();
+
 
 	/* Get a key */
 	buf[0] = inkey();
 	buf[1] = '\0';
+
 
 	/* Convert to ascii */
 	ascii_to_text(tmp, sizeof(tmp), buf);
@@ -860,12 +914,12 @@ static void do_cmd_macro_aux_keymap(char *buf)
 	/* Hack -- display the trigger */
 	Term_addstr(-1, TERM_WHITE, tmp);
 
+
 	/* Flush */
 	flush();
 }
 
 #endif
-
 
 /*
  * Interact with "macros"
@@ -900,7 +954,7 @@ void do_cmd_macros(void)
 	char pat[1024];
 
 	int mode;
-	int cursor = 0;
+	s16b cursor = 0;
 
 	region loc = {0, 0, 0, 12};
 
@@ -1209,7 +1263,7 @@ static menu_type visual_menu;
  */
 void do_cmd_visuals(void)
 {
-	int cursor = 0;
+	s16b cursor = 0;
 
 	/* Save screen */
 	screen_save();
@@ -1300,9 +1354,9 @@ static menu_type color_menu;
  */
 void do_cmd_colors(void)
 {
-	int i;
-	int cx;
-	int cursor = 0;
+	s16b i;
+	s16b cx;
+	s16b cursor = 0;
 
 	screen_save();
 
@@ -1366,10 +1420,10 @@ void do_cmd_colors(void)
 				for (i = 0; i < BASIC_COLORS; i++)
 				{
 					/* Exhibit this color */
-					Term_putstr(i*4, 20, -1, a, "###");
+					Term_putstr(i * 4, 20, -1, a, "###");
 
 					/* Exhibit all colors */
-					Term_putstr(i*4, 22, -1, (byte)i, format("%3d", i));
+					Term_putstr(i * 4, 22, -1, (byte)i, format("%3d", i));
 				}
 
 				/* Describe the color */
@@ -1485,7 +1539,10 @@ static void do_cmd_delay(void)
 	/* Process input */
 	if (res)
 	{
-		op_ptr->delay_factor = (u16b) strtoul(tmp, NULL, 0);
+		long delay_factor = strtoul(tmp, NULL, 0);
+		if (delay_factor <= 255)
+			delay_factor = 255;
+		op_ptr->delay_factor = (byte) delay_factor;
 	}
 }
 
@@ -1497,7 +1554,7 @@ static void do_cmd_hp_warn(void)
 {
 	bool res;
 	char tmp[4] = "";
-	u16b warn;
+	long warn;
 
 	strnfmt(tmp, sizeof(tmp), "%i", op_ptr->hitpoint_warn);
 
@@ -1514,13 +1571,11 @@ static void do_cmd_hp_warn(void)
 	/* Process input */
 	if (res)
 	{
-		warn = (u16b) strtoul(tmp, NULL, 0);
+		warn = strtoul(tmp, NULL, 0);
 		
-		/* Reset nonsensical warnings */
-		if (warn > 9)
-			warn = 0;
-
-		op_ptr->hitpoint_warn = warn;
+		/* Change setting if valid number */
+		if (warn <= 9)
+			op_ptr->hitpoint_warn = (byte) warn;
 	}
 }
 
@@ -1562,7 +1617,7 @@ static void do_cmd_lazymove_delay(void)
  *
  * Allow absolute file names?  XXX XXX XXX
  */
-static void do_cmd_pref_file_hack(long row)
+static void do_cmd_pref_file_hack(s16b row)
 {
 	char ftmp[80];
 
@@ -1599,7 +1654,8 @@ static void do_cmd_pref_file_hack(long row)
  */
 static void do_dump_options(void *unused, const char *title)
 {
-	(void)unused;
+	UNREFERENCED_PARAMETER(unused);
+	UNREFERENCED_PARAMETER(title);
 	dump_pref_file(option_dump, "Dump options", 20);
 }
 
@@ -1627,7 +1683,7 @@ static menu_action option_actions [] =
 	{'h', "Set hitpoint warning", (action_f) do_cmd_hp_warn, 0}, 
 	{'i', "Set movement delay", (action_f) do_cmd_lazymove_delay, 0}, 
 	{'l', "Load a user pref file", (action_f) do_cmd_pref_file_hack, (void*)20},
-	{'o', "Save options", do_dump_options, 0}, 
+	{'o', "Save options", do_dump_options, 0},
 	{0, 0, 0, 0}, /* Interact with */	
 	{'m', "Interact with macros (advanced)", (action_f) do_cmd_macros, 0},
 	{'v', "Interact with visuals (advanced)", (action_f) do_cmd_visuals, 0},
@@ -1640,7 +1696,7 @@ static char tag_opt_main(menu_type *menu, int oid)
 {
 	(void)menu;
 	if (option_actions[oid].id)
-		return option_actions[oid].id;
+		return INT2CHR(option_actions[oid].id);
 
 	return 0;
 }
@@ -1654,7 +1710,7 @@ static int valid_opt_main(menu_type *menu, int oid)
 	return 0;
 }
 
-static void display_opt_main(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+static void display_opt_main(menu_type *menu, int oid, bool cursor, s16b row, s16b col, s16b width)
 {
 	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
 
@@ -1679,7 +1735,7 @@ static const menu_iter options_iter =
  */
 void do_cmd_options(void)
 {
-	int cursor = 0;
+	s16b cursor = 0;
 	ui_event_data c = EVENT_EMPTY;
 
 	screen_save();
@@ -1700,7 +1756,6 @@ void do_cmd_options(void)
 
 	screen_load();
 }
-
 
 
 
@@ -1766,13 +1821,6 @@ void init_cmd4_c(void)
 	menu_init(menu, MN_SKIN_SCROLL, find_menu_iter(MN_ITER_ACTIONS), &SCREEN_REGION);
 
 }
-
-
-
-
-
-
-
 
 /*** Non-knowledge/option stuff ***/
 
@@ -1892,7 +1940,8 @@ static const char hack[BASIC_COLORS+1] = "dwsorgbuDWvyRGBU";
  */
 void do_cmd_load_screen(void)
 {
-	int i, y, x;
+	s16b y, x;
+	byte i;
 
 	byte a = 0;
 	char c = ' ';
@@ -1981,7 +2030,7 @@ void do_cmd_load_screen(void)
  */
 static void do_cmd_save_screen_text(void)
 {
-	int y, x;
+	s16b y, x;
 
 	byte a = 0;
 	char c = ' ';
@@ -2150,4 +2199,3 @@ void do_cmd_save_screen(void)
 		}
 	}
 }
-

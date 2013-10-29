@@ -18,13 +18,12 @@
 #include "angband.h"
 #include "tvalsval.h"
 
-
 /*
  * Choice window "shadow" of the "show_inven()" function
  */
 void display_inven(void)
 {
-	register int i, n, z = 0;
+	s16b i, n, z = 0;
 
 	object_type *o_ptr;
 
@@ -33,7 +32,6 @@ void display_inven(void)
 	char tmp_val[10];
 
 	char o_name[80];
-
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -73,7 +71,7 @@ void display_inven(void)
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Obtain the length of the description */
-		n = strlen(o_name);
+		n = (s16b) strlen(o_name);
 
 		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
@@ -82,7 +80,7 @@ void display_inven(void)
 		Term_putstr(3, i, n, attr, o_name);
 
 		/* Erase the rest of the line */
-		Term_erase(3+n, i, 255);
+		Term_erase(3 + n, i, 255);
 
 		/* Display the weight if needed */
 		if (o_ptr->weight)
@@ -108,7 +106,7 @@ void display_inven(void)
  */
 void display_equip(void)
 {
-	register int i, n;
+	s16b i, n;
 	object_type *o_ptr;
 	byte attr;
 
@@ -143,7 +141,7 @@ void display_equip(void)
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Obtain the length of the description */
-		n = strlen(o_name);
+		n = (s16b) strlen(o_name);
 
 		/* Get inventory color */
 		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
@@ -165,7 +163,7 @@ void display_equip(void)
 		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (OPT(show_labels) ? 52 : 71);
+			s16b col = (OPT(show_labels) ? 52 : 71);
 			strnfmt(tmp_val, sizeof(tmp_val), "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
 		}
@@ -188,8 +186,9 @@ void display_equip(void)
  */
 void show_inven(void)
 {
-	int i, j, k, l, z = 0;
-	int col, len, lim;
+	s16b i, j, k, l, len, z = 0;
+	s16b col;
+	int lim;
 
 	object_type *o_ptr;
 
@@ -197,7 +196,7 @@ void show_inven(void)
 
 	char tmp_val[80];
 
-	int out_index[24];
+	s16b out_index[24];
 	byte out_color[24];
 	char out_desc[24][80];
 
@@ -246,7 +245,7 @@ void show_inven(void)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
+		l = (s16b) strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
 		l += 9;
@@ -300,8 +299,9 @@ void show_inven(void)
  */
 void show_equip(void)
 {
-	int i, j, k, l;
-	int col, len, lim;
+	s16b len, i, j, k, l;
+	s16b col;
+	int lim;
 
 	object_type *o_ptr;
 
@@ -309,7 +309,7 @@ void show_equip(void)
 
 	char o_name[80];
 
-	int out_index[24];
+	s16b out_index[24];
 	byte out_color[24];
 	char out_desc[24][80];
 
@@ -350,7 +350,7 @@ void show_equip(void)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Extract the maximal length (see below) */
-		l = strlen(out_desc[k]) + (2 + 3);
+		l = (s16b) strlen(out_desc[k]) + (2 + 3);
 
 		/* Increase length for labels (if needed) */
 		if (OPT(show_labels)) l += (14 + 2);
@@ -420,10 +420,11 @@ void show_equip(void)
 /*
  * Display a list of the items on the floor at the given location.  -TNB-
  */
-void show_floor(const int *floor_list, int floor_num, bool gold)
+void show_floor(const s16b *floor_list, int floor_num, bool gold)
 {
-	int i, j, k, l;
-	int col, len, lim;
+	s16b len, i, j, k, l;
+	s16b col;
+	int lim;
 
 	object_type *o_ptr;
 
@@ -476,7 +477,7 @@ void show_floor(const int *floor_list, int floor_num, bool gold)
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
+		l = (s16b) strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
 		l += 9;
@@ -580,8 +581,10 @@ static bool get_item_allow(int item, bool is_harmless)
 	else
 		o_ptr = &o_list[0 - item];
 
+	assert(p_ptr->command_cmd>=CHAR_MIN); /* TODO These can be removed if they don't trip at all */
+	assert(p_ptr->command_cmd<=CHAR_MAX);
 	/* Check for a "prevention" inscription */
-	verify_inscrip[1] = p_ptr->command_cmd;
+	verify_inscrip[1] = (char) p_ptr->command_cmd;
 
 	/* Find both sets of inscriptions, add togther, and prompt that number of times */
 	n = check_for_inscrip(o_ptr, verify_inscrip);
@@ -597,6 +600,32 @@ static bool get_item_allow(int item, bool is_harmless)
 
 	/* Allow it */
 	return (TRUE);
+}
+
+
+/*
+ * Verify the "okayness" of a given item.
+ *
+ * The item can be negative to mean "item on floor".
+ */
+static bool get_item_okay(int item)
+{
+	object_type *o_ptr;
+
+	/* Inventory */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Floor */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Verify the item */
+	return (item_tester_okay(o_ptr));
 }
 
 
@@ -718,8 +747,8 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	ui_event_data which;
 
@@ -748,10 +777,33 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
-	int floor_list[MAX_FLOOR_STACK];
+	s16b floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
 	bool show_list = OPT(show_lists) ? TRUE : FALSE;
+
+
+	/* Get the item index */
+	if (repeat_pull(cp))
+	{
+		/* Verify the item */
+		if (get_item_okay(*cp))
+		{
+			/* Forget the item_tester_tval restriction */
+			item_tester_tval = 0;
+
+			/* Forget the item_tester_hook restriction */
+			item_tester_hook = NULL;
+
+			/* Success */
+			return (TRUE);
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
+		}
+	}
 
 
 	/* Paranoia XXX XXX XXX */
@@ -1311,7 +1363,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				verify = (isupper((unsigned char)which.key) ? TRUE : FALSE);
 
 				/* Lowercase */
-				which.key = tolower((unsigned char)which.key);
+				which.key = (char) tolower((unsigned char)which.key);
 
 				/* Convert letter to inventory index */
 				if (p_ptr->command_wrk == USE_INVEN)
@@ -1422,7 +1474,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
+	/* Save item if available */
+	if (item) repeat_push(*cp);
+
 	/* Result */
 	return (item);
 }
-

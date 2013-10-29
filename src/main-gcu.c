@@ -261,7 +261,7 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
-	int x, y;
+	s16b x, y;
 
 
 	/* Suspend */
@@ -357,7 +357,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
-	int x, y;
+	s16b x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -566,7 +566,7 @@ static errr Term_xtra_gcu(int n, int v)
 /*
  * Actually MOVE the hardware cursor
  */
-static errr Term_curs_gcu(int x, int y)
+static errr Term_curs_gcu(s16b x, s16b y)
 {
 	term_data *td = (term_data *)(Term->data);
 
@@ -582,7 +582,7 @@ static errr Term_curs_gcu(int x, int y)
  * Erase a grid of space
  * Hack -- try to be "semi-efficient".
  */
-static errr Term_wipe_gcu(int x, int y, int n)
+static errr Term_wipe_gcu(s16b x, s16b y, s16b n)
 {
 	term_data *td = (term_data *)(Term->data);
 
@@ -609,7 +609,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 /*
  * Place some text on the screen using an attribute
  */
-static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
+static errr Term_text_gcu(s16b x, s16b y, s16b n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
@@ -661,7 +661,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
  *
  * Assumes legal arguments.
  */
-static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
+static errr term_data_init_gcu(term_data *td, s16b rows, s16b cols, s16b y, s16b x)
 {
 	term *t = &td->t;
 
@@ -890,7 +890,7 @@ errr init_gcu(int argc, char **argv)
 		/* Create several terms */
 		for (i = 0; i < num_term; i++)
 		{
-			int rows, cols, y, x;
+			s16b rows, cols, y, x;
 
 			/* Decide on size and position */
 			switch (i)

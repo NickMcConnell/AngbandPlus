@@ -118,8 +118,8 @@ struct term_data
 {
   term t;
   
-  byte rows;
-  byte cols;
+  s16b rows;
+  s16b cols;
   
   int tile_height;
   int tile_width; 
@@ -234,8 +234,8 @@ static errr Term_user_nds(int n)
 /*
  * Find the square a particular pixel is part of.
  */
-static void pixel_to_square(int * const x, int * const y,
-	const int ox, const int oy)
+static void pixel_to_square(s16b * const x, s16b * const y,
+	const s16b ox, const s16b oy)
 {
 	(*x) = ox / TILE_WIDTH;
 	(*y) = oy / TILE_HEIGHT;
@@ -245,7 +245,7 @@ static void pixel_to_square(int * const x, int * const y,
 /*
  * Handle a touch on the touch screen.
  */
-static void handle_touch(int x, int y, int button, bool press)
+static void handle_touch(s16b x, s16b y, int button, bool press)
 {
 	/* The co-ordinates are only used in Angband format. */
 	pixel_to_square(&x, &y, x, y);

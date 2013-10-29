@@ -30,12 +30,11 @@ static time_t death_time = (time_t)0;
 /*
  * Write formatted string `fmt` on line `y`, centred between points x1 and x2.
  */
-static void put_str_centred(int y, int x1, int x2, const char *fmt, ...)
+static void put_str_centred(s16b y, s16b x1, s16b x2, const char *fmt, ...)
 {
 	va_list vp;
 	char *tmp;
-	size_t len;
-	int x;
+	s16b len, x;
 
 	/* Format into the (growable) tmp */
 	va_start(vp, fmt);
@@ -43,7 +42,7 @@ static void put_str_centred(int y, int x1, int x2, const char *fmt, ...)
 	va_end(vp);
 
 	/* Centre now */
-	len = strlen(tmp);
+	len = (s16b) strlen(tmp);
 	x = x1 + ((x2-x1)/2 - len/2);
 
 	put_str(tmp, y, x);
@@ -57,7 +56,7 @@ static void print_tomb(void)
 {
 	ang_file *fp;
 	char buf[1024];
-	int line = 0;
+	s16b line = 0;
 
 
 	Term_clear();
@@ -93,10 +92,13 @@ static void print_tomb(void)
 	put_str_centred(line++, 8, 8+31, "by %s.", p_ptr->died_from);
 
 	line++;
-
-	put_str_centred(line++, 8, 8+31, "by %-.24s", ctime(&death_time));
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	ctime_s(buf, sizeof(buf), &death_time);
+#else
+	my_strcpy(buf, ctime(&death_time), sizeof(buf));
+#endif
+	put_str_centred(line++, 8, 8+31, "by %-.24s", buf);
 }
-
 
 /*
  * Know inventory and home items upon death
@@ -113,8 +115,8 @@ static void death_knowledge(void)
 		o_ptr = &inventory[i];
 		if (!o_ptr->k_idx) continue;
 
-		object_flavor_aware(o_ptr);
-		object_notice_everything(o_ptr);
+		object_aware(o_ptr);
+		object_known(o_ptr);
 	}
 
 	for (i = 0; i < st_ptr->stock_num; i++)
@@ -122,8 +124,8 @@ static void death_knowledge(void)
 		o_ptr = &st_ptr->stock[i];
 		if (!o_ptr->k_idx) continue;
 
-		object_flavor_aware(o_ptr);
-		object_notice_everything(o_ptr);
+		object_aware(o_ptr);
+		object_known(o_ptr);
 	}
 
 	/* Hack -- Recalculate bonuses */
@@ -141,8 +143,8 @@ static void display_winner(void)
 	char buf[1024];
 	ang_file *fp;
 
-	int wid, hgt;
-	int i = 2;
+	s16b wid, hgt;
+	s16b i = 2;
 	int width = 0;
 
 
@@ -157,12 +159,12 @@ static void display_winner(void)
 		/* Get us the first line of file, which tells us how long the */
 		/* longest line is */
 		file_getl(fp, buf, sizeof(buf));
-		sscanf(buf, "%d", &width);
+		SSCANF(buf, "%d", &width);
 		if (!width) width = 25;
 
 		/* Dump the file to the screen */
 		while (file_getl(fp, buf, sizeof(buf)))
-			put_str(buf, i++, (wid/2) - (width/2));
+			put_str(buf, i++, (wid/2) - (s16b) (width/2));
 
 		file_close(fp);
 	}
@@ -212,7 +214,7 @@ static void death_file(void *unused, const char *title)
  */
 static void death_info(void *unused, const char *title)
 {
-	int i, j, k;
+	s16b i, j, k;
 	object_type *o_ptr;
 	store_type *st_ptr = &store[STORE_HOME];
 
@@ -406,11 +408,11 @@ static menu_action death_actions[] =
 static char death_menu_tag(menu_type *menu, int oid)
 {
 	(void)menu;
-	return death_actions[oid].id;
+	return INT2CHR(death_actions[oid].id);
 }
 
 /* Display a menu entry */
-static void death_menu_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+static void death_menu_display(menu_type *menu, int oid, bool cursor, s16b row, s16b col, s16b width)
 {
 	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
 	(void)menu;
@@ -438,7 +440,7 @@ void death_screen(void)
 	const char cmd_keys[] = { ARROW_LEFT, ARROW_RIGHT, '\0' };
 	const region area = { 51, 2, 0, N_ELEMENTS(death_actions) };
 
-	int cursor = 0;
+	s16b cursor = 0;
 	ui_event_data c = EVENT_EMPTY;
 
 

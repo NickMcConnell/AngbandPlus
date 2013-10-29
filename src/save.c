@@ -19,26 +19,32 @@
 #include "option.h"
 #include "savefile.h"
 
+void wr_spell_set(const object_type *o_ptr)
+{
+   int i;
+   for (i = 0; i < (MAX_SPELLS_PER_ITEM/16); i++)
+   {
+      wr_u16b(s_list[o_ptr->spell_set].spells[i]);
+   }
+}
 
 /*
  * Write an "item" record
  */
 static void wr_item(const object_type *o_ptr)
 {
-	wr_u16b(0xffff);
 	wr_byte(ITEM_VERSION);
 
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
-	wr_byte(o_ptr->iy);
-	wr_byte(o_ptr->ix);
+	wr_s16b(o_ptr->iy);
+	wr_s16b(o_ptr->ix);
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
-
-	wr_byte(0);
+	wr_s16b(o_ptr->p2val);
 
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
@@ -51,6 +57,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
 	wr_s16b(o_ptr->to_a);
+
 	wr_s16b(o_ptr->ac);
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
@@ -60,19 +67,28 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->marked);
 
 	wr_byte(o_ptr->origin);
-	wr_byte(o_ptr->origin_depth);
+	wr_s16b(o_ptr->origin_depth); /* Was byte */
 	wr_u16b(o_ptr->origin_xtra);
 
 	wr_u32b(o_ptr->flags[0]);
 	wr_u32b(o_ptr->flags[1]);
 	wr_u32b(o_ptr->flags[2]);
+	wr_u32b(o_ptr->flags[3]);
 
 	wr_u32b(o_ptr->known_flags[0]);
 	wr_u32b(o_ptr->known_flags[1]);
 	wr_u32b(o_ptr->known_flags[2]);
+	wr_u32b(o_ptr->known_flags[3]);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
+
+/* TODO Next object in stack needed ? */
+	wr_s16b(o_ptr->next_o_idx);
+
+	wr_s16b(o_ptr->spell_set);
+	if (o_ptr->spell_set)
+		wr_spell_set(o_ptr);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -85,7 +101,6 @@ static void wr_item(const object_type *o_ptr)
 	}
 }
 
-
 /*
  * Write RNG state
  */
@@ -93,12 +108,10 @@ void wr_randomizer(void)
 {
 	int i;
 
-	wr_u16b(0);
 	wr_u16b(Rand_place);
 	for (i = 0; i < RAND_DEG; i++)
 		wr_u32b(Rand_state[i]);
 }
-
 
 /*
  * Write the "options"
@@ -112,17 +125,11 @@ void wr_options(void)
 	u32b window_flag[ANGBAND_TERM_MAX];
 	u32b window_mask[ANGBAND_TERM_MAX];
 
-
-	/* XXX */
-	for (i = 0; i < 4; i++) wr_u32b(0L);
-
-
 	/*** Special Options ***/
 
 	wr_byte(op_ptr->delay_factor);
 	wr_byte(op_ptr->hitpoint_warn);
 	wr_u16b(lazymove_delay);
-
 
 	/*** Normal options ***/
 
@@ -156,7 +163,6 @@ void wr_options(void)
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(mask[i]);
 
-
 	/*** Window options ***/
 
 	/* Reset */
@@ -186,15 +192,14 @@ void wr_options(void)
 	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_mask[i]);
 }
 
-
 void wr_messages(void)
 {
-	s16b i;
-	u16b num;
+	s32b i;
+	u32b num;
 	
 	num = messages_num();
 	if (num > 80) num = 80;
-	wr_u16b(num);
+	wr_u32b(num);
 	
 	/* Dump the messages (oldest first!) */
 	for (i = num - 1; i >= 0; i--)
@@ -203,7 +208,6 @@ void wr_messages(void)
 		wr_u16b(message_type(i));
 	}	
 }
-
 
 void wr_monster_memory(void)
 {
@@ -245,18 +249,13 @@ void wr_monster_memory(void)
 		
 		/* Monster limit per level */
 		wr_byte(r_ptr->max_num);
-		
-		/* XXX */
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);		
+	
 	}
 }
 
-
 void wr_object_memory(void)
 {
-	int k_idx;
+	s16b k_idx;
 	
 	wr_u16b(z_info->k_max);
 	for (k_idx = 0; k_idx < z_info->k_max; k_idx++)
@@ -266,14 +265,12 @@ void wr_object_memory(void)
 		
 		if (k_ptr->aware) tmp8u |= 0x01;
 		if (k_ptr->tried) tmp8u |= 0x02;
-		if (kind_is_squelched_aware(k_ptr)) tmp8u |= 0x04;
+		if (k_ptr->squelch) tmp8u |= 0x04;
 		if (k_ptr->everseen) tmp8u |= 0x08;
-		if (kind_is_squelched_unaware(k_ptr)) tmp8u |= 0x10;
-
+		
 		wr_byte(tmp8u);
 	}
 }
-
 
 void wr_quests(void)
 {
@@ -286,12 +283,8 @@ void wr_quests(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
 	}
 }
-
 
 void wr_artifacts(void)
 {
@@ -304,13 +297,9 @@ void wr_artifacts(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->created);
-		wr_byte(a_ptr->seen);
-		wr_byte(a_ptr->everseen);
-		wr_byte(0);
+		wr_byte(a_ptr->cur_num);
 	}
 }
-
 
 void wr_player(void)
 {
@@ -326,10 +315,9 @@ void wr_player(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-	wr_byte(op_ptr->name_suffix);
 	
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	wr_s16b(p_ptr->expfact);
 	
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -345,11 +333,7 @@ void wr_player(void)
 	wr_s16b(p_ptr->sc_birth);
 	wr_u32b(p_ptr->au_birth);
 	
-	/* Padding */
-	wr_u32b(0);
-	
 	wr_u32b(p_ptr->au);
-	
 	
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -369,13 +353,11 @@ void wr_player(void)
 	wr_s16b(p_ptr->max_depth);
 	
 	/* More info */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
+	wr_byte(p_ptr->tactic);
+	wr_byte(p_ptr->movement);
+
 	wr_s16b(p_ptr->sc);
-	wr_s16b(0);	/* oops */
-	
+
 	wr_s16b(p_ptr->food);
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->word_recall);
@@ -394,14 +376,13 @@ void wr_player(void)
 	for (i = 0; i < 10; i++) wr_u32b(0L);
 }
 
-
 void wr_squelch(void)
 {
-	size_t i;
+	int i;
 	
 	/* Write number of squelch bytes */
-	wr_byte(squelch_size);
-	for (i = 0; i < squelch_size; i++)
+	wr_byte(SQUELCH_BYTES);
+	for (i = 0; i < SQUELCH_BYTES; i++)
 		wr_byte(squelch_level[i]);
 	
 	/* Write ego-item squelch bits */
@@ -428,7 +409,6 @@ void wr_squelch(void)
 	return;
 }
 
-
 void wr_misc(void)
 {
 
@@ -438,23 +418,14 @@ void wr_misc(void)
 	/* Random artifact seed */
 	wr_u32b(seed_randart);
 	
-	
-	/* XXX Ignore some flags */
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
-	
-	
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
 	wr_u32b(seed_town);
-	
 	
 	/* Special stuff */
 	wr_u16b(p_ptr->panic_save);
 	wr_u16b(p_ptr->total_winner);
 	wr_u16b(p_ptr->noscore);
-	
 	
 	/* Write death */
 	wr_byte(p_ptr->is_dead);
@@ -469,7 +440,6 @@ void wr_misc(void)
 	wr_s32b(turn);	
 }
 
-
 void wr_player_hp(void)
 {
 	int i;
@@ -479,8 +449,7 @@ void wr_player_hp(void)
 		wr_s16b(p_ptr->player_hp[i]);
 }
 
-
-void wr_player_spells(void)
+void wr_player_spells(void) /* TODO - Does this need changing? */
 {	
 	int i;
 
@@ -492,7 +461,6 @@ void wr_player_spells(void)
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 		wr_byte(p_ptr->spell_order[i]);
 }
-
 
 /*
  * Dump the random artifacts
@@ -513,6 +481,7 @@ void wr_randarts(void)
 		wr_byte(a_ptr->tval);
 		wr_byte(a_ptr->sval);
 		wr_s16b(a_ptr->pval);
+		wr_s16b(a_ptr->p2val);
 		
 		wr_s16b(a_ptr->to_h);
 		wr_s16b(a_ptr->to_d);
@@ -529,6 +498,7 @@ void wr_randarts(void)
 		wr_u32b(a_ptr->flags[0]);
 		wr_u32b(a_ptr->flags[1]);
 		wr_u32b(a_ptr->flags[2]);
+		wr_u32b(a_ptr->flags[3]);
 		
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
@@ -539,7 +509,6 @@ void wr_randarts(void)
 		wr_u16b(a_ptr->time_sides);
 	}
 }
-
 
 void wr_inventory(void)
 {
@@ -564,7 +533,6 @@ void wr_inventory(void)
 	wr_u16b(0xFFFF);
 }
 
-
 void wr_stores(void)
 {
 	int i;
@@ -575,19 +543,11 @@ void wr_stores(void)
 		const store_type *st_ptr = &store[i];
 		int j;
 		
-		/* XXX Old values */
-		wr_u32b(0L);
-		wr_s16b(0);
-		
 		/* Save the current owner */
 		wr_byte(st_ptr->owner);
 		
 		/* Save the stock size */
 		wr_byte(st_ptr->stock_num);
-		
-		/* XXX Old values */
-		wr_s16b(0);
-		wr_s16b(0);
 		
 		/* Save the stock */
 		for (j = 0; j < st_ptr->stock_num; j++)
@@ -595,26 +555,22 @@ void wr_stores(void)
 	}
 }
 
-
-
 /*
  * The cave grid flags that get saved in the savefile
  */
 #define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
-
 
 /*
  * Write the current dungeon
  */
 void wr_dungeon(void)
 {
-	int y, x;
+	s16b y, x;
 
 	byte tmp8u;
 
 	byte count;
 	byte prev_char;
-
 
 	if (p_ptr->is_dead)
 		return;
@@ -624,13 +580,12 @@ void wr_dungeon(void)
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
 	wr_u16b(0);
-	wr_u16b(p_ptr->py);
-	wr_u16b(p_ptr->px);
+	wr_s16b(p_ptr->py);
+	wr_s16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
 	wr_u16b(0);
 	wr_u16b(0);
-
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -708,7 +663,6 @@ void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
-
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
 	/* Note that this will induce two wasted bytes */
@@ -757,7 +711,6 @@ void wr_dungeon(void)
 	compact_monsters(0);
 }
 
-
 void wr_objects(void)
 {
 	int i;
@@ -778,7 +731,6 @@ void wr_objects(void)
 	}
 }
 
-
 void wr_monsters(void)
 {
 	int i;
@@ -795,8 +747,8 @@ void wr_monsters(void)
 		const monster_type *m_ptr = &mon_list[i];
 
 		wr_s16b(m_ptr->r_idx);
-		wr_byte(m_ptr->fy);
-		wr_byte(m_ptr->fx);
+		wr_s16b(m_ptr->fy);
+		wr_s16b(m_ptr->fx);
 		wr_s16b(m_ptr->hp);
 		wr_s16b(m_ptr->maxhp);
 		wr_s16b(m_ptr->csleep);
@@ -808,24 +760,6 @@ void wr_monsters(void)
 		wr_byte(0);
 	}
 }
-
-
-void wr_ghost(void)
-{
-	int i;
-
-	if (p_ptr->is_dead)
-		return;
-
-	/* XXX */
-	
-	/* Name */
-	wr_string("Broken Ghost");
-	
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
-}
-
 
 void wr_history(void)
 {

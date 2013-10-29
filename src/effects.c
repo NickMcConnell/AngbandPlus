@@ -26,7 +26,7 @@ typedef struct
 {
 	u16b index;          /* Effect index */
 	bool aim;            /* Whether the effect requires aiming */
-	u16b power;	     /* Power rating for obj-power.c */
+	u16b power;          /* Power rating for obj-power.c */ 
 	const char *desc;    /* Effect description */
 } info_entry;
 
@@ -52,13 +52,13 @@ bool effect_aim(effect_type effect)
 	return effects[effect].aim;
 }
 
-int effect_power(effect_type effect)
-{
-	if (effect < 1 || effect > EF_MAX)
-		return FALSE;
+int effect_power(effect_type effect) 
+{ 
+	if (effect < 1 || effect > EF_MAX) 
+		return FALSE; 
 
-	return effects[effect].power;
-}
+	return effects[effect].power; 
+} 
 
 const char *effect_desc(effect_type effect)
 {
@@ -92,8 +92,8 @@ bool effect_wonder(int dir, int die, int beam)
    some potent effects only at high level. */
 
 	bool visible = FALSE;
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 	int plev = p_ptr->lev;
 
 	if (die > 100)
@@ -146,16 +146,13 @@ bool effect_wonder(int dir, int die, int beam)
 	return visible;
 }
 
-
-
-
 /*
  * Do an effect, given an object.
  */
 bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	if (effect < 1 || effect > EF_MAX)
 	{
@@ -165,116 +162,192 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 
 	switch (effect)
 	{
-		case EF_POISON:
+		/* Added for Angband/65 0.0.0 */
+		case EF_CREATE_TREASURE:
+		{
+			s16b x = px, y = py;
+			place_gold(y, x, p_ptr->depth);
+			note_spot(x, y);
+			lite_spot(x, y);
+			if ((x==px) && (y==py))
+			{
+				msg_print("You feel some treasure appear between your feet.");
+			}
+			else
+			{
+				if (p_ptr->timed[TMD_BLIND])
+					msg_print("You hear something trinkle on the floor.");
+				else
+					msg_print("You see some treasure appear.");
+            }
+
+			*ident = TRUE;
+			return TRUE;
+		}
+		case EF_CONF_STRONG: /* Was ART_SARUMAN in /64 */
+		{
+			int flg = PROJECT_KILL; /* TODO Check this is the only flag needed */
+			ISBYTE(px);
+			ISBYTE(py);
+			project(WHO_PLAYER, 2+randint1(2), (byte) py, (byte) px, 0, GF_CONF_STRONG, flg);
+			return TRUE;
+		}
+		case EF_SUN_HERO: /* ART_SUN in /64 */
+		{
+            (void)lite_area(damroll(20, 10), 8);
+			clear_timed(TMD_AFRAID, TRUE);
+			if (inc_timed(TMD_SHERO, randint1(25) + 25, TRUE)) *ident = TRUE;
+            return TRUE;
+		}
+		case EF_IDENTIFY_TRAP:
+		{
+/*
+ * TODO Get this to work.  Also note that rod_charge stuff should 
+ * probably not be done in the EF_ bit 
+ */
+#if 0  
+			if (ident_trap(dir)) ident = TRUE;
+			o_ptr->p1val += get_rod_charge(o_ptr);
+#endif
+			return TRUE;
+		}
+		/* End of those added for Angband/65 */
+
+		case EF_POISON: /* POTION_POISON */
 		{
 			if (!p_ptr->state.resist_pois)
-			{
-				if (!p_ptr->timed[TMD_OPP_POIS] &&
+			{ 
+				if (!p_ptr->timed[TMD_OPP_POIS] && 
 						inc_timed(TMD_POISONED, damroll(2, 7) + 10, TRUE))
 					*ident = TRUE;
 			}
-			else
-			{
-				wieldeds_notice_flag(1, TR1_RES_POIS);
+			else 
+			{ 
+				object_notice_flag(2, TR2_RES_POIS); 
 			}
-
 			return TRUE;
 		}
 
-		case EF_BLIND:
+		case EF_BLIND: /* POTION_BLINDNESS */
 		{
-			if (!p_ptr->state.resist_blind)
-			{
-				if (inc_timed(TMD_BLIND, damroll(4, 25) + 75, TRUE))
-					*ident = TRUE;
-			}
-			else
-			{
-				wieldeds_notice_flag(1, TR1_RES_BLIND);
+			if (!p_ptr->state.resist_blind) 
+			{ 
+				if (inc_timed(TMD_BLIND, damroll(4, 25) + 75, TRUE)) 
+					*ident = TRUE; 
+			} 
+			else 
+			{ 
+				object_notice_flag(2, TR2_RES_BLIND); 
 			}
 
 			return TRUE;
 		}
-
+		case EF_FIRE_HAND: /* POTION_FIRE */
+		{
+           if (inc_timed(TMD_FIRE, randint1(100) + 100, TRUE)) 
+					*ident = TRUE;  
+			return TRUE;
+		}
+		case EF_FROST_HAND: /* POTION_COLD */
+		{
+           if (inc_timed(TMD_COLD, randint1(100) + 100, TRUE)) 
+					*ident = TRUE;  
+			return TRUE;
+		}
+		case EF_ACID_HAND: /* POTION_ACID */
+		{
+           if (inc_timed(TMD_ACID, randint1(100) + 100, TRUE)) 
+					*ident = TRUE;  
+			return TRUE;
+		}
+		case EF_ELEC_HAND: /* POTION_ELEC */
+		{
+           if (inc_timed(TMD_ELEC, randint1(100) + 100, TRUE)) 
+					*ident = TRUE; 
+			return TRUE;
+		}
 		case EF_SCARE:
 		{
-			if (!p_ptr->state.resist_fear)
-			{
-				if (inc_timed(TMD_AFRAID, randint0(10) + 10, TRUE))
-					*ident = TRUE;
-			}
-			else
-			{
-				wieldeds_notice_flag(1, TR1_RES_FEAR);
+			if (!p_ptr->state.resist_fear) 
+			{ 
+				if (inc_timed(TMD_AFRAID, randint0(10) + 10, TRUE)) 
+					*ident = TRUE; 
+			} 
+			else 
+			{ 
+				object_notice_flag(2, TR2_RES_FEAR); 
 			}
 
 			return TRUE;
 		}
 
-		case EF_CONFUSE:
+		case EF_CONFUSE: /* POTION_CONFUSION */
 		{
-			if (!p_ptr->state.resist_confu)
-			{
-				if (inc_timed(TMD_CONFUSED, damroll(4, 5) + 10, TRUE))
-					*ident = TRUE;
+			if (!p_ptr->state.resist_confu) 
+			{ 
+				if (inc_timed(TMD_CONFUSED, damroll(4, 5) + 10, TRUE)) 
+					*ident = TRUE; 
+			} 
+			else 
+			{ 
+				object_notice_flag(2, TR2_RES_CONFU); 
 			}
-			else
-			{
-				wieldeds_notice_flag(1, TR1_RES_CONFU);
-			}
-
 			return TRUE;
 		}
 
 		case EF_HALLUC:
 		{
-			if (!p_ptr->state.resist_chaos)
-			{
-				if (inc_timed(TMD_IMAGE, randint0(250) + 250, TRUE))
-					*ident = TRUE;
-			}
-			else
-			{
-				wieldeds_notice_flag(1, TR1_RES_CHAOS);
+			if (!p_ptr->state.resist_chaos) 
+			{ 
+				if (inc_timed(TMD_IMAGE, randint0(250) + 250, TRUE)) 
+					*ident = TRUE; 
+			} 
+			else 
+			{ 
+				object_notice_flag(2, TR2_RES_CHAOS); 
 			}
 
 			return TRUE;
 		}
 
-		case EF_PARALYZE:
+		case EF_PARALYZE: /* POTION_SLEEP */
 		{
-			if (!p_ptr->state.free_act)
-			{
-				if (inc_timed(TMD_PARALYZED, randint0(5) + 5, TRUE))
-					*ident = TRUE;
-			}
-			else
-			{
-				wieldeds_notice_flag(2, TR2_FREE_ACT);
+			if (!p_ptr->state.free_act) 
+			{ 
+				if (inc_timed(TMD_PARALYZED, randint0(5) + 5, TRUE)) 
+					*ident = TRUE; 
+			} 
+			else 
+			{ 
+				object_notice_flag(3, TR3_FREE_ACT); 
 			}
 
 			return TRUE;
 		}
 
-		case EF_SLOW:
+		case EF_SLOW: /* POTION_SLOWNESS */
 		{
 			if (inc_timed(TMD_SLOW, randint1(25) + 15, TRUE)) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_CURE_POISON:
+		case EF_CURE_POISON: /* POTION_CURE_POISON */
 		{
 			if (clear_timed(TMD_POISONED, TRUE)) *ident = TRUE;
 			return TRUE;
 		}
-
+		case EF_SLOW_POISON: /* POTION_SLOW_POISON */
+		{
+			if (dec_timed(TMD_POISONED, p_ptr->timed[TMD_STUN]/2, TRUE)) *ident = TRUE;
+			return TRUE;
+		}
 		case EF_CURE_BLINDNESS:
 		{
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_CURE_PARANOIA:
+		case EF_CURE_PARANOIA: /* POTION_BOLDNESS */
 		{
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			return TRUE;
@@ -307,7 +380,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		}
 
 
-		case EF_CURE_LIGHT:
+		case EF_CURE_LIGHT: /* POTION_CURE_LIGHT */
 		{
 			if (heal_player(15, 15)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
@@ -317,7 +390,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_CURE_SERIOUS:
+		case EF_CURE_SERIOUS: /* POTION_CURE_SERIOUS */
 		{
 			if (heal_player(20, 25)) *ident = TRUE;
 			if (clear_timed(TMD_CUT, TRUE)) *ident = TRUE;
@@ -327,7 +400,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_CURE_CRITICAL:
+		case EF_CURE_CRITICAL: /* POTION_CURE_CRITICAL */
 		{
 			if (heal_player(25, 30)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
@@ -340,7 +413,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_CURE_FULL:
+		case EF_CURE_FULL: /* POTION_HEALING */
 		{
 			int amt = (p_ptr->mhp * 35) / 100;
 			if (amt < 300) amt = 300;
@@ -355,7 +428,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_CURE_FULL2:
+		case EF_CURE_FULL2: /* POTION_STAR_HEALING */
 		{
 			if (hp_player(1200)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
@@ -400,7 +473,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		}
 
 
-		case EF_GAIN_EXP:
+		case EF_GAIN_EXP: /* POTION_EXPERIENCE */
 		{
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
@@ -411,7 +484,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_LOSE_EXP:
+		case EF_LOSE_EXP: /* POTION_LOSE_MEMORIES */
 		{
 			if (!p_ptr->state.hold_life && (p_ptr->exp > 0))
 			{
@@ -419,20 +492,20 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 				lose_exp(p_ptr->exp / 4);
 				*ident = TRUE;
 			}
-			else
-			{
-				wieldeds_notice_flag(2, TR2_HOLD_LIFE);
+			else 
+			{ 
+				object_notice_flag(2, TR2_HOLD_LIFE);
 			}
 			return TRUE;
 		}
 
-		case EF_RESTORE_EXP:
+		case EF_RESTORE_EXP: /* POTION_RESTORE_EXP */
 		{
 			if (restore_level()) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_RESTORE_MANA:
+		case EF_RESTORE_MANA: /* POTION_RESTORE_MANA */
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
@@ -444,20 +517,20 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			}
 			return TRUE;
 		}
-
-		case EF_GAIN_STR:
-		case EF_GAIN_INT:
-		case EF_GAIN_WIS:
-		case EF_GAIN_DEX:
-		case EF_GAIN_CON:
-		case EF_GAIN_CHR:
+		/* TODO Check order, etc. */
+		case EF_GAIN_STR: /* POTION_INC_STR */
+		case EF_GAIN_INT: /* POTION_INC_INT */
+		case EF_GAIN_WIS: /* POTION_INC_WIS */ 
+		case EF_GAIN_DEX: /* POTION_INC_DEX */
+		case EF_GAIN_CON: /* POTION_INC_CON */
+		case EF_GAIN_CHR: /* POTION_INC_CHR */
 		{
 			int stat = effect - EF_GAIN_STR;
 			if (do_inc_stat(stat)) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_GAIN_ALL:
+		case EF_GAIN_ALL: /* POTION_AUGMENTATION */
 		{
 			if (do_inc_stat(A_STR)) *ident = TRUE;
 			if (do_inc_stat(A_INT)) *ident = TRUE;
@@ -471,7 +544,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_BRAWN:
 		{
 			/* Pick a random stat to decrease other than strength */
-			int stat = randint0(A_MAX-1) + 1;
+			s16b stat = (s16b) randint0(A_MAX-1) + 1;
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
 			if (do_inc_stat(A_STR)) *ident = TRUE;
@@ -481,7 +554,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_INTELLECT:
 		{
 			/* Pick a random stat to decrease other than intelligence */
-			int stat = randint0(A_MAX-1);
+			s16b stat = (s16b) randint0(A_MAX-1);
 			if (stat >= A_INT) stat++;
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
@@ -492,7 +565,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_CONTEMPLATION:
 		{
 			/* Pick a random stat to decrease other than wisdom */
-			int stat = randint0(A_MAX-1);
+			s16b stat = (s16b) randint0(A_MAX-1);
 			if (stat >= A_WIS) stat++;
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
@@ -503,7 +576,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_TOUGHNESS:
 		{
 			/* Pick a random stat to decrease other than constitution */
-			int stat = randint0(A_MAX-1);
+			s16b stat = (s16b) randint0(A_MAX-1);
 			if (stat >= A_CON) stat++;
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
@@ -514,7 +587,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_NIMBLENESS:
 		{
 			/* Pick a random stat to decrease other than dexterity */
-			int stat = randint0(A_MAX-1);
+			s16b stat = (s16b) randint0(A_MAX-1);
 			if (stat >= A_DEX) stat++;
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
@@ -525,21 +598,21 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_PLEASING:
 		{
 			/* Pick a random stat to decrease other than charisma */
-			int stat = randint0(A_MAX-1);
+			s16b stat = (s16b) randint0(A_MAX-1);
 			
 			if (!do_dec_stat(stat, TRUE)) return FALSE;
 			if (do_inc_stat(A_CHR)) *ident = TRUE;
 			return TRUE;
 		}
-
-		case EF_LOSE_STR:
-		case EF_LOSE_INT:
-		case EF_LOSE_WIS:
-		case EF_LOSE_DEX:
-		case EF_LOSE_CON:
-		case EF_LOSE_CHR:
+		/* TODO These have to be in a certain order and adjacent to work - check they are */
+		case EF_LOSE_STR: /* POTION_DEC_STR */
+		case EF_LOSE_INT: /* POTION_DEC_INT */
+		case EF_LOSE_WIS: /* POTION_DEC_WIS */
+		case EF_LOSE_DEX: /* POTION_DEC_DEX */
+		case EF_LOSE_CON: /* POTION_DEC_CON */
+		case EF_LOSE_CHR: /* POTION_DEC_CHR */
 		{
-			int stat = effect - EF_LOSE_STR;
+			s16b stat = INT2S16B(effect - EF_LOSE_STR);
 
 			take_hit(damroll(5, 5), "stat drain");
 			(void)do_dec_stat(stat, FALSE);
@@ -556,20 +629,20 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 
 			return TRUE;
 		}
-
-		case EF_RESTORE_STR:
-		case EF_RESTORE_INT:
-		case EF_RESTORE_WIS:
-		case EF_RESTORE_DEX:
-		case EF_RESTORE_CON:
-		case EF_RESTORE_CHR:
+		/* TODO These need to be adjacent without gaps and in the right order to work. Check. */
+		case EF_RESTORE_STR: /* POTION_RES_STR */
+		case EF_RESTORE_INT: /* POTION_RES_INT */
+		case EF_RESTORE_WIS: /* POTION_RES_WIS */
+		case EF_RESTORE_DEX: /* POTION_RES_DEX */
+		case EF_RESTORE_CON: /* POTION_RES_CON */
+		case EF_RESTORE_CHR: /* POTION_RES_CHR */
 		{
 			int stat = effect - EF_RESTORE_STR;
 			if (do_res_stat(stat)) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_CURE_NONORLYBIG:
+		case EF_CURE_NONORLYBIG: /* POTION_LIFE */
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
@@ -615,13 +688,13 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		}
 
 
-		case EF_TMD_INFRA:
+		case EF_TMD_INFRA: /* POTION_INFRAVISION */
 		{
 			if (inc_timed(TMD_SINFRA, 100 + damroll(4, 25), TRUE)) *ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_TMD_SINVIS:
+		case EF_TMD_SINVIS: /* POTION_DETECT_INVIS */
 		{
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_SINVIS, 12 + damroll(2, 6), TRUE)) *ident = TRUE;
@@ -635,8 +708,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-
-		case EF_ENLIGHTENMENT:
+		case EF_ENLIGHTENMENT: /* POTION_ENLIGHTENMENT */
 		{
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite();
@@ -645,7 +717,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		}
 
 
-		case EF_ENLIGHTENMENT2:
+		case EF_ENLIGHTENMENT2: /* POTION_STAR_ENLIGHTENMENT */
 		{
 			msg_print("You begin to feel more enlightened...");
 			message_flush();
@@ -661,7 +733,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_SELF_KNOW:
+		case EF_SELF_KNOW: /* POTION_SELF_KNOWLEDGE */
 		{
 			msg_print("You begin to know yourself a little better...");
 			message_flush();
@@ -671,7 +743,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		}
 
 
-		case EF_HERO:
+		case EF_HERO: /* POTION_HEROISM */
 		{
 			if (hp_player(10)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
@@ -679,14 +751,13 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_SHERO:
+		case EF_SHERO: /* POTION_BESERK_STRENGTH */
 		{
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_SHERO, randint1(25) + 25, TRUE)) *ident = TRUE;
 			return TRUE;
 		}
-
 
 		case EF_RESIST_ACID:
 		{
@@ -702,14 +773,14 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_RESIST_FIRE:
+		case EF_RESIST_FIRE: /* POTION_RESIST_HEAT */ 
 		{
 			if (inc_timed(TMD_OPP_FIRE, randint1(10) + 10, TRUE))
 				*ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_RESIST_COLD:
+		case EF_RESIST_COLD: /* POTION_RESIST_COLD */
 		{
 			if (inc_timed(TMD_OPP_COLD, randint1(10) + 10, TRUE))
 				*ident = TRUE;
@@ -732,19 +803,21 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			if (inc_timed(TMD_OPP_POIS, randint1(20) + 20, TRUE)) *ident = TRUE;
 			return TRUE;
 		}
-
-		case EF_DETECT_TREASURE:
+		case EF_DETECT_TREASURE: /* In /64 only detects gold, not objects */
 		{
-			if (detect_treasure(aware)) *ident = TRUE;
+			if (detect_gold(aware)) *ident = TRUE;
 			return TRUE;
 		}
-
+		case EF_DETECT_OBJECT:
+		{			
+			if (detect_objects(aware)) *ident = TRUE;
+			return TRUE; 
+		}
 		case EF_DETECT_TRAP:
 		{
 			if (detect_traps(aware)) *ident = TRUE;
 			return TRUE;
 		}
-
 		case EF_DETECT_DOORSTAIR:
 		{
 			if (detect_doorstairs(aware)) *ident = TRUE;
@@ -846,7 +919,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 
 			for (i = 0; i < randint1(3); i++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0, 1))
+				if (summon_specific(py, px, p_ptr->depth, 0))
 					*ident = TRUE;
 			}
 			return TRUE;
@@ -859,7 +932,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 
 			for (i = 0; i < randint1(3); i++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD, 1))
+				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
 					*ident = TRUE;
 			}
 			return TRUE;
@@ -958,7 +1031,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_BANISHMENT:
+		case EF_BANISHMENT: /* AKA GENOCIDE */
 		{
 			*ident = TRUE;
 			if (!banishment()) return FALSE;
@@ -969,8 +1042,8 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		{
 			if (!p_ptr->state.resist_blind)
 				(void)inc_timed(TMD_BLIND, 3 + randint1(5), TRUE);
-			else
-				wieldeds_notice_flag(1, TR1_RES_BLIND);
+			else 
+				object_notice_flag(2, TR2_RES_BLIND);
 
 			if (unlite_area(10, 3)) *ident = TRUE;
 			return TRUE;
@@ -1028,7 +1101,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		case EF_DEEP_DESCENT:
 		{
 			int i = 2;
-			int new_max = p_ptr->max_depth;
+			s16b new_max = p_ptr->max_depth;
 
 			do
 			{
@@ -1082,7 +1155,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_LOSKILL:
+		case EF_LOSKILL: /* AKA mass genocide */
 		{
 			(void)mass_banishment();
 			*ident = TRUE;
@@ -1155,7 +1228,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_RAGE_BLESS_RESIST:
+		case EF_RAGE_BLESS_RESIST: /* TODO No 'bless' involved? */
 		{
 			*ident = TRUE;
 			(void)hp_player(30);
@@ -1216,25 +1289,24 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_HASTE:
+		case EF_MULE_LEGS: /* POTION_LIFT */
+		{
+			if (p_ptr->timed[TMD_LIFT])
+			{
+				take_hit(damroll(3, 10), "a potion of Mule Legs");
+			}
+			else
+			{
+				if (set_timed(TMD_LIFT, randint1(50) + 50, TRUE)) *ident = TRUE;
+			}  
+			return TRUE;
+		}
+
+		case EF_HASTE: /* POTION_SPEED */
 		{
 			if (!p_ptr->timed[TMD_FAST])
 			{
 				if (set_timed(TMD_FAST, damroll(2, 10) + 20, TRUE)) *ident = TRUE;
-			}
-			else
-			{
-				(void)inc_timed(TMD_FAST, 5, TRUE);
-			}
-
-			return TRUE;
-		}
-
-		case EF_HASTE1:
-		{
-			if (!p_ptr->timed[TMD_FAST])
-			{
-				if (set_timed(TMD_FAST, randint1(20) + 20, TRUE)) *ident = TRUE;
 			}
 			else
 			{
@@ -1305,6 +1377,13 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 		{
 			*ident = TRUE;
 			fire_ball(GF_FIRE, dir, 200, 3);
+			return TRUE;
+		}
+
+		case EF_FIRE_BALL300:
+		{
+			*ident = TRUE;
+			fire_ball(GF_FIRE, dir, 300, 4);
 			return TRUE;
 		}
 
@@ -1560,6 +1639,23 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
+		case EF_FAST_BERSERK: /* TODO Check this works */
+		{
+			if (inc_timed(TMD_SHERO, randint1(50) + 50, TRUE)) *ident = TRUE;
+			if (!p_ptr->timed[TMD_FAST])
+			{
+				if (set_timed(TMD_FAST, randint1(50) + 50, TRUE)) 
+					*ident = TRUE;
+			}
+			else
+			{
+				(void)inc_timed(TMD_FAST, 5, TRUE);
+			}
+			hp_player(30);
+			(void)clear_timed(TMD_AFRAID, TRUE);
+
+			return TRUE;
+		}
 
 		case EF_WONDER:
 		{
@@ -1626,14 +1722,14 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_DRINK_GOOD:
-		{
+		case EF_DRINK_GOOD: /* POTION_WATER POTION_APPLE_JUICE POTION_SLIME_MOLD */
+		{                      
 			msg_print("You feel less thirsty.");
 			*ident = TRUE;
 			return TRUE;
 		}
 
-		case EF_DRINK_DEATH:
+		case EF_DRINK_DEATH: /* POTION_DEATH */
 		{
 			msg_print("A feeling of Death flows through your body.");
 			take_hit(5000, "a potion of Death");
@@ -1641,7 +1737,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_DRINK_RUIN:
+		case EF_DRINK_RUIN: /* POTION_RUINATION */
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
@@ -1655,7 +1751,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_DRINK_DETONATE:
+		case EF_DRINK_DETONATE: /* POTION_DETONATIONS */
 		{
 			msg_print("Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
@@ -1665,7 +1761,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 			return TRUE;
 		}
 
-		case EF_DRINK_SALT:
+		case EF_DRINK_SALT: /* POTION_SALT_WATER */
 		{
 			msg_print("The potion makes you vomit!");
 			(void)set_food(PY_FOOD_STARVE - 1);
@@ -1717,7 +1813,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 
 		case EF_SHROOM_DEBILITY:
 		{
-			int stat = one_in_(2) ? A_STR : A_CON;
+			s16b stat = one_in_(2) ? A_STR : A_CON;
 
 			if (p_ptr->csp < p_ptr->msp)
 			{
@@ -1928,3 +2024,4 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam)
 	msg_print("Effect not handled.");
 	return FALSE;
 }
+

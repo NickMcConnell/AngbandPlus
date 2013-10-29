@@ -13,14 +13,13 @@
 # Chart progression by race:
 #   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Elf           -->  5 -->  6 -->  9 --> 54 --> 55 --> 56
-#   High-Elf      -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
+#   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
 #   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Troll    --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
-#   Kobold        --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
+#   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+#   Druedain      -->  5 -->  6 --> 12 --> 15 --> 21 --> 24 --> 25
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -29,7 +28,7 @@
 
 # Version stamp (required)
 
-V:3.0.11
+V:0.0.1
 
 
 N:1:2:10:25
@@ -38,81 +37,113 @@ N:1:2:20:35
 D:You are the illegitimate but acknowledged child 
 N:1:2:95:45
 D:You are one of several children 
+N:1:2:90:48
+D:You are firstborn of several children 
 N:1:2:100:50
-D:You are the first child 
+D:You are the only child 
 
-N:2:3:40:65
+N:2:3:30:65
 D:of a Serf.  
-N:2:3:65:80
+N:2:3:40:80
 D:of a Yeoman.  
-N:2:3:80:90
+N:2:3:60:85
+D:of a Craftsman.  
+N:2:3:70:90
 D:of a Townsman.  
-N:2:3:90:105
+N:2:3:80:105
 D:of a Guildsman.  
-N:2:3:96:120
+N:2:3:85:110
+D:of a Bard.  
+N:2:3:90:120
 D:of a Landed Knight.  
-N:2:3:99:130
+N:2:3:96:130
 D:of a Titled Noble.  
 N:2:3:100:140
 D:of a Royal Blood Line.  
 
+N:3:50:15:10
+D:You are not considered part of the family.  
 N:3:50:20:20
 D:You are the black sheep of the family.  
-N:3:50:80:55
+N:3:50:90:55
 D:You are a credit to the family.  
-N:3:50:100:60
+N:3:50:95:60
 D:You are a well liked child.  
+N:3:50:100:80
+D:You are an example for other family members.  
 
-N:4:1:15:40
-D:Your mother was of the Avari. 
-N:4:1:30:45
-D:Your father was of the Avari. 
-N:4:1:50:50
+N:4:1:5:40
+D:Your mother was of the Laiquendi.  
+N:4:1:15:45
+D:Your father was of the Laiquendi.  
+N:4:1:20:40
 D:Your mother was of the Nandor. 
-N:4:1:70:55
+N:4:1:30:45
 D:Your father was of the Nandor.  
-N:4:1:85:60
+N:4:1:40:50
+D:Your mother was of the Teleri.  
+N:4:1:50:55
+D:Your father was of the Teleri.  
+N:4:1:60:50
 D:Your mother was of the Sindar.  
-N:4:1:95:65
+N:4:1:70:55
 D:Your father was of the Sindar.  
-N:4:1:98:70
+N:4:1:75:55
 D:Your mother was of the Noldor.  
-N:4:1:100:75
+N:4:1:85:60
 D:Your father was of the Noldor.  
+N:4:1:94:65
+D:Your mother was of the Vanyar.  
+N:4:1:100:70
+D:Your father was of the Vanyar.  
 
-N:5:6:60:50
+N:5:6:10:25
+D:You are the illegitimate and unacknowledged child 
+N:5:6:20:35
+D:You are the illegitimate but acknowledged child 
+N:5:6:80:45
 D:You are one of several children 
-N:5:6:100:55
+N:5:6:90:48
+D:You are firstborn of several children 
+N:5:6:100:50
 D:You are the only child 
 
-N:6:9:40:40
-D:of an Avarin 
-N:6:9:70:50
-D:of a Nandorin 
-N:6:9:100:60
-D:of a Sindarin 
+N:6:12:100:50
+D:of a Druedain 
 
 N:7:8:60:50
 D:You are one of several children 
+N:7:8:80:53
+D:You are firstborn of several children 
 N:7:8:100:55
 D:You are the only child 
 
-N:8:9:75:50
-D:of a Telerin 
-N:8:9:95:55
-D:of a Noldorin 
+N:8:9:20:20
+D:of a Laiquendi 
+N:8:9:30:30
+D:of a Nandor 
+N:8:9:40:40
+D:of a Teleri 
+N:8:9:50:50
+D:of a Sindar 
+N:8:9:70:55
+D:of a Noldor 
 N:8:9:100:60
-D:of a Vanyarin 
+D:of a Vanyar 
 
+N:9:54:30:80
+D:Hunter.  
 N:9:54:40:80
 D:Ranger.  
 N:9:54:70:90
 D:Archer.  
-N:9:54:87:110
+N:9:54:85:110
 D:Warrior.  
-N:9:54:95:125
+N:9:54:90:125
 D:Mage.  
-N:9:54:99:140
+N:9:54:93:132
+D:Scholar.  
+N:9:54:96:140
 D:Prince.  
 N:9:54:100:145
 D:King.  
@@ -123,21 +154,34 @@ N:10:11:100:55
 D:You are the only child of a Hobbit 
 
 N:11:3:20:55
-D:Burglar.  
+D:Bum.  
 N:11:3:30:80
-D:Miller.  
-N:11:3:40:90
 D:Tavern Owner.  
+N:11:3:40:90
+D:Miller.  
 N:11:3:50:100
-D:Archer.  
+D:Home Owner.  
 N:11:3:80:110
-D:Warrior.  
+D:Burglar.  
 N:11:3:95:115
-D:Shirriff.  
+D:Hotel Owner.  
 N:11:3:99:125
-D:Mayor.  
+D:Plantation owner.  
 N:11:3:100:140
-D:Clan Elder.  
+D:Town Mayor.  
+
+N:12:15:20:35
+D:Doorwarden.  
+N:12:15:40:45
+D:House-Guard.  
+N:12:15:60:55
+D:Orc-Hunter.  
+N:12:15:80:65
+D:Tracker.  
+N:12:15:90:75
+D:Tribe Leader.  
+N:12:15:100:85
+D:Diviner.  
 
 N:13:14:85:45
 D:You are one of several children of a Gnome 
@@ -148,12 +192,27 @@ N:14:3:20:55
 D:Beggar.  
 N:14:3:50:70
 D:Braggart.  
-N:14:3:75:85
+N:14:3:60:85
 D:Prankster.  
-N:14:3:95:100
+N:14:3:70:100
 D:Warrior.  
-N:14:3:100:125
+N:14:3:80:110
+D:Veteran.  
+N:14:3:90:120
+D:Squad Leader.  
+N:14:3:95:130
 D:Mage.  
+N:14:3:100:140
+D:Warchief.  
+
+N:15:21:20:50
+D:You have very dark brown eyes, 
+N:15:21:60:60
+D:You have very dark blue eyes, 
+N:15:21:80:70
+D:You have very dark green eyes, 
+N:15:21:100:70
+D:You have completely black eyes, 
 
 N:16:17:25:40
 D:You are one of two children of a Dwarven 
@@ -166,89 +225,86 @@ N:17:18:25:75
 D:Prison Guard.  
 N:17:18:75:90
 D:Miner.  
-N:17:18:90:110
+N:17:18:80:100
+D:Smith.  
+N:17:18:88:110
 D:Warrior.  
-N:17:18:99:130
+N:17:18:95:130
 D:Priest.  
 N:17:18:100:150
 D:King.  
 
 N:18:57:15:10
+D:You are not considered part of the family.  
+N:18:57:35:30
 D:You are the black sheep of the family.  
-N:18:57:85:50
+N:18:57:75:50
 D:You are a credit to the family.  
-N:18:57:100:55
+N:18:57:80:60
 D:You are a well liked child.  
+N:18:57:100:80
+D:You are an example for other family members.  
 
 N:19:20:25:25
-D:Your mother was an Orc, 
+D:Your mother was an Orc, but it is unacknowledged.  
 N:19:20:100:25
-D:Your father was an Orc, 
+D:Your father was an Orc, but it is unacknowledged.  
 
-N:20:2:20:30
-D:and it is acknowledged. You are the adopted child 
 N:20:2:100:50
-D:but it is unacknowledged. You are the adopted child 
+D:You are the adopted child 
 
-N:21:22:30:20
+N:21:24:20:40
+D:short, stumpy legs 
+N:21:24:60:50
+D:short, thick legs 
+N:21:24:100:60
+D:short, powerful legs 
+
+N:22:23:10:10
 D:Your mother was a Stone-Troll 
-N:21:22:60:25
+N:22:23:20:15
 D:Your father was a Stone-Troll 
-N:21:22:75:30
+N:22:23:30:20
 D:Your mother was a Cave-Troll 
-N:21:22:90:35
+N:22:23:60:25
 D:Your father was a Cave-Troll 
-N:21:22:95:40
+N:22:23:75:30
+D:Your mother was a Hill-Troll 
+N:22:23:90:35
+D:Your father was a Hill-Troll 
+N:22:23:95:40
 D:Your mother was a Water-Troll 
-N:21:22:100:45
+N:22:23:100:45
 D:Your father was a Water-Troll 
 
-N:22:62:5:60
+N:23:62:5:30
 D:Cook.  
-N:22:62:95:55
+N:23:62:15:40
+D:Butcher.  
+N:23:62:45:50
+D:Smith.  
+N:23:62:95:55
 D:Warrior.  
-N:22:62:99:65
+N:23:62:99:66
 D:Shaman.  
-N:22:62:100:80
+N:23:62:100:80
 D:Clan Chief.  
 
-N:23:24:20:40
-D:You are the runt of 
-N:23:24:80:50
-D:You come from 
-N:23:24:100:55
-D:You are the largest of 
+N:24:25:30:30
+D:and long arms.
+N:24:25:60:60
+D:and long, well-muscled arms.
+N:24:25:100:90
+D:and long arms, descending from very broad shoulders.
 
-N:24:25:15:45
-D:a litter of 3 pups. 
-N:24:25:40:45
-D:a litter of 4 pups. 
-N:24:25:70:50
-D:a litter of 5 pups. 
-N:24:25:85:50
-D:a litter of 6 pups. 
-N:24:25:95:55
-D:a litter of 7 pups. 
-N:24:25:100:55
-D:a litter of 8 pups. 
-
-N:25:26:25:40
-D:Your father was a fungus farmer, 
-N:25:26:50:45
-D:Your father was a hunter, 
-N:25:26:75:50
-D:Your father was a warrior, 
-N:25:26:95:55
-D:Your father was a shaman, 
-N:25:26:100:60
-D:Your father was the tribal chief, 
-
-N:26:67:20:45
-D:and your mother was a prisoner of war. 
-N:26:67:95:50
-D:and your mother was a cook. 
-N:26:67:100:55
-D:and your mother was one of the Chief's harem. 
+N:25:0:30:30
+D:You have no facial hair.
+N:25:0:60:60
+D:You have a very thin beard, 2 inches long.
+N:25:0:90:80
+D:You have a thin beard, a foot long.
+N:25:0:100:90
+D:You have a sparse beard, over a foot long.
 
 N:50:51:20:50
 D:You have dark brown eyes, 
@@ -263,12 +319,16 @@ D:You have blue eyes,
 N:50:51:100:50
 D:You have blue-gray eyes, 
 
-N:51:52:70:50
+N:51:52:50:30
+D:thin 
+N:51:52:60:50
 D:straight 
-N:51:52:90:50
+N:51:52:70:50
 D:wavy 
-N:51:52:100:50
+N:51:52:80:50
 D:curly 
+N:51:52:100:60
+D:shiny 
 
 N:52:53:30:50
 D:black hair, 
@@ -313,9 +373,11 @@ D:blond hair, and a fair complexion.
 N:56:0:100:50
 D:silver hair, and a fair complexion.
 
+N:57:58:40:40
+D:You have yellow eyes, 
 N:57:58:99:50
 D:You have dark brown eyes, 
-N:57:58:100:50
+N:57:58:100:60
 D:You have glowing red eyes, 
 
 N:58:59:90:50
@@ -328,15 +390,19 @@ D:black hair,
 N:59:60:100:50
 D:brown hair, 
 
-N:60:61:25:47
+N:60:61:10:40
+D:an embarrassing small beard, 
+N:60:61:25:50
 D:a one foot beard, 
-N:60:61:60:49
+N:60:61:60:51
 D:a two foot beard, 
-N:60:61:90:51
+N:60:61:90:53
 D:a three foot beard, 
-N:60:61:100:53
+N:60:61:100:55
 D:a four foot beard, 
 
+N:61:0:30:50
+D:and a rather light complexion.
 N:61:0:100:50
 D:and a dark complexion.
 
@@ -351,6 +417,10 @@ D:You have glowing red eyes,
 
 N:63:64:33:50
 D:dirty 
+N:63:64:44:50
+D:tangled 
+N:63:64:55:50
+D:sticky 
 N:63:64:66:50
 D:mangy 
 N:63:64:100:50
@@ -358,6 +428,10 @@ D:oily
 
 N:64:65:33:50
 D:sea-weed green hair, 
+N:64:65:44:50
+D:dung-brown hair, 
+N:64:65:55:50
+D:mold grey hair, 
 N:64:65:66:50
 D:bright red hair, 
 N:64:65:100:50
@@ -374,35 +448,11 @@ D:and black
 
 N:66:0:33:50
 D:ulcerous skin.
+N:66:0:44:50
+D:splotchy skin.
+N:66:0:55:50
+D:flaky skin.
 N:66:0:66:50
 D:scabby skin.
 N:66:0:100:50
 D:leprous skin.
-
-N:67:68:10:50
-D:You have black eyes, 
-N:67:68:40:50
-D:You have dark brown eyes, 
-N:67:68:80:50
-D:You have brown eyes, 
-N:67:68:99:50
-D:You have light brown eyes, 
-N:67:68:100:50
-D:You have glowing red eyes, 
-
-N:68:69:40:50
-D:a dark brown hide, 
-N:68:69:60:50
-D:a reddish-brown hide, 
-N:68:69:95:50
-D:an olive green hide, 
-N:68:69:100:50
-D:a deep blue hide, 
-
-N:69:0:10:50
-D:and large, flat teeth.
-N:69:0:90:50
-D:and small, sharp teeth.
-N:69:0:100:50
-D:and large, sharp teeth.
-

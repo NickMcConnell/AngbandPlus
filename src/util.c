@@ -19,7 +19,53 @@
 #include "game-event.h"
 #include "randname.h"
 
+/*
+ * Type conversion debug utility functions.
+ */
 
+#ifndef NDEBUG
+s16b int2s16b(const int P)
+{
+	assert(P >= -32768);
+	assert(P <= 32767);
+	return((s16b) P);
+}
+
+u16b int2u16b(const int P)
+{
+	assert(P >= 0);
+	assert(P <= 65535);
+	return((u16b) P);
+}
+
+/* byte int2byte(const int P)
+{
+	assert(P >= 0);
+	assert(P <= 255);
+	return((byte) P);
+} */
+
+signed char int2schr(const int P)
+{
+	assert(P >= -128);
+	assert(P <= 127);
+	return((signed char) P);
+}
+
+char int2chr(const int P)
+{
+	assert(P >= CHAR_MIN);
+	assert(P <= CHAR_MAX);
+	return((char) P);
+}
+
+short int2shrt(const int P)
+{
+	assert(P >= SHRT_MIN);
+	assert(P <= SHRT_MAX);
+	return((char) P);
+}
+#endif
 
 /*
  * Convert a decimal to a single digit hex number
@@ -213,8 +259,8 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 					if (isxdigit((unsigned char)(*(str + 1))) &&
 					    isxdigit((unsigned char)(*(str + 2))))
 					{
-						*s = 16 * dehex(*++str);
-						*s++ += dehex(*++str);
+						*s = 16 * INT2CHR(dehex(*++str));
+						*s++ += INT2CHR(dehex(*++str));
 					}
 					else
 					{
@@ -468,172 +514,6 @@ void ascii_to_text(char *buf, size_t len, cptr str)
 	*s = '\0';
 }
 
-
-/*
- * Find the start of a possible Roman numerals suffix by going back from the
- * end of the string to a space, then checking that all the remaining chars
- * are valid Roman numerals.
- * 
- * Return the start position, or NULL if there isn't a valid suffix. 
- */
-char *find_roman_suffix_start(cptr buf)
-{
-	const char *start = strrchr(buf, ' ');
-	const char *p;
-	
-	if (start)
-	{
-		start++;
-		p = start;
-		while (*p)
-		{
-			if (*p != 'I' && *p != 'V' && *p != 'X' && *p != 'L' &&
-			    *p != 'C' && *p != 'D' && *p != 'M')
-			{
-				start = NULL;
-				break;
-			}
-			++p;			    
-		}
-	}
-	return (char *)start;
-}
-
-/*----- Roman numeral functions  ------*/
-
-/*
- * Converts an arabic numeral (int) to a roman numeral (char *).
- *
- * An arabic numeral is accepted in parameter `n`, and the corresponding
- * upper-case roman numeral is placed in the parameter `roman`.  The
- * length of the buffer must be passed in the `bufsize` parameter.  When
- * there is insufficient room in the buffer, or a roman numeral does not
- * exist (e.g. non-positive integers) a value of 0 is returned and the
- * `roman` buffer will be the empty string.  On success, a value of 1 is
- * returned and the zero-terminated roman numeral is placed in the
- * parameter `roman`.
- */
-int int_to_roman(int n, char *roman, size_t bufsize)
-{
-	/* Roman symbols */
-	char roman_symbol_labels[13][3] =
-		{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX",
-		 "V", "IV", "I"};
-	int  roman_symbol_values[13] =
-		{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-
-	/* Clear the roman numeral buffer */
-	roman[0] = '\0';
-
-	/* Roman numerals have no zero or negative numbers */
-	if (n < 1)
-		return 0;
-
-	/* Build the roman numeral in the buffer */
-	while (n > 0)
-	{
-		int i = 0;
-
-		/* Find the largest possible roman symbol */
-		while (n < roman_symbol_values[i])
-			i++;
-
-		/* No room in buffer, so abort */
-		if (strlen(roman) + strlen(roman_symbol_labels[i]) + 1
-			> bufsize)
-			break;
-
-		/* Add the roman symbol to the buffer */
-		my_strcat(roman, roman_symbol_labels[i], bufsize);
-
-		/* Decrease the value of the arabic numeral */
-		n -= roman_symbol_values[i];
-	}
-
-	/* Ran out of space and aborted */
-	if (n > 0)
-	{
-		/* Clean up and return */
-		roman[0] = '\0';
-
-		return 0;
-	}
-
-	return 1;
-}
-
-
-/*
- * Converts a roman numeral (char *) to an arabic numeral (int).
- *
- * The null-terminated roman numeral is accepted in the `roman`
- * parameter and the corresponding integer arabic numeral is returned.
- * Only upper-case values are considered. When the `roman` parameter
- * is empty or does not resemble a roman numeral, a value of -1 is
- * returned.
- *
- * XXX This function will parse certain non-sense strings as roman
- *     numerals, such as IVXCCCVIII
- */
-int roman_to_int(const char *roman)
-{
-	size_t i;
-	int n = 0;
-	char *p;
-
-	char roman_token_chr1[] = "MDCLXVI";
-	char* roman_token_chr2[] = {0, 0, "DM", 0, "LC", 0, "VX"};
-
-	int roman_token_vals[7][3] = {{1000},
-	                              {500},
-	                              {100, 400, 900},
-	                              {50},
-	                              {10, 40, 90},
-	                              {5},
-	                              {1, 4, 9}};
-
-	if (strlen(roman) == 0)
-		return -1;
-
-	/* Check each character for a roman token, and look ahead to the
-	   character after this one to check for subtraction */
-	for (i = 0; i < strlen(roman); i++)
-	{
-		char c1, c2;
-		int c1i, c2i;
-
-		/* Get the first and second chars of the next roman token */
-		c1 = roman[i];
-		c2 = roman[i + 1];
-
-		/* Find the index for the first character */
-		p = strchr(roman_token_chr1, c1);
-		if (p)
-		{
-			c1i = p - roman_token_chr1;
-		} else {
-			return -1;
-		}
-
-		/* Find the index for the second character */
-		c2i = 0;
-		if (roman_token_chr2[c1i] && c2)
-		{
-			p = strchr(roman_token_chr2[c1i], c2);
-			if (p)
-			{
-				c2i = (p - roman_token_chr2[c1i]) + 1;
-				/* Two-digit token, so skip a char on the next pass */
-				i++;
-			}
-		}
-
-		/* Increase the arabic numeral */
-		n += roman_token_vals[c1i][c2i];
-	}
-
-	return n;
-}
 
 
 /*
@@ -1559,7 +1439,7 @@ void sound(int val)
 /*
  * Hack -- flush
  */
-static void msg_flush(int x)
+static void msg_flush(s16b x)
 {
 	byte a = TERM_L_BLUE;
 
@@ -1585,7 +1465,7 @@ static void msg_flush(int x)
 }
 
 
-static int message_column = 0;
+static s16b message_column = 0;
 
 
 /*
@@ -1615,12 +1495,11 @@ static int message_column = 0;
  */
 static void msg_print_aux(u16b type, cptr msg)
 {
-	int n;
+	s16b n;
 	char *t;
 	char buf[1024];
 	byte color;
-	int w, h;
-
+	s16b w, h;
 
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
@@ -1629,7 +1508,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	if (!msg_flag) message_column = 0;
 
 	/* Message Length */
-	n = (msg ? strlen(msg) : 0);
+	n = (msg ? (s16b) strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
 	if (message_column && (!msg || ((message_column + n) > (w - 8))))
@@ -1673,7 +1552,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	{
 		char oops;
 
-		int check, split;
+		s16b check, split;
 
 		/* Default split */
 		split = (w - 8);
@@ -1861,7 +1740,7 @@ void screen_load(void)
  * At the given location, using the given attribute, if allowed,
  * add the given string.  Do not clear the line.
  */
-void c_put_str(byte attr, cptr str, int row, int col)
+void c_put_str(byte attr, cptr str, s16b row, s16b col)
 {
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
@@ -1871,7 +1750,7 @@ void c_put_str(byte attr, cptr str, int row, int col)
 /*
  * As above, but in "white"
  */
-void put_str(cptr str, int row, int col)
+void put_str(cptr str, s16b row, s16b col)
 {
 	/* Spawn */
 	Term_putstr(col, row, -1, TERM_WHITE, str);
@@ -1883,7 +1762,7 @@ void put_str(cptr str, int row, int col)
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
  */
-void c_prt(byte attr, cptr str, int row, int col)
+void c_prt(byte attr, cptr str, s16b row, s16b col)
 {
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
@@ -1896,7 +1775,7 @@ void c_prt(byte attr, cptr str, int row, int col)
 /*
  * As above, but in "white"
  */
-void prt(cptr str, int row, int col)
+void prt(cptr str, s16b row, s16b col)
 {
 	/* Spawn */
 	c_prt(TERM_WHITE, str, row, col);
@@ -1919,11 +1798,11 @@ void prt(cptr str, int row, int col)
  */
 void text_out_to_screen(byte a, cptr str)
 {
-	int x, y;
+	s16b x, y;
 
-	int wid, h;
+	s16b wid, h;
 
-	int wrap;
+	s16b wrap;
 
 	cptr s;
 
@@ -1964,7 +1843,7 @@ void text_out_to_screen(byte a, cptr str)
 		/* Wrap words as needed */
 		if ((x >= wrap - 1) && (ch != ' '))
 		{
-			int i, n = 0;
+			s16b i, n = 0;
 
 			byte av[256];
 			char cv[256];
@@ -2310,7 +2189,7 @@ void text_out_e(const char *fmt, ...)
 	start = buf;
 	while (next_section(start, 0, &text, &textlen, &tag, &taglen, &next))
 	{
-		int a = -1;
+		byte a = TERM_WHITE;
 
 		memcpy(smallbuf, text, textlen);
 		smallbuf[textlen] = 0;
@@ -2325,12 +2204,9 @@ void text_out_e(const char *fmt, ...)
 			memcpy(tagbuffer, tag, taglen);
 			tagbuffer[taglen] = '\0';
 
-			a = color_text_to_attr(tagbuffer);
+			a = (byte) color_text_to_attr(tagbuffer); /* TODO Should this function return int? */
 		}
 		
-		if (a == -1) 
-			a = TERM_WHITE;
-
 		/* Output now */
 		text_out_hook(a, smallbuf);
 
@@ -2343,9 +2219,9 @@ void text_out_e(const char *fmt, ...)
 /*
  * Clear part of the screen
  */
-void clear_from(int row)
+void clear_from(s16b row)
 {
-	int y;
+	s16b y;
 
 	/* Erase requested rows */
 	for (y = row; y < Term->hgt; y++)
@@ -2497,9 +2373,9 @@ bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, ch
  * 'askfor_aux_keypress' (the default handler if you supply NULL for
  * 'keypress_h') for an example.
  */
-bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *, size_t *, char, bool))
+bool askfor_aux(char *buf, size_t len, bool (*keypress_h)(char *, size_t, size_t *, size_t *, char, bool))
 {
-	int y, x;
+	s16b y, x;
 
 	size_t k = 0;		/* Cursor position */
 	size_t nul = 0;		/* Position of the null byte in the string */
@@ -2532,14 +2408,14 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 	nul = strlen(buf);
 
 	/* Display the default answer */
-	Term_erase(x, y, (int)len);
+	Term_erase(x, y, (s16b)len);
 	Term_putstr(x, y, -1, TERM_YELLOW, buf);
 
 	/* Process input */
 	while (!done)
 	{
 		/* Place cursor */
-		Term_gotoxy(x + k, y);
+		Term_gotoxy(x + (s16b) k, y);
 
 		/* Get a key */
 		ch = inkey();
@@ -2548,7 +2424,7 @@ bool askfor_aux(char *buf, size_t len, bool keypress_h(char *, size_t, size_t *,
 		done = keypress_h(buf, len, &k, &nul, ch, firsttime);
 
 		/* Update the entry */
-		Term_erase(x, y, (int)len);
+		Term_erase(x, y, (s16b)len);
 		Term_putstr(x, y, -1, TERM_WHITE, buf);
 
 		/* Not the first time round anymore */
@@ -2574,7 +2450,7 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *le
 		case '*':
 		{
 			*len = randname_make(RANDNAME_TOLKIEN, 4, 8, buf, buflen);
-			buf[0] = toupper((unsigned char) buf[0]);
+			buf[0] = INT2CHR(toupper((unsigned char) buf[0]));
 			*curs = 0;
 			result = FALSE;
 			break;
@@ -2679,6 +2555,12 @@ s16b get_quantity(cptr prompt, int max)
 		p_ptr->command_arg = 0;
 	}
 
+	/* Get the item index */
+	else if ((max != 1) && repeat_pull(&amt))
+	{
+		/* nothing */
+	}
+
 	/* Prompt if needed */
 	else if ((max != 1))
 	{
@@ -2715,8 +2597,10 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
+	if (amt) repeat_push(amt);
+
 	/* Return the result */
-	return (amt);
+	return (INT2S16B(amt));
 }
 
 
@@ -2871,7 +2755,7 @@ bool get_com_ex(cptr prompt, ui_event_data *command)
  *
  * This function is stupid.  XXX XXX XXX
  */
-void pause_line(int row)
+void pause_line(s16b row)
 {
 	prt("", row, 0);
 	put_str("[Press any key to continue]", row, 23);
@@ -2887,7 +2771,28 @@ void pause_line(int row)
  */
 static char request_command_buffer[256];
 
+/* 
+ * Mark a command as "allowed to be repeated". 
+ * 
+ * When a command is executed, the user has the option to request that 
+ * it be repeated by the UI setting p_ptr->command_arg.  If the command 
+ * permits repetition, then it calls this function to set  
+ * p_ptr->command_rep to make it repeat until an interruption. 
+ */ 
+void allow_repeated_command(void) 
+{ 
+	if (p_ptr->command_arg) 
+	{ 
+		/* Set repeat count */ 
+		p_ptr->command_rep = p_ptr->command_arg - 1; 
 
+		/* Redraw the state */ 
+		p_ptr->redraw |= (PR_STATE); 
+
+		/* Cancel the arg */ 
+		p_ptr->command_arg = 0; 
+	} 
+} 
 
 /*
  * Request a command from the user.
@@ -3046,7 +2951,7 @@ void request_command(void)
 			if (old_arg != 0)
 			{
 				/* Restore old_arg */
-				p_ptr->command_arg = old_arg;
+				p_ptr->command_arg = INT2S16B(old_arg);
 
 				/* Show current count */
 				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
@@ -3160,7 +3065,9 @@ void request_command(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Set up string to look for, e.g. "^d" */
-		verify_inscrip[1] = p_ptr->command_cmd;
+		assert(p_ptr->command_cmd>=CHAR_MIN); /* TODO These can be removed if they don't trip at all */
+		assert(p_ptr->command_cmd<=CHAR_MAX);
+		verify_inscrip[1] = (char) p_ptr->command_cmd;
 
 		/* Verify command */
 		n = check_for_inscrip(o_ptr, "^*") + check_for_inscrip(o_ptr, verify_inscrip);
@@ -3175,8 +3082,12 @@ void request_command(void)
 	/* Hack -- erase the message line. */
 	prt("", 0, 0);
 
+	/* Set up string to look for, e.g. "^d" */
+	assert(p_ptr->command_cmd>=CHAR_MIN); /* TODO These can be removed if they don't trip at all */
+	assert(p_ptr->command_cmd<=CHAR_MAX);
+
 	/* Hack again -- apply the modified key command */
-	p_ptr->command_cmd_ex.key = p_ptr->command_cmd;
+	p_ptr->command_cmd_ex.key = (char) p_ptr->command_cmd;
 }
 
 
@@ -3293,6 +3204,108 @@ cptr attr_to_text(byte a)
 
 	/* Oops */
 	return "Icky";
+}
+
+
+
+#define REPEAT_MAX 20
+
+/* Number of chars saved */
+static int repeat__cnt = 0;
+
+/* Current index */
+static int repeat__idx = 0;
+
+/* Saved "stuff" */
+static int repeat__key[REPEAT_MAX];
+
+
+/*
+ * Push data.
+ */
+void repeat_push(int what)
+{
+	/* Too many keys */
+	if (repeat__cnt == REPEAT_MAX) return;
+
+	/* Push the "stuff" */
+	repeat__key[repeat__cnt++] = what;
+
+	/* Prevents us from pulling keys */
+	++repeat__idx;
+}
+
+
+/*
+ * Pull data.
+ */
+bool repeat_pull(int *what)
+{
+	/* All out of keys */
+	if (repeat__idx == repeat__cnt) return (FALSE);
+
+	/* Grab the next key, advance */
+	*what = repeat__key[repeat__idx++];
+
+	/* Success */
+	return (TRUE);
+}
+
+
+void repeat_clear(void)
+{
+	/* Start over from the failed pull */
+	if (repeat__idx)
+		repeat__cnt = --repeat__idx;
+
+	/* Paranoia */
+	else
+		repeat__cnt = repeat__idx;
+
+	return;
+}
+
+
+/*
+ * Repeat previous command, or begin memorizing new command.
+ */
+void repeat_check(void)
+{
+	int what;
+
+	/* Ignore some commands */
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\n') return;
+	if (p_ptr->command_cmd == '\r') return;
+
+	/* Repeat Last Command */
+	if (p_ptr->command_cmd == KTRL('V'))
+	{
+		/* Reset */
+		repeat__idx = 0;
+
+		/* Get the command */
+		if (repeat_pull(&what))
+		{
+			/* Save the command */
+			p_ptr->command_cmd = INT2S16B(what);
+		}
+	}
+
+	/* Start saving new command */
+	else
+	{
+		/* Reset */
+		repeat__cnt = 0;
+		repeat__idx = 0;
+
+		/* Get the current command */
+		what = p_ptr->command_cmd;
+
+		/* Save this command */
+		repeat_push(what);
+	}
 }
 
 
@@ -3422,8 +3435,9 @@ void build_gamma_table(int gamma)
 		 * Store the value in the table so that the
 		 * floating point pow function isn't needed.
 		 */
-		gamma_table[i] = ((long)(value / 256) * i) / 256;
+		gamma_table[i] = (byte) (((long)(value / 256) * i) / 256);
 	}
 }
 
 #endif /* SUPPORT_GAMMA */
+

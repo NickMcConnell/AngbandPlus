@@ -19,11 +19,17 @@
 #include "angband.h"
 #include "savefile.h"
 
+/*
+ * Rev 69 above = ITEM_VERSION 4
+ * Technically there is little need for version 3 or earlier as
+ * we do not yet have any save compatibility between versions.
+ */
+#define ITEM_VERSION    4
 
 /** Magic bits at beginning of savefile */
-static const byte savefile_magic[4] = { 83, 97, 118, 101 };
-static const byte savefile_name[4] = SAVEFILE_NAME;
-
+/* This stuff is weird. */
+static const byte savefile_magic[4] = { 83, 97, 118, 101 }; /* <'S''a''v''e' */
+static const byte savefile_name[5] = SAVEFILE_NAME;
 
 /**
  * Big list of all savefile block types.
@@ -31,7 +37,7 @@ static const byte savefile_name[4] = SAVEFILE_NAME;
 static const struct
 {
 	char name[16];
-	int (*loader)(u32b version);
+	int (*loader)(void);
 	void (*saver)(void);
 	u32b cur_ver;
 	u32b oldest_ver;
@@ -43,7 +49,7 @@ static const struct
 	{ "monster memory", rd_monster_memory, wr_monster_memory, 1, 1 },
 	{ "object memory", rd_object_memory, wr_object_memory, 1, 1 },
 	{ "quests", rd_quests, wr_quests, 1, 1 },
-	{ "artifacts", rd_artifacts, wr_artifacts, 2, 1 },
+	{ "artifacts", rd_artifacts, wr_artifacts, 1, 1 },
 	{ "player", rd_player, wr_player, 2, 1 },
 	{ "squelch", rd_squelch, wr_squelch, 1, 1 },
 	{ "misc", rd_misc, wr_misc, 1, 1 },
@@ -55,10 +61,8 @@ static const struct
 	{ "dungeon", rd_dungeon, wr_dungeon, 1, 1 },
 	{ "objects", rd_objects, wr_objects, 1, 1 },
 	{ "monsters", rd_monsters, wr_monsters, 1, 1 },
-	{ "ghost", rd_ghost, wr_ghost, 1, 1 },
 	{ "history", rd_history, wr_history, 1, 1 },
 };
-
 
 /* Buffer bits */
 static byte *buffer;
@@ -71,9 +75,7 @@ static u32b buffer_check;
 
 #define SAVEFILE_HEAD_SIZE		28
 
-
 /** Utility **/
-
 
 /*
  * Hack -- Show information on the screen, one line at a time.
@@ -82,7 +84,7 @@ static u32b buffer_check;
  */
 void note(cptr msg)
 {
-	static int y = 2;
+	static s16b y = 2;
 	
 	/* Draw the message */
 	prt(msg, y, 0);
@@ -93,9 +95,6 @@ void note(cptr msg)
 	/* Flush it */
 	Term_fresh();
 }
-
-
-
 
 /** Base put/get **/
 
@@ -126,7 +125,6 @@ static byte sf_get(void)
 
 	return buffer[buffer_pos++];
 }
-
 
 /* accessor */
 
@@ -168,7 +166,6 @@ void wr_string(cptr str)
 	}
 	wr_byte(*str);
 }
-
 
 void rd_byte(byte *ip)
 {
@@ -220,12 +217,6 @@ void strip_bytes(int n)
 	byte tmp8u;
 	while (n--) rd_byte(&tmp8u);
 }
-
-
-
-
-/*** ****/
-
 
 static bool try_save(ang_file *file)
 {
@@ -283,7 +274,6 @@ static bool try_save(ang_file *file)
 	return TRUE;
 }
 
-
 static bool try_load(ang_file *file)
 {
 	byte savefile_head[SAVEFILE_HEAD_SIZE];
@@ -315,7 +305,6 @@ static bool try_load(ang_file *file)
 				break;
 		}
 		assert(i < N_ELEMENTS(savefile_blocks));
-
 		
 		/* 4-byte block version */
 		block_version = ((u32b) savefile_head[16]) |
@@ -349,7 +338,7 @@ static bool try_load(ang_file *file)
 		assert(size == block_size);
 
 		/* Try loading */
-		if (savefile_blocks[i].loader(block_version))
+		if (savefile_blocks[i].loader())
 			return -1;
 
 /*		assert(buffer_check == block_checksum); */
@@ -358,9 +347,6 @@ static bool try_load(ang_file *file)
 	
 	return 0;
 }
-
-
-
 
 /*
  * Attempt to save the player in a savefile
@@ -429,8 +415,6 @@ bool old_save(void)
 	return FALSE;
 }
 
-
-
 /*
  * Attempt to Load a "savefile"
  *
@@ -456,7 +440,6 @@ bool old_load(void)
 	/* Clear screen */
 	Term_clear();
 
-	
 	fh = file_open(savefile, MODE_READ, -1);
 	if (!fh)
 	{
@@ -501,6 +484,8 @@ bool old_load(void)
 				if (!err) what = "cannot read savefile";
 			}
 		}
+
+#if 0 /* TODO Keep this for when we have old version save files that we can load */
 		else if (sf_major == 3 && sf_minor == 0 &&
 				sf_patch == 14 && sf_extra == 0)
 		{
@@ -508,6 +493,8 @@ bool old_load(void)
 			err = rd_savefile_old();
 			if (err) what = "Cannot parse savefile";
 		}
+#endif
+
 		else
 		{
 			what = "Unreadable savefile (too old?)";
@@ -524,7 +511,6 @@ bool old_load(void)
 		/* Message (below) */
 		if (err) what = "Broken savefile";
 	}
-	
 	
 	/* Okay */
 	if (!err)

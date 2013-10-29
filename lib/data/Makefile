@@ -1,15 +1,32 @@
 MKPATH=../../mk/
-include $(MKPATH)buildsys.mk
+include $(MKPATH)rules.mk
+include $(MKPATH)objective.mk
 
-PACKAGE = ${PACKAGE_NAME}/data
-DATA_ = artifact ego_item flavor limits monster object p_class p_hist p_race prices shop_own spells terrain vault
+OBJECTIVE_DATA = \
+	delete.me:${DATA_PATH}/data
 
-install-extra:
+clean-posthook:
+	-$(RM) *.raw
+
+install-posthook:
 	if [ "x$(SETEGID)" != "x" ]; then \
-		${MKDIR_P} ${DESTDIR}${datadir}/$(PACKAGE); \
-		for i in ${DATA_}; do \
-			touch ${DESTDIR}${datadir}/$(PACKAGE)/$${i}.raw; \
-		done; \
-		chown -R root:${SETEGID} ${DESTDIR}${datadir}/$(PACKAGE); \
-		chmod -R g+w ${DESTDIR}${datadir}/$(PACKAGE); \
+		printf "%10s %s*.raw\n" TOUCH ${DATA_PATH}/data/; \
+		if [ "x$(DRY)" = "x" ]; then \
+			touch ${DATA_PATH}/data/artifact.raw; \
+			touch ${DATA_PATH}/data/ego_item.raw; \
+			touch ${DATA_PATH}/data/flavor.raw; \
+			touch ${DATA_PATH}/data/limits.raw; \
+			touch ${DATA_PATH}/data/monster.raw; \
+			touch ${DATA_PATH}/data/object.raw; \
+			touch ${DATA_PATH}/data/p_class.raw; \
+			touch ${DATA_PATH}/data/p_hist.raw; \
+			touch ${DATA_PATH}/data/p_race.raw; \
+			touch ${DATA_PATH}/data/prices.raw; \
+			touch ${DATA_PATH}/data/shop_own.raw; \
+			touch ${DATA_PATH}/data/spells.raw; \
+			touch ${DATA_PATH}/data/terrain.raw; \
+			touch ${DATA_PATH}/data/vault.raw; \
+			chown -R root:${SETEGID} ${DATA_PATH}/data; \
+			chmod -R g+w ${DATA_PATH}/data; \
+		fi; \
 	fi

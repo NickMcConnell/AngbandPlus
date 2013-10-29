@@ -114,16 +114,16 @@ void event_signal(game_event_type type)
 	game_event_dispatch(type, NULL);
 }
 
-void event_signal_flag(game_event_type type, bool flag)
-{
-	game_event_data data;
-	data.flag = flag;
+void event_signal_flag(game_event_type type, bool flag) 
+{ 
+	game_event_data data; 
+	data.flag = flag; 
 
-	game_event_dispatch(type, &data);
-}
+	game_event_dispatch(type, &data); 
+} 
 
 
-void event_signal_point(game_event_type type, int x, int y)
+void event_signal_point(game_event_type type, s16b x, s16b y)
 {
 	game_event_data data;
 	data.point.x = x;
@@ -141,7 +141,8 @@ void event_signal_string(game_event_type type, const char *s)
 	game_event_dispatch(type, &data);
 }
 
-void event_signal_birthpoints(int stats[6], int remaining)
+
+void event_signal_birthpoints(int stats[6], int remaining) 
 {
 	game_event_data data;
 

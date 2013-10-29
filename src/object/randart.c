@@ -42,12 +42,18 @@
 #define INHIBIT_STRONG  (one_in_(6))
 #define INHIBIT_WEAK    (one_in_(2))
 
-/*
- * Power rating below which uncursed randarts cannot aggravate
- * (so that aggravate is found only on endgame-quality items or 
- * cursed items)
- */
-#define AGGR_POWER 180
+/* 
+ * Power rating below which uncursed randarts cannot aggravate 
+ * (so that aggravate is found only on endgame-quality items or  
+ * cursed items) 
+ */ 
+#define AGGR_POWER 180 
+
+/*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
+
+#define ART_MORGOTH 0
+#define ART_GROND 1
+#define ART_POWER 2
 
 /*
  * Numerical index values for the different learned probabilities
@@ -57,102 +63,102 @@
 
 #define ART_IDX_BOW_SHOTS 0
 #define ART_IDX_BOW_MIGHT 1
-#define ART_IDX_BOW_BRAND 80 
-#define ART_IDX_BOW_SLAY 81
-#define ART_IDX_WEAPON_HIT 2
-#define ART_IDX_WEAPON_DAM 3
-#define ART_IDX_NONWEAPON_HIT 4
-#define ART_IDX_NONWEAPON_DAM 5
-#define ART_IDX_NONWEAPON_HIT_DAM 6
-#define ART_IDX_NONWEAPON_BRAND 78
-#define ART_IDX_NONWEAPON_SLAY 79
+#define ART_IDX_BOW_BRAND 2
+#define ART_IDX_BOW_SLAY 3
+#define ART_IDX_WEAPON_HIT 4
+#define ART_IDX_WEAPON_DAM 5
+#define ART_IDX_NONWEAPON_HIT 6
+#define ART_IDX_NONWEAPON_DAM 7
+#define ART_IDX_NONWEAPON_HIT_DAM 8
+#define ART_IDX_NONWEAPON_BRAND 9
+#define ART_IDX_NONWEAPON_SLAY 10
 
-#define ART_IDX_MELEE_BLESS 7
-#define ART_IDX_MELEE_BRAND 8
-#define ART_IDX_MELEE_SLAY 76
-#define ART_IDX_MELEE_SINV 9
-#define ART_IDX_MELEE_BLOWS 10
-#define ART_IDX_MELEE_AC 11
-#define ART_IDX_MELEE_DICE 12
-#define ART_IDX_MELEE_WEIGHT 13
-#define ART_IDX_MELEE_TUNN 14
+#define ART_IDX_MELEE_BLESS 11
+#define ART_IDX_MELEE_BRAND 12
+#define ART_IDX_MELEE_SLAY 13
+#define ART_IDX_MELEE_SINV 14
+#define ART_IDX_MELEE_BLOWS 15
+#define ART_IDX_MELEE_AC 16
+#define ART_IDX_MELEE_DICE 17
+#define ART_IDX_MELEE_WEIGHT 18
+#define ART_IDX_MELEE_TUNN 19
+  
+#define ART_IDX_ALLARMOR_WEIGHT 20
+  
+#define ART_IDX_BOOT_AC 21
+#define ART_IDX_BOOT_FEATHER 22
+#define ART_IDX_BOOT_STEALTH 23
+#define ART_IDX_BOOT_SPEED 24
+  
+#define ART_IDX_GLOVE_AC 25
+#define ART_IDX_GLOVE_FA 26
+#define ART_IDX_GLOVE_DEX 27
+  
+#define ART_IDX_HELM_AC 28
+#define ART_IDX_HELM_RBLIND 29
+#define ART_IDX_HELM_ESP 30
+#define ART_IDX_HELM_SINV 31
+#define ART_IDX_HELM_WIS 32
+#define ART_IDX_HELM_INT 33
+  
+#define ART_IDX_SHIELD_AC 34
+#define ART_IDX_SHIELD_LRES 35
+  
+#define ART_IDX_CLOAK_AC 36
+#define ART_IDX_CLOAK_STEALTH 37
+  
+#define ART_IDX_ARMOR_AC 38
+#define ART_IDX_ARMOR_STEALTH 39
+#define ART_IDX_ARMOR_HLIFE 40
+#define ART_IDX_ARMOR_CON 41
+#define ART_IDX_ARMOR_LRES 42
+#define ART_IDX_ARMOR_ALLRES 43
+#define ART_IDX_ARMOR_HRES 44
+  
+#define ART_IDX_GEN_STAT 45
+#define ART_IDX_GEN_SUST 46
+#define ART_IDX_GEN_STEALTH 47
+#define ART_IDX_GEN_SEARCH 48
+#define ART_IDX_GEN_INFRA 49
+#define ART_IDX_GEN_SPEED 50
+#define ART_IDX_GEN_IMMUNE 51
+#define ART_IDX_GEN_FA 52
+#define ART_IDX_GEN_HLIFE 53
+#define ART_IDX_GEN_FEATHER 54
+#define ART_IDX_GEN_LITE 55
+#define ART_IDX_GEN_SINV 56
+#define ART_IDX_GEN_ESP 57
+#define ART_IDX_GEN_SDIG 58
+#define ART_IDX_GEN_REGEN 59
+#define ART_IDX_GEN_LRES 60
+#define ART_IDX_GEN_RPOIS 61
+#define ART_IDX_GEN_RFEAR 62
+#define ART_IDX_GEN_RLITE 63
+#define ART_IDX_GEN_RDARK 64
+#define ART_IDX_GEN_RBLIND 65
+#define ART_IDX_GEN_RCONF 66
+#define ART_IDX_GEN_RSOUND 67
+#define ART_IDX_GEN_RSHARD 68
+#define ART_IDX_GEN_RNEXUS 69
+#define ART_IDX_GEN_RNETHER 70
+#define ART_IDX_GEN_RCHAOS 71
+#define ART_IDX_GEN_RDISEN 72
+#define ART_IDX_GEN_AC 73
+#define ART_IDX_GEN_TUNN 74
+  
+/* Supercharged abilities - treated differently in algorithm */  
+  
+#define ART_IDX_MELEE_DICE_SUPER 75
+#define ART_IDX_BOW_SHOTS_SUPER 76
+#define ART_IDX_BOW_MIGHT_SUPER 77
+#define ART_IDX_GEN_SPEED_SUPER 78
+#define ART_IDX_MELEE_BLOWS_SUPER 79
+  
+/* Aggravation - weapon and nonweapon */  
+#define ART_IDX_WEAPON_AGGR 80
+#define ART_IDX_NONWEAPON_AGGR 81
 
-#define ART_IDX_ALLARMOR_WEIGHT 15
-
-#define ART_IDX_BOOT_AC 16
-#define ART_IDX_BOOT_FEATHER 17
-#define ART_IDX_BOOT_STEALTH 18
-#define ART_IDX_BOOT_SPEED 19
-
-#define ART_IDX_GLOVE_AC 20
-#define ART_IDX_GLOVE_FA 21
-#define ART_IDX_GLOVE_DEX 22
-
-#define ART_IDX_HELM_AC 23
-#define ART_IDX_HELM_RBLIND 24
-#define ART_IDX_HELM_ESP 25
-#define ART_IDX_HELM_SINV 26
-#define ART_IDX_HELM_WIS 27
-#define ART_IDX_HELM_INT 28
-
-#define ART_IDX_SHIELD_AC 29
-#define ART_IDX_SHIELD_LRES 30
-
-#define ART_IDX_CLOAK_AC 31
-#define ART_IDX_CLOAK_STEALTH 32
-
-#define ART_IDX_ARMOR_AC 33
-#define ART_IDX_ARMOR_STEALTH 34
-#define ART_IDX_ARMOR_HLIFE 35
-#define ART_IDX_ARMOR_CON 36
-#define ART_IDX_ARMOR_LRES 37
-#define ART_IDX_ARMOR_ALLRES 38
-#define ART_IDX_ARMOR_HRES 39
-
-#define ART_IDX_GEN_STAT 40
-#define ART_IDX_GEN_SUST 41
-#define ART_IDX_GEN_STEALTH 42
-#define ART_IDX_GEN_SEARCH 43
-#define ART_IDX_GEN_INFRA 44
-#define ART_IDX_GEN_SPEED 45
-#define ART_IDX_GEN_IMMUNE 46
-#define ART_IDX_GEN_FA 47
-#define ART_IDX_GEN_HLIFE 48
-#define ART_IDX_GEN_FEATHER 49
-#define ART_IDX_GEN_LITE 50
-#define ART_IDX_GEN_SINV 51
-#define ART_IDX_GEN_ESP 52
-#define ART_IDX_GEN_SDIG 53
-#define ART_IDX_GEN_REGEN 54
-#define ART_IDX_GEN_LRES 55
-#define ART_IDX_GEN_RPOIS 56
-#define ART_IDX_GEN_RFEAR 57
-#define ART_IDX_GEN_RLITE 58
-#define ART_IDX_GEN_RDARK 59
-#define ART_IDX_GEN_RBLIND 60
-#define ART_IDX_GEN_RCONF 61
-#define ART_IDX_GEN_RSOUND 62
-#define ART_IDX_GEN_RSHARD 63
-#define ART_IDX_GEN_RNEXUS 64
-#define ART_IDX_GEN_RNETHER 65
-#define ART_IDX_GEN_RCHAOS 66
-#define ART_IDX_GEN_RDISEN 67
-#define ART_IDX_GEN_AC 68
-#define ART_IDX_GEN_TUNN 69
-
-/* Supercharged abilities - treated differently in algorithm */
-
-#define ART_IDX_MELEE_DICE_SUPER 70
-#define ART_IDX_BOW_SHOTS_SUPER 71
-#define ART_IDX_BOW_MIGHT_SUPER 72
-#define ART_IDX_GEN_SPEED_SUPER 73
-#define ART_IDX_MELEE_BLOWS_SUPER 77
-
-/* Aggravation - weapon and nonweapon */
-#define ART_IDX_WEAPON_AGGR 74
-#define ART_IDX_NONWEAPON_AGGR 75
-
-/* Total of abilities */
+/* Total of abilities */  
 #define ART_IDX_TOTAL 82
 
 /* Tallies of different ability types */
@@ -298,7 +304,7 @@ static errr init_names(void)
 	{
 		char word[MAX_NAME_LEN + 1];
 		randname_make(RANDNAME_TOLKIEN, MIN_NAME_LEN, MAX_NAME_LEN, word, sizeof word);
-		word[0] = toupper((unsigned char) word[0]);
+		word[0] = (char) toupper((unsigned char) word[0]);
 
 		if (one_in_(3))
 			strnfmt(buf, sizeof(buf), "'%s'", word);
@@ -367,7 +373,8 @@ static s32b artifact_power(int a_idx)
 	LOG_PRINT("********** ENTERING EVAL POWER ********\n");
 	LOG_PRINT1("Artifact index is %d\n", a_idx);
 	
-	if(!make_fake_artifact(&obj, a_idx))
+	ISBYTE(a_idx);
+	if(!make_fake_artifact(&obj, (byte) a_idx))
 	{
 		return 0;
 	}
@@ -448,7 +455,7 @@ static struct item_choice {
 	{ 20, TV_HAFTED,        "a blunt weapon"},
 	{ 32, TV_SWORD,         "an edged weapon"},
 	{ 42, TV_POLEARM,       "a polearm"},
-	{ 64, TV_SOFT_ARMOR,    "body armour"},
+	{ 64, TV_SOFT_ARMOR,    "body armor"},
 	{ 71, TV_BOOTS,         "footwear"},
 	{ 78, TV_GLOVES,        "gloves"},
 	{ 87, TV_HELM,          "a hat"},
@@ -520,11 +527,10 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 90) sval = SV_LIGHT_XBOW;
 		else sval = SV_HEAVY_XBOW;
 		break;
-
-	case TV_DIGGING:
-		if (r2 < 40) sval = SV_SHOVEL;
-		else if (r2 < 80) sval = SV_PICK;
-		else sval = SV_MATTOCK;
+/* TODO : More digging implements than these.  Which are used here in /64 ? */
+	case TV_DIGGING: 
+		if (r2 < 50) sval = SV_SHOVEL;
+		else sval = SV_PICK;
 		break;
 
 	case TV_HAFTED:
@@ -536,9 +542,12 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 48) sval = SV_FLAIL;
 		else if (r2 < 63) sval = SV_LEAD_FILLED_MACE;
 		else if (r2 < 80) sval = SV_BALL_AND_CHAIN;
-		else if (r2 < 100) sval = SV_GREAT_HAMMER;
-		else if (r2 < 120) sval = SV_MAUL;
-		else if (r2 < 135) sval = SV_TWO_HANDED_GREAT_FLAIL;
+		/* LUCERNE is hafted not polearm */
+		else if (r2 < 100) sval = SV_LUCERNE_HAMMER;  
+/* TODO: Different items in /64. Make consistent */
+/*		else if (r2 < 100) sval = SV_GREAT_HAMMER; */ 
+/*		else if (r2 < 120) sval = SV_MAUL; */
+/*		else if (r2 < 135) sval = SV_TWO_HANDED_GREAT_FLAIL; */
 		else sval = SV_MACE_OF_DISRUPTION;
 		break;
 
@@ -554,12 +563,13 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 65) sval = SV_SCIMITAR;
 		else if (r2 < 80) sval = SV_BASTARD_SWORD;
 		else if (r2 < 100) sval = SV_KATANA;
-		else if (r2 < 120) sval = SV_ZWEIHANDER;
-		else if (r2 < 135) sval = SV_EXECUTIONERS_SWORD;
+/*		else if (r2 < 120) sval = SV_ZWEIHANDER; */
+/* TODO: Different items in /64. Make consistent */
+		else if (r2 < 135) sval = SV_EXECUTIONERS_SWORD;  
 		else sval = SV_BLADE_OF_CHAOS;
 		break;
 
-	case TV_POLEARM:
+	case TV_POLEARM: /* TODO: Different items in /64. Make consistent */
 		if (r2 < 5) sval = SV_SPEAR;
 		else if (r2 < 9) sval = SV_TRIDENT;
 		else if (r2 < 14) sval = SV_LANCE;
@@ -569,7 +579,6 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 44) sval = SV_BROAD_AXE;
 		else if (r2 < 54) sval = SV_BATTLE_AXE;
 		else if (r2 < 65) sval = SV_GLAIVE;
-		else if (r2 < 76) sval = SV_LUCERNE_HAMMER;
 		else if (r2 < 88) sval = SV_HALBERD;
 		else if (r2 < 102) sval = SV_GREAT_AXE;
 		else if (r2 < 120) sval = SV_SCYTHE;
@@ -588,9 +597,9 @@ static s16b choose_item(int a_idx)
 
 		/* Soft stuff. */
 		if (r2 < 5) sval = SV_ROBE;
-		else if (r2 < 11) sval = SV_SOFT_LEATHER_ARMOUR;
-		else if (r2 < 18) sval = SV_STUDDED_LEATHER_ARMOUR;
-		else if (r2 < 24) sval = SV_HARD_LEATHER_ARMOUR;
+		else if (r2 < 11) sval = SV_SOFT_LEATHER_ARMOR;
+		else if (r2 < 18) sval = SV_STUDDED_LEATHER_ARMOR;
+		else if (r2 < 24) sval = SV_HARD_LEATHER_ARMOR;
 		else if (r2 < 30) sval = SV_LEATHER_SCALE_MAIL;
 
 		/* Hard stuff. */
@@ -598,11 +607,11 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 45) sval = SV_CHAIN_MAIL;
 		else if (r2 < 52) sval = SV_AUGMENTED_CHAIN_MAIL;
 		else if (r2 < 59) sval = SV_BAR_CHAIN_MAIL;
-		else if (r2 < 66) sval = SV_METAL_BRIGANDINE_ARMOUR;
-		else if (r2 < 73) sval = SV_PARTIAL_PLATE_ARMOUR;
-		else if (r2 < 80) sval = SV_METAL_LAMELLAR_ARMOUR;
-		else if (r2 < 87) sval = SV_FULL_PLATE_ARMOUR;
-		else if (r2 < 94) sval = SV_RIBBED_PLATE_ARMOUR;
+		else if (r2 < 66) sval = SV_METAL_BRIGANDINE_ARMOR;
+		else if (r2 < 73) sval = SV_PARTIAL_PLATE_ARMOR;
+		else if (r2 < 80) sval = SV_METAL_LAMELLAR_ARMOR;
+		else if (r2 < 87) sval = SV_FULL_PLATE_ARMOR;
+		else if (r2 < 94) sval = SV_RIBBED_PLATE_ARMOR;
 		else if (r2 < 101) sval = SV_MITHRIL_CHAIN_MAIL;
 		else if (r2 < 108) sval = SV_MITHRIL_PLATE_MAIL;
 		else if (r2 < 116) sval = SV_ADAMANTITE_PLATE_MAIL;
@@ -624,12 +633,9 @@ static s16b choose_item(int a_idx)
 		break;
 
 	case TV_BOOTS:
-		if (r2 < 15) sval = SV_PAIR_OF_LEATHER_SANDALS;
-		else if (r2 < 30) sval = SV_PAIR_OF_LEATHER_BOOTS;
-		else if (r2 < 50) sval = SV_PAIR_OF_IRON_SHOD_BOOTS;
-		else if (r2 < 70) sval = SV_PAIR_OF_STEEL_SHOD_BOOTS; 
-		else if (r2 < 90) sval = SV_PAIR_OF_MITHRIL_SHOD_BOOTS; 
-		else sval = SV_PAIR_OF_ETHEREAL_SLIPPERS;
+		if (r2 < 33) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
+		else if (r2 < 66) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
+		else sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
 		break;
 
 	case TV_GLOVES:
@@ -655,11 +661,11 @@ static s16b choose_item(int a_idx)
 		break;
 
 	case TV_SHIELD:
-		if (r2 < 15) sval = SV_WICKER_SHIELD;
+		if (r2 < 15) sval = SV_SMALL_LEATHER_SHIELD;
 		else if (r2 < 40) sval = SV_SMALL_METAL_SHIELD;
-		else if (r2 < 70) sval = SV_LEATHER_SHIELD;
+		else if (r2 < 70) sval = SV_LARGE_LEATHER_SHIELD;
 		else if (r2 < 95) sval = SV_LARGE_METAL_SHIELD;
-		else sval = SV_MITHRIL_SHIELD;
+		else sval = SV_SHIELD_OF_DEFLECTION;
 		break;
 
 	case TV_CLOAK:
@@ -688,6 +694,7 @@ static s16b choose_item(int a_idx)
 	a_ptr->flags[0] = k_ptr->flags[0];
 	a_ptr->flags[1] = k_ptr->flags[1];
 	a_ptr->flags[2] = k_ptr->flags[2];
+	a_ptr->flags[3] = k_ptr->flags[3];
 
 	/*
 	 * Dragon armor: remove activation flag.  This is because the current
@@ -697,10 +704,10 @@ static s16b choose_item(int a_idx)
 	 * ToDo: proper random activations
 	 */
 	if (a_ptr->tval == TV_DRAG_ARMOR)
-		a_ptr->effect = 0;
+		a_ptr->flags[3] &= ~TR3_ACTIVATE;
 
 	/* Artifacts ignore everything */
-	a_ptr->flags[2] |= TR2_IGNORE_MASK;
+	a_ptr->flags[3] |= TR3_IGNORE_MASK;
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	/*
@@ -746,25 +753,33 @@ static s16b choose_item(int a_idx)
 /*
  * We've just added an ability which uses the pval bonus.  Make sure it's
  * not zero.  If it's currently negative, leave it negative (heh heh).
+ *
+ * There should be a better way of handling pval vs p2val than doing two
+ * functions but that can wait for later.
  */
 static void do_pval(artifact_type *a_ptr)
 {
 	int factor = 1;
+	
 	/* Track whether we have blows, might or shots on this item */
-	if (a_ptr->flags[0] & TR0_BLOWS) factor++;
-	if (a_ptr->flags[0] & TR0_MIGHT) factor++;
-	if (a_ptr->flags[0] & TR0_SHOTS) factor++;
+	if (a_ptr->flags[0] & TR0_BLOWS1) 
+		factor++;
+	/* Note that there is no MIGHT2 */
+	if (a_ptr->flags[0] & TR0_MIGHT1) 
+		factor++; 
+	if (a_ptr->flags[0] & TR0_SHOTS1) 
+		factor++;
 
-	if (a_ptr->pval == 0)
+	if(a_ptr->pval == 0)
 	{
 		/* Blows, might, shots handled separately */
 		if (factor > 1)
 		{
-			a_ptr->pval = (s16b)randint1(2);
+			a_ptr->pval = (s16b) randint1(2);
 			/* Give it a shot at +3 */
-			if (INHIBIT_STRONG) a_ptr->pval = 3;
+			if (INHIBIT_STRONG) a_ptr->pval = 3; 
 		}
-		else a_ptr->pval = (s16b)randint1(4);
+		else a_ptr->pval = (s16b) randint1(4);
 		LOG_PRINT1("Assigned initial pval, value is: %d\n", a_ptr->pval);
 	}
 	else if (a_ptr->pval < 0)
@@ -784,33 +799,126 @@ static void do_pval(artifact_type *a_ptr)
 		a_ptr->pval++;
 		LOG_PRINT1("Increasing pval by 1, new value is: %d\n", a_ptr->pval);
 	}
+	
 }
 
+/*
+ * We've just added an ability which uses the p2val bonus.  Make sure it's
+ * not zero.  If it's currently negative, leave it negative (heh heh).
+ *
+ * There should be a better way of handling pval vs p2val than doing two
+ * functions but that can wait for later.
+ */
+#if 0
+static void do_p2val(artifact_type *a_ptr)
+{
+	int factor= 1;
+	
+	/* Track whether we have blows, might or shots on this item */
+	if (a_ptr->flags[0] & TR0_BLOWS2) factor++;
+	/* HACK There is no MIGHT2 */
+/*	if (a_ptr->flags[0] & TR0_MIGHT2) factor++;  */
+	if (a_ptr->flags[0] & TR0_SHOTS2) factor++;
+
+	if(a_ptr->p2val == 0)
+	{
+		/* Blows, might, shots handled separately */
+		if (factor > 1)
+		{
+			a_ptr->p2val = (s16b)randint1(2);
+			/* Give it a shot at +3 */
+			if (INHIBIT_STRONG) a_ptr->p2val = 3; 
+		}
+		else a_ptr->p2val = (s16b)randint1(4);
+		LOG_PRINT1("Assigned initial p2val, value is: %d\n", a_ptr->p2val);
+	}
+	else if (a_ptr->p2val < 0)
+	{
+		if (one_in_(2))
+		{
+			a_ptr->p2val--;
+			LOG_PRINT1("Decreasing p2val by 1, new value is: %d\n", a_ptr->p2val);
+		}
+	}
+	else if (one_in_(a_ptr->p2val * factor))
+	{
+		/*
+		 * CR: made this a bit rarer and diminishing with higher pval -
+		 * also rarer if item has blows/might/shots already
+		 */
+		a_ptr->p2val++;
+		LOG_PRINT1("Increasing p2val by 1, new value is: %d\n", a_ptr->p2val);
+	}
+}
+#endif
 
 static void remove_contradictory(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[2] & TR2_AGGRAVATE) a_ptr->flags[0] &= ~(TR0_STEALTH);
-	if (a_ptr->flags[1] & TR1_IM_ACID) a_ptr->flags[1] &= ~(TR1_RES_ACID);
-	if (a_ptr->flags[1] & TR1_IM_ELEC) a_ptr->flags[1] &= ~(TR1_RES_ELEC);
-	if (a_ptr->flags[1] & TR1_IM_FIRE) a_ptr->flags[1] &= ~(TR1_RES_FIRE);
-	if (a_ptr->flags[1] & TR1_IM_COLD) a_ptr->flags[1] &= ~(TR1_RES_COLD);
-
-	if (a_ptr->pval < 0)
+	if (a_ptr->flags[3] & TR3_AGGRAVATE) 
 	{
-		if (a_ptr->flags[0] & TR0_STR) a_ptr->flags[1] &= ~(TR1_SUST_STR);
-		if (a_ptr->flags[0] & TR0_INT) a_ptr->flags[1] &= ~(TR1_SUST_INT);
-		if (a_ptr->flags[0] & TR0_WIS) a_ptr->flags[1] &= ~(TR1_SUST_WIS);
-		if (a_ptr->flags[0] & TR0_DEX) a_ptr->flags[1] &= ~(TR1_SUST_DEX);
-		if (a_ptr->flags[0] & TR0_CON) a_ptr->flags[1] &= ~(TR1_SUST_CON);
-		if (a_ptr->flags[0] & TR0_CHR) a_ptr->flags[1] &= ~(TR1_SUST_CHR);
-		a_ptr->flags[0] &= ~(TR0_BLOWS);
+		a_ptr->flags[0] &= ~(TR0_STEALTH1);
+		a_ptr->flags[0] &= ~(TR0_STEALTH2);
+	}
+	if (a_ptr->flags[2] & TR2_IM_ACID) a_ptr->flags[2] &= ~(TR2_RES_ACID);
+	if (a_ptr->flags[2] & TR2_IM_ELEC) a_ptr->flags[2] &= ~(TR2_RES_ELEC);
+	if (a_ptr->flags[2] & TR2_IM_FIRE) a_ptr->flags[2] &= ~(TR2_RES_FIRE);
+	if (a_ptr->flags[2] & TR2_IM_COLD) a_ptr->flags[2] &= ~(TR2_RES_COLD);
+
+	if (a_ptr->pval < 0) 
+	{
+		if (a_ptr->flags[0] & TR0_STR1) a_ptr->flags[2] &= ~(TR2_SUST_STR);
+		if (a_ptr->flags[0] & TR0_INT1) a_ptr->flags[2] &= ~(TR2_SUST_INT);
+		if (a_ptr->flags[0] & TR0_WIS1) a_ptr->flags[2] &= ~(TR2_SUST_WIS);
+		if (a_ptr->flags[0] & TR0_DEX1) a_ptr->flags[2] &= ~(TR2_SUST_DEX);
+		if (a_ptr->flags[0] & TR0_CON1) a_ptr->flags[2] &= ~(TR2_SUST_CON);
+		if (a_ptr->flags[0] & TR0_CHR1) a_ptr->flags[2] &= ~(TR2_SUST_CHR);
+		a_ptr->flags[0] &= ~(TR0_BLOWS1);
 	}
 
-	if (a_ptr->flags[2] & TR2_LIGHT_CURSE) a_ptr->flags[2] &= ~(TR2_BLESSED);
-	if (a_ptr->flags[0] & TR0_KILL_DRAGON) a_ptr->flags[0] &= ~(TR0_SLAY_DRAGON);
-	if (a_ptr->flags[0] & TR0_KILL_DEMON) a_ptr->flags[0] &= ~(TR0_SLAY_DEMON);
-	if (a_ptr->flags[0] & TR0_KILL_UNDEAD) a_ptr->flags[0] &= ~(TR0_SLAY_UNDEAD);
-	if (a_ptr->flags[2] & TR2_DRAIN_EXP) a_ptr->flags[2] &= ~(TR2_HOLD_LIFE);
+	if (a_ptr->p2val < 0) 
+	{
+		if (a_ptr->flags[0] & TR0_STR2) a_ptr->flags[2] &= ~(TR2_SUST_STR);
+		if (a_ptr->flags[0] & TR0_INT2) a_ptr->flags[2] &= ~(TR2_SUST_INT);
+		if (a_ptr->flags[0] & TR0_WIS2) a_ptr->flags[2] &= ~(TR2_SUST_WIS);
+		if (a_ptr->flags[0] & TR0_DEX2) a_ptr->flags[2] &= ~(TR2_SUST_DEX);
+		if (a_ptr->flags[0] & TR0_CON2) a_ptr->flags[2] &= ~(TR2_SUST_CON);
+		if (a_ptr->flags[0] & TR0_CHR2) a_ptr->flags[2] &= ~(TR2_SUST_CHR);
+		a_ptr->flags[0] &= ~(TR0_BLOWS2);
+	}
+
+	if (a_ptr->flags[3] & TR3_LIGHT_CURSE) a_ptr->flags[3] &= ~(TR3_BLESSED);
+	if (a_ptr->flags[1] & TR1_KILL_ANIMAL) a_ptr->flags[1] &= ~(TR1_SLAY_ANIMAL); 
+	if (a_ptr->flags[1] & TR1_KILL_DEMON) a_ptr->flags[1] &= ~(TR1_SLAY_DEMON);
+	if (a_ptr->flags[1] & TR1_KILL_DRAGON) a_ptr->flags[1] &= ~(TR1_SLAY_DRAGON);
+	if (a_ptr->flags[1] & TR1_KILL_EVIL) a_ptr->flags[1] &= ~(TR1_SLAY_EVIL);
+	if (a_ptr->flags[1] & TR1_KILL_GIANT) a_ptr->flags[1] &= ~(TR1_SLAY_GIANT);
+	if (a_ptr->flags[1] & TR1_KILL_ORC) a_ptr->flags[1] &= ~(TR1_SLAY_ORC);
+	if (a_ptr->flags[1] & TR1_KILL_TROLL) a_ptr->flags[1] &= ~(TR1_SLAY_TROLL);
+	if (a_ptr->flags[1] & TR1_KILL_UNDEAD) a_ptr->flags[1] &= ~(TR1_SLAY_UNDEAD);
+
+	if (a_ptr->flags[3] & TR3_DRAIN_EXP) a_ptr->flags[2] &= ~(TR2_HOLD_LIFE);
+	
+	/* Do not allow both pval and p2val versions of the same flag! */
+		if (a_ptr->flags[0] & TR0_STR1) a_ptr->flags[2] &= ~(TR0_STR2);
+		if (a_ptr->flags[0] & TR0_INT1) a_ptr->flags[2] &= ~(TR0_INT2);
+		if (a_ptr->flags[0] & TR0_WIS1) a_ptr->flags[2] &= ~(TR0_WIS2);
+		if (a_ptr->flags[0] & TR0_DEX1) a_ptr->flags[2] &= ~(TR0_DEX2);
+		if (a_ptr->flags[0] & TR0_CON1) a_ptr->flags[2] &= ~(TR0_CON2);
+		if (a_ptr->flags[0] & TR0_CHR1) a_ptr->flags[2] &= ~(TR0_CHR2);
+		if (a_ptr->flags[0] & TR0_STEALTH1) a_ptr->flags[2] &= ~(TR0_STEALTH2);
+		if (a_ptr->flags[0] & TR0_SEARCH1) a_ptr->flags[2] &= ~(TR0_SEARCH2);
+		if (a_ptr->flags[0] & TR0_INFRA1) a_ptr->flags[2] &= ~(TR0_INFRA2);
+		if (a_ptr->flags[0] & TR0_TUNNEL1) a_ptr->flags[2] &= ~(TR0_TUNNEL2);
+		if (a_ptr->flags[0] & TR0_BLOWS1) a_ptr->flags[2] &= ~(TR0_BLOWS2);
+		if (a_ptr->flags[0] & TR0_SPEED1) a_ptr->flags[2] &= ~(TR0_SPEED2);
+		if (a_ptr->flags[0] & TR0_SHOTS1) a_ptr->flags[2] &= ~(TR0_SHOTS2);
+		if (a_ptr->flags[0] & TR0_MAGIC1) a_ptr->flags[2] &= ~(TR0_MAGIC2);
+
+/* HACK No VAMPIRIC2 or MIGHT2 */
+/*		if (a_ptr->flags[0] & TR0_VAMPIRIC1) a_ptr->flags[2] &= ~(TR0_VAMPIRIC2); */
+/*		if (a_ptr->flags[0] & TR0_MIGHT1) a_ptr->flags[2] &= ~(TR0_MIGHT2); */
+
+		if (a_ptr->flags[3] & TR3_SOMELITE) a_ptr->flags[3] &= ~(TR3_BIGLITE); /* Only need one light */
 }
 
 /*
@@ -910,7 +1018,8 @@ static void parse_frequencies(void)
 
 		if (a_ptr->tval == TV_BOW)
 		{
-			if(a_ptr->flags[0] & TR0_SHOTS)
+			/* HANDLE pval and p2val versions */
+			if(a_ptr->flags[0] & TR0_SHOTS1) 
 			{
 				/* Do we have 3 or more extra shots? (Unlikely) */
 				if(a_ptr->pval > 2)
@@ -925,7 +1034,7 @@ static void parse_frequencies(void)
 					(artprobs[ART_IDX_BOW_SHOTS])++;
 				}
 			}
-			if(a_ptr->flags[0] & TR0_MIGHT)
+			if(a_ptr->flags[0] & TR0_MIGHT1)
 			{
 				/* Do we have 3 or more extra might? (Unlikely) */
 				if(a_ptr->pval > 2)
@@ -940,9 +1049,28 @@ static void parse_frequencies(void)
 					(artprobs[ART_IDX_BOW_MIGHT])++;
 				}
 			}
+			/* Now the p2val version */
+			/* Should never have both versions of the same flag! */
+			if(a_ptr->flags[0] & TR0_SHOTS2) 
+			{
+				/* Do we have 3 or more extra shots? (Unlikely) */
+				if(a_ptr->p2val > 2)
+				{
+					LOG_PRINT("Adding 1 for supercharged shots (3 or more!)\n");
+
+					(artprobs[ART_IDX_BOW_SHOTS_SUPER])++;
+				}
+				else {
+					LOG_PRINT("Adding 1 for extra shots\n");
+
+					(artprobs[ART_IDX_BOW_SHOTS])++;
+				}
+			}
+/*			if(a_ptr->flags[0] & TR0_MIGHT2) */ /* HACK there is no MIGHT2 */
 
 			/* Brands or slays - count all together */
-			if (a_ptr->flags[0] & TR0_ALL_SLAYS)
+			/* Still counting for bows */
+			if (a_ptr->flags[1] & TR1_ALL_SLAYS)
 			{
 				const slay_t *s_ptr;
 
@@ -952,21 +1080,20 @@ static void parse_frequencies(void)
 
 				for (s_ptr = slay_table; s_ptr->slay_flag; s_ptr++)
 				{
-					if (a_ptr->flags[0] & s_ptr->slay_flag)
+					if (a_ptr->flags[1] & s_ptr->slay_flag)
 					{
-						if (s_ptr->slay_flag & (TR0_SLAY_MASK | TR0_KILL_MASK)) temp++;
-						if (s_ptr->slay_flag & TR0_BRAND_MASK) temp2++;
+						if (s_ptr->slay_flag & (TR1_SLAY_MASK | TR1_KILL_MASK)) temp++;
+						if (s_ptr->slay_flag & TR1_BRAND_MASK) temp2++;
 					}
 				}
 				LOG_PRINT1("Adding %d for slays\n", temp);
 				LOG_PRINT1("Adding %d for brands\n", temp2);
 
 				/* Add these to the frequency count */
-				artprobs[ART_IDX_BOW_BRAND] += temp2;
-				artprobs[ART_IDX_BOW_SLAY] += temp;
+				artprobs[ART_IDX_BOW_BRAND] += (s16b) temp2;
+				artprobs[ART_IDX_BOW_SLAY] += (s16b) temp;
 			}
 		}
-
 		/* Handle hit / dam ratings - are they higher than normal? */
 		/* Also handle other weapon/nonweapon abilities */
 		if (a_ptr->tval == TV_BOW || a_ptr->tval == TV_DIGGING ||
@@ -981,7 +1108,7 @@ static void parse_frequencies(void)
 				{
 					LOG_PRINT1("Adding %d instances of extra to-hit bonus for weapon\n", temp);
 
-					(artprobs[ART_IDX_WEAPON_HIT]) += temp;
+					(artprobs[ART_IDX_WEAPON_HIT]) += (s16b) temp;
 				}
 			}
 			else if (a_ptr->to_h - k_ptr->to_h - mean_hit_startval < 0)
@@ -992,7 +1119,7 @@ static void parse_frequencies(void)
 				{
 					LOG_PRINT1("Subtracting %d instances of extra to-hit bonus for weapon\n", temp);
 
-					(artprobs[ART_IDX_WEAPON_HIT]) -= temp;
+					(artprobs[ART_IDX_WEAPON_HIT]) -= (s16b) temp;
 				}
 			}
 			if (a_ptr->to_d - k_ptr->to_d - mean_dam_startval > 0)
@@ -1003,7 +1130,7 @@ static void parse_frequencies(void)
 				{
 					LOG_PRINT1("Adding %d instances of extra to-dam bonus for weapon\n", temp);
 
-					(artprobs[ART_IDX_WEAPON_DAM]) += temp;
+					(artprobs[ART_IDX_WEAPON_DAM]) += (s16b) temp;
 				}
 			}
 			else if (a_ptr->to_d - k_ptr->to_d - mean_dam_startval < 0)
@@ -1014,12 +1141,12 @@ static void parse_frequencies(void)
 				{
 					LOG_PRINT1("Subtracting %d instances of extra to-dam bonus for weapon\n", temp);
 
-					(artprobs[ART_IDX_WEAPON_DAM]) -= temp;
+					(artprobs[ART_IDX_WEAPON_DAM]) -= (s16b) temp;
 				}
 			}
 
 			/* Aggravation */
-			if (a_ptr->flags[2] & TR2_AGGRAVATE)
+			if (a_ptr->flags[3] & TR3_AGGRAVATE)
 			{
 				LOG_PRINT("Adding 1 for aggravation - weapon\n");
 				(artprobs[ART_IDX_WEAPON_AGGR])++;
@@ -1028,7 +1155,7 @@ static void parse_frequencies(void)
 			/* End weapon stuff */
 		}
 		else
-		{
+		{	/* For non-bows */
 			if ( (a_ptr->to_h - k_ptr->to_h > 0) &&
 				(a_ptr->to_h - k_ptr->to_h == a_ptr->to_d - k_ptr->to_d) )
 			{
@@ -1036,9 +1163,10 @@ static void parse_frequencies(void)
 				temp = (a_ptr->to_d - k_ptr->to_d) / mean_dam_increment;
 				if (temp > 0)
 				{
-					LOG_PRINT1("Adding %d instances of extra to-hit and to-dam bonus for non-weapon\n", temp);
+					LOG_PRINT1("Adding %d instances of extra to-hit and to-dam bonus for non-weapon\n", 
+						temp);
 
-					(artprobs[ART_IDX_NONWEAPON_HIT_DAM]) += temp;
+					(artprobs[ART_IDX_NONWEAPON_HIT_DAM]) += (s16b) temp;
 				}
 			}
 			else
@@ -1051,7 +1179,7 @@ static void parse_frequencies(void)
 					{
 						LOG_PRINT1("Adding %d instances of extra to-hit bonus for non-weapon\n", temp);
 
-						(artprobs[ART_IDX_NONWEAPON_HIT]) += temp;
+						(artprobs[ART_IDX_NONWEAPON_HIT]) += (s16b) temp;
 					}
 				}
 				if (a_ptr->to_d - k_ptr->to_d > 0)
@@ -1059,23 +1187,24 @@ static void parse_frequencies(void)
 					temp = (a_ptr->to_d - k_ptr->to_d) / mean_dam_increment;
 					if (temp > 0)
 					{
-						LOG_PRINT1("Adding %d instances of extra to-dam bonus for non-weapon\n", temp);
+						LOG_PRINT1("Adding %d instances of extra to-dam bonus for non-weapon\n", 
+							temp);
 
-						(artprobs[ART_IDX_NONWEAPON_DAM]) += temp;
+						(artprobs[ART_IDX_NONWEAPON_DAM]) += (s16b) temp;
 					}
 				}
 			}
 
 			/* Aggravation */
-			if (a_ptr->flags[2] & TR2_AGGRAVATE)
+			if (a_ptr->flags[3] & TR3_AGGRAVATE)
 			{
 				LOG_PRINT("Adding 1 for aggravation - nonweapon\n");
 				(artprobs[ART_IDX_NONWEAPON_AGGR])++;
 			}
 			
 			/* Brands or slays - count all together */
-
-			if (a_ptr->flags[0] & TR0_ALL_SLAYS)
+			/* Counting for non-bows */
+			if (a_ptr->flags[1] & TR1_ALL_SLAYS)
 			{
 				const slay_t *s_ptr;
 
@@ -1085,18 +1214,18 @@ static void parse_frequencies(void)
 
 				for (s_ptr = slay_table; s_ptr->slay_flag; s_ptr++)
 				{
-					if (a_ptr->flags[0] & s_ptr->slay_flag)
+					if (a_ptr->flags[1] & s_ptr->slay_flag)
 					{
-						if (s_ptr->slay_flag & (TR0_SLAY_MASK | TR0_KILL_MASK)) temp++;
-						if (s_ptr->slay_flag & TR0_BRAND_MASK) temp2++;
+						if (s_ptr->slay_flag & (TR1_SLAY_MASK | TR1_KILL_MASK)) temp++;
+						if (s_ptr->slay_flag & TR1_BRAND_MASK) temp2++;
 					}
 				}
 				LOG_PRINT1("Adding %d for slays\n", temp);
 				LOG_PRINT1("Adding %d for brands\n", temp2);
 
 				/* Add these to the frequency count */
-				artprobs[ART_IDX_NONWEAPON_BRAND] += temp2;
-				artprobs[ART_IDX_NONWEAPON_SLAY] += temp;
+				artprobs[ART_IDX_NONWEAPON_BRAND] += (s16b) temp2;
+				artprobs[ART_IDX_NONWEAPON_SLAY] += (s16b) temp;
 			}
 
 		}
@@ -1106,7 +1235,7 @@ static void parse_frequencies(void)
 		{
 			/* Blessed weapon Y/N */
 
-			if(a_ptr->flags[2] & TR2_BLESSED)
+			if(a_ptr->flags[3] & TR3_BLESSED)
 			{
 				LOG_PRINT("Adding 1 for blessed weapon\n");
 
@@ -1114,7 +1243,7 @@ static void parse_frequencies(void)
 			}
 
 			/* See invisible? */
-			if(a_ptr->flags[2] & TR2_SEE_INVIS)
+			if(a_ptr->flags[3] & TR3_SEE_INVIS)
 			{
 				LOG_PRINT("Adding 1 for see invisible (weapon case)\n");
 
@@ -1122,10 +1251,26 @@ static void parse_frequencies(void)
 			}
 
 			/* Does this weapon have extra blows? */
-			if (a_ptr->flags[0] & TR0_BLOWS)
+			/* Handle pval and p2val versions */
+			if (a_ptr->flags[0] & TR0_BLOWS1) 
 			{
 				/* Do we have 3 or more extra blows? (Unlikely) */
 				if(a_ptr->pval > 2)
+				{
+					LOG_PRINT("Adding 1 for supercharged blows (3 or more!)\n");
+					(artprobs[ART_IDX_MELEE_BLOWS_SUPER])++;
+				}
+				else {
+					LOG_PRINT("Adding 1 for extra blows\n");
+					(artprobs[ART_IDX_MELEE_BLOWS])++;
+				}
+			}
+			/* Now p2val version. */
+			/* Should never have both versions of the same flag! */
+			if (a_ptr->flags[0] & TR0_BLOWS2) 
+			{
+				/* Do we have 3 or more extra blows? (Unlikely) */
+				if(a_ptr->p2val > 2)
 				{
 					LOG_PRINT("Adding 1 for supercharged blows (3 or more!)\n");
 					(artprobs[ART_IDX_MELEE_BLOWS_SUPER])++;
@@ -1144,7 +1289,7 @@ static void parse_frequencies(void)
 				{
 					LOG_PRINT1("Adding %d instances of extra AC bonus for weapon\n", temp);
 
-					(artprobs[ART_IDX_MELEE_AC]) += temp;
+					(artprobs[ART_IDX_MELEE_AC]) += (s16b) temp;
 				}
 			}
 
@@ -1175,49 +1320,67 @@ static void parse_frequencies(void)
 			}
 
 			/* Check for tunnelling ability */
-			if (a_ptr->flags[0] & TR0_TUNNEL)
+			/* Handle pval and p2val versions */
+			if (a_ptr->flags[0] & TR0_TUNNEL1)
 			{
 				LOG_PRINT("Adding 1 for tunnelling bonus.\n");
 
 				(artprobs[ART_IDX_MELEE_TUNN])++;
 			}
-
-			/* Brands or slays - count all together */
-			if (a_ptr->flags[0] & TR0_ALL_SLAYS)
+			/* Now p2val version. */
+			/* Should never have both versions of the same flag! */
+			if (a_ptr->flags[0] & TR0_TUNNEL2)
 			{
-				const slay_t *s_ptr;
+				LOG_PRINT("Adding 1 for tunnelling bonus.\n");
 
-				/* We have some brands or slays - count them */
-				temp = 0;
-				temp2 = 0;
-
-				for (s_ptr = slay_table; s_ptr->slay_flag; s_ptr++)
-				{
-					if (a_ptr->flags[0] & s_ptr->slay_flag)
-					{
-						if (s_ptr->slay_flag & (TR0_SLAY_MASK | TR0_KILL_MASK)) temp++;
-						if (s_ptr->slay_flag & TR0_BRAND_MASK) temp2++;
-					}
-				}
-				LOG_PRINT1("Adding %d for slays\n", temp);
-				LOG_PRINT1("Adding %d for brands\n", temp2);
-
-				/* Add these to the frequency count */
-				artprobs[ART_IDX_MELEE_BRAND] += temp2;
-				artprobs[ART_IDX_MELEE_SLAY] += temp;
+				(artprobs[ART_IDX_MELEE_TUNN])++;
 			}
-
+			/* Brands or slays - count all together */
+			if (a_ptr->flags[1] & TR1_ALL_SLAYS)
+			{				
+				const slay_t *s_ptr;				
+				/* We have some brands or slays - count them */				
+				temp = 0;				
+				temp2 = 0;				
+				for (s_ptr = slay_table; s_ptr->slay_flag; s_ptr++)				
+				{					
+					if (a_ptr->flags[1] & s_ptr->slay_flag)
+					{						
+						if (s_ptr->slay_flag & (TR1_SLAY_MASK | TR1_KILL_MASK)) temp++;						
+						if (s_ptr->slay_flag & TR1_BRAND_MASK) temp2++;					
+					}				
+				}				
+				LOG_PRINT1("Adding %d for slays\n", temp);				
+				LOG_PRINT1("Adding %d for brands\n", temp2);				
+				/* Add these to the frequency count */				
+				artprobs[ART_IDX_MELEE_BRAND] += (s16b) temp2;				
+				artprobs[ART_IDX_MELEE_SLAY] += (s16b) temp;			
+			}
 			/* End of weapon-specific stuff */
+			
+			/* Allow normal weapons to become heavy and COULD2H ? (= GOOD) */
+			/* Allow normal weapons to become heavy and MUST2H ? (= BAD) */
+			
 		}
 		else
 		{
 			/* Check for tunnelling ability */
-			if (a_ptr->flags[0] & TR0_TUNNEL)
+			/* Handle pval and p2val versions */
+			if (a_ptr->flags[0] & TR0_TUNNEL1)
 			{
 				LOG_PRINT("Adding 1 for tunnelling bonus - general.\n");
 
 				(artprobs[ART_IDX_GEN_TUNN])++;
 			}
+			/* Now p2val version. */
+			/* Should never have both versions of the same flag! */
+			if (a_ptr->flags[0] & TR0_TUNNEL2)
+			{
+				LOG_PRINT("Adding 1 for tunnelling bonus - general.\n");
+
+				(artprobs[ART_IDX_GEN_TUNN])++;
+			}
+			
 		}
 		
 		/*
@@ -1235,38 +1398,39 @@ static void parse_frequencies(void)
 				if (a_ptr->tval == TV_BOOTS)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - boots\n", temp);
-					(artprobs[ART_IDX_BOOT_AC]) += temp;
+					(artprobs[ART_IDX_BOOT_AC]) += (s16b) temp;
 				}
 				else if (a_ptr->tval == TV_GLOVES)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - gloves\n", temp);
-					(artprobs[ART_IDX_GLOVE_AC]) += temp;
+					(artprobs[ART_IDX_GLOVE_AC]) += (s16b) temp;
 				}
 				else if (a_ptr->tval == TV_HELM || a_ptr->tval == TV_CROWN)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - headgear\n", temp);
-					(artprobs[ART_IDX_HELM_AC]) += temp;
+					(artprobs[ART_IDX_HELM_AC]) += (s16b) temp;
 				}
 				else if (a_ptr->tval == TV_SHIELD)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - shield\n", temp);
-					(artprobs[ART_IDX_SHIELD_AC]) += temp;
+					(artprobs[ART_IDX_SHIELD_AC]) += (s16b) temp;
 				}
 				else if (a_ptr->tval == TV_CLOAK)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - cloak\n", temp);
-					(artprobs[ART_IDX_CLOAK_AC]) += temp;
+					(artprobs[ART_IDX_CLOAK_AC]) += (s16b) temp;
 				}
-				else if (a_ptr->tval == TV_SOFT_ARMOR || a_ptr->tval == TV_HARD_ARMOR ||
+				else if (a_ptr->tval == TV_SOFT_ARMOR || 
+					a_ptr->tval == TV_HARD_ARMOR ||
 					a_ptr->tval == TV_DRAG_ARMOR)
 				{
 					LOG_PRINT1("Adding %d for AC bonus - body armor\n", temp);
-					(artprobs[ART_IDX_ARMOR_AC]) += temp;
+					(artprobs[ART_IDX_ARMOR_AC]) += (s16b) temp;
 				}
 				else
 				{
 					LOG_PRINT1("Adding %d for AC bonus - general\n", temp);
-					(artprobs[ART_IDX_GEN_AC]) += temp;
+					(artprobs[ART_IDX_GEN_AC]) += (s16b) temp;
 				}
 			}
 		}
@@ -1300,28 +1464,39 @@ static void parse_frequencies(void)
 		 * us to have general abilities appear more commonly on a
 		 * certain item type.
 		 */
-
-		if ( (a_ptr->flags[0] & TR0_STR) || (a_ptr->flags[0] & TR0_INT) ||
-			(a_ptr->flags[0] & TR0_WIS) || (a_ptr->flags[0] & TR0_DEX) ||
-			(a_ptr->flags[0] & TR0_CON) || (a_ptr->flags[0] & TR0_CHR) )
+		if ( (a_ptr->flags[0] & TR0_STR1) || (a_ptr->flags[0] & TR0_INT1) ||
+			(a_ptr->flags[0] & TR0_WIS1) || (a_ptr->flags[0] & TR0_DEX1) ||
+			(a_ptr->flags[0] & TR0_CON1) || (a_ptr->flags[0] & TR0_CHR1) || 
+			(a_ptr->flags[0] & TR0_STR2) || (a_ptr->flags[0] & TR0_INT2) ||
+			(a_ptr->flags[0] & TR0_WIS2) || (a_ptr->flags[0] & TR0_DEX2) ||
+			(a_ptr->flags[0] & TR0_CON2) || (a_ptr->flags[0] & TR0_CHR2))
 		{
 			/* Stat bonus case.  Add up the number of individual bonuses */
 
-			temp = 0;
-			if (a_ptr->flags[0] & TR0_STR) temp++;
-			if (a_ptr->flags[0] & TR0_INT) temp++;
-			if (a_ptr->flags[0] & TR0_WIS) temp++;
-			if (a_ptr->flags[0] & TR0_DEX) temp++;
-			if (a_ptr->flags[0] & TR0_CON) temp++;
-			if (a_ptr->flags[0] & TR0_CHR) temp++;
+			temp = 0; /* TODO Allow pval to be positive and p2val to be negative? */
+			if (a_ptr->flags[0] & TR0_STR1) temp++;
+			if (a_ptr->flags[0] & TR0_INT1) temp++;
+			if (a_ptr->flags[0] & TR0_WIS1) temp++;
+			if (a_ptr->flags[0] & TR0_DEX1) temp++;
+			if (a_ptr->flags[0] & TR0_CON1) temp++;
+			if (a_ptr->flags[0] & TR0_CHR1) temp++;
+			if (a_ptr->flags[0] & TR0_STR2) temp++;
+			if (a_ptr->flags[0] & TR0_INT2) temp++;
+			if (a_ptr->flags[0] & TR0_WIS2) temp++;
+			if (a_ptr->flags[0] & TR0_DEX2) temp++;
+			if (a_ptr->flags[0] & TR0_CON2) temp++;
+			if (a_ptr->flags[0] & TR0_CHR2) temp++;
 
 			/* Handle a few special cases separately. */
 
 			if((a_ptr->tval == TV_HELM || a_ptr->tval == TV_CROWN) &&
-				((a_ptr->flags[0] & TR0_WIS) || (a_ptr->flags[0] & TR0_INT)))
+				((a_ptr->flags[0] & TR0_WIS1) ||
+				 (a_ptr->flags[0] & TR0_INT1) || 
+				 (a_ptr->flags[0] & TR0_WIS2) || 
+				 (a_ptr->flags[0] & TR0_INT2)))  
 			{
 				/* Handle WIS and INT on helms and crowns */
-				if(a_ptr->flags[0] & TR0_WIS)
+				if(a_ptr->flags[0] & TR0_WIS1)
 				{
 					LOG_PRINT("Adding 1 for WIS bonus on headgear.\n");
 
@@ -1329,7 +1504,7 @@ static void parse_frequencies(void)
 					/* Counted this one separately so subtract it here */
 					temp--;
 				}
-				if(a_ptr->flags[0] & TR0_INT)
+				if(a_ptr->flags[0] & TR0_INT1)
 				{
 					LOG_PRINT("Adding 1 for INT bonus on headgear.\n");
 
@@ -1340,21 +1515,23 @@ static void parse_frequencies(void)
 			}
 			else if ((a_ptr->tval == TV_SOFT_ARMOR ||
 				a_ptr->tval == TV_HARD_ARMOR ||
-				a_ptr->tval == TV_DRAG_ARMOR) && a_ptr->flags[0] & TR0_CON)
+				a_ptr->tval == TV_DRAG_ARMOR) && ((a_ptr->flags[0] & TR0_CON1) || 
+				  (a_ptr->flags[0] & TR0_CON2)))
 			{
 				/* Handle CON bonus on armor */
 				LOG_PRINT("Adding 1 for CON bonus on body armor.\n");
 
-				(artprobs[ART_IDX_ARMOR_CON])++;
+				(artprobs[ART_IDX_ARMOR_CON])++; /* Is this a problem? */
 				/* Counted this one separately so subtract it here */
 				temp--;
 			}
-			else if ((a_ptr->tval == TV_GLOVES) && (a_ptr->flags[0] & TR0_DEX))
+			else if ((a_ptr->tval == TV_GLOVES) && ((a_ptr->flags[0] & TR0_DEX1) || 
+			  ((a_ptr->flags[0] & TR0_DEX2))))
 			{
 				/* Handle DEX bonus on gloves */
 				LOG_PRINT("Adding 1 for DEX bonus on gloves.\n");
 
-				(artprobs[ART_IDX_GLOVE_DEX])++;
+				(artprobs[ART_IDX_GLOVE_DEX])++; 
 				/* Counted this one separately so subtract it here */
 				temp--;
 			}
@@ -1366,30 +1543,30 @@ static void parse_frequencies(void)
 				/* There are some bonuses that weren't handled above */
 				LOG_PRINT1("Adding %d for stat bonuses - general.\n", temp);
 
-				(artprobs[ART_IDX_GEN_STAT]) += temp;
+				(artprobs[ART_IDX_GEN_STAT]) += (s16b) temp;
 
 			/* Done with stat bonuses */
 			}
 		}
 
-		if ( (a_ptr->flags[1] & TR1_SUST_STR) || (a_ptr->flags[1] & TR1_SUST_INT) ||
-			(a_ptr->flags[1] & TR1_SUST_WIS) || (a_ptr->flags[1] & TR1_SUST_DEX) ||
-			(a_ptr->flags[1] & TR1_SUST_CON) || (a_ptr->flags[1] & TR1_SUST_CHR) )
+		if ( (a_ptr->flags[2] & TR2_SUST_STR) || (a_ptr->flags[2] & TR2_SUST_INT) ||
+			(a_ptr->flags[2] & TR2_SUST_WIS) || (a_ptr->flags[2] & TR2_SUST_DEX) ||
+			(a_ptr->flags[2] & TR2_SUST_CON) || (a_ptr->flags[2] & TR2_SUST_CHR) )
 		{
 			/* Now do sustains, in a similar manner */
 			temp = 0;
-			if (a_ptr->flags[1] & TR1_SUST_STR) temp++;
-			if (a_ptr->flags[1] & TR1_SUST_INT) temp++;
-			if (a_ptr->flags[1] & TR1_SUST_WIS) temp++;
-			if (a_ptr->flags[1] & TR1_SUST_DEX) temp++;
-			if (a_ptr->flags[1] & TR1_SUST_CON) temp++;
-			if (a_ptr->flags[1] & TR1_SUST_CHR) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_STR) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_INT) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_WIS) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_DEX) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_CON) temp++;
+			if (a_ptr->flags[2] & TR2_SUST_CHR) temp++;
 			LOG_PRINT1("Adding %d for stat sustains.\n", temp);
 
-			(artprobs[ART_IDX_GEN_SUST]) += temp;
+			(artprobs[ART_IDX_GEN_SUST]) += (s16b) temp;
 		}
 
-		if (a_ptr->flags[0] & TR0_STEALTH)
+		if (a_ptr->flags[0] & TR0_STEALTH1)
 		{
 			/* Handle stealth, including a couple of special cases */
 			if(a_ptr->tval == TV_BOOTS)
@@ -1421,7 +1598,7 @@ static void parse_frequencies(void)
 			/* Done with stealth */
 		}
 
-		if (a_ptr->flags[0] & TR0_SEARCH)
+		if (a_ptr->flags[0] & TR0_SEARCH1)
 		{
 			/* Handle searching bonus - fully generic this time */
 			LOG_PRINT("Adding 1 for search bonus - general.\n");
@@ -1429,7 +1606,15 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_SEARCH])++;
 		}
 
-		if (a_ptr->flags[0] & TR0_INFRA)
+		if (a_ptr->flags[0] & TR0_SEARCH2)
+		{
+			/* Handle searching bonus - fully generic this time */
+			LOG_PRINT("Adding 1 for search bonus - general.\n");
+
+			(artprobs[ART_IDX_GEN_SEARCH])++;
+		}
+
+		if (a_ptr->flags[0] & TR0_INFRA1)
 		{
 			/* Handle infravision bonus - fully generic */
 			LOG_PRINT("Adding 1 for infravision bonus - general.\n");
@@ -1437,7 +1622,15 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_INFRA])++;
 		}
 
-		if (a_ptr->flags[0] & TR0_SPEED)
+		if (a_ptr->flags[0] & TR0_INFRA2)
+		{
+			/* Handle infravision bonus - fully generic */
+			LOG_PRINT("Adding 1 for infravision bonus - general.\n");
+
+			(artprobs[ART_IDX_GEN_INFRA])++;
+		}
+
+		if (a_ptr->flags[0] & TR0_SPEED1)
 		{
 			/*
 			 * Speed - boots handled separately.
@@ -1473,21 +1666,58 @@ static void parse_frequencies(void)
 			/* Done with speed */
 		}
 
-		if ( (a_ptr->flags[1] & TR1_IM_ACID) || (a_ptr->flags[1] & TR1_IM_ELEC) ||
-			(a_ptr->flags[1] & TR1_IM_FIRE) || (a_ptr->flags[1] & TR1_IM_COLD) )
+		if (a_ptr->flags[0] & TR0_SPEED2)
+		{
+			/*
+			 * Speed - boots handled separately.
+			 * This is something of a special case in that we use the same
+			 * frequency for the supercharged value and the normal value.
+			 * We get away with this by using a somewhat lower average value
+			 * for the supercharged ability than in the basic set (around
+			 * +7 or +8 - c.f. Ringil and the others at +10 and upwards).
+			 * This then allows us to add an equal number of
+			 * small bonuses around +3 or so without unbalancing things.
+			 */
+
+			if (a_ptr->p2val > 7)
+			{
+				/* Supercharge case */
+				LOG_PRINT("Adding 1 for supercharged speed bonus!\n");
+
+				(artprobs[ART_IDX_GEN_SPEED_SUPER])++;
+			}
+			else if(a_ptr->tval == TV_BOOTS)
+			{
+				/* Handle boots separately */
+				LOG_PRINT("Adding 1 for normal speed bonus on boots.\n");
+
+				(artprobs[ART_IDX_BOOT_SPEED])++;
+			}
+			else
+			{
+				LOG_PRINT("Adding 1 for normal speed bonus - general.\n");
+
+				(artprobs[ART_IDX_GEN_SPEED])++;
+			}
+			/* Done with speed */
+		}
+
+
+		if ( (a_ptr->flags[2] & TR2_IM_ACID) || (a_ptr->flags[2] & TR2_IM_ELEC) ||
+			(a_ptr->flags[2] & TR2_IM_FIRE) || (a_ptr->flags[2] & TR2_IM_COLD) )
 		{
 			/* Count up immunities for this item, if any */
 			temp = 0;
-			if (a_ptr->flags[1] & TR1_IM_ACID) temp++;
-			if (a_ptr->flags[1] & TR1_IM_ELEC) temp++;
-			if (a_ptr->flags[1] & TR1_IM_FIRE) temp++;
-			if (a_ptr->flags[1] & TR1_IM_COLD) temp++;
+			if (a_ptr->flags[2] & TR2_IM_ACID) temp++;
+			if (a_ptr->flags[2] & TR2_IM_ELEC) temp++;
+			if (a_ptr->flags[2] & TR2_IM_FIRE) temp++;
+			if (a_ptr->flags[2] & TR2_IM_COLD) temp++;
 			LOG_PRINT1("Adding %d for immunities.\n", temp);
 
-			(artprobs[ART_IDX_GEN_IMMUNE]) += temp;
+			(artprobs[ART_IDX_GEN_IMMUNE]) += (s16b) temp;
 		}
 
-		if (a_ptr->flags[2] & TR2_FREE_ACT)
+		if (a_ptr->flags[3] & TR3_FREE_ACT)
 		{
 			/* Free action - handle gloves separately */
 			if(a_ptr->tval == TV_GLOVES)
@@ -1522,7 +1752,7 @@ static void parse_frequencies(void)
 			}
 		}
 
-		if (a_ptr->flags[2] & TR2_FEATHER)
+		if (a_ptr->flags[3] & TR3_FEATHER)
 		{
 			/* Feather fall - handle boots separately */
 			if(a_ptr->tval == TV_BOOTS)
@@ -1539,15 +1769,15 @@ static void parse_frequencies(void)
 			}
 		}
 
-		if (a_ptr->flags[2] & TR2_LITE)
+		if ((a_ptr->flags[3] & TR3_SOMELITE) || (a_ptr->flags[3] & TR3_BIGLITE))
 		{
 			/* Handle permanent light */
 			LOG_PRINT("Adding 1 for permanent light - general.\n");
 
 			(artprobs[ART_IDX_GEN_LITE])++;
-		}
+		} 
 
-		if (a_ptr->flags[2] & TR2_SEE_INVIS)
+		if (a_ptr->flags[3] & TR3_SEE_INVIS)
 		{
 			/*
 			 * Handle see invisible - do helms / crowns separately
@@ -1571,7 +1801,7 @@ static void parse_frequencies(void)
 			}
 		}
 
-		if (a_ptr->flags[2] & TR2_TELEPATHY)
+		if (a_ptr->flags[3] & TR3_TELEPATHY)
 		{
 			/* ESP case.  Handle helms/crowns separately. */
 			if(a_ptr->tval == TV_HELM || a_ptr->tval == TV_CROWN)
@@ -1588,7 +1818,7 @@ static void parse_frequencies(void)
 			}
 		}
 
-		if (a_ptr->flags[2] & TR2_SLOW_DIGEST)
+		if (a_ptr->flags[3] & TR3_SLOW_DIGEST)
 		{
 			/* Slow digestion case - generic. */
 			LOG_PRINT("Adding 1 for slow digestion - general.\n");
@@ -1596,7 +1826,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_SDIG])++;
 		}
 
-		if (a_ptr->flags[2] & TR2_REGEN)
+		if (a_ptr->flags[3] & TR3_REGEN)
 		{
 			/* Regeneration case - generic. */
 			LOG_PRINT("Adding 1 for regeneration - general.\n");
@@ -1604,22 +1834,22 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_REGEN])++;
 		}
 
-		if ( (a_ptr->flags[1] & TR1_RES_ACID) || (a_ptr->flags[1] & TR1_RES_ELEC) ||
-			(a_ptr->flags[1] & TR1_RES_FIRE) || (a_ptr->flags[1] & TR1_RES_COLD) )
+		if ( (a_ptr->flags[2] & TR2_RES_ACID) || (a_ptr->flags[2] & TR2_RES_ELEC) ||
+			(a_ptr->flags[2] & TR2_RES_FIRE) || (a_ptr->flags[2] & TR2_RES_COLD) )
 		{
 			/* Count up low resists (not the type, just the number) */
 			temp = 0;
-			if (a_ptr->flags[1] & TR1_RES_ACID) temp++;
-			if (a_ptr->flags[1] & TR1_RES_ELEC) temp++;
-			if (a_ptr->flags[1] & TR1_RES_FIRE) temp++;
-			if (a_ptr->flags[1] & TR1_RES_COLD) temp++;
+			if (a_ptr->flags[2] & TR2_RES_ACID) temp++;
+			if (a_ptr->flags[2] & TR2_RES_ELEC) temp++;
+			if (a_ptr->flags[2] & TR2_RES_FIRE) temp++;
+			if (a_ptr->flags[2] & TR2_RES_COLD) temp++;
 
 			/* Shields treated separately */
 			if (a_ptr->tval == TV_SHIELD)
 			{
 				LOG_PRINT1("Adding %d for low resists on shield.\n", temp);
 
-				(artprobs[ART_IDX_SHIELD_LRES]) += temp;
+				(artprobs[ART_IDX_SHIELD_LRES]) += (s16b) temp;
 			}
 			else if (a_ptr->tval == TV_SOFT_ARMOR ||
 				a_ptr->tval == TV_HARD_ARMOR || a_ptr->tval == TV_DRAG_ARMOR)
@@ -1637,7 +1867,7 @@ static void parse_frequencies(void)
 					/* Just tally up the resists as usual */
 					LOG_PRINT1("Adding %d for low resists on body armor.\n", temp);
 
-					(artprobs[ART_IDX_ARMOR_LRES]) += temp;
+					(artprobs[ART_IDX_ARMOR_LRES]) += (s16b) temp;
 				}
 			}
 			else
@@ -1645,7 +1875,7 @@ static void parse_frequencies(void)
 				/* General case */
 				LOG_PRINT1("Adding %d for low resists - general.\n", temp);
 
-				(artprobs[ART_IDX_GEN_LRES]) += temp;
+				(artprobs[ART_IDX_GEN_LRES]) += (s16b) temp;
 			}
 
 			/* Done with low resists */
@@ -1662,25 +1892,25 @@ static void parse_frequencies(void)
 			a_ptr->tval == TV_HARD_ARMOR || a_ptr->tval == TV_DRAG_ARMOR)
 		{
 			temp = 0;
-			if (a_ptr->flags[1] & TR1_RES_POIS) temp++;
-			if (a_ptr->flags[1] & TR1_RES_FEAR) temp++;
-			if (a_ptr->flags[1] & TR1_RES_LITE) temp++;
-			if (a_ptr->flags[1] & TR1_RES_DARK) temp++;
-			if (a_ptr->flags[1] & TR1_RES_BLIND) temp++;
-			if (a_ptr->flags[1] & TR1_RES_CONFU) temp++;
-			if (a_ptr->flags[1] & TR1_RES_SOUND) temp++;
-			if (a_ptr->flags[1] & TR1_RES_SHARD) temp++;
-			if (a_ptr->flags[1] & TR1_RES_NEXUS) temp++;
-			if (a_ptr->flags[1] & TR1_RES_NETHR) temp++;
-			if (a_ptr->flags[1] & TR1_RES_CHAOS) temp++;
-			if (a_ptr->flags[1] & TR1_RES_DISEN) temp++;
+			if (a_ptr->flags[2] & TR2_RES_POIS) temp++;
+			if (a_ptr->flags[2] & TR2_RES_FEAR) temp++;
+			if (a_ptr->flags[2] & TR2_RES_LITE) temp++;
+			if (a_ptr->flags[2] & TR2_RES_DARK) temp++;
+			if (a_ptr->flags[2] & TR2_RES_BLIND) temp++;
+			if (a_ptr->flags[2] & TR2_RES_CONFU) temp++;
+			if (a_ptr->flags[2] & TR2_RES_SOUND) temp++;
+			if (a_ptr->flags[2] & TR2_RES_SHARD) temp++;
+			if (a_ptr->flags[2] & TR2_RES_NEXUS) temp++;
+			if (a_ptr->flags[2] & TR2_RES_NETHR) temp++;
+			if (a_ptr->flags[2] & TR2_RES_CHAOS) temp++;
+			if (a_ptr->flags[2] & TR2_RES_DISEN) temp++;
 			LOG_PRINT1("Adding %d for high resists on body armor.\n", temp);
 
-			(artprobs[ART_IDX_ARMOR_HRES]) += temp;
+			(artprobs[ART_IDX_ARMOR_HRES]) += (s16b) temp;
 		}
 
 		/* Now do the high resists individually */
-		if (a_ptr->flags[1] & TR1_RES_POIS)
+		if (a_ptr->flags[2] & TR2_RES_POIS)
 		{
 			/* Resist poison ability */
 			LOG_PRINT("Adding 1 for resist poison - general.\n");
@@ -1688,7 +1918,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RPOIS])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_FEAR)
+		if (a_ptr->flags[2] & TR2_RES_FEAR)
 		{
 			/* Resist fear ability */
 			LOG_PRINT("Adding 1 for resist fear - general.\n");
@@ -1696,7 +1926,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RFEAR])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_LITE)
+		if (a_ptr->flags[2] & TR2_RES_LITE)
 		{
 			/* Resist light ability */
 			LOG_PRINT("Adding 1 for resist light - general.\n");
@@ -1704,7 +1934,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RLITE])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_DARK)
+		if (a_ptr->flags[2] & TR2_RES_DARK)
 		{
 			/* Resist dark ability */
 			LOG_PRINT("Adding 1 for resist dark - general.\n");
@@ -1712,7 +1942,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RDARK])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_BLIND)
+		if (a_ptr->flags[2] & TR2_RES_BLIND)
 		{
 			/* Resist blind ability - helms/crowns are separate */
 			if(a_ptr->tval == TV_HELM || a_ptr->tval == TV_CROWN)
@@ -1730,7 +1960,7 @@ static void parse_frequencies(void)
 			}
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_CONFU)
+		if (a_ptr->flags[2] & TR2_RES_CONFU)
 		{
 			/* Resist confusion ability */
 			LOG_PRINT("Adding 1 for resist confusion - general.\n");
@@ -1738,7 +1968,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RCONF])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_SOUND)
+		if (a_ptr->flags[2] & TR2_RES_SOUND)
 		{
 			/* Resist sound ability */
 			LOG_PRINT("Adding 1 for resist sound - general.\n");
@@ -1746,7 +1976,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RSOUND])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_SHARD)
+		if (a_ptr->flags[2] & TR2_RES_SHARD)
 		{
 			/* Resist shards ability */
 			LOG_PRINT("Adding 1 for resist shards - general.\n");
@@ -1754,7 +1984,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RSHARD])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_NEXUS)
+		if (a_ptr->flags[2] & TR2_RES_NEXUS)
 		{
 			/* Resist nexus ability */
 			LOG_PRINT("Adding 1 for resist nexus - general.\n");
@@ -1762,7 +1992,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RNEXUS])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_NETHR)
+		if (a_ptr->flags[2] & TR2_RES_NETHR)
 		{
 			/* Resist nether ability */
 			LOG_PRINT("Adding 1 for resist nether - general.\n");
@@ -1770,7 +2000,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RNETHER])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_CHAOS)
+		if (a_ptr->flags[2] & TR2_RES_CHAOS)
 		{
 			/* Resist chaos ability */
 			LOG_PRINT("Adding 1 for resist chaos - general.\n");
@@ -1778,7 +2008,7 @@ static void parse_frequencies(void)
 			(artprobs[ART_IDX_GEN_RCHAOS])++;
 		}
 
-		if (a_ptr->flags[1] & TR1_RES_DISEN)
+		if (a_ptr->flags[2] & TR2_RES_DISEN)
 		{
 			/* Resist disenchantment ability */
 			LOG_PRINT("Adding 1 for resist disenchantment - general.\n");
@@ -1837,7 +2067,7 @@ static void parse_frequencies(void)
 	for (i = 0; i < ART_IDX_NONWEAPON_COUNT; i++)
 	{
 		artprobs[art_idx_nonweapon[i]] = (artprobs[art_idx_nonweapon[i]] *
-			art_total) / temp;
+			art_total) / (s16b) temp;
 	}
 
 	/* All melee weapon abilities */
@@ -1853,7 +2083,7 @@ static void parse_frequencies(void)
 	for (i = 0; i < ART_IDX_ALLARMOR_COUNT; i++)
 	{
 		artprobs[art_idx_allarmor[i]] = (artprobs[art_idx_allarmor[i]] *
-			art_total) / temp;
+			art_total) / (s16b) temp;
 	}
 
 	/* Boots */
@@ -1916,10 +2146,11 @@ static void parse_frequencies(void)
 
 }
 
-static bool add_str(artifact_type *a_ptr)
+static bool add_str(artifact_type *a_ptr) /* TODO Add support for 2 version */
 {
-	if(a_ptr->flags[0] & TR0_STR) return FALSE;
-	a_ptr->flags[0] |= TR0_STR;
+	if(a_ptr->flags[0] & TR0_STR1) 
+		return FALSE;
+	a_ptr->flags[0] |= TR0_STR1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: STR (now %+d)\n", a_ptr->pval);
 	return TRUE;
@@ -1927,8 +2158,8 @@ static bool add_str(artifact_type *a_ptr)
 
 static bool add_int(artifact_type *a_ptr)
 {
-	if(a_ptr->flags[0] & TR0_INT) return FALSE;
-	a_ptr->flags[0] |= TR0_INT;
+	if(a_ptr->flags[0] & TR0_INT1) return FALSE;
+	a_ptr->flags[0] |= TR0_INT1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: INT (now %+d)\n", a_ptr->pval);
 	return TRUE;
@@ -1936,8 +2167,8 @@ static bool add_int(artifact_type *a_ptr)
 
 static bool add_wis(artifact_type *a_ptr)
 {
-	if(a_ptr->flags[0] & TR0_WIS) return FALSE;
-	a_ptr->flags[0] |= TR0_WIS;
+	if(a_ptr->flags[0] & TR0_WIS1) return FALSE;
+	a_ptr->flags[0] |= TR0_WIS1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: WIS (now %+d)\n", a_ptr->pval);
 	return TRUE;
@@ -1945,8 +2176,8 @@ static bool add_wis(artifact_type *a_ptr)
 
 static bool add_dex(artifact_type *a_ptr)
 {
-	if(a_ptr->flags[0] & TR0_DEX) return FALSE;
-	a_ptr->flags[0] |= TR0_DEX;
+	if(a_ptr->flags[0] & TR0_DEX1) return FALSE;
+	a_ptr->flags[0] |= TR0_DEX1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: DEX (now %+d)\n", a_ptr->pval);
 	return TRUE;
@@ -1954,8 +2185,8 @@ static bool add_dex(artifact_type *a_ptr)
 
 static bool add_con(artifact_type *a_ptr)
 {
-	if(a_ptr->flags[0] & TR0_CON) return FALSE;
-	a_ptr->flags[0] |= TR0_CON;
+	if(a_ptr->flags[0] & TR0_CON1) return FALSE;
+	a_ptr->flags[0] |= TR0_CON1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: CON (now %+d)\n", a_ptr->pval);
 	return TRUE;
@@ -1963,22 +2194,22 @@ static bool add_con(artifact_type *a_ptr)
 
 static bool add_chr(artifact_type *a_ptr)
 {
-	if(a_ptr->flags[0] & TR0_CHR) return FALSE;
-	a_ptr->flags[0] |= TR0_CHR;
+	if(a_ptr->flags[0] & TR0_CHR1) return FALSE;
+	a_ptr->flags[0] |= TR0_CHR1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: CHR (now %+d)\n", a_ptr->pval);
 	return TRUE;
 }
 
-static void add_stat(artifact_type *a_ptr)
+static void add_stat(artifact_type *a_ptr) /* TODO Add support for 2 version */
 {
 	int r;
 	bool success = FALSE;
 
 	/* Hack: break out if all stats are raised to avoid an infinite loop */
-	if ((a_ptr->flags[0] & TR0_STR) && (a_ptr->flags[0] & TR0_INT) &&
-		(a_ptr->flags[0] & TR0_WIS) && (a_ptr->flags[0] & TR0_DEX) &&
-		(a_ptr->flags[0] & TR0_CON) && (a_ptr->flags[0] & TR0_CHR))
+	if ((a_ptr->flags[0] & TR0_STR1) && (a_ptr->flags[0] & TR0_INT1) &&
+		(a_ptr->flags[0] & TR0_WIS1) && (a_ptr->flags[0] & TR0_DEX1) &&
+		(a_ptr->flags[0] & TR0_CON1) && (a_ptr->flags[0] & TR0_CHR1))
 			return;
 
 	/* Make sure we add one that hasn't been added yet */
@@ -1996,48 +2227,48 @@ static void add_stat(artifact_type *a_ptr)
 
 static bool add_sus_str(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_STR) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_STR;
+	if (a_ptr->flags[2] & TR2_SUST_STR) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_STR;
 	LOG_PRINT("Adding ability: sustain STR\n");
 	return TRUE;
 }
 
 static bool add_sus_int(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_INT) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_INT;
+	if (a_ptr->flags[2] & TR2_SUST_INT) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_INT;
 	LOG_PRINT("Adding ability: sustain INT\n");
 	return TRUE;
 }
 
 static bool add_sus_wis(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_WIS) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_WIS;
+	if (a_ptr->flags[2] & TR2_SUST_WIS) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_WIS;
 	LOG_PRINT("Adding ability: sustain WIS\n");
 	return TRUE;
 }
 
 static bool add_sus_dex(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_DEX) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_DEX;
+	if (a_ptr->flags[2] & TR2_SUST_DEX) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_DEX;
 	LOG_PRINT("Adding ability: sustain DEX\n");
 	return TRUE;
 }
 
 static bool add_sus_con(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_CON) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_CON;
+	if (a_ptr->flags[2] & TR2_SUST_CON) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_CON;
 	LOG_PRINT("Adding ability: sustain CON\n");
 	return TRUE;
 }
 
 static bool add_sus_chr(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_SUST_CHR) return FALSE;
-	a_ptr->flags[1] |= TR1_SUST_CHR;
+	if (a_ptr->flags[2] & TR2_SUST_CHR) return FALSE;
+	a_ptr->flags[2] |= TR2_SUST_CHR;
 	LOG_PRINT("Adding ability: sustain CHR\n");
 	return TRUE;
 }
@@ -2048,9 +2279,9 @@ static void add_sustain(artifact_type *a_ptr)
 	bool success = FALSE;
 
 	/* Hack: break out if all stats are sustained to avoid an infinite loop */
-	if ((a_ptr->flags[1] & TR1_SUST_STR) && (a_ptr->flags[1] & TR1_SUST_INT) &&
-		(a_ptr->flags[1] & TR1_SUST_WIS) && (a_ptr->flags[1] & TR1_SUST_DEX) &&
-		(a_ptr->flags[1] & TR1_SUST_CON) && (a_ptr->flags[1] & TR1_SUST_CHR))
+	if ((a_ptr->flags[2] & TR2_SUST_STR) && (a_ptr->flags[2] & TR2_SUST_INT) &&
+		(a_ptr->flags[2] & TR2_SUST_WIS) && (a_ptr->flags[2] & TR2_SUST_DEX) &&
+		(a_ptr->flags[2] & TR2_SUST_CON) && (a_ptr->flags[2] & TR2_SUST_CHR))
 			return;
 
 	while (!success)
@@ -2067,35 +2298,35 @@ static void add_sustain(artifact_type *a_ptr)
 
 static void add_stealth(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_STEALTH;
+	a_ptr->flags[0] |= TR0_STEALTH1; /* TODO Add support for 2 version */
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: stealth (now %+d)\n", a_ptr->pval);
 }
 
-static void add_search(artifact_type *a_ptr)
+static void add_search(artifact_type *a_ptr) /* TODO Add support for 2 versions */
 {
-	a_ptr->flags[0] |= TR0_SEARCH;
+	a_ptr->flags[0] |= TR0_SEARCH1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: searching (now %+d)\n", a_ptr->pval);
 }
 
 static void add_infravision(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_INFRA;
+	a_ptr->flags[0] |= TR0_INFRA1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: infravision (now %+d)\n", a_ptr->pval);
 }
 
 static void add_tunnelling(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_TUNNEL;
+	a_ptr->flags[0] |= TR0_TUNNEL1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: tunnelling (new bonus is %+d)\n", a_ptr->pval);
 }
 
 static void add_speed(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_SPEED;
+	a_ptr->flags[0] |= TR0_SPEED1;
 	if (a_ptr->pval == 0)
 	{
 		a_ptr->pval = (s16b)randint1(4);
@@ -2110,53 +2341,53 @@ static void add_speed(artifact_type *a_ptr)
 
 static void add_shots(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_SHOTS;
+	a_ptr->flags[0] |= TR0_SHOTS1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: extra shots (now %+d)\n", a_ptr->pval);
 }
 
 static void add_blows(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_BLOWS;
+	a_ptr->flags[0] |= TR0_BLOWS1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: extra blows (%d additional blows)\n", a_ptr->pval);
 }
 
 static void add_might(artifact_type *a_ptr)
 {
-	a_ptr->flags[0] |= TR0_MIGHT;
+	a_ptr->flags[0] |= TR0_MIGHT1;
 	do_pval(a_ptr);
 	LOG_PRINT1("Adding ability: extra might (now %+d)\n", a_ptr->pval);
 }
 
 static bool add_resist_acid(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_ACID) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_ACID;
+	if (a_ptr->flags[2] & TR2_RES_ACID) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_ACID;
 	LOG_PRINT("Adding ability: resist acid\n");
 	return TRUE;
 }
 
 static bool add_resist_lightning(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_ELEC) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_ELEC;
+	if (a_ptr->flags[2] & TR2_RES_ELEC) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_ELEC;
 	LOG_PRINT("Adding ability: resist lightning\n");
 	return TRUE;
 }
 
 static bool add_resist_fire(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_FIRE) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_FIRE;
+	if (a_ptr->flags[2] & TR2_RES_FIRE) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_FIRE;
 	LOG_PRINT("Adding ability: resist fire\n");
 	return TRUE;
 }
 
 static bool add_resist_cold(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_COLD) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_COLD;
+	if (a_ptr->flags[2] & TR2_RES_COLD) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_COLD;
 	LOG_PRINT("Adding ability: resist cold\n");
 	return TRUE;
 }
@@ -2167,8 +2398,8 @@ static void add_low_resist(artifact_type *a_ptr)
 	bool success = FALSE;
 
 	/* Hack - if all low resists added already, exit to avoid infinite loop */
-	if( (a_ptr->flags[1] & TR1_RES_ACID) && (a_ptr->flags[1] & TR1_RES_ELEC) &&
-		(a_ptr->flags[1] & TR1_RES_FIRE) && (a_ptr->flags[1] & TR1_RES_COLD) )
+	if( (a_ptr->flags[2] & TR2_RES_ACID) && (a_ptr->flags[2] & TR2_RES_ELEC) &&
+		(a_ptr->flags[2] & TR2_RES_FIRE) && (a_ptr->flags[2] & TR2_RES_COLD) )
 			return;
 
 	while (!success)
@@ -2183,96 +2414,96 @@ static void add_low_resist(artifact_type *a_ptr)
 
 static bool add_resist_poison(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_POIS) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_POIS;
+	if (a_ptr->flags[2] & TR2_RES_POIS) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_POIS;
 	LOG_PRINT("Adding ability: resist poison\n");
 	return TRUE;
 }
 
 static bool add_resist_fear(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_FEAR) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_FEAR;
+	if (a_ptr->flags[2] & TR2_RES_FEAR) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_FEAR;
 	LOG_PRINT("Adding ability: resist fear\n");
 	return TRUE;
 }
 
 static bool add_resist_light(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_LITE) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_LITE;
+	if (a_ptr->flags[2] & TR2_RES_LITE) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_LITE;
 	LOG_PRINT("Adding ability: resist light\n");
 	return TRUE;
 }
 
 static bool add_resist_dark(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_DARK) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_DARK;
+	if (a_ptr->flags[2] & TR2_RES_DARK) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_DARK;
 	LOG_PRINT("Adding ability: resist dark\n");
 	return TRUE;
 }
 
 static bool add_resist_blindness(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_BLIND) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_BLIND;
+	if (a_ptr->flags[2] & TR2_RES_BLIND) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_BLIND;
 	LOG_PRINT("Adding ability: resist blindness\n");
 	return TRUE;
 }
 
 static bool add_resist_confusion(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_CONFU) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_CONFU;
+	if (a_ptr->flags[2] & TR2_RES_CONFU) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_CONFU;
 	LOG_PRINT("Adding ability: resist confusion\n");
 	return TRUE;
 }
 
 static bool add_resist_sound(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_SOUND) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_SOUND;
+	if (a_ptr->flags[2] & TR2_RES_SOUND) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_SOUND;
 	LOG_PRINT("Adding ability: resist sound\n");
 	return TRUE;
 }
 
 static bool add_resist_shards(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_SHARD) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_SHARD;
+	if (a_ptr->flags[2] & TR2_RES_SHARD) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_SHARD;
 	LOG_PRINT("Adding ability: resist shards\n");
 	return TRUE;
 }
 
 static bool add_resist_nexus(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_NEXUS) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_NEXUS;
+	if (a_ptr->flags[2] & TR2_RES_NEXUS) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_NEXUS;
 	LOG_PRINT("Adding ability: resist nexus\n");
 	return TRUE;
 }
 
 static bool add_resist_nether(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_NETHR) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_NETHR;
+	if (a_ptr->flags[2] & TR2_RES_NETHR) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_NETHR;
 	LOG_PRINT("Adding ability: resist nether\n");
 	return TRUE;
 }
 
 static bool add_resist_chaos(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_CHAOS) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_CHAOS;
+	if (a_ptr->flags[2] & TR2_RES_CHAOS) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_CHAOS;
 	LOG_PRINT("Adding ability: resist chaos\n");
 	return TRUE;
 }
 
 static bool add_resist_disenchantment(artifact_type *a_ptr)
 {
-	if (a_ptr->flags[1] & TR1_RES_DISEN) return FALSE;
-	a_ptr->flags[1] |= TR1_RES_DISEN;
+	if (a_ptr->flags[2] & TR2_RES_DISEN) return FALSE;
+	a_ptr->flags[2] |= TR2_RES_DISEN;
 	LOG_PRINT("Adding ability: resist disenchantment\n");
 	return TRUE;
 }
@@ -2326,43 +2557,51 @@ static void add_high_resist(artifact_type *a_ptr)
 
 static void add_slow_digestion(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_SLOW_DIGEST;
+	a_ptr->flags[3] |= TR3_SLOW_DIGEST;
 	LOG_PRINT("Adding ability: slow digestion\n");
 }
 
 static void add_feather_falling(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_FEATHER;
+	a_ptr->flags[3] |= TR3_FEATHER;
 	LOG_PRINT("Adding ability: feather fall\n");
 }
 
 static void add_permanent_light(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_LITE;
-	LOG_PRINT("Adding ability: permanent light\n");
+	if (randint1(50) == 1)
+	{
+		a_ptr->flags[3] |= TR3_BIGLITE; 
+		LOG_PRINT("Adding ability: big permanent light\n");
+	}
+	else
+	{
+		a_ptr->flags[3] |= TR3_SOMELITE;
+		LOG_PRINT("Adding ability: permanent light\n");
+	}
 }
 
 static void add_regeneration(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_REGEN;
+	a_ptr->flags[3] |= TR3_REGEN;
 	LOG_PRINT("Adding ability: regeneration\n");
 }
 
 static void add_telepathy(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_TELEPATHY;
+	a_ptr->flags[3] |= TR3_TELEPATHY;
 	LOG_PRINT("Adding ability: telepathy\n");
 }
 
 static void add_see_invisible(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_SEE_INVIS;
+	a_ptr->flags[3] |= TR3_SEE_INVIS;
 	LOG_PRINT("Adding ability: see invisible\n");
 }
 
 static void add_free_action(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_FREE_ACT;
+	a_ptr->flags[3] |= TR3_FREE_ACT;
 	LOG_PRINT("Adding ability: free action\n");
 }
 
@@ -2377,40 +2616,41 @@ static void add_slay(artifact_type *a_ptr, bool brand)
 	int x;
 	int count = 0;
 	const slay_t *s_ptr;
-
-	/* hack - do not allow slays/brands on nonweapons other than rings */
-	if (!((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
-		(a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_HAFTED) ||
-		(a_ptr->tval == TV_DIGGING) || (a_ptr->tval == TV_RING)))
-		return;
 	
+	/* hack - do not allow slays/brands on nonweapons other than rings */ 
+	if (!((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) || 
+			(a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_HAFTED) || 
+			(a_ptr->tval == TV_DIGGING) || (a_ptr->tval == TV_RING))) 
+		return;
+
 	while (count < MAX_TRIES)
 	{
 		x = randint0(num_slays());
 		s_ptr = &slay_table[x];
+		
+		if (brand) 
+		{ 
+			if (s_ptr->brand && !(a_ptr->flags[1] & s_ptr->slay_flag))
+			{ 
+				a_ptr->flags[1] |= s_ptr->slay_flag; 
+				LOG_PRINT1("Adding brand: %s\n", s_ptr->brand); 
+				return; 
+			} 
+		} 
+		else if (!s_ptr->brand && !(a_ptr->flags[1] & s_ptr->slay_flag))
+		{ 
+			a_ptr->flags[1] |= s_ptr->slay_flag; 
+			LOG_PRINT1("Adding slay: %s\n", s_ptr->desc); 
+			return; 
+		} 
 
-		if (brand)
-		{
-			if (s_ptr->brand && !(a_ptr->flags[0] & s_ptr->slay_flag))
-			{
-				a_ptr->flags[0] |= s_ptr->slay_flag;
-				LOG_PRINT1("Adding brand: %s\n", s_ptr->brand);
-				return;
-			}
-		}
-		else if (!s_ptr->brand && !(a_ptr->flags[0] & s_ptr->slay_flag))
-		{
-			a_ptr->flags[0] |= s_ptr->slay_flag;
-			LOG_PRINT1("Adding slay: %s\n", s_ptr->desc);
-			return;
-		}
 		count++;
-	}			
+	}
 }
 
 static void add_bless_weapon(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_BLESSED;
+	a_ptr->flags[3] |= TR3_BLESSED;
 	LOG_PRINT("Adding ability: blessed weapon\n");
 }
 
@@ -2443,7 +2683,7 @@ static void add_to_hit(artifact_type *a_ptr, int fixed, int random)
 		}
 	}
 	a_ptr->to_h += (s16b)(fixed + randint0(random));
-	if (a_ptr->to_h > 0) a_ptr->flags[2] |= TR2_SHOW_MODS;
+	if (a_ptr->to_h > 0) a_ptr->flags[3] |= TR3_SHOW_MODS;
 	LOG_PRINT1("Adding ability: extra to_h (now %+d)\n", a_ptr->to_h);
 }
 
@@ -2467,13 +2707,13 @@ static void add_to_dam(artifact_type *a_ptr, int fixed, int random)
 		}
 	}
 	a_ptr->to_d += (s16b)(fixed + randint0(random));
-	if (a_ptr->to_d > 0) a_ptr->flags[2] |= TR2_SHOW_MODS;
+	if (a_ptr->to_d > 0) a_ptr->flags[3] |= TR3_SHOW_MODS;
 	LOG_PRINT1("Adding ability: extra to_dam (now %+d)\n", a_ptr->to_d);
 }
 
 static void add_aggravation(artifact_type *a_ptr)
 {
-	a_ptr->flags[2] |= TR2_AGGRAVATE;
+	a_ptr->flags[3] |= TR3_AGGRAVATE;
 	LOG_PRINT("Adding aggravation\n");
 }
 
@@ -2519,25 +2759,25 @@ static void add_immunity(artifact_type *a_ptr)
 	{
 		case 0:
 		{
-			a_ptr->flags[1] |= TR1_IM_ACID;
+			a_ptr->flags[2] |= TR2_IM_ACID;
 			LOG_PRINT("Adding ability: immunity to acid\n");
 			break;
 		}
 		case 1:
 		{
-			a_ptr->flags[1] |= TR1_IM_ELEC;
+			a_ptr->flags[2] |= TR2_IM_ELEC;
 			LOG_PRINT("Adding ability: immunity to lightning\n");
 			break;
 		}
 		case 2:
 		{
-			a_ptr->flags[1] |= TR1_IM_FIRE;
+			a_ptr->flags[2] |= TR2_IM_FIRE;
 			LOG_PRINT("Adding ability: immunity to fire\n");
 			break;
 		}
 		case 3:
 		{
-			a_ptr->flags[1] |= TR1_IM_COLD;
+			a_ptr->flags[2] |= TR2_IM_COLD;
 			LOG_PRINT("Adding ability: immunity to cold\n");
 			break;
 		}
@@ -2978,7 +3218,8 @@ static void add_ability(artifact_type *a_ptr, s32b target_power)
 	remove_contradictory(a_ptr);
 
 	/* Adding WIS to sharp weapons always blesses them */
-	if ((a_ptr->flags[0] & TR0_WIS) && (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM))
+	if (((a_ptr->flags[0] & TR0_WIS1) || (a_ptr->flags[0] & TR0_WIS2)) 
+	  && (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM))
 	{
 		add_bless_weapon(a_ptr);
 	}
@@ -2990,7 +3231,8 @@ static void add_ability(artifact_type *a_ptr, s32b target_power)
  * abilities and attempting to add each in turn.  An artifact only gets one
  * chance at each of these up front (if applicable).
  */
-static void try_supercharge(artifact_type *a_ptr, s32b target_power)
+/* TODO Add support for p2val */
+static void try_supercharge(artifact_type *a_ptr, s32b target_power) 
 {
 	/* Huge damage dice or +3 blows - melee weapon only */
 	if (a_ptr->tval == TV_DIGGING || a_ptr->tval == TV_HAFTED ||
@@ -2998,13 +3240,13 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 	{
 		if (randint0(z_info->a_max) < artprobs[ART_IDX_MELEE_DICE_SUPER])
 		{
-			a_ptr->dd += 3 + randint0(4);
+			a_ptr->dd += 3 + (byte) randint0(4);
 			if (a_ptr->dd > 9) a_ptr->dd = 9;
 			LOG_PRINT1("Supercharging damage dice!  (Now %d dice)\n", a_ptr->dd);
 		}
 		else if (randint0(z_info->a_max) < artprobs[ART_IDX_MELEE_BLOWS_SUPER])
 		{
-			a_ptr->flags[0] |= TR0_BLOWS;
+			a_ptr->flags[0] |= TR0_BLOWS1; /* TODO Add 2 versions */
 			a_ptr->pval = 3;
 			LOG_PRINT("Supercharging melee blows! (+3 blows)\n");
 		}
@@ -3015,13 +3257,13 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 	{
 		if (randint0(z_info->a_max) < artprobs[ART_IDX_BOW_SHOTS_SUPER])
 		{
-			a_ptr->flags[0] |= TR0_SHOTS;
+			a_ptr->flags[0] |= TR0_SHOTS1;
 			a_ptr->pval = 3;
 			LOG_PRINT("Supercharging shots for bow!  (3 extra shots)\n");
 		}
 		else if (randint0(z_info->a_max) < artprobs[ART_IDX_BOW_MIGHT_SUPER])
 		{
-			a_ptr->flags[0] |= TR0_MIGHT;
+			a_ptr->flags[0] |= TR0_MIGHT1;
 			a_ptr->pval = 3;
 			LOG_PRINT("Supercharging might for bow!  (3 extra might)\n");
 		}
@@ -3030,10 +3272,11 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 	/* Big speed bonus - any item (potentially) */
 	if (randint0(z_info->a_max) < artprobs[ART_IDX_GEN_SPEED_SUPER])
 	{
-		a_ptr->flags[0] |= TR0_SPEED;
-		a_ptr->pval = 7 + randint0(6); 
-		if (one_in_(4)) a_ptr->pval += randint1(4);
-		LOG_PRINT1("Supercharging speed for this item!  (New speed bonus is %d)\n", a_ptr->pval);
+		a_ptr->flags[0] |= TR0_SPEED1;
+		a_ptr->pval = 7 + (s16b) randint0(6); 
+		if (one_in_(4)) a_ptr->pval += (s16b) randint1(4);
+		LOG_PRINT1("Supercharging speed for this item!  (New speed bonus is %d)\n", 
+			a_ptr->pval);
 	}
 	/* Aggravation */
 	if (a_ptr->tval == TV_BOW || a_ptr->tval == TV_DIGGING ||
@@ -3043,7 +3286,7 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 		if ((randint0(z_info->a_max) < artprobs[ART_IDX_WEAPON_AGGR]) &&
 		    (target_power > AGGR_POWER))
 		{
-			a_ptr->flags[2] |= TR2_AGGRAVATE;
+			a_ptr->flags[3] |= TR3_AGGRAVATE;
 			LOG_PRINT("Adding aggravation\n");
 		}
 	}
@@ -3052,7 +3295,7 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 		if ((randint0(z_info->a_max) < artprobs[ART_IDX_NONWEAPON_AGGR]) &&
 		    (target_power > AGGR_POWER))
 		{
-			a_ptr->flags[2] |= TR2_AGGRAVATE;
+			a_ptr->flags[3] |= TR3_AGGRAVATE;
 			LOG_PRINT("Adding aggravation\n");
 		}
 	}
@@ -3064,14 +3307,16 @@ static void try_supercharge(artifact_type *a_ptr, s32b target_power)
 static void do_curse(artifact_type *a_ptr)
 {
 	if (one_in_(7))
-		a_ptr->flags[2] |= TR2_AGGRAVATE;
+		a_ptr->flags[3] |= TR3_AGGRAVATE;
 	if (one_in_(4))
-		a_ptr->flags[2] |= TR2_DRAIN_EXP;
+		a_ptr->flags[3] |= TR3_DRAIN_EXP;
 	if (one_in_(7))
-		a_ptr->flags[2] |= TR2_TELEPORT;
+		a_ptr->flags[3] |= TR3_TELEPORT;
 
 	if ((a_ptr->pval > 0) && one_in_(2))
 		a_ptr->pval = -a_ptr->pval;
+	if ((a_ptr->p2val < 0) && one_in_(2)) /* TODO Need to consider this more */
+		a_ptr->p2val = -a_ptr->p2val;
 	if ((a_ptr->to_a > 0) && one_in_(2))
 		a_ptr->to_a = -a_ptr->to_a;
 	if ((a_ptr->to_h > 0) && one_in_(2))
@@ -3079,16 +3324,16 @@ static void do_curse(artifact_type *a_ptr)
 	if ((a_ptr->to_d > 0) && one_in_(4))
 		a_ptr->to_d = -a_ptr->to_d;
 
-	if (a_ptr->flags[2] & TR2_LIGHT_CURSE)
+	if (a_ptr->flags[3] & TR3_LIGHT_CURSE)
 	{
-		if (one_in_(2)) a_ptr->flags[2] |= TR2_HEAVY_CURSE;
+		if (one_in_(2)) a_ptr->flags[3] |= TR3_HEAVY_CURSE;
 		return;
 	}
 
-	a_ptr->flags[2] |= TR2_LIGHT_CURSE;
+	a_ptr->flags[3] |= TR3_LIGHT_CURSE;
 
 	if (one_in_(4))
-		a_ptr->flags[2] |= TR2_HEAVY_CURSE;
+		a_ptr->flags[3] |= TR3_HEAVY_CURSE;
 }
 
 /*
@@ -3099,6 +3344,7 @@ static void scramble_artifact(int a_idx)
 	artifact_type *a_ptr = &a_info[a_idx];
 	artifact_type a_old;
 	object_kind *k_ptr;
+	u32b activates = a_ptr->flags[3] & TR3_ACTIVATE;
 	s32b power;
 	int tries = 0;
 	s16b k_idx;
@@ -3151,7 +3397,7 @@ static void scramble_artifact(int a_idx)
 		 * more than 20 below the target power
 		 */
 		int count = 0;
-		int smeg = 0;
+		s16b smeg = 0;
 		s32b ap2;
 
 		/* Capture the rarity of the original base item and artifact */
@@ -3188,8 +3434,8 @@ static void scramble_artifact(int a_idx)
 			if (smeg < 1) smeg = 1;
 			LOG_PRINT1("k_ptr->alloc_prob is %d\n", k_ptr->alloc_prob);
 /* end CC */
-			rarity_new = ( (s16b) rarity_old * (s16b) base_rarity_old ) /
-			             smeg;
+			rarity_new = ( (s16b) rarity_old * (s16b) base_rarity_old ) / 
+				smeg;
 
 			if (rarity_new > 255) rarity_new = 255;
 			if (rarity_new < 1) rarity_new = 1;
@@ -3209,10 +3455,11 @@ static void scramble_artifact(int a_idx)
 		 */
 		a_ptr->pval = 0;
 		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
-		a_ptr->flags[0] = a_ptr->flags[1] = 0;
+		/* TODO Er, what about flags3, is that OK ? */
+		a_ptr->flags[0] = a_ptr->flags[1] = 0; 
 
 		/* Artifacts ignore everything */
-		a_ptr->flags[2] = (TR2_IGNORE_MASK);
+		a_ptr->flags[3] = (TR3_IGNORE_MASK);
 	}
 
 	/* Got a base item. */
@@ -3287,7 +3534,7 @@ static void scramble_artifact(int a_idx)
 					a_ptr->tval == TV_POLEARM || a_ptr->tval == TV_SWORD
 					|| a_ptr->tval == TV_BOW) && (a_ptr->to_d < 10))
 				{
-					a_ptr->to_d += randint0(6);
+					a_ptr->to_d += (s16b) randint0(6);
 					LOG_PRINT1("Redeeming crappy weapon: +dam now %d\n", a_ptr->to_d);
 				}
 				break;
@@ -3319,15 +3566,20 @@ static void scramble_artifact(int a_idx)
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
 	/* Restore some flags */
-	if (a_ptr->tval == TV_LITE) a_ptr->flags[2] |= TR2_NO_FUEL;
-	if (a_idx < ART_MIN_NORMAL) a_ptr->flags[2] |= TR2_INSTA_ART;
+	if (activates) a_ptr->flags[3] |= TR3_ACTIVATE;
+/*
+ * All artifacts have no fuel by default 
+ * There is no NO_FUEL flag.
+ */
+/* if (a_ptr->tval == TV_LITE) a_ptr->flags[2] |= TR2_NO_FUEL; */  
+	if (a_idx < ART_MIN_NORMAL) a_ptr->flags[3] |= TR3_INSTA_ART; /* TODO What is this for? */
 
 	/*
 	 * Add TR2_HIDE_TYPE to all artifacts with nonzero pval because we're
 	 * too lazy to find out which ones need it and which ones don't.
 	 */
 	if (a_ptr->pval)
-		a_ptr->flags[2] |= TR2_HIDE_TYPE;
+		a_ptr->flags[3] |= TR3_HIDE_TYPE;
 
 	/* Success */
 
@@ -3395,7 +3647,7 @@ static bool artifacts_acceptable(void)
 		if (verbose)
 		{
 			char types[256];
-			sprintf(types, "%s%s%s%s%s%s%s%s%s%s",
+			strnfmt(types, sizeof(types), "%s%s%s%s%s%s%s%s%s%s",
 				swords > 0 ? " swords" : "",
 				polearms > 0 ? " polearms" : "",
 				blunts > 0 ? " blunts" : "",

@@ -78,7 +78,7 @@ void messages_free(void)
 	FREE(messages);
 }
 
-u16b messages_num(void)
+u32b messages_num(void)
 {
 	return messages->count;
 }
@@ -124,7 +124,7 @@ void message_add(const char *str, u16b type)
 	}
 }
 
-static message_t *message_get(u16b age)
+static message_t *message_get(u32b age)
 {
 	message_t *m = messages->head;
 
@@ -135,19 +135,19 @@ static message_t *message_get(u16b age)
 }
 
 
-const char *message_str(u16b age)
+const char *message_str(u32b age)
 {
 	message_t *m = message_get(age);
 	return (m ? m->str : "");
 }
 
-u16b message_count(u16b age)
+u16b message_count(u32b age)
 {
 	message_t *m = message_get(age);
 	return (m ? m->count : 0);
 }
 
-u16b message_type(u16b age)
+u16b message_type(u32b age)
 {
 	message_t *m = message_get(age);
 	return (m ? m->type : 0);

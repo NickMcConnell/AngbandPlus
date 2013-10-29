@@ -1,7 +1,8 @@
 MKPATH=../../mk/
-include $(MKPATH)buildsys.mk
+include $(MKPATH)rules.mk
+include $(MKPATH)objective.mk
 
-DATA = angband.glade
 SUBDIRS = font graf icon sound
-PACKAGE = ${PACKAGE_NAME}/xtra
 
+OBJECTIVE_DATA = \
+	angband.glade:$(DATA_PATH)/xtra

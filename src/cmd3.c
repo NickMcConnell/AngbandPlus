@@ -103,13 +103,15 @@ void do_cmd_equip(void)
 /*
  * Wield or wear a single item from the pack or floor
  */
-void wield_item(object_type *o_ptr, int item, int slot)
+void wield_item(object_type *o_ptr, int item)
 {
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body;
 
 	cptr act;
 	char o_name[80];
+
+	int slot = wield_slot(o_ptr);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -154,6 +156,7 @@ void wield_item(object_type *o_ptr, int item, int slot)
 	p_ptr->equip_cnt++;
 
 	/* Do any ID-on-wield */
+	object_tried(o_ptr);
 	object_notice_on_wield(o_ptr);
 
 	/* Where is the item now */
@@ -194,51 +197,72 @@ void wield_item(object_type *o_ptr, int item, int slot)
 /*
  * Destroy an item
  */
-void do_cmd_destroy(cmd_code code, cmd_arg args[])
+void do_cmd_destroy(void)
 {
 	int item, amt;
 
 	object_type *o_ptr;
 
-	object_type destroyed_obj;
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	char o_name[120];
+	char out_val[160];
 
-	item = args[0].item;
-	amt = args[1].number;
+	cptr q, s;
 
-	/* Destroying squelched items is easy. */
+	/* Get an item */
+	q = "Destroy which item? ";
+	s = "You have nothing to destroy.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR | CAN_SQUELCH))) return;
+
+	/* Deal with squelched items */
 	if (item == ALL_SQUELCHED)
 	{
 		squelch_items();
 		return;
 	}
 
-	if (!item_is_available(item, NULL, USE_INVEN | USE_EQUIP | USE_FLOOR))
+	 if (item >= 0)
+		o_ptr = &inventory[item];
+	else
+		o_ptr = &o_list[0 - item];
+
+	/* Get a quantity */
+	amt = get_quantity(NULL, o_ptr->number);
+	if (amt <= 0) return;
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+	object_copy(i_ptr, o_ptr);
+
+	if ((o_ptr->tval == TV_WAND) ||
+	    (o_ptr->tval == TV_STAFF) ||
+	    (o_ptr->tval == TV_ROD))
 	{
-		msg_print("You do not have that item to destroy it.");
-		return;
+		/* Calculate the amount of destroyed charges */
+		i_ptr->pval = INT2S16B(o_ptr->pval * amt / o_ptr->number);
 	}
 
-	o_ptr = object_from_item_idx(item);
+	/* Set quantity */
+	ISBYTE(amt);
+	i_ptr->number = (byte) amt;
 
-	/* Can't destroy cursed items we're wielding. */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
-	{
-		msg_print("You cannot destroy the cursed item.");
-		return;
-	}	
+	/* Describe the destroyed object */
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, ODESC_FULL);
 
-	/* Describe the destroyed object by taking a copy with the right "amt" */
-	object_copy_amt(&destroyed_obj, o_ptr, amt);
-	object_desc(o_name, sizeof(o_name), &destroyed_obj, TRUE, ODESC_FULL);
+	/* Verify destruction */
+	strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
+	if (!get_check(out_val)) return;
+
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
-		object_notice_indestructible(o_ptr);
+		o_ptr->ident |= IDENT_INDESTRUCT;
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -255,6 +279,25 @@ void do_cmd_destroy(cmd_code code, cmd_arg args[])
 
 	/* Reduce the charges of rods/wands/staves */
 	reduce_charges(o_ptr, amt);
+
+	/* Check for squelching */
+	if (squelch_tval(o_ptr->tval))
+	{
+		char sval_name[50];
+
+		/* Obtain plural form without a quantity */
+		object_desc(sval_name, sizeof sval_name, o_ptr, FALSE,
+				ODESC_BASE | ODESC_PLURAL);
+		strnfmt(out_val, sizeof out_val, "Ignore %s in future? ",
+				sval_name);
+
+		if (get_check(out_val))
+		{
+			/* squelch_set_squelch(tval, sval); */
+			k_info[o_ptr->k_idx].squelch = TRUE;
+			msg_format("Ignoring %s from now on.", sval_name);
+		}		
+	}
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -274,55 +317,7 @@ void do_cmd_destroy(cmd_code code, cmd_arg args[])
 }
 
 
-void textui_cmd_destroy(void)
-{
-	int item, amt;
 
-	object_type *o_ptr;
-
-	object_type obj_to_destroy;
-
-	char o_name[120];
-	char out_val[160];
-
-	cptr q, s;
-
-	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR | CAN_SQUELCH))) return;
-
-	/* Deal with squelched items */
-	if (item == ALL_SQUELCHED)
-	{
-		cmd_insert(CMD_DESTROY, item, 0);
-		return;
-	}
-	
-	o_ptr = object_from_item_idx(item);
-
-	/* Ask if player would prefer squelching instead of destruction */
-	if (squelch_interactive(o_ptr))
-	{
-		p_ptr->notice |= PN_SQUELCH;
-		return;
-	}
-
-	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
-	if (amt <= 0) return;
-
-	/* Describe the destroyed object by taking a copy with the right "amt" */
-	object_copy_amt(&obj_to_destroy, o_ptr, amt);
-	object_desc(o_name, sizeof(o_name), &obj_to_destroy, TRUE, ODESC_FULL);
-
-	/* Verify destruction */
-	strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
-	if (!get_check(out_val)) return;
-
-	/* Tell the game to destroy the item. */
-	cmd_insert(CMD_DESTROY, item, amt);
-}
 
 void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 {
@@ -456,10 +451,6 @@ void refuel_torch(object_type *j_ptr, object_type *o_ptr, int item)
 	/* Redraw stuff */
 	p_ptr->redraw |= (PR_EQUIP);
 }
-
-
-
-
 
 
 /*
@@ -798,7 +789,8 @@ void ang_sort_swap_hook(void *u, void *v, int a, int b)
  */
 void do_cmd_query_symbol(void)
 {
-	int i, n, r_idx;
+	int r_idx;
+	u16b n, i;
 	char sym;
 	char buf[128];
 
@@ -1024,3 +1016,4 @@ void do_cmd_query_symbol(void)
 	/* Free the "who" array */
 	FREE(who);
 }
+

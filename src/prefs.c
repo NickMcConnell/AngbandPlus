@@ -18,10 +18,7 @@
  */
 #include "angband.h"
 
-
-/*** Pref file saving code ***/
-
-
+/*** Pref file saving code ***/ 
 
 /*
  * Header and footer marker string for pref file dumps
@@ -243,8 +240,8 @@ void option_dump(ang_file *fff)
 	}
 
 	autoinsc_dump(fff);
-#if 0
-	/* Dumping squelch settings caused problems, see #784 */
+#if 0 
+/* Dumping squelch settings caused problems, see #784 */ 
 	squelch_dump(fff);
 #endif
 }
@@ -315,7 +312,7 @@ void keymap_dump(ang_file *fff)
 		file_putf(fff, "A:%s\n", buf);
 
 		/* Convert the key into a string */
-		key[0] = i;
+		key[0] = INT2CHR(i);
 
 		/* Encode the key */
 		ascii_to_text(buf, sizeof(buf), key);
@@ -472,15 +469,6 @@ bool prefs_save(const char *path, void (*dump)(ang_file *), const char *title)
 	return TRUE;
 }
 
-
-
-
-
-
-/*** Pref file parsing code ***/
-
-
-
 /*
  * Extract the first few "tokens" from a buffer
  *
@@ -499,7 +487,7 @@ bool prefs_save(const char *path, void (*dump)(ang_file *), const char *title)
  */
 s16b tokenize(char *buf, s16b num, char **tokens)
 {
-	int i = 0;
+	s16b i = 0;
 
 	char *s = buf;
 
@@ -538,7 +526,6 @@ s16b tokenize(char *buf, s16b num, char **tokens)
 	/* Number found */
 	return (i);
 }
-
 
 
 /*
@@ -651,25 +638,25 @@ errr process_pref_file_command(char *buf)
 	{
 		if (2 == tokenize(buf + 2, 2, zz))
 		{
-			add_autoinscription(strtol(zz[0], NULL, 0), zz[1]);
+			add_autoinscription((s16b)strtol(zz[0], NULL, 0), zz[1]);
 			return (0);
 		}
 	}
 
 	/* Process "Q:<idx>:<tval>:<sval>:<y|n>"  -- squelch bits   */
 	/* and     "Q:<idx>:<val>"                -- squelch levels */
-	/* and     "Q:<val>"                      -- auto_destroy   */
+	/* and     "Q:<val>"                      -- auto_destroy   */ 
 	else if (buf[0] == 'Q')
 	{
-		i = tokenize(buf+2, 4, zz);
-		if (i == 2)
+		i = tokenize(buf+2, 4, zz); /* TODO What about i = 1 ? */
+		if (i == 2) /* Q:<idx>:<val> version */ 
 		{
 			n1 = strtol(zz[0], NULL, 0);
 			n2 = strtol(zz[1], NULL, 0);
-			squelch_level[n1] = n2;
+			squelch_level[n1] = (byte) n2;
 			return(0);
 		}
-		else if (i == 4)
+		else if (i == 4)  /* Q:<idx>:<tval>:<sval>:<y|n> version */
 		{
 			i = strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
@@ -677,7 +664,7 @@ errr process_pref_file_command(char *buf)
 			sq = strtol(zz[3], NULL, 0);
 			if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
 			{
-				k_info[i].squelch = sq;
+				k_info[i].squelch = (sq != 0);
 				return(0);
 			}
 			else
@@ -686,7 +673,7 @@ errr process_pref_file_command(char *buf)
 				{
 					if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
 					{
-						k_info[i].squelch = sq;
+						k_info[i].squelch = (sq != 0);
 						return(0);
 					}
 				}
@@ -709,14 +696,14 @@ errr process_pref_file_command(char *buf)
 			n2 = strtol(zz[3], NULL, 0);
 
 			/* Now convert the tval into its numeric equivalent */
-			if (1 != sscanf(tval_s, "%d", &tval))
+			if (1 != SSCANF(tval_s, "%d", &tval))
 			{
 				tval = tval_find_idx(tval_s);
 				if (tval == -1) return 1;
 			}
 
 			/* Now find the sval */
-			if (1 != sscanf(sval_s, "%d", &sval))
+			if (1 != SSCANF(sval_s, "%d", &sval))
 			{
 				sval = lookup_sval(tval, sval_s);
 				if (sval == -1) return 1;
@@ -1275,7 +1262,7 @@ static errr process_pref_file_aux(cptr name)
 	char buf[1024];
 	char old[1024];
 
-	int line = -1;
+	s16b line = -1;
 
 	errr err = 0;
 
@@ -1404,5 +1391,3 @@ errr process_pref_file(cptr name)
 	/* Result */
 	return (err);
 }
-
-

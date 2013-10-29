@@ -257,7 +257,7 @@ static bool CheckEvents(int wait);
 static OSStatus RevalidateGraphics(term_data *td, bool reset_tilesize);
 static char *locate_lib(char *buf, size_t size);
 static void graphics_aux(int op);
-static void Term_wipe_mac_aux(int x, int y, int n);
+static void Term_wipe_mac_aux(s16b x, s16b y, int n);
 inline static void term_data_color(int a);
 static void install_handlers(WindowRef w);
 static void graphics_tiles_nuke(void);
@@ -934,8 +934,8 @@ static struct
 	CGImageRef image;
 
  	// Numbers of rows and columns in a tileset,
-	int cols;
-	int rows;
+	s16b cols;
+	s16b rows;
 
 	/*
 	 * Tile images.
@@ -993,7 +993,7 @@ void DrawSubimage (CGContextRef context, CGRect dst,
  * Copy an image with tiles of size src into a new one with
  * tiles of size dst.  Interpolation will not cross tile borders.
  */
-static CGImageRef GetTileImage(int row, int col, bool has_alpha) 
+static CGImageRef GetTileImage(s16b row, s16b col, bool has_alpha) 
 {
 	// Cache hit.
 	assert(col < frame.cols && row < frame.rows);
@@ -1052,7 +1052,7 @@ static CGImageRef GetTileImage(int row, int col, bool has_alpha)
 	return timg; 
 }
 
-static void DrawTile(int x, int y, byte a, byte c, byte ta, byte tc)
+static void DrawTile(s16b x, s16b y, byte a, byte c, byte ta, byte tc)
 {
 	term_data *td = (term_data*) Term->data;
 
@@ -1084,7 +1084,7 @@ static void DrawTile(int x, int y, byte a, byte c, byte ta, byte tc)
 	}
 }
 
-static void ShowTextAt(int x, int y, int color, int n, const char *text )
+static void ShowTextAt(s16b x, s16b y, int color, int n, const char *text )
 {
 	term_data *td = (term_data*) Term->data;
 	GlyphInfo *info = td->ginfo;
@@ -1095,9 +1095,9 @@ static void ShowTextAt(int x, int y, int color, int n, const char *text )
 
 	int c = *(unsigned char*) text;
 
-	int xp = x * td->tile_wid + (td->tile_wid - (info->widths[c] + td->spacing))/2;
+	s16b xp = x * td->tile_wid + (td->tile_wid - (info->widths[c] + td->spacing))/2;
 	// Only round once.
-	int yp = y * td->tile_hgt + info->ascent + (td->tile_hgt - td->font_hgt)/2;
+	s16b yp = y * td->tile_hgt + info->ascent + (td->tile_hgt - td->font_hgt)/2;
 
  	CGRect r;
 	if(use_graphics || !use_overwrite_hack) {
@@ -1640,7 +1640,7 @@ static errr Term_xtra_mac(int n, int v)
  * We are allowed to use "Term_what()" to determine
  * the current screen contents (for inverting, etc).
  */
-static errr Term_curs_mac(int x, int y)
+static errr Term_curs_mac(s16b x, s16b y)
 {
 	if(!focus.active) activate(focus.active);
 
@@ -1681,7 +1681,7 @@ static errr Term_curs_mac(int x, int y)
  * Overwrite "n" old characters starting at	(x,y)
  * with the same ones in the background colour
  */
-static void Term_wipe_mac_aux(int x, int y, int n)
+static void Term_wipe_mac_aux(s16b x, s16b y, int n)
 {
 	/* Use old screen image kept inside the term package */
 	const char *cp = &(Term->old->c[y][x]);
@@ -1696,7 +1696,7 @@ static void Term_wipe_mac_aux(int x, int y, int n)
  *
  * Erase "n" characters starting at (x,y)
  */
-static errr Term_wipe_mac(int x, int y, int n)
+static errr Term_wipe_mac(s16b x, s16b y, int n)
 {
 
 	/*
@@ -1725,7 +1725,7 @@ static errr Term_wipe_mac(int x, int y, int n)
  *
  * Draw several ("n") chars, with an attr, at a given location.
  */
-static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
+static errr Term_text_mac(s16b x, s16b y, int n, byte a, const char *cp)
 {
 	if(!focus.ctx) activate(focus.active);
 
@@ -1736,7 +1736,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 	return (0);
 }
 
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
+static errr Term_pict_mac(s16b x, int y, int n, const byte *ap, const char *cp,
 			  const byte *tap, const char *tcp)
 {
 	if(!focus.ctx) activate(focus.active);
@@ -2966,7 +2966,7 @@ static OSStatus CloseCommand(EventHandlerCallRef inCallRef,
 static OSStatus ResizeCommand(EventHandlerCallRef inCallRef,
 							EventRef inEvent, void *inUserData )
 {
-	int x, y;
+	s16b x, y;
 	WindowRef w = 0;
 	unsigned flags;
 
@@ -3628,7 +3628,7 @@ static void quit_calmly(void)
 
 		/* Save the game */
 #ifndef ZANG_AUTO_SAVE
-		save_game();
+		do_cmd_save_game();
 #else
 		do_cmd_save_game(FALSE);
 #endif /* !ZANG_AUTO_SAVE */

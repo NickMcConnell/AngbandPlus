@@ -21,6 +21,13 @@
 #include "z-util.h"
 #include "z-virt.h"
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#  define SPRINTF(buf, buf_size, str_fmt, ...) \
+	sprintf_s(buf, buf_size, str_fmt, __VA_ARGS__)
+#else
+#  define SPRINTF(buf, buf_size, str_fmt, ...) \
+	sprintf(buf, str_fmt, __VA_ARGS__)
+#endif
 
 /*
  * Here is some information about the routines in this file.
@@ -31,7 +38,7 @@
  * (using only the first "max length" bytes), and return the "length"
  * of the resulting string, not including the (mandatory) terminator.
  *
- * The format strings allow the basic "sprintf()" format sequences, though
+ * The format strings allow the basic "SPRINTF()" format sequences, though
  * some of them are processed slightly more carefully or portably, as well
  * as a few "special" sequences, including the "capilitization" sequences of
  * "%C" and "%S".
@@ -125,7 +132,7 @@
  * plus "char *s = NULL;", and unknown values "char *txt; int i;".
  *
  * For example: "n = strnfmt(buf, -1, "(Max %d)", i);" will have a
- * similar effect as "sprintf(buf, "(Max %d)", i); n = strlen(buf);".
+ * similar effect as "SPRINTF(buf, "(Max %d)", i); n = strlen(buf);".
  *
  * For example: "(void)strnfmt(buf, 16, "%s", txt);" will have a similar
  * effect as "strncpy(buf, txt, 16); buf[15] = '\0';".
@@ -152,7 +159,7 @@
  * a va_list of arguments to the format string, and uses the format string
  * and the arguments to create a string to the buffer.  The string is
  * derived from the format string and the arguments in the manner of the
- * "sprintf()" function, but with some extra "format" commands.  Note that
+ * "SPRINTF()" function, but with some extra "format" commands.  Note that
  * this function will never use more than the given number of bytes in the
  * buffer, preventing messy invalid memory references.  This function then
  * returns the total number of non-null bytes written into the buffer.
@@ -161,9 +168,9 @@
  * smaller of "max-1" and "strlen(str)".  We copy the first "len" chars of
  * "str" into "buf", place "\0" into buf[len], and return "len".
  *
- * In English, we do a sprintf() into "buf", a buffer with size "max",
+ * In English, we do a SPRINTF() into "buf", a buffer with size "max",
  * and we return the resulting value of "strlen(buf)", but we allow some
- * special format commands, and we are more careful than "sprintf()".
+ * special format commands, and we are more careful than "SPRINTF()".
  *
  * Typically, "max" is in fact the "size" of "buf", and thus represents
  * the "number" of chars in "buf" which are ALLOWED to be used.  An
@@ -178,7 +185,7 @@
  * too short, not written a null, and forced the programmer to deal with
  * this special case, but I felt that it is better to at least give a
  * "usable" result when the buffer was too long instead of either giving
- * a memory overwrite like "sprintf()" or a non-terminted string like
+ * a memory overwrite like "SPRINTF()" or a non-terminted string like
  * "strncpy()".  Note that "strncpy()" also "null-pads" the result.
  *
  * Note that in most cases "just long enough" is probably "too short".
@@ -219,11 +226,13 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 
 
 	/* Fatal error - no buffer length */
-	if (!max) quit("Called vstrnfmt() with empty buffer!");
+	if (!max) 
+		quit("Called vstrnfmt() with empty buffer!");
 
 
 	/* Mega-Hack -- treat "no format" as "empty string" */
-	if (!fmt) fmt = "";
+	if (!fmt) 
+		fmt = "";
 
 
 	/* Begin the buffer */
@@ -372,7 +381,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					arg = va_arg(vp, int);
 
 					/* Hack -- append the "length" */
-					sprintf(aux + q, "%d", arg);
+					SPRINTF(aux + q, sizeof(aux)-q, "%d", arg);
 
 					/* Hack -- accept the "length" */
 					while (aux[q]) q++;
@@ -445,7 +454,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				arg = tval.t == T_END ? va_arg(vp, int) : tval.u.c;
 
 				/* Format the argument */
-				sprintf(tmp, aux, arg);
+				SPRINTF(tmp, sizeof(tmp), aux, arg);
 
 				/* Done */
 				break;
@@ -462,7 +471,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					arg = va_arg(vp, long);
 
 					/* Format the argument */
-					sprintf(tmp, aux, arg);
+					SPRINTF(tmp, sizeof(tmp), aux, arg);
 				}
 				else
 				{
@@ -472,7 +481,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					arg = tval.t == T_END ? va_arg(vp, int) : tval.u.i;
 
 					/* Format the argument */
-					sprintf(tmp, aux, arg);
+					SPRINTF(tmp, sizeof(tmp), aux, arg);
 				}
 
 				/* Done */
@@ -490,7 +499,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					arg = va_arg(vp, unsigned long);
 
 					/* Format the argument */
-					sprintf(tmp, aux, arg);
+					SPRINTF(tmp, sizeof(tmp), aux, arg);
 				}
 				else
 				{
@@ -500,7 +509,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 					arg = va_arg(vp, unsigned int);
 
 					/* Format the argument */
-					sprintf(tmp, aux, arg);
+					SPRINTF(tmp, sizeof(tmp), aux, arg);
 				}
 
 				/* Done */
@@ -518,7 +527,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				arg = tval.t == T_END ? va_arg(vp, double) : tval.u.f;
 
 				/* Format the argument */
-				sprintf(tmp, aux, arg);
+				SPRINTF(tmp, sizeof(tmp), aux, arg);
 
 				/* Done */
 				break;
@@ -533,7 +542,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				arg = va_arg(vp, void*);
 
 				/* Format the argument */
-				sprintf(tmp, aux, arg);
+				SPRINTF(tmp, sizeof(tmp), aux, arg);
 
 				/* Done */
 				break;
@@ -561,7 +570,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				(void)my_strcpy(arg2, arg, sizeof(arg2));
 
 				/* Format the argument */
-				sprintf(tmp, aux, arg2);
+				SPRINTF(tmp, sizeof(tmp), aux, arg2);
 
 				/* Done */
 				break;
@@ -629,7 +638,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 				{
 					/* Capitalize if possible */
 					if (islower((unsigned char)tmp[q]))
-						tmp[q] = toupper((unsigned char)tmp[q]);
+						tmp[q] = (char) toupper((unsigned char)tmp[q]);
 
 					/* Done */
 					break;
@@ -823,3 +832,4 @@ void quit_fmt(cptr fmt, ...)
 	/* Call quit() */
 	quit(res);
 }
+

@@ -37,14 +37,14 @@ typedef struct
 	int (*group)(int oid);                      /* Returns gid for an oid */
 
 	/* Summary function for the "object" information. */
-	void (*summary)(int gid, const int *object_list, int n, int top, int row, int col);
+	void (*summary)(int gid, const int *object_list, int n, int top, s16b row, s16b col);
 
 } group_funcs;
 
 typedef struct
 {
 	/* Displays an entry at specified location, including kill-count and graphics */
-	void (*display_member)(int col, int row, bool cursor, int oid);
+	void (*display_member)(s16b col, s16b row, bool cursor, int oid);
 
 	void (*lore)(int oid);       /* Displays lore for an oid */
 
@@ -164,16 +164,16 @@ const char *feature_group_text[] =
 
 
 /* Useful method declarations */
-static void display_visual_list(int col, int row, int height, int width,
+static void display_visual_list(s16b col, s16b row, s16b height, s16b width,
 				byte attr_top, byte char_left);
 
 static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr, 
-				int height, int width, 
+				s16b height, s16b width, 
 				byte *attr_top_ptr, byte *char_left_ptr, 
 				byte *cur_attr_ptr, byte *cur_char_ptr,
-				int col, int row, int *delay);
+				s16b col, s16b row, int *delay);
 
-static void place_visual_list_cursor(int col, int row, byte a,
+static void place_visual_list_cursor(s16b col, s16b row, byte a,
 				byte c, byte attr_top, byte char_left);
 
 /*
@@ -208,7 +208,7 @@ static int feat_order(int feat)
 
 
 /* Emit a 'graphical' symbol and a padding character if appropriate */
-static void big_pad(int col, int row, byte a, byte c)
+static void big_pad(s16b col, s16b row, byte a, byte c)
 {
 	Term_putch(col, row, a, c);
 	if (!use_bigtile) return;
@@ -220,7 +220,7 @@ static void big_pad(int col, int row, byte a, byte c)
 }
 
 /* Return the actual width of a symbol */
-static int actual_width(int width)
+static s16b actual_width(s16b width)
 {
 #ifdef UNANGBAND
 	if (use_trptile) width *= 3;
@@ -233,7 +233,7 @@ static int actual_width(int width)
 }
 
 /* Return the actual height of a symbol */
-static int actual_height(int height)
+static s16b actual_height(s16b height)
 {
 #ifdef UNANGBAND
 	if (use_trptile) height = height * 3 / 2;
@@ -247,9 +247,9 @@ static int actual_height(int height)
 
 
 /* From an actual width, return the logical width */
-static int logical_width(int width)
+static s16b logical_width(s16b width)
 {
-	int divider = 1;
+	s16b divider = 1;
 
 #ifdef UNANGBAND
 	if (use_trptile) divider = 3;
@@ -262,9 +262,9 @@ static int logical_width(int width)
 }
 
 /* From an actual height, return the logical height */
-static int logical_height(int height)
+static s16b logical_height(s16b height)
 {
-	int divider = 1;
+	s16b divider = 1;
 
 #ifdef UNANGBAND
 	if (use_trptile)
@@ -282,7 +282,7 @@ static int logical_height(int height)
 
 
 static void display_group_member(menu_type *menu, int oid,
-						bool cursor, int row, int col, int wid)
+						bool cursor, s16b row, s16b col, s16b wid)
 {
 	const member_funcs *o_funcs = menu->menu_data;
 	byte attr = curs_attrs[CURS_KNOWN][cursor == oid];
@@ -326,17 +326,18 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	int max_group = g_funcs.maxnum < o_count ? g_funcs.maxnum : o_count ;
 
 	/* This could (should?) be (void **) */
-	int *g_list, *g_offset;
+	int *g_list;
+	s16b *g_offset;
 
-	const char **g_names;
+	char **g_names;
 
-	int g_name_len = 8;  /* group name length, minumum is 8 */
+	s16b g_name_len = 8;  /* group name length, minumum is 8 */
 
-	int grp_cnt = 0; /* total number groups */
+	s16b grp_cnt = 0; /* total number groups */
 
-	int g_cur = 0, grp_old = -1; /* group list positions */
-	int o_cur = 0;					/* object list positions */
-	int g_o_count = 0;				 /* object count for group */
+	s16b g_cur = 0, grp_old = -1; /* group list positions */
+	s16b o_cur = 0;					/* object list positions */
+	s16b g_o_count = 0;				 /* object count for group */
 	int oid = -1;  				/* object identifiers */
 
 	region title_area = { 0, 0, 0, 4 };
@@ -357,7 +358,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	/* Panel state */
 	/* These are swapped in parallel whenever the actively browsing " */
 	/* changes */
-	int *active_cursor = &g_cur, *inactive_cursor = &o_cur;
+	s16b *active_cursor = &g_cur, *inactive_cursor = &o_cur;
 	menu_type *active_menu = &group_menu, *inactive_menu = &object_menu;
 	int panel = 0;
 
@@ -367,9 +368,9 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	bool flag = FALSE;
 	bool redraw = TRUE;
 
-	int browser_rows;
-	int wid, hgt;
-	int i;
+	s16b browser_rows;
+	s16b wid, hgt;
+	s16b i;
 	int prev_g = -1;
 
 	int omode = OPT(rogue_like_commands);
@@ -382,8 +383,6 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	/* Disable the roguelike commands for the duration */
 	OPT(rogue_like_commands) = FALSE;
 
-
-
 	/* Do the group by. ang_sort only works on (void **) */
 	/* Maybe should make this a precondition? */
 	if (g_funcs.gcomp)
@@ -392,7 +391,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 
 	/* Sort everything into group order */
 	g_list = C_ZNEW(max_group + 1, int);
-	g_offset = C_ZNEW(max_group + 1, int);
+	g_offset = C_ZNEW(max_group + 1, s16b);
 
 	for (i = 0; i < o_count; i++)
 	{
@@ -404,18 +403,17 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 		}
 	}
 
-	g_offset[grp_cnt] = o_count;
+	g_offset[grp_cnt] = (s16b) o_count;
 	g_list[grp_cnt] = -1;
 
-
 	/* The compact set of group names, in display order */
-	g_names = C_ZNEW(grp_cnt, const char *);
+	g_names = C_ZNEW(grp_cnt, char *);
 
 	for (i = 0; i < grp_cnt; i++)
 	{
-		int len;
-		g_names[i] = g_funcs.name(g_list[i]);
-		len = strlen(g_names[i]);
+		s16b len;
+		g_names[i] = (char *)g_funcs.name(g_list[i]);
+		len = (s16b) strlen(g_names[i]);
 		if (len > g_name_len) g_name_len = len;
 	}
 
@@ -463,7 +461,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			prt("Name", 4, g_name_len + 3);
 
 			if (otherfields)
-				prt(otherfields, 4, 46);
+				prt(otherfields, 4, 55);
 
 
 			/* Print dividers: horizontal and vertical */
@@ -695,7 +693,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	}
 
 	/* Restore roguelike option */
-	OPT(rogue_like_commands) = omode;
+	OPT(rogue_like_commands) = (omode != 0);
 
 	/* Prompt */
 	if (!grp_cnt)
@@ -709,9 +707,9 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 /*
  * Display visuals.
  */
-static void display_visual_list(int col, int row, int height, int width, byte attr_top, byte char_left)
+static void display_visual_list(s16b col, s16b row, s16b height, s16b width, byte attr_top, byte char_left)
 {
-	int i, j;
+	s16b i, j;
 
 	/* Clear the display lines */
 	for (i = 0; i < height; i++)
@@ -727,8 +725,8 @@ static void display_visual_list(int col, int row, int height, int width, byte at
 		{
 			byte a;
 			unsigned char c;
-			int x = col + actual_width(j);
-			int y = row + actual_width(i);
+			s16b x = col + actual_width(j);
+			s16b y = row + actual_width(i);
 			int ia, ic;
 
 			ia = attr_top + i;
@@ -747,13 +745,13 @@ static void display_visual_list(int col, int row, int height, int width, byte at
 /*
  * Place the cursor at the collect position for visual mode
  */
-static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr_top, byte char_left)
+static void place_visual_list_cursor(s16b col, s16b row, byte a, byte c, byte attr_top, byte char_left)
 {
-	int i = a - attr_top;
-	int j = c - char_left;
+	s16b i = a - attr_top;
+	s16b j = c - char_left;
 
-	int x = col + actual_width(j);
-	int y = row + actual_height(i);
+	s16b x = col + actual_width(j);
+	s16b y = row + actual_height(i);
 
 	/* Place the cursor */
 	Term_gotoxy(x, y);
@@ -764,10 +762,10 @@ static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr
  *  Do visual mode command -- Change symbols
  */
 static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr, 
-				int height, int width, 
+				s16b height, s16b width, 
 				byte *attr_top_ptr, byte *char_left_ptr, 
 				byte *cur_attr_ptr, byte *cur_char_ptr,
-				int col, int row, int *delay)
+				s16b col, s16b row, int *delay)
 {
 	static byte attr_old = 0;
 	static char char_old = 0;
@@ -868,8 +866,8 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 		{
 			if (*visual_list_ptr)
 			{
-				int eff_width = actual_width(width);
-				int eff_height = actual_height(height);
+				s16b eff_width = actual_width(width);
+				s16b eff_height = actual_height(height);
 				int d = target_dir(ke.key);
 				byte a = *cur_attr_ptr;
 				byte c = *cur_char_ptr;
@@ -877,8 +875,8 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 				/* Get mouse movement */
 				if (ke.key == '\xff')
 				{
-					int my = ke.mousey - row;
-					int mx = ke.mousex - col;
+					s16b my = ke.mousey - row;
+					s16b mx = ke.mousex - col;
 
 					my = logical_height(my);
 					mx = logical_width(mx);
@@ -888,8 +886,10 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 							|| (c != *char_left_ptr + mx)))
 					{
 						/* Set the visual */
-						*cur_attr_ptr = a = *attr_top_ptr + my;
-						*cur_char_ptr = c = *char_left_ptr + mx;
+						ISBYTE(my);
+						*cur_attr_ptr = a = *attr_top_ptr + (byte) my;
+						ISBYTE(mx);
+						*cur_char_ptr = c = *char_left_ptr + (byte) mx;
 
 						/* Move the frame */
 						if (*char_left_ptr > MAX(0, (int)c - frame_left))
@@ -928,8 +928,10 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 					if ((a == 255) && (ddy[d] > 0)) d = 0;
 					if ((c == 255) && (ddx[d] > 0)) d = 0;
 
-					a += ddy[d];
-					c += ddx[d];
+					ISBYTE(a+ddy[d]);
+					a += (byte) ddy[d];
+					ISBYTE(c+ddy[d]);
+					c += (byte) ddx[d];
 
 					/* Set the visual */
 					*cur_attr_ptr = a;
@@ -973,7 +975,7 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 /*
  * Display a monster
  */
-static void display_monster(int col, int row, bool cursor, int oid)
+static void display_monster(s16b col, s16b row, bool cursor, int oid)
 {
 	/* HACK Get the race index. (Should be a wrapper function) */
 	int r_idx = default_join[oid].oid;
@@ -1037,10 +1039,6 @@ static const char *race_name(int gid) { return monster_group[gid].name; }
 
 static void mon_lore(int oid)
 {
-	/* Update the monster recall window */
-	monster_race_track(default_join[oid].oid);
-	handle_stuff();
-
 	/* Save the screen */
 	screen_save();
 
@@ -1059,7 +1057,7 @@ static void mon_lore(int oid)
 	screen_load();
 }
 
-static void mon_summary(int gid, const int *object_list, int n, int top, int row, int col)
+static void mon_summary(int gid, const int *object_list, int n, int top, s16b row, s16b col)
 {
 	int i;
 	int kills = 0;
@@ -1170,7 +1168,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 	}
 
 	display_knowledge("monsters", monsters, m_count, r_funcs, m_funcs,
-			"                   Sym  Kills");
+						"          Sym  Kills");
 	FREE(default_join);
 	FREE(monsters);
 }
@@ -1186,7 +1184,8 @@ static void get_artifact_display_name(char *o_name, size_t namelen, int a_idx)
 	/* Make fake artifact */
 	o_ptr = &object_type_body;
 	object_wipe(o_ptr);
-	make_fake_artifact(o_ptr, a_idx);
+	ISBYTE(a_idx);
+	make_fake_artifact(o_ptr, (byte) a_idx);
 
 	/* Get its name */
 	object_desc(o_name, namelen, o_ptr, TRUE, ODESC_BASE | ODESC_SPOIL);
@@ -1195,7 +1194,7 @@ static void get_artifact_display_name(char *o_name, size_t namelen, int a_idx)
 /*
  * Display an artifact label
  */
-static void display_artifact(int col, int row, bool cursor, int oid)
+static void display_artifact(s16b col, s16b row, bool cursor, int oid)
 {
 	char o_name[80];
 
@@ -1223,8 +1222,9 @@ static void desc_art_fake(int a_idx)
 	object_wipe(o_ptr);
 
 	/* Make fake artifact */
-	make_fake_artifact(o_ptr, a_idx);
-	o_ptr->ident |= IDENT_STORE;
+	ISBYTE(a_idx);
+	make_fake_artifact(o_ptr, (byte) a_idx);
+	o_ptr->ident |= (IDENT_STORE | IDENT_KNOWN);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1268,10 +1268,8 @@ static bool artifact_is_known(int a_idx)
 {
 	int i;
 
-	if (p_ptr->wizard) return TRUE;
-
 	/* Artifact doesn't exist at all, or not created yet */
-	if (!a_info[a_idx].name || a_info[a_idx].created == FALSE) return FALSE;
+	if (!a_info[a_idx].name || a_info[a_idx].cur_num == 0) return FALSE;
 
 	/* Check all objects to see if it exists but hasn't been IDed */
 	for (i = 0; i < z_info->o_max; i++)
@@ -1279,7 +1277,7 @@ static bool artifact_is_known(int a_idx)
 		int a = o_list[i].name1;
 
 		/* If we haven't actually identified the artifact yet */
-		if (a && a == a_idx && !object_is_known(&o_list[i]))
+		if (a && a == a_idx && !object_known_p(&o_list[i]))
 		{
 			return FALSE;
 		}
@@ -1295,7 +1293,7 @@ static bool artifact_is_known(int a_idx)
 
 
 		if (o_ptr->name1 && o_ptr->name1 == a_idx && 
-		    !object_is_known(o_ptr))
+		    !object_known_p(o_ptr))
 		{
 			return FALSE;
 		}
@@ -1352,7 +1350,7 @@ static void do_cmd_knowledge_artifacts(void *obj, const char *name)
 	/* Collect valid artifacts */
 	a_count = collect_known_artifacts(artifacts, z_info->a_max);
 
-	display_knowledge("artifacts", artifacts, a_count, obj_f, art_f, NULL);
+	display_knowledge("artifacts", artifacts, a_count, obj_f, art_f, 0);
 	FREE(artifacts);
 }
 
@@ -1362,7 +1360,7 @@ static void do_cmd_knowledge_artifacts(void *obj, const char *name)
 /* static u16b *e_note(int oid) {return &e_info[default_join[oid].oid].note;} */
 static const char *ego_grp_name(int gid) { return object_text_order[gid].name; }
 
-static void display_ego_item(int col, int row, bool cursor, int oid)
+static void display_ego_item(s16b col, s16b row, bool cursor, int oid)
 {
 	/* HACK: Access the object */
 	ego_item_type *e_ptr = &e_info[default_join[oid].oid];
@@ -1382,7 +1380,7 @@ static void desc_ego_fake(int oid)
 	/* Hack: dereference the join */
 	const char *cursed[] = { "permanently cursed", "heavily cursed", "cursed" };
 	const char *xtra[] = { "sustain", "higher resistance", "ability" };
-	u32b f2, i;
+	u32b f3, i;
 
 	int e_idx = default_join[oid].oid;
 	ego_item_type *e_ptr = &e_info[e_idx];
@@ -1406,22 +1404,23 @@ static void desc_ego_fake(int oid)
 
 	if (e_ptr->text)
 	{
-		int x, y;
-		text_out("%s", e_text + e_ptr->text);
+		s16b x, y;
+		text_out(e_text + e_ptr->text);
 		Term_locate(&x, &y);
 		Term_gotoxy(0, y+1);
 	}
 
 	/* List ego flags */
-	dummy.name2 = e_idx;
+	ISBYTE(e_idx);
+	dummy.name2 = (byte) e_idx;
 	object_info_spoil(&dummy);
 
 	if (e_ptr->xtra)
 		text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
 
-	for (i = 0, f2 = TR2_PERMA_CURSE; i < 3 ; f2 >>= 1, i++)
+	for (i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++)
 	{
-		if (e_ptr->flags[2] & f2)
+		if (e_ptr->flags[3] & f3)
 		{
 			text_out_c(TERM_RED, format("It is %s.", cursed[i]));
 			break;
@@ -1487,7 +1486,7 @@ static void do_cmd_knowledge_ego_items(void *obj, const char *name)
 		}
 	}
 
-	display_knowledge("ego items", egoitems, e_count, obj_f, ego_f, NULL);
+	display_knowledge("ego items", egoitems, e_count, obj_f, ego_f, "");
 
 	FREE(default_join);
 	FREE(egoitems);
@@ -1505,7 +1504,7 @@ static int get_artifact_from_kind(object_kind *k_ptr)
 {
 	int i;
 
-	assert(k_ptr->flags[2] & TR2_INSTA_ART);
+	assert(k_ptr->flags[3] & TR3_INSTA_ART);
 
 	/* Look for the corresponding artifact */
 	for (i = 0; i < z_info->a_max; i++)
@@ -1524,12 +1523,12 @@ static int get_artifact_from_kind(object_kind *k_ptr)
 /*
  * Display the objects in a group.
  */
-static void display_object(int col, int row, bool cursor, int oid)
+static void display_object(s16b col, s16b row, bool cursor, int oid)
 {
-	int k_idx = oid;
+	s16b k_idx = INT2S16B(oid);
 
 	object_kind *k_ptr = &k_info[k_idx];
-	const char *inscrip = get_autoinscription(oid);
+	const char *inscrip = get_autoinscription(INT2S16B(oid));
 
 	char o_name[80];
 
@@ -1538,13 +1537,16 @@ static void display_object(int col, int row, bool cursor, int oid)
 	byte attr = curs_attrs[(int)aware][(int)cursor];
 
 	/* Find graphics bits -- versions of the object_char and object_attr defines */
-	bool use_flavour = (k_ptr->flavor) && !(aware && k_ptr->tval == TV_SCROLL);
+	/* TODO Check this works */
+	bool use_flavour = (k_ptr->flavor) && 
+			!(aware && k_ptr->tval == TV_SCROLL) && 
+			!(aware && k_ptr->tval == TV_SPELL);
 
 	byte a = use_flavour ? flavor_info[k_ptr->flavor].x_attr : k_ptr->x_attr;
 	byte c = use_flavour ? flavor_info[k_ptr->flavor].x_char : k_ptr->x_char;
 
 	/* Display known artifacts differently */
-	if ((k_ptr->flags[2] & TR2_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
+	if ((k_ptr->flags[3] & TR3_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
 	{
 		get_artifact_display_name(o_name, sizeof(o_name), get_artifact_from_kind(k_ptr));
 	}
@@ -1559,10 +1561,6 @@ static void display_object(int col, int row, bool cursor, int oid)
 
 	/* Display the name */
 	c_prt(attr, o_name, row, col);
-
-	/* Show squelch status */
-	if (k_ptr->squelch)
-		c_put_str(attr, "Yes", row, 46);
 
 	/* Show autoinscription if around */
 	if (aware && inscrip)
@@ -1588,27 +1586,23 @@ static void desc_obj_fake(int k_idx)
 	object_type *o_ptr = &object_type_body;
 
 	/* Check for known artifacts, display them as artifacts */
-	if ((k_ptr->flags[2] & TR2_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
+	if ((k_ptr->flags[3] & TR3_INSTA_ART) && artifact_is_known(get_artifact_from_kind(k_ptr)))
 	{
 		desc_art_fake(get_artifact_from_kind(k_ptr));
 		return;
 	}
 
-	/* Update the object recall window */
-	track_object_kind(k_idx);
-	handle_stuff();
-
 	/* Wipe the object */
 	object_wipe(o_ptr);
 
 	/* Create the artifact */
-	object_prep(o_ptr, k_idx);
+	object_prep(o_ptr, INT2S16B(k_idx));
 
 	/* Hack -- its in the store */
 	if (k_info[k_idx].aware) o_ptr->ident |= (IDENT_STORE);
 
 	/* It's fully know */
-	if (!k_info[k_idx].flavor) object_notice_everything(o_ptr);
+	if (!k_info[k_idx].flavor) object_known(o_ptr);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1646,8 +1640,7 @@ static int o_cmp_tval(const void *a, const void *b)
 	switch (k_a->tval)
 	{
 		case TV_LITE:
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
+		case TV_BOOK: /* TODO Book conversion */
 		case TV_DRAG_ARMOR:
 			/* leave sorted by sval */
 			break;
@@ -1695,10 +1688,10 @@ static byte *o_xattr(int oid)
 static const char *o_xtra_prompt(int oid)
 {
 	object_kind *k_ptr = &k_info[oid];
-	s16b idx = get_autoinscription_index(oid);
+	s16b idx = (s16b) get_autoinscription_index(INT2S16B(oid)); /* TODO should function return int? */
 
-	const char *no_insc = ", 's' to toggle squelch, 'r'ecall, '{'";
-	const char *with_insc = ", 's' to toggle squelch, 'r'ecall, '{', '}'";
+	const char *no_insc = ", 'r' to recall, '{'";
+	const char *with_insc = ", 'r' to recall, '{', '}'";
 
 
 	/* Forget it if we've never seen the thing */
@@ -1718,28 +1711,7 @@ static const char *o_xtra_prompt(int oid)
 static void o_xtra_act(char ch, int oid)
 {
 	object_kind *k_ptr = &k_info[oid];
-	s16b idx = get_autoinscription_index(oid);
-
-	/* Toggle squelch */
-	if (squelch_tval(k_ptr->tval) && (ch == 's' || ch == 'S'))
-	{
-		if (k_ptr->aware)
-		{
-			if (kind_is_squelched_aware(k_ptr))
-				kind_squelch_clear(k_ptr);
-			else
-				kind_squelch_when_aware(k_ptr);
-		}
-		else
-		{
-			if (kind_is_squelched_unaware(k_ptr))
-				kind_squelch_clear(k_ptr);
-			else
-				kind_squelch_when_unaware(k_ptr);
-		}
-
-		return;
-	}
+	s16b idx = (s16b) get_autoinscription_index(INT2S16B(oid));
 
 	/* Forget it if we've never seen the thing */
 	if (k_ptr->flavor && !k_ptr->aware)
@@ -1748,7 +1720,7 @@ static void o_xtra_act(char ch, int oid)
 	/* Uninscribe */
 	if (ch == '}')
 	{
-		if (idx != -1) remove_autoinscription(oid);
+		if (idx != -1) remove_autoinscription(INT2S16B(oid));
 		return;
 	}
 
@@ -1765,17 +1737,17 @@ static void o_xtra_act(char ch, int oid)
 
 		/* Default note */
 		if (idx != -1)
-			strnfmt(note_text, sizeof(note_text), "%s", get_autoinscription(oid));
+			strnfmt(note_text, sizeof(note_text), "%s", get_autoinscription(INT2S16B(oid)));
 
 		/* Get an inscription */
 		if (askfor_aux(note_text, sizeof(note_text), NULL))
 		{
 			/* Remove old inscription if existent */
 			if (idx != -1)
-				remove_autoinscription(oid);
+				remove_autoinscription(INT2S16B(oid));
 
 			/* Add the autoinscription */
-			add_autoinscription(oid, note_text);
+			add_autoinscription(INT2S16B(oid), note_text);
 
 			/* Notice stuff (later) */
 			p_ptr->notice |= (PN_AUTOINSCRIBE);
@@ -1809,14 +1781,14 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		if ((k_info[i].everseen || k_info[i].flavor || OPT(cheat_xtra)) &&
-				!(k_info[i].flags[2] & TR2_INSTA_ART))
+				!(k_info[i].flags[3] & TR3_INSTA_ART))
 		{
 			int c = obj_group_order[k_info[i].tval];
 			if (c >= 0) objects[o_count++] = i;
 		}
 	}
 
-	display_knowledge("known objects", objects, o_count, kind_f, obj_f, "Squelch  Inscribed          Sym");
+	display_knowledge("known objects", objects, o_count, kind_f, obj_f, "Inscribed          Sym");
 
 	FREE(objects);
 }
@@ -1827,7 +1799,7 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
 /*
  * Display the features in a group.
  */
-static void display_feature(int col, int row, bool cursor, int oid )
+static void display_feature(s16b col, s16b row, bool cursor, int oid )
 {
 	/* Get the feature index */
 	int f_idx = oid;
@@ -1899,8 +1871,7 @@ static void do_cmd_knowledge_features(void *obj, const char *name)
 		features[f_count++] = i; /* Currently no filter for features */
 	}
 
-	display_knowledge("features", features, f_count, fkind_f, feat_f,
-		"                    Sym");
+	display_knowledge("features", features, f_count, fkind_f, feat_f, "           Sym");
 	FREE(features);
 }
 
@@ -2002,11 +1973,11 @@ void init_cmd_know(void)
  */
 void do_cmd_knowledge(void)
 {
-	int cursor = 0;
+	s16b cursor = 0;
 	int i;
 	ui_event_data c = EVENT_EMPTY;
 	region knowledge_region = { 0, 0, -1, 11 };
-	
+
 	/* Grey out menu items that won't display anything */
 	if (collect_known_artifacts(NULL, 0) > 0)
 		knowledge_actions[1].flags = 0;
@@ -2039,5 +2010,3 @@ void do_cmd_knowledge(void)
 	
 	screen_load();
 }
-
-

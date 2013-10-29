@@ -188,8 +188,8 @@ struct term_window
 	
 	sdl_Font font;			/* Font info */
 	char *req_font;			/* Requested font */
-	int rows;				/* Dimension in tiles */
-	int cols;
+	s16b rows;				/* Dimension in tiles */
+	s16b cols;
 	
 	int border;				/* Border width */
 	int title_height;		/* Height of title bar */
@@ -2528,7 +2528,7 @@ static errr sdl_HandleEvent(SDL_Event *event)
 				msg_flag = FALSE;
 				
 				/* Save the game */
-				save_game();
+				do_cmd_save_game();
 			}
 			
 			save_prefs();
@@ -2711,7 +2711,7 @@ static errr Term_xtra_sdl_delay(int v)
 	return (0);
 }
 
-static errr Term_bigcurs_sdl(int col, int row)
+static errr Term_bigcurs_sdl(s16b col, s16b row)
 {
 	term_window *win = (term_window*)(Term->data);
 	
@@ -2736,7 +2736,7 @@ static errr Term_bigcurs_sdl(int col, int row)
 	return (0);
 }
 
-static errr Term_curs_sdl(int col, int row)
+static errr Term_curs_sdl(s16b col, s16b row)
 {
 	term_window *win = (term_window*)(Term->data);
 	
@@ -2825,7 +2825,7 @@ static errr Term_xtra_sdl(int n, int v)
 
 
 
-static errr Term_wipe_sdl(int col, int row, int n)
+static errr Term_wipe_sdl(s16b col, s16b row, int n)
 {
 	term_window *win = (term_window*)(Term->data);
 	
@@ -2854,7 +2854,7 @@ static errr Term_wipe_sdl(int col, int row, int n)
 /*
  * Draw some text to a window
  */
-static errr Term_text_sdl(int col, int row, int n, byte a, cptr s)
+static errr Term_text_sdl(s16b col, s16b row, int n, byte a, cptr s)
 {
 	term_window *win = (term_window*)(Term->data);
 	Uint32 colour = text_colours[a];
@@ -3017,7 +3017,7 @@ static errr sdl_BuildTileset(term_window *win)
  * XXX - This function _never_ seems to get called with n > 1 ?
  * This needs improvement...
  */
-static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *cp,
+static errr Term_pict_sdl(s16b col, s16b row, int n, const byte *ap, const char *cp,
 						  const byte *tap, const char *tcp)
 {
 	

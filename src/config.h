@@ -104,7 +104,6 @@
 /* #define ALLOW_TEMPLATES_OUTPUT */
 
 
-
 /*** X11 settings ***/
 
 /*

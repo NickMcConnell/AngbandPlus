@@ -18,7 +18,7 @@
 #include "angband.h"
 #include "bitflag.h"
 #include "object/tvalsval.h"
-#include "monster/constants.h"
+#include "monster/m-constants.h"
 
 /*
  * Determine if a bolt will arrive, checking that no monsters are in the way
@@ -329,9 +329,9 @@ static void remove_bad_spells(int m_idx, u32b* const f)
  * Determine if there is a space near the selected spot in which
  * a summoned creature can appear
  */
-static bool summon_possible(int y1, int x1)
+static bool summon_possible(s16b y1, s16b x1)
 {
-	int y, x;
+	s16b y, x;
 
 	/* Start at the location, and check 2 grids in each dir */
 	for (y = y1 - 2; y <= y1 + 2; y++)
@@ -348,7 +348,7 @@ static bool summon_possible(int y1, int x1)
 			if (cave_feat[y][x] == FEAT_GLYPH) continue;
 
 			/* Require empty floor grid in line of sight */
-			if (cave_empty_bold(y, x) && los(y1, x1, y, x))
+			if (cave_empty(y, x) && los(y1, x1, y, x))
 			{
 				return (TRUE);
 			}
@@ -367,8 +367,8 @@ static bool summon_possible(int y1, int x1)
  */
 static void bolt(int m_idx, int typ, int dam_hp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int flg = PROJECT_STOP | PROJECT_KILL;
 
@@ -384,8 +384,8 @@ static void bolt(int m_idx, int typ, int dam_hp)
  */
 static void breath(int m_idx, int typ, int dam_hp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	int rad;
 
@@ -459,7 +459,8 @@ static int choose_attack_spell(int m_idx, u32b f[RACE_FLAG_SPELL_STRICT_UB])
 	int num = 0;
 	byte spells[96];
 
-	int i, py = p_ptr->py, px = p_ptr->px;
+	s16b py = p_ptr->py, px = p_ptr->px;
+	byte i;
 
 	bool has_escape, has_attack, has_summon, has_tactic;
 	bool has_annoy, has_haste, has_heal;
@@ -648,10 +649,11 @@ static int choose_attack_spell(int m_idx, u32b f[RACE_FLAG_SPELL_STRICT_UB])
  */
 bool make_attack_spell(int m_idx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int k, chance, thrown_spell, rlev;
+	int k, chance, thrown_spell;
+	s16b rlev;
 
 	int failrate;
 
@@ -708,7 +710,7 @@ bool make_attack_spell(int m_idx)
 		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
 
 		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px, PROJECT_NONE))
+		if (!projectable(m_ptr->fy, m_ptr->fx, INT2U16B(py), INT2U16B(px), PROJECT_NONE))
 			return (FALSE);
 	}
 
@@ -749,7 +751,7 @@ bool make_attack_spell(int m_idx)
 		if ((f[0] & (RSF0_BOLT_MASK) ||
 			 f[1] & (RSF1_BOLT_MASK) ||
 			 f[2] & (RSF2_BOLT_MASK)) &&
-			!clean_shot(m_ptr->fy, m_ptr->fx, py, px))
+			!clean_shot(m_ptr->fy, m_ptr->fx, INT2U16B(py), INT2U16B(px)))
 		{
 			/* Remove spells that will only hurt friends */
 			f[0] &= ~(RSF0_BOLT_MASK);
@@ -993,7 +995,7 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		case SPELL(0,RSF0_BR_CONF):
+		case SPELL(0,RSF0_BR_CONF): /* Note, no monster can breath strong conf */
 		{
 			disturb(1, 0);
 			sound(MSG_BR_CONF);
@@ -1261,7 +1263,7 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			if (p_ptr->csp)
 			{
-				int r1;
+				s16b r1;
 
 				/* Disturb if legal */
 				disturb(1, 0);
@@ -1270,7 +1272,7 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s draws psychic energy from you!", m_name);
 
 				/* Attack power */
-				r1 = (randint1(rlev) / 2) + 1;
+				r1 = (s16b) (randint1(rlev) / 2) + 1;
 
 				/* Full drain */
 				if (r1 >= p_ptr->csp)
@@ -1332,8 +1334,8 @@ bool make_attack_spell(int m_idx)
 				msg_print("Your mind is blasted by psionic energy.");
 				if (!p_ptr->state.resist_confu)
 					(void)inc_timed(TMD_CONFUSED, randint0(4) + 4, TRUE);
-				else
-					wieldeds_notice_flag(1, TR1_RES_CONFU);
+				else 
+					object_notice_flag(2, TR2_RES_CONFU);
 
 				take_hit(MIND_BLAST_DMG(rlev, RANDOMISE), ddesc);
 			}
@@ -1359,18 +1361,18 @@ bool make_attack_spell(int m_idx)
 				take_hit(BRAIN_SMASH_DMG(rlev, RANDOMISE), ddesc);
 				if (!p_ptr->state.resist_blind)
 					(void)inc_timed(TMD_BLIND, 8 + randint0(8), TRUE);
-				else
-					wieldeds_notice_flag(1, TR1_RES_BLIND);
+				else 
+					object_notice_flag(2, TR2_RES_BLIND);
 
 				if (!p_ptr->state.resist_confu)
 					(void)inc_timed(TMD_CONFUSED, randint0(4) + 4, TRUE);
-				else
-					wieldeds_notice_flag(1, TR1_RES_CONFU);
+				else 
+					object_notice_flag(2, TR2_RES_CONFU);
 
 				if (!p_ptr->state.free_act)
 					(void)inc_timed(TMD_PARALYZED, randint0(4) + 4, TRUE);
-				else
-					wieldeds_notice_flag(2, TR2_FREE_ACT);
+				else 
+					object_notice_flag(3, TR3_FREE_ACT);
 
 				(void)inc_timed(TMD_SLOW, randint0(4) + 4, TRUE);
 			}
@@ -1567,7 +1569,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.resist_fear)
 			{
 				msg_print("You refuse to be frightened.");
-				wieldeds_notice_flag(1, TR1_RES_FEAR);
+				object_notice_flag(2, TR2_RES_FEAR);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1590,7 +1592,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.resist_blind)
 			{
 				msg_print("You are unaffected!");
-				wieldeds_notice_flag(1, TR1_RES_BLIND);
+				object_notice_flag(2, TR2_RES_BLIND);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1613,7 +1615,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.resist_confu)
 			{
 				msg_print("You disbelieve the feeble spell.");
-				wieldeds_notice_flag(1, TR1_RES_CONFU);
+				object_notice_flag(2, TR2_RES_CONFU);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1635,7 +1637,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.free_act)
 			{
 				msg_print("You are unaffected!");
-				wieldeds_notice_flag(2, TR2_FREE_ACT);
+				object_notice_flag(3, TR3_FREE_ACT);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1658,7 +1660,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.free_act)
 			{
 				msg_print("You are unaffected!");
-				wieldeds_notice_flag(2, TR2_FREE_ACT);
+				object_notice_flag(3, TR3_FREE_ACT);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1829,7 +1831,7 @@ bool make_attack_spell(int m_idx)
 			if (p_ptr->state.resist_nexus)
 			{
 				msg_print("You are unaffected!");
-				wieldeds_notice_flag(1, TR1_RES_NEXUS);
+				object_notice_flag(2, TR2_RES_NEXUS);
 			}
 			else if (randint0(100) < p_ptr->state.skills[SKILL_SAVE])
 			{
@@ -1901,7 +1903,7 @@ bool make_attack_spell(int m_idx)
 			summon_kin_type = r_ptr->d_char;
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_KIN, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_KIN);
 			}
 			if (blind && count)
 			{
@@ -1918,7 +1920,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons greater demons!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DEMON);
 			}
 			if (blind && count)
 			{
@@ -1935,7 +1937,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons help!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_MONSTER, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_MONSTER);
 			}
 			if (blind && count)
 			{
@@ -1952,7 +1954,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons monsters!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_MONSTERS, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_MONSTER);
 			}
 			if (blind && count)
 			{
@@ -1969,7 +1971,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons animals.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANIMAL, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANIMAL);
 			}
 			if (blind && count)
 			{
@@ -1986,7 +1988,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons spiders.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SPIDER, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_SPIDER);
 			}
 			if (blind && count)
 			{
@@ -2003,7 +2005,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons hounds.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HOUND, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HOUND);
 			}
 			if (blind && count)
 			{
@@ -2020,7 +2022,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons hydras.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HYDRA);
 			}
 			if (blind && count)
 			{
@@ -2037,7 +2039,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons an angel!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANGEL, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANGEL);
 			}
 			if (blind && count)
 			{
@@ -2054,7 +2056,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons a hellish adversary!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DEMON, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DEMON);
 			}
 			if (blind && count)
 			{
@@ -2071,7 +2073,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons an undead adversary!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNDEAD, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -2088,7 +2090,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons a dragon!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DRAGON, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DRAGON);
 			}
 			if (blind && count)
 			{
@@ -2105,7 +2107,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons greater undead!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -2122,7 +2124,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons ancient dragons!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DRAGON, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_DRAGON);
 			}
 			if (blind && count)
 			{
@@ -2139,11 +2141,11 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons mighty undead opponents!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_WRAITH, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_WRAITH);
 			}
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -2160,11 +2162,11 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons special opponents!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNIQUE, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_UNIQUE);
 			}
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD, 0);
+				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_HI_UNDEAD);
 			}
 			if (blind && count)
 			{
@@ -2294,12 +2296,13 @@ static int mon_will_run(int m_idx)
  * being close enough to chase directly.  I have no idea what will
  * happen if you combine "smell" with low "aaf" values.
  */
-static bool get_moves_aux(int m_idx, int *yp, int *xp)
+static bool get_moves_aux(int m_idx, s16b *yp, s16b *xp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int i, y, x, y1, x1;
+	int i;
+	s16b y, x, y1, x1;
 
 	int when = 0;
 	int cost = 999;
@@ -2373,9 +2376,9 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
  * but instead of heading directly for it, the monster should "swerve"
  * around the player so that he has a smaller chance of getting hit.
  */
-static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
+static bool get_fear_moves_aux(int m_idx, s16b *yp, s16b *xp)
 {
-	int y, x, y1, x1, fy, fx, py, px, gy = 0, gx = 0;
+	s16b y, x, y1, x1, fy, fx, py, px, gy = 0, gx = 0;
 	int when = 0, score = -1;
 	int i;
 
@@ -2481,112 +2484,112 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
  */
 
 
-static const int d_off_y_0[] =
+static const s16b d_off_y_0[] =
 { 0 };
 
-static const int d_off_x_0[] =
+static const s16b d_off_x_0[] =
 { 0 };
 
 
-static const int d_off_y_1[] =
+static const s16b d_off_y_1[] =
 { -1, -1, -1, 0, 0, 1, 1, 1, 0 };
 
-static const int d_off_x_1[] =
+static const s16b d_off_x_1[] =
 { -1, 0, 1, -1, 1, -1, 0, 1, 0 };
 
 
-static const int d_off_y_2[] =
+static const s16b d_off_y_2[] =
 { -1, -1, -2, -2, -2, 0, 0, 1, 1, 2, 2, 2, 0 };
 
-static const int d_off_x_2[] =
+static const s16b d_off_x_2[] =
 { -2, 2, -1, 0, 1, -2, 2, -2, 2, -1, 0, 1, 0 };
 
 
-static const int d_off_y_3[] =
+static const s16b d_off_y_3[] =
 { -1, -1, -2, -2, -3, -3, -3, 0, 0, 1, 1, 2, 2,
   3, 3, 3, 0 };
 
-static const int d_off_x_3[] =
+static const s16b d_off_x_3[] =
 { -3, 3, -2, 2, -1, 0, 1, -3, 3, -3, 3, -2, 2,
   -1, 0, 1, 0 };
 
 
-static const int d_off_y_4[] =
+static const s16b d_off_y_4[] =
 { -1, -1, -2, -2, -3, -3, -3, -3, -4, -4, -4, 0,
   0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 0 };
 
-static const int d_off_x_4[] =
+static const s16b d_off_x_4[] =
 { -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, -4, 4,
   -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, 0 };
 
 
-static const int d_off_y_5[] =
+static const s16b d_off_y_5[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5,
   -5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,
   5, 0 };
 
-static const int d_off_x_5[] =
+static const s16b d_off_x_5[] =
 { -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1, 0, 1,
   -5, 5, -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1,
   0, 1, 0 };
 
 
-static const int d_off_y_6[] =
+static const s16b d_off_y_6[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
   -6, -6, -6, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
   5, 5, 6, 6, 6, 0 };
 
-static const int d_off_x_6[] =
+static const s16b d_off_x_6[] =
 { -6, 6, -5, 5, -5, 5, -4, 4, -2, -3, 2, 3, -1,
   0, 1, -6, 6, -6, 6, -5, 5, -5, 5, -4, 4, -2,
   -3, 2, 3, -1, 0, 1, 0 };
 
 
-static const int d_off_y_7[] =
+static const s16b d_off_y_7[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
   -6, -6, -6, -6, -7, -7, -7, 0, 0, 1, 1, 2, 2, 3,
   3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 0 };
 
-static const int d_off_x_7[] =
+static const s16b d_off_x_7[] =
 { -7, 7, -6, 6, -6, 6, -5, 5, -4, -5, 4, 5, -2,
   -3, 2, 3, -1, 0, 1, -7, 7, -7, 7, -6, 6, -6,
   6, -5, 5, -4, -5, 4, 5, -2, -3, 2, 3, -1, 0,
   1, 0 };
 
 
-static const int d_off_y_8[] =
+static const s16b d_off_y_8[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
   -6, -6, -7, -7, -7, -7, -8, -8, -8, 0, 0, 1, 1,
   2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
   8, 8, 8, 0 };
 
-static const int d_off_x_8[] =
+static const s16b d_off_x_8[] =
 { -8, 8, -7, 7, -7, 7, -6, 6, -6, 6, -4, -5, 4,
   5, -2, -3, 2, 3, -1, 0, 1, -8, 8, -8, 8, -7,
   7, -7, 7, -6, 6, -6, 6, -4, -5, 4, 5, -2, -3,
   2, 3, -1, 0, 1, 0 };
 
 
-static const int d_off_y_9[] =
+static const s16b d_off_y_9[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
   -7, -7, -7, -7, -8, -8, -8, -8, -9, -9, -9, 0,
   0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7,
   7, 8, 8, 8, 8, 9, 9, 9, 0 };
 
-static const int d_off_x_9[] =
+static const s16b d_off_x_9[] =
 { -9, 9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4,
   -5, 4, 5, -2, -3, 2, 3, -1, 0, 1, -9, 9, -9,
   9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4, -5,
   4, 5, -2, -3, 2, 3, -1, 0, 1, 0 };
 
 
-static const int *dist_offsets_y[10] =
+static const s16b *dist_offsets_y[10] =
 {
 	d_off_y_0, d_off_y_1, d_off_y_2, d_off_y_3, d_off_y_4,
 	d_off_y_5, d_off_y_6, d_off_y_7, d_off_y_8, d_off_y_9
 };
 
-static const int *dist_offsets_x[10] =
+static const s16b *dist_offsets_x[10] =
 {
 	d_off_x_0, d_off_x_1, d_off_x_2, d_off_x_3, d_off_x_4,
 	d_off_x_5, d_off_x_6, d_off_x_7, d_off_x_8, d_off_x_9
@@ -2605,21 +2608,22 @@ static const int *dist_offsets_x[10] =
  *
  * Return TRUE if a safe location is available.
  */
-static bool find_safety(int m_idx, int *yp, int *xp)
+static bool find_safety(int m_idx, s16b *yp, s16b *xp)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
-	int fy = m_ptr->fy;
-	int fx = m_ptr->fx;
+	s16b fy = m_ptr->fy;
+	s16b fx = m_ptr->fx;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int i, y, x, dy, dx, d, dis;
-	int gy = 0, gx = 0, gdis = 0;
+	s16b x, y, dy, dx;
+	int i, d, dis, gdis = 0;
+	s16b gy = 0, gx = 0;
 
-	const int *y_offsets;
-	const int *x_offsets;
+	const s16b *y_offsets;
+	const s16b *x_offsets;
 
 	/* Start with adjacent locations, spread further */
 	for (d = 1; d < 10; d++)
@@ -2640,7 +2644,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Skip locations in a wall */
-			if (!cave_floor_bold(y, x)) continue;
+			if (!cave_floor(y, x)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
 			if (OPT(adult_ai_sound))
@@ -2695,20 +2699,22 @@ static bool find_safety(int m_idx, int *yp, int *xp)
  *
  * Return TRUE if a good location is available.
  */
-static bool find_hiding(int m_idx, int *yp, int *xp)
+static bool find_hiding(int m_idx, s16b *yp, s16b *xp)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
-	int fy = m_ptr->fy;
-	int fx = m_ptr->fx;
+	s16b fy = m_ptr->fy;
+	s16b fx = m_ptr->fx;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
-	int i, y, x, dy, dx, d, dis;
-	int gy = 0, gx = 0, gdis = 999, min;
+	s16b x, y;
+	s16b dy, dx;
+	s16b gy = 0, gx = 0;
+	int i, gdis = 999, min, d, dis;
 
-	const int *y_offsets, *x_offsets;
+	const s16b *y_offsets, *x_offsets;
 
 	/* Closest distance to get */
 	min = distance(py, px, fy, fx) * 3 / 4 + 2;
@@ -2725,14 +2731,14 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 		     dx != 0 || dy != 0;
 		     i++, dx = x_offsets[i], dy = y_offsets[i])
 		{
-			y = fy + dy;
-			x = fx + dx;
+			y = INT2U16B(fy + dy);
+			x = INT2U16B(fx + dx);
 
 			/* Skip illegal locations */
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Skip occupied locations */
-			if (!cave_empty_bold(y, x)) continue;
+			if (!cave_empty(y, x)) continue;
 
 			/* Check for hidden, available grid */
 			if (!player_has_los_bold(y, x) && (clean_shot(fy, fx, y, x)))
@@ -2774,18 +2780,18 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
  */
 static bool get_moves(int m_idx, int mm[5])
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	s16b py = p_ptr->py;
+	s16b px = p_ptr->px;
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	int y, ay, x, ax;
+	s16b y, ay, x, ax;
 
 	int move_val = 0;
 
-	int y2 = py;
-	int x2 = px;
+	s16b y2 = py;
+	s16b x2 = px;
 
 	bool done = FALSE;
 
@@ -2859,26 +2865,29 @@ static bool get_moves(int m_idx, int mm[5])
 	/* Monster groups try to surround the player */
 	if (!done && OPT(adult_ai_packs) && (r_ptr->flags[0] & RF0_FRIENDS))
 	{
-		int i;
+		int i; 
 
-		/* If we are not already adjacent */
-		if (m_ptr->cdis > 1)
-		{
-			/* Find an empty square near the player to fill */
-			int tmp = randint0(8);
-			for (i = 0; i < 8; i++)
-			{
-				/* Pick squares near player (pseudo-randomly) */
-				y2 = py + ddy_ddd[(tmp + i) & 7];
-				x2 = px + ddx_ddd[(tmp + i) & 7];
-				
-				/* Ignore filled grids */
-				if (!cave_empty_bold(y2, x2)) continue;
-				
-				/* Try to fill this hole */
+		/* If we are not already adjacent */ 
+		if (m_ptr->cdis > 1) 
+		{ 
+			/* Find an empty square near the player to fill */ 
+			int tmp = randint0(8); 
+			for (i = 0; i < 8; i++) 
+			{ 
+				/* Pick squares near player (pseudo-randomly) */ 
+				y2 = py + ddy_ddd[(tmp + i) & 7]; 
+				x2 = px + ddx_ddd[(tmp + i) & 7]; 
+
+				/* Ignore filled grids */ 
+				if (!cave_empty(y2, x2)) continue; 
+
+				/* Try to fill this hole */ 
+
 				break;
 			}
+
 		}
+
 		/* Extract the new "pseudo-direction" */
 		y = m_ptr->fy - y2;
 		x = m_ptr->fx - x2;
@@ -3139,7 +3148,8 @@ static void process_monster(int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	int i, d, oy, ox, ny, nx;
+	int d, i;
+	s16b oy, ox, ny, nx;
 
 	int mm[5];
 
@@ -3196,7 +3206,7 @@ static void process_monster(int m_idx)
 		/* Hack -- See if monster "notices" player */
 		if ((notice * notice * notice) <= p_ptr->state.noise)
 		{
-			int d = 1;
+			s16b d = 1;
 
 			/* Wake up faster near the player */
 			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
@@ -3257,7 +3267,7 @@ static void process_monster(int m_idx)
 	/* Handle "stun" */
 	if (m_ptr->stunned)
 	{
-		int d = 1;
+		byte d = 1;
 
 		/* Make a "saving throw" against stun */
 		if (randint0(5000) <= r_ptr->level * r_ptr->level)
@@ -3303,7 +3313,7 @@ static void process_monster(int m_idx)
 	/* Handle confusion */
 	if (m_ptr->confused)
 	{
-		int d = randint1(r_ptr->level / 10 + 1);
+		byte d = (byte) randint1(r_ptr->level / 10 + 1);
 
 		/* Still confused */
 		if (m_ptr->confused > d)
@@ -3340,7 +3350,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->monfear)
 	{
 		/* Amount of "boldness" */
-		int d = randint1(r_ptr->level / 10 + 1);
+		byte d = (byte) randint1(r_ptr->level / 10 + 1);
 
 		/* Still afraid */
 		if (m_ptr->monfear > d)
@@ -3383,7 +3393,8 @@ static void process_monster(int m_idx)
 	/* Attempt to "mutiply" if able and allowed */
 	if ((r_ptr->flags[1] & (RF1_MULTIPLY)) && (num_repro < MAX_REPRO))
 	{
-		int k, y, x;
+		int k;
+		s16b y, x;
 
 		/* Count the adjacent monsters */
 		for (k = 0, y = oy - 1; y <= oy + 1; y++)
@@ -3505,15 +3516,17 @@ static void process_monster(int m_idx)
 	for (i = 0; i < 5; i++)
 	{
 		/* Get the direction (or stagger) */
-		d = (stagger ? ddd[randint0(8)] : mm[i]);
+		d = (stagger ? ddd[randint0(8)] : mm[i]); /* TODO Check types needed on variables here */
 
 		/* Get the destination */
-		ny = oy + ddy[d];
-		nx = ox + ddx[d];
+		ISBYTE(oy + ddy[d]);
+		ny = (byte) (oy + ddy[d]);
+		ISBYTE(ox + ddx[d]);
+		nx = (byte) (ox + ddx[d]);
 
 
 		/* Floor is open? */
-		if (cave_floor_bold(ny, nx))
+		if (cave_floor(ny, nx))
 		{
 			/* Go ahead and move */
 			do_move = TRUE;
@@ -3713,42 +3726,49 @@ static void process_monster(int m_idx)
 		{
 			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
 
-			/* Kill weaker monsters */
-			int kill_ok = (r_ptr->flags[1] & RF1_KILL_BODY);
-
-			/* Move weaker monsters if they can swap places */
-			/* (not in a wall) */
-			int move_ok = (r_ptr->flags[1] & RF1_MOVE_BODY &&
-						   cave_floor_bold(m_ptr->fy, m_ptr->fx));
-
 			/* Assume no movement */
 			do_move = FALSE;
 
-			if ((compare_monsters(m_ptr, n_ptr) > 0) && (kill_ok || move_ok))
+			/* Kill weaker monsters */
+			if ((r_ptr->flags[1] & (RF1_KILL_BODY)) &&
+			    (compare_monsters(m_ptr, n_ptr) > 0))
 			{
-				/* Get the names of the monsters involved */
-				char m_name[80];
-				char n_name[80];
-				monster_desc(m_name, sizeof(m_name), m_ptr, MDESC_IND1);
-				monster_desc(n_name, sizeof(n_name), n_ptr, MDESC_IND1);
-
 				/* Allow movement */
 				do_move = TRUE;
 
 				/* Monster ate another monster */
-				if (kill_ok)
-				{
-					msg_format("%^s tramples over %s.", m_name, n_name);
-					did_kill_body = TRUE;
-					delete_monster(ny, nx);
-				}
-				else
-				{
-					msg_format("%^s pushes past %s.", m_name, n_name);
-					did_move_body = TRUE;
-				}
+				did_kill_body = TRUE;
+
+				/* Message XXX XXX XXX */
+
+				/* Kill the monster */
+				delete_monster(ny, nx);
 			}
 		}
+
+		/* A monster is in the way */
+		if (do_move && (cave_m_idx[ny][nx] > 0))
+		{
+			monster_type *n_ptr = &mon_list[cave_m_idx[ny][nx]];
+
+			/* Assume no movement */
+			do_move = FALSE;
+
+			/* Push past weaker monsters (unless leaving a wall) */
+			if ((r_ptr->flags[1] & (RF1_MOVE_BODY)) &&
+			    (compare_monsters(m_ptr, n_ptr) > 0) &&
+			    (cave_floor(m_ptr->fy, m_ptr->fx)))
+			{
+				/* Allow movement */
+				do_move = TRUE;
+
+				/* Monster pushed past another monster */
+				did_move_body = TRUE;
+
+				/* XXX XXX XXX Message */
+			}
+		}
+
 
 		/* Creature has been allowed move */
 		if (do_move)
@@ -3792,7 +3812,7 @@ static void process_monster(int m_idx)
 				{
 					u32b f[OBJ_FLAG_N];
 
-					u32b flg2 = 0L;
+					u32b flg = 0L;
 
 					char m_name[80];
 					char o_name[80];
@@ -3807,20 +3827,25 @@ static void process_monster(int m_idx)
 					monster_desc(m_name, sizeof(m_name), m_ptr, MDESC_IND1);
 
 					/* React to objects that hurt the monster */
-					if (f[0] & (TR0_KILL_DRAGON)) flg2 |= (RF2_DRAGON);
-					if (f[0] & (TR0_KILL_DEMON)) flg2 |= (RF2_DEMON);
-					if (f[0] & (TR0_KILL_UNDEAD)) flg2 |= (RF2_UNDEAD);
-					if (f[0] & (TR0_SLAY_DRAGON)) flg2 |= (RF2_DRAGON);
-					if (f[0] & (TR0_SLAY_TROLL)) flg2 |= (RF2_TROLL);
-					if (f[0] & (TR0_SLAY_GIANT)) flg2 |= (RF2_GIANT);
-					if (f[0] & (TR0_SLAY_ORC)) flg2 |= (RF2_ORC);
-					if (f[0] & (TR0_SLAY_DEMON)) flg2 |= (RF2_DEMON);
-					if (f[0] & (TR0_SLAY_UNDEAD)) flg2 |= (RF2_UNDEAD);
-					if (f[0] & (TR0_SLAY_ANIMAL)) flg2 |= (RF2_ANIMAL);
-					if (f[0] & (TR0_SLAY_EVIL)) flg2 |= (RF2_EVIL);
+					if (f[1] & (TR1_KILL_DRAGON)) flg |= (RF2_DRAGON);
+					if (f[1] & (TR1_KILL_DEMON)) flg |= (RF2_DEMON);
+					if (f[1] & (TR1_KILL_UNDEAD)) flg |= (RF2_UNDEAD);
+					if (f[1] & (TR1_KILL_TROLL)) flg |= (RF2_TROLL);
+					if (f[1] & (TR1_KILL_GIANT)) flg |= (RF2_GIANT);
+					if (f[1] & (TR1_KILL_ORC)) flg |= (RF2_ORC);
+					if (f[1] & (TR1_KILL_ANIMAL)) flg |= (RF2_ANIMAL);
+					if (f[1] & (TR1_KILL_EVIL)) flg |= (RF2_EVIL);
+					if (f[1] & (TR1_SLAY_DRAGON)) flg |= (RF2_DRAGON);
+					if (f[1] & (TR1_SLAY_DEMON)) flg |= (RF2_DEMON);
+					if (f[1] & (TR1_SLAY_UNDEAD)) flg |= (RF2_UNDEAD);
+					if (f[1] & (TR1_SLAY_TROLL)) flg |= (RF2_TROLL);
+					if (f[1] & (TR1_SLAY_GIANT)) flg |= (RF2_GIANT);
+					if (f[1] & (TR1_SLAY_ORC)) flg |= (RF2_ORC);
+					if (f[1] & (TR1_SLAY_ANIMAL)) flg |= (RF2_ANIMAL);
+					if (f[1] & (TR1_SLAY_EVIL)) flg |= (RF2_EVIL);
 
 					/* The object cannot be picked up by the monster */
-					if (artifact_p(o_ptr) || (r_ptr->flags[2] & flg2))
+					if (artifact_p(o_ptr) || (r_ptr->flags[2] & flg))
 					{
 						/* Only give a message for "take_item" */
 						if (r_ptr->flags[1] & (RF1_TAKE_ITEM))
@@ -3971,8 +3996,8 @@ static bool monster_can_flow(int m_idx)
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Monster location */
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
+		s16b fy = m_ptr->fy;
+		s16b fx = m_ptr->fx;
 
 		/* Check the flow (normal aaf is about 20) */
 		if ((cave_when[fy][fx] == cave_when[p_ptr->py][p_ptr->px]) &&

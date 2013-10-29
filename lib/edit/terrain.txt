@@ -43,7 +43,7 @@
 
 # Version stamp (required)
 
-V:3.0.11
+V:0.0.1
 
 
 # 0x00 --> <darkness>
@@ -112,9 +112,9 @@ P:20
 F:PWALK | PPASS | MWALK | MPASS | LOOK | PERM | SHOP
 X:0:0:1:0
 
-# 0x09 --> shop -- armoury (perm)
+# 0x09 --> shop -- armory (perm)
 
-N:9:Armoury
+N:9:Armory
 G:2:s
 P:20
 F:PWALK | PPASS | MWALK | MPASS | LOOK | PERM | SHOP
