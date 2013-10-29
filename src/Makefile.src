@@ -105,6 +105,7 @@ ANGFILES = \
 	player/timed.o \
 	player/util.o \
 	pyromancer.o \
+	sapper.o \
 	score.o \
 	signals.o \
 	save.o \

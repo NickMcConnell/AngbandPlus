@@ -546,7 +546,7 @@ A:5:30:4
 E:sword:Broad Sword~:1:1
 E:scroll:Word of Recall:1:1
 F:CAST_AVATAR
-M:91:1:1:350
+M:91:2:1:350
 T:Follower
 T:Follower
 T:Servant
@@ -557,3 +557,24 @@ T:Shephard
 T:Shephard
 T:Prophet
 T:Prophet
+
+N:8:Sapper
+S:1:1:-3:3:-2:-4
+C:40:20:10:25:20:20:50:50:50:5
+X:10:15:2:0:15:15:15:40:30:15
+I:2:20:10000:50
+A:5:20:4
+E:sword:Dagger~:1:1
+E:scroll:Word of Recall:1:1
+F:CAST_SAPPER
+M:90:3:1:250
+T:Apprentice
+T:Apprentice
+T:Journeyman
+T:Journeyman
+T:Tradesman
+T:Tradesman
+T:Expert
+T:Expert
+T:Master
+T:Master

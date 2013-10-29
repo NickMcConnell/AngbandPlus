@@ -195,7 +195,12 @@ void do_cmd_pyro()
 			continue;
 		}
 		
-		else if (A2I(choice) < 0 || A2I(choice) >= PYRO_PHOENIX)
+		else if (A2I(choice) < 0 || A2I(choice) > PYRO_PHOENIX)
+		{
+			continue;
+		}
+		
+		if (pyro_spell_info[A2I(choice)].level > p_ptr->lev)
 		{
 			continue;
 		}

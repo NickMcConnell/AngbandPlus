@@ -34,7 +34,7 @@ M:V:71
 M:P:11
 
 # Maximum number of player classes
-M:C:8
+M:C:9
 
 # Maximum number of player history lines
 M:H:165

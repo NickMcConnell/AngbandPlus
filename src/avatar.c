@@ -186,6 +186,12 @@ void do_cmd_avatar()
 		{
 			continue;
 		}
+		
+		/* Don't allow the casting of unknown spells */
+		if (avatar_spell_info[A2I(choice)].level > p_ptr->lev)
+		{
+			continue;
+		}
 
 		/* Must have enough mana! */
 		else if (p_ptr->csp < avatar_spell_info[A2I(choice)].cost)

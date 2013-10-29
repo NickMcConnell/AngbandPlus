@@ -23,3 +23,4 @@ PF(SEE_ORE,          "can sense ore in the walls")
 /* For bookless casters */
 PF(CAST_PYRO,        "can cast Pyromantic spells")
 PF(CAST_AVATAR,      "can use avatar powers")
+PF(CAST_SAPPER,      "can use sapper abilities")
