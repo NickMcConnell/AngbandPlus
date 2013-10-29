@@ -181,7 +181,7 @@
             <ostype name="controlSignature">DLOG</ostype>
             <int name="controlID">2</int>
             <int name="fontStyle">4</int>
-            <string name="title">Angband</string>
+            <string name="title">reposband</string>
             <int name="justification">1</int>
             <string name="viewFrame">20 124 403 21 </string>
             <string name="bounds">124 20 145 423 </string>
@@ -236,15 +236,15 @@
     </object>
     <reference idRef="338"/>
     <object class="IBCarbonMenuItem" id="185">
-      <string name="title">Angband</string>
+      <string name="title">reposband</string>
       <boolean name="updateSingleItem">TRUE</boolean>
       <object name="submenu" class="IBCarbonMenu" id="184">
-        <string name="title">Angband</string>
+        <string name="title">reposband</string>
         <int name="menuID">100</int>
         <string name="name">_NSAppleMenu</string>
         <array count="1" name="items">
           <object class="IBCarbonMenuItem" id="187">
-            <string name="title">About Angband</string>
+            <string name="title">About reposband</string>
             <int name="keyEquivalentModifier">0</int>
             <ostype name="command">abou</ostype>
           </object>
@@ -268,7 +268,7 @@
           <boolean name="separator">TRUE</boolean>
         </object>
         <object class="IBCarbonMenuItem" id="207">
-          <string name="title">Angband</string>
+          <string name="title">reposband</string>
           <string name="keyEquivalent">0</string>
           <boolean name="checked">TRUE</boolean>
           <boolean name="updateSingleItem">TRUE</boolean>

@@ -4,7 +4,7 @@
 #define INCLUDED_READDIB_H
 
 /*
- * This file has been modified for use with "Angband 2.8.2"
+ * This file has been modified for use with "reposband 2.8.2"
  *
  * Copyright 1991 Microsoft Corporation. All rights reserved.
  */

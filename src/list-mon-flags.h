@@ -104,4 +104,7 @@ RF(NO_FEAR,     "")
 RF(NO_STUN,     "")
 RF(NO_CONF,     "")
 RF(NO_SLEEP,    "")
+RF(HAS_LIGHT,	"")
+RF(VALA,		"")
+RF(BRTH_DISEN,	"")
 /* end flags */

@@ -515,3 +515,23 @@ B:60:99:0:0:0
 B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
+
+N:6:Monster
+S:0:0:0:0:0:0
+C:25:18:18:1:14:2:70:55:55:0
+X:10:7:10:0:0:0:45:45:45:0
+I:0:0:7000:40
+A:5:30:5
+M:0:0:0:1000
+E:scroll:Word of Recall:1:1
+F:PSEUDO_ID_IMPROV
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster
+T:Monster

@@ -4,7 +4,7 @@ if [ $# -ne 1 ] && [ $# -ne 2 ]; then
 	echo "Simple packaging file for the source."
 	echo ""
 	echo "Use in the root directory of the game, like so:"
-	echo "   scripts/pkg_src <name of of release, e.g. angband-4.0.1> [<output filename>]"
+	echo "   scripts/pkg_src <name of of release, e.g. reposband-4.0.1> [<output filename>]"
 	echo ""
 
 	exit 1

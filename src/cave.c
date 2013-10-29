@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "game-event.h"
 #include "game-cmd.h"
 #include "object/tvalsval.h"
@@ -75,7 +75,7 @@ int distance(int y1, int x1, int y2, int x2)
  * some special checks to avoid testing grids which are "brushed" but not
  * actually "entered".
  *
- * Angband three different "line of sight" type concepts, including this
+ * reposband three different "line of sight" type concepts, including this
  * function (which is used almost nowhere), the "project()" method (which
  * is used for determining the paths of projectables and spells and such),
  * and the "update_view()" concept (which is used to determine which grids
@@ -525,11 +525,7 @@ static void special_lighting_floor(byte *a, char *c, enum grid_light_level light
 	}
 	else
 	{
-		/* 
-		 * OPT(view_bright_light) makes tiles that aren't in the "eyeline" 
-		 * of the player show up dimmer than those that are.
-		 */
-		if (OPT(view_bright_light) && !in_view)
+		if (!in_view)
 		{
 			switch (use_graphics)
 			{
@@ -583,9 +579,7 @@ static void special_wall_display(byte *a, char *c, bool in_view, int feat)
 				break;
 		}
 	}
-
-	/* Handle "OPT(view_bright_light)" by dimming walls not "in view" */
-	else if (OPT(view_bright_light))
+	else
 	{
 		switch (use_graphics)
 		{
@@ -598,20 +592,6 @@ static void special_wall_display(byte *a, char *c, bool in_view, int feat)
 			case GRAPHICS_NOMAD:
 			case GRAPHICS_DAVID_GERVAIS:
 				if (feat_supports_lighting(feat)) *c += 1;
-				break;
-		}
-	}
-	else
-	{
-		/* Use a brightly lit tile */
-		switch (use_graphics)
-		{
-			case GRAPHICS_ADAM_BOLT:
-			case GRAPHICS_NOMAD:
-				if (feat_supports_lighting(feat)) *c += 2;
-				break;
-			case GRAPHICS_DAVID_GERVAIS:
-				if (feat_supports_lighting(feat)) *c -= 1;
 				break;
 		}
 	}
@@ -689,11 +669,11 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 		a = TERM_L_GREEN;
 
 	/* Special lighting effects */
-	if (g->f_idx <= FEAT_INVIS && OPT(view_special_light))
+	if (g->f_idx <= FEAT_INVIS)
 		special_lighting_floor(&a, &c, g->lighting, g->in_view);
 
 	/* Special lighting effects (walls only) */
-	if (g->f_idx > FEAT_INVIS && OPT(view_granite_light)) 
+	if (g->f_idx > FEAT_INVIS)
 		special_wall_display(&a, &c, g->in_view, g->f_idx);
 		
 	/* Save the terrain info for the transparency effects */
@@ -720,7 +700,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 			a = object_kind_attr(g->first_k_idx);
 			c = object_kind_char(g->first_k_idx);
 			
-			if (OPT(show_piles) && g->multiple_objects)
+			if (g->multiple_objects)
 			{
 				/* Get the "pile" feature instead */
 				k_ptr = &k_info[0];
@@ -755,8 +735,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 			dc = r_ptr->x_char;
 
 			/* Turn uniques purple if desired (violet, actually) */
-			if (OPT(purple_uniques) && rf_has(r_ptr->flags,
-				RF_UNIQUE)) 
+			if (OPT(purple_uniques) && rf_has(r_ptr->flags, RF_UNIQUE))
 			{
 				/* Use (light) violet attr */
 				a = TERM_L_VIOLET;
@@ -833,10 +812,12 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Handle "player" */
 	else if (g->is_player)
 	{
-		monster_race *r_ptr = &r_info[0];
+		//monster_race *r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
-		a = r_ptr->x_attr;
+		//a = r_ptr->x_attr;
+		/* Changed to look up what monster the player's supposed to look like -Simon */
+		a = r_info[rp_ptr->p_monster_index].x_attr;
 		if ((OPT(hp_changes_color)) && (arg_graphics == GRAPHICS_NONE))
 		{
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
@@ -881,7 +862,9 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 
 		/* Get the "player" char */
-		c = r_ptr->x_char;
+		//c = r_ptr->x_char;
+		/* As above, changed for reposband */
+		c = r_info[rp_ptr->p_monster_index].x_char;
 	}
 
 	/* Result */
@@ -1002,7 +985,7 @@ void map_info(unsigned y, unsigned x, grid_data *g)
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
 		/* Memorized objects */
-		if (o_ptr->marked && !squelch_hide_item(o_ptr))
+		if (o_ptr->marked && !squelch_item_ok(o_ptr))
 		{
 			/* First item found */
 			if (g->first_k_idx == 0)
@@ -1070,9 +1053,9 @@ static void move_cursor_relative_map(int y, int x)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;
@@ -1171,9 +1154,9 @@ static void print_rel_map(char c, byte a, int y, int x)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;
@@ -1315,28 +1298,8 @@ void note_spot(int y, int x)
 	}
 
 
-	/* Hack -- memorize grids */
-	if (!(info & (CAVE_MARK)))
-	{
-		/* Memorize some "boring" grids */
-		if (cave_feat[y][x] <= FEAT_INVIS)
-		{
-			/* Option -- memorize certain floors */
-			if (((info & (CAVE_GLOW)) && OPT(view_perma_grids)) ||
-			    OPT(view_torch_grids))
-			{
-				/* Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-			}
-		}
-
-		/* Memorize all "interesting" grids */
-		else
-		{
-			/* Memorize */
-			cave_info[y][x] |= (CAVE_MARK);
-		}
-	}
+	/* Memorize this grid */
+	cave_info[y][x] |= (CAVE_MARK);
 }
 
 
@@ -1367,9 +1330,9 @@ static void prt_map_aux(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;
@@ -1584,9 +1547,6 @@ void display_map(int *cy, int *cx)
 	/* Large array on the stack */
 	byte mp[DUNGEON_HGT][DUNGEON_WID];
 
-	bool old_view_special_light;
-	bool old_view_granite_light;
-
 	monster_race *r_ptr = &r_info[0];
 
 	/* Desired map height */
@@ -1602,15 +1562,6 @@ void display_map(int *cy, int *cx)
 
 	/* Prevent accidents */
 	if ((map_wid < 1) || (map_hgt < 1)) return;
-
-
-	/* Save lighting effects */
-	old_view_special_light = OPT(view_special_light);
-	old_view_granite_light = OPT(view_granite_light);
-
-	/* Disable lighting effects */
-	OPT(view_special_light) = FALSE;
-	OPT(view_granite_light) = FALSE;
 
 
 	/* Nothing here */
@@ -1705,11 +1656,6 @@ void display_map(int *cy, int *cx)
 	/* Return player location */
 	if (cy != NULL) (*cy) = row + 1;
 	if (cx != NULL) (*cx) = col + 1;
-
-
-	/* Restore lighting effects */
-	OPT(view_special_light) = old_view_special_light;
-	OPT(view_granite_light) = old_view_granite_light;
 }
 
 
@@ -1756,7 +1702,7 @@ void do_cmd_view_map(void)
 /*
  * Some comments on the dungeon related data structures and functions...
  *
- * Angband is primarily a dungeon exploration game, and it should come as
+ * reposband is primarily a dungeon exploration game, and it should come as
  * no surprise that the internal representation of the dungeon has evolved
  * over time in much the same way as the game itself, to provide semantic
  * changes to the game itself, to make the code simpler to understand, and
@@ -1772,12 +1718,12 @@ void do_cmd_view_map(void)
  * the list of monsters currently inhabiting the level.  And some of the
  * information only applies to a single grid of the current dungeon level,
  * such as whether the grid is illuminated, or whether the grid contains a
- * monster, or whether the grid can be seen by the player.  If Angband was
+ * monster, or whether the grid can be seen by the player.  If reposband was
  * to be turned into a multi-player game, some of the information currently
  * associated with the dungeon should really be associated with the player,
  * such as whether a given grid is viewable by a given player.
  *
- * One of the major bottlenecks in ancient versions of Angband was in the
+ * One of the major bottlenecks in ancient versions of reposband was in the
  * calculation of "line of sight" from the player to various grids, such
  * as those containing monsters, using the relatively expensive "los()"
  * function.  This was such a nasty bottleneck that a lot of silly things
@@ -1941,7 +1887,7 @@ void do_cmd_view_map(void)
  * is in the "field of view" of the player and which is also "illuminated",
  * either by the players torch (if any) or by any permanent light source.
  * It could use and help maintain information about multiple light sources,
- * which would be helpful in a multi-player version of Angband.
+ * which would be helpful in a multi-player version of reposband.
  *
  * The "update_view()" function maintains the special "view_g" array, which
  * contains exactly those grids which have the "CAVE_VIEW" flag set.  This
@@ -3177,7 +3123,7 @@ void update_flow(void)
 
 
 	/* Hack -- disabled */
-	if (!OPT(adult_ai_sound)) return;
+	if (!OPT(birth_ai_sound)) return;
 
 
 	/*** Cycle the flow ***/
@@ -3278,17 +3224,7 @@ void update_flow(void)
  * Light up the dungeon using "claravoyance"
  *
  * This function "illuminates" every grid in the dungeon, memorizes all
- * "objects", memorizes all grids as with magic mapping, and, under the
- * standard option settings (OPT(view_perma_grids) but not OPT(view_torch_grids))
- * memorizes all floor grids too.
- *
- * Note that if "OPT(view_perma_grids)" is not set, we do not memorize floor
- * grids, since this would defeat the purpose of "OPT(view_perma_grids)", not
- * that anyone seems to play without this option.
- *
- * Note that if "OPT(view_torch_grids)" is set, we do not memorize floor grids,
- * since this would prevent the use of "OPT(view_torch_grids)" as a method to
- * keep track of what grids have been observed directly.
+ * "objects", and memorizes all grids as with magic mapping.
  */
 void wiz_light(void)
 {
@@ -3330,17 +3266,7 @@ void wiz_light(void)
 
 					/* Memorize normal features */
 					if (cave_feat[yy][xx] > FEAT_INVIS)
-					{
-						/* Memorize the grid */
 						cave_info[yy][xx] |= (CAVE_MARK);
-					}
-
-					/* Normally, memorize floors (see above) */
-					if (OPT(view_perma_grids) && !OPT(view_torch_grids))
-					{
-						/* Memorize the grid */
-						cave_info[yy][xx] |= (CAVE_MARK);
-					}
 				}
 			}
 		}
@@ -3426,11 +3352,8 @@ void town_illuminate(bool daytime)
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
 
-				/* Hack -- Memorize grids */
-				if (OPT(view_perma_grids))
-				{
-					cave_info[y][x] |= (CAVE_MARK);
-				}
+				/* Memorize grids */
+				cave_info[y][x] |= (CAVE_MARK);
 			}
 
 			/* Boring grids (dark) */
@@ -3439,11 +3362,8 @@ void town_illuminate(bool daytime)
 				/* Darken the grid */
 				cave_info[y][x] &= ~(CAVE_GLOW);
 
-				/* Hack -- Forget grids */
-				if (OPT(view_perma_grids))
-				{
-					cave_info[y][x] &= ~(CAVE_MARK);
-				}
+				/* Forget grids */
+				cave_info[y][x] &= ~(CAVE_MARK);
 			}
 		}
 	}
@@ -3466,11 +3386,8 @@ void town_illuminate(bool daytime)
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
-					/* Hack -- Memorize grids */
-					if (OPT(view_perma_grids))
-					{
-						cave_info[yy][xx] |= (CAVE_MARK);
-					}
+					/* Memorize grids */
+					cave_info[yy][xx] |= (CAVE_MARK);
 				}
 			}
 		}
@@ -3970,8 +3887,8 @@ void disturb(int stop_search, int unused_flag)
 		p_ptr->redraw |= (PR_STATE);
 	}
 
-	/* Flush the input if requested */
-	if (OPT(flush_disturb)) flush();
+	/* Flush input */
+	flush();
 }
 
 

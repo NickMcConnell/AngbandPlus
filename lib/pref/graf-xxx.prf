@@ -4,7 +4,7 @@
 #
 # See "lib/help/command.txt" and "src/files.c" for more information.
 #
-# This file is included by any platform which uses the "standard" Angband
+# This file is included by any platform which uses the "standard" reposband
 # bitmap file, including "pref-ami.prf", "pref-mac.prf", "pref-win.prf",
 # "pref-dos.prf", and "pref-x11.prf".
 #
@@ -12,7 +12,7 @@
 # pixmap file itself, by Lars Haugseth <larshau@ifi.uio.no>.
 #
 # Updated to include new monsters/items/landscape by Dawnmist
-# <angband@dawnmist.net>
+# <reposband@dawnmist.net>
 #
 ##### Special attr/char values #####
 

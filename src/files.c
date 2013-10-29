@@ -16,13 +16,14 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "cmds.h"
 #include "game-cmd.h"
 #include "history.h"
 #include "object/tvalsval.h"
 #include "option.h"
+#include "savefile.h"
 #include "ui-menu.h"
 
 #define MAX_PANEL 12
@@ -125,6 +126,7 @@ void player_flags(bitflag f[OF_SIZE])
 static void display_player_equippy(int y, int x)
 {
 	int i;
+	int total_eq = 0;
 
 	byte a;
 	char c;
@@ -140,7 +142,7 @@ static void display_player_equippy(int y, int x)
 
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
-
+		
 		/* Get attr/char for display */
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
@@ -148,8 +150,9 @@ static void display_player_equippy(int y, int x)
 		/* Dump */
 		if ((tile_width == 1) && (tile_height == 1))
 		{
-		        Term_putch(x+i-INVEN_WIELD, y, a, c);
+		        Term_putch(x + total_eq, y, a, c);
 		}
+		total_eq++;
 	}
 }
 
@@ -223,59 +226,72 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 	size_t i, j;
 	int col = bounds->col;
 	int row = bounds->row;
-	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      abcdefghijkl@");
+	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijkl");
 	for (i = 0; i < size-3; i++, row++)
 	{
 		byte name_attr = TERM_WHITE;
 		Term_gotoxy(col+6, row);
 		/* repeated extraction of flags is inefficient but more natural */
-		for (j = INVEN_WIELD; j <= INVEN_TOTAL; j++)
+		for (j = INVEN_WIELD - 1; j < INVEN_TOTAL; j++)
 		{
-			object_type *o_ptr = &p_ptr->inventory[j];
-			bitflag f[OF_SIZE];
-
-			byte attr = TERM_WHITE | (j % 2) * 8; /* alternating columns */
-			char sym = '.';
-
-			bool res, imm, vuln;
-
-			/* Wipe flagset */
-			of_wipe(f);
-
-			if (j < INVEN_TOTAL && o_ptr->k_idx)
+			if (((j >= INVEN_WIELD) && (j < INVEN_WIELD + rp_ptr->melee_slots))
+			||	((j >= INVEN_BOW) && (j < INVEN_BOW + rp_ptr->range_slots))
+			||	((j >= INVEN_FINGER) && (j < INVEN_FINGER + rp_ptr->ring_slots))
+			||	((j >= INVEN_NECK) && (j < INVEN_NECK + rp_ptr->amulet_slots))
+			||	((j >= INVEN_LIGHT) && (j < INVEN_LIGHT + rp_ptr->light_slots))
+			||	((j >= INVEN_BODY) && (j < INVEN_BODY + rp_ptr->body_slots))
+			||	((j >= INVEN_OUTER) && (j < INVEN_OUTER + rp_ptr->cloak_slots))
+			||	((j >= INVEN_ARM) && (j < INVEN_ARM + rp_ptr->shield_slots))
+			||	((j >= INVEN_HEAD) && (j < INVEN_HEAD + rp_ptr->helm_slots))
+			||	((j >= INVEN_HANDS) && (j < INVEN_HANDS + rp_ptr->glove_slots))
+			||	((j >= INVEN_FEET) && (j < INVEN_FEET + rp_ptr->boot_slots)))
 			{
-				object_flags_known(o_ptr, f);
+				object_type *o_ptr = &p_ptr->inventory[j];
+				bitflag f[OF_SIZE];
+
+				byte attr = TERM_WHITE | (j % 2) * 8; /* alternating columns */
+				char sym = '.';
+
+				bool res, imm, vuln;
+
+				/* Wipe flagset */
+				of_wipe(f);
+
+				if (j < INVEN_WIELD)
+				{
+					player_flags(f);
+
+					/* If the race has innate infravision/digging, force the corresponding flag
+					   here.  If we set it in player_flags(), then all callers of that
+					   function will think the infravision is caused by equipment. */
+					if (rp_ptr->infra > 0)
+						of_on(f, OF_INFRA);
+					if (rp_ptr->r_skills[SKILL_DIGGING] > 0)
+						of_on(f, OF_TUNNEL);
+				}
+				else if (j < INVEN_TOTAL && o_ptr->k_idx)
+				{
+					object_flags_known(o_ptr, f);
+				}
+
+				res = of_has(f, resists[i].res_flag);
+				imm = of_has(f, resists[i].im_flag);
+				vuln = of_has(f, resists[i].vuln_flag);
+
+				if (imm) name_attr = TERM_GREEN;
+				else if (res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
+
+				if (vuln) sym = '-';
+				else if (imm) sym = '*';
+				else if (res) sym = '+';
+				else if ((j < INVEN_TOTAL) && o_ptr->k_idx && 
+					!object_flag_is_known(o_ptr, resists[i].res_flag)) sym = '?';
+				Term_addch(attr, sym);
 			}
-			else if (j == INVEN_TOTAL)
-			{
-				player_flags(f);
-
-				/* If the race has innate infravision/digging, force the corresponding flag
-				   here.  If we set it in player_flags(), then all callers of that
-				   function will think the infravision is caused by equipment. */
-				if (rp_ptr->infra > 0)
-					of_on(f, OF_INFRA);
-				if (rp_ptr->r_skills[SKILL_DIGGING] > 0)
-					of_on(f, OF_TUNNEL);
-			}
-
-			res = of_has(f, resists[i].res_flag);
-			imm = of_has(f, resists[i].im_flag);
-			vuln = of_has(f, resists[i].vuln_flag);
-
-			if (imm) name_attr = TERM_GREEN;
-			else if (res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
-
-			if (vuln) sym = '-';
-			else if (imm) sym = '*';
-			else if (res) sym = '+';
-			else if ((j < INVEN_TOTAL) && o_ptr->k_idx && 
-				!object_flag_is_known(o_ptr, resists[i].res_flag)) sym = '?';
-			Term_addch(attr, sym);
 		}
 		Term_putstr(col, row, 6, name_attr, format("%5s:", resists[i].name));
 	}
-	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      abcdefghijkl@");
+	Term_putstr(col, row++, RES_COLS, TERM_WHITE, "      @abcdefghijkl");
 	/* Equippy */
 	display_player_equippy(row++, col+6);
 }
@@ -418,65 +434,78 @@ static void display_player_sust_info(void)
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
 	{
-		/* Get the object */
-		o_ptr = &p_ptr->inventory[i];
-
-		/* Get the "known" flags */
-		object_flags_known(o_ptr, f);
-
-		/* Initialize color based of sign of pval. */
-		for (stat = 0; stat < A_MAX; stat++)
+		if (((i >= INVEN_WIELD) && (i < INVEN_WIELD + rp_ptr->melee_slots))
+		||	((i >= INVEN_BOW) && (i < INVEN_BOW + rp_ptr->range_slots))
+		||	((i >= INVEN_FINGER) && (i < INVEN_FINGER + rp_ptr->ring_slots))
+		||	((i >= INVEN_NECK) && (i < INVEN_NECK + rp_ptr->amulet_slots))
+		||	((i >= INVEN_LIGHT) && (i < INVEN_LIGHT + rp_ptr->light_slots))
+		||	((i >= INVEN_BODY) && (i < INVEN_BODY + rp_ptr->body_slots))
+		||	((i >= INVEN_OUTER) && (i < INVEN_OUTER + rp_ptr->cloak_slots))
+		||	((i >= INVEN_ARM) && (i < INVEN_ARM + rp_ptr->shield_slots))
+		||	((i >= INVEN_HEAD) && (i < INVEN_HEAD + rp_ptr->helm_slots))
+		||	((i >= INVEN_HANDS) && (i < INVEN_HANDS + rp_ptr->glove_slots))
+		||	((i >= INVEN_FEET) && (i < INVEN_FEET + rp_ptr->boot_slots)))
 		{
-			/* Default */
-			a = TERM_SLATE;
-			c = '.';
+			/* Get the object */
+			o_ptr = &p_ptr->inventory[i];
 
-			/* Boost */
-			if (of_has(f, stat_flags[stat]))
+			/* Get the "known" flags */
+			object_flags_known(o_ptr, f);
+
+			/* Initialize color based of sign of pval. */
+			for (stat = 0; stat < A_MAX; stat++)
 			{
 				/* Default */
-				c = '*';
+				a = TERM_SLATE;
+				c = '.';
 
-				/* Good */
-				if (o_ptr->pval > 0)
+				/* Boost */
+				if (of_has(f, stat_flags[stat]))
 				{
+					/* Default */
+					c = '*';
+
 					/* Good */
-					a = TERM_L_GREEN;
+					if (o_ptr->pval > 0)
+					{
+						/* Good */
+						a = TERM_L_GREEN;
 
-					/* Label boost */
-					if (o_ptr->pval < 10) c = I2D(o_ptr->pval);
-				}
+						/* Label boost */
+						if (o_ptr->pval < 10) c = I2D(o_ptr->pval);
+					}
 
-				/* Bad */
-				if (o_ptr->pval < 0)
-				{
 					/* Bad */
-					a = TERM_RED;
+					if (o_ptr->pval < 0)
+					{
+						/* Bad */
+						a = TERM_RED;
 
-					/* Label boost */
-					if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
+						/* Label boost */
+						if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
+					}
 				}
+
+				/* Sustain */
+				if (of_has(f, sustain_flags[stat]))
+				{
+					/* Dark green */
+					a = TERM_GREEN;
+
+					/* Convert '.' to 's' */
+					if (c == '.') c = 's';
+				}
+
+				if ((c == '.') && o_ptr->k_idx && !object_flag_is_known(o_ptr, sustain_flags[stat]))
+					c = '?';
+
+				/* Dump proper character */
+				Term_putch(col, row+stat, a, c);
 			}
 
-			/* Sustain */
-			if (of_has(f, sustain_flags[stat]))
-			{
-				/* Dark green */
-				a = TERM_GREEN;
-
-				/* Convert '.' to 's' */
-				if (c == '.') c = 's';
-			}
-
-			if ((c == '.') && o_ptr->k_idx && !object_flag_is_known(o_ptr, sustain_flags[stat]))
-				c = '?';
-
-			/* Dump proper character */
-			Term_putch(col, row+stat, a, c);
+			/* Advance */
+			col++;
 		}
-
-		/* Advance */
-		col++;
 	}
 
 	/* Player flags */
@@ -852,10 +881,10 @@ static int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Height",		"%y",	i2u(p_ptr->ht), END  );
 	P_I(TERM_L_BLUE, "Weight",		"%y",	i2u(p_ptr->wt), END  );
 	P_I(TERM_L_BLUE, "Social",		"%y",	s2u(show_status()), END  );
-	P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(OPT(adult_maximize) ? 'Y' : 'N'), END);
+	P_I(TERM_L_BLUE, "Maximize",	"%y",	c2u(OPT(birth_maximize) ? 'Y' : 'N'), END);
 #if 0
 	/* Preserve mode deleted */
-	P_I(TERM_L_BLUE, "Preserve",	"%y",	c2u(adult_preserve ? 'Y' : 'N'), END);
+	P_I(TERM_L_BLUE, "Preserve",	"%y",	c2u(birth_preserve ? 'Y' : 'N'), END);
 #endif
 	assert(i == boundaries[5].page_rows);
 	return ret;
@@ -1088,12 +1117,15 @@ errr file_character(const char *path, bool full)
 			file_putf(fp, "\n\n  [Character Quiver]\n\n");
 			continue;
 		}
-		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i],
-				ODESC_PREFIX | ODESC_FULL);
-
-		x_file_putf(fp, encoding, "%c) %s\n", index_to_label(i), o_name);
 		if (p_ptr->inventory[i].k_idx)
+		{
+			object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i],
+					ODESC_PREFIX | ODESC_FULL);
+
+			x_file_putf(fp, encoding, "%c) %s\n", index_to_label(i), o_name);
+			
 			object_info_chardump(fp, &p_ptr->inventory[i], 5, 72);
+		}
 	}
 
 	/* Dump the inventory */
@@ -1139,7 +1171,7 @@ errr file_character(const char *path, bool full)
 	file_putf(fp, "  [Options]\n\n");
 
 	/* Dump options */
-	for (i = OPT_ADULT; i < OPT_MAX; i++)
+	for (i = OPT_BIRTH; i < OPT_BIRTH + N_OPTS_BIRTH; i++)
 	{
 		if (option_name(i))
 		{
@@ -1283,7 +1315,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	{
 		strnfmt(caption, sizeof(caption), "Help file '%s'", name);
 
-		path_build(path, sizeof(path), ANGBAND_DIR_HELP, name);
+		path_build(path, sizeof(path), reposband_DIR_HELP, name);
 		fff = file_open(path, MODE_READ, -1);
 	}
 
@@ -1292,7 +1324,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	{
 		strnfmt(caption, sizeof(caption), "Info file '%s'", name);
 
-		path_build(path, sizeof(path), ANGBAND_DIR_INFO, name);
+		path_build(path, sizeof(path), reposband_DIR_INFO, name);
 		fff = file_open(path, MODE_READ, -1);
 	}
 
@@ -1703,7 +1735,7 @@ void process_player_name(bool sf)
 #endif
 
 		/* Build the filename */
-		path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, temp);
+		path_build(savefile, sizeof(savefile), reposband_DIR_SAVE, temp);
 	}
 }
 
@@ -1735,16 +1767,10 @@ void save_game(void)
 	signals_ignore_tstp();
 
 	/* Save the player */
-	if (old_save())
-	{
+	if (savefile_save(savefile))
 		prt("Saving game... done.", 0, 0);
-	}
-
-	/* Save failed (oops) */
 	else
-	{
 		prt("Saving game... failed!", 0, 0);
-	}
 
 	/* Allow suspend again */
 	signals_handle_tstp();
@@ -1854,7 +1880,8 @@ void exit_game_panic(void)
 	my_strcpy(p_ptr->died_from, "(panic save)", sizeof(p_ptr->died_from));
 
 	/* Panic save, or get worried */
-	if (!old_save()) quit("panic save failed!");
+	if (!savefile_save(savefile))
+		quit("panic save failed!");
 
 
 	/* Successful panic save */
@@ -1906,7 +1933,7 @@ void html_screenshot(cptr name, int mode)
 	char buf[1024];
 
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, name);
 	fp = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
@@ -1949,9 +1976,9 @@ void html_screenshot(cptr name, int mode)
 				if (oa == TERM_WHITE)
 				{
 					file_putf(fp, new_color_fmt,
-					        angband_color_table[a][1],
-					        angband_color_table[a][2],
-					        angband_color_table[a][3]);
+					        reposband_color_table[a][1],
+					        reposband_color_table[a][2],
+					        reposband_color_table[a][3]);
 				}
 
 				/* From another color to the default white */
@@ -1964,9 +1991,9 @@ void html_screenshot(cptr name, int mode)
 				else
 				{
 					file_putf(fp, change_color_fmt,
-					        angband_color_table[a][1],
-					        angband_color_table[a][2],
-					        angband_color_table[a][3]);
+					        reposband_color_table[a][1],
+					        reposband_color_table[a][2],
+					        reposband_color_table[a][3]);
 				}
 
 				/* Remember the last color */

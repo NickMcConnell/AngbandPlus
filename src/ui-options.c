@@ -17,7 +17,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "macro.h"
 #include "squelch.h"
@@ -49,7 +49,7 @@ static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row)
 	if (askfor_aux(ftmp, sizeof ftmp, NULL))
 	{
 		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+		path_build(buf, sizeof(buf), reposband_DIR_USER, ftmp);
 	
 		prt("", 0, 0);
 		if (prefs_save(buf, dump, title))
@@ -150,6 +150,14 @@ static void option_toggle_menu(const char *name, int page)
 	m->selections = "abcdefghijklmopqrsuvwxz";
 	m->flags = MN_DBL_TAP;
 
+	/* We add 10 onto the page amount to indicate we're at birth */
+	if (page == OPT_PAGE_BIRTH) {
+		m->prompt = "You can only modify these options at character birth.";
+		m->flags |= MN_NO_ACTION;
+	} else if (page == OPT_PAGE_BIRTH + 10) {
+		page -= 10;
+	}
+
 	/* for this particular menu */
 	m->title = name;
 
@@ -175,6 +183,14 @@ static void option_toggle_menu(const char *name, int page)
 	mem_free(m);
 }
 
+/**
+ * Edit birth options.
+ */
+void do_cmd_options_birth(void)
+{
+	option_toggle_menu("Birth options", OPT_PAGE_BIRTH + 10);
+}
+
 
 /*
  * Modify the "window" options
@@ -188,11 +204,11 @@ static void do_cmd_options_win(const char *name, int row)
 
 	ui_event_data ke;
 
-	u32b new_flags[ANGBAND_TERM_MAX];
+	u32b new_flags[REPOSBAND_TERM_MAX];
 
 
 	/* Set new flags to the old values */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
 		new_flags[j] = op_ptr->window_flag[j];
 	}
@@ -209,11 +225,11 @@ static void do_cmd_options_win(const char *name, int row)
 		prt("Window flags (<dir> to move, 't'/Enter to toggle, or ESC)", 0, 0);
 
 		/* Display the windows */
-		for (j = 0; j < ANGBAND_TERM_MAX; j++)
+		for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 		{
 			byte a = TERM_WHITE;
 
-			cptr s = angband_term_name[j];
+			cptr s = reposband_term_name[j];
 
 			/* Use color */
 			if (j == x) a = TERM_L_BLUE;
@@ -239,7 +255,7 @@ static void do_cmd_options_win(const char *name, int row)
 			Term_putstr(0, i + 5, -1, a, str);
 
 			/* Display the windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
+			for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 			{
 				char c = '.';
 
@@ -272,7 +288,7 @@ static void do_cmd_options_win(const char *name, int row)
 			int choicex = (ke.mousex - 35)/5;
 
 			if ((choicey >= 0) && (choicey < PW_MAX_FLAGS)
-				&& (choicex > 0) && (choicex < ANGBAND_TERM_MAX)
+				&& (choicex > 0) && (choicex < REPOSBAND_TERM_MAX)
 				&& !(ke.mousex % 5))
 			{
 				y = choicey;
@@ -313,7 +329,7 @@ static void do_cmd_options_win(const char *name, int row)
 		/* Move */
 		if (d != 0)
 		{
-			x = (x + ddx[d] + 8) % ANGBAND_TERM_MAX;
+			x = (x + ddx[d] + 8) % REPOSBAND_TERM_MAX;
 			y = (y + ddy[d] + 16) % PW_MAX_FLAGS;
 		}
 
@@ -325,7 +341,7 @@ static void do_cmd_options_win(const char *name, int row)
 	}
 
 	/* Notice changes */
-	subwindows_set_flags(new_flags, ANGBAND_TERM_MAX);
+	subwindows_set_flags(new_flags, REPOSBAND_TERM_MAX);
 
 	screen_load();
 }
@@ -867,10 +883,10 @@ static void colors_modify(const char *title, int row)
 		/* Label the Current values */
 		Term_putstr(5, 12, -1, TERM_WHITE,
 				format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
-				   angband_color_table[a][0],
-				   angband_color_table[a][1],
-				   angband_color_table[a][2],
-				   angband_color_table[a][3]));
+				   reposband_color_table[a][0],
+				   reposband_color_table[a][1],
+				   reposband_color_table[a][2],
+				   reposband_color_table[a][3]));
 
 		/* Prompt */
 		Term_putstr(0, 14, -1, TERM_WHITE,
@@ -885,14 +901,14 @@ static void colors_modify(const char *title, int row)
 		/* Analyze */
 		if (cx == 'n') a = (byte)(a + 1);
 		if (cx == 'N') a = (byte)(a - 1);
-		if (cx == 'k') angband_color_table[a][0] = (byte)(angband_color_table[a][0] + 1);
-		if (cx == 'K') angband_color_table[a][0] = (byte)(angband_color_table[a][0] - 1);
-		if (cx == 'r') angband_color_table[a][1] = (byte)(angband_color_table[a][1] + 1);
-		if (cx == 'R') angband_color_table[a][1] = (byte)(angband_color_table[a][1] - 1);
-		if (cx == 'g') angband_color_table[a][2] = (byte)(angband_color_table[a][2] + 1);
-		if (cx == 'G') angband_color_table[a][2] = (byte)(angband_color_table[a][2] - 1);
-		if (cx == 'b') angband_color_table[a][3] = (byte)(angband_color_table[a][3] + 1);
-		if (cx == 'B') angband_color_table[a][3] = (byte)(angband_color_table[a][3] - 1);
+		if (cx == 'k') reposband_color_table[a][0] = (byte)(reposband_color_table[a][0] + 1);
+		if (cx == 'K') reposband_color_table[a][0] = (byte)(reposband_color_table[a][0] - 1);
+		if (cx == 'r') reposband_color_table[a][1] = (byte)(reposband_color_table[a][1] + 1);
+		if (cx == 'R') reposband_color_table[a][1] = (byte)(reposband_color_table[a][1] - 1);
+		if (cx == 'g') reposband_color_table[a][2] = (byte)(reposband_color_table[a][2] + 1);
+		if (cx == 'G') reposband_color_table[a][2] = (byte)(reposband_color_table[a][2] - 1);
+		if (cx == 'b') reposband_color_table[a][3] = (byte)(reposband_color_table[a][3] + 1);
+		if (cx == 'B') reposband_color_table[a][3] = (byte)(reposband_color_table[a][3] - 1);
 
 		/* Hack -- react to changes */
 		Term_xtra(TERM_XTRA_REACT, 0);
@@ -1147,50 +1163,6 @@ static void options_load_pref_file(const char *n, int row)
 
 
 /*** Quality-squelch menu ***/
-
-
-typedef struct
-{
-	int enum_val;
-	const char *name;
-} quality_name_struct;
-
-static quality_name_struct quality_choices[TYPE_MAX] =
-{
-	{ TYPE_WEAPON_POINTY,	"Pointy Melee Weapons" },
-	{ TYPE_WEAPON_BLUNT,	"Blunt Melee Weapons" },
-	{ TYPE_SHOOTER,		"Missile weapons" },
-	{ TYPE_MISSILE_SLING,	"Shots and Pebbles" },
-	{ TYPE_MISSILE_BOW,	"Arrows" },
-	{ TYPE_MISSILE_XBOW,	"Bolts" },
-	{ TYPE_ARMOR_ROBE,	"Robes" },
-	{ TYPE_ARMOR_BODY,	"Body Armor" },
-	{ TYPE_ARMOR_CLOAK,	"Cloaks" },
-	{ TYPE_ARMOR_ELVEN_CLOAK,	"Elven Cloaks" },
-	{ TYPE_ARMOR_SHIELD,	"Shields" },
-	{ TYPE_ARMOR_HEAD,	"Headgear" },
-	{ TYPE_ARMOR_HANDS,	"Handgear" },
-	{ TYPE_ARMOR_FEET,	"Footgear" },
-	{ TYPE_DIGGER,		"Diggers" },
-	{ TYPE_RING,		"Rings" },
-	{ TYPE_AMULET,		"Amulets" },
-	{ TYPE_LIGHT, 		"Lights" },
-};
-
-/*
- * The names for the various kinds of quality
- */
-static quality_name_struct quality_values[SQUELCH_MAX] =
-{
-	{ SQUELCH_NONE,		"no squelch" },
-	{ SQUELCH_BAD,		"bad" },
-	{ SQUELCH_AVERAGE,	"average" },
-	{ SQUELCH_GOOD,		"good" },
-	{ SQUELCH_EXCELLENT_NO_HI,	"excellent with no high resists" },
-	{ SQUELCH_EXCELLENT_NO_SPL,	"excellent but not splendid" },
-	{ SQUELCH_ALL,		"everything except artifacts" },
-};
-
 
 /* Structure to describe tval/description pairings. */
 typedef struct
@@ -1677,8 +1649,7 @@ void do_cmd_options_item(const char *title, int row)
 static menu_type *option_menu;
 static menu_action option_actions[] = 
 {
-	{ 0, 'a', "Interface options", option_toggle_menu },
-	{ 0, 'b', "Display options", option_toggle_menu },
+	{ 0, 'a', "Interface and display options", option_toggle_menu },
 	{ 0, 'e', "Warning and disturbance options", option_toggle_menu },
 	{ 0, 'f', "Birth (difficulty) options", option_toggle_menu },
 	{ 0, 'g', "Cheat options", option_toggle_menu },
@@ -1751,64 +1722,5 @@ bool squelch_tval(int tval)
 			return TRUE;
 	}
 
-	return FALSE;
-}
-
-
-
-/*
- * Inquire whether the player wishes to squelch items similar to an object
- *
- * Returns whether the item is now squelched.
- */
-bool squelch_interactive(const object_type *o_ptr)
-{
-	char out_val[70];
-
-	if (squelch_tval(o_ptr->tval))
-	{
-		char sval_name[50];
-
-		/* Obtain plural form without a quantity */
-		object_desc(sval_name, sizeof sval_name, o_ptr,
-					ODESC_BASE | ODESC_PLURAL);
-		/* XXX Eddie while correct in a sense, to squelch all torches on torch of brightness you get the message "Ignore Wooden Torches of Brightness in future? " */
-		strnfmt(out_val, sizeof out_val, "Ignore %s in future? ",
-				sval_name);
-
-		if (!artifact_p(o_ptr) || !object_flavor_is_aware(o_ptr))
-		{
-			if (get_check(out_val))
-			{
-				object_squelch_flavor_of(o_ptr);
-				msg_format("Ignoring %s from now on.", sval_name);
-				return TRUE;
-			}
-		}
-		/* XXX Eddie need to add generalized squelching, e.g. con rings with pval < 3 */
-		if (!object_is_jewelry(o_ptr) || (squelch_level_of(o_ptr) != SQUELCH_BAD))
-			return FALSE;
-	}
-
-	if (object_was_sensed(o_ptr) || object_was_worn(o_ptr) || object_is_known_not_artifact(o_ptr))
-	{
-		byte value = squelch_level_of(o_ptr);
-		int type = squelch_type_of(o_ptr);
-
-/* XXX Eddie on pseudoed cursed artifact, only showed {cursed}, asked to ignore artifacts */
-		if ((value != SQUELCH_MAX) && ((value == SQUELCH_BAD) || !object_is_jewelry(o_ptr)))
-		{
-
-			strnfmt(out_val, sizeof out_val, "Ignore all %s that are %s in future? ",
-				quality_choices[type].name, quality_values[value].name);
-
-			if (get_check(out_val))
-			{
-				squelch_level[type] = value;
-				return TRUE;
-			}
-		}
-
-	}
 	return FALSE;
 }

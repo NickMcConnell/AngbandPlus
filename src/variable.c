@@ -15,14 +15,14 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 
 /*
  * Hack -- Link a copyright message into the executable
  */
 const char *copyright =
-	"Copyright (c) 1987-2007 Angband contributors.\n"
+	"Copyright (c) 1987-2007 reposband contributors.\n"
 	"\n"
 	"This work is free software; you can redistribute it and/or modify it\n"
 	"under the terms of either:\n"
@@ -117,17 +117,17 @@ bool closing_flag;		/* Dungeon is closing */
 char savefile[1024];
 
 /*
- * The array[ANGBAND_TERM_MAX] of window pointers
+ * The array[REPOSBAND_TERM_MAX] of window pointers
  */
-term *angband_term[ANGBAND_TERM_MAX];
+term *reposband_term[REPOSBAND_TERM_MAX];
 
 
 /*
- * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
+ * The array[REPOSBAND_TERM_MAX] of window names (modifiable?)
  *
- * ToDo: Make the names independent of ANGBAND_TERM_MAX.
+ * ToDo: Make the names independent of REPOSBAND_TERM_MAX.
  */
-char angband_term_name[ANGBAND_TERM_MAX][16] =
+char reposband_term_name[REPOSBAND_TERM_MAX][16] =
 {
 	VERSION_NAME,
 	"Term-1",
@@ -142,7 +142,7 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 /*
  * Global table of color definitions (mostly zeros)
  */
-byte angband_color_table[MAX_COLORS][4] =
+byte reposband_color_table[MAX_COLORS][4] =
 {
 	{0x00, 0x00, 0x00, 0x00}, /* 0  TERM_DARK */
 	{0x00, 0xff, 0xff, 0xff}, /* 1  TERM_WHITE */
@@ -273,7 +273,7 @@ color_type color_table[MAX_COLORS] =
 /*
  * Standard sound (and message) names
  */
-const cptr angband_sound_name[MSG_MAX] =
+const cptr reposband_sound_name[MSG_MAX] =
 {
 	"",
 	"hit",
@@ -682,38 +682,38 @@ s16b spell_list[MAX_REALMS][BOOKS_PER_REALM][SPELLS_PER_BOOK];
 
 
 /*
- * Hack -- The special Angband "System Suffix"
+ * Hack -- The special reposband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
-const char *ANGBAND_SYS = "xxx";
+const char *reposband_SYS = "xxx";
 
 /*
- * Hack -- The special Angband "Graphics Suffix"
+ * Hack -- The special reposband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-const char *ANGBAND_GRAF = "old";
+const char *reposband_GRAF = "old";
 
 /*
  * Various directories. These are no longer necessarily all subdirs of "lib"
  */
-char *ANGBAND_DIR_APEX;
-char *ANGBAND_DIR_EDIT;
-char *ANGBAND_DIR_FILE;
-char *ANGBAND_DIR_HELP;
-char *ANGBAND_DIR_INFO;
-char *ANGBAND_DIR_SAVE;
-char *ANGBAND_DIR_PREF;
-char *ANGBAND_DIR_USER;
-char *ANGBAND_DIR_XTRA;
+char *reposband_DIR_APEX;
+char *reposband_DIR_EDIT;
+char *reposband_DIR_FILE;
+char *reposband_DIR_HELP;
+char *reposband_DIR_INFO;
+char *reposband_DIR_SAVE;
+char *reposband_DIR_PREF;
+char *reposband_DIR_USER;
+char *reposband_DIR_XTRA;
 
 /* 
  * Various xtra/ subdirectories.
  */
-char *ANGBAND_DIR_XTRA_FONT;
-char *ANGBAND_DIR_XTRA_GRAF;
-char *ANGBAND_DIR_XTRA_SOUND;
-char *ANGBAND_DIR_XTRA_HELP;
-char *ANGBAND_DIR_XTRA_ICON;
+char *reposband_DIR_XTRA_FONT;
+char *reposband_DIR_XTRA_GRAF;
+char *reposband_DIR_XTRA_SOUND;
+char *reposband_DIR_XTRA_HELP;
+char *reposband_DIR_XTRA_ICON;
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)

@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "files.h"
 #include "game-event.h"
@@ -36,7 +36,7 @@
  * the file - that is the only external entry point to the functions
  * defined here.
  *
- * Player (in the Angband sense of character) birth is modelled as a
+ * Player (in the reposband sense of character) birth is modelled as a
  * a series of commands from the UI to the game to manipulate the
  * character and corresponding events to inform the UI of the outcomes
  * of these changes.
@@ -173,7 +173,7 @@ static void load_roller_data(birther *player, birther *prev_player)
 static int adjust_stat(int value, int amount)
 {
 	/* Negative amounts or maximize mode */
-	if ((amount < 0) || OPT(adult_maximize))
+	if ((amount < 0) || OPT(birth_maximize))
 	{
 		return (modify_stat_value(value, amount));
 	}
@@ -256,7 +256,7 @@ static void get_stats(int stat_use[A_MAX])
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
-		if (OPT(adult_maximize))
+		if (OPT(birth_maximize))
 		{
 			/* Start fully healed */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
@@ -601,6 +601,27 @@ void player_outfit(struct player *p)
 			/* Deduct the cost of the item from starting cash */
 			p->au -= object_value(i_ptr, i_ptr->number, FALSE);
 		}
+		
+		/* Repeat for item at slot "i" in racial starting EQ -Simon */
+		/* Access the item */
+		e_ptr = &(rp_ptr->start_items[i]);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack	-- Give the player an object */
+		if (e_ptr->kind)
+		{
+			/* Prepare the item */
+			object_prep(i_ptr, e_ptr->kind, 0, MINIMISE);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+			i_ptr->origin = ORIGIN_BIRTH;
+
+			object_flavor_aware(i_ptr);
+			object_notice_everything(i_ptr);
+			inven_carry(p, i_ptr);
+			e_ptr->kind->everseen = TRUE;
+		}
 	}
 
 
@@ -657,7 +678,7 @@ static void recalculate_stats(int *stats, int points_left)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Variable stat maxes */
-		if (OPT(adult_maximize))
+		if (OPT(birth_maximize))
 		{
 			/* Reset stats */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
@@ -990,8 +1011,8 @@ static void do_birth_reset(bool use_quickstart, birther *quickstart_prev)
 
 	/* If there's quickstart data, we use it to set default
 	   character choices. */
-	if (use_quickstart && quickstart_prev)
-		load_roller_data(quickstart_prev, NULL);
+	//if (use_quickstart && quickstart_prev)
+		//load_roller_data(quickstart_prev, NULL);
 
 	player_generate(p_ptr, NULL, NULL, NULL);
 
@@ -1038,15 +1059,16 @@ void player_birth(bool quickstart_allowed)
 	 * If there's a quickstart character, store it for later use.
 	 * If not, default to whatever the first of the choices is.
 	 */
-	if (quickstart_allowed)
-		save_roller_data(&quickstart_prev);
-	else
-	{
+	 /* Evolution breaks quickstart - figure out soltn later -Simon */
+	//if (quickstart_allowed)
+	//	save_roller_data(&quickstart_prev);
+	//else
+	//{
 		p_ptr->psex = 0;
 		p_ptr->pclass = 0;
 		p_ptr->prace = 0;
 		player_generate(p_ptr, NULL, NULL, NULL);
-	}
+	//}
 
 	/* Handle incrementing name suffix */
 	buf = find_roman_suffix_start(op_ptr->full_name);
@@ -1097,7 +1119,11 @@ void player_birth(bool quickstart_allowed)
 		}
 		else if (cmd->command == CMD_CHOOSE_CLASS)
 		{
-			p_ptr->pclass = cmd->arg[0].choice;
+			/* test to see if player is a monster; if so then make them monster class -Simon */
+			/* TODO: Change "11" and "6" into constants like MAX_CLASSIC_RACES */
+			if(p_ptr->prace >= 11)
+				p_ptr->pclass = 6;
+			else p_ptr->pclass = cmd->arg[0].choice;
 			player_generate(p_ptr, NULL, NULL, NULL);
 
 			reset_stats(stats, points_spent, &points_left);
@@ -1106,15 +1132,8 @@ void player_birth(bool quickstart_allowed)
 		}
 		else if (cmd->command == CMD_FINALIZE_OPTIONS)
 		{
-			/* Set adult options from birth options */
-			for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
-			{
-				op_ptr->opt[OPT_ADULT + (i - OPT_BIRTH)] =
-					op_ptr->opt[i];
-			}
-
 			/* Reset score options from cheat options */
-			for (i = OPT_CHEAT; i < OPT_ADULT; i++)
+			for (i = OPT_CHEAT; i < OPT_CHEAT + N_OPTS_CHEAT; i++)
 			{
 				op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] =
 					op_ptr->opt[i];
@@ -1240,7 +1259,7 @@ void player_birth(bool quickstart_allowed)
 	get_money();
 
 	/* Outfit the player, if they can sell the stuff */
-	if (!OPT(adult_no_selling)) player_outfit(p_ptr);
+	if (!OPT(birth_no_selling)) player_outfit(p_ptr);
 
 	/* Initialise the stores */
 	store_reset();

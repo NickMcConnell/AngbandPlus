@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "effects.h"
 #include "monster/monster.h"
@@ -919,7 +919,7 @@ bool effect_do(effect_type effect, bool *ident, bool aware, int dir, int beam,
 		{
 			if (p_ptr->confusing == 0)
 			{
-				msg_print("Your hands begin to glow.");
+				msg_print("Your limbs begin to glow.");
 				p_ptr->confusing = TRUE;
 				*ident = TRUE;
 			}

@@ -163,6 +163,7 @@ typedef struct player
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
+	byte unignoring;	/* Unignoring */
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
@@ -211,6 +212,7 @@ typedef struct player
 	s16b resting;			/* Resting counter */
 	s16b running;			/* Running counter */
 	bool running_withpathfind;      /* Are we using the pathfinder ? */
+	bool running_firststep;  /* Is this our first step running? */
 
 	s16b run_cur_dir;		/* Direction we are running */
 	s16b run_old_dir;		/* Direction we came from */
@@ -276,6 +278,23 @@ typedef struct player_sex
 	cptr winner;		/* Name of winner */
 } player_sex;
 
+/* Moved here so player_race can have start EQ -Simon */
+typedef struct start_item
+{
+	object_kind *kind;
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+} start_item;
+
+/* New, used for racial powers -Simon */
+
+typedef struct racial_power
+{
+	byte level;			/* Required level (to learn) */
+	u16b type;			/* index of power */
+	byte sp;			/* Required mana (to cast) */
+	byte fail;			/* Minimum chance of failure */
+} racial_power;
 
 /*
  * Player racial info
@@ -291,21 +310,51 @@ typedef struct player_race
 	
 	s16b r_skills[SKILL_MAX];	/* racial skills */
 	
+	/* new to RePos -Simon */
+	racial_power racial_powers[RACIAL_POWERS_MAX];
+	byte racial_power_stat;
+	
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 	
-	byte b_age;			/* base age */
-	byte m_age;			/* mod age */
+	/* Monster races get AC and speed as they level -Simon */
+	byte initial_bonus_AC;
+	byte max_bonus_AC;
+	byte initial_bonus_speed;
+	byte max_bonus_speed;
+	/* levels for evolution and calc'ing above bonuses -Simon */
+	byte initial_level;
+	byte max_level;
+	s16b next_form_indices[MAX_NEXT_FORMS];
 	
-	byte m_b_ht;		/* base height (males) */
-	byte m_m_ht;		/* mod height (males) */
-	byte m_b_wt;		/* base weight (males) */
-	byte m_m_wt;		/* mod weight (males) */
+	/* Index of monster used to determine player icon, melee -Simon */
+	s16b p_monster_index;
 	
-	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females) */
-	byte f_b_wt;		/* base weight (females) */
-	byte f_m_wt;		/* mod weight (females) */
+	/* slot #s -Simon */
+	byte melee_slots;
+	byte range_slots;
+	byte ring_slots;
+	byte amulet_slots;
+	byte light_slots;
+	byte body_slots;
+	byte cloak_slots;
+	byte shield_slots;
+	byte helm_slots;
+	byte glove_slots;
+	byte boot_slots;
+	
+	u16b b_age;			/* base age */
+	u16b m_age;			/* mod age */
+	
+	u16b m_b_ht;		/* base height (males) */
+	u16b m_m_ht;		/* mod height (males) */
+	u16b m_b_wt;		/* base weight (males) */
+	u16b m_m_wt;		/* mod weight (males) */
+	
+	u16b f_b_ht;		/* base height (females) */
+	u16b f_m_ht;		/* mod height (females) */
+	u16b f_b_wt;		/* base weight (females) */
+	u16b f_m_wt;		/* mod weight (females) */
 	
 	byte infra;			/* Infra-vision	range */
 	
@@ -315,15 +364,10 @@ typedef struct player_race
 	
 	bitflag flags[OF_SIZE];   /* Racial (object) flags */
 	bitflag pflags[PF_SIZE];  /* Racial (player) flags */
+
+	/* monster starting items -Simon */
+	start_item start_items[MAX_START_ITEMS]; /**< The starting inventory */
 } player_race;
-
-typedef struct start_item
-{
-	object_kind *kind;
-	byte min;	/* Minimum starting amount */
-	byte max;	/* Maximum starting amount */
-} start_item;
-
 
 /*
  * A structure to hold class-dependent information on spells.
@@ -416,7 +460,7 @@ typedef struct
 	
 	bool opt[OPT_MAX];		/* Options */
 	
-	u32b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
+	u32b window_flag[REPOSBAND_TERM_MAX];	/* Window flags */
 	
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 	

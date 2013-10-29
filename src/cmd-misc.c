@@ -1,4 +1,4 @@
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "cmds.h"
 #include "game-cmd.h"
@@ -120,17 +120,6 @@ void do_cmd_quit(cmd_code code, cmd_arg args[])
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
-}
-
-
-/*
- * Port-specific options
- *
- * Should be moved to the options screen. XXX
- */
-void do_cmd_port(void)
-{
-	(void)Term_user(0);
 }
 
 

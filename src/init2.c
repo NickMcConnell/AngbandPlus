@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "button.h"
 #include "cave.h"
 #include "cmds.h"
@@ -30,14 +30,15 @@
 #include "parser.h"
 #include "prefs.h"
 #include "squelch.h"
+#include "powers_strings.h"
 
 /*
  * This file is used to initialize various variables and arrays for the
- * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
+ * reposband game.  Note the use of "fd_read()" and "fd_write()" to bypass
  * the common limitation of "read()" and "write()" to only 32767 bytes
  * at a time.
  *
- * Several of the arrays for Angband are built from "template" files in
+ * Several of the arrays for reposband are built from "template" files in
  * the "lib/edit" directory.
  *
  * Warning -- the "ascii" file parsers use a minor hack to collect the
@@ -136,13 +137,13 @@ static u32b grab_one_effect(const char *what) {
  *
  * All of the sub-directories should, by default, be located inside
  * the main directory, whose location is very system dependant and is 
- * set by the ANGBAND_PATH environment variable, if it exists. (On multi-
+ * set by the reposband_PATH environment variable, if it exists. (On multi-
  * user systems such as Linux this is not the default - see config.h for
  * more info.)
  *
  * This function takes a writable buffers, initially containing the
  * "path" to the "config", "lib" and "data" directories, for example, 
- * "/etc/angband/", "/usr/share/angband" and "/var/games/angband" -
+ * "/etc/reposband/", "/usr/share/reposband" and "/var/games/reposband" -
  * or a system dependant string, for example, ":lib:".  The buffer
  * must be large enough to contain at least 32 more characters.
  *
@@ -171,60 +172,60 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 	/*** Free everything ***/
 
 	/* Free the sub-paths */
-	string_free(ANGBAND_DIR_APEX);
-	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_FILE);
-	string_free(ANGBAND_DIR_HELP);
-	string_free(ANGBAND_DIR_INFO);
-	string_free(ANGBAND_DIR_SAVE);
-	string_free(ANGBAND_DIR_PREF);
-	string_free(ANGBAND_DIR_USER);
-	string_free(ANGBAND_DIR_XTRA);
+	string_free(reposband_DIR_APEX);
+	string_free(reposband_DIR_EDIT);
+	string_free(reposband_DIR_FILE);
+	string_free(reposband_DIR_HELP);
+	string_free(reposband_DIR_INFO);
+	string_free(reposband_DIR_SAVE);
+	string_free(reposband_DIR_PREF);
+	string_free(reposband_DIR_USER);
+	string_free(reposband_DIR_XTRA);
 
-	string_free(ANGBAND_DIR_XTRA_FONT);
-	string_free(ANGBAND_DIR_XTRA_GRAF);
-	string_free(ANGBAND_DIR_XTRA_SOUND);
-	string_free(ANGBAND_DIR_XTRA_HELP);
-	string_free(ANGBAND_DIR_XTRA_ICON);
+	string_free(reposband_DIR_XTRA_FONT);
+	string_free(reposband_DIR_XTRA_GRAF);
+	string_free(reposband_DIR_XTRA_SOUND);
+	string_free(reposband_DIR_XTRA_HELP);
+	string_free(reposband_DIR_XTRA_ICON);
 
 	/*** Prepare the paths ***/
 
 	/* Build path names */
-	ANGBAND_DIR_EDIT = string_make(format("%sedit", configpath));
-	ANGBAND_DIR_FILE = string_make(format("%sfile", libpath));
-	ANGBAND_DIR_HELP = string_make(format("%shelp", libpath));
-	ANGBAND_DIR_INFO = string_make(format("%sinfo", libpath));
-	ANGBAND_DIR_PREF = string_make(format("%spref", configpath));
-	ANGBAND_DIR_XTRA = string_make(format("%sxtra", libpath));
+	reposband_DIR_EDIT = string_make(format("%sedit", configpath));
+	reposband_DIR_FILE = string_make(format("%sfile", libpath));
+	reposband_DIR_HELP = string_make(format("%shelp", libpath));
+	reposband_DIR_INFO = string_make(format("%sinfo", libpath));
+	reposband_DIR_PREF = string_make(format("%spref", configpath));
+	reposband_DIR_XTRA = string_make(format("%sxtra", libpath));
 
 	/* Build xtra/ paths */
-	ANGBAND_DIR_XTRA_FONT = string_make(format("%s" PATH_SEP "font", ANGBAND_DIR_XTRA));
-	ANGBAND_DIR_XTRA_GRAF = string_make(format("%s" PATH_SEP "graf", ANGBAND_DIR_XTRA));
-	ANGBAND_DIR_XTRA_SOUND = string_make(format("%s" PATH_SEP "sound", ANGBAND_DIR_XTRA));
-	ANGBAND_DIR_XTRA_HELP = string_make(format("%s" PATH_SEP "help", ANGBAND_DIR_XTRA));
-	ANGBAND_DIR_XTRA_ICON = string_make(format("%s" PATH_SEP "icon", ANGBAND_DIR_XTRA));
+	reposband_DIR_XTRA_FONT = string_make(format("%s" PATH_SEP "font", reposband_DIR_XTRA));
+	reposband_DIR_XTRA_GRAF = string_make(format("%s" PATH_SEP "graf", reposband_DIR_XTRA));
+	reposband_DIR_XTRA_SOUND = string_make(format("%s" PATH_SEP "sound", reposband_DIR_XTRA));
+	reposband_DIR_XTRA_HELP = string_make(format("%s" PATH_SEP "help", reposband_DIR_XTRA));
+	reposband_DIR_XTRA_ICON = string_make(format("%s" PATH_SEP "icon", reposband_DIR_XTRA));
 
 #ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	if (strncmp(ANGBAND_SYS, "test", 4) == 0)
+	if (strncmp(reposband_SYS, "test", 4) == 0)
 		path_build(buf, sizeof(buf), PRIVATE_USER_PATH, "Test");
 	else
 		path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
-	ANGBAND_DIR_USER = string_make(buf);
+	reposband_DIR_USER = string_make(buf);
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
-	ANGBAND_DIR_APEX = string_make(buf);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, "scores");
+	reposband_DIR_APEX = string_make(buf);
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
-	ANGBAND_DIR_SAVE = string_make(buf);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, "save");
+	reposband_DIR_SAVE = string_make(buf);
 
 #else /* !PRIVATE_USER_PATH */
 
 	/* Build pathnames */
-    ANGBAND_DIR_USER = string_make(format("%suser", datapath));
-	ANGBAND_DIR_APEX = string_make(format("%sapex", datapath));
-	ANGBAND_DIR_SAVE = string_make(format("%ssave", datapath));
+    reposband_DIR_USER = string_make(format("%suser", datapath));
+	reposband_DIR_APEX = string_make(format("%sapex", datapath));
+	reposband_DIR_SAVE = string_make(format("%ssave", datapath));
 
 #endif /* PRIVATE_USER_PATH */
 }
@@ -242,19 +243,19 @@ void create_needed_dirs(void)
 {
 	char dirpath[512];
 
-	path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_USER, "");
+	path_build(dirpath, sizeof(dirpath), reposband_DIR_USER, "");
 	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
-	path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SAVE, "");
+	path_build(dirpath, sizeof(dirpath), reposband_DIR_SAVE, "");
 	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
-	path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_APEX, "");
+	path_build(dirpath, sizeof(dirpath), reposband_DIR_APEX, "");
 	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
-	path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_INFO, "");
+	path_build(dirpath, sizeof(dirpath), reposband_DIR_INFO, "");
 	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 
-	path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_HELP, "");
+	path_build(dirpath, sizeof(dirpath), reposband_DIR_HELP, "");
 	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 }
 
@@ -264,7 +265,7 @@ errr parse_file(struct parser *p, const char *filename) {
 	ang_file *fh;
 	errr r = 0;
 
-	path_build(path, sizeof(path), ANGBAND_DIR_EDIT, format("%s.txt", filename));
+	path_build(path, sizeof(path), reposband_DIR_EDIT, format("%s.txt", filename));
 	fh = file_open(path, MODE_READ, -1);
 	if (!fh)
 		quit(format("Cannot open '%s.txt'", filename));
@@ -2395,6 +2396,11 @@ static enum parser_error parse_p_s(struct parser *p) {
 	r->r_adj[A_INT] = parser_getint(p, "int");
 	r->r_adj[A_WIS] = parser_getint(p, "wis");
 	r->r_adj[A_CHR] = parser_getint(p, "chr");
+	/* Monster races get AC and speed as they level -Simon */
+	r->initial_bonus_AC = parser_getint(p, "ibac");
+	r->max_bonus_AC  = parser_getint(p, "mbac");
+	r->initial_bonus_speed = parser_getint(p, "ibs");
+	r->max_bonus_speed = parser_getint(p, "mbs");
 	return PARSE_ERROR_NONE;
 }
 
@@ -2422,6 +2428,8 @@ static enum parser_error parse_p_x(struct parser *p) {
 	r->r_mhp = parser_getint(p, "mhp");
 	r->r_exp = parser_getint(p, "exp");
 	r->infra = parser_getint(p, "infra");
+	/* Which stat racial power failure % is based on */
+	r->racial_power_stat = parser_getint(p, "pwrstat");
 	return PARSE_ERROR_NONE;
 }
 
@@ -2524,20 +2532,170 @@ static enum parser_error parse_p_c(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
+/* Parse starting equipment -Simon */
+static enum parser_error parse_p_e(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	int i;
+	int tval, sval;
+
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	tval = tval_find_idx(parser_getsym(p, "tval"));
+	if (tval < 0)
+		return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+	sval = lookup_sval(tval, parser_getsym(p, "sval"));
+	if (sval < 0)
+		return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+	for (i = 0; i <= MAX_START_ITEMS; i++)
+		if (!r->start_items[i].min)
+			break;
+	if (i > MAX_START_ITEMS)
+		return PARSE_ERROR_TOO_MANY_ENTRIES;
+	r->start_items[i].kind = objkind_get(tval, sval);
+	r->start_items[i].min = parser_getuint(p, "min");
+	r->start_items[i].max = parser_getuint(p, "max");
+	/* XXX: MAX_ITEM_STACK? */
+	if (r->start_items[i].min > 99 || r->start_items[i].max > 99)
+		return PARSE_ERROR_INVALID_ITEM_NUMBER;
+	return PARSE_ERROR_NONE;
+}
+
+/* Parse the player monster index -Simon */
+static enum parser_error parse_p_m(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	if (!parser_hasval(p, "pmid"))
+	{
+		r->p_monster_index = 0;
+		return PARSE_ERROR_NONE;
+	}
+	r->p_monster_index = parser_getint(p, "pmid");
+	return PARSE_ERROR_NONE;
+}
+
+/* Parse the new monster race level info -Simon */
+static enum parser_error parse_p_l(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	for (int i = 0; i < MAX_NEXT_FORMS; i++)
+	{
+		r->next_form_indices[i] = -1;
+	}
+	if (!parser_hasval(p, "lvl"))
+	{
+		r->initial_level = 0;
+		r->max_level = 50;
+		return PARSE_ERROR_NONE;
+	}
+	r->initial_level = parser_getint(p, "lvl");
+	r->max_level = parser_getint(p, "mlvl");
+	/* I'm hardcoding the number of races that can be changed into b/c I'm not good enough at programming to do this the right way -Simon */
+	if (parser_hasval(p, "nid0"))
+		r->next_form_indices[0] = parser_getint(p, "nid0");
+	else
+		return PARSE_ERROR_NONE;
+	if (parser_hasval(p, "nid1"))
+		r->next_form_indices[1] = parser_getint(p, "nid1");
+	else
+		return PARSE_ERROR_NONE;
+	if (parser_hasval(p, "nid2"))
+		r->next_form_indices[2] = parser_getint(p, "nid2");
+	else
+		return PARSE_ERROR_NONE;
+	if (parser_hasval(p, "nid3"))
+		r->next_form_indices[3] = parser_getint(p, "nid3");
+	else
+		return PARSE_ERROR_NONE;
+	if (parser_hasval(p, "nid4"))
+		r->next_form_indices[4] = parser_getint(p, "nid4");
+	else
+		return PARSE_ERROR_NONE;
+	return PARSE_ERROR_NONE;
+}
+
+/* Parse the new monster slot info -Simon */
+static enum parser_error parse_p_q(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	if (!parser_hasval(p, "mslt"))
+	{
+		r->melee_slots = 1;
+		r->range_slots = 1;
+		r->ring_slots = 2;
+		r->amulet_slots = 1;
+		r->light_slots = 1;
+		r->body_slots = 1;
+		r->cloak_slots = 1;
+		r->shield_slots = 1;
+		r->helm_slots = 1;
+		r->glove_slots = 1;
+		r->boot_slots = 1;
+		return PARSE_ERROR_NONE;
+	}
+	r->melee_slots = parser_getint(p, "mslt");
+	r->range_slots = parser_getint(p, "rslt");
+	r->ring_slots = parser_getint(p, "islt");
+	r->amulet_slots = parser_getint(p, "aslt");
+	r->light_slots = parser_getint(p, "lslt");
+	r->body_slots = parser_getint(p, "bslt");
+	r->cloak_slots = parser_getint(p, "cslt");
+	r->shield_slots = parser_getint(p, "sslt");
+	r->helm_slots = parser_getint(p, "hslt");
+	r->glove_slots = parser_getint(p, "gslt");
+	r->boot_slots = parser_getint(p, "oslt");
+	return PARSE_ERROR_NONE;	
+}
+
+/* Parse the new monster power info -Simon */
+static enum parser_error parse_p_p(struct parser *p) {
+	struct player_race *r = parser_priv(p);
+	struct racial_power *rp = mem_zalloc(sizeof *rp);
+	int i = 0, j = 0;
+	char *tmp = "";
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	if (!parser_hasval(p, "lvl"))
+		return PARSE_ERROR_NONE;
+	rp->level = parser_getint(p, "lvl");
+	rp->sp = parser_getint(p, "cost");
+	tmp = parser_getsym(p, "name");
+	while(!streq(r_info_pwr[j], tmp) && (r_info_pwr[j]))
+		j++;
+	rp->type = j;
+	rp->fail = parser_getint(p, "fail");
+	/* get the first NULL power -Simon */
+	while(r->racial_powers[i].level && i < RACIAL_POWERS_MAX)
+		i++;
+	r->racial_powers[i] = *rp;
+	return PARSE_ERROR_NONE;
+}
+
+/* Bunch of lines have been added -Simon */
 struct parser *init_parse_p(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
 	parser_reg(p, "V sym version", ignored);
 	parser_reg(p, "N uint index str name", parse_p_n);
-	parser_reg(p, "S int str int int int wis int dex int con int chr", parse_p_s);
+	parser_reg(p, "S int str int int int wis int dex int con int chr int ibac int mbac int ibs int mbs", parse_p_s);
 	parser_reg(p, "R int dis int dev int sav int stl int srh int fos int thm int thb int throw int dig", parse_p_r);
-	parser_reg(p, "X int mhp int exp int infra", parse_p_x);
+	parser_reg(p, "X int mhp int exp int infra int pwrstat", parse_p_x);
 	parser_reg(p, "I int hist int b-age int m-age", parse_p_i);
 	parser_reg(p, "H int mbht int mmht int fbht int fmht", parse_p_h);
 	parser_reg(p, "W int mbwt int mmwt int fbwt int fmwt", parse_p_w);
 	parser_reg(p, "F ?str flags", parse_p_f);
 	parser_reg(p, "Y ?str flags", parse_p_y);
 	parser_reg(p, "C ?str classes", parse_p_c);
+	parser_reg(p, "E sym tval sym sval uint min uint max", parse_p_e);
+	parser_reg(p, "M int pmid", parse_p_m);
+	parser_reg(p, "L int lvl int mlvl int nid0 int nid1 int nid2 int nid3 int nid4", parse_p_l);
+	parser_reg(p, "Q int mslt int rslt int islt int aslt int lslt int bslt int cslt int sslt int hslt int gslt int oslt", parse_p_q);
+	parser_reg(p, "P int lvl int cost sym name int fail", parse_p_p);
 	return p;
 }
 
@@ -3297,7 +3455,7 @@ static errr init_other(void)
 	option_set_defaults();
 
 	/* Initialize the window flags */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		/* Assume no flags */
 		op_ptr->window_flag[i] = 0L;
@@ -3504,7 +3662,7 @@ static errr init_alloc(void)
 
 
 /*
- * Hack -- main Angband initialization entry point
+ * Hack -- main reposband initialization entry point
  *
  * Verify some files, display the "news.txt" file, create
  * the high score file, initialize all internal arrays, and
@@ -3550,7 +3708,7 @@ static errr init_alloc(void)
  * Note that the "graf-xxx.prf" file must be loaded separately,
  * if needed, in the first (?) pass through "TERM_XTRA_REACT".
  */
-bool init_angband(void)
+bool init_reposband(void)
 {
 	event_signal(EVENT_ENTER_INIT);
 
@@ -3667,7 +3825,7 @@ bool init_angband(void)
 }
 
 
-void cleanup_angband(void)
+void cleanup_reposband(void)
 {
 	int i;
 
@@ -3744,13 +3902,13 @@ void cleanup_angband(void)
 	vformat_kill();
 
 	/* Free the directories */
-	string_free(ANGBAND_DIR_APEX);
-	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_FILE);
-	string_free(ANGBAND_DIR_HELP);
-	string_free(ANGBAND_DIR_INFO);
-	string_free(ANGBAND_DIR_SAVE);
-	string_free(ANGBAND_DIR_PREF);
-	string_free(ANGBAND_DIR_USER);
-	string_free(ANGBAND_DIR_XTRA);
+	string_free(reposband_DIR_APEX);
+	string_free(reposband_DIR_EDIT);
+	string_free(reposband_DIR_FILE);
+	string_free(reposband_DIR_HELP);
+	string_free(reposband_DIR_INFO);
+	string_free(reposband_DIR_SAVE);
+	string_free(reposband_DIR_PREF);
+	string_free(reposband_DIR_USER);
+	string_free(reposband_DIR_XTRA);
 }

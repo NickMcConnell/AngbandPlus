@@ -1,7 +1,7 @@
 #ifndef INCLUDED_OBJECT_H
 #define INCLUDED_OBJECT_H
 
-#include "angband.h"
+#include "reposband.h"
 #include "z-textblock.h"
 
 /** Maximum number of scroll titles generated */

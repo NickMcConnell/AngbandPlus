@@ -1,7 +1,7 @@
 # File: pref-x11.prf
 
 #
-# This file provides some macros for use with versions of Angband compiled
+# This file provides some macros for use with versions of reposband compiled
 # using the "main-x11.c" (or "main-xaw.c") file.
 #
 # Note the use of "\a" (bell) to allow the macros to stop if the game is

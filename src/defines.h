@@ -36,13 +36,13 @@
 /*
  * Name of the version/variant and its version string
  */
-#define VERSION_NAME   "Angband"
-#define SAVEFILE_NAME  "VNLA"
+#define VERSION_NAME   "Reposband"
+#define SAVEFILE_NAME  "REPOS"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "3.2.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.5.3 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "3.2.0"
+# define VERSION_STRING "0.5.3"
 #endif
 
 
@@ -120,9 +120,9 @@
 
 
 /*
- * Maximum amount of Angband windows.
+ * Maximum amount of reposband windows.
  */
-#define ANGBAND_TERM_MAX 8
+#define REPOSBAND_TERM_MAX 8
 
 
 
@@ -134,6 +134,22 @@
  */
 #define MAX_SEXES            2
 
+/*
+ *	Max numbers for "classic" i.e. non-monster characters -Simon
+ */
+#define DEMIHUMAN_RACE_MAX	10
+#define DEMIHUMAN_CLASS_MAX	5
+
+/* # of races that show up on the race select screen */
+#define SELECTABLE_RACE_MAX	16
+
+/* most # of forms that monster race can branch into at one junction */
+#define MAX_NEXT_FORMS	5
+
+/*
+ * Maximum number of powers any race can have -Simon
+ */
+#define RACIAL_POWERS_MAX		23
 
 /*
  * Maximum amount of starting equipment, and starting gold
@@ -296,7 +312,7 @@ typedef enum
 /*
  * Player constants
  */
-#define PY_MAX_EXP	99999999L	/* Maximum exp */
+#define PY_MAX_EXP	999999999L	/* Maximum exp */
 #define PY_MAX_GOLD	999999999L	/* Maximum gold */
 #define PY_MAX_LEVEL	50		/* Maximum level */
 
@@ -369,32 +385,31 @@ typedef enum
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
  */
 #define INVEN_WIELD		24
-#define INVEN_BOW       25
-#define INVEN_LEFT      26
-#define INVEN_RIGHT     27
-#define INVEN_NECK      28
-#define INVEN_LIGHT     29
-#define INVEN_BODY      30
-#define INVEN_OUTER     31
-#define INVEN_ARM       32
-#define INVEN_HEAD      33
-#define INVEN_HANDS     34
-#define INVEN_FEET      35
+#define INVEN_BOW       35
+#define INVEN_FINGER	46
+#define INVEN_NECK      57
+#define INVEN_LIGHT     68
+#define INVEN_BODY      79
+#define INVEN_OUTER     80
+#define INVEN_ARM       91
+#define INVEN_HEAD      102
+#define INVEN_HANDS     113
+#define INVEN_FEET      124
 
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL		36
+#define INVEN_TOTAL		135
 
 
 /*
  *Quiver
  */
-#define QUIVER_START 37
+#define QUIVER_START 136
 #define QUIVER_SIZE  10
-#define QUIVER_END   47
+#define QUIVER_END   146
 
-#define ALL_INVEN_TOTAL 47
+#define ALL_INVEN_TOTAL 146
 
 /*
  * Special return code corresponding to squelched items.
@@ -1058,6 +1073,7 @@ enum
 #define PR_MONLIST		0x01000000L /* Display monster list */
 #define PR_BUTTONS              0x02000000L     /* Display mouse buttons */
 #define PR_ITEMLIST             0x04000000L /* Display item list */
+#define PR_MON_MANA				0x08000000L /* Will display monster mana -Simon */
 
 /* Display Basic Info */
 #define PR_BASIC \
@@ -1347,6 +1363,10 @@ enum
  * Special Monster Flags (all temporary)
  */
 #define MFLAG_VIEW	0x01	/* Monster is in line of sight */
+#define MFLAG_WARY	0x02	/* RePos, will explain once I understand -Simon */
+#define MFLAG_MIMIC	0x04	/* RePos, will explain once I understand -Simon */
+#define MFLAG_ACTV	0x08	/* RePos, will explain once I understand -Simon */
+
 /* xxx */
 #define MFLAG_NICE	0x20	/* Monster is still being nice */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
@@ -1507,7 +1527,7 @@ enum
 /*
  * Hack -- The main "screen"
  */
-#define term_screen	(angband_term[0])
+#define term_screen	(reposband_term[0])
 
 
 /*

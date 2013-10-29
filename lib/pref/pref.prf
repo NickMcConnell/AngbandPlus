@@ -166,6 +166,10 @@ C:1:W
 A:b
 C:1:P
 
+# Use a racial 'p'ower
+A:U
+C:1:p
+
 # Jam a door (Spike)
 A:j
 C:1:S

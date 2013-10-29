@@ -6,11 +6,11 @@ usage() {
 }
 
 run() {
-	rm -rf ~/.angband/Test
+	rm -rf ~/.reposband/Test
 
 	test="$1"
 	echo -n "Running: $test... "
-	../src/angband -mtest < "$test/input" > "$test/run.out"
+	../src/reposband -mtest < "$test/input" > "$test/run.out"
 	if [ -x "$test/matcher" ]; then
 		"$test/matcher" "$test"
 	else

@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 /* Markers for the start and end of words. */
 #define S_WORD 26
@@ -169,7 +169,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 
 /* 
  * To run standalone tests, #define RANDNAME_TESTING and link with
- *  with just z-rand.c from Angband. 
+ *  with just z-rand.c from reposband. 
  */
 #ifdef RANDNAME_TESTING
 

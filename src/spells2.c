@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "generate.h"
 #include "history.h"
@@ -71,7 +71,7 @@ bool hp_player(int num)
  * Heal the player by a given percentage of his wounds, or a minimum
  * amount, whichever is larger.
  *
- * Copied wholesale from EyAngband.
+ * Copied wholesale from Eyreposband.
  */
 bool heal_player(int perc, int min)
 {
@@ -410,7 +410,7 @@ bool restore_level(void)
 void set_recall(void)
 {
 	/* Ironman */
-	if (OPT(adult_ironman) && !p_ptr->total_winner)
+	if (OPT(birth_ironman) && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -757,7 +757,7 @@ bool detect_treasure(bool aware)
 		light_spot(y, x);
 
 		/* Detect */
-		if (!squelch_hide_item(o_ptr))
+		if (!squelch_item_ok(o_ptr))
 			objects = TRUE;
 	}
 
@@ -893,7 +893,7 @@ bool detect_objects_magic(bool aware)
 			light_spot(y, x);
 
 			/* Detect */
-			if (!squelch_hide_item(o_ptr))
+			if (!squelch_item_ok(o_ptr))
 				detect = TRUE;
 		}
 	}
@@ -1431,8 +1431,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	/* Failure */
 	if (!okay)
 	{
-		/* Flush */
-		if (OPT(flush_failure)) flush();
+		flush();
 
 		/* Message */
 		msg_print("The enchantment failed.");
@@ -3125,7 +3124,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 	}
 	else
 	{
-		if (OPT(flush_failure)) flush();
+		flush();
 		msg_print("The branding failed.");
 	}
 }

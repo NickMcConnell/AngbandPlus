@@ -1,3 +1,3 @@
 TESTPROGS += artifact/randname
 
-artifact/randname: artifact/randname.c ../angband.o
+artifact/randname: artifact/randname.c ../reposband.o

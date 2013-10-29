@@ -1,6 +1,6 @@
 # File: Makefile.osx
 
-# This is a (rather crude) Makefile for Mac OS X Carbon port of Angband.
+# This is a (rather crude) Makefile for Mac OS X Carbon port of reposband.
 #
 # Based on Makefile.std, made separate because this port does not uses
 # main.c.
@@ -13,9 +13,9 @@ CC = gcc
 LD = ld
 OPT ?= -O2
 
-NAME = Angband
+NAME = reposband
 APPNAME = $(NAME).app
-EXE = angband
+EXE = reposband
 
 ARCH = -arch i386 -arch ppc
 WARNINGS = -W -Wall -Wno-unused-parameter -Wno-missing-field-initializers
@@ -63,14 +63,14 @@ OSX_OBJS = main-crb.o
 
 
 #
-# Build the "Angband" program
+# Build the "reposband" program
 #
 
 
 $(EXE).o: $(OBJS)
 	$(LD) -r -arch ppc -o $@.ppc $(OBJS)
 	$(LD) -r -arch i386 -o $@.i386 $(OBJS)
-	lipo -arch ppc $@.ppc -arch i386 $@.i386 -create -output angband.o
+	lipo -arch ppc $@.ppc -arch i386 $@.i386 -create -output reposband.o
 
 $(EXE): $(EXE).o $(OSX_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(EXE).o $(OSX_OBJS) $(LIBS) 
@@ -129,8 +129,8 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.png for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in
 # the lib/xtra/graf directory and rebuild.
-ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
-PLIST = osx/Angband.xml
+ICONFILES = osx/reposband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+PLIST = osx/reposband.xml
 
 GRAPHSRC=../lib/xtra/graf/
 TILES = $(GRAPHSRC)8x8.png $(GRAPHSRC)8x16.png $(GRAPHSRC)16x16.png $(GRAPHSRC)32x32.png

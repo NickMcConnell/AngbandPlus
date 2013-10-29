@@ -1,6 +1,6 @@
 /*
  * File: tables.c
- * Purpose: Finely-tuned constants for the game Angband
+ * Purpose: Finely-tuned constants for the game reposband
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "object/tvalsval.h"
 
 
@@ -650,7 +650,7 @@ const grouper object_text_order[] =
  * Upper case and lower case equivalents of a given ISO Latin-1 character.
  * A character's general "type"; types may be combined.
  *
- * Note that this table assumes use of the standard Angband extended fonts.
+ * Note that this table assumes use of the standard reposband extended fonts.
  *
  * Notice the accented characters in positions 191+.  If they don't appear
  * correct to you, then you are viewing this table in a non-Latin-1 font.

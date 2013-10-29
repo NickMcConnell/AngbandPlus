@@ -11,7 +11,7 @@
 #ifndef INCLUDED_MAIN_H
 #define INCLUDED_MAIN_H
 
-#include "angband.h"
+#include "reposband.h"
 
 extern errr init_sound_sdl(int argc, char **argv);
 

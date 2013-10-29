@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "z-util.h"
 #include "z-term.h"
 
@@ -299,7 +299,7 @@ const char seven_bit_translation[128] =
 };
 
 /*
- * Given a position in the ISO Latin-1 character set (which Angband uses
+ * Given a position in the ISO Latin-1 character set (which reposband uses
  * internally), return the correct display character on this system.
  * Assume ASCII-only if no special hook is available.  -LM-
  */

@@ -60,7 +60,7 @@ full user guide.
 
 You can post compliments, complaints, suggestions, bug reports, and 
 patches at http://angband.oook.cz, or to the newsgroup 
-'rec.games.roguelike.angband'. You can also post interesting experiences 
+'rec.games.roguelike.Angband'. You can also post interesting experiences 
 and ask for help.
 
 This version of Angband is under the GNU General Public Licence (GPL) 

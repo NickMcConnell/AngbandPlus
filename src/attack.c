@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 #include "cave.h"
 #include "cmds.h"
@@ -272,11 +272,28 @@ bool py_attack_real(int y, int x)
 
 	u32b msg_type = 0;
 	bool success = FALSE;
-
-	/* Default to punching for one damage */
-	const char *hit_verb = "punch";
+	
+	const char *hit_verb = "ERROR";
 	int dmg = 1;
-	msg_type = MSG_HIT;
+	
+	/* Default to punching for one damage */
+	/* Maybe handle monster melee here -Simon */
+	if(!rp_ptr->p_monster_index)
+	{
+		hit_verb = "punch";
+		msg_type = MSG_HIT;
+	}
+
+	/*
+	 * Hack -- if advanced innate attacks are disabled for this race, fall back
+	 * on defaults <player>'s 1d1.
+	 */
+	 /* TODO: this -Simon */
+	/* if (p_ptr->flags[NO_INNATE])
+	{
+			p_ptr = &r_info[0];
+	} */
+
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -301,128 +318,266 @@ bool py_attack_real(int y, int x)
 
 	/* Get the weapon */
 	o_ptr = &p_ptr->inventory[INVEN_WIELD];
-
-	/* Calculate the "attack quality" */
+	
+		/* Calculate the "attack quality" */
 	bonus = p_ptr->state.to_h + o_ptr->to_h;
 	chance = (p_ptr->state.skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
 
-	/* See if the player hit */
-	success = test_hit(chance, r_ptr->ac, m_ptr->ml);
-
-	/* If a miss, skip this hit */
-	if (!success)
+	if(!o_ptr->k_idx && rp_ptr->p_monster_index)
 	{
-		message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
-		return (FALSE);
-	}
-
-	/* Handle normal weapon */
-	if (o_ptr->k_idx)
-	{
-		int i;
-		const slay_t *best_s_ptr = NULL;
-
-		hit_verb = "hit";
-
-		/* Get the best attack from all slays or
-		 * brands on all non-launcher equipment */
-		for (i = INVEN_LEFT; i < INVEN_TOTAL; i++)
-			improve_attack_modifier(&p_ptr->inventory[i], m_ptr,
-			&best_s_ptr);
-
-		improve_attack_modifier(o_ptr, m_ptr, &best_s_ptr);
-		if (best_s_ptr != NULL)
-			hit_verb = best_s_ptr->melee_verb;
-
-		dmg = damroll(o_ptr->dd, o_ptr->ds);
-		dmg *= (best_s_ptr == NULL) ? 1 : best_s_ptr->mult;
-
-		if (p_ptr->state.impact && (dmg > 50))
-			do_quake = TRUE;
-
-		dmg += o_ptr->to_d;
-		dmg = critical_norm(o_ptr->weight, o_ptr->to_h, dmg, &msg_type);
-
-		/* Learn by use for the weapon */
-		object_notice_attack_plusses(o_ptr);
-
-		if (do_quake)
-			wieldeds_notice_flag(OF_IMPACT);
-	}
-
-	/* Learn by use for other equipped items */
-	wieldeds_notice_on_attack();
-
-	/* Apply the player damage bonuses */
-	dmg += p_ptr->state.to_d;
-
-	/* No negative damage */
-	if (dmg <= 0) dmg = 0;
-
-	/* Tell the player what happened */
-	if (dmg <= 0)
-		message_format(MSG_MISS, m_ptr->r_idx,
-					   "You fail to harm %s.", m_name);
-	else if (msg_type == MSG_HIT)
-		message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.",
-					   hit_verb, m_name);
-	else if (msg_type == MSG_HIT_GOOD)
-		message_format(MSG_HIT_GOOD, m_ptr->r_idx, "You %s %s. %s",
-					   hit_verb, m_name, "It was a good hit!");
-	else if (msg_type == MSG_HIT_GREAT)
-		message_format(MSG_HIT_GREAT, m_ptr->r_idx, "You %s %s. %s",
-					   hit_verb, m_name, "It was a great hit!");
-	else if (msg_type == MSG_HIT_SUPERB)
-		message_format(MSG_HIT_SUPERB, m_ptr->r_idx, "You %s %s. %s",
-					   hit_verb, m_name, "It was a superb hit!");
-	else if (msg_type == MSG_HIT_HI_GREAT)
-		message_format(MSG_HIT_HI_GREAT, m_ptr->r_idx, "You %s %s. %s",
-					   hit_verb, m_name, "It was a *GREAT* hit!");
-	else if (msg_type == MSG_HIT_HI_SUPERB)
-		message_format(MSG_HIT_HI_SUPERB, m_ptr->r_idx, "You %s %s. %s",
-					   hit_verb, m_name, "It was a *SUPERB* hit!");
-
-	/* Complex message */
-	if (p_ptr->wizard)
-		msg_format("You do %d (out of %d) damage.", dmg, m_ptr->hp);
-
-	/* Confusion attack */
-	if (p_ptr->confusing)
-	{
-		/* Cancel glowing hands */
-		p_ptr->confusing = FALSE;
-
-		/* Message */
-		msg_print("Your hands stop glowing.");
-
-		/* Update the lore */
-		if (m_ptr->ml)
-			rf_on(l_ptr->flags, RF_NO_CONF);
-
-		/* Confuse the monster */
-		if (rf_has(r_ptr->flags, RF_NO_CONF))
-			msg_format("%^s is unaffected.", m_name);
-		else if (randint0(100) < r_ptr->level)
-			msg_format("%^s is unaffected.", m_name);
-		else
+		for (int num = 0; (num < MONSTER_BLOW_MAX) && !dead; num++)
 		{
-			msg_format("%^s appears confused.", m_name);
-			m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
-		}
+			int type = GF_ARROW, type2 = 0;
+			int flg = PROJECT_KILL | PROJECT_STOP | PROJECT_HIDE; // | PROJECT_PASS; TODO: figure out what this is and implement it -Simon
+			char *p = "";
+						
+			if (!r_info[rp_ptr->p_monster_index].blow[num].method && !dead)
+				continue;
+					
+			/* Test for hit */
+			if (test_hit(chance, r_info[m_ptr->r_idx].ac, m_ptr->ml))
+			{
+				int mul = 1;
+				int k = 0;
+				
+				/* Get the method */
+				switch (r_info[rp_ptr->p_monster_index].blow[num].method)
+				{
+					case RBM_HIT:	p = "hit"; break;
+					case RBM_TOUCH:	p = "touch"; break;
+					case RBM_PUNCH:	p = "punch"; break;
+					case RBM_KICK:	p = "kick"; break;
+					case RBM_CLAW:	p = "claw"; break;
+					case RBM_BITE:	p = "bite"; break;
+					case RBM_STING:	p = "sting"; break;
+					case RBM_BUTT:	p = "butt"; break;
+					case RBM_CRUSH:	p = "crush"; break;
+					case RBM_ENGULF:	p = "engulf"; break;
+					case RBM_PECK:	p = "peck"; break;
+					case RBM_CRAWL:	p = "crawl on"; break;
+					case RBM_DROOL:	p = "drool on"; break;
+					case RBM_SPIT:	p = "spit on"; break;
+					case RBM_SLIME:	p = "slime"; break;
+					case RBM_GAZE:	p = "gaze at"; break;
+					case RBM_WAIL:	p = "wail at"; break;
+					case RBM_SPORE:	p = "release spores at"; break;
+					case RBM_BEG:	p = "beg for money"; break;
+					case RBM_INSULT:	p = "insult"; break;
+					default: p = "attack";
+				}
+
+				/* Get the effect */
+				switch (r_info[rp_ptr->p_monster_index].blow[num].effect)
+				{
+					case RBE_HURT: type = GF_ARROW; break;
+					case RBE_DISEASE: type = GF_POIS; mul = 2; break;
+					case RBE_POISON: type = GF_POIS; mul = 2; break;
+					case RBE_LOSE_MANA: type = GF_DISENCHANT; break;
+					case RBE_UN_BONUS: type = GF_DISENCHANT; mul = 2; break;
+					case RBE_UN_POWER: type = GF_DISENCHANT; mul = 2; break; /* ? */
+					case RBE_EAT_LIGHT: type = GF_DARK; mul = 2; break;
+					case RBE_ACID: type = GF_ACID; mul = 2; break;
+					case RBE_ELEC: type = GF_ELEC; mul = 2; break;
+					case RBE_FIRE: type = GF_FIRE; mul = 2; break;
+					case RBE_COLD: type = GF_COLD; mul = 2; break;
+					case RBE_BLIND: type2 = GF_OLD_CONF; break; /* ? */
+					case RBE_CONFUSE: type2 = GF_OLD_CONF; break;
+					case RBE_TERRIFY: type2 = GF_TURN_ALL; break; /* ? */
+					case RBE_PARALYZE: type2 = GF_OLD_SLEEP; break; /* ? */
+					/* Earthquake would be natural, but all monsters
+					 * with RBE_SHATTER are already humanoids
+					 */
+					case RBE_SHATTER: type = GF_ARROW; break;
+					case RBE_EXP_10: type = GF_NETHER; mul = 2; break;
+					case RBE_EXP_20: type = GF_NETHER; mul = 2; break;
+					case RBE_EXP_40: type = GF_NETHER; mul = 2; break;
+					case RBE_EXP_80: type = GF_NETHER; mul = 2; break;
+					/* GF_CHAOS will polymorph, so it is bad */
+					case RBE_HALLU: type = GF_DISENCHANT; mul = 2; break;
+					default: type = GF_ARROW;
+				}
+
+				message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.", p, m_name);
+				k = damroll(r_info[rp_ptr->p_monster_index].blow[num].d_dice * mul, r_info[rp_ptr->p_monster_index].blow[num].d_side);
+				/* Add to-dam bonus only if did some damage */
+				if (k) k += p_ptr->state.to_d;
+				if (k < 0) k = 0;
+					
+				/* If there is an extra effect, project it also, using 4*level as power */
+				if (type2)
+				{
+					project(-1, 0, y, x, 4 * p_ptr->lev, type2, flg);
+				}
+					
+				/* Damage, check for fear and death */
+				/* For some reason this used to project a radius 0 ball */
+				dead = mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
+				
+				/* Hack -- delay fear messages */
+				if (fear && m_ptr->ml)
+					message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
+								       
+				/* Confusion attack */
+				if (p_ptr->confusing)
+				{
+					/* Cancel glowing hands */
+					p_ptr->confusing = FALSE;
+
+					/* Message */
+					/* XXX Most monsters don't have hands! */
+					msg_print("Your limbs stop glowing.");
+
+					/* Confuse the monster */
+					if (r_ptr->flags[RF_NO_CONF])
+					{
+						if (m_ptr->ml)
+						{
+							l_ptr->flags[RF_NO_CONF] = TRUE;
+						}
+						msg_format("%^s is unaffected.", m_name);
+					}
+					else if (randint0(100) < r_ptr->level)
+					{
+						msg_format("%^s is unaffected.", m_name);
+					}
+					else
+					{
+						msg_format("%^s appears confused.", m_name);
+						m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
+					}
+				}
+	     
+			}
+			/* Player misses */
+			else
+			{
+				/* Message */
+				message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			}
+		}	
+		return (TRUE);
 	}
+	
+	else
+	{
+		/* See if the player hit */
+		success = test_hit(chance, r_ptr->ac, m_ptr->ml);
 
-	/* Damage, check for fear and death */
-	dead = mon_take_hit(cave_m_idx[y][x], dmg, &fear, NULL);
+		/* If a miss, skip this hit */
+		if (!success)
+		{
+			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			return (FALSE);
+		}
 
-	/* Hack -- delay fear messages */
-	if (fear && m_ptr->ml)
-		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!",
-		m_name);
+		/* Handle normal weapon */
+		if (o_ptr->k_idx)
+		{
+			int i;
+			const slay_t *best_s_ptr = NULL;
 
-	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
+			hit_verb = "hit";
 
-	return (dead);
+			/* Get the best attack from all slays or
+			 * brands on all non-launcher equipment */
+			for (i = INVEN_FINGER; i < INVEN_TOTAL; i++)
+				improve_attack_modifier(&p_ptr->inventory[i], m_ptr,
+				&best_s_ptr);
+
+			improve_attack_modifier(o_ptr, m_ptr, &best_s_ptr);
+			if (best_s_ptr != NULL)
+				hit_verb = best_s_ptr->melee_verb;
+
+			dmg = damroll(o_ptr->dd, o_ptr->ds);
+			dmg *= (best_s_ptr == NULL) ? 1 : best_s_ptr->mult;
+
+			if (p_ptr->state.impact && (dmg > 50))
+				do_quake = TRUE;
+
+			dmg += o_ptr->to_d;
+			dmg = critical_norm(o_ptr->weight, o_ptr->to_h, dmg, &msg_type);
+
+			/* Learn by use for the weapon */
+			object_notice_attack_plusses(o_ptr);
+
+			if (do_quake)
+				wieldeds_notice_flag(OF_IMPACT);
+		}
+
+		/* Learn by use for other equipped items */
+		wieldeds_notice_on_attack();
+
+		/* Apply the player damage bonuses */
+		dmg += p_ptr->state.to_d;
+
+		/* No negative damage */
+		if (dmg <= 0) dmg = 0;
+
+		/* Tell the player what happened */
+		if (dmg <= 0)
+			message_format(MSG_MISS, m_ptr->r_idx,
+						   "You fail to harm %s.", m_name);
+		else if (msg_type == MSG_HIT)
+			message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.",
+						   hit_verb, m_name);
+		else if (msg_type == MSG_HIT_GOOD)
+			message_format(MSG_HIT_GOOD, m_ptr->r_idx, "You %s %s. %s",
+						   hit_verb, m_name, "It was a good hit!");
+		else if (msg_type == MSG_HIT_GREAT)
+			message_format(MSG_HIT_GREAT, m_ptr->r_idx, "You %s %s. %s",
+						   hit_verb, m_name, "It was a great hit!");
+		else if (msg_type == MSG_HIT_SUPERB)
+			message_format(MSG_HIT_SUPERB, m_ptr->r_idx, "You %s %s. %s",
+						   hit_verb, m_name, "It was a superb hit!");
+		else if (msg_type == MSG_HIT_HI_GREAT)
+			message_format(MSG_HIT_HI_GREAT, m_ptr->r_idx, "You %s %s. %s",
+						   hit_verb, m_name, "It was a *GREAT* hit!");
+		else if (msg_type == MSG_HIT_HI_SUPERB)
+			message_format(MSG_HIT_HI_SUPERB, m_ptr->r_idx, "You %s %s. %s",
+						   hit_verb, m_name, "It was a *SUPERB* hit!");
+
+		/* Complex message */
+		if (p_ptr->wizard)
+			msg_format("You do %d (out of %d) damage.", dmg, m_ptr->hp);
+
+		/* Confusion attack */
+		if (p_ptr->confusing)
+		{
+			/* Cancel glowing hands */
+			p_ptr->confusing = FALSE;
+
+			/* Message */
+			msg_print("Your limbs stop glowing.");
+
+			/* Update the lore */
+			if (m_ptr->ml)
+				rf_on(l_ptr->flags, RF_NO_CONF);
+
+			/* Confuse the monster */
+			if (rf_has(r_ptr->flags, RF_NO_CONF))
+				msg_format("%^s is unaffected.", m_name);
+			else if (randint0(100) < r_ptr->level)
+				msg_format("%^s is unaffected.", m_name);
+			else
+			{
+				msg_format("%^s appears confused.", m_name);
+				m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
+			}
+		}
+
+		/* Damage, check for fear and death */
+		dead = mon_take_hit(cave_m_idx[y][x], dmg, &fear, NULL);
+
+		/* Hack -- delay fear messages */
+		if (fear && m_ptr->ml)
+			message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!",
+			m_name);
+
+		/* Mega-Hack -- apply earthquake brand */
+		if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
+
+		return (dead);
+	}
 }
 
 void py_attack(int y, int x)

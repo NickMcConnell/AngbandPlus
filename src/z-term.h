@@ -144,8 +144,6 @@ struct term_win
  *	- Hook for init-ing the term
  *	- Hook for nuke-ing the term
  *
- *	- Hook for user actions
- *
  *	- Hook for extra actions
  *
  *	- Hook for placing the cursor
@@ -217,8 +215,6 @@ struct term
 	void (*init_hook)(term *t);
 	void (*nuke_hook)(term *t);
 
-	errr (*user_hook)(int n);
-
 	errr (*xtra_hook)(int n, int v);
 
 	errr (*curs_hook)(int x, int y);
@@ -275,7 +271,7 @@ struct term
 
 
 /*
- * Angband "attributes" (with symbols, and base (R,G,B) codes)
+ * reposband "attributes" (with symbols, and base (R,G,B) codes)
  *
  * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
  * and should "gamma corrected" on most (non-Macintosh) machines.
@@ -326,7 +322,7 @@ struct term
 #define MAX_ATTR        9
 
 /*
- * Maximum number of colours, and number of "basic" Angband colours
+ * Maximum number of colours, and number of "basic" reposband colours
  */ 
 #define MAX_COLORS        256
 #define BASIC_COLORS    28
@@ -343,7 +339,6 @@ extern bool smlcurs;
 
 /**** Available Functions ****/
 
-extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
 extern void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc);
@@ -388,6 +383,3 @@ extern errr term_init(term *t, int w, int h, int k);
 
 
 #endif
-
-
-

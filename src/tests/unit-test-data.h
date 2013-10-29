@@ -5,7 +5,7 @@
 #ifndef UNIT_TEST_DATA
 #define UNIT_TEST_DATA
 
-#include "angband.h"
+#include "reposband.h"
 #include "object/tvalsval.h"
 
 static struct player_sex test_sex = {

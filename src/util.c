@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "button.h"
 #include "game-event.h"
 #include "macro.h"
@@ -651,15 +651,6 @@ void flush(void)
 
 
 /*
- * Flush all pending input if the OPT(flush_failure) option is set.
- */
-void flush_fail(void)
-{
-	if (OPT(flush_failure)) flush();
-}
-
-
-/*
  * Local variable -- we are inside a "macro action"
  *
  * Do not match any macros until "ascii 30" is found.
@@ -876,7 +867,7 @@ static ui_event_data inkey_aux(int scan_cutoff)
  * This special pointer allows a sequence of keys to be "inserted" into
  * the stream of keys returned by "inkey()".  This key sequence will not
  * trigger any macros, and cannot be bypassed by the Borg.  It is used
- * in Angband to handle "keymaps".
+ * in reposband to handle "keymaps".
  */
 cptr inkey_next = NULL;
 
@@ -944,9 +935,9 @@ char (*inkey_hack)(int flush_first) = NULL;
  * any time.  These sub-commands could include commands to take a picture of
  * the current screen, to start/stop recording a macro action, etc.
  *
- * If "angband_term[0]" is not active, we will make it active during this
+ * If "reposband_term[0]" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "angband_term[0]" is active.
+ * is only requested (via "Term_inkey()") when "reposband_term[0]" is active.
  *
  * Mega-Hack -- This function is used as the entry point for clearing the
  * "signal_count" variable, and of the "character_saved" variable.
@@ -1022,7 +1013,7 @@ ui_event_data inkey_ex(void)
 	(void)Term_get_cursor(&cursor_state);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || OPT(highlight_player) || character_icky))
+	if (!inkey_scan && (!inkey_flag || character_icky))
 	{
 		/* Show the cursor */
 		(void)Term_set_cursor(TRUE);
@@ -1271,9 +1262,6 @@ void bell(cptr reason)
 		redraw_stuff();
 	}
 
-	/* Make a bell noise (if allowed) */
-	if (OPT(ring_bell)) Term_xtra(TERM_XTRA_NOISE, 0);
-
 	/* Flush the input (later!) */
 	flush();
 }
@@ -1304,18 +1292,7 @@ static void msg_flush(int x)
 	Term_putstr(x, 0, -1, a, "-more-");
 
 	if (!OPT(auto_more))
-	{
-		/* Get an acceptable keypress */
-		while (1)
-		{
-			char ch;
-			ch = inkey();
-			if (OPT(quick_messages)) break;
-			if ((ch == ESCAPE) || (ch == ' ')) break;
-			if ((ch == '\n') || (ch == '\r')) break;
-			bell("Illegal response to a 'more' prompt!");
-		}
-	}
+		anykey();
 
 	/* Clear the line */
 	Term_erase(0, 0, 255);
@@ -1357,7 +1334,6 @@ static void msg_print_aux(u16b type, cptr msg)
 	char buf[1024];
 	byte color;
 	int w, h;
-
 
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
@@ -1406,21 +1382,18 @@ static void msg_print_aux(u16b type, cptr msg)
 	color = message_type_color(type);
 
 	/* Split message */
-	while (n > (w - 8))
+	while (n > w - 1)
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = (w - 8);
+		split = w - 8;
 
-		/* Find the "best" split point */
-		for (check = (w / 2); check < (w - 8); check++)
-		{
-			/* Found a valid split point */
+		/* Find the rightmost split point */
+		for (check = (w / 2); check < w - 8; check++)
 			if (t[check] == ' ') split = check;
-		}
 
 		/* Save the split character */
 		oops = t[split];
@@ -2522,16 +2495,7 @@ bool get_check(cptr prompt)
   
 	/* Prompt for it */
 	prt(buf, 0, 0);
-
-	/* Get an acceptable answer */
-	while (TRUE)
-	{
-		ke = inkey_ex();
-		if (OPT(quick_messages)) break;
-		if (ke.key == ESCAPE) break;
-		if (strchr("YyNn", ke.key)) break;
-		bell("Illegal response to a 'yes/no' question!");
-	}
+	ke = inkey_ex();
 
 	/* Kill the buttons */
 	button_kill('y');
@@ -2588,23 +2552,14 @@ char get_char(cptr prompt, const char *options, size_t len, char fallback)
 	prt(buf, 0, 0);
 
 	/* Get an acceptable answer */
-	while (TRUE)
-	{
-		key = inkey_ex().key;
+	key = inkey_ex().key;
 
-		/* Lowercase answer if necessary */
-		if (key >= 'A' && key <= 'Z') key += 32;
+	/* Lowercase answer if necessary */
+	if (key >= 'A' && key <= 'Z') key += 32;
 
-		/* See if key is in our options string */
-		if (strchr(options, key)) break;
-
-		/* If we want to escape, return the fallback */
-		if (key == ESCAPE || OPT(quick_messages)) 
-		{
-			key = fallback;
-			break;
-		}
-		bell("Illegal response!");
+	/* See if key is in our options string */
+	if (!strchr(options, key)) {
+		key = fallback;
 	}
 
 	/* Kill the buttons */
@@ -2637,7 +2592,7 @@ static bool get_file_text(const char *suggested_name, char *path, size_t len)
 	if (buf[0] == '\0' || buf[0] == ' ') return FALSE;
 
 	/* Build the path */
-	path_build(path, len, ANGBAND_DIR_USER, buf);
+	path_build(path, len, reposband_DIR_USER, buf);
 
 	/* Check if it already exists */
 	if (file_exists(buf))
@@ -2810,7 +2765,7 @@ cptr attr_to_text(byte a)
  * XXX XXX XXX Important note about "colors" XXX XXX XXX
  *
  * The "TERM_*" color definitions list the "composition" of each
- * "Angband color" in terms of "quarters" of each of the three color
+ * "reposband color" in terms of "quarters" of each of the three color
  * components (Red, Green, Blue), for example, TERM_UMBER is defined
  * as 2/4 Red, 1/4 Green, 0/4 Blue.
  *

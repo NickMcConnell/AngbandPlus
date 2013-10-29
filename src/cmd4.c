@@ -18,7 +18,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "cmds.h"
 #include "externs.h"
@@ -101,11 +101,15 @@ void do_cmd_redraw(void)
 
 
 	/* Redraw every window */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
-		if (!angband_term[j]) continue;
+		/* Dead window */
+		if (!reposband_term[j]) continue;
 
-		Term_activate(angband_term[j]);
+		/* Activate */
+		Term_activate(reposband_term[j]);
+
+		/* Redraw */
 		Term_redraw();
 		Term_fresh();
 		Term_activate(old);
@@ -517,7 +521,7 @@ static const char *feeling_text[] =
 void do_cmd_feeling(void)
 {
 	/* Don't show feelings for cold-hearted characters */
-	if (OPT(adult_no_feelings)) return;
+	if (OPT(birth_no_feelings)) return;
 
 	/* Verify the feeling */
 	if (feeling >= N_ELEMENTS(feeling_text))
@@ -566,7 +570,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, reposband_DIR_USER, "dump.txt");
 	fp = file_open(buf, MODE_READ, -1);
 	if (!fp) return;
 
@@ -652,7 +656,7 @@ static void do_cmd_save_screen_text(void)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, reposband_DIR_USER, "dump.txt");
 	fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 	if (!fff) return;
 
@@ -748,7 +752,7 @@ static void do_cmd_save_screen_html(int mode)
 	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
 
 	/* Save current preferences */
-	path_build(file_name, 1024, ANGBAND_DIR_USER, "dump.prf");
+	path_build(file_name, 1024, reposband_DIR_USER, "dump.prf");
 	fff = file_open(file_name, MODE_WRITE, (mode == 0 ? FTYPE_HTML : FTYPE_TEXT));
 
 	/* Check for failure */

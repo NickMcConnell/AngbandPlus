@@ -29,7 +29,7 @@ by the operating system as explained above.
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
-angband keyset.  The backslash key is useful for creating macro actions
+Angband keyset.  The backslash key is useful for creating macro actions
 which are not affected by any keymap definitions that may be in force, for
 example, the sequence "\" + "." + "6" will always mean "run east", even if
 the "." key has been mapped to a different underlying command.
@@ -150,7 +150,7 @@ spellbook is not in your inventory.
 
         You can also use inscriptions to force the game to prompt you on
 whether or not you want to use that object.  Any object containing "!x" in 
-its inscription, where "x" is the current "angband command" (or containing 
+its inscription, where "x" is the current "Angband command" (or containing 
 "!*" for all commands) will induce "verification" whenever that object is 
 "selected".  Thus, inscribing, say, "!v!k!d" on an object will greatly reduce 
 the odds of you "losing" it by accident, and inscribing "!*" on an object will 

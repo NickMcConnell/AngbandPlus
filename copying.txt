@@ -1,4 +1,4 @@
-Angband is free software; you can redistribute it and/or modify it under the 
+Angband (and Angband) is free software; you can redistribute it and/or modify it under the 
 terms of either the GNU General Public License as published by the Free Software 
 Foundation, version 2, or the "Angband licence", shown below, with some 
 exceptions:
@@ -36,7 +36,7 @@ easier sharing of changes between variants.
 
 ------------------------------------------------------------------------------
 
-The Angband Licence is:
+The Angband licence is:
 
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
 

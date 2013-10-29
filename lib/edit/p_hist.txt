@@ -1,11 +1,12 @@
 # File: p_hist.txt
 
 
-# This file is used to initialize the "player history" information for 
-# the Angband game.
+# This file is used to initialize the "lib/data/p_hist.raw" file, which is
+# used to initialize the "player history" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/p_hist.raw" file.
 
 # Background information (see below)
 
@@ -20,265 +21,265 @@
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Kobold        --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
+# ...All others are undocumented :-)
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
 # Note that the "spacing" in the "description" lines is very important!
 
-
 # Version stamp (required)
 
-V:3.0.11
+V:4.1.0
 
 
 N:1:2:10:25
-D:You are the illegitimate and unacknowledged child 
+D:You are the illegitimate and unacknowledged child
 N:1:2:20:35
-D:You are the illegitimate but acknowledged child 
+D:You are the illegitimate but acknowledged child
 N:1:2:95:45
-D:You are one of several children 
+D:You are one of several children
 N:1:2:100:50
-D:You are the first child 
+D:You are the first child
 
 N:2:3:40:65
-D:of a Serf.  
+D:of a Serf.
 N:2:3:65:80
-D:of a Yeoman.  
+D:of a Yeoman.
 N:2:3:80:90
-D:of a Townsman.  
+D:of a Townsman.
 N:2:3:90:105
-D:of a Guildsman.  
+D:of a Guildsman.
 N:2:3:96:120
-D:of a Landed Knight.  
+D:of a Landed Knight.
 N:2:3:99:130
-D:of a Titled Noble.  
+D:of a Titled Noble.
 N:2:3:100:140
-D:of a Royal Blood Line.  
+D:of a Royal Blood Line.
 
 N:3:50:20:20
-D:You are the black sheep of the family.  
+D:You are the black sheep of the family.
 N:3:50:80:55
-D:You are a credit to the family.  
+D:You are a credit to the family.
 N:3:50:100:60
-D:You are a well liked child.  
+D:You are a well liked child.
 
 N:4:1:15:40
-D:Your mother was of the Avari. 
+D:Your mother was of the Avari.
 N:4:1:30:45
-D:Your father was of the Avari. 
+D:Your father was of the Avari.
 N:4:1:50:50
-D:Your mother was of the Nandor. 
+D:Your mother was of the Nandor.
 N:4:1:70:55
-D:Your father was of the Nandor.  
+D:Your father was of the Nandor.
 N:4:1:85:60
-D:Your mother was of the Sindar.  
+D:Your mother was of the Sindar.
 N:4:1:95:65
-D:Your father was of the Sindar.  
+D:Your father was of the Sindar.
 N:4:1:98:70
-D:Your mother was of the Noldor.  
+D:Your mother was of the Noldor.
 N:4:1:100:75
-D:Your father was of the Noldor.  
+D:Your father was of the Noldor.
 
 N:5:6:60:50
-D:You are one of several children 
+D:You are one of several children
 N:5:6:100:55
-D:You are the only child 
+D:You are the only child
 
 N:6:9:40:40
-D:of an Avarin 
+D:of an Avarin
 N:6:9:70:50
-D:of a Nandorin 
+D:of a Nandorin
 N:6:9:100:60
-D:of a Sindarin 
+D:of a Sindarin
 
 N:7:8:60:50
-D:You are one of several children 
+D:You are one of several children
 N:7:8:100:55
-D:You are the only child 
+D:You are the only child
 
 N:8:9:75:50
-D:of a Telerin 
+D:of a Telerin
 N:8:9:95:55
-D:of a Noldorin 
+D:of a Noldorin
 N:8:9:100:60
-D:of a Vanyarin 
+D:of a Vanyarin
 
 N:9:54:40:80
-D:Ranger.  
+D:Ranger.
 N:9:54:70:90
-D:Archer.  
+D:Archer.
 N:9:54:87:110
-D:Warrior.  
+D:Warrior.
 N:9:54:95:125
-D:Mage.  
+D:Mage.
 N:9:54:99:140
-D:Prince.  
+D:Prince.
 N:9:54:100:145
-D:King.  
+D:King.
 
 N:10:11:85:45
-D:You are one of several children of a Hobbit 
+D:You are one of several children of a Hobbit
 N:10:11:100:55
-D:You are the only child of a Hobbit 
+D:You are the only child of a Hobbit
 
 N:11:3:20:55
-D:Burglar.  
+D:Burglar.
 N:11:3:30:80
-D:Miller.  
+D:Miller.
 N:11:3:40:90
-D:Tavern Owner.  
+D:Tavern Owner.
 N:11:3:50:100
-D:Archer.  
+D:Archer.
 N:11:3:80:110
-D:Warrior.  
+D:Warrior.
 N:11:3:95:115
-D:Shirriff.  
+D:Shirriff.
 N:11:3:99:125
-D:Mayor.  
+D:Mayor.
 N:11:3:100:140
-D:Clan Elder.  
+D:Clan Elder.
 
 N:13:14:85:45
-D:You are one of several children of a Gnome 
+D:You are one of several children of a Gnome
 N:13:14:100:55
-D:You are the only child of a Gnome 
+D:You are the only child of a Gnome
 
 N:14:3:20:55
-D:Beggar.  
+D:Beggar.
 N:14:3:50:70
-D:Braggart.  
+D:Braggart.
 N:14:3:75:85
-D:Prankster.  
+D:Prankster.
 N:14:3:95:100
-D:Warrior.  
+D:Warrior.
 N:14:3:100:125
-D:Mage.  
+D:Mage.
 
 N:16:17:25:40
-D:You are one of two children of a Dwarven 
+D:You are one of two children of a Dwarven
 N:16:17:100:50
-D:You are the only child of a Dwarven 
+D:You are the only child of a Dwarven
 
 N:17:18:10:60
-D:Thief.  
+D:Thief.
 N:17:18:25:75
-D:Prison Guard.  
+D:Prison Guard.
 N:17:18:75:90
-D:Miner.  
+D:Miner.
 N:17:18:90:110
-D:Warrior.  
+D:Warrior.
 N:17:18:99:130
-D:Priest.  
+D:Priest.
 N:17:18:100:150
-D:King.  
+D:King.
 
 N:18:57:15:10
-D:You are the black sheep of the family.  
+D:You are the black sheep of the family.
 N:18:57:85:50
-D:You are a credit to the family.  
+D:You are a credit to the family.
 N:18:57:100:55
-D:You are a well liked child.  
+D:You are a well liked child.
 
 N:19:20:25:25
-D:Your mother was an Orc, 
+D:Your mother was an Orc,
 N:19:20:100:25
-D:Your father was an Orc, 
+D:Your father was an Orc,
 
 N:20:2:20:30
-D:and it is acknowledged. You are the adopted child 
+D:and it is acknowledged. You are the adopted child
 N:20:2:100:50
-D:but it is unacknowledged. You are the adopted child 
+D:but it is unacknowledged. You are the adopted child
 
 N:21:22:30:20
-D:Your mother was a Stone-Troll 
+D:Your mother was a Stone-Troll
 N:21:22:60:25
-D:Your father was a Stone-Troll 
+D:Your father was a Stone-Troll
 N:21:22:75:30
-D:Your mother was a Cave-Troll 
+D:Your mother was a Cave-Troll
 N:21:22:90:35
-D:Your father was a Cave-Troll 
+D:Your father was a Cave-Troll
 N:21:22:95:40
-D:Your mother was a Water-Troll 
+D:Your mother was a Water-Troll
 N:21:22:100:45
-D:Your father was a Water-Troll 
+D:Your father was a Water-Troll
 
 N:22:62:5:60
-D:Cook.  
+D:Cook.
 N:22:62:95:55
-D:Warrior.  
+D:Warrior.
 N:22:62:99:65
-D:Shaman.  
+D:Shaman.
 N:22:62:100:80
-D:Clan Chief.  
+D:Clan Chief.
 
 N:23:24:20:40
-D:You are the runt of 
+D:You are the runt of
 N:23:24:80:50
-D:You come from 
+D:You come from
 N:23:24:100:55
-D:You are the largest of 
+D:You are the largest of
 
 N:24:25:15:45
-D:a litter of 3 pups. 
+D:a litter of 3 pups.
 N:24:25:40:45
-D:a litter of 4 pups. 
+D:a litter of 4 pups.
 N:24:25:70:50
-D:a litter of 5 pups. 
+D:a litter of 5 pups.
 N:24:25:85:50
-D:a litter of 6 pups. 
+D:a litter of 6 pups.
 N:24:25:95:55
-D:a litter of 7 pups. 
+D:a litter of 7 pups.
 N:24:25:100:55
-D:a litter of 8 pups. 
+D:a litter of 8 pups.
 
 N:25:26:25:40
-D:Your father was a fungus farmer, 
+D:Your father was a fungus farmer,
 N:25:26:50:45
-D:Your father was a hunter, 
+D:Your father was a hunter,
 N:25:26:75:50
-D:Your father was a warrior, 
+D:Your father was a warrior,
 N:25:26:95:55
-D:Your father was a shaman, 
+D:Your father was a shaman,
 N:25:26:100:60
-D:Your father was the tribal chief, 
+D:Your father was the tribal chief,
 
 N:26:67:20:45
-D:and your mother was a prisoner of war. 
+D:and your mother was a prisoner of war.
 N:26:67:95:50
-D:and your mother was a cook. 
+D:and your mother was a cook.
 N:26:67:100:55
-D:and your mother was one of the Chief's harem. 
+D:and your mother was one of the Chief's harem.
 
 N:50:51:20:50
-D:You have dark brown eyes, 
+D:You have dark brown eyes,
 N:50:51:60:50
-D:You have brown eyes, 
+D:You have brown eyes,
 N:50:51:70:50
-D:You have hazel eyes, 
+D:You have hazel eyes,
 N:50:51:80:50
-D:You have green eyes, 
+D:You have green eyes,
 N:50:51:90:50
-D:You have blue eyes, 
+D:You have blue eyes,
 N:50:51:100:50
-D:You have blue-gray eyes, 
+D:You have blue-gray eyes,
 
 N:51:52:70:50
-D:straight 
+D:straight
 N:51:52:90:50
-D:wavy 
+D:wavy
 N:51:52:100:50
-D:curly 
+D:curly
 
 N:52:53:30:50
-D:black hair, 
+D:black hair,
 N:52:53:70:50
-D:brown hair, 
+D:brown hair,
 N:52:53:80:50
-D:auburn hair, 
+D:auburn hair,
 N:52:53:90:50
-D:red hair, 
+D:red hair,
 N:52:53:100:50
-D:blond hair, 
+D:blond hair,
 
 N:53:0:10:50
 D:and a very dark complexion.
@@ -292,16 +293,16 @@ N:53:0:100:50
 D:and a very fair complexion.
 
 N:54:55:85:50
-D:You have light grey eyes, 
+D:You have light grey eyes,
 N:54:55:95:50
-D:You have light blue eyes, 
+D:You have light blue eyes,
 N:54:55:100:50
-D:You have light green eyes, 
+D:You have light green eyes,
 
 N:55:56:75:50
-D:straight 
+D:straight
 N:55:56:100:50
-D:wavy 
+D:wavy
 
 N:56:0:75:50
 D:black hair, and a fair complexion.
@@ -313,63 +314,63 @@ N:56:0:100:50
 D:silver hair, and a fair complexion.
 
 N:57:58:99:50
-D:You have dark brown eyes, 
+D:You have dark brown eyes,
 N:57:58:100:50
-D:You have glowing red eyes, 
+D:You have glowing red eyes,
 
 N:58:59:90:50
-D:straight 
+D:straight
 N:58:59:100:50
-D:wavy 
+D:wavy
 
 N:59:60:75:50
-D:black hair, 
+D:black hair,
 N:59:60:100:50
-D:brown hair, 
+D:brown hair,
 
 N:60:61:25:47
-D:a one foot beard, 
+D:a one foot beard,
 N:60:61:60:49
-D:a two foot beard, 
+D:a two foot beard,
 N:60:61:90:51
-D:a three foot beard, 
+D:a three foot beard,
 N:60:61:100:53
-D:a four foot beard, 
+D:a four foot beard,
 
 N:61:0:100:50
 D:and a dark complexion.
 
 N:62:63:60:50
-D:You have slime-green eyes, 
+D:You have slime-green eyes,
 N:62:63:85:50
-D:You have puke-yellow eyes, 
+D:You have puke-yellow eyes,
 N:62:63:99:50
-D:You have blue-bloodshot eyes, 
+D:You have blue-bloodshot eyes,
 N:62:63:100:55
-D:You have glowing red eyes, 
+D:You have glowing red eyes,
 
 N:63:64:33:50
-D:dirty 
+D:dirty
 N:63:64:66:50
-D:mangy 
+D:mangy
 N:63:64:100:50
-D:oily 
+D:oily
 
 N:64:65:33:50
-D:sea-weed green hair, 
+D:sea-weed green hair,
 N:64:65:66:50
-D:bright red hair, 
+D:bright red hair,
 N:64:65:100:50
-D:dark purple hair, 
+D:dark purple hair,
 
 N:65:66:25:50
-D:and green 
+D:and green
 N:65:66:50:50
-D:and blue 
+D:and blue
 N:65:66:75:50
-D:and white 
+D:and white
 N:65:66:100:50
-D:and black 
+D:and black
 
 N:66:0:33:50
 D:ulcerous skin.
@@ -379,24 +380,24 @@ N:66:0:100:50
 D:leprous skin.
 
 N:67:68:10:50
-D:You have black eyes, 
+D:You have black eyes,
 N:67:68:40:50
-D:You have dark brown eyes, 
+D:You have dark brown eyes,
 N:67:68:80:50
-D:You have brown eyes, 
+D:You have brown eyes,
 N:67:68:99:50
-D:You have light brown eyes, 
+D:You have light brown eyes,
 N:67:68:100:50
-D:You have glowing red eyes, 
+D:You have glowing red eyes,
 
 N:68:69:40:50
-D:a dark brown hide, 
+D:a dark brown hide,
 N:68:69:60:50
-D:a reddish-brown hide, 
+D:a reddish-brown hide,
 N:68:69:95:50
-D:an olive green hide, 
+D:an olive green hide,
 N:68:69:100:50
-D:a deep blue hide, 
+D:a deep blue hide,
 
 N:69:0:10:50
 D:and large, flat teeth.
@@ -405,3 +406,439 @@ D:and small, sharp teeth.
 N:69:0:100:50
 D:and large, sharp teeth.
 
+##### Monster races history begins here #####
+
+N:70:83:75:10
+D:You are the offspring of a red dragon. 
+N:70:83:90:30
+D:You are the offspring of a Great Hell Wyrm. 
+N:70:83:97:50
+D:You are the offspring of Smaug the Golden. 
+N:70:83:100:65
+D:You are the offspring of Glaurung himself.
+
+N:71:72:33:5
+D:You are the tall sentient elemental. 
+N:71:72:66:5
+D:You are the being of Water element. 
+N:71:72:100:5
+D:You are the mass of sentient water. 
+
+N:72:0:33:5
+D:You were created by mighty sorcerer to protect him.
+N:72:0:66:10
+D:You were summoned by Ulmo from the deep waters of the Encircling Seas.
+N:72:0:100:5
+D:You were created by Morgoth from the Grinding Ice of Helcaraxe.
+
+N:73:74:33:10
+D:You are a small skeleton in black ragged robes.
+N:73:74:66:20
+D:You are a skeleton, wreathed in black robes.
+N:73:74:100:30
+D:You are a tall, terrible-looking skeleton in black robes.
+
+N:74:0:33:5
+D:You were an apprentice of an archmage. Your mentor was slain by undeads, and you became a Lich.
+N:74:0:66:15
+D:Before your undeath, you were the court sorceror in a small kingdom.
+N:74:0:100:35
+D:You are so old that you do not remember your life. You are now mighty undead being.
+
+N:75:76:20:5
+D:You are the offspring of a red dragon. 
+N:75:76:40:5
+D:You are the offspring of a white dragon. 
+N:75:76:60:5
+D:You are the offspring of a black dragon. 
+N:75:76:80:5
+D:You are the offspring of a blue dragon. 
+N:75:76:90:15
+D:You are the offspring of a green dragon. 
+N:75:76:95:35
+D:You are the offspring of a multi-hued dragon. 
+N:75:76:100:45
+D:You are the offspring of an ancient Chaos Wyrm. 
+
+N:76:77:33:5
+D:Your scales shimmer in everchanging hues. 
+N:76:77:66:5
+D:Your scales chaotically flash many colours. 
+N:76:77:100:5
+D:Your scales are glowing in thousands colors. 
+
+N:77:0:100:5
+D:Your shape in this world is very uncertain.
+
+N:78:86:100:5
+D:You are the offspring of an ethereal dragon. 
+
+N:79:50:20:5
+D:You are the child of a hill giant. 
+N:79:50:40:10
+D:You are the child of a frost giant. 
+N:79:50:50:20
+D:You are the child of a fire giant. 
+N:79:50:60:30
+D:You are the child of a stone giant. 
+N:79:50:70:40
+D:You are the child of a cloud giant. 
+N:79:50:80:50
+D:You are the child of a storm giant. 
+N:79:50:90:60
+D:You are the child of a lesser titan. 
+N:79:50:99:70
+D:You are the child of a greater titan. 
+N:79:50:100:100
+D:You are the child of Kronos himself. 
+
+N:80:81:33:5
+D:You are the offspring of a Mirkwood spider. 
+N:80:81:66:10
+D:You are the offspring of an Aranea. 
+N:80:81:95:15
+D:You are the offspring of an elder Aranea. 
+N:80:81:99:20
+D:You are the offspring of Shelob, Spider of Darkness. 
+N:80:81:100:30
+D:You are the offspring of Ungoliant the Unlight herself. 
+
+N:81:82:33:5
+D:You have huge black body
+N:81:82:66:5
+D:You have tiny red body
+N:81:82:100:5
+D:You have ugly brown body
+
+N:82:0:100:5
+D:and hairy, disgusting legs.
+
+N:83:84:33:5
+D:You have red weathered scales,
+N:83:84:66:5
+D:You have dark red scales,
+N:83:84:99:5
+D:You have light red scales,
+N:83:84:100:20
+D:You have glowing red scales,
+
+N:84:85:33:5
+D:deep black eyes
+N:84:85:66:5
+D:large yellow eyes
+N:84:85:100:5
+D:glowing red eyes
+
+N:85:0:100:5
+D:and nasty fiery breath.
+
+N:86:87:33:5
+D:You have shining white scales
+N:86:87:66:5
+D:You have absolutely black scales
+N:86:87:100:5
+D:You have completely transparent scales
+
+N:87:0:100:5
+D:and glaring red eyes.
+
+N:88:89:40:5
+D:You are the offspring of a quylthulg. 
+N:88:89:60:10
+D:You are the offspring of a nexus quylthulg. 
+N:88:89:70:25
+D:You are the offspring of a rotting quylthulg. 
+N:88:89:80:25
+D:You are the offspring of a draconic quylthulg. 
+N:88:89:90:25
+D:You are the offspring of a demonic quylthulg. 
+N:88:89:97:35
+D:You are the offspring of a master quylthulg. 
+N:88:89:100:50
+D:You are the offspring of Qlzqqlzuup, Lord of Flesh itself. 
+
+N:89:90:100:5
+D:You look like a pile of pulsing flesh,
+
+N:90:0:33:5
+D:throbbing disgustingly.
+N:90:0:66:5
+D:glowing in strange light.
+N:90:0:100:5
+D:seemingly very unstable.
+
+# Dark elves history from ToME
+N:91:92:85:45
+D:You are one of several children of a Dark Elven
+N:91:92:100:55
+D:You are the only child of a Dark Elven 
+
+N:92:93:50:60
+D:Warrior. 
+N:92:93:80:75
+D:Warlock. 
+N:92:93:100:95
+D:Noble. 
+
+N:93:94:100:50
+D:You have black eyes,
+
+N:94:95:70:50
+D:straight
+N:94:95:90:50
+D:wavy
+N:94:95:100:50
+D:curly 
+
+N:95:0:100:50
+D:black hair and a very dark complexion.
+
+N:96:97:75:10
+D:You are the offspring of a white dragon. 
+N:96:97:97:30
+D:You are the offspring of a Great Ice Wyrm. 
+N:96:97:100:50
+D:You are the offspring of Scatha the Worm. 
+
+N:97:98:33:5
+D:You have white weathered scales,
+N:97:98:66:5
+D:You have dark white scales,
+N:97:98:99:5
+D:You have light white scales,
+N:97:98:100:20
+D:You have shining white scales,
+
+N:98:99:33:5
+D:deep black eyes
+N:98:99:66:5
+D:large blue eyes
+N:98:99:100:5
+D:glowing white eyes
+
+N:99:0:100:5
+D:and nasty freezing breath.
+
+N:100:101:100:5
+D:You are the shadow of
+
+N:101:102:15:5
+D:the red dragon. 
+N:101:102:30:5
+D:the white dragon. 
+N:101:102:45:5
+D:the black dragon. 
+N:101:102:60:5
+D:the blue dragon. 
+N:101:102:75:15
+D:the green dragon. 
+N:101:102:85:35
+D:the multi-hued dragon. 
+N:101:102:90:45
+D:the chaos dragon. 
+N:101:102:95:45
+D:the law dragon. 
+N:101:102:98:60
+D:the balance dragon. 
+N:101:102:100:80
+D:the power dragon. 
+
+N:102:103:33:5
+D:You have ghostly white form
+N:102:103:66:5
+D:You have misty white form
+N:102:103:100:5
+D:You have dark shadowy form
+
+N:103:0:100:5
+D:and glowing red eyes.
+
+N:104:105:100:5
+D:You are the animated skeleton
+
+N:105:106:40:6
+D:of a Serf. 
+N:105:106:65:8
+D:of a Yeoman. 
+N:105:106:80:9
+D:of a Townsman. 
+N:105:106:90:10
+D:of a Guildsman. 
+N:105:106:96:12
+D:of a Landed Knight. 
+N:105:106:99:13
+D:of a Titled Noble. 
+N:105:106:100:14
+D:of a King. 
+
+N:106:107:33:5
+D:You were slain in the great battle,
+N:106:107:66:5
+D:You died of old age,
+N:106:107:100:5
+D:You died in an accident,
+
+N:107:108:100:5
+D:and were turned into the skeleton by
+
+N:108:0:20:5
+D:the apprentice necromancer.
+N:108:0:40:15
+D:the necromancer.
+N:108:0:60:25
+D:the experienced necromancer.
+N:108:0:80:35
+D:the great necromancer.
+N:108:0:90:45
+D:the lich.
+N:108:0:98:55
+D:the archlich.
+N:108:0:99:90
+D:Vecna himself.
+N:108:0:100:120
+D:Sauron himself.
+
+N:109:110:100:30
+D:You are the Maia. 
+
+N:110:111:25:30
+D:You were the servant of Melkor once, but now you fight for the Valar. 
+N:110:111:35:40
+D:You are one of the warriors of Tulkas. 
+N:110:111:50:50
+D:In the past, you served Mandos in his halls of the dead. 
+N:110:111:65:60
+D:Many years ago, you helped Yavanna to create the grass and the trees. 
+N:110:111:70:70
+D:You were the apprentice of Aule in Valinor. 
+N:110:111:85:80
+D:You were the servant of Varda, Lady of the Stars. 
+N:110:111:100:100
+D:You were the servant of Manwe Sulimo, Lord of Arda. 
+
+N:111:0:100:30
+D:Now Eru has appointed you for the final battle with Melkor.
+
+N:112:113:33:5
+D:You are the tall sentient elemental. 
+N:112:113:66:5
+D:You are the being of Fire element. 
+N:112:113:100:5
+D:You are the mass of sentient fire. 
+
+N:113:0:33:5
+D:You were created by mighty sorcerer to protect him.
+N:113:0:66:10
+D:You were summoned from your plane by Gothmog.
+N:113:0:100:5
+D:You were created by Sauron from the lava of Sammath-Naur.
+
+N:114:115:25:5
+D:You are the offspring of a five-headed hydra. 
+N:114:115:50:25
+D:You are the offspring of a seven-headed hydra. 
+N:114:115:75:35
+D:You are the offspring of a nine-headed hydra. 
+N:114:115:99:45
+D:You are the offspring of an eleven-headed hydra. 
+N:114:115:100:65
+D:You are the offspring of the legendary Lernaean Hydra. 
+
+N:115:0:100:15
+D:You have several ugly heads and nasty venomous breath.
+
+N:116:117:33:5
+D:You are the tall sentient elemental. 
+N:116:117:66:5
+D:You are the being of Air element. 
+N:116:117:100:5
+D:You are the mass of sentient fogs and fumes. 
+
+N:117:0:33:5
+D:You were created by mighty sorcerer to protect him.
+N:117:0:66:10
+D:You were summoned from your plane by Pazuzu, the Lord of Air.
+N:117:0:100:5
+D:You were created by Saruman from the winds at the top of Orthanc. 
+
+N:118:119:100:5
+D:You are a basilisk.  
+
+N:119:120:33:20
+D:You have small slimy black scales, 
+N:119:120:66:25
+D:You have brownish scales, 
+N:119:120:100:30
+D:You have deep green scales, 
+
+N:120:121:90:15
+D:venomous breath, 
+N:120:121:100:35
+D:deadly breath, 
+
+N:121:0:100:5
+D:and a piercing gaze.
+
+N:122:123:100:5
+D:You were a dreaded Balrog of Morgoth, but you turned on your master. 
+
+N:123:124:75:100
+D:You have red-hot eyes.  
+N:123:124:100:100
+D:You have white-hot eyes. 
+
+N:124:0:100:5
+D:You are surrounded by dense darkness and pillars of fire.
+
+N:125:126:33:5
+D:You are the demon from the Nine Hells. 
+N:125:126:66:5
+D:You are the demon from the Abyss. 
+N:125:126:100:5
+D:You are the demon from the Gehenna. 
+
+N:126:127:33:5
+D:You have black eyes,
+N:126:127:66:5
+D:You have yellow eyes,
+N:126:127:100:5
+D:You have red eyes,
+
+N:127:128:33:5
+D:reddish-brown skin
+N:127:128:66:5
+D:gray skin
+N:127:128:100:5
+D:red skin
+
+N:128:129:100:5
+D:and long claws and teeth. 
+
+N:129:0:100:5
+D:You seek revenge forever in this world.
+
+N:130:131:75:10
+D:You are the offspring of a blue dragon. 
+N:130:131:90:30
+D:You are the offspring of a Great Storm Wyrm. 
+N:130:131:100:65
+D:You are the offspring of the Sky Drake itself. 
+
+N:131:132:33:5
+D:You have blue weathered scales,
+N:131:132:66:5
+D:You have deep blue scales,
+N:131:132:99:5
+D:You have light blue scales,
+N:131:132:100:20
+D:You have thick blue scales, crackling with electricity,
+
+N:132:133:33:5
+D:deep black eyes
+N:132:133:66:5
+D:large white eyes
+N:132:133:100:5
+D:glowing blue eyes
+
+N:133:0:100:5
+D:and nasty shocking breath.

@@ -2,8 +2,8 @@
  * Copyright (c) 2007 Pete Mack and others
  * This code released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
- * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
+ * incorporate modifications in all reposband variants as defined in the
+ * reposband variants FAQ. See rec.games.roguelike.reposband for FAQ.
  */
 
 

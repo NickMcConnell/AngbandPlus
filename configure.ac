@@ -1,5 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
+<<<<<<< HEAD
+AC_INIT([reposband], [3.1.2], [bugs@rephial.org], [reposband])
+=======
 AC_INIT([Angband], [3.2.0], [bugs@rephial.org], [angband])
+>>>>>>> 3015a7677d044c178bb49aac9035e0a6ff588b76
 AC_PREREQ([2.59])
 
 AC_CONFIG_HEADER(src/autoconf.h)
@@ -12,7 +16,7 @@ AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [Name of package])
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Version number of package])
 
 AC_ARG_WITH(setgid,
-	[  --with-setgid=NAME      install angband as group NAME],
+	[  --with-setgid=NAME      install reposband as group NAME],
 	[wsetgid=yes])
 AC_ARG_WITH(private_dirs,
 	[  --with-private-dirs     use private scorefiles/savefiles])
@@ -34,7 +38,7 @@ if test "x$wsetgid$with_private_dirs$with_no_install" != "xyes";  then
 --with-setgid=<groupname>
     This configures the game to store savefiles and scorefiles in a central
     location on the system, writeable only by the group \"groupname\".  If you
-    want a traditional installation of Angband, where all users share a
+    want a traditional installation of reposband, where all users share a
     scorefile, then use this option, and set the groupname to your \"games\"
     group.  This option requires the game to have the \"setgid\" bit set on its
     permissions, and thus this option requires root when installing.
@@ -97,7 +101,7 @@ if test "x$bindir" == "x\${exec_prefix}/bin"; then
   bindir=${exec_prefix}/games
 fi
 
-AC_ARG_WITH(configpath, [  --with-configpath=PATH  use PATH as the path to the Angband configuration folder])
+AC_ARG_WITH(configpath, [  --with-configpath=PATH  use PATH as the path to the reposband configuration folder])
 
 if test "x$with_configpath" != "x"; then
 	configpath="${with_configpath}"
@@ -112,7 +116,7 @@ case "/$configpath" in
 	*)  MY_EXPAND_DIR(configdir, "$configpath/") ;;
 esac
 
-AC_ARG_WITH(libpath, [  --with-libpath=PATH     use PATH as the path to the Angband lib folder])
+AC_ARG_WITH(libpath, [  --with-libpath=PATH     use PATH as the path to the reposband lib folder])
 
 if test "x$with_libpath" != "x"; then
 	libpath="${with_libpath}"
@@ -128,7 +132,7 @@ case "/$libpath" in
 	*)  MY_EXPAND_DIR(libdatadir, "$libpath/") ;;
 esac
 
-AC_ARG_WITH(varpath, [  --with-varpath=PATH     use PATH as the path to the Angband saved data folder])
+AC_ARG_WITH(varpath, [  --with-varpath=PATH     use PATH as the path to the reposband saved data folder])
 
 if test "x$with_varpath" != "x"; then
 	varpath="${with_varpath}"
@@ -322,7 +326,7 @@ echo "  var path:                               ${displayedvardatadir}"
 if test "x$wsetgid" = "xyes"; then
 	echo "  (as group ${SETEGID})"
 elif test "x$with_private_dirs" = "xyes"; then
-	echo "  (with private save and score files in ~/.angband/Angband/)"
+	echo "  (with private save and score files in ~/.reposband/reposband/)"
 fi
 
 echo

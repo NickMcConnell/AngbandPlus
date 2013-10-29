@@ -14,7 +14,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "wizard.h"
 #include "object/tvalsval.h"

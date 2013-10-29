@@ -38,7 +38,7 @@ extern errr parse_file(struct parser *p, const char *filename);
 
 extern void init_file_paths(const char *config, const char *lib, const char *data);
 extern void create_needed_dirs(void);
-extern bool init_angband(void);
-extern void cleanup_angband(void);
+extern bool init_reposband(void);
+extern void cleanup_reposband(void);
 
 #endif /* INCLUDED_INIT_H */

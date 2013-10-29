@@ -18,7 +18,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "button.h"
 #include "cave.h"
 #include "files.h"
@@ -245,7 +245,8 @@ static void prt_equippy(int row, int col)
 	object_type *o_ptr;
 
 	/* No equippy chars in bigtile mode */
-	if ((tile_width > 1) || (tile_height > 1)) return;
+	/* changing this so no equippy chars period -Simon */
+	if (TRUE) return;//((tile_width > 1) || (tile_height > 1)) return;
 
 	/* Dump equippy chars */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -1036,7 +1037,7 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 		ky = data->point.y - t->offset_y;
 		kx = data->point.x - t->offset_x;
 
-		if (t == angband_term[0])
+		if (t == reposband_term[0])
 		{
 			/* Verify location */
 			if ((ky < 0) || (ky >= SCREEN_HGT)) return;
@@ -1156,9 +1157,9 @@ void toggle_inven_equip(void)
 	flip_inven = !flip_inven;
 
 	/* Redraw any subwindows showing the inventory/equipment lists */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
-		Term_activate(angband_term[i]); 
+		Term_activate(reposband_term[i]); 
 
 		if (op_ptr->window_flag[i] & PW_INVEN)
 		{
@@ -1301,7 +1302,7 @@ static struct minimap_flags
 {
 	int win_idx;
 	bool needs_redraw;
-} minimap_data[ANGBAND_TERM_MAX];
+} minimap_data[REPOSBAND_TERM_MAX];
 
 static void update_minimap_subwindow(game_event_type type, game_event_data *data, void *user)
 {
@@ -1316,7 +1317,7 @@ static void update_minimap_subwindow(game_event_type type, game_event_data *data
 	else if (type == EVENT_END)
 	{
 		term *old = Term;
-		term *t = angband_term[flags->win_idx];
+		term *t = reposband_term[flags->win_idx];
 		
 		/* Activate */
 		Term_activate(t);
@@ -1473,7 +1474,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_INVENTORY,
 					       update_inven_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1481,7 +1482,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_EQUIPMENT,
 					       update_equip_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1490,7 +1491,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 			set_register_or_deregister(player_events, 
 						   N_ELEMENTS(player_events),
 						   update_player0_subwindow,
-						   angband_term[win_idx]);
+						   reposband_term[win_idx]);
 			break;
 		}
 
@@ -1499,7 +1500,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 			set_register_or_deregister(player_events, 
 						   N_ELEMENTS(player_events),
 						   update_player1_subwindow,
-						   angband_term[win_idx]);
+						   reposband_term[win_idx]);
 			break;
 		}
 
@@ -1508,7 +1509,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 			set_register_or_deregister(player_events, 
 						   N_ELEMENTS(player_events),
 						   update_player_compact_subwindow,
-						   angband_term[win_idx]);
+						   reposband_term[win_idx]);
 			break;
 		}
 
@@ -1516,11 +1517,11 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_MAP,
 					       update_maps,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 
 			register_or_deregister(EVENT_END,
 					       flush_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1529,7 +1530,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_MESSAGE,
 					       update_messages_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1551,7 +1552,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_MONSTERTARGET,
 					       update_monster_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1559,7 +1560,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_OBJECTTARGET,
 						   update_object_subwindow,
-						   angband_term[win_idx]);
+						   reposband_term[win_idx]);
 			break;
 		}
 
@@ -1567,7 +1568,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_MONSTERLIST,
 					       update_monlist_subwindow,
-					       angband_term[win_idx]);
+					       reposband_term[win_idx]);
 			break;
 		}
 
@@ -1575,7 +1576,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 		{
 			register_or_deregister(EVENT_ITEMLIST,
 						   update_itemlist_subwindow,
-						   angband_term[win_idx]);
+						   reposband_term[win_idx]);
 			break;
 	}
 }
@@ -1609,7 +1610,7 @@ static void subwindow_set_flags(int win_idx, u32b new_flags)
 	op_ptr->window_flag[win_idx] = new_flags;
 	
 	/* Activate */
-	Term_activate(angband_term[win_idx]);
+	Term_activate(reposband_term[win_idx]);
 	
 	/* Erase */
 	Term_clear();
@@ -1632,7 +1633,7 @@ void subwindows_set_flags(u32b *new_flags, size_t n_subwindows)
 	for (j = 0; j < n_subwindows; j++)
 	{
 		/* Dead window */
-		if (!angband_term[j]) continue;
+		if (!reposband_term[j]) continue;
 
 		/* Ignore non-changes */
 		if (op_ptr->window_flag[j] != new_flags[j])
@@ -1649,7 +1650,7 @@ void subwindows_set_flags(u32b *new_flags, size_t n_subwindows)
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
  */
-static void init_angband_aux(cptr why)
+static void init_reposband_aux(cptr why)
 {
 	quit_fmt("%s\n\n%s", why,
 	         "The 'lib' directory is probably missing or broken.\n"
@@ -1675,14 +1676,14 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 
 	/*** Verify the "news" file ***/
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), reposband_DIR_FILE, "news.txt");
 	if (!file_exists(buf))
 	{
 		char why[1024];
 
 		/* Crash and burn */
 		strnfmt(why, sizeof(why), "Cannot access the '%s' file!", buf);
-		init_angband_aux(why);
+		init_reposband_aux(why);
 	}
 
 
@@ -1691,7 +1692,7 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 	Term_clear();
 
 	/* Open the News file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), reposband_DIR_FILE, "news.txt");
 	fp = file_open(buf, MODE_READ, -1);
 
 	text_out_hook = text_out_to_screen;
@@ -1764,9 +1765,9 @@ static void ui_enter_game(game_event_type type, game_event_data *data, void *use
 	event_add_handler(EVENT_HP, hp_colour_change, NULL);
 
 	/* Simplest way to keep the map up to date - will do for now */
-	event_add_handler(EVENT_MAP, update_maps, angband_term[0]);
+	event_add_handler(EVENT_MAP, update_maps, reposband_term[0]);
 #if 0
-	event_add_handler(EVENT_MAP, trace_map_updates, angband_term[0]);
+	event_add_handler(EVENT_MAP, trace_map_updates, reposband_term[0]);
 #endif
 	/* Check if the panel should shift when the player's moved */
 	event_add_handler(EVENT_PLAYERMOVED, check_panel, NULL);
@@ -1788,9 +1789,9 @@ static void ui_leave_game(game_event_type type, game_event_data *data, void *use
 	event_remove_handler(EVENT_HP, hp_colour_change, NULL);
 
 	/* Simplest way to keep the map up to date - will do for now */
-	event_remove_handler(EVENT_MAP, update_maps, angband_term[0]);
+	event_remove_handler(EVENT_MAP, update_maps, reposband_term[0]);
 #if 0
-	event_remove_handler(EVENT_MAP, trace_map_updates, angband_term[0]);
+	event_remove_handler(EVENT_MAP, trace_map_updates, reposband_term[0]);
 #endif
 	/* Check if the panel should shift when the player's moved */
 	event_remove_handler(EVENT_PLAYERMOVED, check_panel, NULL);

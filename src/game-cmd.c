@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "game-cmd.h"
 #include "object/object.h"
@@ -93,7 +93,7 @@ static struct
 	{ CMD_REFILL, { arg_ITEM }, do_cmd_refill, FALSE, 0 },
 	{ CMD_FIRE, { arg_ITEM, arg_TARGET }, do_cmd_fire, FALSE, 0 },
 	{ CMD_THROW, { arg_ITEM, arg_TARGET }, do_cmd_throw, FALSE, 0 },
-	{ CMD_DESTROY, { arg_ITEM, arg_NUMBER }, do_cmd_destroy, FALSE, 0 },
+	{ CMD_DESTROY, { arg_ITEM }, do_cmd_destroy, FALSE, 0 },
 	{ CMD_ENTER_STORE, { arg_NONE }, do_cmd_store, FALSE, 0 },
 	{ CMD_INSCRIBE, { arg_ITEM, arg_STRING }, do_cmd_inscribe, FALSE, 0 },
 	{ CMD_STUDY_SPELL, { arg_CHOICE }, do_cmd_study_spell, FALSE, 0 },
@@ -103,6 +103,8 @@ static struct
 	{ CMD_STASH, { arg_ITEM, arg_NUMBER }, do_cmd_stash, FALSE, 0 },
 	{ CMD_BUY, { arg_ITEM, arg_NUMBER }, do_cmd_buy, FALSE, 0 },
 	{ CMD_RETRIEVE, { arg_ITEM, arg_NUMBER }, do_cmd_retrieve, FALSE, 0 },
+	/* Make this do things -Simon */
+	{ CMD_USE_RACIAL_POWER, {arg_NONE }, NULL, FALSE, 0 },
 	{ CMD_SUICIDE, { arg_NONE }, do_cmd_suicide, FALSE, 0 },
 	{ CMD_SAVE, { arg_NONE }, do_cmd_save_game, FALSE, 0 },
 	{ CMD_QUIT, { arg_NONE }, do_cmd_quit, FALSE, 0 },
@@ -390,10 +392,11 @@ void process_command(cmd_context ctx, bool no_request)
 	{
 		int oldrepeats = cmd->nrepeats;
 		int idx = cmd_idx(cmd->command);
+		size_t i;
 
 		if (idx == -1) return;
 
-		for (size_t i = 0; i < N_ELEMENTS(item_selector); i++)
+		for (i = 0; i < N_ELEMENTS(item_selector); i++)
 		{
 			struct item_selector *is = &item_selector[i];
 

@@ -1,6 +1,6 @@
 /*
  * File: main-cairo.h
- * Purpose: Cairo calls header for use in Angband ports
+ * Purpose: Cairo calls header for use in reposband ports
  * (Currently for the Gtk port, but should be reusable.)
  *
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
@@ -17,7 +17,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
  
-#include "angband.h"
+#include "reposband.h"
 
 #ifndef INCLUDED_CAIRO_UTILS_H 
 #define INCLUDED_CAIRO_UTILS_H

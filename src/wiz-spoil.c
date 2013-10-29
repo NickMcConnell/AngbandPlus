@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "monster/monster.h"
 #include "object/tvalsval.h"
@@ -248,7 +248,7 @@ static void spoil_obj_desc(cptr fname)
  	int encoding = (OPT(xchars_to_file)) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Open the file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, fname);
 	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
@@ -455,7 +455,7 @@ static void spoil_artifact(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, fname);
 	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
@@ -566,7 +566,7 @@ static void spoil_mon_desc(cptr fname)
  	int encoding = (OPT(xchars_to_file)) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, fname);
 	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
@@ -692,7 +692,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Open the file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), reposband_DIR_USER, fname);
 	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */

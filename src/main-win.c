@@ -11,7 +11,7 @@
 
 
 /*
- * This file helps Angband work with Windows computers.
+ * This file helps reposband work with Windows computers.
  *
  * To use this file, use an appropriate "Makefile" or "Project File",
  * make sure that "WINDOWS" and/or "WIN32" are defined somewhere, and
@@ -36,7 +36,7 @@
  *
  *
  * Compiling this file, and using the resulting executable, requires
- * several extra files not distributed with the standard Angband code.
+ * several extra files not distributed with the standard reposband code.
  * If "USE_GRAPHICS" is defined, then "readdib.h" and "readdib.c" must
  * be placed into "src/", and the "8x8.bmp" bitmap file must be placed
  * into "lib/xtra/graf".  In any case, some "*.fon" files (including
@@ -71,7 +71,11 @@
  * Additional code by Robert Ruehlmann <rr9@thangorodrim.net>.
  */
 
-#include "angband.h"
+#include "reposband.h"
+#include "cmds.h"
+#include "cave.h"
+#include "init.h"
+
 #define uint unsigned int
 
 #if (defined(WINDOWS) && !defined(USE_SDL))
@@ -86,10 +90,10 @@
 /* #define HTML_HELP */
 
 #ifdef HTML_HELP
-# define HELP_GENERAL "angband.chm"
-# define HELP_SPOILERS "angband.chm"
+# define HELP_GENERAL "reposband.chm"
+# define HELP_SPOILERS "reposband.chm"
 #else /* HTML_HELP */
-# define HELP_GENERAL "angband.hlp"
+# define HELP_GENERAL "reposband.hlp"
 # define HELP_SPOILERS "spoilers.hlp"
 #endif /* HTML_HELP */
 
@@ -106,7 +110,7 @@
 
 
 /*
- * Menu constants -- see "ANGBAND.RC"
+ * Menu constants -- see "reposband.RC"
  */
 
 #define IDM_FILE_NEW			100
@@ -521,7 +525,7 @@ static char *sound_file[MSG_MAX][SAMPLE_MAX];
 
 
 /*
- * Full path to ANGBAND.INI
+ * Full path to reposband.INI
  */
 static char *ini_file = NULL;
 
@@ -1004,19 +1008,19 @@ static void save_prefs(void)
 
 	/* Save the "arg_graphics" flag */
 	sprintf(buf, "%d", arg_graphics);
-	WritePrivateProfileString("Angband", "Graphics", buf, ini_file);
+	WritePrivateProfileString("reposband", "Graphics", buf, ini_file);
 
         /* Save the "use_graphics_nice" flag */
         strcpy(buf, arg_graphics_nice ? "1" : "0");
-        WritePrivateProfileString("Angband", "Graphics_Nice", buf, ini_file);
+        WritePrivateProfileString("reposband", "Graphics_Nice", buf, ini_file);
 
         /* Save the tile width */
         wsprintf(buf, "%d", tile_width);
-        WritePrivateProfileString("Angband", "TileWidth", buf, ini_file);
+        WritePrivateProfileString("reposband", "TileWidth", buf, ini_file);
 
         /* Save the tile height */
         wsprintf(buf, "%d", tile_height);
-        WritePrivateProfileString("Angband", "TileHeight", buf, ini_file);
+        WritePrivateProfileString("reposband", "TileHeight", buf, ini_file);
 
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -1078,27 +1082,27 @@ static void load_prefs(void)
 	char buf[1024];
 
 	/* Extract the "arg_graphics" flag */
-	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
+	arg_graphics = GetPrivateProfileInt("reposband", "Graphics", GRAPHICS_NONE, ini_file);
 
         /* Extract the "arg_graphics_nice" flag */
-        arg_graphics_nice = GetPrivateProfileInt("Angband", "Graphics_Nice", TRUE, ini_file);
+        arg_graphics_nice = GetPrivateProfileInt("reposband", "Graphics_Nice", TRUE, ini_file);
 
 	/* Extract the tile width */
-	tile_width = GetPrivateProfileInt("Angband", "TileWidth", FALSE, ini_file);
+	tile_width = GetPrivateProfileInt("reposband", "TileWidth", FALSE, ini_file);
 
 	/* Extract the tile height */
-	tile_height = GetPrivateProfileInt("Angband", "TileHeight", FALSE, ini_file);
+	tile_height = GetPrivateProfileInt("reposband", "TileHeight", FALSE, ini_file);
 
 	/* Extract the "arg_wizard" flag */
-	arg_wizard = (GetPrivateProfileInt("Angband", "Wizard", 0, ini_file) != 0);
+	arg_wizard = (GetPrivateProfileInt("reposband", "Wizard", 0, ini_file) != 0);
 
 	/* Extract the "arg_rebalance" flag */
-	arg_rebalance = (GetPrivateProfileInt("Angband", "Rebalance", FALSE, ini_file) != 0);
+	arg_rebalance = (GetPrivateProfileInt("reposband", "Rebalance", FALSE, ini_file) != 0);
 
 #ifdef SUPPORT_GAMMA
 
 	/* Extract the gamma correction */
-	gamma_correction = GetPrivateProfileInt("Angband", "Gamma", 0, ini_file);
+	gamma_correction = GetPrivateProfileInt("reposband", "Gamma", 0, ini_file);
 
 #endif /* SUPPORT_GAMMA */
 
@@ -1180,21 +1184,21 @@ static void load_sound_prefs(void)
 	char *zz[SAMPLE_MAX];
 
 	/* Access the sound.cfg */
-	path_build(ini_path, sizeof(ini_path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+	path_build(ini_path, sizeof(ini_path), reposband_DIR_XTRA_SOUND, "sound.cfg");
 
 	for (i = 0; i < MSG_MAX; i++)
 	{
 		/* Ignore empty sound strings */
-		if (!angband_sound_name[i][0]) continue;
+		if (!reposband_sound_name[i][0]) continue;
 
-		GetPrivateProfileString("Sound", angband_sound_name[i], "", tmp, sizeof(tmp), ini_path);
+		GetPrivateProfileString("Sound", reposband_sound_name[i], "", tmp, sizeof(tmp), ini_path);
 
 		num = tokenize_whitespace(tmp, SAMPLE_MAX, zz);
 
 		for (j = 0; j < num; j++)
 		{
 			/* Access the sound */
-			path_build(wav_path, sizeof(wav_path), ANGBAND_DIR_XTRA_SOUND, zz[j]);
+			path_build(wav_path, sizeof(wav_path), reposband_DIR_XTRA_SOUND, zz[j]);
 
 			/* Save the sound filename, if it exists */
 			if (file_exists(wav_path))
@@ -1209,7 +1213,7 @@ static void load_sound_prefs(void)
 /*
  * Create the new global palette based on the bitmap palette
  * (if any), and the standard 16 entry palette derived from
- * "win_clr[]" which is used for the basic 16 Angband colors.
+ * "win_clr[]" which is used for the basic 16 reposband colors.
  *
  * This function is never called before all windows are ready.
  *
@@ -1374,7 +1378,7 @@ static bool init_graphics(void)
 			name = "32x32.bmp";
 			mask = "mask32.bmp";
 
-			ANGBAND_GRAF = "david";
+			reposband_GRAF = "david";
 
 			use_transparency = FALSE;
 		}
@@ -1386,7 +1390,7 @@ static bool init_graphics(void)
 			name = "16X16.BMP";
 			mask = "mask.bmp";
 
-			ANGBAND_GRAF = "new";
+			reposband_GRAF = "new";
 
 			use_transparency = TRUE;
 		}
@@ -1398,7 +1402,7 @@ static bool init_graphics(void)
 			name = "8X16.BMP";
 			mask = "mask8x16.bmp";
 
-			ANGBAND_GRAF = "nomad";
+			reposband_GRAF = "nomad";
 
 			use_transparency = TRUE;
 		}
@@ -1408,11 +1412,11 @@ static bool init_graphics(void)
 			hgt = 8;
 
 			name = "8X8.BMP";
-			ANGBAND_GRAF = "old";
+			reposband_GRAF = "old";
 		}
 
 		/* Access the bitmap file */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, name);
+		path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, name);
 
 		/* Load the bitmap or quit */
 		if (!ReadDIB(data[0].w, buf, &infGraph))
@@ -1428,7 +1432,7 @@ static bool init_graphics(void)
 		if (mask)
 		{
 			/* Access the mask file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, mask);
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, mask);
 
 			/* Load the bitmap or quit */
 			if (!ReadDIB(data[0].w, buf, &infMask))
@@ -1506,7 +1510,7 @@ static void term_remove_font(const char *name)
 	char buf[1024];
 
 	/* Build path to the file */
-	my_strcpy(buf, ANGBAND_DIR_XTRA_FONT, sizeof(buf));
+	my_strcpy(buf, reposband_DIR_XTRA_FONT, sizeof(buf));
 	my_strcat(buf, "\\", sizeof(buf));
 	my_strcat(buf, name, sizeof(buf));
 
@@ -1648,11 +1652,11 @@ static void term_change_font(term_data *td)
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = data[0].w;
-	ofn.lpstrFilter = "Angband Font Files (*.fon)\0*.fon\0";
+	ofn.lpstrFilter = "reposband Font Files (*.fon)\0*.fon\0";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = tmp;
 	ofn.nMaxFile = 128;
-	ofn.lpstrInitialDir = ANGBAND_DIR_XTRA_FONT;
+	ofn.lpstrInitialDir = reposband_DIR_XTRA_FONT;
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = "fon";
 
@@ -1663,7 +1667,7 @@ static void term_change_font(term_data *td)
 		if (term_force_font(td, tmp))
 		{
 			/* Access the standard font file */
-			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
+			path_build(tmp, sizeof(tmp), reposband_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
@@ -1755,19 +1759,6 @@ static void Term_nuke_win(term *t)
 
 
 /*
- * Interact with the User
- */
-static errr Term_user_win(int n)
-{
-	/* Unused parameter */
-	(void)n;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * React to global changes
  */
 static errr Term_xtra_win_react(void)
@@ -1785,7 +1776,7 @@ static errr Term_xtra_win_react(void)
 		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Simply accept the desired colors */
-			win_pal[i] = angband_color_table[i][0];
+			win_pal[i] = reposband_color_table[i][0];
 		}
 	}
 
@@ -1802,9 +1793,9 @@ static errr Term_xtra_win_react(void)
 		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Extract desired values */
-			rv = angband_color_table[i][1];
-			gv = angband_color_table[i][2];
-			bv = angband_color_table[i][3];
+			rv = reposband_color_table[i][1];
+			gv = reposband_color_table[i][2];
+			bv = reposband_color_table[i][3];
 
 #ifdef SUPPORT_GAMMA
 
@@ -2074,7 +2065,7 @@ static void Term_xtra_win_sound(int v)
 	if (i == 0) return;
 
 	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, sound_file[v][0]);
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA_SOUND, sound_file[v][0]);
 
 	/* Play the sound, catch errors */
 	PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);
@@ -2665,7 +2656,6 @@ static void term_data_link(term_data *td)
 #endif /* 0 */
 
 	/* Prepare the template hooks */
-	t->user_hook = Term_user_win;
 	t->xtra_hook = Term_xtra_win;
 	t->curs_hook = Term_curs_win;
 	t->bigcurs_hook = Term_bigcurs_win;
@@ -2700,7 +2690,7 @@ static void init_windows(void)
 	/* Main window */
 	td = &data[0];
 	WIPE(td, term_data);
-	td->s = angband_term_name[0];
+	td->s = reposband_term_name[0];
 	td->keys = 1024;
 	td->rows = 24;
 	td->cols = 80;
@@ -2717,7 +2707,7 @@ static void init_windows(void)
 	{
 		td = &data[i];
 		WIPE(td, term_data);
-		td->s = angband_term_name[i];
+		td->s = reposband_term_name[i];
 		td->keys = 16;
 		td->rows = 24;
 		td->cols = 80;
@@ -2759,13 +2749,13 @@ static void init_windows(void)
 		td = &data[i];
 
 		/* Access the standard font file */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, td->font_want);
+		path_build(buf, sizeof(buf), reposband_DIR_XTRA_FONT, td->font_want);
 
 		/* Activate the chosen font */
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
@@ -2808,7 +2798,7 @@ static void init_windows(void)
 		}
 
 		term_data_link(td);
-		angband_term[i] = &td->t;
+		reposband_term[i] = &td->t;
 
 		if (td->visible)
 		{
@@ -3291,7 +3281,7 @@ static void display_help(cptr filename)
 {
 	char tmp[1024];
 
-	path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_HELP, filename);
+	path_build(tmp, sizeof(tmp), reposband_DIR_XTRA_HELP, filename);
 
 	if (file_exists(tmp))
 	{
@@ -3358,7 +3348,7 @@ static void process_menus(WORD wCmd)
 				ofn.nFilterIndex = 1;
 				ofn.lpstrFile = savefile;
 				ofn.nMaxFile = 1024;
-				ofn.lpstrInitialDir = ANGBAND_DIR_SAVE;
+				ofn.lpstrInitialDir = reposband_DIR_SAVE;
 				ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 				if (GetOpenFileName(&ofn))
@@ -3890,7 +3880,7 @@ static void process_menus(WORD wCmd)
 			{
 				/* Create a screen saver window */
 				hwndSaver = CreateWindowEx(WS_EX_TOPMOST, "WindowsScreenSaverClass",
-				                           "Angband Screensaver",
+				                           "reposband Screensaver",
 				                           WS_POPUP | WS_MAXIMIZE | WS_VISIBLE,
 				                           0, 0, GetSystemMetrics(SM_CXSCREEN),
 				                           GetSystemMetrics(SM_CYSCREEN),
@@ -4010,7 +4000,7 @@ static void handle_wm_paint(HWND hWnd)
 }
 
 
-static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
+static LRESULT FAR PASCAL reposbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -4349,7 +4339,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 }
 
 
-static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
+static LRESULT FAR PASCAL reposbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 {
 	term_data *td;
@@ -4631,7 +4621,7 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 #ifdef USE_SAVER
 
-LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL reposbandSaverProc(HWND hWnd, UINT uMsg,
                                             WPARAM wParam, LPARAM lParam)
 {
 	static int iMouse = 0;
@@ -4859,13 +4849,13 @@ static void hook_quit(cptr str)
 	/* Free strings */
 	string_free(ini_file);
 	string_free(argv0);
-	string_free(ANGBAND_DIR_XTRA_FONT);
-	string_free(ANGBAND_DIR_XTRA_GRAF);
-	string_free(ANGBAND_DIR_XTRA_SOUND);
-	string_free(ANGBAND_DIR_XTRA_HELP);
+	string_free(reposband_DIR_XTRA_FONT);
+	string_free(reposband_DIR_XTRA_GRAF);
+	string_free(reposband_DIR_XTRA_SOUND);
+	string_free(reposband_DIR_XTRA_HELP);
 
 #ifdef HAS_CLEANUP
-	cleanup_angband();
+	cleanup_reposband();
 #endif /* HAS_CLEANUP */
 
 	exit(0);
@@ -4937,15 +4927,15 @@ static void init_stuff(void)
 
 #ifdef USE_SAVER
 
-	/* Try to get the path to the Angband folder */
+	/* Try to get the path to the reposband folder */
 	if (screensaver)
 	{
 		/* Extract the filename of the savefile for the screensaver */
-		GetPrivateProfileString("Angband", "SaverFile", "", saverfilename, sizeof(saverfilename), path);
+		GetPrivateProfileString("reposband", "SaverFile", "", saverfilename, sizeof(saverfilename), path);
 
-		GetPrivateProfileString("Angband", "AngbandPath", "", tmp, sizeof(tmp), path);
+		GetPrivateProfileString("reposband", "reposbandPath", "", tmp, sizeof(tmp), path);
 
-		sprintf(path, "%sangband.ini", tmp);
+		sprintf(path, "%Sangband.ini", tmp);
 	}
 
 #endif /* USE_SAVER */
@@ -4976,33 +4966,33 @@ static void init_stuff(void)
 	init_file_paths(path, path, path);
 
 	/* Hack -- Validate the paths */
-	validate_dir(ANGBAND_DIR_APEX);
-	validate_dir(ANGBAND_DIR_EDIT);
-	validate_dir(ANGBAND_DIR_FILE);
-	validate_dir(ANGBAND_DIR_HELP);
-	validate_dir(ANGBAND_DIR_PREF);
-	validate_dir(ANGBAND_DIR_SAVE);
-	validate_dir(ANGBAND_DIR_USER);
-	validate_dir(ANGBAND_DIR_XTRA);
+	validate_dir(reposband_DIR_APEX);
+	validate_dir(reposband_DIR_EDIT);
+	validate_dir(reposband_DIR_FILE);
+	validate_dir(reposband_DIR_HELP);
+	validate_dir(reposband_DIR_PREF);
+	validate_dir(reposband_DIR_SAVE);
+	validate_dir(reposband_DIR_USER);
+	validate_dir(reposband_DIR_XTRA);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+	path_build(path, sizeof(path), reposband_DIR_FILE, "news.txt");
 
 	/* Hack -- Validate the "news.txt" file */
 	validate_file(path);
 
 
 	/* Build the "font" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "font");
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "font");
 
 	/* Allocate the path */
-	ANGBAND_DIR_XTRA_FONT = string_make(path);
+	reposband_DIR_XTRA_FONT = string_make(path);
 
 	/* Validate the "font" directory */
-	validate_dir(ANGBAND_DIR_XTRA_FONT);
+	validate_dir(reposband_DIR_XTRA_FONT);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
+	path_build(path, sizeof(path), reposband_DIR_XTRA_FONT, DEFAULT_FONT);
 
 	/* Hack -- Validate the basic font */
 	validate_file(path);
@@ -5011,13 +5001,13 @@ static void init_stuff(void)
 #ifdef USE_GRAPHICS
 
 	/* Build the "graf" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "graf");
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "graf");
 
 	/* Allocate the path */
-	ANGBAND_DIR_XTRA_GRAF = string_make(path);
+	reposband_DIR_XTRA_GRAF = string_make(path);
 
 	/* Validate the "graf" directory */
-	validate_dir(ANGBAND_DIR_XTRA_GRAF);
+	validate_dir(reposband_DIR_XTRA_GRAF);
 
 #endif /* USE_GRAPHICS */
 
@@ -5025,25 +5015,25 @@ static void init_stuff(void)
 #ifdef USE_SOUND
 
 	/* Build the "sound" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "sound");
 
 	/* Allocate the path */
-	ANGBAND_DIR_XTRA_SOUND = string_make(path);
+	reposband_DIR_XTRA_SOUND = string_make(path);
 
 	/* Validate the "sound" directory */
-	validate_dir(ANGBAND_DIR_XTRA_SOUND);
+	validate_dir(reposband_DIR_XTRA_SOUND);
 
 #endif /* USE_SOUND */
 
 	/* Build the "help" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "help");
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "help");
 
 	/* Allocate the path */
-	ANGBAND_DIR_XTRA_HELP = string_make(path);
+	reposband_DIR_XTRA_HELP = string_make(path);
 
 #if 0
 	/* Validate the "help" directory */
-	validate_dir(ANGBAND_DIR_XTRA_HELP);
+	validate_dir(reposband_DIR_XTRA_HELP);
 #endif /* 0 */
 }
 
@@ -5072,7 +5062,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 				screensaver = TRUE;
 
 				/* Only run one screensaver at the time */
-				screensaverSemaphore = CreateSemaphore(NULL, 0, 1, "AngbandSaverSemaphore");
+				screensaverSemaphore = CreateSemaphore(NULL, 0, 1, "reposbandSaverSemaphore");
 
 				if (!screensaverSemaphore) exit(0);
 
@@ -5107,19 +5097,19 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	if (hPrevInst == NULL)
 	{
 		wc.style         = CS_CLASSDC;
-		wc.lpfnWndProc   = AngbandWndProc;
+		wc.lpfnWndProc   = reposbandWndProc;
 		wc.cbClsExtra    = 0;
 		wc.cbWndExtra    = 4; /* one long pointer to term_data */
 		wc.hInstance     = hInst;
-		wc.hIcon         = hIcon = LoadIcon(hInst, "ANGBAND");
+		wc.hIcon         = hIcon = LoadIcon(hInst, "reposband");
 		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 		wc.hbrBackground = GetStockObject(BLACK_BRUSH);
-		wc.lpszMenuName  = "ANGBAND";
+		wc.lpszMenuName  = "reposband";
 		wc.lpszClassName = AppName;
 
 		if (!RegisterClass(&wc)) exit(1);
 
-		wc.lpfnWndProc   = AngbandListProc;
+		wc.lpfnWndProc   = reposbandListProc;
 		wc.lpszMenuName  = NULL;
 		wc.lpszClassName = AngList;
 
@@ -5128,7 +5118,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 #ifdef USE_SAVER
 
 		wc.style          = CS_VREDRAW | CS_HREDRAW | CS_SAVEBITS | CS_DBLCLKS;
-		wc.lpfnWndProc    = AngbandSaverProc;
+		wc.lpfnWndProc    = reposbandSaverProc;
 		wc.hCursor        = NULL;
 		wc.lpszMenuName   = NULL;
 		wc.lpszClassName  = "WindowsScreenSaverClass";
@@ -5167,15 +5157,15 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		byte rv, gv, bv;
 
 		/* Extract desired values */
-		rv = angband_color_table[i][1];
-		gv = angband_color_table[i][2];
-		bv = angband_color_table[i][3];
+		rv = reposband_color_table[i][1];
+		gv = reposband_color_table[i][2];
+		bv = reposband_color_table[i][3];
 
 		/* Extract the "complex" code */
 		win_clr[i] = PALETTERGB(rv, gv, bv);
 
 		/* Save the "simple" code */
-		angband_color_table[i][0] = win_pal[i];
+		reposband_color_table[i][0] = win_pal[i];
 	}
 
 	/* Prepare the windows */
@@ -5186,7 +5176,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	quit_aux = hook_quit;
 
 	/* Set the system suffix */
-	ANGBAND_SYS = "win";
+	reposband_SYS = "win";
 
 #ifdef USE_SAVER
 	if (screensaver)

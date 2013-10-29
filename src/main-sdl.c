@@ -1,6 +1,6 @@
 /*
  * File: main-sdl.c
- * Purpose: Angband SDL port 
+ * Purpose: reposband SDL port 
  *
  * Copyright (c) 2007 Ben Harrison, Gregory Velichansky, Eric Stevens,
  * Leon Marrick, Iain McFall, and others
@@ -16,20 +16,20 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "files.h"
 
 /*
  * Comments and suggestions are welcome. The UI probably needs some
  * adjustment, and I need comments from you.
- * perhaps also something like "Angband 3.0.8 by Andrew Sidwell and others;
+ * perhaps also something like "reposband 3.0.8 by Andrew Sidwell and others;
  * SDL port by Iain McFall an others, please see the accompanying documentation
  * for credits" or something
  */
 
 /*
- * This file helps Angband work with at least some computers capable of running
+ * This file helps reposband work with at least some computers capable of running
  * SDL, a set of simple and quite popular game development libraries that work
  * on many different operating systems, including Windows, most flavours of
  * UNIX or similar, and Mac OS X.  It requires a 32-bit (or higher) machine
@@ -62,16 +62,16 @@
  * "Term" framework by Ben Harrison (benh@phial.com).
  *
  * Original Sangband SDL port and the "intrface" module by Leon Marrick
- * (www.runegold.org/sangband).
+ * (www.runegold.org/Sangband).
  *
  * Additional helpful ideas by:
- * 2001 Gregory Velichansky <hmaon@bumba.net>, creator of the first Angband SDL
+ * 2001 Gregory Velichansky <hmaon@bumba.net>, creator of the first reposband SDL
  * port.
  * 2006 Eric Stevens <sdltome@gmail.com>, main author of the TOME SDL port.
  */
 
 /*
- * Comments on using SDL with Angband:
+ * Comments on using SDL with reposband:
  *
  * The good news:
  * - SDL is cross-platform.  Really.  No joke.  If this port doesn't work on
@@ -94,7 +94,7 @@
  * - SDL (as a stand-alone lib, without the assistance of OpenGL) can be very
  *   sluggish if you aren't careful.  It is poor at detecting, let alone making
  *   fullest use of, available video hardware, which cripples speed.  So,
- *   getting half-way decent performance in a game like Angband takes some
+ *   getting half-way decent performance in a game like reposband takes some
  *   skill and vast amounts of effort.  Speed - the lack thereof - is this
  *   port's biggest problem.  More comments below.
  * - SDL is not a complete game development library (although the add-ons help
@@ -130,7 +130,7 @@ static int full_h;
 static bool fullscreen = FALSE;
 
 /* XXXXXXXXX */
-static char *ANGBAND_DIR_USER_SDL;
+static char *reposband_DIR_USER_SDL;
 
 /*
  * Used as 'system' font
@@ -306,8 +306,8 @@ static bool popped;
 /*
  * Term windows
  */
-static term_window windows[ANGBAND_TERM_MAX];
-static int Zorder[ANGBAND_TERM_MAX];
+static term_window windows[REPOSBAND_TERM_MAX];
+static int Zorder[REPOSBAND_TERM_MAX];
 
 /* Keep track of the mouse status */
 static mouse_info mouse;
@@ -402,7 +402,7 @@ static int SelectedGfx;				/* Current selected gfx */
 #endif
 
 /*
- * The basic angband text colours in an sdl friendly form
+ * The basic reposband text colours in an sdl friendly form
  */
 static u32b text_colours[MAX_COLORS];
 
@@ -476,7 +476,7 @@ static errr sdl_CheckFont(cptr fontname, int *width, int *height)
 	TTF_Font *ttf_font;
 	
 	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA_FONT, fontname);
 	
 	/* Attempt to load it */
 	ttf_font = TTF_OpenFont(buf, 0);
@@ -531,7 +531,7 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 	if (font->data) sdl_FontFree(font);
 	
 	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, fontname);
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA_FONT, fontname);
 	
 	/* Attempt to load it */
 	ttf_font = TTF_OpenFont(buf, 0);
@@ -1080,10 +1080,10 @@ static void hook_quit(cptr str)
 	
 	save_prefs();
 	
-	string_free(ANGBAND_DIR_USER_SDL);
+	string_free(reposband_DIR_USER_SDL);
 	
 	/* Free the surfaces of the windows */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		term_windowFree(&windows[i]);
 		string_free(windows[i].req_font);
@@ -1119,19 +1119,19 @@ static void BringToTop(void)
 {
 	int i, idx;
 	
-	for (idx = 0; idx < ANGBAND_TERM_MAX; idx++)
+	for (idx = 0; idx < REPOSBAND_TERM_MAX; idx++)
 	{
 		if (Zorder[idx] == SelectedTerm) break;
 	}
 	
-	if (idx == ANGBAND_TERM_MAX) return;
+	if (idx == REPOSBAND_TERM_MAX) return;
 	
-	for (i = idx; i < ANGBAND_TERM_MAX - 1; i++)
+	for (i = idx; i < REPOSBAND_TERM_MAX - 1; i++)
 	{
 		Zorder[i] = Zorder[i + 1];
 	}
 	
-	Zorder[ANGBAND_TERM_MAX - 1] = SelectedTerm;
+	Zorder[REPOSBAND_TERM_MAX - 1] = SelectedTerm;
 }
 
 	
@@ -1154,7 +1154,7 @@ static int sdl_LocateWin(int x, int y)
 {
 	int i;
 	
-	for (i = ANGBAND_TERM_MAX - 1; i >= 0; i--)
+	for (i = REPOSBAND_TERM_MAX - 1; i >= 0; i--)
 	{
 		term_window *win = &windows[Zorder[i]];
 		SDL_Rect rc;
@@ -1249,7 +1249,7 @@ static void sdl_BlitAll(void)
 	/* int32 ccolour = SDL_MapRGB(AppWin->format, 160, 40, 40); */
 	SDL_FillRect(AppWin, NULL, back_colour);
 	
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		term_window *win = &windows[Zorder[i]];
 		
@@ -1313,7 +1313,7 @@ static void SetStatusButtons(void)
 	sdl_Button *fontbutton = sdl_ButtonBankGet(&StatusBar.buttons, FontSelect);
 	sdl_Button *visbutton = sdl_ButtonBankGet(&StatusBar.buttons, VisibleSelect);
 	
-	sdl_ButtonCaption(button, angband_term_name[SelectedTerm]);
+	sdl_ButtonCaption(button, reposband_term_name[SelectedTerm]);
 	
 	if (!win->visible)
 	{
@@ -1378,11 +1378,11 @@ static void SelectTerm(sdl_Button *sender)
 static void TermActivate(sdl_Button *sender)
 {
 	int i, maxl = 0; 
-	int width, height = ANGBAND_TERM_MAX * (StatusBar.font.height + 1);
+	int width, height = REPOSBAND_TERM_MAX * (StatusBar.font.height + 1);
 
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
-		int l = strlen(angband_term_name[i]); 
+		int l = strlen(reposband_term_name[i]); 
 		if (l > maxl) maxl = l;
 	}
 	
@@ -1392,14 +1392,14 @@ static void TermActivate(sdl_Button *sender)
 	PopUp.left = sender->pos.x;
 	PopUp.top = sender->pos.y;
 	
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		int h = PopUp.font.height;
 		int b = sdl_ButtonBankNew(&PopUp.buttons);
 		sdl_Button *button = sdl_ButtonBankGet(&PopUp.buttons, b);
 		sdl_ButtonSize(button, width - 2 , h);
 		sdl_ButtonMove(button, 1, i * (h + 1));
-		sdl_ButtonCaption(button, angband_term_name[i]);
+		sdl_ButtonCaption(button, reposband_term_name[i]);
 		sdl_ButtonVisible(button, TRUE);
 		button->tag = i;
 		button->activate = SelectTerm;
@@ -1420,7 +1420,7 @@ static void VisibleActivate(sdl_Button *sender)
 	{
 		window->visible = FALSE;
 		term_windowFree(window);
-		angband_term[SelectedTerm] = NULL;
+		reposband_term[SelectedTerm] = NULL;
 		
 	}
 	else
@@ -1535,7 +1535,7 @@ static void AcceptChanges(sdl_Button *sender)
 	if (do_update)
 	{
 		int i;
-		for (i = 0; i < ANGBAND_TERM_MAX; i++)
+		for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 		{
 			term_window *win = &windows[i];
 			if (win->tiles)
@@ -1850,7 +1850,7 @@ static void ResizeWin(term_window* win, int w, int h)
 			quit(format("Unable to find font '%s'.\n"
 						"Note that there are new extended font files ending in 'x' in %s.\n"
 					    "Please check %s and edit if necessary.",
-					    win->req_font, ANGBAND_DIR_XTRA_FONT, ANGBAND_DIR_USER_SDL));
+					    win->req_font, reposband_DIR_XTRA_FONT, reposband_DIR_USER_SDL));
 	}
 	
 	/* Get the amount of columns & rows */
@@ -1875,7 +1875,7 @@ static void ResizeWin(term_window* win, int w, int h)
 	
 	/* Label it */
 	sdl_FontDraw(&SystemFont, win->surface, back_colour, 1, 1,
-				 strlen(angband_term_name[win->Term_idx]), angband_term_name[win->Term_idx]);
+				 strlen(reposband_term_name[win->Term_idx]), reposband_term_name[win->Term_idx]);
 	
 	/* Mark the whole window for redraw */
 	RECT(0, 0, win->width, win->height, &win->uRect);
@@ -1887,15 +1887,15 @@ static void ResizeWin(term_window* win, int w, int h)
 	}
 	
 	/* This window was never visible before */
-	if (!angband_term[win->Term_idx])
+	if (!reposband_term[win->Term_idx])
 	{
 		term *old = Term;
 		
 		/* Initialize the term data */
 		term_data_link_sdl(win);
 		
-		/* Make it visible to angband */
-		angband_term[win->Term_idx] = &win->term_data;
+		/* Make it visible to reposband */
+		reposband_term[win->Term_idx] = &win->term_data;
 		
 		/* Activate it */
 		Term_activate((term*)&win->term_data);
@@ -1948,7 +1948,7 @@ static errr load_prefs(void)
 	int i;
 	
 	/* Initialize the windows with crappy defaults! */
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		win = &windows[i];
 		
@@ -1981,10 +1981,10 @@ static errr load_prefs(void)
 	}
 	
 	/* Build the path */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "sdlinit.txt");
+	path_build(buf, sizeof(buf), reposband_DIR_USER, "sdlinit.txt");
 	
 	/* XXXXX */
-	ANGBAND_DIR_USER_SDL = string_make(buf);
+	reposband_DIR_USER_SDL = string_make(buf);
 	
 	/* Open the file */
 	fff = file_open(buf, MODE_READ, -1);
@@ -2091,7 +2091,7 @@ static errr save_prefs(void)
 	int i;
 
 	/* Open the file */
-	fff = file_open(ANGBAND_DIR_USER_SDL, MODE_WRITE, FTYPE_TEXT);
+	fff = file_open(reposband_DIR_USER_SDL, MODE_WRITE, FTYPE_TEXT);
 
 	/* Check it */
 	if (!fff) return (1);
@@ -2102,7 +2102,7 @@ static errr save_prefs(void)
 	file_putf(fff, "TileWidth = %d\n\n", tile_width);
         file_putf(fff, "TileHeight = %d\n\n", tile_height);
 	
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		term_window *win = &windows[i];
 		
@@ -2197,7 +2197,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 					Movingy = mouse.y - win->top;
 				}
 				
-				for (i = 0; i < ANGBAND_TERM_MAX; i++)
+				for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 				{
 					term_window *snapper = &windows[i];
 					
@@ -2364,7 +2364,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 					
 				}
 				
-				/* Signal a mouse press to angband (only if the window is already focused) */
+				/* Signal a mouse press to reposband (only if the window is already focused) */
 				else if (!just_gained_focus)
 				{
 					if (win->visible)
@@ -2374,7 +2374,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 						int y = (mouse.y - win->top - win->title_height) / win->tile_hgt;
 						
 						/* Send the mousepress to the appropriate term */
-						Term_activate(angband_term[idx]);
+						Term_activate(reposband_term[idx]);
 						Term_mousepress(x, y, 1);
 						Term_activate(old);
 					}
@@ -2407,7 +2407,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 					if ((x >= 0) && (y >= 0) && (x < win->cols) && (y < win->rows))
 					{
 						/* Send the mousepress to the appropriate term */
-						Term_activate(angband_term[idx]);
+						Term_activate(reposband_term[idx]);
 						Term_mousepress(x, y, 2);
 						Term_activate(old);
 					}
@@ -2894,9 +2894,9 @@ static errr Term_xtra_sdl(int n, int v)
 			/* Re-initialize the colours */
 			for (i = 0; i < MAX_COLORS; i++)
 			{
-				text_colours[i] = SDL_MapRGB(AppWin->format, angband_color_table[i][1],
-											 angband_color_table[i][2],
-											 angband_color_table[i][3]);
+				text_colours[i] = SDL_MapRGB(AppWin->format, reposband_color_table[i][1],
+											 reposband_color_table[i][2],
+											 reposband_color_table[i][3]);
 			}
 		}
 	}
@@ -3326,7 +3326,7 @@ static errr load_gfx(void)
 	if (GfxSurface) SDL_FreeSurface(GfxSurface);
 	
 	/* Find and load the file into a temporary surface */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, filename);
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, filename);
 	temp = IMG_Load(buf);
 	
 	/* Oops */
@@ -3370,7 +3370,7 @@ static errr load_gfx(void)
 	SDL_FreeSurface(temp);
 	
 	/* Make sure we know what pref file to use */
-	ANGBAND_GRAF = GfxDesc[use_graphics].pref;
+	reposband_GRAF = GfxDesc[use_graphics].pref;
 	
 	/* Reset the graphics mapping for this tileset */
 	if (character_dungeon) reset_visuals(TRUE);
@@ -3408,7 +3408,7 @@ static void init_gfx(void)
 		/* Check the graphic file */
 		if (GfxDesc[i].gfxfile)
 		{
-			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_GRAF, GfxDesc[i].gfxfile);
+			path_build(path, sizeof(path), reposband_DIR_XTRA_GRAF, GfxDesc[i].gfxfile);
 
 			if (!file_exists(path))
 			{
@@ -3440,7 +3440,7 @@ static void init_windows(void)
 {
 	int i;
 	
-	for (i = 0; i < ANGBAND_TERM_MAX; i++)
+	for (i = 0; i < REPOSBAND_TERM_MAX; i++)
 	{
 		term_window *win = &windows[i];
 		
@@ -3463,11 +3463,11 @@ static void init_windows(void)
 		else
 		{
 			/* Doesn't exist */
-			angband_term[i] = NULL;
+			reposband_term[i] = NULL;
 		}
 		
 		/* Term 0 is at the top */
-		Zorder[i] = ANGBAND_TERM_MAX - i - 1;
+		Zorder[i] = REPOSBAND_TERM_MAX - i - 1;
 	}
 	
 	/* Good to go... */
@@ -3526,18 +3526,18 @@ static void init_sdl_local(void)
 	(void)SDL_EnableUNICODE(1);
 	
 	/* Build a color for "black" that matches the pixel depth of this surface */
-	back_colour = SDL_MapRGB(AppWin->format, angband_color_table[TERM_DARK][1],
-						   angband_color_table[TERM_DARK][2],
-						   angband_color_table[TERM_DARK][3]);
+	back_colour = SDL_MapRGB(AppWin->format, reposband_color_table[TERM_DARK][1],
+						   reposband_color_table[TERM_DARK][2],
+						   reposband_color_table[TERM_DARK][3]);
 	
 	
 	
 	/* Initialize the colours */
 	for (i = 0; i < MAX_COLORS; i++)
 	{
-		text_colours[i] = SDL_MapRGB(AppWin->format, angband_color_table[i][1],
-									 angband_color_table[i][2],
-									 angband_color_table[i][3]);
+		text_colours[i] = SDL_MapRGB(AppWin->format, reposband_color_table[i][1],
+									 reposband_color_table[i][2],
+									 reposband_color_table[i][3]);
 	}
 	
 	/* Get the height of the status bar */
@@ -3560,7 +3560,7 @@ static void init_paths(void)
 	ang_dir *dir;
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT_FILE);
+	path_build(path, sizeof(path), reposband_DIR_XTRA_FONT, DEFAULT_FONT_FILE);
 	
 	/* Hack -- Validate the basic font */
 	validate_file(path);
@@ -3572,7 +3572,7 @@ static void init_paths(void)
 	/** Scan for fonts **/
 
 	/* Open the directory */
-	dir = my_dopen(ANGBAND_DIR_XTRA_FONT);
+	dir = my_dopen(reposband_DIR_XTRA_FONT);
 	if (!dir) return;
 
 	/* Read every font to the limit */

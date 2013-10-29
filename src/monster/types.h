@@ -124,6 +124,13 @@ typedef struct
  */
 typedef struct
 {
+	/* New crud for RePos, maybe put this in monster_race -Simon*/
+	s16b mimic_k_idx;
+	s16b mana;
+	s16b maxmana;
+	byte blinded;
+	byte align;
+	
 	s16b r_idx;			/* Monster race index */
 
 	byte fy;			/* Y location on map */

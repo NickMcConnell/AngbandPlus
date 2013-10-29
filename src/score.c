@@ -1,6 +1,6 @@
 /*
  * File: score.c
- * Purpose: Highscore handling for Angband
+ * Purpose: Highscore handling for reposband
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 
 /*
@@ -79,7 +79,7 @@ static size_t highscore_read(high_score scores[], size_t sz)
 	/* Wipe current scores */
 	C_WIPE(scores, sz, high_score);
 
-	path_build(fname, sizeof(fname), ANGBAND_DIR_APEX, "scores.raw");
+	path_build(fname, sizeof(fname), reposband_DIR_APEX, "scores.raw");
 	scorefile = file_open(fname, MODE_READ, -1);
 
 	if (!scorefile) return TRUE;
@@ -158,10 +158,10 @@ static void highscore_write(const high_score scores[], size_t sz)
 	char new_name[1024];
 	char lok_name[1024];
 
-	path_build(old_name, sizeof(old_name), ANGBAND_DIR_APEX, "scores.old");
-	path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_APEX, "scores.raw");
-	path_build(new_name, sizeof(new_name), ANGBAND_DIR_APEX, "scores.new");
-	path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_APEX, "scores.lok");
+	path_build(old_name, sizeof(old_name), reposband_DIR_APEX, "scores.old");
+	path_build(cur_name, sizeof(cur_name), reposband_DIR_APEX, "scores.raw");
+	path_build(new_name, sizeof(new_name), reposband_DIR_APEX, "scores.new");
+	path_build(lok_name, sizeof(lok_name), reposband_DIR_APEX, "scores.lok");
 
 
 	/* Read in and add new score */
@@ -303,7 +303,13 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 			for (aged = score->turns; isspace((unsigned char)*aged); aged++) /* loop */;
 
 			/* Dump some info */
-			strnfmt(out_val, sizeof(out_val),
+			/* Monsters don't have their class listed -Simon */
+			if((pc > DEMIHUMAN_CLASS_MAX) || (pr > DEMIHUMAN_RACE_MAX))
+				strnfmt(out_val, sizeof(out_val),
+			        "%3d.%9s  %s the %s, Level %d",
+			        place, score->pts, score->who,
+			        p_info[pr].name, clev);
+			else strnfmt(out_val, sizeof(out_val),
 			        "%3d.%9s  %s the %s %s, Level %d",
 			        place, score->pts, score->who,
 			        p_info[pr].name, c_info[pc].name,
@@ -408,14 +414,14 @@ void enter_score(time_t *death_time)
 	int j;
 
 	/* Cheaters are not scored */
-	for (j = OPT_SCORE; j < OPT_MAX; ++j)
+/*	for (j = OPT_SCORE; j < OPT_MAX; ++j)
 	{
 		if (!op_ptr->opt[j]) continue;
 
 		msg_print("Score not registered for cheaters.");
 		message_flush();
 		return;
-	}
+	} */
 
 	/* Wizard-mode pre-empts scoring */
 	if (p_ptr->noscore & (NOSCORE_WIZARD | NOSCORE_DEBUG))
@@ -443,12 +449,12 @@ void enter_score(time_t *death_time)
 	}
 
 	/* Hack -- Quitter */
-	else if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+/*	else if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 	{
 		msg_print("Score not registered due to quitting.");
 		message_flush();
-	}
-
+	} */
+	
 	/* Add a new entry to the score list, see where it went */
 	else
 	{

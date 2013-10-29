@@ -4,7 +4,7 @@
 # This file may be included by "pref.prf", when using "main-gcu.prf".
 #
 # It contains macro definitions to allow the VT100 cursor keys to be
-# recognized by Angband.  This will also make the "escape" key take a
+# recognized by reposband.  This will also make the "escape" key take a
 # few seconds to recognize, so you may want to use the "`" key instead.
 #
 

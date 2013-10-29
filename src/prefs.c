@@ -17,7 +17,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "macro.h"
 #include "prefs.h"
 #include "squelch.h"
@@ -219,10 +219,10 @@ void option_dump(ang_file *fff)
 	}
 
 	/* Dump window flags */
-	for (i = 1; i < ANGBAND_TERM_MAX; i++)
+	for (i = 1; i < REPOSBAND_TERM_MAX; i++)
 	{
 		/* Require a real window */
-		if (!angband_term[i]) continue;
+		if (!reposband_term[i]) continue;
 
 		/* Check each flag */
 		for (j = 0; j < (int)N_ELEMENTS(window_flag_desc); j++)
@@ -232,7 +232,7 @@ void option_dump(ang_file *fff)
 
 			/* Comment */
 			file_putf(fff, "# Window '%s', Flag '%s'\n",
-				angband_term_name[i], window_flag_desc[j]);
+				reposband_term_name[i], window_flag_desc[j]);
 
 			/* Dump the flag */
 			if (op_ptr->window_flag[i] & (1L << j))
@@ -422,10 +422,10 @@ void dump_colors(ang_file *fff)
 
 	for (i = 0; i < MAX_COLORS; i++)
 	{
-		int kv = angband_color_table[i][0];
-		int rv = angband_color_table[i][1];
-		int gv = angband_color_table[i][2];
-		int bv = angband_color_table[i][3];
+		int kv = reposband_color_table[i][0];
+		int rv = reposband_color_table[i][1];
+		int gv = reposband_color_table[i][2];
+		int bv = reposband_color_table[i][3];
 
 		const char *name = "unknown";
 
@@ -674,9 +674,9 @@ static const char *process_pref_file_expr(char **sp, char *fp)
 		if (*b == '$')
 		{
 			if (streq(b+1, "SYS"))
-				v = ANGBAND_SYS;
+				v = reposband_SYS;
 			else if (streq(b+1, "GRAF"))
-				v = ANGBAND_GRAF;
+				v = reposband_GRAF;
 			else if (streq(b+1, "RACE"))
 				v = rp_ptr->name;
 			else if (streq(b+1, "CLASS"))
@@ -1105,10 +1105,10 @@ static enum parser_error parse_prefs_v(struct parser *p)
 	if (idx > MAX_COLORS)
 		return PARSE_ERROR_OUT_OF_BOUNDS;
 
-	angband_color_table[idx][0] = parser_getint(p, "k");
-	angband_color_table[idx][1] = parser_getint(p, "r");
-	angband_color_table[idx][2] = parser_getint(p, "g");
-	angband_color_table[idx][3] = parser_getint(p, "b");
+	reposband_color_table[idx][0] = parser_getint(p, "k");
+	reposband_color_table[idx][1] = parser_getint(p, "r");
+	reposband_color_table[idx][2] = parser_getint(p, "g");
+	reposband_color_table[idx][3] = parser_getint(p, "b");
 
 	return PARSE_ERROR_NONE;
 }
@@ -1123,7 +1123,7 @@ static enum parser_error parse_prefs_w(struct parser *p)
 	if (d->bypass) return PARSE_ERROR_NONE;
 
 	window = parser_getint(p, "window");
-	if (window <= 0 || window >= ANGBAND_TERM_MAX)
+	if (window <= 0 || window >= REPOSBAND_TERM_MAX)
 		return PARSE_ERROR_OUT_OF_BOUNDS;
 
 	flag = parser_getuint(p, "flag");
@@ -1232,9 +1232,9 @@ bool process_pref_file(const char *name, bool quiet)
 	int line_no = 0;
 
 	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
+	path_build(buf, sizeof(buf), reposband_DIR_PREF, name);
 	if (!file_exists(buf))
-		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+		path_build(buf, sizeof(buf), reposband_DIR_USER, name);
 
 	f = file_open(buf, MODE_READ, -1);
 	if (!f)

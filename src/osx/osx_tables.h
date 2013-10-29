@@ -9,7 +9,7 @@
 
 /* These numbers must agree with the corresponding Menu ID in the nib. */
 enum MenuID {
-	kAngbandMenu    = 100,
+	kreposbandMenu    = 100,
 	kFileMenu       = 101,
 	kOpenRecentMenu = 102,
 
@@ -41,7 +41,7 @@ enum {
 enum {
 	kMinimize			= 1, /* Not used */
 	kMinimizeAll		= 2, /* Not used */
-	kAngbandTerm		= 4,
+	kreposbandTerm		= 4,
 	kTerminal1			= 5,  /* Terminal ids are relative to Terminal 1 */
 	/* ... */
 	kBringToFront 		= 13
@@ -83,7 +83,7 @@ static const HIViewID aboutDialogCopyright = { 'DLOG', 4 };
 static const struct {
 	int menuItem;		// Index in Graphics Menu
  	  cptr file;			// Base name of png file (if any)
-	cptr name;			// Value of ANGBAND_GRAF variable
+	cptr name;			// Value of reposband_GRAF variable
 	int size;			// Tile size (in pixels)
 	bool trans;			// Use transparent foreground tiles
 } graphics_modes[] = {
@@ -127,7 +127,7 @@ HANDLERDEF(ValidateMenuCommand);
 HANDLERDEF(OpenRecentCommand);
 HANDLERDEF(ResumeCommand);
 HANDLERDEF(CommandCommand);
-HANDLERDEF(AngbandGame);
+HANDLERDEF(reposbandGame);
 
 
 
@@ -141,7 +141,7 @@ const CommandDef event_defs [] =
 	 * Start game event - posted into the event queue after
 	 * any potential open game events from the Finder
 	 */
-	{ 'Play', 'Band', AngbandGame, 0, NULL },
+	{ 'Play', 'Band', reposbandGame, 0, NULL },
 
 	/* Quit the game */
 	{ 'appl', kEventAppQuit, QuitCommand, 0, NULL },
@@ -150,8 +150,8 @@ const CommandDef event_defs [] =
 	{ 'appl', kEventAppActivated, ResumeCommand, 0, NULL },
 
 
-	/* "About Angband" command */
-	{ 'cmds', kEventProcessCommand, AboutCommand, kAngbandMenu, NULL },
+	/* "About reposband" command */
+	{ 'cmds', kEventProcessCommand, AboutCommand, kreposbandMenu, NULL },
 
 	/* Execute "boring" commands - "Save", "Open", and "Show Fonts" */
 	{ 'cmds', kEventProcessCommand, CommandCommand, 0, NULL },

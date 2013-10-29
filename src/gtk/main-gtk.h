@@ -1,6 +1,6 @@
 /*
  * File: main-gtk.h
- * Purpose: Header file for the GTK port for Angband
+ * Purpose: Header file for the GTK port for reposband
  *
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
  *
@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
  
-#include "angband.h"
+#include "reposband.h"
 
 #include "object/tvalsval.h"
 
@@ -270,7 +270,7 @@ static errr CheckEvent(bool wait);
 /* Save the game */
 static bool save_game_gtk(void);
 
-/* Quit the game - from Angband */
+/* Quit the game - from reposband */
 static void hook_quit(cptr str);
 
 /* Quit the game - from Gtk */
@@ -350,7 +350,7 @@ static void setup_graphics_menu();
 /* Hooks for graphics menu items */
 gboolean on_graphics_activate(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 
-/*  Make text views "Angbandy"  */
+/*  Make text views "reposbandy"  */
 static void white_on_black_textview(xtra_win_data *xd);
 
 /* Init data for extra windows */
@@ -373,7 +373,7 @@ static errr term_data_init(term_data *td, int i);
  static void handle_moved(game_event_type type, game_event_data *data, void *user);
  static void handle_mons_target(game_event_type type, game_event_data *data, void *user);
  
- /* Set up color tags for all the angband colors. */
+ /* Set up color tags for all the reposband colors. */
 static void init_color_tags(xtra_win_data *xd);
 
 /* Put text in a textview without a \n */

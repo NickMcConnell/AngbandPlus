@@ -1,6 +1,6 @@
 /*
  * File: z-rand.c
- * Purpose: A Random Number Generator for Angband
+ * Purpose: A Random Number Generator for reposband
  *
  * Copyright (c) 1997 Ben Harrison, Randy Hutson
  *

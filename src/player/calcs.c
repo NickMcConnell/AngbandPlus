@@ -17,7 +17,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "files.h"
 #include "game-event.h"
@@ -1012,27 +1012,34 @@ static void calc_spells(void)
 static void calc_mana(void)
 {
 	int msp, levels, cur_wgt, max_wgt;
-
+	int spell_stat_index;
+	
 	object_type *o_ptr;
 
 	bool old_cumber_glove = p_ptr->cumber_glove;
 	bool old_cumber_armor = p_ptr->cumber_armor;
+	
 
 	/* Hack -- Must be literate */
-	if (!cp_ptr->spell_book)
+	/* Hack- monsters get mana -Simon */
+	if (!cp_ptr->spell_book && !(cp_ptr->cidx == 6))
 	{
 		p_ptr->msp = 0;
 		p_ptr->csp = 0;
 		p_ptr->csp_frac = 0;
 		return;
 	}
-
+	/* pull up the monster's spell stat -Simon */
+	if (cp_ptr->cidx == 6)
+		spell_stat_index = rp_ptr->racial_power_stat;
+	else
+		spell_stat_index = cp_ptr->spell_stat;
 	/* Extract "effective" player level */
 	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
 	if (levels > 0)
 	{
 		msp = 1;
-		msp += adj_mag_mana[p_ptr->state.stat_ind[cp_ptr->spell_stat]] * levels / 100;
+		msp += adj_mag_mana[p_ptr->state.stat_ind[spell_stat_index]] * levels / 100;
 	}
 	else
 	{
@@ -1307,7 +1314,10 @@ int calc_blows(const object_type *o_ptr, player_state *state, int extra_blows)
 	blow_energy = blows_table[str_index][dex_index];
 
 	blows = MIN((10000 / blow_energy), (100 * cp_ptr->max_attacks));
-
+	
+	/* Unarmed = one attack per round */
+	if (!p_ptr->inventory[INVEN_WIELD].k_idx)
+		blows = 100;
 	/* Require at least one blow */
 	return MAX(blows + (100 * extra_blows), 100);
 }
@@ -1397,7 +1407,16 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 	for (i = 0; i < SKILL_MAX; i++)
 		state->skills[i] = rp_ptr->r_skills[i] + cp_ptr->c_skills[i];
 
+	/* calc speed and AC bonuses for new monster data -Simon */
+	state->speed += (rp_ptr->initial_bonus_speed + (rp_ptr->max_bonus_speed - rp_ptr->initial_bonus_speed) * 
+		(p_ptr->lev - rp_ptr->initial_level)/(rp_ptr->max_level - rp_ptr->initial_level));
 
+	state->ac += (rp_ptr->initial_bonus_AC + (rp_ptr->max_bonus_AC - rp_ptr->initial_bonus_AC) * 
+		(p_ptr->lev - rp_ptr->initial_level)/(rp_ptr->max_level - rp_ptr->initial_level));
+
+	state->dis_ac += (rp_ptr->initial_bonus_AC + (rp_ptr->max_bonus_AC - rp_ptr->initial_bonus_AC) * 
+		(p_ptr->lev - rp_ptr->initial_level)/(rp_ptr->max_level - rp_ptr->initial_level));
+		
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
@@ -1567,7 +1586,7 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 		add = state->stat_add[i];
 
 		/* Maximize mode */
-		if (OPT(adult_maximize))
+		if (OPT(birth_maximize))
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -2143,7 +2162,7 @@ void notice_stuff(void)
 	if (p_ptr->notice & PN_SQUELCH)
 	{
 		p_ptr->notice &= ~(PN_SQUELCH);
-		if (OPT(hide_squelchable)) squelch_drop();
+		squelch_drop();
 	}
 
 	/* Combine the pack */

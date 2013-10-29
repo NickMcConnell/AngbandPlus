@@ -7,7 +7,7 @@
 #
 
 
-### The Original Angband colours
+### The Original reposband colours
 V:0:0x00:0x00:0x00:0x00
 V:1:0x00:0xFF:0xFF:0xFF
 V:2:0x00:0x80:0x80:0x80
@@ -28,7 +28,7 @@ V:15:0x00:0xC0:0x80:0x40
 
 ## OPTION: Display "veins" (white "%") as "normal walls" (white "#") 
 ## This replaces the old method of setting "notice_seams" to false,
-## which no longer works as of Angband 2.7.9, for various reasons.
+## which no longer works as of reposband 2.7.9, for various reasons.
 #
 #F:50:1/35
 #F:51:1/35

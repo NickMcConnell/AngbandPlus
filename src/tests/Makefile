@@ -14,7 +14,7 @@ run :
 	./run-tests
 
 % : %.o
-	$(CC) -o $@ $^ ../angband.o
+	$(CC) -o $@ $^ ../reposband.o
 
 clean :
 	$(RM) $(TESTPROGS)

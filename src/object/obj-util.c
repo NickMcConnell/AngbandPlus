@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "defines.h"
 #include "effects.h"
@@ -393,7 +393,35 @@ char index_to_label(int i)
 	if (i < INVEN_WIELD) return (I2A(i));
 
 	/* Indexes for "equip" are offset */
-	return (I2A(i - INVEN_WIELD));
+	else
+	{
+		/* Super convert -Simon */
+		if (i >= (INVEN_FEET + rp_ptr->boot_slots))
+			i -= (INVEN_TOTAL - INVEN_FEET - rp_ptr->boot_slots);
+		if (i >= (INVEN_HANDS + rp_ptr->glove_slots))
+			i -= (INVEN_FEET - INVEN_HANDS - rp_ptr->glove_slots);
+		if (i >= (INVEN_HEAD + rp_ptr->helm_slots))
+			i -= (INVEN_HANDS - INVEN_HEAD - rp_ptr->helm_slots);
+		if (i >= (INVEN_ARM + rp_ptr->shield_slots))
+			i -= (INVEN_HEAD - INVEN_ARM - rp_ptr->shield_slots);
+		if (i >= (INVEN_OUTER + rp_ptr->cloak_slots))
+			i -= (INVEN_ARM - INVEN_OUTER - rp_ptr->cloak_slots);
+		if (i >= (INVEN_BODY + rp_ptr->body_slots))
+			i -= (INVEN_OUTER - INVEN_BODY - rp_ptr->body_slots);
+		if (i >= (INVEN_LIGHT + rp_ptr->light_slots))
+			i -= (INVEN_BODY - INVEN_LIGHT - rp_ptr->light_slots);
+		if (i >= (INVEN_NECK + rp_ptr->amulet_slots))
+			i -= (INVEN_LIGHT - INVEN_NECK - rp_ptr->amulet_slots);
+		if (i >= (INVEN_FINGER + rp_ptr->ring_slots))
+			i -= (INVEN_NECK - INVEN_FINGER - rp_ptr->ring_slots);
+		if (i >= (INVEN_BOW + rp_ptr->range_slots))
+			i -= (INVEN_FINGER - INVEN_BOW - rp_ptr->range_slots);
+		if (i >= (INVEN_WIELD + rp_ptr->melee_slots))
+			i -= (INVEN_BOW - INVEN_WIELD - rp_ptr->melee_slots);
+		if (i >= INVEN_WIELD)
+			i -= INVEN_WIELD;
+		return (I2A(i));
+	}
 }
 
 
@@ -430,7 +458,31 @@ s16b label_to_equip(int c)
 	int i;
 
 	/* Convert */
-	i = (islower((unsigned char)c) ? A2I(c) : -1) + INVEN_WIELD;
+	i = A2I(c) + INVEN_WIELD; //(islower((unsigned char)c) ? A2I(c) : -1) + INVEN_WIELD;
+	
+	/* Super convert -Simon */
+	if (i >= (INVEN_WIELD + rp_ptr->melee_slots))
+		i += (INVEN_BOW - INVEN_WIELD - rp_ptr->melee_slots);
+	if (i >= (INVEN_BOW + rp_ptr->range_slots))
+		i += (INVEN_FINGER - INVEN_BOW - rp_ptr->range_slots);
+	if (i >= (INVEN_FINGER + rp_ptr->ring_slots))
+		i += (INVEN_NECK - INVEN_FINGER - rp_ptr->ring_slots);
+	if (i >= (INVEN_NECK + rp_ptr->amulet_slots))
+		i += (INVEN_LIGHT - INVEN_NECK - rp_ptr->amulet_slots);
+	if (i >= (INVEN_LIGHT + rp_ptr->light_slots))
+		i += (INVEN_BODY - INVEN_LIGHT - rp_ptr->light_slots);
+	if (i >= (INVEN_BODY + rp_ptr->body_slots))
+		i += (INVEN_OUTER - INVEN_BODY - rp_ptr->body_slots);
+	if (i >= (INVEN_OUTER + rp_ptr->cloak_slots))
+		i += (INVEN_ARM - INVEN_OUTER - rp_ptr->cloak_slots);
+	if (i >= (INVEN_ARM + rp_ptr->shield_slots))
+		i += (INVEN_HEAD - INVEN_ARM - rp_ptr->shield_slots);
+	if (i >= (INVEN_HEAD + rp_ptr->helm_slots))
+		i += (INVEN_HANDS - INVEN_HEAD - rp_ptr->helm_slots);
+	if (i >= (INVEN_HANDS + rp_ptr->glove_slots))
+		i += (INVEN_FEET - INVEN_HANDS - rp_ptr->glove_slots);
+	if (i >= (INVEN_FEET + rp_ptr->boot_slots))
+		i += (INVEN_TOTAL - INVEN_FEET - rp_ptr->boot_slots);
 
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= ALL_INVEN_TOTAL)) return (-1);
@@ -532,37 +584,136 @@ s16b wield_slot_ammo(const object_type *o_ptr)
  */
 s16b wield_slot(const object_type *o_ptr)
 {
+	int i;
 	/* Slot for equipment */
 	switch (o_ptr->tval)
 	{
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
-		case TV_SWORD: return (INVEN_WIELD);
-
-		case TV_BOW: return (INVEN_BOW);
+		case TV_SWORD: 
+			for (i = INVEN_WIELD; i < (INVEN_WIELD + rp_ptr->melee_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->melee_slots)
+				return INVEN_WIELD;
+			else
+				return -1;
+		
+		case TV_BOW:
+			for (i = INVEN_BOW; i < (INVEN_BOW + rp_ptr->range_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->range_slots)
+				return (INVEN_BOW);
+			else
+				return -1;
 
 		case TV_RING:
-			return p_ptr->inventory[INVEN_RIGHT].k_idx ? INVEN_LEFT : INVEN_RIGHT;
+			for (i = INVEN_FINGER; i < (INVEN_FINGER + rp_ptr->ring_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->ring_slots)
+				return (INVEN_FINGER);
+			else
+				return -1;
 
-		case TV_AMULET: return (INVEN_NECK);
+		case TV_AMULET:
+			for (i = INVEN_NECK; i < (INVEN_NECK + rp_ptr->amulet_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->amulet_slots)
+				return (INVEN_NECK);
+			else
+				return -1;
 
-		case TV_LIGHT: return (INVEN_LIGHT);
+		case TV_LIGHT:
+			for (i = INVEN_LIGHT; i < (INVEN_LIGHT + rp_ptr->light_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->light_slots)
+				return (INVEN_LIGHT);
+			else
+				return -1;
 
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR: return (INVEN_BODY);
+		case TV_SOFT_ARMOR:
+			for (i = INVEN_BODY; i < (INVEN_BODY + rp_ptr->body_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->body_slots)
+				return (INVEN_BODY);
+			else
+				return -1;
 
-		case TV_CLOAK: return (INVEN_OUTER);
+		case TV_CLOAK:
+			for (i = INVEN_OUTER; i < (INVEN_OUTER + rp_ptr->cloak_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->cloak_slots)
+				return (INVEN_OUTER);
+			else
+				return -1;
 
-		case TV_SHIELD: return (INVEN_ARM);
+		case TV_SHIELD:
+			for (i = INVEN_ARM; i < (INVEN_ARM + rp_ptr->shield_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->shield_slots)
+				return (INVEN_ARM);
+			else
+				return -1;
 
 		case TV_CROWN:
-		case TV_HELM: return (INVEN_HEAD);
+		case TV_HELM:
+			for (i = INVEN_HEAD; i < (INVEN_HEAD + rp_ptr->helm_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->helm_slots)
+				return (INVEN_HEAD);
+			else
+				return -1;
 
-		case TV_GLOVES: return (INVEN_HANDS);
+		case TV_GLOVES:
+			for (i = INVEN_HANDS; i < (INVEN_HANDS + rp_ptr->glove_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->glove_slots)
+				return (INVEN_HANDS);
+			else
+				return -1;
 
-		case TV_BOOTS: return (INVEN_FEET);
+		case TV_BOOTS:
+			for (i = INVEN_FEET; i < (INVEN_FEET + rp_ptr->boot_slots); i++)
+			{
+				if (!p_ptr->inventory[i].k_idx)
+					return i;
+			}
+			if (rp_ptr->boot_slots)
+				return (INVEN_FEET);
+			else
+				return -1;
 
 		case TV_BOLT:
 		case TV_ARROW:
@@ -579,9 +730,7 @@ s16b wield_slot(const object_type *o_ptr)
  */
 bool slot_can_wield_item(int slot, const object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_RING)
-		return (slot == INVEN_LEFT || slot == INVEN_RIGHT) ? TRUE : FALSE;
-	else if (obj_is_ammo(o_ptr))
+	if (obj_is_ammo(o_ptr))
 		return (slot >= QUIVER_START && slot < QUIVER_END) ? TRUE : FALSE;
 	else
 		return (wield_slot(o_ptr) == slot) ? TRUE : FALSE;
@@ -593,51 +742,60 @@ bool slot_can_wield_item(int slot, const object_type *o_ptr)
  */
 const char *mention_use(int slot)
 {
-	switch (slot)
+	if ((slot >= INVEN_WIELD) && (slot < INVEN_BOW))
 	{
-		case INVEN_WIELD:
-		{
-			if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < p_ptr->inventory[slot].weight / 10)
-				return "Just lifting";
-			else
-				return "Wielding";
-		}
-
-		case INVEN_BOW:
-		{
-			if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < p_ptr->inventory[slot].weight / 10)
-				return "Just holding";
-			else
-				return "Shooting";
-		}
-
-		case INVEN_LEFT:  return "On left hand";
-		case INVEN_RIGHT: return "On right hand";
-		case INVEN_NECK:  return "Around neck";
-		case INVEN_LIGHT: return "Light source";
-		case INVEN_BODY:  return "On body";
-		case INVEN_OUTER: return "About body";
-		case INVEN_ARM:   return "On arm";
-		case INVEN_HEAD:  return "On head";
-		case INVEN_HANDS: return "On hands";
-		case INVEN_FEET:  return "On feet";
-
-		case QUIVER_START + 0: return "In quiver [f0]";
-		case QUIVER_START + 1: return "In quiver [f1]";
-		case QUIVER_START + 2: return "In quiver [f2]";
-		case QUIVER_START + 3: return "In quiver [f3]";
-		case QUIVER_START + 4: return "In quiver [f4]";
-		case QUIVER_START + 5: return "In quiver [f5]";
-		case QUIVER_START + 6: return "In quiver [f6]";
-		case QUIVER_START + 7: return "In quiver [f7]";
-		case QUIVER_START + 8: return "In quiver [f8]";
-		case QUIVER_START + 9: return "In quiver [f9]";
+		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < p_ptr->inventory[slot].weight / 10)
+			return "Just lifting";
+		else
+			return "Wielding";
 	}
-
-	/*if (slot >= QUIVER_START && slot < QUIVER_END)
-		return "In quiver";*/
-
-	return "In pack";
+	if ((slot >= INVEN_BOW) && (slot < INVEN_FINGER))
+	{
+		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < p_ptr->inventory[slot].weight / 10)
+			return "Just holding";
+		else
+			return "Shooting";
+	}
+	if ((slot >= INVEN_FINGER) && (slot < INVEN_NECK))
+		return "Ring";
+	if ((slot >= INVEN_NECK) && (slot < INVEN_LIGHT))
+		return "Around neck";
+	if ((slot >= INVEN_LIGHT) && (slot < INVEN_BODY))
+		return "Light source";
+	if ((slot >= INVEN_BODY) && (slot < INVEN_OUTER))
+		return "On body";
+	if ((slot >= INVEN_OUTER) && (slot < INVEN_ARM))
+		return "About body";
+	if ((slot >= INVEN_ARM) && (slot < INVEN_HEAD))
+		return "Shielding";
+	if ((slot >= INVEN_HEAD) && (slot < INVEN_HANDS))
+		return "On head";
+	if ((slot >= INVEN_HANDS) && (slot < INVEN_FEET))
+		return "On hands";
+	if ((slot >= INVEN_FEET) && (slot < INVEN_TOTAL))
+		return "On feet";
+	if (slot == QUIVER_START + 0)
+		return "In quiver [f0]";
+	if (slot == QUIVER_START + 1)
+		return "In quiver [f1]";
+	if (slot == QUIVER_START + 2)
+		return "In quiver [f2]";
+	if (slot == QUIVER_START + 3)
+		return "In quiver [f3]";
+	if (slot == QUIVER_START + 4)
+		return "In quiver [f4]";
+	if (slot == QUIVER_START + 5)
+		return "In quiver [f5]";
+	if (slot == QUIVER_START + 6)
+		return "In quiver [f6]";
+	if (slot == QUIVER_START + 7) 
+		return "In quiver [f7]";
+	if (slot == QUIVER_START + 8)
+		return "In quiver [f8]";
+	if (slot == QUIVER_START + 9)
+		return "In quiver [f9]";
+	else
+		return "In pack";
 }
 
 
@@ -649,51 +807,48 @@ cptr describe_use(int i)
 {
 	cptr p;
 
-	switch (i)
-	{
-		case INVEN_WIELD: p = "attacking monsters with"; break;
-		case INVEN_BOW:   p = "shooting missiles with"; break;
-		case INVEN_LEFT:  p = "wearing on your left hand"; break;
-		case INVEN_RIGHT: p = "wearing on your right hand"; break;
-		case INVEN_NECK:  p = "wearing around your neck"; break;
-		case INVEN_LIGHT: p = "using to light the way"; break;
-		case INVEN_BODY:  p = "wearing on your body"; break;
-		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
-		case INVEN_HEAD:  p = "wearing on your head"; break;
-		case INVEN_HANDS: p = "wearing on your hands"; break;
-		case INVEN_FEET:  p = "wearing on your feet"; break;
-		default:          p = "carrying in your pack"; break;
-	}
-
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
+	if ((i >= INVEN_WIELD) && (i < INVEN_BOW))
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
 			p = "just lifting";
-		}
+		else
+			p = "attacking monsters with";
 	}
-
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
+	if ((i >= INVEN_BOW) && (i < INVEN_FINGER))
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
 			p = "just holding";
-		}
+		else
+			p = "shooting missiles with";
 	}
+	if ((i >= INVEN_FINGER) && (i < INVEN_NECK))
+		p = "wearing on your finger/claw/wing/etc";
+	if ((i >= INVEN_NECK) && (i < INVEN_LIGHT))
+		p = "wearing around your neck";
+	if ((i >= INVEN_LIGHT) && (i < INVEN_BODY))
+		p = "using to light the way";
+	if ((i >= INVEN_BODY) && (i < INVEN_OUTER))
+		p = "wearing on your body";
+	if ((i >= INVEN_OUTER) && (i < INVEN_ARM))
+		p = "wearing on your back";
+	if ((i >= INVEN_ARM) && (i < INVEN_HEAD))
+		p = "shielding yourself with";
+	if ((i >= INVEN_HEAD) && (i < INVEN_HANDS))
+		p = "wearing on your head";
+	if ((i >= INVEN_HANDS) && (i < INVEN_FEET))
+		p = "wearing on your hands";
+	if ((i >= INVEN_FEET) && (i < INVEN_TOTAL))
+		p = "wearing on your feet";
+	else
+		p = "carrying in your pack"; 
 
-	/* Return the result */
+		/* Return the result */
 	return p;
 }
-
-
-
 
 
 /*
@@ -766,7 +921,7 @@ int scan_floor(int *items, int max_size, int y, int x, int mode)
 		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
 
 		/* Marked */
-		if ((mode & 0x02) && (!o_ptr->marked || squelch_hide_item(o_ptr)))
+		if ((mode & 0x02) && (!o_ptr->marked || squelch_item_ok(o_ptr)))
 			continue;
 
 		/* Accept this item */
@@ -1234,7 +1389,7 @@ void wipe_o_list(void)
 		/* Preserve artifacts or mark them as lost in the history */
 		if (a_ptr) {
 			/* Preserve if dungeon creation failed, or preserve mode, and only artifacts not seen */
-			if ((!character_dungeon || !OPT(adult_no_preserve)) && !object_was_sensed(o_ptr))
+			if ((!character_dungeon || !OPT(birth_no_preserve)) && !object_was_sensed(o_ptr))
 			{
 				a_ptr->created = FALSE;
 
@@ -1445,7 +1600,7 @@ static s32b object_value_real(const object_type *o_ptr, int qty, int verbose,
 
 		if (verbose)
 		{
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, 					"pricing.log");
+			path_build(buf, sizeof(buf), reposband_DIR_USER, 					"pricing.log");
                 	log_file = file_open(buf, pricing_mode, FTYPE_TEXT);
                 	if (!log_file)
                 	{
@@ -1876,7 +2031,7 @@ static s16b floor_get_idx_oldest_squelched(int y, int x)
 	{
 		o_ptr = &o_list[this_o_idx];
 
-		if (squelch_hide_item(o_ptr))
+		if (squelch_item_ok(o_ptr))
 			squelch_idx = this_o_idx;
 	}
 
@@ -1920,7 +2075,7 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	}
 
 	/* Option -- disallow stacking */
-	if (OPT(adult_no_stacking) && n) return (0);
+	if (OPT(birth_no_stacking) && n) return (0);
 
 	/* The stack is already too large */
 	if (n >= MAX_FLOOR_STACK)
@@ -2076,7 +2231,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool verbose)
 					comb = TRUE;
 
 				/* Count objects */
-				if (!squelch_hide_item(o_ptr))
+				if (!squelch_item_ok(o_ptr))
 					k++;
 				else
 					n++;
@@ -2086,7 +2241,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool verbose)
 			if (!comb) k++;
 
 			/* Option -- disallow stacking */
-			if (OPT(adult_no_stacking) && (k > 1)) continue;
+			if (OPT(birth_no_stacking) && (k > 1)) continue;
 			
 			/* Paranoia? */
 			if ((k + n) > MAX_FLOOR_STACK &&
@@ -2889,19 +3044,19 @@ s16b inven_takeoff(int item, int amt)
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Took off weapon */
-	if (item == INVEN_WIELD)
+	if ((item >= INVEN_WIELD) && (item < INVEN_BOW))
 	{
 		act = "You were wielding";
 	}
 
 	/* Took off bow */
-	else if (item == INVEN_BOW)
+	else if ((item >= INVEN_BOW) && (item < INVEN_FINGER))
 	{
 		act = "You were holding";
 	}
 
 	/* Took off light */
-	else if (item == INVEN_LIGHT)
+	else if ((item >= INVEN_LIGHT) && (item < INVEN_BODY))
 	{
 		act = "You were holding";
 	}
@@ -3719,7 +3874,7 @@ void display_itemlist(void)
 	int floor_list[MAX_FLOOR_STACK];
 
 	/* Clear the term if in a subwindow, set x otherwise */
-	if (Term != angband_term[0])
+	if (Term != reposband_term[0])
 	{
 		clear_from(0);
 		max = Term->hgt - 1;
@@ -3744,7 +3899,7 @@ void display_itemlist(void)
 				unsigned j;
 
 				/* Skip gold/squelched */
-				if (o_ptr->tval == TV_GOLD || squelch_hide_item(o_ptr))
+				if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
 					continue;
 
 				/* See if we've already seen a similar item; if so, just add */
@@ -3803,7 +3958,7 @@ void display_itemlist(void)
 	{
 		/* Clear display and print note */
 		c_prt(TERM_SLATE, "You see no items.", 0, 0);
-		if (Term == angband_term[0])
+		if (Term == reposband_term[0])
 			Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 
 		/* Done */
@@ -3827,7 +3982,7 @@ void display_itemlist(void)
 		object_type *o_ptr = types[i];
 
 		/* We shouldn't list coins or squelched items */
-		if (o_ptr->tval == TV_GOLD || squelch_hide_item(o_ptr))
+		if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
 			continue;
 
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_FULL);
@@ -3844,7 +3999,7 @@ void display_itemlist(void)
 		cur_x = x;
 
 		/* See if we need to scroll or not */
-		if (Term == angband_term[0] && (line == max) && disp_count != counter)
+		if (Term == reposband_term[0] && (line == max) && disp_count != counter)
 		{
 			prt("-- more --", line, x);
 			anykey();
@@ -3908,7 +4063,7 @@ void display_itemlist(void)
 		prt("", line, x);
 	}
 
-	if (Term == angband_term[0])
+	if (Term == reposband_term[0])
 		Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 }
 

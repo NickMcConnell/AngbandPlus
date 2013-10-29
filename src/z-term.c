@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 
 /*
@@ -33,13 +33,13 @@
  * programs which will look the same on a dumb terminal as they do
  * on a graphic platform such as the Macintosh.
  *
- * This package was designed to help port the game "Angband" to a wide
- * variety of different platforms.  Angband, like many other games in
+ * This package was designed to help port the game "reposband" to a wide
+ * variety of different platforms.  reposband, like many other games in
  * the "rogue-like" heirarchy, requires, at the minimum, the ability
  * to display "colored textual symbols" in a standard 80x24 "window",
  * such as that provided by most dumb terminals, and many old personal
  * computers, and to check for "keypresses" from the user.  The major
- * concerns were thus portability and efficiency, so Angband could be
+ * concerns were thus portability and efficiency, so reposband could be
  * easily ported to many different systems, with minimal effort, and
  * yet would run quickly on each of these systems, no matter what kind
  * of underlying hardware/software support was being used.
@@ -185,17 +185,12 @@
  *
  *   Term->init_hook = Init the term
  *   Term->nuke_hook = Nuke the term
- *   Term->user_hook = Perform user actions
  *   Term->xtra_hook = Perform extra actions
  *   Term->curs_hook = Draw (or Move) the cursor
  *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
  *   Term->wipe_hook = Draw some blank spaces
  *   Term->text_hook = Draw some text in the window
  *   Term->pict_hook = Draw some attr/chars in the window
- *
- * The "Term->user_hook" hook provides a simple hook to an implementation
- * defined function, with application defined semantics.  It is available
- * to the program via the "Term_user()" function.
  *
  * The "Term->xtra_hook" hook provides a variety of different functions,
  * based on the first parameter (which should be taken from the various
@@ -238,10 +233,10 @@
  * the terrain values as a background and the "ap", "cp" values in
  * the foreground.
  *
- * The game "Angband" uses a set of files called "main-xxx.c", for
+ * The game "reposband" uses a set of files called "main-xxx.c", for
  * various "xxx" suffixes.  Most of these contain a function called
  * "init_xxx()", that will prepare the underlying visual system for
- * use with Angband, and then create one or more "term" structures,
+ * use with reposband, and then create one or more "term" structures,
  * using flags and hooks appropriate to the given platform, so that
  * the "main()" function can call one (or more) of the "init_xxx()"
  * functions, as appropriate, to prepare the required "term" structs
@@ -251,23 +246,26 @@
  * addition to doing everything needed to initialize the actual program,
  * also does everything that the normal "init_xxx()" functions would do.
  *
- * The game "Angband" defines, in addition to "attr 0", all of the
+ * The game "reposband" defines, in addition to "attr 0", all of the
  * attr codes from 1 to 15, using definitions in "defines.h", and
- * thus the "main-xxx.c" files used by Angband must handle these
+ * thus the "main-xxx.c" files used by reposband must handle these
  * attr values correctly.  Also, they must handle all other attr
  * values, though they may do so in any way they wish, for example,
  * by always taking every attr code mod 16.  Many of the "main-xxx.c"
  * files use "white space" ("attr 1" / "char 32") to "erase" or "clear"
  * any window, for efficiency.
  *
- * The game "Angband" uses the "Term_user" hook to allow any of the
+<<<<<<< HEAD
+ * The game "reposband" uses the "Term_user" hook to allow any of the
  * "main-xxx.c" files to interact with the user, by calling this hook
  * whenever the user presses the "!" key when the game is waiting for
  * a new command.  This could be used, for example, to provide "unix
  * shell commands" to the Unix versions of the game.
  *
+=======
+>>>>>>> 3015a7677d044c178bb49aac9035e0a6ff588b76
  * See "main-xxx.c" for a simple skeleton file which can be used to
- * create a "visual system" for a new platform when porting Angband.
+ * create a "visual system" for a new platform when porting reposband.
  */
 
 
@@ -396,18 +394,6 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 
 /*** External hooks ***/
 
-
-/*
- * Execute the "Term->user_hook" hook, if available (see above).
- */
-errr Term_user(int n)
-{
-	/* Verify the hook */
-	if (!Term->user_hook) return (-1);
-
-	/* Call the hook */
-	return ((*Term->user_hook)(n));
-}
 
 /*
  * Execute the "Term->xtra_hook" hook, if available (see above).

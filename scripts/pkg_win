@@ -5,7 +5,7 @@ if [ $# -ne 1 ] && [ $# -ne 2 ]; then
 	echo "cross-compiling, or using Cygwin.  Originally by Robert Ruehlmann."
 	echo ""
 	echo "Use in the root directory of the game, like so:"
-	echo "   scripts/pkg_win <name of of release, e.g. angband-4.0.1> [<output filename>]"
+	echo "   scripts/pkg_win <name of of release, e.g. reposband-4.0.1> [<output filename>]"
 	echo ""
 
 	exit 1
@@ -68,8 +68,11 @@ cp ../lib/pref/*.prf lib/pref
 cp ../lib/xtra/font/*.fon lib/xtra/font
 cp_unix2dos ../lib/xtra/font/copying.txt lib/xtra/font/copying.txt
 
-cp ../lib/xtra/graf/*.bmp lib/xtra/graf
-rm lib/xtra/graf/8x13.bmp
+cp ../lib/xtra/graf/8x8.bmp lib/xtra/graf
+cp ../lib/xtra/graf/16x16.bmp lib/xtra/graf
+cp ../lib/xtra/graf/32x32.bmp lib/xtra/graf
+cp ../lib/xtra/graf/mask.bmp lib/xtra/graf
+cp ../lib/xtra/graf/mask32.bmp lib/xtra/graf
 
 cp ../lib/xtra/sound/sound.cfg lib/xtra/sound
 cp ../lib/xtra/sound/*.wav lib/xtra/sound

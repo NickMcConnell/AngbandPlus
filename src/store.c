@@ -17,7 +17,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "cmds.h"
 #include "game-event.h"
@@ -123,9 +123,10 @@ static const char *comment_welcome[] =
 
 static const char *comment_hint[] =
 {
-	"%s tells you soberly: \"%s\".",
+/*	"%s tells you soberly: \"%s\".",
 	"(%s) There's a saying round here, \"%s\".",
-	"%s offers to tell you a secret next time you're about."
+	"%s offers to tell you a secret next time you're about."*/
+	"\"%s\""
 };
 
 /*
@@ -207,6 +208,9 @@ static struct store *store_new(int idx) {
 	s->sidx = idx;
 	s->stock = mem_zalloc(sizeof(*s->stock) * STORE_INVEN_MAX);
 	s->stock_size = STORE_INVEN_MAX;
+	//if you go past D) in home, things go bananas -Simon
+	//if(idx == STORE_HOME)
+	//	s->stock_size = 256;
 	return s;
 }
 
@@ -318,9 +322,8 @@ static void prt_welcome(const owner_type *ot_ptr)
 
 	int j;
 
-	if (!one_in_(4))
+	if (one_in_(2))
 		return;
-
 
 	/* Extract the first name of the store owner (stop before the first space) */
 	for (j = 0; owner_name[j] && owner_name[j] != ' '; j++)
@@ -331,7 +334,8 @@ static void prt_welcome(const owner_type *ot_ptr)
 
 	if (one_in_(3)) {
 		size_t i = randint0(N_ELEMENTS(comment_hint));
-		msg_format(comment_hint[i], short_name, random_hint());
+		/*msg_format(comment_hint[i], short_name, random_hint());*/
+		msg_format(comment_hint[i], random_hint());
 	} else if (p_ptr->lev > 5) {
 		const char *player_name;
 
@@ -608,7 +612,7 @@ s32b price_item(const object_type *o_ptr, bool store_buying, int qty)
 		if (this_store == STORE_B_MARKET) price = price / 2;
 
 		/* Check for no_selling option */
-		if (OPT(adult_no_selling)) return (0L);
+		if (OPT(birth_no_selling)) return (0L);
 	}
 
 	/* Shop is selling */
@@ -3128,7 +3132,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 	}
 
 	/* Check if we can enter the store */
-	if (OPT(adult_no_stores))
+	if (OPT(birth_no_stores))
 	{
 		msg_print("The doors are locked.");
 		return;

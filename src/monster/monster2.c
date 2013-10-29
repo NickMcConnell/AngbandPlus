@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "generate.h"
 #include "history.h"
@@ -561,7 +561,7 @@ void display_monlist(void)
 
 	u16b *order;
 
-	bool in_term = (Term != angband_term[0]);
+	bool in_term = (Term != reposband_term[0]);
 
 	/* Hallucination is weird */
 	if (p_ptr->timed[TMD_IMAGE])
@@ -2664,7 +2664,7 @@ void update_smart_learn(int m_idx, int what)
 		wieldeds_notice_flag(attack_table[what].flag);
 
 	/* Not allowed to learn */
-	if (!OPT(adult_ai_learn)) return;
+	if (!OPT(birth_ai_learn)) return;
 
 	/* Too stupid to learn anything */
 	if (rf_has(r_ptr->flags, RF_STUPID)) return;

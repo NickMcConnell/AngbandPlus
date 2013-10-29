@@ -1,7 +1,7 @@
 # File: pref-win.prf
 
 #
-# This file is used by Angband (when it was compiled using "main-win.c")
+# This file is used by reposband (when it was compiled using "main-win.c")
 # to specify various "user preferences", including "macros".
 #
 # This file defines some basic macros, which allow the use of the "keypad",

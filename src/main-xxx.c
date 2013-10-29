@@ -15,24 +15,24 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 
 /*
- * This file helps Angband work on non-existant computers.
+ * This file helps reposband work on non-existant computers.
  *
  * To use this file, use "Makefile.xxx", which defines USE_XXX.
  *
  *
  * This file is intended to show one way to build a "visual module"
- * for Angband to allow it to work with a new system.  It does not
+ * for reposband to allow it to work with a new system.  It does not
  * actually work, but if the code near "XXX XXX XXX" comments were
  * replaced with functional code, then it probably would.
  *
  * See "z-term.c" for info on the concept of the "generic terminal",
  * and for more comments about what this file must supply.
  *
- * There are two basic ways to port Angband to a new system.  The
+ * There are two basic ways to port reposband to a new system.  The
  * first involves modifying the "main-gcu.c" and/or "main-x11.c"
  * files to support some version of "curses" and/or "X11" on your
  * machine, and to compile with the "USE_GCU" and/or "USE_X11"
@@ -124,10 +124,10 @@ static term_data data[MAX_XXX_TERM];
 
 /*
  * Often, it is helpful to create an array of "color data" containing
- * a representation of the "angband_color_table" array in some "local" form.
+ * a representation of the "reposband_color_table" array in some "local" form.
  *
  * Often, the "Term_xtra(TERM_XTRA_REACT, 0)" hook is used to initialize
- * "color_data" from "angband_color_table".  XXX XXX XXX
+ * "color_data" from "reposband_color_table".  XXX XXX XXX
  */
 static local_color_data_type color_data[MAX_COLORS];
 
@@ -170,28 +170,6 @@ static void Term_nuke_xxx(term *t)
 	/* XXX XXX XXX */
 }
 
-
-
-/*
- * Do a "user action" on the current "term"
- *
- * This function allows the visual module to do implementation defined
- * things when the user activates the "system defined command" command.
- *
- * This function is normally not used.
- *
- * In general, this function should return zero if the action is successfully
- * handled, and non-zero if the action is unknown or incorrectly handled.
- */
-static errr Term_user_xxx(int n)
-{
-	term_data *td = (term_data*)(Term->data);
-
-	/* XXX XXX XXX */
-
-	/* Unknown */
-	return (1);
-}
 
 
 /*
@@ -349,7 +327,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * React to global changes XXX XXX XXX
 			 *
 			 * For example, this action can be used to react to
-			 * changes in the global "angband_color_table[MAX_COLORS][4]" array.
+			 * changes in the global "reposband_color_table[MAX_COLORS][4]" array.
 			 *
 			 * This action is optional, but can be very useful for
 			 * handling "color changes" and the "arg_sound" and/or
@@ -623,7 +601,6 @@ static void term_data_link(int i)
 	t->nuke_hook = Term_nuke_xxx;
 
 	/* Prepare the template hooks */
-	t->user_hook = Term_user_xxx;
 	t->xtra_hook = Term_xtra_xxx;
 	t->curs_hook = Term_curs_xxx;
 	t->wipe_hook = Term_wipe_xxx;
@@ -638,7 +615,7 @@ static void term_data_link(int i)
 	Term_activate(t);
 
 	/* Global pointer */
-	angband_term[i] = t;
+	reposband_term[i] = t;
 }
 
 
@@ -768,13 +745,13 @@ int main(int argc, char *argv[])
 	if (init_xxx(argc, argv) != 0) quit("Oops!");
 
 	/* XXX XXX XXX */
-	ANGBAND_SYS = "xxx";
+	reposband_SYS = "xxx";
 
 	/* Initialize some stuff */
 	init_stuff();
 
 	/* Initialize */
-	init_angband();
+	init_reposband();
 
 	/* Allow auto-startup XXX XXX XXX */
 

@@ -77,11 +77,11 @@ extern s16b rating;
 extern bool good_item_flag;
 extern bool closing_flag;
 extern char savefile[1024];
-extern term *angband_term[ANGBAND_TERM_MAX];
-extern char angband_term_name[ANGBAND_TERM_MAX][16];
-extern byte angband_color_table[MAX_COLORS][4];
+extern term *reposband_term[REPOSBAND_TERM_MAX];
+extern char reposband_term_name[REPOSBAND_TERM_MAX][16];
+extern byte reposband_color_table[MAX_COLORS][4];
 extern color_type color_table[MAX_COLORS];
-extern const cptr angband_sound_name[MSG_MAX];
+extern const cptr reposband_sound_name[MSG_MAX];
 extern int view_n;
 extern u16b *view_g;
 extern int temp_n;
@@ -134,24 +134,24 @@ extern spell_type *s_info;
 extern s16b spell_list[MAX_REALMS][BOOKS_PER_REALM][SPELLS_PER_BOOK];
 extern struct hint *hints;
 
-extern const char *ANGBAND_SYS;
-extern const char *ANGBAND_GRAF;
+extern const char *reposband_SYS;
+extern const char *reposband_GRAF;
 
-extern char *ANGBAND_DIR_APEX;
-extern char *ANGBAND_DIR_EDIT;
-extern char *ANGBAND_DIR_FILE;
-extern char *ANGBAND_DIR_HELP;
-extern char *ANGBAND_DIR_INFO;
-extern char *ANGBAND_DIR_SAVE;
-extern char *ANGBAND_DIR_PREF;
-extern char *ANGBAND_DIR_USER;
-extern char *ANGBAND_DIR_XTRA;
+extern char *reposband_DIR_APEX;
+extern char *reposband_DIR_EDIT;
+extern char *reposband_DIR_FILE;
+extern char *reposband_DIR_HELP;
+extern char *reposband_DIR_INFO;
+extern char *reposband_DIR_SAVE;
+extern char *reposband_DIR_PREF;
+extern char *reposband_DIR_USER;
+extern char *reposband_DIR_XTRA;
 
-extern char *ANGBAND_DIR_XTRA_FONT;
-extern char *ANGBAND_DIR_XTRA_GRAF;
-extern char *ANGBAND_DIR_XTRA_SOUND;
-extern char *ANGBAND_DIR_XTRA_HELP;
-extern char *ANGBAND_DIR_XTRA_ICON;
+extern char *reposband_DIR_XTRA_FONT;
+extern char *reposband_DIR_XTRA_GRAF;
+extern char *reposband_DIR_XTRA_SOUND;
+extern char *reposband_DIR_XTRA_HELP;
+extern char *reposband_DIR_XTRA_ICON;
 
 extern bool item_tester_full;
 extern byte item_tester_tval;
@@ -183,7 +183,7 @@ extern void player_birth(bool quickstart_allowed);
 /* cmd1.c */
 extern bool search(bool verbose);
 extern byte py_pickup(int pickup);
-extern void move_player(int dir);
+extern void move_player(int dir, bool disarm);
 
 /* cmd2.c */
 /* XXX should probably be moved to cave.c? */
@@ -203,14 +203,12 @@ extern void play_game(void);
 extern int value_check_aux1(const object_type *o_ptr);
 extern void idle_update(void);
 
-/* files.c */
-
-/* load.c */
-extern bool old_load(void);
-
 /* melee1.c */
-bool check_hit(int power, int level);
+bool check_hit(int power, int level, int m_idx);
+bool check_hit_monster(int power, int level, int m_idx, int t_idx);
 bool make_attack_normal(int m_idx);
+bool make_attack_normal_mon(monster_type *m_ptr, monster_type *t_ptr);
+
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
@@ -240,9 +238,6 @@ extern void predict_score(void);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
-
-/* save.c */
-extern bool old_save(void);
 
 /* store.c */
 void do_cmd_store_knowledge(void);

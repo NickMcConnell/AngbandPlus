@@ -1,7 +1,7 @@
-elly/angband end-to-end tests
+elly/reposband end-to-end tests
 
 This directory contains the end-to-end tests. The important script here is
-run-test, which runs angband with -mtest, feeds it some input, and compares the
+run-test, which runs reposband with -mtest, feeds it some input, and compares the
 output against the expected output.
 
 Layout of a test:

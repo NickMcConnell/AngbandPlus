@@ -13,7 +13,7 @@
 #
 
 # Executable name and default target
-EXE = angband.exe
+EXE = Reposband.exe
 all: ../$(EXE)
 
 ifneq (,$(findstring \system32,$(PATH)))
@@ -33,7 +33,7 @@ endif
 include Makefile.inc
 
 ifdef CONSOLE
-  CFLAGS = -DUSE_GCU -DWIN32_CONSOLE_MODE -I$(PDCURSES_INC)
+  CFLAGS = -DUSE_GCU -DWIN32_CONSOLE_MODE -I$(PDCURSES_INC) Wno-missing-field-initializers
   LIBS = -s $(PDCURSES_LIB)
   IOBJS = $(BASEOBJS) main-gcu.o main.o
 
@@ -41,7 +41,7 @@ ifdef CONSOLE
   #PDCURSES_LIB = ../../pdcurses/lib/pdcurses.a
 else
   CFLAGS = -DWINDOWS
-  IOBJS = $(BASEOBJS) win/angband.res main-win.o win/readdib.o
+  IOBJS = $(BASEOBJS) win/reposband.res main-win.o win/readdib.o
   LIBS = -s -mwindows -lwinmm
 endif
 
@@ -107,7 +107,7 @@ clean:
 # Rules
 #
 
-win/angband.res: win/angband.rc
+win/reposband.res: win/reposband.rc
 	$(WRES) $< -O coff -o $@
 
 $(OBJDIR)%.o: %.c $(INCS)

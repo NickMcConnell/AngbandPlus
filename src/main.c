@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "files.h"
 #include "init.h"
 
@@ -88,13 +88,13 @@ static void quit_hook(cptr s)
 	(void)s;
 
 	/* Scan windows */
-	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
+	for (j = REPOSBAND_TERM_MAX - 1; j >= 0; j--)
 	{
 		/* Unused */
-		if (!angband_term[j]) continue;
+		if (!reposband_term[j]) continue;
 
 		/* Nuke it */
-		term_nuke(angband_term[j]);
+		term_nuke(reposband_term[j]);
 	}
 }
 
@@ -111,10 +111,10 @@ static void quit_hook(cptr s)
 /*
  * Initialize and verify the file paths, and the score file.
  *
- * Use the ANGBAND_PATH environment var if possible, else use
+ * Use the reposband_PATH environment var if possible, else use
  * DEFAULT_PATH, and in either case, branch off appropriately.
  *
- * First, we'll look for the ANGBAND_PATH environment variable,
+ * First, we'll look for the reposband_PATH environment variable,
  * and then look for the files in there.  If that doesn't work,
  * we'll try the DEFAULT_PATH constants.  So be sure that one of
  * these two things works...
@@ -133,7 +133,7 @@ static void init_stuff(void)
 	char libpath[512];
 	char datapath[512];
 
-	/* Use the angband_path, or a default */
+	/* Use the reposband_path, or a default */
 	my_strcpy(configpath, DEFAULT_CONFIG_PATH, sizeof(configpath));
 	my_strcpy(libpath, DEFAULT_LIB_PATH, sizeof(libpath));
 	my_strcpy(datapath, DEFAULT_DATA_PATH, sizeof(datapath));
@@ -168,8 +168,8 @@ static void change_path(cptr info)
 	if (!info || !info[0])
 		quit_fmt("Try '-d<path>'.", info);
 
-	string_free(ANGBAND_DIR_USER);
-	ANGBAND_DIR_USER = string_make(info);
+	string_free(reposband_DIR_USER);
+	reposband_DIR_USER = string_make(info);
 }
 
 
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
 			usage:
 			{
 				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: reposband [options] [-- subopts]");
 				puts("  -n             Start a new character (WARNING: overwrites default savefile without -u)");
 				puts("  -w             Resurrect dead character (marks savefile)");
 				puts("  -r             Rebalance monsters");
@@ -410,11 +410,11 @@ int main(int argc, char *argv[])
 		/* User requested a specific module? */
 		if (!mstr || (streq(mstr, modules[i].name)))
 		{
-			ANGBAND_SYS = modules[i].name;
+			reposband_SYS = modules[i].name;
 			if (0 == modules[i].init(argc, argv))
 			{
 				done = TRUE;
-				/*quit_fmt("ggg %s", ANGBAND_SYS);*/
+				/*quit_fmt("ggg %s", reposband_SYS);*/
 				break;
 			}
 		}
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
 	play_game();
 
 	/* Free resources */
-	cleanup_angband();
+	cleanup_reposband();
 
 	/* Quit */
 	quit(NULL);

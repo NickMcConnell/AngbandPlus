@@ -1883,7 +1883,7 @@ F:RES_FIRE | RES_ELEC | RES_NETHR | HOLD_LIFE |
 E:DISPEL_EVIL:100+d100
 M:The {kind} flood{s} the area with goodness...
 D:The weapon of a mighty dwarven priest, whose shade is rumoured to 
-D:still haunt the halls of Angband itself.
+D:still haunt the halls of angband itself.
 
 
 N:133:of Azagh[^a]l

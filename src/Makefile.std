@@ -1,5 +1,5 @@
 # File: Makefile.std
-# Standard makefile for Angband.
+# Standard makefile for reposband.
 #
 # This makefile probably requires GNU make.
 #
@@ -59,7 +59,7 @@ LIBS =
 
 
 # Version info
-EXE = angband
+EXE = reposband
 
 
 
@@ -100,7 +100,7 @@ include Makefile.inc
 # Targets
 #
 
-# Build the "Angband" program
+# Build the "reposband" program
 $(EXE): $(OBJS)
 	@printf "%10s %-20s\n" LINK $@
 	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS)

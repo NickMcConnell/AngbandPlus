@@ -22,7 +22,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 
 /*
@@ -48,10 +48,10 @@
  *
  * Important Resources in the resource file:
  *
- *   FREF 130 = ANGBAND_CREATOR / 'APPL' (application)
- *   FREF 129 = ANGBAND_CREATOR / 'SAVE' (save file)
- *   FREF 130 = ANGBAND_CREATOR / 'TEXT' (bone file, generic text file)
- *   FREF 131 = ANGBAND_CREATOR / 'DATA' (binary image file, score file)
+ *   FREF 130 = reposband_CREATOR / 'APPL' (application)
+ *   FREF 129 = reposband_CREATOR / 'SAVE' (save file)
+ *   FREF 130 = reposband_CREATOR / 'TEXT' (bone file, generic text file)
+ *   FREF 131 = reposband_CREATOR / 'DATA' (binary image file, score file)
  *
  */
 
@@ -71,22 +71,22 @@
  *
  * 2. Installation
  *
- * The "angband" binary must be arranged this way for it to work:
+ * The "reposband" binary must be arranged this way for it to work:
  *
  * lib/ <- the lib folder
- * Angband (OS X).app/
+ * reposband (OS X).app/
  *   Contents/
  *     MacOS/
- *       angband <- the binary you've just compiled
+ *       reposband <- the binary you've just compiled
  *     Info.plist <- to be explained below
  *     Resources/
- *       Angband.icns
+ *       reposband.icns
  *       Data.icns
  *       Edit.icns
  *       Save.icns
  *       8x8.png <- 8x8 tiles
  *       16x16.png <- 16x16 tiles
- *       angband.rsrc <- see below
+ *       reposband.rsrc <- see below
  *
  * Graphics resources are moved out of the resource fork and become ordinary
  * PNG files.  Make sure to set its resolution to 72 dpi (<- VERY important)
@@ -109,7 +109,7 @@
  * brilliant suggestion, but it doesn't work as expected. This is because
  * DrawText can render the same character with _different_ pixel width,
  * depending on relative position of a character to the pen. Fonts do look
- * very nice on the Mac, but too nice I'd say, in case of Angband.
+ * very nice on the Mac, but too nice I'd say, in case of reposband.
  *
  * The check for return values of AEProcessAppleEvent is intentionally ignored.
  *
@@ -592,7 +592,7 @@ static void validate_main_window(void)
 /*** Some generic functions ***/
 
 /*
- * Update color_info with the current values in angband_color_table
+ * Update color_info with the current values in reposband_color_table
  */
 static void update_color_info(void)
 {
@@ -604,9 +604,9 @@ static void update_color_info(void)
 	/* Update colors */
 	for (int i = 0; i < 256; i++)
 	{
-		float r = angband_color_table[i][1];
-		float g = angband_color_table[i][2];
-		float b = angband_color_table[i][3];
+		float r = reposband_color_table[i][1];
+		float g = reposband_color_table[i][2];
+		float b = reposband_color_table[i][3];
 		r = r == 255 ? 1 : r / 256;
 		g = g == 255 ? 1 : g / 256;
 		b = b == 255 ? 1 : b / 256;
@@ -1273,11 +1273,11 @@ static void load_sounds(void)
 	ang_file *fff;
 
 	/* Build the "sound" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
-	ANGBAND_DIR_XTRA_SOUND = string_make(path);
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "sound");
+	reposband_DIR_XTRA_SOUND = string_make(path);
 
 	/* Find and open the config file */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+	path_build(path, sizeof(path), reposband_DIR_XTRA_SOUND, "sound.cfg");
 	fff = file_open(path, MODE_READ, -1);
 
 	/* Handle errors */
@@ -1323,7 +1323,7 @@ static void load_sounds(void)
 		/* Make sure this is a valid event name */
 		for (event = MSG_MAX - 1; event >= 0; event--)
 		{
-			if (strcmp(msg_name, angband_sound_name[event]) == 0)
+			if (strcmp(msg_name, reposband_sound_name[event]) == 0)
 				break;
 		}
 		if (event < 0) continue;
@@ -1356,7 +1356,7 @@ static void load_sounds(void)
 			if (num >= MAX_SAMPLES) break;
 
 			/* Build the path to the sample */
-			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
+			path_build(path, sizeof(path), reposband_DIR_XTRA_SOUND, cur_token);
 			if (file_exists(path)) {
 				
 				/* Load the sound into memory */
@@ -1515,15 +1515,6 @@ static void Term_nuke_mac(term *t)
 #pragma unused(t)
 }
 
-/*
- * Unused
- */
-static errr Term_user_mac(int c)
-{
-#pragma unused(c)
-	return (0);
-}
-
 
 /*
  * React to changes
@@ -1633,7 +1624,7 @@ static errr Term_xtra_mac(int n, int v)
 				/*
 				 * Hack? - Put the programme into sleep.
 				 * No events match ~everyEvent, so nothing
-				 * should be lost in Angband's event queue.
+				 * should be lost in reposband's event queue.
 				 * Even if ticks are 0, it's worth calling for
 				 * the above mentioned reasons.
 				 */
@@ -1857,7 +1848,6 @@ static void term_data_link(int i)
 	td->t->nuke_hook = Term_nuke_mac;
 
 	/* Prepare the function hooks */
-	td->t->user_hook = Term_user_mac;
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
@@ -1877,7 +1867,7 @@ static void term_data_link(int i)
 	/* Activate it */
 	Term_activate(td->t);
 	/* Global pointer */
-	angband_term[i] = td->t;
+	reposband_term[i] = td->t;
 
 	/* Activate old */
 	Term_activate(old);
@@ -2190,7 +2180,7 @@ static void cf_load_prefs()
 		term_data *td = &data[i];
 
 		load_pref_short(format("term%d.mapped", i), &td->mapped);
-		CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+i, td->mapped);
+		CheckMenuItem(MyGetMenuHandle(kWindowMenu), kreposbandTerm+i, td->mapped);
 
 		load_pref_short(format("term%d.tile_wid", i), &td->tile_wid);
 		load_pref_short(format("term%d.tile_hgt", i), &td->tile_hgt);
@@ -2290,7 +2280,7 @@ static void init_windows(void)
 		term_data_hack(td);
 
 		/* Copy the title */
-		my_strcpy((char *)(td->title), angband_term_name[i], sizeof(td->title));
+		my_strcpy((char *)(td->title), reposband_term_name[i], sizeof(td->title));
 
 		/* Tile the windows */
 		td->r.left += (b * 30);
@@ -2407,9 +2397,9 @@ static bool select_savefile(bool all)
 	NavTypeListHandle myTypeList;
 	AEDesc defaultLocation;
 
-	/* Look for the "Angband/save/" sub-folder */
+	/* Look for the "reposband/save/" sub-folder */
 	char path[1024];
-	path_build(path, sizeof(path), ANGBAND_DIR_USER, "save");
+	path_build(path, sizeof(path), reposband_DIR_USER, "save");
 	err = path_to_spec(path, &theFolderSpec);
 
 	if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
@@ -2797,7 +2787,7 @@ static OSStatus OpenRecentCommand(EventHandlerCallRef inCallRef,
 	return noErr;
 }
 
-static OSStatus AngbandGame(EventHandlerCallRef inCallRef,
+static OSStatus reposbandGame(EventHandlerCallRef inCallRef,
 							EventRef inEvent, void *inUserData )
 {
 	/* Only enabled options are Fonts, Open/New/Import and Quit. */
@@ -2857,7 +2847,7 @@ static OSStatus openGame(int op)
 }
 
 /*
- *    Run the event loop and return a gameplay status to init_angband
+ *    Run the event loop and return a gameplay status to init_reposband
  */
 static errr get_cmd_init()
 { 
@@ -2991,7 +2981,7 @@ static OSStatus CloseCommand(EventHandlerCallRef inCallRef,
 						NULL);
 
 		/* Update the menu status */
-		CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+(td - &data[0]), FALSE);
+		CheckMenuItem(MyGetMenuHandle(kWindowMenu), kreposbandTerm+(td - &data[0]), FALSE);
 	}
 	return noErr;
 }
@@ -3069,7 +3059,7 @@ static void graphics_aux(int op)
 	graf_width = graf_height = graphics_modes[op].size;
 	use_graphics = (op != 0);
 	graf_mode = op;
-	ANGBAND_GRAF = graphics_modes[op].name;
+	reposband_GRAF = graphics_modes[op].name;
 	arg_graphics = op;
 
 	graphics_nuke();
@@ -3083,7 +3073,7 @@ static void graphics_aux(int op)
 		/* reset graphics flags */
 		use_graphics = 0;
 		graf_mode = 0;
-		ANGBAND_GRAF = 0;
+		reposband_GRAF = 0;
 
 		/* reset transparency mode */
 		use_transparency = false;
@@ -3169,8 +3159,8 @@ static OSStatus TerminalCommand(EventHandlerCallRef inCallRef,
 	GetEventParameter(inEvent, kEventParamDirectObject, typeHICommand,
 							NULL, sizeof(HICommand), NULL, &command);
 
-	/* Offset of Angband term in Window menu. */
-	int i = command.menu.menuItemIndex - kAngbandTerm;
+	/* Offset of reposband term in Window menu. */
+	int i = command.menu.menuItemIndex - kreposbandTerm;
 
 	/* Check legality of choice */
 	if ((i < 0) || (i >= MAX_TERM_DATA)) return eventNotHandledErr;
@@ -3194,7 +3184,7 @@ static OSStatus TerminalCommand(EventHandlerCallRef inCallRef,
 				NULL);
 
 	/* Update the menu status */
-	CheckMenuItem(MyGetMenuHandle(kWindowMenu), kAngbandTerm+i, TRUE);
+	CheckMenuItem(MyGetMenuHandle(kWindowMenu), kreposbandTerm+i, TRUE);
 
 	term_data_check_font(td);
 	term_data_check_size(td);
@@ -3563,7 +3553,7 @@ static OSStatus KeyboardCommand ( EventHandlerCallRef inCallRef,
 	return noErr;
 }
 
-/* About angband... */
+/* About reposband... */
 static OSStatus AboutCommand(EventHandlerCallRef inCallRef, EventRef inEvent,
 	void *inUserData )
 {
@@ -3890,14 +3880,14 @@ static void init_paths(void)
 	create_needed_dirs();
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+	path_build(path, sizeof(path), reposband_DIR_FILE, "news.txt");
 
 	/* Attempt to open and close that file */
 	if (!file_exists(path))
 	{
 		/* Warning */
 		plog_fmt("Unable to open the '%s' file.", path);
-		quit("The Angband 'lib' folder is probably missing or misplaced.");
+		quit("The reposband 'lib' folder is probably missing or misplaced.");
 	}
 }
 
@@ -3962,7 +3952,7 @@ int main(void)
 	load_sounds();
 
 	/* Note the "system" */
-	ANGBAND_SYS = "mac";
+	reposband_SYS = "mac";
 
 	/* Validate the contents of the main window */
 	validate_main_window();

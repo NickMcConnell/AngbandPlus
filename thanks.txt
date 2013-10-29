@@ -1,3 +1,6 @@
+Thanks to Avenger, Graham Philips and Alexander Ulyanov for creating and maintaining the original PosBand
+====================
+Angband thanks
 If your name should be included in this file and it's not, please email us
 so we can fix it. :)
 
@@ -91,7 +94,7 @@ Many bugfixes and patches
 Steven Fuerst < sfuerst@physics.usyd.edu.au >
 Improved X11, XAW, and GTK code
 
-"Bablos" < angband@blueyonder.co.uk >
+"Bablos" < Angband@blueyonder.co.uk >
 Updated Amiga code
 
 Chris Weisiger

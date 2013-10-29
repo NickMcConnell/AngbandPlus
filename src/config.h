@@ -4,7 +4,7 @@
 /*** Some really important things you ought to change ***/
 
 /*
- * Defines the default paths to the Angband directories, for ports that use
+ * Defines the default paths to the reposband directories, for ports that use
  * the main.c file.
  *
  * "config path" is for per-installation configurable data, like the game's
@@ -19,17 +19,17 @@
  * The configure script overrides these values. Check the "--prefix=<dir>"
  * option of the configure script.
  *
- * These values will be over-ridden by the "ANGBAND_PATH" environment
+ * These values will be over-ridden by the "reposband_PATH" environment
  * variable, if that variable is defined and accessible.  The final
  * "slash" is required if the value supplied is in fact a directory.
  *
- * Using the value "./lib/" below tells Angband that, by default,
- * the user will run "angband" from the same directory that contains
+ * Using the value "./lib/" below tells reposband that, by default,
+ * the user will run "reposband" from the same directory that contains
  * the "lib" directory.  This is a reasonable (but imperfect) default.
  *
  * If at all possible, you should change this value to refer to the
- * actual location of the folders, for example, "/etc/angband/"
- * or "/usr/share/angband/", or "/var/games/angband/". In fact, if at all
+ * actual location of the folders, for example, "/etc/reposband/"
+ * or "/usr/share/reposband/", or "/var/games/reposband/". In fact, if at all
  * possible you should use a packaging system which does this for you.
  *
  * N.B. The data path is only used if USE_PRIVATE_PATHS is not defined.
@@ -54,7 +54,7 @@
  */
 #ifdef SET_UID
 # ifndef PRIVATE_USER_PATH
-#  define PRIVATE_USER_PATH "~/.angband"
+#  define PRIVATE_USER_PATH "~/.reposband"
 # endif /* PRIVATE_USER_PATH */
 #endif /* SET_UID */
 

@@ -2,7 +2,7 @@
  * File: ui-birth.c
  * Purpose: Text-based user interface for character creation
  *
- * Copyright (c) 1987 - 2007 Angband contributors
+ * Copyright (c) 1987 - 2007 reposband contributors
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "button.h"
 #include "cmds.h"
 #include "files.h"
@@ -29,7 +29,7 @@
  * Overview
  * ========
  * This file implements the user interface side of the birth process
- * for the classic terminal-based UI of Angband.
+ * for the classic terminal-based UI of reposband.
  *
  * It models birth as a series of steps which must be carried out in 
  * a specified order, with the option of stepping backwards to revisit
@@ -304,22 +304,36 @@ static void setup_menus()
 	mdata->hint = "Your 'sex' does not have any significant gameplay effects.";
 
 	/* Race menu more complicated. */
-	init_birth_menu(&race_menu, z_info->p_max, p_ptr->prace, &race_region, TRUE, race_help);
+	init_birth_menu(&race_menu, SELECTABLE_RACE_MAX, p_ptr->prace, &race_region, TRUE, race_help);
 	mdata = race_menu.menu_data;
 
-	for (i = 0; i < z_info->p_max; i++)
+	for (i = 0; i < SELECTABLE_RACE_MAX; i++)
 	{	
 		mdata->items[i] = p_info[i].name;
 	}
 	mdata->hint = "Your 'race' determines various intrinsic factors and bonuses.";
 
 	/* Class menu similar to race. */
-	init_birth_menu(&class_menu, z_info->c_max, p_ptr->pclass, &class_region, TRUE, class_help);
-	mdata = class_menu.menu_data;
+	/* This hides the monster classes for demihumans, and demihuman classes for monsters -Simon */
+	if (p_ptr->prace <= DEMIHUMAN_RACE_MAX)
+	{
+		init_birth_menu(&class_menu, DEMIHUMAN_CLASS_MAX + 1, p_ptr->pclass, &class_region, TRUE, class_help);
+		mdata = class_menu.menu_data;
 
-	for (i = 0; i < z_info->c_max; i++)
-	{	
-		mdata->items[i] = c_info[i].name;
+		for (i = 0; i <= DEMIHUMAN_CLASS_MAX; i++)
+		{	
+			mdata->items[i] = c_info[i].name;
+		}
+	}
+	else
+	{
+		init_birth_menu(&class_menu, (z_info->c_max - DEMIHUMAN_CLASS_MAX), p_ptr->pclass, &class_region, TRUE, class_help);
+		mdata = class_menu.menu_data;
+
+		for (i = DEMIHUMAN_CLASS_MAX + 1; i < z_info->c_max; i++)
+		{	
+			mdata->items[i] = c_info[i].name;
+		}
 	}
 	mdata->hint = "Your 'class' determines various intrinsic abilities and bonuses";
 		
@@ -474,7 +488,7 @@ static enum birth_stage menu_question(enum birth_stage current, menu_type *curre
 			}
 			else if (cx.key == '=') 
 			{
-				do_cmd_options();
+				do_cmd_options_birth();
 				next = current;
 			}
 			else if (cx.key == KTRL('X')) 

@@ -16,7 +16,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "object/tvalsval.h"
 #include "init.h"
 #include "effects.h"
@@ -3149,7 +3149,7 @@ errr do_randart(u32b randart_seed, bool full)
 {
 	errr err;
 
-	/* Prepare to use the Angband "simple" RNG. */
+	/* Prepare to use the reposband "simple" RNG. */
 	Rand_value = randart_seed;
 	Rand_quick = TRUE;
 
@@ -3168,7 +3168,7 @@ errr do_randart(u32b randart_seed, bool full)
 		if (verbose)
 		{
 			char buf[1024];
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER,
+			path_build(buf, sizeof(buf), reposband_DIR_USER,
 				"randart.log");
 			log_file = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 			if (!log_file)
@@ -3215,7 +3215,7 @@ errr do_randart(u32b randart_seed, bool full)
 		FREE(base_freq);
 	}
 
-	/* When done, resume use of the Angband "complex" RNG. */
+	/* When done, resume use of the reposband "complex" RNG. */
 	Rand_quick = FALSE;
 
 	return (err);

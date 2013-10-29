@@ -15,11 +15,11 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 #include "macro.h"
 
 /*
- * This file helps Angband work with UNIX/X11 computers.
+ * This file helps reposband work with UNIX/X11 computers.
  *
  * To use this file, compile with "USE_X11" defined, and link against all
  * the various "X11" libraries which may be needed.
@@ -36,8 +36,8 @@
  */
 
 /*
- * The following shell script can be used to launch Angband, assuming that
- * it was extracted into "~/Angband", and compiled using "USE_X11", on a
+ * The following shell script can be used to launch reposband, assuming that
+ * it was extracted into "~/reposband", and compiled using "USE_X11", on a
  * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
  * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
  * and without graphics (add "-g" for graphics).  Just copy this comment
@@ -48,54 +48,54 @@
  * #!/bin/csh
  *
  * # Describe attempt
- * echo "Launching angband..."
+ * echo "Launching reposband..."
  * sleep 2
  *
  * # Main window
- * setenv ANGBAND_X11_FONT_0 10x20
- * setenv ANGBAND_X11_AT_X_0 5
- * setenv ANGBAND_X11_AT_Y_0 510
+ * setenv reposband_X11_FONT_0 10x20
+ * setenv reposband_X11_AT_X_0 5
+ * setenv reposband_X11_AT_Y_0 510
  *
  * # Message window
- * setenv ANGBAND_X11_FONT_1 8x13
- * setenv ANGBAND_X11_AT_X_1 5
- * setenv ANGBAND_X11_AT_Y_1 22
- * setenv ANGBAND_X11_ROWS_1 35
+ * setenv reposband_X11_FONT_1 8x13
+ * setenv reposband_X11_AT_X_1 5
+ * setenv reposband_X11_AT_Y_1 22
+ * setenv reposband_X11_ROWS_1 35
  *
  * # Inventory window
- * setenv ANGBAND_X11_FONT_2 8x13
- * setenv ANGBAND_X11_AT_X_2 635
- * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_2 23
+ * setenv reposband_X11_FONT_2 8x13
+ * setenv reposband_X11_AT_X_2 635
+ * setenv reposband_X11_AT_Y_2 182
+ * setenv reposband_X11_ROWS_2 23
  *
  * # Equipment window
- * setenv ANGBAND_X11_FONT_3 8x13
- * setenv ANGBAND_X11_AT_X_3 635
- * setenv ANGBAND_X11_AT_Y_3 22
- * setenv ANGBAND_X11_ROWS_3 12
+ * setenv reposband_X11_FONT_3 8x13
+ * setenv reposband_X11_AT_X_3 635
+ * setenv reposband_X11_AT_Y_3 22
+ * setenv reposband_X11_ROWS_3 12
  *
  * # Monster recall window
- * setenv ANGBAND_X11_FONT_4 6x13
- * setenv ANGBAND_X11_AT_X_4 817
- * setenv ANGBAND_X11_AT_Y_4 847
- * setenv ANGBAND_X11_COLS_4 76
- * setenv ANGBAND_X11_ROWS_4 11
+ * setenv reposband_X11_FONT_4 6x13
+ * setenv reposband_X11_AT_X_4 817
+ * setenv reposband_X11_AT_Y_4 847
+ * setenv reposband_X11_COLS_4 76
+ * setenv reposband_X11_ROWS_4 11
  *
  * # Object recall window
- * setenv ANGBAND_X11_FONT_5 6x13
- * setenv ANGBAND_X11_AT_X_5 817
- * setenv ANGBAND_X11_AT_Y_5 520
- * setenv ANGBAND_X11_COLS_5 76
- * setenv ANGBAND_X11_ROWS_5 24
+ * setenv reposband_X11_FONT_5 6x13
+ * setenv reposband_X11_AT_X_5 817
+ * setenv reposband_X11_AT_Y_5 520
+ * setenv reposband_X11_COLS_5 76
+ * setenv reposband_X11_ROWS_5 24
  *
  * # The build directory
- * cd ~/Angband
+ * cd ~/reposband
  *
  * # Gamma correction
- * setenv ANGBAND_X11_GAMMA 142
+ * setenv reposband_X11_GAMMA 142
  *
- * # Launch Angband
- * ./src/angband -mx11 -- -n6 &
+ * # Launch reposband
+ * ./src/reposband -mx11 -- -n6 &
  *
  */
 
@@ -513,7 +513,7 @@ static u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 
 	if (!gamma_table_ready)
 	{
-		cptr str = getenv("ANGBAND_X11_GAMMA");
+		cptr str = getenv("reposband_X11_GAMMA");
 		if (str != NULL) gamma_val = atoi(str);
 
 		gamma_table_ready = TRUE;
@@ -559,14 +559,14 @@ static const char *get_default_font(int term_num)
 	char buf[80];
 
 	/* Window specific font name */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", term_num);
+	strnfmt(buf, sizeof(buf), "reposband_X11_FONT_%d", term_num);
 
 	/* Check environment for that font */
 	font = getenv(buf);
 	if (font) return font;
 
 	/* Check environment for "base" font */
-	font = getenv("ANGBAND_X11_FONT");
+	font = getenv("reposband_X11_FONT");
 	if (font) return font;
 
 	switch (term_num)
@@ -1579,7 +1579,7 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
 
 
 /*
- * Angband specific code follows... (ANGBAND)
+ * reposband specific code follows... (reposband)
  */
 
 
@@ -1827,7 +1827,7 @@ static errr CheckEvent(bool wait)
 			else if (xev->xbutton.button == Button5) z = 5;
 			else z = 0;
 
-			/* The co-ordinates are only used in Angband format. */
+			/* The co-ordinates are only used in reposband format. */
 			pixel_to_square(&x, &y, x, y);
 			if (press) Term_mousepress(x, y, z);
 
@@ -1842,7 +1842,7 @@ static errr CheckEvent(bool wait)
 			int y = xev->xmotion.y;
 			unsigned int z = xev->xmotion.state;
 
-			/* Convert to co-ordinates Angband understands. */
+			/* Convert to co-ordinates reposband understands. */
 			pixel_to_square(&x, &y, x, y);
 			
 			break;
@@ -1989,18 +1989,18 @@ static errr Term_xtra_x11_react(void)
 		/* Check the colors */
 		for (i = 0; i < MAX_COLORS; i++)
 		{
-			if ((color_table_x11[i][0] != angband_color_table[i][0]) ||
-				(color_table_x11[i][1] != angband_color_table[i][1]) ||
-				(color_table_x11[i][2] != angband_color_table[i][2]) ||
-				(color_table_x11[i][3] != angband_color_table[i][3]))
+			if ((color_table_x11[i][0] != reposband_color_table[i][0]) ||
+				(color_table_x11[i][1] != reposband_color_table[i][1]) ||
+				(color_table_x11[i][2] != reposband_color_table[i][2]) ||
+				(color_table_x11[i][3] != reposband_color_table[i][3]))
 			{
 				Pixell pixel;
 
 				/* Save new values */
-				color_table_x11[i][0] = angband_color_table[i][0];
-				color_table_x11[i][1] = angband_color_table[i][1];
-				color_table_x11[i][2] = angband_color_table[i][2];
-				color_table_x11[i][3] = angband_color_table[i][3];
+				color_table_x11[i][0] = reposband_color_table[i][0];
+				color_table_x11[i][1] = reposband_color_table[i][1];
+				color_table_x11[i][2] = reposband_color_table[i][2];
+				color_table_x11[i][3] = reposband_color_table[i][3];
 
 				/* Create pixel */
 				pixel = create_pixel(Metadpy->dpy,
@@ -2209,7 +2209,7 @@ static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
 
-	cptr name = angband_term_name[i];
+	cptr name = reposband_term_name[i];
 
 	cptr font;
 
@@ -2377,43 +2377,43 @@ static errr term_data_init(term_data *td, int i)
 	 */
 
 	/* Window specific location (x) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_X_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_AT_X_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) x = val;
 
 	/* Window specific location (y) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_Y_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) y = val;
 
 	/* Window specific cols */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
 
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
 
 	/* Window specific font name */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", i);
+	strnfmt(buf, sizeof(buf), "reposband_X11_FONT_%d", i);
 	str = getenv(buf);
 	if (str) font = str;
 
@@ -2469,7 +2469,7 @@ static errr term_data_init(term_data *td, int i)
 	res_name[0] = tolower((unsigned char)res_name[0]);
 	ch->res_name = res_name;
 
-	my_strcpy(res_class, "Angband", sizeof(res_class));
+	my_strcpy(res_class, "reposband", sizeof(res_class));
 	ch->res_class = res_class;
 
 	XSetClassHint(Metadpy->dpy, Infowin->win, ch);
@@ -2614,7 +2614,7 @@ static void hook_quit(cptr str)
 
 
 /*
- * Initialization function for an "X11" module to Angband
+ * Initialization function for an "X11" module to reposband
  */
 errr init_x11(int argc, char **argv)
 {
@@ -2663,7 +2663,7 @@ errr init_x11(int argc, char **argv)
 		num_term = 1;
 
 		/* Build the filename */
-		(void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+		(void)path_build(settings, sizeof(settings), reposband_DIR_USER, "x11-settings.prf");
 
 		/* Open the file */
 		fff = file_open(settings, MODE_READ, -1);
@@ -2723,11 +2723,11 @@ errr init_x11(int argc, char **argv)
 
 		Infoclr_set(clr[i]);
 
-		/* Acquire Angband colors */
-		color_table_x11[i][0] = angband_color_table[i][0];
-		color_table_x11[i][1] = angband_color_table[i][1];
-		color_table_x11[i][2] = angband_color_table[i][2];
-		color_table_x11[i][3] = angband_color_table[i][3];
+		/* Acquire reposband colors */
+		color_table_x11[i][0] = reposband_color_table[i][0];
+		color_table_x11[i][1] = reposband_color_table[i][1];
+		color_table_x11[i][2] = reposband_color_table[i][2];
+		color_table_x11[i][3] = reposband_color_table[i][3];
 
 		/* Default to monochrome */
 		pixel = ((i == 0) ? Metadpy->bg : Metadpy->fg);
@@ -2756,14 +2756,14 @@ errr init_x11(int argc, char **argv)
 		term_data_init(td, i);
 
 		/* Save global entry */
-		angband_term[i] = Term;
+		reposband_term[i] = Term;
 	}
 
-	/* Raise the "Angband" window */
+	/* Raise the "reposband" window */
 	Infowin_set(data[0].win);
 	Infowin_raise();
 
-	/* Activate the "Angband" window screen */
+	/* Activate the "reposband" window screen */
 	Term_activate(&data[0].t);
 
 

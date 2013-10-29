@@ -88,7 +88,7 @@
  * it uses the slash, and do its own mapping of period <-> slash.
  *
  * It is most definitely wrong to have such things here.  Platform-specific
- * code should handle shifting Angband filenames to platform ones. XXX
+ * code should handle shifting reposband filenames to platform ones. XXX
  */
 #undef PATH_SEP
 #define PATH_SEP "/"

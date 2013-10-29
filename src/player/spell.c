@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "object/tvalsval.h"
 #include "game-cmd.h"
@@ -250,7 +250,7 @@ bool spell_cast(int spell, int dir)
 	/* Failed spell */
 	if (randint0(100) < chance)
 	{
-		if (OPT(flush_failure)) flush();
+		flush();
 		msg_print("You failed to concentrate hard enough!");
 	}
 

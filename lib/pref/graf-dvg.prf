@@ -5,7 +5,7 @@
 # This file defines special attr/char mappings for use in "graphics" mode
 # with David Gervais's 32x32 tiles.
 #
-# Converted by Mogami from the dg32-assign of AngbandTK
+# Converted by Mogami from the dg32-assign of reposbandTK
 # Additional work by Ivan Jekic (the.edge@Net.yu)
 #
 # See "lib/help/command.txt" and "src/files.c" for more information.

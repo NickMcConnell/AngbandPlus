@@ -17,7 +17,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
  
 #ifdef SOUND_SDL
@@ -128,13 +128,13 @@ static bool sound_sdl_init(bool no_cache)
 
 
 	/* Build the "sound" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
-	if (ANGBAND_DIR_XTRA_SOUND)
-		mem_free(ANGBAND_DIR_XTRA_SOUND);
-	ANGBAND_DIR_XTRA_SOUND = string_make(path);
+	path_build(path, sizeof(path), reposband_DIR_XTRA, "sound");
+	if (reposband_DIR_XTRA_SOUND)
+		mem_free(reposband_DIR_XTRA_SOUND);
+	reposband_DIR_XTRA_SOUND = string_make(path);
 
 	/* Find and open the config file */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+	path_build(path, sizeof(path), reposband_DIR_XTRA_SOUND, "sound.cfg");
 	fff = file_open(path, MODE_READ, -1);
 
 	/* Handle errors */
@@ -173,7 +173,7 @@ static bool sound_sdl_init(bool no_cache)
 		/* Make sure this is a valid event name */
 		for (event = MSG_MAX - 1; event >= 0; event--)
 		{
-			if (strcmp(msg_name, angband_sound_name[event]) == 0)
+			if (strcmp(msg_name, reposband_sound_name[event]) == 0)
 			    break;
 		}
         if (event < 0) continue;
@@ -206,7 +206,7 @@ static bool sound_sdl_init(bool no_cache)
 			if (num >= MAX_SAMPLES) break;
 
 			/* Build the path to the sample */
-			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
+			path_build(path, sizeof(path), reposband_DIR_XTRA_SOUND, cur_token);
 			if (!file_exists(path)) goto next_token;
 
 			/* Don't load now if we're not caching */

@@ -2,7 +2,7 @@
 
 This file was last updated for Angband 3.1.2.
 
-Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
+Make sure to read the newsgroup ("rec.games.roguelike.Angband"), and to visit
 the Official Angband Home Page ("http://rephial.org") for the most
 up to date information about Angband.
 
@@ -232,7 +232,7 @@ character class itself customizable to an extent.
 === A Posting from the Original Author ===
 
 From: koeneke@ionet.net (Robert Alan Koeneke)
-Newsgroups: rec.games.roguelike.angband,rec.games.roguelike.moria
+Newsgroups: rec.games.roguelike.Angband,rec.games.roguelike.moria
 Subject: Early history of Moria
 Date: Wed, 21 Feb 1996 04:20:51 GMT
 

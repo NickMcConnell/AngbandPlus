@@ -1,4 +1,4 @@
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "object/tvalsval.h"
 

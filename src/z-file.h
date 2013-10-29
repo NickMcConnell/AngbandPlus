@@ -46,7 +46,7 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf);
 /** Data types **/
 
 /**
- * An opaque file handle for Angband file handling.
+ * An opaque file handle for reposband file handling.
  */
 typedef struct ang_file ang_file;
 
@@ -231,7 +231,7 @@ bool dir_exists(const char *dirname);
 bool dir_create(const char *dirname);
 
 /**
- * An opaque file handle for Angband directory handling.
+ * An opaque file handle for reposband directory handling.
  */
 typedef struct ang_dir ang_dir;
 

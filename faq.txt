@@ -60,7 +60,7 @@ http://angband.oook.cz/forum/showthread.php?t=26
 
 It's very likely that your console is not set to display 256 colours. Try
 setting the TERM environment variable to "xterm-256color" in your shell
-before starting angband (in bash this is "export TERM=xterm-256color").
+before starting Angband (in bash this is "export TERM=xterm-256color").
 
 1g. I'm playing in a terminal and the Escape key isn't working as it 
 should - I have to press it twice, or just wait a while.
@@ -105,14 +105,14 @@ nature; Angband has a long history, and so has developed a certain
 character over the years.  Some suggestions might make a good game, 
 perhaps even a better game than Angband, but would make a game that is 
 not Angband. To some extent, variants exist to address this, but even 
-so they tend to adhere to the core Angband principles.
+so they tend to adhere to the core Angand principles.
 
 2c. How do I get a copy of the source code?
 
 The latest release's source is linked to from the page http://rephial.org/.
 
 To get the bleeding-edge development code, clone the git repository at 
-git://github.com/angband/angband.git
+git://github.com/Angband/Angband.git
 
 2d. How do I compile the game?
 
@@ -121,8 +121,8 @@ Please see http://rephial.org/wiki/Compiling for an up-to-date guide to this.
 2e. How do I contribute to the game?
 
 First, join the mailing list 
-[http://angband.oook.cz/mailman/listinfo/angband-dev] and/or drop by
-#angband-dev on freenode IRC.
+[http://angband.oook.cz/mailman/listinfo/Angband-dev] and/or drop by
+#Angband-dev on freenode IRC.
 
 If you already have a patch you want to be included, please send it to 
 the mailing list in the form of a unified diff against either the git master

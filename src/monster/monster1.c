@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "monster/constants.h"
 #include "monster/monster.h"
 #include "object/tvalsval.h"
@@ -1361,7 +1361,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Describe special things */
 	if (rf_has(f, RF_MULTIPLY))
-		text_out("%^s breeds explosively.  ", wd_he[msex]);
+		text_out_c(TERM_ORANGE, "%^s breeds explosively.  ", wd_he[msex]);
 	if (rf_has(f, RF_REGENERATE))
 		text_out("%^s regenerates quickly.  ", wd_he[msex]);
 	if (rf_has(f, RF_HAS_LITE))
@@ -1788,8 +1788,10 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* The code above includes "attack speed" */
-	if (rf_has(f, RF_NEVER_MOVE))
-		text_out(", but does not deign to chase intruders");
+	if (rf_has(f, RF_NEVER_MOVE)) {
+		text_out(", but ");
+		text_out_c(TERM_L_GREEN, "does not deign to chase intruders");
+	}
 
 	/* End this sentence */
 	text_out(".  ");
@@ -1966,14 +1968,19 @@ void roff_top(int r_idx)
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
+	else if (OPT(purple_uniques))
+	{
+		a1 = TERM_L_VIOLET;
+		a2 = TERM_L_VIOLET;
+	}
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, r_ptr->name);
 
 	if ((tile_width == 1) && (tile_height == 1))
 	{
-	        /* Append the "standard" attr/char info */
-	        Term_addstr(-1, TERM_WHITE, " ('");
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
 		Term_addch(a1, c1);
 		Term_addstr(-1, TERM_WHITE, "')");
 		

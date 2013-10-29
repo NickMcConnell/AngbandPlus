@@ -1,6 +1,6 @@
 /*
  * File: cairo_utils.c
- * Purpose: Cairo calls for use in Angband ports
+ * Purpose: Cairo calls for use in reposband ports
  * (Currently for the Gtk port, but should be reusable.)
  *
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
@@ -17,7 +17,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 
 #ifdef USE_GTK
 #include "cairo-utils.h"
@@ -26,9 +26,9 @@
 void set_foreground_color(cairo_t *cr, byte a)
 {
 	cairo_set_source_rgb(cr, 
-	(double)angband_color_table[a][1] / 256, 
-	(double)angband_color_table[a][2] / 256, 
-	(double)angband_color_table[a][3] / 256);
+	(double)reposband_color_table[a][1] / 256, 
+	(double)reposband_color_table[a][2] / 256, 
+	(double)reposband_color_table[a][3] / 256);
 }
 
 void init_cairo_rect(cairo_rectangle_t *r, int x, int y, int w, int h)

@@ -1,6 +1,6 @@
 /*
  * File: main-gtk.c
- * Purpose: GTK port for Angband
+ * Purpose: GTK port for reposband
  *
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
  *
@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
  
-#include "angband.h"
+#include "reposband.h"
 
 #ifdef USE_GTK
 #include "main-gtk.h"
@@ -59,7 +59,7 @@ static void surface_status(cptr function_name, term_data *td)
 /*#define USE_GTK_BUILDER*/
 
 #ifdef USE_GTK_BUILDER
-#define GTK_XML "angband.xml"
+#define GTK_XML "reposband.xml"
 
 static GtkWidget *get_widget(GtkBuilder *xml, cptr name)
 {
@@ -78,7 +78,7 @@ static GtkBuilder *get_gtk_xml(cptr buf, cptr secondary)
 }
 
 #else
-#define GTK_XML "angband.glade"
+#define GTK_XML "reposband.glade"
 
 static GtkWidget *get_widget(GladeXML *xml, cptr name)
 {
@@ -332,10 +332,20 @@ gboolean configure_event_handler(GtkWidget *widget, GdkEventConfigure *event, gp
 		
 		if (td->initialized)
 		{
-			if (event->x != 0) td->location.x = event->x;
-			if (event->y != 0) td->location.y = event->y;
-			if (event->width != 0)  td->size.w = event->width;
-			if (event->height != 0) td->size.h = event->height;
+			int x = 0, y = 0, w = 0, h = 0;
+			GdkRectangle r;
+			
+			gdk_window_get_frame_extents(td->win->window, &r);
+			x = r.x;
+			y = r.y;
+			
+			gtk_window_get_size(GTK_WINDOW(td->win), &w, &h);
+			
+			td->location.x = x;
+			td->location.y = y;
+			
+			if (w != 0) td->size.w = w;
+			if (h != 0)  td->size.h = h;
 		}
 	}
 	return(FALSE);
@@ -362,8 +372,8 @@ gboolean xtra_configure_event_handler(GtkWidget *widget, GdkEventConfigure *even
 			
 			gtk_window_get_size(GTK_WINDOW(xd->win), &w, &h);
 		
-			if (x != 0)  xd->location.x = x;
-			if (y != 0)  xd->location.y = y;
+			xd->location.x = x;
+			xd->location.y = y;
 			if (w != 0) xd->size.w = w;
 			if (h != 0)  xd->size.h = h;
 		
@@ -935,7 +945,7 @@ static bool save_dialog_box(bool save)
 	
 	/* Get the current directory (so we can find lib/save/) */
 	filename = gtk_file_chooser_get_current_folder(selector);
-	path_build(buf, sizeof buf, filename, ANGBAND_DIR_SAVE);
+	path_build(buf, sizeof buf, filename, reposband_DIR_SAVE);
 	gtk_file_chooser_set_current_folder(selector, buf);
 
 	/* Restrict the showing of pointless files */
@@ -1240,7 +1250,7 @@ static void load_term_prefs()
 	if (ignore_prefs) return;
 
 	/* Build the filename and open the file */
-	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "gtk-settings.prf");
+	path_build(settings, sizeof(settings), reposband_DIR_USER, "gtk-settings.prf");
 	fff = file_open(settings, MODE_READ, -1);
 
 	/* File doesn't exist */
@@ -1361,13 +1371,12 @@ static void load_prefs()
 		term_data *td = &data[i];
 		
 		/* deal with env vars */
-		td->location.x = check_env_i("ANGBAND_X11_AT_X_%d", i, td->location.x);
-		td->location.y = check_env_i("ANGBAND_X11_AT_Y_%d", i,td->location.y);
-		td->cols = check_env_i("ANGBAND_X11_COLS_%d", i,  td->cols);
-		td->rows = check_env_i("ANGBAND_X11_ROWS_%d", i, td->rows);
+		td->location.x = check_env_i("reposband_X11_AT_X_%d", i, td->location.x);
+		td->location.y = check_env_i("reposband_X11_AT_Y_%d", i,td->location.y);
+		td->cols = check_env_i("reposband_X11_COLS_%d", i,  td->cols);
+		td->rows = check_env_i("reposband_X11_ROWS_%d", i, td->rows);
 		td->initialized = FALSE;
 		
-		if ((td->location.x <= 0) && (td->location.y <= 0)) td->location.x = td->location.y = 100;
 		if ((td->font.name == NULL) || (strlen(td->font.name)<2)) 
 			my_strcpy(td->font.name, "Monospace 12", sizeof(td->font.name));
 		
@@ -1421,7 +1430,7 @@ gboolean on_mouse_click(GtkWidget *widget, GdkEventButton *event, gpointer user_
 	int y = event->y;
 	z = event->button;
 	
-	/* The co-ordinates are only used in Angband format. */
+	/* The co-ordinates are only used in reposband format. */
 	pixel_to_square(&x, &y, x, y);
 	Term_mousepress(x, y, z);
 
@@ -1659,7 +1668,7 @@ static void init_graf(int g)
 	{
 		case GRAPHICS_NONE:
 		{
-			ANGBAND_GRAF = "none";
+			reposband_GRAF = "none";
 			
 			use_transparency = FALSE;
 			td->tile.w = td->font.w;
@@ -1669,8 +1678,8 @@ static void init_graf(int g)
 
 		case GRAPHICS_ORIGINAL:
 		{
-			ANGBAND_GRAF = "old";
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "8x8.png");
+			reposband_GRAF = "old";
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, "8x8.png");
 			use_transparency = FALSE;
 			td->tile.w = td->tile.h = 8;
 			break;
@@ -1678,8 +1687,8 @@ static void init_graf(int g)
 
 		case GRAPHICS_ADAM_BOLT:
 		{
-			ANGBAND_GRAF = "new";
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "16x16.png");
+			reposband_GRAF = "new";
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, "16x16.png");
 			use_transparency = TRUE;
 			td->tile.w = td->tile.h =16;
 			break;
@@ -1687,8 +1696,8 @@ static void init_graf(int g)
 
 		case GRAPHICS_NOMAD:
 		{
-			ANGBAND_GRAF = "nomad";
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "8x16.png");
+			reposband_GRAF = "nomad";
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, "8x16.png");
 			use_transparency = TRUE;
 			td->tile.w = td->tile.h =16;
 			break;
@@ -1696,8 +1705,8 @@ static void init_graf(int g)
 
 		case GRAPHICS_DAVID_GERVAIS:
 		{
-			ANGBAND_GRAF = "david";
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "32x32.png");
+			reposband_GRAF = "david";
+			path_build(buf, sizeof(buf), reposband_DIR_XTRA_GRAF, "32x32.png");
 			use_transparency = FALSE;
 			td->tile.w = td->tile.h =32;
 			break;
@@ -1766,7 +1775,7 @@ gboolean on_graphics_activate(GtkWidget *widget, GdkEventExpose *event, gpointer
 }
 
 /*
- * Make text views "Angbandy" 
+ * Make text views "reposbandy" 
  */
 static void white_on_black_textview(xtra_win_data *xd)
 {
@@ -1800,7 +1809,7 @@ static void init_xtra_windows(void)
 	
 	char buf[1024];
 	 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, GTK_XML);
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA, GTK_XML);
 	xml = get_gtk_xml(buf, NULL);
 	
 	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
@@ -1857,7 +1866,7 @@ static void init_gtk_windows(void)
 	bool err;
 	
 	/* Build the paths */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, GTK_XML); 
+	path_build(buf, sizeof(buf), reposband_DIR_XTRA, GTK_XML); 
 	gtk_xml = get_gtk_xml(buf, NULL);
 	
 	
@@ -1868,7 +1877,7 @@ static void init_gtk_windows(void)
 		exit(0);
 	}
 			
-	path_build(logo, sizeof(logo), ANGBAND_DIR_XTRA_ICON, "att-256.png");
+	path_build(logo, sizeof(logo), reposband_DIR_XTRA_ICON, "att-256.png");
 	err = gtk_window_set_default_icon_from_file(logo, NULL);
 	
 	for (i = 0; i < num_term; i++)
@@ -2074,7 +2083,7 @@ static errr term_data_init(term_data *td, int i)
 	term_init(t, td->cols, td->rows, 1024);
 
 	/* Store the name of the term */
-	td->name = angband_term_name[i];
+	td->name = reposband_term_name[i];
 	td->number = i;
 	strnfmt(td->font.name, sizeof(td->font.name), "Monospace 12");
 	
@@ -2122,7 +2131,7 @@ static void handle_leave_init(game_event_type type, game_event_data *data, void 
 }
 
 /*
- * Set up color tags for all the angband colors.
+ * Set up color tags for all the reposband colors.
  */
 static void init_color_tags(xtra_win_data *xd)
 {
@@ -2137,7 +2146,7 @@ static void init_color_tags(xtra_win_data *xd)
 	for (i = 0; i <= MAX_COLORS; i++)
 	{
 		strnfmt(colorname, sizeof(colorname),  "color-%d", i);
-		strnfmt(str, sizeof(str), "#%02x%02x%02x", angband_color_table[i][1], angband_color_table[i][2], angband_color_table[i][3]);
+		strnfmt(str, sizeof(str), "#%02x%02x%02x", reposband_color_table[i][1], reposband_color_table[i][2], reposband_color_table[i][3]);
 
 		if (gtk_text_tag_table_lookup(tags, colorname) != NULL)
 			gtk_text_tag_table_remove(tags, gtk_text_tag_table_lookup(tags, colorname));
@@ -2307,7 +2316,7 @@ static void inv_slot(char *str, size_t len, int i, bool equip)
 
 		strnfmt(label, sizeof(label), "%c) ", index_to_label(i));
 		
-		if (equip && OPT(show_labels))
+		if (equip)
 			name_size = name_size - 19;
 		
 		/* Display the weight if needed */
@@ -2316,7 +2325,7 @@ static void inv_slot(char *str, size_t len, int i, bool equip)
 			int wgt = o_ptr->weight * o_ptr->number;			
 			name_size = name_size - 4 - 9 - 9 - 5;
 			
-			if (equip && OPT(show_labels))
+			if (equip)
 				strnfmt(str, len, "%s%-*s %3d.%1d lb <-- %s", label, name_size, o_name, wgt / 10, wgt % 10, mention_use(i));
 			else
 				strnfmt(str, len, "%s%-*s %3d.%1d lb", label, name_size, o_name, wgt / 10, wgt % 10);
@@ -2325,7 +2334,7 @@ static void inv_slot(char *str, size_t len, int i, bool equip)
 		{
 			name_size = name_size - 4 - 9 - 5;
 
-			if (equip && OPT(show_labels))
+			if (equip)
 				strnfmt(str, len, "%s%-*s <-- %s", label, name_size, o_name, mention_use(i));
 			else
 				strnfmt(str, len, "%s%-*s", label, name_size, o_name);
@@ -2787,7 +2796,7 @@ errr init_gtk(int argc, char **argv)
 		term_data_init(td, i);
 
 		/* Save global entry */
-		angband_term[i] = Term;
+		reposband_term[i] = Term;
 	}
 
 	/* Init dirs */
@@ -2811,7 +2820,7 @@ errr init_gtk(int argc, char **argv)
 	Term_activate(&data[0].t);
 	
 	/* Set the system suffix */
-	ANGBAND_SYS = "gtk";
+	reposband_SYS = "gtk";
 	
 	/* Catch nasty signals, unless we want to see them */
 	#ifndef GTK_DEBUG
@@ -2831,7 +2840,7 @@ errr init_gtk(int argc, char **argv)
 	play_game();
 
 	/* Do all the things main() in main.c already does */
-	cleanup_angband();
+	cleanup_reposband();
 	quit(NULL);
 	exit(0); /* just in case */
 

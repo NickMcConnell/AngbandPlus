@@ -2,7 +2,7 @@
  * File: obj-desc.c
  * Purpose: Create object name descriptions
  *
- * Copyright (c) 1997 - 2007 Angband contributors
+ * Copyright (c) 1997 - 2007 reposband contributors
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "squelch.h"
 #include "tvalsval.h"
 

@@ -16,7 +16,7 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cmds.h"
 #include "history.h"
 #include "macro.h"
@@ -90,6 +90,69 @@ void check_experience(void)
 		strnfmt(buf, sizeof(buf), "Reached level %d", p_ptr->lev);
 		history_add(buf, HISTORY_GAIN_LEVEL, 0);
 
+		/* Evolve -Simon */
+		if ((p_ptr->lev >= rp_ptr->max_level) && (rp_ptr->next_form_indices[0] >= 0))
+		{
+			int choice;
+			int i;
+			if (rp_ptr->next_form_indices[1] == -1)
+			{
+				/* No choice */
+				choice = 0;
+			}
+			else
+			{
+				char key;
+				char buf[40];
+			
+				repeat:
+				/* Give the menu */
+				
+				screen_save();
+			
+				prt(" Choose your new race:", 1, 20);
+				prt("", 2, 20);
+				for (i = 0; i < MAX_NEXT_FORMS; i++)
+				{
+					if (rp_ptr->next_form_indices[i] < 0) break;
+					prt(format(" %c) %s", I2A(i), p_info[rp_ptr->next_form_indices[i]].name), i + 3, 20);
+				}
+				prt("", i + 3, 20);
+				prt(" h) Help", i + 4, 20);
+				prt("", i + 5, 20);
+				
+				while (1)
+				{
+					key = inkey();
+					key = tolower(key);
+					
+					/* Help */
+					if (key == 'h')
+					{
+						strnfmt(buf, sizeof(buf), "monrace.txt#%s", rp_ptr->name);
+						show_file(buf, NULL, 0, 0);
+						screen_load();
+						goto repeat;
+					}
+					
+					if (key >= 'a' && key < I2A(i)) break;
+				}
+			
+				screen_load();
+			
+				choice = A2I(key);
+			}
+			p_ptr->prace = rp_ptr->next_form_indices[choice];
+			rp_ptr = &p_info[p_ptr->prace];
+			p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+			do_cmd_redraw();
+			msg_format("You transform into a %^s!", p_info[p_ptr->prace].name);
+			check_experience();
+			if (p_ptr->lev < p_ptr->max_lev && p_ptr->exp == p_ptr->max_exp)
+				msg_format("You don't have enough XP to be level %d in this form!", p_ptr->max_lev);
+		}		
+		
 		/* Message */
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.",
 			p_ptr->lev);
@@ -97,7 +160,7 @@ void check_experience(void)
 		/* Add to social class */
 		p_ptr->sc += randint1(2);
 		if (p_ptr->sc > 150) p_ptr->sc = 150;
-
+				
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -222,12 +285,12 @@ bool adjust_panel(int y, int x)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
 		int wx, wy;
 		int screen_hgt, screen_wid;
 
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;
@@ -268,12 +331,12 @@ bool change_panel(int dir)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
 		int screen_hgt, screen_wid;
 		int wx, wy;
 
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;
@@ -330,9 +393,9 @@ void verify_panel_int(bool centered)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	for (j = 0; j < REPOSBAND_TERM_MAX; j++)
 	{
-		term *t = angband_term[j];
+		term *t = reposband_term[j];
 
 		/* No window */
 		if (!t) continue;

@@ -15,7 +15,7 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
-#include "angband.h"
+#include "reposband.h"
 
 #ifdef USE_GCU
 #include "main.h"
@@ -93,7 +93,7 @@ _stdcall void Sleep(int);
 
 
 /*
- * Save the "normal" and "angband" terminal settings
+ * Save the "normal" and "reposband" terminal settings
  */
 
 #ifdef USE_TPOSIX
@@ -156,7 +156,7 @@ static int can_use_color = FALSE;
 static int can_fix_color = FALSE;
 
 /*
- * Simple Angband to Curses color conversion table
+ * Simple reposband to Curses color conversion table
  */
 static int colortable[BASIC_COLORS];
 
@@ -338,7 +338,7 @@ static errr Term_xtra_gcu_alive(int v)
 		noecho();
 		nonl();
 
-		/* Go to angband keymap mode */
+		/* Go to reposband keymap mode */
 		keymap_game();
 	}
 
@@ -676,9 +676,9 @@ static errr Term_xtra_gcu_react(void)
 		for (i = 0; i < BASIC_COLORS; i++)
 		{
 			/* Set one color (note scaling) */
-			init_color(i, angband_color_table[i][1] * 1000 / 255,
-						  angband_color_table[i][2] * 1000 / 255,
-						  angband_color_table[i][3] * 1000 / 255);
+			init_color(i, reposband_color_table[i][1] * 1000 / 255,
+						  reposband_color_table[i][2] * 1000 / 255,
+						  reposband_color_table[i][3] * 1000 / 255);
 		}
 	}
 	else if (COLORS == 256)
@@ -688,7 +688,7 @@ static errr Term_xtra_gcu_react(void)
 		 * to curses' constants OR with curses' color pairs.
 		 *
 		 * XTerm has 216 (6*6*6) colors, with each RGB setting 0-5. So, to find
-		 * the "closest" match, I just multiply Angband's RGB setting by 5 and
+		 * the "closest" match, I just multiply reposband's RGB setting by 5 and
 		 * then divide by 255. I used true rounding because using the floor
 		 * produces too dark a feel, and using the ceiling kind of washes all
 		 * the colors out.
@@ -1018,7 +1018,7 @@ errr init_gcu(int argc, char **argv)
 	/* Require standard size screen */
 	if ((LINES < 24) || (COLS < 80))
 	{
-		quit("Angband needs at least an 80x24 'curses' screen");
+		quit("reposband needs at least an 80x24 'curses' screen");
 	}
 
 
@@ -1065,7 +1065,7 @@ errr init_gcu(int argc, char **argv)
 
 		/* Take account of "gamma correction" XXX XXX XXX */
 
-		/* Prepare the "Angband Colors" */
+		/* Prepare the "reposband Colors" */
 		Term_xtra_gcu_react();
 	}
 
@@ -1166,13 +1166,13 @@ errr init_gcu(int argc, char **argv)
 		term_data_init_gcu(&data[next_win], rows, cols, y, x);
 		
 		/* Remember the term */
-		angband_term[next_win] = &data[next_win].t;
+		reposband_term[next_win] = &data[next_win].t;
 		
 		/* One more window */
 		next_win++;
 	}
 
-	/* Activate the "Angband" window screen */
+	/* Activate the "reposband" window screen */
 	Term_activate(&data[0].t);
 
 	/* Remember the active screen */

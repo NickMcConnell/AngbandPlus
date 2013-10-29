@@ -7,14 +7,14 @@ INCLUDE = $(HDRS) $(INCS)
 OBJECTS = $(ANGFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
 SUBDIRS = gtk monster object player
-PROG    = angband
+PROG    = reposband
 CFLAGS += -I. -std=c99 -Wdeclaration-after-statement
 
-angband: angband.o $(MAINFILES)
-	$(CC) -o angband angband.o $(MAINFILES) $(LDFLAGS) $(LDADD)
+reposband: reposband.o $(MAINFILES)
+	$(CC) -o reposband reposband.o $(MAINFILES) $(LDFLAGS) $(LDADD)
 	@printf "%10s %-20s\n" LINK $@
 
-angband.o: $(OBJECTS)
+reposband.o: $(OBJECTS)
 	$(LD) -r -o $@ $(OBJECTS)
 	@printf "%10s %-20s\n" LINK $@
 

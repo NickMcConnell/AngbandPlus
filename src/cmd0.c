@@ -10,13 +10,13 @@
  * a) the GNU General Public License as published by the Free Software
  *    Foundation, version 2, or
  *
- * b) the "Angband licence":
+ * b) the "Angand licence":
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "reposband.h"
 #include "cave.h"
 #include "cmds.h"
 #include "files.h"
@@ -25,6 +25,7 @@
 #include "monster/monster.h"
 #include "ui-menu.h"
 #include "wizard.h"
+#include "powers.c"
 
 /*
  * This file contains (several) big lists of commands, so that they can be
@@ -130,7 +131,8 @@ static struct generic_command cmd_action[] =
 	{ "Jam a door shut",            'j', CMD_JAM, NULL },
 	{ "Bash a door open",           'B', CMD_BASH, NULL },
 	{ "Fire at nearest target",   'h', CMD_NULL, textui_cmd_fire_at_nearest },
-	{ "Throw an item",            'v', CMD_THROW, textui_cmd_throw }
+	{ "Throw an item",            'v', CMD_THROW, textui_cmd_throw },
+	{ "Walk into a trap",         'W', CMD_JUMP, NULL },
 };
 
 /* Item management commands */
@@ -139,8 +141,7 @@ static struct generic_command cmd_item_manage[] =
 	{ "Display equipment listing", 'e', CMD_NULL, do_cmd_equip },
 	{ "Display inventory listing", 'i', CMD_NULL, do_cmd_inven },
 	{ "Pick up objects",           'g', CMD_PICKUP, NULL },
-	{ "Destroy an item",           'k', CMD_DESTROY, textui_cmd_destroy },
-	
+	{ "Destroy an item",           'k', CMD_DESTROY, textui_cmd_destroy },	
 };
 
 /* Information access commands */
@@ -150,7 +151,9 @@ static struct generic_command cmd_info[] =
 	{ "Gain new spells", 'G', CMD_STUDY_BOOK, textui_obj_study, player_can_study },
 	{ "Cast a spell", 'm', CMD_CAST, textui_obj_cast, player_can_cast },
 	{ "Cast a spell", 'p', CMD_CAST, textui_obj_cast, player_can_cast },
+	{ "Use racial power", 'U', CMD_USE_RACIAL_POWER, do_cmd_monster_power },
 	{ "Full dungeon map",             'M', CMD_NULL, do_cmd_view_map },
+	{ "Toggle ignoring of items",     'K', CMD_NULL, textui_cmd_toggle_ignore },
 	{ "Display visible item list",    ']', CMD_NULL, do_cmd_itemlist },
 	{ "Display visible monster list", '[', CMD_NULL, do_cmd_monlist },
 	{ "Locate player on map",         'L', CMD_NULL, do_cmd_locate },
@@ -167,7 +170,6 @@ static struct generic_command cmd_info[] =
 static struct generic_command cmd_util[] =
 {
 	{ "Interact with options",        '=', CMD_NULL, do_cmd_xxx_options },
-	{ "Port-specific preferences",    '!', CMD_NULL, do_cmd_port },
 
 	{ "Save and don't quit",  KTRL('S'), CMD_SAVE, NULL },
 	{ "Save and quit",        KTRL('X'), CMD_QUIT, NULL },
@@ -188,7 +190,6 @@ static struct generic_command cmd_hidden[] =
 	{ "Toggle windows",     KTRL('E'), CMD_NULL, toggle_inven_equip }, /* XXX */
 	{ "Alter a grid",             '+', CMD_ALTER, NULL },
 	{ "Walk",                     ';', CMD_WALK, NULL },
-	{ "Jump into a trap",         '-', CMD_JUMP, NULL },
 	{ "Start running",            '.', CMD_RUN, NULL },
 	{ "Stand still",              ',', CMD_HOLD, NULL },
 	{ "Center map",              KTRL('L'), CMD_NULL, do_cmd_center_map },

@@ -16,7 +16,7 @@ include $(DEVKITARM)/ds_rules
 #	IN THIS MODIFIED VERSION, YOU MAY ONLY HAVE ONE SOURCE DIRECTORY!!
 #	OTHERSRC is sources that must be linked against but not compiled here
 #------------------------------------------------------------------------------
-TARGET		:=	angband
+TARGET		:=	reposband
 BUILD		:=	$(CURDIR)
 SOURCES		:=	$(CURDIR)
 #NRM OTHERSRC	:=	$(CURDIR)
@@ -69,7 +69,7 @@ endif
 #------------------------------------------------------------------------------
 HDRS = h-basic.h h-define.h h-type.h h-system.h h-config.h
 
-INCS = angband.h config.h defines.h externs.h types.h \
+INCS = reposband.h config.h defines.h externs.h types.h \
        z-term.h z-rand.h z-type.h z-util.h z-virt.h z-form.h z-file.h
 
 HEADERS = $(HDRS) $(INCS)

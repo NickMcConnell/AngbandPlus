@@ -4,7 +4,7 @@
  * This package provides a routine to read a DIB file and set up the
  * device dependent version of the image.
  *
- * This file has been modified for use with "Angband 2.9.2"
+ * This file has been modified for use with "reposband 2.9.2"
  *
  * COPYRIGHT:
  *

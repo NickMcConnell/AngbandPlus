@@ -643,7 +643,7 @@ Help (?)
         help files may be available on the Net.  In particular, there are
         a variety of spoiler files which do not come with the standard
         distribution.  Check the place you got Angband from or ask on the
-        newsgroup rec.games.roguelike.angband about them. 
+        newsgroup rec.games.roguelike.Angband about them. 
 
 Identify Symbol (/)
         Use this command to find out what a character stands for.  For
