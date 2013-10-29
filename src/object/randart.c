@@ -326,7 +326,7 @@ static errr init_names(void)
 	int i;
 	struct artifact *a;
 
-	for (i = 0; i < z_info->a_max; i++)
+	for (i = 0; i < ART_RACIAL_ARTS_START; i++)
 	{
 		a = &a_info[i];
 		a->name = artifact_gen_name(a, name_sections);

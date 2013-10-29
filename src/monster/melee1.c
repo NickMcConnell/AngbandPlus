@@ -508,6 +508,48 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* Hit with increased chance to wound */
+				case RBE_WOUND:
+ 				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Player armor reduces total damage */
+					damage -= (damage * ((ac < 240) ? ac : 240) / 400);
+					
+ 					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Usually don't stun */
+					if ((do_stun) && (!one_in_(5))) do_stun = FALSE;
+
+					/* Always give a chance to inflict cuts */
+					do_cut = TRUE;
+
+					break;
+				}
+
+				/* Hit with increased chance to stun */
+				case RBE_BATTER:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Monster armor reduces total damage */
+					damage -= (damage * ((ac < 240) ? ac : 240) / 400);
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Usually don't cut */
+					if ((do_cut) && (!one_in_(5))) do_cut = FALSE;
+
+					/* Always give a chance to inflict stuns */
+					do_stun = TRUE;
+
+					break;
+				}
+				
 				case RBE_POISON:
 				{
 					/* Take damage */

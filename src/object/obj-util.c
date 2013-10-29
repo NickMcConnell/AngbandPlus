@@ -395,8 +395,8 @@ char index_to_label(int i)
 	/* Indexes for "equip" are offset */
 	else
 	{
-		/* THIS DOESN'T WORK AT ALL -Simon *//*
-		msg_format("starting conversion with slot %d", i);
+		/* THIS DOESN'T WORK AT ALL -Simon */
+		//msg_format("starting conversion with slot %d", i);
 		if (i >= (INVEN_FEET + rp_ptr->boot_slots))
 			i -= (INVEN_TOTAL - INVEN_FEET - rp_ptr->boot_slots);
 		if (i >= (INVEN_HANDS + rp_ptr->glove_slots))
@@ -418,10 +418,10 @@ char index_to_label(int i)
 		if (i >= (INVEN_BOW + rp_ptr->range_slots))
 			i -= (INVEN_FINGER - INVEN_BOW - rp_ptr->range_slots);
 		if (i >= (INVEN_WIELD + rp_ptr->melee_slots))
-			i -= (INVEN_BOW - INVEN_WIELD - rp_ptr->melee_slots);*/
+			i -= (INVEN_BOW - INVEN_WIELD - rp_ptr->melee_slots);
 		if (i >= INVEN_WIELD)
 			i -= INVEN_WIELD;
-		//msg_format("ending conversation at slot %d", i);*/
+		//msg_format("ending conversation at slot %d", i);
 		return (I2A(i));
 	}
 }
@@ -460,7 +460,7 @@ s16b label_to_equip(int c)
 	int i;
 
 	/* Convert */
-	i = A2I(c) + INVEN_WIELD; //(islower((unsigned char)c) ? A2I(c) : -1) + INVEN_WIELD;
+	i = A2I(c) + INVEN_WIELD;
 	
 	/* Super convert -Simon */
 	if (i >= (INVEN_WIELD + rp_ptr->melee_slots))
@@ -835,7 +835,7 @@ const char *mention_use(int slot)
  */
 cptr describe_use(int i)
 {
-	cptr p;
+	cptr p = "";
 
 	if ((i >= INVEN_WIELD) && (i < INVEN_BOW))
 	{
@@ -846,7 +846,7 @@ cptr describe_use(int i)
 		else
 			p = "attacking monsters with";
 	}
-	if ((i >= INVEN_BOW) && (i < INVEN_FINGER))
+	else if ((i >= INVEN_BOW) && (i < INVEN_FINGER))
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
@@ -855,26 +855,26 @@ cptr describe_use(int i)
 		else
 			p = "shooting missiles with";
 	}
-	if ((i >= INVEN_FINGER) && (i < INVEN_NECK))
+	else if ((i >= INVEN_FINGER) && (i < INVEN_NECK))
 		p = "wearing on your finger/claw/wing/etc";
-	if ((i >= INVEN_NECK) && (i < INVEN_LIGHT))
+	else if ((i >= INVEN_NECK) && (i < INVEN_LIGHT))
 		p = "wearing around your neck";
-	if ((i >= INVEN_LIGHT) && (i < INVEN_BODY))
+	else if ((i >= INVEN_LIGHT) && (i < INVEN_BODY))
 		p = "using to light the way";
-	if ((i >= INVEN_BODY) && (i < INVEN_OUTER))
+	else if ((i >= INVEN_BODY) && (i < INVEN_OUTER))
 		p = "wearing on your body";
-	if ((i >= INVEN_OUTER) && (i < INVEN_ARM))
+	else if ((i >= INVEN_OUTER) && (i < INVEN_ARM))
 		p = "wearing on your back";
-	if ((i >= INVEN_ARM) && (i < INVEN_HEAD))
+	else if ((i >= INVEN_ARM) && (i < INVEN_HEAD))
 		p = "shielding yourself with";
-	if ((i >= INVEN_HEAD) && (i < INVEN_HANDS))
+	else if ((i >= INVEN_HEAD) && (i < INVEN_HANDS))
 		p = "wearing on your head";
-	if ((i >= INVEN_HANDS) && (i < INVEN_FEET))
+	else if ((i >= INVEN_HANDS) && (i < INVEN_FEET))
 		p = "wearing on your hands";
-	if ((i >= INVEN_FEET) && (i < INVEN_TOTAL))
+	else if ((i >= INVEN_FEET) && (i < INVEN_TOTAL))
 		p = "wearing on your feet";
 	else
-		p = sprintf("ERROR: slot number %d", i); 
+		sprintf(p, "ERROR: slot number %d", i); 
 
 		/* Return the result */
 	return p;

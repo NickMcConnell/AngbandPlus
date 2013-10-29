@@ -9568,6 +9568,7 @@ S:TELE_TO
 S:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_NETH
 S:BO_MANA
 S:S_DEMON | S_DRAGON | S_MONSTERS | S_UNDEAD
+Y:152
 D:A lord of the Teleri, E["o]l is a mighty metalsmith, the only one to ever
 D: forge weapons of meteorite iron.  The mortal enemy of the Eldar, he is
 D: currently fleeing their wrath, following the murder of Princess Aredhel of
@@ -9591,7 +9592,6 @@ F:FORCE_SLEEP
 S:1_IN_6
 S:S_ANIMAL | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
 S:S_WRAITH
-Y:152
 D:The son of E["o]l the Dark Elf, Maeglin is every bit as evil as his father and
 D: more.  His greed for gold led him to betray the Hidden Kingdom of Gondolin to
 D: Morgoth's forces.  He is a mighty warrior himself, and some of Morgoth's
@@ -10000,8 +10000,8 @@ N:617:Ice ogre
 G:O:w
 I:110:220:25:40:0
 W:22:1:0:200
-B:HIT:BATTER:1d5
-B:HIT:BATTER:1d5
+B:HIT:BATTER:1d11
+B:HIT:BATTER:1d11
 B:BITE:COLD:2d6
 F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR
 F:GIANT | EVIL | HURT_LIGHT | IM_COLD
@@ -10338,7 +10338,7 @@ D:A living chunk of the sky looms over you.  It has the shape of a huge
 D: dragon.  Its body is a dark cloud, its wings are strong winds,
 D: its tail is a lightning, and its eyes are bright stars.
 
-N:635:Water wapor
+N:635:Water vapor
 G:.:b
 I:120:1:12:25:50
 W:10:3:0:2
@@ -10517,7 +10517,7 @@ S:DRAIN_MANA | DARKNESS | BR_COLD | BA_COLD | BO_COLD | BO_ICEE
 D:An evil spirit covered with frost.  It can turn mortals' blood to ice
 D: with a mere look.
 
-N:643:Zephyr King
+N:643:The Zephyr King
 G:Z:v
 I:130:6000:30:100:0
 W:80:3:0:40000

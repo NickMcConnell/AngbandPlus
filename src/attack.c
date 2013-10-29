@@ -416,7 +416,7 @@ bool py_attack_real(int y, int x)
 					if (best_s_ptr->mult > mul)
 					{
 						p = best_s_ptr->melee_verb;
-						k *= best_s_ptr->mult;
+						mul = best_s_ptr->mult;
 						if (best_s_ptr->resist_flag == RF_IM_ACID)
 							type = GF_ACID;
 						else if (best_s_ptr->resist_flag == RF_IM_ELEC)
@@ -428,10 +428,9 @@ bool py_attack_real(int y, int x)
 						else if (best_s_ptr->resist_flag == RF_IM_POIS)
 							type = GF_POIS;
 					}
-					else
-						k *= mul;
 				}
 				
+				k *= mul;
 				message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.", p, m_name);
 				/* Add to-dam bonus only if did some damage */
 				if (k) k += p_ptr->state.to_d;
@@ -482,7 +481,7 @@ bool py_attack_real(int y, int x)
 				{
 					project(-1, 0, y, x, (k + 1)/2, type, flg);
 					/* Make the physical portion TOP SECRET -Simon */
-					flg &= !(PROJECT_AWARE);
+					flg &= ~(PROJECT_AWARE);
 					project(-1, 0, y, x, k/2, GF_ARROW, flg);
 				}
 				else

@@ -272,7 +272,7 @@ void show_equip(olist_detail_t mode)
 	for (i = INVEN_WIELD; i < ALL_INVEN_TOTAL; i++)
 	{
 		o_ptr = &p_ptr->inventory[i];
-		if (i < INVEN_TOTAL || o_ptr->k_idx) last_slot = i;
+		if (i < ALL_INVEN_TOTAL || o_ptr->k_idx) last_slot = i;
 	}
 
 	/* Build the object list */
@@ -288,7 +288,8 @@ void show_equip(olist_detail_t mode)
 			|| ((i >= INVEN_ARM) && (i < (INVEN_ARM + rp_ptr->shield_slots)))
 			|| ((i >= INVEN_HEAD) && (i < (INVEN_HEAD + rp_ptr->helm_slots)))
 			|| ((i >= INVEN_HANDS) && (i < (INVEN_HANDS + rp_ptr->glove_slots)))
-			|| ((i >= INVEN_FEET) && (i < (INVEN_FEET + rp_ptr->boot_slots))))
+			|| ((i >= INVEN_FEET) && (i < (INVEN_FEET + rp_ptr->boot_slots)))
+			|| ((i >= QUIVER_START) && (i < QUIVER_END) && (rp_ptr->range_slots > 0)))
 		{
 			o_ptr = &p_ptr->inventory[i];
 
