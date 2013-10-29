@@ -392,13 +392,13 @@ void do_cmd_wield(void)
 						object_known(o_ptr);
 					}
 					break;
-				case SV_RING_STUPIDITY:
+		/*		case SV_RING_STUPIDITY:   // (has been replaced)
 					if (k_info[135].aware)
 					{
 						object_aware(o_ptr);
 						object_known(o_ptr);
 					}
-					break;
+					break;   */
 				case SV_RING_STR:
 					if ((o_ptr->pval > 0) || (k_info[145].aware))
 					{

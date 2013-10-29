@@ -12,7 +12,7 @@
 #include "z-file.h"
 #include "cmds.h"
 #include "script.h"
-
+	 static int corruption = 0;
 
 #ifdef EFG
 /* EFGchange allow pseudo on jewelry */
@@ -86,10 +86,10 @@ int value_check_aux1(const object_type *o_ptr)
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
 	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_a > 2) return (INSCRIP_GOOD);
 
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 2) return (INSCRIP_GOOD);
 	
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
@@ -119,10 +119,10 @@ static int value_check_aux2(const object_type *o_ptr)
 	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_a > 2) return (INSCRIP_GOOD);
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 2) return (INSCRIP_GOOD);
 
 	/* No feeling */
 	return (0);
@@ -839,7 +839,107 @@ static void process_world(void)
 
 
 	/*** Damage over Time ***/
+	
+	/* DAJ: effects of silver poison */
+	if (p_ptr->silver > PY_SILVER_HEALTHY)
+	{
+        if ((p_ptr->silver >= PY_SILVER_LEVELONE) && (p_ptr->silver < PY_SILVER_LEVELTWO))
+        {
+           	int rare = randint(9999);
+      	    if (rare == 1)
+      	    {
+                     int die = randint(100);
+                     if (die < 56) msg_print("The silver poison affects your mind.");
 
+                     if (die < 20) (p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1);
+                     else if (die < 30) (p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1);
+                     else if (die < 34) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+                     else if (die < 45) (void)inc_timed(TMD_AMNESIA, rand_int(3) + 4);
+                     else if (die < 56) (void)inc_timed(TMD_IMAGE, rand_int(4) + 4);
+                     else take_hit(1, "silver poison");
+            }
+            
+        }
+        if ((p_ptr->silver >= PY_SILVER_LEVELTWO) && (p_ptr->silver < PY_SILVER_VERYBAD))
+        {
+           	int rare = randint(9999);
+      	    if (rare < 3)
+      	    {
+                     int die = randint(100);
+                     if (die < 90) msg_print("The silver poison affects your mind.");
+
+                     if (die < 30) (p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1);
+                     else if (die < 45) (p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1);
+                     else if (die < 49) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+                     else if (die < 54) (void)inc_timed(TMD_CONFUSED, rand_int(4) + 4);
+                     else if (die < 72) (void)inc_timed(TMD_AMNESIA, rand_int(6) + 4);
+                     else if (die < 90) (void)inc_timed(TMD_IMAGE, rand_int(6) + 4);
+                     else take_hit(3, "silver poison");
+            }
+            
+        }
+        if (p_ptr->silver >= PY_SILVER_VERYBAD)
+        {
+           p_ptr->stat_cur[A_WIS] = p_ptr->stat_cur[A_WIS] -1;
+           p_ptr->stat_cur[A_INT] = p_ptr->stat_cur[A_INT] -1;
+		   take_hit(212, "corruption from silver poison");
+			(void)inc_timed(TMD_CONFUSED, rand_int(4) + 3);
+            (void)inc_timed(TMD_AMNESIA, rand_int(6) + 6);
+		    (void)inc_timed(TMD_IMAGE, rand_int(6) + 4);
+        	  msg_print("Your mind is corrupted by silver poison!");
+        } 
+                       
+    }
+
+	/* DAJ: effects of slime */
+	if (p_ptr->slime > PY_SLIME_HEALTHY)
+	{
+        if ((p_ptr->slime >= PY_SLIME_LEVELONE) && (p_ptr->slime < PY_SLIME_LEVELTWO))
+        {
+           	int rare = randint(9999);
+      	    if (rare == 1)
+      	    {
+                     int die = randint(100);
+                     if (die < 55) msg_print("The slime oozes into your body.");
+
+                     if (die < 25) (p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1);
+                     else if (die < 35) (p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1);
+                     else if (die < 40) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+                     else if (die < 55) take_hit(1, "slime");
+                     else ;
+            }
+            
+        }
+        if ((p_ptr->slime >= PY_SLIME_LEVELTWO) && (p_ptr->slime < PY_SLIME_VERYBAD))
+        {
+           	int rare = randint(9999);
+      	    if (rare < 3)
+      	    {
+                     int die = randint(100);
+                     if (die < 96) msg_print("The slime oozes into your body.");
+
+                     if (die < 30) (p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1);
+                     else if (die < 45) (p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1);
+                     else if (die < 50) (p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1);
+                     else if (die < 70) (void)inc_timed(TMD_SLOW, rand_int(4) + 5);
+                     else if (die < 90) (void)inc_timed(TMD_STUN, rand_int(4) + 5);
+                     else if (die < 96) take_hit(2, "slime");
+            }
+            
+        }
+        if (p_ptr->slime >= PY_SLIME_VERYBAD)
+        {
+           p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON] -1;
+           p_ptr->stat_cur[A_DEX] = p_ptr->stat_cur[A_DEX] -1;
+           p_ptr->stat_cur[A_CHR] = p_ptr->stat_cur[A_CHR] -1;
+		   take_hit(284, "slime");
+			(void)inc_timed(TMD_SLOW, rand_int(4) + 6);
+		    (void)inc_timed(TMD_STUN, rand_int(4) + 6);
+        	  msg_print("Slime is taking over your body!");
+        } 
+                       
+    }
+    
 	/* Take damage from poison */
 	if (p_ptr->timed[TMD_POISONED])
 	{
@@ -1268,7 +1368,7 @@ static void process_player(void)
 			    !p_ptr->timed[TMD_POISONED] && !p_ptr->timed[TMD_AFRAID] &&
 			    !p_ptr->timed[TMD_STUN] && !p_ptr->timed[TMD_CUT] &&
 			    !p_ptr->timed[TMD_SLOW] && !p_ptr->timed[TMD_PARALYZED] &&
-			    !p_ptr->timed[TMD_IMAGE] && !p_ptr->word_recall)
+			    !p_ptr->timed[TMD_IMAGE] && !p_ptr->word_recall && !p_ptr->timed[TMD_CHARM])
 			{
 				disturb(0, 0);
 			}
@@ -2218,6 +2318,7 @@ void play_game(bool new_game)
 				(void)clear_timed(TMD_CONFUSED);
 				(void)clear_timed(TMD_POISONED);
 				(void)clear_timed(TMD_AFRAID);
+				(void)clear_timed(TMD_CHARM);
 				(void)clear_timed(TMD_PARALYZED);
 				(void)clear_timed(TMD_IMAGE);
 				(void)clear_timed(TMD_STUN);

@@ -1,9 +1,68 @@
 
 
-Thanks to:
-First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, Nick for the Phantom of Eilenel, CunningGabe for new names of a couple jellies, and anyone else who gives comments or suggestions or just plays my semi-variant.
 
--------------------------------------------------------------------------------------------
+Thanks to:
+First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Pav for hosting the files and maintaining a great *band website, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, Nick for the Phantom of Eilenel, CunningGabe for new names of a couple jellies, those on oook who gave coding/variant making advice, and anyone else who gives comments or suggestions or just plays DaJAngband.
+
+------------------------------------------------------------------------------------------
+	DaJAngband version 1.0.91 (pre 1.1.0)
+
+some changes are listed which are planned for 1.1.0 but are not implemented yet for 1.0.91.
+
+bugfixes since 1.0.90:
+	Class/race restrictions have been fixed to work with the new classes, and the artifact list has been fixed to match the changed weapons.
+
+.txt file changes:
+	class & races have been almost completely redone.
+	weapons have been partially redone. Weapon weight is now a large factor of cost, and range weapons are more expensive. (A long dagger (same as main gauche in V) costs more than a short sword because it is much easier to get more attacks with it). The weapon store no longer carries long bows (for a similar reason that lanterns were removed from the general store). Weapons like the mace and flail are no longer considered priestly weapons. Mostly the ones that are priesly weapons are the all wooden ones (walking staff, quarterstaff), and the whip and war hammer. The staff of striking is a new tough priestly weapon and the Mace of Disruption is blessed. Also, more than half the weapons now have description lines.
+	some major monster.txt changes
+	a few artifact replacements
+
+code changes:
+	There is now a total of 7 spell realms (at least there will be in 1.1.0, right now there's 4 realms.)
+	added: a monster attack type, a few monster attack effects, a few timed effects, slime and silver poison effects, a few monster range weapons including breathe fear (which replaces the scare spell in a lot of deeper monsters.
+	The edged weapon penalty for priests (who aren't implemented yet, but druids also have the penalty) is considerably milder, and may get even more milder after some testing due to there being much less priestly weapons.
+	probing now has a 1/3 chance to give you knowledge of monster spells (it never does in V).
+	weapons and armor with a total tohit/dam/ac bonus of less than 3 will pseudo as average (and be automaticaly identified like other average things). This change is mainly because of a couple weapons that have an innate to-hit bonus.
+	..other minor tweaks
+	
+some more specific notes:
+	suggested artifacts like The Axe of Gimli and the Dagger of Westeresse of Merry. (Axe of Gimli is just 'Lotharang' renamed and tweaked).
+	there are a couple new monsters that have melee effects that are helpful instead of harmful (all helpful monsters either appear only when summoned by the appropriate spell or are extremely rare, some also have an experience penalty if you kill them). (not implemented yet)
+	much less monsters are considered evil, for example: kobolds are not evil, mindless undead monsters are not evil (just being controlled by evil), not all thieves are evil, etc. (I don't remember whether I implemented this yet or not.)
+	Silver & Slime: <I'll add this description later, but they are implemented>
+	The Nature and Necromancy spell realms are largely borrowed from OAngband, but IMPORTANT: most of the borrowed spells don't have the exact same effect as they do in OAngband. check spell descriptions in the spellbook in game or in spell.txt. For one thing, there is no "sphere" effect like Oangband has.
+
+new description of classes & races:
+		primary classes:
+	warrior: The good old warrior with a few tweaks in skills. (Slightly better skills, one point less strength, no CHA penatly).
+	wizard: Mostly same as V mage but doesn't get all the attack spells and isn't quite so weak phisically. In exchange for having a higher hit die and being a slightly better fighter, he does not get the elemental brand spell or the BEAM flag (he doesn't get the beam from attack spells any more often than other classes do.) The War Mage (which isn't implemented yet) gets it instead.
+	rogue: Has less stealth and is a slightly better fighter than V rogue. (There will be a thief class later which will have the high stealth of the V rogue). Has spells in the Chance/Escape spell realm which was also made for the Tourist (which isn't implemented yet).
+	ranger: More like O Ranger than V Ranger because of Nature realm. He does not get extra shots, but does get elemental brand ammo. He is not as good with bows as V Ranger, but is still (slightly) better than the warrior.
+	archer: (not implemented yet) Doesn't get nearly as many spells as V Ranger, but does get extra shots and elemental brand ammo and some other spells in the alchemy realm (which isn't implemented yet).
+	paladin: Almost just like the Paladin Marshal from DaJAngband 1.0.03 which is not much different from the V Paladin.
+	necromancer: (not implemented yet) Has similar spells to the OAngband Necromancer, but no shapechanging spells (I might add them later if I can figure out how).
+		secondary classes:
+	alchemist: (not implemented yet)
+	priest: (not implemented yet)
+	healer: As the name implies, they specialize in healing prayers and starts out with the "Purifications & Healing" dungeon book. He has low strength, and his fighting is only barely better than the mage.  He can learn some prayers other than healing ones, but he's pretty bad at teleporation and has almost no combat prayers and is very bad at the couple he does get.  Two unique things about him is that (1)his gods let him choose which prayer to learn next, and (2)he uses his intelligence stat for prayers rather than using wisdom, which makes him more fitting for the elf and magic gnome races which are more likely to be healers than dwarves are.
+	druid: Being powerful in nature magic, a halfway-decent fighter, and having good skills, he needs some drawbacks, so he is both encumbered by gloves and penalized for edged weapons, and he advances at the same somewhat slow rate of the mage. Another unique thing about him is that he uses wisdom to cast spells.
+	tourist: (not implemented yet)
+		novelty classes:
+	escape artist: (not implemented yet)
+	chaos warrior: (not implemented yet)
+
+spell realms:
+	#1 Wizardry: mostly the same as mage spells in V with the two rogue spells removed, and wizard lock added.
+	#2 Prayers: similar to prayers in V, but changed a lot to focus on the paladin rather than the priest.  Has "sanctify for battle" and "holy lance" borrowed from OAngband.  Also has *Protection From Evil* which doesn't last as long but has decent chance of protecting from monsters of higher level than you.
+	#3 Nature: mostly borrowed from OAngband, but no shapechanges. (has one less spellbook than other realms) (call help spell is not implemented yet)
+	#4 Chance/Escape: kindof a hodgepodge including several spells with random effects (like wonder in V except different types). Included is a Tourism & Travel book for the Tourist, an escape book for the escape artist and rogue and a chaos book for the chaos warrior. There is also a Lottery book with random effect spells including an aquirement spell with nasty backfire effects even if it does succeed. (telekinesis and some tourist-only spells not implemented yet)
+	(last 3 realms not implemented yet)
+	#5 Black Magic: Largely borrowed from OAngband necromancy spells, except again no shapechanges.
+	#6 Alchemy: Another hodgepodge realm. Generally alchemy spells, but has two spellbooks mainly for the archer, and two mainly for the thief (The Quick Getaways book is almost the same in the Alchemy realm and in the Chance realm). 
+	#7 Mind Powers: Spells having to do with mind power, divination, & mind control.  Has the most overlap with Prayers and Nature spells.
+
+------------------------------------------------------------------------------------------
 	DaJAngband version 1.0.04
 
 	added the poison bolt monster spell (the spell flag was already there, but it had no effect before)
@@ -11,7 +70,8 @@ First to Andrew Sidwell and the previous mantainers for the great work on vanill
 	Heavy weapon penalty that was already in the game does not apply to the barbarian class. (haven't figured out yet how to actually give the barbarian bonuses for heavy weapons).
 	Restricted some class/race combos.  Did not restrict any of the original combos, only ones which included a new race and/or class.
 	..other minor tweaks
--------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------
 	DaJAngband version 1.0.03
 .txt file changes:
 	A bunch of mostly-very-minor monster tweaks.
@@ -26,7 +86,8 @@ code tweaks:
 	added a couple new types of monster nests which I won't give away.
 	fixed town messiness caused by me trying to add a new shop and failing.
 
--------------------------------------------------------------------------------------------	DaJAngband version 1.0.02 (includes Eddie Grove's patch)
+------------------------------------------------------------------------------------------
+	DaJAngband version 1.0.02 (includes Eddie Grove's patch)
 
 changes since original release:
 
@@ -54,12 +115,13 @@ major changes that come with Eddie Grove's patch:
 	* Notice obvious effects when wielding unidentified objects
 	* New pseudo level "Splendid" meaning obvious bonuses when wielded  (replaces special pseudo and partially replaces excellent)
 	* Allow pseudo on jewelry
--------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 	Notes about changes you might want to know about beforehand:
+	(some of the following is outdated as of 1.0.90)
 
 object.txt:
-	added three objects: 2 armors, and 1 weapon, nothing major. And the druid class starts out with the new weapon and one of the new armors.  Combined resistance rings into 3 instead of 6.  sustain brawn (STR&CON), sustain intellect (INT&WIS), and sustain sneakiness (DEX&CHA).
+	Combined resistance rings into 3 instead of 6.  sustain brawn (STR&CON), sustain intellect (INT&WIS), and sustain sneakiness (DEX&CHA).
 	Made late see invisible changes: temporary sources of see invisible are more common, see invisible rings are now native to Level 43, and other permanent forms of see invisible are rarer.
 
 ego_item.txt:
@@ -180,18 +242,17 @@ Other .txt files are unchanged except for nessesary changes in limits.txt, p_his
 
   At the bottom of this text file is more spoilery monster changes, so you might want to refrain from reading them.
 
--------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
    Future plans:
 
-- there shouldn't be such a thing as 'perffect save' without having the relevant resistance
-- make peaceful monsters with helpful meleee effects
-- make an attack that lowers your nurishmeent (for hungry ghost)
-- add rare potion of auto-brail- lets you  be able to read scrolls & cast spells when blind.
+- there shouldn't be such a thing as 'perfect save' without having the relevant resistance
+- make peaceful monsters with helpful melee effects
+- make an attack that lowers your nurishment (for hungry ghost)
+- add rare potion of auto-brail- lets you be able to read scrolls & cast spells when blind.
 - re-enable old character roller
 - update help files
 - hidden luck stat
-
--------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
 		Spoiler monster changes:	(might not want to read further)
 

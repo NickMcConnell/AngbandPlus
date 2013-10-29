@@ -336,6 +336,75 @@ static void prt_sp(int row, int col)
 	c_put_str(TERM_L_GREEN, max_sp, row, col + 8);
 }
 
+/*
+ * Prints player's silver poison level
+ */
+static void prt_sil(int row, int col)
+{
+	char cur_silver[32];
+	byte color;
+
+	/* Do not show silver poison unless it matters */
+	/* this doesn't seem to work -I can't see why, but it doesn't matter that much */
+	if (p_ptr->silver == PY_SILVER_HEALTHY) 
+    {
+	                  put_str("      ", row, col);
+                      c_put_str(TERM_L_GREEN, "     ", row, col + 8);
+                      return;
+    }
+
+	put_str("Silver", row, col);
+	
+	/* what is strnfmt? let's see if copying it will be good enough */
+	/* ..cool, it is */
+	strnfmt(cur_silver, sizeof(cur_silver), "%4d", p_ptr->silver);
+
+	if (p_ptr->silver >= PY_SILVER_VERYBAD)
+		color = TERM_VIOLET;
+	else if (p_ptr->silver >= PY_SILVER_LEVELTWO)
+		color = TERM_RED;
+	else if (p_ptr->silver >= PY_SILVER_LEVELONE)
+		color = TERM_YELLOW;
+	else
+		color = TERM_L_GREEN;
+
+	/* Show amount of silver poison */
+	c_put_str(color, cur_silver, row, col + 8);
+}
+
+/*
+ * Prints player's slime level
+ */
+static void prt_slime(int row, int col)
+{
+	char cur_slime[32];
+	byte color;
+
+	/* Do not show slime level unless it matters */
+	/* this doesn't seem to work -I can't see why, but it doesn't matter that much */
+	if (p_ptr->slime == PY_SLIME_HEALTHY)
+    {
+	                  put_str("      ", row, col);
+                      c_put_str(TERM_L_GREEN, "     ", row, col + 8);
+                      return;
+    }
+    
+	put_str("Slime", row, col);
+
+	/* what is strnfmt? let's see if copying it will be good enough */
+	/* ..cool, it is */
+	strnfmt(cur_slime, sizeof(cur_slime), "%4d", p_ptr->slime);
+
+	if (p_ptr->slime >= PY_SLIME_LEVELTWO)
+		color = TERM_RED;
+	else if (p_ptr->slime >= PY_SLIME_LEVELONE)
+		color = TERM_YELLOW;
+	else
+		color = TERM_L_GREEN;
+
+	/* Show amount of silver poison */
+	c_put_str(color, cur_slime, row, col + 8);
+}
 
 /*
  * Redraw the "monster health bar"
@@ -534,11 +603,11 @@ static const struct side_handler_t
 	{ prt_ac,         7, PR_ARMOR },
 	{ prt_hp,         8, PR_HP },
 	{ prt_sp,         9, PR_MANA },
-	{ NULL,          22, 0 },
-	{ prt_health,    12, PR_HEALTH },
-	{ NULL,          21, 0 },
+	{ prt_sil,       22, PR_SILVER },
+	{ prt_slime,     21, PR_SLIME },
 	{ prt_cut,       13, PR_CUT },
-	{ prt_stun,      16, PR_STUN }
+	{ prt_stun,      16, PR_STUN },
+	{ prt_health,    12, PR_HEALTH }
 };
 
 
@@ -668,6 +737,10 @@ static void prt_hunger(int row, int col)
  */
 static void prt_blind(int row, int col)
 {
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		c_put_str(TERM_YELLOW, "Brail", row, col);
+	}
 	if (p_ptr->timed[TMD_BLIND])
 	{
 		c_put_str(TERM_ORANGE, "Blind", row, col);
@@ -701,13 +774,21 @@ static void prt_confused(int row, int col)
 
 
 /*
- * Prints Fear status
+ * Prints Fear & Charm status
  */
 static void prt_afraid(int row, int col)
 {
 	if (p_ptr->timed[TMD_AFRAID])
 	{
 		c_put_str(TERM_ORANGE, "Afraid", row, col);
+	}
+	else if (p_ptr->timed[TMD_CHARM])
+	{
+		c_put_str(TERM_ORANGE, "Charmd", row, col);
+	}
+	else if (p_ptr->timed[TMD_FRENZY])
+	{
+		c_put_str(TERM_ORANGE, "FRENZY", row, col);
 	}
 	else
 	{
@@ -966,7 +1047,7 @@ static const struct status_handler_t
 	{ PR_HUNGER,    0, prt_hunger },   /* "Weak" / "Hungry" / "Full" / "Gorged" */
 	{ PR_BLIND,     7, prt_blind },    /* "Blind" */
 	{ PR_CONFUSED, 13, prt_confused }, /* "Confused" */
-	{ PR_AFRAID,   22, prt_afraid },   /* "Afraid" */
+	{ PR_AFRAID,   22, prt_afraid },   /* "Afraid" or "Charmd" (can't have both at once) */
 	{ PR_POISONED, 29, prt_poisoned }, /* "Poisoned" */
 	{ PR_STATE,    38, prt_state },    /* <state> */
 	{ PR_SPEED,    49, prt_speed },    /* "Slow (-NN)" or "Fast (+NN)" */
@@ -989,7 +1070,7 @@ static void display_statusline(void)
 	{
 		const struct status_handler_t *hnd = &status_handlers[i];
 
-		if (p_ptr->redraw & hnd->flag)
+		//if (p_ptr->redraw & hnd->flag)
 		{
 			p_ptr->redraw &= ~(hnd->flag);
 			hnd->hook(row, hnd->column);
@@ -1065,14 +1146,20 @@ static void fix_frame_compact(void)
 	/* Spellpoints */
 	prt_sp(row++, col);
 
-	/* Monster health */
-	prt_health(row++, col);
+    /* silver poison */
+    prt_sil(row++, col);
+
+    /* slime level */
+    prt_slime(row++, col);
 
 	/* Cut */
 	prt_cut(row++, col);
 
 	/* Stun */
 	prt_stun(row++, col);
+
+	/* Monster health */
+	prt_health(row++, col);
 }
 
 
@@ -1272,7 +1359,7 @@ static void calc_spells(void)
 
 	s16b old_spells;
 
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 
 	/* Hack -- must be literate */
@@ -1714,7 +1801,7 @@ static void calc_torch(void)
 			{
 				amt = 2 + flag_inc;
 
-				/* Torches below half fuel provide less light */
+				/* Torches below 1500 fuel provide less light */
 				if (o_ptr->sval == SV_LITE_TORCH && o_ptr->timeout < (FUEL_TORCH / 4))
 				    amt--;
 			}
@@ -1722,7 +1809,7 @@ static void calc_torch(void)
 
 		else
 		{
-			/* LITE flag on an non-cursed non-lights always increases radius */
+			/* LITE flag on a non-cursed non-light always increases radius */
 			if (f3 & TR3_LITE) extra_lite++;
 		}
 
@@ -1733,6 +1820,9 @@ static void calc_torch(void)
 
 	/* Add bonus from LITE flags */
 	new_lite += extra_lite;
+	
+	/* Add bonus for True sight */
+	if (p_ptr->timed[TMD_TSIGHT]) new_lite++;
 
 	/* Limit light */
 	new_lite = MIN(new_lite, 5);
@@ -1892,6 +1982,8 @@ static void calc_bonuses(void)
 	p_ptr->resist_cold = FALSE;
 	p_ptr->resist_pois = FALSE;
 	p_ptr->resist_fear = FALSE;
+	p_ptr->resist_charm = FALSE;
+	p_ptr->resist_frenzy = FALSE;
 	p_ptr->resist_lite = FALSE;
 	p_ptr->resist_dark = FALSE;
 	p_ptr->resist_blind = FALSE;
@@ -1980,6 +2072,7 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
 	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f2 & (TR2_RES_CHARM)) p_ptr->resist_charm = TRUE;
 	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
 	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
@@ -2080,6 +2173,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
 		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+		if (f2 & (TR2_RES_CHARM)) p_ptr->resist_charm = TRUE;
 		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
 		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
@@ -2202,6 +2296,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 5;
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
+        p_ptr->resist_frenzy = TRUE;
 	}
 
 	/* Temporary shield */
@@ -2209,6 +2304,13 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
+	}
+
+	/* Temporary shield */
+	if (p_ptr->timed[TMD_WSHIELD])
+	{
+		p_ptr->to_a += 20;
+		p_ptr->dis_to_a += 20;
 	}
 
 	/* Temporary "Hero" */
@@ -2227,6 +2329,27 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a -= 10;
 	}
 
+	/* Temporary "Slip into the Shadows" (extra stealth) */
+	if (p_ptr->timed[TMD_SHADOW])
+	{
+       p_ptr->skills[SKILL_STL] = (p_ptr->skills[SKILL_STL] * 2);
+	   p_ptr->see_infra += 2;
+	   p_ptr->to_a += 2;
+	   p_ptr->dis_to_a += 2;
+	}
+
+	/* Temporary "Frenzy" */
+	if (p_ptr->timed[TMD_FRENZY])
+	{
+		p_ptr->to_d += 5;
+		p_ptr->dis_to_d += 5;
+		p_ptr->to_h -= 6;
+		p_ptr->dis_to_h -= 6;
+		p_ptr->to_a -= 12;
+		p_ptr->dis_to_a -= 12;
+        p_ptr->skills[SKILL_SAV] = p_ptr->skills[SKILL_SAV] - 4;
+    }
+
 	/* Temporary "fast" */
 	if (p_ptr->timed[TMD_FAST])
 	{
@@ -2239,10 +2362,41 @@ static void calc_bonuses(void)
 		p_ptr->pspeed -= 10;
 	}
 
+	/* Temporary speed adjustment (not always positive) */
+	if (p_ptr->timed[TMD_ADJUST])
+	{
+		p_ptr->pspeed += adjust;
+	}
+
 	/* Temporary see invisible */
 	if (p_ptr->timed[TMD_SINVIS])
 	{
 		p_ptr->see_inv = TRUE;
+	}
+
+	/* Timed "True Sight" */
+	/* also makes you resist halucenation and slightly lowers chaos dmg */
+	if (p_ptr->timed[TMD_TSIGHT])
+	{
+		p_ptr->see_inv = TRUE;
+        p_ptr->resist_blind = TRUE;
+		p_ptr->to_h += 1;
+		p_ptr->dis_to_h += 1;
+	}
+	
+	/* timed "sanctify for battle " */
+	/* gives slay demon and slay evil (also slay undead in normal DJA) */
+	if (p_ptr->timed[TMD_SANCTIFY])
+	{
+        p_ptr->resist_fear = TRUE;
+        p_ptr->resist_charm = TRUE;
+        p_ptr->resist_frenzy = TRUE;
+	}
+	
+	/* timed telepathy */
+	if (p_ptr->timed[TMD_ESP])
+	{
+        p_ptr->telepathy = TRUE;
 	}
 
 	/* Temporary infravision boost */
@@ -2258,6 +2412,12 @@ static void calc_bonuses(void)
 	if (p_ptr->timed[TMD_HERO] || p_ptr->timed[TMD_SHERO])
 	{
 		p_ptr->resist_fear = TRUE;
+	}
+	
+	/* Hack -- Berserk -> Res charm */
+	if (p_ptr->timed[TMD_SHERO])
+	{
+		p_ptr->resist_charm = TRUE;
 	}
 
 
@@ -2364,17 +2524,20 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
-	if (hold < o_ptr->weight / 10)
-	{
-		/* Hard to wield a heavy bow */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+    
+    if (!CF_HEAVY_BONUS)
+    {
+    	/* It is hard to carholdry a heavy bow */
+	    if (hold < o_ptr->weight / 10)
+	    {
+		   /* Hard to wield a heavy bow */
+		   p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
+		   p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
 
-		/* Heavy Bow */
-		p_ptr->heavy_shoot = TRUE;
-	}
-
+		   /* Heavy Bow */
+		   p_ptr->heavy_shoot = TRUE;
+	    }
+    }
 	/* Analyze launcher */
 	if (o_ptr->k_idx)
 	{
@@ -2391,12 +2554,33 @@ static void calc_bonuses(void)
 				p_ptr->ammo_mult = 2;
 				break;
 			}
+			
+			case SV_SLINGSHOT:
+			{
+				p_ptr->ammo_tval = TV_SHOT;
+				p_ptr->ammo_mult = 1;
+				break;
+			}
+			
+			case SV_HANDHELDC:
+			{
+				p_ptr->ammo_tval = TV_SHOT;
+				p_ptr->ammo_mult = 3;
+				break;
+			}
 
 			/* Short Bow and Arrow */
 			case SV_SHORT_BOW:
 			{
 				p_ptr->ammo_tval = TV_ARROW;
 				p_ptr->ammo_mult = 2;
+				break;
+			}
+			
+			case SV_SMALL_BOW:
+			{
+				p_ptr->ammo_tval = TV_ARROW;
+				p_ptr->ammo_mult = 1;
 				break;
 			}
 
@@ -2407,12 +2591,26 @@ static void calc_bonuses(void)
 				p_ptr->ammo_mult = 3;
 				break;
 			}
+			
+			case SV_GREAT_BOW:
+			{
+				p_ptr->ammo_tval = TV_ARROW;
+				p_ptr->ammo_mult = 4;
+				break;
+			}
 
 			/* Light Crossbow and Bolt */
 			case SV_LIGHT_XBOW:
 			{
 				p_ptr->ammo_tval = TV_BOLT;
 				p_ptr->ammo_mult = 3;
+				break;
+			}
+			
+			case SV_MINI_XBOW:
+			{
+				p_ptr->ammo_tval = TV_BOLT;
+				p_ptr->ammo_mult = 2;
 				break;
 			}
 
@@ -2835,7 +3033,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC | PR_TITLE | PR_LEV | PR_EXP |
 	                     PR_STATS | PR_ARMOR | PR_HP | PR_MANA |
 	                     PR_GOLD | PR_HEALTH | PR_EQUIPPY | PR_CUT |
-	                     PR_STUN))
+	                     PR_STUN | PR_SILVER | PR_SLIME))
 	{
 		p_ptr->window |= PW_PLAYER_2;
 	}

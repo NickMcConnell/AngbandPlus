@@ -1,0 +1,475 @@
+# File: p_class.txt
+
+
+# This file is used to initialize the "lib/data/p_class.raw" file, which is
+# used to initialize the "player class" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/p_class.raw" file.
+
+# === Understanding p_class.txt ===
+
+# Format:
+# N:class number:class name
+# S:str:int:wis:dex:con:chr
+# C:dis:dev:sav:stl:srh:fos:thn:thb
+# X:dis:dev:sav:stl:srh:fos:thn:thb
+# I:mhp:exp:sense_base:sense_div
+# A:max_attacks:min_weight:att_multiply
+# M:spellbook tval:spell-stat:first-level:max weight
+# B:spell number:level:mana:fail:exp
+# T:title
+# E:tval:sval:min:max
+# F:class flags
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new class.
+
+# 'S' is for the stat modifiers - strength, intelligence, wisdom,
+# dexterity, constitution, charisma.
+
+# 'C' is for the base skills - disarming, magic devices, saving throws,
+# stealth, searching ability, searching frequency, to hit (normal),
+# to hit (bows).
+
+# 'X' is for the skill modifiers - disarming, magic devices, saving
+# throws, stealth, searching ability, searching frequency, to hit
+# (normal), to hit (bows).  The modifiers are added to the base skill
+# every ten levels.
+
+# 'I' is for extra info - max. hitpoints gained per level, experience
+# factor in percent, base chance for pseudo-id (smaller is better),
+# level dependent divisor for the pseudo-id chance.
+
+# 'A' is for attack info - maximum possible number of attacks, minimum
+# weapon weight for calculating the number of attacks, multiplier for
+# attack calculations.
+
+# 'M' is for magic info - tval of the used spellbook, number of the
+# spell-stat, level of the first spell, weight that hurts spells.
+
+# 'B' is for spell/prayer info - number of the spell, level, mana
+# required, fail-rate, experience for first casting.
+
+# 'T' is for class titles.
+
+# 'E' is for starting equipment - tval of the item, sval of the item,
+# minimum amount, maximum amount.  You can't have more than 4 lines for E:
+
+# 'F' is for class flags.
+
+---------------------------------------------------------------------------
+
+# File: p_race.txt
+
+
+# This file is used to initialize the "lib/data/p_race.raw" file, which is
+# used to initialize the "player race" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/p_race.raw" file.
+# === Understanding p_race.txt ===
+
+# Format:
+# N:race number:race name
+# S:str:int:wis:dex:con:chr
+# R:dis:dev:sav:stl:srh:fos:thn:thb
+# X:hitdie:expbase:infra
+# I:history:agebase:agemod
+# H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
+# W:wgtmale:modwgtmale:wgtfemale:modwgtfemale
+# F:racial flags
+# C:classes (numeric)
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new race.
+
+# 'S' is for the stat modifiers - strength, intelligence, wisdom,
+# dexterity, constitution, charisma.
+
+# 'R' is for the base skills - disarming, magic devices, saving throws,
+# stealth, searching ability, searching frequency, to hit (melee),
+# to hit (bows).
+
+# 'X' is for extra info - max. hitpoints gained per level, experience
+# factor in percent, range of infravision in 10 feets.
+
+# 'I' is for info - starting point of the player history, base age,
+# random age modifier.
+
+# 'H' is height info - base height (males), mod height (males),
+# base height (females), mod height (females).
+
+# 'W' is weight info - base weight (males), mod weight (males),
+# base weight (females), mod weight (females).
+
+# 'F' is for racial flags.
+
+possible for race flags:  (?)
+  resists & stuff:
+FEATHER
+SLOW_DIGEST
+REGEN
+FREE_ACT 
+SEE_INVIS
+TELEPATHY
+RES_FEAR 
+RES_LITE | RES_DARK | RES_BLIND
+RES_FIRE | RES_COLD | RES_ELEC | RES_ACID
+RES_POIS 
+RES_CONFU | RES_SOUND | RES_NEXUS | RES_SHARD
+RES_CHAOS | RES_NETHR | RES_DISEN 
+IM_FIRE | IM_COLD | IM_ELEC | IM_ACID 
+HOLD_LIFE
+SUST_STR | SUST_CON | SUST_DEX | SUST_INT | SUST_WIS | SUST_CHR
+
+----------------------------------------------------------------------------
+# File: p_hist.txt
+
+>Can someone tell me the format of the p_hist.txt file? I know that it starts 
+>with the index and the next entry, but what are the last two numbers in the 
+>N: row? 
+
+The third value is the probability and the fourth value is the modifier 
+to social status (plus 50, for easy encoding of negative modifiers). 
+As an example, let's look at the first two chart entries for elves. The 
+first entry is number 5: 
+N:5:6:60:50 
+D:You are one of several children 
+N:5:6:100:55 
+D:You are the only child 
+A random number between 1 and 100 is generated. If it's 60 or less, then 
+"You are one of several children", and the social class is unchanged, 
+since (50 - 50) = 0. If the number was from 61 to 100, then "You are the 
+only child" and your social class increases by 5 points (55 - 50). 
+Next entry, in both cases (yes, you could use different branches, though 
+thiss facility is unused in the current h_info.txt), is entry 6: 
+N:6:9:40:40 
+D:of an Avarin 
+N:6:9:70:50 
+D:of a Nandorin 
+N:6:9:100:60 
+D:of a Sindarin 
+Again, a random number from 1 to 100 is chosen. If it's up to 40, you 
+are "of an Avarin" and lose 10 points social status (40 - 50 = -10); 41 
+through 70 makes you "of a Nandorin" and leaves social status unchanged 
+and 71 or more makes you "of a Sindarin" and social status increases by 
+10 points. 
+
+----------------------------------------------------------------------------
+
+
+
+	knight prayers:  (1st spell- 5)
+    A warrior with a few prayers and high charisma.  He learns prayers very slowly, except for a few specialty prayers which include turn undead, remove curse, and elemental brand for his weapon. He tends to have lower skills than a warrior, so I think he'll be a rather hard class to play.
+L5 bless
+L6 slow poison
+L8 scare monster
+L9 remove fear
+L10 detect evil
+L12 resist heat & cold
+L13 unbarring ways
+L15 turn undead
+L16 remove curse
+L18 cure poison
+L21 protection from evil
+L23 cure mortal wounds 1
+L25 detect monsters
+L25 sense surroundings
+L26 cure mortal wounds 2
+L27 prayer
+L27 portal
+L29 sense invivible
+L30 dispel undead (*3)
+L30 perception
+L32 detection
+L32 probing
+L33 earthquake
+L34 dispel evil (*3)
+L35 dispel curse
+L35 dispel undead (*4)
+L36 clairvoyance
+L38 enchant weapon
+L39 enchant armor
+L40 elemental brand
+L41 dispel evil (*4)
+L42 rememberance
+L44 restoration
+L45 annihilation
+L48 glyph of warding
+L49 holy word
+
+	Alchemist Spells:
+    A mage who learns spells with a lot of trial and error.  Because of this he cannot chose which spells he learns, has higher fail rates, and generally learns spells slower than other spellcasters.  To make up for this, his specialty spells include some powerful early spells including stinking cloud, and his spellcasting is not hindered by gloves. (An alchemist needs his gloves!)  His skills tend to be lower than the mage, but he has noticably more strength than the mage and also is a halfway decent fighter (unlike the mage).
+L1 stinking cloud
+L2 cure light wounds
+L3 light area
+L3 cure poison
+L4 confuse monster
+L5 phase door
+L5 resist fire
+L6 magic missile
+L6 detect traps & doors
+L6 resist cold
+L7 sleep monster
+L8 detect monsters
+L9 trap/door destruction
+L10 wonder
+L10 spear of light
+L11 detect treasure
+L12 lightning bolt
+L12 satisfy hunger
+L13 stone to mud
+L13 resist poison
+L14 lesser recharging
+L15 identify
+L16 detect objects
+L16 detect invisible
+L16 frost bolt
+L19 fire bolt
+L19 teleport self
+L21 slow monster
+L22 heroism
+L23 acid bolt
+L24 door creation
+L25 resistance
+L26 polymorph other
+L26 mass sleep
+L27 haste self
+L27 frost ball
+L28 explosion
+L29 detect enchantment
+L29 cloudkill
+L30 berserker
+L30 shield
+L30 fire ball
+L31 bedlam
+L31 acid ball
+L32 enchant armor
+L33 teleport other
+L34 earthquake
+L34 word of recall
+L34 greater recharging
+L35 stair creation
+L35 enchant weapon
+L36 shock wave
+L37 ice storm
+L38 rune of protection
+L39 teleport level
+L39 word of destruction
+L40 elemental brand (ammo)
+L41 rend soul
+L42 chaos strike
+L43 rift
+L44 mass banishment
+L46 mana storm
+L47 meteor swarm
+
+	Archer spells:
+     A very hard class to play because archery is his only strength.  He's a decent melee fighter but not as good as the paladin or ranger, not to mention the warrior.  Starting at level 32, he learns a few spells (8 in total) with include shield and, of course, elemental brand for his ammo. At very high levels he does have two powerful attack spells.  One other strength is that he advances in level faster than any but the warrior.
+L32 heroism
+L34 resist cold
+L34 resist fire
+L40 shield
+L43 explosion
+L44 enchant armor
+L45 elemental brand (ammo)
+L49 meteor swarm
+
+	Healer prayers:
+     Another hard class to play, the healer specializes in healing prayers and starts out with the deep dungeon spellbook which specializes in healing. He has low strength, and his fighting is only barely better than the mage.  He can learn prayers other than healing ones on later levels, but no orb of draining and he's very bad at teleporting spells.  Two unique things about him is that (1)his gods let him choose which prayer to learn next, and (2)he uses his intelligence stat for prayers rather than using wisdom, which makes him more fitting for the elf and gnome races which are more likely to be healers than dwarves are.
+L1 cure light wounds
+L2 cure serious wounds 1
+L2 cure serious wounds 2
+L3 bless
+L3 slow poison
+L5 sanctuary
+L7 call light
+L8 cure critcal wounds
+L9 remove fear
+L10 cure poison
+L11 chant
+L11 satisfy hunger
+L12 cure mortal wounds 1
+L12 cure mortal wounds 2
+L13 scare monster
+L14 resist heat and cold
+L15 detect evil
+L15 blink
+L17 remove curse
+L18 portal
+L19 protection from evil
+L20 heal<
+L21 sense invisible
+L22 unbarring ways
+L24 sense surroundings
+L25 detect monsters
+L26 probing
+L26 healing
+L27 turn undead
+L29 recharging
+L30 prayer
+L30 teleport self
+L33 detection
+L34 glyph of warding
+L35 restoration
+L36 dispel curse
+L37 teleport other
+L38 dispel undead 1
+L39 perception
+L40 remembrance
+L40 banish evil
+L41 dispel undead 2
+L42 dispel evil 1
+L44 clairvoyance
+L46 alter reality
+L48 dispel evil 2
+
+	Druid Spells
+     A priest of nature. Though you can call him a priest, it would seem silly to pray to nature, so he casts spells instead and is almost as good at it as the mage.  He is the only one besides the mage who can cast spells at 0% fail. Being powerful in magic, a halfway-decent fighter, and having good skills, he needs some drawbacks, so he is both encumbered by gloves and penalized for edged weapons, and he advances at the same somewhat slow rate of the mage.  He starts with unique armor (good) and a unique weapon (mediocure), and a mushroom (because he knows his mushrooms).  Another unique thing about him is that he uses wisdom to cast spells.
+L1 cure light wounds
+L1 light area
+L2 magic missile
+L2 detect monsters
+L2 phase door
+L2 resist cold
+L3 resist fire
+L3 find hidden traps/doors
+L4 cure poison
+L4 stinking cloud
+L4 confuse monster
+L5 lightning bolt
+L6 detect invisible
+L6 trap/door detruction
+L6 sleep monster
+L6 frost bolt
+L7 spear of light
+L8 stone to mud
+L9 teleport self
+L10 wonder
+L10 satifsy hunger
+L10 fire bolt
+L12 slow monster
+L13 identify
+L14 polymorph other
+L16 earthquake
+L18 door creation
+L18 lesser recharging
+L19 acid bolt
+L19 frost ball
+L21 resist poison
+L22 mass sleep
+L23 haste self
+L23 cloudkill
+L25 teleport other
+L25 heroism
+L26 fire ball
+L27 resistance
+L28 shield
+L29 acid ball
+L30 detect enchantment
+L31 ice storm
+L31 teleport level
+L32 word of recall
+L32 bedlam
+L33 banishment
+L33 enchant armor
+L34 rend soul
+L34 rune of protection
+L35 word of destruction
+L36 elemental brand
+L37 meteor swarm
+L38 rift
+L39 enchant weapon
+L40 mass banishment
+L44 mana storm
+
+Tourist
+starts with ?Magic Mapping
+L2 detect treasure
+L4 detect objects
+L4 cure light wounds
+L5 confuse monster
+L7 light
+L9 find traps/doors
+L9 wonder
+L10 sleep monster
+L11 phase door
+L12 detect monsters
+ others:
+trap/door destruction
+stinking cloud
+door creation
+stair creation
+cure poison
+satisfy hunger
+identify
+detect enchantment
+ late:
+spear of light
+haste
+bedlam
+earthquake
+polymorph
+explosion
+cloudkill
+mass sleep
+word of destruction (vlate)
+recharging
+elemental brand (vlate)
+ much later than other classes:
+cold bolt
+teleport spells (not tele level)
+heroism
+berserker
+resist spells (not resistance)
+chaos strike (vlate)
+mass banishment (vlate)
+
+Dark Knight
+bad at missile weapons
+ spells:
+magic missile
+phase door
+cure light wounds
+all attack spells except spear of light
+ earlier than other classes
+rend soul
+berserker
+ later than other classes:
+light
+detection spells
+heroism
+stair creation
+resistance spells
+ does not get:
+identify
+spear of light
+detect objects & treasure
+rune of protection
+shield
+(should be more that he doesn't get)
+
+Archer Mage
+ spells:
+magic missile
+phase door
+light
+ earlier than other classes:
+slow monster
+ later than other classes:
+detection spells (no detect treasure or objects or enchantment)
+sleep monster
+identify (if at all)
+ does not get:
+berserker
+rend soul
+teleport level
+polymorph
+nothing from escape spellbook
+banishment or mass banishment
+mana storm
+most other spells
+

@@ -3375,12 +3375,22 @@ void map_area(void)
 {
 	int i, x, y, y1, y2, x1, x2;
 
-
+    if (spellswitch == 1)
+    {
+	/* map the whole level (without light & detection) */
+	y1 = Term->offset_y - 1000;
+	y2 = Term->offset_y + 1000;
+	x1 = Term->offset_x - 1000;
+	x2 = Term->offset_x + 1000;
+    }
+    else
+    {
 	/* Pick an area to map */
 	y1 = Term->offset_y - randint(10);
 	y2 = Term->offset_y + SCREEN_HGT + randint(10);
 	x1 = Term->offset_x - randint(20);
 	x2 = Term->offset_x + SCREEN_WID + randint(20);
+    }
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;

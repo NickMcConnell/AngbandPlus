@@ -1,66 +1,30 @@
-# Project: DaJAngbande
+# Project: DaJAngband 1.1.0
 # Makefile created by Dev-C++ 4.9.9.2
 
 CPP  = g++.exe -D__DEBUG__
 CC   = gcc.exe -D__DEBUG__
 WINDRES = windres.exe
-RES  = DaJAngbande_private.res
-OBJ  = win/readdib.o cave.o cmd0.o cmd1.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-type.o z-util.o z-virt.o object2.o z-rand.o main-crb.o main-gcu.o obj-info.o pathfind.o ui.o z-term.o randart.o birth.o cmd2.o tables.o $(RES)
-LINKOBJ  = win/readdib.o cave.o cmd0.o cmd1.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-type.o z-util.o z-virt.o object2.o z-rand.o main-crb.o main-gcu.o obj-info.o pathfind.o ui.o z-term.o randart.o birth.o cmd2.o tables.o $(RES)
+RES  = AltDaJAngband_private.res
+OBJ  = init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o dungeon.o files.o generate.o init1.o birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o win/readdib.o $(RES)
+LINKOBJ  = init2.o load.o maid-x11.o main.o main-crb.o main-gcu.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o pathfind.o randart.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o tables.o ui.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-rand.o z-term.o z-type.o z-util.o z-virt.o dungeon.o files.o generate.o init1.o birth.o cave.o cmd0.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o win/readdib.o $(RES)
 LIBS =  -L"C:/PROGRAMS/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows  -g3 
 INCS =  -I"C:/PROGRAMS/Dev-Cpp/include" 
 CXXINCS =  -I"C:/PROGRAMS/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2"  -I"C:/PROGRAMS/Dev-Cpp/include" 
-BIN  = ../DaJAngbande3.exe
+BIN  = ../DaJAngband.exe
 CXXFLAGS = $(CXXINCS)   -g3
 CFLAGS = $(INCS) -mwindows -DWINDOWS   -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before ../DaJAngbande3.exe all-after
+all: all-before ../DaJAngband.exe all-after
 
 
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o "..\DaJAngbande3.exe" $(LIBS)
-
-win/readdib.o: win/readdib.c
-	$(CC) -c win/readdib.c -o win/readdib.o $(CFLAGS)
-
-cave.o: cave.c
-	$(CC) -c cave.c -o cave.o $(CFLAGS)
-
-cmd0.o: cmd0.c
-	$(CC) -c cmd0.c -o cmd0.o $(CFLAGS)
-
-cmd1.o: cmd1.c
-	$(CC) -c cmd1.c -o cmd1.o $(CFLAGS)
-
-cmd3.o: cmd3.c
-	$(CC) -c cmd3.c -o cmd3.o $(CFLAGS)
-
-cmd4.o: cmd4.c
-	$(CC) -c cmd4.c -o cmd4.o $(CFLAGS)
-
-cmd5.o: cmd5.c
-	$(CC) -c cmd5.c -o cmd5.o $(CFLAGS)
-
-cmd6.o: cmd6.c
-	$(CC) -c cmd6.c -o cmd6.o $(CFLAGS)
-
-dungeon.o: dungeon.c
-	$(CC) -c dungeon.c -o dungeon.o $(CFLAGS)
-
-files.o: files.c
-	$(CC) -c files.c -o files.o $(CFLAGS)
-
-generate.o: generate.c
-	$(CC) -c generate.c -o generate.o $(CFLAGS)
-
-init1.o: init1.c
-	$(CC) -c init1.c -o init1.o $(CFLAGS)
+	$(CC) $(LINKOBJ) -o "..\DaJAngband.exe" $(LIBS)
 
 init2.o: init2.c
 	$(CC) -c init2.c -o init2.o $(CFLAGS)
@@ -73,6 +37,12 @@ maid-x11.o: maid-x11.c
 
 main.o: main.c
 	$(CC) -c main.c -o main.o $(CFLAGS)
+
+main-crb.o: main-crb.c
+	$(CC) -c main-crb.c -o main-crb.o $(CFLAGS)
+
+main-gcu.o: main-gcu.c
+	$(CC) -c main-gcu.c -o main-gcu.o $(CFLAGS)
 
 main-gtk.o: main-gtk.c
 	$(CC) -c main-gtk.c -o main-gtk.o $(CFLAGS)
@@ -110,6 +80,18 @@ monster2.o: monster2.c
 object1.o: object1.c
 	$(CC) -c object1.c -o object1.o $(CFLAGS)
 
+object2.o: object2.c
+	$(CC) -c object2.c -o object2.o $(CFLAGS)
+
+obj-info.o: obj-info.c
+	$(CC) -c obj-info.c -o obj-info.o $(CFLAGS)
+
+pathfind.o: pathfind.c
+	$(CC) -c pathfind.c -o pathfind.o $(CFLAGS)
+
+randart.o: randart.c
+	$(CC) -c randart.c -o randart.o $(CFLAGS)
+
 randname.o: randname.c
 	$(CC) -c randname.c -o randname.o $(CFLAGS)
 
@@ -133,6 +115,12 @@ squelch.o: squelch.c
 
 store.o: store.c
 	$(CC) -c store.c -o store.o $(CFLAGS)
+
+tables.o: tables.c
+	$(CC) -c tables.c -o tables.o $(CFLAGS)
+
+ui.o: ui.c
+	$(CC) -c ui.c -o ui.o $(CFLAGS)
 
 use-obj.o: use-obj.c
 	$(CC) -c use-obj.c -o use-obj.o $(CFLAGS)
@@ -164,6 +152,12 @@ z-file.o: z-file.c
 z-form.o: z-form.c
 	$(CC) -c z-form.c -o z-form.o $(CFLAGS)
 
+z-rand.o: z-rand.c
+	$(CC) -c z-rand.c -o z-rand.o $(CFLAGS)
+
+z-term.o: z-term.c
+	$(CC) -c z-term.c -o z-term.o $(CFLAGS)
+
 z-type.o: z-type.c
 	$(CC) -c z-type.c -o z-type.o $(CFLAGS)
 
@@ -173,41 +167,47 @@ z-util.o: z-util.c
 z-virt.o: z-virt.c
 	$(CC) -c z-virt.c -o z-virt.o $(CFLAGS)
 
-object2.o: object2.c
-	$(CC) -c object2.c -o object2.o $(CFLAGS)
+dungeon.o: dungeon.c
+	$(CC) -c dungeon.c -o dungeon.o $(CFLAGS)
 
-z-rand.o: z-rand.c
-	$(CC) -c z-rand.c -o z-rand.o $(CFLAGS)
+files.o: files.c
+	$(CC) -c files.c -o files.o $(CFLAGS)
 
-main-crb.o: main-crb.c
-	$(CC) -c main-crb.c -o main-crb.o $(CFLAGS)
+generate.o: generate.c
+	$(CC) -c generate.c -o generate.o $(CFLAGS)
 
-main-gcu.o: main-gcu.c
-	$(CC) -c main-gcu.c -o main-gcu.o $(CFLAGS)
-
-obj-info.o: obj-info.c
-	$(CC) -c obj-info.c -o obj-info.o $(CFLAGS)
-
-pathfind.o: pathfind.c
-	$(CC) -c pathfind.c -o pathfind.o $(CFLAGS)
-
-ui.o: ui.c
-	$(CC) -c ui.c -o ui.o $(CFLAGS)
-
-z-term.o: z-term.c
-	$(CC) -c z-term.c -o z-term.o $(CFLAGS)
-
-randart.o: randart.c
-	$(CC) -c randart.c -o randart.o $(CFLAGS)
+init1.o: init1.c
+	$(CC) -c init1.c -o init1.o $(CFLAGS)
 
 birth.o: birth.c
 	$(CC) -c birth.c -o birth.o $(CFLAGS)
 
+cave.o: cave.c
+	$(CC) -c cave.c -o cave.o $(CFLAGS)
+
+cmd0.o: cmd0.c
+	$(CC) -c cmd0.c -o cmd0.o $(CFLAGS)
+
+cmd1.o: cmd1.c
+	$(CC) -c cmd1.c -o cmd1.o $(CFLAGS)
+
 cmd2.o: cmd2.c
 	$(CC) -c cmd2.c -o cmd2.o $(CFLAGS)
 
-tables.o: tables.c
-	$(CC) -c tables.c -o tables.o $(CFLAGS)
+cmd3.o: cmd3.c
+	$(CC) -c cmd3.c -o cmd3.o $(CFLAGS)
 
-DaJAngbande_private.res: DaJAngbande_private.rc 
-	$(WINDRES) -i DaJAngbande_private.rc --input-format=rc -o DaJAngbande_private.res -O coff 
+cmd4.o: cmd4.c
+	$(CC) -c cmd4.c -o cmd4.o $(CFLAGS)
+
+cmd5.o: cmd5.c
+	$(CC) -c cmd5.c -o cmd5.o $(CFLAGS)
+
+cmd6.o: cmd6.c
+	$(CC) -c cmd6.c -o cmd6.o $(CFLAGS)
+
+win/readdib.o: win/readdib.c
+	$(CC) -c win/readdib.c -o win/readdib.o $(CFLAGS)
+
+AltDaJAngband_private.res: AltDaJAngband_private.rc 
+	$(WINDRES) -i AltDaJAngband_private.rc --input-format=rc -o AltDaJAngband_private.res -O coff 

@@ -973,6 +973,22 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
+		/* New school */
+		case TV_NEWM_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Nature Magic #";
+			break;
+		}
+
+		/* Chance realm */
+		case TV_LUCK_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Chance Magic #";
+			break;
+		}
+
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{

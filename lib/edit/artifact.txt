@@ -475,6 +475,7 @@ D:Contained within this studded cuirass of pliable leather is the memory of
 D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
 
 
+# Maybe take out Hithlomir
 # The Soft Leather Armour 'Hithlomir'
 
 N:27:'Hithlomir'
@@ -1027,18 +1028,19 @@ A:LIGHTNING_BOLT:6:6
 D:In this dagger is bound the very force of the lightning.
 
 
-# The Long Dagger of Rilia
+# The Stiletto of Rilia
 
 N:69:of Rilia
-I:23:5:0
+I:23:8:0
 W:5:40:12:15000
-P:0:2d4:4:3:0
+P:0:4d2:6:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 A:STINKING_CLOUD:4:4
 D:A large stiletto dagger that glistens with odorless poison, to which the 
 D:wearer seems oddly immune.
 
 
+# maybe take out (there is already a frost dagger with Nimthanc)
 # The Dagger 'Belangil'
 
 N:70:'Belangil'
@@ -1123,12 +1125,12 @@ D:This coldly gleaming blade, mate to Glamdring, is called simply "Biter"
 D:by orcs who came to know its power all too well.
 
 
-# The Two-Handed Sword 'Gurthang'
+# The Two-Handed Sword 'Gurthang' changed to a great sword
 
 N:76:'Gurthang'
-I:23:25:2
-W:30:30:200:100000
-P:0:3d6:13:17:0
+I:23:28:2
+W:30:30:230:100000
+P:0:4d5:13:17:0
 F:STR | HIDE_TYPE | RES_FIRE | RES_POIS | 
 F:BRAND_FIRE | BRAND_POIS | 
 F:KILL_DRAGON | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
@@ -1141,7 +1143,7 @@ D:blood?
 
 N:77:'Zarcuthra'
 I:23:25:4
-W:30:180:250:200000
+W:30:180:210:200000
 P:0:4d6:19:21:0
 # F:DRAIN_MANA | 
 F:STR | CHR | INFRA | HIDE_TYPE | 
@@ -1157,7 +1159,7 @@ D:slowly approach.
 # 	maybe take out
 N:78:'Mormegil'
 I:23:25:-2
-W:30:15:250:10000
+W:30:15:210:10000
 P:0:3d6:-15:15:-20
 # F:DRAIN_HP | DRAIN_MANA | NOREGEN
 F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL
@@ -1173,8 +1175,8 @@ D:very lifeblood of its wielder.
 #		maybe take out
 N:79:'Gondricam'
 I:23:12:3
-W:20:8:110:26000
-P:0:1d7:10:11:0
+W:20:8:100:26000
+P:0:1d6:10:12:0
 F:DEX | STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
 F:SUST_DEX | REGEN | SHOW_MODS
@@ -1183,7 +1185,7 @@ D:with a perfect edge shining cleanly in the sun, an object of hate to the
 D:men of Umbar who met it in combat.
 
 
-# The Executioner's Sword 'Crisdurian'
+# The Executioner's Sword 'Crisdurian' (great sword)
 
 #		maybe take out
 N:80:'Crisdurian'
@@ -1197,12 +1199,12 @@ D:massive double-pronged hilt.  On its blade are written doomspells against
 D:both the living and undead.
 
 
-# The Katana 'Aglarang'
+# The Katana 'Aglarang  (now a sabre)
 
 N:81:'Aglarang'
-I:23:20:5
+I:23:11:5
 W:30:25:50:40000
-P:0:8d4:0:0:0
+P:0:5d7:0:0:0
 F:DEX | SPEED | HIDE_TYPE | 
 F:SUST_DEX | SHOW_MODS
 D:An utterly perfect, cleanly chiseled sword, with a edge that effortlessly 
@@ -1269,11 +1271,11 @@ D:and secret places of the earth.
 
 # The Rapier 'Forasgil'
 
-#		maybe take out
+#		maybe take out (don't take out both this and this extra frost dagger)
 N:86:'Forasgil'
 I:23:7:0
 W:15:8:40:15000
-P:0:1d6:12:19:0
+P:0:2d5:12:9:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
 D:A slender, tapered needle of ice that coldly grips its impaled prey.
 
@@ -1291,15 +1293,15 @@ D:An heirloom of the dauntless Lords of Rhun far to the east, and a name
 D:of dismay to creatures natural and unnatural.
 
 
-# The Small Sword 'Sting'
+# The Small Sword 'Sting' (long dagger)
 
 N:88:'Sting'
-I:23:8:2
-W:26:15:75:100000
-P:0:1d6:7:7:0
-F:STR | DEX | CON | BLOWS | SPEED | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_ANIMAL | 
-F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+I:23:5:2
+W:26:15:34:100000
+P:0:1d5:7:7:0
+F:STR | DEX | CON | BLOWS | SPEED | INFRA | HIDE_TYPE | RES_FEAR | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_BUG | 
+F:FREE_ACT | RES_LITE | LITE | SHOW_MODS
 D:"I will give you a name, and I shall call you Sting."  The perfect size 
 D:for Bilbo, and stamped forever by the courage he found in Mirkwood, this 
 D:sturdy little blade grants the wearer combat prowess and survival 
@@ -1311,7 +1313,7 @@ D:abilities he did not know he had.
 N:89:'Haradekket'
 I:23:18:2
 W:20:15:130:30000
-P:0:2d5:9:11:0
+P:0:2d4:9:12:0
 F:DEX | BLOWS | HIDE_TYPE | 
 F:SLAY_ANIMAL | SLAY_EVIL | KILL_UNDEAD | SUST_DEX | 
 F:SHOW_MODS
@@ -1354,7 +1356,7 @@ D:shadow of death even as you inflict wounds that will not heal.
 # The Spear of Melkor
 
 N:92:of Melkor
-I:22:2:-4
+I:22:4:-4
 W:65:45:200:100000
 P:0:6d6:-12:20:0
 # F:DRAIN_MANA | DRAIN_HP | 
@@ -1366,11 +1368,11 @@ D:himself as he came to Valinor in wrath. Its envenomed bite pierced
 D:the Two Trees with wounds that would not heal.
 
 
-# The Beaked Axe of Theoden
+# The Beaked Axe of Theoden (now broad axe (was flail in 3.0.90))
 
 N:93:of Theoden
-I:22:10:3
-W:20:15:180:40000
+I:22:12:3
+W:20:15:165:40000
 P:0:2d6:9:10:0
 F:WIS | CON | HIDE_TYPE | 
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
@@ -1384,18 +1386,18 @@ D:dragon, and the designs of your enemies stand naked and revealed.
 N:94:of Pain
 I:22:13:0
 W:30:22:300:50000
-P:0:9d6:0:30:0
+P:0:8d7:0:30:0
 #F:NOREGEN
 F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
-D:down.  It's not good for you to take pleasure in the pain of others.
+D:down, but it's not good for you to take pleasure in the pain of others.
 
 
 # The Halberd 'Osondir'
 
 N:95:'Osondir'
-I:22:18:3
+I:22:21:3
 W:20:8:190:22000
 P:0:3d5:6:9:0
 F:CHR | HIDE_TYPE | 
@@ -1421,7 +1423,7 @@ D:fire demons, who war forever, fettered in sorcerous binds.
 # The Spear 'Aeglos'
 
 N:97:'Aeglos'
-I:22:2:4
+I:22:4:4
 W:15:45:50:140000
 P:0:3d6:15:25:5
 F:WIS | DEX | HIDE_TYPE | RES_FEAR | 
@@ -1435,7 +1437,7 @@ D:against which all the foul corruptions of Sauron dashed in vain.
 # The Spear of Orome
 
 N:98:of Orome
-I:22:2:4
+I:22:4:4
 W:33:45:50:60000
 P:0:4d6:15:15:0
 # F:DRAIN_MANA | 
@@ -1450,7 +1452,7 @@ D:and able to pierce rock or flesh with ease.
 # The Spear 'Nimloth'
 
 N:99:'Nimloth'
-I:22:2:3
+I:22:4:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | SPEED | HIDE_TYPE | BLESSED | 
@@ -1465,7 +1467,7 @@ D:spear.
 
 N:100:of Eorlingas
 I:22:20:2
-W:20:23:360:55000
+W:20:23:320:55000
 P:0:3d8:13:21:0
 F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | REGEN | SHOW_MODS
@@ -1477,7 +1479,7 @@ D:and dire wolves.
 # The Great Axe You Can't Handle
 #		maybe take out
 N:101:You Can't Handle
-I:22:25:-2
+I:22:23:-2
 W:30:30:650:80000
 P:0:5d6:-10:10:2
 F:DEX | SPEED | STEALTH | SLAY_GIANT
@@ -1489,7 +1491,7 @@ D:It's name says it all
 # The Great Axe of Eonwe
 
 N:102:of Eonwe
-I:22:25:2
+I:22:23:2
 W:45:40:230:200000
 P:0:5d4:15:18:8
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | RES_FEAR | 
@@ -1506,7 +1508,7 @@ D:evil at a word, and grants Maia-like powers of body and mind.
 # The Battle Axe of Balli Stonehand
 
 N:103:of Balli Stonehand
-I:22:22:3
+I:22:18:3
 W:30:15:170:90000
 P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | 
@@ -1521,7 +1523,7 @@ D:more.
 # (was The Battle Axe 'Lotharang')
 
 N:104:of Gimli
-I:22:22:1
+I:22:18:1
 W:30:15:170:30000
 P:0:2d8:6:6:0
 F:STR | DEX | INFRA | HIDE_TYPE | RES_NEXUS | BRAND_ACID
@@ -1535,7 +1537,7 @@ D: with Legolas over who killed more orcs).
 # The Lochaber Axe 'Mundwine'
 
 N:105:'Mundwine'
-I:22:28:0
+I:22:25:0
 W:30:8:250:30000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | 
@@ -1548,7 +1550,7 @@ D:intricately engraved upon its surface in filleted gold.
 # The Broad Axe 'Barukkheled'
 
 N:106:'Barukkheled'
-I:22:11:3
+I:22:12:3
 W:20:8:160:50000
 P:0:2d6:13:19:0
 F:CON | HIDE_TYPE | 
@@ -1561,7 +1563,7 @@ D:creatures of earth.
 # The Trident of Wrath
 
 N:107:of Wrath
-I:22:5:2
+I:22:7:2
 W:15:35:300:90000
 P:0:3d8:16:18:0 
 F:STR | DEX | HIDE_TYPE | BRAND_POIS | 
@@ -1590,9 +1592,9 @@ D: Eowyn of Rohan to finish him off.
 # The Scythe 'Avavir'
 
 N:109:'Avavir'
-I:22:17:3
-W:40:8:250:17500
-P:0:5d3:8:8:10
+I:22:22:3
+W:40:8:230:17500
+P:0:5d3:6:8:10
 F:DEX | CHR | HIDE_TYPE | FEATHER |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
 F:RES_LITE | LITE | SEARCH | ACTIVATE | SHOW_MODS
@@ -1602,12 +1604,12 @@ D:white, this shining reaper bears within it a power of going forth and
 D:returning.
 
 
-### The Beaked Axe of Hurin
+### The Beaked Axe of Hurin (now lochaber axe)
 
 N:110:of Hurin
-I:22:10:2
-W:20:15:180:90000
-P:0:4d6:12:15:0
+I:22:25:2
+W:20:15:250:90000
+P:0:3d8:12:18:0
 # F:DRAIN_MANA | 
 F:ACTIVATE | KILL_DEMON | 
 F:STR | CON | HIDE_TYPE | 
@@ -1640,9 +1642,9 @@ D:whose wielder holds the lives of all Morgoth's servants in his hand.
 # The Flail 'Totila'
 
 N:112:'Totila'
-I:21:13:2
+I:22:10:2
 W:20:8:150:55000
-P:0:3d6:6:8:0
+P:0:2d13:6:3:0
 F:STEALTH | 
 F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU | ACTIVATE | 
 F:SHOW_MODS
@@ -1651,11 +1653,11 @@ D:A flail whose head befuddles those who stare as you whirl it round, and
 D:becomes a fiery comet as you bring it down.
 
 
-# The Two-Handed Flail 'Thunderfist'
+# The Two-Handed Flail 'Thunderfist' (morning star)
 
 N:113:'Thunderfist'
-I:21:18:4
-W:45:33:300:160000
+I:22:11:4
+W:45:33:260:160000
 P:0:4d6:5:18:0
 F:STR | CON | HIDE_TYPE | RES_FEAR | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
@@ -1665,12 +1667,12 @@ D:with runes of strength in its handle, and flames and sparks that roar and
 D:crackle around its massive head.
 
 
-# The Morning Star 'Bloodspike'
+# The Morning Star 'Bloodspike' (multi-chained flail)
 
 N:114:'Bloodspike'
-I:21:12:4
-W:20:30:150:30000
-P:0:2d6:8:22:0
+I:22:14:4
+W:20:30:170:30000
+P:0:2d7:8:22:0
 F:STR | HIDE_TYPE | BRAND_POIS | 
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | RES_POIS | 
 F:SHOW_MODS
@@ -1682,8 +1684,8 @@ D:this weapon bears around and bathe it in the blood of your foes.
 
 #		maybe take out
 N:115:'Firestar'
-I:21:12:0
-W:20:15:150:35000
+I:22:11:0
+W:20:15:140:35000
 P:0:2d6:5:7:2
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIRE2:20:0
@@ -1694,11 +1696,11 @@ D:can yet rise up in wrath.
 # The Mace 'Taratol'
 
 N:116:'Taratol'
-I:21:5:0
+I:22:5:0
 W:20:15:200:50000
 P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | RES_ELEC | 
-F:ACTIVATE | SHOW_MODS
+F:ACTIVATE | SHOW_MODS | BLESSED
 A:HASTE1:100:100
 D:A great ridged mace that surrounds you in a nimbus of living lightning; 
 D:you remain utterly untouched, even as fat sparks crackle around your 
@@ -1708,7 +1710,7 @@ D:fingers and eyebrows.
 # The War Hammer of Aule
 
 N:117:of Aule
-I:21:8:4
+I:21:10:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
 # F:DRAIN_MANA | 
@@ -1724,8 +1726,8 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 # The Quarterstaff 'Silver Dollar'
 #		maybe take out
 N:118:'Silver Dollar'
-I:21:3:3
-W:15:24:200:65555
+I:21:6:3
+W:15:24:180:65555
 P:0:1d9:20:1:0
 F:BLOWS | CHR |
 F:BRAND_COLD | RES_COLD | SHOW_MODS
@@ -1733,12 +1735,12 @@ D:Four hits from a Quarterstaff equals a much better staff, does it not?
 D:oh and people like you better when you've got money.
 
 
-# The Quarterstaff 'Eriril'
+# The Quarterstaff 'Eriril' (walking staff)
 
 N:119:'Eriril'
 I:21:3:4
-W:20:18:150:20000
-P:0:1d9:3:5:0
+W:20:18:90:20000
+P:0:2d5:5:3:0
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_EVIL | RES_LITE | LITE | TELEPATHY | ACTIVATE | SHOW_MODS
 A:IDENTIFY:10:0
@@ -1746,12 +1748,12 @@ D:The radiant golden staff of an Istar of legend; this wizard's companion
 D:grants keen sight and clear knowledge of many hidden things.
 
 
-# The Quarterstaff of Olorin
+# The Quarterstaff of Olorin (Staff of Striking)
 
 N:120:of Olorin
-I:21:3:4
+I:21:30:4
 W:30:105:150:130000
-P:0:2d9:10:13:0
+P:0:3d9:10:5:0
 F:INT | WIS | CHR | HIDE_TYPE | KILL_DEMON | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
@@ -1765,7 +1767,7 @@ D:deals.
 # The Mace of Disruption 'Deathwreaker'
 
 N:121:'Deathwreaker'
-I:21:20:6
+I:22:35:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
 # F:DRAIN_MANA | 
@@ -1816,12 +1818,13 @@ D:even Ungoliant to heel.
 
 ### Missile Weapons ###
 
-# The Long Bow 'Belthronding'
+# The Long Bow 'Belthronding' (great bow)
+# maybe need to make weaker now that it has both x3 multiplier and an extra shot
 
 N:124:'Belthronding'
-I:19:13:1
-W:40:20:40:35000
-P:0:0d0:20:22:0
+I:19:35:1
+W:40:20:140:37000
+P:0:0d0:17:17:0
 F:DEX | SPEED | STEALTH | SHOTS | HIDE_TYPE | 
 F:RES_DISEN | SHOW_MODS
 D:The great bow of Beleg Cuthalion, made of black yew and strung with elven 
@@ -1912,6 +1915,8 @@ D:although Nain himself fell before their lord Azog.
 
 
 # The Dwarven Pick of Erebor
+# maybe add a new priestly type artifact in its place
+#  (since there aren't as many as before)
 
 #N:131:of Erebor
 #I:20:6:5
@@ -1926,10 +1931,10 @@ D:although Nain himself fell before their lord Azog.
 
 ### Miscellaneous new stuff ###
 
-# The Ball-and-Chain of Fundin Bluecloak 
+# The Ball-and-Chain of Fundin Bluecloak (ceremonial mace)
 
 N:132:of Fundin Bluecloak
-I:21:6:4
+I:21:8:4
 W:65:100:130:60000
 P:0:4d4:13:17:10
 F:STR | WIS | SPEED | LITE | HIDE_TYPE | 
@@ -1941,12 +1946,12 @@ D:The weapon of a mighty dwarven priest, whose shade is rumoured to
 D:still haunt the halls of Angband itself.
 
 
-# The Main Gauche of Azaghal
+# The Main Gauche of Azaghal (gladius)
 
 N:133:of Azaghal
-I:23:5:0
+I:23:20:0
 W:18:30:30:50000
-P:0:2d5:12:14:0
+P:0:2d6:12:14:0
 F:KILL_DRAGON | IM_FIRE | RES_ACID | RES_FEAR | 
 D:Azaghal, Dwarf-king of Beregost, fell before Glaurung in the Battle 
 D:of Unnumbered Tears, but with his final stroke he dealt Glaurung 
@@ -1973,8 +1978,8 @@ D:also draw attention to himself.
 
 N:135:'Quickslash'
 I:23:1:2
-W:4:6:11:999
-P:0:1d1:6:6:-1
+W:4:6:6:999
+P:0:1d2:6:4:-1
 F:DEX | BLOWS | SPEED | SLAY_ANIMAL
 D:it may be broken, but it's fast..
 
@@ -1992,18 +1997,17 @@ D:The blade of the legendary Shieldmaiden of Rohan, who struck a
 D:mighty blow against the Morgul-lord whom no mortal Man could hinder, 
 D:and also slew his foul steed.
 
-
+# add an artifact athame
 # N:137 unused
 
-
 # Sling of Snowballs
-#	if only there was an available frost brand activation like there is for fire
+
 N:138:of Snowballs
 I:19:2:2
 W:2:6:5:10400
 P:0:1d1:2:3:2
 F:MIGHT | CON | SLOW_DIGEST | BRAND_COLD
 F:RES_COLD | ACTIVATE | SHOW_MODS
-A:FROST1:1:9
+A:SNOWBALL:900:99
 D:This sling hurls rocks and magical snowballs, so you can
 D:turn fighting monsters into a fun snowball fight!

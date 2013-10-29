@@ -56,8 +56,9 @@ static unsigned int scr_places_y[LOC_MAX];
 /* Some local constants */
 #define STORE_TURNOVER  9       /* Normal shop turnover, per day */
 #define STORE_OBJ_LEVEL 5       /* Magic Level for normal stores */
-#define STORE_MIN_KEEP  6       /* Min slots to "always" keep full (>0) */
-#define STORE_MAX_KEEP  18      /* Max slots to "always" keep full */
+#define STORE_MIN_KEEP  8       /* Min slots to "always" keep full (>0) */
+#define STORE_MAX_KEEP  20      /* Max slots to "always" keep full */
+/* MIN_KEEP was 6, MAX_KEEP was 18*/
 
 
 
@@ -349,6 +350,8 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_MAGIC_BOOK:
+				case TV_NEWM_BOOK:
+				case TV_LUCK_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -513,6 +516,8 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_NEWM_BOOK:
+		case TV_LUCK_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -1253,7 +1258,7 @@ static bool store_create_random(int st)
 }
 
 /*
- * Staple definitions.
+ * Staple definitions for general store.
  */
 typedef enum { MAKE_SINGLE, MAKE_NORMAL, MAKE_MAX } create_mode;
 
@@ -1277,7 +1282,10 @@ static struct staple_type
 	{ TV_BOLT, SV_AMMO_NORMAL, MAKE_MAX },
 	{ TV_DIGGING, SV_SHOVEL, MAKE_SINGLE },
 	{ TV_DIGGING, SV_PICK, MAKE_SINGLE },
-	{ TV_CLOAK, SV_CLOAK, MAKE_SINGLE }
+	{ TV_CLOAK, SV_CLOAK, MAKE_SINGLE },
+	{ TV_LUCK_BOOK, 0, MAKE_NORMAL},
+	{ TV_LUCK_BOOK, 1, MAKE_SINGLE},
+	{ TV_LUCK_BOOK, 3, MAKE_SINGLE}
 };
 
 

@@ -1155,6 +1155,7 @@ static errr rd_extra(void)
 	{
 		strip_bytes(2);	/* Old "rest" */
 		rd_s16b(&p_ptr->timed[TMD_BLIND]);
+		rd_s16b(&p_ptr->timed[TMD_BRAIL]);
 		rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
 		rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
 		rd_s16b(&p_ptr->food);
@@ -1162,20 +1163,32 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->energy);
 		rd_s16b(&p_ptr->timed[TMD_FAST]);
 		rd_s16b(&p_ptr->timed[TMD_SLOW]);
+		rd_s16b(&p_ptr->timed[TMD_ADJUST]);
 		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
+		rd_s16b(&p_ptr->timed[TMD_CHARM]);
+		rd_s16b(&p_ptr->timed[TMD_FRENZY]);
 		rd_s16b(&p_ptr->timed[TMD_CUT]);
 		rd_s16b(&p_ptr->timed[TMD_STUN]);
 		rd_s16b(&p_ptr->timed[TMD_POISONED]);
 		rd_s16b(&p_ptr->timed[TMD_IMAGE]);
 		rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
+		rd_s16b(&p_ptr->timed[TMD_PROTEVIL2]);
 		rd_s16b(&p_ptr->timed[TMD_INVULN]);
 		rd_s16b(&p_ptr->timed[TMD_HERO]);
 		rd_s16b(&p_ptr->timed[TMD_SHERO]);
+		rd_s16b(&p_ptr->timed[TMD_WSHIELD]);
 		rd_s16b(&p_ptr->timed[TMD_SHIELD]);
 		rd_s16b(&p_ptr->timed[TMD_BLESSED]);
+		rd_s16b(&p_ptr->timed[TMD_SHADOW]);
 		rd_s16b(&p_ptr->timed[TMD_SINVIS]);
+		rd_s16b(&p_ptr->timed[TMD_TSIGHT]);
+		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
+		rd_s16b(&p_ptr->timed[TMD_ESP]);
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
+		rd_s16b(&p_ptr->silver);
+		rd_s16b(&p_ptr->slime);
+		rd_s16b(&p_ptr->luck);
 		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
 		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
@@ -1201,6 +1214,9 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->energy);
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
+		rd_s16b(&p_ptr->silver);
+		rd_s16b(&p_ptr->slime);
+		rd_s16b(&p_ptr->luck);
 		rd_byte(&p_ptr->confusing);
 		rd_byte(&p_ptr->searching);
 

@@ -10,9 +10,9 @@
 
 #include "angband.h"
 
-
 #ifdef DRS_SMART_OPTIONS
 
+static int bomb = 0;
 
 /*
  * And now for Intelligent monster attacks (including spells).
@@ -123,6 +123,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
 		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
 		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
+		if (p_ptr->resist_charm) smart |= (SM_RES_CHARM);
 		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
 		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
 		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
@@ -431,7 +432,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
     	
 	    /* POWERFUL flag should raise breath damage for low hp monsters */
-	    if (r_ptr->flags2 & (RF2_POWERFUL) && dam_hp < 50)
+	    if ((r_ptr->flags2 & (RF2_POWERFUL)) && dam_hp < 50)
 	       {
            int die = randint(100);
            if (die < 5) dam_hp = dam_hp * 3;
@@ -439,9 +440,27 @@ static void breath(int m_idx, int typ, int dam_hp)
            else if (die < 76) dam_hp = dam_hp * 1.4;
            else if (die < 92) dam_hp = dam_hp + 2;
            }
+           
+	    /* BR_WEAK flag lowers breath damage */
+	    if ((r_ptr->flags2 & (RF2_BR_WEAK)) && (dam_hp > 13))
+	       {
+           int die = randint(100);
+           if (die < 5) dam_hp = dam_hp / 4;
+           else if (die < 55) dam_hp = dam_hp / 3;
+           else if (die < 75) dam_hp = ((dam_hp * 2) / 5);
+           else if (die < 95) dam_hp = dam_hp / 2;
+           else dam_hp = ((dam_hp * 3) / 5);
+           }           
 
 	/* Determine the radius of the blast */
 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+	
+    /* radius 1 for stink bombs */
+	if (bomb = 1) rad = 1;
+	bomb = 0;
+
+    /* shorter range for BR_WEAK) */
+    if (r_ptr->flags2 & (RF2_BR_WEAK)) range = 5;
 
 	/* Target the player with a ball attack */
 	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
@@ -875,15 +894,24 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX3X4 */
+		/* RF4_XXX3X4 - RF4_T_AXE */
 		case RF4_OFFSET+2:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s throws something.", m_name);
+			else msg_format("%^s hurls a small throwing axe at you!", m_name);
+			bolt(m_idx, GF_AXE, damroll(2, 4));
 			break;
 		}
 
-		/* RF4_XXX4X4 */
+		/* RF4_THROW */
 		case RF4_OFFSET+3:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s throws something.", m_name);
+			else msg_format("%^s throws a piece of junk from the floor.", m_name);
+			bolt(m_idx, GF_THROW, damroll(1, 4));
+            (void)inc_timed(TMD_STUN, (randint(3)));
 			break;
 		}
 
@@ -946,9 +974,15 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_BR_ELEC);
 			if (blind) msg_format("%^s breathes.", m_name);
+#ifdef ALTDJA
+			else msg_format("%^s breathes stench.", m_name);
+			breath(m_idx, GF_ELEC,
+			       ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)));
+#else
 			else msg_format("%^s breathes lightning.", m_name);
 			breath(m_idx, GF_ELEC,
 			       ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)));
+#endif
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -1114,7 +1148,11 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_BR_INERTIA);
 			if (blind) msg_format("%^s breathes.", m_name);
+#ifdef ALTDJA
+			else msg_format("%^s breathes oobleck and everything gets sticky.", m_name);
+#else
 			else msg_format("%^s breathes inertia.", m_name);
+#endif			
 			breath(m_idx, GF_INERTIA,
 			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
 			break;
@@ -1160,7 +1198,7 @@ bool make_attack_spell(int m_idx)
 		/* RF4_BR_WALL */
 		case RF4_OFFSET+26:
 		{
-			disturb(1, 0);
+            disturb(1, 0);
 			sound(MSG_BR_FORCE);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes force.", m_name);
@@ -1176,9 +1214,33 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX5X4 */
+		/* RF4_BR_FEAR Breathe fear */
 		case RF4_OFFSET+28:
 		{
+			disturb(1, 0);
+			sound(MSG_BR_FORCE);
+			if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes fear.", m_name);
+			int die = randint(100);
+            if (r_ptr->flags2 & (RF2_POWERFUL)) die = die - 15;
+            if (p_ptr->timed[TMD_FRENZY]) die = die + 10;
+			if (!p_ptr->resist_fear)
+            {
+               if (die < 99)
+               {
+                       inc_timed(TMD_AFRAID, rand_int(14) + 10);
+               }
+               else if (die < 106)
+               {
+                       inc_timed(TMD_AFRAID, rand_int(3) + 3);
+               }
+            }
+            else
+            {
+               if (die < 33) inc_timed(TMD_AFRAID, rand_int(5) + 1);
+            }
+			breath(m_idx, GF_BRFEAR,
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
 			break;
 		}
 
@@ -1188,9 +1250,16 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX7X4 */
+		/* RF4_XXX7X4 - stinkbomb -not used in normal DaJAngband */
 		case RF4_OFFSET+30:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s your hear a splat nearby and smell something nasty.", m_name);
+			else msg_format("%^s hurls a small stink bomb.", m_name);
+			bomb = 1;
+			breath(m_idx, GF_STINKB,
+			     damroll(2, 3) + (rlev / 3));
+			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
 
@@ -1222,7 +1291,11 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
+#ifdef ALTDJA
+			else msg_format("%^s casts a giant stink bomb.", m_name);
+#else
 			else msg_format("%^s casts a lightning ball.", m_name);
+#endif
 			breath(m_idx, GF_ELEC,
 			       randint(rlev * 3 / 2) + 8);
 			update_smart_learn(m_idx, DRS_RES_ELEC);
@@ -1258,7 +1331,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s casts a stinking cloud.", m_name);
+			else msg_format("%^s casts a cloud of poison.", m_name);
 			breath(m_idx, GF_POIS,
 			       damroll(12, 2));
 			update_smart_learn(m_idx, DRS_RES_POIS);
@@ -1528,9 +1601,16 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
+#ifdef ALTDJA
+			else msg_format("%^s casts stink bomb.", m_name);
+			bomb = 1;
+			breath(m_idx, GF_ELEC,
+			     damroll(4, 8) + (rlev / 3));
+#else
 			else msg_format("%^s casts a lightning bolt.", m_name);
 			bolt(m_idx, GF_ELEC,
 			     damroll(4, 8) + (rlev / 3));
+#endif
 			update_smart_learn(m_idx, DRS_RES_ELEC);
 			break;
 		}
@@ -1653,30 +1733,30 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			disturb(1, 0);
 			sound(MSG_CAST_FEAR);
+            int die = randint(100);
+            if (r_ptr->flags2 & (RF2_POWERFUL)) die = die + 25;
+            if (p_ptr->timed[TMD_FRENZY]) die = die - 10;
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 			if (p_ptr->resist_fear)
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (r_ptr->flags2 & (RF2_POWERFUL))
-			{
-                 if (rand_int(110) < p_ptr->skills[SKILL_SAV])
-				 {
-                    msg_print("You refuse to be frightened.");
-                 }
-                 else
-                 {
-                    (void)inc_timed(TMD_AFRAID, rand_int(5) + 4);
-                 }
-            }
-			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
+			else if (die < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You refuse to be frightened.");
 			}
 			else
 			{
-				(void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
+            	(void)clear_timed(TMD_CHARM);
+                if (die > 100)
+                {
+				     (void)inc_timed(TMD_AFRAID, rand_int(6) + 6);
+                }
+                else 
+                {
+				     (void)inc_timed(TMD_AFRAID, rand_int(4) + 4);
+                }
 			}
 			update_smart_learn(m_idx, DRS_RES_FEAR);
 			break;
@@ -1971,7 +2051,7 @@ bool make_attack_spell(int m_idx)
 		{
 			if (!direct) break;
 			disturb(1, 0);
-			msg_format("%^s teleports you away.", m_name);
+			msg_format("%^s tells you to go away.", m_name);
 			teleport_player(100);
 			break;
 		}
@@ -2252,20 +2332,28 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_DRAGON */
+		/* RF6_S_DRAGON -summnon a nymph in ALT */
 		case RF6_OFFSET+27:
 		{
 			disturb(1, 0);
 			sound(MSG_SUM_DRAGON);
 			if (blind) msg_format("%^s mumbles.", m_name);
+#ifdef ALTDJA
+			else msg_format("%^s summons a nature spirit", m_name);
+#else
 			else msg_format("%^s magically summons a dragon!", m_name);
+#endif			
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_DRAGON);
 			}
 			if (blind && count)
 			{
+#ifdef ALTDJA
+				msg_print("You sense the presense of a nature spirit.");
+#else
 				msg_print("You hear something appear nearby.");
+#endif
 			}
 			break;
 		}
@@ -2283,7 +2371,7 @@ bool make_attack_spell(int m_idx)
 			}
 			if (blind && count)
 			{
-				msg_print("You hear many creepy things appear nearby.");
+				msg_print("You hear many powerful creepy things appear nearby.");
 			}
 			break;
 		}
@@ -2312,7 +2400,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_SUM_WRAITH);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons mighty undead opponents!", m_name);
+			else msg_format("%^s magically summons mighty undead!", m_name);
 			for (k = 0; k < 8; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_WRAITH);
@@ -2323,7 +2411,7 @@ bool make_attack_spell(int m_idx)
 			}
 			if (blind && count)
 			{
-				msg_print("You hear many creepy things appear nearby.");
+				msg_print("You hear mighty creepy things appear nearby.");
 			}
 			break;
 		}
@@ -4040,6 +4128,8 @@ static void process_monster(int m_idx)
 					if (f1 & (TR1_KILL_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_KILL_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (f2 & (TR2_SLAY_SILVER)) flg3 |= (RF3_SILVER);
+					if (f2 & (TR2_SLAY_BUG)) flg3 |= (RF3_BUG);
 					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
 					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);

@@ -3,3 +3,5 @@
 
 #include "win/angband.rc"
 
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "DaJAngband110.ico"
+

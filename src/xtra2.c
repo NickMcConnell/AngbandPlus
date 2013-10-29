@@ -62,6 +62,7 @@ static timed_effect effects[] =
 	{ "", "", 0, 0, 0, 0 },  /* cold -- handled seperately */
 	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS },
 	{ "You feel your memories fade.", "Your memories come flooding back.", PR_CONFUSED, 0, 0, MSG_GENERIC },
+	{ "With a smile, you decide you're not in the mood for fighting anymore.", "Your smile fades and you feel violent again.", PR_AFRAID, 0, 0, MSG_AFRAID },
 };
 
 /*
@@ -221,7 +222,7 @@ static bool set_oppose_elec(int v)
 	{
 		if (!p_ptr->timed[TMD_OPP_ELEC] && !p_ptr->immune_elec)
 		{
-			message(MSG_RES_ELEC, 0, "You feel resistant to electricity!");
+			message(MSG_RES_ELEC, 0, "You feel resistant to stench!");
 			notice = TRUE;
 		}
 	}
@@ -1256,6 +1257,7 @@ void monster_death(int m_idx)
 
 
 	/* Determine how much we can drop */
+	if ((r_ptr->flags1 & (RF1_DROP_30)) && (rand_int(100) < 33)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
 	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
@@ -1435,9 +1437,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Death by Physical attack -- non-living monster */
 		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+		         (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+		         (r_ptr->flags2 & (RF2_STUPID)))
 		{
 			message_format(soundfx, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -1790,10 +1791,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 
 
 	/* Determine if the monster is "living" (vs "undead") */
-	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
+	if (r_ptr->flags3 & (RF3_NON_LIVING)) living = FALSE;
 	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
-	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
-
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
@@ -3249,9 +3248,17 @@ bool get_aim_dir(int *dp)
 	while (!dir)
 	{
 		/* Choose a prompt */
-		if (!target_okay())
+		if ((!target_okay()) && (!spellswitch == 9))
 		{
 			p = "Direction ('*' or <click> to choose a target, Escape to cancel)? ";
+		}
+		else if ((!target_okay()) && (spellswitch == 9))
+		{
+			p = "What do you want to take a picture of? ('*' to target, Esc to cancel)? ";
+		}
+		else if (spellswitch == 9)
+		{
+			p = "What do you want to take a picture of? (5 for target, * re-target, or Esc)? ";
 		}
 		else
 		{

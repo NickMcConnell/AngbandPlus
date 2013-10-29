@@ -400,6 +400,8 @@ static const tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_NEWM_BOOK,         "Book of Nature magic"    },
+	{ TV_LUCK_BOOK,         "Book of Chance magic"    },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1129,6 +1131,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)clear_timed(TMD_CONFUSED);
 	(void)clear_timed(TMD_POISONED);
 	(void)clear_timed(TMD_AFRAID);
+	(void)clear_timed(TMD_CHARM);
 	(void)clear_timed(TMD_PARALYZED);
 	(void)clear_timed(TMD_IMAGE);
 	(void)clear_timed(TMD_STUN);

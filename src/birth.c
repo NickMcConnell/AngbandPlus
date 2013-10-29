@@ -534,9 +534,13 @@ static void player_wipe(bool really_wipe)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
+    /* Player is free of slime and silver poison */
+    p_ptr->silver > PY_SILVER_HEALTHY;
+    p_ptr->slime > PY_SLIME_HEALTHY;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+
 }
 
 
@@ -846,11 +850,13 @@ static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
+	{ 0, 0, 0, display_roller, roller_handler },
+
 #ifdef EFG
-	/* EFGchange unified character generation */
+	/* EFGchange unified character generation  */
 #else
 	{ 0, 0, 0, display_roller, roller_handler },
-#endif
+#endif 
 };
 
 /* Menu display and selector */
@@ -990,15 +996,20 @@ static bool player_birth_aux_1(bool start_at_end)
 	text_out("' for help, or '");
 	text_out_c(TERM_L_GREEN, "Ctrl-X");
 	text_out("' to quit.\n");
-	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be alchmists, rogues, or healers.");
-	if (clash == 4) text_out_c(TERM_L_RED, "Sorry, a magic gnome cannot be a knight or paladin marshal.");
-	if (clash == 5) text_out_c(TERM_L_RED, "Sorry, a dwarf cannot be a stealth ranger.");
-	if (clash == 6) text_out_c(TERM_L_RED, "Sorry, a half-orc cannot be a healer or paladin marshal.");
-	if (clash == 8) text_out_c(TERM_L_RED, "Sorry, a dunadan cannot be a druid.");
-	if (clash == 9) text_out_c(TERM_L_RED, "Sorry, a high elf cannot be a barbarian or a holy rogue.");
-	if (clash == 12) text_out_c(TERM_L_RED, "Sorry, a fairy gnome cannot be a barbarian or an alchemist.");
-	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin marshal.");
-	if (clash == 15) text_out_c(TERM_L_RED, "Your power sprite mage dies at age 7 of a bee sting because of an extremely low hit die.");
+	if (clash == 3) text_out_c(TERM_L_RED, "Sorry, a hobbit cannot be the class you chose.");
+    if (clash == 4) text_out_c(TERM_L_RED, "Sorry, a magic gnome cannot be the class you chose.");
+	if (clash == 5) text_out_c(TERM_L_RED, "Sorry, a dwarf cannot be the class you chose.");
+	if (clash == 6) text_out_c(TERM_L_RED, "Sorry, a half-orc cannot be the class you chose.");
+	if (clash == 7) text_out_c(TERM_L_RED, "Sorry, a half-troll cannot be the class you chose.");
+	if (clash == 8) text_out_c(TERM_L_RED, "Sorry, a dunadan cannot be the class you chose.");
+	if (clash == 9) text_out_c(TERM_L_RED, "Sorry, a high elf cannot be the class you chose.");
+	if (clash == 10) text_out_c(TERM_L_RED, "Sorry, a kobold cannot be a mystic or a red knight.");
+	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be an alchemist, rogue, healer, or assassin.");
+    if (clash == 12) text_out_c(TERM_L_RED, "Sorry, a fairy gnome cannot be the class you chose.");
+	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin or tourist.");
+	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a grave ghoul cannot be the class you chose.");
+	if (clash == 15) text_out_c(TERM_L_RED, "Sorry, a power sprite cannot be the class you chose.");
+	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk can only be the hulk class.");
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
@@ -1163,7 +1174,7 @@ static int player_birth_aux_2(bool start_at_end)
         if (adult_cansell) p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 320;
         else p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 500;
 #else
-		p_ptr->au = (100 * (48 - cost)) + 100;
+		p_ptr->au = (100 * (48 - cost)) + 320;
 #endif
 
 		/* Calculate the bonuses and hitpoints */
@@ -1762,7 +1773,7 @@ void player_birth(void)
     /* DAJ: yes I know, this is incredibly crude programming */
     /* but that's how you know I did it! */
 {
-for (;clash < 20;)
+for (;clash < 50;)
     {
 	/* Wipe the player properly */
 	player_wipe(TRUE);
@@ -1770,51 +1781,117 @@ for (;clash < 20;)
 	/* Create a new character */
 	player_birth_aux();
 	
-				/* restrict certain race/class combos */
-                    /* (let's see if this works..) */
-                    clash = 21;
+				    /* restrict certain race/class combos */
+                    clash = 51;
+                    /* hobligb can only be rogue, alchemist, healer, assassin or chaos warrior */
                     if (p_ptr->prace == 11)
                       {
-                      if ((p_ptr->pclass != 6) && (p_ptr->pclass != 3) && (p_ptr->pclass != 9))
+                      if ((p_ptr->pclass != 7) && (p_ptr->pclass != 3) && (p_ptr->pclass != 9))
                       clash = 11;
                       }
+                    /* hobbit cannot be necromancer, druid, war mage, barbarian, fighter wizard, mystic, or red or yellow knight */
+                    if (p_ptr->prace == 3)
+                      {
+                      if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
+                      clash = 3;
+                      }
+                    /* magic gnome cannot be a paladin, priest, or white, grey, blue, or yellow knight */
                     if (p_ptr->prace == 4)
                       {
-                      if ((p_ptr->pclass == 14) || (p_ptr->pclass == 8))
+                      if ((p_ptr->pclass == 5) || (p_ptr->pclass == 8))
                       clash = 4;
                       }
-                     if (p_ptr->prace == 5)
+                    /* dwarf cannot be a ranger, witch, stone slinger, or chaos warrior */
+                    if (p_ptr->prace == 5)
                       {
-                      if (p_ptr->pclass == 13) clash = 5;
+                      if (p_ptr->pclass == 4) clash = 5;
                       }
-                     if (p_ptr->prace == 6)
+                    /* half orc cannot be a healer, paladin, priest, sage, or white or yellow knight */
+                    if (p_ptr->prace == 6)
                       {
-                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 14))
+                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5) || (p_ptr->pclass == 8))
                       clash = 6;
                       }
-                     if (p_ptr->prace == 8)
+                    /* half troll cannot be a war mage, escape artist, mystic, ninja, or white, green or yellow knight
+                    if (p_ptr->prace == 7)
+                      {
+                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5))
+                      clash = 7;
+                      }
+                    /* dunadan cannot be a druid, witch, war mage, thief, loser or chaos warrior */
+                    if (p_ptr->prace == 8)
                       {
                       if (p_ptr->pclass == 10) clash = 8;
                       }
-                     if (p_ptr->prace == 9)
+                    /* high elf cannot be a barbarian, tourist, rogue, loser, holy rogue, escape artist, stone slinger or green knight */
+                    if (p_ptr->prace == 9)
                       {
-                      if ((p_ptr->pclass == 11) || (p_ptr->pclass == 13))
+                      if (p_ptr->pclass == 3)
                       clash = 9;
                       }
-                     if (p_ptr->prace == 12)
+                    /* kobold cannot be a mystic or red knight
+                    if (p_ptr->prace == 10)
                       {
-                      if ((p_ptr->pclass == 6) || (p_ptr->pclass == 11))
+                      if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
+                      clash = 10;
+                      }
+                    /* fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch, loser, chaos warrior, or any kind of knight */
+                    if (p_ptr->prace == 12)
+                      {
+                      if ((p_ptr->pclass == 0) || (p_ptr->pclass == 2))
                       clash = 12;
                       }
-                     if (p_ptr->prace == 13)
+                    /* dark elf cannot be a paladin or tourist */
+                    if (p_ptr->prace == 13)
                       {
-                      if (p_ptr->pclass == 14) clash = 13;
+                      if (p_ptr->pclass == 5) clash = 13;
                       }
-                     if (p_ptr->prace == 15)
+                    /* grave ghoul cannot be a priest, sage, mystic, ninja, or white, blue, or yellow knight */
+                    if (p_ptr->prace == 14)
                       {
-                      if (p_ptr->pclass == 1) clash = 15;
+                      if (p_ptr->pclass == 8)
+                      clash = 14;
+                      }    
+                    /* power sprite cannot be a wizard, necromancer, druid, alchemist, sage, or loser */
+                    if (p_ptr->prace == 15)
+                      {
+                      if ((p_ptr->pclass == 1) || (p_ptr->pclass == 2))
+                      clash = 15;
+                      }    
+                    /* umber hulk must be hulk class */
+                    if (p_ptr->prace == 17)
+                      {
+                      if (p_ptr->pclass != 32) clash = 17;
                       }    
 	}
+
+   /* luck settings */
+if (p_ptr->prace == 0) p_ptr->luck = randint(6) - 2; /* human -1 to 4 */
+if (p_ptr->prace == 1) p_ptr->luck = randint(5) - 2; /* half-elf -1 to 3 */
+if (p_ptr->prace == 2) p_ptr->luck = randint(5) - 2; /* elf -1 to 3 */
+if (p_ptr->prace == 3) p_ptr->luck = randint(4) - 1; /* hobbit 0 to 3 */
+if (p_ptr->prace == 4) p_ptr->luck = randint(4) - 2; /* magic gnome -1 to 2 */
+if (p_ptr->prace == 5) p_ptr->luck = randint(3) - 1; /* dwarf 0 to 2 */
+if (p_ptr->prace == 6) p_ptr->luck = randint(6) - 3; /* half orc -2 to 3 */
+if (p_ptr->prace == 7) p_ptr->luck = randint(5) - 2; /* half troll -1 to 3 */
+if (p_ptr->prace == 8) p_ptr->luck = randint(3) - 1; /* dunadan 0 to 2 */
+if (p_ptr->prace == 9) p_ptr->luck = randint(4) - 2; /* high elf -1 to 2 */
+if (p_ptr->prace == 10) p_ptr->luck = randint(7) - 3; /* kobold -2 to 4 */
+if (p_ptr->prace == 11) p_ptr->luck = randint(5) - 2; /* hobglib -1 to 3 */
+if (p_ptr->prace == 12) p_ptr->luck = randint(4) - 1; /* fairy gnome 0 to 3 */
+if (p_ptr->prace == 13) p_ptr->luck = randint(6) - 3; /* dark elf -2 to 3 */
+if (p_ptr->prace == 14) p_ptr->luck = 0; /* grave ghoul 0 */
+if (p_ptr->prace == 15) p_ptr->luck = randint(4) - 1; /* power sprite 0 to 3 */
+if (p_ptr->prace == 16) p_ptr->luck = randint(2) - 1; /* maia 0 to 1 */
+if (p_ptr->prace == 17) p_ptr->luck = randint(4) - 2; /* hulk -1 to 2 */
+if (p_ptr->pclass == 2) p_ptr->luck = p_ptr->luck - 1; /* necromancer -1 */
+if (p_ptr->pclass == 3) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* rogue +0 to +1 */
+if (p_ptr->pclass == 8) p_ptr->luck = p_ptr->luck - (randint(2) - 1); /* priest +0 to -1 */
+if (p_ptr->pclass == 16) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* barbarian +0 to +1 */
+if (p_ptr->pclass == 17) p_ptr->luck = p_ptr->luck + 1; /* tourist +1 */
+if (p_ptr->pclass == 18) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* thief +0 to +1 */
+if (p_ptr->pclass == 22) p_ptr->luck = p_ptr->luck + 1; /* escape artist +1 */
+if (p_ptr->pclass == 23) p_ptr->luck = p_ptr->luck - (randint(3) - 1); /* loser +0 to -2 */
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

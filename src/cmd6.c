@@ -247,11 +247,17 @@ void do_cmd_read_scroll(void)
 
 
 	/* Check some conditions */
-	if (p_ptr->timed[TMD_BLIND])
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
 	{
 		msg_print("You can't see anything.");
 		return;
 	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the scroll with your hands..");
+	}
+	
 	if (no_lite())
 	{
 		msg_print("You have no light to read by.");

@@ -667,7 +667,7 @@ struct spell_type
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
 
-	byte realm;			/* 0 = mage; 1 = priest */
+	byte realm;			/* 0 = mage; 1 = priest, (2 = newm, 3 = luck) */
 	byte tval;			/* Item type for book this spell is in */
 	byte sval;			/* Item sub-type for book (= book number) */
 	byte snum;			/* Position of spell within book */
@@ -892,6 +892,10 @@ struct player_type
 	s16b energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
+	
+	s16b silver;        /* DAJ: silver poison */
+	s16b slime;         /* DAJ: slimed state */
+	s16b luck;          /* DAJ: luck */
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
@@ -1000,6 +1004,8 @@ struct player_type
 	bool resist_cold;	/* Resist cold */
 	bool resist_pois;	/* Resist poison */
 
+	bool resist_charm;	/* Resist charm */
+	bool resist_frenzy;	/* Resist charm */
 	bool resist_fear;	/* Resist fear */
 	bool resist_lite;	/* Resist light */
 	bool resist_dark;	/* Resist darkness */

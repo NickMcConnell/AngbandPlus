@@ -79,7 +79,7 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 	"insults you!",
 	"insults your mother!",
 	"gives you the finger!",
-	"humiliates you!",
+	"tries to stick its finger up your nose!",
 	"defiles you!",
 	"dances around you!",
 	"makes obscene gestures!",
@@ -91,18 +91,18 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 
 
 /*
- * Hack -- possible "insult" messages
+ * Hack -- possible "moaning" messages
  */
 static cptr desc_moan[MAX_DESC_MOAN] =
 {
-	"wants his mushrooms back.",
-	"tells you to get off his land.",
-	"looks for his dogs. ",
-	"says 'Did you kill my Fang?' ",
-	"asks 'Do you want to buy any mushrooms?' ",
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"mumbles something about mushrooms."
+	"swears loudly 'buggerit!'",
+	"mumbles 'millenium hand and shrimp'",
+	"looks for his dog. ",
+	"mumbles a nonstop flow of swearing",
+	"'s stench forms a tangible finger and pokes you in the nose.",
+	"reeks to high heaven.",
+	"wears a sign that says 'gimmie 100gold and I'll take my stink somewhere else.'",
+	"mumbles something about shrimp."
 };
 
 
@@ -139,7 +139,6 @@ bool make_attack_normal(int m_idx)
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
-
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -222,6 +221,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_40:    power =  5; break;
 			case RBE_EXP_80:    power =  5; break;
 			case RBE_HALLU:     power = 10; break;
+			case RBE_SILVER:    power = 11; break;
+			case RBE_SLIME:     power = 11; break;
+			case RBE_CHARM:     power =  2; break;
+			case RBE_FRENZY:    power = 11; break;
+            case RBE_HUNGER:    power =  2; break;
 		}
 
 
@@ -250,6 +254,47 @@ bool make_attack_normal(int m_idx)
 				/* Hack -- Next attack */
 				continue;
 			}
+
+			/* Hack -- Apply strong "protection from evil" */
+			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
+			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (p_ptr->lev >= rlev) &&
+			    ((rand_int(101) + p_ptr->lev) > 50))
+			{
+				/* Remember the Evil-ness */
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_EVIL);
+				}
+				
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+			/* can affect monsters higher than the player's level */
+			if ((p_ptr->timed[TMD_PROTEVIL2] > 0) &&
+			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (p_ptr->lev < rlev) &&
+                (p_ptr->lev + rand_int(p_ptr->lev * 2) > rlev + 6))
+			{
+                if ((!(r_ptr->flags1 & (RF1_UNIQUE))) ||
+                   (rand_int(100) < 5))
+                {
+                   /* Remember the Evil-ness */
+				   if (m_ptr->ml)
+				   {
+					  l_ptr->flags3 |= (RF3_EVIL);
+				   }
+				
+				   /* Message */
+				   msg_format("%^s is repelled.", m_name);
+
+				   /* Hack -- Next attack */
+				   continue;
+                }
+            }
 
 
 			/* Assume no cut or stun */
@@ -325,7 +370,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_BUTT:
 				{
 					act = "butts you.";
-					do_stun = 1;
+					do_stun = 2;
 					sound_msg = MSG_MON_BUTT;
 					break;
 				}
@@ -368,6 +413,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_SPIT:
 				{
 					act = "spits on you.";
+					do_stun = 1;
 					sound_msg = MSG_MON_SPIT; 
 					break;
 				}
@@ -839,7 +885,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-					msg_print("You are struck by electricity!");
+					msg_print("You smell something disgustingly foul!");
 
 					/* Take damage (special) */
 					elec_dam(damage, ddesc);
@@ -923,14 +969,14 @@ bool make_attack_normal(int m_idx)
 
 					break;
 				}
-
+                     
 				case RBE_TERRIFY:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+					if ((p_ptr->resist_fear) || (p_ptr->timed[TMD_FRENZY]))
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -944,12 +990,44 @@ bool make_attack_normal(int m_idx)
 					{
 						if (inc_timed(TMD_AFRAID, 3 + randint(rlev)))
 						{
+            			    (void)clear_timed(TMD_CHARM);
 							obvious = TRUE;
 						}
 					}
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_FEAR);
+
+					break;
+				}
+				
+				case RBE_CHARM:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Increase "charm" */
+					if (p_ptr->resist_charm)
+					{
+						msg_print("You resist its charms.");
+						obvious = TRUE;
+					}
+					else if (rand_int(125) < p_ptr->skills[SKILL_SAV])
+					{
+						msg_print("You resist its charms.");
+						obvious = TRUE;
+					}
+					else
+					{
+						if (inc_timed(TMD_CHARM, 3 + randint(rlev)))
+						{
+            			    (void)clear_timed(TMD_AFRAID);
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_RES_CHARM);
 
 					break;
 				}
@@ -986,6 +1064,56 @@ bool make_attack_normal(int m_idx)
 
 					break;
 				}
+				
+				case RBE_HUNGER:
+                {
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+					
+					/* hunger */
+			        if (p_ptr->food > PY_FOOD_WEAK + 240) (void)set_food(PY_FOOD_WEAK);
+			        else p_ptr->food = p_ptr->food - (240 + randint(damage * 5));
+					msg_print("you feel unsatisfied.");
+
+					break;
+                }
+				
+				case RBE_SILVER:
+                {
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+					
+					/* silver poison */
+					if (rlev >= 10) p_ptr->silver = p_ptr->silver + randint(rlev / 10);
+					if (rlev < 10) p_ptr->silver = p_ptr->silver + 1;
+					
+					msg_print("you feel silver magic corrupting your mind!");
+
+					break;
+                }
+                
+                case RBE_SLIME:
+                {
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* slimed */
+					if (rlev >= 10) p_ptr->slime = p_ptr->slime + randint(rlev / 9);
+					if (rlev < 10) p_ptr->slime = p_ptr->slime + 1;
+
+					msg_print("you are slimed!");
+
+					break;
+                }
 
 				case RBE_LOSE_STR:
 				{
@@ -1221,7 +1349,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "image" */
-					if (!p_ptr->resist_chaos)
+					if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 					{
 						if (inc_timed(TMD_IMAGE, 3 + randint(rlev / 2)))
 						{
@@ -1231,6 +1359,26 @@ bool make_attack_normal(int m_idx)
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_CHAOS);
+
+					break;
+				}
+				
+                case RBE_FRENZY:
+                {
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Increase "confused" */
+					if (!p_ptr->resist_charm)
+					{
+						if (inc_timed(TMD_FRENZY, 4 + randint((rlev / 2))))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_RES_CHARM);
 
 					break;
 				}
@@ -1371,7 +1519,10 @@ bool make_attack_normal(int m_idx)
 		l_ptr->deaths++;
 	}
 
-
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
+    
 	/* Assume we attacked */
 	return (TRUE);
 }

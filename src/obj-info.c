@@ -152,7 +152,7 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 /*
  * Describe the special slays and executes of an item.
  */
-static bool describe_slay(const object_type *o_ptr, u32b f1)
+static bool describe_slay(const object_type *o_ptr, u32b f1, u32b f2)
 {
 	cptr slays[8], execs[3];
 	int slcnt = 0, excnt = 0;
@@ -165,6 +165,8 @@ static bool describe_slay(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_SLAY_ORC))    slays[slcnt++] = "orcs";
 	if (f1 & (TR1_SLAY_TROLL))  slays[slcnt++] = "trolls";
 	if (f1 & (TR1_SLAY_GIANT))  slays[slcnt++] = "giants";
+	if (f2 & (TR2_SLAY_BUG))    slays[slcnt++] = "bugs";
+	if (f2 & (TR2_SLAY_SILVER)) slays[slcnt++] = "silver monsters";
 
 	/* Dragon slay/execute */
 	if (f1 & TR1_KILL_DRAGON)
@@ -230,7 +232,7 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
 
 	/* Collect brands */
 	if (f1 & (TR1_BRAND_ACID)) descs[cnt++] = "acid";
-	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "electricity";
+	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "stench";
 	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
 	if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
 	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
@@ -258,7 +260,7 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
 
 	/* Collect immunities */
 	if (f2 & (TR2_IM_ACID)) descs[cnt++] = "acid";
-	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "lightning";
+	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "stench";
 	if (f2 & (TR2_IM_FIRE)) descs[cnt++] = "fire";
 	if (f2 & (TR2_IM_COLD)) descs[cnt++] = "cold";
 
@@ -285,7 +287,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	if ((f2 & (TR2_RES_ACID)) && !(f2 & (TR2_IM_ACID)))
 		vp[vn++] = "acid";
 	if ((f2 & (TR2_RES_ELEC)) && !(f2 & (TR2_IM_ELEC)))
-		vp[vn++] = "lightning";
+		vp[vn++] = "stench";
 	if ((f2 & (TR2_RES_FIRE)) && !(f2 & (TR2_IM_FIRE)))
 		vp[vn++] = "fire";
 	if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
@@ -293,6 +295,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 	if (f2 & (TR2_RES_POIS))  vp[vn++] = "poison";
 	if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
+	if (f2 & (TR2_RES_CHARM))  vp[vn++] = "charming";
 	if (f2 & (TR2_RES_LITE))  vp[vn++] = "light";
 	if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
 	if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
@@ -326,9 +329,10 @@ static bool describe_ignores(const object_type *o_ptr, u32b f3)
 
 	/* Collect the ignores */
 	if (f3 & (TR3_IGNORE_ACID)) list[n++] = "acid";
-	if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "electricity";
+	if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "stench";
 	if (f3 & (TR3_IGNORE_FIRE)) list[n++] = "fire";
 	if (f3 & (TR3_IGNORE_COLD)) list[n++] = "cold";
+	/* if (f3 & (TR3_IGNORE_MOTH)) list[n++] = "moth's eating"; */
 
 	/* Describe ignores */
 	if (n == 4)
@@ -506,7 +510,7 @@ bool object_info_out(const object_type *o_ptr)
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
 	if (describe_secondary(o_ptr, f1)) something = TRUE;
-	if (describe_slay(o_ptr, f1)) something = TRUE;
+	if (describe_slay(o_ptr, f1, f2)) something = TRUE;
 	if (describe_brand(o_ptr, f1)) something = TRUE;
 	if (describe_immune(o_ptr, f2)) something = TRUE;
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;

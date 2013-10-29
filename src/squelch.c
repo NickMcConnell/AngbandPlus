@@ -278,6 +278,8 @@ static tval_desc sval_dependent[] =
 	{ TV_FOOD,			"Food" },
 	{ TV_MAGIC_BOOK,	"Magic books" },
 	{ TV_PRAYER_BOOK,	"Prayer books" },
+	{ TV_NEWM_BOOK,	    "Books of Nature Magic" },
+	{ TV_LUCK_BOOK,	    "Books of Chance Magic" },
 	{ TV_SPIKE,			"Spikes" },
 #ifdef EFG
 	/* EFGchange squelch oil like spikes */
@@ -1148,6 +1150,8 @@ static bool sval_menu(int tval, const char *desc)
 		case TV_LITE:
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
+                case TV_NEWM_BOOK:
+                case TV_LUCK_BOOK:
                         /* leave sorted by sval */
                         break;
                 default:

@@ -255,6 +255,10 @@ extern void (*sound_hook)(int);
 extern autoinscription *inscriptions;
 extern u16b inscriptions_count;
 
+extern int range;
+extern int spellswitch;
+extern int adjust;
+
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];
 
@@ -517,6 +521,7 @@ extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
 extern void cold_dam(int dam, cptr kb_str);
+extern void moth_dam(int dam, cptr kb_str); /* not sure about wood & metal */
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, bool permanent);
 extern bool res_stat(int stat);
@@ -603,6 +608,7 @@ extern void brand_object(object_type *o_ptr, byte brand_type);
 extern void brand_weapon(void);
 extern bool brand_ammo(void);
 extern bool brand_bolts(void);
+extern bool snowball_shot(void);
 extern void ring_of_power(int dir);
 
 /* squelch.c */

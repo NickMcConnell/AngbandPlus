@@ -1107,6 +1107,10 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 	}
+	if (cp_ptr->flags & CF_HULK_CONF)
+    {
+        p_ptr->confusing = TRUE;
+    }
 }
 
 
@@ -1144,7 +1148,7 @@ static void display_player_equippy(int y, int x)
 /*
  * 'Database' of resistances and abilities to display
  */
-#define RES_ROWS 8
+#define RES_ROWS 9
 struct player_flag_record {
 	const char name[7];		/* Name of resistance/ability */
 	byte set;				/* Which field this resistance is in { 1 2 3 } */
@@ -1170,6 +1174,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Nethr",	2, TR2_RES_NETHR,	0 },
 	{ "Chaos",	2, TR2_RES_CHAOS,	0 },
 	{ "Disen",	2, TR2_RES_DISEN,	0 },
+	{ "Charm",  2, TR2_RES_CHARM,   0 },
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
@@ -1248,6 +1253,8 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 					f[2] |= TR2_RES_POIS;
 				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]))
 					f[2] |= TR2_RES_FEAR;
+				if (p_ptr->timed[TMD_SHERO])
+					f[2] |= TR2_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
 			}

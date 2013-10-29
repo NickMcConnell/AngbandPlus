@@ -865,10 +865,16 @@ void lore_do_probe(int m_idx)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 
-	/* Hack -- Memorize some flags */
+	/* Hack -- Memorize some flags, DJA: changed to include spells */
 	l_ptr->flags1 = r_ptr->flags1;
 	l_ptr->flags2 = r_ptr->flags2;
 	l_ptr->flags3 = r_ptr->flags3;
+	if (randint(100) < 34)
+	{
+	l_ptr->flags4 = r_ptr->flags4;
+	l_ptr->flags5 = r_ptr->flags5;
+	l_ptr->flags6 = r_ptr->flags6;
+    }
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1696,6 +1702,19 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	/* Maximum size */
 	if (total > GROUP_MAX) total = GROUP_MAX;
 
+	/* Pairs */
+	if ((r_ptr->flags1 & RF1_FRIEND) && (total > 1))
+	{
+       	if ((extra = 12) && (randint(100) < 60)) total = 4;
+       	else total = 2;
+    }
+
+	/* small groups */
+	if ((r_ptr->flags2 & RF2_FRIEND1) && (total > 5))
+	{
+       	if ((extra > 10) && (randint(100) < 50)) total = ((total * 2) / 3);
+       	else total = total / 2;
+    }
 
 	/* Save the rating */
 	old = rating;
@@ -1793,6 +1812,7 @@ static bool place_monster_okay(int r_idx)
 bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 {
 	int i;
+	int place;
 
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1806,7 +1826,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if ((r_ptr->flags1 & (RF1_FRIENDS)) || (r_ptr->flags1 & (RF1_FRIEND)) || (r_ptr->flags2 & (RF2_FRIEND1)))
 	{
 		/* Attempt to place a group */
 		(void)place_monster_group(y, x, r_idx, slp);
@@ -1814,10 +1834,15 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 
 	/* Escorts for certain monsters */
-	if (r_ptr->flags1 & (RF1_ESCORT))
+	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags2 & (RF2_ESCORT1)))
 	{
+ 
+        /* how many escorts to try to place */
+        if (r_ptr->flags2 & (RF2_ESCORT1)) place = 20;
+        else place = 50;
+ 
 		/* Try to place several "escorts" */
-		for (i = 0; i < 50; i++)
+		for (i = 0; i < place; i++)
 		{
 			int nx, ny, z, d = 3;
 
@@ -2055,7 +2080,7 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_ANGEL:
+		case SUMMON_ANGEL: /* (ape) */
 		{
 			okay = ((r_ptr->d_char == 'A') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
@@ -2069,16 +2094,21 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_UNDEAD:
+		case SUMMON_UNDEAD: /* summon nightmare in ALT */
+                            /* -still uses UNDEAD flag */
 		{
 			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_DRAGON:
+		case SUMMON_DRAGON: /* summon nymph in ALT */
 		{
+#ifdef ALTDJA
+			okay = ((r_ptr->d_char == 'N') &&
+#else
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
+#endif
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -2291,7 +2321,7 @@ void message_pain(int m_idx, int dam)
 
 
 	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
+	if (strchr("jmvQJwe,", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);
@@ -2327,9 +2357,28 @@ void message_pain(int m_idx, int dam)
 		else
 			msg_format("%^s yelps feebly.", m_name);
 	}
+    
+   	/* monsters which don't feel pain (ignores) */
+	else if (strchr("szg", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s is slightly damaged.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s is damaged.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s is severely damaged.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s has deep gashes but doesn't notice.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s ignores the loss of its limbs.", m_name);
+		else
+			msg_format("%^s is literally falling apart.", m_name);
+	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
+	else if (strchr("FIMRSXabclqrt", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s ignores the attack.", m_name);
@@ -2454,6 +2503,12 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
+		case DRS_RES_CHARM:
+		{
+			if (p_ptr->resist_charm) m_ptr->smart |= (SM_RES_CHARM);
+			break;
+		}
+		
 		case DRS_RES_LITE:
 		{
 			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);

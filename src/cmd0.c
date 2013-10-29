@@ -310,6 +310,10 @@ static void do_cmd_cast_or_pray(void)
 {
 	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 		do_cmd_pray();
+	else if (cp_ptr->spell_book == TV_NEWM_BOOK)
+		do_cmd_castnew();
+	else if (cp_ptr->spell_book == TV_LUCK_BOOK)
+		do_cmd_castluck();
 	else
 		do_cmd_cast();
 }

@@ -43,12 +43,12 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_PARANOIA:
 		{
-			if (!p_ptr->resist_fear)
+			if ((!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
 			{
-				if (inc_timed(TMD_AFRAID, rand_int(10) + 10))
-				{
-					*ident = TRUE;
-				}
+				   if (inc_timed(TMD_AFRAID, rand_int(10) + 10))
+				   {
+					  *ident = TRUE;
+				   }
 			}
 			break;
 		}
@@ -67,7 +67,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_HALLUCINATION:
 		{
-			if (!p_ptr->resist_chaos)
+			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 			{
 				if (inc_timed(TMD_IMAGE, rand_int(250) + 250))
 				{
@@ -89,7 +89,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_WEAKNESS:
+		case SV_FOOD_DISEASE:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_STR);
@@ -129,10 +129,11 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_DISEASE:
+		case SV_FOOD_SILVER_SLIME:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
-			(void)do_dec_stat(A_STR);
+			take_hit(damroll(3, 11), "poisonous food");
+			p_ptr->silver = p_ptr->silver + 3;
+			p_ptr->slime = p_ptr->slime + 5;
 			*ident = TRUE;
 			break;
 		}
@@ -164,6 +165,8 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		case SV_FOOD_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
 			break;
 		}
 
@@ -187,6 +190,10 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_DEX)) *ident = TRUE;
 			if (do_res_stat(A_CON)) *ident = TRUE;
 			if (do_res_stat(A_CHR)) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 2;
+			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			break;
 		}
 
@@ -203,9 +210,13 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_WAYBREAD:
 		{
-			msg_print("That tastes good.");
+			msg_print("That tastes good and healthy.");
 			(void)clear_timed(TMD_POISONED);
 			(void)hp_player(damroll(4, 8));
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 2;
+			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			*ident = TRUE;
 			break;
 		}
@@ -221,6 +232,10 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
+	
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
 
 	return (TRUE);
 }
@@ -318,13 +333,13 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_RUINATION:
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
-			(void)dec_stat(A_DEX, 25, TRUE);
-			(void)dec_stat(A_WIS, 25, TRUE);
-			(void)dec_stat(A_CON, 25, TRUE);
-			(void)dec_stat(A_STR, 25, TRUE);
-			(void)dec_stat(A_CHR, 25, TRUE);
-			(void)dec_stat(A_INT, 25, TRUE);
+			take_hit(damroll(10, 9), "a potion of Ruination");
+			(void)dec_stat(A_DEX, 15, TRUE);
+			(void)dec_stat(A_WIS, 15, TRUE);
+			(void)dec_stat(A_CON, 15, TRUE);
+			(void)dec_stat(A_STR, 15, TRUE);
+			(void)dec_stat(A_CHR, 15, TRUE);
+			(void)dec_stat(A_INT, 15, TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -375,17 +390,39 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_DEATH:
+		case SV_POTION_PURITY:
 		{
-			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
-			*ident = TRUE;
+			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
+			if (clear_timed(TMD_IMAGE)) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY)
+			{
+                       p_ptr->silver = PY_SILVER_HEALTHY;
+                       *ident = TRUE;
+            }
+            if (p_ptr->slime > PY_SLIME_HEALTHY)
+			{
+                       p_ptr->slime = PY_SLIME_HEALTHY;
+                       *ident = TRUE;
+            }
+			if (set_timed(TMD_STUN, (p_ptr->timed[TMD_STUN] / 2))) *ident = TRUE;
+			if (set_timed(TMD_CONFUSED, (p_ptr->timed[TMD_CONFUSED] / 2))) *ident = TRUE;
+			if (*ident = TRUE) msg_print("Your mind is purified.");
+			if (*ident != TRUE) msg_print("You feel less thirsty.");
 			break;
 		}
 
 		case SV_POTION_INFRAVISION:
 		{
 			if (inc_timed(TMD_SINFRA, 100 + randint(100)))
+			{
+				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_AUTO_BRAIL:
+		{
+			if (inc_timed(TMD_BRAIL, 50 + randint(100)))
 			{
 				*ident = TRUE;
 			}
@@ -462,7 +499,15 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID)) *ident = TRUE;
-			if (inc_timed(TMD_SHERO, randint(25) + 25)) *ident = TRUE;
+        	if (p_ptr->timed[TMD_CHARM])
+        	   {
+                 msg_print("you're in too good a mood to go into a battle rage.");
+               }
+            else
+               {
+			     if (inc_timed(TMD_SHERO, randint(25) + 25)) *ident = TRUE;
+               }
+               
 			break;
 		}
 
@@ -504,6 +549,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 6;
+			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			break;
 		}
 
@@ -516,6 +565,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 20;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 22;
+			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			break;
 		}
 
@@ -530,6 +583,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)clear_timed(TMD_STUN);
 			(void)clear_timed(TMD_CUT);
 			(void)clear_timed(TMD_AMNESIA);
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+			if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			(void)do_res_stat(A_STR);
 			(void)do_res_stat(A_CON);
 			(void)do_res_stat(A_DEX);
@@ -563,6 +618,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_RESTORE_EXP:
 		{
 			if (restore_level()) *ident = TRUE;
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
 			break;
 		}
 
@@ -679,6 +736,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
 			msg_print("You begin to know yourself a little better...");
+			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 3;
+			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
 			message_flush();
 			self_knowledge(TRUE);
 			*ident = TRUE;
@@ -698,6 +757,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 	}
+
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
 
 	return (TRUE);
 }
@@ -1986,6 +2049,8 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
 				(void)clear_timed(TMD_AFRAID);
+				(void)clear_timed(TMD_CHARM);
+				(void)clear_timed(TMD_FRENZY);
 				(void)inc_timed(TMD_SHERO, randint(50) + 50);
 				(void)inc_timed(TMD_BLESSED, randint(50) + 50);
 				(void)inc_timed(TMD_OPP_ACID, randint(50) + 50);
@@ -2275,6 +2340,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				break;
 			}
 
+			case ACT_SNOWBALL:
+			{
+				if (!snowball_shot()) return FALSE;
+				msg_format("Your %s turn into magical snowballs!", o_name);
+				break;
+			}
+
 			case ACT_STARLIGHT:
 			{
 				msg_format("Your %s glows with the light of a thousand stars...", o_name);
@@ -2293,7 +2365,8 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_BERSERKER:
 			{
 				msg_format("Your %s glows in anger...", o_name);
-				inc_timed(TMD_SHERO, randint(50) + 50);
+				(void)clear_timed(TMD_CHARM);
+			    inc_timed(TMD_SHERO, randint(50) + 50);
 				break;
 			}
 		}

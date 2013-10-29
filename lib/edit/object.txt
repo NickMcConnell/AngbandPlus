@@ -1,4 +1,4 @@
-# File: object.txt (modified)
+# File: object.txt (DJA 1.1.0)
 
 
 # This file is used to initialize the "lib/data/object.raw" file, which is
@@ -169,14 +169,16 @@ D:It cures confusion.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:9:Weakness
+N:9:Disease
 G:,:d
 I:80:6:500
 W:10:0:1:0
 A:10/1
+P:0:6d6:0:0:0
 F:EASY_KNOW
 D:It inflicts 6d6 points of damage, and also reduces strength unless you
 D: have sustain strength.
+D:  It may also be thrown to inflict 6d6 points of damage.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -210,6 +212,7 @@ W:20:0:1:1000
 A:20/8:30/4:40/1
 F:EASY_KNOW
 D:It restores to maximum all stats that are currently below maximum.
+D: Also cures 2 points of silver poison.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -278,18 +281,19 @@ D:It restores strength to maximum if it is currently below maximum.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:19:Disease
+N:19:Silver Slime
 G:,:d
-I:80:11:500
+I:80:11:2
 W:20:0:1:50
 A:20/1
 P:0:10d10:0:0:0
 F:EASY_KNOW
-D:It inflicts 10d10 points of damage, and also reduces strength unless
-D: you have sustain strength.
-D:  It may also be thrown to inflict 10d10 points of damage.
-D:  Mushrooms provide nourishment for about 250 turns under normal
-D: conditions.
+D:It inflicts 3d11 points of damage, and also infects you with 3
+D: points of silver poison and 3 points of sliming.
+D: (If you reach 35 points of silver poison or 60 points of sliming,
+D: you begin to have extremely serious side effects which will kill
+D: you within a few turns if not cured)
+D:  This mushroom gives no nourishment.
 
 N:20:Cure Serious Wounds
 G:,:d
@@ -298,6 +302,7 @@ W:15:0:1:75
 A:15/1
 F:EASY_KNOW
 D:It cures 4d8 points of damage.
+D: Also cures 1 point of silver poison.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -336,10 +341,11 @@ D:It provides nourishment for about 1500 turns under normal conditions.
 N:25:& piece~ of elvish waybread
 G:,:B
 I:80:37:7500
-W:5:0:3:10
-A:5/1:10/1:20/1
+W:5:0:3:220
+A:10/2:20/2
 F:EASY_KNOW
-D:It cures 4d8 points of damage and neutralizes poison.
+D:It cures 4d8 points of damage, neutralizes poison, and cures 5 points
+D: of silver poison.
 D:  It provides nourishment for about 3750 turns under normal
 D: conditions.
 
@@ -362,56 +368,72 @@ D:It provides nourishment for about 500 turns under normal conditions.
 
 ## XXX 29 XXX ##
 
-##### Edged Weapons #####
+##### Edged Weapons tval 23 #####
 
 N:30:& broken dagger~
 G:|:D
 I:23:1:0
-W:0:0:5:1
+W:0:0:6:1
 A:0/2:5/2
-P:0:1d1:-2:-4:0
+P:0:1d2:-2:-2:0
 F:SHOW_MODS
 
+# was 350
 N:31:& bastard sword~
 G:|:W
 I:23:21:0
-W:15:0:140:350
-A:15/1
+W:15:0:140:650
+A:19/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
+D:Also known as a hand-and-a-half sword, it is larger than the long sword, but
+D: smaller than the two-handed sword.
 
-N:32:& scimitar~
+# maybe should give straight bonus to magical ability instead of INT bonus
+# (should probably only give bonus for black magic and maybe wizardry)
+# (also should probably give penalties for prayers)
+# cannot have certain egos like holy avenger
+N:32:& athame~
+G:|:D
+I:23:29:1
+W:13:0:50:366
+A:13/6
+P:0:1d4:0:0:0
+F:SHOW_MODS | DRAIN_EXP | INT
+F:IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD
+D:A magical stone dagger used in rites of witchcraft.
+
+# was 200 (same as old Tulwar)
+N:33:& scimitar~
 G:|:W
 I:23:18:0
-W:10:0:130:250
-A:10/1
-P:0:2d5:0:0:0
-F:SHOW_MODS
-
-N:33:& tulwar~
-G:|:W
-I:23:15:0
-W:5:0:100:200
-A:5/1
+W:5:0:100:280
+A:6/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:A long curved sword. It is a weapon typically used by orcs.
 
+# was 255
 N:34:& broad sword~
 G:|:W
 I:23:16:0
-W:10:0:150:255
-A:10/1:15/1
+W:10:0:150:450
+A:11/1:16/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:A broad-bladed sword almost as long as the long sword.
 
+# was 90
 N:35:& short sword~
 G:|:W
 I:23:10:0
-W:5:0:80:90
+W:5:0:80:110
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
+D:The standard sword for soldiers and lesser knights.
 
+#might be taken out
 N:36:& Blade~ of Chaos
 G:|:v
 I:23:30:0
@@ -419,336 +441,413 @@ W:70:0:180:4000
 A:70/5
 P:0:6d5:0:0:0
 F:RES_CHAOS | SHOW_MODS
+D:A black blade giving off a dark purplish glow.
 
+# was 775
 N:37:& two-handed sword~
 G:|:W
 I:23:25:0
-W:30:0:200:775
+W:30:0:200:800
 A:30/1:40/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
+D:A large sword made for use with two hands.
 
 #	(replaces old main gauche)
+# was 25
 N:38:& long dagger~
 G:|:W
 I:23:5:0
-W:3:0:30:25
-A:3/1
+W:3:0:34:125
+A:5/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
+D:A dagger long enough to be used as a sword by the smaller races.
 
+# was 85
 N:39:& cutlass~
 G:|:W
 I:23:12:0
-W:5:0:110:85
+W:5:0:100:40
 A:5/1
-P:0:1d7:0:0:0
+P:0:1d6:0:0:0
 F:SHOW_MODS
+D:A short curved sword, heavy for its size.
 
-N:40:& Executioner's Sword~
-G:|:r
+# was 850
+N:40:& great sword~
+G:|:W
 I:23:28:0
-W:40:0:260:850
+W:40:0:250:850
 A:40/1
 P:0:4d5:0:0:0
 F:SHOW_MODS
+D:An exagerated long sword, larger and heavier, with a tapered blade.
 
-N:41:& katana~
+#almost same as small sword
+N:41:& gladius~
 G:|:W
 I:23:20:0
-W:20:0:120:400
-A:20/1
-P:0:3d4:0:0:0
+W:5:0:70:42
+A:5/1
+P:0:1d6:0:0:0
 F:SHOW_MODS
+D:The same size as a long dagger but made like a sword.
 
+# was 300
 N:42:& long sword~
 G:|:W
 I:23:17:0
-W:10:0:130:300
-A:10/1:20/1
+W:10:0:130:475
+A:12/1:22/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:A long and heavy sword, made for one-handed use, but those of average strength will
+D: still need two. It is a sword for heroes, where merely wielding the sword gives
+D: evidence of the hero's might.
 
+# was 10
 N:43:& dagger~
 G:|:W
 I:23:4:0
-W:0:0:12:10
-A:0/1:5/1:10/1:20/1
+W:0:0:14:56
+A:0/1:5/1:15/1:20/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
+# was 42
 N:44:& rapier~
 G:|:W
 I:23:7:0
-W:5:0:40:42
-A:5/1
-P:0:1d6:0:0:0
+W:5:0:40:140
+A:5/2
+P:1:1d5:0:0:0
 F:SHOW_MODS
+D:A narrow and lightweight sword with an elaborate handguard, good for fencing and
+D: thrusting, but not a sharp blade.
 
+# was 50
 N:45:& sabre~
 G:|:W
 I:23:11:0
-W:5:0:50:50
-A:5/1
+W:5:0:55:270
+A:9/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
+D:A medium-length curved sword, better made than the cutlass and easier to handle than
+D: the scimitar.
 
-N:46:& small sword~
+# was 48
+N:46:& stiletto~
 G:|:W
 I:23:8:0
-W:5:0:75:48
-A:5/1
-P:0:1d6:0:0:0
+W:5:0:19:245
+A:13/5
+P:0:2d2:2:0:0
 F:SHOW_MODS
+D:A small, thin stabbing blade which can pierce armor especially well. It is commonly
+D: used by assassins and others of dishonorable professions.
 
 N:47:& broken sword~
 G:|:D
 I:23:2:0
-W:0:0:30:2
-A:0/2:5/2
-P:0:1d2:-2:-4:0
+W:0:0:35:10
+A:0/2:6/2
+P:0:1d5:-2:-4:0
 F:SHOW_MODS
+D:A victim of a stronger weapon..
 
-##### Blunt Weapons #####
+##### Priestly Blunt Weapons tval 21 #####
+##### Non-Priestly blunt weapons tval 22 #####
 
-N:48:& ball-and-chain~
+# replaces ball & chain
+N:48:& ceremonial mace~
 G:\:D
-I:21:6:0
-W:20:0:150:200
-A:20/1
+I:21:8:0
+W:10:0:130:250
+A:7/3
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:An ornamental mace normally used for decoration, but a priest will hit
+D: someone with it if he must.
 
+# was 30
 N:49:& whip~
 G:\:D
 I:21:2:0
-W:3:0:30:30
+W:3:0:30:46
 A:3/1
 P:0:1d3:0:0:0
 F:SHOW_MODS
 
+# was 353
 N:50:& flail~
 G:\:D
-I:21:13:0
-W:10:0:150:353
-A:10/1
-P:0:2d6:0:0:0
+I:22:10:0
+W:10:0:150:550
+A:16/1
+P:0:1d13:0:0:0
 F:SHOW_MODS
+D:The head of a spiked mace attached to a chain with a handle. It can be used almost
+D: as effectively by a blind person.
 
-N:51:& two-handed flail~
+# was 590, should have a chance of damaging yourself.
+N:51:& multi-chained flail~
 G:\:y
-I:21:18:0
-W:45:0:280:590
-A:45/1
-P:0:3d6:0:0:0
+I:22:14:0
+W:30:0:170:710
+A:25/5
+P:0:2d7:0:0:0
 F:SHOW_MODS
+D:A flail with multiple chained heads attached to one handle, a dangerous weapon for
+D: the wielder as well as for the opponent.
 
+# was 396
 N:52:& morning star~
 G:\:D
-I:21:12:0
-W:10:0:150:396
-A:10/1
+I:22:11:0
+W:10:0:140:590
+A:17/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:A pronged mace with a longer handle.
 
+# was 130
 N:53:& mace~
 G:\:D
-I:21:5:0
-W:5:0:120:130
-A:5/1
+I:22:5:0
+W:5:0:120:240
+A:6/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:A studded metal ball at the end of a handle, it is basically a metal club.
 
+# was 200
 N:54:& quarterstaff~
 G:\:U
-I:21:3:0
-W:10:0:150:200
-A:10/1
+I:21:6:0
+W:10:0:130:270
+A:9/1
 P:0:1d9:0:0:0
 F:SHOW_MODS
+D:A long narrow staff made of strong wood, it can be used for clubbing or more
+D: skillfully in martial arts.
 
+# was 225
 N:55:& war hammer~
 G:\:D
-I:21:8:0
-W:5:0:120:225
-A:5/1
+I:21:10:0
+W:5:0:120:390
+A:7/2
 P:0:3d3:0:0:0
 F:SHOW_MODS
+D:It has a long handle with a head that is a hammer on one side and a small axe
+D: on the other.
 
+# was 502
 N:56:& lead-filled mace~
 G:\:D
-I:21:15:0
-W:15:0:180:502
-A:15/1
-P:0:3d4:0:0:0
+I:22:15:0
+W:15:0:190:665
+A:15/2
+P:0:4d3:0:0:0
 F:SHOW_MODS
+D:A large and especially heavy made, harder to handle but deals a much more
+D: effective blow.
 
 N:57:& Mace~ of Disruption
 G:\:v
-I:21:20:0
+I:22:35:0
 W:80:0:400:4300
-A:80/5
+A:78/5
 P:0:5d8:0:0:0
-F:SLAY_UNDEAD | SHOW_MODS
+F:SLAY_UNDEAD | SHOW_MODS | BLESSED
+D:A powerful and heavy mace, blessed for priests against undead.
 
-N:58:& lucerne hammer~
+# was lucerne hammer
+N:58:& Staff of Striking~
 G:\:B
-I:21:10:0
-W:10:0:120:376
-A:10/1
-P:0:2d5:0:0:0
+I:21:30:0
+W:45:4:150:2000
+A:42/4
+P:0:3d9:0:0:0
 F:SHOW_MODS
+D:A magic staff which adds magical damage to physical damage with each blow.
 
-##### Polearms and Axes #####
+##### Polearms and Axes tval 22 #####
 
-N:59:& beaked axe~
-G:/:s
-I:22:10:0
-W:15:0:180:408
-A:15/1
-P:0:2d6:0:0:0
+# was beaked axe
+N:59:& hatchet~
+G:/:U
+I:22:2:0
+W:5:0:60:35
+A:3/1
+P:0:1d5:0:0:0
 F:SHOW_MODS
+D:A small axe not primarily made for fighting.
 
+# was 2d6, 363
 N:60:& glaive~
 G:/:s
 I:22:13:0
-W:20:0:190:363
-A:20/1
-P:0:2d6:0:0:0
+W:20:0:190:686
+A:20/2
+P:0:2d7:0:0:0
 F:SHOW_MODS
+D:A very long handle with a long blade at the end.
 
+# was 430
 N:61:& halberd~
 G:/:s
-I:22:15:0
-W:25:0:190:430
+I:22:21:0
+W:25:0:190:721
 A:25/1
 P:0:3d5:0:0:0
 F:SHOW_MODS
+D:It has a very long handle whose head is a wide axe on one side and a hook on the other.
 
-N:62:& awl-pike~
-G:/:s
-I:22:4:0
-W:10:0:160:340
-A:10/1
+# was awl pike
+N:62:& hand axe~
+G:/:u
+I:22:3:0
+W:10:0:110:245
+A:6/2
 P:0:1d8:0:0:0
 F:SHOW_MODS
+D:Chop wood or limbs with the same weapon.
 
+# was 358
 N:63:& pike~
 G:/:s
 I:22:8:0
-W:15:0:160:358
-A:15/1
+W:15:0:160:456
+A:13/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:A long metal spear-like polearm.
 
+# was 36
 N:64:& spear~
 G:/:s
-I:22:2:0
-W:5:0:50:36
+I:22:4:0
+W:5:0:50:168
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
+D:A shaft of strong wood or metal with a sharp point at the end.
 
+# was 120
 N:65:& trident~
 G:/:y
-I:22:5:0
-W:5:0:70:120
-A:5/1
+I:22:7:0
+W:5:0:70:303
+A:6/2
 P:0:1d8:0:0:0
 F:SHOW_MODS
+D:A metal spear that splits into three or more sharp tips.
 
+# was 230
 N:66:& lance~
 G:/:s
 I:22:20:0
-W:10:0:300:230
-A:10/1
+W:10:0:300:590
+A:10/2
 P:0:2d8:0:0:0
 F:SHOW_MODS
+D:A very long and heavy spear-like weapon made for jousting.
 
+# was 500
 N:67:& great axe~
 G:/:s
-I:22:25:0
-W:40:0:230:500
-A:40/1
+I:22:23:0
+W:40:0:230:744
+A:35/2
 P:0:4d4:0:0:0
 F:SHOW_MODS
 
+# was 334
 N:68:& battle axe~
 G:/:s
-I:22:22:0
-W:15:0:170:334
-A:15/1
+I:22:18:0
+W:15:0:170:700
+A:22/1
 P:0:2d8:0:0:0
 F:SHOW_MODS
 
+# was 750
 N:69:& lochaber axe~
 G:/:D
-I:22:28:0
-W:45:0:250:750
-A:45/1
+I:22:25:0
+W:45:0:250:815
+A:40/2
 P:0:3d8:0:0:0
 F:SHOW_MODS
+D:Similar to the halberd, its head has an axe on one side and a nasty spiked prong
+D: on the other.
 
+# was 304
 N:70:& broad axe~
 G:/:s
-I:22:11:0
-W:15:0:160:304
+I:22:12:0
+W:15:0:165:543
 A:15/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
 
+# was 800
 N:71:& scythe~
 G:/:s
-I:22:17:0
-W:45:0:250:800
-A:45/1
-P:0:5d3:0:0:0
+I:22:22:0
+W:45:0:230:792
+A:35/2
+P:0:5d3:-1:0:0
 F:SHOW_MODS
+D:Rather clumsy as a weapon, it is made for harvesting grain.
 
 N:72:& Scythe~ of Slicing
 G:/:r
-I:22:30:0
+I:22:33:0
 W:60:0:250:3500
 A:60/3
 P:0:8d4:0:0:0
 F:SHOW_MODS
-
+D:A magical scythe sharp enough to effortlessly slice through bone or even metal.
 
 ##### Bows, Crossbows, Slings #####
 
 N:73:& short bow~
 G:}:U
 I:19:12:0
-W:3:0:30:50
+W:3:0:32:90
 A:3/1:50/2
 F:SHOW_MODS
 
 N:74:& long bow~
 G:}:U
 I:19:13:0
-W:10:0:40:120
-A:10/1:70/2
+W:10:0:44:225
+A:14/2:70/2
 F:SHOW_MODS
 
 N:75:& light crossbow~
 G:}:s
 I:19:23:0
-W:15:0:110:140
-A:15/1:60/2
+W:15:0:110:245
+A:16/1:60/2
 F:SHOW_MODS
 
 N:76:& heavy crossbow~
 G:}:s
 I:19:24:0
-W:30:0:200:300
-A:30/1:80/2
+W:30:0:200:420
+A:30/2:80/2
 F:SHOW_MODS
 
 N:77:& sling~
 G:}:u
 I:19:2:0
-W:1:0:5:5
-A:1/1:40/2
+W:1:0:5:20
+A:2/1:40/2
 F:SHOW_MODS
 
 
@@ -865,12 +964,12 @@ A:46/3
 P:0:1d8:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:90:& broken shovel~
+N:90:& broken pick~
 G:\:s
 I:20:8:0
-W:5:0:60:3
-A:8/15
-P:0:1d2:0:0:0
+W:5:0:110:3
+A:11/15
+P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
 ##### Armor #####
@@ -946,6 +1045,8 @@ W:50:0:40:2000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
+
+###  	body armor
 
 N:101:& robe~
 G:(:b
@@ -1141,7 +1242,7 @@ W:10:0:25:35
 A:10/1
 P:2:1d1:0:0:0
 
-N:127:& set~ of cesti
+N:127:& set~ of cestus
 G:]:W
 I:31:5:0
 W:50:0:40:100
@@ -2080,7 +2181,8 @@ A:15/1:60/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It cures 300 points of damage, cures all stunning, heals all cut
-D: damage, neutralizes poison, and cures blindness and confusion.
+D: damage, neutralizes poison, cures blindness and confusion, and
+D: cures 5 points of silver poison.
 D:  It also provides nourishment for about 100 turns under normal
 D: conditions.
 
@@ -2265,7 +2367,8 @@ W:40:0:4:400
 A:40/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:It restores experience to maximum if it is currently below maximum.
+D:It restores experience to maximum if it is currently below maximum and
+D: cures 1 point of silver poison.
 
 N:261:Resist Heat
 G:!:d
@@ -2338,8 +2441,14 @@ F:EASY_KNOW
 D:It extends the radius of your infravision by 50 feet for 100+1d100
 D: turns.
 
-## XXX 268 XXX ##
-
+N:268:Auto-Brail
+G:!:d
+I:75:54:0
+W:15:0:4:280
+A:15/6
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:It lets you be able to read scrolls and cast spells while blind for a limited time.
 
 ##### Wands #####
 
@@ -2996,7 +3105,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:334:[Beginners Handbook]
+N:334:[Minor Healings and Defences]
 G:?:G
 I:91:0:0
 W:5:0:30:25
@@ -3004,7 +3113,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:335:[Words of Wisdom]
+N:335:[Godly Insights]
 G:?:G
 I:91:1:0
 W:10:0:30:100
@@ -3012,7 +3121,7 @@ A:10/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:336:[Chants and Blessings]
+N:336:[Defences of Light]
 G:?:G
 I:91:2:0
 W:20:0:30:300
@@ -3027,6 +3136,7 @@ W:30:0:30:900
 A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:This spellbook is not readable by healers.
 
 ##### Chests #####
 
@@ -3453,7 +3563,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:382:[Tenser's Transformations]
+N:382:[More Enchantments Of War]
 G:?:r
 I:90:7:0
 W:70:0:30:50000
@@ -3471,7 +3581,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:384:[Ethereal Openings]
+N:384:[Purifications & Healing]
 G:?:g
 I:91:4:0
 W:40:0:30:5000
@@ -3480,7 +3590,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:385:[Godly Insights]
+N:385:[Holy Infusions]
 G:?:g
 I:91:5:0
 W:50:0:30:10000
@@ -3489,7 +3599,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:386:[Purifications and Healing]
+N:386:[Advanced Defences of Light]
 G:?:g
 I:91:6:0
 W:60:0:30:30000
@@ -3498,7 +3608,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:387:[Holy Infusions]
+N:387:[Holy Words of Wisdom]
 G:?:g
 I:91:7:0
 W:80:0:30:50000
@@ -3506,6 +3616,7 @@ A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
+D:This spellbook is not readable by paladins
 
 N:388:[Wrath of God]
 G:?:g
@@ -3515,7 +3626,7 @@ A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-
+D:This spellbook is not readable by healers.
 
 ##### Junk #####
 
@@ -3745,16 +3856,15 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Extra potions #####
 
-N:415:Death
+N:415:Purity
 G:!:d
 I:75:23:0
-W:55:0:4:0
-A:55/4
-P:0:15d10:0:0:0
+W:55:0:4:900
+A:30/2:70/3
+P:0:1d1:0:0:0
 F:EASY_KNOW
-D:It inflicts 5000 points of damage.
-D:  Death can only be avoided if you have magical invulnerability, which
-D: just happens to be unavailable in the current version of Angband.
+D: Cures all halucenation, amnesia, slime, and silver poison,
+D: and also halves stunning and confusion.
 
 N:416:Ruination
 G:!:d
@@ -3796,7 +3906,8 @@ A:40/4:80/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It cures 1200 points of damage, cures all stunning, heals all cut
-D: damage, neutralizes poison, and cures blindness and confusion.
+D: damage, neutralizes poison, cures blindness and confusion, and
+D: cures 20 points of silver poison.
 
 N:420:Life
 G:!:d
@@ -3807,7 +3918,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It restores experience and all stats to maximum, cures 5000 points of
 D: damage, cures all stunning, heals all cut damage, neutralizes poison,
-D: stops hallucination, and cures blindness and confusion.
+D: stops hallucination, and cures blindness, confusion, and all silver poison.
 
 N:421:Self Knowledge
 G:!:d
@@ -3818,12 +3929,14 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It grants knowledge of all special powers (whether intrinsic,
 D: temporary, or provided by a magical item) that you currently possess.
+D: Also cures 3 points of silver poison (because silver poison makes you
+D: forget who you are).
 
 N:422:*Enlightenment*
 G:!:d
 I:75:57:0
 W:70:0:4:80000
-A:70/4
+A:70/5
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:It has the powers of the Potions of Enlightenment, Intelligence,
@@ -3954,7 +4067,7 @@ G:$:U
 I:100:1:0
 W:1:0:0:3
 
-N:481:poker chips
+N:481:shiny rocks
 G:$:B
 I:100:2:0
 W:1:0:0:4
@@ -4216,46 +4329,40 @@ F:INSTA_ART
 N:515:& druid robe~
 G:(:b
 I:36:8:0
-W:40:10:20:460
+W:40:10:20:420
 A:40/10
-P:2:0d0:0:0:4
+P:3:0d0:0:0:2
 F:SHOW_MODS
 
+# priestly weapon
 N:516:& walking staff~
 G:\:u
-I:21:4:0
-W:4:8:80:30
-A:4/8
-P:0:1d5:1:0:0
+I:21:3:0
+W:4:8:80:20
+A:2/2
+P:0:1d5:0:0:0
 F:SHOW_MODS
 
+# was 42
 N:517:& elven leather cap~
 G:]:u
 I:32:7:2
-W:3:0:15:42
+W:3:0:15:57
 A:45/6
-P:2:0d0:1:0:2
+P:3:0d0:0:0:0
 F:STEALTH | SHOW_MODS
 
-# N:518:
-
-#N:519:& club~
-#G:\:D
-#I:21:7:0
-#W:6:0:90:70
-#A:6/2
-#P:0:2d3:0:0:0
-#F:SHOW_MODS
-
-N:520:& main gauche~
+# was 21   , 2/6
+N:518:& main gauche~
 G:|:W
 I:23:3:0
-W:3:0:22:21
-A:2/6
+W:3:0:24:67
+A:3/3
 P:2:1d3:0:0:0
 F:SHOW_MODS
+D:An offhand dagger with a wide handguard for defence.
 
-N:521:& fur cloak~
+N:519:& fur cloak~
 G:(:w
 I:35:2:0
 W:12:9:70:230
@@ -4263,18 +4370,237 @@ A:12/9
 P:2:0d0:0:0:0
 F:RES_COLD
 
-N:522:& ethereal cloak~
-G:(:w
+N:520:& high quality travelling cloak~
+G:(:U
 I:35:3:0
-W:50:4:0:2500
-A:60/4
+W:0:75:15:25
+A:0/75
 P:2:0d0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:523:& light club~
-G:\:u
-I:21:1:0
-W:3:81:34:56
-A:3/81
+# was 56
+N:521:& light club~
+G:\:U
+I:21:4:0
+W:3:4:38:84
+A:3/4
 P:0:2d2:1:0:0
 F:SHOW_MODS
+
+##### Nature Books (NEWM) #####
+
+N:522:[Call of the Wild]
+G:?:B
+I:92:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:523:[Communion with Nature]
+G:?:B
+I:92:1:0
+W:5:0:30:125
+A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:524:[Gifts of Nature]
+G:?:B
+I:92:2:0
+W:5:0:30:350
+A:15/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:525:[Druidic Lore]
+G:?:B
+I:92:3:0
+W:5:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:526:[Natural Combat]
+G:?:b
+I:92:4:0
+W:5:0:30:10000
+A:30/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:527:[Primal Forces]
+G:?:b
+I:92:5:0
+W:5:0:30:20000
+A:45/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:528:[Bombadil's Songs]
+G:?:b
+I:92:6:0
+W:5:0:30:30000
+A:60/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:529:[Spirits of Nature]
+G:?:b
+I:92:7:0
+W:5:0:30:50000
+A:75/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:530:[Power of Enlightenment]
+G:?:v
+I:92:8:0
+W:5:0:30:75000
+A:90/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is only readable by mystics.
+
+#priestly weapon
+N:531:& walking stick~
+G:\:u
+I:21:1:0
+W:1:0:50:2
+A:0/2
+P:0:1d2:0:0:0
+F:SHOW_MODS
+
+#axe
+N:532:& giant axe~
+G:/:W
+I:22:28:0
+W:50:5:350:1300
+A:50/8
+P:0:5d5:0:0:0
+F:SHOW_MODS
+
+#some added bows
+N:533:slingshot
+G:{:u
+I:19:1:0
+W:0:1:10:4
+A:0/2
+F:SHOW_MODS
+
+N:534:handheld catapult
+G:{:D
+I:19:3:0
+W:30:5:60:160
+A:30/5:70/10
+F:SHOW_MODS
+
+N:535:small bow
+G:{:U
+I:19:11:0
+W:2:2:26:35
+A:0/2
+F:SHOW_MODS
+
+N:536:mini crossbow
+G:{:s
+I:19:22:0
+W:8:2:60:145
+A:7/2
+F:SHOW_MODS
+
+#cannot get extra shots or extra might egos
+N:537:great bow
+G:{:g
+I:19:35:0
+W:70:5:140:3700
+A:70/5
+F:SHOW_MODS
+
+##### Chance Books (LUCK) #####
+
+N:538:[Tourism & Travel]
+G:?:U
+I:93:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:539:[Minor Charms for Vacationers]
+G:?:U
+I:93:1:0
+W:5:0:30:125
+A:10/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:540:[Tricks & Detections]
+G:?:U
+I:93:2:0
+W:15:0:30:65
+A:15/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This spellbook is not for tourists.
+
+N:541:[Guidebook for Tourists]
+G:?:U
+I:93:3:0
+W:20:0:30:1000
+A:20/1
+P:0:1d2:0:0:0
+F:EASY_KNOW
+D:This spellbook is only for tourists.
+
+N:542:[Quick Getaways]
+G:?:u
+I:93:4:0
+W:20:0:30:2100
+A:21/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for tourists.
+
+N:543:[The Lottery]
+G:?:u
+I:93:5:0
+W:40:0:30:17777
+A:40/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:544:[Mordenkainen's Escapes: Rogue's Edition]
+G:?:u
+I:93:6:0
+W:55:0:30:30000
+A:55/2
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for tourists.
+
+N:545:[Rogue's Defences]
+G:?:u
+I:93:7:0
+W:55:0:30:30000
+A:55/2
+P:0:1d1:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This spellbook is not for tourists.
+
+N:546:[The Spreading of Chaos]
+G:?:u
+I:93:8:0
+W:90:0:30:56000
+A:65/2
+P:0:1d3:0:0:0
+F:EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

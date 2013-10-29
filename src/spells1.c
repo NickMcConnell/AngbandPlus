@@ -12,7 +12,6 @@
 
 #include "script.h"
 
-
 /*
  * Helper function -- return a "nearby" race for polymorphing
  *
@@ -340,13 +339,15 @@ static byte spell_color(int type)
 	{
 		case GF_MISSILE:	return (TERM_VIOLET);
 		case GF_ACID:		return (TERM_SLATE);
-		case GF_ELEC:		return (TERM_BLUE);
+		case GF_ELEC:		return (TERM_L_GREEN);
 		case GF_FIRE:		return (TERM_RED);
 		case GF_COLD:		return (TERM_WHITE);
 		case GF_POIS:		return (TERM_GREEN);
-		case GF_HOLY_ORB:	return (TERM_L_DARK);
+		case GF_HOLY_ORB:	return (TERM_WHITE);
 		case GF_MANA:		return (TERM_L_DARK);
 		case GF_ARROW:		return (TERM_WHITE);
+		case GF_THROW:      return (TERM_UMBER);
+		case GF_STINKB:     return (TERM_UMBER);
 		case GF_WATER:		return (TERM_SLATE);
 		case GF_NETHER:		return (TERM_L_GREEN);
 		case GF_CHAOS:		return (TERM_VIOLET);
@@ -355,7 +356,7 @@ static byte spell_color(int type)
 		case GF_CONFUSION:	return (TERM_L_UMBER);
 		case GF_SOUND:		return (TERM_YELLOW);
 		case GF_SHARD:		return (TERM_UMBER);
-		case GF_FORCE:		return (TERM_UMBER);
+		case GF_FORCE:		return (TERM_L_DARK);
 		case GF_INERTIA:	return (TERM_L_WHITE);
 		case GF_GRAVITY:	return (TERM_L_WHITE);
 		case GF_TIME:		return (TERM_L_BLUE);
@@ -363,6 +364,7 @@ static byte spell_color(int type)
 		case GF_LITE:		return (TERM_ORANGE);
 		case GF_DARK_WEAK:	return (TERM_L_DARK);
 		case GF_DARK:		return (TERM_L_DARK);
+		case GF_AXE:        return (TERM_SLATE);
 		case GF_PLASMA:		return (TERM_RED);
 		case GF_METEOR:		return (TERM_RED);
 		case GF_ICE:		return (TERM_WHITE);
@@ -585,9 +587,34 @@ static bool hates_acid(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Does a given class of objects (usually) get eaten by moths?
+ *  moths should be able to completely eat or just damage.
+ */
+static bool hates_moth(const object_type *o_ptr)
+{
+	/* Analyze the type */
+	switch (o_ptr->tval)
+	{
+		/* cloth & paper */
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_SCROLL:
+		case TV_MAGIC_BOOK:
+		case TV_PRAYER_BOOK:
+		case TV_NEWM_BOOK:
+		case TV_LUCK_BOOK:
+		{
+			return (TRUE);
+		}
+	}
+	return (FALSE);
+}
+
+
 
 /*
- * Does a given object (usually) hate electricity?
+ * Does a given object (usually) hate electricity? (stench)
  */
 static bool hates_elec(const object_type *o_ptr)
 {
@@ -596,6 +623,7 @@ static bool hates_elec(const object_type *o_ptr)
 		case TV_RING:
 		case TV_WAND:
 		case TV_ROD:
+        case TV_FOOD:
 		{
 			return (TRUE);
 		}
@@ -632,6 +660,8 @@ static bool hates_fire(const object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_NEWM_BOOK:
+		case TV_LUCK_BOOK:
 		{
 			return (TRUE);
 		}
@@ -689,6 +719,18 @@ static int set_acid_destroy(const object_type *o_ptr)
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
+	return (TRUE);
+}
+
+/*
+ * Moth damage
+ */
+static int set_moth_destroy(const object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+	if (!hates_moth(o_ptr)) return (FALSE);
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & (TR3_IGNORE_MOTH)) return (FALSE);
 	return (TRUE);
 }
 
@@ -788,6 +830,7 @@ static int inven_damage(inven_func typ, int perc)
 				case TV_DIGGING:
 				{
 					/* Chance to damage it */
+    /* 10000 seems like it would be an extremely small chance, but stuff still gets damaged often (?) */
 					if (rand_int(10000) < perc)
 					{
 						/* Damage the item */
@@ -830,8 +873,18 @@ static int inven_damage(inven_func typ, int perc)
 				/* Rods are tough */
 				case TV_ROD:
 				{
-					chance = (chance / 4);
+					chance = (chance / 5);   // was chance / 4
 					
+					break;
+				}
+
+				/* Stench doesn't destroy things as often */
+				case TV_WAND:
+				case TV_RING:
+				case TV_FOOD:
+				{
+					chance = (chance / 2);
+			
 					break;
 				}
 			}
@@ -993,7 +1046,7 @@ void acid_dam(int dam, cptr kb_str)
 
 
 /*
- * Hurt the player with electricity
+ * Hurt the player with electricity / stench
  */
 void elec_dam(int dam, cptr kb_str)
 {
@@ -1057,6 +1110,24 @@ void cold_dam(int dam, cptr kb_str)
 
 	/* Inventory damage */
 	inven_damage(set_cold_destroy, inv);
+}
+
+
+/*
+ * Hurt the player & have the moth eat stuff
+ */
+void moth_dam(int dam, cptr kb_str)
+{
+	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+
+	/* Total immunity (no resistance) */
+//	if (p_ptr->immune_moth || (dam <= 0)) return;
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Inventory damage */
+	inven_damage(set_moth_destroy, inv);
 }
 
 
@@ -1736,6 +1807,46 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Wizard Lock */
+		case GF_WIZLOCK:
+		{
+            /* If target is an open space, create a jammed door */
+            if ((cave_feat[y][x] == FEAT_FLOOR) && (cave_naked_bold(y, x)))
+            {
+				msg_print("A door magically appears and jams itself.");
+
+				/* Hack - maximum jamming. */
+				cave_feat[y][x] = 0x2F;
+            }
+
+            if ((cave_feat[y][x] == FEAT_FLOOR) && (!(cave_naked_bold(y, x))))
+            {
+				msg_print("A doorknob appears and falls to the floor");
+            }
+            
+            /* If door is open, close it */
+            if ((cave_feat[y][x] == FEAT_OPEN) ||
+			     (cave_feat[y][x] == FEAT_BROKEN))
+            {
+				if (cave_feat[y][x] == FEAT_OPEN) msg_print("The door closes and jams itself.");
+				if (cave_feat[y][x] == FEAT_BROKEN) msg_print("The door fixes and jams itself.");
+
+				/* Hack - maximum jamming. */
+				cave_feat[y][x] = 0x2F;
+            }
+
+			/* Require any door. */
+			if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+			     (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+			{
+				/* Message. */
+				msg_print("You cast a binding spell on the door.");
+
+				/* Hack - maximum jamming. */
+				cave_feat[y][x] = 0x2F;
+			}
+		}
+
 		/* Lite up the grid */
 		case GF_LITE_WEAK:
 		case GF_LITE:
@@ -1755,6 +1866,12 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Fully update the visuals */
 				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 			}
+
+            if (spellswitch == 9)
+            {
+			/* only temporary light, turn it back off but update visuals later */
+			cave_info[y][x] &= ~(CAVE_GLOW);
+            }
 
 			break;
 		}
@@ -1874,14 +1991,21 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Elec -- Rings and Wands */
+			/* Elec (stench in ALT) -- Rings, Wands, and food */
 			case GF_ELEC:
 			{
 				if (hates_elec(o_ptr))
 				{
-					do_kill = TRUE;
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+                    if (randint(100) < 90)
+                    {
+					   do_kill = TRUE;
+#ifdef ALTDJA
+					   note_kill = (plural ? " evaporate from the toxic stench!" : " evaporates from the toxic stench!");
+#else
+					   note_kill = (plural ? " are destroyed!" : " is destroyed!");
+#endif
+					   if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+                    }
 				}
 				break;
 			}
@@ -1910,7 +2034,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Fire + Elec */
+			/* Plasma: destroys objects that hate fire and maybe acid */
 			case GF_PLASMA:
 			{
 				if (hates_fire(o_ptr))
@@ -1919,12 +2043,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
-				if (hates_elec(o_ptr))
+				if ((hates_acid(o_ptr)) && (randint(100) < 33))
 				{
-					ignore = FALSE;
 					do_kill = TRUE;
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					note_kill = (plural ? " melt!" : " melts!");
+					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1951,7 +2074,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Hack -- break potions and such */
 			case GF_ICE:
 			case GF_SHARD:
-			case GF_FORCE:
+            case GF_FORCE:
 			case GF_SOUND:
 			{
 				if (hates_cold(o_ptr))
@@ -2012,7 +2135,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 
 		/* Attempt to destroy the object */
-		if (do_kill)
+		if ((do_kill) && (randint(100) < 75))
 		{
 			/* Effect "observed" */
 			if (o_ptr->marked)
@@ -2184,7 +2307,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
 
-
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
@@ -2196,9 +2318,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_DEMON)) ||
-	    (r_ptr->flags3 & (RF3_UNDEAD)) ||
 	    (r_ptr->flags2 & (RF2_STUPID)) ||
-	    (strchr("Evg", r_ptr->d_char)))
+	    (strchr("gpruvzO.#", r_ptr->d_char)))
 	{
 		/* Special note at death */
 		note_dies = " is destroyed.";
@@ -2228,8 +2349,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Electricity */
+		/* Electricity / Stench in ALT */
 		case GF_ELEC:
+#ifdef ALTDJA
+        case GF_STINKB:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flags3 & (RF3_IM_ELEC))
+			{
+				note = " doesn't smell it.";
+				dam /= 9;
+				if (seen) l_ptr->flags3 |= (RF3_IM_ELEC);
+			}
+			break;
+		}
+#else
 		{
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -2240,6 +2374,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			break;
 		}
+#endif
 
 		/* Fire damage */
 		case GF_FIRE:
@@ -2295,6 +2430,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Arrow -- no defense XXX */
 		case GF_ARROW:
+        case GF_THROW:
+        case GF_AXE:
 		{
 			if (seen) obvious = TRUE;
 			break;
@@ -2330,7 +2467,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (r_ptr->flags3 & (RF3_EVIL))
 			{
-				dam /= 2;
+				dam = (dam * 3) / 4;
 				note = " resists somewhat.";
 				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 			}
@@ -2341,11 +2478,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_WATER:
 		{
 			if (seen) obvious = TRUE;
+			do_stun = (10 + randint(15) + r) / (r);
 			if (r_ptr->flags3 & RF3_IM_WATER)
 			{
-				note = " is immune.";
+				if (!spellswitch == 9) note = " is immune.";
 				dam = 0;
-				if (seen) l_ptr->flags3 |= RF3_IM_WATER;
+				do_stun = (1 + randint(4) - r);
+				if (do_stun < 0) do_stun = 0;
+                if (!spellswitch == 9)
+                {
+                   if (seen) l_ptr->flags3 |= RF3_IM_WATER;
+                }
 			}
 			break;
 		}
@@ -2386,6 +2529,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
+				do_stun = ((do_stun * 2) / 3);
 			}
 			break;
 		}
@@ -2436,14 +2580,30 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Force */
 		case GF_FORCE:
-		{
-			if (seen) obvious = TRUE;
+		{	
+            if (seen) obvious = TRUE;
 			do_stun = (randint(15) + r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_WALL))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+			break;
+		}
+		
+		/* Fear */
+		case GF_BRFEAR:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flags3 & (RF3_NO_FEAR))
+			{
+				note = " resists.";
+				dam *= 3; dam /= (randint(6)+3);
+			}
+			else
+			{
+                do_fear = (randint(4) + 2);
+            }
 			break;
 		}
 
@@ -2478,7 +2638,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Higher level monsters can resist the teleportation better */
 			if (randint(127) > r_ptr->level)
-				do_dist = 10;
+				do_dist = 11;
 
 			if (r_ptr->flags4 & (RF4_BR_GRAV))
 			{
@@ -2518,18 +2678,34 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 
+		/* dispel / damage to unnatural */
+		case GF_DISP_UNN:
+		{
+			if (seen) obvious = TRUE;
+			if ((!(r_ptr->flags3 & (RF3_SILVER))) &&
+			    (!(r_ptr->flags3 & (RF3_NON_LIVING))))
+			{
+
+				note = " is unaffected!";
+				obvious = FALSE;
+				dam = 0;
+			}
+			if (r_ptr->flags3 & (RF3_SILVER))
+			{
+				if (seen) l_ptr->flags3 |= (RF3_SILVER);
+			}
+
+			break;
+		}
+
+
 		/* Drain Life */
 		case GF_OLD_DRAIN:
 		{
 			if (seen) obvious = TRUE;
-			if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
-			    (r_ptr->flags3 & (RF3_DEMON)) ||
-			    (strchr("Egv", r_ptr->d_char)))
+			if ((r_ptr->flags3 & (RF3_DEMON)) ||
+			    (r_ptr->flags3 & (RF3_NON_LIVING)))
 			{
-				if (r_ptr->flags3 & (RF3_UNDEAD))
-				{
-					if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
-				}
 				if (r_ptr->flags3 & (RF3_DEMON))
 				{
 					if (seen) l_ptr->flags3 |= (RF3_DEMON);
@@ -2816,13 +2992,15 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 		/* Teleport undead (Use "dam" as "power") */
+		/* now used for banish unnatural */
 		case GF_AWAY_UNDEAD:
 		{
 			/* Only affect undead */
-			if (r_ptr->flags3 & (RF3_UNDEAD))
+			if ((r_ptr->flags3 & (RF3_NON_LIVING)) ||
+			   (r_ptr->flags3 & (RF3_SILVER)))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->flags3 |= (RF3_SILVER);
 				do_dist = dam;
 			}
 
@@ -2842,7 +3020,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-			/* Only affect undead */
+			/* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				if (seen) obvious = TRUE;
@@ -2979,6 +3157,79 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+        /* Bug Spray */
+        case GF_BUG_SPRAY:
+		{
+			/* Only affect bugs */
+			if (r_ptr->flags3 & (RF3_BUG))
+			{
+				/* Learn about type */
+				if (seen) l_ptr->flags3 |= (RF3_BUG);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " cringes.";
+				note_dies = " dies!";
+			}
+
+			/* also affect rodents, but not as much */
+			else if (r_ptr->d_char == 'r')
+			{
+                dam = (dam / 2);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " cringes.";
+				note_dies = " dies!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
+		/* Dispel silver */
+		case GF_DISP_SILVER:
+		{
+			/* Only affect silver */
+			if (r_ptr->flags3 & (RF3_SILVER))
+			{
+				/* Learn about type */
+				if (seen) l_ptr->flags3 |= (RF3_SILVER);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " cringes.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
 
 		/* Dispel undead */
 		case GF_DISP_UNDEAD:
@@ -3051,6 +3302,15 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Message */
 			note = " shudders.";
 			note_dies = " dissolves!";
+			
+			if ((spellswitch == 10) && (r_ptr->d_char == 'g'))
+			{
+			   note = " is unaffected.";
+			   dam = 0;
+			   
+			   /* reset spellswitch */
+			   spellswitch = 0;
+            }
 
 			break;
 		}
@@ -3409,7 +3669,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ELEC:
 		{
+#ifdef ALTDJA
+			if (blind) msg_print("You smell something disgustingly foul!");
+#else
 			if (blind) msg_print("You are hit by lightning!");
+#endif
 			elec_dam(dam, killer);
 			break;
 		}
@@ -3450,6 +3714,24 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (blind) msg_print("You are hit by something sharp!");
 			take_hit(dam, killer);
+			break;
+		}
+				
+		/* Throwing junk -- shorter range */
+		case GF_THROW:
+		{
+			if (blind) msg_print("You are hit by a piece of junk!");
+			take_hit(dam, killer);
+			range = 4;
+			break;
+		}
+		
+		/* small stink bombs -- shorter range */
+		case GF_STINKB:
+		{
+			if (blind) msg_print("<splat> You are hit by something toxic and smelly!");
+			elec_dam(dam, killer);
+			range = 6;
 			break;
 		}
 
@@ -3524,11 +3806,15 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
+			if (p_ptr->timed[TMD_TSIGHT])
+			{
+				dam = ((dam*9)/10);
+			}
 			if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
 			{
 				(void)inc_timed(TMD_CONFUSED, rand_int(20) + 10);
 			}
-			if (!p_ptr->resist_chaos)
+			if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
 			{
 				(void)inc_timed(TMD_IMAGE, randint(10));
 			}
@@ -3650,6 +3936,18 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 			break;
 		}
+		
+		/* fear -fear effect is in the BR_FEAR spell in melee2.c */
+		case GF_BRFEAR:
+		{
+			if (blind) msg_print("You hear a terrifying noise!");
+			if (p_ptr->resist_fear)
+			{
+				dam *= 4; dam /= (randint(5) + 6);
+            }
+			take_hit(dam, killer);
+			break;
+		}
 
 		/* Inertia -- slowness */
 		case GF_INERTIA:
@@ -3689,6 +3987,15 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				(void)inc_timed(TMD_BLIND, randint(5) + 2);
 			}
 			take_hit(dam, killer);
+			break;
+		}
+				
+		/* Throwing axe -- shorter range */
+		case GF_AXE:
+		{
+			if (blind) msg_print("You are hit by a throwing axe!");
+			take_hit(dam, killer);
+			range = 4;
 			break;
 		}
 
@@ -4068,6 +4375,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Calculate the projection path */
 	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
 
+    /* allow for shorter ranged spells */
+	if (range > 0) path_n = project_path(path_g, range, y1, x1, y2, x2, flg);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -4203,7 +4512,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Speed -- ignore "non-explosions" */
-	if (!grids) return (FALSE);
+	if (!grids) 
+    {
+                /* reset range before exiting function */
+                range = 0;
+                return (FALSE);
+    }
 
 
 	/* Display the "blast area" if requested */
@@ -4328,11 +4642,27 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the object in the grid */
-			if (project_o(who, dist, y, x, dam, typ)) notice = TRUE;
+            /* weak breath (range 5) doesn't destroy objects */
+            if (!(range == 5))
+            {
+    			/* Affect the object in the grid */
+			   if (project_o(who, dist, y, x, dam, typ)) notice = TRUE;
+            }
 		}
 	}
 
+    /* earthquake (11 is player activated, 12 is monster activated */
+    /*            11 doesn't allow big damage to player) */
+    if ((spellswitch == 11) || (spellswitch == 12))
+    {
+            int quakerad = 0;
+            if (rad == 0) quakerad = 5;
+            else if (rad == 1) quakerad = 6;
+            else if (rad == 2) quakerad = 7;
+            else if (rad > 4) quakerad = 10;
+            else quakerad = 8;
+			earthquake(y2, x2, quakerad);
+    }
 
 	/* Check monsters */
 	if (flg & (PROJECT_KILL))
@@ -4408,6 +4738,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		}
 	}
 
+    /* reset range and spellswitch */
+	range = 0;
+	spellswitch = 0;
 
 	/* Return "something was noticed" */
 	return (notice);

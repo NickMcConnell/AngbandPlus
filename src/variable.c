@@ -110,6 +110,10 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
+int range = 0;      /* shortened range of some spell/breaths */
+int spellswitch = 0;      /* extra effects of some spells */
+int adjust = 0;      /* speed adjustment by a nonstandard amount */
+
 
 /*
  * TRUE if process_command() is a repeated call.

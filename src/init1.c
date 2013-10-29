@@ -118,6 +118,13 @@ static cptr r_info_blow_effect[] =
 	"EXP_40",
 	"EXP_80",
 	"HALLU",
+	"SILVER",
+	"SLIME",
+	"CHARM",
+	"FRENZY",
+	"HUNGER",
+//	"WOODMOTH",
+//	"METALMOTH",
 	NULL
 };
 
@@ -157,7 +164,7 @@ static cptr r_info_flags1[] =
 	"DROP_4D2",
 	"DROP_GOOD",
 	"DROP_GREAT",
-	"DROP_USEFUL",
+	"DROP_30",
 	"DROP_CHOSEN"
 };
 
@@ -168,8 +175,8 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	"FRIEND1",
+	"ESCORT1",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -179,7 +186,7 @@ static cptr r_info_flags2[] =
 	"XXX3X2",
 	"XXX4X2",
 	"POWERFUL",
-	"XXX5X2",
+	"BR_WEAK",
 	"XXX7X2",
 	"XXX6X2",
 	"OPEN_DOOR",
@@ -213,10 +220,10 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
+	"SILVER",
+	"BUG",
 	"XXX3X3",
-	"XXX4X3",
+	"NON_LIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -246,8 +253,8 @@ static cptr r_info_flags4[] =
 {
 	"SHRIEK",
 	"XXX2X4",
-	"XXX3X4",
-	"XXX4X4",
+	"T_AXE",
+	"THROW",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -270,11 +277,11 @@ static cptr r_info_flags4[] =
 	"BR_GRAV",
 	"BR_SHAR",
 	"BR_PLAS",
-	"BR_WALL",
+	"BR_WALL", /* breathe force */
 	"BR_MANA",
-	"XXX5X4",
+	"BR_FEAR",
 	"XXX6X4",
-	"XXX7X4",
+	"STINKBOMB",
 	"BOULDER"
 };
 
@@ -348,8 +355,8 @@ static cptr r_info_flags6[] =
 	"S_HYDRA",
 	"S_ANGEL",
 	"S_DEMON",
-	"S_UNDEAD",
-	"S_DRAGON",
+	"S_UNDEAD",              /* summon nightmare in ALT */
+	"S_DRAGON",              /* summon nymph in ALT */
 	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
 	"S_WRAITH",
@@ -409,8 +416,8 @@ static cptr k_info_flags2[] =
 	"SUST_CHR",
 	"XXX1",
 	"XXX2",
-	"XXX3",
-	"XXX4",
+	"SLAY_SILVER",
+	"SLAY_BUG",
 	"XXX5",
 	"XXX6",
 	"IM_ACID",
@@ -432,7 +439,8 @@ static cptr k_info_flags2[] =
 	"RES_NEXUS",
 	"RES_NETHR",
 	"RES_CHAOS",
-	"RES_DISEN"
+	"RES_DISEN",
+	"RES_CHARM",
 };
 
 /*
@@ -460,7 +468,7 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
+	"IGNORE_MOTH", //was XXX5
 	"XXX6",
 	"BLESSED",
 	"ACTIVATE",
@@ -533,7 +541,8 @@ static cptr a_info_act[ACT_MAX] =
 	"FIREBRAND",
 	"STARLIGHT",
 	"MANA_BOLT",
-	"BERSERKER"
+	"BERSERKER",
+	"SNOWBALL"
 };
 
 
@@ -552,7 +561,7 @@ static cptr c_info_flags[] =
 	"PSEUDO_ID_HEAVY",
 	"PSEUDO_ID_IMPROV",
 	"HEAVY_BONUS",
-	"XXX11",
+	"HULK_CONF",
 	"XXX12",
 	"XXX13",
 	"XXX14",
@@ -3410,8 +3419,16 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 			atk_dam += 10;
 			break;
 		}
-		/*other bad effects - elements / major*/
+		/*some new bad effects, and acid given less worth(was in next part) */
+        case RBE_CHARM:
+		case RBE_FRENZY:
 		case RBE_ACID:
+        case RBE_HUNGER:
+		{
+			atk_dam += 16;
+			break;
+		}
+		/*other bad effects - elements / major*/
 		case RBE_BLIND:
 		case RBE_CONFUSE:
 		case RBE_LOSE_STR:
@@ -3431,6 +3448,13 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 			atk_dam += 30;
 			break;
 		}
+		/*new bad effects: silver & slime */
+		case RBE_SILVER:
+        case RBE_SLIME:
+        {
+			atk_dam += 700 / (rlev);
+			break;
+        }
 		/*other bad effects - major*/
 		case RBE_PARALYZE:
 		case RBE_LOSE_ALL:
@@ -3649,6 +3673,8 @@ static long eval_max_dam(monster_race *r_ptr)
 		spell_dam = 30;
 	if ((r_ptr->flags6 & RF6_S_SPIDER) && spell_dam < 20)
 		spell_dam = 20;
+	if ((r_ptr->flags6 & RF6_S_DRAGON) && spell_dam < 25)
+		spell_dam = 25;
 	/* Can be quite dangerous */
 	if ((r_ptr->flags6 & RF6_S_HOUND) && spell_dam < 100)
 		spell_dam = 100;
@@ -3662,8 +3688,6 @@ static long eval_max_dam(monster_race *r_ptr)
 	if ((r_ptr->flags6 & RF6_S_DEMON) && spell_dam < (rlev * 3) / 2)
 		spell_dam = (rlev * 3) / 2;
 	if ((r_ptr->flags6 & RF6_S_UNDEAD) && spell_dam < (rlev * 3) / 2)
-		spell_dam = (rlev * 3) / 2;
-	if ((r_ptr->flags6 & RF6_S_DRAGON) && spell_dam < (rlev * 3) / 2)
 		spell_dam = (rlev * 3) / 2;
 	/* Extremely dangerous */
 	if ((r_ptr->flags6 & RF6_S_HI_UNDEAD) && spell_dam < 400)
@@ -3821,7 +3845,7 @@ static long eval_max_dam(monster_race *r_ptr)
 	/*
 	 * Adjust threat for friends.
 	 */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if ((r_ptr->flags1 & (RF1_FRIENDS)) || (r_ptr->flags2 & (RF2_FRIEND1)))
 		r_ptr->highest_threat *= 2;
 	else if (r_ptr->flags1 & (RF1_FRIEND))
 		r_ptr->highest_threat = r_ptr->highest_threat * 3 / 2;
@@ -4059,6 +4083,7 @@ for (iteration = 0; iteration < 3; iteration ++)
 
 		else if (r_ptr->flags1 & RF1_FRIEND) power[i] *= 2;
 
+		else if (r_ptr->flags2 & RF2_FRIEND1) power[i] *= 4;
 		else if (r_ptr->flags1 & RF1_FRIENDS) power[i] *= 5;
 
 		/* Adjust for multiplying monsters. This is modified by the speed,
@@ -4123,6 +4148,7 @@ for (iteration = 0; iteration < 3; iteration ++)
 			 */
 
 			if (r_ptr->flags1 & RF1_FRIEND) count = 20;
+			else if (r_ptr->flags2 & RF2_FRIEND1) count = 40;
 			else if (r_ptr->flags1 & RF1_FRIENDS) count = 50;
 
 			if (r_ptr->flags2 & RF2_MULTIPLY)

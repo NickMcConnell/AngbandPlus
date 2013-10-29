@@ -693,6 +693,26 @@ s16b get_obj_num(int level)
 
 		/* Hack -- prevent embedded chests */
 		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
+		
+		/* DAJ: appropriate spellbooks much more likely to appear than others */
+	    /* this is a must-have because of having several spell realms */
+	
+	    /* check for spellbook tval */
+	    if ((k_ptr->tval >= TV_MAGIC_BOOK) && (k_ptr->tval < TV_GOLD))
+	    {
+           /* is it an appropriate spell book? */
+           if (!(k_ptr->tval == cp_ptr->spell_book))
+           {
+              /* if not, reject it most of the time */
+              if (randint(100) < 80) continue;
+
+              /* (old code that didn't work)
+              if (randint(100) < 75) k_ptr->tval = cp_ptr->spell_book;
+          
+              /* for testing purposes always make it appropriate for now 
+              k_ptr->tval = cp_ptr->spell_book; */
+           }
+        }
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -2230,9 +2250,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Weakness, Stupidity */
+				/* Weakness, Forgetfulnes */
 				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
+				case SV_RING_FORGETFULNESS:
 				{
 					/* Broken */
 					o_ptr->ident |= (IDENT_BROKEN);
@@ -2246,7 +2266,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* WOE, Stupidity */
+				/* WOE */
 				case SV_RING_WOE:
 				{
 					/* Broken */
@@ -2929,6 +2949,8 @@ static bool kind_is_good(int k_idx)
 		/* Books -- High level books are good */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_NEWM_BOOK:
+		case TV_LUCK_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -3462,7 +3484,8 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(i_ptr, TRUE, great)) continue;
+		if (spellswitch == 5) make_object(i_ptr, FALSE, FALSE);
+        else make_object(i_ptr, TRUE, great);
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);

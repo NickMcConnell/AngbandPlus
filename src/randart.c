@@ -133,13 +133,19 @@ static int bow_multiplier(int sval)
 {
 	switch (sval)
 	{
+        case SV_SMALL_BOW:
+        case SV_SLINGSHOT:
+            return (1);
 		case SV_SLING:
 		case SV_SHORT_BOW:
+        case SV_MINI_XBOW:
 			return (2);
 		case SV_LONG_BOW:
 		case SV_LIGHT_XBOW:
+        case SV_HANDHELDC:
 			return (3);
 		case SV_HEAVY_XBOW:
+        case SV_GREAT_BOW:
 			return (4);
 		default:
 			msg_format("Illegal bow sval %s", sval);
@@ -233,6 +239,8 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
+			if (a_ptr->flags2 & TR2_SLAY_BUG) p = (p * 5) / 4;
+			if (a_ptr->flags2 & TR2_SLAY_SILVER) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
@@ -358,6 +366,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
 	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
+	if (a_ptr->flags2 & TR2_RES_CHARM) p += 8;
 	if (a_ptr->flags2 & TR2_RES_BLIND) p += 10;
 	if (a_ptr->flags2 & TR2_RES_CONFU) p += 8;
 	if (a_ptr->flags2 & TR2_RES_SOUND) p += 10;
@@ -429,9 +438,13 @@ static void choose_item(int a_idx)
 		tval = TV_BOW;
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 3) sval = SV_SLING;
+		else if (r2 < 4) sval = SV_SMALL_BOW;
 		else if (r2 < 10) sval = SV_SHORT_BOW;
-		else if (r2 < 30) sval = SV_LONG_BOW;
-		else if (r2 < 45) sval = SV_LIGHT_XBOW;
+		else if (r2 < 29) sval = SV_LONG_BOW;
+		else if (r2 < 31) sval = SV_MINI_XBOW;
+		else if (r2 < 44) sval = SV_LIGHT_XBOW;
+		else if (r2 < 46) sval = SV_HANDHELDC;
+		else if (r2 < 47) sval = SV_GREAT_BOW;
 		else sval = SV_HEAVY_XBOW;
 	}
 	else if (r < 9)
@@ -441,54 +454,48 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 20) sval = SV_SHOVEL;
 		else if (r2 < 50) sval = SV_PICK;
-		else if (r2 < 70) sval = SV_GNOMISH_SHOVEL;
-		else if (r2 < 97) sval = SV_ORCISH_PICK;
+		else if (r2 < 67) sval = SV_GNOMISH_SHOVEL;
+		else if (r2 < 72) sval = SV_DWARVEN_SHOVEL;
+		else if (r2 < 92) sval = SV_ORCISH_PICK;
 		else sval = SV_DWARVEN_MATTOCK;
 	}
-	else if (r < 19)
+	else if (r < 17)
 	{
-		/* Create a "blunt" weapon. */
+		/* Create a "priestly blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 6) sval = SV_WHIP;
-		else if (r2 < 13) sval = SV_MACE;
-		else if (r2 < 22) sval = SV_WAR_HAMMER;
-		else if (r2 < 33) sval = SV_QUARTERSTAFF;
-		else if (r2 < 39) sval = SV_LUCERN_HAMMER;
-		else if (r2 < 50) sval = SV_MORNING_STAR;
-		else if (r2 < 65) sval = SV_FLAIL;
-		else if (r2 < 75) sval = SV_LEAD_FILLED_MACE;
-		else if (r2 < 81) sval = SV_LIGHT_CLUB;
-		else if (r2 < 85) sval = SV_WALKING_STAFF;
-//		else if (r2 < 72) sval = SV_CLUB;
-		else if (r2 < 99) sval = SV_BALL_AND_CHAIN;
-//		else if (r2 < 102) sval = SV_HUGE_WAR_HAMMER;
-		else if (r2 < 119) sval = SV_TWO_HANDED_FLAIL;
-		else sval = SV_MACE_OF_DISRUPTION;
+		if (r2 < 5) sval = SV_WALKING_STICK;
+		else if (r2 < 23) sval = SV_WHIP;
+		else if (r2 < 45) sval = SV_WALKING_STAFF;
+		else if (r2 < 55) sval = SV_LIGHT_CLUB;
+		else if (r2 < 75) sval = SV_QUARTERSTAFF;
+		else if (r2 < 81) sval = SV_CEREMONIAL_MACE;
+		else if (r2 < 95) sval = SV_WAR_HAMMER;
+		else sval = SV_STAFF_STRIKING;
 	}
-	else if (r < 33)
+	else if (r < 30)
 	{
-		/* Create a long, sharp-edged weapon. */
+		/* Create an edged weapon or other sword. */
 		tval = TV_SWORD;
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 0) sval = SV_BROKEN_DAGGER;
-		else if (r2 < 1) sval = SV_BROKEN_SWORD;
+		else if (r2 < 2) sval = SV_BROKEN_SWORD;
 		else if (r2 < 5) sval = SV_DAGGER;
 		else if (r2 < 7) sval = SV_MAIN_GAUCHE;
-		else if (r2 < 11) sval = SV_RAPIER;	/* or at least pointy ;-) */
-		else if (r2 < 13) sval = SV_SMALL_SWORD;
+		else if (r2 < 11) sval = SV_RAPIER;
+		else if (r2 < 13) sval = SV_GLADIUS;
 		else if (r2 < 15) sval = SV_SHORT_SWORD;
-		else if (r2 < 18) sval = SV_SABRE;
-		else if (r2 < 21) sval = SV_CUTLASS;
-		else if (r2 < 24) sval = SV_TULWAR;
-		else if (r2 < 30) sval = SV_BROAD_SWORD;
-		else if (r2 < 40) sval = SV_LONG_SWORD;
-		else if (r2 < 44) sval = SV_SCIMITAR;
-		else if (r2 < 57) sval = SV_BASTARD_SWORD;
-		else if (r2 < 61) sval = SV_LONG_DAGGER;
-		else if (r2 < 67) sval = SV_KATANA;
-		else if (r2 < 95) sval = SV_TWO_HANDED_SWORD;
-		else if (r2 < 120) sval = SV_EXECUTIONERS_SWORD;
+		else if (r2 < 18) sval = SV_CUTLASS;
+		else if (r2 < 22) sval = SV_LONG_DAGGER;
+		else if (r2 < 24) sval = SV_ATHAME;
+		else if (r2 < 34) sval = SV_SABRE;
+		else if (r2 < 38) sval = SV_STILETTO;
+		else if (r2 < 50) sval = SV_SCIMITAR;
+		else if (r2 < 60) sval = SV_BROAD_SWORD;
+		else if (r2 < 75) sval = SV_LONG_SWORD;
+		else if (r2 < 90) sval = SV_BASTARD_SWORD;
+		else if (r2 < 101) sval = SV_TWO_HANDED_SWORD;
+		else if (r2 < 120) sval = SV_GREAT_SWORD;
 		else sval = SV_BLADE_OF_CHAOS;
 	}
 	else if (r < 42)
@@ -496,20 +503,30 @@ static void choose_item(int a_idx)
 		/* Create a weapon that's not blunt or sword-shaped. */
 		tval = TV_POLEARM;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 12) sval = SV_SPEAR;
-		else if (r2 < 20) sval = SV_TRIDENT;
-		else if (r2 < 27) sval = SV_LANCE;
-		else if (r2 < 35) sval = SV_AWL_PIKE;
-		else if (r2 < 45) sval = SV_PIKE;
-		else if (r2 < 50) sval = SV_BEAKED_AXE;
-		else if (r2 < 55) sval = SV_BROAD_AXE;
-		else if (r2 < 60) sval = SV_BATTLE_AXE;
-		else if (r2 < 65) sval = SV_GLAIVE;
-		else if (r2 < 80) sval = SV_HALBERD;
-		else if (r2 < 120) sval = SV_GREAT_AXE;
-		else if (r2 < 128) sval = SV_SCYTHE;
-		else if (r2 < 135) sval = SV_LOCHABER_AXE;
-		else sval = SV_SCYTHE_OF_SLICING;
+		if (r2 < 1) sval = SV_HATCHET;
+		else if (r2 < 2) sval = SV_HAND_AXE;
+		else if (r2 < 6) sval = SV_SPEAR;
+		else if (r2 < 10) sval = SV_MACE;
+		else if (r2 < 14) sval = SV_TRIDENT;
+		else if (r2 < 17) sval = SV_PIKE;
+		else if (r2 < 22) sval = SV_FLAIL;
+		else if (r2 < 29) sval = SV_MORNING_STAR;
+		else if (r2 < 37) sval = SV_BROAD_AXE;
+		else if (r2 < 45) sval = SV_LEAD_FILLED_MACE;
+		else if (r2 < 55) sval = SV_GLAIVE;
+		else if (r2 < 63) sval = SV_TWO_HANDED_FLAIL;
+		else if (r2 < 75) sval = SV_BATTLE_AXE;
+		else if (r2 < 83) sval = SV_LANCE;
+		else if (r2 < 93) sval = SV_HALBERD;
+		else if (r2 < 101) sval = SV_SCYTHE;
+		else if (r2 < 109) sval = SV_GREAT_AXE;
+		else if (r2 < 118) sval = SV_LOCHABER_AXE;
+		else if (r2 < 119) sval = SV_GIANT_AXE;
+		else
+        {
+            if (randint(100) < 50) sval = SV_MACE_OF_DISRUPTION;
+            else sval = SV_SCYTHE_OF_SLICING;
+        }
 	}
 	else if (r < 64)
 	{
@@ -520,12 +537,12 @@ static void choose_item(int a_idx)
 		/* Soft stuff. */
 		if (r2 < 0) sval = SV_FILTHY_RAG;
 		else if (r2 < 5) sval = SV_ROBE;
-		else if (r2 < 10) sval = SV_SOFT_LEATHER_ARMOR;
-		else if (r2 < 15) sval = SV_SOFT_STUDDED_LEATHER;
-		else if (r2 < 20) sval = SV_HARD_LEATHER_ARMOR;
-		else if (r2 < 30) sval = SV_HARD_STUDDED_LEATHER;
-		else if (r2 < 35) sval = SV_DRUID_ROBE;
-		else if (r2 < 45) sval = SV_LEATHER_SCALE_MAIL;
+		else if (r2 < 11) sval = SV_SOFT_LEATHER_ARMOR;
+		else if (r2 < 17) sval = SV_SOFT_STUDDED_LEATHER;
+		else if (r2 < 23) sval = SV_HARD_LEATHER_ARMOR;
+		else if (r2 < 34) sval = SV_HARD_STUDDED_LEATHER;
+		else if (r2 < 39) sval = SV_DRUID_ROBE;
+		else if (r2 < 49) sval = SV_LEATHER_SCALE_MAIL;
 
 		/* Hard stuff. */
 		else if (r2 < 55) sval = SV_RUSTY_CHAIN_MAIL;
@@ -593,9 +610,9 @@ static void choose_item(int a_idx)
 		/* Make a cloak. */
 		tval = TV_CLOAK;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 6) sval = SV_FUR_CLOAK;
-		else if (r2 < 8) sval = SV_TRAVELLING_CLOAK;
-		else if (r2 < 90) sval = SV_CLOAK;
+		if (r2 < 84) sval = SV_CLOAK;
+		else if (r2 < 87) sval = SV_TRAVELLING_CLOAK;
+		else if (r2 < 90) sval = SV_FUR_CLOAK;
 		else sval = SV_SHADOW_CLOAK;
 	}
 
@@ -963,7 +980,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
+		r = rand_int(44);
 		switch (r)
 		{
 			case 0:
@@ -1121,6 +1138,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
+			case 43: a_ptr->flags2 |= TR2_RES_CHARM; break;
 		}
 	}
 

@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "cmds.h"
 
 
 /*
@@ -1083,19 +1084,28 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Granite */
 	else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
 	{
-		/* Tunnel */
-		if ((p_ptr->skills[SKILL_DIG] > 40 + rand_int(1600)) && twall(y, x))
-		{
-			msg_print("You have finished the tunnel.");
-		}
+        /* umber hulk never fails when digging */
+		if (cp_ptr->flags & CF_HULK_CONF)
+        {
+            twall(y, x);
+            msg_print("You easily bash through the wall.");
+        }
+        else
+        {
+		    /* Tunnel */
+		    if ((p_ptr->skills[SKILL_DIG] > 40 + rand_int(1600)) && twall(y, x))
+		    {
+			   msg_print("You have finished the tunnel.");
+		    }
 
-		/* Keep trying */
-		else
-		{
-			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
-			more = TRUE;
-		}
+		    /* Keep trying */
+		    else
+		    {
+			    /* We may continue tunelling */
+			    msg_print("You tunnel into the granite wall.");
+			    more = TRUE;
+		    }
+        }     
 	}
 
 	/* Quartz / Magma */
@@ -1117,17 +1127,25 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			hard = TRUE;
 		}
 
-		/* Quartz */
-		if (hard)
-		{
-			okay = (p_ptr->skills[SKILL_DIG] > 20 + rand_int(800));
-		}
+        /* umber hulk never fails when digging */
+		if (cp_ptr->flags & CF_HULK_CONF)
+        {
+			okay = ((p_ptr->skills[SKILL_DIG] + 21) > 1);
+        }
+        else
+        {    
+		   /* Quartz */
+           if (hard)
+		   {
+			  okay = (p_ptr->skills[SKILL_DIG] > 20 + rand_int(800));
+		   }
 
-		/* Magma */
-		else
-		{
-			okay = (p_ptr->skills[SKILL_DIG] > 10 + rand_int(400));
-		}
+		   /* Magma */
+		   else
+		   {
+			   okay = (p_ptr->skills[SKILL_DIG] > 10 + rand_int(400));
+		   }
+        }
 
 		/* Success */
 		if (okay && twall(y, x))
@@ -1146,7 +1164,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			else
 			{
 				/* Message */
-				msg_print("You have finished the tunnel.");
+		        if (cp_ptr->flags & CF_HULK_CONF) msg_print("You easily bash through the wall.");
+				else msg_print("You have finished the tunnel.");
 			}
 		}
 
@@ -1202,21 +1221,30 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Secret doors */
 	else if (cave_feat[y][x] >= FEAT_SECRET)
 	{
-		/* Tunnel */
-		if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
-		{
-			msg_print("You have finished the tunnel.");
-		}
+        /* umber hulk never fails when digging */
+		if (cp_ptr->flags & CF_HULK_CONF)
+        {
+            twall(y, x);
+            msg_print("You easily bash through the wall.");
+        }
+        else
+        {
+		    /* Tunnel */
+		    if ((p_ptr->skills[SKILL_DIG] > 30 + rand_int(1200)) && twall(y, x))
+		    {
+			   msg_print("You have finished the tunnel.");
+		    }
 
-		/* Keep trying */
-		else
-		{
-			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
-			more = TRUE;
+		    /* Keep trying */
+		    else
+		    {
+			    /* We may continue tunelling */
+                msg_print("You tunnel into the granite wall.");
+			    more = TRUE;
 
-			/* Occasional Search XXX XXX */
-			if (rand_int(100) < 25) search();
+			    /* Occasional Search XXX XXX */
+			    if (rand_int(100) < 25) search();
+            }
 		}
 	}
 
@@ -2481,6 +2509,17 @@ void do_cmd_fire(void)
 	q = "Fire which item? ";
 	s = "You have nothing to fire.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	
+		
+	/* Handle player charm */
+	if (p_ptr->timed[TMD_CHARM])
+	{
+		/* Message */
+		msg_print("You are too good a mood to try to hurt anything!");
+
+		/* Done */
+		return;
+	}
 
 	/* Get the object */
 	if (item >= 0)
@@ -2640,9 +2679,8 @@ void do_cmd_fire(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				    (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -2926,9 +2964,8 @@ void do_cmd_throw(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				    (r_ptr->flags3 & (RF3_NON_LIVING)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";

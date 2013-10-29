@@ -196,7 +196,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 2) mult = 2;
 			}
 
-			/* Slay Undead */
+			/* Slay Undead (nightmare) */
 			if ((f1 & (TR1_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
@@ -220,7 +220,34 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Orc */
+            /* Holy Wrath (Sanctify for battle) */
+            if (p_ptr->timed[TMD_SANCTIFY])
+            {
+               /* this should also include undead in normal DJA */
+               if (r_ptr->flags3 & (RF3_DEMON))
+               {
+				  if (m_ptr->ml)
+				  {
+		   	         l_ptr->flags3 |= (RF3_DEMON);
+				  }
+				  if (mult < 3) mult = 3;
+               }
+               
+               if (r_ptr->flags3 & (RF3_EVIL))
+               {
+                  if (m_ptr->ml)
+				  {
+					 l_ptr->flags3 |= (RF3_EVIL);
+				  }
+
+				  if (mult < 2) mult = 2;
+               }
+
+            }
+
+            
+
+			/* Slay Orc (ugmruten) */
 			if ((f1 & (TR1_SLAY_ORC)) &&
 			    (r_ptr->flags3 & (RF3_ORC)))
 			{
@@ -232,7 +259,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Troll */
+			/* Slay Troll (fairy) */
 			if ((f1 & (TR1_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & (RF3_TROLL)))
 			{
@@ -244,7 +271,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Giant */
+			/* Slay Giant (slime) */
 			if ((f1 & (TR1_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & (RF3_GIANT)))
 			{
@@ -256,13 +283,37 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Dragon */
+			/* Slay Dragon (lethkel) */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
 					l_ptr->flags3 |= (RF3_DRAGON);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay Silver */
+			if ((f2 & (TR2_SLAY_SILVER)) &&
+			    (r_ptr->flags3 & (RF3_SILVER)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_SILVER);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
+			/* Slay bug */
+			if ((f2 & (TR2_SLAY_BUG)) &&
+			    (r_ptr->flags3 & (RF3_BUG)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_BUG);
 				}
 
 				if (mult < 3) mult = 3;
@@ -1307,6 +1358,16 @@ void py_attack(int y, int x)
 		/* Done */
 		return;
 	}
+	
+	/* Handle player charm */
+	if (p_ptr->timed[TMD_CHARM])
+	{
+		/* Message */
+		msg_format("You are too good a mood to try to hurt %s!", m_name);
+
+		/* Done */
+		return;
+	}
 
 
 	/* Get the weapon */
@@ -1334,7 +1395,7 @@ void py_attack(int y, int x)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+				if (p_ptr->impact && (k > 40)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
 			}
@@ -1357,11 +1418,21 @@ void py_attack(int y, int x)
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
-				/* Cancel glowing hands */
+                /* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
 
+
+                /* umber hulk always has glowing hands */
+				if (cp_ptr->flags & CF_HULK_CONF)
+                {
+	            	p_ptr->confusing = TRUE;
+                }
+
 				/* Message */
-				msg_print("Your hands stop glowing.");
+				if (p_ptr->confusing == FALSE)
+                {
+                    msg_print("Your hands stop glowing.");
+                }
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1516,7 +1587,7 @@ void move_player(int dir)
 			else
 			{
 				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
-			}
+            }
 		}
 	}
 

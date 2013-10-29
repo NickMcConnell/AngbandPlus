@@ -73,6 +73,7 @@ extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
+extern void do_cmd_castnew(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);

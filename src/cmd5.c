@@ -54,9 +54,10 @@ s16b spell_chance(int spell)
 	}
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
+	/* was +25 fail */
 	if (p_ptr->icky_wield)
 	{
-		chance += 25;
+		chance += 20;
 	}
 
 	/* Minimum failure rate */
@@ -300,7 +301,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known, bool bro
 
 	char out_val[160];
 
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 	int result;
 
@@ -543,7 +544,18 @@ static void browse_spell(int spell)
 	/* Display the spell description */
 	text_out("\n\n   ");
 
+    /* allow for more than 2 realms */
+    /* (code thanks to Pete Mack) */
+    int idx;
+    idx = spell;
+    if (cp_ptr->spell_book == TV_PRAYER_BOOK) idx = idx + PY_MAX_SPELLS;
+    else if (cp_ptr->spell_book == TV_NEWM_BOOK) idx = idx + (2 * PY_MAX_SPELLS);
+    else if (cp_ptr->spell_book == TV_LUCK_BOOK) idx = idx + (3 * PY_MAX_SPELLS);
+    text_out(s_text + s_info[idx].text);
+    
+/* replaced old code:
 	text_out(s_text + s_info[(cp_ptr->spell_book == TV_MAGIC_BOOK) ? spell : spell + PY_MAX_SPELLS].text);
+*/
 	text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 
 	/* Wait for input */
@@ -639,7 +651,7 @@ void do_cmd_study(void)
 
 	int spell;
 
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 	cptr q, s;
 
@@ -652,7 +664,18 @@ void do_cmd_study(void)
 		return;
 	}
 
-	if (p_ptr->timed[TMD_BLIND] || no_lite())
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
 	{
 		msg_print("You cannot see!");
 		return;
@@ -806,12 +829,22 @@ void do_cmd_cast(void)
 	/* Require spell ability */
 	if (cp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
-		msg_print("You cannot cast spells!");
+		msg_print("You cannot cast spells in this school!");
 		return;
 	}
 
-	/* Require lite */
-	if (p_ptr->timed[TMD_BLIND] || no_lite())
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
 	{
 		msg_print("You cannot see!");
 		return;
@@ -981,8 +1014,18 @@ void do_cmd_pray(void)
 		return;
 	}
 
-	/* Must have lite */
-	if (p_ptr->timed[TMD_BLIND] || no_lite())
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
 	{
 		msg_print("You cannot see!");
 		return;
@@ -1119,6 +1162,364 @@ void do_cmd_pray(void)
 
 			/* Reduce constitution */
 			(void)dec_stat(A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/*
+ * Cast a spell of nature magic (copied from previous function and tweaked)
+ */
+void do_cmd_castnew(void)
+{
+	int item, spell, chance;
+
+	object_type *o_ptr;
+
+	const magic_type *s_ptr;
+
+	cptr q, s;
+
+
+	/* Must use correct books */
+	if (cp_ptr->spell_book != TV_NEWM_BOOK)
+	{
+		msg_print("You cannot cast spells in this school!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Must not be confused */
+	if (p_ptr->timed[TMD_CONFUSED])
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices */
+	item_tester_tval = cp_ptr->spell_book;
+
+	/* Get an item */
+	q = "Use which book? ";
+	s = "You have no books of nature magic!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Choose a spell */
+	spell = get_spell(o_ptr, "invoke", TRUE, FALSE);
+
+	if (spell < 0)
+	{
+		if (spell == -2) msg_print("You don't know any spells in that book.");
+		return;
+	}
+
+
+	/* Get the spell */
+	s_ptr = &mp_ptr->info[spell];
+
+
+	/* Verify "dangerous" spells */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Flush input */
+		flush();
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Spell failure chance */
+	chance = spell_chance(spell);
+
+	/* Check for failure */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the spell off!");
+	}
+
+	/* Success */
+	else
+	{
+		/* Cast the spell */
+		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+
+		/* A spell was cast */
+		sound(MSG_SPELL);
+		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)inc_timed(TMD_PARALYZED, randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, 10 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/*
+ * Cast a spell of chance magic
+ */
+void do_cmd_castluck(void)
+{
+	int item, spell, chance;
+
+	object_type *o_ptr;
+
+	const magic_type *s_ptr;
+
+	cptr q, s;
+
+
+	/* Must use correct books */
+	if (cp_ptr->spell_book != TV_LUCK_BOOK)
+	{
+		msg_print("You cannot cast spells in this school!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	if ((p_ptr->timed[TMD_BLIND]) && (p_ptr->timed[TMD_BRAIL]))
+	{
+		msg_print("You read the spell with your hands..");
+	}
+
+	if ((no_lite()) && (!p_ptr->timed[TMD_BLIND]))
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Must not be confused */
+	if (p_ptr->timed[TMD_CONFUSED])
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices */
+	item_tester_tval = cp_ptr->spell_book;
+
+	/* Get an item */
+	q = "Use which book? ";
+	s = "You have no books of new magic!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Choose a spell */
+	spell = get_spell(o_ptr, "invoke", TRUE, FALSE);
+
+	if (spell < 0)
+	{
+		if (spell == -2) msg_print("You don't know any spells in that book.");
+		return;
+	}
+
+
+	/* Get the spell */
+	s_ptr = &mp_ptr->info[spell];
+
+
+	/* Verify "dangerous" prayers */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Flush input */
+		flush();
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Spell failure chance */
+	chance = spell_chance(spell);
+
+	/* Check for failure */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the spell off!");
+	}
+
+	/* Success */
+	else
+	{
+		/* Cast the spell */
+		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+
+		/* A spell was cast */
+		sound(MSG_SPELL);
+		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)inc_timed(TMD_PARALYZED, randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, 3 + randint(5), perm);
 		}
 	}
 

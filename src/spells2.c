@@ -254,7 +254,7 @@ void identify_pack(void)
 		do_ident_item(i, o_ptr);
 
 		/* repeat with same slot */
-		i--;
+		/* i--; */
 	}
 }
 
@@ -461,6 +461,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You cannot see.";
 	}
+	if (p_ptr->timed[TMD_BRAIL])
+	{
+		info[i++] = "You can read brail (can read while blind).";
+	}
 	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		info[i++] = "You are confused.";
@@ -469,6 +473,14 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are terrified.";
 	}
+	if (p_ptr->timed[TMD_CHARM])
+	{
+		info[i++] = "You are in too good a mood to fight.";
+	}
+	if (p_ptr->timed[TMD_FRENZY])
+	{
+		info[i++] = "You are in a mad careless frenzy.";
+	}	
 	if (p_ptr->timed[TMD_CUT])
 	{
 		info[i++] = "You are bleeding.";
@@ -485,7 +497,6 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are hallucinating.";
 	}
-
 	if (f3 & TR3_AGGRAVATE)
 	{
 		info[i++] = "You aggravate monsters.";
@@ -494,7 +505,6 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your position is very uncertain.";
 	}
-
 	if (p_ptr->timed[TMD_BLESSED])
 	{
 		info[i++] = "You feel righteous.";
@@ -511,9 +521,21 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->timed[TMD_SHIELD])
+	if (p_ptr->timed[TMD_PROTEVIL2])
+	{
+		info[i++] = "You are protected from powerful evil.";
+	}
+	if (p_ptr->timed[TMD_WSHIELD])
 	{
 		info[i++] = "You are protected by a mystic shield.";
+	}
+	if (p_ptr->timed[TMD_SHADOW])
+	{
+		info[i++] = "You are wrapped in shadow.";
+	}
+	if (p_ptr->timed[TMD_SHIELD])
+	{
+		info[i++] = "You are protected by a powerful mystic shield.";
 	}
 	if (p_ptr->timed[TMD_INVULN])
 	{
@@ -634,6 +656,11 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are completely fearless.";
 	}
+	
+	if (f2 & TR2_RES_CHARM)
+	{
+		info[i++] = "You resistant to charm.";
+	}	
 
 	if (f2 & TR2_RES_LITE)
 	{
@@ -799,7 +826,7 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
-			info[i++] = "Your weapon strikes at undead with holy wrath.";
+			info[i++] = "Your weapon is especially deadly against nightmare monsters.";
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
@@ -811,7 +838,19 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
+#ifdef ALTDJA
+			info[i++] = "Your weapon is especially deadly against fairies.";
+#else
 			info[i++] = "Your weapon is especially deadly against trolls.";
+#endif
+		}
+		if (f2 & (TR2_SLAY_BUG))
+		{
+			info[i++] = "Your weapon is especially deadly against bugs.";
+		}
+		if (f2 & (TR2_SLAY_SILVER))
+		{
+			info[i++] = "Your weapon strikes at silver monsters with holy wrath.";
 		}
 		if (f1 & (TR1_SLAY_GIANT))
 		{
@@ -921,7 +960,8 @@ void set_recall(void)
 				p_ptr->max_depth = p_ptr->depth;
 		}
 
-		p_ptr->word_recall = rand_int(20) + 15;
+        if (spellswitch == 8) p_ptr->word_recall = rand_int(5) + 3;
+		else p_ptr->word_recall = rand_int(20) + 15;
 		msg_print("The air about you becomes charged...");
 	}
 
@@ -1287,7 +1327,8 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) ||
+		    ((o_ptr->to_a > 2) || (o_ptr->to_h + o_ptr->to_d > 3)))
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;
@@ -1499,7 +1540,132 @@ bool detect_monsters_evil(void)
 	return (flag);
 }
 
+/*
+ * Detect all living monsters on current panel
+ */
+bool detect_monsters_life(void)
+{
+	int i, y, x;
 
+	bool flag = FALSE;
+
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect living monsters */
+		if (!(r_ptr->flags3 & (RF3_NON_LIVING)) &&
+		   !(r_ptr->flags3 & (RF3_DEMON)))
+		{
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of living creatures.");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all animals (and bugs) on current panel
+ */
+bool detect_monsters_animal(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect animals */
+		if ((r_ptr->flags3 & (RF3_ANIMAL)) || (r_ptr->flags3 & (RF3_BUG)))
+		{
+			/* Take note that they are animals or bugs */
+			l_ptr->flags3 |= (RF3_ANIMAL);
+			l_ptr->flags3 |= (RF3_BUG);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of animals.");
+	}
+
+	/* Result */
+	return (flag);
+}
 
 /*
  * Detect everything
@@ -2143,6 +2309,14 @@ bool slow_monsters(void)
 }
 
 /*
+ * Scare monsters
+ */
+bool scare_monsters(void)
+{
+	return (project_los(GF_BRFEAR, 0));
+}
+
+/*
  * Sleep monsters
  */
 bool sleep_monsters(void)
@@ -2159,15 +2333,31 @@ bool banish_evil(int dist)
 	return (project_los(GF_AWAY_EVIL, dist));
 }
 
+/*
+ * Banish unnatural monsters
+ */
+bool banish_unnatural(int dist)
+{
+	return (project_los(GF_AWAY_UNDEAD, dist));
+}
 
 /*
  * Turn undead
  */
 bool turn_undead(void)
 {
-	return (project_los(GF_TURN_UNDEAD, p_ptr->lev));
+    if (spellswitch == 15) return (project_los(GF_TURN_ALL, p_ptr->lev));
+	else return (project_los(GF_TURN_UNDEAD, p_ptr->lev));
 }
 
+
+/*
+ * Thunderclap
+ */
+bool dispel_ears(int dam)
+{
+	return (project_los(GF_SOUND, dam));
+}
 
 /*
  * Dispel undead monsters
@@ -2175,6 +2365,30 @@ bool turn_undead(void)
 bool dispel_undead(int dam)
 {
 	return (project_los(GF_DISP_UNDEAD, dam));
+}
+
+/*
+ * Bug Spray
+ */
+bool dispel_bug(int dam)
+{
+	return (project_los(GF_BUG_SPRAY, dam));
+}
+
+/*
+ * Dispel silver monsters
+ */
+bool dispel_silver(int dam)
+{
+	return (project_los(GF_DISP_SILVER, dam));
+}
+
+/*
+ * Dispel unnatural monsters
+ */
+bool dispel_unnatural(int dam)
+{
+	return (project_los(GF_DISP_UNN, dam));
 }
 
 /*
@@ -2261,10 +2475,40 @@ bool banishment(void)
 
 	char typ;
 
-
 	/* Mega-Hack -- Get a monster symbol */
-	if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
+    if (spellswitch == 14) 
+    {
+       if (!get_com("Choose a monster type (by symbol) to summon: ", &typ))
 		return FALSE;
+    }
+    else
+    {
+	    if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
+		return FALSE;
+    }
+
+    if (spellswitch == 14) 
+    {
+           int py = p_ptr->py;
+	       int px = p_ptr->px;
+           int ny, nx, die;
+           die = randint(100);
+           int die2 = randint(100);
+           if (die < 50) ny = py + randint(4);
+           else ny = py - randint(4);
+           if (die2 < 50) nx = px + randint(4);
+           else nx = px - randint(4);
+           
+           summon_kin_type = typ;
+
+           summon_specific(ny, nx, p_ptr->depth, SUMMON_KIN);
+        
+	       /* Update monster list window */
+	       p_ptr->window |= PW_MONLIST;
+
+	       /* Success- exits function */
+	       return TRUE;
+    }
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < mon_max; i++)
@@ -2281,11 +2525,6 @@ bool banishment(void)
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
-		/* Delete the monster */
-		delete_monster_idx(i);
-
-		/* Take some damage */
-		dam += randint(4);
 	}
 
 	/* Hurt the player */
@@ -2382,6 +2621,7 @@ bool probing(void)
 			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 
 			/* Learn all of the non-spell, non-treasure flags */
+			/* DJA: now includes spells */
 			lore_do_probe(i);
 
 			/* Probe worked */
@@ -2414,7 +2654,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 	int y, x, k, t;
 
 	bool flag = FALSE;
-
 
 	/* Unused parameter */
 	(void)full;
@@ -2511,7 +2750,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 		{
 			/* Become blind */
-			(void)inc_timed(TMD_BLIND, 10 + randint(10));
+			if (spellswitch == 11) (void)inc_timed(TMD_BLIND, 3 + randint(5));
+			else (void)inc_timed(TMD_BLIND, 10 + randint(10));
 		}
 	}
 
@@ -2659,7 +2899,8 @@ void earthquake(int cy, int cx, int r)
 		}
 
 		/* Hurt the player a lot */
-		if (!sn)
+		/* but not if spell is cast by the player */
+		if ((!sn) && (!(spellswitch == 11)))
 		{
 			/* Message and damage */
 			msg_print("You are severely crushed!");
@@ -3146,7 +3387,7 @@ bool lite_area(int dam, int rad)
 	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
-	lite_room(py, px);
+	if (!(spellswitch == 4)) lite_room(py, px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3345,7 +3586,7 @@ bool drain_life(int dir, int dam)
 bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
+	return (project_hook(GF_KILL_WALL, dir, 25 + randint(25), flg));
 }
 
 bool destroy_door(int dir)
@@ -3410,8 +3651,15 @@ bool fear_monster(int dir, int plev)
 
 bool teleport_monster(int dir)
 {
+
 	int flg = PROJECT_BEAM | PROJECT_KILL;
-	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
+    if (spellswitch == 13)
+    {
+       range = 6;
+       int plev = p_ptr->lev;
+       return (project_hook(GF_AWAY_ALL, dir, 11 + randint((plev / 5) + 2), flg));
+    }
+	else return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
 }
 
 
@@ -3444,7 +3692,9 @@ bool destroy_doors_touch(void)
 	int px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
+
+	if (spellswitch == 6) return (project(-1, 9, py, px, 0, GF_KILL_TRAP, flg));
+	else return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
 }
 
 bool sleep_monsters_touch(void)
@@ -3548,6 +3798,13 @@ bool curse_weapon(void)
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your weapon", o_name);
 	}
+	
+	if (artifact_p(o_ptr) && (spellswitch == 3) || (spellswitch == 2))
+	{
+		/* Cool */
+		msg_format("A %s tries to %s, but your %s resists the effects!",
+		           "terrible black aura", "surround your weapon", o_name);
+	}
 
 	/* not artifact or failed save... */
 	else
@@ -3555,6 +3812,29 @@ bool curse_weapon(void)
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
 
+        if (spellswitch == 3)
+        {
+		o_ptr->to_h = o_ptr->to_h - randint(6);
+		o_ptr->to_d = o_ptr->to_d - randint(6);
+		if (o_ptr->to_a > 0) o_ptr->to_a = o_ptr->to_a - randint(2);
+		if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
+        }
+        else if (spellswitch == 2)
+        {
+		o_ptr->name1 = 0;
+		o_ptr->name2 = EGO_MORGUL;
+		o_ptr->to_h = o_ptr->to_h - randint(5) - randint(4);
+		o_ptr->to_d = o_ptr->to_d - randint(5) - randint(4);
+		o_ptr->to_a = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
+        }
+        else
+        {
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
 		o_ptr->name2 = EGO_SHATTERED;
@@ -3564,12 +3844,21 @@ bool curse_weapon(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
+        }
 
+        if ((spellswitch == 3) || (spellswitch == 2))
+        {
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
-
+        }
+        else
+        {
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+     
 		/* Break it */
 		o_ptr->ident |= (IDENT_BROKEN);
+        }
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3618,6 +3907,9 @@ void brand_object(object_type *o_ptr, byte brand_type)
 			case EGO_AMMO_VENOM:
 				act = "sickly";
 				break;
+			case EGO_AMMO_ELEC:
+				act = "electric";
+				break;
 		}
 
 		/* Describe */
@@ -3654,11 +3946,11 @@ void brand_weapon(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Select a brand */
-	if (rand_int(100) < 25)
-		brand_type = EGO_BRAND_FIRE;
-	else
+	if ((rand_int(100) < 50) || (spellswitch == 7))
 		brand_type = EGO_BRAND_COLD;
-
+	else
+		brand_type = EGO_BRAND_FIRE;
+		
 	/* Brand the weapon */
 	brand_object(o_ptr, brand_type);
 }
@@ -3722,7 +4014,7 @@ bool brand_ammo(void)
 	else if (r < 67)
 		brand_type = EGO_FROST;
 	else
-		brand_type = EGO_AMMO_VENOM;
+		brand_type = EGO_AMMO_ELEC;
 
 	/* Brand the ammo */
 	brand_object(o_ptr, brand_type);
@@ -3764,6 +4056,43 @@ bool brand_bolts(void)
 
 	/* Brand the bolts */
 	brand_object(o_ptr, EGO_FLAME);
+
+	/* Done */
+	return (TRUE);
+}
+
+
+/*
+ * Enchant some (non-magical) sling shots
+ */
+bool snowball_shot(void)
+{
+	int item;
+	object_type *o_ptr;
+	cptr q, s;
+
+	/* Restrict choices to shots */
+	item_tester_tval = TV_SHOT;
+
+	/* Get an item */
+	q = "Brand which shots or pebbles? ";
+	s = "You have no shots to brand.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Brand the bolts */
+	brand_object(o_ptr, EGO_FROST);
 
 	/* Done */
 	return (TRUE);
