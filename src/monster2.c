@@ -4915,7 +4915,7 @@ bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool va
 			if (!cave_can_occupy_bold(ny, nx))
 			{
 				int spoty, spotx;
-				if (get_nearby(ny, nx, &spoty, &spotx, d + rand_int(2)))
+				if (get_nearby(ny, nx, &spoty, &spotx, 4))
 				{
 					ny = spoty;
 					nx = spotx;
@@ -4923,7 +4923,7 @@ bool place_monster_aux_real(int y, int x, int r_idx, bool slp, bool grp, bool va
 				else
 				{
 					/* try again if less total tries */
-					if ((place < 40) && (randint(100) < 70)) i -= 1;
+					if ((place < 34) && (randint(100) < 70)) i -= 1;
 					continue;
 				}
 			}
