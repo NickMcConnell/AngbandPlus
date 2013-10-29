@@ -3984,19 +3984,15 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 		{
 			/* NONMONSTERS are unaffected */
 			if (r_ptr->flags7 & (RF7_NONMONSTER)) { dam = 0; break; }
-			
-			/* Monsters which are already asleep can't resist */
-			if ((m_ptr->csleep) && (!m_ptr->roaming))
-			{
-				do_sleep = 400 + randint(100);
-			}
 
 			erlev = r_ptr->level + 1;
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level > 70)) erlev += 50;
 			else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 22)) erlev += 9;
 			else if (r_ptr->flags1 & (RF1_UNIQUE)) erlev += 9 + randint((erlev/2) - 9);
+			/* monster is already asleep */
+			if ((m_ptr->csleep) && (!m_ptr->roaming)) erlev -= 1;
 			/* make it not quite as strong as it was in 1.0.99 */
-			if (randint(100) < 33) erlev += rand_int(10);
+			else if (randint(100) < 35) erlev += rand_int(10);
 
 			if (seen) obvious = TRUE;
 
@@ -4030,14 +4026,25 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int spread
 			/* Attempt a saving throw */
 			else if (erlev > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
 			{
+				/* No message if monster was already asleep */
+				if ((m_ptr->csleep) && (!m_ptr->roaming)) /* no message */;
 				/* No obvious effect */
-				note = " resists the spell!";
+				else note = " resists the spell!";
 				obvious = FALSE;
 			}
 			else
 			{
-				/* Go to sleep (much) later */
-				note = " falls asleep!";
+				/* No message if monster was already asleep */
+				if ((m_ptr->csleep) && (!m_ptr->roaming))
+				{
+					/* no message (effect isn't obvious) */
+					obvious = FALSE;
+				}
+				else
+				{
+					/* Go to sleep (much) later */
+					note = " falls asleep!";
+				}
 				do_sleep = 500;
 								
 				/* monster is sleeping, not roaming */

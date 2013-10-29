@@ -48,7 +48,7 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "v1.2.1"
+#define VERSION_STRING "v1.2.1b"
 
 
 /*
