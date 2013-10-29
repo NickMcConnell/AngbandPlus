@@ -1463,7 +1463,7 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	"Display monster list",
 	"Display status",
-	NULL,
+	"Display object list",
 	NULL,
 	"Display borg messages",
 	"Display borg status",
@@ -1499,7 +1499,7 @@ cptr option_text[OPT_MAX] =
 	"pickup_always",			/* OPT_pickup_always */
 	"pickup_inven",				/* OPT_pickup_inven */
 	"depth_in_feet",			/* OPT_depth_in_feet */
-	NULL,						/* xxx stack_force_notes */
+	"themed_levels",			/* OPT_themed_levels */
 	NULL,						/* xxx stack_force_costs */
 	"show_labels",				/* OPT_show_labels */
 	NULL,						/* xxx show_weights */
@@ -1621,6 +1621,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"birth_maximize",
 	"birth_randarts",
+	"birth_randnames",
 	"birth_autoscum",
 	"birth_ironman",
 	"birth_no_stores",
@@ -1629,7 +1630,6 @@ cptr option_text[OPT_MAX] =
 	"birth_no_preserve",
 	"birth_no_stairs",
 	"birth_cansell",            /* xxx */
-	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	"birth_ai_sound",
@@ -1685,6 +1685,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"adult_maximize",
 	"adult_randarts",
+	"adult_randnames",
 	"adult_autoscum",
 	"adult_ironman",
 	"adult_no_stores",
@@ -1693,7 +1694,6 @@ cptr option_text[OPT_MAX] =
 	"adult_no_preserve",
 	"adult_no_stairs",
 	"adult_cansell",
-	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	"adult_ai_sound",
@@ -1763,7 +1763,7 @@ cptr option_desc[OPT_MAX] =
 	"Always pickup items",						/* OPT_pickup_always */
 	"Always pickup items matching inventory",	/* OPT_pickup_inven */
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
-	NULL,										/* xxx stack_force_notes */
+	"Allow themed levels",						/* OPT_themed_levels */
 	NULL,										/* xxx stack_force_costs */
 	"Show labels in equipment listings",		/* OPT_show_labels */
 	NULL,										/* xxx show_weights */
@@ -1885,6 +1885,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
 	"Randomize some of the artifacts (alpha)",	/* OPT_birth_randarts */
+	"Randomize randart names (if randarts is on)",	/* OPT_birth_randnames */
 	"Auto-scum for good levels",				/* OPT_birth_autoscum */
 	"Restrict the use of stairs/recall",		/* OPT_birth_ironman */
 	"Restrict the use of stores/home",			/* OPT_birth_no_stores */
@@ -1893,7 +1894,6 @@ cptr option_desc[OPT_MAX] =
 	"Don't preserve artifacts when leaving level",	/* OPT_birth_no_preserve */
 	"Don't generate connected stairs",			/* OPT_birth_no_stairs */
 	"Enable selling to shops (also affects gold)",  /* OPT_birth_cansell */
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	"Monsters chase current location",
@@ -1948,6 +1948,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
 	"Adult: Randomize some of the artifacts (beta)",/* OPT_adult_randarts */
+	"A: Randomize randart names (if randarts is on)",/* OPT_adult_randnames */
 	"Adult: Auto-scum for good levels",				/* OPT_adult_autoscum */
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
@@ -1956,7 +1957,6 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_no_preserve */
 	"Adult: Don't generate connected stairs",	/* OPT_adult_no_stairs */
 	"Adult: Enable selling to shops",			/* OPT_adult_cansell */
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	"Adult: Monsters chase current location",
@@ -2026,7 +2026,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_always_pickup */
 	TRUE,		/* OPT_pickup_inven */
 	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
+	TRUE,		/* OPT_themed_levels */
 	FALSE,		/* xxx stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	FALSE,		/* xxx show_weights */
@@ -2148,6 +2148,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* birth_maximise */
 	FALSE,		/* birth_randarts */
+	TRUE,		/* burth_randnames */
 	TRUE,		/* birth_autoscum */
 	FALSE,		/* birth_ironman */
 	FALSE,		/* birth_no_stores */
@@ -2156,7 +2157,6 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* birth_no_preserve */
 	FALSE,		/* birth_no_stairs */
 	FALSE,		/* birth_cansell */
-	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* birth_ai_sound */
@@ -2212,6 +2212,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* adult_maximise */
 	FALSE,		/* adult_randarts */
+	TRUE,		/* adult_randnames */
 	TRUE,		/* adult_autoscum */
 	FALSE,		/* adult_ironman */
 	FALSE,		/* adult_no_stores */
@@ -2220,7 +2221,6 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* adult_no_preserve */
 	FALSE,		/* adult_no_stairs */
 	FALSE,		/* adult_cansell */
-	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* adult_ai_sound */
@@ -2296,6 +2296,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_open,
 		OPT_mouse_movement,
 		OPT_show_lists,
+		OPT_themed_levels,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2318,6 +2319,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_torch_grids,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE,
 	},
 
 	/* Warning */
@@ -2337,12 +2339,14 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE,
 	},
 
 	/* Birth/Difficulty */
 	{
 		OPT_birth_maximize,
 		OPT_birth_randarts,
+		OPT_birth_randnames,
 		OPT_birth_autoscum,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
@@ -2376,6 +2380,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE,
 	}
 };
 
@@ -2389,9 +2394,9 @@ cptr inscrip_text[MAX_INSCRIP] =
 {
 	NULL,
 	"terrible",
-	"worthless",
+	"terrible", /* changed: was 'worthless' */
 	"cursed",
-	"broken",
+	"worthless", /* changed: was 'broken' */
 	"average",
 	"good",
 	"excellent",
@@ -2570,7 +2575,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_POTION, SV_POTION_BOLDNESS },
+		/* { TV_POTION, SV_POTION_BOLDNESS }, */
 		{ TV_POTION, SV_POTION_HEROISM },
 
 		{ TV_POTION, SV_POTION_CURE_LIGHT },

@@ -111,6 +111,7 @@ s16b mon_max = 1;	/* Number of allocated monsters */
 s16b mon_cnt = 0;	/* Number of live monsters */
 
 /* new for DJA  **see bottom of file** */
+/* int illusion = 0;	use when I implement the illusion trap */
 int range = 0;         /* shortened range of some spell/breaths */
 int spellswitch = 0;   /* extra effects of some spells (easy hacking) */
 int losesave = 0;      /* chance for powerful monsters to get past sustains and immunity */
@@ -895,40 +896,39 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
 /* 
  *  explaination of spellswitches:
  * 1  = map_area maps much bigger area.
- * 2  = differenciate monster breath from monster ball spells to make them have  *	slightly different effects.
+ * 2  = (no longer used)
  * 3  = used to fix rune of protection bug (see cmd6.c L309 and spells2.c L97)
  * 4  = prevents lite_area() from automatically lighting up the whole room
+ *		(for alchemy realm light spell)
  * 5  = make object that's not good or great (for acquirement())
  * 6  = increase radius for detect traps
- * 7  = always cold brand for brand weapon
- * 8  = quick word of recall
+ * 7  = (no longer used)
+ * 8  = (no longer used)
  * 9  = changes target prompt for camera flash spell and prevents discovory of
  *  water immunity for camera flash and stun_monster spells.  Also makes the
  *  light from camera flash and burst of light not stay.
  * 10 = prevents GF_DISP_ALL from affecting golems for song of dispelling
- * 11 = player-activated earthquake with spell (doesn't allow big damage to player)
- * 12 = monster-activated earthquake with spell (not used yet)
+ * 11 = will activate earthquake for any ball spell in project() function
+ * 12 = (no longer used)
  * 13 = target prompt and prevents using old target for teleport control.  *	HELPER monster spells also use it to prevent using old target.
- * 14 = uses banishment() function to summon a chosen type of monster.
- * 15 = turn undead turns all monsters.
+ * 14 = (no longer used)
+ * 15 = (no longer used)
  * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)
- * 17 = acid coating in the brand_ammo function
- * 18 = enchant only missile weapons for archer spell
- * 19 = poison brand in the brand_ammo function
- * 20 = poison brand weapon
- * 21 = for call_dark (changes damage from dark_weak to dark)
+ * 17 = (no longer used)
+ * 18 = (no longer used)
+ * 19 = (no longer used)
+ * 20 = (no longer used)
+ * 21 = (no longer used)
  * 22 = adds chance of sleep to GF_POIS for NOXIOUS_FUMES
- * 23 = makes GF_OLD_DRAIN affect demons for death spells and cause wounds 
- *  spells, also used to turn GF_DISP_UNDEAD into dispel demons.
+ * 23 = used to turn GF_DISP_UNDEAD into dispel demons.
  * 24 = for telekinesis
  * 25 = makes the light from camera flash and burst of light not stay
  * 26 = for beam of destruction spell
  * 27 = makes GF_OLD_DRAIN not affect silver for the dispel life spell
- * 28 = target self
+ * 28 = (no longer used)
  * 29 = makes GF_OLD_SLEEP more powerful (ignoring NO_SLEEP flags)
  * 30 = for gravity effect on nether ball, also used for bizzare effects spell
  * 31 = for tunneldigger wand
- * 91-95 = palert searching bonus (?)
  *  ** spellswitch resets at the end of the project() function which is used in
  * every bolt/beam/ball/breath spell. **
  * 

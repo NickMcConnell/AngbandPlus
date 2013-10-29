@@ -211,8 +211,8 @@ static cptr r_info_flags2[] =
 	"S_EVIL2",
 	"ROAM1",
 	"ROAM2",
-	"BRAIN_6",
-	"BRAIN_7",
+	"PASS_DOOR",
+	"DISGUISE",
 	"BRAIN_8"
 };
 
@@ -289,7 +289,7 @@ static cptr r_info_flags4[] =
 	"BR_WALL", /* breathe force */
 	"BR_MANA",
 	"BR_FEAR",
-	"XXX6X4",
+	"BR_SLIME",
 	"BR_AMNS",
 	"BOULDER"
 };
@@ -364,12 +364,52 @@ static cptr r_info_flags6[] =
 	"S_HYDRA",
 	"S_ANGEL",
 	"S_DEMON",
-	"S_UNDEAD",              /* summon nightmare in ALT */
-	"S_DRAGON",              /* summon nymph in ALT */
+	"S_UNDEAD",
+	"S_DRAGON",
 	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
 	"S_WRAITH",
 	"S_UNIQUE"
+};
+
+
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags7[] =
+{
+	"THEME_ONLY",
+	"ICKY_PLACE",
+	"VOLCANO",
+	"EARTHY_CAVE",
+	"WINDY_CAVE",
+	"FFOREST",
+	"GREPSE",
+	"CASTLE",
+	"TEMPLE",
+	"ZOO",
+	"CFOREST",
+	"SWAMP",
+	"FULL_MOON",
+	"HELL_HALL",
+	"DWARF_MINE",
+	"BUG_CAVE",
+	"NIGHTMARE",
+	"XX717",
+	"XX718",
+	"XX719",
+	"XX720",
+	"XX721",
+	"XX722",
+	"XX723",
+	"XX724",
+	"XX725",
+	"XX726",
+	"XX727",
+	"WATER_ONLY",
+	"BLOCK_LOS",
+	"HATE_WATER",
+	"WATER_HIDE",
 };
 
 
@@ -440,7 +480,7 @@ static cptr k_info_flags2[] =
 	"EXTRA_CRIT",
 	"DANGER",
 	"CONSTANTA",
-	"XXX83",
+	"SLAY_WERE",
 	"XXX84",
 	"IMPACT",
 	"CORRUPT",
@@ -593,7 +633,8 @@ static cptr a_info_act[ACT_MAX] =
 	"SNOWBALL",
 	"CHARM_ANIMAL",
 	"TUNNELDIG",
-	"SUN_HERO"
+	"SUN_HERO",
+	"HOLY_FIRE"
 };
 
 
@@ -782,6 +823,7 @@ static u32b add_name(header *head, cptr buf)
 
 /*
  * Initialize the "z_info" structure, by parsing an ascii "template" file
+ * (limits.txt)
  */
 errr parse_z_info(char *buf, header *head)
 {
@@ -999,6 +1041,7 @@ errr parse_z_info(char *buf, header *head)
 
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
+ * (vault.txt)
  */
 errr parse_v_info(char *buf, header *head)
 {
@@ -1062,24 +1105,23 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int typ, rat, hgt, wid, dig;
+		int typ, rat, hgt, wid, dig, rarity, theme;
 
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-			            &typ, &rat, &hgt, &wid, &dig)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			            &typ, &rat, &hgt, &wid, &dig, &rarity, &theme)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		v_ptr->typ = typ;
 		v_ptr->rat = rat;
 		v_ptr->hgt = hgt;
 		v_ptr->wid = wid;
-
-		/* translate dig into useMT */
-		if (dig == 1) v_ptr->useMT = TRUE;
-		else v_ptr->useMT = FALSE;
+		v_ptr->useMT = dig;
+		v_ptr->rare = rarity;
+		v_ptr->itheme = theme;
 
 		/* Check for maximum vault sizes */
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
@@ -1102,6 +1144,7 @@ errr parse_v_info(char *buf, header *head)
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
+ * (terrain.txt (?))
  */
 errr parse_f_info(char *buf, header *head)
 {
@@ -1713,19 +1756,20 @@ SAVED_H_PTR = (artifact_type*)head->info_ptr;
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, wgt;
+		int level, rarity, wgt, maxlvl;
 		long cost;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
+			            &level, &maxlvl, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->level = level;
 		a_ptr->rarity = rarity;
+		a_ptr->maxlvl = maxlvl;
 		a_ptr->weight = wgt;
 		a_ptr->cost = cost;
 	}
@@ -2074,6 +2118,9 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -2551,7 +2598,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_sav = sav;
 		pr_ptr->r_stl = stl;
 		pr_ptr->r_srh = srh;
-		pr_ptr->r_fos = fos;
+		pr_ptr->r_fos = fos; /* alertness */
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
 		pr_ptr->r_tht = tht;
@@ -2572,7 +2619,7 @@ errr parse_p_info(char *buf, header *head)
 		/* Save the values */
 		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
-		pr_ptr->infra = unused;
+		pr_ptr->infra = unused; /* unused */
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
@@ -2817,7 +2864,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_sav = sav;
 		pc_ptr->c_stl = stl;
 		pc_ptr->c_srh = srh;
-		pc_ptr->c_fos = fos;
+		pc_ptr->c_fos = fos; /* alertness */
 		pc_ptr->c_thn = thn;
 		pc_ptr->c_thb = thb;
 		pc_ptr->c_tht = tht;

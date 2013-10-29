@@ -215,7 +215,7 @@ static void get_stats(bool autoroller)
 {
 	int i, j;
 
-	int bonus;
+	int bonus, humanstat;
 
 	int dice[18];
 
@@ -239,6 +239,13 @@ static void get_stats(bool autoroller)
 		if ((j > 42) && (j < 54)) break;
 	}
 
+	/* humans get +1 to one random stat */
+	if (p_ptr->prace == 0)
+	{
+		/* should it be rand_int ? */
+		humanstat = randint(6);
+	}
+
 	/* Roll the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
@@ -248,8 +255,12 @@ static void get_stats(bool autoroller)
 		/* Save that value */
 		p_ptr->stat_max[i] = j;
 
-		/* Obtain a "bonus" for "race" and "class" */
+		/* Obtain a bonus for race and class */
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+		/* humans get +1 to one random stat */
+		/* ..hard to tell if it works or not.. */
+		if ((p_ptr->prace == 0) && (i == humanstat)) bonus += 1;
 
 		/* Variable stat maxes */
 		if (adult_maximize)
@@ -316,6 +327,7 @@ static void get_extra(void)
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
 			j = randint(p_ptr->hitdie);
+			if ((p_ptr->prace == 16) && (j < 2)) j = 2;
 			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
 		}
 
@@ -403,6 +415,15 @@ static void get_ahw(void)
 	{
 		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
 		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+	}
+
+	/* golems are heavy and can be very old */
+	/* (b_age and f_b_wt are bytes which won't work with high numbers) */
+	if (p_ptr->prace == 16)
+	{
+		p_ptr->wt = p_ptr->wt * 100;
+		if (randint(100) < 33) p_ptr->age += randint(2000);
+		else p_ptr->age += rand_int(200);
 	}
 }
 
@@ -552,6 +573,7 @@ static void player_wipe(bool really_wipe)
     p_ptr->slime = PY_SLIME_HEALTHY;
     p_ptr->corrupt = 0; /* no corruption */
     p_ptr->learnedcontrol = 0; /* no teleport control skill */
+	p_ptr->warned = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -743,7 +765,7 @@ static void race_aux_hook(int race, void *db, const region *reg)
 {
 	int i;
 	char s[50];
-
+	bool golemrace = FALSE;
 	if (race == z_info->p_max) return;
 
 	/* Display relevant details. */
@@ -779,10 +801,16 @@ static void race_aux_hook(int race, void *db, const region *reg)
 	else if (p_info[race].b_age == 16) strnfmt(s, sizeof(s), "has resistance to nether and can see invisible.  ");
 	else if (p_info[race].b_age == 23) strnfmt(s, sizeof(s), "has feather falling, resistance to light & fear. ");
 	else if (p_info[race].b_age == 52) strnfmt(s, sizeof(s), "*novelty race, must be the hulk class. (F)       ");
-	else /* only other one is Maia */ strnfmt(s, sizeof(s), "has resistance to disenchantment.                ");
+	else /* only other one is Golem */
+	{
+		strnfmt(s, sizeof(s), "has resistance to poison, fire, and shards,      ");
+		golemrace = TRUE;
+	}
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
 	/* ugly hack using base age to identify race, but I couldn't figure out how to do it by index number */
 	if (p_info[race].b_age == 52) strnfmt(s, sizeof(s),      "has confusion resistance and aggravates monsters.");
+	/* else if (p_info[race].b_age == 14) strnfmt(s, sizeof(s), "gets +1 to one random stat a.            "); */
+	else if (golemrace) strnfmt(s, sizeof(s),                "throws powerfully and does not heal naturally.   ");
 	else strnfmt(s, sizeof(s),                               "                                                 ");
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, s);
 }
@@ -1179,6 +1207,7 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin or tourist.");
 	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a living ghoul cannot be the class you chose.");
 	if (clash == 15) text_out_c(TERM_L_RED, "Sorry, a power sprite cannot be the class you chose.");
+	if (clash == 16) text_out_c(TERM_L_RED, "Sorry, a golem cannot be the class you chose.");
 	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk must be the hulk class.");
 	if (clash == 40) text_out_c(TERM_L_RED, "Sorry, only an uber umber hulk can be the hulk class.");
 
@@ -1252,7 +1281,7 @@ static int player_birth_aux_2(bool start_at_end)
 
 	static int stats[A_MAX];
 
-	int cost;
+	int cost, humanstat;
 
 	char ch;
 
@@ -1273,7 +1302,6 @@ static int player_birth_aux_2(bool start_at_end)
 			/* Initial stats */
 			stats[i] = 10;
 		}
-
 
 		/* Roll for base hitpoints */
 		get_extra();
@@ -1315,14 +1343,23 @@ static int player_birth_aux_2(bool start_at_end)
 
 			/* Total cost */
 			cost += birth_stat_costs[stats[i] - 10];
+
+			/* golems have no constitution score */
+			if ((i == A_CON) && (p_ptr->prace == 16))
+			{
+				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 0;
+			}
 		}
 
 		/* Restrict cost */
+		/* humans get 1 extra stat point */
+		if (p_ptr->prace == 0) humanstat = 1;
+		else humanstat = 0;
 #ifdef EFG
 		/* EFGchange unified character generation */
 		/* It is feasible to get base 17 in 3 stats with the autoroller */
 #define		MAX_BIRTH_COST	(3 * birth_stat_costs[7])
-		if (cost > MAX_BIRTH_COST)
+		if (cost > MAX_BIRTH_COST + humanstat)
 #else
 		if (cost > 48)
 #endif
@@ -1342,8 +1379,8 @@ static int player_birth_aux_2(bool start_at_end)
         /* EFGchange unified character generation */
         /* DAJ: start with less gold if you can sell to shops
            but still enough to buy a WoR */
-        if (adult_cansell) p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 320;
-        else p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 500;
+        if (adult_cansell) p_ptr->au = 100 * (MAX_BIRTH_COST + humanstat - cost) + 320;
+        else p_ptr->au = 100 * (MAX_BIRTH_COST + humanstat - cost) + 500;
 #else
 		p_ptr->au = (100 * (48 - cost)) + 320;
 #endif
@@ -1388,7 +1425,7 @@ static int player_birth_aux_2(bool start_at_end)
 		/* Prompt XXX XXX XXX */
 #ifdef EFG
 		/* EFGchange unified character generation */
-		strnfmt(buf, sizeof(buf), "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost, MAX_BIRTH_COST);
+		strnfmt(buf, sizeof(buf), "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost, MAX_BIRTH_COST + humanstat);
 #else
 		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
 #endif
@@ -1423,27 +1460,34 @@ static int player_birth_aux_2(bool start_at_end)
 		if (ch == 8)
 		{
 			stat = (stat + A_MAX - 1) % A_MAX;
+			/* skip CON with golems */
+			if ((stat == A_CON) && (p_ptr->prace == 16)) stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == 2)
 		{
 			stat = (stat + 1) % A_MAX;
+			/* skip CON with golems */
+			if ((stat == A_CON) && (p_ptr->prace == 16)) stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
 		if ((ch == 4) && (stats[stat] > 10))
 		{
-			stats[stat]--;
+			if (cost) stats[stat]--;
 		}
 
+		if ((ch == 6) && (stat == A_CON) && (p_ptr->prace == 16))
+		{
+			/* nothing, golems have no constitution score */;
+		}
 		/* Increase stat */
-		if ((ch == 6) && (stats[stat] < 18))
+		else if ((ch == 6) && (stats[stat] < 18))
 		{
 			stats[stat]++;
 		}
 	}
-
 
 	/* Done - advance a step*/
 	return +1;
@@ -2021,7 +2065,7 @@ for (;clash < 50;)
                          if ((p_ptr->pclass == 2) || (p_ptr->pclass == 10))
                          clash = 10;
                       } */
-                    /* fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch, loser, chaos warrior, or any kind of knight */
+                    /* fairy gnome cannot be a warrior, necromancer, assassin, witch, loser, chaos warrior, or any kind of knight */
                     if (p_ptr->prace == 12)
                       {
                          if ((p_ptr->pclass == 0) || (p_ptr->pclass == 2) || (p_ptr->pclass == 13))
@@ -2035,7 +2079,7 @@ for (;clash < 50;)
                             clash = 13;
                          }
                       }
-                    /* grave ghoul cannot be a tourist, ninja, or white, blue, or yellow knight */
+                    /* living ghoul cannot be a tourist, ninja, or white, blue, or yellow knight */
                     if (p_ptr->prace == 14)
                       {
                          if (p_ptr->pclass == 15)
@@ -2049,6 +2093,12 @@ for (;clash < 50;)
                          if ((p_ptr->pclass == 1) || (p_ptr->pclass == 2))
                          clash = 15;
                       }    
+                    /* golem cannot be a thief, druid or assassin */
+                    if (p_ptr->prace == 16)
+                      {
+                         if ((p_ptr->pclass == 10) || (p_ptr->pclass == 14) || (p_ptr->pclass == 13))
+                         clash = 16;
+                      }
                     /* umber hulk must be hulk class */
                     if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;
                     /* no other race can be hulk class */
@@ -2073,7 +2123,6 @@ if (p_ptr->prace == 12) p_ptr->luck += randint(4) - 1; /* fairy gnome 20 to 23 *
 if (p_ptr->prace == 13) p_ptr->luck += randint(6) - 3; /* dark elf 18 to 23 */
 /* if (p_ptr->prace == 14) p_ptr->luck += 0;   living ghoul 20 */
 if (p_ptr->prace == 15) p_ptr->luck += randint(4) - 1; /* power sprite 20 to 23 */
-if (p_ptr->prace == 16) p_ptr->luck += randint(2) - 1; /* maia 20 to 21 */
 if (p_ptr->prace == 17) p_ptr->luck += randint(4) - 2; /* hulk 19 to 22 */
 if (p_ptr->pclass == 2) p_ptr->luck -= 1; /* necromancer -1 */
 if (p_ptr->pclass == 3) p_ptr->luck += (randint(2) - 1); /* rogue +0 to +1 */
@@ -2083,6 +2132,7 @@ if (p_ptr->pclass == 15) p_ptr->luck += 2; /* tourist +2 */
  /* human tourists are especially lucky tourist +2 */
 if ((p_ptr->pclass == 15) && (p_ptr->prace == 0)) p_ptr->luck += 3;
 if (p_ptr->pclass == 14) p_ptr->luck += (randint(2) - 1); /* thief +0 to +1 */
+if (p_ptr->prace == 16) p_ptr->luck = 20; /* golems always have neutral luck rating */
     goodluck = 0;
     if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
     badluck = 0;

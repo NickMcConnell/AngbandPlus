@@ -183,7 +183,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & RF4_BR_MANA)		vp[vn++] = "mana";
 	if (l_ptr->flags4 & RF4_BR_FEAR)		vp[vn++] = "fear";
 	if (l_ptr->flags4 & RF4_BR_AMNS)		vp[vn++] = "amnesia";
-	if (l_ptr->flags4 & RF4_XXX6)		vp[vn++] = "something";
+	if (l_ptr->flags4 & RF4_BR_SLIME)		vp[vn++] = "slime";
 
 	/* Describe breaths */
 	if (vn)
@@ -650,13 +650,9 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
 
-	int n;
-
-	int vn;
+	int n, vn, stl;
 	cptr vp[64];
-
 	int msex = 0;
-
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -667,6 +663,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
+	if (l_ptr->flags2 & RF2_PASS_DOOR) vp[vn++] = "pass through doors";
 	if (l_ptr->flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
 	if (l_ptr->flags2 & RF2_MOVE_BODY) vp[vn++] = "push past weaker monsters";
 	if (l_ptr->flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
@@ -722,13 +719,31 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		text_out(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
 
-    if (r_ptr->stealth == 2) text_out(format("%^s is slightly stealthy.  ", wd_he[msex]));
-    else if (r_ptr->stealth == 3) text_out(format("%^s is moderately stealthy.  ", wd_he[msex]));
-    else if (r_ptr->stealth == 4) text_out(format("%^s is very stealthy.  ", wd_he[msex]));
-    else if (r_ptr->stealth == 5) text_out(format("%^s is extremely stealthy.  ", wd_he[msex]));
-    else if (r_ptr->stealth > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
-    else if (r_ptr->stealth == 0) text_out(format("%^s is not at all stealthy.  ", wd_he[msex]));
-    else text_out(format("%^s is not very stealthy.  ", wd_he[msex]));
+	stl = r_ptr->stealth;
+	/* WATER_ONLY monsters get automatic stealth bonus unless out of water (which they rarely are) */
+	if ((stl < 4) && (r_ptr->flags7 & (RF7_WATER_ONLY))) stl += 2;
+
+    if (stl == 2) text_out(format("%^s is slightly stealthy", wd_he[msex]));
+    else if (stl == 3) text_out(format("%^s is stealthy", wd_he[msex]));
+    else if (stl == 4) text_out(format("%^s is very stealthy", wd_he[msex]));
+    else if (stl == 5) text_out(format("%^s is extremely stealthy", wd_he[msex]));
+    else if (stl > 5) text_out(format("%^s is extremely stealthy!  ", wd_he[msex]));
+    else if (stl == 0) text_out(format("%^s is not at all stealthy", wd_he[msex]));
+    else text_out(format("%^s is not very stealthy", wd_he[msex]));
+
+	if (r_ptr->stealth <= 5)
+	{
+		if ((r_ptr->stealth < 3) && (r_ptr->flags7 & (RF7_WATER_HIDE)))
+			text_out(", but can hide better in water.  ");
+		else if (r_ptr->flags7 & (RF7_WATER_HIDE))
+			text_out(", and can hide even better in water.  ");
+		else text_out(".  ");
+	}
+
+	if (r_ptr->flags7 & (RF7_HATE_WATER))
+		text_out(format("%^s hates water.  ", wd_he[msex]));
+	if (r_ptr->flags7 & (RF7_WATER_ONLY))
+		text_out(format("%^s lives only in water.  ", wd_he[msex]));
 
 	/* Collect susceptibilities */
 	vn = 0;
@@ -1217,7 +1232,18 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 
 	if (old) text_out(" and");
 
-    if (r_ptr->flags1 & RF1_UNIQUE)
+    if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags7 & RF7_THEME_ONLY))
+    {
+       text_out(" never appears outside of its home.  ");
+
+	   /* Extract a gender (if applicable) */
+	   msex = 0;
+	   if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
+	   else if (r_ptr->flags1 & RF1_MALE) msex = 1;
+
+	   text_out(format("%^s moves", wd_he[msex]));
+    }                  
+    else if (r_ptr->flags1 & RF1_UNIQUE)
     {
        text_out(" moves");
     }                  
@@ -1235,6 +1261,8 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	   else if ((r_ptr->rarity > 4) && (r_ptr->rarity <= 6)) text_out(" is rare.  ");
 	   else if ((r_ptr->rarity > 6) && (r_ptr->rarity <= 16)) text_out(" is very rare.  ");
 	   else if (r_ptr->rarity > 16) text_out(" is extremely rare.  ");
+	   /* note about THEME_ONLY monsters */
+	   if (r_ptr->flags7 & RF7_THEME_ONLY) text_out("It never appears outside of its home.  ");
 	
 	   msex = 0;
 

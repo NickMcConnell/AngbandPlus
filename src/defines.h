@@ -43,7 +43,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.99 9/9/09 update"
+#define VERSION_STRING "version 1.1.0 Nov 20, 09 update"
 #endif
 
 
@@ -510,7 +510,8 @@ enum
     TMD_XATTACK, TMD_SUST_SPEED, TMD_SPHERE_CHARM, TMD_HIT_ELEMENT,
     TMD_DARKVIS, TMD_SUPER_ROGUE, TMD_ZAPPING, TMD_2ND_THOUGHT,
     TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
-	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT,
+	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT, TMD_OPP_SILV,
+	TMD_FALSE_LIFE, TMD_STINKY, TMD_DEMON_WARD, TMD_TMPBOOST,
 
 	TMD_MAX
 };
@@ -647,7 +648,8 @@ enum
 #define GF_OLD_DRAIN	58
 #define GF_DISP_UNN  	59
 #define GF_SILENCE_S    60
-
+#define GF_ZOMBIE_FIRE  61
+#define GF_BRSLIME		62
 
 /*
  * Some constants for the "learn" code
@@ -712,9 +714,13 @@ enum
 
 /* Doors */
 #define FEAT_DOOR_HEAD	0x20
-#define FEAT_DOOR_TAIL	0x2F
+#define FEAT_DOOR_TAIL	0x2D
 
 /* Extra */
+/* (lava (for volcano theme) and ice (for cold forest theme) will probably be */
+/* the next additions to features) */
+#define FEAT_OPEN_PIT	0x2E    /* */
+#define FEAT_WATER		0x2F	/* */
 #define FEAT_SECRET		0x30
 #define FEAT_RUBBLE		0x31
 
@@ -777,7 +783,7 @@ enum
 #define EGO_PERMANENCE		11
 /* xxx */
 
-/* heavy armor only */
+	/* heavy armor only */
 #define EGO_ARMR_DWARVEN	12
 #define EGO_COSTLY_IMM1	    139 /* vrare: IM_FIRE & COLD with drawbacks */
 #define EGO_COSTLY_IMM2	    140 /* vrare: IM_ELEC & ACID with drawbacks */
@@ -927,7 +933,7 @@ enum
 #define EGO_EREGION2        130   /* extra ability */
 #define EGO_WARFARE         131   /* combat bonuses */
 /* rings & amulets of teleportation */
-#define EGO_TELECONTROL     154 /* doesn't work yet */
+#define EGO_TELECONTROL     154
 
 /* DJA: weird psuedo-randarts for weapons, diggers & tusks */
 #define EGO_RANDOM1         134
@@ -946,7 +952,7 @@ enum
 
 /* DJA: magic staffs */
 /* #define EGO_EASY_USE        147 (removed, magic_mastery now uses pval) */
-/* alternate versions for magic staffs */
+/* alternate versions for magic staffs (without pval) */
 #define EGO_NATURAL_BATL    148
 #define EGO_NATURAL_LITE    149
 #define EGO_UPS_N_DOWNS     150
@@ -954,8 +960,8 @@ enum
 #define EGO_DF_STAFF        156 /* defender */
 #define EGO_CONSTANT		159 /* only staffs with timed effects */
 
-/*** Object "tval" and "sval" codes ***/
 
+/*** Object "tval" and "sval" codes ***/
 
 /*
  * The values for the "tval" field of various objects.
@@ -1027,6 +1033,17 @@ enum
 /* special items (tval 4) */
 #define SV_CLASS_OBJ    1   /* the class object */
 #define SV_TREASURE     2   /* treasure map */
+
+/* TV_CHEST (7) */
+#define SV_RUINED_CHEST		0
+#define SV_SM_WOODEN_CHEST	1
+#define SV_SM_IRON_CHEST	2
+#define SV_SM_STEEL_CHEST	3
+#define SV_LG_WOODEN_CHEST	5
+#define SV_LG_IRON_CHEST	6
+#define SV_LG_STEEL_CHEST	7
+#define SV_SP_SILVER_CHEST	8 /* chance for DROP_GOOD items */
+#define SV_SP_GOLD_CHEST	9 /* chance for DROP_GREAT items */
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT (16,17,18) */
 #define SV_AMMO_LIGHT		0	/* pebbles */
@@ -1105,10 +1122,10 @@ enum
 #define SV_SABRE				11	/* 1d7 */
 #define SV_CUTLASS				12	/* 1d6 */
 #define SV_BOOMERANG            13  /* 1d11 for throwing (rare) */
+#define SV_GLADIUS			    14	/* 1d6 */
 #define SV_BROAD_SWORD			16	/* 2d5 */
 #define SV_LONG_SWORD			17	/* 2d5 */
 #define SV_SCIMITAR				18	/* 2d4 */
-#define SV_GLADIUS			    20	/* 1d6 */
 #define SV_BASTARD_SWORD		21	/* 3d4 */
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
 #define SV_GREAT_SWORD	        28	/* 4d5 */
@@ -1439,9 +1456,9 @@ enum
 /* xxx */
 #define SV_POTION_SLEEP				11
 #define SV_POTION_RESIST_ELEC_ACID  12
-#define SV_POTION_LOSE_MEMORIES		13
+#define SV_POTION_MULTIHUED_POISON	13 /* this potion appears to be another random type of potion */
 #define SV_POTION_FOUR_LEAF         14
-#define SV_POTION_RUINATION			15
+#define SV_POTION_RUINATION			15 /* changed to mediocrity */
 #define SV_POTION_DEC_STR			16
 #define SV_POTION_DEC_INT			17
 #define SV_POTION_DEC_WIS			18
@@ -1452,9 +1469,10 @@ enum
 #define SV_POTION_PURITY		    23
 #define SV_POTION_INFRAVISION		24 /* alertness */
 #define SV_POTION_DETECT_INVIS		25
-#define SV_POTION_SLOW_POISON		26 /* shares allocation with detect monsters */
+#define SV_POTION_TMP_BOOST			26
 #define SV_POTION_CURE_POISON		27
-#define SV_POTION_BOLDNESS			28
+/* #define SV_POTION_BOLDNESS			28 (removed) */
+#define SV_POTION_DBREATH			28 /* dragonbreath */
 #define SV_POTION_SPEED				29
 #define SV_POTION_RESIST_HEAT		30
 #define SV_POTION_RESIST_COLD		31
@@ -1471,7 +1489,7 @@ enum
 #define SV_POTION_RES_BRAWN			42 /* STR & CON */
 #define SV_POTION_RES_INTELLECT		43 /* INT & WIS */
 #define SV_POTION_RES_SNEAKINESS	44 /* DEX & CHR */
-#define SV_POTION_DETECT_MON		45 /* shares allocation with slow poison */
+#define SV_POTION_DETECT_MON		45
 /*
 #define SV_POTION_RES_DEX			45
 #define SV_POTION_RES_CON			46
@@ -1680,16 +1698,16 @@ enum
 
 
 /*
- * Bit flags for the "project()" function
+ * Bit flags for the project() function
  *
  *   JUMP: Jump directly to the target location (this is a hack)
  *   BEAM: Work as a beam weapon (affect every grid passed through)
- *   THRU: Continue "through" the target (used for "bolts"/"beams")
- *   STOP: Stop as soon as we hit a monster (used for "bolts")
- *   GRID: Affect each grid in the "blast area" in some way
- *   ITEM: Affect each object in the "blast area" in some way
- *   KILL: Affect each monster in the "blast area" in some way
- *   HIDE: Hack -- disable "visual" feedback from projection
+ *   THRU: Continue through the target (used for bolts/beams)
+ *   STOP: Stop as soon as we hit a monster (used for bolts)
+ *   GRID: Affect each grid in the blast area in some way
+ *   ITEM: Affect each object in the blast area in some way
+ *   KILL: Affect each monster in the blast area in some way
+ *   HIDE: Hack -- disable visual feedback from projection
  */
 #define PROJECT_JUMP	0x01
 #define PROJECT_BEAM	0x02
@@ -1699,6 +1717,19 @@ enum
 #define PROJECT_ITEM	0x20
 #define PROJECT_KILL	0x40
 #define PROJECT_HIDE	0x80
+
+ /*
+  * Let's try this:
+  * New bit flags for project() function
+  */
+#define PROJO_BRETH		0x01 /* for monster breath */
+#define PROJO_SPRED		0x02 /* for spread effect spells */
+#define PROJO_XXXX2		0x04
+#define PROJO_XXXX3		0x08
+#define PROJO_XXXX4		0x10
+#define PROJO_XXXX5		0x20
+#define PROJO_XXXX6		0x40
+#define PROJO_XXXX7		0x80
 
 
 /*
@@ -1842,6 +1873,7 @@ enum
 #define PW_OBJECT           0x00000200L /* Display object recall */
 #define PW_MONLIST          0x00000400L /* Display monster list */
 #define PW_STATUS           0x00000800L /* Display status */
+#define PW_OBJLIST          0x00001000L /* Display object list */
 /* xxx */
 #define PW_BORG_1           0x00004000L /* Display borg messages */
 #define PW_BORG_2           0x00008000L /* Display borg status */
@@ -1866,7 +1898,8 @@ enum
 #define CAVE_WALL		0x80 	/* wall flag */
 
 /*
- * Special cave grid light flags (experimental)
+ * Special cave grid light flags (experimental, didn't work)
+ * don't really know how to add a new set of flags like this..
  */
 #if EXPM
 #define DLIT_FULL		0x01 	/* always seen */
@@ -2067,7 +2100,7 @@ enum
 #define TR2_EXTRA_CRIT      0x00100000L /* makes critical hits more often */
 #define TR2_DANGER          0x00200000L /* dangerous to the user of the weapon */
 #define TR2_CONSTANTA       0x00400000L /* magic staff of constant activation */
-#define TR2_XXX83           0x00800000L /* unused */
+#define TR2_SLAY_WERE       0x00800000L /* damage like GF_SILVER_BLT */
 #define TR2_XXX84           0x01000000L /* unused */
 #define TR2_IMPACT          0x02000000L /* Earthquake blows */
 #define TR2_CORRUPT         0x04000000L /* Corrupting (moved from TR3) */
@@ -2127,8 +2160,8 @@ enum
 #define TR4_RES_CHARM       0x00001000L /* Resist charm */
 #define TR4_RES_STATC       0x00002000L /* Resist static (drain charges) */
 /* end of random resistances */
-#define TR4_XXX15           0x00004000L /*  */
-#define TR4_XXX16           0x00008000L /*  */
+#define TR4_XXX15           0x00004000L /* Resist silver (?) */
+#define TR4_XXX16           0x00008000L /* Resist slime (?) */
 #define TR4_XXX17           0x00010000L /*  */
 #define TR4_XXX18           0x00020000L /*  */
 #define TR4_XXX19           0x00040000L /*  */
@@ -2257,17 +2290,17 @@ enum
 #define RF1_MALE			0x00000004	/* Male gender */
 #define RF1_FEMALE			0x00000008	/* Female gender */
 #define RF1_CHAR_CLEAR		0x00000010	/* Absorbs symbol */
-#define RF1_CHAR_MULTI		0x00000020	/* Changes symbol */
+#define RF1_CHAR_MULTI		0x00000020	/* Changes symbol (no effect- can replace this) */
 #define RF1_ATTR_CLEAR		0x00000040	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000080	/* Changes color */
 #define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
 #define RF1_FORCE_MAXHP		0x00000200	/* Start with max hitpoints */
 #define RF1_FORCE_SLEEP		0x00000400	/* Start out sleeping */
-#define RF1_FORCE_EXTRA		0x00000800	/* Start out something */
+#define RF1_FORCE_EXTRA		0x00000800	/* Start out something (can replace this) */
 #define RF1_FRIEND			0x00001000	/* Arrive with a friend */
 #define RF1_FRIENDS			0x00002000	/* Arrive with some friends */
 #define RF1_ESCORT			0x00004000	/* Arrive with an escort */
-#define RF1_ESCORTS			0x00008000	/* Arrive with some escorts */
+#define RF1_ESCORTS			0x00008000	/* force groups for escorts */
 #define RF1_NEVER_BLOW		0x00010000	/* Never make physical blow */
 #define RF1_NEVER_MOVE		0x00020000	/* Never make physical move */
 #define RF1_RAND_25			0x00040000	/* Moves randomly (25%) */
@@ -2293,7 +2326,7 @@ enum
 #define RF2_FRIEND1			0x00000004	/* small groups */
 #define RF2_ESCORT1			0x00000008	/* less escorts */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
-#define RF2_COLD_BLOOD		0x00000020	/* No effect now */
+#define RF2_COLD_BLOOD		0x00000020	/* No effect now (can replace this) */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
 #define RF2_WEIRD_MIND		0x00000080	/* Monster usually avoids telepathy */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
@@ -2318,8 +2351,8 @@ enum
 #define RF2_S_EVIL2			0x04000000  /* usually evil (not always) */
 #define RF2_ROAM1			0x08000000  /* roams the dungeon (sometimes awake before noticing the player) */
 #define RF2_ROAM2			0x10000000  /* roams the dungeon (often awake before noticing the player) */
-#define RF2_BRAIN_6			0x20000000
-#define RF2_BRAIN_7			0x40000000
+#define RF2_PASS_DOOR		0x20000000  /* can pass through doors or rubble, but not walls */
+#define RF2_DISGUISE		0x40000000
 #define RF2_BRAIN_8			0x80000000
 
 /*
@@ -2339,8 +2372,8 @@ enum
 #define RF3_NON_LIVING		0x00000800	/* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
-#define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
-#define RF3_HURT_COLD		0x00008000	/* Hurt badly by cold */
+#define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire (now implemented) */
+#define RF3_HURT_COLD		0x00008000	/* Hurt badly by cold (now implemented) */
 #define RF3_IM_ACID			0x00010000	/* Resist acid a lot */
 #define RF3_IM_ELEC			0x00020000	/* Resist elec a lot */
 #define RF3_IM_FIRE			0x00040000	/* Resist fire a lot */
@@ -2359,7 +2392,7 @@ enum
 #define RF3_NO_SLEEP		0x80000000	/* Cannot be slept */
 
 /*
- * New monster race bit flags
+ * New monster race bit flags (innate spells)
  */
 #define RF4_SHRIEK          0x00000001 /* Shriek for help */
 #define RF4_XXX2            0x00000002 /* */
@@ -2388,14 +2421,14 @@ enum
 #define RF4_BR_SHAR         0x01000000 /* Breathe Shards */
 #define RF4_BR_PLAS         0x02000000 /* Breathe Plasma */
 #define RF4_BR_WALL         0x04000000 /* Breathe Force */
-#define RF4_BR_MANA         0x08000000 /* Breathe Mana */
+#define RF4_BR_MANA         0x08000000 /* Breathe Mana (unused and not coded) */
 #define RF4_BR_FEAR         0x10000000 /* breathe fear */
-#define RF4_XXX6            0x20000000
+#define RF4_BR_SLIME        0x20000000 /* breathe slime */
 #define RF4_BR_AMNS         0x40000000 /* breathe amnesia */
 #define RF4_BOULDER         0x80000000 /* Throw a boulder */
 
 /*
- * New monster race bit flags
+ * New monster race bit flags (spells)
  */
 #define RF5_BA_ACID			0x00000001	/* Acid Ball */
 #define RF5_BA_ELEC			0x00000002	/* Elec Ball */
@@ -2431,7 +2464,7 @@ enum
 #define RF5_HOLD			0x80000000	/* Paralyze Player */
 
 /*
- * New monster race bit flags
+ * New monster race bit flags (spells)
  */
 #define RF6_HASTE           0x00000001 /* Speed self */
 #define RF6_HEAL_KIN        0x00000002 /* Heal similar monsters */
@@ -2465,6 +2498,47 @@ enum
 #define RF6_S_HI_DRAGON     0x20000000 /* Summon Ancient Dragon */
 #define RF6_S_WRAITH        0x40000000 /* Summon Unique Wraith */
 #define RF6_S_UNIQUE        0x80000000 /* Summon Unique Monster */
+
+/*
+ * New (really new) monster race bit flags
+ * (basic flags, not spells)
+ * Most of these are for themed level tags.
+ * (in order to have water-themed level, we need a water terrain feature,
+ *  but I don't know how to add new terrain features.)
+ * (Maybe also use for choosing monsters for certain vaults (zoo, monster temple))
+ */
+#define RF7_THEME_ONLY      0x00000001 /* only can appear on its themed level */
+#define RF7_ICKY_PLACE      0x00000002 /* slime, theme3 */
+#define RF7_VOLCANO         0x00000004 /* fire, theme4 */
+#define RF7_EARTHY_CAVE     0x00000008 /* earth, theme5 */
+#define RF7_WINDY_CAVE      0x00000010 /* air, theme6 */
+#define RF7_FFOREST         0x00000020 /* fairy forest, theme2 */
+#define RF7_GREPSE          0x00000040 /* domain of the grepse (silver), theme12 */
+#define RF7_CASTLE          0x00000080 /* haunted castle, theme8 */
+#define RF7_TEMPLE	        0x00000100 /* monster temple */
+#define RF7_ZOO		        0x00000200 /* (unused) */
+#define RF7_CFOREST		    0x00000400 /* cold forest, theme1 */
+#define RF7_SWAMP	        0x00000800 /* theme9 */
+#define RF7_FULL_MOON       0x00001000 /* werebeasts, magic cats.., theme7 */
+#define RF7_HELL_HALL       0x00002000 /* demons & devils, theme 14 */
+#define RF7_DWARF_MINE      0x00004000 /*  theme 10 */
+#define RF7_BUG_CAVE        0x00008000 /* bugs, theme 11 */
+#define RF7_NIGHTMARE       0x00010000 /* theme13 */
+#define RF7_XX717      0x00020000 /*   */
+#define RF7_XX718       0x00040000 /*   */
+#define RF7_XX719      0x00080000 /*   */
+#define RF7_XX720        0x00100000 /*   */
+#define RF7_XX721        0x00200000 /*   */
+#define RF7_XX722         0x00400000 /*   */
+#define RF7_XX723         0x00800000 /*   */
+#define RF7_XX724         0x01000000 /*   */
+#define RF7_XX725         0x02000000 /*   */
+#define RF7_XX726        0x04000000 /*   */
+#define RF7_XX727        0x08000000 /*   */
+#define RF7_WATER_ONLY	    0x10000000 /* monster never leaves the water */
+#define RF7_BLOCK_LOS	    0x20000000 /* for trees and wall monsters */
+#define RF7_HATE_WATER      0x40000000 /* never goes in a space with water */
+#define RF7_WATER_HIDE      0x80000000 /* monster can hide in water */
 
 
 /*
@@ -2690,6 +2764,7 @@ enum
 #define OPT_pickup_always			5
 #define OPT_pickup_inven			6
 #define OPT_depth_in_feet			7
+#define OPT_themed_levels			8
 
 #define OPT_show_labels				10
 
@@ -2728,15 +2803,16 @@ enum
 
 #define OPT_birth_maximize          (OPT_BIRTH+0)
 #define OPT_birth_randarts          (OPT_BIRTH+1)
-#define OPT_birth_autoscum          (OPT_BIRTH+2)
-#define OPT_birth_ironman           (OPT_BIRTH+3)
-#define OPT_birth_no_stores         (OPT_BIRTH+4)
-#define OPT_birth_no_artifacts      (OPT_BIRTH+5)
-#define OPT_birth_no_stacking       (OPT_BIRTH+6)
-#define OPT_birth_no_preserve       (OPT_BIRTH+7)
-#define OPT_birth_no_stairs			(OPT_BIRTH+8)
-/* leave four spaces for future */
-#define OPT_birth_cansell           (OPT_BIRTH+9)
+#define OPT_birth_randnames         (OPT_BIRTH+2)
+#define OPT_birth_autoscum          (OPT_BIRTH+3)
+#define OPT_birth_ironman           (OPT_BIRTH+4)
+#define OPT_birth_no_stores         (OPT_BIRTH+5)
+#define OPT_birth_no_artifacts      (OPT_BIRTH+6)
+#define OPT_birth_no_stacking       (OPT_BIRTH+7)
+#define OPT_birth_no_preserve       (OPT_BIRTH+8)
+#define OPT_birth_no_stairs			(OPT_BIRTH+9)
+#define OPT_birth_cansell           (OPT_BIRTH+10)
+/* leave spaces for future */
 #define OPT_birth_ai_sound			(OPT_BIRTH+13)
 #define OPT_birth_ai_smell			(OPT_BIRTH+14)
 #define OPT_birth_ai_packs			(OPT_BIRTH+15)
@@ -2753,15 +2829,16 @@ enum
 
 #define OPT_adult_maximize          (OPT_ADULT+0)
 #define OPT_adult_randarts          (OPT_ADULT+1)
-#define OPT_adult_autoscum          (OPT_ADULT+2)
-#define OPT_adult_ironman           (OPT_ADULT+3)
-#define OPT_adult_no_stores         (OPT_ADULT+4)
-#define OPT_adult_no_artifacts      (OPT_ADULT+5)
-#define OPT_adult_no_stacking       (OPT_ADULT+6)
-#define OPT_adult_no_preserve       (OPT_ADULT+7)
-#define OPT_adult_no_stairs			(OPT_ADULT+8)
-#define OPT_adult_cansell           (OPT_ADULT+9)
-/* leave four spaces for future */
+#define OPT_adult_randnames			(OPT_ADULT+2)
+#define OPT_adult_autoscum          (OPT_ADULT+3)
+#define OPT_adult_ironman           (OPT_ADULT+4)
+#define OPT_adult_no_stores         (OPT_ADULT+5)
+#define OPT_adult_no_artifacts      (OPT_ADULT+6)
+#define OPT_adult_no_stacking       (OPT_ADULT+7)
+#define OPT_adult_no_preserve       (OPT_ADULT+8)
+#define OPT_adult_no_stairs			(OPT_ADULT+9)
+#define OPT_adult_cansell           (OPT_ADULT+10)
+/* leave spaces for future */
 #define OPT_adult_ai_sound			(OPT_ADULT+13)
 #define OPT_adult_ai_smell			(OPT_ADULT+14)
 #define OPT_adult_ai_packs			(OPT_ADULT+15)
@@ -2790,6 +2867,7 @@ enum
 #define pickup_always			OPTION(pickup_always)
 #define pickup_inven			OPTION(pickup_inven)
 #define depth_in_feet			OPTION(depth_in_feet)
+#define themed_levels			OPTION(themed_levels)
 #define show_labels				OPTION(show_labels)
 #define ring_bell				OPTION(ring_bell)
 #define show_flavors			OPTION(show_flavors)
@@ -2821,6 +2899,7 @@ enum
 
 #define birth_maximize			OPTION(birth_maximize)
 #define birth_randarts			OPTION(birth_randarts)
+#define birth_randnames			OPTION(birth_randnames)
 #define birth_autoscum			OPTION(birth_autoscum)
 #define birth_ironman			OPTION(birth_ironman)
 #define birth_no_stores			OPTION(birth_no_stores)
@@ -2845,6 +2924,7 @@ enum
 
 #define adult_maximize			OPTION(adult_maximize)
 #define adult_randarts			OPTION(adult_randarts)
+#define adult_randnames			OPTION(adult_randnames)
 #define adult_autoscum			OPTION(adult_autoscum)
 #define adult_ironman			OPTION(adult_ironman)
 #define adult_no_stores			OPTION(adult_no_stores)
@@ -2852,7 +2932,7 @@ enum
 #define adult_no_stacking		OPTION(adult_no_stacking)
 #define adult_no_preserve		OPTION(adult_no_preserve)
 #define adult_no_stairs			OPTION(adult_no_stairs)
-#define adult_cansell           OPTION(adult_cansell) //why do we need this?
+#define adult_cansell           OPTION(adult_cansell)
 #define adult_ai_sound			OPTION(adult_ai_sound)
 #define adult_ai_smell			OPTION(adult_ai_smell)
 #define adult_ai_packs			OPTION(adult_ai_packs)
@@ -2872,7 +2952,7 @@ enum
  * Information for "do_cmd_options()".
  */
 #define OPT_PAGE_MAX				5
-#define OPT_PAGE_PER				15
+#define OPT_PAGE_PER				16 /* was 15 */
 
 
 
@@ -3094,10 +3174,21 @@ enum
  *
  * Line 1 -- forbid doors, rubble, seams, walls
  *
- * Note the use of the new "CAVE_WALL" flag.
+ * Note the use of the "CAVE_WALL" flag.
  */
 #define cave_floor_bold(Y,X) \
 	(!(cave_info[Y][X] & (CAVE_WALL)))
+
+/*
+ * Determine if a "legal" grid is an "empty" floor grid
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls
+ * Line 2 -- forbid player/monsters
+ * (this has been mostly replaced by cave_can_occupy_bold (see below))
+ */
+#define cave_empty_bold(Y,X) \
+	(cave_floor_bold(Y,X) && \
+	 (cave_m_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
@@ -3110,24 +3201,15 @@ enum
 	 (cave_o_idx[Y][X] == 0))
 
 /*
- * Determine if a "legal" grid is an "empty" floor grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid player/monsters
- */
-#define cave_empty_bold(Y,X) \
-	(cave_floor_bold(Y,X) && \
-	 (cave_m_idx[Y][X] == 0))
-
-/*
  * Determine if a "legal" grid is an "naked" floor grid
  *
  * Line 1 -- forbid non-floors
- * Line 2 -- forbid normal objects
- * Line 3 -- forbid player/monsters
+ * Line 3 -- forbid normal objects
+ * Line 4 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	(((cave_feat[Y][X] == FEAT_FLOOR) || \
+	 (cave_feat[Y][X] == FEAT_OPEN_PIT)) && \
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 
@@ -3135,12 +3217,13 @@ enum
  * Determine if a "legal" grid can by occupied by a player or monster
  * (allow rubble)
  *
- * Line 1-2 -- force floor or rubble
- * Line 3 -- forbid player/monsters
+ * Line 1-3 -- force floor, rubble, or open pit
+ * Line 4 -- forbid player/monsters
  */
 #define cave_can_occupy_bold(Y,X) \
 	(((cave_floor_bold(Y,X)) || \
-	 (cave_feat[Y][X] == FEAT_RUBBLE)) && \
+	 (cave_feat[Y][X] == FEAT_RUBBLE) || \
+	 (cave_feat[Y][X] == FEAT_OPEN_PIT)) && \
 	 (cave_m_idx[Y][X] == 0))
 
 
@@ -3175,7 +3258,6 @@ enum
  */
 #define player_can_see_bold(Y,X) \
 	((cave_info[Y][X] & (CAVE_SEEN)) != 0)
-
 
 
 
@@ -3442,8 +3524,9 @@ enum
 #define ACT_CHARM_ANIMAL        51
 #define ACT_TUNNELDIG           52
 #define ACT_SUN_HERO            53
+#define ACT_HOLY_FIRE           54
 
-#define ACT_MAX                 54
+#define ACT_MAX                 55
 
 #ifdef EFG
 #define NUM_PVALS		10

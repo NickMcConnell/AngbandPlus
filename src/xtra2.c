@@ -16,8 +16,8 @@
 
 /*
  * This code replace a lot of virtually identical functions and (ostensibly)
- * is a lot cleaner.  Note that the various "oppose" functions and the "stun"
- * and "cut" statuses need to be handled by special functions of their own,
+ * is a lot cleaner.  Note that the various "oppose" functions and the stun
+ * and cut statuses need to be handled by special functions of their own,
  * as they are more complex than the ones handled by the generic code.  -AS-
  */
 static bool set_oppose_acid(int v);
@@ -26,6 +26,7 @@ static bool set_oppose_fire(int v);
 static bool set_oppose_cold(int v);
 static bool set_stun(int v);
 static bool set_cut(int v);
+static bool set_shortboost(int v);
 
 
 typedef struct
@@ -39,8 +40,8 @@ static timed_effect effects[] =
 {
 	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, 0, PU_BONUS, MSG_SPEED }, /* TMD_FAST */
 	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_SLOW */
-	{ "You are blind.", "You can see again.", (PR_MAP | PR_BLIND),
-	  (PW_OVERHEAD | PW_MAP), (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND }, /* TMD_BLIND */
+	{ "You are blind.", "You can see again.", (PR_MAP | PR_BLIND), (PW_OVERHEAD | PW_MAP | PW_OBJLIST), 
+		(PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND }, /* TMD_BLIND */
 	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, 0, MSG_PARALYZED }, /* TMD_PARALYZED */
 	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, 0, MSG_CONFUSED }, /* TMD_CONFUSED */
 	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, 0, MSG_AFRAID }, /* TMD_AFRAID */
@@ -74,7 +75,8 @@ static timed_effect effects[] =
 	{ "You magic is enhanced and you can read runes with your hands!", "Your magic no longer seems more powerful than normal.", PR_BLIND, 0, PU_BONUS, MSG_SEE_INVIS }, /* TMD_BRAIL */
 	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW }, /* TMD_STONESKIN */
 	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID }, /* TMD_TERROR */
-	{ "", "", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MESP: (mind sight) telepathy only while blind (no message) */
+	{ "", "", (PR_MAP | PR_BLIND), (PW_OVERHEAD | PW_MAP | PW_OBJLIST),
+	  (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_BONUS), MSG_BLIND }, /* TMD_MESP: (mind sight) telepathy only while blind (no message) */
 	{ "You feel slightly resistant to poison.", "You feel less resistant to poison.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_WOPP_POIS */
 	{ "You feel resistant to nether forces!", "You feel less resistant to nether.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_RES_POIS }, /* TMD_OPP_NETHR */
 	{ "You feel safe from lifeless monsters!", "You no longer feel safe from lifeless monsters.", 0, 0, 0, MSG_PROT_EVIL }, /* TMD_PROTDEAD */
@@ -95,13 +97,18 @@ static timed_effect effects[] =
 	{ "You have first sight and second thoughts.", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
 	{ "Your magical shield protects against monster breath.", "The breath shield dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BR_SHIELD */
 	{ "Daylight surrounds you.", "The daylight enchantment expires and the shadows return.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
-	{ "You feel resistant to confusion!", "You no longer feel resistant to confusion.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_GENERIC }, /* TMD_CLEAR_MIND */
+	{ "You feel resistant to confusion!", "You no longer feel resistant to confusion.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CLEAR_MIND */
 	{ "You feel forsaken.", "The curse wears off.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CURSE */
 	{ "You feel very skillfull!", "The skill boost wears off.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_SKILLFUL */
 	{ "You have the throwing strength of a giant.", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
 	{ "", "You pull free.", PR_STATE, 0, PU_BONUS, MSG_PARALYZED }, /* TMD_BEAR_HOLD (start message is triggered by attack: RBE_BHOLD) */
 	{ "a faint glow surrounds your quiver.", "your quiver is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_QUIVERGUARD */
 	{ "You begin to give off light.", "You no longer give off light.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MINDLIGHT */
+	{ "You feel resistant to silver magic.", "You are no longer resistant to silver magic.", PR_OPPOSE_ELEMENTS, 0, PU_BONUS, MSG_GENERIC }, /* TMD_OPP_SILV */
+	{ "You feel unnaturally tough.", "You no longer feel more tough than usual.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_FALSE_LIFE */
+	{ "You begin to give off a disgusting smell.", "You no longer smell any worse than usual..", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_STINKY */
+	{ "You make a symbol to ward off demons.", "The demon-warding symbol dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_DEMON_WARD */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_TMPBOOST -- handled seperately */
 };
 
 /*
@@ -123,6 +130,7 @@ bool set_timed(int idx, int v)
 	else if (idx == TMD_OPP_ELEC) return set_oppose_elec(v);
 	else if (idx == TMD_OPP_FIRE) return set_oppose_fire(v);
 	else if (idx == TMD_OPP_COLD) return set_oppose_cold(v);
+	else if (idx == TMD_TMPBOOST) return set_shortboost(v);
 
 	/* Find the effect */
 	effect = &effects[idx];
@@ -397,6 +405,131 @@ static bool set_oppose_cold(int v)
 	return (TRUE);
 }
 
+
+/*
+ * Set "p_ptr->timed[TMD_TMPBOOST]", notice observable changes
+ * This actually raises a stat by 4 when the effect starts
+ * and lowers it by 4 when the effect ends.
+ */
+static bool set_shortboost(int v)
+{
+	bool notice = FALSE;
+	int wstat;
+	cptr act;
+
+	/* Hack -- Force good values */
+	v = (v > 2000) ? 2000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->timed[TMD_TMPBOOST])
+	{
+		/* decrease same stat we increased earlier */
+		wstat = p_ptr->see_infra;
+	}
+	else if (v)
+	{
+		/* strong casters get their spell stat increased */
+		/* (unless it's already very high) */
+		if (cp_ptr->spell_first < 4)
+		{
+			if (cp_ptr->spell_stat == 1)  wstat = A_INT;
+		    if (cp_ptr->spell_stat == 2)  wstat = A_WIS;
+		}
+		/* archers get dexterity increased */
+		else if (cp_ptr->flags & CF_EXTRA_SHOT)
+		{
+			wstat = A_DEX;
+		}
+		/* others get strength  */
+		else wstat = A_STR;
+
+		/* strength is second choice if it isn't the first */
+		if ((!(wstat == A_STR)) && (p_ptr->stat_cur[wstat] > 18+70))
+		{
+			wstat = A_STR;
+		}
+
+		/* CON is the next choice */
+		if (p_ptr->stat_cur[wstat] > 18+70)
+		{
+			wstat = A_CON;
+		}
+
+		/* dex is next choice for non-archers */
+		if ((p_ptr->stat_cur[wstat] > 18+70) &&
+			(!(cp_ptr->flags & CF_EXTRA_SHOT)))
+		{
+			wstat = A_DEX;
+		}
+
+		/* spell stat is next choice if not a strong caster */
+		if ((p_ptr->stat_cur[wstat] > 18+70) &&
+			(cp_ptr->spell_first >= 4))
+		{
+			if (cp_ptr->spell_stat == 1)  wstat = A_INT;
+		    if (cp_ptr->spell_stat == 2)  wstat = A_WIS;
+		}
+
+		/* charisma is last choice */
+		if (p_ptr->stat_cur[wstat] > 18+70)
+		{
+			wstat = A_CHR;
+		}
+
+		/* fail if all choices are very high */
+		if ((v) && (p_ptr->stat_cur[wstat] > 18+70)) v = 0;
+	}
+
+	if (wstat == A_STR) act = "strong";
+	if (wstat == A_DEX) act = "agile";
+	if (wstat == A_CON) act = "healthy";
+	if (wstat == A_INT) act = "bright";
+	if (wstat == A_WIS) act = "wise";
+	if (wstat == A_CHR) act = "attractive";
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->timed[TMD_TMPBOOST])
+		{
+			if (inc_stat(wstat, 4))
+			{
+				msg_format("You feel very %s!", act);
+				notice = TRUE;
+				/* remember which stat to decrease when effect expires */
+				p_ptr->see_infra = wstat;
+			}
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if ((p_ptr->timed[TMD_TMPBOOST]) && (p_ptr->see_infra))
+		{
+			if (dec_set_stat(wstat, 4))
+			{
+				msg_format("You're no longer any more %s than usual.", act);
+				notice = TRUE;
+				p_ptr->see_infra = 0;
+			}
+		}
+	}
+
+	/* Use the value */
+	p_ptr->timed[TMD_TMPBOOST] = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 
 /*
@@ -774,6 +907,9 @@ bool set_food(int v)
 	int old_aux, new_aux;
 
 	bool notice = FALSE;
+
+	/* food is irrevelent to a golem */
+	if (p_ptr->prace == 16) return FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
@@ -1204,6 +1340,7 @@ void monster_death(int m_idx)
 
 	int dump_item = 0;
 	int dump_gold = 0;
+	int gold_chance, howgood = 0;
 
 	int number = 0;
 	int total = 0;
@@ -1286,7 +1423,7 @@ void monster_death(int m_idx)
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Mega-Hack -- Prepare to make "Morgoth" */
+		/* Mega-Hack -- Prepare to make "Morgoth artifacts" */
 		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
 
 		/* Mega-Hack -- Mark this item as "Morgoth" */
@@ -1298,6 +1435,29 @@ void monster_death(int m_idx)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 	}
+	/* 6% chance for uniques to drop a treasure map */
+	else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (rand_int(100) < 6) && 
+		(r_ptr->level >= 35))
+	{
+		/* Get object base type (tval 4, sval 2) */
+		int k_idx;
+		k_idx = lookup_kind(TV_SPECIAL, SV_TREASURE);
+
+		/* (allow for failure in case something happens to the object.txt entry) */
+		if (k_idx)
+		{
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Create the item */
+			object_prep(i_ptr, k_idx);
+
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, y, x);
+		}
+	}
+	/* if we nerf the One Ring a bit more, we can make Gollum have a */
+	/* chance to drop it */
 
 
 	/* Determine how much we can drop */
@@ -1324,11 +1484,28 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
+		/* gold chance if monster doesn't have ONLY_ITEM, also increase gold value */
+		if (great)
+		{
+			gold_chance = 30;
+			howgood = 2;
+		}
+		else if (good)
+		{
+			gold_chance = 40;
+			howgood = 1;
+		}
+		else /* normal */
+		{
+			gold_chance = 50;
+			howgood = 0;
+		}
+
 		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!do_item || (rand_int(100) < gold_chance)))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if (!make_gold(i_ptr, howgood)) continue;
 
 			/* Assume seen XXX XXX XXX */
 			dump_gold++;
@@ -1895,7 +2072,6 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 
 	bool living = TRUE;
 
-
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_NON_LIVING)) living = FALSE;
 	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
@@ -1921,7 +2097,11 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
+	/* asleep or awake is irrevelent for ordinary trees */
+	if (m_ptr->r_idx == 834) return;
+
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
+	if ((m_ptr->truce) && (!m_ptr->csleep)) my_strcat(buf, ", peaceful", max);
 	if ((m_ptr->csleep) && (m_ptr->roaming) && (m_ptr->roaming < 20)) my_strcat(buf, ", awake but hasn't noticed you", max);
 	else if ((m_ptr->roaming) && (cheat_know)) my_strcat(buf, ", temporarily roaming", max);
 	else if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
@@ -2099,7 +2279,7 @@ int target_dir(char ch)
 
 
 /*
- * Determine is a monster makes a reasonable target
+ * Determine if a monster makes a reasonable target
  *
  * The concept of "targetting" was stolen from "Morgul" (?)
  *
@@ -2129,13 +2309,16 @@ bool target_able(int m_idx)
 	if (!m_ptr->r_idx) return (FALSE);
 
 	/* Monster must be visible */
-	if (!m_ptr->ml) return (FALSE);
+	if ((!m_ptr->ml) && (!m_ptr->heard)) return (FALSE);
 
 	/* Monster must be projectable */
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
+
+	/* Don't target ordinary trees */
+	if (m_ptr->r_idx == 834) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -2376,6 +2559,9 @@ static bool target_set_interactive_accept(int y, int x)
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
+
+		/* heard monsters */
+		if (m_ptr->heard) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -2411,8 +2597,10 @@ static bool target_set_interactive_accept(int y, int x)
 		if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
 		    (cave_feat[y][x] <= FEAT_DOOR_TAIL)) return (TRUE);
 
-		/* Notice rubble */
+		/* Notice misc features */
 		if (cave_feat[y][x] == FEAT_RUBBLE) return (TRUE);
+		if (cave_feat[y][x] == FEAT_OPEN_PIT) return (TRUE);
+		if (cave_feat[y][x] == FEAT_WATER) return (TRUE);
 
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
@@ -2575,10 +2763,11 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Visible */
-			if (m_ptr->ml)
+			/* Visible (or heard) */
+			if ((m_ptr->ml) || (m_ptr->heard))
 			{
 				bool recall = FALSE;
+				cptr heartype;
 
 				char m_name[80];
 
@@ -2586,7 +2775,18 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+				if (m_ptr->ml)
+				{
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+				}
+				/* Get the type name (not the exact race for unseen monsters) */
+				else
+				{
+					heartype = get_hear_race(r_ptr);
+					
+					/* Change the intro */
+					s1 = "You hear ";
+				}
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -2601,7 +2801,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Recall */
-					if (recall)
+					if ((recall) && (m_ptr->ml))
 					{
 						/* Save screen */
 						screen_save();
@@ -2637,9 +2837,17 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 						}
 						else
 						{
-							strnfmt(out_val, sizeof(out_val),
+							if (m_ptr->ml)
+							{
+								strnfmt(out_val, sizeof(out_val),
 							        "%s%s%s%s (%s) [r,%s]",
 							        s1, s2, s3, m_name, buf, info);
+							}
+							else /* (no recall for unseen monsters) */
+							{
+								strnfmt(out_val, sizeof(out_val),
+									"%s%s%s%s [%s]", s1, s2, s3, heartype, info);
+							}
 						}
 
 						prt(out_val, 0, 0);
@@ -2663,6 +2871,9 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 				/* Sometimes stop at "space" key */
 				if ((query.key == ' ') && !(mode & (TARGET_LOOK))) break;
+
+				/* don't show carried stuff for unseen monsters */
+				if (!m_ptr->ml) break;
 
 				/* Change the intro */
 				s1 = "It is ";
@@ -2852,6 +3063,11 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
+
+			/* handle earthquake trap (don't call it a pit) */
+			if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65) &&
+				(!(cave_info[y][x] & (CAVE_ICKY))))
+				name = "earthquake trap";
 
 			/* Pick a prefix */
 			if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
@@ -3354,7 +3570,6 @@ bool get_aim_dir(int *dp)
 	/* Global direction */
 	dir = p_ptr->command_dir;
 
-	/* Hack -- auto-target if requested */
 	/* spellswitch 24 is for telekinesis */
 	/* spellswitch 13 is for teleport control */
 	if ((spellswitch == 24) || (spellswitch == 13))
@@ -3364,6 +3579,7 @@ bool get_aim_dir(int *dp)
        if (spellswitch == 24) msg_print("Target an object or pile of objects.");
        spot_target = TRUE;
     }
+	/* Hack -- auto-target if requested */
 	else if (use_old_target && target_okay()) dir = 5;
 
 	/* Ask until satisfied */

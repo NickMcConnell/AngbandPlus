@@ -146,7 +146,7 @@ struct feature_type
 
 
 /*
- * Information about object "kinds", including player knowledge.
+ * Information about object "kinds", including player knowledge. (k_ptr)
  *
  * Only "aware" and "tried" are saved in the savefile
  */
@@ -218,7 +218,7 @@ struct object_kind
 
 
 /*
- * Information about "artifacts".
+ * Information about "artifacts". (a_ptr)
  *
  * Note that the save-file only writes "cur_num" to the savefile.
  *
@@ -254,6 +254,7 @@ struct artifact_type
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
+	byte maxlvl;		/* Maximum object level to create this artifact */
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
@@ -265,7 +266,7 @@ struct artifact_type
 
 
 /*
- * Information about "ego-items".
+ * Information about "ego-items". (e_ptr)
  */
 struct ego_item_type
 {
@@ -320,7 +321,7 @@ struct monster_blow
 
 
 /*
- * Monster "race" information, including racial memories
+ * Monster "race" information, including racial memories (r_ptr)
  *
  * Note that "d_attr" and "d_char" are used for MORE than "visual" stuff.
  *
@@ -372,6 +373,7 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;			/* Flags 7 (new flags (not spells)) */
 
 	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
@@ -391,7 +393,7 @@ struct monster_race
 
 
 /*
- * Monster "lore" information
+ * Monster "lore" information (l_ptr)
  *
  * Note that these fields are related to the "monster recall" and can
  * be scrapped if space becomes an issue, resulting in less "complete"
@@ -443,8 +445,11 @@ struct vault_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
-	bool useMT;			/* can be used for empty vault */
-	/* decided by whether you have to dig through granite to get into it */
+
+	byte useMT;			/* can be used for empty vault */
+
+	byte rare;			/* rarity of vault design (lower = more common) */
+	byte itheme;		/* ideal theme for vault design */
 };
 
 
@@ -510,7 +515,9 @@ struct object_type
 	byte sbdd, sbds;	/* 2nd blow damage dice/sides for double weapons */
 	byte crc;			/* weapon crit chance (5 is +0) */
 	
-	s16b blessed;        /* temporary blessing */
+	s16b blessed;       /* temporary blessing */
+	s16b enhance;		/* alchemically enhanced magic items */
+	s16b enhancenum;	/* alchemically enhanced items in a stack */
 
 	s16b timeout;		/* Timeout Counter */
 
@@ -529,7 +536,7 @@ struct object_type
 
 
 /*
- * Monster information, for a specific monster.
+ * Monster information, for a specific monster. (m_ptr)
  *
  * Note: fy, fx constrain dungeon size to 256x256
  *
@@ -571,6 +578,8 @@ struct monster_type
 	s16b tinvis;        /* temporary invisibility */
 	bool charmed;       /* monster is charmed */
 	byte silence;       /* monster is silenced (stops summoning spells) */
+	byte truce;			/* for paladin truce spell */
+/*	s16b disguised;		* monster disguised as another monster or object */
 
 	byte cdis;			/* Current dis from player */
 
@@ -762,7 +771,7 @@ struct player_race
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
-	byte choice;		/* Legal class choices */
+	u32b choice;		/* Legal class choices (changed from a byte) */
 
 	s16b hist;			/* Starting history index */
 
@@ -878,7 +887,7 @@ struct player_other
 
 
 /*
- * Most of the "player" information goes here.
+ * Most of the "player" information goes here. (p_ptr)
  *
  * This stucture gives us a large collection of player variables.
  *
@@ -896,7 +905,8 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-	byte oops;			/* Unused */
+
+	byte theme;			/* themed level */
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
@@ -944,7 +954,10 @@ struct player_type
 	byte corrupt;       /* DJA: level of corruption*/
 	int spadjust;       /* amount of nonstandard speed adjustment */
 	byte learnedcontrol; /* teleport control skill */
+	s16b mimmic;		/* wand/rod sval to mimmic, +100 if rod (alchemy spell) */
+	s16b menhance;		/* mimmiced wand is enhanced */
 
+	byte warned;		/* has been warned (about drowning) */
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
@@ -1061,7 +1074,6 @@ struct player_type
 	bool breath_shield; /* damage reduction against monster breath */
 
 	bool resist_charm;	/* Resist charm */
-	bool resist_frenzy;	/* Resist charm */
 	bool resist_fear;	/* Resist fear */
 	bool resist_lite;	/* Resist light */
 	bool resist_dark;	/* Resist darkness */
@@ -1124,7 +1136,8 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-	s16b see_infra;		/* no longer used */
+	/* has nothing to do with infravision anymore */
+	s16b see_infra;		/* stat modified by !temporary boost */
 
 	s16b skills[SKILL_MAX];	/* Skills */
 

@@ -24,7 +24,6 @@ extern void do_cmd_run(void);
 extern void do_cmd_pathfind(int y, int x);
 extern void do_cmd_hold(void);
 extern void do_cmd_pickup(void);
-extern void do_telekinesis(void);
 extern void do_cmd_rest(void);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);

@@ -240,23 +240,16 @@ static s16b chest_check(int y, int x)
 static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
-
 	bool tiny;
+	/* odds for extra items in a special chest */
+	int die = randint(100 + goodluck - badluck);
 
 	object_type *o_ptr;
-
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Get the chest */
 	o_ptr = &o_list[o_idx];
-
-	/* Small chests often hold "gold" */
-	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
-
-	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) number = 0;
@@ -264,30 +257,77 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Opening a chest */
 	opening_chest = TRUE;
 
+	/* Small chests often hold gold */
+	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
+
+	/* Determine how much to drop (see above) */
+	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
+
+	/* special chests (number isn't set by sval) */
+	if (o_ptr->sval == SV_SP_GOLD_CHEST)
+	{
+		number = 5 + rand_int(2);
+		if (die > 100) number += 1;
+		else if ((die > 80) && (number < 6)) number = 6;
+	}
+	else if (o_ptr->sval == SV_SP_SILVER_CHEST)
+	{
+		number = 3 + randint(2);
+		if (die > 100) number += 1;
+		else if ((die > 80) && (number < 5)) number += 1;
+	}
+
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval) + 10;
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
 	{
+		/* reset good and great */
+		bool good = FALSE;
+		bool great = FALSE;
+
 		/* Get local object */
 		i_ptr = &object_type_body;
 
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
+		/* odds for good / great objects in a special chest */
+		die = randint(100 + ((goodluck+1)/2) - badluck);
+
+		/* special chests */
+		if (o_ptr->sval == SV_SP_GOLD_CHEST)
+		{
+			if (randint(100-badluck) < 12) tiny = TRUE; /* may drop gold instead of items */
+			else tiny = FALSE;
+			if (die > 12) good = TRUE;
+			if (die > 70) great = TRUE;
+		}
+		else if (o_ptr->sval == SV_SP_SILVER_CHEST)
+		{
+			if (randint(100-badluck) < 20) tiny = TRUE; /* may drop gold instead of items */
+			else tiny = FALSE;
+			if (die > 25) good = TRUE;
+			if (die > 100) great = TRUE;
+		}
+
 		/* Small chests often drop gold */
 		if (tiny && (rand_int(100) < 75))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if ((good) && (randint(100) < 70))
+			{
+				if (!make_gold(i_ptr, 1)) continue;
+			}
+			else if (!make_gold(i_ptr, 0)) continue;
 		}
 
 		/* Otherwise drop an item */
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
+			if (!make_object(i_ptr, good, great)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -729,7 +769,7 @@ static bool do_cmd_open_aux(int y, int x)
 		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 10;
+		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 8;
 		if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 5;
 
 		/* Extract the lock power */
@@ -1123,7 +1163,6 @@ bool twall(int y, int x)
 static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
-	bool dugup = FALSE;
 	object_type *o_ptr;
 
 	/* Verify legality */
@@ -1137,17 +1176,16 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	if ((cave_feat[y][x] == FEAT_PERM_INNER) && (cp_ptr->flags & CF_HULK_CONF))
 	{
 	    /* Tunnel */
-	    if ((p_ptr->skills[SKILL_DIG] > 50 + rand_int(1600)) && twall(y, x))
+	    if ((p_ptr->skills[SKILL_DIG] > 50 + rand_int(2000)) && twall(y, x))
 	    {
 		   msg_print("You have finished the tunnel.");
-		   dugup = TRUE;
 	    }
 
 		/* Keep trying */
 	    else
 	    {
 		    /* We may continue tunelling */
-		    msg_print("You tunnel into the granite wall.");
+		    msg_print("You tunnel into the titanium wall.");
 		    more = TRUE;
 	    }
 	}
@@ -1165,7 +1203,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		if ((cp_ptr->flags & CF_HULK_CONF) && twall(y, x))
         {
             msg_print("You easily bash through the wall.");
-		   dugup = TRUE;
         }
         else
         {
@@ -1173,7 +1210,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		    if ((p_ptr->skills[SKILL_DIG] > 40 + rand_int(1600)) && twall(y, x))
 		    {
 			   msg_print("You have finished the tunnel.");
-			   dugup = TRUE;
 		    }
 
 		    /* Keep trying */
@@ -1228,7 +1264,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Success */
 		if (okay && twall(y, x))
 		{
-		   dugup = TRUE;
 			/* Found treasure */
 			if (gold)
 			{
@@ -1271,8 +1306,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Remove the rubble (slightly harder than it used to be) */
 		if ((p_ptr->skills[SKILL_DIG] > 4 + rand_int(200)) && twall(y, x))
 		{
-		   dugup = TRUE;
-
 			/* Message */
 			msg_print("You have removed the rubble.");
 
@@ -1360,7 +1393,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		{
 			o_ptr->hidden = 0;
 			/* sometimes remains hidden for squelch */
-			if (!squelch_hide_item(o_ptr) && player_can_see_bold(y, x))
+			if ((!squelch_hide_item(o_ptr)) && player_can_see_bold(y, x))
 			{
 				msg_print("You have found something!");
 				/* Notice & redraw */
@@ -1738,7 +1771,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	if (rand_int(100) < temp)
 	{
 		/* Break down the door */
-		if (rand_int(100) < 50)
+		if ((rand_int(100) < 50) || (p_ptr->timed[TMD_MIGHTY_HURL]))
 		{
 			cave_set_feat(y, x, FEAT_BROKEN);
 		}
@@ -2140,6 +2173,13 @@ bool do_cmd_walk_test(int y, int x)
 	/* Allow attack on visible monsters */
 	if ((cave_m_idx[y][x] > 0) && (mon_list[cave_m_idx[y][x]].ml))
 	{
+		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+		/* atttack ordinary trees only when you can see them */
+		if ((m_ptr->r_idx == 834) && (!m_ptr->ml))
+		{
+			message(MSG_HITWALL, 0, "You feel a tree in the way!");
+			return (FALSE);
+		}
 		return TRUE;
 	}
 	/* allow attack on invisible monster you just heard */
@@ -2159,12 +2199,14 @@ bool do_cmd_walk_test(int y, int x)
 		if (distance(y, x, m_ptr->fy, m_ptr->fx) > m_ptr->cdis)
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			int wrestle;
-			int holdfast = (r_ptr->level * 5) / 2; /* (x2.5) */
-			if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += r_ptr->level / 2;
+			int wrestle, holdfast, rlev;
+			rlev = ((r_ptr->level >= 6) ? r_ptr->level : 6);
+
+			if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast = rlev * 3;
+			else holdfast = (rlev * 5) / 2 + randint(rlev/2); /* (x2.5 +dx0.5) */
 			wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 			wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
-			if (p_ptr->free_act) wrestle += 25;
+			if (p_ptr->free_act) wrestle += 20;
 	
 			/* attempt to pull free */
 			if (randint(wrestle) > holdfast)
@@ -2181,7 +2223,7 @@ bool do_cmd_walk_test(int y, int x)
 	}
 
 	/* Require open space */
-	if (!cave_floor_bold(y, x))
+	if ((!cave_floor_bold(y, x)) || (cave_feat[y][x] == FEAT_OPEN_PIT))
 	{
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -2192,8 +2234,14 @@ bool do_cmd_walk_test(int y, int x)
 			message(MSG_HITWALL, 0, "There is a pile of rubble in the way!"); */
 		}
 
+		/* open pit (not a trap) */
+		else if (cave_feat[y][x] == FEAT_OPEN_PIT)
+		{
+			return (TRUE);
+		}
+
 		/* Door */
-		else if (cave_feat[y][x] < FEAT_SECRET)
+		else if (cave_feat[y][x] <= FEAT_DOOR_TAIL)
 		{
 			/* Hack -- Handle "easy_alter" */
 			if (easy_alter) return (TRUE);
@@ -2435,9 +2483,23 @@ void do_cmd_pickup(void)
  * DJA: Telekinesis: Pick up objects on the floor from a distance.
  * spellswitch = 24
  */
-void do_telekinesis(void)
+bool do_telekinesis(void)
 {
 	int energy_cost = 0;
+	int dir;
+
+	/* spellswitch = 24 allows picking up objects from a distance (uses target) */
+	/* also prevent using old target & changes the prompt for get_aim_dir */
+	spellswitch = 24;
+
+    /* get a target (never use old target) */
+	if (!get_aim_dir(&dir))
+	{
+		/* reset spellswitch */
+		spellswitch = 0;
+
+		return FALSE;
+	}
 
 	/* Pick up floor objects, forcing a menu for multiple objects. */
 	energy_cost = py_pickup(2) * 10;
@@ -2445,13 +2507,25 @@ void do_telekinesis(void)
 	/* (using the spell already uses energy) */
 
 	/* did we pick anything up? */
-    if (energy_cost < 10) spellswitch = 0;
-	else spellswitch = 24;
+    if (energy_cost >= 10)
+	{
+		/* chance of waking up monsters in path of the floating object */
+		if (randint(100) < 9 + (badluck*2) - ((goodluck+1)/2))
+		{
+			/* 0 damage beam to wake up monsters in path */
+			fire_beam(GF_THROW, dir, 0);
+		}
+	}
 
 	 /* reset target */
 	 /* (would usually not want to re-use a telekinesis target) */
 	 p_ptr->target_row = 0;
 	 p_ptr->target_col = 0;
+
+	/* reset spellswitch */
+	spellswitch = 0;
+
+	 return TRUE;
 }
 
 
@@ -2880,7 +2954,7 @@ void do_cmd_fire(void)
 			hitwall = TRUE;
 
 			/* hard to hit monsters which are part way in a wall */
-			chance = (chance * 2) / 3;
+			chance = (chance * 3) / 4;
 		}
 		/* Hack -- Stop before hitting walls */
 		else if (!cave_floor_bold(ny, nx))
@@ -2928,6 +3002,12 @@ void do_cmd_fire(void)
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
 			int visible = m_ptr->ml;
+
+			/* hard to hit an invisible (or very stealthy) monster */
+			if ((!visible) && (player_can_see_bold(y, x))) 
+				chance2 = (chance2 * 3) / 4;
+			/* slightly hard to hit a monster outside of your light range */
+			else if (!visible) chance2 = (chance2 * 9) / 10;
 
 			/* Get "the monster" or "it" */
 			monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -3016,6 +3096,13 @@ void do_cmd_fire(void)
 				{
 					/* Message */
 					message_pain(cave_m_idx[y][x], tdam);
+	
+					/* end truce */
+					if (m_ptr->truce)
+					{
+						m_ptr->truce = 0;
+						msg_format("%^s cancells your truce.", m_name);
+					}
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -3119,7 +3206,7 @@ int thits_thrown(int weight)
 void do_cmd_throw(void)
 {
 	int dir, item;
-	int i, j, y, x, ty, tx, dy, dx, glv;
+	int i, j, y, x, ty, tx, dy, dx;
 	int chance, tdam, tdis, noslip, thits;
 	int mul, div;
 	bool comeback, throwok, tooheavy, throwglove, hitwall = FALSE;
@@ -3596,6 +3683,12 @@ void do_cmd_throw(void)
 					   /* Message */
 					   message_pain(cave_m_idx[y][x], tdam);
 
+						/* end truce */
+						if ((m_ptr->truce) && (tdam > 2))
+						{
+							m_ptr->truce = 0;
+							msg_format("%^s cancells your truce.", m_name);
+						}
 
 					   /* Take note */
 					   if (fear && m_ptr->ml)

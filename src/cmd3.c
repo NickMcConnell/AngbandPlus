@@ -194,6 +194,9 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 		if (to_print)
 			msg_format("%s prevents hit point regeneration.", o_name);
 	}
+	/* be sure it doesn't get splendid pseudo if it's cursed */
+	if (cursed_p(o_ptr)) return FALSE;
+
 	return ret;
 }
 
@@ -969,7 +972,7 @@ void do_cmd_fstack(void)
 
 	k_ptr = &k_info[o_ptr->k_idx];
 	
-	/* Currently there are no artifact magic staffs, but that may change */
+	/* Currently there is only one artifact magic staff, but that may change */
     if (o_ptr->name1)
 	{
         msg_print("You cannot unenchant an artifact!");
@@ -995,11 +998,8 @@ void do_cmd_fstack(void)
 	/* remove bonus damage dice */
 	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
 
-	/* you now know that it's (+0 +0) */
-	if (object_aware_p(o_ptr))
-	{
-		object_known(o_ptr);
-	}
+	/* you now know that it's average */
+	object_known(o_ptr);
 
 	/* Combine the pack */
 	p_ptr->notice |= (PN_COMBINE);
@@ -1323,6 +1323,9 @@ static bool item_tester_refill_torch(const object_type *o_ptr)
 
 	/* Get flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* do not use up an artifact torch */
+	if (artifact_p(o_ptr)) return (FALSE);
 
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&

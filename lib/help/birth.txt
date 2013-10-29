@@ -353,18 +353,23 @@ have intrinsic abilities.
 		magical ability, Power sprites cannot be wizards, necromancers, 
 		druids, or alchemists.
 
-***** <Maia>
-          Maia
-		   (Special race for players new to the game.)  The Maiar, lesser 
-		deities of the created world, often take tangible form and mingle 
-		among earthly beings.  They can be found among the ranks of wise 
-		counselors, peerless warriors, mighty wizards and deadly 
-		necromancers; indeed they can play any class with credit.  Their 
-		vital statistics put all other races to shame, their standard 
-		abilities are always good and sometimes superlative, and they recover
-		divinely quickly from all sorts of wounds and ailments.  Maiar are 
-		perfect for those desiring a character able to survive the perils of 
-		an un-familiar game.  They resist disenchantment.
+***** <Golem>
+          Golem
+		   A novelty race which isn't quite as different as an umber hulk,
+		a golem is a constructed person more commonly made from clay and given
+		a semblance of life by putting holy words into its head, or some
+		similar magic.  A golem is not truly alive and therefore has no
+		constitution score (which is mostly made up for by having a high hit
+		die).  It also has no need for food and does not regenerate hit points
+		naturally.  There is no difference between a male and female golem except
+		for the placement of some extra functionless clay (and that only if
+		its maker feels like including it).  It has resistance to poison, fire,
+		shards, and all cuts. It is very strong, and can throw especially 
+		forcefully, but has no other strengths in its stats. Its skills are 
+		generally bad except for a decent saving throw. A golem can't manage the 
+		nessesary sneakiness to be a thief or assassin, and, being itself artifical, 
+		cannot have the connection to nature that a druid has.  The 'feather
+		falling' enchantment provides no benefit to a golem because it is too heavy.
 
 ***** <Uber Umber Hulk>
           Umber Hulk
@@ -388,7 +393,9 @@ have intrinsic abilities.
  
           Once a race has been chosen, you will need to pick a class.  Some
           classes  will  not be available to certain races, for instance, a
-          Half-Orc cannot become a Paladin.  
+          Half-Orc cannot become a Paladin.
+		 Note that some classes (like the alchemist, tourist, and war mage)
+		are not well tested with balancing and are a work in progress.
 
 ***** <Warrior>
           Warrior
@@ -447,6 +454,8 @@ have intrinsic abilities.
 		of learning all but the most powerful nature realm spells.  A ranger 
 		has great searching and disarming, and a good saving throw.  His 
 		primary stats are Strength and Intelligence. Magic Realm- Nature.
+		Note: This ranger does not get extra shots like the ranger in vanilla
+		Angband.  That is reserved for the archer.
 
 ***** <Paladin>
           Paladin
@@ -520,6 +529,20 @@ have intrinsic abilities.
 		of fighting either, though, like the priest, he prefers not to use 
 		edged weapons. His primary stat is wisdom. Magic realm- nature.
 
+***** <White Knight>
+***** <Black Knight>
+***** <Chaos Warrior>
+	  The Knight classes (White knight, Black knight, Chaos Warrior)
+		  The knight classes are all pretty similar to each other except they
+		each use a different magic realm.  They are very tough fighters with
+		mediocure skills and a little bit of magic.  They are horrible at 
+		stealth and do not like to run away from a fight.  They can wear more
+		armor than any other class without having their magic hindered.
+		  There is planned to be a knight class for each magic realm eventually.
+		(The Chaos Warrior is the knight class of the chance magic realm. It is
+		not called a knight because the chance realm is chaotic and knights are
+		lawful).
+
 ***** <Assassin>
 	  Assassin
 		  The lover of shadows and death, the assassin is a cross between the
@@ -579,7 +602,7 @@ have intrinsic abilities.
                is also useful in tunnelling and in carrying heavy items.
  
           Intelligence
-                Intelligence affects the spellcasting abilities most spellcasters.  
+                Intelligence affects the spellcasting abilities for most spellcasters.  
 		Intelligence will affect the number of spells you may learn each 
 		level as well as the number of spell points you receive.  A high
                intelligence may also improve your chances of successfully
@@ -618,7 +641,10 @@ have intrinsic abilities.
                Charisma represents a character's personality and physical
                appearance.  A character with a high charisma will receive
                better prices from store owners, whereas a character with a
-               very low charisma may be robbed blind. 
+               very low charisma may be robbed blind. Charisma also affects
+		   the likeliness for several charm-type effects to work on a
+		   monster including confuse, sleep, slow, and scare (whether
+		   cast from a wand, rod, or spellbook).
  
 
 === Abilities ===
@@ -627,11 +653,6 @@ have intrinsic abilities.
           to survive.  The starting abilities of a character are based upon
           race and class.  Abilities may be adjusted by high or low stats,
           and may increase with the level of the character.
-
-	    Alertness
-		   Alertness is how well you notice stealthy monsters. Characters
-		   who are not very alert may not notice a stealthy monster until 
-		   he is right next to it.  Alertness does not increase with level.
 
           Fighting
                Fighting is the ability to hit and do damage with weapons or
@@ -643,12 +664,18 @@ have intrinsic abilities.
                acter.
  
           Shooting Ability
-               Using ranged missile weapons (and throwing objects) is
-               included in this skill.  Different stats apply to different
-               weapons, but this ability may modify the distance an object
-               is thrown/fired, the amount of damage done, and the ability
-               to hit a creature.  This skill increases with the level of
-               the character.
+               This is how well you use ranged missile weapons.  Different 
+               stats apply to different weapons, but this ability may modify 
+               the distance an object is fired, the amount of damage 
+               done, and the ability to hit a creature.  This skill increases 
+               with the level of the character.
+ 
+          Throwing Ability
+               This skill works the same was as shooting ability for throwing
+               weapons.  If you have a throwing weapon which returns to you 
+               when thrown, this skill also affects how likely you are to catch 
+               it when it returns.  This skill increases with the level of the 
+               character.
  
           Saving Throws
                A Saving Throw is the ability of a character to resist the
@@ -667,6 +694,8 @@ have intrinsic abilities.
                a stealthy character entirely, allowing a player to avoid
                certain fights.  This skill is based entirely upon race and
                class, and will never improve unless magically enhanced.
+               A very high stealth can supress the aggravation enchantment on
+               some magic items.
  
           Disarming
                Disarming is the ability to remove traps safely, and also
@@ -680,14 +709,18 @@ have intrinsic abilities.
                Using a magical device such as a wand or staff  requires
                experience and knowledge.  Spell users such as mages and
                priests are therefore much better at using a magical device
-               than say a warrior.  This skill is modified by intelligence,
-               and increases with the level of the character.
+               than say a warrior.  Characters with high magic device skill
+               have a chance for wand damage to be enhanced sometimes. 
+               This skill is modified by intelligence, and increases with 
+               the level of the character.
 
-          Searching Frequency (Perception)
-               Perception is the ability to notice hidden traps and doors 
-		   without actively seeking it out.  This skill is based 
-               entirely upon race and class, and will never improve unless 
-               magically enhanced.
+	    Alertness
+               Alertness is how well you notice stealthy monsters. Characters
+               who are not very alert may not notice a stealthy monster until 
+               he is right next to it.  This also simulates the ability to 
+               notice hidden traps and doors without actively seeking them out.  
+               This skill increases with the level of the character, but not as 
+               much as some other skills.
 
           Searching Ability (Searching)
                To search is to actively look for secret doors, floor traps,
@@ -707,83 +740,97 @@ Dwarf Priest has a hit die of 11+2=13 (i.e. he will get 1d13 hit points per
 level, adjusted for constitution) and an XP modifier of 20+20=40%.
 
  
-                  STR  INT  WIS  DEX  CON  CHR  HD (base)   XP/level  Alertness
-      Human        0    0    0    0    0    0      10          +0%	5
-      Half-Elf     0   +1    0   +1   -1    0      10         +10%   	10
-      Elf         -1   +2   +1   +1   -1   +1       9         +20%   	14
-      Hobbit      -2   +2   +1   +3   +3   +1       7         +11%   	7
-      Gnome       -1   +2    0   +2   +1   -2       8         +25%   	9
-      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%   	1*
-      Half-Orc    +2   -1   -1    0   +1   -4      10         +10%   	6
-      Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%   	3
-      Dunadan     +1   +2   +2   +2   +3   +2      10         +75%   	12
-      High-Elf    +1   +3   -1   +3   +1   +5      10         +90%   	15
-      Kobold      -1   -1    0   +2   +2   -2       8         +15%   	12
-      Hobglib     +1   +1   -2    0   +2   -3      10         +25%   	4
-      Fairy Gnome -2   +1   +4   +2    0   -1       7         +40%	11
-      Dark Elf     0   +2   -2   +2   -1   -3       9         +25%   	13
-     Living Ghoul  0    0   +2    0   -3   -4      10         +15%   	7
-     Power Sprite +5   -3   -1   +2   +1    0       4         +30%   	9
-	Maia      +2   +3   +3   +2   +4   +3      12         +50%   	10
-      Umber Hulk  +5   -4   -3    0   +1   -6      15	        +55%   	8
+                  STR  INT  WIS  DEX  CON  CHR  HD (base)   XP/level
+      Human*       0    0    0    0    0    0      10          +0%
+      Half-Elf     0   +1    0   +1   -1   +1      10         +10%
+      Elf         -1   +2   +1   +2   -1   +2       9         +20%
+      Hobbit      -2   +2   +1   +3   +3   +1       7         +11%
+      Gnome       -1   +2    0   +2   +1   -2       8         +25%
+      Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
+      Half-Orc    +2   -1   -1    0   +1   -4      10         +10%
+      Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
+      Dunadan     +1   +2   +2   +2   +3   +2      10         +75%
+      High-Elf    +1   +3   -1   +3   +1   +5      10         +90%
+      Kobold      -1   -1    0   +2   +2   -2       8         +15%
+      Hobglib     +1   +2   -2    0   +2   -3      10         +25%
+      Fairy Gnome -2   +1   +4   +2    0   -1       7         +40%
+      Dark Elf     0   +2   -2   +2   -1   -3       9         +25%
+     Living Ghoul  0    0   +2    0   -3   -4      10         +15%
+     Power Sprite +5   -3   -1   +2   +1    0       4         +30%
+	Golem       +3   +0   +0   -2   --   -2      20*        +60%
+      Umber Hulk  +5   -4   -3    0   +1   -6      14	        +55%
 
+*Human gets 1 extra stat point to spend in character generation.
 *Dwarf has the lowest alertness, but he has innate darkvision to partly make up for it.
+*Golems have no constitution score, but its high hit die makes up for having no constituion
+ bonus to hit points.
 
-                  STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level	   Alertness
+                  STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level	   Alertness (at start)
       Warrior     +5   -2   -2   +2   +2    0       9          +0%	-	15
       Wizard      -3   +3    0   +1   -1   +1       1         +30%	-	8
-      Necromancer -5   +2   -2   +2   -2   -2       3         +21%	-	6
-      Rogue       +2   +1   -2   +3   +1   -1       6         +25%	-	18
-      Ranger      +2   +2   +1   +1   +1   +1       3         +27%	-	20
+      Necromancer -5   +2   -2   +2   -2   -2       3         +21%	-	5
+      Rogue       +2   +1   -2   +3   +1   -1       6         +25%	-	17
+      Ranger      +2   +2   +1   +1   +1   +1       3         +27%	-	21
       Paladin     +3   -2   +1    0   +1   +2       4         +35%	-	10
       Archer      +2    0   -1   +2   +1    0       5         +18%	-	17
       Alchemist   -1   +2   -1    0   -1   -1       1         +29%	-	6
       Priest      -2   -1   +3   -1   +1   +2       2         +20%	-	8
-      Healer      -3   +2   +1    0   +2   +1       1         +12%	-	12
+      Healer      -3   +2   +1    0   +2   +1       1         +12%	-	11
       Druid       -2   +1   +2   +1   -1    0       3         +30%	-	16
+     White Knight	+4   -1   +1   +1   +1   +3	    7		  +25%	-	10
+     Black Knight +4   +1   -2   +1   +1   +1       7		  +25%	-	10
       Assassin    +2   +1   -2   +1    0   -1       5         +30%	-	13
-      Thief       +1   +2   -1   +3   -1   +1       2         +22%	-	11
+      Thief       +1   +2   -1   +3   -1   +1       2         +22%	-	12
       Tourist     +1   +2   -2   +1    0   +2       1          +5%	-	10
-      War Mage	  -4   +3   -1   +1   -2   -1       0	      +26%	-	12
+      War Mage	-4   +3   -1   +1   -2   -1       0	        +26%	-	12
       Barbarian   +6   -3   -1   +1   +2   -1      10          +5%	-	16
-    Chaos Warrior +4    0   -3   +1   +2   -2       7		+25%	-	9
+    Chaos Warrior +4    0   -3   +1   +2   -2       7		  +25%	-	9
       Umber Hulk  +3   -2   -1   +1   +2   -3       6         +25% (class)	8
  
  
 === Ability Tables ===
 
-             Disarm  Device   Save  Stealth  Search  Percep   Fight   Bows 
-  Human         0       0       0       0       0      10       0       0
-  Half-Elf      2       3       3       1       6      11      -1       5
-  Elf           5       6       6       1       8      12      -5      15
-  Hobbit       15      18      18       4      12      15     -10      20
-  Gnome        10      12      12       3       6      13      -8      12
-  Dwarf         2       9       9      -1       7      10      15       0
-  Half-Orc     -3      -3      -3      -1       0       7      12      -5
-  Half-Troll   -5      -8      -8      -2      -1       5      20     -10
-  Dunadan       4       5       5       2       3      13      15      10
-  High-Elf      4      20      20       3       3      14      10      25
-  Kobold       10       5       0       4      15      15      -5      10
+             Disarm  Device   Save  Stealth  Search  Alert.  Fight   Bows 	Throwing
+  Human         0       0       0       0       2      10       0       0	  1
+  Half-Elf      2       3       3       1       6      11      -1       5	  4
+  Elf           5       6       6       2       8      13      -5      15	 12
+  Hobbit       15      18      18       4      12      10     -10      20	 22
+  Gnome        10      12      12       3       6       8      -8      12	  9
+  Dwarf         2       9       9      -1       7       1      15      -2	  5
+  Half-Orc     -3      -3      -3      -1       0       6      12       2	 -1
+  Half-Troll   -5      -8      -8      -2      -1       3      20     -10	  2
+  Dunadan       4       5       5       2       4      12      15      10	  6
+  High-Elf      4      20      20       3       3      15      10      25	 15
+  Kobold       10       4       0       4      16      12      -5       9	 14
+  Hobglib	    3	     13	  8	    0	     13	  4	    4	     -2	  8
+  Fairy Gnome  12		5	 19	    3	     11	  9	   -5		4	  4
+  Dark Elf	    8	     12	  7	    3	     10      14       6      12      13
+  Living Ghoul  2		8	  8	    2	      3	 11	    1	     -3	  2
+  Power Sprite -2	      2	 10	    1	      2       9	   18	     -4	 11
+  Golem	    1	     -6	 10	   -1	      0	 15	    5	    -15	  3
+  Umber Hulk   -8	    -10	 13	    0		3	  7	   25	    -10	  6
 
-             Disarm  Device   Save  Stealth  Search  Percep   Fight  Missiles
+             Disarm  Device   Save  Stealth  Search  Fight  Missiles  Throwing
  
-  Warrior    27(+11) 18(+8)  17(+10)  1(+0)  14(+0)   2(+0)  71(+45) 56(+42)
-  Wizard     24(+8)  36(+13) 25(+10)  2(+0)  15(+0)  10(+0)  39(+16) 21(+15)
- Necromancer 29(+7)  33(+14) 26(+11)  2(+0)  14(+0)  12(+0)  36(+21) 18(+17)
-  Rogue      45(+15) 31(+10) 23(+11)  3(+0)  30(+0)  15(+0)  60(+40) 66(+30)
-  Ranger     40(+11) 23(+9)  29(+10)  4(+0)  22(+0)  25(+0)  63(+33) 60(+41)
-  Paladin    21(+12) 20(+9)  27(+12)  1(+0)  12(+0)  10(+0)  62(+37) 42(+30)
-  Archer     29(+9)  17(+10) 23(+9)   3(+0)  15(+0)  11(+0)  48(+26) 75(+45)
-  Alchemist  21(+9)  22(+12) 20(+12)  1(+0)  18(+0)  16(+0)  39(+20) 32(+16)
-  Priest     20(+8)  28(+10) 31(+12)  2(+0)  16(+0)   9(+0)  45(+20) 32(+20)
-  Healer     27(+8)  21(+8)  32(+9)   2(+0)  12(+0)   9(+1)  37(+16) 28(+21)
-  Druid      32(+11) 27(+10) 26(+11)  4(+0)  18(+1)  19(+0)  44(+23) 38(+23)
-  Assassin   31(+10) 29(+10) 21(+11)  3(+0*) 16(+0)  13(+0)  51(+34) 65(+31)
-  Thief      34(+14) 27(+8)  28(+10)  5(+0)  26(+0)  24(+0)  42(+30) 41(+33)
-  Tourist    21(+7)  20(+10) 21(+8)   1(+0)  21(+0)  14(+1)  34(+21) 30(+21)
-  War Mage	 20(+9)  38(+13) 30(+9)   1(+0)  16(+0)   5(+0)  45(+25) 15(+15)
-  Barbarian  24(+8)  12(+9)  18(+11)  2(+0)  12(+1)   5(+1)  75(+44) 56(+44)
-Chaos Warrior15(+16) 17(+11) 14(+14)  0(+0)  13(+0)   6(+0)  67(+43) 43(+33)
+  Warrior    27(+11) 18(+8)  17(+10)  1(+0)   9(+0)  71(+45) 55(+40)  40(+50)
+  Wizard     24(+8)  36(+13) 25(+10)  2(+0)  15(+0)  39(+16) 21(+15)  25(+15)
+ Necromancer 29(+7)  33(+14) 26(+11)  2(+0)  16(+0)  35(+21) 24(+14)  29(+16)
+  Rogue      45(+15) 31(+10) 23(+11)  3(+0)  28(+0)  60(+40) 66(+30)  70(+40)
+  Ranger     40(+11) 23(+9)  29(+10)  4(+0)  22(+0)  63(+33) 60(+41)  40(+45)
+  Paladin    21(+12) 20(+9)  27(+12)  0(+0)  12(+0)  62(+37) 42(+30)  50(+30)
+  Archer     29(+9)  17(+10) 23(+9)   3(+0)  15(+0)  48(+26) 75(+45)  35(+34)
+  Alchemist  21(+9)  22(+12) 20(+12)  1(+0)  20(+0)  39(+20) 31(+16)  32(+21)
+  Priest     20(+8)  28(+10) 31(+12)  2(+0)  16(+0)  45(+20) 32(+20)  22(+20)
+  Healer     27(+8)  21(+8)  32(+9)   2(+0)  11(+0)  37(+16) 28(+21)  25(+17)
+  Druid      32(+11) 27(+10) 26(+11)  4(+0)  17(+1)  44(+23) 38(+23)  45(+25)
+White Knight 15(+11) 14(+8)  15(+14) -1(+0)  14(+0)  65(+46) 38(+32)  40(+35)
+Black Knight 15(+11) 15(+8)  15(+13) -1(+0)  15(+0)  68(+45) 41(+33)  37(+34)
+  Assassin   31(+10) 29(+10) 21(+11)  3(+0*) 16(+0)  53(+33) 65(+31)  55(+45)
+  Thief      34(+14) 27(+8)  28(+10)  5(+0)  26(+0)  41(+30) 43(+33)  60(+35)
+  Tourist    21(+7)  20(+10) 21(+8)   0(+0)  20(+0)  34(+21) 30(+21)  36(+36)
+  War Mage	 20(+9)  38(+13) 30(+9)   1(+0)  10(+0)  45(+25) 15(+15)  25(+26)
+  Barbarian  24(+8)  12(+9)  18(+11)  2(+0)  10(+1)  75(+44) 53(+42)  58(+30)
+Chaos Warrior15(+16) 17(+11) 14(+14) -1(+0)  11(+0)  67(+43) 39(+33)  43(+39)
 
 *Assassins get +1 to stealth at character level 26.
 

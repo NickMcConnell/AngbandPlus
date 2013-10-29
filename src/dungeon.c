@@ -162,7 +162,7 @@ static void sense_inventory(void)
 	int feel;
 
 	object_type *o_ptr;
-
+	object_kind *k_ptr;
 	char o_name[80];
 
 
@@ -256,8 +256,12 @@ static void sense_inventory(void)
 		/* It is known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
+		k_ptr = &k_info[o_ptr->k_idx];
+
+		/* always sense if weight is different */
+		if (o_ptr->weight < k_ptr->weight) /* okay */;
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
+		else if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
 		/* Indestructible objects are either excellent or terrible */
 		if (o_ptr->pseudo == INSCRIP_INDESTRUCTIBLE)
@@ -318,7 +322,7 @@ static void sense_inventory(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
-#ifdef EFG
+
 		if (o_ptr->name1)
 		{
 			/* EFGchange remove need for identify wrto preserving artifacts */
@@ -333,7 +337,6 @@ static void sense_inventory(void)
 		if ((feel == INSCRIP_AVERAGE) && (object_aware_p(o_ptr)))
 			/* so you don't have to remember how many times enchanted "avg" longbow */
 			object_known(o_ptr);
-#endif
 
 		if (o_ptr->tval == TV_STAFF)
 		{
@@ -361,12 +364,19 @@ static void regenhp(int percent)
 {
 	s32b new_chp, new_chp_frac;
 	int old_chp;
+	int maxhp = p_ptr->mhp;
+
+	/* HP regeneration is stopped */
+	if (p_ptr->stopregen) return;
+
+	/* False life spell raises maxhp */
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
 
 	/* Extract the new hitpoints */
-	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
+	new_chp = ((long)maxhp) * percent + PY_REGEN_HPBASE;
 	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
 
 	/* check for overflow */
@@ -383,9 +393,9 @@ static void regenhp(int percent)
 	}
 
 	/* Fully healed */
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (p_ptr->chp >= maxhp)
 	{
-		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp = maxhp;
 		p_ptr->chp_frac = 0;
 	}
 
@@ -470,10 +480,13 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 		
-		/* DJA: make HELPER monsters leave */
-		if ((r_ptr->flags3 & (RF3_HELPER)) && (randint(100) < 20))
+		/* DJA: make HELPER monsters leave (only if not too far from the PC) */
+		/* because they can occationally be placed on themed levels */
+		/* without being summoned. */
+		if ((r_ptr->flags3 & (RF3_HELPER)) && (randint(100) < 20 - goodluck/3) &&
+			(m_ptr->cdis <= MAX_RANGE))
 		{
-           msg_print("Your helper leaves.");
+           if (m_ptr->ml) msg_print("Your helper leaves.");
            delete_monster_idx(i);
         }
 
@@ -564,8 +577,8 @@ static void recharged_notice(const object_type *o_ptr, bool all)
 static void recharge_objects(void)
 {
 	int i;
-
 	int charged = 0;
+	bool chargeokay = TRUE;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
@@ -582,8 +595,16 @@ static void recharge_objects(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* get flags */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* is it an activatable light source? */
+		if ((o_ptr->tval == TV_LITE) && (f3 & TR3_ACTIVATE)) chargeokay = TRUE;
+		/* other light sources use timeout for fuel */
+		else if (o_ptr->tval == TV_LITE) chargeokay = FALSE;
+
 		/* Recharge activatable objects */
-		if (o_ptr->timeout > 0 && !(o_ptr->tval == TV_LITE && !artifact_p(o_ptr)))
+		if (o_ptr->timeout > 0 && (chargeokay))
 		{
 			/* Recharge */
 			o_ptr->timeout--;
@@ -594,9 +615,6 @@ static void recharge_objects(void)
 			/* Message if item is recharged, if inscribed with "!!" */
 			if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
 		}
-
-		/* get flags (to check for constant activation flag) */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* handle constant activation */
 		if ((i == INVEN_WIELD) && (f2 & (TR2_CONSTANTA)))
@@ -764,9 +782,18 @@ static void decrease_timeouts(void)
 {
 	int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 	int i;
+	object_type *o_ptr;
+
+	/* golems have no constitution score (and are immune to cutting) */
+	/* (no goodluck or badluck except from timed effects) */
+	if (p_ptr->prace == 16)
+	{
+		adjust = randint(4);
+		if (badluck) adjust -= 1;
+		if (goodluck) adjust += 1;
+	}
 	
 	/* timed weapon blessing */
-	object_type *o_ptr;
 	o_ptr = &inventory[INVEN_WIELD];
     if ((o_ptr->blessed > 1) && ((!p_ptr->resting) || (randint(100) < 33)))
     {
@@ -805,7 +832,8 @@ static void decrease_timeouts(void)
 				x = o_ptr->ix;
 
 				/* Create rubble (if there isn't already rubble there) */
-			    if (cave_feat[y][x] != FEAT_RUBBLE) cave_set_feat(y, x, FEAT_RUBBLE);
+				if (cave_feat[y][x] == FEAT_OPEN_PIT) cave_set_feat(y, x, FEAT_FLOOR);
+			    else if (cave_feat[y][x] != FEAT_RUBBLE) cave_set_feat(y, x, FEAT_RUBBLE);
 
 				/* Update the visuals */
 				p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -815,6 +843,20 @@ static void decrease_timeouts(void)
 
 	/* clear p_ptr->held_m_idx when you pull free of the hold */
 	if (p_ptr->timed[TMD_BEAR_HOLD] == 1) p_ptr->held_m_idx = 0;
+
+	/* reset maxhp when FALSE_LIFE ends */
+	if (p_ptr->timed[TMD_FALSE_LIFE] == 1)
+	{
+		if (p_ptr->chp >= p_ptr->mhp)
+		{
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp_frac = 0;
+
+			/* redraw */
+			p_ptr->redraw |= (PR_HP);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		}
+	}
 
 	/* Decrement all effects that can be done simply */
 	for (i = 0; i < TMD_MAX; i++)
@@ -859,39 +901,6 @@ static void decrease_timeouts(void)
 
 
 /*
- * Summon a creature of the specified type
- * copied from wizard2.c
- * This function is rather dangerous? why?
- */
-static void do_call_help(int r_idx)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int i, x, y;
-
-	/* Paranoia */
-	if (!r_idx) return;
-	if (r_idx >= z_info->r_max-1) return;
-
-	/* Try 10 times */
-	for (i = 0; i < 10; i++)
-	{
-		int d = 1;
-
-		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
-
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
-
-		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, FALSE, TRUE)) break;
-	}
-}
-
-
-/*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -902,6 +911,8 @@ static void process_world(void)
 	int regen_amount;
 
 	object_type *o_ptr;
+	int maxhp = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -1148,7 +1159,8 @@ static void process_world(void)
     /* attraction of demons by black magic or bad luck */    
     if (((p_ptr->timed[TMD_WITCH]) || (badluck > 18)) && (randint(666) == 1))
     {
-       if (cp_ptr->spell_book == TV_DARK_BOOK)
+		int sy, sx;
+		if (cp_ptr->spell_book == TV_DARK_BOOK)
        {
           msg_print("Demons are attracted to your black magic.");
        }
@@ -1160,8 +1172,20 @@ static void process_world(void)
        {
           msg_print("Demons are attracted to the nether power you summoned.");
        }
-       if ((randint(100) < 20) && (p_ptr->lev > 20)) do_call_help(560);
-       else summon_specific(p_ptr->py, p_ptr->px, p_ptr->max_depth-5, SUMMON_DEMON);
+	   /* get a nearby (about 20 spaces away) location to place the summoned demon */
+	   /* (just place it next to the PC about 40% of the time) */
+	   if ((!get_nearby(p_ptr->py, p_ptr->px, &sy, &sx, 3)) || 
+		   (rand_int(100) < 40 + badluck))
+	   {
+		   sy = p_ptr->py;
+		   sx = p_ptr->px;
+	   }
+	   if (p_ptr->max_depth < 3) /* no summon */;
+       else if ((randint(100) < (p_ptr->lev + p_ptr->max_depth)/3) && 
+		   (p_ptr->lev + p_ptr->max_depth >= 46)) do_call_help(560);
+	   else if (!p_ptr->depth) summon_specific(sy, sx, 1, SUMMON_DEMON);
+       else if (p_ptr->max_depth > 7) summon_specific(sy, sx, p_ptr->max_depth-5, SUMMON_DEMON);
+	   else summon_specific(sy, sx, 2, SUMMON_DEMON);
     }
     
     /* neutral class wielding both good object(s) and bad object(s) */
@@ -1186,6 +1210,49 @@ static void process_world(void)
        else (void)inc_timed(TMD_CONFUSED, 2 + randint(3 + (badluck/3)));
        if (randint(100) < 60) (void)inc_timed(TMD_STUN, 1 + goodweap);
     }
+
+	/* may start to drown if paralyzed or stunned in water */
+	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+	{
+		bool waterhold = FALSE;
+		/* check if being held by a water monster */
+		if (p_ptr->timed[TMD_BEAR_HOLD])
+		{
+			monster_type *m_ptr = &mon_list[p_ptr->held_m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			if ((r_ptr->flags7 & (RF7_WATER_HIDE)) || (r_ptr->flags7 & (RF7_WATER_ONLY)))
+				waterhold = TRUE;
+		}
+		
+		/* paralyzed, stunned, or held underwater */
+		if (((p_ptr->timed[TMD_PARALYZED]) && (randint(100) < 22)) ||
+			((waterhold) && (randint(100) < 21)) ||
+			((p_ptr->timed[TMD_STUN] > 9) && 
+			(randint(100) < 5 + p_ptr->timed[TMD_STUN]/5)))
+		{
+			int drown;
+			if (p_ptr->mhp > 100) drown = damroll(2, 20);
+			else if (p_ptr->mhp < 10) drown = damroll(2, 2);
+			else drown = damroll(2, p_ptr->mhp/5);
+			/* make sure the player knows he can die by drowning */
+			if (!p_ptr->warned)
+			{
+				/* warn the player */
+				if (p_ptr->timed[TMD_PARALYZED])
+				{
+					msg_print("Being paralyzed, you can't keep your head above water: ");
+				}
+				else if (waterhold) msg_print("Your head is being held underwater: ");
+				else msg_print("You are too stunned to keep your head above water: ");
+				p_ptr->warned = 1;
+				/* be easy on the PC the first time */
+				if (drown > p_ptr->chp) drown = p_ptr->chp - randint(3);
+				else if (drown > 18) drown -= randint(2);
+			}
+			msg_print("You start to drown!");
+			take_hit(drown, "drowning");
+		}
+	}
     
 	/* Take damage from poison */
 	if (p_ptr->timed[TMD_POISONED])
@@ -1318,11 +1385,11 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_STUN]) regen_amount /= 4;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
-	if (p_ptr->stopregen) regen_amount = 0;
 	if (p_ptr->timed[TMD_BECOME_LICH]) regen_amount /= 2;
+	if (p_ptr->stopregen) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if (p_ptr->chp < maxhp)
 	{
 		regenhp(regen_amount);
 	}
@@ -1356,7 +1423,7 @@ static void process_world(void)
 		if (f3 & TR3_NO_FUEL)
 		    burn_fuel = FALSE;
 
-		/* Use some fuel (except on artifacts, or during the day) */
+		/* Use some fuel */
 		if (burn_fuel && o_ptr->timeout > 0)
 		{
 			/* Decrease life-span */
@@ -1578,6 +1645,8 @@ static void process_player(void)
 {
 	int i;
 	int item;
+	int maxhp = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
 
 	/*** Check for interrupts ***/
 
@@ -1590,8 +1659,7 @@ static void process_player(void)
 		if (p_ptr->resting == REST_EITHER)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) ||
-			    (p_ptr->csp == p_ptr->msp))
+			if ((p_ptr->chp == maxhp) || (p_ptr->csp == p_ptr->msp))
 			{
 				disturb(0, 0);
 			}
@@ -1602,7 +1670,8 @@ static void process_player(void)
 #endif
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
+			/* (don't wait for hp regeneration if it's not going to happen) */
+			if (((p_ptr->chp == maxhp) || (p_ptr->stopregen)) &&
 			    (p_ptr->csp == p_ptr->msp))
 			{
 				disturb(0, 0);
@@ -1629,7 +1698,7 @@ static void process_player(void)
             }
             
             /* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
+			if (((p_ptr->chp == maxhp) || (p_ptr->stopregen)) &&
 			    (p_ptr->csp == p_ptr->msp) && (minor) &&
 			    !p_ptr->timed[TMD_BLIND] && !p_ptr->timed[TMD_CONFUSED] &&
 			    !p_ptr->timed[TMD_POISONED] && !p_ptr->timed[TMD_AFRAID] &&
@@ -2104,7 +2173,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
+	p_ptr->window |= (PW_MONSTER | PW_MONLIST | PW_OBJLIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
@@ -2274,13 +2343,22 @@ static void dungeon(void)
 		for (i = mon_max - 1; i >= 1; i--)
 		{
 			/* Access the monster */
+			monster_race *r_ptr;
 			m_ptr = &mon_list[i];
+			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Ignore "dead" monsters */
 			if (!m_ptr->r_idx) continue;
 
 			/* Give this monster some energy */
 			m_ptr->energy += extract_energy[m_ptr->mspeed];
+
+			/* WATER_ONLY monsters out of water try to get back to water quickly */
+			if ((r_ptr->flags7 & (RF7_WATER_ONLY)) &&
+				(!(cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_WATER)))
+			{
+				m_ptr->energy += 10;
+			}
 		}
 
 		/* Count game turns */
@@ -2340,6 +2418,7 @@ void play_game(bool new_game)
 {
 	bool character_loaded;
 	bool reusing_savefile;
+	int maxhp;
 
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
@@ -2563,6 +2642,8 @@ void play_game(bool new_game)
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
+			maxhp = p_ptr->mhp;
+
 			/* Mega-Hack -- Allow player to cheat death */
 			if ((p_ptr->wizard || cheat_live) && !get_confirm("Die? "))
 			{
@@ -2583,7 +2664,7 @@ void play_game(bool new_game)
 				p_ptr->is_dead = FALSE;
 
 				/* Restore hit points */
-				p_ptr->chp = p_ptr->mhp;
+				p_ptr->chp = maxhp;
 				p_ptr->chp_frac = 0;
 
 				/* Restore spell points */
@@ -2605,7 +2686,8 @@ void play_game(bool new_game)
 				p_ptr->slime = 0;
 
 				/* Hack -- Prevent starvation */
-				(void)set_food(PY_FOOD_MAX - 1);
+				if (p_ptr->food <= PY_FOOD_ALERT) (void)set_food(PY_FOOD_MAX - 1);
+				else if (p_ptr->food < PY_FOOD_FULL + 2500)  (void)set_food(p_ptr->food + 2500);
 
 				/* Hack -- cancel recall */
 				if (p_ptr->word_recall)
@@ -2634,6 +2716,9 @@ void play_game(bool new_game)
 
 		/* Make a new level */
 		generate_cave();
+
+		/* autosave whenever a new level is generated */
+		save_player();
 	}
 
 	/* Close stuff */

@@ -1,5 +1,5 @@
 # File: p_hist.txt
-
+# DaJAngband 1.1.0
 
 # This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.
@@ -28,7 +28,8 @@
 #   Dark Elf	--> 76     77     78     79     80
 #   Grave Ghoul	--> 82     83	84	 85	  86		--> 87
 #   Power Sprite  --> 88	89	   --> 54 --> 55 --> 56
-#   Maia		--> 90	91	   --> 92
+#   Golem		--> 90	91	   --> 92
+# (Umber hulks currently get a half-troll's history lines, starting at 62.)
 
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
@@ -556,7 +557,7 @@ D:You are a credit to the family.
 N:81:50:100:60
 D:You are a well liked child.  
 
-#	grave ghoul
+#	living ghoul
 N:82:83:20:39
 D:You are the mutant offspring 
 N:82:84:40:41
@@ -611,7 +612,7 @@ D:, making allies with the undead.
 N:87:0:40:49
 D: along with the undead.
 N:87:0:51:50
-D: along with other grave ghouls.
+D: along with other living ghouls.
 N:87:0:81:51
 D: by yourself.
 N:87:0:100:57
@@ -629,7 +630,7 @@ N:89:54:6:47
 D:poison sprites
 N:89:54:26:48
 D:barbaric sprites
-D:89:54:38:51
+N:89:54:38:51
 D:playful careless sprites
 N:89:54:60:60
 D:bright sprites
@@ -638,44 +639,51 @@ D:guide sprites
 N:89:54:100:85
 D:guardian sprites
 
-#	Maia
+#	Golem
 N:90:91:10:30
-D:You are a unnoticed minion of 
+D:You are made of brown scrap clay.  
 N:90:91:25:40
-D:You are a minor servant of 
+D:You are made of grey scrap clay.  
 N:90:91:45:50
-D:You are a subject of 
+D:You are made of dull brown clay.  
 N:90:91:65:60
-D:You have attached yourself to 
+D:You are made of grey clay.  
 N:90:91:85:75
-D:You are associated with 
+D:You are made of red clay.  
 N:90:91:95:90
-D:You are a notable follower of 
+D:You are made of bronze-colored clay.  
 N:90:91:100:110
-D:You are a celebrated assistant to 
+D:You are made of top quality clay.  
 
-N:91:92:20:55
-D:Nessa.  In the past, you dwelt on earth in the form of 
+N:91:92:20:40
+D:Your eyes are splotches of cheap paint and the holy words in your head 
 N:91:92:40:60
-D:Vana.  In the past, you dwelt on earth in the form of 
-N:91:92:50:65
-D:Tulkas.  In the past, you dwelt on earth in the form of 
-N:91:92:80:75
-D:Mandos.  In the past, you dwelt on earth in the form of 
-N:91:92:90:80
-D:Nienna.  In the past, you dwelt on earth in the form of 
-N:91:92:95:90
-D:Varda.  In the past, you dwelt on earth in the form of 
-N:91:92:100:95
-D:Manwe.  In the past, you dwelt on earth in the form of 
+D:You have painted blue eyes and the holy words in your head 
+N:91:92:60:65
+D:You have painted brown eyes and the holy words in your head 
+N:91:92:75:75
+D:Your eyes are expertly carved and painted, and the holy words in your head 
+N:91:92:83:85
+D:Your eyes are glowing blue orbs and the holy words in your head 
+N:91:92:90:88
+D:Your eyes are glowing white orbs and the holy words in your head 
+N:91:92:100:93
+D:Your eyes are glowing golden orbs and the holy words in your head 
 
-N:92:0:25:57
-D:various animals.
+N:92:0:9:40
+D:read only the words of blasphemy "Hello, sailor!"
+N:92:0:29:50
+D:are a hodgepodge mix of quotes from random cult sayings. 
+N:92:0:40:55
+D:are from the book of Anoia, the minor goddess of things that stick in drawers. 
 N:92:0:55:65
-D:a spirit of forest and river.
-N:92:0:70:70
-D:a beneficent but unseen force.
-N:92:0:96:80
-D:a wise and ancient counselor.
-N:92:0:100:90
-D:a Wizard of legend.
+D:are from the book of Om.
+N:92:0:70:80
+D:are some of the war cries of Tulkas. 
+N:92:0:85:88
+D:are direct quotes from the lips of Varda. 
+N:92:0:100:95
+D:are from the wise sayings of Manwe.  
+
+#	umber hulk
+#N:95:

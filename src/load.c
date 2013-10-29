@@ -12,7 +12,7 @@
 
 
 /*
- * This file loads savefiles from Angband 2.9.X.
+ * This file loads savefiles.
  *
  * We attempt to prevent corrupt savefiles from inducing memory errors.
  *
@@ -284,7 +284,12 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->name2);
 
 	rd_s16b(&o_ptr->timeout);
-	rd_s16b(&o_ptr->blessed); /* DJA new: breaks savefiles for 1.0.98 */
+	rd_s16b(&o_ptr->blessed);
+#if nobreaksave
+#else
+	rd_s16b(&o_ptr->enhance);  /* DJA new: breaks savefiles for 1.1.0 */
+	rd_s16b(&o_ptr->enhancenum);
+#endif 
 
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
@@ -301,7 +306,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->ident);
 
 	rd_byte(&o_ptr->marked);
-	rd_byte(&o_ptr->hidden); /* breaks savefiles for 1.0.99 as of 7/29/09 */
+	rd_byte(&o_ptr->hidden);
 
 	/* Old flags */
 	strip_bytes(12);
@@ -535,14 +540,13 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-	/* DJA new: breaks savefiles for 1.0.98 */
 	rd_s16b(&m_ptr->tinvis);
 	rd_byte(&m_ptr->silence);
 	rd_byte(&m_ptr->monseen);
 	rd_s16b(&m_ptr->meet);
 	rd_s16b(&m_ptr->roaming);
 	rd_byte(&m_ptr->evil);
-	rd_byte(&tmp8u);
+	rd_byte(&m_ptr->truce);
 }
 
 
@@ -818,7 +822,8 @@ static void rd_options(void)
 		birth_no_stores = adult_no_stores = old_birth[5];
 		birth_no_artifacts = adult_no_artifacts = old_birth[6];
 		birth_randarts = adult_randarts = old_birth[7];
-		birth_no_stacking = adult_no_stacking = old_birth[8];
+		birth_randnames = adult_randnames = old_birth[8];
+		birth_no_stacking = adult_no_stacking = old_birth[9];
 
 		birth_no_stairs = adult_no_stairs = !OLD_OPT(41);
 		birth_autoscum = adult_autoscum = OLD_OPT(33);
@@ -1095,7 +1100,9 @@ static errr rd_extra(void)
 	/* Player gender */
 	rd_byte(&p_ptr->psex);
 
-	strip_bytes(1);
+	/* themed level */
+	rd_byte(&p_ptr->theme);
+	/* strip_bytes(1); */
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -1167,6 +1174,13 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->learnedcontrol);
 	rd_byte(&p_ptr->find_vault);
 	rd_s16b(&p_ptr->held_m_idx);
+	rd_s16b(&p_ptr->mimmic);
+	rd_s16b(&p_ptr->menhance);
+
+#if nobreaksave
+#else
+	rd_byte(&p_ptr->warned);
+#endif
 
 	/* Find the number of timed effects */
 	rd_byte(&num);
@@ -1288,11 +1302,10 @@ static errr rd_randarts(void)
 			for (i = 0; i < z_info->a_max; i++)
 			{
 				artifact_type *a_ptr = &a_info[i];
-#ifdef EFG
-				/* EFGchange keep randart names the same */
-#else
-				a_ptr->name = 0;
-#endif
+
+				if (!adult_randnames) /* */;
+				else a_ptr->name = 0;
+
 				a_ptr->tval = 0;
 				a_ptr->sval = 0;
 			}
@@ -1327,6 +1340,9 @@ static errr rd_randarts(void)
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
+#if breaksave
+		 		rd_byte(&a_ptr->maxlvl);
+#endif
 
 				rd_byte(&a_ptr->activation);
 				rd_u16b(&a_ptr->time);
@@ -1362,7 +1378,10 @@ static errr rd_randarts(void)
 				rd_u32b(&tmp32u);  /*  a_ptr->flags4 */
 
 				rd_byte(&tmp8u); /* a_ptr->level */
+#if breaksave
 				rd_byte(&tmp8u); /* a_ptr->rarity */
+#endif
+				rd_byte(&tmp8u); /* a_ptr->maxlvl */
 
 				rd_byte(&tmp8u); /* a_ptr->activation */
 				rd_u16b(&tmp16u); /* a_ptr->time */

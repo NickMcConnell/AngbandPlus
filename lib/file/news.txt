@@ -9,7 +9,7 @@
 				
 		          David A. Justiss (aka Will_Asher)
 			report bug reports on angband.oook.cz
-				DJA v1.0.99 (pre 1.1.0)
+		     		   DJA v1.1.0
                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 
    				    Website:
@@ -23,4 +23,4 @@
             2.9.0 - 3.0.6:   Robert Ruehlmann
 		  3.0.8 -:   Andrew Sidwell
 
-  Please read the summary of changes available in the "DaJAngbandReadme1099.txt" file!
+  Please read the summary of changes available in the "DaJAngbandReadme110.txt" file!

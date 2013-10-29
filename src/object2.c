@@ -165,6 +165,9 @@ void delete_object_idx(int o_idx)
 
 	/* Count objects */
 	o_cnt--;
+
+	/* update object list */
+	p_ptr->window |= PW_OBJLIST;
 }
 
 
@@ -339,7 +342,7 @@ void compact_objects(int size)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_OBJLIST);
 
 
 
@@ -896,11 +899,15 @@ void object_known(object_type *o_ptr)
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 #ifdef EFG
-	/* EFGchange no hidden powers with standard artifacts */
+	/* EFGchange no hidden powers with any artifacts (was just standard artifacts) */
 /* ??? Should also add flag to artifacts like Grond unchanged under randarts */
-	if ((o_ptr->name1) && (!adult_randarts))
-		o_ptr->ident |= IDENT_MENTAL;
+	/* if ((o_ptr->name1) && (!adult_randarts)) */
+	if (o_ptr->name1) o_ptr->ident |= IDENT_MENTAL;
 #endif
+
+	/* multi-hued poison no longer mimmics another potion once it's been identified */
+	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_MULTIHUED_POISON))
+		o_ptr->pval = 0;
 }
 
 
@@ -940,7 +947,7 @@ void object_aware(object_type *o_ptr)
 		p_ptr->redraw |= (PR_MAP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_OBJLIST);
 	}
 }
 
@@ -1143,7 +1150,7 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
 
 			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 20000L);
 
 			break;
 		}
@@ -1340,6 +1347,14 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
+	/* multi-hued poison potions never stack */
+	/* unless they happen to be mimmicing the same other potion */
+	if ((o_ptr->tval == TV_POTION) && 
+		(o_ptr->sval == SV_POTION_MULTIHUED_POISON))
+	{
+		if (o_ptr->pval == j_ptr->pval) /* okay */;
+		else return (0);
+	}
 
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
@@ -1451,6 +1466,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
 
+			/* exception for wounding */
 			if (((o_ptr->name2 == EGO_WOUNDING) && (!j_ptr->name2)) ||
 			   ((j_ptr->name2 == EGO_WOUNDING) && (!o_ptr->name2)))
             {
@@ -1545,7 +1561,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	bool forget;
 
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1553,20 +1568,7 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
 	/* Hack -- Blend "known" status */
-#ifdef EFG
-	/* EFGchange merge unided wands and staves */
-	/* I hate to do this, but so long as #charges is hidden until identify */
-	forget = (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) && 
-		       ((!object_known_p(o_ptr) || !object_known_p(j_ptr))));
 	if (object_known_p(j_ptr)) object_known(o_ptr);
-	if (forget)
-	{
-		o_ptr->ident |= (IDENT_KNOWN);
-		o_ptr->ident ^= (IDENT_KNOWN);
-	}
-#else
-	if (object_known_p(j_ptr)) object_known(o_ptr);
-#endif
 
 	/* Hack -- Blend store status */
 	if (j_ptr->ident & (IDENT_STORE)) o_ptr->ident |= (IDENT_STORE);
@@ -2052,7 +2054,7 @@ static bool make_artifact_special(object_type *o_ptr)
 static bool make_artifact(object_type *o_ptr)
 {
 	int i;
-
+	u32b f1, f2, f3, f4;
 
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
@@ -2060,8 +2062,10 @@ static bool make_artifact(object_type *o_ptr)
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
 
-	/* Paranoia -- no "plural" artifacts */
-	if (o_ptr->number != 1) return (FALSE);
+	/* check for THROWN flag */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	/* Paranoia -- no "plural" artifacts (allow sets of throwing artifacts) */
+	if ((o_ptr->number != 1) && (!(f2 & TR2_THROWN))) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
 	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
@@ -2087,6 +2091,9 @@ static bool make_artifact(object_type *o_ptr)
 			/* Roll for out-of-depth creation */
 			if (rand_int(d) != 0) continue;
 		}
+
+		/* New: maximum depth */
+		if (a_ptr->maxlvl < p_ptr->depth) continue;
 
 		/* We must make the "rarity roll" */
 		if (rand_int(a_ptr->rarity) != 0) continue;
@@ -2128,10 +2135,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		o_ptr->to_h += tohit1;
 		o_ptr->to_d += todam1;
 
-		/* Hack: Main Gauche of shielding isn't mainly for offence */
+		/* Main Gauche of shielding isn't mainly for offence */
         if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_MAIN_GAUCHE) && (o_ptr->name2 == EGO_SHIELDING))
 		{
-           if (o_ptr->to_d > o_ptr->to_h)
+           /* force to_d <= to_h */
+		   if (o_ptr->to_d > o_ptr->to_h)
            {
               /* swap bonuses */
               s16b tmp = o_ptr->to_d;
@@ -2764,11 +2772,14 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
-	int i, rolls, f1, f2, power;
-
+	int i, rolls, g1, g2, power;
 	/* allow forced cursed items in wizmode for testing */
-	/* used -2 because -1 is used for Morgoth's artifacts */
 	bool curseit = FALSE;
+
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* forced cursed: used -2 because -1 is used for Morgoth's artifacts */
 	if (lev == -2)
 	{
 		curseit = TRUE;
@@ -2780,40 +2791,51 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
      /* increased odds */
 	/* Base chance of being "good" */
-	f1 = lev + 11 + (goodluck/3);
+	g1 = lev + 11 + goodluck/2;
 
 	/* Maximal chance of being "good" */
-	if (f1 > 78) f1 = 78;
+	if (g1 > 80) g1 = 80;
 
 	/* Base chance of being "great" */
-	f2 = (f1 / 2) + (goodluck/3) + 1;
+	g2 = (g1 + 1)/2;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 22) f2 = 22;
+	if (g2 > 22) g2 = 22;
 
+	/* anything less than an ego at depth > 75 is junk */
+	if (p_ptr->depth >= 75) g2 += 2;
+
+	/* certain objects more likely to be good */
+	if (((f2 & TR2_THROWN) || (o_ptr->tval == TV_SKELETON)) && (lev > 14 - goodluck))
+	{
+		if ((f2 & TR2_THROWN) && (lev > 74)) g2 += lev/37;
+		else if ((f2 & TR2_THROWN) || (lev > 74)) g2 += 1;
+		if (lev < 69) g1 += 2;
+		else g1 += lev/23;
+	}
 
 	/* Assume normal */
 	power = 0;
 
 	/* Roll for "good" */
-	if (good || (rand_int(100) < f1))
+	if (good || ((rand_int(100) < g1) && (!curseit)))
 	{
 		/* Assume "good" */
 		power = 1;
 
 		/* Roll for "great" */
-		if (great || (rand_int(100) < f2)) power = 2;
+		if (great || (rand_int(100) < g2)) power = 2;
 	}
 
 	/* Roll for "cursed" */
-	else if ((rand_int(100) < f1) || (curseit))
+	else if ((rand_int(100) < g1) || (curseit))
 	{
 		/* Assume "cursed" */
 		power = -1;
 
 		/* Roll for "broken" (more likely if forced cursed) */
 		if ((rand_int(100) < 25) && (curseit)) power = -2;
-		if (rand_int(100) < f2) power = -2;
+		if (rand_int(100) < g2) power = -2;
 	}
 
 	/* Assume no rolls */
@@ -2918,9 +2940,13 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		/* but make sure they don't get any ego that has a pval */
 		case TV_STAFF:
 		{
+			/* ego staffs less common */
+			int egoodd = 80;
+			if (p_ptr->depth > 50) egoodd -= (4 + (p_ptr->depth-47)/3);
+
 			a_m_aux_4(o_ptr, lev, power);
 
-			if ((power > 1) || (power < -1))
+			if (((power > 1) || (power < -1)) && (randint(100) < 80))
 			{
 				int ego_power;
 
@@ -2963,7 +2989,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		case TV_RING:
 		case TV_AMULET:
 		{
-			if ((power > 1) || (power < -1))
+			/* ego jewelry less common */
+			if (((power > 1) || (power < -1)) && (randint(100) < 70))
 			{
 				int ego_power;
 
@@ -2978,7 +3005,8 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 		case TV_LITE:
 		{
-			if ((power > 1) || (power < -1))
+			/* ego lights less common */
+			if (((power > 1) || (power < -1)) && (randint(100) < 80))
 			{
 				make_ego_item(o_ptr, (bool)(good || great));
 			}
@@ -2988,6 +3016,20 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			break;
 		}
 
+		case TV_POTION:
+		{
+			/* each potion of multi-hued poison choses another potion to mimmic */
+			if (o_ptr->sval == SV_POTION_MULTIHUED_POISON)
+			{
+				/* its pval is the k_idx of the potion that it mimmics */
+				/* occationally mimmic an especially tempting potion */
+				if (rand_int(100) < badluck + 6) 
+					o_ptr->pval = lookup_kind(75, 48 + rand_int(11));
+				else o_ptr->pval = lookup_kind(75, 23 + rand_int(22));
+			}
+			/* fall through */
+		}
+
 		default:
 		{
 			a_m_aux_4(o_ptr, lev, power);
@@ -2995,6 +3037,31 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		}
 	}
 
+	if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		/* deep cursed staffs get annoying so they shouldn't be too common */
+		if ((o_ptr->tval == TV_STAFF) && (e_ptr->flags3 & (TR3_LIGHT_CURSE)) && 
+			(badluck < 6) && (!artifact_p(o_ptr)))
+		{
+			int min = 74 - goodluck*4;
+			if (min < 40) min = 40;
+			if ((randint(100) < 40 + goodluck/2 + lev/5) && (lev >= min))
+			{
+				/* remove the curse */
+				/* (cursed egos are uncursed by removing the ego) */
+				/* if (!o_ptr->name2) o_ptr->flags3 &= ~(TR3_LIGHT_CURSE); */
+				/* Remove all enchantments */
+				o_ptr->name2 = 0;
+				o_ptr->to_h = 0;
+				o_ptr->to_d = 0;
+				o_ptr->to_a = 0;
+				/* remove possible random stuff from egos */
+			    o_ptr->xtra1 = 0;
+			    o_ptr->xtra2 = 0;
+			}
+		}
+	}
 
 	/* Hack -- analyze ego-items */
 	if (o_ptr->name2)
@@ -3034,7 +3101,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 #if blah
-		/* Constant activation on staff of slowness should be cursed */
+		/* Constant activation on staff of slowness should be cursed (that staff was removed) */
 		if ((o_ptr->tval == TV_STAFF) && (e_ptr->flags2 & (TR2_CONSTANTA)) && (o_ptr->sval == SV_STAFF_SLOWNESS))
 		{
 			o_ptr->ident |= (IDENT_CURSED);
@@ -3077,7 +3144,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
                 if ((o_ptr->tval == TV_CLOAK) && (o_ptr->pval < 2)) o_ptr->pval = 2;
             }
 
-			/* Hack for gaunlets of throwing */
+			/* Hack for gauntlets of throwing */
 			if ((e_ptr->flags3 & (TR3_THROWMULT)) && (o_ptr->tval == TV_GLOVES))
 			{
 				/* minimum p_ptr->throwmult is 2 */
@@ -3092,7 +3159,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 				/* pval of 4 should be very rare */
 				if ((o_ptr->pval >= 4) && (randint(100) < 70)) o_ptr->pval -= randint(2);
 				/* pval of 1 should be allowed, but uncommon (minimum p_ptr->throwmult is 2 anyway) */
-				if ((o_ptr->pval == 1) && (randint(100) < 50)) o_ptr->pval += randint(2);
+				if ((o_ptr->pval == 1) && (randint(100) < 55)) o_ptr->pval += randint(2);
 				/* a lot of egos with random powers usually have no pval */
 				if ((!o_ptr->pval) && (o_ptr->tval != TV_STAFF)) o_ptr->pval = 1 + randint(2);
 			}
@@ -3101,6 +3168,25 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 			{
 				if (!o_ptr->pval) o_ptr->pval = randint(3);
 			}
+
+			/* chance for double ego 'of lightness' on heavy armor */
+			/* (because otherwise a full plate mail of resist cold is worthless)  */
+			if ((o_ptr->tval == TV_HARD_ARMOR) && (rand_int(100) < 2))
+			{
+				if (!((o_ptr->name2 == EGO_LIGHTNESS) || (o_ptr->name2 == EGO_ARMR_DWARVEN)))
+				{
+					/* 10lb weight reduction */
+					o_ptr->weight -= 100;
+				}
+			}
+		}
+
+		/* Eregion should never have a negative speed bonus (even when cursed) */
+		/* (no rings which otherwise get a pval should be able to have eregion ego) */
+		if (((o_ptr->name2 == EGO_EREGION1) || (o_ptr->name2 == EGO_EREGION2)) &&
+			(o_ptr->pval < 0))
+		{
+			o_ptr->pval = randint(2);
 		}
 
         /* Hack for ego "of lightness" armor */
@@ -3136,6 +3222,45 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+		/* minimum pval (for non-ego stat rings and amulets) */
+		if (((o_ptr->tval == TV_RING) && ((o_ptr->sval >= SV_RING_STR) &&
+			(o_ptr->sval <= SV_RING_CON))) || ((o_ptr->tval == TV_AMULET) &&
+			((o_ptr->sval == SV_AMULET_WISDOM) || (o_ptr->sval == SV_AMULET_CHARISMA))))
+		{
+			if ((o_ptr->pval >= 0) && (o_ptr->pval <= 1) && 
+				(p_ptr->depth > 5 + (badluck*2)))
+			{
+				o_ptr->pval += randint(2);
+			}
+		}
+
+		/* (+3 +3) =slaying is junk (especially with ego rings of warfare) */
+		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SLAYING) &&
+			(lev > 45 + (badluck*2)))
+		{
+			if (o_ptr->to_d + o_ptr->to_h < 8)
+			{
+				o_ptr->to_d += rand_int(4);
+				o_ptr->to_h += rand_int(4);
+			}
+			/* maybe a little bit more */
+			if ((o_ptr->to_d + o_ptr->to_h < 7 + ((goodluck+1)/3)) && 
+				(goodluck > 2) && (randint(100) < 45))
+			{
+				o_ptr->to_d += rand_int(3);
+				o_ptr->to_h += rand_int(3);
+			}
+		}
+		/* Eregion ego has +1-2 speed, so =speed should be at least +3 */
+		if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SPEED) &&
+			(lev > 45 + (badluck*2)))
+		{
+			/* min is 7 with maximum goodluck (which is very rare) */
+			int min = 2 + ((goodluck+2)/4);
+			if ((o_ptr->pval >= 0) && (o_ptr->pval <= min))
+				o_ptr->pval = min + randint(4 + goodluck/2);
+		}
 	}
 }
 
@@ -3300,7 +3425,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		int k_idx;
 
 		/* Good objects */
-		/* kind restriction doesn't always apply */
+		/* kind restriction doesn't always apply (still raises obj level) */
 		if ((good) && (randint(100) < 80))
 		{
 			/* Activate restriction */
@@ -3327,6 +3452,32 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 		/* Handle failure */
 		if (!k_idx) return (FALSE);
+
+		/* get k_ptr early to check value */
+		k_ptr = &k_info[k_idx];
+
+		/* kind restriction no longer applies but worthless objects are never good */
+		/* so reroll a restricted good kind */
+		if (((good) || (great)) && (!k_ptr->cost))
+		{
+			/* Activate restriction */
+			get_obj_num_hook = kind_is_good;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Pick a random object */
+			k_idx = get_obj_num(base);
+
+			/* Clear restriction */
+			get_obj_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Handle failure */
+			if (!k_idx) return (FALSE);
+		}
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
@@ -3369,8 +3520,8 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 	/* I decided to allow artifact sets of throwing weapons */
 	/* throwing weapons sets should probably have a number set in artifact.txt */
-	if ((artifact_p(j_ptr)) && (j_ptr->number > 4) && (f2 & TR2_THROWN))
-		j_ptr->number = randint(2) + 1;
+	if ((artifact_p(j_ptr)) && (j_ptr->number > 5) && (f2 & TR2_THROWN))
+		j_ptr->number = randint(3) + 1;
 	/* prevent creating multiple artifacts */
 	else if (artifact_p(j_ptr)) j_ptr->number = 1;
 
@@ -3400,8 +3551,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
  * Make a treasure object
  *
  * The location must be a legal, clean, floor grid.
+ * good (from DROP_GOOD or DROP_GREAT) increases gold value
  */
-bool make_gold(object_type *j_ptr)
+bool make_gold(object_type *j_ptr, int good)
 {
 	int sval;
 	int k_idx;
@@ -3410,6 +3562,9 @@ bool make_gold(object_type *j_ptr)
 
 	/* Hack -- Pick a Treasure variety */
 	sval = ((randint(object_level + 2) + 2) / 2);
+
+	/* good = DROP_GOOD (1), DROP_GREAT (2), normally 0 */
+	sval += good;
 
 	/* Apply "extra" magic */
 	if (rand_int(GREAT_OBJ) == 0)
@@ -3448,6 +3603,8 @@ bool make_gold(object_type *j_ptr)
 		gold_mult = object_level + 1;
 	else
 		gold_mult = GOLD_DROP_MULT;
+	/* DROP_GREAT gold */
+	if (good == 2) gold_mult += 1;
 	/* avoid overflow */
 	if ((j_ptr->pval + 1)* gold_mult >= 0)
 		j_ptr->pval = j_ptr->pval * gold_mult + randint(gold_mult);
@@ -3635,11 +3792,17 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* object can be in the same space as rubble */
 			if (cave_feat[ty][tx] == FEAT_RUBBLE)
 			{
-				/* sometimes rolls off the rubble */
+				/* often rolls off the rubble */
 				if (randint(100) < 60) continue;
 			}
 			/* Require floor space */
-			else if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+			/* else if (cave_feat[ty][tx] != FEAT_FLOOR) continue; */
+			else if (!cave_floor_bold(ty, tx)) continue;
+			/* certain other non-wall features that shouldn't have an object: */
+			/* (includes glyph, open doors, and shop doors) */
+			if ((cave_feat[ty][tx] >= FEAT_GLYPH) &&
+				(cave_feat[ty][tx] <= FEAT_SHOP_TAIL)) continue;
+			/* (traps CAN have objects on them now) */
 
 			/* No objects */
 			k = 0;
@@ -3766,6 +3929,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	{
 		msg_print("You feel something roll beneath your feet.");
 	}
+
+	/* update object list */
+	p_ptr->window |= PW_OBJLIST;
 }
 
 
@@ -3829,6 +3995,50 @@ void big_rocks(int y, int x)
 
 
 /*
+ * place a chest in a vault
+ * modes: 0=ruined chest, 1=small chest, 2=large chest, 
+ *  3=special DROP_GOOD chest, 4=special DROP_GREAT chest.
+ */
+void place_chest(int y, int x, int mode)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+	bool make = TRUE;
+
+	/* Paranoia */
+	if (!in_bounds(y, x)) return;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Make an appropriate chest */
+	/* the following copied from parts of make_object() */
+	if (make)
+	{
+		int k_idx, sval;
+
+		if (mode == 1) sval = 1 + rand_int(3);
+		else if (mode == 0) sval = SV_RUINED_CHEST; /* empty vaults only */
+		else if (mode == 3) sval = SV_SP_SILVER_CHEST;
+		else if (mode == 4) sval = SV_SP_GOLD_CHEST;
+		else sval = 5 + rand_int(3);
+
+		k_idx = lookup_kind(TV_CHEST, sval);
+		object_prep(i_ptr, k_idx);
+
+		/* give it a trap (unless ruined) */
+		if (mode) a_m_aux_4(i_ptr, 0, 0);
+	}
+
+	/* Drop the object (never let it roll to another space) */
+	(void)floor_carry(y, x, i_ptr);
+	/* drop_near(i_ptr, -1, y1, x1); */
+}
+
+/*
  * Attempt to place an object (normal or good/great) at the given location.
  */
 void place_object(int y, int x, bool good, bool great)
@@ -3839,8 +4049,9 @@ void place_object(int y, int x, bool good, bool great)
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
-	/* allow objects to be placed in rubble */
-	if (cave_feat[y][x] == FEAT_RUBBLE) /* */;
+	/* allow objects to be placed in rubble, pits, or water (?) */
+	if (((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_OPEN_PIT) ||
+		(cave_feat[y][x] == FEAT_WATER)) && (cave_o_idx[y][x] == 0)) /* */;
 
 	/* Hack -- clean floor space */
 	else if (!cave_clean_bold(y, x)) return;
@@ -3885,7 +4096,7 @@ void place_gold(int y, int x)
 	object_wipe(i_ptr);
 
 	/* Make some gold */
-	if (make_gold(i_ptr))
+	if (make_gold(i_ptr, 0))
 	{
 		/* Give it to the floor */
 		(void)floor_carry(y, x, i_ptr);
@@ -3940,6 +4151,11 @@ void pick_trap(int y, int x)
 		if ((feat == FEAT_TRAP_HEAD + 0x0B) && (p_ptr->depth < 3)) continue;
 		/* STR drain dart trap minL4 */
 		if ((feat == FEAT_TRAP_HEAD + 0x09) && (p_ptr->depth < 4)) continue;
+
+			/* maximum levels */
+		/* wimpy pit traps (outside of a vault they turn into earthquake traps) */
+		if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth > 65) &&
+			(cave_info[y][x] & (CAVE_ICKY))) continue;
 
 		/* Done */
 		break;
@@ -4011,7 +4227,7 @@ void place_closed_door(int y, int x)
 	else
 	{
 		/* Create jammed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(6));
 	}
 }
 
@@ -4142,7 +4358,7 @@ void inven_item_increase(int item, int num)
 		p_ptr->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_OBJLIST);
 	}
 }
 
@@ -4245,6 +4461,9 @@ void floor_item_describe(int item)
 
 	/* Print a message */
 	msg_format("You see %s.", o_name);
+
+	/* update object list */
+	p_ptr->window |= PW_OBJLIST;
 }
 
 
@@ -4459,8 +4678,8 @@ s16b inven_carry(object_type *o_ptr)
 			/* Lites sort by decreasing fuel */
 			if (o_ptr->tval == TV_LITE)
 			{
-				if (o_ptr->pval > j_ptr->pval) break;
-				if (o_ptr->pval < j_ptr->pval) continue;
+				if (o_ptr->timeout > j_ptr->timeout) break;
+				if (o_ptr->timeout < j_ptr->timeout) continue;
 			}
 
 			/* Determine the "value" of the pack item */
@@ -4932,6 +5151,15 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 			if (amt < o_ptr->number)
 				o_ptr->timeout -= q_ptr->timeout;
 		}
+
+		/* distribute enhancement */
+		if ((o_ptr->enhance) && (o_ptr->number - amt < o_ptr->enhancenum))
+		{
+			q_ptr->enhancenum += o_ptr->enhancenum - (o_ptr->number - amt);
+			o_ptr->enhancenum = o_ptr->number - amt;
+			q_ptr->enhance += (o_ptr->enhance / o_ptr->number) * amt;
+			o_ptr->enhance -= q_ptr->enhance;
+		}
 	}
 }
 
@@ -4949,6 +5177,13 @@ void reduce_charges(object_type *o_ptr, int amt)
 	    (amt < o_ptr->number))
 	{
 		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+
+		/* reduce enhancement */
+		if ((o_ptr->enhance) && (o_ptr->number - amt < o_ptr->enhancenum))
+		{
+			o_ptr->enhancenum = o_ptr->number - amt;
+			o_ptr->enhance -= (o_ptr->enhance / o_ptr->number) * amt;
+		}
 	}
 }
 

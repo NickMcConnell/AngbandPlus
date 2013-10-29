@@ -514,6 +514,11 @@ static void mass_produce(object_type *o_ptr)
 		{
 			if (cost <= 60L) size += mass_roll(3, 5);
 			if (cost <= 240L) size += mass_roll(1, 5);
+			/* Exception: These are kindof rare so allow small stacks sometimes */
+			if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_HEALING)) 
+				size += rand_int(3);
+			if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_STAR_IDENTIFY)) 
+				size += rand_int(3);
 			break;
 		}
 
@@ -584,7 +589,7 @@ static void mass_produce(object_type *o_ptr)
 /*
  * Determine if a store object can "absorb" another object.
  *
- * See "object_similar()" for the same function for the "player".
+ * See "object_similar()" for the same function for the player.
  *
  * This function can ignore many of the checks done for the player,
  * since stores (but not the home) only get objects under certain
@@ -819,8 +824,8 @@ static int home_carry(object_type *o_ptr)
  *
  * If the object cannot be combined with an object already in the inventory,
  * make a new slot for it, and calculate its "per item" price.  Note that
- * this price will be negative, since the price will not be "fixed" yet.
- * Adding an object to a "fixed" price stack will not change the fixed price.
+ * this price will be negative, since the price will not be fixed yet.
+ * Adding an object to a fixed price stack will not change the fixed price.
  *
  * In all cases, return the slot (or -1) where the object was placed
  */
@@ -966,7 +971,7 @@ static void store_item_optimize(int st, int item)
  * partially delete it.
  *
  * This function is used when store maintainance occurs, and is designed to
- * imitate non-PC purchasers making purchases from the store.
+ * imitate NPC purchasers making purchases from the store.
  */
 static void store_delete_item(int st)
 {
@@ -1055,7 +1060,7 @@ static void store_delete_item(int st)
  *
  * Based on a suggestion by Lee Vogt <lvogt@cig.mcel.mot.com>.
  */
-static bool black_market_ok(const object_type *o_ptr)
+static bool black_market_ok(object_type *o_ptr)
 {
 	int i, j;
 	
@@ -1064,9 +1069,21 @@ static bool black_market_ok(const object_type *o_ptr)
 
 	/* Good items are normally fine */
 	if (o_ptr->to_a > 2) return (TRUE);
-	if (o_ptr->to_h > 2) return (TRUE);
-	if (o_ptr->to_d > 2) return (TRUE);
+	if (((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_ARROW) ||
+		(o_ptr->tval == TV_BOLT)) && (o_ptr->to_h + o_ptr->to_d > 2)) return (TRUE);
+	else if (o_ptr->to_h + o_ptr->to_d > 4) return (TRUE);
 
+	/* minimum pval on stat rings / amulets */
+	if (((o_ptr->tval == TV_RING) && ((o_ptr->sval >= SV_RING_STR) &&
+		(o_ptr->sval <= SV_RING_CON))) || ((o_ptr->tval == TV_AMULET) &&
+		((o_ptr->sval == SV_AMULET_WISDOM) || (o_ptr->sval == SV_AMULET_CHARISMA))))
+	{
+		if (o_ptr->pval < 2)
+		{
+			o_ptr->pval = 2;
+			if (rand_int(100) < (goodluck+1)/2) o_ptr->pval += randint(2);
+		}
+	}
 
 	/* No cheap items */
 	if (object_value(o_ptr) < 10) return (FALSE);
@@ -2816,6 +2833,13 @@ void do_cmd_store(void)
 	int cursor = 0;
 
 	store_type *st_ptr = &store[store_current];
+
+	/* you stink */
+	if ((p_ptr->timed[TMD_STINKY]) && (store_current != STORE_HOME))
+	{
+		msg_print("The shopkeeper kicks you out and tells you to take a bath.");
+		return;
+	}
 
 	/* Wipe the menu and set it up */
 	WIPE(&menu, menu);

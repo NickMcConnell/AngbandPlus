@@ -43,6 +43,12 @@ s16b spell_chance(int spell)
 	{
 		chance += 5 * (s_ptr->smana - p_ptr->csp);
 	}
+	/* max fail rate before all modifiers (soft cap, if you have enough mana) */
+	else if (chance > 75)
+	{
+		if (chance >=79) chance = 75 + (chance-75)/4;
+		else chance = 75;
+	}
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
@@ -71,7 +77,7 @@ s16b spell_chance(int spell)
 		else chance += 20;
 	}
 	
-	/* effect of sentient weapons */
+	/* effect of sentient weapons: */
 	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
 	   if ((badweap > 0) && (goodweap > 0))
@@ -93,6 +99,8 @@ s16b spell_chance(int spell)
 	   else if ((badweap > 1) && (p_ptr->icky_wield)) chance += (badweap*2);
 	   else if (goodweap > 1) chance -= (3 + (goodweap*2));
     }
+	/* War mages are considered evil aligned as well as those who use */
+	/*  the black magic realm. */
 	else if ((cp_ptr->spell_book == TV_DARK_BOOK) ||
              ((cp_ptr->flags & CF_POWER_SHIELD) && (cp_ptr->spell_book == TV_MAGIC_BOOK)))
 	{
@@ -126,7 +134,12 @@ s16b spell_chance(int spell)
 	else if (p_ptr->timed[TMD_STUN]) chance += 15;
 	
 	/* used to be no chance of casting while confused */
-    if (p_ptr->timed[TMD_CONFUSED]) chance += 25;
+    if (p_ptr->timed[TMD_CONFUSED])
+	{
+		chance += 25;
+		/* minimum fail chance while confused (should it be 50% ?) */
+		if (chance < 35) chance = 35;
+	}
     
     /* don't take other penalties when using manafree */
     if (p_ptr->manafree) return (chance);
@@ -178,7 +191,7 @@ bool spell_okay(int spell, bool known, bool browse)
 	if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
 	{
 		/* Never okay */
-		return (!browse);
+		return (browse);
 	}
 
 	/* Spell is learned */
@@ -192,6 +205,46 @@ bool spell_okay(int spell, bool known, bool browse)
 	return (!known || browse);
 }
 
+/* figure the mana cost for the mimmic wand spell */
+static s16b mimmic_mana(void)
+{
+	s16b usemana, sval;
+	int kidx;
+	bool mimmicrod;
+	object_kind *k_ptr;
+
+	if (!p_ptr->mimmic)
+	{
+		/* set amount for default effect */
+		usemana = 6;
+	}
+	else
+	{
+		/* sval of the wand to mimmic */
+		if (p_ptr->mimmic < 100)
+		{
+			sval = p_ptr->mimmic;
+			mimmicrod = FALSE;
+		}
+		/* or -100 if it's a rod */
+		else
+		{
+			sval = p_ptr->mimmic - 100;
+			mimmicrod = TRUE;
+		}
+
+		/* get the object kind (without having a real object) */
+		if (mimmicrod) kidx = lookup_kind(TV_ROD, sval);
+		else kidx = lookup_kind(TV_WAND, sval);
+		k_ptr = &k_info[kidx];
+
+		/* mana used depends on difficulty of wand or rod mimmicked */
+		usemana = ((k_ptr->extra+1) / 3) + 4;
+	}
+
+	return usemana;
+}
+
 
 /*
  * Print a list of spells (for browsing or casting or viewing).
@@ -199,6 +252,7 @@ bool spell_okay(int spell, bool known, bool browse)
 void print_spells(const byte *spells, int num, int y, int x)
 {
 	int i, spell;
+	s16b manacost;
 
 	const magic_type *s_ptr;
 
@@ -263,10 +317,21 @@ void print_spells(const byte *spells, int num, int y, int x)
 			line_attr = TERM_L_GREEN;
 		}
 
+		/* mimmic wand spell uses a variable amount of mana */
+		if ((cp_ptr->spell_book == TV_CHEM_BOOK) && (spell == 44))
+		{
+			/* mana used depends on difficulty of wand or rod mimmicked */
+			manacost = mimmic_mana();
+		}
+		else
+		{
+			manacost = s_ptr->smana;
+		}
+
 		/* Dump the spell --(-- */
 		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
+		        s_ptr->slevel, manacost, spell_chance(spell), comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
@@ -675,8 +740,6 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 /*
  * Peruse the spells/prayers in a Book
  *
- * Note that *all* spells in the book are listed
- *
  * Note that browsing is allowed while confused or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
@@ -772,7 +835,7 @@ void do_cmd_study(void)
 		return;
 	}
 
-	if (!(p_ptr->new_spells))
+	if (p_ptr->new_spells < 1)
 	{
 		msg_format("You cannot learn any new %ss!", p);
 		return;
@@ -807,7 +870,7 @@ void do_cmd_study(void)
 	handle_stuff();
 
 
-	/* Mage -- Learn a selected spell */
+	/* Choose a spell if allowed */
 	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
 	{
 		/* Ask for a spell */
@@ -830,7 +893,7 @@ void do_cmd_study(void)
 			/* Skip empty spells */
 			if (spell == -1) continue;
 
-			/* Skip non "okay" prayers */
+			/* Skip non "okay" spells */
 			if (!spell_okay(spell, FALSE, FALSE)) continue;
 
 			/* Apply the randomizer */
@@ -854,6 +917,8 @@ void do_cmd_study(void)
 		return;
 	}
 
+	/* learn these spells at the same time (see below) */
+	if ((cp_ptr->spell_book == TV_CHEM_BOOK) && (spell == 43)) spell += 1;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -875,8 +940,42 @@ void do_cmd_study(void)
 	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
 	           p, get_spell_name(cp_ptr->spell_book, spell));
 
-	/* One less spell available */
-	p_ptr->new_spells--;
+	/* learn two spells at the same time with mimmic wand */
+	/* because they're really two parts of the same spell */
+	if ((cp_ptr->spell_book == TV_CHEM_BOOK) && (spell == 44)) 
+	{
+		/* Mark as forgotten (can only learn part of the spell at this time) */
+		if (p_ptr->new_spells == 1)
+		{
+			p_ptr->spell_flags[spell-1] |= PY_SPELL_FORGOTTEN;
+
+			/* (only learning one spell) */
+			p_ptr->new_spells--;
+		}
+		/* Learn the mimmic wand (mimmic) spell */
+		else
+		{
+			p_ptr->spell_flags[spell-1] |= PY_SPELL_LEARNED;
+
+			/* two less spells available */
+			p_ptr->new_spells -= 2;
+		}
+
+		/* Find the next open entry in "spell_order[]" */
+		for (i = 0; i < PY_MAX_SPELLS; i++)
+		{
+			/* Stop at the first empty space */
+			if (p_ptr->spell_order[i] == 99) break;
+		}
+	
+		/* Add mimmic wand (mimmic) to the known list */
+		p_ptr->spell_order[i] = (spell - 1);
+	}
+	else /* normal spell */
+	{
+		/* One less spell available */
+		p_ptr->new_spells--;
+	}
 
 	/* Message if needed */
 	if (p_ptr->new_spells)
@@ -1092,6 +1191,10 @@ bool do_cmd_cast(void)
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
 
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
+
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
@@ -1292,6 +1395,10 @@ bool do_cmd_pray(void)
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
 
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
+
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	
@@ -1491,6 +1598,10 @@ bool do_cmd_castnew(void)
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
+
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1699,6 +1810,10 @@ bool do_cmd_castluck(void)
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
 
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
+
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	
@@ -1711,7 +1826,7 @@ bool do_cmd_castluck(void)
 bool do_cmd_castchem(void)
 {
 	int item, spell, chance;
-
+	bool toohard = FALSE;
 	object_type *o_ptr;
 
 	const magic_type *s_ptr;
@@ -1860,15 +1975,32 @@ bool do_cmd_castchem(void)
        p_ptr->manafree = s_ptr->smana;
     }
 
+	/* mimmic wand spell uses a variable amount of mana */
+	else if ((cp_ptr->spell_book == TV_CHEM_BOOK) && (spell == 44))
+	{
+		s16b usemana;
+
+		/* mana used depends on difficulty of wand or rod mimmicked */
+		usemana = mimmic_mana();
+
+		/* use the mana, or overexert if you don't have enough */
+		if (s_ptr->smana <= p_ptr->csp) p_ptr->csp -= usemana;
+		else toohard = TRUE;
+	}
+
 	/* Sufficient mana */
 	else if (s_ptr->smana <= p_ptr->csp)
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
 	}
+	else
+	{
+		toohard = TRUE;
+	}
 
 	/* Over-exert the player */
-	else
+	if (toohard)
 	{
 		int oops = s_ptr->smana - p_ptr->csp;
 
@@ -1897,6 +2029,10 @@ bool do_cmd_castchem(void)
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
+
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -2096,6 +2232,10 @@ bool do_cmd_castblack(void)
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
+
+    /* notice changes of slime and silver poison levels */
+    p_ptr->redraw |= (PR_SILVER);
+    p_ptr->redraw |= (PR_SLIME);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);

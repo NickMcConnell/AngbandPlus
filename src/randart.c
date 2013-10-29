@@ -44,7 +44,7 @@ static errr init_names(void)
 	char buf[BUFLEN];
 	size_t name_size;
 	char *a_base;
-/*	char *a_next; */
+	char *a_next;
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
@@ -85,23 +85,29 @@ static errr init_names(void)
 	}
 
 	C_MAKE(a_base, name_size, char);
-#ifdef EFG
+#ifdef EFGH
 	/* EFGchange keep old name on randarts */
 	FREE(a_base);
 #else
-
-	a_next = a_base + 1;	/* skip first char */
-
-	for (i = 1; i < z_info->a_max; i++)
+	if (!adult_randnames)
 	{
-		my_strcpy(a_next, names[i-1], name_size - 1);
-		if (a_info[i].tval > 0)		/* skip unused! */
-			a_info[i].name = a_next - a_base;
-		a_next += strlen(names[i-1]) + 1;
+		FREE(a_base);
 	}
+	else 
+	{
+		a_next = a_base + 1;	/* skip first char */
 
-	/* Free the old names */
-	FREE(a_name);
+		for (i = 1; i < z_info->a_max; i++)
+		{
+			my_strcpy(a_next, names[i-1], name_size - 1);
+			if (a_info[i].tval > 0)		/* skip unused! */
+				a_info[i].name = a_next - a_base;
+			a_next += strlen(names[i-1]) + 1;
+		}
+
+		/* Free the old names */
+		FREE(a_name);
+	}
 #endif
 
 	for (i = 0; i < z_info->a_max; i++)
@@ -112,13 +118,20 @@ static errr init_names(void)
 	/* Free the "names" array */
 	FREE(names);
 
-#ifdef EFG
+#ifdef EFGH
 	/* EFGchange keep old name on randarts */
 #else
-	/* Store the names */
-	a_name = a_base;
-	a_head.name_ptr = a_base;
-	a_head.name_size = name_size;
+	if (!adult_randnames)
+	{
+		/* keep old names */;
+	}
+	else
+	{
+		/* Store the names */
+		a_name = a_base;
+		a_head.name_ptr = a_base;
+		a_head.name_size = name_size;
+	}
 #endif
 
 	/* Success */
@@ -231,6 +244,7 @@ static s32b artifact_power(int a_idx)
 		case TV_SWORD:
 		{
 			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
+			if (a_ptr->sbdd) p+= 2;
 			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
@@ -368,7 +382,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
 	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
-	if (a_ptr->flags2 & TR2_PR_POIS) p += 4;
+	if (a_ptr->flags2 & TR2_PR_POIS) p += 3;
 	if (a_ptr->flags2 & TR2_EXTRA_CRIT) p += 4;
 	if (a_ptr->flags4 & TR4_RES_POIS) p += 12;
 	if (a_ptr->flags4 & TR4_RES_LITE) p += 8;
@@ -382,25 +396,25 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags4 & TR4_RES_NEXUS) p += 10;
 	if (a_ptr->flags4 & TR4_RES_CHAOS) p += 12;
 	if (a_ptr->flags4 & TR4_RES_DISEN) p += 12;
-	if (a_ptr->flags4 & TR4_RES_STATC) p += 8;
+	if (a_ptr->flags4 & TR4_RES_STATC) p += 7;
 
 	/* (LIGHTNESS doesn't need to be in randart.c because armors already */
 	/* have a chance to get their weight reduced.) */
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
-	if (a_ptr->flags3 & TR3_DARKVIS) p += 5;
+	if (a_ptr->flags3 & TR3_DARKVIS) p += 6;
 	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 14;
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
 	if (a_ptr->flags3 & TR3_THROWMULT) p += 10;
-	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags3 & TR3_TELEPORT)) p += 18;
-	else if (a_ptr->flags3 & TR3_TCONTROL) p += 12;
+	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags3 & TR3_TELEPORT)) p += 12;
+	else if (a_ptr->flags3 & TR3_TCONTROL) p += 16;
 	else if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
 	if (a_ptr->flags3 & TR3_REGEN) p += 10;
 	if (a_ptr->flags2 & TR2_DANGER) p -= 10;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
 	if (a_ptr->flags3 & TR3_STOPREGEN) p -= 20;
-	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 10;
+	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 12;
 	if (a_ptr->flags2 & TR2_CORRUPT) p -= 12;
 	if (a_ptr->flags3 & TR3_BLESSED) p += 4;
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
@@ -512,15 +526,15 @@ static void choose_item(int a_idx)
 		/* Create a "priestly blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 4) sval = SV_WALKING_STICK;
-		else if (r2 < 23) sval = SV_WHIP;
-		else if (r2 < 45) sval = SV_WALKING_STAFF;
-		else if (r2 < 53) sval = SV_LIGHT_CLUB;
-		else if (r2 < 55)
+		if (r2 < 3) sval = SV_WALKING_STICK;
+		else if (r2 < 22) sval = SV_WHIP;
+		else if (r2 < 44) sval = SV_WALKING_STAFF;
+		else if (r2 < 48)
 		{
 			tval = TV_STAFF;
 			sval = SV_STAFF_ZAPPING;
 		}
+		else if (r2 < 56) sval = SV_LIGHT_CLUB;
 		else if (r2 < 76) sval = SV_QUARTERSTAFF;
 		else if (r2 < 82) sval = SV_CEREMONIAL_MACE;
 		else if (r2 < 97) sval = SV_WAR_HAMMER;
@@ -1045,8 +1059,7 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 72)
 				{
 					/* making see invisible less common */
-					what = randint(100);
-					if (what < 75) a_ptr->flags3 |= TR3_SEE_INVIS;
+					if (randint(100) < 70) a_ptr->flags3 |= TR3_SEE_INVIS;
 				}
 				else if (r < 76)
 				{
@@ -1135,7 +1148,7 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 20) a_ptr->flags4 |= TR4_RES_BLIND;
 				else if (r < 45) a_ptr->flags3 |= TR3_TELEPATHY;
-				else if (r < 65) a_ptr->flags3 |= TR3_SEE_INVIS;
+				else if ((r < 65) && (randint(100) < 90)) a_ptr->flags3 |= TR3_SEE_INVIS;
 				else if (r < 75)
 				{
 					a_ptr->flags1 |= TR1_WIS;
@@ -1361,7 +1374,10 @@ static void add_ability(artifact_type *a_ptr)
 			case 38: a_ptr->flags3 |= TR3_LITE; break;
 			case 39:
 				if (teleordarkv == 0)
+				{
 					a_ptr->flags3 |= TR3_THROWMULT;
+					do_pval(a_ptr);
+				}
 				else a_ptr->flags3 |= TR3_SEE_INVIS;
 				break;
 			case 40:
@@ -1460,6 +1476,10 @@ static void scramble_artifact(int a_idx)
 	{
 		if (rand_int(200) < (power - 100) * 3)
 			aggravate_me = TRUE;
+
+		/* Stuff that Aggravates are normally swaps and armor is never a swap */
+		if ((a_ptr->tval == TV_SOFT_ARMOR) || (a_ptr->tval == TV_HARD_ARMOR) ||
+			(a_ptr->tval == TV_DRAG_ARMOR)) aggravate_me = FALSE;
 	}
 
 	if (a_idx >= ART_MIN_NORMAL)
@@ -1605,8 +1625,19 @@ this does not work
 
 	/* Restore some flags */
 	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
-	if (a_ptr->tval == TV_LITE) a_ptr->flags3 |= TR3_NO_FUEL;
 	if (a_idx < ART_MIN_NORMAL) a_ptr->flags3 |= TR3_INSTA_ART;
+
+	/* artifact lights no longer always have NO_FUEL */
+	if (a_ptr->tval == TV_LITE)
+	{
+		/* artifact torches & lanterns only sometimes get NO_FUEL */
+		if ((a_ptr->sval == SV_LITE_TORCH) || (a_ptr->sval == SV_LITE_LANTERN))
+		{
+			if (randint(100) < 20) a_ptr->flags3 |= TR3_NO_FUEL;
+		}
+		/* special artifact lights do always get NO_FUEL */
+		else a_ptr->flags3 |= TR3_NO_FUEL;
+	}
 
 	/*
 	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're

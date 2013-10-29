@@ -112,33 +112,45 @@ static cptr desc_moan[MAX_DESC_MOAN] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int ap_cnt;
-
 	int i, k, tmp, ac, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
-
 	object_type *o_ptr;
 
 	char o_name[80];
-
 	char m_name[80];
-
 	char ddesc[80];
 
-	bool blinked;
+	bool blinked = FALSE;
+	bool monhigher = FALSE;
+	bool pchigher = FALSE;
 	
 	int sound_msg;
 
-
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
+
+	/* higher ground has the advantage */
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_OPEN_PIT) &&
+		(cave_feat[m_ptr->fy][m_ptr->fx] != FEAT_OPEN_PIT))
+		monhigher = TRUE;
+	if ((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_OPEN_PIT) &&
+		(cave_feat[p_ptr->py][p_ptr->px] != FEAT_OPEN_PIT))
+		pchigher = TRUE;
+	if ((cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_RUBBLE) &&
+		(cave_feat[p_ptr->py][p_ptr->px] != FEAT_RUBBLE))
+		monhigher = TRUE;
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_RUBBLE) &&
+		(cave_feat[m_ptr->fy][m_ptr->fx] != FEAT_RUBBLE))
+		pchigher = TRUE;
+
+	/* flying monsters never have an elevation problem */
+	if (r_ptr->flags2 & (RF2_FLY)) pchigher = FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -152,10 +164,6 @@ bool make_attack_normal(int m_idx)
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
-
-
-	/* Assume no blink */
-	blinked = FALSE;
 
 	/* Scan through all blows */
 	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
@@ -245,13 +253,19 @@ bool make_attack_normal(int m_idx)
         if ((m_ptr->confused) && (m_ptr->stunned)) trlev = trlev/10;
         else if (m_ptr->stunned) trlev = trlev/3;
         else if (m_ptr->confused) trlev = (trlev*4)/5;
+
         /* monster has been caught off guard */
         if (m_ptr->roaming == 29)
         {
             trlev = (trlev*3)/4;
             m_ptr->roaming = 0;
         }
-        if (trlev < 1) trlev = 1;
+
+		/* higher ground has the advantage */
+		if (monhigher) trlev += 5;
+		if (pchigher) trlev -= 5;
+
+		if (trlev < 1) trlev = 1;
 
 		/* Monster hits player */
 		if (!effect || check_hit(power, trlev))
@@ -296,6 +310,7 @@ bool make_attack_normal(int m_idx)
 			
 			protpwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
 			if (protpwr > 50) protpwr = 50;
+			if (r_ptr->flags1 & (RF1_UNIQUE)) protpwr -= 10;
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL]) &&
@@ -363,7 +378,34 @@ bool make_attack_normal(int m_idx)
 				   continue;
                 }
             }
+			
+			/* protpwr can't be based on CHR for a written symbol */
+			/* (this also means protpwr is more likely to be higher for most of the game) */
+			protpwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_INT]];
+			if (protpwr > 60) protpwr = 60;
+			if (r_ptr->flags1 & (RF1_UNIQUE)) protpwr -= 10;
 
+			/* Hack -- Apply "symbol of demon warding" */
+			/* always repels lower level demons */
+			if ((p_ptr->timed[TMD_DEMON_WARD]) &&
+			    (r_ptr->flags3 & (RF3_DEMON)) &&
+			    ((p_ptr->lev >= rlev) || ((randint(protpwr) >= rlev) &&
+			    (rand_int(98 + adj_chr_charm[p_ptr->stat_ind[A_INT]]) + p_ptr->lev - rlev > 50))))
+			{
+				/* Remember the Evil-ness */
+				if (m_ptr->ml)
+				{
+					if (r_ptr->flags3 & (RF3_EVIL)) l_ptr->flags3 |= (RF3_EVIL);
+					else if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+					else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
+				}
+
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -667,9 +709,9 @@ bool make_attack_normal(int m_idx)
 					int drained = 0;
 					char o_name[80];
 
-					/* first point of resist is worth 26, others worth 20 */
-					if (p_ptr->resist_static > 1) rstatic += ((p_ptr->resist_static-1) * 20) + 26;
-					else if (p_ptr->resist_static == 1) rstatic += 26;
+					/* first point of resist is worth 30, others worth 20 */
+					if (p_ptr->resist_static > 1) rstatic += ((p_ptr->resist_static-1) * 20) + 30;
+					else if (p_ptr->resist_static == 1) rstatic += 30;
 
 					/* cap resistance */
 					if (rstatic > 95) rstatic = 95;
@@ -712,7 +754,7 @@ bool make_attack_normal(int m_idx)
 							else
 							{
 								drained = o_ptr->pval;
-								if ((p_ptr->resist_static) && (randint(100) < 50))
+								if ((p_ptr->resist_static) && (randint(100) < 55))
 								{
 									drained -= p_ptr->resist_static;
 									if (drained < 1) drained = 1;
@@ -816,7 +858,7 @@ bool make_attack_normal(int m_idx)
 						while (gold > 0)
 						{
         						object_wipe(i_ptr);
-        						make_gold(i_ptr);
+        						make_gold(i_ptr, 0);
 							if (gold < maxpval)
 								i_ptr->pval = gold;
 							else if (gold >= maxgold)
@@ -1025,8 +1067,9 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered in acid!");
 
-					/* Special damage */
-					acid_dam(damage, ddesc);
+					/* Special damage (3/4 acid, 1/4 'hurt') */
+					acid_dam((damage * 3) / 4, ddesc);
+					take_hit(damage/4, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ACID);
@@ -1045,8 +1088,9 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Take damage (special) */
-					elec_dam(damage, ddesc);
+					/* Special damage (3/4 acid, 1/4 'hurt') */
+					elec_dam((damage * 3) / 4, ddesc);
+					take_hit(damage/4, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ELEC);
@@ -1068,6 +1112,10 @@ bool make_attack_normal(int m_idx)
 					/* Take damage (special) */
 					fire_dam(damage, ddesc);
 
+					/* Special damage (3/4 acid, 1/4 'hurt') */
+					fire_dam((damage * 3) / 4, ddesc);
+					take_hit(damage/4, ddesc);
+
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_FIRE);
 
@@ -1085,8 +1133,9 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Take damage (special) */
-					cold_dam(damage, ddesc);
+					/* Special damage (3/4 acid, 1/4 'hurt') */
+					cold_dam((damage * 3) / 4, ddesc);
+					take_hit(damage/4, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_COLD);
@@ -1246,6 +1295,14 @@ bool make_attack_normal(int m_idx)
                 {
 					/* Obvious */
 					obvious = TRUE;
+
+					/* golems don't get hungry */
+					if (p_ptr->prace == 16)
+					{
+						damage -= 1;
+						take_hit(damage, ddesc);
+						break;
+					}
 					
 					/* hunger */
 					if (p_ptr->slow_digest) /* partial resistance */
@@ -1275,6 +1332,13 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
+					if (p_ptr->timed[TMD_OPP_SILV])
+					{
+						msg_print("you resist the silver magic!");
+						take_hit((damage*8)/9, ddesc);
+						break;
+					}
+
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
@@ -1299,8 +1363,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* slimed */
-					if (rlev >= 9) p_ptr->slime = p_ptr->slime + randint(rlev / 9);
-					if (rlev < 9) p_ptr->slime += 1;
+					if (rlev >= 18) p_ptr->slime += randint(rlev / 9);
+					else p_ptr->slime += 1;
 
 					msg_print("you are slimed!");
 
@@ -1378,7 +1442,8 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 					
-					if (losesave) losesave += randint(badluck/2 + 1) + 1;
+					/* if (losesave) */
+					losesave += randint(((badluck+1)/2) + 1) + 1;
 
 					/* Damage (stats) */
 					if (do_dec_stat(A_STR, losesave)) obvious = TRUE;
@@ -1406,12 +1471,12 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Radius 8 earthquake centered at the monster */
-					if (damage > 23)
+					if ((damage >= 25) && (randint(100) < 66))
 					{
 						int px_old = p_ptr->px;
 						int py_old = p_ptr->py;
 						
-						earthquake(m_ptr->fy, m_ptr->fx, 8, 0);
+						earthquake(m_ptr->fy, m_ptr->fx, 8, 0, 2, FALSE);
 
 						/* Stop the blows if the player is pushed away */
 						if ((px_old != p_ptr->px) ||
@@ -1558,7 +1623,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "image" */
-					if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]))
+					if ((!p_ptr->resist_chaos) && (!p_ptr->timed[TMD_TSIGHT]) &&
+						(!p_ptr->timed[TMD_OPP_SILV]))
 					{
 						if (inc_timed(TMD_IMAGE, 3 + randint(rlev / 2)))
 						{
@@ -1627,7 +1693,7 @@ bool make_attack_normal(int m_idx)
 					wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck;
 					wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 					if (p_ptr->free_act) wrestle += 50;
-					wrestle = (wrestle/3) + randint((wrestle*2)/3);
+					wrestle = (wrestle/4) + randint((wrestle*3)/4);
 
 					if (wrestle > holdfast)
 					{
@@ -1637,9 +1703,8 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						int time = (holdfast - wrestle) / 5;
-						if (time < 4) time = randint(3) + 1;
-						else time = time/2 + randint(time/2);
-						if (time > 9) time = 8 + randint(2);
+						if (time < 5) time = 2 + randint(3);
+						if (time > 9) time = 8 + randint((time-8)/2);
 						msg_format("%^s grabs you and holds you tight!", m_name);
 						if (p_ptr->timed[TMD_BEAR_HOLD])
 						{
@@ -1668,12 +1733,9 @@ bool make_attack_normal(int m_idx)
                     }
 					else if (damage < 5)
 					{
-                       int ifrad;
-					   spellswitch = 21; /* uses GF_DARK instead of DARK_WEAK */
-                       ifrad = randint(9);
+                       int ifrad = randint(9);
                        if ((badluck > 0) && (ifrad > 3)) ifrad -= randint(2);
-			           (void)unlite_area(damroll(2, 15 + randint(ifrad*2 + 1)), ifrad);
-                       spellswitch = 0;
+			           (void)unlite_area(damroll(2, 15 + randint(ifrad*2 + 1)), ifrad, TRUE);
                     }
 					else if (damage < 8)
 					{
@@ -1703,7 +1765,6 @@ bool make_attack_normal(int m_idx)
 
 					if (damage < 3)
 					{
-                               
                        int die = damroll(3, 10);
                        (void)dispel_life(die);
                        if (p_ptr->timed[TMD_BECOME_LICH])
@@ -2074,6 +2135,9 @@ bool make_attack_normal(int m_idx)
                p_ptr->skills[SKILL_SAV] -= losesave;
             }
 
+			/* golem race immune to cuts */
+			if (p_ptr->prace == 16) do_cut = 0;
+
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)
 			{
@@ -2146,6 +2210,14 @@ bool make_attack_normal(int m_idx)
 				{
                    if (randint(100) < 3 + badluck/3) tmp += 1;
                 }
+
+				/* golem race not stunned easily */
+				if (p_ptr->prace == 16)
+				{
+					if (tmp > 5) tmp = 5;
+					if ((tmp > 0) && (randint(100) < 82)) tmp -= 1;
+					if ((tmp > 0) && (randint(100) < 35)) tmp -= 1;
+				}
 
 				/* Roll for damage */
 				switch (tmp)

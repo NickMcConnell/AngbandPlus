@@ -1,5 +1,5 @@
 # File: flavor.txt
-
+# DaJangband 1.1.0
 
 # This file is used to initialize the "lib/data/flavor.raw" file, which is
 # used to initialize the "flavor" information for the Angband game.

@@ -38,7 +38,7 @@ typedef void do_cmd_type(void);
 /* Forward declare these, because they're really defined later */
 static do_cmd_type do_cmd_wizard, do_cmd_try_debug,
             do_cmd_cast_or_pray, do_cmd_quit, do_cmd_mouseclick, do_cmd_port,
-            do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist;
+            do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_itemlist;
 
 #ifdef ALLOW_BORG
 static do_cmd_type do_cmd_try_borg;
@@ -123,6 +123,7 @@ static command_type cmd_info[] =
 {
 	{ "Full dungeon map",             'M', do_cmd_view_map },
 	{ "Display visible monster list", '[', do_cmd_monlist },
+	{ "Display visible object list",  ']', do_cmd_itemlist },
 	{ "Locate player on map",         'L', do_cmd_locate },
 	{ "Help",                         '?', do_cmd_help },
 	{ "Identify symbol",              '/', do_cmd_query_symbol },
@@ -413,6 +414,22 @@ static void do_cmd_monlist(void)
 	/* Save the screen and display the list */
 	screen_save();
 	display_monlist();
+
+	/* Wait */
+	inkey();
+
+	/* Return */
+	screen_load();
+}
+
+/*
+ * Display the main-screen monster list.
+ */
+static void do_cmd_itemlist(void)
+{
+	/* Save the screen and display the list */
+	screen_save();
+	display_itemlist();
 
 	/* Wait */
 	inkey();

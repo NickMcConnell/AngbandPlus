@@ -1141,6 +1141,9 @@ static void wiz_create_artifact(int a_idx)
  */
 static void do_cmd_wiz_cure_all(void)
 {
+	int maxhp = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+
 	/* Remove curses */
 	(void)remove_all_curse();
 
@@ -1156,7 +1159,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)restore_level();
 
 	/* Heal the player */
-	p_ptr->chp = p_ptr->mhp;
+	p_ptr->chp = maxhp;
 	p_ptr->chp_frac = 0;
 
 	/* Restore mana */
@@ -1175,9 +1178,14 @@ static void do_cmd_wiz_cure_all(void)
 	(void)clear_timed(TMD_CUT);
 	(void)clear_timed(TMD_SLOW);
 	(void)clear_timed(TMD_AMNESIA);
+	(void)clear_timed(TMD_CURSE);
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
+
+	/* Cure slime and silver poison */
+	p_ptr->silver = PY_SILVER_HEALTHY;
+	p_ptr->slime = PY_SLIME_HEALTHY;
 
 	/* Redraw everything */
 	do_cmd_redraw();
@@ -1347,7 +1355,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		scatter(&y, &x, py, px, d, 0);
 
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
+		if (!cave_can_occupy_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
@@ -1367,9 +1375,13 @@ static void do_cmd_wiz_zap(int d)
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
+		 monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Skip ordinary trees */
+		if (m_ptr->r_idx == 834) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > d) continue;

@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights mayz also apply.
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -110,9 +110,19 @@ static void prt_field(cptr info, int row, int col)
 static void prt_stat(int stat, int row, int col)
 {
 	char tmp[32];
+	bool golemcon = FALSE;
+
+	/* golems have no constitution score */
+	if ((stat == A_CON) && (p_ptr->prace == 16))
+	{
+		put_str(stat_names_reduced[stat], row, col);
+		strnfmt(tmp, sizeof(tmp), "   ---");
+		c_put_str(TERM_L_WHITE, tmp, row, col + 6);
+		golemcon = TRUE;
+	}
 
 	/* Display "injured" stat */
-	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
+	else if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
 	{
 		put_str(stat_names_reduced[stat], row, col);
 		cnv_stat(p_ptr->stat_use[stat], tmp, sizeof(tmp));
@@ -128,7 +138,7 @@ static void prt_stat(int stat, int row, int col)
 	}
 
 	/* Indicate natural maximum */
-	if (p_ptr->stat_max[stat] == 18+100)
+	if ((p_ptr->stat_max[stat] == 18+100) && (!golemcon))
 	{
 		put_str("!", row, col + 3);
 	}
@@ -288,14 +298,17 @@ static void prt_hp(int row, int col)
 {
 	char cur_hp[32], max_hp[32];
 	byte color;
+	int maxhps = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhps += 2 * (p_ptr->lev + 10);
 
 	put_str("HP ", row, col);
 
-	strnfmt(max_hp, sizeof(max_hp), "%4d", p_ptr->mhp);
+	strnfmt(max_hp, sizeof(max_hp), "%4d", maxhps);
 	strnfmt(cur_hp, sizeof(cur_hp), "%4d", p_ptr->chp);
 
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (p_ptr->chp >= maxhps)
 		color = TERM_L_GREEN;
+	/* (warning based on true max hp, not including FALSE_LIFE) */
 	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
 		color = TERM_YELLOW;
 	else
@@ -696,6 +709,9 @@ static void prt_depth(int row, int col)
  */
 static void prt_hunger(int row, int col)
 {
+	/* golems have no need for food */
+	if (p_ptr->prace == 16) p_ptr->food = PY_FOOD_FULL - 1;
+
 	/* Fainting / Starving */
 	if (p_ptr->food < PY_FOOD_FAINT)
 	{
@@ -774,8 +790,12 @@ static void prt_confused(int row, int col)
 		text = "Conf Amn";
 	else if (!confused && forget)
 		text = "Amnesiac";
+	else if (p_ptr->timed[TMD_CLEAR_MIND])
+		text = "Clr mind";
 
-	c_put_str(TERM_ORANGE, text, row, col);
+
+	if (p_ptr->timed[TMD_CLEAR_MIND]) c_put_str(TERM_L_GREEN, text, row, col);
+	else c_put_str(TERM_ORANGE, text, row, col);
 }
 
 
@@ -819,6 +839,10 @@ static void prt_poisoned(int row, int col)
 	if (p_ptr->timed[TMD_POISONED])
 	{
 		c_put_str(TERM_ORANGE, "Poisoned", row, col);
+	}
+	else if (p_ptr->timed[TMD_CURSE])
+	{
+		c_put_str(TERM_YELLOW, " Cursed ", row, col);
 	}
 	else
 	{
@@ -996,7 +1020,7 @@ static void prt_speed(int row, int col)
  */
 static void prt_study(int row, int col)
 {
-	if (p_ptr->new_spells)
+	if (p_ptr->new_spells > 0)
 	{
 		put_str("Study", row, col);
 	}
@@ -1040,7 +1064,9 @@ static void prt_elements(int row, int col)
 
 	col += n;
 
-	if (p_ptr->timed[TMD_OPP_FIRE])
+	if (p_ptr->timed[TMD_IMM_FIRE])
+		Term_putstr(col, row, n, TERM_L_RED, "IFire");
+	else if (p_ptr->timed[TMD_OPP_FIRE])
 		Term_putstr(col, row, n, TERM_RED, "Fire ");
 	else
 		Term_putstr(col, row, n, TERM_RED, "     ");
@@ -1056,6 +1082,8 @@ static void prt_elements(int row, int col)
 
 	if (p_ptr->timed[TMD_OPP_POIS])
 		Term_putstr(col, row, n, TERM_GREEN, "Pois ");
+	else if (p_ptr->timed[TMD_WOPP_POIS])
+		Term_putstr(col, row, n, TERM_L_GREEN, "wPois");
 	else
 		Term_putstr(col, row, n, TERM_GREEN, "     ");
 }
@@ -1279,7 +1307,6 @@ static void fix_status(void)
 
 
 
-
 /*
  * Struct of subwindow display handlers.
  */
@@ -1302,7 +1329,8 @@ static const struct win_handler_t
 	{ PW_MONSTER, fix_monster },
 	{ PW_OBJECT, fix_object },
 	{ PW_MONLIST, display_monlist },	/* Display visible monsters */
-	{ PW_STATUS, fix_status }		/* Display status lines */
+	{ PW_STATUS, fix_status },		/* Display status lines */
+	{ PW_OBJLIST, display_itemlist }    /* display object list */
 };
 
 
@@ -1747,6 +1775,9 @@ static void calc_hitpoints(void)
 	/* Get "1/100th hitpoint bonus per level" value */
 	bonus = adj_con_mhp[p_ptr->stat_ind[A_CON]];
 
+	/* golems have no constitution score */
+	if (p_ptr->prace == 16) bonus = 0;
+
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 100);
 
@@ -1794,7 +1825,6 @@ static void calc_torch(void)
 	int extra_lite = 0;
 
 
-
 	/* Ascertain lightness if in the town */
 	if (!p_ptr->depth && ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 		burn_light = FALSE;
@@ -1825,11 +1855,11 @@ static void calc_torch(void)
 		{
 			int flag_inc = (f3 & TR3_LITE) ? 1 : 0;
 
-			/* Artifact Lites provide permanent bright light */
-			if (artifact_p(o_ptr))
-			 	amt = 3 + flag_inc;
+			/* most artifact lights provide permanent bright light */
+			if ((artifact_p(o_ptr)) && (f3 & TR3_NO_FUEL))
+				amt = 3 + flag_inc;
 
-			/* Non-artifact lights and those without fuel provide no light */
+			/* lights which need fuel and don't have any provide no light */
 			else if (!burn_light || o_ptr->timeout == 0)
 				amt = 0;
 
@@ -1848,6 +1878,9 @@ static void calc_torch(void)
                    if ((amt > 1) && (f3 & TR3_DARKVIS))
                    amt--;
                 }
+
+				/* artifact torches and lanterns can run out of fuel, but are brighter when lit */
+				if ((artifact_p(o_ptr)) && (amt < 4)) amt += 1;
 			}
 
             /* blessed light source */
@@ -1872,13 +1905,13 @@ static void calc_torch(void)
 	if (p_ptr->timed[TMD_TSIGHT]) new_lite++;
 	if (p_ptr->timed[TMD_DAYLIGHT]) new_lite++;
 
-	/* Mindlight does not add effect beyond radius 3 */
+	/* Mindlight does not add effect beyond radius 4 */
 	/* (Used for mind-realm spell (not implemented yet) and */
 	/* constant activation on staff of light) */
 	if (p_ptr->timed[TMD_MINDLIGHT])
 	{
-		if (new_lite < 1) new_lite = 2; /* no light source */
-		else if (new_lite < 3) new_lite++;
+		if (new_lite < 2) new_lite = 2; /* no light source */
+		else if (new_lite < 4) new_lite++;
 	}
 
 	/* Limit light (Daylight is powerful) */
@@ -2055,7 +2088,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->breath_shield = FALSE;
 	p_ptr->resist_fear = FALSE;
 	p_ptr->resist_charm = FALSE;
-	p_ptr->resist_frenzy = FALSE;
 	p_ptr->resist_lite = FALSE;
 	p_ptr->resist_dark = FALSE;
 	p_ptr->resist_blind = FALSE;
@@ -2138,12 +2170,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* only umber hulk has racial AGGRAVATE and IMPACT */
 	if (f3 & (TR3_AGGRAVATE)) aggra += 1;
 	if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
+	/* used for golem race */
+	if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
 	/* the rest of these are hypothetical */
 	if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-	if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2194,6 +2227,19 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
+		/* Affect stealth */
+		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
+
+		/* telepathy (granted even from an empty light source if it has the flag) */
+		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+
+		/* light sources which can run out of fuel don't give much benefit when empty */
+		if ((o_ptr->tval == TV_LITE) && ((o_ptr->sval == SV_LITE_LANTERN) || 
+				(o_ptr->sval == SV_LITE_TORCH)))
+		{
+			if (o_ptr->timeout == 0) continue;
+		}
+
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
 		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
@@ -2201,9 +2247,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
-
-		/* Affect stealth */
-		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
 		
 		/* affect magic device mastery (now uses pval) */
 		/* test to see if a MAGIC_MASTERY pval of 3-4 is too strong */
@@ -2220,11 +2263,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Affect digging (factor of 20) */
 		if (f1 & (TR1_TUNNEL)) p_ptr->skills[SKILL_DIG] += (o_ptr->pval * 20);
 
+		/* weapon in shield shot should not add blows */
+		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) /* */;
+		/* Affect blows */
+		else if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
+
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
-
-		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
 
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
@@ -2236,7 +2281,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
@@ -2264,7 +2308,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
         }
 
 	    /* Sentient Object & BLESSED flags */
-	    if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+	    if ((f3 & (TR3_BLESSED)) && (i == INVEN_WIELD)) p_ptr->bless_blade = TRUE;
 	    if (f3 & (TR3_GOOD_WEAP)) goodweap += 1;
 	    if ((f3 & (TR3_BAD_WEAP)) && (!o_ptr->blessed)) badweap += 1;
 	    if ((f2 & (TR2_CORRUPT)) && (!o_ptr->blessed))
@@ -2341,6 +2385,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
+		/* (weapons wielded in shield slot DO give combat bonuses but not slays/brands) */
 		if (i == INVEN_WIELD) continue;
 
 		/* Hack -- do not apply "bow" bonuses */
@@ -2488,12 +2533,18 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
        p_ptr->luck -= 1;
     }
+	/* golems always have neutral base luck rating */
+	if (p_ptr->prace == 16) p_ptr->luck = 20;
 
     /* reset goodluck and badluck (p_ptr->luck == 20 is neutral) */
     goodluck = 0;
     if (p_ptr->luck > 20) goodluck = p_ptr->luck - 20;
     badluck = 0;
     if (p_ptr->luck < 20) badluck = 20 - p_ptr->luck;
+
+	/* check silver & slime */
+	if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+	if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 
 	/*** Temporary flags ***/
 
@@ -2521,6 +2572,9 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->to_a += 100;
 		p_ptr->dis_to_a += 100;
 	}
+
+	/* adds 100 to maxhp */
+	/* if (p_ptr->timed[TMD_FALSE_LIFE]) */
 
 	/* enhanced magic (most of its effects are elsewhere) */
 	/* allows reading while blind and enhances spellcasting */
@@ -2570,9 +2624,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->dis_to_a += 5;
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
-        p_ptr->resist_frenzy = TRUE;
 		p_ptr->skills[SKILL_FOS] += 2;
-		goodluck += 1;
+		if (goodluck < 20) goodluck += 2;
 	}
 	
 	/* Temporary curse (opposite of blessing) */
@@ -2585,11 +2638,11 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		p_ptr->dis_to_h -= 10;
 		/* temporary bad luck */
 		if (badluck < 19) badluck += 2;
-		if (unluck > 14) unluck = (unluck*3)/5;
-		else if (unluck > 8) unluck = 8;
-		p_ptr->skills[SKILL_DEV] -= (unluck + 1);
-	    p_ptr->skills[SKILL_DIS] -= (unluck + 1);
-	    p_ptr->skills[SKILL_SAV] -= (unluck + 1);
+		if (unluck > 15) unluck = (unluck*3)/5;
+		else if (unluck > 9) unluck = 9;
+		p_ptr->skills[SKILL_DEV] -= unluck + 1;
+	    p_ptr->skills[SKILL_DIS] -= unluck + 2;
+	    p_ptr->skills[SKILL_SAV] -= unluck + 1;
 		p_ptr->skills[SKILL_FOS] -= (unluck - 2);
         if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= 1;
 	}
@@ -2606,7 +2659,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Temporary enhanced roguishness */
 	if (p_ptr->timed[TMD_SUPER_ROGUE])
 	{
-        p_ptr->resist_frenzy = TRUE;
 		p_ptr->to_a += 4;
 		p_ptr->dis_to_a += 4;
 		goodluck += 2;
@@ -2753,7 +2805,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
         p_ptr->resist_fear = TRUE;
         p_ptr->resist_charm = TRUE;
-        p_ptr->resist_frenzy = TRUE;
 	}
 	
 	/* spirit of the balrog, does extra fire and dark damage in melee */
@@ -2769,12 +2820,19 @@ void calc_bonuses(object_type inventory[], bool killmess)
         p_ptr->weakresist_pois = TRUE;
 	}
 
+	/* Resist Silver */
+	/* also resist silver poison, amnesia, and melee hallucenation */
+	if (p_ptr->timed[TMD_OPP_SILV])
+	{
+        p_ptr->resist_charm = TRUE;
+	}
+
 	/* timed confusion resistance (resist amnesia also? -partial for now) */
     if (p_ptr->timed[TMD_CLEAR_MIND])
 	{
         p_ptr->resist_confu = TRUE;
         /* hallucenation wears off faster */
-        if (randint(100) < 17) (void)dec_timed(TMD_IMAGE, randint(2 + goodluck/4));
+        if (randint(100) < 17) (void)dec_timed(TMD_IMAGE, randint(2 + goodluck/3));
 	}
 	
 	/* timed nether resistance */
@@ -2842,7 +2900,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	}
 
 	/* timed second sight (telepathy only while blind) */
-	if ((p_ptr->timed[TMD_MESP]) && (p_ptr->timed[TMD_BLIND]))
+	else if ((p_ptr->timed[TMD_MESP]) && (p_ptr->timed[TMD_BLIND]))
 	{
         p_ptr->telepathy = TRUE;
 	}
@@ -2983,7 +3041,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if ((spellswitch > 90) && (spellswitch < 96)) palert += (spellswitch - 90) * 2;
 	if (palert < 2) palert = 2;
 
-	/*** Analyze weight ***/
+	/* feather falling has no effect for golems */
+	if (p_ptr->prace == 16) p_ptr->ffall = FALSE;
+		
+		/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
 	j = p_ptr->total_weight;
@@ -3029,6 +3090,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skills[SKILL_STL] += 1;
+	/* quieter when you are searching and moving slowly */
+	if (p_ptr->searching) p_ptr->skills[SKILL_STL] += 1;
 	/* stealth modified by AGGRAVATE flag(s) */
 	if (aggra)
 	{
@@ -3385,8 +3448,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
-		/* Boost digging skill by weapon weight. DJA: blades don't dig well. */
-		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 25);
+		/* Boost digging skill by weapon weight. */
+		/* DJA: blades don't dig well unless they're branded with acid. */
+		if (p_ptr->brand_acid) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 9);
+		else if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 22);
 		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 15);
 		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
 	}

@@ -36,9 +36,9 @@
  * items to obey the current "sorting" method.  This may require about
  * 400 item comparisons, but only occasionally.
  *
- * There may be a BIG problem with any "effect" that can cause "changes"
+ * There may be a BIG problem with any effect that can cause changes
  * to the inventory.  For example, a "scroll of recharging" can cause
- * a wand/staff to "disappear", moving the inventory up.  Luckily, the
+ * a wand/staff to disappear, moving the inventory up.  Luckily, the
  * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
  * But, for example, a "staff of recharging" could cause MAJOR problems.
  * In such a case, it will be best to either (1) "postpone" the effect
@@ -70,6 +70,12 @@ void do_cmd_eat_food(void)
 
 	cptr q, s;
 
+	/* golems cannot eat */
+	if (p_ptr->prace == 16)
+	{
+		msg_print("Golems cannot eat.");
+		return;
+	}
 
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
@@ -902,9 +908,9 @@ void do_cmd_activate(void)
 
 			gain_exp((lev - 5 + (p_ptr->lev / 2)) / p_ptr->lev);
 		  
-		  /* notice the discovery */
-		  object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);		  
-		  msg_format("You have %s.", o_name);
+			/* notice the discovery */
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);		  
+			msg_format("You have %s.", o_name);
 	   }
 
 	   /* Extract the flags */
@@ -912,7 +918,7 @@ void do_cmd_activate(void)
 
        /* exp drain is much more likely when */
        /* activating an object with the DRAIN_EXP flag */
-       /* (two chances to kick in: here and in prjoect() function) */
+       /* (two chances to kick in: here and in project() function) */
        if ((f3 & (TR3_DRAIN_EXP)) && (p_ptr->exp_drain)) rxp_drain(25);
     }
 }

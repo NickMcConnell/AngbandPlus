@@ -91,9 +91,30 @@ More in-depth explaination of some DaJAngband features:
 	A note about the Nature and Necromancy realms: These two realms are largely borrowed from OAngband, but if you've played OAngband, it's important to remember that some of the spells that may have the same name as one in OAngband doesn't nessesarily have exactly the save effects. Browse a book and chose a spell to see that's spell's description.
 	A further note about the Necromancy realm: The necromancy realm has some very powerful spells, but that realm also has more drawbacks than other realms. (Except maybe the chance realm, but the drawbacks are more obvious in the chance realm.) Several necromancy spells have a chance to leave an aura around you which aggravates demons.
 
+   Some other differences from vanilla that it would be helpful to know about:
 
-Just a few monsters that you probably have never heard of:
-----------------------------------------------------------
+	Charm-type effects (confuse, slow, sleep, scare) are at minimum slightly more
+effective than in vanilla Angband, and can be much more effective with high charisma.
+
+	Digging without digging tools:  Digging while wielding a sword or staff is not as effective as digging while wielding a polearm (unless the sword or staff has an acid brand).
+
+	Missile launchers (slings, bows & crossbows) are slightly nerfed from vanilla Angband:  Instead of having a x2 or x3 multiplier, launchers have a multiplier level (ML). A sling has a multiplier level of 2 which multiplies damage by x1.75 instead of x2, a long bow has an ML of 3 which multiplies damage by x2.625, and a heavy crossbow with ML4 multiplies damage by x3.5.
+
+	Weapons which are meant for throwing have a damage multipler of x1.4 when thrown at a monster.  Gauntlets of throwing and occationally other items will give your throwing weapons an improved multiplier in which case they will have an ML of 2, 3, or even 4, which work the same as bow multipliers (ML2 = x1.75).
+
+	Double weapons: A few types of weapons, the most common of which are quarterstaffs, are double weapons.  Double weapons are much easier to get multiple attacks with while not wearing a shield and still slightly easier while wearing a shield.  They have two sets of damage dice (you will notice a quarterstaff says 1d8/1d5). The 1st and 3rd attacks with the weapon use the 1st set of damage dice and the 2nd and 4th attacks with the weapon use the second set of damage dice.  (This attempts to imitate the double weapons of DND 3.5)
+
+	Rubble can be climbed over by both the player and by monsters, but it takes some effort (like opening a stuck door).  Small flying monsters can fly over the rubble effortlessly (but not bigger flying monsters like dragons, they're too big to fly between the rubble and the ceiling).  Also, if there is an object hidden in the rubble, you can find it by searching and pick it up without digging up the rubble, so there is often no need to dig up rubble.
+
+	Water: You'll now find ponds and puddles occationally.  There is no deep water in the game, so it's easy to wade through. There's no risk of drowning in it unless you're paralyzed, grabbed by a water monster, or heavily stunned.  Weaker fire-based monsters (and some other water-hating monsters) will not pass water while stronger fire-based monsters will dry it up.
+
+	Empty Vaults:  In addition to lesser and greater vaults like vanilla has, you will sometimes find ruined empty vaults.  Empty vaults do not have out-of-depth monsters or treasures and do not raise the level feeling.
+
+	Themed levels:  Occationally you will get another message after the level feeling, letting you know that you're on a themed level.  Themed levels are primarily populated by certain types of monsters. (A couple examples: a fairy forest has fairies and forest animals, a full moon level has more werebeasts, thieves, and magic cats, and the haunted castle has knights, gargoyles, and undead.  There are also themed levels for fire-based, air-based, and earth-based monsters.)  Certain monsters are never found outside of their themed level.  Because of the addition of themed levels, monster pits and nests have been made slightly less common.
+
+
+Just a few monsters that you likely have never heard of:
+--------------------------------------------------------
 
 	(b) Eirrinel: In appearance like a grey-green bat, the eirrinel is actually a type of light fairy. They exist to rescue people from evil places and dispel the power of evil magic. Unfortunatly, they consider all non-fairy magic to be evil magic.
 
@@ -115,8 +136,10 @@ Just a few monsters that you probably have never heard of:
 
 	(u) Scyllis: This minor demon is shaped like a snake with a head on each end of its body.  It has no wings, but it can fly and it swings its body back and forth to bite with each head. It most commonly appears when summoned to plague and poison someone with a curse.
 
-	(w) The Grepse (silver beings): The domain of the grepse is a shadowy realm full of illusions designed to make you comfortable and forget everything and everyone you used to know.  The most common type of grepse are the vyrms.  Their true form is like a flying worm, but they usually wear an illusion making them look like a pleasant songbird. Their song creates illusions in people's minds and make them forget what they care about.  The silverworm is a weaker form of a vyrm.
+	(w) The Grepse (silver beings): The domain of the grepse is a shadowy realm full of illusions designed to make you comfortable and forget everything and everyone you used to know.  The most common type of grepse are the vyrms.  Their true form is like a flying worm, but they usually wear an illusion making them look like a pleasant songbird. Their song creates illusions in people's minds and make them forget what they care about.  The silverworm is a weaker form of a vyrm. (The domain of the grepse is one of the themed level types).
 	Wemu Vyrm: The lord of the grepse, its form is a tiny humanoid made of silver slime. It usually wears an illusion making it look like the same size and race as its victim.
 
-	(x) Goyley and Groyle: These are lesser types of gargoyles. The groyle is sometimes mistaken for a winged orc, though they are usually loners and do not get along with orcs. Goyleys are the smallest type of gargoyles are often mistaken for winged gremlins.
+	(x) Goyley and Groyle: These are lesser types of gargoyles. The groyle is sometimes mistaken for a winged orc, though they are usually loners and do not get along with orcs. Goyleys are the smallest type of gargoyles and can be mistaken for winged gremlins.
 
+	(y) Light Fairies: These creatures of light (which means they take extra damage from magical darkness) tend to be small and look harmless, but some of them are very powerful with fairy magic. The most common light fairies are types of sprites and gnomes.  Fairy gnomes (as opposed to the magic gnome player race) are fairies of wisdom and cannot be confused by normal means*.  Bright sprites give off light as they fly, which can be bright enough to blind you.
+	*Poison has a different effect on light fairies as it does on mortals.  It inflicts much less physical damage in light fairies, but it causes confusion for them instead.

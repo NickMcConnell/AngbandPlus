@@ -745,9 +745,15 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	s16b image = p_ptr->timed[TMD_IMAGE];
 
 	int floor_num = 0;
+	monster_type *m_ptr;
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
+
+	/* doppleganger (change tile to copy the player) */
+	m_ptr = &mon_list[m_idx];
+	if (m_ptr->r_idx == 631) m_idx = -1;
+	/* map_info() doesn't use m_ptr again so don't need to reset it */
 
 	/* Feature */
 	feat = cave_feat[y][x];
@@ -1548,7 +1554,7 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static const int priority_table[14][2] =
+static const int priority_table[16][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -1567,6 +1573,10 @@ static const int priority_table[14][2] =
 
 	/* Rubble */
 	{ FEAT_RUBBLE, 13 },
+
+	/* New features */
+	{ FEAT_OPEN_PIT, 13 },
+	{ FEAT_WATER, 13 },
 
 	/* Open doors */
 	{ FEAT_OPEN, 15 },
@@ -3458,6 +3468,20 @@ void map_area(void)
 					cave_info[y][x] |= (CAVE_MARK);
 				}
 
+				/* ordinary trees are detected on a map */
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+					if (m_ptr->r_idx == 834)
+					{
+						/* make sure you know that they never move */
+						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+						l_ptr->flags1 |= (RF1_NEVER_MOVE);
+						/* then you'll remember where it is */
+						m_ptr->ml = TRUE;
+					}
+				}
+
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
@@ -3479,7 +3503,7 @@ void map_area(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_OBJLIST);
 }
 
 
@@ -3558,6 +3582,20 @@ void wiz_lite(void)
 					cave_info[yy][xx] |= (DLIT_DIMA);
 #endif
 
+					/* ordinary trees are detected on a map */
+					if (cave_m_idx[y][x] > 0)
+					{
+						monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+						if (m_ptr->r_idx == 834)
+						{
+							/* make sure you know that they never move */
+							monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+							l_ptr->flags1 |= (RF1_NEVER_MOVE);
+							/* then you'll remember where it is */
+							m_ptr->ml = TRUE;
+						}
+					}
+
 					/* Memorize normal features */
 					if (cave_feat[yy][xx] > FEAT_INVIS)
 					{
@@ -3583,7 +3621,7 @@ void wiz_lite(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP | PW_OBJLIST);
 }
 
 
@@ -3627,7 +3665,7 @@ void wiz_dark(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP | PW_OBJLIST);
 }
 
 
@@ -3728,7 +3766,7 @@ void town_illuminate(bool daytime)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP | PW_OBJLIST);
 }
 
 
@@ -3742,7 +3780,9 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	/* (the new features are > FEAT_DOOR_HEAD but are not walls) */
+	if ((feat >= FEAT_SECRET) ||
+		((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3752,6 +3792,14 @@ void cave_set_feat(int y, int x, int feat)
 	{
 		cave_info[y][x] &= ~(CAVE_WALL);
 	}
+
+#if shouldntneedthis
+	/* paranoia: make sure new features don't have the CAVE_WALL flag */
+	if ((feat == FEAT_WATER) || (feat == FEAT_OPEN_PIT))
+	{
+		cave_info[y][x] &= ~(CAVE_WALL);
+	}
+#endif
 
 	/* Notice/Redraw */
 	if (character_dungeon)

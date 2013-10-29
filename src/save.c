@@ -110,7 +110,12 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
-	wr_s16b(o_ptr->blessed); /* DJA new: breaks savefiles for 1.0.98 */
+	wr_s16b(o_ptr->blessed);
+#if nobreaksave
+#else
+	wr_s16b(o_ptr->enhance);  /* DJA new: breaks savefiles for 1.1.0 */
+	wr_s16b(o_ptr->enhancenum);  
+#endif
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -125,7 +130,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->ident);
 
 	wr_byte(o_ptr->marked);
-	wr_byte(o_ptr->hidden); /* breaks savefiles for 1.0.99 as of 7/29/09 */
+	wr_byte(o_ptr->hidden);
 
 	/* Old flags */
 	wr_u32b(0L);
@@ -167,14 +172,13 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-	/* DJA new: breaks savefiles for 1.0.98 */
 	wr_s16b(m_ptr->tinvis);
 	wr_byte(m_ptr->silence);
 	wr_byte(m_ptr->monseen);
 	wr_s16b(m_ptr->meet);
 	wr_s16b(m_ptr->roaming);
 	wr_byte(m_ptr->evil);
-	wr_byte(0);
+	wr_byte(m_ptr->truce);
 }
 
 
@@ -480,7 +484,8 @@ static void wr_extra(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-	wr_byte(0);	/* oops */
+
+	wr_byte(p_ptr->theme);
 
 	wr_byte(p_ptr->hitdie);
 	wr_byte(p_ptr->expfact);
@@ -538,6 +543,13 @@ static void wr_extra(void)
 	wr_byte(p_ptr->learnedcontrol);
 	wr_byte(p_ptr->find_vault);
 	wr_s16b(p_ptr->held_m_idx);
+	wr_s16b(p_ptr->mimmic);
+	wr_s16b(p_ptr->menhance);
+
+#if nobreaksave
+#else
+	wr_byte(p_ptr->warned);
+#endif
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
@@ -627,6 +639,9 @@ static void wr_randarts(void)
 
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
+#if breaksave
+ 		wr_byte(a_ptr->maxlvl);
+#endif
 
 		wr_byte(a_ptr->activation);
 		wr_u16b(a_ptr->time);

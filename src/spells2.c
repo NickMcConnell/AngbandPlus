@@ -18,16 +18,19 @@
  */
 bool hp_player(int num)
 {
+	int maxhp = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
+	
 	/* Healing needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if (p_ptr->chp < maxhp)
 	{
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
 		/* Enforce maximum */
-		if (p_ptr->chp >= p_ptr->mhp)
+		if (p_ptr->chp >= maxhp)
 		{
-			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp = maxhp;
 			p_ptr->chp_frac = 0;
 		}
 
@@ -81,6 +84,7 @@ void warding_glyph(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	/* (can't make a glyph while standing on rubble) */
 	if (cave_feat[py][px] != FEAT_FLOOR)
 	{
 		msg_print("There is no clear floor on which to cast the spell.");
@@ -221,7 +225,7 @@ bool do_inc_stat(int stat)
 	res = res_stat(stat);
 
 	/* Attempt to increase */
-	if (inc_stat(stat))
+	if (inc_stat(stat, 0))
 	{
 		/* Message */
 		msg_format("You feel very %s!", desc_stat_pos[stat]);
@@ -616,10 +620,6 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->timed[TMD_WSHIELD])
-	{
-		info[i++] = "You are protected by a mystic shield.";
-	}
 	if (p_ptr->timed[TMD_SHADOW])
 	{
 		info[i++] = "You are wrapped in shadow.";
@@ -627,6 +627,14 @@ void self_knowledge(bool spoil)
 	if (p_ptr->timed[TMD_SHIELD])
 	{
 		info[i++] = "You are protected by a powerful mystic shield.";
+	}
+	else if (p_ptr->timed[TMD_WSHIELD])
+	{
+		info[i++] = "You are protected by a mystic shield.";
+	}
+	if (p_ptr->timed[TMD_FALSE_LIFE])
+	{
+		info[i++] = "You have unnatural toughness.";
 	}
 	if (p_ptr->timed[TMD_INVULN])
 	{
@@ -640,6 +648,10 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "Your black magic is aggravating demons.";
 	}
+	if (p_ptr->timed[TMD_STINKY])
+	{
+		info[i++] = "You spell disgusting.";
+	}
 	if (p_ptr->timed[TMD_BEAR_HOLD])
 	{
 		info[i++] = "You are being held by a monster.";
@@ -652,7 +664,7 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are looking around very carefully.";
 	}
-	if (p_ptr->new_spells)
+	if (p_ptr->new_spells > 0)
 	{
 		info[i++] = "You can learn some spells/prayers.";
 	}
@@ -847,8 +859,8 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are completely fearless.";
 	}
-	
-	if (f4 & TR4_RES_CHARM)
+
+	if ((f4 & TR4_RES_CHARM) || (p_ptr->resist_charm))
 	{
 		info[i++] = "You are resistant to charm.";
 	}	
@@ -878,6 +890,10 @@ void self_knowledge(bool spoil)
 	if ((f4 & TR4_RES_CONFU) || (p_ptr->timed[TMD_CLEAR_MIND]))
 	{
 		info[i++] = "You are resistant to confusion.";
+	}
+	if (p_ptr->timed[TMD_OPP_SILV])
+	{
+		info[i++] = "You are resistant to silver magic and amnesia.";
 	}
 	if (f4 & TR4_RES_SOUND)
 	{
@@ -1154,6 +1170,64 @@ void self_knowledge(bool spoil)
 		}		
 	}
 
+	if (p_ptr->theme == 1)
+	{
+		info[i++] = "You are currently in a cold forest.";
+	}		
+	if (p_ptr->theme == 2)
+	{
+		info[i++] = "You are currently in a fairy forest.";
+	}		
+	if (p_ptr->theme == 3)
+	{
+		info[i++] = "You are currently in an icky place.";
+	}		
+	if (p_ptr->theme == 4)
+	{
+		info[i++] = "You are currently in a volcano cave.";
+	}		
+	if (p_ptr->theme == 5)
+	{
+		info[i++] = "You are currently in a earthy cave.";
+	}		
+	if (p_ptr->theme == 6)
+	{
+		info[i++] = "You are currently in a windy cave.";
+	}		
+	if (p_ptr->theme == 7)
+	{
+		info[i++] = "You are currently under a full moon.";
+	}		
+	if (p_ptr->theme == 8)
+	{
+		info[i++] = "You are currently in the haunted ruins of a castle.";
+	}		
+	if (p_ptr->theme == 9)
+	{
+		info[i++] = "You are currently in a swamp.";
+	}		
+	if (p_ptr->theme == 10)
+	{
+		info[i++] = "You are currently in a dwarf mine.";
+	}		
+	if (p_ptr->theme == 11)
+	{
+		info[i++] = "You are currently in a bug cave.";
+	}		
+	if (p_ptr->theme == 12)
+	{
+		info[i++] = "You are currently in the domain of the grepse.";
+	}		
+	if (p_ptr->theme == 13)
+	{
+		info[i++] = "You are currently on the nightmare plane.";
+	}		
+	if (p_ptr->theme == 14)
+	{
+		info[i++] = "You are currently in a hell hall.";
+	}		
+
+
 	/* luck level (see end of function) */
     if (goodluck > 16)
 	{
@@ -1290,7 +1364,7 @@ void self_knowledge(bool spoil)
 /*
  * Set word of recall as appropriate
  */
-void set_recall(void)
+void set_recall(s16b time)
 {
 	/* Ironman */
 	if (adult_ironman && !p_ptr->total_winner)
@@ -1313,8 +1387,7 @@ void set_recall(void)
 				p_ptr->max_depth = p_ptr->depth;
 		}
 
-        if (spellswitch == 8) p_ptr->word_recall = rand_int(5) + 3;
-		else p_ptr->word_recall = rand_int(20) + 15;
+		p_ptr->word_recall = time; /* rand_int(20) + 15; */
 		msg_print("The air about you becomes charged...");
 	}
 
@@ -1661,6 +1734,7 @@ bool detect_objects_normal(bool full)
 	if (detect)
 	{
 		msg_print("You sense the presence of objects!");
+		p_ptr->window |= PW_OBJLIST;
 	}
 
 	/* Result */
@@ -1716,7 +1790,7 @@ bool detect_objects_magic(void)
 		/* Examine the tval */
 		tv = o_ptr->tval;
 
-		/* Artifacts, misc magic items, or enchanted wearables */
+		/* Artifacts, misc magic items, or enchanted wearables. */
 		/* spellbooks of foreign realms no longer count */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
@@ -1750,6 +1824,7 @@ bool detect_objects_magic(void)
 	if (detect)
 	{
 		msg_print("You sense the presence of magic objects!");
+		p_ptr->window |= PW_OBJLIST;
 	}
 
 	/* Return result */
@@ -1759,6 +1834,18 @@ bool detect_objects_magic(void)
 
 /*
  * Detect all "normal" monsters on the current panel
+ *
+ * Since this spell doesn't detect invisible monsters and there are
+ * less invisible monsters than in V, maybe it shouldn't always
+ * detect stealthy monsters or WATER_HIDE monsters in water.
+ * ..But then you might need a specific "detect stealthy monsters" spell.
+ *
+ * A better idea: we make this function take a bool full parameter,
+ * if FALSE, it will not always detect hiding monsters and this will be
+ * explained in the spell description. Starting at a certain plev,
+ * (early for full casters, later for other classes) full will always be TRUE.
+ * Or using certain spells like True sight or the black-realm 'see all foes' spell,
+ * full will always be TRUE.
  */
 bool detect_monsters_normal(void)
 {
@@ -1785,6 +1872,9 @@ bool detect_monsters_normal(void)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* ordinary trees aren't detected as monsters */
+		if (m_ptr->r_idx == 834) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2256,55 +2346,6 @@ void stair_creation(int dis)
 
 
 /*
- * Hook to specify an item which can be blessed
- */
-static bool item_tester_hook_bless(const object_type *o_ptr)
-{
-	/* Extract the flags */
-	u32b f1, f2, f3, f4;
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-	/* anything which can be wielded as a weapon */
-	/* (cannot bless throwing weapons or ammo) */
-	if (wield_slot(o_ptr) == INVEN_WIELD) return (TRUE);
-
-	/* anything which can be activated (even elemental rings) */
-	if (f3 & (TR3_ACTIVATE)) return (TRUE);
-
-	switch (o_ptr->tval)
-	{
-		/* bows and lights */
-		case TV_BOW:
-        case TV_LITE:
-
-		/* any armor */
-        case TV_BOOTS:
-        case TV_GLOVES:
-        case TV_HELM:
-        case TV_CROWN:
-        case TV_SHIELD:
-        case TV_CLOAK:
-        case TV_SOFT_ARMOR:
-        case TV_HARD_ARMOR:
-        case TV_DRAG_ARMOR:
-		{
-			return (TRUE);
-		}
-		/* lowers fail rate of magic devices */
-		case TV_WAND:
-		case TV_ROD:
-		case TV_STAFF:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-
-
-/*
  * Hook to specify "weapon"
  */
 static bool item_tester_hook_weapon(const object_type *o_ptr)
@@ -2396,6 +2437,20 @@ static bool item_tester_unknown(const object_type *o_ptr)
 	if ((o_ptr->tval == TV_WAND) && (object_aware_p(o_ptr)))
 		return FALSE;
 #endif
+	/* this potion is disguised (pval is set to 0 when identified) */
+	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_MULTIHUED_POISON) && 
+		(object_aware_p(o_ptr)) && (o_ptr->pval))
+	{
+		int spot;
+		/* if disguised as an unaware potion, it appears unaware */
+		if (!k_info[o_ptr->pval].aware) return TRUE;
+
+		/* chance based on wisdom to see that there's something unknown about it */
+		spot = (adj_mag_study[p_ptr->stat_ind[A_WIS]] / 10) + ((goodluck+1)/2);
+		/* you think you recognise it.. */
+		if (randint(100) < 100 - spot + ((badluck+1)/2)) return FALSE;
+	}
+
 	if (object_known_p(o_ptr))
 		return FALSE;
 	else
@@ -2427,7 +2482,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
  * Note that this function can now be used on "piles" of items, and
  * the larger the pile, the lower the chance of success.
  */
-bool enchant(object_type *o_ptr, int n, int eflag)
+bool enchant(object_type *o_ptr, int n, int eflag, bool big)
 {
 	int i, chance, prob, lift;
 
@@ -2436,10 +2491,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	bool a = artifact_p(o_ptr);
 
 	u32b f1, f2, f3, f4;
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -2475,6 +2530,18 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else if (o_ptr->to_h > 15) chance = 1000;
 			else chance = enchant_table[o_ptr->to_h];
 
+			/* has it been disenchanted? */
+			if ((a) && (big))
+			{
+				/* much more likely to work */
+				if (o_ptr->to_h < a_ptr->to_h)
+				{
+					chance = chance/5;
+					if (chance > 200) chance = 200;
+					/* still subject to 50% autofail on artifacts */
+				}
+			}
+
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2502,6 +2569,18 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else if (o_ptr->to_d > 15) chance = 1000;
 			else chance = enchant_table[o_ptr->to_d];
 
+			/* has it been disenchanted? */
+			if ((a) && (big))
+			{
+				/* much more likely to work */
+				if (o_ptr->to_d < a_ptr->to_d)
+				{
+					chance = chance/5;
+					if (chance > 200) chance = 200;
+					/* still subject to 50% autofail on artifacts */
+				}
+			}
+
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2528,6 +2607,18 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			if (o_ptr->to_a < 0) chance = 0;
 			else if (o_ptr->to_a > 15) chance = 1000;
 			else chance = enchant_table[o_ptr->to_a];
+
+			/* has it been disenchanted? */
+			if ((a) && (big))
+			{
+				/* much more likely to work */
+				if (o_ptr->to_a < a_ptr->to_a)
+				{
+					chance = chance/5;
+					if (chance > 200) chance = 200;
+					/* still subject to 50% autofail on artifacts */
+				}
+			}
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -2566,6 +2657,282 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	return (TRUE);
 }
 
+
+/*
+ * Hook to specify an item which can be blessed
+ */
+static bool item_tester_hook_bless(const object_type *o_ptr)
+{
+	/* Extract the flags */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* anything which can be wielded as a weapon */
+	/* (cannot bless most throwing weapons or ammo) */
+	if (wield_slot(o_ptr) == INVEN_WIELD) return (TRUE);
+
+	/* anything which can be activated (even elemental rings) */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+
+	switch (o_ptr->tval)
+	{
+		/* bows and lights */
+		case TV_BOW:
+        case TV_LITE:
+
+		/* any armor */
+        case TV_BOOTS:
+        case TV_GLOVES:
+        case TV_HELM:
+        case TV_CROWN:
+        case TV_SHIELD:
+        case TV_CLOAK:
+        case TV_SOFT_ARMOR:
+        case TV_HARD_ARMOR:
+        case TV_DRAG_ARMOR:
+		{
+			return (TRUE);
+		}
+		/* lowers fail rate of magic devices */
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ * Hook to specify an item which can be enhanced by the alchemy spell
+ */
+bool item_tester_hook_bigwand(const object_type *o_ptr)
+{
+	/* Extract the flags (to check for activation) */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	if (o_ptr->tval == TV_WAND)
+	{
+		/* can waste an enhancement on a wand which can't be enhanced */
+		if (!object_aware_p(o_ptr)) return (TRUE);
+		/* check type */
+		switch (o_ptr->sval)
+		{
+			/* most, but not all wands can be enhanced */
+			case SV_WAND_HEAL_MONSTER:
+			case SV_WAND_LITE:
+			case SV_WAND_SLEEP_MONSTER:
+			case SV_WAND_SLOW_MONSTER:
+			case SV_WAND_CONFUSE_MONSTER:
+			case SV_WAND_FEAR_MONSTER:
+			case SV_WAND_POLYMORPH:
+			case SV_WAND_DRAIN_LIFE:
+			case SV_WAND_STINKING_CLOUD:
+			case SV_WAND_MAGIC_MISSILE:
+			case SV_WAND_ACID_BOLT:
+			case SV_WAND_ELEC_BOLT:
+			case SV_WAND_FIRE_BOLT:
+			case SV_WAND_COLD_BOLT:
+			case SV_WAND_ACID_BALL:
+			case SV_WAND_ELEC_BALL:
+			case SV_WAND_FIRE_BALL:
+			case SV_WAND_COLD_BALL:
+			case SV_WAND_DRAGON_FIRE:
+			case SV_WAND_DRAGON_COLD:
+			case SV_WAND_DRAGON_BREATH:
+			case SV_WAND_STORMS:
+				 return (TRUE);
+		}
+	}
+
+	/* only a high level alchemist can enhance items other than wands */
+	if (p_ptr->lev < 30) return (FALSE);
+	if (o_ptr->tval == TV_ROD)
+	{
+		/* can waste an enhancement on a rod which can't be enhanced */
+		if (!object_aware_p(o_ptr)) return (TRUE);
+		/* check type */
+		switch (o_ptr->sval)
+		{
+			case SV_ROD_RECALL:
+			case SV_ROD_ILLUMINATION:
+			case SV_ROD_LITE:
+			case SV_ROD_SLEEP_MONSTER:
+			case SV_ROD_SLOW_MONSTER:
+			case SV_ROD_POLYMORPH:
+			case SV_ROD_DRAIN_LIFE:
+			case SV_ROD_ACID_BOLT:
+			case SV_ROD_ELEC_BOLT:
+			case SV_ROD_FIRE_BOLT:
+			case SV_ROD_COLD_BOLT:
+			case SV_ROD_ACID_BALL:
+			case SV_ROD_ELEC_BALL:
+			case SV_ROD_FIRE_BALL:
+			case SV_ROD_COLD_BALL:
+				 return (TRUE);
+		}
+	}
+
+	/* only a few of the weaker activations can be enhanced */
+	if ((o_ptr->name1) && (f3 & (TR3_ACTIVATE)))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		switch (a_ptr->activation)
+		{
+			case ACT_MISSILE:
+			case ACT_FIRE1:
+			case ACT_FROST1:
+			case ACT_LIGHTNING_BOLT:
+			case ACT_ACID1:
+			case ACT_STINKING_CLOUD:
+			case ACT_FROST2:
+			case ACT_FROST4:
+			case ACT_FROST3:
+			case ACT_FIRE2:
+			case ACT_HOLY_FIRE:
+			case ACT_DRAIN_LIFE1:
+			case ACT_DRAIN_LIFE2:
+			case ACT_CURE_WOUNDS:
+			case ACT_WOR:
+			case ACT_CONFUSE:
+			case ACT_MANA_BOLT:
+				 return (TRUE);
+		}
+	}
+
+	/* elemental rings */
+	if (o_ptr->tval == TV_RING)
+	{
+		if (!object_aware_p(o_ptr))
+		{
+			if (f3 & (TR3_ACTIVATE)) return (TRUE);
+			else return (FALSE);
+		}
+		switch (o_ptr->sval)
+		{
+			case SV_RING_ACID:
+			case SV_RING_FLAMES:
+			case SV_RING_ICE:
+			case SV_RING_LIGHTNING:
+				 return (TRUE);
+		}
+	}
+
+	/* else */ return (FALSE);
+}
+
+
+/*
+ * The enhance wand/rod alchemy spell.
+ * works similar to priest's bless weapon spell, but much simpler
+ *
+ * Still need to put o_ptr->enhance into save.c and load.c but I'll
+ * do that later because it will break savefiles.
+ */
+bool enhance_wand(int power)
+{
+	int item, lev, gain;
+	object_type *o_ptr;
+	char o_name[80];
+	s16b amount;
+	cptr q, s;
+
+	item_tester_hook = item_tester_hook_bigwand;
+
+	/* Get an item */
+	if (p_ptr->lev < 30) q = "Enhance which wand? ";
+	else q = "Enhance which wand or rod? ";
+	s = "You have nothing to enhance.";  
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+
+	/* should never happen */
+	if (o_ptr->enhancenum > o_ptr->number) o_ptr->enhancenum = o_ptr->number;
+
+	/* current enhancement per item */
+	if (o_ptr->enhancenum) amount = o_ptr->enhance/o_ptr->enhancenum;
+	else amount = 0;
+
+	/* max enhancements */
+	if ((amount >= 10) || ((o_ptr->enhance >= 5) && (artifact_p(o_ptr))))
+	{
+		msg_format("%s %s has already been enhanced.",
+		       ((item >= 0) ? "Your" : "The"), o_name);
+		return (FALSE);
+	}
+
+	/* Extract the item diffuculty (now separated from item level) */
+	if (o_ptr->tval == TV_WAND) lev = k_info[o_ptr->k_idx].extra;
+	/* items other than wands are harder to enhance */
+	else if (o_ptr->tval == TV_ROD) lev = (k_info[o_ptr->k_idx].extra * 3) / 2;
+	else lev = (k_info[o_ptr->k_idx].extra * 5) / 3;
+
+	/* minimum resistance */
+	if ((lev < 20) && (o_ptr->tval == TV_WAND)) lev += (23 - lev) / 3;
+	if ((lev < 25) && (o_ptr->tval != TV_WAND)) lev += (26 - lev) / 2;
+
+	/* amount of enhancement */
+	gain = power - lev;
+
+	/* weak first enhancement weakens other enhancements */
+	if (o_ptr->enhance) gain = (gain + 1) / 2;
+
+	/* cap enhancement on artifacts */
+	if ((artifact_p(o_ptr)) && (gain > 25 + goodluck)) gain = 25 + goodluck;
+
+	/* minimum gain (spell failed) */
+	if (gain < 4) gain = 0;
+
+	/* enhance the item */
+	if (gain) o_ptr->enhance += gain;
+	if ((gain >= 10) && (o_ptr->number > o_ptr->enhancenum)) o_ptr->enhancenum += 1;
+	else if (!o_ptr->enhancenum) o_ptr->enhancenum = 1;
+
+	if (o_ptr->enhance >= 50) /* rarely this powerful */
+	{
+		msg_format("%s %s is Mightily Enhanced!",
+		       ((item >= 0) ? "Your" : "The"), o_name);
+	}
+	else if ((o_ptr->enhance >= 25) && (gain))
+	{
+		msg_format("%s %s is greatly enhanced!",
+		       ((item >= 0) ? "Your" : "The"), o_name);
+	}
+	else if ((o_ptr->enhance >= 10) && (gain))
+	{
+		msg_format("You succeeded in enhancing %s %s.",
+		       ((item >= 0) ? "Your" : "The"), o_name);
+	}
+	else if (gain)
+	{
+		msg_format("You succeeded in enhancing %s %s, but it's a weak enhancement.",
+		       ((item >= 0) ? "Your" : "The"), o_name);
+	}
+	else /* failed */
+	{
+		msg_print("The enhancement failed.");
+	}
+
+	return TRUE;
+}
 
 /*
  * The bless object spell. (not always a weapon)
@@ -2619,8 +2986,7 @@ bool bless_weapon(int power)
 	   if (f3 & (TR3_BAD_WEAP)) resistb = 20 + badluck/2 + o_ptr->pval*2;
 	   if (f2 & (TR2_CORRUPT)) resistb += 15;
     }
-    /* this spell doesn't directly remove curses */
-    /* but can uncurse by enchanting the item */
+    /* this spell can directly remove curses now, but only for priests */
     if (cursed_p(o_ptr))
     {
 	   if ((f3 & (TR3_HEAVY_CURSE)) && (resistb < 15)) resistb = 15;
@@ -2696,6 +3062,9 @@ bool bless_weapon(int power)
        else o_ptr->blessed = 500 + power * 50;
        something = 1;
 
+	   /* only priests can uncurse HEAVY_CURSE objects */
+	   if (cp_ptr->flags & CF_BLESS_WEAPON) uncurse_object(o_ptr);
+
        /* remove evil egos ("The evil enchantment is lifted") */
        /* (but not MORGUL or NAZGUL) */
        if ((o_ptr->name2 == EGO_WITCHCRAFT) || (o_ptr->name2 == EGO_DEMON_MIGHT) ||
@@ -2716,9 +3085,11 @@ bool bless_weapon(int power)
     /* usually only enchants if you are at least L35 */
     if (p_ptr->lev > 34 - goodluck/4)
     {
-       /* priests don't get as much combat enchantment as paladins do */
+		/* priests don't get as much combat enchantment as paladins do */
        if ((cp_ptr->flags & CF_BLESS_WEAPON) && (goodluck < 19))
+	   {
            power -= (5 - goodluck/4);
+	   }
 
        plus = 1;
        if (power > 19) plus = power / 10;
@@ -2727,12 +3098,12 @@ bool bless_weapon(int power)
        if ((o_ptr->blessed) && ((weapon) || (bow)))
        {
 	      /* Enchant */
-	      if (enchant(o_ptr, plus, ENCH_TOHIT)) something = 1;
-	      if (enchant(o_ptr, plus, ENCH_TODAM)) something = 1;
+	      if (enchant(o_ptr, plus, ENCH_TOHIT, FALSE)) something = 1;
+	      if (enchant(o_ptr, plus, ENCH_TODAM, FALSE)) something = 1;
        }
        else if ((barmor) && (o_ptr->blessed)) /* armor */
        {
-	      if (enchant(o_ptr, plus, ENCH_TOAC)) something = 1;
+	      if (enchant(o_ptr, plus, ENCH_TOAC, FALSE)) something = 1;
        }
     }
 
@@ -2757,8 +3128,11 @@ bool bless_weapon(int power)
  * Enchant an item (in the inventory or on the floor)
  * Note that "num_ac" requires armour, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
+ *
+ * The 'big' parameter allows *enchant* scrolls to re-enchant
+ * disenchanted artifacts.
  */
-bool enchant_spell(int num_hit, int num_dam, int num_ac)
+bool enchant_spell(int num_hit, int num_dam, int num_ac, bool archer, bool big)
 {
 	int item;
 	bool okay = FALSE;
@@ -2771,7 +3145,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 
 	/* The archer spell can enchant only bows or arrows */
-	if (spellswitch == 18)
+	if (archer)
     {
         item_tester_hook = item_tester_hook_archer;
     }
@@ -2786,7 +3160,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	/* Get an item */
 	q = "Enchant which item? ";
-	if (spellswitch == 18) s = "You have no bow or arrows to enchant.";
+	if (archer) s = "You have no bow or arrows to enchant.";
 	else s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
@@ -2812,9 +3186,9 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	           ((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
-	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
-	if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
-	if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
+	if (enchant(o_ptr, num_hit, ENCH_TOHIT, big)) okay = TRUE;
+	if (enchant(o_ptr, num_dam, ENCH_TODAM, big)) okay = TRUE;
+	if (enchant(o_ptr, num_ac, ENCH_TOAC, big)) okay = TRUE;
 
 	/* Failure */
 	if (!okay)
@@ -2825,9 +3199,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
-
-    /* reset spellswitch */
-    spellswitch = 0;
 
 	/* Something happened */
 	return (TRUE);
@@ -3089,10 +3460,127 @@ bool recharge(int num)
 }
 
 
+/*
+ * Paladin Truce spell
+ * (avoids using project() so I don't have to add another GF_XXX)
+ *
+ * Currently you can make a truce with sleeping monsters, and you get no
+ * indication whether sleeping monsters have accepted the truce or not.
+ * You'll probably want to re-think this..
+ */
+bool truce(void)
+{
+	int i, y, x, tmp, dur, talk, dishonor = 0;
+	char m_name[80];
+	bool something = FALSE;
+	bool sleeping;
 
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* get the monster and its level */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		int rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
 
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
 
+		/* affect only monsters in line of sight */
+		if (!player_has_los_bold(y, x)) continue;
+
+		/* affect only living monsters */
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)))
+			continue;
+
+		/* smart monsters of any symbol can be affected */
+		if (r_ptr->flags2 & (RF2_SMART)) /* */;
+		/* only certain types of monsters are affected */
+		else if (!(strchr("dhkptxyAKOPTY@", r_ptr->d_char))) continue;
+
+		/* evil knights have a chance to be affected */
+		if ((m_ptr->evil) && (strchr("K", r_ptr->d_char)))
+		{
+			dishonor = rlev + 20;
+		}
+		/* some others of low level can be affected */
+		else if ((m_ptr->evil) && (rlev <= p_ptr->lev/2))
+		{
+			dishonor = rlev + 40;
+		}
+		/* all other evil monsters are very rarely affected */
+		else if (m_ptr->evil)
+		{
+			dishonor = (rlev*4) + 60;
+		}
+		/* nonevil monsters unlikely to resist (more likely to work on knights and light fairies) */
+		else if (strchr("K", r_ptr->d_char)) dishonor = rlev / 3;
+		else if (rlev > 4) dishonor = (rlev-2) / 2;
+		else dishonor = 1;
+		/* uniques */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) dishonor += 50;
+		/* non-agressive light fairies */
+		if ((p_ptr->nice) && (r_ptr->flags3 & (RF3_HURT_DARK))) dishonor = dishonor/2;
+		/* common race strengthens truce (hacky, but I don't really care) */
+		if (((p_ptr->prace == 5) || (p_ptr->prace == 3)) && 
+			(strchr("h", r_ptr->d_char))) dishonor -= 20;
+		if (((p_ptr->prace == 12) || (p_ptr->prace == 15)) && 
+			(r_ptr->flags3 & (RF3_HURT_DARK))) dishonor -= 20;
+
+		/* effectiveness based on charisma and luck (not level) */
+		talk = (adj_chr_charm[p_ptr->stat_ind[A_CHR]] * 2) + randint(goodluck+1);
+		/* cap (for those with maxxed charisma) */
+		if (talk > 50) talk = 50 + ((talk - 47)/4);
+
+		/* get monster name */
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+		/* is the monster sleeping? */
+		if ((m_ptr->csleep) && (!m_ptr->roaming)) sleeping = TRUE;
+		else sleeping = FALSE;
+
+		/* saving throw */
+		if (dishonor >= 1) dishonor = randint(dishonor * 2);
+		if (dishonor > talk)
+		{
+			if ((!m_ptr->evil) && (m_ptr->ml) && (!sleeping))
+				msg_format("%^s refuses", m_name);
+			continue;
+		}
+		/* (else monster is affected) */
+
+		/* begin truce */
+		dur = (talk*2) - dishonor;
+		dur += randint(talk/2);
+
+		/* minimum duration for low-level monsters */
+		if ((p_ptr->lev > rlev * 2 + 1) && (dur < p_ptr->lev - rlev*2 + 1))
+			dur = p_ptr->lev - rlev*2 + 1;
+
+		/* message (only if monster is awake and visible) */
+		if ((!sleeping) && (m_ptr->ml))
+		{
+			if (m_ptr->truce) msg_format("%^s agrees to extend the truce.", m_name);
+			else if (dur < 12) msg_format("%^s agrees to a short truce.", m_name);
+			else msg_format("%^s agrees to a temporary truce.", m_name);
+		}
+
+		/* Increase truce duration */
+		tmp = m_ptr->truce + dur;
+
+		/* Set truce */
+		m_ptr->truce = (tmp < 200) ? tmp : 200;
+
+		/* a monster was affected */
+		something = TRUE;
+	}
+
+	return something;
+}
 
 
 /*
@@ -3103,7 +3591,7 @@ bool recharge(int num)
 bool project_los(int typ, int dam)
 {
 	int i, x, y;
-
+	int pflg = 0;
 	int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 
 	bool obvious = FALSE;
@@ -3125,7 +3613,7 @@ bool project_los(int typ, int dam)
 		if (!player_has_los_bold(y, x)) continue;
 
 		/* Jump directly to the target monster */
-		if (project(-1, 0, y, x, dam, typ, flg)) obvious = TRUE;
+		if (project(-1, 0, y, x, dam, typ, flg, pflg)) obvious = TRUE;
 	}
 
 	/* Result */
@@ -3174,11 +3662,81 @@ bool hold_monsters(void)
 }
 
 /*
- * Mass Amnesia
+ * Mist of Amnesia
+ * (a mist shouldn't just be an LOS effect)
  */
 bool mass_amnesia(int power)
 {
-	return (project_los(GF_AMNESIA, power));
+	int i, y, x, erlev, do_sleep;
+	char m_name[80];
+	bool something = FALSE;
+
+	if (project_los(GF_AMNESIA, power)) something = TRUE;
+
+	/* Scan monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		/* get the monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* affect only monsters within 14 spaces away who aren't in line of sight */
+		/* (spell has already affected LOS monsters) */
+		if ((player_has_los_bold(y, x)) || (m_ptr->cdis > 14)) continue;
+
+		/* effective monster level: */
+		erlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level > 80)) erlev = erlev * 2;
+		else if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->level < 22))  erlev += 9;
+		else if (r_ptr->flags1 & (RF1_UNIQUE)) erlev += 10 + randint((erlev/2) - 10);
+
+		/* doesn't affect non-living monsters */
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_NON_LIVING)))
+		{
+			if (m_ptr->ml)
+			{
+				/* Memorize a flag */
+				if (r_ptr->flags3 & (RF3_NON_LIVING)) l_ptr->flags3 |= (RF3_NON_LIVING);
+				if (r_ptr->flags3 & (RF3_UNDEAD)) l_ptr->flags3 |= (RF3_UNDEAD);
+				/*  */
+				msg_format("%^s is unaffected!", m_name);
+			}
+		}
+		/* Attempt a saving throw (power should be slightly more than plev * 2) */
+		else if (r_ptr->level > randint((power - 10) < 1 ? 1 : (power - 10)) + 20)
+		{
+			/* resist */
+			if (m_ptr->ml) msg_format("%^s resists the spell!", m_name);
+		}
+		else
+		{
+			/* Forget the player later */
+			if (m_ptr->ml) msg_format("%^s forgets what it was doing.", m_name);
+			/* (more random amount than LOS effect, lower average) */
+			do_sleep = 300 + randint(r_ptr->sleep * 7);
+			if (do_sleep > 2000) do_sleep = 2000;
+
+			/* no, forget the player now */
+			if (!m_ptr->csleep) m_ptr->csleep = do_sleep;
+			else m_ptr->csleep += do_sleep/2;
+
+			/* monster is roaming not sleeping */
+			m_ptr->roaming = 1;
+
+			/* something happened */
+			something = TRUE;
+		}
+	}
+
+	return something;
 }
 
 
@@ -3203,17 +3761,7 @@ bool banish_unnatural(int dist)
  */
 bool turn_undead(void)
 {
-    if (spellswitch == 15) return (project_los(GF_TURN_ALL, p_ptr->lev));
-	else return (project_los(GF_TURN_UNDEAD, p_ptr->lev));
-}
-
-
-/*
- * Thunderclap
- */
-bool dispel_ears(int dam)
-{
-	return (project_los(GF_SOUND, dam));
+    return (project_los(GF_TURN_UNDEAD, p_ptr->lev));
 }
 
 /*
@@ -3231,14 +3779,6 @@ bool dispel_demon(int dam)
 {
     spellswitch = 23; /* changes GF_DISP_UNDEAD to affect demons */
 	return (project_los(GF_DISP_UNDEAD, dam));
-}
-
-/*
- * Bug Spray
- */
-bool dispel_bug(int dam)
-{
-	return (project_los(GF_BUG_SPRAY, dam));
 }
 
 /*
@@ -3358,6 +3898,36 @@ void aggravate_monsters(int who)
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
 }
 
+/* alternate effect of the chance-realm banish/summon spell */
+bool summon_chosen(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int ny, nx, die, die2;
+
+	char typ;
+
+	/* Get a monster symbol */
+	if (!get_com("Choose a monster type (by symbol) to summon: ", &typ))
+		return FALSE;
+
+	die = randint(100);
+	die2 = randint(100);
+	if (die < 50) ny = py + randint(4);
+	else ny = py - randint(4);
+	if (die2 < 50) nx = px + randint(4);
+	else nx = px - randint(4);
+           
+	summon_kin_type = typ;
+
+	summon_specific(ny, nx, p_ptr->depth, SUMMON_KIN);
+        
+	/* Update monster list window */
+	p_ptr->window |= PW_MONLIST;
+
+	/* Done */
+	return TRUE;
+}
 
 
 /*
@@ -3371,39 +3941,8 @@ bool banishment(void)
 	char typ;
 
 	/* Mega-Hack -- Get a monster symbol */
-    if (spellswitch == 14) 
-    {
-       if (!get_com("Choose a monster type (by symbol) to summon: ", &typ))
-		return FALSE;
-    }
-    else
-    {
-	   if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
-		return FALSE;
-    }
-
-    if (spellswitch == 14) 
-    {
-           int py = p_ptr->py;
-	       int px = p_ptr->px;
-           int ny, nx, die, die2;
-           die = randint(100);
-           die2 = randint(100);
-           if (die < 50) ny = py + randint(4);
-           else ny = py - randint(4);
-           if (die2 < 50) nx = px + randint(4);
-           else nx = px - randint(4);
-           
-           summon_kin_type = typ;
-
-           summon_specific(ny, nx, p_ptr->depth, SUMMON_KIN);
-        
-	       /* Update monster list window */
-	       p_ptr->window |= PW_MONLIST;
-
-	       /* Success- exits function */
-	       return TRUE;
-    }
+   if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
+	return FALSE;
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < mon_max; i++)
@@ -3422,6 +3961,9 @@ bool banishment(void)
 
 		/* Delete the monster */
 		delete_monster_idx(i);
+
+		/* Ordinary trees get banished with other trees, but don't add to damage */
+		if (m_ptr->r_idx == 834) continue;
 
 		/* Take some damage */
 		dam += randint(4);
@@ -3463,6 +4005,9 @@ bool mass_banishment(void)
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
+
+		/* Ordinary trees aren't affected by mass banishment */
+		if (m_ptr->r_idx == 834) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -3635,18 +4180,25 @@ void destroy_area(int y1, int x1, int r, bool full)
 				}
 
 				/* Magma */
-				else if (t < 95)
+				else if (t < 100)
 				{
 					/* Create magma vein */
 					feat = FEAT_MAGMA;
 				}
 
 				/* Rubble */
-				else if (t < 115)
+				else if (t < 110)
 				{
 					/* Create rubble */
 					feat = FEAT_RUBBLE;
 					big_rocks(y, x);
+				}
+
+				/* Open pit */
+				else if (t < 113)
+				{
+					/* Create rubble */
+					feat = FEAT_OPEN_PIT;
 				}
 
 				/* Change the feature */
@@ -3701,14 +4253,14 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_FLASK:
 		case TV_BOTTLE:
 		{
-			if (mild) return (78);
+			if (mild) return (75);
 			else return (100);
 		}
 		/* almost always breaks */
 		case TV_FOOD:
 		case TV_BOW:
 		{
-			if (mild) return (60);
+			if (mild) return (50);
 			else return (91);
 		}
 		/* Usually breaks */
@@ -3717,16 +4269,15 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_ARROW:
         case TV_SKELETON:
 		{
-			if (mild) return (30);
+			if (mild) return (25);
 			else return (75);
 		}
 		/* often break */
 		case TV_SCROLL:
 		case TV_SPECIAL:
 		case TV_WAND:
-		case TV_SHOT:
 		case TV_BOLT:
-		case TV_CHEST:
+		case TV_SHOT:
 		case TV_HAFTED:
 		case TV_SWORD:
 		case TV_AMULET:
@@ -3750,20 +4301,21 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_HELM:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
 		case TV_RING:
 		case TV_CLOAK:
+		case TV_CHEST:
 		{
 			if (mild) return (0);
-			else return (45);
+			else return (40);
 		}
 		/* sometimes breaks */
+		case TV_DRAG_ARMOR:
 		case TV_DIGGING:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		{
 			if (mild) return (0);
-			else return (30);
+			else return (26);
 		}
 	}
 	
@@ -3790,15 +4342,28 @@ static int quake_break(const object_type *o_ptr, bool mild)
  * Note that players and monsters (except eaters of walls and passers
  * through walls) will never occupy the same grid as a wall (or door).
  *
- * Strength of 0 uses default strength (not really strength of 0)
+ * Strength of 0 uses default strength (85), which is what it always used
+ * before I added that parameter. The lower the strength number, the stronger
+ * the quake.
+ *
+ * Allowcrush = 0 means don't allow the PC to take 300pts damage because the PC
+ * caused the earthquake.
+ * Allowcrush = 1 means allow partial crush damage, not 300, but something smaller
+ * -used for the earthquake trap because it would be too nasty to do 300pts damage
+ * to the PC without warning as a trap.
+ * Allowcrush = 2 is normal behavior (allowing the 300pts damage if the PC gets crushed).
+ * Allowcrush is irrevelent when the quake is centered on the PC.
+ *
+ * Allowxp = TRUE means the PC gets experience for the damage done to monsters
+ * from the quake because the PC cast an earthquake or ball/beam of destruction spell.
+ * The PC never gets experience for crushed monsters who are automatically killed
+ * because they have nowhere to escape to.
  */
-void earthquake(int cy, int cx, int r, int strength)
+void earthquake(int cy, int cx, int r, int strength, int allowcrush, bool allowxp)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
-	int i, t, y, x, yy, xx, dy, dx;
-
+	int i, t, y, x, yy, xx, dy, dx, edist;
 	int damage = 0;
 	
 	int sn = 0, sy = 0, sx = 0;
@@ -3811,7 +4376,8 @@ void earthquake(int cy, int cx, int r, int strength)
 	if (strength == 0) strength = 85;
 	/* more powerful (lower strength#) makes it more likely that the player can't */
 	/* find a safe spot to dodge into.  Don't make it too likely to cause big damage. */
-	if ((strength < 55) && (randint(100) < (90-strength + goodluck))) spellswitch = 11;
+	if ((strength < 55) && (allowcrush == 2) && 
+		(randint(100) < (90-strength + goodluck))) allowcrush = 1;
 
 	/* No effect in town or in a vault */
 	if ((!p_ptr->depth) || (cave_info[cy][cx] & (CAVE_ICKY)))
@@ -3844,12 +4410,20 @@ void earthquake(int cy, int cx, int r, int strength)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(yy, xx)) continue;
 
-			/* do not affect vaults */
-			if (cave_info[yy][xx] & (CAVE_ICKY)) continue;
-			if (cave_feat[yy][xx] >= FEAT_PERM_EXTRA) continue;
+			/* get distance */
+			edist = distance(cy, cx, yy, xx);
+
+			/* should be able to use earthquake to break into a vault */
+			/* (if near the centre of the quake) */
+			if ((cave_info[yy][xx] & (CAVE_ICKY)) && (randint(100) < 45) &&
+				(cave_feat[yy][xx] < FEAT_PERM_EXTRA) && /* (walls only) */
+				(cave_feat[yy][xx] > FEAT_RUBBLE)) edist *= 2;
+			/* otherwise do not affect vaults */
+			else if ((cave_info[yy][xx] & (CAVE_ICKY)) || 
+				(cave_feat[yy][xx] >= FEAT_PERM_EXTRA)) continue;
 
 			/* Skip distant grids */
-			if (distance(cy, cx, yy, xx) > r) continue;
+			if (edist > r) continue;
 
 			/* Lose room (not vault) */
 			cave_info[yy][xx] &= ~(CAVE_ROOM);
@@ -3920,11 +4494,18 @@ void earthquake(int cy, int cx, int r, int strength)
 
 		/* Hurt the player a lot */
 		/* but not if spell is cast by the player */
-		if ((!sn) && (spellswitch != 11) && (spellswitch != 26))
+		if ((!sn) && (allowcrush == 2))
 		{
 			/* Message and damage */
 			msg_print("You are severely crushed!");
 			damage = 300;
+		}
+		/* earthquake trap */
+		else if ((!sn) && (allowcrush == 1))
+		{
+			/* Message and damage */
+			msg_print("You are nearly severely crushed!");
+			damage = damroll(10, 5);
 		}
 
 		/* Destroy the grid, and push the player to safety */
@@ -3999,7 +4580,7 @@ void earthquake(int cy, int cx, int r, int strength)
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx])
 			{
-/* #if thiscrashs */
+/* #if thiscrashes */
 				/* some fragile objects get destroyed even in unaffected grids */
 				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
 				{
@@ -4080,7 +4661,7 @@ void earthquake(int cy, int cx, int r, int strength)
 				/* t = (floor ? rand_int(105) : 200); */
 
 				/* Granite */
-				if (t < 27)
+				if (t < 30)
 				{
 					/* Create granite wall */
 					feat = FEAT_WALL_EXTRA;
@@ -4094,20 +4675,27 @@ void earthquake(int cy, int cx, int r, int strength)
 				}
 
 				/* Magma */
-				else if (t < 90)
+				else if (t < 91)
 				{
 					/* Create magma vein */
 					feat = FEAT_MAGMA;
 				}
 
 				/* Rubble */
-				else if (t < 110)
+				else if ((t < 100) || ((t >= 105) && (t < 110)))
 				{
 					/* Create rubble */
 					feat = FEAT_RUBBLE;
 					big_rocks(yy, xx);
 				}
 
+				/* earthquakes should have a chance to create pits */
+				else if (t < 105)
+				{
+					/* a pit that isn't a trap (and cannot be disarmed) */
+					feat = FEAT_OPEN_PIT;
+				}
+				
 				/* Change the feature */
 				cave_set_feat(yy, xx, feat);
 			}
@@ -4138,6 +4726,7 @@ void earthquake(int cy, int cx, int r, int strength)
 			{
 				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				bool xpkill = FALSE;
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -4183,43 +4772,63 @@ void earthquake(int cy, int cx, int r, int strength)
 					/* Describe the monster */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-					/* Scream in pain */
-					msg_format("%^s wails out in pain!", m_name);
+					/* Scream in pain (this happens in mon_take_hit if allowxp) */
+					if (!allowxp) msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					if (noflee) damage = damroll(2, 8);
+					if (noflee) damage = damroll(3, 8);
 					else if ((!sn) && (randint(100) < 35)) damage = damroll(6, 8);
 					else if (!sn) damage = m_ptr->hp + 1;
 					else damage = damroll(4, 8);
 
-					/* Monster is certainly awake */
-					m_ptr->csleep = 0;
-					m_ptr->roaming = 0;
-
-					/* Apply damage directly */
-					m_ptr->hp -= damage;
-
-					/* Hack -- Escape from the rock */
-					if ((sn) && (m_ptr->hp >= 0) && (!noflee))
+					/* hurt the monster & give xp */
+					if ((allowxp) && (sn))
 					{
-						/* Move the monster */
-						monster_swap(yy, xx, sy, sx);
+						bool fear = FALSE;
+						cptr note_dies;
+						note_dies = " is crushed in the earthquake.";
+						if (mon_take_hit(cave_m_idx[yy][xx], damage, &fear, note_dies))
+						{
+							/* player killed monster with earthquake */
+							xpkill = TRUE;
+						}
 					}
-					/* no safe place, but monster can't stay where there's going to be a wall */
-					/* (not automatic kill) */
-					else if ((!sn) && (m_ptr->hp >= 0) && (!noflee))
+					/* hurt the monster directly without giving xp */
+					else
 					{
-						teleport_away(cave_m_idx[yy][xx], 3, 0);
+						/* Monster is certainly awake */
+						m_ptr->csleep = 0;
+						m_ptr->roaming = 0;
+
+						/* Apply damage directly */
+						m_ptr->hp -= damage;
 					}
 
-					/* Delete (not kill) "dead" monsters */
-					if (m_ptr->hp < 0)
+					/* xpkill means monster is dead & PC got XP */
+					if (!xpkill)
 					{
-						/* Message */
-						msg_format("%^s is embedded in the rock!", m_name);
+						/* Hack -- Escape from the rock */
+						if ((sn) && (m_ptr->hp >= 0) && (!noflee))
+						{
+							/* Move the monster */
+							monster_swap(yy, xx, sy, sx);
+						}
+						/* no safe place, but monster can't stay where there's going to be a wall */
+						/* (not automatic kill) */
+						else if ((!sn) && (m_ptr->hp >= 0) && (!noflee))
+						{
+							teleport_away(cave_m_idx[yy][xx], 3, 0);
+						}
 
-						/* Delete the monster */
-						delete_monster(yy, xx);
+						/* Delete (not kill) "dead" monsters */
+						if (m_ptr->hp < 0)
+						{
+							/* Message */
+							msg_format("%^s is embedded in the rock!", m_name);
+	
+							/* Delete the monster */
+							delete_monster(yy, xx);
+						}
 
 						/* No longer safe */
 						sn = 0;
@@ -4409,9 +5018,10 @@ static void cave_temp_room_unlite(void)
         {
 		   int dam = randint(11 + (p_ptr->depth/5));
 		   int flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+		   int pflg = 0;
 
            /* Jump directly to the target monster */
-		   (void)project(-1, 0, y, x, dam, GF_DARK_WEAK, flg);
+		   (void)project(-1, 0, y, x, dam, GF_DARK_WEAK, flg, pflg);
         }
 	}
 
@@ -4529,6 +5139,7 @@ bool lite_area(int dam, int rad)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -4542,7 +5153,7 @@ bool lite_area(int dam, int rad)
 	if (spellswitch != 4) lite_room(py, px);
 
 	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg, pflg);
 
 	/* Assume seen */
 	return (TRUE);
@@ -4553,10 +5164,11 @@ bool lite_area(int dam, int rad)
  * Hack -- call darkness around the player
  * Affect all monsters in the projection radius
  */
-bool unlite_area(int dam, int rad)
+bool unlite_area(int dam, int rad, bool strong)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -4567,12 +5179,12 @@ bool unlite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	if (spellswitch == 21) (void)project(-1, rad, py, px, dam, GF_DARK, flg);
-	else (void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
+	if (strong) (void)project(-1, rad, py, px, dam, GF_DARK, flg, pflg);
+	else (void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg, pflg);
 
 	/* Darken the room */
 	/* necromancer's 'call dark' only sometimes darkens the whole room */
-	if (spellswitch == 21)
+	if (strong)
 	{
        if (randint(100) < 15 + goodluck) unlite_room(py, px);
     }
@@ -4595,7 +5207,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int ty, tx;
+	int ty, tx, pflg = 0;
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
@@ -4612,15 +5224,23 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 		tx = p_ptr->target_col;
 	}
 
-    /* spellswitch 28 used to center spell on the caster */
-    if (spellswitch == 28)
-    {
-	   ty = py;
-	   tx = px;
-    }
-
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(-1, rad, ty, tx, dam, typ, flg));
+	return (project(-1, rad, ty, tx, dam, typ, flg, pflg));
+}
+
+/*
+ * spread effect: ball centered on the PC
+ * usually wide radius
+ * PROJO_SPRED makes damage decrease with radius much slower than with a ball spell.
+ * Spreads are also 1/4 as likely to destroy objects on the floor as ball spells.
+ */
+bool fire_spread(int typ, int dam, int rad)
+{
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	int pflg = PROJO_SPRED;
+
+	/* Analyze the "dir" and the "target".  Sometimes hurt items on floor. */
+	return (project(-1, rad, p_ptr->py, p_ptr->px, dam, typ, flg, pflg));
 }
 
 
@@ -4637,7 +5257,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int ty, tx;
+	int ty, tx, pflg = 0;
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
@@ -4655,7 +5275,7 @@ bool fire_swarm(int num, int typ, int dir, int dam, int rad)
 	while (num--)
 	{
 		/* Analyze the "dir" and the "target".  Hurt items on floor. */
-		if (project(-1, rad, ty, tx, dam, typ, flg)) noticed = TRUE;
+		if (project(-1, rad, ty, tx, dam, typ, flg, pflg)) noticed = TRUE;
 	}
 
 	return noticed;
@@ -4670,7 +5290,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int ty, tx;
+	int ty, tx, pflg = 0;
 
 	/* Pass through the target if needed */
 	flg |= (PROJECT_THRU);
@@ -4687,7 +5307,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(-1, 0, ty, tx, dam, typ, flg));
+	return (project(-1, 0, ty, tx, dam, typ, flg, pflg));
 }
 
 
@@ -4730,6 +5350,138 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 
 
 /*
+ * The black realm vampiric drain spell.
+ * Get actual amount of damage, damage the monster, then
+ * figure amount to heal the caster based on the damage.
+ * (previously you could shoot the spell at a wall and still
+ *  get healed.)
+ */
+int do_vampiric_drain(int dir, int damage)
+{
+	int healmuch, ty, tx, x, y, i;
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	monster_lore *l_ptr;
+	char m_name[80];
+	bool fear = FALSE;
+
+	int path_n;
+	u16b path_g[256];
+
+	/* Easy if we have a specific target */
+	if ((dir == 5) && target_okay())
+	{
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+
+		/* get monster info */
+		m_ptr = &mon_list[cave_m_idx[ty][tx]];
+		r_ptr = &r_info[m_ptr->r_idx];
+		l_ptr = &l_list[m_ptr->r_idx];
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+	}
+	/* find target monster (taken from do_cmd_fire() ) */
+	else
+	{
+		/* Start at the player */
+		y = p_ptr->py;
+		x = p_ptr->px;
+
+		/* Predict the "target" location */
+		ty = p_ptr->py + 99 * ddy[dir];
+		tx = p_ptr->px + 99 * ddx[dir];
+
+		/* Calculate the path */
+		path_n = project_path(path_g, MAX_RANGE, p_ptr->py, p_ptr->px, ty, tx, 0);
+
+		/* Project along the path */
+		for (i = 0; i < path_n; ++i)
+		{
+			int ny = GRID_Y(path_g[i]);
+			int nx = GRID_X(path_g[i]);
+
+			if ((!cave_floor_bold(ny, nx)) && (cave_m_idx[ny][nx] > 0)) /* okay*/;
+			else if (!cave_floor_bold(ny, nx)) break;
+
+			/* Advance */
+			x = nx;
+			y = ny;
+
+			/* found the target */
+			if (cave_m_idx[y][x] > 0)
+			{
+				/* target the monster */
+				ty = y;
+				tx = x;
+				/* get monster info */
+				m_ptr = &mon_list[cave_m_idx[ty][tx]];
+				r_ptr = &r_info[m_ptr->r_idx];
+				l_ptr = &l_list[m_ptr->r_idx];
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+				break;
+			}
+		}
+	}
+
+	/* didn't find any monster */
+	if (!m_ptr) return 0;
+
+	/* these monsters aren't affected */
+	/* (so it doesn't do the caster any good) */
+	if ((r_ptr->flags3 & (RF3_NON_LIVING)) || 
+		(r_ptr->flags3 & (RF3_UNDEAD)) ||
+		(r_ptr->flags3 & (RF3_SILVER)))
+	{
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			if (m_ptr->ml) l_ptr->flags3 |= (RF3_UNDEAD);
+		}
+		if (r_ptr->flags3 & (RF3_NON_LIVING))
+		{
+			if (m_ptr->ml) l_ptr->flags3 |= (RF3_NON_LIVING);
+		}
+		if (r_ptr->flags3 & (RF3_SILVER))
+		{
+			if (m_ptr->ml) l_ptr->flags3 |= (RF3_SILVER);
+		}
+
+		msg_format("%^s is unaffected", m_name);
+		return 0;
+	}
+
+	/* check for death before killing the monster */
+	/* (so we know how much the caster can drain) */
+	if (m_ptr->hp < damage)
+	{
+		cptr note_dies = " dies.";
+		damage = m_ptr->hp;
+		/* now kill it */
+		mon_take_hit(cave_m_idx[ty][tx], damage+1, &fear, note_dies);
+	}
+	else
+	{
+		/* Hurt the monster, check for fear (we know the monster isn't dead) */
+		mon_take_hit(cave_m_idx[ty][tx], damage, &fear, NULL);
+
+		/* notice fear */
+		if ((fear) && (m_ptr->ml))
+		{
+			/* Message */
+			message_format(MSG_FLEE, m_ptr->r_idx,
+			               "%^s flees in terror!", m_name);
+		}
+	}
+
+	/* amount to heal the caster */
+	healmuch = damage + 10 + goodluck;
+	if (damage >= 24) healmuch += randint((damage/2)-10);
+
+	return healmuch;
+}
+
+
+/*
  * Some of the old functions
  */
 
@@ -4751,6 +5503,8 @@ bool drain_life(int dir, int dam)
 	return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
 }
 
+/* stone to mud / tunneldigging */
+/* change to take a damage parameter, so Orome's stone to mud can do more damage */
 bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_THRU;
@@ -4771,10 +5525,10 @@ bool disarm_trap(int dir, int mode)
 	return (project_hook(GF_KILL_TRAP, dir, mode, flg));
 }
 
-bool heal_monster(int dir)
+bool heal_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
+	return (project_hook(GF_OLD_HEAL, dir, dam, flg));
 }
 
 bool speed_monster(int dir)
@@ -4861,7 +5615,7 @@ bool heal_monsters(int healmon, const monster_type *m_ptr, bool kinonly)
 	if (r_ptr->flags3 & (RF3_TROLL)) kinkind = 1;
 	if (strchr("pKt", r_ptr->d_char)) kinkind = 2; /* all humans */
 	if (strchr("oO", r_ptr->d_char)) kinkind = 3; /* orcs and ogres considered kin */
-	if ((strchr("y", r_ptr->d_char)) || (r_ptr->flags3 & (RF3_HURT_DARK))) 
+	if (r_ptr->flags3 & (RF3_HURT_DARK))
 	{
 		kinkind = 4; /* creatures of light */
 	}
@@ -4928,7 +5682,7 @@ bool heal_monsters(int healmon, const monster_type *m_ptr, bool kinonly)
 		if (kinonly)
 		{
 			int kinkindt = 0;
-			if ((strchr("y", r_ptr->d_char)) || (r_ptr->flags3 & (RF3_HURT_DARK))) kinkindt = 4;
+			if (r_ptr->flags3 & (RF3_HURT_DARK)) kinkindt = 4;
 			/* light fairies also heal non-evil animals with HEAL_KIN */
 			if ((!n_ptr->evil) && (r_ptr->flags3 & (RF3_ANIMAL))) kinkindt = 4;
 			if (kinkind == kinkindt) iskin = TRUE;
@@ -5011,38 +5765,42 @@ bool door_creation(int mode)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, mode, GF_MAKE_DOOR, flg));
+	return (project(-1, 1, py, px, mode, GF_MAKE_DOOR, flg, pflg));
 }
 
 bool trap_creation(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg, pflg));
 }
 
 bool destroy_doors_touch(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
-	if (spellswitch == 6) return (project(-1, 9, py, px, 0, GF_KILL_TRAP, flg));
-	else return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
+	if (spellswitch == 6) return (project(-1, 9, py, px, 0, GF_KILL_TRAP, flg, pflg));
+	else return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg, pflg));
 }
 
 bool sleep_monsters_touch(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int pflg = 0;
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg, pflg));
 }
 
 
@@ -5252,10 +6010,18 @@ bool curse_weapon(int badness)
  */
 void brand_object(object_type *o_ptr, byte brand_type)
 {
+	bool egofail = FALSE;
+	if (ego_item_p(o_ptr))
+	{
+		/* allow branding on ammo of wounding */
+		if (o_ptr->name2 == EGO_WOUNDING) egofail = FALSE;
+		else egofail = TRUE;
+	}
+	
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify broken (completely worthless) items */
 	if ((o_ptr->k_idx) &&
-	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	    (!artifact_p(o_ptr)) && (!egofail) &&
 	    (!broken_p(o_ptr)))
 	{
 		cptr act = "magical";
@@ -5305,9 +6071,9 @@ void brand_object(object_type *o_ptr, byte brand_type)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	
 		/* Enchant (enchant less for acid coating or poison brand spells) */
-		if (spellswitch == 17) enchant(o_ptr, rand_int(3) + 1, ENCH_TOHIT | ENCH_TODAM);
-		else if (spellswitch == 19) enchant(o_ptr, rand_int(3) + 2, ENCH_TOHIT | ENCH_TODAM);
-		else enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		if (spellswitch == 17) enchant(o_ptr, rand_int(3) + 1, ENCH_TOHIT | ENCH_TODAM, FALSE);
+		else if (spellswitch == 19) enchant(o_ptr, rand_int(3) + 2, ENCH_TOHIT | ENCH_TODAM, FALSE);
+		else enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM, FALSE);
 	}
 	else
 	{
@@ -5319,8 +6085,12 @@ void brand_object(object_type *o_ptr, byte brand_type)
 
 /*
  * Brand the current melee weapon
+ * mode = 0: normal
+ * mode = 1: force frost brand
+ * mode = 2: poison brand
+ * (the mode parameter replaces the use of the ugly spellswitch hack)
  */
-void brand_weapon(void)
+void brand_weapon(int mode)
 {
 	object_type *o_ptr;
 	byte brand_type;
@@ -5328,12 +6098,12 @@ void brand_weapon(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Select a brand */
-	if ((rand_int(100) < 50) || (spellswitch == 7))
+	if ((rand_int(100) < 50) || (mode == 1))
 		brand_type = EGO_BRAND_COLD;
 	else
 		brand_type = EGO_BRAND_FIRE;
 		
-	if (spellswitch == 20) brand_type = EGO_BRAND_POIS;
+	if (mode == 2) brand_type = EGO_BRAND_POIS;
 		
 	/* Brand the weapon */
 	brand_object(o_ptr, brand_type);
@@ -5361,8 +6131,12 @@ static bool item_tester_hook_ammo(const object_type *o_ptr)
 
 /*
  * Brand some (non-magical) ammo
+ * mode = 0: normal
+ * mode = 1: for acid coat spell
+ * mode = 2: poison brand ammo spell
+ * (the mode parameter replaces the use of the ugly spellswitch hack)
  */
-bool brand_ammo(void)
+bool brand_ammo(int mode)
 {
 	int item;
 	object_type *o_ptr;
@@ -5374,7 +6148,7 @@ bool brand_ammo(void)
 	item_tester_hook = item_tester_hook_ammo;
 
 	/* Get an item */
-	if (spellswitch == 17)
+	if (mode == 1)
     {
         q = "Coat which ammunition? ";
 	    s = "You have no ammo to coat.";
@@ -5407,9 +6181,9 @@ bool brand_ammo(void)
 		brand_type = EGO_FROST;
 	else
 		brand_type = EGO_AMMO_ELEC;
-		
-	if (spellswitch == 17) brand_type = EGO_ACID_COAT;
-	if (spellswitch == 19) brand_type = EGO_AMMO_VENOM;
+
+	if (mode == 1) brand_type = EGO_ACID_COAT;
+	if (mode == 2) brand_type = EGO_AMMO_VENOM;
 
 	/* Brand the ammo */
 	brand_object(o_ptr, brand_type);
@@ -5589,12 +6363,6 @@ void do_ident_item(int item, object_type *o_ptr)
 	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
-	
-	/* Artifact powers shouldn't be hidden */
-    if (artifact_p(o_ptr))
-	{
-       o_ptr->ident |= IDENT_MENTAL;
-    }
 
 	/* Apply an autoinscription, if necessary */
 	apply_autoinscription(o_ptr);
@@ -5681,9 +6449,269 @@ void rxp_drain(int odd)
      }
 }
 
+
+/*
+ * Hook to specify an item which can be mimmiced by the alchemy spell
+ * (almost the same as the bigwand hook, but cannot mimmic artifacts)
+ */
+bool item_tester_hook_mimmic(const object_type *o_ptr)
+{
+	/* can never mimmic an unaware item */
+	if (!object_aware_p(o_ptr)) return (FALSE);
+
+	if (o_ptr->tval == TV_WAND)
+	{
+		/* check type */
+		switch (o_ptr->sval)
+		{
+			/* most, but not all wands can be enhanced */
+			case SV_WAND_HEAL_MONSTER:
+			case SV_WAND_LITE:
+			case SV_WAND_SLEEP_MONSTER:
+			case SV_WAND_SLOW_MONSTER:
+			case SV_WAND_CONFUSE_MONSTER:
+			case SV_WAND_FEAR_MONSTER:
+			case SV_WAND_POLYMORPH:
+			case SV_WAND_DRAIN_LIFE:
+			case SV_WAND_STINKING_CLOUD:
+			case SV_WAND_MAGIC_MISSILE:
+			case SV_WAND_ACID_BOLT:
+			case SV_WAND_ELEC_BOLT:
+			case SV_WAND_FIRE_BOLT:
+			case SV_WAND_COLD_BOLT:
+			case SV_WAND_ACID_BALL:
+			case SV_WAND_ELEC_BALL:
+			case SV_WAND_FIRE_BALL:
+			case SV_WAND_COLD_BALL:
+			case SV_WAND_DRAGON_FIRE:
+			case SV_WAND_DRAGON_COLD:
+			case SV_WAND_DRAGON_BREATH:
+			case SV_WAND_STORMS:
+				 return (TRUE);
+		}
+	}
+
+	/* only a high level alchemist can mimmic items other than wands */
+	if (p_ptr->lev < 30) return (FALSE);
+	if (o_ptr->tval == TV_ROD)
+	{
+		/* check type */
+		switch (o_ptr->sval)
+		{
+			case SV_ROD_RECALL:
+			case SV_ROD_ILLUMINATION:
+			case SV_ROD_LITE:
+			case SV_ROD_SLEEP_MONSTER:
+			case SV_ROD_SLOW_MONSTER:
+			case SV_ROD_POLYMORPH:
+			case SV_ROD_DRAIN_LIFE:
+			case SV_ROD_ACID_BOLT:
+			case SV_ROD_ELEC_BOLT:
+			case SV_ROD_FIRE_BOLT:
+			case SV_ROD_COLD_BOLT:
+			case SV_ROD_ACID_BALL:
+			case SV_ROD_ELEC_BALL:
+			case SV_ROD_FIRE_BALL:
+			case SV_ROD_COLD_BALL:
+				 return (TRUE);
+		}
+	}
+	/* (unlike the enhance spell, artifacts and rings cannot be mimmiced) */
+
+	/* else */ return (FALSE);
+}
+
+
+/*
+ * Use the mimmiced object or check which object you are currently mimmicking.
+ * justcheck = FALSE is called by the mimmic_zap spell
+ * justcheck = TRUE is called by mimmic_wand() and always returns false
+ */
+bool zap_mimmic(bool justcheck)
+{
+	int sval, dir;
+	bool isrod;
+
+	/* ident is unused but needed to call wand effect */
+	bool ident;
+
+	/* haven't chosen an object to mimmic */
+	if (!p_ptr->mimmic)
+	{
+		msg_print("You have not chosen an object to mimmic.");
+		if (justcheck) return FALSE;
+	
+		/* spell uses no mana when you choose 'no' to the question */
+		if (get_check("Mimmic a random wand? (answering 'no' cancels the spell) "))
+		{
+			/* random low-level wand (weaker than wonder: no ball effects but also no bad effects) */
+			p_ptr->mimmic = 7 + rand_int(11);
+			/* skip drain life (need to chose a wand to mimmic for this spell to be powerful) */
+			if (p_ptr->mimmic == 12) p_ptr->mimmic += 1;
+		}
+		else return FALSE;
+		/* could combine these into one spell, but then you'd have to ask */
+		/* mimmic a new wand?, check on current mimmicked wand?, */
+		/* or zap mimmicked wand? */
+		/* if (!mimmic_wand()) return FALSE; */
+	}
+
+	/* sval of the wand to mimmic */
+	if (p_ptr->mimmic < 100)
+	{
+		sval = p_ptr->mimmic;
+		isrod = FALSE;
+	}
+	/* or -100 if it's a rod */
+	else
+	{
+		sval = p_ptr->mimmic - 100;
+		isrod = TRUE;
+	}
+
+	/* just checking what we've chosen to mimmic as a reminder */
+	if (justcheck)
+	{
+		int kidx;
+		object_kind *k_ptr;
+		cptr mname;
+
+		/* get the object kind (without having a real object) */
+		if (isrod) kidx = lookup_kind(TV_ROD, sval);
+		else kidx = lookup_kind(TV_WAND, sval);
+		k_ptr = &k_info[kidx];
+
+		/* describe without using object_desc() function */
+		/* because we don't have an o_ptr */
+		mname = (k_name + k_ptr->name);
+		if (p_ptr->menhance)
+		{
+			if (isrod) msg_format("You are currently mimmicing a rod of %s enhanced by %d.", mname, p_ptr->menhance);
+			else msg_format("You are currently mimmicing a wand of %s enhanced by %d.", mname, p_ptr->menhance);
+		}
+		else
+		{
+			if (isrod) msg_format("You are currently mimmicing a rod of %s.", mname);
+			else msg_format("You are currently mimmicing a wand of %s.", mname);
+		}
+
+#if notsureifIwantthis
+		if (p_ptr->lev >= 30)
+		{
+			if (get_check("Cancel this and mimmic a random wand instead? "))
+			{
+				/* cancel */
+				p_ptr->mimmic = 0;
+				p_ptr->menhance = 0;
+			}
+		}
+#endif
+
+		/* no mana cost for checking */
+		return FALSE;
+	}
+
+	/* Get a direction, allow cancel */
+	if (!get_aim_dir(&dir)) return FALSE;
+
+	/* use the fake object */
+	/* (both of these functions would always return TRUE */
+	/*  because you can't mimmic a rod of identify) */
+	if (isrod) rod_effect(sval, &ident, p_ptr->menhance, dir);
+	else wand_effect(sval, &ident, p_ptr->menhance, dir);
+
+	/* enhancement still gets used up with use (but slower) */
+	if ((randint(100) < 33) && (p_ptr->menhance))
+	{
+		if (p_ptr->menhance > 2) p_ptr->menhance -= randint(2);
+		else p_ptr->menhance -= 1;
+	}
+
+	return TRUE;
+}
+
+
+/*
+ * Mimmic wand alchemy spell
+ * any wand or rod which can be enhanced by the enhance wand spell
+ * can be mimmiced by this spell (but not rings or artifacts)
+ */
+bool mimmic_wand(void)
+{
+	cptr q, s;
+	int item;
+
+	object_type *o_ptr;
+	char o_name[80];
+	
+	/* spell uses no mana when you choose 'no' to the question */
+	if (!get_check("Mimmic a new object? (y=yes, n=check current mimmiced object) "))
+	{
+		/* just checks on which wand is currently mimmicked */
+		(void)zap_mimmic(TRUE);
+		return FALSE;
+	}
+
+	item_tester_hook = item_tester_hook_mimmic;
+
+	/* Get an item */
+	if (p_ptr->lev < 30) q = "Mimmic which wand? ";
+	else q = "Mimmic which wand or rod? ";
+	s = "You have nothing to enhance.";  
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+	
+	/* can't mimmic an unaware object */
+	if (!object_aware_p(o_ptr))
+	{
+		msg_print("You can't mimmic an object if you don't know what it does!");
+		return FALSE;
+	}
+
+	/* save sval of wand or rod to mimmic */
+	if (o_ptr->tval == TV_WAND)
+	{ 
+		p_ptr->mimmic = o_ptr->sval;
+
+		/* use a charge */
+		o_ptr->pval--;
+	}
+	/* +100 means it's a rod */
+	else /*(o_ptr->tval == TV_ROD)*/
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		p_ptr->mimmic += 100;
+
+		/* drain the charge */
+		o_ptr->timeout += k_ptr->pval;
+	}
+
+	/* if mimmicked object is enhanced, then enhance the mimmiced effect */
+	p_ptr->menhance = o_ptr->enhance;
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 1);
+	msg_format("You are mimmicing %s", o_name);
+
+	/* done */
+	return TRUE;
+}
+
+
 /*
  * Create a treasure map for the tourist to find.
- * Copied from wiz_create_item(void)
+ * Copied from wiz_create_item()
  */
 void treasure_map(void)
 {
@@ -5747,8 +6775,11 @@ void treasure_map(void)
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(y, x)) continue;
 
-			/* Require "naked" floor space */
-			if (!cave_naked_bold(y, x)) continue;
+			/* Require "occupy" floor space (allows pits & rubble) */
+			if (!cave_can_occupy_bold(y, x)) continue;
+
+			/* don't put it with another object */
+			if (cave_o_idx[y][x] != 0) continue;
 
 			/* Might create the map inside a vault */
 			/* if (cave_info[y][x] & (CAVE_ICKY)) continue; */

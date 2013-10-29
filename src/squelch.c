@@ -481,6 +481,10 @@ bool squelch_item_ok(const object_type *o_ptr)
 	bool fullid = object_known_p(o_ptr);
 	bool sensed = (o_ptr->ident & IDENT_SENSE) || fullid;
 	byte feel   = fullid ? value_check_aux1(o_ptr) : o_ptr->pseudo;
+
+	/* fake kind for the potion of multi-hued poison */
+	object_kind *fk_ptr;
+
 #ifdef EFG
 	/* EFGchange treat big 3 weapons as excellent when squelching */
 	switch(o_ptr->tval)
@@ -533,6 +537,25 @@ bool squelch_item_ok(const object_type *o_ptr)
 	/* Auto-squelch dead chests */
 	if (o_ptr->tval == TV_CHEST && o_ptr->pval == 0)
 		return TRUE;
+
+	/* don't squelch if disguised (multihued poison disguises itself) */
+	/* (Rchaos prevents it from disguising itself) */
+	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_MULTIHUED_POISON) &&
+		(!p_ptr->resist_chaos))
+	{
+		fk_ptr = &k_info[o_ptr->pval];
+
+		/* check if the potion it's disguised as is squelched */
+		if ((squelch_tval(k_info[o_ptr->pval].tval)) && 
+			(fk_ptr->squelch) && (fk_ptr->aware))
+		{
+			/* okay to squelch !multihued poison */
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
 
 	/* Do squelching by sval, if we 'know' the flavour. */
 #ifdef EFG

@@ -17,6 +17,8 @@
  */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
 
+/* taken from V3.1.1 (I don't know where this number comes from..) */
+#define MAX_ITEMLIST 256
 
 /*
  * Hold the titles of scrolls, 6 to 14 characters each.
@@ -551,11 +553,16 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
  */
 void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
+	/* no hidden properties of artifacts */
+	if (o_ptr->name1) object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
+	else object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
+	
+#if shouldbeunneedednow
 #ifdef EFG
 	/* EFGchange give description of artifact activations without IDENT_MENTAL */
 	if (object_known_p(o_ptr) && o_ptr->name1 && a_info[o_ptr->name1].flags3 & TR3_ACTIVATE)
 		*f3 |= TR3_ACTIVATE;
+#endif
 #endif
 }
 
@@ -719,11 +726,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	cptr modstr;
 
 	int power;
-	bool aware, known;
-	bool flavor;
+	bool aware, known, flavor;
 	bool append_name;
 	bool show_weapon, show_armour;
 	bool haspval = FALSE;
+	bool hidepotion = FALSE;
 
 	char *b;
 	char *t;
@@ -741,6 +748,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* fake kind for the potion of multi-hued poison */
+	object_kind *fk_ptr;
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -935,9 +945,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
-        /* Treasure map */
+        /* TV_SPECIAL is not used for much */
         case TV_SPECIAL:     
         {
+			/* Treasure map */
 			if (o_ptr->sval == SV_TREASURE)
 			{
 			    if (aware) basenm = "& Treasure map~";
@@ -953,11 +964,27 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Potions */
 		case TV_POTION:
 		{
+			/* disguise the potion of multi-hued poison */
+			/* (its pval is the k_idx of the potion that it mimmics, assigned in apply_magic() ) */
+			/* (pval is set to 0 when identified but that only works for that individual potion) */
+			if ((o_ptr->sval == SV_POTION_MULTIHUED_POISON) && (o_ptr->pval) &&
+				(aware) && (!(p_ptr->timed[TMD_TSIGHT] || p_ptr->resist_chaos)))
+			{
+				fk_ptr = &k_info[o_ptr->pval];
+				hidepotion = TRUE;
+				/* find the awareness of the potion it's disguised as */
+				if (k_info[o_ptr->pval].aware) aware = TRUE;
+				else aware = FALSE;
+				modstr = flavor_text + flavor_info[fk_ptr->flavor].text;
+			}
+			else
+			{
+				modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			}
+
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Potion~" : "& Potion~");
-
 			break;
 		}
 
@@ -1137,7 +1164,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 	}
 
-
 	/* Paranoia XXX XXX XXX */
 	/* ASSERT(*s != '~'); */
 
@@ -1225,7 +1251,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (append_name)
 	{
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
+		/* disguise the potion of multi-hued poison */
+		if (hidepotion)
+		{
+			object_desc_str_macro(t, (k_name + fk_ptr->name));
+		}
+		else
+		{
+			object_desc_str_macro(t, (k_name + k_ptr->name));
+		}
 	}
 
 
@@ -1249,9 +1283,15 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, (e_name + e_ptr->name));
 
+			/* chance for double ego 'of lightness' on heavy armor */
+			if ((o_ptr->tval == TV_HARD_ARMOR) && (!(o_ptr->name2 == EGO_LIGHTNESS)) &&
+				(o_ptr->weight < k_ptr->weight))
+			{
+				object_desc_str_macro(t, " of lightness");
+			}
+
 			/* Hack - Now we know about the ego-item type */
 			e_info[o_ptr->name2].everseen = TRUE;
-
 		}
 	}
 
@@ -1642,7 +1682,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Indicate "charging" artifacts */
-	else if (known && o_ptr->timeout && !(o_ptr->tval == TV_LITE && !artifact_p(o_ptr)))
+	else if (known && o_ptr->timeout && !(o_ptr->tval == TV_LITE && (!(f3 & TR3_NO_FUEL))))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
@@ -3409,10 +3449,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool show_list = (show_lists) ? TRUE : FALSE;
 
 	/* spellswitch 24 is for telekinesis */
-    if (spellswitch == 24) py = p_ptr->target_row;
-    else py = p_ptr->py;
-    if (spellswitch == 24) px = p_ptr->target_col;
-    else px = p_ptr->px;
+    if (spellswitch == 24)
+	{
+		py = p_ptr->target_row;
+		px = p_ptr->target_col;
+	}
+    else
+	{
+		py = p_ptr->py;
+		px = p_ptr->px;
+	}
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -4105,4 +4151,260 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Result */
 	return (item);
+}
+
+/**
+ * Sort comparator for objects using only tval and sval.
+ * -1 if o1 should be first
+ *  1 if o2 should be first
+ *  0 if it doesn't matter
+ */
+static int compare_types(const object_type *o1, const object_type *o2)
+{
+	if (o1->tval == o2->tval)
+	{
+		if (o1->sval > o2->sval) return -1;
+		else if (o1->sval < o2->sval) return 1;
+		else return 0;
+	}
+	else if (o1->tval > o2->tval) return -1;
+	else /* (o1->tval < o2->tval) */ return 1;
+}
+
+/* a handy macro for sorting */
+#define object_is_worthless(o) (k_info[o->k_idx].cost == 0)
+
+/**
+ * Sort comparator for objects
+ * -1 if o1 should be first
+ *  1 if o2 should be first
+ *  0 if it doesn't matter
+ *
+ * The sort order is designed with the "list items" command in mind.
+ */
+static int compare_items(const object_type *o1, const object_type *o2)
+{
+	bool arta = (artifact_p(o1) && (object_known_p(o1)));
+	bool artb = (artifact_p(o2) && (object_known_p(o2)));
+
+	/* known artifacts will sort first */
+	if ((arta) && (artb)) return compare_types(o1, o2);
+	if (arta) return -1;
+	if (artb) return 1;
+
+	/* unknown objects will sort next */
+	if (!object_aware_p(o1) && !object_aware_p(o2))
+		return compare_types(o1, o2);
+	if (!object_aware_p(o1)) return -1;
+	if (!object_aware_p(o2)) return 1;
+
+	/* if only one of them is worthless, the other comes first */
+	if (object_is_worthless(o1) && !object_is_worthless(o2)) return 1;
+	if (!object_is_worthless(o1) && object_is_worthless(o2)) return -1;
+
+	/* otherwise, just compare tvals and svals */
+	/* NOTE: arguably there could be a better order than this */
+	return compare_types(o1, o2);
+}
+
+/*
+ * Display visible items, similar to display_monlist
+ * copied from V3.1.1
+ */
+void display_itemlist(void)
+{
+	int max, mx, my;
+	unsigned num;
+	int line = 1, x = 0;
+	int cur_x;
+	unsigned i;
+	unsigned disp_count = 0;
+	byte a;
+	char c;
+
+	object_type *types[MAX_ITEMLIST];
+	int counts[MAX_ITEMLIST];
+	unsigned counter = 0;
+
+	int dungeon_hgt = p_ptr->depth == 0 ? TOWN_HGT : DUNGEON_HGT;
+	int dungeon_wid = p_ptr->depth == 0 ? TOWN_WID : DUNGEON_WID;
+
+	byte attr;
+	char buf[80];
+
+	int floor_list[MAX_FLOOR_STACK];
+
+	/* Clear the term if in a subwindow, set x otherwise */
+	if (Term != angband_term[0])
+	{
+		clear_from(0);
+		max = Term->hgt - 1;
+	}
+	else
+	{
+		x = 13;
+		max = Term->hgt - 2;
+	}
+
+	/* Look at each square of the dungeon for items */
+	for (my = 0; my < dungeon_hgt; my++)
+	{
+		for (mx = 0; mx < dungeon_wid; mx++)
+		{
+			(void)scan_floor(floor_list, &num, my, mx, 0x02);
+			/* num = scan_floor(floor_list, MAX_FLOOR_STACK, my, mx, 0x02); */
+
+			/* Iterate over all the items found on this square */
+			for (i = 0; i < num; i++)
+			{
+				object_type *o_ptr = &o_list[floor_list[i]];
+				unsigned j;
+
+				/* Skip gold/squelched */
+				if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
+					continue;
+
+				/* See if we've already seen a similar item; if so, just add */
+				/* to its count */
+				for (j = 0; j < counter; j++)
+				{
+					if (object_similar(o_ptr, types[j]))
+					{
+						counts[j] += o_ptr->number;
+						break;
+					}
+				}
+
+				/* We saw a new item. So insert it at the end of the list and */
+				/* then sort it forward using compare_items(). The types list */
+				/* is always kept sorted. */
+				if (j == counter)
+				{
+					types[counter] = o_ptr;
+					counts[counter] = o_ptr->number;
+
+					while (j > 0 && compare_items(types[j - 1], types[j]) > 0)
+					{
+						object_type *tmp_o = types[j - 1];
+						int tmpcount;
+
+						types[j - 1] = types[j];
+						types[j] = tmp_o;
+						tmpcount = counts[j - 1];
+						counts[j - 1] = counts[j];
+						counts[j] = tmpcount;
+						j--;
+					}
+					counter++;
+				}
+			}
+		}
+	}
+
+	/* Note no visible items */
+	if (!counter)
+	{
+		/* Clear display and print note */
+		c_prt(TERM_SLATE, "You see no items.", 0, 0);
+		if (Term == angband_term[0])
+			Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
+
+		/* Done */
+		return;
+	}
+	else
+	{
+		/* Reprint Message */
+		prt(format("You can see %d item%s: (unaware objects in red)",
+				   counter, (counter > 1 ? "s" : "")), 0, 0);
+	}
+
+	for (i = 0; i < counter; i++)
+	{
+		/* o_name will hold the object_desc() name for the object. */
+		/* o_desc will also need to put a (x4) behind it. */
+		/* can there be more than 999 stackable items on a level? */
+		char o_name[80];
+		char o_desc[86];
+
+		object_type *o_ptr = types[i];
+
+		/* We shouldn't list coins or squelched items */
+		if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
+			continue;
+
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
+		if (counts[i] > 1)
+			sprintf(o_desc, "%s (x%d)", o_name, counts[i]);
+		else
+			sprintf(o_desc, "%s", o_name);
+
+		/* Reset position */
+		cur_x = x;
+
+		/* See if we need to scroll or not */
+		if (Term == angband_term[0] && (line == max) && disp_count != counter)
+		{
+			prt("-- more --", line, x);
+			anykey();
+
+			/* Clear the screen */
+			for (line = 1; line <= max; line++)
+				prt("", line, x);
+
+			/* Reprint Message */
+			prt(format("You can see %d item%s:",
+					   counter, (counter > 1 ? "s" : "")), 0, 0);
+
+			/* Reset */
+			line = 1;
+		}
+		else if (line == max)
+		{
+			continue;
+		}
+
+		/* Note that the number of items actually displayed */
+		disp_count++;
+
+		if (artifact_p(o_ptr) && (object_known_p(o_ptr)))
+			/* known artifact */
+			attr = TERM_VIOLET;
+		else if (!object_aware_p(o_ptr))
+			/* unaware of kind */
+			attr = TERM_RED;
+		else if (object_is_worthless(o_ptr))
+			/* worthless */
+			attr = TERM_SLATE;
+		else
+			/* default */
+			attr = TERM_WHITE;
+
+		a = object_attr(o_ptr);
+		c = object_char(o_ptr);
+
+		/* Display the pict */
+		Term_putch(cur_x++, line, a, c);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
+
+		/* Print and bump line counter */
+		c_prt(attr, o_desc, line, cur_x);
+		line++;
+	}
+
+	if (disp_count != counter)
+	{
+		/* Print "and others" message if we've run out of space */
+		strnfmt(buf, sizeof buf, "  ...and %d others.", counter - disp_count);
+		c_prt(TERM_WHITE, buf, line, x);
+	}
+	else
+	{
+		/* Otherwise clear a line at the end, for main-term display */
+		prt("", line, x);
+	}
+
+	if (Term == angband_term[0])
+		Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 }

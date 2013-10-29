@@ -1891,7 +1891,7 @@ void do_cmd_redraw(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
 	                  PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT |
-	                  PW_MAP | PW_MONLIST);
+	                  PW_MAP | PW_MONLIST | PW_OBJLIST);
 
 	/* Clear screen */
 	Term_clear();
@@ -4438,9 +4438,27 @@ void do_cmd_feeling(void)
 		msg_print("Looks like a typical town.");
 		return;
 	}
+	else
+	{
+		/* Display the feeling */
+		msg_print(feeling_text[feeling]);
+	}
 
-	/* Display the feeling */
-	msg_print(feeling_text[feeling]);
+	/* also give a feeling about the themed level (if any) */
+	if (p_ptr->theme == 1) msg_print("The walls here are decorated with snowy trees of a cold forest.");
+	else if (p_ptr->theme == 2) msg_print("The walls here are decorated with green trees and sprites.");
+	else if (p_ptr->theme == 3) msg_print("This level is a slimy, icky place..");
+	else if (p_ptr->theme == 4) msg_print("The walls here are decorated with fire and veins of molten lava.");
+	else if (p_ptr->theme == 5) msg_print("The walls here have crystal and other types of rocks showing between the granite.");
+	else if (p_ptr->theme == 6) msg_print("This level has high ceilings and windy tunnels.");
+	else if (p_ptr->theme == 7) msg_print("Though deep underground, you inexplicably sense a full moon in the sky.");
+	else if (p_ptr->theme == 8) msg_print("This level is filled with the ruins of an ancient haunted castle.");
+	else if (p_ptr->theme == 9) msg_print("The ground is very wet here and there are puddles of brown water.");
+	else if (p_ptr->theme == 10) msg_print("You recognise a symbol on the wall as a mark to the entrance of a dwarf mine.");
+	else if (p_ptr->theme == 11) msg_print("The ground and walls here are nearly covered with ants and other tiny bugs.");
+	else if (p_ptr->theme == 12) msg_print("A silver mist hangs in the air here; you sense that you have entered the domain of the grepse.");
+	else if (p_ptr->theme == 13) msg_print("This level gives you the creeps, images come to your mind from nightmares you had as a child.");
+	else if (p_ptr->theme == 14) msg_print("Extra shadows and demonic symbols line the walls. It's very hot in here..");
 }
 
 

@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.0.99
+# DaJAngband 1.1.0
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -81,14 +81,16 @@ I:90:0:5
 D:Cures 2d8 points of damage and heals 15 points worth of cuts.
 D:(Minimum hp healing is 10% of your max hit points.)
 
-N:6:Mana Defence
-I:90:7:0
-D:Gives you +20 ac and +1 stealth for 30 + d20 turns.
-D: War Mages gets an additional ac bonus of a variable amount
-D: determined by luck, character level, and intelligence.
-D: If your clvl and intelligence are high but your luck is
-D: low, it may drain slightly more mana than the spell
-D: normally would in order to give the extra armor bonus.
+N:6:False Life
+I:90:7:3
+D:Temporarily raises your max hit points by an amount equal to 2 x (your
+D: character level + 10), that's +120 max hps for a cl50 character.  It will also
+D: raise your current hit points by the number of your character level.  If you
+D: have more than your natural max hit points when the duration runs out, then your
+D: hit points will be set back to your natural max hit points.
+D:  Note: your low hit point warning is still based on your max natural hit points
+D: (not including the extra from this spell).  Percentage-based healing (from 'cure
+D: wounds' potions) is also based on your natural max hit points.
 
 N:7:Wizard Lock
 I:90:0:6
@@ -208,12 +210,12 @@ D:Magically renders you well-fed (but not satiated).
 D:  This will also cure a bloated stomach.
 
 N:27:Heroism
-I:90:7:1
+I:90:7:0
 D:Cures 10 points of damage, removes fear and grants you heroism
 D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns.
 
 N:28:Berserker
-I:90:7:2
+I:90:7:1
 D:Cures 30 points of damage, removes fear, and grants you berserk
 D: strength (resistance to fear, a bonus of +24 to-hit, and a penalty
 D: of -10 to AC) for 25+1d25 turns.
@@ -443,7 +445,7 @@ D: can never be affected by this spell.
 D: If you attack and hit any charmed animal, the effects end immediately.
 
 N:67:Sphere of Charm
-I:90:7:3
+I:90:7:2
 D:While this spell is in effect, most 
 D: animals, bugs, young dragons and creatures of light within two spaces
 D: of you will not breathe or use any melee attack against you (but
@@ -576,16 +578,16 @@ D:  Uniques and monsters that resist fear are not affected.
 
 #20
 N:96:Resist Heat and Cold
-I:91:2:2
+I:91:2:3
 D:Gives you temporary resistance to cold and fire, for 10+1d10 turns each.
 
 N:97:Cure Critical Wounds
-I:91:2:3
+I:91:2:4
 D:Cures 6d10 points of damage and heals all cut damage.
 D:(Minimum hp healing is 25% of your max hit points.)
 
 N:98:Chant
-I:91:2:4
+I:91:2:2
 D:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for a
 D: level-dependant duration.
 
@@ -620,7 +622,7 @@ D:Cures 8d10 points of damage, cures all stunning and heals all cut damage.
 D:(Minimum hp healing is 30% of your max hit points.)
 
 N:105:Silence Summons
-I:91:3:5
+I:91:3:6
 D:Stops the targetted monster from casting any spells which heal itself
 D: or summon any other monster(s) for a level-dependant duration.
 D: Monsters get a saving throw. Uniques and monsters which cast
@@ -642,15 +644,15 @@ D:  All cursed items in the area of effect are destroyed.
 D:  The bigger area of effect is attained at character level 30.
 
 N:107:Dispel Undead
-I:91:3:3
+I:91:3:4
 D:Inflicts unresistable damage on each undead monster within line of sight.
 
 N:108:Dispel Evil
-I:91:3:4
+I:91:3:5
 D:Inflicts unresistable damage on each evil monster within line of sight.
 
 N:109:Holy Word
-I:91:3:6
+I:91:3:7
 D:Inflicts unresistable damage on each evil monster within line of sight,
 D: cures 1000 points of damage, cures all stunning, heals all cut damage,
 D: neutralizes poison, and removes fear, charm, and frenzy.
@@ -677,10 +679,10 @@ I:91:4:3
 D:Completely purifies you from slime and silver poison, and shortens the
 D: duration of normal poison.
 
-N:114:Dispel Curse
+# healer-only
+N:114:Poison Resistance
 I:91:4:4
-D:Removes all ordinary and heavy curses from all equipped objects.
-D:  Permanent curses are not affected.
+D:Grants you resistance to poison for 20+1d20 turns.
 
 N:115:Healing
 I:91:4:5
@@ -725,14 +727,14 @@ D: 1d(level/6) vs non-light-sensitive demons.
 
 #45
 N:121:Godspeed
-I:91:5:3
+I:91:6:3
 D:You are granted extra speed by your god. The speed bonus
 D: is between +4 and +11 and lasts longer than the mage's
 D: haste spell. (+11 is rare and only if you're lucky and high level)
 
 #Healer version since they don't get Exorcism and Dispelling
 N:122:Silence Summons
-I:91:6:5
+I:91:6:6
 D:Stops the targetted monster from casting any spells which heal itself
 D: or summon any other monster(s) for a level-dependant duration.
 D: Monsters get a saving throw. Uniques and monsters which cast
@@ -744,15 +746,16 @@ D: This spell can sometimes work on uniques, but there is one case
 D: when this spell never works: This spell cannot prevent Sauron
 D: from summoning his ringwraiths.
 
+# called bless_weapon in code
 N:123:Bless Object
 I:91:5:4
 D:Attempts to bless an object, letting a priest be able to wield it without
 D: penalty. If you are at least character level 35 and it's a weapon or
-D: bow, it also attempts to enchant the to-hit
-D: and to-dam bonuses by an amount depending on character level.
-D: If it's armor, then it attempts to enchant its armor class. If it's a
-D: light source, it increases its light radius by 1. If the object is a wand,
-D: rod, or staff this spell makes it easier to use.
+D: bow, it also attempts to enchant the to-hit and to-dam bonuses by an
+D: amount depending on character level. If it's armor, then it attempts to
+D: enchant its armor class.  If it's a light source, it increases its light
+D: radius by 1. If the object is a wand, rod, or staff this spell makes it
+D: easier to use.
 D: Most effects of this spell are temporary, but enchantments
 D: on to-hit, damage and armor class are permanent.
 D: (Blessing lasts a maximum of 3000 turns, minimum about 750 turns,
@@ -769,31 +772,38 @@ D:Makes you strike blows with holy might (slay demon, slay undead, and
 D: slay silver) in melee for 10+d10 turns.
 
 N:125:Resistance
-I:91:5:6
+I:91:7:5
 D:Grants you resistance to acid, cold, fire, lightning, and poison for
 D: 20+1d20 turns.
 
 #50
+# healer-only
 N:126:Mass Sleep
 I:91:6:0
 D:Attempts to put to sleep each monster within line of sight.
 D:  Uniques and monsters that resist confusion are not affected.
 
 N:127:Breath Shield
-I:91:6:1
-D:Gives you damage reduction against monster breath for a level-dependant duration.
-
-N:128:Teleport Other
 I:91:6:2
+D:Gives you damage reduction against monster breath for a level-dependant duration.
+D: It reduces all breath attacks by 1/4 of the damage.  If you have this spell active
+D: AND a wielded magic item which gives breath damage reduction, then it reduces
+D: breath damage by 1/3 of the original damage.
+
+#this one in paladin-only book, others get it in book 7
+N:128:Teleport Other
+I:91:6:4
 D:Produces a beam that teleports each monster in its path
 D: up to 100 squares away.
 
-N:129:Dispel Silver
-I:91:6:3
-D:Inflicts unresistable damage on each silver monster within line of sight.
+N:129:Resist Silver
+I:91:5:3
+D:Gives you resistance to silver magic, amnesia, and charm.
+D: Will also resist hallucentaion from melee, but not hallucenation from
+D: chaos breath.
 
 N:130:*Protection from Evil*
-I:91:6:4
+I:91:6:5
 D:Protects you from evil for a level-dependant duration:
 D: (much shorter duration than normal protection from evil)
 D: all melee attacks by evil monsters have a chance to be repelled,
@@ -809,11 +819,11 @@ D: protection from evil if monster level is not higher than your level.
 
 #55
 N:131:Banish Evil
-I:91:6:6
+I:91:8:0
 D:Teleports away each evil monster within line of sight.
 
 N:132:Glyph of Warding
-I:91:6:7
+I:91:5:6
 D:Inscribes a glyph of warding beneath you.
 D:  Summoned monsters can't appear on the glyph.
 D:  If a monster attempts to move onto the glyph or melee you while you
@@ -832,12 +842,12 @@ D:Detects all treasure, objects, doors, stairs, traps, and monsters
 D: in the immediate area. (Even all objects which are hidden in rubble).
 
 N:135:Full Identify
-I:91:7:2
+I:91:7:3
 D:Reveals all attributes and powers of one object.
 
 #60
 N:136:Refuge
-I:91:7:3
+I:91:7:4
 D:Creates a tiny fortress around you:
 D: Any monsters who are adjacent to you are teleported a short
 D: distance away, and any objects in adjacent spaces are moved.
@@ -845,19 +855,20 @@ D: Then jammed doors are created in every adjacent floor space.
 D: Then it will ask you where you want the exit to be, and if
 D: you chose a direction, it will unjam the door in that direction.
 
-N:137:Telepathy
-I:91:7:4
-D:Gives you telepathy for (clvl + d(clvl)) turns.
+N:137:Teleport Other
+I:91:7:2
+D:Produces a beam that teleports each monster in its path
+D: up to 100 squares away.
 
 N:138:Alter Reality
-I:91:7:5
+I:91:7:6
 D:The current level will be discarded and a new dungeon level (on the
 D: same dungeon depth) will be generated.  This has exactly the same
 D: side effects as leaving and re-entering the level through a stair,
 D: except that you won't start on a square with a stair.
 
 N:139:Earthquake
-I:91:8:0
+I:91:3:3
 D:Causes a 10-square radius earthquake around you.
 D:  Earthquakes may damage monsters and destroy items in some
 D: squares in the area of effect.
@@ -865,7 +876,7 @@ D:  Artifacts will not be destroyed by this prayer.
 D:  This prayer has no effect when used in the town.
 
 N:140:Holy Lance
-I:91:8:1
+I:91:6:7
 D:Fires a beam of holy damage a little stronger than orb of draining.
 D: (evil monsters take double damage).
 D: Has a level dependant chance of also shooting a spear of light at
@@ -873,19 +884,19 @@ D: the same time. (50% at clvl 30)
 
 #65
 N:141:Dispel Silver 2
-I:91:8:2
+I:91:8:1
 D:Inflicts unresistable damage on each silver monster within line of sight.
 
 N:142:Dispel Undead 2
-I:91:8:3
+I:91:8:2
 D:Inflicts unresistable damage on each undead monster within line of sight.
 
 N:143:Dispel Evil 2
-I:91:8:4
+I:91:8:3
 D:Inflicts unresistable damage on each evil monster within line of sight.
 
 N:144:Word of Destruction
-I:91:8:5
+I:91:8:4
 D:Destroys everything in a 15-square radius circle around you.
 D:  All monsters, objects, and terrain features in the area of
 D: effect are destroyed, except stairs, permanent walls and
@@ -894,13 +905,27 @@ D:  You will also be blinded for 10+1d10 turns, unless you
 D: have resistance to blindness or light.
 D:  This prayer has no effect when used in the town.
 
-#69
 N:145:Annihilation
-I:91:8:6
+I:91:8:5
 D:Inflicts 200 points of damage on a single monster that is not
 D: undead, a demon, an elemental, a golem, or a vortex.
 
-#    prayers 70-75 unused
+#70
+N:146:Truce
+I:91:6:1
+D:Offer a truce to all living sentient creatures in line of sight. Any
+D: creatures that accept will not harm you in any way until the truce
+D: expires unless you attack it.
+D: This spell only works on monsters of these symbols*: dhkptxyAKOPTY@
+D: and monsters of any symbol which cast intelligently.
+D: It will never work on non-living monsters and it is much less likely
+D: to work on evil monsters.  Effectiveness and duration depend on
+D: charisma and luck.  This spell is only slightly less likely to work
+D: on uniques. (it's even effective against Huan, Wolfhound of the Valar)
+D:  *If you're using graphics, the monster recall will tell you what
+D: symbol it uses.
+
+#    prayers 71-75 unused
 # start nature with #152 because Max spells is 76
 ### Nature Spells (mostly done)
 
@@ -980,11 +1005,16 @@ D: Monsters which are immune to water are not affected.
 
 N:167:Bug Spray
 I:92:1:7
-D:Does clvl/3 + randint(clvl / 3) damage to all bugs in vision, 
-D:and does half that damage to all rodents in vision.
+D:Fires a spread effect which does damage to all bugs with the
+D: radius, and half damage to all rodents in the radius.
+D: Radius is 7 + character level/6.
+D:  (A spread effect is like a wide radius ball spell centered on the
+D: caster, except that ball spells do half damage one space away from the center,
+D: but the damage of spread effects diminishes much slower.  It does full
+D: damage to all monsters within 2 spaces.)
 
 N:168:Fire Bolt
-I:92:1:8
+I:92:3:1
 D:Fires a fire bolt that always hits its target.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
@@ -1015,11 +1045,11 @@ D:Heals you, partially cures poison and cures some cut damage with
 D: amount depending on character level. (Healing is 9 + (clvl / 3)d4.)
 
 N:174:Resist Poison
-I:92:2:4
+I:92:4:3
 D:Grants you resistance to poison for 20+1d20 turns.
 
 N:175:Earthquake
-I:92:2:5
+I:92:2:7
 D:Causes a 10-square radius earthquake around you.
 
 N:176:Identify
@@ -1028,54 +1058,55 @@ D:Reveals all normal (magical but non-hidden) powers of one object.
 
 #25
 N:177:Teleport Other
-I:92:2:7
+I:92:4:5
 D:Produces a beam that teleports each monster in its path
 D: up to 100 squares away.
 
-N:178:Detect Evil
-I:92:3:0
-D:Detects all evil monsters in the immediate area,
-D: for one turn only.
+N:178:Resist Silver
+I:92:4:2
+D:Gives you resistance to silver magic, amnesia, and charm.
+D: Will also resist hallucentaion from melee, but not hallucenation from
+D: chaos breath.
 
 N:179:Song of Frightening
-I:92:3:1
+I:92:4:4
 D:Attempts to scare each monster in line of sight.
 D:  Uniques and monsters that resist fear are not affected.
 
 N:180:Herbal Healing
-I:92:3:2
+I:92:2:5
 D:Cures all poison and cuts and heals you an amount depending on
 D: character level. (Healing is 30 + (clvl*3/4)d5.)
 
 N:181:Sense Invisible
-I:92:3:4
+I:92:4:0
 D:Enables you to see invisible monsters for 24+1d24 turns.
 
 #30
 N:182:Sense Surroundings
-I:92:3:5
+I:92:4:1
 D:Maps out a portion of the level around you.
 
 N:183:True Sight
-I:92:3:6
+I:92:4:6
 D:Detects traps, doors, stairs, and invisible and evil monsters, and
 D: enables you to see invisible monsters for 35+1d35 turns. Plus, it
 D: gives you temporary resistance to blindness and halucenation, raises
 D: your alertness significantly, and expands your light radius by 1.
 
 N:184:Nymph's Blessing
-I:92:4:0
+I:92:3:2
 D:Blesses you, giving a bonus of +5 to AC and +10 to-hit, for 24+1d26
 D: turns.
 
 N:185:Wither Foe
-I:92:4:2
+I:92:3:4
 D:Fires a bolt of unresistable damage which also attempts to slow and
 D: confuse the affected monster. Also has a chance of attempting to
 D: scare the monster.
 
 N:186:Lightning Storm
-I:92:4:3
+I:92:3:5
 D:Shoots a ball of lightning with level dependant radius (clvl/15).
 D: (can destroy staves & rods)
 D: Damage at center is 41-80 at clvl20, 51-110 at clvl30, 61-140 at clvl40,
@@ -1083,15 +1114,18 @@ D: 71-170 at clvl50.
 
 #35
 N:187:Thunderclap
-I:92:4:4
-D:Does sound damage to each monster in line of sight, and also has a
-D: chance to stun each monster.
-D: (no potions get destroyed from the sound damage because it's an LOS spell)
-D: Damage to all in LOS is 21-60 at clvl20, 31-90 at clvl30, 41-120 at clvl40,
-D: 51-150 at clvl50.
+I:92:3:6
+D:Creates a thunderclap which attempts to stun every monster within 10 spaces of
+D: you (radius 10 spread effect).  The radius increases with high character level.
+D:  (A spread effect is like a wide radius ball spell centered on the
+D: caster, except that ball spells do half damage one space away from the center,
+D: but the damage of spread effects diminishes much slower.  It does full
+D: damage to all monsters within 2 spaces.)
+D: Spread effects only rarely destroy objects on the floor (1/4 as much chance
+D: as a ball spell).
 
 N:188:Blizzard
-I:92:4:5
+I:92:3:7
 D:Shoots a cold ball with level-dependant radius (clvl/12).
 D: (can destroy potions)
 D: Damage at center is 31-96 at clvl20, 41-140 at clvl30, 51-183 at clvl40,
@@ -1286,7 +1320,7 @@ D: never be affected by this spell.
 D: If you attack and hit any charmed animal, the effects end immediately.
 
 N:221:Mighty Throw
-I:92:4:1
+I:92:3:3
 D:This spell allows you to pick up rubble and throw it*.
 D: While this spell is in effect, you get double strength bonus to damage
 D: on anything you throw at a monster (even if it isn't something that's 
@@ -1301,8 +1335,17 @@ D: *- The base damage of rubble is 6d10.
 
 #70
 N:222:Portal
-I:92:3:3
+I:92:2:4
 D:Teleports you randomly over a short distance.
+
+N:223:Fire Spray
+I:92:3:0
+D:Sprays fire in all directions (radius 5-6 spread effect).
+D: Useful for fighting opponents that you can't see.
+D:  (A spread effect is like a wide radius ball spell centered on the
+D: caster, except that ball spells do half damage one space away from the center,
+D: but the damage of spread effects diminishes much slower.  It does full
+D: damage to all monsters within 2 spaces.)
 
 #    nature 71-75 (223-227) unused
 # start chance spells with #228 because Max spells is 76
@@ -1533,9 +1576,9 @@ D: destroying nearby traps and doors.
 N:256:Disinfectant
 I:93:1:3
 D:Decreases poison, cuts, and stunning by a level-dependant amount,
-D: has a level-dependant chance of decreasing sliming by 1, and does very
+D: has a level-dependant chance of decreasing sliming by 1, and does
 D: slight damage to all jellies, slimes, molds, mushroom patches, and
-D: worms in line of sight.
+D: worms within a radius of 6 + (character level / 6).
 D: Has 10% chance of having slightly more potent effect if you are at least
 D: clvl 15 including temporary partial poison resistance.
 
@@ -1866,9 +1909,9 @@ D: does an amount of damage which is based solely on your luck.
 N:304:Disinfectant
 I:94:0:2
 D:Decreases poison, cuts, and stunning by a level-dependant amount,
-D: has a level-dependant chance of decreasing sliming by 1, and does very
+D: has a level-dependant chance of decreasing sliming by 1, and does
 D: slight damage to all jellies, slimes, molds, mushroom patches, and
-D: worms in line of sight.
+D: worms within a radius of 6 + (character level / 6).
 D: Has 10% chance of having slightly more potent effect if you are at least
 D: clvl 10 including temporary partial poison resistance.
 
@@ -2032,7 +2075,7 @@ N:334:Mist of Amnesia
 I:94:3:3
 D:Causes every monster in line of sight to forget that you
 D: are there.
-D:  Undead and non-living monsters are not affected, but
+D:  Undead and other non-living monsters are not affected, but
 D: uniques may be affected.
 
 N:335:Haste Self
@@ -2122,42 +2165,100 @@ D: the to-hit bonus and the to-dam bonus of the same ammunition.
 D:  The spell has no effect if the ammunition is already branded, has a
 D: slay, is broken, or is cursed.
 
-N:347:Confuse Monster
-I:94:5:0
-D:Attempts to confuse a single monster for a level-dependant duration.
-D:  Uniques and monsters that resist confusion are not affected.
+#N:347:Confuse Monster
+#I:94:5:0
+#D:Attempts to confuse a single monster for a level-dependant duration.
+#D:  Uniques and monsters that resist confusion are not affected.
 
-N:348:Sleep Monster
+#N:348:Sleep Monster
+#I:94:5:1
+#D:Attempts to put to sleep a single monster.
+#D:  Uniques and monsters that resist sleep are not affected.
+
+#Could combine these into one spell, but then we'd have to ask
+# "mimmic a new wand, check on current mimmicked wand, or zap mimmicked wand?"
+# and I only know how to code yes or no questions.
+# code is done except for putting p_ptr->mimmic and p_ptr->menhance into save.c and load.c
+N:347:Mimmic Wand (Mimmic)
+I:94:5:0
+D:With the mimmic wand spell, you choose a wand whose effect you
+D: wand to mimmic. Then you can have the effect of zapping that wand
+D: without having it in your inventory.  (Except you won't have to use
+D: up wand charges or wait for it to recharge if it's a rod.)
+D: If you are at least character level 30, then you can also mimmic rods.
+D: If you choose a wand or rod which is enhanced by the enhance wand
+D: spell, then this spell will mimmic the enhanced version of the wand
+D: effect.
+D:  The (mimmic) part of the spell lets you choose a wand you want to
+D: mimmic. Then it steals the effect from the wand you chose and saves it
+D: in your spellbook (this uses up one charge of the wand you chose).
+D: Alternatively, this spell can remind you which wand effect you have
+D: already chosen to mimmic, if any (this last effect doesn't use up any
+D: mana).
+D:  The two parts of this spell are learned at the same time. If you
+D: learn them and can only learn 1 new spell at the time, then you will
+D: forget the (mimmic) part of the spell until you can learn more spells.
+
+N:348:Mimmic Wand (Zap)
 I:94:5:1
-D:Attempts to put to sleep a single monster.
-D:  Uniques and monsters that resist sleep are not affected.
+D:With the mimmic wand spell, you choose a wand whose effect you
+D: wand to mimmic. Then you can have the effect of zapping that wand
+D: without having it in your inventory.  (Except you won't have to use
+D: up wand charges or wait for it to recharge if it's a rod.)
+D: If you are at least character level 30, then you can also mimmic rods.
+D: If you choose a wand or rod which is enhanced by the enhance wand
+D: spell, then this spell will mimmic the enhanced version of the wand
+D: effect.
+D:  The (zap) part of the spell activates the effect of the wand or rod
+D: you chose to mimmic. If you have not yet chosen a wand or rod to mimmic
+D: then this spell can mimmic a random one of the following wands instead:
+D: light, sleep monster, slow monster, confuse monster, scare monster,
+D: polymorph, stinking cloud, magic missile, or bolt of fire, cold,
+D: acid, or lightning.
+D:  The two parts of this spell are learned at the same time. If you
+D: learn them and can only learn 1 new spell at the time, then you will
+D: forget the (mimmic) part of the spell until you can learn more spells.
+D:  This spell has a variable mana cost based on the difficulty of the wand
+D: you are mimmicking.  If you have not chosen a wand to mimmic, there's a
+D: set mana cost (6) to mimmic a random low-level wand. (The mana cost will
+D: show correctly when you are browsing the book.)
 
 #45
-N:349:Element Bolt
+N:349:Repugnant Odor
 I:94:5:3
-D:Fires a bolt of a random element (lighting, cold, fire, or acid)
-D:  Sometimes a beam is fired instead that hurts each monster
-D: in its path.
-D:  The chance to get a beam goes up with your character level.
+D:This formula makes you stink horribly, making most nearby monsters run away.
+D: It only affects monsters within a few spaces of you (radius is listed in
+D: spellbook). Non-living monsters are unaffected.
 
-N:350:Polymorph Other
+N:350:Lasting Repugnance
 I:94:5:5
-D:Attempts to slow a single monster.
-D:  Uniques are not affected.
+D:This formula makes you stink horribly for an extended level-dependant
+D: period of time, making most monsters run away whenever they get within 30
+D: feet (3 spaces) of you.  Non-living monsters are unaffected.
+D: Believe it or not, there are disadvantages to smelling horrible:
+D: Monsters within range will notice you much easier and shopkeepers will
+D: not let you into their store.
 
-N:351:Slow Monster
+N:351:Zombie Flame
 I:94:5:4
-D:Attempts to polymorph a single monster.
-D:  Uniques are not affected.
+D:Fires a special fire bolt that always hits its target.  This is a kind of
+D: flame formulated for destroying undead, and is not very effective against
+D: living targets.  There are a few undead which are immune to fire, but
+D: they will take full effect from this flame.  It also harms silver monsters
+D: and any other fire-vulnerable non-living monsters.
+D:  Sometimes a beam is fired instead that hurts each monster
+D: in its path.  The chance to get a beam goes up with your character level.
 
 N:352:Restore Cleverness
 I:94:7:5
 D:Restores your Intelligence, Dexterity, and Charisma to maximum 
 D: if any of them are below maximum.
 
-N:353:Element Ball
+N:353:Alchemical Dragonbreath
 I:94:5:6
-D:Shoots a radius-2 ball of cold or fire, chosen at random.
+D:A mixture which causes you to breath a radius-2 ball of cold or fire,
+D: chosen at random.
+#D: (same as a potion of dragonbreath)
 
 #50
 N:354:Acid Ball
@@ -2168,11 +2269,28 @@ N:355:Ice Storm
 I:94:5:8
 D:Shoots a radius-3 cold ball which also attempts to stun affected monsters.
 
-# (just after sleep monster in book)
-N:356:Wonder
+# (replaced wonder spell)
+# spell code is done except for putting o_ptr->enhance into save.c and load.c
+N:356:Enhance Wand
 I:94:5:2
-D:Invokes a random wand effect with a very small chance of more
-D: powerful good effects than are available with wands.
+D:Enhances the damage or effectiveness of a wand.  If you are at least level
+D: 30, then you can enhance rods and activations of elemental rings and some
+D: artifacts with this spell also.
+D:  If it is a wand, the enhancement wears off completely once it runs out of
+D: charges or is recharged.  If it is a rod, the enhancement wears off slowly
+D: each time it is used.
+D:  Almost any wand or rod which does damage to a monster can be enhanced by this
+D: spell.  The following other wand/rods can also be enhanced by this spell:
+D: heal monster (damage to undead), polymorph, slow, confuse, sleep, scare
+D: (effectiveness), and recall (reduces recall time).
+D:  The additional damage cannot take the total damage above 200, so that the
+D: enhancement will have no effect on wands of Annihilation or a few other
+D: powerful wands / rods.
+D:  The amount of enhancement depends on your character level and device skill,
+D: and is reduced by the level of the item (it's possible for the spell to fail
+D: if it is reduced to 0).  This spell is more effective on wands than on anything else.
+D:  You cannot stack enhancements on a wand or rod unless its current enhancement
+D: is weak (less than 10).
 
 N:357:Cloudkill
 I:94:6:3
@@ -2192,12 +2310,12 @@ D: breaking it, or until you leave the level.
 N:359:Silver bullet
 I:94:6:1
 D:Fires a powerful bolt of silver that always hits its target.
-D:  Monsters vulnerable to silver include: black cats, most dark
-D: fairies, vampires, all werebeasts, and wargs (which are
-D: considered to be closely related to werewolves). Demons will
-D: take damage also, but not as much as silver-vulnerable monsters.
-D: This spell also heals any silver monsters which happen to be
-D: in the line of fire.
+D:  Monsters vulnerable to silver include: black cats, imps and
+D: some related demons (quasit, tengu, homunculus), vampires, all
+D: werebeasts, and wargs (which are considered to be closely related to
+D: werewolves). Other demons will take damage also, but not as much as
+D: silver-vulnerable monsters. This spell also heals any silver monsters
+D: which happen to be in the line of fire.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
 D:  The chance to get a beam goes up with your character level.
@@ -2300,6 +2418,9 @@ D:  Uniques or monsters that resist confusion are not affected.
 N:375:Breath Shield
 I:94:8:2
 D:Gives you damage reduction against monster breath for a level-dependant duration.
+D: It reduces all breath attacks by 1/4 of the damage.  If you have this spell active
+D: AND a wielded magic item which gives breath damage reduction, then it reduces
+D: breath damage by 1/3 of the original damage.
 
 N:376:Enchant Armor
 I:94:8:5
@@ -2367,16 +2488,16 @@ D: to sleep monsters who normally cannot be put to sleep).
 
 #5
 N:385:Cure Poison
-I:95:0:7
+I:95:0:6
 D:Neutralizes poison.
 
 N:386:Sleep Monster
-I:95:0:6
+I:95:0:7
 D:Attempts to put to sleep a single monster.
 D:  Uniques and monsters that resist sleep are not affected.
 
 N:387:Wither Foe
-I:95:3:0
+I:95:4:1
 D:Fires a bolt of unresistable damage which also attempts to slow and
 D: confuse the affected monster. 
 
@@ -2385,22 +2506,22 @@ I:95:0:8
 D:Enables you to see invisible monsters for clvl + d24 turns.
 
 N:389:Detect Traps
-I:95:1:1
+I:95:1:0
 D:Detects all traps in the immediate area.
 
 #10
 N:390:Detect Doors & Stairs
-I:95:1:0
+I:95:1:1
 D:Detects all doors and stairs in the immediate area.
 
 N:391:Shadow Shift
 I:95:1:2
 D:Teleports you randomly up to 10 squares away. Shifting through
-D: the nether realms is unhealthy and causes you d6 damage 3/4 of the time.
-D: (d3 damage if clvl is less than 5).
+D: the nether realms is unhealthy and causes you d(clvl/6) damage
+D: 3/4 of the time.  (d2 damage if clvl is less than 12).
 
 N:392:Drain Charges
-I:95:1:3
+I:95:1:4
 D:Allows you to heal yourself by draining the charges from a wand or staff
 D: of your choice.  If you are lower than clvl 30, amount healed is equal to
 D: (amount drained+1) * (clvl/3).
@@ -2411,12 +2532,12 @@ D: bonuses from some other magic items to convert into healing.
 D: (A good use for that (+9 +10) whip of uselessness!)
 
 N:393:Turn Undead
-I:95:1:7
+I:95:4:3
 D:Attempts to scare each undead monster within line of sight,
 D: causing it to flee in terror for a level-dependant duration.
 
 N:394:Death Bolt
-I:95:1:6
+I:95:4:2
 D:Inflicts damage on a single living monster.  Before clvl 13, damage
 D: is only a little stronger than magic missile, but once you get to
 D: character level 13 the damage formula changes and becomes much
@@ -2428,25 +2549,25 @@ D:  mimmics, and a couple certain types of demons).
 
 #15
 N:395:Stink
-I:95:1:5
+I:95:1:7
 D:Usually casts a ball of toxic gas varying potency (can be as weak 
 D: as stinking cloud or as powerful as cloudkill). Also has a small chance
 D: of poisoning yourself along with the usual effect.
 
 N:396:Dispel Undead
-I:95:1:8
+I:95:4:5
 D:Inflicts unresistable damage on each undead monster within line of sight.
 
-N:397:Cause Light Wounds
-I:95:2:0
-D:Inflicts very minor damage on a single living monster.
-D: Damage averages ~9 at clvl 6, ~13 at clvl 18, ~19 at clvl 27,
-D: ~23 at clvl 36, and ~29 at clvl 45.
-D: (lifeless monsters include undead, golems, vortexes, elementals,
-D:  mimmics, and a couple certain types of demons).
+N:397:Symbol of Demon Warding
+I:95:4:0
+D:This spell makes a symbol underneath you which wards off demons.  No
+D: demon of lower level than you will be able to touch you in melee, and
+D: it has a chance to affect some higher level demons also.
+D:  The duration is short and as soon as you move in any way, the symbol
+D: dissapears.
 
 N:398:Witch's Disinfectant
-I:95:2:1
+I:95:1:3
 D:Decreases poison and stunning by 4 + d(clvl/2), has two 1/3 chances of 
 D: decreasing sliming by 1, and does very slight damage to all jellies, 
 D: slimes, molds, mushroom patches, and worms in line of sight.
@@ -2456,34 +2577,36 @@ D: and halucenation, and gives you temporary partial resistance to poison.
 D: This spell requires blood to be shed for the curing of other 
 D: things (you inflict minor cuts on yourself when you cast the spell).
 
-N:399:Cause Serious Wounds
-I:95:2:2
-D:Inflicts somewhat minor damage on a single living monster.
-D: Damage averages ~23 at clvl 6, ~31 at clvl 18, ~39 at clvl 24,
-D: ~47 at clvl 36, and ~75 at clvl 48.
-D: (lifeless monsters include undead, golems, vortexes, elementals,
-D:  mimmics, and a couple certain types of demons).
+N:399:Circle of Flame
+I:95:3:7
+D:Fires a radius 5 spread effect of flame.  The radius increases to 6 at
+D: character level 40.
+D:  (A spread effect is like a wide radius ball spell centered on the
+D: caster, except that ball spells do half damage one space away from the center,
+D: but the damage of spread effects diminishes much slower.  It does full
+D: damage to all monsters within 2 spaces.)
 
 #20
 N:400:Trap/Door Destruction
-I:95:2:3
+I:95:1:5
 D:Destroys all traps and doors within a 1-square radius of you.
 
 N:401:Poison Bolt
-I:95:2:4
+I:95:3:0
 D:Fires a poison bolt that always hits its target.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
 D:  The chance to get a beam goes up with your character level.
 
 N:402:Slip Into the Shadows
-I:95:2:5
+I:95:7:0
 D:Doubles your stealth, and gives you a slight bonus to alertness and ac for
 D: 30 + d(clvl) turns. Usually has no effect if you are currently
 D: aggravating monsters.
 
+#currently unused
 N:403:Cause Mortal Wounds
-I:95:2:7
+#I:95:2:7
 D:Inflicts damage on a single living monster.  In addition, fires
 D: a radius-1 shards ball at the same target.
 D: (lifeless monsters include undead, golems, vortexes, elementals,
@@ -2495,15 +2618,16 @@ D: It's an insanely complicated damage formula -I don't know
 D: how I came up with it.
 
 N:404:Greater Venom Bolt
-I:95:3:7
+I:95:3:6
 D:Fires a powerful poison bolt that always hits its target.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
 D:  The chance to get a beam goes up with your character level.
 
 #25
+#currently unused
 N:405:Breathe Withering
-I:95:2:8
+#I:95:2:8
 D:Makes you breathe slowing and confusion plus damage.
 D: Damage averages ~50 on clvl 30, ~67 on clvl 40,
 D: and ~83 on clvl 50.
@@ -2520,15 +2644,16 @@ D: in its path. Dark-sensitive monsters take double damage.
 
 N:408:Ice Spear
 I:95:3:2
-D:Fires a bolt of ice that always hits its target.
+D:Fires a bolt of ice that always hits its target and attempts
+D: to stun affected monsters.
 D:  Sometimes a beam is fired instead that hurts each monster
 D: in its path.
 D:  The chance to get a beam goes up with your character level.
-D: Also attempts to stun affected monsters, and has higher chance 
-D: of beam than most bolt spells.
+D: This spell has more chance to beam than most 'bolt or beam'
+D: spells.
 
 N:409:Stench of Death
-I:95:3:6
+I:95:4:6
 D:Fires a radius-4 ball which does poison, nether and confusion
 D: damage.  Total average damage is ~53 on clvl 20, ~66 on clvl 30,
 D: ~81 on clvl 40, 94 on clvl 50.
@@ -2557,13 +2682,13 @@ D: in its path.
 D:  The chance to get a beam goes up with your character level.
 
 N:413:Shadow Warp
-I:95:4:0
+I:95:2:0
 D:Teleports you randomly within the current level. Shifting through
-D: the nether realms is unhealthy and causes you 3 + d(clvl - 20)
-D: (with a minimum of 3 + d6) damage 90% of the time.
+D: the nether realms is unhealthy and causes you 1 + d((clvl + 2) / 4)
+D: damage 90% of the time.
 
 N:414:Wizard Lock
-I:95:4:1
+I:95:2:1
 D:Fixes (if broken), closes, and magically spikes a door.
 D: (You must target a specfic spot for this spell to work.
 D: -don't just use a direction key.)
@@ -2572,36 +2697,36 @@ D: space also.)
 
 #35
 N:415:Shadow Mapping
-I:95:4:2
+I:95:2:2
 D:Maps out a portion of the level around you.
 
 N:416:Break Curse
-I:95:4:3
+I:95:2:3
 D:Removes all ordinary curses from all equipped items.
 D:  Heavy or permanent curses are not affected.
 
 N:417:Probing
-I:95:4:5
+I:95:2:6
 D:Probes each monster within line of sight, giving information on the
 D: current hit points of the monster and many of its characteristics
 D: and abilities (excluding its melee, spellcasting, and breath attacks).
 D: Has a chance of also finding out monster's spellcasting and breath attacks.
 
 N:418:Identify
-I:95:4:4
+I:95:2:5
 D:Reveals all normal (magical but non-hidden) powers of one object.
 
 N:419:Summon Demonic Aid
-I:95:5:4
+I:95:5:5
 D:Summons a demon to help you.
 
 #40
 N:420:Exorcise Demons
-I:95:4:7
+I:95:2:7
 D:Inflicts unresistable damage on each demon within line of sight.
 
 N:421:Detect Enchantment
-I:95:4:8
+I:95:2:8
 D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
@@ -2614,10 +2739,16 @@ N:422:Boldness
 I:95:5:0
 D:Removes fear and has a chance of removing charm.
 
-N:423:Tourniquet
+N:423:False Life
 I:95:5:1
-D:Cures all stunning and cuts.  Slows poison, halucenation, and berserk
-D: rage.  Grants you partial poison resistance for 4-8 turns.
+D:Temporarily raises your max hit points by an amount equal to 2 x (your
+D: character level + 10), that's +120 max hps for a cl50 character.  It will also
+D: raise your current hit points by the number of your character level.  If you
+D: have more than your natural max hit points when the duration runs out, then your
+D: hit points will be set back to your natural max hit points.
+D:  Note: your low hit point warning is still based on your max natural hit points
+D: (not including the extra from this spell).  Percentage-based healing (from 'cure
+D: wounds' potions) is also based on your natural max hit points.
 
 N:424:Resist Poison
 I:95:5:2
@@ -2625,7 +2756,7 @@ D:Grants you resistance to poison for 20+1d20 turns.
 
 #45
 N:425:Protection From the Lifeless
-I:95:4:6
+I:95:4:4
 D:Protects you from lifeless monsters for a level-dependant duration:
 D: all melee attacks by lifeless monsters have a chance to be repelled,
 D: unless the monster's level is higher than your character level.
@@ -2639,14 +2770,14 @@ D: (temporary nether resistance does not stack with permanent
 D: nether resistance)
 
 N:427:Unholy Resistance
-I:95:5:5
+I:95:5:6
 D:Grants you resistance to cold, fire, dark, nether, and poison for
 D: 20+1d20 turns.
 D: (temporary nether or dark resistance does not stack with permanent
 D: nether or dark resistance)
 
 N:428:Shadow Barrier
-I:95:5:6
+I:95:5:7
 D:Grants you +50 to AC for 30+1d20 turns.
 
 N:429:Detect All Monsters
@@ -2684,10 +2815,10 @@ D:Inflicts damage on a single living monster and heals you an amount
 D: relative to the damage you did, also gives you nourishment.
 D: Damage is (clvl/3)d11.  Heals you an amount between damage
 D: done + 10 to damage done x1.5.  Gives you nourishment equal to
-D: 450 + d(damage done x5)
+D: 450 + d(damage done x5).
 D: (lifeless monsters include undead, golems, vortexes, elementals,
 D: mimmics, and a couple certain types of demons.  Silver monsters
-D: also resist this spell).
+D: also cannot be drained by this spell).
 
 #55
 N:435:Hold Life Force
@@ -2702,7 +2833,7 @@ D:  Uniques are not affected.
 D:  You take 1d4 points of damage for every monster removed.
 
 N:437:Recharging
-I:95:7:0
+I:95:2:4
 D:Adds charges to a stack of wands or staves.
 D:  Chance of success and number of charges gained increase with your
 D: level and decrease with level of wand or staff and number of charges.
@@ -2714,44 +2845,42 @@ D:Cures all cuts and stunning, and heals you 10d(5+(clvl/10)) hit points.
 D: (Minimum healing is 26% of your max hit points)
 
 N:439:Detect Living
-I:95:1:4
+I:95:1:6
 D:Detects all living monsters in the immediate area,
 D: for one turn only.
 
 #60
 N:440:Spirit of the Balrog
-I:95:7:3
+I:95:5:8
 D:Invokes the spirit of a balrog to surround you, making you resistant
 D: to fire and darkness, and adding fire and darkness damage to your
 D: melee damage.
-D: (this does not stack with permanent darkness resistance)
+D: (Temporary dark resistance does not stack with permanent dark
+D: resistance).
 
-N:441:Haste
-I:95:7:4
+N:441:Speed of Darkness
+I:95:5:4
 D:Hastes you (+10 to speed) for a level-dependant duration.
 D: (minimum is clvl + 1 turns.)
 
 N:442:Bloodwrath
-I:95:7:5
+I:95:7:4
 D:Heals you 6-15 hit points, cures fear, gives you +5-10 speed,
 D: and gives you berserk rage. (rage usually lasts longer than speed
 D: bonus).
 D: (plus to speed calculation is 4 + d(1 + (clvl/10)).    )
 
 N:443:Poison Ammo
-I:95:7:6
+I:95:7:5
 D:Brands one stack of ammunition with poison and at the same time
 D: attempts to improve the to-hit bonus and the to-dam bonus of
 D: the same ammunition. (less enchanting than elemental brand spell)
 D:  The spell has no effect if the ammunition is already branded, has a
 D: slay, is broken, or is cursed.
 
-N:444:See All Foes
+N:444:See Invisible
 I:95:7:2
-D:cures blindness, gives see invisible for (35 + d35) turns, and has
-D: a chance of giving telepathy for a varied duration (often very short).
-D: ..unless you are a necromancer, in which case it (almost) always gives
-D: telepathy for (clvl + clvl/2) turns in addition to the see invisible.
+D:Enables you to see invisible monsters for clvl + d24 turns.
 
 #65
 N:445:Draw Mana
@@ -2819,7 +2948,7 @@ D: most unicorns, and tree monsters.)
 
 #assassin version
 N:453:Resist Poison
-I:95:2:6
+I:95:7:3
 D:Grants you resistance to poison for 20+1d20 turns.
 
 N:454:Wall of Hellfire

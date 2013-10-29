@@ -353,10 +353,6 @@ Uninscribe an object (})
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
 
-Remove weapon bonuses from a staff (&)
-	  This removes all weapon bonuses and special abilities of any non-artifact
-	  magic staff to allow stacking with another staff of the same type.
-
 --- Magical Object Commands ---
 
 Activate an artifact (A)

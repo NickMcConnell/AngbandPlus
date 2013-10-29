@@ -92,7 +92,7 @@ something you are more comfortable with.
             y   Light Fairy         Y   Unicorn or Centaur
             z   Zombie/Mummy        Z   Zephyr Hound
 	    %   Elemental	    &   Major Demon
-
+		@ dark elf
 
 
 === The Town Level ===

@@ -572,7 +572,13 @@ static void spoil_mon_desc(cptr fname)
 	/* Dump the header */
 	fprintf(fff, "Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
-	fprintf(fff, "------------------------------------------\n\n");
+	fprintf(fff, "-------------------------------------------------------\n");
+	fprintf(fff, "[Q] Quest monster (Unique)                            \n");
+	fprintf(fff, "[U] Unique                                            \n");
+	fprintf(fff, "[H] Helper monster (usually only appears when called) \n");
+	fprintf(fff, "[T] Theme-only monster (only appears on themed levels)\n");
+	fprintf(fff, "-------------------------------------------------------\n\n");
+	/* this doesn't appear to work.. */
 
 	/* Dump the header */
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -618,6 +624,10 @@ static void spoil_mon_desc(cptr fname)
 		else if (r_ptr->flags3 & (RF3_HELPER))
 		{
 			strnfmt(nam, sizeof(nam), "[H] The %s", name);
+		}
+		else if (r_ptr->flags7 & (RF7_THEME_ONLY))
+		{
+			strnfmt(nam, sizeof(nam), "[T] The %s", name);
 		}
 		else
 		{
@@ -717,10 +727,15 @@ static void spoil_mon_info(cptr fname)
 	text_out_file = fff;
 
 	/* Dump the header */
-	strnfmt(buf, sizeof(buf), "Monster Spoilers for %s Version %s\n",
+	strnfmt(buf, sizeof(buf), "Monster Spoilers for %s Version %s\n\n",
 	        VERSION_NAME, VERSION_STRING);
 	text_out(buf);
-	text_out("------------------------------------------\n\n");
+	text_out("-------------------------------------------------------------\n");
+	text_out("[Q] Quest monster (Unique)                            \n");
+	text_out("[U] Unique                                            \n");
+	text_out("[H] Helper monster (usually only appears when called) \n");
+	text_out("[T] Theme-only monster (only appears on themed levels)\n");
+	text_out("-------------------------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -761,6 +776,10 @@ static void spoil_mon_info(cptr fname)
         else if (r_ptr->flags3 & (RF3_HELPER))
 		{
 			text_out("[H] The ");
+		}
+		else if (r_ptr->flags7 & (RF7_THEME_ONLY))
+		{
+			text_out("[T] The ");
 		}
 		else
 		{

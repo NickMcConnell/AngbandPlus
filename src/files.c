@@ -1202,6 +1202,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Blows",	1, TR1_BLOWS,		0 },
 	{ "Shots",	1, TR1_SHOTS,		0 },
 	{ "Might",	1, TR1_MIGHT,		0 },
+	{ "ThrwM",  3, TR3_THROWMULT,   0 },
 };
 
 #define RES_COLS (5 + 2 + END_EQUIPMENT - INVEN_WIELD)
@@ -1264,7 +1265,8 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]) || 
                    (p_ptr->timed[TMD_BECOME_LICH]))
 					f[4] |= TR4_RES_FEAR;
-				if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_BECOME_LICH]))
+				if ((p_ptr->timed[TMD_SHERO]) || (p_ptr->timed[TMD_BECOME_LICH]) ||
+					 (p_ptr->timed[TMD_OPP_SILV]))
 					f[4] |= TR4_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
@@ -1276,6 +1278,9 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 					f[4] |= TR4_RES_DARK;
 				if (p_ptr->timed[TMD_HOLDLIFE])
 					f[3] |= TR3_HOLD_LIFE;
+				/* feather falling has no effect for golems */
+				if ((p_ptr->prace == 16) && (p_ptr->ffall))
+					f[3] &= ~(TR3_FEATHER);
 			    /* maybe add something here about whether spells are being inhibited */
 			}
 #else
@@ -1319,6 +1324,7 @@ static void display_player_stat_info(void)
 	int i, row, col;
 
 	char buf[80];
+	bool golemcon = FALSE;
 
 
 	/* Row */
@@ -1337,8 +1343,16 @@ static void display_player_stat_info(void)
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
+		/* golems have no constitution score */
+		if ((i == A_CON) && (p_ptr->prace == 16))
+		{
+			put_str(stat_names[i], row+i, col);
+			golemcon = TRUE;
+		}
+		else golemcon = FALSE;
+
 		/* Reduced */
-		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+		if ((p_ptr->stat_use[i] < p_ptr->stat_top[i]) && (!golemcon))
 		{
 			/* Use lowercase stat name */
 			put_str(stat_names_reduced[i], row+i, col);
@@ -1357,9 +1371,18 @@ static void display_player_stat_info(void)
 			put_str("!", row+i, col+3);
 		}
 
+		/* golems have no constitution score */
+		if (golemcon)
+		{
+			strnfmt(buf, sizeof(buf), "   ---");
+			c_put_str(TERM_L_WHITE, buf, row+i, col+5);
+		}
 		/* Internal "natural" maximum value */
-		cnv_stat(p_ptr->stat_max[i], buf, sizeof(buf));
-		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
+		else
+		{
+			cnv_stat(p_ptr->stat_max[i], buf, sizeof(buf));
+			c_put_str(TERM_L_GREEN, buf, row+i, col+5);
+		}
 
 		/* Race Bonus */
 		strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[i]);
@@ -1373,12 +1396,21 @@ static void display_player_stat_info(void)
 		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->stat_add[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+20);
 
+		/* golems have no constitution score */
+		if (golemcon)
+		{
+			strnfmt(buf, sizeof(buf), "   ---");
+			c_put_str(TERM_L_WHITE, buf, row+i, col+24);
+		}
 		/* Resulting "modified" maximum value */
-		cnv_stat(p_ptr->stat_top[i], buf, sizeof(buf));
-		c_put_str(TERM_L_GREEN, buf, row+i, col+24);
+		else
+		{
+			cnv_stat(p_ptr->stat_top[i], buf, sizeof(buf));
+			c_put_str(TERM_L_GREEN, buf, row+i, col+24);
+		}
 
 		/* Only display stat_use if not maximal */
-		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+		if ((p_ptr->stat_use[i] < p_ptr->stat_top[i]) && (!golemcon))
 		{
 			cnv_stat(p_ptr->stat_use[i], buf, sizeof(buf));
 			c_put_str(TERM_YELLOW, buf, row+i, col+31);
@@ -1646,6 +1678,8 @@ static byte max_color(int val, int max)
 int get_panel(int oid, data_panel *panel, size_t size)
 {
   int ret = (s32b) size;
+	int maxhp = p_ptr->mhp;
+	if (p_ptr->timed[TMD_FALSE_LIFE]) maxhp += 2 * (p_ptr->lev + 10);
   switch(oid)
  {
   case 1:
@@ -1658,7 +1692,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Race",	"%y",	s2u(p_name + rp_ptr->name), END  );
 	P_I(TERM_L_BLUE, "Class",	"%y",	s2u(c_name + cp_ptr->name), END  );
 	P_I(TERM_L_BLUE, "Title",	"%y",	s2u(show_title()), END  );
-	P_I(TERM_L_BLUE, "HP",	"%y/%y",	i2u(p_ptr->chp), i2u(p_ptr->mhp)  );
+	P_I(TERM_L_BLUE, "HP",	"%y/%y",	i2u(p_ptr->chp), i2u(maxhp)  );
 	P_I(TERM_L_BLUE, "SP",	"%y/%y",	i2u(p_ptr->csp), i2u(p_ptr->msp)  );
 	P_I(TERM_L_BLUE, "Level",	"%y",	i2u(p_ptr->lev), END  );
 	assert(i == boundaries[1].page_rows);
@@ -1952,7 +1986,7 @@ errr file_character(cptr name, bool full)
 	display_player(1);
 
 	/* Dump part of the screen */
-	for (y = 11; y < 20; y++)
+	for (y = 11; y < 21; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 39; x++)
@@ -1978,7 +2012,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n");
 
 	/* Dump part of the screen */
-	for (y = 11; y < 20; y++)
+	for (y = 11; y < 21; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 39; x++)
@@ -2740,19 +2774,6 @@ void do_cmd_suicide(void)
 	/* Cause of death */
 	my_strcpy(p_ptr->died_from, "Quitting", sizeof(p_ptr->died_from));
 }
-
-#if testing
-/* Temporary function to find out where it's crashing */
-/* (Make sure you erase all the calls to this function when not testing) */
-void did_it_crash_yet(int where)
-{
-     /* I know it's crashing in the town */
-     if (p_ptr->depth) return;
-
-     msg_format("crash yet? %d", where);
-     save_player();
-}
-#endif
 
 /*
  * Save the game
