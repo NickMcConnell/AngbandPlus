@@ -1877,7 +1877,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Set alignment to the player */
 	if (summon_pets_hack)
 	{
-		msg_print("Pet summoning sort of works!");
 		if (rf_has(r_ptr->flags, RF_LAWFUL))
 			n_ptr->align = AL_PET_L;
 		else if (rf_has(r_ptr->flags, RF_CHAOTIC))

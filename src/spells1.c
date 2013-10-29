@@ -1709,6 +1709,25 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ, bool obvio
 			/* All done */
 			break;
 		}
+		
+		case GF_WEB:
+		{
+			if (cave_naked_bold(y, x) || (cave_m_idx[y][x] != 0))
+			{
+				cave_set_feat(y, x, FEAT_WEB);
+
+				/* Grid is in line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					/* Observe */
+					obvious = TRUE;
+
+					/* Fully update the visuals */
+					p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+				}
+			}
+			break;
+		}
 	}
 
 	/* Return "Anything seen?" */

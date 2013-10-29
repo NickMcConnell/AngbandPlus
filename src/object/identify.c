@@ -1236,8 +1236,7 @@ void sense_inventory(void)
 
 			message_format(MSG_PSEUDOID, 0,
 					"You feel the %s (%c) %s %s average...",
-					o_name, index_to_label(i),((i >=
-					INVEN_WIELD) ? "you are using" : "in your pack"),
+					o_name, index_to_label(i),((i >= INVEN_WIELD) ? "you are using" : "in your pack"),
 					((o_ptr->number == 1) ? "is" : "are"));
 		}
 		else

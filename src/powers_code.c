@@ -1636,7 +1636,7 @@ bool use_power(int power)
 			case PWR_PROJECT_CRYO:
 			{
 				msg_print("You invoke extreme cold upon your enemies!");
-				//project_los(GF_CRYO, plev * 3);
+				project_los(GF_COLD, plev * 3, TRUE);
 			}
 			break;
  
@@ -1650,14 +1650,14 @@ bool use_power(int power)
 			case PWR_PROJECT_SHARD:
 			{
 				msg_print("You spray shards everywhere in sight!");
-				project_los(GF_SHARD, plev * 2, TRUE);			
+				project_los(GF_SHARD, plev * 7/4, TRUE);			
 			}
 			break;
 			
 			case PWR_PROJECT_SOUND:
 			{
 				msg_print("You bellow like a thunderclap!");
-				project_los(GF_SOUND, plev * 2, TRUE);			
+				project_los(GF_SOUND, plev * 5/4, TRUE);			
 			}
 			break;
 	 
@@ -2161,7 +2161,7 @@ bool use_power(int power)
 			case PWR_WEB_BALL:
 			{
 				msg_print("You weave webs around you.");
-				//fire_bolt_beam_special(GF_WEBBING, 0, 1, 2,	PROJECT_BOOM | PROJECT_GRID | PROJECT_THRU);
+				fire_bolt_beam_ball_special(GF_WEB, 0, 1, 2,	PROJECT_GRID | PROJECT_THRU);
 			}
 			break;
 			 
@@ -2169,7 +2169,7 @@ bool use_power(int power)
 			{
 				if (!get_aim_dir(&dir)) return (FALSE);
 				msg_print("You spit webs.");
-				//fire_bolt_beam_special(GF_WEBBING, dir, 1, 7, PROJECT_BEAM | PROJECT_GRID | PROJECT_THRU);
+				fire_bolt_beam_ball_special(GF_WEB, dir, 1, 0, PROJECT_BEAM | PROJECT_GRID | PROJECT_THRU);
 			}
 			break;
 			 

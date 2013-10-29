@@ -1041,7 +1041,7 @@ void map_info(unsigned y, unsigned x, grid_data *g)
 		}
 	}
 
-	assert(g->f_idx <= FEAT_PERM_SOLID);
+	//assert(g->f_idx <= FEAT_END);
 	assert(g->m_idx < (u32b) mon_max);
 	assert(g->first_k_idx < z_info->k_max);
 	/* All other g fields are 'flags', mostly booleans. */
@@ -3420,7 +3420,7 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	if ((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_WEB))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}

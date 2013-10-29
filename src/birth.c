@@ -95,7 +95,7 @@ static void save_roller_data(birther *player)
 
 	/* Save the data */
 	player->sex = p_ptr->psex;
-	player->race = p_ptr->prace;
+	player->race = p_ptr->starting_race;
 	player->class = p_ptr->pclass;
 	player->age = p_ptr->age;
 	player->wt = p_ptr->wt_birth;
@@ -140,6 +140,7 @@ static void load_roller_data(birther *player, birther *prev_player)
 	/* Load the data */
 	p_ptr->psex = player->sex;
 	p_ptr->prace = player->race;
+	p_ptr->starting_race = p_ptr->prace;
 	p_ptr->pclass = player->class;
 	p_ptr->age = player->age;
 	p_ptr->wt = p_ptr->wt_birth = player->wt;
@@ -972,7 +973,7 @@ void player_generate(struct player *p, const player_sex *s,
 {
 	if (!s) s = &sex_info[p->psex];
 	if (!c) c = &c_info[p->pclass];
-	if (!r) r = &p_info[p->prace];
+	if (!r) r = &p_info[p->starting_race];
 
 	p->sex = s;
 	p->class = c;
@@ -1011,8 +1012,8 @@ static void do_birth_reset(bool use_quickstart, birther *quickstart_prev)
 
 	/* If there's quickstart data, we use it to set default
 	   character choices. */
-	//if (use_quickstart && quickstart_prev)
-		//load_roller_data(quickstart_prev, NULL);
+	if (use_quickstart && quickstart_prev)
+		load_roller_data(quickstart_prev, NULL);
 
 	player_generate(p_ptr, NULL, NULL, NULL);
 
@@ -1059,16 +1060,15 @@ void player_birth(bool quickstart_allowed)
 	 * If there's a quickstart character, store it for later use.
 	 * If not, default to whatever the first of the choices is.
 	 */
-	 /* Evolution breaks quickstart - figure out soltn later -Simon */
-	//if (quickstart_allowed)
-	//	save_roller_data(&quickstart_prev);
-	//else
-	//{
+	if (quickstart_allowed)
+		save_roller_data(&quickstart_prev);
+	else
+	{
 		p_ptr->psex = 0;
 		p_ptr->pclass = 0;
 		p_ptr->prace = 0;
 		player_generate(p_ptr, NULL, NULL, NULL);
-	//}
+	}
 
 	/* Handle incrementing name suffix */
 	buf = find_roman_suffix_start(op_ptr->full_name);
@@ -1111,6 +1111,7 @@ void player_birth(bool quickstart_allowed)
 		else if (cmd->command == CMD_CHOOSE_RACE)
 		{
 			p_ptr->prace = cmd->arg[0].choice;
+			p_ptr->starting_race = p_ptr->prace;
 			player_generate(p_ptr, NULL, NULL, NULL);
 
 			reset_stats(stats, points_spent, &points_left);
@@ -1121,7 +1122,7 @@ void player_birth(bool quickstart_allowed)
 		{
 			/* test to see if player is a monster; if so then make them monster class -Simon */
 			if(p_ptr->prace > DEMIHUMAN_RACE_MAX)
-				p_ptr->pclass = DEMIHUMAN_CLASS_MAX + 1;
+				p_ptr->pclass = DEMIHUMAN_CLASS_MAX;
 			else p_ptr->pclass = cmd->arg[0].choice;
 			player_generate(p_ptr, NULL, NULL, NULL);
 

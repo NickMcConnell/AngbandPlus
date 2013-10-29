@@ -590,9 +590,11 @@ void move_player(int dir, bool disarm)
 	int y = py + ddy[dir];
 	int x = px + ddx[dir];
 
-	/* Attack monsters */
+	/* Attack monsters or switch places with pet */
 	if ((cave_m_idx[y][x] > 0) && !(mon_list[cave_m_idx[y][x]].align & AL_PET_MASK))
 		py_attack(y, x);
+	else if (mon_list[cave_m_idx[y][x]].align & AL_PET_MASK)
+		msg_print("You shove your pet out of the way!");
 
 	/* Optionally alter known traps/doors on movement */
 	else if (disarm && (cave_info[y][x] & CAVE_MARK) &&
@@ -607,7 +609,7 @@ void move_player(int dir, bool disarm)
 	}
 
 	/* Cannot walk through walls if you don't have pass_wall or it's perma */
-	else if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) || (!cave_floor_bold(y, x) && !(player_has(PF_PASS_WALL) || player_has(PF_KILL_WALL))))
+	else if (((cave_feat[y][x] >= FEAT_PERM_EXTRA) && cave_feat[y][x] < FEAT_WEB) || (!cave_floor_bold(y, x) && !(player_has(PF_PASS_WALL) || player_has(PF_KILL_WALL))))
 	{
 		/* Disturb the player */
 		disturb(0, 0);

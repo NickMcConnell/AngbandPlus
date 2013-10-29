@@ -70,6 +70,7 @@ extern bool fire_swarm(int num, int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
+extern bool fire_bolt_beam_ball_special(int typ, int dir, int dam, int siz, int flg);
 extern bool project_los(int typ, int dam, bool obvious);
 extern bool light_line(int dir);
 extern bool strong_light_line(int dir);

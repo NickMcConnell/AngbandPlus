@@ -165,7 +165,7 @@ static const struct option options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 48 */
 { NULL,                  NULL,                                          FALSE }, /* 49 */
 { "birth_maximize",      "Maximise effect of race/class bonuses",       TRUE },  /* 50 */
-{ "birth_randarts",      "Randomise the artifacts (except a very few)", FALSE }, /* 51 */
+{ "birth_randarts",      "Randomise the artifacts (except special ones)",FALSE }, /* 51 */
 { "birth_ironman",       "Restrict the use of stairs/recall",           FALSE }, /* 52 */
 { "birth_no_stores",     "Restrict the use of stores/home",             FALSE }, /* 53 */
 { "birth_no_artifacts",  "Restrict creation of artifacts",              FALSE }, /* 54 */

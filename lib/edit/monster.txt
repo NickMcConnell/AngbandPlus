@@ -10183,7 +10183,7 @@ F:NO_SLEEP
 S:1_IN_3
 # | POW_26
 S:BR_LIGHT | BR_DARK | BLIND | CONF
-D:A powerful wyrm of with control over light and dark, the ethereal
+D:A powerful wyrm with control over light and dark, the ethereal
 D: wyrm's eyes glare with white hatred from the shadows.
 
 N:627:Thunder drake
@@ -10418,7 +10418,7 @@ S:1_IN_2
 S:BR_LIGHT | BR_DARK | BR_CONF | BR_MANA | 
 S:HEAL | DARKNESS | BLIND | CONF |
 S:BA_DARK | BO_MANA | S_DRAGON | S_HI_DRAGON
-#ADD_MANA |  | CURE | BA_CONF | BA_LITE | 
+#ADD_MANA |  CURE | BA_CONF | BA_LITE | 
 #Y:12
 D:A huge dragon from the Ethereal plane stands before you. 
 D: Antir's scales are shining and silver, but his shape is surrounded

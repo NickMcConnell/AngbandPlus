@@ -40,9 +40,9 @@
 #define SAVEFILE_NAME  "RPOS"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.6.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.6.3 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.6.0"
+# define VERSION_STRING "0.6.3"
 #endif
 
 
@@ -51,7 +51,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
-#define VERSION_PATCH	0
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /*
@@ -137,12 +137,12 @@
 /*
  *	RePos stuff: max numbers for "classic" i.e. non-monster characters, # of races that show up on the race select screen,
  *  most # of forms that monster race can branch into at one junction, maximum number of powers any race can have -Simon
- * PS: DON'T CHANGE MAX_NEXT_FORMS, it's very hard coded.  Not even sure why I put it in here
+ *  PS: DON'T CHANGE MAX_NEXT_FORMS, it's very hard coded.  Not even sure why I put it in here
  */
 #define DEMIHUMAN_RACE_MAX	10
-#define DEMIHUMAN_CLASS_MAX	5
+#define DEMIHUMAN_CLASS_MAX	6
 
-#define SELECTABLE_RACE_MAX	23
+#define SELECTABLE_RACE_MAX	26
 
 #define MAX_NEXT_FORMS	5
 
@@ -612,7 +612,7 @@ enum
 #define GF_FIRE         18
 #define GF_COLD         19
 #define GF_POIS         20
-#define GF_XXX2			21
+#define GF_WEB			21
 #define GF_LIGHT        22
 #define GF_DARK         23
 #define GF_XXX3			24
@@ -739,7 +739,9 @@ enum
 #define FEAT_PERM_OUTER		0x3E
 #define FEAT_PERM_SOLID		0x3F
 
-
+/* New for RePos, from Pos/NPP -Simon */
+#define FEAT_WEB			0x40
+#define FEAT_END			0x4F
 
 /*** Object origin kinds ***/
 
@@ -765,6 +767,7 @@ enum
 #define ART_MORGOTH			34
 #define ART_GROND			111
 #define ART_PALANTIR			7
+#define ART_RACIAL_ARTS_START	137
 
 /*
  * Hack -- first "normal" artifact in the artifact list.  All of

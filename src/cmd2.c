@@ -1934,11 +1934,11 @@ static bool do_cmd_walk_test(int y, int x)
 
 	/* Require open space or PASS_WALL/KILL_WALL flag -Simon */
 	if (!cave_floor_bold(y, x) && !(player_has(PF_PASS_WALL) || player_has(PF_KILL_WALL)))
-	{
+	{			
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
 			message(MSG_HITWALL, 0, "There is a pile of rubble in the way!");
-
+		
 		/* Door */
 		else if (cave_feat[y][x] < FEAT_SECRET)
 			return TRUE;

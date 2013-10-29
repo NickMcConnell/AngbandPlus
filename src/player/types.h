@@ -188,6 +188,9 @@ typedef struct player
 
 	byte al_special;		/* Alignment (special), from Pos -Simon */
 	
+	/* Store starting race info for use with quick start -Simon */
+	byte starting_race;
+	
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */

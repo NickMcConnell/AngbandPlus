@@ -2822,6 +2822,34 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 }
 
 
+/* New for RePos, dir 0 indicates ball -Simon */
+bool fire_bolt_beam_ball_special(int typ, int dir, int dam, int siz, int flg)
+{
+	if (dir != 0)
+		return (project_hook(typ, dir, dam, flg));
+	else
+	{
+		bool noticed = FALSE;
+
+		int py = p_ptr->py;
+		int px = p_ptr->px;
+
+		s16b ty, tx;
+		
+		/* Use the given direction */
+		ty = py + 99 * ddy[dir];
+		tx = px + 99 * ddx[dir];
+
+		/* Hack -- Use an actual "target" (early detonation) */
+		if ((dir == 5) && target_okay())
+			target_get(&tx, &ty);
+
+		if (project(-1, siz, ty, tx, dam, typ, flg)) noticed = TRUE;
+			
+		return noticed;
+	}
+}
+
 /*
  * Some of the old functions
  */

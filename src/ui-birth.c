@@ -286,6 +286,7 @@ static void init_birth_menu(menu_type *menu, int n_choices, int initial_choice, 
 static void setup_menus()
 {
 	int i;
+	int initial_choice;
 
 	const char *roller_choices[MAX_BIRTH_ROLLERS] = { 
 		"Point-based", 
@@ -304,7 +305,7 @@ static void setup_menus()
 	mdata->hint = "Your 'sex' does not have any significant gameplay effects.";
 
 	/* Race menu more complicated. */
-	init_birth_menu(&race_menu, SELECTABLE_RACE_MAX, p_ptr->prace, &race_region, TRUE, race_help);
+	init_birth_menu(&race_menu, SELECTABLE_RACE_MAX, p_ptr->starting_race, &race_region, TRUE, race_help);
 	mdata = race_menu.menu_data;
 
 	for (i = 0; i < SELECTABLE_RACE_MAX; i++)
@@ -314,27 +315,18 @@ static void setup_menus()
 	mdata->hint = "Your 'race' determines various intrinsic factors and bonuses.";
 
 	/* Class menu similar to race. */
-	/* This hides the monster classes for demihumans, and demihuman classes for monsters -Simon */
-	if (p_ptr->prace <= DEMIHUMAN_RACE_MAX)
-	{
-		init_birth_menu(&class_menu, DEMIHUMAN_CLASS_MAX + 1, p_ptr->pclass, &class_region, TRUE, class_help);
-		mdata = class_menu.menu_data;
 
-		for (i = 0; i <= DEMIHUMAN_CLASS_MAX; i++)
-		{	
-			mdata->items[i] = c_info[i].name;
-		}
-	}
-	else
-	{
-		init_birth_menu(&class_menu, (z_info->c_max - DEMIHUMAN_CLASS_MAX), p_ptr->pclass, &class_region, TRUE, class_help);
-		mdata = class_menu.menu_data;
+	initial_choice = 0;
+	if (p_ptr->pclass < DEMIHUMAN_CLASS_MAX)
+		initial_choice = p_ptr->pclass;
+	init_birth_menu(&class_menu, DEMIHUMAN_CLASS_MAX, initial_choice, &class_region, TRUE, class_help);
+	mdata = class_menu.menu_data;
 
-		for (i = DEMIHUMAN_CLASS_MAX + 1; i < z_info->c_max; i++)
-		{	
-			mdata->items[i] = c_info[i].name;
-		}
+	for (i = 0; i < DEMIHUMAN_CLASS_MAX; i++)
+	{	
+		mdata->items[i] = c_info[i].name;
 	}
+	
 	mdata->hint = "Your 'class' determines various intrinsic abilities and bonuses";
 		
 	/* Roller menu straightforward again */

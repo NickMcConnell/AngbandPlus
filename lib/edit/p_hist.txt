@@ -191,17 +191,17 @@ N:20:2:100:50
 D:but it is unacknowledged. You are the adopted child
 
 N:21:22:30:20
-D:Your mother was a Stone-Troll
+D:Your mother was a Stone-Troll 
 N:21:22:60:25
-D:Your father was a Stone-Troll
+D:Your father was a Stone-Troll 
 N:21:22:75:30
-D:Your mother was a Cave-Troll
+D:Your mother was a Cave-Troll 
 N:21:22:90:35
-D:Your father was a Cave-Troll
+D:Your father was a Cave-Troll 
 N:21:22:95:40
-D:Your mother was a Water-Troll
+D:Your mother was a Water-Troll 
 N:21:22:100:45
-D:Your father was a Water-Troll
+D:Your father was a Water-Troll 
 
 N:22:62:5:60
 D:Cook.
@@ -341,36 +341,36 @@ N:61:0:100:50
 D:and a dark complexion.
 
 N:62:63:60:50
-D:You have slime-green eyes,
+D:You have slime-green eyes, 
 N:62:63:85:50
-D:You have puke-yellow eyes,
+D:You have puke-yellow eyes, 
 N:62:63:99:50
-D:You have blue-bloodshot eyes,
+D:You have blue-bloodshot eyes, 
 N:62:63:100:55
-D:You have glowing red eyes,
+D:You have glowing red eyes, 
 
 N:63:64:33:50
-D:dirty
+D:dirty 
 N:63:64:66:50
-D:mangy
+D:mangy 
 N:63:64:100:50
-D:oily
+D:oily 
 
 N:64:65:33:50
-D:sea-weed green hair,
+D:sea-weed green hair, 
 N:64:65:66:50
-D:bright red hair,
+D:bright red hair, 
 N:64:65:100:50
-D:dark purple hair,
+D:dark purple hair, 
 
 N:65:66:25:50
-D:and green
+D:and green 
 N:65:66:50:50
-D:and blue
+D:and blue 
 N:65:66:75:50
-D:and white
+D:and white 
 N:65:66:100:50
-D:and black
+D:and black 
 
 N:66:0:33:50
 D:ulcerous skin.

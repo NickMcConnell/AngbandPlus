@@ -79,6 +79,12 @@ bool test_hit(int chance, int ac, int vis)
 	/* Penalize invisible targets */
 	if (!vis) chance = chance / 2;
 
+	/* AC above 200 worth half a point, above 400 worth a quarter point -Simon */
+	if (ac > 200)
+		ac = 100 + (ac / 2);
+	if (ac > 300)
+		ac = 150 + (ac / 2);
+	
 	/* Power competes against armor */
 	if ((chance > 0) && (randint0(chance) >= (ac * 3 / 4))) return (TRUE);
 
@@ -323,7 +329,7 @@ bool py_attack_real(int y, int x)
 	bonus = p_ptr->state.to_h + o_ptr->to_h;
 	chance = (p_ptr->state.skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
 
-	/* Handle innate melee; innate effects not working great -Simon */
+	/* Handle innate melee -Simon */
 	if(!o_ptr->k_idx && rp_ptr->p_monster_index)
 	{
 		for (int num = 0; (num < MONSTER_BLOW_MAX) && !dead; num++)
@@ -441,7 +447,7 @@ bool py_attack_real(int y, int x)
 				}
 							       
 				/* Confusion attack */
-				if (p_ptr->confusing || (type2 == GF_OLD_CONF))
+				if (p_ptr->confusing)
 				{
 					/* Message */
 					if (p_ptr->confusing)
@@ -471,20 +477,21 @@ bool py_attack_real(int y, int x)
 				}
 				
 				/* Damage, check for fear and death */
-				/* Make elemental attacks do half their damage physically -Simon */
+				/* Makes elemental attacks do half their damage physically -Simon */
 				if (type != GF_ARROW)
 				{
 					project(-1, 0, y, x, (k + 1)/2, type, flg);
+					/* Make the physical portion TOP SECRET -Simon */
+					flg &= !(PROJECT_AWARE);
 					project(-1, 0, y, x, k/2, GF_ARROW, flg);
 				}
 				else
 					project(-1, 0, y, x, k, type, flg);
 				/* Hack: check if the square is empty after we project the attack into it -Simon */
 				dead = (cave_m_idx[y][x] == 0);
-				//dead = mon_take_hit(cave_m_idx[y][x], k, &fear, NULL);
 			
 				/* Hack -- delay fear messages */
-				if (fear && m_ptr->ml)
+				if (fear && m_ptr->ml && !dead)
 					message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 			}
 			/* Player misses */

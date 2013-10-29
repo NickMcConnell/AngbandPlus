@@ -977,6 +977,10 @@ int rd_misc(void)
 	rd_byte(&tmp8u);
 	p_ptr->standard_bearer = tmp8u;
 	
+	/* New RePos index, used so evolution doesn't break quickstart -Simon */
+	rd_byte(&tmp8u);
+	p_ptr->starting_race = tmp8u;
+	
 	/* Read "death" */
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;

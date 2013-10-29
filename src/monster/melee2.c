@@ -3295,7 +3295,28 @@ static void process_monster(int m_idx)
 		/* Stagger */
 		stagger = TRUE;
 	}
-
+	
+	/* Webs, ignored by spiders and pass/kill wall */
+	else if (cave_feat[oy][ox] == FEAT_WEB && ((r_ptr->d_char != 'S') && !rf_has(r_ptr->flags, RF_PASS_WALL) && !rf_has(r_ptr->flags, RF_KILL_WALL)))
+	{
+		int brk_chance = r_ptr->level;
+		char m_name[80];
+		
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+		if (brk_chance < 10) brk_chance = 10;
+		if (brk_chance > 66) brk_chance = 66;
+		if (randint1(100) < brk_chance)
+		{
+			if (m_ptr->ml) msg_format("%^s manages to tear the webs!", m_name);
+			cave_set_feat(oy, ox, FEAT_FLOOR);
+		}
+		else
+		{
+			if (m_ptr->ml) msg_format("%^s is stuck in some webs.", m_name);
+			return;
+		}
+	}
+	
 	/* Random movement - always attempt for lore purposes */
 	else
 	{
@@ -3593,6 +3614,10 @@ static void process_monster(int m_idx)
 			/* if the monster is a pet and you aren't, or v.v., attack! -Simon */
 			if (((m_ptr->align & (AL_PET_MASK)) && !(n_ptr->align & (AL_PET_MASK)))
 			|| (!(m_ptr->align & (AL_PET_MASK)) && (n_ptr->align & (AL_PET_MASK))))
+				make_attack_normal_mon(m_ptr, n_ptr);
+				
+			/* If you're confused, attack! -Simon */
+			if ((m_ptr->confused) && one_in_(2))
 				make_attack_normal_mon(m_ptr, n_ptr);
 			
 			if (compare_monsters(m_ptr, n_ptr) > 0)

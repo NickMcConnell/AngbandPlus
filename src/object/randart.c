@@ -313,6 +313,8 @@ char *artifact_gen_name(struct artifact *a, const char ***words) {
 		strnfmt(buf, sizeof(buf), "'Grond'");
 	if (a->aidx == ART_MORGOTH)
 		strnfmt(buf, sizeof(buf), "of Morgoth");
+	if (a->aidx >= ART_RACIAL_ARTS_START)
+		strnfmt(buf, sizeof(buf), a->name);
 	return string_make(buf);
 }
 
@@ -713,7 +715,8 @@ static void parse_frequencies(void)
 		/* Special cases -- don't parse these! */
 		if ((i == ART_POWER) ||
 			(i == ART_GROND) ||
-			(i == ART_MORGOTH))
+			(i == ART_MORGOTH) ||
+			(i >= ART_RACIAL_ARTS_START))
 			continue;
 
 		/* Also don't parse cursed items */
@@ -2739,7 +2742,8 @@ static void scramble_artifact(int a_idx)
 	/* Special cases -- don't randomize these! */
 	if ((a_idx == ART_POWER) ||
 	    (a_idx == ART_GROND) ||
-	    (a_idx == ART_MORGOTH))
+	    (a_idx == ART_MORGOTH) ||
+		(a_idx >= ART_RACIAL_ARTS_START))
 		return;
 
 	/* Skip unused artifacts, too! */

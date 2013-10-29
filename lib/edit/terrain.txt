@@ -570,3 +570,8 @@ G:#:u
 P:10
 M:60
 F:PERM
+
+N:64:webbing
+G:&:y
+P:6
+F:PWALK | PPASS | MWALK | MPASS | LOOK | BORING
