@@ -24,16 +24,16 @@ M:K:600
 M:A:139
 
 # Maximum number of ego-item types
-M:E:128
+M:E:129
 
 # Maximum number of monster races
-M:R:830
+M:R:999
 
 # Maximum number of vaults
 M:V:51
 
 # Maximum number of player races
-M:P:19
+M:P:18
 
 # Maximum number of player classes
 M:C:35

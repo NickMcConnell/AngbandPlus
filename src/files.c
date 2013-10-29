@@ -1174,7 +1174,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Nethr",	2, TR2_RES_NETHR,	0 },
 	{ "Chaos",	2, TR2_RES_CHAOS,	0 },
 	{ "Disen",	2, TR2_RES_DISEN,	0 },
-	{ "Charm",  2, TR2_RES_CHARM,   0 },
+/* 	{ "Charm",  3, TR3_RES_CHARM,   0 }, */
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
@@ -1254,7 +1254,7 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]))
 					f[2] |= TR2_RES_FEAR;
 				if (p_ptr->timed[TMD_SHERO])
-					f[2] |= TR2_RES_CHARM;
+					f[3] |= TR3_RES_CHARM;
 				if (p_ptr->timed[TMD_SINVIS])
 					f[3] |= TR3_SEE_INVIS;
 			}
@@ -2664,10 +2664,10 @@ void do_cmd_suicide(void)
 		char ch;
 
 		/* Verify */
-		if (!get_check("Do you really want to commit suicide? ")) return;
+		if (!get_check("Do you really want to abort the quest? ")) return;
 
 		/* Special Verification for suicide */
-		prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
+		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
 		flush();
 		ch = inkey();
 		prt("", 0, 0);

@@ -123,7 +123,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
 		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
 		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
-		if (p_ptr->resist_charm) smart |= (SM_RES_CHARM);
+	/*	if (p_ptr->resist_charm) smart |= (SM_RES_CHARM); */
 		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
 		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
 		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);

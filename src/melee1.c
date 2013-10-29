@@ -226,6 +226,8 @@ bool make_attack_normal(int m_idx)
 			case RBE_CHARM:     power =  2; break;
 			case RBE_FRENZY:    power = 11; break;
             case RBE_HUNGER:    power =  2; break;
+			case RBE_PIXIEKISS: power =  0; break;
+			case RBE_ENTHELP:   power =  0; break;
 		}
 
 
@@ -364,6 +366,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "swings its tail at you.";
 					do_stun = 1;
+					sound_msg = MSG_MON_HIT;
 					break;
 				}
 
@@ -418,9 +421,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX3:
+				case RBM_KISS: /* XXX3 */
 				{
-					act = "XXX3's on you.";
+					act = "kisses you.";
 					break;
 				}
 
@@ -1380,6 +1383,141 @@ bool make_attack_normal(int m_idx)
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_CHARM);
 
+					break;
+				}
+
+				case RBE_PIXIEKISS:
+				{
+					/* conspicuous lack of damage */
+					/* <1d30> */
+					int iden = 0;
+
+					if (damage < 10)
+					{
+                       (void)hp_player(3);
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] - 2);
+                       (void)inc_timed(TMD_BLESSED, 3);
+                    }
+					else if (damage < 20)
+					{
+                       (void)hp_player(damage);
+				       if (clear_timed(TMD_CHARM)) iden = 1;
+				       if (clear_timed(TMD_FRENZY)) iden = 1;
+                       if (set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2)) iden = 1;
+                       if (p_ptr->silver > PY_SILVER_HEALTHY)
+                       {
+                          p_ptr->silver = p_ptr->silver - 1;
+                          iden = 1;
+                       }
+					   if (iden == 1) msg_print("You feel more pure.");
+                    } 
+					else 
+					{
+                       (void)hp_player(damage * 2);
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 4);
+                       (void)clear_timed(TMD_BLIND);
+                       (void)inc_timed(TMD_SINVIS, 3 + randint(4));
+                       (void)inc_timed(TMD_BLESSED, randint(6) + 4);
+					   msg_print("You feel blessed.");
+                    }
+					break;
+				}
+
+				case RBE_ENTHELP:
+				{
+					/* conspicuous lack of damage */
+					/* <1d22> */
+					msg_print("You take some entdraught..");
+
+					if (damage < 10)
+					{
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] - 1);
+                       (void)inc_timed(TMD_OPP_COLD, randint(15) + 10);
+				       (void)clear_timed(TMD_AFRAID);
+   			           msg_print("The entdraught makes you feel warm.");
+                    }
+					else if (damage < 20)
+					{
+                       (void)hp_player(damage);
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
+                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+                       (void)inc_timed(TMD_WSHIELD, randint(20) + 5);
+                       spadjust = 1 - 2;
+                       (void)inc_timed(TMD_ADJUST, randint(5) + 2);
+   			           msg_print("The entdraught makes your body feel more fixed. (kindof like a tree..)");
+                    }
+					else 
+					{
+                       (void)do_res_stat(A_CON);
+                       (void)inc_timed(TMD_WSHIELD, randint(30) + 10);
+                       (void)inc_timed(TMD_OPP_POIS, randint(10) + 10);
+   			           msg_print("The entdraught makes you feel tough.");
+                    }
+					break;
+				}
+
+				case RBE_PURIFY:
+				{
+					/* conspicuous lack of damage */
+					/* <1d25>  */
+
+					if (damage < 10)
+					{
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 3);
+				       (void)clear_timed(TMD_CHARM);
+				       (void)clear_timed(TMD_AFRAID);
+				       (void)clear_timed(TMD_FRENZY);
+			           (void)clear_timed(TMD_CONFUSED);
+			           (void)clear_timed(TMD_AMNESIA);
+                       if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 1;
+                       (void)hp_player(damage * damage);
+                    }
+					else if (damage < 20)
+					{
+                       (void)hp_player(damage);
+                       (void)set_timed(TMD_POISONED, p_ptr->timed[TMD_POISONED] / 2);
+                       if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 2;
+                       spadjust = 1;
+                       (void)inc_timed(TMD_ADJUST, randint(4) + 3);
+                       (void)inc_timed(TMD_OPP_POIS, randint(10) + 10);
+                       (void)inc_timed(TMD_SANCTIFY, randint(14) + 8);
+   			           msg_print("You feel purified.");
+                    }
+					else if (damage < 23)
+					{
+                       (void)hp_player(damage / 2);
+                       (void)do_res_stat(A_CON);
+                       (void)do_res_stat(A_WIS);
+				       (void)clear_timed(TMD_IMAGE);
+                       (void)clear_timed(TMD_POISONED);
+                       p_ptr->silver = PY_SILVER_HEALTHY;
+                       (void)inc_timed(TMD_OPP_POIS, randint(15) + 10);
+			           msg_print("You feel purified and healthier.");
+                    }
+					else
+					{
+                       int iden = 0;
+                       (void)hp_player(damage * 3);
+                       if (clear_timed(TMD_POISONED)) iden = 1;
+                       if (p_ptr->silver > PY_SILVER_HEALTHY) 
+                       {
+                          p_ptr->silver = PY_SILVER_HEALTHY;
+                          iden = 1;
+                       }
+                       if (p_ptr->slime > PY_SLIME_HEALTHY)
+                       {
+                          p_ptr->slime = p_ptr->slime - 5;
+                          if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+                          iden = 1;
+                       }
+                       if (do_res_stat(A_STR)) iden = 1;
+                       if (do_res_stat(A_CON)) iden = 1;
+                       if (do_res_stat(A_DEX)) iden = 1;
+                       if (do_res_stat(A_WIS)) iden = 1;
+                       if (do_res_stat(A_INT)) iden = 1;
+                       if (do_res_stat(A_CHR)) iden = 1;
+			           if (iden == 1) msg_print("You feel purified and restored.");
+                    }
 					break;
 				}
 			}

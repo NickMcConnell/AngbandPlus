@@ -10,6 +10,7 @@
 
 
 #include "angband.h"
+#include "cmds.h"
 #include "script.h"
 
 
@@ -193,7 +194,7 @@
 #define PRAYER_WORD_OF_DESTRUCTION2    68
 #define PRAYER_ANNIHILATION            69
 
-        /* Nature: */
+        /* Nature: -done except for call help */
 /* Call of the Wild 0*/
 #define NEWM_DETECT_ANIMAL              0
 #define NEWM_CALL_LIGHT                 1
@@ -279,7 +280,7 @@
 #define NEWM_BR_BALANCE                65
 #define NEWM_FULL_IDENTIFY             66
 
-        /* Chance Magic */
+        /* Chance Magic -mostly done */
 /* Tourism & Travel 0*/
 #define LUCK_ILLUMINATION              0
 #define LUCK_DETECT_DOORS_STAIRS       1
@@ -337,9 +338,9 @@
 /* The Lottery 5(not for rogues or escapists)*/
 #define LUCK_POLYMORPH_OTHER           44
 #define LUCK_ADJUST_SPEED              45
-#define LUCK_BANISH_SUMMON             46 // done up to here
-#define LUCK_AFFECT_SELF               47 // finish this book later
-#define LUCK_AFFECT_OTHER              48
+#define LUCK_BANISH_SUMMON             46
+#define LUCK_AFFECT_SELF               47 // done up to here
+#define LUCK_AFFECT_OTHER              48 // finish this book later
 #define LUCK_POTLUCK_STATS             49
 #define LUCK_AQUIREMENT                50
 
@@ -371,6 +372,99 @@
 #define LUCK_MASS_CHAOS                71 // this one done
 #define LUCK_BIZZARE_EFFECTS           72
 
+        /* Alchemy - done except for marked ones */
+/* Beginner's Mixing 0*/
+#define CHEM_CURE_LIGHT_WOUNDS         1
+#define CHEM_STINKING_CLOUD            3
+#define CHEM_DISINFECTANT              0
+#define CHEM_LIGHT_AREA                2
+#define CHEM_PHASE_DOOR                4
+#define CHEM_FIND_TRAPS_DOORS          5
+#define CHEM_DETECT_MONSTERS           6
+#define CHEM_CURE_POISON               7
+#define CHEM_ACID_ARROW                8
+
+/* Commonly Used Potions 1*/
+#define CHEM_INFRAVISION               9
+#define CHEM_RESIST_ACID               10
+#define CHEM_CURE_MODERATE_WOUNDS      11
+#define CHEM_RESIST_HEAT_COLD          12
+#define CHEM_SATISFY_HUNGER            13
+#define CHEM_CHEMICAL_RAGE             14
+#define CHEM_STRONG_DISINFECTANT       15
+#define CHEM_RESIST_POISON             16
+#define CHEM_HEAL                      17
+
+/* Chemical Detections and Tools 2*/
+#define CHEM_DETECT_TREASURE           18
+#define CHEM_TRAP_DOOR_DESTRUCTION     19
+#define CHEM_DETECT_OBJECT             20
+#define CHEM_IDENTIFY                  21
+#define CHEM_DETECT_INVISIBLE          22
+#define CHEM_RESISTANCE                23
+#define CHEM_DETECT_ENCHANTMENT        24
+#define CHEM_ACID_COAT_AMMO            25
+
+/* Quick Getaways (mainly for thieves)3*/
+#define CHEM_BURST_OF_SPEED            26
+#define CHEM_TELEPORT_SELF             27
+#define CHEM_TELEPORT_OTHER            28
+#define CHEM_SLOW_MONSTERS             29
+#define CHEM_MASS_SLEEP                30
+#define CHEM_HASTE_SELF                31
+#define CHEM_TELEPORT_LEVEL            32 /* don't forget #33 */
+#define CHEM_RUNE_OF_PROTECTION        34
+
+/* Missile Magic (archers only)4*/
+#define CHEM_LIGHTNING_BOLT            35
+#define CHEM_RAIN_OF_ARROWS            36
+#define CHEM_CHAOS_ARROW               37
+#define CHEM_ROCKET_BLAST              38
+#define CHEM_ENCHANT_TO_HIT            39
+#define CHEM_ENCHANT_TO_DAM            40
+#define CHEM_POISON_BRAND_AMMO         41
+#define CHEM_ELEMENTAL_BRAND_AMMO      42
+
+/* Chemical Combat (not for archers)5*/
+#define CHEM_CONFUSE_MONSTER           43
+#define CHEM_SLEEP_MONSTER             44
+#define CHEM_WONDER                    52
+#define CHEM_ELEMENT_BOLT              45
+#define CHEM_POLYMORPH_OTHER           46
+#define CHEM_SLOW_MONSTER              47
+#define CHEM_ELEMENT_BALL              49 /* cold or fire */
+#define CHEM_ACID_BALL                 50
+#define CHEM_ICE_STORM                 51
+
+/* Core of Alchemy (alchemists only)6*/
+#define CHEM_CLOUDKILL1                53
+#define CHEM_STONE_TO_MUD              55
+#define CHEM_RECHARGING1               56
+#define CHEM_OBJECT_TO_GOLD1           57 // do this one later
+#define CHEM_EXPLOSION                 58
+#define CHEM_RESTORATION               59
+#define CHEM_POISON_BRAND_WEAPON1      60
+#define CHEM_ELIXIR_OF_LIFE            33
+
+/* Advanced Thievery (thieves only)7*/
+#define CHEM_HIT_N_RUN                 61
+#define CHEM_SLIP_INTO_SHADOWS         62
+#define CHEM_POISON_BOLT               63
+#define CHEM_CLOUDKILL2                64
+#define CHEM_BEDLAM1                   65
+#define CHEM_OBJECT_TO_GOLD2           66 // do this one later
+#define CHEM_RESTORE_DEX1              48
+#define CHEM_POISON_BRAND_WEAPON2      67
+
+/* Advenced Archer's Tactics (archers only)8*/
+#define CHEM_RECHARGING2               68
+#define CHEM_SHIELD                    69
+#define CHEM_BEDLAM2                   70
+#define CHEM_RESTORE_DEX2              71
+#define CHEM_ENCHANT_ARMOR             72
+#define CHEM_METEOR_SWARM              73
+#define CHEM_GLYPH_OF_WARDING          54
+
 int get_spell_index(const object_type *o_ptr, int index)
 {
 	int realm, spell;
@@ -387,6 +481,8 @@ int get_spell_index(const object_type *o_ptr, int index)
 		realm = 2;
 	else if (cp_ptr->spell_book == TV_LUCK_BOOK)
 		realm = 3;
+	else if (cp_ptr->spell_book == TV_CHEM_BOOK)
+		realm = 4;
 	else
 		realm = 1;
 
@@ -406,7 +502,9 @@ cptr get_spell_name(int tval, int spell)
 		return s_name + s_info[spell + (PY_MAX_SPELLS * 2)].name;
 	else if (tval == TV_LUCK_BOOK)
 		return s_name + s_info[spell + (PY_MAX_SPELLS * 3)].name;
-	else
+	else if (tval == TV_CHEM_BOOK)
+		return s_name + s_info[spell + (PY_MAX_SPELLS * 4)].name;
+	else /* (prayers) */
 		return s_name + s_info[spell + PY_MAX_SPELLS].name;
 }
 
@@ -441,7 +539,7 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			break;
 		case SPELL_LIGHTNING_BOLT:
 			strnfmt(p, len, " dam %dd6", (3 + ((plev - 5) / 6)));
-			break;
+			break;			
         case SPELL_MOLTEN_LIGHTNING:
 			strnfmt(p, len, " dam %d + d%d", (plev*2)+50, (plev*4));
 			break;
@@ -776,6 +874,35 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 		}
 	}
 	
+	/* Alchemy */
+	if (tval == TV_CHEM_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+			case CHEM_CURE_LIGHT_WOUNDS:
+				my_strcpy(p, " heal 2d9", len);
+				break;
+		    case CHEM_STINKING_CLOUD:
+			    strnfmt(p, len, " dam %d", 10 + (plev / 2));
+			    break;
+		    case CHEM_ACID_ARROW:
+			    strnfmt(p, len, " dam %dd6", (3 + ((plev - 6) / 6)));
+			    break;
+			case CHEM_INFRAVISION:
+				my_strcpy(p, " dur 80+d100", len);
+				break;
+		    case CHEM_RESIST_ACID:
+				strnfmt(p, len, " dur 15+d%d", (plev / 2));
+				break;
+			case CHEM_RESIST_HEAT_COLD:
+				my_strcpy(p, " dur 10+d12", len);
+				break;
+		}
+	}
+
 	return;
 }
 
@@ -845,6 +972,37 @@ static void spell_wonder(int dir)
 	}
 }
 
+/*
+ * Summon a creature of the specified type
+ * copied from wizard2.c
+ * This function is rather dangerous? why?
+ */
+static void do_call_help(int r_idx, bool slp)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, x, y;
+
+	/* Paranoia */
+	if (!r_idx) return;
+	if (r_idx >= z_info->r_max-1) return;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&y, &x, py, px, d, 0);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Place it (allow groups) */
+		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+	}
+}
 
 
 static bool cast_mage_spell(int spell)
@@ -1192,6 +1350,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_SHARD, dir, 20 + (plev * 2), 2);
+			if (randint(100) < 10) fire_ball(GF_KILL_WALL, dir, damroll((plev/3), 2), 2);
 			break;
            /* 60 at L20, 80 at L30, 100 at L40, 120 at L50 */
 		}
@@ -1678,9 +1837,9 @@ static bool cast_priest_spell(int spell)
         {
 			(void)clear_timed(TMD_CONFUSED);
 			(void)clear_timed(TMD_BLIND);
-			(void)clear_timed(TMD_CHARM);
 			(void)clear_timed(TMD_FRENZY);
 			(void)clear_timed(TMD_AMNESIA);
+			(void)clear_timed(TMD_CHARM);
 			(void)clear_timed(TMD_POISONED);
 			(void)clear_timed(TMD_CUT);
 			(void)clear_timed(TMD_STUN);
@@ -2002,7 +2161,7 @@ static bool cast_newm_spell(int spell)
 		case NEWM_NATURAL_VITALITY:
         {
 			(void)set_timed(TMD_POISONED, (3 * p_ptr->timed[TMD_POISONED] / 4) - 5);
-			(void)hp_player(damroll(3, plev / 4));
+			(void)hp_player(12 + (damroll(3, plev / 3)));
 			(void)clear_timed(TMD_CUT);
             break;
         }
@@ -2187,9 +2346,15 @@ static bool cast_newm_spell(int spell)
 			break;
 		}
 
-        case NEWM_CALL_HELP: /* do this spell after making helpful monsters */
+        case NEWM_CALL_HELP:
         {
-			(void)hp_player(2);
+            int die;
+            if (plev > 30) die = randint(100);
+            else if (plev > 20)  die = randint(90);
+            else die = randint(80);
+            if (die < 35) do_call_help(995, TRUE);
+            else if (die < 70) do_call_help(996, TRUE);
+            else do_call_help(997, TRUE);
 			break;
         }
         
@@ -2872,7 +3037,7 @@ static bool cast_luck_spell(int spell)
 			break;
 		}
 		
-		case LUCK_ADJUST_CURSE:
+		case LUCK_ADJUST_CURSE: /* add chance to make the weapon blessed */
 		{
             die = randint(99) + (randint(plev/5));
             if (die < 4) curse_weapon();
@@ -3052,13 +3217,13 @@ static bool cast_luck_spell(int spell)
 
         case LUCK_ADJUST_SPEED:
 		{
-            adjust = (randint(20) - 9);
-            if (randint(100) < plev) adjust = adjust + 2;
-            if (randint(501) < plev) adjust = adjust + randint(3);
-            if ((adjust = 0) && (randint(45) < plev)) adjust = 9;
-            else if (adjust = 0) adjust = (randint(3) - 5);
-            if (adjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
-            if (adjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
+            spadjust = (randint(20) - 9);
+            if (randint(100) < plev) spadjust = spadjust + 2;
+            if (randint(501) < plev) spadjust = spadjust + randint(3);
+            if ((spadjust = 0) && (randint(45) < plev)) spadjust = 9;
+            else if (spadjust = 0) spadjust = (randint(3) - 5);
+            if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
+            if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
 			break;
 		}
 
@@ -3190,7 +3355,160 @@ static bool cast_luck_spell(int spell)
         
         case LUCK_AFFECT_SELF:
         {
-            die = randint(99) + (randint(plev/4));
+            die = randint(99) + (randint(plev/5));
+            if (die < 40) take_hit(randint((plev * 3)/2), "a backfiring spell");
+            if (die > 45) (void)hp_player(randint(plev));
+            if (die > 65) (void)hp_player(randint(plev));
+            if (die > 90) (void)hp_player(randint(plev));
+            die = randint(99) + (randint(plev/5));
+            if (die < 25) msg_print("Your position feels uncertain.");
+            if (die < 15) teleport_player(damroll(plev/2, 4));
+            else if (die < 25) teleport_player(damroll(2, plev/3 + 1));
+            die = randint(99) + (randint(plev/5));
+            if (die < 5) (void)inc_timed(TMD_CHARM, randint(16) + 12);
+            else if (die < 10) (void)inc_timed(TMD_CONFUSED, randint(19) + 11);
+            else if (die < 15) (void)inc_timed(TMD_BLIND, randint(25) + 25);
+            else if (die < 20) (void)inc_timed(TMD_AMNESIA, randint(19) + 11);
+            else if (die < 24) (void)inc_timed(TMD_IMAGE, randint(19) + 11);
+            else if (die < 30) (void)inc_timed(TMD_POISONED, randint(30) + 20);
+            else if (die < 34)
+            {
+			   msg_print("You feel your life slipping away!");
+			   lose_exp(100 + randint(die * 101));
+            }
+            die = randint(99) + (randint(plev/5));
+            if (die > 100)
+            {
+			     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 7;
+			     if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+            }
+            if (die > 95)
+            {
+                 if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 10;
+			     if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+            }
+            if (die > 90) (void)clear_timed(TMD_CHARM);
+            if (die > 80) (void)clear_timed(TMD_AMNESIA);
+            if (die > 75)
+            {
+                 (void)clear_timed(TMD_CONFUSED);
+                 (void)clear_timed(TMD_BLIND);
+                 (void)clear_timed(TMD_FRENZY);
+            }
+            if (die > 60) (void)clear_timed(TMD_STUN);
+            if (die > 55) (void)clear_timed(TMD_CUT);
+            if (die > 50) (void)clear_timed(TMD_POISONED);
+            die = randint(99) + (randint(plev/5));
+            if (die > 75) (void)set_food(p_ptr->food + ((randint(plev + die)) * 6)); 
+            if (die < 25) (void)set_food(p_ptr->food - ((randint(plev + die)) * 11));  
+            die = randint(99) + (randint(plev/5));
+            if (die < 34)
+            {
+               spadjust = (randint(25) - 11);
+               if (randint(100) < plev) spadjust = spadjust + 2;
+               if (randint(501) < plev) spadjust = spadjust + randint(3);
+               if ((spadjust = 0) && (randint(60) < plev)) spadjust = randint(13);
+               else if (spadjust = 0) spadjust = (randint(9) - 10);
+               if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
+               if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
+            }
+            die = randint(99) + (randint(plev/5));
+            if (die < 10)
+            {
+                 msg_print("You feel rather mundane.");
+                 (void)clear_timed(TMD_PROTEVIL);
+                 (void)clear_timed(TMD_HERO);
+                 (void)clear_timed(TMD_SHERO);
+                 (void)clear_timed(TMD_BLESSED);
+                 (void)clear_timed(TMD_SANCTIFY);
+                 (void)clear_timed(TMD_SHADOW);
+                 p_ptr->silver = p_ptr->silver + 1;
+            }
+            if (die < 14)
+            {
+               msg_print("You feel vulnerable.");
+               (void)clear_timed(TMD_SHIELD);
+               (void)clear_timed(TMD_WSHIELD);
+               (void)clear_timed(TMD_OPP_POIS);
+               (void)clear_timed(TMD_OPP_ACID);
+               (void)clear_timed(TMD_OPP_COLD);
+               (void)clear_timed(TMD_OPP_FIRE);
+               (void)clear_timed(TMD_OPP_ELEC);
+               (void)clear_timed(TMD_FAST);
+               spadjust = spadjust - 1;
+            }
+            if (die < 18)
+            {
+               msg_print("Your eyes hurt for a moment.");
+               (void)clear_timed(TMD_TSIGHT);
+               (void)clear_timed(TMD_SINVIS);
+               (void)clear_timed(TMD_SINFRA);
+               (void)clear_timed(TMD_BRAIL);
+               p_ptr->slime = p_ptr->slime + 1;
+            }
+            if (die < 23) (void)inc_timed(TMD_SLOW, randint(25) + 15);
+            die = randint(99) + (randint(plev/5));
+            if (die > 100) (void)inc_timed(TMD_SANCTIFY, randint(die / 2) + (25));
+            else if (die > 95) (void)inc_timed(TMD_HERO, randint(die / 2) + (25));
+            else if (die > 90) (void)inc_timed(TMD_SHERO, randint(die / 2) + (25));
+            else if (die > 85) (void)inc_timed(TMD_BLESSED, randint(die) + (25));
+            else if (die > 80) (void)inc_timed(TMD_WSHIELD, randint(die) + (25));
+            else if (die > 75) (void)inc_timed(TMD_SHADOW, randint(die) + (25));
+            else if (die > 70) (void)inc_timed(TMD_PROTEVIL, randint(die / 2) + (25));
+            die = randint(99) + (randint(plev/5));
+            if (die > 98)
+            {
+			     int time = randint(20) + 20;
+                 (void)inc_timed(TMD_OPP_POIS, time);
+                 (void)inc_timed(TMD_OPP_ACID, time);
+                 (void)inc_timed(TMD_OPP_ELEC, time);
+                 (void)inc_timed(TMD_OPP_COLD, time);
+                 (void)inc_timed(TMD_OPP_FIRE, time);
+            }
+            else if (die > 90)
+            {
+			     int time = randint(20) + 20;
+                 (void)inc_timed(TMD_OPP_ACID, time);
+                 (void)inc_timed(TMD_OPP_ELEC, time);
+            }
+            else if (die > 82)
+            {
+			     int time = randint(20) + 20;
+                 (void)inc_timed(TMD_OPP_COLD, time);
+                 (void)inc_timed(TMD_OPP_FIRE, time);
+            }
+            else if (die > 74) (void)inc_timed(TMD_OPP_POIS, randint(21) + 21);
+            die = randint(99) + (randint(plev/5));
+            if (die > 99) (void)inc_timed(TMD_ESP, randint(die) + (25));
+            else if (die > 89) (void)inc_timed(TMD_TSIGHT, randint(die) + (25));
+            else if (die > 85) (void)inc_timed(TMD_BRAIL, randint(die) + (25));
+            else if (die > 75) (void)inc_timed(TMD_SINVIS, randint(die) + (25));
+            else if (die > 65) (void)inc_timed(TMD_SINFRA, randint(die) + (25));
+            else if (die > 55) (void)detect_monsters_normal();
+            else if (die > 50) (void)detect_monsters_invis();
+            else if (die > 45) (void)detect_traps();
+            else if (die > 42) (void)detect_doors();
+            else if (die > 39) (void)detect_stairs();
+            else if (die > 35)
+            {
+			     (void)detect_doors();
+			     (void)detect_stairs();
+            }
+            else if (die > 32) (void)detect_objects_magic();
+            else if (die > 27)
+            {
+			     (void)detect_treasure();
+			     (void)detect_objects_gold();
+            }
+            else if (die > 22) (void)detect_objects_normal();
+            die = randint(99) + (randint(plev/5));
+         	if (die > 105) wiz_lite();
+         	else if (die > 95) map_area();
+         	else if (die > 85) return ident_spell();
+            else if (die > 80) restore_level();
+            else if (die > 77) gain_exp(randint(plev * 3));
+            else if (die > 70) p_ptr->luck = p_ptr->luck + randint(2);
+            if (die < 9) p_ptr->luck = p_ptr->luck - randint(2);
 			break;
         }
         
@@ -3383,6 +3701,809 @@ static bool cast_luck_spell(int spell)
 	return (TRUE);
 }
 
+static bool cast_chem_spell(int spell)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+    int die;
+	int dir;
+
+	int plev = p_ptr->lev;
+
+	switch (spell)
+	{
+
+		case CHEM_CURE_LIGHT_WOUNDS:
+		{
+
+			(void)hp_player(damroll(2, 9));
+			(void)dec_timed(TMD_CUT, 10);
+			break;
+		}
+		
+		case CHEM_LIGHT_AREA:
+		{
+            die = randint(99) + (randint(plev/5));
+            if (plev > 25) die = die + 10;
+            if (plev > 40) die = die + 10;
+            if (plev > 50) die = die + 5;
+            if (die < 65)
+            {
+               spellswitch = 4; /* does not light room */
+			   if (plev > 13) (void)lite_area(damroll(2, (plev / 2)), 2 + randint(plev / 7));
+			   else (void)lite_area(damroll(2, (plev / 2)), 2 + randint(2));
+               spellswitch = 0;
+            }
+            else if (die < 91)
+            {
+               spellswitch = 4; /* does not light room */
+			   if (plev > 17) (void)lite_area(damroll(4, (plev / 3)), 5 + randint(plev / 9));
+			   else (void)lite_area(damroll(4, (plev / 3)), 3 + randint(3));
+               spellswitch = 0;
+            }
+            else
+            {
+               (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+            }
+			break;
+		}
+
+		case CHEM_STINKING_CLOUD:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+			break;
+		}
+
+		case CHEM_DISINFECTANT:
+		{
+            spellswitch = 16; /* dispel slime in bug_spray function */
+			(void)dec_timed(TMD_POISONED, 2 + randint(plev/2));
+			(void)dec_timed(TMD_CUT, 5 + randint(plev/3));
+			(void)dispel_bug(randint(plev / 2));
+            if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 1;
+            if ((randint(100) < 10) && (plev > 9))
+            {
+               spellswitch = 16; /* dispel slime in bug_spray function */
+			   (void)dec_timed(TMD_POISONED, randint(4));
+			   (void)dec_timed(TMD_CUT, randint(plev/9));
+               if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 1;
+			   (void)dispel_bug(randint(plev / 3));
+            }
+            spellswitch = 0;
+			break;
+		}
+
+		case CHEM_PHASE_DOOR:
+		{
+			teleport_player(10);
+			break;
+		}
+
+		case CHEM_FIND_TRAPS_DOORS:
+		{
+			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_stairs();
+			break;
+		}
+
+		case CHEM_DETECT_MONSTERS:
+		{
+			(void)detect_monsters_normal();
+			break;
+		}
+
+		case CHEM_CURE_POISON:
+		{
+			(void)clear_timed(TMD_POISONED);
+			break;
+		}
+
+		case CHEM_ACID_ARROW:
+		{
+            /* if player is an archer, make sure he is wielding a bow */
+			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
+			    (p_ptr->ammo_tval != TV_ARROW))
+            {
+               msg_print("You must be wielding a bow to fire an acid arrow.");
+               return (FALSE);
+            }
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt(GF_ACID, dir, damroll(3+((plev-6)/6), 6));
+			break;
+		}
+		
+		case CHEM_INFRAVISION:
+		{
+		    (void)inc_timed(TMD_SINFRA, randint(100) + 10 + (plev * 2));
+			break;
+		}
+
+        case CHEM_RESIST_ACID:
+		{
+			(void)inc_timed(TMD_OPP_ACID, randint(plev/2) + 15);
+			break;
+		}
+
+		case CHEM_CURE_MODERATE_WOUNDS:
+		{
+			(void)hp_player(damroll(6, 8));
+			(void)set_timed(TMD_CUT, (p_ptr->timed[TMD_CUT] / 3) - 2);
+			break;
+		}
+
+		case CHEM_RESIST_HEAT_COLD:
+		{
+			(void)inc_timed(TMD_OPP_FIRE, randint(12) + 10);
+			(void)inc_timed(TMD_OPP_COLD, randint(12) + 10);
+			break;
+		}
+
+		case CHEM_SATISFY_HUNGER:
+		{
+			(void)set_food(PY_FOOD_MAX - 1);
+			break;
+		}
+
+		case CHEM_CHEMICAL_RAGE:
+		{
+			(void)hp_player(plev/3);
+            int die = randint(75);
+	        if ((p_ptr->timed[TMD_CHARM]) && (die > (plev + 25)))
+	        {
+                 msg_print("You're in too good a mood to go into a battle frenzy");
+            }
+            else 
+            {
+                 (void)clear_timed(TMD_AFRAID);
+			     (void)clear_timed(TMD_CHARM);
+			     if (plev > 20)
+			     {
+			     (void)inc_timed(TMD_SHERO, randint(25) + (plev + ((76 - die) / 3)));
+                 }
+                 else
+                 {
+			     (void)inc_timed(TMD_SHERO, randint(25) + (25));
+                 }
+            }
+			break;
+		}
+
+        case CHEM_STRONG_DISINFECTANT:
+		{
+            spellswitch = 16; /* dispel slime in bug_spray function */
+			(void)dec_timed(TMD_POISONED, (5 + randint(plev)));
+			(void)dec_timed(TMD_CUT, 10 + randint(plev/2));
+			(void)dec_timed(TMD_STUN, 5 + randint(plev/2));
+			(void)dispel_bug(2 + (randint(plev / 2)));
+            if ((randint(100) < 34) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 2;
+            if ((randint(100) < 34) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver = p_ptr->silver - 1;
+            if ((randint(100) < 10) && (plev > 24))
+            {
+               spellswitch = 16; /* dispel slime in bug_spray function */
+			   (void)dec_timed(TMD_POISONED, randint(plev/2));
+			   (void)dec_timed(TMD_CUT, randint(plev/5));
+			   (void)dec_timed(TMD_STUN, randint(plev/8));
+               if ((randint(100) < (plev * 3)) && (p_ptr->slime > PY_SLIME_HEALTHY)) p_ptr->slime = p_ptr->slime - 2;
+               if ((randint(100) < (plev * 3)) && (p_ptr->silver > PY_SILVER_HEALTHY)) p_ptr->silver = p_ptr->silver - 1;
+			   (void)dispel_bug(1 + (randint(plev / 2)));
+            }
+			(void)dec_timed(TMD_CONFUSED, 5 + randint(plev/2));
+			(void)dec_timed(TMD_BLIND, 5 + randint(plev/2));
+			(void)dec_timed(TMD_FRENZY, 3 + randint(plev/3));
+			(void)dec_timed(TMD_AMNESIA, 3 + randint(plev/3));
+			(void)dec_timed(TMD_IMAGE, randint(plev/3));
+            spellswitch = 0;
+			break;
+		}
+
+		case CHEM_RESIST_POISON:
+		{
+			(void)inc_timed(TMD_OPP_POIS, randint(20) + 20);
+			break;
+		}
+
+		case CHEM_HEAL:
+		{
+			(void)hp_player(damroll(8, (plev/2))); /* (max200) */
+			(void)clear_timed(TMD_STUN);
+			(void)clear_timed(TMD_CUT);
+			break;
+		}
+		
+		case CHEM_DETECT_TREASURE:
+        {
+			(void)detect_treasure();
+			(void)detect_objects_gold();
+			break;
+		}
+
+		case CHEM_TRAP_DOOR_DESTRUCTION:
+		{
+			(void)destroy_doors_touch();
+			break;
+		}
+
+		case CHEM_DETECT_OBJECT:
+		{
+			(void)detect_objects_normal();
+			break;
+        }
+
+		case CHEM_IDENTIFY:
+		{
+			return ident_spell();
+		}
+
+		case CHEM_DETECT_INVISIBLE:
+		{
+			(void)detect_monsters_invis();
+			break;
+		}
+
+		case CHEM_RESISTANCE:
+		{
+			int time = randint(20) + 20;
+			(void)inc_timed(TMD_OPP_ACID, time);
+			(void)inc_timed(TMD_OPP_ELEC, time);
+			(void)inc_timed(TMD_OPP_FIRE, time);
+			(void)inc_timed(TMD_OPP_COLD, time);
+			(void)inc_timed(TMD_OPP_POIS, time);
+			break;
+		}
+
+		case CHEM_DETECT_ENCHANTMENT:
+		{
+			(void)detect_objects_magic();
+			break;
+		}
+		
+		case CHEM_ACID_COAT_AMMO:
+		{
+            spellswitch = 17;
+			return brand_ammo();
+            spellswitch = 0;
+		}
+		
+		case CHEM_BURST_OF_SPEED:
+		{
+			if (!p_ptr->timed[TMD_FAST])
+			{
+				(void)set_timed(TMD_FAST, 4 + randint(5) + (plev/8));
+			}
+			else
+			{
+				(void)inc_timed(TMD_FAST, 1 + randint(3));
+			}
+			break;
+		}
+
+		case CHEM_TELEPORT_SELF:
+		{
+			teleport_player(plev * 5);
+			break;
+		}
+		
+		case CHEM_SLOW_MONSTERS:
+		{
+			(void)slow_monsters();
+			break;
+		}
+
+		case CHEM_MASS_SLEEP:
+		{
+			(void)sleep_monsters();
+			break;
+		}
+
+		case CHEM_HASTE_SELF:
+		{
+			if (!p_ptr->timed[TMD_FAST])
+			{
+				(void)set_timed(TMD_FAST, randint(20) + plev);
+			}
+			else
+			{
+				(void)inc_timed(TMD_FAST, randint(5));
+			}
+			break;
+		}
+
+		case CHEM_TELEPORT_LEVEL:
+		{
+			(void)teleport_player_level();
+			break;
+		}
+
+		case CHEM_RUNE_OF_PROTECTION:
+		{
+			(void)warding_glyph();
+			break;
+		}
+
+		case CHEM_LIGHTNING_BOLT:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_beam(GF_ELEC, dir,
+			          damroll(3+((plev-5)/6), 6));
+			break;
+		} // L20 5-30, L30 7-42, L40 8-48, L50 10-60
+
+		case CHEM_RAIN_OF_ARROWS: /* get no earlier than L24 */
+		{
+            /* Make sure player is wielding a bow */
+            if ((p_ptr->ammo_tval != TV_ARROW))
+            {
+               msg_print("You must be wielding a bow to fire a rain of arrows.");
+               return (FALSE);
+            }
+			if (!get_aim_dir(&dir)) return (FALSE);
+			/* fire two swarms to make damage more random */
+			int arrowdmg = damroll((plev/12), (4 + randint(plev/6)));
+			if (arrowdmg > 70) arrowdmg = 70;
+			fire_swarm(randint(4), GF_ARROW, dir, arrowdmg, 1);
+			arrowdmg = damroll((plev/12), (4 + randint(plev/5)));
+			if (arrowdmg > 70) arrowdmg = 70;
+			fire_swarm(1 + plev / 19, GF_ARROW, dir, arrowdmg, 1);
+            /* paranoia backfire to remind archer to use range weapon */
+            if ((randint(100) < 20) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
+            {
+               inc_timed(TMD_AFRAID, rand_int(7) + 7);
+               if (arrowdmg > 25) msg_print("You're a hotshot so you remind yourself not to melee.");
+               else msg_print("You suddenly feel especially nervous about melee combat.");
+            }
+			break;
+		}   /* 2-16 at L24, 2-18 at L30, 3-30 at L40, 4-48 at L50 (per shot) */
+            /* 2-16 at L24, 2-20 at L30, 3-36 at L40, 4-56 at L50 (per shot) */
+
+		case CHEM_CHAOS_ARROW:
+		{
+            /* Make sure player is wielding a bow */
+            if ((p_ptr->ammo_tval != TV_ARROW))
+            {
+               msg_print("You must be wielding a bow to fire a chaos arrow.");
+               return (FALSE);
+            }
+			if (!get_aim_dir(&dir)) return (FALSE);
+			int arrowdmg = damroll(plev/4, 7);
+			fire_bolt(GF_CHAOS, dir, arrowdmg);
+            /* paranoia backfire to remind archer to use range weapon */
+            if ((randint(100) < 20) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
+            {
+               inc_timed(TMD_AFRAID, rand_int(7) + 7);
+               if (arrowdmg > 30) msg_print("You're a hotshot so you remind yourself not to melee.");
+               else msg_print("You suddenly feel especially nervous about melee combat.");
+            }
+			break;
+		}   /* 6d7 at L24, 8d7 at L32, 10d7 at L40, 12d7 at L50 */
+
+		case CHEM_ROCKET_BLAST:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_SHARD, dir, 40 + randint(plev/5) + damroll((plev/2), 2), 2);
+			if (randint(100) < 34) fire_ball(GF_KILL_WALL, dir, damroll((plev/2), 2), 2);
+			break;
+            /* 50-60 at L20, 55-70 at L30, 60-80 at L40, 65-90 at L50 */
+		}
+
+		case CHEM_ENCHANT_TO_HIT:
+		{
+            spellswitch = 18; /* enchant only bow or arrows */
+			return enchant_spell(rand_int(3) + plev / 20, 0, 0);
+            spellswitch = 0;
+		}
+
+		case CHEM_ENCHANT_TO_DAM:
+		{
+            spellswitch = 18; /* enchant only bow or arrows */
+			return enchant_spell(0, rand_int(3) + plev / 20, 0);
+            spellswitch = 0;
+		}
+		
+		case CHEM_POISON_BRAND_AMMO:
+		{
+            spellswitch = 19;
+			return brand_ammo();
+            spellswitch = 0;
+		}
+		
+		case CHEM_ELEMENTAL_BRAND_AMMO:
+		{
+			return brand_ammo();
+		}
+
+		case CHEM_CONFUSE_MONSTER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)confuse_monster(dir, 23);
+			break;
+		}
+
+		case CHEM_SLEEP_MONSTER:
+		{
+            if (!get_aim_dir(&dir)) return (FALSE);
+			(void)sleep_monster(dir);
+			break;
+		}
+
+		case CHEM_WONDER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)spell_wonder(dir);
+			break;
+		}
+		
+		case CHEM_ELEMENT_BOLT:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+            die = randint(100);
+            if (die < 15) fire_bolt_or_beam(plev / 2, GF_ELEC, dir, 
+                                            damroll(3+((plev-5)/6), 6));
+            else if (die < 30) fire_bolt_or_beam(plev / 3, GF_COLD, dir,
+                                                 damroll(5+((plev-5)/4), 7));
+            else if (die < 45) fire_bolt_or_beam(plev / 3, GF_FIRE, dir,
+                                                 damroll(6+((plev-5)/4), 7));
+            else if (die < 60) fire_bolt_or_beam(plev / 3, GF_ACID, dir, 
+                                                 damroll(8+((plev-5)/4), 7));
+            else if (die < 70) fire_bolt_or_beam(plev - 1, GF_ELEC, dir, 
+                                                 damroll(4+((plev-5)/6), 6));
+            else if (die < 80) fire_bolt_or_beam(plev / 2, GF_COLD, dir,
+                                                 damroll(5+((plev-5)/4), 8));
+            else if (die < 90) fire_bolt_or_beam(plev / 2, GF_FIRE, dir,
+                                                 damroll(8+((plev-5)/4), 8));
+            else fire_bolt_or_beam(plev / 2, GF_ACID, dir, 
+                                   damroll(6+((plev-5)/4), 8));
+			break;
+		}
+
+		case CHEM_POLYMORPH_OTHER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)poly_monster(dir);
+			break;
+		}
+
+		case CHEM_SLOW_MONSTER:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)slow_monster(dir);
+			break;
+		}
+		
+		case CHEM_ELEMENT_BALL:
+		{
+            die = randint(100);
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (die < 50) fire_ball(GF_COLD, dir, 35 + (plev), 2);
+			else fire_ball(GF_FIRE, dir, 45 + (plev), 2);
+			break;
+		}
+
+		case CHEM_ACID_BALL:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_ACID, dir, 55 + (plev), 2);
+			break;
+		}
+
+		case CHEM_ICE_STORM:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_ICE, dir, 50 + (plev * 2), 3);
+			break;
+		} // 104 at L27, 120 at L35, 150
+
+		case CHEM_STONE_TO_MUD:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			(void)wall_to_mud(dir);
+			break;
+		}
+
+		case CHEM_RECHARGING1:
+		{
+			return recharge(5 + randint(plev));
+		}
+
+		case CHEM_RECHARGING2:
+		{
+			return recharge(5 + randint(plev/2));
+		}
+
+		case CHEM_CLOUDKILL1:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_POIS, dir, 40 + (plev / 2), 3);
+			break;
+		}
+
+		case CHEM_CLOUDKILL2:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_POIS, dir, 40 + (plev / 2), 3);
+			break;
+		}
+		
+		case CHEM_OBJECT_TO_GOLD1:
+		{
+			break;
+		}
+
+		case CHEM_EXPLOSION:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_SHARD, dir, 20 + (plev * 2), 2);
+			if (randint(100) < 10) fire_ball(GF_KILL_WALL, dir, damroll((plev/3), 2), 2);
+			break;
+           /* 60 at L20, 80 at L30, 100 at L40, 120 at L50 */
+		}
+
+		case CHEM_RESTORATION:
+		{
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_CHR);
+			break;
+		}
+		
+		case CHEM_HIT_N_RUN:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_bolt(GF_ARROW, dir, damroll(2, (plev/3) + 1));
+			teleport_player(10);
+			break;
+		}
+
+		case CHEM_BEDLAM1:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_OLD_CONF, dir, plev, 4);
+			break;
+		}
+
+		case CHEM_BEDLAM2:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_ball(GF_OLD_CONF, dir, plev, 4);
+			break;
+		}
+
+		case CHEM_ENCHANT_ARMOR: /* enchant armor */
+		{
+			return enchant_spell(0, 0, rand_int(3) + plev / 20);
+		}
+
+		case CHEM_GLYPH_OF_WARDING:
+		{
+			(void)warding_glyph();
+            /* paranoia backfire to remind archer to use range weapon */
+            if ((randint(100) < 10) && (!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
+            {
+               inc_timed(TMD_AFRAID, rand_int(7) + 7);
+               msg_print("You suddenly feel especially nervous about melee combat.");
+            }
+			break;
+		}
+		
+		case CHEM_POISON_BRAND_WEAPON1:
+        {
+            spellswitch = 20; /* poison brand weapon */
+			brand_weapon();
+            spellswitch = 0;
+			break;
+        }
+		
+		case CHEM_SLIP_INTO_SHADOWS:
+		{
+	             u32b t1, t2, t3;
+	             u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	             object_type *o_ptr;
+	             int k;
+		         o_ptr = &inventory[k];
+
+	         /* Check for aggravation */
+	         for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	         {
+		         /* Skip non-objects */
+		         if (!o_ptr->k_idx) continue;
+
+		         /* Extract the flags */
+		         object_flags(o_ptr, &t1, &t2, &t3);
+
+		         /* Extract flags */
+		         f3 |= t3;
+	         }
+             if (f3 & TR3_AGGRAVATE)
+             {
+                if (randint(plev * 2) > 85)
+                {
+                  msg_print("You are aggravating monsters, attempting to remove curse..");
+                  if (remove_curse())
+                  {
+                     msg_print("You feel as if someone is watching over you.");
+                     (void)inc_timed(TMD_SHADOW, randint(plev / 2) + 20);
+                  }
+                }
+                else msg_print("You can't slip into the shadows while you're aggravating monsters.");
+    	        break;
+             }   
+             else (void)inc_timed(TMD_SHADOW, randint(plev) + 30);
+             
+    	     break;
+		}
+		
+		case CHEM_POISON_BOLT:
+        {
+            fire_bolt_or_beam(plev / 4, GF_POIS, dir, 
+                              damroll(7+(plev/5), 7));
+			break;
+        } /* 11d7 at L20, 13d7 at L30, 15d7 at L40, 17d7 at L50 */
+        
+        case CHEM_RESTORE_DEX1:
+		{
+        	(void)do_res_stat(A_DEX);
+			break;
+        }
+        
+        case CHEM_RESTORE_DEX2:
+		{
+        	(void)do_res_stat(A_DEX);
+			break;
+        }
+		
+		case CHEM_POISON_BRAND_WEAPON2:
+        {
+            spellswitch = 20; /* poison brand weapon */
+			brand_weapon();
+            spellswitch = 0;
+			break;
+        }
+        
+        case CHEM_ELIXIR_OF_LIFE: /* change plev to luck when you put luck in */
+        {
+            die = randint(99) + (randint(plev/5));
+            if (die < 8)
+            {
+               msg_print("You make a terrible mistake with the ingrediants..");
+               take_hit(damroll(6, 6), "a fatal failed attempt to make the Elixir of Life.");
+			   (void)do_dec_stat(A_STR);
+			   (void)do_dec_stat(A_CON);
+               (void)set_food(PY_FOOD_WEAK + 10);
+			   inc_timed(TMD_POISONED, randint(30) + 30);
+			   inc_timed(TMD_CUT, randint(30) + 30);
+			   inc_timed(TMD_STUN, randint(5) + 5);
+            }
+            else if (die < 19)
+            {
+               msg_print("You make a major mistake with the ingrediants..");
+			   inc_timed(TMD_POISONED, randint(15) + 10);
+			   inc_timed(TMD_IMAGE, randint(24) + 2);
+			   inc_timed(TMD_BLIND, randint(24) + 2);
+			   inc_timed(TMD_AMNESIA, randint(24) + 2);
+			   inc_timed(TMD_CONFUSED, randint(24) + 2);
+            }
+            else if (die < 31)
+            {
+               msg_print("You make a mistake with the ingrediants..");
+			   inc_timed(TMD_POISONED, randint(10) + 10);
+               inc_timed(TMD_CUT, randint(3) + 1);
+               (void)set_timed(TMD_STUN, p_ptr->timed[TMD_STUN] / 2);
+			   (void)do_res_stat(A_DEX);
+			   (void)do_res_stat(A_CHR);
+			   (void)clear_timed(TMD_BLIND);
+            }
+            else if (die < 65)
+            {
+               msg_print("You didn't get it right, but this is still really good stuff.");
+               hp_player(die * (plev/14));
+			   (void)do_res_stat(A_WIS);
+			   (void)do_res_stat(A_INT);
+			   (void)clear_timed(TMD_BLIND);
+			   (void)clear_timed(TMD_STUN);
+			   (void)clear_timed(TMD_CUT);
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 1;
+			   if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 2;
+			   if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+               if (p_ptr->timed[TMD_POISONED]) clear_timed(TMD_POISONED);
+               else inc_timed(TMD_POISONED, randint(9) + 2);
+            }
+            else if (die < 100)
+            {
+               msg_print("Almost the perfect Elixir, you feel the life flowing in..");
+			   (void)hp_player(die * (plev/11));
+			   (void)clear_timed(TMD_BLIND);
+			   (void)clear_timed(TMD_AFRAID);
+			   (void)clear_timed(TMD_POISONED);
+			   (void)clear_timed(TMD_STUN);
+			   (void)clear_timed(TMD_CUT);
+			   (void)do_res_stat(A_STR);
+			   (void)do_res_stat(A_CON);
+			   if (randint(100) < 34) restore_level();
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
+			   if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 6;
+			   if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+            }
+            else if (die < 106)
+            {
+               msg_print("Amazingly close to perfect, you feel the life flowing in..");
+			   restore_level();
+			   (void)hp_player(300);
+			   (void)clear_timed(TMD_BLIND);
+			   (void)clear_timed(TMD_AFRAID);
+			   (void)clear_timed(TMD_POISONED);
+			   (void)clear_timed(TMD_STUN);
+			   (void)clear_timed(TMD_CUT);
+			   (void)do_res_stat(A_STR);
+			   (void)do_res_stat(A_CON);
+			   (void)do_res_stat(A_WIS);
+			   (void)do_res_stat(A_INT);
+			   (void)do_res_stat(A_DEX);
+			   (void)do_res_stat(A_CHR);
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 20;
+			   if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+               if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 22;
+			   if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+            }
+            else             
+            {
+               msg_print("Wow, you've made a perfect mix of the Elixir of Life!");
+               msg_print("You feel like you'll live forever.");
+			   restore_level();
+			   gain_exp(100);
+			   (void)clear_timed(TMD_BLIND);
+			   (void)clear_timed(TMD_AFRAID);
+			   (void)clear_timed(TMD_POISONED);
+			   (void)clear_timed(TMD_STUN);
+			   (void)clear_timed(TMD_CUT);
+			   int time = randint(50) + 50;
+			   (void)inc_timed(TMD_OPP_ACID, time);
+			   (void)inc_timed(TMD_OPP_ELEC, time);
+			   (void)inc_timed(TMD_OPP_FIRE, time);
+			   (void)inc_timed(TMD_OPP_COLD, time);
+			   (void)inc_timed(TMD_OPP_POIS, time);
+			   (void)do_res_stat(A_STR);
+			   (void)do_res_stat(A_CON);
+			   (void)do_res_stat(A_WIS);
+			   (void)do_res_stat(A_INT);
+			   (void)do_res_stat(A_DEX);
+			   (void)do_res_stat(A_CHR);
+			   if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+			   if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+			   (void)do_inc_stat(A_CON);
+			   /* Recalculate max. hitpoints */
+			   update_stuff();
+			   (void)hp_player(5000);
+            }
+			break;
+        }
+
+		case CHEM_SHIELD:
+		{
+			(void)inc_timed(TMD_SHIELD, randint(20) + 30);
+			break;
+		}
+
+		case CHEM_METEOR_SWARM:
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			fire_swarm(2 + plev / 20, GF_METEOR, dir, 30 + plev / 2, 1);
+			break;
+		}
+
+    }
+
+	/* Success */
+	return (TRUE);
+}
+
+
 bool cast_spell(int tval, int index)
 {
 	if (tval == TV_MAGIC_BOOK)
@@ -3396,6 +4517,10 @@ bool cast_spell(int tval, int index)
 	else if (tval == TV_LUCK_BOOK)
 	{
 		return cast_luck_spell(index);
+	}
+	else if (tval == TV_CHEM_BOOK)
+	{
+		return cast_chem_spell(index);
 	}
 	else
 	{

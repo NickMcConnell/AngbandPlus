@@ -989,6 +989,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
+		/* Alchemy realm */
+		case TV_CHEM_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Alchemy #";
+			break;
+		}
+
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{

@@ -850,12 +850,12 @@ static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
-	{ 0, 0, 0, display_roller, roller_handler },
+	{ 0, 0, 0, display_roller, roller_handler }, /* giving people back their choice */
 
 #ifdef EFG
 	/* EFGchange unified character generation  */
 #else
-	{ 0, 0, 0, display_roller, roller_handler },
+/*	{ 0, 0, 0, display_roller, roller_handler }, */
 #endif 
 };
 
@@ -1010,6 +1010,7 @@ static bool player_birth_aux_1(bool start_at_end)
 	if (clash == 14) text_out_c(TERM_L_RED, "Sorry, a grave ghoul cannot be the class you chose.");
 	if (clash == 15) text_out_c(TERM_L_RED, "Sorry, a power sprite cannot be the class you chose.");
 	if (clash == 17) text_out_c(TERM_L_RED, "Sorry, an uber umber hulk can only be the hulk class.");
+	if (clash == 40) text_out_c(TERM_L_RED, "Sorry, only an uber umber hulk can be the hulk class.");
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
@@ -1176,6 +1177,8 @@ static int player_birth_aux_2(bool start_at_end)
 #else
 		p_ptr->au = (100 * (48 - cost)) + 320;
 #endif
+        /* hulks start with less gold because they can mine extremely easily */
+        if ((p_ptr->prace == 17) && (p_ptr->au > 100)) p_ptr->au = 100;
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1771,7 +1774,6 @@ static void player_birth_aux(void)
  */
 void player_birth(void)
     /* DAJ: yes I know, this is incredibly crude programming */
-    /* but that's how you know I did it! */
 {
 for (;clash < 50;)
     {
@@ -1818,7 +1820,7 @@ for (;clash < 50;)
                       if ((p_ptr->pclass == 9) || (p_ptr->pclass == 5))
                       clash = 7;
                       }
-                    /* dunadan cannot be a druid, witch, war mage, thief, loser or chaos warrior */
+                    /* dunadan cannot be a witch, war mage, thief, loser or chaos warrior 
                     if (p_ptr->prace == 8)
                       {
                       if (p_ptr->pclass == 10) clash = 8;
@@ -1859,10 +1861,9 @@ for (;clash < 50;)
                       clash = 15;
                       }    
                     /* umber hulk must be hulk class */
-                    if (p_ptr->prace == 17)
-                      {
-                      if (p_ptr->pclass != 32) clash = 17;
-                      }    
+                    if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;
+                    /* no other race can be hulk class */
+                    if ((p_ptr->pclass == 23) && (p_ptr->prace != 17)) clash = 40;
 	}
 
    /* luck settings */

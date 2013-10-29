@@ -34,6 +34,11 @@
 # ends or the beginning of the next line to prevent words from running
 # together.
 
+# Mage spells #1 to #75 (up to #64 used)						74
+# Prayers  #76 to #151 (up to #145 used (#69 within the realm))		75
+# Nature spells #152 to #227 (up to #218 used (#66 within the realm))	75
+# Chance spells #228 to #303 (up to #300 used (#72 within the realm))	75
+# Alchemy spells #304 to # (up to #377 used (#73 within the realm))	
 
 # Version stamp (required)
 
@@ -81,6 +86,8 @@ D:Fires a plasma beam that hurts each monster in its path.
 N:7:Wizard Lock
 I:90:0:6
 D:Fixes (if broken), closes, and magically spikes a door.
+D: (You must target a specfic spot for this spell to work.
+D: -don't just use a direction key.)
 D: (Meant for targetting a door, but can create a door on open
 D: space also.)
 
@@ -116,7 +123,7 @@ D:  Uniques and monsters that resist confusion are not affected.
 N:14:Sleep Monster
 I:90:1:4
 D:Attempts to put to sleep a single monster.
-D:  Uniques and monsters that resist confusion are not affected.
+D:  Uniques and monsters that resist sleep are not affected.
 
 N:15:Wonder
 I:90:1:8
@@ -197,12 +204,13 @@ D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns.
 N:28:Berserker
 I:90:7:1
 D:Cures 30 points of damage, removes fear, and grants you berserk
-D: strength (resistance to fear, a bonus of +12 to-hit, and a penalty
+D: strength (resistance to fear, a bonus of +24 to-hit, and a penalty
 D: of -10 to AC) for 25+1d25 turns.
 
 N:29:Haste Self
 I:90:3:2
 D:Hastes you (+10 to speed) for a level-dependant duration.
+D: (minimum is clvl + 1 turns.)
 
 N:30:Teleport Self
 I:90:1:5
@@ -256,7 +264,7 @@ D:Shoots a radius-3 poison ball.
 N:39:Mass Sleep
 I:90:3:3
 D:Attempts to put to sleep each monster within line of sight.
-D:  Uniques and monsters that resist confusion are not affected.
+D:  Uniques and monsters that resist sleep are not affected.
 
 N:40:Bedlam
 I:90:8:0
@@ -638,6 +646,7 @@ D: light-sensitive monster in its path.
 N:121:Haste
 I:91:5:3
 D:Hastes you (+10 to speed) for a level-dependant duration.
+D: (minimum is clvl + 1 turns.)
 
 N:122:Enchant Armour
 I:91:5:4
@@ -737,7 +746,7 @@ D:Gives you telepathy for (clvl + d(clvl)) turns.
 # should be very high mana and clvl, should be shorter duration, probably healers only
 
 N:138:Alter Reality
-I:91:7:4
+I:91:7:5
 D:The current level will be discarded and a new dungeon level (on the
 D: same dungeon depth) will be generated.  This has exactly the same
 D: side effects as leaving and re-entering the level through a stair,
@@ -788,7 +797,7 @@ D: undead, a demon, an elemental, a golem, or a vortex.
 
 #    prayers 70-75 unused
 # start nature with #152 because Max spells is 76
-### Nature Spells (not done yet)
+### Nature Spells (mostly done)
 
 N:152:Detect Animal
 I:92:0:0
@@ -1033,7 +1042,9 @@ D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns.
 #45
 N:197:Call Help
 I:92:6:2
-D:Summons a helpful fairy or animal.
+D:Summons help. (summoned help does not fight other monsters, sorry.)
+D:Most of the time either an ent (who gives you entdraught) or a pixie.
+D: Less often, a white unicorn is summoned which has more powerful helpful effects.
 
 N:198:Song of Protection
 I:92:6:3
@@ -1062,6 +1073,7 @@ D:Restores to maximum all stats that are currently below maximum.
 N:202:Essence of Speed
 I:92:7:0
 D:Hastes you (+10 to speed) for a level-dependant duration.
+D: (minimum is clvl + 1 turns.)
 
 N:203:Infusion
 I:92:7:1
@@ -1237,7 +1249,6 @@ N:238:Extra Luck
 I:93:1:1
 D:Possible effects include: (the first 5 effects are equal in how often they
 D: happen, and the others each have a small chance to happen.)
-D: (the first 5 effects are equal in how often they happen.)
 D: 1) heal 20 hps, cure fear and charm, and give you heroism for 26-50 turns.
 D: 2) heal hps = to your clvl, cure blindness and poison, and give you blessing
 D: for 26-94 turns and extra infravision for 26-50 turns.
@@ -1245,7 +1256,7 @@ D: 3) heal 30 hps, cure fear and charm, and give you berserk rage for 21-64 turn
 D: 4) give you blessing for 12-58 turns.
 D: 5) heals about 50 hps, cures all poison, cuts and stunning, gives you +20ac and
 D: protection from evil for 26-69 turns.
-D: 6) heals about 46 hps, cures all poison, cutes, stunning, fear, charm, and frenzy,
+D: 6) heals about 46 hps, cures all poison, cuts, stunning, fear, charm, and frenzy,
 D: and gives you berserk rage and +20 ac (combining for +10ac) for about 50 turns.
 D: 7) heals 81-85 hps, cures all poison, cuts and stunning, and gives you temporary
 D: heat and cold resistance for and attacks of holy might for 26-58 turns.
@@ -1459,6 +1470,7 @@ D: aggravating monsters.
 N:271:Haste Self
 I:93:4:7
 D:Hastes you (+10 to speed) for a level-dependant duration.
+D: (minimum is clvl + 1 turns.)
 
 N:272:Polymorph Other
 I:93:5:0
@@ -1484,9 +1496,10 @@ D: monster.)
 
 N:275:Affect Self
 I:93:5:3
-D:This spell will do something random to yourself.
-D: (You will get a good effect more than half the time)
-D: (not implemented yet)
+D:This spell will do something random to yourself.  Has a very wide
+D: range of effects, can get good and bad effects at the same time.
+D: Has a very small chance of doing nothing.  (good effects are always
+D: more likely than bad effects).
 
 N:276:Affect Surroundings
 I:93:5:4
@@ -1611,7 +1624,7 @@ D: of poisoning yourself instead.
 N:294:Berserker
 I:93:8:1
 D:Cures 30 points of damage, removes fear, and grants you berserk
-D: strength (resistance to fear, a bonus of +12 to-hit, and a penalty
+D: strength (resistance to fear, a bonus of +24 to-hit, and a penalty
 D: of -10 to AC) for 25+1d25 turns.
 
 N:295:Bedlam
@@ -1657,3 +1670,439 @@ I:93:8:7
 D:Has bizzare effects similar to those of Sauron's
 D: One Ring, but not quite as extreme. Plus some additional
 D: bizzare effects. (not implemented yet)
+
+#    chance spells (301-303) unused <75+1>
+# start alchemy spells with #304 because Max spells is 76
+# Alchemy Realm:
+
+#0
+N:304:Disinfectant
+I:94:0:2
+D:Decreases poison by 2 + d(clvl/2), decreases cuts by 5 + d(clvl/3),
+D: has 1/3 chance of decreasing sliming by 1, and does very slight damage to
+D: all jellies, slimes, molds, mushroom patches, and worms in line of sight.
+D: Has 10% chance of having slightly more potent effect if you are at least
+D: clvl 10.
+
+N:305:Cure Light Wounds
+I:94:0:0
+D:Cures 2d9 points of damage and heals 10 points worth of cuts.
+
+N:306:Light Area
+I:94:0:3
+D:Lights up all squares in a level-dependant area, and hurts
+D: all light-sensitive monsters in the area of effect.
+
+N:307:Stinking Cloud
+I:94:0:1
+D:Shoots a radius-2 poison ball.
+
+N:308:Phase Door
+I:94:0:4
+D:Teleports you randomly up to 10 squares away.
+
+#5
+N:309:Find Hidden Traps/Doors
+I:94:0:5
+D:Detects all traps, doors, and stairs in the immediate area.
+
+N:310:Detect Monsters
+I:94:0:6
+D:Detects all non-invisible monsters in the immediate area,
+D: for one turn only.
+
+N:311:Cure Poison
+I:94:0:7
+D:Neutralizes poison.
+
+N:312:Acid Arrow
+I:94:0:8
+D:Fires an arrow of acid damage slightly more powerful than the mage's magic missile.
+
+N:313:Extend Infravision
+I:94:1:0
+D:It extends the radius of your infravision by 50 feet for
+D: 10 + (clvl*2) + 1d100 turns.
+
+#10
+N:314:Resist Acid
+I:94:1:1
+D:Gives you temporary resistance to acid, for 15+1d(clvl/2) turns.
+
+N:315:Cure Moderate Wounds
+I:94:1:2
+D:Cures 6d8 points of damage and heals 2/3 of all cut damage.
+
+N:316:Resist Heat and Cold
+I:94:1:3
+D:Gives you temporary resistance to cold and fire, for 10+1d12 turns each.
+
+N:317:Satisfy Hunger
+I:94:1:4
+D:Magically renders you well-fed (but not satiated).
+D:  This will also cure a bloated stomach.
+
+N:318:Chemical Rage
+I:94:1:7
+D:Cures 30 points of damage, removes fear, and produces a chemical
+D: imbalance which causes berserk strength (resistance to fear, a bonus
+D: of +24 to-hit, and a penalty of -10 to AC) for 25+1d25 turns.
+
+#15
+N:319:Strong Disinfectant
+I:94:1:5
+D:Decreases poison by 5 + d(clvl), decreases cuts by 10 + d(clvl/2),
+D: decreases stunning by 5 + d(clvl/2), 1/3 chance of decreasing sliming by 2,
+D: 1/3 chance of decreasing silver by 1, and does slight damage to
+D: all jellies, slimes, molds, mushroom patches, and worms in line of sight.
+D: Has 10% chance of having more potent effect if you are at least clvl 25.
+D: Also decreases confusion by 5 + d(clvl/2), decreases blindness by 5 + d(clvl/2),
+D: decreases frenzy by 3 + d(clvl/3), decreases amnesia by 3 + d(clvl/3),
+D: and decreases halucenation by d(clvl/3).
+
+N:320:Resist Poison
+I:94:1:6
+D:Grants you resistance to poison for 20+1d20 turns.
+
+N:321:Heal
+I:94:1:8
+D:Cures 8d(clvl/2) points of damage, cures all stunning and heals all cut damage.
+D: (not as powerful as the prayer with the same name, but better than cure mortal
+D: wounds.)
+
+N:322:Detect Treasure
+I:94:2:0
+D:Detects all treasure in the immediate area.
+
+N:323:Trap/Door Destruction
+I:94:2:1
+D:Destroys all traps and doors within a 1-square radius of you.
+
+#20
+N:324:Detect Objects
+I:94:2:2
+D:Detects all objects in the immediate area.
+
+N:325:Identify
+I:94:2:3
+D:Reveals all normal (magical but non-hidden) powers of one object.
+
+N:326:Detect Invisible
+I:94:2:4
+D:Detects all invisible monsters in the immediate area,
+D: for one turn only.
+
+N:327:Resistance
+I:94:2:5
+D:Grants you resistance to acid, cold, fire, lightning, and poison for
+D: 20+1d20 turns.  
+
+N:328:Detect Enchantment
+I:94:2:6
+D:Detects all enchanted objects in the immediate area.
+D:  Enchanted objects include artifacts, ego items, amulets, rings,
+D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
+D: that give a significant bonus to-hit, to-dam, or to AC.
+
+#25
+N:329:Acid Coat Ammo
+I:94:2:7
+D:Coats one stack of ammunition with acid and at the same time
+D: attempts to slightly improve the to-hit bonus and the to-dam bonus
+D: of the same ammunition.
+D:  The spell has no effect if the ammunition is already branded, has a
+D: slay, is broken, or is cursed.
+D: Note: Acid coating is weaker than acid brand or other brands.
+D: (x2 multiplier instead of x3)
+
+N:330:Burst of Speed
+I:94:3:0
+D:Hastes you (+10 to speed) for a very short level-dependant duration.
+D: (max 15 turns).
+
+N:331:Teleport Self
+I:94:3:1
+D:Teleports you randomly within the current level.
+
+N:332:Teleport Other
+I:94:3:2
+D:Produces a beam that teleports each monster in its path
+D: up to 100 squares away.
+
+N:333:Slow Monsters
+I:94:3:3
+D:Attempts to slow each monster within line of sight.
+D:  Uniques are not affected.
+
+#30
+N:334:Mass Sleep
+I:94:3:4
+D:Attempts to put to sleep each monster within line of sight.
+D:  Uniques and monsters that resist sleep are not affected.
+
+N:335:Haste Self
+I:94:3:5
+D:Hastes you (+10 to speed) for a level-dependant duration.
+D: (minimum is clvl + 1 turns.)
+
+N:336:Teleport Level
+I:94:3:6
+D:Teleports you 1 level up or 1 level down (chosen at random).
+D:  This spell has no effect when the option to restrict the use of
+D: stairs and recall is set.
+
+N:337:Elixer of Life
+I:94:6:7
+D:Attempts to make the Elixir of Life. There is an extremely small chance of
+D: succeeding in making the perfect recipe, but if you get close to getting
+D: it right, you still get very good effects.
+D: The perfectly made Elixir of Life will cure all poison, stunning, cuts,
+D: fear, blindess, sliming, and silver poison. Plus it will restore all your
+D: stats, restore drained experience points and give you 100 more exp, grant
+D: you resistance to elements for 50+d50 turns, raise your constitution,
+D: and heal you to your max hit points.
+D: Imperfect attempts will have various parts of the full effect
+D: (except only the perfect recipe can raise constitution, grant resistance
+D: or give new experience).
+D: There is also a small chance of making a bad enough mistake with the
+D: ingrediants that you get a bad effect, possibly lowering your strength
+D: and constitution (not permanently, but it ignores sustains.)
+D: There are effects in between which give mostly good effects, but can also
+D: cause poison.
+
+N:338:Rune of Protection
+I:94:3:7
+D:Inscribes a glyph of warding beneath you.
+D:  Summoned monsters can't appear on the glyph.
+D:  If a monster attempts to move onto the glyph or melee you while you
+D: are standing on the glyph, it must first succeed in breaking the glyph.
+D:  Higher level monsters are more likely to break the glyph.
+D:  The glyph will remain where it is, until a monster succeeds in
+D: breaking it, or until you leave the level.
+
+#35
+N:339:Lightning Bolt
+I:94:4:0
+D:Fires a lightning beam that hurts each monster in its path.
+
+N:340:Rain of Arrows
+I:94:4:1
+D:Shoots a rain of 3 to 6 arrows.
+D:  Arrows will travel until hitting a wall, a monster,
+D: or reaching the target location.
+D:  If this kills the monster that blocked the path to the target
+D: location, the next arrow may continue to find another target.
+
+N:341:Chaos Arrow
+I:94:4:2
+D:Fires an arrow of chaos damage.
+
+N:342:Rocket Blast
+I:94:4:6
+D:Shoots a radius-2 shards ball which also has a chance of destroying walls.
+D: (less damage than than the explosion spell)
+
+N:343:Enchant Missile To-Hit
+I:94:4:3
+D:Attempts to improve the to-hit bonus of a bow or stack of arrows.
+
+#40
+N:344:Enchant Missile To-Dam
+I:94:4:4
+D:Attempts to improve the to-dam bonus of a bow or stack of arrows.
+
+N:345:Poison Brand Ammo
+I:94:4:5
+D:Brands one stack of ammunition with poison and at the same time
+D: attempts to improve the to-hit bonus and the to-dam bonus of
+D: the same ammunition. (less enchanting than elemental brand spell)
+D:  The spell has no effect if the ammunition is already branded, has a
+D: slay, is broken, or is cursed.
+
+N:346:Elemental Brand Ammo
+I:94:4:7
+D:Brands one stack of ammunition with fire, cold, or electricity
+D: (selected at random) and at the same time attempts to improve
+D: the to-hit bonus and the to-dam bonus of the same ammunition.
+D:  The spell has no effect if the ammunition is already branded, has a
+D: slay, is broken, or is cursed.
+
+N:347:Confuse Monster
+I:94:5:0
+D:Attempts to confuse a single monster for a level-dependant duration.
+D:  Uniques and monsters that resist confusion are not affected.
+
+N:348:Sleep Monster
+I:94:5:1
+D:Attempts to put to sleep a single monster.
+D:  Uniques and monsters that resist sleep are not affected.
+
+#45
+N:349:Element Bolt
+I:94:5:3
+D:Fires a bolt of a random element (lighting, cold, fire, or acid)
+D:  Sometimes a beam is fired instead that hurts each monster
+D: in its path.
+D:  The chance to get a beam goes up with your character level.
+
+N:350:Polymorph Other
+I:94:5:5
+D:Attempts to slow a single monster.
+D:  Uniques are not affected.
+
+N:351:Slow Monster
+I:94:5:4
+D:Attempts to polymorph a single monster.
+D:  Uniques are not affected.
+
+N:352:Restore Dexterity
+I:94:7:5
+D:Restores your Dexterity to maximum if it is below maximum.
+
+N:353:Element Ball
+I:94:5:6
+D:Shoots a radius-2 ball of cold or fire, chosen at random.
+
+#50
+N:354:Acid Ball
+I:94:5:7
+D:Shoots a radius-2 acid ball.
+
+N:355:Ice Storm
+I:94:5:8
+D:Shoots a radius-3 cold ball.
+
+N:356:Wonder (just after sleep monster in book)
+I:94:5:2
+D:Invokes a random want effect with a very small chance of more
+D: powerful good effects than are available with wands.
+
+N:357:Cloudkill
+I:94:6:3
+D:Shoots a radius-3 poison ball.
+
+N:358:Glyph of Warding
+I:94:8:5
+D:Inscribes a glyph of warding beneath you.
+D:  Summoned monsters can't appear on the glyph.
+D:  If a monster attempts to move onto the glyph or melee you while you
+D: are standing on the glyph, it must first succeed in breaking the glyph.
+D:  Higher level monsters are more likely to break the glyph.
+D:  The glyph will remain where it is, until a monster succeeds in
+D: breaking it, or until you leave the level.
+
+#55
+N:359:Stone To Mud
+I:94:6:1
+D:Produces a beam that destroys the first section of wall it hits,
+D: unless it is a permanent wall.  Each monster caught in the beam that
+D: is susceptible to rock remover takes 20+1d30 points of damage.
+
+N:360:Recharging
+I:94:6:0
+D:Adds charges to a stack of wands or staves.
+D:  Chance of success and number of charges gained increase with your
+D: level and decrease with level of wand or staff and number of charges.
+D:  A failed attempt to recharge destroys one wand or staff from the stack.
+
+N:361:Object To Gold
+I:94:6:2
+D:<not implemented yet>
+
+N:362:Explosion
+I:94:6:4
+D:Shoots a radius-2 shards ball which also has a chance of destroying walls.
+
+N:363:Restoration
+I:94:6:6
+D:Restores to maximum all stats that are currently below maximum.
+
+#60
+N:364:Poison Brand Weapon
+I:94:6:5
+D:Brands the currently wielded melee weapon with poison,
+D: and at the same time attempts to improve the to-hit bonus and the
+D: to-dam bonus of the same weapon.
+D:  The spell has no effect if the weapon is an artifact or ego item,
+D: is already branded, has a slay, is broken, or is cursed.
+
+N:365:Hit and Run
+I:94:7:0
+D:Fires a low damage magic bolt and then teleports you up to 10 spaces away.
+
+N:366:Slip Into the Shadows
+I:94:7:1
+D:Doubles your stealth, and gives you +2 infravision and ac for
+D: 30 + d(clvl) turns. Usually has no effect if you are currently
+D: aggravating monsters.
+
+N:367:Poison Bolt
+I:94:7:2
+D:Fires a poison bolt that always hits its target.
+D:  Sometimes a beam is fired instead that hurts each monster
+D: in its path.
+D:  The chance to get a beam goes up with your character level.
+
+N:368:Cloudkill
+I:94:7:3
+D:Shoots a radius-3 poison ball.
+
+#65
+N:369:Bedlam
+I:94:7:6
+D:Shoots a radius-4 confusion ball that doesn't cause physical
+D: damage but has a chance to confuse each monster in the area of effect.
+D:  Uniques or monsters that resist confusion are not affected.
+
+N:370:Object To Gold
+I:94:7:4
+D:<not implemented yet>
+
+N:371:Poison Brand Weapon
+I:94:7:7
+D:Brands the currently wielded melee weapon with poison,
+D: and at the same time attempts to improve the to-hit bonus and the
+D: to-dam bonus of the same weapon.
+D:  The spell has no effect if the weapon is an artifact or ego item,
+D: is already branded, has a slay, is broken, or is cursed.
+
+N:372:Recharging
+I:94:8:0
+D:Adds charges to a stack of wands or staves.
+D:  Chance of success and number of charges gained increase with your
+D: level and decrease with level of wand or staff and number of charges.
+D:  A failed attempt to recharge destroys one wand or staff from the stack.
+
+N:373:Shield
+I:94:8:2
+D:Grants you +50 to AC for 30+1d20 turns.
+
+#70
+N:374:Bedlam
+I:94:8:3
+D:Shoots a radius-4 confusion ball that doesn't cause physical
+D: damage but has a chance to confuse each monster in the area of effect.
+D:  Uniques or monsters that resist confusion are not affected.
+
+N:375:Restore Dexterity
+I:94:8:1
+D:Restores your Dexterity to maximum if it is below maximum.
+
+N:376:Enchant Armor
+I:94:8:4
+D:Attempts to improve the armour class bonus of a piece of armour.
+
+#73
+N:377:Meteor Swarm
+I:94:8:6
+D:Shoots a swarm of 3 or 4 meteors.
+D:  Meteors will travel until hitting a wall, a monster,
+D: or reaching the target location.
+D:  Meteors will explode as a radius-1 ball that does unresistable
+D: damage to each monster in its area of effect.
+D:  If this kills the monster that blocked the path to the target
+D: location, the next meteor may continue to find another target.
+
+#    alchemy spells (378-) unused <75+1>
+# start black spells with # because Max spells is 76
+# Black Magic Realm: (not done yet)

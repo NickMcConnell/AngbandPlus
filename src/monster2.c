@@ -2505,7 +2505,7 @@ void update_smart_learn(int m_idx, int what)
 
 		case DRS_RES_CHARM:
 		{
-			if (p_ptr->resist_charm) m_ptr->smart |= (SM_RES_CHARM);
+		    /* if (p_ptr->resist_charm) m_ptr->smart |= (SM_RES_CHARM); */
 			break;
 		}
 		

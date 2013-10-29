@@ -667,7 +667,8 @@ struct spell_type
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
 
-	byte realm;			/* 0 = mage; 1 = priest, (2 = newm, 3 = luck) */
+    /* 0 = mage, 1 = priest, (2 = newm, 3 = luck, 4 = alchemy) */
+	byte realm;			
 	byte tval;			/* Item type for book this spell is in */
 	byte sval;			/* Item sub-type for book (= book number) */
 	byte snum;			/* Position of spell within book */

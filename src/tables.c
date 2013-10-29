@@ -2327,6 +2327,7 @@ const grouper object_text_order [] =
 	{TV_MAGIC_BOOK,		"Wizardry Book"	},
 	{TV_NEWM_BOOK,      "Book of Nature Magic" },
 	{TV_LUCK_BOOK,      "Book of Chance Magic" },
+	{TV_CHEM_BOOK,      "Alchemy Book" },
 	{TV_LITE,			"Light"			},
 	{TV_FLASK,			"Flask"			},
 	{TV_SWORD,			"Sword"			},
@@ -2447,7 +2448,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_BOW, SV_SMALL_BOW },
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_BOW, SV_MINI_XBOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
+		{ TV_BOW, SV_MINI_XBOW },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
@@ -2505,6 +2506,14 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Alchemy shop */
 
+		{ TV_CHEM_BOOK, 0 },
+		{ TV_CHEM_BOOK, 0 },
+		{ TV_CHEM_BOOK, 0 },
+		{ TV_CHEM_BOOK, 1 },
+		{ TV_CHEM_BOOK, 1 },
+		{ TV_CHEM_BOOK, 2 },
+		{ TV_CHEM_BOOK, 2 },
+		{ TV_CHEM_BOOK, 3 },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
@@ -2530,10 +2539,10 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
 		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_INT },
 		{ TV_POTION, SV_POTION_RES_WIS },

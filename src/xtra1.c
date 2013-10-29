@@ -2072,7 +2072,7 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
 	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
-	if (f2 & (TR2_RES_CHARM)) p_ptr->resist_charm = TRUE;
+	if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
 	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
 	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
@@ -2173,7 +2173,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
 		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
 		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
-		if (f2 & (TR2_RES_CHARM)) p_ptr->resist_charm = TRUE;
+		if (f3 & (TR3_RES_CHARM)) p_ptr->resist_charm = TRUE;
 		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
 		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
 		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
@@ -2365,7 +2365,7 @@ static void calc_bonuses(void)
 	/* Temporary speed adjustment (not always positive) */
 	if (p_ptr->timed[TMD_ADJUST])
 	{
-		p_ptr->pspeed += adjust;
+		p_ptr->pspeed += spadjust;
 	}
 
 	/* Temporary see invisible */

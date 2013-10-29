@@ -31,8 +31,8 @@ void do_cmd_go_up(void)
 		return;
 	}
 
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	/* Hack -- take a turn (was 100) */
+	p_ptr->energy_use = 10;
 
 	/* Success */
 	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
@@ -60,8 +60,8 @@ void do_cmd_go_down(void)
 		return;
 	}
 
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	/* Hack -- take a turn (was 100) */
+	p_ptr->energy_use = 10;
 
 	/* Success */
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");

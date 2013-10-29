@@ -517,7 +517,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
+			case RBM_KISS:	p = "kiss you"; break;
 			case RBM_GAZE:	p = "gaze"; break;
 			case RBM_WAIL:	p = "wail"; break;
 			case RBM_SPORE:	p = "release spores"; break;
@@ -573,6 +573,9 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_SLIME:     q = "slime"; break;
 			case RBE_CHARM:     q = "charm"; break;
 			case RBE_FRENZY:    q = "put you in a mad careless frenzy"; break;
+			case RBE_PIXIEKISS: q = "bless you"; break;
+			case RBE_ENTHELP:   q = "give you entdraught"; break;
+			case RBE_PURIFY:    q = "purify you"; break;
 		}
 
 

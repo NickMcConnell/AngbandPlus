@@ -136,7 +136,7 @@ static command_type cmd_util[] =
 
 	{ "Save and don't quit",  KTRL('S'), do_cmd_save_game },
 	{ "Save and quit",        KTRL('X'), do_cmd_quit },
-	{ "Quit (commit suicide)",      'Q', do_cmd_suicide },
+	{ "Quit",                 'Q', do_cmd_suicide },
 	{ "Redraw the screen",    KTRL('R'), do_cmd_redraw },
 
 	{ "Load \"screen dump\"",       '(', do_cmd_load_screen },
@@ -314,6 +314,8 @@ static void do_cmd_cast_or_pray(void)
 		do_cmd_castnew();
 	else if (cp_ptr->spell_book == TV_LUCK_BOOK)
 		do_cmd_castluck();
+	else if (cp_ptr->spell_book == TV_CHEM_BOOK)
+		do_cmd_castchem();
 	else
 		do_cmd_cast();
 }

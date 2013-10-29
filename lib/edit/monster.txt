@@ -1252,7 +1252,7 @@ D:It's wondering if you have any bananas.
 N:108:wood spider
 G:S:U
 I:116:3d6:8:16:80
-W:6:3:0:15
+W:6:2:0:15
 B:BITE:HURT:1d3
 B:BITE:POISON:1d4
 F:FRIENDS
@@ -1329,7 +1329,7 @@ D: to frighten its prey.
 N:115:manes
 G:u:u
 I:110:8d8:20:32:30
-W:6:2:0:16
+W:6:1:0:16
 B:HIT:HURT:1d8
 F:FRIENDS
 F:OPEN_DOOR | BASH_DOOR | NON_LIVING
@@ -1373,7 +1373,7 @@ D:It appears to be a pile of silver coins.
 N:119:rot jelly
 G:j:u
 I:120:19d8:2:22:99
-W:6:1:0:15
+W:6:2:0:15
 B:TOUCH:EAT_FOOD:2d3
 B:TOUCH:LOSE_CHR:1d3
 F:NEVER_MOVE
@@ -1555,10 +1555,11 @@ W:8:3:0:27
 B:CLAW:HURT:1d3
 B:BITE:HURT:2d3
 F:ATTR_CLEAR | BASH_DOOR
-F:ANIMAL
+F:ANIMAL | POWERFUL
 S:1_IN_9
 S:BR_SHAR
 D:a magical cat made of glass with very sharp claws and teeth.
+#needs POWERFUL flag or else its shards breath will do barely any damage.
 
 N:135:wolf
 G:C:u
@@ -11955,3 +11956,36 @@ D:The wolfhound of the Valar, Huan has served many masters in his time, from
 D: Celegorm son of Feanor to Beren son of Barahir: but now he runs wild and
 D: acknowledges no master save himself, as he hunts alone for his nemesis -
 D: Carcharoth, the terrible wolf of Angband.
+
+N:995:Pixie
+G:y:W
+I:140:101d7:30:200:0
+W:50:99:0:-10000
+B:KISS:PIXIEKISS:1d30
+F:FORCE_MAXHP | NO_FEAR | NO_CONF | NO_SLEEP | RAND_50
+F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | RES_NETH | HELPER
+S:1_IN_12 | HEAL
+D:A tiny winged lady, sprinkling sparkling dust around.
+
+N:996:Ent
+G:E:B
+I:118:4000d2:20:45:0
+W:50:99:0:-10000
+B:TOUCH:ENTHELP:1d22
+F:FORCE_MAXHP | WEIRD_MIND | RES_NEXUS | IM_WATER
+F:NO_FEAR | NO_CONF | NO_SLEEP | RAND_50
+F:BASH_DOOR | IM_COLD | IM_POIS | KILL_BODY | HELPER
+D:A huge sentient tree, this is one of the tree farmers.  He offers you a skin of
+D: entdraught.
+
+N:997:White Unicorn
+G:Y:w
+I:140:850d2:25:70:0
+W:50:99:0:-20000
+B:TOUCH:PURIFY:1d25
+F:FORCE_MAXHP | RES_DISE
+F:NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | RAND_50 | RAND_25
+F:BASH_DOOR | IM_COLD | IM_POIS | IM_FIRE | IM_ACID | IM_ELEC
+F:RES_DISE | RES_NEXUS | RES_NETH | HELPER
+S:1_IN_9 | HEAL
+D:The purest of beasts, you have the privledge of its favor.

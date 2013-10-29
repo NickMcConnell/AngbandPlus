@@ -470,11 +470,200 @@ B:67:44:30:80:160	#dispel evil x4			44
 B:68:45:50:83:100	#Wo destruction			45
 B:69:99:0:0:0	#annihilation			/
 
-#N:6:Archer (alchemy)
+#possibly change weapon speed modifier to 3 for worse melee(?)
+N:6:Archer
+S:2:0:-1:2:1:0
+C:29:17:23:3:15:11:50:75
+X:9:10:9:0:0:0:28:45
+I:5:18:15000:40
+A:5:35:4
+M:94:1:5:350
+E:19:13:1:1
+E:17:1:15:30
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | EXTRA_SHOT | CHOOSE_SPELLS
+T:Hot Shot
+T:Flinger
+T:Shooter
+T:Bowman
+T:Sure Shot
+T:Archer
+T:Sharp Shooter
+T:Marksman
+T:Elete Archer
+T:Master Marksman
+B:0:9:5:35:1	#disinfectant			9
+B:1:7:3:40:1	#cure light wounds		7
+B:2:12:4:45:1	#light area				12
+B:3:20:10:65:2	#stinking cloud			20
+B:4:17:4:42:1	#phase door				17
+B:5:9:3:50:1	#find traps/doors			9
+B:6:6:2:50:1	#detect monsters			6
+B:7:19:9:60:2	#cure poison			19
+B:8:15:6:35:1	#acid arrow				15
+B:9:11:5:40:1	#infravision (B2)			11
+B:10:99:0:0:0	#resist acid			/
+B:11:99:0:0:0	#cure moderate wounds		/
+B:12:24:15:70:2	#resist heat & cold		24
+B:13:25:14:80:2	#satisfy hunger			25
+B:14:99:0:0:0	#chemical rage			/
+B:15:23:13:65:2	#strong disinfectant		23
+B:16:30:25:85:3	#resist poison			30
+B:17:35:29:75:4	#heal					35
+B:18:99:0:0:0	#detect treasure (B3)		/
+B:19:18:9:60:2	#trap/door destruction		18
+B:20:22:14:65:2	#detect object			22
+B:21:27:28:90:2	#identify				27
+B:22:20:15:65:2	#detect invisible			20
+B:23:34:38:85:3	#resistance				34
+B:24:38:21:80:4	#detect enchantment		38
+B:25:29:52:85:5	#acid coat ammo			29
+B:26:29:11:72:2	#burst of speed (B4)		29
+B:27:28:14:55:2	#teleport self			28
+B:28:31:26:75:3	#teleport other			31
+B:29:32:18:80:3	#slow monsters			32
+B:30:33:18:75:3	#mass sleep				33
+B:31:37:26:80:3	#haste self				37
+B:32:41:30:80:6	#teleport level			41
+B:33:99:0:0:0	#elixir of life			/  (in alchemist only B7)
+B:34:99:0:0:0	#rune of protection		/  (in B4)
+B:35:16:8:67:2	#lightning bolt (B5)		16
+B:36:22:16:60:3	#rain of arrows			22
+B:37:26:16:70:3	#chaos arrow			26
+B:38:43:24:65:15	#rocket blast			43
+B:39:41:40:80:4	#enchant missile to-hit		41
+B:40:42:41:80:4	#enchant missile to-dam		42
+B:41:38:60:95:9	#poison brand ammo		38
+B:42:45:72:96:25	#elemental brand ammo		45
+B:43:99:0:0:0	#confuse monster (B6)		/ (non-archer book)
+B:44:99:0:0:0	#sleep monster			/
+B:45:99:0:0:0	#element bolt			/
+B:46:99:0:0:0	#polymorph other			/
+B:47:99:0:0:0	#slow monster			/
+B:48:99:0:0:0	#restore dex1			/
+B:49:99:0:0:0	#element ball			/
+B:50:99:0:0:0	#acid ball				/
+B:51:99:0:0:0	#ice storm				/
+B:52:99:0:0:0	#wonder				/
+B:53:99:0:0:0	#cloudkill1	(B7)			/ (alchemist only book)
+B:54:44:75:88:50	#glyph of warding			44 (this spell in archer only B9)
+B:55:99:0:0:0	#stone to mud			/
+B:56:99:0:0:0	#recharging				/
+B:57:99:0:0:0	#object to gold1			/
+B:58:99:0:0:0	#explosion				/
+B:59:99:0:0:0	#restoration			/
+B:60:99:0:0:0	#poison brand weapon		/
+B:61:99:0:0:0	#hit and run (B8)			/ (thief only book)
+B:62:99:0:0:0	#slip into the shadows		/
+B:63:99:0:0:0	#poison bolt			/
+B:64:99:0:0:0	#cloudkill2				/
+B:65:99:0:0:0	#bedlam1				/
+B:66:99:0:0:0	#object to gold2			/
+B:67:99:0:0:0	#poison brand weapon2		/
+B:68:36:21:90:3	#recharging2 (B9)			36  (archer only book)
+B:69:39:31:80:5	#shield				39
+B:70:40:32:75:15	#bedlam2				40
+B:71:37:48:88:9	#restore dex2			37
+B:72:43:54:96:15	#enchant armor			43
+B:73:49:50:88:40	#meteor swarm			49
 
-#N:7:Alchemist (alchemy)
+N:7:Alchemist
+S:-1:2:-1:0:-1:-1
+C:21:21:20:1:15:20:39:32
+X:9:12:12:0:0:0:20:16
+I:1:33:16500:40
+A:4:34:3
+M:94:1:1:335
+E:94:0:1:1
+E:31:1:1:2
+E:75:36:1:1
+E:75:40:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+T:Mixer
+T:Tester
+T:Experimenter
+T:Chemist
+T:Potionmaker
+T:Psuedo Doctor
+T:Expert
+T:Alchemist
+T:Potionmaster
+T:Master Alchemist
+B:0:3:3:32:2	#disinfectant			3
+B:1:2:1:26:2	#cure light wounds		2
+B:2:5:2:31:2	#light area				5
+B:3:1:1:35:2	#stinking cloud			1
+B:4:7:2:30:3	#phase door				7
+B:5:6:3:40:2	#find traps/doors			6
+B:6:8:2:35:3	#detect monsters			8
+B:7:5:5:45:3	#cure poison			5
+B:8:6:3:35:2	#acid arrow				6
+B:9:3:2:35:2	#infravision (B2)			3
+B:10:4:3:40:2	#resist acid			4
+B:11:13:10:45:3	#cure moderate wounds		13
+B:12:13:10:55:4	#resist heat & cold		13
+B:13:13:10:55:4	#satisfy hunger			13
+B:14:22:16:67:6	#chemical rage			22
+B:15:12:11:42:3	#strong disinfectant		12
+B:16:15:12:60:5	#resist poison			15
+B:17:32:28:67:7	#heal					32
+B:18:11:4:60:3	#detect treasure (B3)		11
+B:19:11:7:40:3	#trap/door destruction		11
+B:20:16:7:70:4	#detect object			16
+B:21:16:17:75:5	#identify				16
+B:22:16:8:55:4	#detect invisible			16
+B:23:27:24:81:9	#resistance				27  (25-28(?)
+B:24:31:11:67:9	#detect enchantment		31(?)
+B:25:35:45:89:23	#acid coat ammo			35  (33-37(?)
+B:26:19:10:70:6	#burst of speed (B4)		19
+B:27:19:11:60:5	#teleport self			19
+B:28:33:21:75:7	#teleport other			33(?)
+B:29:26:13:75:6	#slow monsters			26
+B:30:26:12:72:6	#mass sleep				26
+B:31:26:21:89:9	#haste self				26
+B:32:40:26:80:30	#teleport level			40(?)
+B:33:42:50:75:150	#elixir of life			42  (in alchemist only B7)
+B:34:40:75:91:70	#rune of protection		40(?)  (in B4)
+B:35:99:0:0:0	#lightning bolt (B5)		/  (archer only book)
+B:36:99:0:0:0	#rain of arrows			/
+B:37:99:0:0:0	#chaos arrow			/
+B:38:99:0:0:0	#rocket blast			/
+B:39:99:0:0:0	#enchant missile to-hit		/
+B:40:99:0:0:0	#enchant missile to-dam		/
+B:41:99:0:0:0	#poison brand ammo		/
+B:42:99:0:0:0	#elemental brand ammo		/
+B:43:7:4:40:3	#confuse monster (B6)		7
+B:44:7:6:41:3	#sleep monster			7
+B:45:16:9:67:10	#element bolt			16
+B:46:23:14:67:20	#polymorph other			23 (21-25(?)
+B:47:23:15:67:20	#slow monster			23 (21-25(?)
+B:48:99:0:0:0	#restore dex1			/  (this spell in thief only B8)
+B:49:28:19:75:40	#element ball			28
+B:50:31:21:80:45	#acid ball				31
+B:51:37:30:81:60	#ice storm				37
+B:52:10:15:85:21	#wonder				10
+B:53:27:16:55:35	#cloudkill1	(B7)			27 (27-30(?)  (alchemist only book)
+B:54:99:0:0:0	#glyph of warding			/  (this spell in archer only B9)
+B:55:14:13:56:15	#stone to mud			14
+B:56:14:11:95:15	#recharging				14
+B:57:20:1:10:5	#object to gold1			20 (?) (temporary stats while not done)
+B:58:29:21:50:50	#explosion				29  (28-29(?)
+B:59:43:38:92:100	#restoration			43
+B:60:36:60:92:90	#poison brand weapon		36  (34-39(?)
+B:61:99:0:0:0	#hit and run (B8)			/  (thief only book)
+B:62:99:0:0:0	#slip into the shadows		/
+B:63:99:0:0:0	#poison bolt			/
+B:64:99:0:0:0	#cloudkill2				/
+B:65:99:0:0:0	#bedlam1				/
+B:66:99:0:0:0	#object to gold2			/
+B:67:99:0:0:0	#poison brand weapon2		/
+B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
+B:69:99:0:0:0	#shield				/
+B:70:99:0:0:0	#bedlam2				/
+B:71:99:0:0:0	#restore dex2			/
+B:72:99:0:0:0	#enchant armor			/
+B:73:99:0:0:0	#meteor swarm			/
 
-#N:8:Priest (prayers)
+#N:8:Priest
 #S:-2:0:3:-1:1:2
 #C:20:28:31:2:17:8:45:32
 #X:8:10:12:0:0:0:20:20
@@ -496,76 +685,76 @@ B:69:99:0:0:0	#annihilation			/
 #T:Bishop
 #T:Prophet
 #T:High Priest
-B:0:1:1:22:1	#clw					1
-B:1:2:1:30:1	#detect evil			2
-B:2:3:2:30:2	#bless				3
-B:3:5:3:35:4	#boldness				5
-B:4:1:1:15:1	#light				1
-B:5:5:4:36:3	#slow poison			5
-B:6:10:9:40:4	#csw					10
-B:7:6:5:45:3	#spear of light			6
-B:8:13:12:50:3	#satisfy hunger			13 (or 12)
-B:9:8:5:45:3	#find traps (B2)			8
-B:10:8:5:45:3	#detect doors/stairs		8
-B:11:9:5:50:3	#detect life			9
-B:12:13:12:44:4	#remove curse			13 (or 14)
-B:13:19:16:51:4	#sense invisible			19
-B:14:24:18:55:4	#sense surroundings		24
-B:15:24:25:80:7	#identify				24
-B:16:39:60:75:10	#WoR					39
-B:17:34:20:63:8	#true sight				34
-B:18:15:15:50:4	#cure poison (B3)			15
-B:19:9:7:35:3	#scare monster			9
-B:20:15:13:40:4	#resist heat & cold		15
-B:21:17:15:50:4	#ccw					17
-B:22:11:10:45:3	#chant				11
-B:23:15:9:42:4	#portal				15
-B:24:11:11:40:4	#sanctuary				11
-B:25:17:18:60:5	#prot. from evil			17
-B:26:32:27:65:7	#heal					32
-B:27:25:18:53:5	#turn undead (B4)			25
-B:28:22:20:50:5	#cmw					22
-B:29:29:22:50:5	#prayer				29
-B:30:19:17:55:4	#orb of draining			19 (or 20)
-B:31:31:24:60:4	#dispel undead x3			31
-B:32:35:34:70:6	#dispel evil x3			35
-B:33:49:71:94:40	#holy word				50 (maybe 49)
-B:34:15:10:45:9	#csw2 (B5)				15
-B:35:24:21:56:18	#cmw2					24
-B:36:24:23:45:30	#curing				24
-B:37:42:30:70:72	#purify				42
-B:38:42:55:85:110	#dispel curse			42
-B:39:42:47:80:100	#healing				42
-B:40:45:81:86:120	#restoration			45
-B:41:99:0:0:0	#remembrance			/
-B:42:10:16:52:15	#unbarring ways (B6)		10
-B:43:26:32:80:23	#recharging				26
-B:44:26:14:47:12	#starlight				26
-B:45:36:30:70:50	#haste				36
-B:46:41:72:80:130	#enchant armor			41
-B:47:42:76:85:135	#enchant weapon			42
-B:48:38:31:65:60	#sanctify for battle		38
-B:49:99:0:0:0	#resistance				/
-B:50:31:22:65:40	#mass sleep (B7)			31
-B:51:99:0:0:0	#prayer (healer only)		/
-B:52:28:26:75:35	#tele other				28
-B:53:29:24:56:39	#dispel silver x3			29
-B:54:42:40:85:150	#prot. from powerful evil	42
-B:55:33:35:80:140	#banish evil			33 (30-36?)
-B:56:44:70:93:170	#glyph of warding			44
-B:57:99:0:0:0	#blink				/ (non paladin book)
-B:58:99:0:0:0	#detection				/
-B:59:99:0:0:0	#full identify			/
-B:60:99:0:0:0	#Wo destruction			/
-B:61:99:0:0:0	#telepathy				/
-B:62:99:0:0:0	#alter reality			/
-B:63:29:30:60:26	#earthquake				29
-B:64:34:22:77:145	#holy lance				34
-B:65:32:26:60:80	#dispel silver x4			32
-B:66:32:24:65:80	#dispel undead x4			32
-B:67:44:30:80:160	#dispel evil x4			44
-B:68:45:50:83:100	#Wo destruction			45
-B:69:99:0:0:0	#annihilation			/
+#B:0:1:1:22:1	#clw					1
+#B:1:2:1:30:1	#detect evil			2
+#B:2:3:2:30:2	#bless				3
+#B:3:5:3:35:4	#boldness				5
+#B:4:1:1:15:1	#light				1
+#B:5:5:4:36:3	#slow poison			5
+#B:6:10:9:40:4	#csw					10
+#B:7:6:5:45:3	#spear of light			6
+#B:8:13:12:50:3	#satisfy hunger			13 (or 12)
+#B:9:8:5:45:3	#find traps (B2)			8
+#B:10:8:5:45:3	#detect doors/stairs		8
+#B:11:9:5:50:3	#detect life			9
+#B:12:13:12:44:4	#remove curse			13 (or 14)
+#B:13:19:16:51:4	#sense invisible			19
+#B:14:24:18:55:4	#sense surroundings		24
+#B:15:24:25:80:7	#identify				24
+#B:16:39:60:75:10	#WoR					39
+#B:17:34:20:63:8	#true sight				34
+#B:18:15:15:50:4	#cure poison (B3)			15
+#B:19:9:7:35:3	#scare monster			9
+#B:20:15:13:40:4	#resist heat & cold		15
+#B:21:17:15:50:4	#ccw					17
+#B:22:11:10:45:3	#chant				11
+#B:23:15:9:42:4	#portal				15
+#B:24:11:11:40:4	#sanctuary				11
+#B:25:17:18:60:5	#prot. from evil			17
+#B:26:32:27:65:7	#heal					32
+#B:27:25:18:53:5	#turn undead (B4)			25
+#B:28:22:20:50:5	#cmw					22
+#B:29:29:22:50:5	#prayer				29
+#B:30:19:17:55:4	#orb of draining			19 (or 20)
+#B:31:31:24:60:4	#dispel undead x3			31
+#B:32:35:34:70:6	#dispel evil x3			35
+#B:33:49:71:94:40	#holy word				50 (maybe 49)
+#B:34:15:10:45:9	#csw2 (B5)				15
+#B:35:24:21:56:18	#cmw2					24
+#B:36:24:23:45:30	#curing				24
+#B:37:42:30:70:72	#purify				42
+#B:38:42:55:85:110	#dispel curse			42
+#B:39:42:47:80:100	#healing				42
+#B:40:45:81:86:120	#restoration			45
+#B:41:99:0:0:0	#remembrance			/
+#B:42:10:16:52:15	#unbarring ways (B6)		10
+#B:43:26:32:80:23	#recharging				26
+#B:44:26:14:47:12	#starlight				26
+#B:45:36:30:70:50	#haste				36
+#B:46:41:72:80:130	#enchant armor			41
+#B:47:42:76:85:135	#enchant weapon			42
+#B:48:38:31:65:60	#sanctify for battle		38
+#B:49:99:0:0:0	#resistance				/
+#B:50:31:22:65:40	#mass sleep (B7)			31
+#B:51:99:0:0:0	#prayer (healer only)		/
+#B:52:28:26:75:35	#tele other				28
+#B:53:29:24:56:39	#dispel silver x3			29
+#B:54:42:40:85:150	#prot. from powerful evil	42
+#B:55:33:35:80:140	#banish evil			33 (30-36?)
+#B:56:44:70:93:170	#glyph of warding			44
+#B:57:99:0:0:0	#blink				/ (non paladin book)
+#B:58:99:0:0:0	#detection				/
+#B:59:99:0:0:0	#full identify			/
+#B:60:99:0:0:0	#Wo destruction			/
+#B:61:99:0:0:0	#telepathy				/
+#B:62:99:0:0:0	#alter reality			/
+#B:63:29:30:60:26	#earthquake				29
+#B:64:34:22:77:145	#holy lance				34
+#B:65:32:26:60:80	#dispel silver x4			32
+#B:66:32:24:65:80	#dispel undead x4			32
+#B:67:44:30:80:160	#dispel evil x4			44
+#B:68:45:50:83:100	#Wo destruction			45
+#B:69:99:0:0:0	#annihilation			/
 
 #(done)
 N:9:Healer
@@ -889,15 +1078,14 @@ B:63:99:0:0:0	#
 
 #Novelty Class, maybe give it some chance spells (will be #32)
 N:32:Hulk
-S:3:-2:-1:2:2:-3
-C:18:23:24:0:4:3:65:21
-X:10:6:14:0:0:1:38:31
-I:6:25:80000:40
-A:6:50:5
+S:3:-2:-1:1:2:-3
+C:18:23:24:0:4:3:65:30
+X:10:6:14:0:0:1:38:10
+I:6:25:60000:40
+A:6:50:4
 M:0:0:0:0
 E:36:3:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-F:BRAVERY_30 | HEAVY_BONUS | HULK_CONF
+F:PSEUDO_ID_HEAVY | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
 T:Mistaken for a Dumb Ogre
 T:Dumb Brute
 T:Brute

@@ -374,6 +374,25 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				}
 			}
 
+			/* Acid Coating */
+			if (f2 & (TR2_COAT_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_ACID);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 2) mult = 2;
+				}
+			}
+
 			/* Brand (Elec) */
 			if (f1 & (TR1_BRAND_ELEC))
 			{

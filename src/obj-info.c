@@ -222,7 +222,7 @@ static bool describe_slay(const object_type *o_ptr, u32b f1, u32b f2)
 /*
  * Describe elemental brands.
  */
-static bool describe_brand(const object_type *o_ptr, u32b f1)
+static bool describe_brand(const object_type *o_ptr, u32b f1, u32b f2)
 {
 	cptr descs[5];
 	int cnt = 0;
@@ -236,6 +236,7 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
 	if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
 	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
+	if (f2 & (TR2_COAT_ACID)) output_desc_list("It is coated with acid", descs, cnt);
 
 	/* Describe brands */
 	output_desc_list("It is branded with ", descs, cnt);
@@ -295,7 +296,6 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 	if (f2 & (TR2_RES_POIS))  vp[vn++] = "poison";
 	if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
-	if (f2 & (TR2_RES_CHARM))  vp[vn++] = "charming";
 	if (f2 & (TR2_RES_LITE))  vp[vn++] = "light";
 	if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
 	if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
@@ -307,6 +307,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	if (f2 & (TR2_RES_CHAOS)) vp[vn++] = "chaos";
 	if (f2 & (TR2_RES_DISEN)) vp[vn++] = "disenchantment";
 	if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
+	if (f3 & (TR3_RES_CHARM)) vp[vn++] = "charming";
 
 	/* Describe resistances */
 	output_desc_list("It provides resistance to ", vp, vn);
@@ -511,7 +512,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_stats(o_ptr, f1)) something = TRUE;
 	if (describe_secondary(o_ptr, f1)) something = TRUE;
 	if (describe_slay(o_ptr, f1, f2)) something = TRUE;
-	if (describe_brand(o_ptr, f1)) something = TRUE;
+	if (describe_brand(o_ptr, f1, f2)) something = TRUE;
 	if (describe_immune(o_ptr, f2)) something = TRUE;
 	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
 	if (describe_sustains(o_ptr, f2)) something = TRUE;

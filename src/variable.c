@@ -112,7 +112,7 @@ s16b mon_cnt = 0;	/* Number of live monsters */
 
 int range = 0;      /* shortened range of some spell/breaths */
 int spellswitch = 0;      /* extra effects of some spells */
-int adjust = 0;      /* speed adjustment by a nonstandard amount */
+int spadjust = 0;      /* speed adjustment by a nonstandard amount */
 
 
 /*

@@ -43,9 +43,9 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_PARANOIA:
 		{
-			if ((!p_ptr->resist_fear) && (!p_ptr->timed[TMD_CHARM]))
+			if ((!p_ptr->resist_charm))
 			{
-				   if (inc_timed(TMD_AFRAID, rand_int(10) + 10))
+				   if (inc_timed(TMD_CHARM, rand_int(11) + 10))
 				   {
 					  *ident = TRUE;
 				   }
@@ -407,7 +407,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (set_timed(TMD_STUN, (p_ptr->timed[TMD_STUN] / 2))) *ident = TRUE;
 			if (set_timed(TMD_CONFUSED, (p_ptr->timed[TMD_CONFUSED] / 2))) *ident = TRUE;
 			if (*ident = TRUE) msg_print("Your mind is purified.");
-			if (*ident != TRUE) msg_print("You feel less thirsty.");
+			else msg_print("You feel less thirsty.");
 			break;
 		}
 
@@ -579,10 +579,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)clear_timed(TMD_POISONED);
 			(void)clear_timed(TMD_BLIND);
 			(void)clear_timed(TMD_CONFUSED);
+			(void)clear_timed(TMD_AMNESIA);
 			(void)clear_timed(TMD_IMAGE);
 			(void)clear_timed(TMD_STUN);
 			(void)clear_timed(TMD_CUT);
-			(void)clear_timed(TMD_AMNESIA);
 			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
 			if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			(void)do_res_stat(A_STR);

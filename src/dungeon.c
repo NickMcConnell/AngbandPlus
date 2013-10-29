@@ -441,6 +441,13 @@ static void regen_monsters(void)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+		
+		/* DJA: make HELPER monsters leave */
+		if ((r_ptr->flags3 & (RF3_HELPER)) && (randint(100) < 20))
+		{
+           msg_print("Your helper leaves.");
+           delete_monster_idx(i);
+        }
 
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)

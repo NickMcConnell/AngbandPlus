@@ -257,7 +257,7 @@ extern u16b inscriptions_count;
 
 extern int range;
 extern int spellswitch;
-extern int adjust;
+extern int spadjust;
 
 /* squelch.c */
 extern byte squelch_level[SQUELCH_BYTES];

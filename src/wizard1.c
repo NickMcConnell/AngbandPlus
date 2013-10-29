@@ -97,6 +97,7 @@ static const grouper group_item[] =
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
 	{ TV_NEWM_BOOK,	    "Books (Nature)" },
 	{ TV_LUCK_BOOK,	    "Books (Chance)" },
+	{ TV_CHEM_BOOK,	    "Books (Alchemy)" },
 
 	{ TV_CHEST,		"Chests" },
 

@@ -1015,3 +1015,8 @@ X:0:0
 W:0:0:0:0
 C:0:0:10:0
 
+# only available by the alchemy spell
+N:128:(acid coated)
+X:10:0
+W:0:0:0:20
+F:COAT_ACID | IGNORE_ACID

@@ -52,7 +52,7 @@ static timed_effect effects[] =
 	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, 0, PU_BONUS, MSG_INVULN },
 	{ "You feel like a hero!", "The heroism wears off.", 0, 0, PU_BONUS, MSG_HERO },
 	{ "You feel like a killing machine!", "You feel less Berserk.", 0, 0, PU_BONUS, MSG_BERSERK },
-	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
+	{ "A powerful mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
 	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED },
 	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
 	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
@@ -63,6 +63,15 @@ static timed_effect effects[] =
 	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS },
 	{ "You feel your memories fade.", "Your memories come flooding back.", PR_CONFUSED, 0, 0, MSG_GENERIC },
 	{ "With a smile, you decide you're not in the mood for fighting anymore.", "Your smile fades and you feel violent again.", PR_AFRAID, 0, 0, MSG_AFRAID },
+	{ "You are more than irritated.. you burst into a careless frenzy!", "You calm down from your careless frenzy.", 0, 0, PU_BONUS, MSG_BERSERK },
+	{ "You begin to see what's really there.", "Your sight returns to normal.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
+	{ "You strike at evil with holy wrath.", "The holy wrath wears off.", 0, 0, PU_BONUS, MSG_HERO },
+	{ "You feel safe from powerful evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL },
+	{ "You begin to sense other minds.", "You cease to sense other minds.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
+	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
+	{ "You slip into the shadows.", "The shadows don't conceal you so much anymore.", 0, 0, PU_BONUS, MSG_GENERIC },
+	{ "You feel yourself moving at a different speed.", "You move at more normal speed now.", 0, 0, PU_BONUS, MSG_SPEED },
+	{ "You can read runes with your hands.", "You forget how to read brail.", PR_BLIND, 0, 0, MSG_SEE_INVIS },
 };
 
 /*
@@ -1351,7 +1360,7 @@ void monster_death(int m_idx)
 		/* Congratulations */
 		msg_print("*** CONGRATULATIONS ***");
 		msg_print("You have won the game!");
-		msg_print("You may retire (commit suicide) when you are ready.");
+		msg_print("You may retire when you are ready.");
 	}
 }
 

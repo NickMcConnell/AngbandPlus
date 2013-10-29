@@ -366,7 +366,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
 	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
-	if (a_ptr->flags2 & TR2_RES_CHARM) p += 8;
+/*	if (a_ptr->flags3 & TR3_RES_CHARM) p += 8; */
 	if (a_ptr->flags2 & TR2_RES_BLIND) p += 10;
 	if (a_ptr->flags2 & TR2_RES_CONFU) p += 8;
 	if (a_ptr->flags2 & TR2_RES_SOUND) p += 10;
@@ -980,7 +980,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(44);
+		r = rand_int(43);
 		switch (r)
 		{
 			case 0:
@@ -1138,7 +1138,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
-			case 43: a_ptr->flags2 |= TR2_RES_CHARM; break;
+			/* case 43: a_ptr->flags3 |= TR3_RES_CHARM; break; */
 		}
 	}
 

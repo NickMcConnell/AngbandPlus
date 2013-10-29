@@ -604,6 +604,7 @@ static bool hates_moth(const object_type *o_ptr)
 		case TV_PRAYER_BOOK:
 		case TV_NEWM_BOOK:
 		case TV_LUCK_BOOK:
+		case TV_CHEM_BOOK:
 		{
 			return (TRUE);
 		}
@@ -662,6 +663,7 @@ static bool hates_fire(const object_type *o_ptr)
 		case TV_PRAYER_BOOK:
 		case TV_NEWM_BOOK:
 		case TV_LUCK_BOOK:
+		case TV_CHEM_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1816,7 +1818,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				msg_print("A door magically appears and jams itself.");
 
 				/* Hack - maximum jamming. */
-				cave_feat[y][x] = 0x2F;
+			    cave_set_feat(y, x, 0x2F);
+				/* cave_feat[y][x] = 0x2F; */
             }
 
             if ((cave_feat[y][x] == FEAT_FLOOR) && (!(cave_naked_bold(y, x))))
@@ -1832,7 +1835,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				if (cave_feat[y][x] == FEAT_BROKEN) msg_print("The door fixes and jams itself.");
 
 				/* Hack - maximum jamming. */
-				cave_feat[y][x] = 0x2F;
+			    cave_set_feat(y, x, 0x2F);
+				/* cave_feat[y][x] = 0x2F; */
             }
 
 			/* Require any door. */
@@ -1843,7 +1847,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				msg_print("You cast a binding spell on the door.");
 
 				/* Hack - maximum jamming. */
-				cave_feat[y][x] = 0x2F;
+			    cave_set_feat(y, x, 0x2F);
+				/* cave_feat[y][x] = 0x2F; */
 			}
 		}
 
@@ -3160,6 +3165,41 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
         /* Bug Spray */
         case GF_BUG_SPRAY:
 		{
+          if (spellswitch == 16)
+          {
+			/* Only affect certain monsters */
+			if ((r_ptr->d_char == 'j') || (r_ptr->d_char == 'm') ||
+               (r_ptr->d_char == ',') || (r_ptr->d_char == 'w') ||
+               (r_ptr->d_char == 'R') || (r_ptr->d_char == 'S'))
+			{
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " squelches.";
+				note_dies = " disentegrates!";
+				
+				if ((r_ptr->d_char == 'R') || (r_ptr->d_char == 'S'))
+				{
+                   dam = (dam / 3);
+			       note = " cringes.";
+				   note_dies = " dies!";
+                }
+			}
+
+		    /* Others ignore */
+		    else
+		    {
+			    /* Irrelevant */
+			    skipped = TRUE;
+
+			    /* No damage */
+			    dam = 0;
+            }
+          }
+          else
+          {
+
 			/* Only affect bugs */
 			if (r_ptr->flags3 & (RF3_BUG))
 			{
@@ -3187,17 +3227,18 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note_dies = " dies!";
 			}
 
-			/* Others ignore */
-			else
-			{
-				/* Irrelevant */
-				skipped = TRUE;
+		    /* Others ignore */
+		    else
+		    {
+			    /* Irrelevant */
+			    skipped = TRUE;
 
-				/* No damage */
-				dam = 0;
-			}
+			    /* No damage */
+			    dam = 0;
+            }
+          }
 
-			break;
+		  break;
 		}
 
 		/* Dispel silver */

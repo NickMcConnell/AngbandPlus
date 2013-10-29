@@ -175,16 +175,16 @@ W:70:5:60:4
 F:RES_POIS
 C:0|2|3|4|5|6|7|8|10|11|12|13|14
 
-#hobligb can only be rogue, alchemist, healer, assassin or chaos warrior
+#hobligb can only be rogue, alchemist, healer, or assassin
 N:11:Hobglib
-S:1:2:-2:0:2:-3
+S:1:1:-2:0:2:-3
 R:3:10:8:1:12:8:3:3
 X:10:125:2
 I:72:30:35
 H:68:5:63:4
 W:190:10:185:10
 F:RES_POIS
-C:3|6|9
+C:3|7|9|14
 
 #fairy gnome cannot be a warrior, necromancer, assassin, fighter wizard, witch,
 # loser, chaos warrior, or any kind of knight
@@ -243,8 +243,8 @@ C:0|1|2|3|4|5|6|7|8|9|10|11|12|13|14
 
 # (no history yet), must be hulk class
 N:17:Uber Umber Hulk
-S:5:-4:-3:0:1:-5
-R:-8:-10:14:0:5:1:25:-6
+S:5:-4:-3:0:1:-6
+R:-8:-10:14:0:5:1:25:-10
 X:15:155:4
 I:21:50:550
 H:96:10:84:8

@@ -657,7 +657,7 @@ void self_knowledge(bool spoil)
 		info[i++] = "You are completely fearless.";
 	}
 	
-	if (f2 & TR2_RES_CHARM)
+	if (f3 & TR3_RES_CHARM)
 	{
 		info[i++] = "You resistant to charm.";
 	}	
@@ -797,6 +797,10 @@ void self_knowledge(bool spoil)
 		if (f1 & (TR1_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
+		}
+		if (f2 & (TR2_COAT_ACID))
+		{
+			info[i++] = "Your weapon corrodes your foes.";
 		}
 		if (f1 & (TR1_BRAND_ELEC))
 		{
@@ -1327,7 +1331,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) ||
+            (tv == TV_NEWM_BOOK) || (tv == TV_LUCK_BOOK) || (tv == TV_CHEM_BOOK) ||
 		    ((o_ptr->to_a > 2) || (o_ptr->to_h + o_ptr->to_d > 3)))
 		{
 			/* Memorize the item */
@@ -1742,9 +1746,33 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_POLEARM:
 		case TV_DIGGING:
 		case TV_BOW:
-		case TV_BOLT:
 		case TV_ARROW:
+		case TV_BOLT:
 		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify bow or arrows
+ */
+static bool item_tester_hook_archer(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOW:
+        {
+            if ((o_ptr->sval == SV_LONG_BOW) || (o_ptr->sval == SV_SHORT_BOW) ||
+               (o_ptr->sval == SV_SMALL_BOW) || (o_ptr->sval == SV_GREAT_BOW))
+            {
+               return (TRUE);
+            }
+        }
+		case TV_ARROW:
 		{
 			return (TRUE);
 		}
@@ -1969,15 +1997,25 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	cptr q, s;
 
 
-	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon;
+	/* Archers can enchant only bows or arrows */
+	if (spellswitch == 18)
+    {
+        item_tester_hook = item_tester_hook_archer;
+    }
+	else
+	{
+	    /* Assume enchant weapon */
+	    item_tester_hook = item_tester_hook_weapon;
+    }
+    spellswitch = 0;
 
-	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	    /* Enchant armor if requested */
+	    if (num_ac) item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item */
 	q = "Enchant which item? ";
-	s = "You have nothing to enchant.";
+	if (spellswitch == 18) s = "You have no bow or arrows to enchant.";
+	if (spellswitch != 18) s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -3383,11 +3421,11 @@ bool lite_area(int dam, int rad)
 		msg_print("You are surrounded by a white light.");
 	}
 
+	/* Lite up the room */
+	if (spellswitch != 4) lite_room(py, px);
+
 	/* Hook into the "project()" function */
 	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
-
-	/* Lite up the room */
-	if (!(spellswitch == 4)) lite_room(py, px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3914,6 +3952,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 
 		/* Describe */
 		msg_format("A %s aura surrounds the %s.", act, o_name);
+		if (brand_type == EGO_ACID_COAT) msg_format("An acidic coating covers the %s.", o_name);
 
 		/* Brand the object */
 		o_ptr->name2 = brand_type;
@@ -3924,8 +3963,10 @@ void brand_object(object_type *o_ptr, byte brand_type)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	
-		/* Enchant */
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		/* Enchant (enchant less for acid coating or poison brand spells) */
+		if (spellswitch == 17) enchant(o_ptr, rand_int(3) + 1, ENCH_TOHIT | ENCH_TODAM);
+		else if (spellswitch == 19) enchant(o_ptr, rand_int(3) + 2, ENCH_TOHIT | ENCH_TODAM);
+		else enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 	}
 	else
 	{
@@ -3950,6 +3991,8 @@ void brand_weapon(void)
 		brand_type = EGO_BRAND_COLD;
 	else
 		brand_type = EGO_BRAND_FIRE;
+		
+	if (spellswitch == 20) brand_type = EGO_BRAND_POIS;
 		
 	/* Brand the weapon */
 	brand_object(o_ptr, brand_type);
@@ -3990,7 +4033,8 @@ bool brand_ammo(void)
 	item_tester_hook = item_tester_hook_ammo;
 
 	/* Get an item */
-	q = "Brand which kind of ammunition? ";
+	if (spellswitch == 17) q = "Coat which ammunition? ";
+	else q = "Brand which kind of ammunition? ";
 	s = "You have nothing to brand.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
@@ -4015,6 +4059,9 @@ bool brand_ammo(void)
 		brand_type = EGO_FROST;
 	else
 		brand_type = EGO_AMMO_ELEC;
+		
+	if (spellswitch == 17) brand_type = EGO_ACID_COAT;
+	if (spellswitch == 19) brand_type = EGO_AMMO_VENOM;
 
 	/* Brand the ammo */
 	brand_object(o_ptr, brand_type);

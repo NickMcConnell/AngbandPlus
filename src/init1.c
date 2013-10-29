@@ -70,7 +70,7 @@ static cptr r_info_blow_method[] =
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
+	"KISS", /* XXX3 */
 	"GAZE",
 	"WAIL",
 	"SPORE",
@@ -123,8 +123,9 @@ static cptr r_info_blow_effect[] =
 	"CHARM",
 	"FRENZY",
 	"HUNGER",
-//	"WOODMOTH",
-//	"METALMOTH",
+	"PIXIEKISS",
+	"ENTHELP",
+	"PURIFY",
 	NULL
 };
 
@@ -222,7 +223,7 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"SILVER",
 	"BUG",
-	"XXX3X3",
+	"HELPER",
 	"NON_LIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -415,7 +416,7 @@ static cptr k_info_flags2[] =
 	"SUST_CON",
 	"SUST_CHR",
 	"XXX1",
-	"XXX2",
+	"COAT_ACID",
 	"SLAY_SILVER",
 	"SLAY_BUG",
 	"XXX5",
@@ -440,7 +441,6 @@ static cptr k_info_flags2[] =
 	"RES_NETHR",
 	"RES_CHAOS",
 	"RES_DISEN",
-	"RES_CHARM",
 };
 
 /*
@@ -457,7 +457,7 @@ static cptr k_info_flags3[] =
 	"FREE_ACT",
 	"HOLD_LIFE",
 	"NO_FUEL",
-	"XXX2",
+	"RES_CHARM",
 	"XXX3",
 	"XXX4",
 	"IMPACT",

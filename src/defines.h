@@ -44,7 +44,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.91 (pre 1.1.0)"
+#define VERSION_STRING "v1.0.92 (pre 1.1.0)"
 #endif
 
 
@@ -245,12 +245,12 @@
  * Store constants
  *
  * STORE_MAX_KEEP must be < STORE_INVEN_MAX.
- *   DAJ: changed STORE_CHOICES to 35 from 32, then to 39
+ *   DAJ: changed STORE_CHOICES to 35 from 32, then to 39, then 41
  */
 #define STORE_INVEN_MAX	28		/* Max number of discrete objs in inven */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
-#define STORE_CHOICES	39		/* Number of choices in the store selection table */
+#define STORE_CHOICES	41		/* Number of choices in the store selection table */
 
 
 /*
@@ -373,6 +373,7 @@
 /*
  * Maximum number of players spells (was 64, numbered 0 through 63/75)
  *  Most spell realms should have no more than 66 (besides doubled spells).
+ *  Do not change or you will have to completely renumber spell.txt
  */
 #define PY_MAX_SPELLS 76
 
@@ -389,7 +390,7 @@
 /*
  * Maximum number realms
  */
-#define MAX_REALMS 4
+#define MAX_REALMS 5
 
 
 /*
@@ -863,7 +864,7 @@ enum
 #define EGO_BACKBITING		125
 #define EGO_SHATTERED		126
 #define EGO_BLASTED			127
-
+#define EGO_ACID_COAT       128
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -915,12 +916,12 @@ enum
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
-#define TV_MAGIC_BOOK   90
+#define TV_MAGIC_BOOK   90  /* wizardry realm */
 #define TV_PRAYER_BOOK  91
-#define TV_NEWM_BOOK    92  /* trying to add another school again */
-#define TV_LUCK_BOOK    93  /* ..it worked, now lets add another */
+#define TV_NEWM_BOOK    92  /* nature realm */
+#define TV_LUCK_BOOK    93  /* chance/escape realm */
+#define TV_CHEM_BOOK    94  /* alchemy realm */
 #define TV_GOLD         100	/* Gold can only be picked up by players */
-
 
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
@@ -1491,7 +1492,7 @@ enum
 #define RBM_CRAWL	13
 #define RBM_DROOL	14
 #define RBM_SPIT	15
-#define RBM_XXX3	16
+#define RBM_KISS	16
 #define RBM_GAZE	17
 #define RBM_WAIL	18
 #define RBM_SPORE	19
@@ -1539,8 +1540,9 @@ enum
 #define RBE_CHARM       32
 #define RBE_FRENZY      33
 #define RBE_HUNGER      34
-//#define RBE_WOODMOTH        35
-//#define RBE_METALMOTH        36
+#define RBE_PIXIEKISS   35 /* for call help nature spell */
+#define RBE_ENTHELP     36 /* for call help nature spell */
+#define RBE_PURIFY      37 /* for call help nature spell */
 
 /*** Function flags ***/
 
@@ -1837,8 +1839,8 @@ enum
 #define SM_RES_NEXUS	0x10000000
 #define SM_RES_NETHR	0x20000000
 #define SM_RES_CHAOS	0x40000000
-#define SM_RES_DISEN	0x60000000
-#define SM_RES_CHARM	0x80000000
+#define SM_RES_DISEN	0x80000000
+/* #define SM_RES_CHARM                 /* what do I do with this? */
 
 
 /*
@@ -1899,9 +1901,9 @@ enum
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
 #define TR2_XXX1            0x00000040L /* (reserved) */
-#define TR2_XXX2            0x00000080L /* (reserved) */
+#define TR2_COAT_ACID       0x00000080L /* Weapon coated with acid (weaker than brand) */
 #define TR2_SLAY_SILVER     0x00000100L /* was XXX3 */
-#define TR2_SLAY_BUG        0x00000200L /* was XXX4*/
+#define TR2_SLAY_BUG        0x00000200L /* was XXX4 */
 #define TR2_XXX5            0x00000400L /* (reserved) */
 #define TR2_XXX6            0x00000800L /* (reserved) */
 #define TR2_IM_ACID         0x00001000L /* Immunity to acid */
@@ -1923,8 +1925,7 @@ enum
 #define TR2_RES_NEXUS       0x10000000L /* Resist nexus */
 #define TR2_RES_NETHR       0x20000000L /* Resist nether */
 #define TR2_RES_CHAOS       0x40000000L /* Resist chaos */
-#define TR2_RES_DISEN       0x60000000L /* Resist disenchant */
-#define TR2_RES_CHARM       0x80000000L /* Resist charm */
+#define TR2_RES_DISEN       0x80000000L /* Resist disenchant */
 
 #define TR3_SLOW_DIGEST     0x00000001L /* Slow digest */
 #define TR3_FEATHER         0x00000002L /* Feather Falling */
@@ -1935,7 +1936,7 @@ enum
 #define TR3_FREE_ACT        0x00000040L /* Free action */
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
 #define TR3_NO_FUEL         0x00000100L /* Light source uses no fuel */
-#define TR3_XXX2            0x00000200L
+#define TR3_RES_CHARM       0x00000200L /* Resist charm */
 #define TR3_XXX3            0x00000400L
 #define TR3_XXX4            0x00000800L /* was NOREGEN but it didn't work */
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
@@ -2141,7 +2142,7 @@ enum
 #define RF3_ANIMAL			0x00000080	/* Animal */
 #define RF3_SILVER			0x00000100	/* silver */
 #define RF3_BUG			    0x00000200	/* bug (?) */
-#define RF3_XXX3			0x00000400	/* (?) */
+#define RF3_HELPER			0x00000400	/* summoned helpful monster */
 #define RF3_NON_LIVING		0x00000800	/* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
