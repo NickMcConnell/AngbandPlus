@@ -712,7 +712,7 @@ bool make_attack_normal(int m_idx)
 							else
 							{
 								drained = o_ptr->pval;
-								if ((p_ptr->resist_static) && (randint(100) < 67))
+								if ((p_ptr->resist_static) && (randint(100) < 50))
 								{
 									drained -= p_ptr->resist_static;
 									if (drained < 1) drained = 1;

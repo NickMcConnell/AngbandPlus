@@ -112,7 +112,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  $  (unused)                            ^D  (unused)
  %  (unused)                            ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  (unused)                            ^G  (unused)
+ &  Remove weapon bonuses from a staff  ^G  (unused)
  *  Target monster or location          ^H  (unused)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (special - linefeed)
@@ -172,7 +172,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  $  (unused)                            ^D  Destroy item
  %  (unused)                            ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  (unused)                            ^G  (unused)
+ &  Remove weapon bonuses from a staff  ^G  (unused)
  *  Target monster or location          ^H  (alter - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (alter - south)

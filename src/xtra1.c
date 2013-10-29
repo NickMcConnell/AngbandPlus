@@ -2721,7 +2721,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
 		p_ptr->see_inv = TRUE;
 
-		/* this part for 'see all foes' spell: */
+		/* this part for 'see all foes' spell: (should be separate) */
 		if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->lev > 32)) p_ptr->skills[SKILL_FOS] += 16;
 	}
 

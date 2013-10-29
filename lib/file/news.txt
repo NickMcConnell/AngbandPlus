@@ -13,7 +13,7 @@
                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 
    				    Website:
-      http://www.geocities.com/will_asher/MonsterDictionary/DaJAngbandmain.htm
+	   http://will2asher.awardspace.biz/MonsterDic/DaJAngbandmain.html
 
    Angband based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson

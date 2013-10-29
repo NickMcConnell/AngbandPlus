@@ -257,14 +257,17 @@ D:from Sauron.
 
 #made slightly more common since I put more bad flags on it and
 # removed a couple good flags
+# should aggravate undead only and raise stealth (instead of invisibility)
+# REGEN still regenerates mana, but STOPREGEN prevents any HP regeneration
 N:13:of Power 'The One Ring'
 I:45:37:5
 W:100:95:2:5000000
 P:0:0d0:15:15:0
-# F: DRAIN_MANA | DRAIN_HP | REGEN
+# F: DRAIN_MANA | DRAIN_HP
+# F: AGR_UNDEAD | STEALTH
 F:STR | INT | DEX | CON | SPEED | HIDE_TYPE | INFRA
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | STOPREGEN
+F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | STOPREGEN | REGEN
 F:BAD_WEAP | CORRUPT | RES_CHARM |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | RES_POIS | 
 F:RES_BLIND | RES_DISEN | RES_DARK |

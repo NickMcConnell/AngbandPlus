@@ -933,8 +933,19 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				c = dc;
 			}
 
+			/* always grey when heard but not seen */
+			/* what to do with graphic tiles? */
+			else if (!m_ptr->ml)
+			{
+				/* grey */
+				a = TERM_SLATE;
+
+				/* Normal char */
+				c = dc;
+			}
+
 			/* Normal monster (not "clear" in any way) */
-			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
+			else if ((!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR))) && (m_ptr->ml))
 			{
 				/* Use attr */
 				a = da;
@@ -961,17 +972,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Normal attr, Clear char, monster */
-			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
+			else if ((!(r_ptr->flags1 & (RF1_ATTR_CLEAR))) || (!m_ptr->ml))
 			{
 				/* Normal attr */
 				a = da;
 			}
-
-			/* always grey if heard but not seen */
-			if ((m_ptr->heard) && (!m_ptr->ml))
-			{
-                a = TERM_SLATE;
-            }
 		}
 	}
 
@@ -3398,6 +3403,12 @@ void update_flow(void)
 
 
 
+/*
+ * Useful constants for the area around the player to detect.
+ * This is instead of using circular detection spells.
+ */
+#define DETECT_DIST_X	45	/* left & right (was 52) */
+#define DETECT_DIST_Y	22	/* top & bottom (was 23) */
 
 /*
  * Map the current panel (plus some) ala "magic mapping"
@@ -3411,19 +3422,19 @@ void map_area(void)
 
     if (spellswitch == 1)
     {
-	/* map the whole level (without light & detection) */
-	y1 = Term->offset_y - 1000;
-	y2 = Term->offset_y + 1000;
-	x1 = Term->offset_x - 1000;
-	x2 = Term->offset_x + 1000;
+		/* map the whole level (without light & detection) */
+		y1 = Term->offset_y - 1000;
+		y2 = Term->offset_y + 1000;
+		x1 = Term->offset_x - 1000;
+		x2 = Term->offset_x + 1000;
     }
     else
     {
-	/* Pick an area to map */
-	y1 = Term->offset_y - randint(10);
-	y2 = Term->offset_y + SCREEN_HGT + randint(10);
-	x1 = Term->offset_x - randint(20);
-	x2 = Term->offset_x + SCREEN_WID + randint(20);
+		/* Pick an area to map */
+		y1 = p_ptr->py - DETECT_DIST_Y;
+		y2 = p_ptr->py + DETECT_DIST_Y;
+		x1 = p_ptr->px - DETECT_DIST_X;
+		x2 = p_ptr->px + DETECT_DIST_X;
     }
 
 	/* Efficiency -- shrink to fit legal bounds */

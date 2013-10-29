@@ -1121,12 +1121,13 @@ void lore_do_probe(int m_idx)
 	l_ptr->flags1 = r_ptr->flags1;
 	l_ptr->flags2 = r_ptr->flags2;
 	l_ptr->flags3 = r_ptr->flags3;
-	if (randint(100) < 34)
-	{
-	   l_ptr->flags4 = r_ptr->flags4;
-	   l_ptr->flags5 = r_ptr->flags5;
-	   l_ptr->flags6 = r_ptr->flags6;
-    }
+	l_ptr->flags4 = r_ptr->flags4; /* breath / projectiles */
+	/* spells */
+	if (randint(100) < 34) l_ptr->flags5 = r_ptr->flags5;
+	if (randint(100) < 34) l_ptr->flags6 = r_ptr->flags6;
+
+	/* this monster race has been probed (reveals more info in recall) */
+	l_ptr->xtra1 = 1;
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1362,7 +1363,7 @@ void update_mon(int m_idx, bool full)
 			if (player_can_see_bold(fy, fx))
 			{
 				/* Handle "invisible" monsters */
-				if (r_ptr->flags2 & (RF2_INVISIBLE))
+				if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis))
 				{
 					/* Take note */
 					do_invisible = TRUE;
@@ -1387,27 +1388,15 @@ void update_mon(int m_idx, bool full)
 			if ((flag) || (easy))
 			{
 				/* Memorize flags */
-				if (do_invisible) l_ptr->flags2 |= (RF2_INVISIBLE);
+				if ((do_invisible) && (!m_ptr->tinvis)) l_ptr->flags2 |= (RF2_INVISIBLE);
 			}
-			
-			/* Temporary invisibility */
-			if (m_ptr->tinvis)
-			{
-                m_ptr->tinvis -= 1;
-                if (easy)
-                {
-				   do_invisible = TRUE;
-
-				   /* See invisible */
-				   if (!p_ptr->see_inv)
-				   {
-					  /* dissapears! */
-					  easy = FALSE;
-				   }
-                }
-            }
 		}
 	}
+
+	/* Temporary invisibility */
+	if (m_ptr->tinvis) m_ptr->tinvis -= 1;
+	/* make sure all invisible monsters are marked as invisible for darkvision check */
+	if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis)) do_invisible = TRUE;
 
     /* Darkvision: If monster is in line of sight, the player is not blind, */ 
     /* and the monster is not invisible, then the player can see it */
@@ -1417,9 +1406,6 @@ void update_mon(int m_idx, bool full)
     if (((p_ptr->darkvis) || (p_ptr->timed[TMD_DARKVIS])) &&
 	   (player_has_los_bold(fy, fx)) && (!p_ptr->timed[TMD_BLIND]))
 	{   
-		/* make sure invisible monsters are marked as invisible for darkvision */
-		if (r_ptr->flags2 & (RF2_INVISIBLE)) do_invisible = TRUE;
-
 		if ((p_ptr->see_inv) || (!do_invisible))
 		{
 			easy = TRUE;
@@ -1753,7 +1739,16 @@ void update_mon(int m_idx, bool full)
    /* "Nice to meet you" (First impression) */
    if (easy)
    {
-       /* Meeting the monster for the first time */
+       /* bluff */
+	   int bluff = r_ptr->stealth;
+	   if (r_ptr->level <= 20) bluff += 1;
+	   else bluff += r_ptr->level / 20;
+	   if (r_ptr->flags2 & (RF2_SMART)) bluff += randint((bluff+1)/2) + 1;
+	   if ((r_ptr->flags2 & (RF2_STUPID)) && (bluff > 1)) bluff = bluff / 2;
+	   bluff -= (l_ptr->sights)/10;
+	   if (bluff < 1) bluff = 1;
+	   
+	   /* Meeting the monster for the first time */
        m_ptr->meet = 1;
       
        /*** Can you discern if the monster is evil? ***/
@@ -1764,7 +1759,7 @@ void update_mon(int m_idx, bool full)
        /* paladins almost always recognise evil */
        if ((cp_ptr->spell_book == TV_PRAYER_BOOK) && (!cp_ptr->flags & CF_ZERO_FAIL))
        {
-          discernmod += 27;
+          discernmod += 21;
        }
        /* aligned classes recognise alignment easier */
        /* (priests and druids but not healers) */
@@ -1781,6 +1776,9 @@ void update_mon(int m_idx, bool full)
             discernmod += 3;
        }
 
+	   /* telepathy helps */
+	   if (p_ptr->telepathy) discernmod += 7 + (goodluck/2);
+
        /* chance realm casters get modifier from luck */
        if (cp_ptr->spell_book == TV_LUCK_BOOK)
        {
@@ -1790,8 +1788,8 @@ void update_mon(int m_idx, bool full)
        /* everyone else gets much weaker modifier from luck */
        else
        {
-           if (goodluck > 5) discernmod += goodluck/6;
-           if (badluck > 4) discernmod -= badluck/5;
+           if (goodluck >= 5) discernmod += goodluck/5;
+           if (badluck >= 5) discernmod -= badluck/5;
        }
 
        lore = TRUE;
@@ -1814,7 +1812,7 @@ void update_mon(int m_idx, bool full)
        }
    
        /* discern */
-       if (r_ptr->level/20 + randint(25) < discernmod)
+       if (bluff + randint(24) < discernmod)
        {
           /* If it's always evil then the monster lore tells you that it's evil */
           if (r_ptr->flags3 & (RF3_EVIL))
@@ -1826,28 +1824,21 @@ void update_mon(int m_idx, bool full)
           }
           else if (m_ptr->evil)
           {
-              /* can tell (later) that the monster is evil */
-              m_ptr->meet = 2;
+			  /* can tell (later) that the monster is evil */
+			  m_ptr->meet = 2;
               
-              bluff = r_ptr->level + ((r_ptr->stealth + 2) * 2);
-              
-              /* remember */
-              if (l_ptr->sights + (discernmod/2) > bluff)
-              {
-                 if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
-                 else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
-              }
+			  if (r_ptr->flags2 & (RF2_S_EVIL2)) l_ptr->flags2 |= (RF2_S_EVIL2);
+			  else if (r_ptr->flags2 & (RF2_S_EVIL1)) l_ptr->flags2 |= (RF2_S_EVIL1);
           }
           /* (much harder to tell for sure that a monster is NOT evil) */
-          else if (r_ptr->level/10 + randint(60) < discernmod)
+          else if (bluff + randint(50) < discernmod)
           {
               /* can tell (later) that the monster is not evil */
               m_ptr->meet = 3;
           }
        }
        /* if you fail this first chance, a detect evil spell is the only */
-       /* way to find out if an individual monster is evil */
-       /* and there's no other way to know that a specific monster is not evil */
+       /* way to find out if an individual monster is evil or not */
    }
 }
 

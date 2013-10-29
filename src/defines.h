@@ -43,7 +43,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.99 (pre 1.1.0)"
+#define VERSION_STRING "v1.0.99 9/9/09 update"
 #endif
 
 
@@ -1191,7 +1191,7 @@ enum
 #define SV_DRAGON_GREEN			5
 #define SV_DRAGON_MULTIHUED		6
 #define SV_DRAGON_SHINING		10
-#define SV_DRAGON_LAW			12
+#define SV_DRAGON_LAW			12 /* silver */
 #define SV_WYVERN_SCALE			13 /* no activation */
 #define SV_DRAGON_BRONZE		14
 #define SV_DRAGON_ETHEREAL		15
@@ -3139,7 +3139,7 @@ enum
  * Line 3 -- forbid player/monsters
  */
 #define cave_can_occupy_bold(Y,X) \
-	(((cave_feat[Y][X] == FEAT_FLOOR) || \
+	(((cave_floor_bold(Y,X)) || \
 	 (cave_feat[Y][X] == FEAT_RUBBLE)) && \
 	 (cave_m_idx[Y][X] == 0))
 

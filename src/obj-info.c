@@ -175,7 +175,7 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b 
 	{
 		if (o_ptr->pval == 1)
 		{
-			text_out(" It increases your magic device skill by 9");
+			text_out(" It increases your magic device skill by 9.  ");
 		}
 		else
 		{

@@ -1,12 +1,9 @@
-New features in Angband 3.0.8
-=============================
+New features in Angband 3.0.8 / DaJAngband 1.1.0
+=================================================
 
-PLEASE READ THIS, EVEN IF YOU DON'T READ ANY OF THE REST:
+All gameplay options are now only alterable at birth.
 
-All gameplay options are now only alterable at birth.  Be careful when
-importing savefiles to make sure that the AI and scumming options are as you
-want them for the entire game!
-
+See further down in this file for details on DaJAngband features.
 
 Since the manual is being updated wholesale for the next release of Angband,
 here's a quick rundown of new features in this version of the game:
@@ -23,6 +20,9 @@ Command lists ("Enter" key)
   This brings up a little window in the middle of the screen, in which you can
   select what command you would like to use by browsing.  Useful for beginners.
 
+Remove weapon bonuses from a staff (&)  (added in DaJAngband 1.0.98)
+	  This removes all weapon bonuses and special abilities of any non-artifact
+	  magic staff to allow stacking with another staff of the same type.
 
 Gameplay changes
 ----------------
@@ -69,3 +69,54 @@ There is some rudimentary mouse support, which is only really useful for
 pathfinding across the dungeon.  In the town, it tends to take non-obvious
 paths to the end location, but for the next release, we should have a better
 pathfinder.
+
+
+More in-depth explaination of some DaJAngband features:
+-------------------------------------------------------
+
+	Silver & Slime: Infections which have no effect in small amounts, but can have nasty effects if you let them accumulate to high levels. Cure wounds potions have no effect on them.  The two most effective things to fight these effects are elven waybread and the potion or spell of purity. Mushrooms of cure serious wounds also has a small anti-silver and slime effect. Mushrooms of health cure a little sliming and mushrooms of clear mind cure a little silver poison.
+	Sliming slowly turns a person's body into a mindless blob of slime, starting by lowering thier constitution. Danger levels for slime: at 20 begins to have occational minor effects, at 40 slime starts to have serious effects, and at 55 slime will be fatal if not cured very quickly. There are more monsters which cause sliming than there are that cause silver poison.
+	Silver poison makes a person forget who he is and corrupts the mind so that he is no longer able to think about anything that matters. Its first effects are reduction of wisdom and randomly activated amnesia or hallucenation. Danger levels for silver: at 5-14 has rare minor effects, at 15-24 can have very serious effects, and at 25 silver poison will be fatal if not cured within a few turns of getting to this level.
+
+	Charm: A few monsters can charm you. This timed effect prevents melee, shooting, and casting, but only reduces to-hit for throwing. Monsters can only charm you in melee, never from a distance.
+
+	Luck: Every character starts with a luck rating which is separated into good luck and bad luck (because with some effects, you can have both good luck and bad luck at the same time).  Starting luck is always between 17 and 27 (except for the rare case of a human tourist who can potentially start with a luck rating of 30). A luck rating of 20 is neutral; no bonus or penalty. A luck rating above 20 is good, below 20 is bad.
+	Your exact luck rating is hidden. You can get a general indication of your luck from the self knowledge screen: (|) for the knowledge menu, then (6) to show self knowledge, but the only way to know your exact good luck and bad luck is to drink a potion of self knowledge.
+	Luck affects many different things in mostly minor ways. Luck affects chance-realm casters, especially the tourist, more than other classes. Beware the black cats which can lower your luck.
+
+	Corruption: Your character can become corrupted through use of evil-aligned magic items* including Sauron's One Ring.  Corruption can lower your luck, make it harder to remove curses, and attract demons.  Not all evil-aligned magic items will corrupt you, the item's description will let you know if it corrupts.  Corruption can be slowly removed by wielding good-aligned magic item(s) while not wielding any evil ones. The only other way to remove corruption is by drinking a potion of purity.
+	*There is one magic item which can corrupt which is not evil-aligned.  The broken sword 'Narsil' is forever tainted by Isildur's decision to keep the One Ring for himself instead of having it destroyed.  Because of this, it can cause corruption even though it is not evil-aligned.
+
+	A note about magicbooks: Not all classes which are able to cast spells start out with a spellbook, but the class' spell realm is now noted on the birth screen when you're chosing you're character. Also, you probably won't be able to read every book in your magic realm. When in doubt, try to browse a book before buying it: If it shows you the list of spells in the book, then you can use that book, otherwise that book is worthless to you. With the chance realm, the tourist's books are in the general store. The one chance realm book which is sold in the magic store is not useable by tourists, but is of more interest to rogues.
+	A note about the Nature and Necromancy realms: These two realms are largely borrowed from OAngband, but if you've played OAngband, it's important to remember that some of the spells that may have the same name as one in OAngband doesn't nessesarily have exactly the save effects. Browse a book and chose a spell to see that's spell's description.
+	A further note about the Necromancy realm: The necromancy realm has some very powerful spells, but that realm also has more drawbacks than other realms. (Except maybe the chance realm, but the drawbacks are more obvious in the chance realm.) Several necromancy spells have a chance to leave an aura around you which aggravates demons.
+
+
+Just a few monsters that you probably have never heard of:
+----------------------------------------------------------
+
+	(b) Eirrinel: In appearance like a grey-green bat, the eirrinel is actually a type of light fairy. They exist to rescue people from evil places and dispel the power of evil magic. Unfortunatly, they consider all non-fairy magic to be evil magic.
+
+	(B) Tyerrey: A hawk composed of fire and lightning.  While more common, it is lesser-known than the pheonix because when people see it, they think they are seeing a pheonix.
+
+	(g) Glarx: The glarx is a two-headed golem created by a mad wizard from spare parts of other monsters which he had killed. One head is that of a gorgon, naga or harpy and has the power to paralyze. The other head is made of metal and can shoot bolts of lightning.
+
+	(h) Hobglibs:  Odd and fervently neutral, hobglibs enjoy playing games and expermenting with magic and alchemy. They are humanoid monsters, averaging slightly shorter than humans. Their skin is similar in color and texture to that of a potato. They typically care about very little besides themselves and they almost never take sides in any conflict, though they will sometimes help if offered something interesting as a reward.
+
+	(I) Xan: The xan is an agent of the gods of the netherworld in the shape of a mosquito.
+
+	(K) Dullahan: The dullahan is the source of the stories of headless horsemen.  It is the original headless horseman, sometimes instead driving a coach drawn by six black horses.  It carries its disembodied head in its left hand, and a human-spine whip in its right hand. It calls to it those who are fated to die.
+
+	(l) Zhelung:  Zhelung lizards are creatures of light distantly related to both dragons and light fairies. They live in underground rivers and lakes and they love to light up the dark places, but they can be very dangerous.  Well lizards, rasti, and zhangs are less magical relatives of the zhelung.  Rasti are like reptillian bats, and zhangs are like reptillian wolves.
+
+	(M) Rastlig: From the domain of the grepse, the rastlig looks something like a cross between an elephant and a dinosaur. It has wings which are way too small to allow it to fly. Despite its comical appearance, it is very dangerous. Its breath causes confusion and amnesia.
+
+	(N) Null: The null is a tentacled swamp monster with acid under its skin.  The nulfraz is a more evil and intelligent type of null which can cast powerful spells.
+
+	(u) Scyllis: This minor demon is shaped like a snake with a head on each end of its body.  It has no wings, but it can fly and it swings its body back and forth to bite with each head. It most commonly appears when summoned to plague and poison someone with a curse.
+
+	(w) The Grepse (silver beings): The domain of the grepse is a shadowy realm full of illusions designed to make you comfortable and forget everything and everyone you used to know.  The most common type of grepse are the vyrms.  Their true form is like a flying worm, but they usually wear an illusion making them look like a pleasant songbird. Their song creates illusions in people's minds and make them forget what they care about.  The silverworm is a weaker form of a vyrm.
+	Wemu Vyrm: The lord of the grepse, its form is a tiny humanoid made of silver slime. It usually wears an illusion making it look like the same size and race as its victim.
+
+	(x) Goyley and Groyle: These are lesser types of gargoyles. The groyle is sometimes mistaken for a winged orc, though they are usually loners and do not get along with orcs. Goyleys are the smallest type of gargoyles are often mistaken for winged gremlins.
+

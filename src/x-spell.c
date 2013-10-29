@@ -1447,19 +1447,10 @@ static void spell_affect_self(void)
     else if ((die > 55) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_monsters_normal();
     else if ((die > 50) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_monsters_invis();
     else if ((die > 45) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_traps();
-    else if ((die > 42) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_doors();
-    else if ((die > 39) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_stairs();
-    else if ((die > 35) && (!p_ptr->timed[TMD_2ND_THOUGHT]))
-    {
-	     (void)detect_doors();
-	     (void)detect_stairs();
-    }
+    else if ((die > 42) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_doorstairs(TRUE);
+    else if ((die > 36) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_doorstairs(FALSE);
     else if ((die > 32) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_objects_magic();
-    else if ((die > 27) && (!p_ptr->timed[TMD_2ND_THOUGHT]))
-    {
-	     (void)detect_treasure();
-	     (void)detect_objects_gold();
-    }
+    else if ((die > 27) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_treasure();
     else if ((die > 22) && (!p_ptr->timed[TMD_2ND_THOUGHT])) (void)detect_objects_normal(FALSE);
 
     die = randint(100) + randint(plev/6); /* chance for luck modification */
@@ -2102,8 +2093,7 @@ static bool cast_mage_spell(int spell)
             else
             {
 			  (void)detect_traps();
-			  (void)detect_doors();
-			  (void)detect_stairs();
+			  (void)detect_doorstairs(FALSE);
             }
 			break;
 		}
@@ -2718,8 +2708,7 @@ static bool cast_priest_spell(int spell)
             }
             else
             {
-			  (void)detect_doors();
-			  (void)detect_stairs();
+			  (void)detect_doorstairs(FALSE);
             }
 			break;
 		}
@@ -2904,8 +2893,7 @@ static bool cast_priest_spell(int spell)
 			(void)clear_timed(TMD_IMAGE);
 			(void)clear_timed(TMD_2ND_THOUGHT);
 			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
+			(void)detect_doorstairs(FALSE);
 			(void)detect_monsters_evil();
 			(void)detect_monsters_invis();
 			(void)inc_timed(TMD_TSIGHT, randint(35) + 35);
@@ -3454,8 +3442,7 @@ static bool cast_newm_spell(int spell)
             else
             {
 			    (void)detect_traps();
-			    (void)detect_doors();
-			    (void)detect_stairs();
+			    (void)detect_doorstairs(FALSE);
             }
 			break;
 		}
@@ -3949,8 +3936,7 @@ static bool cast_luck_spell(int spell)
             }
             else
             {
-			  (void)detect_doors();
-			  (void)detect_stairs();
+			  (void)detect_doorstairs(FALSE);
             }
 			break;
 		}
@@ -3970,11 +3956,7 @@ static bool cast_luck_spell(int spell)
                else if (die > 5) msg_print("You detect treasure but forget the objects in your greed.");
                else if (die < 6) msg_print("You detect that there are objects on the level.");
 
-			   if (die > 5)
-               {
-                  (void)detect_treasure();
-			      (void)detect_objects_gold();
-               }
+			   if (die > 5) (void)detect_treasure();
             }
 			break;
 		}
@@ -4064,7 +4046,7 @@ static bool cast_luck_spell(int spell)
             else if (die < 48)
             {
 			     (void)stair_creation(5 + randint(20));
-			     if (die + goodluck/2 > 38) (void)detect_stairs();
+			     if (die + goodluck/2 > 38) (void)detect_doorstairs(TRUE);
             }
             else if (die < 100) (void)stair_creation(0);
             else if (die < 110)
@@ -5596,22 +5578,33 @@ static bool cast_chem_spell(int spell)
 		case CHEM_LIGHT_AREA:
 		{
             die = randint(99) + randint(plev/5);
-            if (plev > 25) die = die + 10;
-            if (plev > 40) die = die + 10;
-            if (plev > 50) die = die + 5;
-            if (die < 65)
+            if (plev >= 25) die = die + 10;
+            if (plev >= 40) die = die + 10;
+            if (plev >= 50) die = die + 5;
+            if (die < 30)
             {
                spellswitch = 4; /* does not light whole room */
 			   if (plev > 13) (void)lite_area(damroll(2, (plev / 2)), 2 + randint(plev / 7));
-			   else (void)lite_area(damroll(2, (plev / 2)), 2 + randint(2));
+			   else (void)lite_area(randint(plev), 2 + randint(2));
+               spellswitch = 0;
+            }
+            else if (die < 75)
+            {
+               spellswitch = 4; /* does not light whole room */
+			   if (plev > 19) (void)lite_area(damroll(2, (plev / 2)), 3 + randint(plev / 6));
+			   else (void)lite_area(damroll(2, (plev / 2)), 3 + randint(3));
                spellswitch = 0;
             }
             else if (die < 91)
             {
                spellswitch = 4; /* does not light whole room */
-			   if (plev > 17) (void)lite_area(damroll(4, (plev / 3)), 5 + randint(plev / 9));
-			   else (void)lite_area(damroll(4, (plev / 3)), 3 + randint(3));
+			   if (plev > 17) (void)lite_area(damroll(4, (plev / 3)), 5 + randint(plev / 6));
+			   else (void)lite_area(damroll(4, (plev / 3)), 5 + randint(3));
                spellswitch = 0;
+            }
+            else if (die > 120)
+            {
+               (void)lite_area(damroll(3, (plev / 2)), (plev / 10) + 2);
             }
             else
             {
@@ -5682,8 +5675,7 @@ static bool cast_chem_spell(int spell)
             else
             {
 			    (void)detect_traps();
-			    (void)detect_doors();
-			    (void)detect_stairs();
+			    (void)detect_doorstairs(FALSE);
             }
 			break;
 		}
@@ -5812,7 +5804,6 @@ static bool cast_chem_spell(int spell)
             else
             {
 			  (void)detect_treasure();
-			  (void)detect_objects_gold();
 			  (void)detect_objects_normal(FALSE);
             }
 			break;
@@ -6199,7 +6190,7 @@ static bool cast_chem_spell(int spell)
                int dis = rand_int(51 - (p_ptr->find_vault / 2));
                (void)stair_creation(dis);
                /* separate roll */
-               if (randint(p_ptr->find_vault + 10) > 35) (void)detect_stairs();
+               if (randint(p_ptr->find_vault + 10) > 35) (void)detect_doorstairs(TRUE);
             }
             break;
 		}
@@ -6656,8 +6647,7 @@ static bool cast_dark_spell(int spell)
             }
             else
             {
-			  (void)detect_doors();
-			  (void)detect_stairs();
+			  (void)detect_doorstairs(FALSE);
             }
 			break;
 		}

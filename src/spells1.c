@@ -2455,9 +2455,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		}
 		
 		/* Attempt to destroy the object */
-		/* shouldn't always destroy, but should always destroy cursed stuff */
+		/* shouldn't always destroy, but HOLY_ORB should always destroy cursed stuff */
 		destroy = FALSE;
-		if ((randint(100) < 75) || (cursed_p(o_ptr)))
+		if ((randint(100) < 80) || (cursed_p(o_ptr)))
 		{
 		   if (do_kill) destroy = TRUE;
         }
@@ -2495,7 +2495,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				/* Describe if needed */
-				if (o_ptr->marked && note_kill)
+				/* (only give message if player can see object) */
+				if ((o_ptr->marked && note_kill) && (!squelch_hide_item(o_ptr)))
 				{
 					message_format(MSG_DESTROY, 0, "The %s%s", o_name, note_kill);
 				}
@@ -3857,6 +3858,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
+				/* effective monster level */
+				int rlev = r_ptr->level + 1;
+				if (r_ptr->flags2 & (RF2_STUPID)) rlev = ((rlev-1) * 3) / 4;
+
 				/* Learn about type */
 				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 

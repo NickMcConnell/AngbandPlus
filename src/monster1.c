@@ -43,6 +43,9 @@ static bool know_armour(int r_idx, const monster_lore *l_ptr)
 
 	s32b kills = l_ptr->tkills;
 
+	/* this race has been probed */
+	if (l_ptr->xtra1) return (TRUE);
+
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
 
@@ -74,6 +77,9 @@ static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
 	s32b d2 = r_ptr->blow[i].d_side;
 
 	s32b d = d1 * d2;
+
+	/* this race has been probed */
+	if (l_ptr->xtra1)  return (TRUE);
 
 	/* Normal monsters */
 	if ((4 + level) * a > 80 * d) return (TRUE);
@@ -475,7 +481,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		if (!r_ptr->blow[m].method) continue;
 
 		/* Skip unknown attacks */
-		if (!l_ptr->blows[m]) continue;
+		if ((!l_ptr->blows[m]) && (!l_ptr->xtra1)) continue;
 
 
 		/* Extract the attack info */
@@ -824,7 +830,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Do we know how aware it is? */
 	if ((((int)l_ptr->wake * (int)l_ptr->wake) > r_ptr->sleep) ||
-	    (l_ptr->ignore == MAX_UCHAR) ||
+	    (l_ptr->ignore == MAX_UCHAR) || (l_ptr->xtra1) ||
 	    ((r_ptr->sleep == 0) && (l_ptr->tkills >= 10)))
 	{
 		cptr act;
@@ -1380,7 +1386,7 @@ void describe_monster(int r_idx, bool spoilers, monster_type *m_ptr)
 
 
 	/* Killing a monster reveals some properties */
-	if (lore.tkills)
+	if ((lore.tkills) || (l_ptr->xtra1))
 	{
 		/* Know "race" flags */
 		lore.flags3 |= (r_ptr->flags3 & RF3_RACE_MASK);

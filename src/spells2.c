@@ -1327,23 +1327,39 @@ void set_recall(void)
 }
 
 
+/*
+ * Useful constants for the area around the player to detect.
+ * This is instead of using circular detection spells.
+ */
+#define DETECT_DIST_X	45	/* left & right (was 52) */
+#define DETECT_DIST_Y	22	/* top & bottom (was 23) */
 
 /*
- * Detect all traps on current panel
+ * Detect all traps in the area (now fixed size)
  * (except for non-adjacent chest traps)
  */
 bool detect_traps(void)
 {
 	int y, x;
+	int x1, x2, y1, y2;
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	bool detect = FALSE;
 
-	/* Scan the current panel */
-	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+	/* Pick an area to detect */
+	y1 = py - DETECT_DIST_Y;
+	y2 = py + DETECT_DIST_Y;
+	x1 = px - DETECT_DIST_X;
+	x2 = px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+	/* Scan the area */
+	for (y = y1; y < y2; y++)
 	{
-		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+		for (x = x1; x < x2; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1403,74 +1419,54 @@ bool detect_traps(void)
 
 
 /*
- * Detect all doors on current panel
+ * Detect doors and stairs around the player.
  */
-bool detect_doors(void)
+bool detect_doorstairs(bool staironly)
 {
 	int y, x;
+	int x1, x2, y1, y2;
 
-	bool detect = FALSE;
+	bool doors = FALSE, stairs = FALSE;
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 
-	/* Scan the panel */
-	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+	/* Scan the dungeon */
+	for (y = y1; y < y2; y++)
 	{
-		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+		for (x = x1; x < x2; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
-			/* Detect secret doors */
-			if (cave_feat[y][x] == FEAT_SECRET)
+			if (!staironly)
 			{
-				/* Pick a door */
-				place_closed_door(y, x);
+				/* Detect secret doors */
+				if (cave_feat[y][x] == FEAT_SECRET)
+					place_closed_door(y, x);
+	
+				/* Detect doors */
+				if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+				     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
+				    ((cave_feat[y][x] == FEAT_OPEN) ||
+				     (cave_feat[y][x] == FEAT_BROKEN)))
+				{
+					/* Hack -- Memorize */
+					cave_info[y][x] |= (CAVE_MARK);
+	
+					/* Redraw */
+					lite_spot(y, x);
+	
+					/* Obvious */
+					doors = TRUE;
+				}
 			}
-
-			/* Detect doors */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-			    ((cave_feat[y][x] == FEAT_OPEN) ||
-			     (cave_feat[y][x] == FEAT_BROKEN)))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of doors!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect all stairs on current panel
- */
-bool detect_stairs(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the panel */
-	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
-	{
-		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
-		{
-			if (!in_bounds_fully(y, x)) continue;
 
 			/* Detect stairs */
 			if ((cave_feat[y][x] == FEAT_LESS) ||
@@ -1483,19 +1479,20 @@ bool detect_stairs(void)
 				lite_spot(y, x);
 
 				/* Obvious */
-				detect = TRUE;
+				stairs = TRUE;
 			}
+
 		}
 	}
 
 	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of stairs!");
-	}
+	if (doors && !stairs)      msg_print("You sense the presence of doors!");
+	else if (!doors && stairs) msg_print("You sense the presence of stairs!");
+	else if (doors && stairs)  msg_print("You sense the presence of doors and stairs!");
+	/* else if (aware && !doors && !stairs) msg_print("You sense no doors or stairs."); */
 
 	/* Result */
-	return (detect);
+	return (doors || stairs);
 }
 
 
@@ -1504,15 +1501,25 @@ bool detect_stairs(void)
  */
 bool detect_treasure(void)
 {
-	int y, x;
+	int y, x, i;
+	int x1, x2, y1, y2;
 
-	bool detect = FALSE;
+	bool gold_buried = FALSE;
+	bool gold_object = FALSE;
 
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
 
-	/* Scan the current panel */
-	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+	/* Scan the area */
+	for (y = y1; y < y2; y++)
 	{
-		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+		for (x = x1; x < x2; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1535,32 +1542,10 @@ bool detect_treasure(void)
 				lite_spot(y, x);
 
 				/* Detect */
-				detect = TRUE;
+				gold_buried = TRUE;
 			}
 		}
 	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of buried treasure!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-
-/*
- * Detect all "gold" objects on the current panel
- */
-bool detect_objects_gold(void)
-{
-	int i, y, x;
-
-	bool detect = FALSE;
-
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -1578,7 +1563,8 @@ bool detect_objects_gold(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect "gold" objects */
 		if (o_ptr->tval == TV_GOLD)
@@ -1590,18 +1576,19 @@ bool detect_objects_gold(void)
 			lite_spot(y, x);
 
 			/* Detect */
-			detect = TRUE;
+			gold_object = TRUE;
 		}
 	}
 
 	/* Describe */
-	if (detect)
-	{
+	if (gold_object)
 		msg_print("You sense the presence of treasure!");
-	}
+
+	if (gold_buried)
+		msg_print("You sense the presence of buried treasure!");
 
 	/* Result */
-	return (detect);
+	return (gold_object || gold_buried);
 }
 
 
@@ -1611,8 +1598,18 @@ bool detect_objects_gold(void)
 bool detect_objects_normal(bool full)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
+
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 
 	/* Scan objects */
@@ -1631,7 +1628,8 @@ bool detect_objects_normal(bool full)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
@@ -1682,8 +1680,18 @@ bool detect_objects_normal(bool full)
 bool detect_objects_magic(void)
 {
 	int i, y, x, tv;
+	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
+
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 
 	/* Scan all objects */
@@ -1702,7 +1710,8 @@ bool detect_objects_magic(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Examine the tval */
 		tv = o_ptr->tval;
@@ -1754,8 +1763,18 @@ bool detect_objects_magic(void)
 bool detect_monsters_normal(void)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 
 	/* Scan monsters */
@@ -1772,7 +1791,8 @@ bool detect_monsters_normal(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect all non-invisible monsters */
 		if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
@@ -1809,9 +1829,18 @@ bool detect_monsters_normal(void)
 bool detect_monsters_invis(void)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
 
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -1828,7 +1857,8 @@ bool detect_monsters_invis(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect invisible monsters */
 		if ((r_ptr->flags2 & (RF2_INVISIBLE)) || (m_ptr->tinvis))
@@ -1877,9 +1907,18 @@ bool detect_monsters_invis(void)
 bool detect_monsters_evil(void)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
 
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -1896,7 +1935,8 @@ bool detect_monsters_evil(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect evil monsters */
 		if (m_ptr->evil)
@@ -1953,8 +1993,18 @@ bool detect_monsters_evil(void)
 bool detect_monsters_life(void)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -1970,7 +2020,8 @@ bool detect_monsters_life(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect living monsters */
 		if (!(r_ptr->flags3 & (RF3_NON_LIVING)) &&
@@ -2014,8 +2065,18 @@ bool detect_monsters_life(void)
 bool detect_monsters_animal(void)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	/* Pick an area to detect */
+	y1 = p_ptr->py - DETECT_DIST_Y;
+	y2 = p_ptr->py + DETECT_DIST_Y;
+	x1 = p_ptr->px - DETECT_DIST_X;
+	x2 = p_ptr->px + DETECT_DIST_X;
+
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -2032,7 +2093,8 @@ bool detect_monsters_animal(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (x < x1 || y < y1 || x > x2 || y > y2) continue;
+		/* if (!panel_contains(y, x)) continue; */
 
 		/* Detect animals */
 		if ((r_ptr->flags3 & (RF3_ANIMAL)) || (r_ptr->flags3 & (RF3_BUG)))
@@ -2082,10 +2144,9 @@ bool detect_all(void)
 
 	/* Detect everything */
 	if (detect_traps()) detect = TRUE;
-	if (detect_doors()) detect = TRUE;
-	if (detect_stairs()) detect = TRUE;
+	if (detect_doorstairs(FALSE)) detect = TRUE;
+	/* if (detect_stairs()) detect = TRUE; */
 	if (detect_treasure()) detect = TRUE;
-	if (detect_objects_gold()) detect = TRUE;
 	if (detect_objects_normal(TRUE)) detect = TRUE;
 	if (detect_monsters_invis()) detect = TRUE;
 	if (detect_monsters_normal()) detect = TRUE;
@@ -3442,8 +3503,12 @@ bool probing(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Require line of sight */
-		if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) continue;
+		/* Require line of sight (usually) */
+		if (!player_has_los_bold(m_ptr->fy, m_ptr->fx))
+		{
+			/* occationally probe detected monsters which aren't in LOS */
+			if ((!m_ptr->ml) || (m_ptr->cdis > 14) || (randint(100) > 15 + (goodluck*2))) continue;
+		}
 
 		/* Probe visible monsters */
 		if (m_ptr->ml)
@@ -3636,7 +3701,7 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_FLASK:
 		case TV_BOTTLE:
 		{
-			if (mild) return (80);
+			if (mild) return (78);
 			else return (100);
 		}
 		/* almost always breaks */
@@ -3652,7 +3717,7 @@ static int quake_break(const object_type *o_ptr, bool mild)
 		case TV_ARROW:
         case TV_SKELETON:
 		{
-			if (mild) return (33);
+			if (mild) return (30);
 			else return (75);
 		}
 		/* often break */
@@ -3724,6 +3789,8 @@ static int quake_break(const object_type *o_ptr, bool mild)
  *
  * Note that players and monsters (except eaters of walls and passers
  * through walls) will never occupy the same grid as a wall (or door).
+ *
+ * Strength of 0 uses default strength (not really strength of 0)
  */
 void earthquake(int cy, int cx, int r, int strength)
 {
@@ -3744,10 +3811,10 @@ void earthquake(int cy, int cx, int r, int strength)
 	if (strength == 0) strength = 85;
 	/* more powerful (lower strength#) makes it more likely that the player can't */
 	/* find a safe spot to dodge into.  Don't make it too likely to cause big damage. */
-	if ((strength < 55) && (randint(100) < (100-strength + goodluck))) spellswitch = 11;
+	if ((strength < 55) && (randint(100) < (90-strength + goodluck))) spellswitch = 11;
 
-	/* No effect in town */
-	if (!p_ptr->depth)
+	/* No effect in town or in a vault */
+	if ((!p_ptr->depth) || (cave_info[cy][cx] & (CAVE_ICKY)))
 	{
 		msg_print("The ground shakes for a moment.");
 		return;
@@ -3778,8 +3845,8 @@ void earthquake(int cy, int cx, int r, int strength)
 			if (!in_bounds_fully(yy, xx)) continue;
 
 			/* do not affect vaults */
-			if (cave_info[y][x] & (CAVE_ICKY)) continue;
-			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) continue;
+			if (cave_info[yy][xx] & (CAVE_ICKY)) continue;
+			if (cave_feat[yy][xx] >= FEAT_PERM_EXTRA) continue;
 
 			/* Skip distant grids */
 			if (distance(cy, cx, yy, xx) > r) continue;
@@ -3932,12 +3999,15 @@ void earthquake(int cy, int cx, int r, int strength)
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx])
 			{
+/* #if thiscrashs */
 				/* some fragile objects get destroyed even in unaffected grids */
 				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
 				{
 					/* get the object */
-					object_type *o_ptr;
-					o_ptr = &o_list[this_o_idx];
+					object_type *o_ptr = &o_list[this_o_idx];
+
+					/* this fixes the crash bug (thanks to Zaimoni) */
+					if (!((0 < this_o_idx) && (this_o_idx < z_info->o_max))) break;
 
 					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
@@ -3949,8 +4019,8 @@ void earthquake(int cy, int cx, int r, int strength)
 					/* roll for destruction */
 					if (rand_int(100) < qbreak)
 					{
-						/* message */
-						if (player_can_see_bold(yy, xx))
+						/* message (only if you can see the object) */
+						if ((player_can_see_bold(yy, xx)) && (!squelch_hide_item(o_ptr)))
 						{
 							char o_name[80];
 							object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -3959,6 +4029,7 @@ void earthquake(int cy, int cx, int r, int strength)
 						delete_object_idx(this_o_idx);
 					}
 				}
+/* #endif */
 				continue;
 			}
 
@@ -3971,12 +4042,15 @@ void earthquake(int cy, int cx, int r, int strength)
 				int feat = FEAT_FLOOR;
 				bool floor = cave_floor_bold(yy, xx);
 
-				/* Delete some objects, but leave some durable ones buried */
+				/* Delete most objects, but leave some durable ones buried */
 				/* delete_object(yy, xx); */
 				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
 				{
 					/* get the object */
 					object_type *o_ptr = &o_list[this_o_idx];
+
+					/* this fixes the crash bug (thanks to Zaimoni) */
+					if (!((0 < this_o_idx) && (this_o_idx < z_info->o_max))) break;
 
 					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
@@ -4006,7 +4080,7 @@ void earthquake(int cy, int cx, int r, int strength)
 				/* t = (floor ? rand_int(105) : 200); */
 
 				/* Granite */
-				if (t < 25)
+				if (t < 27)
 				{
 					/* Create granite wall */
 					feat = FEAT_WALL_EXTRA;
@@ -4113,7 +4187,7 @@ void earthquake(int cy, int cx, int r, int strength)
 					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					if (noflee) damage = damroll(3, 8);
+					if (noflee) damage = damroll(2, 8);
 					else if ((!sn) && (randint(100) < 35)) damage = damroll(6, 8);
 					else if (!sn) damage = m_ptr->hp + 1;
 					else damage = damroll(4, 8);

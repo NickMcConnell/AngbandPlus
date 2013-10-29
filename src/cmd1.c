@@ -2446,7 +2446,7 @@ void py_attack(int y, int x)
 	/* crc == weapon crit chance:  5 = +0 */
 	if (o_ptr->crc < 5) excrit = o_ptr->crc - 6; /* (negative) */
 	else excrit = o_ptr->crc - 5;
-	if (f2 & TR2_EXTRA_CRIT) excrit += 11;
+	if (f2 & TR2_EXTRA_CRIT) excrit += 14; /* was 11 */
 	if (bonus-1 > 10) excrit += (bonus-1)/10;
 	
 	/* Attack once for each legal blow */
@@ -2709,7 +2709,7 @@ void py_attack(int y, int x)
                 }
 
 				/* Message */
-				if (p_ptr->confusing == FALSE)
+				if (!p_ptr->confusing)
                 {
                     msg_print("Your hands stop glowing.");
                 }
@@ -2986,7 +2986,7 @@ void move_player(int dir)
             else /* attempt the climb */
             {
                /* encumberance (rarely less than ~70-80) */
-               climbstr -= (p_ptr->total_weight/10);
+               climbstr -= (p_ptr->total_weight/11);
                    
 			   if ((randint(climbstr) > climbdif) || (climbstr >= climbdif + 90))
 			   {
@@ -2995,7 +2995,7 @@ void move_player(int dir)
                }
                else
                {
-                  if ((p_ptr->total_weight/10) > randint(climbstr))
+                  if ((p_ptr->total_weight/11) > randint(climbstr))
                   {
                      msg_print("Your encumberance makes you fall as you try to climb.");
                      (void)inc_timed(TMD_PARALYZED, 1 + randint(2));

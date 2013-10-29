@@ -1216,10 +1216,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
 			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
+			(void)detect_doorstairs(FALSE);
 			(void)detect_treasure();
-			(void)detect_objects_gold();
 			(void)detect_objects_normal(TRUE);
 			identify_pack();
 			self_knowledge(TRUE);
@@ -1293,7 +1291,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
        msg_print("You learn the way through the maze of stairs.");
 
        /* if you're lucky it also detects stairs */
-       if (randint(p_ptr->find_vault + 7 + (goodluck/2)) > 38) (void)detect_stairs();
+       if (randint(p_ptr->find_vault + 7 + (goodluck/2)) > 38) (void)detect_doorstairs(TRUE);
 
        *ident = TRUE;
        return (used_up);
@@ -1561,7 +1559,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 /*		case SV_SCROLL_DETECT_GOLD:
 		{
 			if (detect_treasure()) *ident = TRUE;
-			if (detect_objects_gold()) *ident = TRUE;
 			break;
 		} */
 
@@ -1575,7 +1572,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
             else
             {
 			  if (detect_treasure()) *ident = TRUE;
-			  if (detect_objects_gold()) *ident = TRUE;
 			  if (detect_objects_normal(FALSE)) *ident = TRUE;
             }
 			break;
@@ -1604,8 +1600,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  if (detect_doors()) *ident = TRUE;
-			  if (detect_stairs()) *ident = TRUE;
+			  if (detect_doorstairs(FALSE)) *ident = TRUE;
             }
 			break;
 		}
@@ -1884,7 +1879,6 @@ static bool use_staff(object_type *o_ptr, bool *ident)
             {
 			  if (detect_objects_normal(FALSE)) *ident = TRUE;
 			  if (detect_treasure()) *ident = TRUE;
-			  if (detect_objects_gold()) *ident = TRUE;
             }
 			break;
 		}
@@ -1933,8 +1927,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  if (detect_doors()) *ident = TRUE;
-			  if (detect_stairs()) *ident = TRUE;
+			  if (detect_doorstairs(FALSE)) *ident = TRUE;
             }
 			break;
 		}
@@ -2673,8 +2666,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  if (detect_doors()) *ident = TRUE;
-			  if (detect_stairs()) *ident = TRUE;
+			  if (detect_doorstairs(FALSE)) *ident = TRUE;
             }
 			break;
 		}
@@ -2946,8 +2938,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("The %s glows a deep green...", o_name);
 				wiz_lite();
 				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
+				(void)detect_doorstairs(FALSE);
 				break;
 			}
 
@@ -3031,10 +3022,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				(void)clear_timed(TMD_AFRAID);
 				(void)clear_timed(TMD_CHARM);
 				(void)clear_timed(TMD_FRENZY);
-	            if (p_ptr->peace)
-                {
-                   /* prevents rage */
-                }
+	            if (p_ptr->peace) /* prevents rage */;
 	            else (void)inc_timed(TMD_SHERO, randint(50) + 50);
 				(void)inc_timed(TMD_BLESSED, randint(50) + 50);
 				(void)inc_timed(TMD_OPP_ACID, randint(50) + 50);

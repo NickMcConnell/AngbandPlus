@@ -43,11 +43,10 @@ void do_cmd_go_up(void)
 		wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 		wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 		if (p_ptr->free_act) wrestle += 25;
-		wrestle = randint(wrestle);
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
 
 		/* attempt to pull free */
-		if (wrestle > holdfast)
+		if (randint(wrestle) > holdfast)
 		{
 			p_ptr->held_m_idx = 0;
 			clear_timed(TMD_BEAR_HOLD);
@@ -100,11 +99,10 @@ void do_cmd_go_down(void)
 		wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 		wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 		if (p_ptr->free_act) wrestle += 25;
-		wrestle = randint(wrestle);
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
 
 		/* attempt to pull free */
-		if (wrestle > holdfast)
+		if (randint(wrestle) > holdfast)
 		{
 			p_ptr->held_m_idx = 0;
 			clear_timed(TMD_BEAR_HOLD);
@@ -2167,10 +2165,9 @@ bool do_cmd_walk_test(int y, int x)
 			wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2;
 			wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
 			if (p_ptr->free_act) wrestle += 25;
-			wrestle = randint(wrestle);
 	
 			/* attempt to pull free */
-			if (wrestle > holdfast)
+			if (randint(wrestle) > holdfast)
 			{
 				p_ptr->held_m_idx = 0;
 				clear_timed(TMD_BEAR_HOLD);
@@ -2818,7 +2815,7 @@ void do_cmd_fire(void)
     /* tdam *= tmul; */
 
     excrit = o_ptr->crc - 5;
-	if (f2 & TR2_EXTRA_CRIT) excrit += 11;
+	if (f2 & TR2_EXTRA_CRIT) excrit += 14; /* was 11 */
 	if ((bonus + p_ptr->skills[SKILL_THB])-1 > 12) excrit += ((bonus + p_ptr->skills[SKILL_THB])-1)/12;
 
 	/* Base range XXX XXX (DJA: 2 less than it was) */

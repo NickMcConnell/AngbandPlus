@@ -598,14 +598,17 @@ S:1_IN_12
 S:BLINK | BLIND | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
 
+# maybe take now now that me have S_EVIL flags
+# (main purpose of this novice rogue was to have some evil and some not,
+#  but the S_EVIL flags do that without needing this.)
 N:46:novice rogue
 G:p:b
-I:113:8d4:20:12:9
-W:3:7:2:9
+I:113:6d5:20:14:6
+W:3:8:2:9
 B:HIT:HURT:1d7
 B:TOUCH:EAT_GOLD
 F:MALE | S_EVIL1 |
-F:DROP_60 | ROAM1
+F:DROP_90 | ROAM1
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:A rather shifty individual?
 
@@ -933,7 +936,7 @@ W:4:1:0:13
 B:HIT:HURT:1d6
 F:OPEN_DOOR | BASH_DOOR
 F:WEIRD_MIND | IM_POIS | IM_COLD
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | UNDEAD | NON_LIVING
 D:the reanimated bones of a kobold.
 
@@ -975,7 +978,7 @@ W:4:2:1:13
 B:HIT:HURT:1d9
 F:OPEN_DOOR | BASH_DOOR
 F:WEIRD_MIND | IM_POIS | IM_COLD
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | UNDEAD | NON_LIVING
 D:a reanimated skeliton, controlled by magic.
 
@@ -1067,7 +1070,7 @@ W:5:1:0:14
 B:HIT:HURT:1d9
 F:OPEN_DOOR | BASH_DOOR
 F:WEIRD_MIND | IM_POIS | IM_COLD
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | UNDEAD | NON_LIVING
 D:It is an animated kobold corpse.
 
@@ -1318,7 +1321,7 @@ W:6:1:0:16
 B:HIT:HURT:2d5
 F:OPEN_DOOR | BASH_DOOR
 F:WEIRD_MIND | IM_POIS | IM_COLD
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | UNDEAD | NON_LIVING
 D:It is an animated corpse.
 
@@ -1469,7 +1472,7 @@ G:W:o
 I:110:4d7:30:32:61
 W:7:2:1:26
 B:TOUCH:CONFUSE:1d6
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | STUPID | NO_FEAR
 F:EVIL | UNDEAD | NO_SLEEP | NON_LIVING
 F:IM_COLD | DROP_60
 F:COLD_BLOOD | WEIRD_MIND
@@ -1484,7 +1487,7 @@ W:7:2:1:18
 B:HIT:HURT:2d2
 B:TOUCH:LOSE_WIS
 F:RAND_50 | DROP_60 | DROP_90
-F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL
+F:INVISIBLE | TAKE_ITEM | PASS_WALL
 F:EVIL | UNDEAD | NON_LIVING | ROAM1
 F:IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_13
@@ -1726,7 +1729,7 @@ W:8:1:0:26
 B:HIT:HURT:1d9
 F:OPEN_DOOR | BASH_DOOR
 F:WEIRD_MIND | IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | ORC | UNDEAD | NON_LIVING
 D:It is an animated orc skeleton.
 
@@ -1812,9 +1815,9 @@ G:z:r
 I:110:11d11:20:35:45
 W:9:1:0:30
 B:HIT:HURT:2d6
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | ORC | UNDEAD | NON_LIVING
 D:It is an animated orc corpse.
 
@@ -2387,7 +2390,7 @@ B:TOUCH:TERRIFY:2d3
 B:TOUCH:EAT_LITE:1d3
 F:RAND_50
 F:DROP_60 | DROP_90
-F:INVISIBLE | COLD_BLOOD | PASS_WALL | TAKE_ITEM
+F:INVISIBLE | PASS_WALL | TAKE_ITEM
 F:EVIL | UNDEAD | NON_LIVING | FLY | ROAM2
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_9
@@ -2547,10 +2550,11 @@ F:RAND_25 | WEIRD_MIND | BASH_DOOR
 F:BUG | ROAM1
 D:It is a vast armoured centipede with massive mandibles and a spiked tail.
 
+# was L12
 N:211:horned bullfrog
 G:R:s
 I:108:6d8:7:24:32
-W:12:3:0:35
+W:11:3:0:35
 B:BUTT:HURT:4d2
 B:HIT:HURT:2d2
 F:RAND_50 | NO_FEAR | BASH_DOOR
@@ -2568,7 +2572,7 @@ B:STING:POISON:1d4
 F:BUG | FRIENDS |
 F:WEIRD_MIND | FLY
 D:Its poisonous stinger can be much worse than any wasp,
-D: especially as they sting in swarms.
+D: especially because they sting in swarms.
 
 N:213:Ufthak of Cirith Ungol
 G:o:o
@@ -2718,9 +2722,9 @@ I:110:11d10:28:40:80
 W:13:1:0:46
 B:HIT:HURT:2d5
 B:HIT:HURT:2d6
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | ORC | UNDEAD | NON_LIVING
 D:A dead but walking orc wrapped thickly in bandages. The orcs are not experts at
 D: embalming.
@@ -4050,6 +4054,7 @@ S:1_IN_6
 S:BR_ACID
 D:It makes you think of a tiny black dragon..
 
+#maybe should be earlier
 N:326:warty bullfrog
 G:R:g
 I:109:9d7:7:40:30
@@ -4145,7 +4150,7 @@ B:HIT:HURT:1d6
 B:BITE:HURT:3d4
 F:OPEN_DOOR | BASH_DOOR
 F:EMPTY_MIND | IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:HURT_LITE | REGENERATE | NO_CONF
 F:EVIL | TROLL | UNDEAD | NON_LIVING
 D:A reanimated troll skeleton.
@@ -4239,7 +4244,7 @@ B:HIT:HURT:5d2
 B:HIT:HURT:5d2
 F:ONLY_ITEM | DROP_90
 F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:IM_COLD | IM_POIS | NO_CONF
 F:EVIL | UNDEAD | NON_LIVING
 D:An embalmed and mummified corpse that has been awakened by an ancient curse.
@@ -4309,7 +4314,7 @@ B:TOUCH:COLD:1d6
 B:GAZE:TERRIFY:1d4
 F:OPEN_DOOR | FRIENDS | FLY | RANGE | ROAM1
 F:NO_FEAR | NO_SLEEP | IM_COLD | HURT_LITE
-F:EVIL | UNDEAD | COLD_BLOOD | NON_LIVING
+F:EVIL | UNDEAD | STUPID | NON_LIVING
 S:1_IN_11
 S:SCARE | DARKNESS | SLOW | S_UNDEAD | HASTE
 D:Am image of a skull floating in middair, your weapon seems to go right through it.
@@ -4431,7 +4436,7 @@ W:23:3:1:136
 B:CLAWB:HURT:6d2
 B:CLAWB:LOSE_CON:2d3
 F:DROP_90 | FORCE_SLEEP
-F:INVISIBLE | COLD_BLOOD | BR_STRONG
+F:INVISIBLE | BR_STRONG
 F:EVIL | UNDEAD | NON_LIVING | FLY
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6
@@ -4524,8 +4529,7 @@ B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:TOUCH:EXP_20
 F:FORCE_SLEEP | RAND_25
-F:DROP_60 | DROP_90
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:DROP_60 | DROP_90 | OPEN_DOOR | BASH_DOOR
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE
 F:NO_CONF | NO_SLEEP
 S:1_IN_10
@@ -4840,8 +4844,7 @@ B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:TOUCH:EXP_20
 F:FORCE_SLEEP | NON_LIVING
-F:DROP_1D2 | FLY
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:DROP_1D2 | FLY | OPEN_DOOR | BASH_DOOR
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8
 S:SCARE | CAUSE_2 | DARKNESS
@@ -4866,7 +4869,7 @@ B:CLAW:PARALYZE:1d4
 B:BITE:POISON:1d6
 F:DROP_60 | OPEN_DOOR | BASH_DOOR
 F:EVIL | UNDEAD | FRIENDS | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP
-F:COLD_BLOOD | HURT_LITE | NON_LIVING | FORCE_SLEEP
+F:HURT_LITE | NON_LIVING | FORCE_SLEEP
 S:1_IN_9
 S:SCARE | HOLD
 D:Flesh is falling off in chunks from this decaying abomination.
@@ -4892,9 +4895,9 @@ I:105:21d11:20:36:44
 W:26:1:0:105
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS | REGENERATE
-F:NO_FEAR | NO_SLEEP | NON_LIVING
+F:NO_FEAR | NO_SLEEP | NON_LIVING | STUPID
 F:EVIL | TROLL | UNDEAD
 D:It is an animated troll corpse. If a troll could get stupider, it has.
 
@@ -4906,7 +4909,7 @@ B:TOUCH:TERRIFY:2d4
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 F:RAND_25 | DROP_90
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | FLY
+F:OPEN_DOOR | BASH_DOOR | FLY
 F:NO_FEAR | NO_SLEEP | HURT_LITE | BR_STRONG | SMART
 F:S_EVIL2 | IM_ELEC | HURT_SILV | POWERFUL | FORCE_SLEEP
 S:1_IN_6
@@ -5008,7 +5011,7 @@ B:HIT:HURT:1d9
 B:HIT:LOSE_CON:2d9
 F:OPEN_DOOR | BASH_DOOR | POWERFUL
 F:WEIRD_MIND | IM_POIS | IM_COLD | FORCE_SLEEP
-F:NO_FEAR | NO_SLEEP | NO_CONF | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | NO_CONF
 F:EVIL | UNDEAD | REGENERATE | NON_LIVING
 S:1_IN_9
 S:S_KIN | CAUSE_2 | SLOW | BR_DARK | SCARE
@@ -5226,7 +5229,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Haven't you heard of puddings made for a tasty dessert, but enchanted to walk off
 D: the dinner table and frighten the guests?
 
-N:407:bat of gorgoroth
+N:407:bat of Gorgoroth
 G:b:g
 I:120:16d12:20:30:30
 W:28:3:0:101
@@ -5515,7 +5518,7 @@ B:HIT:HURT:3d9
 B:HIT:HURT:3d9
 F:OPEN_DOOR | BASH_DOOR | EMPTY_MIND | FORCE_SLEEP
 F:NO_CONF | IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | GIANT | UNDEAD | NON_LIVING
 S:1_IN_11 | BOULDER
 D:A reanimated skeleton of a giant.
@@ -5788,7 +5791,7 @@ W:31:3:3:139
 B:HIT:HURT:1d6
 B:TOUCH:EXP_10:2d6
 F:PASS_WALL | INVISIBLE
-F:COLD_BLOOD | WEIRD_MIND | NO_CONF
+F:WEIRD_MIND | NO_CONF | STUPID
 F:NO_FEAR | NO_SLEEP | IM_COLD | HURT_LITE
 F:EVIL | UNDEAD | NON_LIVING | FORCE_SLEEP
 S:1_IN_7
@@ -6015,9 +6018,9 @@ I:108:33d16:20:36:50
 W:32:1:0:280
 B:HIT:HURT:5d8
 B:HIT:HURT:5d8
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP | FORCE_SLEEP
+F:NO_FEAR | NO_SLEEP | FORCE_SLEEP | STUPID
 F:EVIL | GIANT | UNDEAD | NON_LIVING
 S:1_IN_13
 S:BOULDER
@@ -6033,7 +6036,7 @@ B:HIT:HURT:6d4
 B:HIT:HURT:6d4
 F:OPEN_DOOR | BASH_DOOR | EMPTY_MIND
 F:NO_CONF | IM_COLD | IM_POIS
-F:NO_FEAR | NO_SLEEP | COLD_BLOOD
+F:NO_FEAR | NO_SLEEP | STUPID
 F:EVIL | GIANT | UNDEAD | NON_LIVING
 D:A giant skeleton with two skulls is a strange sight, but it still has the ettin's
 D: quick giant fists, only without the skin.
@@ -6330,10 +6333,10 @@ W:34:1:0:420
 B:HIT:HURT:4d5
 B:HIT:HURT:4d6
 F:DROP_90
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS | REGENERATE
 F:NO_FEAR | NO_CONF | NO_SLEEP | HURT_LITE
-F:EVIL | TROLL | UNDEAD | NON_LIVING
+F:EVIL | TROLL | UNDEAD | NON_LIVING | STUPID
 D:It is a massive figure clothed in wrappings.  You are wary of its massive
 D: fists.
 
@@ -6416,10 +6419,10 @@ B:HIT:HURT:4d4
 B:HIT:HURT:4d4
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
-F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | BASH_DOOR
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR
 F:IM_COLD | IM_POIS | NON_LIVING
 F:NO_FEAR | NO_SLEEP
-F:EVIL | GIANT | UNDEAD
+F:EVIL | GIANT | UNDEAD | STUPID
 D:It's the animated corpse of an ettin.
 
 N:489:phantom
@@ -6430,7 +6433,7 @@ B:TOUCH:EXP_10:2d4
 B:TOUCH:EXP_10:2d4
 B:TOUCH:LOSE_INT:2d6
 F:DROP_1D2 | FORCE_SLEEP
-F:COLD_BLOOD | INVISIBLE | PASS_WALL
+F:INVISIBLE | PASS_WALL
 F:IM_COLD | IM_FIRE | NO_FEAR | NO_SLEEP
 F:EVIL | DEMON | NON_LIVING | POWERFUL | FLY
 S:1_IN_5
@@ -6692,7 +6695,7 @@ D: trained for violence by the Haradrim.
 N:507:margoyle
 G:x:v
 I:115:35d10:20:60:25
-W:35:1:0:425
+W:35:1:0:42
 B:HIT:HURT:6d5
 B:HIT:HURT:6d5
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | ROAM1
@@ -6944,8 +6947,8 @@ D:A huge tentacled demonic monster guarding the doors to the mines of Moria.
 
 N:524:mature orange dragon
 G:d:o
-I:110:44d10:20:70:70
-W:36:1:0:1200
+I:110:43d10:20:70:70
+W:34:1:0:1200
 B:CLAW:HURT:2d9
 B:CLAW:HURT:2d9
 B:BITE:HURT:4d9
@@ -7612,13 +7615,14 @@ S:1_IN_5
 S:BO_ELEC | BA_ELEC
 D:It is a towering tornado of winds.
 
+# removed SHATTER, only the greater earth elemental should have SHATTER
 N:565:earth elemental
 G:%:u
 I:110:50d10:12:60:45
 W:39:2:0:750
 B:HIT:HURT:6d4
 B:HIT:HURT:6d4
-B:HIT:SHATTER:8d3
+B:HIT:HURT:8d3
 F:FORCE_SLEEP | RAND_25 | NON_LIVING
 F:EMPTY_MIND | COLD_BLOOD
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL
@@ -7652,10 +7656,10 @@ B:GAZE:EXP_40:2d6
 B:GAZE:UN_POWER:2d6
 F:EVIL | UNIQUE | FORCE_SLEEP | FORCE_MAXHP
 F:DROP_2D2 | DROP_60 | DROP_GOOD
-F:HURT_LITE | REGENERATE | BASH_DOOR
+F:HURT_LITE | REGENERATE | SMART | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5
-S:HASTE | HOLD | BLIND | CURSE_PC | DRAIN_MANA | BO_COLD | TELE_TO
+S:HASTE | HOLD | BLIND | CURSE_PC | DRAIN_MANA | BO_COLD | TELE_TO | MIND_BLAST
 D:Also known as the Soul-Eater, this minor god is a monster from the dungeon dimensions
 D: which has found a way to stay on the material plane. It is shaped like a giant eye with
 D: many powerful tentacles. You know there's this number you get when you add 4+4 or 6+2,
@@ -7672,18 +7676,18 @@ F:DROP_60 | OPEN_DOOR | BASH_DOOR | ROAM1
 F:HURT_ROCK | TROLL | FRIENDS | NO_FEAR | S_EVIL1
 D:A 7 or 8 foot tall winged humanoid with stone skin weilding a huge axe.
 
-#	 (to replace silent watchers)
+#	 (to replace silent watchers because they became uniques)
 # maybe get rid of a couple of the special attacks and make it summon faster instead.
 N:569:animated staff of summoning
 G:_:v
 I:116:64d25:30:81:9
 W:40:3:1:800
 B:HIT:FRENZY:1d10
-B:HIT:PARALYZE:1d10
+B:HIT:HURT:1d10
 F:EMPTY_MIND | COLD_BLOOD | NON_LIVING | FORCE_SLEEP
 F:NO_FEAR | NO_CONF | NO_SLEEP | IM_COLD | IM_POIS
-S:1_IN_4
-S:S_MONSTER | S_MONSTERS | MIND_BLAST
+S:1_IN_3
+S:S_MONSTER | S_MONSTERS | S_DRAGON | S_DEMON | S_ANGEL | S_UNDEAD | MIND_BLAST
 D:You see a staff on the floor but don't recognise its type. Then you are quite
 D: alarmed when it floats up in the air and starts activating itself.
 
@@ -8143,10 +8147,10 @@ S:BLIND | SCARE | BR_FIRE
 D:Its huge form is what legends are made of. Wisps of smoke steam from its nostrils and
 D: the extreme heat surrounding it makes you gasp for breath.
 
-#was 76d10HP
+#was 76d10HP then 73d10
 N:598:trooping fairy
 G:i:U
-I:117:73d10:26:73:19
+I:117:72d10:26:73:19
 W:41:3:2:716
 B:HIT:HURT:3d7
 B:HIT:EXP_10:4d4
@@ -8220,7 +8224,7 @@ B:HIT:HURT:3d10
 B:BITE:HURT:5d5
 B:BITE:HURT:5d5
 F:FORCE_MAXHP | OPEN_DOOR | DROP_60
-F:SMART | BASH_DOOR | FRIENDS | FORCE_SLEEP
+F:SMART | BASH_DOOR | FRIEND1 | FORCE_SLEEP
 F:EVIL | TROLL | IM_POIS | NO_FEAR | REGENERATE
 S:1_IN_20 | BOULDER
 D:It is a massive intelligent troll (intelligent for a troll anyway) with
@@ -8804,7 +8808,7 @@ B:GAZE:UN_POWER:3d6
 B:GAZE:LOSE_INT:3d6
 B:BITE:EXP_40:7d6
 F:FORCE_SLEEP | FORCE_MAXHP
-F:COLD_BLOOD | BASH_DOOR | NO_CONF | NO_SLEEP
+F:BASH_DOOR | NO_CONF | NO_SLEEP
 F:EVIL | UNDEAD | NON_LIVING
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_2
@@ -9019,9 +9023,10 @@ S:BR_NEXU | BR_SHAR | BR_INER
 D:A shining red 9-headed reptillian creature similar to the hydra but more closely
 D: related to the salamander.  Between its nine heads, it breathes a veriety of magics.
 
+#was 200d27
 N:650:dark fairy king
 G:i:b
-I:120:200d27:26:73:19
+I:122:200d9:26:73:19
 W:47:5:4:7500
 B:HIT:FRENZY:6d7
 B:HIT:EXP_20:4d7
@@ -9566,10 +9571,10 @@ D:a devil from hell who has taken residence in the domain of the grepse and
 D: accumulated some of their magic.
 
 #	was L53
-#probably has too much HP, lowered slightly, had 200d35
+#had 200d35HP
 N:680:dark fairy queen
 G:i:r
-I:125:196d35:26:79:14
+I:125:200d19:26:79:14
 W:56:4:5:9000
 B:HIT:HURT:7d7
 B:HIT:EXP_40:5d7
@@ -9732,8 +9737,7 @@ F:TAKE_ITEM | SMART | BASH_DOOR | BR_STRONG | MOVE_BODY
 F:EVIL | DRAGON | UNDEAD | IM_COLD | IM_POIS
 F:NO_CONF | NO_SLEEP
 S:1_IN_6
-S:CONF | BR_FEAR
-S:BR_COLD | BR_NETH
+S:CONF | BR_FEAR | BR_COLD | BR_NETH
 D:The skeletal form of a once-great dragon, enchanted by magic most
 D: perilous.  Its animated form strikes with speed and drains life from its
 D: prey to satisfy its hunger.
@@ -9829,6 +9833,8 @@ S:S_DEMON | S_MONSTERS | HEAL_OTHR
 D:Once among the most high-ranked and powerful angelic beings, it has fallen and joined 
 D: the demons in rebellion.
 
+# 695 unused
+
 N:696:Dwar, Dog Lord of Waw
 G:W:r
 I:120:40d100:90:90:10
@@ -9850,7 +9856,7 @@ D:Dwar had a special affinity for dogs in life, and can still command them
 D: at will.  He howls maniacally as he reaches out to destroy you.
 
 #		level 57
-#	(remove S_hound,  maybe take out)
+#	(removed S_hound,  maybe take out)
 N:697:grand master mystic
 G:K:v
 I:130:20d100:30:70:5
@@ -10012,7 +10018,7 @@ B:HIT:HURT:10d10
 B:HIT:HURT:10d10
 F:ONLY_ITEM | DROP_90 | BASH_DOOR | FORCE_SLEEP
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | STUPID
 F:UNDEAD | EMPTY_MIND | MOVE_BODY | NON_LIVING
 S:1_IN_4
 S:BR_FEAR | DARKNESS | BO_NETH | S_UNDEAD
@@ -10084,8 +10090,9 @@ F:EVIL | UNDEAD | IM_COLD | IM_ACID | IM_ELEC
 F:NO_SLEEP | NO_CONF | NO_FEAR | RES_NETH | BR_STRONG
 S:1_IN_4
 S:BR_FEAR | CAUSE_4 | BO_ACID | BO_NETH | DARKNESS | S_UNDEAD | SHRIEK
-D:Riding in an unstoppable carriage pulled by undead steeds, he calls to him
-D: those who are fated to die.
+D:Riding in an unstoppable carriage pulled by undead steeds, he carries a human
+D: spine as a whip in one hand and his severed head in the other. And he
+D: calls to him those who are fated to die.
 
 #or 50d49
 N:711:bile devil
@@ -10105,11 +10112,11 @@ D: highly poisonous flatulence.  And its insides are corrosive.  All of which
 D: go together to make the single most repulsive sight - and smell - you have
 D: ever experienced.
 
-#	was L66
+#had 299d31 HP, was L66
 N:712:dark fairy fool
 G:i:W
-I:130:299d31:27:97:19
-W:70:4:5:12746
+I:130:200d31:27:97:19
+W:68:4:5:12746
 B:HIT:TERRIFY:9d9
 B:HIT:EXP_80:5d8
 B:HIT:LOSE_CON:5d8
@@ -10497,7 +10504,7 @@ D: of her vampire race.  At first she is charming to meet, but her wings and
 D: eyes give away her true form.
 
 #		level 68
-#these were accidently missing the UNIQUE flag in previous versions
+#these were accidently missing the UNIQUE flag in old versions
 N:734:Left Silent Watcher
 G:g:r
 I:110:90d30:40:110:10
@@ -12104,7 +12111,7 @@ B:CLAW:LOSE_INT:4d7
 B:CLAW:LOSE_WIS:4d7
 F:EVIL | UNDEAD | FEMALE | UNIQUE | FORCE_MAXHP | FORCE_SLEEP
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | NON_LIVING
-F:INVISIBLE | PASS_WALL | COLD_BLOOD | WEIRD_MIND
+F:INVISIBLE | PASS_WALL | WEIRD_MIND
 F:IM_COLD | IM_POIS | HURT_LITE | RANGE
 F:NO_CONF | NO_SLEEP | NO_FEAR | RES_NETH
 S:1_IN_3

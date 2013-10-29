@@ -408,7 +408,7 @@ struct monster_lore
 	byte wake;				/* Number of times woken up (?) */
 	byte ignore;			/* Number of times ignored (?) */
 
-	byte xtra1;				/* Something (unused) */
+	byte xtra1;				/* race has been probed (was unused) */
 	byte xtra2;				/* Something (unused) */
 
 	byte drop_gold;			/* Max number of gold dropped at once */

@@ -2484,9 +2484,10 @@ bool make_attack_spell(int m_idx)
 				{
 					msg_format("%^s looks fully healthy!", m_name);
 				}
-				else
+				else /* removed the message when not seen */
 				{
-					msg_format("%^s sounds fully healthy!", m_name);
+					/* msg_format("%^s sounds fully healthy!", m_name); */
+					/* ..how can something 'sound' fully healthy? */
 				}
 			}
 
@@ -2498,9 +2499,9 @@ bool make_attack_spell(int m_idx)
 				{
 					msg_format("%^s looks healthier.", m_name);
 				}
-				else
+				else /* removed the message when not seen */
 				{
-					msg_format("%^s sounds healthier.", m_name);
+					/* msg_format("%^s sounds healthier.", m_name); */
 				}
 			}
 
@@ -3120,9 +3121,12 @@ static int mon_will_run(int m_idx)
 
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 6) return (FALSE);
-
+	
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) return (TRUE);
+
+	/* mindless undead should never run away (unless turn undead is used) */
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) && (r_ptr->flags2 & (RF2_STUPID))) return (FALSE);
 
 	/* Nearby monsters will not become terrified */
 	if (m_ptr->cdis < 5) return (FALSE);
@@ -3132,6 +3136,9 @@ static int mon_will_run(int m_idx)
 
 	/* Examine monster power (level plus morale) */
 	m_lev = r_ptr->level + (m_idx & 0x08) + 25;
+
+	/* undead are less likely to run away */
+	if (r_ptr->flags3 & (RF3_UNDEAD)) m_lev += 6;
 
 	/* Optimize extreme cases below */
 	if (m_lev > p_lev + 4) return (FALSE);

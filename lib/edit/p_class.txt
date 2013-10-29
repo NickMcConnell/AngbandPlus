@@ -1745,7 +1745,7 @@ M:0:0:0:0
 #Starting objects: mumak tusk, filthy rag
 E:1:2:1:1
 E:36:1:1:1
-F:PSEUDO_ID_HEAVY | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BRAVERY_30 | HEAVY_BONUS | HULK_CONF
 T:Mistaken for a Dumb Ogre
 T:Dumb Brute
 T:Brute
@@ -1755,4 +1755,4 @@ T:Brown Hulk
 T:Umber Hulk
 T:Raging Hulk
 T:Titan Hulk
-T:Raging Titan Hulk
+T:Umber Titan

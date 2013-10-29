@@ -3191,7 +3191,7 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Books -- High level books are good */
+		/* Books -- High level books are good (if it's the correct realm) */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_NEWM_BOOK:
@@ -3200,7 +3200,7 @@ static bool kind_is_good(int k_idx)
 		case TV_DARK_BOOK:
 		/* case TV_MIND_BOOK: */
 		{
-			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			if ((k_ptr->sval >= SV_BOOK_MIN_GOOD) && (k_ptr->tval == cp_ptr->spell_book)) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3236,12 +3236,31 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval == SV_POTION_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_POTION_LIFE) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_RESTORE_MANA) && (p_ptr->msp > 0)) return (TRUE);
+			if ((k_ptr->sval == SV_POTION_RESTORE_MANA) && (p_ptr->msp > 30)) return (TRUE);
 			if ((k_ptr->sval >= SV_POTION_INC_STR) && (k_ptr->sval <= SV_POTION_INC_CHR))
 			{
 				if (p_ptr->stat_cur[k_ptr->sval - SV_POTION_INC_STR] < 18+100) return (TRUE);
 			}
 			if (k_ptr->sval == SV_POTION_AUGMENTATION) return (TRUE);
+			/* !Super spellcasting is good for full casters */
+			if ((k_ptr->sval == SV_POTION_AUTO_BRAIL) && (cp_ptr->flags & CF_ZERO_FAIL)) return (TRUE);
+			/* Purity counts as good only if you need it */
+			if (k_ptr->sval == SV_POTION_PURITY)
+			{
+				if ((p_ptr->silver >= PY_SILVER_LEVELONE) || (p_ptr->slime >= PY_SLIME_LEVELONE) ||
+					(p_ptr->corrupt > 9))
+					return (TRUE);
+			}
+			return (FALSE);
+		}
+
+		/* certain rods should be considered good */
+		/* also ROD_HEALING ? */
+		case TV_ROD:
+		{
+			if (k_ptr->sval == SV_ROD_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_ROD_DETECTION) return (TRUE);
+			if (k_ptr->sval == SV_ROD_TELEPORT_AWAY) return (TRUE);
 			return (FALSE);
 		}
 	}
@@ -3266,7 +3285,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	int prob, base;
 	object_kind *k_ptr;
 	u32b f1, f2, f3, f4;
-
+	bool goodcheck = FALSE;
 
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
@@ -3281,20 +3300,23 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		int k_idx;
 
 		/* Good objects */
-		if (good)
+		/* kind restriction doesn't always apply */
+		if ((good) && (randint(100) < 80))
 		{
 			/* Activate restriction */
 			get_obj_num_hook = kind_is_good;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
+
+			goodcheck = TRUE;
 		}
 
 		/* Pick a random object */
 		k_idx = get_obj_num(base);
 
 		/* Good objects */
-		if (good)
+		if (goodcheck)
 		{
 			/* Clear restriction */
 			get_obj_num_hook = NULL;

@@ -1399,7 +1399,24 @@ void monster_death(int m_idx)
 	}
 }
 
+/* find out if a given monster is able to grab */
+/* (grabbing monsters are much less likely to run away because of low HP) */
+static bool itgrabs(int m_idx)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int ap_cnt;
 
+	/* Scan through all blows */
+	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
+	{
+		int effect = r_ptr->blow[ap_cnt].effect;
+		if (effect == RBE_BHOLD) return TRUE;
+	}
+
+	/* not a grabber */
+	return FALSE;
+}
 
 
 /*
@@ -1602,17 +1619,29 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* never gets scared by damage after recovering from fear by running out of options */
 	if (!m_ptr->monfear && !m_ptr->bold && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
-		int percentage;
+		int percentage, fleechance;
+		bool grabber = itgrabs(m_idx);
 
 		/* Percentage of fully healthy */
 		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+
+		/* mindless undead should never run away (unless turn undead is used) */
+		/* (paranoia: they should all have NO_FEAR) */
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (r_ptr->flags2 & (RF2_STUPID))) return (FALSE);
+
+		/* grabber monsters rarely run away from low HP */
+		if (grabber) fleechance = 33;
+		/* other undead less likely to flee */
+		else if (r_ptr->flags3 & (RF3_UNDEAD)) fleechance = 50;
+		else fleechance = 96;
+		if (6 > percentage) fleechance += (6-percentage) * 4;
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if ((randint(10) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if (((randint(10) >= percentage) && (rand_int(100) < fleechance)) ||
+		    ((dam >= m_ptr->hp) && (rand_int(100) < fleechance - 16)))
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;

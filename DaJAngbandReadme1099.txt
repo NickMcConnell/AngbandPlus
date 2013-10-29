@@ -6,6 +6,17 @@ First to Andrew Sidwell and the previous mantainers for the great work on vanill
 ------------------------------------------------------------------------------------------
 Readme for DaJAngband 1.0.99
 
+		Since original 1.0.99:
+ - fixed bug: sometimes crashes when an earthquake happens.
+ - fixed bug: earthquake works in vaults.
+ - detection radius is now fixed (like in new V, but not as big an area as new V).
+ - mindless undead never flee unless turned, other undead are less likely to flee.  Also, monsters which grab are less likely to flee.
+ - light area alchemy spell is slightly strengthened (it's still a little weaker than other light spells)
+ - dark fairy king/ queen/ fool HPS reduced significantly
+ - EXTRA_CRIT flag is more effective
+ - probing now reveals everything that cheak_peak reveals except doesn't always reveal spells.
+
+
 		Since 1.0.98:
 
 	Fixed Bugs:
