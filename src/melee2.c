@@ -2126,7 +2126,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			sound(MSG_SUM_ANGEL);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons an angel!", m_name);
+			else msg_format("%^s magically summons something hairy!", m_name);
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(m_ptr->fy, m_ptr->fx, rlev, SUMMON_ANGEL);

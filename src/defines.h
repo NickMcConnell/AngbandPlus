@@ -35,8 +35,8 @@
 /*
  * Name of the version/variant and its version string
  */
-#define VERSION_NAME   "Angband"
-#define VERSION_STRING "3.0.9"
+#define VERSION_NAME   "DaJAngband"
+#define VERSION_STRING "a semi-variant based on Vanilla Angband 3.0.9"
 
 
 /*

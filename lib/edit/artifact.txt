@@ -1,3 +1,4 @@
+
 # File: artifact.txt
 
 
@@ -83,7 +84,7 @@ N:1:of Galadriel
 I:39:4:0
 W:5:5:10:10000
 P:0:1d1:0:0:0
-F:ACTIVATE | NO_FUEL |
+F:ACTIVATE | 
 F:INSTA_ART
 A:ILLUMINATION:10:10
 D:A small crystal phial, with the light of Earendil's Star contained inside.  
@@ -94,9 +95,9 @@ D:Its light is imperishable, and near it darkness cannot endure.
 
 N:2:of Elendil
 I:39:5:0
-W:30:25:5:30000
+W:41:17:5:30000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | NO_FUEL |
+F:ACTIVATE | SEE_INVIS | 
 F:INSTA_ART
 A:MAGIC_MAP:50:50
 D:The shining Star of the West, a treasured heirloom of Elendil's house.
@@ -107,7 +108,7 @@ N:3:of Thrain
 I:39:6:0
 W:50:50:5:50000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_LITE | RES_DARK | NO_FUEL |
+F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_LITE | RES_DARK | 
 F:INSTA_ART
 A:DETECT:30:30
 D:A great globe seemingly filled with moonlight, the famed Heart of the 
@@ -162,7 +163,7 @@ I:39:7:2
 W:75:60:200:100000
 P:0:10d10:0:0:0
 # F:DRAIN_MANA | 
-F:ACTIVATE | NO_FUEL |
+F:ACTIVATE | 
 F:INT | WIS | SEARCH | INFRA | SEE_INVIS | TELEPATHY | 
 F:RES_CHAOS | RES_BLIND | AGGRAVATE | DRAIN_EXP | 
 F:INSTA_ART | HIDE_TYPE
@@ -652,8 +653,8 @@ N:40:'Holhenneth'
 I:32:5:2
 W:20:5:75:100000
 P:5:1d3:0:0:10
-F:INT | WIS | SEARCH | HIDE_TYPE | 
-F:RES_BLIND | RES_CONFU | SEE_INVIS | ACTIVATE
+F:INT | WIS | SEARCH | HIDE_TYPE
+F:RES_CONFU | TELEPATHY | ACTIVATE
 A:DETECT:55:55
 D:A famous helm of forged iron granting extraordinary powers of mind and 
 D:awareness.
@@ -747,10 +748,10 @@ D:magic showing calm and clear as moonlight on still water.
 # The Cloak of Thorongil
 
 N:47:of Thorongil
-I:35:1:0
+I:35:1:3
 W:5:10:10:8000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_ACID | RES_FEAR | SEE_INVIS
+F:FREE_ACT | RES_ACID | RES_FEAR | INFRA | SEARCH
 D:This shimmering cloak of greens and browns was once worn by the young 
 D:Aragorn, a keen-eyed captain of Gondor, valiant on both land and sea.
 
@@ -968,11 +969,11 @@ D:messenger, a servant, a spy... or a coward.
 # The Main Gauche of Maedhros
 
 N:64:of Maedhros
-I:23:5:3
+I:23:5:4
 W:15:30:30:20000
-P:0:2d5:12:15:0
+P:0:2d5:12:15:3
 F:INT | DEX | SPEED | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
+F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SHOW_MODS
 D:A short thrusting blade with a large guard worn by Maedhros the Tall, 
 D:eldest son of Feanor, who lost his right hand in captivity in Angband.
 
@@ -1044,7 +1045,7 @@ I:23:4:2
 W:10:40:12:40000
 P:0:2d4:6:9:0
 F:DEX | HIDE_TYPE | 
-F:BRAND_COLD | RES_COLD | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
+F:BRAND_COLD | RES_COLD | INFRA | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:SHOW_MODS
 A:FROST2:5:5
 D:A frosty dagger wreathed in a nimbus of ice with a hilt of elk horn and 
@@ -1152,7 +1153,7 @@ D:slowly approach.
 
 
 # The Two-Handed Sword 'Mormegil'
-
+# 	maybe take out
 N:78:'Mormegil'
 I:23:25:-10
 W:30:15:250:10000
@@ -1168,13 +1169,14 @@ D:very lifeblood of its wielder.
 
 # The Cutlass 'Gondricam'
 
+#		maybe take out
 N:79:'Gondricam'
 I:23:12:3
-W:20:8:110:28000
+W:20:8:110:26000
 P:0:1d7:10:11:0
 F:DEX | STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
+F:SUST_DEX | REGEN | SHOW_MODS
 D:Famed sea-defender of Lebennin.  A short, slightly curved chopping blade 
 D:with a perfect edge shining cleanly in the sun, an object of hate to the 
 D:men of Umbar who met it in combat.
@@ -1182,6 +1184,7 @@ D:men of Umbar who met it in combat.
 
 # The Executioner's Sword 'Crisdurian'
 
+#		maybe take out
 N:80:'Crisdurian'
 I:23:28:0
 W:40:25:260:100000
@@ -1210,7 +1213,7 @@ D:is combat incarnate.
 
 N:82:'Ringil'
 I:23:17:10
-W:20:120:130:300000
+W:50:75:130:300000
 P:0:4d5:22:25:0
 F:SPEED | RES_FEAR | BLESSED |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | KILL_DEMON | SLAY_TROLL | 
@@ -1226,7 +1229,7 @@ D:of old; his lame foot will remind him of its might should he face it again.
 
 N:83:'Anduril'
 I:23:17:4
-W:20:40:130:80000
+W:39:35:130:80000
 P:0:3d5:10:15:10
 F:STR | DEX | HIDE_TYPE | RES_FEAR | FREE_ACT | BLESSED | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | SLAY_UNDEAD | 
@@ -1242,7 +1245,7 @@ D:and no creature of Sauron can withstand it.
 
 N:84:'Anguirel'
 I:23:17:2
-W:20:30:130:40000
+W:23:30:130:40000
 P:0:2d5:8:12:0
 F:STR | CON | SPEED | HIDE_TYPE | AGGRAVATE | 
 F:SLAY_EVIL | BRAND_POIS | SLAY_DEMON | FREE_ACT | RES_ELEC | 
@@ -1255,16 +1258,17 @@ D:other blade he forged.
 
 N:85:'Elvagil'
 I:23:17:2
-W:20:8:130:30000
+W:20:8:130:26000
 P:0:2d5:2:7:0
 F:DEX | CHR | STEALTH | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | FEATHER | SEE_INVIS | SHOW_MODS
+F:SLAY_TROLL | SLAY_ORC | FEATHER | SEARCH | SHOW_MODS
 D:The "Singing Blade", whose wearer can slay Orcs and Trolls in the hidden 
 D:and secret places of the earth.
 
 
 # The Rapier 'Forasgil'
 
+#		maybe take out
 N:86:'Forasgil'
 I:23:7:0
 W:15:8:40:15000
@@ -1290,8 +1294,8 @@ D:of dismay to creatures natural and unnatural.
 
 N:88:'Sting'
 I:23:8:2
-W:20:15:75:100000
-P:0:1d6:7:8:0
+W:26:15:75:100000
+P:0:1d6:7:7:0
 F:STR | DEX | CON | BLOWS | SPEED | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_ANIMAL | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
@@ -1308,7 +1312,7 @@ I:23:18:2
 W:20:15:130:30000
 P:0:2d5:9:11:0
 F:DEX | BLOWS | HIDE_TYPE | 
-F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS | 
+F:SLAY_ANIMAL | SLAY_EVIL | KILL_UNDEAD | SUST_DEX | 
 F:SHOW_MODS
 D:A damascened scimitar that hefts with wondrous ease.  Famed in song 
 D:as the "Sickle of Harad", and a deadly foe to the undead.
@@ -1335,7 +1339,7 @@ P:0:6d5:18:28:-50
 # F:DRAIN_HP | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:SLAY_DEMON | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
+F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 D:This weapon of wrath, wrought by a desperate berserker gang, dives hungrily 
 D:into the yielding flesh of your enemies.  You yourself fall under the 
 D:shadow of death even as you inflict wounds that will not heal.
@@ -1348,10 +1352,10 @@ D:shadow of death even as you inflict wounds that will not heal.
 N:92:of Melkor
 I:22:2:-4
 W:65:45:200:100000
-P:0:4d6:-12:20:0 
+P:0:6d6:-12:20:0
 # F:DRAIN_MANA | DRAIN_HP | 
 F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | AGGRAVATE | 
-F:BRAND_POIS | RES_DARK | RES_BLIND | RES_LITE | RES_NETHR
+F:BRAND_POIS | RES_DARK | RES_BLIND | RES_NETHR
 D:A mighty, heavy black spear, once wielded by the Lord of Darkness 
 D:himself as he came to Valinor in wrath. Its envenomed bite pierced 
 D:the Two Trees with wounds that would not heal.
@@ -1362,30 +1366,30 @@ D:the Two Trees with wounds that would not heal.
 N:93:of Theoden
 I:22:10:3
 W:20:15:180:40000
-P:0:2d6:8:10:0
+P:0:2d6:9:10:0
 F:WIS | CON | HIDE_TYPE | 
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
 A:DRAIN_LIFE2:40:0
-D:The narrow axe head of this weapon would pierce the armour of a very 
-D:Dragon, and the designs of your enemies stand naked and revealed.
+D:The narrow axe head of this weapon would pierce the armour of an ancient 
+D:dragon, and the designs of your enemies stand naked and revealed.
 
 
 # The Glaive of Pain
 
 N:94:of Pain
 I:22:13:0
-W:30:25:300:50000
+W:30:22:300:50000
 P:0:9d6:0:30:0
-F:SHOW_MODS | RES_FEAR
+F:SHOW_MODS | RES_FEAR | DRAIN_EXP
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
-D:down.
+D:down.  It's not good for you to take pleasure in the pain of others.
 
 
 # The Halberd 'Osondir'
 
 N:95:'Osondir'
-I:22:15:3
+I:22:18:3
 W:20:8:190:22000
 P:0:3d5:6:9:0
 F:CHR | HIDE_TYPE | 
@@ -1426,7 +1430,7 @@ D:against which all the foul corruptions of Sauron dashed in vain.
 
 N:98:of Orome
 I:22:2:4
-W:15:45:50:60000
+W:33:45:50:60000
 P:0:4d6:15:15:0
 # F:DRAIN_MANA | 
 F:INT | SPEED | INFRA | HIDE_TYPE | 
@@ -1444,7 +1448,7 @@ I:22:2:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | SPEED | HIDE_TYPE | BLESSED | 
-F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
+F:BRAND_COLD | KILL_UNDEAD | IM_COLD | SHOW_MODS
 D:A thin spike of thrice-forged steel caps a straight silvan shaft cut from 
 D:a legendary tree, and spells to break the wills of the undead and strike 
 D:cold into the breasts of your enemies lay upon this perfectly balanced 
@@ -1458,32 +1462,29 @@ I:22:20:2
 W:20:23:360:55000
 P:0:3d8:13:21:0
 F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
+F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | REGEN | SHOW_MODS
 D:"Forth Eorlingas!"  To the field of Cormallen Eorl the Young came beyond 
 D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
 D:and dire wolves.
 
 
-# The Great Axe of Durin
-
-N:101:of Durin
-I:22:25:3
-W:30:90:230:150000
-P:0:4d4:10:20:15
-F:STR | CON | TUNNEL | HIDE_TYPE | BRAND_ACID | BRAND_FIRE | 
-F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_CONFU | RES_FEAR | 
-F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
-D:The twin massive axe heads of this ancient demon's dread gleam with 
-D:mithril inlay, which tell sagas of endurance, invoking the powers of 
-D:Kazad-dum to protect the wearer and slay all evils found underground.
+# The Great Axe You Can't Handle
+#		maybe take out
+N:101:You Can't Handle
+I:22:25:-2
+W:30:30:650:80000
+P:2:5d4:-10:10:0
+F:DEX | SPEED | STEALTH |
+F:RES_LITE | RES_ELEC | RES_COLD | BRAND_ELEC | BRAND_COLD |
+F:LIGHT_CURSE
+D:It's name says it all
 
 
 # The Great Axe of Eonwe
 
 N:102:of Eonwe
 I:22:25:2
-W:30:120:230:200000
+W:45:40:230:200000
 P:0:5d4:15:18:8
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | RES_FEAR | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | KILL_DEMON | 
@@ -1505,7 +1506,7 @@ P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
+F:INFRA | REGEN | SHOW_MODS
 D:The twin blades of this weapon were forged in Belegost, and powerful 
 D:forces to resist and endure lie ready for he who shall wield it once 
 D:more.
@@ -1513,6 +1514,7 @@ D:more.
 
 # The Battle Axe 'Lotharang'
 
+#		maybe take out
 N:104:'Lotharang'
 I:22:22:1
 W:30:15:170:21000
@@ -1545,7 +1547,7 @@ W:20:8:160:50000
 P:0:2d6:13:19:0
 F:CON | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
-F:SEE_INVIS | SHOW_MODS
+F:RES_POIS | SHOW_MODS
 D:A royal heirloom of the southern coast, strong in combat against the evil 
 D:creatures of earth.
 
@@ -1557,7 +1559,7 @@ I:22:5:2
 W:15:35:300:90000
 P:0:3d8:16:18:0 
 F:STR | DEX | HIDE_TYPE | BRAND_POIS | 
-F:SLAY_EVIL | KILL_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
+F:SLAY_EVIL | KILL_UNDEAD | RES_LITE | RES_DARK | HOLD_LIFE | 
 F:BLESSED | SHOW_MODS
 D:A massive triple-pronged spear, so great it normally requires two hands 
 D:to wield, evoking the spirit of Osse who with it pierced legions of 
@@ -1565,7 +1567,7 @@ D:evil and undead.
 
 
 # The Trident of Ulmo
-
+#		maybe take out
 N:108:of Ulmo
 I:22:5:4
 W:30:90:70:120000
@@ -1585,11 +1587,11 @@ D:of the undead, and is utterly in command of the Element of water.
 
 N:109:'Avavir'
 I:22:17:3
-W:40:8:250:18000
+W:40:8:250:17500
 P:0:5d3:8:8:10
-F:DEX | CHR | HIDE_TYPE | 
+F:DEX | CHR | HIDE_TYPE | FEATHER |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
-F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:RES_LITE | LITE | SEARCH | ACTIVATE | SHOW_MODS
 A:WOR:200:0
 D:Binding elemental powers whose struggles turn this weapon red and purest 
 D:white, this shining reaper bears within it a power of going forth and 
@@ -1601,7 +1603,7 @@ D:returning.
 N:110:of Hurin
 I:22:10:2
 W:20:15:180:90000
-P:0:3d6:12:15:0
+P:0:4d6:12:15:0
 # F:DRAIN_MANA | 
 F:ACTIVATE | KILL_DEMON | 
 F:STR | CON | HIDE_TYPE | 
@@ -1649,7 +1651,7 @@ D:becomes a fiery comet as you bring it down.
 
 N:113:'Thunderfist'
 I:21:18:4
-W:45:38:300:160000
+W:45:33:300:160000
 P:0:4d6:5:18:0
 F:STR | CON | HIDE_TYPE | RES_FEAR | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
@@ -1666,7 +1668,7 @@ I:21:12:4
 W:20:30:150:30000
 P:0:2d6:8:22:0
 F:STR | HIDE_TYPE | BRAND_POIS | 
-F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
+F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | RES_POIS | 
 F:SHOW_MODS
 D:You feel strong and firm of foot as you whip the chain-suspended spiked orb 
 D:this weapon bears around and bathe it in the blood of your foes.
@@ -1674,6 +1676,7 @@ D:this weapon bears around and bathe it in the blood of your foes.
 
 # The Morning Star 'Firestar'
 
+#		maybe take out
 N:115:'Firestar'
 I:21:12:0
 W:20:15:150:35000
@@ -1714,16 +1717,16 @@ D:It bears magics of demolishing that no serpent or demon can withstand, and
 D:invokes the strength of mountains to ward off the tumult of the elements.
 
 
-# The Quarterstaff 'Nar-i-vagil'
-
-N:118:'Nar-i-vagil'
+# The Quarterstaff 'Silver Dollar'
+#		maybe take out
+N:118:'Silver Dollar'
 I:21:3:3
-W:20:18:150:70000
-P:0:1d9:10:20:0
-F:INT | HIDE_TYPE | 
-F:SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | SHOW_MODS
-D:Named for a fiery star and set with gems of great worth binding mystic 
-D:virtues of protection and thought.
+W:25:10:200:65555
+P:0:1d9:20:1:0
+F:BLOWS | CHR |
+F:BRAND_COLD | RES_COLD | SHOW_MODS
+D:Four hits from a Quarterstaff equals a much better staff, does it not?
+D:oh and people like you better when you've got money.
 
 
 # The Quarterstaff 'Eriril'
@@ -1733,7 +1736,7 @@ I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
 F:INT | WIS | HIDE_TYPE | 
-F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:SLAY_EVIL | RES_LITE | LITE | TELEPATHY | ACTIVATE | SHOW_MODS
 A:IDENTIFY:10:0
 D:The radiant golden staff of an Istar of legend; this wizard's companion 
 D:grants keen sight and clear knowledge of many hidden things.
@@ -1774,7 +1777,7 @@ D:of the Undead!
 
 
 # The Lucerne Hammer 'Turmil'
-
+#		maybe take out
 N:122:'Turmil'
 I:21:10:4
 W:20:15:120:30000
@@ -1797,7 +1800,7 @@ P:0:6d3:13:15:0
 # F:DRAIN_HP | 
 F:INT | DEX | WIS | HIDE_TYPE | 
 F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE |  
-F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | LITE
+F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | RES_ACID | LITE
 F:SLAY_ANIMAL | KILL_DRAGON | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS
 A:FIRE3:15:0
@@ -1819,23 +1822,23 @@ D:The great bow of Beleg Cuthalion, made of black yew and strung with elven
 D:hair that faintly shimmers a pale clear gold.
 
 
-# The Long Bow of Bard
+# The Long Bow of Seeking
 
-N:125:of Bard
-I:19:13:2
-W:30:20:40:20000
-P:0:0d0:17:19:0
-F:DEX | SPEED | MIGHT | HIDE_TYPE | 
-F:FREE_ACT | SHOW_MODS
-D:The great yew bow of grim-faced Bard, who shot the mightiest arrow that 
-D:songs record.
+N:125:of Seeking
+I:19:13:3
+W:15:12:40:14000
+P:0:0d0:30:5:0
+F:SEARCH | INFRA | HIDE_TYPE | 
+F:RES_BLIND | ACTIVATE | SHOW_MODS
+A:CLAIRVOYANCE:300:200
+D:This bow will find your target.
 
 
 # The Light Crossbow 'Cubragol'
 
 N:126:'Cubragol'
 I:19:23:10
-W:50:25:110:50000
+W:46:22:110:50000
 P:0:0d0:10:14:0
 F:SPEED | HIDE_TYPE | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
@@ -1844,18 +1847,17 @@ D:A crossbow that grants fiery speed to he who finds it, and from which
 D:shoot bolts that blaze with flame unquenchable.
 
 
-# The Heavy Crossbow of Umbar 
+# The Heavy Crossbow of Unstoppable Cannonballs
 
-N:127:of Umbar
-I:19:24:2
-W:60:20:200:35000
-P:0:4d1:18:18:0
-F:STR | CON | MIGHT | AGGRAVATE | 
-F:RES_LITE | RES_DARK | RES_BLIND | RES_ELEC | 
+N:127:of Unstoppable Cannonballs
+I:19:24:4
+W:22:18:220:22000
+P:0:2d2:5:23:0
+F:STR | MIGHT |
+F:RES_LITE | RES_DARK | RES_ELEC | RES_ACID | RES_NEXUS |
 F:HIDE_TYPE | ACTIVATE | SHOW_MODS
-A:ARROW:20:20
-D:A great brazen arbalest with arms of gleaming steel shooting quarrels with 
-D:mighty power for those brave enough to risk betrayal.
+A:STONE_TO_MUD:40:10
+D:These cannonballs will go through a lot...
 
 
 # The Short Bow of Amrod
@@ -1947,10 +1949,10 @@ D:kin, and was at first believed to be mortally wounded.
 
 
 # The Large Leather Shield of the Haradrim
-
+#			maybe take out
 N:134:of the Haradrim
 I:34:4:2
-W:35:12:120:25000
+W:33:12:120:25000
 P:4:1d2:0:0:15
 F:ACTIVATE | 
 F:STR | CON | SUST_STR | SUST_CON | HIDE_TYPE | 
@@ -1961,17 +1963,14 @@ D:Its wielder will fear nothing and fight with unnatural strength, but
 D:also draw attention to himself.
 
 
-# The Broken Sword 'Narsil'
+# The Broken Dagger 'Short Quickslash'
 
-N:135:'Narsil'
-I:23:2:2
-W:10:4:30:2000
-P:0:3d2:6:10:0
-F:STR | DEX | BLOWS |
-F:SLAY_ORC | SLAY_TROLL | RES_FIRE | 
-F:BLESSED | HIDE_TYPE
-D:The remnants of the sword whose shattered hilt once cut the One Ring 
-D:off the hand of Sauron.
+N:135:'Short Quickslash'
+I:23:1:3
+W:3:3:11:999
+P:0:1d2:6:5:-1
+F:DEX | BLOWS | SPEED | SLAY_ANIMAL
+D:it may be broken, but it's fast..
 
 
 # The Bastard Sword of Eowyn
@@ -1986,3 +1985,29 @@ F:RES_NETHR | RES_FEAR | RES_DARK | RES_COLD
 D:The blade of the legendary Shieldmaiden of Rohan, who struck a 
 D:mighty blow against the Morgul-lord whom no mortal Man could hinder, 
 D:and also slew his foul steed.
+
+
+# The Broken Sword of Rusty Rage
+
+N:137:of Rusty Rage
+I:23:2:-1
+W:3:6:12:160
+P:0:1d2:3:6:0
+F:CON | RES_FEAR | RES_POIS | RES_DISEN
+F:ACTIVATE | BRAND_POIS | DRAIN_EXP | LIGHT_CURSE
+A:BERSERKER:39:4
+D:This isn't a very good swor- Ouch! you pricked yourself
+D:now you're MAD.
+
+
+# Sling of Snowballs
+#	if only there was an available frost brand activation like there is for fire
+N:138:of Snowballs
+I:19:2:2
+W:2:6:5:10400
+P:0:1d1:2:3:2
+F:MIGHT | CON | SLOW_DIGEST | BRAND_COLD
+F:RES_COLD | ACTIVATE | SHOW_MODS
+A:FROST1:1:9
+D:This sling hurls rocks and magical snowballs, so you can
+D:turn fighting monsters into a fun snowball fight!

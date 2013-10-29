@@ -816,10 +816,10 @@ N:194:75:1
 G:!:U
 D:Light Brown
 
-# Fixed: slime mold juice
+# Fixed: slime mold juice (Pepsi)
 N:195:75:2
-G:!:g
-D:Icky Green
+G:!:u
+D:Caramel color
 
 N:196:75
 G:!:B

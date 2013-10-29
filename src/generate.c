@@ -1486,7 +1486,7 @@ static bool vault_aux_jelly(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require icky thing, jelly, mold, or mushroom */
-	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
+	if (!strchr("wjm,", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1558,7 +1558,7 @@ static bool vault_aux_troll(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "T" monsters */
-	if (!strchr("T", r_ptr->d_char)) return (FALSE);
+	if (!strchr("Tx", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1621,7 +1621,7 @@ static bool vault_aux_demon(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "U" monsters */
-	if (!strchr("U", r_ptr->d_char)) return (FALSE);
+	if (!strchr("U&", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);

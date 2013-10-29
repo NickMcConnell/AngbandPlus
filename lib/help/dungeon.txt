@@ -64,33 +64,33 @@ something you are more comfortable with.
  
                              Monsters
  
-            $   Creeping Coins      ,   Mushroom Patch
-            a   Giant Ant           A   Angelic being
-            b   Giant Bat           B   Bird
-            c   Giant Centipede     C   Canine (Dog)
-            d   Dragon              D   Ancient Dragon
-            e   Floating Eye        E   Elemental
-            f   Feline (Cat)        F   Dragon Fly
-            g   Golem               G   Ghost
-            h   Humanoids           H   Hybrid
-            i   Icky-Thing          I   Insect
-            j   Jelly               J   Snake
-            k   Kobold              K   Killer Beetle
-            l   Giant Louse         L   Lich
-            m   Mold                M   Multi-Headed Hydra
-            n   Naga                N   (unused)
-            o   Orc                 O   Ogre
-            p   Human "person"      P   Giant "person"
-            q   Quadruped           Q   Quylthulg (Pulsing Flesh Mound)
-            r   Rodent              R   Reptile/Amphibian
-            s   Skeleton            S   Spider/Scorpion/Tick
-            t   Townsperson         T   Troll
-            u   Minor Demon         U   Major Demon
-            v   Vortex              V   Vampire
-            w   Worm or Worm Mass   W   Wight/Wraith
-            x   (unused)            X   Xorn/Xaren
-            y   Yeek                Y   Yeti
-            z   Zombie/Mummy        Z   Zephyr Hound
+            $   creeping coins      	,   mushroom patch
+            a   ants & beetles      	A   Apes
+            b   bat				B   bird
+            c   centipede or similar	C   canine (dog)
+            d   dragon              	D   ancient dragon
+            e   floating eye        	E   ents & trees
+            f   feline (cat)        	F   dragonflies & couple other flying insects
+            g   golem (man-made monster)  G   ghost
+            h   humanoids (except elves)  H   hybrid
+            i   imps & dark fairies       I   insect (mostly breeders)
+            j   jelly or slime           	J   snake
+            k   kobold              	K   knights & mystics
+            l   lizards & reptiles        L   lich
+            m   mold                	M   multi-headed hydra (also Jabberwock)
+            n   naga               		N   null
+            o   orc                 	O   ogre
+            p   human "person"      	P   giant "person"
+            q   quadruped           	Q   quylthulg (Pulsing Flesh Mound)
+            r   rodent              	R   frogs & behemoths
+            s   skeleton            	S   spider/scorpion/tick
+            t   townsperson         	T   troll
+            u   non-imptype minor demon   U   devil
+            v   vortex              	V   vampire
+            w   worm or worm mass   	W   wight/wraith
+            x   gargoyle            	X   xorn or other minor elemental
+            y   gnome or sprite          	Y   unicorn or centaur
+            z   zombie/mummy        	Z   zephyr hound
 
 
 

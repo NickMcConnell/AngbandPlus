@@ -1,0 +1,164 @@
+Thanks to:
+Andrew Sidwell for vanilla, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, Nick for the Phantom of Eilenel, and anyone else who gives comments or suggestions or just plays my semi-variant.
+
+compiled with help from: http://rephial.org/wiki/Compiling#s2_4
+-----------------------------------------------------------------------------------------------------
+
+
+
+	Notes about changes you might want to know about beforehand:
+
+object.txt:
+	added three objects: 2 armors, and 1 weapon, nothing major. And the druid class starts out with the new weapon and one of the new armors.  Combined resistance rings into 3 instead of 6.  sustain brawn (STR&CON), sustain intellect (INT&WIS), and sustain sneakiness (DEX&CHA).
+	Made late see invisible changes: temporary sources of see invisible are more common, see invisible rings are now native to Level 43, and other permanent forms of see invisible are rarer.
+
+ego_item.txt:
+	Again, changes for my late see invisible idea:   Holy Avengers give hold life instead of see invisible, and defenders give infravision in place of it. I let *slay undead* keep see invisible because it is less useful in general, and morgul weapons and "of the nazgul" bows still have it also because they have a downside.  "Of Seeing" appears later, "of Night and Day" appears earlier for resist-blindness but does not have see invisible.  There are also two new ego types that give infravision.
+
+artifact.txt:
+	There are changes for the late see invisible idea as well as a couple new artifacts, and a couple old ones removed.  (I haven't found any of the new artifacts in my testing as of yet.)
+
+p_class.txt:
+Original classes are unchanged.  All new classes have heavy pseudo-ID except for the knight.  I don't like not having heavy psID, but I wanted to make the knight kindof bad at perception.
+		Descriptions of new classes:
+
+	An Alchemist is like a mage who learns spells with a lot of trial and error.  Because of this he cannot chose which spells he learns, has higher fail rates, and generally learns spells slower than the mage.  To make up for this, his specialty spells include some powerful early spells including stinking cloud (at level 1!), and his spellcasting is not hindered by gloves. (An alchemist needs his gloves!)  His skills tend to be worse than the mage, but he has noticably more strength than the mage and is not as bad a fighter.
+
+	The Archer is a hard class to play because archery is his only strength.  He's a decent melee fighter but not as good as the paladin or ranger.  Starting at level 32, he learns a few spells (8 in total) which include shield and, of course, elemental brand for his ammo. At very high levels he does have two powerful attack spells.  One other strength is that he advances in level faster than any except the warrior.
+
+	A Knight is a warrior with a few prayers and high charisma.  He learns prayers very slowly, but has a few specialty prayers which include turn undead, remove curse, and elemental brand for his weapon which he learns earlier than most (if not all) other classes who pray. He starts with excellent armor and weapon, and can handle more armor weight without hindering prayer (or spells) than any other class. He tends to have lower skills than a warrior, so I think he'll be a rather hard class to play. His only healing prayer is cure mortal wounds which is a play on the "I got better" when people recovered from mortal wounds in Monty Python's holy grail.  Of course, a mortal wound, by definition, is one you die from, so I think "cure mortal wounds" sounds kindof silly.
+
+	Another hard class to play, the Healer specializes in healing prayers and starts out with the deep dungeon spellbook which specializes in healing. He has low strength, and his fighting is only barely better than the mage.  He can learn prayers other than healing ones on later levels, but he's very bad at combat spells and teleporting spells.  Two unique things about him is that (1)his gods let him choose which prayer to learn next, and (2)he uses his intelligence stat for prayers rather than using wisdom, which makes him more fitting for the elf and (old) gnome races which are more likely to be healers than dwarves are.
+
+	The Druid, as the monster description says, is a priest of nature. Though you can call him a priest, it would seem silly to pray to nature, so he casts spells instead and is almost as good at it as the mage.  He is the only one besides the mage who can cast spells at 0% fail. Being powerful in magic, a halfway-decent fighter, and having good skills, he needs some drawbacks, so he is both encumbered by gloves and penalized for edged weapons, and he advances at the same somewhat slow rate of the mage.  He starts with unique new armor (good) and a unique new weapon (mediocure), and a mushroom (because he knows his mushrooms).  Another unique thing about him is that he uses wisdom to cast spells.
+
+There is also an p_classalt file which is going to have alternate versions of the original classes, but currently only has alternate versions of the ranger and paladin (and I'm not sure I finished doing the alternate paladin).
+	The Stealth Ranger is my idea of what a ranger should be.  He no longer has extra shots, because a ranger is not the same as an archer.  His stats are almost the same as the old ranger.  He has a little less hps, and higher stealth (of course).  The notable differance in skills is that the Stealth Ranger has noticably better disarming and noticably worse magic devices.  He is not much better or worse at spellcasting than the original ranger, just different.  He is noticably worse with combat spells as the original ranger, but some other spells he is better at.  The rapier is his starting weapon.
+
+p_race.txt:
+Only changes to the original races are that I made infravision less common (except that the dunadan now has 1 infra), high elves no longer have SI (I gave them sustain INT instead).  I didn't want one of the easiest classes to also have SI which is supposed to be very rare in my semi-variant. Also, I renamed the old gnome to Gnome 1 (because I added an alternate gnome).  
+		Here are descriptions of the new races:
+	The new Gnome (Gnome 2: Wisdom fairy) is the way I think I gnome should be.  The word "Gnome" comes from a word meaning "wisdom" and yet the old gnome has +0 wisdom.  The new gnome has slightly lower strength, intelligence, and constitution than the old gnome, slightly higher charisma, and extremely high wisdom. He has the low hit die of a hobbit, a very high saving throw which is second only to the high-elf.  His skills are very good, except he is not as good at magic devices than the old gnome, and his fighting is not so good (but melee is slightly better than the old gnome).  One advantage is that the gnome starts with chaos resistance.  He is perfect for the druid class, though he has some drawbacks which include advancing only slightly faster than the dunadan.
+
+	The Hobglib is a race I made up.  They have strange personalities and like to experiment with magic.  They are extremely neutral when it comes to good or bad, they will refuse to take sides in almost any conflict, but apparently Morgoth has made enemies of even them (and allies of some of them..).  Their personality, stats, and poison resistance make them a perfect fit for the alchemist class.  Their stats are not based off of any other race, so I'll just tell them to you: Str +1, Int +2, Wis -2, Dex +1, Con +2, Cha -3.  Their fighting ability is nothing special, and their skills tend to be close to average.
+
+	Dark Elves are almost all evil, but occationally there is a good one who is an outcast everywhere and tries to overthrow the evil which the rest of his race indulges in.  The major stat differences between he and surface elves are his high stealth, low charisma, and very good infravision.  His melee is equally as good as his range weapon skill, which is not as good as his surface cousins, but still good.  He starts out with sustain dexterity and darkness resistance.  His skills are generally quite good, his magic devices are noticably better than surface elves and his searching skill is also especially good.
+
+And a couple novelty races:
+
+	The Grave Ghoul is often mistaken for a ghoul, but it is a living creature which was once human, but through 
+generations of hating light, cannibalism, eating raw corpses, and hanging out in graveyards, it has formed a kinship with the undead without being undead itself. It starts with terrible stats and average skills, but it can see invisible and resists nether. 
+
+	A Power Sprite is tiny but extremely strong.  Its skills are mediocure and its hit die is the lower than any other race.  As well as being able to fly (which translates to feather falling) and being resistant to light like any other sprite, it is also fearless.  A power sprite mage would probably be the hardest class/race combo ever, but it would at least be able to carry more stuff than most mages..
+
+
+monster.txt:
+
+	Here are the new letter symbols followed by some notes about changes I made to monsters & stuff
+  a - ant or beetle
+  b - bat
+  c - centipede or similar bug
+  d - dragon (see notes about colors below)
+  e - eye/beholder
+  f - feline
+  g - golem
+  h - humanoid
+  i - imp-related minor demon or dark fairy   (note: these monsters will appear in jelly pits because of their symbol. I didn't know how to change that, but I didn't think it wouldn't matter too much since almost everyone stays away from jelly pits anyway.)
+  j - jellies & slimes
+  k - kobold
+  l - lizards & reptiles
+  m - mold or vossar
+  n - naga
+  o - orc
+  p - human (person)   (note: there are now some dungeon humans which are not represented by this symbol -just because there got to be too many monsters using the same symbol)
+  q - quadruped
+  r - rodent
+  s - skeleton
+  t - townspeople	(and some dungeon people, notably, but not limited to, witches)
+  u - minor demon	(other than ones I consider to be imp-related)
+  v - vortex
+  w - worm or worm mass
+  x - gargoyles
+  y - fairies (mainly gnomes and sprites)
+  z - zombies, mummies, and wights
+  A - apes
+  B - bird
+  C - canine
+  D - ancient dragon, drakes or great wyrms (see notes about colors below)
+  E - Ents and other tree-monsters
+  F - dragonflies or other non-breeding flying insect
+  G - ghost (or ghost-like, there are one or two which are not undead)
+  H - hybrid
+  I - flying insect	(mostly breeders, but not all breeders)
+  J - snake
+  K - knights and select mystic warriors
+  L - lich
+  M - hydra (with one late exception)
+  N - null		(see the in-game description)
+  O - ogre
+  P - giants and titans
+  Q - quylthulg 	(no longer invisible)
+  R - frog or behemoth
+  S - spider or related bug
+  T - troll
+  U - devil
+  V - vampire
+  W - wraith
+  X - xorn or other minor elemental
+  Y - unicorn or centaur
+  Z - zephyr hound
+  $ - creeping coins
+  , - mushroom patch
+  & - major demon
+  % - elemental
+  . - lurkers, trappers, and dust bunnies
+
+	notes on changed monster colors:
+   Nagas: naga hatching replaces the black naga, the acid-spitting naga is now black, and the red naga is now a fire naga instead of strength draining. (red still means strength draining in a few other monsters)
+   Dragons: orange=sound, blueish-white=frost.  Green, red, bronze, and (bright) blue are the same as before.  The main reason for these changes is that I have added a new yellow dragon. There are also new grey and silver dragons, and the pseudo-dragon is removed. (Dragonflies/bats correspond to the new colors)  The weaker drakes now use the capital "D", and they have also changed colors. (I wish I had more symbols availble, then I'd make the drakes/wyrms a separate symbol)
+   Humans: priests tend to be orange and rangers dark green, other class-races are the same. Archers tend to be silver, alchemists tend to be purple, and weird personality type humans (including the illusionist) tend to be yellow.
+   Werebeasts are always yellow (and they're always able to summon kin and lower experience).  I thought werebeasts should all have something in common.  Water hounds are renamed to acid hounds and are orange (I always thought it didn't make sense for water hounds to breathe acid or be grey in color).  There are separate acid vortex and water vortex, and the water vortex casts water bolts.
+   There is now only two early-level centipedes. I got annoyed with those bunch of colored centipedes that were almost exactly the same.  The snakes are no longer known by their colors either.
+   There are a couple other things which I changed the colors of.  The main reason for the color changes is that I don't like having more than one monster that has the same color and symbol as another monster.  So I minimized that, and usually when there is more than one monster with the same color and symbol their native depth is about 20 or more levels apart so you can usually safely assume which monster it is. I made an exception to this rule only for uniques and monsters that are almost exactly alike anyway.
+
+
+shop_own.txt
+	Added a couple shopkeepers to include the added races.
+
+Other .txt files are unchanged except for nessesary changes in limits.txt, p_hist.txt, and cost_adj.txt.
+
+
+
+		Spoiler monster changes:	(might not want to read further)
+
+
+
+
+
+
+
+	Uniques: Gollum is redone (and known as Gollum), and he now appears a bit later. The level 3 unique is now Bill Ferny, and Farmer Maggot has been replaced by Harry Goatleaf. There are about the same amount of uniques as before. I added some and got rid of several of the old ones which, in my opinion, just didn't fit in the game).  Lotho Sackville-Baggins, Old Man Willow, and the Watcher in the Water are other commonly known added uniques from Tolkien.  Wormtongue (like most monsters and uniques) is tweaked a little, but is still on the same level. Also, I added two uniques from Wagner's Ring cycle which Tolkien got some of his ideas from.
+	The Boar of Everholt is a semi-early "q" unique who does a lot of damage, it is quite tough for its native level.  Wulf, Renegade of Rohan, is another lesser-known added unique who is from Tolkien's works.  The silent watchers have turned into uniques (there are two of them).  The old silent watchers have been replaced by animated staffs of summoning.
+	The orc uniques have been rearranged to fit which ones I think should be tougher than others. Goblins replace snagas and the Great Goblin from the Hobbit is the first orc unique (replacing Lagduf).  There are a few more orc uniques than there used to be (They are still all from LOTR). To make up for there being more of them, more than half of them are 'minor uniques' which are only slightly tougher than the regular orc captain.  Not all of them have good drops, so that it is more like fighting any other group of orcs.  One of them doesn't even come with escorts.
+	There are a few uniques and monsters taken from The Deed of Pasksenarrion by Elizabeth Moon. The first one is Siniava the 'Honeycat' who is a cruel outlaw leader. Added monsters from that book also include the gods Achrya and Liart, along with their priests and a 'drider of Achrya', which appear late in the game.
+	The more recent unique changes I didn't bother to describe here, but most of them are from people's suggestions and Shawn McHorse's Tolkien unique list.  A lot of original uniques has been removed, but there were at least eight which I took out at first and re-added recently (Ulfang & sons, Uldor, Mim's sons, Lorgan, Huan).
+
+	New monster sets:
+   The zhelung (under l for lizard) are a family of lizards, some of them with no noticable magic, others are very magical.  These are monsters I made up which include the rasti, well lizard, zhang, zhelung, and ancient zhelung (see their description for more description).  The zhelung usually live in underground bodies of water.  They are creatures of light, known for making light in the dark caves, but they're also wild and dangerous.  I also consider salamanders to be related to them.  BTW, my salamanders are tougher than they were and appear later.
+   Another set of new monsters is the gnomes and sprites ("y" symbol). Sprites are very fast but are generally nothing to worry about (except for the power sprite). The gnome thief steals objects and the later gnomes have some powerful magic. Also sharing their symbol is the annoying leprechaun, which is much like the leprechaun in Nethack except that it's pretty rare. (all yeeks have been removed)
+   Dark fairies share the "i" for imp symbol. Among them are the impsprite (basically an evil sprite), the brownie, the pooka, and a couple others. All except the impsprite have some dangerous spells. BTW, the original minor demons which I consider imp-related are: the homunculus, imp (obviously), quasit, and tengu.  (Icky things have been removed. I always hated icky things.)
+   Gargoyles are living and flying grotesque statues which come in several different sizes.  Like trolls, they are of the element of stone, so I made them fall under the "troll" slay.
+   Apes replaced angels with the "A" symbol.  I really don't think angels fit in this type of game (There are still Archons which are now included among the major demons).  Hmmm, now there's a "summon an ape" monster spell..
+   Nulls, as the description says, are tentacled swamp monsters with acid under their skin.  All of them are immune to acid, but only the tougher ones have acid attacks.  They normally live in water, but they can survive ok on land, they just don't move very fast unless they're in the water.  (and of course there is no water in vanilla)
+   There are three types of vyrms ("w") which are magical evil worms. The mine vyrm is larger and based on the thing from the Discworld book "Thud."  The other two types of vyrms appear as smaller flying worms and they can be very nasty.
+   Tree-monsters tend to have a ton of hps and do considerable damage.  All except one type can move, but they are extremely slow and as a consequence, they don't get a chance to attack often.  The exception is the poison vines, which have a good bit less hps and are faster than other tree monsters (but still slow compared to normal monster types).
+   Centaurs and unicorns ("Y", for lack of another unused symbol) shouldn't need much explaination. The earliest unicorn, the wild unicorn, is non-magical, the others are magical.  All the unicorns do a lot of damage with their horn.
+   The "K" knight symbol includes the black knight, death knight, knight templar, berserker, ranger chieftain, and the mystics.  It also includes some other select added warriors.  There was getting to be too many humans to put them all under one symbol.
+   Devils overlap the major demons somewhat, and are mainly taken from Nethack.
+
+	Other monster notes:
+   Town monsters: The mean-looking mercenary and battlescarred veteran are a little tougher than before. There are a couple new town monsters, including the village witch (about as tough as the mean-looking mercenary), the fat weathy pompus jerk (about as tough as the squint-eyed rogue, except he doesn't steal), the locust (a rare and slow breeder), the small rat (pretty much the same as the scrawny cat and scruffy little dog), and two other rare and strange ones which I won't go into detail about..
+   There are several monsters which I took from Nethack.  This is because Nethack's monsters generally have more flavour.  A few of the added Nethack monsters are: the acid blob (replacing the green ooze), apes, the chickatrice and cockatrice, rock mole, rabid rat, etc.  There is also a rabid wolf.
+   I also added some more interesting cats (Beware the Black Cat).  There are a couple new eyes (mostly rare), and the Gauth has been replaced.  The harpy has more character and is more like I think a harpy should be.  Clear hounds have been removed.  Added a few new golems including a couple weak low-level ones, also the colbran is tougher and appears later.  The hooded shade, small dark reaper, and the furies are some new minor demons which can be troublesome. The erinyes is tougher than it used to be.  A couple new mimmics have also been added, and mimmics in general have been made weaker.
+   There are some different minor elementals, and the straight elementals (normal fire, cold, water, and air) are tougher than before.  The xorn and xaren are now considered minor earth elementals.  The fire spirit, air spirit, etc, have been removed.
+   A couple new nasty monsters to watch out for: rasti can be nasty when you first find them (just cause of damage in groups). The slimes are kindof slow, but they multiply and most (except for the small slime) are acidic. To very slightly make up for this, green worm masses have been removed. The wolf spider is an early paralyzing monster (don't worry- it doesn't come in groups like other spiders), you probably want to avoid melee with it.  The greater poltergeist is rather hard to watch out for, being invisible, but I thought I should warn you that it exists anyway (It replaces the moaning spirit, but the greater poltergeist is a little nastier). Merrets are very fast small rodents who have low hps, but do a lot of damage. The eirrinel is a bat-shaped fairy, you'll want to watch out for it because it's fast and it disenchants.  The pooka can also be annoying.

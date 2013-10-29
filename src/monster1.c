@@ -259,7 +259,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_S_SPIDER)    vp[vn++] = "summon spiders";
 	if (l_ptr->flags6 & RF6_S_HOUND)     vp[vn++] = "summon hounds";
 	if (l_ptr->flags6 & RF6_S_HYDRA)     vp[vn++] = "summon hydras";
-	if (l_ptr->flags6 & RF6_S_ANGEL)     vp[vn++] = "summon an angel";
+	if (l_ptr->flags6 & RF6_S_ANGEL)     vp[vn++] = "summon an ape";
 	if (l_ptr->flags6 & RF6_S_DEMON)     vp[vn++] = "summon a demon";
 	if (l_ptr->flags6 & RF6_S_UNDEAD)    vp[vn++] = "summon an undead";
 	if (l_ptr->flags6 & RF6_S_DRAGON)    vp[vn++] = "summon a dragon";

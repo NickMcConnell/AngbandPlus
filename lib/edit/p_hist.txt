@@ -16,11 +16,17 @@
 #   Elf           -->  5 -->  6 -->  9 --> 54 --> 55 --> 56
 #   High-Elf      -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
 #   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Gnome 1		--> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Kobold        --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
+#   Hobglib		--> 72		73	 74	  75
+#   Gnome 2		--> 70     71	 3 --> 50 --> 51 --> 52 --> 53
+#   Dark Elf	--> 76     77     78     79     80
+#   Grave Ghoul	--> 82						    87
+#   Power Sprite  --> 88	89	   --> 54 --> 55 --> 56
+
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -304,9 +310,9 @@ D:straight
 N:55:56:100:50
 D:wavy 
 
-N:56:0:75:50
+N:56:0:65:50
 D:black hair, and a fair complexion.
-N:56:0:85:50
+N:56:0:75:50
 D:brown hair, and a fair complexion.
 N:56:0:95:50
 D:blond hair, and a fair complexion.
@@ -406,3 +412,225 @@ D:and small, sharp teeth.
 N:69:0:100:50
 D:and large, sharp teeth.
 
+#	Wisdom fairy gnome
+N:70:71:85:50
+D:You are one of several children of a Gnome 
+N:70:71:100:54
+D:You are the only child of a Gnome 
+
+N:71:81:30:52
+D:gardener. 
+N:71:81:45:48
+D:hermit. 
+N:71:81:70:60
+D:healer. 
+N:71:81:90:75
+D:priest. 
+N:71:81:100:100
+D:sage. 
+
+#	Hobglib
+N:72:73:10:40
+D:You killed your parents for use in experiments. 
+N:72:75:40:48
+D:You don't know nor care who your parents are. 
+N:72:75:70:53
+D:You've forgotten who your parents are. 
+N:72:73:77:50
+D:One of your parents grudgingly let you live with them growing up. 
+N:72:73:85:52
+D:Your parents grudgingly let you live with them growing up. 
+N:72:73:93:54
+D:You were brought up by one of your parents. 
+N:72:73:100:57
+D:You were brought up by your parents. 
+
+N:73:74:10:36
+D:You are the child of a hobglib rogue 
+N:73:74:30:40
+D:You are the child of a hobglib trickster 
+N:73:74:45:45
+D:You are the child of a hobglib poisonmaker 
+N:73:74:60:50
+D:You are the child of a hobglib hybrid breeder 
+N:73:74:80:60
+D:You are the child of a hobglib alchemist 
+N:73:74:100:65
+D:You are the child of a hobglib magician 
+
+N:74:75:10:45
+D:who used you for experiments. 
+N:74:75:40:50
+D:who mostly ignored you. 
+N:74:75:60:52
+D:who treated you like a slave. 
+N:74:75:80:60
+D:who treated you like a valued servant. 
+N:74:75:100:80
+D:who taught you everything he knew. 
+
+N:75:0:8:30
+D:You are a hated outcast. 
+N:75:0:20:46
+D:You are an ignored hermit. 
+N:75:0:40:42
+D:You are a feared loner.
+N:75:0:55:51
+D:You are a respected loner.
+N:75:0:75:52
+D:People have reluctantly accepted you into their town.
+N:75:0:95:60
+D:You are a traveller.
+N:75:0:100:75
+D:People have accepted you into their town.
+
+#	dark elf
+N:76:77:10:30
+D:You are the illegitimate and unacknowledged child 
+N:76:77:20:40
+D:You are the illegitimate but acknowledged child 
+N:76:77:95:48
+D:You are one of several children 
+N:76:77:95:55
+D:You are the first child 
+N:76:77:100:65
+D:You are the only child 
+
+N:77:78:10:40
+D:of a dark elf rogue. 
+N:77:78:20:46
+D:of a dark elf torcherer. 
+N:77:78:40:48
+D:of a dark elf ranger. 
+N:77:78:60:55
+D:of a dark elf warrior. 
+N:77:78:75:60
+D:of a dark elf assassin. 
+N:77:78:90:70
+D:of a dark elf mage. 
+N:77:78:96:90
+D:of a dark elf lord. 
+N:77:78:99:100
+D:of a dark elf prince. 
+N:77:78:100:110
+D:of a dark elf king. 
+
+N:78:79:50:50
+D:You have dark grey eyes, 
+N:78:79:65:50
+D:You have pale blue eyes, 
+N:78:79:80:50
+D:You have pale green eyes, 
+N:78:79:90:50
+D:You have dark green eyes, 
+N:78:79:95:50
+D:You have piercing blue eyes.
+N:78:79:100:50
+D:You have piercing green eyes.
+
+N:79:80:75:50
+D:straight 
+N:79:80:100:50
+D:wavy 
+
+N:80:0:33:50
+D:black hair, and a pale complexion.
+N:80:0:39:50
+D:dark reddish hair, and a pale complexion.
+N:80:0:45:50
+D:dark reddish hair, and a dark complexion.
+N:80:0:80:50
+D:black hair, and a dark complexion.
+N:80:0:90:50
+D:silver hair, and a pale complexion.
+N:80:0:100:50
+D:silver hair, and a dark complexion.
+
+N:81:50:20:30
+D:You are the black sheep of the family.  
+N:81:50:80:55
+D:You are a credit to the family.  
+N:81:50:100:60
+D:You are a well liked child.  
+
+#	grave ghoul
+N:82:83:20:39
+D:You are the mutant offspring 
+N:82:84:40:41
+D:You are a result of the magical experiments 
+N:82:83:80:47
+D:You are the child 
+N:82:83:100:48
+D:You are the only child 
+
+N:83:85:25:30
+D:of a cannibal. 
+N:83:85:50:45
+D:of a madman. 
+N:83:85:75:50
+D:of a gravedigger. 
+N:83:85:100:55
+D:of a necromancer. 
+
+N:84:85:25:48
+D:of a hobglib. 
+N:84:85:50:51
+D:of a mad scientist. 
+N:84:85:75:60
+D:of a necromancer. 
+N:84:85:100:63
+D:of a morbid mage. 
+
+N:85:86:15:45
+D:You eat filthy rodents 
+N:85:86:55:50
+D:You eat the corpses 
+N:85:86:80:51
+D:You scavenge for food 
+N:85:86:100:50
+D:You kill for food 
+
+N:86:87:17:50
+D:in a recent battlefield
+N:86:87:33:50
+D:in a town emptied by a plague
+N:86:87:50:50
+D:in deep dungeons
+N:86:87:90:50
+D:in a graveyard
+N:86:87:96:52
+D:in a weathy family's crypt
+N:86:87:100:55
+D:in the crypt of a royal line
+
+N:87:0:20:48
+D:, making allies with the undead.
+N:87:0:40:49
+D: along with the undead.
+N:87:0:51:50
+D: along with other grave ghouls.
+N:87:0:81:51
+D: by yourself.
+N:87:0:100:57
+D:, fending off the undead.
+
+#	power sprite
+N:88:89:10:45
+D:You are a runt in a tribe of 
+N:88:89:85:55
+D:You are from a tribe of 
+N:88:89:100:75
+D:You are the child of the leader of a tribe of 
+
+N:89:54:6:47
+D:poison sprites
+N:89:54:26:48
+D:barbaric sprites
+D:89:54:38:51
+D:playful careless sprites
+N:89:54:60:60
+D:bright sprites
+N:89:54:80:75
+D:guide sprites
+N:89:54:100:85
+D:guardian sprites

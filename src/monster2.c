@@ -2106,7 +2106,8 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HI_DEMON:
 		{
-			okay = (r_ptr->d_char == 'U');
+			okay = (r_ptr->d_char == 'U') ||
+			        (r_ptr->d_char == '&');
 			break;
 		}
 

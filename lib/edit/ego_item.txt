@@ -100,12 +100,12 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:9:of Elvenkind
 X:25:2
-W:0:4:0:15000
+W:0:4:0:15200
 C:0:0:10:3
 T:36:0:99
 T:37:0:99
 F:STEALTH |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:10:of Vulnerability
@@ -138,7 +138,7 @@ F:IGNORE_ACID | IGNORE_FIRE |
 F:FREE_ACT |
 F:STR | CON | INFRA | HIDE_TYPE |
 
-# 13 (unused)
+### N:13:
 
 # 14 (unused)
 
@@ -254,10 +254,10 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:30:of Seeing
 X:8:0
-W:0:2:0:2000
+W:0:2:0:3000
 C:0:0:0:5
 T:33:0:99
-T:32:0:99
+T:32:5:99
 F:SEARCH | RES_BLIND | SEE_INVIS
 
 N:31:of Infravision
@@ -275,7 +275,7 @@ F:LITE | RES_LITE
 
 N:33:of Telepathy
 X:20:0
-W:0:6:0:50000
+W:0:4:0:50000
 T:32:0:99
 T:33:0:99
 F:TELEPATHY
@@ -295,15 +295,11 @@ F:TELEPORT | LIGHT_CURSE
 
 N:36:of Serenity
 X:20:0
-W:0:6:0:4000
+W:0:5:0:4000
 T:33:0:99
 F:RES_SOUND | RES_CONFU | RES_FEAR
 
-N:37:of Night and Day
-X:18:0
-W:35:6:0:4000
-T:33:0:99
-F:RES_LITE | RES_DARK | LITE | SEE_INVIS | RES_BLIND | IGNORE_ACID
+### N:37:
 
 N:38:of Dullness
 X:0:0
@@ -337,13 +333,7 @@ C:0:0:0:3
 T:35:0:99
 F:STEALTH
 
-N:42:of Aman
-X:20:2
-W:0:6:0:4000
-C:0:0:20:3
-T:35:0:99
-F:STEALTH |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+### N:42:
 
 N:43:of the Magi
 X:15:3
@@ -373,7 +363,14 @@ C:15:15:0:0
 T:35:0:99
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
-# 47 (unused)
+## maybe add resist blind to this:
+N:47:of Dungeon Sight
+X:20:2
+W:15:5:0:4000
+C:2:0:9:9
+T:35:0:99
+F:INFRA
+F:IGNORE_ACID
 
 ### Gloves ###
 
@@ -436,14 +433,15 @@ F:DEX | LIGHT_CURSE | HIDE_TYPE
 
 ### Boots ###
 
-N:56:of Slow Descent
-X:7:0
-W:0:5:0:250
-T:30:0:99
-F:FEATHER
+N:56:of the Messenger
+X:33:0
+W:50:25:0:110000
+C:0:0:3:4
+T:30:0:4
+F:FEATHER | SPEED | TELEPATHY
 
 N:57:of Stealth
-X:16:0
+X:14:0
 W:0:6:0:500
 C:0:0:0:3
 T:30:0:99
@@ -457,23 +455,23 @@ T:30:0:99
 
 N:59:of Speed
 X:25:0
-W:0:24:0:100000
+W:0:22:0:90000
 C:0:0:0:10
 T:30:0:99
 F:SPEED | HIDE_TYPE
 
 N:60:of Stability
-X:20:0
+X:18:0
 W:0:10:0:5000
 T:30:0:99
 F:RES_NEXUS | FEATHER
 
 N:61:of Elvenkind
-X:30:0
-W:60:30:0:200000
-C:0:0:0:5
+X:17:2
+W:20:20:0:70000
+C:0:0:0:4
 T:30:2:3
-F:STEALTH | SPEED | HIDE_TYPE | FEATHER | IGNORE_ACID | IGNORE_FIRE
+F:STEALTH | HIDE_TYPE | IGNORE_ACID | IGNORE_FIRE
 
 N:62:of Slowness
 X:0:0
@@ -486,7 +484,7 @@ N:63:of Annoyance
 X:0:0
 W:0:10:0:0
 C:0:0:0:10
-F:SPEED | STEALTH | AGGRAVATE | LIGHT_CURSE | HIDE_TYPE
+F:SPEED | CHR | STEALTH | AGGRAVATE | LIGHT_CURSE | HIDE_TYPE
 T:30:0:99
 
 
@@ -499,9 +497,9 @@ C:6:6:4:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:WIS |
+F:WIS | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
-F:SEE_INVIS | BLESSED | RES_FEAR
+F:HOLD_LIFE | BLESSED | RES_FEAR
 
 N:65:(Defender)
 X:25:1
@@ -510,7 +508,7 @@ C:4:4:8:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STEALTH | FREE_ACT | SEE_INVIS | FEATHER | REGEN |
+F:STEALTH | FREE_ACT | INFRA | FEATHER | REGEN |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -525,7 +523,7 @@ F:WIS | BLESSED
 
 N:67:of Gondolin
 X:30:3
-W:30:20:0:25000
+W:30:35:0:25000
 C:7:7:0:0
 T:21:0:99
 T:22:0:99
@@ -543,7 +541,7 @@ T:22:0:99
 T:23:0:99
 F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
-F:FREE_ACT | SEE_INVIS
+F:FREE_ACT | INFRA
 
 N:69:of Extra Attacks
 X:20:0
@@ -556,15 +554,15 @@ F:BLOWS | HIDE_TYPE
 
 N:70:of Fury
 X:30:0
-W:40:20:0:20000
+W:40:26:0:20000
 T:21:12:99
 T:22:10:99
 T:23:16:99
-C:10:10:0:2
-F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE |
+C:0:11:0:3
+F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE
 F:IGNORE_ACID | IGNORE_FIRE
 
-# 71 (unused)
+# N:71 (unused)
 
 # The "Branded" weapons (5)
 
@@ -608,7 +606,15 @@ T:22:0:99
 T:23:0:99
 F:BRAND_POIS
 
-# 77 (unused)
+N:77:of Raging Elementals
+X:30:0
+W:41:35:105:25000
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BRAND_FIRE | BRAND_ACID | BRAND_ELEC | BRAND_POIS | BRAND_COLD
+F:DRAIN_EXP | HEAVY_CURSE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 78 (unused)
 
@@ -682,14 +688,7 @@ F:SLAY_DRAGON
 
 # The *Slay* weapons (8)
 
-N:88:of *Slay Animal*
-X:20:0
-W:0:20:0:6000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:INT | SLAY_ANIMAL | SLOW_DIGEST
+### N:88:
 
 N:89:of *Slay Evil*
 X:20:3
@@ -754,41 +753,25 @@ T:22:0:99
 T:23:0:99
 F:CON | KILL_DRAGON | RES_FEAR
 
+# 96 (unused)
 
-### Lanterns/torches
-
-# Not for now -- need to figure out how ID applies
-#N:96:of Shadows
-#X:10:0
-#W:5:4:0:1000 (imported from NPP)
-#C:0:0:0:2
-#T:39:0:1
-#F:STEALTH | HIDE_TYPE | RES_LITE
-
-N:97:of Brightness
-X:10:0
-W:0:2:0:2000
-C:0:0:0:0
-T:39:0:1
-F:LITE
-
-N:98:(Everburning)
-X:10:0
-W:0:3:0:2500
-C:0:0:0:0
-T:39:1:1 (lanterns only)
-F:NO_FUEL
-
-#N:99:of True Sight
-#X:10:0
-#W:depth:rarity:extra weight:cost
-#W:20:8:0:6000 (imported from S)
-#C:0:0:0:0
-#T:39:0:1
-#F:RES_BLIND | SEE_INVIS
-
+# 97 (unused)
 
 ### Digging Tools
+
+N:98:of Miner's Fury
+X:11:0
+W:54:3:0:6500
+C:6:20:0:1
+T:20:6:6
+F:STR | BLOWS | SLAY_ORC | HIDE_TYPE
+
+N:99:of Mining
+X:4:0
+W:0:2:0:500
+C:1:0:3:3
+T:20:2:99
+F:TUNNEL | INFRA | RES_DARK
 
 N:100:of Digging
 X:4:0
@@ -839,17 +822,13 @@ D: high.
 
 N:106:of Lothlorien
 X:30:3
-W:50:4:0:20000
+W:50:4:0:22000
 C:10:10:0:2
 T:19:12:13
-F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
+F:DEX | MIGHT | FREE_ACT | LITE | RES_LITE
+F:IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
-N:107:of the Haradrim
-X:30:0
-W:50:4:0:20000
-C:5:5:0:1
-T:19:23:23
-F:MIGHT | SHOTS | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
+### N:107:
 
 N:108:of Extra Might
 X:20:0

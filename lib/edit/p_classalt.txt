@@ -259,6 +259,7 @@ B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
 
+#	modify
 N:3:Rogue
 S:2:1:-2:3:1:-1
 C:45:32:28:5:32:24:60:66
@@ -345,178 +346,180 @@ B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
 
-N:4:Ranger
-S:2:2:0:1:1:1
-C:30:32:28:3:24:16:56:72
-X:8:10:10:0:0:0:30:45
-I:4:30:30000:40
+N:4:Stealth Ranger
+S:1:2:1:1:1:1
+C:40:23:30:5:22:25:63:58
+X:11:9:10:0:0:0:33:38
+I:2:31:28000:40
 A:5:35:4
-M:90:1:3:400
+M:90:1:3:390
 E:90:0:1:1
-E:23:16:1:1
-E:19:13:1:1
-E:17:1:15:20
-F:CUMBER_GLOVE | EXTRA_SHOT | CHOOSE_SPELLS | PSEUDO_ID_IMPROV
-T:Hunter
-T:Strider
+E:23:7:1:1
+#E:90:0:1:1   <planned to give him another item instead of the bow but forgot what it was
+#E:19:12:1:1
+#E:17:1:10:18
+E:80:12:1:2
+F:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_IMPROV | PSEUDO_ID_HEAVY
+T:Hiker
 T:Scout
-T:Courser
-T:Tracker
 T:Guide
+T:Seeker
+T:Tracker
 T:Explorer
+T:Trailmaster
 T:Pathfinder
-T:Ranger
-T:Ranger Lord
-B:0:3:1:30:1
-B:1:3:2:35:2
-B:2:3:2:35:2
-B:3:5:3:35:1
-B:4:5:4:45:2
-B:5:5:3:40:1
-B:6:99:0:0:0
-B:7:99:0:0:0
-B:8:23:25:90:3
-B:9:25:15:50:4
-B:10:35:20:70:10
-B:11:7:5:40:3
-B:12:9:7:40:3
-B:13:7:6:40:2
-B:14:11:8:40:3
-B:15:15:18:80:10
-B:16:15:12:50:4
-B:17:20:16:50:6
-B:18:25:20:60:3
-B:19:9:8:45:3
-B:20:13:11:55:4
-B:21:15:13:50:4
-B:22:20:17:20:25
-B:23:30:28:60:16
-B:24:32:32:50:40
-B:25:11:9:45:3
-B:26:17:17:55:3
-B:27:18:15:50:40
-B:28:23:30:80:35
-B:29:33:25:75:4
-B:30:13:10:45:3
-B:31:25:21:65:3
-B:32:31:25:70:3
-B:33:34:27:60:15
-B:34:35:35:75:16
-B:35:21:19:60:3
-B:36:99:0:0:0
-B:37:99:0:0:0
-B:38:22:19:60:6
-B:39:23:20:60:4
-B:40:32:30:70:12
-B:41:99:0:0:0
-B:42:37:30:95:30
-B:43:99:0:0:0
-B:44:8:15:50:30
-B:45:8:15:50:30
-B:46:26:25:75:50
-B:47:31:40:85:70
-B:48:35:30:75:80
-B:49:40:75:80:80
-B:50:29:17:90:4
-B:51:33:45:90:50
-B:52:34:50:90:60
-B:53:35:50:95:115
-B:54:31:60:95:180
-B:55:27:21:65:6
-B:56:30:24:70:6
-B:57:34:28:80:9
-B:58:35:35:70:10
-B:59:99:0:0:0
-B:60:36:45:80:35
-B:61:99:0:0:0
-B:62:99:0:0:0
-B:63:99:0:0:0
+T:Stealth Ranger
+T:Silent Lord
+B:0:6:1:32:2	#magic missile
+B:1:3:2:30:1	#detect monsters
+B:2:6:3:40:2	#phase door
+B:3:7:3:40:1	#light area
+B:4:5:4:35:1	#find hidden traps & doors
+B:5:4:3:40:1	#cure light wounds
+B:6:99:0:0:0	#detect treasure
+B:7:20:15:65:4	#detect objects
+B:8:22:22:85:3	#identify
+B:9:18:11:48:3	#detect invisible
+B:10:34:20:70:10	#detect enchantment
+B:11:99:0:0:0	#stinking cloud
+B:12:99:0:0:0	#elec bolt
+B:13:9:6:50:2	#confuse monster
+B:14:12:8:40:3	#sleep monster
+B:15:20:18:80:11	#wonder
+B:16:99:0:0:0	#cold bolt
+B:17:99:0:0:0   	#acid bolt
+B:18:99:0:0:0	#fire bolt
+B:19:10:9:35:1	#trap/door destruction
+B:20:19:11:60:4	#spear of light
+B:21:23:13:50:4	#stone to mud
+B:22:20:20:22:22  #door creation
+B:23:99:0:0:0	#earthquake
+B:24:31:30:50:35	#stair creation
+B:25:10:7:50:3	#cure poison
+B:26:23:18:70:2   #satisfy hunger
+B:27:17:15:55:20	#heroism
+B:28:24:26:80:30	#berserker
+B:29:30:22:75:5	#haste self
+B:30:23:15:55:3	#teleport self
+B:31:22:20:65:3	#slow monster
+B:32:33:25:70:6	#teleport other
+B:33:38:27:70:15	#teleport level
+B:34:36:40:72:16	#word of recall
+B:35:99:0:0:0	#polymorph other
+B:36:99:0:0:0	#shock wave
+B:37:99:0:0:0	#explosion
+B:38:99:0:0:0	#cloudkill (tougher stinking cloud)
+B:39:24:16:60:6	#mass sleep
+B:40:34:30:70:16	#bedlam (confusion ball)
+B:41:99:0:0:0	#rend soul (nether bolt)
+B:42:99:0:0:0	#word of destruction
+B:43:99:0:0:0	#chaos strike
+B:44:7:13:45:24	#resist cold
+B:45:8:13:50:24	#resist fire
+B:46:27:23:70:45	#resist poison
+B:47:33:35:85:70	#resistance
+B:48:30:35:75:75	#shield
+B:49:34:80:75:85	#rune of protection
+B:50:30:18:90:5	#lesser recharging
+B:51:35:50:94:45	#enchant armor
+B:52:37:51:94:55	#enchant weapon
+B:53:39:50:96:110	#greater recharging
+B:54:33:60:95:140	#elemental brand (ammo)
+B:55:99:0:0:0	#frost ball
+B:56:99:0:0:0	#acid ball
+B:57:99:0:0:0	#fire ball
+B:58:99:0:0:0	#ice storm
+B:59:40:45:94:31	#banishment
+B:60:43:52:85:35	#meteor swarm
+B:61:99:0:0:0	#mass banishment
+B:62:46:60:99:45	#rift (gravity ball)
+B:63:99:0:0:0	#mana storm
 
-N:5:Paladin
-S:3:-3:1:0:2:2
-C:20:24:25:1:12:2:68:40
-X:7:10:11:0:0:0:35:30
-I:6:35:80000:40
-A:5:30:5
+N:5:Paladin Marshal
+S:3:-1:2:1:1:1
+C:27:18:27:2:12:10:62:42
+X:12:9:12:0:0:0:37:30
+I:4:35:40000:40
+A:5:32:5
 M:91:2:1:400
 E:91:0:1:1
-E:23:16:1:1
-E:70:37:1:1
+E:23:17:1:1
+# E:70:37:1:1 (?)
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Gallant
-T:Keeper
-T:Protector
-T:Defender
+T:Lightmaker
+T:Light Keeper
 T:Warder
-T:Paladin
+T:Protector
+T:Blessed
 T:Guardian
-T:Chevalier
+T:Paladin
+T:Marshal
 T:Holy Knight
-T:Paladin Lord
-B:0:1:1:30:4
-B:1:2:2:35:4
-B:2:3:3:35:4
-B:3:5:3:35:4
-B:4:5:4:35:4
-B:5:7:5:40:3
-B:6:7:5:40:3
-B:7:9:7:40:3
-B:8:9:7:40:3
-B:9:9:8:40:3
-B:10:11:9:40:3
-B:11:11:10:45:3
-B:12:11:10:45:3
-B:13:13:10:45:3
-B:14:13:11:45:4
-B:15:15:13:45:4
-B:16:15:15:50:4
-B:17:17:15:50:4
-B:18:17:15:50:4
-B:19:19:15:50:4
-B:20:19:15:50:4
-B:21:21:17:50:3
-B:22:23:17:50:3
-B:23:25:20:50:3
-B:24:27:21:50:3
-B:25:29:22:50:3
-B:26:31:24:60:3
-B:27:33:28:60:3
-B:28:35:32:70:4
-B:29:99:0:0:0
-B:30:99:0:0:0
-B:31:5:5:50:1
-B:32:15:15:80:12
-B:33:25:25:80:16
-B:34:30:15:80:135
-B:35:99:0:0:0
-B:36:17:15:50:25
-B:37:23:25:60:35
-B:38:99:0:0:0
-B:39:45:80:90:250
-B:40:99:0:0:0
-B:41:20:13:70:20
-B:42:99:0:0:0
-B:43:30:35:80:200
-B:44:40:40:80:100
-B:45:99:0:0:0
-B:46:10:16:50:20
-B:47:25:30:80:15
-B:48:99:0:0:0
-B:49:40:70:80:200
-B:50:42:80:85:250
-B:51:47:95:85:250
-B:52:7:7:50:2
-B:53:20:20:50:4
-B:54:25:25:80:12
-B:55:35:50:75:115
-B:56:40:60:75:10
-B:57:99:0:0:0
-B:58:99:0:0:0
-B:59:99:0:0:0
-B:60:99:0:0:0
-B:61:99:0:0:0
-B:62:99:0:0:0
-B:63:99:0:0:0
+T:High Marshal
+B:0:2:1:35:3	#detect evil			2
+B:1:1:2:10:2	#cure light wounds		1
+B:2:3:2:30:3	#bless				3
+B:3:4:4:35:4	#remove fear			4
+B:4:1:1:10:2	#call light				1
+B:5:8:5:45:4	#find traps				8
+B:6:7:5:45:3	#detect doors & stairs		7
+B:7:5:4:35:3	#slow poison			5
+B:8:9:7:35:2	#scare monster			9
+B:9:16:9:42:3	#portal				16
+B:10:10:9:40:3	#cure serious wounds		10
+B:11:12:10:40:3	#chant				12
+B:12:11:10:40:3	#sanctuary				11
+B:13:19:12:50:3	#satisfy hunger			19
+B:14:13:12:44:4	#remove curse			13
+B:15:14:13:35:4	#resist heat & cold		14
+B:16:14:15:50:4	#cure poison			14
+B:17:20:17:55:4	#orb of draining			20
+B:18:17:15:50:3	#cure critical wounds		17
+B:19:19:16:51:4	#sense invisible			19
+B:20:16:17:50:5	#prot. from evil			16
+B:21:30:30:60:5	#earthquake				30
+B:22:24:18:55:3	#sense surroundings		24
+B:23:24:18:50:3	#cure mortal wounds		24
+B:24:25:18:51:3	#turn undead			25
+B:25:29:21:50:3	#prayer				29
+B:26:30:24:60:3	#dispel undead (*3)		30
+B:27:32:26:65:3	#heal (like healing potion)	32
+B:28:35:34:70:5	#dispel evil (*3)			35
+B:29:45:70:93:15	#glyph of warding			45
+B:30:50:75:95:50	#holy word				50
+B:31:5:5:55:2	#detect monsters			5
+B:32:17:16:80:10	#detection				17
+B:33:20:26:85:12	#perception				20
+B:34:26:12:80:40	#probing				26
+B:35:45:70:80:130	#clairvoyance			45
+B:36:15:10:45:9	#cure serious wounds 		15 (vslightly better than earlier spell)
+B:37:25:20:56:20	#cure mortal wounds 2		25
+B:38:40:45:80:110	#full healing 			40	(like *healing* potion)
+B:39:45:81:86:120	#restoration			45
+B:40:99:0:0:0	#remembrance			/
+B:41:28:17:70:14	#dispel undead (*4)		28
+B:42:40:25:80:30	#dispel evil (*4)			40
+B:43:36:35:80:170	#banish evil			36
+B:44:45:50:85:90	#word of destruction		45
+B:45:99:0:0:0	#annihilation			/
+B:46:9:15:55:15	#unbarring ways 			9 (trap/door destruction)
+B:47:23:30:85:18	#recharging				23
+B:48:38:55:85:140	#dispel curse 			38 (removes heavy curses also)
+B:49:42:40:80:150	#enchant weapon			42
+B:50:41:75:85:160	#enchant armor			41
+B:51:46:95:86:210	#elemental brand (weapon)	46
+B:52:16:7:50:3	#blink				16
+B:53:27:20:60:6	#teleport self			27
+B:54:28:26:75:12	#teleport other			28
+B:55:37:55:80:115	#teleport level			37
+B:56:38:60:75:12	#word of recall			38
+B:57:49:80:90:200	#alter reality 			49 (like tele. level except at same depth)
+B:58:99:0:0:0	#(unused)
+B:59:99:0:0:0	#(unused)
+B:60:99:0:0:0	#(unused)
+B:61:99:0:0:0	#(unused)
+B:62:99:0:0:0	#(unused)
+B:63:99:0:0:0	#(unused)
 
 N:6:Alchemist
 S:-1:2:-1:0:-1:0
@@ -606,6 +609,7 @@ B:61:44:70:96:111	#mass banishment
 B:62:43:45:90:30	#rift (gravity ball)
 B:63:46:60:98:65	#mana storm
 
+#	modify
 N:7:Archer
 S:2:-1:-1:3:1:0
 C:27:16:19:3:15:6:50:75
