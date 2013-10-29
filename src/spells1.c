@@ -2029,6 +2029,14 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					msg_format("The %s %s unaffected!",
 					           o_name, (plural ? "are" : "is"));
+#ifdef EFG
+					/* EFGchange remove need for identify wrto preserving artifacts */
+					if ((do_kill) && (o_ptr->name1))
+					{
+						/* ??? message */
+						object_known(o_ptr);
+					}
+#endif
 				}
 			}
 

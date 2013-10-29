@@ -85,6 +85,10 @@ static errr init_names(void)
 	}
 
 	C_MAKE(a_base, name_size, char);
+#ifdef EFG
+	/* EFGchange keep old name on randarts */
+	FREE(a_base);
+#else
 
 	a_next = a_base + 1;	/* skip first char */
 
@@ -98,6 +102,7 @@ static errr init_names(void)
 
 	/* Free the old names */
 	FREE(a_name);
+#endif
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -107,10 +112,14 @@ static errr init_names(void)
 	/* Free the "names" array */
 	FREE(names);
 
+#ifdef EFG
+	/* EFGchange keep old name on randarts */
+#else
 	/* Store the names */
 	a_name = a_base;
 	a_head.name_ptr = a_base;
 	a_head.name_size = name_size;
+#endif
 
 	/* Success */
 	return (0);
@@ -430,12 +439,11 @@ static void choose_item(int a_idx)
 		/* Create a digging tool. */
 		tval = TV_DIGGING;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 15) sval = SV_SHOVEL;
-		else if (r2 < 30) sval = SV_PICK;
-		else if (r2 < 60) sval = SV_GNOMISH_SHOVEL;
-		else if (r2 < 90) sval = SV_ORCISH_PICK;
-		else if (r2 < 120) sval = SV_DWARVEN_SHOVEL;
-		else sval = SV_DWARVEN_PICK;
+		if (r2 < 20) sval = SV_SHOVEL;
+		else if (r2 < 50) sval = SV_PICK;
+		else if (r2 < 70) sval = SV_GNOMISH_SHOVEL;
+		else if (r2 < 97) sval = SV_ORCISH_PICK;
+		else sval = SV_DWARVEN_MATTOCK;
 	}
 	else if (r < 19)
 	{
@@ -443,15 +451,19 @@ static void choose_item(int a_idx)
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 6) sval = SV_WHIP;
-		else if (r2 < 12) sval = SV_MACE;
-		else if (r2 < 20) sval = SV_WAR_HAMMER;
-		else if (r2 < 30) sval = SV_QUARTERSTAFF;
-		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
-		else if (r2 < 38) sval = SV_MORNING_STAR;
-		else if (r2 < 45) sval = SV_FLAIL;
-		else if (r2 < 55) sval = SV_LEAD_FILLED_MACE;
-		else if (r2 < 80) sval = SV_BALL_AND_CHAIN;
-		else if (r2 < 120) sval = SV_TWO_HANDED_FLAIL;
+		else if (r2 < 13) sval = SV_MACE;
+		else if (r2 < 22) sval = SV_WAR_HAMMER;
+		else if (r2 < 33) sval = SV_QUARTERSTAFF;
+		else if (r2 < 39) sval = SV_LUCERN_HAMMER;
+		else if (r2 < 50) sval = SV_MORNING_STAR;
+		else if (r2 < 65) sval = SV_FLAIL;
+		else if (r2 < 75) sval = SV_LEAD_FILLED_MACE;
+		else if (r2 < 81) sval = SV_LIGHT_CLUB;
+		else if (r2 < 85) sval = SV_WALKING_STAFF;
+//		else if (r2 < 72) sval = SV_CLUB;
+		else if (r2 < 99) sval = SV_BALL_AND_CHAIN;
+//		else if (r2 < 102) sval = SV_HUGE_WAR_HAMMER;
+		else if (r2 < 119) sval = SV_TWO_HANDED_FLAIL;
 		else sval = SV_MACE_OF_DISRUPTION;
 	}
 	else if (r < 33)
@@ -462,19 +474,20 @@ static void choose_item(int a_idx)
 		if (r2 < 0) sval = SV_BROKEN_DAGGER;
 		else if (r2 < 1) sval = SV_BROKEN_SWORD;
 		else if (r2 < 5) sval = SV_DAGGER;
-		else if (r2 < 9) sval = SV_MAIN_GAUCHE;
-		else if (r2 < 10) sval = SV_RAPIER;	/* or at least pointy ;-) */
-		else if (r2 < 12) sval = SV_SMALL_SWORD;
-		else if (r2 < 14) sval = SV_SHORT_SWORD;
-		else if (r2 < 16) sval = SV_SABRE;
-		else if (r2 < 18) sval = SV_CUTLASS;
-		else if (r2 < 20) sval = SV_TULWAR;
-		else if (r2 < 23) sval = SV_BROAD_SWORD;
-		else if (r2 < 26) sval = SV_LONG_SWORD;
-		else if (r2 < 30) sval = SV_SCIMITAR;
-		else if (r2 < 45) sval = SV_BASTARD_SWORD;
-		else if (r2 < 60) sval = SV_KATANA;
-		else if (r2 < 90) sval = SV_TWO_HANDED_SWORD;
+		else if (r2 < 7) sval = SV_MAIN_GAUCHE;
+		else if (r2 < 11) sval = SV_RAPIER;	/* or at least pointy ;-) */
+		else if (r2 < 13) sval = SV_SMALL_SWORD;
+		else if (r2 < 15) sval = SV_SHORT_SWORD;
+		else if (r2 < 18) sval = SV_SABRE;
+		else if (r2 < 21) sval = SV_CUTLASS;
+		else if (r2 < 24) sval = SV_TULWAR;
+		else if (r2 < 30) sval = SV_BROAD_SWORD;
+		else if (r2 < 40) sval = SV_LONG_SWORD;
+		else if (r2 < 44) sval = SV_SCIMITAR;
+		else if (r2 < 57) sval = SV_BASTARD_SWORD;
+		else if (r2 < 61) sval = SV_LONG_DAGGER;
+		else if (r2 < 67) sval = SV_KATANA;
+		else if (r2 < 95) sval = SV_TWO_HANDED_SWORD;
 		else if (r2 < 120) sval = SV_EXECUTIONERS_SWORD;
 		else sval = SV_BLADE_OF_CHAOS;
 	}
@@ -511,6 +524,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 15) sval = SV_SOFT_STUDDED_LEATHER;
 		else if (r2 < 20) sval = SV_HARD_LEATHER_ARMOR;
 		else if (r2 < 30) sval = SV_HARD_STUDDED_LEATHER;
+		else if (r2 < 35) sval = SV_DRUID_ROBE;
 		else if (r2 < 45) sval = SV_LEATHER_SCALE_MAIL;
 
 		/* Hard stuff. */
@@ -555,6 +569,7 @@ static void choose_item(int a_idx)
 
 		if (r2 < 9) sval = SV_HARD_LEATHER_CAP;
 		else if (r2 < 20) sval = SV_METAL_CAP;
+		else if (r2 < 23) sval = SV_ELVEN_LEATHER_CAP;
 		else if (r2 < 40) sval = SV_IRON_HELM;
 		else if (r2 < 50) sval = SV_STEEL_HELM;
 
@@ -578,7 +593,9 @@ static void choose_item(int a_idx)
 		/* Make a cloak. */
 		tval = TV_CLOAK;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 90) sval = SV_CLOAK;
+		if (r2 < 6) sval = SV_FUR_CLOAK;
+		else if (r2 < 8) sval = SV_TRAVELLING_CLOAK;
+		else if (r2 < 90) sval = SV_CLOAK;
 		else sval = SV_SHADOW_CLOAK;
 	}
 
@@ -1158,6 +1175,11 @@ static void scramble_artifact(int a_idx)
 
 	/* XXX XXX XXX Special cases -- don't randomize these! */
 	if ((a_idx == ART_POWER) ||
+#ifdef EFG
+	    (a_idx == ART_NARYA) ||
+	    (a_idx == ART_NENYA) ||
+	    (a_idx == ART_VILYA) ||
+#endif
 	    (a_idx == ART_GROND) ||
 	    (a_idx == ART_MORGOTH))
 		return;
@@ -1263,6 +1285,32 @@ static void scramble_artifact(int a_idx)
 			remove_contradictory(a_ptr);
 			ap = artifact_power(a_idx);
 		}
+#ifdef EFG
+		/* EFGchange remove aggravation from randarts */
+		a_ptr->flags3 |= TR3_AGGRAVATE;
+		a_ptr->flags3 ^= TR3_AGGRAVATE;
+
+		/* ??? should add plite if not splendid */
+/*
+this does not work
+                int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+        	object_type object_type_body;
+        	object_type *i_ptr = &object_type_body;
+
+                object_wipe(i_ptr);
+
+                object_prep(i_ptr, k_idx);
+
+                i_ptr->name1 = a_idx;
+		if (!obviously_excellent(i_ptr, FALSE, NULL))
+		{
+			a_ptr->flags3 |= TR3_LITE;
+			printf ("adding plite to artifact %d\n", a_idx);
+		}
+*/
+
+#endif
 	}
 
 	a_ptr->cost = ap * 1000L;

@@ -62,7 +62,7 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
-	"XXX1",
+	"TAIL",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -474,6 +474,10 @@ static cptr k_info_flags3[] =
 	"PERMA_CURSE"
 };
 
+#ifdef EFG
+/* EFGchange add ACTIVATE flag when missing in artifact.txt */
+artifact_type* SAVED_H_PTR = NULL;
+#endif
 
 /*
  * Activation type
@@ -547,7 +551,7 @@ static cptr c_info_flags[] =
 	"CHOOSE_SPELLS",
 	"PSEUDO_ID_HEAVY",
 	"PSEUDO_ID_IMPROV",
-	"XXX10",
+	"HEAVY_BONUS",
 	"XXX11",
 	"XXX12",
 	"XXX13",
@@ -1524,6 +1528,14 @@ static errr grab_one_activation(artifact_type *a_ptr, cptr what)
 		if (streq(what, a_info_act[i]))
 		{
 			a_ptr->activation = i;
+#ifdef EFG
+			/* EFGchange add ACTIVATE flag when missing in artifact.txt */
+			if (!(a_ptr->flags3 & TR3_ACTIVATE))
+			{
+				msg_format("Adding missing ACTIVATE flag for artifact %d.", a_ptr - SAVED_H_PTR);
+				a_ptr->flags3 |= TR3_ACTIVATE;
+			}
+#endif
 			return (0);
 		}
 	}
@@ -1578,6 +1590,10 @@ errr parse_a_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
+#ifdef EFG
+/* EFGchange add ACTIVATE flag when missing in artifact.txt */
+SAVED_H_PTR = (artifact_type*)head->info_ptr;
+#endif
 		a_ptr = (artifact_type*)head->info_ptr + i;
 
 		/* Store the name */

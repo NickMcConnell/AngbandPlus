@@ -1355,7 +1355,15 @@ static void store_create_staples(void)
 		struct staple_type *s = &staples[i];
 
 		/* Look for the item, and if it isn't there, create it */
+#ifdef EFG
+		/* EFGchange stores restock max items faster */
+		/* the store shouldn't wait until empty to restock any item */
+		/* but in particular max items should be kept at max */
+		if ((store_find(STORE_GENERAL, s->tval, s->sval) == -1) ||
+		    (s->mode == MAKE_MAX))
+#else
 		if (store_find(STORE_GENERAL, s->tval, s->sval) == -1)
+#endif
 			store_create_item(STORE_GENERAL, s->tval, s->sval, s->mode);
 	}
 }
@@ -1613,6 +1621,15 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 4);
+#ifdef EFG
+	/* EFGchange show awareness status of flavored objects for sale */
+	if (store_current != STORE_HOME)
+	{
+		int l = strlen(o_name);
+		if (!object_aware_p(o_ptr) && (l + 10 < sizeof(o_name)))
+			sprintf (&o_name[l], " (unaware)");
+	}
+#endif
 
 	/* Display the object */
 	c_put_str(tval_to_attr[o_ptr->tval & 0x7F], o_name, row, col);
@@ -1755,7 +1772,15 @@ static void store_redraw(void)
 		if (store_flags & STORE_SHOW_HELP)
 			store_display_help();
 		else
+#ifdef EFG
+			/* EFGchange new command to buy out a store */
+			/* snagged '?' for buying out store since could not */
+			/* figure out how to use a new command character */
+			if (store_current != STORE_HOME)
+				prt("Press '?' to restock store.", scr_places_y[LOC_HELP_PROMPT], 1);
+#else
 			prt("Press '?' for help.", scr_places_y[LOC_HELP_PROMPT], 1);
+#endif
 
 		store_flags &= ~(STORE_FRAME_CHANGE);
 	}
@@ -2002,9 +2027,128 @@ static bool store_purchase(int item)
 	}
 
 	/* Not kicked out */
+#ifdef EFG
+	/* don't squelch items you buy */
+	/* ??? message if changes value?  particularly for unaware? */
+	squelch_clear(inventory[item_new].k_idx);
+#endif
 	return TRUE;
 }
 
+#ifdef EFG
+/* EFGchange new command to buy out a store */
+/*
+ * Buy out the store so it will restock
+ */
+static bool store_purchase_all(void)
+{
+	int i;
+
+	store_type *st_ptr = &store[store_current];
+
+	object_type *o_ptr;
+
+	s32b price;
+
+	/* Clear all current messages */
+	msg_flag = FALSE;
+	prt("", 0, 0);
+
+	if (store_current == STORE_HOME)
+	{
+	    /* this should routine should not have been called from home */
+	    return FALSE;
+	}
+
+	price = 0;
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+	    /* Get the existing object */
+	    o_ptr = &st_ptr->stock[i];
+	    price += price_item(o_ptr, FALSE) * o_ptr->number;
+	}
+
+	/* Check if the player can afford it */
+	if ((u32b)p_ptr->au < (u32b)price)
+	{
+	    /* Tell the user */
+	    msg_print("You do not have enough gold to buy out this store.");
+	    store_flags |= STORE_KEEP_PROMPT;
+	    
+	    /* Abort now */
+	    return FALSE;
+	}
+
+	screen_save();
+	
+	/* Show price */
+	prt(format("Total cost: %d", price), 1, 0);
+
+	/* Confirm purchase */
+	bool response = store_get_check("Restock the store? [ESC, any other key to accept]");
+	screen_load();
+
+	/* Negative response, so give up */
+	if (!response) return FALSE;
+
+	/* Spend the money */
+	p_ptr->au -= price;
+
+	/* Update the display */
+	store_flags |= STORE_GOLD_CHANGE;
+
+
+	/* Message */
+	if (!rand_int(3)) message(MSG_STORE5, 0, ONE_OF(comment_accept));
+	msg_format("You restocked the store for %ld gold.", (long)price);
+
+	store_flags |= STORE_KEEP_PROMPT;
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Buying an object makes you aware of it */
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+	    /* Get the existing object */
+	    o_ptr = &st_ptr->stock[i];
+	    object_aware(o_ptr);
+	}
+	/* in case by buying you the store became aware of flavor in pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Empty the store */
+	st_ptr->stock_num =0;
+
+	/* Shuffle */
+	if (rand_int(STORE_SHUFFLE) == 0)
+	{
+	    /* Message */
+	    msg_print("The shopkeeper retires.");
+	    
+	    /* Shuffle the store */
+	    store_shuffle(store_current);
+	    store_flags |= STORE_INIT_CHANGE;
+	}
+
+	/* Maintain */
+	else
+	{
+	    /* Message */
+	    msg_print("The shopkeeper brings out some new stock.");
+	}
+
+	/* New inventory */
+	for (i = 0; i < 10; ++i)
+	{
+	    /* Maintain the store */
+	    store_maint(store_current);
+	}
+	
+	/* Not kicked out */
+	return TRUE;
+}
+#endif
 
 
 /*
@@ -2045,6 +2189,18 @@ static void store_sell(void)
 
 	/* Get an item */
 	if (!get_item(&item, prompt, reject, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+// #ifdef EFG
+    if (adult_cansell == FALSE)
+    {
+	   /* EFGchange no selling to stores */
+  	   if (store_current != STORE_HOME)
+	   {
+		  msg_print("I do the selling and you do the buying.");
+		  store_flags |= STORE_KEEP_PROMPT;
+		  return;
+	   }
+    }
+// #endif
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2477,6 +2633,15 @@ static bool store_process_command(char cmd, void *db, int oid)
 		}
 
 		case '?':
+#ifdef EFG
+		/* EFGchange new command to buy out a store */
+		    /* ??? could not figure out how to use a new letter */
+		{
+			if (store_purchase_all())
+				return TRUE;
+			break;
+		}
+#else
 		{
 			/* Toggle help */
 			if (store_flags & STORE_SHOW_HELP)
@@ -2489,6 +2654,7 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 			return TRUE;
 		}
+#endif
 
 		/*** System Commands ***/
 

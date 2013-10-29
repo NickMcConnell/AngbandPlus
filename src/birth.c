@@ -11,7 +11,7 @@
 #include "angband.h"
 #include "cmds.h"
 #include "script.h"
-
+	 static int clash = 0;
 
 
 /*
@@ -603,8 +603,8 @@ static void player_outfit(void)
 
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->timeout = rand_range(3, 7) * 500;
+	i_ptr->number = (byte)rand_range(4, 7);
+	i_ptr->timeout = rand_range(4, 7) * 500;
 	object_aware(i_ptr);
 	object_known(i_ptr);
         k_info[i_ptr->k_idx].everseen = TRUE;
@@ -846,7 +846,11 @@ static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
+#ifdef EFG
+	/* EFGchange unified character generation */
+#else
 	{ 0, 0, 0, display_roller, roller_handler },
+#endif
 };
 
 /* Menu display and selector */
@@ -985,7 +989,16 @@ static bool player_birth_aux_1(bool start_at_end)
 	text_out_c(TERM_L_GREEN, "?");
 	text_out("' for help, or '");
 	text_out_c(TERM_L_GREEN, "Ctrl-X");
-	text_out("' to quit.");
+	text_out("' to quit.\n");
+	if (clash == 11) text_out_c(TERM_L_RED, "Sorry, hobglibs can only be alchmists, rogues, or healers.");
+	if (clash == 4) text_out_c(TERM_L_RED, "Sorry, a magic gnome cannot be a knight or paladin marshal.");
+	if (clash == 5) text_out_c(TERM_L_RED, "Sorry, a dwarf cannot be a stealth ranger.");
+	if (clash == 6) text_out_c(TERM_L_RED, "Sorry, a half-orc cannot be a healer or paladin marshal.");
+	if (clash == 8) text_out_c(TERM_L_RED, "Sorry, a dunadan cannot be a druid.");
+	if (clash == 9) text_out_c(TERM_L_RED, "Sorry, a high elf cannot be a barbarian or a holy rogue.");
+	if (clash == 12) text_out_c(TERM_L_RED, "Sorry, a fairy gnome cannot be a barbarian or an alchemist.");
+	if (clash == 13) text_out_c(TERM_L_RED, "Sorry, a dark elf cannot be a paladin marshal.");
+	if (clash == 15) text_out_c(TERM_L_RED, "Your power sprite mage dies at age 7 of a bee sting because of an extremely low hit die.");
 
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
@@ -1001,9 +1014,17 @@ static bool player_birth_aux_1(bool start_at_end)
 	for (i = OPT_CHEAT; i < OPT_ADULT; i++)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 
+#ifdef EFG
+	/* EFGchange code cleaning */
+	/* there should be no references to [].squelch outside of squelch.c */
+	/* Reset squelch bits */
+	for (i = 0; i < z_info->k_max; i++)
+		squelch_clear(i);
+#else
 	/* Reset squelch bits */
 	for (i = 0; i < z_info->k_max; i++)
 		k_info[i].squelch = FALSE;
+#endif
 
 	/* Clear the squelch bytes */
 	for (i = 0; i < SQUELCH_BYTES; i++)
@@ -1019,7 +1040,12 @@ static bool player_birth_aux_1(bool start_at_end)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
+#ifdef EFG
+/* EFGchange unified character generation */
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 3, 4, 5, 6, 8, 12 };
+#else
 static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+#endif
 
 
 /*
@@ -1110,7 +1136,14 @@ static int player_birth_aux_2(bool start_at_end)
 		}
 
 		/* Restrict cost */
+#ifdef EFG
+		/* EFGchange unified character generation */
+		/* It is feasible to get base 17 in 3 stats with the autoroller */
+#define		MAX_BIRTH_COST	(3 * birth_stat_costs[7])
+		if (cost > MAX_BIRTH_COST)
+#else
 		if (cost > 48)
+#endif
 		{
 			/* Warning */
 			bell("Excessive stats!");
@@ -1123,7 +1156,15 @@ static int player_birth_aux_2(bool start_at_end)
 		}
 
 		/* Gold is inversely proportional to cost */
+#ifdef EFG
+        /* EFGchange unified character generation */
+        /* DAJ: start with less gold if you can sell to shops
+           but still enough to buy a WoR */
+        if (adult_cansell) p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 320;
+        else p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 500;
+#else
 		p_ptr->au = (100 * (48 - cost)) + 100;
+#endif
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1153,7 +1194,12 @@ static int player_birth_aux_2(bool start_at_end)
 
 
 		/* Prompt XXX XXX XXX */
+#ifdef EFG
+		/* EFGchange unified character generation */
+		strnfmt(buf, sizeof(buf), "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost, MAX_BIRTH_COST);
+#else
 		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
+#endif
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
@@ -1713,12 +1759,62 @@ static void player_birth_aux(void)
  * fields, so we must be sure to clear them first.
  */
 void player_birth(void)
+    /* DAJ: yes I know, this is incredibly crude programming */
+    /* but that's how you know I did it! */
 {
+for (;clash < 20;)
+    {
 	/* Wipe the player properly */
 	player_wipe(TRUE);
 
 	/* Create a new character */
 	player_birth_aux();
+	
+				/* restrict certain race/class combos */
+                    /* (let's see if this works..) */
+                    clash = 21;
+                    if (p_ptr->prace == 11)
+                      {
+                      if ((p_ptr->pclass != 6) && (p_ptr->pclass != 3) && (p_ptr->pclass != 9))
+                      clash = 11;
+                      }
+                    if (p_ptr->prace == 4)
+                      {
+                      if ((p_ptr->pclass == 14) || (p_ptr->pclass == 8))
+                      clash = 4;
+                      }
+                     if (p_ptr->prace == 5)
+                      {
+                      if (p_ptr->pclass == 13) clash = 5;
+                      }
+                     if (p_ptr->prace == 6)
+                      {
+                      if ((p_ptr->pclass == 9) || (p_ptr->pclass == 14))
+                      clash = 6;
+                      }
+                     if (p_ptr->prace == 8)
+                      {
+                      if (p_ptr->pclass == 10) clash = 8;
+                      }
+                     if (p_ptr->prace == 9)
+                      {
+                      if ((p_ptr->pclass == 11) || (p_ptr->pclass == 13))
+                      clash = 9;
+                      }
+                     if (p_ptr->prace == 12)
+                      {
+                      if ((p_ptr->pclass == 6) || (p_ptr->pclass == 11))
+                      clash = 12;
+                      }
+                     if (p_ptr->prace == 13)
+                      {
+                      if (p_ptr->pclass == 14) clash = 13;
+                      }
+                     if (p_ptr->prace == 15)
+                      {
+                      if (p_ptr->pclass == 1) clash = 15;
+                      }    
+	}
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

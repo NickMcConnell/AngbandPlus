@@ -491,7 +491,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_CLAW:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
+			case RBM_TAIL:	p = "swing its tail"; break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;

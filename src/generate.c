@@ -1485,13 +1485,12 @@ static bool vault_aux_jelly(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Require icky thing, jelly, mold, or mushroom */
+	/* Require worm, jelly, mold, or mushroom */
 	if (!strchr("wjm,", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
  * Helper function for "monster nest (animal)"
@@ -1505,11 +1504,53 @@ static bool vault_aux_animal(int r_idx)
 
 	/* Require "animal" flag */
 	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
+	/* often reject bugs because of creepy crawly nest */
+	/* and worms because of jelly nest */
+	if (strchr("awFIS", r_ptr->d_char) &&
+     (randint(10) < 7)) return (FALSE);
+    /* small chance of rejecting hounds */
+    if (strchr("Z", r_ptr->d_char) &&
+     (randint(10) < 2)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
 }
 
+/*
+ * Helper function for "monster nest (creepy crawlies)"
+ *    (includes bugs, rodents, and snakes)
+ *    (would include worms except they're in the jelly nest)
+ */
+static bool vault_aux_bugs(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "acrFIJS" monsters */
+	if (!strchr("acrFIJS", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster nest (imps & fairies)"
+ */
+static bool vault_aux_fairy(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "iy" monsters */
+	if (!strchr("iy", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
 
 /*
  * Helper function for "monster nest (undead)"
@@ -1528,6 +1569,22 @@ static bool vault_aux_undead(int r_idx)
 	return (TRUE);
 }
 
+/*
+ * Helper function for "monster nest (great beasts)"
+ */
+static bool vault_aux_beast(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "RMHlqN" monsters */
+	if (!strchr("RMHlqN", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
 
 /*
  * Helper function for "monster pit (orc)"
@@ -1621,7 +1678,7 @@ static bool vault_aux_demon(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "U" monsters */
-	if (!strchr("U&", r_ptr->d_char)) return (FALSE);
+	if (!strchr("uU&", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1645,7 +1702,10 @@ static bool vault_aux_demon(int r_idx)
  *
  * Currently, a monster nest is one of
  *   a nest of "jelly" monsters   (Dungeon level 5 and deeper)
+ *   a nest of "creepy crawly" monsters (Dungeon level 15 and deeper)
+ *   a nest of "imps and fairy" monsters (Dungeon level 25 and deeper)
  *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
+ *   a nest of "great beast" monsters (Dungeon level 38 and deeper)
  *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
  *
  * Note that the "get_mon_num()" function may (rarely) fail, in which
@@ -1702,7 +1762,7 @@ static void build_type5(int y0, int x0)
 	tmp = randint(p_ptr->depth);
 
 	/* Monster nest (jelly) */
-	if (tmp < 30)
+	if (tmp < 15)
 	{
 		/* Describe */
 		name = "jelly";
@@ -1711,14 +1771,44 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_jelly;
 	}
 
+	/* Monster nest (creepy crawly) */
+	else if (tmp < 25)
+	{
+		/* Describe */
+		name = "creepy crawly";
+
+		/* Restrict to creepy crawly */
+		get_mon_num_hook = vault_aux_bugs;
+	}
+
+	/* Monster nest (imp and fairy) */
+	else if (tmp < 30)
+	{
+		/* Describe */
+		name = "imp and fairy";
+
+		/* Restrict to imp or fairy */
+		get_mon_num_hook = vault_aux_fairy;
+	}
+
 	/* Monster nest (animal) */
-	else if (tmp < 50)
+	else if (tmp < 38)
 	{
 		/* Describe */
 		name = "animal";
 
 		/* Restrict to animal */
 		get_mon_num_hook = vault_aux_animal;
+	}
+
+	/* Monster nest (great beast) */
+	else if (tmp < 50)
+	{
+		/* Describe */
+		name = "great beast";
+
+		/* Restrict to great beast */
+		get_mon_num_hook = vault_aux_beast;
 	}
 
 	/* Monster nest (undead) */

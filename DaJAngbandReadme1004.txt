@@ -3,7 +3,7 @@
 Thanks to:
 First to Andrew Sidwell and the previous mantainers for the great work on vanilla Angband, Eddie Grove for the patch, Shawn McHorse for that very nice list of Tolkien uniques, Andrew Doull for the link to Shawn McHorse's old post among other things, Nick for the Phantom of Eilenel, CunningGabe for new names of a couple jellies, and anyone else who gives comments or suggestions or just plays my semi-variant.
 
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 	DaJAngband version 1.0.04
 
 	added the poison bolt monster spell (the spell flag was already there, but it had no effect before)
@@ -11,7 +11,7 @@ First to Andrew Sidwell and the previous mantainers for the great work on vanill
 	Heavy weapon penalty that was already in the game does not apply to the barbarian class. (haven't figured out yet how to actually give the barbarian bonuses for heavy weapons).
 	Restricted some class/race combos.  Did not restrict any of the original combos, only ones which included a new race and/or class.
 	..other minor tweaks
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 	DaJAngband version 1.0.03
 .txt file changes:
 	A bunch of mostly-very-minor monster tweaks.
@@ -26,7 +26,7 @@ code tweaks:
 	added a couple new types of monster nests which I won't give away.
 	fixed town messiness caused by me trying to add a new shop and failing.
 
-------------------------------------------------------------------------------------------	DaJAngband version 1.0.02 (includes Eddie Grove's patch)
+-------------------------------------------------------------------------------------------	DaJAngband version 1.0.02 (includes Eddie Grove's patch)
 
 changes since original release:
 
@@ -54,7 +54,7 @@ major changes that come with Eddie Grove's patch:
 	* Notice obvious effects when wielding unidentified objects
 	* New pseudo level "Splendid" meaning obvious bonuses when wielded  (replaces special pseudo and partially replaces excellent)
 	* Allow pseudo on jewelry
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 	Notes about changes you might want to know about beforehand:
 
@@ -180,17 +180,18 @@ Other .txt files are unchanged except for nessesary changes in limits.txt, p_his
 
   At the bottom of this text file is more spoilery monster changes, so you might want to refrain from reading them.
 
-------------------------------------------------------------------------------------------
-   Future plans and things I hope I can figure out how to do:
+-------------------------------------------------------------------------------------------
+   Future plans:
 
+- there shouldn't be such a thing as 'perffect save' without having the relevant resistance
+- make peaceful monsters with helpful meleee effects
+- make an attack that lowers your nurishmeent (for hungry ghost)
+- add rare potion of auto-brail- lets you  be able to read scrolls & cast spells when blind.
+- re-enable old character roller
+- update help files
+- hidden luck stat
 
-change this: (there shouldn't be such a thing as 'perfect save' without having the relevant resistance)
-[Quote:
-Originally Posted by Djabanete  
-It means you'll always be safe from certain attacks. Not exactly sure which attacks allow a saving throw (I know that cursing does, and maybe blindness/confusion/fear spells?), but I know you don't need FA if you have perfect save.  
-
-You get a saving throw against cursing spells, blindness, confusion, fear, slowing and paralysis spells, and against melee paralysis attacks. (I'm not sure if saving throw protects against blindness/confusion/fear melee attacks - I'm pretty certain it doesn't protect against blindness/confusion from breaths). So a perfect saving throw does replace Free Action, though it requires quite a bit of courage to rely on that!]
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 		Spoiler monster changes:	(might not want to read further)
 

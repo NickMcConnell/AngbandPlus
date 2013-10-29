@@ -1,4 +1,5 @@
 /* File: defines.h */
+#define EFG
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -36,7 +37,11 @@
  * Name of the version/variant and its version string
  */
 #define VERSION_NAME   "DaJAngband"
-#define VERSION_STRING "a semi-variant based on Vanilla Angband 3.0.9"
+#ifdef EFG
+#define VERSION_STRING "v1.0.04"
+#else
+#define VERSION_STRING "v1.0.04"
+#endif
 
 
 /*
@@ -131,6 +136,7 @@
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES	8
+/* change to 9 as trying to figure out how to add a store */
 
 
 /*
@@ -152,9 +158,9 @@
 
 
 /*
- * Maximum amount of starting equipment
+ * Maximum amount of starting equipment (DAJ: changed from 4)
  */
-#define MAX_START_ITEMS	4
+#define MAX_START_ITEMS	5
 
 
 /*
@@ -235,12 +241,12 @@
  * Store constants
  *
  * STORE_MAX_KEEP must be < STORE_INVEN_MAX.
- *
+ *   DAJ: changed STORE_CHOICES to 35 from 32
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
-#define STORE_CHOICES	32		/* Number of choices in the store selection table */
+#define STORE_CHOICES	35		/* Number of choices in the store selection table */
 
 
 /*
@@ -427,8 +433,9 @@
  *
  * The main-screen has a minimum size of 24 rows, so we can always
  * display 23 objects + 1 header line.
+ *   DAJ: changed from 23
  */
-#define MAX_FLOOR_STACK			23
+#define MAX_FLOOR_STACK			21
 
 
 /*** Constants for accessing the player struct ***/
@@ -669,6 +676,11 @@ enum
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
 
+#ifdef EFG
+#define ART_NARYA			10
+#define ART_NENYA			11
+#define ART_VILYA			12
+#endif
 #define ART_POWER			13
 #define ART_MORGOTH			34
 #define ART_GROND			111
@@ -909,14 +921,18 @@ enum
 #define SV_DWARVEN_SHOVEL	3
 #define SV_PICK				4
 #define SV_ORCISH_PICK		5
-#define SV_DWARVEN_PICK		6
+#define SV_DWARVEN_MATTOCK	6
 #define SV_MATTOCK			7
+  /* sval7 is unused, actually I think it's the broken shovel now */
 
 /* The "sval" values for TV_HAFTED */
+#define SV_LIGHT_CLUB           1   /* 2d2  with +1tohit */
 #define SV_WHIP					2	/* 1d6 */
 #define SV_QUARTERSTAFF			3	/* 1d9 */
+#define SV_WALKING_STAFF        4   /* 1d5  with +1tohit */
 #define SV_MACE					5	/* 2d4 */
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
+//#define SV_CLUB                 7   /* 2d3 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
 #define SV_LUCERN_HAMMER		10	/* 2d5 */
 #define SV_MORNING_STAR			12	/* 2d6 */
@@ -945,8 +961,9 @@ enum
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_DAGGER		1	/* 1d1 */
 #define SV_BROKEN_SWORD			2	/* 1d2 */
+#define SV_MAIN_GAUCHE			3	/* 1d3 +2ac */
 #define SV_DAGGER				4	/* 1d4 */
-#define SV_MAIN_GAUCHE			5	/* 1d5 */
+#define SV_LONG_DAGGER          5   /* 1d5 */
 #define SV_RAPIER				7	/* 1d6 */
 #define SV_SMALL_SWORD			8	/* 1d6 */
 #define SV_SHORT_SWORD			10	/* 1d7 */
@@ -974,6 +991,7 @@ enum
 #define SV_METAL_CAP			3
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
+#define SV_ELVEN_LEATHER_CAP    7
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
@@ -986,6 +1004,8 @@ enum
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
+#define SV_FUR_CLOAK                2
+#define SV_TRAVELLING_CLOAK         3
 #define SV_SHADOW_CLOAK				6
 
 /* The "sval" codes for TV_GLOVES */
@@ -1000,6 +1020,7 @@ enum
 #define SV_SOFT_STUDDED_LEATHER		5
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
+#define SV_DRUID_ROBE               8
 #define SV_LEATHER_SCALE_MAIL		11
 
 /* The "sval" codes for TV_HARD_ARMOR */
@@ -1402,7 +1423,11 @@ enum
 /*** Squelch stuff ***/
 
 /* Number of bytes used in squelch sub-quality array */
+#ifdef EFG
+#define SQUELCH_BYTES    15
+#else
 #define SQUELCH_BYTES    6
+#endif
 
 
 
@@ -1411,7 +1436,7 @@ enum
 /*
  * Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 3
+#define MONSTER_FLOW_DEPTH 30
 
 
 
@@ -1430,7 +1455,7 @@ enum
 #define RBM_CLAW	5
 #define RBM_BITE	6
 #define RBM_STING	7
-#define RBM_XXX1	8
+#define RBM_TAIL	8
 #define RBM_BUTT	9
 #define RBM_CRUSH	10
 #define RBM_ENGULF	11
@@ -1701,6 +1726,26 @@ enum
 /*
  * The special inscriptions.
  */
+#ifdef EFG
+enum
+{
+	INSCRIP_NULL,
+	INSCRIP_TERRIBLE,
+	INSCRIP_WORTHLESS,
+	INSCRIP_CURSED,
+	INSCRIP_BROKEN,
+	INSCRIP_AVERAGE,
+	INSCRIP_GOOD,
+	INSCRIP_EXCELLENT,
+	INSCRIP_SPECIAL,
+	INSCRIP_UNCURSED,
+	INSCRIP_INDESTRUCTIBLE,
+	INSCRIP_TRIED,
+	INSCRIP_SPLENDID,
+
+	INSCRIP_MAX,
+};
+#else
 #define INSCRIP_NULL            0
 #define INSCRIP_TERRIBLE        1
 #define INSCRIP_WORTHLESS       2
@@ -1717,6 +1762,7 @@ enum
  * Number of special inscriptions, plus one.
  */
 #define MAX_INSCRIP			11
+#endif
 
 
 /*
@@ -1853,7 +1899,7 @@ enum
 #define TR3_NO_FUEL         0x00000100L /* Light source uses no fuel */
 #define TR3_XXX2            0x00000200L
 #define TR3_XXX3            0x00000400L
-#define TR3_XXX4            0x00000800L
+#define TR3_XXX4            0x00000800L /* was NOREGEN but it didn't work */
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
@@ -1934,7 +1980,7 @@ enum
 #define CF_CHOOSE_SPELLS	0x00000040L	/* Allow choice of spells */
 #define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
-#define CF_XXX10			0x00000200L
+#define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons (not yet)*/
 #define CF_XXX11			0x00000400L
 #define CF_XXX12			0x00000800L
 #define CF_XXX13			0x00001000L
@@ -2018,7 +2064,7 @@ enum
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
-#define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy? */
+#define RF2_WEIRD_MIND		0x00000080	/* Monster usually avoids telepathy */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
 #define RF2_XXX3			0x00000400	/* (?) */
@@ -2438,6 +2484,7 @@ enum
 #define OPT_birth_no_preserve       (OPT_BIRTH+7)
 #define OPT_birth_no_stairs			(OPT_BIRTH+8)
 /* leave four spaces for future */
+#define OPT_birth_cansell           (OPT_BIRTH+9)
 #define OPT_birth_ai_sound			(OPT_BIRTH+13)
 #define OPT_birth_ai_smell			(OPT_BIRTH+14)
 #define OPT_birth_ai_packs			(OPT_BIRTH+15)
@@ -2461,6 +2508,7 @@ enum
 #define OPT_adult_no_stacking       (OPT_ADULT+6)
 #define OPT_adult_no_preserve       (OPT_ADULT+7)
 #define OPT_adult_no_stairs			(OPT_ADULT+8)
+#define OPT_adult_cansell           (OPT_ADULT+9)
 /* leave four spaces for future */
 #define OPT_adult_ai_sound			(OPT_ADULT+13)
 #define OPT_adult_ai_smell			(OPT_ADULT+14)
@@ -2526,6 +2574,7 @@ enum
 #define birth_no_stacking       OPTION(birth_no_stacking)
 #define birth_no_preserve       OPTION(birth_no_preserve)
 #define birth_no_stairs			OPTION(birth_no_stairs)
+#define birth_cansell           OPTION(birth_cansell)
 #define birth_ai_sound			OPTION(birth_ai_sound)
 #define birth_ai_smell			OPTION(birth_ai_smell)
 #define birth_ai_packs			OPTION(birth_ai_packs)
@@ -2549,6 +2598,7 @@ enum
 #define adult_no_stacking		OPTION(adult_no_stacking)
 #define adult_no_preserve		OPTION(adult_no_preserve)
 #define adult_no_stairs			OPTION(adult_no_stairs)
+#define adult_cansell           OPTION(adult_cansell) //why do we need this?
 #define adult_ai_sound			OPTION(adult_ai_sound)
 #define adult_ai_smell			OPTION(adult_ai_smell)
 #define adult_ai_packs			OPTION(adult_ai_packs)
@@ -3102,6 +3152,17 @@ enum
 
 #define ACT_MAX                 50
 
+#ifdef EFG
+#define NUM_PVALS		10
+
+/* special rest values must be negative */
+/* the only other requirement is that they be unique, any values will do */
+#define REST_BOTH		-1
+#define REST_FULL		-2
+#define REST_EITHER		-3
+
+#define object_splendid_p(o_ptr)	obviously_excellent(o_ptr, FALSE, NULL)
+#endif
 
 
 /* player_type.noscore flags */

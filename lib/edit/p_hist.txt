@@ -8,6 +8,8 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/p_hist.raw" file.
 
+# Maia history copied from OAngband
+
 # Background information (see below)
 
 # Chart progression by race:
@@ -24,8 +26,9 @@
 #   Hobglib		--> 72		73	 74	  75
 #   Gnome 2		--> 70     71	 3 --> 50 --> 51 --> 52 --> 53
 #   Dark Elf	--> 76     77     78     79     80
-#   Grave Ghoul	--> 82						    87
+#   Grave Ghoul	--> 82     83	84	 85	  86		--> 87
 #   Power Sprite  --> 88	89	   --> 54 --> 55 --> 56
+#   Maia		--> 90	91	   --> 92
 
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
@@ -634,3 +637,45 @@ N:89:54:80:75
 D:guide sprites
 N:89:54:100:85
 D:guardian sprites
+
+#	Maia
+N:90:91:10:30
+D:You are a unnoticed minion of 
+N:90:91:25:40
+D:You are a minor servant of 
+N:90:91:45:50
+D:You are a subject of 
+N:90:91:65:60
+D:You have attached yourself to 
+N:90:91:85:75
+D:You are associated with 
+N:90:91:95:90
+D:You are a notable follower of 
+N:90:91:100:110
+D:You are a celebrated assistant to 
+
+N:91:92:20:55
+D:Nessa.  In the past, you dwelt on earth in the form of 
+N:91:92:40:60
+D:Vana.  In the past, you dwelt on earth in the form of 
+N:91:92:50:65
+D:Tulkas.  In the past, you dwelt on earth in the form of 
+N:91:92:80:75
+D:Mandos.  In the past, you dwelt on earth in the form of 
+N:91:92:90:80
+D:Nienna.  In the past, you dwelt on earth in the form of 
+N:91:92:95:90
+D:Varda.  In the past, you dwelt on earth in the form of 
+N:91:92:100:95
+D:Manwe.  In the past, you dwelt on earth in the form of 
+
+N:92:0:25:57
+D:various animals.
+N:92:0:55:65
+D:a spirit of forest and river.
+N:92:0:70:70
+D:a beneficent but unseen force.
+N:92:0:96:80
+D:a wise and ancient counselor.
+N:92:0:100:90
+D:a Wizard of legend.

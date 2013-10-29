@@ -1648,7 +1648,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 /*
  * Maximum size of a group of monsters
  */
-#define GROUP_MAX	32
+#define GROUP_MAX	31
 
 
 /*

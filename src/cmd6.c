@@ -650,8 +650,12 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
+#ifdef EFG
+	/* EFGchange allow activation without id */
+#else
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
+#endif
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);

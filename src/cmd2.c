@@ -2262,13 +2262,40 @@ void do_cmd_rest(void)
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
+#ifdef EFG
+		/* EFGchange rest '|' to match rest '&' */
+		cptr p = "Rest (0-9999, '*' HP and SP, '|' HP or SP, '&' as needed): ";
+#else
 		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
+#endif
 
 		char out_val[5] = "& ";
 
 		/* Ask for duration */
 		if (!get_string(p, out_val, sizeof(out_val))) return;
 
+#ifdef EFG
+		/* EFGchange rest '|' to match rest '&' */
+		switch(out_val[0])
+		{
+			case '&':
+				p_ptr->resting = REST_FULL;
+				break;
+			case '*':
+				p_ptr->resting = REST_BOTH;
+				break;
+			case '|':
+				p_ptr->resting = REST_EITHER;
+				break;
+			default:
+				p_ptr->resting = atoi(out_val);
+				if (p_ptr->resting < 0)
+					p_ptr->resting = 0;
+				if (p_ptr->resting > 9999)
+					p_ptr->resting = 9999;
+		}
+	}
+#else
 		/* Rest until done */
 		if (out_val[0] == '&')
 		{
@@ -2299,6 +2326,7 @@ void do_cmd_rest(void)
 
 	/* Save the rest code */
 	p_ptr->resting = p_ptr->command_arg;
+#endif
 
 	/* Cancel the arg */
 	p_ptr->command_arg = 0;
@@ -2347,10 +2375,16 @@ static int breakage_chance(const object_type *o_ptr)
 		/* Often break */
 		case TV_LITE:
 		case TV_SCROLL:
-		case TV_SKELETON:
 		{
 			return (50);
 		}
+		
+		/* Less Often break*/
+		case TV_SKELETON:
+		{
+			return (40);
+		}
+
 
 		/* Sometimes break */
 		case TV_ARROW:
@@ -2987,14 +3021,25 @@ static bool squelchable_hook(const object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+#ifdef EFG
+        /* EFGchange allow squelching unaware objects */
+        /* EFGchange code cleaning */
+	if (squelch_item_ok(o_ptr)) return FALSE;
+#else
 	/* No point in double-squelching things */
 	if (k_ptr->squelch) return FALSE;
+#endif
 
 	/* Don't squelch bad tvals */
 	if (!squelch_tval(o_ptr->tval)) return FALSE;
 
+#ifdef EFG
+        /* EFGchange allow squelching unaware objects */
+	return TRUE;
+#else
 	/* Only allow if aware */
 	return object_aware_p(o_ptr);
+#endif
 }
 
 
@@ -3021,9 +3066,18 @@ void do_cmd_mark_squelch()
 	else
 		o_ptr = &o_list[0 - item];
 
+#ifdef EFG
+        /* EFGchange allow squelching unaware objects */
+        /* there should be no references to [].squelch outside of squelch.c */
+	squelch_kind(o_ptr->k_idx, object_aware_p(o_ptr));
+
+	/* EFGchange bugfix */
+	p_ptr->notice |= PN_SQUELCH;
+#else
 	/* Get object kind */
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Set squelch flag */
 	k_ptr->squelch = TRUE;
+#endif
 }

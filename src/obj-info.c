@@ -428,6 +428,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_AGGRAVATE)) bad[bc++] = "aggravates creatures around you";
 	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
+//	if (f3 & (TR3_NOREGEN))   bad[bc++] = "prevents hit point regeneration";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))

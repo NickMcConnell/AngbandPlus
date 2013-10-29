@@ -93,6 +93,7 @@
 #define PRAYER_FIND_TRAPS               5
 #define PRAYER_DETECT_DOORS_STAIRS      6
 #define PRAYER_SLOW_POISON              7
+#define PRAYER_SPEAR_OF_LIGHT          58
 
 /* Words of Wisdom */
 #define PRAYER_SCARE_MONSTER            8
@@ -151,6 +152,7 @@
 #define PRAYER_ENCHANT_WEAPON          49
 #define PRAYER_ENCHANT_ARMOUR          50
 #define PRAYER_ELEMENTAL_BRAND         51
+#define PRAYER_STARLITE                59
 
 /* Ethereal openings */
 #define PRAYER_BLINK                   52
@@ -387,6 +389,12 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 			case PRAYER_TELEPORT_SELF:
 				strnfmt(p, len, " range %d", 8 * plev);
 				break;
+	   	    case PRAYER_SPEAR_OF_LIGHT:
+		        strnfmt(p, len, " dam 6d8");
+			    break;
+	   	    case PRAYER_STARLITE:
+			    strnfmt(p, len, " dam 6d8");
+			    break;
 		}
 	}
 
@@ -973,6 +981,14 @@ static bool cast_priest_spell(int spell)
 			break;
 		}
 
+		case PRAYER_SPEAR_OF_LIGHT: /* spear of light */
+		{
+			if (!get_aim_dir(&dir)) return (FALSE);
+			msg_print("A line of blue shimmering light appears.");
+			lite_line(dir);
+			break;
+		}
+		
 		case PRAYER_SCARE_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
@@ -1035,6 +1051,9 @@ static bool cast_priest_spell(int spell)
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_HOLY_ORB, dir,
 			          (damroll(3, 6) + plev +
+#ifdef EFG
+/* ??? should be a macro, this code is duplicated */
+#endif
 			           (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
 			          ((plev < 30) ? 2 : 3));
 			break;
@@ -1265,7 +1284,19 @@ static bool cast_priest_spell(int spell)
 			break;
 		}
 
-		case PRAYER_BLINK:
+		case PRAYER_STARLITE:
+		{
+			{
+				msg_print("You shine your light in all directions.");
+			}
+			lite_line(1);lite_line(2);lite_line(3);lite_line(4);
+            lite_line(5);lite_line(6);lite_line(7);
+            lite_line(8);lite_line(9);
+/*            for (k = 0; k < 8; k++) lite_line(ddd[k]);  */
+			break;
+		}
+        
+   		case PRAYER_BLINK:
 		{
 			teleport_player(10);
 			break;

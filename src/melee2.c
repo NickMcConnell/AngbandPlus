@@ -429,6 +429,16 @@ static void breath(int m_idx, int typ, int dam_hp)
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    	
+	    /* POWERFUL flag should raise breath damage for low hp monsters */
+	    if (r_ptr->flags2 & (RF2_POWERFUL) && dam_hp < 50)
+	       {
+           int die = randint(100);
+           if (die < 5) dam_hp = dam_hp * 3;
+           else if (die < 52) dam_hp = dam_hp * 2;
+           else if (die < 76) dam_hp = dam_hp * 1.4;
+           else if (die < 92) dam_hp = dam_hp + 2;
+           }
 
 	/* Determine the radius of the blast */
 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
@@ -1552,9 +1562,14 @@ bool make_attack_spell(int m_idx)
 		/* RF5_BO_POIS */
 		case RF5_OFFSET+20:
 		{
-			/* XXX XXX XXX */
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a poison bolt.", m_name);
+			bolt(m_idx, GF_POIS,
+			     3 + damroll(7, 6) + (rlev / 3));
+			update_smart_learn(m_idx, DRS_RES_POIS);
 			break;
-		}
+   		}
 
 		/* RF5_BO_NETH */
 		case RF5_OFFSET+21:
@@ -1574,8 +1589,16 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a water bolt.", m_name);
-			bolt(m_idx, GF_WATER,
-			     damroll(10, 10) + (rlev));
+			if (rlev < 35)
+			   {
+			   bolt(m_idx, GF_WATER,
+			   damroll(8, 8) + (rlev / 2));
+               }
+	        else 
+               {
+			   bolt(m_idx, GF_WATER,
+               damroll(10, 10) + (rlev));
+               }
 			break;
 		}
 
@@ -1636,6 +1659,17 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You refuse to be frightened.");
 			}
+			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			{
+                 if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+				 {
+                    msg_print("You refuse to be frightened.");
+                 }
+                 else
+                 {
+                    (void)inc_timed(TMD_AFRAID, rand_int(5) + 4);
+                 }
+            }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You refuse to be frightened.");
@@ -1659,6 +1693,17 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
+			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			     {
+                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+				    {
+                      msg_print("You resist the effects!");
+                    }
+                    else
+                    {
+                      (void)set_timed(TMD_BLIND, 12 + rand_int(5));
+                    }
+            }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
@@ -1682,6 +1727,17 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
+			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			{
+                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+				    {
+                      msg_print("You disbelieve the feeble spell.");
+                    }
+                    else
+                    {
+                      (void)inc_timed(TMD_CONFUSED, rand_int(5) + 4);
+                    }
+            }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You disbelieve the feeble spell.");
@@ -1704,6 +1760,17 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
+			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			{
+                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+				    {
+                      msg_print("You resist the effects!");
+                    }
+                    else
+                    {
+                      (void)inc_timed(TMD_SLOW, rand_int(5) + 4);
+                    }
+            }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_print("You resist the effects!");
@@ -1727,6 +1794,17 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("You are unaffected!");
 			}
+			else if (r_ptr->flags2 & (RF2_POWERFUL))
+			{
+                    if (rand_int(110) < p_ptr->skills[SKILL_SAV])
+				    {
+                      msg_print("You resist the effects!");
+                    }
+                    else
+                    {
+                      (void)inc_timed(TMD_PARALYZED, rand_int(5) + 4);
+                    }
+            }
 			else if (rand_int(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msg_format("You resist the effects!");
@@ -1804,11 +1882,11 @@ bool make_attack_spell(int m_idx)
 				/* Message */
 				if (seen)
 				{
-					msg_format("%^s looks REALLY healthy!", m_name);
+					msg_format("%^s looks fully healthy!", m_name);
 				}
 				else
 				{
-					msg_format("%^s sounds REALLY healthy!", m_name);
+					msg_format("%^s sounds fully healthy!", m_name);
 				}
 			}
 
@@ -2133,7 +2211,7 @@ bool make_attack_spell(int m_idx)
 			}
 			if (blind && count)
 			{
-				msg_print("You hear something appear nearby.");
+				msg_print("You hear something appear nearby ..and it spells like a monkey.");
 			}
 			break;
 		}

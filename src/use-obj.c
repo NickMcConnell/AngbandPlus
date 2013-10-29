@@ -775,6 +775,12 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) *ident = TRUE;
+#ifdef EFG
+			/* EFGchange learn flavor of trap creation */
+			/* I have never ever seen that return true */
+			msg_print("You hear the floor shifting.");
+			*ident = TRUE;
+#endif
 			break;
 		}
 

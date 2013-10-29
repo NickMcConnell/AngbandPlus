@@ -1533,7 +1533,7 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stacking",
 	"birth_no_preserve",
 	"birth_no_stairs",
-	NULL,						/* xxx */
+	"birth_cansell",            /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1597,7 +1597,7 @@ cptr option_text[OPT_MAX] =
 	"adult_no_stacking",
 	"adult_no_preserve",
 	"adult_no_stairs",
-	NULL,						/* xxx */
+	"adult_cansell",
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1797,7 +1797,7 @@ cptr option_desc[OPT_MAX] =
 	"Don't stack objects on the floor",			/* OPT_birth_no_stacking */
 	"Don't preserve artifacts when leaving level",	/* OPT_birth_no_preserve */
 	"Don't generate connected stairs",			/* OPT_birth_no_stairs */
-	NULL,										/* xxx */
+	"Enable selling to shops (also affects gold)",  /* OPT_birth_cansell */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1807,8 +1807,7 @@ cptr option_desc[OPT_MAX] =
 	"Monsters learn from their mistakes",
 	"Monsters exploit player's weaknesses",
 	"Monsters behave more intelligently (broken)",
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	NULL,										/* xxx */	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1861,7 +1860,7 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Don't stack objects on the floor",	/* OPT_adult_no_stacking */
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_no_preserve */
 	"Adult: Don't generate connected stairs",	/* OPT_adult_no_stairs */
-	NULL,										/* xxx */
+	"Adult: Enable selling to shops",			/* OPT_adult_cansell */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1924,11 +1923,11 @@ cptr option_desc[OPT_MAX] =
  */
 const bool option_norm[OPT_MAX] =
 {
-	FALSE,		/* OPT_rogue_like_commands */
+	TRUE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
 	FALSE,		/* OPT_use_sound */
 	TRUE,		/* OPT_query_floor */
-	FALSE,		/* OPT_use_old_target */
+	TRUE,		/* OPT_use_old_target */
 	FALSE,		/* OPT_always_pickup */
 	TRUE,		/* OPT_pickup_inven */
 	FALSE,		/* OPT_depth_in_feet */
@@ -1938,7 +1937,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx show_weights */
 	FALSE,		/* xxx show_choices */
 	FALSE,		/* xxx show_details */
-	TRUE,		/* OPT_ring_bell */
+	FALSE,		/* OPT_ring_bell */
 	TRUE,		/* OPT_show_flavors */
 	FALSE,		/* xxx run_ignore_stairs */
 	FALSE,		/* xxx run_ignore_doors */
@@ -1948,7 +1947,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
-	TRUE,		/* OPT_disturb_minor */
+	FALSE,		/* OPT_disturb_minor */
 	FALSE,		/* xxx next_xp */
 	FALSE,		/* xxx alert_hitpoint */
 	FALSE,		/* xxx alert_failure */
@@ -1963,7 +1962,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx expand_look */
 	FALSE,		/* xxx expand_list */
 	TRUE,		/* OPT_view_perma_grids */
-	TRUE,		/* OPT_view_torch_grids */
+	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* xxx adult_ai_sound */
@@ -1992,8 +1991,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_easy_alter */
 	FALSE,		/* xxx easy_floor */
 	FALSE,		/* OPT_show_piles */
-	FALSE,		/* OPT_center_player */
-	FALSE,		/* xxx run_avoid_center */
+	TRUE,		/* OPT_center_player */
+	TRUE,		/* xxx run_avoid_center */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* xxx smart_monsters */
@@ -2054,20 +2053,20 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* birth_maximise */
 	FALSE,		/* birth_randarts */
-	FALSE,		/* birth_autoscum */
+	TRUE,		/* birth_autoscum */
 	FALSE,		/* birth_ironman */
 	FALSE,		/* birth_no_stores */
 	FALSE,		/* birth_no_artifacts */
 	FALSE,		/* birth_no_stacking */
 	FALSE,		/* birth_no_preserve */
 	FALSE,		/* birth_no_stairs */
-	FALSE,		/* xxx */
+	FALSE,		/* birth_cansell */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* birth_ai_sound */
-	TRUE,		/* birth_ai_smell */
-	TRUE,		/* birth_ai_packs */
+	FALSE,		/* birth_ai_smell */
+	FALSE,		/* birth_ai_packs */
 	FALSE,		/* birth_ai_learn */
 	FALSE,		/* birth_ai_cheat */
 	FALSE,		/* birth_ai_smart */
@@ -2118,14 +2117,14 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* adult_maximise */
 	FALSE,		/* adult_randarts */
-	FALSE,		/* adult_autoscum */
+	TRUE,		/* adult_autoscum */
 	FALSE,		/* adult_ironman */
 	FALSE,		/* adult_no_stores */
 	FALSE,		/* adult_no_artifacts */
 	FALSE,		/* adult_no_stacking */
 	FALSE,		/* adult_no_preserve */
 	FALSE,		/* adult_no_stairs */
-	FALSE,		/* xxx */
+	FALSE,		/* adult_cansell */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2135,7 +2134,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* adult_ai_learn */
 	FALSE,		/* adult_ai_cheat */
 	FALSE,		/* adult_ai_smart */
-	FALSE,		/* xxx */
+//	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2256,12 +2255,13 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stacking,
 		OPT_birth_no_preserve,
 		OPT_birth_no_stairs,
+		OPT_birth_cansell,
 		OPT_birth_ai_sound,
 		OPT_birth_ai_smell,
 		OPT_birth_ai_packs,
 		OPT_birth_ai_learn,
 		OPT_birth_ai_cheat,
-		OPT_birth_ai_smart,
+//		OPT_birth_ai_smart,
 	},
 
 	/* Cheat */
@@ -2285,7 +2285,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 };
 
 
+#ifdef EFG
+/* EFGchange code cleaning */
+cptr inscrip_text[INSCRIP_MAX] =
+#else
 cptr inscrip_text[MAX_INSCRIP] =
+#endif
 {
 	NULL,
 	"terrible",
@@ -2297,7 +2302,15 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"excellent",
 	"special",
 	"uncursed",
+#ifdef EFG
+	/* EFGchange remember when you have "tried" on a wieldable */
+	/* EFGchange new pseudo level SPLENDID */
+	"indestructible",
+	"tried",
+	"splendid",
+#else
 	"indestructible"
+#endif
 };
 
 const grouper object_text_order [] =
@@ -2380,7 +2393,12 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
 
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
+#ifdef EFG
+		/* EFGchange Armory sells good cloaks since general store does not */
+		{ TV_CLOAK,		SV_CLOAK },
+#else
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+#endif
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },

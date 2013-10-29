@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies.  Other copyrights mayz also apply.
  */
 
 #include "angband.h"
@@ -1798,6 +1798,7 @@ static void calc_bonuses(void)
 	int extra_blows;
 	int extra_shots;
 	int extra_might;
+	int heavy_bonus;
 
 	int old_stat_top[A_MAX];
 	int old_stat_use[A_MAX];
@@ -1870,6 +1871,7 @@ static void calc_bonuses(void)
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
+//    p_ptr->noregen = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
@@ -1963,6 +1965,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+//	if (f3 & (TR3_NOREGEN)) p_ptr->noregen = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2062,6 +2065,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+//  	    if (f3 & (TR3_NOREGEN)) p_ptr->noregen = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2268,7 +2272,7 @@ static void calc_bonuses(void)
 	/* Apply "encumbrance" from weight */
 	if (j > i / 2) p_ptr->pspeed -= ((j - (i / 2)) / (i / 10));
 
-	/* Bloating slows the player down (a little) */
+	/* Bloating slows the player down */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
 
 	/* Searching slows the player down */
@@ -2455,16 +2459,19 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
+    if (!CF_HEAVY_BONUS)
+    {
 	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
-	{
+	   if (hold < o_ptr->weight / 10)
+	   {
 		/* Hard to wield a heavy weapon */
 		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
 		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
-	}
+	   }
+    }
 
 	/* Normal weapons */
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)

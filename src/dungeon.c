@@ -14,6 +14,38 @@
 #include "script.h"
 
 
+#ifdef EFG
+/* EFGchange allow pseudo on jewelry */
+typedef byte Bool;
+static Bool excellent_jewelry_p(const object_type *o_ptr)
+{
+	/* some rings and amulets are considered excellent without an ego */
+	if (o_ptr->tval == TV_RING)
+	{
+		switch(o_ptr->sval)
+		{
+			case SV_RING_RESIST_FIRE:
+			case SV_RING_RESIST_COLD:
+			case SV_RING_RESIST_POIS:
+			case SV_RING_FREE_ACTION:
+			case SV_RING_SEE_INVIS:
+				return (TRUE);
+		}
+	}
+	else if (o_ptr->tval == TV_AMULET)
+	{
+		switch(o_ptr->sval)
+		{
+			case SV_AMULET_RESIST_ACID:
+			case SV_AMULET_RESIST:
+			case SV_AMULET_REGEN:
+			case SV_AMULET_RESIST_LIGHTNING:
+				return (TRUE);
+		}
+	}
+	return (FALSE);
+}
+#endif
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
@@ -29,6 +61,14 @@ int value_check_aux1(const object_type *o_ptr)
 		return (INSCRIP_SPECIAL);
 	}
 
+#ifdef EFG
+	/* EFGchange new pseudo level SPLENDID */
+	/* now that all standarts are splendid, should there even be INSCRIP_SPECIAL? */
+	if (object_splendid_p(o_ptr))
+		return (INSCRIP_SPLENDID);
+	/* EFGchange pseudo jewelry */
+	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_EXCELLENT);
+#endif
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
@@ -50,7 +90,7 @@ int value_check_aux1(const object_type *o_ptr)
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
-
+	
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
 }
@@ -67,6 +107,11 @@ static int value_check_aux2(const object_type *o_ptr)
 	/* Broken items (all of them) */
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
+#ifdef EFG
+	/* EFGchange new pseudo level SPLENDID */
+	if (object_splendid_p(o_ptr)) return (INSCRIP_SPLENDID);
+	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_GOOD);
+#endif
 	/* Artifacts -- except cursed/broken ones */
 	if (artifact_p(o_ptr)) return (INSCRIP_GOOD);
 
@@ -122,8 +167,15 @@ static void sense_inventory(void)
 
 	/*** Sense everything ***/
 
+#ifdef EFG
+	/* EFGchange know non-pseudoed wielded items average when anything pseudos */
+	bool sensedany = FALSE;
+	int phase;
+	for (phase = 0; phase <= 1; phase++) for (i = phase*INVEN_WIELD; i < INVEN_TOTAL; i++)
+#else
 	/* Check everything */
 	for (i = 0; i < INVEN_TOTAL; i++)
+#endif
 	{
 		bool okay = FALSE;
 
@@ -152,6 +204,12 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+#ifdef EFG
+			/* EFGchange allow pseudo on jewelry */
+			case TV_LITE:
+			case TV_AMULET:
+			case TV_RING:
+#endif
 			{
 				okay = TRUE;
 				break;
@@ -161,9 +219,15 @@ static void sense_inventory(void)
 		/* Skip non-sense machines */
 		if (!okay) continue;
 
+#ifdef EFG
+		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
+		/* anything that is fully pseudoed should have IDENT_SENSE */
+		/* semi pseudo like INDESTRUCTIBLE or SPLENDID does not */
+#else
 		/* It's already been pseudo-ID'd */
 		if (o_ptr->pseudo &&
 		    o_ptr->pseudo != INSCRIP_INDESTRUCTIBLE) continue;
+#endif
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -178,6 +242,14 @@ static void sense_inventory(void)
 		if (o_ptr->pseudo == INSCRIP_INDESTRUCTIBLE)
 			heavy = TRUE;
 
+#ifdef EFG
+		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
+		/* The second pass with phase=1 we know everything non-avg */
+		/* has pseudoed, and the player should know anything else  */
+		/* currently wielded is avg, if anything pseudoed at all.  */
+		if (phase && sensedany)
+			heavy = TRUE;
+#endif
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
@@ -186,6 +258,10 @@ static void sense_inventory(void)
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
+#ifdef EFG
+		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
+		sensedany = TRUE;
+#endif
 
 		/* Get an object description */
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -195,7 +271,13 @@ static void sense_inventory(void)
 
 		if (i >= INVEN_WIELD)
 		{
+#ifdef EFG
+			/* EFGchange know non-pseudoed wielded items average when anything pseudos */
+			msg_format("You %s the %s (%c) you are %s %s %s...",
+				phase ? "realize" : "feel",
+#else
 			msg_format("You feel the %s (%c) you are %s %s %s...",
+#endif
 			           o_name, index_to_label(i), describe_use(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
 			           inscrip_text[feel - INSCRIP_NULL]);
@@ -215,6 +297,19 @@ static void sense_inventory(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+#ifdef EFG
+		if (o_ptr->name1)
+		{
+			/* EFGchange remove need for identify wrto preserving artifacts */
+			object_known(o_ptr);
+			msg_print("You recognize a legendary item!");
+		}
+		/* EFGchange make stuff that pseudos as average be as if identified */
+		/* ??? This does not pick up jewelry -- good or bad? */
+		if ((feel == INSCRIP_AVERAGE) && (object_aware_p(o_ptr)))
+			/* so you don't have to remember how many times enchanted "avg" longbow */
+			object_known(o_ptr);
+#endif
 
 		/* Set squelch flag as appropriate */
 		if (i < INVEN_WIELD)
@@ -873,6 +968,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
+//	if (p_ptr->noregen) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -1133,7 +1229,21 @@ static void process_player(void)
 	if (p_ptr->resting < 0)
 	{
 		/* Basic resting */
+#ifdef EFG
+		/* EFGchange rest '|' to match rest '&' */
+		if (p_ptr->resting == REST_EITHER)
+		{
+			/* Stop resting */
+			if ((p_ptr->chp == p_ptr->mhp) ||
+			    (p_ptr->csp == p_ptr->msp))
+			{
+				disturb(0, 0);
+			}
+		}
+		else if (p_ptr->resting == REST_BOTH)
+#else
 		if (p_ptr->resting == -1)
+#endif
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
@@ -1144,7 +1254,12 @@ static void process_player(void)
 		}
 
 		/* Complete resting */
+#ifdef EFG
+		/* EFGchange rest '|' to match rest '&' */
+		else if (p_ptr->resting == REST_FULL)
+#else
 		else if (p_ptr->resting == -2)
+#endif
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&

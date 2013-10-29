@@ -315,9 +315,10 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_TAIL:
 				{
-					act = "XXX1's you.";
+					act = "swings its tail at you.";
+					do_stun = 1;
 					break;
 				}
 
@@ -615,6 +616,34 @@ bool make_attack_normal(int m_idx)
 							msg_print("Your purse feels lighter.");
 							msg_print("All of your coins were stolen!");
 						}
+#ifdef EFG
+						/* EFGchange stolen gold does not evaporate */
+						long maxpval = (u16b) ((s16b) -1);  /* ??? should go elsewhere */
+						long maxnum = 99;
+						long maxgold = maxnum * maxpval;
+						object_type object_type_body;
+						object_type *i_ptr = &object_type_body;
+						while (gold > 0)
+						{
+        						object_wipe(i_ptr);
+        						make_gold(i_ptr);
+							if (gold < maxpval)
+								i_ptr->pval = gold;
+							else if (gold >= maxgold)
+							{
+								i_ptr->number = maxnum;
+								i_ptr->pval = maxpval;
+							}
+							else
+							{
+								/* no big deal to lose a few gold pieces */
+								i_ptr->number = gold/maxpval;
+								i_ptr->pval = gold/i_ptr->number;
+							}
+							gold -= i_ptr->number * i_ptr->pval;
+							(void)monster_carry(m_idx, i_ptr);
+						}
+#endif
 
 						/* Redraw gold */
 						p_ptr->redraw |= (PR_GOLD);
@@ -1288,7 +1317,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_STING:
-				case RBM_XXX1:
+				case RBM_TAIL:
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:

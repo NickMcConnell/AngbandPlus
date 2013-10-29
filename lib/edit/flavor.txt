@@ -26,7 +26,7 @@ D:Plain Gold
 
 N:2:45
 G:=:g
-D:Alexandrite
+D:Agate
 
 N:3:45
 G:=:v
@@ -38,7 +38,7 @@ D:Aquamarine
 
 N:5:45
 G:=:B
-D:Azurite
+D:Amber
 
 N:6:45
 G:=:G
@@ -50,7 +50,7 @@ D:Bloodstone
 
 N:8:45
 G:=:w
-D:Calcite
+D:Carbuncle
 
 N:9:45
 G:=:r
@@ -58,7 +58,7 @@ D:Carnelian
 
 N:10:45
 G:=:s
-D:Corundum
+D:Chrysoberyl
 
 N:11:45
 G:=:w
@@ -94,7 +94,7 @@ D:Lapis Lazuli
 
 N:19:45
 G:=:g
-D:Malachite
+D:Chrysoprase
 
 N:20:45
 G:=:w
@@ -122,11 +122,11 @@ D:Quartz
 
 N:26:45
 G:=:W
-D:Quartzite
+D:Citrine
 
 N:27:45
 G:=:R
-D:Rhodonite
+D:Jacinth
 
 N:28:45
 G:=:r
@@ -154,50 +154,50 @@ D:Zircon
 
 N:34:45
 G:=:w
-D:Platinum
+D:Flawed Diamond
 
 N:35:45
 G:=:U
-D:Bronze
+D:Iolite
 
 N:36:45
 G:=:y
-D:Gold
+D:Tourmaline
 
 N:37:45
 G:=:D
-D:Obsidian
+D:Black Diamond
 
 N:38:45
-G:=:W
-D:Silver
+G:=:R
+D:Star Ruby
 
 N:39:45
-G:=:u
-D:Tortoise Shell
+G:=:o
+D:Spinel
 
 N:40:45
-G:=:B
-D:Mithril
+G:=:b
+D:Star Sapphire
 
 N:41:45
 G:=:D
 D:Jet
 
 N:42:45
-G:=:y
-D:Engagement
+G:=:B
+D:Blue Diamond
 
 N:43:45
 G:=:G
-D:Adamantite
+D:Kryptonite
 
 
 ##### Amulets #####
 
 N:44:40
 G:":y
-D:Amber
+D:Adamant
 
 N:45:40
 G:":U
@@ -209,31 +209,31 @@ D:Coral
 
 N:47:40
 G:":W
-D:Agate
+D:Alabaster
 
 N:48:40
 G:":w
-D:Ivory
+D:Crystal
 
 N:49:40
 G:":D
 D:Obsidian
 
 N:50:40
-G:":w
+G:":W
 D:Bone
 
 N:51:40
-G:":U
-D:Brass
+G:":w
+D:Ivory
 
 N:52:40
-G:":U
-D:Bronze
+G:":s
+D:Flint Stone
 
 N:53:40
-G:":s
-D:Pewter
+G:":w
+D:Glass
 
 N:54:40
 G:":u
@@ -241,55 +241,55 @@ D:Tortoise Shell
 
 N:55:40
 G:":y
-D:Golden
+D:Malachite
 
 N:56:40
-G:":B
-D:Azure
+G:":W
+D:Mother-of-Pearl
 
 N:57:40
-G:":w
-D:Crystal
+G:":s
+D:Granite
 
 N:58:40
 G:":W
-D:Silver
+D:Marble
 
 N:59:40
-G:":U
-D:Copper
+G:":g
+D:Limestone
 
 N:60:40
 G:":u
-D:Carved Oak
+D:Procelain
 
 N:61:40
 G:":W
 D:Dragon Tooth
 
 N:62:40
-G:":r
-D:Ruby
+G:":U
+D:Terracotta
 
 N:63:40
-G:":B
-D:Mithril
+G:":b
+D:Enamel
 
 N:64:40
 G:":G
-D:Adamant
+D:Haematite
 
 N:65:40
 G:":s
-D:Flint Stone
+D:Smooth Stone
 
 N:66:40
 G:":B
 D:Sea Shell
 
 N:67:40
-G:":W
-D:Mother-of-Pearl
+G:":R
+D:Colored Glass
 
 
 ##### Staves #####
@@ -300,11 +300,11 @@ D:Aspen
 
 N:69:55
 G:_:U
-D:Balsa
+D:Ash
 
 N:70:55
 G:_:U
-D:Banyan
+D:Applewood
 
 N:71:55
 G:_:U
@@ -343,12 +343,12 @@ G:_:U
 D:Hickory
 
 N:80:55
-G:_:u
-D:Ironwood
+G:_:U
+D:Blackthorn
 
 N:81:55
 G:_:U
-D:Locust
+D:Alder
 
 N:82:55
 G:_:u
@@ -360,7 +360,7 @@ D:Maple
 
 N:84:55
 G:_:u
-D:Mulberry
+D:Beech
 
 N:85:55
 G:_:u
@@ -376,7 +376,7 @@ D:Redwood
 
 N:88:55
 G:_:r
-D:Rosewood
+D:Rowan
 
 N:89:55
 G:_:U
@@ -388,7 +388,7 @@ D:Sycamore
 
 N:91:55
 G:_:U
-D:Teak
+D:Chestnut
 
 N:92:55
 G:_:u
@@ -403,32 +403,32 @@ G:_:U
 D:Hawthorn
 
 N:95:55
-G:_:U
-D:Bamboo
+G:_:D
+D:Ebony
 
 N:96:55
 G:_:W
-D:Silver
+D:Poplar
 
 N:97:55
 G:_:u
-D:Runed
+D:Hazel
 
 N:98:55
-G:_:y
-D:Golden
+G:_:u
+D:Fir
 
 N:99:55
-G:_:s
-D:Ashen
+G:_:U
+D:Wych Elm
 
 N:100:55
 G:_:U
 D:Gnarled
 
 N:101:55
-G:_:w
-D:Ivory
+G:_:u
+D:Yew
 
 N:102:55
 G:_:U
@@ -438,159 +438,159 @@ D:Willow
 ##### Wands #####
 
 N:103:65
-G:-:B
-D:Aluminium
+G:-:r
+D:Basilisk Tooth
 
 N:104:65
-G:-:D
-D:Cast Iron
+G:-:u
+D:Chimaera Hide
 
 N:105:65
-G:-:w
-D:Chromium
+G:-:o
+D:Cockatrice Beak
 
 N:106:65
-G:-:U
-D:Copper
+G:-:g
+D:Drake Scale
 
 N:107:65
-G:-:y
-D:Gold
+G:-:s
+D:Dragon Claw
 
 N:108:65
-G:-:s
-D:Iron
+G:-:U
+D:Amphisbaena Tail
 
 N:109:65
-G:-:W
-D:Magnesium
+G:-:s
+D:Gargoyle Wing
 
 N:110:65
-G:-:W
-D:Molybdenum
+G:-:g
+D:Gorgon Hair
 
 N:111:65
-G:-:U
-D:Nickel
+G:-:o
+D:Harpy Feather
 
 N:112:65
-G:-:r
-D:Rusty
+G:-:U
+D:Mandrake Root
 
 N:113:65
-G:-:W
-D:Silver
+G:-:U
+D:Hippocampus Tail
 
 N:114:65
-G:-:W
-D:Steel
+G:-:u
+D:Hippogriff Hoof
 
 N:115:65
-G:-:W
-D:Tin
+G:-:r
+D:Hydra Tongue
 
 N:116:65
-G:-:w
-D:Titanium
+G:-:U
+D:Keplie Mane
 
 N:117:65
-G:-:w
-D:Tungsten
+G:-:g
+D:Kracken Fin
 
 N:118:65
 G:-:W
-D:Zirconium
+D:Golem Clay
 
 N:119:65
-G:-:W
-D:Zinc
+G:-:s
+D:Manticore Quill
 
 N:120:65
-G:-:B
-D:Aluminum-Plated
+G:-:W
+D:Minotaur Horn
 
 N:121:65
 G:-:U
-D:Copper-Plated
+D:Phoenix Spices
 
 N:122:65
 G:-:y
-D:Gold-Plated
+D:Pegasus Tail
 
 N:123:65
-G:-:U
-D:Nickel-Plated
+G:-:R
+D:Phoenix Feather
 
 N:124:65
-G:-:W
-D:Silver-Plated
+G:-:u
+D:Roc Talon
 
 N:125:65
-G:-:W
-D:Steel-Plated
+G:-:R
+D:Salamander Skin
 
 N:126:65
-G:-:W
-D:Tin-Plated
+G:-:o
+D:Siren Lip
 
 N:127:65
-G:-:W
-D:Zinc-Plated
+G:-:U
+D:Sphinx Feather
 
 N:128:65
-G:-:B
-D:Mithril-Plated
+G:-:W
+D:Troll Bone
 
 N:129:65
-G:-:B
-D:Mithril
+G:-:y
+D:Unicorn Horn
 
 N:130:65
-G:-:u
-D:Runed
+G:-:W
+D:Wyrm Fang
 
 N:131:65
-G:-:U
-D:Bronze
+G:-:g
+D:Wyvern Scale
 
 N:132:65
-G:-:U
-D:Brass
+G:-:u
+D:Catoblepas Hair
 
 N:133:65
 G:-:w
-D:Platinum
+D:Cyclops Eye
 
 N:134:65
 G:-:s
-D:Lead
+D:Zhelung Scale
 
 N:135:65
-G:-:s
-D:Lead-Plated
+G:-:W
+D:Druj Bone
 
 N:136:65
-G:-:w
-D:Ivory
+G:-:v
+D:Fairy Dust
 
 N:137:65
 G:-:s
-D:Pewter
+D:Xan Stinger
 
 
 ##### Rods #####
 
 N:138:66
 G:-:B
-D:Aluminum
+D:Brass
 
 N:139:66
 G:-:D
 D:Cast Iron
 
 N:140:66
-G:-:w
-D:Chromium
+G:-:U
+D:Bronze
 
 N:141:66
 G:-:U
@@ -605,12 +605,12 @@ G:-:s
 D:Iron
 
 N:144:66
-G:-:W
-D:Magnesium
+G:-:U
+D:Bronze-Plated
 
 N:145:66
-G:-:W
-D:Molybdenum
+G:-:s
+D:Iron-bound
 
 N:146:66
 G:-:U
@@ -618,7 +618,7 @@ D:Nickel
 
 N:147:66
 G:-:r
-D:Rusty
+D:Rusty Iron
 
 N:148:66
 G:-:W
@@ -637,20 +637,20 @@ G:-:w
 D:Titanium
 
 N:152:66
-G:-:w
-D:Tungsten
+G:-:y
+D:Engraved Gold
 
 N:153:66
 G:-:W
-D:Zirconium
+D:Electrum
 
 N:154:66
 G:-:W
 D:Zinc
 
 N:155:66
-G:-:B
-D:Aluminum-Plated
+G:-:r
+D:Rusted Steel
 
 N:156:66
 G:-:U
@@ -689,16 +689,16 @@ G:-:B
 D:Mithril
 
 N:165:66
-G:-:u
-D:Runed
+G:-:U
+D:Tarnished Silver
 
 N:166:66
-G:-:U
-D:Bronze
+G:-:w
+D:White Gold
 
 N:167:66
 G:-:U
-D:Brass
+D:Brass-Bound
 
 N:168:66
 G:-:w
@@ -714,94 +714,94 @@ D:Lead-Plated
 
 N:171:66
 G:-:w
-D:Ivory
+D:Pinchbeck
 
 N:172:66
 G:-:s
-D:Pewter
+D:Rhodium
 
 
 ##### Mushrooms #####
 
 N:173:80
-G:,:b
-D:Blue
+G:,:o
+D:Crumbly
 
 N:174:80
 G:,:D
-D:Black
+D:Gloomy
 
 N:175:80
-G:,:D
-D:Black Spotted
+G:,:o
+D:Pointy
 
 N:176:80
-G:,:u
-D:Brown
+G:,:o
+D:Fragrant
 
 N:177:80
-G:,:b
-D:Dark Blue
+G:,:o
+D:Fleshy
 
 N:178:80
-G:,:g
-D:Dark Green
-
-N:179:80
-G:,:r
-D:Dark Red
-
-N:180:80
-G:,:y
-D:Yellow
-
-N:181:80
-G:,:W
+G:,:o
 D:Furry
 
+N:179:80
+G:,:o
+D:Gelatinous
+
+N:180:80
+G:,:o
+D:Glowing
+
+N:181:80
+G:,:o
+D:Moist
+
 N:182:80
-G:,:g
-D:Green
+G:,:o
+D:Mottled
 
 N:183:80
-G:,:s
-D:Grey
+G:,:o
+D:Speckled
 
 N:184:80
-G:,:B
-D:Light Blue
+G:,:o
+D:Spotted
 
 N:185:80
-G:,:G
-D:Light Green
+G:,:o
+D:Striped
 
 N:186:80
-G:,:v
-D:Violet
+G:,:o
+D:Withered
 
 N:187:80
-G:,:r
-D:Red
+G:,:o
+D:Wrinkled
 
 N:188:80
 G:,:s
 D:Slimy
 
 N:189:80
-G:,:U
-D:Tan
+G:,:o
+D:Waxy
 
 N:190:80
-G:,:w
-D:White
+G:,:o
+D:Smelly
 
 N:191:80
-G:,:w
-D:White Spotted
+G:,:o
+D:Puffy
 
 N:192:80
-G:,:u
-D:Wrinkled
+G:,:o
+D:Flat
 
 
 ##### Potions #####
@@ -842,8 +842,8 @@ G:!:u
 D:Brown
 
 N:201:75
-G:!:u
-D:Brown Speckled
+G:!:r
+D:Burgundy
 
 N:202:75
 G:!:W
@@ -858,8 +858,8 @@ G:!:w
 D:Cloudy
 
 N:205:75
-G:!:U
-D:Copper Speckled
+G:!:G
+D:Green Speckled
 
 N:206:75
 G:!:r
@@ -882,32 +882,32 @@ G:!:r
 D:Dark Red
 
 N:211:75
-G:!:y
-D:Gold Speckled
+G:!:v
+D:Indigo
 
 N:212:75
-G:!:g
-D:Green
+G:!:G
+D:Iridescent
 
 N:213:75
 G:!:g
-D:Green Speckled
+D:Green
 
 N:214:75
 G:!:s
 D:Grey
 
 N:215:75
-G:!:s
-D:Grey Speckled
+G:!:G
+D:Lime-Green
 
 N:216:75
 G:!:W
 D:Hazy
 
 N:217:75
-G:!:v
-D:Indigo
+G:!:u
+D:Ochre
 
 N:218:75
 G:!:B
@@ -922,20 +922,20 @@ G:!:r
 D:Magenta
 
 N:221:75
-G:!:b
-D:Metallic Blue
+G:!:v
+D:Mauve
 
 N:222:75
 G:!:r
-D:Metallic Red
+D:Maroon
 
 N:223:75
-G:!:g
-D:Metallic Green
+G:!:r
+D:Scarlet
 
 N:224:75
-G:!:v
-D:Metallic Purple
+G:!:r
+D:Sanguine
 
 N:225:75
 G:!:W
@@ -954,8 +954,8 @@ G:!:R
 D:Pink
 
 N:229:75
-G:!:R
-D:Pink Speckled
+G:!:w
+D:Canescent
 
 N:230:75
 G:!:v
@@ -974,12 +974,12 @@ G:!:r
 D:Red
 
 N:234:75
-G:!:r
-D:Red Speckled
+G:!:B
+D:Cerulean
 
 N:235:75
-G:!:W
-D:Silver Speckled
+G:!:u
+D:Steaming
 
 N:236:75
 G:!:D

@@ -99,8 +99,8 @@ N:6:2:Durwin the Shifty
 I:6:25000:150
 N:6:3:Drago the Fair
 I:2:30000:150
-N:6:4:Aberforth the Unknown
-I:0:22500:149
+N:6:4:Unghunit the Smelly
+I:14:21000:149
 
 # Home
 N:7:0:Your home
@@ -109,8 +109,19 @@ N:7:1:Your home
 I:99:0:100
 N:7:2:Your home
 I:99:0:100
-N:7:3:Your home
+N:7:3:Home Sweet Home
 I:99:0:100
 N:7:4:Your hidey-hole
 I:99:0:100
 
+# Specialty Store
+#N:8:0:Aberforth the Unknown
+#I:8:25000:108
+#N:8:1:Igney Shmeolloyd the Specialty Salesman
+#I:0:19000:110
+#N:8:2:Glorfindel the Forgotten Elf Lord
+#I:9:30000:111
+#N:8:3:Axxol the Wrinkled Sage
+#I:12:14000:107
+#N:8:4:Seamus Ophilite the Miser
+#I:4:27500:114

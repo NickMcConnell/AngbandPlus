@@ -548,6 +548,11 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+#ifdef EFG
+	/* EFGchange give description of artifact activations without IDENT_MENTAL */
+	if (object_known_p(o_ptr) && o_ptr->name1 && a_info[o_ptr->name1].flags3 & TR3_ACTIVATE)
+		*f3 |= TR3_ACTIVATE;
+#endif
 }
 
 
@@ -762,7 +767,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	{
 		if (object_value(o_ptr) == 0)
 		{
+#ifdef EFG
+			/* EFGchange allow squelching unaware objects */
+			squelch_kind(o_ptr->k_idx, aware);
+#else
 			k_ptr->squelch = TRUE;
+#endif
 			p_ptr->notice |= PN_SQUELCH;
 		}
 	}
@@ -1506,7 +1516,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Wands and Staffs have charges */
+#ifdef EFG
+	/* EFGchange show charges if aware without id */
+	if (aware &&
+#else
 	if (known &&
+#endif
 	    ((o_ptr->tval == TV_STAFF) ||
 	     (o_ptr->tval == TV_WAND)))
 	{

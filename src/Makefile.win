@@ -1,108 +1,213 @@
-#
-# Makefile for Windows systems using gmake
-#
-#
-# Try "make" to do a default build, using cygwin.
-#
-# Try "make CONSOLE=yes" to use PDCurses, as long as you set
-# PDCURSES_INCLUDE_DIR and PDCURSES_LIB.
-#
-# Other options:
-#   OBJ_DIR=x will place .o files into directory 'x'
-#   MINGW=yes will use the mingw compiler
-#
+# Project: DaJAngbande
+# Makefile created by Dev-C++ 4.9.9.2
 
-# Executable name and default target
-EXE = angband.exe
-default: ../$(EXE)
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
+WINDRES = windres.exe
+RES  = DaJAngbande_private.res
+OBJ  = win/readdib.o cave.o cmd0.o cmd1.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-type.o z-util.o z-virt.o object2.o z-rand.o main-crb.o main-gcu.o obj-info.o pathfind.o ui.o z-term.o randart.o birth.o cmd2.o tables.o $(RES)
+LINKOBJ  = win/readdib.o cave.o cmd0.o cmd1.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o init1.o init2.o load.o maid-x11.o main.o main-gtk.o main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o main-xxx.o melee1.o melee2.o monster1.o monster2.o object1.o randname.o save.o signals.o snd-sdl.o spells1.o spells2.o squelch.o store.o use-obj.o util.o variable.o wizard1.o wizard2.o x-spell.o xtra1.o xtra2.o z-file.o z-form.o z-type.o z-util.o z-virt.o object2.o z-rand.o main-crb.o main-gcu.o obj-info.o pathfind.o ui.o z-term.o randart.o birth.o cmd2.o tables.o $(RES)
+LIBS =  -L"C:/PROGRAMS/Dev-Cpp/lib" -lmingw32 -lwinmm -mwindows  -g3 
+INCS =  -I"C:/PROGRAMS/Dev-Cpp/include" 
+CXXINCS =  -I"C:/PROGRAMS/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/PROGRAMS/Dev-Cpp/include/c++/3.4.2"  -I"C:/PROGRAMS/Dev-Cpp/include" 
+BIN  = ../DaJAngbande3.exe
+CXXFLAGS = $(CXXINCS)   -g3
+CFLAGS = $(INCS) -mwindows -DWINDOWS   -g3
+RM = rm -f
 
-ifneq (,$(findstring \system32,$(PATH)))
-  CP = copy
-  RM = del
-else
-  CP = -cp
-  RM = -rm
-endif
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before ../DaJAngbande3.exe all-after
 
 
-ifndef MINGW
-  CYGWIN=yes
-endif
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
 
-# Include list of object files and add system-specific ones
-include Makefile.inc
+$(BIN): $(OBJ)
+	$(CC) $(LINKOBJ) -o "..\DaJAngbande3.exe" $(LIBS)
 
-ifdef CONSOLE
-  CFLAGS = -DUSE_GCU -DWIN32_CONSOLE_MODE -I$(PDCURSES_INC)
-  LIBS = -s $(PDCURSES_LIB)
-  IOBJS = $(BASEOBJS) main-gcu.o main.o
+win/readdib.o: win/readdib.c
+	$(CC) -c win/readdib.c -o win/readdib.o $(CFLAGS)
 
-  #PDCURSES_INC = ../../pdcurses/include
-  #PDCURSES_LIB = ../../pdcurses/lib/pdcurses.a
-else
-  CFLAGS = -DWINDOWS
-  IOBJS = $(BASEOBJS) win/angband.res main-win.o win/readdib.o
-  LIBS = -s -mwindows -lwinmm
-endif
+cave.o: cave.c
+	$(CC) -c cave.c -o cave.o $(CFLAGS)
 
-CC = $(CROSS)gcc
-WRES = $(CROSS)windres
-CFLAGS += -Wall -W -std=iso9899:199409 -pedantic -O2
-LIBS += -s
+cmd0.o: cmd0.c
+	$(CC) -c cmd0.c -o cmd0.o $(CFLAGS)
 
-ifdef CYGWIN
+cmd1.o: cmd1.c
+	$(CC) -c cmd1.c -o cmd1.o $(CFLAGS)
 
-  LIBS = -mno-cygwin -e _mainCRTStartup
+cmd3.o: cmd3.c
+	$(CC) -c cmd3.c -o cmd3.o $(CFLAGS)
 
-  # Note the additional -DNEAR= flag to cope with the 'NEAR'
-  # keyword used in readdib.c
-  win/readdib.o:
-	$(CC) $(CFLAGS) -DNEAR= $(INCDIRS) -c -o $@ $<
+cmd4.o: cmd4.c
+	$(CC) -c cmd4.c -o cmd4.o $(CFLAGS)
 
-endif
+cmd5.o: cmd5.c
+	$(CC) -c cmd5.c -o cmd5.o $(CFLAGS)
 
+cmd6.o: cmd6.c
+	$(CC) -c cmd6.c -o cmd6.o $(CFLAGS)
 
-# Handle cross compiles
-ifdef CROSS
-  CFLAGS += -DCROSS_COMPILE
+dungeon.o: dungeon.c
+	$(CC) -c dungeon.c -o dungeon.o $(CFLAGS)
 
-  ifdef MINGW
-    # This is an issue on mingw32 on linux
-    CFLAGS += -D_stdcall=
-  endif
-endif
+files.o: files.c
+	$(CC) -c files.c -o files.o $(CFLAGS)
 
-# Handle object output in a different directory
-ifdef OBJDIR
-  OBJS = $(patsubst %.o, $(OBJDIR)%.o, $(IOBJS))
-  mkdirs:; -mkdir -p $(OBJDIR) $(OBJDIR)win
-  $(EXE): mkdirs
-else
-  OBJS = $(IOBJS)
-endif
+generate.o: generate.c
+	$(CC) -c generate.c -o generate.o $(CFLAGS)
 
+init1.o: init1.c
+	$(CC) -c init1.c -o init1.o $(CFLAGS)
 
+init2.o: init2.c
+	$(CC) -c init2.c -o init2.o $(CFLAGS)
 
-#
-# Targets
-#
+load.o: load.c
+	$(CC) -c load.c -o load.o $(CFLAGS)
 
-../$(EXE): $(EXE)
-	$(CP) $(EXE) ..
+maid-x11.o: maid-x11.c
+	$(CC) -c maid-x11.c -o maid-x11.o $(CFLAGS)
 
-$(EXE): $(OBJS)
-	$(CC) -o $(EXE) $(OBJS) $(LIBS)
+main.o: main.c
+	$(CC) -c main.c -o main.o $(CFLAGS)
 
-clean:
-	$(RM) -f $(EXE) $(OBJS)
+main-gtk.o: main-gtk.c
+	$(CC) -c main-gtk.c -o main-gtk.o $(CFLAGS)
 
+main-ros.o: main-ros.c
+	$(CC) -c main-ros.c -o main-ros.o $(CFLAGS)
 
-#
-# Rules
-#
+main-sdl.o: main-sdl.c
+	$(CC) -c main-sdl.c -o main-sdl.o $(CFLAGS)
 
-win/angband.res: win/angband.rc
-	$(WRES) $< -O coff -o $@
+main-win.o: main-win.c
+	$(CC) -c main-win.c -o main-win.o $(CFLAGS)
 
-$(OBJDIR)%.o: %.c $(INCS)
-	$(CC) $(CFLAGS) -c -o $@ $<
+main-x11.o: main-x11.c
+	$(CC) -c main-x11.c -o main-x11.o $(CFLAGS)
+
+main-xaw.o: main-xaw.c
+	$(CC) -c main-xaw.c -o main-xaw.o $(CFLAGS)
+
+main-xxx.o: main-xxx.c
+	$(CC) -c main-xxx.c -o main-xxx.o $(CFLAGS)
+
+melee1.o: melee1.c
+	$(CC) -c melee1.c -o melee1.o $(CFLAGS)
+
+melee2.o: melee2.c
+	$(CC) -c melee2.c -o melee2.o $(CFLAGS)
+
+monster1.o: monster1.c
+	$(CC) -c monster1.c -o monster1.o $(CFLAGS)
+
+monster2.o: monster2.c
+	$(CC) -c monster2.c -o monster2.o $(CFLAGS)
+
+object1.o: object1.c
+	$(CC) -c object1.c -o object1.o $(CFLAGS)
+
+randname.o: randname.c
+	$(CC) -c randname.c -o randname.o $(CFLAGS)
+
+save.o: save.c
+	$(CC) -c save.c -o save.o $(CFLAGS)
+
+signals.o: signals.c
+	$(CC) -c signals.c -o signals.o $(CFLAGS)
+
+snd-sdl.o: snd-sdl.c
+	$(CC) -c snd-sdl.c -o snd-sdl.o $(CFLAGS)
+
+spells1.o: spells1.c
+	$(CC) -c spells1.c -o spells1.o $(CFLAGS)
+
+spells2.o: spells2.c
+	$(CC) -c spells2.c -o spells2.o $(CFLAGS)
+
+squelch.o: squelch.c
+	$(CC) -c squelch.c -o squelch.o $(CFLAGS)
+
+store.o: store.c
+	$(CC) -c store.c -o store.o $(CFLAGS)
+
+use-obj.o: use-obj.c
+	$(CC) -c use-obj.c -o use-obj.o $(CFLAGS)
+
+util.o: util.c
+	$(CC) -c util.c -o util.o $(CFLAGS)
+
+variable.o: variable.c
+	$(CC) -c variable.c -o variable.o $(CFLAGS)
+
+wizard1.o: wizard1.c
+	$(CC) -c wizard1.c -o wizard1.o $(CFLAGS)
+
+wizard2.o: wizard2.c
+	$(CC) -c wizard2.c -o wizard2.o $(CFLAGS)
+
+x-spell.o: x-spell.c
+	$(CC) -c x-spell.c -o x-spell.o $(CFLAGS)
+
+xtra1.o: xtra1.c
+	$(CC) -c xtra1.c -o xtra1.o $(CFLAGS)
+
+xtra2.o: xtra2.c
+	$(CC) -c xtra2.c -o xtra2.o $(CFLAGS)
+
+z-file.o: z-file.c
+	$(CC) -c z-file.c -o z-file.o $(CFLAGS)
+
+z-form.o: z-form.c
+	$(CC) -c z-form.c -o z-form.o $(CFLAGS)
+
+z-type.o: z-type.c
+	$(CC) -c z-type.c -o z-type.o $(CFLAGS)
+
+z-util.o: z-util.c
+	$(CC) -c z-util.c -o z-util.o $(CFLAGS)
+
+z-virt.o: z-virt.c
+	$(CC) -c z-virt.c -o z-virt.o $(CFLAGS)
+
+object2.o: object2.c
+	$(CC) -c object2.c -o object2.o $(CFLAGS)
+
+z-rand.o: z-rand.c
+	$(CC) -c z-rand.c -o z-rand.o $(CFLAGS)
+
+main-crb.o: main-crb.c
+	$(CC) -c main-crb.c -o main-crb.o $(CFLAGS)
+
+main-gcu.o: main-gcu.c
+	$(CC) -c main-gcu.c -o main-gcu.o $(CFLAGS)
+
+obj-info.o: obj-info.c
+	$(CC) -c obj-info.c -o obj-info.o $(CFLAGS)
+
+pathfind.o: pathfind.c
+	$(CC) -c pathfind.c -o pathfind.o $(CFLAGS)
+
+ui.o: ui.c
+	$(CC) -c ui.c -o ui.o $(CFLAGS)
+
+z-term.o: z-term.c
+	$(CC) -c z-term.c -o z-term.o $(CFLAGS)
+
+randart.o: randart.c
+	$(CC) -c randart.c -o randart.o $(CFLAGS)
+
+birth.o: birth.c
+	$(CC) -c birth.c -o birth.o $(CFLAGS)
+
+cmd2.o: cmd2.c
+	$(CC) -c cmd2.c -o cmd2.o $(CFLAGS)
+
+tables.o: tables.c
+	$(CC) -c tables.c -o tables.o $(CFLAGS)
+
+DaJAngbande_private.res: DaJAngbande_private.rc 
+	$(WINDRES) -i DaJAngbande_private.rc --input-format=rc -o DaJAngbande_private.res -O coff 

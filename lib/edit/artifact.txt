@@ -1,6 +1,6 @@
 
 # File: artifact.txt
-
+# for DaJAngband
 
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
@@ -206,10 +206,10 @@ P:0:0d0:6:6:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | SEE_INVIS | 
 F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_CON | SUST_WIS | SUST_CHR | 
-F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR |
+F:SUST_STR | SUST_CON | SUST_WIS |
+F:IM_FIRE | RES_FIRE | RES_NETHR | RES_FEAR | RES_DARK |
 F:INSTA_ART
-A:FIRE3:20:20
+A:PROT_EVIL:30:30
 D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
 D:of the three Rings of Power created by the Elves and hidden by them from 
 D:Sauron.
@@ -226,9 +226,9 @@ F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:IM_COLD | RES_COLD | RES_BLIND | TELEPATHY | 
+F:IM_COLD | RES_COLD | RES_BLIND | TELEPATHY | RES_LITE |
 F:INSTA_ART
-A:FROST5:20:20
+A:RESTORE_LIFE:30:30
 D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
 D:of the three Rings of Power created by the Elves and hidden by them from 
 D:Sauron.
@@ -244,10 +244,10 @@ P:0:0d0:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | SUST_CON | 
+F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | TELEPATHY |
 F:IM_ELEC | RES_ELEC | RES_POIS | RES_DISEN | 
 F:INSTA_ART
-A:ELEC2:20:20
+A:HEAL2:22:22
 D:The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
 D:one of the three Rings of Power created by the Elves and hidden by them 
@@ -260,12 +260,12 @@ N:13:of Power 'The One Ring'
 I:45:37:5
 W:100:100:2:5000000
 P:0:0d0:15:15:0
-# F: DRAIN_MANA | DRAIN_HP | 
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
+# F: DRAIN_MANA | DRAIN_HP | NOREGEN |
+F:STR | INT | DEX | CON | SPEED | HIDE_TYPE | INFRA
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | RES_POIS | 
-F:RES_NETHR | TELEPATHY | RES_BLIND | RES_DISEN | RES_FEAR | 
+F:RES_BLIND | RES_DISEN | RES_DARK |
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
@@ -577,7 +577,7 @@ F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | RES_NETHR | 
 F:LITE | SEE_INVIS | TELEPATHY | RES_FEAR | 
-F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE | 
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:INSTA_ART
 D:Containing much of the power of he who once was mightiest among the Ainur, 
 D:this plain iron crown has mounted upon it the two remaining Silmarils, 
@@ -638,13 +638,14 @@ D:knew of his coming, none could stand against him.
 
 N:39:of Dor-Lomin
 I:32:5:4
-W:40:20:75:300000
+W:40:20:80:300000
 P:5:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | RES_FEAR | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:LITE | SEE_INVIS | TELEPATHY
+F:LITE | TELEPATHY | SLAY_DRAGON
 D:The legendary dragon helm of Turin Turambar, an object of dread to the 
-D:servants of Morgoth.
+D:servants of Morgoth. It is crested with the head of Glaurung the Dragon
+D: and may have been worn by Turin the day he slew the mighty dragon.
 
 
 # The Iron Helm 'Holhenneth'
@@ -969,9 +970,9 @@ D:messenger, a servant, a spy... or a coward.
 # The Main Gauche of Maedhros
 
 N:64:of Maedhros
-I:23:5:4
+I:23:3:4
 W:15:30:30:20000
-P:0:2d5:12:15:3
+P:0:3d3:12:15:3
 F:INT | DEX | SPEED | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SHOW_MODS
 D:A short thrusting blade with a large guard worn by Maedhros the Tall, 
@@ -1026,10 +1027,10 @@ A:LIGHTNING_BOLT:6:6
 D:In this dagger is bound the very force of the lightning.
 
 
-# The Dagger of Rilia
+# The Long Dagger of Rilia
 
 N:69:of Rilia
-I:23:4:0
+I:23:5:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
@@ -1115,7 +1116,7 @@ N:75:'Orcrist'
 I:23:16:3
 W:20:20:150:40000
 P:0:2d5:10:15:0
-F:SEARCH | HIDE_TYPE | BLESSED | LITE | 
+F:SEARCH | HIDE_TYPE | LITE | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | SLAY_DRAGON | RES_COLD | RES_DARK | 
 F:SLOW_DIGEST | SHOW_MODS
 D:This coldly gleaming blade, mate to Glamdring, is called simply "Biter" 
@@ -1155,13 +1156,13 @@ D:slowly approach.
 # The Two-Handed Sword 'Mormegil'
 # 	maybe take out
 N:78:'Mormegil'
-I:23:25:-10
+I:23:25:-2
 W:30:15:250:10000
-P:0:3d6:-15:-15:-10
-# F:DRAIN_HP | DRAIN_MANA | 
-F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | 
+P:0:3d6:-15:15:-20
+# F:DRAIN_HP | DRAIN_MANA | NOREGEN
+F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL
 F:SPEED | HIDE_TYPE | SEE_INVIS | HOLD_LIFE | SHOW_MODS | 
-F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE
+F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE |
 D:A foul, twisted sword with blackened spines and knobs, whose very name is 
 D:a curse upon the lips of Elves and Men. It is said that it will drink the 
 D:very lifeblood of its wielder.
@@ -1322,23 +1323,26 @@ D:as the "Sickle of Harad", and a deadly foe to the undead.
 
 N:90:'Dagmor'
 I:23:10:2
-W:20:8:80:15000
-P:0:1d7:3:7:0
-F:BLOWS | HIDE_TYPE | BRAND_POIS | 
-F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
+W:35:9:80:42000
+P:0:1d7:5:7:0
+F:BLOWS | SPEED | HIDE_TYPE | BRAND_POIS | BRAND_ACID | 
+F:SLAY_EVIL | SLAY_ANIMAL | RES_FEAR |
+F:SLOW_DIGEST | REGEN | SHOW_MODS | ACTIVATE |
+A:DISP_EVIL:200:200
 D:A stubby blade worn by Beren, whose horn sounded of old in the glades of 
-D:Brethil.
+D:Brethil.  This blade once cut a Silmaril off of Morgoth's crown.
 
 
 # The Blade of Chaos 'Doomcaller'
 
 N:91:'Doomcaller'
-I:23:30:0
+I:23:30:1
 W:70:25:180:200000
 P:0:6d5:18:28:-50
-# F:DRAIN_HP | 
+# F:DRAIN_HP | NOREGEN
+F:BLOWS | SLAY_DEMON
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
-F:SLAY_DEMON | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 D:This weapon of wrath, wrought by a desperate berserker gang, dives hungrily 
 D:into the yielding flesh of your enemies.  You yourself fall under the 
@@ -1355,7 +1359,8 @@ W:65:45:200:100000
 P:0:6d6:-12:20:0
 # F:DRAIN_MANA | DRAIN_HP | 
 F:STEALTH | WIS | LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | AGGRAVATE | 
-F:BRAND_POIS | RES_DARK | RES_BLIND | RES_NETHR
+F:BRAND_POIS | RES_DARK | RES_FEAR | RES_NETHR | TELEPATHY | ACTIVATE
+A:MANA_BOLT:50:50
 D:A mighty, heavy black spear, once wielded by the Lord of Darkness 
 D:himself as he came to Valinor in wrath. Its envenomed bite pierced 
 D:the Two Trees with wounds that would not heal.
@@ -1380,7 +1385,8 @@ N:94:of Pain
 I:22:13:0
 W:30:22:300:50000
 P:0:9d6:0:30:0
-F:SHOW_MODS | RES_FEAR | DRAIN_EXP
+#F:NOREGEN
+F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
 D:down.  It's not good for you to take pleasure in the pain of others.
@@ -1473,8 +1479,8 @@ D:and dire wolves.
 N:101:You Can't Handle
 I:22:25:-2
 W:30:30:650:80000
-P:2:5d4:-10:10:0
-F:DEX | SPEED | STEALTH |
+P:0:5d6:-10:10:2
+F:DEX | SPEED | STEALTH | SLAY_GIANT
 F:RES_LITE | RES_ELEC | RES_COLD | BRAND_ELEC | BRAND_COLD |
 F:LIGHT_CURSE
 D:It's name says it all
@@ -1512,18 +1518,18 @@ D:forces to resist and endure lie ready for he who shall wield it once
 D:more.
 
 
-# The Battle Axe 'Lotharang'
+# (was The Battle Axe 'Lotharang')
 
-#		maybe take out
-N:104:'Lotharang'
+N:104:of Gimli
 I:22:22:1
-W:30:15:170:21000
-P:0:2d8:4:3:0
-F:STR | DEX | HIDE_TYPE | 
+W:30:15:170:30000
+P:0:2d8:6:6:0
+F:STR | DEX | INFRA | HIDE_TYPE | RES_NEXUS | BRAND_ACID
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
-A:CURE_WOUNDS:3:3
-D:A superbly crafted double-bladed axe once borne by Ceruthain, commander 
-D:of the Rangers of Arnor.
+A:BERSERKER:90:90
+D:The axe wielded by the heroic Gimli son of Gloin, 'Elf-Friend'. It has slain countless
+D: orcs in its time (although Gimli did keep count for awhile in a friendly competition
+D: with Legolas over who killed more orcs).
 
 
 # The Lochaber Axe 'Mundwine'
@@ -1566,21 +1572,19 @@ D:to wield, evoking the spirit of Osse who with it pierced legions of
 D:evil and undead.
 
 
-# The Trident of Ulmo
-#		maybe take out
-N:108:of Ulmo
-I:22:5:4
-W:30:90:70:120000
-P:0:4d8:15:19:0
-F:DEX | HIDE_TYPE | 
-F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | 
-F:IM_ACID | RES_ACID | RES_NETHR | 
-F:SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
-F:BLESSED | SHOW_MODS
-A:TELE_AWAY:50:0
-D:The awesome weapon of the Vala Ulmo, Lord of Waters.  Mightest of all the 
-D:powers of good save Manwe himself, Ulmo laughs to scorn the dread powers 
-D:of the undead, and is utterly in command of the Element of water.
+# dagger of Westeresse of Merry
+
+N:108:of Merry Brandybuck
+I:23:4:2
+W:20:20:12:35000
+P:0:2d4:4:4:0
+F:STR | DEX | CON |
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | KILL_UNDEAD |
+F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE |
+A:REM_FEAR_POIS:35:35
+D:A dagger of Westernesse used by the hobbit Merry who rode with the Rohirrim and
+D: seriously wounded the Lord of the Nazgul in the battle of Pelennor Fields allowing
+D: Eowyn of Rohan to finish him off.
 
 
 # The Scythe 'Avavir'
@@ -1721,7 +1725,7 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 #		maybe take out
 N:118:'Silver Dollar'
 I:21:3:3
-W:25:10:200:65555
+W:15:24:200:65555
 P:0:1d9:20:1:0
 F:BLOWS | CHR |
 F:BRAND_COLD | RES_COLD | SHOW_MODS
@@ -1776,19 +1780,21 @@ D:magic activate around you.  You wield the Fear of Dragons and the Despair
 D:of the Undead!
 
 
-# The Lucerne Hammer 'Turmil'
-#		maybe take out
-N:122:'Turmil'
-I:21:10:4
-W:20:15:120:30000
-P:0:2d5:10:6:8
-F:WIS | INFRA | HIDE_TYPE | 
-F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
-F:ACTIVATE | SHOW_MODS
-A:DRAIN_LIFE1:40:0
-D:Wielded by the High Priest of Meneltarma, this great mace gleams coldly as 
-D:though moonlit, and it can strike as mighty a blow spiritually as 
-D:physically.
+# dagger of Westeresse of Pippin
+
+N:122:of Pippin Took
+I:23:4:1
+W:19:23:12:32500
+P:0:2d4:2:2:3
+F:STR | DEX | CON | SEARCH |
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | RES_CHAOS | RES_SOUND |
+F:FREE_ACT | HOLD_LIFE | SUST_CON | ACTIVATE |
+A:CLAIRVOYANCE:75:75
+D:A dagger of Westernesse used by the hobbit Pippin who met Sauron face to face through
+D: the Palantir which had been used by Saruman. In Gondor, he was made a Guard of the
+D: Citadel under Denethor II and warned Gandalf of Denethor's madness. Later, he had
+D: his accomplishment in battle when he slew a mighty olog during the stand at the
+D: gates of Mordor.
 
 
 # The Whip of Gothmog
@@ -1796,10 +1802,10 @@ D:physically.
 N:123:of Gothmog
 I:21:2:-3
 W:60:25:90:25000
-P:0:6d3:13:15:0
-# F:DRAIN_HP | 
+P:0:6d3:13:16:0
+# F:DRAIN_HP | NOREGEN
 F:INT | DEX | WIS | HIDE_TYPE | 
-F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE |  
+F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE |
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | RES_ACID | LITE
 F:SLAY_ANIMAL | KILL_DRAGON | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS
@@ -1822,16 +1828,16 @@ D:The great bow of Beleg Cuthalion, made of black yew and strung with elven
 D:hair that faintly shimmers a pale clear gold.
 
 
-# The Long Bow of Seeking
+# The Long Bow of Legolas
 
-N:125:of Seeking
-I:19:13:3
-W:15:12:40:14000
-P:0:0d0:30:5:0
-F:SEARCH | INFRA | HIDE_TYPE | 
-F:RES_BLIND | ACTIVATE | SHOW_MODS
-A:CLAIRVOYANCE:300:200
-D:This bow will find your target.
+N:125:of Legolas
+I:19:13:2
+W:42:17:40:72000
+P:0:0d0:15:12:0
+F:SHOTS | DEX | STEALTH | SPEED | HIDE_TYPE | 
+F:RES_LITE | SUST_DEX | FEATHER | SHOW_MODS | SLAY_ORC
+D:The bow of the Legolas, a prince of the Woodland Realm, who hunted orcs and fought in
+D: many battles against Sauron's host alongside Aragorn and Gimli.
 
 
 # The Light Crossbow 'Cubragol'
@@ -1851,11 +1857,11 @@ D:shoot bolts that blaze with flame unquenchable.
 
 N:127:of Unstoppable Cannonballs
 I:19:24:4
-W:22:18:220:22000
+W:22:18:220:41000
 P:0:2d2:5:23:0
 F:STR | MIGHT |
 F:RES_LITE | RES_DARK | RES_ELEC | RES_ACID | RES_NEXUS |
-F:HIDE_TYPE | ACTIVATE | SHOW_MODS
+F:HIDE_TYPE | ACTIVATE | SHOW_MODS | AGGRAVATE
 A:STONE_TO_MUD:40:10
 D:These cannonballs will go through a lot...
 
@@ -1891,8 +1897,8 @@ D:the Green-elves of Ossiriand.
 # The Mattock of Nain
 
 N:130:of Nain
-I:20:7:6
-W:60:8:250:30000
+I:20:6:6
+W:60:7:250:30000
 P:0:2d8:12:18:0
 F:TUNNEL | INFRA | SEARCH | STR | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | 
@@ -1907,15 +1913,15 @@ D:although Nain himself fell before their lord Azog.
 
 # The Dwarven Pick of Erebor
 
-N:131:of Erebor
-I:20:6:5
-W:55:5:200:30000
-P:0:3d4:5:20:0
-F:STR | CON | TUNNEL | SUST_STR | HIDE_TYPE | LITE | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
-F:RES_CHAOS | RES_LITE | RES_DARK
-D:A fine dwarven pick, good for a miner, and suitable as a weapon 
-D:should the wielder ever tunnel through into a foe's stronghold.
+#N:131:of Erebor
+#I:20:6:5
+#W:44:5:200:30000
+#P:0:3d4:5:20:0
+#F:STR | CON | TUNNEL | SUST_STR | HIDE_TYPE | LITE | 
+#F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
+#F:RES_CHAOS | RES_LITE | RES_DARK
+#D:A fine dwarven pick, good for a miner, and suitable as a weapon 
+#D:should the wielder ever tunnel through into a foe's stronghold.
 
 
 ### Miscellaneous new stuff ###
@@ -1963,12 +1969,12 @@ D:Its wielder will fear nothing and fight with unnatural strength, but
 D:also draw attention to himself.
 
 
-# The Broken Dagger 'Short Quickslash'
+# The Broken Dagger 'Quickslash'
 
-N:135:'Short Quickslash'
-I:23:1:3
-W:3:3:11:999
-P:0:1d2:6:5:-1
+N:135:'Quickslash'
+I:23:1:2
+W:4:6:11:999
+P:0:1d1:6:6:-1
 F:DEX | BLOWS | SPEED | SLAY_ANIMAL
 D:it may be broken, but it's fast..
 
@@ -1987,17 +1993,7 @@ D:mighty blow against the Morgul-lord whom no mortal Man could hinder,
 D:and also slew his foul steed.
 
 
-# The Broken Sword of Rusty Rage
-
-N:137:of Rusty Rage
-I:23:2:-1
-W:3:6:12:160
-P:0:1d2:3:6:0
-F:CON | RES_FEAR | RES_POIS | RES_DISEN
-F:ACTIVATE | BRAND_POIS | DRAIN_EXP | LIGHT_CURSE
-A:BERSERKER:39:4
-D:This isn't a very good swor- Ouch! you pricked yourself
-D:now you're MAD.
+# N:137 unused
 
 
 # Sling of Snowballs

@@ -698,7 +698,7 @@ C:15:15:15:0:14:5:65:46
 X:9:8:13:0:0:0:46:32
 I:8:15:26000:40
 A:5:35:5
-M:91:2:5:410
+M:91:2:5:425
 E:23:17:1:1
 E:37:12:1:1
 F:BRAVERY_30 | PSEUDO_ID_IMPROV | PSEUDO_ID_HEAVY
@@ -712,12 +712,12 @@ T:Elete Guard
 T:Royal Guard
 T:Knight in Shining Armor
 T:Lord
-B:0:10:5:40:4	#detect evil
+B:0:10:4:40:4	#detect evil
 B:1:99:0:0:0	#cure light wounds
 B:2:5:3:45:2	#bless
 B:3:9:4:40:3	#remove fear
-B:4:99:0:0:0	#call light
-B:5:99:0:0:0	#find traps
+B:4:18:5:50:3	#call light
+B:5:22:6:38:4	#find traps
 B:6:99:0:0:0	#detect doors & stairs
 B:7:6:4:45:3	#slow poison
 B:8:8:6:45:3	#scare monster
@@ -951,3 +951,289 @@ B:60:37:45:80:30	#meteor swarm
 B:61:40:75:90:100	#mass banishment
 B:62:38:35:65:24	#rift (gravity ball)
 B:63:45:40:95:20	#mana storm
+
+N:11:Barbarian
+S:6:-3:-2:1:2:-1
+C:24:12:16:1:11:4:75:56
+X:8:6:12:0:1:2:44:44
+I:10:0:14000:40
+A:3:80:3
+M:0:0:0:0
+E:22:22:1:1
+# E:36:6:1:1
+E:34:3:1:1
+E:40:15:1:1
+E:1:1:2:3
+F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | HEAVY_BONUS
+T:Brute
+T:Pillager
+T:Brigand
+T:Swashbuckler
+T:Axemaster
+T:Raider
+T:Slayer
+T:Chieftain
+T:Destroyer
+T:Warlord
+
+#  rogue stats: S:2:1:-2:3:1:-1   (holy rogue had 3STR and -1 INT before)
+N:12:Holy Rogue
+S:2:-2:1:3:1:-1
+C:43:26:30:4:20:22:50:67
+X:14:9:10:0:2:0:32:34
+I:5:26:26000:40
+A:6:30:5
+M:91:2:2:350
+E:91:0:1:1
+E:21:1:1:1
+E:36:4:1:1
+F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+T:Punk Monk
+T:Rob the Rich
+T:Steal From Evil
+T:Vigilante of Go(l)d
+T:Vow of Poverty Enforcer
+T:Charity Bandit
+T:Quick
+T:Holy Rogue
+T:Robin Hood Thief Chief
+T:Rogue Priest
+B:0:2:1:34:3	#detect evil			2
+B:1:2:2:30:2	#cure light wounds		2
+B:2:6:3:34:3	#bless				6
+B:3:5:3:34:3	#remove fear			5
+B:4:10:4:40:2	#call light				10
+B:5:4:4:34:1	#find traps				4
+B:6:4:4:40:1	#detect doors & stairs		4
+B:7:7:6:40:2	#slow poison			5
+B:8:12:7:42:2	#scare monster			12
+B:9:11:9:40:3	#portal				11
+B:10:14:10:46:2	#cure serious wounds		14
+B:11:14:11:42:2	#chant				14
+B:12:13:10:42:3	#sanctuary				13
+B:13:16:11:46:2	#satisfy hunger			16
+B:14:23:15:50:3	#remove curse			23
+B:15:15:13:46:3	#resist heat & cold		15
+B:16:15:16:55:3	#cure poison			15
+B:17:16:15:46:4	#orb of draining			16
+B:18:22:16:60:3	#cure critical wounds		22
+B:19:21:16:50:3	#sense invisible			21
+B:20:25:16:60:3	#prot. from evil			25
+B:21:40:30:70:4	#earthquake				40
+B:22:20:14:46:3	#sense surroundings		20
+B:23:99:0:0:0	#cure mortal wounds		/
+B:24:99:0:0:0	#turn undead			/
+B:25:34:24:50:3	#prayer				34
+B:26:99:0:0:0	#dispel undead (*3)		/
+B:27:35:30:55:5	#heal (like healing potion)	35
+B:28:40:35:72:8	#dispel evil (*3)			40
+B:29:42:70:90:16	#glyph of warding			42
+B:30:99:0:0:0	#holy word				/
+B:31:3:4:46:2	#detect monsters			3
+B:32:12:13:76:5	#detection				12
+B:33:24:22:82:9	#perception				24
+B:34:99:0:0:0	#probing				/
+B:35:41:60:82:110	#clairvoyance			41
+B:36:99:0:0:0	#cure serious wounds 		/ (vslightly better than earlier spell)
+B:37:99:0:0:0	#cure mortal wounds 2		/
+B:38:50:50:85:150	#full healing 			50	(like *healing* potion)
+B:39:50:75:96:160	#restoration			50
+B:40:99:0:0:0	#remembrance			/
+B:41:39:22:76:16	#dispel undead (*4)		39
+B:42:46:33:86:29	#dispel evil (*4)			46
+B:43:37:35:82:130	#banish evil			37
+B:44:45:45:82:90	#word of destruction		45
+B:45:49:70:82:200	#annihilation			49
+B:46:5:6:46:5	#unbarring ways 			5 (trap/door destruction)
+B:47:26:33:86:13	#recharging				26
+B:48:99:0:0:0	#dispel curse 			/ (removes heavy curses also)
+B:49:43:70:90:120	#enchant weapon			43
+B:50:44:70:90:125	#enchant armor			44
+B:51:47:95:98:230	#elemental brand (weapon)	47
+B:52:6:5:46:2	#blink				6
+B:53:17:15:67:4	#teleport self			17
+B:54:27:26:82:12	#teleport other			27
+B:55:99:0:0:0	#teleport level			/
+B:56:41:65:82:9	#word of recall			38
+B:57:47:65:82:210	#alter reality 			47 (like tele. level except at same depth)
+B:58:99:0:0:0	#(unused)
+B:59:99:0:0:0	#(unused)
+B:60:99:0:0:0	#(unused)
+B:61:99:0:0:0	#(unused)
+B:62:99:0:0:0	#(unused)
+B:63:99:0:0:0	#(unused)
+
+N:13:Stealth Ranger
+S:1:2:1:1:1:1
+C:40:23:29:5:22:25:63:58
+X:11:9:10:0:0:0:33:38
+I:2:31:28000:40
+A:5:35:4
+M:90:1:3:390
+E:90:0:1:1
+E:23:7:1:1
+#E:90:0:1:1   <planned to give him another item instead of the bow but forgot what it was
+#E:19:12:1:1
+#E:17:1:10:18
+E:80:12:1:2
+F:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_IMPROV | PSEUDO_ID_HEAVY
+T:Hiker
+T:Scout
+T:Guide
+T:Seeker
+T:Tracker
+T:Explorer
+T:Trailmaster
+T:Pathfinder
+T:Stealth Ranger
+T:Silent Lord
+B:0:6:1:32:2	#magic missile
+B:1:3:2:30:1	#detect monsters
+B:2:6:3:40:2	#phase door
+B:3:7:3:40:1	#light area
+B:4:5:4:35:1	#find hidden traps & doors
+B:5:4:3:40:1	#cure light wounds
+B:6:99:0:0:0	#detect treasure
+B:7:20:15:65:4	#detect objects
+B:8:22:22:85:3	#identify
+B:9:18:11:48:3	#detect invisible
+B:10:34:20:70:10	#detect enchantment
+B:11:99:0:0:0	#stinking cloud
+B:12:99:0:0:0	#elec bolt
+B:13:9:6:50:2	#confuse monster
+B:14:12:8:40:3	#sleep monster
+B:15:20:18:80:11	#wonder
+B:16:99:0:0:0	#cold bolt
+B:17:99:0:0:0   	#acid bolt
+B:18:99:0:0:0	#fire bolt
+B:19:10:9:35:1	#trap/door destruction
+B:20:19:11:60:4	#spear of light
+B:21:23:13:50:4	#stone to mud
+B:22:20:20:22:22  #door creation
+B:23:99:0:0:0	#earthquake
+B:24:31:30:50:35	#stair creation
+B:25:10:7:50:3	#cure poison
+B:26:23:18:70:2   #satisfy hunger
+B:27:17:15:55:20	#heroism
+B:28:24:26:80:30	#berserker
+B:29:30:22:75:5	#haste self
+B:30:23:15:55:3	#teleport self
+B:31:22:20:65:3	#slow monster
+B:32:33:25:70:6	#teleport other
+B:33:38:27:70:15	#teleport level
+B:34:36:40:72:16	#word of recall
+B:35:99:0:0:0	#polymorph other
+B:36:99:0:0:0	#shock wave
+B:37:99:0:0:0	#explosion
+B:38:99:0:0:0	#cloudkill (tougher stinking cloud)
+B:39:24:16:60:6	#mass sleep
+B:40:34:30:70:16	#bedlam (confusion ball)
+B:41:99:0:0:0	#rend soul (nether bolt)
+B:42:99:0:0:0	#word of destruction
+B:43:99:0:0:0	#chaos strike
+B:44:7:13:45:24	#resist cold
+B:45:8:13:50:24	#resist fire
+B:46:27:23:70:45	#resist poison
+B:47:33:35:85:70	#resistance
+B:48:30:35:75:75	#shield
+B:49:34:80:75:85	#rune of protection
+B:50:30:18:90:5	#lesser recharging
+B:51:35:50:94:45	#enchant armor
+B:52:37:51:94:55	#enchant weapon
+B:53:39:50:96:110	#greater recharging
+B:54:33:60:95:140	#elemental brand (ammo)
+B:55:99:0:0:0	#frost ball
+B:56:99:0:0:0	#acid ball
+B:57:99:0:0:0	#fire ball
+B:58:99:0:0:0	#ice storm
+B:59:40:45:94:31	#banishment
+B:60:43:52:85:35	#meteor swarm
+B:61:99:0:0:0	#mass banishment
+B:62:46:60:99:45	#rift (gravity ball)
+B:63:99:0:0:0	#mana storm
+
+N:14:Paladin Marshal
+S:3:-1:2:1:1:1
+C:22:19:27:2:12:10:62:42
+X:12:9:12:0:0:0:37:30
+I:4:35:40000:40
+A:5:32:5
+M:91:2:1:400
+E:91:0:1:1
+E:23:17:1:1
+E:70:37:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+T:Lightmaker
+T:Light Keeper
+T:Warder
+T:Protector
+T:Blessed
+T:Guardian
+T:Paladin
+T:Marshal
+T:Holy Knight
+T:High Marshal
+B:0:2:1:35:3	#detect evil			2
+B:1:1:2:10:2	#cure light wounds		1
+B:2:3:2:30:3	#bless				3
+B:3:4:4:35:4	#remove fear			4
+B:4:1:1:10:2	#call light				1
+B:5:8:5:45:4	#find traps				8
+B:6:7:5:45:3	#detect doors & stairs		7
+B:7:5:4:35:3	#slow poison			5
+B:8:9:7:35:2	#scare monster			9
+B:9:16:9:42:3	#portal				16
+B:10:10:9:40:3	#cure serious wounds		10
+B:11:12:10:40:3	#chant				12
+B:12:11:10:40:3	#sanctuary				11
+B:13:19:12:50:3	#satisfy hunger			19
+B:14:13:12:44:4	#remove curse			13
+B:15:14:13:35:4	#resist heat & cold		14
+B:16:14:15:50:4	#cure poison			14
+B:17:20:17:55:4	#orb of draining			20
+B:18:17:15:50:3	#cure critical wounds		17
+B:19:19:16:51:4	#sense invisible			19
+B:20:16:17:50:5	#prot. from evil			16
+B:21:30:30:60:5	#earthquake				30
+B:22:24:18:55:3	#sense surroundings		24
+B:23:22:18:65:3	#cure mortal wounds		22
+B:24:23:18:53:3	#turn undead			23
+B:25:29:21:50:3	#prayer				29
+B:26:30:24:60:3	#dispel undead (*3)		30
+B:27:32:26:65:3	#heal (like healing potion)	32
+B:28:35:34:70:5	#dispel evil (*3)			35
+B:29:45:70:93:15	#glyph of warding			45
+B:30:50:75:95:50	#holy word				50
+B:31:5:5:55:2	#detect monsters			5
+B:32:17:16:80:10	#detection				17
+B:33:20:26:85:12	#perception				20
+B:34:26:12:80:40	#probing				26
+B:35:45:70:80:130	#clairvoyance			45
+B:36:15:10:45:9	#cure serious wounds 		15 (vslightly better than earlier spell)
+B:37:25:20:56:20	#cure mortal wounds 2		25
+B:38:40:45:80:110	#full healing 			40	(like *healing* potion)
+B:39:45:81:86:120	#restoration			45
+B:40:99:0:0:0	#remembrance			/
+B:41:28:17:70:14	#dispel undead (*4)		28
+B:42:40:25:80:30	#dispel evil (*4)			40
+B:43:36:35:80:170	#banish evil			36
+B:44:45:50:85:90	#word of destruction		45
+B:45:99:0:0:0	#annihilation			/
+B:46:9:15:55:15	#unbarring ways 			9 (trap/door destruction)
+B:47:23:30:85:18	#recharging				23
+B:48:38:55:85:140	#dispel curse 			38 (removes heavy curses also)
+B:49:42:40:80:150	#enchant weapon			42
+B:50:41:75:85:160	#enchant armor			41
+B:51:46:95:86:210	#elemental brand (weapon)	46
+B:52:16:7:50:3	#blink				16
+B:53:27:20:60:6	#teleport self			27
+B:54:28:26:75:12	#teleport other			28
+B:55:37:55:80:115	#teleport level			37
+B:56:38:60:75:12	#word of recall			38
+B:57:49:80:90:200	#alter reality 			49 (like tele. level except at same depth)
+B:58:6:5:45:4	#spear of light			6
+B:59:21:14:50:5	#starlight (hopefully)		21
+B:60:99:0:0:0	#(unused)
+B:61:99:0:0:0	#(unused)
+B:62:99:0:0:0	#(unused)
+B:63:99:0:0:0	#(unused)

@@ -589,11 +589,11 @@ I:91:6:2
 D:Cures 2000 points of damage, cures all stunning and heals all cut damage.
 
 N:103:Restoration
-I:91:6:3
+I:91:6:4
 D:Restores to maximum all stats that are currently below maximum.
 
 N:104:Remembrance
-I:91:6:4
+I:91:6:5
 D:Restores experience points to maximum if it is currently below maximum.
 
 N:105:Dispel Undead
@@ -690,3 +690,18 @@ D:The current level will be discarded and a new dungeon level (on the
 D: same dungeon depth) will be generated.  This has exactly the same
 D: side effects as leaving and re-entering the level through a stair,
 D: except that you won't start on a square with a stair.
+
+N:122:Spear of Light
+I:91:0:8
+D:Fires a beam that lights up each square and hurts each
+D: light-sensitive monster in its path.
+
+N:123:Starlight
+I:91:7:6
+D:Fires beams of light in all eight directions and hurts each
+D: light-sensitive monster in its path.
+
+#N:124:Curing
+#I:91:6:3
+#D:It cures all stunning, heals all cut damage, neutralizes poison, and
+#D: cures blindness and confusion.

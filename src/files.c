@@ -991,12 +991,33 @@ errr process_pref_file(cptr name)
 }
 
 
+#ifdef EFG
+	/* EFGchange get rid of ratings, just show numbers */
+/* gross hack */
+#define NUMCVALS 8
+#define LENCVALS 8
+
+char listings[NUMCVALS][LENCVALS];
+static int listindex = 0;
+/*
+ * Returns a "rating" of x depending on y, and sets "attr" to the
+ * corresponding "attribute".
+ */
+char *likert(int x, int y, byte *attr)
+{
+	*attr = TERM_L_GREEN;
+	snprintf(listings[listindex], LENCVALS, "%d", x);
+	int retindex = listindex;
+	listindex = (listindex+1) % NUMCVALS;
+	return &listings[retindex][0];
+#else
 /*
  * Returns a "rating" of x depending on y, and sets "attr" to the
  * corresponding "attribute".
  */
 static cptr likert(int x, int y, byte *attr)
 {
+#endif
 	/* Paranoia */
 	if (y <= 0) y = 1;
 
@@ -1152,7 +1173,12 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 
 	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0 },
 	{ "Feath",	3, TR3_FEATHER, 	0 },
+#ifdef EFG
+	/* EFGchange treat NO_FUEL as permanent lite on status screen */
+	{ "PLite",	3, TR3_LITE | TR3_NO_FUEL,	0 },
+#else
 	{ "PLite",	3, TR3_LITE, 		0 },
+#endif
 	{ "Regen",	3, TR3_REGEN, 		0 },
 	{ "Telep",	3, TR3_TELEPATHY, 	0 },
 	{ "Invis",	3, TR3_SEE_INVIS, 	0 },
@@ -1200,11 +1226,42 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			if(j < INVEN_TOTAL)
 				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
 			else
+#ifdef EFG
+			/* EFGchange note temp resists on status screen */
+			{
 				player_flags(&f[1], &f[2], &f[3]);
+				/* hack -- these really belong on a status line */
+				/* things out to be set up so this is a loop */
+				if (p_ptr->timed[TMD_SINFRA])
+					f[1] |= TR1_INFRA;
+				if (p_ptr->timed[TMD_FAST])
+					f[1] |= TR1_SPEED;
+				if (p_ptr->timed[TMD_OPP_ACID])
+					f[2] |= TR2_RES_ACID;
+				if (p_ptr->timed[TMD_OPP_ELEC])
+					f[2] |= TR2_RES_ELEC;
+				if (p_ptr->timed[TMD_OPP_FIRE])
+					f[2] |= TR2_RES_FIRE;
+				if (p_ptr->timed[TMD_OPP_COLD])
+					f[2] |= TR2_RES_COLD;
+				if (p_ptr->timed[TMD_OPP_POIS])
+					f[2] |= TR2_RES_POIS;
+				if ((p_ptr->timed[TMD_HERO]) || (p_ptr->timed[TMD_SHERO]))
+					f[2] |= TR2_RES_FEAR;
+				if (p_ptr->timed[TMD_SINVIS])
+					f[3] |= TR3_SEE_INVIS;
+			}
+#else
+				player_flags(&f[1], &f[2], &f[3]);
+#endif
 
 			res = (0 != (f[resists[i].set] & resists[i].res_flag));
 			imm = (0 != (f[resists[i].set] & resists[i].im_flag));
 			if(imm) name_attr = TERM_GREEN;
+#ifdef EFG
+/* ??? should double resists have a separate color? */
+/* ??? would that solve kobolds with temp rPoison? */
+#endif
 			else if(res && name_attr == TERM_WHITE) name_attr = TERM_L_BLUE;
 			sym = imm ? '*' : ( res ? '+' : '.' );
 			Term_addch(attr, sym);
@@ -1483,6 +1540,15 @@ static const char *show_depth(void)
 	}
 }
 
+#ifdef EFG
+/* EFGchange show energy rather than speed on 'C' screen */
+static const char *show_energy()
+{
+	static char buffer[10];
+	strnfmt(buffer, sizeof(buffer), "%d0%%", (int)extract_energy[p_ptr->pspeed]);
+	return buffer;
+}
+#else
 static const char *show_speed()
 {
 	static char buffer[10];
@@ -1494,6 +1560,7 @@ static const char *show_speed()
 	strnfmt(buffer, sizeof(buffer), "%d", tmp - 110);
 	return buffer;
 }
+#endif
 
 static const char *show_melee_weapon(const object_type *o_ptr)
 {
@@ -1587,8 +1654,14 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	P_I(TERM_L_BLUE, "Blows", "%y/turn",	i2u(p_ptr->num_blow), END  );
 	P_I(TERM_L_BLUE, "Shots", "%y/turn",	i2u(p_ptr->num_fire), END  );
 	P_I(TERM_L_BLUE, "Infra", "%y ft",		i2u(p_ptr->see_infra * 10), END  );
+#ifdef EFG
+	/* EFGchange show energy rather than speed on 'C' screen */
+	/* showing energy is more useful and saves player from looking at tables.c */
+	P_I(TERM_L_BLUE, "Energy", "%y",			s2u(show_energy()), END );
+#else
 	P_I(TERM_L_BLUE, "Speed", "%y",			s2u(show_speed()), END );
 	assert(i == boundaries[3].page_rows);
+#endif
 	return ret;
   }
   case 4:
@@ -1618,7 +1691,28 @@ int get_panel(int oid, data_panel *panel, size_t size)
 		panel[i].color = TERM_L_BLUE;
 		panel[i].label = skills[i].name;
 		panel[i].fmt = "%y";
+#ifdef EFG
+		/* EFGchange get rid of ratings, just show numbers */
+		if (skills[i].skill == SKILL_THN)
+		{
+			const object_type *o_ptr= &inventory[INVEN_WIELD];
+        		int hit = p_ptr->dis_to_h;
+        		if (object_known_p(o_ptr))
+                		hit += o_ptr->to_h;
+			skill += hit * BTH_PLUS_ADJ;
+		}
+		else if (skills[i].skill == SKILL_THB)
+		{
+			const object_type *o_ptr= &inventory[INVEN_BOW];
+        		int hit = p_ptr->dis_to_h;
+        		if (object_known_p(o_ptr))
+                		hit += o_ptr->to_h;
+			skill += hit * BTH_PLUS_ADJ;
+		}
 		panel[i].value[0] = s2u(likert(skill, skills[i].div, &panel[i].color));
+#else
+		panel[i].value[0] = s2u(likert(skill, skills[i].div, &panel[i].color));
+#endif
 	}
 	return ret;
   }
@@ -1636,7 +1730,11 @@ int get_panel(int oid, data_panel *panel, size_t size)
 	/* Preserve mode deleted */
 	P_I(TERM_L_BLUE, "Preserve",	"%y",	c2u(adult_preserve ? 'Y' : 'N'), END);
 #endif
+#ifdef EFG
+	/* EFGchange show energy rather than speed on 'C' screen */
+#else
 	assert(i == boundaries[5].page_rows);
+#endif
 	return ret;
   }
  }
@@ -1757,7 +1855,12 @@ errr file_character(cptr name, bool full)
 		strnfmt(out_val, sizeof(out_val), "Replace existing file %s? ", buf);
 
 		/* Ask */
+#ifdef EFG
+		/* EFGchange bugfix */
+		if (!get_check(out_val))
+#else
 		if (get_check(out_val))
+#endif
 			return -1;
 	}
 

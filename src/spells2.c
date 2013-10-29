@@ -425,6 +425,17 @@ void self_knowledge(bool spoil)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+#ifdef EFG
+		/* EFGchange !selfknowledge will *ID everything being wielded */
+		if (spoil)
+		{
+			if (!object_aware_p(o_ptr))
+				object_aware(o_ptr);
+			if (!object_known_p(o_ptr))
+				object_known(o_ptr);
+			o_ptr->ident |= IDENT_MENTAL;
+		}
+#endif
 		/* Extract the flags */
 		if (spoil)
 			object_flags(o_ptr, &t1, &t2, &t3);
@@ -1604,6 +1615,12 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
+#ifdef EFG
+	/* EFGchange show charges on aware unknown */
+	if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
+	    && (object_aware_p(o_ptr)))
+		return FALSE;
+#endif
 	if (object_known_p(o_ptr))
 		return FALSE;
 	else

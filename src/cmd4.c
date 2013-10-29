@@ -2814,7 +2814,12 @@ static void squelch_dump(FILE *fff)
 {
 	int i;
 	int tval, sval;
+#ifdef EFG
+	/* EFGchange allow squelching unaware objects */
+	byte squelch;
+#else
 	bool squelch;
+#endif
 
 	/* Start dumping */
 	fprintf(fff, "\n\n");
