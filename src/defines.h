@@ -36,12 +36,12 @@
 /*
  * Name of the version/variant and its version string
  */
-#define VERSION_NAME   "Angband"
+#define VERSION_NAME   "Craftband"
 
 #ifdef BUILD_ID
 # define VERSION_STRING "3.1.0 dev (" BUILD_ID ")"
 #else
-# define VERSION_STRING "3.1.0 beta"
+# define VERSION_STRING "0.2.0"
 #endif
 
 

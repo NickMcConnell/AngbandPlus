@@ -1,4 +1,4 @@
-Craftband 0.1
+Craftband 0.2
 =============
 
 Thanks to:

@@ -1,6 +1,9 @@
 #ifndef INCLUDED_WIZARD_H
 #define INCLUDED_WIZARD_H
 
+/* crafting.c */
+extern void do_crafting_appraise(void);
+
 /* wizard.c */
 extern void do_cmd_debug(void);
 

@@ -1,11 +1,11 @@
-Craftband 0.1
+Craftband 0.2
 =============
 
 Craftband is a variant of Angband focused on allowing the player to craft
 items.  Currently, it adds a crafting menu to the game, a few crafting recipes, and
 some basic crafting components.  Some items can be broken down to extract
 crafting components, and these components can be combined to make a small
-set of items. 
+set of items. Item quality now depends on material quality and vice versa.
 
 Future releases will include more recipes and components, the ability to
 customise your created items with enhancements, and the new Artisan class

@@ -693,6 +693,16 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 	return end;
 }
 
+const char* crafting_quality[] =
+{
+		"poor", "medium", "good"
+};
+
+static size_t obj_desc_crafting(const object_type* o_ptr, char* buf, size_t max, size_t end) {
+	strnfcat(buf, max, &end, " (%s)", crafting_quality[o_ptr->pval]);
+	return end;
+}
+
 
 /**
  * Describes item `o_ptr` into buffer `buf` of size `max`.
@@ -768,6 +778,8 @@ size_t object_desc(char *buf, size_t max, const object_type *o_ptr, bool prefix,
 		end = obj_desc_chest(o_ptr, buf, max, end);
 	else if (o_ptr->tval == TV_LITE)
 		end = obj_desc_light(o_ptr, buf, max, end);
+	else if (o_ptr->tval == TV_CRAFTING)
+		end = obj_desc_crafting(o_ptr, buf, max, end);
 
 	end = obj_desc_combat(o_ptr, buf, max, end);
 

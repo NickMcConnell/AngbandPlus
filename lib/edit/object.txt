@@ -3822,44 +3822,44 @@ F:INSTA_ART
 # Crafting items
 # pval determines quality
 
-N:565:& lump~ of iron
+N:565:& Lump~ of Iron
 G:*:W
 I:101:0:0
 W:0:0:10:10
 D:A lump of common iron.  Used in crafting.
 F:EASY_KNOW
 
-N:566:& lump~ of mithril
+N:566:& Lump~ of Mithril
 G:*:W
-I:101:1:1
+I:101:1:0
 W:0:0:10:100
 D:A lump of beautiful mithril.  Used in crafting.
 F:EASY_KNOW
 
-N:567:& piece~ of leather
+N:567:& Piece~ of Leather
 G:*:u
 I:101:2:0
 W:0:0:10:10
 D:A piece of plain leather.  Used in crafting.
 F:EASY_KNOW
 
-N:568:& piece~ of thick leather
+N:568:& Piece~ of Thick Leather
 G:*:u
-I:101:3:1
+I:101:3:0
 W:0:0:10:100
 D:A piece of very thick leather.  Used in crafting.
 F:EASY_KNOW
 
-N:569:& piece~ of ash wood
+N:569:& Piece~ of Ash Wood
 G:*:R
 I:101:4:0
 W:0:0:10:100
 D:A piece of wood from an ash tree.  Used in crafting.
 F:EASY_KNOW
 
-N:570:& piece~ of oak wood
+N:570:& Piece~ of Oak Wood
 G:*:R
-I:101:5:1
+I:101:5:0
 W:0:0:10:100
 D:A piece of wood from an oak tree.  Used in crafting.
 F:EASY_KNOW

@@ -1773,6 +1773,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
+		case TV_CRAFTING:
+			if (o_ptr->pval != j_ptr->pval) return FALSE;
+
 		/* Various */
 		default:
 		{

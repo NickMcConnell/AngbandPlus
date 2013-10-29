@@ -1743,6 +1743,12 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		case 'A':
+		{
+			do_crafting_appraise();
+			break;
+		}
+
 		/* Oops */
 		default:
 		{

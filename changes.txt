@@ -1,3 +1,9 @@
+Craftband 0.2
+=============
+
+Added material qualities - higher level items give better materials, and items
+made with higher level materials have better properties (randomly selected).
+
 Craftband 0.1
 =============
 
