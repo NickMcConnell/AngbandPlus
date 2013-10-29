@@ -196,11 +196,11 @@ B:64:99:0:0:0	#tsunami
 
 N:3:Rogue
 S:2:1:-2:3:1:-1
-C:45:32:23:3:32:24:60:66
+C:45:32:23:3:30:15:60:66
 X:15:10:11:0:0:0:40:30
 I:6:25:21000:40
 A:5:30:4
-M:93:1:6:350
+M:93:1:6:360
 #E:93:0:1:1
 E:23:12:1:1
 E:36:4:1:1
@@ -289,7 +289,7 @@ B:70:99:0:0:0	#breathe chaos			/
 B:71:41:31:80:65	#mass chaos				41
 B:72:99:0:0:0	#bizzare effects			/
 
-#(done)
+#(done), possibly raise weapon speed modifier to 4
 N:4:Ranger
 S:2:2:1:1:1:1
 C:40:23:29:4:22:25:63:60
@@ -379,7 +379,7 @@ B:63:99:0:0:0	#
 
 #(done)
 N:5:Paladin
-S:3:-2:2:0:1:2
+S:3:-2:1:0:1:2
 C:21:20:27:1:12:10:62:42
 X:12:9:12:0:0:0:37:30
 I:4:35:55000:40
@@ -470,13 +470,13 @@ B:67:44:30:80:160	#dispel evil x4			44
 B:68:45:50:83:100	#Wo destruction			45
 B:69:99:0:0:0	#annihilation			/
 
-#possibly change weapon speed modifier to 3 for worse melee(?)
+#done
 N:6:Archer
 S:2:0:-1:2:1:0
 C:29:17:23:3:15:11:50:75
 X:9:10:9:0:0:0:28:45
 I:5:18:15000:40
-A:5:35:4
+A:5:35:3
 M:94:1:5:350
 E:19:13:1:1
 E:17:1:15:30
@@ -663,98 +663,98 @@ B:71:99:0:0:0	#restore dex2			/
 B:72:99:0:0:0	#enchant armor			/
 B:73:99:0:0:0	#meteor swarm			/
 
-#N:8:Priest
-#S:-2:0:3:-1:1:2
-#C:20:28:31:2:17:8:45:32
-#X:8:10:12:0:0:0:20:20
-#I:2:20:75000:40
-#A:
-#M:91:2:1:340
-#E:91:0:1:1
-#E:36:2:1:1
-#E:75:34:3:6
-#E:75:23:1:1
-#F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-#T:Believer
-#T:Acolyte
-#T:Adept
-#T:Evangelist
-#T:Priest
-#T:Curate
-#T:Canon
-#T:Bishop
-#T:Prophet
-#T:High Priest
-#B:0:1:1:22:1	#clw					1
-#B:1:2:1:30:1	#detect evil			2
-#B:2:3:2:30:2	#bless				3
-#B:3:5:3:35:4	#boldness				5
-#B:4:1:1:15:1	#light				1
-#B:5:5:4:36:3	#slow poison			5
-#B:6:10:9:40:4	#csw					10
-#B:7:6:5:45:3	#spear of light			6
-#B:8:13:12:50:3	#satisfy hunger			13 (or 12)
-#B:9:8:5:45:3	#find traps (B2)			8
-#B:10:8:5:45:3	#detect doors/stairs		8
-#B:11:9:5:50:3	#detect life			9
-#B:12:13:12:44:4	#remove curse			13 (or 14)
-#B:13:19:16:51:4	#sense invisible			19
-#B:14:24:18:55:4	#sense surroundings		24
-#B:15:24:25:80:7	#identify				24
-#B:16:39:60:75:10	#WoR					39
-#B:17:34:20:63:8	#true sight				34
-#B:18:15:15:50:4	#cure poison (B3)			15
-#B:19:9:7:35:3	#scare monster			9
-#B:20:15:13:40:4	#resist heat & cold		15
-#B:21:17:15:50:4	#ccw					17
-#B:22:11:10:45:3	#chant				11
-#B:23:15:9:42:4	#portal				15
-#B:24:11:11:40:4	#sanctuary				11
-#B:25:17:18:60:5	#prot. from evil			17
-#B:26:32:27:65:7	#heal					32
-#B:27:25:18:53:5	#turn undead (B4)			25
-#B:28:22:20:50:5	#cmw					22
-#B:29:29:22:50:5	#prayer				29
-#B:30:19:17:55:4	#orb of draining			19 (or 20)
-#B:31:31:24:60:4	#dispel undead x3			31
-#B:32:35:34:70:6	#dispel evil x3			35
-#B:33:49:71:94:40	#holy word				50 (maybe 49)
-#B:34:15:10:45:9	#csw2 (B5)				15
-#B:35:24:21:56:18	#cmw2					24
-#B:36:24:23:45:30	#curing				24
-#B:37:42:30:70:72	#purify				42
-#B:38:42:55:85:110	#dispel curse			42
-#B:39:42:47:80:100	#healing				42
-#B:40:45:81:86:120	#restoration			45
-#B:41:99:0:0:0	#remembrance			/
-#B:42:10:16:52:15	#unbarring ways (B6)		10
-#B:43:26:32:80:23	#recharging				26
-#B:44:26:14:47:12	#starlight				26
-#B:45:36:30:70:50	#haste				36
-#B:46:41:72:80:130	#enchant armor			41
-#B:47:42:76:85:135	#enchant weapon			42
-#B:48:38:31:65:60	#sanctify for battle		38
-#B:49:99:0:0:0	#resistance				/
-#B:50:31:22:65:40	#mass sleep (B7)			31
-#B:51:99:0:0:0	#prayer (healer only)		/
-#B:52:28:26:75:35	#tele other				28
-#B:53:29:24:56:39	#dispel silver x3			29
-#B:54:42:40:85:150	#prot. from powerful evil	42
-#B:55:33:35:80:140	#banish evil			33 (30-36?)
-#B:56:44:70:93:170	#glyph of warding			44
-#B:57:99:0:0:0	#blink				/ (non paladin book)
-#B:58:99:0:0:0	#detection				/
-#B:59:99:0:0:0	#full identify			/
-#B:60:99:0:0:0	#Wo destruction			/
-#B:61:99:0:0:0	#telepathy				/
-#B:62:99:0:0:0	#alter reality			/
-#B:63:29:30:60:26	#earthquake				29
-#B:64:34:22:77:145	#holy lance				34
-#B:65:32:26:60:80	#dispel silver x4			32
-#B:66:32:24:65:80	#dispel undead x4			32
-#B:67:44:30:80:160	#dispel evil x4			44
-#B:68:45:50:83:100	#Wo destruction			45
-#B:69:99:0:0:0	#annihilation			/
+N:8:Priest
+S:-2:-1:3:-1:1:2
+C:20:28:31:2:17:8:45:32
+X:8:10:12:0:0:0:20:20
+I:2:20:75000:40
+A:4:35:3
+M:91:2:1:340
+E:91:0:1:1
+E:36:2:1:1
+E:75:34:3:6
+E:75:23:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | BLESS_WEAPON | ZERO_FAIL
+T:Believer
+T:Acolyte
+T:Adept
+T:Evangelist
+T:Priest
+T:Curate
+T:Canon
+T:Bishop
+T:Prophet
+T:High Priest
+B:0:1:2:15:3	#clw					1
+B:1:1:1:10:2	#detect evil			1
+B:2:1:2:20:4	#bless				1
+B:3:1:2:25:3	#boldness				1
+B:4:3:2:25:2	#light				3
+B:5:3:3:28:4	#slow poison			3
+B:6:5:4:32:4	#csw					5
+B:7:7:7:50:3	#spear of light			7
+B:8:7:5:38:4	#satisfy hunger			7
+B:9:3:3:28:2	#find traps (B2)			3
+B:10:3:3:27:2	#detect doors/stairs		3
+B:11:7:4:50:2	#detect life			7
+B:12:9:6:35:5	#remove curse			9
+B:13:11:8:42:4	#sense invisible			11
+B:14:13:10:45:4	#sense surroundings		13
+B:15:20:20:80:20	#identify				20
+B:16:35:50:75:11	#WoR					35
+B:17:26:19:72:12	#true sight				26
+B:18:9:6:38:4	#cure poison (B3)			9
+B:19:5:5:34:4	#scare monster			5
+B:20:7:7:38:5	#resist heat & cold		7
+B:21:9:7:38:4	#ccw					9
+B:22:5:4:32:4	#chant				5
+B:23:6:4:35:4	#portal				6
+B:24:7:5:36:3	#sanctuary				7
+B:25:11:8:42:4	#prot. from evil			11
+B:26:21:16:60:7	#heal					21
+B:27:13:12:55:5	#turn undead (B4)			13
+B:28:13:11:45:4	#cmw					13
+B:29:15:14:50:5	#prayer				15
+B:30:11:7:40:4	#orb of draining			11
+B:31:17:14:55:7	#dispel undead x3			17
+B:32:25:20:70:12	#dispel evil x3			25
+B:33:39:32:95:20	#holy word				39
+B:34:13:5:50:20	#csw2 (B5)				13
+B:35:17:9:55:45	#cmw2					17
+B:36:21:11:50:60	#curing				21
+B:37:30:45:90:120 #purify				30
+B:38:26:40:80:90  #dispel curse			26
+B:39:30:50:80:130 #healing				30
+B:40:35:70:90:230 #restoration			35
+B:41:35:70:90:250 #remembrance			35
+B:42:5:6:50:30	#unbarring ways (B6)		5
+B:43:15:20:80:25	#recharging				15
+B:44:99:0:0:0	#starlight				/
+B:45:99:0:0:0	#haste				/
+B:46:35:50:80:210 #enchant armor			35
+B:47:37:60:85:230 #enchant weapon			37
+B:48:99:0:0:0	#sanctify for battle		/
+B:49:40:32:80:200 #resistance				40
+B:50:26:20:60:40	#mass sleep (B7)			26
+B:51:99:0:0:0	#prayer (healer only)		/
+B:52:20:20:80:20	#tele other				20
+B:53:17:16:60:16	#dispel silver x3			17
+B:54:39:36:99:220 #prot. from powerful evil	39
+B:55:25:25:80:180 #banish evil			25
+B:56:33:55:90:240	#glyph of warding			33
+B:57:3:3:50:6	#blink (B8)				3  (non paladin book)
+B:58:12:10:80:20	#detection				12
+B:59:40:44:90:90	#full identify			40
+B:60:99:0:0:0	#Wo destruction			/
+B:61:37:52:85:230 #telepathy				37
+B:62:40:60:75:250 #alter reality			40
+B:63:13:10:58:23	#earthquake (B9)			13
+B:64:99:0:0:0	#holy lance				/
+B:65:21:9:68:26	#dispel silver x4			21
+B:66:19:7:70:25	#dispel undead x4			19
+B:67:24:10:75:60	#dispel evil x4			24
+B:68:35:35:80:115 #Wo destruction			35
+B:69:44:60:75:250 #annihilation			44
 
 #(done)
 N:9:Healer
@@ -830,7 +830,7 @@ B:47:99:0:0:0	#enchant weapon			/
 B:48:99:0:0:0	#sanctify for battle		/
 B:49:35:32:80:80	#resistance				35
 B:50:27:22:70:45	#mass sleep (B7)			27
-B:51:30:23:55:24	#prayer (healer only)		30
+B:51:99:0:0:0	#prayer (healer only)		/
 B:52:37:30:80:30	#tele other				37
 B:53:34:28:67:26	#dispel silver x3			34
 B:54:49:50:90:210	#prot. from powerful evil	49
@@ -864,7 +864,7 @@ E:36:8:1:1
 E:21:3:1:1
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CHOOSE_SPELLS | CUMBER_GLOVE
 F:BLESS_WEAPON | ZERO_FAIL | BEAM
-T:Tree Hugger
+T:Gardener
 T:Student of Plants
 T:Student of Stones
 T:Student of Water
@@ -939,19 +939,110 @@ B:61:99:0:0:0	#
 B:62:99:0:0:0	#
 B:63:99:0:0:0	#
 
-#N:11:Grey Knight (prayers vlittle)
+#N:11:White Knight (prayers)
 
-#N:12:White Knight (prayers)
+#N:12:Black Knight (black)
 
-#N:13:Black Knight (black)
+#N:13:Assassin (black)
 
-#N:14:Assassin (black)
+N:14:Thief
+S:1:2:-1:3:-1:1
+C:34:27:28:5:27:24:42:41
+X:12:8:10:0:1:0:30:33
+I:2:22:34000:40
+A:5:30:4
+M:94:1:2:330
+E:94:3:1:1
+E:23:4:1:1
+E:30:2:1:1
+E:70:26:1:3
+F:CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | CLASS_SPEED
+T:Robber
+T:Pickpocket
+T:Cutpurse
+T:Burglar
+T:Escape Artist
+T:Filcher
+T:Quick
+T:Thief
+T:Silent Menace
+T:Master Thief
+B:0:8:5:44:3	#disinfectant			8
+B:1:4:2:40:1	#cure light wounds		4
+B:2:8:3:40:2	#light area				8
+B:3:7:5:45:3	#stinking cloud			7
+B:4:2:2:35:1	#phase door				2
+B:5:5:4:40:2	#find traps/doors			5
+B:6:4:1:40:1	#detect monsters			4
+B:7:14:10:50:3	#cure poison			14
+B:8:11:6:40:3	#acid arrow				11
+B:9:9:3:35:2	#infravision (B2)			9
+B:10:99:0:0:0	#resist acid			/
+B:11:15:9:50:4	#cure moderate wounds		15
+B:12:15:14:60:5	#resist heat & cold		15
+B:13:16:16:70:4	#satisfy hunger			16
+B:14:19:16:70:6	#chemical rage			19
+B:15:23:21:67:6	#strong disinfectant		23
+B:16:28:26:70:7	#resist poison			28
+B:17:99:0:0:0	#heal					/
+B:18:7:4:55:3	#detect treasure (B3)		7 (7-9)
+B:19:12:8:50:3	#trap/door destruction		12 (8-12)
+B:20:11:4:65:3	#detect object			11 (10-11)
+B:21:16:20:65:5	#identify				16
+B:22:13:7:60:4	#detect invisible			13
+B:23:32:32:85:12	#resistance				32
+B:24:29:13:60:8	#detect enchantment		29
+B:25:99:0:0:0	#acid coat ammo			/
+B:26:3:4:50:2	#burst of speed (B4)		3
+B:27:6:6:33:2	#teleport self			6
+B:28:30:24:70:10	#teleport other			30
+B:29:24:17:70:7	#slow monsters			24
+B:30:25:20:60:8	#mass sleep				25
+B:31:22:14:70:9	#haste self				22
+B:32:32:23:70:40	#teleport level			32
+B:33:99:0:0:0	#elixir of life			/  (in alchemist only B7)
+B:34:43:70:85:130	#rune of protection		43  (in B4)
+B:35:99:0:0:0	#lightning bolt (B5)		/  (archer only book)
+B:36:99:0:0:0	#rain of arrows			/
+B:37:99:0:0:0	#chaos arrow			/
+B:38:99:0:0:0	#rocket blast			/
+B:39:99:0:0:0	#enchant missile to-hit		/
+B:40:99:0:0:0	#enchant missile to-dam		/
+B:41:99:0:0:0	#poison brand ammo		/
+B:42:99:0:0:0	#elemental brand ammo		/
+B:43:7:6:40:4	#confuse monster (B6)		7
+B:44:13:8:55:5	#sleep monster			13
+B:45:19:16:67:8	#element bolt			19
+B:46:23:18:77:30	#polymorph other			26
+B:47:17:12:70:6	#slow monster			17
+B:48:34:37:92:71	#restore dex1			34  (this spell in thief only B8)
+B:49:36:29:80:60	#element ball			36
+B:50:99:0:0:0	#acid ball				/
+B:51:99:0:0:0	#ice storm				/
+B:52:18:15:75:11	#wonder				18H1
+B:53:27:16:55:35	#cloudkill1	(B7)			/  (alchemist only book)
+B:54:99:0:0:0	#glyph of warding			/  (this spell in archer only B9)
+B:55:99:0:0:0	#stone to mud			/
+B:56:99:0:0:0	#recharging				/
+B:57:99:0:0:0	#object to gold1			/
+B:58:99:0:0:0	#explosion				/
+B:59:99:0:0:0	#restoration			/
+B:60:99:0:0:0	#poison brand weapon		/
+B:61:7:6:50:6	#hit and run (B8)			7  (thief only book)
+B:62:20:12:40:20	#slip into the shadows		20
+B:63:20:15:65:15	#poison bolt			20
+B:64:23:21:70:30	#cloudkill2				23
+B:65:28:23:70:60	#bedlam1				28
+B:66:20:1:10:5	#object to gold2			<20> (temporary stats while not done)
+B:67:37:70:70:120	#poison brand weapon2		37
+B:68:99:0:0:0	#recharging2 (B9)			/ (archer only book)
+B:69:99:0:0:0	#shield				/
+B:70:99:0:0:0	#bedlam2				/
+B:71:99:0:0:0	#restore dex2			/
+B:72:99:0:0:0	#enchant armor			/
+B:73:99:0:0:0	#meteor swarm			/
 
-#N:15:War Mage (wizardry)
-
-#N:16:Barbarian (chance or nature? vlittle magic)
-
-#N:17:Tourist (chance)
+#N:15:Tourist (chance)
 #S:0:2:-2:1:1:2
 #C:45:32:23:3:32:24:60:66 (from here and later is copied from rogue for now)
 #X:15:10:11:0:0:0:40:30
@@ -961,7 +1052,7 @@ B:63:99:0:0:0	#
 #E:93:0:1:1 (equipment & probably flags done for the tourist)
 #E:35:3:1:1
 #E:70:25:1:3
-#E:16:0:6:18
+#E:16:0:7:18
 #E:19:1:1:1
 #F:PSEUDO_ID_IMPROV | CHOOSE_SPELLS
 #T:Vagabond
@@ -1048,25 +1139,33 @@ B:63:99:0:0:0	#
 #B:71:41:31:80:65	#mass chaos				
 #B:72:99:0:0:0	#bizzare effects			
 
-#N:18:Thief (alchemy)
+#N:16:Fighter Wizard (wizardry, class needs a better name)
 
-#N:19:Sage (mind)
+#N:17:War Mage (wizardry)
 
-#N:20:Witch/Warlock (black)
+#N:18:Barbarian (chance or nature? vlittle magic)
 
-#N:21:Fighter Wizard (wizardry, class needs a better name)
+#N:19:Escape Artist (chance)
 
-#N:22:Escape Artist (chance)
+#N:20:Sage (mind)
 
-#N:23:Loser (chance)
+#N:21:Mystic (nature/mind)
+#T:Windrider
+#T:Stormwielder
+#T:High Mystic
+#T:Mystic Lord
+
+#N:22:Loser (chance)
+
+#N:23:Witch/Warlock (black)
 
 #N:24:Stone Slinger (nature)
 
 #N:25:Chaos Warrior (chance)
 
-#N:26:Mystic (nature/mind)
+#N:26:Meditation Ninja (mind)
 
-#N:27:Meditation Ninja (mind)
+#N:27:Holy Rogue (prayers)
 
 #N:28:Green Knight (alchemy)
 

@@ -1163,8 +1163,10 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->energy);
 		rd_s16b(&p_ptr->timed[TMD_FAST]);
 		rd_s16b(&p_ptr->timed[TMD_SLOW]);
+		rd_s16b(&p_ptr->timed[TMD_STONESKIN]);
 		rd_s16b(&p_ptr->timed[TMD_ADJUST]);
 		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
+		rd_s16b(&p_ptr->timed[TMD_TERROR]);
 		rd_s16b(&p_ptr->timed[TMD_CHARM]);
 		rd_s16b(&p_ptr->timed[TMD_FRENZY]);
 		rd_s16b(&p_ptr->timed[TMD_CUT]);
@@ -1184,6 +1186,7 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_TSIGHT]);
 		rd_s16b(&p_ptr->timed[TMD_SANCTIFY]);
 		rd_s16b(&p_ptr->timed[TMD_ESP]);
+		rd_s16b(&p_ptr->timed[TMD_MESP]);
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
 		rd_s16b(&p_ptr->silver);

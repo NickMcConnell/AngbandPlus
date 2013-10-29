@@ -1863,7 +1863,7 @@ for (;clash < 50;)
                     /* umber hulk must be hulk class */
                     if ((p_ptr->prace == 17) && (p_ptr->pclass != 32)) clash = 17;
                     /* no other race can be hulk class */
-                    if ((p_ptr->pclass == 23) && (p_ptr->prace != 17)) clash = 40;
+                    if ((p_ptr->pclass == 32) && (p_ptr->prace != 17)) clash = 40;
 	}
 
    /* luck settings */
@@ -1888,11 +1888,10 @@ if (p_ptr->prace == 17) p_ptr->luck = randint(4) - 2; /* hulk -1 to 2 */
 if (p_ptr->pclass == 2) p_ptr->luck = p_ptr->luck - 1; /* necromancer -1 */
 if (p_ptr->pclass == 3) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* rogue +0 to +1 */
 if (p_ptr->pclass == 8) p_ptr->luck = p_ptr->luck - (randint(2) - 1); /* priest +0 to -1 */
-if (p_ptr->pclass == 16) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* barbarian +0 to +1 */
-if (p_ptr->pclass == 17) p_ptr->luck = p_ptr->luck + 1; /* tourist +1 */
-if (p_ptr->pclass == 18) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* thief +0 to +1 */
-if (p_ptr->pclass == 22) p_ptr->luck = p_ptr->luck + 1; /* escape artist +1 */
-if (p_ptr->pclass == 23) p_ptr->luck = p_ptr->luck - (randint(3) - 1); /* loser +0 to -2 */
+if (p_ptr->pclass == 18) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* barbarian +0 to +1 */
+if (p_ptr->pclass == 15) p_ptr->luck = p_ptr->luck + 2; /* tourist +2 */
+if (p_ptr->pclass == 14) p_ptr->luck = p_ptr->luck + (randint(2) - 1); /* thief +0 to +1 */
+if (p_ptr->pclass == 21) p_ptr->luck = p_ptr->luck - (randint(3) - 1); /* loser +0 to -2 */
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

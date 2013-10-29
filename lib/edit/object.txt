@@ -85,14 +85,16 @@ G:&:w
 
 ##### Mushrooms #####
 
-N:1:Blindness
+#"second sight" or "mind sight"?
+N:1:Second Sight
 G:,:d
 I:80:1:500
 W:5:0:1:0
 A:5/1
 F:EASY_KNOW
-D:It causes blindness that lasts for 199+1d200 turns, unless you have
-D: resistance to blindness.
+D:It causes blindness that lasts for 200+1d200 turns, or if you have
+D: resistance to blindness it only blinds you for 1d200 turns.
+D:It also grants telepathy which only works while you're blind.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -107,14 +109,15 @@ D: unless you have resistance to charm (which is currently unavailable).
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:3:Confusion
+N:3:Terror
 G:,:d
 I:80:3:500
-W:5:0:1:0
-A:5/1
+W:8:0:1:0
+A:8/2
 F:EASY_KNOW
-D:It induces confusion that lasts for 9+1d10 turns, unless you have
-D: resistance to confusion.
+D:It induces extreme terror (+11 speed, plus some ac, but cannot melee,
+D: shoot, or cast) that lasts for 15+1d15 turns, bypassing
+D: resistance to fear.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -242,10 +245,12 @@ N:15:Poison
 G:,:d
 I:80:0:500
 W:5:0:1:0
-A:5/1:5/1
+A:10/1
+P:0:3d9:0:0:0
 F:EASY_KNOW
-D:It poisons you (adding 9+1d10 points to the poison counter), unless
-D: you have resistance to poison.
+D:It poisons you (doing 6d6 damage and adding 15+1d15 points to the
+D: poison counter), unless you have resistance to poison.
+D:  It may also be thrown to inflict 6d6 points of damage.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -260,14 +265,13 @@ D: you have sustain constitution.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
-N:17:Paralysis
+N:17:Stone Skin
 G:,:d
 I:80:5:500
 W:20:0:1:0
-A:20/1
+A:18/2
 F:EASY_KNOW
-D:It induces paralysis that lasts for 9+1d10 turns, unless you have free
-D: action.
+D:It gives you stone skin (-5 speed, +30ac) for 100 + d100 turns.
 D:  Mushrooms provide nourishment for about 250 turns under normal
 D: conditions.
 
@@ -327,6 +331,7 @@ N:23:& strip~ of beef jerky
 G:,:u
 I:80:33:1500
 W:0:0:2:2
+A:0/5
 F:EASY_KNOW
 D:It provides nourishment for about 750 turns under normal conditions.
 
@@ -341,11 +346,11 @@ D:It provides nourishment for about 1500 turns under normal conditions.
 N:25:& piece~ of elvish waybread
 G:,:B
 I:80:37:7500
-W:5:0:3:220
+W:5:0:3:120
 A:10/2:20/2
 F:EASY_KNOW
-D:It cures 4d8 points of damage, neutralizes poison, and cures 5 points
-D: of silver poison.
+D:It cures 4d8 points of damage, neutralizes poison, cures 5 points
+D: of silver poison, and 3 points of sliming.
 D:  It provides nourishment for about 3750 turns under normal
 D: conditions.
 
@@ -2009,7 +2014,7 @@ D:  Note: These are always Clear Potions.
 
 N:225:Strength
 G:!:d
-I:75:48:0
+I:75:48:25
 W:30:0:4:8000
 A:22/5
 P:0:1d1:0:0:0
@@ -2028,7 +2033,7 @@ D:It reduces strength (unless you have sustain strength).
 
 N:227:Restore Strength
 G:!:d
-I:75:42:0
+I:75:42:25
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
@@ -2037,7 +2042,7 @@ D:It restores strength to maximum if it is currently below maximum.
 
 N:228:Intelligence
 G:!:d
-I:75:49:0
+I:75:49:25
 W:30:0:4:8000
 A:22/5
 P:0:1d1:0:0:0
@@ -2056,7 +2061,7 @@ D:It reduces intelligence (unless you have sustain intelligence).
 
 N:230:Restore Intelligence
 G:!:d
-I:75:43:0
+I:75:43:25
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
@@ -2065,7 +2070,7 @@ D:It restores intelligence to maximum if it is currently below maximum.
 
 N:231:Wisdom
 G:!:d
-I:75:50:0
+I:75:50:25
 W:30:0:4:8000
 A:22/5
 P:0:1d1:0:0:0
@@ -2084,7 +2089,7 @@ D:It reduces wisdom (unless you have sustain wisdom).
 
 N:233:Restore Wisdom
 G:!:d
-I:75:44:0
+I:75:44:25
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
@@ -2093,7 +2098,7 @@ D:It restores wisdom to maximum if it is currently below maximum.
 
 N:234:Charisma
 G:!:d
-I:75:53:0
+I:75:53:25
 W:20:0:4:1000
 A:17/5
 P:0:1d1:0:0:0
@@ -2103,7 +2108,7 @@ D: increases charisma.
 
 N:235:Ugliness
 G:!:d
-I:75:21:0
+I:75:21:35
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
@@ -2112,7 +2117,7 @@ D:It reduces charisma (unless you have sustain charisma).
 
 N:236:Restore Charisma
 G:!:d
-I:75:47:0
+I:75:47:10
 W:20:0:4:300
 A:20/1
 P:0:1d1:0:0:0
@@ -2175,7 +2180,7 @@ D: conditions.
 
 N:242:Healing
 G:!:d
-I:75:37:200
+I:75:37:550
 W:15:0:4:300
 A:15/1:60/1
 P:0:1d1:0:0:0
@@ -2188,7 +2193,7 @@ D: conditions.
 
 N:243:Constitution
 G:!:d
-I:75:52:0
+I:75:52:25
 W:30:0:4:8000
 A:22/5
 P:0:1d1:0:0:0
@@ -2198,7 +2203,7 @@ D: increases constitution.
 
 N:244:Experience
 G:!:d
-I:75:59:0
+I:75:59:25
 W:65:0:4:25000
 A:65/2
 P:0:1d1:0:0:0
@@ -2219,7 +2224,7 @@ D: conditions.
 
 N:246:Blindness
 G:!:d
-I:75:7:0
+I:75:7:50
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
@@ -2274,7 +2279,7 @@ D: conditions.
 
 N:251:Dexterity
 G:!:d
-I:75:51:0
+I:75:51:25
 W:30:0:4:8000
 A:22/5
 P:0:1d1:0:0:0
@@ -2284,7 +2289,7 @@ D: increases dexterity.
 
 N:252:Restore Dexterity
 G:!:d
-I:75:45:0
+I:75:45:25
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
@@ -2293,7 +2298,7 @@ D:It restores dexterity to maximum if it is currently below maximum.
 
 N:253:Restore Constitution
 G:!:d
-I:75:46:0
+I:75:46:25
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
@@ -2302,7 +2307,7 @@ D:It restores constution to maximum if it is currently below maximum.
 
 N:254:Lose Memories
 G:!:d
-I:75:13:0
+I:75:13:30
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
@@ -2323,7 +2328,7 @@ D: action.
 
 N:256:Enlightenment
 G:!:d
-I:75:56:0
+I:75:56:25
 W:25:0:4:800
 A:25/1
 P:0:1d1:0:0:0
@@ -2332,7 +2337,7 @@ D:It completely lights up and magically maps the current dungeon level.
 
 N:257:Heroism
 G:!:d
-I:75:32:0
+I:75:32:25
 W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0
@@ -2342,7 +2347,7 @@ D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns.
 
 N:258:Berserk Strength
 G:!:d
-I:75:33:0
+I:75:33:25
 W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0
@@ -2353,7 +2358,7 @@ D: -10 to AC) for 25+1d25 turns.
 
 N:259:Boldness
 G:!:d
-I:75:28:0
+I:75:28:20
 W:1:0:4:10
 A:1/1
 P:0:1d1:0:0:0
@@ -2362,7 +2367,7 @@ D:It removes fear.
 
 N:260:Restore Life Levels
 G:!:d
-I:75:41:0
+I:75:41:25
 W:40:0:4:400
 A:40/1
 P:0:1d1:0:0:0
@@ -2372,7 +2377,7 @@ D: cures 1 point of silver poison.
 
 N:261:Resist Heat
 G:!:d
-I:75:30:0
+I:75:30:20
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
@@ -2384,7 +2389,7 @@ D: with other magic providing temporary fire resistance.
 
 N:262:Resist Cold
 G:!:d
-I:75:31:0
+I:75:31:20
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
@@ -2396,7 +2401,7 @@ D: with other magic providing temporary cold resistance.
 
 N:263:Detect Invisible
 G:!:d
-I:75:25:0
+I:75:25:25
 W:3:0:4:50
 A:3/1:25/1
 P:0:1d1:0:0:0
@@ -2405,7 +2410,7 @@ D:It enables you to see invisible creatures for 12+1d12 turns.
 
 N:264:Slow Poison
 G:!:d
-I:75:26:0
+I:75:26:25
 W:1:0:4:25
 A:1/1
 P:0:1d1:0:0:0
@@ -2414,7 +2419,7 @@ D:It halves the severity of any current poisoning.
 
 N:265:Neutralize Poison
 G:!:d
-I:75:27:0
+I:75:27:25
 W:5:0:4:75
 A:5/1
 P:0:1d1:0:0:0
@@ -2423,7 +2428,7 @@ D:It neutralizes poison.
 
 N:266:Restore Mana
 G:!:d
-I:75:40:0
+I:75:40:25
 W:25:0:4:350
 A:25/1:70/1
 P:0:1d1:0:0:0
@@ -2433,7 +2438,7 @@ D: maximum.
 
 N:267:Infravision
 G:!:d
-I:75:24:0
+I:75:24:25
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
@@ -2443,7 +2448,7 @@ D: turns.
 
 N:268:Auto-Brail
 G:!:d
-I:75:54:0
+I:75:54:25
 W:15:0:4:280
 A:15/6
 P:0:1d1:0:0:0
@@ -3105,7 +3110,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:334:[Minor Healings and Defences]
+N:334:[Beginner's Handbook]
 G:?:G
 I:91:0:0
 W:5:0:30:25
@@ -3858,7 +3863,7 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:415:Purity
 G:!:d
-I:75:23:0
+I:75:23:120
 W:55:0:4:900
 A:30/2:70/3
 P:0:1d1:0:0:0
@@ -3890,7 +3895,7 @@ D:  It can also be thrown for 25d25 points of damage.
 
 N:418:Augmentation
 G:!:d
-I:75:55:0
+I:75:55:25
 W:40:0:4:60000
 A:40/16
 P:0:1d1:0:0:0
@@ -3900,7 +3905,7 @@ D: increases all stats.
 
 N:419:*Healing*
 G:!:d
-I:75:38:0
+I:75:38:750
 W:40:0:4:1500
 A:40/4:80/2
 P:0:1d1:0:0:0
@@ -3911,7 +3916,7 @@ D: cures 20 points of silver poison.
 
 N:420:Life
 G:!:d
-I:75:39:0
+I:75:39:250
 W:60:0:4:5000
 A:60/4:100/4
 P:0:1d1:0:0:0
@@ -3922,7 +3927,7 @@ D: stops hallucination, and cures blindness, confusion, and all silver poison.
 
 N:421:Self Knowledge
 G:!:d
-I:75:58:0
+I:75:58:25
 W:40:0:4:2000
 A:40/1
 P:0:1d1:0:0:0
@@ -3934,7 +3939,7 @@ D: forget who you are).
 
 N:422:*Enlightenment*
 G:!:d
-I:75:57:0
+I:75:57:25
 W:70:0:4:80000
 A:70/5
 P:0:1d1:0:0:0
@@ -4381,8 +4386,8 @@ P:2:0d0:0:0:0
 N:521:& light club~
 G:\:U
 I:21:4:0
-W:3:4:38:84
-A:3/4
+W:3:5:36:84
+A:3/5
 P:0:2d2:1:0:0
 F:SHOW_MODS
 
@@ -4599,7 +4604,7 @@ D:This spellbook is not for tourists.
 N:546:[The Spreading of Chaos]
 G:?:u
 I:93:8:0
-W:90:0:30:56000
+W:80:0:30:46000
 A:65/2
 P:0:1d3:0:0:0
 F:EASY_KNOW

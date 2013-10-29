@@ -21,22 +21,22 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-				if (inc_timed(TMD_POISONED, rand_int(10) + 10))
+				if (inc_timed(TMD_POISONED, randint(15) + 15))
 				{
+			        take_hit(damroll(6, 6), "poisonous food");
 					*ident = TRUE;
 				}
 			}
 			break;
 		}
 
-		case SV_FOOD_BLINDNESS:
+		case SV_FOOD_SECOND_SIGHT:
 		{
-			if (!p_ptr->resist_blind)
+            (void)inc_timed(TMD_MESP, randint(500) + 500);
+			if (inc_timed(TMD_BLIND, randint(200) + 200))
 			{
-				if (inc_timed(TMD_BLIND, rand_int(200) + 200))
-				{
-					*ident = TRUE;
-				}
+                if (p_ptr->resist_blind) dec_timed(TMD_BLIND, 200);
+				*ident = TRUE;
 			}
 			break;
 		}
@@ -53,14 +53,11 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_CONFUSION:
+		case SV_FOOD_TERROR:
 		{
-			if (!p_ptr->resist_confu)
+			if (inc_timed(TMD_TERROR, randint(15) + 15))
 			{
-				if (inc_timed(TMD_CONFUSED, rand_int(10) + 10))
-				{
-					*ident = TRUE;
-				}
+				*ident = TRUE;
 			}
 			break;
 		}
@@ -74,18 +71,13 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 					*ident = TRUE;
 				}
 			}
+			if (randint(100) < 4) p_ptr->luck = p_ptr->luck + 1;
 			break;
 		}
 
-		case SV_FOOD_PARALYSIS:
+		case SV_FOOD_STONE_SKIN:
 		{
-			if (!p_ptr->free_act)
-			{
-				if (inc_timed(TMD_PARALYZED, rand_int(10) + 10))
-				{
-					*ident = TRUE;
-				}
-			}
+			if (inc_timed(TMD_STONESKIN, randint(100) + 100)) *ident = TRUE;
 			break;
 		}
 
@@ -215,7 +207,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			(void)hp_player(damroll(4, 8));
 			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 2;
+            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 3;
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			*ident = TRUE;
 			break;
@@ -287,7 +279,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_blind)
 			{
-				if (inc_timed(TMD_BLIND, rand_int(100) + 100))
+				if (inc_timed(TMD_BLIND, randint(200) + 100))
 				{
 					*ident = TRUE;
 				}
@@ -461,10 +453,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (!p_ptr->timed[TMD_FAST])
 			{
 				if (set_timed(TMD_FAST, randint(25) + 15)) *ident = TRUE;
+				(void)set_food(p_ptr->food - 600);
 			}
 			else
 			{
 				(void)inc_timed(TMD_FAST, 5);
+				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}
@@ -1286,10 +1280,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (!p_ptr->timed[TMD_FAST])
 			{
 				if (set_timed(TMD_FAST, randint(30) + 15)) *ident = TRUE;
+				(void)set_food(p_ptr->food - 600);
 			}
 			else
 			{
 				(void)inc_timed(TMD_FAST, 5);
+				(void)set_food(p_ptr->food - 200);
 			}
 			break;
 		}

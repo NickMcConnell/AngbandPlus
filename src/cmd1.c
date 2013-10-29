@@ -1369,7 +1369,7 @@ void py_attack(int y, int x)
 
 
 	/* Handle player fear */
-	if (p_ptr->timed[TMD_AFRAID])
+	if ((p_ptr->timed[TMD_AFRAID]) || (p_ptr->timed[TMD_TERROR]))
 	{
 		/* Message */
 		msg_format("You are too afraid to attack %s!", m_name);

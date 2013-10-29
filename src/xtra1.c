@@ -1961,7 +1961,7 @@ static void calc_bonuses(void)
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
-//    p_ptr->noregen = FALSE;
+    p_ptr->stopregen = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
@@ -2054,10 +2054,20 @@ static void calc_bonuses(void)
 
 	/* Bad flags */
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
-	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	if (f3 & (TR3_AGGRAVATE))
+    {
+	   if (cp_ptr->flags & CF_CLASS_SPEED)
+	   {
+       p_ptr->skills[SKILL_STL] -= 4;
+       }
+       else
+       {
+       p_ptr->aggravate = TRUE;
+       }
+    }
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-//	if (f3 & (TR3_NOREGEN)) p_ptr->noregen = TRUE;
+	if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2155,10 +2165,20 @@ static void calc_bonuses(void)
 
 		/* Bad flags */
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
-		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	    if (f3 & (TR3_AGGRAVATE))
+        {
+	      if (cp_ptr->flags & CF_CLASS_SPEED)
+	      {
+          p_ptr->skills[SKILL_STL] -= 5;
+          }
+          else
+          {
+          p_ptr->aggravate = TRUE;
+          }
+        }
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-//  	    if (f3 & (TR3_NOREGEN)) p_ptr->noregen = TRUE;
+  	    if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2362,6 +2382,22 @@ static void calc_bonuses(void)
 		p_ptr->pspeed -= 10;
 	}
 
+	/* Temporary "stoneskin" */
+	if (p_ptr->timed[TMD_STONESKIN])
+	{
+		p_ptr->pspeed -= 5;
+		p_ptr->to_a += 30;
+		p_ptr->dis_to_a += 30;
+	}
+
+    /* Temporary "desperate to escape" (cannot melee, shoot, or cast) */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		p_ptr->pspeed += 11;
+		p_ptr->to_a += 30;
+		p_ptr->dis_to_a += 27;
+	}
+
 	/* Temporary speed adjustment (not always positive) */
 	if (p_ptr->timed[TMD_ADJUST])
 	{
@@ -2399,12 +2435,32 @@ static void calc_bonuses(void)
         p_ptr->telepathy = TRUE;
 	}
 
+	/* timed mind sight (telepathy only while blind) */
+	if ((p_ptr->timed[TMD_MESP]) && (p_ptr->timed[TMD_BLIND]))
+	{
+        p_ptr->telepathy = TRUE;
+	}
+
 	/* Temporary infravision boost */
 	if (p_ptr->timed[TMD_SINFRA])
 	{
 		p_ptr->see_infra += 5;
 	}
 
+	if (cp_ptr->flags & CF_CLASS_SPEED)
+	{
+        p_ptr->pspeed += 2;
+                      
+		/* Extra speed at level 20 */
+		if (p_ptr->lev >= 20) p_ptr->pspeed += 1;
+
+		/* Extra speed at level 40 */
+		if (p_ptr->lev >= 40) p_ptr->pspeed += 1;
+	}
+	
+	/* luck check */
+	if (p_ptr->luck > PY_LUCKCHECK_MAX) p_ptr->luck = PY_LUCKCHECK_MAX;
+	if (p_ptr->luck < PY_LUCKCHECK_MIN) p_ptr->luck = PY_LUCKCHECK_MIN;
 
 	/*** Special flags ***/
 
@@ -2525,7 +2581,7 @@ static void calc_bonuses(void)
 	p_ptr->heavy_shoot = FALSE;
 
     
-    if (!CF_HEAVY_BONUS)
+    if (!cp_ptr->flags & CF_HEAVY_BONUS)
     {
     	/* It is hard to carholdry a heavy bow */
 	    if (hold < o_ptr->weight / 10)
@@ -2623,6 +2679,63 @@ static void calc_bonuses(void)
 			}
 		}
 
+	/* certain classes are better at using certain types of weapons */
+    if ((p_ptr->pclass == 3) || (p_ptr->pclass == 23) && (p_ptr->ammo_tval == TV_ARROW))
+    { /* rogues not as good with bows */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->pclass == 3) && (p_ptr->ammo_tval == TV_BOLT))
+    { /* rogue */
+	      p_ptr->to_h += 1;
+	      p_ptr->dis_to_h += 1;
+    }
+    if ((p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_ARROW))
+    { /* rangers don't get extra shots but still good with bows */
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->pclass == 6) || (p_ptr->pclass == 4) && (p_ptr->ammo_tval == TV_BOLT) || (p_ptr->ammo_tval == TV_SHOT))
+    { /* archers and rangers not as good with slings or crossbows */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->pclass == 5) || (p_ptr->pclass == 13) || (p_ptr->prace == 13) && (p_ptr->ammo_tval == TV_SHOT))
+    { /* paladins and assassins don't have much in common but neither use slings */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->pclass == 8) || (p_ptr->pclass == 9) || (p_ptr->pclass == 10) && (p_ptr->ammo_tval == TV_BOLT))
+    { /* crossbow not a priestly weapon, nor a healery weapon, nor druidy weapon */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->pclass == 8) || (p_ptr->pclass == 18) && (p_ptr->ammo_tval == TV_SHOT))
+    { /* sling kindof is a priestly weapon (also barbarian) */
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->pclass == 13) && (p_ptr->ammo_tval == TV_BOLT))
+    { /* assassins like crossbows */
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->prace == 9) || (p_ptr->prace == 12) && (p_ptr->ammo_tval == TV_BOLT))
+    { /* high elves and fairies don't */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->prace == 3) || (p_ptr->prace == 14) && (p_ptr->ammo_tval == TV_SHOT))
+    { /* hobbits like slings */
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->prace == 17) && (p_ptr->ammo_tval == TV_ARROW))
+    { /* umber hulks don't use bows */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
@@ -2632,7 +2745,7 @@ static void calc_bonuses(void)
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
 
-			/* Hack -- Rangers love Bows */
+			/* Hack -- Archers love Bows */
 			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
@@ -2657,7 +2770,7 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
-    if (!CF_HEAVY_BONUS)
+    if (!cp_ptr->flags & CF_HEAVY_BONUS)
     {
 	/* It is hard to hold a heavy weapon */
 	   if (hold < o_ptr->weight / 10)
@@ -2705,13 +2818,65 @@ static void calc_bonuses(void)
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
-		/* Boost digging skill by weapon weight */
-		p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
+		/* Boost digging skill by weapon weight. DJA: blades don't dig well. */
+		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 20);
+		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 12);
+		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
 	}
 
 	/* Assume okay */
 	p_ptr->icky_wield = FALSE;
-
+	
+	/* certain classes are better at using certain types of weapons */
+    if ((p_ptr->pclass == 0) && (o_ptr->tval == TV_HAFTED))
+    { /* warrior */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+    if ((p_ptr->pclass == 6) && (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+    { /* archer */
+	      p_ptr->to_h -= 1;
+	      p_ptr->dis_to_h -= 1;
+    }
+    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_SWORD))
+    { /* priest: bless_weapon penalty is less than in V, so I added this */
+	      p_ptr->to_h -= 1;
+	      p_ptr->dis_to_h -= 1;
+    }
+    if ((p_ptr->pclass == 9) && (o_ptr->tval == TV_POLEARM))
+    { /* healer */
+	      p_ptr->to_h -= 1;
+	      p_ptr->dis_to_h -= 1;
+    }
+    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_SWORD))
+    { /* barbarian */
+	      p_ptr->to_h -= 1;
+	      p_ptr->dis_to_h -= 1;
+    }
+    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_POLEARM))
+    { /* barbarians fight with spears */
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+    }
+    if ((p_ptr->pclass == 32) && (o_ptr->tval == TV_SWORD))
+    { /* umber hulks not good with swords */
+	      p_ptr->to_h -= 2;
+	      p_ptr->dis_to_h -= 2;
+    }
+	
+	/* Heavy Weapon Bonus for barbarians */
+    if ((cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight > 9))
+    {
+       int hbonus = ((o_ptr->weight - 10) / 5) + 1;
+	   p_ptr->to_d += hbonus;
+	   p_ptr->dis_to_d += hbonus;
+       if (o_ptr->weight > 14)
+       {
+	      p_ptr->to_h += 2;
+	      p_ptr->dis_to_h += 2;
+       }
+    }
+    
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))

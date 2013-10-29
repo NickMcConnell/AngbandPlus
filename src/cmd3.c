@@ -185,11 +185,11 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 		if (to_print)
 			msg_format("%s drains experience.", o_name);
 	}
-/*	if (f3 & (TR3_NOREGEN))
+	if (f3 & (TR3_STOPREGEN))
 	{
 		if (to_print)
 			msg_format("%s prevents hit point regeneration.", o_name);
-	} */
+	}
 	return ret;
 }
 

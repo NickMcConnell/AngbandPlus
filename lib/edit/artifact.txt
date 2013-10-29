@@ -260,14 +260,14 @@ N:13:of Power 'The One Ring'
 I:45:37:5
 W:100:100:2:5000000
 P:0:0d0:15:15:0
-# F: DRAIN_MANA | DRAIN_HP | NOREGEN |
+# F: DRAIN_MANA | DRAIN_HP | REGEN
 F:STR | INT | DEX | CON | SPEED | HIDE_TYPE | INFRA
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
+F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | STOPREGEN
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | RES_POIS | 
 F:RES_BLIND | RES_DISEN | RES_DARK |
 F:SUST_STR | SUST_DEX | SUST_CON | 
-F:SUST_INT | SUST_WIS | SUST_CHR | 
+F:SUST_INT | SUST_WIS | SUST_CHR
 F:INSTA_ART
 A:BIZZARE:30:30
 D:"One Ring to rule them all, One Ring to find them, One Ring to bring 
@@ -1161,10 +1161,10 @@ N:78:'Mormegil'
 I:23:25:-2
 W:30:15:210:10000
 P:0:3d6:-15:15:-20
-# F:DRAIN_HP | DRAIN_MANA | NOREGEN
-F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL
+# F:DRAIN_HP | DRAIN_MANA
+F:BRAND_POIS | KILL_DRAGON | SLAY_UNDEAD | SLAY_ANIMAL | 
 F:SPEED | HIDE_TYPE | SEE_INVIS | HOLD_LIFE | SHOW_MODS | 
-F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE |
+F:AGGRAVATE | DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE | STOPREGEN
 D:A foul, twisted sword with blackened spines and knobs, whose very name is 
 D:a curse upon the lips of Elves and Men. It is said that it will drink the 
 D:very lifeblood of its wielder.
@@ -1341,11 +1341,12 @@ N:91:'Doomcaller'
 I:23:30:1
 W:70:25:180:200000
 P:0:6d5:18:28:-50
-# F:DRAIN_HP | NOREGEN
+# F:DRAIN_HP
 F:BLOWS | SLAY_DEMON
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
-F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | LIGHT_CURSE
+F:RES_CHAOS | SEE_INVIS | TELEPATHY | SHOW_MODS |
+F:LIGHT_CURSE | AGGRAVATE | STOPREGEN
 D:This weapon of wrath, wrought by a desperate berserker gang, dives hungrily 
 D:into the yielding flesh of your enemies.  You yourself fall under the 
 D:shadow of death even as you inflict wounds that will not heal.
@@ -1387,7 +1388,6 @@ N:94:of Pain
 I:22:13:0
 W:30:22:300:50000
 P:0:8d7:0:30:0
-#F:NOREGEN
 F:SHOW_MODS | RES_FEAR | DRAIN_EXP | LIGHT_CURSE
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
@@ -1805,9 +1805,9 @@ N:123:of Gothmog
 I:21:2:-3
 W:60:25:90:25000
 P:0:6d3:13:16:0
-# F:DRAIN_HP | NOREGEN
+# F:DRAIN_HP
 F:INT | DEX | WIS | HIDE_TYPE | 
-F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE |
+F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE | STOPREGEN
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | RES_ACID | LITE
 F:SLAY_ANIMAL | KILL_DRAGON | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS

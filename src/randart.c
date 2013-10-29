@@ -384,6 +384,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags3 & TR3_REGEN) p += 8;
 	if (a_ptr->flags3 & TR3_TELEPORT) p -= 20;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
+	if (a_ptr->flags3 & TR3_STOPREGEN) p -= 20;
 	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 8;
 	if (a_ptr->flags3 & TR3_BLESSED) p += 4;
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
@@ -732,6 +733,7 @@ static void remove_contradictory(artifact_type *a_ptr)
 	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
 	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
+	if (a_ptr->flags3 & TR3_REGEN) a_ptr->flags3 &= ~(TR3_STOPREGEN);
 }
 
 
@@ -1158,6 +1160,8 @@ static void do_curse(artifact_type *a_ptr)
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
 	if (rand_int(7) == 0)
 		a_ptr->flags3 |= TR3_TELEPORT;
+	if (rand_int(9) == 0)
+		a_ptr->flags3 |= TR3_STOPREGEN;
 
 	if ((a_ptr->pval > 0) && (rand_int(2) == 0))
 		a_ptr->pval = -a_ptr->pval;

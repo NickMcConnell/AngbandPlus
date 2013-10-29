@@ -352,10 +352,10 @@ D:It is a slimy mass of worms.
 
 N:25:disgusting worm
 G:w:U
-I:105:2d6:7:10:29
+I:106:2d6:7:10:29
 W:1:3:0:2
 B:CRAWL:TERRIFY:1d2
-F:RAND_50 | RAND_25
+F:RAND_50
 F:STUPID | WEIRD_MIND
 F:IM_POIS | NO_FEAR
 D:It makes you shiver with digust.
@@ -1309,9 +1309,9 @@ G:v:D
 I:102:9d9:3:33:90
 W:6:3:0:21
 B:ENGULF:EAT_LITE:1d4
-F:RAND_50 | COLD_BLOOD |
+F:RAND_50 | COLD_BLOOD
 F:OPEN_DOOR | EMPTY_MIND | NON_LIVING
-F:NO_SLEEP | NO_FEAR | IM_COLD
+F:NO_SLEEP | NO_FEAR | IM_COLD | IM_POIS
 S:1_IN_11
 S:BR_DARK
 D:a dark moving cloud of cool moist air, it dims your view.
@@ -2211,7 +2211,7 @@ B:ENGULF:BLIND:2d3
 B:ENGULF:BLIND:2d3
 F:RAND_50 | COLD_BLOOD |
 F:BASH_DOOR | NON_LIVING
-F:NO_SLEEP | EMPTY_MIND
+F:NO_SLEEP | EMPTY_MIND | IM_POIS
 D:A whirlwind of blinding dust.
 
 N:186:chickatrice
@@ -3303,7 +3303,8 @@ F:SMART
 F:EVIL | DEMON | IM_FIRE
 S:1_IN_9
 S:BLINK | TELE_TO | BLIND | CONF | SCARE
-D: A tiny winged devil closely related to the imp. They don't look very harmful because of their size, but their poisonous talons are no less sharp for their size.
+D:A tiny winged devil closely related to the imp. They don't look very harmful
+D: because of their size, but their poisonous talons are no less sharp for being small.
 
 N:273:uruk
 G:o:B
@@ -5262,8 +5263,8 @@ F:DROP_60 | GIANT
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_6
 S:BOULDER
-D:Over fifteen feet tall, this giant wields a massive stone club that two men together wouldn't be
-D: able to lift.
+D:Over fifteen feet tall, this giant wields a massive stone club that two men
+D: together wouldn't be able to lift.
 
 N:413:mind flayer
 G:h:v
@@ -7069,7 +7070,7 @@ W:37:1:0:800
 B:ENGULF:HURT:6d6
 F:FORCE_SLEEP | RAND_50 | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
-F:NO_FEAR | NO_CONF | NO_SLEEP
+F:NO_FEAR | NO_CONF | NO_SLEEP | IM_POIS
 S:1_IN_4
 S:BR_SHAR
 D:A howling blast of razor-sharp mountain fragments, kept intact by perilous
@@ -7117,7 +7118,7 @@ B:ENGULF:HURT:5d5
 F:FORCE_SLEEP
 F:RAND_50 | RAND_25 | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
-F:NO_CONF | NO_SLEEP | NO_FEAR | RES_NEXUS
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_NEXUS | IM_POIS
 S:1_IN_6
 S:BR_NEXU
 D:A maelstrom of potent magical energy.
@@ -7131,7 +7132,7 @@ B:ENGULF:ELEC:4d8
 F:FORCE_SLEEP
 F:RAND_50 | RAND_25 | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
-F:IM_FIRE | IM_ELEC | RES_PLAS
+F:IM_FIRE | IM_ELEC | RES_PLAS | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6
 S:BR_PLAS
@@ -9466,7 +9467,7 @@ B:ENGULF:HALLU:5d5
 F:ATTR_MULTI | FORCE_SLEEP | NON_LIVING
 F:RAND_50 | RAND_25
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | IM_POIS
 S:1_IN_6
 S:BR_CHAO
 D:Void, nothingness, spinning destructively.
@@ -9479,7 +9480,7 @@ B:ENGULF:UN_POWER:4d6
 B:ENGULF:BLIND:4d6
 F:RAND_50 | RAND_25 | FORCE_SLEEP | NON_LIVING
 F:EMPTY_MIND | BASH_DOOR | POWERFUL
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | IM_POIS
 S:1_IN_6
 S:BO_MANA | MIND_BLAST
 D:A raging tempest of pure magical energy.

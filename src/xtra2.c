@@ -72,6 +72,9 @@ static timed_effect effects[] =
 	{ "You slip into the shadows.", "The shadows don't conceal you so much anymore.", 0, 0, PU_BONUS, MSG_GENERIC },
 	{ "You feel yourself moving at a different speed.", "You move at more normal speed now.", 0, 0, PU_BONUS, MSG_SPEED },
 	{ "You can read runes with your hands.", "You forget how to read brail.", PR_BLIND, 0, 0, MSG_SEE_INVIS },
+	{ "Your skin becomes like stone and you move slower.", "The stoneskin wears off.", 0, 0, PU_BONUS, MSG_SLOW },
+	{ "You become desperate to escape!", "You feel bolder now.", PR_AFRAID, 0, PU_BONUS, MSG_AFRAID },
+	{ "", "", 0, 0, (PU_BONUS | PU_MONSTERS), 0 }, /* mind sight: telepathy only while blind */
 };
 
 /*

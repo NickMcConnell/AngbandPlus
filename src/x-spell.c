@@ -342,7 +342,7 @@
 #define LUCK_AFFECT_SELF               47 // done up to here
 #define LUCK_AFFECT_OTHER              48 // finish this book later
 #define LUCK_POTLUCK_STATS             49
-#define LUCK_AQUIREMENT                50
+#define LUCK_AQUIREMENT                50 // this one done
 
 /* Mordenkainen's Escapes: RE 6(mostly not for tourists)*/
 #define LUCK_BLINK_MONSTER             51
@@ -907,7 +907,6 @@ void get_spell_info(int tval, int spell, char *p, size_t len)
 }
 
 
-
 static int beam_chance(void)
 {
 	int plev = p_ptr->lev;
@@ -971,6 +970,217 @@ static void spell_wonder(int dir)
 		hp_player(300);
 	}
 }
+
+
+static void spell_affect_self(int unused)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int plev = p_ptr->lev;
+	int die;
+
+    die = randint(99) + (randint(plev/5));
+    if (die < 40) take_hit(randint((plev * 3)/2), "a backfiring spell");
+    if (die > 45) (void)hp_player(randint(plev));
+    if (die > 65) (void)hp_player(randint(plev));
+    if (die > 90) (void)hp_player(randint(plev));
+    die = randint(99) + (randint(plev/5));
+    if (die < 25) msg_print("Your position feels uncertain.");
+    if (die < 15) teleport_player(damroll(plev/2, 4));
+    else if (die < 25) teleport_player(damroll(2, plev/3 + 1));
+    die = randint(99) + (randint(plev/5));
+    if (die < 5) (void)inc_timed(TMD_CHARM, randint(16) + 12);
+    else if (die < 10) (void)inc_timed(TMD_CONFUSED, randint(19) + 11);
+    else if (die < 15) (void)inc_timed(TMD_BLIND, randint(25) + 25);
+    else if (die < 20) (void)inc_timed(TMD_AMNESIA, randint(19) + 11);
+    else if (die < 24) (void)inc_timed(TMD_IMAGE, randint(19) + 11);
+    else if (die < 30) (void)inc_timed(TMD_POISONED, randint(30) + 20);
+    else if (die < 34)
+    {
+		   msg_print("You feel your life slipping away!");
+		   lose_exp(100 + randint(die * 101));
+    }
+    die = randint(99) + (randint(plev/5));
+    if (die > 100)
+    {
+	     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 7;
+	     if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
+    }
+    if (die > 95)
+    {
+         if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 10;
+	     if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
+    }
+    if (die > 90) (void)clear_timed(TMD_CHARM);
+    if (die > 80) (void)clear_timed(TMD_AMNESIA);
+    if (die > 75)
+    {
+         (void)clear_timed(TMD_CONFUSED);
+         (void)clear_timed(TMD_BLIND);
+         (void)clear_timed(TMD_FRENZY);
+    }
+    if (die > 60) (void)clear_timed(TMD_STUN);
+    if (die > 55) (void)clear_timed(TMD_CUT);
+    if (die > 50) (void)clear_timed(TMD_POISONED);
+    die = randint(99) + (randint(plev/5));
+    if (die > 75) (void)set_food(p_ptr->food + ((randint(plev + die)) * 6)); 
+    if (die < 25) (void)set_food(p_ptr->food - ((randint(plev + die)) * 11));  
+    die = randint(99) + (randint(plev/5));
+    if (die < 34)
+    {
+         spadjust = (randint(25) - 11);
+         if (randint(100) < plev) spadjust = spadjust + 2;
+         if (randint(501) < plev) spadjust = spadjust + randint(3);
+         if ((spadjust = 0) && (randint(60) < plev)) spadjust = randint(13);
+         else if (spadjust = 0) spadjust = (randint(9) - 10);
+         if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
+         if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
+    }
+    die = randint(99) + (randint(plev/5));
+    if (die < 10)
+    {
+         msg_print("You feel rather mundane.");
+         (void)clear_timed(TMD_PROTEVIL);
+         (void)clear_timed(TMD_HERO);
+         (void)clear_timed(TMD_SHERO);
+         (void)clear_timed(TMD_BLESSED);
+         (void)clear_timed(TMD_SANCTIFY);
+         (void)clear_timed(TMD_SHADOW);
+         p_ptr->silver = p_ptr->silver + 1;
+    }
+    else if (die < 14)
+    {
+         msg_print("You feel vulnerable.");
+         (void)clear_timed(TMD_SHIELD);
+         (void)clear_timed(TMD_WSHIELD);
+         (void)clear_timed(TMD_OPP_POIS);
+         (void)clear_timed(TMD_OPP_ACID);
+         (void)clear_timed(TMD_OPP_COLD);
+         (void)clear_timed(TMD_OPP_FIRE);
+         (void)clear_timed(TMD_OPP_ELEC);
+         (void)clear_timed(TMD_FAST);
+         spadjust = spadjust - 1;
+    }
+    else if (die < 18)
+    {
+    msg_print("Your eyes hurt for a moment.");
+    (void)clear_timed(TMD_TSIGHT);
+    (void)clear_timed(TMD_SINVIS);
+    (void)clear_timed(TMD_SINFRA);
+    (void)clear_timed(TMD_BRAIL);
+    p_ptr->slime = p_ptr->slime + 1;
+    }
+    if (die < 23) (void)inc_timed(TMD_SLOW, randint(25) + 15);
+    die = randint(99) + (randint(plev/5));
+    if (die > 100) (void)inc_timed(TMD_SANCTIFY, randint(die / 2) + (25));
+    else if (die > 95) (void)inc_timed(TMD_HERO, randint(die / 2) + (25));
+    else if (die > 90) (void)inc_timed(TMD_SHERO, randint(die / 2) + (25));
+    else if (die > 85) (void)inc_timed(TMD_BLESSED, randint(die) + (25));
+    else if (die > 80) (void)inc_timed(TMD_WSHIELD, randint(die) + (25));
+    else if (die > 75) (void)inc_timed(TMD_SHADOW, randint(die) + (25));
+    else if (die > 70) (void)inc_timed(TMD_PROTEVIL, randint(die / 2) + (25));
+    die = randint(99) + (randint(plev/5));
+    if (die > 98)
+    {
+		 int time = randint(20) + 20;
+         (void)inc_timed(TMD_OPP_POIS, time);
+         (void)inc_timed(TMD_OPP_ACID, time);
+         (void)inc_timed(TMD_OPP_ELEC, time);
+         (void)inc_timed(TMD_OPP_COLD, time);
+         (void)inc_timed(TMD_OPP_FIRE, time);
+    }
+    else if (die > 90)
+    {
+	     int time = randint(20) + 20;
+         (void)inc_timed(TMD_OPP_ACID, time);
+         (void)inc_timed(TMD_OPP_ELEC, time);
+    }
+    else if (die > 82)
+    {
+	     int time = randint(20) + 20;
+         (void)inc_timed(TMD_OPP_COLD, time);
+         (void)inc_timed(TMD_OPP_FIRE, time);
+    }
+    else if (die > 74) (void)inc_timed(TMD_OPP_POIS, randint(21) + 21);
+    die = randint(99) + (randint(plev/5));
+    if (die > 99) (void)inc_timed(TMD_ESP, randint(die * 2) + (25));
+    else if (die > 89) (void)inc_timed(TMD_TSIGHT, randint(die * 2) + (25));
+    else if (die > 85) (void)inc_timed(TMD_BRAIL, randint(die * 2) + (25));
+    else if (die > 75) (void)inc_timed(TMD_SINVIS, randint(die * 2) + (25));
+    else if (die > 65) (void)inc_timed(TMD_SINFRA, randint(die * 2) + (25));
+    else if (die > 55) (void)detect_monsters_normal();
+    else if (die > 50) (void)detect_monsters_invis();
+    else if (die > 45) (void)detect_traps();
+    else if (die > 42) (void)detect_doors();
+    else if (die > 39) (void)detect_stairs();
+    else if (die > 35)
+    {
+	     (void)detect_doors();
+	     (void)detect_stairs();
+    }
+    else if (die > 32) (void)detect_objects_magic();
+    else if (die > 27)
+    {
+	     (void)detect_treasure();
+	     (void)detect_objects_gold();
+    }
+    else if (die > 22) (void)detect_objects_normal();
+}
+
+
+static void spell_affect_other(int dir)
+{
+/* same as wonder for now, should be
+   a series of random LOS effects */
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int plev = p_ptr->lev;
+	int die = randint(100) + plev / 4;
+	int beam = beam_chance();
+
+	if (die > 100)
+		msg_print("You feel a surge of power!");
+	if (die < 8) clone_monster(dir);
+	else if (die < 14) speed_monster(dir);
+	else if (die < 26) heal_monster(dir);
+	else if (die < 31) poly_monster(dir);
+	else if (die < 36)
+		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+		                  damroll(3 + ((plev - 1) / 5), 4));
+	else if (die < 41) confuse_monster(dir, plev);
+	else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+	else if (die < 51) lite_line(dir);
+	else if (die < 56)
+		fire_beam(GF_ELEC, dir, damroll(3+((plev-5)/6), 6));
+	else if (die < 61)
+		fire_bolt_or_beam(beam-10, GF_COLD, dir,
+		                  damroll(5+((plev-5)/4), 8));
+	else if (die < 66)
+		fire_bolt_or_beam(beam, GF_ACID, dir,
+		                  damroll(6+((plev-5)/4), 8));
+	else if (die < 71)
+		fire_bolt_or_beam(beam, GF_FIRE, dir,
+		                  damroll(8+((plev-5)/4), 8));
+	else if (die < 76) drain_life(dir, 75);
+	else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+	else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
+	else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
+	else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
+	else if (die < 101) drain_life(dir, 100 + plev);
+	else if (die < 104) earthquake(py, px, 12);
+	else if (die < 106) destroy_area(py, px, 15, TRUE);
+	else if (die < 109) banishment();
+	else if (die < 112) dispel_monsters(120);
+	else /* RARE */
+	{
+		dispel_monsters(150);
+		slow_monsters();
+		sleep_monsters();
+		hp_player(300);
+	}
+}
+
 
 /*
  * Summon a creature of the specified type
@@ -2666,7 +2876,7 @@ static bool cast_luck_spell(int spell)
                  (void)hp_player(plev);
                  (void)clear_timed(TMD_BLIND);
 			     (void)clear_timed(TMD_POISONED);
-			     (void)inc_timed(TMD_SINFRA, randint(25) + (25));
+			     (void)inc_timed(TMD_SINFRA, randint(50) + (50));
                  (void)inc_timed(TMD_BLESSED, randint(die - 5) + (25));
             }
             else if (die < 90)
@@ -2984,8 +3194,8 @@ static bool cast_luck_spell(int spell)
 		{
             die = randint(99) + (randint(plev/4));
 			(void)detect_traps();
-			if (die > 100) (void)destroy_doors_touch();
-			if (die > 110)
+			if (die > 98) (void)destroy_doors_touch();
+			else if (die > 108)
             {
                spellswitch = 6; /* increses radius for destroy traps */
                                 /* and keeps it from destroying doors */
@@ -3000,22 +3210,6 @@ static bool cast_luck_spell(int spell)
             if (die > 105) (void)detect_objects_magic();
             else if (die > 5) (void)detect_objects_normal();
             else msg_print("You detect that there are objects on the level.");
-/*            if (die < 7)
-            {
-               spellswitch = 5;  * creates object that's not good or great *
-               if (randint(100) < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
-               else if (randint(100) < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
-               else if (randint(100) < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
-               else acquirement(py - randint(4), px - randint(4), 1, FALSE);
-               spellswitch = 0;
-            }
-            if (die > 105)  * make good but not great object *
-            {
-               if (randint(100) < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
-               else if (randint(100) < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
-               else if (randint(100) < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
-               else acquirement(py - randint(4), px - randint(4), 1, FALSE);
-            } */
 			break;
         }
 
@@ -3087,7 +3281,7 @@ static bool cast_luck_spell(int spell)
         
         case LUCK_DETECT_ENCHANTMENT2:
 		{
-            die = randint(99) + (randint(plev/5));
+            die = randint(99) + randint(plev/5);
             if (die > 15) (void)detect_objects_magic();
             else if (die > 6)
             {
@@ -3289,7 +3483,7 @@ static bool cast_luck_spell(int spell)
             }
             else if (die < 10)
             {
-               msg_print("You summon aminals! -I mean animals!");
+               msg_print("You summon animals.");
                summon_specific(py, px, p_ptr->depth, SUMMON_ANIMAL);
             }
             else if (die < 15)
@@ -3320,7 +3514,7 @@ static bool cast_luck_spell(int spell)
             else if (die < 50)
             {
                spellswitch = 14; /* chose what you summon */
-               (void) banishment();
+               (void)banishment();
                spellswitch = 0;
             }
             else if (die < 55)
@@ -3334,7 +3528,7 @@ static bool cast_luck_spell(int spell)
             else if (die < 75) return banish_evil(100);
             else if (die < 95) return banishment();
             else if (die < 105) return mass_banishment();
-            else if (die < 106)
+            else if (die < 108)
             {
                  (void)mass_banishment();
                  (void)banishment();
@@ -3342,179 +3536,31 @@ static bool cast_luck_spell(int spell)
                  (void)banishment();
                  spellswitch = 0;
             }
-            else /* (die > 105) */
+            else /* (die > 107) */
             {
                  (void)mass_banishment();
                  (void)banishment();
             }
-        /* used (void) here instead of return because return exits the
-         * function and doesn't go on to the next thing
-         * ..hope that doesn't have any side effects. */
             break;  
         }
         
         case LUCK_AFFECT_SELF:
         {
+            int unused;
+            (void)spell_affect_self(unused);
             die = randint(99) + (randint(plev/5));
-            if (die < 40) take_hit(randint((plev * 3)/2), "a backfiring spell");
-            if (die > 45) (void)hp_player(randint(plev));
-            if (die > 65) (void)hp_player(randint(plev));
-            if (die > 90) (void)hp_player(randint(plev));
-            die = randint(99) + (randint(plev/5));
-            if (die < 25) msg_print("Your position feels uncertain.");
-            if (die < 15) teleport_player(damroll(plev/2, 4));
-            else if (die < 25) teleport_player(damroll(2, plev/3 + 1));
-            die = randint(99) + (randint(plev/5));
-            if (die < 5) (void)inc_timed(TMD_CHARM, randint(16) + 12);
-            else if (die < 10) (void)inc_timed(TMD_CONFUSED, randint(19) + 11);
-            else if (die < 15) (void)inc_timed(TMD_BLIND, randint(25) + 25);
-            else if (die < 20) (void)inc_timed(TMD_AMNESIA, randint(19) + 11);
-            else if (die < 24) (void)inc_timed(TMD_IMAGE, randint(19) + 11);
-            else if (die < 30) (void)inc_timed(TMD_POISONED, randint(30) + 20);
-            else if (die < 34)
-            {
-			   msg_print("You feel your life slipping away!");
-			   lose_exp(100 + randint(die * 101));
-            }
-            die = randint(99) + (randint(plev/5));
-            if (die > 100)
-            {
-			     if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 7;
-			     if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            }
-            if (die > 95)
-            {
-                 if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 10;
-			     if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
-            }
-            if (die > 90) (void)clear_timed(TMD_CHARM);
-            if (die > 80) (void)clear_timed(TMD_AMNESIA);
-            if (die > 75)
-            {
-                 (void)clear_timed(TMD_CONFUSED);
-                 (void)clear_timed(TMD_BLIND);
-                 (void)clear_timed(TMD_FRENZY);
-            }
-            if (die > 60) (void)clear_timed(TMD_STUN);
-            if (die > 55) (void)clear_timed(TMD_CUT);
-            if (die > 50) (void)clear_timed(TMD_POISONED);
-            die = randint(99) + (randint(plev/5));
-            if (die > 75) (void)set_food(p_ptr->food + ((randint(plev + die)) * 6)); 
-            if (die < 25) (void)set_food(p_ptr->food - ((randint(plev + die)) * 11));  
-            die = randint(99) + (randint(plev/5));
-            if (die < 34)
-            {
-               spadjust = (randint(25) - 11);
-               if (randint(100) < plev) spadjust = spadjust + 2;
-               if (randint(501) < plev) spadjust = spadjust + randint(3);
-               if ((spadjust = 0) && (randint(60) < plev)) spadjust = randint(13);
-               else if (spadjust = 0) spadjust = (randint(9) - 10);
-               if (spadjust > 0) (void)set_timed(TMD_ADJUST, randint(25) + plev);
-               if (spadjust < 0) (void)set_timed(TMD_ADJUST, (plev + 25) - randint(plev));
-            }
-            die = randint(99) + (randint(plev/5));
-            if (die < 10)
-            {
-                 msg_print("You feel rather mundane.");
-                 (void)clear_timed(TMD_PROTEVIL);
-                 (void)clear_timed(TMD_HERO);
-                 (void)clear_timed(TMD_SHERO);
-                 (void)clear_timed(TMD_BLESSED);
-                 (void)clear_timed(TMD_SANCTIFY);
-                 (void)clear_timed(TMD_SHADOW);
-                 p_ptr->silver = p_ptr->silver + 1;
-            }
-            if (die < 14)
-            {
-               msg_print("You feel vulnerable.");
-               (void)clear_timed(TMD_SHIELD);
-               (void)clear_timed(TMD_WSHIELD);
-               (void)clear_timed(TMD_OPP_POIS);
-               (void)clear_timed(TMD_OPP_ACID);
-               (void)clear_timed(TMD_OPP_COLD);
-               (void)clear_timed(TMD_OPP_FIRE);
-               (void)clear_timed(TMD_OPP_ELEC);
-               (void)clear_timed(TMD_FAST);
-               spadjust = spadjust - 1;
-            }
-            if (die < 18)
-            {
-               msg_print("Your eyes hurt for a moment.");
-               (void)clear_timed(TMD_TSIGHT);
-               (void)clear_timed(TMD_SINVIS);
-               (void)clear_timed(TMD_SINFRA);
-               (void)clear_timed(TMD_BRAIL);
-               p_ptr->slime = p_ptr->slime + 1;
-            }
-            if (die < 23) (void)inc_timed(TMD_SLOW, randint(25) + 15);
-            die = randint(99) + (randint(plev/5));
-            if (die > 100) (void)inc_timed(TMD_SANCTIFY, randint(die / 2) + (25));
-            else if (die > 95) (void)inc_timed(TMD_HERO, randint(die / 2) + (25));
-            else if (die > 90) (void)inc_timed(TMD_SHERO, randint(die / 2) + (25));
-            else if (die > 85) (void)inc_timed(TMD_BLESSED, randint(die) + (25));
-            else if (die > 80) (void)inc_timed(TMD_WSHIELD, randint(die) + (25));
-            else if (die > 75) (void)inc_timed(TMD_SHADOW, randint(die) + (25));
-            else if (die > 70) (void)inc_timed(TMD_PROTEVIL, randint(die / 2) + (25));
-            die = randint(99) + (randint(plev/5));
-            if (die > 98)
-            {
-			     int time = randint(20) + 20;
-                 (void)inc_timed(TMD_OPP_POIS, time);
-                 (void)inc_timed(TMD_OPP_ACID, time);
-                 (void)inc_timed(TMD_OPP_ELEC, time);
-                 (void)inc_timed(TMD_OPP_COLD, time);
-                 (void)inc_timed(TMD_OPP_FIRE, time);
-            }
-            else if (die > 90)
-            {
-			     int time = randint(20) + 20;
-                 (void)inc_timed(TMD_OPP_ACID, time);
-                 (void)inc_timed(TMD_OPP_ELEC, time);
-            }
-            else if (die > 82)
-            {
-			     int time = randint(20) + 20;
-                 (void)inc_timed(TMD_OPP_COLD, time);
-                 (void)inc_timed(TMD_OPP_FIRE, time);
-            }
-            else if (die > 74) (void)inc_timed(TMD_OPP_POIS, randint(21) + 21);
-            die = randint(99) + (randint(plev/5));
-            if (die > 99) (void)inc_timed(TMD_ESP, randint(die) + (25));
-            else if (die > 89) (void)inc_timed(TMD_TSIGHT, randint(die) + (25));
-            else if (die > 85) (void)inc_timed(TMD_BRAIL, randint(die) + (25));
-            else if (die > 75) (void)inc_timed(TMD_SINVIS, randint(die) + (25));
-            else if (die > 65) (void)inc_timed(TMD_SINFRA, randint(die) + (25));
-            else if (die > 55) (void)detect_monsters_normal();
-            else if (die > 50) (void)detect_monsters_invis();
-            else if (die > 45) (void)detect_traps();
-            else if (die > 42) (void)detect_doors();
-            else if (die > 39) (void)detect_stairs();
-            else if (die > 35)
-            {
-			     (void)detect_doors();
-			     (void)detect_stairs();
-            }
-            else if (die > 32) (void)detect_objects_magic();
-            else if (die > 27)
-            {
-			     (void)detect_treasure();
-			     (void)detect_objects_gold();
-            }
-            else if (die > 22) (void)detect_objects_normal();
-            die = randint(99) + (randint(plev/5));
-         	if (die > 105) wiz_lite();
-         	else if (die > 95) map_area();
-         	else if (die > 85) return ident_spell();
+            if (die > 105) wiz_lite();
+            else if (die > 95) map_area();
+            else if (die > 85) return ident_spell();
             else if (die > 80) restore_level();
             else if (die > 77) gain_exp(randint(plev * 3));
             else if (die > 70) p_ptr->luck = p_ptr->luck + randint(2);
             if (die < 9) p_ptr->luck = p_ptr->luck - randint(2);
-			break;
         }
         
         case LUCK_AFFECT_OTHER:
         {
-            die = randint(99) + (randint(plev/4));
+            (void)spell_affect_other(dir); /* same as wonder for now */
 			break;
         }
         
@@ -3527,6 +3573,119 @@ static bool cast_luck_spell(int spell)
         case LUCK_AQUIREMENT:
         {
             die = randint(99) + (randint(plev/4));
+            int where = randint(100);
+            if (die < 10)
+            {
+               msg_print("A broken bottle appears along with the guy who was drinking.");
+               
+               int aquirenum = randint(2);
+               if ((plev > 47) && (randint(100) < 50)) aquirenum = aquirenum + randint(3);
+               if ((plev > 49) && (randint(100) < 90)) aquirenum = aquirenum + randint(4);
+               if (randint(100) < 3) aquirenum = 1;
+               if (aquirenum == 9) do_call_help(712, TRUE);
+               else if (aquirenum == 8) do_call_help(692, TRUE);
+               else if (aquirenum == 7) do_call_help(546, TRUE);
+               else if (aquirenum == 6) do_call_help(554, TRUE);
+               else if (aquirenum == 5) do_call_help(508, TRUE);
+               else if (aquirenum == 4) do_call_help(459, TRUE);
+               else if (aquirenum == 3) do_call_help(354, TRUE);
+               else if (aquirenum == 2) do_call_help(142, TRUE);
+               else do_call_help(55, TRUE);
+            }
+            if (die < 20)
+            {
+               msg_print("A broken bottle appears and shatters violently.");
+               (void)inc_timed(TMD_CUT, 4);
+            }
+            else if (die < 40)
+            {
+               spellswitch = 5;  /* creates object that's not good or great */
+               if (where < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
+               else acquirement(py - randint(4), px - randint(4), 1, FALSE);
+               spellswitch = 0;
+               take_hit(randint(10), "delivery price of aquirement");
+               (void)inc_timed(TMD_STUN, 2);
+            }
+            else if (die < 50)
+            {
+               int aquirenum = randint(2) + 1;
+               spellswitch = 5;  /* creates object that's not good or great */
+               if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, FALSE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, FALSE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, FALSE);
+               else acquirement(py - randint(4), px - randint(4), aquirenum, FALSE);
+               spellswitch = 0;
+               take_hit(randint(9 + aquirenum), "delivery price of aquirement");
+               (void)inc_timed(TMD_STUN, 1 + aquirenum);
+            }
+            else if (die < 80)  /* make good but not great object */
+            {
+               if (where < 25) acquirement(py + randint(4), px + randint(4), 1, FALSE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, FALSE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, FALSE);
+               else acquirement(py - randint(4), px - randint(4), 1, FALSE);
+               take_hit(damroll(2, randint(10)) - p_ptr->luck, "delivery price of aquirement");
+               if (randint(100) < 25) summon_specific(py, px, p_ptr->depth + 1, 0);
+               p_ptr->silver = p_ptr->silver + 1;
+               (void)inc_timed(TMD_STUN, randint(5));
+            }
+            else if (die < 90)  /* make 2-3 good objects */
+            {
+               int aquirenum = randint(2) + 1;
+               if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, FALSE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, FALSE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, FALSE);
+               else acquirement(py - randint(4), px - randint(4), aquirenum, FALSE);
+               take_hit(damroll(2 + aquirenum, randint(10)) - (p_ptr->luck * aquirenum), "delivery price of aquirement");
+               if (randint(100) < 50) summon_specific(py, px, p_ptr->depth + aquirenum, 0);
+               p_ptr->silver = p_ptr->silver + aquirenum;
+               (void)inc_timed(TMD_STUN, aquirenum * randint(5));
+            }
+            else if (die < 100)  /* high cost aquirement */
+            {
+               if (where < 25) acquirement(py + randint(4), px + randint(4), 1, TRUE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, TRUE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, TRUE);
+               else acquirement(py - randint(4), px - randint(4), 1, TRUE);
+               take_hit(damroll(6, 8 + randint(7)) - (p_ptr->luck * 2), "delivery price of aquirement");
+               p_ptr->silver = p_ptr->silver + 6;
+               (void)inc_timed(TMD_STUN, 5 * randint(5));
+               summon_specific(py, px, (plev * 3/2) + 1, 0);
+            }
+            else if (die < 105)  /* lower cost aquirement */
+            {
+               if (where < 25) acquirement(py + randint(4), px + randint(4), 1, TRUE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), 1, TRUE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), 1, TRUE);
+               else acquirement(py - randint(4), px - randint(4), 1, TRUE);
+               take_hit(damroll(6, 5 + randint(5)) - (p_ptr->luck * 2), "delivery price of aquirement");
+               p_ptr->silver = p_ptr->silver + 3;
+               (void)inc_timed(TMD_STUN, 3 * randint(5));
+               summon_specific(py, px, plev + 1, 0);
+            }
+            else if (die < 110)  /* very high cost *aquirement* */
+            {
+               int aquirenum = randint(2) + 1;
+               if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, TRUE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, TRUE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, TRUE);
+               else acquirement(py - randint(4), px - randint(4), aquirenum, TRUE);
+               take_hit(damroll(6, 7 + aquirenum + randint(7)) - (p_ptr->luck * aquirenum), "delivery price of aquirement");
+               p_ptr->silver = p_ptr->silver + 4 + aquirenum;
+               (void)inc_timed(TMD_STUN, (4 + aquirenum) * randint(5));
+               summon_specific(py, px, (plev * 3/2) + aquirenum, 0);
+               summon_specific(py, px, p_ptr->depth + 8 + aquirenum, 0);
+            }
+            else /* (die > 109)  no cost aquirement */
+            {
+               int aquirenum = randint(2);
+               if (where < 25) acquirement(py + randint(4), px + randint(4), aquirenum, TRUE);
+               else if (where < 50) acquirement(py + randint(4), px - randint(4), aquirenum, TRUE);
+               else if (where < 75) acquirement(py - randint(4), px + randint(4), aquirenum, TRUE);
+               else acquirement(py - randint(4), px - randint(4), aquirenum, TRUE);
+            }
 			break;
         }
 

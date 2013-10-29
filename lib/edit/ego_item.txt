@@ -1020,3 +1020,14 @@ N:128:(acid coated)
 X:10:0
 W:0:0:0:20
 F:COAT_ACID | IGNORE_ACID
+
+#N:129:of Westernesse
+#X:20:0
+#W:0:10:0:20000
+#C:5:5:0:2
+#T:21:0:99
+#T:22:0:99
+#T:23:0:28
+#F:STR | DEX | CON |
+#F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
+#F:FREE_ACT | INFRA

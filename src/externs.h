@@ -521,7 +521,7 @@ extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
 extern void cold_dam(int dam, cptr kb_str);
-extern void moth_dam(int dam, cptr kb_str); /* not sure about wood & metal */
+/* extern void moth_dam(int dam, cptr kb_str); /* not sure about wood & metal */
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, bool permanent);
 extern bool res_stat(int stat);

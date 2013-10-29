@@ -1034,6 +1034,7 @@ struct player_type
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
 
+    bool stopregen;     /* Prevents HP regeneration */
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */

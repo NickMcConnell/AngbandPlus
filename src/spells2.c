@@ -493,6 +493,14 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You are poisoned.";
 	}
+	if (p_ptr->timed[TMD_STONESKIN])
+	{
+		info[i++] = "Your skin is hard as stone.";
+	}
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		info[i++] = "You are desperate to escape!!!";
+	}
 	if (p_ptr->timed[TMD_IMAGE])
 	{
 		info[i++] = "You are hallucinating.";
@@ -830,7 +838,11 @@ void self_knowledge(bool spoil)
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
+#ifdef ALTDJA
 			info[i++] = "Your weapon is especially deadly against nightmare monsters.";
+#else
+			info[i++] = "Your weapon is especially deadly against undead.";
+#endif
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
@@ -891,6 +903,12 @@ void self_knowledge(bool spoil)
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
 		}
+		
+		/* Hack */
+		if (f3 & (TR3_STOPREGEN))
+		{
+			info[i++] = "Your wounds do not heal naturally.";
+		} 
 	}
 
 
@@ -2472,16 +2490,33 @@ void aggravate_monsters(int who)
 		if (i == who) continue;
 
 		/* Wake up nearby sleeping monsters */
-		if (m_ptr->cdis < MAX_SIGHT * 2)
-		{
-			/* Wake up */
-			if (m_ptr->csleep)
-			{
-				/* Wake up */
-				m_ptr->csleep = 0;
-				sleep = TRUE;
-			}
-		}
+        if (cp_ptr->flags & CF_CLASS_SPEED)
+        {
+            /* thieves resist aggravation */
+		    if (m_ptr->cdis < (MAX_SIGHT * 3) / 2)
+		    {
+			   /* Wake up */
+			   if ((m_ptr->csleep) && (randint(100) < 84))
+			   {
+				  /* Wake up */
+				  m_ptr->csleep = 0;
+				  sleep = TRUE;
+			   }
+		    }
+        }
+        else
+        {
+		    if (m_ptr->cdis < MAX_SIGHT * 2)
+		    {
+			   /* Wake up */
+			   if (m_ptr->csleep)
+			   {
+				  /* Wake up */
+				  m_ptr->csleep = 0;
+				  sleep = TRUE;
+			   }
+		    }
+        }
 
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))

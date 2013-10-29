@@ -7,10 +7,10 @@
                       \____|               |___/
 
 				
-		    David A. Justiss (Will_Asher on angband.oook.cz)
+		   David A. Justiss (Will_Asher on angband.oook.cz)
 		report bug reports on oook (private or public, whichever)
-
-                 Based on Angband Version 3.0.9e (with Eddie Grove's patch)
+				DJA v1.0.95 (pre 1.1.0)
+                Based on Angband Version 3.0.9e (with Eddie Grove's patch)
 
    For resources and links to places you can talk about the game, please see:
                   http://rephial.org/ -- the home of Angband
@@ -23,4 +23,4 @@
             2.9.0 - 3.0.6:   Robert Ruehlmann
 			3.0.8 -:   Andrew Sidwell
 
-   Please read the summary of changes available in the "DaJAngbandReadme.txt" file!
+  Please read the summary of changes available in the "DaJAngbandReadme1093.txt" file!

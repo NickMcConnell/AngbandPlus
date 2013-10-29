@@ -1825,23 +1825,23 @@ I:94:3:1
 D:Teleports you randomly within the current level.
 
 N:332:Teleport Other
-I:94:3:2
+I:94:3:5
 D:Produces a beam that teleports each monster in its path
 D: up to 100 squares away.
 
 N:333:Slow Monsters
-I:94:3:3
+I:94:3:2
 D:Attempts to slow each monster within line of sight.
 D:  Uniques are not affected.
 
 #30
 N:334:Mass Sleep
-I:94:3:4
+I:94:3:3
 D:Attempts to put to sleep each monster within line of sight.
 D:  Uniques and monsters that resist sleep are not affected.
 
 N:335:Haste Self
-I:94:3:5
+I:94:3:4
 D:Hastes you (+10 to speed) for a level-dependant duration.
 D: (minimum is clvl + 1 turns.)
 

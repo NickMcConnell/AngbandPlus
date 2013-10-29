@@ -232,7 +232,11 @@ static bool describe_brand(const object_type *o_ptr, u32b f1, u32b f2)
 
 	/* Collect brands */
 	if (f1 & (TR1_BRAND_ACID)) descs[cnt++] = "acid";
+#ifdef ALTDJA
 	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "stench";
+#else
+	if (f1 & (TR1_BRAND_ELEC)) descs[cnt++] = "lightning";
+#endif
 	if (f1 & (TR1_BRAND_FIRE)) descs[cnt++] = "fire";
 	if (f1 & (TR1_BRAND_COLD)) descs[cnt++] = "frost";
 	if (f1 & (TR1_BRAND_POIS)) descs[cnt++] = "poison";
@@ -261,7 +265,11 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
 
 	/* Collect immunities */
 	if (f2 & (TR2_IM_ACID)) descs[cnt++] = "acid";
+#ifdef ALTDJA
 	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "stench";
+#else
+	if (f2 & (TR2_IM_ELEC)) descs[cnt++] = "electricity";
+#endif
 	if (f2 & (TR2_IM_FIRE)) descs[cnt++] = "fire";
 	if (f2 & (TR2_IM_COLD)) descs[cnt++] = "cold";
 
@@ -288,7 +296,11 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	if ((f2 & (TR2_RES_ACID)) && !(f2 & (TR2_IM_ACID)))
 		vp[vn++] = "acid";
 	if ((f2 & (TR2_RES_ELEC)) && !(f2 & (TR2_IM_ELEC)))
+#ifdef ALTDJA
 		vp[vn++] = "stench";
+#else
+		vp[vn++] = "electricity";
+#endif
 	if ((f2 & (TR2_RES_FIRE)) && !(f2 & (TR2_IM_FIRE)))
 		vp[vn++] = "fire";
 	if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
@@ -330,7 +342,11 @@ static bool describe_ignores(const object_type *o_ptr, u32b f3)
 
 	/* Collect the ignores */
 	if (f3 & (TR3_IGNORE_ACID)) list[n++] = "acid";
+#ifdef ALTDJA
 	if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "stench";
+#else
+	if (f3 & (TR3_IGNORE_ELEC)) list[n++] = "lightning";
+#endif
 	if (f3 & (TR3_IGNORE_FIRE)) list[n++] = "fire";
 	if (f3 & (TR3_IGNORE_COLD)) list[n++] = "cold";
 	/* if (f3 & (TR3_IGNORE_MOTH)) list[n++] = "moth's eating"; */
@@ -433,7 +449,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_AGGRAVATE)) bad[bc++] = "aggravates creatures around you";
 	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
-//	if (f3 & (TR3_NOREGEN))   bad[bc++] = "prevents hit point regeneration";
+ 	if (f3 & (TR3_STOPREGEN)) bad[bc++] = "prevents hit point regeneration";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))

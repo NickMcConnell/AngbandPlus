@@ -852,7 +852,7 @@ static void process_world(void)
 	{
         if ((p_ptr->silver >= PY_SILVER_LEVELONE) && (p_ptr->silver < PY_SILVER_LEVELTWO))
         {
-           	int rare = randint(9999);
+           	int rare = randint(999);
       	    if (rare == 1)
       	    {
                      int die = randint(100);
@@ -869,8 +869,8 @@ static void process_world(void)
         }
         if ((p_ptr->silver >= PY_SILVER_LEVELTWO) && (p_ptr->silver < PY_SILVER_VERYBAD))
         {
-           	int rare = randint(9999);
-      	    if (rare < 3)
+           	int rare = randint(999);
+      	    if (rare < 4)
       	    {
                      int die = randint(100);
                      if (die < 90) msg_print("The silver poison affects your mind.");
@@ -903,7 +903,7 @@ static void process_world(void)
 	{
         if ((p_ptr->slime >= PY_SLIME_LEVELONE) && (p_ptr->slime < PY_SLIME_LEVELTWO))
         {
-           	int rare = randint(9999);
+           	int rare = randint(999);
       	    if (rare == 1)
       	    {
                      int die = randint(100);
@@ -919,8 +919,8 @@ static void process_world(void)
         }
         if ((p_ptr->slime >= PY_SLIME_LEVELTWO) && (p_ptr->slime < PY_SLIME_VERYBAD))
         {
-           	int rare = randint(9999);
-      	    if (rare < 3)
+           	int rare = randint(999);
+      	    if (rare < 4)
       	    {
                      int die = randint(100);
                      if (die < 96) msg_print("The slime oozes into your body.");
@@ -1075,7 +1075,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
 	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
 	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
-//	if (p_ptr->noregen) regen_amount = 0;
+	if (p_ptr->stopregen) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -1159,8 +1159,9 @@ static void process_world(void)
 	{
 		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
 		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
+            int drainmuch = randint(10) + randint(p_ptr->lev);
+			p_ptr->exp = p_ptr->exp - drainmuch;
+			p_ptr->max_exp = p_ptr->max_exp - ((drainmuch*2) / 3);
 			check_experience();
 		}
 	}

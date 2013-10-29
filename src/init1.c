@@ -440,7 +440,7 @@ static cptr k_info_flags2[] =
 	"RES_NEXUS",
 	"RES_NETHR",
 	"RES_CHAOS",
-	"RES_DISEN",
+	"RES_DISEN"
 };
 
 /*
@@ -459,7 +459,7 @@ static cptr k_info_flags3[] =
 	"NO_FUEL",
 	"RES_CHARM",
 	"XXX3",
-	"XXX4",
+    "STOPREGEN",              /* was XXX4 */
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
@@ -468,7 +468,7 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"IGNORE_MOTH", //was XXX5
+	"XXX5",          /* was IGNORE_MOTH */
 	"XXX6",
 	"BLESSED",
 	"ACTIVATE",
@@ -562,7 +562,7 @@ static cptr c_info_flags[] =
 	"PSEUDO_ID_IMPROV",
 	"HEAVY_BONUS",
 	"HULK_CONF",
-	"XXX12",
+	"CLASS_SPEED",
 	"XXX13",
 	"XXX14",
 	"XXX15",

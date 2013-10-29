@@ -587,32 +587,6 @@ static bool hates_acid(const object_type *o_ptr)
 	return (FALSE);
 }
 
-/*
- * Does a given class of objects (usually) get eaten by moths?
- *  moths should be able to completely eat or just damage.
- */
-static bool hates_moth(const object_type *o_ptr)
-{
-	/* Analyze the type */
-	switch (o_ptr->tval)
-	{
-		/* cloth & paper */
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_SCROLL:
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_NEWM_BOOK:
-		case TV_LUCK_BOOK:
-		case TV_CHEM_BOOK:
-		{
-			return (TRUE);
-		}
-	}
-	return (FALSE);
-}
-
-
 
 /*
  * Does a given object (usually) hate electricity? (stench)
@@ -726,7 +700,6 @@ static int set_acid_destroy(const object_type *o_ptr)
 
 /*
  * Moth damage
- */
 static int set_moth_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
@@ -735,6 +708,7 @@ static int set_moth_destroy(const object_type *o_ptr)
 	if (f3 & (TR3_IGNORE_MOTH)) return (FALSE);
 	return (TRUE);
 }
+ */
 
 
 /*
@@ -1113,27 +1087,6 @@ void cold_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	inven_damage(set_cold_destroy, inv);
 }
-
-
-/*
- * Hurt the player & have the moth eat stuff
- */
-void moth_dam(int dam, cptr kb_str)
-{
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-
-	/* Total immunity (no resistance) */
-//	if (p_ptr->immune_moth || (dam <= 0)) return;
-
-	/* Take damage */
-	take_hit(dam, kb_str);
-
-	/* Inventory damage */
-	inven_damage(set_moth_destroy, inv);
-}
-
-
-
 
 
 /*

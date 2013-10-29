@@ -690,6 +690,12 @@ void do_cmd_study(void)
 		return;
 	}
 
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to stop and read!");
+		return;
+	}
+
 	if (!(p_ptr->new_spells))
 	{
 		msg_format("You cannot learn any new %ss!", p);
@@ -860,6 +866,12 @@ void do_cmd_cast(void)
 		return;
 	}
 
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to cast spells!");
+		return;
+	}
 
 	/* Restrict choices to spell books */
 	item_tester_tval = cp_ptr->spell_book;
@@ -1038,6 +1050,13 @@ void do_cmd_pray(void)
 	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		msg_print("You are too confused!");
+		return;
+	}
+
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to stop and pray!");
 		return;
 	}
 
@@ -1220,6 +1239,13 @@ void do_cmd_castnew(void)
 		return;
 	}
 
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to cast spells!");
+		return;
+	}
+
 
 	/* Restrict choices */
 	item_tester_tval = cp_ptr->spell_book;
@@ -1399,6 +1425,19 @@ void do_cmd_castluck(void)
 		return;
 	}
 
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+        if ((p_ptr->luck > 18) && (randint(100) < 34))
+        {
+		msg_print("You manage to stop long enough to cast quickly.");
+        }
+        else
+        {        
+		msg_print("You are too desperate to escape to cast spells!");
+		return;
+        }
+	}
 
 	/* Restrict choices */
 	item_tester_tval = cp_ptr->spell_book;
@@ -1578,6 +1617,12 @@ void do_cmd_castchem(void)
 		return;
 	}
 
+    /* Not when desperate to escape */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		msg_print("You are too desperate to escape to mix a recipe!");
+		return;
+	}
 
 	/* Restrict choices */
 	item_tester_tval = cp_ptr->spell_book;

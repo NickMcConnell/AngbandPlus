@@ -888,7 +888,11 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
+#ifdef ALTDJA
 					msg_print("You smell something disgustingly foul!");
+#else
+					msg_print("You are struck by electricity!");
+#endif					
 
 					/* Take damage (special) */
 					elec_dam(damage, ddesc);

@@ -2521,6 +2521,16 @@ void do_cmd_fire(void)
 		return;
 	}
 
+	/* Handle terror */
+	if (p_ptr->timed[TMD_TERROR])
+	{
+		/* Message */
+		msg_print("You are too desperate to escape to fire anything!");
+
+		/* Done */
+		return;
+	}
+
 	/* Get the object */
 	if (item >= 0)
 	{

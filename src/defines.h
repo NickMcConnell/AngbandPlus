@@ -44,7 +44,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.92 (pre 1.1.0)"
+#define VERSION_STRING "v1.0.93 (pre 1.1.0)"
 #endif
 
 
@@ -367,13 +367,15 @@
 #define PY_SILVER_VERYBAD   25
 #define PY_SLIME_HEALTHY    0
 #define PY_SLIME_LEVELONE   15
-#define PY_SLIME_LEVELTWO   40
+#define PY_SLIME_LEVELTWO   35
 #define PY_SLIME_VERYBAD    50
+#define PY_LUCKCHECK_MAX    21
+#define PY_LUCKCHECK_MIN    -20
 
 /*
  * Maximum number of players spells (was 64, numbered 0 through 63/75)
  *  Most spell realms should have no more than 66 (besides doubled spells).
- *  Do not change or you will have to completely renumber spell.txt
+ *  Do not change or you will have to completely renumber spell.txt!
  */
 #define PY_MAX_SPELLS 76
 
@@ -468,7 +470,7 @@ enum
 	TMD_SINFRA, TMD_OPP_ACID, TMD_OPP_ELEC, TMD_OPP_FIRE, TMD_OPP_COLD,
 	TMD_OPP_POIS, TMD_AMNESIA, TMD_CHARM, TMD_FRENZY, TMD_TSIGHT,
 	TMD_SANCTIFY, TMD_PROTEVIL2, TMD_ESP, TMD_WSHIELD, TMD_SHADOW,
-	TMD_ADJUST, TMD_BRAIL,
+	TMD_ADJUST, TMD_BRAIL, TMD_STONESKIN, TMD_TERROR, TMD_MESP,
 
 	TMD_MAX
 };
@@ -1369,11 +1371,11 @@ enum
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON			0
-#define SV_FOOD_BLINDNESS		1
+#define SV_FOOD_SECOND_SIGHT	1
 #define SV_FOOD_PARANOIA		2
-#define SV_FOOD_CONFUSION		3
+#define SV_FOOD_TERROR		    3
 #define SV_FOOD_HALLUCINATION	4
-#define SV_FOOD_PARALYSIS		5
+#define SV_FOOD_STONE_SKIN		5
 #define SV_FOOD_DISEASE		    6
 #define SV_FOOD_SICKNESS		7
 #define SV_FOOD_STUPIDITY		8
@@ -1938,7 +1940,7 @@ enum
 #define TR3_NO_FUEL         0x00000100L /* Light source uses no fuel */
 #define TR3_RES_CHARM       0x00000200L /* Resist charm */
 #define TR3_XXX3            0x00000400L
-#define TR3_XXX4            0x00000800L /* was NOREGEN but it didn't work */
+#define TR3_STOPREGEN       0x00000800L /* STOPREGEN stops regeneration */
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
@@ -1947,7 +1949,7 @@ enum
 #define TR3_IGNORE_ELEC     0x00020000L /* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
-#define TR3_IGNORE_MOTH     0x00100000L /* Item ignores moth Damage */
+#define TR3_XXX5            0x00100000L /* Item ignores moth Damage */
 #define TR3_XXX6            0x00200000L /* (reserved) */
 #define TR3_BLESSED         0x00400000L /* Item has been blessed */
 #define TR3_ACTIVATE        0x00800000L /* Item can be activated */
@@ -1976,7 +1978,7 @@ enum
  */
 #define TR3_IGNORE_MASK \
 	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
-	 TR3_IGNORE_COLD | TR3_IGNORE_MOTH )
+	 TR3_IGNORE_COLD ) /*  | TR3_IGNORE_MOTH */
 
 
 /*
@@ -2019,9 +2021,9 @@ enum
 #define CF_CHOOSE_SPELLS	0x00000040L	/* Allow choice of spells */
 #define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
-#define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons (currently only prevents weight penalties)*/
-#define CF_HULK_CONF		0x00000400L /* always confuse monsters */
-#define CF_XXX12			0x00000800L
+#define CF_HEAVY_BONUS		0x00000200L /* Gives bonuses for heavy weapons */
+#define CF_HULK_CONF		0x00000400L /* always confuse monsters -also easydigging */
+#define CF_CLASS_SPEED		0x00000800L /* extra speed -also resists aggravation */
 #define CF_XXX13			0x00001000L
 #define CF_XXX14			0x00002000L
 #define CF_XXX15			0x00004000L
