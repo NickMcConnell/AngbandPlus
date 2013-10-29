@@ -567,7 +567,7 @@ static void wield_all(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	int slot;
+	int slot, num;
 	int item;
 
 	/* Scan through the slots backwards */
@@ -593,20 +593,24 @@ static void wield_all(void)
 		i_ptr = &object_type_body;
 		object_copy(i_ptr, o_ptr);
 
-		/* Modify quantity */
-		i_ptr->number = 1;
+		/* put all of the starting ammo stack into quiver, not just one */
+		if (IS_QUIVER_SLOT(slot)) num = o_ptr->number;
+		else num = 1;
 
+		/* Modify quantity */
+		i_ptr->number = num;
+	
 		/* Decrease the item (from the pack) */
 		if (item >= 0)
 		{
-			inven_item_increase(item, -1);
+			inven_item_increase(item, -num);
 			inven_item_optimize(item);
 		}
 
 		/* Decrease the item (from the floor) */
 		else
 		{
-			floor_item_increase(0 - item, -1);
+			floor_item_increase(0 - item, -num);
 			floor_item_optimize(0 - item);
 		}
 
@@ -617,7 +621,7 @@ static void wield_all(void)
 		object_copy(o_ptr, i_ptr);
 
 		/* Increase the weight */
-		p_ptr->total_weight += i_ptr->weight;
+		p_ptr->total_weight += i_ptr->weight * num;
 
 		/* Increment the equip counter by hand */
 		p_ptr->equip_cnt++;

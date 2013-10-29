@@ -294,10 +294,14 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_byte(&old_dd);
 	rd_byte(&old_ds);
+	rd_byte(&o_ptr->sbdd);
+	rd_byte(&o_ptr->sbds);
+	rd_byte(&o_ptr->crc);
 
 	rd_byte(&o_ptr->ident);
 
 	rd_byte(&o_ptr->marked);
+	rd_byte(&o_ptr->hidden); /* breaks savefiles for 1.0.99 as of 7/29/09 */
 
 	/* Old flags */
 	strip_bytes(12);
@@ -440,6 +444,8 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
+		o_ptr->sbdd = a_ptr->sbdd;
+		o_ptr->sbds = a_ptr->sbds;
 
 		/* Get the new artifact weight */
 		o_ptr->weight = a_ptr->weight;
@@ -1156,9 +1162,11 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->silver);
 	rd_s16b(&p_ptr->slime);
 	rd_s16b(&p_ptr->luck);
+	rd_s16b(&p_ptr->maxluck);
 	rd_byte(&p_ptr->corrupt);
 	rd_byte(&p_ptr->learnedcontrol);
 	rd_byte(&p_ptr->find_vault);
+	rd_s16b(&p_ptr->held_m_idx);
 
 	/* Find the number of timed effects */
 	rd_byte(&num);
@@ -1305,6 +1313,8 @@ static errr rd_randarts(void)
 
 				rd_byte(&a_ptr->dd);
 				rd_byte(&a_ptr->ds);
+				rd_byte(&a_ptr->sbdd);
+				rd_byte(&a_ptr->sbds);
 
 				rd_s16b(&a_ptr->weight);
 
@@ -1339,6 +1349,8 @@ static errr rd_randarts(void)
 
 				rd_byte(&tmp8u); /* a_ptr->dd */
 				rd_byte(&tmp8u); /* a_ptr->ds */
+				rd_byte(&tmp8u); /* a_ptr->sbdd */
+				rd_byte(&tmp8u); /* a_ptr->sbds */
 
 				rd_s16b(&tmp16s); /* a_ptr->weight */
 
@@ -1419,7 +1431,7 @@ static errr rd_inventory(void)
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
 
 			/* One more item */
-			p_ptr->equip_cnt++;
+			if (!IS_QUIVER_SLOT(n)) p_ptr->equip_cnt++;
 		}
 
 		/* Warning -- backpack is full */
@@ -1448,6 +1460,9 @@ static errr rd_inventory(void)
 			p_ptr->inven_cnt++;
 		}
 	}
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
 
 	/* Success */
 	return (0);

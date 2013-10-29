@@ -1130,7 +1130,7 @@ static void display_player_equippy(int y, int x)
 
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1204,7 +1204,7 @@ static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 	{ "Might",	1, TR1_MIGHT,		0 },
 };
 
-#define RES_COLS (5 + 2 + INVEN_TOTAL - INVEN_WIELD)
+#define RES_COLS (5 + 2 + END_EQUIPMENT - INVEN_WIELD)
 static const region resist_region[] =
 {
 	{  0*(RES_COLS+1), 11, RES_COLS, RES_ROWS+2 },
@@ -1225,14 +1225,14 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 		byte name_attr = TERM_WHITE;
 		Term_gotoxy(col+6, row);
 		/* repeated extraction of flags is inefficient but more natural */
-		for (j = INVEN_WIELD; j <= INVEN_TOTAL; j++)
+		for (j = INVEN_WIELD; j <= END_EQUIPMENT; j++)
 		{
 			object_type *o_ptr = &inventory[j];
 			byte attr = TERM_WHITE | (j % 2) * 8; /* alternating columns */
 			u32b f[5] = {0, 0, 0, 0};
 			bool res, imm;
 			char sym;
-			if(j < INVEN_TOTAL)
+			if(j < END_EQUIPMENT)
 				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
 			else
 #ifdef EFG
@@ -1420,7 +1420,7 @@ static void display_player_sust_info(void)
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
 
 	/* Process equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -2021,7 +2021,7 @@ errr file_character(cptr name, bool full)
 	if (p_ptr->equip_cnt)
 	{
 		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 		{
 			object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
@@ -2030,6 +2030,28 @@ errr file_character(cptr name, bool full)
 			/* Describe random object attributes */
 			identify_random_gen(&inventory[i]);
 		}
+		fprintf(fff, "\n\n");
+	}
+
+	/* Dump the quiver */
+	if (p_ptr->pack_size_reduce)
+	{
+		fprintf(fff, "  [Character Equipment -- Quiver]\n\n");
+
+		for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+		{
+			/* Ignore empty slots */
+			if (!inventory[i].k_idx) continue;
+
+			object_desc(o_name, sizeof(o_name), &inventory[i],
+				TRUE, 3);
+
+			fprintf(fff, "%c) %s\n", index_to_label(i), o_name);
+
+			/* Describe random object attributes */
+			identify_random_gen(&inventory[i]);
+		}
+
 		fprintf(fff, "\n\n");
 	}
 

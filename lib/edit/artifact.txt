@@ -1,5 +1,5 @@
 # File: artifact.txt
-# for DaJAngband 1.0.98
+# for DaJAngband 1.0.99
 
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
@@ -1035,7 +1035,7 @@ D:In this dagger is bound the very force of the lightning.
 
 N:69:of Rilia
 I:23:8:0
-W:5:40:15:15000
+W:5:35:15:15000
 P:0:4d2:6:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 A:STINKING_CLOUD:4:4
@@ -1482,15 +1482,15 @@ D:spear.
 
 # The Lance of Eorlingas
 
-N:100:of Eorlingas
-I:22:20:2
-W:20:23:320:55000
-P:0:3d8:13:21:0
-F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ANIMAL | SLAY_ORC | REGEN | SHOW_MODS
-D:"Forth Eorlingas!"  To the field of Cormallen Eorl the Young came beyond 
-D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
-D:and dire wolves.
+#N:100:of Eorlingas
+#I:22:20:2
+#W:20:23:320:55000
+#P:0:3d8:13:21:0
+#F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR | 
+#F:SLAY_EVIL | SLAY_TROLL | SLAY_ANIMAL | SLAY_ORC | REGEN | SHOW_MODS
+#D:"Forth Eorlingas!"  To the field of Cormallen Eorl the Young came beyond 
+#D:hope to save beleaguered Gondor, and from his lance fled massive trolls 
+#D:and dire wolves.
 
 
 # an artifact javelin
@@ -1687,7 +1687,8 @@ D:crackle around its massive head.
 N:114:'Bloodspike'
 I:22:14:4
 W:20:30:170:30000
-P:0:2d7:8:22:0
+P:0:1d13:8:22:0
+2:1d9
 F:STR | HIDE_TYPE | BRAND_POIS | BAD_WEAP | RES_CHARM |
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | RES_POIS | 
 F:SHOW_MODS
@@ -1774,11 +1775,14 @@ D:grants keen sight and clear knowledge of many hidden things.
 
 
 # The Quarterstaff of Olorin (Staff of Striking)
+# Artifact with staff tval, not sure if it works yet
+# maybe change activation
 
 N:120:of Olorin
 I:55:31:4
-W:30:105:150:130000
-P:0:3d9:10:5:0
+W:30:100:150:130000
+P:0:2d9:10:5:0
+2:1d9
 F:INT | WIS | CHR | HIDE_TYPE | KILL_DEMON | GOOD_WEAP
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | RES_CHARM |
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
@@ -1795,10 +1799,10 @@ N:121:'Deathwreaker'
 I:22:35:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
-# F:DRAIN_MANA | 
+# F:DRAIN_MANA | RES_FIRE (no need for resistance and immunity)
 F:STR | TUNNEL | HIDE_TYPE | BLESSED | RES_CHARM |
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | KILL_UNDEAD | BRAND_FIRE | 
-F:IM_FIRE | RES_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
+F:IM_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
 F:SHOW_MODS
 D:A weapon so massive it seems beyond the strength of mortals, yet you feel 
 D:the might of giants within you as you heft it.  As you grip the handle 
@@ -2048,12 +2052,13 @@ N:138:of Snowballs
 I:19:2:1
 W:2:8:5:12400
 P:0:1d1:2:3:2
-F:MIGHT | CON | SLOW_DIGEST | 
+F:MIGHT | CON | SLOW_DIGEST | BRAND_COLD
 F:RES_COLD | ACTIVATE | SHOW_MODS |
-A:SNOWBALL:900:99
+A:SNOWBALL:250:250
 D:This sling hurls rocks and magical snowballs, so you can
 D:turn fighting monsters into a fun snowball fight!
-#removed BRAND_COLD because it has a frost-branding activation
+#re-added BRAND_COLD and removed frost-branding activation
+#A:SNOWBALL now activates for (double) cold resistance. (was 900:99)
 
 # The Elven Leaf-Cloak of the fairies
 
@@ -2084,7 +2089,7 @@ I:19:13:1
 W:35:27:40:72000
 P:0:0d0:18:18:0
 F:DEX | MIGHT | SPEED | HIDE_TYPE | FREE_ACT
-F:SHOW_MODS | KILL_DRAGON | RES_FEAR
+F:SHOW_MODS | SLAY_DRAGON | RES_FEAR
 D:The great yew bow of grim-faced Bard, who shot the mightiest arrow that 
 D:songs record, slaying Smaug, the greatest dragon of the third age.
 

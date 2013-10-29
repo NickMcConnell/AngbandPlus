@@ -1136,6 +1136,52 @@ const byte blows_table[12][12] =
 	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
 };
 
+/*
+ * Separate table for thrown weapons / round
+ * (easier to get 2, harder to get more than 3)
+ */
+const byte throw_blows_table[12][12] =
+{
+	/* P/D */
+	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
+
+	/* 0  */
+	{  1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   3 },
+
+	/* 1  */
+	{  1,   1,   1,   2,   2,   2,   2,   3,   3,   3,   3,   4 },
+
+	/* 2  */
+	{  1,   2,   2,   2,   2,   3,   3,   3,   3,   4,   4,   4 },
+
+	/* 3  */
+	{  2,   2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   5 },
+
+	/* 4  */
+	{  2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   5,   5 },
+
+	/* 5  */
+	{  2,   2,   3,   3,   3,   3,   4,   4,   4,   5,   5,   5 },
+
+	/* 6  */
+	{  2,   2,   3,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
+
+	/* 7  */
+	{  2,   3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
+
+	/* 8  */
+	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6 },
+
+	/* 9  */
+	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+
+	/* 10 */
+	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
+
+	/* 11+ */
+	{  3,   3,   4,   4,   4,   5,   5,   5,   6,   6,   6,   6 },
+};
+
 
 /*
  * This table allows quick conversion from "speed" to "energy"
@@ -2047,7 +2093,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx smart_monsters */
 	FALSE,		/* xxx smart_packs */
 	FALSE,		/* OPT_hp_changes_color */
-	FALSE,		/* OPT_hide_squelchable */
+	TRUE,		/* OPT_hide_squelchable */
 	FALSE,		/* OPT_squelch_worthless */
 	FALSE,		/* OPT_mouse_movement */
 	TRUE,		/* OPT_show_lists */
@@ -2114,7 +2160,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* birth_ai_sound */
-	FALSE,		/* birth_ai_smell */
+	TRUE,		/* birth_ai_smell */
 	FALSE,		/* birth_ai_packs */
 	FALSE,		/* birth_ai_learn */
 	FALSE,		/* birth_ai_cheat */
@@ -2490,7 +2536,7 @@ const byte store_choices[MAX_STORES-2][STORE_CHOICES][2] =
 
 		{ TV_POLEARM, SV_PIKE },
 		{ TV_POLEARM, SV_BROAD_AXE },
-		{ TV_POLEARM, SV_LANCE },
+		{ TV_POLEARM, SV_LEAD_FILLED_MACE },
 		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_POLEARM, SV_GLAIVE },
 		{ TV_BOW, SV_SLING },

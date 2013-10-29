@@ -747,11 +747,15 @@ bool squelch_item_ok(const object_type *o_ptr)
 
 /* 
  * Returns TRUE if an item should be hidden due to the player's
- * current settings.
+ * current settings (or if the object is buried in rubble).
  */
-bool squelch_hide_item(object_type *o_ptr)
+bool squelch_hide_item(const object_type *o_ptr)
 {
 	bool mighty = FALSE;
+
+	/* object buried in rubble */
+	if (o_ptr->hidden) return TRUE;
+
 	if (p_ptr->timed[TMD_MIGHTY_HURL]) mighty = TRUE;
 	/* an extremely strong barbarian or hulk is also mighty */
 	if ((((int)(adj_con_fix[p_ptr->stat_ind[A_STR]]) - 128) > 7) && 
@@ -763,7 +767,7 @@ bool squelch_hide_item(object_type *o_ptr)
 	{
 		return TRUE;
 	}
-	
+
 	return (hide_squelchable ? squelch_item_ok(o_ptr) : FALSE);
 }
 

@@ -1,7 +1,7 @@
 /* File: generate.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koenekerubb
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -172,7 +172,7 @@
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX	11
 
 
 
@@ -260,7 +260,9 @@ static const room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ -1, 2, -2, 3, 10 },	/* 8 = Greater vault (66x44) */
+	{ 0, 1, -1, 1, 5 },		/* 9 = empty vault (uses lesser vault design) */
+	{ -1, 2, -2, 3, 10 }	/* 10 = empty Greater vault (66x44) (extremely rare) */
 };
 
 
@@ -362,7 +364,23 @@ static void place_rubble(int y, int x)
 	/* Create rubble */
 	cave_set_feat(y, x, FEAT_RUBBLE);
 
-	/* Create big rocks */
+	/* 9% chance of rubble object */
+	/* (was 10%, changed because rubble is more common now) */
+	/* (previously was not created until the rubble was dug up */
+	/* now you can find it by searching as well as by digging) */
+	if (rand_int(100) < 9)
+	{
+		object_type *o_ptr;
+
+		/* create the object */
+		place_object(y, x, FALSE, FALSE);
+
+		/* now hide it in the rubble */
+		o_ptr = &o_list[cave_o_idx[y][x]];
+		o_ptr->hidden = 1;
+	}
+
+	/* Create big rocks (after hiding the rubble object) */
 	big_rocks(y, x);
 }
 
@@ -664,10 +682,18 @@ static void destroy_level(void)
 					}
 
 					/* Magma */
-					else if (t < 100)
+					else if (t < 90)
 					{
 						/* Create magma vein */
 						cave_set_feat(y, x, FEAT_MAGMA);
+					}
+
+					/* Rubble */
+					else if (t < 110)
+					{
+						/* Create rubble (no chance for buried object) */
+						cave_set_feat(y, x, FEAT_RUBBLE);
+						big_rocks(y, x);
 					}
 
 					/* Floor */
@@ -806,7 +832,7 @@ static void vault_monsters(int y1, int x1, int num)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
-			(void)place_monster(y, x, TRUE, TRUE);
+			(void)place_monster(y, x, TRUE, TRUE, FALSE);
 
 			break;
 		}
@@ -985,6 +1011,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
  *   6 -- monster pits
  *   7 -- simple vaults
  *   8 -- greater vaults
+ *   9 -- empty vaults
  */
 
 
@@ -1001,9 +1028,15 @@ static void build_type1(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
-	else if ((p_ptr->depth > 25) && (randint(p_ptr->depth + 10 + badluck/2 - goodluck/2) == 2))
-	     light = TRUE;
+	if (p_ptr->depth < 25)
+	{
+		if (p_ptr->depth <= randint(25)) light = TRUE;
+	}
+	else if (p_ptr->depth <= 45)
+	{
+		if (randint(p_ptr->depth + 5) <= 2) light = TRUE;
+	}
+	else if (randint(p_ptr->depth + 10 + badluck/2 - goodluck/2) == 2) light = TRUE;
 
 	/* Pick a room size */
 	y1 = y0 - randint(4);
@@ -1494,6 +1527,7 @@ static void build_type4(int y0, int x0)
  *
  * None of the pits/nests are allowed to include "unique" monsters,
  * or monsters which can "multiply".
+ * (DJA: I can't find where it checks for the MULTIPLY flag?)
  *
  * Some of the pits/nests are asked to avoid monsters which can blink
  * away or which are invisible.  This is probably a hack.
@@ -1532,9 +1566,9 @@ static bool vault_aux_animal(int r_idx)
 
 	/* Require "animal" flag */
 	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
-	/* often reject bugs because of creepy crawly nest */
+	/* often reject bugs and rodents because of creepy crawly nest */
 	/* and worms because of jelly nest */
-	if (strchr("awFIS", r_ptr->d_char) &&
+	if (strchr("awrFIS", r_ptr->d_char) &&
      (randint(10) < 7)) return (FALSE);
     /* small chance of rejecting hounds */
     if (strchr("Z", r_ptr->d_char) &&
@@ -1810,11 +1844,11 @@ static void build_type5(int y0, int x0)
 		get_mon_num_hook = vault_aux_jelly;
 
 	    /* Increase the level rating (depending on nest type) */
-	    rating += 4;
+	    if (p_ptr->depth < 40) rating += 4;
 	}
 
 	/* Monster nest (creepy crawly) */
-	else if (tmp < 23)
+	else if (tmp < 22)
 	{
 		/* Describe */
 		name = "creepy crawly";
@@ -1827,12 +1861,12 @@ static void build_type5(int y0, int x0)
 	}
 
 	/* Monster nest (imp and fairy) */
-	else if (tmp < 26)
+	else if (tmp < 25)
 	{
 		/* Describe */
 		name = "imp and fairy";
 
-		/* fairies like light */
+		/* most fairies like light */
 		if (randint(100) > p_ptr->depth + 15) light = TRUE;
 
 		/* Restrict to imp or fairy */
@@ -2223,14 +2257,21 @@ static void build_type6(int y0, int x0)
 	}
 
 
-	/* Increase the level rating */
-	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((p_ptr->depth <= 40) &&
-	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	/* Increase the level rating (orc pits decrease in rating with depth) */
+	if ((tmp < 20) && (p_ptr->depth >= 9))
 	{
-		good_item_flag = TRUE;
+		rating += 11 - (p_ptr->depth/9);
+	}
+	else
+	{
+		rating += 10;
+
+		/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
+		if ((p_ptr->depth <= 40) &&
+		    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+		{
+			good_item_flag = TRUE;
+		}
 	}
 
 
@@ -2285,16 +2326,81 @@ static void build_type6(int y0, int x0)
 }
 
 
+/*
+ * Helper function for get_mon_match()
+ */
+static bool match_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int minl;
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* okay to have umber hulks in vaults, but should never force multiple hulks */
+	if (r_ptr->flags2 & (RF2_KILL_WALL)) return (FALSE);
+
+	/* minimum level */
+	if (p_ptr->depth > 35) minl = (p_ptr->depth / 2) - 2;
+	else minl = 15;
+	if (r_ptr->level <= minl / 3) return (FALSE);
+
+	/* Hack -- Require certain types */
+	if (strchr("OPTDMHKUVXYg%&", r_ptr->d_char)) return (TRUE);
+
+	/* Hack -- other types require min level */
+	if ((strchr("noNhqtx@pe", r_ptr->d_char)) && (r_ptr->level >= minl)) return (TRUE);
+	if ((strchr("ABuz", r_ptr->d_char)) && (r_ptr->level >= minl + 2)) return (TRUE);
+
+	/* allow most other types rarely */
+	if (strchr("v$Fjkm", r_ptr->d_char)) return (FALSE);
+	if ((r_ptr->level >= minl + 2) && (randint(100) < 11)) return (TRUE);
+
+	/* assume not okay */
+	return (FALSE);
+}
+
+/*
+ * Certain types of monsters more likely to be matching monsters in a vault
+ */
+int get_mon_match(int level)
+{
+	int r_idx;
+
+	/* Require appropriate monsters */
+	get_mon_num_hook = match_okay;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick a monster */
+	r_idx = get_mon_num(level);
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	return r_idx;
+}
+
 
 /*
  * Hack -- fill in "vault" rooms
+ *
+ * Note new vault symbols:
+ * d: matching monsters
+ * D: matching tougher monsters
+ * $: always treasure
+ * R: rubble
  */
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 {
 	int dx, dy, x, y;
+	int dr_idx, bigdr_idx;
 
 	cptr t;
-
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
@@ -2338,6 +2444,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
+				/* Rubble */
+				case 'R':
+				{
+					place_rubble(y, x);
+					break;
+				}
+
 				/* Treasure/trap */
 				case '*':
 				{
@@ -2370,6 +2483,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 	}
 
 
+	 /*  Matching monsters:  */
+	/* Pick a monster for 'd' */
+	dr_idx = get_mon_match(p_ptr->depth + 4);
+
+	/* Pick a monster for 'D' */
+	bigdr_idx = get_mon_match(p_ptr->depth + 10);
+
+
 	/* Place dungeon monsters and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
@@ -2389,7 +2510,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '&':
 				{
 					monster_level = p_ptr->depth + 5;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x, TRUE, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -2398,8 +2519,34 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '@':
 				{
 					monster_level = p_ptr->depth + 11;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x, TRUE, TRUE, TRUE);
 					monster_level = p_ptr->depth;
+					break;
+				}
+
+				/* matching monster, possible treasure */
+				case 'd':
+				{
+					place_monster_aux(y, x, dr_idx, TRUE, TRUE);
+					if (randint(100) < 11)
+					{
+						object_level = p_ptr->depth + 4;
+						place_object(y, x, FALSE, FALSE);
+						object_level = p_ptr->depth;
+					}
+					break;
+				}
+
+				/* meaner matching monster, possible treasure */
+				case 'D':
+				{
+					place_monster_aux(y, x, bigdr_idx, TRUE, TRUE);
+					if (randint(100) < 11)
+					{
+						object_level = p_ptr->depth + 6;
+						place_object(y, x, TRUE, FALSE);
+						object_level = p_ptr->depth;
+					}
 					break;
 				}
 
@@ -2407,7 +2554,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '9':
 				{
 					monster_level = p_ptr->depth + 9;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x, TRUE, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 7;
 					place_object(y, x, TRUE, FALSE);
@@ -2419,7 +2566,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '8':
 				{
 					monster_level = p_ptr->depth + 40;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(y, x, TRUE, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 20;
 					place_object(y, x, TRUE, TRUE);
@@ -2433,7 +2580,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					if (rand_int(100) < 50)
 					{
 						monster_level = p_ptr->depth + 3;
-						place_monster(y, x, TRUE, TRUE);
+						place_monster(y, x, TRUE, TRUE, TRUE);
 						monster_level = p_ptr->depth;
 					}
 					if (rand_int(100) < 50)
@@ -2444,11 +2591,257 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					break;
 				}
+
+				/* guaranteed treasure */
+				case '$':
+				{
+					object_level = p_ptr->depth + 5;
+					if (rand_int(100) < 30 + goodluck/2) place_object(y, x, TRUE, FALSE);
+					else place_object(y, x, FALSE, FALSE);
+					object_level = p_ptr->depth;
+					break;
+				}
 			}
 		}
 	}
 }
 
+
+
+/*
+ * Hack -- fill in rooms for empty vaults (type9)
+ * has chances to retain some aspects of original design (objects & traps)
+ * but never has forced out-of-depth objects or monsters
+ * and does not raise level feeling.
+ *
+ * int design determines how likely it is that the original design aspects
+ * are created. In a vault design, original monsters and objects are rarely
+ * created. In a type9 room shape design, it is much more likely.
+ */
+static void build_empty(int y0, int x0, int ymax, int xmax, cptr data, int design)
+{
+	int dx, dy, x, y, dsg;
+	int goods = 0; /* don't create too many treasures in an empty vault */
+	bool permwall = FALSE;
+	bool light = FALSE;
+
+	cptr t;
+
+
+	/* Occasional light */
+	if (p_ptr->depth < 14)
+	{
+		if (p_ptr->depth <= randint(14)) light = TRUE;
+	}
+	else if (p_ptr->depth <= 45)
+	{
+		if (randint(p_ptr->depth + 9) <= 2) light = TRUE;
+	}
+	else if (randint(p_ptr->depth + 15 + badluck/2 - goodluck/2) == 2) light = TRUE;
+
+	/* Place dungeon features and objects */
+	for (t = data, dy = 0; dy < ymax; dy++)
+	{
+		for (dx = 0; dx < xmax; dx++, t++)
+		{
+			/* Extract the location */
+			x = x0 - (xmax / 2) + dx;
+			y = y0 - (ymax / 2) + dy;
+
+			/* Hack -- skip "non-grids" */
+			if (*t == ' ') continue;
+
+			/* Lay down a floor */
+			cave_set_feat(y, x, FEAT_FLOOR);
+
+			/* empty vault does not get cave_icky */
+			if (light) cave_info[y][x] |= (CAVE_ROOM | CAVE_GLOW);
+			else cave_info[y][x] |= (CAVE_ROOM);
+
+			/* Analyze the grid */
+			switch (*t)
+			{
+				/* Granite wall (outer) */
+				case '%':
+				{
+					cave_set_feat(y, x, FEAT_WALL_OUTER);
+					break;
+				}
+
+				/* formerly permanent wall, small chance to become rubble */
+				case 'X':
+				{
+					dsg = 6;
+					if (rand_int(100) < dsg) /* about 1/16 */
+					{
+						if (design == 1) cave_set_feat(y, x, FEAT_PERM_INNER);
+						else place_rubble(y, x);
+					}
+					else
+					{
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					/* there was permanent wall in the original vault design */
+					if ((design > 1) && (design < 9)) permwall = TRUE;
+					break;
+				}
+
+				/* Granite wall (inner), chance to become rubble */
+				case '#':
+				{
+					int die = rand_int(100);
+					if (design == 1) dsg = 1;
+					/* usually if there were permanent walls originally, */
+					/* then the granite was meant like a door, */
+					/* so make it rubble (or a door) instead of granite. */
+					else if (permwall) dsg = 85;
+					/* default about 1/6 chance to become rubble */
+					else dsg = 16;
+					if ((die < dsg/3) && (permwall))
+					{
+						place_random_door(y, x);
+					}
+					else if (((die < dsg/2) && (permwall)) || ((die < dsg/5) && (!permwall)))
+					{
+						cave_set_feat(y, x, FEAT_FLOOR);
+					}
+					else if (die < dsg)
+					{
+						place_rubble(y, x);
+					}
+					else
+					{
+						cave_set_feat(y, x, FEAT_WALL_INNER);
+					}
+					break;
+				}
+
+				/* Rubble */
+				case 'R':
+				{
+					if (design == 1) dsg = 96;
+					else dsg = 55;
+					if (rand_int(100) < dsg)
+					{
+						place_rubble(y, x);
+					}
+					break;
+				}
+
+				/* doors */
+				case '+':
+				{
+					if (rand_int(100) < 70)
+					{
+						place_random_door(y, x);
+					}
+					else
+					{
+						place_secret_door(y, x);
+					}
+					break;
+				}
+
+				/* Treasure/trap */
+				case '*':
+				{
+					if (design == 1) dsg = randint(8);
+					else if (design == 9) dsg = randint(80);
+					else dsg = randint(100);
+					if ((goods > 2) && (randint(100) < 67)) dsg += randint(goods-1);
+					if (dsg < 5)
+					{
+						place_object(y, x, FALSE, FALSE);
+						goods += 1;
+					}
+					else if (dsg < 8)
+					{
+						place_trap(y, x);
+					}
+					break;
+				}
+
+				/* Trap */
+				case '^':
+				{
+					if (design == 1) dsg = 80;
+					else if (design == 8) dsg = 7;
+					else if (design == 9) dsg = 15;
+					else dsg = 10;
+					if (rand_int(100) < dsg) place_trap(y, x);
+					break;
+				}
+
+				/* Treasure, sometimes monster */
+				case ',':
+				{
+					if (design == 1) dsg = 49;
+					else if (design == 9) dsg = 5;
+					else dsg = 4;
+					if (randint(100) < dsg - 1) vault_monsters(y0, x0, 1);
+					dsg -= (randint(goods) - 1); /* prevent too much treasure in empty vault */
+					if (randint(100) < dsg)
+					{
+						place_object(y, x, FALSE, FALSE);
+						goods += 1;
+					}
+					break;
+				}
+
+				/* Treasure, chance to be forced good */
+				case '$':
+				{
+					if (design == 1) dsg = 70;
+					else dsg = 10;
+					dsg -= (randint(goods) - 1); /* prevent too much treasure in empty vault */
+					if (randint(100) < 2)
+					{
+						place_object(y, x, TRUE, FALSE);
+						goods += 2;
+					}
+					else if (randint(100) < dsg)
+					{
+						place_object(y, x, FALSE, FALSE);
+						goods += 1;
+					}
+					break;
+				}
+				case '9':
+				case '8':
+				{
+					if (design == 1) dsg = 70;
+					else if (design == 9) dsg = 15;
+					else if (design == 8) dsg = 7;
+					else dsg = 9;
+					dsg -= (randint(goods) - 1); /* prevent too much treasure in empty vault */
+					if (randint(100) < 2)
+					{
+						place_object(y, x, TRUE, FALSE);
+						goods += 2;
+					}
+					else if (randint(100) < dsg)
+					{
+						place_object(y, x, FALSE, FALSE);
+						goods += 1;
+					}
+					/* fall through */
+				}
+				/* might still be some monsters around */
+				case 'D':
+				case 'd':
+				case '&':
+				case '@':
+				{
+					if (design == 1) dsg = 80;
+					else if (design == 8) dsg = 7;
+					else dsg = 9;
+					if (randint(100) < dsg) vault_monsters(y0, x0, 1);
+					break;
+				}
+			}
+		}
+	}
+}
 
 
 /*
@@ -2485,6 +2878,53 @@ static void build_type7(int y0, int x0)
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
 
+
+/*
+ * Type 9 -- empty vaults (see "vault.txt")
+ *
+ * Empty vaults use three types of designs
+ * design type 9 = different room shape for variety
+ * design type 7 = emptied lesser vault design (rarer before depth 12)
+ * design type 8 = emptied greater vault design (minimum depth 80, very rare)
+ */
+static void build_type9(int y0, int x0, bool great)
+{
+	vault_type *v_ptr;
+	byte mtv;
+	int mtvodd = 53;
+	if (p_ptr->depth < 12) mtvodd += (12 - p_ptr->depth) * 3;
+	
+	/* what kind of empty vault */
+	if (randint(100) < mtvodd) mtv = 9; /* design only for empty vaults */
+	else mtv = 7; /* lesser vault design */
+	if (great) mtv = 8; /* greater vault design (extremely rare)*/
+
+	/* Pick a lesser vault */
+	while (TRUE)
+	{
+		/* Get a random vault record */
+		v_ptr = &v_info[rand_int(z_info->v_max)];
+
+		/* Accept the first lesser vault design usable for an empty vault */
+		/* (not all lesser vaults designs can be used for empty vaults) */
+		if ((v_ptr->typ == mtv) && (v_ptr->useMT)) break;
+	}
+
+	/* Message */
+	if (cheat_room) msg_format("Empty vault (%s)", v_name + v_ptr->name);
+
+	/* type9 has a chance to be built (almost) exactly as designed because */
+	/* type9 rooms are not designed to be true vaults */
+	if ((v_ptr->typ == 9) && (randint(100) < 33)) mtv = 1;
+
+	/* Boost the rating if it's an empty greater vault because it's still going to have some stuff */
+	if (v_ptr->typ == 10) rating += (v_ptr->rat)/5;
+
+	/* Hack -- Build the empty vault */
+	/* (Has chance to retain some aspects of original design, but not nearly */
+	/*  as much monsters, treasure, and traps.) */
+	build_empty(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, mtv);
+}
 
 
 /*
@@ -2918,8 +3358,10 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
-		case 8: build_type8(y, x); break;
-		case 7: build_type7(y, x); break;
+		case 10: build_type9(y, x, TRUE); break; /* empty greater vault (vrare) */
+		case 9: build_type9(y, x, FALSE); break; /* normal empty vault */
+		case 8: build_type8(y, x); break; /* greater vault */
+		case 7: build_type7(y, x); break; /* lesser vault */
 		case 6: build_type6(y, x); break;
 		case 5: build_type5(y, x); break;
 		case 4: build_type4(y, x); break;
@@ -2965,7 +3407,7 @@ static void cave_gen(void)
 {
 	int i, k, y, x, y1, x1;
 
-	int by, bx;
+	int by, bx, evg;
 
 	bool destroyed = FALSE;
 
@@ -3048,6 +3490,10 @@ static void cave_gen(void)
 		/* Destroyed levels are boring */
 		if (destroyed)
 		{
+			/* can use empty vault design */
+			if ((rand_int(DUN_UNUSUAL) < p_ptr->depth) && (room_build(by, bx, 9)))
+				continue;
+
 			/* Attempt a "trivial" room */
 			if (room_build(by, bx, 1)) continue;
 
@@ -3079,7 +3525,7 @@ static void cave_gen(void)
 			{
 			    /* find vault shouldn't find pits and nests as often */
 			    if ((p_ptr->seek_vault) && (k < 50) && (k > 25) && (randint(100) < 55))
-                   k = randint(20) + 5 - (goodluck/4);
+                   k = randint(19) + 5 - (goodluck/4);
 
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && room_build(by, bx, 8)) continue;
@@ -3102,6 +3548,29 @@ static void cave_gen(void)
 
 			/* Type 2 -- Overlapping (50%) */
 			if ((k < 100) && room_build(by, bx, 2)) continue;
+		}
+
+		/* Attempt an "unusual" room (again) */
+		/* (DUN_UNUSUAL is 200, set at L109) */
+		if (rand_int((DUN_UNUSUAL + roomodds)/2) < (p_ptr->depth/2) + 22)
+		{
+			if (p_ptr->depth < 60) k = rand_int(99) - ((60-p_ptr->depth) / 2);
+			else k = rand_int(99);
+
+			/* odds for empty greater vault (much more likely after L100) */
+			if (p_ptr->depth > 100) evg = p_ptr->depth - 57;
+			else if ((p_ptr->depth == 100) || (p_ptr->depth == 99) || (p_ptr->depth < 80)) 
+				evg = 0;
+			else evg = (p_ptr->depth-78) / 2;
+
+			/* extremely rare empty greater vault (only deeper than dl70) */
+			if ((k == 1) && (rand_int(100) < evg) && room_build(by, bx, 10)) continue;
+			
+			/* small second chance for lesser vault */
+			if ((k == 1) && room_build(by, bx, 7)) continue;
+
+			/* empty vault */
+			if ((k < 27) && room_build(by, bx, 9)) continue;
 		}
 
 		/* Attempt a trivial room */
@@ -3669,11 +4138,11 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (adult_autoscum && (num < 100))
+		/* no longer has any effect on the 1st 4 levels */
+		if (adult_autoscum && (num < 100) && (p_ptr->depth > 4))
 		{
 			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
+			if ((feeling > 8) ||
 			    ((p_ptr->depth >= 10) && (feeling > 7)) ||
 			    ((p_ptr->depth >= 20) && (feeling > 6)) ||
 			    ((p_ptr->depth >= 40) && (feeling > 5)))

@@ -137,6 +137,8 @@ s16b spell_chance(int spell)
     {
        chance += 4 + randint(6);
     }
+	/* being held by a monster makes it hard to cast */
+	if (p_ptr->timed[TMD_BEAR_HOLD]) chance += 10;
 
     /* 1st sight strengthens natural sight and inhibits unnatural stuff like magic */
 	if (p_ptr->timed[TMD_2ND_THOUGHT]) chance += 10;

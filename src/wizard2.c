@@ -1557,6 +1557,16 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* create Blah object(s) */
+		case 'B':
+		{
+			spellswitch = 5;  /* creates object that's not good or great */
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
+			acquirement(py, px, p_ptr->command_arg, FALSE);
+			spellswitch = 0;
+			break;
+		}
+
 		/* Create any object */
 		case 'c':
 		{

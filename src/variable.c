@@ -881,10 +881,22 @@ void (*sound_hook)(int sound);
 autoinscription *inscriptions = 0;
 u16b inscriptions_count = 0;
 
+/*
+ * Some static info used to manage quiver groups
+ */
+quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
+{
+	{'f', TERM_L_BLUE},
+	{'f', TERM_L_GREEN},
+	{'f', TERM_YELLOW},
+	{'v', TERM_ORANGE},
+};
+
 /* 
  *  explaination of spellswitches:
  * 1  = map_area maps much bigger area.
- * 2-3  = (no longer used)
+ * 2  = differenciate monster breath from monster ball spells to make them have  *	slightly different effects.
+ * 3  = used to fix rune of protection bug (see cmd6.c L309 and spells2.c L97)
  * 4  = prevents lite_area() from automatically lighting up the whole room
  * 5  = make object that's not good or great (for acquirement())
  * 6  = increase radius for detect traps
@@ -896,7 +908,7 @@ u16b inscriptions_count = 0;
  * 10 = prevents GF_DISP_ALL from affecting golems for song of dispelling
  * 11 = player-activated earthquake with spell (doesn't allow big damage to player)
  * 12 = monster-activated earthquake with spell (not used yet)
- * 13 = blink monster: makes teleport_monster do short distance
+ * 13 = target prompt and prevents using old target for teleport control.  *	HELPER monster spells also use it to prevent using old target.
  * 14 = uses banishment() function to summon a chosen type of monster.
  * 15 = turn undead turns all monsters.
  * 16 = disinfectant in GF_BUG_SPRAY (damage to j,m,",",R and S)
@@ -909,17 +921,16 @@ u16b inscriptions_count = 0;
  * 23 = makes GF_OLD_DRAIN affect demons for death spells and cause wounds 
  *  spells, also used to turn GF_DISP_UNDEAD into dispel demons.
  * 24 = for telekinesis
- *  spellswitch resets at the end of the project() function which is used in
- * every bolt/beam/ball/breath spell.
  * 25 = makes the light from camera flash and burst of light not stay
  * 26 = for beam of destruction spell
  * 27 = makes GF_OLD_DRAIN not affect silver for the dispel life spell
  * 28 = target self
  * 29 = makes GF_OLD_SLEEP more powerful (ignoring NO_SLEEP flags)
  * 30 = for gravity effect on nether ball, also used for bizzare effects spell
+ * 31 = for tunneldigger wand
  * 91-95 = palert searching bonus (?)
- *   spellswitch resets at the end of the project() function
- *   which is used in every bolt/beam/ball/breath spell.
+ *  ** spellswitch resets at the end of the project() function which is used in
+ * every bolt/beam/ball/breath spell. **
  * 
  *  sentient weapons:
  *    goodweap counts good weapons

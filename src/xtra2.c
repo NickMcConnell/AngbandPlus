@@ -93,12 +93,15 @@ static timed_effect effects[] =
 	{ "You feel very sneaky.", "You no longer feel especially sneaky.", 0, 0, PU_BONUS, MSG_HERO }, /* TMD_SUPER_ROGUE */
 	{ "Are electrical field surrounds you.", "The electric field dissapates.", PR_BLIND, 0, PU_BONUS, MSG_GENERIC }, /* TMD_ZAPPING */
 	{ "You have first sight and second thoughts.", "Your sight returns to normal", PR_BLIND, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED }, /* TMD_2ND_THOUGHT */
-	{ "Your magical shield protects against monster breath", "The breath shield dissapears", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BR_SHIELD */
-	{ "Daylight surrounds you", "The daylight enchantment expires and the shadows return", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
+	{ "Your magical shield protects against monster breath.", "The breath shield dissapears.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_BR_SHIELD */
+	{ "Daylight surrounds you.", "The daylight enchantment expires and the shadows return.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_DAYLIGHT */
 	{ "You feel resistant to confusion!", "You no longer feel resistant to confusion.", PR_OPPOSE_ELEMENTS, 0, 0, MSG_GENERIC }, /* TMD_CLEAR_MIND */
 	{ "You feel forsaken.", "The curse wears off.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_CURSE */
 	{ "You feel very skillfull!", "The skill boost wears off.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_SKILLFUL */
-	{ "You have the throwing strength of a giant", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
+	{ "You have the throwing strength of a giant.", "You feel like you just shrunk back to your usual size.", 0, 0, PU_BONUS, MSG_BLESSED }, /* TMD_MIGHTY_HURL */
+	{ "", "You pull free.", PR_STATE, 0, PU_BONUS, MSG_PARALYZED }, /* TMD_BEAR_HOLD (start message is triggered by attack: RBE_BHOLD) */
+	{ "a faint glow surrounds your quiver.", "your quiver is no longer protected.", 0, 0, PU_BONUS, MSG_GENERIC }, /* TMD_QUIVERGUARD */
+	{ "You begin to give off light.", "You no longer give off light.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_GENERIC }, /* TMD_MINDLIGHT */
 };
 
 /*
@@ -1082,7 +1085,8 @@ void gain_exp(s32b amount)
 	if (p_ptr->exp < p_ptr->max_exp)
 	{
 		/* Gain max experience (10%) */
-		p_ptr->max_exp += amount / 10;
+		if (p_ptr->hold_life) p_ptr->max_exp += amount / (14 + (goodluck+1)/2);
+		else p_ptr->max_exp += amount / (10 + (goodluck+1)/2);
 	}
 
 	/* Check Experience */
@@ -1555,7 +1559,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     wakemon = FALSE;
 
     if (dam >= 5) wakemon = TRUE;
-	if ((r_ptr->flags2 & (RF2_STUPID)) || (m_ptr->hp > 1000)) wakemon = FALSE;
+	if (((r_ptr->flags2 & (RF2_STUPID)) || (m_ptr->hp > 1000)) && (dam < 12)) wakemon = FALSE;
 	if (randint(100) < estl) wakemon = TRUE;
     if (estl > 50) estl = 50;
     if (estl >= m_ptr->csleep) wakemon = TRUE;
@@ -1617,6 +1621,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			m_ptr->monfear = (randint(10) +
 			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
+
+			/* monster lets go of the player when it becomes afraid */
+			p_ptr->held_m_idx = 0;
+			clear_timed(TMD_BEAR_HOLD);
 		}
 	}
 
@@ -1888,6 +1896,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if ((m_ptr->csleep) && (m_ptr->roaming) && (m_ptr->roaming < 20)) my_strcat(buf, ", awake but hasn't noticed you", max);
 	else if ((m_ptr->roaming) && (cheat_know)) my_strcat(buf, ", temporarily roaming", max);
 	else if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
+	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == m_idx)) my_strcat(buf, ", holding you", max);
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
 	if (m_ptr->charmed) my_strcat(buf, ", charmed", max);

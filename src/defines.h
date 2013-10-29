@@ -43,7 +43,7 @@
 #ifdef ALTDJA
 #define VERSION_STRING "Alternate (bizzare/non-Tolkien) version 1.1.0 (NOT READY)"
 #else
-#define VERSION_STRING "v1.0.98b (pre 1.1.0)"
+#define VERSION_STRING "v1.0.99 (pre 1.1.0)"
 #endif
 
 
@@ -429,10 +429,44 @@
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
 
+/* The end of the equipment (old INVEN_TOTAL, before quiver) */
+#define END_EQUIPMENT	36
+
+/*
+ * Blank line between equipment and quiver
+ */
+#define INVEN_BLANK	36
+
+/*
+ * First slot of the quiver
+ */
+#define INVEN_QUIVER	37
+
+/*
+ * The number of quiver slots
+ */
+#define MAX_QUIVER	10
+
+/*
+ * The end of the quiver
+ */
+#define END_QUIVER	(INVEN_QUIVER + MAX_QUIVER)
+
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL		36
+#define INVEN_TOTAL	END_QUIVER
+
+/*
+ * Used to determine if a slot is a quiver slot.
+ */
+#define IS_QUIVER_SLOT(slot) \
+(((slot) >= INVEN_QUIVER) && ((slot) < INVEN_QUIVER + MAX_QUIVER))
+
+/*
+ * Total number of inventory slots (hard-coded) (BF: before quiver).
+ * #define INVEN_TOTAL		36
+ */
 
 
 /*
@@ -476,7 +510,7 @@ enum
     TMD_XATTACK, TMD_SUST_SPEED, TMD_SPHERE_CHARM, TMD_HIT_ELEMENT,
     TMD_DARKVIS, TMD_SUPER_ROGUE, TMD_ZAPPING, TMD_2ND_THOUGHT,
     TMD_BR_SHIELD, TMD_DAYLIGHT, TMD_CLEAR_MIND, TMD_CURSE, TMD_SKILLFUL,
-	TMD_MIGHTY_HURL,
+	TMD_MIGHTY_HURL, TMD_BEAR_HOLD, TMD_QUIVERGUARD, TMD_MINDLIGHT,
 
 	TMD_MAX
 };
@@ -539,6 +573,7 @@ enum
 #define SUMMON_DEMON        16
 #define SUMMON_UNDEAD       17
 #define SUMMON_DRAGON       18
+#define SUMMON_SILVER		19
 /* xxx */
 #define SUMMON_HI_DEMON     26
 #define SUMMON_HI_UNDEAD    27
@@ -910,7 +945,7 @@ enum
 #define EGO_UP_AND_DOWN     146 /* with drawbacks */
 
 /* DJA: magic staffs */
-#define EGO_EASY_USE        147
+/* #define EGO_EASY_USE        147 (removed, magic_mastery now uses pval) */
 /* alternate versions for magic staffs */
 #define EGO_NATURAL_BATL    148
 #define EGO_NATURAL_LITE    149
@@ -962,7 +997,7 @@ enum
 #define TV_LITE         39	/* Lites (including Specials) */
 #define TV_AMULET       40	/* Amulets (including Specials) */
 #define TV_RING         45	/* Rings (including Specials) */
-#define TV_STAFF        55
+#define TV_STAFF        55  /* can be wielded now */
 #define TV_WAND         65
 #define TV_ROD          66
 #define TV_SCROLL       70
@@ -1025,7 +1060,7 @@ enum
 #define SV_WHIP					2	/* 1d3 */
 #define SV_WALKING_STAFF        3   /* 1d5 */
 #define SV_LIGHT_CLUB           4   /* 2d2 */
-#define SV_QUARTERSTAFF			6	/* 1d9 */
+#define SV_QUARTERSTAFF			6	/* 1d7/1d5 */
 #define SV_CEREMONIAL_MACE      8   /* 2d4 */
 #define SV_WAR_HAMMER			10	/* 3d3 */
 /* #define SV_STAFF_STRIKING       30    3d9, tval changed */
@@ -1037,18 +1072,19 @@ enum
 #define SV_HAND_AXE             3   /* 1d8 maul */
 #define SV_SPEAR				4	/* 1d6 */
 #define SV_MACE					5	/* 2d4 */
-#define SV_BALL_AND_CHAIN		6	/* 2d4 */
+/* #define SV_BALL_AND_CHAIN		6	* 2d4 (removed) */
+ #define SV_NATACE				6   /* 1d4/1d4 (replaces the lance) */
 #define SV_TRIDENT				7	/* 1d8 */
 #define SV_PIKE					8	/* 2d5 */
 #define SV_JAVELIN              9   /* 1d6 for throwing */
 #define SV_FLAIL				10	/* 2d6 */
 #define SV_MORNING_STAR			11	/* 2d6 */
 #define SV_BROAD_AXE			12	/* 2d6 */
-#define SV_LEAD_FILLED_MACE		15	/* 4d3 */
 #define SV_GLAIVE				13	/* 2d7 */
-#define SV_TWO_HANDED_FLAIL		14	/* 2d7 -multi-chained flail */
+#define SV_TWO_HANDED_FLAIL		14	/* 1d13/1d9 -multi-chained flail */
+#define SV_LEAD_FILLED_MACE		15	/* 4d3 */
 #define SV_BATTLE_AXE			18	/* 2d8 */
-#define SV_LANCE				20	/* 2d8 */
+/* #define SV_LANCE				20	* 2d8 */
 #define SV_HALBERD				21	/* 3d5 */
 #define SV_SCYTHE				22	/* 5d3 */
 #define SV_GREAT_AXE			23	/* 4d4 */
@@ -1156,7 +1192,9 @@ enum
 #define SV_DRAGON_MULTIHUED		6
 #define SV_DRAGON_SHINING		10
 #define SV_DRAGON_LAW			12
+#define SV_WYVERN_SCALE			13 /* no activation */
 #define SV_DRAGON_BRONZE		14
+#define SV_DRAGON_ETHEREAL		15
 #define SV_DRAGON_GOLD			16
 #define SV_DRAGON_CHAOS			18
 #define SV_DRAGON_BALANCE		20
@@ -1239,9 +1277,10 @@ enum
 
 /* The "sval" codes for TV_STAFF (55) */
 #define SV_STAFF_DARKNESS		0
-#define SV_STAFF_SLOWNESS		1
+/* #define SV_STAFF_SLOWNESS		1 (removed) */
+#define SV_STAFF_SUMMONING		1 /* was sval 3, moved to keep bad ones together */
 #define SV_STAFF_HASTE_MONSTERS	2
-#define SV_STAFF_SUMMONING		3
+#define SV_STAFF_TELEKINESIS	3
 #define SV_STAFF_TELEPORTATION	4
 #define SV_STAFF_IDENTIFY		5
 #define SV_STAFF_REMOVE_CURSE	6
@@ -1269,7 +1308,7 @@ enum
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
 #define SV_STAFF_CHARM_ANIMAL   30
-#define SV_STAFF_STRIKING       31 /* meant as a weapon, but tval changed to fit magic staffs */
+#define SV_STAFF_STRIKING       31 /* 2d9/1d9 meant as a weapon, but tval changed to fit magic staffs */
 #define SV_STAFF_MANAFREE       32
 
 /* The "sval" codes for TV_WAND */
@@ -1413,7 +1452,7 @@ enum
 #define SV_POTION_PURITY		    23
 #define SV_POTION_INFRAVISION		24 /* alertness */
 #define SV_POTION_DETECT_INVIS		25
-#define SV_POTION_SLOW_POISON		26
+#define SV_POTION_SLOW_POISON		26 /* shares allocation with detect monsters */
 #define SV_POTION_CURE_POISON		27
 #define SV_POTION_BOLDNESS			28
 #define SV_POTION_SPEED				29
@@ -1432,6 +1471,7 @@ enum
 #define SV_POTION_RES_BRAWN			42 /* STR & CON */
 #define SV_POTION_RES_INTELLECT		43 /* INT & WIS */
 #define SV_POTION_RES_SNEAKINESS	44 /* DEX & CHR */
+#define SV_POTION_DETECT_MON		45 /* shares allocation with slow poison */
 /*
 #define SV_POTION_RES_DEX			45
 #define SV_POTION_RES_CON			46
@@ -1634,6 +1674,7 @@ enum
 #define RBE_BLOODWRATH  42 /* for summon demonic aid spell */
 #define RBE_SPHCHARM    43 /* for summon demonic aid spell */
 #define RBE_STUDY       44 /* for summon demonic aid spell */
+#define RBE_BHOLD		45 /* BEAR_HOLD */
 
 /*** Function flags ***/
 
@@ -1702,6 +1743,7 @@ enum
 #define USE_INVEN		0x02	/* Allow inven items */
 #define USE_FLOOR		0x04	/* Allow floor items */
 #define CAN_SQUELCH		0x08	/* Allow selection of all squelched items */
+#define USE_QUIVER		0x10	/* Allow quiver items, forbid classic equipment */
 
 
 /*** Player flags ***/
@@ -1964,7 +2006,9 @@ enum
  * Note that "flags3" contains everything else (including eight good flags,
  * seven unused flags, four bad flags, four damage ignoring flags, six weird
  * flags, and three cursed flags).
- * curses must be in flags3
+ * curses must be in flags3 (curses, not all drawbacks)
+ *
+ * All random resistances are now in flags4.
  */
 
 #define TR1_STR             0x00000001L /* STR += pval */
@@ -2025,7 +2069,7 @@ enum
 #define TR2_CONSTANTA       0x00400000L /* magic staff of constant activation */
 #define TR2_XXX83           0x00800000L /* unused */
 #define TR2_XXX84           0x01000000L /* unused */
-#define TR2_XXX85           0x02000000L /* unused */
+#define TR2_IMPACT          0x02000000L /* Earthquake blows */
 #define TR2_CORRUPT         0x04000000L /* Corrupting (moved from TR3) */
 #define TR2_RTURN           0x08000000L /* returns when thrown */
 #define TR2_THROWN          0x10000000L /* weapon good for throwing but can't wield */
@@ -2044,8 +2088,9 @@ enum
 #define TR3_DARKVIS         0x00000100L /* Darkvision */
 #define TR3_BR_SHIELD       0x00000200L /* Breath Shield */
 #define TR3_TCONTROL        0x00000400L /* Teleport Control */
-#define TR3_STOPREGEN       0x00000800L /* stops regeneration */
-#define TR3_IMPACT          0x00001000L /* Earthquake blows */
+#define TR3_THROWMULT       0x00000800L /* for gauntlets of throwing (also a random power) */
+/* end of random powers */
+#define TR3_STOPREGEN       0x00001000L /* stops regeneration */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
 #define TR3_DRAIN_EXP       0x00008000L /* Experience drain */
@@ -2080,7 +2125,8 @@ enum
 #define TR4_RES_CHAOS       0x00000400L /* Resist chaos */
 #define TR4_RES_DISEN       0x00000800L /* Resist disenchant */
 #define TR4_RES_CHARM       0x00001000L /* Resist charm */
-#define TR4_XXX14           0x00002000L /*  */
+#define TR4_RES_STATC       0x00002000L /* Resist static (drain charges) */
+/* end of random resistances */
 #define TR4_XXX15           0x00004000L /*  */
 #define TR4_XXX16           0x00008000L /*  */
 #define TR4_XXX17           0x00010000L /*  */
@@ -2097,18 +2143,24 @@ enum
 #define TR4_XXX28           0x08000000L /*  */
 #define TR4_XXX29           0x10000000L /*  */
 #define TR4_XXX30           0x20000000L /*  */
-#define TR4_XXX31           0x40000000L /*  */
+#define TR4_XXX31		    0x40000000L /*  */
 #define TR4_WIELD_SHIELD    0x80000000L /* can be worn in shield slot */
 
 /*
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
- * Note that all "pval" dependant flags must be in "flags1".
+ * (no longer all in flag set 1)
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
 	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
+	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT )
+
+#define TR2_PVAL_MASK \
+	(TR2_MAGIC_MASTERY )
+
+#define TR3_PVAL_MASK \
+	(TR3_THROWMULT )
 
 /*
  * Flag set 3 -- mask for "ignore element" flags.
@@ -2143,9 +2195,8 @@ enum
  * Hack -- special "xtra" object flag info (number of flags)
  */
 #define OBJECT_XTRA_SIZE_SUSTAIN	6
-#define OBJECT_XTRA_SIZE_RESIST		13
-#define OBJECT_XTRA_SIZE_POWER		10
-/* change SIZE_POWER to 11 when you get TELECONTROL to work */
+#define OBJECT_XTRA_SIZE_RESIST		14
+#define OBJECT_XTRA_SIZE_POWER		12
 
 
 /*** Class flags ***/
@@ -2393,11 +2444,11 @@ enum
 #define RF6_TELE_TO         0x00000100 /* Move player to monster */
 #define RF6_TELE_AWAY       0x00000200 /* Move player far away */
 #define RF6_TELE_LEVEL      0x00000400 /* Move player vertically */
-#define RF6_XXX5            0x00000800 /* Move player (?) */
+#define RF6_CURSE_PC        0x00000800 /* Curse player (?) */
 #define RF6_DARKNESS        0x00001000 /* Create Darkness */
 #define RF6_TRAPS           0x00002000 /* Create Traps */
 #define RF6_FORGET          0x00004000 /* Cause amnesia */
-#define RF6_XXX6            0x00008000 /* (?) */
+#define RF6_S_SILVER        0x00008000 /* Summon Silver */
 #define RF6_S_KIN           0x00010000 /* Summon Kin */
 #define RF6_S_HI_DEMON      0x00020000 /* Summon Greater Demons */
 #define RF6_S_MONSTER       0x00040000 /* Summon Monster */
@@ -2451,7 +2502,7 @@ enum
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
 	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
 	 RF6_S_ANIMAL | RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_SILVER | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
 	 RF6_S_WRAITH | RF6_S_UNIQUE)
@@ -2521,11 +2572,15 @@ enum
 	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
-	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE | \
+	 RF6_S_SILVER)
 
 
 /*
  * Spells that improve the caster's tactical position
+ *
+ * (Currently, these are the only ones a monster can use when it hasn't noticed
+ * the player yet. I might make a separate mask for that later.)
  */
 #define RF4_TACTIC_MASK \
 	(0L)
@@ -2577,7 +2632,7 @@ enum
 	(RF6_HEAL)
 
 /*
- * Heal other spell
+ * Heal other spells
  */
 #define RF4_HEALO_MASK \
 	(0L)
@@ -2931,6 +2986,13 @@ enum
 #define cursed_p(T) \
 	((T)->ident & (IDENT_CURSED))
 
+/*
+ * Ammo.
+ */
+#define ammo_p(T) \
+	(((T)->tval == TV_BOLT) || ((T)->tval == TV_ARROW) || \
+	((T)->tval == TV_SHOT))
+
 
 /*
  * Convert an "attr"/"char" pair into a "pict" (P)
@@ -3067,6 +3129,18 @@ enum
 #define cave_naked_bold(Y,X) \
 	((cave_feat[Y][X] == FEAT_FLOOR) && \
 	 (cave_o_idx[Y][X] == 0) && \
+	 (cave_m_idx[Y][X] == 0))
+
+/*
+ * Determine if a "legal" grid can by occupied by a player or monster
+ * (allow rubble)
+ *
+ * Line 1-2 -- force floor or rubble
+ * Line 3 -- forbid player/monsters
+ */
+#define cave_can_occupy_bold(Y,X) \
+	(((cave_feat[Y][X] == FEAT_FLOOR) || \
+	 (cave_feat[Y][X] == FEAT_RUBBLE)) && \
 	 (cave_m_idx[Y][X] == 0))
 
 
@@ -3388,3 +3462,17 @@ enum
 #define NOSCORE_WIZARD		0x0002
 #define NOSCORE_DEBUG		0x0008
 #define NOSCORE_BORG		0x0010
+
+/*
+ * Objects in the quiver are stored in groups. Each group has its own set of tags ranging from 0 to 9.
+ * The order of the groups is determined by the value of these constants
+ */
+enum
+{
+	QUIVER_GROUP_BOLTS = 0,
+	QUIVER_GROUP_ARROWS,
+	QUIVER_GROUP_SHOTS,
+	QUIVER_GROUP_THROWING_WEAPONS,
+	MAX_QUIVER_GROUPS
+};
+

@@ -391,6 +391,7 @@ void do_cmd_use_staff(void)
 	int item, chance, lev;
 
 	bool ident;
+	bool fluke = FALSE;
 	
 	object_type *o_ptr;
 
@@ -418,18 +419,45 @@ void do_cmd_use_staff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Notice empty staffs (should come before chance of success) */
+	if (o_ptr->pval <= 0)
+	{
+		/* takes a turn only if you didn't already know it was empty */
+		/* (you always know charges if aware) */
+		if (!object_aware_p(o_ptr))
+		{
+			p_ptr->energy_use = 100;
+			msg_print("You realize that the staff is out of charges.");
+		}
+		else
+		{
+			msg_print("That staff has no charges left.");
+		}
+
+		if (flush_failure) flush();		
+		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
+
+		return;
+	}
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-
 
 	/* Not identified yet */
 	ident = FALSE;
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	/* Extract the item diffuculty (now separated from item level) */
+	lev = k_info[o_ptr->k_idx].extra;
 
-    /* Staff of striking is easy to use for its level */
-	if (o_ptr->sval == SV_STAFF_STRIKING) lev -= 5;
+	/* cursed staffs are harder to use */
+	if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+
+	/* blessed devices are easier to use */
+	if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
+	else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
+	else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
@@ -441,35 +469,30 @@ void do_cmd_use_staff(void)
        if (goodluck > 16) chance = (chance * 8) / 9;
        else if (goodluck > 9) chance = (chance * 3) / 4;
        else if (goodluck > 2) chance = (chance * 2) / 3;
-       else chance = chance / 2 + 1;
-       if ((badluck > 5) && (chance > 15)) chance -= badluck/2;
+	   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+       else chance = (chance / 2) - (badluck/3);
     }
 
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* no limit now that difficulty is separated from depth */
+	/* (very few devices have difficulty > 50) */
+	/* chance = chance - ((lev > 50) ? 50 : lev); */
+	chance = chance - lev;
 
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	/* Give everyone a (slight) chance (USE_DEVICE==3) */
+	if (chance < USE_DEVICE) /* 33% success rate (1 in 3) at best */
 	{
-		chance = USE_DEVICE;
+		if (chance + 1 < 2) chance = 2;
+		else chance += 1;
+		if (lev < 9) lev = 9;
+		if (rand_int(lev) < chance) fluke = TRUE; /* success */
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((randint(chance) < USE_DEVICE) && (!fluke))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
-		return;
-	}
-
-	/* Notice empty staffs */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -734,9 +757,8 @@ void do_cmd_zap_rod(void)
  */
 static bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
-
 	/* Extract the flags */
+	u32b f1, f2, f3, f4;
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
@@ -758,6 +780,8 @@ void do_cmd_activate(void)
 {
 	int item, lev, chance;
 	bool ident;
+	bool forget = FALSE;
+	bool fluke = FALSE;
 	object_type *o_ptr;
 
 	cptr q, s;
@@ -767,9 +791,10 @@ void do_cmd_activate(void)
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
+	/* (allow thrown item artifacts to activate) */
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_QUIVER))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -783,15 +808,30 @@ void do_cmd_activate(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Check the recharge (moved here from activate_object()) */
+	if (o_ptr->timeout)
+	{
+		msg_print("It whines, glows and fades...");
+		return;
+	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	/* Extract the item diffuculty (now separated from item level) */
+	lev = k_info[o_ptr->k_idx].extra;
+	
+	/* cursed items are harder to use (but not cursed artifacts) */
+	/* (currently these items are never cursed but that will likely change) */
+	if (cursed_p(o_ptr)) lev += 5 + badluck/3;
 
-	/* Hack -- use artifact level instead */
+	/* blessed items are easier to activate */
+	if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
+	else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
+	else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
+
+	/* Hack -- use artifact level instead (bless/curse doesn't effect artifact activation) */
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
 	/* Base chance of success */
@@ -803,33 +843,48 @@ void do_cmd_activate(void)
        if (goodluck > 16) chance = (chance * 8) / 9;
        else if (goodluck > 9) chance = (chance * 3) / 4;
        else if (goodluck > 2) chance = (chance * 2) / 3;
-       else chance = chance / 2 + 1;
-       if ((badluck > 5) && (chance > 15)) chance -= badluck/2;
+	   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+       else chance = (chance / 2) - (badluck/3);
     }
 
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* no limit now that difficulty is separated from depth */
+	/* (very few devices have difficulty > 50) */
+	if (artifact_p(o_ptr)) chance = chance - ((lev > 50) ? 50 : lev);
+	else chance = chance - lev;
 
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
 
 	/* Check for amnesia */
 	if (rand_int(2) != 0 && p_ptr->timed[TMD_AMNESIA])
 	{
-		if (flush_failure) flush();
-		msg_print("You can't remember how to activate it.");
-		return;
+		if (chance < 60)
+		{
+			if (flush_failure) flush();
+			msg_print("You can't remember how to activate it.");
+			return;
+		}
+		else
+		{
+			chance = chance / 3;
+			forget = TRUE;
+		}
+	}
+
+	/* Give everyone a (slight) chance (USE_DEVICE==3) */
+	if (chance < USE_DEVICE) /* 33% success rate (1 in 3) at best */
+	{
+		if (chance + 1 < 2) chance = 2;
+		else chance += 1;
+		if (lev < 9) lev = 9;
+		if (rand_int(lev) < chance) fluke = TRUE; /* success */
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((randint(chance) < USE_DEVICE) && (!fluke))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
+		if (forget) msg_print("You can't remember how to activate it.");
+		else msg_print("You failed to activate it properly.");
 		return;
 	}
 	

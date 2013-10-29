@@ -197,13 +197,106 @@ bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
 	return ret;
 }
 
+/* */
+static int quiver_wield(int item, object_type *o_ptr)
+{
+	int slot = 0;
+	bool use_new_slot = FALSE;
+	int num, i, rthis;
+
+	object_type object_type_body;
+	object_type *i_ptr;
+
+	/* was: num = get_quantity(NULL, o_ptr->number);*/
+	num = o_ptr->number;
+
+	/* Cancel */
+	if (num <= 0) return 0;
+
+	/* Check free space */
+	if (!quiver_carry_okay(o_ptr, num, item))
+	{
+		msg_print("Your quiver needs more backpack space.");
+		return 0;
+ 	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Copy to the local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Modify quantity */
+	i_ptr->number = num;
+
+	/* Search for available slots. */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the item */
+		o_ptr = &inventory[i];
+
+		/* Accept empty slot, but keep searching for combining */
+		if (!o_ptr->k_idx)
+		{
+			slot = i;
+			use_new_slot = TRUE;
+			continue;
+		}
+
+		/* Accept slot that has space to absorb more */
+		if (object_similar(o_ptr, i_ptr))
+		{
+			slot = i;
+			use_new_slot = FALSE;
+			object_absorb(o_ptr, i_ptr);
+			break;
+		}
+	}
+
+	/* Use a new slot if needed */
+	if (use_new_slot) object_copy(&inventory[slot], i_ptr);
+
+	if (!slot)
+	{
+		/* No space. */
+		msg_print("Your quiver is full.");
+		return 0;
+	}
+
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight * num;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -num);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -num);
+		floor_item_optimize(0 - item);
+	}
+
+	/* reorder the quiver (before updating p_ptr->pack_size_reduce) */
+	rthis = reorder_quiver(slot);
+
+	/* Update "p_ptr->pack_size_reduce" */
+	find_quiver_size();
+
+	/* return the perhaps modified slot from the reorder quiver function */
+	return rthis;
+}
+
+
 /*
  * Wield or wear a single item from the pack or floor
  */
 void do_cmd_wield(void)
 {
 	int item, slot;
-	bool hasac;
 	bool is_splendid;
 
 	object_type *o_ptr;
@@ -242,17 +335,14 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* check for WIELD_SHIELD flag */
+	/* check for WIELD_SHIELD and THROWN flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
-	/* be sure weapon has ac before using as a shield */
-	hasac = FALSE;
-    if ((o_ptr->to_a > 0) || (o_ptr->ac > 0)) hasac = TRUE;
 	
 	/* off-hand weapon (not duel-wielding (yet), more like using a weapon as a shield) */
-    if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD) && (hasac))
+    if ((slot == INVEN_WIELD) && (f4 & TR4_WIELD_SHIELD))
 	{
        if (get_check("Wield in off-hand for defence? "))
        {
@@ -260,11 +350,25 @@ void do_cmd_wield(void)
        }
     }
 
+	/* Ask for ring to replace */
+	if ((o_ptr->tval == TV_RING) &&
+		inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+
+		/* Choose a ring from the equipment only */
+		q = "Replace which ring? ";
+		s = "Oops.";
+		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
+
 	/* Get a pointer to the slot to be removed */
 	equip_o_ptr = &inventory[slot];
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(equip_o_ptr))
+	if (!IS_QUIVER_SLOT(slot) && cursed_p(equip_o_ptr))
 	{
 		/* Describe it */
 		object_desc(o_name, sizeof(o_name), equip_o_ptr, FALSE, 0);
@@ -308,47 +412,62 @@ void do_cmd_wield(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Modify quantity */
-	i_ptr->number = 1;
-
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	/* Ammo goes in quiver slots, which have special rules. */
+	if (IS_QUIVER_SLOT(slot))
 	{
-		inven_item_increase(item, -1);
-		inven_item_optimize(item);
-	}
+		/* Put the ammo in the quiver */
+		slot = quiver_wield(item, o_ptr);
 
-	/* Decrease the item (from the floor) */
+		/* Can't do it */
+		if (!slot) return;
+
+		/* Get the object again */
+		o_ptr = &inventory[slot];
+	}
 	else
 	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
+		/* Get local object */
+		i_ptr = &object_type_body;
 
-	/* Get the wield slot */
-	o_ptr = &inventory[slot];
+		/* Obtain local object */
+		object_copy(i_ptr, o_ptr);
 
-	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+		/* Decrease the item (from the pack) */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_optimize(item);
+		}
+	
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_optimize(0 - item);
+		}
+	
+		/* Get the wield slot */
+		o_ptr = &inventory[slot];
+	
 		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
+		if (o_ptr->k_idx)
+		{
+			/* Take off existing item */
+			(void)inven_takeoff(slot, 255);
+		}
+
+		/* Wear the new stuff */
+		object_copy(o_ptr, i_ptr);
+	
+		/* Increase the weight */
+		p_ptr->total_weight += i_ptr->weight;
+	
+		/* Increment the equip counter by hand */
+		p_ptr->equip_cnt++;
 	}
-
-	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
-
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
-
-	/* Increment the equip counter by hand */
-	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -363,9 +482,13 @@ void do_cmd_wield(void)
 	{
 		act = "Your light source is";
 	}
-	else
+	else if (!IS_QUIVER_SLOT(slot))
 	{
 		act = "You are wearing";
+	}
+	else
+	{
+		act = "You have readied";
 	}
 
 	/* Describe the result */
@@ -545,6 +668,16 @@ void do_cmd_takeoff(void)
 		return;
 	}
 
+	/* Cursed quiver */
+	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	{
+		/* Oops */
+		msg_print("Your quiver is cursed!");
+
+		/* Nope */
+		return;
+	}
+
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -594,6 +727,16 @@ void do_cmd_drop(void)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
+
+		/* Nope */
+		return;
+	}
+
+	/* Cursed quiver */
+	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	{
+		/* Oops */
+		msg_print("Your quiver is cursed!");
 
 		/* Nope */
 		return;
@@ -846,8 +989,17 @@ void do_cmd_fstack(void)
 	o_ptr->to_h = 0;
 	o_ptr->to_d = 0;
 	o_ptr->to_a = 0;
+	/* remove possible random stuff from egos like defender */
+    o_ptr->xtra1 = 0;
+    o_ptr->xtra2 = 0;
 	/* remove bonus damage dice */
 	if (o_ptr->dd > k_ptr->dd) o_ptr->dd = k_ptr->dd;
+
+	/* you now know that it's (+0 +0) */
+	if (object_aware_p(o_ptr))
+	{
+		object_known(o_ptr);
+	}
 
 	/* Combine the pack */
 	p_ptr->notice |= (PN_COMBINE);
@@ -1813,9 +1965,6 @@ void do_cmd_query_symbol(void)
 			{
 				/* Save screen */
 				screen_save();
-
-				/* spellswitch 32: try to tell if this individual monster is evil */
-				spellswitch = 32;
 
 				/* Recall on screen */
 				screen_roff(who[i], 0);

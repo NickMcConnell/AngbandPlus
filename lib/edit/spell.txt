@@ -1,5 +1,5 @@
 # File: spell.txt 
-# DaJAngband 1.0.98
+# DaJAngband 1.0.99
 
 
 # This file is used to initialize the "lib/data/spell.raw" file, which is
@@ -114,6 +114,9 @@ D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
 D: that give a bonus to-hit, to-dam, or to AC.
+D: Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 N:11:Stinking Cloud
 I:90:0:7
@@ -748,8 +751,9 @@ D: penalty. If you are at least character level 35 and it's a weapon or
 D: bow, it also attempts to enchant the to-hit
 D: and to-dam bonuses by an amount depending on character level.
 D: If it's armor, then it attempts to enchant its armor class. If it's a
-D: light source, it increases its light radius by 1.
-D: The blessing and light radius increase are temporary, but enchantments
+D: light source, it increases its light radius by 1. If the object is a wand,
+D: rod, or staff this spell makes it easier to use.
+D: Most effects of this spell are temporary, but enchantments
 D: on to-hit, damage and armor class are permanent.
 D: (Blessing lasts a maximum of 3000 turns, minimum about 750 turns,
 D: the timeout only passes while you're wielding the weapon.)
@@ -825,7 +829,7 @@ D:Teleports you randomly up to 10 squares away.
 N:134:Detection
 I:91:7:1
 D:Detects all treasure, objects, doors, stairs, traps, and monsters
-D: in the immediate area.
+D: in the immediate area. (Even all objects which are hidden in rubble).
 
 N:135:Full Identify
 I:91:7:2
@@ -1283,7 +1287,7 @@ D: If you attack and hit any charmed animal, the effects end immediately.
 
 N:221:Mighty Throw
 I:92:4:1
-D:This spell allows you to pick up rubble and throw it.
+D:This spell allows you to pick up rubble and throw it*.
 D: While this spell is in effect, you get double strength bonus to damage
 D: on anything you throw at a monster (even if it isn't something that's 
 D: meant for being thrown), or 1.5x strengh bonus on anything you shoot
@@ -1293,6 +1297,7 @@ D: Also, while this spell is in effect, you cannot be slowed by encumberance
 D: and you can climb over rubble and force open doors effortlessly.
 D: The duration is dependant on your character level and your constitution
 D: (endurance), and if you have low constitution, this spell has no effect.
+D: *- The base damage of rubble is 6d10.
 
 #70
 N:222:Portal
@@ -1315,6 +1320,9 @@ D:Detects all doors and stairs in the immediate area.
 N:230:Detect Treasure and Objects
 I:93:0:2
 D:Detects all treasure and objects in the immediate area.
+D: Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 N:231:Trap/Door Destruction
 I:93:0:3
@@ -1487,14 +1495,13 @@ I:93:2:4
 D:Attempts to slow a single monster.
 D:  Uniques are not affected.
 
-N:251:Mini Destruction
+N:251:Dynamite Blast
 I:93:2:5
-D:Destroys everything in a 5-square radius circle around you.
-D:  All monsters, objects, and terrain features in the area of
-D: effect are destroyed, except stairs, permanent walls and
-D: artifacts.
-D:  You will also be blinded for 3+d5 turns, unless you
-D: have resistance to blindness or light.
+D:Causes a small but powerful 5-square radius earthquake around you.
+D:  Earthquakes may damage monsters and destroy items in some
+D: squares in the area of effect.  The dynamite blast has a bigger
+D: chance to damage monsters and destroy objects than most earthquakes do.
+D:  Artifacts will not be destroyed by this spell.
 D:  This spell has no effect when used in the town.
 
 N:252:Turn Stone To Mud
@@ -1514,6 +1521,9 @@ D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
 D: that give a significant bonus to-hit, to-dam, or to AC.
+D:  Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 N:255:Detect Traps
 I:93:3:0
@@ -1623,20 +1633,20 @@ D:Hastes you (+10 to speed) for a level-dependant duration.
 D: (minimum is clvl + 1 turns.)
 
 N:272:Polymorph Other
-I:93:5:0
+I:93:5:1
 D:Attempts to polymorph a single monster.
 D:  Uniques are not affected.
 
 #45
 N:273:Adjust Speed
-I:93:5:1
+I:93:5:2
 D:Adjusts your speed by an amount from -9 to +11.  Also has a very
 D: slight chance of increasing that number by up to 5. If the speed
 D: adjustment is positive then it lasts for clvl + d25 turns. If the
 D: speed adjustment is negative then it lasts for clvl + 25 - d(clvl).
 
 N:274:Banish or Summon
-I:93:5:2
+I:93:5:3
 D:Has a wide range of banishing and summoning effects, but you get
 D: a good effect more than half the time, and a higher character level
 D: makes the better effects more likely. (note: there is no "summon
@@ -1645,26 +1655,26 @@ D: unique" effect but there is a small chance of summonning a random
 D: monster.)
 
 N:275:Affect Self
-I:93:5:3
+I:93:5:4
 D:This spell will do something random to yourself.  Has a very wide
 D: range of effects, can get good and bad effects at the same time.
 D: Has a very small chance of doing nothing.  (good effects are always
 D: more likely than bad effects).
 
 N:276:Affect Surroundings
-I:93:5:4
+I:93:5:5
 D:This spell will do something random to the monsters and/or the
 D: dungeon around you.
 D: (You will get a good effect more than half the time)
 
 N:277:Potluck Stats
-I:93:5:6
+I:93:5:7
 D:This spell will have a random effect on your stats.
 D: (You will get a good effect more than half the time)
 
 #50
 N:278:Aquirement
-I:93:5:7
+I:93:5:8
 D:Creates an object near you.  It might be good, it might
 D: be excellent, or it might be junk.  (This spell has a
 D: price: it often has bad effects and good effects at the
@@ -1837,10 +1847,16 @@ D: One Ring, but not quite as extreme. Plus some additional
 D: bizzare effects.
 
 N:301:Treasure Hunt
-I:93:5:5
+I:93:5:6
 D:Creates a treasure map somewhere in the area. If you find it,
 D: it will greatly improve your odds of finding a
 D: level with a vault the next time you go down stairs.
+
+#finish this
+N:302:Luck Attack
+I:93:5:0
+D:Fires a bolt, beam, or ball (or rarely line-of-sight effect) which
+D: does an amount of damage which is based solely on your luck.
 
 #    chance spells (301-303) unused <75+1>
 # start alchemy spells with #304 because Max spells is 76
@@ -1943,6 +1959,9 @@ D: (Minimum healing is 1/3 of your max hit points)
 N:322:Detect Treasure & Objcets
 I:94:2:0
 D:Detects all treasure and objects in the immediate area.
+D: Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 N:323:Trap/Door Destruction
 I:94:2:1
@@ -1974,6 +1993,9 @@ D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
 D: that give a significant bonus to-hit, to-dam, or to AC.
+D:  Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 #25
 N:329:Acid Coat Ammo
@@ -2157,7 +2179,7 @@ I:94:6:3
 D:Shoots a radius-3 poison ball.
 
 N:358:Glyph of Warding
-I:94:8:5
+I:94:8:6
 D:Inscribes a glyph of warding beneath you.
 D:  Summoned monsters can't appear on the glyph.
 D:  If a monster attempts to move onto the glyph or melee you while you
@@ -2265,26 +2287,26 @@ D: level and decrease with level of wand or staff and number of charges.
 D:  A failed attempt to recharge destroys one wand or staff from the stack.
 
 N:373:Shield
-I:94:8:2
+I:94:8:3
 D:Grants you +50 to AC for 30+1d20 turns.
 
 #70
 N:374:Bedlam
-I:94:8:3
+I:94:8:4
 D:Shoots a radius-4 confusion ball that doesn't cause physical
 D: damage but has a chance to confuse each monster in the area of effect.
 D:  Uniques or monsters that resist confusion are not affected.
 
 N:375:Breath Shield
-I:94:8:1
+I:94:8:2
 D:Gives you damage reduction against monster breath for a level-dependant duration.
 
 N:376:Enchant Armor
-I:94:8:4
+I:94:8:5
 D:Attempts to improve the armour class bonus of a piece of armour.
 
 N:377:Meteor Swarm
-I:94:8:6
+I:94:8:7
 D:Shoots a swarm of 3 or 4 meteors.
 D:  Meteors will travel until hitting a wall, a monster,
 D: or reaching the target location.
@@ -2293,13 +2315,21 @@ D: damage to each monster in its area of effect.
 D:  If this kills the monster that blocked the path to the target
 D: location, the next meteor may continue to find another target.
 
-#74
 N:378:Telekinesis
 I:94:7:6
 D:Allows you to pick up items which are in a different space as long as
 D: they are in line of sight.
 D: You must target an object or pile of objects in order for this spell to work.
 D: Very useful if there's a tough monster between you and a valuble object.
+
+#75
+N:379:Quiver Protection
+I:94:8:1
+D:Temporarily protects all ammunition in your quiver from being destroyed with
+D: duration dependant on character level.
+D: This spell also has a chance of removing curses from ammo in your quiver
+D: which increases (drastically) with character level.
+
 
 #    alchemy spells (304-379) unused <75+1>
 # start black spells with #380 because Max spells is 76
@@ -2576,6 +2606,9 @@ D:Detects all enchanted objects in the immediate area.
 D:  Enchanted objects include artifacts, ego items, amulets, rings,
 D: staffs, wands, rods, scrolls, potions, spellbooks, and all items
 D: that give a bonus to-hit, to-dam, or to AC.
+D:  Objects which are hidden in rubble will always be detected if the
+D: rubble is in line of sight.  Object which are hidden in rubble but
+D: not in line of sight will sometimes, but not always, be detected.
 
 N:422:Boldness
 I:95:5:0

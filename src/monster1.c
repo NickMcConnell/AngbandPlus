@@ -238,6 +238,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_HOLD)        vp[vn++] = "paralyze";
 	if (l_ptr->flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
 	if (l_ptr->flags6 & RF6_HEAL_KIN)    vp[vn++] = "heal kin";
+	if ((l_ptr->flags6 & RF6_HEAL) && (l_ptr->flags3 & RF3_HELPER)) vp[vn++] = "heal-self and you";
 	if (l_ptr->flags6 & RF6_HEAL)        vp[vn++] = "heal-self";
 	if (l_ptr->flags6 & RF6_HEAL_OTHR)   vp[vn++] = "heal other monsters";
 	if (l_ptr->flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
@@ -246,12 +247,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
 	if (l_ptr->flags6 & RF6_TELE_LEVEL)  vp[vn++] = "teleport level";
-	if (l_ptr->flags6 & RF6_XXX5)        vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_CURSE_PC)    vp[vn++] = "curse you";
 	if (l_ptr->flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
 	if (l_ptr->flags6 & RF6_FORGET)      vp[vn++] = "cause amnesia";
 	if (l_ptr->flags6 & RF6_INVIS)       vp[vn++] = "temporarily turn itself invisible";
-	if (l_ptr->flags6 & RF6_XXX6)        vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_S_SILVER)    vp[vn++] = "summon grepse (silver beings)";
 	if (l_ptr->flags6 & RF6_S_KIN)       vp[vn++] = "summon similar monsters";
 	if (l_ptr->flags6 & RF6_S_MONSTER)   vp[vn++] = "summon a monster";
 	if (l_ptr->flags6 & RF6_S_MONSTERS)  vp[vn++] = "summon monsters";
@@ -568,6 +569,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_ENTHELP:   q = "give you entdraught"; break;
 			case RBE_PURIFY:    q = "purify you"; break;
 			case RBE_UNLUCKY:   q = "drain luck"; break;
+			case RBE_BHOLD:		q = "grab you"; break;
 		}
 
 
@@ -603,9 +605,13 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, l_ptr, m))
 			{
-				/* Display the damage */
-				text_out(" with damage");
-				text_out(format(" %dd%d", d1, d2));
+				if (r_ptr->flags3 & RF3_HELPER) /* no real damage */;
+				else
+				{
+					/* Display the damage */
+					text_out(" with damage");
+					text_out(format(" %dd%d", d1, d2));
+				}
 			}
 		}
 
@@ -1166,7 +1172,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
 	else if (l_ptr->flags3 & RF3_ORC) text_out_c(TERM_L_BLUE, " orc");
 	else if (l_ptr->flags3 & RF3_ANIMAL) text_out_c(TERM_L_BLUE, " animal");
 	/* "y" light fairy: special case */
-	else if ((l_ptr->flags3 & RF3_HURT_DARK) && (strchr("y", r_ptr->d_char))) text_out_c(TERM_L_BLUE, "light fairy");
+	else if ((l_ptr->flags3 & RF3_HURT_DARK) && (strchr("y", r_ptr->d_char))) text_out_c(TERM_L_BLUE, " light fairy");
 	else if (l_ptr->flags3 & RF3_DRAGON) text_out_c(TERM_L_BLUE, " dragon");
 	else if (l_ptr->flags3 & RF3_UNDEAD) text_out_c(TERM_L_BLUE, " monster");
 	else if (l_ptr->flags3 & RF3_DEMON) text_out_c(TERM_L_BLUE, " monster");
@@ -1211,13 +1217,12 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr, mons
     }                  
     else 
     {
-	   /* "Helper" monsters */
-       if ((l_ptr->flags3 & RF3_HELPER) && (r_ptr->rarity == 0))
+	   /* all "Helper" monsters have rarity 0 */
+       if (r_ptr->rarity == 0)
 	   {
-		  text_out(" never appears except when summoned by a spell.  ");
+		  text_out(" never appears unless summoned.  ");
 	   }
 	   /* describe rarity */
-	   else if (r_ptr->rarity == 0) text_out(" never appears.  ");
 	   else if (r_ptr->rarity == 1) text_out(" is very common.  ");
 	   else if (r_ptr->rarity == 2) text_out(" is common.  ");
 	   else if ((r_ptr->rarity == 3) || (r_ptr->rarity == 4)) text_out(" is not very common.  ");

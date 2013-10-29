@@ -118,10 +118,14 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->ac);
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
+	wr_byte(o_ptr->sbdd);
+	wr_byte(o_ptr->sbds);
+	wr_byte(o_ptr->crc);
 
 	wr_byte(o_ptr->ident);
 
 	wr_byte(o_ptr->marked);
+	wr_byte(o_ptr->hidden); /* breaks savefiles for 1.0.99 as of 7/29/09 */
 
 	/* Old flags */
 	wr_u32b(0L);
@@ -529,9 +533,11 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->silver);
 	wr_s16b(p_ptr->slime);
 	wr_s16b(p_ptr->luck);
+	wr_s16b(p_ptr->maxluck);
 	wr_byte(p_ptr->corrupt);
 	wr_byte(p_ptr->learnedcontrol);
 	wr_byte(p_ptr->find_vault);
+	wr_s16b(p_ptr->held_m_idx);
 
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
@@ -607,6 +613,8 @@ static void wr_randarts(void)
 
 		wr_byte(a_ptr->dd);
 		wr_byte(a_ptr->ds);
+		wr_byte(a_ptr->sbdd);
+		wr_byte(a_ptr->sbds);
 
 		wr_s16b(a_ptr->weight);
 

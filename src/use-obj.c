@@ -27,7 +27,6 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 				{
                     if (p_ptr->weakresist_pois)
                     {
-                       (void)dec_timed(TMD_POISONED, randint(10) + 5);
                        take_hit(damroll(2, 6), "poisonous food");
                     }
 			        else take_hit(damroll(6, 6), "poisonous food");
@@ -215,6 +214,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
                   inc_timed(TMD_POISONED, randint(20) + 20 + badluck);
                }
             }
+            else if (die < 25) inc_timed(TMD_CURSE, randint(80) + 80);
             else if (die < 30) inc_timed(TMD_AMNESIA, randint(100) + 100);
             else if (die < 40) /* blah */
             {
@@ -535,6 +535,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                   msg_print("This is good stuff.");
 			      *ident = TRUE;
             }
+			else if ((p_ptr->luck < 38) && (p_ptr->luck < p_ptr->maxluck - 1))
+            {
+                  if (p_ptr->luck < p_ptr->maxluck - 5) p_ptr->luck += 1 + randint(p_ptr->maxluck - p_ptr->luck);
+				  else p_ptr->luck += 2;
+                  if (p_ptr->luck < 20) msg_print("This is good stuff, you feel less unlucky.");
+				  else msg_print("This is good stuff, you feel like you've found something that was lost.");
+			      *ident = TRUE;
+            }
             else if (p_ptr->luck < 38)
             {
                   p_ptr->luck += randint(2);
@@ -570,13 +578,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-                if (p_ptr->weakresist_pois)
-                {
-                   if (inc_timed(TMD_POISONED, rand_int(7) + 5)) *ident = TRUE;
-                }
-				else if (inc_timed(TMD_POISONED, rand_int(15) + 10))
+				if (inc_timed(TMD_POISONED, rand_int(15) + 10))
 				{
-                    if (badluck > 2)
+                    if (randint(6) < (badluck + 3 - (goodluck/3)))
                     {
                        int sick = randint(6);
                        if (sick == 1) (void)do_dec_stat(A_STR, 0);
@@ -717,8 +721,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
                        p_ptr->slime = PY_SLIME_HEALTHY;
                        *ident = TRUE;
             }
-            if (p_ptr->corrupt > 9) p_ptr->corrupt /= 2;
-            else if (p_ptr->corrupt > 5) p_ptr->corrupt -= 5;
+            if (p_ptr->corrupt > 11) p_ptr->corrupt /= 3;
+            else if (p_ptr->corrupt > 6) p_ptr->corrupt -= 6;
             else if (p_ptr->corrupt > 0) p_ptr->corrupt = 0;
 			if (set_timed(TMD_STUN, (p_ptr->timed[TMD_STUN] / 2))) *ident = TRUE;
 			if (set_timed(TMD_POISONED, (p_ptr->timed[TMD_POISONED] / 2))) *ident = TRUE;
@@ -763,6 +767,20 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (inc_timed(TMD_SINVIS, time + randint(time)))
 			{
 				*ident = TRUE;
+			}
+			break;
+		}
+
+		case SV_POTION_DETECT_MON:
+		{
+            if ((p_ptr->timed[TMD_2ND_THOUGHT]) && (goodluck < 14))
+            {
+               msg_print("Your first sight supresses detection.");
+            }
+            else
+            {
+				if (detect_monsters_normal()) *ident = TRUE;
+				if (detect_monsters_invis()) *ident = TRUE;
 			}
 			break;
 		}
@@ -921,9 +939,17 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (clear_timed(TMD_STUN)) *ident = TRUE;
 			if (clear_timed(TMD_CUT)) *ident = TRUE;
 			if (clear_timed(TMD_AMNESIA)) *ident = TRUE;
-			if (p_ptr->silver > PY_SILVER_HEALTHY) p_ptr->silver = p_ptr->silver - 5;
+			if (p_ptr->silver > PY_SILVER_HEALTHY)
+			{
+				p_ptr->silver = p_ptr->silver - 4;
+				*ident = TRUE;
+			}
 			if (p_ptr->silver < PY_SILVER_HEALTHY) p_ptr->silver = PY_SILVER_HEALTHY;
-            if (p_ptr->slime > PY_SLIME_HEALTHY) p_ptr->slime = p_ptr->slime - 6;
+            if (p_ptr->slime > PY_SLIME_HEALTHY)
+			{
+				p_ptr->slime = p_ptr->slime - 6;
+				*ident = TRUE;
+			}
 			if (p_ptr->slime < PY_SLIME_HEALTHY) p_ptr->slime = PY_SLIME_HEALTHY;
 			break;
 		}
@@ -998,7 +1024,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RES_BRAWN:
 		{
-			if (do_res_stat(A_STR)) *ident = TRUE;
+			if (do_res_stat(A_STR))
+			{
+				*ident = TRUE;
+				/* try to pull free if being held */
+				if (20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100))
+				{
+					p_ptr->held_m_idx = 0;
+					clear_timed(TMD_BEAR_HOLD);
+				}
+			}
 			if (do_res_stat(A_CON)) *ident = TRUE;
 			break;
 		}
@@ -1048,6 +1083,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			else /* already at max */
 			{
 				(void)inc_timed(TMD_MIGHTY_HURL, randint(30) + 30);
+			}
+			/* try to pull free if being held */
+			if (20 + adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck/2 > randint(100))
+			{
+				p_ptr->held_m_idx = 0;
+				clear_timed(TMD_BEAR_HOLD);
 			}
 			break;
 		}
@@ -1179,7 +1220,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)detect_stairs();
 			(void)detect_treasure();
 			(void)detect_objects_gold();
-			(void)detect_objects_normal();
+			(void)detect_objects_normal(TRUE);
 			identify_pack();
 			self_knowledge(TRUE);
 			*ident = TRUE;
@@ -1405,7 +1446,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			idagain = (p_ptr->skills[SKILL_DEV] + goodluck) / 2;
 			if ((goodluck == 1) || (goodluck == 11)) idagain += 1;
 			if (goodluck > 11) idagain += randint(goodluck - 10);
-			if ((randint(idagain) > 18) && (badluck < 12))
+			if ((randint(idagain) > 18) && (badluck < 12) && (used_up))
 			{
 			   msg_print("The writing on the scroll doesn't dissapear!");
                used_up = FALSE;
@@ -1535,7 +1576,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
             {
 			  if (detect_treasure()) *ident = TRUE;
 			  if (detect_objects_gold()) *ident = TRUE;
-			  if (detect_objects_normal()) *ident = TRUE;
+			  if (detect_objects_normal(FALSE)) *ident = TRUE;
             }
 			break;
 		}
@@ -1574,7 +1615,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
             if (p_ptr->timed[TMD_2ND_THOUGHT])
             {
                msg_print("Your first sight supresses detection.");
-               *ident = TRUE;
             }
             else
             {
@@ -1719,6 +1759,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			break;
         }
 
+#if blah
 		case SV_STAFF_SLOWNESS:
 		{
 			if (p_ptr->timed[TMD_SUST_SPEED])
@@ -1728,6 +1769,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
 			break;
 		}
+#endif
 
 		case SV_STAFF_ZAPPING:
 		{
@@ -1840,10 +1882,31 @@ static bool use_staff(object_type *o_ptr, bool *ident)
             }
             else
             {
-			  if (detect_objects_normal()) *ident = TRUE;
+			  if (detect_objects_normal(FALSE)) *ident = TRUE;
 			  if (detect_treasure()) *ident = TRUE;
 			  if (detect_objects_gold()) *ident = TRUE;
             }
+			break;
+		}
+
+		case SV_STAFF_TELEKINESIS:
+		{
+			*ident = TRUE;
+  	        if (!get_aim_dir(&dir))
+  	        {
+	           use_charge = FALSE;
+               return (FALSE);
+            }
+            /* spellswitch 24 allows distance pickup */ 
+            spellswitch = 24; 
+			do_telekinesis();
+			/* if nothing was picked up spellswitch resets to 0 at end of do_telekinesis() */
+			if (spellswitch == 24)
+			{
+               /* chance of waking up monsters in path */
+               if (randint(100) < 9 + (badluck*2) - ((goodluck+1)/2)) fire_beam(GF_THROW, dir, 0);
+            }
+            spellswitch = 0;
 			break;
 		}
 
@@ -2020,7 +2083,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_EARTHQUAKES:
 		{
-			earthquake(py, px, 10);
+			earthquake(py, px, 10, 80);
 			*ident = TRUE;
 			break;
 		}
@@ -2073,6 +2136,29 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 {
 	int lev, chance, dir, sval;
 	int die, pwr, dis;
+	bool fluke = FALSE;
+	int luckdev = (p_ptr->skills[SKILL_DEV] + goodluck + p_ptr->lev) / 2;
+
+	/* The wand is already empty! (should come before chance of success) */
+	if (o_ptr->pval <= 0)
+	{
+		/* takes a turn only if you didn't already know it was empty */
+		/* (you always know charges if aware) */
+		if (!object_aware_p(o_ptr))
+		{
+			p_ptr->energy_use = 100;
+			msg_print("You realize that the wand is out of charges.");
+		}
+		else
+		{
+			msg_print("The wand has no charges left.");
+		}
+		if (flush_failure) flush();
+		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
+		return (FALSE);
+	}
 
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return (FALSE);
@@ -2083,40 +2169,51 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	/* Not identified yet */
 	*ident = FALSE;
 
-	/* Get the level */
-	lev = k_info[o_ptr->k_idx].level;
+	/* Get the item diffuculty (now separated from item level) */
+	lev = k_info[o_ptr->k_idx].extra;
+
+	/* cursed wands are harder to use */
+	/* (currently wands are never cursed but that will likely change) */
+	if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+
+	/* blessed devices are easier to use */
+	if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
+	else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
+	else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
+	if (p_ptr->timed[TMD_CONFUSED])
+    {
+       if (goodluck > 16) chance = (chance * 8) / 9;
+       else if (goodluck > 9) chance = (chance * 3) / 4;
+       else if (goodluck > 2) chance = (chance * 2) / 3;
+	   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+       else chance = (chance / 2) - (badluck/3);
+    }
 
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* no limit now that difficulty is separated from depth */
+	/* (very few devices have difficulty > 50) */
+	/* chance = chance - ((lev > 50) ? 50 : lev); */
+	chance = chance - lev;
 
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	/* Give everyone a (slight) chance (USE_DEVICE==3) */
+	if (chance < USE_DEVICE) /* 33% success rate (1 in 3) at best */
 	{
-		chance = USE_DEVICE;
+		if (chance + 1 < 2) chance = 2;
+		else chance += 1;
+		if (lev < 9) lev = 9;
+		if (rand_int(lev) < chance) fluke = TRUE; /* success */
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((randint(chance) < USE_DEVICE) && (!fluke))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
-		return (FALSE);
-	}
-
-	/* The wand is already empty! */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
 		return (FALSE);
 	}
 
@@ -2188,119 +2285,174 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_LITE:
 		{
-			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+			{
+				msg_print("A powerful beam of white light appears.");
+				strong_lite_line(dir);
+			}
+			else
+			{
+				msg_print("A line of blue shimmering light appears.");
+				lite_line(dir);
+			}
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-            int pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+            pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70)) 
+				pwr += 7;
 			if (sleep_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-            int pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+            pwr = p_ptr->lev + adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+				pwr += 7;
 			if (slow_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-            int pwr = (p_ptr->lev + 10) / 2;
+			pwr = (p_ptr->lev + 10) / 2;
             pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+				pwr += 7;
 			if (confuse_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-            int pwr = (p_ptr->lev + 13) / 2;
+            pwr = (p_ptr->lev + 13) / 2;
             pwr += adj_chr_charm[p_ptr->stat_ind[A_CHR]];
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+				pwr += 7;
 			if (fear_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 150)) *ident = TRUE;
+			pwr = 150;
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+				pwr += randint(goodluck + 2);
+			if (drain_life(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_POLYMORPH:
 		{
-			if (poly_monster(dir)) *ident = TRUE;
+			pwr = p_ptr->lev;
+			if ((!cursed_p(o_ptr)) && (randint(p_ptr->skills[SKILL_DEV] + goodluck) > 70))
+				pwr += randint((goodluck + 5)/2);
+			if (poly_monster(dir, pwr)) *ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			pwr = 12;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 60))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
+			fire_ball(GF_POIS, dir, pwr, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
+			pwr = damroll(3, 4);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 60))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
+			fire_bolt_or_beam(20, GF_MISSILE, dir, pwr);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(10, 8));
+			pwr = damroll(10, 8);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 65))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 1);
+			fire_bolt_or_beam(20, GF_ACID, dir, pwr);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(6, 6));
+			int beamer = 20;
+			pwr = damroll(6, 6);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 62))
+				pwr += randint((p_ptr->skills[SKILL_DEV] - 7) / 2);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 62))
+				beamer += randint(p_ptr->lev/2);
+			fire_bolt_or_beam(beamer, GF_ELEC, dir, pwr);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(12, 8));
+			pwr = damroll(12, 8);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 65))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 2);
+			fire_bolt_or_beam(20, GF_FIRE, dir, pwr);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8));
+			pwr = damroll(6, 8);
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 65))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
+			fire_bolt_or_beam(20, GF_COLD, dir, pwr);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 120, 2);
+			pwr = 120;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 65))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 5);
+			fire_ball(GF_ACID, dir, pwr, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 64, 2);
+			pwr = 64;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 67))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 7);
+			fire_ball(GF_ELEC, dir, pwr, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 144, 2);
+			pwr = 144;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 63))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 5);
+			fire_ball(GF_FIRE, dir, pwr, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
+			pwr = 96;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 68))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2 + 7);
 			fire_ball(GF_COLD, dir, 96, 2);
 			*ident = TRUE;
 			break;
@@ -2323,7 +2475,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
                teleport_monster(dir, dis);
             }
 			else if ((die == 7) || (die == 8)) slow_monster(dir, pwr);
-			else if (die == 9) poly_monster(dir);
+			else if (die == 9) poly_monster(dir, pwr - 1);
 			else if (die == 10) drain_life(dir, 120 + randint(goodluck));
 			fear_monster(dir, pwr);
 			sleep_monster(dir, pwr);
@@ -2331,7 +2483,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 			/* msg_print("Oops.  Wand of wonder activated."); */
 			break;
 		}
-		
+
 		case SV_WAND_STORMS:
 		{
 			fire_ball(GF_ELEC, dir, 50 + randint(p_ptr->skills[SKILL_DEV] + 15), 3);
@@ -2349,7 +2501,10 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 160, 3);
+			pwr = 160;
+			if ((!cursed_p(o_ptr)) && (randint(luckdev) > 70))
+				pwr += randint(p_ptr->skills[SKILL_DEV]/2);
+			fire_ball(GF_COLD, dir, pwr, 3);
 			*ident = TRUE;
 			break;
 		}
@@ -2408,8 +2563,23 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 {
 	int chance, dir, lev;
 	bool used_charge = TRUE;
+	bool fluke = FALSE;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+
+	/* Still charging? (before taking a turn & chance of failure) */
+	/* you always know when a rod is charging so no need to check awareness */
+	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
+	{
+		if (flush_failure) flush();
+
+		if (o_ptr->number == 1)
+			msg_print("The rod is still charging");
+		else
+			msg_print("The rods are all still charging");
+
+		return FALSE;
+	}
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
@@ -2425,47 +2595,52 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	/* Not identified yet */
 	*ident = FALSE;
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	/* Extract the item diffuculty (now separated from item level) */
+	lev = k_info[o_ptr->k_idx].extra;
+
+	/* cursed rods are harder to use */
+	/* (currently rods are never cursed but that will likely change) */
+	if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+
+	/* blessed devices are easier to use */
+	if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
+	else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
+	else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
 
+	/* Confusion hurts skill */
 	/* should be able to use rod of curing to cure confusion */
-	if (o_ptr->sval == SV_ROD_CURING)
+	if ((p_ptr->timed[TMD_CONFUSED]) && (o_ptr->sval != SV_ROD_CURING))
 	{
-		lev -= 5;
+       if (goodluck > 16) chance = (chance * 8) / 9;
+       else if (goodluck > 9) chance = (chance * 3) / 4;
+       else if (goodluck > 2) chance = (chance * 2) / 3;
+	   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+       else chance = (chance / 2) - (badluck/3);
 	}
-	/* Confusion (usually) hurts skill */
-	else if (p_ptr->timed[TMD_CONFUSED]) chance = chance / 2;
 
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* no limit now that difficulty is separated from depth */
+	/* (very few devices have difficulty > 50) */
+	/* chance = chance - ((lev > 50) ? 50 : lev); */
+	chance = chance - lev;
 
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	/* Give everyone a (slight) chance (USE_DEVICE==3) */
+	if (chance < USE_DEVICE) /* 33% success rate (1 in 3) at best */
 	{
-		chance = USE_DEVICE;
+		if (chance + 1 < 2) chance = 2;
+		else chance += 1;
+		if (lev < 9) lev = 9;
+		if (rand_int(lev) < chance) fluke = TRUE; /* success */
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((randint(chance) < USE_DEVICE) && (!fluke))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");
-		return FALSE;
-	}
-
-	/* Still charging? */
-	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
-	{
-		if (flush_failure) flush();
-
-		if (o_ptr->number == 1)
-			msg_print("The rod is still charging");
-		else
-			msg_print("The rods are all still charging");
-
 		return FALSE;
 	}
 
@@ -2649,7 +2824,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_POLYMORPH:
 		{
-			if (poly_monster(dir)) *ident = TRUE;
+			if (poly_monster(dir, p_ptr->lev + 5)) *ident = TRUE;
 			break;
 		}
 
@@ -2731,13 +2906,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 {
 	int k, dir, i, chance, dis;
 	bool controlled;
-
-	/* Check the recharge */
-	if (o_ptr->timeout)
-	{
-		msg_print("It whines, glows and fades...");
-		return FALSE;
-	}
 
 	/* Activate the artifact */
 	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
@@ -3182,7 +3350,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_SNOWBALL:
 			{
 				msg_format("Your %s glows frosty white...", o_name);
-				if (!snowball_shot()) return FALSE;
+				inc_timed(TMD_OPP_COLD, randint(20) + 20);
+				/* (BRAND_COLD is now on the sling of snowballs */
+				/* so frost branding of shots no longer used) */
+				/* if (!snowball_shot()) return FALSE; */
 				break;
 			}
 			
@@ -3361,15 +3532,36 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				break;
 			}
 
-			case SV_DRAGON_LAW:
+			case SV_DRAGON_ETHEREAL:
 			{
+				chance = rand_int(4);
+				msg_format("You breathe %s.",
+				           ((chance == 1) ? "light" :
+				            ((chance == 2) ? "darkness" :
+				             ((chance == 3) ? "confusion" : "nexus"))));
+				fire_ball(((chance == 1) ? GF_LITE :
+				           ((chance == 2) ? GF_DARK :
+				            ((chance == 3) ? GF_CONFUSION : GF_NEXUS))),
+				          dir, 230, 2);
+				o_ptr->timeout = rand_int(300) + 300;
+				break;
+			}
+
+			case SV_DRAGON_LAW: /* Silver DSM */
+			{
+#if oldlaw
 				chance = rand_int(2);
 				sound(((chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS)));
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+#else
+				sound(MSG_BR_CONF);
+				msg_print("You breathe nexus.");
+				fire_ball(GF_NEXUS, dir, 110, 2);
+#endif
+				o_ptr->timeout = rand_int(350) + 350;
 				break;
 			}
 
@@ -3394,16 +3586,22 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(((chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK)));
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
+				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 150, 2);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
 
+			/* used to be only GF_MISSILE for 300 damage */
 			case SV_DRAGON_POWER:
 			{
 				sound(MSG_BR_ELEMENTS);
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 2);
+				fire_ball(GF_ACID, dir, 45, 2);
+				fire_ball(GF_FIRE, dir, 45, 2);
+				fire_ball(GF_ELEC, dir, 45, 2);
+				fire_ball(GF_COLD, dir, 45, 2);
+				fire_ball(GF_POIS, dir, 45, 2);
+				fire_ball(GF_MISSILE, dir, 75, 2);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
@@ -3580,7 +3778,7 @@ static cptr act_description[ACT_MAX] =
 	"starlight (10d8)",
 	"mana bolt (12d8)",
 	"berserk rage (50+d50 turns)",
-	"frost branding of shots",
+	"cold resistance (20+d20 turns)",
 	"sphere of animal charming",
 	"tunneldigging",
 	"daylight and berserk rage"

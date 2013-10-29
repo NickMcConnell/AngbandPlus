@@ -88,6 +88,7 @@ typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct autoinscription autoinscription;
+typedef struct quiver_group_type quiver_group_type;
 
 
 /**** Available structs ****/
@@ -166,6 +167,8 @@ struct object_kind
 	s16b ac;			/* Base armor */
 
 	byte dd, ds;		/* Damage dice/sides */
+	byte sbdd, sbds;	/* 2nd blow damage dice/sides for double weapons */
+	byte crc;			/* weapon crit chance (5 is +0) */
 
 	s16b weight;		/* Weight */
 
@@ -180,7 +183,7 @@ struct object_kind
 	byte chance[4];		/* Allocation chance(s) */
 
 	byte level;			/* Level */
-	byte extra;			/* Something */
+	byte extra;			/* Difficulty level for magic items */
 
 
 	byte d_attr;		/* Default object attribute */
@@ -238,6 +241,7 @@ struct artifact_type
 	s16b ac;			/* Base armor */
 
 	byte dd, ds;		/* Damage when hits */
+	byte sbdd, sbds;	/* double weapon damage */
 
 	s16b weight;		/* Weight */
 
@@ -338,8 +342,9 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	/* used to be bytes */
+	s16b hdice;				/* Creatures hit dice count */
+	s16b hside;				/* Creatures hit dice sides */
 
 	s16b ac;				/* Armour Class */
 
@@ -438,12 +443,14 @@ struct vault_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
+	bool useMT;			/* can be used for empty vault */
+	/* decided by whether you have to dig through granite to get into it */
 };
 
 
 
 /*
- * Object information, for a specific object.
+ * Object information, for a specific object. (object type, o_ptr)
  *
  * Note that a "discount" on an item is permanent and never goes away.
  *
@@ -500,6 +507,8 @@ struct object_type
 	s16b ac;			/* Normal AC */
 
 	byte dd, ds;		/* Damage dice/sides */
+	byte sbdd, sbds;	/* 2nd blow damage dice/sides for double weapons */
+	byte crc;			/* weapon crit chance (5 is +0) */
 	
 	s16b blessed;        /* temporary blessing */
 
@@ -508,6 +517,7 @@ struct object_type
 	byte ident;			/* Special flags */
 
 	byte marked;		/* Object is marked */
+	byte hidden;		/* Object is buried in rubble */
 
 	u16b note;			/* Inscription index */
 
@@ -891,7 +901,7 @@ struct player_type
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
 
-	s16b age;			/* Characters age */
+	s16b age;			/* Character's age (used to count wizmode deaths) */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
@@ -930,8 +940,9 @@ struct player_type
 	s16b silver;        /* DJA: silver poison */
 	s16b slime;         /* DJA: slimed state */
 	s16b luck;          /* DJA: luck */
+	s16b maxluck;		/* DJA: maximum luck (so can restore lost luck) */
 	byte corrupt;       /* DJA: level of corruption*/
-	int spadjust;      /* amount of nonstandard speed adjustment */
+	int spadjust;       /* amount of nonstandard speed adjustment */
 	byte learnedcontrol; /* teleport control skill */
 
 	byte confusing;		/* Glowing hands */
@@ -965,6 +976,8 @@ struct player_type
 	byte find_vault;        /* how likely to find a vault */
 	int manafree;           /* activate staff of mana-free casting */ 
 
+	s16b held_m_idx;		/* Monster holding you (if any) */
+
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
 
@@ -972,6 +985,7 @@ struct player_type
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
+	s16b pack_size_reduce;	/* Number of inventory slots used by the quiver */
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
@@ -1059,6 +1073,7 @@ struct player_type
 	bool resist_nethr;	/* Resist nether */
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
+	s16b resist_static; /* Resist static (drain charges) */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -1077,6 +1092,7 @@ struct player_type
 	bool darkvis;       /* darkvision */
 	bool nice;          /* nice */
 	bool peace;         /* less agressive */
+	s16b throwmult;		/* multiplier for throwing weapons (uses pval (max4, min2)) */
 
          /* branding damage from elemental rings: */
 	bool brand_cold;	/* */
@@ -1116,10 +1132,13 @@ struct player_type
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
+	s16b extra_blows;	/* number of extra blows */
 
 	byte ammo_mult;		/* Ammo multiplier */
 
 	byte ammo_tval;		/* Ammo variety */
+
+	bool cursed_quiver;	/* The quiver is cursed */
 
 	s16b pspeed;		/* Current speed */
 };
@@ -1190,3 +1209,11 @@ struct autoinscription
 	s16b inscription_idx;
 };
 
+/*
+ * Info used to manage quiver groups
+ */
+struct quiver_group_type
+{
+	char cmd;		/* The command used to perform an action with the objects in the group */
+	byte color;		/* The color of the pseudo-tag used for the group */
+};

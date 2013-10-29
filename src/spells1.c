@@ -22,19 +22,21 @@ s16b poly_r_idx(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int i, r, lev1, lev2;
+	int frlev = r_ptr->level;
+	if (frlev > 40) frlev -= (frlev - 38) / 3; /* lower minimum level */
 
 	/* Hack -- Uniques never polymorph */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (r_idx);
 
 	/* Allowable range of "levels" for resulting monster */
-	lev1 = r_ptr->level - ((randint(20)/randint(9))+1);
+	lev1 = frlev - ((randint(20)/randint(9))+1);
 	lev2 = r_ptr->level + ((randint(20)/randint(9))+1);
 
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
 	{
 		/* Pick a new race, using a level calculation */
-		r = get_mon_num((p_ptr->depth + r_ptr->level) / 2 + 5);
+		r = get_mon_num(((p_ptr->depth + r_ptr->level) / 2) + (2 + badluck/3));
 
 		/* Handle failure */
 		if (!r) break;
@@ -61,7 +63,7 @@ s16b poly_r_idx(int r_idx)
 
 
 /*
- * Teleport a monster, normally up to "dis" grids away.
+ * Teleport monster, normally up to "dis" grids away.
  *
  * Attempt to move the monster at least "dis/2" grids away.
  *
@@ -79,6 +81,7 @@ void teleport_away(int m_idx, int dis, int mode)
 	int ny, nx, oy, ox, d, i, min, ooy, oox;
 
 	bool look = TRUE;
+	bool warppull = FALSE;
 
 	/* for special modes */
     bool trysuccess = FALSE;
@@ -86,11 +89,25 @@ void teleport_away(int m_idx, int dis, int mode)
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
 	/* get monster's escape spell flags */
 	u32b f6 = r_ptr->flags6;
 
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
+
+	/* monster is no longer holding the PC */
+	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx) &&
+		((mode) || (randint(100) < 50)))
+	{
+		p_ptr->held_m_idx = 0;
+		clear_timed(TMD_BEAR_HOLD);
+	}
+	/* monster takes the player with it */
+	else if ((p_ptr->timed[TMD_BEAR_HOLD]) && (m_idx == p_ptr->held_m_idx))
+	{
+		warppull = TRUE;
+	}
 
 	/* Save the old location (twice) */
 	oy = m_ptr->fy;
@@ -154,7 +171,7 @@ void teleport_away(int m_idx, int dis, int mode)
                (distance(p_ptr->py, p_ptr->px, ny, nx) > m_ptr->cdis))
 			   continue;
 			/* mode 3: monster is afriad */
-			/* so don't accept locations which are closer to the PC*/
+			/* so don't accept locations which are closer to the PC */
             if ((mode == 3) && (trysuccess) && 
                (distance(p_ptr->py, p_ptr->px, ny, nx) < m_ptr->cdis))
 			   continue;
@@ -162,8 +179,9 @@ void teleport_away(int m_idx, int dis, int mode)
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(ny, nx)) continue;
 
-			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
+			/* Require "empty" floor space (now allows rubble) */
+			/* if (!cave_empty_bold(ny, nx)) continue; */
+			if (!cave_can_occupy_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave_feat[ny][nx] == FEAT_GLYPH) continue;
@@ -191,6 +209,12 @@ void teleport_away(int m_idx, int dis, int mode)
 
 	/* Swap the monsters */
 	monster_swap(ooy, oox, ny, nx);
+
+	/* monster took the player with it */
+	if (warppull)
+	{
+		teleport_player_to(ny, nx);
+	}
 }
 
 
@@ -419,7 +443,7 @@ bool control_tport(int resistcrtl, int enforcedist)
      
      /* timed modifiers */
      if (p_ptr->timed[TMD_CURSE]) resistcrtl += 25;
-     if ((p_ptr->timed[TMD_FRENZY]) || (p_ptr->timed[TMD_CONFUSED])) resistcrtl += 50;
+     if ((p_ptr->timed[TMD_FRENZY]) || (p_ptr->timed[TMD_CONFUSED])) resistcrtl += 100;
      if ((resistcrtl >= 25) && ((p_ptr->timed[TMD_BRAIL]) || (p_ptr->timed[TMD_SKILLFUL]))) 
         resistcrtl -= 25;
      if ((resistcrtl >= 10) && (p_ptr->timed[TMD_BLESSED])) resistcrtl -= 10;
@@ -944,12 +968,20 @@ static int inven_damage(inven_func typ, int perc)
 	k = 0;
 
 	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		/* Damage only inventory with quiverguard spell */
+		if (p_ptr->timed[TMD_QUIVERGUARD])
+		{
+			if (i >= INVEN_PACK) continue;
+		}
+		/* Otherwise damage inventory and quiver */
+		else if ((i >= INVEN_PACK) && !IS_QUIVER_SLOT(i)) continue;
 
 		/* Hack -- for now, skip artifacts */
 		if (artifact_p(o_ptr)) continue;
@@ -1016,7 +1048,7 @@ static int inven_damage(inven_func typ, int perc)
 				/* Rods are tough */
 				case TV_ROD:
 				{
-					chance = (chance / 4);   // was chance / 4
+					chance = (chance / 4);
 					
 					break;
 				}
@@ -1828,6 +1860,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Destroy walls (and doors) */
 		case GF_KILL_WALL:
 		{
+			s16b this_o_idx, next_o_idx = 0;
 			/* Non-walls (etc) */
 			if (cave_floor_bold(y, x)) break;
 
@@ -1904,20 +1937,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 				/* Destroy the rubble */
 				cave_set_feat(y, x, FEAT_FLOOR);
-
-				/* Hack -- place an object */
-				if (rand_int(100) < 10)
-				{
-					/* Found something */
-					if (player_can_see_bold(y, x))
-					{
-						msg_print("There was something buried in the rubble!");
-						obvious = TRUE;
-					}
-
-					/* Place gold */
-					place_object(y, x, FALSE, FALSE);
-				}
 			}
 
 			/* Destroy doors (and secret doors) */
@@ -1935,6 +1954,32 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 				/* Destroy the feature */
 				cave_set_feat(y, x, FEAT_FLOOR);
+			}
+
+			/* check for unburied object */
+			if (cave_o_idx[y][x])
+			{
+				bool unbury = FALSE;
+				for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+				{
+					/* get object */
+					object_type *o_ptr = &o_list[this_o_idx];
+					/* Get the next object */
+					next_o_idx = o_ptr->next_o_idx;
+					/* Skip non-objects */
+					if (!o_ptr->k_idx) continue;
+					/* unhide it */
+					o_ptr->hidden = 0;
+					/* don't give message more than once if more than one item was uncovered */
+					if (!squelch_hide_item(o_ptr)) unbury = TRUE;
+				}
+				/* Found something */
+				if ((unbury) && (player_can_see_bold(y, x)))
+				{
+					msg_print("There was something buried there!");
+					obvious = TRUE;
+					lite_spot(y, x);
+				}
 			}
 
 			/* Update the visuals */
@@ -2072,7 +2117,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			else if ((dam < 20) && (randint(100) < 12)) debris = TRUE;
 			else if (dam < 45)
             {
-                 if (randint(100) < 20) debris = TRUE;
+                 if (randint(100) < 18) debris = TRUE;
             }
 			else if (dam < 75)
             {
@@ -2271,7 +2316,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Elec (stench in ALT) -- Rings, Wands, and food */
+			/* Elec -- Rings, Wands, and rods */
 			case GF_ELEC:
 			{
 				if (hates_elec(o_ptr))
@@ -2544,6 +2589,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
 
+	/* For nexus telelevel effect on monsters */
+	bool do_delete = FALSE;
 
 	/* Polymorph setting (true or false) */
 	int do_poly = 0;
@@ -2577,9 +2624,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 
-	/* Walls protect monsters */
-	if (!cave_floor_bold(y,x)) return (FALSE);
-
+	/* Walls protect monsters (not anymore) DJXXX */
+	/* if (!cave_floor_bold(y,x)) return (FALSE); */
 
 	/* No monster here */
 	if (!(cave_m_idx[y][x] > 0)) return (FALSE);
@@ -2805,7 +2851,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* not much actual damage */
 				dam = do_stun + randint(dam / 4);
 			}
-			/* spellswitch 9 is stunning for camera flash/burst of light spell */
+			/* spellswitch 9 is stunning for camera flash spell */
 			else if (spellswitch == 9)
             {
                do_stun = (dam+2 + randint(dam+5) + r) / (r + 1);
@@ -2838,7 +2884,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_CHAOS:
 		{
 			if (seen) obvious = TRUE;
-			if (dam > randint(25)) do_poly = TRUE;
+			if (dam > randint(26)) do_poly = TRUE;
 			do_conf = (5 + randint(11) + r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_CHAO))
 			{
@@ -2858,6 +2904,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+			else if (r_ptr->flags3 & (RF3_NON_LIVING))
+			{
+				note = " doesn't notice.";
+				dam *= 5; dam /= (randint(4)+6);
+			}
 			break;
 		}
 
@@ -2865,8 +2916,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_SOUND:
 		{
 			if (seen) obvious = TRUE;
-			if (!r_ptr->flags3 & RF3_NO_STUN) do_stun = (10 + randint(15) + r) / (r + 1);
-			if (r_ptr->flags4 & (RF4_BR_SOUN))
+			if (!(r_ptr->flags3 & RF3_NO_STUN)) do_stun = (10 + randint(15) + r) / (r + 1);
+			/* spellswitch 9 for burst of light spell */
+			if ((r_ptr->flags4 & (RF4_BR_SOUN)) && (spellswitch != 9))
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
@@ -2906,15 +2958,27 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Nexus */
+		/* Nexus - now has appropriate effect on monsters */
 		case GF_NEXUS:
 		{
+			int fdam = dam;
+			if (fdam > 36) fdam = 36 + ((fdam - 36)/4);
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & RF3_RES_NEXUS)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				if (seen) l_ptr->flags3 |= RF3_RES_NEXUS;
+			}
+			else if ((r_ptr->level < fdam/2) && (randint(100) < 6))
+			{
+				/* simulate telelevel nexus effect (rarely) */
+				note = " dissapears!";
+				do_delete = TRUE;
+			}
+			else if ((r_ptr->level < fdam/2) || (randint(100) < (44 - r_ptr->level/2)))
+			{
+				do_dist = 6 + randint(6);
 			}
 			break;
 		}
@@ -2928,6 +2992,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
+				do_stun = do_stun / 3;
+			}
+			/* Hack: living walls completely resist BR_WALL */
+			if (strchr("#", r_ptr->d_char))
+			{
+				note = " resists completely.";
+				dam = 0;
+				do_stun = 0;
 			}
 			break;
 		}
@@ -2936,6 +3008,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_BRFEAR:
 		{
 			if (seen) obvious = TRUE;
+			if (who > 0) /* (projector is a monster) */
+			{
+				monster_type *whom_ptr;
+				whom_ptr = &mon_list[who];
+				/* monsters are never scared of other monsters of the same race */
+				if (whom_ptr->r_idx == m_ptr->r_idx)
+				{
+					dam = 0;
+					break;
+				}
+			}
 			if ((r_ptr->flags3 & (RF3_NO_FEAR)) || (r_ptr->flags1 & (RF1_UNIQUE)))
 			{
 				note = " resists.";
@@ -3166,7 +3249,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Powerful monsters can resist */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->level > randint(dam - 1) + 10))
+			    (r_ptr->level > randint(dam) + 10))
 			{
 				note = " is unaffected!";
 				do_poly = FALSE;
@@ -4060,8 +4143,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	if (skipped) return (FALSE);
 
 
-	/* "Unique" monsters cannot be polymorphed */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
+	/* "Unique" monsters cannot be polymorphed or teleleveled */
+	if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		do_poly = FALSE;
+		if (do_delete)
+		{
+			note = " resists the effect.";
+			do_delete = FALSE;
+		}
+	}
 
 
 	/* "Unique" monsters can only be "killed" by the player */
@@ -4071,7 +4162,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
-
 	/* Check for death */
 	if (dam > m_ptr->hp)
 	{
@@ -4080,8 +4170,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	}
 
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-	else if (do_poly && (randint(90) > r_ptr->level))
+	else if (do_poly && (randint(95) > r_ptr->level))
 	{
+		bool gotpoly = FALSE;
+		int oldhp, oldmax, oldmin, oldlev;
+
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
@@ -4093,6 +4186,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
+
+			/* save old hps */
+			oldhp = m_ptr->hp;
+			oldmax = m_ptr->maxhp;
+			oldmin = r_ptr->hdice;
+			oldlev = r_ptr->level;
 
 			/* Monster polymorphs */
 			note = " changes!";
@@ -4113,6 +4212,40 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Hack -- Get new race */
 			r_ptr = &r_info[m_ptr->r_idx];
+
+			/* scale hps (don't always heal with polymorphing) */
+			if ((m_ptr->hp > oldmax) && (r_ptr->flags1 & (RF1_FORCE_MAXHP)))
+			{
+				m_ptr->hp = (m_ptr->hp + oldmax) / 2;
+			}
+			else if ((m_ptr->hp > oldmax) && (r_ptr->hdice > oldmax))
+			{
+				m_ptr->hp = r_ptr->hdice;
+				m_ptr->maxhp = r_ptr->hdice;
+			}
+			else if (m_ptr->hp > oldhp + 1)
+			{
+				m_ptr->hp = oldhp + 1;
+				if (m_ptr->maxhp > (oldmax * 10)) m_ptr->maxhp = oldmax * 10;
+			}
+			else if ((m_ptr->hp < oldhp) && (m_ptr->hp < oldmin))
+			{
+				m_ptr->hp = (m_ptr->hp + oldmin) / 2;
+			}
+			else if ((m_ptr->hp < oldhp) && (m_ptr->hp < (r_ptr->hdice*r_ptr->hside)))
+			{
+				m_ptr->hp = ((m_ptr->hp*2) + oldhp) / 3;
+			}
+
+			/* new race is weaker but more maxhps, scale up a little */
+			if ((m_ptr->maxhp > oldmax) && (r_ptr->level < oldlev)) 
+			{
+				if (m_ptr->hp < m_ptr->maxhp - (oldlev - r_ptr->level))
+					m_ptr->hp += randint(oldlev - r_ptr->level);
+			}
+			
+			/* correct new max hps */
+			if (m_ptr->maxhp < m_ptr->hp) m_ptr->maxhp = m_ptr->hp;
 		}
 	}
 
@@ -4308,8 +4441,18 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Verify this code XXX XXX XXX */
 
-	/* Update the monster */
-	update_mon(cave_m_idx[y][x], FALSE);
+
+	/* Nexus telelevel effect on monsters */
+	if ((do_delete) && (m_ptr->hp > 0))
+	{
+		/* (Delete the monster) */
+		delete_monster_idx(cave_m_idx[y][x]);
+	}
+	else
+	{
+		/* Update the monster */
+		update_mon(cave_m_idx[y][x], FALSE);
+	}
 
 	/* Redraw the monster grid */
 	lite_spot(y, x);
@@ -4467,8 +4610,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-                if (p_ptr->weakresist_pois) (void)inc_timed(TMD_POISONED, rand_int(dam/3) + 6);
-                else (void)inc_timed(TMD_POISONED, rand_int(dam) + 10);
+                (void)inc_timed(TMD_POISONED, rand_int(dam) + 10);
 			}
 			break;
 		}
@@ -5067,7 +5209,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
  * distribution of treasure dropped by monsters, and because it provides a
  * pleasing visual effect at low cost.
  *
- * Note that the damage done by "ball" explosions decreases with distance.
+ * Note that the damage done by "ball" explosions decreases with distance
+ * from the center of the ball.
  * This decrease is rapid, grids at radius "dist" take "1/dist" damage.
  *
  * Notice the "napalm" effect of "beam" weapons.  First they "project" to
@@ -5112,6 +5255,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
  * to move from point A to point B, even if the player cannot see part of the
  * projection path.  Note that in general, the player will *always* see part
  * of the path, since it either starts at the player or ends on the player.
+ * *DJA: HELPER monsters have spells which can go straight from monster to
+ * monster.
  *
  * Hack -- we assume that every "projection" is "self-illuminating".
  *
@@ -5250,7 +5395,18 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Balls explode before reaching walls */
-		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
+		/* DJA: if a monster in a wall is targetted by a ball spell */
+		/* it will hit the monster, but the radius of the ball will */
+		/* be reduced to 0 (effectively a bolt) to prevent affecting */
+		/* grids on the other side of the wall. DJXXX */
+		if (!cave_floor_bold(ny, nx) && (rad > 0) && (cave_m_idx[ny][nx] > 0))
+		{
+			rad = 0; /* turn the ball into a bolt */
+		}
+		else if (!cave_floor_bold(ny, nx) && (rad > 0))
+		{
+			break;
+		}
 
 		/* Advance */
 		y = ny;
@@ -5503,7 +5659,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-            /* weak breath (range 5) doesn't destroy objects */
+            /* Hack: weak breath (range 5) doesn't destroy objects */
             if (!(range == 5))
             {
     			/* Affect the object in the grid */
@@ -5523,7 +5679,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
             else if (rad > 4) quakerad = 10;
             else quakerad = 8;
             if (range == 21) quakerad = rad + 1;
-			earthquake(y2, x2, quakerad);
+			earthquake(y2, x2, quakerad, 0);
     }
 
 	/* Check monsters */
@@ -5556,10 +5712,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
                 hurtmon = TRUE;
             }
 
-	        /* beam of destruction: 1 space earthquake for each grid */
+	        /* beam of destruction: radius-1 earthquake for each grid */
 	        if (spellswitch == 26)
             {
-               earthquake(y, x, 1);
+               earthquake(y, x, 1, 0);
             }
 		}
 		

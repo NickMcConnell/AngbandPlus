@@ -1,5 +1,5 @@
 # File: p_race.txt
-# DaJAngband 1.0.98
+# DaJAngband 1.0.99
 
 
 # This file is used to initialize the "lib/data/p_race.raw" file, which is
@@ -103,7 +103,7 @@ C:0|3|4|6|8|9|10|12|13|14
 #magic gnome cannot be a paladin, priest, or white, grey, blue, or yellow knight
 N:4:Magic Gnome
 S:-1:2:0:2:1:-1
-R:10:16:12:3:9:8:-8:12:9
+R:9:16:12:3:9:8:-8:12:9
 X:8:125:8
 I:13:50:40
 H:42:3:39:3

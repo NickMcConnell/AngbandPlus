@@ -236,6 +236,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_BLOODWRATH: power = 65; break;
 			case RBE_SPHCHARM:  power = 50; break;
 			case RBE_STUDY:     power = 50; break;
+			case RBE_BHOLD:		power = 15; break;
 		}
 
         /* make temporary effective monster level */
@@ -297,7 +298,7 @@ bool make_attack_normal(int m_idx)
 			if (protpwr > 50) protpwr = 50;
 
 			/* Hack -- Apply "protection from evil" */
-			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
+			if ((p_ptr->timed[TMD_PROTEVIL]) &&
 			    (m_ptr->evil) &&
 			    ( (p_ptr->lev >= rlev) || (randint(protpwr) >= rlev) ) &&
 			    ((rand_int(98 + adj_chr_charm[p_ptr->stat_ind[A_CHR]]) + p_ptr->lev - rlev) > 50))
@@ -630,11 +631,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 					{
-						if (inc_timed(TMD_POISONED, randint(rlev) + 5))
-						{
-                            if (p_ptr->weakresist_pois) (void)dec_timed(TMD_POISONED, randint(6));
-							obvious = TRUE;
-						}
+						if (inc_timed(TMD_POISONED, randint(rlev) + 5)) obvious = TRUE;
 					}
 
 					/* Learn about the player */
@@ -666,10 +663,19 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_UN_POWER:
 				{
+					int rstatic = (goodluck+1)/3; /* static resistance */
 					int drained = 0;
+					char o_name[80];
 
-			        /* extra damage reduction from surrounding magic */
-					if (surround > 0) damage -= (damage * (surround / 250));
+					/* first point of resist is worth 26, others worth 20 */
+					if (p_ptr->resist_static > 1) rstatic += ((p_ptr->resist_static-1) * 20) + 26;
+					else if (p_ptr->resist_static == 1) rstatic += 26;
+
+					/* cap resistance */
+					if (rstatic > 95) rstatic = 95;
+
+					/* reduce damage (slightly) */
+					if (p_ptr->resist_static) damage = (damage * (19 - p_ptr->resist_static)) / 20;
 
 					/* Take damage */
 					take_hit(damage, ddesc);
@@ -687,16 +693,32 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Drain charged wands/staves */
-						if ((o_ptr->tval == TV_STAFF) ||
-						    (o_ptr->tval == TV_WAND))
+						if (((o_ptr->tval == TV_STAFF) ||
+						    (o_ptr->tval == TV_WAND)) && (o_ptr->pval))
 						{
-							/* Charged? */
-							if (o_ptr->pval)
+							if (p_ptr->resist_static) rstatic += (k+1)/2;
+
+							if (randint(100) < rstatic)
+							{
+								/* Description */
+								object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 1);
+								
+								if (p_ptr->resist_static) msg_format("You prevent your %s from being drained!", o_name);
+								/* resisted even without static resistance (from luck, rare) */
+								else msg_format("You get lucky and your %s escapes being drained!", o_name);
+								/* second resist roll to prevent it draining something else */
+								if (randint(100) < rstatic + 1) break;
+							}
+							else
 							{
 								drained = o_ptr->pval;
-
-								/* Uncharge */
-								o_ptr->pval = 0;
+								if ((p_ptr->resist_static) && (randint(100) < 67))
+								{
+									drained -= p_ptr->resist_static;
+									if (drained < 1) drained = 1;
+								}
+									/* Uncharge */
+								o_ptr->pval -= drained;
 							}
 						}
 
@@ -1257,8 +1279,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 					
 					/* silver poison */
-					if (rlev >= 10) p_ptr->silver += randint(rlev / 10);
-					if (rlev < 10) p_ptr->silver += 1;
+					if (rlev >= 9) p_ptr->silver += randint(rlev / 9);
+					if (rlev < 9) p_ptr->silver += 1;
 					
 					msg_print("you feel silver magic corrupting your mind!");
 
@@ -1277,8 +1299,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* slimed */
-					if (rlev >= 10) p_ptr->slime = p_ptr->slime + randint(rlev / 9);
-					if (rlev < 10) p_ptr->slime = p_ptr->slime + 1;
+					if (rlev >= 9) p_ptr->slime = p_ptr->slime + randint(rlev / 9);
+					if (rlev < 9) p_ptr->slime += 1;
 
 					msg_print("you are slimed!");
 
@@ -1389,7 +1411,7 @@ bool make_attack_normal(int m_idx)
 						int px_old = p_ptr->px;
 						int py_old = p_ptr->py;
 						
-						earthquake(m_ptr->fy, m_ptr->fx, 8);
+						earthquake(m_ptr->fy, m_ptr->fx, 8, 0);
 
 						/* Stop the blows if the player is pushed away */
 						if ((px_old != p_ptr->px) ||
@@ -1593,6 +1615,43 @@ bool make_attack_normal(int m_idx)
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_CHARM);
+
+					break;
+				}
+
+				case RBE_BHOLD:
+				{
+					int holdfast = (rlev * 2) + randint(damage);
+					int wrestle;
+					if (r_ptr->flags1 & (RF1_UNIQUE)) holdfast += damage;
+					wrestle = adj_str_wgt[p_ptr->stat_ind[A_STR]] + goodluck;
+					wrestle += adj_str_wgt[p_ptr->stat_ind[A_DEX]];
+					if (p_ptr->free_act) wrestle += 50;
+					wrestle = (wrestle/3) + randint((wrestle*2)/3);
+
+					if (wrestle > holdfast)
+					{
+						/* evaded the grab, slightly reduce damage */
+						damage = (damage*8)/9;
+					}
+					else
+					{
+						int time = (holdfast - wrestle) / 5;
+						if (time < 4) time = randint(3) + 1;
+						else time = time/2 + randint(time/2);
+						if (time > 9) time = 8 + randint(2);
+						msg_format("%^s grabs you and holds you tight!", m_name);
+						if (p_ptr->timed[TMD_BEAR_HOLD])
+						{
+							/* don't increase time if was held by a different monster */
+							if (p_ptr->held_m_idx != m_idx) clear_timed(TMD_BEAR_HOLD);
+						}
+						(void)inc_timed(TMD_BEAR_HOLD, time);
+						p_ptr->held_m_idx = m_idx;
+					}
+
+					/* Take damage */
+					take_hit(damage, ddesc);					
 
 					break;
 				}

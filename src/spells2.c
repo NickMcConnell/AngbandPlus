@@ -317,7 +317,7 @@ static void uncurse_object(object_type *o_ptr)
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
  * will not be uncursed.
  */
-static int remove_curse_aux(int all)
+static int remove_curse_aux(int all, bool quiveronly)
 {
 	int i, cnt = 0;
 	int fail = 0;
@@ -335,6 +335,9 @@ static int remove_curse_aux(int all)
 
 		/* Uncursed already */
 		if (!cursed_p(o_ptr)) continue;
+
+		/* the archer spell can only uncurse ammo in the quiver */
+		if ((quiveronly) && (!IS_QUIVER_SLOT(i))) continue;
 
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -383,21 +386,28 @@ static int remove_curse_aux(int all)
 	return (cnt);
 }
 
-
 /*
- * Remove most curses
+ * Remove curses in quiver (ammo never has heavy or perma curses (I think))
  */
-bool remove_curse(void)
+bool remove_cursed_quiver(void)
 {
-	return (remove_curse_aux(FALSE));
+	return (remove_curse_aux(FALSE, TRUE));
 }
 
 /*
- * Remove all curses
+ * Remove most curses (all light curses)
+ */
+bool remove_curse(void)
+{
+	return (remove_curse_aux(FALSE, FALSE));
+}
+
+/*
+ * Remove all curses (includes heavy curses, and sometimes perma curses)
  */
 bool remove_all_curse(void)
 {
-	return (remove_curse_aux(TRUE));
+	return (remove_curse_aux(TRUE, FALSE));
 }
 
 
@@ -457,7 +467,7 @@ void self_knowledge(bool spoil)
 
 
 	/* Get item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = INVEN_WIELD; k < END_EQUIPMENT; k++)
 	{
 		o_ptr = &inventory[k];
 
@@ -624,11 +634,15 @@ void self_knowledge(bool spoil)
 	}
 	if (p_ptr->timed[TMD_CURSE])
 	{
-		info[i++] = "You have a temporary curse on your combat.";
+		info[i++] = "You are temporarily cursed.";
 	}
 	if (p_ptr->timed[TMD_WITCH])
 	{
 		info[i++] = "Your black magic is aggravating demons.";
+	}
+	if (p_ptr->timed[TMD_BEAR_HOLD])
+	{
+		info[i++] = "You are being held by a monster.";
 	}
 	if (p_ptr->confusing)
 	{
@@ -650,6 +664,10 @@ void self_knowledge(bool spoil)
 	if (p_ptr->timed[TMD_DAYLIGHT])
 	{
 		info[i++] = "Daylight surrounds you even in the dungeon.";
+	}
+	else if (p_ptr->timed[TMD_MINDLIGHT])
+	{
+		info[i++] = "You are giving off light.";
 	}
 	if (p_ptr->timed[TMD_TSIGHT])
 	{
@@ -708,6 +726,19 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You have damage reduction against monster breath.";
 	}
+
+	if (p_ptr->cursed_quiver)
+	{
+		info[i++] = "Your quiver is cursed.";
+	}
+	if ((p_ptr->cursed_quiver) && (p_ptr->timed[TMD_QUIVERGUARD]))
+	{
+		info[i++] = "Your quiver is protected, but the curse weakens the protection.";
+	}
+	else if (p_ptr->timed[TMD_QUIVERGUARD])
+	{
+		info[i++] = "The ammunition in your quiver is protected.";
+	}
 	
 	if (f3 & TR3_SEE_INVIS)
 	{
@@ -725,6 +756,10 @@ void self_knowledge(bool spoil)
 	if (p_ptr->timed[TMD_XATTACK])
 	{
 		info[i++] = "You have temporarily enhanced attack speed.";
+	}
+	if (p_ptr->throwmult >= 2)
+	{
+		info[i++] = "Your equipment enhances your throwing weapon damage.";
 	}
 	if (p_ptr->timed[TMD_MIGHTY_HURL])
 	{
@@ -808,11 +843,6 @@ void self_knowledge(bool spoil)
 		info[i++] = "You are somewhat resistant to poison.";
 	}
 
-	if (p_ptr->accident)
-	{
-		info[i++] = "Your weapon is easy to hurt yourself with.";
-	}
-
 	if (f4 & TR4_RES_FEAR)
 	{
 		info[i++] = "You are completely fearless.";
@@ -872,6 +902,14 @@ void self_knowledge(bool spoil)
 	if (f4 & TR4_RES_DISEN)
 	{
 		info[i++] = "You are resistant to disenchantment.";
+	}
+	if (p_ptr->resist_static > 3)
+	{
+		info[i++] = "You resist static exceptionally well.";
+	}
+	else if (p_ptr->resist_static)
+	{
+		info[i++] = "You are resistant to static.";
 	}
 
 	if (f2 & TR2_SUST_STR)
@@ -953,6 +991,33 @@ void self_knowledge(bool spoil)
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
 
+	/* sentient equipment */
+	if ((goodweap) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
+	{
+		info[i++] = "You are wearing equipment which aids your prayers.";
+	}
+	if ((badweap) && (cp_ptr->spell_book == TV_PRAYER_BOOK))
+	{
+		info[i++] = "You are wearing equipment which hinders your prayers.";
+	}
+	if ((goodweap) && (cp_ptr->spell_book == TV_DARK_BOOK))
+	{
+		info[i++] = "You are wearing equipment which hinders your black magic.";
+	}
+	if ((badweap) && (cp_ptr->spell_book == TV_DARK_BOOK))
+	{
+		info[i++] = "You are wearing equipment which aids your black magic.";
+	}
+	if ((goodweap) && (badweap))
+	{
+		info[i++] = "You are wielding pieces of aligned equipment which are in conflict.";
+	}
+
+	if (p_ptr->accident)
+	{
+		info[i++] = "You sometimes hit yourself with your own weapon.";
+	}
+
 	/* reset flags so current weapon part won't include stuff from other equipment */
 	f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
 
@@ -961,9 +1026,9 @@ void self_knowledge(bool spoil)
 
 	/* Extract the flags */
 	if (spoil)
-		object_flags(o_ptr, &t1, &t2, &t3, &t4);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	else 
-		object_flags_known(o_ptr, &t1, &t2, &t3, &t4);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -977,11 +1042,6 @@ void self_knowledge(bool spoil)
 		{
 			info[i++] = "Your ring adds caustic damage to your blows.";
 		}
-		/* For some reason it was always saying this so I turned it off */
-/* 		if (f2 & (TR2_COAT_ACID))
-		{
-			info[i++] = "Your weapon corrodes your foes.";
-		} */
 		if (f1 & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
@@ -1088,13 +1148,13 @@ void self_knowledge(bool spoil)
 		}
 
 		/* Hack */
-		if (f3 & (TR3_IMPACT))
+		if (f2 & (TR2_IMPACT))
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
 		}		
 	}
 
-	/* luck level */
+	/* luck level (see end of function) */
     if (goodluck > 16)
 	{
 		info[i++] = "You are extremely lucky.";
@@ -1153,7 +1213,24 @@ void self_knowledge(bool spoil)
 	{
 		info[i++] = "You have an unhealthy level of sliming.";
 	}
-    
+	
+	/* corruption (see end of function) */
+	if (p_ptr->corrupt >= 40)
+	{
+		info[i++] = "You have been almost completely corrupted.";
+	}
+	else if (p_ptr->corrupt > 20)
+	{
+		info[i++] = "You have advanced corruption from use of a corrupting item.";
+	}
+	else if (p_ptr->corrupt > 10)
+	{
+		info[i++] = "You are being corrupted from use of a corrupting item.";
+	}
+	else if (p_ptr->corrupt)
+	{
+		info[i++] = "You are beginning to be corrupted from use of a corrupting item.";
+	}
 
 	/* Save screen */
 	screen_save();
@@ -1195,6 +1272,17 @@ void self_knowledge(bool spoil)
 
 	/* Load screen */
 	screen_load();
+
+	/* Exact amounts for luck and corruption with potion of self knowledge */
+	/* (Don't know how to put it with the rest of the information when displaying a variable) */
+	if (spoil)
+	{
+		if ((goodluck) && (badluck)) msg_format("Your good luck rating is %d and your bad luck rating is %d.", goodluck, badluck);
+		else if (goodluck) msg_format("Your good luck rating is %d, and bad luck is 0. (0-20 range) ", goodluck);
+		else if (badluck) msg_format("Your bad luck rating is %d, and good luck is 0. (0-20 range) ", badluck);
+		else msg_print("You have no good luck and no bad luck.");
+		if (p_ptr->corrupt) msg_format("Your level of corruption is %d (max 50).", p_ptr->corrupt);
+	}
 }
 
 
@@ -1242,13 +1330,15 @@ void set_recall(void)
 
 /*
  * Detect all traps on current panel
+ * (except for non-adjacent chest traps)
  */
 bool detect_traps(void)
 {
 	int y, x;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
 	bool detect = FALSE;
-
 
 	/* Scan the current panel */
 	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
@@ -1276,6 +1366,26 @@ bool detect_traps(void)
 
 				/* Obvious */
 				detect = TRUE;
+			}
+		}
+	}
+
+	/* check for chest traps */
+	/* Search the nearby grids, which are always in bounds */
+	for (y = (py - 1); y <= (py + 1); y++)
+	{
+		for (x = (px - 1); x <= (px + 1); x++)
+		{
+			object_type *o_ptr;
+			/* look for a chest */
+			for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+			{
+				/* detect chest traps */
+				if ((o_ptr->tval == TV_CHEST) && (o_ptr->pval > 0))
+				{
+					object_known(o_ptr);
+					detect = TRUE;
+				}
 			}
 		}
 	}
@@ -1498,7 +1608,7 @@ bool detect_objects_gold(void)
 /*
  * Detect all "normal" objects on the current panel
  */
-bool detect_objects_normal(void)
+bool detect_objects_normal(bool full)
 {
 	int i, y, x;
 
@@ -1529,10 +1639,21 @@ bool detect_objects_normal(void)
 			/* Hack -- memorize it */
 			o_ptr->marked = TRUE;
 
+			/* (never show objects buried in granite, quartz, or magma) */
+			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
+			{
+				/* always unhide rubble objects when using powerful detection spell */
+				if (full) o_ptr->hidden = 0;
+				/* normally unhide rubble objects only if in LOS */
+				else if (player_can_see_bold(y, x)) o_ptr->hidden = 0;
+				/* chance to unhide other rubble objects with luck */
+				else if (randint(100) < 15 + goodluck - badluck) o_ptr->hidden = 0;
+			}
+
 			/* Redraw */
 			lite_spot(y, x);
 
-			/* Detect */
+			/* Detect (ignore hidden objects) */
 			if (!squelch_hide_item(o_ptr))
 				detect = TRUE;
 		}
@@ -1597,6 +1718,15 @@ bool detect_objects_magic(void)
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;
+
+			/* (never show objects buried in granite, quartz, or magma) */
+			if ((o_ptr->hidden) && ((cave_feat[y][x] == FEAT_RUBBLE) || (cave_feat[y][x] == FEAT_FLOOR)))
+			{
+				/* normally unhide rubble objects only if in LOS */
+				if (player_can_see_bold(y, x)) o_ptr->hidden = 0;
+				/* chance to unhide other rubble objects with luck */
+				else if (randint(100) < 20 + goodluck - badluck) o_ptr->hidden = 0;
+			}
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1956,7 +2086,7 @@ bool detect_all(void)
 	if (detect_stairs()) detect = TRUE;
 	if (detect_treasure()) detect = TRUE;
 	if (detect_objects_gold()) detect = TRUE;
-	if (detect_objects_normal()) detect = TRUE;
+	if (detect_objects_normal(TRUE)) detect = TRUE;
 	if (detect_monsters_invis()) detect = TRUE;
 	if (detect_monsters_normal()) detect = TRUE;
 
@@ -2069,18 +2199,20 @@ void stair_creation(int dis)
  */
 static bool item_tester_hook_bless(const object_type *o_ptr)
 {
+	/* Extract the flags */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* anything which can be wielded as a weapon */
+	/* (cannot bless throwing weapons or ammo) */
+	if (wield_slot(o_ptr) == INVEN_WIELD) return (TRUE);
+
+	/* anything which can be activated (even elemental rings) */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+
 	switch (o_ptr->tval)
 	{
-		/* anything which can be wielded as a weapon */
-        case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		case TV_STAFF:
-		case TV_SKELETON:
-
 		/* bows and lights */
-		/* (but can't use bless object spell to enchant ammo) */
 		case TV_BOW:
         case TV_LITE:
 
@@ -2094,6 +2226,13 @@ static bool item_tester_hook_bless(const object_type *o_ptr)
         case TV_SOFT_ARMOR:
         case TV_HARD_ARMOR:
         case TV_DRAG_ARMOR:
+		{
+			return (TRUE);
+		}
+		/* lowers fail rate of magic devices */
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
 		{
 			return (TRUE);
 		}
@@ -2215,7 +2354,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 /*
  * Enchant an item
  *
- * Revamped!  Now takes item pointer, number of times to try enchanting,
+ * Takes item pointer, number of times to try enchanting,
  * and a flag of what to try enchanting.  Artifacts resist enchantment
  * some of the time, and successful enchantment to at least +0 might
  * break a curse on the item.  -CFT
@@ -2249,7 +2388,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	    (o_ptr->tval == TV_ARROW) ||
 	    (o_ptr->tval == TV_SHOT))
 	{
-		prob = prob / 20;
+		prob = (prob / 20);
+	}
+	/* Throwing weapons also easier */
+	else if (f2 & (TR2_THROWN))
+	{
+		prob = prob / (5 + randint(4) + ((goodluck+2)/3));
 	}
 
 	/* Try "n" times */
@@ -2363,7 +2507,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 
 /*
- * Bless an object (not always a weapon)
+ * The bless object spell. (not always a weapon)
  * has a chance of nullifing the BAD_WEAP flag
  */
 bool bless_weapon(int power)
@@ -2372,7 +2516,8 @@ bool bless_weapon(int power)
 	cptr q, s;
 	u32b f1, f2, f3, f4;
 	int something, resistb, plus;
-	bool weapon, bow, lite;
+	bool weapon, bow, lite, mdevice = FALSE;
+	bool barmor = FALSE;
 
 	object_type *o_ptr;
 	char o_name[80];
@@ -2422,10 +2567,13 @@ bool bless_weapon(int power)
 	   else /* light curse */ resistb += 5;
     }
 	
+	/* what kind of object is it? */
 	weapon = (wield_slot(o_ptr) == INVEN_WIELD);
 	bow = (wield_slot(o_ptr) == INVEN_BOW);
 	lite = (wield_slot(o_ptr) == INVEN_LITE);
-	/* if none of these then it's armor */
+	if ((!weapon) && (wield_slot(o_ptr) >= INVEN_BODY) && (wield_slot(o_ptr) <= INVEN_FEET))
+		barmor = TRUE;
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_RING)) mdevice = TRUE;
 
 	/* Narsil is only thing with both CORRUPT and BLESSED */
 	/* and it's easier to un-CORRUPT */
@@ -2444,11 +2592,12 @@ bool bless_weapon(int power)
     /* sometimes some trace of the curse remains */
     if ((f3 & (TR3_HEAVY_CURSE)) && (!cursed_p(o_ptr)) && (randint(100) < 19)) resistb += (randint(2) * 5);
 
-    /* can bless egos or artifacts */
-    /* but they have a chance to resist if they don't have GOOD_WEAP */
+    /* can bless egos or artifacts, but they */
+    /* have a chance to resist, especially if they don't have GOOD_WEAP */
     if ((artifact_p(o_ptr)) && (!f3 & (TR3_GOOD_WEAP)) && (resistb < 30)) resistb = 30;
     else if ((ego_item_p(o_ptr)) && (!f3 & (TR3_GOOD_WEAP)) && (resistb < 15)) resistb = 15;
     else if ((artifact_p(o_ptr)) && (resistb < 20)) resistb = 20;
+	else if ((o_ptr->tval == TV_DRAG_ARMOR) && (resistb < 15)) resistb = 15;
     else if ((ego_item_p(o_ptr)) && (resistb < 10)) resistb = 10;
 
 	/* Narsil is only thing with CORRUPT and BLESSED and is easier to un-CORRUPT */
@@ -2458,12 +2607,12 @@ bool bless_weapon(int power)
     if ((!cp_ptr->flags & CF_BLESS_WEAPON) && (resistb + 5 < 20)) resistb = 20;
     else if (!cp_ptr->flags & CF_BLESS_WEAPON) resistb += 5;
     
-    /* blessing doesn't always work on lites (but lasts longer) */
+    /* blessing doesn't always work on lites or devices */
     if ((lite) && (resistb < 2)) resistb += (randint(5) * 5);
-    else if ((lite) && (resistb < 15)) resistb = 15;
+    else if (((lite) || (mdevice)) && (resistb < 15)) resistb = 15;
     
     /* everything should have some small chance to be blessed (max power = plev) */
-    if (resistb > 49) resistb = 49;
+    if (resistb > 49) resistb = 48 + randint(2);
 
 	/* Attempt to overcome BAD_WEAP and curses */
     if (resistb > power)
@@ -2471,7 +2620,7 @@ bool bless_weapon(int power)
         if (artifact_p(o_ptr)) msg_print("The artifact remains unaffected");
         else if (f3 & (TR3_BAD_WEAP)) msg_print("The evil enchantment resists blessing");
         else if (lite) msg_print("You fail to make the light brighter");
-        else /* ego */ msg_print("The object's magic resists blessing");
+        else /* ego or device */ msg_print("The object's magic resists blessing");
         something = 2;
     }
 	/* bless */
@@ -2492,7 +2641,7 @@ bool bless_weapon(int power)
           (o_ptr->name2 == EGO_BLOODLUST))
        {
            o_ptr->name2 = 0;
-           /* "of witchcraft" has random sustain, so remove it also */
+           /* "of witchcraft" has random sustain, so remove that also */
            o_ptr->xtra1 = 0;
            o_ptr->xtra2 = 0;
        }
@@ -2520,7 +2669,7 @@ bool bless_weapon(int power)
 	      if (enchant(o_ptr, plus, ENCH_TOHIT)) something = 1;
 	      if (enchant(o_ptr, plus, ENCH_TODAM)) something = 1;
        }
-       else if ((!lite) && (o_ptr->blessed)) /* armor */
+       else if ((barmor) && (o_ptr->blessed)) /* armor */
        {
 	      if (enchant(o_ptr, plus, ENCH_TOAC)) something = 1;
        }
@@ -2844,6 +2993,28 @@ bool recharge(int num)
 
 		/* We no longer think the item is empty */
 		o_ptr->ident &= ~(IDENT_EMPTY);
+
+		/* chance to remove curses */
+		if ((o_ptr->tval == TV_STAFF) && (cursed_p(o_ptr)))
+		{
+           u32b f1, f2, f3, f4;
+		    int lift = 22;
+           /* Extract the flags */
+           object_flags(o_ptr, &f1, &f2, &f3, &f4);
+           
+	        /* PERMA_CURSEs can now be lifted but not easily */
+			if (f3 & (TR3_PERMA_CURSE)) lift -= 15;
+			if (f3 & (TR3_HEAVY_CURSE)) lift -= badluck/3;
+
+			/* chance to Break the curse */
+			if (rand_int(100) < lift)
+			{
+				msg_print("The curse is broken!");
+
+				/* Uncurse the object */
+				uncurse_object(o_ptr);
+			}
+		}
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -3385,7 +3556,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 				t = rand_int(200);
 
 				/* Granite */
-				if (t < 20)
+				if (t < 22)
 				{
 					/* Create granite wall */
 					feat = FEAT_WALL_EXTRA;
@@ -3399,10 +3570,18 @@ void destroy_area(int y1, int x1, int r, bool full)
 				}
 
 				/* Magma */
-				else if (t < 100)
+				else if (t < 95)
 				{
 					/* Create magma vein */
 					feat = FEAT_MAGMA;
+				}
+
+				/* Rubble */
+				else if (t < 115)
+				{
+					/* Create rubble */
+					feat = FEAT_RUBBLE;
+					big_rocks(y, x);
 				}
 
 				/* Change the feature */
@@ -3422,8 +3601,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 		{
 			/* Become blind */
-			if (spellswitch == 11) (void)inc_timed(TMD_BLIND, 3 + randint(5));
-			else if (spellswitch == 26) (void)inc_timed(TMD_BLIND, 1 + randint(2));
+			if ((spellswitch == 26) && (randint(100) < 50 - (goodluck/2))) (void)inc_timed(TMD_BLIND, 2 + randint(3));
 			else (void)inc_timed(TMD_BLIND, 10 + randint(10));
 		}
 	}
@@ -3444,6 +3622,95 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 
 /*
+ * Determine odds for object to break (rather than be buried) in an earthquake.
+ * mild = true  means an undestroyed grid in an earthquake
+ * (where potions are still likely to break)
+ */
+static int quake_break(const object_type *o_ptr, bool mild)
+{
+	/* int qbreak; */
+	switch (o_ptr->tval)
+	{
+		/* Always break */
+		case TV_POTION:
+		case TV_FLASK:
+		case TV_BOTTLE:
+		{
+			if (mild) return (80);
+			else return (100);
+		}
+		/* almost always breaks */
+		case TV_FOOD:
+		case TV_BOW:
+		{
+			if (mild) return (60);
+			else return (91);
+		}
+		/* Usually breaks */
+		case TV_LITE:
+		case TV_JUNK:
+		case TV_ARROW:
+        case TV_SKELETON:
+		{
+			if (mild) return (33);
+			else return (75);
+		}
+		/* often break */
+		case TV_SCROLL:
+		case TV_SPECIAL:
+		case TV_WAND:
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_CHEST:
+		case TV_HAFTED:
+		case TV_SWORD:
+		case TV_AMULET:
+		case TV_CROWN:
+		case TV_STAFF:
+		case TV_ROD:
+		case TV_MAGIC_BOOK:
+		case TV_PRAYER_BOOK:
+		case TV_NEWM_BOOK:
+		case TV_LUCK_BOOK:
+		case TV_CHEM_BOOK:
+		case TV_DARK_BOOK:
+		/* case TV_MIND_BOOK: */
+		{
+			if (mild) return (0);
+			else return (60);
+		}
+		/* less often breaks */
+		case TV_POLEARM:
+		case TV_SHIELD:
+		case TV_HELM:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_RING:
+		case TV_CLOAK:
+		{
+			if (mild) return (0);
+			else return (45);
+		}
+		/* sometimes breaks */
+		case TV_DIGGING:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			if (mild) return (0);
+			else return (30);
+		}
+	}
+	
+	/* default */
+	if (mild) return (0);
+	else return (100);
+
+	/* return (qbreak); */
+}
+
+
+/*
  * Induce an "earthquake" of the given radius at the given location.
  *
  * This will turn some walls into floors and some floors into walls.
@@ -3458,7 +3725,7 @@ void destroy_area(int y1, int x1, int r, bool full)
  * Note that players and monsters (except eaters of walls and passers
  * through walls) will never occupy the same grid as a wall (or door).
  */
-void earthquake(int cy, int cx, int r)
+void earthquake(int cy, int cx, int r, int strength)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -3472,6 +3739,12 @@ void earthquake(int cy, int cx, int r)
 	bool hurt = FALSE;
 
 	bool map[32][32];
+
+	/* default strength */
+	if (strength == 0) strength = 85;
+	/* more powerful (lower strength#) makes it more likely that the player can't */
+	/* find a safe spot to dodge into.  Don't make it too likely to cause big damage. */
+	if ((strength < 55) && (randint(100) < (100-strength + goodluck))) spellswitch = 11;
 
 	/* No effect in town */
 	if (!p_ptr->depth)
@@ -3504,20 +3777,26 @@ void earthquake(int cy, int cx, int r)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(yy, xx)) continue;
 
+			/* do not affect vaults */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) continue;
+
 			/* Skip distant grids */
 			if (distance(cy, cx, yy, xx) > r) continue;
 
-			/* Lose room and vault */
-			cave_info[yy][xx] &= ~(CAVE_ROOM | CAVE_ICKY);
+			/* Lose room (not vault) */
+			cave_info[yy][xx] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[yy][xx] &= ~(CAVE_GLOW | CAVE_MARK);
 
 			/* Skip the epicenter */
+			/* (never affects the PC if cast by (and centered on) the PC) */
 			if (!dx && !dy) continue;
 
-			/* Skip most grids */
-			if (rand_int(100) < 85) continue;
+			/* Skip most grids (usually strength = 85) */
+			/* rogue's blast area spell is short-radius but more powerful (strength = 35) */
+			if (rand_int(100) < strength) continue;
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
@@ -3537,8 +3816,9 @@ void earthquake(int cy, int cx, int r)
 			y = py + ddy_ddd[i];
 			x = px + ddx_ddd[i];
 
-			/* Skip non-empty grids */
-			if (!cave_empty_bold(y, x)) continue;
+			/* Skip non-empty grids (now allows rubble) */
+			/* if (!cave_empty_bold(y, x)) continue; */
+			if (!cave_can_occupy_bold(y, x)) continue;
 
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
@@ -3588,6 +3868,7 @@ void earthquake(int cy, int cx, int r)
 			{
 				case 1:
 				{
+					/* (shouldn't DEX have an effect on this?) */
 					msg_print("You nimbly dodge the blast!");
 					damage = 0;
 					break;
@@ -3595,8 +3876,8 @@ void earthquake(int cy, int cx, int r)
 				case 2:
 				{
 					msg_print("You are bashed by rubble!");
-					damage = damroll(10, 4);
-					(void)inc_timed(TMD_STUN, randint(50));
+					damage = damroll(8, 4);
+					(void)inc_timed(TMD_STUN, randint(40));
 					break;
 				}
 				case 3:
@@ -3609,7 +3890,7 @@ void earthquake(int cy, int cx, int r)
 			}
 
 			/* Move player */
-			monster_swap(py, px, sy, sx);
+			if (sn) monster_swap(py, px, sy, sx);
 		}
 
         /* extra damage reduction from surrounding magic */
@@ -3627,17 +3908,156 @@ void earthquake(int cy, int cx, int r)
 	}
 
 
+	/* XXX XXX XXX */
+
+	/* New location */
+	py = p_ptr->py;
+	px = p_ptr->px;
+
+	/* Important -- no wall on player */
+	map[16+py-cy][16+px-cx] = FALSE;
+
+
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
 	{
 		for (dx = -r; dx <= r; dx++)
 		{
+			s16b this_o_idx, next_o_idx = 0;
+			int qbreak;
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip unaffected grids */
+			if (!map[16+yy-cy][16+xx-cx])
+			{
+				/* some fragile objects get destroyed even in unaffected grids */
+				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
+				{
+					/* get the object */
+					object_type *o_ptr;
+					o_ptr = &o_list[this_o_idx];
+
+					/* Get the next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* get odds for object to break (TRUE makes things much less likely to break) */
+					qbreak = quake_break(o_ptr, TRUE);
+					if (artifact_p(o_ptr)) qbreak = 0;
+
+					/* roll for destruction */
+					if (rand_int(100) < qbreak)
+					{
+						/* message */
+						if (player_can_see_bold(yy, xx))
+						{
+							char o_name[80];
+							object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+							msg_format("The %s breaks!", o_name);
+						}
+						delete_object_idx(this_o_idx);
+					}
+				}
+				continue;
+			}
+
+			/* Paranoia -- never affect player */
+			if ((yy == py) && (xx == px)) continue;
+
+			/* Destroy location (if valid) */
+			if (cave_valid_bold(yy, xx))
+			{
+				int feat = FEAT_FLOOR;
+				bool floor = cave_floor_bold(yy, xx);
+
+				/* Delete some objects, but leave some durable ones buried */
+				/* delete_object(yy, xx); */
+				for (this_o_idx = cave_o_idx[yy][xx]; this_o_idx; this_o_idx = next_o_idx)
+				{
+					/* get the object */
+					object_type *o_ptr = &o_list[this_o_idx];
+
+					/* Get the next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* get odds for object to break */
+					qbreak = quake_break(o_ptr, FALSE);
+					if (artifact_p(o_ptr)) qbreak = 0;
+
+					/* roll for destruction */
+					if (rand_int(100) < qbreak)
+					{
+						/* msg_format("qbreak %d ", qbreak); (testing) */
+						delete_object_idx(this_o_idx);
+					}
+					/* if it isn't destroyed then it's buried (and hidden) */
+					else
+					{
+						o_ptr->hidden = 1;
+						o_ptr->marked = FALSE;
+						lite_spot(yy, xx);
+					}
+				}
+
+				/* Wall (or floor) type */
+				t = rand_int(105);
+				if (!floor) t += 95;
+				/* t = (floor ? rand_int(105) : 200); */
+
+				/* Granite */
+				if (t < 25)
+				{
+					/* Create granite wall */
+					feat = FEAT_WALL_EXTRA;
+				}
+
+				/* Quartz */
+				else if (t < 70)
+				{
+					/* Create quartz vein */
+					feat = FEAT_QUARTZ;
+				}
+
+				/* Magma */
+				else if (t < 90)
+				{
+					/* Create magma vein */
+					feat = FEAT_MAGMA;
+				}
+
+				/* Rubble */
+				else if (t < 110)
+				{
+					/* Create rubble */
+					feat = FEAT_RUBBLE;
+					big_rocks(yy, xx);
+				}
+
+				/* Change the feature */
+				cave_set_feat(yy, xx, feat);
+			}
+		}
+	}
+
+
+	/* Examine the quaked region (monsters) */
+	/* do monsters after feature changes so that monsters can flee into */
+	/* newly created empty spaces or rubble */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			bool noflee = FALSE; /* no need to flee */
 			/* Extract the location */
 			yy = cy + dy;
 			xx = cx + dx;
 
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx]) continue;
+
+			/* Skip okay grids */
+			if (cave_feat[yy][xx] == FEAT_FLOOR) continue;
 
 			/* Process monsters */
 			if (cave_m_idx[yy][xx] > 0)
@@ -3654,6 +4074,9 @@ void earthquake(int cy, int cx, int r)
 					/* Assume not safe */
 					sn = 0;
 
+					/* no need to move if on rubble (but still takes some damage) */
+					if (cave_feat[yy][xx] == FEAT_RUBBLE) noflee = TRUE;
+
 					/* Monster can move to escape the wall */
 					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
 					{
@@ -3664,8 +4087,9 @@ void earthquake(int cy, int cx, int r)
 							y = yy + ddy_ddd[i];
 							x = xx + ddx_ddd[i];
 
-							/* Skip non-empty grids */
-							if (!cave_empty_bold(y, x)) continue;
+							/* Skip non-empty grids (now allows rubble) */
+							/* if (!cave_empty_bold(y, x)) continue; */
+							if (!cave_can_occupy_bold(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
 							if (cave_feat[y][x] == FEAT_GLYPH) continue;
@@ -3689,7 +4113,10 @@ void earthquake(int cy, int cx, int r)
 					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
+					if (noflee) damage = damroll(3, 8);
+					else if ((!sn) && (randint(100) < 35)) damage = damroll(6, 8);
+					else if (!sn) damage = m_ptr->hp + 1;
+					else damage = damroll(4, 8);
 
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;
@@ -3697,6 +4124,19 @@ void earthquake(int cy, int cx, int r)
 
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
+
+					/* Hack -- Escape from the rock */
+					if ((sn) && (m_ptr->hp >= 0) && (!noflee))
+					{
+						/* Move the monster */
+						monster_swap(yy, xx, sy, sx);
+					}
+					/* no safe place, but monster can't stay where there's going to be a wall */
+					/* (not automatic kill) */
+					else if ((!sn) && (m_ptr->hp >= 0) && (!noflee))
+					{
+						teleport_away(cave_m_idx[yy][xx], 3, 0);
+					}
 
 					/* Delete (not kill) "dead" monsters */
 					if (m_ptr->hp < 0)
@@ -3710,80 +4150,7 @@ void earthquake(int cy, int cx, int r)
 						/* No longer safe */
 						sn = 0;
 					}
-
-					/* Hack -- Escape from the rock */
-					if (sn)
-					{
-						/* Move the monster */
-						monster_swap(yy, xx, sy, sx);
-					}
 				}
-			}
-		}
-	}
-
-
-	/* XXX XXX XXX */
-
-	/* New location */
-	py = p_ptr->py;
-	px = p_ptr->px;
-
-	/* Important -- no wall on player */
-	map[16+py-cy][16+px-cx] = FALSE;
-
-
-	/* Examine the quaked region */
-	for (dy = -r; dy <= r; dy++)
-	{
-		for (dx = -r; dx <= r; dx++)
-		{
-			/* Extract the location */
-			yy = cy + dy;
-			xx = cx + dx;
-
-			/* Skip unaffected grids */
-			if (!map[16+yy-cy][16+xx-cx]) continue;
-
-			/* Paranoia -- never affect player */
-			if ((yy == py) && (xx == px)) continue;
-
-			/* Destroy location (if valid) */
-			if (cave_valid_bold(yy, xx))
-			{
-				int feat = FEAT_FLOOR;
-
-				bool floor = cave_floor_bold(yy, xx);
-
-				/* Delete objects */
-				delete_object(yy, xx);
-
-				/* Wall (or floor) type */
-				t = (floor ? rand_int(100) : 200);
-
-				/* Granite */
-				if (t < 20)
-				{
-					/* Create granite wall */
-					feat = FEAT_WALL_EXTRA;
-				}
-
-				/* Quartz */
-				else if (t < 70)
-				{
-					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
-				}
-
-				/* Magma */
-				else if (t < 100)
-				{
-					/* Create magma vein */
-					feat = FEAT_MAGMA;
-				}
-
-				/* Change the feature */
-				cave_set_feat(yy, xx, feat);
 			}
 		}
 	}
@@ -4360,10 +4727,10 @@ bool confuse_monster(int dir, int plev)
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
 }
 
-bool poly_monster(int dir)
+bool poly_monster(int dir, int pwr)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_POLY, dir, pwr, flg));
 }
 
 bool clone_monster(int dir)
@@ -4657,7 +5024,7 @@ bool curse_armor(void)
 		if ((o_ptr->to_d > 0) && (badluck > 1)) o_ptr->to_d -= randint(2 + badluck/4);
 		o_ptr->ac -= randint(2 + badluck/3);
 		
-        /* remove blessing from bless obejct spell */
+        /* remove blessing from bless object spell */
         if (o_ptr->blessed) o_ptr->blessed = 0;
 
 		/* Curse it */
@@ -5148,6 +5515,12 @@ void do_ident_item(int item, object_type *o_ptr)
 	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+	
+	/* Artifact powers shouldn't be hidden */
+    if (artifact_p(o_ptr))
+	{
+       o_ptr->ident |= IDENT_MENTAL;
+    }
 
 	/* Apply an autoinscription, if necessary */
 	apply_autoinscription(o_ptr);

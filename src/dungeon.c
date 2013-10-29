@@ -325,12 +325,8 @@ static void sense_inventory(void)
 			object_known(o_ptr);
 			msg_print("You recognize a legendary item!");
 
-			/* Fully ID randarts (so you don't need a crazy amount of *ID*) */
-			if (adult_randarts)
-			{
-				/* Mark the item as fully known */
-				o_ptr->ident |= (IDENT_MENTAL);
-			}
+			/* artifact powers shouldn't be hidden */
+			o_ptr->ident |= (IDENT_MENTAL);
 		}
 		/* EFGchange make stuff that pseudos as average be as if identified */
 		/* ??? This does not pick up jewelry -- good or bad? */
@@ -608,18 +604,24 @@ static void recharge_objects(void)
 			/* Currently only on magic staffs, but that could possibly change */
 			if (o_ptr->tval == TV_STAFF)
 			{
-				if (o_ptr->sval == SV_STAFF_SLOWNESS)
-				{
-					if (p_ptr->timed[TMD_SLOW] < 11) (void)set_timed(TMD_SLOW, 15);
-				}
-				else if (o_ptr->sval == SV_STAFF_ZAPPING)
+				if (o_ptr->sval == SV_STAFF_ZAPPING)
 				{
 					if (p_ptr->timed[TMD_ZAPPING] < 11) (void)set_timed(TMD_ZAPPING, 15);
 				}
-				else if (o_ptr->sval == SV_STAFF_SPEED)					
+				else if (o_ptr->sval == SV_STAFF_SPEED)
 				{
 					if (p_ptr->timed[TMD_FAST] < 11) (void)set_timed(TMD_FAST, 15);
 				}
+				else if (o_ptr->sval == SV_STAFF_LITE)
+				{
+					if (p_ptr->timed[TMD_MINDLIGHT] < 11) (void)set_timed(TMD_MINDLIGHT, 15);
+				}
+#if blah
+				else if (o_ptr->sval == SV_STAFF_SLOWNESS)
+				{
+					if (p_ptr->timed[TMD_SLOW] < 11) (void)set_timed(TMD_SLOW, 15);
+				} /* (staff of slowness removed) */
+#endif
 			}
 		}
 	}
@@ -777,10 +779,10 @@ static void decrease_timeouts(void)
           msg_format("The blessing on your %s has faded", o_name);
        }
 	   o_ptr->blessed -= 1;
-	   /* o_ptr->blessed is still 1 to nullify badweap flag */
+	   /* o_ptr->blessed remains at 1 to nullify badweap flag */
     }
     /* find vault spell wears off after awhile if not used */
-    if ((p_ptr->find_vault) && (!p_ptr->resting) && (randint(40+goodluck) == 2))
+    if ((p_ptr->find_vault) && (!p_ptr->resting) && (randint(35+goodluck) == 2))
         p_ptr->find_vault -= 1;
 
 	/* Turn big rocks into rubble when MIGHTY_HURL expires */
@@ -811,6 +813,9 @@ static void decrease_timeouts(void)
 		}
 	}
 
+	/* clear p_ptr->held_m_idx when you pull free of the hold */
+	if (p_ptr->timed[TMD_BEAR_HOLD] == 1) p_ptr->held_m_idx = 0;
+
 	/* Decrement all effects that can be done simply */
 	for (i = 0; i < TMD_MAX; i++)
 	{
@@ -827,10 +832,15 @@ static void decrease_timeouts(void)
 				break;
 			}
 
-			case TMD_POISONED:
 			case TMD_STUN:
 			{
 				decr = adjust;
+				break;
+			}
+			case TMD_POISONED:
+			{
+				if (p_ptr->weakresist_pois) decr = adjust + 1;
+				else decr = adjust;
 				break;
 			}
 		}
@@ -1106,11 +1116,11 @@ static void process_world(void)
     if (corch < 4)
     {
        p_ptr->corrupt += 1;
-       if (corch < 3) p_ptr->luck -= 1;
+       if ((corch < 3) && (randint(100) > 20 + goodluck)) p_ptr->luck -= 1;
        /* corruption limit */
        if (p_ptr->corrupt > 50) p_ptr->corrupt = 50;
     }
-    else if (corch < (p_ptr->corrupt / 2) - (goodluck / 2) - 1)
+    else if ((corch < (p_ptr->corrupt / 2) - (goodluck / 2) - 1) && (p_ptr->corrupt >= 20))
     {
        if ((badluck > 15) && (p_ptr->max_depth > 69) && (randint(100) < 33))
        {
@@ -1128,8 +1138,9 @@ static void process_world(void)
        }
     }
 
-    /* good magic items can remove corruption */    
-    if ((goodweap) && (!badweap) && (p_ptr->corrupt > 0) && (randint(999) == 1))
+    /* good magic items can remove corruption */
+	/* (as long as you're not still wearing the corrupting item) */
+    if ((goodweap) && (!badweap) && (p_ptr->corrupt > 0) && (rand_int(999) < goodweap + 1))
     {
        p_ptr->corrupt -= 1;
     }
@@ -1566,7 +1577,7 @@ static void process_player_aux(void)
 static void process_player(void)
 {
 	int i;
-
+	int item;
 
 	/*** Check for interrupts ***/
 
@@ -1680,16 +1691,19 @@ static void process_player(void)
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
+		/* if (inventory[INVEN_PACK].k_idx) */
+		for (item = INVEN_PACK;
+			item >= INVEN_PACK - p_ptr->pack_size_reduce; item--)
 		{
-			int item = INVEN_PACK;
-
 			char o_name[80];
 
 			object_type *o_ptr;
 
 			/* Get the slot to be dropped */
 			o_ptr = &inventory[item];
+
+			/* Ignore empty objects */
+			if (!o_ptr->k_idx) continue;
 
 			/* Disturbing */
 			disturb(0, 0);
@@ -2555,7 +2569,7 @@ void play_game(bool new_game)
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
 
-				/* Increase age */
+				/* Increase age (used to count wizmode deaths) */
 				p_ptr->age++;
 
 				/* Mark savefile */

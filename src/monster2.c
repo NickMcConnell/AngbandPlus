@@ -46,6 +46,12 @@ void delete_monster_idx(int i)
 	/* Hack -- remove tracked monster */
 	if (p_ptr->health_who == i) health_track(0);
 
+	/* monster is no longer holding the PC */
+	if (p_ptr->held_m_idx == i)
+	{
+		p_ptr->held_m_idx = 0;
+		clear_timed(TMD_BEAR_HOLD);
+	}
 
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
@@ -283,6 +289,10 @@ void wipe_mon_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
+
+	/* no monster is holding the player */
+	p_ptr->held_m_idx = 0;
+	clear_timed(TMD_BEAR_HOLD);
 }
 
 
@@ -1236,14 +1246,11 @@ void update_mon(int m_idx, bool full)
 	bool darkvs, msilent, lore;
 	int hearcheck, discernmod, bluff;
 	u32b f4;
+	int d;
 
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
-	int d;
 
 	/* Current location */
 	int fy = m_ptr->fy;
@@ -1281,6 +1288,17 @@ void update_mon(int m_idx, bool full)
 	{
 		/* Extract the distance */
 		d = m_ptr->cdis;
+	}
+
+	/* paranoia */
+	if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx == m_idx))
+	{
+		/* prevent non-adjacent monsters holding the player */
+		if (m_ptr->cdis > 2)
+		{
+			p_ptr->held_m_idx = 0;
+			clear_timed(TMD_BEAR_HOLD);
+		}
 	}
 
 	/* Detected */
@@ -1391,20 +1409,23 @@ void update_mon(int m_idx, bool full)
 		}
 	}
 
-	darkvs = FALSE;
     /* Darkvision: If monster is in line of sight, the player is not blind, */ 
     /* and the monster is not invisible, then the player can see it */
     /* (even if the space is not lit) */
     /* (should darkvision let you see walls without light?) */
+	darkvs = FALSE;
     if (((p_ptr->darkvis) || (p_ptr->timed[TMD_DARKVIS])) &&
 	   (player_has_los_bold(fy, fx)) && (!p_ptr->timed[TMD_BLIND]))
 	{   
-       if ((p_ptr->see_inv) || (!do_invisible))
-       {
-           easy = TRUE;
-           darkvs = TRUE;
-       }
-    }   
+		/* make sure invisible monsters are marked as invisible for darkvision */
+		if (r_ptr->flags2 & (RF2_INVISIBLE)) do_invisible = TRUE;
+
+		if ((p_ptr->see_inv) || (!do_invisible))
+		{
+			easy = TRUE;
+			darkvs = TRUE;
+		}
+    }
 
 	/* if a monster would otherwise be seen easily, check monster stealth */
 	/* palert is evaluated in calc_bonuses in xtra1.c */
@@ -1430,6 +1451,7 @@ void update_mon(int m_idx, bool full)
         /* darkvision makes it hard to hide in the shadows */
         /* this helps dwarves who have darkvision but horrible alertness */
         if ((!m_ptr->monseen) && (r_ptr->stealth > 2) && (!darkvs)) mstealth += 20;
+		else if ((!m_ptr->monseen) && (r_ptr->stealth > 2)) mstealth += 8;
 
         /* much easier to notice if you've noticed it before */
         if ((m_ptr->monseen > 3) && (d < 5) && (!m_ptr->monfear)) mstealth -= m_ptr->monseen * 15;
@@ -1547,7 +1569,7 @@ void update_mon(int m_idx, bool full)
 
 	/* PASS_WALL and NEVER_MOVE monsters are considered completely silent */
 	/* (unless their stealth is 0: poltergeists, green glutton ghosts, and earth elementals) */
-	msilent = FALSE; /* completely silent */
+	msilent = FALSE; /* assume not completely silent */
 	if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (r_ptr->stealth)) msilent = TRUE;
 	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) msilent = TRUE;
 	f4 = r_ptr->flags4; /* check for THROW flag */
@@ -1567,18 +1589,24 @@ void update_mon(int m_idx, bool full)
 	   (!p_ptr->timed[TMD_IMAGE]) && (r_ptr->level) && (!msilent) &&
 	   (randint(2500 + (r_ptr->stealth * 500) + (d * 25)) < hearcheck))
 	{
+		bool eardisturb = FALSE;
+
 		/* Draw the monster (always grey color) */
 		lite_spot(fy, fx);
 
-		/* don't disturb when running or resting */
-		if ((!p_ptr->resting) && (!p_ptr->running))
+		/* decide whether to disturb */
+		if (disturb_move) eardisturb = TRUE;
+		/* don't disturb when running, resting, or digging */
+		if ((p_ptr->resting) || (p_ptr->running) || (p_ptr->command_rep)) eardisturb = FALSE;
+		/* ..unless it's in line of sight */
+		if ((disturb_near) && (player_has_los_bold(fy, fx))) eardisturb = TRUE;
+
+		/* disturb on hearing */
+		if ((!m_ptr->heard) && (eardisturb))
 		{
-			/* Disturb on hearing (no message if no disturb) */
-			if (disturb_near)
-			{
-				if (!m_ptr->heard) msg_format("You hear a monster nearby but out of sight.");
-				disturb(1, 0);
-			}
+			/* (no message if no disturb) */
+			msg_format("You hear a monster nearby but out of sight.");
+			disturb(1, 0);
 		}
 
         /* you heard it, now you're listening for it */
@@ -1588,7 +1616,7 @@ void update_mon(int m_idx, bool full)
         if (m_ptr->monseen < 1) m_ptr->monseen = 1;
 
 		/* can't target or examine the monster */
-		/* does not appear on visible monster list */
+		/* does not appear on visible monster list (isn't visible) */
     }
     else m_ptr->heard = FALSE;
 
@@ -2409,18 +2437,18 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	if ((r_ptr->flags3 & RF3_ORC) && (p_ptr->depth > 9))
 	{
 		int die = randint(101 - badluck);
-		if (die < 34) tag = 155; /* orc shaman */
-		else if ((die < 55) && (p_ptr->depth > 14)) tag = 187; /* fire orc */
+		if (die < 35) tag = 155; /* orc shaman */
+		else if ((die < 40) && (p_ptr->depth > 14)) tag = 187; /* fire orc */
 	}
 	else if (strchr("x", r_ptr->d_char))
 	{
-		int die = randint(75 + p_ptr->depth);
+		int die = randint(70 + p_ptr->depth);
 		if (die > 135) tag = 547; /* riverflow gargoyle */
 		else if (die > 100) tag = 556; /* margoyle shaman */
 	}
 	else if (strchr("O", r_ptr->d_char))
 	{
-		int die = randint(75 + p_ptr->depth);
+		int die = randint(70 + p_ptr->depth);
 		if (die > 80) tag = 397; /* ogre shaman */
 	}
 
@@ -2615,12 +2643,28 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
  *
  * Attempt to find a monster appropriate to the "monster_level"
  */
-bool place_monster(int y, int x, bool slp, bool grp)
+bool place_monster(int y, int x, bool slp, bool grp, bool vault)
 {
 	int r_idx;
 
-	/* Pick a monster */
-	r_idx = get_mon_num(monster_level);
+#if vaultmonsteroption
+	while (1)
+	{
+		bool forbid = FALSE;
+#endif
+		/* Pick a monster */
+		r_idx = get_mon_num(monster_level);
+
+#if vaultmonsteroption
+		/* forbid KILL_WALL monsters in vaults */
+		if ((vault) && (adult_no_diggers))
+		{
+			if (r_ptr->flags2 & (RF2_KILL_WALL)) forbid = TRUE;
+		}
+
+		if (!forbid) break;
+	}
+#endif
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
@@ -2631,7 +2675,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	/* Oops */
 	return (FALSE);
 }
-
 
 
 
@@ -2732,7 +2775,7 @@ bool alloc_monster(int dis, bool slp)
 	}
 
 	/* Attempt to place the monster, allow groups */
-	if (place_monster(y, x, slp, TRUE)) return (TRUE);
+	if (place_monster(y, x, slp, TRUE, FALSE)) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -2816,6 +2859,13 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_DRAGON:
 		{
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_SILVER:
+		{
+			okay = ((r_ptr->flags3 & (RF3_SILVER)) &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

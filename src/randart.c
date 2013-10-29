@@ -205,6 +205,11 @@ static s32b artifact_power(int a_idx)
 					p += 20000;	/* inhibit */
 					mult = 1;	/* don't overflow */
 				}
+				else if (a_ptr->pval + mult > 6)
+				{
+					p += 20000;	/* inhibit */
+					mult = 1;	/* don't overflow */
+				}
 				else
 					mult += a_ptr->pval;
 			}
@@ -239,7 +244,6 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags2 & TR2_SLAY_BUG) p = (p * 6) / 5;
 			if (a_ptr->flags2 & TR2_SLAY_SILVER) p = (p * 6) / 5;
 			if (a_ptr->flags2 & TR2_SLAY_LITE) p = (p * 6) / 5;
-			if (a_ptr->flags2 & TR2_EXTRA_CRIT) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
@@ -336,7 +340,7 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_SUST_CHR) p += 1;
 	if (a_ptr->flags2 & TR2_IM_ACID)
 	{
-		p += 20;
+		p += 22;
 		immunities++;
 	}
 	if (a_ptr->flags2 & TR2_IM_ELEC)
@@ -365,11 +369,11 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
 	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
 	if (a_ptr->flags2 & TR2_PR_POIS) p += 4;
-	if (a_ptr->flags2 & TR2_EXTRA_CRIT) p += 6;
+	if (a_ptr->flags2 & TR2_EXTRA_CRIT) p += 4;
 	if (a_ptr->flags4 & TR4_RES_POIS) p += 12;
 	if (a_ptr->flags4 & TR4_RES_LITE) p += 8;
 	if (a_ptr->flags4 & TR4_RES_DARK) p += 10;
-	if (a_ptr->flags4 & TR4_RES_CHARM) p += 6;
+	if (a_ptr->flags4 & TR4_RES_CHARM) p += 4;
 	if (a_ptr->flags4 & TR4_RES_BLIND) p += 10;
 	if (a_ptr->flags4 & TR4_RES_CONFU) p += 8;
 	if (a_ptr->flags4 & TR4_RES_SOUND) p += 10;
@@ -378,13 +382,17 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags4 & TR4_RES_NEXUS) p += 10;
 	if (a_ptr->flags4 & TR4_RES_CHAOS) p += 12;
 	if (a_ptr->flags4 & TR4_RES_DISEN) p += 12;
+	if (a_ptr->flags4 & TR4_RES_STATC) p += 8;
 
+	/* (LIGHTNESS doesn't need to be in randart.c because armors already */
+	/* have a chance to get their weight reduced.) */
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
-	if (a_ptr->flags3 & TR3_DARKVIS) p += 4;
-	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 12;
+	if (a_ptr->flags3 & TR3_DARKVIS) p += 5;
+	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 14;
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
+	if (a_ptr->flags3 & TR3_THROWMULT) p += 10;
 	if ((a_ptr->flags3 & TR3_TCONTROL) && (a_ptr->flags3 & TR3_TELEPORT)) p += 18;
 	else if (a_ptr->flags3 & TR3_TCONTROL) p += 12;
 	else if (a_ptr->flags3 & TR3_TELEPORT) p -= 16;
@@ -440,6 +448,13 @@ static void choose_item(int a_idx)
 	 * kinds versus the bell curve is hand-tweaked. :-(
 	 */
 	r = rand_int(100);
+
+	/* prevent high-powered artifacts becoming thrown weapons */
+	if ((r >= 9) && (r < 12) && (a_ptr->level > 45))
+	{
+		r = rand_int(97);
+		if (r >= 9) r += 3;
+	}
 
 	if (r < 5)
 	{
@@ -500,7 +515,12 @@ static void choose_item(int a_idx)
 		if (r2 < 4) sval = SV_WALKING_STICK;
 		else if (r2 < 23) sval = SV_WHIP;
 		else if (r2 < 45) sval = SV_WALKING_STAFF;
-		else if (r2 < 55) sval = SV_LIGHT_CLUB;
+		else if (r2 < 53) sval = SV_LIGHT_CLUB;
+		else if (r2 < 55)
+		{
+			tval = TV_STAFF;
+			sval = SV_STAFF_ZAPPING;
+		}
 		else if (r2 < 76) sval = SV_QUARTERSTAFF;
 		else if (r2 < 82) sval = SV_CEREMONIAL_MACE;
 		else if (r2 < 97) sval = SV_WAR_HAMMER;
@@ -553,7 +573,8 @@ static void choose_item(int a_idx)
 		else if (r2 < 56) sval = SV_GLAIVE;
 		else if (r2 < 62) sval = SV_TWO_HANDED_FLAIL;
 		else if (r2 < 75) sval = SV_BATTLE_AXE;
-		else if (r2 < 83) sval = SV_LANCE;
+		else if (r2 < 81) sval = SV_NATACE; /* */
+ 		/* else if (r2 < 83) sval = SV_LANCE;  */
 		else if (r2 < 93) sval = SV_HALBERD;
 		else if (r2 < 101) sval = SV_SCYTHE;
 		else if (r2 < 109) sval = SV_GREAT_AXE;
@@ -619,7 +640,7 @@ static void choose_item(int a_idx)
 	{
 		/* Make headgear. */
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 50) tval = TV_HELM; else tval = TV_CROWN;
+		if (r2 < 55) tval = TV_HELM; else tval = TV_CROWN;
 
 		if (r2 < 8) sval = SV_HARD_LEATHER_CAP;
 		else if (r2 < 19) sval = SV_METAL_CAP;
@@ -754,7 +775,7 @@ static void do_pval(artifact_type *a_ptr)
 /* DJA: return possible object alignment */
 static int remove_contradictory(artifact_type *a_ptr)
 {
-	int which = 10 + randint(80); /* higher = more likely to be good */
+	int which = 14 + randint(72); /* higher = more likely to be good */
     if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
 	if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
 	if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
@@ -836,7 +857,11 @@ static void add_ability(artifact_type *a_ptr)
 	int r, what, teleordarkv, align;
 	byte ftval;
 
-	r = rand_int(10);
+	/* thrown weapons can't be wielded which makes a lot of flags useless */
+	/* so this should always depend on item type for thrown weapons */
+	if (a_ptr->flags2 & TR2_THROWN) r = rand_int(5);
+	else r = rand_int(10);
+
 	if (r < 5)		/* Pick something dependent on item type. */
 	{
 		r = rand_int(100);
@@ -854,7 +879,7 @@ static void add_ability(artifact_type *a_ptr)
            if (randint(15) > 4) a_ptr->flags2 |= TR2_RTURN;
         }
 
-		else switch (ftval)
+		switch (ftval)
 		{
 			case TV_SHOT: /* THROWN weapons */
 			/* (There are no real TV_SHOT artifacts) */
@@ -916,6 +941,7 @@ static void add_ability(artifact_type *a_ptr)
 					   do_pval(a_ptr);
 				    }
                 }
+				break;
             }
 			case TV_BOW:
 			{
@@ -1080,12 +1106,21 @@ static void add_ability(artifact_type *a_ptr)
 			case TV_GLOVES:
 			{
 				if (r < 25) a_ptr->flags3 |= TR3_FREE_ACT;
-				else if (r < 50)
+				else if (r < 45)
 				{
 					a_ptr->flags1 |= TR1_DEX;
 					do_pval(a_ptr);
 				}
-				else if (r < 55) a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+				else if (r < 50)
+				{
+					a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+					do_pval(a_ptr);
+				}
+				else if (r < 55)
+				{
+					a_ptr->flags3 |= TR3_THROWMULT;
+					do_pval(a_ptr);
+				}
 				else if (r < 77) a_ptr->to_a += (s16b)(3 + rand_int(3));
 				else
 				{
@@ -1121,6 +1156,7 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 48) a_ptr->flags2 |= TR2_RES_FIRE;
 				else if (r < 64) a_ptr->flags2 |= TR2_RES_COLD;
 				else if (r < 80) a_ptr->flags3 |= TR3_BR_SHIELD;
+				else if (r < 82) a_ptr->weight = (a_ptr->weight * 4) / 5;
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
@@ -1134,8 +1170,8 @@ static void add_ability(artifact_type *a_ptr)
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
-			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
+			case TV_SOFT_ARMOR:
 			{
 				if (r < 8)
 				{
@@ -1285,7 +1321,11 @@ static void add_ability(artifact_type *a_ptr)
 			case 19:
 			{
 				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
-				else a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+				else
+				{
+					a_ptr->flags2 |= TR2_MAGIC_MASTERY;
+					do_pval(a_ptr);
+				}
 				break;
 			}
 			case 20: a_ptr->flags3 |= TR3_FREE_ACT; break;
@@ -1308,6 +1348,7 @@ static void add_ability(artifact_type *a_ptr)
 			case 33:
 				if (rand_int(2) == 0)
 					a_ptr->flags4 |= TR4_RES_NETHR;
+				else a_ptr->flags4 |= TR4_RES_STATC;
 				break;
 			case 34: a_ptr->flags4 |= TR4_RES_NEXUS; break;
 			case 35: a_ptr->flags4 |= TR4_RES_CHAOS; break;
@@ -1318,7 +1359,11 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 37: a_ptr->flags3 |= TR3_FEATHER; break;
 			case 38: a_ptr->flags3 |= TR3_LITE; break;
-			case 39: a_ptr->flags3 |= TR3_SEE_INVIS; break;
+			case 39:
+				if (teleordarkv == 0)
+					a_ptr->flags3 |= TR3_THROWMULT;
+				else a_ptr->flags3 |= TR3_SEE_INVIS;
+				break;
 			case 40:
 				if (teleordarkv == 0)
 					a_ptr->flags3 |= TR3_TELEPATHY;
@@ -1338,15 +1383,6 @@ static void add_ability(artifact_type *a_ptr)
 
 	/* Now remove contradictory or redundant powers. */
 	align = remove_contradictory(a_ptr);
-	
-    /* possible object alignment (and possible corruption for bad weapons) */
-	if ((align > 81) && (randint(100) < 25)) a_ptr->flags3 |= TR3_GOOD_WEAP;
-	if ((align < 19) && (randint(100) < 25))
-    {
-       a_ptr->flags3 |= TR3_BAD_WEAP;
-       if (align < 6) align = 6;
-       if (randint(align) < 5) a_ptr->flags2 |= TR2_CORRUPT;
-    }
 }
 
 
@@ -1393,7 +1429,7 @@ static void scramble_artifact(int a_idx)
 	artifact_type *a_ptr = &a_info[a_idx];
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
-	int tries;
+	int tries, align;
 	s32b ap;
 	bool curse_me = FALSE;
 	bool aggravate_me = FALSE;
@@ -1510,10 +1546,26 @@ static void scramble_artifact(int a_idx)
 			remove_contradictory(a_ptr);
 			ap = artifact_power(a_idx);
 		}
+
+	/* Get odds of alignment */
+	align = remove_contradictory(a_ptr);
+	
+    /* possible object alignment (and possible corruption for bad weapons) */
+	if ((align > 81) && (randint(100) < 25)) a_ptr->flags3 |= TR3_GOOD_WEAP;
+	if ((align < 19) && (randint(100) < 25))
+    {
+       a_ptr->flags3 |= TR3_BAD_WEAP;
+       if (align < 6) align = 6;
+       if (randint(align) < 5) a_ptr->flags2 |= TR2_CORRUPT;
+    }
+
 #ifdef EFG
-		/* EFGchange remove aggravation from randarts */
-		a_ptr->flags3 |= TR3_AGGRAVATE;
-		a_ptr->flags3 ^= TR3_AGGRAVATE;
+		/* EFGchange remove aggravation from randarts (usually) */
+		if (randint(100) < 90)
+		{
+			a_ptr->flags3 |= TR3_AGGRAVATE;
+			a_ptr->flags3 ^= TR3_AGGRAVATE;
+		}
 
 		/* ??? should add plite if not splendid */
 /*
@@ -1567,6 +1619,9 @@ this does not work
 
 /*
  * Return TRUE if the whole set of random artifacts meets certain criteria.
+ * There are 126 artifacts not including
+ * 41 of them are forced type by tval by this function.
+ * the 15 special artifacts and 1 unused artifact index.
  */
 static bool artifacts_acceptable(void)
 {

@@ -247,7 +247,7 @@ static void prt_equippy(int row, int col)
 	if (use_bigtile) return;
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -847,6 +847,14 @@ static void prt_state(int row, int col)
 		attr = TERM_RED;
 
 		my_strcpy(text, "Paralyzed!", sizeof(text));
+	}
+	
+	/* held by a monster */
+	else if ((p_ptr->timed[TMD_BEAR_HOLD]) && (p_ptr->held_m_idx))
+	{
+		attr = TERM_ORANGE;
+
+		my_strcpy(text, "Grabbed", sizeof(text));
 	}
 
 	/* Resting */
@@ -1793,7 +1801,7 @@ static void calc_torch(void)
 
 
 	/* Examine all wielded objects, use the brightest */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		u32b f1, f2, f3, f4;
 
@@ -1825,7 +1833,7 @@ static void calc_torch(void)
 			else if (!burn_light || o_ptr->timeout == 0)
 				amt = 0;
 
-			/* All lit lights provide at least radius 2 light */
+			/* Almost all lit lights provide at least radius 2 light */
 			else
 			{
 				amt = 2 + flag_inc;
@@ -1863,6 +1871,15 @@ static void calc_torch(void)
 	/* Add bonus for True sight and Daylight */
 	if (p_ptr->timed[TMD_TSIGHT]) new_lite++;
 	if (p_ptr->timed[TMD_DAYLIGHT]) new_lite++;
+
+	/* Mindlight does not add effect beyond radius 3 */
+	/* (Used for mind-realm spell (not implemented yet) and */
+	/* constant activation on staff of light) */
+	if (p_ptr->timed[TMD_MINDLIGHT])
+	{
+		if (new_lite < 1) new_lite = 2; /* no light source */
+		else if (new_lite < 3) new_lite++;
+	}
 
 	/* Limit light (Daylight is powerful) */
 	if (p_ptr->timed[TMD_DAYLIGHT]) new_lite = MIN(new_lite, 6);
@@ -1930,7 +1947,6 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	int old_dis_ac;
 	int old_dis_to_a;
 
-	int extra_blows;
 	int extra_shots;
 	int extra_might;
 
@@ -1942,10 +1958,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	bool old_heavy_wield;
 	bool old_icky_wield;
 
-	/* moved to the top because of stupid compile error stuff */
     int aggra = 0;
-	int unluck = badluck;
 	int spbonus;
+	bool yshield = FALSE;
+	bool throwgloves = FALSE;
 
 	object_type *o_ptr;
 
@@ -1985,7 +2001,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
-	extra_blows = 0;
+	p_ptr->extra_blows = 0;
 
 	/* Reset "fire" info */
 	p_ptr->num_fire = 0;
@@ -2022,6 +2038,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->darkvis = FALSE;
 	p_ptr->nice = FALSE;
 	p_ptr->peace = FALSE;
+	p_ptr->throwmult = 0;
 	p_ptr->telepathy = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -2049,6 +2066,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	p_ptr->resist_shard = FALSE;
 	p_ptr->resist_nexus = FALSE;
 	p_ptr->resist_nethr = FALSE;
+	p_ptr->resist_static = 0; /* multiple items with the flag stack */
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
@@ -2110,6 +2128,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
 	if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
 	if (f2 & (TR2_PEACE)) p_ptr->peace = TRUE;
+	if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += 2;
 	if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 
 	/* wierd flags */
@@ -2118,7 +2137,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Bad flags */
 	/* only umber hulk has racial AGGRAVATE and IMPACT */
 	if (f3 & (TR3_AGGRAVATE)) aggra += 1;
-	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
 	/* the rest of these are hypothetical */
 	if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
@@ -2151,6 +2170,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	if (f4 & (TR4_RES_NETHR)) p_ptr->resist_nethr = TRUE;
 	if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 	if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
+	if (f4 & (TR4_RES_STATC)) p_ptr->resist_static += 1;
 
 	/* Sustain flags */
 	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2164,7 +2184,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2185,13 +2205,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
 		
-		/* affect magic device mastery */
+		/* affect magic device mastery (now uses pval) */
+		/* test to see if a MAGIC_MASTERY pval of 3-4 is too strong */
 		if (f2 & (TR2_MAGIC_MASTERY))
 		{
-			if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 15;
-			else if (p_ptr->skills[SKILL_DEV] < 32) p_ptr->skills[SKILL_DEV] += 12;
-			else if (p_ptr->skills[SKILL_DEV] < 42) p_ptr->skills[SKILL_DEV] += 9;
-			else p_ptr->skills[SKILL_DEV] += 6;
+			if (o_ptr->pval == 1) p_ptr->skills[SKILL_DEV] += 8;
+			else if (o_ptr->pval >= 4) p_ptr->skills[SKILL_DEV] += 23 + o_ptr->pval;
+			else p_ptr->skills[SKILL_DEV] += o_ptr->pval * 7;
         }
 
 		/* Affect alertness / searching frequency (factor of five) */
@@ -2204,7 +2224,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
 		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
+		if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
 
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
@@ -2222,8 +2242,14 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	    if (f3 & (TR3_DARKVIS)) p_ptr->darkvis = TRUE;
 	    if (f2 & (TR2_NICE)) p_ptr->nice = TRUE;
+		if ((f3 & (TR3_THROWMULT)) && (o_ptr->pval < 2) && (p_ptr->throwmult < 2)) 
+			p_ptr->throwmult += 2;
+		else if (f3 & (TR3_THROWMULT)) p_ptr->throwmult += o_ptr->pval;
 	    if (f3 & (TR3_BR_SHIELD)) p_ptr->breath_shield = TRUE;
 	    if (f3 & (TR3_TCONTROL)) p_ptr->telecontrol = TRUE;
+
+		/* wearing something in the shield slot */
+		if (i == INVEN_ARM) yshield = TRUE;
 
         /* DJA: melee branding from elemental rings */
         /* (no getting a brand from something wielded in off-hand */
@@ -2249,12 +2275,13 @@ void calc_bonuses(object_type inventory[], bool killmess)
         }
 
 		/* Bad flags */
-		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+		if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
 		/* multiple objects with aggravation have cumulative penalty */
  	    if (f3 & (TR3_AGGRAVATE)) aggra += 1;
 	    if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
   	    if (f3 & (TR3_STOPREGEN)) p_ptr->stopregen = TRUE;
+		if (f2 & (TR2_DANGER)) p_ptr->accident = TRUE;
         /* perma-cursed items re-curse themselves */
   	    if (f3 & (TR3_PERMA_CURSE))
   	    {
@@ -2263,7 +2290,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
               o_ptr->ident |= (IDENT_CURSED);
               
               if (o_ptr->pseudo == INSCRIP_UNCURSED) o_ptr->pseudo = INSCRIP_NULL;
-              if (randint(100) < 6) p_ptr->luck -= 1;
+              if (randint(100) < 4) p_ptr->luck -= 1;
            }
         }
 		/* Immunity flags */
@@ -2291,6 +2318,7 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		if (f4 & (TR4_RES_NETHR)) p_ptr->resist_nethr = TRUE;
 		if (f4 & (TR4_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
 		if (f4 & (TR4_RES_DISEN)) p_ptr->resist_disen = TRUE;
+		if (f4 & (TR4_RES_STATC)) p_ptr->resist_static += 1;
 
 		/* Sustain flags */
 		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2318,21 +2346,51 @@ void calc_bonuses(object_type inventory[], bool killmess)
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;
 
+		/* Check for gauntlets of throwing */
+		/* (because they give to_dam bonus to thrown weapons instead of melee) */
+		if ((i == INVEN_HANDS) && (f3 & (TR3_THROWMULT)))
+		{
+			throwgloves = TRUE;
+		}
+
 		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h += o_ptr->to_h;
-		p_ptr->to_d += o_ptr->to_d;
+		if (!throwgloves) p_ptr->to_d += o_ptr->to_d;
 
 		/* Apply the mental bonuses to hit/damage, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+		if ((object_known_p(o_ptr)) && (!throwgloves)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-	    /* check niceness */
-	    if (cp_ptr->spell_book == TV_DARK_BOOK) p_ptr->nice = FALSE;
-	    if ((!o_ptr->blessed) && (f3 & (TR3_BAD_WEAP)))
-	    {
-           p_ptr->nice = FALSE;
-        }
+	/* Find cursed ammo in the quiver */
+	p_ptr->cursed_quiver = FALSE;
+
+	/* Scan the quiver */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Found cursed ammo */
+		if (cursed_p(o_ptr))
+		{
+			/* Remember it */
+			p_ptr->cursed_quiver = TRUE;
+
+			/* Done */
+			break;
+		}
+	}
+
+	/* check niceness */
+	if (cp_ptr->spell_book == TV_DARK_BOOK) p_ptr->nice = FALSE;
+	if ((!o_ptr->blessed) && (f3 & (TR3_BAD_WEAP)))
+	{
+		p_ptr->nice = FALSE;
+	}
 
 
     /*** track sentient equipment ***/    
@@ -2422,6 +2480,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	{
        p_ptr->luck = PY_LUCKCHECK_MAX - 2;
     }
+	/* set maximum luck */
+	if (p_ptr->maxluck < p_ptr->luck) p_ptr->maxluck = p_ptr->luck;
     /* further hit for black magic users*/
     if ((cp_ptr->spell_book == TV_DARK_BOOK) && (p_ptr->luck > PY_LUCKCHECK_MAX - 4) &&
        (randint(1000) < 2))
@@ -2464,13 +2524,10 @@ void calc_bonuses(object_type inventory[], bool killmess)
 
 	/* enhanced magic (most of its effects are elsewhere) */
 	/* allows reading while blind and enhances spellcasting */
-	/* less effect than magic mastery in the area of devices */
+	/* much less effect than magic mastery in the area of devices */
 	if (p_ptr->timed[TMD_BRAIL])
 	{
-		if (p_ptr->skills[SKILL_DEV] < 22) p_ptr->skills[SKILL_DEV] += 10;
-		else if (p_ptr->skills[SKILL_DEV] < 35) p_ptr->skills[SKILL_DEV] += 8;
-		else if (p_ptr->skills[SKILL_DEV] < 45) p_ptr->skills[SKILL_DEV] += 6;
-		else p_ptr->skills[SKILL_DEV] += 4;
+		p_ptr->skills[SKILL_DEV] += 5;
     }
 
     /* timed skill boost */
@@ -2494,6 +2551,18 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	   p_ptr->skills[SKILL_FOS] += 4;
 	}
 
+	/* being held by a monster makes it hard to do a lot of things */
+	if (p_ptr->timed[TMD_BEAR_HOLD])
+	{
+	    p_ptr->skills[SKILL_DIS] = (p_ptr->skills[SKILL_DIS]*2)/3;
+	    p_ptr->skills[SKILL_SRH] = (p_ptr->skills[SKILL_SRH]*2)/3;
+        p_ptr->skills[SKILL_THB] = (p_ptr->skills[SKILL_THB]*2)/3;
+        p_ptr->skills[SKILL_THT] = (p_ptr->skills[SKILL_THT]*2)/3;
+        if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= 1;
+	    p_ptr->to_a -= 4;
+	    p_ptr->dis_to_a -= 4;
+	}	
+
 	/* Temporary blessing */
 	if (p_ptr->timed[TMD_BLESSED])
 	{
@@ -2509,16 +2578,18 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Temporary curse (opposite of blessing) */
 	if (p_ptr->timed[TMD_CURSE])
 	{
+		int unluck = badluck + 2;
 		p_ptr->to_a -= 5;
 		p_ptr->dis_to_a -= 5;
 		p_ptr->to_h -= 10;
 		p_ptr->dis_to_h -= 10;
+		/* temporary bad luck */
 		if (badluck < 19) badluck += 2;
 		if (unluck > 14) unluck = (unluck*3)/5;
 		else if (unluck > 8) unluck = 8;
-		p_ptr->skills[SKILL_DEV] -= unluck;
-	    p_ptr->skills[SKILL_DIS] -= unluck;
-	    p_ptr->skills[SKILL_SAV] -= unluck;
+		p_ptr->skills[SKILL_DEV] -= (unluck + 1);
+	    p_ptr->skills[SKILL_DIS] -= (unluck + 1);
+	    p_ptr->skills[SKILL_SAV] -= (unluck + 1);
 		p_ptr->skills[SKILL_FOS] -= (unluck - 2);
         if (p_ptr->skills[SKILL_STL] > 0) p_ptr->skills[SKILL_STL] -= 1;
 	}
@@ -3183,115 +3254,12 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	/* Assume not heavy */
-	p_ptr->heavy_wield = FALSE;
-
-    if (!cp_ptr->flags & CF_HEAVY_BONUS)
-    {
-	   /* It is hard to hold a heavy weapon */
-	   if (hold < o_ptr->weight / 10)
-	   {
-			/* Hard to wield a heavy weapon */
-			p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-			p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
-
-			/* Heavy weapon */
-			p_ptr->heavy_wield = TRUE;
-	   }
-    }
-
-	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
-	{
-		int str_index, dex_index;
-
-		int div;
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
-
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Maximal value */
-		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
-
-		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
-
-        /* timed extra attack (from spell or mushroom only) */
-		if (p_ptr->timed[TMD_XATTACK])
-		{
-		   p_ptr->num_blow += 1;
-        }
-		
-		/* peace */
-        if (p_ptr->peace) p_ptr->num_blow -= 1;
-
-		/* Require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Boost digging skill by weapon weight. DJA: blades don't dig well. */
-		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 25);
-		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 15);
-		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
-	}
-
 	/* Assume okay */
 	p_ptr->icky_wield = FALSE;
-	
-	/* certain classes are better at using certain types of weapons */
-    if ((p_ptr->pclass == 6) && (o_ptr->tval == TV_POLEARM))
-    { /* archer */
-	      p_ptr->skills[SKILL_THN] -= 2;
-    }
-    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_SWORD))
-    { /* priest: bless_weapon penalty is less than in V, so I added this */
-	      p_ptr->skills[SKILL_THN] -= 1;
-    }
-    if (((p_ptr->pclass == 16) || (p_ptr->pclass == 10)) && (o_ptr->tval == TV_STAFF))
-    { /* war mages and druids get bonus with magic staffs */
-	      p_ptr->skills[SKILL_THN] += 3;
-    }
-    if ((p_ptr->pclass == 19) && (o_ptr->tval == TV_SKELETON))
-    { /* chaos warrios */
-	      p_ptr->skills[SKILL_THN] += 1;
-    }
-    if ((p_ptr->pclass == 32) && (o_ptr->tval == TV_SWORD))
-    { /* umber hulks not good with swords */
-	      p_ptr->skills[SKILL_THN] -= 3;
-    }
-	
-	/* Barbarians like heavy weapons */
-    if (cp_ptr->flags & CF_HEAVY_BONUS)
-    {
-       if (o_ptr->weight > 99)
-       {
-          int hbonus = ((o_ptr->weight - 100) / 50) + 1;
-	      p_ptr->to_d += hbonus;
-	      p_ptr->dis_to_d += hbonus;
-       }
-       if (o_ptr->weight < 51) /* not as good with light weapons */
-       {
-	      p_ptr->skills[SKILL_THN] -= 3;
-       }
-    }
 
     /* weapon blessed by priest 'bless weapon' spell */
     /* can't put this under 'Analyze equipment' because */
-    /* other types of items can be blessed with the same flag */
+    /* other types of items can be blessed the same way */
     if (o_ptr->blessed > 1) p_ptr->bless_blade = TRUE;
     
 	/* Priest weapon penalty for non-blessed edged weapons */
@@ -3323,9 +3291,8 @@ void calc_bonuses(object_type inventory[], bool killmess)
 	}
 	/* Priest weapon penalty goes for any evil weapons also */
 	/* (even if it's a hafted weapon) */
-	/* It should never happen that an object has both BLESSED and BAD_WEAP */
-	if (((cp_ptr->flags & CF_BLESS_WEAPON) && (f3 & (TR3_BAD_WEAP))) &&
-   	   ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+	/* Should never happen that an object has both TR3_BLESSED and TR3_BAD_WEAP */
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (f3 & (TR3_BAD_WEAP)))
     {
 		/* druids can use bad blunt weapons without penalty */
         if (!cp_ptr->flags & CF_CHOOSE_SPELLS)
@@ -3333,6 +3300,136 @@ void calc_bonuses(object_type inventory[], bool killmess)
            /* Icky weapon (temporary blessing overcomes) */
            if (!o_ptr->blessed) p_ptr->icky_wield = TRUE;
         }
+    }
+
+	/* Assume not heavy */
+	p_ptr->heavy_wield = FALSE;
+
+    if (!cp_ptr->flags & CF_HEAVY_BONUS)
+    {
+	   /* It is hard to hold a heavy weapon */
+	   if (hold < o_ptr->weight / 10)
+	   {
+			/* Hard to wield a heavy weapon */
+			p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
+			p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+
+			/* Heavy weapon */
+			p_ptr->heavy_wield = TRUE;
+	   }
+    }
+
+	/* Normal weapons */
+	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+	{
+		int str_index, dex_index;
+		bool staffbonus = FALSE;
+
+		int div;
+
+		/* Enforce a minimum "weight" (tenth pounds) */
+		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+
+		/* priest & druids get bonus with staffs (but are worse with icky double weapons) */
+		/* (otherwise priests don't get multiple attacks until very late even with a double weapon) */
+		if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->icky_wield) && (o_ptr->sbdd))
+		{
+			if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF)) staffbonus = TRUE;
+		}
+
+		/* Double weapons are easy to get more attacks with if not using a shield */
+		if ((o_ptr->sbdd) && (!yshield) && (!p_ptr->icky_wield))
+		{
+			div = ((o_ptr->weight/3 < cp_ptr->min_weight/2) ? cp_ptr->min_weight/2 : o_ptr->weight/3);
+		}
+		/* slightly easier multiple attacks even with a shield */
+		else if ((o_ptr->sbdd) && (div > cp_ptr->min_weight))
+		{
+			div = (div * 3) / 4;
+		}
+
+		/* Get the strength vs weight */
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+
+		/* apply priest / druid bonus with double-weapon staffs */
+		if ((staffbonus) && (str_index < 6)) str_index += 1;
+
+		/* Maximal value */
+		if (str_index > 11) str_index = 11;
+
+		/* Index by dexterity */
+		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+		/* Maximal value */
+		if (dex_index > 11) dex_index = 11;
+
+		/* Use the blows table */
+		p_ptr->num_blow = blows_table[str_index][dex_index];
+
+		/* Maximal value (+1 when using a double weapon with no shield) */
+		if ((o_ptr->sbdd) && (!yshield) && (p_ptr->num_blow > cp_ptr->max_attacks + 1)) p_ptr->num_blow = cp_ptr->max_attacks + 1;
+		else if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
+
+		/* Add in the "bonus blows" */
+		p_ptr->num_blow += p_ptr->extra_blows;
+
+        /* timed extra attack (from spell or mushroom only) */
+		if (p_ptr->timed[TMD_XATTACK])
+		{
+		   p_ptr->num_blow += 1;
+        }
+		
+		/* peace */
+        if (p_ptr->peace) p_ptr->num_blow -= 1;
+
+		/* Require at least one blow */
+		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+
+		/* Boost digging skill by weapon weight. DJA: blades don't dig well. */
+		if (o_ptr->tval == TV_SWORD) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 25);
+		else if (o_ptr->tval == TV_HAFTED) p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 15);
+		else p_ptr->skills[SKILL_DIG] += (o_ptr->weight / 10);
+	}
+	
+	/* certain classes are better at using certain types of weapons */
+    if ((p_ptr->pclass == 6) && (o_ptr->tval == TV_POLEARM))
+    { /* archer */
+	      p_ptr->skills[SKILL_THN] -= 2;
+    }
+    if ((p_ptr->pclass == 8) && (o_ptr->tval == TV_SWORD))
+    { /* priest: bless_weapon penalty is less than in V, so I added this */
+	      p_ptr->skills[SKILL_THN] -= 1;
+    }
+    if (((p_ptr->pclass == 16) || (p_ptr->pclass == 10)) && (o_ptr->tval == TV_STAFF))
+    { /* war mages and druids get bonus with magic staffs */
+	      p_ptr->skills[SKILL_THN] += 3;
+    }
+    if ((p_ptr->pclass == 19) && (o_ptr->tval == TV_SKELETON))
+    { /* chaos warrios */
+	      p_ptr->skills[SKILL_THN] += 1;
+    }
+    if ((p_ptr->pclass == 32) && (o_ptr->tval == TV_SWORD))
+    { /* umber hulks not good with swords */
+	      p_ptr->skills[SKILL_THN] -= 3;
+    }
+	
+	/* Barbarians like heavy weapons */
+    if (cp_ptr->flags & CF_HEAVY_BONUS)
+    {
+#if changed
+		/* Barbarians' damage bonus with heavy weapons was moved 
+		to cmd1.c where it belongs.  */
+		if (o_ptr->weight > 99)
+		{
+			int hbonus = ((o_ptr->weight - 100) / 50) + 1;
+			p_ptr->to_d += hbonus;
+			p_ptr->dis_to_d += hbonus;
+		}
+#endif
+       if (o_ptr->weight < 51) /* not as good with light weapons */
+       {
+	      p_ptr->skills[SKILL_THN] -= 3;
+       }
     }
 
 
@@ -3513,6 +3610,7 @@ void notice_stuff(void)
 	{
 		p_ptr->notice &= ~(PN_COMBINE);
 		combine_pack();
+		combine_quiver();
 	}
 
 	/* Reorder the pack */
@@ -3520,6 +3618,7 @@ void notice_stuff(void)
 	{
 		p_ptr->notice &= ~(PN_REORDER);
 		reorder_pack();
+		(void)reorder_quiver(0);
 	}
 }
 

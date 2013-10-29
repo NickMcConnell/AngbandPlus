@@ -1186,6 +1186,7 @@ static bool store_create_random(int st)
 	{
 		min_level = 1;
 		max_level = STORE_OBJ_LEVEL;
+		/* increase max object depth with PC depth */
         if (p_ptr->max_depth > 21) max_level += (p_ptr->max_depth - 20)/2;
         if (max_level > 45) max_level = 45;
 	}
@@ -1217,8 +1218,10 @@ static bool store_create_random(int st)
 
 		/* No chests, skeletons, or treasure maps in stores XXX */
 		if (tval == TV_CHEST) continue;
-		if ((tval == TV_SPECIAL) && (sval == SV_CLASS_OBJ)) continue;
-        if (tval == TV_SKELETON) continue;
+		if ((tval == TV_SPECIAL) && (sval == SV_TREASURE)) continue;
+		/* sometimes allow TV_SKELETON in black market later */
+		if ((tval == TV_SKELETON) && ((randint(100) > 40) ||
+			(p_ptr->max_depth < 35))) continue;
 
 		/*** Generate the item ***/
 

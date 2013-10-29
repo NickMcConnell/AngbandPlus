@@ -116,7 +116,7 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 /*
  * Describe "secondary bonuses" of an item.
  */
-static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2)
+static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
 	cptr descs[8];
 	int cnt = 0;
@@ -133,7 +133,8 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2)
 	if (f1 & (TR1_MIGHT))   descs[cnt++] = "shooting power";
 
 	/* Skip */
-	if ((!cnt) && (!f1 & (TR1_INFRA))) return (FALSE);
+	if ((!cnt) && (!f1 & (TR1_INFRA)) && (!f2 & (TR2_MAGIC_MASTERY)) && (!f3 & (TR3_THROWMULT))) 
+		return (FALSE);
 
 	/* Start */
 	if (cnt)
@@ -147,12 +148,41 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1, u32b f2)
 	   p_text_out(format(" by %i.  ", pval));
     }
 
+	/* throwing power */
+	if (f3 & (TR3_THROWMULT))
+	{
+		int tpval = pval;
+		if (tpval == 1) tpval += 1;
+		p_text_out(format(" It %s your throwing power", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		p_text_out(format(" by %i.  ", (tpval - 1)));
+
+		/* message about gauntlets of throwing */
+		if (wield_slot(o_ptr) == INVEN_HANDS)
+		{
+			text_out("It also applies its damage bonus to throwing weapons instead of melee.  ");
+		}
+	}
+
     /* handle alertness factor */
 	if (f1 & (TR1_INFRA))
 	{
-	   text_out(format(" It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
-	   text_out(format(" by %i.  ", (pval * 5)));
+		text_out(format(" It %s your alertness", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		text_out(format(" by %i.  ", (pval * 5)));
     }
+
+	/* magic mastery (factor of 8 unless pval is 1) */
+	if (f2 & (TR2_MAGIC_MASTERY))
+	{
+		if (o_ptr->pval == 1)
+		{
+			text_out(" It increases your magic device skill by 9");
+		}
+		else
+		{
+			text_out(format(" It %s your magic device skill", (o_ptr->pval > 0 ? "increases" : "decreases")));
+			text_out(format(" by %i.  ", (pval * 8)));
+		}
+	}
 
 	/* We found something */
 	return (TRUE);
@@ -321,6 +351,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3, u32b f4)
 	if (f4 & (TR4_RES_DISEN)) vp[vn++] = "disenchantment";
 	if (f3 & (TR3_HOLD_LIFE)) vp[vn++] = "life draining";
 	if (f4 & (TR4_RES_CHARM)) vp[vn++] = "charming";
+	if (f4 & (TR4_RES_STATC)) vp[vn++] = "static";
 
 	/* Describe resistances */
 	output_desc_list("It provides resistance to ", vp, vn);
@@ -432,14 +463,13 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	/* Collect stuff which can't be categorized */
 	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
 	if (f2 & (TR2_LIGHTNESS))   good[gc++] = "is lighter than most armor of its type";
-	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
+	if (f2 & (TR2_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f2 & (TR2_EXTRA_CRIT))  good[gc++] = "increases likelihood of critical hits";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f2 & (TR2_NICE))        good[gc++] = "makes animals and light fairies less aggresive";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
-	if (f2 & (TR2_MAGIC_MASTERY))  good[gc++] = "raises your magic device skill";
-	if (f3 & (TR3_BR_SHIELD))   good[gc++] = "provides damages reduction against monster breath";
+	if (f3 & (TR3_BR_SHIELD))   good[gc++] = "provides damage reduction against monster breath";
 	if (f2 & (TR2_THROWN))      good[gc++] = "is balanced for throwing and can't be used for melee";
 	if (f2 & (TR2_RTURN))       good[gc++] = "(usually) returns to your hand when thrown";
 	if ((f3 & (TR3_GOOD_WEAP)) && (cp_ptr->spell_book == TV_DARK_BOOK))
@@ -464,12 +494,15 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
        }
 	   else if (f3 & (TR3_BAD_WEAP))    good[gc++] = "is evil and hates good";
 	   if (f2 & (TR2_CORRUPT))     good[gc++] = "corrupts those who wield it for too long";
-	   if (((f3 & (TR3_BAD_WEAP)) || (f3 & (TR3_GOOD_WEAP))) && 
-       (goodweap > 0) && (badweap > 0))
+	   if ((f3 & (TR3_BAD_WEAP)) && (goodweap))
        {
-          good[gc++] = "is in conflict with something else that you're wearing or wielding";
+          good[gc++] = "conflicts with something that you're wearing or wielding";
        }
     }
+   if ((f3 & (TR3_GOOD_WEAP)) && (badweap))
+   {
+      good[gc++] = "conflicts with something that you're wearing or wielding";
+   }
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -490,7 +523,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	if (f3 & (TR3_DRAIN_EXP)) bad[bc++] = "drains experience";
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
  	if (f3 & (TR3_STOPREGEN)) bad[bc++] = "prevents hit point regeneration";
-	if (f2 & (TR2_DANGER))    bad[bc++] = "sometimes hits yourself";
+	if (f2 & (TR2_DANGER))    bad[bc++] = "sometimes causes you to hit yourself";
 	if (f2 & (TR2_PEACE))     bad[bc++] = "makes you less aggresive in combat";
 
 	/* Deal with cursed stuff */
@@ -530,6 +563,13 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3, u32b
 	/* Set "something" */
 	if (gc || bc) something = TRUE;
 
+	/* Double weapon */
+	if (o_ptr->sbdd)
+	{
+		p_text_out("It is a double weapon (easier to get multiple attacks,");
+		text_out(" especially if you are not using a shield).  ");
+		something = TRUE;
+	}
 	/* weird "constant activation" flag */
 	if (f2 & (TR2_CONSTANTA))
 	{
@@ -562,9 +602,10 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 	return (FALSE);
 }
 
-#if 0 /* shouldn't need this */
+#if 0
 /*
  * number of blows (from xtra1.c  L~3126)
+ * (don't need this)
  */
 static int find_blows(const object_type *o_ptr, u32b f1)
 {
@@ -618,25 +659,22 @@ static int crit_chance(const object_type *o_ptr, u32b f2)
     int i, bonus;
     int weight = o_ptr->weight;
     int plus = o_ptr->to_h;
-	int excrit = 0;
-	if (f2 & TR2_EXTRA_CRIT) excrit = 10;
+	int excrit = o_ptr->crc - 5;
+	if (f2 & TR2_EXTRA_CRIT) excrit += 10;
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	if (bonus-1 > 10) excrit += (bonus-1)/10;
-	
-	/* hack: crit bonus for stilettos, more for bad classes */
-	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_STILETTO))
-	{
-       excrit += 2;
-       if (cp_ptr->spell_book == TV_DARK_BOOK) excrit += 2;
-    }
 
 	/* Extract "blow" power */
 	i = weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3);
 	if (weight > 150) excrit += 2;
 	else if (weight > 90) excrit += 1;
 	if (excrit > 0) i += excrit * (10 + (goodluck/3));
-	i += (goodluck * 3);
-	i -= (badluck * 2);
+	else if (excrit < 0) i -= excrit * (10 + (badluck/3));
+	else
+	{
+		i += (goodluck * 3);
+		i -= (badluck * 2);
+	}
 	if (p_ptr->peace) i -= 50;
 	
 	i = 5000/i;
@@ -650,11 +688,11 @@ static int critshot_chance(const object_type *o_ptr, u32b f2)
 {
     int i, bonus;
     int weight = o_ptr->weight;
-	int excrit = 0;
-	if (f2 & TR2_EXTRA_CRIT) excrit = 12;
+	int excrit = o_ptr->crc - 5;
 
 	if (f2 & TR2_THROWN)
 	{
+		if (f2 & TR2_EXTRA_CRIT) excrit += 12;
 	   bonus = p_ptr->to_h + o_ptr->to_h + p_ptr->skills[SKILL_THT];
 	   if (bonus-1 > 12) excrit += (bonus-1)/12;
     }
@@ -663,14 +701,21 @@ static int critshot_chance(const object_type *o_ptr, u32b f2)
 	   /* get the launcher */
        object_type *j_ptr = &inventory[INVEN_BOW];
 
-       bonus = p_ptr->to_h + o_ptr->to_h + j_ptr->to_h;
+       if (f2 & TR2_EXTRA_CRIT) excrit += 11;
+	   bonus = p_ptr->to_h + o_ptr->to_h + j_ptr->to_h;
 	   if ((bonus + p_ptr->skills[SKILL_THB])-1 > 12) excrit += ((bonus + p_ptr->skills[SKILL_THB])-1)/12;
     }
 
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + o_ptr->to_h) * 4) + (p_ptr->lev * 2));
-	if (p_ptr->peace) i = ((i * 9) / 10);
 	if (excrit > 0) i += excrit * (10 + (goodluck/3));
+	else if (excrit < 0) i -= excrit * (10 + (badluck/3));
+	else
+	{
+		i += (goodluck * 3);
+		i -= (badluck * 2);
+	}
+	if (p_ptr->peace) i = ((i * 9) / 10);
 	
 	i = 5000/i;
 	return i;
@@ -737,60 +782,90 @@ int thrown_brand(void)
 }
 
 /*
+ * collect slays  for describe_attack()
  * list[] and mult[] must be > 11 in size (?)
  */
-static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, bool weapon)
+static int collect_slays(const char *desc[], int mult[], u32b f1, u32b f2, u32b f3, bool weapon)
 {
 	int cnt = 0;
+	int isbrand = 0;
+	bool hasslay = FALSE;
+	bool exslay = FALSE;
 
 	/* Collect slays */
-	if (f1 & TR1_SLAY_ANIMAL) { mult[cnt] = 2; desc[cnt++] = "animals"; }
-	if (f1 & TR1_SLAY_EVIL)   { mult[cnt] = 2; desc[cnt++] = "evil creatures"; }
+	if (f1 & TR1_SLAY_ANIMAL) { mult[cnt] = 2; desc[cnt++] = "animals"; exslay = TRUE; }
+	if (f1 & TR1_SLAY_EVIL)   { mult[cnt] = 2; desc[cnt++] = "evil creatures"; exslay = TRUE; }
 
-	if (f1 & TR1_SLAY_ORC)    { mult[cnt] = 3; desc[cnt++] = "orcs"; }
-	if (f1 & TR1_SLAY_TROLL)  { mult[cnt] = 3; desc[cnt++] = "trolls"; }
-	if (f1 & TR1_SLAY_GIANT)  { mult[cnt] = 3; desc[cnt++] = "giants"; }
-	if (f1 & TR1_SLAY_DRAGON) { mult[cnt] = 3; desc[cnt++] = "dragons"; }
-	if (f1 & TR1_SLAY_DEMON)  { mult[cnt] = 3; desc[cnt++] = "demons"; }
-	if (f1 & TR1_SLAY_UNDEAD) { mult[cnt] = 3; desc[cnt++] = "undead"; }
-	if (f2 & TR2_SLAY_SILVER) { mult[cnt] = 3; desc[cnt++] = "silver creatures"; }
-	if (f2 & TR2_SLAY_BUG)    { mult[cnt] = 3; desc[cnt++] = "bugs"; }
-	if (f2 & TR2_SLAY_LITE)   { mult[cnt] = 3; desc[cnt++] = "creatures of light"; }
+	if (f1 & TR1_SLAY_ORC)    { mult[cnt] = 3; desc[cnt++] = "orcs"; hasslay = TRUE; }
+	if (f1 & TR1_SLAY_TROLL)  { mult[cnt] = 3; desc[cnt++] = "trolls"; hasslay = TRUE; }
+	if (f1 & TR1_SLAY_GIANT)  { mult[cnt] = 3; desc[cnt++] = "giants"; hasslay = TRUE; }
+	if (f1 & TR1_SLAY_DRAGON) { mult[cnt] = 3; desc[cnt++] = "dragons"; hasslay = TRUE; }
+	if (f1 & TR1_SLAY_DEMON)  { mult[cnt] = 3; desc[cnt++] = "demons"; hasslay = TRUE; }
+	if (f1 & TR1_SLAY_UNDEAD) { mult[cnt] = 3; desc[cnt++] = "undead"; hasslay = TRUE; }
+	if (f2 & TR2_SLAY_SILVER) { mult[cnt] = 3; desc[cnt++] = "silver creatures"; hasslay = TRUE; }
+	if (f2 & TR2_SLAY_BUG)    { mult[cnt] = 3; desc[cnt++] = "bugs"; hasslay = TRUE; }
+	if (f2 & TR2_SLAY_LITE)   { mult[cnt] = 3; desc[cnt++] = "creatures of light"; hasslay = TRUE; }
 
     if (weapon)
     {
-	   if (p_ptr->brand_acid)  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; }
-	   if (p_ptr->brand_elec)  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; }
-	   if (p_ptr->brand_fire)  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; }
-	   if (p_ptr->brand_cold)  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; }
-	   if (p_ptr->brand_pois)  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; }
+	   if (p_ptr->brand_acid)  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
+	   if (p_ptr->brand_elec)  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
+	   if (p_ptr->brand_fire)  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
+	   if (p_ptr->brand_cold)  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
+	   if (p_ptr->brand_pois)  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; isbrand++; }
     }
     /* Get brands from rings for thrown weapons (ugly) */
     /* but if I use p_ptr->brand_xxxx it includes the brand from the wielded melee weapon */
     else if (f2 & TR2_THROWN) 
     {
        int ringbrand = thrown_brand();
-       if ((ringbrand == 1) || ((ringbrand > 10) && (ringbrand < 20)) || (f1 & TR1_BRAND_COLD))  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; }
-       if ((ringbrand == 2) || (ringbrand == 12) || (ringbrand == 23) || (ringbrand == 24) || (ringbrand == 25) || (f1 & TR1_BRAND_FIRE))  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; }
-       if ((ringbrand == 3) || (ringbrand == 13) || (ringbrand == 23) || (ringbrand == 34) || (ringbrand == 35) || (f1 & TR1_BRAND_ACID))  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; }
-       if ((ringbrand == 4) || (ringbrand == 14) || (ringbrand == 24) || (ringbrand == 34) || (ringbrand == 45) || (f1 & TR1_BRAND_ELEC))  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; }
-       if ((ringbrand == 5) || (ringbrand == 15) || (ringbrand == 25) || (ringbrand == 35) || (ringbrand == 45) || (f1 & TR1_BRAND_POIS))  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; }
+       if ((ringbrand == 1) || ((ringbrand > 10) && (ringbrand < 20)) || (f1 & TR1_BRAND_COLD))  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
+       if ((ringbrand == 2) || (ringbrand == 12) || (ringbrand == 23) || (ringbrand == 24) || (ringbrand == 25) || (f1 & TR1_BRAND_FIRE))  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
+       if ((ringbrand == 3) || (ringbrand == 13) || (ringbrand == 23) || (ringbrand == 34) || (ringbrand == 35) || (f1 & TR1_BRAND_ACID))  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
+       if ((ringbrand == 4) || (ringbrand == 14) || (ringbrand == 24) || (ringbrand == 34) || (ringbrand == 45) || (f1 & TR1_BRAND_ELEC))  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
+       if ((ringbrand == 5) || (ringbrand == 15) || (ringbrand == 25) || (ringbrand == 35) || (ringbrand == 45) || (f1 & TR1_BRAND_POIS))  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; isbrand++; }
        /* 1=cold, 2=fire, 3=acid, 4=elec, 5=pois */
        /* 1,2,3,4,5,12,13,14,15,23,24,25,34,35,45*/
     }
     else /* ammo */
     {
-	   if (f1 & TR1_BRAND_ACID)  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; }
-	   if (f1 & TR1_BRAND_ELEC)  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; }
-	   if (f1 & TR1_BRAND_FIRE)  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; }
-	   if (f1 & TR1_BRAND_COLD)  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; }
-	   if (f1 & TR1_BRAND_POIS)  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; }
+	   if (f1 & TR1_BRAND_ACID)  { mult[cnt] = 3; desc[cnt++] = "acid-vulnerable creatures"; isbrand++; }
+	   if (f1 & TR1_BRAND_ELEC)  { mult[cnt] = 3; desc[cnt++] = "electricity-vulnerable creatures"; isbrand++; }
+	   if (f1 & TR1_BRAND_FIRE)  { mult[cnt] = 3; desc[cnt++] = "fire-vulnerable creatures"; isbrand++; }
+	   if (f1 & TR1_BRAND_COLD)  { mult[cnt] = 3; desc[cnt++] = "frost-vulnerable creatures"; isbrand++; }
+	   if (f1 & TR1_BRAND_POIS)  { mult[cnt] = 3; desc[cnt++] = "poison-vulnerable creatures"; isbrand++; }
     }
 
+	if (f1 & TR1_KILL_DRAGON) { mult[cnt] = 5; desc[cnt++] = "dragons"; exslay = TRUE; }
+	if (f1 & TR1_KILL_DEMON)  { mult[cnt] = 5; desc[cnt++] = "demons"; exslay = TRUE; }
+	if (f1 & TR1_KILL_UNDEAD) { mult[cnt] = 5; desc[cnt++] = "undead"; exslay = TRUE; }
 
-	if (f1 & TR1_KILL_DRAGON) { mult[cnt] = 5; desc[cnt++] = "dragons"; }
-	if (f1 & TR1_KILL_DEMON)  { mult[cnt] = 5; desc[cnt++] = "demons"; }
-	if (f1 & TR1_KILL_UNDEAD) { mult[cnt] = 5; desc[cnt++] = "undead"; }
+	/* stacking of brands and slays */
+	/* uses a magic mult number (see relevant part of describe_attack() ) */
+	if ((hasslay) && (isbrand))
+	{
+		mult[cnt] = 9;
+		if (exslay) desc[cnt++] = "when both a slay and brand apply (slay animal, slay evil, and execute ('KILL') slays don't stack)";
+		else desc[cnt++] = "when both a slay and brand apply";
+	}
+	if (isbrand > 1)
+	{
+		mult[cnt] = 9;
+		if (isbrand == 2) desc[cnt++] = "when both brands apply";
+		else desc[cnt++] = "when two different brands apply";
+	}
+	if (isbrand > 2)
+	{
+		mult[cnt] = 10;
+		if (isbrand == 3) desc[cnt++] = "when all brands apply";
+		else desc[cnt++] = "when three different brands apply";
+	}
+	if (isbrand > 3)
+	{
+		mult[cnt] = 11;
+		if (isbrand == 4) desc[cnt++] = "when all brands apply";
+		desc[cnt++] = "when four different brands apply";
+	}
 
 	return cnt;
 }
@@ -803,17 +878,34 @@ void describe_attack(const object_type *o_ptr)
 {
     object_type *j_ptr;
 	const char *desc[18];
-	bool ammo, weapon, edged;
+	bool ammo, weapon, edged, throwglove;
 	int mult[16];
-	int dam, cnt, total_dam, critc, ptodam;
+	int dam, sbdam, cnt, total_dam, total_sbdam, critc, ptodam, tmpblow;
 	int xtra_dam = 0;
     int strdam = 0;
 	int strdec, strb;
     int ringbrand = 0;
     int brandodd = 0;
+	object_type *g_ptr; /* g_ptr to check gloves */
+	u32b f1, f2, f3, f4;
+
+	/*** Hacky: Check for to_dam bonus from gauntlets of throwing ***/
+	g_ptr = &inventory[INVEN_HANDS];
+	if (g_ptr->k_idx)
+	{
+		/* Extract the gloves' flags */
+		object_flags(g_ptr, &f1, &f2, &f3, &f4);
+
+		/* add to_dam from gloves if appropriate (later) */
+		if ((f3 & (TR3_THROWMULT)) && (object_known_p(g_ptr))) throwglove = TRUE;
+
+		/* reset flags before getting thrown object flags */
+		f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
+	}
+	else throwglove = FALSE;
+
 
 	/* Grab the object flags */
-	u32b f1, f2, f3, f4;
 	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* get the launcher */
@@ -885,23 +977,64 @@ void describe_attack(const object_type *o_ptr)
 	   new_paragraph = TRUE;
 	   p_text_out("With this weapon, you would currently get ");
 	   new_paragraph = FALSE;
-	   if (p_ptr->num_blow > 1) text_out(format("%d blows per round.\n", p_ptr->num_blow));
-	   else text_out(format("%d blow per round.\n", p_ptr->num_blow));
+	   if (p_ptr->num_blow > 1) text_out(format("%d blows per round.", p_ptr->num_blow));
+	   else text_out(format("%d blow per round.", p_ptr->num_blow));
 
+	   /* double weapons (tell how many blows you would get if */
+	   /* you were/weren't wearing a shield) */
+	   if (o_ptr->sbdd)
+	   {
+			object_type *oarm_ptr;
+			int str_index, dex_index, div;
+			bool yshield = FALSE;
+			div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+			oarm_ptr = &inventory[INVEN_ARM];
+			if (oarm_ptr->k_idx) yshield = TRUE;
+			if (yshield)
+			{
+				div = ((o_ptr->weight/3 < cp_ptr->min_weight/2) ? cp_ptr->min_weight/2 : o_ptr->weight/3);
+			}
+			else
+			{
+				div = (div * 4) / 5;
+			}
+			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+			if (str_index > 11) str_index = 11;
+			dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+			if (dex_index > 11) dex_index = 11;
+			tmpblow = blows_table[str_index][dex_index];
+			if (tmpblow > cp_ptr->max_attacks) tmpblow = cp_ptr->max_attacks;
+			tmpblow += p_ptr->extra_blows;
+			if (p_ptr->timed[TMD_XATTACK]) tmpblow += 1;
+			if (p_ptr->peace) tmpblow -= 1;
+			if (tmpblow < 1) tmpblow = 1;
+			if ((yshield) && (p_ptr->num_blow != tmpblow))
+			{
+				if (tmpblow > 1) text_out(format("  You would get %d blows with this weapon if you weren't wearing a shield.", tmpblow));
+				else text_out("  You would get one blow with this weapon if you weren't wearing a shield.");
+			}
+			else if (p_ptr->num_blow != tmpblow)
+			{
+				if (tmpblow > 1) text_out(format("  You would get %d blows with this weapon if you were wearing a shield.", tmpblow));
+				else text_out("  You would get one blow with this weapon if you were wearing a shield.");
+			}
+	   }
+	   
 	   /* shield slot weapons */
-       if (f4 & (TR4_WIELD_SHIELD)) text_out("You can wield this weapon in your off hand for defence. ");
+       if (f4 & (TR4_WIELD_SHIELD)) text_out("  You can wield this weapon in your off hand for defence.");
        /* maybe later I'll have duel-wielding */
        /* if (f4 & (TR4_WIELD_SHIELD)) text_out("You can wield this weapon in your off hand without special training."); */
 
 	   /* Warn about heavy weapons */
 	   if (p_ptr->heavy_wield)
-		  text_out_c(TERM_L_RED, "You are too weak to use this weapon effectively.\n");
+		  text_out_c(TERM_L_RED, "  You are too weak to use this weapon effectively.");
     }
 	else if (f2 & TR2_THROWN)
 	{
 		int throws = thits_thrown(o_ptr->weight);
-		if (throws > 1) text_out(format("  You can throw %d of these weapons in one turn.\n", throws));
+		if (throws > 1) text_out(format("  You can throw %d of these weapons in one turn.", throws));
 	}
+	text_out("\n");
 
     /* describe damage only if identified */
     if (!object_known_p(o_ptr))
@@ -926,7 +1059,8 @@ void describe_attack(const object_type *o_ptr)
 
     if (weapon)
     {
-       dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
+		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
+	   if (o_ptr->sbdd) sbdam = ((o_ptr->sbds + 1) * o_ptr->sbdd * 5);
        /* remove strength bonus from xtra_dam */
        ptodam = p_ptr->dis_to_d - ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	   xtra_dam = ptodam * 10;
@@ -941,19 +1075,33 @@ void describe_attack(const object_type *o_ptr)
 	   else if ((o_ptr->weight / 10) < 5) strb = (strb * 2) / 3;
 	   else if ((o_ptr->weight / 10) < 6) strb = (strb * 3) / 4;
 	   else if ((o_ptr->weight / 10) < 7) strb = (strb * 5) / 6;
-	   else if ((o_ptr->weight / 10) > 30) strb = (strb * 12) / 5;
-	   else if ((o_ptr->weight / 10) > 26) strb = (strb * 7) / 3;
-	   else if ((o_ptr->weight / 10) > 23) strb = (strb * 9) / 4;
-	   else if ((o_ptr->weight / 10) > 20) strb = (strb * 13) / 6;
-	   else if ((o_ptr->weight / 10) > 17) strb = strb * 2;
-	   else if ((o_ptr->weight / 10) > 15) strb = (strb * 7) / 4;
-	   else if ((o_ptr->weight / 10) > 12) strb = (strb * 3) / 2;
-	   else if ((o_ptr->weight / 10) > 10) strb = (strb * 5) / 4;
+		if (cp_ptr->flags & CF_HEAVY_BONUS) /* barbarians like heavy weapons */
+		{
+			if ((o_ptr->weight / 10) > 26) strb = (strb * 13) / 6;
+			else if ((o_ptr->weight / 10) > 20) strb = strb * 2;
+			else if ((o_ptr->weight / 10) > 17) strb = (strb * 7) / 4;
+			else if ((o_ptr->weight / 10) > 15) strb = (strb * 3) / 2;
+			else if ((o_ptr->weight / 10) > 12) strb = (strb * 4) / 3;
+			else if ((o_ptr->weight / 10) > 10) strb = (strb * 5) / 4;
+			else if ((o_ptr->weight / 10) == 10) strb = (strb * 6) / 5;
+			if ((o_ptr->weight / 10) > 10) strb += 1;
+		}
+		else
+		{
+			if ((o_ptr->weight / 10) > 25) strb = strb * 2;
+			else if ((o_ptr->weight / 10) > 21) strb = (strb * 7) / 4;
+			else if ((o_ptr->weight / 10) > 17) strb = (strb * 3) / 2;
+			else if ((o_ptr->weight / 10) > 15) strb = (strb * 4) / 3;
+			else if ((o_ptr->weight / 10) > 12) strb = (strb * 5) / 4;
+			else if ((o_ptr->weight / 10) > 10) strb = (strb * 6) / 5;
+		}
 	   strdec = (strb / 10);
 	   dam += strdec * 10;
+	   sbdam += strdec * 5;
 	   /* decimal */
 	   strb -= strdec * 10;
 	   dam += strb;
+	   sbdam += strb/2;
 
 #if oldbreak
        /* figure strength bonus */
@@ -977,10 +1125,38 @@ void describe_attack(const object_type *o_ptr)
 		dam = ((o_ptr->ds + 1) * o_ptr->dd * 5);
 		if (object_known_p(o_ptr)) dam += (o_ptr->to_d * 10);
 
+		/* add to_dam from gloves if appropriate */
+		if (throwglove) dam += (g_ptr->to_d * 10);
+
+		/* gauntlets of throwing (or something else with the THROWMULT power) */
+		if (p_ptr->throwmult == 2) dam = ((dam * 7) / 4);       /* (x1.75) */
+		else if (p_ptr->throwmult == 3) dam = ((dam * 21) / 8); /* (x2.625) */
+		else if (p_ptr->throwmult >= 4) dam = ((dam * 7) / 2);  /* (x3.5) */
 		/* thrown weapon multiplier */
-        dam = (dam * 7) / 5;
+        else dam = (dam * 7) / 5;
 		
-        strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		/* DJA: add (partial) strength bonus for certain classes */
+		/* class 0 will always be warrior so no need for a flag in that case */
+		/* weapons meant for throwing always get STR bonus */
+		if ((cp_ptr->flags & CF_HEAVY_BONUS) || (cp_ptr->flags & CF_KNIGHT) ||
+			(p_ptr->pclass == 0) || (f2 & TR2_THROWN) || (p_ptr->timed[TMD_MIGHTY_HURL]))
+		{
+			int strb;
+			int eweight = o_ptr->weight;
+			if (!(f2 & TR2_THROWN)) eweight = eweight / 2; /* less if not meant for throwing */
+			/* complex strength bonus by weight (different than melee) */
+			strb = 10 * ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+			if (eweight < 25) strb = strb / 2;
+			else if (eweight < 40) strb = (strb * 2) / 3;
+			else if (eweight < 50) strb = (strb * 3) / 4;
+			else if (eweight < 60) strb = (strb * 5) / 6;
+			strb = strb / 10;
+			if (p_ptr->timed[TMD_MIGHTY_HURL]) strb = strb * 2;
+			dam += strb;
+			/* doesn't use strdam because STR bonus is now added before slays */
+		}
+
+        /* strdam += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128); */
 
 	    new_paragraph = TRUE;
 		p_text_out("This weapon can be thrown for an average damage of ");
@@ -1030,7 +1206,7 @@ void describe_attack(const object_type *o_ptr)
     }
 
     /* Collect slays */
-	cnt = collect_slays(desc, mult, f1, f2, weapon);
+	cnt = collect_slays(desc, mult, f1, f2, f3, weapon);
 	   
 	if (cnt)
 	{
@@ -1040,21 +1216,37 @@ void describe_attack(const object_type *o_ptr)
 		{
 		   /* Include bonus damage and slay in stated average */
 		   int slay_dam = dam * mult[i] + xtra_dam;
+		   int slay_sbdam = sbdam * mult[i] + xtra_dam;
+
+		   /* special message for slay stacking which adds 25% */
+		   if (mult[i] == 9) slay_dam = dam / 4;
+		   if (mult[i] == 10) slay_dam = (dam / 4) * 2;
+		   if (mult[i] == 11) slay_dam = (dam / 4) * 3;
     
-           /* strength bonus after multipliers for slings and thrown weapons */
-           /* but before multipliers for melee weapons (kindof ugly) */
-           if (((o_ptr->tval == TV_SHOT) || (f2 & TR2_THROWN)) && (strdam > 0))
+           /* strength bonus after multipliers for slings */
+           /* but before multipliers for melee weapons */
+           if ((o_ptr->tval == TV_SHOT) && (strdam))
               slay_dam += strdam;
 
-		   if (slay_dam <= 0)
-			    text_out(format("%d", 0));
-		   else if (slay_dam % 10)
+			if (mult[i] >= 9) text_out("+");
+			if (slay_dam <= 0)
+				text_out(format("%d", 0));
+			else if (slay_dam % 10)
 				text_out(format("%d.%d", slay_dam / 10, slay_dam % 10));
-		   else text_out(format("%d", slay_dam / 10));
+			else text_out(format("%d", slay_dam / 10));
+			if ((o_ptr->sbdd) && (mult[i] < 9) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
+		   {
+			   if (slay_sbdam <= 0)
+				    text_out(format(" (%d", 0));
+			   else if (slay_sbdam % 10)
+					text_out(format(" (%d.%d", slay_sbdam / 10, slay_sbdam % 10));
+			   else text_out(format(" (%d", slay_sbdam / 10));
+			   text_out(" on the 2nd hit)");
+		   }
 
-		   text_out(format(" against %s, ", desc[i]));
+		   if (mult[i] >= 9) text_out(format(" %s, ", desc[i]));
+		   else text_out(format(" against %s, ", desc[i]));
 		}
-
 	    text_out("and ");
     }
        
@@ -1062,20 +1254,77 @@ void describe_attack(const object_type *o_ptr)
     total_dam = dam + xtra_dam;
     
     
-    /* strength bonus after multipliers for slings and thrown weapons */
-    /* but before multipliers for melee weapons (kindof ugly) */
-    if (((o_ptr->tval == TV_SHOT) || (f2 & TR2_THROWN)) && (strdam))
-       total_dam += strdam;
+    /* strength bonus after multipliers for slings */
+    /* but before multipliers for melee weapons */
+    if ((o_ptr->tval == TV_SHOT) && (strdam)) total_dam += strdam;
 
 	if (total_dam <= 0)
 	   text_out(format("%d", 0));
 	else if (total_dam % 10) text_out(format("%d.%d",
 	           total_dam / 10, total_dam % 10));
 	else text_out(format("%d", total_dam / 10));
+	if ((o_ptr->sbdd) && ((p_ptr->num_blow > 1) || (tmpblow > 1)))
+	{
+		total_sbdam = sbdam + xtra_dam;
+		if (total_sbdam <= 0)
+		   text_out(format(" (%d", 0));
+		else if (total_sbdam % 10) text_out(format(" (%d.%d",
+		           total_sbdam / 10, total_sbdam % 10));
+		else text_out(format(" (%d", total_sbdam / 10));
+		text_out(format(" on the 2nd hit)", total_sbdam));
+	}
 
     if (cnt) text_out(" against other monsters");
-    if ((weapon) && ((p_ptr->timed[TMD_HIT_ELEMENT]) || (p_ptr->timed[TMD_BALROG])))
-       text_out(". This does not figure in 'spririt of the balrog' or 'elemental strike' effects.");
+
+
+	if ((f1 & TR1_TUNNEL) || (f3 & TR3_LITE))
+	{
+		int digrock;
+		if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1)) digrock = (dam / 4) * o_ptr->pval;
+		else digrock = (dam / 4);
+		if ((digrock == (dam / 4)) && ((dam / 4) > 0))
+		{
+			if ((dam / 4) % 10)
+				text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
+			else text_out(format(" (add +%d", (dam / 4) / 10));
+			if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE))
+			{
+				text_out(" damage against creatures vulnerable to light or rock remover)");
+			}
+			else if (f3 & TR3_LITE)
+			{
+				text_out(" damage against creatures vulnerable to light)");
+			}
+			else if (f1 & TR1_TUNNEL)
+			{
+				text_out(" damage against creatures vulnerable to rock remover)");
+			}
+		}
+		else if ((f1 & TR1_TUNNEL) && (f3 & TR3_LITE) && (o_ptr->pval > 1))
+		{
+			if ((dam / 4) % 10)
+				text_out(format(" (add +%d.%d", (dam / 4) / 10, (dam / 4) % 10));
+			else text_out(format(" (add +%d", (dam / 4) / 10));
+			text_out(" damage against creatures vulnerable to light and");
+			if ((dam / 4) % 10)
+				text_out(format(" add +%d.%d", digrock / 10, digrock % 10));
+			else text_out(format(" add +%d", digrock / 10));
+			text_out(" damage against creatures vulnerable to rock remover)");
+		}
+		else if ((f1 & TR1_TUNNEL) && (o_ptr->pval > 1))
+		{
+			if ((dam / 4) % 10)
+				text_out(format(" (add +%d.%d", digrock / 10, digrock % 10));
+			else text_out(format(" (add +%d", digrock / 10));
+			text_out(" damage against creatures vulnerable to rock remover)");
+		}
+	}
+
+    /* factors not included */
+	if ((weapon) && (p_ptr->timed[TMD_BALROG]))
+       text_out(". This does not figure in the 'spririt of the balrog' effect.");
+	if ((weapon) && (p_ptr->timed[TMD_HIT_ELEMENT]))
+       text_out(". This does not figure in the 'elemental strike' effect.");
     else text_out(".");
     
     /* note to-hit penalty from TMD_XATTACK */
@@ -1085,22 +1334,25 @@ void describe_attack(const object_type *o_ptr)
        text_out(" usually is because of the magic which is giving you an extra melee blow.");
     }
     
-    /* Are you getting an elemental brand from a ring? (this is ugly..) */
-    if (f2 & TR2_THROWN) ringbrand = thrown_brand();
+    /* Are you getting an elemental brand from a ring? */
+    if (f2 & TR2_THROWN)
+	{
+		ringbrand = thrown_brand();
 
-    /* Get odds of thrown weapon getting branded by elemental ring */
-    if (ringbrand)
-    {
-       brandodd = ((p_ptr->skills[SKILL_THT] + goodluck) / 2);
-       if (p_ptr->lev < 20) brandodd += 5;
-       /* if ringbrand > 10 then */
-       /* character is wearing more than one elemental ring */
-       /* so more likely to get brand from ring */
-       if (ringbrand > 10) brandodd += 10;
-
-       /* percentile */
-       if (brandodd > 100) brandodd = 100;
-    }
+		/* Get odds of thrown weapon getting branded by elemental ring */
+		if (ringbrand)
+		{
+		   brandodd = ((p_ptr->skills[SKILL_THT] + goodluck) / 2);
+		   if (p_ptr->lev < 20) brandodd += 5;
+		   /* if ringbrand > 10 then */
+		   /* character is wearing more than one elemental ring */
+		   /* so more likely to get brand from ring */
+		   if (ringbrand > 10) brandodd += 10;
+	
+	       /* percentile */
+	       if (brandodd > 100) brandodd = 100;
+	    }
+	}
     
     if (weapon)
     {
@@ -1111,7 +1363,7 @@ void describe_attack(const object_type *o_ptr)
        else if (p_ptr->icky_wield)
        {
           text_out("  This weapon violates your restriction against edged weapons");
-          text_out(" and would hinder your magic. ");
+          text_out(" and would hinder your magic.");
        }
 
        text_out("  Your chance of scoring a critical hit with this weapon is 1 in ");
@@ -1122,22 +1374,30 @@ void describe_attack(const object_type *o_ptr)
     }
     else if (f2 & TR2_THROWN)
     {
-       text_out("  Your chance of scoring a critical hit when throwing this ");
-       text_out(format("weapon is 1 in %d.", critc));
-       if (f1 & TR1_BLOWS)
-       {
-           if (o_ptr->pval > 1) text_out(format("  This weapon attacks your foe %d times when you throw it.", o_ptr->pval + 1));
-           else if (o_ptr->pval == 1) text_out("  This weapon attacks your foe twice when you throw it.");
-       }
-       if (ringbrand)
-       {
-           text_out("  Thrown weapons often get the brand from an elemental ring");
-           text_out(" but not always. It depends on luck and skill with throwing");
-           text_out(format(" weapons. You have a %d percent chance of getting the", brandodd));
-           text_out(" brand from a ring when throwing this weapon. Note: Weapons");
-           text_out(" not meant for throwing never get the brand from a ring.");
-       }
-       text_out("\n");
+		int xstrb;
+		xstrb = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		text_out("  Your chance of scoring a critical hit when throwing this ");
+		text_out(format("weapon is 1 in %d.", critc));
+
+		if ((!cp_ptr->flags & CF_HEAVY_BONUS) && (o_ptr->weight >= 200) && 
+			(!p_ptr->timed[TMD_MIGHTY_HURL]) && (xstrb < 10))
+		{
+			text_out("  This weapon is too heavy to be thrown effectively with your strength.");
+		}
+		if (f1 & TR1_BLOWS)
+		{
+			if (o_ptr->pval > 1) text_out(format("  This weapon attacks your foe %d times when you throw it.", o_ptr->pval + 1));
+			else if (o_ptr->pval == 1) text_out("  This weapon attacks your foe twice when you throw it.");
+		}
+		if (ringbrand)
+		{
+			text_out("  Thrown weapons often get the brand from an elemental ring");
+			text_out(" but not always. It depends on luck and skill with throwing");
+			text_out(format(" weapons. You have a %d percent chance of getting the", brandodd));
+			text_out(" brand from a ring when throwing this weapon. Note: Weapons");
+			text_out(" not meant for throwing never get the brand from a ring.");
+		}
+		text_out("\n");
     }
     else if (ammo)
     {
@@ -1146,6 +1406,191 @@ void describe_attack(const object_type *o_ptr)
     }
     
     return;
+}
+
+
+/* figure and display chance of magic device failure */
+void device_chance(const object_type *o_ptr)
+{
+	int lev, chance, odds, power;
+	int artstaff = 0;
+	bool fluke = FALSE;
+	bool charged = FALSE;
+	bool allcharging = FALSE;
+
+	/* Extract the flags (to check for activation) */
+	u32b f1, f2, f3, f4;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* does it use charges? */
+	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND))
+		charged = TRUE;
+
+	/* just in case of an activatable artifact staff */
+	/* (there is only 1 at the moment) */
+	if ((charged) && (f3 & (TR3_ACTIVATE)) && (artifact_p(o_ptr))) 
+		artstaff = 1;
+
+	/* see if there are any rods in the stack which are not currently charging */
+	if ((o_ptr->timeout) && (o_ptr->tval == TV_ROD))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		if (k_ptr->pval == 0) k_ptr->pval = 1;
+		power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+
+		/* all rods in the stack are charging */
+		if (power >= o_ptr->number) allcharging = TRUE;
+	}
+
+	new_paragraph = TRUE;
+	/* 100% chance of failure */
+	if ((charged) && (o_ptr->pval <= 0))
+	{
+	    p_text_out("  This device is out of charges.");
+		new_paragraph = FALSE;
+		if (artstaff) artstaff = 2;
+		else return;
+	}
+	if (((!charged) || (artstaff)) && (o_ptr->timeout) && (allcharging))
+	{
+	    p_text_out("  This device is charging.");
+		new_paragraph = FALSE;
+
+		/* only show normal staff use odds for charging artifact staves */
+		if (artstaff == 1) artstaff = 0;
+		else return;
+	}
+
+	/* artstaff == 2 means out of charges so skip the odds for staff use */
+	if (artstaff == 2)
+	{
+		artstaff = a_info[o_ptr->name1].level;
+	}
+	else
+	{
+		/* Extract the item diffuculty (now separated from item level) */
+		lev = k_info[o_ptr->k_idx].extra;
+	
+		/* cursed items are harder to use */
+		/* (currently only staffs are ever cursed but that will likely change) */
+		if (cursed_p(o_ptr)) lev += 5 + badluck/3;
+
+		/* blessed items are easier to activate */
+		if ((o_ptr->blessed > 1) && (lev > 23)) lev -= 12;
+		else if ((o_ptr->blessed > 1) && (lev > 12)) lev = 12;
+		else if ((o_ptr->blessed) && (lev > 4)) lev -= 4;
+	
+		/* Hack -- use artifact level instead (bless/curse doesn't effect artifact activation) */
+		/* if artstaff then it has two different difficulty levels */
+		if (artstaff) artstaff = a_info[o_ptr->name1].level;
+		else if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+
+		/* Base chance of success */
+		chance = p_ptr->skills[SKILL_DEV];
+
+		/* Confusion hurts skill */
+		if (p_ptr->timed[TMD_CONFUSED])
+		{
+		   if (goodluck > 16) chance = (chance * 8) / 9;
+		   else if (goodluck > 9) chance = (chance * 3) / 4;
+		   else if (goodluck > 2) chance = (chance * 2) / 3;
+		   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+		   else chance = (chance / 2) - (badluck/3);
+		}
+
+		/* High level objects are harder */
+		/* no limit now that difficulty is separated from depth */
+		/* (very few devices have difficulty > 50) */
+		if ((artifact_p(o_ptr)) && (!artstaff)) chance = chance - ((lev > 50) ? 50 : lev);
+		else chance -= lev;
+
+
+		/* Check for amnesia (only for activations) */
+		if ((!charged) && (o_ptr->tval != TV_ROD) && 
+			(p_ptr->timed[TMD_AMNESIA]))
+		{
+			/* this is an approximation ..but that's alright because */
+			/* usually when you (I)nspect an object, you aren't hallucenating */
+			chance = chance / 2;
+		}
+	
+		/* Give everyone a (slight) chance */
+		/* Odds of success (33% success rate (1 in 3) at best) */
+		if (chance < USE_DEVICE)
+		{
+			fluke = TRUE; /* you'd need a fluke */
+			if (chance + 1 < 2) chance = 2;
+			else chance += 1;
+			if (lev < 9) lev = 9;
+			/* if (rand_int(lev) < chance) */
+			odds = ((chance-1) * 100 / lev);
+			if (charged) p_text_out(format("  You have about a %d percent chance of success when using this device.", odds));
+			else p_text_out(format("  You have about a %d percent chance of success when activating this device.", odds));
+			/* text_out(format("  chance is %d", chance)); * for testing */
+		}
+	
+		/* Odds of failure */
+		if (!fluke)
+		{
+			/* if (randint(chance) < USE_DEVICE) */
+			odds = ((USE_DEVICE-1) * 100 / chance);
+			
+			if (charged) p_text_out(format("  You have about a %d percent chance of failure when using this device.", odds));
+			else p_text_out(format("  You have about a %d percent chance of failure when activating this device.", odds));
+			/* for testing */
+			/* text_out(format("  chance is %d", chance));
+			 * text_out(format("  lev is %d", lev));
+			 */
+		}
+
+		/* Done for almost every object */
+		if (!artstaff) return;
+	}
+
+	/** the rest of this funcion only applies to artifact staffs **/
+
+	/* reset chance */
+	chance = p_ptr->skills[SKILL_DEV];
+
+	/* Confusion hurts skill */
+	if (p_ptr->timed[TMD_CONFUSED])
+    {
+       if (goodluck > 16) chance = (chance * 8) / 9;
+       else if (goodluck > 9) chance = (chance * 3) / 4;
+       else if (goodluck > 2) chance = (chance * 2) / 3;
+	   else if (chance >= 60) chance = ((chance * 2) / 3) - (5 + (badluck/2));
+       else chance = (chance / 2) - (badluck/3);
+    }
+
+	/* now use the other difficulty level */
+	chance = chance - ((artstaff > 50) ? 50 : artstaff);
+
+	/* amnesia penalty */
+	if (p_ptr->timed[TMD_AMNESIA]) chance = chance / 2;
+
+	/* Give everyone a (slight) chance */
+	/* Odds of success (33% success rate (1 in 3) at best) */
+	if (chance < USE_DEVICE)
+	{
+		fluke = TRUE; /* you'd need a fluke */
+		if (chance + 1 < 2) chance = 2;
+		else chance += 1;
+		if (artstaff < 9) artstaff = 9;
+		/* if (rand_int(lev) < chance) */
+		odds = ((chance-1) * 100 / artstaff);
+		text_out(format("  You have about a %d percent chance of success when using the activation on this device.", odds));
+	}
+
+	/* Odds of failure */
+	if (!fluke)
+	{
+		/* if (randint(chance) < USE_DEVICE) */
+		odds = ((USE_DEVICE-1) * 100 / chance);
+		
+		text_out(format("  You have about a %d percent chance of failure when using the activation on this device.", odds));
+	}
+	new_paragraph = FALSE;
+	return;
 }
 
 
@@ -1162,7 +1607,7 @@ bool object_info_out(const object_type *o_ptr)
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
-	if (describe_secondary(o_ptr, f1, f2)) something = TRUE;
+	if (describe_secondary(o_ptr, f1, f2, f3)) something = TRUE;
 	if (describe_slay(o_ptr, f1, f2)) something = TRUE;
 	if (describe_brand(o_ptr, f1, f2)) something = TRUE;
 	if (describe_immune(o_ptr, f2)) something = TRUE;
@@ -1178,9 +1623,9 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 
-	/* Unknown extra powers (ego-item with random extras or artifact) */
+	/* Unknown extra powers (ego-item with random extras) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
+	    (o_ptr->xtra1))
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
 		if (text_out_hook == text_out_to_screen)
@@ -1348,6 +1793,7 @@ void object_info_screen(const object_type *o_ptr)
 
 	object_info_out_flags = object_flags_known;
 
+
 	/* Dump the info */
 	new_paragraph = TRUE;
 	has_info = object_info_out(o_ptr);
@@ -1373,6 +1819,13 @@ void object_info_screen(const object_type *o_ptr)
 
 	/* get object flags */
 	object_info_out_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* chance of failure for magic devices */
+	if ((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND) || 
+		(o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
+	{
+		if (object_known_p(o_ptr)) device_chance(o_ptr);
+	}
 	
     /* describe weapon attacks */
     if ((ammo) || (weapon) || (o_ptr->tval == TV_BOW) || (f2 & TR2_THROWN))

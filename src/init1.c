@@ -133,6 +133,7 @@ static cptr r_info_blow_effect[] =
 	"BLOODWRATH",
 	"SPHCHARM",
 	"STUDY",
+	"BHOLD",
 	NULL
 };
 
@@ -348,11 +349,11 @@ static cptr r_info_flags6[] =
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"CURSE_PC",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"S_SILVER",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
@@ -441,7 +442,7 @@ static cptr k_info_flags2[] =
 	"CONSTANTA",
 	"XXX83",
 	"XXX84",
-	"XXX85",
+	"IMPACT",
 	"CORRUPT",
 	"RTURN",
 	"THROWN",
@@ -466,8 +467,8 @@ static cptr k_info_flags3[] =
 	"DARKVIS",
 	"BR_SHIELD",
 	"TCONTROL",
+	"THROWMULT",
     "STOPREGEN",              /* was XXX4 */
-	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
 	"DRAIN_EXP",
@@ -507,7 +508,7 @@ static cptr k_info_flags4[] =
 	"RES_CHAOS",
 	"RES_DISEN",
 	"RES_CHARM",
-	"XXX14",
+	"RES_STATC",
 	"XXX15",
 	"XXX16",
 	"XXX17",
@@ -1061,20 +1062,24 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int typ, rat, hgt, wid;
+		int typ, rat, hgt, wid, dig;
 
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &typ, &rat, &hgt, &wid)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &typ, &rat, &hgt, &wid, &dig)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		v_ptr->typ = typ;
 		v_ptr->rat = rat;
 		v_ptr->hgt = hgt;
 		v_ptr->wid = wid;
+
+		/* translate dig into useMT */
+		if (dig == 1) v_ptr->useMT = TRUE;
+		else v_ptr->useMT = FALSE;
 
 		/* Check for maximum vault sizes */
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
@@ -1261,6 +1266,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 
 /*
  * Initialize the "k_info" array, by parsing an ascii "template" file
+ * (object.txt, object kind info)
  */
 errr parse_k_info(char *buf, header *head)
 {
@@ -1380,7 +1386,7 @@ errr parse_k_info(char *buf, header *head)
 
 		/* Save the values */
 		k_ptr->level = level;
-		k_ptr->extra = extra;
+		k_ptr->extra = extra; /* this is now magic device difficulty */
 		k_ptr->weight = wgt;
 		k_ptr->cost = cost;
 	}
@@ -1423,14 +1429,14 @@ errr parse_k_info(char *buf, header *head)
 	/* Hack -- Process 'P' for "power" and such */
 	else if (buf[0] == 'P')
 	{
-		int ac, hd1, hd2, th, td, ta;
+		int ac, hd1, hd2, th, td, ta, crc;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+			            &ac, &hd1, &hd2, &th, &td, &ta, &crc)) return (PARSE_ERROR_GENERIC);
 
 		k_ptr->ac = ac;
 		k_ptr->dd = hd1;
@@ -1438,6 +1444,23 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->to_h = th;
 		k_ptr->to_d = td;
 		k_ptr->to_a = ta;
+		k_ptr->crc = crc;
+	}
+
+	/* Hack -- Process '2' for double weapons (only double weapons have a "2" line) */
+	else if (buf[0] == '2')
+	{
+		int sbhd1, sbhd2;
+
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%dd%d",
+			            &sbhd1, &sbhd2)) return (PARSE_ERROR_GENERIC);
+
+		k_ptr->sbdd = sbhd1;
+		k_ptr->sbds = sbhd2;
 	}
 
 	/* Hack -- Process 'C' for "charges" */
@@ -1613,9 +1636,9 @@ static errr grab_one_activation(artifact_type *a_ptr, cptr what)
 }
 
 
-
 /*
  * Initialize the "a_info" array, by parsing an ascii "template" file
+ * (artifact.txt)
  */
 errr parse_a_info(char *buf, header *head)
 {
@@ -1725,6 +1748,22 @@ SAVED_H_PTR = (artifact_type*)head->info_ptr;
 		a_ptr->to_h = th;
 		a_ptr->to_d = td;
 		a_ptr->to_a = ta;
+	}
+
+	/* Hack -- Process '2' for double weapons (most won't have a "2" line) */
+	else if (buf[0] == '2')
+	{
+		int sbhd1, sbhd2;
+
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%dd%d",
+			            &sbhd1, &sbhd2)) return (PARSE_ERROR_GENERIC);
+
+		a_ptr->sbdd = sbhd1;
+		a_ptr->sbds = sbhd2;
 	}
 
 	/* Process 'F' for flags */
@@ -1840,6 +1879,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file
+ * (ego_item.txt)
  */
 errr parse_e_info(char *buf, header *head)
 {
@@ -2070,6 +2110,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
+ * (monster.txt, monster race info)
  */
 errr parse_r_info(char *buf, header *head)
 {
@@ -2410,6 +2451,7 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 
 /*
  * Initialize the "p_info" array, by parsing an ascii "template" file
+ * (p_race.txt)
  */
 errr parse_p_info(char *buf, header *head)
 {
@@ -2668,6 +2710,7 @@ static errr grab_one_class_flag(player_class *pc_ptr, cptr what)
 
 /*
  * Initialize the "c_info" array, by parsing an ascii "template" file
+ * (p_class.txt)
  */
 errr parse_c_info(char *buf, header *head)
 {

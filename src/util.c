@@ -3476,7 +3476,7 @@ void request_command(void)
 
 
 	/* Hack -- Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
 	{
 		char verify_inscrip[] = "^*";
 

@@ -3498,6 +3498,10 @@ void wiz_lite(void)
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];
+		int oy, ox;
+		/* object location */
+		oy = o_ptr->iy;
+		ox = o_ptr->ix;
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
@@ -3505,8 +3509,21 @@ void wiz_lite(void)
 		/* Skip held objects */
 		if (o_ptr->held_m_idx) continue;
 
+		/* never show objects buried in granite, quartz, or magma */
+		if ((o_ptr->hidden) && ((cave_feat[oy][ox] == FEAT_RUBBLE) || (cave_feat[oy][ox] == FEAT_FLOOR)))
+		{
+			/* always rubble unhide objects if cheating */
+			if (cheat_peek) o_ptr->hidden = 0;
+
+			/* normally unhide rubble objects only if in LOS */
+			else if (player_can_see_bold(oy, ox)) o_ptr->hidden = 0;
+			
+			/* chance to unhide other rubble objects with luck */
+			else if (randint(100) < 20 + goodluck - badluck) o_ptr->hidden = 0;
+		}
+
 		/* Memorize */
-		o_ptr->marked = TRUE;
+		if (!o_ptr->hidden) o_ptr->marked = TRUE;
 	}
 
 	/* Scan all normal grids */
@@ -4054,8 +4071,11 @@ bool projectable(int y1, int x1, int y2, int x2)
 	y = GRID_Y(grid_g[grid_n-1]);
 	x = GRID_X(grid_g[grid_n-1]);
 
+	/* should be able to target a monster in a wall with a spell DJXXX */
+	/* because it has to be sticking out of the wall for it to breathe on you */
+	if ((!cave_floor_bold(y, x)) && (cave_m_idx[y][x] > 0)) /* monster */;
 	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+	else if (!cave_floor_bold(y, x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);

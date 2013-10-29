@@ -647,12 +647,17 @@ errr get_obj_num_prep(void)
  *
  * Note that if no objects are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
+ *
+ * DJA: This function also checks for and rejects spellbooks of the wrong
+ * magic realm.
  */
 s16b get_obj_num(int level)
 {
 	int i, j, p;
 
 	int k_idx;
+	/* use specidx to tag the class object */
+	int specidx = 0;
 
 	long value, total;
 
@@ -669,6 +674,11 @@ s16b get_obj_num(int level)
 		{
 			/* What a bizarre calculation */
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
+		}
+		/* slightly more common but much smaller boost */
+		else if (rand_int(GREAT_OBJ) < 2)
+		{
+			level += randint(2);
 		}
 	}
 
@@ -694,7 +704,7 @@ s16b get_obj_num(int level)
 		/* Hack -- prevent embedded chests */
 		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 		
-		/* DAJ: appropriate spellbooks much more likely to appear than others */
+		/* DJA: appropriate spellbooks much more likely to appear than others */
 	    /* this is a must-have because of having several spell realms */
 
 	    /* check for spellbook tval */
@@ -702,12 +712,12 @@ s16b get_obj_num(int level)
 	    {
            /* is it an appropriate spell book? */
            /* (occationally let them find a foreign book for flavor) */
-           if ((!(k_ptr->tval == cp_ptr->spell_book)) && (randint(100) < 91))
+           if ((!(k_ptr->tval == cp_ptr->spell_book))/* && (randint(100) < 91)*/)
            {
-              /* reject it outright a lot of the time */
-              /* (was 90% before I got replacement to work) */
-              if (randint(100) < 86) continue;
-              
+              /* reject it most of the time */
+			  /* I decided it's probably better not to replace them */
+              if (randint(100) < 91) continue;
+#if blaho
               /* always reject alchemy books */
 /* do not convert them to correct book because depths are very different */
               if (k_ptr->tval == TV_CHEM_BOOK) continue;
@@ -723,31 +733,33 @@ s16b get_obj_num(int level)
               
 		      /* Get the actual kind */
 		      k_ptr = &k_info[k_idx];
+#endif
            }
         }
 
         /* The class object (hard to tell if it works or not) */
+		/* change it into something appropriate for each class */
 	    if ((k_ptr->tval == TV_SPECIAL) && (k_ptr->sval == SV_CLASS_OBJ))
 	    {
-           /* change it into something appropriate for each class */
-           int die = randint(45 + goodluck*2);
+           int die = randint(45 + ((goodluck*3)/2));
            
-           if (cotval < 1) continue;
-			  /* Get the object_kind */
-           if (die < 30)
+           if (!cotval) continue;
+			  /* Get the new object_kind */
+           if ((die < 30) || (!cotvalb))
            {
 			  k_idx = lookup_kind(cotval, cosval);
            }   
            else
            {
-              if (cotvalb < 1) continue;
 			  k_idx = lookup_kind(cotvalb, cosvalb);
            }
+#if doweneedthis
            if ((k_ptr->tval == TV_STAFF) || (k_ptr->tval == TV_WAND))
            {
               k_ptr->pval = 4 + randint(3);
            }
            else if (k_ptr->tval == TV_RING) k_ptr->pval = randint(3);
+#endif
 
 			/* Valid item? */
 			if (!k_idx) continue;
@@ -755,9 +767,13 @@ s16b get_obj_num(int level)
             /* change the index */
             table[i].index = k_idx;
 
+			/* tag the class object */
+			/* (maybe this will let me know for sure that it works) */
+			specidx = table[i].index;
+
 		    /* Get the actual kind */
 		    k_ptr = &k_info[k_idx];
-        }        
+        }
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -787,8 +803,8 @@ s16b get_obj_num(int level)
 	/* Power boost */
 	p = rand_int(100);
 
-	/* Try for a "better" object once (50%) or twice (10%) */
-	if (p < 60)
+	/* Try for a "better" object once (55% (was 50%)) or twice (10%) */
+	if (p < 55)
 	{
 		/* Save old */
 		j = i;
@@ -833,6 +849,11 @@ s16b get_obj_num(int level)
 		if (table[i].level < table[j].level) i = j;
 	}
 
+	/* cheat message if the class object was created */
+	if ((specidx == table[i].index) && (cheat_peek))
+	{
+		msg_print("Class object created.");
+	}
 
 	/* Result */
 	return (table[i].index);
@@ -1673,6 +1694,10 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
 	o_ptr->ds = k_ptr->ds;
+	o_ptr->crc = k_ptr->crc;
+	/* for double weapons (most objects won't have these values) */
+	o_ptr->sbdd = k_ptr->sbdd;
+	o_ptr->sbds = k_ptr->sbds;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -1838,7 +1863,15 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 	/* Weapons with THROWN flag can't be wielded */
 	/* so they get ammo egos instead of normal weapon egos */
 	/* (gets a fake sval with TV_SHOT for the purpose of chosing an ego) */
-    if ((f2 & TR2_THROWN) && (f2 & TR2_RTURN))
+	if ((o_ptr->tval == TV_SKELETON) && (o_ptr->sval == SV_VASP_STING) && 
+		((level < 55) || (randint(100) < 65)))
+    {
+       /* (usually) prevent vasp stingers from getting branded egos */
+       /* because they already have a poison brand */
+       ftval = 16;
+       fsval = 7;
+    }
+    else if ((f2 & TR2_THROWN) && (f2 & TR2_RTURN))
     {
        /* prevent boomerangs from getting 'throwing and returning' ego */
        /* because they already have both those flags */
@@ -2816,6 +2849,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
+		o_ptr->sbdd = a_ptr->sbdd;
+		o_ptr->sbds = a_ptr->sbds;
 		o_ptr->to_a = a_ptr->to_a;
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
@@ -2936,7 +2971,7 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 				if (ego_power) power = ego_power;
 			}
-			if (!power && (rand_int(100) < 50)) power = -1;
+			if (!power && (rand_int(100) < 45)) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
 			break;
 		}
@@ -2998,11 +3033,13 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
+#if blah
 		/* Constant activation on staff of slowness should be cursed */
 		if ((o_ptr->tval == TV_STAFF) && (e_ptr->flags2 & (TR2_CONSTANTA)) && (o_ptr->sval == SV_STAFF_SLOWNESS))
 		{
 			o_ptr->ident |= (IDENT_CURSED);
 		}
+#endif
 
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
@@ -3039,11 +3076,44 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
                 /* which have a pval of 2 without an ego */
                 if ((o_ptr->tval == TV_CLOAK) && (o_ptr->pval < 2)) o_ptr->pval = 2;
             }
+
+			/* Hack for gaunlets of throwing */
+			if ((e_ptr->flags3 & (TR3_THROWMULT)) && (o_ptr->tval == TV_GLOVES))
+			{
+				/* minimum p_ptr->throwmult is 2 */
+				if ((o_ptr->pval == 1) && (randint(100) < 35)) o_ptr->pval += 2;
+				else if (o_ptr->pval == 1) o_ptr->pval += 1;
+				/* pval of 4 should be very rare */
+				if ((o_ptr->pval == 4) && (randint(100) < 75)) o_ptr->pval -= randint(2);
+			}
+			/* other egos which happened to get the THROWMULT flag (by random power only) */
+			else if (e_ptr->flags3 & (TR3_THROWMULT))
+			{
+				/* pval of 4 should be very rare */
+				if ((o_ptr->pval >= 4) && (randint(100) < 70)) o_ptr->pval -= randint(2);
+				/* pval of 1 should be allowed, but uncommon (minimum p_ptr->throwmult is 2 anyway) */
+				if ((o_ptr->pval == 1) && (randint(100) < 50)) o_ptr->pval += randint(2);
+				/* a lot of egos with random powers usually have no pval */
+				if ((!o_ptr->pval) && (o_ptr->tval != TV_STAFF)) o_ptr->pval = 1 + randint(2);
+			}
+			/* Magic Mastery (now uses pval so make sure it has one) */
+			if (e_ptr->flags2 & (TR2_MAGIC_MASTERY))
+			{
+				if (!o_ptr->pval) o_ptr->pval = randint(3);
+			}
 		}
 
         /* Hack for ego "of lightness" armor */
-        if (e_ptr->flags2 & (TR2_LIGHTNESS)) o_ptr->weight -= e_ptr->weight;
-		else if (e_ptr->weight > 0) o_ptr->weight += e_ptr->weight;
+        if (e_ptr->flags2 & (TR2_LIGHTNESS))
+		{
+			o_ptr->weight -= e_ptr->weight;
+			/* armor of lightness also reduces to-hit penalty */
+			if (o_ptr->to_h < 0) o_ptr->to_h += 1;
+		}
+		else if (e_ptr->weight > 0)
+		{
+			o_ptr->weight += e_ptr->weight;
+		}
 
 		/* Hack -- apply rating bonus */
 		rating += e_ptr->rating;
@@ -3113,8 +3183,9 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Ammo -- Arrows/Bolts are good */
+		/* Ammo is good */
 		case TV_BOLT:
+		case TV_SHOT:
 		case TV_ARROW:
 		{
 			return (TRUE);
@@ -3194,6 +3265,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 {
 	int prob, base;
 	object_kind *k_ptr;
+	u32b f1, f2, f3, f4;
 
 
 	/* Chance of "special object" */
@@ -3252,7 +3324,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		   /* not broken */
 		   if (e_ptr->cost) j_ptr->ident &= ~(IDENT_BROKEN);
         }
-        /* not broken if it has good to-hit and to-dam bonuses */
+        /* also not broken if it has good to-hit and to-dam bonuses */
         else if ((j_ptr->to_h > 2) && (j_ptr->to_d > 2))
         {
            j_ptr->ident &= ~(IDENT_BROKEN);
@@ -3270,8 +3342,15 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		j_ptr->number = damroll(k_ptr->gen_dice, k_ptr->gen_side);
 	}
 
+	/* Extract the flags (check for THROWN flag) */
+	object_flags(j_ptr, &f1, &f2, &f3, &f4);
+
+	/* I decided to allow artifact sets of throwing weapons */
+	/* throwing weapons sets should probably have a number set in artifact.txt */
+	if ((artifact_p(j_ptr)) && (j_ptr->number > 4) && (f2 & TR2_THROWN))
+		j_ptr->number = randint(2) + 1;
 	/* prevent creating multiple artifacts */
-    if (artifact_p(j_ptr)) j_ptr->number = 1;
+	else if (artifact_p(j_ptr)) j_ptr->number = 1;
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -3531,8 +3610,14 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Require line of sight */
 			if (!los(y, x, ty, tx)) continue;
 
+			/* object can be in the same space as rubble */
+			if (cave_feat[ty][tx] == FEAT_RUBBLE)
+			{
+				/* sometimes rolls off the rubble */
+				if (randint(100) < 60) continue;
+			}
 			/* Require floor space */
-			if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
+			else if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
 
 			/* No objects */
 			k = 0;
@@ -3708,10 +3793,9 @@ void big_rocks(int y, int x)
 	/* the following copied from parts of make_object() */
 	if (make)
 	{
-		object_kind *k_ptr;
 		int k_idx;
 
-		k_idx = lookup_kind(1, 25);
+		k_idx = lookup_kind(TV_SKELETON, SV_BIG_ROCK);
 		object_prep(i_ptr, k_idx);
 		i_ptr->number = damroll(1, 3);
 	}
@@ -3733,8 +3817,11 @@ void place_object(int y, int x, bool good, bool great)
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
+	/* allow objects to be placed in rubble */
+	if (cave_feat[y][x] == FEAT_RUBBLE) /* */;
+
 	/* Hack -- clean floor space */
-	if (!cave_clean_bold(y, x)) return;
+	else if (!cave_clean_bold(y, x)) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -4020,6 +4107,9 @@ void inven_item_increase(int item, int num)
 		/* Add the weight */
 		p_ptr->total_weight += (num * o_ptr->weight);
 
+		/* Update "p_ptr->pack_size_reduce" */
+		if (IS_QUIVER_SLOT(item)) find_quiver_size();
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -4073,8 +4163,11 @@ void inven_item_optimize(int item)
 	/* The item is being wielded */
 	else
 	{
+		/* Reorder the quiver if necessary */
+		if (IS_QUIVER_SLOT(item)) p_ptr->notice |= (PN_REORDER);
+
 		/* One less item */
-		p_ptr->equip_cnt--;
+		else p_ptr->equip_cnt--;
 
 		/* Erase the empty slot */
 		object_wipe(&inventory[item]);
@@ -4179,7 +4272,10 @@ void floor_item_optimize(int item)
 bool inven_carry_okay(const object_type *o_ptr)
 {
 	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK) return TRUE;
+	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce)
+	{
+		return (TRUE);
+	}
 
 	/* Check if it can stack */
 	if (inven_stack_okay(o_ptr)) return TRUE;
@@ -4278,6 +4374,18 @@ s16b inven_carry(object_type *o_ptr)
 	/* Find an empty slot */
 	for (j = 0; j <= INVEN_PACK; j++)
 	{
+		/*
+		 * Hack -- Force pack overflow if we reached the slots of the
+		 * inventory reserved for the quiver. -DG-
+		 */
+		if (j >= INVEN_PACK - p_ptr->pack_size_reduce)
+		{
+			/* Jump to INVEN_PACK to not mess up pack reordering */
+			j = INVEN_PACK;
+
+			break;
+		}
+
 		j_ptr = &inventory[j];
 
 		/* Use it if found */
@@ -4413,7 +4521,7 @@ s16b inven_takeoff(int item, int amt)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	cptr act;
+	cptr act, act2 = "";
 
 	char o_name[80];
 
@@ -4457,6 +4565,12 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were holding";
 	}
 
+	else if (IS_QUIVER_SLOT(item))
+	{
+		act = "You removed";
+		act2 = " from your quiver";
+	}
+
 	/* Took off something */
 	else
 	{
@@ -4470,12 +4584,12 @@ s16b inven_takeoff(int item, int amt)
 	/* Carry the object */
 	slot = inven_carry(i_ptr);
 
-	/* Message */
-	sound(MSG_WIELD);
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	/* Message, sound if not the quiver */
+	if (!(IS_QUIVER_SLOT(item))) sound(MSG_WIELD);
+	msg_format("%s %s (%c)%s.", act, o_name, index_to_label(slot), act2);
 
 #ifdef EFG
-	/* EFGchange drop squelched wielded items immediately items when taken off */
+	/* EFGchange drop squelched wielded items immediately when taken off */
 	p_ptr->notice |= PN_SQUELCH;
 #endif
 	/* Return slot */
@@ -4583,18 +4697,16 @@ void combine_pack(void)
 		{
 			/* Count the gold */
 			slide = TRUE;
-//#ifdef EFG
-        if (adult_cansell)
-            {
-			p_ptr->au += o_ptr->pval;  // copied from #else
-            }
-        else
-            {
-			/* EFGchange larger money objects */
-			p_ptr->au += o_ptr->number * ((long) o_ptr->pval);
-            }
-//#else
-//#endif
+
+			if (adult_cansell)
+			{
+				p_ptr->au += o_ptr->pval;  /* copied from #else */
+			}
+			else
+			{
+				/* EFGchange larger money objects */
+				p_ptr->au += o_ptr->number * ((long) o_ptr->pval);
+			}
 		}
 
 		/* Scan the items above that item */
@@ -4817,3 +4929,540 @@ void reduce_charges(object_type *o_ptr, int amt)
 		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
 	}
 }
+
+
+/*
+ * Returns in tag_num the numeric value of the inscription tag associated with
+ * an object in the inventory.
+ * Valid tags have the form "@n" or "@xn" where "n" is a number (0-9) and "x"
+ * is cmd. If cmd is 0 then "x" can be anything.
+ * Returns FALSE if the object doesn't have a valid tag.
+ */
+int get_tag_num(int o_idx, int cmd, byte *tag_num)
+{
+	object_type *o_ptr = &inventory[o_idx];
+	char *s;
+
+	/* Ignore empty objects */
+	if (!o_ptr->k_idx) return FALSE;
+
+	/* Ignore objects without notes */
+	if (!o_ptr->note) return FALSE;
+
+	/* Find the first '@' */
+	s = strchr(quark_str(o_ptr->note), '@');
+
+	while (s)
+	{
+		/* Found "@n"? */
+		if (isdigit((unsigned char)s[1]))
+		{
+			/* Convert to number */
+			*tag_num = D2I(s[1]);
+			return TRUE;
+		}
+
+		/* Found "@xn"? */
+		if ((!cmd || ((unsigned char)s[1] == cmd)) &&
+			isdigit((unsigned char)s[2]))
+		{
+			/* Convert to number */
+			*tag_num = D2I(s[2]);
+			return TRUE;
+		}
+
+		/* Find another '@' in any other case */
+		s = strchr(s + 1, '@');
+	}
+
+	return FALSE;
+}
+
+
+/*
+ * Calculate and apply the reduction in pack size due to use of the
+ * Quiver.
+ */
+void find_quiver_size(void)
+{
+	int ammo_num, i;
+	object_type *i_ptr;
+
+	/*
+	 * Items in the quiver take up space which needs to be subtracted
+	 * from space available elsewhere.
+	 */
+	ammo_num = 0;
+
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty. */
+		if (!i_ptr->k_idx) continue;
+
+		/* Tally up missiles. */
+		ammo_num += i_ptr->number * quiver_space_per_unit(i_ptr);
+	}
+
+	/* Every 99 missiles in the quiver takes up one backpack slot. */
+	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+}
+
+
+/*
+ * Combine ammo in the quiver.
+ */
+void combine_quiver(void)
+{
+	int i, j, k;
+
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	bool flag = FALSE;
+
+	/* Combine the quiver (backwards) */
+	for (i = END_QUIVER - 1; i > INVEN_QUIVER; i--)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Skip empty items */
+		if (!i_ptr->k_idx) continue;
+
+		/* Scan the items above that item */
+		for (j = INVEN_QUIVER; j < i; j++)
+		{
+			/* Get the item */
+			j_ptr = &inventory[j];
+
+			/* Skip empty items */
+			if (!j_ptr->k_idx) continue;
+
+			/* Can we drop "i_ptr" onto "j_ptr"? */
+			if (object_similar(j_ptr, i_ptr))
+			{
+				/* Take note */
+				flag = TRUE;
+
+				/* Add together the item counts */
+				object_absorb(j_ptr, i_ptr);
+
+				/* Slide everything down */
+				for (k = i; k < (END_QUIVER - 1); k++)
+				{
+					/* Hack -- slide object */
+					COPY(&inventory[k], &inventory[k+1], object_type);
+				}
+
+				/* Hack -- wipe hole */
+				object_wipe(&inventory[k]);
+
+				/* Done */
+				break;
+			}
+		}
+	}
+
+	if (flag)
+	{
+
+		/*
+		 * Prevent the use of CTRL-V with the 'f'ire and 't'hrow commands when the
+		 * quiver changes -DG-
+		 * repeat_reset_command('f');
+		 * repeat_reset_command('v');
+		 */
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/* Message */
+		msg_print("You combine your quiver.");
+	}
+}
+
+/*
+ * Sort ammo in the quiver.  If requested, track the given slot and return
+ * its final position.
+ *
+ * Items marked with inscriptions of the form "@ [f] [any digit]"
+ * ("@f4", "@4", etc.) will be locked. It means that the ammo will be always
+ * fired using that digit. Different locked ammo can share the same tag.
+ * Unlocked ammo can be fired using its current pseudo-tag (shown in the
+ * equipment window). In that case the pseudo-tag can change depending on
+ * ammo consumption. -DG- (based on code from -LM- and -BR-)
+ */
+int reorder_quiver(int slot)
+{
+	int i, j, k;
+
+	s32b i_value;
+	byte i_group;
+
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	bool flag = FALSE;
+
+	byte tag;
+
+	/* This is used to sort locked and unlocked ammo */
+	struct ammo_info_type {
+		byte group;
+		s16b idx;
+		byte tag;
+		s32b value;
+	} ammo_info[MAX_QUIVER];
+	/* Position of the first locked slot */
+	byte first_locked;
+	/* Total size of the quiver (unlocked + locked ammo) */
+	byte quiver_size;
+
+	/*
+	 * This will hold the final ordering of ammo slots.
+	 * Note that only the indexes are stored
+	 */
+	s16b sorted_ammo_idxs[MAX_QUIVER];
+
+	/*
+	 * Reorder the quiver.
+	 *
+	 * First, we sort the ammo *indexes* in two sets, locked and unlocked
+	 * ammo. We use the same table for both sets (ammo_info).
+	 * Unlocked ammo goes in the beginning of the table and locked ammo
+	 * later.
+	 * The sets are merged later to produce the final ordering.
+	 * We use "first_locked" to determine the bound between sets. -DG-
+	 */
+	first_locked = quiver_size = 0;
+
+	/* Traverse the quiver */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the object */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Get the value of the object */
+		i_value = object_value(i_ptr);
+
+		/* Note that we store all throwing weapons in the same group */
+		i_group = quiver_get_group(i_ptr);
+
+		/* Get the real tag of the object, if any */
+		if (get_tag_num(i, quiver_group[i_group].cmd, &tag))
+		{
+			/* Determine the portion of the table to be used */
+			j = first_locked;
+			k = quiver_size;
+		}
+		/*
+		 * If there isn't a tag we use a special value
+		 * to separate the sets.
+		 */
+		else
+		{
+			tag = 10;
+			/* Determine the portion of the table to be used */
+			j = 0;
+			k = first_locked;
+
+			/* We know that all locked ammo will be displaced */
+			++first_locked;
+		}
+
+		/* Search for the right place in the table */
+		for (; j < k; j++)
+		{
+			/* Get the other ammo */
+			j_ptr = &inventory[ammo_info[j].idx];
+
+			/* Objects sort by increasing group */
+			if (i_group < ammo_info[j].group) break;
+			if (i_group > ammo_info[j].group) continue;
+
+			/*
+			 * Objects sort by increasing tag.
+			 * Note that all unlocked ammo have the same tag (10)
+			 * so this step is meaningless for them -DG-
+			 */
+			if (tag < ammo_info[j].tag) break;
+			if (tag > ammo_info[j].tag) continue;
+
+			/* Objects sort by decreasing tval */
+			if (i_ptr->tval > j_ptr->tval) break;
+			if (i_ptr->tval < j_ptr->tval) continue;
+
+			/* Non-aware items always come last */
+			if (!object_aware_p(i_ptr)) continue;
+			if (!object_aware_p(j_ptr)) break;
+
+			/* Objects sort by increasing sval */
+			if (i_ptr->sval < j_ptr->sval) break;
+			if (i_ptr->sval > j_ptr->sval) continue;
+
+			/* Unidentified objects always come last */
+			if (!object_known_p(i_ptr)) continue;
+			if (!object_known_p(j_ptr)) break;
+
+			/* Objects sort by decreasing value */
+			if (i_value > ammo_info[j].value) break;
+			if (i_value < ammo_info[j].value) continue;
+		}
+
+		/*
+		 * We found the place. Displace the other slot
+		 * indexes if neccesary
+		 */
+		for (k = quiver_size; k > j; k--)
+		{
+			COPY(&ammo_info[k], &ammo_info[k - 1],
+				struct ammo_info_type);
+		}
+
+		/* Cache some data from the slot in the table */
+		ammo_info[j].group = i_group;
+		ammo_info[j].idx = i;
+		ammo_info[j].tag = tag;
+		/* We cache the value of the object too */
+		ammo_info[j].value = i_value;
+
+		/* Update the size of the quiver */
+		++quiver_size;
+	}
+
+	/*
+	 * Second, we merge the two sets to find the final ordering of the
+	 * ammo slots.
+	 * What this step really does is to place unlocked ammo in
+	 * the slots which aren't used by locked ammo. Again, we only work
+	 * with indexes in this step.
+	 */
+	i = 0;
+	j = first_locked;
+	tag = k = 0;
+
+	/* Compare ammo between the sets */
+	while ((i < first_locked) && (j < quiver_size))
+	{
+		/* Groups are different. Add the smallest first */
+		if (ammo_info[i].group > ammo_info[j].group)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+			/* Reset the tag */
+			tag = 0;
+		}
+
+		/* Groups are different. Add the smallest first */
+		else if (ammo_info[i].group < ammo_info[j].group)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+			/* Reset the tag */
+			tag = 0;
+		}
+
+		/*
+		 * Same group, and the tag is unlocked. Add some unlocked
+		 * ammo first
+		 */
+		else if (tag < ammo_info[j].tag)
+		{
+			sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+			/* Increment the pseudo-tag */
+			++tag;
+		}
+		/*
+		 * The tag is locked. Perhaps there are several locked
+		 * slots with the same tag too. Add the locked ammo first
+		 */
+		else
+		{
+			/*
+			 * The tag is incremented only at the first ocurrence
+			 * of that value
+			 */
+			if (tag == ammo_info[j].tag)
+			{
+				++tag;
+			}
+			/* But the ammo is always added */
+			sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+		}
+	}
+
+	/* Add remaining unlocked ammo, if neccesary */
+	while (i < first_locked)
+	{
+		sorted_ammo_idxs[k++] = ammo_info[i++].idx;
+	}
+
+	/* Add remaining locked ammo, if neccesary */
+	while (j < quiver_size)
+	{
+		sorted_ammo_idxs[k++] = ammo_info[j++].idx;
+	}
+
+	/* Determine if we have to reorder the real ammo */
+	for (k = 0; k < quiver_size; k++)
+	{
+		if (sorted_ammo_idxs[k] != (INVEN_QUIVER + k))
+		{
+			flag = TRUE;
+
+			break;
+		}
+	}
+
+	/* Reorder the real quiver, if necessary */
+	if (flag)
+	{
+		/* Temporary copy of the quiver */
+		object_type quiver[MAX_QUIVER];
+
+		/*
+		 * Copy the real ammo into the temporary quiver using
+		 * the new order
+		 */
+		for (i = 0; i < quiver_size; i++)
+		{
+			/* Get the original slot */
+			k = sorted_ammo_idxs[i];
+
+			/* Note the indexes */
+			object_copy(&quiver[i], &inventory[k]);
+
+			/*
+			 * Hack - Adjust the temporary slot if necessary.
+			 * Note that the slot becomes temporarily negative
+			 * to avoid multiple matches (indexes are positive).
+			 */
+			if (slot == k) slot = 0 - (INVEN_QUIVER + i);
+		}
+
+		/*
+		 * Hack - The loop has ended and slot was changed only once
+		 * like we wanted. Now we make slot positive again. -DG-
+		 */
+		if (slot < 0) slot = 0 - slot;
+
+		/*
+		 * Now dump the temporary quiver (sorted) into the real quiver
+		 */
+		for (i = 0; i < quiver_size; i++)
+		{
+			object_copy(&inventory[INVEN_QUIVER + i],
+					&quiver[i]);
+		}
+
+		/* Clear unused slots */
+		for (i = INVEN_QUIVER + quiver_size; i < END_QUIVER; i++)
+		{
+			object_wipe(&inventory[i]);
+		}
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/*
+		 * Prevent the use of CTRL-V with the 'f'ire and 't'hrow commands when the
+		 * quiver changes -DG-
+		 *
+		 * repeat_reset_command('f');
+		 * repeat_reset_command('v');
+		 */
+
+		/* Message */
+		if (!slot) msg_print("You reorganize your quiver.");
+	}
+
+	return (slot);
+}
+
+/*
+ * Returns TRUE if an object is a throwing weapon and can be put in the quiver
+ */
+bool is_throwing_weapon(const object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	return ((f2 & (TR2_THROWN)) ? TRUE: FALSE);
+}
+
+/*
+ * Returns the number of quiver units an object will consume when it's stored in the quiver.
+ * Every 99 quiver units we consume an inventory slot
+ */
+int quiver_space_per_unit(const object_type *o_ptr)
+{
+	/* weight * 2 (throwing dagger- 3, throwing axe- 5, javelin- 8) */
+	int mass = (((o_ptr->weight > 10) ? o_ptr->weight : 10) / 10) * 2;
+	
+	return (ammo_p(o_ptr) ? 1: mass);
+}
+
+/*
+ * Returns TRUE if the specified number of objects of type o_ptr->k_idx can be hold in the quiver.
+ * Hack: if you are moving objects from the inventory to the quiver pass the inventory slot occupied by the object in
+ * "item". This will help us to determine if we have one free inventory slot more. You can pass -1 to ignore this feature.
+ */
+bool quiver_carry_okay(const object_type *o_ptr, int num, int item)
+{
+	int i;
+	int ammo_num = 0;
+	int have;
+	int need;
+
+	/* Paranoia */
+	if ((num <= 0) || (num > o_ptr->number)) num = o_ptr->number;
+
+	/* Count ammo in the quiver */
+	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
+	{
+		/* Get the object */
+		object_type *i_ptr = &inventory[i];
+
+		/* Ignore empty objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Increment the ammo count */
+		ammo_num += (i_ptr->number * quiver_space_per_unit(i_ptr));
+	}
+
+	/* Add the requested amount of objects to be put in the quiver */
+	ammo_num += (num * quiver_space_per_unit(o_ptr));
+
+	/* We need as many free inventory as: */
+	need = (ammo_num + 98) / 99;
+
+	/* Calculate the number of available inventory slots */
+	have = INVEN_PACK - p_ptr->inven_cnt;
+
+	/* If we are emptying an inventory slot we have one free slot more */
+	if ((item >= 0) && (item < INVEN_PACK) && (num == o_ptr->number)) ++have;
+
+	/* Compute the result */
+	return (need <= have);
+}
+
+/*
+ * Returns the quiver group associated to an object. Defaults to throwing weapons
+ */
+byte quiver_get_group(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT: return (QUIVER_GROUP_BOLTS);
+		case TV_ARROW: return (QUIVER_GROUP_ARROWS);
+		case TV_SHOT: return (QUIVER_GROUP_SHOTS);
+	}
+
+	return (QUIVER_GROUP_THROWING_WEAPONS);
+}
+

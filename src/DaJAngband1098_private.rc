@@ -1,8 +1,7 @@
 /* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
 /* DO NOT EDIT! */
 
-#include "AltDaJAngband_private.rc"
 #include "win/angband.rc"
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "DaJAngband1098.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "DaJAngband1099.ico"
 
