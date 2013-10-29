@@ -64,7 +64,7 @@ int value_check_aux1(const object_type *o_ptr)
 #ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
 	/* now that all standarts are splendid, should there even be INSCRIP_SPECIAL? */
-	if (object_splendid_p(o_ptr))
+	if (object_is_splendid(o_ptr))
 		return (INSCRIP_SPLENDID);
 	/* EFGchange pseudo jewelry */
 	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_EXCELLENT);
@@ -90,6 +90,11 @@ int value_check_aux1(const object_type *o_ptr)
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+#ifdef EFG
+	/* ??? should check pval against flags */
+	if (o_ptr->pval > 0) return (INSCRIP_GOOD);
+	/* ??? now diggers are never average, but how can you check besides name1 ? */
+#endif
 
 	/* Default to "average" */
 	return (INSCRIP_AVERAGE);
@@ -109,7 +114,7 @@ static int value_check_aux2(const object_type *o_ptr)
 
 #ifdef EFG
 	/* EFGchange new pseudo level SPLENDID */
-	if (object_splendid_p(o_ptr)) return (INSCRIP_SPLENDID);
+	if (object_is_splendid(o_ptr)) return (INSCRIP_SPLENDID);
 	if (excellent_jewelry_p(o_ptr)) return (INSCRIP_GOOD);
 #endif
 	/* Artifacts -- except cursed/broken ones */
@@ -139,7 +144,14 @@ static void sense_inventory(void)
 
 	int plev = p_ptr->lev;
 
+#ifdef EFG
+	/* The way average items are given heavy id for weak pseudo chars
+           after something else pseudos requires that this be set for each item */
+	/* There was a bug previously with indestructible items giving chars
+           with weak pseudo strong pseudo for the rest of the routine */
+#else
 	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
+#endif
 
 	int feel;
 
@@ -171,6 +183,7 @@ static void sense_inventory(void)
 	/* EFGchange know non-pseudoed wielded items average when anything pseudos */
 	bool sensedany = FALSE;
 	int phase;
+/* ??? was wielding presumably average shovel, weak pseudo, pack ided but not pick */
 	for (phase = 0; phase <= 1; phase++) for (i = phase*INVEN_WIELD; i < INVEN_TOTAL; i++)
 #else
 	/* Check everything */
@@ -178,6 +191,9 @@ static void sense_inventory(void)
 #endif
 	{
 		bool okay = FALSE;
+#ifdef EFG
+		bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
+#endif
 
 		o_ptr = &inventory[i];
 
@@ -230,7 +246,11 @@ static void sense_inventory(void)
 #endif
 
 		/* It has already been sensed, do not sense it again */
+#ifdef EFG
+		/* EFGchange notice when good becomes average due to damage/disenchantment */
+#else
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
+#endif
 
 		/* It is known, no information needed */
 		if (object_known_p(o_ptr)) continue;
@@ -247,7 +267,7 @@ static void sense_inventory(void)
 		/* The second pass with phase=1 we know everything non-avg */
 		/* has pseudoed, and the player should know anything else  */
 		/* currently wielded is avg, if anything pseudoed at all.  */
-		if (phase && sensedany)
+		if (phase && sensedany && (value_check_aux1(o_ptr) == INSCRIP_AVERAGE))
 			heavy = TRUE;
 #endif
 		/* Check for a feeling */
@@ -257,6 +277,11 @@ static void sense_inventory(void)
 		if (!feel) continue;
 
 		/* Stop everything */
+#ifdef EFG
+		/* EFGchange notice when good becomes average due to damage/disenchantment */
+		if (feel == o_ptr->pseudo)
+			continue; /* ??? should double-check that IDENT_SENSE is set? */
+#endif
 		if (disturb_minor) disturb(0, 0);
 #ifdef EFG
 		/* EFGchange know non-pseudoed wielded items average when anything pseudos */
@@ -297,18 +322,24 @@ static void sense_inventory(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+
 #ifdef EFG
+		if ((i < INVEN_WIELD) || object_is_safe_to_wield(o_ptr))
+			object_auto_id(o_ptr);
 		if (o_ptr->name1)
 		{
 			/* EFGchange remove need for identify wrto preserving artifacts */
-			object_known(o_ptr);
-			msg_print("You recognize a legendary item!");
+			recognize_artifact(o_ptr);
 		}
 		/* EFGchange make stuff that pseudos as average be as if identified */
-		/* ??? This does not pick up jewelry -- good or bad? */
 		if ((feel == INSCRIP_AVERAGE) && (object_aware_p(o_ptr)))
 			/* so you don't have to remember how many times enchanted "avg" longbow */
-			object_known(o_ptr);
+			{
+/* ??? to avoid id on searching, currently considered average, should change searching to good/bad not average/bad */
+			/* ??? picks make this no good */
+			if ((o_ptr->pval == 0) || (o_ptr->tval = TV_DIGGING))
+				object_known(o_ptr);
+			}
 #endif
 
 		/* Set squelch flag as appropriate */
@@ -410,6 +441,11 @@ static void regenmana(int percent)
 	/* Redraw mana */
 	if (old_csp != p_ptr->csp)
 	{
+#ifdef EFG
+		/* EFGchange disturb when reach full mana */
+		if (p_ptr->csp == p_ptr->msp)
+			disturb(0,0);
+#endif
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
 

@@ -1252,8 +1252,12 @@ void describe_monster(int r_idx, bool spoilers)
 		lore.flags1 |= (r_ptr->flags1 & (RF1_FORCE_DEPTH | RF1_FORCE_MAXHP));
 	}
 
+#ifdef EFG
+	cheat_monster_lore(r_idx, &lore);
+#else
 	/* Cheat -- know everything */
 	if (cheat_know || spoilers) cheat_monster_lore(r_idx, &lore);
+#endif
 
 	/* Show kills of monster vs. player(s) */
 	if (!spoilers)

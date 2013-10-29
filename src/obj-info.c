@@ -489,6 +489,38 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 	/* No activation */
 	return (FALSE);
 }
+#ifdef EFG
+static bool describe_success_rate(const object_type *o_ptr, u32b f3)
+{
+	/* ??? someday success rates for activations
+	if (f3 & TR3_ACTIVATE)
+	{
+		p_text_out("It activates for ");
+		describe_item_activation(o_ptr);
+		p_text_out(".  ");
+
+		return (TRUE);
+	}
+	*/
+
+	int thousandths, conf_thousandths;
+	switch(o_ptr->tval)
+	{
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+			thousandths = object_success_permillage(o_ptr, FALSE);
+			conf_thousandths = object_success_permillage(o_ptr, TRUE);
+			/* ??? should not do this if unaware, probably -- or should that be from calling function? */
+			p_text_out(format("Your success rate is %d.%d%%, if confused %d.%d%%.\n", 
+					thousandths/10, thousandths % 10, conf_thousandths /10, conf_thousandths % 10));
+			return TRUE;
+	}
+
+	/* No success rates to report */
+	return (FALSE);
+}
+#endif
 
 
 /*
@@ -512,19 +544,130 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_sustains(o_ptr, f2)) something = TRUE;
 	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
+#ifdef EFG
+	if (describe_success_rate(o_ptr, f3)) something = TRUE;
+#endif
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
+#ifdef EFG
+	/* ??? require pseudo? how do you know obvious ego when tried if could be artifact? */
+	if ((object_known_p(o_ptr) || obvious_ego(o_ptr)) && (!(o_ptr->ident & IDENT_MENTAL)) &&
+#else
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
+#endif
 	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
 		if (text_out_hook == text_out_to_screen)
 			new_paragraph = TRUE;
 
+#ifdef EFG
+		/* ??? is this next guaranteed to be defined? */
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		switch(o_ptr->xtra1)
+		{
+			case OBJECT_XTRA_TYPE_SUSTAIN:
+				p_text_out("It sustains a random stat.");
+				break;
+			case OBJECT_XTRA_TYPE_RESIST:
+				p_text_out("It has a random resist from { poison fear lite dark blind confusion sound shards nexus nether chaos disenchant }.");
+				break;
+			case OBJECT_XTRA_TYPE_POWER:
+/* ??? this should be a loop rather than hard-coding LITE and ESP */
+				if (((f3 & TR3_LITE) && !(e_ptr->flags3 & TR3_LITE)) || 
+				    ((f3 & TR3_REGEN) && !(e_ptr->flags3 & TR3_REGEN)) || 
+				    ((f3 & TR3_TELEPATHY) &&!(e_ptr->flags3 & TR3_TELEPATHY)))
+				{
+					/* ??? should check for things like gondolin with LITE + power */
+				}
+				else
+					p_text_out("It has a random power from { ");
+					/* ??? this should be a loop looking for flags that are not splendid */
+					p_text_out("S.Dig FF SI FA HLife ");
+					p_text_out("}.");
+				break;
+			default:
+				p_text_out("It might have hidden powers.");
+				break;
+		}
+#else
 		p_text_out("It might have hidden powers.");
+#endif
 		something = TRUE;
 	}
+#ifdef EFG
+	if (!object_known_p(o_ptr))
+	{
+		if ((!object_aware_p(o_ptr)) && ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+		{
+			/* Hack -- Put this in a separate paragraph if screen dump */
+			if (text_out_hook == text_out_to_screen)
+				new_paragraph = TRUE;
+
+			int f = 0;
+			p_text_out("Possible flavors are: ");
+			while ((f = next_matching_unaware_kind(o_ptr, f)))
+			{
+				p_text_out("  ");
+				p_text_out(k_name + k_info[f].name);
+			}
+			p_text_out(".\n");
+		}
+		else if (squelch_wield_checkable(o_ptr) && 
+			 object_is_known_excellent(o_ptr) && 
+			 (num_matching_egos(o_ptr) > 1))
+		{
+			/* Hack -- Put this in a separate paragraph if screen dump */
+			if (text_out_hook == text_out_to_screen)
+				new_paragraph = TRUE;
+
+			int e = 0;
+			p_text_out("Possible egos include: ");
+			/* ??? should this also be done for weak pseudo of good? */
+			while ((e = next_matching_ego(o_ptr, e)))
+			{
+				p_text_out("  ");
+				p_text_out(e_name + e_info[e].name);
+			}
+			p_text_out(".\n");
+		}
+	}
+
+	if (object_is_melee(o_ptr) && (object_is_known(o_ptr) || squelch_wield_checkable(o_ptr)))
+	{
+		/* Hack -- Put this in a separate paragraph if screen dump */
+		if (text_out_hook == text_out_to_screen)
+			new_paragraph = TRUE;
+
+		int str_plus = 0;
+		int dex_plus = 0;
+		int blows = num_blows(o_ptr, str_plus, dex_plus);
+		if (blows == 1)
+			p_text_out("You get 1 blow per round with this weapon.");
+		else
+			p_text_out(format("You get %d blows per round with this weapon.", blows));
+		for (str_plus = 1; str_plus < 7; str_plus++)
+		{
+			int better = num_blows(o_ptr, str_plus, dex_plus);
+			if (better > blows)
+			{
+				p_text_out(format("  With additional +%d str you would get %d blows.", str_plus, better));
+				break;
+			}
+		}
+		str_plus = 0;
+		for (dex_plus = 1; dex_plus < 7; dex_plus++)
+		{
+			int better = num_blows(o_ptr, str_plus, dex_plus);
+			if (better > blows)
+			{
+				p_text_out(format("  With additional +%d dex you would get %d blows.", dex_plus, better));
+				break;
+			}
+		}
+	}
+#endif
 
 	/* We are done. */
 	return something;
@@ -586,6 +729,19 @@ static bool screen_out_head(const object_type *o_ptr)
 }
 
 
+#ifdef EFG
+void object_flags_including_ego(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	object_flags_known(o_ptr, f1, f2, f3);
+	if ((!object_known_p(o_ptr)) && (obvious_ego(o_ptr)))
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		*f1 |= e_ptr->flags1;
+		*f2 |= e_ptr->flags2;
+		*f3 |= e_ptr->flags3;
+	}
+}
+#endif
 /*
  * Place an item description on the screen.
  */
@@ -601,7 +757,11 @@ void object_info_screen(const object_type *o_ptr)
 
 	has_description = screen_out_head(o_ptr);
 
+#ifdef EFG
+	object_info_out_flags = object_flags_including_ego;
+#else
 	object_info_out_flags = object_flags_known;
+#endif
 
 	/* Dump the info */
 	new_paragraph = TRUE;
@@ -609,7 +769,14 @@ void object_info_screen(const object_type *o_ptr)
 	new_paragraph = FALSE;
 
 	if (!object_known_p(o_ptr))
+#ifdef EFG
+	{
+		if (!(((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) && object_aware_p(o_ptr)))
+			p_text_out("\n\n   This item has not been identified.");
+	}
+#else
 		p_text_out("\n\n   This item has not been identified.");
+#endif
 	else if (!has_description && !has_info)
 		p_text_out("\n\n   This item does not seem to possess any special abilities.");
 

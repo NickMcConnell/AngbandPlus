@@ -1,0 +1,1385 @@
+/*
+ * File: squelch.c
+ * Purpose: Item destruction
+ *
+ * Copyright (c) 2007 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
+ * David Vestal, Pete Mack, Andrew Sidwell.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
+ */
+#include "angband.h"
+#include "cmds.h"
+
+
+/*
+ * The squelch code has a long history.  Originally it started out as a simple
+ * sval-dependent item destroyer, but then ego-item and quality squelch was
+ * added too, and then squelched items on the dungeon floor were marked by
+ * purple dots, and by this time the code was quite unmaintainable and pretty
+ * much impossible to work with.
+ *
+ * Luckily, though, it's been cleaned up.  There is now only sval-dependent
+ * squelch and quality-based squelch, and the two don't interact -- quality-based
+ * is for items that get pseudo-id'd and sval-dependent is for potions and the
+ * like.
+ *
+ * The squelch code figures most things out itself.  Simply do:
+ *     p_ptr->notice |= PN_SQUELCH;
+ * whenever you want to make the game check for squelched items.
+ *
+ * The quality-dependent squelch is much reduced in scope from how it used to
+ * be.  If less "general" settings are desired, they can be added easily enough
+ * by changing entries in type_tvals[][], adding more TYPE_* constants, and
+ * updating type_names.  Savefile compatibility is automatically ensured.
+ *
+ *
+ * The UI code is much cleaner than it was before, but the interface itself
+ * still needs some design.  XXX
+ */
+
+#ifdef EFG
+/* EFGchange allow squelching unaware objects */
+
+/* aware flag must be 1 to match legacy savefiles */
+#define SQUELCH_AWARE_FLAG	0x01
+#define SQUELCH_UNAWARE_FLAG	0x02
+
+typedef struct
+{
+	s16b idx;
+	bool aware;
+} squelch_choice;
+#endif
+
+/*
+ * List of kinds of item, for pseudo-id squelch.
+ */
+enum
+{
+#ifdef EFG
+	/* EFGchange differentiate squelch into subcategories */
+	TYPE_WEAPON_POINTY,
+	TYPE_WEAPON_BLUNT,
+	TYPE_SHOOTER,
+	TYPE_MISSILE_SLING,
+	TYPE_MISSILE_BOW,
+	TYPE_MISSILE_XBOW,
+	TYPE_ARMOR_BODY,
+	TYPE_ARMOR_CLOAK,
+	TYPE_ARMOR_SHIELD,
+	TYPE_ARMOR_HEAD,
+	TYPE_ARMOR_HANDS,
+	TYPE_ARMOR_FEET,
+	TYPE_DIGGER,
+	/* EFGchange add lights to quality squelch menus */
+	TYPE_LITE,
+	/* jewelry should come last because dropdown menu is shortest */
+	TYPE_JEWELRY,
+#else
+	TYPE_WEAPON,
+	TYPE_SHOOTER,
+	TYPE_MISSILE,
+	TYPE_ARMOR,
+	TYPE_JEWELRY,
+	TYPE_DIGGER,
+#endif
+
+	TYPE_MAX
+};
+
+/*
+ * Names of categories.
+ */
+static const char *type_names[TYPE_MAX] =
+{
+#ifdef EFG
+/* ??? need redundant check for right TYPE order */
+	"Pointy Melee Weapons",
+	"Blunt Melee Weapons",
+	"Missile weapons",
+	/* EFGchange differentiate squelch into subcategories */
+	"Shots and Pebbles",
+	"Arrows",
+	"Bolts",
+	"Body Armor",
+	"Cloaks",
+	"Shields",
+	"Headgear",
+	"Handgear",
+	"Footgear",
+	"Diggers",
+	/* EFGchange add lights to quality squelch menus */
+	"Lights",
+	"Jewelry",
+#else
+	"Melee weapons",
+	"Missile weapons",
+	"Ammunition",
+	"Armor",
+	"Jewelry",
+	"Diggers",
+#endif
+};
+
+/* Mapping of tval -> type */
+static int type_tvals[][2] =
+{
+#ifdef EFG
+	/* EFGchange differentiate squelch into subcategories */
+	{ TYPE_WEAPON_POINTY,	TV_SWORD },
+	{ TYPE_WEAPON_POINTY,	TV_POLEARM },
+	{ TYPE_WEAPON_BLUNT,	TV_HAFTED },
+	{ TYPE_SHOOTER,	TV_BOW },
+	{ TYPE_MISSILE_SLING,	TV_SHOT },
+	{ TYPE_MISSILE_BOW,	TV_ARROW },
+	{ TYPE_MISSILE_XBOW,	TV_BOLT },
+	{ TYPE_ARMOR_BODY,	TV_DRAG_ARMOR },
+	{ TYPE_ARMOR_BODY,	TV_HARD_ARMOR },
+	{ TYPE_ARMOR_BODY,	TV_SOFT_ARMOR },
+	{ TYPE_ARMOR_CLOAK,	TV_CLOAK },
+	{ TYPE_ARMOR_SHIELD,	TV_SHIELD },
+	{ TYPE_ARMOR_HEAD,	TV_HELM },
+	{ TYPE_ARMOR_HEAD,	TV_CROWN },
+	{ TYPE_ARMOR_HANDS,	TV_GLOVES },
+	{ TYPE_ARMOR_FEET,	TV_BOOTS },
+#else
+	{ TYPE_WEAPON,	TV_SWORD },
+	{ TYPE_WEAPON,	TV_POLEARM },
+	{ TYPE_WEAPON,	TV_HAFTED },
+	{ TYPE_SHOOTER,	TV_BOW },
+	{ TYPE_MISSILE, TV_ARROW },
+	{ TYPE_MISSILE,	TV_BOLT },
+	{ TYPE_MISSILE,	TV_SHOT },
+	{ TYPE_ARMOR,	TV_SHIELD },
+	{ TYPE_ARMOR,	TV_HELM },
+	{ TYPE_ARMOR,	TV_GLOVES },
+	{ TYPE_ARMOR,	TV_BOOTS },
+	{ TYPE_ARMOR,	TV_DRAG_ARMOR },
+	{ TYPE_ARMOR,	TV_HARD_ARMOR },
+	{ TYPE_ARMOR,	TV_SOFT_ARMOR },
+	{ TYPE_ARMOR,	TV_CLOAK },
+	{ TYPE_ARMOR,	TV_CROWN },
+#endif
+	{ TYPE_JEWELRY,	TV_RING },
+	{ TYPE_JEWELRY,	TV_AMULET },
+	{ TYPE_DIGGER,	TV_DIGGING },
+#ifdef EFG
+	/* EFGchange add lights to quality squelch menus */
+	{ TYPE_LITE,	TV_LITE },
+};
+
+byte squelch_level[TYPE_MAX];
+#else
+};
+
+byte squelch_level[TYPE_MAX];
+#endif
+size_t squelch_size = TYPE_MAX;
+
+
+/*
+ * The different kinds of quality squelch
+ */
+enum
+{
+#ifdef EFG
+	/* EFGchange new pseudo level SPLENDID */
+	SQUELCH_NONE,
+	SQUELCH_CURSED,
+	SQUELCH_AVERAGE,
+	SQUELCH_GOOD_STRONG,
+	SQUELCH_BORING,
+	SQUELCH_NONEGO,
+	SQUELCH_UNSPLENDID,
+#else
+	SQUELCH_NONE,
+	SQUELCH_CURSED,
+	SQUELCH_AVERAGE,
+	SQUELCH_GOOD_STRONG,
+	SQUELCH_GOOD_WEAK,
+	SQUELCH_ALL,
+#endif
+
+	SQUELCH_MAX
+};
+#ifdef EFG
+/* EFGchange add lights to quality squelch menus */
+enum
+{
+	SQUELCH_LITE_NONE,
+	SQUELCH_LITE_AVERAGE_TORCHES,
+	SQUELCH_LITE_AVERAGE_LANTERNS,
+	SQUELCH_LITE_AVERAGE_ALL,
+	SQUELCH_LITE_EXCELLENT,
+
+	SQUELCH_LITE_MAX
+};
+#endif
+
+/*
+ * The names for the various kinds of quality
+ */
+static const char *quality_names[SQUELCH_MAX] =
+{
+	"none",							/* SQUELCH_NONE */
+	"cursed",						/* SQUELCH_CURSED */
+	"average",						/* SQUELCH_AVERAGE */
+#ifdef EFG
+	/* EFGchange new pseudo level SPLENDID */
+	"good",					/* SQUELCH_GOOD_STRONG */
+	"average (keep worthless)",		/* SQUELCH_BORING */
+	"good    (keep worthless)",		/* SQUELCH_NONEGO */
+	"all but splendid",			/* SQUELCH_UNSPLENDID */
+};
+
+/* EFGchange add lights to quality squelch menus */
+static const char *quality_lights[SQUELCH_LITE_MAX] =
+{
+	"none",					/* SQUELCH_LITE_NONE */
+	"average torches",			/* SQUELCH_LITE_AVERAGE_TORCHES */
+	"average lanterns",			/* SQUELCH_LITE_AVERAGE_LANTERNS */
+	"all average lights",			/* SQUELCH_LITE_AVERAGE_ALL */
+	"all but artifacts",			/* SQUELCH_LITE_EXCELLENT */
+};
+#else
+        "good (strong pseudo-ID)",              /* SQUELCH_GOOD_STRONG */
+        "good (weak pseudo-ID)",                /* SQUELCH_GOOD_WEAK */
+        "everything except artifacts",  /* SQUELCH_ALL */
+};
+#endif
+
+
+/* Structure to describe tval/description pairings. */
+typedef struct
+{
+	int tval;
+	const char *desc;
+} tval_desc;
+
+/* Categories for sval-dependent squelch. */
+static tval_desc sval_dependent[] =
+{
+	{ TV_STAFF,			"Staffs" },
+	{ TV_WAND,			"Wands" },
+	{ TV_ROD,			"Rods" },
+	{ TV_SCROLL,		"Scrolls" },
+	{ TV_POTION,		"Potions" },
+	{ TV_RING,			"Rings" },
+	{ TV_AMULET,		"Amulets" },
+	{ TV_FOOD,			"Food" },
+	{ TV_MAGIC_BOOK,	"Magic books" },
+	{ TV_PRAYER_BOOK,	"Prayer books" },
+	{ TV_SPIKE,			"Spikes" },
+#ifdef EFG
+	/* EFGchange squelch oil like spikes */
+	/* ??? we need some sort of misc option */
+	{ TV_FLASK,			"Oil" },
+#else
+	{ TV_LITE,			"Lights" },
+#endif
+};
+
+
+/*** Autoinscription stuff ***/
+
+/*
+ * This code needs documenting.
+ */
+int get_autoinscription_index(s16b k_idx)
+{
+	int i;
+
+	for (i = 0; i < inscriptions_count; i++)
+	{
+		if (k_idx == inscriptions[i].kind_idx)
+			return i;
+	}
+
+	return -1;
+}
+
+/*
+ * DOCUMENT ME!
+ */
+const char *get_autoinscription(s16b kind_idx)
+{
+	int i;
+
+	for (i = 0; i < inscriptions_count; i++)
+	{
+		if (kind_idx == inscriptions[i].kind_idx)
+			return quark_str(inscriptions[i].inscription_idx);
+	}
+
+	return 0;
+}
+
+/* Put the autoinscription on an object */
+int apply_autoinscription(object_type *o_ptr)
+{
+	char o_name[80];
+	cptr note = get_autoinscription(o_ptr->k_idx);
+	cptr existing_inscription = quark_str(o_ptr->note);
+
+	/* Don't inscribe unaware objects */
+	if (!note || !object_aware_p(o_ptr))
+		return 0;
+
+	/* Don't re-inscribe if it's already correctly inscribed */
+	if (existing_inscription && streq(note, existing_inscription))
+		return 0;
+
+	/* Get an object description */
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+	if (note[0] != 0)
+		o_ptr->note = quark_add(note);
+	else
+		o_ptr->note = 0;
+
+	msg_format("You autoinscribe %s.", o_name);
+
+	return 1;
+}
+
+
+int remove_autoinscription(s16b kind)
+{
+	int i = get_autoinscription_index(kind);
+
+	/* It's not here. */
+	if (i == -1) return 0;
+
+	while (i < inscriptions_count - 1)
+	{
+		inscriptions[i] = inscriptions[i+1];
+		i++;
+	}
+
+	inscriptions_count--;
+
+	return 1;
+}
+
+
+int add_autoinscription(s16b kind, cptr inscription)
+{
+	int index;
+
+	/* Paranoia */
+	if (kind == 0) return 0;
+
+	/* If there's no inscription, remove it */
+	if (!inscription || (inscription[0] == 0))
+		return remove_autoinscription(kind);
+
+	index = get_autoinscription_index(kind);
+
+	if (index == -1)
+		index = inscriptions_count;
+
+	if (index >= AUTOINSCRIPTIONS_MAX)
+	{
+		msg_format("This inscription (%s) cannot be added because the inscription array is full!", inscription);
+		return 0;
+	}
+
+	inscriptions[index].kind_idx = kind;
+	inscriptions[index].inscription_idx = quark_add(inscription);
+
+	/* Only increment count if inscription added to end of array */
+	if (index == inscriptions_count)
+		inscriptions_count++;
+
+	return 1;
+}
+
+
+void autoinscribe_ground(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	s16b this_o_idx, next_o_idx = 0;
+
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the next object */
+		next_o_idx = o_list[this_o_idx].next_o_idx;
+
+		/* Apply an autoinscription */
+		apply_autoinscription(&o_list[this_o_idx]);
+	}
+}
+
+void autoinscribe_pack(void)
+{
+	int i;
+
+	/* Cycle through the inventory */
+	for (i = INVEN_PACK; i > 0; i--)
+	{
+		/* Skip empty items */
+		if (!inventory[i].k_idx) continue;
+
+		/* Apply the inscription */
+		apply_autoinscription(&inventory[i]);
+	}
+
+	return;
+}
+
+
+
+
+/*** Squelch code ***/
+
+/*
+ * Determines whether a tval is eligable for sval-squelch.
+ */
+bool squelch_tval(int tval)
+{
+	size_t i;
+
+	/* Only squelch if the tval's allowed */
+	for (i = 0; i < N_ELEMENTS(sval_dependent); i++)
+	{
+		if (tval == sval_dependent[i].tval)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+/*
+ * Determines if an object is eligable for squelching.
+ */
+bool squelch_item_ok(const object_type *o_ptr)
+{
+	size_t i;
+	int num = -1;
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	bool fullid = object_known_p(o_ptr);
+	bool sensed = (o_ptr->ident & IDENT_SENSE) || fullid;
+	byte feel   = fullid ? value_check_aux1(o_ptr) : o_ptr->pseudo;
+#ifdef EFG
+	/* EFGchange treat big 3 weapons as excellent when squelching */
+	switch(o_ptr->tval)
+	{
+		/* uncommenting means weapons with base damage >= 15 should be considered excellent
+		*/
+        	case TV_SWORD:
+        	case TV_POLEARM:
+        	case TV_HAFTED:
+			if (o_ptr->dd * o_ptr->ds < 30)
+				break;
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_CURSED))
+				feel = INSCRIP_WORTHLESS;
+			else if ((feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_TERRIBLE))
+				feel = feel;
+			else if ((feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))
+				/* ??? should we allow uncursed? */
+				feel = INSCRIP_EXCELLENT;
+	}
+#endif
+
+
+	/* Don't squelch artifacts */
+#ifdef EFG
+/* ??? why not?  If squelching non-SPLENDID shields, Celegorm is considered boring */
+/* ??? Need to mark preserved artifacts not to be regenerated after pseudoed or tried on */
+#endif
+	if (artifact_p(o_ptr)) return FALSE;
+
+	/* Don't squelch stuff inscribed not to be destroyed (!k) */
+	if (check_for_inscrip(o_ptr, "!k") || check_for_inscrip(o_ptr, "!*"))
+	{
+		return FALSE;
+	}
+
+	/* Auto-squelch dead chests */
+	if (o_ptr->tval == TV_CHEST && o_ptr->pval == 0)
+		return TRUE;
+
+	/* Do squelching by sval, if we 'know' the flavour. */
+#ifdef EFG
+/* ???  awareness should cancel SQUELCH_UNAWARE, set SQUELCH_AWARE */
+/* ???  buying squelched item should be inscribed !d!k */
+/* ??? what is this k_ptr->flavor of 0 ? */
+	if (squelch_tval(k_info[o_ptr->k_idx].tval))
+	{
+		if ((k_ptr->squelch & SQUELCH_AWARE_FLAG) && (k_ptr->aware))
+			return TRUE;
+		if ((k_ptr->squelch & SQUELCH_UNAWARE_FLAG) && (!k_ptr->aware))
+			return TRUE;
+	}
+#else
+	if (k_ptr->squelch && (k_ptr->flavor == 0 || k_ptr->aware))
+	{
+		if (squelch_tval(k_info[o_ptr->k_idx].tval))
+			return TRUE;
+	}
+#endif
+
+
+#ifdef EFG
+	/* EFGchange remember when you have "tried" on a wieldable */
+#else
+	/* Don't check pseudo-ID for nonsensed things */
+	if (!sensed) return FALSE;
+#endif
+
+
+
+	/* Find the appropriate squelch group */
+	for (i = 0; i < N_ELEMENTS(type_tvals); i++)
+	{
+		if (type_tvals[i][1] == o_ptr->tval)
+		{
+			num = type_tvals[i][0];
+			break;
+		}
+	}
+
+	/* Never squelched */
+	if (num == -1)
+		return FALSE;
+
+
+#ifdef EFG
+	/* EFGchange new pseudo level SPLENDID */
+	if ((feel == INSCRIP_TRIED) && (o_ptr->tval != TV_LITE) &&
+	    (squelch_level[num] == SQUELCH_UNSPLENDID) &&
+	    (!object_splendid_p(o_ptr)))
+	{
+		/* if we have tried it on, we can be sure it is not splendid */
+		/* ??? only problem is we can squelch artifacts, might not be a bug */
+		sensed = TRUE;
+		feel = INSCRIP_GOOD;
+	}
+
+	if (!sensed) return FALSE;
+
+	if (o_ptr->tval == TV_LITE) switch (squelch_level[num])
+	{
+		case SQUELCH_LITE_AVERAGE_TORCHES:
+		{
+			if ((o_ptr->sval == SV_LITE_TORCH) && (feel == INSCRIP_AVERAGE))
+				return TRUE;
+			break;
+		}
+
+		case SQUELCH_LITE_AVERAGE_LANTERNS:
+		{
+			if ((o_ptr->sval == SV_LITE_LANTERN) && (feel == INSCRIP_AVERAGE))
+				return TRUE;
+			break;
+		}
+
+		case SQUELCH_LITE_AVERAGE_ALL:
+		{
+			if (feel == INSCRIP_AVERAGE)
+				return TRUE;
+			break;
+		}
+
+		case SQUELCH_LITE_EXCELLENT:
+		{
+			if ((feel == INSCRIP_AVERAGE) ||
+			    (feel == INSCRIP_EXCELLENT) || (feel == INSCRIP_WORTHLESS))
+				return TRUE;
+		}
+	}
+	else switch (squelch_level[num])
+#else
+	/* Get result based on the feeling and the squelch_level */
+	switch (squelch_level[num])
+#endif
+	{
+		case SQUELCH_CURSED:
+		{
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_UNCURSED) ||
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+
+		case SQUELCH_AVERAGE:
+		{
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+#ifdef EFG
+			    /* EFGchange treat UNCURSED same as CURSED for squelch purposes */
+			    (feel == INSCRIP_UNCURSED) ||
+#endif
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED) ||
+			    (feel == INSCRIP_AVERAGE))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+
+#ifdef EFG
+/* ??? BORING has to go, alternate method to specify each possibility */
+		case SQUELCH_BORING:
+		{
+			if ((feel == INSCRIP_BROKEN) ||
+			    (((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) &&
+			     ((feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
+			      (feel == INSCRIP_AVERAGE))))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+
+		case SQUELCH_NONEGO:
+		{
+			if ((feel == INSCRIP_BROKEN) ||
+			    (((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY)) &&
+			     ((feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
+			      (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+
+		/* EFGchange new pseudo level SPLENDID */
+		case SQUELCH_UNSPLENDID:
+		{
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_CURSED) || (feel == INSCRIP_UNCURSED) ||
+			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD) ||
+			    (feel == INSCRIP_EXCELLENT) || (feel == INSCRIP_WORTHLESS))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+#else
+		case SQUELCH_GOOD_WEAK:
+		{
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED) ||
+			    (feel == INSCRIP_AVERAGE) || (feel == INSCRIP_GOOD))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+#endif
+
+		case SQUELCH_GOOD_STRONG:
+		{
+			if ((feel == INSCRIP_BROKEN) || (feel == INSCRIP_TERRIBLE) ||
+			    (feel == INSCRIP_WORTHLESS) || (feel == INSCRIP_CURSED) ||
+			    (feel == INSCRIP_AVERAGE) ||
+#ifdef EFG
+			    /* EFGchange treat UNCURSED same as CURSED for squelch purposes */
+			    (feel == INSCRIP_UNCURSED) ||
+#endif
+			    ((feel == INSCRIP_GOOD) &&
+			     ((fullid) || (cp_ptr->flags & CF_PSEUDO_ID_HEAVY))))
+			{
+				return TRUE;
+			}
+
+			break;
+		}
+
+#ifdef EFG
+#else
+		case SQUELCH_ALL:
+		{
+			return TRUE;
+			break;
+		}
+#endif
+	}
+
+	/* Failure */
+	return FALSE;
+}
+
+
+/* 
+ * Returns TRUE if an item should be hidden due to the player's
+ * current settings.
+ */
+bool squelch_hide_item(object_type *o_ptr)
+{
+	return (hide_squelchable ? squelch_item_ok(o_ptr) : FALSE);
+}
+
+
+/*
+ * Destroy all {squelch}able items.
+ *
+ * Imported, with thanks, from Ey... much cleaner than the original.
+ */
+void squelch_items(void)
+{
+	int floor_list[MAX_FLOOR_STACK];
+	int floor_num, n;
+	int count = 0;
+
+	object_type *o_ptr;
+
+	/* Set the hook and scan the floor */
+	item_tester_hook = squelch_item_ok;
+	(void)scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01);
+
+	if (floor_num)
+	{
+		for (n = 0; n < floor_num; n++)
+		{
+			o_ptr = &o_list[floor_list[n]];
+
+			/* Avoid artifacts */
+			if (artifact_p(o_ptr)) continue;
+
+			if (item_tester_okay(o_ptr))
+			{
+				/* Destroy item */
+				floor_item_increase(floor_list[n], -o_ptr->number);
+				floor_item_optimize(floor_list[n]);
+				count++;
+			}
+		}
+	}
+
+	/* Scan through the slots backwards */
+	for (n = INVEN_PACK - 1; n >= 0; n--)
+	{
+		o_ptr = &inventory[n];
+
+		/* Skip non-objects and artifacts */
+		if (!o_ptr->k_idx) continue;
+		if (artifact_p(o_ptr)) continue;
+
+		if (item_tester_okay(o_ptr))
+		{
+			/* Destroy item */
+			inven_item_increase(n, -o_ptr->number);
+			inven_item_optimize(n);
+			count++;
+		}
+	}
+
+	item_tester_hook = NULL;
+
+	/* Mention casualties */
+	if (count > 0)
+	{
+		message_format(MSG_DESTROY, 0, "%d item%s squelched.",
+		               count, ((count > 1) ? "s" : ""));
+
+		/* Combine/reorder the pack */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	}
+}
+
+
+/*
+ * Drop all {squelch}able items.
+ */
+void squelch_drop(void)
+{
+	int n;
+
+	/* Scan through the slots backwards */
+	for (n = INVEN_PACK - 1; n >= 0; n--)
+	{
+		object_type *o_ptr = &inventory[n];
+
+		/* Skip non-objects and unsquelchable objects */
+		if (!o_ptr->k_idx) continue;
+		if (!squelch_item_ok(o_ptr)) continue;
+
+		/* Check for !d (no drop) inscription */
+		if (!check_for_inscrip(o_ptr, "!d") && !check_for_inscrip(o_ptr, "!*"))
+		{
+			/* We're allowed to drop it. */
+			inven_drop(n, o_ptr->number);
+		}
+	}
+
+	/* Combine/reorder the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+}
+
+
+
+/*** Quality-squelch menu ***/
+#ifdef EFG
+/* EFGchange add lights to quality squelch menus */
+/* ??? need to redo submenus to do this consistently */
+/* We need to keep track for different entries in the lights submenu. */
+static bool doing_lights = FALSE;
+#endif
+
+/*
+ * Display an entry in the menu.
+ */
+static void quality_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	const char *name = type_names[oid];
+
+	byte level = squelch_level[oid];
+	const char *level_name = quality_names[level];
+#ifdef EFG
+	/* EFGchange add lights to quality squelch menus */
+	if (oid == TYPE_LITE)
+	{
+		level_name = quality_lights[level];
+	}
+	if (cursor)
+		doing_lights = (oid == TYPE_LITE);
+#endif
+
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+
+
+	c_put_str(attr, format("%-20s : %s", name, level_name), row, col);
+}
+
+
+/*
+ * Display the quality squelch subtypes.
+ */
+static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	const char *name = quality_names[oid];
+#ifdef EFG
+	/* EFGchange add lights to quality squelch menus */
+	if (doing_lights)
+	{
+		name = quality_lights[oid];
+	}
+#endif
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+
+	c_put_str(attr, name, row, col);
+}
+
+/*
+ * Handle "Enter".  :(
+ */
+static bool quality_subaction(char cmd, void *db, int oid)
+{
+	return TRUE;
+}
+
+
+/*
+ * Handle keypresses.
+ */
+static bool quality_action(char cmd, void *db, int oid)
+{
+	menu_type menu;
+	menu_iter menu_f = { 0, 0, 0, quality_subdisplay, quality_subaction };
+	region area = { 24, 5, 26, SQUELCH_MAX };
+	event_type evt;
+	int cursor;
+
+	/* Display at the right point */
+	area.row += oid;
+	cursor = squelch_level[oid];
+
+	/* Save */
+	screen_save();
+
+	/* Run menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = "\n\r";
+	menu.count = SQUELCH_MAX;
+	if (oid == TYPE_JEWELRY)
+		menu.count = area.page_rows = SQUELCH_CURSED + 1;
+#ifdef EFG
+	/* EFGchange add lights to quality squelch menus */
+	if (oid == TYPE_LITE)
+		menu.count = area.page_rows = SQUELCH_LITE_MAX;
+#endif
+
+	menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+	window_make(area.col - 2, area.row - 1, area.col + area.width + 2, area.row + area.page_rows);
+
+	evt = menu_select(&menu, &cursor, 0);
+
+	/* Set the new value appropriately */
+	if (evt.key != ESCAPE && evt.type != EVT_BACK)
+		squelch_level[oid] = cursor;
+
+	/* Load and finish */
+	screen_load();
+	return TRUE;
+}
+
+/*
+ * Display quality squelch menu.
+ */
+static void quality_menu(void *unused, const char *also_unused)
+{
+	menu_type menu;
+	menu_iter menu_f = { 0, 0, 0, quality_display, quality_action };
+	region area = { 1, 5, -1, -1 };
+	event_type evt = EVENT_EMPTY;
+	int cursor = 0;
+
+	/* Save screen */
+	screen_save();
+	clear_from(0);
+
+	/* Help text */
+	prt("Quality squelch menu", 0, 0);
+
+	Term_gotoxy(1, 1);
+	text_out_to_screen(TERM_L_RED, "Use the movement keys to navigate, and Enter to change settings.");
+
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = " \n\r";
+	menu.count = TYPE_MAX;
+	menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+
+	/* Select an entry */
+	while (evt.key != ESCAPE)
+		evt = menu_select(&menu, &cursor, 0);
+
+	/* Load screen */
+	screen_load();
+	return;
+}
+
+
+
+/*** Sval-dependent menu ***/
+
+/*
+ * Display an entry on the sval menu
+ */
+static void sval_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	char buf[80];
+#ifdef EFG
+	const squelch_choice *choice = menu->menu_data;
+	int idx = choice[oid].idx;
+#else
+	const u16b *choice = menu->menu_data;
+	int idx = choice[oid];
+#endif
+
+	byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+
+
+	/* Acquire the "name" of object "i" */
+#ifdef EFG
+	object_kind_name(buf, sizeof(buf), idx, choice[oid].aware);
+#else
+	object_kind_name(buf, sizeof(buf), idx, TRUE);
+#endif
+
+	/* Print it */
+	c_put_str(attr, format("[ ] %s", buf), row, col);
+#ifdef EFG
+	if (((k_info[idx].squelch & SQUELCH_AWARE_FLAG) && choice[oid].aware) ||
+	    ((k_info[idx].squelch & SQUELCH_UNAWARE_FLAG) && !choice[oid].aware))
+#else
+	if (k_info[idx].squelch)
+#endif
+		c_put_str(TERM_L_RED, "*", row, col + 1);
+}
+
+/*
+ * Deal with events on the sval menu
+ */
+static bool sval_action(char cmd, void *db, int oid)
+{
+#ifdef EFG
+/* ??? are object_kinds u16b ro s16b? */
+	const squelch_choice *choice = db;
+#else
+	u16b *choice = db;
+#endif
+
+	/* Toggle */
+	if (cmd == '\n' || cmd == '\r')
+	{
+#ifdef EFG
+		int idx = choice[oid].idx;
+		if (choice[oid].aware)
+			k_info[idx].squelch ^= SQUELCH_AWARE_FLAG;
+		else
+			k_info[idx].squelch ^= SQUELCH_UNAWARE_FLAG;
+#else
+		int idx = choice[oid];
+		k_info[idx].squelch = !k_info[idx].squelch;
+#endif
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+#ifdef EFG
+/* EFGchange sort by name in some squelch menus */
+static void ang_sort_swap_hook_squelch_choices(void *u, void *v, int a, int b)
+{
+        squelch_choice temp;
+        squelch_choice *x = (squelch_choice*) u;
+        (void)v; /* unused */
+        temp = x[a];
+        x[a] = x[b];
+        x[b] = temp;
+}
+
+static bool ang_sort_comp_hook_squelch_choices(const void *u, const void *v, int a, int b)
+{
+        char bufa[80];
+        char bufb[80];
+        squelch_choice *x = (squelch_choice*) u;
+        (void)v; /* unused */
+
+	if (x[a].aware && !x[b].aware)
+		return TRUE;
+	if (!x[a].aware && x[b].aware)
+		return FALSE;
+	object_kind_name(bufa, sizeof(bufa), x[a].idx, x[a].aware);
+	object_kind_name(bufb, sizeof(bufb), x[b].idx, x[b].aware);
+
+        return strcmp(bufa, bufb) <= 0;
+        /* the = is crucial, inf loop in sort if use < rather than <= */
+}
+#endif
+
+/*
+ * Display list of svals to be squelched.
+ */
+static bool sval_menu(int tval, const char *desc)
+{
+	menu_type menu;
+	menu_iter menu_f = { 0, 0, 0, sval_display, sval_action };
+	region area = { 1, 5, -1, -1 };
+	event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+	int cursor = 0;
+
+	int num = 0;
+	size_t i;
+
+#ifdef EFG
+	squelch_choice *choice;
+
+	/* Create the array */
+	C_MAKE(choice, 2 * z_info->k_max, u16b); /* two options possible per kind */
+#else
+	u16b *choice;
+
+
+	/* Create the array */
+	C_MAKE(choice, z_info->k_max, u16b);
+#endif
+
+	/* Iterate over all possible object kinds, finding ones which can be squelched */
+	for (i = 1; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Skip empty objects, unseen objects, and incorrect tvals */
+		if (!k_ptr->name) continue;
+#ifdef EFG
+		/* EFGchange allow squelch of unaware objects */
+		if (k_ptr->tval != tval) continue;
+		/* EFGchange allow squelching flavors without everseen */
+		/* if (k_ptr->everseen) */
+		if (!(k_ptr->flags3 & TR3_INSTA_ART))
+		{
+			choice[num].idx = i;
+			choice[num].aware = TRUE;
+			num++;
+		}
+		if (!k_ptr->aware)
+		{
+			choice[num].idx = i;
+			choice[num].aware = FALSE;
+			num++;
+		}
+#else
+		if (!k_ptr->everseen) continue;
+		if (k_ptr->tval != tval) continue;
+
+		/* Add this item to our possibles list */
+		choice[num++] = i;
+#endif
+	}
+
+	/* Return here if there are no objects */
+	if (!num)
+	{
+		FREE(choice);
+		return FALSE;
+	}
+
+#ifdef EFG
+	/* EFGchange sort by name in some squelch menus */
+        switch(tval)
+        {
+		case TV_LITE:
+                case TV_MAGIC_BOOK:
+                case TV_PRAYER_BOOK:
+                        /* leave sorted by sval */
+                        break;
+                default:
+                        /* sort by name */
+			ang_sort_comp = ang_sort_comp_hook_squelch_choices;
+			ang_sort_swap = ang_sort_swap_hook_squelch_choices;
+                        ang_sort((void*)choice, NULL, num);
+        }
+#endif
+
+	/* Save the screen and clear it */
+	screen_save();
+	clear_from(0);
+
+	/* Help text */
+
+	/* Output to the screen */
+	text_out_hook = text_out_to_screen;
+
+	/* Indent output */
+	text_out_indent = 1;
+	text_out_wrap = 79;
+	Term_gotoxy(1, 0);
+
+	/* Display some helpful information */
+	text_out("Use the ");
+	text_out_c(TERM_L_GREEN, "movement keys");
+	text_out(" to scroll the list or ");
+	text_out_c(TERM_L_GREEN, "ESC");
+	text_out(" to return to the previous menu.  ");
+	text_out_c(TERM_L_BLUE, "Enter");
+	text_out(" toggles the current setting.");
+
+	text_out_indent = 0;
+
+	/* Set up the menu */
+	WIPE(&menu, menu);
+	menu.cmd_keys = " \n\r";
+	menu.count = num;
+	menu.menu_data = choice;
+	menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+
+	/* Select an entry */
+	while (evt.key != ESCAPE)
+		evt = menu_select(&menu, &cursor, 0);
+
+	/* Free memory */
+	FREE(choice);
+
+	/* Load screen */
+	screen_load();
+	return TRUE;
+}
+
+
+/* Returns TRUE if there's anything to display a menu of */
+static bool seen_tval(int tval)
+{
+	int i;
+
+	for (i = 1; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Skip empty objects, unseen objects, and incorrect tvals */
+		if (!k_ptr->name) continue;
+		if (!k_ptr->everseen) continue;
+		if (k_ptr->tval != tval) continue;
+
+		 return TRUE;
+	}
+
+
+	return FALSE;
+}
+
+
+/* Extra options on the "item options" menu */
+struct
+{
+	char tag;
+	char *name;
+	void (*action)(void *unused, const char *also_unused);
+} extra_item_options[] =
+{
+	{ 'Q', "Quality squelching options", quality_menu },
+	{ '{', "Autoinscription setup", do_cmd_knowledge_objects },
+};
+
+static char tag_options_item(menu_type *menu, int oid)
+{
+	size_t line = (size_t) oid;
+
+	if (line < N_ELEMENTS(sval_dependent))
+		return I2A(oid);
+
+	/* Separator - blank line. */
+	if (line == N_ELEMENTS(sval_dependent))
+		return 0;
+
+	line = line - N_ELEMENTS(sval_dependent) - 1;
+
+	if (line < N_ELEMENTS(extra_item_options))
+		return extra_item_options[line].tag;
+
+	return 0;
+}
+
+static int valid_options_item(menu_type *menu, int oid)
+{
+	size_t line = (size_t) oid;
+
+	if (line < N_ELEMENTS(sval_dependent))
+		return 1;
+
+	/* Separator - blank line. */
+	if (line == N_ELEMENTS(sval_dependent))
+		return 0;
+
+	line = line - N_ELEMENTS(sval_dependent) - 1;
+
+	if (line < N_ELEMENTS(extra_item_options))
+		return 1;
+
+	return 0;
+}
+
+static void display_options_item(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	size_t line = (size_t) oid;
+
+	/* First section of menu - the svals */
+	if (line < N_ELEMENTS(sval_dependent))
+	{
+		bool known = seen_tval(sval_dependent[line].tval);
+		byte attr = curs_attrs[known ? CURS_KNOWN: CURS_UNKNOWN][(int)cursor];
+
+		c_prt(attr, sval_dependent[line].desc, row, col);
+	}
+	/* Second section - the "extra options" */
+	else
+	{
+		byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
+
+		line = line - N_ELEMENTS(sval_dependent) - 1;
+    
+		if (line < N_ELEMENTS(extra_item_options))
+			c_prt(attr, extra_item_options[line].name, row, col);
+	}
+}
+
+
+static const menu_iter options_item_iter =
+{
+	0,
+	tag_options_item,
+	valid_options_item,
+	display_options_item,
+	NULL
+};
+
+
+/*
+ * Display and handle the main squelching menu.
+ */
+void do_cmd_options_item(void *unused, cptr title)
+{
+	int cursor = 0;
+	event_type c = EVENT_EMPTY;
+	const char cmd_keys[] = { ARROW_LEFT, ARROW_RIGHT, '\0' };
+
+	menu_type menu;
+
+	WIPE(&menu, menu_type);
+	menu.title = title;
+        menu.cmd_keys = cmd_keys;
+	menu.count = N_ELEMENTS(sval_dependent) + N_ELEMENTS(extra_item_options) + 1;
+	menu_init2(&menu, find_menu_skin(MN_SCROLL), &options_item_iter, &SCREEN_REGION);
+
+	menu_layout(&menu, &SCREEN_REGION);
+
+	/* Save and clear screen */
+	screen_save();
+	clear_from(0);
+
+	while (c.key != ESCAPE)
+	{
+		clear_from(0);
+		c = menu_select(&menu, &cursor, 0);
+
+		if (c.type == EVT_SELECT)
+		{
+			if ((size_t) cursor < N_ELEMENTS(sval_dependent))
+			{
+				sval_menu(sval_dependent[cursor].tval, sval_dependent[cursor].desc);
+			}
+			else
+			{
+				cursor = cursor - N_ELEMENTS(sval_dependent) - 1;
+				if ((size_t) cursor < N_ELEMENTS(extra_item_options))
+					extra_item_options[cursor].action(NULL, NULL);
+			}
+		}
+	}
+
+#ifdef EFG
+	/* EFGchange bugfix */
+	p_ptr->notice |= PN_SQUELCH;
+
+#endif
+	/* Load screen and finish */
+	screen_load();
+	return;
+}
+
+#ifdef EFG
+void squelch_clear(s16b k_idx)
+{
+	/* ??? should be testing if k_idx is valid */
+	k_info[k_idx].squelch = 0;
+}
+
+
+/* EFGchange allow squelching unaware objects */
+void squelch_kind(s16b k_idx, bool aware)
+{
+	/* ??? should be testing if k_idx is valid */
+	object_kind *k_ptr = &k_info[k_idx];
+
+	if (aware)
+		k_ptr->squelch |= SQUELCH_AWARE_FLAG;
+	else
+		k_ptr->squelch |= SQUELCH_UNAWARE_FLAG;
+}
+#endif

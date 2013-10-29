@@ -829,6 +829,12 @@ const byte adj_str_blow[] =
 	230 /* 18/210-18/219 */,
 	240 /* 18/220+ */
 };
+#ifdef EFG
+int adj_str_blow_size(void)
+{
+	return N_ELEMENTS(adj_str_blow);
+}
+#endif
 
 
 /*
@@ -875,6 +881,12 @@ const byte adj_dex_blow[] =
 	20	/* 18/210-18/219 */,
 	20	/* 18/220+ */
 };
+#ifdef EFG
+int adj_dex_blow_size(void)
+{
+	return N_ELEMENTS(adj_dex_blow);
+}
+#endif
 
 
 /*

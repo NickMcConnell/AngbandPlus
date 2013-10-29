@@ -2266,6 +2266,10 @@ bool banishment(void)
 	if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
 		return FALSE;
 
+#ifdef EFG
+	if (!get_check(format("Banish every %c [except uniques] on the level, taking 1d4 damage each? ", typ)))
+		return FALSE;
+#endif
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < mon_max; i++)
 	{
@@ -2948,6 +2952,9 @@ static void cave_temp_room_lite(void)
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
+#ifdef EFG
+m_ptr->energy = 0;
+#endif
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)

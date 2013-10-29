@@ -120,75 +120,6 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 }
 
 
-#ifdef EFG
-/* EFGchange notice obvious effects */
-typedef struct {u32b flag; char *name;} flagname;
-static flagname boostconv[] =
-{
-	{ TR1_STR,      "strength" },
-	{ TR1_INT,      "intelligence" },
-	{ TR1_WIS,      "wisdom" },
-	{ TR1_DEX,      "dexterity" },
-	{ TR1_CON,      "constitution" },
-	{ TR1_CHR,      "charisma" },
-	{ TR1_STEALTH,  "stealth" },
-	{ TR1_SPEED,    "speed" },
-	{ TR1_BLOWS,    "blows" },
-	{ TR1_SHOTS,    "shots" },
-	{ TR1_INFRA,    "infravision" },
-};
-
-/* perhaps this belongs in a different file */
-bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name)
-{
-	bool ret = FALSE;
-
-	/* the player should be informed of items that obviously boost */
-	/* ??? should check for tried, print this when "I"nspecting a tried object */
-
-	int i;
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
-	char *desc = (o_ptr->pval >= 0) ? "boosts" : "reduces";
-	for (i = 0; i < sizeof(boostconv)/sizeof(flagname); i++)
-	{
-		if (f1 & boostconv[i].flag)
-		{
-			if (o_ptr->pval > 0) 
-			{
-				ret = TRUE;
-			}
-			if (to_print)
-				msg_format("%s %s your %s by %d.", o_name, desc, boostconv[i].name, abs(o_ptr->pval));
-		}
-	}
-	if (f3 & (TR3_ACTIVATE))
-	{
-		ret = TRUE;
-		if (to_print)
-			msg_format("%s can be activated.", o_name);
-	}
-	if (f3 & (TR3_TELEPATHY))
-	{
-		ret = TRUE;
-		if (to_print)
-			msg_format("%s provides ESP.", o_name);
-	}
-	if (f3 & (TR3_LITE))
-	{
-		ret = TRUE;
-		if (to_print)
-			msg_format("%s provides permanent light.", o_name);
-	}
-	if (f3 & (TR3_DRAIN_EXP))
-	{
-		if (to_print)
-			msg_format("%s drains experience.", o_name);
-	}
-	return ret;
-}
-
-#endif
 /*
  * Wield or wear a single item from the pack or floor
  */
@@ -232,6 +163,23 @@ void do_cmd_wield(void)
 	}
 
 
+#ifdef EFG
+	/* ??? if known and cursed, should also inquire */
+	if (!o_ptr->pseudo)
+	{
+		if (!object_known_p(o_ptr))
+			if (!get_check("Really wield an object without pseudo or identify?"))
+				return;
+	}
+	else if ((o_ptr->pseudo == INSCRIP_CURSED) || 
+            (o_ptr->pseudo == INSCRIP_WORTHLESS) || 
+            (o_ptr->pseudo == INSCRIP_TERRIBLE) || 
+            (o_ptr->pseudo == INSCRIP_INDESTRUCTIBLE))
+	{
+		if (!get_check("Do you really want to wield a cursed object?"))
+			return;
+	}
+#endif
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
@@ -354,70 +302,24 @@ void do_cmd_wield(void)
 	/* EFGchange notice obvious effects */
 	bool is_splendid = FALSE;
 	if (!object_known_p(o_ptr))
-		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
-	/* EFGchange some jewelry should self-id */
-	/* ??? should this be in a table somewhere? */
-	/* ??? should we id unaware weakness/stupidity for neg pval when
-		matching strength/int is aware? */
-	/* ??? should be a separate function, so can be called upon pseudo? */
-	switch(o_ptr->tval)
 	{
-		case TV_AMULET:
-			switch(o_ptr->sval)
-			{
-				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
-				case SV_AMULET_DEVOTION:
-				case SV_AMULET_TRICKERY:
-				/* no weaponmastery until +hit/+dam is apparent */
-				case SV_AMULET_INFRAVISION:
-					object_aware(o_ptr);
-					object_known(o_ptr);
-				break;
-			}
-			break;
-		case TV_RING:
-			switch(o_ptr->sval)
-			{
-				/* ??? MAGIC NUMBERS */
-				case SV_RING_WEAKNESS:
-					if (k_info[132].aware)
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
-				case SV_RING_STUPIDITY:
-					if (k_info[135].aware)
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
-				case SV_RING_STR:
-					if ((o_ptr->pval > 0) || (k_info[145].aware))
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
-				case SV_RING_INT:
-					if ((o_ptr->pval > 0) || (k_info[150].aware))
-					{
-						object_aware(o_ptr);
-						object_known(o_ptr);
-					}
-					break;
+/* ??? once you already auto-aware a unique ego, do not really want this to print obvious stuff */
+		is_splendid = obviously_excellent(o_ptr, TRUE, o_name);
 
-				case SV_RING_WOE:
-				case SV_RING_DEX:
-				case SV_RING_CON:
-				case SV_RING_SPEED:
-					object_aware(o_ptr);
+		/* EFGchange some jewelry should self-id 
+		if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
+		{
+			if ((!object_aware_p(o_ptr)) && (obvious_kind(o_ptr)))
+				object_aware(o_ptr);
+			if (object_aware_p(o_ptr))
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				if ((k_ptr->to_h == 0) && (k_ptr->to_d == 0) && (k_ptr->to_a == 0))
 					object_known(o_ptr);
-				break;
 			}
-			break;
+		}
+		*/
+		object_auto_id(o_ptr);
 	}
 #endif
 	/* Cursed! */
@@ -442,6 +344,8 @@ void do_cmd_wield(void)
 
 /* EFGchange bugfix */
 /* you cannot squelch what you are wearing! */
+/* ??? should this get "tried" status? */
+/* ??? squelch status for item removed? */
 #else
 		/* Set squelched status */
 		p_ptr->notice |= PN_SQUELCH;
@@ -583,6 +487,13 @@ void do_cmd_drop(void)
 }
 
 
+#ifdef EFG
+void do_cmd_destroy_all_floor(void)
+{
+	/* ??? */
+	printf("Need to delete all on the floor here.\n");
+}
+#endif
 
 /*
  * Destroy an item
@@ -630,6 +541,13 @@ void do_cmd_destroy(void)
 
 	/* Allow user abort */
 	if (amt <= 0) return;
+#ifdef EFG
+	if (squelch_object_interactive(o_ptr))
+	{
+		p_ptr->notice |= PN_SQUELCH;
+		return;
+	}
+#endif
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1360,9 +1278,15 @@ static cptr ident_info[] =
 	/* "9:unused", */
 	"::Rubble",
 	";:A glyph of warding",
+#ifdef EFG
+	"<:An up teleporter",
+	"=:A ring",
+	">:A down teleporter",
+#else
 	"<:An up staircase",
 	"=:A ring",
 	">:A down staircase",
+#endif
 	"?:A scroll",
 	"@:You",
 	"A:Angel",

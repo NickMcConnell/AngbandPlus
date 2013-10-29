@@ -35,6 +35,9 @@ extern void do_cmd_wield(void);
 extern void do_cmd_takeoff(void);
 extern void do_cmd_drop(void);
 extern void do_cmd_destroy(void);
+#ifdef EFG
+extern void do_cmd_destroy_all_floor(void);
+#endif
 extern void do_cmd_observe(void);
 extern void do_cmd_uninscribe(void);
 extern void do_cmd_inscribe(void);

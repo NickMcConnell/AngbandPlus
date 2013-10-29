@@ -553,6 +553,10 @@ static void player_outfit(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+#ifdef EFG
+	/* EFGchange start player with nothing but 500 AU */
+	return;
+#endif
 
 	/* Hack -- Give the player his equipment */
 	for (i = 0; i < MAX_START_ITEMS; i++)
@@ -842,13 +846,17 @@ static bool roller_handler(char cmd, void *db, int oid)
 }
 
 
+#ifdef EFG
+	/* EFGchange unified character generation */
+static menu_iter menu_defs[] = {
+	{ MN_ACT, 0, 0, display_gender, gender_handler },
+	{ MN_ACT, 0, 0, display_race, race_handler },
+	{ MN_ACT, 0, 0, display_class, class_handler },
+#else
 static const menu_iter menu_defs[] = {
 	{ 0, 0, 0, display_gender, gender_handler },
 	{ 0, 0, 0, display_race, race_handler },
 	{ 0, 0, 0, display_class, class_handler },
-#ifdef EFG
-	/* EFGchange unified character generation */
-#else
 	{ 0, 0, 0, display_roller, roller_handler },
 #endif
 };
@@ -1148,7 +1156,7 @@ static int player_birth_aux_2(bool start_at_end)
 
 		/* Gold is inversely proportional to cost */
 #ifdef EFG
-		/* EFGchange unified character generation */
+		/* EFGchange unified character generation in no selling context */
 		p_ptr->au = 100 * (MAX_BIRTH_COST - cost) + 500;
 #else
 		p_ptr->au = (100 * (48 - cost)) + 100;
@@ -1651,8 +1659,13 @@ static void player_birth_aux(void)
 {
 	char ch;
 	cptr prompt = "['ESC' to step back, 'S' to start over, or any other key to continue]";
+#ifdef EFG
+	int state = BIRTH_QUESTIONS;
+	int last_state = BIRTH_RESTART;
+#else
 	birth_stages state = BIRTH_QUESTIONS;
 	birth_stages last_state = BIRTH_RESTART;
+#endif
 
 	while (1)
 	{

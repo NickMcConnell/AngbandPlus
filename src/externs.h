@@ -78,6 +78,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #ifdef EFG
 /* EFGchange code cleaning */
 extern cptr inscrip_text[INSCRIP_MAX];
+int adj_str_blow_size(void);
+int adj_dex_blow_size(void);
 #else
 extern cptr inscrip_text[MAX_INSCRIP];
 #endif
@@ -316,12 +318,6 @@ extern void py_attack(int y, int x);
 extern void move_player(int dir);
 extern void run_step(int dir);
 bool do_cmd_walk_test(int y, int x);
-#ifdef EFG
-/* cmd3.c */
-/* EFGchange notice obvious effects */
-/* ??? prob will move to a different file */
-extern bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name);
-#endif
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -360,6 +356,10 @@ extern void cleanup_angband(void);
 
 /* load.c */
 extern bool load_player(bool *character_loaded, bool *reusing_savefile);
+#ifdef EFG
+void savefile_rd_byte(byte *ip);
+void savefile_rd_u32b(u32b *ip);
+#endif
 
 /* melee1.c */
 extern bool make_attack_normal(int m_idx);
@@ -430,6 +430,9 @@ extern void show_floor(const int *floor_list, int floor_num, bool gold);
 extern void toggle_inven_equip(void);
 extern bool verify_item(cptr prompt, int item);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
+#ifdef EFG
+extern void object_flags_including_ego(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+#endif
 
 /* object2.c */
 extern void excise_object_idx(int o_idx);
@@ -505,6 +508,10 @@ extern void signals_init(void);
 
 /* save.c */
 extern bool save_player(void);
+#ifdef EFG
+void savefile_wr_byte(byte v);
+void savefile_wr_u32b(u32b v);
+#endif
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
@@ -614,16 +621,37 @@ int add_autoinscription(s16b kind, cptr inscription);
 void autoinscribe_ground(void);
 void autoinscribe_pack(void);
 #ifdef EFG
+extern void squelch_object(const object_type *o_ptr);
 void squelch_clear(s16b k_idx);
 void squelch_kind(s16b k_idx, bool aware);
+void rd_squelch_gen(void);
+void wr_squelch_gen(void);
+bool squelch_object_interactive(const object_type *o_ptr);
+extern bool obviously_excellent(const object_type *o_ptr, bool to_print, char *o_name);
+int next_matching_unaware_kind(const object_type *o_ptr, int f);
+int num_matching_unaware_kinds(const object_type *o_ptr);
+bool obvious_kind(const object_type *o_ptr);
+int next_matching_ego(const object_type *o_ptr, int e);
+int num_matching_egos(const object_type *o_ptr);
+bool obvious_ego(const object_type *o_ptr);
+int num_blows(const object_type *o_ptr, int str_mod, int dex_mod);
+bool squelch_wield_checkable(const object_type *o_ptr);
+bool object_is_melee(const object_type *o_ptr);
+bool object_is_known_excellent(const object_type *o_ptr);
+bool object_is_safe_to_wield(const object_type *o_ptr);
+void object_auto_id(object_type *o_ptr);
+void recognize_artifact(object_type *o_ptr);
 #endif
 
-bool squelch_tval(int tval);
+bool squelchable_tval(int tval);
 bool squelch_item_ok(const object_type *o_ptr);
 bool squelch_hide_item(object_type *o_ptr);
 void squelch_drop(void);
 void squelch_items(void);
 void do_cmd_options_item(void *, cptr);
+#ifdef EFG
+void do_cmd_options_squelch_generalized(void *, cptr);
+#endif
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -701,6 +729,10 @@ extern void build_gamma_table(int gamma);
 extern byte gamma_table[256];
 #endif /* SUPPORT_GAMMA */
 
+#ifdef EFG
+/* use-obj.c */
+int object_success_permillage(const object_type *o_ptr, bool confused);
+#endif
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);

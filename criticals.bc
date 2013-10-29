@@ -1,0 +1,32 @@
+
+ /* keep 3 digits */
+scale = 3
+
+/* critical (d)amage, given base damage, weight tohit, player level */
+define d (d,w,h,l) {
+        auto a, b, c, s;
+        c = (w+h*5+l*3);
+        if( w <= 50) {
+                a = 1;
+                b = (5 * 400 + 10 *(650+w-400))/(650+w);
+        } else {
+                a = (700 + 2*(650+w-700))/(650+w);
+                b = 5 * 400;
+                if( w <= 700 - 150 ) {
+                        b = b + 10*(650+w-700);
+                } else {
+                        b = b + 10*300 + 15*(650+w-700);
+                }
+                b = b/(650+w);
+        }
+        d =( d + c* ( a*d + b )/5000 ) ;
+        return (d)
+
+}
+
+/* Damage against AC, given nominal damage,
+                base tohit, melee + temporary tohit, opponent AC */
+
+define a (d, h, m, a) {
+        return ( d*(h+3*m-a)/(h+3*m) )
+}

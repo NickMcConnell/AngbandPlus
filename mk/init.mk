@@ -17,4 +17,5 @@ LIBDIR = $(libdir)
 BINDIR = $(bindir)
 INCLUDEDIR = $(pkgincludedir)
 CFLAGS += -DHAVE_CONFIG_H -I/usr/pkg/include -I/usr/pkg/xorg/include
+# CFLAGS += -DEFG
 CXXFLAGS += -DHAVE_CONFIG_H -I/usr/pkg/include -I/usr/pkg/xorg/include

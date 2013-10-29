@@ -73,8 +73,13 @@ static command_type cmd_action[] =
 	{ "Look around",                'l', do_cmd_look },
 	{ "Target monster or location", '*', do_cmd_target },
 	{ "Dig a tunnel",               'T', do_cmd_tunnel },
+#ifdef EFG
+	{ "Use up teleporter",            '<', do_cmd_go_up },
+	{ "Use down teleporter",          '>', do_cmd_go_down },
+#else
 	{ "Go up staircase",            '<', do_cmd_go_up },
 	{ "Go down staircase",          '>', do_cmd_go_down },
+#endif
 	{ "Toggle search mode",         'S', do_cmd_toggle_search },
 	{ "Open a door or a chest",     'o', do_cmd_open },
 	{ "Close a door",               'c', do_cmd_close },
@@ -107,7 +112,11 @@ static command_type cmd_item_manage[]  =
 	{ "Take/unwield off an item",  't', do_cmd_takeoff },
 	{ "Drop an item",              'd', do_cmd_drop },
 	{ "Destroy an item",           'k', do_cmd_destroy },
+#ifdef EFG
+	{ "Destroy all floor items",   'K', do_cmd_destroy_all_floor },
+#else
 	{ "Mark an item as squelch",   'K', do_cmd_mark_squelch },
+#endif
 	{ "Examine an item",           'I', do_cmd_observe },
 	{ "Inscribe an object",        '{', do_cmd_inscribe },
 	{ "Uninscribe an object",      '}', do_cmd_uninscribe }

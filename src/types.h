@@ -507,6 +507,10 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+#ifdef EFG
+	flag_block_type learned_positive[OBJECT_FLAG_BLOCKS];
+	flag_block_type learned_negative[OBJECT_FLAG_BLOCKS];
+#endif
 };
 
 

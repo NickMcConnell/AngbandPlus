@@ -810,10 +810,24 @@ void object_known(object_type *o_ptr)
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 #ifdef EFG
-	/* EFGchange no hidden powers with standard artifacts */
-/* ??? Should also add flag to artifacts like Grond unchanged under randarts */
-	if ((o_ptr->name1) && (!adult_randarts))
-		o_ptr->ident |= IDENT_MENTAL;
+	/* EFGchange no hidden powers with fixed artifacts */
+	switch(o_ptr->name1)
+	{
+		case 0:
+			break;
+        	case ART_POWER:
+            	case ART_NARYA:
+            	case ART_NENYA:
+            	case ART_VILYA:
+            	case ART_GROND:
+            	case ART_MORGOTH:
+			o_ptr->ident |= IDENT_MENTAL;
+			break;
+		default:
+			if (!adult_randarts)
+				o_ptr->ident |= IDENT_MENTAL;
+			break;
+	}
 #endif
 }
 
@@ -1457,8 +1471,13 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	/* Mega-Hack -- Blend "discounts" */
 #ifdef EFG
 	/* do not want to get identified objects with "tried" pseudo */
-	if (!object_known_p(o_ptr) && (!o_ptr->pseudo || object_known_p(j_ptr)))
-		o_ptr->pseudo = j_ptr->pseudo;
+	if (!object_known_p(o_ptr))
+	{
+		if ((!o_ptr->pseudo || object_known_p(j_ptr)))
+			o_ptr->pseudo = j_ptr->pseudo;
+		if (j_ptr->ident & IDENT_SENSE)
+			o_ptr->ident |= IDENT_SENSE;
+	}
 #else
 	o_ptr->pseudo = j_ptr->pseudo;
 #endif
@@ -1477,6 +1496,10 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 	{
 		o_ptr->pval += j_ptr->pval;
+#ifdef EFG
+		if (!(j_ptr->ident & IDENT_EMPTY))
+			o_ptr->ident &= ~(IDENT_EMPTY);
+#endif
 	}
 }
 
@@ -2685,7 +2708,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		{
 			/* would be better to do this at birth */
 			a_ptr->flags3 |= TR3_LITE;
-printf("adding lite to artifact %d\n", o_ptr->name1);
 		}
 #endif
 
@@ -2815,7 +2837,37 @@ printf("adding lite to artifact %d\n", o_ptr->name1);
 
 				case OBJECT_XTRA_TYPE_POWER:
 				{
+#ifdef EFG
+/* ??? this code should be used for sustain/resist as well, in case e.g. new ego offers rChaos on chaos blades */
+					int i;
+					int available = 0;
+					int to_skip;
+					for (i = 0; i < OBJECT_XTRA_SIZE_POWER; i++)
+					{
+						if (!((k_info[o_ptr->k_idx].flags3 & (OBJECT_XTRA_BASE_POWER << i)) ||
+						      (e_ptr->flags3 & (OBJECT_XTRA_BASE_POWER << i))))
+							available++;
+else printf("skipping power %d for ego %s\n", i, e_name + e_ptr->name); /* ??? debug code to check for a while */
+					}
+					to_skip = (byte)rand_int(available);
+					o_ptr->xtra2 = 0; /* paranoia */
+					for (i = 0; i < OBJECT_XTRA_SIZE_POWER; i++)
+					{
+						if (!((k_info[o_ptr->k_idx].flags3 & (OBJECT_XTRA_BASE_POWER << i)) ||
+						      (e_ptr->flags3 & (OBJECT_XTRA_BASE_POWER << i))))
+						{
+							if (to_skip)
+								to_skip--;
+							else
+							{
+								o_ptr->xtra2 = (byte)i;
+								break;
+							}
+						}
+					}
+#else
 					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
+#endif
 					break;
 				}
 			}
@@ -3116,15 +3168,15 @@ bool make_gold(object_type *j_ptr)
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
 #ifdef EFG
 	/* EFGchange no selling to stores */
-#define GOLD_DROP_MULT	4
-	int gold_mult;
-	if (object_level < GOLD_DROP_MULT)
-		gold_mult = object_level + 1;
-	else
+#define GOLD_DROP_MULT	3.0
+	double gold_mult = object_level + 1.0;
+	if (gold_mult > GOLD_DROP_MULT)
 		gold_mult = GOLD_DROP_MULT;
+	/* remove excessive gold in endgame */
+	gold_mult -= object_level * (GOLD_DROP_MULT - 1)/100;
 	/* avoid overflow */
 	if ((j_ptr->pval + 1)* gold_mult >= 0)
-		j_ptr->pval = j_ptr->pval * gold_mult + randint(gold_mult);
+		j_ptr->pval = ((double)j_ptr->pval) * gold_mult + randint((int)gold_mult);
 	/* ??? should have an else */
 #endif
 
@@ -3363,6 +3415,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle lack of space */
 	if (!flag && !artifact_p(j_ptr))
 	{
+#ifdef EFG
+/* ??? what if filled with squelched objects ??? */
+#endif
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
@@ -3410,6 +3465,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Give it to the floor */
 	if (!floor_carry(by, bx, j_ptr))
 	{
+#ifdef EFG
+/* ??? what if filled with squelched objects ??? */
+#endif
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));

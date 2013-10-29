@@ -45,6 +45,12 @@ static void wr_byte(byte v)
 {
 	sf_put(v);
 }
+#ifdef EFG
+void savefile_wr_byte(byte v)
+{
+	wr_byte(v);
+}
+#endif
 
 static void wr_u16b(u16b v)
 {
@@ -64,6 +70,12 @@ static void wr_u32b(u32b v)
 	sf_put((byte)((v >> 16) & 0xFF));
 	sf_put((byte)((v >> 24) & 0xFF));
 }
+#ifdef EFG
+void savefile_wr_u32b(u32b v)
+{
+	wr_u32b(v);
+}
+#endif
 
 static void wr_s32b(s32b v)
 {
@@ -952,6 +964,11 @@ static bool wr_savefile_new(void)
 
 		/* Dump the ghost */
 		wr_ghost();
+#ifdef EFG
+		/* EFGchange generalized squelch */
+		/* write the squelch arrays */
+		wr_squelch_gen();
+#endif
 	}
 
 

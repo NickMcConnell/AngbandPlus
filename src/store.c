@@ -365,8 +365,12 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		}
 	}
 
+#ifdef EFG
+	/* EFGchange allow selling cursed, shopkeeper should not know what you know */
+#else
 	/* Ignore "worthless" items XXX XXX XXX */
 	if (object_value(o_ptr) <= 0) return (FALSE);
+#endif
 
 	/* Assume okay */
 	return (TRUE);
@@ -1753,6 +1757,13 @@ static void store_display_help(void)
 
 	text_out(" an item from your inventory. ");
 
+#ifdef EFG
+	if (store_current != STORE_HOME)
+	{
+		text_out_c(TERM_L_GREEN, "K");
+		text_out(" restocks the store.");
+	}
+#endif
 	text_out_c(TERM_L_GREEN, "ESC");
 	text_out(" exits the building.");
 
@@ -1777,7 +1788,7 @@ static void store_redraw(void)
 			/* snagged '?' for buying out store since could not */
 			/* figure out how to use a new command character */
 			if (store_current != STORE_HOME)
-				prt("Press '?' to restock store.", scr_places_y[LOC_HELP_PROMPT], 1);
+				prt("'?' for help, 'K' restocks store", scr_places_y[LOC_HELP_PROMPT], 1);
 #else
 			prt("Press '?' for help.", scr_places_y[LOC_HELP_PROMPT], 1);
 #endif
@@ -2030,6 +2041,7 @@ static bool store_purchase(int item)
 #ifdef EFG
 	/* don't squelch items you buy */
 	/* ??? message if changes value?  particularly for unaware? */
+	/* ??? should test if squelched, print a message, also might be generalized squelch */
 	squelch_clear(inventory[item_new].k_idx);
 #endif
 	return TRUE;
@@ -2056,8 +2068,9 @@ static bool store_purchase_all(void)
 
 	if (store_current == STORE_HOME)
 	{
-	    /* this should routine should not have been called from home */
-	    return FALSE;
+	    	/* this routine should not have been called from home */
+		prt("Deleting all items stored at home currently not implemented.", 1, 0);
+	    	return FALSE;
 	}
 
 	price = 0;
@@ -2190,14 +2203,15 @@ static void store_sell(void)
 	/* Get an item */
 	if (!get_item(&item, prompt, reject, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 #ifdef EFG
-	/* EFGchange no selling to stores 
-	*/
+	/* EFGchange no selling to stores */
+/*
 	if (store_current != STORE_HOME)
 	{
 		msg_print("I do the selling and you do the buying.");
 		store_flags |= STORE_KEEP_PROMPT;
 		return;
 	}
+*/
 #endif
 
 	/* Get the item (in the pack) */
@@ -2272,6 +2286,10 @@ static void store_sell(void)
 
 		/* Extract the value of the items */
 		price = price_item(i_ptr, TRUE) * amt;
+#ifdef EFG
+		/* EFGchange store buys, but pays 0 gold */
+		price = 0;
+#endif
 
 		screen_save();
 
@@ -2630,16 +2648,18 @@ static bool store_process_command(char cmd, void *db, int oid)
 			break;
 		}
 
-		case '?':
 #ifdef EFG
+		case 'K':
 		/* EFGchange new command to buy out a store */
-		    /* ??? could not figure out how to use a new letter */
+		/* ??? could not figure out how to use a new letter */
 		{
 			if (store_purchase_all())
 				return TRUE;
 			break;
 		}
-#else
+
+#endif
+		case '?':
 		{
 			/* Toggle help */
 			if (store_flags & STORE_SHOW_HELP)
@@ -2652,7 +2672,6 @@ static bool store_process_command(char cmd, void *db, int oid)
 
 			return TRUE;
 		}
-#endif
 
 		/*** System Commands ***/
 
@@ -2777,16 +2796,26 @@ void do_cmd_store(void)
 		if (rogue_like_commands)
 		{
 			/* These two can't intersect! */
+#ifdef EFG
+			menu.cmd_keys = "\n\x04\x10\r?=CPdeEiIKsTwx\x8B\x8Chl"; /* \x10 = ^p , \x04 = ^D */
+			menu.selections = "abcfgmnopqruvyz1234567890";
+#else
 			menu.cmd_keys = "\n\x04\x10\r?=CPdeEiIsTwx\x8B\x8Chl"; /* \x10 = ^p , \x04 = ^D */
 			menu.selections = "abcfgmnopqruvyz1234567890";
+#endif
 		}
 
 		/* Original */
 		else
 		{
 			/* These two can't intersect! */
+#ifdef EFG
+			menu.cmd_keys = "\n\x010\r?=CbdeEiIkKlstw\x8B\x8C"; /* \x10 = ^p */
+			menu.selections = "acfghmnopqruvxyz13456790";
+#else
 			menu.cmd_keys = "\n\x010\r?=CbdeEiIklstw\x8B\x8C"; /* \x10 = ^p */
 			menu.selections = "acfghmnopqruvxyz13456790";
+#endif
 		}
 
 		/* Keep the cursor in range of the stock */

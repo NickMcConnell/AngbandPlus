@@ -399,6 +399,9 @@ void do_cmd_use_staff(void)
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
+#ifdef EFG
+	/* This stuff belongs in use_staff. */
+#else
 
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
@@ -437,6 +440,7 @@ void do_cmd_use_staff(void)
 
 	/* Sound */
 	sound(MSG_USE_STAFF);
+#endif
 
 
 	/* Use the staff */
@@ -715,6 +719,9 @@ void do_cmd_activate(void)
 	/* Hack -- use artifact level instead */
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
+#ifdef EFG
+/* ??? should replace this with device skill code */
+#endif
 	/* Base chance of success */
 	chance = p_ptr->skills[SKILL_DEV];
 

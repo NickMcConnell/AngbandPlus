@@ -3534,6 +3534,10 @@ static void dump_colors(FILE *fff)
 
 		/* Dump a comment */
 		fprintf(fff, "# Color '%s'\n", name);
+#ifdef EFG
+		/* bugfix? taken from 3.0.9b */
+                fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n", i, kv, rv, gv, bv);
+#endif
 
 	}
 }
@@ -4095,7 +4099,12 @@ static event_action option_actions [] =
 	{'5', "Cheat options", do_cmd_options_aux, (void*)4}, 
 	{0, 0, 0, 0}, /* Load and append */
 	{'W', "Subwindow display settings", (action_f) do_cmd_options_win, 0}, 
+#ifdef EFG
+	{'G', "Generalized squelch settings", (action_f) do_cmd_options_squelch_generalized, 0}, 
+	{'S', "TVAL based squelch settings", (action_f) do_cmd_options_item, 0}, 
+#else
 	{'S', "Item squelch settings", (action_f) do_cmd_options_item, 0}, 
+#endif
 	{'D', "Set base delay factor", (action_f) do_cmd_delay, 0}, 
 	{'H', "Set hitpoint warning", (action_f) do_cmd_hp_warn, 0}, 
 	{0, 0, 0, 0}, /* Special choices */

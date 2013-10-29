@@ -1626,6 +1626,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)rand_int(100);
+#ifdef EFG
+n_ptr->energy = 0;
+/* this is only vital for summoned monsters, not clear how to restrict */
+#endif
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))

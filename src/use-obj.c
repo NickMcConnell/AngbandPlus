@@ -242,6 +242,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SLOWNESS:
 		{
+#ifdef EFG
+			/* EFGchange make slowness resistable by FA so it might possibly be useful */
+			/* ??? if aware, print a message saying you must have FA? */
+			if (p_ptr->free_act)
+				break;
+#endif
 			if (inc_timed(TMD_SLOW, randint(25) + 15)) *ident = TRUE;
 			break;
 		}
@@ -1029,6 +1035,43 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 	return (used_up);
 }
+#ifdef EFG
+int object_success_permillage(const object_type *o_ptr, bool confused)
+{
+	int successes, total;
+	int lev = k_info[o_ptr->k_idx].level;
+	int chance = p_ptr->skills[SKILL_DEV];
+
+	/* Confusion hurts skill */
+	if (confused)
+		chance = chance / 2;
+
+	/* Reduce by object level, but only up to 50 */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	switch(o_ptr->tval)
+	{
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+			if (chance < USE_DEVICE)
+			{
+				successes = USE_DEVICE - 1;
+				total = USE_DEVICE * (USE_DEVICE + 1 - chance);
+			}
+			else
+			{
+				successes = chance - 1;
+				total = chance;
+			}
+			break;
+		default:
+			successes = 1;
+			total = 1;
+	}
+	return (int) (1000.0 * successes / total);
+}
+#endif
 
 
 static bool use_staff(object_type *o_ptr, bool *ident)
@@ -1038,6 +1081,33 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 	int k;
 
+#ifdef EFG
+	/* this stuff moved in from do_cmd_use_staff where it did not belong */
+
+	/* Roll for usage */
+	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to use the staff properly.");
+		return (FALSE);
+	}
+
+        /* Notice empty staffs */
+        if (o_ptr->pval <= 0)
+        {
+                if (flush_failure) flush();
+                msg_print("The staff has no charges left.");
+                o_ptr->ident |= (IDENT_EMPTY);
+                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+                p_ptr->window |= (PW_INVEN);
+                return FALSE;
+        }
+
+
+        /* Sound */
+        sound(MSG_USE_STAFF);
+
+#endif
 	bool use_charge = TRUE;
 
 	/* Analyze the staff */
@@ -1055,6 +1125,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLOWNESS:
 		{
+#ifdef EFG
+			/* EFGchange make slowness resistable by FA so it might possibly be useful */
+			/* ??? if aware, print a message saying you must have FA? */
+			if (p_ptr->free_act)
+				break;
+#endif
 			if (inc_timed(TMD_SLOW, randint(30) + 15)) *ident = TRUE;
 			break;
 		}
@@ -1303,6 +1379,15 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	/* Not identified yet */
 	*ident = FALSE;
 
+#ifdef EFG
+        /* Roll for usage */
+	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to use the wand properly.");
+		return (FALSE);
+	}
+#else
 	/* Get the level */
 	lev = k_info[o_ptr->k_idx].level;
 
@@ -1328,6 +1413,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 		msg_print("You failed to use the wand properly.");
 		return (FALSE);
 	}
+#endif
 
 	/* The wand is already empty! */
 	if (o_ptr->pval <= 0)
@@ -1602,6 +1688,15 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	/* Not identified yet */
 	*ident = FALSE;
 
+#ifdef EFG
+        /* Roll for usage */
+	if (rand_range(1, 1000) > object_success_permillage(o_ptr, p_ptr->timed[TMD_CONFUSED]))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to use the rod properly.");
+		return (FALSE);
+	}
+#else
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
@@ -1627,6 +1722,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		msg_print("You failed to use the rod properly.");
 		return FALSE;
 	}
+#endif
 
 	/* Still charging? */
 	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
@@ -2297,6 +2393,12 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				break;
 			}
 		}
+#ifdef EFG
+		/* EFGchange activating learns the object */
+		object_aware(o_ptr);
+		if (o_ptr->name1)
+			recognize_artifact(o_ptr);
+#endif
 
 		/* Set the recharge time */
 		if (a_ptr->randtime)

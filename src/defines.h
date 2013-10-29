@@ -38,7 +38,8 @@
  */
 #define VERSION_NAME   "Angband"
 #ifdef EFG
-#define VERSION_STRING "3.0.9e"
+#define VERSION_STRING "3.0.9ef"
+#include "object.h"
 #else
 #define VERSION_STRING "3.0.9"
 #endif
@@ -1413,7 +1414,10 @@ enum
 
 /* Number of bytes used in squelch sub-quality array */
 #ifdef EFG
-#define SQUELCH_BYTES    15
+/*
+#define SQUELCH_INIT_LIST_SIZE	32
+*/
+#define SQUELCH_BYTES    17
 #else
 #define SQUELCH_BYTES    6
 #endif
@@ -1425,7 +1429,11 @@ enum
 /*
  * Maximum flow depth when using "MONSTER_FLOW"
  */
+#ifdef EFG
+#define MONSTER_FLOW_DEPTH 30
+#else
 #define MONSTER_FLOW_DEPTH 3
+#endif
 
 
 
@@ -1731,6 +1739,7 @@ enum
 	INSCRIP_INDESTRUCTIBLE,
 	INSCRIP_TRIED,
 	INSCRIP_SPLENDID,
+	INSCRIP_TAINTED,
 
 	INSCRIP_MAX,
 };
@@ -3138,6 +3147,12 @@ enum
 #define ACT_MAX                 50
 
 #ifdef EFG
+
+/* ??? these belong in object.h */
+#define object_is_known(X) object_known_p(X)
+#define object_is_aware(X) object_aware_p(X)
+#define object_is_cursed(X) cursed_p(X)
+
 #define NUM_PVALS		10
 
 /* special rest values must be negative */
@@ -3146,7 +3161,7 @@ enum
 #define REST_FULL		-2
 #define REST_EITHER		-3
 
-#define object_splendid_p(o_ptr)	obviously_excellent(o_ptr, FALSE, NULL)
+#define object_is_splendid(o_ptr)	obviously_excellent(o_ptr, FALSE, NULL)
 #endif
 
 

@@ -19,7 +19,11 @@ void do_cmd_go_up(void)
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
 	{
+#ifdef EFG
+		msg_print("I see no up teleporter here.");
+#else
 		msg_print("I see no up staircase here.");
+#endif
 		return;
 	}
 
@@ -34,7 +38,11 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
+#ifdef EFG
+	message(MSG_STAIRS_DOWN, 0, "You activate the up teleporter.");
+#else
 	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
+#endif
 
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
@@ -55,7 +63,11 @@ void do_cmd_go_down(void)
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_MORE)
 	{
+#ifdef EFG
+		msg_print("I see no down teleporter here.");
+#else
 		msg_print("I see no down staircase here.");
+#endif
 		return;
 	}
 
@@ -63,7 +75,11 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
+#ifdef EFG
+	message(MSG_STAIRS_DOWN, 0, "You activate the down teleporter.");
+#else
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
+#endif
 
 	/* Create a way back */
 	p_ptr->create_up_stair = TRUE;
@@ -244,6 +260,9 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	/* Empty */
 	o_ptr->pval = 0;
+#ifdef EFG
+	p_ptr->notice |= PN_SQUELCH;
+#endif
 
 	/* Known */
 	object_known(o_ptr);
@@ -2269,7 +2288,16 @@ void do_cmd_rest(void)
 		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
 #endif
 
+#ifdef EFG
+		char out_val[5];
+		/* no point in EITHER unless both hp and sp are below max */
+		if ((p_ptr->mhp != p_ptr->chp) && (p_ptr->msp != p_ptr->csp))
+			sprintf(out_val, "| ");
+		else
+			sprintf(out_val, "& ");
+#else
 		char out_val[5] = "& ";
+#endif
 
 		/* Ask for duration */
 		if (!get_string(p, out_val, sizeof(out_val))) return;
@@ -2293,6 +2321,7 @@ void do_cmd_rest(void)
 					p_ptr->resting = 0;
 				if (p_ptr->resting > 9999)
 					p_ptr->resting = 9999;
+				break;
 		}
 	}
 #else
@@ -3016,6 +3045,7 @@ static bool squelchable_hook(const object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 #ifdef EFG
+/* ??? check for !k here? */
         /* EFGchange allow squelching unaware objects */
         /* EFGchange code cleaning */
 	if (squelch_item_ok(o_ptr)) return FALSE;
@@ -3024,10 +3054,16 @@ static bool squelchable_hook(const object_type *o_ptr)
 	if (k_ptr->squelch) return FALSE;
 #endif
 
+#ifdef EFG
+	/* EFGchange squelch anything */
+	if (TRUE)
+	{
+#endif
 	/* Don't squelch bad tvals */
-	if (!squelch_tval(o_ptr->tval)) return FALSE;
+	if (!squelchable_tval(o_ptr->tval)) return FALSE;
 
 #ifdef EFG
+	}
         /* EFGchange allow squelching unaware objects */
 	return TRUE;
 #else
@@ -3049,6 +3085,10 @@ void do_cmd_mark_squelch()
 	object_type *o_ptr;
 	object_kind *k_ptr;
 	int item;
+#ifdef EFG
+msg_print("Use 'k' instead of 'K'");
+return;
+#endif
 
 	/* Get an item */
 	item_tester_hook = squelchable_hook;
@@ -3063,10 +3103,17 @@ void do_cmd_mark_squelch()
 #ifdef EFG
         /* EFGchange allow squelching unaware objects */
         /* there should be no references to [].squelch outside of squelch.c */
-	squelch_kind(o_ptr->k_idx, object_aware_p(o_ptr));
+	if (squelchable_tval(o_ptr->tval)) {
+		squelch_kind(o_ptr->k_idx, object_aware_p(o_ptr));
+	}
+	else
+	{
+		squelch_object(o_ptr);
+	}
 
 	/* EFGchange bugfix */
 	p_ptr->notice |= PN_SQUELCH;
+
 #else
 	/* Get object kind */
 	k_ptr = &k_info[o_ptr->k_idx];

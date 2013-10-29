@@ -1224,7 +1224,11 @@ static void display_resistance_panel(const struct player_flag_record *resists,
 			bool res, imm;
 			char sym;
 			if(j < INVEN_TOTAL)
+#ifdef EFG
+				object_flags_including_ego(o_ptr, &f[1], &f[2], &f[3]);
+#else
 				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+#endif
 			else
 #ifdef EFG
 			/* EFGchange note temp resists on status screen */

@@ -2031,10 +2031,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					           o_name, (plural ? "are" : "is"));
 #ifdef EFG
 					/* EFGchange remove need for identify wrto preserving artifacts */
-					if ((do_kill) && (o_ptr->name1))
+					if ((do_kill) && (o_ptr->name1) && !object_is_known(o_ptr))
 					{
-						/* ??? message */
-						object_known(o_ptr);
+						recognize_artifact(o_ptr);
 					}
 #endif
 				}
@@ -2995,6 +2994,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				note = " shudders.";
 				note_dies = " dissolves!";
+#ifdef EFG
+/* should be obvious when a scroll at a minimum */
+#endif
 			}
 
 			/* Others ignore */

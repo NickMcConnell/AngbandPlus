@@ -1298,7 +1298,6 @@ this does not work
 		if (!obviously_excellent(i_ptr, FALSE, NULL))
 		{
 			a_ptr->flags3 |= TR3_LITE;
-			printf ("adding plite to artifact %d\n", a_idx);
 		}
 */
 

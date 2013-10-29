@@ -552,6 +552,30 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* EFGchange give description of artifact activations without IDENT_MENTAL */
 	if (object_known_p(o_ptr) && o_ptr->name1 && a_info[o_ptr->name1].flags3 & TR3_ACTIVATE)
 		*f3 |= TR3_ACTIVATE;
+	/* EFGchange note obvious powers in descriptions of unidentified objects */
+/* ??? these masks should be generated, not hard coded ??? */
+/* ??? or at least they should be checked */
+#define OBVIOUS1MASK ( TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR | TR1_STEALTH | TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_INFRA | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD )
+#define OBVIOUS2MASK 0
+#define OBVIOUS3MASK ( TR3_TELEPATHY | TR3_LITE | TR3_REGEN | TR3_ACTIVATE | TR3_DRAIN_EXP )
+	/* ??? should have a macro "wieldable" for below */
+	if ((object_known_p(o_ptr) && !cursed_p(o_ptr)) || (o_ptr->pseudo == INSCRIP_UNCURSED) || (o_ptr->pseudo == INSCRIP_SPLENDID) || (o_ptr->pseudo == INSCRIP_TRIED))
+	{
+		u32b F1, F2, F3;
+		object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, &F1, &F2, &F3);
+		*f1 |= ( F1 & OBVIOUS1MASK );
+		*f2 |= ( F2 & OBVIOUS2MASK );
+		*f3 |= ( F3 & OBVIOUS3MASK );
+	}
+	if (object_aware_p(o_ptr) && object_is_safe_to_wield(o_ptr))
+	{
+/* ??? problem is unknown con ring could increase or decrease con, don't know
+       however, it always sustains con, maybe print that?
+       =aggravate even though unsafe should still list aggr ??? */
+		*f1 |= k_info[o_ptr->k_idx].flags1;
+		*f2 |= k_info[o_ptr->k_idx].flags2;
+		*f3 |= k_info[o_ptr->k_idx].flags3;
+	}
 #endif
 }
 
@@ -1170,8 +1194,19 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Hack -- Append "Artifact" or "Special" names */
+#ifdef EFG
+	bool dont_print_pseudo = FALSE;
+	/* ??? should this also be that wearable macro? here we need excellent but not good */
+	if ((known) || (((o_ptr->pseudo == INSCRIP_TRIED) || (o_ptr->pseudo == INSCRIP_EXCELLENT) ||
+			 (o_ptr->pseudo == INSCRIP_UNCURSED) || (o_ptr->pseudo == INSCRIP_SPLENDID)) && obvious_ego(o_ptr)))
+	{
+		if (!known)
+			/* want to print pseudo of cursed for identified objects */
+			dont_print_pseudo = TRUE;
+#else
 	if (known)
 	{
+#endif
 		/* Grab any artifact name */
 		if (o_ptr->name1)
 		{
@@ -1188,6 +1223,84 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, (e_name + e_ptr->name));
+#ifdef EFG
+			/* EFGchange note random power immediately after ego name */
+			if (e_ptr->xtra)
+			{
+				u32b f1, f2, f3;
+				object_flags_known(o_ptr, &f1, &f2, &f3);
+				/* We do not want to print any powers always in the ego as extra. */
+				f1 |= e_ptr->flags1;
+				f1 ^= e_ptr->flags1;
+				f2 |= e_ptr->flags2;
+				f2 ^= e_ptr->flags2;
+				f3 |= e_ptr->flags3;
+				f3 ^= e_ptr->flags3;
+				object_desc_str_macro(t, " {");
+				switch(e_ptr->xtra)
+				{
+					case OBJECT_XTRA_TYPE_SUSTAIN:
+						if (f2 & TR2_SUST_STR)
+							object_desc_str_macro(t, " sStr");
+						if (f2 & TR2_SUST_INT)
+							object_desc_str_macro(t, " sInt");
+						if (f2 & TR2_SUST_WIS)
+							object_desc_str_macro(t, " sWis");
+						if (f2 & TR2_SUST_DEX)
+							object_desc_str_macro(t, " sDex");
+						if (f2 & TR2_SUST_CON)
+							object_desc_str_macro(t, " sCon");
+						if (f2 & TR2_SUST_CHR)
+							object_desc_str_macro(t, " sChr");
+						break;
+					case OBJECT_XTRA_TYPE_RESIST:
+						if (f2 & TR2_RES_POIS)
+							object_desc_str_macro(t, " rPoison");
+						if (f2 & TR2_RES_FEAR)
+							object_desc_str_macro(t, " rFear");
+						if (f2 & TR2_RES_LITE)
+							object_desc_str_macro(t, " rLite");
+						if (f2 & TR2_RES_DARK)
+							object_desc_str_macro(t, " rDark");
+						if (f2 & TR2_RES_BLIND)
+							object_desc_str_macro(t, " rBlind");
+						if (f2 & TR2_RES_CONFU)
+							object_desc_str_macro(t, " rConfusion");
+						if (f2 & TR2_RES_SOUND)
+							object_desc_str_macro(t, " rSound");
+						if (f2 & TR2_RES_SHARD)
+							object_desc_str_macro(t, " rShards");
+						if (f2 & TR2_RES_NEXUS)
+							object_desc_str_macro(t, " rNexus");
+						if (f2 & TR2_RES_NETHR)
+							object_desc_str_macro(t, " rNether");
+						if (f2 & TR2_RES_CHAOS)
+							object_desc_str_macro(t, " rChaos");
+						if (f2 & TR2_RES_DISEN)
+							object_desc_str_macro(t, " rDisenchant");
+						break;
+					case OBJECT_XTRA_TYPE_POWER:
+						if (f3 & TR3_SLOW_DIGEST)
+							object_desc_str_macro(t, " S.Dig");
+						if (f3 & TR3_FEATHER)
+							object_desc_str_macro(t, " FF");
+						if (f3 & TR3_LITE)
+							object_desc_str_macro(t, " Lite");
+						if (f3 & TR3_REGEN)
+							object_desc_str_macro(t, " Regen");
+						if (f3 & TR3_TELEPATHY)
+							object_desc_str_macro(t, " ESP");
+						if (f3 & TR3_SEE_INVIS)
+							object_desc_str_macro(t, " SI");
+						if (f3 & TR3_FREE_ACT)
+							object_desc_str_macro(t, " FA");
+						if (f3 & TR3_HOLD_LIFE)
+							object_desc_str_macro(t, " HLife");
+						break;
+				}
+				object_desc_str_macro(t, " }");
+			}
+#endif
 
 			/* Hack - Now we know about the ego-item type */
 			e_info[o_ptr->name2].everseen = TRUE;
@@ -1424,7 +1537,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Dump "pval" flags for wearable items */
+#ifdef EFG
+        if (((known) || ((o_ptr->pseudo == INSCRIP_SPLENDID) || (o_ptr->pseudo == INSCRIP_UNCURSED) || (o_ptr->pseudo == INSCRIP_TRIED))) && (f1 & (TR1_PVAL_MASK)))
+#else
 	if (known && (f1 & (TR1_PVAL_MASK)))
+#endif
 	{
 		cptr tail = "";
 		cptr tail2 = "";
@@ -1597,6 +1714,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 
+#ifdef EFG
+	if (dont_print_pseudo)
+		v = NULL;
+	else
+#endif
 	/* Use special inscription, if any */
 	if (o_ptr->pseudo)
 	{
@@ -1612,6 +1734,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Hack -- Use "empty" for empty wands/staffs */
 	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
+#ifdef EFG
+		/* ??? perhaps this should be v = NULL when charges are visible */
+#endif
 		v = "empty";
 	}
 

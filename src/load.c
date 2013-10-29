@@ -168,6 +168,12 @@ static void rd_byte(byte *ip)
 {
 	*ip = sf_get();
 }
+#ifdef EFG
+void savefile_rd_byte(byte *ip)
+{
+	rd_byte(ip);
+}
+#endif
 
 static void rd_u16b(u16b *ip)
 {
@@ -187,6 +193,12 @@ static void rd_u32b(u32b *ip)
 	(*ip) |= ((u32b)(sf_get()) << 16);
 	(*ip) |= ((u32b)(sf_get()) << 24);
 }
+#ifdef EFG
+void savefile_rd_u32b(u32b *ip)
+{
+	rd_u32b(ip);
+}
+#endif
 
 static void rd_s32b(s32b *ip)
 {
@@ -2075,6 +2087,11 @@ static errr rd_savefile_new_aux(void)
 
 		/* Read the ghost info */
 		rd_ghost();
+#ifdef EFG
+		/* EFGchange generalized squelch */
+		/* read the squelch arrays */
+		rd_squelch_gen();
+#endif
 	}
 
 

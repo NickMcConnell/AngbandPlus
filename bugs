@@ -1,0 +1,19 @@
+
+anomalous pval 500 on object kind 15
+
+maybe check acid etc attacks for destroying non-squelched,
+at least non-splendid
+
+acid attacks failing to destroy artifact gives identify
+
+when merged dropped bolts with one that was cursed, lost cursed status
+
+aggr should show up instead of stealth on C page
+
+Narya should *ID since fixed.
+
+
+Better disturb.  Disturb when monster moves adjacent or into targetting,
+and also when a slot empties.  Then can do repeat firing.
+Maybe should not disturb on full mana when confused.
+
